@@ -1580,7 +1580,7 @@ void Player::Update(uint32 p_time)
     // check every second
     if (now > m_Last_tick + 1)
         UpdateSoulboundTradeItems();
-        
+
     // If mute expired, remove it from the DB
     if (GetSession()->m_muteTime && GetSession()->m_muteTime < now)
     {
@@ -3033,6 +3033,9 @@ void Player::GiveLevel(uint8 level)
     uint8 oldLevel = getLevel();
     if (level == oldLevel)
         return;
+
+    if (Guild* guild = GetGuild())
+        guild->UpdateMemberData(this, GUILD_MEMBER_DATA_LEVEL, level);
 
     PlayerLevelInfo info;
     sObjectMgr->GetPlayerLevelInfo(getRace(), getClass(), level, &info);
@@ -7518,6 +7521,8 @@ void Player::UpdateZone(uint32 newZone, uint32 newArea)
         sBattlefieldMgr->HandlePlayerLeaveZone(this, m_zoneUpdateId);
         sBattlefieldMgr->HandlePlayerEnterZone(this, newZone);
         SendInitWorldStates(newZone, newArea);              // only if really enters to new zone, not just area change, works strange...
+        if (Guild* guild = GetGuild())
+            guild->UpdateMemberData(this, GUILD_MEMBER_DATA_ZONEID, newZone);
     }
      // Prevent players from accessing GM Island
     if (sWorld->getBoolConfig(CONFIG_PREVENT_PLAYERS_ACCESS_TO_GMISLAND))
@@ -15815,7 +15820,7 @@ void Player::SetQuestStatus(uint32 quest_id, QuestStatus status)
     }
 
     uint32 zone = 0, area = 0;
-    
+
     SpellAreaForQuestMapBounds saBounds = sSpellMgr->GetSpellAreaForQuestMapBounds(quest_id);
     if (saBounds.first != saBounds.second)
     {
@@ -15826,7 +15831,7 @@ void Player::SetQuestStatus(uint32 quest_id, QuestStatus status)
                 if (!HasAura(itr->second->spellId))
                     CastSpell(this, itr->second->spellId, true);
     }
-    
+
     saBounds = sSpellMgr->GetSpellAreaForQuestEndMapBounds(quest_id);
     if (saBounds.first != saBounds.second)
     {
@@ -21656,7 +21661,7 @@ void Player::ToggleMetaGemsActive(uint8 exceptslot, bool apply)
     //cycle all equipped items
     for (int slot = EQUIPMENT_SLOT_START; slot < EQUIPMENT_SLOT_END; ++slot)
     {
-        //enchants for the slot being socketed are handled by WorldSession::HandleSocketOpcode(WorldPacket& recv_data)
+        //enchants for the slot being socketed are handled by WorldSession::HandleSocketOpcode(WorldPacket& recvData)
         if (slot == exceptslot)
             continue;
 
@@ -23645,11 +23650,15 @@ WorldObject* Player::GetViewpoint() const
 
 bool Player::CanUseBattlegroundObject(GameObject* gameobject)
 {
-    FactionTemplateEntry const* playerFaction = getFactionTemplateEntry();
-    FactionTemplateEntry const* faction = sFactionTemplateStore.LookupEntry(gameobject->GetUInt32Value(GAMEOBJECT_FACTION));
+    // It is possible to call this method with a null pointer, only skipping faction check.
+    if (gameobject)
+    {
+        FactionTemplateEntry const* playerFaction = getFactionTemplateEntry();
+        FactionTemplateEntry const* faction = sFactionTemplateStore.LookupEntry(gameobject->GetUInt32Value(GAMEOBJECT_FACTION));
 
-    if (playerFaction && faction && !playerFaction->IsFriendlyTo(*faction))
-        return false;
+        if (playerFaction && faction && !playerFaction->IsFriendlyTo(*faction))
+            return false;
+    }
 
     // BUG: sometimes when player clicks on flag in AB - client won't send gameobject_use, only gameobject_report_use packet
     // Note: Mount, stealth and invisibility will be removed when used
@@ -23661,9 +23670,8 @@ bool Player::CanUseBattlegroundObject(GameObject* gameobject)
 bool Player::CanCaptureTowerPoint()
 {
     return (!HasStealthAura() &&                            // not stealthed
-             !HasInvisibilityAura() &&                      // not invisible
-             isAlive()                                      // live player
-);
+            !HasInvisibilityAura() &&                       // not invisible
+            isAlive());                                     // live player
 }
 
 uint32 Player::GetBarberShopCost(uint8 newhairstyle, uint8 newhaircolor, uint8 newfacialhair, BarberShopStyleEntry const* newSkin)
@@ -25758,4 +25766,10 @@ void Player::SendMovementSetFeatherFall(bool apply)
     data.append(GetPackGUID());
     data << uint32(0);          //! movement counter
     SendDirectMessage(&data);
+}
+
+Guild* Player::GetGuild()
+{
+    uint32 guildId = GetGuildId();
+    return guildId ? sGuildMgr->GetGuildById(guildId) : NULL;
 }

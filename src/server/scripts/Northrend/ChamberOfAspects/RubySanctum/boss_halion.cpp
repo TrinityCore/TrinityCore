@@ -369,7 +369,7 @@ class boss_halion : public CreatureScript
                 {
                     events.SetPhase(PHASE_TWO);
                     Talk(SAY_PHASE_TWO);
-                    
+
                     me->CastStop();
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                     DoCast(me, SPELL_TWILIGHT_PHASING);
@@ -1741,7 +1741,7 @@ void AddSC_boss_halion()
 {
     new boss_halion();
     new boss_twilight_halion();
-    
+
     new npc_halion_controller();
     new npc_meteor_strike_initial();
     new npc_meteor_strike();

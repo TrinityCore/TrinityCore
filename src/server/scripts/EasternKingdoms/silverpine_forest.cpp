@@ -232,18 +232,16 @@ public:
             {
                 Unit* target = NULL;
                 if (PlayerGUID)
-                {
-                    if (Unit* player = Unit::GetPlayer(*me, PlayerGUID)->ToUnit())
-                        target = RAND((Unit*)me, player);
-                } else
+                    if (Player* player = Unit::GetPlayer(*me, PlayerGUID))
+                        if (player->isAlive() && RAND(0, 1))
+                            target = player;
+
+                if (!target)
                     target = me;
 
-                if (target)
-                {
-                    summoned->setFaction(168);
-                    summoned->AddThreat(target, 32.0f);
-                    summoned->AI()->AttackStart(target);
-                }
+                summoned->setFaction(168);
+                summoned->AddThreat(target, 32.0f);
+                summoned->AI()->AttackStart(target);
             }
         }
 

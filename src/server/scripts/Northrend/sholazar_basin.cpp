@@ -33,6 +33,7 @@ EndContentData */
 #include "ScriptedGossip.h"
 #include "ScriptedEscortAI.h"
 #include "SpellScript.h"
+#include "SpellAuras.h"
 
 /*######
 ## npc_injured_rainspeaker_oracle
@@ -480,7 +481,7 @@ enum utils
 enum NesingwaryChildrensWeek
 {
     SPELL_ORPHAN_OUT                    = 58818,
-    
+
     QUEST_THE_MIGHTY_HEMET_NESINGWARY   = 13957,
 
     ORPHAN_WOLVAR                       = 33532,
@@ -680,7 +681,7 @@ public:
             uint32 timer;
             int8 phase;
             uint64 playerGUID;
-            uint64 orphanGUID;  
+            uint64 orphanGUID;
     };
 
     CreatureAI* GetAI(Creature* creature) const

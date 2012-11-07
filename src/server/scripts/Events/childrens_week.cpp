@@ -17,6 +17,7 @@
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "SpellAuras.h"
 
 enum Orphans
 {
@@ -85,7 +86,7 @@ enum Quests
     QUEST_STONEWROUGHT_DAM                  = 1558,
     QUEST_DARK_PORTAL_H                     = 10951,
     QUEST_DARK_PORTAL_A                     = 10952,
-    QUEST_LORDAERON_THRONE_ROOM             = 1800,   
+    QUEST_LORDAERON_THRONE_ROOM             = 1800,
     QUEST_AUCHINDOUN_AND_THE_RING           = 10950,
     QUEST_TIME_TO_VISIT_THE_CAVERNS_H       = 10963,
     QUEST_TIME_TO_VISIT_THE_CAVERNS_A       = 10962,
@@ -114,7 +115,7 @@ enum Areatriggers
     NPC_EXODAR_01_CW_TRIGGER                = 22851,
     NPC_EXODAR_02_CW_TRIGGER                = 22905,
     NPC_AERIS_LANDING_CW_TRIGGER            = 22838,
-    NPC_AUCHINDOUN_CW_TRIGGER               = 22831,    
+    NPC_AUCHINDOUN_CW_TRIGGER               = 22831,
     NPC_SPOREGGAR_CW_TRIGGER                = 22829,
     NPC_THRONE_OF_ELEMENTS_CW_TRIGGER       = 22839,
     NPC_SILVERMOON_01_CW_TRIGGER            = 22866,
@@ -159,7 +160,7 @@ class npc_winterfin_playmate : public CreatureScript
             }
 
             void MoveInLineOfSight(Unit* who)
-            {            
+            {
                 if (!phase && who && who->GetDistance2d(me) < 10.0f)
                     if (Player* player = who->ToPlayer())
                         if (player->GetQuestStatus(QUEST_PLAYMATE_ORACLE) == QUEST_STATUS_INCOMPLETE)
@@ -188,7 +189,7 @@ class npc_winterfin_playmate : public CreatureScript
 
                     switch(phase)
                     {
-                        case 1:                            
+                        case 1:
                             orphan->GetMotionMaster()->MovePoint(0, me->GetPositionX() + cos(me->GetOrientation()) * 5,me->GetPositionY() + sin(me->GetOrientation()) * 5, me->GetPositionZ());
                             orphan->AI()->Talk(TEXT_ORACLE_ORPHAN_1);
                             timer = 3000;
@@ -256,7 +257,7 @@ class npc_snowfall_glade_playmate : public CreatureScript
             }
 
             void MoveInLineOfSight(Unit* who)
-            {            
+            {
                 if (!phase && who && who->GetDistance2d(me) < 10.0f)
                     if (Player* player = who->ToPlayer())
                         if (player->GetQuestStatus(QUEST_PLAYMATE_WOLVAR) == QUEST_STATUS_INCOMPLETE)
@@ -273,7 +274,7 @@ class npc_snowfall_glade_playmate : public CreatureScript
                     return;
 
                 if (timer <= diff)
-                {   
+                {
                     Player* player = Player::GetPlayer(*me, playerGUID);
                     Creature* orphan = Creature::GetCreature(*me, orphanGUID);
 
@@ -401,7 +402,7 @@ class npc_the_biggest_tree : public CreatureScript
                     }
                     ++phase;
                 }
-                else 
+                else
                     timer -= diff;
             }
 
@@ -440,7 +441,7 @@ class npc_high_oracle_soo_roo : public CreatureScript
             }
 
             void MoveInLineOfSight(Unit* who)
-            {            
+            {
                 if (!phase && who && who->GetDistance2d(me) < 10.0f)
                     if (Player* player = who->ToPlayer())
                         if (player->GetQuestStatus(QUEST_THE_BRONZE_DRAGONSHRINE_ORACLE) == QUEST_STATUS_INCOMPLETE)
@@ -527,7 +528,7 @@ class npc_elder_kekek : public CreatureScript
             }
 
             void MoveInLineOfSight(Unit* who)
-            {            
+            {
                 if (!phase && who && who->GetDistance2d(me) < 10.0f)
                     if (Player* player = who->ToPlayer())
                         if (player->GetQuestStatus(QUEST_THE_BRONZE_DRAGONSHRINE_WOLVAR) == QUEST_STATUS_INCOMPLETE)
@@ -577,7 +578,7 @@ class npc_elder_kekek : public CreatureScript
                 else
                     timer -= diff;
             }
-            
+
         private:
             uint32 timer;
             int8 phase;
@@ -594,7 +595,7 @@ class npc_elder_kekek : public CreatureScript
 
 /*######
 ## npc_the_etymidian
-## TODO: A red crystal as a gift for the great one should be spawned during the event. 
+## TODO: A red crystal as a gift for the great one should be spawned during the event.
 ######*/
 class npc_the_etymidian : public CreatureScript
 {
@@ -614,7 +615,7 @@ class npc_the_etymidian : public CreatureScript
             }
 
             void MoveInLineOfSight(Unit* who)
-            {            
+            {
                 if (!phase && who && who->GetDistance2d(me) < 10.0f)
                     if (Player* player = who->ToPlayer())
                         if (player->GetQuestStatus(QUEST_MEETING_A_GREAT_ONE) == QUEST_STATUS_INCOMPLETE)
@@ -936,7 +937,7 @@ class npc_cw_area_trigger : public CreatureScript
                                     questId = QUEST_THE_SEAT_OF_THE_NARUU;
                                     orphanId = ORPHAN_DRAENEI;
                                     break;
-                                case NPC_EXODAR_02_CW_TRIGGER: 
+                                case NPC_EXODAR_02_CW_TRIGGER:
                                     questId = QUEST_CALL_ON_THE_FARSEER;
                                     orphanId = ORPHAN_DRAENEI;
                                     break;
@@ -959,27 +960,27 @@ class npc_cw_area_trigger : public CreatureScript
                                 case NPC_SILVERMOON_01_CW_TRIGGER:
                                     if (player->GetQuestStatus(QUEST_NOW_WHEN_I_GROW_UP) == QUEST_STATUS_INCOMPLETE && getOrphanGUID(player, ORPHAN_BLOOD_ELF))
                                     {
-                                        player->AreaExploredOrEventHappens(QUEST_NOW_WHEN_I_GROW_UP); 
+                                        player->AreaExploredOrEventHappens(QUEST_NOW_WHEN_I_GROW_UP);
                                         if (player->GetQuestStatus(QUEST_NOW_WHEN_I_GROW_UP) == QUEST_STATUS_COMPLETE)
                                             if (Creature* samuro = me->FindNearestCreature(25151, 20.0f))
                                             {
                                                 uint32 emote = 0;
                                                 switch(urand(1,5))
                                                 {
-                                                    case 1: 
-                                                        emote = EMOTE_ONESHOT_WAVE; 
+                                                    case 1:
+                                                        emote = EMOTE_ONESHOT_WAVE;
                                                         break;
                                                     case 2:
-                                                        emote = EMOTE_ONESHOT_ROAR; 
+                                                        emote = EMOTE_ONESHOT_ROAR;
                                                         break;
-                                                    case 3: 
-                                                        emote = EMOTE_ONESHOT_FLEX; 
+                                                    case 3:
+                                                        emote = EMOTE_ONESHOT_FLEX;
                                                         break;
                                                     case 4:
-                                                        emote = EMOTE_ONESHOT_SALUTE; 
+                                                        emote = EMOTE_ONESHOT_SALUTE;
                                                         break;
-                                                    case 5: 
-                                                        emote = EMOTE_ONESHOT_DANCE; 
+                                                    case 5:
+                                                        emote = EMOTE_ONESHOT_DANCE;
                                                         break;
                                                 }
                                                 samuro->HandleEmoteCommand(emote);
@@ -1009,13 +1010,13 @@ class npc_grizzlemaw_cw_trigger : public CreatureScript
 
         struct npc_grizzlemaw_cw_triggerAI : public ScriptedAI
         {
-            npc_grizzlemaw_cw_triggerAI(Creature* creature) : ScriptedAI (creature) 
+            npc_grizzlemaw_cw_triggerAI(Creature* creature) : ScriptedAI (creature)
             {
                 me->SetDisplayId(DISPLAY_INVISIBLE);
             }
 
             void MoveInLineOfSight(Unit* who)
-            {            
+            {
                 if (who && who->GetDistance2d(me) < 10.0f)
                     if (Player* player = who->ToPlayer())
                         if (player->GetQuestStatus(QUEST_HOME_OF_THE_BEAR_MEN) == QUEST_STATUS_INCOMPLETE)
