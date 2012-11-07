@@ -24,20 +24,23 @@
 // q 14069
 enum NPC_DeffiantTroll
 {
-    DEFFIANT_KILL_CREDIT               = 34830,
-    SPELL_LIGHTNING_VISUAL             = 45870,
-    QUEST_GOOD_HELP_IS_HARD_TO_FIND    = 14069,
-    GO_DEPOSIT                         = 195489,
+    DEFIANT_KILL_CREDIT               = 34830,
+    SPELL_LIGHTNING_VISUAL            = 66306,
+    QUEST_GOOD_HELP_IS_HARD_TO_FIND   = 14069,
+    GO_DEPOSIT                        = 195492,
 };
 
-#define SAY_WORK_1 "Oops, break's over."
-#define SAY_WORK_2 "Don't tase me, mon!"
-#define SAY_WORK_3 "I report you to HR!"
-#define SAY_WORK_4 "Work was bettah in da Undermine!"
-#define SAY_WORK_5 "I'm going. I'm going!"
-#define SAY_WORK_6 "Sorry, mon. It won't happen again."
-#define SAY_WORK_7 "What I doin' wrong? Don't I get a lunch and two breaks a day, mon?"
-#define SAY_WORK_8 "Ouch! Dat hurt!"
+enum Yells
+{
+    SAY_WORK_1    = -1100000,
+    SAY_WORK_2    = -1100001,
+    SAY_WORK_3    = -1100002,
+    SAY_WORK_4    = -1100003,
+    SAY_WORK_5    = -1100004,
+    SAY_WORK_6    = -1100005,
+    SAY_WORK_7    = -1100006,
+    SAY_WORK_8    = -1100007,
+};
 
 class npc_defiant_troll : public CreatureScript
 {
@@ -70,39 +73,40 @@ class npc_defiant_troll : public CreatureScript
 
         void SpellHit(Unit* caster, const SpellEntry* spell)
         {
-            if (spell->Id == SPELL_LIGHTNING_VISUAL && caster->GetTypeId() == TYPEID_PLAYER
-                && caster->ToPlayer()->GetQuestStatus(QUEST_GOOD_HELP_IS_HARD_TO_FIND) == QUEST_STATUS_INCOMPLETE && work == false)
+            if (spell->Id == SPELL_LIGHTNING_VISUAL && caster->GetTypeId() == TYPEID_PLAYER && caster->ToPlayer()->GetQuestStatus(QUEST_GOOD_HELP_IS_HARD_TO_FIND) == QUEST_STATUS_INCOMPLETE && work == false)
             {
-                caster->ToPlayer()->KilledMonsterCredit(DEFFIANT_KILL_CREDIT, me->GetGUID());
+                caster->ToPlayer()->KilledMonsterCredit(DEFIANT_KILL_CREDIT, me->GetGUID());
                 switch (urand(0, 7))
                 {
                     case 0:
-                        me->MonsterYell(SAY_WORK_1, LANG_UNIVERSAL, 0);
+                        DoScriptText(SAY_WORK_1, me);
                         break;
                     case 1:
-                        me->MonsterYell(SAY_WORK_2, LANG_UNIVERSAL, 0);
+                        DoScriptText(SAY_WORK_2, me);
                         break;
                     case 2:
-                        me->MonsterYell(SAY_WORK_3, LANG_UNIVERSAL, 0);
+                        DoScriptText(SAY_WORK_3, me);
                         break;
                     case 3:
-                        me->MonsterYell(SAY_WORK_4, LANG_UNIVERSAL, 0);
+                        DoScriptText(SAY_WORK_4, me);
                         break;
                     case 4:
-                        me->MonsterYell(SAY_WORK_5, LANG_UNIVERSAL, 0);
+                        DoScriptText(SAY_WORK_5, me);
                         break;
                     case 5:
-                        me->MonsterYell(SAY_WORK_6, LANG_UNIVERSAL, 0);
+                        DoScriptText(SAY_WORK_6, me);
                         break;
                     case 6:
-                        me->MonsterYell(SAY_WORK_7, LANG_UNIVERSAL, 0);
+                        DoScriptText(SAY_WORK_7, me);
                         break;
                     case 7:
-                        me->MonsterYell(SAY_WORK_8, LANG_UNIVERSAL, 0);
+                        DoScriptText(SAY_WORK_8, me);
                         break;
                 }
                 me->RemoveAllAuras();
-                if (GameObject* Deposit = me->FindNearestGameObject(GO_DEPOSIT, 20))
+                me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                
+                if (GameObject* Deposit = me->FindNearestGameObject(GO_DEPOSIT, 200))
                     me->GetMotionMaster()->MovePoint(1, Deposit->GetPositionX()-1, Deposit->GetPositionY(), Deposit->GetPositionZ());
             }
         }
@@ -126,7 +130,7 @@ class npc_defiant_troll : public CreatureScript
                         me->HandleEmoteCommand(0);
                         break;
                 }
-                rebuffTimer = 120000;                 //Rebuff agian in 2 minutes
+                rebuffTimer = 120000;
             }
             else
                 rebuffTimer -= diff;
@@ -147,7 +151,11 @@ class npc_defiant_troll : public CreatureScript
             CAST_AI(npc_defiant_troll::npc_defiant_trollAI, creature->AI())->SpellHit(player, spell);
             return true;
         }
-        return false;
+        else
+        {
+            creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+            return true;
+        }
     }
 };
 
