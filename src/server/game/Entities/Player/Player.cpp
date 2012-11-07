@@ -515,7 +515,7 @@ inline void KillRewarder::_RewardXP(Player* player, float rate)
         // 4.2.3. Calculate expansion penalty
         if (_victim->GetTypeId() == TYPEID_UNIT && player->getLevel() >= GetMaxLevelForExpansion(_victim->ToCreature()->GetCreatureTemplate()->expansion))
             xp = CalculatePct(xp, 10); // Players get only 10% xp for killing creatures of lower expansion levels than himself
-        
+
         // 4.2.4. Give XP to player.
         player->GiveXP(xp, _victim, _groupRate);
         if (Pet* pet = player->GetPet())
@@ -635,7 +635,7 @@ void KillRewarder::Reward()
 
         if (uint32 guildId = victim->GetMap()->GetOwnerGuildId())
             if (Guild* guild = sGuildMgr->GetGuildById(guildId))
-                guild->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE, victim->GetEntry(), 1, victim, _killer);
+                guild->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE, victim->GetEntry(), 1, victim, _killer);
     }
 
 }
@@ -21440,8 +21440,8 @@ bool Player::BuyItemFromVendorSlot(uint64 vendorguid, uint32 vendorslot, uint32 
     if (crItem->maxcount != 0) // bought
     {
         if (pProto->Quality > ITEM_QUALITY_EPIC || (pProto->Quality == ITEM_QUALITY_EPIC && pProto->ItemLevel >= MinNewsItemLevel[sWorld->getIntConfig(CONFIG_EXPANSION)]))
-            if (Guild* guild = sGuildMgr->GetGuildById(GetGuildId()))
-                guild->GetNewsLog().AddNewEvent(GUILD_NEWS_ITEM_PURCHASED, time(NULL), GetGUID(), 0, item);
+            if (Guild* guild = GetGuild())
+                guild->AddGuildNews(GUILD_NEWS_ITEM_PURCHASED, GetGUID(), 0, item);
         return true;
     }
 
@@ -24189,10 +24189,10 @@ void Player::StoreLootItem(uint8 lootSlot, Loot* loot)
 
         --loot->unlootedCount;
 
-        if (const ItemTemplate* proto = sObjectMgr->GetItemTemplate(item->itemid))
+        if (ItemTemplate const* proto = sObjectMgr->GetItemTemplate(item->itemid))
             if (proto->Quality > ITEM_QUALITY_EPIC || (proto->Quality == ITEM_QUALITY_EPIC && proto->ItemLevel >= MinNewsItemLevel[sWorld->getIntConfig(CONFIG_EXPANSION)]))
-                if (Guild* guild = sGuildMgr->GetGuildById(GetGuildId()))
-                    guild->GetNewsLog().AddNewEvent(GUILD_NEWS_ITEM_LOOTED, time(NULL), GetGUID(), 0, item->itemid);
+                if (Guild* guild = GetGuild())
+                    guild->AddGuildNews(GUILD_NEWS_ITEM_LOOTED, GetGUID(), 0, item->itemid);
 
         SendNewItem(newitem, uint32(item->count), false, false, true);
         UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_ITEM, item->itemid, item->count);
@@ -24499,6 +24499,11 @@ void Player::SendRespondInspectAchievements(Player* player) const
     m_achievementMgr.SendAchievementInfo(player);
 }
 
+uint32 Player::GetAchievementPoints() const
+{
+    return m_achievementMgr.GetAchievementPoints();
+}
+
 bool Player::HasAchieved(uint32 achievementId) const
 {
     return m_achievementMgr.HasAchieved(achievementId);
@@ -24529,7 +24534,7 @@ void Player::UpdateAchievementCriteria(AchievementCriteriaTypes type, uint32 mis
         return;
 
     if (Guild* guild = sGuildMgr->GetGuildById(GetGuildId()))
-        guild->GetAchievementMgr().UpdateAchievementCriteria(type, miscValue1, miscValue2, unit, this);
+        guild->UpdateAchievementCriteria(type, miscValue1, miscValue2, unit, this);
 }
 
 void Player::CompletedAchievement(AchievementEntry const* entry)

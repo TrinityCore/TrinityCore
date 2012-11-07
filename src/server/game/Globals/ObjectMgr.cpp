@@ -8652,7 +8652,7 @@ void ObjectMgr::LoadFactionChangeTitles()
     }
 
     uint32 count = 0;
-    
+
     do
     {
         Field* fields = result->Fetch();
@@ -8666,7 +8666,7 @@ void ObjectMgr::LoadFactionChangeTitles()
             sLog->outError(LOG_FILTER_SQL, "Title %u referenced in `player_factionchange_title` does not exist, pair skipped!", horde);
         else
             FactionChange_Titles[alliance] = horde;
-        
+
         ++count;
     }
     while (result->NextRow());

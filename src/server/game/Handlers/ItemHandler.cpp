@@ -814,7 +814,7 @@ void WorldSession::SendListInventory(uint64 vendorGuid)
             uint32 precision = (currencyTemplate->Flags & CURRENCY_FLAG_HIGH_PRECISION) ? 100 : 1;
 
             ++count;
-            itemsData << uint32(slot + 1);			 // client expects counting to start at 1
+            itemsData << uint32(slot + 1);             // client expects counting to start at 1
             itemsData << uint32(0);                  // max durability
 
             if (vendorItem->ExtendedCost != 0)
