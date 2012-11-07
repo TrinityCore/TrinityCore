@@ -128,6 +128,7 @@ class boss_jaraxxus : public CreatureScript
                     if (instance)
                         instance->SetData(DATA_TRIBUTE_TO_IMMORTALITY_ELEGIBLE, 0);
                 }
+                Talk(SAY_KILL_PLAYER);
             }
 
             void JustDied(Unit* /*killer*/)
