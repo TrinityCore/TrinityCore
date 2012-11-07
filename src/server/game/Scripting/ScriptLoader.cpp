@@ -24,7 +24,10 @@ void AddSC_example_gossip_codebox();
 void AddSC_example_misc();
 void AddSC_example_commandscript();
 
-//tele
+// SAQIRMDEV USEFULL FIXES! A SAQIRM JE PAN
+void AddSC_transmogrify_script();
+//void AddSC_arena_spectator_script();
+void AddSC_utility_commandscript();
 void AddSC_npc_teleport();
 
 // spells
@@ -79,6 +82,7 @@ void AddSC_tele_commandscript();
 void AddSC_ticket_commandscript();
 void AddSC_titles_commandscript();
 void AddSC_wp_commandscript();
+void AddSC_mmaps_commandscript();
 
 #ifdef SCRIPTS
 //world
@@ -700,6 +704,7 @@ void AddCommandScripts()
     AddSC_ticket_commandscript();
     AddSC_titles_commandscript();
     AddSC_wp_commandscript();
+    AddSC_mmaps_commandscript();
 }
 
 void AddWorldScripts()
@@ -1267,14 +1272,18 @@ void AddBattlegroundScripts()
 
 #ifdef SCRIPTS
 /* This is where custom scripts' loading functions should be declared. */
-void AddSC_EM_trader();
+       void AddSC_EM_trader();
 #endif
 
 void AddCustomScripts()
 {
 #ifdef SCRIPTS
     /* This is where custom scripts should be added. */
-AddSC_EM_trader();
-AddSC_npc_teleport();
+    AddSC_transmogrify_script();
+ //   AddSC_arena_spectator_script();
+    AddSC_utility_commandscript();
+    AddSC_EM_trader();
+    AddSC_npc_teleport();
+
 #endif
 }

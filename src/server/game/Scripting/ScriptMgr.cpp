@@ -251,8 +251,10 @@ void ScriptMgr::Initialize()
     uint32 oldMSTime = getMSTime();
 
     LoadDatabase();
-	// Load TeleNPC2 - maybe not the best place to load it ...
-	LoadNpcTele();
+
+  // Load TeleNPC2 - maybe not the best place to load it ...
+  LoadNpcTele();
+
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading C++ scripts");
 
     FillSpellSummary();

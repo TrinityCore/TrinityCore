@@ -32,9 +32,7 @@ include(Examples/CMakeLists.txt)
 set(scripts_STAT_SRCS
   ${scripts_STAT_SRCS}
   Custom/npc_teleport.cpp
-
   ../game/AI/ScriptedAI/sc_npc_teleport.cpp
-
   ../game/AI/ScriptedAI/sc_npc_teleport.h
   ../game/AI/ScriptedAI/ScriptedEscortAI.cpp
   ../game/AI/ScriptedAI/ScriptedCreature.cpp
@@ -57,6 +55,8 @@ message("")
 
 include_directories(
   ${CMAKE_BINARY_DIR}
+  ${CMAKE_SOURCE_DIR}/dep/recastnavigation/Detour
+  ${CMAKE_SOURCE_DIR}/dep/recastnavigation/Recast
   ${CMAKE_SOURCE_DIR}/dep/g3dlite/include
   ${CMAKE_SOURCE_DIR}/dep/SFMT
   ${CMAKE_SOURCE_DIR}/dep/zlib
