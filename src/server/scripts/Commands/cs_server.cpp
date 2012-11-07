@@ -114,9 +114,8 @@ public:
         uint32 updateTime           = sWorld->GetUpdateTime();
 
         //handler->SendSysMessage(_FULLVERSION);
-        handler->PSendSysMessage("Core: GaryMoveOut");
-        handler->PSendSysMessage("Rev: XX.09.2012");
-        handler->PSendSysMessage("Sponsors: BlizzNet.PL");
+        handler->PSendSysMessage("Core: GaryMoveOut 3.3.5a");
+        handler->PSendSysMessage("Rev: XX.11.2012");
         handler->PSendSysMessage(LANG_CONNECTED_PLAYERS, playersNum, maxPlayersNum);
         handler->PSendSysMessage(LANG_CONNECTED_USERS, activeClientsNum, maxActiveClientsNum, queuedClientsNum, maxQueuedClientsNum);
         handler->PSendSysMessage(LANG_UPTIME, uptime.c_str());
