@@ -1727,20 +1727,6 @@ CREATE TABLE `guild_member` (
   `rank` tinyint(3) unsigned NOT NULL,
   `pnote` varchar(31) NOT NULL DEFAULT '',
   `offnote` varchar(31) NOT NULL DEFAULT '',
-  `BankResetTimeMoney` int(10) unsigned NOT NULL DEFAULT '0',
-  `BankRemMoney` int(10) unsigned NOT NULL DEFAULT '0',
-  `BankResetTimeTab0` int(10) unsigned NOT NULL DEFAULT '0',
-  `BankRemSlotsTab0` int(10) unsigned NOT NULL DEFAULT '0',
-  `BankResetTimeTab1` int(10) unsigned NOT NULL DEFAULT '0',
-  `BankRemSlotsTab1` int(10) unsigned NOT NULL DEFAULT '0',
-  `BankResetTimeTab2` int(10) unsigned NOT NULL DEFAULT '0',
-  `BankRemSlotsTab2` int(10) unsigned NOT NULL DEFAULT '0',
-  `BankResetTimeTab3` int(10) unsigned NOT NULL DEFAULT '0',
-  `BankRemSlotsTab3` int(10) unsigned NOT NULL DEFAULT '0',
-  `BankResetTimeTab4` int(10) unsigned NOT NULL DEFAULT '0',
-  `BankRemSlotsTab4` int(10) unsigned NOT NULL DEFAULT '0',
-  `BankResetTimeTab5` int(10) unsigned NOT NULL DEFAULT '0',
-  `BankRemSlotsTab5` int(10) unsigned NOT NULL DEFAULT '0',
   UNIQUE KEY `guid_key` (`guid`),
   KEY `guildid_key` (`guildid`),
   KEY `guildid_rank_key` (`guildid`,`rank`)
@@ -1754,6 +1740,35 @@ CREATE TABLE `guild_member` (
 LOCK TABLES `guild_member` WRITE;
 /*!40000 ALTER TABLE `guild_member` DISABLE KEYS */;
 /*!40000 ALTER TABLE `guild_member` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `guild_member_withdraw`
+--
+
+DROP TABLE IF EXISTS `guild_member_withdraw`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE IF NOT EXISTS `guild_member_withdraw` (
+  `guid` int(10) unsigned NOT NULL,
+  `tab0` int(10) unsigned NOT NULL DEFAULT '0',
+  `tab1` int(10) unsigned NOT NULL DEFAULT '0',
+  `tab2` int(10) unsigned NOT NULL DEFAULT '0',
+  `tab3` int(10) unsigned NOT NULL DEFAULT '0',
+  `tab4` int(10) unsigned NOT NULL DEFAULT '0',
+  `tab5` int(10) unsigned NOT NULL DEFAULT '0',
+  `money` int(10) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`guid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Guild Member Daily Withdraws';
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `guild_member_withdraw`
+--
+
+LOCK TABLES `guild_member_withdraw` WRITE;
+/*!40000 ALTER TABLE `guild_member_withdraw` DISABLE KEYS */;
+/*!40000 ALTER TABLE `guild_member_withdraw` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
