@@ -398,7 +398,7 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvPacket)
     if (plrMover)                                            // nothing is charmed, or player charmed
     {
         plrMover->UpdateFallInformationIfNeed(movementInfo, opcode);
-        
+
         AreaTableEntry const* zone = GetAreaEntryByAreaID(plrMover->GetAreaId());
         float depth = zone ? zone->MaxDepth : -500.0f;
         if (movementInfo.pos.GetPositionZ() < depth)

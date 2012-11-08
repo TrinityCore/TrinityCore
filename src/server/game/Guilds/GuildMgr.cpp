@@ -197,13 +197,13 @@ void GuildMgr::LoadGuilds()
         CharacterDatabase.DirectExecute("DELETE gm FROM guild_member gm LEFT JOIN guild g ON gm.guildId = g.guildId WHERE g.guildId IS NULL");
         CharacterDatabase.DirectExecute("DELETE gm FROM guild_member_withdraw gm LEFT JOIN guild_member g ON gm.guid = g.guid WHERE g.guid IS NULL");
 
-                                                //           0        1        2     3      4        5       6       7       8       9       10
-        QueryResult result = CharacterDatabase.Query("SELECT guildid, gm.guid, rank, pnote, offnote, w.tab0, w.tab1, w.tab2, w.tab3, w.tab4, w.tab5, "
+                                                //           0           1        2     3      4        5       6       7       8       9       10
+        QueryResult result = CharacterDatabase.Query("SELECT gm.guildid, gm.guid, rank, pnote, offnote, w.tab0, w.tab1, w.tab2, w.tab3, w.tab4, w.tab5, "
                                                 //    11      12      13       14      15       16       17      18         19
                                                      "w.tab6, w.tab7, w.money, c.name, c.level, c.class, c.zone, c.account, c.logout_time "
                                                      "FROM guild_member gm "
                                                      "LEFT JOIN guild_member_withdraw w ON gm.guid = w.guid "
-                                                     "LEFT JOIN characters c ON c.guid = gm.guid ORDER BY guildid ASC");
+                                                     "LEFT JOIN characters c ON c.guid = gm.guid ORDER BY gm.guildid ASC");
 
         if (!result)
             sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 guild members. DB table `guild_member` is empty.");
@@ -328,7 +328,39 @@ void GuildMgr::LoadGuilds()
         }
     }
 
-    // 7. Load all guild bank tabs
+    // 7. Load all news event logs
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Guild News...");
+    {
+        uint32 oldMSTime = getMSTime();
+
+        CharacterDatabase.DirectPExecute("DELETE FROM guild_newslog WHERE LogGuid > %u", sWorld->getIntConfig(CONFIG_GUILD_NEWS_LOG_COUNT));
+
+                                                     //      0        1        2          3           4      5      6
+        QueryResult result = CharacterDatabase.Query("SELECT guildid, LogGuid, EventType, PlayerGuid, Flags, Value, Timestamp FROM guild_newslog ORDER BY TimeStamp DESC, LogGuid DESC");
+
+        if (!result)
+            sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 guild event logs. DB table `guild_newslog` is empty.");
+        else
+        {
+            uint32 count = 0;
+            do
+            {
+                Field* fields = result->Fetch();
+                uint32 guildId = fields[0].GetUInt32();
+
+                if (Guild* guild = GetGuildById(guildId))
+                    guild->LoadGuildNewsLogFromDB(fields);
+
+                ++count;
+            }
+            while (result->NextRow());
+
+            sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u guild new logs in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+        }
+    }
+
+
+    // 8. Load all guild bank tabs
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading guild bank tabs...");
     {
         uint32 oldMSTime = getMSTime();
@@ -362,7 +394,7 @@ void GuildMgr::LoadGuilds()
         }
     }
 
-    // 8. Fill all guild bank tabs
+    // 9. Fill all guild bank tabs
     sLog->outInfo(LOG_FILTER_GUILD, "Filling bank tabs with items...");
     {
         uint32 oldMSTime = getMSTime();
@@ -398,7 +430,7 @@ void GuildMgr::LoadGuilds()
         }
     }
 
-    // 9. Load guild achievements
+    // 10. Load guild achievements
     {
         PreparedQueryResult achievementResult;
         PreparedQueryResult criteriaResult;
@@ -412,16 +444,6 @@ void GuildMgr::LoadGuilds()
             criteriaResult = CharacterDatabase.Query(stmt);
 
             itr->second->GetAchievementMgr().LoadFromDB(achievementResult, criteriaResult);
-        }
-    }
-    // 10. Loading Guild news
-    sLog->outInfo(LOG_FILTER_GENERAL, "Loading Guild News");
-    {
-        for (GuildContainer::const_iterator itr = GuildStore.begin(); itr != GuildStore.end(); ++itr)
-        {
-            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_LOAD_GUILD_NEWS);
-            stmt->setInt32(0, itr->first);
-            itr->second->GetNewsLog().LoadFromDB(CharacterDatabase.Query(stmt));
         }
     }
 

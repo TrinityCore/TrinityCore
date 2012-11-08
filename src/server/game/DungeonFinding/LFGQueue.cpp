@@ -639,7 +639,7 @@ void LFGQueue::FindBestCompatibleInQueue(LfgQueueDataContainer::iterator itrQueu
     std::string sguid = o.str();
 
     for (LfgCompatibleContainer::const_iterator itr = CompatibleMapStore.begin(); itr != CompatibleMapStore.end(); ++itr)
-        if (itr->second.compatibility == LFG_COMPATIBLES_WITH_LESS_PLAYERS && 
+        if (itr->second.compatibility == LFG_COMPATIBLES_WITH_LESS_PLAYERS &&
             std::string::npos != itr->first.find(sguid))
         {
             UpdateBestCompatibleInQueue(itrQueue, itr->first, itr->second.roles);
@@ -650,7 +650,7 @@ void LFGQueue::UpdateBestCompatibleInQueue(LfgQueueDataContainer::iterator itrQu
 {
     LfgQueueData& queueData = itrQueue->second;
 
-    uint8 storedSize = queueData.bestCompatible.empty() ? 0 : 
+    uint8 storedSize = queueData.bestCompatible.empty() ? 0 :
         std::count(queueData.bestCompatible.begin(), queueData.bestCompatible.end(), '|') + 1;
 
     uint8 size = std::count(key.begin(), key.end(), '|') + 1;
