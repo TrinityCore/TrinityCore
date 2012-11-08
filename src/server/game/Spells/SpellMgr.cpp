@@ -2791,7 +2791,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 break;
 //Saqirmdev Tool Fixes
 
-         //SPELL IGNORE LOS (NOT WORKING FOR ALL)
             case 48955: // Refer A Friend Summon Effect
             case 2825: // Bloodlust
             case 19185: // Entrapment
@@ -2807,27 +2806,29 @@ void SpellMgr::LoadSpellCustomAttr()
             case 55361: //Living Bomb
             case 19388: //Entrapment
             case 19387: //Entrapment
-            case 19184: //entrapment
-            case 52865: //Combat Fix
+            case 19184: //Entrapment
+            case 52865: //CotR
                 spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
-              break;
-         //SPELL IGNORE LOS (NOT WORKING FOR ALL)
+          break;
 
-         //SPELL CAN NOT IN INVISIbLE/STEALT
-        case 52212: // Death Knight: Death and Decay trigger spell
-            spellInfo->AttributesEx6 |= SPELL_ATTR6_CAN_TARGET_INVISIBLE;
-             break;
-         //SPELL CAN NOT IN INVISIbLE/STEALT
-       
-         //SPELL CAN NOT CRIT!
+            case 52212: // Death Knight: Death and Decay trigger spell
+                spellInfo->AttributesEx6 |= SPELL_ATTR6_CAN_TARGET_INVISIBLE;
+          break;
+
             case 48788: //Lay of Hand Rank 5 
             case 27154: //Lay of Hand Rank 4 
             case 10310: //Lay of Hand Rank 3 
             case 2800: //Lay of Hand Rank 2 
             case 633: //Lay of Hand Rank 1  
                 spellInfo->AttributesEx2 |= SPELL_ATTR2_CANT_CRIT;
-              break;
-         //SPELL CAN NOT CRIT!
+          break;
+
+            case 51490: //Thunderstorm r1 
+            case 59159: //Thunderstorm r4 
+            case 59158: //Thunderstorm r3 
+            case 59156: //Thunderstorm r2 
+                spellInfo->AttributesEx1 |= SPELL_ATTR1_CANT_BE_REFLECTED;
+          break;
 
 //Saqirmdev Tool Fixes
             case 53: // Backstab

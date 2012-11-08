@@ -5653,14 +5653,13 @@ uint32 Spell::GetCCDelay(SpellInfo const* _spell)
     //Saqirmdev -- Fixes
     AuraType auraWithCCD[] = {
 		SPELL_AURA_MOD_STUN,
-		SPELL_AURA_MOD_SILENCE,
 		SPELL_AURA_MOD_CONFUSE,
 		SPELL_AURA_MOD_FEAR,
 		SPELL_AURA_MOD_DISARM,
 		SPELL_AURA_MOD_ROOT,
 		SPELL_AURA_MOD_POSSESS
 	};
-	uint8 CCDArraySize = 7;
+	uint8 CCDArraySize = 6;
 
     const uint32 delayForInstantSpells = 130;
     const uint32 delayForInstantSpells2 = 50;
