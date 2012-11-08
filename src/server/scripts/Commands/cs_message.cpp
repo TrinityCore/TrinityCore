@@ -49,6 +49,7 @@ public:
             { "nameannounce",   SEC_MODERATOR,      true,   &HandleNameAnnounceCommand,         "", NULL },
             { "msgguard",       SEC_MODERATOR,      true,   &HandleGuardAnnounceCommand,        "", NULL },
             { "msggm",          SEC_GAMEMASTER,     true,   &HandleGMAnnounceCommand,           "", NULL },
+            { "msgdev",         SEC_GAMEMASTER,     true,   &HandleDevAnnounceCommand,          "", NULL },
             { "msgadm",         SEC_ADMINISTRATOR,  true,   &HandleNameAdminAnnounceCommand,    "", NULL },
             { "gmnameannounce", SEC_MODERATOR,      true,   &HandleGMNameAnnounceCommand,       "", NULL },
             { "announce",       SEC_MODERATOR,      true,   &HandleAnnounceCommand,             "", NULL },
@@ -139,6 +140,19 @@ public:
             name = session->GetPlayer()->GetName();
 
         sWorld->SendWorldText(LANG_SYSTEMMESSAGE_GAMEMASTER, name.c_str(), args);
+        return true;
+    }
+
+    static bool HandleDevAnnounceCommand(ChatHandler* handler, char const* args)
+    {
+        if (!*args)
+            return false;
+
+        std::string name("Console");
+        if (WorldSession* session = handler->GetSession())
+            name = session->GetPlayer()->GetName();
+
+        sWorld->SendWorldText(LANG_SYSTEMMESSAGE_DEVELOPER, name.c_str(), args);
         return true;
     }
 
