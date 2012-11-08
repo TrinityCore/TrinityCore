@@ -2823,12 +2823,12 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->AttributesEx2 |= SPELL_ATTR2_CANT_CRIT;
           break;
 
-            case 51490: //Thunderstorm r1 
+          /*  case 51490: //Thunderstorm r1 
             case 59159: //Thunderstorm r4 
             case 59158: //Thunderstorm r3 
             case 59156: //Thunderstorm r2 
-                spellInfo->AttributesEx1 |= SPELL_ATTR1_CANT_BE_REFLECTED;
-          break;
+                spellInfo->AttributesEx |= SPELL_ATTR1_CANT_BE_REFLECTED;
+          break;*/
 
 //Saqirmdev Tool Fixes
             case 53: // Backstab
