@@ -31,6 +31,56 @@
 #define MAX_GUILD_BANK_TAB_TEXT_LEN 500
 #define EMBLEM_PRICE 10 * GOLD
 
+std::string _GetGuildEventString(GuildEvents event)
+{
+    switch (event)
+    {
+        case GE_PROMOTION:
+            return "Member promotion";
+        case GE_DEMOTION:
+            return "Member demotion";
+        case GE_MOTD:
+            return "Guild MOTD";
+        case GE_JOINED:
+            return "Member joined";
+        case GE_LEFT:
+            return "Member left";
+        case GE_REMOVED:
+            return "Member removed";
+        case GE_LEADER_IS:
+            return "Leader is";
+        case GE_LEADER_CHANGED:
+            return "Leader changed";
+        case GE_DISBANDED:
+            return "Guild disbanded";
+        case GE_TABARDCHANGE:
+            return "Tabard change";
+        case GE_RANK_UPDATED:
+            return "Rank updated";
+        case GE_RANK_DELETED:
+            return "Rank deleted";
+        case GE_SIGNED_ON:
+            return "Member signed on";
+        case GE_SIGNED_OFF:
+            return "Member signed off";
+        case GE_GUILDBANKBAGSLOTS_CHANGED:
+            return "Bank bag slots changed";
+        case GE_BANK_TAB_PURCHASED:
+            return "Bank tab purchased";
+        case GE_BANK_TAB_UPDATED:
+            return "Bank tab updated";
+        case GE_BANK_MONEY_SET:
+            return "Bank money set";
+        case GE_BANK_MONEY_CHANGED:
+            return "Bank money changed";
+        case GE_BANK_TEXT_CHANGED:
+            return "Bank tab text changed";
+        default:
+            break;
+    }
+    return "<None>";
+}
+
 inline uint32 _GetGuildBankTabPrice(uint8 tabId)
 {
     switch (tabId)
@@ -337,10 +387,9 @@ void Guild::RankInfo::SaveToDB(SQLTransaction& trans) const
     CharacterDatabase.ExecuteOrAppend(trans, stmt);
 }
 
-bool Guild::RankInfo::CreateMissingTabsIfNeeded(uint8 ranks, SQLTransaction& trans)
+void Guild::RankInfo::CreateMissingTabsIfNeeded(uint8 tabs, SQLTransaction& trans, bool logOnCreate /* = false */)
 {
-    bool ret = false;
-    for (uint8 i = 0; i < ranks; ++i)
+    for (uint8 i = 0; i < tabs; ++i)
     {
         GuildBankRightsAndSlots& rightsAndSlots = m_bankTabRightsAndSlots[i];
         if (rightsAndSlots.GetTabId() == i)
@@ -350,7 +399,9 @@ bool Guild::RankInfo::CreateMissingTabsIfNeeded(uint8 ranks, SQLTransaction& tra
         if (m_rankId == GR_GUILDMASTER)
             rightsAndSlots.SetGuildMasterValues();
 
-        ret = true;
+        if (logOnCreate)
+            sLog->outError(LOG_FILTER_GUILD, "Guild %u has broken Tab %u for rank %u. Created default tab.", m_guildId, i, m_rankId);
+
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_GUILD_BANK_RIGHT);
         stmt->setUInt32(0, m_guildId);
         stmt->setUInt8 (1, i);
@@ -359,8 +410,6 @@ bool Guild::RankInfo::CreateMissingTabsIfNeeded(uint8 ranks, SQLTransaction& tra
         stmt->setUInt32(4, rightsAndSlots.GetSlots());
         trans->Append(stmt);
     }
-
-    return ret;
 }
 
 void Guild::RankInfo::SetName(std::string const& name)
@@ -1631,17 +1680,14 @@ void Guild::HandleBuyBankTab(WorldSession* session, uint8 tabId)
     if (!tabCost)
         return;
 
-    if (!player->HasEnoughMoney(uint64(tabCost)))       // Should not happen, this is checked by client
+    if (!player->HasEnoughMoney(tabCost))                   // Should not happen, this is checked by client
         return;
 
-    player->ModifyMoney(-int64(tabCost));
+    player->ModifyMoney(-int32(tabCost));
 
-    uint8 rankId = member->GetRankId();
     _CreateNewBankTab();
-    GuildBankRightsAndSlots rightsAndSlots(tabId);
-    _SetRankBankTabRightsAndSlots(rankId, rightsAndSlots);
     _BroadcastEvent(GE_BANK_TAB_PURCHASED, 0);
-    SendPermissions(session); /// Hack to force client to update permissions           
+    SendPermissions(session); /// Hack to force client to update permissions
 }
 
 void Guild::HandleInviteMember(WorldSession* session, std::string const& name)
@@ -2406,11 +2452,8 @@ bool Guild::Validate()
             else
             {
                 SQLTransaction trans = CharacterDatabase.BeginTransaction();
-                if (rankInfo->CreateMissingTabsIfNeeded(_GetPurchasedTabsSize(), trans))
-                {
-                    sLog->outError(LOG_FILTER_GUILD, "Guild %u has broken Tabs for rank id %u, creating default tab...", m_id, rankId);
-                    CharacterDatabase.CommitTransaction(trans);
-                }
+                rankInfo->CreateMissingTabsIfNeeded(_GetPurchasedTabsSize(), trans, true);
+                CharacterDatabase.CommitTransaction(trans);
             }
         }
     }
@@ -2721,6 +2764,10 @@ void Guild::_CreateNewBankTab()
     stmt->setUInt32(0, m_id);
     stmt->setUInt8 (1, tabId);
     trans->Append(stmt);
+
+    ++tabId;
+    for (Ranks::iterator itr = m_ranks.begin(); itr != m_ranks.end(); ++itr)
+        (*itr).CreateMissingTabsIfNeeded(tabId, trans, false);
 
     CharacterDatabase.CommitTransaction(trans);
 }
@@ -3204,7 +3251,9 @@ void Guild::_BroadcastEvent(GuildEvents guildEvent, uint64 guid, const char* par
         data << uint64(guid);
 
     BroadcastPacket(&data);
-    sLog->outDebug(LOG_FILTER_GUILD, "SMSG_GUILD_EVENT [Broadcast] Event: %u", guildEvent);
+
+    if (sLog->ShouldLog(LOG_FILTER_GUILD, LOG_LEVEL_DEBUG))
+        sLog->outDebug(LOG_FILTER_GUILD, "SMSG_GUILD_EVENT [Broadcast] Event: %s (%u)", _GetGuildEventString(guildEvent).c_str(), guildEvent);
 }
 
 void Guild::SendBankList(WorldSession* session, uint8 tabId, bool withContent, bool withTabInfo) const
