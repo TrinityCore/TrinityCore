@@ -604,7 +604,7 @@ private:
         }
 
         void SetBankTabSlotsAndRights(GuildBankRightsAndSlots rightsAndSlots, bool saveToDB);
-        bool CreateMissingTabsIfNeeded(uint8 ranks, SQLTransaction& trans);
+        void CreateMissingTabsIfNeeded(uint8 ranks, SQLTransaction& trans, bool logOnCreate = false);
 
     private:
         uint32 m_guildId;
