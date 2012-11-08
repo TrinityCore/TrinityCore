@@ -47,8 +47,9 @@ public:
         {
             { "channel",        SEC_ADMINISTRATOR,  true,   NULL,                               "", channelCommandTable  },
             { "nameannounce",   SEC_MODERATOR,      true,   &HandleNameAnnounceCommand,         "", NULL },
-            { "msg",            SEC_MODERATOR,      true,   &HandleNameAnnounceCommand,         "", NULL },
-            { "adm",            SEC_MODERATOR,      true,   &HandleNameAdminAnnounceCommand,    "", NULL },
+            { "msgguard",       SEC_MODERATOR,      true,   &HandleGuardAnnounceCommand,        "", NULL },
+            { "msggm",          SEC_GAMEMASTER,     true,   &HandleGMAnnounceCommand,           "", NULL },
+            { "msgadm",         SEC_ADMINISTRATOR,  true,   &HandleNameAdminAnnounceCommand,    "", NULL },
             { "gmnameannounce", SEC_MODERATOR,      true,   &HandleGMNameAnnounceCommand,       "", NULL },
             { "announce",       SEC_MODERATOR,      true,   &HandleAnnounceCommand,             "", NULL },
             { "gmannounce",     SEC_MODERATOR,      true,   &HandleGMAnnounceCommand,           "", NULL },
@@ -115,7 +116,7 @@ public:
         return true;
     }
 
-    static bool HandleNameAdminAnnounceCommand(ChatHandler* handler, char const* args)
+    static bool HandleAdminAnnounceCommand(ChatHandler* handler, char const* args)
     {
         if (!*args)
             return false;
@@ -124,7 +125,33 @@ public:
         if (WorldSession* session = handler->GetSession())
             name = session->GetPlayer()->GetName();
 
-        sWorld->SendWorldText(LANG_ANNOUNCE_ADMIN_COLOR, name.c_str(), args);
+        sWorld->SendWorldText(LANG_SYSTEMMESSAGE_ADMINISTRATOR, name.c_str(), args);
+        return true;
+    }
+
+    static bool HandleGMAnnounceCommand(ChatHandler* handler, char const* args)
+    {
+        if (!*args)
+            return false;
+
+        std::string name("Console");
+        if (WorldSession* session = handler->GetSession())
+            name = session->GetPlayer()->GetName();
+
+        sWorld->SendWorldText(LANG_SYSTEMMESSAGE_GAMEMASTER, name.c_str(), args);
+        return true;
+    }
+
+    static bool HandleGuardAnnounceCommand(ChatHandler* handler, char const* args)
+    {
+        if (!*args)
+            return false;
+
+        std::string name("Console");
+        if (WorldSession* session = handler->GetSession())
+            name = session->GetPlayer()->GetName();
+
+        sWorld->SendWorldText(LANG_SYSTEMMESSAGE_GUARD, name.c_str(), args);
         return true;
     }
 
