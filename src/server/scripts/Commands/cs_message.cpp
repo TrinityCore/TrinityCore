@@ -48,9 +48,9 @@ public:
             { "channel",        SEC_ADMINISTRATOR,  true,   NULL,                               "", channelCommandTable  },
             { "nameannounce",   SEC_MODERATOR,      true,   &HandleNameAnnounceCommand,         "", NULL },
             { "msgguard",       SEC_MODERATOR,      true,   &HandleGuardAnnounceCommand,        "", NULL },
-            { "msggm",          SEC_GAMEMASTER,     true,   &HandleGMAnnounceCommand,           "", NULL },
+            { "msggm",          SEC_GAMEMASTER,     true,   &HandleGameMasterAnnounceCommand,   "", NULL },
             { "msgdev",         SEC_GAMEMASTER,     true,   &HandleDevAnnounceCommand,          "", NULL },
-            { "msgadm",         SEC_ADMINISTRATOR,  true,   &HandleNameAdminAnnounceCommand,    "", NULL },
+            { "msgadm",         SEC_ADMINISTRATOR,  true,   &HandleAdminAnnounceCommand,        "", NULL },
             { "gmnameannounce", SEC_MODERATOR,      true,   &HandleGMNameAnnounceCommand,       "", NULL },
             { "announce",       SEC_MODERATOR,      true,   &HandleAnnounceCommand,             "", NULL },
             { "gmannounce",     SEC_MODERATOR,      true,   &HandleGMAnnounceCommand,           "", NULL },
@@ -130,7 +130,7 @@ public:
         return true;
     }
 
-    static bool HandleGMAnnounceCommand(ChatHandler* handler, char const* args)
+    static bool HandleGameMasterAnnounceCommand(ChatHandler* handler, char const* args)
     {
         if (!*args)
             return false;
