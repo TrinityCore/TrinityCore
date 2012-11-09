@@ -1975,7 +1975,7 @@ UNLOCK TABLES;
 DROP TABLE IF EXISTS `guild_newslog`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `guild_news_log` (
+CREATE TABLE `guild_newslog` (
   `guildid` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Guild Identificator',
   `LogGuid` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Log record identificator - auxiliary column',
   `EventType` tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT 'Event type',
@@ -1983,7 +1983,7 @@ CREATE TABLE `guild_news_log` (
   `Flags` int(10) unsigned NOT NULL DEFAULT '0',
   `Value` int(10) unsigned NOT NULL DEFAULT '0',
   `TimeStamp` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Event UNIX time',
-  PRIMARY KEY (`guildid`,`LogGuid`)
+  PRIMARY KEY (`guildid`,`LogGuid`),
   KEY `guildid_key` (`guildid`),
   KEY `Idx_PlayerGuid` (`PlayerGuid`),
   KEY `Idx_LogGuid` (`LogGuid`)
@@ -1997,6 +1997,7 @@ CREATE TABLE `guild_news_log` (
 LOCK TABLES `guild_newslog` WRITE;
 /*!40000 ALTER TABLE `guild_newslog` DISABLE KEYS */;
 /*!40000 ALTER TABLE `guild_newslog` ENABLE KEYS */;
+UNLOCK TABLES;
 
 --
 -- Table structure for table `guild_rank`
