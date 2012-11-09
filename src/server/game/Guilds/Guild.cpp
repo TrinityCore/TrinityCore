@@ -1680,10 +1680,10 @@ void Guild::HandleBuyBankTab(WorldSession* session, uint8 tabId)
     if (!tabCost)
         return;
 
-    if (!player->HasEnoughMoney(tabCost))                   // Should not happen, this is checked by client
+    if (!player->HasEnoughMoney(uint64(tabCost)))                   // Should not happen, this is checked by client
         return;
 
-    player->ModifyMoney(-int32(tabCost));
+    player->ModifyMoney(-int64(tabCost));
 
     _CreateNewBankTab();
     _BroadcastEvent(GE_BANK_TAB_PURCHASED, 0);
