@@ -249,6 +249,7 @@ enum eGurgthock
     QUEST_AMPHITHEATER_ANGUISH_YGGDRAS_1          = 12932,
     QUEST_AMPHITHEATER_ANGUISH_MAGNATAUR          = 12933,
     QUEST_AMPHITHEATER_ANGUISH_FROM_BEYOND        = 12934,
+	QUEST_AMPHITHEATER_ANGUISH_CHAMPION           = 12948,
 
     NPC_ORINOKO_TUSKBREAKER                       = 30020,
     NPC_KORRAK_BLOODRAGER                         = 30023,
@@ -262,7 +263,8 @@ enum eGurgthock
     NPC_FIEND_AIR                                 = 30045,
     NPC_FIEND_FIRE                                = 30042,
     NPC_FIEND_EARTH                               = 30043,
-
+    NPC_VLADOF	                                  = 30022,									
+	
     SAY_QUEST_ACCEPT_TUSKARRMAGEDON               = -1571031,
     SAY_QUEST_ACCEPT_KORRAK_1                     = -1571033,
     SAY_QUEST_ACCEPT_KORRAK_2                     = -1571034,
@@ -400,6 +402,11 @@ public:
                             uiTimer = 2000;
                             uiPhase = 12;
                             break;
+
+						case QUEST_AMPHITHEATER_ANGUISH_CHAMPION:
+                            uiTimer = 2000;
+                            uiPhase = 23;
+                            break;
                    }
                         break;
                 }
@@ -495,6 +502,13 @@ public:
                             DoScriptText(EMOTE_YGGDRAS_SPAWN, me);
                             uiPhase = 0;
                             break;
+						case 23:{
+                            me->SummonCreature(NPC_VLADOF, SpawnPosition[1], TEMPSUMMON_CORPSE_DESPAWN, 1000);
+                            std::string sText = ("From the Savage Ledge of Icecrown, Vladof the Butcher and his mammoth, Enormos! There aint gonna be a thing left of our chellengers. Prepare for a downpour of blood guts and tears!");
+                            me->MonsterSay(sText.c_str(), LANG_UNIVERSAL, 0);
+							uiPhase = 0;
+							break;
+								}
                         case 11:
                             if (Creature* creature = me->SummonCreature(NPC_STINKBEARD, SpawnPosition[0], TEMPSUMMON_CORPSE_DESPAWN, 1000))
                                 DoScriptText(SAY_STINKBEARD_SPAWN, creature);
@@ -546,6 +560,9 @@ public:
                 creature->AI()->SetData(1, quest->GetQuestId());
                 break;
             case QUEST_AMPHITHEATER_ANGUISH_FROM_BEYOND:
+                creature->AI()->SetData(1, quest->GetQuestId());
+                break;
+			case QUEST_AMPHITHEATER_ANGUISH_CHAMPION:
                 creature->AI()->SetData(1, quest->GetQuestId());
                 break;
         }
@@ -700,6 +717,114 @@ public:
     CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_orinoko_tuskbreakerAI(creature);
+    }
+};
+
+
+/*####
+## npc_vladof 
+## TODO: mammoth
+## // by Dessus
+####*/
+
+enum eVladof
+{
+    SPELL_BLOOD_PRESENCE		= 50689,
+    SPELL_BLOOD_PLAGUE			= 55973,
+    SPELL_BLOOD_BOIL			= 55974,
+    SPELL_FROST_FEWER			= 55095,
+	SPELL_SPELL_DEFLECTION		= 55976,
+};
+
+class npc_vladof : public CreatureScript
+{
+public:
+    npc_vladof() : CreatureScript("npc_vladof") { }
+
+    struct npc_vladofAI : public ScriptedAI
+    {
+        npc_vladofAI(Creature* creature) : ScriptedAI(creature)
+        {            
+			DoCast(me, SPELL_BLOOD_PRESENCE);			
+            me->SetReactState(REACT_AGGRESSIVE);
+        }
+
+        
+        uint32 BloodPlague_timer;
+		uint32 BloodBoil_timer;
+		uint32 FrostFever_timer;
+		uint32 SpellDeflection_timer;
+
+        void Reset()
+        {
+           BloodPlague_timer = 25;
+		   BloodBoil_timer = 20;
+		   FrostFever_timer = 6;
+		   SpellDeflection_timer = 50;
+           
+			DoCast(me, SPELL_BLOOD_PRESENCE);
+        }
+
+        void EnterEvadeMode()
+        {
+          
+        }
+
+        void MovementInform(uint32 type, uint32 /*pointId*/)
+        {
+        }
+
+        void EnterCombat(Unit* who)
+        {
+            DoCast(who, SPELL_IMPALE);
+        }
+
+        void UpdateAI(const uint32 uiDiff)
+        {
+            if (!UpdateVictim())
+                return;
+			
+             if (BloodPlague_timer <= uiDiff)
+            {
+                DoCast(me->getVictim(), SPELL_BLOOD_PLAGUE);
+                BloodPlague_timer = 9000;
+            } else BloodPlague_timer -= uiDiff;
+
+           if (BloodBoil_timer <= uiDiff)
+            {
+                DoCastAOE(SPELL_BLOOD_BOIL);
+                BloodBoil_timer = 9000;
+            } else BloodBoil_timer -= uiDiff;
+
+		    if (FrostFever_timer <= uiDiff)
+            {
+                DoCast(me->getVictim(), SPELL_FROST_FEWER);
+                FrostFever_timer = 9000;
+            } else FrostFever_timer -= uiDiff;
+
+			 if (SpellDeflection_timer <= uiDiff)
+            {
+                DoCast(me, SPELL_SPELL_DEFLECTION);
+                SpellDeflection_timer = 9000;
+            } else SpellDeflection_timer -= uiDiff;
+
+            DoMeleeAttackIfReady();
+        }
+
+        
+
+        void JustDied(Unit* killer)
+        {
+            
+            if (killer->GetTypeId() == TYPEID_PLAYER)
+                killer->GetCharmerOrOwnerPlayerOrPlayerItself()->GroupEventHappens(QUEST_AMPHITHEATER_ANGUISH_CHAMPION, killer);
+
+        }
+    };
+
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new npc_vladofAI(creature);
     }
 };
 
@@ -1430,4 +1555,5 @@ void AddSC_zuldrak()
     new npc_elemental_lord;
     new npc_fiend_elemental;
     new go_scourge_enclosure;
+	new npc_vladof;
 }
