@@ -280,7 +280,7 @@ void AuthSocket::_SetVSFields(const std::string& rI)
     v = g.ModExp(x, N);
 
     // No SQL injection (username escaped)
-    const char *v_hex, *s_hex;
+    char *v_hex, *s_hex;
     v_hex = v.AsHexStr();
     s_hex = s.AsHexStr();
 
@@ -290,8 +290,8 @@ void AuthSocket::_SetVSFields(const std::string& rI)
     stmt->setString(2, _login);
     LoginDatabase.Execute(stmt);
 
-    OPENSSL_free((void*)v_hex);
-    OPENSSL_free((void*)s_hex);
+    OPENSSL_free(v_hex);
+    OPENSSL_free(s_hex);
 }
 
 // Logon Challenge command handler
