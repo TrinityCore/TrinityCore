@@ -290,9 +290,9 @@ void Guild::RankInfo::CreateMissingTabsIfNeeded(uint8 tabs, SQLTransaction& tran
 
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_GUILD_BANK_RIGHT);
         stmt->setUInt32(0, m_guildId);
-        stmt->setUInt8 (1, i);
-        stmt->setUInt8 (2, m_rankId);
-        stmt->setUInt32(3, rightsAndSlots.GetRights());
+        stmt->setUInt8(1, i);
+        stmt->setUInt8(2, m_rankId);
+        stmt->setUInt8(3, rightsAndSlots.GetRights());
         stmt->setUInt32(4, rightsAndSlots.GetSlots());
         trans->Append(stmt);
     }
