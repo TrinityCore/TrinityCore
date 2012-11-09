@@ -2,6 +2,7 @@
 if(CMAKE_SYSTEM_NAME MATCHES "Linux")
   if (NOT NOJEM)
     set(JEMALLOC_LIBRARY "jemalloc")
+    message(STATUS "UNIX: Using jemalloc")
   endif()
 endif()
 

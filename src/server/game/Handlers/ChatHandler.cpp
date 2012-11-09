@@ -731,8 +731,8 @@ void WorldSession::HandleTextEmoteOpcode(WorldPacket& recvData)
             // Only allow text-emotes for "dead" entities (feign death included)
             if (GetPlayer()->HasUnitState(UNIT_STATE_DIED))
                 break;
-             GetPlayer()->HandleEmoteCommand(emote_anim);
-             break;
+            GetPlayer()->HandleEmoteCommand(emote_anim);
+            break;
     }
 
     Unit* unit = ObjectAccessor::GetUnit(*_player, guid);

@@ -80,6 +80,8 @@ class BfCapturePoint
     public:
         BfCapturePoint(Battlefield* bf);
 
+        virtual ~BfCapturePoint() { }
+
         virtual void FillInitialWorldStates(WorldPacket& /*data*/) {}
 
         // Send world state update to all players present
