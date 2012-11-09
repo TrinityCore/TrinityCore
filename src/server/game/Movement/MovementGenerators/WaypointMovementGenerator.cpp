@@ -48,19 +48,19 @@ void WaypointMovementGenerator<Creature>::LoadPath(Creature &creature)
     StartMoveNow(creature);
 }
 
-void WaypointMovementGenerator<Creature>::Initialize(Creature &creature)
+void WaypointMovementGenerator<Creature>::DoInitialize(Creature &creature)
 {
     LoadPath(creature);
     creature.AddUnitState(UNIT_STATE_ROAMING|UNIT_STATE_ROAMING_MOVE);
 }
 
-void WaypointMovementGenerator<Creature>::Finalize(Creature &creature)
+void WaypointMovementGenerator<Creature>::DoFinalize(Creature &creature)
 {
     creature.ClearUnitState(UNIT_STATE_ROAMING|UNIT_STATE_ROAMING_MOVE);
     creature.SetWalk(false);
 }
 
-void WaypointMovementGenerator<Creature>::Reset(Creature &creature)
+void WaypointMovementGenerator<Creature>::DoReset(Creature &creature)
 {
     creature.AddUnitState(UNIT_STATE_ROAMING|UNIT_STATE_ROAMING_MOVE);
     StartMoveNow(creature);
@@ -130,7 +130,7 @@ bool WaypointMovementGenerator<Creature>::StartMove(Creature &creature)
     return true;
 }
 
-bool WaypointMovementGenerator<Creature>::Update(Creature &creature, const uint32 &diff)
+bool WaypointMovementGenerator<Creature>::DoUpdate(Creature &creature, const uint32 &diff)
 {
     // Waypoint movement can be switched on/off
     // This is quite handy for escort quests and other stuff
@@ -196,13 +196,13 @@ uint32 FlightPathMovementGenerator::GetPathAtMapEnd() const
     return i_path->size();
 }
 
-void FlightPathMovementGenerator::Initialize(Player &player)
+void FlightPathMovementGenerator::DoInitialize(Player &player)
 {
-    Reset(player);
+    DoReset(player);
     InitEndGridInfo();
 }
 
-void FlightPathMovementGenerator::Finalize(Player& player)
+void FlightPathMovementGenerator::DoFinalize(Player& player)
 {
     // remove flag to prevent send object build movement packets for flight state and crash (movement generator already not at top of stack)
     player.ClearUnitState(UNIT_STATE_IN_FLIGHT);
@@ -222,7 +222,7 @@ void FlightPathMovementGenerator::Finalize(Player& player)
 
 #define PLAYER_FLIGHT_SPEED 32.0f
 
-void FlightPathMovementGenerator::Reset(Player & player)
+void FlightPathMovementGenerator::DoReset(Player & player)
 {
     player.getHostileRefManager().setOnlineOfflineState(false);
     player.AddUnitState(UNIT_STATE_IN_FLIGHT);
@@ -241,7 +241,7 @@ void FlightPathMovementGenerator::Reset(Player & player)
     init.Launch();
 }
 
-bool FlightPathMovementGenerator::Update(Player &player, const uint32& /*diff*/)
+bool FlightPathMovementGenerator::DoUpdate(Player &player, const uint32& /*diff*/)
 {
     uint32 pointId = (uint32)player.movespline->currentPathIdx();
     if (pointId > i_currentNode)
