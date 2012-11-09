@@ -59,7 +59,7 @@ public:
 
     virtual int open(void *);
 
-    virtual int close(int);
+    virtual int close(u_long);
 
     virtual int handle_input(ACE_HANDLE = ACE_INVALID_HANDLE);
     virtual int handle_output(ACE_HANDLE = ACE_INVALID_HANDLE);
