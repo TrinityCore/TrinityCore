@@ -2823,13 +2823,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->AttributesEx2 |= SPELL_ATTR2_CANT_CRIT;
           break;
 
-          /*  case 51490: //Thunderstorm r1 
-            case 59159: //Thunderstorm r4 
-            case 59158: //Thunderstorm r3 
-            case 59156: //Thunderstorm r2 
-                spellInfo->AttributesEx |= SPELL_ATTR1_CANT_BE_REFLECTED;
-          break;*/
-
 //Saqirmdev Tool Fixes
             case 53: // Backstab
             case 2589:
@@ -3558,6 +3551,7 @@ void SpellMgr::LoadDbcDataCorrections()
                 spellInfo->speed = 0.0f;    // This spell's summon happens instantly
                 break;
             case 71614: // Ice Lock
+            case 64044: // Psychic Horror: Fix Effect Like: Effect #1	 (6) Apply Aura #12: Stun  (http://www.armitage.cz/?spell=64044)
                 spellInfo->Mechanic = MECHANIC_STUN;
                 break;
             case 72762: // Defile
