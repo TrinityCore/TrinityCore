@@ -29,6 +29,7 @@ void AddSC_transmogrify_script();
 //void AddSC_arena_spectator_script();
 void AddSC_utility_commandscript();
 void AddSC_npc_teleport();
+void AddSC_npc_supporter();
 
 // spells
 void AddSC_deathknight_spell_scripts();
@@ -1284,6 +1285,7 @@ void AddCustomScripts()
     AddSC_utility_commandscript();
     AddSC_EM_trader();
     AddSC_npc_teleport();
+	AddSC_npc_supporter();
 
 #endif
 }

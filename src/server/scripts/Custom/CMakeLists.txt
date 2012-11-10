@@ -13,6 +13,7 @@ set(scripts_STAT_SRCS
   Custom/vendor.cpp
   Custom/npc_transmogrify.cpp
   Custom/utility.cpp
+  Custom/npc_supporter.cpp
 )
 
 message("  -> Prepared: Custom")
