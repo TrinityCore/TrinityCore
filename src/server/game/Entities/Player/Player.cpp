@@ -2375,6 +2375,12 @@ bool Player::TeleportToBGEntryPoint()
     Battleground *oldBg = GetBattleground();
     bool result = TeleportTo(m_bgData.joinPos);
 
+	if (HasUnitState(UNIT_STATE_LOST_CONTROL)) 
+   {
+    StopMoving(); 
+    GetMotionMaster()->Clear();
+   }
+
     if (isSpectator() && result)
     {
         SetSpectate(false);
