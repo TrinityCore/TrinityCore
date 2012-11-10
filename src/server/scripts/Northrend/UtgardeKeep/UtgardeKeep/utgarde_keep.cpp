@@ -146,7 +146,7 @@ public:
             return near_f > 0 && near_f < 4 ? near_f : 0;
         }
 
-        void UpdateAI(const uint32 /*diff*/)
+        void UpdateAI(uint32 const /* diff */)
         {
             if (fm_Type == 0)
                 fm_Type = GetForgeMasterType();
@@ -259,51 +259,51 @@ public:
     {
         npc_enslaved_proto_drakeAI(Creature* creature) : ScriptedAI(creature)
         {
-            setData = false;
+            _setData = false;
         }
 
         void Reset()
         {
-            events.Reset();
-            events.ScheduleEvent(EVENT_REND, urand(2000, 3000));
-            events.ScheduleEvent(EVENT_FLAME_BREATH, urand(5500, 7000));
-            events.ScheduleEvent(EVENT_KNOCKAWAY, urand(3500, 6000));
+            _events.Reset();
+            _events.ScheduleEvent(EVENT_REND, urand(2000, 3000));
+            _events.ScheduleEvent(EVENT_FLAME_BREATH, urand(5500, 7000));
+            _events.ScheduleEvent(EVENT_KNOCKAWAY, urand(3500, 6000));
         }
 
         void SetData(uint32 type, uint32 data)
         {
-            if (type == TYPE_PROTODRAKE_AT && data == DATA_PROTODRAKE_MOVE && !setData && me->GetDistance(protodrakeCheckPos) < 5.0f)
+            if (type == TYPE_PROTODRAKE_AT && data == DATA_PROTODRAKE_MOVE && !_setData && me->GetDistance(protodrakeCheckPos) < 5.0f)
             {
-                setData = true;
+                _setData = true;
                 me->GetMotionMaster()->MovePath(PATH_PROTODRAKE, false);
             }
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 const diff)
         {
             if (!UpdateVictim())
                 return;
 
-            events.Update(diff);
+            _events.Update(diff);
 
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
 
-            while (uint32 eventid = events.ExecuteEvent())
+            while (uint32 eventid = _events.ExecuteEvent())
             {
                 switch (eventid)
                 {
                     case EVENT_REND:
                         DoCast(SPELL_REND);
-                        events.ScheduleEvent(EVENT_REND, urand(15000, 20000));
+                        _events.ScheduleEvent(EVENT_REND, urand(15000, 20000));
                         break;
                     case EVENT_FLAME_BREATH:
                         DoCast(SPELL_FLAME_BREATH);
-                        events.ScheduleEvent(EVENT_FLAME_BREATH, urand(11000, 12000));
+                        _events.ScheduleEvent(EVENT_FLAME_BREATH, urand(11000, 12000));
                         break;
                     case EVENT_KNOCKAWAY:
                         DoCast(SPELL_KNOCK_AWAY);
-                        events.ScheduleEvent(EVENT_KNOCKAWAY, urand(7000, 8500));
+                        _events.ScheduleEvent(EVENT_KNOCKAWAY, urand(7000, 8500));
                         break;
                     default:
                         break;
@@ -314,8 +314,8 @@ public:
         }
 
     private:
-        bool setData;
-        EventMap events;
+        bool _setData;
+        EventMap _events;
 
     };
 
