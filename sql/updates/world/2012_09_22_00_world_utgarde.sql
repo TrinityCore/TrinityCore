@@ -48,7 +48,7 @@ INSERT INTO `smart_scripts`(`entryorguid`,`event_type`,`event_param1`,`event_par
 (28419,0,5000,5000,30000,30000,11,40414,5,'Frenzied geist - In combat - Cast Fixate');
 
 -- Difficulty data for spells used in utgarde keep
-DELETE FROM `spelldifficulty_dbc` WHERE `id` IN(42669,42708,42750,42723,42729,43667,42702) OR `spellid0` IN(42669,42708,42750,42723,42729,43667,42702);
+DELETE FROM `spelldifficulty_dbc` WHERE `id` IN(42669,42708,42750,42723,42729,43667,42702,50653,43931) OR `spellid0` IN(42669,42708,42750,42723,42729,43667,42702,50653,43931);
 INSERT INTO `spelldifficulty_dbc`(`id`,`spellid0`,`spellid1`) VALUES
 (42669,42669,59706), -- Smash
 (42708,42708,59708), -- Staggering Roar
@@ -56,7 +56,9 @@ INSERT INTO `spelldifficulty_dbc`(`id`,`spellid0`,`spellid1`) VALUES
 (42723,42723,59709), -- Dark Smash
 (42729,42729,59734), -- Dreadful Roar
 (43667,43667,59389), -- Shadow Bolt
-(42702,42702,59397); -- Decrepify
+(42702,42702,59397), -- Decrepify
+(50653,50653,59692), -- Flame Breath
+(43931,43931,59691); -- Rend
 
 -- Ticking Time Bomb, Fixate
 DELETE FROM `spell_script_names` WHERE `spell_id` IN(59686,40414);
@@ -88,7 +90,7 @@ INSERT INTO `creature_addon`(`guid`,`path_id`,`mount`,`bytes1`,`bytes2`,`auras`)
 
 -- Waypoint data
 DELETE FROM `waypoint_data` WHERE `id` IN (1259400,1259340,1259150,1259200,1259140,1259360,1259370,1259220);
-INSERT INTO `waypoint_data`(`id`,`point`,`position_x`,`position_y`,`position_z`) VALUES 
+INSERT INTO `waypoint_data`(`id`,`point`,`position_x`,`position_y`,`position_z`) VALUES
 (1259400,1,211.864,-352.629,196.144),
 (1259340,1,271.911,-318.506,185.049),
 (1259150,1,265.478,-199.246,186.812),
@@ -100,3 +102,42 @@ INSERT INTO `waypoint_data`(`id`,`point`,`position_x`,`position_y`,`position_z`)
 
 INSERT INTO `waypoint_data`(`id`,`point`,`position_x`,`position_y`,`position_z`)
 SELECT `guid`*10,2,`position_x`,`position_y`,`position_z` FROM `creature` WHERE `guid` IN (125940,125934,125915,125920,125914,125936,125937,125922);
+
+-- Areatrigger script
+DELETE FROM `areatrigger_scripts` WHERE `entry`=4838;
+INSERT INTO `areatrigger_scripts`(`entry`,`ScriptName`) VALUES
+(4838,'SmartTrigger');
+
+DELETE FROM `smart_scripts` WHERE `entryorguid`=4838 AND `source_type`=2;
+INSERT INTO `smart_scripts`(`entryorguid`,`source_type`,`event_type`,`event_param1`,`action_type`,`action_param1`,`action_param2`,`target_type`,`target_param1`,`comment`) VALUES
+(4838,2,46,4838,45,28,6,10,125946,'Areatrigger in Utgarde Keep near Ingvar - On trigger - Set data of Enslaved Proto Drake');
+
+-- Template updates for proto drake and rider
+UPDATE `creature_template` SET `AIName`='',`ScriptName`='npc_enslaved_proto_drake' WHERE `entry`=24083; -- Proto drake non heroic
+UPDATE `creature_template` SET `InhabitType`=3 WHERE `entry` IN (24849,31676); -- Proto drake rider
+
+-- Waypoints for core script
+DELETE FROM `waypoint_data` WHERE `id`=125946;
+INSERT INTO `waypoint_data`(`id`,`point`,`position_x`,`position_y`,`position_z`,`move_flag`) VALUES 
+(125946,1,210.92,-185.92,203.729,1),
+(125946,2,215.397,-181.239,205.773,1),
+(125946,3,219.674,-176.469,202.97,1),
+(125946,4,223.183,-172.761,200.058,1),
+(125946,5,228.007,-168.952,196.713,1),
+(125946,6,230.514,-167.104,195.116,1),
+(125946,7,235.687,-163.455,192.13,1),
+(125946,8,239.569,-161.025,190.346,1);
+
+-- Mount the rider to the drake
+DELETE FROM `vehicle_template_accessory` WHERE `entry`=24083;
+INSERT INTO `vehicle_template_accessory`(`entry`,`accessory_entry`,`seat_id`,`minion`,`description`,`summontype`,`summontimer`) VALUES
+(24083,24849,0,0,'Proto Drake Rider mounted to Enslaved Proto Drake',6,30000);
+
+-- Create required spellclick information
+DELETE FROM `npc_spellclick_spells` WHERE `npc_entry`=24083;
+INSERT INTO `npc_spellclick_spells`(`npc_entry`,`spell_id`,`cast_flags`) VALUES
+(24083,55074,1);
+
+-- Remove no longer needed data
+DELETE FROM `creature` WHERE `guid`=125912 AND `map`=574 AND `id`=24849;
+DELETE FROM `creature_ai_scripts` WHERE `creature_id`=24083;
