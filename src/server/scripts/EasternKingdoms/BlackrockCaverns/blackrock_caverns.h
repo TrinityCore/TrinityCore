@@ -69,6 +69,9 @@ enum CreatureIds
     NPC_RAZ_THE_CRAZED           = 39670,
     NPC_FINKLE_EINHORN           = 49476,
     NPC_TWILIGHT_PORTAL          = 51340,
+	
+	// Ascendant Lord  Obsidius
+    NPC_SHADOW_OF_OBSIDIUS       = 40817,
 };
 
 enum GameObjectIds
