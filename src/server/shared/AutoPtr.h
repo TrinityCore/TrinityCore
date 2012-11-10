@@ -22,32 +22,32 @@
 
 namespace Trinity
 {
-    template <class Pointer, class Lock>
-    class AutoPtr : public ACE_Strong_Bound_Ptr<Pointer, Lock>
+
+template <class Pointer, class Lock>
+class AutoPtr : public ACE_Strong_Bound_Ptr<Pointer, Lock>
+{
+    typedef ACE_Strong_Bound_Ptr<Pointer, Lock> Base;
+
+public:
+    AutoPtr()
+        : Base()
+    { }
+
+    AutoPtr(Pointer* x)
+        : Base(x)
+    { }
+
+    operator bool() const
     {
-        public:
-            AutoPtr() : ACE_Strong_Bound_Ptr<Pointer, Lock>() {}
+        return !Base::null();
+    }
 
-            AutoPtr(Pointer* x)
-            {
-                ACE_Strong_Bound_Ptr<Pointer, Lock>::reset(x);
-            }
+    bool operator !() const
+    {
+        return Base::null();
+    }
+};
 
-            operator bool() const
-            {
-                return ACE_Strong_Bound_Ptr<Pointer, Lock>::get() != NULL;
-            }
-
-            bool operator !() const
-            {
-                return ACE_Strong_Bound_Ptr<Pointer, Lock>::get() == NULL;
-            }
-
-            bool operator !=(Pointer* x) const
-            {
-                return ACE_Strong_Bound_Ptr<Pointer, Lock>::get() != x;
-            }
-    };
-}
+} // namespace Trinity
 
 #endif

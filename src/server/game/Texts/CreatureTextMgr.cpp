@@ -170,7 +170,7 @@ void CreatureTextMgr::LoadCreatureTextLocales()
 
 }
 
-uint32 CreatureTextMgr::SendChat(Creature* source, uint8 textGroup, uint64 whisperGuid /*= 0*/, ChatMsg msgType /*= CHAT_MSG_ADDON*/, Language language /*= LANG_ADDON*/, TextRange range /*= TEXT_RANGE_NORMAL*/, uint32 sound /*= 0*/, Team team /*= TEAM_OTHER*/, bool gmOnly /*= false*/, Player* srcPlr /*= NULL*/)
+uint32 CreatureTextMgr::SendChat(Creature* source, uint8 textGroup, uint64 whisperGuid /*= 0*/, ChatMsg msgType /*= CHAT_MSG_ADDON*/, Language language /*= LANG_ADDON*/, CreatureTextRange range /*= TEXT_RANGE_NORMAL*/, uint32 sound /*= 0*/, Team team /*= TEAM_OTHER*/, bool gmOnly /*= false*/, Player* srcPlr /*= NULL*/)
 {
     if (!source)
         return 0;
@@ -288,7 +288,7 @@ float CreatureTextMgr::GetRangeForChatType(ChatMsg msgType) const
     return dist;
 }
 
-void CreatureTextMgr::SendSound(Creature* source, uint32 sound, ChatMsg msgType, uint64 whisperGuid, TextRange range, Team team, bool gmOnly)
+void CreatureTextMgr::SendSound(Creature* source, uint32 sound, ChatMsg msgType, uint64 whisperGuid, CreatureTextRange range, Team team, bool gmOnly)
 {
     if (!sound || !source)
         return;
@@ -298,7 +298,7 @@ void CreatureTextMgr::SendSound(Creature* source, uint32 sound, ChatMsg msgType,
     SendNonChatPacket(source, &data, msgType, whisperGuid, range, team, gmOnly);
 }
 
-void CreatureTextMgr::SendNonChatPacket(WorldObject* source, WorldPacket* data, ChatMsg msgType, uint64 whisperGuid, TextRange range, Team team, bool gmOnly) const
+void CreatureTextMgr::SendNonChatPacket(WorldObject* source, WorldPacket* data, ChatMsg msgType, uint64 whisperGuid, CreatureTextRange range, Team team, bool gmOnly) const
 {
     float dist = GetRangeForChatType(msgType);
 
