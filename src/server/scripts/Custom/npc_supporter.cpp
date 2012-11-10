@@ -90,6 +90,7 @@ public:
         {
             player->ADD_GOSSIP_ITEM( 7, "Remove Sated & Exhaustion", GOSSIP_SENDER_MAIN, 1);
             player->ADD_GOSSIP_ITEM( 7, "Reset cooldowns", GOSSIP_SENDER_MAIN, 2);
+			player->ADD_GOSSIP_ITEM( 7, "Restore Mana & HP", GOSSIP_SENDER_MAIN, 10);
             player->ADD_GOSSIP_ITEM( 7, "Buffs", GOSSIP_SENDER_MAIN, 3);
         }
 
@@ -110,7 +111,13 @@ public:
 			case 0:
 				addMainMenu(player, _creature);
 				break;
-
+			
+			case 10: // restore mana & hp
+				player->SetPower(POWER_MANA, player->GetMaxPower(POWER_MANA));
+				player->SetHealth(player->GetMaxHealth());
+				 _creature->MonsterWhisper("Done!", player->GetGUID());
+				 addMainMenu(player, _creature);
+                 break;
             case 1: // sated exhaustion
                  removeAura(player, _creature, SUPPORTER_AURA_SATED);
 				 removeAura(player, _creature, SUPPORTER_AURA_EXHAUSTION);
