@@ -14,6 +14,7 @@ set(scripts_STAT_SRCS
   Custom/npc_transmogrify.cpp
   Custom/utility.cpp
   Custom/npc_supporter.cpp
+  Custom/arena_spectator.cpp
 )
 
 message("  -> Prepared: Custom")
