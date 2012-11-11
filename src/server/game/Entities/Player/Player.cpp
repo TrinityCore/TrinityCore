@@ -4359,9 +4359,7 @@ void Player::RemoveAllSpellCooldown()
 {
     if (!m_spellCooldowns.empty())
     {
-        for (SpellCooldowns::const_iterator itr = m_spellCooldowns.begin(); itr != m_spellCooldowns.end(); ++itr)
-            SendClearCooldown(itr->first, this);
-
+        SendClearAllCooldowns(this);
         m_spellCooldowns.clear();
     }
 }
@@ -25247,6 +25245,39 @@ void Player::SendClearCooldown(uint32 spell_id, Unit* target)
     WorldPacket data(SMSG_CLEAR_COOLDOWN, 4+8);
     data << uint32(spell_id);
     data << uint64(target->GetGUID());
+    SendDirectMessage(&data);
+}
+
+void Player::SendClearAllCooldowns(Unit* target)
+{
+    uint32 spellCount = m_spellCooldowns.size();
+    ObjectGuid guid = target ? target->GetGUID() : 0;
+    
+    WorldPacket data(SMSG_CLEAR_COOLDOWNS, 4+8);
+    data.WriteBit(guid[1]);
+    data.WriteBit(guid[3]);
+    data.WriteBit(guid[6]);
+    data.WriteBits(spellCount, 24); // Spell Count
+    data.WriteBit(guid[7]);
+    data.WriteBit(guid[5]);
+    data.WriteBit(guid[2]);
+    data.WriteBit(guid[4]);
+    data.WriteBit(guid[0]);
+    
+    data.FlushBits();
+    
+    data.WriteByteSeq(guid[7]);
+    data.WriteByteSeq(guid[2]);
+    data.WriteByteSeq(guid[4]);
+    data.WriteByteSeq(guid[5]);
+    data.WriteByteSeq(guid[1]);
+    data.WriteByteSeq(guid[3]);
+    for (SpellCooldowns::const_iterator itr = m_spellCooldowns.begin(); itr != m_spellCooldowns.end(); ++itr)
+        data << uint32(itr->first); // Spell ID
+    
+    data.WriteByteSeq(guid[0]);
+    data.WriteByteSeq(guid[6]);
+    
     SendDirectMessage(&data);
 }
 
