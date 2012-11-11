@@ -546,27 +546,25 @@ void PathGenerator::BuildPointPath(const float *startPoint, const float *endPoin
 	         //Eye of The Storm
        if (_sourceUnit->GetMapId() == 566)
         {
-            if (startPoint[2] <= 1854.003223f && startPoint[1] >= 1237.000000f && startPoint[0] >= 1507.420000f && startPoint[0] <= 1569.960000f)      // StartZone Horde
+            if (startPoint[2] <= 1850.003223f && startPoint[1] >= 1237.000000f && startPoint[0] >= 1501.420000f && startPoint[0] <= 1579.960000f)      // StartZone Horde
             {
               //  Path X,y,z
-                _pathPoints.resize(6);
+                _pathPoints.resize(5);
                 _pathPoints[0] = GetStartPosition();
-                _pathPoints[1] = Vector3(1840.164062f, 1540.794780f, 1250.800900f);
-                _pathPoints[2] = Vector3(1847.004468f, 1540.660539f, 1243.400000f);
-			    _pathPoints[3] = Vector3(1842.883268f, 1527.123839f, 1238.410000f);
-			    _pathPoints[4] = Vector3(1839.593268f, 1519.479539f, 1229.428000f);
-                _pathPoints[5] = GetEndPosition();
+                _pathPoints[1] = Vector3(1847.004468f, 1540.660539f, 1243.400000f);
+			    _pathPoints[2] = Vector3(1842.883268f, 1527.123839f, 1238.410000f);
+			    _pathPoints[3] = Vector3(1839.593268f, 1519.479539f, 1229.428000f);
+                _pathPoints[4] = GetEndPosition();
             }
             if (startPoint[2] >= 2484.003223f && startPoint[1] >= 1240.000000f && startPoint[0] >= 1567.420000f && startPoint[0] <= 1626.960000f)      // StartZone Alliance
             {
                 //  Path X,y,z
-                _pathPoints.resize(6);
+                _pathPoints.resize(5);
                 _pathPoints[0] = GetStartPosition();
-                _pathPoints[1] = Vector3(2490.864062f, 1597.663330f, 1252.471069f);
-                _pathPoints[2] = Vector3(2485.154468f, 1596.583439f, 1244.898315f);
-			    _pathPoints[3] = Vector3(2482.733268f, 1608.305649f, 1238.092000f);
-			    _pathPoints[4] = Vector3(2488.073268f, 1623.749539f, 1227.788000f);
-                _pathPoints[5] = GetEndPosition();
+                _pathPoints[1] = Vector3(2485.154468f, 1596.583439f, 1244.898315f);
+			    _pathPoints[2] = Vector3(2482.733268f, 1608.305649f, 1238.092000f);
+			    _pathPoints[3] = Vector3(2488.073268f, 1623.749539f, 1227.788000f);
+                _pathPoints[4] = GetEndPosition();
             }
          }
      //Custom Point for Bugged Zone 
