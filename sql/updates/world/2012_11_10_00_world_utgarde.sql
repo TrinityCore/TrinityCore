@@ -9,7 +9,7 @@ INSERT INTO `smart_scripts`(`entryorguid`,`source_type`,`event_type`,`event_para
 
 -- Template updates for proto drake and rider
 UPDATE `creature_template` SET `AIName`='',`ScriptName`='npc_enslaved_proto_drake' WHERE `entry`=24083; -- Proto drake non heroic
-UPDATE `creature_template` SET `InhabitType`=3 WHERE `entry` IN (24849,31676); -- Proto drake rider
+UPDATE `creature_template` SET `InhabitType`=4 WHERE `entry` IN (24849,31676); -- Proto drake rider
 
 -- Waypoints for core script
 DELETE FROM `waypoint_data` WHERE `id`=125946;

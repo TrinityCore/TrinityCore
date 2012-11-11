@@ -246,6 +246,8 @@ enum EnslavedProtoDrake
     SPELL_REND              = 43931,
     SPELL_FLAME_BREATH      = 50653,
     SPELL_KNOCK_AWAY        = 49722,
+
+    POINT_LAST              = 5,
 };
 
 const Position protodrakeCheckPos = { 206.24f, -190.28f, 200.11f };
@@ -270,11 +272,20 @@ public:
             _events.ScheduleEvent(EVENT_KNOCKAWAY, urand(3500, 6000));
         }
 
+        void MovementInform(uint32 type, uint32 id)
+        {
+            if (type == WAYPOINT_MOTION_TYPE && id == POINT_LAST)
+            {
+                me->RemoveByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
+            }
+        }
+
         void SetData(uint32 type, uint32 data)
         {
             if (type == TYPE_PROTODRAKE_AT && data == DATA_PROTODRAKE_MOVE && !_setData && me->GetDistance(protodrakeCheckPos) < 5.0f)
             {
                 _setData = true;
+                me->SetByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
                 me->GetMotionMaster()->MovePath(PATH_PROTODRAKE, false);
             }
         }
