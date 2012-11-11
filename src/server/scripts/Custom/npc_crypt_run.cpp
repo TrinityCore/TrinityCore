@@ -113,10 +113,10 @@ class npc_soulstone_altar : public CreatureScript
                 // Make sure that all units near have soulstone and honorless target on.
                 if (who->GetTypeId() == TYPEID_PLAYER)
                 {
-				    if (!who->HasAura(SPELL_SOULSTONE, EFFECT_0))
-                        who->CastSpell(who, SPELL_SOULSTONE, true, NULL, NULL, me->GetGUID());
+                    //if (!who->HasAura(SPELL_SOULSTONE, EFFECT_0))
+                      //  who->CastSpell(who, SPELL_SOULSTONE, true, NULL, NULL, me->GetGUID());
 
-				    if (!who->HasAura(SPELL_HONORLESS, EFFECT_0))
+                    if (!who->HasAura(SPELL_HONORLESS, EFFECT_0))
                         who->CastSpell(who, SPELL_HONORLESS, true, NULL, NULL, me->GetGUID());
 
                     if (who->HealthBelowPct(80))
