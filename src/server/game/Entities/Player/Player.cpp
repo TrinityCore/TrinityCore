@@ -2092,6 +2092,13 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
         return false;
     }
 
+    // Remove unit lost control before teleport
+    if (HasUnitState(UNIT_STATE_LOST_CONTROL)) 
+    {
+        StopMoving(); 
+        GetMotionMaster()->Clear();
+    }
+
     if (AccountMgr::IsPlayerAccount(GetSession()->GetSecurity()) && DisableMgr::IsDisabledFor(DISABLE_TYPE_MAP, mapid, this))
     {
         sLog->outError(LOG_FILTER_MAPS, "Player (GUID: %u, name: %s) tried to enter a forbidden map %u", GetGUIDLow(), GetName().c_str(), mapid);
