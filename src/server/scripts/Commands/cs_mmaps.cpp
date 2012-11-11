@@ -61,7 +61,7 @@ public:
         return commandTable;
     }
 
-    static bool HandleMmapPathCommand(ChatHandler* handler, char const* args)
+    static bool HandleMmapPathCommand(ChatHandler* handler, const char* args)
     {
         if (!MMAP::MMapFactory::createOrGetMMapManager()->GetNavMesh(handler->GetSession()->GetPlayer()->GetMapId()))
         {
