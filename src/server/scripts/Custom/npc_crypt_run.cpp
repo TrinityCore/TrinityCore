@@ -293,36 +293,36 @@ class npc_crypt_bomb : public CreatureScript
 
 class npc_trap_trigger : public CreatureScript
 {
-public:
-    npc_trap_trigger() : CreatureScript("npc_trap_trigger") { }
+    public:
+        npc_trap_trigger() : CreatureScript("npc_trap_trigger") { }
 
-    struct npc_trap_triggerAI : public ScriptedAI
-    {
-        npc_trap_triggerAI(Creature* creature) : ScriptedAI(creature)
+        struct npc_trap_triggerAI : public ScriptedAI
         {
-        }
+            npc_trap_triggerAI(Creature* creature) : ScriptedAI(creature)
+            {
+            }
 
-        void Reset(){}
+            void Reset(){}
 
-        void MoveInLineOfSight(Unit* who)
+            void MoveInLineOfSight(Unit* who)
+            {
+                if (who->GetTypeId() == TYPEID_PLAYER)
+                    if (me->GetDistance(who) <= 10)
+                    {
+                        me->CastSpell(who, SPELL_TRAP[urand(0, 4)], true, NULL, NULL, me->GetGUID());
+                        // DB - Respawn time 3 minutes
+                        me->DespawnOrUnsummon();
+                    }
+
+            }
+
+            void UpdateAI(uint32 const diff){}
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
         {
-            if (who->GetTypeId() == TYPEID_PLAYER)
-                if (me->GetDistance(who) <= 10)
-                {
-                    me->CastSpell(who, SPELL_TRAP[urand(0, 4)], true, NULL, NULL, me->GetGUID());
-                    // DB - Respawn time 3 minutes
-                    me->DespawnOrUnsummon();
-                }
-
+            return new npc_trap_triggerAI(creature);
         }
-
-        void UpdateAI(uint32 const diff){}
-    };
-
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new npc_trap_triggerAI(creature);
-    }
 };
 
 class npc_race_announcer : public CreatureScript
