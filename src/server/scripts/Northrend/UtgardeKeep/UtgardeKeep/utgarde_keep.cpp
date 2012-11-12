@@ -232,6 +232,7 @@ class spell_fixate : public SpellScriptLoader
             return new spell_fixate_SpellScript();
         }
 };
+
 enum EnslavedProtoDrake
 {
     TYPE_PROTODRAKE_AT      = 28,
@@ -240,7 +241,7 @@ enum EnslavedProtoDrake
     PATH_PROTODRAKE         = 125946,
 
     EVENT_REND              = 1,
-    EVENT_FLAME_BREATH       = 2,
+    EVENT_FLAME_BREATH      = 2,
     EVENT_KNOCKAWAY         = 3,
 
     SPELL_REND              = 43931,
