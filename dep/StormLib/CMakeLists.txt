@@ -262,12 +262,6 @@ endif()
 add_library(storm STATIC ${SRC_FILES} ${SRC_ADDITIONAL_FILES})
 target_link_libraries(storm ${LINK_LIBS})
 
-if(APPLE)
-    set_target_properties(storm PROPERTIES FRAMEWORK true)
-    set_target_properties(storm PROPERTIES PUBLIC_HEADER "src/StormLib.h src/StormPort.h")
-    set_target_properties(storm PROPERTIES LINK_FLAGS "-framework Carbon")
-endif()
-
 if(UNIX)
     set_target_properties(storm PROPERTIES SOVERSION 0)
 endif()

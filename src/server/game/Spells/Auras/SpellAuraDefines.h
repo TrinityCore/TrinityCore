@@ -289,7 +289,7 @@ enum AuraType
     SPELL_AURA_PERIODIC_TRIGGER_SPELL_WITH_VALUE            = 227,
     SPELL_AURA_DETECT_STEALTH                               = 228,
     SPELL_AURA_MOD_AOE_DAMAGE_AVOIDANCE                     = 229,
-    SPELL_AURA_230                                          = 230,
+    SPELL_AURA_MOD_MAX_HEALTH                               = 230,
     SPELL_AURA_PROC_TRIGGER_SPELL_WITH_VALUE                = 231,
     SPELL_AURA_MECHANIC_DURATION_MOD                        = 232,
     SPELL_AURA_CHANGE_MODEL_FOR_ALL_HUMANOIDS               = 233,  // client-side only
@@ -417,7 +417,7 @@ enum AuraType
     SPELL_AURA_355                                          = 355,
     SPELL_AURA_356                                          = 356,  // Arcane Mage mastery - mod damage based on current mana
     SPELL_AURA_ENABLE_BOSS1_UNIT_FRAME                      = 357,
-    SPELL_AURA_358                                          = 358,
+    SPELL_AURA_WORGEN_ALTERED_FORM                          = 358,
     SPELL_AURA_359                                          = 359,
     SPELL_AURA_PROC_TRIGGER_SPELL_COPY                      = 360,  // Procs the same spell that caused this proc (Dragonwrath, Tarecgosa's Rest)
     SPELL_AURA_PROC_TRIGGER_SPELL_2                         = 361,

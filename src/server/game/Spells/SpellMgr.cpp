@@ -1424,10 +1424,10 @@ void SpellMgr::LoadSpellLearnSpells()
     {
         Field* fields = result->Fetch();
 
-        uint32 spell_id = fields[0].GetUInt16();
+        uint32 spell_id = fields[0].GetUInt32();
 
         SpellLearnSpellNode node;
-        node.spell       = fields[1].GetUInt16();
+        node.spell       = fields[1].GetUInt32();
         node.active      = fields[2].GetBool();
         node.autoLearned = false;
 
