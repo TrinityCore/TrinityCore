@@ -3450,7 +3450,7 @@ void Guild::GiveXP(uint32 xp, Player* source)
     }
 
     AddGuildNews(GUILD_NEWS_LEVEL_UP, 0, 0, _level);
-    UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_REACH_GUILD_LEVEL, GetLevel(), 0, NULL, source);
+    UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_REACH_GUILD_LEVEL, GetLevel(), 0, 0, NULL, source);
 }
 
 void Guild::SendGuildXP(WorldSession* session /* = NULL */) const
@@ -3513,9 +3513,9 @@ bool Guild::HasAchieved(uint32 achievementId) const
     return m_achievementMgr.HasAchieved(achievementId);
 }
 
-void Guild::UpdateAchievementCriteria(AchievementCriteriaTypes type, uint32 miscValue1, uint32 miscValue2, Unit* unit, Player* player)
+void Guild::UpdateAchievementCriteria(AchievementCriteriaTypes type, uint64 miscValue1, uint64 miscValue2, uint64 miscValue3, Unit* unit, Player* player)
 {
-    m_achievementMgr.UpdateAchievementCriteria(type, miscValue1, miscValue2, unit, player);
+    m_achievementMgr.UpdateAchievementCriteria(type, miscValue1, miscValue2, miscValue3, unit, player);
 }
 
 void Guild::HandleNewsSetSticky(WorldSession* session, uint32 newsId, bool sticky)

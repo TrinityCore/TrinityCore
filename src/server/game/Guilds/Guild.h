@@ -865,7 +865,7 @@ public:
     void ResetTimes(bool weekly);
 
     bool HasAchieved(uint32 achievementId) const;
-    void UpdateAchievementCriteria(AchievementCriteriaTypes type, uint32 miscValue1, uint32 miscValue2, Unit* unit, Player* player);
+    void UpdateAchievementCriteria(AchievementCriteriaTypes type, uint64 miscValue1, uint64 miscValue2, uint64 miscValue3, Unit* unit, Player* player);
 
 protected:
     uint32 m_id;
