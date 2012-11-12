@@ -274,7 +274,7 @@ class npc_crypt_bomb : public CreatureScript
                 if (_explosionTimer < diff)
                 {
                     
-                    me->CastSpell(trap, SPELL_KNOCKBACK, true, NULL, NULL, trap->GetGUID());
+                    me->CastSpell(me, SPELL_KNOCKBACK, true, NULL, NULL, me->GetGUID());
                     _explosionTimer = 3*IN_MILLISECONDS;
                 }
                 else
