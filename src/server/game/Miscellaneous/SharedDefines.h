@@ -534,7 +534,7 @@ enum SpellAttr7
     SPELL_ATTR7_REACTIVATE_AT_RESURRECT          = 0x00000004, //  2 Paladin's auras and 65607 only.
     SPELL_ATTR7_IS_CHEAT_SPELL                   = 0x00000008, //  3 Cannot cast if caster doesn't have UnitFlag2 & UNIT_FLAG2_ALLOW_CHEAT_SPELLS
     SPELL_ATTR7_UNK4                             = 0x00000010, //  4 Only 47883 (Soulstone Resurrection) and test spell.
-    SPELL_ATTR7_SUMMON_TOTEM                     = 0x00000020, //  5 Only Shaman player totems.
+    SPELL_ATTR7_SUMMON_TOTEM                     = 0x00000020, //  5 Only Shaman totems.
     SPELL_ATTR7_UNK6                             = 0x00000040, //  6 Dark Surge, Surge of Light, Burning Breath triggers (boss spells).
     SPELL_ATTR7_UNK7                             = 0x00000080, //  7 66218 (Launch) spell.
     SPELL_ATTR7_HORDE_ONLY                       = 0x00000100, //  8 Teleports, mounts and other spells.
@@ -565,7 +565,7 @@ enum SpellAttr7
 
 enum SpellAttr8
 {
-    SPELL_ATTR8_UNK0                             = 0x00000001, //  0
+    SPELL_ATTR8_CANT_MISS                        = 0x00000001, //  0
     SPELL_ATTR8_UNK1                             = 0x00000002, //  1
     SPELL_ATTR8_UNK2                             = 0x00000004, //  2
     SPELL_ATTR8_UNK3                             = 0x00000008, //  3
@@ -593,7 +593,7 @@ enum SpellAttr8
     SPELL_ATTR8_UNK25                            = 0x02000000, // 25
     SPELL_ATTR8_RAID_MARKER                      = 0x04000000, // 26 probably spell no need learn to cast
     SPELL_ATTR8_UNK27                            = 0x08000000, // 27
-    SPELL_ATTR8_GUILD_PERKS                      = 0x10000000, // 28
+    SPELL_ATTR8_NOT_IN_BG_OR_ARENA               = 0x10000000, // 28 not allow to cast or deactivate currently active effect, not sure about Fast Track
     SPELL_ATTR8_MASTERY                          = 0x20000000, // 29
     SPELL_ATTR8_UNK30                            = 0x40000000, // 30
     SPELL_ATTR8_UNK31                            = 0x80000000  // 31
@@ -605,7 +605,7 @@ enum SpellAttr9
     SPELL_ATTR9_UNK1                             = 0x00000002, //  1
     SPELL_ATTR9_RESTRICTED_FLIGHT_AREA           = 0x00000004, //  2 Dalaran and Wintergrasp flight area auras have it
     SPELL_ATTR9_UNK3                             = 0x00000008, //  3
-    SPELL_ATTR9_UNK4                             = 0x00000010, //  4
+    SPELL_ATTR9_SPECIAL_DELAY_CALCULATION        = 0x00000010, //  4
     SPELL_ATTR9_SUMMON_PLAYER_TOTEM              = 0x00000020, //  5
     SPELL_ATTR9_UNK6                             = 0x00000040, //  6
     SPELL_ATTR9_UNK7                             = 0x00000080, //  7

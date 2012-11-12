@@ -30,7 +30,7 @@ class FleeingMovementGenerator : public MovementGeneratorMedium< T, FleeingMovem
         void DoInitialize(T &);
         void DoFinalize(T &);
         void DoReset(T &);
-        bool DoUpdate(T &, const uint32 &);
+        bool DoUpdate(T &, uint32);
 
         MovementGeneratorType GetMovementGeneratorType() { return FLEEING_MOTION_TYPE; }
 
@@ -62,7 +62,7 @@ class TimedFleeingMovementGenerator : public FleeingMovementGenerator<Creature>
             i_totalFleeTime(time) {}
 
         MovementGeneratorType GetMovementGeneratorType() { return TIMED_FLEEING_MOTION_TYPE; }
-        bool Update(Unit &, const uint32&);
+        bool Update(Unit &, uint32);
         void Finalize(Unit &);
 
     private:

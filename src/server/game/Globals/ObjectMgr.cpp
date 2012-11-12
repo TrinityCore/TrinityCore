@@ -6190,7 +6190,7 @@ inline void CheckGOSpellId(GameObjectTemplate const* goInfo, uint32 dataN, uint3
         goInfo->entry, goInfo->type, N, dataN, dataN);
 }
 
-inline void CheckAndFixGOChairHeightId(GameObjectTemplate const* goInfo, uint32 const& dataN, uint32 N)
+inline void CheckAndFixGOChairHeightId(GameObjectTemplate const* goInfo, uint32& dataN, uint32 N)
 {
     if (dataN <= (UNIT_STAND_STATE_SIT_HIGH_CHAIR-UNIT_STAND_STATE_SIT_LOW_CHAIR))
         return;
@@ -6199,7 +6199,7 @@ inline void CheckAndFixGOChairHeightId(GameObjectTemplate const* goInfo, uint32 
         goInfo->entry, goInfo->type, N, dataN, UNIT_STAND_STATE_SIT_HIGH_CHAIR-UNIT_STAND_STATE_SIT_LOW_CHAIR);
 
     // prevent client and server unexpected work
-    const_cast<uint32&>(dataN) = 0;
+    dataN = 0;
 }
 
 inline void CheckGONoDamageImmuneId(GameObjectTemplate* goTemplate, uint32 dataN, uint32 N)
