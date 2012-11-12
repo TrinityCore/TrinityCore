@@ -304,19 +304,19 @@ class Battlefield : public ZoneScript
         // Script-methods
 
         /// Called on start
-        virtual void OnBattleStart() {};
+        virtual void OnBattleStart() { }
         /// Called at the end of battle
-        virtual void OnBattleEnd(bool /*endByTimer*/) {};
+        virtual void OnBattleEnd(bool /*endByTimer*/) { }
         /// Called x minutes before battle start when player in zone are invite to join queue
-        virtual void OnStartGrouping() {};
+        virtual void OnStartGrouping() { }
         /// Called when a player accept to join the battle
-        virtual void OnPlayerJoinWar(Player* /*player*/) {};
+        virtual void OnPlayerJoinWar(Player* /*player*/) { }
         /// Called when a player leave the battle
-        virtual void OnPlayerLeaveWar(Player* /*player*/) {};
+        virtual void OnPlayerLeaveWar(Player* /*player*/) { }
         /// Called when a player leave battlefield zone
-        virtual void OnPlayerLeaveZone(Player* /*player*/) {};
+        virtual void OnPlayerLeaveZone(Player* /*player*/) { }
         /// Called when a player enter in battlefield zone
-        virtual void OnPlayerEnterZone(Player* /*player*/) {};
+        virtual void OnPlayerEnterZone(Player* /*player*/) { }
 
         WorldPacket BuildWarningAnnPacket(std::string const& msg);
         void SendWarningToAllInZone(uint32 entry);
@@ -328,7 +328,7 @@ class Battlefield : public ZoneScript
         uint32 GetBattleId() { return m_BattleId; }
         void AskToLeaveQueue(Player* player);
 
-        virtual void DoCompleteOrIncrementAchievement(uint32 /*achievement*/, Player* /*player*/, uint8 /*incrementNumber = 1*/) {};
+        virtual void DoCompleteOrIncrementAchievement(uint32 /*achievement*/, Player* /*player*/, uint8 /*incrementNumber = 1*/) { }
 
         /// Send all worldstate data to all player in zone.
         virtual void SendInitWorldStatesToAll() = 0;
@@ -337,7 +337,7 @@ class Battlefield : public ZoneScript
         /// Return if we can use mount in battlefield
         bool CanFlyIn() { return !m_isActive; }
 
-        void SendAreaSpiritHealerQueryOpcode(Player* player, const uint64 & guid);
+        void SendAreaSpiritHealerQueryOpcode(Player* player, uint64 guid);
 
         void StartBattle();
         void EndBattle(bool endByTimer);
