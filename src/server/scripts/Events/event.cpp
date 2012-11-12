@@ -15,8 +15,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptPCH.h"
-
 void AddSC_event_childrens_week();
 
 void AddSC_event_scripts()

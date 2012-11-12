@@ -77,7 +77,7 @@ enum AchievementFlags
     ACHIEVEMENT_FLAG_SHOW_IN_GUILD_HEADER  = 0x00002000,    // Shows in guild news header
     ACHIEVEMENT_FLAG_GUILD                 = 0x00004000,    //
     ACHIEVEMENT_FLAG_SHOW_GUILD_MEMBERS    = 0x00008000,    //
-    ACHIEVEMENT_FLAG_SHOW_CRITERIA_MEMBERS = 0x00010000,    //
+    ACHIEVEMENT_FLAG_SHOW_CRITERIA_MEMBERS = 0x00010000     //
 };
 
 enum
@@ -90,12 +90,14 @@ enum AchievementCriteriaCondition
 {
     ACHIEVEMENT_CRITERIA_CONDITION_NONE            = 0,
     ACHIEVEMENT_CRITERIA_CONDITION_NO_DEATH        = 1,    // reset progress on death
-    ACHIEVEMENT_CRITERIA_CONDITION_UNK1            = 2,    // only used in "Complete a daily quest every day for five consecutive days"
+    ACHIEVEMENT_CRITERIA_CONDITION_UNK2            = 2,    // only used in "Complete a daily quest every day for five consecutive days"
     ACHIEVEMENT_CRITERIA_CONDITION_BG_MAP          = 3,    // requires you to be on specific map, reset at change
     ACHIEVEMENT_CRITERIA_CONDITION_NO_LOSE         = 4,    // only used in "Win 10 arenas without losing"
+    ACHIEVEMENT_CRITERIA_CONDITION_UNK5            = 5,    // Have spell?
+    ACHIEVEMENT_CRITERIA_CONDITION_UNK8            = 8,
     ACHIEVEMENT_CRITERIA_CONDITION_NO_SPELL_HIT    = 9,    // requires the player not to be hit by specific spell
     ACHIEVEMENT_CRITERIA_CONDITION_NOT_IN_GROUP    = 10,   // requires the player not to be in group
-    ACHIEVEMENT_CRITERIA_CONDITION_UNK3            = 13    // unk
+    ACHIEVEMENT_CRITERIA_CONDITION_UNK13           = 13    // unk
 };
 
 enum AchievementCriteriaAdditionalCondition
@@ -234,6 +236,7 @@ enum AchievementCriteriaTypes
     ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET2              = 69,
     ACHIEVEMENT_CRITERIA_TYPE_SPECIAL_PVP_KILL              = 70,
     ACHIEVEMENT_CRITERIA_TYPE_FISH_IN_GAMEOBJECT            = 72,
+    // TODO 73: Achievements 1515, 1241, 1103 (Name: Mal'Ganis)
     ACHIEVEMENT_CRITERIA_TYPE_EARNED_PVP_TITLE              = 74, // TODO: title id is not mentioned in dbc
     ACHIEVEMENT_CRITERIA_TYPE_LEARN_SKILLLINE_SPELLS        = 75,
     ACHIEVEMENT_CRITERIA_TYPE_WIN_DUEL                      = 76,
@@ -266,12 +269,7 @@ enum AchievementCriteriaTypes
     ACHIEVEMENT_CRITERIA_TYPE_EARN_HONORABLE_KILL           = 113,
     ACHIEVEMENT_CRITERIA_TYPE_ACCEPTED_SUMMONINGS           = 114,
     ACHIEVEMENT_CRITERIA_TYPE_EARN_ACHIEVEMENT_POINTS       = 115,
-    ACHIEVEMENT_CRITERIA_TYPE_UNK118                        = 118,
     ACHIEVEMENT_CRITERIA_TYPE_USE_LFD_TO_GROUP_WITH_PLAYERS = 119,
-    ACHIEVEMENT_CRITERIA_TYPE_UNK120                        = 120,
-    ACHIEVEMENT_CRITERIA_TYPE_UNK121                        = 121,
-    ACHIEVEMENT_CRITERIA_TYPE_UNK122                        = 122,
-    ACHIEVEMENT_CRITERIA_TYPE_UNK123                        = 123,
     ACHIEVEMENT_CRITERIA_TYPE_SPENT_GOLD_GUILD_REPAIRS      = 124,
     ACHIEVEMENT_CRITERIA_TYPE_REACH_GUILD_LEVEL             = 125,
     ACHIEVEMENT_CRITERIA_TYPE_CRAFT_ITEMS_GUILD             = 126,
@@ -284,23 +282,11 @@ enum AchievementCriteriaTypes
     ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_QUESTS_GUILD         = 134,
     ACHIEVEMENT_CRITERIA_TYPE_HONORABLE_KILLS_GUILD         = 135,
     ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE_TYPE_GUILD      = 136,
-    ACHIEVEMENT_CRITERIA_TYPE_UNK137                        = 137,
-    ACHIEVEMENT_CRITERIA_TYPE_UNK138                        = 138, //struct { Flag flag; uint32 count; } 1: Guild Dungeon, 2:Guild Challenge, 3:Guild battlefield
-    ACHIEVEMENT_CRITERIA_TYPE_UNK139                        = 139, //struct { uint32 count; } Guild Challenge
-    ACHIEVEMENT_CRITERIA_TYPE_UNK140                        = 140,
-    ACHIEVEMENT_CRITERIA_TYPE_UNK141                        = 141,
-    ACHIEVEMENT_CRITERIA_TYPE_UNK142                        = 142,
-    ACHIEVEMENT_CRITERIA_TYPE_UNK143                        = 143,
-    ACHIEVEMENT_CRITERIA_TYPE_UNK144                        = 144,
-    ACHIEVEMENT_CRITERIA_TYPE_UNK145                        = 145,
-    ACHIEVEMENT_CRITERIA_TYPE_UNK146                        = 146,
-    ACHIEVEMENT_CRITERIA_TYPE_UNK147                        = 147,
-    ACHIEVEMENT_CRITERIA_TYPE_UNK148                        = 148,
-    ACHIEVEMENT_CRITERIA_TYPE_UNK149                        = 149,
-    ACHIEVEMENT_CRITERIA_TYPE_UNK150                        = 150,
+    ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_GUILD_CHALLENGE_TYPE = 138, //struct { Flag flag; uint32 count; } 1: Guild Dungeon, 2:Guild Challenge, 3:Guild battlefield
+    ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_GUILD_CHALLENGE      = 139  //struct { uint32 count; } Guild Challenge
 };
 
-#define ACHIEVEMENT_CRITERIA_TYPE_TOTAL 151
+#define ACHIEVEMENT_CRITERIA_TYPE_TOTAL 140
 
 enum AreaFlags
 {
