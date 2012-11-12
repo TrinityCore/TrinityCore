@@ -19,7 +19,7 @@ enum Spells
     SPELL_ALLIANCE_FLAG             = 32609,   //Placed on Alliance member when they queue successfully
     SPELL_HONORLESS                 = 2479,
     SPELL_SOULSTONE                 = 47883,
-    SPELL_MINI_BOMB                 = 72320,
+    SPELL_KNOCKBACK                 = 52687,
 };
 
 enum Texts
@@ -62,7 +62,8 @@ struct Locations
     float x,y,z;
 };
 
-uint32 SPELL_TRAP[] = { 36278, 30035, 16803, 38256, 31983 };  // Blast Wave, Mass Slow, Flash Freeze, Piercing Howl, Earthgrab
+// Blast Wave, Mass Slow, Flash Freeze, Piercing Howl, Earthgrab
+uint32 SPELL_TRAP[] = { 36278, 30035, 16803, 38256, 31983 };
 
 #define GOSSIP_ITEM_READY_RACE      "I am ready to race, Please add me to the list of racers."
 #define GOSSIP_ITEM_REMOVE_RACE     "Please remove me from the list of racers."
@@ -272,13 +273,9 @@ class npc_crypt_bomb : public CreatureScript
             {
                 if (_explosionTimer < diff)
                 {
-                    if (Creature * trap = DoSpawnCreature(NPC_TRAP, 0, 0, 0, 1, TEMPSUMMON_DEAD_DESPAWN, 0))
-                    {
-                        trap->CastSpell(trap, SPELL_MINI_BOMB, true, NULL, NULL, trap->GetGUID());
-                        trap->DealDamage(trap, trap->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
-                    }
-
-                    _explosionTimer = 1.5*IN_MILLISECONDS;
+                    
+                    me->CastSpell(trap, SPELL_KNOCKBACK, true, NULL, NULL, trap->GetGUID());
+                    _explosionTimer = 3*IN_MILLISECONDS;
                 }
                 else
                     _explosionTimer -= diff;
@@ -794,6 +791,12 @@ class npc_race_announcer : public CreatureScript
         {
             if (!sWorld->getBoolConfig(CONFIG_CRYPT_RUN_ENABLE))
                 return false;
+
+            if (player->IsMounted())
+            {
+                player->Dismount();
+                player->RemoveAurasDueToSpell(SPELL_AURA_MOUNTED);
+            }
 
             if (player->getLevel() >= PLAYER_MINIMUM_LEVEL)
             {
