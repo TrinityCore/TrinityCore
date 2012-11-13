@@ -19,7 +19,7 @@ enum Spells
     SPELL_ALLIANCE_FLAG             = 32609,   //Placed on Alliance member when they queue successfully
     SPELL_HONORLESS                 = 2479,
     SPELL_SOULSTONE                 = 47883,
-    SPELL_MINI_BOMB                 = 72320,
+    SPELL_KNOCKBACK                 = 52687,
 };
 
 enum Texts
@@ -62,12 +62,8 @@ struct Locations
     float x,y,z;
 };
 
-//1. Blast knockdown
-//2. Mass slow
-//3. Frost nova
-//4. Silence
-//5. Fear
-uint32 SPELL_TRAP[] = { 28323, 30035, 16803, 30225, 43432 };
+// Blast Wave, Mass Slow, Flash Freeze, Piercing Howl, Earthgrab
+uint32 SPELL_TRAP[] = { 36278, 30035, 16803, 38256, 31983 };
 
 #define GOSSIP_ITEM_READY_RACE      "I am ready to race, Please add me to the list of racers."
 #define GOSSIP_ITEM_REMOVE_RACE     "Please remove me from the list of racers."
@@ -113,10 +109,10 @@ class npc_soulstone_altar : public CreatureScript
                 // Make sure that all units near have soulstone and honorless target on.
                 if (who->GetTypeId() == TYPEID_PLAYER)
                 {
-				    if (!who->HasAura(SPELL_SOULSTONE, EFFECT_0))
-                        who->CastSpell(who, SPELL_SOULSTONE, true, NULL, NULL, me->GetGUID());
+                    //if (!who->HasAura(SPELL_SOULSTONE, EFFECT_0))
+                      //  who->CastSpell(who, SPELL_SOULSTONE, true, NULL, NULL, me->GetGUID());
 
-				    if (!who->HasAura(SPELL_HONORLESS, EFFECT_0))
+                    if (!who->HasAura(SPELL_HONORLESS, EFFECT_0))
                         who->CastSpell(who, SPELL_HONORLESS, true, NULL, NULL, me->GetGUID());
 
                     if (who->HealthBelowPct(80))
@@ -277,13 +273,9 @@ class npc_crypt_bomb : public CreatureScript
             {
                 if (_explosionTimer < diff)
                 {
-                    if (Creature * trap = DoSpawnCreature(NPC_TRAP, 0, 0, 0, 1, TEMPSUMMON_DEAD_DESPAWN, 0))
-                    {
-                        trap->CastSpell(trap, SPELL_MINI_BOMB, true, NULL, NULL, trap->GetGUID());
-                        trap->DealDamage(trap, trap->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
-                    }
-
-                    _explosionTimer = 1.5*IN_MILLISECONDS;
+                    
+                    me->CastSpell(me, SPELL_KNOCKBACK, true, NULL, NULL, me->GetGUID());
+                    _explosionTimer = 3*IN_MILLISECONDS;
                 }
                 else
                     _explosionTimer -= diff;
@@ -310,44 +302,21 @@ class npc_trap_trigger : public CreatureScript
             {
             }
 
-            void Reset()
+            void Reset(){}
+
+            void MoveInLineOfSight(Unit* who)
             {
-                _resetTimer = 0;
-
-                // Traps are set to untargetable for 9 seconds after trigger to avoid trap spam
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
-            }
-
-            void UpdateAI(uint32 const diff)
-            {
-                if (me->GetHealthPct() == 100)
-                {
-                    me->DealDamage(me, (me->GetMaxHealth() - 100), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
-                    me->RemoveAllAuras();
-                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
-
-                    if (Unit* trap = DoSpawnCreature(NPC_TRAP, 0, 0, 0, 1, TEMPSUMMON_DEAD_DESPAWN, 0))
+                if (who->GetTypeId() == TYPEID_PLAYER)
+                    if (me->GetDistance(who) <= 10)
                     {
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                        {
-                            trap->CastSpell(target, SPELL_TRAP[rand()%5], true, NULL, NULL, trap->GetGUID());
-                            trap->DealDamage(trap, trap->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
-                        }
+                        me->CastSpell(who, SPELL_TRAP[urand(0, 4)], true, NULL, NULL, me->GetGUID());
+                        // DB - Respawn time 3 minutes
+                        me->DespawnOrUnsummon();
                     }
-                    _resetTimer = 9*IN_MILLISECONDS;
-                }
 
-                if (_resetTimer)
-                {
-                    if (_resetTimer < diff)
-                        Reset();
-                    else
-                        _resetTimer -= diff;
-                }
             }
 
-            private:
-                uint32 _resetTimer;
+            void UpdateAI(uint32 const diff){}
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -822,6 +791,12 @@ class npc_race_announcer : public CreatureScript
         {
             if (!sWorld->getBoolConfig(CONFIG_CRYPT_RUN_ENABLE))
                 return false;
+
+            if (player->IsMounted())
+            {
+                player->Dismount();
+                player->RemoveAurasDueToSpell(SPELL_AURA_MOUNTED);
+            }
 
             if (player->getLevel() >= PLAYER_MINIMUM_LEVEL)
             {
