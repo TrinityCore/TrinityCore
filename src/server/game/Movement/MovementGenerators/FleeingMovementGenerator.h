@@ -27,10 +27,10 @@ class FleeingMovementGenerator : public MovementGeneratorMedium< T, FleeingMovem
     public:
         FleeingMovementGenerator(uint64 fright) : i_frightGUID(fright), i_nextCheckTime(0) {}
 
-        void Initialize(T &);
-        void Finalize(T &);
-        void Reset(T &);
-        bool Update(T &, const uint32 &);
+        void DoInitialize(T &);
+        void DoFinalize(T &);
+        void DoReset(T &);
+        bool DoUpdate(T &, const uint32 &);
 
         MovementGeneratorType GetMovementGeneratorType() { return FLEEING_MOTION_TYPE; }
 

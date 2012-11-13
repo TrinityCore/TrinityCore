@@ -65,10 +65,10 @@ class WaypointMovementGenerator<Creature> : public MovementGeneratorMedium< Crea
         WaypointMovementGenerator(uint32 _path_id = 0, bool _repeating = true)
             : i_nextMoveTime(0), m_isArrivalDone(false), path_id(_path_id), repeating(_repeating)  {}
         ~WaypointMovementGenerator() { i_path = NULL; }
-        void Initialize(Creature &);
-        void Finalize(Creature &);
-        void Reset(Creature &);
-        bool Update(Creature &, const uint32 &diff);
+        void DoInitialize(Creature &);
+        void DoFinalize(Creature &);
+        void DoReset(Creature &);
+        bool DoUpdate(Creature &, const uint32 &diff);
 
         void MovementInform(Creature &);
 
@@ -118,10 +118,10 @@ class FlightPathMovementGenerator : public MovementGeneratorMedium< Player, Flig
             i_path = &pathnodes;
             i_currentNode = startNode;
         }
-        void Initialize(Player &);
-        void Reset(Player &);
-        void Finalize(Player &);
-        bool Update(Player &, const uint32&);
+        void DoInitialize(Player &);
+        void DoReset(Player &);
+        void DoFinalize(Player &);
+        bool DoUpdate(Player &, const uint32&);
         MovementGeneratorType GetMovementGeneratorType() { return FLIGHT_MOTION_TYPE; }
 
         TaxiPathNodeList const& GetPath() { return *i_path; }

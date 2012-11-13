@@ -28,10 +28,10 @@ class RandomMovementGenerator : public MovementGeneratorMedium< T, RandomMovemen
         RandomMovementGenerator(float spawn_dist = 0.0f) : i_nextMoveTime(0), wander_distance(spawn_dist) {}
 
         void _setRandomLocation(T &);
-        void Initialize(T &);
-        void Finalize(T &);
-        void Reset(T &);
-        bool Update(T &, const uint32);
+        void DoInitialize(T &);
+        void DoFinalize(T &);
+        void DoReset(T &);
+        bool DoUpdate(T &, const uint32);
         bool GetResetPosition(T&, float& x, float& y, float& z);
         MovementGeneratorType GetMovementGeneratorType() { return RANDOM_MOTION_TYPE; }
     private:
