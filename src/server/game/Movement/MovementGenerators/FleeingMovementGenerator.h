@@ -36,7 +36,7 @@ class FleeingMovementGenerator : public MovementGeneratorMedium< T, FleeingMovem
 
     private:
         void _setTargetLocation(T*);
-        bool _getPoint(T*, float &x, float &y, float &z);
+        void _getPoint(T*, float &x, float &y, float &z);
 
         uint64 i_frightGUID;
         TimeTracker i_nextCheckTime;
