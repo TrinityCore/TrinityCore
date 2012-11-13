@@ -33,16 +33,25 @@
 template<class T>
 void ConfusedMovementGenerator<T>::Initialize(T* unit)
 {
-    unit->GetPosition(i_x, i_y, i_z);
-    unit->StopMoving();
+    unit->AddUnitState(UNIT_STATE_CONFUSED);
     unit->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_CONFUSED);
-    unit->AddUnitState(UNIT_STATE_CONFUSED | UNIT_STATE_CONFUSED_MOVE);
+    unit->GetPosition(i_x, i_y, i_z);
+
+    if (!unit->isAlive() || unit->IsStopped())
+        return;
+
+    unit->StopMoving();
+    unit->AddUnitState(UNIT_STATE_CONFUSED_MOVE);
 }
 
 template<class T>
 void ConfusedMovementGenerator<T>::Reset(T* unit)
 {
     i_nextMoveTime.Reset(0);
+
+    if (!unit->isAlive() || unit->IsStopped())
+        return;
+
     unit->StopMoving();
     unit->AddUnitState(UNIT_STATE_CONFUSED | UNIT_STATE_CONFUSED_MOVE);
 }
@@ -70,26 +79,18 @@ bool ConfusedMovementGenerator<T>::Update(T* unit, const uint32& diff)
             // start moving
             unit->AddUnitState(UNIT_STATE_CONFUSED_MOVE);
 
-            float x = i_x + (4.0f * (float)rand_norm() - 2.0f);
-            float y = i_y + (4.0f * (float)rand_norm() - 2.0f);
+            float dest = 4.0f * (float)rand_norm() - 2.0f;
 
-            Trinity::NormalizeMapCoord(x);
-            Trinity::NormalizeMapCoord(y);
-
-            float z = unit->GetBaseMap()->GetHeight(unit->GetPhaseMask(), x, y, 10.0f, true);
-
-            if (z <= INVALID_HEIGHT || fabs(i_z - z) > 10.0f || !unit->IsWithinLOS(x, y, z))
-            {
-                i_nextMoveTime.Reset(100);
-                return true;
-            }
+            Position pos;
+            pos.Relocate(i_x, i_y, i_z);
+            unit->MovePositionToFirstCollision(pos, dest, 0.0f);
 
             PathGenerator path(unit);
-            path.SetPathLengthLimit(20.0f);
-            bool result = path.CalculatePath(x, y, z);
+            path.SetPathLengthLimit(30.0f);
+            bool result = path.CalculatePath(pos.m_positionX, pos.m_positionY, pos.m_positionZ);
             if (!result || (path.GetPathType() & PATHFIND_NOPATH))
             {
-                i_nextMoveTime.Reset(100); // short reset
+                i_nextMoveTime.Reset(100);
                 return true;
             }
 
