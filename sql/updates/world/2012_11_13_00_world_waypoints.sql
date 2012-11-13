@@ -1,7 +1,7 @@
 -- Pathing for Ol' Sooty Entry: 1225
 SET @NPC := 8877;
 SET @PATH := @NPC * 10;
-UPDATE `creature` SET `spawntimesecs`=1200 `spawndist`=0,`MovementType`=2,`position_x`=-5716.181152,`position_y`=-3110.810791,`position_z`=316.686523 WHERE `guid`=@NPC;
+UPDATE `creature` SET `spawntimesecs`=1200,`spawndist`=0,`MovementType`=2,`position_x`=-5716.181152,`position_y`=-3110.810791,`position_z`=316.686523 WHERE `guid`=@NPC;
 DELETE FROM `creature_addon` WHERE `guid`=@NPC;
 INSERT INTO `creature_addon` (`guid`,`path_id`,`bytes2`,`mount`,`auras`) VALUES (@NPC,@PATH,1,0, '');
 DELETE FROM `waypoint_data` WHERE `id`=@PATH;
