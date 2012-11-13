@@ -298,7 +298,7 @@ enum Events
     // death knight
     EVENT_CHAINS_OF_ICE             = 1,
     EVENT_DEATH_COIL                = 2,
-    EVENT_DEATH_GRIP                = 3,
+    //EVENT_DEATH_GRIP                = 3,
     EVENT_FROST_STRIKE              = 4,
     EVENT_ICEBOUND_FORTITUDE        = 5,
     EVENT_ICY_TOUCH                 = 6,
@@ -1712,7 +1712,7 @@ class mob_toc_dk : public CreatureScript
                 boss_faction_championsAI::Reset();
                 events.ScheduleEvent(EVENT_CHAINS_OF_ICE, urand(5*IN_MILLISECONDS, 15*IN_MILLISECONDS));
                 events.ScheduleEvent(EVENT_DEATH_COIL, urand(10*IN_MILLISECONDS, 20*IN_MILLISECONDS));
-                events.ScheduleEvent(EVENT_DEATH_GRIP, urand(15*IN_MILLISECONDS, 25*IN_MILLISECONDS));
+                //events.ScheduleEvent(EVENT_DEATH_GRIP, urand(15*IN_MILLISECONDS, 25*IN_MILLISECONDS));
                 events.ScheduleEvent(EVENT_FROST_STRIKE, urand(5*IN_MILLISECONDS, 10*IN_MILLISECONDS));
                 events.ScheduleEvent(EVENT_ICEBOUND_FORTITUDE, urand(25*IN_MILLISECONDS, 35*IN_MILLISECONDS));
                 events.ScheduleEvent(EVENT_ICY_TOUCH, urand(10*IN_MILLISECONDS, 20*IN_MILLISECONDS));
@@ -1743,7 +1743,7 @@ class mob_toc_dk : public CreatureScript
                             DoCastVictim(SPELL_DEATH_COIL);
                             events.ScheduleEvent(EVENT_DEATH_COIL, urand(5*IN_MILLISECONDS, 15*IN_MILLISECONDS));
                             return;
-                        case EVENT_DEATH_GRIP:
+                        /* case EVENT_DEATH_GRIP:
                             if (me->IsInRange(me->getVictim(), 5.0f, 30.0f, false))
                             {
                                 DoCast(me->getVictim(), SPELL_DEATH_GRIP);
@@ -1751,7 +1751,7 @@ class mob_toc_dk : public CreatureScript
                             }
                             else
                                 events.RescheduleEvent(EVENT_DEATH_GRIP, 3*IN_MILLISECONDS);
-                            return;
+                            return; */
                         case EVENT_FROST_STRIKE:
                             DoCastVictim(SPELL_FROST_STRIKE);
                             events.ScheduleEvent(EVENT_FROST_STRIKE, urand(6*IN_MILLISECONDS, 10*IN_MILLISECONDS));

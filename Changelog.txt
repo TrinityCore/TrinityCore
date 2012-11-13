@@ -11,6 +11,7 @@
 #                                                                                          #
 ############################################################################################
 
+[86] --> Fix crash Trial Of The Crusader.
 [85] --> Remove unit lost control before teleport.
 [84] --> Fix loot GunShip.
 [83] --> Add Name Developer Announce.
