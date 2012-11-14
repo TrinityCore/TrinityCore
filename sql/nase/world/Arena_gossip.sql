@@ -10,4 +10,5 @@ REPLACE INTO `battleground_template` VALUES (10, 0, 5, 10, 80, 1362, 0, 1363, 0,
 REPLACE INTO `battleground_template` VALUES (11, 5, 5, 10, 80, 1364, 0, 1365, 0, 20, 0, '', 'The Ring of Valor');
 REPLACE INTO `battleground_template` VALUES (30, 20, 40, 71, 80, 1485, 0, 1486, 3.16124, 200, 0, '', 'Isle of Conquest');
 REPLACE INTO `battleground_template` VALUES (32, 1, 10, 1, 80, 0, 0, 0, 0, 0, 1, '', 'Random battleground');
-REPLACE INTO `battleground_template` VALUES (6, 0, 2, 10, 80, 0, 0, 0, 0, 0, 1, '', 'All Arena');
+REPLACE INTO `battleground_template` (`id`, `MinPlayersPerTeam`, `MaxPlayersPerTeam`, `MinLvl`, `MaxLvl`, `AllianceStartLoc`, `AllianceStartO`, `HordeStartLoc`, `HordeStartO`, `StartMaxDist`, `Weight`, `ScriptName`, `Comment`) VALUES
+(6,0,2,10,80,0,0,0,0,0,1,'','All Arena');
