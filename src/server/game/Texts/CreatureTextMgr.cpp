@@ -65,6 +65,47 @@ class CreatureTextBuilder
         uint64 _targetGUID;
 };
 
+class PlayerTextBuilder
+{
+    public:
+        PlayerTextBuilder(WorldObject* obj, WorldObject* speaker, ChatMsg msgtype, uint8 textGroup, uint32 id, uint32 language, uint64 targetGUID)
+            : _source(obj), _talker(speaker), _msgType(msgtype), _textGroup(textGroup), _textId(id), _language(language), _targetGUID(targetGUID)
+        {
+        }
+
+        size_t operator()(WorldPacket* data, LocaleConstant locale) const
+        {
+            std::string const& text = sCreatureTextMgr->GetLocalizedChatString(_source->GetEntry(), _textGroup, _textId, locale);
+
+            *data << uint8(_msgType);
+            *data << uint32(_language);
+            *data << uint64(_talker->GetGUID());
+            *data << uint32(1);                                      // 2.1.0
+            *data << uint32(_talker->GetName().size() + 1);
+            *data << _talker->GetName();
+            size_t whisperGUIDpos = data->wpos();
+            *data << uint64(_targetGUID);                           // Unit Target
+            if (_targetGUID && !IS_PLAYER_GUID(_targetGUID))
+            {
+                *data << uint32(1);                                  // target name length
+                *data << uint8(0);                                   // target name
+            }
+            *data << uint32(text.length() + 1);
+            *data << text;
+            *data << uint8(0);                                       // ChatTag
+
+            return whisperGUIDpos;
+        }
+
+        WorldObject* _source;
+        WorldObject* _talker;
+        ChatMsg _msgType;
+        uint8 _textGroup;
+        uint32 _textId;
+        uint32 _language;
+        uint64 _targetGUID;
+};
+
 void CreatureTextMgr::LoadCreatureTexts()
 {
     uint32 oldMSTime = getMSTime();
@@ -261,8 +302,16 @@ uint32 CreatureTextMgr::SendChat(Creature* source, uint8 textGroup, uint64 whisp
     if (iter->emote)
         SendEmote(finalSource, iter->emote);
 
-    CreatureTextBuilder builder(finalSource, finalType, iter->group, iter->id, finalLang, whisperGuid);
-    SendChatPacket(finalSource, builder, finalType, whisperGuid, range, team, gmOnly);
+    if (srcPlayer)
+    {
+        PlayerTextBuilder builder(source, finalSource, iter->group, iter->id, finalLang, whisperGuid);
+        SendChatPacket(finalSource, builder, finalType, whisperGuid, range, team, gmOnly);
+    }
+    else
+    {
+        CreatureTextBuilder builder(finalSource, finalType, iter->group, iter->id, finalLang, whisperGuid);
+        SendChatPacket(finalSource, builder, finalType, whisperGuid, range, team, gmOnly);
+    }
     if (isEqualChanced || (!isEqualChanced && totalChance == 100.0f))
         SetRepeatId(source, textGroup, iter->id);
 
