@@ -3851,4 +3851,6 @@ enum VoidTransferError
     VOID_TRANSFER_ERROR_TRANSFER_UNKNOWN  = 9,
 };
 
+#define CURRENCY_PRECISION 100
+
 #endif
