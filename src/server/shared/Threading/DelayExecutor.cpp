@@ -59,7 +59,7 @@ int DelayExecutor::svc()
     return 0;
 }
 
-int DelayExecutor::activate(int num_threads, ACE_Method_Request* pre_svc_hook, ACE_Method_Request* post_svc_hook)
+int DelayExecutor::start(int num_threads, ACE_Method_Request* pre_svc_hook, ACE_Method_Request* post_svc_hook)
 {
     if (activated())
         return -1;

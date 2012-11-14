@@ -52,29 +52,23 @@ class MovementGeneratorMedium : public MovementGenerator
         void Initialize(Unit &u)
         {
             //u->AssertIsType<T>();
-            (static_cast<D*>(this))->Initialize(*((T*)&u));
+            (static_cast<D*>(this))->DoInitialize(*((T*)&u));
         }
         void Finalize(Unit &u)
         {
             //u->AssertIsType<T>();
-            (static_cast<D*>(this))->Finalize(*((T*)&u));
+            (static_cast<D*>(this))->DoFinalize(*((T*)&u));
         }
         void Reset(Unit &u)
         {
             //u->AssertIsType<T>();
-            (static_cast<D*>(this))->Reset(*((T*)&u));
+            (static_cast<D*>(this))->DoReset(*((T*)&u));
         }
         bool Update(Unit &u, const uint32& time_diff)
         {
             //u->AssertIsType<T>();
-            return (static_cast<D*>(this))->Update(*((T*)&u), time_diff);
+            return (static_cast<D*>(this))->DoUpdate(*((T*)&u), time_diff);
         }
-    public:
-        // will not link if not overridden in the generators
-        void Initialize(T &u);
-        void Finalize(T &u);
-        void Reset(T &u);
-        bool Update(T &u, const uint32& time_diff);
 };
 
 struct SelectableMovement : public FactoryHolder<MovementGenerator, MovementGeneratorType>
