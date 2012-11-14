@@ -1018,6 +1018,7 @@ bool Player::Create(uint32 guidlow, CharacterCreateInfo* createInfo)
 
     SetUInt32Value(PLAYER_FIELD_COINAGE, sWorld->getIntConfig(CONFIG_START_PLAYER_MONEY));
     SetCurrency(CURRENCY_TYPE_HONOR_POINTS, sWorld->getIntConfig(CONFIG_START_HONOR_POINTS));
+    SetCurrency(CURRENCY_TYPE_JUSTICE_POINTS, sWorld->getIntConfig(CONFIG_START_JUSTICE_POINTS));
     SetCurrency(CURRENCY_TYPE_CONQUEST_POINTS, sWorld->getIntConfig(CONFIG_START_ARENA_POINTS));
 
     // start with every map explored

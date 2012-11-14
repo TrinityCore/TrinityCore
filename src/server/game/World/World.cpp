@@ -803,6 +803,27 @@ void World::LoadConfigSettings(bool reload)
         m_int_configs[CONFIG_START_HONOR_POINTS] = m_int_configs[CONFIG_MAX_HONOR_POINTS];
     }
 
+    m_int_configs[CONFIG_MAX_JUSTICE_POINTS] = ConfigMgr::GetIntDefault("MaxJusticePoints", 400000);
+    if (int32(m_int_configs[CONFIG_MAX_JUSTICE_POINTS]) < 0)
+    {
+        sLog->outError(LOG_FILTER_SERVER_LOADING, "MaxJusticePoints (%i) can't be negative. Set to 0.", m_int_configs[CONFIG_MAX_JUSTICE_POINTS]);
+        m_int_configs[CONFIG_MAX_JUSTICE_POINTS] = 0;
+    }
+
+    m_int_configs[CONFIG_START_JUSTICE_POINTS] = ConfigMgr::GetIntDefault("StartJusticePoints", 0);
+    if (int32(m_int_configs[CONFIG_START_JUSTICE_POINTS]) < 0)
+    {
+        sLog->outError(LOG_FILTER_SERVER_LOADING, "StartJusticePoints (%i) must be in range 0..MaxJusticePoints(%u). Set to %u.",
+            m_int_configs[CONFIG_START_JUSTICE_POINTS], m_int_configs[CONFIG_MAX_JUSTICE_POINTS], 0);
+        m_int_configs[CONFIG_START_JUSTICE_POINTS] = 0;
+    }
+    else if (m_int_configs[CONFIG_START_JUSTICE_POINTS] > m_int_configs[CONFIG_MAX_JUSTICE_POINTS])
+    {
+        sLog->outError(LOG_FILTER_SERVER_LOADING, "StartJusticePoints (%i) must be in range 0..MaxJusticePoints(%u). Set to %u.",
+            m_int_configs[CONFIG_START_JUSTICE_POINTS], m_int_configs[CONFIG_MAX_JUSTICE_POINTS], m_int_configs[CONFIG_MAX_JUSTICE_POINTS]);
+        m_int_configs[CONFIG_START_JUSTICE_POINTS] = m_int_configs[CONFIG_MAX_JUSTICE_POINTS];
+    }
+
     m_int_configs[CONFIG_MAX_ARENA_POINTS] = ConfigMgr::GetIntDefault("MaxArenaPoints", 10000);
     if (int32(m_int_configs[CONFIG_MAX_ARENA_POINTS]) < 0)
     {
