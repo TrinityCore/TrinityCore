@@ -811,7 +811,7 @@ void WorldSession::SendListInventory(uint64 vendorGuid)
             if (vendorItem->ExtendedCost == 0)
                 continue; // there's no price defined for currencies, only extendedcost is used
 
-            uint32 precision = (currencyTemplate->Flags & CURRENCY_FLAG_HIGH_PRECISION) ? 100 : 1;
+            uint32 precision = (currencyTemplate->Flags & CURRENCY_FLAG_HIGH_PRECISION) ? CURRENCY_PRECISION : 1;
 
             ++count;
             itemsData << uint32(slot + 1);             // client expects counting to start at 1
