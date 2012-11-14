@@ -1328,7 +1328,7 @@ void Unit::DealMeleeDamage(CalcDamageInfo* damageInfo, bool durabilityLoss)
     // If this is a creature and it attacks from behind it has a probability to daze it's victim
     if ((damageInfo->hitOutCome == MELEE_HIT_CRIT || damageInfo->hitOutCome == MELEE_HIT_CRUSHING || damageInfo->hitOutCome == MELEE_HIT_NORMAL || damageInfo->hitOutCome == MELEE_HIT_GLANCING) &&
         GetTypeId() != TYPEID_PLAYER && !ToCreature()->IsControlledByPlayer() && !victim->HasInArc(M_PI, this)
-        && (victim->GetTypeId() == TYPEID_PLAYER || !victim->ToCreature()->isWorldBoss()))
+        && (victim->GetTypeId() == TYPEID_PLAYER || !victim->ToCreature()->isWorldBoss())&& !victim->IsVehicle())
     {
         // -probability is between 0% and 40%
         // 20% base chance
@@ -1341,7 +1341,10 @@ void Unit::DealMeleeDamage(CalcDamageInfo* damageInfo, bool durabilityLoss)
         uint32 VictimDefense=victim->GetDefenseSkillValue();
         uint32 AttackerMeleeSkill=GetUnitMeleeSkill();
 
-        Probability *= AttackerMeleeSkill/(float)VictimDefense;
+        Probability *= AttackerMeleeSkill/(float)VictimDefense*0.16;
+
+        if (Probability < 0)
+            Probability = 0;
 
         if (Probability > 40.0f)
             Probability = 40.0f;
