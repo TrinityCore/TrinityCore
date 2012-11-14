@@ -51,7 +51,7 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
 (34300,0,5,0,0,0,100,0,4000,7000,9000,13000,11,51901,0,0,0,0,0,2,0,0,0,0,0,0,0,'Mature Lasher - On update (IC) - Spellcast Dream Lash');
 -- ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- Secrets of the Scourge
-UPDATE `quest_template` SET `PrevQuestId`=0 WHERE `entry`=12312;
+UPDATE `quest_template` SET `PrevQuestId`=0 WHERE `Id`=12312;
 -- ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- Icehorn updates from sniffs
 UPDATE `creature_template` SET `speed_run`=0.9920629, `rank`=4, `unit_flags`=32832, `family`=43, `type_flags`=65537 WHERE `entry`=32361;
