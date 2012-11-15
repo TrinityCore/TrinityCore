@@ -6181,25 +6181,25 @@ bool Player::UpdateFishingSkill()
     return UpdateSkillPro(SKILL_FISHING, chance*10, gathering_skill_gain);
 }
 
-// levels sync. with spell requirement for skill levels to learn
-// bonus abilities in sSkillLineAbilityStore
-// Used only to avoid scan DBC at each skill grow
-static uint32 bonusSkillLevels[] = {75, 150, 225, 300, 375, 450};
-static const size_t bonusSkillLevelsSize = sizeof(bonusSkillLevels) / sizeof(uint32);
-
-bool Player::UpdateSkillPro(uint16 SkillId, int32 Chance, uint32 step)
+bool Player::UpdateSkillPro(uint16 skillId, int32 chance, uint32 step)
 {
-    sLog->outDebug(LOG_FILTER_PLAYER_SKILLS, "UpdateSkillPro(SkillId %d, Chance %3.1f%%)", SkillId, Chance / 10.0f);
-    if (!SkillId)
+    // levels sync. with spell requirement for skill levels to learn
+    // bonus abilities in sSkillLineAbilityStore
+    // Used only to avoid scan DBC at each skill grow
+    static uint32 bonusSkillLevels[] = { 75, 150, 225, 300, 375, 450, 525 };
+    static const size_t bonusSkillLevelsSize = sizeof(bonusSkillLevels) / sizeof(uint32);
+
+    sLog->outDebug(LOG_FILTER_PLAYER_SKILLS, "UpdateSkillPro(SkillId %d, Chance %3.1f%%)", skillId, chance / 10.0f);
+    if (!skillId)
         return false;
 
-    if (Chance <= 0)                                         // speedup in 0 chance case
+    if (chance <= 0)                                         // speedup in 0 chance case
     {
-        sLog->outDebug(LOG_FILTER_PLAYER_SKILLS, "Player::UpdateSkillPro Chance=%3.1f%% missed", Chance / 10.0f);
+        sLog->outDebug(LOG_FILTER_PLAYER_SKILLS, "Player::UpdateSkillPro Chance=%3.1f%% missed", chance / 10.0f);
         return false;
     }
 
-    SkillStatusMap::iterator itr = mSkillStatus.find(SkillId);
+    SkillStatusMap::iterator itr = mSkillStatus.find(skillId);
     if (itr == mSkillStatus.end() || itr->second.uState == SKILL_DELETED)
         return false;
 
@@ -6212,36 +6212,34 @@ bool Player::UpdateSkillPro(uint16 SkillId, int32 Chance, uint32 step)
     if (!max || !value || value >= max)
         return false;
 
-    int32 Roll = irand(1, 1000);
-
-    if (Roll <= Chance)
+    if (irand(1, 1000) > chance)
     {
-        uint16 new_value = value + step;
-        if (new_value > max)
-            new_value = max;
-
-        SetUInt16Value(PLAYER_SKILL_RANK_0 + field, offset, new_value);
-        if (itr->second.uState != SKILL_NEW)
-            itr->second.uState = SKILL_CHANGED;
-
-        for (size_t i = 0; i < bonusSkillLevelsSize; ++i)
-        {
-            uint32 bsl = bonusSkillLevels[i];
-            if (value < bsl && new_value >= bsl)
-            {
-                learnSkillRewardedSpells(SkillId, new_value);
-                break;
-            }
-        }
-
-        UpdateSkillEnchantments(SkillId, value, new_value);
-        UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_REACH_SKILL_LEVEL, SkillId);
-        sLog->outDebug(LOG_FILTER_PLAYER_SKILLS, "Player::UpdateSkillPro Chance=%3.1f%% taken", Chance / 10.0f);
-        return true;
+        sLog->outDebug(LOG_FILTER_PLAYER_SKILLS, "Player::UpdateSkillPro Chance=%3.1f%% missed", chance / 10.0f);
+        return false;
     }
 
-    sLog->outDebug(LOG_FILTER_PLAYER_SKILLS, "Player::UpdateSkillPro Chance=%3.1f%% missed", Chance / 10.0f);
-    return false;
+    uint16 new_value = value + step;
+    if (new_value > max)
+        new_value = max;
+
+    SetUInt16Value(PLAYER_SKILL_RANK_0 + field, offset, new_value);
+    if (itr->second.uState != SKILL_NEW)
+        itr->second.uState = SKILL_CHANGED;
+
+    for (size_t i = 0; i < bonusSkillLevelsSize; ++i)
+    {
+        uint32 bsl = bonusSkillLevels[i];
+        if (value < bsl && new_value >= bsl)
+        {
+            learnSkillRewardedSpells(skillId, new_value);
+            break;
+        }
+    }
+
+    UpdateSkillEnchantments(skillId, value, new_value);
+    UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_REACH_SKILL_LEVEL, skillId);
+    sLog->outDebug(LOG_FILTER_PLAYER_SKILLS, "Player::UpdateSkillPro Chance=%3.1f%% taken", chance / 10.0f);
+    return true;
 }
 
 void Player::ModifySkillBonus(uint32 skillid, int32 val, bool talent)
