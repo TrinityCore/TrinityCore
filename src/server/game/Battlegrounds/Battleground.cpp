@@ -645,7 +645,7 @@ void Battleground::SendPacketToTeam(uint32 TeamID, WorldPacket* packet, Player* 
             {
                 WorldSession* session = player->GetSession();
                 sLog->outDebug(LOG_FILTER_BATTLEGROUND, "%s %s - SendPacketToTeam %u, Player: %s", GetOpcodeNameForLogging(packet->GetOpcode()).c_str(),
-                    session->GetPlayerInfo().c_str(), TeamID, sender->GetName().c_str());
+                    session->GetPlayerInfo().c_str(), TeamID, sender ? sender->GetName().c_str() : "null");
                 session->SendPacket(packet);
             }
 }
