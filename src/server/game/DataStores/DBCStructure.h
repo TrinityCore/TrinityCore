@@ -609,13 +609,6 @@ struct AreaTriggerEntry
     float   box_orientation;                                // 12       m_box_yaw
 };
 
-struct PhaseEntry
-{
-    uint32 Id;
-    char* Name;
-    uint32 Flag;
-}
-
 struct ArmorLocationEntry
 {
   uint32    InventoryType;                                  // 0
