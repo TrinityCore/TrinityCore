@@ -1,0 +1,1 @@
+UPDATE `creature_template` SET `faction_A`=24, `faction_H`=24, `unit_flags`=0, `resistance1`=0, `resistance2`=60, `resistance3`=0, `resistance4`=0, `resistance5`=36, `resistance6`=18 WHERE  `entry`=10161;
