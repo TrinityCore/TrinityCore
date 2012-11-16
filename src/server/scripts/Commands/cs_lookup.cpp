@@ -1049,7 +1049,7 @@ public:
         {
             if (MapEntry const* mapInfo = sMapStore.LookupEntry(id))
             {
-                std::string name = mapInfo->name[locale];
+                std::string name = mapInfo->name;
                 if (name.empty())
                     continue;
 

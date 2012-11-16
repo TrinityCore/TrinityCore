@@ -921,7 +921,7 @@ int WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
     // Must be done before WorldSession is created
     if (sWorld->getBoolConfig(CONFIG_WARDEN_ENABLED) && os != "Win" && os != "OSX")
     {
-        packet.Initialize(SMSG_AUTH_RESPONSE, 1);
+        WorldPacket packet(SMSG_AUTH_RESPONSE, 1);
         packet << uint8(AUTH_REJECT);
         SendPacket(packet);
 
