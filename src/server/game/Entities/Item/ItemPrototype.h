@@ -212,10 +212,11 @@ enum ItemFlagsCustom
 
 enum CurrencyFlags
 {
-    CURRENCY_FLAG_TRADEABLE      = 0x01,
+    CURRENCY_FLAG_TRADEABLE          = 0x01,
     // ...
-    CURRENCY_FLAG_HIGH_PRECISION = 0x08,
+    CURRENCY_FLAG_HIGH_PRECISION     = 0x08,
     // ...
+    CURRENCY_FLAG_COUNT_SEASON_TOTAL = 0x80,
 };
 
 enum ItemVendorType
