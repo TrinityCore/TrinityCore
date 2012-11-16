@@ -20,9 +20,11 @@
 #define __TRINITY_VEHICLE_H
 
 #include "ObjectDefines.h"
+#include "Object.h"
 #include "VehicleDefines.h"
 
 struct VehicleEntry;
+
 class Unit;
 
 typedef std::set<uint64> GuidSet;
@@ -58,6 +60,9 @@ class Vehicle : public TransportBase
         void TeleportVehicle(float x, float y, float z, float ang);
         bool IsVehicleInUse() { return Seats.begin() != Seats.end(); }
 
+        void SetLastShootPos(Position const& pos) { m_lastShootPos.Relocate(pos); }
+        Position GetLastShootPos() { return m_lastShootPos; }
+
         SeatMap Seats;
 
         VehicleSeatEntry const* GetSeatForPassenger(Unit* passenger);
@@ -77,5 +82,7 @@ class Vehicle : public TransportBase
         GuidSet vehiclePlayers;
         uint32 _usableSeatNum;         // Number of seats that match VehicleSeatEntry::UsableByPlayer, used for proper display flags
         uint32 _creatureEntry;         // Can be different than me->GetBase()->GetEntry() in case of players
+
+        Position m_lastShootPos;
 };
 #endif

@@ -408,13 +408,17 @@ void Battlefield::PlayerAcceptInviteToWar(Player* player)
 void Battlefield::TeamCastSpell(TeamId team, int32 spellId)
 {
     if (spellId > 0)
+    {
         for (GuidSet::const_iterator itr = m_PlayersInWar[team].begin(); itr != m_PlayersInWar[team].end(); ++itr)
             if (Player* player = sObjectAccessor->FindPlayer(*itr))
                 player->CastSpell(player, uint32(spellId), true);
+    }
     else
+    {
         for (GuidSet::const_iterator itr = m_PlayersInWar[team].begin(); itr != m_PlayersInWar[team].end(); ++itr)
             if (Player* player = sObjectAccessor->FindPlayer(*itr))
                 player->RemoveAuraFromStack(uint32(-spellId));
+    }
 }
 
 void Battlefield::BroadcastPacketToZone(WorldPacket& data) const

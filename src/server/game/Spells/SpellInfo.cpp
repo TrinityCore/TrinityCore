@@ -15,12 +15,13 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "SpellAuraDefines.h"
 #include "SpellInfo.h"
+#include "SpellAuraDefines.h"
 #include "SpellMgr.h"
 #include "Spell.h"
 #include "DBCStores.h"
 #include "ConditionMgr.h"
+#include "Object.h"
 
 uint32 GetTargetFlagMask(SpellTargetObjectTypes objType)
 {

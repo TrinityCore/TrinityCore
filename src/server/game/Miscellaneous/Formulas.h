@@ -38,7 +38,8 @@ namespace Trinity
         {
             return uint32(ceil(hk_honor_at_level_f(level, multiplier)));
         }
-    }
+    } // namespace Trinity::Honor
+
     namespace XP
     {
         inline uint8 GetGrayLevel(uint8 pl_level)
@@ -221,7 +222,7 @@ namespace Trinity
             sScriptMgr->OnGroupRateCalculation(rate, count, isRaid);
             return rate;
         }
-    }
-}
+    } // namespace Trinity::XP
+} // namespace Trinity
 
 #endif
