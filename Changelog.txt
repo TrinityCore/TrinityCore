@@ -11,6 +11,7 @@
 #                                                                                          #
 ############################################################################################
 
+[89] --> Fix crash (Test!).
 [88] --> Fix Hunter pet scale.
 [87] --> Fix Magic Absorption.
 [86] --> Fix crash Trial Of The Crusader.
