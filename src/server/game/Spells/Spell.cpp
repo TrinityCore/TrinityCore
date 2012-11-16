@@ -2189,7 +2189,7 @@ void Spell::AddUnitTarget(Unit* target, uint32 effectMask, bool checkIfValid /*=
 
         if (dist < 1.0f)
             dist = 1.0f;
-        targetInfo.timeDelay = (uint64) floor(dist / m_spellInfo->Speed * 1100.0f);
+        targetInfo.timeDelay = (uint64) floor(dist / m_spellInfo->Speed * 1150.0f);
 
         // Calculate minimum incoming time
         if (m_delayMoment == 0 || m_delayMoment > targetInfo.timeDelay)

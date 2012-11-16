@@ -825,7 +825,7 @@ class boss_prince_valanar_icc : public CreatureScript
 
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
                 _isEmpowered = false;
-                me->SetHealth(me->GetMaxHealth());
+                me->SetHealth(_spawnHealth);
                 instance->SetData(DATA_ORB_WHISPERER_ACHIEVEMENT, uint32(true));
                 me->SetReactState(REACT_DEFENSIVE);
             }
@@ -1067,7 +1067,7 @@ class npc_blood_queen_lana_thel : public CreatureScript
                 if (_introDone)
                     return;
 
-                if (!me->IsWithinDistInMap(who, 35.0f, false))
+                if (!me->IsWithinDistInMap(who, 20.0f, false))
                     return;
 
                 _introDone = true;
