@@ -251,7 +251,7 @@ enum EnslavedProtoDrake
     POINT_LAST              = 5,
 };
 
-const Position protodrakeCheckPos = { 206.24f, -190.28f, 200.11f };
+const Position protodrakeCheckPos = {206.24f, -190.28f, 200.11f, 0.f};
 
 class npc_enslaved_proto_drake : public CreatureScript
 {
