@@ -663,7 +663,7 @@ class npc_race_announcer : public CreatureScript
                     if (Player* player = me->GetPlayer(*me, _allianceGUID[i]))
                         Talk(SAY_RACE_HIGH_STAKES, player->GetGUID());
                 }
-                _tokenRewards *= 2;
+                //_tokenRewards *= 2;
             }
 
             void Finish(uint16 faction)
@@ -791,12 +791,6 @@ class npc_race_announcer : public CreatureScript
         {
             if (!sWorld->getBoolConfig(CONFIG_CRYPT_RUN_ENABLE))
                 return false;
-
-            if (player->IsMounted())
-            {
-                player->Dismount();
-                player->RemoveAurasDueToSpell(SPELL_AURA_MOUNTED);
-            }
 
             if (player->getLevel() >= PLAYER_MINIMUM_LEVEL)
             {
