@@ -1027,109 +1027,72 @@ public:
         return true;
     }
 
-    static bool HandleLookupMapCommand(ChatHandler* /*handler*/, char const* args)
+    static bool HandleLookupMapCommand(ChatHandler* handler, char const* args)
     {
         if (!*args)
             return false;
-        /*
+
         std::string namePart = args;
         std::wstring wNamePart;
 
-        // converting string that we try to find to lower case
         if (!Utf8toWStr(namePart, wNamePart))
             return false;
 
         wstrToLower(wNamePart);
 
-        bool found = false;
+        uint32 counter = 0;
+        uint32 maxResults = sWorld->getIntConfig(CONFIG_MAX_RESULTS_LOOKUP_COMMANDS);
+        uint8 locale = handler->GetSession() ? handler->GetSession()->GetSessionDbcLocale() : sWorld->GetDefaultDbcLocale();
 
         // search in Map.dbc
         for (uint32 id = 0; id < sMapStore.GetNumRows(); id++)
         {
-            MapEntry const* MapInfo = sMapStore.LookupEntry(id);
-            if (MapInfo)
+            if (MapEntry const* mapInfo = sMapStore.LookupEntry(id))
             {
-                uint8 locale = handler->GetSession() ? handler->GetSession()->GetSessionDbcLocale() : sWorld->GetDefaultDbcLocale();
-
-                std::string name = MapInfo->name[locale];
+                std::string name = mapInfo->name[locale];
                 if (name.empty())
                     continue;
 
-                if (!Utf8FitTo(name, wNamePart))
+                if (Utf8FitTo(name, wNamePart) && locale < TOTAL_LOCALES)
                 {
-                    locale = LOCALE_enUS;
-                    for (; locale < TOTAL_LOCALES; locale++)
+                    if (maxResults && counter == maxResults)
                     {
-                        if (handler->GetSession() && locale == handler->GetSession()->GetSessionDbcLocale())
-                            continue;
-
-                        name = MapInfo->name[locale];
-                        if (name.empty())
-                            continue;
-
-                        if (Utf8FitTo(name, wNamePart))
-                            break;
+                        handler->PSendSysMessage(LANG_COMMAND_LOOKUP_MAX_RESULTS, maxResults);
+                        return true;
                     }
-                }
 
-                if (locale < TOTAL_LOCALES)
-                {
-                    // send map in "id - [name][Continent][Instance/Battleground/Arena][Raid reset time:][Heroic reset time:][Mountable]" format
                     std::ostringstream ss;
+                    ss << id << " - [" << name << ']';
 
-                    if (handler->GetSession())
-                        ss << id << " - |cffffffff|Hmap:" << id << "|h[" << name << ']';
-                    else // console
-                        ss << id << " - [" << name << ']';
-
-                    if (MapInfo->IsContinent())
+                    if (mapInfo->IsContinent())
                         ss << handler->GetTrinityString(LANG_CONTINENT);
 
-                    switch (MapInfo->map_type)
+                    switch (mapInfo->map_type)
                     {
-                        case MAP_INSTANCE:      ss << handler->GetTrinityString(LANG_INSTANCE);      break;
-                        case MAP_BATTLEGROUND:  ss << handler->GetTrinityString(LANG_BATTLEGROUND);  break;
-                        case MAP_ARENA:         ss << handler->GetTrinityString(LANG_ARENA);         break;
+                        case MAP_INSTANCE:
+                            ss << handler->GetTrinityString(LANG_INSTANCE);
+                            break;
+                        case MAP_RAID:
+                            ss << handler->GetTrinityString(LANG_RAID);
+                            break;
+                        case MAP_BATTLEGROUND:
+                            ss << handler->GetTrinityString(LANG_BATTLEGROUND);
+                            break;
+                        case MAP_ARENA:
+                            ss << handler->GetTrinityString(LANG_ARENA);
+                            break;
                     }
 
-                    if (MapInfo->IsRaid())
-                        ss << handler->GetTrinityString(LANG_RAID);
+                    handler->SendSysMessage(ss.str().c_str());
 
-                    if (MapInfo->SupportsHeroicMode())
-                        ss << handler->GetTrinityString(LANG_HEROIC);
-
-                    uint32 ResetTimeRaid = MapInfo->resetTimeRaid;
-
-                    std::string ResetTimeRaidStr;
-                    if (ResetTimeRaid)
-                        ResetTimeRaidStr = secsToTimeString(ResetTimeRaid, true, false);
-
-                    uint32 ResetTimeHeroic = MapInfo->resetTimeHeroic;
-                    std::string ResetTimeHeroicStr;
-                    if (ResetTimeHeroic)
-                        ResetTimeHeroicStr = secsToTimeString(ResetTimeHeroic, true, false);
-
-                    if (MapInfo->IsMountAllowed())
-                        ss << handler->GetTrinityString(LANG_MOUNTABLE);
-
-                    if (ResetTimeRaid && !ResetTimeHeroic)
-                        handler->PSendSysMessage(ss.str().c_str(), ResetTimeRaidStr.c_str());
-                    else if (!ResetTimeRaid && ResetTimeHeroic)
-                        handler->PSendSysMessage(ss.str().c_str(), ResetTimeHeroicStr.c_str());
-                    else if (ResetTimeRaid && ResetTimeHeroic)
-                        handler->PSendSysMessage(ss.str().c_str(), ResetTimeRaidStr.c_str(), ResetTimeHeroicStr.c_str());
-                    else
-                        handler->SendSysMessage(ss.str().c_str());
-
-                    if (!found)
-                        found = true;
+                    ++counter;
                 }
             }
         }
 
-        if (!found)
+        if (!counter)
             handler->SendSysMessage(LANG_COMMAND_NOMAPFOUND);
-        */
+
         return true;
     }
 
