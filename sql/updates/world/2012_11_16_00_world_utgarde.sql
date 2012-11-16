@@ -48,7 +48,7 @@ INSERT INTO `smart_scripts`(`entryorguid`,`event_type`,`event_param1`,`event_par
 (28419,0,5000,5000,30000,30000,11,40414,5,'Frenzied geist - In combat - Cast Fixate');
 
 -- Difficulty data for spells used in utgarde keep
-DELETE FROM `spelldifficulty_dbc` WHERE `id` IN(42669,42708,42750,42723,42729,43667,42702) OR `spellid0` IN(42669,42708,42750,42723,42729,43667,42702);
+DELETE FROM `spelldifficulty_dbc` WHERE `id` IN(42669,42708,42750,42723,42729,43667,42702,50653,43931) OR `spellid0` IN(42669,42708,42750,42723,42729,43667,42702,50653,43931);
 INSERT INTO `spelldifficulty_dbc`(`id`,`spellid0`,`spellid1`) VALUES
 (42669,42669,59706), -- Smash
 (42708,42708,59708), -- Staggering Roar
@@ -56,7 +56,9 @@ INSERT INTO `spelldifficulty_dbc`(`id`,`spellid0`,`spellid1`) VALUES
 (42723,42723,59709), -- Dark Smash
 (42729,42729,59734), -- Dreadful Roar
 (43667,43667,59389), -- Shadow Bolt
-(42702,42702,59397); -- Decrepify
+(42702,42702,59397), -- Decrepify
+(50653,50653,59692), -- Flame Breath
+(43931,43931,59691); -- Rend
 
 -- Ticking Time Bomb, Fixate
 DELETE FROM `spell_script_names` WHERE `spell_id` IN(59686,40414);
@@ -88,7 +90,7 @@ INSERT INTO `creature_addon`(`guid`,`path_id`,`mount`,`bytes1`,`bytes2`,`auras`)
 
 -- Waypoint data
 DELETE FROM `waypoint_data` WHERE `id` IN (1259400,1259340,1259150,1259200,1259140,1259360,1259370,1259220);
-INSERT INTO `waypoint_data`(`id`,`point`,`position_x`,`position_y`,`position_z`) VALUES 
+INSERT INTO `waypoint_data`(`id`,`point`,`position_x`,`position_y`,`position_z`) VALUES
 (1259400,1,211.864,-352.629,196.144),
 (1259340,1,271.911,-318.506,185.049),
 (1259150,1,265.478,-199.246,186.812),
