@@ -133,7 +133,7 @@ void BattlegroundMgr::Update(uint32 diff)
         if (m_NextRatedArenaUpdate < diff)
         {
             // forced update for rated arenas (scan all, but skipped non rated)
-            sLog->outDebug(LOG_FILTER_BATTLEGROUND, "BattlegroundMgr: UPDATING ARENA QUEUES");
+            sLog->outTrace(LOG_FILTER_ARENAS, "BattlegroundMgr: UPDATING ARENA QUEUES");
             for (int qtype = BATTLEGROUND_QUEUE_2v2; qtype <= BATTLEGROUND_QUEUE_5v5; ++qtype)
                 for (int bracket = BG_BRACKET_ID_FIRST; bracket < MAX_BATTLEGROUND_BRACKETS; ++bracket)
                     m_BattlegroundQueues[qtype].BattlegroundQueueUpdate(diff,
@@ -1250,16 +1250,12 @@ BattlegroundQueueTypeId BattlegroundMgr::BGQueueTypeId(BattlegroundTypeId bgType
 {
     switch (bgTypeId)
     {
-        case BATTLEGROUND_WS:
-            return BATTLEGROUND_QUEUE_WS;
         case BATTLEGROUND_AB:
             return BATTLEGROUND_QUEUE_AB;
         case BATTLEGROUND_AV:
             return BATTLEGROUND_QUEUE_AV;
         case BATTLEGROUND_EY:
             return BATTLEGROUND_QUEUE_EY;
-        case BATTLEGROUND_SA:
-            return BATTLEGROUND_QUEUE_SA;
         case BATTLEGROUND_IC:
             return BATTLEGROUND_QUEUE_IC;
         case BATTLEGROUND_TP:
@@ -1268,11 +1264,15 @@ BattlegroundQueueTypeId BattlegroundMgr::BGQueueTypeId(BattlegroundTypeId bgType
             return BATTLEGROUND_QUEUE_BFG;
         case BATTLEGROUND_RB:
             return BATTLEGROUND_QUEUE_RB;
+        case BATTLEGROUND_SA:
+            return BATTLEGROUND_QUEUE_SA;
+        case BATTLEGROUND_WS:
+            return BATTLEGROUND_QUEUE_WS;
         case BATTLEGROUND_AA:
-        case BATTLEGROUND_NA:
-        case BATTLEGROUND_RL:
         case BATTLEGROUND_BE:
         case BATTLEGROUND_DS:
+        case BATTLEGROUND_NA:
+        case BATTLEGROUND_RL:
         case BATTLEGROUND_RV:
             switch (arenaType)
             {

@@ -918,6 +918,17 @@ int WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
     uint32 recruiter = fields[9].GetUInt32();
     std::string os = fields[10].GetString();
 
+    // Must be done before WorldSession is created
+    if (sWorld->getBoolConfig(CONFIG_WARDEN_ENABLED) && os != "Win" && os != "OSX")
+    {
+        packet.Initialize(SMSG_AUTH_RESPONSE, 1);
+        packet << uint8(AUTH_REJECT);
+        SendPacket(packet);
+
+        sLog->outError(LOG_FILTER_NETWORKIO, "WorldSocket::HandleAuthSession: Client %s attempted to log in using invalid client OS (%s).", GetRemoteAddress().c_str(), os.c_str());
+        return -1;
+    }
+
     // Checks gmlevel per Realm
     stmt = LoginDatabase.GetPreparedStatement(LOGIN_GET_GMLEVEL_BY_REALMID);
 
