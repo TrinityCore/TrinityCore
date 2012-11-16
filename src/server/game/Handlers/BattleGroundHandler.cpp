@@ -469,7 +469,7 @@ void WorldSession::HandleBattleFieldPortOpcode(WorldPacket &recvData)
         if (action)
         {
             sLog->outDebug(LOG_FILTER_BATTLEGROUND, "CMSG_BATTLEFIELD_PORT %s Slot: %u, Unk: %u, Time: %u, Action: %u. Cant find BG with id %u!",
-                GetPlayerInfo().c_str(), queueSlot, unk, time, action);
+                GetPlayerInfo().c_str(), queueSlot, unk, time, action, ginfo.IsInvitedToBGInstanceGUID);
             return;
         }
 
