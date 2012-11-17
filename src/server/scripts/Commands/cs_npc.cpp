@@ -494,7 +494,6 @@ public:
 
         return true;
     }
-
     //set npcflag of creature
     static bool HandleNpcSetFlagCommand(ChatHandler* handler, char const* args)
     {
