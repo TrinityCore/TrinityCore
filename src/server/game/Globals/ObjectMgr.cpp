@@ -2950,6 +2950,9 @@ PetLevelInfo const* ObjectMgr::GetPetLevelInfo(uint32 creature_id, uint8 level) 
 
 void ObjectMgr::PlayerCreateInfoAddItemHelper(uint32 race_, uint32 class_, uint32 itemId, int32 count)
 {
+    if (!_playerInfo[race_][class_])
+        return;
+
     if (count > 0)
         _playerInfo[race_][class_]->item.push_back(PlayerCreateInfoItem(itemId, count));
     else
@@ -3239,8 +3242,8 @@ void ObjectMgr::LoadPlayerInfo()
                     continue;
                 }
 
-                PlayerInfo* pInfo = _playerInfo[current_race][current_class];
-                pInfo->action.push_back(PlayerCreateInfoAction(fields[2].GetUInt16(), fields[3].GetUInt32(), fields[4].GetUInt16()));
+                if (PlayerInfo* info = _playerInfo[current_race][current_class])
+                    info->action.push_back(PlayerCreateInfoAction(fields[2].GetUInt16(), fields[3].GetUInt32(), fields[4].GetUInt16()));
 
                 ++count;
             }
@@ -3380,16 +3383,14 @@ void ObjectMgr::LoadPlayerInfo()
                 continue;
             }
 
-            PlayerInfo* pInfo = _playerInfo[current_race][current_class];
-
-            if (!pInfo->levelInfo)
-                pInfo->levelInfo = new PlayerLevelInfo[sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL)];
-
-            PlayerLevelInfo* pLevelInfo = &pInfo->levelInfo[current_level-1];
-
-            for (int i = 0; i < MAX_STATS; i++)
+            if (PlayerInfo* info = _playerInfo[current_race][current_class])
             {
-                pLevelInfo->stats[i] = fields[i+3].GetUInt8();
+                if (!info->levelInfo)
+                    info->levelInfo = new PlayerLevelInfo[sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL)];
+
+                PlayerLevelInfo& levelInfo = info->levelInfo[current_level-1];
+                for (int i = 0; i < MAX_STATS; i++)
+                    levelInfo.stats[i] = fields[i+3].GetUInt8();
             }
 
             ++count;
