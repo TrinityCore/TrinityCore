@@ -24,6 +24,7 @@
 #include "BattlefieldWG.h"
 #include "SpellAuras.h"
 #include "Vehicle.h"
+#include "Player.h"
 
 enum WGVehicles
 {

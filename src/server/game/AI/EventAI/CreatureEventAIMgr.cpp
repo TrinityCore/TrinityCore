@@ -26,6 +26,7 @@
 #include "ConditionMgr.h"
 #include "SpellMgr.h"
 #include "SpellInfo.h"
+#include "Player.h"
 
 // -------------------
 void CreatureEventAIMgr::LoadCreatureEventAI_Texts()
@@ -98,52 +99,6 @@ void CreatureEventAIMgr::LoadCreatureEventAI_Texts()
     while (result->NextRow());
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u additional CreatureEventAI Texts data in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-}
-
-void CreatureEventAIMgr::LoadCreatureEventAI_Summons()
-{
-    uint32 oldMSTime = getMSTime();
-
-    //Drop Existing EventSummon Map
-    m_CreatureEventAI_Summon_Map.clear();
-
-    // Gather additional data for EventAI
-    QueryResult result = WorldDatabase.Query("SELECT id, position_x, position_y, position_z, orientation, spawntimesecs FROM creature_ai_summons");
-
-    if (!result)
-    {
-        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 CreatureEventAI Summon definitions. DB table `creature_ai_summons` is empty.");
-        return;
-    }
-
-    uint32 count = 0;
-
-    do
-    {
-        Field* fields = result->Fetch();
-
-        CreatureEventAI_Summon temp;
-
-        uint32 i = fields[0].GetUInt32();
-        temp.position_x = fields[1].GetFloat();
-        temp.position_y = fields[2].GetFloat();
-        temp.position_z = fields[3].GetFloat();
-        temp.orientation = fields[4].GetFloat();
-        temp.SpawnTimeSecs = fields[5].GetUInt32();
-
-        if (!Trinity::IsValidMapCoord(temp.position_x, temp.position_y, temp.position_z, temp.orientation))
-        {
-            sLog->outError(LOG_FILTER_SQL, "CreatureEventAI:  Summon id %u have wrong coordinates (%f, %f, %f, %f), skipping.", i, temp.position_x, temp.position_y, temp.position_z, temp.orientation);
-            continue;
-        }
-
-        //Add to map
-        m_CreatureEventAI_Summon_Map[i] = temp;
-        ++count;
-    }
-    while (result->NextRow());
-
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u CreatureEventAI summon definitions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
 void CreatureEventAIMgr::LoadCreatureEventAI_Scripts()
@@ -621,14 +576,6 @@ void CreatureEventAIMgr::LoadCreatureEventAI_Scripts()
                         std::swap(action.random_phase_range.phaseMin, action.random_phase_range.phaseMax);
                         // equal case processed at call
                     }
-                    break;
-                case ACTION_T_SUMMON_ID:
-                    if (!sObjectMgr->GetCreatureTemplate(action.summon_id.creatureId))
-                        sLog->outError(LOG_FILTER_SQL, "CreatureEventAI:  Event %u Action %u uses non-existant creature entry %u.", i, j+1, action.summon_id.creatureId);
-                    if (action.summon_id.target >= TARGET_T_END)
-                        sLog->outError(LOG_FILTER_SQL, "CreatureEventAI:  Event %u Action %u uses incorrect Target type", i, j+1);
-                    if (m_CreatureEventAI_Summon_Map.find(action.summon_id.spawnId) == m_CreatureEventAI_Summon_Map.end())
-                        sLog->outError(LOG_FILTER_SQL, "CreatureEventAI:  Event %u Action %u summons missing CreatureEventAI_Summon %u", i, j+1, action.summon_id.spawnId);
                     break;
                 case ACTION_T_KILLED_MONSTER:
                     if (!sObjectMgr->GetCreatureTemplate(action.killed_monster.creatureId))

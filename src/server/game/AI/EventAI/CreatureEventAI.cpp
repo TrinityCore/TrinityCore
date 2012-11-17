@@ -497,23 +497,6 @@ void CreatureEventAI::ProcessAction(CreatureEventAI_Action const& action, uint32
             }
             break;
         }
-        case ACTION_T_SUMMON:
-        {
-            Unit* target = GetTargetByType(action.summon.target, actionInvoker);
-
-            Creature* creature = NULL;
-
-            if (action.summon.duration)
-                creature = me->SummonCreature(action.summon.creatureId, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, action.summon.duration);
-            else
-                creature = me->SummonCreature(action.summon.creatureId, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 0);
-
-            if (!creature)
-                sLog->outError(LOG_FILTER_SQL, "CreatureEventAI: failed to spawn creature %u. Spawn event %d is on creature %d", action.summon.creatureId, eventId, me->GetEntry());
-            else if (action.summon.target != TARGET_T_SELF && target)
-                creature->AI()->AttackStart(target);
-            break;
-        }
         case ACTION_T_THREAT_SINGLE_PCT:
             if (Unit* target = GetTargetByType(action.threat_single_pct.target, actionInvoker))
                 me->getThreatManager().modifyThreatPercent(target, action.threat_single_pct.percent);
@@ -663,30 +646,6 @@ void CreatureEventAI::ProcessAction(CreatureEventAI_Action const& action, uint32
             else
                 sLog->outError(LOG_FILTER_SQL, "CreatureEventAI: ACTION_T_RANDOM_PHASE_RANGE cannot have Param2 < Param1. Event = %d. CreatureEntry = %d", eventId, me->GetEntry());
             break;
-        case ACTION_T_SUMMON_ID:
-        {
-            Unit* target = GetTargetByType(action.summon_id.target, actionInvoker);
-
-            CreatureEventAI_Summon_Map::const_iterator i = sEventAIMgr->GetCreatureEventAISummonMap().find(action.summon_id.spawnId);
-            if (i == sEventAIMgr->GetCreatureEventAISummonMap().end())
-            {
-                sLog->outError(LOG_FILTER_SQL, "CreatureEventAI: failed to spawn creature %u. Summon map index %u does not exist. EventID %d. CreatureID %d", action.summon_id.creatureId, action.summon_id.spawnId, eventId, me->GetEntry());
-                return;
-            }
-
-            Creature* creature = NULL;
-            if ((*i).second.SpawnTimeSecs)
-                creature = me->SummonCreature(action.summon_id.creatureId, (*i).second.position_x, (*i).second.position_y, (*i).second.position_z, (*i).second.orientation, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, (*i).second.SpawnTimeSecs);
-            else
-                creature = me->SummonCreature(action.summon_id.creatureId, (*i).second.position_x, (*i).second.position_y, (*i).second.position_z, (*i).second.orientation, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 0);
-
-            if (!creature)
-                sLog->outError(LOG_FILTER_SQL, "CreatureEventAI: failed to spawn creature %u. EventId %d.Creature %d", action.summon_id.creatureId, eventId, me->GetEntry());
-            else if (action.summon_id.target != TARGET_T_SELF && target)
-                creature->AI()->AttackStart(target);
-
-            break;
-        }
         case ACTION_T_KILLED_MONSTER:
             //first attempt player who tapped creature
             if (Player* player = me->GetLootRecipient())
@@ -798,7 +757,6 @@ void CreatureEventAI::ProcessAction(CreatureEventAI_Action const& action, uint32
             }
             break;
         }
-
         case ACTION_T_SET_SHEATH:
         {
             me->SetSheath(SheathState(action.set_sheath.sheath));

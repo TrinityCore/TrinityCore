@@ -153,10 +153,10 @@ class BfGraveyardWG : public BfGraveyard
     public:
         BfGraveyardWG(BattlefieldWG* Bf);
 
-        void SetTextId(uint32 textid) { m_GossipTextId = textid; }
-        uint32 GetTextId() { return m_GossipTextId; }
+        void SetTextId(int32 textid) { m_GossipTextId = textid; }
+        int32 GetTextId() { return m_GossipTextId; }
     protected:
-        uint32 m_GossipTextId;
+        int32 m_GossipTextId;
 };
 
 enum WGGraveyardId
@@ -227,7 +227,7 @@ struct BfWGCoordGY
     float o;
     uint32 gyid;
     uint8 type;
-    uint32 textid;              // for gossip menu
+    int32 textid;              // for gossip menu
     TeamId startcontrol;
 };
 
