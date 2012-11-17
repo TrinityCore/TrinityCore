@@ -20,25 +20,21 @@
 #define _PLAYER_H
 
 #include "AchievementMgr.h"
-#include "Bag.h"
 #include "Common.h"
 #include "DatabaseEnv.h"
 #include "DBCEnums.h"
 #include "GroupReference.h"
-#include "ItemPrototype.h"
 #include "Item.h"
 #include "MapReference.h"
-#include "NPCHandler.h"
 #include "Pet.h"
 #include "QuestDef.h"
 #include "ReputationMgr.h"
 #include "Unit.h"
-#include "Util.h"                                           // for Tokens typedef
 #include "WorldSession.h"
 #include "SpellMgr.h"
 
-#include<string>
-#include<vector>
+#include <string>
+#include <vector>
 
 struct Mail;
 class Channel;
