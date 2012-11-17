@@ -33,6 +33,7 @@
 #include "LFGMgr.h"
 #include "DynamicTree.h"
 #include "Vehicle.h"
+#include "Battleground.h"
 
 union u_map_magic
 {

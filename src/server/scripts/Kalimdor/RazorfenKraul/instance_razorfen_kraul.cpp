@@ -26,6 +26,7 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
 #include "razorfen_kraul.h"
+#include "Player.h"
 
 #define WARD_KEEPERS_NR 2
 

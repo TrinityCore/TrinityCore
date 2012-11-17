@@ -27,6 +27,7 @@ EndScriptData */
 #include "Chat.h"
 #include "AccountMgr.h"
 #include "World.h"
+#include "Player.h"
 
 class gm_commandscript : public CommandScript
 {

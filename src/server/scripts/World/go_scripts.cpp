@@ -55,6 +55,7 @@ EndContentData */
 #include "ScriptedGossip.h"
 #include "GameObjectAI.h"
 #include "Spell.h"
+#include "Player.h"
 
 /*######
 ## go_cat_figurine

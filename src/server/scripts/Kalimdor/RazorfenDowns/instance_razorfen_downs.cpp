@@ -18,6 +18,7 @@
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
 #include "razorfen_downs.h"
+#include "Player.h"
 
 #define    MAX_ENCOUNTER  1
 

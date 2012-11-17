@@ -20,6 +20,7 @@
 #include "ScriptedGossip.h"
 #include "blackfathom_deeps.h"
 #include "ScriptedEscortAI.h"
+#include "Player.h"
 
 enum Spells
 {

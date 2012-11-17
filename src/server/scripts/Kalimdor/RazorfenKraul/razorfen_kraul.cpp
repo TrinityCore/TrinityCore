@@ -31,6 +31,7 @@ EndContentData */
 #include "ScriptedCreature.h"
 #include "ScriptedEscortAI.h"
 #include "razorfen_kraul.h"
+#include "Player.h"
 
 #define SAY_READY -1047000
 #define SAY_POINT -1047001

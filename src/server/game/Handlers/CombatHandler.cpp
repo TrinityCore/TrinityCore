@@ -25,6 +25,7 @@
 #include "ObjectDefines.h"
 #include "Vehicle.h"
 #include "VehicleDefines.h"
+#include "Player.h"
 
 void WorldSession::HandleAttackSwingOpcode(WorldPacket& recvData)
 {

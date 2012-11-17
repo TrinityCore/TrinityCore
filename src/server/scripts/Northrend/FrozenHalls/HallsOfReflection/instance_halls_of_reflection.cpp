@@ -19,6 +19,7 @@
 #include "ScriptedCreature.h"
 #include "InstanceScript.h"
 #include "halls_of_reflection.h"
+#include "Player.h"
 
 #define MAX_ENCOUNTER 3
 

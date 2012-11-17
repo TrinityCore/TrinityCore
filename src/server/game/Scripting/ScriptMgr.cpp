@@ -30,6 +30,7 @@
 #include "SpellScript.h"
 #include "GossipDef.h"
 #include "CreatureAI.h"
+#include "Player.h"
 
 // This is the global static registry of scripts.
 template<class TScript>

@@ -23,6 +23,7 @@
 #include "SpellScript.h"
 #include "ulduar.h"
 #include "SpellInfo.h"
+#include "Player.h"
 
 enum Says
 {

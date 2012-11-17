@@ -19,6 +19,7 @@
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
 #include "ruby_sanctum.h"
+#include "Player.h"
 
 enum Texts
 {

@@ -28,6 +28,7 @@ EndScriptData */
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"
 #include "naxxramas.h"
+#include "Player.h"
 
 enum Yells
 {

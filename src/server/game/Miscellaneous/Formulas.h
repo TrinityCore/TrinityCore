@@ -22,6 +22,7 @@
 #include "World.h"
 #include "SharedDefines.h"
 #include "ScriptMgr.h"
+#include "Player.h"
 
 namespace Trinity
 {

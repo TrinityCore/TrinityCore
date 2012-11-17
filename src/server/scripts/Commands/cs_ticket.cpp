@@ -27,6 +27,7 @@ EndScriptData */
 #include "AccountMgr.h"
 #include "ObjectMgr.h"
 #include "TicketMgr.h"
+#include "Player.h"
 
 class ticket_commandscript : public CommandScript
 {

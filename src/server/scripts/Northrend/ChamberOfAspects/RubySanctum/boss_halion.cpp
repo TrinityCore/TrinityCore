@@ -24,6 +24,7 @@
 #include "GameObjectAI.h"
 #include "ScriptedCreature.h"
 #include "ruby_sanctum.h"
+#include "Player.h"
 
 /* ScriptData
 SDName: ruby_sanctum

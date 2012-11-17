@@ -27,6 +27,7 @@ EndScriptData */
 #include "ScriptedCreature.h"
 #include "serpent_shrine.h"
 #include "Spell.h"
+#include "Player.h"
 
 #define SAY_INTRO                   -1548042
 #define SAY_AGGRO1                  -1548043

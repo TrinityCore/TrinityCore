@@ -26,6 +26,7 @@
 #include "ConditionMgr.h"
 #include "SpellMgr.h"
 #include "SpellInfo.h"
+#include "Player.h"
 
 // -------------------
 void CreatureEventAIMgr::LoadCreatureEventAI_Texts()
