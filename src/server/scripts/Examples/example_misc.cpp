@@ -24,6 +24,7 @@ SDCategory: Script Examples
 EndScriptData */
 
 #include "ScriptMgr.h"
+#include "Player.h"
 
 enum eSay
 {

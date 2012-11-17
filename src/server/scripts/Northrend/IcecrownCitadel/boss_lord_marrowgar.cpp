@@ -21,6 +21,7 @@
 #include "SpellAuras.h"
 #include "MapManager.h"
 #include "icecrown_citadel.h"
+#include "Player.h"
 
 enum ScriptTexts
 {

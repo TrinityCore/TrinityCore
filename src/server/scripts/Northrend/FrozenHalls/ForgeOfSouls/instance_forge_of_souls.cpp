@@ -18,6 +18,7 @@
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
 #include "forge_of_souls.h"
+#include "Player.h"
 
 #define MAX_ENCOUNTER 2
 

@@ -24,6 +24,7 @@ EndScriptData */
 
 #include "ScriptMgr.h"
 #include "Chat.h"
+#include "Player.h"
 
 class achievement_commandscript : public CommandScript
 {

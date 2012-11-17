@@ -26,6 +26,7 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
 #include "dark_portal.h"
+#include "Player.h"
 
 #define MAX_ENCOUNTER              2
 

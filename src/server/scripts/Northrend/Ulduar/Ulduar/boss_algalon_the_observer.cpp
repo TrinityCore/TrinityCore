@@ -24,6 +24,7 @@
 #include "MapManager.h"
 #include "MoveSplineInit.h"
 #include "ulduar.h"
+#include "Player.h"
 
 enum Texts
 {

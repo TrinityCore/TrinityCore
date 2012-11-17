@@ -32,6 +32,7 @@ EndContentData */
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "GuardAI.h"
+#include "Player.h"
 
 enum GuardGeneric
 {

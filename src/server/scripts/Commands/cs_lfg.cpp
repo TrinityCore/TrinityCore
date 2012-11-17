@@ -19,6 +19,7 @@
 #include "Chat.h"
 #include "LFGMgr.h"
 #include "Group.h"
+#include "Player.h"
 
 void GetPlayerInfo(ChatHandler* handler, Player* player)
 {

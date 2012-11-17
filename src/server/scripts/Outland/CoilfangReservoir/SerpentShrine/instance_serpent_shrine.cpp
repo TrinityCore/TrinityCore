@@ -26,6 +26,7 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
 #include "serpent_shrine.h"
+#include "Player.h"
 
 #define MAX_ENCOUNTER 6
 #define SPELL_SCALDINGWATER 37284

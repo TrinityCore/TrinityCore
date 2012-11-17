@@ -27,6 +27,7 @@ EndScriptData */
 #include "ScriptedCreature.h"
 #include "InstanceScript.h"
 #include "stratholme.h"
+#include "Player.h"
 
 #define GO_SERVICE_ENTRANCE     175368
 #define GO_GAUNTLET_GATE1       175357

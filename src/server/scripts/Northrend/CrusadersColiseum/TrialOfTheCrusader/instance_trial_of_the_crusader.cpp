@@ -19,6 +19,7 @@
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
 #include "trial_of_the_crusader.h"
+#include "Player.h"
 
 class instance_trial_of_the_crusader : public InstanceMapScript
 {

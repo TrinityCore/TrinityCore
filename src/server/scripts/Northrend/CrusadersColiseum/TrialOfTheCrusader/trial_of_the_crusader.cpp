@@ -23,6 +23,7 @@
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
 #include "trial_of_the_crusader.h"
+#include "Player.h"
 
 enum eYells
 {

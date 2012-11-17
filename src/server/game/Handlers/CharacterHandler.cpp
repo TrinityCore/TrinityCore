@@ -772,7 +772,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
 
     Player* pCurrChar = new Player(this);
      // for send server info and strings (config)
-    ChatHandler chH = ChatHandler(pCurrChar);
+    ChatHandler chH = ChatHandler(pCurrChar->GetSession());
 
     // "GetAccountId() == db stored account id" checked in LoadFromDB (prevent login not own character using cheating tools)
     if (!pCurrChar->LoadFromDB(GUID_LOPART(playerGuid), holder))

@@ -26,6 +26,7 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "karazhan.h"
+#include "Player.h"
 
 #define EMOTE_PHASE_PORTAL          -1532089
 #define EMOTE_PHASE_BANISH          -1532090

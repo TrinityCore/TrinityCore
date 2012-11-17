@@ -19,6 +19,7 @@
 #include "ScriptedCreature.h"
 #include "InstanceScript.h"
 #include "oculus.h"
+#include "Player.h"
 
 #define MAX_ENCOUNTER 4
 

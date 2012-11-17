@@ -18,6 +18,7 @@
 
 #include "ObjectMgr.h"                                      // for normalizePlayerName
 #include "ChannelMgr.h"
+#include "Player.h"
 
 void WorldSession::HandleJoinChannel(WorldPacket& recvPacket)
 {

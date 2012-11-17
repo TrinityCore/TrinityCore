@@ -27,6 +27,7 @@ EndScriptData */
 #include "ScriptedCreature.h"
 #include "InstanceScript.h"
 #include "old_hillsbrad.h"
+#include "Player.h"
 
 #define MAX_ENCOUNTER      6
 

@@ -18,6 +18,7 @@
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "forge_of_souls.h"
+#include "Player.h"
 
 /*
  * TODO:

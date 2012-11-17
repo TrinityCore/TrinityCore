@@ -27,6 +27,7 @@ EndScriptData */
 #include "SystemConfig.h"
 #include "Config.h"
 #include "ObjectAccessor.h"
+#include "Player.h"
 
 class server_commandscript : public CommandScript
 {
