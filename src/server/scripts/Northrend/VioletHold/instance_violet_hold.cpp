@@ -18,6 +18,7 @@
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
 #include "violet_hold.h"
+#include "Player.h"
 
 #define MAX_ENCOUNTER          3
 

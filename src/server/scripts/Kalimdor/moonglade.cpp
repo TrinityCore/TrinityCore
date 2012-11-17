@@ -35,6 +35,7 @@ EndContentData */
 #include "ScriptedCreature.h"
 #include "ScriptedEscortAI.h"
 #include "ScriptedGossip.h"
+#include "Player.h"
 
 /*######
 ## npc_bunthen_plainswind

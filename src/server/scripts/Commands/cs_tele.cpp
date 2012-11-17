@@ -27,6 +27,7 @@ EndScriptData */
 #include "MapManager.h"
 #include "Chat.h"
 #include "Group.h"
+#include "Player.h"
 
 class tele_commandscript : public CommandScript
 {
@@ -178,7 +179,7 @@ public:
 
             handler->PSendSysMessage(LANG_TELEPORTING_TO, chrNameLink.c_str(), "", tele->name.c_str());
             if (handler->needReportToTarget(target))
-                (ChatHandler(target)).PSendSysMessage(LANG_TELEPORTED_TO_BY, handler->GetNameLink().c_str());
+                ChatHandler(target->GetSession()).PSendSysMessage(LANG_TELEPORTED_TO_BY, handler->GetNameLink().c_str());
 
             // stop flight if need
             if (target->isInFlight())
@@ -274,7 +275,7 @@ public:
 
             handler->PSendSysMessage(LANG_TELEPORTING_TO, plNameLink.c_str(), "", tele->name.c_str());
             if (handler->needReportToTarget(player))
-                (ChatHandler(player)).PSendSysMessage(LANG_TELEPORTED_TO_BY, nameLink.c_str());
+                ChatHandler(player->GetSession()).PSendSysMessage(LANG_TELEPORTED_TO_BY, nameLink.c_str());
 
             // stop flight if need
             if (player->isInFlight())

@@ -33,6 +33,7 @@ EndContentData */
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
 #include "Group.h"
+#include "Player.h"
 
 /*###
 ## npc_highlord_demitrian

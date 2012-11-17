@@ -26,6 +26,7 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "magtheridons_lair.h"
+#include "Player.h"
 
 struct Yell
 {

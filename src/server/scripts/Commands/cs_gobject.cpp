@@ -28,6 +28,7 @@ EndScriptData */
 #include "PoolMgr.h"
 #include "MapManager.h"
 #include "Chat.h"
+#include "Player.h"
 
 class gobject_commandscript : public CommandScript
 {

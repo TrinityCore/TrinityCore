@@ -29,6 +29,7 @@
 #include "TargetedMovementGenerator.h"
 #include "WeatherMgr.h"
 #include "ace/INET_Addr.h"
+#include "Player.h"
 
 class misc_commandscript : public CommandScript
 {
@@ -495,7 +496,7 @@ public:
 
             handler->PSendSysMessage(LANG_SUMMONING, nameLink.c_str(), "");
             if (handler->needReportToTarget(target))
-                ChatHandler(target).PSendSysMessage(LANG_SUMMONED_BY, handler->playerLink(_player->GetName()).c_str());
+                ChatHandler(target->GetSession()).PSendSysMessage(LANG_SUMMONED_BY, handler->playerLink(_player->GetName()).c_str());
 
             // stop flight if need
             if (target->isInFlight())
@@ -606,7 +607,7 @@ public:
 
             handler->PSendSysMessage(LANG_SUMMONING, plNameLink.c_str(), "");
             if (handler->needReportToTarget(player))
-                ChatHandler(player).PSendSysMessage(LANG_SUMMONED_BY, handler->GetNameLink().c_str());
+                ChatHandler(player->GetSession()).PSendSysMessage(LANG_SUMMONED_BY, handler->GetNameLink().c_str());
 
             // stop flight if need
             if (player->isInFlight())
@@ -1804,7 +1805,7 @@ public:
             int64 muteTime = time(NULL) + notSpeakTime * MINUTE;
             target->GetSession()->m_muteTime = muteTime;
             stmt->setInt64(0, muteTime);
-            ChatHandler(target).PSendSysMessage(LANG_YOUR_CHAT_DISABLED, notSpeakTime, muteReasonStr.c_str());
+            ChatHandler(target->GetSession()).PSendSysMessage(LANG_YOUR_CHAT_DISABLED, notSpeakTime, muteReasonStr.c_str());
         }
         else
         {
@@ -1860,7 +1861,7 @@ public:
         LoginDatabase.Execute(stmt);
 
         if (target)
-            ChatHandler(target).PSendSysMessage(LANG_YOUR_CHAT_ENABLED);
+            ChatHandler(target->GetSession()).PSendSysMessage(LANG_YOUR_CHAT_ENABLED);
 
         std::string nameLink = handler->playerLink(targetName);
 
@@ -2137,7 +2138,7 @@ public:
 
         handler->PSendSysMessage(LANG_YOU_REPAIR_ITEMS, handler->GetNameLink(target).c_str());
         if (handler->needReportToTarget(target))
-            ChatHandler(target).PSendSysMessage(LANG_YOUR_ITEMS_REPAIRED, handler->GetNameLink().c_str());
+            ChatHandler(target->GetSession()).PSendSysMessage(LANG_YOUR_ITEMS_REPAIRED, handler->GetNameLink().c_str());
 
         return true;
     }

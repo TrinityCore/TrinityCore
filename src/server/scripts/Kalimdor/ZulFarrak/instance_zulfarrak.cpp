@@ -18,6 +18,7 @@
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
 #include "zulfarrak.h"
+#include "Player.h"
 
 #define NPC_GAHZRILLA 7273
 #define PATH_ADDS 81553

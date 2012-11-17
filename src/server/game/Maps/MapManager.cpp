@@ -33,6 +33,7 @@
 #include "Language.h"
 #include "WorldPacket.h"
 #include "Group.h"
+#include "Player.h"
 
 extern GridState* si_GridStates[];                          // debugging code, should be deleted some day
 

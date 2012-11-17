@@ -24,6 +24,7 @@ EndScriptData */
 
 #include "ScriptMgr.h"
 #include "Chat.h"
+#include "Player.h"
 
 class cast_commandscript : public CommandScript
 {

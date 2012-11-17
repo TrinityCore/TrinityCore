@@ -27,6 +27,8 @@ EndScriptData */
 #include "Chat.h"
 #include "DisableMgr.h"
 #include "OutdoorPvP.h"
+#include "SpellMgr.h"
+#include "Player.h"
 
 class disable_commandscript : public CommandScript
 {

@@ -27,6 +27,7 @@ EndScriptData */
 #include "MapManager.h"
 #include "TicketMgr.h"
 #include "Chat.h"
+#include "Player.h"
 
 class go_commandscript : public CommandScript
 {

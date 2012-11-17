@@ -21,11 +21,9 @@
 
 #include "ObjectAccessor.h"
 #include "WorldPacket.h"
-#include "World.h"
-#include "Group.h"
-#include "GroupMgr.h"
 #include "Battlefield.h"
 
+class Group;
 class BattlefieldWG;
 class WintergraspCapturePoint;
 

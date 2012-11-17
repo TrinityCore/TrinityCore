@@ -26,6 +26,7 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
 #include "black_temple.h"
+#include "Player.h"
 
 #define MAX_ENCOUNTER      9
 

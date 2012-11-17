@@ -25,6 +25,7 @@ EndScriptData */
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "Player.h"
 
 #define SPELL_INHIBITMAGIC          32264
 #define SPELL_ATTRACTMAGIC          32265

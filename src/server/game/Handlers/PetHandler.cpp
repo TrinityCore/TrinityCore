@@ -31,6 +31,7 @@
 #include "World.h"
 #include "Group.h"
 #include "SpellInfo.h"
+#include "Player.h"
 
 void WorldSession::HandleDismissCritter(WorldPacket& recvData)
 {

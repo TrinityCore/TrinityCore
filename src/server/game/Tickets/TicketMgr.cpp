@@ -24,6 +24,7 @@
 #include "WorldSession.h"
 #include "Chat.h"
 #include "World.h"
+#include "Player.h"
 
 inline float GetAge(uint64 t) { return float(time(NULL) - t) / DAY; }
 

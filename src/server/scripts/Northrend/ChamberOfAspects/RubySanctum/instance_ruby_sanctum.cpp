@@ -18,7 +18,7 @@
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
 #include "ruby_sanctum.h"
-
+#include "Player.h"
 
 DoorData const doorData[] =
 {
