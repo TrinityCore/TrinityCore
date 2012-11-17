@@ -34,6 +34,7 @@ EndContentData */
 #include "SpellAuraEffects.h"
 #include "ScriptedEscortAI.h"
 #include "shadowfang_keep.h"
+#include "Player.h"
 
 /*######
 ## npc_shadowfang_prisoner

@@ -26,6 +26,7 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "serpent_shrine.h"
+#include "Player.h"
 
 // --- Spells used by Leotheras The Blind
 #define SPELL_WHIRLWIND         37640

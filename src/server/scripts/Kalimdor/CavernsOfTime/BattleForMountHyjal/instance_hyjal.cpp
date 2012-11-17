@@ -27,6 +27,7 @@ EndScriptData */
 #include "InstanceScript.h"
 #include "ScriptedCreature.h"
 #include "hyjal_trash.h"
+#include "Player.h"
 
 enum Misc
 {

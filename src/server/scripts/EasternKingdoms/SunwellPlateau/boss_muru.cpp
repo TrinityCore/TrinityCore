@@ -24,6 +24,7 @@ SDComment: all sounds, black hole effect triggers to often (46228)
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "sunwell_plateau.h"
+#include "Player.h"
 
 // Muru & Entropius's spells
 enum Spells

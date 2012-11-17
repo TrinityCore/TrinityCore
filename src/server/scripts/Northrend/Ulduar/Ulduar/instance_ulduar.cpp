@@ -19,6 +19,7 @@
 #include "ScriptedCreature.h"
 #include "InstanceScript.h"
 #include "ulduar.h"
+#include "Player.h"
 
 static DoorData const doorData[] =
 {

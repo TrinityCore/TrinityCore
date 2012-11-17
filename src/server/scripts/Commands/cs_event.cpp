@@ -25,6 +25,7 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "GameEventMgr.h"
 #include "Chat.h"
+#include "Player.h"
 
 class event_commandscript : public CommandScript
 {

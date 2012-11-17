@@ -20,6 +20,7 @@
 #include "ScriptedGossip.h"
 #include "ScriptedEscortAI.h"
 #include "halls_of_stone.h"
+#include "Player.h"
 
 enum Texts
 {

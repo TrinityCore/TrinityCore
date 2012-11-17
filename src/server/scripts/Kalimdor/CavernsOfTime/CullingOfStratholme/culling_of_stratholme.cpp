@@ -21,6 +21,7 @@
 #include "culling_of_stratholme.h"
 #include "ScriptedEscortAI.h"
 #include "PassiveAI.h"
+#include "Player.h"
 
 enum Says
 {

@@ -27,6 +27,7 @@ EndScriptData */
 #include "ScriptedCreature.h"
 #include "serpent_shrine.h"
 #include "Spell.h"
+#include "Player.h"
 
 #define SPELL_SPOUT         37433
 #define SPELL_SPOUT_ANIM    42835

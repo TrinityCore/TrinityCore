@@ -19,6 +19,7 @@
 #include "InstanceScript.h"
 #include "CreatureTextMgr.h"
 #include "culling_of_stratholme.h"
+#include "Player.h"
 
 #define MAX_ENCOUNTER 5
 

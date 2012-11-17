@@ -29,6 +29,7 @@ EndScriptData */
 #include "CreatureGroups.h"
 #include "TargetedMovementGenerator.h"                      // for HandleNpcUnFollowCommand
 #include "CreatureAI.h"
+#include "Player.h"
 
 class npc_commandscript : public CommandScript
 {
