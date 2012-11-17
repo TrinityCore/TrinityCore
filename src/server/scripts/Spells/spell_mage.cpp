@@ -380,6 +380,49 @@ class spell_mage_living_bomb : public SpellScriptLoader
         }
 };
 
+enum ConeOfColdSpells
+{
+    SPELL_CONE_OF_COLD_AURA_R1      = 11190, // Improved Cone of Cold Rank 1 aura
+    SPELL_CONE_OF_COLD_AURA_R2      = 12489, // Improved Cone of Cold Rank 2 aura
+    SPELL_CONE_OF_COLD_TRIGGER_R1   = 83301, // Improved Cone of Cold Rank 1 Trigger
+    SPELL_CONE_OF_COLD_TRIGGER_R2   = 83302, // Improved Cone of Cold Rank 2 Trigger
+};
+
+// 120 Cone of Cold
+/// Updated 4.3.4
+class spell_mage_cone_of_cold : public SpellScriptLoader
+{
+public:
+    spell_mage_cone_of_cold() : SpellScriptLoader("spell_mage_cone_of_cold") { }
+
+    class spell_mage_cone_of_cold_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_mage_cone_of_cold_SpellScript);
+
+        void HandleConeOfColdScript(SpellEffIndex effIndex)
+        {
+            Unit* caster = GetCaster();
+            if (Unit* unitTarget = GetHitUnit())
+            {
+                if (caster->HasAura(SPELL_CONE_OF_COLD_AURA_R1)) // Improved Cone of Cold Rank 1
+                    unitTarget->CastSpell(unitTarget, SPELL_CONE_OF_COLD_TRIGGER_R1, true);
+                else if (caster->HasAura(SPELL_CONE_OF_COLD_AURA_R2)) // Improved Cone of Cold Rank 2
+                        unitTarget->CastSpell(unitTarget, SPELL_CONE_OF_COLD_TRIGGER_R2, true);
+            }
+        }
+
+        void Register()
+        {
+            OnEffectHitTarget += SpellEffectFn(spell_mage_cone_of_cold_SpellScript::HandleConeOfColdScript, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_mage_cone_of_cold_SpellScript();
+    }
+};
+
 void AddSC_mage_spell_scripts()
 {
     new spell_mage_blast_wave();
@@ -390,4 +433,5 @@ void AddSC_mage_spell_scripts()
     new spell_mage_polymorph_cast_visual();
     new spell_mage_summon_water_elemental();
     new spell_mage_living_bomb();
+    new spell_mage_cone_of_cold();
 }
