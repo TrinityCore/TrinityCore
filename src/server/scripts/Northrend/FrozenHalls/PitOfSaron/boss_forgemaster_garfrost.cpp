@@ -48,16 +48,6 @@ enum Spells
 #define SPELL_PERMAFROST_HELPER RAID_MODE<uint32>(68786, 70336)
 #define SPELL_FORGE_BLADE_HELPER RAID_MODE<uint32>(68774, 70334)
 
-enum Events
-{
-    EVENT_THROW_SARONITE    = 1,
-    EVENT_CHILLING_WAVE     = 2,
-    EVENT_DEEP_FREEZE       = 3,
-    EVENT_JUMP              = 4,
-    EVENT_FORGING           = 5,
-    EVENT_RESUME_ATTACK     = 6,
-};
-
 enum Phases
 {
     PHASE_ONE           = 1,
@@ -82,6 +72,15 @@ Position const southForgePos = {639.257f, -210.1198f, 529.015f, 0.523599f};
 
 class boss_garfrost : public CreatureScript
 {
+enum Events
+{
+    EVENT_THROW_SARONITE    = 1,
+    EVENT_CHILLING_WAVE     = 2,
+    EVENT_DEEP_FREEZE       = 3,
+    EVENT_JUMP              = 4,
+    EVENT_FORGING           = 5,
+    EVENT_RESUME_ATTACK     = 6,
+};
     public:
         boss_garfrost() : CreatureScript("boss_garfrost") { }
 
