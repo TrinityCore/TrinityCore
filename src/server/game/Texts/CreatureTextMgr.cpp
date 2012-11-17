@@ -302,9 +302,9 @@ uint32 CreatureTextMgr::SendChat(Creature* source, uint8 textGroup, uint64 whisp
     if (iter->emote)
         SendEmote(finalSource, iter->emote);
 
-    if (srcPlayer)
+    if (srcPlr)
     {
-        PlayerTextBuilder builder(source, finalSource, iter->group, iter->id, finalLang, whisperGuid);
+        PlayerTextBuilder builder(source, finalSource, finalType, iter->group, iter->id, finalLang, whisperGuid);
         SendChatPacket(finalSource, builder, finalType, whisperGuid, range, team, gmOnly);
     }
     else
