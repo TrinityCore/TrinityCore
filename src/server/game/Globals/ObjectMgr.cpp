@@ -3196,8 +3196,13 @@ void ObjectMgr::LoadPlayerInfo()
                             if (PlayerInfo * info = _playerInfo[r][c])
                                 info->spell.push_back(fields[2].GetUInt32());
                 }
+                else if (PlayerInfo * info = _playerInfo[current_race][current_class])
+                    info->spell.push_back(fields[2].GetUInt32());
                 else
-                    _playerInfo[current_race][current_class]->spell.push_back(fields[2].GetUInt32());
+                {
+                    sLog->outError(LOG_FILTER_SQL, "Wrong race: %u, class: %u combination in `playercreateinfo_spell` table, ignoring.", current_race, current_class);
+                    continue;
+                }
 
                 ++count;
             }
