@@ -186,7 +186,7 @@ class boss_blood_council_controller : public CreatureScript
             void Reset()
             {
                 events.Reset();
-                me->SetReactState(REACT_PASSIVE);
+                me->SetReactState(REACT_DEFENSIVE);
                 _invocationStage = 0;
                 _resetCounter = 0;
 
@@ -230,7 +230,7 @@ class boss_blood_council_controller : public CreatureScript
                 events.ScheduleEvent(EVENT_INVOCATION_OF_BLOOD, 46500);
 
                 _invocationOrder[0] = InvocationData(instance->GetData64(DATA_PRINCE_VALANAR_GUID), SPELL_INVOCATION_OF_BLOOD_VALANAR, EMOTE_VALANAR_INVOCATION, 71070);
-                if (urand(0, 1))
+                if (urand(1, 2))
                 {
                     _invocationOrder[1] = InvocationData(instance->GetData64(DATA_PRINCE_TALDARAM_GUID), SPELL_INVOCATION_OF_BLOOD_TALDARAM, EMOTE_TALDARAM_INVOCATION, 71081);
                     _invocationOrder[2] = InvocationData(instance->GetData64(DATA_PRINCE_KELESETH_GUID), SPELL_INVOCATION_OF_BLOOD_KELESETH, EMOTE_KELESETH_INVOCATION, 71080);
@@ -825,7 +825,7 @@ class boss_prince_valanar_icc : public CreatureScript
 
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
                 _isEmpowered = false;
-                me->SetHealth(_spawnHealth);
+                me->SetHealth(me->GetMaxHealth());
                 instance->SetData(DATA_ORB_WHISPERER_ACHIEVEMENT, uint32(true));
                 me->SetReactState(REACT_DEFENSIVE);
             }
