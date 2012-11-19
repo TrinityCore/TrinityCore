@@ -16,7 +16,7 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,
 -- Add missing gossip
 SET @GOSSIP := 9674;
 DELETE FROM `gossip_menu_option` WHERE `menu_id`=9674 AND `id`=0;
-INSERT INTO `gossip_menu_option` (`menu_id`,`id`,`option_icon`,`option_text`,`option_id`,`npc_option_npcflag`,`action_menu_id`,`action_poi_id`,`box_coded`,`box_money`,`box_text`) VALUES 
+INSERT INTO `gossip_menu_option` (`menu_id`,`id`,`option_icon`,`option_text`,`option_id`,`npc_option_npcflag`,`action_menu_id`,`action_poi_id`,`box_coded`,`box_money`,`box_text`) VALUES
 (@GOSSIP,0,0,"You look safe enough... let's do this.",1,1,0,0,0,0, '');
 -- [SAI] On gossip select - mount and waypoint
 SET @ENTRY := 28298;

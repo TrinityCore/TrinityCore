@@ -1,4 +1,4 @@
-SET @Ref := 12002; 
+SET @Ref := 12002;
 DELETE FROM `reference_loot_template` WHERE `entry`=@Ref;
 INSERT INTO `reference_loot_template` (`entry`,`item`,`ChanceOrQuestChance`,`lootmode`,`groupid`,`mincountOrRef`,`maxcount`) VALUES
 (@Ref,47242,100,1,0,1,1);

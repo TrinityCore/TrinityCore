@@ -1,5 +1,5 @@
 DELETE FROM `spell_enchant_proc_data` WHERE `entry` IN(803, 912, 1894, 1898, 1899, 1900, 2673, 2675, 3225, 3239, 3241, 3273, 3368, 3369, 3789, 3869);
-INSERT INTO spell_enchant_proc_data (`entry`, `customChance`, `PPMChance`,`procEx`) VALUES 
+INSERT INTO spell_enchant_proc_data (`entry`, `customChance`, `PPMChance`,`procEx`) VALUES
  -- Fiery Weapon
 (803, 0, 6.0,0),
  -- Demonslaying

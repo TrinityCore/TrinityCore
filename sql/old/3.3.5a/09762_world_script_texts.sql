@@ -1,5 +1,5 @@
 DELETE FROM `script_texts` WHERE `entry` BETWEEN -1000522 AND -1000517;
-INSERT INTO `script_texts`(`npc_entry`,`entry`,`content_default`,`content_loc1`,`content_loc2`,`content_loc3`,`content_loc4`,`content_loc5`,`content_loc6`,`content_loc7`,`content_loc8`,`sound`,`type`,`language`,`emote`,`comment`) VALUES 
+INSERT INTO `script_texts`(`npc_entry`,`entry`,`content_default`,`content_loc1`,`content_loc2`,`content_loc3`,`content_loc4`,`content_loc5`,`content_loc6`,`content_loc7`,`content_loc8`,`sound`,`type`,`language`,`emote`,`comment`) VALUES
 (0,-1000517,'A-Me good. Good, A-Me. Follow... follow A-Me. Home. A-Me go home.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,'npc_ame - SAY_READY'),
 (0,-1000518,'$c, no hurt A-Me. A-Me good.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,'npc_ame - SAY_AGGRO1'),
 (0,-1000519,'Good... good, A-Me. A-Me good. Home. Find home.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,'npc_ame - SAY_SEARCH'),
@@ -8,20 +8,20 @@ INSERT INTO `script_texts`(`npc_entry`,`entry`,`content_default`,`content_loc1`,
 (0,-1000522,'A-Me home! A-Me good! Good A-Me. Home. Home. Home.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,'npc_ame - SAY_FINISH');
 
 DELETE FROM `script_texts` WHERE `entry` BETWEEN -1000525 AND -1000523;
-INSERT INTO `script_texts`(`npc_entry`,`entry`,`content_default`,`content_loc1`,`content_loc2`,`content_loc3`,`content_loc4`,`content_loc5`,`content_loc6`,`content_loc7`,`content_loc8`,`sound`,`type`,`language`,`emote`,`comment`) VALUES 
+INSERT INTO `script_texts`(`npc_entry`,`entry`,`content_default`,`content_loc1`,`content_loc2`,`content_loc3`,`content_loc4`,`content_loc5`,`content_loc6`,`content_loc7`,`content_loc8`,`sound`,`type`,`language`,`emote`,`comment`) VALUES
 (0,-1000523,'Saeed is currently engaged or awaiting orders to engage. You may check directly east of me and see if Saeed is ready for you. If he is not present then he is off fighting another battle. I recommend that you wait for him to return before attacking Dimensius.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,4,0,0,'npc_professor_dabiri - WHISPER_DABIRI'),
 (0,-1000524,'Bessy, is that you?',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,'npc_bessy - SAY_THADELL_1'),
 (0,-1000525,'Thank you for bringing back my Bessy, $N. I couldn''t live without her!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,'npc_bessy - SAY_THADELL_2');
 
 DELETE FROM `script_texts` WHERE `entry` BETWEEN -1000574 AND -1000571;
-INSERT INTO `script_texts`(`npc_entry`,`entry`,`content_default`,`content_loc1`,`content_loc2`,`content_loc3`,`content_loc4`,`content_loc5`,`content_loc6`,`content_loc7`,`content_loc8`,`sound`,`type`,`language`,`emote`,`comment`) VALUES 
+INSERT INTO `script_texts`(`npc_entry`,`entry`,`content_default`,`content_loc1`,`content_loc2`,`content_loc3`,`content_loc4`,`content_loc5`,`content_loc6`,`content_loc7`,`content_loc8`,`sound`,`type`,`language`,`emote`,`comment`) VALUES
 (0,-1000571,'Ok let''s get out of here!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,'npc_isla_starmane - SAY_PROGRESS_1'),
 (0,-1000572,'You sure you''re ready? Take a moment.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,'npc_isla_starmane - SAY_PROGRESS_2'),
 (0,-1000573,'Alright, let''s do this!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,'npc_isla_starmane - SAY_PROGRESS_3'),
 (0,-1000574,'Ok, I think I can make it on my own from here. Thank you so much for breaking me out of there!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,'npc_isla_starmane - SAY_PROGRESS_4');
 
 DELETE FROM `script_texts` WHERE `entry` BETWEEN -1000621 AND -1000606;
-INSERT INTO `script_texts`(`npc_entry`,`entry`,`content_default`,`content_loc1`,`content_loc2`,`content_loc3`,`content_loc4`,`content_loc5`,`content_loc6`,`content_loc7`,`content_loc8`,`sound`,`type`,`language`,`emote`,`comment`) VALUES 
+INSERT INTO `script_texts`(`npc_entry`,`entry`,`content_default`,`content_loc1`,`content_loc2`,`content_loc3`,`content_loc4`,`content_loc5`,`content_loc6`,`content_loc7`,`content_loc8`,`sound`,`type`,`language`,`emote`,`comment`) VALUES
 (0,-1000606,'Come, $N. Lord Stormrage awaits.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,1,'OVERLORD_SAY_1'),
 (0,-1000607,'Lord Illidan will be here shortly.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,1,'OVERLORD_SAY_2'),
 (0,-1000609,'But... My lord, I do not understand. $N... He is the orc that has...',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,1,'OVERLORD_SAY_4'),
@@ -39,7 +39,7 @@ INSERT INTO `script_texts`(`npc_entry`,`entry`,`content_default`,`content_loc1`,
 (0,-1000621,'You will not harm the boy, Mor''ghor! Quickly, $N, climb on my back!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,22,'YARZILL_THE_MERC_SAY');
 
 DELETE FROM `script_texts` WHERE `entry` BETWEEN -1000636 AND -1000629;
-INSERT INTO `script_texts`(`npc_entry`,`entry`,`content_default`,`content_loc1`,`content_loc2`,`content_loc3`,`content_loc4`,`content_loc5`,`content_loc6`,`content_loc7`,`content_loc8`,`sound`,`type`,`language`,`emote`,`comment`) VALUES 
+INSERT INTO `script_texts`(`npc_entry`,`entry`,`content_default`,`content_loc1`,`content_loc2`,`content_loc3`,`content_loc4`,`content_loc5`,`content_loc6`,`content_loc7`,`content_loc8`,`sound`,`type`,`language`,`emote`,`comment`) VALUES
 (0,-1000629,'What''s the big idea, Spark?',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,'geezle - GEEZLE_SAY_1'),
 (0,-1000630,'What''s the big idea? You nearly blew my cover, idiot! I told you to put the compass and navigation maps somewhere safe - not out in the open for any fool to discover.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,4,'geezle - SPARK_SAY_2'),
 (0,-1000631,'The Master has gone to great lengths to secure information about the whereabouts of the Exodar. You could have blown the entire operation, including the cover of our spy on the inside.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,'geezle - SPARK_SAY_3'),
@@ -50,7 +50,7 @@ INSERT INTO `script_texts`(`npc_entry`,`entry`,`content_default`,`content_loc1`,
 (0,-1000636,'picks up the naga flag.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,2,0,0,'geezle - EMOTE_SPARK');
 
 DELETE FROM `script_texts` WHERE `entry` BETWEEN -1800070 AND -1800064;
-INSERT INTO `script_texts`(`npc_entry`,`entry`,`content_default`,`content_loc1`,`content_loc2`,`content_loc3`,`content_loc4`,`content_loc5`,`content_loc6`,`content_loc7`,`content_loc8`,`sound`,`type`,`language`,`emote`,`comment`) VALUES 
+INSERT INTO `script_texts`(`npc_entry`,`entry`,`content_default`,`content_loc1`,`content_loc2`,`content_loc3`,`content_loc4`,`content_loc5`,`content_loc6`,`content_loc7`,`content_loc8`,`sound`,`type`,`language`,`emote`,`comment`) VALUES
 (0,-1800064,'Beware! We are attacked!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,11,1,'npc_anchorite_truuen - SAY_WP_0'),
 (0,-1800065,'It must be the purity of the Mark of the Lightbringer that is drawing forth the Scourge to attack us. We must proceed with caution lest we be overwhelmed!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,11,1,'npc_anchorite_truuen - SAY_WP_1'),
 (0,-1800066,'This land truly needs to be cleansed by the Light! Let us continue on to the tomb. It isn''t far now...',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,11,1,'npc_anchorite_truuen - SAY_WP_2'),
@@ -60,5 +60,5 @@ INSERT INTO `script_texts`(`npc_entry`,`entry`,`content_default`,`content_loc1`,
 (0,-1800070,'Thank you my friend for making this possible. This is a day that I shall never forget! I think I will stay a while. Please return to High Priestess MacDonnell at the camp. I know that she''ll be keenly interested to know of what has transpired here.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,11,1,'npc_anchorite_truuen - SAY_WP_6');
 
 DELETE FROM `script_texts` WHERE `entry`=-1000600;
-INSERT INTO `script_texts`(`npc_entry`,`entry`,`content_default`,`content_loc1`,`content_loc2`,`content_loc3`,`content_loc4`,`content_loc5`,`content_loc6`,`content_loc7`,`content_loc8`,`sound`,`type`,`language`,`emote`,`comment`) VALUES 
+INSERT INTO `script_texts`(`npc_entry`,`entry`,`content_default`,`content_loc1`,`content_loc2`,`content_loc3`,`content_loc4`,`content_loc5`,`content_loc6`,`content_loc7`,`content_loc8`,`sound`,`type`,`language`,`emote`,`comment`) VALUES
 (0,-1000600,'Ow! OK, I''ll get back to work, $N!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,11,1,'npc_lazy_peon - SAY_WP_0');

@@ -1,5 +1,5 @@
 RENAME TABLE `vehicle_accessory` TO `vehicle_template_accessory`;
- 
+
 CREATE TABLE IF NOT EXISTS `vehicle_accessory` (
   `guid` MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT 0,
   `accessory_entry` MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT 0,

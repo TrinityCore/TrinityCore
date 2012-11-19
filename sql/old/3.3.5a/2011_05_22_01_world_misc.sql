@@ -34,7 +34,7 @@ UPDATE `creature_template` SET `exp`=2,`unit_flags`=`unit_flags`|0x22040300 WHER
 
 -- Equips
 DELETE FROM `creature_equip_template` WHERE `entry` BETWEEN @EquiEntry AND @EquiEntry+6;
-INSERT INTO `creature_equip_template` (`entry`,`itemEntry1`,`itemEntry2`,`itemEntry3`) VALUES 
+INSERT INTO `creature_equip_template` (`entry`,`itemEntry1`,`itemEntry2`,`itemEntry3`) VALUES
 (@EquiEntry+0,43111,0,0),
 (@EquiEntry+1,28365,0,0),
 (@EquiEntry+2,19355,0,0),

@@ -50,8 +50,7 @@ UPDATE `creature_model_info` SET `bounding_radius`=1.24, `combat_reach`=12 WHERE
 UPDATE `gameobject` SET `spawnMask`=15 WHERE `guid`=151192;
 
 -- adding ToC boss immunities
-UPDATE `creature_template` SET `mechanic_immune_mask`=`mechanic_immune_mask` | 1 | 2 | 4 | 8 | 16 | 32 | 64 | 128 | 256 | 512 | 1024 | 2048 | 4096 | 8192 | 65536 | 131072 | 524288 | 4194304 | 8388608 | 67108864 | 536870912 
-	WHERE `entry` IN (34796, 35438, 35439, 35440, 34799, 35514, 35515, 35516, 35144, 35511, 35512, 35513, 34797, 35447, 35448, 35449, 34780, 35216, 35268, 35269, 36066, 35347, 35348, 35349, 34497, 35350, 35351, 35352, 34564, 34566, 35615, 35616);
+UPDATE `creature_template` SET `mechanic_immune_mask`=`mechanic_immune_mask` | 1 | 2 | 4 | 8 | 16 | 32 | 64 | 128 | 256 | 512 | 1024 | 2048 | 4096 | 8192 | 65536 | 131072 | 524288 | 4194304 | 8388608 | 67108864 | 536870912  WHERE `entry` IN (34796, 35438, 35439, 35440, 34799, 35514, 35515, 35516, 35144, 35511, 35512, 35513, 34797, 35447, 35448, 35449, 34780, 35216, 35268, 35269, 36066, 35347, 35348, 35349, 34497, 35350, 35351, 35352, 34564, 34566, 35615, 35616);
 
 -- adding Teleport locations to Trial of the Crusader/champion for GMs
 DELETE FROM `game_tele` WHERE `name` LIKE '%TrialOfTheCrusader%' OR `name` LIKE '%TrialOfTheChampion%';

@@ -1,7 +1,7 @@
 -- Saviana Ragefire
 UPDATE `creature_template` SET `InhabitType`=3,`mechanic_immune_mask`=`mechanic_immune_mask`|8388624,`ScriptName`= 'boss_saviana_ragefire' WHERE `entry`=39747;
-DELETE FROM `creature_text` WHERE `entry`=39747; 
-INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`probability`,`emote`,`duration`,`sound`,`comment`) VALUES 
+DELETE FROM `creature_text` WHERE `entry`=39747;
+INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`probability`,`emote`,`duration`,`sound`,`comment`) VALUES
 (39747,0,0, 'You will sssuffer for this intrusion!',14,0,100,0,0,17528, 'Saviana Ragefire'),
 (39747,1,0, 'Burn in the master''s flame!',14,0,100,0,0,17532, 'Saviana Ragefire'),
 (39747,2,0, '%s becomes enraged!',16,0,100,0,0,0, 'Saviana Ragefire'),

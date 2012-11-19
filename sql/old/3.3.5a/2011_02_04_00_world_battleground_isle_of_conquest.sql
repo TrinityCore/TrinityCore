@@ -27,13 +27,13 @@ UPDATE `creature_template` SET `spell1`=67462,`spell2`=69505 WHERE `entry`=36355
 -- Catapult speed
 UPDATE `creature_template` SET `speed_run`=2.428571,`speed_walk`=2.8 WHERE `entry`=34793;
 
--- Update alliance boss faction 
+-- Update alliance boss faction
 UPDATE `creature_template` SET `faction_A`=84, `faction_H`=84 WHERE `entry`=34924;
--- Update horde boss faction 
+-- Update horde boss faction
 UPDATE `creature_template` SET `faction_A`=83, `faction_H`=83 WHERE `entry`=34922;
--- Update Kor Kron Guard faction 
+-- Update Kor Kron Guard faction
 UPDATE `creature_template` SET `faction_A`=83, `faction_H`=83 WHERE `entry`=34918;
--- Update Npc Seven TH Legion Infantry faction 
+-- Update Npc Seven TH Legion Infantry faction
 UPDATE `creature_template` SET `faction_A`=84, `faction_H`=84 WHERE `entry`=34919;
 
 -- those doors are not selectables
@@ -57,7 +57,7 @@ DELETE FROM `disables` WHERE `sourceType`=4 AND `entry` IN (12068,12114);
 
 -- Refinery's and Quarry's spells.
 DELETE FROM `spell_area` WHERE `spell` IN (68719,68720);
-INSERT INTO `spell_area` (`spell`,`area`) VALUES 
+INSERT INTO `spell_area` (`spell`,`area`) VALUES
 (68719,4741),
 (68719,4747),
 (68719,4748),

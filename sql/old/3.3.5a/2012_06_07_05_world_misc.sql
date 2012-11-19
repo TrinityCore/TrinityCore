@@ -6,7 +6,7 @@ DELETE FROM `creature_addon` WHERE `guid` IN (45208,45099,45075,45136,12925,1240
 UPDATE `creature_template` SET `gossip_menu_id`=9054 WHERE `entry`=25021;
 UPDATE `creature_template` SET `gossip_menu_id`=9056 WHERE `entry`=25022;
 UPDATE `creature_template` SET `gossip_menu_id`=9057 WHERE `entry`=25023;
-UPDATE `creature_template` SET `gossip_menu_id`=9054 WHERE `entry`=25024; 
+UPDATE `creature_template` SET `gossip_menu_id`=9054 WHERE `entry`=25024;
 UPDATE `creature_template` SET `gossip_menu_id`=9077 WHERE `entry`=25025;
 DELETE FROM `gossip_menu` WHERE `entry`=9054 AND `text_id`=12243;
 INSERT INTO `gossip_menu` (`entry`,`text_id`) VALUES (9054,12243);

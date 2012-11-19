@@ -5,7 +5,7 @@ INSERT INTO `gameobject_loot_template` (`entry`,`item`,`ChanceOrQuestChance`,`lo
 (28088,@ITEM,-68,1,0,1,1), -- Deathbringer Cache 25 Heroic
 (28082,@ITEM,-38,1,0,1,1), -- Cache of the Dreamwalker 25 Normal
 (28096,@ITEM,-68,1,0,1,1); -- Cache of the Dreamwalker 25 Heroic
--- only drop if someone is on the quest (negative ChanceOrQuestChance) 
+-- only drop if someone is on the quest (negative ChanceOrQuestChance)
 UPDATE `creature_loot_template` SET `ChanceOrQuestChance`= -(ABS(`ChanceOrQuestChance`)) WHERE `item`=50274;
 UPDATE `gameobject_loot_template` SET `ChanceOrQuestChance`= -(ABS(`ChanceOrQuestChance`)) WHERE `item`=50274;
 

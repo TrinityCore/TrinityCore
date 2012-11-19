@@ -4,9 +4,9 @@ DELETE FROM `creature` WHERE `id` IN (27682,27608);
 UPDATE `creature_template` SET `speed_walk`=9/2,`speed_run`=17/7,`InhabitType`=4 WHERE `entry`=26838;
 
 SET @NPC := 99078;
-SET @PATH := @NPC*10;  
+SET @PATH := @NPC*10;
 DELETE FROM `creature` WHERE `guid`=@NPC;
-INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`) VALUES 
+INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`) VALUES
 (@NPC,27682,571,1,1,24743,0,3433.348,274.121,192.7347,1.91463,120,0,0,38440,0,2);
 DELETE FROM `creature_addon` WHERE `guid`=@NPC;
 INSERT INTO `creature_addon` (`guid`,`path_id`,`bytes1`) VALUES (@NPC,@PATH,50331648);
@@ -40,9 +40,9 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,26,3382.149,279.6307,169.347,0,0,0,100,0);
 
 SET @NPC := 99079;
-SET @PATH := @NPC*10;  
+SET @PATH := @NPC*10;
 DELETE FROM `creature` WHERE `guid`=@NPC;
-INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`) VALUES 
+INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`) VALUES
 (@NPC,27682,571,1,1,24743,0,3434.632,268.5218,212.5722,1.91463,120,0,0,38440,0,2);
 DELETE FROM `creature_addon` WHERE `guid`=@NPC;
 INSERT INTO `creature_addon` (`guid`,`path_id`,`bytes1`) VALUES (@NPC,@PATH,50331648);
@@ -73,9 +73,9 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,23,3441.441,249.5543,185.3083,0,0,0,100,0);
 
 SET @NPC := 99083;
-SET @PATH := @NPC*10;  
+SET @PATH := @NPC*10;
 DELETE FROM `creature` WHERE `guid`=@NPC;
-INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`) VALUES 
+INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`) VALUES
 (@NPC,27682,571,1,1,24743,0,3639.789,321.911,195.744,1.91463,120,0,0,38440,0,2);
 DELETE FROM `creature_addon` WHERE `guid`=@NPC;
 INSERT INTO `creature_addon` (`guid`,`path_id`,`bytes1`) VALUES (@NPC,@PATH,50331648);
@@ -113,9 +113,9 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,30,3610.069,345.1742,204.7075,0,0,0,100,0);
 
 SET @NPC := 99084;
-SET @PATH := @NPC*10;  
+SET @PATH := @NPC*10;
 DELETE FROM `creature` WHERE `guid`=@NPC;
-INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`) VALUES 
+INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`) VALUES
 (@NPC,27682,571,1,1,24743,0,3419.562,219.4669,185.8007,1.91463,120,0,0,38440,0,2);
 DELETE FROM `creature_addon` WHERE `guid`=@NPC;
 INSERT INTO `creature_addon` (`guid`,`path_id`,`bytes1`) VALUES (@NPC,@PATH,50331648);
@@ -145,9 +145,9 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,22,3381.995,245.4414,151.9461,0,0,0,100,0);
 
 SET @NPC := 99085;
-SET @PATH := @NPC*10;  
+SET @PATH := @NPC*10;
 DELETE FROM `creature` WHERE `guid`=@NPC;
-INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`) VALUES 
+INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`) VALUES
 (@NPC,27682,571,1,1,24743,0,3431.814,203.5959,199.4538,1.91463,120,0,0,38440,0,2);
 DELETE FROM `creature_addon` WHERE `guid`=@NPC;
 INSERT INTO `creature_addon` (`guid`,`path_id`,`bytes1`) VALUES (@NPC,@PATH,50331648);
@@ -178,9 +178,9 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,23,3382.743,269.2179,222.0501,0,0,0,100,0);
 
 SET @NPC := 99086;
-SET @PATH := @NPC*10;  
+SET @PATH := @NPC*10;
 DELETE FROM `creature` WHERE `guid`=@NPC;
-INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`) VALUES 
+INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`) VALUES
 (@NPC,27682,571,1,1,24743,0,3408.915,276.3928,180.561,1.91463,120,0,0,38440,0,2);
 DELETE FROM `creature_addon` WHERE `guid`=@NPC;
 INSERT INTO `creature_addon` (`guid`,`path_id`,`bytes1`) VALUES (@NPC,@PATH,50331648);
@@ -204,9 +204,9 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,16,3268.329,422.1047,154.7629,0,0,0,100,0);
 
 SET @NPC := 99087;
-SET @PATH := @NPC*10;  
+SET @PATH := @NPC*10;
 DELETE FROM `creature` WHERE `guid`=@NPC;
-INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`) VALUES 
+INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`) VALUES
 (@NPC,27682,571,1,1,24743,0,3748.954,236.7544,178.6408,1.91463,120,0,0,38440,0,2);
 DELETE FROM `creature_addon` WHERE `guid`=@NPC;
 INSERT INTO `creature_addon` (`guid`,`path_id`,`bytes1`) VALUES (@NPC,@PATH,50331648);
@@ -237,9 +237,9 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 
 
 SET @NPC := 99088;
-SET @PATH := @NPC*10;  
+SET @PATH := @NPC*10;
 DELETE FROM `creature` WHERE `guid`=@NPC;
-INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`) VALUES 
+INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`) VALUES
 (@NPC,27682,571,1,1,24743,0,3412.463,216.0972,212.123,1.91463,120,0,0,38440,0,2);
 DELETE FROM `creature_addon` WHERE `guid`=@NPC;
 INSERT INTO `creature_addon` (`guid`,`path_id`,`bytes1`) VALUES (@NPC,@PATH,50331648);
@@ -260,9 +260,9 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,13,3301.554,308.331,241.2928,0,0,0,100,0);
 
 SET @NPC := 99089;
-SET @PATH := @NPC*10;  
+SET @PATH := @NPC*10;
 DELETE FROM `creature` WHERE `guid`=@NPC;
-INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`) VALUES 
+INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`) VALUES
 (@NPC,27682,571,1,1,24743,0,3100.95,567.1441,118.4118,1.91463,120,0,0,38440,0,2);
 DELETE FROM `creature_addon` WHERE `guid`=@NPC;
 INSERT INTO `creature_addon` (`guid`,`path_id`,`bytes1`) VALUES (@NPC,@PATH,50331648);
@@ -289,15 +289,15 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 
 -- static
 DELETE FROM `creature` WHERE `guid` IN (99090,99091);
-INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`) VALUES 
+INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`) VALUES
 (99090,27682,571,1,1,24743,0,2954.845,625.8646,146.2928,2.094395,120,0,0,38440,0,0),
 (99091,27682,571,1,1,24743,0,3256.357,585.8403,136.8419,0.4363323,120,0,0,38440,0,0);
 
 -- waypoints
 SET @NPC := 99092;
-SET @PATH := @NPC*10;  
+SET @PATH := @NPC*10;
 DELETE FROM `creature` WHERE `guid`=@NPC;
-INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`) VALUES 
+INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`) VALUES
 (@NPC,27682,571,1,1,24743,0,3017.465,301.0079,204.943,1.91463,120,0,0,38440,0,2);
 DELETE FROM `creature_addon` WHERE `guid`=@NPC;
 INSERT INTO `creature_addon` (`guid`,`path_id`,`bytes1`) VALUES (@NPC,@PATH,50331648);
@@ -315,9 +315,9 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,10,3017.465,301.0079,204.943,0,0,0,100,0);
 
 SET @NPC := 99094;
-SET @PATH := @NPC*10;  
+SET @PATH := @NPC*10;
 DELETE FROM `creature` WHERE `guid`=@NPC;
-INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`) VALUES 
+INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`) VALUES
 (@NPC,27682,571,1,1,24743,0,3138.133,520.6823,53.44044,1.91463,120,0,0,38440,0,2);
 DELETE FROM `creature_addon` WHERE `guid`=@NPC;
 INSERT INTO `creature_addon` (`guid`,`path_id`,`bytes1`) VALUES (@NPC,@PATH,50331648);
@@ -351,9 +351,9 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,26,3138.133,520.6823,53.44044,0,0,0,100,0);
 
 SET @NPC := 99095;
-SET @PATH := @NPC*10;  
+SET @PATH := @NPC*10;
 DELETE FROM `creature` WHERE `guid`=@NPC;
-INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`) VALUES 
+INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`) VALUES
 (@NPC,27682,571,1,1,24743,0,3199.019,490.8836,212.5729,1.91463,120,0,0,38440,0,2);
 DELETE FROM `creature_addon` WHERE `guid`=@NPC;
 INSERT INTO `creature_addon` (`guid`,`path_id`,`bytes1`) VALUES (@NPC,@PATH,50331648);
@@ -368,9 +368,9 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,7,3199.019,490.8836,212.5729,0,0,0,100,0);
 
 SET @NPC := 99096;
-SET @PATH := @NPC*10;  
+SET @PATH := @NPC*10;
 DELETE FROM `creature` WHERE `guid`=@NPC;
-INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`) VALUES 
+INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`) VALUES
 (@NPC,27682,571,1,1,24743,0,3214.422,579.9131,196.0033,1.91463,120,0,0,38440,0,2);
 DELETE FROM `creature_addon` WHERE `guid`=@NPC;
 INSERT INTO `creature_addon` (`guid`,`path_id`,`bytes1`) VALUES (@NPC,@PATH,50331648);
@@ -385,9 +385,9 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,7,3214.422,579.9131,196.0033,0,0,0,100,0);
 
 SET @NPC := 99097;
-SET @PATH := @NPC*10;  
+SET @PATH := @NPC*10;
 DELETE FROM `creature` WHERE `guid`=@NPC;
-INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`) VALUES 
+INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`) VALUES
 (@NPC,27682,571,1,1,24743,0,3106.429,348.3322,212.4711,1.91463,120,0,0,38440,0,2);
 DELETE FROM `creature_addon` WHERE `guid`=@NPC;
 INSERT INTO `creature_addon` (`guid`,`path_id`,`bytes1`) VALUES (@NPC,@PATH,50331648);
@@ -402,9 +402,9 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,7,3106.429,348.3322,212.4711,0,0,0,100,0);
 
 SET @NPC := 99098;
-SET @PATH := @NPC*10;  
+SET @PATH := @NPC*10;
 DELETE FROM `creature` WHERE `guid`=@NPC;
-INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`) VALUES 
+INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`) VALUES
 (@NPC,27682,571,1,1,24743,0,3129.027,582.4556,247.3863,1.91463,120,0,0,38440,0,2);
 DELETE FROM `creature_addon` WHERE `guid`=@NPC;
 INSERT INTO `creature_addon` (`guid`,`path_id`,`bytes1`) VALUES (@NPC,@PATH,50331648);
@@ -419,9 +419,9 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,7,3129.027,582.4556,247.3863,0,0,0,100,0);
 
 SET @NPC := 99099;
-SET @PATH := @NPC*10;  
+SET @PATH := @NPC*10;
 DELETE FROM `creature` WHERE `guid`=@NPC;
-INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`) VALUES 
+INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`) VALUES
 (@NPC,27682,571,1,1,24743,0,3691.676,352.0933,342.2254,1.91463,120,0,0,38440,0,2);
 DELETE FROM `creature_addon` WHERE `guid`=@NPC;
 INSERT INTO `creature_addon` (`guid`,`path_id`,`bytes1`) VALUES (@NPC,@PATH,50331648);
@@ -437,9 +437,9 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,8,3691.676,352.0933,342.2254,0,0,0,100,0);
 
 SET @NPC := 99093;
-SET @PATH := @NPC*10;  
+SET @PATH := @NPC*10;
 DELETE FROM `creature` WHERE `guid`=@NPC;
-INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`) VALUES 
+INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`) VALUES
 (@NPC,27682,571,1,1,24743,0,3036.494,602.2036,179.671,1.91463,120,0,0,38440,0,2);
 DELETE FROM `creature_addon` WHERE `guid`=@NPC;
 INSERT INTO `creature_addon` (`guid`,`path_id`,`bytes1`) VALUES (@NPC,@PATH,50331648);
@@ -494,9 +494,9 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,47,3036.494,602.2036,179.671,0,0,0,100,0);
 
 SET @NPC := 99103;
-SET @PATH := @NPC*10;  
+SET @PATH := @NPC*10;
 DELETE FROM `creature` WHERE `guid`=@NPC;
-INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`) VALUES 
+INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`) VALUES
 (@NPC,27682,571,1,1,24743,0,3065.57,646.0688,229.7383,1.91463,120,0,0,38440,0,2);
 DELETE FROM `creature_addon` WHERE `guid`=@NPC;
 INSERT INTO `creature_addon` (`guid`,`path_id`,`bytes1`) VALUES (@NPC,@PATH,50331648);
@@ -518,9 +518,9 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,14,3065.57,646.0688,229.7383,0,0,0,100,0);
 
 SET @NPC := 99104;
-SET @PATH := @NPC*10;  
+SET @PATH := @NPC*10;
 DELETE FROM `creature` WHERE `guid`=@NPC;
-INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`) VALUES 
+INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`) VALUES
 (@NPC,27682,571,1,1,24743,0,3112.661,560.2861,197.5214,1.91463,120,0,0,38440,0,2);
 DELETE FROM `creature_addon` WHERE `guid`=@NPC;
 INSERT INTO `creature_addon` (`guid`,`path_id`,`bytes1`) VALUES (@NPC,@PATH,50331648);
@@ -573,9 +573,9 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,45,3112.661,560.2861,197.5214,0,0,0,100,0);
 
 SET @NPC := 99105;
-SET @PATH := @NPC*10;  
+SET @PATH := @NPC*10;
 DELETE FROM `creature` WHERE `guid`=@NPC;
-INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`) VALUES 
+INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`) VALUES
 (@NPC,27682,571,1,1,24743,0,3040.376,545.7573,223.7107,1.91463,120,0,0,38440,0,2);
 DELETE FROM `creature_addon` WHERE `guid`=@NPC;
 INSERT INTO `creature_addon` (`guid`,`path_id`,`bytes1`) VALUES (@NPC,@PATH,50331648);
@@ -612,9 +612,9 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 UPDATE `creature_template` SET `speed_walk`=7/2,`speed_run`=15/7,`InhabitType`=4 WHERE `entry`=27608;
 
 SET @NPC := 99105;
-SET @PATH := @NPC*10;  
+SET @PATH := @NPC*10;
 DELETE FROM `creature` WHERE `guid`=@NPC;
-INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`) VALUES 
+INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`) VALUES
 (@NPC,27608,571,1,1,24140,0,3177.857,623.9463,234.0692,1.91463,120,0,0,92538,0,2);
 DELETE FROM `creature_addon` WHERE `guid`=@NPC;
 INSERT INTO `creature_addon` (`guid`,`path_id`,`bytes1`) VALUES (@NPC,@PATH,50331648);
@@ -637,9 +637,9 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,15,3177.857,623.9463,234.0692,0,0,0,100,0);
 
 SET @NPC := 99106;
-SET @PATH := @NPC*10;  
+SET @PATH := @NPC*10;
 DELETE FROM `creature` WHERE `guid`=@NPC;
-INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`) VALUES 
+INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`) VALUES
 (@NPC,27608,571,1,1,24140,0,2980.341,629.1049,218.5251,1.91463,120,0,0,92538,0,2);
 DELETE FROM `creature_addon` WHERE `guid`=@NPC;
 INSERT INTO `creature_addon` (`guid`,`path_id`,`bytes1`) VALUES (@NPC,@PATH,50331648);
@@ -655,9 +655,9 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,8,2980.341,629.1049,218.5251,0,0,0,100,0);
 
 SET @NPC := 99107;
-SET @PATH := @NPC*10;  
+SET @PATH := @NPC*10;
 DELETE FROM `creature` WHERE `guid`=@NPC;
-INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`) VALUES 
+INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`) VALUES
 (@NPC,27608,571,1,1,24140,0,3488.651,-5.619141,169.4104,1.91463,120,0,0,92538,0,2);
 DELETE FROM `creature_addon` WHERE `guid`=@NPC;
 INSERT INTO `creature_addon` (`guid`,`path_id`,`bytes1`) VALUES (@NPC,@PATH,50331648);
@@ -677,9 +677,9 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,12,3488.651,-5.619141,169.4104,0,0,0,100,0);
 
 SET @NPC := 99108;
-SET @PATH := @NPC*10;  
+SET @PATH := @NPC*10;
 DELETE FROM `creature` WHERE `guid`=@NPC;
-INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`) VALUES 
+INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`) VALUES
 (@NPC,27608,571,1,1,24140,0,3542.247,134.1484,169.6936,1.91463,120,0,0,92538,0,2);
 DELETE FROM `creature_addon` WHERE `guid`=@NPC;
 INSERT INTO `creature_addon` (`guid`,`path_id`,`bytes1`) VALUES (@NPC,@PATH,50331648);
@@ -705,9 +705,9 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,18,3542.247,134.1484,169.6936,0,0,0,100,0);
 
 SET @NPC := 99109;
-SET @PATH := @NPC*10;  
+SET @PATH := @NPC*10;
 DELETE FROM `creature` WHERE `guid`=@NPC;
-INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`) VALUES 
+INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`) VALUES
 (@NPC,27608,571,1,1,24140,0,3590.88,69.88932,149.1064,1.91463,120,0,0,92538,0,2);
 DELETE FROM `creature_addon` WHERE `guid`=@NPC;
 INSERT INTO `creature_addon` (`guid`,`path_id`,`bytes1`) VALUES (@NPC,@PATH,50331648);
@@ -724,9 +724,9 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,9,3590.88,69.88932,149.1064,0,0,0,100,0);
 
 SET @NPC := 99110;
-SET @PATH := @NPC*10;  
+SET @PATH := @NPC*10;
 DELETE FROM `creature` WHERE `guid`=@NPC;
-INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`) VALUES 
+INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`) VALUES
 (@NPC,27608,571,1,1,24140,0,3424.549,257.6351,132.4231,1.91463,120,0,0,92538,0,2);
 DELETE FROM `creature_addon` WHERE `guid`=@NPC;
 INSERT INTO `creature_addon` (`guid`,`path_id`,`bytes1`) VALUES (@NPC,@PATH,50331648);
@@ -746,9 +746,9 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,12,3424.549,257.6351,132.4231,0,0,0,100,0);
 
 SET @NPC := 99111;
-SET @PATH := @NPC*10;  
+SET @PATH := @NPC*10;
 DELETE FROM `creature` WHERE `guid`=@NPC;
-INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`) VALUES 
+INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`) VALUES
 (@NPC,27608,571,1,1,24140,0,3485.543,172.4427,356.9669,1.91463,120,0,0,92538,0,2);
 DELETE FROM `creature_addon` WHERE `guid`=@NPC;
 INSERT INTO `creature_addon` (`guid`,`path_id`,`bytes1`) VALUES (@NPC,@PATH,50331648);
@@ -764,9 +764,9 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,8,3485.543,172.4427,356.9669,0,0,0,100,0);
 
 SET @NPC := 99112;
-SET @PATH := @NPC*10;  
+SET @PATH := @NPC*10;
 DELETE FROM `creature` WHERE `guid`=@NPC;
-INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`) VALUES 
+INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`) VALUES
 (@NPC,27608,571,1,1,24140,0,3037.007,696.7842,221.9052,1.91463,120,0,0,92538,0,2);
 DELETE FROM `creature_addon` WHERE `guid`=@NPC;
 INSERT INTO `creature_addon` (`guid`,`path_id`,`bytes1`) VALUES (@NPC,@PATH,50331648);
@@ -787,9 +787,9 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,13,3037.007,696.7842,221.9052,0,0,0,100,0);
 
 SET @NPC := 99113;
-SET @PATH := @NPC*10;  
+SET @PATH := @NPC*10;
 DELETE FROM `creature` WHERE `guid`=@NPC;
-INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`) VALUES 
+INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`) VALUES
 (@NPC,27608,571,1,1,24140,0,3723.934,203.8074,149.416,1.91463,120,0,0,92538,0,2);
 DELETE FROM `creature_addon` WHERE `guid`=@NPC;
 INSERT INTO `creature_addon` (`guid`,`path_id`,`bytes1`) VALUES (@NPC,@PATH,50331648);
@@ -814,9 +814,9 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,17,3723.934,203.8074,149.416,0,0,0,100,0);
 
 SET @NPC := 99114;
-SET @PATH := @NPC*10;  
+SET @PATH := @NPC*10;
 DELETE FROM `creature` WHERE `guid`=@NPC;
-INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`) VALUES 
+INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`) VALUES
 (@NPC,27608,571,1,1,24140,0,3737.246,441.4471,163.1518,1.91463,120,0,0,92538,0,2);
 DELETE FROM `creature_addon` WHERE `guid`=@NPC;
 INSERT INTO `creature_addon` (`guid`,`path_id`,`bytes1`) VALUES (@NPC,@PATH,50331648);
@@ -838,9 +838,9 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,14,3737.246,441.4471,163.1518,0,0,0,100,0);
 
 SET @NPC := 99115;
-SET @PATH := @NPC*10;  
+SET @PATH := @NPC*10;
 DELETE FROM `creature` WHERE `guid`=@NPC;
-INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`) VALUES 
+INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`) VALUES
 (@NPC,27608,571,1,1,24140,0,3490.259,76.95345,197.2588,1.91463,120,0,0,92538,0,2);
 DELETE FROM `creature_addon` WHERE `guid`=@NPC;
 INSERT INTO `creature_addon` (`guid`,`path_id`,`bytes1`) VALUES (@NPC,@PATH,50331648);
@@ -858,9 +858,9 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,10,3490.259,76.95345,197.2588,0,0,0,100,0);
 
 SET @NPC := 99116;
-SET @PATH := @NPC*10;  
+SET @PATH := @NPC*10;
 DELETE FROM `creature` WHERE `guid`=@NPC;
-INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`) VALUES 
+INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`) VALUES
 (@NPC,27608,571,1,1,24140,0,3484.9,77.65061,181.4013,1.91463,120,0,0,92538,0,2);
 DELETE FROM `creature_addon` WHERE `guid`=@NPC;
 INSERT INTO `creature_addon` (`guid`,`path_id`,`bytes1`) VALUES (@NPC,@PATH,50331648);
@@ -877,9 +877,9 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,9,3484.9,77.65061,181.4013,0,0,0,100,0);
 
 SET @NPC := 99117;
-SET @PATH := @NPC*10;  
+SET @PATH := @NPC*10;
 DELETE FROM `creature` WHERE `guid`=@NPC;
-INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`) VALUES 
+INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`) VALUES
 (@NPC,27608,571,1,1,24140,0,2938.209,403.6825,200.0642,1.91463,120,0,0,92538,0,2);
 DELETE FROM `creature_addon` WHERE `guid`=@NPC;
 INSERT INTO `creature_addon` (`guid`,`path_id`,`bytes1`) VALUES (@NPC,@PATH,50331648);
@@ -901,9 +901,9 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,14,2938.209,403.6825,200.0642,0,0,0,100,0);
 
 SET @NPC := 99118;
-SET @PATH := @NPC*10;  
+SET @PATH := @NPC*10;
 DELETE FROM `creature` WHERE `guid`=@NPC;
-INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`) VALUES 
+INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`) VALUES
 (@NPC,27608,571,1,1,24140,0,3756.611,216.3398,142.0742,1.91463,120,0,0,92538,0,2);
 DELETE FROM `creature_addon` WHERE `guid`=@NPC;
 INSERT INTO `creature_addon` (`guid`,`path_id`,`bytes1`) VALUES (@NPC,@PATH,50331648);
@@ -929,9 +929,9 @@ DELETE FROM `creature` WHERE `guid` IN (100170,100206,100207,100208,100209,10021
 UPDATE `creature_template` SET `speed_walk`=9/2,`speed_run`=17/7,`InhabitType`=4 WHERE `entry`=26925;
 
 SET @NPC := 100170;
-SET @PATH := @NPC*10;  
+SET @PATH := @NPC*10;
 DELETE FROM `creature` WHERE `guid`=@NPC;
-INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`) VALUES 
+INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`) VALUES
 (@NPC,26925,571,1,1,6376,0,3423.212,279.9993,128.0342,1.91463,120,0,0,1,0,2);
 DELETE FROM `creature_addon` WHERE `guid`=@NPC;
 INSERT INTO `creature_addon` (`guid`,`path_id`,`bytes1`) VALUES (@NPC,@PATH,50331648);
@@ -948,9 +948,9 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,9,3381.065,257.5826,128.0342,0,0,0,100,0);
 
 SET @NPC := 100206;
-SET @PATH := @NPC*10;  
+SET @PATH := @NPC*10;
 DELETE FROM `creature` WHERE `guid`=@NPC;
-INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`) VALUES 
+INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`) VALUES
 (@NPC,26925,571,1,1,6376,0,3662.692,328.2304,338.4197,1.91463,120,0,0,1,0,2);
 DELETE FROM `creature_addon` WHERE `guid`=@NPC;
 INSERT INTO `creature_addon` (`guid`,`path_id`,`bytes1`) VALUES (@NPC,@PATH,50331648);
@@ -966,9 +966,9 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,8,3691.676,352.0933,342.2254,0,0,0,100,0);
 
 SET @NPC := 100207;
-SET @PATH := @NPC*10;  
+SET @PATH := @NPC*10;
 DELETE FROM `creature` WHERE `guid`=@NPC;
-INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`) VALUES 
+INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`) VALUES
 (@NPC,26925,571,1,1,6376,0,3657.962,213.0957,169.3146,1.91463,120,0,0,1,0,2);
 DELETE FROM `creature_addon` WHERE `guid`=@NPC;
 INSERT INTO `creature_addon` (`guid`,`path_id`,`bytes1`) VALUES (@NPC,@PATH,50331648);
@@ -990,9 +990,9 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,14,3648.757,225.0738,169.3146,0,0,0,100,0);
 
 SET @NPC := 100208;
-SET @PATH := @NPC*10;  
+SET @PATH := @NPC*10;
 DELETE FROM `creature` WHERE `guid`=@NPC;
-INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`) VALUES 
+INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`) VALUES
 (@NPC,26925,571,1,1,6376,0,3606.596,396.9579,205.5612,1.91463,120,0,0,1,0,2);
 DELETE FROM `creature_addon` WHERE `guid`=@NPC;
 INSERT INTO `creature_addon` (`guid`,`path_id`,`bytes1`) VALUES (@NPC,@PATH,50331648);
@@ -1010,9 +1010,9 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,10,3568.027,418.6763,205.5612,0,0,0,100,0);
 
 SET @NPC := 100209;
-SET @PATH := @NPC*10;  
+SET @PATH := @NPC*10;
 DELETE FROM `creature` WHERE `guid`=@NPC;
-INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`) VALUES 
+INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`) VALUES
 (@NPC,26925,571,1,1,6376,0,3648.806,293.8063,321.0587,1.91463,120,0,0,1,0,2);
 DELETE FROM `creature_addon` WHERE `guid`=@NPC;
 INSERT INTO `creature_addon` (`guid`,`path_id`,`bytes1`) VALUES (@NPC,@PATH,50331648);
@@ -1028,9 +1028,9 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,8,3662.692,328.2304,338.4197,0,0,0,100,0);
 
 SET @NPC := 100210;
-SET @PATH := @NPC*10;  
+SET @PATH := @NPC*10;
 DELETE FROM `creature` WHERE `guid`=@NPC;
-INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`) VALUES 
+INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`) VALUES
 (@NPC,26925,571,1,1,6376,0,3452.103,334.373,128.0342,1.91463,120,0,0,1,0,2);
 DELETE FROM `creature_addon` WHERE `guid`=@NPC;
 INSERT INTO `creature_addon` (`guid`,`path_id`,`bytes1`) VALUES (@NPC,@PATH,50331648);
@@ -1047,9 +1047,9 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,9,3218.353,177.623,195.7842,0,0,0,100,0);
 
 SET @NPC := 100213;
-SET @PATH := @NPC*10;  
+SET @PATH := @NPC*10;
 DELETE FROM `creature` WHERE `guid`=@NPC;
-INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`) VALUES 
+INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`) VALUES
 (@NPC,26925,571,1,1,6376,0,3648.806,293.8063,321.0587,1.91463,120,0,0,1,0,2);
 DELETE FROM `creature_addon` WHERE `guid`=@NPC;
 INSERT INTO `creature_addon` (`guid`,`path_id`,`bytes1`) VALUES (@NPC,@PATH,50331648);
@@ -1065,9 +1065,9 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,8,3795.056,64.55627,390.3087,0,0,0,100,0);
 
 SET @NPC := 100215;
-SET @PATH := @NPC*10;  
+SET @PATH := @NPC*10;
 DELETE FROM `creature` WHERE `guid`=@NPC;
-INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`) VALUES 
+INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`) VALUES
 (@NPC,26925,571,1,1,6376,0,3606.596,396.9579,205.5612,1.91463,120,0,0,1,0,2);
 DELETE FROM `creature_addon` WHERE `guid`=@NPC;
 INSERT INTO `creature_addon` (`guid`,`path_id`,`bytes1`) VALUES (@NPC,@PATH,50331648);
@@ -1085,9 +1085,9 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,10,3585.346,505.2079,272.8112,0,0,0,100,0);
 
 SET @NPC := 100216;
-SET @PATH := @NPC*10;  
+SET @PATH := @NPC*10;
 DELETE FROM `creature` WHERE `guid`=@NPC;
-INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`) VALUES 
+INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`) VALUES
 (@NPC,26925,571,1,1,6376,0,3772.475,266.6113,254.1891,1.91463,120,0,0,1,0,2);
 DELETE FROM `creature_addon` WHERE `guid`=@NPC;
 INSERT INTO `creature_addon` (`guid`,`path_id`,`bytes1`) VALUES (@NPC,@PATH,50331648);
@@ -1111,9 +1111,9 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,16,3798.725,252.1113,321.4391,0,0,0,100,0);
 
 SET @NPC := 100226;
-SET @PATH := @NPC*10;  
+SET @PATH := @NPC*10;
 DELETE FROM `creature` WHERE `guid`=@NPC;
-INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`) VALUES 
+INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`) VALUES
 (@NPC,26925,571,1,1,6376,0,3447.796,171.34,125.7842,1.91463,120,0,0,1,0,2);
 DELETE FROM `creature_addon` WHERE `guid`=@NPC;
 INSERT INTO `creature_addon` (`guid`,`path_id`,`bytes1`) VALUES (@NPC,@PATH,50331648);
@@ -1132,9 +1132,9 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,11,3433.646,226.0049,125.7842,0,0,0,100,0);
 
 SET @NPC := 130999;
-SET @PATH := @NPC*10;  
+SET @PATH := @NPC*10;
 DELETE FROM `creature` WHERE `guid`=@NPC;
-INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`) VALUES 
+INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`) VALUES
 (@NPC,26925,571,1,1,6376,0,3750.984,407.8766,254.1891,1.91463,120,0,0,1,0,2);
 DELETE FROM `creature_addon` WHERE `guid`=@NPC;
 INSERT INTO `creature_addon` (`guid`,`path_id`,`bytes1`) VALUES (@NPC,@PATH,50331648);
@@ -1164,9 +1164,9 @@ DELETE FROM `creature` WHERE `guid` IN (100823,100824,100825,100826,131035,13103
 UPDATE `creature_template` SET `speed_walk`=7/2,`speed_run`=15/7,`InhabitType`=4 WHERE `entry`=26933;
 
 SET @NPC := 100823;
-SET @PATH := @NPC*10;  
+SET @PATH := @NPC*10;
 DELETE FROM `creature` WHERE `guid`=@NPC;
-INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`) VALUES 
+INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`) VALUES
 (@NPC,26933,571,1,1,0,0,3791.882,255.4148,152.3366,1.91463,120,0,0,1,0,2);
 DELETE FROM `creature_addon` WHERE `guid`=@NPC;
 INSERT INTO `creature_addon` (`guid`,`path_id`,`bytes1`) VALUES (@NPC,@PATH,50331648);
@@ -1192,9 +1192,9 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,18,3786.234,277.9988,152.3366,0,0,0,100,0);
 
 SET @NPC := 100824;
-SET @PATH := @NPC*10;  
+SET @PATH := @NPC*10;
 DELETE FROM `creature` WHERE `guid`=@NPC;
-INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`) VALUES 
+INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`) VALUES
 (@NPC,26933,571,1,1,0,0,3559.792,412.912,244.8625,1.91463,120,0,0,1,0,2);
 DELETE FROM `creature_addon` WHERE `guid`=@NPC;
 INSERT INTO `creature_addon` (`guid`,`path_id`,`bytes1`) VALUES (@NPC,@PATH,50331648);
@@ -1216,9 +1216,9 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,14,3479.214,376.5652,244.8625,0,0,0,100,0);
 
 SET @NPC := 100825;
-SET @PATH := @NPC*10;  
+SET @PATH := @NPC*10;
 DELETE FROM `creature` WHERE `guid`=@NPC;
-INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`) VALUES 
+INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`) VALUES
 (@NPC,26933,571,1,1,0,0,3424.446,300.7501,194.3189,1.91463,120,0,0,1,0,2);
 DELETE FROM `creature_addon` WHERE `guid`=@NPC;
 INSERT INTO `creature_addon` (`guid`,`path_id`,`bytes1`) VALUES (@NPC,@PATH,50331648);
@@ -1233,9 +1233,9 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,7,3513.567,405.2664,194.3189,0,0,0,100,0);
 
 SET @NPC := 100826;
-SET @PATH := @NPC*10;  
+SET @PATH := @NPC*10;
 DELETE FROM `creature` WHERE `guid`=@NPC;
-INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`) VALUES 
+INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`) VALUES
 (@NPC,26933,571,1,1,0,0,3457.605,232.8917,280.631,1.91463,120,0,0,1,0,2);
 DELETE FROM `creature_addon` WHERE `guid`=@NPC;
 INSERT INTO `creature_addon` (`guid`,`path_id`,`bytes1`) VALUES (@NPC,@PATH,50331648);
@@ -1251,9 +1251,9 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,8,3516.544,159.0889,280.631,0,0,0,100,0);
 
 SET @NPC := 131035;
-SET @PATH := @NPC*10;  
+SET @PATH := @NPC*10;
 DELETE FROM `creature` WHERE `guid`=@NPC;
-INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`) VALUES 
+INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`) VALUES
 (@NPC,26933,571,1,1,0,0,3559.792,412.912,244.8625,1.91463,120,0,0,1,0,2);
 DELETE FROM `creature_addon` WHERE `guid`=@NPC;
 INSERT INTO `creature_addon` (`guid`,`path_id`,`bytes1`) VALUES (@NPC,@PATH,50331648);
@@ -1275,9 +1275,9 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,14,3479.214,376.5652,244.8625,0,0,0,100,0);
 
 SET @NPC := 131036;
-SET @PATH := @NPC*10;  
+SET @PATH := @NPC*10;
 DELETE FROM `creature` WHERE `guid`=@NPC;
-INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`) VALUES 
+INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`) VALUES
 (@NPC,26933,571,1,1,0,0,3438.608,283.5485,224.3952,1.91463,120,0,0,1,0,2);
 DELETE FROM `creature_addon` WHERE `guid`=@NPC;
 INSERT INTO `creature_addon` (`guid`,`path_id`,`bytes1`) VALUES (@NPC,@PATH,50331648);
@@ -1293,9 +1293,9 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,8,3437.712,218.1042,224.3952,0,0,0,100,0);
 
 SET @NPC := 131037;
-SET @PATH := @NPC*10;  
+SET @PATH := @NPC*10;
 DELETE FROM `creature` WHERE `guid`=@NPC;
-INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`) VALUES 
+INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`) VALUES
 (@NPC,26933,571,1,1,0,0,3337.373,175.2911,169.6936,1.91463,120,0,0,1,0,2);
 DELETE FROM `creature_addon` WHERE `guid`=@NPC;
 INSERT INTO `creature_addon` (`guid`,`path_id`,`bytes1`) VALUES (@NPC,@PATH,50331648);
@@ -1320,9 +1320,9 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,17,3554.261,69.58746,169.6936,0,0,0,100,0);
 
 SET @NPC := 131038;
-SET @PATH := @NPC*10;  
+SET @PATH := @NPC*10;
 DELETE FROM `creature` WHERE `guid`=@NPC;
-INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`) VALUES 
+INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`) VALUES
 (@NPC,26933,571,1,1,0,0,3738.288,310.6056,206.0655,1.91463,120,0,0,1,0,2);
 DELETE FROM `creature_addon` WHERE `guid`=@NPC;
 INSERT INTO `creature_addon` (`guid`,`path_id`,`bytes1`) VALUES (@NPC,@PATH,50331648);

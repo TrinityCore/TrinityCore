@@ -8,7 +8,7 @@ INSERT INTO `creature_template_addon` (`entry`,`mount`,`bytes1`,`bytes2`,`emote`
 (24062,0,1,257,0, NULL), -- Wildervar Miner
 (24178,0,3,1,0, '6606'); -- Shatterhorn, Self Visual - Sleep Until Cancelled  (DND)
 DELETE FROM `creature_addon` WHERE `guid` IN (120419,120422,106573);
-INSERT INTO `creature_addon` (`guid`,`path_id`,`mount`,`bytes1`,`bytes2`,`emote`,`auras`) VALUES 
+INSERT INTO `creature_addon` (`guid`,`path_id`,`mount`,`bytes1`,`bytes2`,`emote`,`auras`) VALUES
 (120419,0,0,0,0,1,''), -- Wildervar Miner, talk
 (120422,0,0,0,0,1,''); -- Wildervar Miner, talk
 

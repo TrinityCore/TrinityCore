@@ -38,7 +38,7 @@ UPDATE `quest_template` SET `OfferRewardText`='$N! You are the $g man:woman;!!!$
 UPDATE `quest_template` SET `OfferRewardText`='Ah, Andre''s head.  So I guess he''ll make his trial after all!$B$BMuch appreciated, $N.  Now if you''ll just sign here, I can issue you payment for services rendered.$B$BDon''t worry about the small print.  It''s harmless, and... I don''t think there''s a magnifying glass small enough to read it anyway.' WHERE `Id`=2875; -- WANTED: Andre Firebeard
 UPDATE `quest_template` SET `OfferRewardText`='Great, thanks for the shipment!  Now MacKinley and I can finally settle our wager.' WHERE `Id`=2873; -- Stoley's Shipment
 UPDATE `quest_template` SET `OfferRewardText`='You have my sincere thanks for your efforts, $N. Though much remains to be done, it gladdens me to know we have helped some find their long-deserved rest.' WHERE `Id`=10047; -- The Path of Glory
-UPDATE `quest_template` SET `OfferRewardText`='Well, I must say, I am impressed, $N. I didn''t think you had the mettle for this mission. Well done. Well done, indeed. 
+UPDATE `quest_template` SET `OfferRewardText`='Well, I must say, I am impressed, $N. I didn''t think you had the mettle for this mission. Well done. Well done, indeed.
 ' WHERE `Id`=10394; -- Disruption - Forge Camp: Mageddon
 UPDATE `quest_template` SET `OfferRewardText`='It worked!  You got the essence!  Well done, $N!  Well done!$B$BThis essence will be invaluable in my research.  I hope to one day learn how to capture living dragon whelps, or perhaps capture their eggs.  If I could find a way to do that, then I would be the envy of dragon scholars around the world!$B$BMy employer would also be happy, and as I said before, he''s someone you want to keep happy...' WHERE `Id`=4726; -- Broodling Essence
 UPDATE `quest_template` SET `OfferRewardText`='There is no doubt, this is raw saronite. We''ve seen weapons made from it in the hands of the Lich King''s chosen before, but this is the first time it''s been used to arm anything else. The scale of that mining operation must be huge.' WHERE `Id`=13138; -- I'm Smelting... Smelting!
@@ -362,7 +362,7 @@ UPDATE `quest_template` SET `OfferRewardText`='You have seen the Chamber of Khaz
 UPDATE `quest_template` SET `OfferRewardText`='Well done, $N.  Your actions in the field are instrumental in our battle for Hellfire Peninsula.' WHERE `Id`=13408; -- Hellfire Fortifications
 UPDATE `quest_template` SET `OfferRewardText`='I have to hand it to you, $N, you''re a fighter born! Those Horde yokels may never know how close they came to the end. It takes real character to step in harm''s way on behalf of your enemies. That''s the kind of honor and commitment that holds the Alliance together!  $B$B<Field Marshal Brock salutes you crisply.>
 ' WHERE `Id`=10396; -- Enemy of my Enemy...
-UPDATE `quest_template` SET `OfferRewardText`='It is fortuitous that you intercepted this missive when you did, $N. Though it will take me some time to decipher, I can already sense the hatred and urgency woven into this scroll. I fear the Legion''s true motives in this land will soon be made evident...$B$BGive me a moment to decipher this script. $B$B<Warp-Scryer Kryv begins to read the demonic missive>    
+UPDATE `quest_template` SET `OfferRewardText`='It is fortuitous that you intercepted this missive when you did, $N. Though it will take me some time to decipher, I can already sense the hatred and urgency woven into this scroll. I fear the Legion''s true motives in this land will soon be made evident...$B$BGive me a moment to decipher this script. $B$B<Warp-Scryer Kryv begins to read the demonic missive>
 ' WHERE `Id`=10395; -- The Dark Missive
 UPDATE `quest_template` SET `OfferRewardText`='Are you certain of your choice, $N?  The Aldor will welcome you as an ally, but the Scryers will not easily forgive your decision.' WHERE `Id`=10551; -- Allegiance to the Aldor
 UPDATE `quest_template` SET `OfferRewardText`='Welcome back from your exercises, $N. I''m confident that you will make us proud when the competition starts.' WHERE `Id`=13749; -- A Valiant's Field Training
@@ -426,7 +426,7 @@ UPDATE `quest_template` SET `OfferRewardText`='So, sister, you think that comple
 UPDATE `quest_template` SET `OfferRewardText`='These will do nicely.  I''ll have the harness ready for you in no time.' WHERE `Id`=12900; -- Making a Harness
 UPDATE `quest_template` SET `OfferRewardText`='I''m impressed.  I never thought I would see an icemaw matriarch again.  Especially not one this size.' WHERE `Id`=12983; -- The Last of Her Kind
 UPDATE `quest_template` SET `OfferRewardText`='The jormungar are vile creatures.  You did well in destroying them.' WHERE `Id`=12989; -- The Slithering Darkness
-UPDATE `quest_template` SET `OfferRewardText`='Not bad.  I was hoping Kirgaraak would snap your neck so I could keep your bear.$B$BJust joking, sister.  Well... half-joking.  That''s a really nice bear you''ve got.' WHERE `Id`=12996; -- The Warm-Up 
+UPDATE `quest_template` SET `OfferRewardText`='Not bad.  I was hoping Kirgaraak would snap your neck so I could keep your bear.$B$BJust joking, sister.  Well... half-joking.  That''s a really nice bear you''ve got.' WHERE `Id`=12996; -- The Warm-Up
 UPDATE `quest_template` SET `OfferRewardText`='You really did it!  You made it out with your health.  Wish we could say the same for your bear.$B$BIt''s going to take a while for her to recover.  Fortunately you won''t need her for a while.' WHERE `Id`=12997; -- Into the Pit
 UPDATE `quest_template` SET `OfferRewardText`='You''ve really made it this far.  Never would I have thought you''d progress so quickly among the hyldnir.' WHERE `Id`=13061; -- Prepare for Glory
 UPDATE `quest_template` SET `OfferRewardText`='Are you ready to ride, sister?  There is no coming back.' WHERE `Id`=13062; -- Lok'lira's Parting Gift
@@ -455,7 +455,7 @@ UPDATE `quest_template` SET `OfferRewardText`='I have never seen such terror in 
 UPDATE `quest_template` SET `OfferRewardText`='It''s about damned time! No doubt that Baron Sliver took his sweet time in sending you to me.$B$BI should have that empty space above his shoulders removed!' WHERE `Id`=12806; -- To the Rise with all Due Haste!
 UPDATE `quest_template` SET `OfferRewardText`='In their folly, the Argent Crusade has chosen to turn a blind eye upon the presence of the Scarlet Onslaught. We will not.$B$BWe do not care if they might assist in the battle against the Lich King. We do not believe them worthy of existence. We will be their end, once and for all!' WHERE `Id`=12807; -- The Story Thus Far...
 UPDATE `quest_template` SET `OfferRewardText`='I thought so!  I couldn''t quite make out the destruction from here, but I can imagine how it must have looked.  Splendid!$B$BWell done, $n.  Thrallmar command will be happy to hear of your success!' WHERE `Id`=10087; -- Burn It Up... For the Horde!
-UPDATE `quest_template` SET `OfferRewardText`='Well done, $C, That''s one less forge camp we''ll need to worry about. It''ll take the Legion a while to get that facility back up and running. You''ve just bought us the one thing we''d run out of - time. 
+UPDATE `quest_template` SET `OfferRewardText`='Well done, $C, That''s one less forge camp we''ll need to worry about. It''ll take the Legion a while to get that facility back up and running. You''ve just bought us the one thing we''d run out of - time.
 ' WHERE `Id`=10390; -- Forge Camp: Mageddon
 UPDATE `quest_template` SET `OfferRewardText`='Now Veranus can finally rest in peace.' WHERE `Id`=24586; -- Razorscale Must Die!
 UPDATE `quest_template` SET `OfferRewardText`='That will keep our recruits fed!   Here''s how you cook it.' WHERE `Id`=13088; -- Northern Cooking
@@ -505,7 +505,7 @@ UPDATE `quest_template` SET `RequestItemsText`='Got the five Wastewander water p
 UPDATE `quest_template` SET `RequestItemsText`='Yes $c, I am an official of the Gadgetzan Water Company.  What can I assist you with?' WHERE `Id`=2781; -- WANTED: Caliph Scorpidsting
 UPDATE `quest_template` SET `RequestItemsText`='You look a little dazed.  Have you been reading our legal documents?' WHERE `Id`=2875; -- WANTED: Andre Firebeard
 UPDATE `quest_template` SET `RequestItemsText`='The cries seem somehow... fainter than they were before. The Light grant it''s more than wishful thinking.' WHERE `Id`=10047; -- The Path of Glory
-UPDATE `quest_template` SET `RequestItemsText`='The Legion could start shelling the Horde at any time, $N! You need to destroy those blasted cannons! 
+UPDATE `quest_template` SET `RequestItemsText`='The Legion could start shelling the Horde at any time, $N! You need to destroy those blasted cannons!
 ' WHERE `Id`=10396; -- Enemy of my Enemy...
 UPDATE `quest_template` SET `RequestItemsText`='Do you have the broodling essence, $N?  I can''t wait to study it.$B$BAnd besides that... my patron is not the type of person you want to disappoint.' WHERE `Id`=4726; -- Broodling Essence
 UPDATE `quest_template` SET `RequestItemsText`='Hey, $N.  Been to the Grizzled Den yet?  Those Wendigos can be fierce.' WHERE `Id`=313; -- The Grizzled Den
@@ -538,13 +538,13 @@ UPDATE `quest_template` SET `RequestItemsText`='You find anything yet, $N?' WHER
 UPDATE `quest_template` SET `RequestItemsText`='Any luck with the bloodtooth?  Don''t forget what I told you about making blood pools.' WHERE `Id`=13833; -- Blood Is Thicker
 UPDATE `quest_template` SET `RequestItemsText`='What is it that you''ve found, $N?' WHERE `Id`=24442; -- Battle Plans Of The Kvaldir
 UPDATE `quest_template` SET `RequestItemsText`='Watch where you''re stepping!  Watch watch watch!!  This is delicate stuff you see here, and if we''re to win then it must all work perfectly!' WHERE `Id`=1179; -- The Brassbolts Brothers
-UPDATE `quest_template` SET `RequestItemsText`='Tell me, $N, has the deed been done? Has the Legionlord been vanquished? 
+UPDATE `quest_template` SET `RequestItemsText`='Tell me, $N, has the deed been done? Has the Legionlord been vanquished?
 ' WHERE `Id`=10400; -- Overlord
 UPDATE `quest_template` SET `RequestItemsText`='We need to get this information to the Alliance! It may well be the key to Arthas'' defeat.' WHERE `Id`=24500; -- Wrath of the Lich King
 UPDATE `quest_template` SET `RequestItemsText`='We are currently accepting donations for wool cloth.  A donation of sixty pieces of wool cloth will net you full recognition by the Gnomeregan Exiles for your generous actions.  Our stores are such on wool that we would only need sixty pieces from you total; we should be able to acquire enough from others in the realm to support our drive.$B$BIf you have the sixty pieces of wool cloth on you and are ready to donate them, I''m able to take them from you now.' WHERE `Id`=7807; -- A Donation of Wool
 UPDATE `quest_template` SET `RequestItemsText`='As with most other fabrics, our stocks of silk are at an all-time low.  Our stores are such that we''d only need sixty pieces of silk from you total; we should be able to reach our goal with the support of others.$B$BA benevolent gift such as silk, might I add, would certainly increase your local standing in the community!  If you have the sixty pieces of silk cloth on you and are ready to donate them, I''m able to take them from you now.' WHERE `Id`=7808; -- A Donation of Silk
 UPDATE `quest_template` SET `RequestItemsText`='<Hansel is busily rubbing his bunions.>$B$BDon''t just stand there, grab some oil and a luffa and get to scrubbin'' these bunions.$B$BYe don''t have a luffa? Well then! Perhaps it''s time I sent you out to find a luffa?$B$BHey, where are ye goin''?' WHERE `Id`=7727; -- Incendosaurs? Whateverosaur is More Like It
-UPDATE `quest_template` SET `RequestItemsText`='Eight, $N. I need eight!	' WHERE `Id`=3443; -- Forging the Shaft
+UPDATE `quest_template` SET `RequestItemsText`='Eight, $N. I need eight!    ' WHERE `Id`=3443; -- Forging the Shaft
 UPDATE `quest_template` SET `RequestItemsText`='Don''t let the crazy goggles fool you, $N. I''m the smart one here.' WHERE `Id`=7702; -- Kill 'Em With Sleep Deprivation
 UPDATE `quest_template` SET `RequestItemsText`='Let''s not waste more of my precious time with jibber jabber, $r. It''s time to focus on replenishing our dwindling fiery flux supply.$B$BWhat I''m gonna need from you is the following:$B$B*Incendosaur scales.$B$B*Heavy Leather.$B$B*Coal.$B$BI''ll take all that you can offer!$B$BAnd you''ll do it fast if you wanna get in good with the Brotherhood.
 ' WHERE `Id`=8242; -- Restoring Fiery Flux Supplies via Heavy Leather
@@ -581,11 +581,11 @@ UPDATE `quest_template` SET `RequestItemsText`='You are the delivery $g boy:girl
 UPDATE `quest_template` SET `RequestItemsText`='What''s all this?$B$BBy any chance have you seen my no-good apprentice, Pestlepot?$B$BI sent him on an errand quite some time ago and he has yet to return!' WHERE `Id`=12527; -- Gluttonous Lurkers
 UPDATE `quest_template` SET `RequestItemsText`='Have you collected the water-poppies, $n?' WHERE `Id`=12564; -- Troll Patrol: Something for the Pain
 UPDATE `quest_template` SET `RequestItemsText`='You seek to change the path you walk, $N?' WHERE `Id`=24819; -- A Change of Heart
-UPDATE `quest_template` SET `RequestItemsText`='You close down that war-portal yet, $N? While you''re here shuffling your feet, there are more demons entering Outland! 
+UPDATE `quest_template` SET `RequestItemsText`='You close down that war-portal yet, $N? While you''re here shuffling your feet, there are more demons entering Outland!
 ' WHERE `Id`=10397; -- Invasion Point: Annihilator
 UPDATE `quest_template` SET `RequestItemsText`='What is it, $C? I sense you''ve found something that speaks of a coming doom.
 ' WHERE `Id`=10395; -- The Dark Missive
-UPDATE `quest_template` SET `RequestItemsText`='I sense a growing darkness within your heart, $C. Have you faced your fear? Or does it still await you at the Pools of Aggonar?  
+UPDATE `quest_template` SET `RequestItemsText`='I sense a growing darkness within your heart, $C. Have you faced your fear? Or does it still await you at the Pools of Aggonar?
 ' WHERE `Id`=10399; -- The Heart of Darkness
 UPDATE `quest_template` SET `RequestItemsText`='$N, you have returned. What did you learn?$B$BWhat is that sound?' WHERE `Id`=11629; -- Return to the Spirit Talker
 UPDATE `quest_template` SET `RequestItemsText`='What''s this? Who are you?$B$BYou''re one of those $r things! How can you speak our tongue?' WHERE `Id`=11559; -- Winterfin Commerce
@@ -599,5 +599,5 @@ UPDATE `quest_template` SET `RequestItemsText`='Have you collected 10 Scarlet In
 UPDATE `quest_template` SET `RequestItemsText`='You seek to continue down the path of destruction?' WHERE `Id`=24828; -- Path of Destruction
 UPDATE `quest_template` SET `RequestItemsText`='You seek to change the path you walk, $N?' WHERE `Id`=24836; -- A Change of Heart
 UPDATE `quest_template` SET `RequestItemsText`='Have you scouted all of the Blood Furnace yet?  What do you have to tell me?' WHERE `Id`=9608; -- Heart of Rage
-UPDATE `quest_template` SET `RequestItemsText`='The tears of the Fire Lord are a rare find indeed.$B$BOffer 1 Blood of the Mountain and you shall be granted favor amongst the Brotherhood. 
+UPDATE `quest_template` SET `RequestItemsText`='The tears of the Fire Lord are a rare find indeed.$B$BOffer 1 Blood of the Mountain and you shall be granted favor amongst the Brotherhood.
 ' WHERE `Id`=6646; -- Favor Amongst the Brotherhood, Blood of the Mountain
