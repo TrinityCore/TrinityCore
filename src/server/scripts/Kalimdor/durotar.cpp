@@ -18,6 +18,7 @@
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
+#include "Player.h"
 
 /*######
 ## Quest 25134: Lazy Peons

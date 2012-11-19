@@ -1,4 +1,4 @@
--- Toxic Tolerance questchain for a horde specific mount requires doing 
+-- Toxic Tolerance questchain for a horde specific mount requires doing
 -- daily quests. However currently all of those are acceptable daily, though
 -- only one (random) should be.
 -- Source: http://www.wowhead.com/quest=13917/gorishi-grub#comments:id=829822

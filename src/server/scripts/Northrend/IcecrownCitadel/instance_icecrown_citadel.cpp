@@ -23,6 +23,7 @@
 #include "PoolMgr.h"
 #include "AccountMgr.h"
 #include "icecrown_citadel.h"
+#include "Player.h"
 
 enum EventIds
 {

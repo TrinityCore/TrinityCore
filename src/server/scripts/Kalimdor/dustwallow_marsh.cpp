@@ -33,6 +33,7 @@ EndContentData */
 #include "ScriptedEscortAI.h"
 #include "ScriptedGossip.h"
 #include "SpellScript.h"
+#include "Player.h"
 
 /*######
 ## npc_stinky

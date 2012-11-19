@@ -19,16 +19,14 @@
 #ifndef TRINITYCORE_GROUP_H
 #define TRINITYCORE_GROUP_H
 
-#include "Battleground.h"
 #include "DBCEnums.h"
 #include "GroupRefManager.h"
 #include "LootMgr.h"
 #include "QueryResult.h"
 #include "SharedDefines.h"
-#include "Player.h"
-#include "Battlefield.h"
-#include "BattlefieldMgr.h"
 
+class Battlefield;
+class Battleground;
 class Creature;
 class GroupReference;
 class InstanceSave;

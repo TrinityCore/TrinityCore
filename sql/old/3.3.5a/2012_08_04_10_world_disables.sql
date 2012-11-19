@@ -19,8 +19,8 @@ INSERT INTO `disables` (`sourceType`,`entry`,`flags`,`params_0`,`params_1`,`comm
 (1,12493,0,'','','Deprecated quest: PvP Test'),
 (1,12911,0,'','','Deprecated quest: Kill Credit Test'),
 (1,13649,0,'','','Deprecated quest: Justin''s Fun Test'),
-(1,14106,0,'','','Deprecated quest: Na Kada''s Quest Test'), 
--- containing "flag" 
+(1,14106,0,'','','Deprecated quest: Na Kada''s Quest Test'),
+-- containing "flag"
 (1,9713,0,'','','Deprecated quest: Glowcap Harvesting Enabling Flag'),
 (1,9926,0,'','','Deprecated quest: FLAG Shadow Council/Warmaul Questline'),
 (1,11087,0,'','','Deprecated quest: HYJAL FLAG'),

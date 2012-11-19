@@ -14,7 +14,7 @@ DELETE FROM `gossip_menu` WHERE `entry` IN (21322,21323,21324,21325,21326);
 INSERT INTO `gossip_menu` (`entry`,`text_id`) VALUES (21322,3759),(21323,3760),(21324,3761),(21325,3762),(21326,3763);
 DELETE FROM `gossip_menu_option` WHERE `menu_id`=3049;
 DELETE FROM `gossip_menu_option` WHERE `menu_id` BETWEEN 21322 AND 21326;
-INSERT INTO `gossip_menu_option` (`menu_id`, `id`, `option_icon`, `option_text`, `option_id`, `npc_option_npcflag`, `action_menu_id`, `action_poi_id`, `box_coded`, `box_money`, `box_text`) VALUES 
+INSERT INTO `gossip_menu_option` (`menu_id`, `id`, `option_icon`, `option_text`, `option_id`, `npc_option_npcflag`, `action_menu_id`, `action_poi_id`, `box_coded`, `box_money`, `box_text`) VALUES
 (3049,0,0, 'You will have to excuse me, Lorax, I do not speak ''crazy''.',1,1,21322,0,0,0, ''),
 (21322,0,0, 'My apologies, I did not realize that you could understand what I was saying. What is it you are doing out here?',1,1,21323,0,0,0, ''),
 (21323,0,0, 'Do you? Perhaps you should tell me what it is that is bothering you',1,1,21324,0,0,0, ''),

@@ -12,9 +12,9 @@ SET @AirStripRef := 50013+1;
 SET @HallsofStoneRef := 50013+2;
 SET @ReavandDispoRef := 50013+3;
 SET @LibraryLaborerRef := 50013+4;
--- Add loot to the skinning table 
+-- Add loot to the skinning table
 DELETE FROM `skinning_loot_template` WHERE `entry` IN (@Recovery,@Dirkee,@LibraryLaborer,@ReavandDispo,@HallsofStone,@AirStrip,@UldarBoss);
-INSERT INTO `skinning_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `lootmode`, `groupid`, `mincountOrRef`, `maxcount`) VALUES 
+INSERT INTO `skinning_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `lootmode`, `groupid`, `mincountOrRef`, `maxcount`) VALUES
 (@Recovery, 41338, 42, 1, 0, 1, 3), -- Sprung Whirlygig
 (@Recovery, 41337, 44, 1, 0, 1, 3), -- Whizzed out Gizmo
 (@Recovery, 39690, 9, 1, 0, 1, 3), -- Volatile Blasting trigger
@@ -31,9 +31,9 @@ INSERT INTO `skinning_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `l
 (@HallsofStone, 1, 100, 1, 0, -@HallsofStoneRef, 1),
 (@AirStrip, 1, 100, 1, 0, -@AirStripRef, 1),
 (@UldarBoss, 1, 100, 1, 0, -@UldarBossRef, 1);
--- Add loot to the reference table 
+-- Add loot to the reference table
 DELETE FROM `reference_loot_template` WHERE `entry` IN (@AirStripRef,@ReavandDispoRef,@LibraryLaborerRef,@HallsofStoneRef,@UldarBossRef);
-INSERT INTO `reference_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `lootmode`, `groupid`, `mincountOrRef`, `maxcount`) VALUES 
+INSERT INTO `reference_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `lootmode`, `groupid`, `mincountOrRef`, `maxcount`) VALUES
 (@AirStripRef, 41338, 33, 1, 0, 1, 1), -- Sprung Whirlygig
 (@AirStripRef, 41337, 42, 1, 0, 1, 1), -- Whizzed out Gizmo
 (@AirStripRef, 39690, 13, 1, 0, 1, 3), -- Volatile Blasting trigger

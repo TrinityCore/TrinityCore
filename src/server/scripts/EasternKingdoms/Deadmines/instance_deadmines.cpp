@@ -26,6 +26,7 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
 #include "deadmines.h"
+#include "TemporarySummon.h"
 
 enum Sounds
 {

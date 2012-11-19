@@ -3,7 +3,7 @@ DELETE FROM `command` WHERE `name`='taxicheat';
 DELETE FROM `command` WHERE `name`='waterwalk';
 
 DELETE FROM `command` WHERE `name`='cheat' OR `name` LIKE 'cheat%';
-INSERT INTO `command` (`name`, `security`, `help`) VALUES 
+INSERT INTO `command` (`name`, `security`, `help`) VALUES
 ('cheat',           2, 'Syntax: .cheat $subcommand\r\nType .cheat to see the list of possible subcommands or .help cheat $subcommand to see info on subcommands'),
 ('cheat god',       2, 'Syntax: .cheat god [on/off]\r\nEnables or disables your character''s ability to take damage.'),
 ('cheat casttime',  2, 'Syntax: .cheat casttime [on/off]\r\nEnables or disables your character''s spell cast times.'),

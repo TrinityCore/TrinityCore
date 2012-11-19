@@ -26,6 +26,7 @@
 #include "Battlefield.h"
 #include "BattlefieldMgr.h"
 #include "Opcodes.h"
+#include "Player.h"
 
 //This send to player windows for invite player to join the war
 //Param1:(guid) the guid of Bf

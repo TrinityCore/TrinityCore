@@ -35,7 +35,7 @@ INSERT INTO `script_texts` (`npc_entry`,`entry`,`content_default`,`content_loc1`
 (26529,-1595029,'Get up! Me not done!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,13432,1,0,0,'meathook SAY_SLAY_3'),
 (26529,-1595030,'New toys!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,13429,1,0,0,'meathook SAY_SPAWN'),
 (26529,-1595031,'This... not fun...',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,13433,1,0,0,'meathook SAY_DEATH'),
--- Salramm the Fleshcrafter 
+-- Salramm the Fleshcrafter
 (26530,-1595032,'Ah, the entertainment has arrived!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,13472,1,0,0,'salramm SAY_AGGRO'),
 (26530,-1595033,'You are too late, champion of Lordaeron. The dead shall have their day.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,13471,1,0,0,'salramm SAY_SPAWN'),
 (26530,-1595034,'The fun is just beginning!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,13473,1,0,0,'salramm SAY_SLAY_1'),
@@ -49,7 +49,7 @@ INSERT INTO `script_texts` (`npc_entry`,`entry`,`content_default`,`content_loc1`
 (26530,-1595042,'Your flesh betrays you.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,13482,1,0,0,'salramm SAY_STEAL_FLESH_3'),
 (26530,-1595043,'Say hello to some friends of mine.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,13476,1,0,0,'salramm SAY_SUMMON_GHOULS_1'),
 (26530,-1595044,'Come, citizen of Stratholme! Meet your saviors.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,13477,1,0,0,'salramm SAY_SUMMON_GHOULS_2'),
--- The Infinite Corruptor 
+-- The Infinite Corruptor
 -- Couldn't find the value from the audios for `sound` column, not added.
 (32273,-1595045,'How dare you interfere with our work here!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,1,0,0,'infinite SAY_AGGRO'),
 (32273,-1595046,'My work here is finished!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,1,0,0,'infinite SAY_FAIL'),

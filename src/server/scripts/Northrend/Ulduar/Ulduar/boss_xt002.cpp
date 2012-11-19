@@ -29,6 +29,7 @@
 #include "SpellAuraEffects.h"
 #include "ulduar.h"
 #include "Vehicle.h"
+#include "Player.h"
 
 enum Spells
 {

@@ -21,10 +21,10 @@
  * Scriptnames of files in this file should be prefixed with "spell_mage_".
  */
 
+#include "Player.h"
 #include "ScriptMgr.h"
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"
-
 
 enum MageSpells
 {
@@ -399,7 +399,7 @@ public:
     {
         PrepareSpellScript(spell_mage_cone_of_cold_SpellScript);
 
-        void HandleConeOfColdScript(SpellEffIndex effIndex)
+        void HandleConeOfColdScript(SpellEffIndex /*effIndex*/)
         {
             Unit* caster = GetCaster();
             if (Unit* unitTarget = GetHitUnit())

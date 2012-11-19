@@ -33,6 +33,7 @@
 #include "InstanceScript.h"
 #include "Group.h"
 #include "LFGMgr.h"
+#include "Battleground.h"
 
 class spell_gen_absorb0_hitlimit1 : public SpellScriptLoader
 {

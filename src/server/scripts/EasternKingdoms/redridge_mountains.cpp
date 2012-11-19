@@ -24,6 +24,7 @@ Script Data End */
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "ScriptedEscortAI.h"
+#include "Player.h"
 
 void AddSC_redridge_mountains()
 {

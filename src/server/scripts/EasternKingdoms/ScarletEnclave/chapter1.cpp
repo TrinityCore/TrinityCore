@@ -23,6 +23,7 @@
 #include "ScriptedEscortAI.h"
 #include "CombatAI.h"
 #include "PassiveAI.h"
+#include "Player.h"
 
 /*######
 ##Quest 12848

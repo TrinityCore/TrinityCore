@@ -2,19 +2,19 @@
 SET @ENTRY    := 17832;
 SET @GOSSIPID := 7486;
 SET @TEXTID   := 9070;
--- Creature Gossip_menu_id Update from sniff    
-UPDATE `creature_template` SET `gossip_menu_id`=@GOSSIPID WHERE `entry`=@ENTRY; 
+-- Creature Gossip_menu_id Update from sniff
+UPDATE `creature_template` SET `gossip_menu_id`=@GOSSIPID WHERE `entry`=@ENTRY;
 -- Gossip Menu insert from sniff
-DELETE FROM `gossip_menu` WHERE `entry`=@GOSSIPID AND `text_id`=@TEXTID;    
+DELETE FROM `gossip_menu` WHERE `entry`=@GOSSIPID AND `text_id`=@TEXTID;
 INSERT INTO `gossip_menu` (`entry`,`text_id`) VALUES (@GOSSIPID,@TEXTID);
 -- Creature Gossip_menu_option Update from sniff
 DELETE FROM `gossip_menu_option` WHERE `menu_id` IN (@GOSSIPID) AND `id` IN (0);
-INSERT INTO `gossip_menu_option` (`menu_id`,`id`,`option_icon`,`option_text`,`option_id`,`npc_option_npcflag`,`action_menu_id`,`action_poi_id`,`box_coded`,`box_money`,`box_text`) VALUES   
+INSERT INTO `gossip_menu_option` (`menu_id`,`id`,`option_icon`,`option_text`,`option_id`,`npc_option_npcflag`,`action_menu_id`,`action_poi_id`,`box_coded`,`box_money`,`box_text`) VALUES
 (@GOSSIPID,0,0, 'Take Blood Knight Insignia',1,1,0,0,0,0, '');
 -- Gossip option Conditions
-DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=15 AND `SourceGroup`=@GOSSIPID;    
-INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,`ElseGroup`,`ConditionTypeOrReference`,`ConditionValue1`,`ConditionValue2`,`ConditionValue3`,`ErrorTextId`,`ScriptName`,`Comment`) VALUES   
-(15,@GOSSIPID,0,0,9,9692,0,0,0,'','Show gossip option if player has quest 9692 but not complete'),  
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=15 AND `SourceGroup`=@GOSSIPID;
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,`ElseGroup`,`ConditionTypeOrReference`,`ConditionValue1`,`ConditionValue2`,`ConditionValue3`,`ErrorTextId`,`ScriptName`,`Comment`) VALUES
+(15,@GOSSIPID,0,0,9,9692,0,0,0,'','Show gossip option if player has quest 9692 but not complete'),
 (15,@GOSSIPID,0,0,26,24226,1,0,0,'','Show gossip option if player does not have item 24226');
 -- SAI for Blood Knight Dawnstar
 UPDATE `creature_template` SET `AIName`='SmartAI',`ScriptName`='' WHERE `entry`=@ENTRY;

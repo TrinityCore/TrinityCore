@@ -27,6 +27,7 @@ Script Data End */
 #include "ScriptedGossip.h"
 #include "gnomeregan.h"
 #include "ScriptedEscortAI.h"
+#include "Player.h"
 
 #define GOSSIP_START_EVENT "I am ready to being"
 
