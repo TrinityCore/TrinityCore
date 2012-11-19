@@ -10,7 +10,7 @@ INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equ
 DELETE FROM `creature` WHERE `id`=34965;
 -- Spawns missing Spell Focus for Mistcaller's Cave
 DELETE FROM `gameobject` WHERE `guid`=365;
-INSERT INTO `gameobject` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`position_x`,`position_y`,`position_z`,`orientation`,`rotation0`,`rotation1`,`rotation2`,`rotation3`,`spawntimesecs`,`animprogress`,`state`) VALUES 
+INSERT INTO `gameobject` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`position_x`,`position_y`,`position_z`,`orientation`,`rotation0`,`rotation1`,`rotation2`,`rotation3`,`spawntimesecs`,`animprogress`,`state`) VALUES
 (365,300006,571,1,1,10184.8,1184.6,75.892,2.7989,0,0,0.985356,0.170509,300,0,1);
 -- --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- Issue 3635: The Test of Skulls, Somnus

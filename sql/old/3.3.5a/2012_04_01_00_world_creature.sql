@@ -1,6 +1,6 @@
 -- Add missing spawns to db
 DELETE FROM `creature` WHERE `guid` IN (4764,28648,40266,40267,40470,40471,40510,40516,40517,40518,40601,40602,40603,41320);
-INSERT INTO `creature` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `curhealth`) VALUES 
+INSERT INTO `creature` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `curhealth`) VALUES
 (4764,33608,530,1,1,-2263.63,5559.49,67.0918,5.91667,180,0,9156), -- Alchemy
 (28648,33609,530,1,1,-2262.64,5561.96,67.0948,5.89921,180,0,9156), -- Blacksmithing
 (40266,33610,530,1,1,-2261.59,5564.54,67.095,5.93412,180,0,9156), -- Enchanting

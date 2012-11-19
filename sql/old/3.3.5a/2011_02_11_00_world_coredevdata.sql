@@ -9,7 +9,7 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceEntry`,`ConditionType
 
 -- Not the Blizzlike waypoints, Malcrom has those, but these are temporary
 DELETE FROM `script_waypoint` WHERE `entry`=29602;
-INSERT INTO `script_waypoint` (entry,pointid,location_x,location_y,location_z,waittime) VALUES 
+INSERT INTO `script_waypoint` (entry,pointid,location_x,location_y,location_z,waittime) VALUES
 (29602,1,7085.374,-1938.052,773.318,0),
 (29602,2,7085.374,-1938.052,773.318,0),
 (29602,3,7065.382,-1988.499,768.9483,0),

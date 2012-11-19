@@ -5,16 +5,16 @@ SET @PATH := @NPC_DEATHS_HAND_ACOLYTE * 10;
 SET @OMEGA_RUNE := 38708;
 
 DELETE FROM `creature` WHERE `id` IN (@NPC_HERENN,@NPC_DEATHS_HAND_ACOLYTE);
--- add High Cultist Herenn (28601) 
+-- add High Cultist Herenn (28601)
 INSERT INTO `creature` (`guid`,`id`,`map`,`position_x`,`position_y`,`position_z`,`orientation`) VALUES
 (@GUID+10,@NPC_HERENN,1,-6028.08,-1249.02,-146.7644,3.054326);
 
 -- add Death's Hand Acolyte (28602), genders are random (25342,25343)
 INSERT INTO `creature`(`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`) VALUES
 (@GUID,  @NPC_DEATHS_HAND_ACOLYTE,1,1,1,0,0,-6163.63,-1249.54,-159.7329,3.11264,120,0,0,1,0,2),   -- wandering
-(@GUID+1,@NPC_DEATHS_HAND_ACOLYTE,1,1,1,0,0,-6083.673,-1249.462,-143.4821,0.01435,120,0,0,1,0,2), -- wandering 
-(@GUID+2,@NPC_DEATHS_HAND_ACOLYTE,1,1,1,0,0,-6037.476,-1243.375,-146.8277,5.98647,120,0,0,1,0,0), -- kneeled 
-(@GUID+3,@NPC_DEATHS_HAND_ACOLYTE,1,1,1,0,0,-6036.1,-1255.38,-146.8277,1.15191,120,0,0,1,0,0),    -- kneeled 
+(@GUID+1,@NPC_DEATHS_HAND_ACOLYTE,1,1,1,0,0,-6083.673,-1249.462,-143.4821,0.01435,120,0,0,1,0,2), -- wandering
+(@GUID+2,@NPC_DEATHS_HAND_ACOLYTE,1,1,1,0,0,-6037.476,-1243.375,-146.8277,5.98647,120,0,0,1,0,0), -- kneeled
+(@GUID+3,@NPC_DEATHS_HAND_ACOLYTE,1,1,1,0,0,-6036.1,-1255.38,-146.8277,1.15191,120,0,0,1,0,0),    -- kneeled
 (@GUID+4,@NPC_DEATHS_HAND_ACOLYTE,1,1,1,0,0,-6065.16,-1256.21,-143.3607,3.10668,120,0,0,1,0,0),
 (@GUID+5,@NPC_DEATHS_HAND_ACOLYTE,1,1,1,0,0,-6118.18,-1241.33,-143.281,3.12169,120,0,0,1,0,0),
 (@GUID+6,@NPC_DEATHS_HAND_ACOLYTE,1,1,1,0,0,-6104.965,-1243.601,-143.1921,3.12413,120,0,0,1,0,0),
@@ -28,8 +28,8 @@ UPDATE `creature_template` SET `equipment_id`=815 WHERE `entry`=@NPC_DEATHS_HAND
 -- set waypoint id's and visual effects
 DELETE FROM `creature_addon` WHERE `guid` IN (@GUID,@GUID+1,@GUID+2,@GUID+3);
 INSERT INTO `creature_addon` (`guid`,`path_id`,`bytes1`,`bytes2`,`emote`,`auras`) VALUES
-(@GUID  ,@PATH,0,1,0,''), 
-(@GUID+1,@PATH+20,0,1,0,''), 
+(@GUID  ,@PATH,0,1,0,''),
+(@GUID+1,@PATH+20,0,1,0,''),
 (@GUID+2,0,8,0,0,''),       -- kneeling
 (@GUID+3,0,8,0,0,'');       -- kneeling
 
@@ -59,10 +59,10 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 -- SAI for High Cultist Herenn, also add loot and equipment
 UPDATE `creature_template` SET `AIName`='SmartAI',`equipment_id`=1803 WHERE `entry`=@NPC_HERENN;
 DELETE FROM `smart_scripts` WHERE `source_type`=0 AND `entryorguid`=@NPC_HERENN;
-INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES 
+INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
 (@NPC_HERENN,0,0,0,0,0,100,1,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,'High Cultist Herenn - in Combat - Say Text 0');
 
--- High Cultist Herenn talk text 
+-- High Cultist Herenn talk text
 DELETE FROM `creature_text` WHERE `entry`=@NPC_HERENN;
 INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`probability`,`emote`,`duration`,`sound`,`comment`) VALUES
 (@NPC_HERENN,0,0,'Fool! You led us to the only being that could stand up to our armies! You will never bring the Etymidian back to Northrend!',12,0,100,25,0,0,'High Cultist Herenn');

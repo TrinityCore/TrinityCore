@@ -13,7 +13,7 @@ DELETE FROM `gossip_menu` WHERE `entry`=10118 AND `text_id`=14076;
 INSERT INTO `gossip_menu` (`entry`,`text_id`) VALUES (10136,14072),(10138,14074),(10118,14076);
 -- Add Gossip Options
 DELETE FROM `gossip_menu_option` WHERE `menu_id`=@GOSSIP AND `id` IN (2,3,4,5);
-INSERT INTO `gossip_menu_option` (`menu_id`, `id`, `option_icon`, `option_text`, `option_id`, `npc_option_npcflag`, `action_menu_id`, `action_poi_id`, `box_coded`, `box_money`, `box_text`) VALUES 
+INSERT INTO `gossip_menu_option` (`menu_id`, `id`, `option_icon`, `option_text`, `option_id`, `npc_option_npcflag`, `action_menu_id`, `action_poi_id`, `box_coded`, `box_money`, `box_text`) VALUES
 (@GOSSIP,2,0, 'Tell me about the Wispcloak Recipe.',1,1,10136,0,0,0, ''),
 (@GOSSIP,3,0, 'I am ready to learn the Wispcloak Recipe.',1,1,0,0,0,0, ''),
 (@GOSSIP,4,0, 'Tell me about the Deathchill Cloak Recipe.',1,1,10138,0,0,0, ''),

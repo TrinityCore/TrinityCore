@@ -1,6 +1,6 @@
 -- The Call to Command (6144, 6145, 6146, 14349, 14350) quest chain fix by nelegalno
 -- The first 2 quests in the chain ware replaced with new ones after the removal of Varimathras (2425) but players that completed
--- the old quests shouldn't get the new ones and the third quest Nathanos' Ruse (6146) should require 6145 or 14350 completed 
+-- the old quests shouldn't get the new ones and the third quest Nathanos' Ruse (6146) should require 6145 or 14350 completed
 
 -- The Call to Command ExclusiveGroup
 UPDATE `quest_template` SET `ExclusiveGroup` = 6144 WHERE `Id` = 6144; -- The Call to Command (6144) quest

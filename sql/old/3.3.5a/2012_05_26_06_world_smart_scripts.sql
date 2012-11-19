@@ -64,7 +64,7 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
 (@ENTRY,0,5,0,1,0,100,2,0,8000,12000,14000,5,1,0,0,0,0,0,1,0,0,0,0,0,0,0, 'Blackhand Veteran - OOC - emote');
 
 -- Rage Talon Dragonspawn SAI
-SET @ENTRY   := 9096;  -- NPC entry 
+SET @ENTRY   := 9096;  -- NPC entry
 SET @SPELL1  := 15580; -- Strike
 SET @SPELL2  := 12021; -- Fixate
 SET @SPELL3  := 15572; -- Sunder Armor

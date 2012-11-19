@@ -1,4 +1,4 @@
--- Love is in the Air 
+-- Love is in the Air
 -- Quests Missing Text ... By Albis
 
 UPDATE `quest_template` SET `RequestItemsText` ='The cologne isn''t going to give itself out, you know.$B$BGet spraying!' , `OfferRewardText` ='Nice work, $N! People will be buying Crown colognes by the crate-load now that they''ve had a chance to try them.$B$BHere''s a little something for helping us out.' WHERE `Id` = 24635;

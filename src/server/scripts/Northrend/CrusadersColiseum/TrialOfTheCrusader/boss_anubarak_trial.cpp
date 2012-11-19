@@ -25,7 +25,6 @@
 #include "ScriptedCreature.h"
 #include "trial_of_the_crusader.h"
 #include <limits>
-#include "Player.h"
 
 enum Yells
 {

@@ -9,7 +9,7 @@ UPDATE `creature_template` SET `gossip_menu_id`=2703,`ScriptName`='' WHERE `entr
 DELETE FROM `gossip_menu` WHERE `entry` IN (2703,21320,21321);
 INSERT INTO `gossip_menu` (`entry`,`text_id`) VALUES (2703,3375),(2703,3377),(21320,3382),(21321,3383);
 DELETE FROM `gossip_menu_option` WHERE `menu_id`=2703 AND `id` IN (0,1,2);
-INSERT INTO `gossip_menu_option` (`menu_id`, `id`, `option_icon`, `option_text`, `option_id`, `npc_option_npcflag`, `action_menu_id`, `action_poi_id`, `box_coded`, `box_money`, `box_text`) VALUES 
+INSERT INTO `gossip_menu_option` (`menu_id`, `id`, `option_icon`, `option_text`, `option_id`, `npc_option_npcflag`, `action_menu_id`, `action_poi_id`, `box_coded`, `box_money`, `box_text`) VALUES
 (2703,0,0, 'How do I use the Cache of Mau''ari?',1,1,21320,0,0,0, ''),
 (2703,1,0, 'What is E''ko?',1,1,21321,0,0,0, ''),
 (2703,2,0, 'I''d like you to make me a new Cache of Mau''ari please',1,1,0,0,0,0, '');

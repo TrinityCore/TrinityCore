@@ -15,7 +15,7 @@ UPDATE `creature` SET `MovementType`=0,`spawndist`=0 WHERE `guid` IN (285,283,28
 -- One missing Zandalar Headhsrinker spawn
 -- This was the best guid I could find which was not in use
 DELETE FROM `creature` WHERE `guid`=200615 AND `id`=14876;
-INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`,`npcflag`,`unit_flags`,`dynamicflags`) VALUES 
+INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`,`npcflag`,`unit_flags`,`dynamicflags`) VALUES
 (200615,14876,0,1,1,14998,0,-11775.231445,1358.505981,0.776265,1.409376,1800,0,0,7326,2434,2,0,0,0);
 
 -- Set Zandalar Enforcer's home position next to cage

@@ -1,6 +1,6 @@
 -- Addon data based on sniff fixed by Vincent-Michael
 DELETE FROM `creature_template_addon` WHERE `entry` IN (27692,27755,27756);
-INSERT INTO `creature_template_addon` (`entry`,`path_id`,`mount`,`bytes1`,`bytes2`,`emote`,`auras`) VALUES 
+INSERT INTO `creature_template_addon` (`entry`,`path_id`,`mount`,`bytes1`,`bytes2`,`emote`,`auras`) VALUES
 (27692,0,0,0x3000000,0x1,0,'50296 50325'), -- Emerald Drake
 (27755,0,0,0x3000000,0x1,0,'50296 50325'), -- Amber Drake
 (27756,0,0,0x3000000,0x1,0,'50296 50248 50325'); -- Ruby Drake // Evasive aura should be here from the start

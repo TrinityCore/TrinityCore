@@ -3,7 +3,7 @@
 -- Totems
 -- Sigils
 DELETE FROM `spell_proc_event` WHERE `entry` IN (71214, 71217, 67389, 67386, 67392, 71178, 67361, 71176, 71191, 71194, 71186, 67379, 67365, 67363, 64955, 71228, 71226, 67381, 67384);
-INSERT INTO `spell_proc_event` VALUES 
+INSERT INTO `spell_proc_event` VALUES
 ( 64955, 0x00,  10, 0x00000000, 0x00000040, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Item - Paladin T8 Protection Relic
 ( 67361, 0x00,   7, 0x00000002, 0x00000000, 0x00000000, 0x00040000, 0x00000000,   0,   0,   0), -- Item - Druid T9 Balance Relic (Moonfire)
 ( 67363, 0x00,  10, 0x00000000, 0x80000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,  10), -- Item - Paladin T9 Holy Relic (Judgement)

@@ -404,6 +404,17 @@ inline void Battleground::_ProcessRessurect(uint32 diff)
     }
 }
 
+uint32 Battleground::GetPrematureWinner()
+{
+    uint32 winner = 0;
+    if (GetPlayersCountByTeam(ALLIANCE) >= GetMinPlayersPerTeam())
+        winner = ALLIANCE;
+    else if (GetPlayersCountByTeam(HORDE) >= GetMinPlayersPerTeam())
+        winner = HORDE;
+        
+    return winner;
+}
+
 inline void Battleground::_ProcessProgress(uint32 diff)
 {
     // *********************************************************
@@ -418,13 +429,7 @@ inline void Battleground::_ProcessProgress(uint32 diff)
     else if (m_PrematureCountDownTimer < diff)
     {
         // time's up!
-        uint32 winner = 0;
-        if (GetPlayersCountByTeam(ALLIANCE) >= GetMinPlayersPerTeam())
-            winner = ALLIANCE;
-        else if (GetPlayersCountByTeam(HORDE) >= GetMinPlayersPerTeam())
-            winner = HORDE;
-
-        EndBattleground(winner);
+        EndBattleground(GetPrematureWinner());
         m_PrematureCountDown = false;
     }
     else if (!sBattlegroundMgr->isTesting())

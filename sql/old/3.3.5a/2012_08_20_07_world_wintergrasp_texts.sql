@@ -1,4 +1,4 @@
--- Unused yet: 
+-- Unused yet:
 -- Wintergrasp is under attack!
 -- Wintergrasp Fortress is under attack!
 -- Winter's Edge Tower is under attack!

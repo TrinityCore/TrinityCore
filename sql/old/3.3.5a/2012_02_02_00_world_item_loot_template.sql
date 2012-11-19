@@ -49,7 +49,7 @@ INSERT INTO `reference_loot_template` (`entry`,`item`,`ChanceOrQuestChance`,`loo
 -- Assign loot to the special bags
 DELETE FROM `item_loot_template` WHERE `entry` IN (54516,37586);
 INSERT INTO `item_loot_template` (`entry`,`item`,`ChanceOrQuestChance`,`lootmode`,`groupid`,`mincountOrRef`,`maxcount`) VALUES
--- Loot Filled Pumpkin: 
+-- Loot Filled Pumpkin:
 (54516,33226,100,1,0,2,3), -- Tricky Treat
 (54516,1,100,1,0,-@Ref,1), -- Referenced Specials
 (54516,33808,2,1,0,1,1), -- The Horseman's Helm

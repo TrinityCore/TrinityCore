@@ -82,7 +82,7 @@ UPDATE `creature_template` SET `spell1` = 56746, `spell2` = 56748, `spell3` = 56
 
 -- Fix Brann's Communicator Closes #5835 author gecko32
 DELETE FROM `spell_linked_spell` WHERE `spell_trigger`=61122 AND `spell_effect`=55038;
-INSERT INTO `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `comment`) VALUES 
+INSERT INTO `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `comment`) VALUES
 (61122, 55038, 0, 'Contact Brann');
 
 -- Fix Black Bruise proc Scaling author Vincent-Michael Closes #7040

@@ -36,7 +36,7 @@ INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`pr
 (@Zierhut,0,0, 'Renounce the Scarlet Onslaught! Don''t listen to the lies of the high general and the grand admiral any longer!',1,0,100,5,0,0, 'Lead Cannoneer Zierhut'),
 (@Mercer,0,0, 'Abbendis is nothing but a harlot and Grand Admiral Westwind is selling her cheap like he sold us out!',1,0,100,5,0,0, 'Stable Master Mercer');
 DELETE FROM `smart_scripts` WHERE `source_type`=0 AND `entryorguid` IN (@Goodman,@Zierhut,@Mercer,@Jordan);
-INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES 
+INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
 (@Goodman,0,0,0,8,0,100,0,@Compelled,0,0,0,22,2,0,0,0,0,0,1,0,0,0,0,0,0,0, 'The Denouncement/Goodman: On spellhit set phase 2'),
 (@Goodman,0,1,0,6,2,100,0,0,0,0,0,85,@DeathGoodman,0,0,0,0,0,1,0,0,0,0,0,0,0, 'The Denouncement/Goodman: On death in phase 2 cast spell'),
 (@Goodman,0,2,0,25,0,100,0,0,0,0,0,28,@Compelled,0,0,0,0,0,1,0,0,0,0,0,0,0, 'The Denouncement/Goodman: On reset remove Compelled aura'),
@@ -58,7 +58,7 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
 (@Jordan,0,3,0,25,0,100,0,0,0,0,0,22,0,0,0,0,0,0,1,0,0,0,0,0,0,0, 'The Denouncement/Jordan: On reset set phase 0'),
 (@Jordan,0,4,0,6,2,100,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0, 'The Denouncement/Jordan: On death in phase 2 yell');
 
--- Kill a unrelated console DB error 
+-- Kill a unrelated console DB error
 DELETE FROM `creature_addon` WHERE `guid`=88103;
 
 -- Valiance Keep Footman SAI (by Malcrom)

@@ -1,11 +1,11 @@
 UPDATE `creature_template` SET `npcflag`=`npcflag`|16777216 WHERE `entry`=40176; -- Sen'jin Frog
 -- Add missing table at Steelgrill's Depot
 DELETE FROM `gameobject` WHERE `guid`=151888 AND `id`=202564;
-INSERT INTO `gameobject` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`position_x`,`position_y`,`position_z`,`orientation`,`rotation0`,`rotation1`,`rotation2`,`rotation3`,`spawntimesecs`,`animprogress`,`state`) VALUES 
+INSERT INTO `gameobject` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`position_x`,`position_y`,`position_z`,`orientation`,`rotation0`,`rotation1`,`rotation2`,`rotation3`,`spawntimesecs`,`animprogress`,`state`) VALUES
 (151888,202564,0,1,1,-5463.98975,-626.967041,393.528717,0,0,0,0,0,120,0,1);
 -- Add non-existing equipment
 DELETE FROM `creature_equip_template` WHERE `entry`=2432;
-INSERT INTO `creature_equip_template` (`entry`,`equipentry1`,`equipentry2`,`equipentry3`) VALUES 
+INSERT INTO `creature_equip_template` (`entry`,`equipentry1`,`equipentry2`,`equipentry3`) VALUES
 (2432,53056,0,0);
 UPDATE `creature_template` SET `equipment_id`=2432 WHERE `entry`=39368; -- Set equipment to Drill Sergeant Steamcrank
 UPDATE `creature_template` SET `equipment_id`=2432 WHERE `entry`=39675; -- Set equipment to Captain Tread Sparknozzle
@@ -16,7 +16,7 @@ UPDATE `creature_template` SET `AIName`= '' WHERE `entry`=30037;
 -- Fix and add spawns
 DELETE FROM `creature` WHERE `id` IN (23289,23345,23346,23348,23291,23340,23342,23344,23370,23376,23427,23489);
 DELETE FROM `creature` WHERE `guid` BETWEEN 52334 AND 52347;
-INSERT INTO `creature` (guid,id,map,spawnMask,phaseMask,modelid,equipment_id,position_x,position_y,position_z,orientation,spawntimesecs,spawndist,currentwaypoint,curhealth,curmana,DeathState,MovementType) VALUES 
+INSERT INTO `creature` (guid,id,map,spawnMask,phaseMask,modelid,equipment_id,position_x,position_y,position_z,orientation,spawntimesecs,spawndist,currentwaypoint,curhealth,curmana,DeathState,MovementType) VALUES
 (52334,23289,530,1,1,0,0,-5155.48975,696.2224,42.196106,4.90454865,120,0,0,1,0,0,0), -- Mine Car
 (52335,23289,530,1,1,0,0,-5195.42334,620.3688,44.1691132,6.20430231,120,0,0,1,0,0,0), -- Mine Car
 (52336,23345,530,1,1,0,0,-5066.307,640.2136,86.49668,1.553343,120,0,0,1,0,0,0), -- Wing Commander Ichman

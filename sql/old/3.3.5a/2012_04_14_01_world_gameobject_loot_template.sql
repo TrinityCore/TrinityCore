@@ -1,6 +1,6 @@
 -- Add missing gameobject_loot_templates to prevent startup errors
 DELETE FROM `gameobject_loot_template` WHERE `entry` IN (3458,3459,3460,3461,15920,16841,26878,27725);
-INSERT INTO `gameobject_loot_template` (`entry`,`item`,`ChanceOrQuestChance`,`lootmode`,`groupid`,`mincountOrRef`,`maxcount`) VALUES 
+INSERT INTO `gameobject_loot_template` (`entry`,`item`,`ChanceOrQuestChance`,`lootmode`,`groupid`,`mincountOrRef`,`maxcount`) VALUES
 (3458,4594,100,0,0,1,1), -- Rockscale Cod on Feast Fish
 (3459,3771,100,0,0,1,1), -- Wild Hog Shank On Feast Boar
 (3460,4538,100,0,0,1,1), -- Snapvine Watermelon on Feast Fruit
