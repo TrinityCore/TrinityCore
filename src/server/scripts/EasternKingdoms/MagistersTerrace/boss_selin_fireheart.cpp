@@ -115,10 +115,6 @@ public:
                     }
                 }
 
-                instance->HandleGameObject(instance->GetData64(DATA_SELIN_ENCOUNTER_DOOR), true);
-                // Open the big encounter door. Close it in Aggro and open it only in JustDied(and here)
-                // Small door opened after event are expected to be closed by default
-
                 // Set Inst data for encounter
                 instance->SetData(DATA_SELIN_EVENT, NOT_STARTED);
             } else sLog->outError(LOG_FILTER_TSCR, ERROR_INST_DATA);
@@ -196,10 +192,8 @@ public:
         void EnterCombat(Unit* /*who*/)
         {
             DoScriptText(SAY_AGGRO, me);
-
             if (instance)
-                instance->HandleGameObject(instance->GetData64(DATA_SELIN_ENCOUNTER_DOOR), false);
-                //Close the encounter door, open it in JustDied/Reset
+                instance->SetData(DATA_SELIN_EVENT, IN_PROGRESS);
          }
 
         void KilledUnit(Unit* /*victim*/)
@@ -237,8 +231,6 @@ public:
                 return;
 
             instance->SetData(DATA_SELIN_EVENT, DONE);         // Encounter complete!
-            instance->HandleGameObject(instance->GetData64(DATA_SELIN_ENCOUNTER_DOOR), true);                  // Open the encounter door
-            instance->HandleGameObject(instance->GetData64(DATA_SELIN_DOOR), true);                 // Open the door leading further in
             ShatterRemainingCrystals();
         }
 
