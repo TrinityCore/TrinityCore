@@ -32,8 +32,6 @@
 #include "Cryptography/BigNumber.h"
 #include "Opcodes.h"
 
-class CalendarEvent;
-class CalendarInvite;
 class Creature;
 class GameObject;
 class InstanceSave;
@@ -933,19 +931,9 @@ class WorldSession
         void HandleCalendarGetNumPending(WorldPacket& recvData);
         void HandleCalendarEventSignup(WorldPacket& recvData);
 
-        void SendCalendarEvent(CalendarEvent const& calendarEvent, CalendarSendEventType sendEventType);
-        void SendCalendarEventInvite(CalendarInvite const& invite, bool pending);
-        void SendCalendarEventInviteAlert(CalendarEvent const& calendarEvent, CalendarInvite const& calendarInvite);
-        void SendCalendarEventInviteRemove(CalendarInvite const& invite, uint32 flags);
-        void SendCalendarEventInviteRemoveAlert(CalendarEvent const& calendarEvent, CalendarInviteStatus status);
-        void SendCalendarEventRemovedAlert(CalendarEvent const& calendarEvent);
-        void SendCalendarEventUpdateAlert(CalendarEvent const& calendarEvent, CalendarSendEventType sendEventType);
-        void SendCalendarEventStatus(CalendarEvent const& calendarEvent, CalendarInvite const& invite);
-        void SendCalendarEventModeratorStatusAlert(CalendarInvite const& invite);
-        void SendCalendarClearPendingAction();
         void SendCalendarRaidLockout(InstanceSave const* save, bool add);
         void SendCalendarRaidLockoutUpdated(InstanceSave const* save);
-        void SendCalendarCommandResult(CalendarError err, char const* param = NULL);
+        void HandleSetSavedInstanceExtend(WorldPacket& recvData);
 
         // Void Storage
         void HandleVoidStorageUnlock(WorldPacket& recvData);

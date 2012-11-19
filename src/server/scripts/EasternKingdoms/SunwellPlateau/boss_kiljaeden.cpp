@@ -28,6 +28,7 @@ EndScriptData */
 #include "ScriptedCreature.h"
 #include "sunwell_plateau.h"
 #include <math.h>
+#include "Player.h"
 
 /*** Speech and sounds***/
 enum Yells

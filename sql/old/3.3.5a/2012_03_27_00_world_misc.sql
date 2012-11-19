@@ -45,5 +45,5 @@ ALTER TABLE `creature_transport` CHANGE `guid` `guid` int(11) NOT NULL AUTO_INCR
 ALTER TABLE `creature_transport` CHANGE `transport_entry` `transport_entry` int(11) NOT NULL COMMENT 'Transport entry';
 ALTER TABLE `creature_transport` CHANGE `npc_entry` `npc_entry` int(11) NOT NULL COMMENT 'NPC entry';
 ALTER TABLE `creature_transport` CHANGE `emote` `emote` int(11) NOT NULL;
-ALTER TABLE `db_script_string` CHANGE `entry` `entry` int(10) unsigned NOT NULL DEFAULT '0';  
+ALTER TABLE `db_script_string` CHANGE `entry` `entry` int(10) unsigned NOT NULL DEFAULT '0';
   

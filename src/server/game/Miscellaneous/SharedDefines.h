@@ -3731,106 +3731,82 @@ enum ProfessionUI
     MAX_SECONDARY_SKILLS = 5
 };
 
-// Calendar - start
-
-enum CalendarFlags
+enum DuelCompleteType
 {
-    CALENDAR_FLAG_ALL_ALLOWED     = 0x001,
-    CALENDAR_FLAG_INVITES_LOCKED  = 0x010,
-    CALENDAR_FLAG_WITHOUT_INVITES = 0x040,
-    CALENDAR_FLAG_GUILD_ONLY      = 0x400
+    DUEL_INTERRUPTED = 0,
+    DUEL_WON         = 1,
+    DUEL_FLED        = 2
+};
+// handle the queue types and bg types separately to enable joining queue for different sized arenas at the same time
+enum BattlegroundQueueTypeId
+{
+    BATTLEGROUND_QUEUE_NONE     = 0,
+    BATTLEGROUND_QUEUE_AV       = 1,
+    BATTLEGROUND_QUEUE_WS       = 2,
+    BATTLEGROUND_QUEUE_AB       = 3,
+    BATTLEGROUND_QUEUE_EY       = 4,
+    BATTLEGROUND_QUEUE_SA       = 5,
+    BATTLEGROUND_QUEUE_IC       = 6,
+    BATTLEGROUND_QUEUE_TP       = 7,
+    BATTLEGROUND_QUEUE_BFG      = 8,
+    BATTLEGROUND_QUEUE_RB       = 9,
+    BATTLEGROUND_QUEUE_2v2      = 10,
+    BATTLEGROUND_QUEUE_3v3      = 11,
+    BATTLEGROUND_QUEUE_5v5      = 12,
+    MAX_BATTLEGROUND_QUEUE_TYPES
 };
 
-enum CalendarActionData
+enum GroupJoinBattlegroundResult
 {
-    CALENDAR_ACTION_NONE,
-    CALENDAR_ACTION_ADD_EVENT,
-    CALENDAR_ACTION_MODIFY_EVENT,
-    CALENDAR_ACTION_REMOVE_EVENT,
-    CALENDAR_ACTION_COPY_EVENT,
-    CALENDAR_ACTION_ADD_EVENT_INVITE,
-    CALENDAR_ACTION_MODIFY_EVENT_INVITE,
-    CALENDAR_ACTION_MODIFY_MODERATOR_EVENT_INVITE,
-    CALENDAR_ACTION_REMOVE_EVENT_INVITE,
-    CALENDAR_ACTION_SIGNUP_TO_EVENT
+    // positive values are indexes in BattlemasterList.dbc
+    ERR_GROUP_JOIN_BATTLEGROUND_FAIL        = 0,            // Your group has joined a battleground queue, but you are not eligible (showed for non existing BattlemasterList.dbc indexes)
+    ERR_BATTLEGROUND_NONE                   = -1,           // not show anything
+    ERR_GROUP_JOIN_BATTLEGROUND_DESERTERS   = -2,           // You cannot join the battleground yet because you or one of your party members is flagged as a Deserter.
+    ERR_ARENA_TEAM_PARTY_SIZE               = -3,           // Incorrect party size for this arena.
+    ERR_BATTLEGROUND_TOO_MANY_QUEUES        = -4,           // You can only be queued for 2 battles at once
+    ERR_BATTLEGROUND_CANNOT_QUEUE_FOR_RATED = -5,           // You cannot queue for a rated match while queued for other battles
+    ERR_BATTLEDGROUND_QUEUED_FOR_RATED      = -6,           // You cannot queue for another battle while queued for a rated arena match
+    ERR_BATTLEGROUND_TEAM_LEFT_QUEUE        = -7,           // Your team has left the arena queue
+    ERR_BATTLEGROUND_NOT_IN_BATTLEGROUND    = -8,           // You can't do that in a battleground.
+    ERR_BATTLEGROUND_JOIN_XP_GAIN           = -9,           // wtf, doesn't exist in client...
+    ERR_BATTLEGROUND_JOIN_RANGE_INDEX       = -10,          // Cannot join the queue unless all members of your party are in the same battleground level range.
+    ERR_BATTLEGROUND_JOIN_TIMED_OUT         = -11,          // %s was unavailable to join the queue. (uint64 guid exist in client cache)
+    ERR_BATTLEGROUND_JOIN_FAILED            = -12,          // Join as a group failed (uint64 guid doesn't exist in client cache)
+    ERR_LFG_CANT_USE_BATTLEGROUND           = -13,          // You cannot queue for a battleground or arena while using the dungeon system.
+    ERR_IN_RANDOM_BG                        = -14,          // Can't do that while in a Random Battleground queue.
+    ERR_IN_NON_RANDOM_BG                    = -15           // Can't queue for Random Battleground while in another Battleground queue.
 };
 
-enum CalendarModerationRank
+enum PetNameInvalidReason
 {
-    CALENDAR_RANK_PLAYER,
-    CALENDAR_RANK_MODERATOR,
-    CALENDAR_RANK_OWNER
+    // custom, not send
+    PET_NAME_SUCCESS                                        = 0,
+
+    PET_NAME_INVALID                                        = 1,
+    PET_NAME_NO_NAME                                        = 2,
+    PET_NAME_TOO_SHORT                                      = 3,
+    PET_NAME_TOO_LONG                                       = 4,
+    PET_NAME_MIXED_LANGUAGES                                = 6,
+    PET_NAME_PROFANE                                        = 7,
+    PET_NAME_RESERVED                                       = 8,
+    PET_NAME_THREE_CONSECUTIVE                              = 11,
+    PET_NAME_INVALID_SPACE                                  = 12,
+    PET_NAME_CONSECUTIVE_SPACES                             = 13,
+    PET_NAME_RUSSIAN_CONSECUTIVE_SILENT_CHARACTERS          = 14,
+    PET_NAME_RUSSIAN_SILENT_CHARACTER_AT_BEGINNING_OR_END   = 15,
+    PET_NAME_DECLENSION_DOESNT_MATCH_BASE_NAME              = 16
 };
 
-enum CalendarSendEventType
+enum DungeonStatusFlag
 {
-    CALENDAR_SENDTYPE_GET,
-    CALENDAR_SENDTYPE_ADD,
-    CALENDAR_SENDTYPE_COPY
+    DUNGEON_STATUSFLAG_NORMAL = 0x01,
+    DUNGEON_STATUSFLAG_HEROIC = 0x02,
+
+    RAID_STATUSFLAG_10MAN_NORMAL = 0x01,
+    RAID_STATUSFLAG_25MAN_NORMAL = 0x02,
+    RAID_STATUSFLAG_10MAN_HEROIC = 0x04,
+    RAID_STATUSFLAG_25MAN_HEROIC = 0x08
 };
-
-enum CalendarEventType
-{
-    CALENDAR_TYPE_RAID,
-    CALENDAR_TYPE_DUNGEON,
-    CALENDAR_TYPE_PVP,
-    CALENDAR_TYPE_MEETING,
-    CALENDAR_TYPE_OTHER
-};
-
-enum CalendarInviteStatus
-{
-    CALENDAR_STATUS_INVITED,
-    CALENDAR_STATUS_ACCEPTED,
-    CALENDAR_STATUS_DECLINED,
-    CALENDAR_STATUS_TENTATIVE,
-    CALENDAR_STATUS_OUT,
-    CALENDAR_STATUS_STANDBY,
-    CALENDAR_STATUS_CONFIRMED,
-    CALENDAR_STATUS_NO_OWNER,
-    CALENDAR_STATUS_8,
-    CALENDAR_STATUS_9
-};
-
-enum CalendarError
-{
-    CALENDAR_OK                                 = 0,
-    CALENDAR_ERROR_GUILD_EVENTS_EXCEEDED        = 1,
-    CALENDAR_ERROR_EVENTS_EXCEEDED              = 2,
-    CALENDAR_ERROR_SELF_INVITES_EXCEEDED        = 3,
-    CALENDAR_ERROR_OTHER_INVITES_EXCEEDED       = 4,
-    CALENDAR_ERROR_PERMISSIONS                  = 5,
-    CALENDAR_ERROR_EVENT_INVALID                = 6,
-    CALENDAR_ERROR_NOT_INVITED                  = 7,
-    CALENDAR_ERROR_INTERNAL                     = 8,
-    CALENDAR_ERROR_GUILD_PLAYER_NOT_IN_GUILD    = 9,
-    CALENDAR_ERROR_ALREADY_INVITED_TO_EVENT_S   = 10,
-    CALENDAR_ERROR_PLAYER_NOT_FOUND             = 11,
-    CALENDAR_ERROR_NOT_ALLIED                   = 12,
-    CALENDAR_ERROR_IGNORING_YOU_S               = 13,
-    CALENDAR_ERROR_INVITES_EXCEEDED             = 14,
-    CALENDAR_ERROR_INVALID_DATE                 = 16,
-    CALENDAR_ERROR_INVALID_TIME                 = 17,
-
-    CALENDAR_ERROR_NEEDS_TITLE                  = 19,
-    CALENDAR_ERROR_EVENT_PASSED                 = 20,
-    CALENDAR_ERROR_EVENT_LOCKED                 = 21,
-    CALENDAR_ERROR_DELETE_CREATOR_FAILED        = 22,
-    CALENDAR_ERROR_SYSTEM_DISABLED              = 24,
-    CALENDAR_ERROR_RESTRICTED_ACCOUNT           = 25,
-    CALENDAR_ERROR_ARENA_EVENTS_EXCEEDED        = 26,
-    CALENDAR_ERROR_RESTRICTED_LEVEL             = 27,
-    CALENDAR_ERROR_USER_SQUELCHED               = 28,
-    CALENDAR_ERROR_NO_INVITE                    = 29,
-
-    CALENDAR_ERROR_EVENT_WRONG_SERVER           = 36,
-    CALENDAR_ERROR_INVITE_WRONG_SERVER          = 37,
-    CALENDAR_ERROR_NO_GUILD_INVITES             = 38,
-    CALENDAR_ERROR_INVALID_SIGNUP               = 39,
-    CALENDAR_ERROR_NO_MODERATOR                 = 40
-};
-
-// Calendar - end
 
 #define VOID_STORAGE_UNLOCK       100*GOLD
 #define VOID_STORAGE_STORE_ITEM   25*GOLD

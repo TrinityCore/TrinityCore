@@ -34,6 +34,7 @@ EndContentData */
 #include "ScriptedGossip.h"
 #include "karazhan.h"
 #include "ScriptedEscortAI.h"
+#include "Player.h"
 
 /*######
 # npc_barnesAI

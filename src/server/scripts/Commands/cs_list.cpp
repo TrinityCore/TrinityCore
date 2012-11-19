@@ -27,6 +27,7 @@ EndScriptData */
 #include "SpellAuraEffects.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
+#include "Player.h"
 
 class list_commandscript : public CommandScript
 {

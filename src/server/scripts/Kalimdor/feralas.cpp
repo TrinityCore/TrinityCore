@@ -28,6 +28,7 @@ EndScriptData */
 #include "ScriptedEscortAI.h"
 #include "ScriptedGossip.h"
 #include "SpellScript.h"
+#include "Player.h"
 
 void AddSC_feralas()
 {

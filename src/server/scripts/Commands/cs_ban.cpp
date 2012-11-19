@@ -27,6 +27,7 @@ EndScriptData */
 #include "AccountMgr.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
+#include "Player.h"
 
 class ban_commandscript : public CommandScript
 {

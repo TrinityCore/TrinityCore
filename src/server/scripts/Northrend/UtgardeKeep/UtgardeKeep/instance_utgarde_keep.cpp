@@ -25,6 +25,7 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
 #include "utgarde_keep.h"
+#include "Player.h"
 
 #define MAX_ENCOUNTER     3
 

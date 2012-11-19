@@ -26,6 +26,7 @@
 #include "SpellInfo.h"
 #include "ScriptMgr.h"
 #include "ConditionMgr.h"
+#include "Player.h"
 
 void AddItemsSetItem(Player* player, Item* item)
 {

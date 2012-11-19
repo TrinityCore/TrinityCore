@@ -26,6 +26,7 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
 #include "zulaman.h"
+#include "Player.h"
 
 #define MAX_ENCOUNTER     6
 #define RAND_VENDOR    2

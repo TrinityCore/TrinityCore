@@ -1,7 +1,7 @@
 -- Add more Domesticated Felboar Spawns
 SET @GUID := 43456;
 DELETE FROM `creature` WHERE `guid` BETWEEN @GUID AND @GUID+11;
-INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`) VALUES 
+INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`) VALUES
 (@GUID,21195,530,1,1,0,0,-2547.195,1426.521,65.57381,1.465101,300,5,0,1,0,1),
 (@GUID+1,21195,530,1,1,0,0,-2585.524,1448.067,53.78493,2.973133,300,5,0,1,0,1),
 (@GUID+2,21195,530,1,1,0,0,-2513.349,1387.699,66.09725,4.945046,300,5,0,1,0,1),

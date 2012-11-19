@@ -28,6 +28,7 @@ EndScriptData */
 #include "SpellMgr.h"
 #include "scarlet_monastery.h"
 #include "LFGMgr.h"
+#include "Player.h"
 
 //this texts are already used by 3975 and 3976
 enum Says

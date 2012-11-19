@@ -18,6 +18,7 @@
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
 #include "pit_of_saron.h"
+#include "Player.h"
 
 // positions for Martin Victus (37591) and Gorkun Ironskull (37592)
 Position const SlaveLeaderPos  = {689.7158f, -104.8736f, 513.7360f, 0.0f};

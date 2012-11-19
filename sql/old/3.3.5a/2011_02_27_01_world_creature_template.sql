@@ -1,4 +1,4 @@
--- Template updates 
+-- Template updates
 UPDATE `creature_template` SET `dynamicflags`=`dynamicflags`|32 WHERE `entry`=33063; -- Wrecked Siege Engine
 UPDATE `creature_template` SET `dynamicflags`=`dynamicflags`|32 WHERE `entry`=33059; -- Wrecked Demolisher
 UPDATE `creature_template` SET `exp`=1 WHERE `entry`=33662; -- Kirin Tor Battle-Mage
@@ -9,7 +9,7 @@ UPDATE `creature_template` SET `exp`=1 WHERE `entry`=33627; -- Hired Demolitioni
 UPDATE `creature_template` SET `npcflag`=`npcflag`|1 WHERE `entry`=33624; -- Archmage Pentarus
 UPDATE `creature_template` SET `exp`=0 WHERE `entry`=33571; -- Ulduar Gauntlet Generator
 
--- Model data 
+-- Model data
 UPDATE `creature_model_info` SET `bounding_radius`=3,`combat_reach`=2.25,`gender`=2 WHERE `modelid`=27658; -- Wrecked Demolisher
 UPDATE `creature_model_info` SET `bounding_radius`=0.5,`combat_reach`=1,`gender`=2 WHERE `modelid`=11686; -- Mortar Targetting Device
 UPDATE `creature_model_info` SET `bounding_radius`=0.5,`combat_reach`=1,`gender`=2 WHERE `modelid`=11686; -- Mortar Targetting Device
@@ -22,9 +22,9 @@ UPDATE `creature_model_info` SET `bounding_radius`=0.372,`combat_reach`=1.2,`gen
 UPDATE `creature_model_info` SET `bounding_radius`=0.3,`combat_reach`=1,`gender`=0 WHERE `modelid`=28581; -- Steelforged Defender
 UPDATE `creature_model_info` SET `bounding_radius`=0.3,`combat_reach`=1,`gender`=0 WHERE `modelid`=28580; -- Steelforged Defender
 UPDATE `creature_model_info` SET `bounding_radius`=0.5,`combat_reach`=1.5,`gender`=1 WHERE `modelid`=5233; -- Spirit Healer
- 
--- Addon data 
-DELETE FROM `creature_template_addon` WHERE `entry` IN 
+
+-- Addon data
+DELETE FROM `creature_template_addon` WHERE `entry` IN
 (33059,33063,33662,33672,33167,33626,33060,33377,33062,33067,33579,33669,33214,33109,33666,33701,33686,33696,33622,33627,33779,33620
 ,32780,33624,33218,33629,33721,34234,33236,33571);
 INSERT INTO `creature_template_addon` (`entry`,`mount`,`bytes1`,`bytes2`,`emote`,`auras`) VALUES

@@ -18,6 +18,7 @@
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "ScriptedEscortAI.h"
+#include "Player.h"
 
 //How to win friends and influence enemies
 // texts signed for creature 28939 but used for 28939, 28940, 28610

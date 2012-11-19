@@ -1,4 +1,4 @@
--- Honor Hold Archer fixup (tested) 
+-- Honor Hold Archer fixup (tested)
 -- Console no longer spamming waypoint script errors in Honor Hold
 UPDATE `creature_template` SET `AIName`= 'SmartAI' WHERE `entry`=16896;
 -- Honor Hold Archer "guid 58449 shoot at Honor Hold Target Dummy Right" SAI "Tested"

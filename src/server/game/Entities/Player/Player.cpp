@@ -7220,7 +7220,7 @@ bool Player::RewardHonor(Unit* victim, uint32 groupsize, int32 honor, bool pvpto
             int32 count = sWorld->getIntConfig(CONFIG_PVP_TOKEN_COUNT);
 
             if (AddItem(itemId, count))
-                ChatHandler(this).PSendSysMessage("You have been awarded a token for slaying another player.");
+                ChatHandler(GetSession()).PSendSysMessage("You have been awarded a token for slaying another player.");
         }
     }
 
@@ -20144,17 +20144,17 @@ void Player::Whisper(const std::string& text, uint32 language, uint64 receiver)
         GetSession()->SendPacket(&data);
     }
     else // announce to player that player he is whispering to is dnd and cannot receive his message
-        ChatHandler(this).PSendSysMessage(LANG_PLAYER_DND, rPlayer->GetName().c_str(), rPlayer->dndMsg.c_str());
+        ChatHandler(GetSession()).PSendSysMessage(LANG_PLAYER_DND, rPlayer->GetName().c_str(), rPlayer->dndMsg.c_str());
 
     if (!isAcceptWhispers() && !isGameMaster() && !rPlayer->isGameMaster())
     {
         SetAcceptWhispers(true);
-        ChatHandler(this).SendSysMessage(LANG_COMMAND_WHISPERON);
+        ChatHandler(GetSession()).SendSysMessage(LANG_COMMAND_WHISPERON);
     }
 
     // announce to player that player he is whispering to is afk
     if (rPlayer->isAFK())
-        ChatHandler(this).PSendSysMessage(LANG_PLAYER_AFK, rPlayer->GetName().c_str(), rPlayer->afkMsg.c_str());
+        ChatHandler(GetSession()).PSendSysMessage(LANG_PLAYER_AFK, rPlayer->GetName().c_str(), rPlayer->afkMsg.c_str());
 
     // if player whisper someone, auto turn of dnd to be able to receive an answer
     if (isDND() && !rPlayer->isGameMaster())
@@ -25726,7 +25726,7 @@ bool Player::AddItem(uint32 itemId, uint32 count)
     if (count == 0 || dest.empty())
     {
         // -- TODO: Send to mailbox if no space
-        ChatHandler(this).PSendSysMessage("You don't have any space in your bags.");
+        ChatHandler(GetSession()).PSendSysMessage("You don't have any space in your bags.");
         return false;
     }
 

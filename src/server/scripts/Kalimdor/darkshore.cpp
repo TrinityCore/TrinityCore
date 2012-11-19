@@ -31,6 +31,7 @@ EndContentData */
 #include "ScriptedGossip.h"
 #include "ScriptedEscortAI.h"
 #include "ScriptedFollowerAI.h"
+#include "Player.h"
 
 void AddSC_darkshore()
 {

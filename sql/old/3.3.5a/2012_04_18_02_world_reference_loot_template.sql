@@ -1,13 +1,13 @@
 -- ----------------------
 -- -- Various Cleanups --
 -- ----------------------
-DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=10 AND `SourceGroup`=34105; 
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=10 AND `SourceGroup`=34105;
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=4 AND `SourceGroup` IN (27081,27085,27073,26963,26955);
 DELETE FROM `reference_loot_template` WHERE `entry` IN (12020,12021,12022,34105,34125,34126,34127,34128,34129,34130);
 DELETE FROM `gameobject_loot_template` WHERE `entry`=10961; -- Bad Bogblossom fix was bad
 UPDATE `gameobject_template` SET `data1`=26956 WHERE `entry`=194315;
 -- -------------------------------
--- -- Variables and definitions -- 
+-- -- Variables and definitions --
 -- -------------------------------
 -- Freya 10 man
 SET @Freya10k0ID := 194324; -- Freyas Gift 10man ALL elders alive
@@ -63,15 +63,15 @@ CALL `sp_get_go_lootid`(@Thorim10hID,@Thorim10h);
 CALL `sp_get_go_lootid`(@Thorim25nID,@Thorim25n);
 CALL `sp_get_go_lootid`(@Thorim25hID,@Thorim25h);
 -- Set References
-SET @Freya10Ref := 34365; 
+SET @Freya10Ref := 34365;
 SET @Freya25Ref := @Freya10Ref+1;
-SET @Hodir10Ref := @Freya10Ref+2; 
+SET @Hodir10Ref := @Freya10Ref+2;
 SET @Hodir25Ref := @Freya10Ref+3;
 SET @Mimiron10Ref := @Freya10Ref+4;
 SET @Mimiron25Ref := @Freya10Ref+5;
 SET @Thorim10Ref := @Freya10Ref+6;
 SET @Thorim25Ref := @Freya10Ref+7;
-SET @HandToken := 12026; 
+SET @HandToken := 12026;
 SET @LegToken := @HandToken+1;
 SET @LegsToken := @HandToken+2;
 SET @ChestToken := @HandToken+3;
@@ -88,7 +88,7 @@ DELETE FROM `reference_loot_template` WHERE `entry` BETWEEN @Freya10Ref AND @Fre
 DELETE FROM `reference_loot_template` WHERE `entry` BETWEEN @HandToken AND @HandToken+7;
 INSERT INTO `reference_loot_template` (`entry`,`item`,`ChanceOrQuestChance`,`lootmode`,`groupid`,`mincountOrRef`,`maxcount`) VALUES
 -- Freya 10 man
-(@Freya10Ref,45934,0,1,1,1,1), -- Unraveling Reach	
+(@Freya10Ref,45934,0,1,1,1,1), -- Unraveling Reach
 (@Freya10Ref,45935,0,1,1,1,1), -- Ironbark Faceguard
 (@Freya10Ref,45941,0,1,1,1,1), -- Chestguard of the Lasher
 (@Freya10Ref,45936,0,1,1,1,1), -- Legplates of Flourishing Resolve
@@ -207,8 +207,8 @@ INSERT INTO `gameobject_loot_template` (`entry`,`item`,`ChanceOrQuestChance`,`lo
 (@Freya10k0,45945,0,1,1,1,1), -- Seed of Budding Carnage
 (@Freya10k0,45947,0,1,1,1,1), -- Serilas, Blood Blade of Invar One-Arm
 (@Freya10k0,45294,0,1,1,1,1), -- Petrified Ivy Sprig
--- ------------------ 
--- -- Freya 25 man -- 
+-- ------------------
+-- -- Freya 25 man --
 -- ------------------
 -- Normal Mode:
 (@Freya25k3,1,100,1,0,-@Freya25Ref,1), -- 1 from normal loot
@@ -259,7 +259,7 @@ INSERT INTO `gameobject_loot_template` (`entry`,`item`,`ChanceOrQuestChance`,`lo
 (@Freya25k0,45613,0,1,1,1,1), -- Dreambinder
 (@Freya25k0,45485,0,1,1,1,1), -- Bronze Pendant of the Vanir
 -- ------------------
--- -- Hodir 10 man -- 
+-- -- Hodir 10 man --
 -- ------------------
 (@Hodir10n,1,100,1,0,-@Hodir10Ref,1), -- 1x Normal Loot Item
 (@Hodir10n,2,100,1,0,-@LegsToken,1), -- 1x Token
@@ -276,7 +276,7 @@ INSERT INTO `gameobject_loot_template` (`entry`,`item`,`ChanceOrQuestChance`,`lo
 (@Hodir10h,45876,0,1,1,1,1), -- Shiver
 (@Hodir10h,45877,0,1,1,1,1), -- The Boreal Guard
 -- ------------------
--- -- Hodir 25 man -- 
+-- -- Hodir 25 man --
 -- ------------------
 (@Hodir25n,1,100,1,0,-@Hodir25Ref,1), -- 1x Normal Loot Item
 (@Hodir25n,2,100,1,0,-@ChestToken,1), -- 1x Token
@@ -334,7 +334,7 @@ INSERT INTO `gameobject_loot_template` (`entry`,`item`,`ChanceOrQuestChance`,`lo
 (@Mimiron25h,45495,0,1,1,1,1), -- Conductive Seal
 (@Mimiron25h,45497,0,1,1,1,1), -- Crown of Luminescence
 -- -------------------
--- -- Thorim 10 man -- 
+-- -- Thorim 10 man --
 -- -------------------
 (@Thorim10n,1,100,1,0,-@Thorim10Ref,1), -- 1x Normal Loot Item
 (@Thorim10n,2,100,1,0,-@ShoulderToken,1), -- 1x Token
@@ -351,7 +351,7 @@ INSERT INTO `gameobject_loot_template` (`entry`,`item`,`ChanceOrQuestChance`,`lo
 (@Thorim10h,45931,0,2,1,1,1), -- Mjolnir Runestone
 (@Thorim10h,45930,0,2,1,1,1), -- Combatant's Bootblade
 -- -------------------
--- -- Thorim 25 man -- 
+-- -- Thorim 25 man --
 -- -------------------
 (@Thorim25n,1,100,3,0,-@Thorim25Ref,1), -- 1x Normal Loot Item
 (@Thorim25n,2,100,3,0,-@HelmToken,2), -- 2x Token

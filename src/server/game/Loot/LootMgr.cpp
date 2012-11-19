@@ -25,6 +25,7 @@
 #include "SpellMgr.h"
 #include "SpellInfo.h"
 #include "Group.h"
+#include "Player.h"
 
 static Rates const qualityToRate[MAX_ITEM_QUALITY] =
 {

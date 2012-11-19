@@ -19,6 +19,7 @@
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
 #include "nexus.h"
+#include "Player.h"
 
 #define NUMBER_OF_ENCOUNTERS      4
 

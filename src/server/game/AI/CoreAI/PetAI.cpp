@@ -90,8 +90,6 @@ void PetAI::UpdateAI(const uint32 diff)
     else
         m_updateAlliesTimer -= diff;
 
-    // me->getVictim() can't be used for check in case stop fighting, me->getVictim() clear at Unit death etc.
-    // Must also check if victim is alive
     if (me->getVictim() && me->getVictim()->isAlive())
     {
         // is only necessary to stop casting, the pet must not exit combat
@@ -108,7 +106,9 @@ void PetAI::UpdateAI(const uint32 diff)
             return;
         }
 
-        DoMeleeAttackIfReady();
+        // Check before attacking to prevent pets from leaving stay position
+        if (CanAttack(me->getVictim()))
+            DoMeleeAttackIfReady();
     }
     else if (owner && me->GetCharmInfo()) //no victim
     {
@@ -335,7 +335,8 @@ void PetAI::AttackStart(Unit* target)
     if (Unit* owner = me->GetOwner())
         owner->SetInCombatWith(target);
 
-    DoAttack(target, true);
+    // Only chase if not commanded to stay or if stay but commanded to attack
+    DoAttack(target, (!me->GetCharmInfo()->HasCommandState(COMMAND_STAY) || me->GetCharmInfo()->IsCommandAttack()));
 }
 
 void PetAI::OwnerDamagedBy(Unit* attacker)
@@ -382,31 +383,42 @@ void PetAI::OwnerAttacked(Unit* target)
 Unit* PetAI::SelectNextTarget()
 {
     // Provides next target selection after current target death
+    // Targets are not evaluated here for being valid attack targets
 
     // Passive pets don't do next target selection
     if (me->HasReactState(REACT_PASSIVE))
         return NULL;
 
-    Unit* target = me->getAttackerForHelper();
+    // Check pet attackers first so we don't drag a bunch of targets to the owner
+    if (Unit* myAttacker = me->getAttackerForHelper())
+        if (!myAttacker->HasBreakableByDamageCrowdControlAura())
+            return myAttacker;
 
-    // Check pet's attackers first to prevent dragging mobs back to owner
-    if (target && !target->HasBreakableByDamageCrowdControlAura())
-        return target;
+    // Not sure why we wouldn't have an owner but just in case...
+    if (!me->GetCharmerOrOwner())
+        return NULL;
 
-    if (me->GetCharmerOrOwner())
-    {
-        // Check owner's attackers if pet didn't have any
-        target = me->GetCharmerOrOwner()->getAttackerForHelper();
-        if (target && !target->HasBreakableByDamageCrowdControlAura())
-            return target;
+    // Check owner attackers
+    if (Unit* ownerAttacker = me->GetCharmerOrOwner()->getAttackerForHelper())
+        if (!ownerAttacker->HasBreakableByDamageCrowdControlAura())
+            return ownerAttacker;
 
-        // 3.0.2 - Pets now start attacking their owners target in defensive mode as soon as the hunter does
-        target = me->GetCharmerOrOwner()->getVictim();
-        if (target && !target->HasBreakableByDamageCrowdControlAura())
-            return target;
-    }
+    // Check owner victim
+    // 3.0.2 - Pets now start attacking their owners victim in defensive mode as soon as the hunter does
+    if (Unit* ownerVictim = me->GetCharmerOrOwner()->getVictim())
+        if (!ownerVictim->HasBreakableByDamageCrowdControlAura())
+            return ownerVictim;
 
-    // Default
+    // Neither pet or owner had a target and aggressive pets can pick any target
+    // Note: Creature::SelectNearestTarget() If no distance is supplied it uses MAX_VISIBILITY_DISTANCE
+    // We also want to lock this to LOS so pet doesn't go running through walls and stuff
+    if (me->HasReactState(REACT_AGGRESSIVE))
+        if (Unit* nearTarget = me->ToCreature()->SelectNearestTarget())
+            if (nearTarget->IsHostileTo(me) && !nearTarget->HasBreakableByDamageCrowdControlAura())
+                if (nearTarget->IsWithinLOS(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ()))
+                    return nearTarget;
+
+    // Default - no valid targets
     return NULL;
 }
 
@@ -518,6 +530,10 @@ bool PetAI::CanAttack(Unit* target)
     // Evaluates wether a pet can attack a specific
     // target based on CommandState, ReactState and other flags
 
+    // Can't attack dead targets...
+    if (!target->isAlive())
+        return false;
+
     // Returning - check first since pets returning ignore attacks
     if (me->GetCharmInfo()->IsReturning())
         return false;
@@ -526,19 +542,17 @@ bool PetAI::CanAttack(Unit* target)
     if (me->HasReactState(REACT_PASSIVE))
         return me->GetCharmInfo()->IsCommandAttack();
 
-    //  Pets commanded to attack should not stop their approach if attacked by another creature
-    if (me->getVictim() && (me->getVictim() != target))
-        return !me->GetCharmInfo()->IsCommandAttack();
-
-    // From this point on, pet will always be either aggressive or defensive
-
-    // Stay - can attack if target is within range or commanded to
-    if (me->GetCharmInfo()->HasCommandState(COMMAND_STAY))
-        return (me->IsWithinMeleeRange(target, MELEE_RANGE) || me->GetCharmInfo()->IsCommandAttack());
-
     // Follow
     if (me->GetCharmInfo()->HasCommandState(COMMAND_FOLLOW))
         return true;
+
+    // Stay - can attack if target is within range or commanded to
+    if (me->GetCharmInfo()->HasCommandState(COMMAND_STAY))
+        return (me->IsWithinMeleeRange(target) || me->GetCharmInfo()->IsCommandAttack());
+
+    //  Pets commanded to attack should not stop their approach if attacked by another creature
+    if (me->getVictim() && (me->getVictim() != target))
+        return !me->GetCharmInfo()->IsCommandAttack();
 
     // default, though we shouldn't ever get here
     return false;

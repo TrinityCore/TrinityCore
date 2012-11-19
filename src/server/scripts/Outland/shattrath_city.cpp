@@ -38,6 +38,7 @@ EndContentData */
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
 #include "ScriptedEscortAI.h"
+#include "Player.h"
 
 /*######
 ## npc_raliq_the_drunk

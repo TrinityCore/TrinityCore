@@ -21,29 +21,24 @@
 
 #include <bitset>
 #include "AchievementMgr.h"
-#include "Battleground.h"
-#include "Bag.h"
 #include "Common.h"
 #include "DatabaseEnv.h"
 #include "DBCEnums.h"
 #include "GroupReference.h"
-#include "ItemPrototype.h"
 #include "Item.h"
 #include "MapReference.h"
-#include "NPCHandler.h"
 #include "Pet.h"
 #include "QuestDef.h"
 #include "ReputationMgr.h"
 #include "Unit.h"
-#include "Util.h"                                           // for Tokens typedef
 #include "WorldSession.h"
 #include "PhaseMgr.h"
 
 // for template
 #include "SpellMgr.h"
 
-#include<string>
-#include<vector>
+#include <string>
+#include <vector>
 
 struct Mail;
 struct ItemExtendedCostEntry;
@@ -377,9 +372,7 @@ typedef std::list<PlayerCreateInfoAction> PlayerCreateInfoActions;
 struct PlayerInfo
 {
                                                             // existence checked by displayId != 0
-    PlayerInfo() : displayId_m(0), displayId_f(0), levelInfo(NULL)
-    {
-    }
+    PlayerInfo() : displayId_m(0), displayId_f(0), levelInfo(NULL) { }
 
     uint32 mapId;
     uint32 areaId;
@@ -841,13 +834,6 @@ enum RestType
     REST_TYPE_IN_CITY   = 2
 };
 
-enum DuelCompleteType
-{
-    DUEL_INTERRUPTED = 0,
-    DUEL_WON         = 1,
-    DUEL_FLED        = 2
-};
-
 enum TeleportToOptions
 {
     TELE_TO_GM_MODE             = 0x01,
@@ -951,17 +937,6 @@ struct InstancePlayerBind
        that aren't already permanently bound when they are inside when a boss is killed
        or when they enter an instance that the group leader is permanently bound to. */
     InstancePlayerBind() : save(NULL), perm(false) {}
-};
-
-enum DungeonStatusFlag
-{
-    DUNGEON_STATUSFLAG_NORMAL = 0x01,
-    DUNGEON_STATUSFLAG_HEROIC = 0x02,
-
-    RAID_STATUSFLAG_10MAN_NORMAL = 0x01,
-    RAID_STATUSFLAG_25MAN_NORMAL = 0x02,
-    RAID_STATUSFLAG_10MAN_HEROIC = 0x04,
-    RAID_STATUSFLAG_25MAN_HEROIC = 0x08
 };
 
 struct AccessRequirement

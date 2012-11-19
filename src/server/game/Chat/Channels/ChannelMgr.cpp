@@ -17,7 +17,7 @@
  */
 
 #include "ChannelMgr.h"
-
+#include "Player.h"
 #include "World.h"
 
 ChannelMgr::~ChannelMgr()

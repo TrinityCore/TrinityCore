@@ -1,4 +1,4 @@
--- Achievement Fa-la-la-la-Ogri'la 
+-- Achievement Fa-la-la-la-Ogri'la
 DELETE FROM `achievement_criteria_data` WHERE `criteria_id` IN (3936,3937,3938);
 INSERT INTO `achievement_criteria_data` (`criteria_id`, `type`, `value1`, `value2`, `ScriptName`) VALUES
 -- requires aura

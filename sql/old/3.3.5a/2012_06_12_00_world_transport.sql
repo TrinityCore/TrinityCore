@@ -1,7 +1,7 @@
 -- Zeppelin: <The Zephyr> "Durotar to Thunder Bluff"
 SET @GUID := 43468;
 DELETE FROM `creature` WHERE `guid` BETWEEN @GUID AND @GUID+11;
-INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`) VALUES 
+INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`) VALUES
 (@GUID,3084,647,1,1,0,0,-4.83257,-4.312334,-17.63218,1.623156,180,0,0,1,0,0), -- Bluffwatcher
 (@GUID+1,3084,647,1,1,0,0,-5.206744,-11.34318,-17.61012,4.712389,180,0,0,1,0,0), -- Bluffwatcher
 (@GUID+2,24934,647,1,1,0,0,10.32099,-3.573514,-23.49413,3.176499,180,0,0,1,0,0), -- Snack-O-Matic IV

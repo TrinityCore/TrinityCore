@@ -21,7 +21,8 @@
 #include "Spell.h"
 #include "DBCStores.h"
 #include "ConditionMgr.h"
-#include "Object.h"
+#include "Player.h"
+#include "Battleground.h"
 
 uint32 GetTargetFlagMask(SpellTargetObjectTypes objType)
 {

@@ -22,6 +22,7 @@
 #include "DatabaseEnv.h"
 #include "Language.h"
 #include "ObjectAccessor.h"
+#include "Player.h"
 
 ArenaTeamMgr::ArenaTeamMgr()
 {

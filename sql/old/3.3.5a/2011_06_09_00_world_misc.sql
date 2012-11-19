@@ -1,5 +1,5 @@
 DELETE FROM `spell_dbc` WHERE `id`=65037;
-INSERT INTO `spell_dbc` (`Id`,`Effect1`,`EffectImplicitTargetA1`,`comment`)VALUES 
+INSERT INTO `spell_dbc` (`Id`,`Effect1`,`EffectImplicitTargetA1`,`comment`)VALUES
 (65037,3,1,'Nerf the Scrapbots Achievement Criteria Marker');
 
 DELETE FROM `achievement_criteria_data` WHERE `criteria_id` IN(10401,10402) AND `type`=18;
