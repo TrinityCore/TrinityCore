@@ -25,7 +25,7 @@ INSERT INTO `creature_addon` (`guid`,`path_id`,`bytes1`) VALUES
 (109146,0,1),(109403,0,8),(113585,0,8),
 (109405,0,8),(109408,0,8),(109404,1094040,0),
 (109385,1093850,0);
-DELETE FROM `creature` WHERE `guid` IN (113585,109404);
+DELETE FROM `creature` WHERE `guid` IN (113585,109404,109385);
 INSERT INTO `creature` (`guid`,`id`,`map`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`curhealth`,`curmana`,`MovementType`) VALUES
 (109404,27024,571,4676.16,-5575.82,53.61,0.85,120,6,9940,0,2),
 (109385,26935,571,4550.15,-5493.45,2.19,0.85,120,6,9940,0,2);
