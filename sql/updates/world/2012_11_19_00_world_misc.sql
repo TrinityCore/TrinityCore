@@ -8,12 +8,12 @@ INSERT INTO `creature_addon` (`guid`,`bytes1`) VALUES
 -- Adding teleport
 DELETE FROM `game_tele` WHERE `id`=1422;
 INSERT INTO `game_tele` (`id`,`position_x`,`position_y`,`position_z`,`orientation`,`map`,`name`) VALUES
-(1422,4682.07,-5569.67,53.61,3.85,571,"BloodmoonIsle");
+(1422,4682.07,-5569.67,53.61,3.85,571,"BloodmoonIsle"); -- Teleport location (roughly): http://www.wowhead.com/maps?data=394:844258
 -- ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- Bloodmoon worgen
 UPDATE `creature` SET `spawndist`=2.5,`movementType`=1 WHERE `guid` IN (108834,108799,108829);
 UPDATE `creature` SET `spawndist`=5,`movementType`=1 WHERE `guid` IN (108830,108828,108784);
-UPDATE `creature` SET `spawndist`=6,`movementType`=1,`position_x`=4582.45,`position_y`=-5487.66,`position_z`=2.24 WHERE `guid`=108784;
+UPDATE `creature` SET `spawndist`=6,`movementType`=1 WHERE `guid`=108784;
 -- Bloodmoon Cultists
 UPDATE `creature` SET `position_x`=4599.94,`position_y`=-5706.74,`position_z`=184.50,`orientation`=3.72,`spawndist`=5 WHERE `guid`=109406;
 DELETE FROM `creature_addon` WHERE `guid` IN (109406,109407,109383,109412,109334,109385,109168,109147,109239,109240,109410,109411,109146,109169,109403,113585,109405,109408,109404);
@@ -25,14 +25,9 @@ INSERT INTO `creature_addon` (`guid`,`path_id`,`bytes1`) VALUES
 (109146,0,1),(109403,0,8),(113585,0,8),
 (109405,0,8),(109408,0,8),(109404,1094040,0),
 (109385,1093850,0);
-DELETE FROM `creature` WHERE `guid` IN (113585,109405,109404,109408,109403,109384,109382,109390,109409);
+DELETE FROM `creature` WHERE `guid` IN (113585,109404);
 INSERT INTO `creature` (`guid`,`id`,`map`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`curhealth`,`curmana`,`MovementType`) VALUES
-(109403,27024,571,4601.267090,-5701.489746,184.506622,3.93,120,5,9940,0,0),
-(113585,27024,571,4592.93,-5698.22,184.50,4.43,120,6,9940,0,0),
-(109405,27024,571,4597.92,-5691.65,183.16,4.33,120,6,9940,0,0),
-(109408,27024,571,4605.42,-5693.85,182.21,4.03,120,6,9940,0,0),
 (109404,27024,571,4676.16,-5575.82,53.61,0.85,120,6,9940,0,2),
-(109382,27020,571,4585.245605,-5709.554199,155.304504,120,4,9940,0,1),
 (109385,26935,571,4550.15,-5493.45,2.19,0.85,120,6,9940,0,2);
 -- Pathing Bloodmoon Cultist 1/2
 DELETE FROM `waypoint_data` WHERE `id` IN (1093850,1094040);
@@ -70,25 +65,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (1094040,15,4665.121094,-5596.857910,52.347866,0),
 (1094040,16,4666.613770,-5585.797363,53.372700,0);
 -- ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
--- Reparing Elites
--- Correcting Varlam spawn
+-- Varlam
 UPDATE `creature` SET `position_x`=4700.48,`position_y`=-5568.50,`position_z`=53.61,`orientation`=3.39 WHERE `guid`=113673;
--- Correcting Shade of Arugal spawn
+-- Shade of Arugal
 UPDATE `creature` SET `position_x`=4590.02,`position_y`=-5712.43,`position_z`=184.50,`orientation`=1.01 WHERE `guid`=108492;
--- ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
--- Smart AI: Arugal (Info just for now) (guid bound script)
-/*
-Bloodmoon Cultist that are there by default don't spawn while Arugal is in combat (creature formations most likely)
-combat start; remove 49130.
-turn off combat movement immediately and keep it off. Cast Shadow Bolt 53086 every 2 seconds. chance to cast 53070, pair with (53073/53087/53088/53089, dependant on resource type of current target)
-Phase Out   = 53052 (every % of health) First, cast 49098(portback), Then cast Phase Out, Then spawn 3 Bloodmoon Servants, Then say "Get them!". If servants die, remove Phase Out and resume shadow bolt spamming.
-
-out of combat 5 seconds
-cast 49130, cast 48185 (beam) 1 sec after that.
-arugal will cast 48202 on _him self_ which should apparently make a colorful beam (warning; doesn't give desired effect via chat commands. investigation inc)
-when hulk-out is cast on a single target, said target will turn into a worgen and begin pathing down the tower.
-*/
-
-
-
-
