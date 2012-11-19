@@ -37,11 +37,11 @@ class GameObjectAI
 
         virtual void InitializeAI() { Reset(); }
 
-        virtual void Reset() {};
+        virtual void Reset() { }
 
         // Pass parameters between AI
         virtual void DoAction(const int32 /*param = 0 */) {}
-        virtual void SetGUID(const uint64& /*guid*/, int32 /*id = 0 */) {}
+        virtual void SetGUID(uint64 /*guid*/, int32 /*id = 0 */) {}
         virtual uint64 GetGUID(int32 /*id = 0 */) { return 0; }
 
         static int Permissible(GameObject const* go);
