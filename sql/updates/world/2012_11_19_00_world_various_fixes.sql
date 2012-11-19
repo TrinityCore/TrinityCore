@@ -389,7 +389,7 @@ UPDATE `quest_template` SET `RequiredRaces`=1101 WHERE `Id`=7848; -- A
 UPDATE `quest_template` SET `RequiredRaces`=690 WHERE `Id`=7487; -- H
 -- ------------------------------------------------------------------------------------------------------------------------------------------------
 -- Issue 8021: spawn location in OG near Rogg (37072)
-SET @GUID := NULL; -- set by TDB team
+SET @GUID := 387; -- set by TDB team
 DELETE FROM `gameobject` WHERE `guid`=@GUID;
 INSERT INTO `gameobject` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`position_x`,`position_y`,`position_z`,`orientation`,`rotation0`,`rotation1`,`rotation2`,`rotation3`,`spawntimesecs`,`animprogress`,`state`) VALUES
 (@GUID,1685,1,1,1,1523.778,-4368.241,18.21412,6.07367,0,0,0,1,300,100,1);
