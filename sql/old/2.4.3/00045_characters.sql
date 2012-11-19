@@ -5,7 +5,7 @@ CREATE TABLE `game_event_save` (
  PRIMARY KEY  (`event_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-CREATE TABLE `game_event_condition_save` (                    
+CREATE TABLE `game_event_condition_save` (
  `event_id` mediumint(8) unsigned NOT NULL,
  `condition_id` mediumint(8) unsigned NOT NULL default '0',
  `done` float default '0',

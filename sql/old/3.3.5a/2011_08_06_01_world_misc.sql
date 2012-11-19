@@ -1,15 +1,15 @@
 /* NPC entries:
-14902 - Jin'rokh the Breaker 	- 6321			- Warriors and paladins
-14903 - Al'tabim the All-Seeing - 6322			- Mages, warlocks and priests
-14904 - Maywiki of Zuldazar 	- 6341			- Shamans and druids
-14905 - Falthir the Sightless 	- @GOSSIP		- Rogues and hunters
+14902 - Jin'rokh the Breaker     - 6321            - Warriors and paladins
+14903 - Al'tabim the All-Seeing - 6322            - Mages, warlocks and priests
+14904 - Maywiki of Zuldazar     - 6341            - Shamans and druids
+14905 - Falthir the Sightless     - @GOSSIP        - Rogues and hunters
  */
- 
+
 /* TO DO:
  * There is one missing condition. When you get an upgrade of one of the necklaces, you lose the necklace of the previous quest. (the quest always takes it) But that also makes the conditions meet and it will show the gossip that you lost a necklace.
  * There is currently no way to do this through conditions, so whenever you read this and think it's possible, feel free to!
  */
- 
+
 -- Vars
 SET @GOSSIP = 21262; -- gossip_menu.entry - need 10
 SET @SUB_PALADIN := @GOSSIP+1; -- Menu id for Paladins
@@ -21,7 +21,7 @@ SET @SUB_SHAMAN := @GOSSIP+6; -- Menu id for Shamans
 SET @SUB_DRUID := @GOSSIP+7; -- Menu id for Druids
 SET @SUB_ROGUE := @GOSSIP+8; -- Menu id for Rogues
 SET @SUB_HUNTER := @GOSSIP+9; -- Menu id for Hunters
- 
+
 -- Insert gossip options itself
 DELETE FROM `gossip_menu` WHERE `entry`=@GOSSIP+0 AND `text_id`=7556;
 INSERT INTO `gossip_menu` (`entry`,`text_id`) VALUES
@@ -682,7 +682,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 
 -- Make the six Hakkari Oracle and Gurubashi Warrior emote to talk
 DELETE FROM `creature_addon` WHERE `guid` IN (739,740,741,742,743,744);
-INSERT INTO `creature_addon` (`guid`,`path_id`,`mount`,`bytes1`,`bytes2`,`emote`,`auras`) VALUES 
+INSERT INTO `creature_addon` (`guid`,`path_id`,`mount`,`bytes1`,`bytes2`,`emote`,`auras`) VALUES
 (739,0,0,0,0,1,''),(740,0,0,0,0,1,''),(741,0,0,0,0,1,''),(742,0,0,0,0,1,''),(743,0,0,0,0,1,''),(744,0,0,0,0,1,'');
 
 -- Son of Hakkar pathing: 11357
@@ -847,7 +847,7 @@ INSERT INTO `creature_formations` (`leaderGUID`,`memberGUID`,`dist`,`angle`,`gro
 
 -- Insert missing Hooktooth Frenzy
 DELETE FROM `creature` WHERE `guid`=49673;
-INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`,`npcflag`,`unit_flags`,`dynamicflags`) VALUES 
+INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`,`npcflag`,`unit_flags`,`dynamicflags`) VALUES
 (49673,11374,309,1,1,15101,0,-11673.693359,-1623.402710,8.929444,4.587632,7200,0,0,9156,0,0,0,0,0);
 
 -- Hooktooth Frenzy pathing: 11359

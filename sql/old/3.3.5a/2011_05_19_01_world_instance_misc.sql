@@ -28,7 +28,7 @@ UPDATE `gameobject_template` SET `flags`=4 WHERE `entry`=194173;
 -- Spell Linked Spell
 DELETE FROM `spell_linked_spell` WHERE `spell_trigger` IN (61990,61969,65280);
 INSERT INTO `spell_linked_spell` (`spell_trigger`,`spell_effect`,`type`,`comment`)
-VALUES 
+VALUES
 (61990,-62457,2,'Hodir - Ice Shards Immunity'),
 (61990,-65370,2,'Hodir - Ice Shards Immunity'),
 (65280,-62469,2,'Toasty fire - Freeze imunity'),

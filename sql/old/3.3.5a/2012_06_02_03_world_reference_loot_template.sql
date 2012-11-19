@@ -16,9 +16,9 @@ INSERT INTO `reference_loot_template` (`entry`,`item`,`ChanceOrQuestChance`,`loo
 (@Grey+52,3994,0,1,1,1,1), -- Laminated Scale Bracers
 (@Grey+52,8080,0,1,1,1,1), -- Light Plate Chestpiece
 (@Grey+52,13817,0,1,1,1,1); -- Tapered Greatsword
--- -------------------------------------------------------- 
--- TBC_Greys_References 
--- -------------------------------------------------------- 
+-- --------------------------------------------------------
+-- TBC_Greys_References
+-- --------------------------------------------------------
 SET @GreyTBC  := 4000; -- reference starting value TDB Field
 DELETE FROM `reference_loot_template` WHERE `entry` BETWEEN @GreyTBC AND @GreyTBC+2;
 INSERT INTO `reference_loot_template` (`entry`,`item`,`ChanceOrQuestChance`,`lootmode`,`groupid`,`mincountOrRef`,`maxcount`) VALUES
@@ -99,9 +99,9 @@ INSERT INTO `reference_loot_template` (`entry`,`item`,`ChanceOrQuestChance`,`loo
 (@GreyTBC+2,25394,0,1,1,1,1), -- Deteriorating Plate Helmet
 (@GreyTBC+2,25395,0,1,1,1,1), -- Deteriorating Plate Pants
 (@GreyTBC+2,25396,0,1,1,1,1); -- Deteriorating Plate Shoulderpads
--- -------------------------------------------------------- 
--- TBC_Greens_References 
--- -------------------------------------------------------- 
+-- --------------------------------------------------------
+-- TBC_Greens_References
+-- --------------------------------------------------------
 SET @GreenTBC := 4100; -- reference starting value TDB Field
 DELETE FROM `reference_loot_template` WHERE `entry` BETWEEN @GreenTBC AND @GreenTBC+13;
 INSERT INTO `reference_loot_template` (`entry`,`item`,`ChanceOrQuestChance`,`lootmode`,`groupid`,`mincountOrRef`,`maxcount`) VALUES
@@ -719,9 +719,9 @@ INSERT INTO `reference_loot_template` (`entry`,`item`,`ChanceOrQuestChance`,`loo
 (@GreenTBC+13,25023,0,1,1,1,1), -- Warlord's Sabatons
 (@GreenTBC+13,25309,0,1,1,1,1), -- Warpdagger
 (@GreenTBC+13,25253,0,1,1,1,1); -- Windspear Longbow
--- -------------------------------------------------------- 
--- TBC_Blues_References 
--- -------------------------------------------------------- 
+-- --------------------------------------------------------
+-- TBC_Blues_References
+-- --------------------------------------------------------
 SET @BlueTBC := 4200; -- reference starting value TDB Field
 DELETE FROM `reference_loot_template` WHERE `entry` BETWEEN @BlueTBC AND @BlueTBC+10;
 INSERT INTO `reference_loot_template` (`entry`,`item`,`ChanceOrQuestChance`,`lootmode`,`groupid`,`mincountOrRef`,`maxcount`) VALUES

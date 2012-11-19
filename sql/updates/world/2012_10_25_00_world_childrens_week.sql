@@ -539,13 +539,13 @@ INSERT INTO `creature`(`guid`,`id`,`map`,`position_x`,`position_y`,`position_z`,
 (@GUID_THRONE_OF_ELEMENTS_TRIGGER,22839,530,-781.294,6943.52,33.3344,0);
 
 -- Misc
-DELETE `game_event_creature` FROM `game_event_creature` INNER JOIN `creature` ON `creature`.`guid`=`game_event_creature`.`guid` 
+DELETE `game_event_creature` FROM `game_event_creature` INNER JOIN `creature` ON `creature`.`guid`=`game_event_creature`.`guid`
 WHERE `id` IN (22905,22851,22838,22866,22831,22829,22872,22839,14450,22819,14451,34365,34387,34386,34490,34489,34381,36209);
-INSERT INTO `game_event_creature`(`eventEntry`,`guid`) SELECT 10,`guid` FROM `creature` 
+INSERT INTO `game_event_creature`(`eventEntry`,`guid`) SELECT 10,`guid` FROM `creature`
 WHERE `id` IN (22905,22851,22838,22866,22831,22829,22872,22839,14450,22819,14451,34365,34387,34386,34490,34489,34381,36209);
 
 DELETE FROM `game_event_npc_vendor` WHERE `eventEntry`=10 AND `item`=46693;
-INSERT INTO `game_event_npc_vendor` (`eventEntry`, `guid`, `item`) VALUES 
+INSERT INTO `game_event_npc_vendor` (`eventEntry`, `guid`, `item`) VALUES
 (10,99369,46693),
 (10,97984,46693);
 
@@ -553,7 +553,7 @@ UPDATE `item_template` SET `minMoneyLoot`=50000,`maxMoneyLoot`=50000 WHERE `entr
 UPDATE `item_template` SET `HolidayId`=201 WHERE `entry` IN (46396,46397,31880,31881,18598,18597);
 
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=17 AND `SourceEntry` IN (23012,23013,39478,39479,65352,65353);
-INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,`ElseGroup`,`ConditionTypeOrReference`,`ConditionValue1`,`ErrorTextId`,`Comment`) VALUES 
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,`ElseGroup`,`ConditionTypeOrReference`,`ConditionValue1`,`ErrorTextId`,`Comment`) VALUES
 (17,0,23012,0,12,10,0,"Orphan Whistle only while children's week"),
 (17,0,23013,0,12,10,0,"Orphan Whistle only while children's week"),
 (17,0,39478,0,12,10,0,"Orphan Whistle only while children's week"),

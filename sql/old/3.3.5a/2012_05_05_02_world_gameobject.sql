@@ -1,7 +1,7 @@
 -- Add some missing Blood of Heroes spawns
 SET @GUID := 5276;
 DELETE FROM `gameobject` WHERE `guid` BETWEEN @GUID AND @GUID+5;
-INSERT INTO `gameobject` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`position_x`,`position_y`,`position_z`,`orientation`,`rotation0`,`rotation1`,`rotation2`,`rotation3`,`spawntimesecs`,`animprogress`,`state`) VALUES 
+INSERT INTO `gameobject` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`position_x`,`position_y`,`position_z`,`orientation`,`rotation0`,`rotation1`,`rotation2`,`rotation3`,`spawntimesecs`,`animprogress`,`state`) VALUES
 (@GUID,176213,0,1,1,1529.10242,-1427.06946,65.49049,-3.001947,0,0,-0.9975634,0.06976615,7200,100,1),
 (@GUID+1,176213,0,1,1,1705.87439,-4690.138,48.9742165,-3.08918333,0,0,-0.9996567,0.02620165,7200,100,1),
 (@GUID+2,176213,0,1,1,1846.79382,-3825.265,135.5159,1.83259487,0,0,0.7933531,0.6087617,7200,100,1),

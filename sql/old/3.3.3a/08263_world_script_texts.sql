@@ -1,6 +1,6 @@
 -- King Ymiron voice by SnakeIce
 DELETE FROM `script_texts` WHERE `npc_entry`=26861;
-INSERT INTO `script_texts` (`npc_entry`, `entry`, `content_default`,`sound`,`type`,`language`,`emote`,`comment`) VALUES 
+INSERT INTO `script_texts` (`npc_entry`, `entry`, `content_default`,`sound`,`type`,`language`,`emote`,`comment`) VALUES
 (26861,-1575028, 'You invade my home and then dare to challenge me? I will tear the hearts from your chests and offer them as gifts to the death god! Rualg nja gaborr!' ,13609,1,0,0, 'King Ymirom - SAY_AGGRO'),
 (26861,-1575029, 'Your death is only the beginning!' ,13614,1,0,0, 'King Ymirom - SAY_SLAY_1'),
 (26861,-1575030, 'You have failed your people!' ,13615,1,0,0, 'King Ymirom - SAY_SLAY_2'),

@@ -56,7 +56,7 @@ SET @NPC = 3144;
 SET @QUEST = 4941;
 -- Add gossip options for each menu id
 DELETE FROM `gossip_menu_option` WHERE `menu_id` BETWEEN @GOSSIP AND @GOSSIP+7;
-INSERT INTO `gossip_menu_option` (`menu_id`, `id`, `option_icon`, `option_text`, `option_id`, `npc_option_npcflag`, `action_menu_id`, `action_poi_id`, `box_coded`, `box_money`, `box_text`) VALUES 
+INSERT INTO `gossip_menu_option` (`menu_id`, `id`, `option_icon`, `option_text`, `option_id`, `npc_option_npcflag`, `action_menu_id`, `action_poi_id`, `box_coded`, `box_money`, `box_text`) VALUES
 (@GOSSIP, 0, 0, 'Hello, Eitrigg. I bring news from Blackrock Spire.', 1, 1, @GOSSIP+1, 0, 0, 0, ''),
 (@GOSSIP+1, 0, 0, 'There is only one Warchief, Eitrigg!', 1, 1, @GOSSIP+2, 0, 0, 0, ''),
 (@GOSSIP+2, 0, 0, 'What do you mean?', 1, 1, @GOSSIP+3, 0, 0, 0, ''),
@@ -67,7 +67,7 @@ INSERT INTO `gossip_menu_option` (`menu_id`, `id`, `option_icon`, `option_text`,
 (@GOSSIP+7, 0, 0, 'As you wish, Eitrigg.', 1, 1, 0, 0, 0, 0, '');
 -- Add gossip menus (text values already in db)
 DELETE FROM `gossip_menu` WHERE `entry`BETWEEN @GOSSIP+1 AND @GOSSIP+7;
-INSERT INTO `gossip_menu` (`entry`, `text_id`) VALUES 
+INSERT INTO `gossip_menu` (`entry`, `text_id`) VALUES
 (@GOSSIP+1, 3574),
 (@GOSSIP+2, 3575),
 (@GOSSIP+3, 3576),
@@ -77,7 +77,7 @@ INSERT INTO `gossip_menu` (`entry`, `text_id`) VALUES
 (@GOSSIP+7, 3580);
 -- Add Condtion so gossip only shows when on quest
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=15 AND `SourceGroup`=@GOSSIP;
-INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES 
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
 (15, @GOSSIP, 0, 0, 9, 4941, 0, 0, 0, '', NULL);
 -- Add SAI for quest complete and close of gossip when last option selected
 UPDATE `creature_template` SET `AIName`= 'SmartAI' WHERE `entry`=@NPC;

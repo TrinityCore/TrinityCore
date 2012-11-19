@@ -13,7 +13,7 @@ UPDATE `creature_template` SET `InhabitType`=4 WHERE `entry` IN (24849,31676); -
 
 -- Waypoints for core script
 DELETE FROM `waypoint_data` WHERE `id`=125946;
-INSERT INTO `waypoint_data`(`id`,`point`,`position_x`,`position_y`,`position_z`,`move_flag`) VALUES 
+INSERT INTO `waypoint_data`(`id`,`point`,`position_x`,`position_y`,`position_z`,`move_flag`) VALUES
 (125946,1,210.92,-185.92,203.729,1),
 (125946,2,215.397,-181.239,205.773,1),
 (125946,3,219.674,-176.469,202.97,1),

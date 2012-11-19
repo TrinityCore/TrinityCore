@@ -43,7 +43,7 @@ INSERT INTO `game_event_creature` (`guid`,`eventEntry`) VALUES
 (@GUID+10,57); -- Captain Dirgehammer (32381)
 -- ----------------------
 -- -- Vendor Templates --
--- ---------------------- 
+-- ----------------------
 SET @31600HP := 2560;
 SET @38000HP := 2561;
 SET @1660RT_39400HP := 2564;
@@ -87,9 +87,9 @@ SET @Doris := 32385; -- (most likely) (34058/34059/34060) as s6/s7/s8?
 SET @Tristia := 32380; -- (most likely) (34076,34077,34078) as s6/s7/s8?
 
 DELETE FROM `npc_vendor` WHERE `entry` IN (@BG_Zar,@Moonstrike,@ZomBocom,@Xazi,@Nargle,@Kezzik,@Argex,@Thunderhorn,@Doris,@Tristia);
-INSERT INTO `npc_vendor` 
+INSERT INTO `npc_vendor`
 (`entry`,`slot`,`item`,`maxcount`,`incrtime`,`ExtendedCost`)
-VALUES 
+VALUES
 -- Spacer
 (@BG_Zar,0,40779,0,0,@60000HP), -- Savage Gladiator Chest DK
 (@BG_Zar,0,40799,0,0,@50000HP), -- Savage Gladiator Gloves DK

@@ -30,13 +30,13 @@ INSERT INTO `creature_template_addon` (`entry`,`mount`,`bytes1`,`bytes2`,`emote`
 -- -- Equipment data --
 -- --------------------
 DELETE FROM `creature_equip_template` WHERE `entry`=@EQUIP;
-INSERT INTO `creature_equip_template` (`entry`,`equipentry1`,`equipentry2`,`equipentry3`) VALUES 
+INSERT INTO `creature_equip_template` (`entry`,`equipentry1`,`equipentry2`,`equipentry3`) VALUES
 (@EQUIP,38175,12932,0);
 
 -- ---------------------
 -- -- Creature Spawns --
 -- ---------------------
-DELETE FROM `creature` WHERE `guid` BETWEEN @GUID AND @GUID+86; 
+DELETE FROM `creature` WHERE `guid` BETWEEN @GUID AND @GUID+86;
 INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`DeathState`,`MovementType`) VALUES
 -- Old Crystalbark
 (@GUID,32357,571,1,1,0,0,3550.59,7169.73,220.75,0.130042,28800,0,0,13936,3231,0,2),
@@ -1364,7 +1364,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,49,4913.710,-1698.930,248.3080,0,0,0,100,0),
 (@PATH,50,4914.310,-1661.770,248.3090,0,0,0,100,0);
 
--- Pathing for Fumblub Gearwind Entry: 32358 
+-- Pathing for Fumblub Gearwind Entry: 32358
 SET @NPC := @GUID+4;
 SET @PATH := @NPC * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2,`position_x`=4107.777,`position_y`=4981.302,`position_z`=4.601125 WHERE `guid`=@NPC;
@@ -1395,7 +1395,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 SET @GUID := 250006;
 
 UPDATE `creature_template` SET `faction_a`=14, `faction_h`=14 WHERE entry IN (32630);
-DELETE FROM `creature` WHERE `guid`=@GUID; 
+DELETE FROM `creature` WHERE `guid`=@GUID;
 INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`DeathState`,`MovementType`) VALUES
 -- Vyragosa
 (@GUID,32630,571,1,1,0,0,7090.247,-1566.583,958.0051,0.7234184,28800,0,0,1,0,0,2);

@@ -1,5 +1,5 @@
 DELETE FROM `spell_group_stack_rules` WHERE `group_id` IN (1015,1016,1019,1022,1025,1029,1033,1036,1043,1048,1051,1054,1057,1059,1064,1068,1074,1079,1082,1085,1088,1090,1093,1096,1099,1103,1046);
-INSERT INTO `spell_group_stack_rules` (`group_id`,`stack_rule`) VALUES 
+INSERT INTO `spell_group_stack_rules` (`group_id`,`stack_rule`) VALUES
 (1015,1),
 (1016,1),
 (1019,1),

@@ -1,7 +1,7 @@
 -- Scripted Npc Infiltrator Marksen (Zombie Form 7293) From Sniff author expecto Closes #6910
 UPDATE creature_template SET AIName = 'SmartAI', `spell1` = 7293 WHERE entry = 5416;
 DELETE FROM `smart_scripts` WHERE (`entryorguid`=5416 AND `source_type`=0);
-INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES 
+INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES
 (5416, 0, 0, 0, 1, 0, 100, 0, 5000, 5000, 10000, 12000, 11, 7293, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Infiltrator Marksen - Cast Zombie Form');
 
 -- Wildlord Antelarion (22127) gossip fix by nelegalno
@@ -95,7 +95,7 @@ INSERT INTO `gameobject` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `positi
 
 -- fix loot of Savage Cave Beast Closes #7874
 DELETE FROM `creature_loot_template` WHERE `entry` = 31470;
-INSERT INTO `creature_loot_template` 
+INSERT INTO `creature_loot_template`
 SELECT 31470, `item`, `ChanceOrQuestChance`, `lootmode`, `groupid`, `mincountOrRef`, `maxcount` FROM `creature_loot_template` WHERE `entry` = 30329;
 
 -- partially revert commit 0deaa521bcae3ab9004529473aceadee134f3a68 author Elron103 Closes #7580
@@ -155,7 +155,7 @@ DELETE FROM `gossip_menu` WHERE `entry`=7376 AND `text_id` IN (8826,8827);
 DELETE FROM `gossip_menu` WHERE `entry`=7377 AND `text_id` IN (8828,8829);
 DELETE FROM `gossip_menu` WHERE `entry`=7378 AND `text_id`=8832;
 
-INSERT INTO `gossip_menu` (`entry`,`text_id`) VALUES 
+INSERT INTO `gossip_menu` (`entry`,`text_id`) VALUES
 (2601,3293),
 (2601,3294),
 (6504,7699),
@@ -232,11 +232,11 @@ INSERT INTO `gossip_menu` (`entry`, `text_id`) VALUES (5824,6995);
 
 -- Set pickpocketloot data for Skeletal Reavers author trista Closes #7366
 SET @SREAVER := 32467;
-UPDATE `creature_template` SET `pickpocketloot`=`entry` WHERE `entry`=@SREAVER; 
-DELETE FROM `pickpocketing_loot_template` WHERE `entry`=@SREAVER;   
-INSERT INTO `pickpocketing_loot_template` (`entry`,`item`,`ChanceOrQuestChance`,`lootmode`,`groupid`,`mincountOrRef`,`maxcount`) VALUES 
-(@SREAVER,35947,0.7,1,0,1,1), -- Sparkling Frostcap 
-(@SREAVER,33447,0.7,1,0,1,1), -- Runic Healing Potion   
+UPDATE `creature_template` SET `pickpocketloot`=`entry` WHERE `entry`=@SREAVER;
+DELETE FROM `pickpocketing_loot_template` WHERE `entry`=@SREAVER;
+INSERT INTO `pickpocketing_loot_template` (`entry`,`item`,`ChanceOrQuestChance`,`lootmode`,`groupid`,`mincountOrRef`,`maxcount`) VALUES
+(@SREAVER,35947,0.7,1,0,1,1), -- Sparkling Frostcap
+(@SREAVER,33447,0.7,1,0,1,1), -- Runic Healing Potion
 (@SREAVER,38269,1.4,1,0,1,1), -- Soggy Handkerchief
 (@SREAVER,43575,1.6,1,0,1,1); -- Reinforced Junkbox
 
@@ -319,7 +319,7 @@ DELETE FROM `creature_transport` WHERE `transport_entry`=164871 AND `npc_entry`=
 INSERT INTO `creature_transport` (`guid`,`transport_entry`,`npc_entry`,`TransOffsetX`,`TransOffsetY`,`TransOffsetZ`,`TransOffsetO`,`emote`) VALUES
 (18,164871,25077,-19.68856,-8.170582,-14.37648,3.176499,0); -- Sky-Captain Cloudkicker
 -- Zeppelin: <The Zephyr>
-UPDATE `creature_transport` SET `emote`=173 WHERE `transport_entry`=190549 AND `npc_entry`=34719; 
+UPDATE `creature_transport` SET `emote`=173 WHERE `transport_entry`=190549 AND `npc_entry`=34719;
 
 -- Fix flight masters around the Dark Portal in Outland (16.11.2011) by SignFinder ( https://github.com/TrinityCore/TrinityCore/issues/2596#issuecomment-4450115 ) Closes #6401
 
@@ -368,7 +368,7 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,
 (15,@GOSSIP_VLAGGA,0,0,0,8,10289,0,0,0,'',"Show gossip option 0 if player has rewarded quest Journey to Thrallmar"),
 (15,@GOSSIP_VLAGGA,1,0,0,28,10289,0,0,0,'',"Show gossip option 1 if player has complete quest Journey to Thrallmar");
 
--- fix dedication of honor movie playback. author trista and vincent-michael. Closes 	#5754
+-- fix dedication of honor movie playback. author trista and vincent-michael. Closes     #5754
 SET @MEMORIAL := 202443;
 SET @Script := 20244300;
 UPDATE `gameobject_template` SET AIName = 'SmartGameObjectAI' WHERE entry = @MEMORIAL;

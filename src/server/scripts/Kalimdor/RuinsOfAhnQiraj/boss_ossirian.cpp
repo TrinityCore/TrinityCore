@@ -38,7 +38,7 @@ enum Spells
     SPELL_SAND_STORM        = 25160,
     SPELL_SUMMON_CRYSTAL    = 25192,
 };
-    
+
 enum Actions
 {
     ACTION_TRIGGER_WEAKNESS = 1,
@@ -92,7 +92,7 @@ class boss_ossirian : public CreatureScript
             uint64 CrystalGUID;
             uint8 CrystalIterator;
             bool SaidIntro;
-            
+
             void Reset()
             {
                 _Reset();
@@ -113,11 +113,11 @@ class boss_ossirian : public CreatureScript
                     }
                 }
             }
-            
+
             void DoAction(const int32 action)
             {
                 if (action == ACTION_TRIGGER_WEAKNESS)
-                {                    
+                {
                     if (Creature* Trigger = me->GetMap()->GetCreature(TriggerGUID))
                     {
                         if (!Trigger->HasUnitState(UNIT_STATE_CASTING))
@@ -125,7 +125,7 @@ class boss_ossirian : public CreatureScript
                     }
                 }
             }
-            
+
             void EnterCombat(Unit* /*who*/)
             {
                 _EnterCombat();
@@ -133,10 +133,10 @@ class boss_ossirian : public CreatureScript
                 events.ScheduleEvent(EVENT_SILENCE, 30000);
                 events.ScheduleEvent(EVENT_CYCLONE, 20000);
                 events.ScheduleEvent(EVENT_STOMP, 30000);
-                
+
                 DoCast(me, SPELL_SUPREME);
                 Talk(SAY_AGGRO);
-                
+
                 if (instance)
                 {
                     Map* map = me->GetMap();
@@ -146,7 +146,7 @@ class boss_ossirian : public CreatureScript
                     WorldPacket data(SMSG_WEATHER, (4+4+4));
                     data << uint32(WEATHER_STATE_HEAVY_SANDSTORM) << float(1) << uint8(0);
                     map->SendToPlayers(&data);
-                    
+
                     for (uint8 i = 0; i < NUM_TORNADOS; ++i)
                     {
                         Position Point;
@@ -154,40 +154,40 @@ class boss_ossirian : public CreatureScript
                         if (Creature* Tornado = me->GetMap()->SummonCreature(NPC_SAND_VORTEX, Point))
                             Tornado->CastSpell(Tornado, SPELL_SAND_STORM, true);
                     }
-                    
+
                     SpawnNextCrystal();
                 }
             }
-            
+
             void KilledUnit(Unit* /*victim*/)
             {
                 Talk(SAY_SLAY);
             }
-            
+
             void EnterEvadeMode()
             {
                 Cleanup();
                 summons.DespawnAll();
                 ScriptedAI::EnterEvadeMode();
             }
-            
+
             void JustDied(Unit* /*killer*/)
             {
                 Cleanup();
                 _JustDied();
             }
-            
+
             void Cleanup()
             {
                 if (GameObject* Crystal = me->GetMap()->GetGameObject(CrystalGUID))
                     Crystal->Use(me);
             }
-            
+
             void SpawnNextCrystal()
             {
                 if (CrystalIterator == NUM_CRYSTALS)
                     CrystalIterator = 0;
-                    
+
                 if (Creature* Trigger = me->GetMap()->SummonCreature(NPC_OSSIRIAN_TRIGGER, CrystalCoordinates[CrystalIterator]))
                 {
                     TriggerGUID = Trigger->GetGUID();
@@ -202,7 +202,7 @@ class boss_ossirian : public CreatureScript
                     }
                 }
             }
-            
+
             void MoveInLineOfSight(Unit* /*who*/)
             {
                 if (!SaidIntro)
@@ -211,20 +211,20 @@ class boss_ossirian : public CreatureScript
                     SaidIntro = true;
                 }
             }
-            
+
             void UpdateAI(const uint32 diff)
             {
                 if (!UpdateVictim())
                     return;
-                
+
                 events.Update(diff);
-                
+
                 // No kiting!
                 if (me->GetDistance(me->getVictim()) > 60.00f && me->GetDistance(me->getVictim()) < 120.00f)
                     DoCast(me->getVictim(), SPELL_SUMMON);
-                
+
                 bool ApplySupreme = true;
-                
+
                 if (me->HasAura(SPELL_SUPREME))
                 {
                     ApplySupreme = false;
@@ -240,13 +240,13 @@ class boss_ossirian : public CreatureScript
                         }
                     }
                 }
-                
+
                 if (ApplySupreme)
                 {
                     DoCast(me, SPELL_SUPREME);
                     Talk(SAY_SUPREME);
                 }
-                
+
                 while (uint32 eventId = events.ExecuteEvent())
                 {
                     switch (eventId)
@@ -265,7 +265,7 @@ class boss_ossirian : public CreatureScript
                             break;
                     }
                 }
-                    
+
                 DoMeleeAttackIfReady();
             }
         };
@@ -284,14 +284,14 @@ class go_ossirian_crystal : public GameObjectScript
         }
 
         bool OnGossipHello(Player* player, GameObject* /*go*/)
-        {            
+        {
             InstanceScript* Instance = player->GetInstanceScript();
 
             if (!Instance)
                 return false;
-            
+
             Creature* Ossirian = player->FindNearestCreature(NPC_OSSIRIAN, 30.0f);
-            
+
             if (!Ossirian || Instance->GetBossState(DATA_OSSIRIAN) != IN_PROGRESS)
                 return false;
 
