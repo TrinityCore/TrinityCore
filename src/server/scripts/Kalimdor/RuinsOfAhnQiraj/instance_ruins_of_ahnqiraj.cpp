@@ -28,7 +28,7 @@ class instance_ruins_of_ahnqiraj : public InstanceMapScript
         {
             instance_ruins_of_ahnqiraj_InstanceMapScript(Map* map) : InstanceScript(map)
             {
-                SetBossNumber(MAX_ENCOUNTER);
+                SetBossNumber(NUM_ENCOUNTER);
 
                 _kurinaxxGUID   = 0;
                 _rajaxxGUID     = 0;
@@ -75,17 +75,17 @@ class instance_ruins_of_ahnqiraj : public InstanceMapScript
             {
                 switch (type)
                 {
-                    case BOSS_KURINNAXX:
+                    case DATA_KURINNAXX:
                         return _kurinaxxGUID;
-                    case BOSS_RAJAXX:
+                    case DATA_RAJAXX:
                         return _rajaxxGUID;
-                    case BOSS_MOAM:
+                    case DATA_MOAM:
                         return _moamGUID;
-                    case BOSS_BURU:
+                    case DATA_BURU:
                         return _buruGUID;
-                    case BOSS_AYAMISS:
+                    case DATA_AYAMISS:
                         return _ayamissGUID;
-                    case BOSS_OSSIRIAN:
+                    case DATA_OSSIRIAN:
                         return _ossirianGUID;
                 }
 
@@ -120,7 +120,7 @@ class instance_ruins_of_ahnqiraj : public InstanceMapScript
 
                 if (dataHead1 == 'R' && dataHead2 == 'A')
                 {
-                    for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
+                    for (uint8 i = 0; i < NUM_ENCOUNTER; ++i)
                     {
                         uint32 tmpState;
                         loadStream >> tmpState;
