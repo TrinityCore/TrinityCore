@@ -23,28 +23,26 @@
 
 enum Data
 {
-    DATA_SELIN_EVENT            = 0,
-    DATA_VEXALLUS_EVENT         = 1,
-    DATA_DELRISSA_EVENT         = 2,
-    DATA_KAELTHAS_EVENT         = 3,
+    DATA_SELIN_EVENT,
+    DATA_VEXALLUS_EVENT,
+    DATA_DELRISSA_EVENT,
+    DATA_KAELTHAS_EVENT,
 
-    DATA_SELIN                  = 4,
-    DATA_FEL_CRYSTAL            = 5,
-    DATA_FEL_CRYSTAL_SIZE       = 6,
+    DATA_SELIN,
+    DATA_FEL_CRYSTAL,
+    DATA_FEL_CRYSTAL_SIZE,
 
-    DATA_VEXALLUS_DOOR          = 7,
-    DATA_SELIN_DOOR             = 8,
-    DATA_DELRISSA               = 9,
-    DATA_DELRISSA_DOOR          = 10,
-    DATA_SELIN_ENCOUNTER_DOOR   = 11,
+    DATA_VEXALLUS_DOOR,
+    DATA_DELRISSA,
+    DATA_DELRISSA_DOOR,
 
-    DATA_KAEL_DOOR              = 12,
-    DATA_KAEL_STATUE_LEFT       = 13,
-    DATA_KAEL_STATUE_RIGHT      = 14,
+    DATA_KAEL_DOOR,
+    DATA_KAEL_STATUE_LEFT,
+    DATA_KAEL_STATUE_RIGHT,
 
-    DATA_DELRISSA_DEATH_COUNT   = 15,
+    DATA_DELRISSA_DEATH_COUNT,
 
-    DATA_ESCAPE_ORB             = 16
+    DATA_ESCAPE_ORB
 };
 
 #endif
