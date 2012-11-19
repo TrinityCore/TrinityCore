@@ -44,8 +44,8 @@ CalendarMgr::~CalendarMgr()
 void CalendarMgr::LoadFromDB()
 {
     uint32 count = 0;
-    _maxEventId = 1;
-    _maxInviteId = 1;
+    _maxEventId = 0;
+    _maxInviteId = 0;
 
     //                                                       0   1        2      3            4     5        6          7      8
     if (QueryResult result = CharacterDatabase.Query("SELECT id, creator, title, description, type, dungeon, eventtime, flags, time2 FROM calendar_events"))
