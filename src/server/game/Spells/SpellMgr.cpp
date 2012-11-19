@@ -3670,6 +3670,9 @@ void SpellMgr::LoadDbcDataCorrections()
             case 49345: // Call Emerald Drake
                 spellInfo->Effect[1] = 0;
                 break;
+            case 62012: // Turkey Caller
+                spellInfo->EffectRadiusIndex[0] = EFFECT_RADIUS_0_YARDS;    // 0yd
+                break;
             default:
                 break;
         }

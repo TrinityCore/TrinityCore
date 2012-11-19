@@ -3024,6 +3024,77 @@ public:
     }
 };
 
+// Achievement: The Turkinator
+enum WildTurkey
+{
+    SPELL_TURKEY_TRACKER        = 62014,
+};
+
+class npc_wild_turkey : public CreatureScript
+{
+    public:
+        npc_wild_turkey() : CreatureScript("npc_wild_turkey") { }
+
+        struct npc_wild_turkeyAI : public ScriptedAI
+        {
+            npc_wild_turkeyAI(Creature* creature) : ScriptedAI(creature) {}
+
+            void JustDied(Unit* killer)
+            {
+                if (killer && killer->GetTypeId() == TYPEID_PLAYER)
+                    killer->CastSpell(killer, SPELL_TURKEY_TRACKER);
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new npc_wild_turkeyAI(creature);
+        }
+};
+
+// Item: Turkey Caller
+enum LonelyTurkey
+{
+    SPELL_STINKER_BROKEN_HEART  = 62004,
+};
+
+class npc_lonely_turkey : public CreatureScript
+{
+    public:
+        npc_lonely_turkey() : CreatureScript("npc_lonely_turkey") { }
+
+        struct npc_lonely_turkeyAI : public ScriptedAI
+        {
+            npc_lonely_turkeyAI(Creature* creature) : ScriptedAI(creature) {}
+
+            void Reset()
+            {
+                if (me->isSummon())
+                    if (Unit* owner = me->ToTempSummon()->GetSummoner())
+                        me->GetMotionMaster()->MovePoint(0, owner->GetPositionX() + 25 * cos(owner->GetOrientation()), owner->GetPositionY() + 25 * cos(owner->GetOrientation()), owner->GetPositionZ());
+
+                _stinkerBrokenHeartTimer = 3.5 * IN_MILLISECONDS;
+            }
+
+            void UpdateAI(uint32 const diff)
+            {
+                if (_stinkerBrokenHeartTimer <= diff)
+                {
+                    DoCast(SPELL_STINKER_BROKEN_HEART);
+                    me->setFaction(31);
+                }
+                _stinkerBrokenHeartTimer -= diff;
+            }
+        private:
+            uint32 _stinkerBrokenHeartTimer;
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new npc_lonely_turkeyAI(creature);
+        }
+};
+
 void AddSC_npcs_special()
 {
     new npc_air_force_bots();
