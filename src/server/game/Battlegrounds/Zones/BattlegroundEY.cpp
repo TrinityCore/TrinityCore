@@ -937,3 +937,13 @@ bool BattlegroundEY::IsAllNodesConrolledByTeam(uint32 team) const
 
     return count == EY_POINTS_MAX;
 }
+
+uint32 BattlegroundEY::GetPrematureWinner()
+{
+    if (GetTeamScore(TEAM_ALLIANCE) > GetTeamScore(TEAM_HORDE))
+        return ALLIANCE;
+    else if (GetTeamScore(TEAM_HORDE) > GetTeamScore(TEAM_ALLIANCE))
+        return HORDE;
+        
+    return Battleground::GetPrematureWinner();
+}
