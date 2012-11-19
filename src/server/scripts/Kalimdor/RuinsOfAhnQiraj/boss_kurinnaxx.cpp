@@ -19,6 +19,7 @@
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "ruins_of_ahnqiraj.h"
+#include "CreatureTextMgr.h"
 
 enum Spells
 {
@@ -38,6 +39,11 @@ enum Events
     EVENT_WIDE_SLASH        = 4
 };
 
+enum Texts
+{
+    SAY_KURINAXX_DEATH      = 5, // Yelled by Ossirian the Unscarred
+};
+
 class boss_kurinnaxx : public CreatureScript
 {
     public:
@@ -45,7 +51,7 @@ class boss_kurinnaxx : public CreatureScript
 
         struct boss_kurinnaxxAI : public BossAI
         {
-            boss_kurinnaxxAI(Creature* creature) : BossAI(creature, BOSS_KURINNAXX)
+            boss_kurinnaxxAI(Creature* creature) : BossAI(creature, DATA_KURINNAXX)
             {
             }
 
@@ -66,6 +72,13 @@ class boss_kurinnaxx : public CreatureScript
                     DoCast(me, SPELL_ENRAGE);
                     _enraged = true;
                 }
+            }
+            
+            void JustDied(Unit* /*killer*/)
+            {
+                _JustDied();
+                if (Creature* Ossirian = me->GetMap()->GetCreature(instance->GetData64(DATA_OSSIRIAN)))
+                    sCreatureTextMgr->SendChat(Ossirian, SAY_KURINAXX_DEATH, 0, CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_ZONE);
             }
 
             void UpdateAI(const uint32 diff)
