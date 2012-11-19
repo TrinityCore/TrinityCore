@@ -182,7 +182,7 @@ void Channel::Join(uint64 p, const char *pass)
         player->JoinedChannel(this);
     }
 
-    if (m_announce && (!player || !AccountMgr::IsGMAccount(player->GetSession()->GetSecurity()) || !sWorld->getBoolConfig(CONFIG_SILENTLY_GM_JOIN_TO_CHANNEL)))
+    if (m_announce && player && !(AccountMgr::IsGMAccount(player->GetSession()->GetSecurity()) && sWorld->getBoolConfig(CONFIG_SILENTLY_GM_JOIN_TO_CHANNEL)))
     {
         MakeJoined(&data, p);
         SendToAll(&data);
