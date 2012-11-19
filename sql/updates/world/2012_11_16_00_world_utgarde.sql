@@ -2,7 +2,7 @@
 DELETE FROM `creature_loot_template` WHERE `entry`=31671;
 -- Savage worg
 DELETE FROM `creature_loot_template` WHERE `entry`=31678 AND `item` IN(39211,39212,33454);
-INSERT INTO `creature_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `mincountOrRef`, `maxcount`) VALUES 
+INSERT INTO `creature_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `mincountOrRef`, `maxcount`) VALUES
 (31678,39211,70,3,5),
 (31678,39212,16,2,4),
 (31678,33454, 3,1,1);
@@ -35,7 +35,7 @@ UPDATE `creature_template` SET `unit_flags`=2|4|256|512, `faction_A`=35, `factio
 -- Dragonflayer runecaster
 DELETE FROM `creature_ai_scripts` WHERE `creature_id`=23960;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=23960 AND `source_type`=0;
-INSERT INTO `smart_scripts` (`entryorguid`, `id`, `event_type`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `target_type`, `target_param2`, `comment`) VALUES 
+INSERT INTO `smart_scripts` (`entryorguid`, `id`, `event_type`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `target_type`, `target_param2`, `comment`) VALUES
 (23960,1,0,2,5000,7000,14000,17000,11,42740,11,30,'Dragonflayer Runecaster - In combat - Cast Njords Rune of Protection'),
 (23960,2,0,4,5000,7000,14000,17000,11,59616,11,30,'Dragonflayer Runecaster - In combat - Cast Njords Rune of Protection'),
 (23960,3,0,2,1000,2000,15000,18000,11,54965, 1, 0,'Dragonflayer Runecaster - In combat - Cast Bolthorns Rune of Flame'),
@@ -62,7 +62,7 @@ INSERT INTO `spelldifficulty_dbc`(`id`,`spellid0`,`spellid1`) VALUES
 
 -- Ticking Time Bomb, Fixate
 DELETE FROM `spell_script_names` WHERE `spell_id` IN(59686,40414);
-INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (59686,'spell_ticking_time_bomb'),
 (40414,'spell_fixate');
 

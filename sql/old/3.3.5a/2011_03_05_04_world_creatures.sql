@@ -1,5 +1,5 @@
 -- Some Dalran and Area Updates (sniff)
--- Template updates 
+-- Template updates
 UPDATE `creature_template` SET `exp`=0,`npcflag`=`npcflag`|640 WHERE `entry`=32415; -- Hamaka
 UPDATE `creature_template` SET `exp`=0,`npcflag`=`npcflag`|130 WHERE `entry`=31031; -- Misensi
 UPDATE `creature_template` SET `unit_flags`=`unit_flags`|768 WHERE `entry`=35826; -- Kaye Toogie
@@ -16,7 +16,7 @@ UPDATE `creature_template` SET `baseattacktime`=2000,`unit_flags`=`unit_flags`|3
 UPDATE `creature_template` SET `exp`=0 WHERE `entry`=32322; -- Gold Warrior
 UPDATE `creature_template` SET `exp`=0 WHERE `entry`=32325; -- Gold Priest
 
--- Model data 
+-- Model data
 UPDATE `creature_model_info` SET `bounding_radius`=1.05,`combat_reach`=1.05,`gender`=0 WHERE `modelid`=10957; -- Dappled Stag
 UPDATE `creature_model_info` SET `bounding_radius`=0.236,`combat_reach`=1.5,`gender`=0 WHERE `modelid`=27957; -- Hamaka
 UPDATE `creature_model_info` SET `bounding_radius`=1,`combat_reach`=1,`gender`=2 WHERE `modelid`=1141; -- Underbelly Rat
@@ -129,5 +129,5 @@ INSERT INTO `creature_template_addon` (`entry`,`mount`,`bytes1`,`bytes2`,`emote`
 (28742,0,0,257,0, NULL), -- Marcia Chase
 (29496,0,0,257,0, NULL); -- Kerta the Bold
 
--- Template updates for gameobject 
+-- Template updates for gameobject
 UPDATE `gameobject_template` SET `faction`=0 WHERE `entry`=35591; -- Fishing Bobber

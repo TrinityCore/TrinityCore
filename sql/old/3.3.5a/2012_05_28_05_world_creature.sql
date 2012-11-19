@@ -33,7 +33,7 @@ UPDATE `gameobject` SET `phaseMask`=64 WHERE `guid` IN (100441,100440,100438,100
 -- Phase for objects in The Breach after "The last line of defense"
 UPDATE `gameobject` SET `phaseMask`=129 WHERE `id` IN (192797,192798,192799,192800,192801,192802,192803,192804,192805);
 -- Phase for objects in The Breach before "The last line of defense"
-UPDATE `gameobject` SET `phaseMask`=66 WHERE `id` IN (192161,192162,192166,192806,192807,192808,192809,192810,192811,192812,192813,192814,192815,192816,192817); 
+UPDATE `gameobject` SET `phaseMask`=66 WHERE `id` IN (192161,192162,192166,192806,192807,192808,192809,192810,192811,192812,192813,192814,192815,192816,192817);
 -- Phase for NPCs in Argent Vanguard that should be in all phases (except during "The last line of defense)
 UPDATE `creature` SET `phaseMask`=131 WHERE `guid` IN (121664,124618,124483,121684,121671,121696,121668,121693,121669,121677,121697,121666,121662,121678,121670,121680,121685,121683,121665,121682,121686,121663,121695,124527,124491,124661,123618,124497,124323,124340,124332,207301,207298,207296,207297,207299,207300,124442);
 -- Same as with the objects,delete duplicate creatures that have no direct interaction with a particular phase,a single creature can fulfill that role.
@@ -70,9 +70,9 @@ UPDATE `creature_template` SET `InhabitType`=7 WHERE `entry`=30482;
 -- Set right faction for previously not spawned creatures
 UPDATE `creature_template` SET `faction_H`=2068,`faction_A`=2068 WHERE `entry` IN (30541,30203,30543,30202,30482,30830,30831,30829,30443);
 -- ----------------
--- -- Spawnfixes -- 
+-- -- Spawnfixes --
 -- ----------------
--- Add the right mobs for each phase,they have a different id for each phase. Some mobs are only on 2 phases,not all 3 (Reanimated crusader and Gargoyles). They have the exact same points as their already spawned counterparts which belong to the final phase. 
+-- Add the right mobs for each phase,they have a different id for each phase. Some mobs are only on 2 phases,not all 3 (Reanimated crusader and Gargoyles). They have the exact same points as their already spawned counterparts which belong to the final phase.
 -- NOTE: The ones with a currentwaypoint set have it simply because that's the waypoint the of their already spawned counterpart. I use it simply as a guideline for me to create the paths for all these new ones and its changed back to 0 after I set the new paths with creature_addon later in this SQL.
 DELETE FROM `creature` WHERE `id` IN (30596,30686,30714,30677,30443,30829,30830,30831,30203,30543,30202,30541,30482,30333,30205);
 DELETE FROM `creature` WHERE `guid` BETWEEN @NEXT+83 and @NEXT+89 AND `id`=30544;

@@ -4,7 +4,7 @@ SET @EquiEntry = 2473; -- (creature_equip_template.entry - need 2)
 UPDATE `creature_template` SET `unit_flags`=`unit_flags`|32768,`equipment_id`=@EquiEntry+0 WHERE `entry`=29333; -- Onslaught Gryphon Rider
 UPDATE `creature_template` SET `unit_flags`=`unit_flags`|32768,`equipment_id`=@EquiEntry+1 WHERE `entry`=29329; -- Onslaught Paladin
 DELETE FROM `creature_equip_template` WHERE `entry` IN (@EquiEntry,@EquiEntry+1);
-INSERT INTO `creature_equip_template` (`entry`,`itemEntry1`,`itemEntry2`,`itemEntry3`) VALUES 
+INSERT INTO `creature_equip_template` (`entry`,`itemEntry1`,`itemEntry2`,`itemEntry3`) VALUES
 (@EquiEntry+0,38488,0,0),
 (@EquiEntry+1,40452,12932,0);
 UPDATE `creature_model_info` SET `bounding_radius`=0.3366,`combat_reach`=1.65,`gender`=0 WHERE `modelid`=26179; -- Onslaught Gryphon Rider

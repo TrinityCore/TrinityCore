@@ -478,7 +478,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                         for (SeatMap::iterator it = vehicle->Seats.begin(); it != vehicle->Seats.end(); ++it)
                             if (Player* player = ObjectAccessor::FindPlayer(it->second.Passenger))
                                 player->AreaExploredOrEventHappens(e.action.quest.quest);
-                        
+
                 if (IsPlayer(*itr))
                 {
                     (*itr)->ToPlayer()->AreaExploredOrEventHappens(e.action.quest.quest);
@@ -896,7 +896,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                             for (SeatMap::iterator it = vehicle->Seats.begin(); it != vehicle->Seats.end(); ++it)
                                 if (Player* player = ObjectAccessor::FindPlayer(it->second.Passenger))
                                     player->RewardPlayerAndGroupAtEvent(e.action.killedMonster.creature, player);
-                    
+
                     if (!IsPlayer(*itr))
                         continue;
 

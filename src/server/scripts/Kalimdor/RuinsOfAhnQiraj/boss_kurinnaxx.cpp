@@ -73,7 +73,7 @@ class boss_kurinnaxx : public CreatureScript
                     _enraged = true;
                 }
             }
-            
+
             void JustDied(Unit* /*killer*/)
             {
                 _JustDied();

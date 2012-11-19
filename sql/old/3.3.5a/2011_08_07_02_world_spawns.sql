@@ -73,6 +73,6 @@ INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equ
 (152165,29747,571,1,2,0,0,8526.228,2665.085,1045.04,2.670354,120,0,0,126000,0,0);
 
 DELETE FROM `gameobject` WHERE `id` IN (191778,191779);
-INSERT INTO `gameobject` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`position_x`,`position_y`,`position_z`,`orientation`,`rotation0`,`rotation1`,`rotation2`,`rotation3`,`spawntimesecs`,`animprogress`,`state`) VALUES 
+INSERT INTO `gameobject` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`position_x`,`position_y`,`position_z`,`orientation`,`rotation0`,`rotation1`,`rotation2`,`rotation3`,`spawntimesecs`,`animprogress`,`state`) VALUES
 (152116,191778,571,1,2,8600.93,2639.53,652.353,-3.12412,0,0,-0.999962,0.00873622,300,100,1),
 (152117,191779,571,1,2,8594.72,2627.14,652.353,1.15192,0,0,0.54464,0.83867,300,100,1);

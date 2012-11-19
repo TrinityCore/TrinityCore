@@ -18,7 +18,7 @@ UPDATE `instance_template` SET `script`='instance_nexus' WHERE `map`=576;
 
 UPDATE `creature_template` SET `AIName` = 'EventAI' WHERE entry IN  (26796, 26798, 26929, 26928, 26930);
 DELETE FROM `creature_ai_scripts` WHERE `creature_id` IN (26796, 26798, 26929, 26928, 26930);
-INSERT INTO `creature_ai_scripts` VALUES 
+INSERT INTO `creature_ai_scripts` VALUES
 -- Commander Stoutbeard
 ( 2679600, 26796, 4, 0, 100, 4, 0, 0, 0, 0, 28, 0, 47543, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Commander Stoutbeard - crystal prison remove'),
 ( 2679601, 26796, 4, 0, 100, 4, 0, 0, 0, 0, 11, 31403, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Commander Stoutbeard - cast battle shout'),

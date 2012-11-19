@@ -88,7 +88,7 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,
 (19,0,25249,0,2,52571,1,0,'A Change of Heart');
 
 -- spawn farmer torp author: zxbiohazardzx closes #6256
-SET @guid := 42652; 
+SET @guid := 42652;
 DELETE FROM `creature` WHERE `guid`=@guid;
 INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`)
 VALUES
@@ -99,7 +99,7 @@ UPDATE `creature_template_addon` SET `auras`='25163' WHERE `entry`=15429;
 -- Mr. Chilly
 -- Add aura chilly for Periodic slide
 DELETE FROM `creature_template_addon` WHERE `entry`=29726;
-INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `auras`) VALUES 
+INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `auras`) VALUES
 (29726, 0, 0, 0, 0, 0, '61811');
 
 -- Update to Change <name> to $n in page text author: gecko32 closes #5930
@@ -119,7 +119,7 @@ DELETE FROM `creature_ai_scripts` WHERE creature_id=22293;
 
 -- fix areatrigger for wickerman camp author: boomper closes #3549
 DELETE FROM `areatrigger_involvedrelation` WHERE `id` =3991;
-INSERT INTO `areatrigger_involvedrelation` (`id`, `quest`) 
+INSERT INTO `areatrigger_involvedrelation` (`id`, `quest`)
 VALUES (3991,1658);
 
 -- yous have da darkrune should be daily author: kaelima closes #3457

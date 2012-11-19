@@ -1,4 +1,4 @@
-DELETE FROM `creature_questrelation` WHERE `id` IN (14305,14444,22817,22818,33532,33533,34365); 
+DELETE FROM `creature_questrelation` WHERE `id` IN (14305,14444,22817,22818,33532,33533,34365);
 DELETE FROM `game_event_creature_quest` WHERE `eventEntry`=10;
 INSERT INTO `game_event_creature_quest` (`eventEntry`,`id`,`quest`) VALUES
 -- Alliance
@@ -8,7 +8,7 @@ INSERT INTO `game_event_creature_quest` (`eventEntry`,`id`,`quest`) VALUES
 (10,14305,1687), -- Human Orphan - Spooky Lighthouse
 (10,14305,558), -- Human Orphan - Jaina's Autograph
 (10,14305,4822), -- Human Orphan - You Scream, I Scream...
--- Horde 
+-- Horde
 (10,14451,172), -- Orphan Matron Battlewail - Children's Week
 (10,14444,910), -- Orcish Orphan - Down at the Docks
 (10,14444,911), -- Orcish Orphan - Gateway to the Frontier
@@ -50,7 +50,7 @@ INSERT INTO `game_event_creature_quest` (`eventEntry`,`id`,`quest`) VALUES
 (10,33533,13956), -- Oracle Orphan - Meeting a Great One
 (10,33533,13959); -- Oracle Orphan - Back To The Orphanage
 
--- Removed "When I Grow Up..." and replace it with "Now, When I Grow Up..." 
+-- Removed "When I Grow Up..." and replace it with "Now, When I Grow Up..."
 UPDATE `quest_template` SET `prevquestid`=10945,`exclusivegroup`=-11975 WHERE `id` IN (11975,10963);
 DELETE FROM `disables` WHERE `sourceType`=1 AND `entry`=10960;
 INSERT INTO `disables` (`sourceType`,`entry`,`flags`,`params_0`,`params_1`,`comment`) VALUES
