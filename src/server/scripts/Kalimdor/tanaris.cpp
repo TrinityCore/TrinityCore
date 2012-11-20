@@ -39,6 +39,7 @@ EndContentData */
 #include "ScriptedEscortAI.h"
 #include "ScriptedFollowerAI.h"
 #include "Player.h"
+#include "WorldSession.h"
 
 /*######
 ## mob_aquementas

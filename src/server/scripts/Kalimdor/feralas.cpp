@@ -29,6 +29,7 @@ EndScriptData */
 #include "ScriptedGossip.h"
 #include "SpellScript.h"
 #include "Player.h"
+#include "WorldSession.h"
 
 /*######
 ## npc_gregan_brewspewer

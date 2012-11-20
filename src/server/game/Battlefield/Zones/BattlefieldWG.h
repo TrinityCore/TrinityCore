@@ -22,6 +22,7 @@
 #include "ObjectAccessor.h"
 #include "WorldPacket.h"
 #include "Battlefield.h"
+#include "World.h"
 
 class Group;
 class BattlefieldWG;

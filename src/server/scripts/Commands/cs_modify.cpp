@@ -24,10 +24,12 @@ EndScriptData */
 
 #include "Chat.h"
 #include "ObjectMgr.h"
+#include "Opcodes.h"
 #include "Pet.h"
 #include "Player.h"
 #include "ReputationMgr.h"
 #include "ScriptMgr.h"
+
 
 class modify_commandscript : public CommandScript
 {

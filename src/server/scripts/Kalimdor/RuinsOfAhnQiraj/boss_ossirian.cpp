@@ -19,6 +19,9 @@
 #include "ScriptedCreature.h"
 #include "ruins_of_ahnqiraj.h"
 #include "Player.h"
+#include "SpellInfo.h"
+#include "WorldPacket.h"
+#include "Opcodes.h"
 
 enum Texts
 {

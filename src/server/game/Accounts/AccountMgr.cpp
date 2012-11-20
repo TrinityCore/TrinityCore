@@ -22,6 +22,7 @@
 #include "Player.h"
 #include "Util.h"
 #include "SHA1.h"
+#include "WorldSession.h"
 
 namespace AccountMgr
 {

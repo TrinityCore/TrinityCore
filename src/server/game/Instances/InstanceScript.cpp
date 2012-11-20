@@ -26,6 +26,8 @@
 #include "Map.h"
 #include "Player.h"
 #include "Pet.h"
+#include "WorldSession.h"
+#include "Opcodes.h"
 
 void InstanceScript::SaveToDB()
 {

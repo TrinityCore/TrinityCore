@@ -22,6 +22,7 @@
 #include "UpdateFields.h"
 #include "ObjectMgr.h"
 #include "AccountMgr.h"
+#include "World.h"
 
 #define DUMP_TABLE_COUNT 27
 struct DumpTable
