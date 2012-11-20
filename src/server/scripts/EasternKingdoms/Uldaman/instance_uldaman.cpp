@@ -476,7 +476,7 @@ class instance_uldaman : public InstanceMapScript
                     case 2:
                     case 3:
                     case 4:
-                        return vVaultWalker.at(identifier);
+                        return vVaultWalker.at(identifier - 1);
                     case 5:
                     case 6:
                     case 7:
