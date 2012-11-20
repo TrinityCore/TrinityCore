@@ -30,6 +30,8 @@
 #include "ulduar.h"
 #include "Vehicle.h"
 #include "Player.h"
+#include "WorldPacket.h"
+#include "Opcodes.h"
 
 enum Spells
 {

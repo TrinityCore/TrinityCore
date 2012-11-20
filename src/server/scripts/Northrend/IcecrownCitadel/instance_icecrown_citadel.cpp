@@ -24,6 +24,8 @@
 #include "AccountMgr.h"
 #include "icecrown_citadel.h"
 #include "Player.h"
+#include "WorldPacket.h"
+#include "WorldSession.h"
 
 enum EventIds
 {

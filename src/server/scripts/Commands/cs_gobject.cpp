@@ -30,6 +30,7 @@ EndScriptData */
 #include "Chat.h"
 #include "Language.h"
 #include "Player.h"
+#include "Opcodes.h"
 
 class gobject_commandscript : public CommandScript
 {

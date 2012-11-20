@@ -20,6 +20,8 @@
 #include "CreatureTextMgr.h"
 #include "culling_of_stratholme.h"
 #include "Player.h"
+#include "TemporarySummon.h"
+#include "SpellInfo.h"
 
 #define MAX_ENCOUNTER 5
 

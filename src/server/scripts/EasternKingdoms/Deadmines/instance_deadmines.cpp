@@ -27,6 +27,8 @@ EndScriptData */
 #include "InstanceScript.h"
 #include "deadmines.h"
 #include "TemporarySummon.h"
+#include "WorldPacket.h"
+#include "Opcodes.h"
 
 enum Sounds
 {

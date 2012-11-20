@@ -58,6 +58,7 @@ EndContentData */
 #include "Cell.h"
 #include "CellImpl.h"
 #include "SpellAuras.h"
+#include "Pet.h"
 
 /*########
 # npc_air_force_bots

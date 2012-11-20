@@ -30,6 +30,7 @@ EndScriptData */
 #include "Player.h"
 #include "ReputationMgr.h"
 #include "ScriptMgr.h"
+#include "SpellInfo.h"
 
 class lookup_commandscript : public CommandScript
 {

@@ -19,6 +19,7 @@
 #include "InstanceScript.h"
 #include "zulfarrak.h"
 #include "Player.h"
+#include "TemporarySummon.h"
 
 #define NPC_GAHZRILLA 7273
 #define PATH_ADDS 81553

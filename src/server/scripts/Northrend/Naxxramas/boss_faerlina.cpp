@@ -18,6 +18,7 @@
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "naxxramas.h"
+#include "SpellInfo.h"
 
 enum Yells
 {

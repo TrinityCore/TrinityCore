@@ -31,6 +31,7 @@ EndContentData */
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
 #include "Player.h"
+#include "WorldSession.h"
 
 /*######
 ## npc_rivern_frostwind

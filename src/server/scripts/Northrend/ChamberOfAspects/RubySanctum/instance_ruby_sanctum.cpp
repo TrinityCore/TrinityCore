@@ -19,6 +19,8 @@
 #include "InstanceScript.h"
 #include "ruby_sanctum.h"
 #include "Player.h"
+#include "TemporarySummon.h"
+#include "WorldPacket.h"
 
 DoorData const doorData[] =
 {
