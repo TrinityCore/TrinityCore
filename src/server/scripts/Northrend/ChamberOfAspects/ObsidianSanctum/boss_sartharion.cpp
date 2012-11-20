@@ -404,7 +404,7 @@ public:
                 me->AddLootMode(LOOT_MODE_HARD_MODE_1);      // Add 1st Drake loot mode
         }
 
-        uint32 GetData(uint32 type)
+        uint32 GetData(uint32 type) const
         {
             if (type == TWILIGHT_ACHIEVEMENTS)
                 return drakeCount;

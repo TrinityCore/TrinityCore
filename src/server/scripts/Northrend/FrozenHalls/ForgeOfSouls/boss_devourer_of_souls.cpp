@@ -246,7 +246,7 @@ class boss_devourer_of_souls : public CreatureScript
                     threeFaced = false;
             }
 
-            uint32 GetData(uint32 type)
+            uint32 GetData(uint32 type) const
             {
                 if (type == DATA_THREE_FACED)
                     return threeFaced;

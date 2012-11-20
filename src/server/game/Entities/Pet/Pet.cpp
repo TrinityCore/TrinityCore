@@ -1077,7 +1077,7 @@ bool Pet::HaveInDiet(ItemTemplate const* item) const
     return diet & FoodMask;
 }
 
-uint32 Pet::GetCurrentFoodBenefitLevel(uint32 itemlevel)
+uint32 Pet::GetCurrentFoodBenefitLevel(uint32 itemlevel) const
 {
     // -5 or greater food level
     if (getLevel() <= itemlevel + 5)                         //possible to feed level 60 pet with level 55 level food for full effect
@@ -1881,7 +1881,7 @@ void Pet::ToggleAutocast(SpellInfo const* spellInfo, bool apply)
     }
 }
 
-bool Pet::IsPermanentPetFor(Player* owner)
+bool Pet::IsPermanentPetFor(Player* owner) const
 {
     switch (getPetType())
     {

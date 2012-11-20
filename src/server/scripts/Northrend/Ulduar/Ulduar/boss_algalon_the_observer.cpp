@@ -378,7 +378,7 @@ class boss_algalon_the_observer : public CreatureScript
                 }
             }
 
-            uint32 GetData(uint32 type)
+            uint32 GetData(uint32 type) const
             {
                 return type == DATA_HAS_FED_ON_TEARS ? _fedOnTears : 1;
             }
@@ -728,7 +728,7 @@ class npc_living_constellation : public CreatureScript
                 _isActive = false;
             }
 
-            uint32 GetData(uint32 /*type*/)
+            uint32 GetData(uint32 /*type*/) const
             {
                 return _isActive ? 1 : 0;
             }
