@@ -20,6 +20,7 @@
 #include "ScriptedCreature.h"
 #include "SpellAuraEffects.h"
 #include "icecrown_citadel.h"
+#include "Player.h"
 
 enum Texts
 {
@@ -186,7 +187,7 @@ class boss_blood_council_controller : public CreatureScript
             void Reset()
             {
                 events.Reset();
-                me->SetReactState(REACT_DEFENSIVE);
+                me->SetReactState(REACT_PASSIVE);
                 _invocationStage = 0;
                 _resetCounter = 0;
 
@@ -230,7 +231,7 @@ class boss_blood_council_controller : public CreatureScript
                 events.ScheduleEvent(EVENT_INVOCATION_OF_BLOOD, 46500);
 
                 _invocationOrder[0] = InvocationData(instance->GetData64(DATA_PRINCE_VALANAR_GUID), SPELL_INVOCATION_OF_BLOOD_VALANAR, EMOTE_VALANAR_INVOCATION, 71070);
-                if (urand(1, 2))
+                if (urand(0, 1))
                 {
                     _invocationOrder[1] = InvocationData(instance->GetData64(DATA_PRINCE_TALDARAM_GUID), SPELL_INVOCATION_OF_BLOOD_TALDARAM, EMOTE_TALDARAM_INVOCATION, 71081);
                     _invocationOrder[2] = InvocationData(instance->GetData64(DATA_PRINCE_KELESETH_GUID), SPELL_INVOCATION_OF_BLOOD_KELESETH, EMOTE_KELESETH_INVOCATION, 71080);
@@ -1067,7 +1068,7 @@ class npc_blood_queen_lana_thel : public CreatureScript
                 if (_introDone)
                     return;
 
-                if (!me->IsWithinDistInMap(who, 20.0f, false))
+                if (!me->IsWithinDistInMap(who, 35.0f, false))
                     return;
 
                 _introDone = true;

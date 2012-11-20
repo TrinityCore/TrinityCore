@@ -482,7 +482,7 @@ void PathGenerator::BuildPointPath(const float *startPoint, const float *endPoin
         if (_sourceUnit->GetMapId() == 562)
         {
              //Your Position & Target Position
-            if (endPoint[1] >= 11.000000f && endPoint[2] >= 6230.973223f && endPoint[2] <= 6226.393223f  endPoint[0] >= 247.267917f && endPoint[0] <= 252.778940f)      // southeast pillar
+            if (endPoint[1] >= 11.000000f && endPoint[2] >= 6230.973223f && endPoint[2] <= 6226.393223f && endPoint[0] >= 247.267917f && endPoint[0] <= 252.778940f)      // southeast pillar
             {
               //  Path X,y,z 1# END
                 _pathPoints.resize(4);
@@ -500,7 +500,7 @@ void PathGenerator::BuildPointPath(const float *startPoint, const float *endPoin
                 _pathPoints[2] = Vector3(6246.985352f, 271.076599f, 11.400000f);
                 _pathPoints[3] = GetEndPosition();
             }
-            else if (startPoint[1] >= 11.000000f && startPoint[2] >= 6230.973223f && startPoint[2] <= 6226.393223f  startPoint[0] >= 247.267917f && startPoint[0] <= 252.778940f)       // southeast pillar
+            else if (startPoint[1] >= 11.000000f && startPoint[2] >= 6230.973223f && startPoint[2] <= 6226.393223f && startPoint[0] >= 247.267917f && startPoint[0] <= 252.778940f)       // southeast pillar
             {
               //  Path X,y,z 1# Start
                 _pathPoints.resize(4);
