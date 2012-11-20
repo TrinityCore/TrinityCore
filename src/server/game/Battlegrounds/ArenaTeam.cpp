@@ -542,6 +542,20 @@ uint8 ArenaTeam::GetSlotByType(uint32 type)
     return 0xFF;
 }
 
+uint8 ArenaTeam::GetTypeBySlot(uint8 slot)
+{
+    switch (slot)
+    {
+        case 0: return ARENA_TEAM_2v2;
+        case 1: return ARENA_TEAM_3v3;
+        case 2: return ARENA_TEAM_5v5;
+        default:
+            break;
+    }
+    sLog->outError(LOG_FILTER_ARENAS, "FATAL: Unknown arena team slot %u for some arena team", slot);
+    return 0xFF;
+}
+
 bool ArenaTeam::IsMember(uint64 guid) const
 {
     for (MemberList::const_iterator itr = Members.begin(); itr != Members.end(); ++itr)

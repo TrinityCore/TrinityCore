@@ -865,6 +865,7 @@ class WorldSession
         void HandleInspectArenaTeamsOpcode(WorldPacket& recvData);
         void HandleArenaTeamQueryOpcode(WorldPacket& recvData);
         void HandleArenaTeamRosterOpcode(WorldPacket& recvData);
+        void HandleArenaTeamCreateOpcode(WorldPacket& recvData);
         void HandleArenaTeamInviteOpcode(WorldPacket& recvData);
         void HandleArenaTeamAcceptOpcode(WorldPacket& recvData);
         void HandleArenaTeamDeclineOpcode(WorldPacket& recvData);
