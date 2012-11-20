@@ -46,6 +46,7 @@
 #include "SharedDefines.h"
 #include "Formulas.h"
 #include "DisableMgr.h"
+#include "Opcodes.h"
 
 /*********************************************************/
 /***            BATTLEGROUND MANAGER                   ***/

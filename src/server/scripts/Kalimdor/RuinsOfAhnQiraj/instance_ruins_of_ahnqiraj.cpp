@@ -71,7 +71,7 @@ class instance_ruins_of_ahnqiraj : public InstanceMapScript
                 return true;
             }
 
-            uint64 GetData64(uint32 type)
+            uint64 GetData64(uint32 type) const
             {
                 switch (type)
                 {

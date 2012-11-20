@@ -28,6 +28,9 @@ EndScriptData */
 #include "ScriptedCreature.h"
 #include "hyjal_trash.h"
 #include "Player.h"
+#include "WorldPacket.h"
+#include "Opcodes.h"
+#include "WorldSession.h"
 
 enum Misc
 {
@@ -157,7 +160,7 @@ public:
             }
         }
 
-        uint64 GetData64(uint32 identifier)
+        uint64 GetData64(uint32 identifier) const
         {
             switch (identifier)
             {
@@ -294,7 +297,7 @@ public:
 
         }
 
-        uint32 GetData(uint32 type)
+        uint32 GetData(uint32 type) const
         {
             switch (type)
             {

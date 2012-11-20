@@ -22,10 +22,13 @@ Comment: All reset related commands
 Category: commandscripts
 EndScriptData */
 
-#include "ScriptMgr.h"
+#include "AchievementMgr.h"
 #include "Chat.h"
+#include "Language.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
+#include "Pet.h"
+#include "ScriptMgr.h"
 
 class reset_commandscript : public CommandScript
 {

@@ -28,6 +28,8 @@
 #include "ObjectMgr.h"
 #include "Util.h"
 #include "ScriptMgr.h"
+#include "Opcodes.h"
+#include "WorldSession.h"
 
 /// Create the Weather object
 Weather::Weather(uint32 zone, WeatherData const* weatherChances)

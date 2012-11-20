@@ -19,25 +19,14 @@
 #ifndef __UNIT_H
 #define __UNIT_H
 
-#include "Common.h"
-#include "Object.h"
-#include "Opcodes.h"
-#include "SpellAuraDefines.h"
-#include "UpdateFields.h"
-#include "SharedDefines.h"
-#include "ThreatManager.h"
-#include "HostileRefManager.h"
+#include "EventProcessor.h"
 #include "FollowerReference.h"
 #include "FollowerRefManager.h"
-#include "EventProcessor.h"
+#include "HostileRefManager.h"
 #include "MotionMaster.h"
-#include "DBCStructure.h"
-#include "SpellInfo.h"
-#include "Path.h"
-#include "WorldPacket.h"
-#include "WorldSession.h"
-#include "Timer.h"
-#include <list>
+#include "Object.h"
+#include "SpellAuraDefines.h"
+#include "ThreatManager.h"
 
 #define WORLD_TRIGGER   12999
 
@@ -343,6 +332,7 @@ class Totem;
 class Transport;
 class Vehicle;
 class TransportBase;
+class SpellCastTargets;
 
 typedef std::list<Unit*> UnitList;
 typedef std::list< std::pair<Aura*, uint8> > DispelChargesList;

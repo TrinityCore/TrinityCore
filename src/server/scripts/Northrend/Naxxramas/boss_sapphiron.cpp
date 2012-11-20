@@ -15,10 +15,12 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "AchievementMgr.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "naxxramas.h"
 #include "Player.h"
+#include "SpellInfo.h"
 
 #define EMOTE_BREATH            -1533082
 #define EMOTE_ENRAGE            -1533083

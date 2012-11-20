@@ -59,10 +59,29 @@ void TargetedMovementGeneratorMedium<T,D>::_setTargetLocation(T &owner)
     }
     else
     {
-        if (i_target->IsWithinDistInMap(&owner, i_offset + 1.0f))
+        float dist;
+        float size;
+
+        // Pets need special handling.
+        // We need to subtract GetObjectSize() because it gets added back further down the chain
+        //  and that makes pets too far away. Subtracting it allows pets to properly
+        //  be (GetCombatReach() + i_offset) away.
+        if (owner.isPet())
+        {
+            dist = i_target->GetCombatReach();
+            size = i_target->GetCombatReach() - i_target->GetObjectSize();
+        }
+        else
+        {
+            dist = i_offset + 1.0f;
+            size = owner.GetObjectSize();
+        }
+
+        if (i_target->IsWithinDistInMap(&owner, dist))
             return;
+
         // to at i_offset distance from target and i_angle from target facing
-        i_target->GetClosePoint(x, y, z, owner.GetObjectSize(), i_offset, i_angle);
+        i_target->GetClosePoint(x, y, z, size, i_offset, i_angle);
     }
 
     /*

@@ -104,7 +104,7 @@ public:
                 victimGUID = guid;
         }
 
-        uint64 GetGUID(int32 id/* = 0 */)
+        uint64 GetGUID(int32 id/* = 0 */) const
         {
             if (id == INNER_DEMON_VICTIM)
                 return victimGUID;

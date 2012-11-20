@@ -19,30 +19,30 @@
 #ifndef _PLAYER_H
 #define _PLAYER_H
 
-#include <bitset>
-#include "AchievementMgr.h"
-#include "Common.h"
-#include "DatabaseEnv.h"
-#include "DBCEnums.h"
+#include "DBCStores.h"
 #include "GroupReference.h"
-#include "Item.h"
 #include "MapReference.h"
-#include "Pet.h"
-#include "QuestDef.h"
-#include "ReputationMgr.h"
-#include "Unit.h"
-#include "WorldSession.h"
-#include "PhaseMgr.h"
 
-// for template
+#include "Item.h"
+#include "PetDefines.h"
+#include "PhaseMgr.h"
+#include "QuestDef.h"
 #include "SpellMgr.h"
+#include "Unit.h"
 
 #include <string>
 #include <vector>
 
+struct CreatureTemplate;
 struct Mail;
 struct ItemExtendedCostEntry;
+struct TrainerSpell;
+struct VendorItem;
+
+template<class T> class AchievementMgr;
+class ReputationMgr;
 class Channel;
+class CharacterCreateInfo;
 class Creature;
 class DynamicObject;
 class Group;
@@ -1703,7 +1703,7 @@ class Player : public Unit, public GridObject<Player>
         /*********************************************************/
 
         bool LoadFromDB(uint32 guid, SQLQueryHolder *holder);
-        bool isBeingLoaded() const { return GetSession()->PlayerLoading();}
+        bool isBeingLoaded() const;
 
         void Initialize(uint32 guid);
         static uint32 GetUInt32ValueFromArray(Tokenizer const& data, uint16 index);
@@ -2235,8 +2235,8 @@ class Player : public Unit, public GridObject<Player>
         uint8 GetGrantableLevels() { return m_grantableLevels; }
         void SetGrantableLevels(uint8 val) { m_grantableLevels = val; }
 
-        ReputationMgr&       GetReputationMgr()       { return m_reputationMgr; }
-        ReputationMgr const& GetReputationMgr() const { return m_reputationMgr; }
+        ReputationMgr&       GetReputationMgr()       { return *m_reputationMgr; }
+        ReputationMgr const& GetReputationMgr() const { return *m_reputationMgr; }
         ReputationRank GetReputationRank(uint32 faction_id) const;
         void RewardReputation(Unit* victim, float rate);
         void RewardReputation(Quest const* quest);
@@ -2600,12 +2600,7 @@ class Player : public Unit, public GridObject<Player>
         static void ConvertInstancesToGroup(Player* player, Group* group, bool switchLeader);
         bool Satisfy(AccessRequirement const* ar, uint32 target_map, bool report = false);
         bool CheckInstanceLoginValid();
-        bool CheckInstanceCount(uint32 instanceId) const
-        {
-            if (_instanceResetTimes.size() < sWorld->getIntConfig(CONFIG_MAX_INSTANCES_PER_HOUR))
-                return true;
-            return _instanceResetTimes.find(instanceId) != _instanceResetTimes.end();
-        }
+        bool CheckInstanceCount(uint32 instanceId) const;
 
         void AddInstanceEnterTime(uint32 instanceId, time_t enterTime)
         {
@@ -3084,8 +3079,8 @@ class Player : public Unit, public GridObject<Player>
         uint32 m_temporaryUnsummonedPetNumber;
         uint32 m_oldpetspell;
 
-        AchievementMgr<Player> m_achievementMgr;
-        ReputationMgr  m_reputationMgr;
+        AchievementMgr<Player>* m_achievementMgr;
+        ReputationMgr*  m_reputationMgr;
 
         SpellCooldowns m_spellCooldowns;
 

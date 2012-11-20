@@ -128,21 +128,14 @@ public:
             }
         }
 
-        uint32 GetData(uint32 type)
+        uint32 GetData(uint32 type) const
         {
-            if (type == TYPE_GANDLING)
-            {
-                if (IsBossDied[0] && IsBossDied[1] && IsBossDied[2] && IsBossDied[3] && IsBossDied[4] && IsBossDied[5])
-                {
-                    m_auiEncounter[0] = IN_PROGRESS;
-                    return IN_PROGRESS;
-                }
-            }
-
-            return 0;
+            return (type == TYPE_GANDLING &&
+                IsBossDied[0] && IsBossDied[1] && IsBossDied[2] &&
+                IsBossDied[3] && IsBossDied[4] && IsBossDied[5])
+                ? IN_PROGRESS : 0;
         }
     };
-
 };
 
 void AddSC_instance_scholomance()

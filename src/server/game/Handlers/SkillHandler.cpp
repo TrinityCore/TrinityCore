@@ -18,13 +18,14 @@
 
 #include "Common.h"
 #include "DatabaseEnv.h"
-#include "Opcodes.h"
 #include "Log.h"
+#include "ObjectAccessor.h"
+#include "Opcodes.h"
 #include "Player.h"
+#include "Pet.h"
+#include "UpdateMask.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
-#include "ObjectAccessor.h"
-#include "UpdateMask.h"
 
 void WorldSession::HandleLearnTalentOpcode(WorldPacket & recvData)
 {

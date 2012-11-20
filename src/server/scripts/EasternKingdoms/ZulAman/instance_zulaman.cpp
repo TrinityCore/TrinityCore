@@ -27,6 +27,7 @@ EndScriptData */
 #include "InstanceScript.h"
 #include "zulaman.h"
 #include "Player.h"
+#include "TemporarySummon.h"
 
 #define MAX_ENCOUNTER     6
 #define RAND_VENDOR    2
@@ -283,7 +284,7 @@ class instance_zulaman : public InstanceMapScript
                 }
             }
 
-            uint32 GetData(uint32 type)
+            uint32 GetData(uint32 type) const
             {
                 switch (type)
                 {

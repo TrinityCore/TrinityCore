@@ -27,6 +27,8 @@ EndScriptData */
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
 #include "Player.h"
+#include "SpellInfo.h"
+#include "WorldSession.h"
 
 /*
 A few notes for future developement:

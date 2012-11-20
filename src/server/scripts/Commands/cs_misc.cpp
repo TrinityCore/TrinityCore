@@ -23,13 +23,16 @@
 #include "GridNotifiers.h"
 #include "Group.h"
 #include "InstanceSaveMgr.h"
+#include "Language.h"
 #include "MovementGenerator.h"
 #include "ObjectAccessor.h"
+#include "Opcodes.h"
 #include "SpellAuras.h"
 #include "TargetedMovementGenerator.h"
 #include "WeatherMgr.h"
 #include "ace/INET_Addr.h"
 #include "Player.h"
+#include "Pet.h"
 
 class misc_commandscript : public CommandScript
 {

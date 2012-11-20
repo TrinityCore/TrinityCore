@@ -17,6 +17,7 @@
  */
 
 #include "DisableMgr.h"
+#include "AchievementMgr.h"
 #include "ObjectMgr.h"
 #include "OutdoorPvP.h"
 #include "SpellMgr.h"
