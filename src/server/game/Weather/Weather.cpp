@@ -28,6 +28,7 @@
 #include "ObjectMgr.h"
 #include "Util.h"
 #include "ScriptMgr.h"
+#include "Opcodes.h"
 
 /// Create the Weather object
 Weather::Weather(uint32 zone, WeatherData const* weatherChances)

@@ -22,10 +22,12 @@
 
 #include "BattlefieldWG.h"
 #include "ObjectMgr.h"
+#include "Opcodes.h"
 #include "Player.h"
 #include "SpellAuras.h"
 #include "TemporarySummon.h"
 #include "Vehicle.h"
+#include "WorldSession.h"
 
 enum WGVehicles
 {

@@ -27,6 +27,7 @@ EndScriptData */
 #include "ScriptedCreature.h"
 #include "karazhan.h"
 #include "GameObject.h"
+#include "SpellInfo.h"
 
 #define SAY_AGGRO1                  -1532073
 #define SAY_AGGRO2                  -1532074

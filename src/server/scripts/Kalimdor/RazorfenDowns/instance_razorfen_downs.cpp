@@ -19,6 +19,7 @@
 #include "InstanceScript.h"
 #include "razorfen_downs.h"
 #include "Player.h"
+#include "TemporarySummon.h"
 
 #define    MAX_ENCOUNTER  1
 

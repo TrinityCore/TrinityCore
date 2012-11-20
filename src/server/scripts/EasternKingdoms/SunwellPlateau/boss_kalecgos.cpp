@@ -27,6 +27,7 @@ EndScriptData */
 #include "ScriptedCreature.h"
 #include "sunwell_plateau.h"
 #include "Player.h"
+#include "WorldSession.h"
 
 enum Yells
 {

@@ -28,6 +28,7 @@ EndScriptData */
 #include "deadmines.h"
 #include "Spell.h"
 #include "Player.h"
+#include "WorldSession.h"
 
 /*#####
 # item_Defias_Gunpowder

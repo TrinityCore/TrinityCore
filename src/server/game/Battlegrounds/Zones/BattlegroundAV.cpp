@@ -21,11 +21,12 @@
 #include "ObjectMgr.h"
 #include "WorldPacket.h"
 
-#include "Miscellaneous/Formulas.h"
+#include "Formulas.h"
 #include "GameObject.h"
-#include "Miscellaneous/Language.h"
+#include "Language.h"
 #include "Player.h"
 #include "SpellAuras.h"
+#include "WorldSession.h"
 
 BattlegroundAV::BattlegroundAV()
 {

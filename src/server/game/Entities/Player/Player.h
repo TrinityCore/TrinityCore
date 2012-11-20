@@ -26,20 +26,22 @@
 #include "Item.h"
 #include "PetDefines.h"
 #include "QuestDef.h"
-#include "Unit.h"
 #include "SpellMgr.h"
+#include "Unit.h"
 
 #include <string>
 #include <vector>
 
+struct CreatureTemplate;
 struct Mail;
+struct TrainerSpell;
 struct VendorItem;
 
 class AchievementMgr;
 class ReputationMgr;
 class Channel;
+class CharacterCreateInfo;
 class Creature;
-class CreatureTemplate;
 class DynamicObject;
 class Group;
 class Guild;
@@ -48,7 +50,6 @@ class Pet;
 class PlayerMenu;
 class PlayerSocial;
 class SpellCastTargets;
-class TrainerSpell;
 class UpdateMask;
 
 typedef std::deque<Mail*> PlayerMails;
@@ -1490,7 +1491,7 @@ class Player : public Unit, public GridObject<Player>
         /*********************************************************/
 
         bool LoadFromDB(uint32 guid, SQLQueryHolder *holder);
-        bool isBeingLoaded() const { return GetSession()->PlayerLoading();}
+        bool isBeingLoaded() const;
 
         void Initialize(uint32 guid);
         static uint32 GetUInt32ValueFromArray(Tokenizer const& data, uint16 index);
@@ -2375,12 +2376,7 @@ class Player : public Unit, public GridObject<Player>
         static void ConvertInstancesToGroup(Player* player, Group* group, bool switchLeader);
         bool Satisfy(AccessRequirement const* ar, uint32 target_map, bool report = false);
         bool CheckInstanceLoginValid();
-        bool CheckInstanceCount(uint32 instanceId) const
-        {
-            if (_instanceResetTimes.size() < sWorld->getIntConfig(CONFIG_MAX_INSTANCES_PER_HOUR))
-                return true;
-            return _instanceResetTimes.find(instanceId) != _instanceResetTimes.end();
-        }
+        bool CheckInstanceCount(uint32 instanceId) const;
 
         void AddInstanceEnterTime(uint32 instanceId, time_t enterTime)
         {

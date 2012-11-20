@@ -27,6 +27,8 @@ EndScriptData */
 #include "InstanceScript.h"
 #include "dark_portal.h"
 #include "Player.h"
+#include "TemporarySummon.h"
+#include "SpellInfo.h"
 
 #define MAX_ENCOUNTER              2
 

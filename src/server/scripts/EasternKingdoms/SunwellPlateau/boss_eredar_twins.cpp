@@ -24,6 +24,7 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "sunwell_plateau.h"
+#include "SpellInfo.h"
 
 enum Quotes
 {

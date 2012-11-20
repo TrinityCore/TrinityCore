@@ -29,6 +29,7 @@ EndScriptData */
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
 #include "onyxias_lair.h"
+#include "TemporarySummon.h"
 
 class instance_onyxias_lair : public InstanceMapScript
 {

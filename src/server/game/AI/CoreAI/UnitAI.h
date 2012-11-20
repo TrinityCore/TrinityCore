@@ -24,8 +24,9 @@
 #include "Containers.h"
 #include <list>
 
-class Unit;
 class Player;
+class Quest;
+class Unit;
 struct AISpellInfoType;
 
 // Default script texts

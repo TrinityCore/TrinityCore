@@ -19,6 +19,7 @@
 #include "ScriptedCreature.h"
 #include "forge_of_souls.h"
 #include "Player.h"
+#include "SpellInfo.h"
 
 /*
  * TODO:
