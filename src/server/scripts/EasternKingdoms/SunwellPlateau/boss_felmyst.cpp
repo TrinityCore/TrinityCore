@@ -32,7 +32,7 @@ EndScriptData */
 enum Yells
 {
     YELL_BIRTH                                    = 0,
-    YELL_KILL1                                    = 1,
+    YELL_KILL                                     = 1,
     YELL_BREATH                                   = 2,
     YELL_TAKEOFF                                  = 3,
     YELL_BERSERK                                  = 4,
