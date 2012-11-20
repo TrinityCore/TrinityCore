@@ -178,25 +178,6 @@ public:
         return true;
     }
 };
-class npc_guru_controller : public CreatureScript
-{
-public:
-    npc_guru_controller() : CreatureScript("npc_guru_controller") { }
-
-    bool OnGossipHello(Player *player, Creature *_creature)
-    {
-         
-        return true;
-    }
-
-
-    
-    bool OnGossipSelect(Player *player, Creature *_creature, uint32 sender, uint32 uiAction)
-    {
-        return true;
-    }
-};
-
 
 class npc_guru_paladin : public CreatureScript
 {
