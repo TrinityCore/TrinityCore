@@ -43,7 +43,6 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                 MistressOfPainCount = 0;
                 TributeToImmortalityElegible = true;
                 NeedSave = false;
-                EventNPCId = 0;
 
                 TirionFordringGUID = 0;
                 BarrentGUID = 0;
@@ -470,7 +469,7 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                 }
             }
 
-            uint64 GetData64(uint32 type)
+            uint64 GetData64(uint32 type) const
             {
                 switch (type)
                 {
@@ -521,7 +520,7 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                 return 0;
             }
 
-            uint32 GetData(uint32 type)
+            uint32 GetData(uint32 type) const
             {
                 switch (type)
                 {
@@ -575,7 +574,7 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                             case 6000:
                             case 6005:
                             case 6010:
-                                EventNPCId = NPC_TIRION;
+                                return NPC_TIRION;
                                 break;
                             case 5010:
                             case 5030:
@@ -584,7 +583,7 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                             case 5060:
                             case 5070:
                             case 5080:
-                                EventNPCId = NPC_LICH_KING_1;
+                                return NPC_LICH_KING_1;
                                 break;
                             case 120:
                             case 122:
@@ -593,7 +592,7 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                             case 3051:
                             case 3071:
                             case 4020:
-                                EventNPCId = NPC_VARIAN;
+                                return NPC_VARIAN;
                                 break;
                             case 130:
                             case 132:
@@ -602,7 +601,7 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                             case 3070:
                             case 3081:
                             case 4030:
-                                EventNPCId = NPC_GARROSH;
+                                return NPC_GARROSH;
                                 break;
                             case 1110:
                             case 1120:
@@ -614,13 +613,12 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                             case 1142:
                             case 1144:
                             case 1150:
-                                EventNPCId = NPC_FIZZLEBANG;
+                                return NPC_FIZZLEBANG;
                                 break;
                             default:
-                                EventNPCId = NPC_TIRION;
+                                return NPC_TIRION;
                                 break;
                         };
-                        return EventNPCId;
                     default:
                         break;
                 }
@@ -737,7 +735,6 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                 uint32 TrialCounter;
                 uint32 EventStage;
                 uint32 EventTimer;
-                uint32 EventNPCId;
                 uint32 NorthrendBeasts;
                 bool   NeedSave;
                 std::string SaveDataBuffer;

@@ -193,7 +193,7 @@ public:
                 State = data;
          }
 
-         uint32 GetData(uint32 type)
+         uint32 GetData(uint32 type) const
          {
             if (type == EVENT_STATE)
                 return State;

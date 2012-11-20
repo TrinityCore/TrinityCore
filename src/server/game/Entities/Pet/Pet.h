@@ -112,9 +112,9 @@ class Pet : public Guardian
         bool isControlled() const { return getPetType() == SUMMON_PET || getPetType() == HUNTER_PET; }
         bool isTemporarySummoned() const { return m_duration > 0; }
 
-        bool IsPermanentPetFor(Player* owner);              // pet have tab in character windows and set UNIT_FIELD_PETNUMBER
+        bool IsPermanentPetFor(Player* owner) const;        // pet have tab in character windows and set UNIT_FIELD_PETNUMBER
 
-        bool Create (uint32 guidlow, Map* map, uint32 phaseMask, uint32 Entry, uint32 pet_number);
+        bool Create(uint32 guidlow, Map* map, uint32 phaseMask, uint32 Entry, uint32 pet_number);
         bool CreateBaseAtCreature(Creature* creature);
         bool CreateBaseAtCreatureInfo(CreatureTemplate const* cinfo, Unit* owner);
         bool CreateBaseAtTamed(CreatureTemplate const* cinfo, Map* map, uint32 phaseMask);
@@ -142,9 +142,9 @@ class Pet : public Guardian
         void GivePetLevel(uint8 level);
         void SynchronizeLevelWithOwner();
         bool HaveInDiet(ItemTemplate const* item) const;
-        uint32 GetCurrentFoodBenefitLevel(uint32 itemlevel);
+        uint32 GetCurrentFoodBenefitLevel(uint32 itemlevel) const;
         void SetDuration(int32 dur) { m_duration = dur; }
-        int32 GetDuration() { return m_duration; }
+        int32 GetDuration() const { return m_duration; }
 
         /*
         bool UpdateStats(Stats stat);

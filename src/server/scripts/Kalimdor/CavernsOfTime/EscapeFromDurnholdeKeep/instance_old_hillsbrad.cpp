@@ -203,7 +203,7 @@ public:
             }
         }
 
-        uint32 GetData(uint32 data)
+        uint32 GetData(uint32 data) const
         {
             switch (data)
             {
@@ -223,7 +223,7 @@ public:
             return 0;
         }
 
-        uint64 GetData64(uint32 data)
+        uint64 GetData64(uint32 data) const
         {
             switch (data)
             {
