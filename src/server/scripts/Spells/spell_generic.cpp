@@ -3308,6 +3308,36 @@ class spell_pvp_trinket_wotf_shared_cd : public SpellScriptLoader
         }
 };
 
+class spell_gen_increase_stats_buff : public SpellScriptLoader
+{
+    public:
+        spell_gen_increase_stats_buff(char const* scriptName) : SpellScriptLoader(scriptName) { }
+
+        class spell_gen_increase_stats_buff_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_gen_increase_stats_buff_SpellScript);
+
+            void HandleDummy(SpellEffIndex /*effIndex*/)
+            {
+                if (GetHitUnit()->IsInRaidWith(GetCaster()))
+                    GetCaster()->CastSpell(GetCaster(), GetEffectValue() + 1, true); // raid buff
+                else
+                    GetCaster()->CastSpell(GetHitUnit(), GetEffectValue(), true); // single-target buff
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_gen_increase_stats_buff_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_gen_increase_stats_buff_SpellScript();
+        }
+};
+
+
 void AddSC_generic_spell_scripts()
 {
     new spell_gen_absorb0_hitlimit1();
@@ -3384,4 +3414,11 @@ void AddSC_generic_spell_scripts()
     new spell_gen_bonked();
     new spell_gen_gift_of_naaru();
     new spell_pvp_trinket_wotf_shared_cd();
+    new spell_gen_increase_stats_buff("spell_pal_blessing_of_kings");
+    new spell_gen_increase_stats_buff("spell_pal_blessing_of_might");
+    new spell_gen_increase_stats_buff("spell_dru_mark_of_the_wild");
+    new spell_gen_increase_stats_buff("spell_pri_power_word_fortitude");
+    new spell_gen_increase_stats_buff("spell_pri_shadow_protection");
+    new spell_gen_increase_stats_buff("spell_mage_arcane_brilliance");
+    new spell_gen_increase_stats_buff("spell_mage_dalaran_brilliance");
 }
