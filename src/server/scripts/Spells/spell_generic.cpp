@@ -23,17 +23,19 @@
  */
 
 #include "ScriptMgr.h"
-#include "SpellScript.h"
-#include "SpellAuraEffects.h"
-#include "SkillDiscovery.h"
+#include "Battleground.h"
 #include "Cell.h"
 #include "CellImpl.h"
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
-#include "InstanceScript.h"
 #include "Group.h"
+#include "InstanceScript.h"
 #include "LFGMgr.h"
-#include "Battleground.h"
+#include "Pet.h"
+#include "ReputationMgr.h"
+#include "SkillDiscovery.h"
+#include "SpellScript.h"
+#include "SpellAuraEffects.h"
 
 class spell_gen_absorb0_hitlimit1 : public SpellScriptLoader
 {

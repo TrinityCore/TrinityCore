@@ -22,12 +22,13 @@ Comment: All ticket related commands
 Category: commandscripts
 EndScriptData */
 
-#include "ScriptMgr.h"
-#include "Chat.h"
 #include "AccountMgr.h"
+#include "Chat.h"
+#include "Language.h"
 #include "ObjectMgr.h"
-#include "TicketMgr.h"
 #include "Player.h"
+#include "TicketMgr.h"
+#include "ScriptMgr.h"
 
 class ticket_commandscript : public CommandScript
 {

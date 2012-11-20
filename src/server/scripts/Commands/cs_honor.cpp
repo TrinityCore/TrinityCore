@@ -22,10 +22,11 @@ Comment: All honor related commands
 Category: commandscripts
 EndScriptData */
 
-#include "ScriptMgr.h"
-#include "ObjectMgr.h"
 #include "Chat.h"
+#include "Language.h"
+#include "ObjectMgr.h"
 #include "Player.h"
+#include "ScriptMgr.h"
 
 class honor_commandscript : public CommandScript
 {
