@@ -252,20 +252,17 @@ public:
             laugh = urand(15000, 30000);
         }
 
-        void EnterCombat(Unit* /*who*/) {}
-        void SaySound(int32 textEntry, Unit* target = 0)
+        void EnterCombat(Unit* /*who*/) { }
+
+        void SaySound(uint8 textEntry, Unit* target = 0)
         {
             if (target)
-            {
                 Talk(textEntry, target->GetGUID());
-            }
             else
-            {
                 Talk(textEntry);
-            }
+
             //DoCast(me, SPELL_HEAD_SPEAKS, true);
-            Creature* speaker = DoSpawnCreature(HELPER, 0, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN, 1000);
-            if (speaker)
+            if (Creature* speaker = DoSpawnCreature(HELPER, 0, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN, 1000))
                 speaker->CastSpell(speaker, SPELL_HEAD_SPEAKS, false);
             laugh += 3000;
         }
@@ -525,7 +522,7 @@ public:
             }
         }
 
-        void SaySound(int32 textEntry, Unit* target = 0)
+        void SaySound(uint8 textEntry, Unit* target = 0)
         {
             if (target)
                 Talk(textEntry, target->GetGUID());
