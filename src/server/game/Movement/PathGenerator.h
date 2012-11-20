@@ -32,8 +32,6 @@ class Unit;
 // 74*4.0f=296y  number_of_points*interval = max_path_len
 // this is way more than actual evade range
 // I think we can safely cut those down even more
-#define MAX_PATH_LENGTH         74
-#define MAX_POINT_PATH_LENGTH   74
 #define MAX_PATH_LENGTH         64
 #define MAX_POINT_PATH_LENGTH   64
 
