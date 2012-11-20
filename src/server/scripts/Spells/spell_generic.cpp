@@ -3432,7 +3432,7 @@ class spell_gen_feast_on : public SpellScriptLoader
                 int32 bp0 = GetSpellInfo()->Effects[EFFECT_0].CalcValue();
 
                 Unit* caster = GetCaster();
-                if (caster->IsVehicle())
+                if (caster->GetVehicleKit())
                     if (Unit* player = caster->GetVehicleKit()->GetPassenger(0))
                         caster->CastSpell(player, bp0, true, NULL, NULL, player->ToPlayer()->GetGUID());
             }
@@ -3587,7 +3587,7 @@ class spell_gen_on_plate_pilgrims_bounty : public SpellScriptLoader
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
                 Unit* caster = GetCaster();
-                if (caster->IsVehicle())
+                if (caster->GetVehicleKit())
                 {
                     Unit* player = caster->GetVehicleKit()->GetPassenger(0);
                     if (!player)
