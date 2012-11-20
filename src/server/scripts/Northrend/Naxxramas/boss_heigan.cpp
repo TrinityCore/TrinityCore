@@ -81,7 +81,7 @@ public:
                 safetyDance = data ? true : false;
         }
 
-        uint32 GetData(uint32 type)
+        uint32 GetData(uint32 type) const
         {
             if (type == DATA_SAFETY_DANCE)
                 return safetyDance ? 1 : 0;

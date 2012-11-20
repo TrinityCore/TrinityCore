@@ -110,7 +110,7 @@ class boss_anomalus : public CreatureScript
                     instance->SetData(DATA_ANOMALUS_EVENT, DONE);
             }
 
-            uint32 GetData(uint32 type)
+            uint32 GetData(uint32 type) const
             {
                 if (type == DATA_CHAOS_THEORY)
                     return chaosTheory ? 1 : 0;

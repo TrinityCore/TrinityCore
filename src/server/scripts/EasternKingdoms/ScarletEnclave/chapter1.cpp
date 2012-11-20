@@ -308,7 +308,7 @@ public:
                 prisonerGUID = guid;
         }
 
-        uint64 GetGUID(int32 /*id*/)
+        uint64 GetGUID(int32 /*id*/) const
         {
             return prisonerGUID;
         }

@@ -190,7 +190,7 @@ class boss_drakkari_colossus : public CreatureScript
                 }
             }
 
-            uint32 GetData(uint32 data)
+            uint32 GetData(uint32 data) const
             {
                if (data == DATA_COLOSSUS_PHASE)
                    return phase;

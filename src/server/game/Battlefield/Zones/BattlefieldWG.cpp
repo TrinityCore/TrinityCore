@@ -454,7 +454,7 @@ void BattlefieldWG::OnStartGrouping()
     SendWarningToAllInZone(BATTLEFIELD_WG_TEXT_WILL_START);
 }
 
-uint8 BattlefieldWG::GetSpiritGraveyardId(uint32 areaId)
+uint8 BattlefieldWG::GetSpiritGraveyardId(uint32 areaId) const
 {
     switch (areaId)
     {
@@ -802,7 +802,7 @@ void BattlefieldWG::OnPlayerEnterZone(Player* player)
     SendInitWorldStatesTo(player);
 }
 
-uint32 BattlefieldWG::GetData(uint32 data)
+uint32 BattlefieldWG::GetData(uint32 data) const
 {
     switch (data)
     {
@@ -813,8 +813,8 @@ uint32 BattlefieldWG::GetData(uint32 data)
         case AREA_WESTPARK_WORKSHOP:
         case AREA_EASTPARK_WORKSHOP:
             // Graveyards and Workshops are controlled by the same team.
-            if (m_GraveyardList[GetSpiritGraveyardId(data)])
-                return m_GraveyardList[GetSpiritGraveyardId(data)]->GetControlTeamId();
+            if (BfGraveyard const* graveyard = GetGraveyardById(GetSpiritGraveyardId(data)))
+                return graveyard->GetControlTeamId();
     }
 
     return Battlefield::GetData(data);
