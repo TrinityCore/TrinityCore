@@ -315,6 +315,22 @@ class achievement_not_even_a_scratch : public AchievementCriteriaScript
         }
 };
 
+class achievement_piligrims_peril : public AchievementCriteriaScript
+{
+	public:
+		achievement_piligrims_peril() : AchievementCriteriaScript("achievement_piligrims_peril") { }
+
+		bool OnCheck(Player* source, Unit* /*target*/)
+		{
+			if (source->HasItemOrGemWithIdEquipped(44785, 1) || source->HasItemOrGemWithIdEquipped(46824, 1) || source->HasItemOrGemWithIdEquipped(46800, 1))
+			{
+				return true;
+			}
+
+			return false;
+		}
+};
+
 void AddSC_achievement_scripts()
 {
     new achievement_resilient_victory();
@@ -333,4 +349,5 @@ void AddSC_achievement_scripts()
     new achievement_bg_sa_defense_of_ancients();
     new achievement_tilted();
     new achievement_not_even_a_scratch();
+    new achievement_piligrims_peril();
 }
