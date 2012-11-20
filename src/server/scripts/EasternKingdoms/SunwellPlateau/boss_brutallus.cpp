@@ -28,41 +28,37 @@ EndScriptData */
 
 enum Quotes
 {
- YELL_INTRO                 =   -1580017,
- YELL_INTRO_BREAK_ICE       =   -1580018,
- YELL_INTRO_CHARGE          =   -1580019,
- YELL_INTRO_KILL_MADRIGOSA  =   -1580020,
- YELL_INTRO_TAUNT           =   -1580021,
+    YELL_INTRO                          = 0,
+    YELL_INTRO_BREAK_ICE                = 1,
+    YELL_INTRO_CHARGE                   = 2,
+    YELL_INTRO_KILL_MADRIGOSA           = 3,
+    YELL_INTRO_TAUNT                    = 4,
 
- YELL_MADR_ICE_BARRIER      =   -1580031,
- YELL_MADR_INTRO            =   -1580032,
- YELL_MADR_ICE_BLOCK        =   -1580033,
- YELL_MADR_TRAP             =   -1580034,
- YELL_MADR_DEATH            =   -1580035,
+    YELL_AGGRO                          = 5,
+    YELL_KILL                           = 6,
+    YELL_LOVE                           = 7,
+    YELL_BERSERK                        = 8,
+    YELL_DEATH                          = 9,
 
- YELL_AGGRO                 =   -1580022,
- YELL_KILL1                 =   -1580023,
- YELL_KILL2                 =   -1580024,
- YELL_KILL3                 =   -1580025,
- YELL_LOVE1                 =   -1580026,
- YELL_LOVE2                 =   -1580027,
- YELL_LOVE3                 =   -1580028,
- YELL_BERSERK               =   -1580029,
- YELL_DEATH                 =   -1580030
+    YELL_MADR_ICE_BARRIER               = 0,
+    YELL_MADR_INTRO                     = 1,
+    YELL_MADR_ICE_BLOCK                 = 2,
+    YELL_MADR_TRAP                      = 3,
+    YELL_MADR_DEATH                     = 4,
 };
 
 enum Spells
 {
-    SPELL_METEOR_SLASH                 =   45150,
-    SPELL_BURN                         =   46394,
-    SPELL_STOMP                        =   45185,
-    SPELL_BERSERK                      =   26662,
-    SPELL_DUAL_WIELD                   =   42459,
+    SPELL_METEOR_SLASH                  = 45150,
+    SPELL_BURN                          = 46394,
+    SPELL_STOMP                         = 45185,
+    SPELL_BERSERK                       = 26662,
+    SPELL_DUAL_WIELD                    = 42459,
 
-    SPELL_INTRO_FROST_BLAST            =   45203,
-    SPELL_INTRO_FROSTBOLT              =   44843,
-    SPELL_INTRO_ENCAPSULATE            =   45665,
-    SPELL_INTRO_ENCAPSULATE_CHANELLING =   45661
+    SPELL_INTRO_FROST_BLAST             = 45203,
+    SPELL_INTRO_FROSTBOLT               = 44843,
+    SPELL_INTRO_ENCAPSULATE             = 45665,
+    SPELL_INTRO_ENCAPSULATE_CHANELLING  = 45661
 };
 
 #define FELMYST 25038
@@ -122,7 +118,7 @@ public:
 
         void EnterCombat(Unit* /*who*/)
         {
-            DoScriptText(YELL_AGGRO, me);
+            Talk(YELL_AGGRO);
 
             if (instance)
                 instance->SetData(DATA_BRUTALLUS_EVENT, IN_PROGRESS);
@@ -130,12 +126,12 @@ public:
 
         void KilledUnit(Unit* /*victim*/)
         {
-            DoScriptText(RAND(YELL_KILL1, YELL_KILL2, YELL_KILL3), me);
+            Talk(YELL_KILL);
         }
 
         void JustDied(Unit* /*killer*/)
         {
-            DoScriptText(YELL_DEATH, me);
+            Talk(YELL_DEATH);
 
             if (instance)
             {
@@ -199,19 +195,19 @@ public:
             switch (IntroPhase)
             {
                 case 0:
-                    DoScriptText(YELL_MADR_ICE_BARRIER, Madrigosa);
+                    Madrigosa->AI()->Talk(YELL_MADR_ICE_BARRIER);
                     IntroPhaseTimer = 7000;
                     ++IntroPhase;
                     break;
                 case 1:
                     me->SetInFront(Madrigosa);
                     Madrigosa->SetInFront(me);
-                    DoScriptText(YELL_MADR_INTRO, Madrigosa, me);
+                    Madrigosa->AI()->Talk(YELL_MADR_INTRO, me->GetGUID());
                     IntroPhaseTimer = 9000;
                     ++IntroPhase;
                     break;
                 case 2:
-                    DoScriptText(YELL_INTRO, me, Madrigosa);
+                    Talk(YELL_INTRO, Madrigosa->GetGUID());
                     IntroPhaseTimer = 13000;
                     ++IntroPhase;
                     break;
@@ -225,32 +221,32 @@ public:
                     ++IntroPhase;
                     break;
                 case 4:
-                    DoScriptText(YELL_INTRO_BREAK_ICE, me);
+                    Talk(YELL_INTRO_BREAK_ICE);
                     IntroPhaseTimer = 6000;
                     ++IntroPhase;
                     break;
                 case 5:
                     Madrigosa->CastSpell(me, SPELL_INTRO_ENCAPSULATE_CHANELLING, false);
-                    DoScriptText(YELL_MADR_TRAP, Madrigosa);
+                    Madrigosa->AI()->Talk(YELL_MADR_TRAP);
                     DoCast(me, SPELL_INTRO_ENCAPSULATE);
                     IntroPhaseTimer = 11000;
                     ++IntroPhase;
                     break;
                 case 6:
-                    DoScriptText(YELL_INTRO_CHARGE, me);
+                    Talk(YELL_INTRO_CHARGE);
                     IntroPhaseTimer = 5000;
                     ++IntroPhase;
                     break;
                 case 7:
                     me->Kill(Madrigosa);
-                    DoScriptText(YELL_MADR_DEATH, Madrigosa);
+                    Madrigosa->AI()->Talk(YELL_MADR_DEATH);
                     me->SetFullHealth();
                     me->AttackStop();
                     IntroPhaseTimer = 4000;
                     ++IntroPhase;
                     break;
                 case 8:
-                    DoScriptText(YELL_INTRO_KILL_MADRIGOSA, me);
+                    Talk(YELL_INTRO_KILL_MADRIGOSA);
                     me->SetOrientation(0.14f);
                     me->StopMoving();
                     Madrigosa->setDeathState(CORPSE);
@@ -258,7 +254,7 @@ public:
                     ++IntroPhase;
                     break;
                 case 9:
-                    DoScriptText(YELL_INTRO_TAUNT, me);
+                    Talk(YELL_INTRO_TAUNT);
                     IntroPhaseTimer = 5000;
                     ++IntroPhase;
                     break;
@@ -316,7 +312,7 @@ public:
 
             if (StompTimer <= diff)
             {
-                DoScriptText(RAND(YELL_LOVE1, YELL_LOVE2, YELL_LOVE3), me);
+                Talk(YELL_LOVE);
                 DoCast(me->getVictim(), SPELL_STOMP);
                 StompTimer = 30000;
             } else StompTimer -= diff;
@@ -336,7 +332,7 @@ public:
 
             if (BerserkTimer < diff && !Enraged)
             {
-                DoScriptText(YELL_BERSERK, me);
+                Talk(YELL_BERSERK);
                 DoCast(me, SPELL_BERSERK);
                 Enraged = true;
             } else BerserkTimer -= diff;
