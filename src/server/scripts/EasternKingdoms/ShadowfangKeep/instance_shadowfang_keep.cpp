@@ -23,6 +23,7 @@ SDComment:
 SDCategory: Shadowfang Keep
 EndScriptData */
 
+#include "ScriptedCreature.h"
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
 #include "shadowfang_keep.h"

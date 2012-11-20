@@ -528,13 +528,9 @@ public:
         void SaySound(int32 textEntry, Unit* target = 0)
         {
             if (target)
-            {
                 Talk(textEntry, target->GetGUID());
-            }
             else
-            {
                 Talk(textEntry);
-            }
             laugh += 4000;
         }
 
