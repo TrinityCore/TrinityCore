@@ -117,7 +117,7 @@ class boss_faerlina : public CreatureScript
                 }
             }
 
-            uint32 GetData(uint32 type)
+            uint32 GetData(uint32 type) const
             {
                 if (type == DATA_FRENZY_DISPELS)
                     return _frenzyDispels;

@@ -75,6 +75,7 @@ public:
                 uint32 size = instance->GetData(DATA_FEL_CRYSTAL_SIZE);
                 for (uint8 i = 0; i < size; ++i)
                 {
+                    instance->SetData64(DATA_FEL_CRYSTAL, i);
                     uint64 guid = instance->GetData64(DATA_FEL_CRYSTAL);
                     sLog->outDebug(LOG_FILTER_TSCR, "Selin: Adding Fel Crystal " UI64FMTD " to list", guid);
                     Crystals.push_back(guid);

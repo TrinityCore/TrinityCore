@@ -536,21 +536,15 @@ class boss_professor_putricide : public CreatureScript
                 }
             }
 
-            uint32 GetData(uint32 type)
+            uint32 GetData(uint32 type) const
             {
                 switch (type)
                 {
                     case DATA_EXPERIMENT_STAGE:
-                    {
-                        // ALSO MODIFIES!
-                        uint32 ret = uint32(_experimentState);
-                        _experimentState ^= true;
-                        return ret;
-                    }
+                        return _experimentState;
                     case DATA_PHASE:
                         return _phase;
                     case DATA_ABOMINATION:
-                        summons.RemoveNotExisting();
                         return uint32(summons.HasEntry(NPC_MUTATED_ABOMINATION_10) || summons.HasEntry(NPC_MUTATED_ABOMINATION_25));
                     default:
                         break;
@@ -1010,7 +1004,11 @@ class spell_putricide_unstable_experiment : public SpellScriptLoader
                 if (GetCaster()->GetTypeId() != TYPEID_UNIT)
                     return;
 
-                uint32 stage = GetCaster()->ToCreature()->AI()->GetData(DATA_EXPERIMENT_STAGE);
+                Creature* creature = GetCaster()->ToCreature();
+
+                uint32 stage = creature->AI()->GetData(DATA_EXPERIMENT_STAGE);
+                creature->AI()->SetData(DATA_EXPERIMENT_STAGE, !stage);
+
                 Creature* target = NULL;
                 std::list<Creature*> creList;
                 GetCreatureListWithEntryInGrid(creList, GetCaster(), NPC_ABOMINATION_WING_MAD_SCIENTIST_STALKER, 200.0f);

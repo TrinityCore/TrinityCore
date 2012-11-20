@@ -174,7 +174,7 @@ public:
                 SaveToDB();
         }
 
-        uint32 GetData(uint32 uiType)
+        uint32 GetData(uint32 uiType) const
         {
             switch (uiType)
             {
@@ -190,7 +190,7 @@ public:
             return 0;
         }
 
-        uint64 GetData64(uint32 uiData)
+        uint64 GetData64(uint32 uiData) const
         {
             switch (uiData)
             {

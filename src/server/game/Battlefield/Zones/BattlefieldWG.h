@@ -410,9 +410,9 @@ class BattlefieldWG : public Battlefield
         bool FindAndRemoveVehicleFromList(Unit* vehicle);
 
         // returns the graveyardId in the specified area.
-        uint8 GetSpiritGraveyardId(uint32 areaId);
+        uint8 GetSpiritGraveyardId(uint32 areaId) const;
 
-        uint32 GetData(uint32 data);
+        uint32 GetData(uint32 data) const;
 
     protected:
         bool m_isRelicInteractible;
