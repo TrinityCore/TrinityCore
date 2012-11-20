@@ -3145,8 +3145,8 @@ void AuraEffect::HandleModPossessPet(AuraApplication const* aurApp, uint8 mode, 
         {
             // Reinitialize the pet bar and make the pet come back to the owner
             caster->ToPlayer()->PetSpellInitialize();
-			// Follow owner only if not fighting or owner didn't click "stay" at new location
-            if (!pet->getVictim() && !pet->GetCharmInfo()->HasCommandState(COMMAND_STATE_STAY))
+           // Follow owner only if not fighting or owner didn't click "stay" at new location
+            if (!pet->getVictim() && !pet->GetCharmInfo()->HasCommandState(COMMAND_STAY))
             {
                 pet->GetMotionMaster()->MoveFollow(caster, PET_FOLLOW_DIST, pet->GetFollowAngle());
                 //if (target->GetCharmInfo())
