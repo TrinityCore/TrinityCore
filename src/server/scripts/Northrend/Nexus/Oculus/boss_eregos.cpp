@@ -117,7 +117,7 @@ public:
                 _amberVoid = false;
         }
 
-        uint32 GetData(uint32 type)
+        uint32 GetData(uint32 type) const
         {
            switch (type)
            {

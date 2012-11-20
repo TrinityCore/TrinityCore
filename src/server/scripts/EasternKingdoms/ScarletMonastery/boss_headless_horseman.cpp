@@ -21,6 +21,8 @@
 #include "SpellMgr.h"
 #include "scarlet_monastery.h"
 #include "LFGMgr.h"
+#include "Player.h"
+#include "SpellInfo.h"
 
 enum Yells
 {

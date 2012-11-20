@@ -244,7 +244,7 @@ class boss_festergut : public CreatureScript
                     _maxInoculatedStack = data;
             }
 
-            uint32 GetData(uint32 type)
+            uint32 GetData(uint32 type) const
             {
                 if (type == DATA_INOCULATED_STACK)
                     return uint32(_maxInoculatedStack);

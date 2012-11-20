@@ -5,16 +5,16 @@ UPDATE `creature_template` SET `VehicleId`=220,`spell1`=56091,`spell2`=56092,`sp
 UPDATE `creature_template` SET `VehicleId`=224,`faction_A`=35,`faction_H`=35,`InhabitType`=5 WHERE `entry` IN (31749,31748);
 -- spawn the focusing iris 25men
 DELETE FROM gameobject WHERE id IN (193960);
-INSERT INTO `gameobject` 
+INSERT INTO `gameobject`
 (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`position_x`,`position_y`,`position_z`,`orientation`,`rotation0`,`rotation1`,`rotation2`,`rotation3`,`spawntimesecs`,`animprogress`,`state`) VALUES
-(361,193960,616,2,1,754.362,1301.61,266.171,6.23742,0,0,0.022883,-0.999738,300,0,1); 
+(361,193960,616,2,1,754.362,1301.61,266.171,6.23742,0,0,0.022883,-0.999738,300,0,1);
 -- ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- The Heart of the Storm (Issue 1959)
 DELETE FROM `gameobject` WHERE `id`=192181;
 INSERT INTO `gameobject` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`position_x`,`position_y`,`position_z`,`orientation`,`rotation0`,`rotation1`,`rotation2`,`rotation3`,`spawntimesecs`,`animprogress`,`state`) VALUES
 (362,192181,571,1,1,7308.945,-727.9163,791.6083,1.53589,0,0,0.690772,0.723073,30,100,1);
 -- ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
--- Add support for {Q} Corrupted Sabers ID: 4506 (Issue 2297) 
+-- Add support for {Q} Corrupted Sabers ID: 4506 (Issue 2297)
 SET @CommonKitten:=9937;
 SET @CorruptedKitten :=9936;
 SET @SGossip :=55002; -- Gossip for Kitten when near quest giver
@@ -39,7 +39,7 @@ INSERT INTO `gossip_menu_option` (`menu_id`,`id`,`option_icon`,`option_text`,`op
 (@SGossip,1,0,'I want to release the saber to Winna.',1,131,0);
 -- Only show gossip if near Winna
 DELETE FROM `conditions` WHERE `SourceGroup`=@SGOSSIP AND `SourceTypeOrReferenceId`=15;
-INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,`ElseGroup`,`ConditionTypeOrReference`,`ConditionTarget`,`ConditionValue1`,`ConditionValue2`,`ConditionValue3`,`NegativeCondition`,`ErrorTextId`,`ScriptName`,`Comment`) VALUES 
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,`ElseGroup`,`ConditionTypeOrReference`,`ConditionTarget`,`ConditionValue1`,`ConditionValue2`,`ConditionValue3`,`NegativeCondition`,`ErrorTextId`,`ScriptName`,`Comment`) VALUES
 (15,@SGOSSIP,1,0,29,1,@Winna,5,0,0,0,'','Only show second gossip Corrupted Saber is near Wina in 5 yards');
 -- ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- Fix for Prepping the Speech by Gecko32 (Issue 2399)
@@ -152,7 +152,7 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
 UPDATE `vehicle_template_accessory` SET `minion`=1 WHERE `entry`=32189 AND `seat_id`=0;
 -- Add conditions for spell to target only alive Recons
 DELETE FROM `conditions` WHERE `SourceEntry`=@Spell and `SourceTypeOrReferenceId`=17;
-INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,`SourceId`,`ElseGroup`,`ConditionTypeOrReference`,`ConditionTarget`,`ConditionValue1`,`ConditionValue2`,`ConditionValue3`,`NegativeCondition`,`ErrorTextId`,`ScriptName`,`Comment`) VALUES 
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,`SourceId`,`ElseGroup`,`ConditionTypeOrReference`,`ConditionTarget`,`ConditionValue1`,`ConditionValue2`,`ConditionValue3`,`NegativeCondition`,`ErrorTextId`,`ScriptName`,`Comment`) VALUES
 (17,0,@Spell,0,0,36,1,0,0,0,0,0,'','Fire SGM-3 can hit only alive Recon Fighter'),
 (17,0,@Spell,0,0,31,1,3,@ReconFighter,0,0,0,'','Fire SGM-3 can hit Recon Fighter');
 -- Keeping the Alliance Blind ID: 13331 quest requirements
@@ -163,11 +163,11 @@ UPDATE `quest_template` SET `PrevQuestId`=13313 WHERE `Id`=13331;
 UPDATE `creature_loot_template` SET `ChanceOrQuestChance` = ABS(`ChanceOrQuestChance`) WHERE `item`=38303;
 -- Add gossip menu option
 DELETE FROM `gossip_menu_option` WHERE `menu_id`=9615 AND `id`=1;
-INSERT INTO `gossip_menu_option` (`menu_id`,`id`,`option_icon`,`option_text`,`option_id`,`npc_option_npcflag`,`action_menu_id`,`action_poi_id`,`box_coded`,`box_money`,`box_text`) VALUES 
+INSERT INTO `gossip_menu_option` (`menu_id`,`id`,`option_icon`,`option_text`,`option_id`,`npc_option_npcflag`,`action_menu_id`,`action_poi_id`,`box_coded`,`box_money`,`box_text`) VALUES
 (9615,1,0,'I need another of your elixirs, Drakuru.',1,1,0,0,0,0,'');
 -- Add Conditions for Gossip
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=15 AND `SourceGroup`=9615 AND `SourceEntry`=1;
-INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,`SourceId`,`ElseGroup`,`ConditionTypeOrReference`,`ConditionTarget`,`ConditionValue1`,`ConditionValue2`,`ConditionValue3`,`NegativeCondition`,`ErrorTextId`,`ScriptName`,`Comment`) VALUES 
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,`SourceId`,`ElseGroup`,`ConditionTypeOrReference`,`ConditionTarget`,`ConditionValue1`,`ConditionValue2`,`ConditionValue3`,`NegativeCondition`,`ErrorTextId`,`ScriptName`,`Comment`) VALUES
 (15,9615,1,0,1,2,0,35797,1,0,1,0,'','Drakuru''s Elixir - Must not already have item'),
 (15,9615,1,0,1,28,0,11991,0,0,0,0,'','Drakuru''s Elixir - Must have quest Subject to Interpretation'),
 (15,9615,1,0,2,2,0,35797,1,0,1,0,'','Drakuru''s Elixir - Must not already have item'),
@@ -180,16 +180,16 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,
 (15,9615,1,0,5,28,0,12238,0,0,0,0,'','Drakuru''s Elixir - Must have quest Cleansing Drak''Tharon');
 -- Add SmartAI to give item
 DELETE FROM `smart_scripts` WHERE `entryorguid`=26423 AND `id` IN (2,3);
-INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES 
+INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
 (26423,0,2,3,62,0,100,0,9615,1,0,0,11,50021,2,0,0,0,0,7,0,0,0,0,0,0,0,'Drakuru - On gossip option select - cast Replace Drakuru''s Elixir'),
 (26423,0,3,0,61,0,100,0,0,0,0,0,72,0,0,0,0,0,0,7,0,0,0,0,0,0,0,'Drakuru - On gossip option select - close gossip');
 -- Add TEMP Drakuru's Brazier In Drak'tharon Keep
 DELETE FROM `gameobject` WHERE `guid`=364;
-INSERT INTO `gameobject` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`position_x`,`position_y`,`position_z`,`orientation`,`rotation0`,`rotation1`,`rotation2`,`rotation3`,`spawntimesecs`,`animprogress`,`state`) VALUES 
+INSERT INTO `gameobject` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`position_x`,`position_y`,`position_z`,`orientation`,`rotation0`,`rotation1`,`rotation2`,`rotation3`,`spawntimesecs`,`animprogress`,`state`) VALUES
 (364,300188,600,3,1,-236.766,-614.774,116.487,1.5708,0,0,0,1,300,100,1);
 -- Conditions for spell Target
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceEntry`=47110;
-INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,`SourceId`,`ElseGroup`,`ConditionTypeOrReference`,`ConditionTarget`,`ConditionValue1`,`ConditionValue2`,`ConditionValue3`,`NegativeCondition`,`ErrorTextId`,`ScriptName`,`Comment`) VALUES 
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,`SourceId`,`ElseGroup`,`ConditionTypeOrReference`,`ConditionTarget`,`ConditionValue1`,`ConditionValue2`,`ConditionValue3`,`NegativeCondition`,`ErrorTextId`,`ScriptName`,`Comment`) VALUES
 (13,1,47110,0,1,31,0,3,26498,0,0,0,'',NULL),-- Drakuru's Bunny 01
 (13,1,47110,0,2,31,0,3,26559,0,0,0,'',NULL),-- Drakuru's Bunny 02
 (13,1,47110,0,3,31,0,3,26700,0,0,0,'',NULL),-- Drakuru's Bunny 03
@@ -198,7 +198,7 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,
 -- Add Smart AI Drakuru Bunny
 UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry` IN (26498,26559,26700,26789,28015);
 DELETE FROM `smart_scripts` WHERE `entryorguid` IN (26498,26559,26700,26789,28015);
-INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES 
+INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
 (26498,0,0,0,8,0,100,0,47110,0,0,0,12,26500,3,50000,0,0,0,8,0,0,0,3386.26,-1805.32,114.909,4.945,'Drakuru Bunny 01- On Spellhit - Summmon Image of Drakuru'),
 (26559,0,0,0,8,0,100,0,47110,0,0,0,12,26543,3,50000,0,0,0,8,0,0,0,4243.98,-2025.08,238.248,1.431,'Drakuru Bunny 02- On Spellhit - Summmon Image of Drakuru'),
 (26700,0,0,0,8,0,100,0,47110,0,0,0,12,26701,3,50000,0,0,0,8,0,0,0,4523.94,-3472.9,228.393,-0.803,'Drakuru Bunny 03- On Spellhit - Summmon Image of Drakuru'),
@@ -218,47 +218,47 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
 SET @INNKEEPER=6740;
 SET @QUEST=8356;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=@INNKEEPER AND `id`=2;
-INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES 
+INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
 (@INNKEEPER,0,2,0,22,0,100,0,41,0,0,0,33,@INNKEEPER,0,0,0,0,0,7,0,0,0,0,0,0,0,'Innkeeper Allison - on /flex credit for quest');
 DELETE FROM `conditions` WHERE `SourceEntry`=@QUEST;
-INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,`ElseGroup`,`ConditionTypeOrReference`,`ConditionValue1`,`ConditionValue2`,`ConditionValue3`,`ErrorTextId`,`ScriptName`,`Comment`) VALUES 
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,`ElseGroup`,`ConditionTypeOrReference`,`ConditionValue1`,`ConditionValue2`,`ConditionValue3`,`ErrorTextId`,`ScriptName`,`Comment`) VALUES
 (19,0,@QUEST,0,12,12,0,0,0,'',NULL);
 -- Chicken Clucking for a Mint (Alliance)
 SET @INNKEEPER=5111;
 SET @QUEST=8353;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=@INNKEEPER AND `id`=2;
-INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES 
+INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
 (@INNKEEPER,0,2,0,22,0,100,0,22,0,0,0,33,@INNKEEPER,0,0,0,0,0,7,0,0,0,0,0,0,0,'Innkeeper Firebrew - on /chicken credit for quest');
 DELETE FROM `conditions` WHERE `SourceEntry`=@QUEST;
-INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,`ElseGroup`,`ConditionTypeOrReference`,`ConditionValue1`,`ConditionValue2`,`ConditionValue3`,`ErrorTextId`,`ScriptName`,`Comment`) VALUES 
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,`ElseGroup`,`ConditionTypeOrReference`,`ConditionValue1`,`ConditionValue2`,`ConditionValue3`,`ErrorTextId`,`ScriptName`,`Comment`) VALUES
 (19,0,@QUEST,0,12,12,0,0,0,'',NULL);
 -- Dancing for Marzipan (Alliance)
 SET @INNKEEPER=6735;
 SET @QUEST=8357;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=@INNKEEPER AND `id`=2;
-INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES 
+INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
 (@INNKEEPER,0,2,0,22,0,100,0,34,0,0,0,33,@INNKEEPER,0,0,0,0,0,7,0,0,0,0,0,0,0,'Innkeeper Saelienne - on /dance credit for quest');
 DELETE FROM `conditions` WHERE `SourceEntry`=@QUEST;
-INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,`ElseGroup`,`ConditionTypeOrReference`,`ConditionValue1`,`ConditionValue2`,`ConditionValue3`,`ErrorTextId`,`ScriptName`,`Comment`) VALUES 
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,`ElseGroup`,`ConditionTypeOrReference`,`ConditionValue1`,`ConditionValue2`,`ConditionValue3`,`ErrorTextId`,`ScriptName`,`Comment`) VALUES
 (19,0,@QUEST,0,12,12,0,0,0,'',NULL);
 -- Incoming Gumdrop (Alliance)
 SET @INNKEEPER=6826;
 SET @QUEST=8355;
 UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=@INNKEEPER;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=@INNKEEPER;
-INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES 
+INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
 (@INNKEEPER,0,0,0,22,0,100,0,264,0,0,0,33,@INNKEEPER,0,0,0,0,0,7,0,0,0,0,0,0,0,'Talvash del Kissel - on /train credit for quest');
 DELETE FROM `conditions` WHERE `SourceEntry`=@QUEST;
-INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,`ElseGroup`,`ConditionTypeOrReference`,`ConditionValue1`,`ConditionValue2`,`ConditionValue3`,`ErrorTextId`,`ScriptName`,`Comment`) VALUES 
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,`ElseGroup`,`ConditionTypeOrReference`,`ConditionValue1`,`ConditionValue2`,`ConditionValue3`,`ErrorTextId`,`ScriptName`,`Comment`) VALUES
 (19,0,@QUEST,0,12,12,0,0,0,'',NULL);
 -- Flexing for Nougat (Horde)
 SET @INNKEEPER=6929;
 SET @QUEST=8359;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=@INNKEEPER AND `id`=2;
-INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES 
+INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
 (@INNKEEPER,0,2,0,22,0,100,0,41,0,0,0,33,@INNKEEPER,0,0,0,0,0,7,0,0,0,0,0,0,0,'Innkeeper Gryshka - on /flex credit for quest');
 DELETE FROM `conditions` WHERE `SourceEntry`=@QUEST;
-INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,`ElseGroup`,`ConditionTypeOrReference`,`ConditionValue1`,`ConditionValue2`,`ConditionValue3`,`ErrorTextId`,`ScriptName`,`Comment`) VALUES 
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,`ElseGroup`,`ConditionTypeOrReference`,`ConditionValue1`,`ConditionValue2`,`ConditionValue3`,`ErrorTextId`,`ScriptName`,`Comment`) VALUES
 (19,0,@QUEST,0,12,12,0,0,0,'',NULL);
 -- Chicken Clucking for a Mint (Horde)
 SET @INNKEEPER=6741;
@@ -266,7 +266,7 @@ SET @QUEST=8354;
 -- SAI
 UPDATE `smart_scripts` SET `link`=3 WHERE `entryorguid`=@INNKEEPER AND `id`=2;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=@INNKEEPER AND `id`=3;
-INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES 
+INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
 (@INNKEEPER,0,3,0,61,0,100,0,0,0,0,0,15,@QUEST,0,0,0,0,0,7,0,0,0,0,0,0,0,'Innkeeper Norman - Link - exploreded for quest');
 -- conditions
 DELETE FROM `conditions` WHERE `SourceEntry`=@QUEST;
@@ -285,14 +285,14 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
 (@INNKEEPER,0,2,0,22,0,100,0,34,0,0,0,33,@INNKEEPER,0,0,0,0,0,7,0,0,0,0,0,0,0,'Innkeeper Pala - on /dance credit for quest');
 -- Add gossip menu option for trick or treat
 DELETE FROM `gossip_menu_option` WHERE `menu_id`=@GOSSIP;
-INSERT INTO `gossip_menu_option` (`menu_id`,`id`,`option_icon`,`option_text`,`option_id`,`npc_option_npcflag`,`action_menu_id`,`action_poi_id`,`box_coded`,`box_money`,`box_text`) VALUES 
+INSERT INTO `gossip_menu_option` (`menu_id`,`id`,`option_icon`,`option_text`,`option_id`,`npc_option_npcflag`,`action_menu_id`,`action_poi_id`,`box_coded`,`box_money`,`box_text`) VALUES
 (@GOSSIP,1,5,'Make this inn your home.',8,65536,0,0,0,0,''),
 (@GOSSIP,2,1,'I want to browse your goods',3,128,0,0,0,0,''),
 (@GOSSIP,0,0,'Trick or Treat!',1,1,0,0,0,0,'');
 -- Add conditions must be hallows end for Dancing for Marzipan quest and trick or treat option
 DELETE FROM `conditions` WHERE `SourceEntry`=@QUEST;
 DELETE FROM `conditions` WHERE `SourceGroup`=@GOSSIP;
-INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,`ElseGroup`,`ConditionTypeOrReference`,`ConditionValue1`,`ConditionValue2`,`ConditionValue3`,`ErrorTextId`,`ScriptName`,`Comment`) VALUES 
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,`ElseGroup`,`ConditionTypeOrReference`,`ConditionValue1`,`ConditionValue2`,`ConditionValue3`,`ErrorTextId`,`ScriptName`,`Comment`) VALUES
 (19,0,@QUEST,0,12,12,0,0,0,'',NULL),
 (15,@GOSSIP,0,0,12,12,0,0,0,'',NULL);
 -- Incoming Gumdrop (Horde)
@@ -300,8 +300,8 @@ SET @INNKEEPER=11814;
 SET @QUEST=8358;
 UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=@INNKEEPER;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=@INNKEEPER;
-INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES 
+INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
 (@INNKEEPER,0,0,0,22,0,100,0,264,0,0,0,33,@INNKEEPER,0,0,0,0,0,7,0,0,0,0,0,0,0,'Kali Remik - on /train credit for quest');
 DELETE FROM `conditions` WHERE `SourceEntry`=@QUEST;
-INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,`ElseGroup`,`ConditionTypeOrReference`,`ConditionValue1`,`ConditionValue2`,`ConditionValue3`,`ErrorTextId`,`ScriptName`,`Comment`) VALUES 
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,`ElseGroup`,`ConditionTypeOrReference`,`ConditionValue1`,`ConditionValue2`,`ConditionValue3`,`ErrorTextId`,`ScriptName`,`Comment`) VALUES
 (19,0,@QUEST,0,12,12,0,0,0,'',NULL);

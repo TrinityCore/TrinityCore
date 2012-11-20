@@ -27,6 +27,7 @@ EndScriptData */
 #include "ScriptedEscortAI.h"
 #include "Vehicle.h"
 #include "trial_of_the_champion.h"
+#include "Player.h"
 
 enum eSpells
 {

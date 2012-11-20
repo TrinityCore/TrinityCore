@@ -114,7 +114,7 @@ INSERT INTO `reference_loot_template` (`entry`,`item`,`ChanceOrQuestChance`,`loo
 (@Auriaya25Ref,45436,0,1,1,1,1); -- Libram of the Resolute
 
 -- ---------------------------
--- -- ASSIGN CREATURE LOOTS -- 
+-- -- ASSIGN CREATURE LOOTS --
 -- ---------------------------
 UPDATE `creature_template` SET `lootid`=`entry` WHERE `entry` IN (@Brundir10,@Molgeim10,@Steelbreaker10,@Brundir25,@Molgeim25,@Steelbreaker25,@Auriaya10,@Auriaya25);
 DELETE FROM `creature_loot_template` WHERE `entry` IN (@Brundir10,@Molgeim10,@Steelbreaker10,@Brundir25,@Molgeim25,@Steelbreaker25);
@@ -132,7 +132,7 @@ INSERT INTO `creature_loot_template` (`entry`,`item`,`ChanceOrQuestChance`,`loot
 (@Steelbreaker10,1,100,1,0,-@Assembly10Ref,2), -- 2 items from reference loot
 (@Steelbreaker10,47241,100,1,0,2,2), -- 2 Emblem of Triumph
 (@Steelbreaker10,45087,75,1,0,1,1), -- Runed Orb
-(@Steelbreaker10,45506,100,1,0,1,1), -- Archivum Data Disc for Quest 
+(@Steelbreaker10,45506,100,1,0,1,1), -- Archivum Data Disc for Quest
 (@Steelbreaker10,25455,0,1,1,1,1), -- Belt fo the Crystal Tree
 (@Steelbreaker10,45447,0,1,1,1,1), -- Watchful Eye of Fate
 (@Steelbreaker10,45456,0,1,1,1,1), -- Loop of the Agile

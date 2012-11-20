@@ -1524,7 +1524,7 @@ class boss_sara : public CreatureScript
                 {
                     if (emote == TEXT_EMOTE_KISS)
                     {
-                        if (pPlayer->GetAchievementMgr().HasAchieved(RAID_MODE(ACHIEVMENT_KISS_AND_MAKE_UP_10, ACHIEVMENT_KISS_AND_MAKE_UP_25)))
+                        if (pPlayer->HasAchieved(RAID_MODE(ACHIEVMENT_KISS_AND_MAKE_UP_10, ACHIEVMENT_KISS_AND_MAKE_UP_25)))
                             return;
 
                         if (me->IsWithinLOS(pPlayer->GetPositionX(), pPlayer->GetPositionY(), pPlayer->GetPositionZ()) && me->IsWithinDistInMap(pPlayer, 30.0f))

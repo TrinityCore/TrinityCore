@@ -10,7 +10,7 @@ SET @Yogg10Ref := @Vezax10Ref+2;
 SET @Yogg25Ref := @Vezax10Ref+3;
 SET @Chest := 12034;
 SET @Shoulder := 12035;
-SET @EmblemRef := 34349; 
+SET @EmblemRef := 34349;
 SET @Recipe := 34154;
 SET @Vezax10 := 33271;
 SET @Vezax25 := 33449;
@@ -109,18 +109,18 @@ INSERT INTO `creature_loot_template` (`entry`,`item`,`ChanceOrQuestChance`,`loot
 -- ----------------------------------------------------------
 -- Yogg Saron
 -- ----------------------------------------------------------
--- 10 man 
+-- 10 man
 -- All modes
 (@Yogg10,1,100,31,0,-@Yogg10Ref,1), -- 1x Normal Loot item for modes 0&1&2&3&4
 (@Yogg10,2,100,31,0,-@Chest,1), -- 1x Tier token for modes 0&1&2&3&4
 (@Yogg10,47241,100,31,0,1,1), -- 1x Emblem of Triumph for modes 0&1&2&3&4
 -- Extra for <3 watchers
-(@Yogg10,3,100,30,0,-@EmblemRef,1), -- additional Emblem for modes2&3 
+(@Yogg10,3,100,30,0,-@EmblemRef,1), -- additional Emblem for modes2&3
 -- Extra for <2 watchers
 (@Yogg10,4,100,28,0,-34350,1), -- Runed Orb for 0&1&2
 (@Yogg10,5,10,28,0,-@Recipe,1), -- Chance on Recipe for 0&1&2
 -- Extra for <1 watchers
-(@Yogg10,6,100,24,0,-@EmblemRef,1), -- additional Emblem for 0&1 
+(@Yogg10,6,100,24,0,-@EmblemRef,1), -- additional Emblem for 0&1
 (@Yogg10,7,100,24,0,-@Recipe,1), -- Garanteed Recipe for 0&1
 -- Hardmode 10 loot
 (@Yogg10,46067,0,24,1,1,1), -- Hammer of Crushing Whispers
@@ -143,7 +143,7 @@ INSERT INTO `creature_loot_template` (`entry`,`item`,`ChanceOrQuestChance`,`loot
 -- Extra for <2 watchers
 (@Yogg25,6,100,28,0,-34350,1), -- Runed Orb for 0&1&2
 -- Extra for <1 watchers
-(@Yogg25,7,100,24,0,-@EmblemRef,1), -- additional Emblem for 0&1 
+(@Yogg25,7,100,24,0,-@EmblemRef,1), -- additional Emblem for 0&1
 (@Yogg25,8,100,24,0,-@Recipe,1), -- Garanteed Recipe for 0&1
 -- Hardmode 25 loot
 (@Yogg25,45533,0,24,1,1,1), -- Dark Edge of Depravity

@@ -29,7 +29,7 @@ UPDATE `creature_template` SET `mechanic_immune_mask`=`mechanic_immune_mask`|1|2
 37226,-- Wrath of the Lich King
 -- Pit of Saron:
 36494,-- Forgemaster Garfrost
-37613,-- Forgemaster Garfrost (1) 
+37613,-- Forgemaster Garfrost (1)
 36476,-- Ick
 37627,-- Ick (1)
 36477,-- Krick

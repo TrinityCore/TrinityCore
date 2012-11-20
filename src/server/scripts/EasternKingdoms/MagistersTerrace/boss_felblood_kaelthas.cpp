@@ -27,6 +27,7 @@ EndScriptData */
 #include "ScriptedCreature.h"
 #include "magisters_terrace.h"
 #include "WorldPacket.h"
+#include "Opcodes.h"
 
 #define SAY_AGGRO                   -1585023                //This yell should be done when the room is cleared. For now, set it as a movelineofsight yell.
 #define SAY_PHOENIX                 -1585024
@@ -140,12 +141,7 @@ public:
             Phase = 0;
 
             if (instance)
-            {
                 instance->SetData(DATA_KAELTHAS_EVENT, NOT_STARTED);
-                instance->HandleGameObject(instance->GetData64(DATA_KAEL_DOOR), true);
-               // Open the big encounter door. Close it in Aggro and open it only in JustDied(and here)
-               // Small door opened after event are expected to be closed by default
-            }
         }
 
         void JustDied(Unit* /*killer*/)
@@ -155,12 +151,11 @@ public:
             if (!instance)
                 return;
 
-            // Open the encounter door
-            instance->HandleGameObject(instance->GetData64(DATA_KAEL_DOOR), true);
+            instance->SetData(DATA_KAELTHAS_EVENT, DONE);
 
             // Enable the Translocation Orb Exit
             if (GameObject* escapeOrb = ObjectAccessor::GetGameObject(*me, instance->GetData64(DATA_ESCAPE_ORB)))
-                    escapeOrb->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                escapeOrb->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
         }
 
         void DamageTaken(Unit* /*done_by*/, uint32 &damage)
@@ -173,9 +168,8 @@ public:
         {
             if (!instance)
                 return;
-
-            //Close the encounter door, open it in JustDied/Reset
-            instance->HandleGameObject(instance->GetData64(DATA_KAEL_DOOR), false);
+            
+            instance->SetData(DATA_KAELTHAS_EVENT, IN_PROGRESS);
         }
 
         void MoveInLineOfSight(Unit* who)
@@ -248,8 +242,7 @@ public:
                     // Also needs an exception in spell system.
                     unit->CastSpell(unit, SPELL_GRAVITY_LAPSE_FLY, true, 0, 0, me->GetGUID());
                     // Use packet hack
-                    WorldPacket data(12);
-                    data.SetOpcode(SMSG_MOVE_SET_CAN_FLY);
+                    WorldPacket data(SMSG_MOVE_SET_CAN_FLY, 12);
                     data.append(unit->GetPackGUID());
                     data << uint32(0);
                     unit->SendMessageToSet(&data, true);
@@ -269,8 +262,7 @@ public:
                     unit->RemoveAurasDueToSpell(SPELL_GRAVITY_LAPSE_FLY);
                     unit->RemoveAurasDueToSpell(SPELL_GRAVITY_LAPSE_DOT);
 
-                    WorldPacket data(12);
-                    data.SetOpcode(SMSG_MOVE_UNSET_CAN_FLY);
+                    WorldPacket data(SMSG_MOVE_UNSET_CAN_FLY, 12);
                     data.append(unit->GetPackGUID());
                     data << uint32(0);
                     unit->SendMessageToSet(&data, true);
@@ -369,14 +361,10 @@ public:
                                     FirstGravityLapse = false;
 
                                     if (instance)
-                                    {
-                                        instance->HandleGameObject(instance->GetData64(DATA_KAEL_STATUE_LEFT), true);
-                                        instance->HandleGameObject(instance->GetData64(DATA_KAEL_STATUE_RIGHT), true);
-                                    }
-                                }else
-                                {
-                                    DoScriptText(SAY_RECAST_GRAVITY, me);
+                                        instance->SetData(DATA_KAELTHAS_STATUES, 1);
                                 }
+                                else
+                                    DoScriptText(SAY_RECAST_GRAVITY, me);
 
                                 DoCast(me, SPELL_GRAVITY_LAPSE_INITIAL);
                                 GravityLapseTimer = 2000 + diff;// Don't interrupt the visual spell

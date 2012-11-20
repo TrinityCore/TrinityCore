@@ -20,6 +20,7 @@
 #include "ScriptedGossip.h"
 #include "halls_of_reflection.h"
 #include "ScriptedEscortAI.h"
+#include "Player.h"
 
 enum Yells
 {

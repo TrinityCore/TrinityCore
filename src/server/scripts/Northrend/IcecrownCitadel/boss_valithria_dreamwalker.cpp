@@ -461,7 +461,7 @@ class boss_valithria_dreamwalker : public CreatureScript
                 }
             }
 
-            uint32 GetData(uint32 type)
+            uint32 GetData(uint32 type) const
             {
                 if (type == MISSED_PORTALS)
                     return _missedPortals;
@@ -1020,7 +1020,7 @@ class npc_dream_portal : public CreatureScript
                 me->DespawnOrUnsummon();
             }
 
-            uint32 GetData(uint32 type)
+            uint32 GetData(uint32 type) const
             {
                 return (type == MISSED_PORTALS && _used) ? 0 : 1;
             }

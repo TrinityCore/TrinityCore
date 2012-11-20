@@ -4,10 +4,10 @@
 -- Hellfire Citadel: Ramparts
 SET @Lootid := 17259;
 -- set all lootids to same entry (normal and heroic)
-UPDATE `creature_template` SET `lootid`=@Lootid WHERE `entry` IN 
+UPDATE `creature_template` SET `lootid`=@Lootid WHERE `entry` IN
 (17259,17264,17269,17270,17271,17280,17281,17309,17455,17478,17517,18048,18049,18050,18051,18052,18053,18054,18055,18057,18058,18059);
 -- populate trashloot table
-DELETE FROM `creature_loot_template` WHERE `entry` IN 
+DELETE FROM `creature_loot_template` WHERE `entry` IN
 (17259,17264,17269,17270,17271,17280,17281,17309,17455,17478,17517,18048,18049,18050,18051,18052,18053,18054,18055,18057,18058,18059);
 DELETE FROM `creature_loot_template` WHERE `entry`=@Lootid;
 INSERT INTO `creature_loot_template` (`entry`,`item`,`ChanceOrQuestChance`,`lootmode`,`groupid`,`mincountOrRef`,`maxcount`) VALUES

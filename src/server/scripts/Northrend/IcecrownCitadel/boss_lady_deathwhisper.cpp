@@ -22,6 +22,7 @@
 #include "Group.h"
 #include "icecrown_citadel.h"
 #include "SpellInfo.h"
+#include "Player.h"
 
 enum ScriptTexts
 {

@@ -29,6 +29,8 @@ EndContentData */
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "Player.h"
+#include "SpellInfo.h"
 
 /*#######
 # npc_blood_knight_stillblade

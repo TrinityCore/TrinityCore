@@ -67,7 +67,10 @@ public:
                 instance->SetData(DATA_LOREKEEPERPOLKELT_DEATH, 0);
 
                 if (instance->GetData(TYPE_GANDLING) == IN_PROGRESS)
+                {
+                    instance->SetData(TYPE_GANDLING, IN_PROGRESS);
                     me->SummonCreature(1853, 180.73f, -9.43856f, 75.507f, 1.61399f, TEMPSUMMON_DEAD_DESPAWN, 0);
+                }
             }
         }
 

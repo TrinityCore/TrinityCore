@@ -38,6 +38,8 @@
 #include "Vehicle.h"
 #include "Battlefield.h"
 #include "BattlefieldMgr.h"
+#include "Pet.h"
+#include "ReputationMgr.h"
 
 class Aura;
 //

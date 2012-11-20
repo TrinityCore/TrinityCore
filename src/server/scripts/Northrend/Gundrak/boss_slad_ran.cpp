@@ -19,6 +19,7 @@
 #include "ScriptedCreature.h"
 #include "SpellAuras.h"
 #include "gundrak.h"
+#include "Player.h"
 
 //Spells
 enum Spells

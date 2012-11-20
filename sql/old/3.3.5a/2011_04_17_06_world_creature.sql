@@ -1,7 +1,7 @@
-SET @GUID := 152098; 
+SET @GUID := 152098;
 
 DELETE FROM `creature` WHERE `id` IN (33211,33499,24495,28602,26266,29563,29695,29719,29720,29747,29790,24910);
-INSERT INTO creature (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`DeathState`,`MovementType`) VALUES 
+INSERT INTO creature (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`DeathState`,`MovementType`) VALUES
 -- Lake Frog
 (@GUID  ,33211,571,1,1,0,0,3714.916,-4303.659,182.632217,5.098984,120,0,0,1,0,0,0),
 (@GUID+1,33211,571,1,1,0,0,3727.9043,-4302.23926,182.257217,3.08221,120,0,0,1,0,0,0),
@@ -38,7 +38,7 @@ INSERT INTO creature (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equip
 -- Tracker Thulin
 (@GUID+27,29695,571,1,1,0,0,7313.95752,-1611.87976,944.595459,1.79768908,120,0,0,1,0,0,0),
 -- Morbid Carcass PHASEMASK '0x00000002'
-(@GUID+28,29719,571,1,2,0,0,8249.877,2766.00684,641.9236,2.84488654,120,0,0,1,0,0,0), 
+(@GUID+28,29719,571,1,2,0,0,8249.877,2766.00684,641.9236,2.84488654,120,0,0,1,0,0,0),
 (@GUID+29,29719,571,1,2,0,0,8251.455,2788.82275,641.9236,3.159046,120,0,0,1,0,0,0),
 (@GUID+30,29719,571,1,2,0,0,8277.752,2676.89429,689.776733,2.5395987,120,0,0,1,0,0,0),
 (@GUID+31,29719,571,1,2,0,0,8312.651,2687.84644,689.776733,1.71902692,120,0,0,1,0,0,0),
@@ -81,8 +81,8 @@ INSERT INTO creature (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equip
 -- The Ocular (Phase='0x00000002')
 (@GUID+67,29747,571,1,2,0,0,8526.228,2665.08521,1045.03979,2.67035365,120,0,0,1,0,0,0),
 -- The Ocular - Eye of Acherus Exterior Shell
-(@GUID+68,29790,571,1,2,0,0,8526.228,2665.08521,1037.08838,2.67035365,120,0,0,1,0,0,0), 
--- Captain Ellis 
+(@GUID+68,29790,571,1,2,0,0,8526.228,2665.08521,1037.08838,2.67035365,120,0,0,1,0,0,0),
+-- Captain Ellis
 (@GUID+69,24910,571,1,1,0,0,101.368256,-3645.39087,21.6450329,4.067803,120,0,0,1,0,0,0);
 
 

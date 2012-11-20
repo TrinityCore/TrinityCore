@@ -18,7 +18,9 @@
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
 #include "ruby_sanctum.h"
-
+#include "Player.h"
+#include "TemporarySummon.h"
+#include "WorldPacket.h"
 
 DoorData const doorData[] =
 {
@@ -162,7 +164,7 @@ class instance_ruby_sanctum : public InstanceMapScript
                 }
             }
 
-            uint64 GetData64(uint32 type)
+            uint64 GetData64(uint32 type) const
             {
                 switch (type)
                 {
@@ -272,7 +274,7 @@ class instance_ruby_sanctum : public InstanceMapScript
                 BaltharusSharedHealth = data;
             }
 
-            uint32 GetData(uint32 type)
+            uint32 GetData(uint32 type) const
             {
                 if (type != DATA_BALTHARUS_SHARED_HEALTH)
                     return 0;

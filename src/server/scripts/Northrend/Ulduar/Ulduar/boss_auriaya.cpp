@@ -595,10 +595,8 @@ void AddSC_boss_auriaya()
     new npc_auriaya_seeping_trigger();
     new npc_feral_defender();
     new npc_sanctum_sentry();
-
     new spell_auriaya_strenght_of_the_pack();
     new spell_auriaya_sentinel_blast();
-
     new achievement_nine_lives();
     new achievement_crazy_cat_lady();
 }

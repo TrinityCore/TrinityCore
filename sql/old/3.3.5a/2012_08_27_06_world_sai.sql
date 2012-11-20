@@ -35,9 +35,9 @@ INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`pr
 (@Ghoul,1,5,'BRAINNNS!',12,0,50,0,0,0,'Decomposing Ghoul - OOC');
 -- Add conditions for spell Shining Light to hit only Ghouls
 DELETE FROM `conditions` WHERE `SourceEntry`=@Spell AND `SourceTypeOrReferenceId`=13;
-INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES 
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
 (13,1,@Spell,0,0,31,0,3,@Ghoul,0,0,0,'', 'Shinning Light can only hit Decomposing Ghouls');
 -- Add conditions for spell Shining Light to be available only, if on quest
 DELETE FROM `conditions` WHERE `SourceEntry`=@Spell AND `SourceTypeOrReferenceId`=17;
-INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES 
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
 (17,0,@Spell,0,0,9,0,11288,0,0,0,0,'', 'Shinning Light can only hit targets on the quest');

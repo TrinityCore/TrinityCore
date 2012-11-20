@@ -26,6 +26,7 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
 #include "shadowfang_keep.h"
+#include "TemporarySummon.h"
 
 #define MAX_ENCOUNTER              4
 
@@ -191,7 +192,7 @@ public:
             }
         }
 
-        uint32 GetData(uint32 type)
+        uint32 GetData(uint32 type) const
         {
             switch (type)
             {

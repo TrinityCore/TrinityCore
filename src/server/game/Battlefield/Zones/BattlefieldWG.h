@@ -21,11 +21,10 @@
 
 #include "ObjectAccessor.h"
 #include "WorldPacket.h"
-#include "World.h"
-#include "Group.h"
-#include "GroupMgr.h"
 #include "Battlefield.h"
+#include "World.h"
 
+class Group;
 class BattlefieldWG;
 class WintergraspCapturePoint;
 
@@ -412,9 +411,9 @@ class BattlefieldWG : public Battlefield
         bool FindAndRemoveVehicleFromList(Unit* vehicle);
 
         // returns the graveyardId in the specified area.
-        uint8 GetSpiritGraveyardId(uint32 areaId);
+        uint8 GetSpiritGraveyardId(uint32 areaId) const;
 
-        uint32 GetData(uint32 data);
+        uint32 GetData(uint32 data) const;
 
     protected:
         bool m_isRelicInteractible;

@@ -25,6 +25,7 @@
 #include <list>
 #include <vector>
 #include "Util.h"
+#include "DBCStores.h"
 
 struct EnchStoreItem
 {

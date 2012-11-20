@@ -26,6 +26,7 @@
 #include "SpellAuras.h"
 #include "SpellAuraEffects.h"
 #include "SpellScript.h"
+#include "Player.h"
 
 enum Spells
 {

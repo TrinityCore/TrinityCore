@@ -185,7 +185,7 @@ public:
                 onTheRocks = value;
         }
 
-        uint32 GetData(uint32 data)
+        uint32 GetData(uint32 data) const
         {
             if (data == DATA_ON_THE_ROCKS)
                 return onTheRocks;

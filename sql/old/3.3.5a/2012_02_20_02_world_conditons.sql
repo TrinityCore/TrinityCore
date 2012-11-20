@@ -169,7 +169,7 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,
 (18,40176,74905,0,9,0,25444,0,0,0,'Required quest active for spellclick');
 
 -- Below is a procedure to dynamically convert custom content to conditions table.
--- However this procedure only works for MySQL server versions >= 5.6 due to 
+-- However this procedure only works for MySQL server versions >= 5.6 due to
 -- a bug / missing feature in older MySQL versions.
 
 /*
@@ -199,7 +199,7 @@ BEGIN
         VALUES (18,npcEntry,spellId,1,0,aura,0,0,'Required aura for spellclick');
         SET counter = counter+1;
     END WHILE;
-    
+
     SET counter = 0;
     SET recordCount = 0;
     SELECT COUNT(*) INTO recordCount FROM `npc_spellclick_spells` WHERE `aura_forbidden` !=0;
@@ -213,7 +213,7 @@ BEGIN
         VALUES (18,npcEntry,spellId,1,0,aura,0,1,'Forbidden aura for spellclick');
         SET counter = counter+1;
     END WHILE;
-    
+
     SET counter = 0;
     SET recordCount = 0;
     SELECT COUNT(*) INTO recordCount FROM `npc_spellclick_spells` WHERE `quest_start` !=0;
@@ -222,7 +222,7 @@ BEGIN
         INTO npcEntry, spellId, quest, questStartCanActive, quest2
         FROM `npc_spellclick_spells` WHERE `quest_start` !=0
         LIMIT counter,1;
-        IF questStartCanActive = 1 AND quest2 = 0 THEN 
+        IF questStartCanActive = 1 AND quest2 = 0 THEN
             INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,`ElseGroup`, `ConditionTypeOrReference`,
         `ConditionTarget`,`ConditionValue1`,`ConditionValue2`,`NegativeCondition`,`Comment`)
         VALUES (18,npcEntry,spellId,maxElseGroupId+1,9,0,quest,0,0,'Required quest active for spellclick');
@@ -241,10 +241,10 @@ BEGIN
         `ConditionTarget`,`ConditionValue1`,`ConditionValue2`,`NegativeCondition`,`Comment`)
         VALUES (18,npcEntry,spellId,8,0,quest,0,0,'Required quest rewarded for spellclick');
         END IF;
-        
+
         SET counter = counter+1;
     END WHILE;
-    
+
     SET counter = 0;
     SET recordCount = 0;
     SELECT COUNT(*) INTO recordCount FROM `npc_spellclick_spells` WHERE `quest_end` !=0;

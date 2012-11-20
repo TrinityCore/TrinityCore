@@ -21,6 +21,8 @@
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"
 #include "trial_of_the_crusader.h"
+#include "Player.h"
+#include "GridNotifiers.h"
 
 enum Yells
 {
