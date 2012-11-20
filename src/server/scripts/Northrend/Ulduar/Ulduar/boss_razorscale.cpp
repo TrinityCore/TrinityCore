@@ -451,7 +451,7 @@ class boss_razorscale : public CreatureScript
                 }
             }
 
-            uint32 GetData(uint32 type)
+            uint32 GetData(uint32 type) const
             {
                 if (type == DATA_QUICK_SHAVE)
                     if (_flyCount <= 2)
@@ -1016,7 +1016,7 @@ class npc_darkrune_guardian : public CreatureScript
                 _killedByBreath = false;
             }
 
-            uint32 GetData(uint32 type)
+            uint32 GetData(uint32 type) const
             {
                 return type == DATA_IRON_DWARF_MEDIUM_RARE ? _killedByBreath : 0;
             }

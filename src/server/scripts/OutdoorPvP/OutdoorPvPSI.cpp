@@ -23,6 +23,7 @@
 #include "MapManager.h"
 #include "ObjectMgr.h"
 #include "OutdoorPvPMgr.h"
+#include "ReputationMgr.h"
 #include "Language.h"
 #include "World.h"
 

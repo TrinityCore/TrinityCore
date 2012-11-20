@@ -16,24 +16,24 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Player.h"
-#include "ObjectMgr.h"
-#include "ArenaTeamMgr.h"
-#include "World.h"
-#include "WorldPacket.h"
 #include "ArenaTeam.h"
+#include "ArenaTeamMgr.h"
 #include "Battleground.h"
 #include "BattlegroundMgr.h"
 #include "Creature.h"
 #include "Formulas.h"
 #include "GridNotifiersImpl.h"
 #include "Group.h"
-#include "Language.h"
 #include "MapManager.h"
 #include "Object.h"
-#include "SpellAuras.h"
+#include "ObjectMgr.h"
+#include "Player.h"
+#include "ReputationMgr.h"
 #include "SpellAuraEffects.h"
+#include "SpellAuras.h"
 #include "Util.h"
+#include "World.h"
+#include "WorldPacket.h"
 
 namespace Trinity
 {

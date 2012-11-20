@@ -155,7 +155,7 @@ public:
             }
         }
 
-        uint32 GetData(uint32 type)
+        uint32 GetData(uint32 type) const
         {
             if (type == DATA_SPLIT_PERSONALITY)
                 return splitPersonality;

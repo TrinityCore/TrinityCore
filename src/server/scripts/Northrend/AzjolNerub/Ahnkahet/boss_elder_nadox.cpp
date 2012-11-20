@@ -116,7 +116,7 @@ class boss_elder_nadox : public CreatureScript
                     GuardianDied = true;
             }
 
-            uint32 GetData(uint32 type)
+            uint32 GetData(uint32 type) const
             {
                 if (type == DATA_RESPECT_YOUR_ELDERS)
                     return !GuardianDied ? 1 : 0;

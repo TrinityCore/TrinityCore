@@ -214,7 +214,7 @@ public:
             _despawntimer = 2000;
         }
 
-        uint32 GetData(uint32 type)
+        uint32 GetData(uint32 type) const
         {
             return type == DATA_COUNT ? _count : 0;
         }

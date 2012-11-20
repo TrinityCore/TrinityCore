@@ -33,6 +33,7 @@ EndContentData */
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
 #include "Player.h"
+#include "SpellInfo.h"
 
 /*######
 # npc_skorn_whitecloud

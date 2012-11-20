@@ -37,6 +37,7 @@ EndContentData */
 #include "ScriptedGossip.h"
 #include "ScriptedEscortAI.h"
 #include "Player.h"
+#include "SpellInfo.h"
 
 /*######
 ## npc_beaten_corpse

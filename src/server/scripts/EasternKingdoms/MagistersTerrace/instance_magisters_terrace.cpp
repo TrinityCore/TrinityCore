@@ -72,8 +72,7 @@ public:
         uint32 Encounter[MAX_ENCOUNTER];
         uint32 DelrissaDeathCount;
 
-        std::list<uint64> FelCrystals;
-        std::list<uint64>::const_iterator CrystalItr;
+        std::vector<uint64> FelCrystals;
 
         uint64 SelinGUID;
         uint64 DelrissaGUID;
@@ -85,8 +84,7 @@ public:
         uint64 KaelStatue[2];
         uint64 EscapeOrbGUID;
         uint32 StatuesState;
-
-        bool InitializedItr;
+        uint8 felCristalIndex;
 
         void Initialize()
         {
@@ -107,8 +105,7 @@ public:
             KaelStatue[1] = 0;
             EscapeOrbGUID = 0;
             StatuesState = 0;
-
-            InitializedItr = false;
+            felCristalIndex = 0;
         }
 
         bool IsEncounterInProgress() const
@@ -119,7 +116,7 @@ public:
             return false;
         }
 
-        uint32 GetData(uint32 identifier)
+        uint32 GetData(uint32 identifier) const
         {
             switch (identifier)
             {
@@ -276,7 +273,7 @@ public:
             OUT_LOAD_INST_DATA_COMPLETE;
         }
             
-        uint64 GetData64(uint32 identifier)
+        uint64 GetData64(uint32 identifier) const
         {
             switch (identifier)
             {
@@ -297,25 +294,21 @@ public:
                 case DATA_ESCAPE_ORB:
                     return EscapeOrbGUID;
                 case DATA_FEL_CRYSTAL:
-                {
-                    if (FelCrystals.empty())
+                    if (FelCrystals.size() < felCristalIndex)
                     {
                         sLog->outError(LOG_FILTER_TSCR, "Magisters Terrace: No Fel Crystals loaded in Inst Data");
                         return 0;
                     }
 
-                    if (!InitializedItr)
-                    {
-                        CrystalItr = FelCrystals.begin();
-                        InitializedItr = true;
-                    }
-
-                    uint64 guid = *CrystalItr;
-                    ++CrystalItr;
-                    return guid;
-                }
+                    return FelCrystals.at(felCristalIndex);
             }
             return 0;
+        }
+
+        void SetData64(uint32 identifier, uint64 value)
+        {
+            if (identifier == DATA_FEL_CRYSTAL)
+                felCristalIndex = value;
         }
     };
 };

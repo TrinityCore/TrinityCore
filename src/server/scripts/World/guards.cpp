@@ -33,6 +33,7 @@ EndContentData */
 #include "ScriptedCreature.h"
 #include "GuardAI.h"
 #include "Player.h"
+#include "SpellInfo.h"
 
 enum GuardGeneric
 {

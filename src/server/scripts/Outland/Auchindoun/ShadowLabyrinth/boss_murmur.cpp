@@ -26,6 +26,7 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "shadow_labyrinth.h"
+#include "SpellInfo.h"
 
 #define EMOTE_SONIC_BOOM            -1555036
 

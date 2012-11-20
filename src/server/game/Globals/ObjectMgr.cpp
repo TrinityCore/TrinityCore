@@ -16,36 +16,38 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "AccountMgr.h"
+#include "AchievementMgr.h"
+#include "ArenaTeam.h"
+#include "ArenaTeamMgr.h"
+#include "Chat.h"
 #include "Common.h"
 #include "DatabaseEnv.h"
+#include "DisableMgr.h"
+#include "GameEventMgr.h"
+#include "GossipDef.h"
+#include "GroupMgr.h"
+#include "GuildMgr.h"
+#include "InstanceSaveMgr.h"
+#include "Language.h"
+#include "LFGMgr.h"
 #include "Log.h"
 #include "MapManager.h"
 #include "ObjectMgr.h"
-#include "ArenaTeamMgr.h"
-#include "GuildMgr.h"
-#include "GroupMgr.h"
-#include "SpellMgr.h"
-#include "UpdateMask.h"
-#include "World.h"
-#include "ArenaTeam.h"
-#include "Transport.h"
-#include "Language.h"
-#include "GameEventMgr.h"
-#include "Spell.h"
-#include "Chat.h"
-#include "AccountMgr.h"
-#include "InstanceSaveMgr.h"
-#include "SpellAuras.h"
-#include "Util.h"
-#include "WaypointManager.h"
-#include "GossipDef.h"
-#include "Vehicle.h"
-#include "AchievementMgr.h"
-#include "DisableMgr.h"
-#include "ScriptMgr.h"
-#include "SpellScript.h"
+#include "Pet.h"
 #include "PoolMgr.h"
-#include "LFGMgr.h"
+#include "ReputationMgr.h"
+#include "ScriptMgr.h"
+#include "SpellAuras.h"
+#include "Spell.h"
+#include "SpellMgr.h"
+#include "SpellScript.h"
+#include "Transport.h"
+#include "UpdateMask.h"
+#include "Util.h"
+#include "Vehicle.h"
+#include "WaypointManager.h"
+#include "World.h"
 
 ScriptMapMap sQuestEndScripts;
 ScriptMapMap sQuestStartScripts;
@@ -262,16 +264,20 @@ ObjectMgr::~ObjectMgr()
     // free only if loaded
     for (int class_ = 0; class_ < MAX_CLASSES; ++class_)
     {
-        delete[] _playerClassInfo[class_]->levelInfo;
+        if (_playerClassInfo[class_])
+            delete[] _playerClassInfo[class_]->levelInfo;
         delete _playerClassInfo[class_];
     }
 
     for (int race = 0; race < MAX_RACES; ++race)
+    {
         for (int class_ = 0; class_ < MAX_CLASSES; ++class_)
         {
-            delete[] _playerInfo[race][class_]->levelInfo;
+            if (_playerInfo[race][class_])
+                delete[] _playerInfo[race][class_]->levelInfo;
             delete _playerInfo[race][class_];
         }
+    }
 
     for (CacheVendorItemContainer::iterator itr = _cacheVendorItemStore.begin(); itr != _cacheVendorItemStore.end(); ++itr)
         itr->second.Clear();

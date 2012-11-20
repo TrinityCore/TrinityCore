@@ -21,6 +21,7 @@
 #include "ScriptedGossip.h"
 #include "blackrock_depths.h"
 #include "Player.h"
+#include "WorldSession.h"
 
 //go_shadowforge_brazier
 class go_shadowforge_brazier : public GameObjectScript
