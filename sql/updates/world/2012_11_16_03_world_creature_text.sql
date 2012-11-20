@@ -195,7 +195,7 @@ INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`text`,`type`,`sound`,`probab
 (3974,0,0,"Release the hounds!",14,5841,100,'loksey SAY_AGGRO');
 
 DELETE FROM `script_texts` WHERE `entry` BETWEEN -1189007 AND -1189001;
-DELETE FROM `creature_text` WHERE `entry` IN (15688,23775);
+DELETE FROM `creature_text` WHERE `entry` IN (23682,23775);
 INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`text`,`type`,`sound`,`probability`,`comment`) VALUES
 (23775,0,0,"Hah, is that all?",14,5831,100,'headless horseman SAY_LOST_HEAD'),
 (23775,1,0,"Unworthy!",14,5836,100,'headless horseman SAY_PLAYER_DEATH'),
