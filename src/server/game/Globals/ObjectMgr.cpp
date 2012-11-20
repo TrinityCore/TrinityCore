@@ -264,16 +264,20 @@ ObjectMgr::~ObjectMgr()
     // free only if loaded
     for (int class_ = 0; class_ < MAX_CLASSES; ++class_)
     {
-        delete[] _playerClassInfo[class_]->levelInfo;
+        if (_playerClassInfo[class_])
+            delete[] _playerClassInfo[class_]->levelInfo;
         delete _playerClassInfo[class_];
     }
 
     for (int race = 0; race < MAX_RACES; ++race)
+    {
         for (int class_ = 0; class_ < MAX_CLASSES; ++class_)
         {
-            delete[] _playerInfo[race][class_]->levelInfo;
+            if (_playerInfo[race][class_])
+                delete[] _playerInfo[race][class_]->levelInfo;
             delete _playerInfo[race][class_];
         }
+    }
 
     for (CacheVendorItemContainer::iterator itr = _cacheVendorItemStore.begin(); itr != _cacheVendorItemStore.end(); ++itr)
         itr->second.Clear();
