@@ -15,6 +15,7 @@ set(scripts_STAT_SRCS
   Custom/utility.cpp
   Custom/npc_supporter.cpp
   Custom/arena_spectator.cpp
+  Custom/guru_event.cpp
 )
 
 message("  -> Prepared: Custom")
