@@ -19,26 +19,27 @@
 #ifndef _PLAYER_H
 #define _PLAYER_H
 
-#include "AchievementMgr.h"
-#include "Common.h"
-#include "DatabaseEnv.h"
-#include "DBCEnums.h"
+#include "DBCStores.h"
 #include "GroupReference.h"
-#include "Item.h"
 #include "MapReference.h"
-#include "Pet.h"
+
+#include "Item.h"
+#include "PetDefines.h"
 #include "QuestDef.h"
-#include "ReputationMgr.h"
 #include "Unit.h"
-#include "WorldSession.h"
 #include "SpellMgr.h"
 
 #include <string>
 #include <vector>
 
 struct Mail;
+struct VendorItem;
+
+class AchievementMgr;
+class ReputationMgr;
 class Channel;
 class Creature;
+class CreatureTemplate;
 class DynamicObject;
 class Group;
 class Guild;
@@ -47,6 +48,7 @@ class Pet;
 class PlayerMenu;
 class PlayerSocial;
 class SpellCastTargets;
+class TrainerSpell;
 class UpdateMask;
 
 typedef std::deque<Mail*> PlayerMails;
@@ -2012,8 +2014,8 @@ class Player : public Unit, public GridObject<Player>
         uint8 GetGrantableLevels() { return m_grantableLevels; }
         void SetGrantableLevels(uint8 val) { m_grantableLevels = val; }
 
-        ReputationMgr&       GetReputationMgr()       { return m_reputationMgr; }
-        ReputationMgr const& GetReputationMgr() const { return m_reputationMgr; }
+        ReputationMgr&       GetReputationMgr()       { return *m_reputationMgr; }
+        ReputationMgr const& GetReputationMgr() const { return *m_reputationMgr; }
         ReputationRank GetReputationRank(uint32 faction_id) const;
         void RewardReputation(Unit* victim, float rate);
         void RewardReputation(Quest const* quest);
@@ -2835,8 +2837,8 @@ class Player : public Unit, public GridObject<Player>
         uint32 m_temporaryUnsummonedPetNumber;
         uint32 m_oldpetspell;
 
-        AchievementMgr m_achievementMgr;
-        ReputationMgr  m_reputationMgr;
+        AchievementMgr* m_achievementMgr;
+        ReputationMgr*  m_reputationMgr;
 
         SpellCooldowns m_spellCooldowns;
 

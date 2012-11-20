@@ -22,13 +22,14 @@ Comment: All lookup related commands
 Category: commandscripts
 EndScriptData */
 
-#include "ScriptMgr.h"
-#include "Chat.h"
 #include "AccountMgr.h"
+#include "Chat.h"
 #include "GameEventMgr.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Player.h"
+#include "ReputationMgr.h"
+#include "ScriptMgr.h"
 
 class lookup_commandscript : public CommandScript
 {

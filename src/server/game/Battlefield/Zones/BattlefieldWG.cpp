@@ -20,11 +20,12 @@
 // TODO: Use spell victory/defeat in wg instead of RewardMarkOfHonor() && RewardHonor
 // TODO: Add proper implement of achievement
 
-#include "ObjectMgr.h"
 #include "BattlefieldWG.h"
-#include "SpellAuras.h"
-#include "Vehicle.h"
+#include "ObjectMgr.h"
 #include "Player.h"
+#include "SpellAuras.h"
+#include "TemporarySummon.h"
+#include "Vehicle.h"
 
 enum WGVehicles
 {
