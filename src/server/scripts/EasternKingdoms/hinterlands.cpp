@@ -39,11 +39,11 @@ EndContentData */
 
 enum eOOX
 {
-    SAY_OOX_START           = -1000287,
-    SAY_OOX_AGGRO1          = -1000288,
-    SAY_OOX_AGGRO2          = -1000289,
-    SAY_OOX_AMBUSH          = -1000290,
-    SAY_OOX_END             = -1000292,
+    SAY_OOX_START           = 0,
+    SAY_OOX_AGGRO           = 1,
+    SAY_OOX_AMBUSH          = 3,
+    SAY_OOX_AMBUSH_REPLY    = 4,
+    SAY_OOX_END             = 5,
 
     QUEST_RESQUE_OOX_09     = 836,
 
@@ -70,7 +70,7 @@ public:
             else if (player->GetTeam() == HORDE)
                 creature->setFaction(FACTION_ESCORTEE_H);
 
-            DoScriptText(SAY_OOX_START, creature, player);
+            creature->AI()->Talk(SAY_OOX_START, player->GetGUID());
 
             if (npc_00x09hlAI* pEscortAI = CAST_AI(npc_00x09hl::npc_00x09hlAI, creature->AI()))
                 pEscortAI->Start(false, false, player->GetGUID(), quest);
@@ -94,13 +94,13 @@ public:
             switch (waypointId)
             {
                 case 26:
-                    DoScriptText(SAY_OOX_AMBUSH, me);
+                    Talk(SAY_OOX_AMBUSH);
                     break;
                 case 43:
-                    DoScriptText(SAY_OOX_AMBUSH, me);
+                    Talk(SAY_OOX_AMBUSH);
                     break;
                 case 64:
-                    DoScriptText(SAY_OOX_END, me);
+                    Talk(SAY_OOX_END);
                     if (Player* player = GetPlayerForEscort())
                         player->GroupEventHappens(QUEST_RESQUE_OOX_09, me);
                     break;
@@ -137,10 +137,7 @@ public:
             if (who->GetEntry() == NPC_MARAUDING_OWL || who->GetEntry() == NPC_VILE_AMBUSHER)
                 return;
 
-            if (rand()%1)
-                DoScriptText(SAY_OOX_AGGRO1, me);
-            else
-                DoScriptText(SAY_OOX_AGGRO2, me);
+            Talk(SAY_OOX_AGGRO);
         }
 
         void JustSummoned(Creature* summoned)
@@ -156,13 +153,13 @@ public:
 
 enum eRinji
 {
-    SAY_RIN_FREE            = -1000403, //from here
-    SAY_RIN_BY_OUTRUNNER    = -1000404,
-    SAY_RIN_HELP_1          = -1000405,
-    SAY_RIN_HELP_2          = -1000406, //to here, are used also by 6182 but this is wrong...
-    SAY_RIN_COMPLETE        = -1000407,
-    SAY_RIN_PROGRESS_1      = -1000408,
-    SAY_RIN_PROGRESS_2      = -1000409,
+    SAY_RIN_BY_OUTRUNNER    = 0,
+
+    SAY_RIN_FREE            = 0, //from here
+    SAY_RIN_HELP            = 1,
+    SAY_RIN_COMPLETE        = 2,
+    SAY_RIN_PROGRESS_1      = 3,
+    SAY_RIN_PROGRESS_2      = 4,
 
     QUEST_RINJI_TRAPPED     = 2742,
     NPC_RANGER              = 2694,
@@ -243,7 +240,8 @@ public:
             {
                 if (who->GetEntry() == NPC_OUTRUNNER && !m_bIsByOutrunner)
                 {
-                    DoScriptText(SAY_RIN_BY_OUTRUNNER, who);
+                    if (Creature* talker = who->ToCreature())
+                        talker->AI()->Talk(SAY_RIN_BY_OUTRUNNER);
                     m_bIsByOutrunner = true;
                 }
 
@@ -251,7 +249,7 @@ public:
                     return;
 
                 //only if attacked and escorter is not in combat?
-                DoScriptText(RAND(SAY_RIN_HELP_1, SAY_RIN_HELP_2), me);
+                Talk(SAY_RIN_HELP);
             }
         }
 
@@ -287,7 +285,7 @@ public:
             switch (waypointId)
             {
                 case 1:
-                    DoScriptText(SAY_RIN_FREE, me, player);
+                    Talk(SAY_RIN_FREE, player->GetGUID());
                     break;
                 case 7:
                     DoSpawnAmbush(true);
@@ -296,7 +294,7 @@ public:
                     DoSpawnAmbush(false);
                     break;
                 case 17:
-                    DoScriptText(SAY_RIN_COMPLETE, me, player);
+                    Talk(SAY_RIN_COMPLETE, player->GetGUID());
                     player->GroupEventHappens(QUEST_RINJI_TRAPPED, me);
                     SetRun();
                     m_uiPostEventCount = 1;
@@ -320,11 +318,11 @@ public:
                             switch (m_uiPostEventCount)
                             {
                                 case 1:
-                                    DoScriptText(SAY_RIN_PROGRESS_1, me, player);
+                                    Talk(SAY_RIN_PROGRESS_1, player->GetGUID());
                                     ++m_uiPostEventCount;
                                     break;
                                 case 2:
-                                    DoScriptText(SAY_RIN_PROGRESS_2, me, player);
+                                    Talk(SAY_RIN_PROGRESS_2, player->GetGUID());
                                     m_uiPostEventCount = 0;
                                     break;
                             }

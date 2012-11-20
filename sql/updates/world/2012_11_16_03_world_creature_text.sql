@@ -285,3 +285,143 @@ INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`text`,`type`,`sound`,`probab
 (24891,0,0,"I need... your help... Cannot... resist him... much longer...",14,12428,100,'kalecgos SAY_GOOD_AGGRO'),
 (24891,1,0,"Aaahhh! Help me, before I lose my mind!",14,12429,100,'kalecgos SAY_GOOD_NEAR_DEATH'),
 (24891,2,0,"Hurry! There is not much of me left!",14,12430,100,'kalecgos SAY_GOOD_NEAR_DEATH2');
+
+DELETE FROM `script_texts` WHERE `entry` BETWEEN -1580065 AND -1580044;
+DELETE FROM `creature_text` WHERE `entry` IN (24882,24895);
+INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`text`,`type`,`sound`,`probability`,`comment`) VALUES
+(24882,0,0,"Puny lizard! Death is the only answer you'll find here!",14,12458,100,'brutallus YELL_INTRO'),
+(24882,1,0,"Grah! Your magic is weak!",14,12459,100,'brutallus YELL_INTRO_BREAK_ICE'),
+(24882,2,0,"I will crush you!",14,12460,100,'brutallus YELL_INTRO_CHARGE'),
+(24882,3,0,"That was fun.",14,12461,100,'brutallus YELL_INTRO_KILL_MADRIGOSA'),
+(24882,4,0,"Come, try your luck!",14,12462,100,'brutallus YELL_INTRO_TAUNT'),
+(24882,5,0,"Ahh! More lambs to the slaughter!",14,12463,100,'brutallus YELL_AGGRO'),
+(24882,6,0,"Perish, insect!",14,12464,100,'brutallus YELL_KILL1'),
+(24882,6,1,"You are meat!",14,12465,100,'brutallus YELL_KILL2'),
+(24882,6,2,"Too easy!",14,12466,100,'brutallus YELL_KILL3'),
+(24882,7,0,"Bring the fight to me!",14,12467,100,'brutallus YELL_LOVE1'),
+(24882,7,1,"Another day, another glorious battle!",14,12468,100,'brutallus YELL_LOVE2'),
+(24882,7,2,"I live for this!",14,12469,100,'brutallus YELL_LOVE3'),
+(24882,8,0,"So much for a real challenge... Die!",14,12470,100,'brutallus YELL_BERSERK'),
+(24882,9,0,"Gah! Well done... Now... this gets... interesting...",14,12471,100,'brutallus YELL_DEATH'),
+(24895,0,0,"Hold, friends! There is information to be had before this devil meets his fate!",14,12472,100,'madrigosa YELL_MADR_ICE_BARRIER'),
+(24895,1,0,"Where is Anveena, demon? What has become of Kalec?",14,12473,100,'madrigosa YELL_MADR_INTRO'),
+(24895,2,0,"You will tell me where they are!",14,12474,100,'madrigosa YELL_MADR_ICE_BLOCK'),
+(24895,3,0,"Speak, I grow weary of asking!",14,12475,100,'madrigosa YELL_MADR_TRAP'),
+(24895,4,0,"Malygos, my lord! I did my best!",14,12476,100,'madrigosa YELL_MADR_DEATH');
+
+DELETE FROM `script_texts` WHERE `entry` BETWEEN -1580065 AND -1580044;
+DELETE FROM `creature_text` WHERE `entry` IN (25166,25165);
+INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,`comment`,`text`) VALUES
+(25165,0,0,14,12484,100,"eredar - YELL_INTRO_SAC_1","Misery..."),
+(25165,1,0,14,0,100,"eredar - YELL_INTRO_SAC_3","Confusion..."),
+(25165,2,0,14,0,100,"eredar - YELL_INTRO_SAC_5","Mistrust..."),
+(25165,3,0,14,0,100,"eredar - YELL_INTRO_SAC_7","These are the hallmarks..."),
+(25165,4,0,14,0,100,"eredar - YELL_SAC_DEAD","I... fade."),
+(25165,5,0,41,0,100,"eredar - EMOTE_SHADOW_NOVA","%s directs Shadow Nova at $N"),
+(25165,6,0,14,0,100,"eredar - YELL_ENRAGE","Time is a luxury you no longer possess!"),
+(25165,7,0,14,12488,100,"eredar - YELL_SISTER_ALYTHESS_DEAD","Alythess! Your fire burns within me!"),
+(25165,8,0,14,12486,100,"eredar - YELL_SAC_KILL_1","Shadow engulf."),
+(25165,8,1,14,12487,100,"eredar - YELL_SAC_KILL_2","Ee-nok Kryul!"),
+(25165,9,0,14,12485,100,"eredar - YELL_SHADOW_NOVA","Shadow to the aid of fire!"),
+(25166,0,0,14,0,100,"eredar - YELL_INTRO_ALY_2","Depravity..."),
+(25166,1,0,14,0,100,"eredar - YELL_INTRO_ALY_4","Hatred..."),
+(25166,2,0,14,0,100,"eredar - YELL_INTRO_ALY_6","Chaos..."),
+(25166,3,0,14,0,100,"eredar - YELL_INTRO_ALY_8","These are the pillars..."),
+(25166,4,0,41,0,100,"eredar - EMOTE_CONFLAGRATION","%s directs Conflagration at $N"),
+(25166,5,0,14,12490,100,"eredar - YELL_ALY_KILL_1","Fire consume."),
+(25166,5,1,14,12491,100,"eredar - YELL_ALY_KILL_2","Ed-ir Halach!"),
+(25166,6,0,14,12494,100,"eredar - YELL_ALY_DEAD","De-ek Anur!"),
+(25166,7,0,14,12492,100,"eredar - YELL_SISTER_SACROLASH_DEAD","Sacrolash!"),
+(25166,8,0,14,12489,100,"eredar - YELL_CANFLAGRATION","Fire to the aid of shadow!"),
+(25166,9,0,14,12493,100,"eredar - YELL_BERSERK","Your luck has run its curse!");
+
+DELETE FROM `script_texts` WHERE `entry` BETWEEN -1580098 AND -1580066;
+DELETE FROM `creature_text` WHERE `entry` IN (25608,25319,25315,26046);
+INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,`comment`,`text`) VALUES
+(25608,0,0,14,12495,100,"KJ - SAY_KJ_OFFCOMBAT1","All my plans have led to this!"),
+(25608,0,1,14,12496,100,"KJ - SAY_KJ_OFFCOMBAT2","Stay on task! Do not waste time!"),
+(25608,0,2,14,12497,100,"KJ - SAY_KJ_OFFCOMBAT3","I have waited long enough!"),
+(25608,0,3,14,12498,100,"KJ - SAY_KJ_OFFCOMBAT4","Fail me and suffer for eternity!"),
+(25608,0,4,14,12499,100,"KJ - SAY_KJ_OFFCOMBAT5","Drain the girl! Drain her power until there is nothing but a vacant shell!"),
+(25319,0,0,14,12449,100,"KJ - SAY_KALECGOS_ENCOURAGE","Strike now, heroes, while he is weakened! Vanquish the Deceiver!"),
+(25319,1,0,14,12440,100,"KJ - SAY_KALECGOS_READY1","I will channel my power into the orbs, be ready!"),
+(25319,2,0,14,12441,100,"KJ - SAY_KALECGOS_READY2","I have empowered another orb! Use it quickly!"),
+(25319,3,0,14,12442,100,"KJ - SAY_KALECGOS_READY3","Another orb is ready! Make haste!"),
+(25319,4,0,14,12443,100,"KJ - SAY_KALECGOS_READY4","I have channeled all I can! The power is in your hands!"),
+(25319,5,0,14,12445,100,"KJ - SAY_KALECGOS_AWAKEN","Anveena, you must awaken, this world needs you!"),
+(25319,6,0,14,12446,100,"KJ - SAY_KALECGOS_LETGO","You must let go! You must become what you were always meant to be! The time is now, Anveena!"),
+(25319,7,0,14,12447,100,"KJ - SAY_KALECGOS_FOCUS","Anveena, I love you! Focus on my voice, come back for me now! Only you can cleanse the Sunwell!"),
+(25319,8,0,14,12448,100,"KJ - SAY_KALECGOS_FATE","Yes, Anveena! Let fate embrace you now!"),
+(25319,9,0,14,12450,100,"KJ - SAY_KALECGOS_GOODBYE","Goodbye, Anveena, my love. Few will remember your name, yet this day you change the course of destiny. What was once corrupt is now pure. Heroes, do not let her sacrifice be in vain."),
+(25319,10,0,14,12438,100,"KJ - SAY_KALECGOS_JOIN","You are not alone. The Blue Dragonflight shall help you vanquish the Deceiver."),
+(25315,0,0,14,12527,100,"KJ - SAY_KJ_DEATH","Nooooooooooooo!"),
+(25315,1,0,14,12501,100,"KJ - SAY_KJ_SLAY1","Another step towards destruction!"),
+(25315,1,1,14,12502,100,"KJ - SAY_KJ_SLAY2","Anak-ky'ri!"),
+(25315,2,0,14,12503,100,"KJ - SAY_KJ_REFLECTION1","Who can you trust?"),
+(25315,2,1,14,12504,100,"KJ - SAY_KJ_REFLECTION2","The enemy is among you."),
+(25315,3,0,14,12500,100,"KJ - SAY_KJ_EMERGE","The expendible have perished... So be it! Now I shall succeed where Sargeras could not! I will bleed this wretched world and secure my place as the true master of the Burning Legion. The end has come! Let the unraveling of this world commence!"),
+(25315,4,0,14,12505,100,"KJ - SAY_KJ_DARKNESS1","Chaos!"),
+(25315,4,1,14,12506,100,"KJ - SAY_KJ_DARKNESS2","Destruction!"),
+(25315,4,2,14,12507,100,"KJ - SAY_KJ_DARKNESS3","Oblivion!"),
+(25315,5,0,14,12508,100,"KJ - SAY_KJ_PHASE3","I will not be denied! This world shall fall!"),
+(25315,6,0,14,12509,100,"KJ - SAY_KJ_PHASE4","Do not harbor false hope. You cannot win!"),
+(25315,7,0,14,12510,100,"KJ - SAY_KJ_PHASE5","Aggghh! The powers of the Sunwell... turned... against me! What have you done? WHAT HAVE YOU DONE?"),
+(25315,8,0,41,0,100,"KJ - EMOTE_KJ_DARKNESS","%s begins to channel dark energy"),
+(26046,0,0,14,12511,100,"KJ - SAY_ANVEENA_IMPRISONED","I serve only the Master now."),
+(26046,1,0,14,12512,100,"KJ - SAY_ANVEENA_LOST","But I'm... lost... I cannot find my way back!"),
+(26046,2,0,14,12513,100,"KJ - SAY_ANVEENA_KALEC","Kalec... Kalec?"),
+(26046,3,0,14,12514,100,"KJ - SAY_ANVEENA_GOODBYE","The nightmare is over, the spell is broken! Goodbye, Kalec, my love!");
+
+DELETE FROM `script_texts` WHERE `entry` BETWEEN -1580043 AND -1580036;
+DELETE FROM `creature_text` WHERE `entry`=25038;
+INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,`comment`,`text`) VALUES
+(25038,0,0,14,12477,100,"felmyst - YELL_BIRTH","Glory to Kil'jaeden! Death to all who oppose!"),
+(25038,1,0,14,12480,100,"felmyst - YELL_KILL1","I kill for the master!"),
+(25038,1,1,14,12481,100,"felmyst - YELL_KILL2","The end has come!"),
+(25038,2,0,14,12478,100,"felmyst - YELL_BREATH","Choke on your final breath!"),
+(25038,3,0,14,12479,100,"felmyst - YELL_TAKEOFF","I am stronger than ever before!"),
+(25038,4,0,14,12482,100,"felmyst - YELL_BERSERK","No more hesitation! Your fates are written!"),
+(25038,5,0,14,12483,100,"felmyst - YELL_DEATH","Kil'jaeden... will... prevail..."),
+(25038,6,0,14,12439,100,"felmyst - YELL_KALECGOS","Madrigosa deserved a far better fate. You did what had to be done, but this battle is far from over.");
+
+DELETE FROM `script_texts` WHERE `entry` BETWEEN -1000292 AND -1000287;
+DELETE FROM `creature_text` WHERE `entry`=7806;
+INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,`comment`,`text`) VALUES
+(7806,0,0,12,0,100,"oox SAY_OOX_START","Emergency power activated! Initializing ambulanory motor! CLUCK!"),
+(7806,1,0,12,0,100,"oox SAY_OOX_AGGRO1","Physical threat detected! Evasive action! CLUCK!"),
+(7806,1,1,12,0,100,"oox SAY_OOX_AGGRO2","Thread analyzed! Activating combat plan beta! CLUCK!"),
+(7806,2,0,12,0,100,"oox SAY_OOX_AMBUSH","CLUCK! Sensors detect spatial anomaly - danger imminent! CLUCK!"),
+(7806,3,0,12,0,100,"oox SAY_OOX_AMBUSH_REPLY","No one challanges the Wastewander nomads - not even robotic chickens! ATTACK!"),
+(7806,4,0,12,0,100,"oox SAY_OOX_END","Cloaking systems online! CLUCK! Engaging cloak for transport to Booty Bay!");
+
+DELETE FROM `script_texts` WHERE `entry` BETWEEN -1000409 AND -1000403;
+DELETE FROM `creature_text` WHERE `entry` IN (2691,7780);
+INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,`comment`,`text`) VALUES
+(2691,0,0,12,0,100,"SAY_RIN_BY_OUTRUNNER","Attack my sisters! The troll must not escape!"),
+(7780,0,0,12,0,100,"SAY_RIN_FREE","Rin'ji is free!"),
+(7780,1,0,12,0,100,"SAY_RIN_HELP_1","Rin'ji needs help!"),
+(7780,1,1,12,0,100,"SAY_RIN_HELP_2","Rin'ji is being attacked!"),
+(7780,2,0,12,0,100,"SAY_RIN_COMPLETE","Rin'ji can see road now, $n. Rin'ji knows the way home."),
+(7780,3,0,12,0,100,"SAY_RIN_PROGRESS_1","Rin'ji will tell you secret now... $n, should go to the Overlook Cliffs. Rin'ji hid something on island there"),
+(7780,4,0,12,0,100,"SAY_RIN_PROGRESS_2","You find it, you keep it! Don't tell no one that Rin'ji talked to you!");
+
+DELETE FROM `script_texts` WHERE `entry` BETWEEN -1568009 AND -1568000;
+DELETE FROM `creature_text` WHERE `entry`=23578;
+INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,`comment`,`text`) VALUES
+(23578,0,0,14,12031,100,"janalai SAY_AGGRO","Spirits of da wind be your doom!"),
+(23578,1,0,14,12032,100,"janalai SAY_FIRE_BOMBS","I burn ya now!"),
+(23578,2,0,14,12033,100,"janalai SAY_SUMMON_HATCHER","Where ma hatcha? Get to work on dem eggs!"),
+(23578,3,0,14,12034,100,"janalai SAY_ALL_EGGS","I show you strength... in numbers."),
+(23578,4,0,14,12035,100,"janalai SAY_BERSERK","You done run outta time!"),
+(23578,5,0,14,12036,100,"janalai SAY_SLAY_1","It all be over now, mon!"),
+(23578,5,1,14,12037,100,"janalai SAY_SLAY_2","Tazaga-choo!"),
+(23578,6,0,14,12038,100,"janalai SAY_DEATH","Zul'jin... got a surprise for you..."),
+(23578,7,0,14,12039,100,"janalai SAY_EVENT_STRANGERS","Come, strangers. The spirit of the dragonhawk hot be hungry for worthy souls."),
+(23578,8,0,14,12040,100,"janalai SAY_EVENT_FRIENDS","Come, friends. Your bodies gonna feed ma hatchlings, and your souls are going to feed me with power!");
+
+DELETE FROM `script_texts` WHERE `entry` BETWEEN -1469006 AND -1469004;
+DELETE FROM `creature_text` WHERE `entry`=10162;
+INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,`comment`,`text`) VALUES
+(10162,0,0,12,0,100,"victor_nefarius SAY_GAMESBEGIN_1","In this world where time is your enemy, it is my greatest ally. This grand game of life that you think you play in fact plays you. To that I say..."),
+(10162,1,0,14,8280,100,"victor_nefarius SAY_GAMESBEGIN_2","Let the games begin!"),
+(10162,2,0,14,8279,100,"victor_nefarius SAY_VAEL_INTRO","Ah, the heroes. You are persistent, aren't you. Your allied attempted to match his power against mine, and had to pay the price. Now he shall serve me, by slaughtering you. Get up little red wyrm and destroy them!");
