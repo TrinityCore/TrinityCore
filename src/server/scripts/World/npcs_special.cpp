@@ -3128,4 +3128,6 @@ void AddSC_npcs_special()
     new npc_firework();
     new npc_spring_rabbit();
     new npc_generic_harpoon_cannon();
+    new npc_lonely_turkey();
+    new npc_wild_turkey();
 }
