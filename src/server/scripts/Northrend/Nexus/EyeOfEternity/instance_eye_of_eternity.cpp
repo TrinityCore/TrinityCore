@@ -226,7 +226,7 @@ public:
             }
         }
 
-        uint64 GetData64(uint32 data)
+        uint64 GetData64(uint32 data) const
         {
             switch (data)
             {

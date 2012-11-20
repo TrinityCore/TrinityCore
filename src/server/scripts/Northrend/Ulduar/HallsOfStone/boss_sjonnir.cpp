@@ -236,7 +236,7 @@ public:
                 ++abuseTheOoze;
         }
 
-        uint32 GetData(uint32 type)
+        uint32 GetData(uint32 type) const
         {
             if (type == DATA_ABUSE_THE_OOZE)
                 return abuseTheOoze;

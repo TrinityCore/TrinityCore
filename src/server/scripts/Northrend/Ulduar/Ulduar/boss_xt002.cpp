@@ -30,6 +30,8 @@
 #include "ulduar.h"
 #include "Vehicle.h"
 #include "Player.h"
+#include "WorldPacket.h"
+#include "Opcodes.h"
 
 enum Spells
 {
@@ -327,7 +329,7 @@ class boss_xt002 : public CreatureScript
                 }
             }
 
-            uint32 GetData(uint32 type)
+            uint32 GetData(uint32 type) const
             {
                 switch (type)
                 {

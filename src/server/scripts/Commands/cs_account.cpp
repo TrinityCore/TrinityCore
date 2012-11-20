@@ -22,10 +22,11 @@ Comment: All account related commands
 Category: commandscripts
 EndScriptData */
 
-#include "ScriptMgr.h"
 #include "AccountMgr.h"
 #include "Chat.h"
+#include "Language.h"
 #include "Player.h"
+#include "ScriptMgr.h"
 
 class account_commandscript : public CommandScript
 {

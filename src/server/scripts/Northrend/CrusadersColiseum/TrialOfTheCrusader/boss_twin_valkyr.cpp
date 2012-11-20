@@ -499,7 +499,7 @@ class mob_essence_of_twin : public CreatureScript
         {
             mob_essence_of_twinAI(Creature* creature) : ScriptedAI(creature) { }
 
-            uint32 GetData(uint32 data)
+            uint32 GetData(uint32 data) const
             {
                 uint32 spellReturned = 0;
                 switch (me->GetEntry())

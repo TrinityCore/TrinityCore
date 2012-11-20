@@ -26,6 +26,7 @@ Script Data End */
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "utgarde_pinnacle.h"
+#include "SpellInfo.h"
 
 enum Spells
 {
@@ -201,7 +202,7 @@ public:
                 kingsBane = false;
         }
 
-        uint32 GetData(uint32 type)
+        uint32 GetData(uint32 type) const
         {
             if (type == DATA_KINGS_BANE)
                 return kingsBane ? 1 : 0;

@@ -23,10 +23,12 @@ SDComment: Event should be pretty close minus a few visual flaws
 SDCategory: Halls of Lightning
 EndScriptData */
 
+#include "AchievementMgr.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "halls_of_lightning.h"
 #include "Player.h"
+#include "SpellInfo.h"
 
 enum eEnums
 {

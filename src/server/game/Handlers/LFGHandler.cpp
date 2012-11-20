@@ -23,6 +23,7 @@
 #include "LFGMgr.h"
 #include "ObjectMgr.h"
 #include "GroupMgr.h"
+#include "Opcodes.h"
 
 void BuildPlayerLockDungeonBlock(WorldPacket& data, const LfgLockMap& lock)
 {

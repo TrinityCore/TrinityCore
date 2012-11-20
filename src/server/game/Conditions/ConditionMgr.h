@@ -19,7 +19,11 @@
 #ifndef TRINITY_CONDITIONMGR_H
 #define TRINITY_CONDITIONMGR_H
 
+#include "Define.h"
+#include "Errors.h"
 #include <ace/Singleton.h>
+#include <list>
+#include <map>
 
 class Player;
 class Unit;

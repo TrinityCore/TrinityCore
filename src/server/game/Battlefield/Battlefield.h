@@ -148,7 +148,7 @@ class BfGraveyard
 
         // Method to changing who controls the graveyard
         void GiveControlTo(TeamId team);
-        TeamId GetControlTeamId() { return m_ControlTeam; }
+        TeamId GetControlTeamId() const { return m_ControlTeam; }
 
         // Find the nearest graveyard to a player
         float GetDistance(Player* player);
@@ -188,7 +188,7 @@ class BfGraveyard
         bool HasPlayer(uint64 guid) { return m_ResurrectQueue.find(guid) != m_ResurrectQueue.end(); }
 
         // Get the graveyard's ID.
-        uint32 GetGraveyardId() { return m_GraveyardId; }
+        uint32 GetGraveyardId() const { return m_GraveyardId; }
 
     protected:
         TeamId m_ControlTeam;
@@ -262,11 +262,11 @@ class Battlefield : public ZoneScript
         void HandlePlayerLeaveZone(Player* player, uint32 zone);
 
         // All-purpose data storage 64 bit
-        virtual uint64 GetData64(uint32 dataId) { return m_Data64[dataId]; }
+        virtual uint64 GetData64(uint32 dataId) const { return m_Data64[dataId]; }
         virtual void SetData64(uint32 dataId, uint64 value) { m_Data64[dataId] = value; }
 
         // All-purpose data storage 32 bit
-        virtual uint32 GetData(uint32 dataId) { return m_Data32[dataId]; }
+        virtual uint32 GetData(uint32 dataId) const { return m_Data32[dataId]; }
         virtual void SetData(uint32 dataId, uint32 value) { m_Data32[dataId] = value; }
         virtual void UpdateData(uint32 index, int32 pad) { m_Data32[index] += pad; }
 
@@ -294,7 +294,7 @@ class Battlefield : public ZoneScript
         virtual void AddPlayerToResurrectQueue(uint64 npc_guid, uint64 player_guid);
         void RemovePlayerFromResurrectQueue(uint64 player_guid);
         void SetGraveyardNumber(uint32 number) { m_GraveyardList.resize(number); }
-        BfGraveyard* GetGraveyardById(uint32 id);
+        BfGraveyard* GetGraveyardById(uint32 id) const;
 
         // Misc methods
         Creature* SpawnCreature(uint32 entry, float x, float y, float z, float o, TeamId team);

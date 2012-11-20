@@ -19,6 +19,7 @@
 #ifndef TRINITYCORE_GUILD_H
 #define TRINITYCORE_GUILD_H
 
+#include "AchievementMgr.h"
 #include "World.h"
 #include "Item.h"
 #include "WorldPacket.h"

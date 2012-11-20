@@ -22,21 +22,23 @@ Comment: All reload related commands
 Category: commandscripts
 EndScriptData */
 
-#include "ScriptMgr.h"
-#include "ObjectMgr.h"
-#include "SpellMgr.h"
-#include "TicketMgr.h"
-#include "MapManager.h"
-#include "DisableMgr.h"
-#include "LFGMgr.h"
+#include "AchievementMgr.h"
 #include "AuctionHouseMgr.h"
+#include "Chat.h"
 #include "CreatureTextMgr.h"
-#include "SmartAI.h"
+#include "DisableMgr.h"
+#include "Language.h"
+#include "LFGMgr.h"
+#include "MapManager.h"
+#include "ObjectMgr.h"
+#include "ScriptMgr.h"
 #include "SkillDiscovery.h"
 #include "SkillExtraItems.h"
-#include "Chat.h"
-#include "WaypointManager.h"
+#include "SmartAI.h"
+#include "SpellMgr.h"
+#include "TicketMgr.h"
 #include "WardenCheckMgr.h"
+#include "WaypointManager.h"
 
 class reload_commandscript : public CommandScript
 {

@@ -497,7 +497,7 @@ class boss_deathbringer_saurfang : public CreatureScript
                 DoMeleeAttackIfReady();
             }
 
-            uint32 GetData(uint32 type)
+            uint32 GetData(uint32 type) const
             {
                 if (type == DATA_MADE_A_MESS)
                     if (_fallenChampionCastCount < RAID_MODE<uint32>(3, 5, 3, 5))

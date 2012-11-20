@@ -109,7 +109,7 @@ class instance_zulgurub : public InstanceMapScript
                 }
             }
 
-            uint32 GetData(uint32 type)
+            uint32 GetData(uint32 type) const
             {
                 switch (type)
                 {
@@ -119,7 +119,7 @@ class instance_zulgurub : public InstanceMapScript
             }
             */
 
-            uint64 GetData64(uint32 type)
+            uint64 GetData64(uint32 type) const
             {
                 switch (type)
                 {
@@ -143,7 +143,6 @@ class instance_zulgurub : public InstanceMapScript
                         return grilekGUID;
                     default:
                         break;
-
                 }
 
                 return 0;

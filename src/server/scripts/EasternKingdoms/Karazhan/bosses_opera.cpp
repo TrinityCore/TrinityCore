@@ -28,6 +28,7 @@ EndScriptData */
 #include "ScriptedGossip.h"
 #include "karazhan.h"
 #include "Player.h"
+#include "SpellInfo.h"
 
 /***********************************/
 /*** OPERA WIZARD OF OZ EVENT *****/

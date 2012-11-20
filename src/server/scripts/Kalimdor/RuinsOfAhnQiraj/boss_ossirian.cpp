@@ -19,6 +19,9 @@
 #include "ScriptedCreature.h"
 #include "ruins_of_ahnqiraj.h"
 #include "Player.h"
+#include "SpellInfo.h"
+#include "WorldPacket.h"
+#include "Opcodes.h"
 
 enum Texts
 {
@@ -52,29 +55,29 @@ enum Events
     EVENT_STOMP             = 3
 };
 
-const uint8 NUM_CRYSTALS = 9;
+uint8 const NUM_CRYSTALS = 9;
 
 // You spin me right round, baby
 // right round like a record, baby
 // right round round round
 Position CrystalCoordinates[NUM_CRYSTALS] =
 {
-    { -9394.230469, 1951.808594, 85.97733, 0.0 },
-    { -9357.931641, 1930.596802, 85.556198, 0.0 },
-    { -9383.113281, 2011.042725, 85.556389, 0.0 },
-    { -9243.36, 1979.04, 85.556, 0.0 },
-    { -9281.68, 1886.66, 85.5558, 0.0 },
-    { -9241.8, 1806.39, 85.5557, 0.0 },
-    { -9366.78, 1781.76, 85.5561, 0.0 },
-    { -9430.37, 1786.86, 85.557, 0.0 },
-    { -9406.73, 1863.13, 85.5558, 0.0 }
+    { -9394.230469f, 1951.808594f, 85.97733f, 0.0f },
+    { -9357.931641f, 1930.596802f, 85.556198f, 0.0f },
+    { -9383.113281f, 2011.042725f, 85.556389f, 0.0f },
+    { -9243.36f, 1979.04f, 85.556f, 0.0f },
+    { -9281.68f, 1886.66f, 85.5558f, 0.0f },
+    { -9241.8f, 1806.39f, 85.5557f, 0.0f },
+    { -9366.78f, 1781.76f, 85.5561f, 0.0f },
+    { -9430.37f, 1786.86f, 85.557f, 0.0f },
+    { -9406.73f, 1863.13f, 85.5558f, 0.0f }
 };
 
 float RoomRadius = 165.0f;
-const uint8 NUM_TORNADOS = 5; // TODO: This number is completly random!
-const uint8 NUM_WEAKNESS = 5;
-const uint32 SpellWeakness[NUM_WEAKNESS] = { 25177, 25178, 25180, 25181, 25183 };
-const Position RoomCenter = { -9343.041992f, 1923.278198f, 85.555984f, 0.0 };
+uint8 const NUM_TORNADOS = 5; // TODO: This number is completly random!
+uint8 const NUM_WEAKNESS = 5;
+uint32 const SpellWeakness[NUM_WEAKNESS] = { 25177, 25178, 25180, 25181, 25183 };
+Position const RoomCenter = { -9343.041992f, 1923.278198f, 85.555984f, 0.0 };
 
 class boss_ossirian : public CreatureScript
 {
@@ -213,7 +216,7 @@ class boss_ossirian : public CreatureScript
                 }
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 const diff)
             {
                 if (!UpdateVictim())
                     return;
@@ -227,9 +230,7 @@ class boss_ossirian : public CreatureScript
                 bool ApplySupreme = true;
 
                 if (me->HasAura(SPELL_SUPREME))
-                {
                     ApplySupreme = false;
-                }
                 else
                 {
                     for (uint8 i = 0; i < NUM_WEAKNESS; ++i)
@@ -264,6 +265,8 @@ class boss_ossirian : public CreatureScript
                             DoCast(me, SPELL_STOMP);
                             events.ScheduleEvent(EVENT_STOMP, 30000);
                             break;
+                        default:
+                            break;
                     }
                 }
 
@@ -280,19 +283,15 @@ class boss_ossirian : public CreatureScript
 class go_ossirian_crystal : public GameObjectScript
 {
     public:
-        go_ossirian_crystal() : GameObjectScript("go_ossirian_crystal")
-        {
-        }
+        go_ossirian_crystal() : GameObjectScript("go_ossirian_crystal") { }
 
         bool OnGossipHello(Player* player, GameObject* /*go*/)
         {
             InstanceScript* Instance = player->GetInstanceScript();
-
             if (!Instance)
                 return false;
 
             Creature* Ossirian = player->FindNearestCreature(NPC_OSSIRIAN, 30.0f);
-
             if (!Ossirian || Instance->GetBossState(DATA_OSSIRIAN) != IN_PROGRESS)
                 return false;
 

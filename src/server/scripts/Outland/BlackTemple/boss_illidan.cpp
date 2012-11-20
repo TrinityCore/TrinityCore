@@ -29,6 +29,7 @@ EndScriptData */
 #include "PassiveAI.h"
 #include "black_temple.h"
 #include "Player.h"
+#include "SpellInfo.h"
 
 #define GETGO(obj, guid)      GameObject* obj = instance->instance->GetGameObject(guid)
 #define GETUNIT(unit, guid)   Unit* unit = Unit::GetUnit(*me, guid)

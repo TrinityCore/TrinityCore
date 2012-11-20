@@ -22,6 +22,7 @@
 #include "ScriptedEscortAI.h"
 #include "PassiveAI.h"
 #include "Player.h"
+#include "SpellInfo.h"
 
 enum Says
 {

@@ -35,6 +35,7 @@ EndContentData */
 #include "ScriptedEscortAI.h"
 #include "ScriptedFollowerAI.h"
 #include "Player.h"
+#include "WorldSession.h"
 
 /*######
 ## npc_custodian_of_time
