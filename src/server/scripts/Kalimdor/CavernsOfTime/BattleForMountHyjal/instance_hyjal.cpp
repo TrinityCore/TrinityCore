@@ -28,6 +28,8 @@ EndScriptData */
 #include "ScriptedCreature.h"
 #include "hyjal_trash.h"
 #include "Player.h"
+#include "WorldPacket.h"
+#include "Opcodes.h"
 
 enum Misc
 {

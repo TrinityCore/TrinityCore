@@ -29,6 +29,7 @@ EndScriptData */
 #include "Language.h"
 #include "World.h"
 #include "Player.h"
+#include "Opcodes.h"
 
 class gm_commandscript : public CommandScript
 {

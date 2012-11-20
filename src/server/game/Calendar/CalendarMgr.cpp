@@ -22,6 +22,7 @@
 #include "Player.h"
 #include "GuildMgr.h"
 #include "ObjectAccessor.h"
+#include "Opcodes.h"
 
 CalendarInvite::~CalendarInvite()
 {

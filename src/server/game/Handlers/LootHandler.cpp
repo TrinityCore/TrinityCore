@@ -17,18 +17,19 @@
  */
 
 #include "Common.h"
-#include "WorldPacket.h"
 #include "Log.h"
 #include "Corpse.h"
-#include "GameObject.h"
-#include "Player.h"
-#include "ObjectAccessor.h"
-#include "WorldSession.h"
-#include "LootMgr.h"
-#include "Object.h"
-#include "Group.h"
-#include "World.h"
 #include "Creature.h"
+#include "GameObject.h"
+#include "Group.h"
+#include "LootMgr.h"
+#include "ObjectAccessor.h"
+#include "Object.h"
+#include "Opcodes.h"
+#include "Player.h"
+#include "World.h"
+#include "WorldPacket.h"
+#include "WorldSession.h"
 
 void WorldSession::HandleAutostoreLootItemOpcode(WorldPacket & recvData)
 {

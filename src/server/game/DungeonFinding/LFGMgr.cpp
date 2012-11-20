@@ -31,6 +31,7 @@
 #include "Player.h"
 #include "GroupMgr.h"
 #include "GameEventMgr.h"
+#include "WorldSession.h"
 
 LFGMgr::LFGMgr(): m_QueueTimer(0), m_lfgProposalId(1),
     m_options(sWorld->getIntConfig(CONFIG_LFG_OPTIONSMASK))

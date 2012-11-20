@@ -33,6 +33,7 @@ EndContentData */
 #include "ScriptedEscortAI.h"
 #include "ScriptedFollowerAI.h"
 #include "Player.h"
+#include "SpellInfo.h"
 
 enum AmeData
 {
