@@ -29,51 +29,48 @@ EndScriptData */
 #include "GameObject.h"
 #include "SpellInfo.h"
 
-#define SAY_AGGRO1                  -1532073
-#define SAY_AGGRO2                  -1532074
-#define SAY_AGGRO3                  -1532075
-#define SAY_FLAMEWREATH1            -1532076
-#define SAY_FLAMEWREATH2            -1532077
-#define SAY_BLIZZARD1               -1532078
-#define SAY_BLIZZARD2               -1532079
-#define SAY_EXPLOSION1              -1532080
-#define SAY_EXPLOSION2              -1532081
-#define SAY_DRINK                   -1532082                //Low Mana / AoE Pyroblast
-#define SAY_ELEMENTALS              -1532083
-#define SAY_KILL1                   -1532084
-#define SAY_KILL2                   -1532085
-#define SAY_TIMEOVER                -1532086
-#define SAY_DEATH                   -1532087
-#define SAY_ATIESH                  -1532088                //Atiesh is equipped by a raid member
+enum ShadeOfAran
+{
+    SAY_AGGRO                   = 0,
+    SAY_FLAMEWREATH             = 1,
+    SAY_BLIZZARD                = 2,
+    SAY_EXPLOSION               = 3,
+    SAY_DRINK                   = 4,
+    SAY_ELEMENTALS              = 5,
+    SAY_KILL                    = 6,
+    SAY_TIMEOVER                = 7,
+    SAY_DEATH                   = 8,
+//  SAY_ATIESH                  = 9, Unused
 
-//Spells
-#define SPELL_FROSTBOLT     29954
-#define SPELL_FIREBALL      29953
-#define SPELL_ARCMISSLE     29955
-#define SPELL_CHAINSOFICE   29991
-#define SPELL_DRAGONSBREATH 29964
-#define SPELL_MASSSLOW      30035
-#define SPELL_FLAME_WREATH  29946
-#define SPELL_AOE_CS        29961
-#define SPELL_PLAYERPULL    32265
-#define SPELL_AEXPLOSION    29973
-#define SPELL_MASS_POLY     29963
-#define SPELL_BLINK_CENTER  29967
-#define SPELL_ELEMENTALS    29962
-#define SPELL_CONJURE       29975
-#define SPELL_DRINK         30024
-#define SPELL_POTION        32453
-#define SPELL_AOE_PYROBLAST 29978
+    //Spells
+    SPELL_FROSTBOLT             = 29954,
+    SPELL_FIREBALL              = 29953,
+    SPELL_ARCMISSLE             = 29955,
+    SPELL_CHAINSOFICE           = 29991,
+    SPELL_DRAGONSBREATH         = 29964,
+    SPELL_MASSSLOW              = 30035,
+    SPELL_FLAME_WREATH          = 29946,
+    SPELL_AOE_CS                = 29961,
+    SPELL_PLAYERPULL            = 32265,
+    SPELL_AEXPLOSION            = 29973,
+    SPELL_MASS_POLY             = 29963,
+    SPELL_BLINK_CENTER          = 29967,
+    SPELL_ELEMENTALS            = 29962,
+    SPELL_CONJURE               = 29975,
+    SPELL_DRINK                 = 30024,
+    SPELL_POTION                = 32453,
+    SPELL_AOE_PYROBLAST         = 29978,
 
-//Creature Spells
-#define SPELL_CIRCULAR_BLIZZARD     29951                   //29952 is the REAL circular blizzard that leaves persistant blizzards that last for 10 seconds
-#define SPELL_WATERBOLT             31012
-#define SPELL_SHADOW_PYRO           29978
+    //Creature Spells
+    SPELL_CIRCULAR_BLIZZARD     = 29951,
+    SPELL_WATERBOLT             = 31012,
+    SPELL_SHADOW_PYRO           = 29978,
 
-//Creatures
-#define CREATURE_WATER_ELEMENTAL    17167
-#define CREATURE_SHADOW_OF_ARAN     18254
-#define CREATURE_ARAN_BLIZZARD      17161
+    //Creatures
+    CREATURE_WATER_ELEMENTAL    = 17167,
+    CREATURE_SHADOW_OF_ARAN     = 18254,
+    CREATURE_ARAN_BLIZZARD      = 17161,
+};
 
 enum SuperSpell
 {
@@ -160,12 +157,12 @@ public:
 
         void KilledUnit(Unit* /*victim*/)
         {
-            DoScriptText(RAND(SAY_KILL1, SAY_KILL2), me);
+            Talk(SAY_KILL);
         }
 
         void JustDied(Unit* /*killer*/)
         {
-            DoScriptText(SAY_DEATH, me);
+            Talk(SAY_DEATH);
 
             if (instance)
             {
@@ -176,7 +173,7 @@ public:
 
         void EnterCombat(Unit* /*who*/)
         {
-            DoScriptText(RAND(SAY_AGGRO1, SAY_AGGRO2, SAY_AGGRO3), me);
+            Talk(SAY_AGGRO);
 
             if (instance)
             {
@@ -264,7 +261,7 @@ public:
                 Drinking = true;
                 me->InterruptNonMeleeSpells(false);
 
-                DoScriptText(SAY_DRINK, me);
+                Talk(SAY_DRINK);
 
                 if (!DrinkInturrupted)
                 {
@@ -384,7 +381,7 @@ public:
                 switch (LastSuperSpell)
                 {
                     case SUPER_AE:
-                        DoScriptText(RAND(SAY_EXPLOSION1, SAY_EXPLOSION2), me);
+                        Talk(SAY_EXPLOSION);
 
                         DoCast(me, SPELL_BLINK_CENTER, true);
                         DoCast(me, SPELL_PLAYERPULL, true);
@@ -393,7 +390,7 @@ public:
                         break;
 
                     case SUPER_FLAME:
-                        DoScriptText(RAND(SAY_FLAMEWREATH1, SAY_FLAMEWREATH2), me);
+                        Talk(SAY_FLAMEWREATH);
 
                         FlameWreathTimer = 20000;
                         FlameWreathCheckTime = 500;
@@ -406,7 +403,7 @@ public:
                         break;
 
                     case SUPER_BLIZZARD:
-                        DoScriptText(RAND(SAY_BLIZZARD1, SAY_BLIZZARD2), me);
+                        Talk(SAY_BLIZZARD);
 
                         if (Creature* pSpawn = me->SummonCreature(CREATURE_ARAN_BLIZZARD, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 25000))
                         {
@@ -432,7 +429,7 @@ public:
                     }
                 }
 
-                DoScriptText(SAY_ELEMENTALS, me);
+                Talk(SAY_ELEMENTALS);
             }
 
             if (BerserkTimer <= diff)
@@ -446,7 +443,7 @@ public:
                     }
                 }
 
-                DoScriptText(SAY_TIMEOVER, me);
+                Talk(SAY_TIMEOVER);
 
                 BerserkTimer = 60000;
             } else BerserkTimer -= diff;
