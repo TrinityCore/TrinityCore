@@ -20,6 +20,7 @@
 #include "TicketMgr.h"
 #include "DatabaseEnv.h"
 #include "Log.h"
+#include "Language.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
 #include "Chat.h"

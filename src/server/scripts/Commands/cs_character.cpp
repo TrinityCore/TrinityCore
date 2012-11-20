@@ -22,12 +22,13 @@ Comment: All character related commands
 Category: commandscripts
 EndScriptData */
 
-#include "ScriptMgr.h"
-#include "Chat.h"
 #include "AccountMgr.h"
+#include "Chat.h"
 #include "ObjectMgr.h"
 #include "PlayerDump.h"
 #include "Player.h"
+#include "ReputationMgr.h"
+#include "ScriptMgr.h"
 
 class character_commandscript : public CommandScript
 {

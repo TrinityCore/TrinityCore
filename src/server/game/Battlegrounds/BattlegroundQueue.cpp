@@ -16,14 +16,15 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "BattlegroundQueue.h"
 #include "ArenaTeam.h"
-#include "BattlegroundMgr.h"
-#include "Chat.h"
-#include "ObjectMgr.h"
 #include "ArenaTeamMgr.h"
-#include "Log.h"
+#include "BattlegroundMgr.h"
+#include "BattlegroundQueue.h"
+#include "Chat.h"
 #include "Group.h"
+#include "Log.h"
+#include "Language.h"
+#include "ObjectMgr.h"
 #include "Player.h"
 
 /*********************************************************/

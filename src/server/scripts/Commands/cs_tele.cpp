@@ -22,12 +22,13 @@ Comment: All tele related commands
 Category: commandscripts
 EndScriptData */
 
-#include "ScriptMgr.h"
-#include "ObjectMgr.h"
-#include "MapManager.h"
 #include "Chat.h"
 #include "Group.h"
+#include "Language.h"
+#include "MapManager.h"
+#include "ObjectMgr.h"
 #include "Player.h"
+#include "ScriptMgr.h"
 
 class tele_commandscript : public CommandScript
 {
