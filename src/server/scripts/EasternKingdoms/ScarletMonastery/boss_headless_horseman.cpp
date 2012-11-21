@@ -33,7 +33,7 @@ enum Yells
     SAY_PLAYER_DEATH            = 4,
     SAY_DEATH                   = 5,
 
-	// Head of the Horseman
+    // Head of the Horseman
     SAY_LOST_HEAD               = 0,
 };
 
@@ -67,7 +67,7 @@ enum Spells
 
     // Horseman Head
     SPELL_FLYING_HEAD           = 42399,
-	SPELL_HEAD                  = 42413,
+    SPELL_HEAD                  = 42413,
     SPELL_HEAD_LANDS            = 42400,
  // SPELL_CREATE_PUMPKIN_TREATS = 42754,
     SPELL_EARTHQUKE             = 42909,
@@ -185,7 +185,7 @@ class boss_headless_horseman : public CreatureScript
                 Talk(SAY_DEATH);
                 _summons.DespawnAll();
 
-			    Map::PlayerList const& players = me->GetMap()->GetPlayers();
+                Map::PlayerList const& players = me->GetMap()->GetPlayers();
                 if (!players.isEmpty())
                     for (Map::PlayerList::const_iterator i = players.begin(); i != players.end(); ++i)
                         if (Player* player = i->getSource())
@@ -473,7 +473,7 @@ public:
                 me->RemoveAllAuras();
                 DoCast(me, SPELL_SPROUT_BODY, true);
                 if (Unit* unit = me->SelectNearestTarget())
-	                AttackStart(unit);
+                    AttackStart(unit);
                 me->UpdateEntry(PUMPKIN_FIEND);
             }
         }
