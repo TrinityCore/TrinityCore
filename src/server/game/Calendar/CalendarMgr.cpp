@@ -510,6 +510,10 @@ void CalendarMgr::SendCalendarEventInviteAlert(CalendarEvent const& calendarEven
     data << uint32(calendarEvent.GetType());
     data << int32(calendarEvent.GetDungeonId());
     data << uint64(invite.GetInviteId());
+
+    Guild* guild = sGuildMgr->GetGuildById(calendarEvent.GetGuildId());
+    data << uint64(guild ? guild->GetGUID() : 0);
+
     data << uint8(invite.GetStatus());
     data << uint8(invite.GetRank());
     data.appendPackGUID(calendarEvent.GetCreatorGUID());
@@ -546,7 +550,9 @@ void CalendarMgr::SendCalendarEvent(uint64 guid, CalendarEvent const& calendarEv
     data << uint32(calendarEvent.GetFlags());
     data.AppendPackedTime(calendarEvent.GetEventTime());
     data.AppendPackedTime(calendarEvent.GetTimeZoneTime());
-    data << uint32(calendarEvent.GetGuildId());
+
+    Guild* guild = sGuildMgr->GetGuildById(calendarEvent.GetGuildId());
+    data << uint64(guild ? guild->GetGUID() : 0);
 
     data << uint32(eventInviteeList.size());
     for (std::vector<CalendarInvite*>::const_iterator itr = eventInviteeList.begin(); itr != eventInviteeList.end(); ++itr)
