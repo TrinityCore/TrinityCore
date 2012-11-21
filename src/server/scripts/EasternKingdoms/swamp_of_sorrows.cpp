@@ -31,13 +31,12 @@ enum Galen
 
     GO_GALENS_CAGE          = 37118,
 
-    SAY_PERIODIC            = -1000500,
-    SAY_QUEST_ACCEPTED      = -1000501,
-    SAY_ATTACKED_1          = -1000502,
-    SAY_ATTACKED_2          = -1000503,
-    SAY_QUEST_COMPLETE      = -1000504,
-    EMOTE_WHISPER           = -1000505,
-    EMOTE_DISAPPEAR         = -1000506
+    SAY_PERIODIC            = 0,
+    SAY_QUEST_ACCEPTED      = 1,
+    SAY_ATTACKED            = 2,
+    SAY_QUEST_COMPLETE      = 3,
+    EMOTE_WHISPER           = 4,
+    EMOTE_DISAPPEAR         = 5,
 };
 
 class npc_galen_goodward : public CreatureScript
@@ -52,7 +51,7 @@ public:
         {
             CAST_AI(npc_galen_goodward::npc_galen_goodwardAI, creature->AI())->Start(false, false, player->GetGUID());
             creature->setFaction(FACTION_ESCORT_N_NEUTRAL_ACTIVE);
-            DoScriptText(SAY_QUEST_ACCEPTED, creature);
+            creature->AI()->Talk(SAY_QUEST_ACCEPTED);
         }
         return true;
     }
@@ -81,7 +80,7 @@ public:
         void EnterCombat(Unit* who)
         {
             if (HasEscortState(STATE_ESCORT_ESCORTING))
-                DoScriptText(RAND(SAY_ATTACKED_1, SAY_ATTACKED_2), me, who);
+                Talk(SAY_ATTACKED, who->GetGUID());
         }
 
         void WaypointStart(uint32 uiPointId)
@@ -103,7 +102,7 @@ public:
                     break;
                 }
             case 21:
-                DoScriptText(EMOTE_DISAPPEAR, me);
+                Talk(EMOTE_DISAPPEAR);
                 break;
             }
         }
@@ -120,8 +119,8 @@ public:
                     if (Player* player = GetPlayerForEscort())
                     {
                         me->SetFacingToObject(player);
-                        DoScriptText(SAY_QUEST_COMPLETE, me, player);
-                        DoScriptText(EMOTE_WHISPER, me, player);
+                        Talk(SAY_QUEST_COMPLETE, player->GetGUID());
+                        Talk(EMOTE_WHISPER, player->GetGUID());
                         player->GroupEventHappens(QUEST_GALENS_ESCAPE, me);
                     }
                     SetRun(true);
@@ -139,7 +138,7 @@ public:
             if (m_uiPeriodicSay < uiDiff)
             {
                 if (!HasEscortState(STATE_ESCORT_ESCORTING))
-                    DoScriptText(SAY_PERIODIC, me);
+                    Talk(SAY_PERIODIC);
                 m_uiPeriodicSay = 15000;
             }
             else
