@@ -172,7 +172,6 @@ class ArenaTeam
         void SendStats(WorldSession* session);
         void Inspect(WorldSession* session, uint64 guid);
 
-        uint32 GetPoints(uint32 MemberRating);
         int32  GetMatchmakerRatingMod(uint32 ownRating, uint32 opponentRating, bool won);
         int32  GetRatingMod(uint32 ownRating, uint32 opponentRating, bool won);
         float  GetChanceAgainst(uint32 ownRating, uint32 opponentRating);
@@ -181,8 +180,6 @@ class ArenaTeam
         int32  LostAgainst(uint32 Own_MMRating, uint32 Opponent_MMRating, int32& rating_change);
         void   MemberLost(Player* player, uint32 againstMatchmakerRating, int32 MatchmakerRatingChange = -12);
         void   OfflineMemberLost(uint64 guid, uint32 againstMatchmakerRating, int32 MatchmakerRatingChange = -12);
-
-        void UpdateArenaPointsHelper(std::map<uint32, uint32> & PlayerPoints);
 
         void FinishWeek();
         void FinishGame(int32 mod);

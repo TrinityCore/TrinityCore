@@ -54,7 +54,7 @@
 
 BattlegroundMgr::BattlegroundMgr() :
     m_NextRatedArenaUpdate(sWorld->getIntConfig(CONFIG_ARENA_RATED_UPDATE_TIMER)),
-    m_AutoDistributionTimeChecker(0), m_ArenaTesting(false), m_Testing(false)
+    m_ArenaTesting(false), m_Testing(false)
 { }
 
 BattlegroundMgr::~BattlegroundMgr()
@@ -145,22 +145,6 @@ void BattlegroundMgr::Update(uint32 diff)
         }
         else
             m_NextRatedArenaUpdate -= diff;
-    }
-
-    if (sWorld->getBoolConfig(CONFIG_ARENA_AUTO_DISTRIBUTE_POINTS))
-    {
-        if (m_AutoDistributionTimeChecker < diff)
-        {
-            if (time(NULL) > m_NextAutoDistributionTime)
-            {
-                sArenaTeamMgr->DistributeArenaPoints();
-                m_NextAutoDistributionTime = m_NextAutoDistributionTime + BATTLEGROUND_ARENA_POINT_DISTRIBUTION_DAY * sWorld->getIntConfig(CONFIG_ARENA_AUTO_DISTRIBUTE_INTERVAL_DAYS);
-                sWorld->setWorldState(WS_ARENA_DISTRIBUTION_TIME, uint64(m_NextAutoDistributionTime));
-            }
-            m_AutoDistributionTimeChecker = 600000; // check 10 minutes
-        }
-        else
-            m_AutoDistributionTimeChecker -= diff;
     }
 }
 
@@ -1108,24 +1092,6 @@ void BattlegroundMgr::CreateInitialBattlegrounds()
     while (result->NextRow());
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u battlegrounds in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-}
-
-void BattlegroundMgr::InitAutomaticArenaPointDistribution()
-{
-    if (!sWorld->getBoolConfig(CONFIG_ARENA_AUTO_DISTRIBUTE_POINTS))
-        return;
-
-    time_t wstime = time_t(sWorld->getWorldState(WS_ARENA_DISTRIBUTION_TIME));
-    time_t curtime = time(NULL);
-    sLog->outDebug(LOG_FILTER_BATTLEGROUND, "Initializing Automatic Arena Point Distribution");
-    if (wstime < curtime)
-    {
-        m_NextAutoDistributionTime = curtime;           // reset will be called in the next update
-        sLog->outDebug(LOG_FILTER_BATTLEGROUND, "Battleground: Next arena point distribution time in the past, reseting it now.");
-    }
-    else
-        m_NextAutoDistributionTime = wstime;
-    sLog->outDebug(LOG_FILTER_BATTLEGROUND, "Automatic Arena Point Distribution initialized.");
 }
 
 void BattlegroundMgr::BuildBattlegroundListPacket(WorldPacket* data, uint64 guid, Player* player, BattlegroundTypeId bgTypeId)

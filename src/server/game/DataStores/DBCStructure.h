@@ -848,8 +848,8 @@ struct CurrencyCategoryEntry
 
 struct CurrencyTypesEntry
 {
-    uint32    ID;                                           // 0        not used
-    //uint32    Category;                                   // 1        may be category
+    uint32 ID;                                              // 0        not used
+    uint32 Category;                                        // 1        may be category
     //char* name;                                           // 2
     //char* iconName;                                       // 3
     //uint32 unk4;                                          // 4        all 0

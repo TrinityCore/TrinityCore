@@ -567,32 +567,6 @@ bool ArenaTeam::IsMember(uint64 guid) const
     return false;
 }
 
-uint32 ArenaTeam::GetPoints(uint32 memberRating)
-{
-    // Returns how many points would be awarded with this team type with this rating
-    float points;
-
-    uint32 rating = memberRating + 150 < Stats.Rating ? memberRating : Stats.Rating;
-
-    if (rating <= 1500)
-    {
-        if (sWorld->getIntConfig(CONFIG_ARENA_SEASON_ID) < 6)
-            points = (float)rating * 0.22f + 14.0f;
-        else
-            points = 344;
-    }
-    else
-        points = 1511.26f / (1.0f + 1639.28f * exp(-0.00412f * (float)rating));
-
-    // Type penalties for teams < 5v5
-    if (Type == ARENA_TEAM_2v2)
-        points *= 0.76f;
-    else if (Type == ARENA_TEAM_3v3)
-        points *= 0.88f;
-
-    return (uint32) points;
-}
-
 uint32 ArenaTeam::GetAverageMMR(Group* group) const
 {
     if (!group)
@@ -817,36 +791,6 @@ void ArenaTeam::MemberWon(Player* player, uint32 againstMatchmakerRating, int32 
             player->SetArenaTeamInfoField(GetSlot(), ARENA_TEAM_GAMES_SEASON, itr->SeasonGames);
             return;
         }
-    }
-}
-
-void ArenaTeam::UpdateArenaPointsHelper(std::map<uint32, uint32>& playerPoints)
-{
-    // Called after a match has ended and the stats are already modified
-    // Helper function for arena point distribution (this way, when distributing, no actual calculation is required, just a few comparisons)
-    // 10 played games per week is a minimum
-    if (Stats.WeekGames < 10)
-        return;
-
-    // To get points, a player has to participate in at least 30% of the matches
-    uint32 requiredGames = (uint32)ceil(Stats.WeekGames * 0.3f);
-
-    for (MemberList::const_iterator itr = Members.begin(); itr != Members.end(); ++itr)
-    {
-        // The player participated in enough games, update his points
-        uint32 pointsToAdd = 0;
-        if (itr->WeekGames >= requiredGames)
-            pointsToAdd = GetPoints(itr->PersonalRating);
-
-        std::map<uint32, uint32>::iterator plr_itr = playerPoints.find(GUID_LOPART(itr->Guid));
-        if (plr_itr != playerPoints.end())
-        {
-            // Check if there is already more points
-            if (plr_itr->second < pointsToAdd)
-                playerPoints[GUID_LOPART(itr->Guid)] = pointsToAdd;
-        }
-        else
-            playerPoints[GUID_LOPART(itr->Guid)] = pointsToAdd;
     }
 }
 

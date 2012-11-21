@@ -106,7 +106,6 @@ public:
             { "cometome",           SEC_ADMINISTRATOR,      false, &HandleComeToMeCommand,              "", NULL },
             { "damage",             SEC_ADMINISTRATOR,      false, &HandleDamageCommand,                "", NULL },
             { "combatstop",         SEC_GAMEMASTER,         true,  &HandleCombatStopCommand,            "", NULL },
-            { "flusharenapoints",   SEC_ADMINISTRATOR,      false, &HandleFlushArenaPointsCommand,      "", NULL },
             { "repairitems",        SEC_GAMEMASTER,         true,  &HandleRepairitemsCommand,           "", NULL },
             { "freeze",             SEC_MODERATOR,          false, &HandleFreezeCommand,                "", NULL },
             { "unfreeze",           SEC_MODERATOR,          false, &HandleUnFreezeCommand,              "", NULL },
@@ -2122,12 +2121,6 @@ public:
 
         target->CombatStop();
         target->getHostileRefManager().deleteReferences();
-        return true;
-    }
-
-    static bool HandleFlushArenaPointsCommand(ChatHandler* /*handler*/, char const* /*args*/)
-    {
-        sArenaTeamMgr->DistributeArenaPoints();
         return true;
     }
 
