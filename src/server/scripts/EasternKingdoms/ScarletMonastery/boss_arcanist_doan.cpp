@@ -35,7 +35,7 @@ enum eEnums
     SPELL_AOESILENCE            = 8988,
     SPELL_ARCANEEXPLOSION       = 9433,
     SPELL_FIREAOE               = 9435,
-    SPELL_ARCANEBUBBLE          = 9438,
+    SPELL_ARCANEBUBBLE          = 9438
 };
 
 class boss_arcanist_doan : public CreatureScript

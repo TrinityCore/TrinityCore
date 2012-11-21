@@ -50,7 +50,7 @@ enum AuriayaNPCs
     NPC_SANCTUM_SENTRY                           = 34014,
     NPC_FERAL_DEFENDER                           = 34035,
     NPC_FERAL_DEFENDER_TRIGGER                   = 34096,
-    NPC_SEEPING_TRIGGER                          = 34098,
+    NPC_SEEPING_TRIGGER                          = 34098
 };
 
 enum AuriayaEvents
@@ -71,7 +71,7 @@ enum AuriayaEvents
 
     // Feral Defender
     EVENT_FERAL_POUNCE                           = 11,
-    EVENT_RUSH                                   = 12,
+    EVENT_RUSH                                   = 12
 };
 
 enum AuriayaYells
@@ -85,7 +85,7 @@ enum AuriayaYells
 
     // Emotes
     EMOTE_FEAR                                   = -1603055,
-    EMOTE_DEFENDER                               = -1603056,
+    EMOTE_DEFENDER                               = -1603056
 };
 
 enum AuriayaActions

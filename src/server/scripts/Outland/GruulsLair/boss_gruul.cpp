@@ -53,7 +53,7 @@ enum eEnums
     SPELL_STONED                = 33652,                    //Spell is self cast by target
 
     SPELL_MAGNETIC_PULL         = 28337,
-    SPELL_KNOCK_BACK            = 24199,                    //Knockback spell until correct implementation is made
+    SPELL_KNOCK_BACK            = 24199                     //Knockback spell until correct implementation is made
 };
 
 class boss_gruul : public CreatureScript

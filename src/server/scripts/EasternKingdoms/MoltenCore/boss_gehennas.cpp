@@ -32,14 +32,14 @@ enum Spells
 {
     SPELL_GEHENNAS_CURSE    = 19716,
     SPELL_RAIN_OF_FIRE      = 19717,
-    SPELL_SHADOW_BOLT       = 19728,
+    SPELL_SHADOW_BOLT       = 19728
 };
 
 enum Events
 {
     EVENT_GEHENNAS_CURSE    = 1,
     EVENT_RAIN_OF_FIRE      = 2,
-    EVENT_SHADOW_BOLT       = 3,
+    EVENT_SHADOW_BOLT       = 3
 };
 
 class boss_gehennas : public CreatureScript

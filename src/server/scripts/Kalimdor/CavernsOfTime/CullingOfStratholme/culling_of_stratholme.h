@@ -26,7 +26,7 @@ enum Data
     DATA_MAL_GANIS_EVENT,
     DATA_INFINITE_EVENT,
     DATA_ARTHAS_EVENT,
-    DATA_CRATE_COUNT,
+    DATA_CRATE_COUNT
 };
 
 enum Data64
@@ -55,7 +55,7 @@ enum Creatures
     NPC_JAINA           = 26497,
     NPC_UTHER           = 26528,
     NPC_CHROMIE_2       = 27915,
-    NPC_GENERIC_BUNNY   = 28960,
+    NPC_GENERIC_BUNNY   = 28960
 };
 
 enum GameObjects
@@ -67,7 +67,7 @@ enum GameObjects
     GO_MALGANIS_CHEST_N = 190663,
     GO_MALGANIS_CHEST_H = 193597,
     GO_SUSPICIOUS_CRATE = 190094,
-    GO_PLAGUED_CRATE    = 190095,
+    GO_PLAGUED_CRATE    = 190095
 };
 
 enum WorldStatesCoT
@@ -76,12 +76,12 @@ enum WorldStatesCoT
     WORLDSTATE_CRATES_REVEALED      = 3480,
     WORLDSTATE_WAVE_COUNT           = 3504,
     WORLDSTATE_TIME_GUARDIAN        = 3931,
-    WORLDSTATE_TIME_GUARDIAN_SHOW   = 3932,
+    WORLDSTATE_TIME_GUARDIAN_SHOW   = 3932
 };
 
 enum CrateSpells
 {
-    SPELL_CRATES_CREDIT     = 58109,
+    SPELL_CRATES_CREDIT     = 58109
 };
 
 #endif

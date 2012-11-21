@@ -25,7 +25,7 @@ enum eObjects
     GO_ALTAR_OF_THE_KEEPER_TEMPLE_DOOR  = 124367,
     GO_ANCIENT_VAULT_DOOR               = 124369,
     GO_IRONAYA_SEAL_DOOR                = 124372,
-    GO_KEYSTONE                         = 124371,
+    GO_KEYSTONE                         = 124371
 };
 
 enum eData
@@ -35,7 +35,7 @@ enum eData
     DATA_IRONAYA_DOOR                   = 3,
     DATA_STONE_KEEPERS                  = 4,
     DATA_MINIONS                        = 5,
-    DATA_IRONAYA_SEAL                   = 6,
+    DATA_IRONAYA_SEAL                   = 6
 };
 
 #define MAX_ENCOUNTER                   3

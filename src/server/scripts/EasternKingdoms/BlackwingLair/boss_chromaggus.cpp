@@ -264,6 +264,7 @@ public:
                                 //Chromatic mutation is causing issues
                                 //Assuming it is caused by a lack of core support for Charm
                                 //So instead we instant kill our target
+								//TODO: Fix this^
 
                                 //WORKAROUND
                                 if (unit->GetTypeId() == TYPEID_PLAYER)

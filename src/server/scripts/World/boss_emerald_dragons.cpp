@@ -34,7 +34,7 @@ enum EmeraldDragonNPC
     DRAGON_YSONDRE                  = 14887,
     DRAGON_LETHON                   = 14888,
     DRAGON_EMERISS                  = 14889,
-    DRAGON_TAERAR                   = 14890,
+    DRAGON_TAERAR                   = 14890
 };
 
 //
@@ -52,7 +52,7 @@ enum EmeraldDragonSpells
     SPELL_NOXIOUS_BREATH            = 24818,
     SPELL_MARK_OF_NATURE            = 25040,    // Mark of Nature trigger (applied on target death - 15 minutes of being suspectible to Aura Of Nature)
     SPELL_MARK_OF_NATURE_AURA       = 25041,    // Mark of Nature (passive marker-test, ticks every 10 seconds from boss, triggers spellID 25042 (scripted)
-    SPELL_AURA_OF_NATURE            = 25043,    // Stun for 2 minutes (used when SPELL_MARK_OF_NATURE exists on the target)
+    SPELL_AURA_OF_NATURE            = 25043     // Stun for 2 minutes (used when SPELL_MARK_OF_NATURE exists on the target)
 };
 
 //
@@ -79,7 +79,7 @@ enum Events
 
     // Taerar
     EVENT_ARCANE_BLAST,
-    EVENT_BELLOWING_ROAR,
+    EVENT_BELLOWING_ROAR
 };
 
 /*
@@ -223,19 +223,19 @@ class npc_dream_fog : public CreatureScript
 
 enum YsondreNPC
 {
-    NPC_DEMENTED_DRUID              = 15260,
+    NPC_DEMENTED_DRUID              = 15260
 };
 
 enum YsondreTexts
 {
     SAY_YSONDRE_AGGRO               = 0,
-    SAY_YSONDRE_SUMMON_DRUIDS       = 1,
+    SAY_YSONDRE_SUMMON_DRUIDS       = 1
 };
 
 enum YsondreSpells
 {
     SPELL_LIGHTNING_WAVE            = 24819,
-    SPELL_SUMMON_DRUID_SPIRITS      = 24795,
+    SPELL_SUMMON_DRUID_SPIRITS      = 24795
 };
 
 class boss_ysondre : public CreatureScript
@@ -311,19 +311,19 @@ class boss_ysondre : public CreatureScript
 enum LethonTexts
 {
     SAY_LETHON_AGGRO                = 0,
-    SAY_LETHON_DRAW_SPIRIT          = 1,
+    SAY_LETHON_DRAW_SPIRIT          = 1
 };
 
 enum LethonSpells
 {
     SPELL_DRAW_SPIRIT               = 24811,
     SPELL_SHADOW_BOLT_WHIRL         = 24834,
-    SPELL_DARK_OFFERING             = 24804,
+    SPELL_DARK_OFFERING             = 24804
 };
 
 enum LethonCreatures
 {
-    NPC_SPIRIT_SHADE                = 15261,
+    NPC_SPIRIT_SHADE                = 15261
 };
 
 class boss_lethon : public CreatureScript
@@ -439,14 +439,14 @@ class npc_spirit_shade : public CreatureScript
 enum EmerissTexts
 {
     SAY_EMERISS_AGGRO               = 0,
-    SAY_EMERISS_CAST_CORRUPTION     = 1,
+    SAY_EMERISS_CAST_CORRUPTION     = 1
 };
 
 enum EmerissSpells
 {
     SPELL_PUTRID_MUSHROOM           = 24904,
     SPELL_CORRUPTION_OF_EARTH       = 24910,
-    SPELL_VOLATILE_INFECTION        = 24928,
+    SPELL_VOLATILE_INFECTION        = 24928
 };
 
 class boss_emeriss : public CreatureScript
@@ -523,7 +523,7 @@ class boss_emeriss : public CreatureScript
 enum TaerarTexts
 {
     SAY_TAERAR_AGGRO                = 0,
-    SAY_TAERAR_SUMMON_SHADES        = 1,
+    SAY_TAERAR_SUMMON_SHADES        = 1
 };
 
 enum TaerarSpells
@@ -533,7 +533,7 @@ enum TaerarSpells
     SPELL_SUMMON_SHADE_1            = 24841,
     SPELL_SUMMON_SHADE_2            = 24842,
     SPELL_SUMMON_SHADE_3            = 24843,
-    SPELL_ARCANE_BLAST              = 24857,
+    SPELL_ARCANE_BLAST              = 24857
 };
 
 uint32 const TaerarShadeSpells[] =

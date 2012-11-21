@@ -44,7 +44,7 @@ enum Yells
 
     SAY_GOOD_AGGRO                              = 0,
     SAY_GOOD_NEAR_DEATH                         = 1,
-    SAY_GOOD_NEAR_DEATH2                        = 2,
+    SAY_GOOD_NEAR_DEATH2                        = 2
 };
 
 enum Spells
@@ -76,7 +76,7 @@ enum Spells
 enum SWPActions
 {
     DO_ENRAGE                                   =  1,
-    DO_BANISH                                   =  2,
+    DO_BANISH                                   =  2
 };
 
 #define GO_FAILED   "You are unable to use this currently."

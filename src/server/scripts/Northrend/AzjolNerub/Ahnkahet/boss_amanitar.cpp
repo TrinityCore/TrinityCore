@@ -30,7 +30,7 @@ enum Spells
     SPELL_POISONOUS_MUSHROOM_VISUAL_AREA          = 61566, // Self
     SPELL_POISONOUS_MUSHROOM_VISUAL_AURA          = 56741, // Self
     SPELL_PUTRID_MUSHROOM                         = 31690, // To make the mushrooms visible
-    SPELL_POWER_MUSHROOM_VISUAL_AURA              = 56740,
+    SPELL_POWER_MUSHROOM_VISUAL_AURA              = 56740
 };
 
 enum Creatures

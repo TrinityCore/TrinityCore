@@ -33,7 +33,7 @@ enum eSays
     SAY_KILL_2                 = -1553002,
     SAY_TREE_1                 = -1553003,
     SAY_TREE_2                 = -1553004,
-    SAY_DEATH                  = -1553005,
+    SAY_DEATH                  = -1553005
 };
 
 enum eSpells
@@ -44,7 +44,7 @@ enum eSpells
     SPELL_PLANT_WHITE          = 34759,
     SPELL_PLANT_GREEN          = 34761,
     SPELL_PLANT_BLUE           = 34762,
-    SPELL_PLANT_RED            = 34763,
+    SPELL_PLANT_RED            = 34763
 };
 
 #define ENTRY_FRAYER                19953

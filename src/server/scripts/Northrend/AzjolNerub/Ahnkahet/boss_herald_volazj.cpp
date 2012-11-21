@@ -57,7 +57,7 @@ enum Yells
 
 enum Achievements
 {
-    ACHIEV_QUICK_DEMISE_START_EVENT               = 20382,
+    ACHIEV_QUICK_DEMISE_START_EVENT               = 20382
 };
 
 class boss_volazj : public CreatureScript

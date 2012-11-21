@@ -33,7 +33,7 @@ enum Yells
     SAY_SCORCH_1    = -1603226,
     SAY_SCORCH_2    = -1603227,
     SAY_BERSERK     = -1603228,
-    EMOTE_JETS      = -1603229,
+    EMOTE_JETS      = -1603229
 };
 
 enum Spells
@@ -53,7 +53,7 @@ enum Spells
     SPELL_MOLTEN                = 62373,
     SPELL_BRITTLE               = 62382,
     SPELL_SHATTER               = 62383,
-    SPELL_GROUND                = 62548,
+    SPELL_GROUND                = 62548
 };
 
 enum Events
@@ -65,24 +65,24 @@ enum Events
     EVENT_CHANGE_POT    = 5,
     EVENT_END_POT       = 6,
     EVENT_CONSTRUCT     = 7,
-    EVENT_BERSERK       = 8,
+    EVENT_BERSERK       = 8
 };
 
 enum Actions
 {
-    ACTION_REMOVE_BUFF = 20,
+    ACTION_REMOVE_BUFF = 20
 };
 
 enum Creatures
 {
     NPC_IRON_CONSTRUCT  = 33121,
-    NPC_GROUND_SCORCH   = 33221,
+    NPC_GROUND_SCORCH   = 33221
 };
 
 enum AchievementData
 {
     DATA_SHATTERED                  = 29252926,
-    ACHIEVEMENT_IGNIS_START_EVENT   = 20951,
+    ACHIEVEMENT_IGNIS_START_EVENT   = 20951
 };
 
 #define CONSTRUCT_SPAWN_POINTS 20
@@ -108,7 +108,7 @@ Position const ConstructSpawnPosition[CONSTRUCT_SPAWN_POINTS] =
     {543.316f, 337.468f, 360.886f, 6.195920f},
     {543.280f, 239.674f, 360.890f, 6.265730f},
     {543.265f, 217.147f, 360.891f, 0.174533f},
-    {543.256f, 224.831f, 360.891f, 0.122173f},
+    {543.256f, 224.831f, 360.891f, 0.122173f}
 };
 
 class boss_ignis : public CreatureScript

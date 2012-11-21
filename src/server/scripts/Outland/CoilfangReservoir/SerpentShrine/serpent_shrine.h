@@ -52,7 +52,7 @@ enum DataTypes
     DATA_CONTROL_CONSOLE            = 22,
     DATA_STRANGE_POOL               = 23,
     DATA_WATER                      = 24,
-    DATA_TRASH                      = 25,
+    DATA_TRASH                      = 25
 };
 
 #endif

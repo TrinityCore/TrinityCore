@@ -31,7 +31,7 @@ const Position PosSummon[3] =
 {
     {3267.9f, -3172.1f, 297.42f, 0.94f},
     {3253.2f, -3132.3f, 297.42f, 0},
-    {3308.3f, -3185.8f, 297.42f, 1.58f},
+    {3308.3f, -3185.8f, 297.42f, 1.58f}
 };
 
 enum Events
@@ -41,7 +41,7 @@ enum Events
     EVENT_ENRAGE,
     EVENT_DECIMATE,
     EVENT_BERSERK,
-    EVENT_SUMMON,
+    EVENT_SUMMON
 };
 
 #define EMOTE_NEARBY    " spots a nearby zombie to devour!"

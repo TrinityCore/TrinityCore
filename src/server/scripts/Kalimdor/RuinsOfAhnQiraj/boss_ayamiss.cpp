@@ -32,7 +32,7 @@ enum eAyamiss
 
     EMOTE_FRENZY                =  -1000002,
 
-    SPELL_FEED                  =  25721,
+    SPELL_FEED                  =  25721
 };
 
 class boss_ayamiss : public CreatureScript

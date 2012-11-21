@@ -50,7 +50,7 @@ enum eMillhouseSays
     SAY_ICEBLOCK               = 8,
     SAY_LOWHP                  = 9,
     SAY_DEATH                  = 10,
-    SAY_COMPLETE               = 11,
+    SAY_COMPLETE               = 11
 };
 
 enum eMillhouseSpells
@@ -63,7 +63,7 @@ enum eMillhouseSpells
     SPELL_FIRE_BLAST           = 13341,
     SPELL_FIREBALL             = 14034,
     SPELL_FROSTBOLT            = 15497,
-    SPELL_PYROBLAST            = 33975,
+    SPELL_PYROBLAST            = 33975
 };
 
 class npc_millhouse_manastorm : public CreatureScript
@@ -239,7 +239,7 @@ enum eWardenSays
     YELL_RELEASE2B      = 4,
     YELL_RELEASE3       = 5,
     YELL_RELEASE4       = 6,
-    YELL_WELCOME        = 7,
+    YELL_WELCOME        = 7
 };
 
 enum eWardenUnits
@@ -256,7 +256,7 @@ enum eWardenUnits
     ENTRY_TW_DRAK      = 20910,
     ENTRY_BL_DRAK      = 20911,
     //phase 6
-    ENTRY_SKYRISS      = 20912,
+    ENTRY_SKYRISS      = 20912
 };
 
 enum eWardenSpells
@@ -267,7 +267,7 @@ enum eWardenSpells
     SPELL_TARGET_DELTA  = 36857,
     SPELL_TARGET_GAMMA  = 36858,
     SPELL_TARGET_OMEGA  = 36852,
-    SPELL_BUBBLE_VISUAL = 36849,
+    SPELL_BUBBLE_VISUAL = 36849
 };
 
 class npc_warden_mellichar : public CreatureScript

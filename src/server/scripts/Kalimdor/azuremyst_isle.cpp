@@ -663,7 +663,7 @@ enum BristlelimbCage
     CAPITIVE_SAY_3                      = -1000476,
 
     POINT_INIT                          = 1,
-    EVENT_DESPAWN                       = 1,
+    EVENT_DESPAWN                       = 1
 };
 
 class npc_stillpine_capitive : public CreatureScript

@@ -54,7 +54,7 @@ enum FreyaYells
     SAY_STONEBARK_AGGRO                          = -1603198,
     SAY_STONEBARK_SLAY_1                         = -1603199,
     SAY_STONEBARK_SLAY_2                         = -1603200,
-    SAY_STONEBARK_DEATH                          = -1603201,
+    SAY_STONEBARK_DEATH                          = -1603201
 };
 
 enum FreyaSpells
@@ -159,7 +159,7 @@ enum FreyaSpells
     // Attuned To Nature spells
     SPELL_ATTUNED_TO_NATURE_2_DOSE_REDUCTION     = 62524,
     SPELL_ATTUNED_TO_NATURE_10_DOSE_REDUCTION    = 62525,
-    SPELL_ATTUNED_TO_NATURE_25_DOSE_REDUCTION    = 62521,
+    SPELL_ATTUNED_TO_NATURE_25_DOSE_REDUCTION    = 62521
 };
 
 enum FreyaNpcs
@@ -177,13 +177,13 @@ enum FreyaNpcs
     NPC_IRON_ROOTS                               = 33088,
     NPC_STRENGTHENED_IRON_ROOTS                  = 33168,
 
-    OBJECT_NATURE_BOMB                           = 194902,
+    OBJECT_NATURE_BOMB                           = 194902
 };
 
 enum FreyaActions
 {
     ACTION_ELDER_DEATH                           = 1,
-    ACTION_ELDER_FREYA_KILLED                    = 2,
+    ACTION_ELDER_FREYA_KILLED                    = 2
 };
 
 enum FreyaEvents
@@ -211,7 +211,7 @@ enum FreyaEvents
     // Elder Brightleaf
     EVENT_SOLAR_FLARE                            = 15,
     EVENT_UNSTABLE_SUN_BEAM                      = 16,
-    EVENT_FLUX                                   = 17,
+    EVENT_FLUX                                   = 17
 };
 
 #define WAVE_TIME                                60000 // Normal wave is one minute

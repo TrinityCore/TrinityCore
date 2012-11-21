@@ -42,7 +42,7 @@ enum Curator
     SPELL_HATEFUL_BOLT              = 30383,
     SPELL_EVOCATION                 = 30254,
     SPELL_ENRAGE                    = 30403,               //Arcane Infusion: Transforms Curator and adds damage.
-    SPELL_BERSERK                   = 26662,
+    SPELL_BERSERK                   = 26662
 };
 
 

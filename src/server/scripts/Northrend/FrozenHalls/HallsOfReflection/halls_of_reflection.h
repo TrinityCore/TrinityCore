@@ -24,7 +24,7 @@ enum Data
     DATA_MARWYN_EVENT,
     DATA_LICHKING_EVENT,
     DATA_WAVE_COUNT,
-    DATA_TEAM_IN_INSTANCE,
+    DATA_TEAM_IN_INSTANCE
 };
 
 enum Data64
@@ -32,7 +32,7 @@ enum Data64
     DATA_FALRIC,
     DATA_MARWYN,
     DATA_LICHKING,
-    DATA_FROSTMOURNE,
+    DATA_FROSTMOURNE
 };
 
 enum Creatures
@@ -52,7 +52,7 @@ enum Creatures
     NPC_WAVE_FOOTMAN                              = 38173,
     NPC_WAVE_RIFLEMAN                             = 38176,
     NPC_WAVE_PRIEST                               = 38175,
-    NPC_WAVE_MAGE                                 = 38172,
+    NPC_WAVE_MAGE                                 = 38172
 };
 
 enum GameObjects
@@ -60,13 +60,13 @@ enum GameObjects
     GO_FROSTMOURNE                                = 202302,
     GO_FROSTMOURNE_ALTAR                          = 202236,
     GO_FRONT_DOOR                                 = 201976,
-    GO_ARTHAS_DOOR                                = 197341,
+    GO_ARTHAS_DOOR                                = 197341
 };
 
 enum HorWorldStates
 {
     WORLD_STATE_HOR                               = 4884,
-    WORLD_STATE_HOR_WAVE_COUNT                    = 4882,
+    WORLD_STATE_HOR_WAVE_COUNT                    = 4882
 };
 
 // Common actions from Instance Script to Boss Script

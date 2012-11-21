@@ -43,13 +43,13 @@ enum TorekSays
     SAY_MOVE                   = 1,
     SAY_PREPARE                = 2,
     SAY_WIN                    = 3,
-    SAY_END                    = 4,
+    SAY_END                    = 4
 };
 
 enum TorekSpells
 {
     SPELL_REND                  = 11977,
-    SPELL_THUNDERCLAP           = 8078,
+    SPELL_THUNDERCLAP           = 8078
 };
 
 enum TorekMisc
@@ -59,7 +59,7 @@ enum TorekMisc
     ENTRY_SPLINTERTREE_RAIDER   = 12859,
     ENTRY_DURIEL                = 12860,
     ENTRY_SILVERWING_SENTINEL   = 12896,
-    ENTRY_SILVERWING_WARRIOR    = 12897,
+    ENTRY_SILVERWING_WARRIOR    = 12897
 };
 
 class npc_torek : public CreatureScript

@@ -49,7 +49,7 @@ enum CreaturesIds
     ANETHERON           = 17808,
     KAZROGAL            = 17888,
     AZGALOR             = 17842,
-    ARCHIMONDE          = 17968,
+    ARCHIMONDE          = 17968
 };
 
 enum SpellIds
@@ -65,7 +65,7 @@ enum SpellIds
 
     //Thrall spells
     SPELL_CHAIN_LIGHTNING     = 31330,
-    SPELL_SUMMON_DIRE_WOLF    = 31331,
+    SPELL_SUMMON_DIRE_WOLF    = 31331
 };
 
 struct Wave
@@ -129,7 +129,7 @@ enum TargetType                                             // Used in the spell
 {
     TARGETTYPE_SELF     = 0,
     TARGETTYPE_RANDOM   = 1,
-    TARGETTYPE_VICTIM   = 2,
+    TARGETTYPE_VICTIM   = 2
 };
 
 struct Yells
@@ -146,7 +146,7 @@ enum YellId
     RALLY        = 3,                                       // Used to rally the raid and warn that the next wave has been summoned
     FAILURE      = 4,                                       // Used when raid has failed (unsure where to place)
     SUCCESS      = 5,                                       // Used when the raid has sucessfully defeated a wave phase
-    DEATH        = 6,                                       // Used on death
+    DEATH        = 6                                        // Used on death
 };
 
 const Yells JainaQuotes[]=
@@ -159,7 +159,7 @@ const Yells JainaQuotes[]=
     {RALLY, -1534005},
     {FAILURE, -1534006},
     {SUCCESS, -1534007},
-    {DEATH, -1534008},
+    {DEATH, -1534008}
 };
 
 const Yells ThrallQuotes[]=
@@ -172,7 +172,7 @@ const Yells ThrallQuotes[]=
     {RALLY, -1534014},
     {FAILURE, -1534015},
     {SUCCESS, -1534016},
-    {DEATH, -1534017},
+    {DEATH, -1534017}
 };
 
 struct hyjalAI : public npc_escortAI

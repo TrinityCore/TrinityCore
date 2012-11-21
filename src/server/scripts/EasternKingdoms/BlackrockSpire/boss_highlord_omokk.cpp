@@ -28,7 +28,7 @@ enum Spells
     SPELL_REND                      = 18106,
     SPELL_SUNDERARMOR               = 24317,
     SPELL_KNOCKAWAY                 = 20686,
-    SPELL_SLOW                      = 22356,
+    SPELL_SLOW                      = 22356
 };
 
 enum Events
@@ -39,7 +39,7 @@ enum Events
     EVENT_REND                      = 4,
     EVENT_SUNDER_ARMOR              = 5,
     EVENT_KNOCK_AWAY                = 6,
-    EVENT_SLOW                      = 7,
+    EVENT_SLOW                      = 7
 };
 
 class boss_highlord_omokk : public CreatureScript

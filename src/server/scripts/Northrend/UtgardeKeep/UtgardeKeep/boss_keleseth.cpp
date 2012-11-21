@@ -68,7 +68,7 @@ enum KelsethEncounter
 
 float const SkeletonSpawnPoint[1][2] =
 {
-    {156.2559f, 259.2093f},
+    {156.2559f, 259.2093f}
 };
 
 float AttackLoc[3]= {197.636f, 194.046f, 40.8164f};

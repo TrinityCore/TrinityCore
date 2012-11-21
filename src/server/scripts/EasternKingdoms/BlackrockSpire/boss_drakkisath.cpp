@@ -24,16 +24,14 @@ enum Spells
 {
     SPELL_FIRENOVA                  = 23462,
     SPELL_CLEAVE                    = 20691,
-    SPELL_CONFLIGURATION            = 16805,
-    SPELL_THUNDERCLAP               = 15548, //Not sure if right ID. 23931 would be a harder possibility.
+    SPELL_CONFLIGURATION            = 16805
 };
 
 enum Events
 {
     EVENT_FIRE_NOVA                = 1,
     EVENT_CLEAVE                   = 2,
-    EVENT_CONFLIGURATION           = 3,
-    EVENT_THUNDERCLAP              = 4,
+    EVENT_CONFLIGURATION           = 3
 };
 
 class boss_drakkisath : public CreatureScript
@@ -61,7 +59,6 @@ public:
             events.ScheduleEvent(EVENT_FIRE_NOVA, 6 * IN_MILLISECONDS);
             events.ScheduleEvent(EVENT_CLEAVE,    8 * IN_MILLISECONDS);
             events.ScheduleEvent(EVENT_CONFLIGURATION, 15 * IN_MILLISECONDS);
-            events.ScheduleEvent(EVENT_THUNDERCLAP,    17 * IN_MILLISECONDS);
         }
 
         void JustDied(Unit* /*killer*/)
@@ -94,10 +91,6 @@ public:
                     case EVENT_CONFLIGURATION:
                         DoCast(me->getVictim(), SPELL_CONFLIGURATION);
                         events.ScheduleEvent(EVENT_CONFLIGURATION, 18 * IN_MILLISECONDS);
-                        break;
-                    case EVENT_THUNDERCLAP:
-                        DoCast(me->getVictim(), SPELL_THUNDERCLAP);
-                        events.ScheduleEvent(EVENT_THUNDERCLAP, 20 * IN_MILLISECONDS);
                         break;
                 }
             }

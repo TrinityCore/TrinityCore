@@ -48,7 +48,7 @@ enum Quotes
     YELL_ALY_DEAD               = 6,
     YELL_SISTER_SACROLASH_DEAD  = 7,
     YELL_CANFLAGRATION          = 8,
-    YELL_BERSERK                = 9,
+    YELL_BERSERK                = 9
 };
 
 enum Spells

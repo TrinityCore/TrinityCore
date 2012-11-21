@@ -27,7 +27,7 @@ enum Texts
     SAY_AGGRO                   = 1,    // Ah, the entertainment has arrived.
     SAY_KILL                    = 2,    // Baltharus leaves no survivors! - This world has enough heroes.
     SAY_CLONE                   = 3,    // Twice the pain and half the fun.
-    SAY_DEATH                   = 4,    // I... didn't see that coming....
+    SAY_DEATH                   = 4     // I... didn't see that coming....
 };
 
 enum Spells
@@ -40,7 +40,7 @@ enum Spells
     SPELL_CLONE                 = 74511,
     SPELL_REPELLING_WAVE        = 74509,
     SPELL_CLEAR_DEBUFFS         = 34098,
-    SPELL_SPAWN_EFFECT          = 64195,
+    SPELL_SPAWN_EFFECT          = 64195
 };
 
 enum Events
@@ -49,12 +49,12 @@ enum Events
     EVENT_CLEAVE                = 2,
     EVENT_ENERVATING_BRAND      = 3,
     EVENT_INTRO_TALK            = 4,
-    EVENT_OOC_CHANNEL           = 5,
+    EVENT_OOC_CHANNEL           = 5
 };
 
 enum Actions
 {
-    ACTION_CLONE                = 1,
+    ACTION_CLONE                = 1
 };
 
 enum Phases
@@ -63,7 +63,7 @@ enum Phases
     PHASE_INTRO     = 1,
     PHASE_COMBAT    = 2,
 
-    PHASE_INTRO_MASK    = 1 << PHASE_INTRO,
+    PHASE_INTRO_MASK    = 1 << PHASE_INTRO
 };
 
 class boss_baltharus_the_warborn : public CreatureScript

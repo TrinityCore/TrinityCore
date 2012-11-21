@@ -27,7 +27,7 @@ enum Spells
     SPELL_RIFT_SHIELD                             = 47748,
     SPELL_CHARGE_RIFT                             = 47747, //Works wrong (affect players, not rifts)
     SPELL_CREATE_RIFT                             = 47743, //Don't work, using WA
-    SPELL_ARCANE_ATTRACTION                       = 57063, //No idea, when it's used
+    SPELL_ARCANE_ATTRACTION                       = 57063  //No idea when it's used
 };
 
 enum Adds
@@ -48,7 +48,7 @@ enum RiftSpells
 {
     SPELL_CHAOTIC_ENERGY_BURST                    = 47688,
     SPELL_CHARGED_CHAOTIC_ENERGY_BURST            = 47737,
-    SPELL_ARCANEFORM                              = 48019, //Chaotic Rift visual
+    SPELL_ARCANEFORM                              = 48019 //Chaotic Rift visual
 };
 
 Position const RiftLocation[6] =
@@ -131,7 +131,7 @@ class boss_anomalus : public CreatureScript
 
                 if (me->GetDistance(me->GetHomePosition()) > 60.0f)
                 {
-                    // Not blizzlike, hack to avoid an exploit
+                    // Work-around. TODO: Despawn if current position > 60 yd from spawn point
                     EnterEvadeMode();
                     return;
                 }

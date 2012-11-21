@@ -38,7 +38,7 @@ enum Texts
     SAY_SLAY        = 4,
     SAY_ENRAGE      = 5,
     SAY_DEATH       = 6,
-    SAY_SOUL_CHARGE = 7,
+    SAY_SOUL_CHARGE = 7
 };
 
 enum Spells
@@ -63,7 +63,7 @@ enum Spells
     SPELL_UNLEASH_SOUL_YELLOW   = 32054,
     SPELL_UNLEASH_SOUL_GREEN    = 32057,
     SPELL_UNLEASH_SOUL_RED      = 32053,
-    SPELL_FEAR                  = 31970,
+    SPELL_FEAR                  = 31970
 };
 
 enum Summons
@@ -71,7 +71,7 @@ enum Summons
     CREATURE_DOOMFIRE               = 18095,
     CREATURE_DOOMFIRE_SPIRIT        = 18104,
     CREATURE_ANCIENT_WISP           = 17946,
-    CREATURE_CHANNEL_TARGET         = 22418,
+    CREATURE_CHANNEL_TARGET         = 22418
 };
 
 Position const NordrassilLoc = {5503.713f, -3523.436f, 1608.781f, 0.0f};

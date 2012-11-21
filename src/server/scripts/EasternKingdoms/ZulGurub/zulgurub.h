@@ -31,7 +31,7 @@ enum DataTypes
     DATA_THEKAL             = 6,
     DATA_ZATH               = 7,
     DATA_LORKHAN            = 8,
-    DATA_JINDO              = 10,
+    DATA_JINDO              = 10
 };
 
 #endif

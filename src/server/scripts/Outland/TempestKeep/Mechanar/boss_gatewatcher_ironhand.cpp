@@ -34,7 +34,7 @@ enum eSays
     SAY_SLAY_1                     = -1554009,
     SAY_SLAY_2                     = -1554010,
     SAY_DEATH_1                    = -1554011,
-    EMOTE_HAMMER                   = -1554012,
+    EMOTE_HAMMER                   = -1554012
 };
 
 enum eSpells
@@ -45,7 +45,7 @@ enum eSpells
     SPELL_HAMMER_PUNCH             = 35326,
     SPELL_JACKHAMMER               = 35327,
     H_SPELL_JACKHAMMER             = 39194,
-    SPELL_STREAM_OF_MACHINE_FLUID  = 35311,
+    SPELL_STREAM_OF_MACHINE_FLUID  = 35311
 };
 
 class boss_gatewatcher_iron_hand : public CreatureScript

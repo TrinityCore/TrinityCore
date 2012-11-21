@@ -35,7 +35,7 @@ enum eEnums
     SPELL_FLAMESHOCK        = 8053,
     SPELL_SHADOWBOLT        = 1106,
     SPELL_FLAMESPIKE        = 8814,
-    SPELL_FIRENOVA          = 16079,
+    SPELL_FIRENOVA          = 16079
 };
 
 class boss_bloodmage_thalnos : public CreatureScript

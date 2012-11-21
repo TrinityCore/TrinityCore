@@ -200,7 +200,7 @@ enum RizzleSprysprocketData
     SAY_RIZZLE_GRENADE              = -1000353,
     SAY_RIZZLE_GRENADE_BACKFIRE     = -1000354, // Not used
     SAY_RIZZLE_FINAL                = -1000355,
-    SAY_RIZZLE_FINAL2               = -1000356, // Not used
+    SAY_RIZZLE_FINAL2               = -1000356  // Not used
 };
 
 #define GOSSIP_GET_MOONSTONE "Hand over the Southfury moonstone and I'll let you go."

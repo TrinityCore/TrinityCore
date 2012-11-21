@@ -56,7 +56,7 @@ enum Texts
     EMOTE_CORPOREALITY_TIT             = 3, // Your companions' efforts force %s further into the twilight realm!
     EMOTE_CORPOREALITY_TOT             = 4, // Your efforts force %s further out of the twilight realm!
 
-    EMOTE_WARN_LASER                   = 0, // The orbiting spheres pulse with dark energy!
+    EMOTE_WARN_LASER                   = 0  // The orbiting spheres pulse with dark energy!
 };
 
 enum Spells

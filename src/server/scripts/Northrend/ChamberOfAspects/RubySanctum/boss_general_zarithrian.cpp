@@ -25,7 +25,7 @@ enum Texts
     SAY_AGGRO                   = 0,    // Alexstrasza has chosen capable allies.... A pity that I must END YOU!
     SAY_KILL                    = 1,    // You thought you stood a chance? - It's for the best.
     SAY_ADDS                    = 2,    // Turn them to ash, minions!
-    SAY_DEATH                   = 3,    // HALION! I...
+    SAY_DEATH                   = 3     // HALION! I...
 };
 
 enum Spells
@@ -37,7 +37,7 @@ enum Spells
     SPELL_SUMMON_FLAMECALLER    = 74398,
     // Onyx Flamecaller
     SPELL_BLAST_NOVA            = 74392,
-    SPELL_LAVA_GOUT             = 74394,
+    SPELL_LAVA_GOUT             = 74394
 };
 
 enum Events
@@ -48,7 +48,7 @@ enum Events
     EVENT_SUMMON_ADDS               = 3,
     // Onyx Flamecaller
     EVENT_BLAST_NOVA                = 4,
-    EVENT_LAVA_GOUT                 = 5,
+    EVENT_LAVA_GOUT                 = 5
 };
 
 uint32 const MAX_PATH_FLAMECALLER_WAYPOINTS = 12;
@@ -80,7 +80,7 @@ Position const FlamecallerWaypoints[MAX_PATH_FLAMECALLER_WAYPOINTS*2] =
     {3043.958f, 593.4001f, 87.64581f, 0.0f},
     {3040.458f, 589.9001f, 88.39581f, 0.0f},
     {3034.458f, 583.1501f, 88.89581f, 0.0f},
-    {3014.970f, 561.8073f, 88.83527f, 0.0f},
+    {3014.970f, 561.8073f, 88.83527f, 0.0f}
 };
 
 class boss_general_zarithrian : public CreatureScript

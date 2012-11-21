@@ -99,7 +99,7 @@ enum EP_Summons
     EP_EWT_SOLDIER2,
     EP_EWT_SOLDIER3,
     EP_EWT_SOLDIER4,
-    EP_PWT_FLIGHTMASTER,
+    EP_PWT_FLIGHTMASTER
 };
 
 enum EP_GoSummons

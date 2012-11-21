@@ -30,7 +30,7 @@ enum zfPyramidPhases
     PYRAMID_WAVE_2,
     PYRAMID_PRE_WAVE_3,
     PYRAMID_WAVE_3,
-    PYRAMID_KILLED_ALL_TROLLS,
+    PYRAMID_KILLED_ALL_TROLLS
 };
 
 #endif
