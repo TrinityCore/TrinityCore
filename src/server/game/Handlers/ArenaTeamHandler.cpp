@@ -119,7 +119,7 @@ void WorldSession::HandleArenaTeamCreateOpcode(WorldPacket & recvData)
     }
 
     sArenaTeamMgr->AddArenaTeam(arenaTeam);
-    
+
     SendArenaTeamCommandResult(ERR_ARENA_TEAM_CREATE_S, name, "", ERR_ARENA_TEAM_CREATED);
 }
 

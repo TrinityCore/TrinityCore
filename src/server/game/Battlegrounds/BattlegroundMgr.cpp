@@ -390,7 +390,7 @@ void BattlegroundMgr::BuildPvpLogDataPacket(WorldPacket* data, Battleground* bg)
         }
         Player* player = ObjectAccessor::FindPlayer(itr->first);
         ObjectGuid playerGUID = itr->first;
-        
+
         data->WriteBit(0);              // Unk 1
         data->WriteBit(0);              // Unk 2
         data->WriteBit(playerGUID[2]);
@@ -405,17 +405,17 @@ void BattlegroundMgr::BuildPvpLogDataPacket(WorldPacket* data, Battleground* bg)
         data->WriteBit(playerGUID[6]);
         data->WriteBit(player->GetTeam() == ALLIANCE);
         data->WriteBit(playerGUID[7]);
-        
+
         buff << uint32(itr->second->HealingDone);             // healing done
         buff << uint32(itr->second->DamageDone);              // damage done
-        
+
         if (!isArena)
         {
             buff << uint32(itr->second->BonusHonor / 100);
             buff << uint32(itr->second->Deaths);
             buff << uint32(itr->second->HonorableKills);
         }
-        
+
         buff.WriteByteSeq(playerGUID[4]);
         buff << uint32(itr->second->KillingBlows);
         // if (unk 5) << uint32() unk

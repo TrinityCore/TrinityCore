@@ -1572,7 +1572,7 @@ class BattlegroundAV : public Battleground
         /* achievement req. */
         bool IsBothMinesControlledByTeam(uint32 team) const;
         bool IsAllTowersControlledAndCaptainAlive(uint32 team) const;
-        
+
         uint32 GetPrematureWinner();
 
     private:
