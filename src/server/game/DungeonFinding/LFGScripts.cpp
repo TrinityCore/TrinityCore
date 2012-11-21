@@ -46,14 +46,11 @@ void LFGPlayerScript::OnLogout(Player* player)
     if (!sLFGMgr->isOptionEnabled(LFG_OPTION_ENABLE_DUNGEON_FINDER | LFG_OPTION_ENABLE_RAID_BROWSER))
         return;
 
-    uint64 guid = player->GetGUID();
-    sLFGMgr->LeaveLfg(guid);
-    LfgUpdateData updateData = LfgUpdateData(LFG_UPDATETYPE_REMOVED_FROM_QUEUE);
-    player->GetSession()->SendLfgUpdateParty(updateData);
-    player->GetSession()->SendLfgUpdatePlayer(updateData);
-    player->GetSession()->SendLfgLfrList(false);
-    // TODO - Do not remove, add timer before deleting
-    sLFGMgr->RemovePlayerData(guid);
+    if (!player->GetGroup())
+    {
+        player->GetSession()->SendLfgLfrList(false);
+        sLFGMgr->LeaveLfg(player->GetGUID());
+    }
 }
 
 void LFGPlayerScript::OnLogin(Player* player)
