@@ -25,27 +25,26 @@
 // texts signed for creature 28939 but used for 28939, 28940, 28610
 enum win_friends
 {
-    SAY_PERSUADE1                     = -1609501,
-    SAY_PERSUADE2                     = -1609502,
-    SAY_PERSUADE3                     = -1609503,
-    SAY_PERSUADE4                     = -1609504,
-    SAY_PERSUADE5                     = -1609505,
-    SAY_PERSUADE6                     = -1609506,
-    SAY_PERSUADE7                     = -1609507,
-    SAY_CRUSADER1                     = -1609508,
-    SAY_CRUSADER2                     = -1609509,
-    SAY_CRUSADER3                     = -1609510,
-    SAY_CRUSADER4                     = -1609511,
-    SAY_CRUSADER5                     = -1609512,
-    SAY_CRUSADER6                     = -1609513,
-    SAY_PERSUADED1                    = -1609514,
-    SAY_PERSUADED2                    = -1609515,
-    SAY_PERSUADED3                    = -1609516,
-    SAY_PERSUADED4                    = -1609517,
-    SAY_PERSUADED5                    = -1609518,
-    SAY_PERSUADED6                    = -1609519,
-    SPELL_PERSUASIVE_STRIKE           = 52781
+    SAY_CRUSADER                      = 1,
+    SAY_PERSUADED1                    = 2,
+    SAY_PERSUADED2                    = 3,
+    SAY_PERSUADED3                    = 4,
+    SAY_PERSUADED4                    = 5,
+    SAY_PERSUADED6                    = 6,
+    SPELL_PERSUASIVE_STRIKE           = 52781,
+    SPELL_THREAT_PULSE                = 58111,
+    QUEST_HOW_TO_WIN_FRIENDS          = 12720,
 };
+
+#define SAY_PERSUADED5  "LIES! The pain you are about to endure will be talked about for years to come!"
+
+#define SAY_PERSUADE1   "I'll tear the secrets from your soul! Tell me about the \"Crimson Dawn\" and your life may be spared!"
+#define SAY_PERSUADE2   "Tell me what you know about \"Crimson Dawn\" or the beatings will continue!"
+#define SAY_PERSUADE3   "I'm through being courteous with your kind, human! What is the \"Crimson Dawn\"?"
+#define SAY_PERSUADE4   "Is your life worth so little? Just tell me what I need to know about \"Crimson Dawn\" and I'll end your suffering quickly."
+#define SAY_PERSUADE5   "I can keep this up for a very long time, Scarlet dog! Tell me about the \"Crimson Dawn\"!"
+#define SAY_PERSUADE6   "What is the \"Crimson Dawn\"?"
+#define SAY_PERSUADE7   "\"Crimson Dawn\"! What is it! Speak!"
 
 class npc_crusade_persuaded : public CreatureScript
 {
@@ -61,97 +60,119 @@ public:
     {
         npc_crusade_persuadedAI(Creature* creature) : ScriptedAI(creature) {}
 
-        uint32 uiSpeech_timer;
-        uint32 uiSpeech_counter;
-        uint64 uiPlayerGUID;
+        uint32 speechTimer;
+        uint32 speechCounter;
+        uint64 playerGUID;
 
         void Reset()
         {
-            uiSpeech_timer = 0;
-            uiSpeech_counter = 0;
-            uiPlayerGUID = 0;
+            speechTimer = 0;
+            speechCounter = 0;
+            playerGUID = 0;
             me->SetReactState(REACT_AGGRESSIVE);
             me->RestoreFaction();
         }
 
         void SpellHit(Unit* caster, const SpellInfo* spell)
         {
-            if (spell->Id == SPELL_PERSUASIVE_STRIKE && caster->GetTypeId() == TYPEID_PLAYER && me->isAlive() && !uiSpeech_counter)
+            if (spell->Id == SPELL_PERSUASIVE_STRIKE && caster->GetTypeId() == TYPEID_PLAYER && me->isAlive() && !speechCounter)
             {
-                if (CAST_PLR(caster)->GetQuestStatus(12720) == QUEST_STATUS_INCOMPLETE)
+                if (Player* player = caster->ToPlayer())
                 {
-                    uiPlayerGUID = caster->GetGUID();
-                    uiSpeech_timer = 1000;
-                    uiSpeech_counter = 1;
-                    me->setFaction(caster->getFaction());
-                    me->CombatStop(true);
-                    me->GetMotionMaster()->MoveIdle();
-                    me->SetReactState(REACT_PASSIVE);
-                    DoCastAOE(58111, true);
+                    if (player->GetQuestStatus(QUEST_HOW_TO_WIN_FRIENDS) == QUEST_STATUS_INCOMPLETE)
+                    {
+                        playerGUID = player->GetGUID();
+                        speechTimer = 1000;
+                        speechCounter = 1;
+                        me->setFaction(player->getFaction());
+                        me->CombatStop(true);
+                        me->GetMotionMaster()->MoveIdle();
+                        me->SetReactState(REACT_PASSIVE);
+                        DoCastAOE(SPELL_THREAT_PULSE, true);
 
-                    DoScriptText(RAND(SAY_PERSUADE1, SAY_PERSUADE2, SAY_PERSUADE3,
-                                      SAY_PERSUADE4, SAY_PERSUADE5, SAY_PERSUADE6,
-                                      SAY_PERSUADE7), caster);
-
-                    DoScriptText(RAND(SAY_CRUSADER1, SAY_CRUSADER2, SAY_CRUSADER3,
-                                      SAY_CRUSADER4, SAY_CRUSADER5, SAY_CRUSADER6), me);
+                        switch (urand(1, 7))
+                        {
+                            case 1:
+                                player->Say(SAY_PERSUADE1, LANG_UNIVERSAL);
+                                break;
+                            case 2:
+                                player->Say(SAY_PERSUADE2, LANG_UNIVERSAL);
+                                break;
+                            case 3:
+                                player->Say(SAY_PERSUADE3, LANG_UNIVERSAL);
+                                break;
+                            case 4:
+                                player->Say(SAY_PERSUADE4, LANG_UNIVERSAL);
+                                break;
+                            case 5:
+                                player->Say(SAY_PERSUADE5, LANG_UNIVERSAL);
+                                break;
+                            case 6:
+                                player->Say(SAY_PERSUADE6, LANG_UNIVERSAL);
+                                break;
+                            case 7:
+                                player->Say(SAY_PERSUADE7, LANG_UNIVERSAL);
+                                break;
+                        }
+                        Talk(SAY_CRUSADER);
+                    }
                 }
             }
         }
 
         void UpdateAI(const uint32 diff)
         {
-            if (uiSpeech_counter)
+            if (speechCounter)
             {
-                if (uiSpeech_timer <= diff)
+                if (speechTimer <= diff)
                 {
-                    Player* player = Unit::GetPlayer(*me, uiPlayerGUID);
+                    Player* player = Unit::GetPlayer(*me, playerGUID);
                     if (!player)
                     {
                         EnterEvadeMode();
                         return;
                     }
 
-                    switch (uiSpeech_counter)
+                    switch (speechCounter)
                     {
                         case 1:
-                            DoScriptText(SAY_PERSUADED1, me);
-                            uiSpeech_timer = 8000;
+                            Talk(SAY_PERSUADED1);
+                            speechTimer = 8000;
                             break;
 
                         case 2:
-                            DoScriptText(SAY_PERSUADED2, me);
-                            uiSpeech_timer = 8000;
+                            Talk(SAY_PERSUADED2);
+                            speechTimer = 8000;
                             break;
 
                         case 3:
-                            DoScriptText(SAY_PERSUADED3, me);
-                            uiSpeech_timer = 8000;
+                            Talk(SAY_PERSUADED3);
+                            speechTimer = 8000;
                             break;
 
                         case 4:
-                            DoScriptText(SAY_PERSUADED4, me);
-                            uiSpeech_timer = 8000;
+                            Talk(SAY_PERSUADED4);
+                            speechTimer = 8000;
                             break;
 
                         case 5:
-                            DoScriptText(SAY_PERSUADED5, player);
-                            uiSpeech_timer = 8000;
+                            player->Say(SAY_PERSUADED5, LANG_UNIVERSAL);
+                            speechTimer = 8000;
                             break;
 
                         case 6:
-                            DoScriptText(SAY_PERSUADED6, me);
+                            Talk(SAY_PERSUADED6);
                             player->Kill(me);
-                            //me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                            //me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                            uiSpeech_counter = 0;
-                            player->GroupEventHappens(12720, me);
+                            speechCounter = 0;
+                            player->GroupEventHappens(QUEST_HOW_TO_WIN_FRIENDS, me);
                             return;
                     }
 
-                    ++uiSpeech_counter;
-                    DoCastAOE(58111, true);
-                } else uiSpeech_timer -= diff;
+                    ++speechCounter;
+                    DoCastAOE(SPELL_THREAT_PULSE, true);
+
+                } else 
+                    speechTimer -= diff;
 
                 return;
             }
@@ -171,16 +192,16 @@ public:
 
 enum eKoltira
 {
-    SAY_BREAKOUT1                   = -1609561,
-    SAY_BREAKOUT2                   = -1609562,
-    SAY_BREAKOUT3                   = -1609563,
-    SAY_BREAKOUT4                   = -1609564,
-    SAY_BREAKOUT5                   = -1609565,
-    SAY_BREAKOUT6                   = -1609566,
-    SAY_BREAKOUT7                   = -1609567,
-    SAY_BREAKOUT8                   = -1609568,
-    SAY_BREAKOUT9                   = -1609569,
-    SAY_BREAKOUT10                  = -1609570,
+    SAY_BREAKOUT1                   = 0,
+    SAY_BREAKOUT2                   = 1,
+    SAY_BREAKOUT3                   = 2,
+    SAY_BREAKOUT4                   = 3,
+    SAY_BREAKOUT5                   = 4,
+    SAY_BREAKOUT6                   = 5,
+    SAY_BREAKOUT7                   = 6,
+    SAY_BREAKOUT8                   = 7,
+    SAY_BREAKOUT9                   = 8,
+    SAY_BREAKOUT10                  = 9,
 
     SPELL_KOLTIRA_TRANSFORM         = 52899,
     SPELL_ANTI_MAGIC_ZONE           = 52894,
@@ -247,7 +268,7 @@ public:
             switch (waypointId)
             {
                 case 0:
-                    DoScriptText(SAY_BREAKOUT1, me);
+                    Talk(SAY_BREAKOUT1);
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                     break;
                 case 1:
@@ -262,7 +283,7 @@ public:
                 case 3:
                     SetEscortPaused(true);
                     me->SetStandState(UNIT_STAND_STATE_KNEEL);
-                    DoScriptText(SAY_BREAKOUT2, me);
+                    Talk(SAY_BREAKOUT2);
                     DoCast(me, SPELL_ANTI_MAGIC_ZONE);  // cast again that makes bubble up
                     break;
                 case 4:
@@ -306,22 +327,22 @@ public:
                     switch (m_uiWave)
                     {
                         case 0:
-                            DoScriptText(SAY_BREAKOUT3, me);
+                            Talk(SAY_BREAKOUT3);
                             SummonAcolyte(3);
                             m_uiWave_Timer = 20000;
                             break;
                         case 1:
-                            DoScriptText(SAY_BREAKOUT4, me);
+                            Talk(SAY_BREAKOUT4);
                             SummonAcolyte(3);
                             m_uiWave_Timer = 20000;
                             break;
                         case 2:
-                            DoScriptText(SAY_BREAKOUT5, me);
+                            Talk(SAY_BREAKOUT5);
                             SummonAcolyte(4);
                             m_uiWave_Timer = 20000;
                             break;
                         case 3:
-                            DoScriptText(SAY_BREAKOUT6, me);
+                            Talk(SAY_BREAKOUT6);
                             me->SummonCreature(NPC_HIGH_INQUISITOR_VALROTH, 1642.329f, -6045.818f, 127.583f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1000);
                             m_uiWave_Timer = 1000;
                             break;
@@ -331,7 +352,7 @@ public:
 
                             if (!temp || !temp->isAlive())
                             {
-                                DoScriptText(SAY_BREAKOUT8, me);
+                                Talk(SAY_BREAKOUT8);
                                 m_uiWave_Timer = 5000;
                             }
                             else
@@ -342,13 +363,13 @@ public:
                             break;
                         }
                         case 5:
-                            DoScriptText(SAY_BREAKOUT9, me);
+                            Talk(SAY_BREAKOUT9);
                             me->RemoveAurasDueToSpell(SPELL_ANTI_MAGIC_ZONE);
                             // i do not know why the armor will also be removed
                             m_uiWave_Timer = 2500;
                             break;
                         case 6:
-                            DoScriptText(SAY_BREAKOUT10, me);
+                            Talk(SAY_BREAKOUT10);
                             SetEscortPaused(false);
                             break;
                     }
@@ -366,8 +387,8 @@ public:
 //Scarlet courier
 enum ScarletCourierEnum
 {
-    SAY_TREE1                          = -1609531,
-    SAY_TREE2                          = -1609532,
+    SAY_TREE1                          = 0,
+    SAY_TREE2                          = 1,
     SPELL_SHOOT                        = 52818,
     GO_INCONSPICUOUS_TREE              = 191144,
     NPC_SCARLET_COURIER                = 29076
@@ -399,7 +420,7 @@ public:
 
         void EnterCombat(Unit* /*who*/)
         {
-            DoScriptText(SAY_TREE2, me);
+            Talk(SAY_TREE2);
             me->Dismount();
             uiStage = 0;
         }
@@ -425,7 +446,7 @@ public:
                         me->SetWalk(true);
                         if (GameObject* tree = me->FindNearestGameObject(GO_INCONSPICUOUS_TREE, 40.0f))
                         {
-                            DoScriptText(SAY_TREE1, me);
+                            Talk(SAY_TREE1);
                             float x, y, z;
                             tree->GetContactPoint(me, x, y, z);
                             me->GetMotionMaster()->MovePoint(1, x, y, z);
@@ -455,12 +476,10 @@ public:
 
 enum valroth
 {
-    SAY_VALROTH1                      = -1609581,
-    SAY_VALROTH2                      = -1609582,
-    SAY_VALROTH3                      = -1609583,
-    SAY_VALROTH4                      = -1609584,
-    SAY_VALROTH5                      = -1609585,
-    SAY_VALROTH6                      = -1609586,
+  //SAY_VALROTH1                      = 0, Unused
+    SAY_VALROTH_AGGRO                 = 1,
+    SAY_VALROTH_RAND                  = 2,
+    SAY_VALROTH_DEATH                 = 3,
     SPELL_RENEW                       = 38210,
     SPELL_INQUISITOR_PENANCE          = 52922,
     SPELL_VALROTH_SMITE               = 52926,
@@ -494,7 +513,7 @@ public:
 
         void EnterCombat(Unit* who)
         {
-            DoScriptText(SAY_VALROTH2, me);
+            Talk(SAY_VALROTH_AGGRO);
             DoCast(who, SPELL_VALROTH_SMITE);
         }
 
@@ -527,12 +546,12 @@ public:
         void Shout()
         {
             if (rand()%100 < 15)
-                DoScriptText(RAND(SAY_VALROTH3, SAY_VALROTH4, SAY_VALROTH5), me);
+                Talk(SAY_VALROTH_RAND);
         }
 
         void JustDied(Unit* killer)
         {
-            DoScriptText(SAY_VALROTH6, me);
+            Talk(SAY_VALROTH_DEATH);
             killer->CastSpell(me, SPELL_SUMMON_VALROTH_REMAINS, true);
         }
     };
