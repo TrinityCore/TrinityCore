@@ -419,7 +419,7 @@ uint32 Battleground::GetPrematureWinner()
         winner = ALLIANCE;
     else if (GetPlayersCountByTeam(HORDE) >= GetMinPlayersPerTeam())
         winner = HORDE;
-        
+
     return winner;
 }
 
@@ -481,7 +481,7 @@ inline void Battleground::_ProcessJoin(uint32 diff)
     if (m_CountdownTimer >= 10000)
     {
         uint32 countdownMaxForBGType = isArena() ? ARENA_COUNTDOWN_MAX : BATTLEGROUND_COUNTDOWN_MAX;
-        
+
         WorldPacket data(SMSG_START_TIMER, 4+4+4);
         data << uint32(0); // unk
         data << uint32(countdownMaxForBGType - (m_CountdownTimer / 1000));
@@ -935,12 +935,12 @@ void Battleground::EndBattleground(uint32 winner)
                 UpdatePlayerScore(player, SCORE_BONUS_HONOR, GetBonusHonorFromKill(winner_kills));
                 if (!player->GetRandomWinner())
                 {
-                    // 100cp awarded for the first rated battleground won each day 
+                    // 100cp awarded for the first rated battleground won each day
                     player->ModifyCurrency(CURRENCY_TYPE_CONQUEST_META_BG, BG_REWARD_WINNER_CONQUEST_FIRST);
                     player->SetRandomWinner(true);
                 }
             }
-            else // 50cp awarded for each non-rated battleground won 
+            else // 50cp awarded for each non-rated battleground won
                 player->ModifyCurrency(CURRENCY_TYPE_CONQUEST_META_BG, BG_REWARD_WINNER_CONQUEST_LAST );
 
             player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_BG, 1);
@@ -1240,7 +1240,7 @@ void Battleground::AddPlayer(Player* player)
 
         // Correctly display EnemyUnitFrame
         player->SetByteValue(PLAYER_BYTES_3, 3, player->GetBGTeam());
-        
+
         WorldPacket data(SMSG_ARENA_OPPONENT_UPDATE, 8);
         data << uint64(player->GetGUID());
         SendPacketToTeam(team, &data, player, false);

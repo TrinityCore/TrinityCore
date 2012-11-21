@@ -7565,11 +7565,11 @@ uint32 Player::GetCurrencyWeekCap(uint32 id, bool usePrecision) const
     CurrencyTypesEntry const* entry = sCurrencyTypesStore.LookupEntry(id);
     if (!entry)
         return 0;
-    
+
     uint32 cap = _GetCurrencyWeekCap(entry);
     if(usePrecision && entry->Flags & CURRENCY_FLAG_HIGH_PRECISION)
         cap /= 100;
-    
+
     return cap;
 }
 
@@ -7585,13 +7585,13 @@ void Player::ResetCurrencyWeekCap()
             arenaTeam->NotifyStatsChanged();                      // notify the players of the changes
         }
     }
-    
+
     for (PlayerCurrenciesMap::iterator itr = _currencyStorage.begin(); itr != _currencyStorage.end(); ++itr)
     {
         itr->second.weekCount = 0;
         itr->second.state = PLAYERCURRENCY_CHANGED;
     }
-    
+
     WorldPacket data(SMSG_WEEKLY_RESET_CURRENCY, 0);
     SendDirectMessage(&data);
 }
@@ -7599,7 +7599,7 @@ void Player::ResetCurrencyWeekCap()
 uint32 Player::_GetCurrencyWeekCap(const CurrencyTypesEntry* currency) const
 {
     uint32 cap = currency->WeekCap;
-    
+
     switch (currency->ID)
     {
             //original conquest not have week cap
@@ -7626,7 +7626,7 @@ uint32 Player::_GetCurrencyWeekCap(const CurrencyTypesEntry* currency) const
             break;
         }
     }
-    
+
     if (cap != currency->WeekCap && IsInWorld() && !GetSession()->PlayerLoading())
     {
         WorldPacket packet(SMSG_UPDATE_CURRENCY_WEEK_LIMIT, 8);
@@ -7634,7 +7634,7 @@ uint32 Player::_GetCurrencyWeekCap(const CurrencyTypesEntry* currency) const
         packet << uint32(currency->ID);
         GetSession()->SendPacket(&packet);
     }
-    
+
     return cap;
 
 }
