@@ -194,7 +194,7 @@ struct boss_twin_baseAI : public BossAI
         {
             Talk(SAY_KILL_PLAYER);
             if (instance)
-                instance->SetData(DATA_TRIBUTE_TO_IMMORTALITY_ELEGIBLE, 0);
+                instance->SetData(DATA_TRIBUTE_TO_IMMORTALITY_ELIGIBLE, 0);
         }
     }
 
