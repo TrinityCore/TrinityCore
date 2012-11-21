@@ -219,6 +219,13 @@ enum CurrencyFlags
     CURRENCY_FLAG_COUNT_SEASON_TOTAL = 0x80,
 };
 
+enum CurrencyCategory
+{
+    // ...
+    CURRENCY_CATEGORY_META_CONQUEST = 89,
+    // ...
+};
+
 enum ItemVendorType
 {
     ITEM_VENDOR_TYPE_ITEM     = 1,

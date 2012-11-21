@@ -1454,12 +1454,19 @@ class Player : public Unit, public GridObject<Player>
         void SendNewCurrency(uint32 id) const;
         /// send full data about all currencies to client
         void SendCurrencies() const;
+        /// send conquest currency points and their cap week/arena
+        void SendPvpRewards() const;
         /// return count of currency witch has plr
-        uint32 GetCurrency(uint32 id) const;
+        uint32 GetCurrency(uint32 id, bool precision) const;
+        /// return count of currency gaind on current week
+        uint32 GetCurrencyOnWeek(uint32 id, bool precision) const;
+        /// return week cap by currency id
+        uint32 GetCurrencyWeekCap(uint32 id, bool usePrecision) const;
         /// return presence related currency
         bool HasCurrency(uint32 id, uint32 count) const;
-        /// @todo: not understand why it subtract from total count and for what it used. It should be remove and replaced by ModifyCurrency
+        /// initialize currency count for custom initialization at create character
         void SetCurrency(uint32 id, uint32 count, bool printLog = true);
+        void ResetCurrencyWeekCap();
 
         /**
           * @name   ModifyCurrency
@@ -2045,16 +2052,14 @@ class Player : public Unit, public GridObject<Player>
             SetArenaTeamInfoField(slot, ARENA_TEAM_ID, ArenaTeamId);
             SetArenaTeamInfoField(slot, ARENA_TEAM_TYPE, type);
         }
-        void SetArenaTeamInfoField(uint8 slot, ArenaTeamInfoType type, uint32 value)
-        {
-            SetUInt32Value(PLAYER_FIELD_ARENA_TEAM_INFO_1_1 + (slot * ARENA_TEAM_END) + type, value);
-        }
+        void SetArenaTeamInfoField(uint8 slot, ArenaTeamInfoType type, uint32 value);
         static uint32 GetArenaTeamIdFromDB(uint64 guid, uint8 slot);
         static void LeaveAllArenaTeams(uint64 guid);
         uint32 GetArenaTeamId(uint8 slot) const { return GetUInt32Value(PLAYER_FIELD_ARENA_TEAM_INFO_1_1 + (slot * ARENA_TEAM_END) + ARENA_TEAM_ID); }
         uint32 GetArenaPersonalRating(uint8 slot) const { return GetUInt32Value(PLAYER_FIELD_ARENA_TEAM_INFO_1_1 + (slot * ARENA_TEAM_END) + ARENA_TEAM_PERSONAL_RATING); }
         void SetArenaTeamIdInvited(uint32 ArenaTeamId) { m_ArenaTeamIdInvited = ArenaTeamId; }
         uint32 GetArenaTeamIdInvited() { return m_ArenaTeamIdInvited; }
+        uint32 GetRBGPersonalRating() const;
 
         Difficulty GetDifficulty(bool isRaid) const { return isRaid ? m_raidDifficulty : m_dungeonDifficulty; }
         Difficulty GetDungeonDifficulty() const { return m_dungeonDifficulty; }
@@ -2890,6 +2895,13 @@ class Player : public Unit, public GridObject<Player>
         uint32 m_currentBuybackSlot;
 
         PlayerCurrenciesMap _currencyStorage;
+
+        /**
+          * @name   _GetCurrencyWeekCap
+          * @brief  return week cap for selected currency
+
+          * @param  currency CurrencyTypesEntry witch should get week cap
+        */
         uint32 _GetCurrencyWeekCap(const CurrencyTypesEntry* currency) const;
 
         VoidStorageItem* _voidStorageItems[VOID_STORAGE_MAX_SLOT];
@@ -3096,6 +3108,8 @@ class Player : public Unit, public GridObject<Player>
         uint32 _pendingBindTimer;
 
         uint32 _activeCheats;
+        uint32 _maxPersonalArenaRate;
+        uint32 _ConquestCurrencyTotalWeekCap;
 
         PhaseMgr phaseMgr;
 };
