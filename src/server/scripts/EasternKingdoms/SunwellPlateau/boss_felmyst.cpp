@@ -31,14 +31,13 @@ EndScriptData */
 
 enum Yells
 {
-    YELL_BIRTH                                    = -1580036,
-    YELL_KILL1                                    = -1580037,
-    YELL_KILL2                                    = -1580038,
-    YELL_BREATH                                   = -1580039,
-    YELL_TAKEOFF                                  = -1580040,
-    YELL_BERSERK                                  = -1580041,
-    YELL_DEATH                                    = -1580042,
-    YELL_KALECGOS                                 = -1580043, // after felmyst's death spawned and say this
+    YELL_BIRTH                                    = 0,
+    YELL_KILL                                     = 1,
+    YELL_BREATH                                   = 2,
+    YELL_TAKEOFF                                  = 3,
+    YELL_BERSERK                                  = 4,
+    YELL_DEATH                                    = 5,
+  //YELL_KALECGOS                                 = 6, Not used. After felmyst's death spawned and say this
 };
 
 enum Spells
@@ -181,17 +180,17 @@ public:
 
         void KilledUnit(Unit* /*victim*/)
         {
-            DoScriptText(RAND(YELL_KILL1, YELL_KILL2), me);
+            Talk(YELL_KILL);
         }
 
         void JustRespawned()
         {
-            DoScriptText(YELL_BIRTH, me);
+            Talk(YELL_BIRTH);
         }
 
         void JustDied(Unit* /*killer*/)
         {
-            DoScriptText(YELL_DEATH, me);
+            Talk(YELL_DEATH);
 
             if (instance)
                 instance->SetData(DATA_FELMYST_EVENT, DONE);
@@ -279,7 +278,7 @@ public:
                 me->GetMotionMaster()->Clear(false);
                 me->HandleEmoteCommand(EMOTE_ONESHOT_LIFTOFF);
                 me->StopMoving();
-                DoScriptText(YELL_TAKEOFF, me);
+                Talk(YELL_TAKEOFF);
                 events.ScheduleEvent(EVENT_FLIGHT_SEQUENCE, 2000);
                 break;
             case 1:
@@ -424,7 +423,7 @@ public:
                 switch (events.ExecuteEvent())
                 {
                     case EVENT_BERSERK:
-                        DoScriptText(YELL_BERSERK, me);
+                        Talk(YELL_BERSERK);
                         DoCast(me, SPELL_BERSERK, true);
                         events.ScheduleEvent(EVENT_BERSERK, 10000);
                         break;
@@ -459,7 +458,7 @@ public:
                 switch (events.ExecuteEvent())
                 {
                     case EVENT_BERSERK:
-                        DoScriptText(YELL_BERSERK, me);
+                        Talk(YELL_BERSERK);
                         DoCast(me, SPELL_BERSERK, true);
                         break;
                     case EVENT_FLIGHT_SEQUENCE:
