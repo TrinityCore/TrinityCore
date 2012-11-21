@@ -37,7 +37,7 @@ void LfgGroupData::SetState(LfgState state)
         case LFG_STATE_FINISHED_DUNGEON:
         case LFG_STATE_NONE:
         case LFG_STATE_DUNGEON:
-            m_OldState = state;
+            m_OldState = m_State;
             // No break on purpose
         default:
             m_State = state;
