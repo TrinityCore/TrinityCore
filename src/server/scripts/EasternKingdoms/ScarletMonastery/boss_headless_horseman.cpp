@@ -34,7 +34,7 @@ enum Yells
     SAY_DEATH                   = 5,
 
     // Head of the Horseman
-    SAY_LOST_HEAD               = 0,
+    SAY_LOST_HEAD               = 0
 };
 
 enum Actions
