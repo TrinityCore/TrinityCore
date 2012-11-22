@@ -43,7 +43,7 @@ enum HodirYells
     SAY_HARD_MODE_FAILED                         = -1603218,
 
     EMOTE_FREEZE                                 = -1603209,
-    EMOTE_BLOWS                                  = -1603219,
+    EMOTE_BLOWS                                  = -1603219
 };
 
 enum HodirSpells
@@ -87,7 +87,7 @@ enum HodirSpells
     // Priests
     SPELL_SMITE                                  = 61923,
     SPELL_GREATER_HEAL                           = 62809,
-    SPELL_DISPEL_MAGIC                           = 63499,
+    SPELL_DISPEL_MAGIC                           = 63499
 };
 
 enum HodirNPC
@@ -97,13 +97,13 @@ enum HodirNPC
     NPC_SNOWPACKED_ICICLE                        = 33174,
     NPC_ICICLE                                   = 33169,
     NPC_ICICLE_SNOWDRIFT                         = 33173,
-    NPC_TOASTY_FIRE                              = 33342,
+    NPC_TOASTY_FIRE                              = 33342
 };
 
 enum HodirGameObjects
 {
     GO_TOASTY_FIRE                               = 194300,
-    GO_SNOWDRIFT                                 = 194173,
+    GO_SNOWDRIFT                                 = 194173
 };
 
 enum HodirEvents
@@ -129,13 +129,13 @@ enum HodirEvents
 
     // Mage
     EVENT_CONJURE_FIRE                           = 12,
-    EVENT_MELT_ICE                               = 13,
+    EVENT_MELT_ICE                               = 13
 };
 
 enum HodirActions
 {
     ACTION_I_HAVE_THE_COOLEST_FRIENDS            = 1,
-    ACTION_CHEESE_THE_FREEZE                     = 2,
+    ACTION_CHEESE_THE_FREEZE                     = 2
 };
 
 #define ACHIEVEMENT_CHEESE_THE_FREEZE            RAID_MODE<uint8>(2961, 2962)

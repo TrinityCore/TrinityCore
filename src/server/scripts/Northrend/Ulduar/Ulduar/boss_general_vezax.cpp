@@ -30,7 +30,7 @@ enum VezaxYells
     SAY_SURGE_OF_DARKNESS                        = -1603293,
     SAY_DEATH                                    = -1603294,
     SAY_BERSERK                                  = -1603295,
-    SAY_HARDMODE                                 = -1603296,
+    SAY_HARDMODE                                 = -1603296
 };
 
 enum VezaxEmotes
@@ -38,7 +38,7 @@ enum VezaxEmotes
     EMOTE_VAPORS                                 = -1603289,
     EMOTE_ANIMUS                                 = -1603297,
     EMOTE_BARRIER                                = -1603298,
-    EMOTE_SURGE_OF_DARKNESS                      = -1603299,
+    EMOTE_SURGE_OF_DARKNESS                      = -1603299
 };
 
 enum VezaxSpells
@@ -62,14 +62,14 @@ enum VezaxSpells
     SPELL_PROFOUND_OF_DARKNESS                   = 63420,
 
     SPELL_CORRUPTED_RAGE                         = 68415,
-    SPELL_SHAMANTIC_RAGE                         = 30823,
+    SPELL_SHAMANTIC_RAGE                         = 30823
 };
 
 enum VezaxActions
 {
     ACTION_VAPORS_SPAWN,
     ACTION_VAPORS_DIE,
-    ACTION_ANIMUS_DIE,
+    ACTION_ANIMUS_DIE
 };
 
 enum VezaxEvents
@@ -86,7 +86,7 @@ enum VezaxEvents
     EVENT_PROFOUND_OF_DARKNESS                   = 7,
 
     // Saronite Vapor
-    EVENT_RANDOM_MOVE                            = 8,
+    EVENT_RANDOM_MOVE                            = 8
 };
 
 #define DATA_SMELL_SARONITE                      31813188

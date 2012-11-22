@@ -73,7 +73,7 @@ enum Phases
     PHASE_CTHUN_STOMACH                         = 4,
     PHASE_CTHUN_WEAK                            = 5,
 
-    PHASE_CTHUN_DONE                            = 6,
+    PHASE_CTHUN_DONE                            = 6
 };
 
 enum Creatures
@@ -91,7 +91,7 @@ enum Creatures
     MOB_GIANT_CLAW_TENTACLE                     = 15728,
     MOB_GIANT_EYE_TENTACLE                      = 15334,
     MOB_FLESH_TENTACLE                          = 15802,
-    MOB_GIANT_PORTAL                            = 15910,
+    MOB_GIANT_PORTAL                            = 15910
 };
 
 enum Spells
@@ -131,7 +131,7 @@ enum Spells
     //Stomach Spells
     SPELL_MOUTH_TENTACLE                        = 26332,
     SPELL_EXIT_STOMACH_KNOCKBACK                = 25383,
-    SPELL_DIGESTIVE_ACID                        = 26476,
+    SPELL_DIGESTIVE_ACID                        = 26476
 };
 
 enum Actions
@@ -147,7 +147,7 @@ enum Yells
     // ****** Out of Combat ******
     // Random Wispers - No txt only sound
     // The random sound is chosen by the client.
-    RANDOM_SOUND_WHISPER                        = 8663,
+    RANDOM_SOUND_WHISPER                        = 8663
 };
 
 //Stomach Teleport positions

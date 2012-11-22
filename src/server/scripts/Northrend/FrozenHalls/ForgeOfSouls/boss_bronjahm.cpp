@@ -28,7 +28,7 @@ enum Yells
     SAY_SLAY_2          = -1632003,
     SAY_DEATH           = -1632004,
     SAY_SOUL_STORM      = -1632005,
-    SAY_CORRUPT_SOUL    = -1632006,
+    SAY_CORRUPT_SOUL    = -1632006
 };
 
 enum Spells
@@ -51,7 +51,7 @@ enum Events
     EVENT_SHADOW_BOLT   = 2,
     EVENT_CORRUPT_SOUL  = 3,
     EVENT_SOULSTORM     = 4,
-    EVENT_FEAR          = 5,
+    EVENT_FEAR          = 5
 };
 
 enum CombatPhases

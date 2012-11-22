@@ -36,14 +36,14 @@ enum Yells
     YELL_DEAD_2                                 = -1574008,
 
     YELL_KILL_1                                 = -1574009,
-    YELL_KILL_2                                 = -1574010,
+    YELL_KILL_2                                 = -1574010
 };
 
 enum Creatures
 {
     MOB_INGVAR_HUMAN                            = 23954,
     MOB_ANNHYLDE_THE_CALLER                     = 24068,
-    MOB_INGVAR_UNDEAD                           = 23980,
+    MOB_INGVAR_UNDEAD                           = 23980
 };
 
 enum Events

@@ -35,19 +35,19 @@ enum Spells
     SPELL_SURGE                                   = 54801,
     SPELL_FREEZE_ANIM                             = 16245,
     SPELL_MOJO_PUDDLE                             = 55627,
-    SPELL_MOJO_WAVE                               = 55626,
+    SPELL_MOJO_WAVE                               = 55626
 };
 
 enum ColossusEvents
 {
-    EVENT_MIGHTY_BLOW   = 1,
+    EVENT_MIGHTY_BLOW   = 1
 };
 
 enum ColossusActions
 {
     ACTION_SUMMON_ELEMENTAL     = 1,
     ACTION_FREEZE_COLOSSUS      = 2,
-    ACTION_UNFREEZE_COLOSSUS    = 3,
+    ACTION_UNFREEZE_COLOSSUS    = 3
 };
 
 enum ColossusPhases

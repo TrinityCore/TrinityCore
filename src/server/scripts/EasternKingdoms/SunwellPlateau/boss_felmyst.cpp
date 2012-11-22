@@ -36,7 +36,7 @@ enum Yells
     YELL_BREATH                                   = 2,
     YELL_TAKEOFF                                  = 3,
     YELL_BERSERK                                  = 4,
-    YELL_DEATH                                    = 5,
+    YELL_DEATH                                    = 5
   //YELL_KALECGOS                                 = 6, Not used. After felmyst's death spawned and say this
 };
 
@@ -81,14 +81,14 @@ enum Spells
     //Other
     SPELL_BERSERK                                 = 45078,
     SPELL_CLOUD_VISUAL                            = 45212,
-    SPELL_CLOUD_SUMMON                            = 45884,
+    SPELL_CLOUD_SUMMON                            = 45884
 };
 
 enum PhaseFelmyst
 {
     PHASE_NONE,
     PHASE_GROUND,
-    PHASE_FLIGHT,
+    PHASE_FLIGHT
 };
 
 enum EventFelmyst
@@ -104,7 +104,7 @@ enum EventFelmyst
 
     EVENT_FLIGHT_SEQUENCE,
     EVENT_SUMMON_DEAD,
-    EVENT_SUMMON_FOG,
+    EVENT_SUMMON_FOG
 };
 
 class boss_felmyst : public CreatureScript

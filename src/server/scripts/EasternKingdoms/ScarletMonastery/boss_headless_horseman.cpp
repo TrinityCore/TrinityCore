@@ -41,7 +41,7 @@ enum Says
     SAY_REJOINED                = 1,
     SAY_CONFLAGRATION           = 2,
     SAY_SPROUTING_PUMPKINS      = 3,
-    SAY_DEATH                   = 4,
+    SAY_DEATH                   = 4
 };
 
 uint32 RandomLaugh[] = {11965, 11975, 11976};

@@ -55,7 +55,7 @@ enum eSinkhole
     SPELL_SET_CART                = 46797,
     SPELL_EXPLODE_CART            = 46799,
     SPELL_SUMMON_CART             = 46798,
-    SPELL_SUMMON_WORM             = 46800,
+    SPELL_SUMMON_WORM             = 46800
 };
 
 class npc_sinkhole_kill_credit : public CreatureScript
@@ -562,7 +562,7 @@ enum eNesingwaryTrapper
     GO_CARIBOU_TRAP_14  = 188007,
     GO_CARIBOU_TRAP_15  = 188008,
 
-    SPELL_TRAPPED       = 46104,
+    SPELL_TRAPPED       = 46104
 };
 
 #define CaribouTrapsNum 15
@@ -693,7 +693,7 @@ enum eLurgglbr
     GO_CAGE                             = 187369,
 
     FACTION_ESCORTEE_A                  = 774,
-    FACTION_ESCORTEE_H                  = 775,
+    FACTION_ESCORTEE_H                  = 775
 };
 
 /*#define SAY_WP_1_LUR_START  -1571004
@@ -970,7 +970,7 @@ enum eThassarian
     SAY_LERYSSA_3           = -1571020,
     SAY_THASSARIAN_6        = -1571021,
     SAY_LERYSSA_4           = -1571022,
-    SAY_THASSARIAN_7        = -1571023,
+    SAY_THASSARIAN_7        = -1571023
 };
 
 #define GOSSIP_ITEM_T   "Let's do this, Thassarian. It's now or never."
@@ -1351,7 +1351,7 @@ public:
 enum eCounselorTalbot
 {
     SPELL_DEFLECTION    = 51009,
-    SPELL_SOUL_BLAST    = 50992,
+    SPELL_SOUL_BLAST    = 50992
 };
 
 class npc_counselor_talbot : public CreatureScript
@@ -1682,7 +1682,7 @@ enum eImprisionedBerylSorcerer
     SAY_IMPRISIONED_BERYL_4         = -1571027,
     SAY_IMPRISIONED_BERYL_5         = -1571028,
     SAY_IMPRISIONED_BERYL_6         = -1571029,
-    SAY_IMPRISIONED_BERYL_7         = -1571030,
+    SAY_IMPRISIONED_BERYL_7         = -1571030
 };
 
 class npc_imprisoned_beryl_sorcerer : public CreatureScript
@@ -1982,7 +1982,7 @@ enum eHelpThemselves
     GO_MAMMOTH_TRAP_19                            = 188041,
     GO_MAMMOTH_TRAP_20                            = 188042,
     GO_MAMMOTH_TRAP_21                            = 188043,
-    GO_MAMMOTH_TRAP_22                            = 188044,
+    GO_MAMMOTH_TRAP_22                            = 188044
 };
 
 #define MammothTrapsNum 22

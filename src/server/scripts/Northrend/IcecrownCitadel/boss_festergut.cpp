@@ -32,7 +32,7 @@ enum ScriptTexts
     EMOTE_PUNGENT_BLIGHT        = 6,
     SAY_KILL                    = 7,
     SAY_BERSERK                 = 8,
-    SAY_DEATH                   = 9,
+    SAY_DEATH                   = 9
 };
 
 enum Spells
@@ -49,7 +49,7 @@ enum Spells
     // Stinky
     SPELL_MORTAL_WOUND          = 71127,
     SPELL_DECIMATE              = 71123,
-    SPELL_PLAGUE_STENCH         = 71805,
+    SPELL_PLAGUE_STENCH         = 71805
 };
 
 // Used for HasAura checks
@@ -68,7 +68,7 @@ enum Events
     EVENT_GASTRIC_BLOAT = 5,
 
     EVENT_DECIMATE      = 6,
-    EVENT_MORTAL_WOUND  = 7,
+    EVENT_MORTAL_WOUND  = 7
 };
 
 #define DATA_INOCULATED_STACK 69291

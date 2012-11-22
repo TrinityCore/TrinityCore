@@ -27,7 +27,7 @@ enum Spells
     SPELL_VAMPIRIC_AURA     = 38196,
     SPELL_INFERNO           = 31299,
     SPELL_IMMOLATION        = 31303,
-    SPELL_INFERNO_EFFECT    = 31302,
+    SPELL_INFERNO_EFFECT    = 31302
 };
 
 enum Texts
@@ -37,7 +37,7 @@ enum Texts
     SAY_SWARM           = 2,
     SAY_SLEEP           = 3,
     SAY_INFERNO         = 4,
-    SAY_ONAGGRO         = 5,
+    SAY_ONAGGRO         = 5
 };
 
 class boss_anetheron : public CreatureScript

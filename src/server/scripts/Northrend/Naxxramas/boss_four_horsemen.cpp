@@ -26,7 +26,7 @@ enum Horsemen
     HORSEMEN_THANE,
     HORSEMEN_LADY,
     HORSEMEN_BARON,
-    HORSEMEN_SIR,
+    HORSEMEN_SIR
 };
 
 enum Spells
@@ -39,7 +39,7 @@ enum Events
     EVENT_NONE,
     EVENT_MARK,
     EVENT_CAST,
-    EVENT_BERSERK,
+    EVENT_BERSERK
 };
 
 const Position WaypointPositions[12] =
@@ -59,7 +59,7 @@ const Position WaypointPositions[12] =
     // Sir waypoints
     {2534.5f, -2921.7f, 241.53f, 1.363f},
     {2523.5f, -2902.8f, 241.28f, 2.095f},
-    {2517.8f, -2896.6f, 241.28f, 2.315f},
+    {2517.8f, -2896.6f, 241.28f, 2.315f}
 };
 
 const uint32 MOB_HORSEMEN[]     =   {16064, 16065, 30549, 16063};

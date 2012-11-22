@@ -44,7 +44,7 @@ enum eSpells
     SPELL_EMBER_BLAST            = 34133, // When Ember of Al'ar dies, it casts Ember Blast
 
     CREATURE_FLAME_PATCH_ALAR    = 20602, // Flame Patch - every 30 sec in phase 2
-    SPELL_FLAME_PATCH            = 35380, //
+    SPELL_FLAME_PATCH            = 35380
 };
 
 static float waypoint[6][3] =

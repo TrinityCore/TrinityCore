@@ -30,7 +30,7 @@ enum Yells
 {
     YELL_AGGRO                                   = 0,
     YELL_EVADE                                   = 1,
-    YELL_SALVATION                               = 2,
+    YELL_SALVATION                               = 2
 };
 
 enum Creatures

@@ -43,7 +43,7 @@ enum Spells
     SPELL_ENRAGE                = 32964,
     SPELL_CAPTURE_SOUL          = 32966,
     SPELL_TWISTED_REFLECTION    = 21063,
-    SPELL_BERSERK               = 32965,
+    SPELL_BERSERK               = 32965
 };
 
 enum Events

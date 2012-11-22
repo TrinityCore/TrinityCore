@@ -23,13 +23,13 @@
 enum Spells
 {
     SPELL_CROWDPUMMEL               = 10887,
-    SPELL_MIGHTYBLOW                = 14099,
+    SPELL_MIGHTYBLOW                = 14099
 };
 
 enum Events
 {
     EVENT_CROWD_PUMMEL              = 1,
-    EVENT_MIGHTY_BLOW               = 2,
+    EVENT_MIGHTY_BLOW               = 2
 };
 
 const Position SummonLocation = { -169.839f, -324.961f, 64.401f, 3.124f };

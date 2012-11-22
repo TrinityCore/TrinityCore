@@ -28,7 +28,7 @@ enum Spells
 
     SPELL_SHOCK                 = 64363,
     SPELL_OVERCHARGED           = 64217,
-    SPELL_OVERCHARGED_BLAST     = 64219,    // Cast when Overcharged reaches 10 stacks. Mob dies after that
+    SPELL_OVERCHARGED_BLAST     = 64219     // Cast when Overcharged reaches 10 stacks. Mob dies after that
 };
 
 // cannot let SpellDifficulty handle it, no entries for these
@@ -39,7 +39,7 @@ enum BossEmotes
 {
     EMOTE_OVERCHARGE        = -1590000,
     EMOTE_MINION_RESPAWN    = -1590001,
-    EMOTE_BERSERK           = -1590002,
+    EMOTE_BERSERK           = -1590002
 };
 
 enum Events
@@ -48,7 +48,7 @@ enum Events
     EVENT_LIGHTNING_NOVA    = 2,
     EVENT_OVERCHARGE        = 3,
     EVENT_BERSERK           = 4,
-    EVENT_SHOCK             = 5,
+    EVENT_SHOCK             = 5
 };
 
 //Creatures

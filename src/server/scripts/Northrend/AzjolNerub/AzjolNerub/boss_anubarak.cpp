@@ -28,7 +28,7 @@ enum Spells
     SPELL_SUBMERGE                                = 53421,
     SPELL_IMPALE_DMG                              = 53454,
     SPELL_IMPALE_SHAKEGROUND                      = 53455,
-    SPELL_IMPALE_SPIKE                            = 53539,   //this is not the correct visual effect
+    SPELL_IMPALE_SPIKE                            = 53539   //this is not the correct visual effect
     //SPELL_IMPALE_TARGET                           = 53458,
 };
 
@@ -59,7 +59,7 @@ enum Yells
 
 enum
 {
-    ACHIEV_TIMED_START_EVENT                      = 20381,
+    ACHIEV_TIMED_START_EVENT                      = 20381
 };
 
 enum Phases
@@ -74,13 +74,13 @@ enum Phases
 const Position SpawnPoint[2] =
 {
     { 550.7f, 282.8f, 224.3f, 0.0f },
-    { 551.1f, 229.4f, 224.3f, 0.0f },
+    { 551.1f, 229.4f, 224.3f, 0.0f }
 };
 
 const Position SpawnPointGuardian[2] =
 {
     { 550.348633f, 316.006805f, 234.2947f, 0.0f },
-    { 550.188660f, 324.264557f, 237.7412f, 0.0f },
+    { 550.188660f, 324.264557f, 237.7412f, 0.0f }
 };
 
 class boss_anub_arak : public CreatureScript

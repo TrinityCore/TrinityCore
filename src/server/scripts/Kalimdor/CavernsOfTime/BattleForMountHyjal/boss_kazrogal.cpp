@@ -34,12 +34,12 @@ enum Texts
 {
     SAY_ONSLAY          = 0,
     SAY_MARK            = 1,
-    SAY_ONAGGRO         = 2,
+    SAY_ONAGGRO         = 2
 };
 
 enum Sounds
 {
-    SOUND_ONDEATH       = 11018,
+    SOUND_ONDEATH       = 11018
 };
 
 class boss_kazrogal : public CreatureScript

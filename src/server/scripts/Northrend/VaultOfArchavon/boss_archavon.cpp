@@ -50,7 +50,7 @@ enum Events
     //mob
     EVENT_ROCK_SHOWER       = 6,    // set = 20s cd, unkown cd
     EVENT_SHIELD_CRUSH      = 7,    // set = 30s cd
-    EVENT_WHIRL             = 8,    // set= 10s cd
+    EVENT_WHIRL             = 8     // set= 10s cd
 };
 
 class boss_archavon : public CreatureScript

@@ -32,7 +32,7 @@ enum eTypes
     TYPE_MUTANUS_THE_DEVOURER = 9,
     TYPE_NARALEX_YELLED       = 10,
 
-    DATA_NARALEX              = 3679,
+    DATA_NARALEX              = 3679
 };
 
 #endif

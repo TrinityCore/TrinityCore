@@ -26,7 +26,7 @@ enum Yells
     SAY_SLAY_2                                    = -1668052,
     SAY_DEATH                                     = -1668053,
     SAY_IMPENDING_DESPAIR                         = -1668054,
-    SAY_DEFILING_HORROR                           = -1668055,
+    SAY_DEFILING_HORROR                           = -1668055
 };
 
 enum Spells
@@ -35,7 +35,7 @@ enum Spells
     SPELL_IMPENDING_DESPAIR                       = 72426,
     SPELL_DEFILING_HORROR                         = 72435,
     SPELL_HOPELESSNESS                            = 72395,
-    H_SPELL_HOPELESSNESS                          = 72390, // TODO: not in dbc. Add in DB.
+    H_SPELL_HOPELESSNESS                          = 72390 // TODO: not in dbc. Add in DB.
 };
 
 enum Events

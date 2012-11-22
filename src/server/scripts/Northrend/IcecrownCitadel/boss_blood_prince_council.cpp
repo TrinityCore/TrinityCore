@@ -52,7 +52,7 @@ enum Texts
     EMOTE_VALANAR_SHOCK_VORTEX  = 3,
     SAY_VALANAR_KILL            = 4,
     SAY_VALANAR_BERSERK         = 5,
-    SAY_VALANAR_DEATH           = 6,
+    SAY_VALANAR_DEATH           = 6
 };
 
 enum Spells
@@ -108,7 +108,7 @@ enum Spells
 
     // Shock Vortex
     SPELL_SHOCK_VORTEX_PERIODIC         = 71945,
-    SPELL_SHOCK_VORTEX_DUMMY            = 72633,
+    SPELL_SHOCK_VORTEX_DUMMY            = 72633
 };
 
 enum Events
@@ -131,7 +131,7 @@ enum Events
     EVENT_KINETIC_BOMB          = 9,
     EVENT_SHOCK_VORTEX          = 10,
     EVENT_BOMB_DESPAWN          = 11,
-    EVENT_CONTINUE_FALLING      = 12,
+    EVENT_CONTINUE_FALLING      = 12
 };
 
 enum Actions
@@ -140,18 +140,18 @@ enum Actions
     ACTION_CAST_INVOCATION      = 2,
     ACTION_REMOVE_INVOCATION    = 3,
     ACTION_KINETIC_BOMB_JUMP    = 4,
-    ACTION_FLAME_BALL_CHASE     = 5,
+    ACTION_FLAME_BALL_CHASE     = 5
 };
 
 enum Points
 {
     POINT_INTRO_DESPAWN         = 380040,
-    POINT_KINETIC_BOMB_IMPACT   = 384540,
+    POINT_KINETIC_BOMB_IMPACT   = 384540
 };
 
 enum Displays
 {
-    DISPLAY_KINETIC_BOMB        = 31095,
+    DISPLAY_KINETIC_BOMB        = 31095
 };
 
 class StandUpEvent : public BasicEvent

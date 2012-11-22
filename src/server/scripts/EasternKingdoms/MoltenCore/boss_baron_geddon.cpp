@@ -35,14 +35,14 @@ enum Spells
     SPELL_INFERNO       = 19695,
     SPELL_IGNITE_MANA   = 19659,
     SPELL_LIVING_BOMB   = 20475,
-    SPELL_ARMAGEDDON    = 20479,
+    SPELL_ARMAGEDDON    = 20479
 };
 
 enum Events
 {
     EVENT_INFERNO       = 1,
     EVENT_IGNITE_MANA   = 2,
-    EVENT_LIVING_BOMB   = 3,
+    EVENT_LIVING_BOMB   = 3
 };
 
 class boss_baron_geddon : public CreatureScript

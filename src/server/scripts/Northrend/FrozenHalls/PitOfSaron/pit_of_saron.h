@@ -34,7 +34,7 @@ enum DataTypes
     DATA_JAINA_SYLVANAS_1   = 5,    // GUID of either Jaina or Sylvanas part 1, depending on team, as it's the same spawn.
     DATA_JAINA_SYLVANAS_2   = 6,    // GUID of either Jaina or Sylvanas part 2, depending on team, as it's the same spawn.
     DATA_TYRANNUS_EVENT     = 7,
-    DATA_TEAM_IN_INSTANCE   = 8,
+    DATA_TEAM_IN_INSTANCE   = 8
 };
 
 enum CreatureIds
@@ -91,7 +91,7 @@ enum GameObjectIds
 {
     GO_SARONITE_ROCK                            = 196485,
     GO_ICE_WALL                                 = 201885,
-    GO_HALLS_OF_REFLECTION_PORTCULLIS           = 201848,
+    GO_HALLS_OF_REFLECTION_PORTCULLIS           = 201848
 };
 
 #endif

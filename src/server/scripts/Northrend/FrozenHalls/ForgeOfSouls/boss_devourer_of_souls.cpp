@@ -49,7 +49,7 @@ enum Yells
     SAY_FACE_DESIRE_WAILING_SOUL                  = -1632028,
 
     SAY_JAINA_OUTRO                               = -1632029,
-    SAY_SYLVANAS_OUTRO                            = -1632030,
+    SAY_SYLVANAS_OUTRO                            = -1632030
 };
 
 enum Spells
@@ -62,8 +62,8 @@ enum Spells
     SPELL_WAILING_SOULS_STARTING                  = 68912,  // Initial spell cast at begining of wailing souls phase
     SPELL_WAILING_SOULS_BEAM                      = 68875,  // the beam visual
     SPELL_WAILING_SOULS                           = 68873,  // the actual spell
-    H_SPELL_WAILING_SOULS                         = 70324,
-//    68871, 68873, 68875, 68876, 68899, 68912, 70324,
+    H_SPELL_WAILING_SOULS                         = 70324
+//    68871, 68876, 68899
 // 68899 trigger 68871
 };
 
@@ -75,14 +75,14 @@ enum Events
     EVENT_UNLEASHED_SOULS       = 4,
     EVENT_WAILING_SOULS         = 5,
     EVENT_WAILING_SOULS_TICK    = 6,
-    EVENT_FACE_ANGER            = 7,
+    EVENT_FACE_ANGER            = 7
 };
 
 enum eEnum
 {
     DISPLAY_ANGER               = 30148,
     DISPLAY_SORROW              = 30149,
-    DISPLAY_DESIRE              = 30150,
+    DISPLAY_DESIRE              = 30150
 };
 
 struct outroPosition
@@ -112,6 +112,7 @@ struct outroPosition
 
     { { NPC_KORELN, NPC_LORALEN }, { 5602.58f, 2435.95f, 705.935f, 0.959931f } },
     { { NPC_ELANDRA, NPC_KALIRA }, { 5606.13f, 2433.16f, 705.935f, 0.785398f } },
+
     { { NPC_JAINA_PART2, NPC_SYLVANAS_PART2 }, { 5606.12f, 2436.6f, 705.935f, 0.890118f } },
 
     { { 0, 0 }, { 0.0f, 0.0f, 0.0f, 0.0f } }

@@ -59,7 +59,7 @@ enum AssemblySpells
     SPELL_LIGHTNING_TENDRILS_10M                 = 61887,
     SPELL_LIGHTNING_TENDRILS_25M                 = 63486,
     SPELL_LIGHTNING_TENDRILS_VISUAL              = 61883,
-    SPELL_STORMSHIELD                            = 64187,
+    SPELL_STORMSHIELD                            = 64187
 };
 
 enum AssemblyEvents
@@ -88,7 +88,7 @@ enum AssemblyEvents
     EVENT_ENDFLIGHT                              = 15,
     EVENT_GROUND                                 = 16,
     EVENT_LAND                                   = 17,
-    EVENT_MOVE_POSITION                          = 18,
+    EVENT_MOVE_POSITION                          = 18
 };
 
 enum AssemblyActions
@@ -96,7 +96,7 @@ enum AssemblyActions
     ACTION_STEELBREAKER                          = 0,
     ACTION_MOLGEIM                               = 1,
     ACTION_BRUNDIR                               = 2,
-    ACTION_ADD_CHARGE                            = 3,
+    ACTION_ADD_CHARGE                            = 3
 };
 
 enum AssemblyYells
@@ -125,12 +125,12 @@ enum AssemblyYells
     SAY_BRUNDIR_FLIGHT                          = -1603044,
     SAY_BRUNDIR_DEATH_1                         = -1603045,
     SAY_BRUNDIR_DEATH_2                         = -1603046,
-    SAY_BRUNDIR_BERSERK                         = -1603047,
+    SAY_BRUNDIR_BERSERK                         = -1603047
 };
 
 enum AssemblyNPCs
 {
-    NPC_WORLD_TRIGGER                            = 22515,
+    NPC_WORLD_TRIGGER                            = 22515
 };
 
 #define EMOTE_OVERLOAD                           "Stormcaller Brundir begins to Overload!" // Move it to DB

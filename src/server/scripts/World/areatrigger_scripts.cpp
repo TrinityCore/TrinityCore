@@ -178,7 +178,7 @@ class AreaTrigger_at_scent_larkorwi : public AreaTriggerScript
 enum eAtLastRites
 {
     QUEST_LAST_RITES                          = 12019,
-    QUEST_BREAKING_THROUGH                    = 11898,
+    QUEST_BREAKING_THROUGH                    = 11898
 };
 
 class AreaTrigger_at_last_rites : public AreaTriggerScript
@@ -236,7 +236,7 @@ enum eWaygate
 
     QUEST_THE_MAKERS_OVERLOOK                   = 12613,
     QUEST_THE_MAKERS_PERCH                      = 12559,
-    QUEST_MEETING_A_GREAT_ONE                   = 13956,
+    QUEST_MEETING_A_GREAT_ONE                   = 13956
 };
 
 class AreaTrigger_at_sholazar_waygate : public AreaTriggerScript
@@ -315,7 +315,7 @@ enum Brewfest
 
     SAY_WELCOME                 = 4,
 
-    AREATRIGGER_TALK_COOLDOWN   = 5, // in seconds
+    AREATRIGGER_TALK_COOLDOWN   = 5  // in seconds
 };
 
 class AreaTrigger_at_brewfest : public AreaTriggerScript
@@ -369,7 +369,7 @@ enum Area52Entrance
     AT_AREA_52_SOUTH      = 4472,
     AT_AREA_52_NORTH      = 4466,
     AT_AREA_52_WEST       = 4471,
-    AT_AREA_52_EAST       = 4422,
+    AT_AREA_52_EAST       = 4422
 };
 
 class AreaTrigger_at_area_52_entrance : public AreaTriggerScript

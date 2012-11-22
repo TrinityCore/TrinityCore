@@ -26,7 +26,7 @@ enum Spells
     SPELL_UNSTABLE_SPHERE_PASSIVE                 = 50756,
     SPELL_UNSTABLE_SPHERE_PULSE                   = 50757,
     SPELL_UNSTABLE_SPHERE_TIMER                   = 50758,
-    NPC_UNSTABLE_SPHERE                           = 28166,
+    NPC_UNSTABLE_SPHERE                           = 28166
 };
 
 enum Yells
@@ -47,7 +47,7 @@ enum Yells
 
 enum DrakosAchievement
 {
-    ACHIEV_TIMED_START_EVENT                      = 18153,
+    ACHIEV_TIMED_START_EVENT                      = 18153
 };
 
 enum DrakosEvents

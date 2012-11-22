@@ -94,7 +94,7 @@ const Waves waves[] =
     {MOB_LIVE_TRAINEE, 25000, 2},
     {MOB_LIVE_TRAINEE, 15000, 0},
     {MOB_LIVE_TRAINEE, 25000, 0},
-    {0, 0, 1},
+    {0, 0, 1}
 };
 
 #define POS_Y_GATE  -3360.78f
@@ -126,7 +126,7 @@ const Position PosSummonLive[POS_LIVE] =
     {2714.4f, -3428.76f, 268.56f, 1.6f},
     {2669.7f, -3431.67f, 268.56f, 1.6f},
     {2692.1f, -3431.67f, 268.56f, 1.6f},
-    {2714.4f, -3431.67f, 268.56f, 1.6f},
+	{2714.4f, -3431.67f, 268.56f, 1.6f}
 };
 
 const Position PosSummonDead[POS_DEAD] =
@@ -135,7 +135,7 @@ const Position PosSummonDead[POS_DEAD] =
     {2699.3f, -3322.8f, 268.60f, 3.3f},
     {2733.1f, -3348.5f, 268.84f, 3.1f},
     {2682.8f, -3304.2f, 268.85f, 3.9f},
-    {2664.8f, -3340.7f, 268.23f, 3.7f},
+    {2664.8f, -3340.7f, 268.23f, 3.7f}
 };
 
 float const PosGroundLiveSide[4] = {2691.2f, -3387.0f, 267.68f, 1.52f};

@@ -51,7 +51,7 @@ enum eSpells
     SPELL_BOSS_AGGRO                 = 10340,
     SPELL_SUB_BOSS_AGGRO             = 11568,
     SPELL_AWAKEN_VAULT_WALKER        = 10258,
-    SPELL_AWAKEN_EARTHEN_GUARDIAN    = 10252,
+    SPELL_AWAKEN_EARTHEN_GUARDIAN    = 10252
 };
 
 class boss_archaedas : public CreatureScript

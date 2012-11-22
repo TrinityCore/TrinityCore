@@ -21,7 +21,7 @@
 enum Spells
 {
     SPELL_WHIRLWIND                               = 15589,
-    SPELL_WHIRLWIND2                              = 13736,
+    SPELL_WHIRLWIND2                              = 13736, // TODO: SPELL_WHIRLWIND2 triggers SPELL_WHIRLWIND
     SPELL_KNOCKDOWN                               = 19128,
     SPELL_FRENZY                                  = 8269,
     SPELL_SWEEPING_STRIKES                        = 18765, // not sure

@@ -86,7 +86,7 @@ float FireWallCoords[4][4] =
     {-33.93f, 1175.68f, 19, 1.5f*3.1415f}
 };
 
-float hatcherway[2][5][3] =
+float hatchery[2][5][3] =
 {
     {
         {-87.46f, 1170.09f, 6},
@@ -407,8 +407,8 @@ class boss_janalai : public CreatureScript
                         if (HatchAllEggs(0))
                         {
                             Talk(SAY_SUMMON_HATCHER);
-                            me->SummonCreature(MOB_AMANI_HATCHER, hatcherway[0][0][0], hatcherway[0][0][1], hatcherway[0][0][2], 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
-                            me->SummonCreature(MOB_AMANI_HATCHER, hatcherway[1][0][0], hatcherway[1][0][1], hatcherway[1][0][2], 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
+                            me->SummonCreature(MOB_AMANI_HATCHER, hatchery[0][0][0], hatchery[0][0][1], hatchery[0][0][2], 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
+                            me->SummonCreature(MOB_AMANI_HATCHER, hatchery[1][0][0], hatchery[1][0][1], hatchery[1][0][2], 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
                             HatcherTimer = 90000;
                         }
                         else
@@ -573,7 +573,7 @@ class mob_janalai_hatcher : public CreatureScript
                     if (WaitTimer)
                     {
                         me->GetMotionMaster()->Clear();
-                        me->GetMotionMaster()->MovePoint(0, hatcherway[side][waypoint][0], hatcherway[side][waypoint][1], hatcherway[side][waypoint][2]);
+                        me->GetMotionMaster()->MovePoint(0, hatchery[side][waypoint][0], hatchery[side][waypoint][1], hatchery[side][waypoint][2]);
                         ++waypoint;
                         WaitTimer = 0;
                     }
@@ -632,9 +632,9 @@ class mob_janalai_hatchling : public CreatureScript
             {
                 BuffetTimer = 7000;
                 if (me->GetPositionY() > 1150)
-                    me->GetMotionMaster()->MovePoint(0, hatcherway[0][3][0]+rand()%4-2, 1150.0f+rand()%4-2, hatcherway[0][3][2]);
+                    me->GetMotionMaster()->MovePoint(0, hatchery[0][3][0]+rand()%4-2, 1150.0f+rand()%4-2, hatchery[0][3][2]);
                 else
-                    me->GetMotionMaster()->MovePoint(0, hatcherway[1][3][0]+rand()%4-2, 1150.0f+rand()%4-2, hatcherway[1][3][2]);
+                    me->GetMotionMaster()->MovePoint(0, hatchery[1][3][0]+rand()%4-2, 1150.0f+rand()%4-2, hatchery[1][3][2]);
 
                 me->SetUnitMovementFlags(MOVEMENTFLAG_DISABLE_GRAVITY);
             }

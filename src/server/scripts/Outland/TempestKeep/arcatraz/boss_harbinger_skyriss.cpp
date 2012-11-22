@@ -43,7 +43,7 @@ enum eSays
     SAY_FEAR_1             = -1552006,
     SAY_FEAR_2             = -1552007,
     SAY_IMAGE              = -1552008,
-    SAY_DEATH              = -1552009,
+    SAY_DEATH              = -1552009
 };
 
 enum eSpells
@@ -55,7 +55,7 @@ enum eSpells
     H_SPELL_DOMINATION     = 39019,
     H_SPELL_MANA_BURN      = 39020,
     SPELL_66_ILLUSION      = 36931,                       //entry 21466
-    SPELL_33_ILLUSION      = 36932,                       //entry 21467
+    SPELL_33_ILLUSION      = 36932                        //entry 21467
 };
 
 class boss_harbinger_skyriss : public CreatureScript

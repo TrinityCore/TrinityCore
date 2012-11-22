@@ -44,7 +44,7 @@ enum Quotes
     YELL_MADR_INTRO                     = 1,
     YELL_MADR_ICE_BLOCK                 = 2,
     YELL_MADR_TRAP                      = 3,
-    YELL_MADR_DEATH                     = 4,
+    YELL_MADR_DEATH                     = 4
 };
 
 enum Spells

@@ -37,13 +37,13 @@ enum Spells
 
     // Adds
     SPELL_ERUPTION          = 19497,
-    SPELL_IMMOLATE          = 20294,
+    SPELL_IMMOLATE          = 20294
 };
 
 enum Events
 {
     EVENT_ANTIMAGIC_PULSE    = 1,
-    EVENT_MAGMA_SHACKLES     = 2,
+    EVENT_MAGMA_SHACKLES     = 2
 };
 
 class boss_garr : public CreatureScript

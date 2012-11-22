@@ -27,7 +27,7 @@ enum Data
     DATA_FELMYST_EVENT,
     DATA_EREDAR_TWINS_EVENT,
     DATA_MURU_EVENT,
-    DATA_KILJAEDEN_EVENT,
+    DATA_KILJAEDEN_EVENT
 };
 
 enum Data64
@@ -55,7 +55,7 @@ enum Data64
     DATA_ORB_OF_THE_BLUE_DRAGONFLIGHT_4,
 
     /*** Misc ***/
-    DATA_PLAYER_GUID,
+    DATA_PLAYER_GUID
 };
 
 enum Creatures
@@ -98,12 +98,12 @@ enum Creatures
     CREATURE_FURY_MAGE                            = 25799,
     CREATURE_VOID_SENTINEL                        = 25772,
     CREATURE_VOID_SPAWN                           = 25824,
-    CREATURE_BLACK_HOLE                           = 25855,
+    CREATURE_BLACK_HOLE                           = 25855
 };
 
 enum GameObjects
 {
-    GAMEOBJECT_ORB_OF_THE_BLUE_DRAGONFLIGHT       = 188415,
+    GAMEOBJECT_ORB_OF_THE_BLUE_DRAGONFLIGHT       = 188415
 };
 
 #endif

@@ -36,13 +36,13 @@ enum Events
     EVENT_DISRUPT,
     EVENT_FEVER,
     EVENT_ERUPT,
-    EVENT_PHASE,
+    EVENT_PHASE
 };
 
 enum Phases
 {
     PHASE_FIGHT = 1,
-    PHASE_DANCE,
+    PHASE_DANCE
 };
 
 #define ACTION_SAFETY_DANCE_FAIL 1

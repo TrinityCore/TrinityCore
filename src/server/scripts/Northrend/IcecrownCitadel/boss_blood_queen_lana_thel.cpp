@@ -36,7 +36,7 @@ enum Texts
     SAY_KILL                    = 8,
     SAY_WIPE                    = 9,
     SAY_BERSERK                 = 10,
-    SAY_DEATH                   = 11,
+    SAY_DEATH                   = 11
 };
 
 enum Spells
@@ -60,7 +60,7 @@ enum Spells
     SPELL_TWILIGHT_BLOODBOLT                = 71446,
     SPELL_INCITE_TERROR                     = 73070,
     SPELL_BLOODBOLT_WHIRL                   = 71772,
-    SPELL_ANNIHILATE                        = 71322,
+    SPELL_ANNIHILATE                        = 71322
 };
 
 enum Shadowmourne
@@ -69,14 +69,14 @@ enum Shadowmourne
     ITEM_SHADOW_S_EDGE                      = 49888,
 
     SPELL_GUSHING_WOUND                     = 72132,
-    SPELL_THIRST_QUENCHED                   = 72154,
+    SPELL_THIRST_QUENCHED                   = 72154
 };
 
 uint32 const vampireAuras[3][MAX_DIFFICULTY] =
 {
     {70867, 71473, 71532, 71533},
     {70879, 71525, 71530, 71531},
-    {70877, 71474, 70877, 71474},
+    {70877, 71474, 70877, 71474}
 };
 
 #define ESSENCE_OF_BLOOD_QUEEN     RAID_MODE<uint32>(70867, 71473, 71532, 71533)
@@ -98,13 +98,13 @@ enum Events
     EVENT_AIR_FLY_DOWN              = 10,
 
     EVENT_GROUP_NORMAL              = 1,
-    EVENT_GROUP_CANCELLABLE         = 2,
+    EVENT_GROUP_CANCELLABLE         = 2
 };
 
 enum Guids
 {
     GUID_VAMPIRE    = 1,
-    GUID_BLOODBOLT  = 2,
+    GUID_BLOODBOLT  = 2
 };
 
 enum Points
@@ -112,7 +112,7 @@ enum Points
     POINT_CENTER    = 1,
     POINT_AIR       = 2,
     POINT_GROUND    = 3,
-    POINT_MINCHAR   = 4,
+    POINT_MINCHAR   = 4
 };
 
 Position const centerPos  = {4595.7090f, 2769.4190f, 400.6368f, 0.000000f};

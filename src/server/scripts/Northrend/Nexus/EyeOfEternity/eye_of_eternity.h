@@ -66,7 +66,7 @@ enum InstanceSpells
     SPELL_VORTEX_4          = 55853, // damage | used to enter to the vehicle
     SPELL_VORTEX_5          = 56263, // damage | used to enter to the vehicle
     SPELL_PORTAL_OPENED     = 61236,
-    SPELL_RIDE_RED_DRAGON   = 56071,
+    SPELL_RIDE_RED_DRAGON   = 56071
 };
 
 #endif

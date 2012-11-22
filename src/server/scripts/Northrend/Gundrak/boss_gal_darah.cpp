@@ -32,7 +32,7 @@ enum Spells
     H_SPELL_PUNCTURE                              = 59826,
     SPELL_STAMPEDE                                = 55218,
     SPELL_WHIRLING_SLASH                          = 55250,
-    H_SPELL_WHIRLING_SLASH                        = 59824,
+    H_SPELL_WHIRLING_SLASH                        = 59824
 };
 
 //Yells

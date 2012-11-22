@@ -31,13 +31,13 @@ enum Encounters
     BOSS_GOLEMAGG_THE_INCINERATOR   = 7,
     BOSS_MAJORDOMO_EXECUTUS         = 8,
     BOSS_RAGNAROS                   = 9,
-    MAX_ENCOUNTER,
+    MAX_ENCOUNTER
 };
 
 enum Actions
 {
     ACTION_START_RAGNAROS       = 0,
-    ACTION_START_RAGNAROS_ALT   = 1,
+    ACTION_START_RAGNAROS_ALT   = 1
 };
 
 Position const RagnarosTelePos   = {829.159f, -815.773f, -228.972f, 5.30500f};
@@ -56,17 +56,17 @@ enum Creatures
     NPC_MAJORDOMO_EXECUTUS          = 12018,
     NPC_RAGNAROS                    = 11502,
     NPC_FLAMEWAKER_HEALER           = 11663,
-    NPC_FLAMEWAKER_ELITE            = 11664,
+    NPC_FLAMEWAKER_ELITE            = 11664
 };
 
 enum GameObjects
 {
-    GO_CACHE_OF_THE_FIRELORD        = 179703,
+    GO_CACHE_OF_THE_FIRELORD        = 179703
 };
 
 enum Data
 {
-    DATA_RAGNAROS_ADDS  = 0,
+    DATA_RAGNAROS_ADDS  = 0
 };
 
 #endif

@@ -64,7 +64,7 @@ uint32 RingMob[]=
     8927,                                                   // Dark Screecher
     8928,                                                   // Burrowing Thundersnout
     8933,                                                   // Cave Creeper
-    8932,                                                   // Borer Beetle
+    8932                                                    // Borer Beetle
 };
 
 uint32 RingBoss[]=
@@ -74,7 +74,7 @@ uint32 RingBoss[]=
     9029,                                                   // Eviscerator
     9030,                                                   // Ok'thor
     9031,                                                   // Anub'shiah
-    9032,                                                   // Hedrum
+    9032                                                    // Hedrum
 };
 
 class at_ring_of_law : public AreaTriggerScript
@@ -669,6 +669,7 @@ public:
 };
 
  */
+
 
 // npc_marshal_windsor
 #define SAY_WINDSOR_AGGRO1          "You locked up the wrong Marshal. Prepare to be destroyed!"
