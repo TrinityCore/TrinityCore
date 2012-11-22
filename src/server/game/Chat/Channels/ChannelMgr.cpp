@@ -35,6 +35,7 @@ ChannelMgr* ChannelMgr::forTeam(uint32 team)
 
     if (team == ALLIANCE)
         return ACE_Singleton<AllianceChannelMgr, ACE_Null_Mutex>::instance();
+
     if (team == HORDE)
         return ACE_Singleton<HordeChannelMgr, ACE_Null_Mutex>::instance();
 
@@ -78,8 +79,8 @@ Channel* ChannelMgr::GetChannel(std::string const& name, Player* player, bool pk
 
         return NULL;
     }
-    else
-        return i->second;
+
+    return i->second;
 }
 
 void ChannelMgr::LeftChannel(std::string const& name)
@@ -95,7 +96,7 @@ void ChannelMgr::LeftChannel(std::string const& name)
 
     Channel* channel = i->second;
 
-    if (channel->GetNumPlayers() == 0 && !channel->IsConstant())
+    if (!channel->GetNumPlayers() && !channel->IsConstant())
     {
         channels.erase(wname);
         delete channel;
@@ -104,6 +105,6 @@ void ChannelMgr::LeftChannel(std::string const& name)
 
 void ChannelMgr::MakeNotOnPacket(WorldPacket* data, std::string const& name)
 {
-    data->Initialize(SMSG_CHANNEL_NOTIFY, (1+10));  // we guess size
-    (*data) << (uint8)0x05 << name;
+    data->Initialize(SMSG_CHANNEL_NOTIFY, 1 + name.size());
+    (*data) << uint8(5) << name;
 }
