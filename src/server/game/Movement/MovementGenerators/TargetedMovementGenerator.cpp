@@ -27,7 +27,7 @@
 #include "Player.h"
 
 template<class T, typename D>
-void TargetedMovementGeneratorMedium<T,D>::_setTargetLocation(T* owner, bool updateDestination)
+void TargetedMovementGeneratorMedium<T,D>::_setTargetLocation(T* owner)
 {
     if (!i_target.isValid() || !i_target->IsInWorld())
         return;
@@ -40,22 +40,27 @@ void TargetedMovementGeneratorMedium<T,D>::_setTargetLocation(T* owner, bool upd
 
     float x, y, z;
 
-    if (updateDestination || !i_path)
+    if (!i_offset)
     {
-        if (!i_offset)
-        {
-            // to nearest contact position
-            i_target->GetContactPoint(owner, x, y, z);
-        }
+        float dist = 0.0f;
+
+        if (owner->getVictim() && owner->getVictim()->GetGUID() == i_target->GetGUID())
+            dist = owner->GetFloatValue(UNIT_FIELD_COMBATREACH) + i_target->GetFloatValue(UNIT_FIELD_COMBATREACH) - i_target->GetObjectSize() - owner->GetObjectSize() - 1.0f;
+
+        if (dist < 0.5f)
+            dist = 0.5f;
+
+        if (owner->IsWithinLOSInMap(owner->getVictim()))
+            i_target->GetContactPoint(owner, x, y, z, dist);
         else
-        {
+		{
             // to at i_offset distance from target and i_angle from target facing
-            i_target->GetClosePoint(x, y, z, owner->GetObjectSize(), i_offset, i_angle);
-        }
+         i_target->GetClosePoint(x, y, z, owner->GetObjectSize(), i_offset, i_angle);
+		}
     }
     else
     {
-        // the destination has not changed, we just need to refresh the path (usually speed change)
+		 // the destination has not changed, we just need to refresh the path (usually speed change)
         G3D::Vector3 end = i_path->GetEndPosition();
         x = end.x;
         y = end.y;
@@ -65,17 +70,17 @@ void TargetedMovementGeneratorMedium<T,D>::_setTargetLocation(T* owner, bool upd
     if (!i_path)
         i_path = new PathGenerator(owner);
 
-    // allow pets to use shortcut if no path found when following their master
+    // allow pets following their master to cheat while generating paths
     bool forceDest = (owner->GetTypeId() == TYPEID_UNIT && owner->ToCreature()->isPet()
                         && owner->HasUnitState(UNIT_STATE_FOLLOW));
 
     bool result = i_path->CalculatePath(x, y, z, forceDest);
-    if (!result || (i_path->GetPathType() & PATHFIND_NOPATH))
+     if (!result || (i_path->GetPathType() & PATHFIND_NOPATH))
     {
         // Cant reach target
         i_recalculateTravel = true;
         return;
-    }
+	}
 
     D::_addUnitStateMove(owner);
     i_targetReached = false;
@@ -84,8 +89,35 @@ void TargetedMovementGeneratorMedium<T,D>::_setTargetLocation(T* owner, bool upd
 
     Movement::MoveSplineInit init(owner);
     init.MovebyPath(i_path->GetPath());
+    init.SetFacing(i_target.getTarget());
     init.SetWalk(((D*)this)->EnableWalking());
     init.Launch();
+}
+
+template<>
+void TargetedMovementGeneratorMedium<Player,ChaseMovementGenerator<Player> >::UpdateFinalDistance(float /*fDistance*/)
+{
+    // nothing to do for Player
+}
+
+template<>
+void TargetedMovementGeneratorMedium<Player,FollowMovementGenerator<Player> >::UpdateFinalDistance(float /*fDistance*/)
+{
+    // nothing to do for Player
+}
+
+template<>
+void TargetedMovementGeneratorMedium<Creature,ChaseMovementGenerator<Creature> >::UpdateFinalDistance(float fDistance)
+{
+    i_offset = fDistance;
+    i_recalculateTravel = true;
+}
+
+template<>
+void TargetedMovementGeneratorMedium<Creature,FollowMovementGenerator<Creature> >::UpdateFinalDistance(float fDistance)
+{
+    i_offset = fDistance;
+    i_recalculateTravel = true;
 }
 
 template<class T, typename D>
@@ -118,7 +150,6 @@ bool TargetedMovementGeneratorMedium<T,D>::Update(T* owner, const uint32& time_d
         return true;
     }
 
-    bool targetMoved = false;
     i_recheckDistance.Update(time_diff);
     if (i_recheckDistance.Passed())
     {
@@ -127,14 +158,15 @@ bool TargetedMovementGeneratorMedium<T,D>::Update(T* owner, const uint32& time_d
         float allowed_dist = owner->GetCombatReach() + sWorld->getRate(RATE_TARGET_POS_RECALCULATION_RANGE);
         G3D::Vector3 dest = owner->movespline->FinalDestination();
 
+        bool targetMoved = false;
         if (owner->GetTypeId() == TYPEID_UNIT && owner->ToCreature()->CanFly())
             targetMoved = !i_target->IsWithinDist3d(dest.x, dest.y, dest.z, allowed_dist);
         else
             targetMoved = !i_target->IsWithinDist2d(dest.x, dest.y, allowed_dist);
-    }
 
-    if (i_recalculateTravel || targetMoved)
-        _setTargetLocation(owner, targetMoved);
+        if (targetMoved || !owner->IsWithinLOSInMap(owner->getVictim()))
+            _setTargetLocation(owner);
+    }
 
     if (owner->movespline->Finalized())
     {
@@ -148,7 +180,11 @@ bool TargetedMovementGeneratorMedium<T,D>::Update(T* owner, const uint32& time_d
             static_cast<D*>(this)->_reachTarget(owner);
         }
     }
-
+    else
+    {
+        if (i_recalculateTravel)
+            _setTargetLocation(owner);
+    }
     return true;
 }
 
@@ -164,7 +200,7 @@ template<>
 void ChaseMovementGenerator<Player>::Initialize(Player* owner)
 {
     owner->AddUnitState(UNIT_STATE_CHASE | UNIT_STATE_CHASE_MOVE);
-    _setTargetLocation(owner, true);
+    _setTargetLocation(owner);
 }
 
 template<>
@@ -172,7 +208,7 @@ void ChaseMovementGenerator<Creature>::Initialize(Creature* owner)
 {
     owner->SetWalk(false);
     owner->AddUnitState(UNIT_STATE_CHASE | UNIT_STATE_CHASE_MOVE);
-    _setTargetLocation(owner, true);
+    _setTargetLocation(owner);
 }
 
 template<class T>
@@ -236,7 +272,7 @@ void FollowMovementGenerator<Player>::Initialize(Player* owner)
 {
     owner->AddUnitState(UNIT_STATE_FOLLOW | UNIT_STATE_FOLLOW_MOVE);
     _updateSpeed(owner);
-    _setTargetLocation(owner, true);
+    _setTargetLocation(owner);
 }
 
 template<>
@@ -244,7 +280,7 @@ void FollowMovementGenerator<Creature>::Initialize(Creature* owner)
 {
     owner->AddUnitState(UNIT_STATE_FOLLOW | UNIT_STATE_FOLLOW_MOVE);
     _updateSpeed(owner);
-    _setTargetLocation(owner, true);
+    _setTargetLocation(owner);
 }
 
 template<class T>
@@ -274,10 +310,10 @@ void FollowMovementGenerator<Creature>::MovementInform(Creature* unit)
 }
 
 //-----------------------------------------------//
-template void TargetedMovementGeneratorMedium<Player,ChaseMovementGenerator<Player> >::_setTargetLocation(Player*, bool);
-template void TargetedMovementGeneratorMedium<Player,FollowMovementGenerator<Player> >::_setTargetLocation(Player*, bool);
-template void TargetedMovementGeneratorMedium<Creature,ChaseMovementGenerator<Creature> >::_setTargetLocation(Creature*, bool);
-template void TargetedMovementGeneratorMedium<Creature,FollowMovementGenerator<Creature> >::_setTargetLocation(Creature*, bool);
+template void TargetedMovementGeneratorMedium<Player,ChaseMovementGenerator<Player> >::_setTargetLocation(Player*);
+template void TargetedMovementGeneratorMedium<Player,FollowMovementGenerator<Player> >::_setTargetLocation(Player*);
+template void TargetedMovementGeneratorMedium<Creature,ChaseMovementGenerator<Creature> >::_setTargetLocation(Creature*);
+template void TargetedMovementGeneratorMedium<Creature,FollowMovementGenerator<Creature> >::_setTargetLocation(Creature*);
 template bool TargetedMovementGeneratorMedium<Player,ChaseMovementGenerator<Player> >::Update(Player*, const uint32&);
 template bool TargetedMovementGeneratorMedium<Player,FollowMovementGenerator<Player> >::Update(Player*, const uint32&);
 template bool TargetedMovementGeneratorMedium<Creature,ChaseMovementGenerator<Creature> >::Update(Creature*, const uint32&);

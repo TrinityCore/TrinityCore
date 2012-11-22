@@ -74,4 +74,3 @@ class EffectMovementGenerator : public MovementGenerator
 };
 
 #endif
-
