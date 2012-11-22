@@ -13,7 +13,7 @@ SET @ICC_TrashGenericPurpleDUNH := @ICC_TrashGenericGrey+9;
 SET @ICC_TrashDungeonHFinal := @ICC_TrashGenericGrey+10;
 SET @ICC_TrashGenericPurple := @ICC_TrashGenericGrey+11;
 
-DELETE FROM `reference_loot_template` WHERE `entry` BETWEEN @ICC_TrashGenericGrey AND @ICC_TrashGenericGrey+11; 
+DELETE FROM `reference_loot_template` WHERE `entry` BETWEEN @ICC_TrashGenericGrey AND @ICC_TrashGenericGrey+11;
 DELETE FROM `reference_loot_template` WHERE `entry` BETWEEN 35063 AND 35076; -- cleanup OLD loot
 INSERT INTO reference_loot_template (`entry`,`item`,`ChanceOrQuestChance`,`lootmode`,`groupid`,`mincountOrRef`,`maxcount`) VALUES
 -- grey items (45)
@@ -341,7 +341,7 @@ INSERT INTO `creature_loot_template` (`entry`,`item`,`ChanceOrQuestChance`,`loot
 
 -- --------------------------------
 -- -- Apply Trash Loot Dungeon_H --
--- -------------------------------- 
+-- --------------------------------
 SET @LootDUNGEON_H := 100001; -- needs official entry designated
 UPDATE `creature_template` SET `lootid`=@LootDUNGEON_H WHERE `entry` IN (37569,37568,37567,37565,38193,37566,37563); -- FoS
 UPDATE `creature_template` SET `lootid`=@LootDUNGEON_H WHERE `entry` IN (37609,37638,37637,37635,37636,38249,38025,38026); -- PoS

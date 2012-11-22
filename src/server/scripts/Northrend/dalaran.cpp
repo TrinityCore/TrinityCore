@@ -26,6 +26,8 @@ Script Data End */
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
+#include "Player.h"
+#include "WorldSession.h"
 
 /*******************************************************
  * npc_mageguard_dalaran

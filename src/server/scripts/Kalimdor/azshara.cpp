@@ -33,6 +33,9 @@ EndContentData */
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
+#include "Player.h"
+#include "SpellInfo.h"
+#include "WorldSession.h"
 
 /*######
 ## mobs_spitelashes

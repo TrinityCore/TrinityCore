@@ -63,7 +63,7 @@ class boss_rajaxx : public CreatureScript
 
         struct boss_rajaxxAI : public BossAI
         {
-            boss_rajaxxAI(Creature* creature) : BossAI(creature, BOSS_RAJAXX)
+            boss_rajaxxAI(Creature* creature) : BossAI(creature, DATA_RAJAXX)
             {
             }
 

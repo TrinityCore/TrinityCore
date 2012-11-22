@@ -15,7 +15,7 @@ UPDATE `creature_template` SET `unit_flags`=`unit_flags`|256|512|2 WHERE `entry`
 
 -- CREATURE
 DELETE FROM `creature` WHERE `guid` BETWEEN @GUID AND @GUID+148 OR `map`=542;
-INSERT INTO `creature`(`guid`,`id`,`map`,`spawnMask`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`curhealth`,`curmana`,`MovementType`) VALUES 
+INSERT INTO `creature`(`guid`,`id`,`map`,`spawnMask`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`curhealth`,`curmana`,`MovementType`) VALUES
 (@GUID+88,17414,542,3,317.15,189.009,10.0509,1.88412,7200,10472,5875,0),
 (@GUID+92,17414,542,3,436.311,198.522,11.4389,1.34468,7200,10472,5875,0),
 (@GUID+91,17414,542,3,345.706,198.519,11.139,1.6879,7200,10472,5875,0),

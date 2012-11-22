@@ -381,7 +381,7 @@ class boss_freya : public CreatureScript
                 events.ScheduleEvent(EVENT_SUNBEAM, urand(5000, 15000));
             }
 
-            uint32 GetData(uint32 type)
+            uint32 GetData(uint32 type) const
             {
                 switch (type)
                 {

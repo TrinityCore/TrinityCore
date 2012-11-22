@@ -212,7 +212,7 @@ public:
                 ohNovos = false;
         }
 
-        uint32 GetData(uint32 type)
+        uint32 GetData(uint32 type) const
         {
             if (type == DATA_OH_NOVOS)
                 return ohNovos ? 1 : 0;

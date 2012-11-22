@@ -1,5 +1,5 @@
 DELETE FROM `player_factionchange_items` WHERE `alliance_id`=48356; -- Wrong entry
- 
+
 DELETE FROM `player_factionchange_spells` WHERE `alliance_id` IN (67093,67091,67095,67096,67092,67085,67080,67082,67087,67083,67084,67086,60867,67065,67064,67079,67066);
 INSERT INTO `player_factionchange_spells` (`alliance_id`,`horde_id`) VALUES
 (67093,67132),
@@ -19,7 +19,7 @@ INSERT INTO `player_factionchange_spells` (`alliance_id`,`horde_id`) VALUES
 (67064,67144),
 (67079,67145),
 (67066,67146);
- 
+
 DELETE FROM `player_factionchange_items` WHERE `alliance_id` IN (47003,47626,44503,47654);
 INSERT INTO `player_factionchange_items` (`race_A`,`alliance_id`,`commentA`,`race_H`,`horde_id`,`commentH`) VALUES
 (0,47003,'Dawnbreaker Greaves',0,47430,'Dawnbreaker Sabatons'),

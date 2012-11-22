@@ -35,7 +35,7 @@ void LfgPlayerData::SetState(LfgState state)
             m_SelectedDungeons.clear();
             // No break on purpose
         case LFG_STATE_DUNGEON:
-            m_OldState = state;
+            m_OldState = m_State;
             // No break on purpose
         default:
             m_State = state;

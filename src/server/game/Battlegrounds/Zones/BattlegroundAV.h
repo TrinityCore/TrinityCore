@@ -1556,7 +1556,7 @@ class BattlegroundAV : public Battleground
 
         /*general stuff*/
         void UpdateScore(uint16 team, int16 points);
-       void UpdatePlayerScore(Player* Source, uint32 type, uint32 value, bool doAddHonor = true);
+        void UpdatePlayerScore(Player* Source, uint32 type, uint32 value, bool doAddHonor = true);
 
         /*handlestuff*/ //these are functions which get called from extern
         void EventPlayerClickedOnFlag(Player* source, GameObject* target_obj);
@@ -1572,6 +1572,8 @@ class BattlegroundAV : public Battleground
         /* achievement req. */
         bool IsBothMinesControlledByTeam(uint32 team) const;
         bool IsAllTowersControlledAndCaptainAlive(uint32 team) const;
+        
+        uint32 GetPrematureWinner();
 
     private:
         void PostUpdateImpl(uint32 diff);

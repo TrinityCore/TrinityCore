@@ -75,6 +75,7 @@ public:
                 uint32 size = instance->GetData(DATA_FEL_CRYSTAL_SIZE);
                 for (uint8 i = 0; i < size; ++i)
                 {
+                    instance->SetData64(DATA_FEL_CRYSTAL, i);
                     uint64 guid = instance->GetData64(DATA_FEL_CRYSTAL);
                     sLog->outDebug(LOG_FILTER_TSCR, "Selin: Adding Fel Crystal " UI64FMTD " to list", guid);
                     Crystals.push_back(guid);
@@ -114,10 +115,6 @@ public:
                         creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                     }
                 }
-
-                instance->HandleGameObject(instance->GetData64(DATA_SELIN_ENCOUNTER_DOOR), true);
-                // Open the big encounter door. Close it in Aggro and open it only in JustDied(and here)
-                // Small door opened after event are expected to be closed by default
 
                 // Set Inst data for encounter
                 instance->SetData(DATA_SELIN_EVENT, NOT_STARTED);
@@ -196,10 +193,8 @@ public:
         void EnterCombat(Unit* /*who*/)
         {
             DoScriptText(SAY_AGGRO, me);
-
             if (instance)
-                instance->HandleGameObject(instance->GetData64(DATA_SELIN_ENCOUNTER_DOOR), false);
-                //Close the encounter door, open it in JustDied/Reset
+                instance->SetData(DATA_SELIN_EVENT, IN_PROGRESS);
          }
 
         void KilledUnit(Unit* /*victim*/)
@@ -237,8 +232,6 @@ public:
                 return;
 
             instance->SetData(DATA_SELIN_EVENT, DONE);         // Encounter complete!
-            instance->HandleGameObject(instance->GetData64(DATA_SELIN_ENCOUNTER_DOOR), true);                  // Open the encounter door
-            instance->HandleGameObject(instance->GetData64(DATA_SELIN_DOOR), true);                 // Open the door leading further in
             ShatterRemainingCrystals();
         }
 

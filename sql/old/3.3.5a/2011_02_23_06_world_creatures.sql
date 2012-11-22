@@ -8,7 +8,7 @@ UPDATE `creature` SET `spawndist`=0,`MovementType`=0 WHERE `id`=21719;
 UPDATE `creature_template` SET `InhabitType`=1 WHERE `entry`=21719;
 
 -- fix walk speed for several npc's
-UPDATE `creature_template` SET `speed_walk`=1 WHERE `entry` IN 
+UPDATE `creature_template` SET `speed_walk`=1 WHERE `entry` IN
 (19449, -- Thunderlord Grunt
 17855); -- Expedition Warden
 

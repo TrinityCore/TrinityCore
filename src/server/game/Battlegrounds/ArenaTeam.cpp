@@ -22,6 +22,9 @@
 #include "World.h"
 #include "Group.h"
 #include "ArenaTeamMgr.h"
+#include "Player.h"
+#include "WorldSession.h"
+#include "Opcodes.h"
 
 ArenaTeam::ArenaTeam()
     : TeamId(0), Type(0), TeamName(), CaptainGuid(0), BackgroundColor(0), EmblemStyle(0), EmblemColor(0),
@@ -508,6 +511,23 @@ void ArenaTeam::BroadcastEvent(ArenaTeamEvents event, uint64 guid, uint8 strCoun
     BroadcastPacket(&data);
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_ARENA_TEAM_EVENT");
+}
+
+void ArenaTeam::MassInviteToEvent(WorldSession* session)
+{
+    WorldPacket data(SMSG_CALENDAR_ARENA_TEAM, (Members.size() - 1) * (4 + 8 + 1));
+    data << uint32(Members.size() - 1);
+
+    for (MemberList::const_iterator itr = Members.begin(); itr != Members.end(); ++itr)
+    {
+        if (itr->Guid != session->GetPlayer()->GetGUID())
+        {
+            data.appendPackGUID(itr->Guid);
+            data << uint8(0); // unk
+        }
+    }
+
+    session->SendPacket(&data);
 }
 
 uint8 ArenaTeam::GetSlotByType(uint32 type)

@@ -8,7 +8,6 @@
 #ifndef SC_GOSSIP_H
 #define SC_GOSSIP_H
 
-#include "Player.h"
 #include "GossipDef.h"
 #include "QuestDef.h"
 

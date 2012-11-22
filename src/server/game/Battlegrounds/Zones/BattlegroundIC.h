@@ -20,6 +20,8 @@
 #define __BATTLEGROUNDIC_H
 
 #include "Battleground.h"
+#include "Language.h"
+#include "Object.h"
 
 const uint32 BG_IC_Factions[2] =
 {

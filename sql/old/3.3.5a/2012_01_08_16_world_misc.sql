@@ -54,7 +54,7 @@ WHERE `entry` IN (29281, 30809, 26668, 30810);
 
 -- Apply Image of Arthas Visual Effect
 DELETE FROM `creature_template_addon` WHERE `entry`=29280;
-INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `auras`) VALUES 
+INSERT INTO `creature_template_addon` (`entry`, `path_id`, `mount`, `bytes1`, `bytes2`, `emote`, `auras`) VALUES
 (29280, 0, 0, 0, 1, 0, '54134');
 
 -- Flame Brazier triggers deletion (will spawn them after activating event 17841 called by spell Call Flames 48258)
@@ -64,7 +64,7 @@ DELETE FROM `creature_addon` WHERE `guid` IN (126121, 126122);
 /* Spells */
 
 DELETE FROM `spell_target_position` WHERE `id` IN (48267,48276, 48271, 48274, 48275);
-INSERT INTO `spell_target_position` (`id`, `target_map`, `target_position_x`, `target_position_y`, `target_position_z`, `target_orientation`) VALUES 
+INSERT INTO `spell_target_position` (`id`, `target_map`, `target_position_x`, `target_position_y`, `target_position_z`, `target_orientation`) VALUES
 (48267, 575, 296.632, -346.075, 90.5474, 4.60767), -- Svala Ritual - Player teleport position
 (48276, 575, 296.651, -346.293, 108.5474, 1.58), -- Svala Ritual - Svala teleport position
 (48271, 575, 296.42, -355.01, 90.94, 1.58), -- Summon Ritual Channeler positions
@@ -83,7 +83,7 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 -- The Incredible Hulk achievement 2043
 DELETE FROM `disables` WHERE `sourceType`=4 AND `entry`=7322;
 DELETE FROM `achievement_criteria_data` WHERE `criteria_id`=7322 AND `type`=11;
-INSERT INTO `achievement_criteria_data` (`criteria_id`, `type`, `value1`, `value2`, `ScriptName`) VALUES 
+INSERT INTO `achievement_criteria_data` (`criteria_id`, `type`, `value1`, `value2`, `ScriptName`) VALUES
 (7322, 11, 0, 0, 'achievement_incredible_hulk');
 
 /* AI */
@@ -93,7 +93,7 @@ UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=27273; -- Flame 
 
 -- Add Send Script Event (17841) summon 3 triggers
 DELETE FROM `event_scripts` WHERE `id`=17841;
-INSERT INTO `event_scripts` (`id`, `delay`, `command`, `datalong`, `datalong2`, `dataint`, `x`, `y`, `z`, `o`) VALUES 
+INSERT INTO `event_scripts` (`id`, `delay`, `command`, `datalong`, `datalong2`, `dataint`, `x`, `y`, `z`, `o`) VALUES
 (17841, 0, 10, 27273, 10000, 0, 285.6, -357.5, 91.0833, 5.75959),
 (17841, 3, 10, 27273, 10000, 0, 307, -357.5, 91.0833, 6.02139),
 (17841, 6, 10, 27273, 10000, 0, 285.6, -357.5, 91.0833, 5.75959);

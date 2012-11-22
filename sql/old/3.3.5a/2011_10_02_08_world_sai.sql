@@ -15,7 +15,7 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (@GRIZZLY,0,1,0,61,0,100,1,0,0,0,0,41,5000,0,0,0,0,0,1,0,0,0,0,0,0,0, 'Rabid Grizzly - Despawn after 5 seconds'),
 (@ELK,0,0,1,8,0,100,0x01,@SPELL,0,0,0,33,@ELKDUMMY,0,0,0,0,0,7,0,0,0,0,0,0,0, 'Blighted Elk - On spell hit - Give kill credit for quest 12166'),
 (@ELK,0,1,0,61,0,100,1,0,0,0,0,41,5000,0,0,0,0,0,1,0,0,0,0,0,0,0, 'Blighted Elk - Despawn after 5 secondes');
- 
+
 -- Fix the quest item to allow it to only target the two quest NPCs
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=18 AND `SourceEntry`=@ITEM;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,`ElseGroup`,`ConditionTypeOrReference`,`ConditionValue1`,`ConditionValue2`,`ConditionValue3`,`ErrorTextId`,`ScriptName`,`Comment`) VALUES

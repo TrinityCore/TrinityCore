@@ -63,6 +63,7 @@
 #include "GameObjectAI.h"
 #include "AccountMgr.h"
 #include "InstanceScript.h"
+#include "ReputationMgr.h"
 
 pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
 {

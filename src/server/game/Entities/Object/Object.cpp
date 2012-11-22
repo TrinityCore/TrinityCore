@@ -1867,7 +1867,7 @@ bool WorldObject::CanDetect(WorldObject const* obj, bool ignoreStealth) const
     if (obj->IsAlwaysDetectableFor(seer))
         return true;
 
-    if (!seer->CanDetectInvisibilityOf(obj))
+    if (!ignoreStealth && !seer->CanDetectInvisibilityOf(obj))
         return false;
 
     if (!ignoreStealth && !seer->CanDetectStealthOf(obj))
@@ -2383,6 +2383,7 @@ TempSummon* WorldObject::SummonCreature(uint32 entry, const Position &pos, TempS
     return NULL;
 }
 
+<<<<<<< HEAD
 Pet* Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetType petType, uint32 duration)
 {
     Pet* pet = new Pet(this, petType);
@@ -2497,6 +2498,9 @@ Pet* Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
 }
 
 GameObject* WorldObject::SummonGameObject(uint32 entry, const Position &pos, float rotation0, float rotation1, float rotation2, float rotation3, uint32 respawnTime) const
+=======
+GameObject* WorldObject::SummonGameObject(uint32 entry, float x, float y, float z, float ang, float rotation0, float rotation1, float rotation2, float rotation3, uint32 respawnTime)
+>>>>>>> d3c902915b66fd6fa4a498f00150863cac95e394
 {
     if (!IsInWorld())
         return NULL;

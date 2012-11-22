@@ -66,7 +66,7 @@ UPDATE `quest_template` SET `NextQuestIdChain` = 8736 WHERE `Id` = 8735;
 -- Azuregos's Magical Ledger > Translating the Ledger
 UPDATE `quest_template` SET `NextQuestIdChain` = 8576 WHERE `Id` = 8575;
 
--- Hive'Zora Scout Report (8534), Hive'Regal Scout Report (8738) and Hive'Ashi Scout Report (8739) quests fix by Raszagal (Inspired by Justiciar's fix drom #3311) 
+-- Hive'Zora Scout Report (8534), Hive'Regal Scout Report (8738) and Hive'Ashi Scout Report (8739) quests fix by Raszagal (Inspired by Justiciar's fix drom #3311)
 -- TODO: Get sniffs for gossip_menu_option placeholder texts
 -- Closes #3311 and Closes #7453
 
@@ -82,7 +82,7 @@ UPDATE `creature_template` SET `gossip_menu_id`=@GOSSIP1 WHERE `entry`=@NPC1;
 UPDATE `creature_template` SET `gossip_menu_id`=@GOSSIP2 WHERE `entry`=@NPC2;
 UPDATE `creature_template` SET `gossip_menu_id`=@GOSSIP3 WHERE `entry`=@NPC3;
 UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry` IN (@NPC1,@NPC2,@NPC3);
--- Gossips 
+-- Gossips
 DELETE FROM `gossip_menu` WHERE `entry`=@GOSSIP1 AND `text_id`=8063;
 DELETE FROM `gossip_menu` WHERE `entry`=@GOSSIP2 AND `text_id`=8064;
 DELETE FROM `gossip_menu` WHERE `entry`=@GOSSIP3 AND `text_id`=8065;

@@ -145,7 +145,7 @@ INSERT INTO `game_event_creature` (`guid`,`event`) VALUES
 (@GUID+108,8),(@GUID+109,8),(@GUID+110,8),(@GUID+111,8);
 
 DELETE FROM `creature_addon` WHERE `guid` IN (@GUID+56,@GUID+57);
-INSERT INTO `creature_addon`(`guid`,`path_id`,`mount`,`bytes1`,`bytes2`,`emote`,`auras`) VALUES 
+INSERT INTO `creature_addon`(`guid`,`path_id`,`mount`,`bytes1`,`bytes2`,`emote`,`auras`) VALUES
 (@GUID+56,0,0,0,0,0, '68946 0'),
 (@GUID+57,0,0,0,0,0, '68589 0');
 
@@ -219,7 +219,7 @@ INSERT INTO `creature_loot_template` (`entry`,`item`,`ChanceOrQuestChance`,`loot
 (36296,2,15,1,0,-50011,1), -- 1 from reference_blues
 (36296,50320,10,1,0,1,1), -- Faded Lovely Greeting Card Ally
 (36296,49641,10,1,0,1,1), -- Faded Lovely Greeting Card Horde
-(36296,50250,0.1,1,0,1,1); -- Big Love Rocket 
+(36296,50250,0.1,1,0,1,1); -- Big Love Rocket
 DELETE FROM `reference_loot_template` WHERE `entry` IN (50010,50011,50012);
 INSERT INTO `reference_loot_template` (`entry`,`item`,`ChanceOrQuestChance`,`lootmode`,`groupid`,`mincountOrRef`,`maxcount`) VALUES
 (50010,51806,0,1,1,1,1), -- Shard of Pirouetting Happiness
@@ -227,7 +227,7 @@ INSERT INTO `reference_loot_template` (`entry`,`item`,`ChanceOrQuestChance`,`loo
 (50010,51805,0,1,1,1,1), -- Heartbreak Charm
 (50010,51807,0,1,1,1,1), -- Sweet Perfume Broach
 (50010,51804,0,1,1,1,1), -- Winking Eye of Love
-(50011,50471,0,1,1,1,1), -- The Heartbreaker 
+(50011,50471,0,1,1,1,1), -- The Heartbreaker
 (50011,50741,0,1,1,1,1), -- Vile Fumigator's Mask
 (50011,50446,0,1,1,1,1), -- Toxic Wasteling
 (50011,49715,0,1,1,1,1), -- Forever-Lovely Rose
@@ -237,10 +237,10 @@ INSERT INTO `reference_loot_template` (`entry`,`item`,`ChanceOrQuestChance`,`loo
 (50012,22238,0,1,1,1,1), -- Very Berry Cream
 (50012,22236,0,1,1,1,1); -- Buttermilk Delight
 
-DELETE FROM `item_loot_template` WHERE `entry` IN (49631,49909,50160,50161); 
-INSERT INTO `item_loot_template`(`entry`,`item`,`ChanceOrQuestChance`,`lootmode`,`groupid`,`mincountOrRef`,`maxcount`) VALUES 
+DELETE FROM `item_loot_template` WHERE `entry` IN (49631,49909,50160,50161);
+INSERT INTO `item_loot_template`(`entry`,`item`,`ChanceOrQuestChance`,`lootmode`,`groupid`,`mincountOrRef`,`maxcount`) VALUES
 -- Standard Apothecary Serving Kit
-(49631,49352,100,1,0,1,1), 
+(49631,49352,100,1,0,1,1),
 (49631,49351,100,1,0,1,1),
 (49631,49635,100,1,0,1,1),
 -- Box of Chocolates
@@ -262,7 +262,7 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,
 
 DELETE FROM `achievement_criteria_data` WHERE `criteria_id`=12846 AND `type` in (16,18);
 DELETE FROM `achievement_criteria_data` WHERE `criteria_id`=12859 AND `type` in (5,15,18);
-INSERT INTO `achievement_criteria_data`(`criteria_id`,`type`,`value1`,`value2`,`ScriptName`) VALUES 
+INSERT INTO `achievement_criteria_data`(`criteria_id`,`type`,`value1`,`value2`,`ScriptName`) VALUES
 -- Set correct data for achievement Charming
 (12846,16,335,0, ''),
 -- Set correct data for achievement Flirt With Disaster (alliance)

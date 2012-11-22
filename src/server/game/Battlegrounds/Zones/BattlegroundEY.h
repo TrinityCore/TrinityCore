@@ -369,6 +369,8 @@ class BattlegroundEY : public Battleground
 
         /* achievement req. */
         bool IsAllNodesConrolledByTeam(uint32 team) const;
+        
+        uint32 GetPrematureWinner();
     private:
         void PostUpdateImpl(uint32 diff);
 

@@ -25,6 +25,7 @@ EndScriptData */
 #include "ScriptedCreature.h"
 #include "InstanceScript.h"
 #include "trial_of_the_champion.h"
+#include "Player.h"
 
 #define MAX_ENCOUNTER  4
 
@@ -402,9 +403,24 @@ public:
                 break;
         }
 
+<<<<<<< HEAD
         if (uiData == DONE)
             SaveToDB();
     }
+=======
+        uint32 GetData(uint32 uiData) const
+        {
+            switch (uiData)
+            {
+                case BOSS_GRAND_CHAMPIONS:  return m_auiEncounter[0];
+                case BOSS_ARGENT_CHALLENGE_E: return m_auiEncounter[1];
+                case BOSS_ARGENT_CHALLENGE_P: return m_auiEncounter[2];
+                case BOSS_BLACK_KNIGHT: return m_auiEncounter[3];
+
+                case DATA_MOVEMENT_DONE: return uiMovementDone;
+                case DATA_ARGENT_SOLDIER_DEFEATED: return uiArgentSoldierDeaths;
+            }
+>>>>>>> d3c902915b66fd6fa4a498f00150863cac95e394
 
     uint32 GetData(uint32 uiData)
     {
@@ -421,8 +437,17 @@ public:
             case DATA_ARGENT_SOLDIER_DEFEATED: return uiArgentSoldierDeaths;
         }
 
+<<<<<<< HEAD
         return 0;
     }
+=======
+        uint64 GetData64(uint32 uiData) const
+        {
+            switch (uiData)
+            {
+                case DATA_ANNOUNCER: return uiAnnouncerGUID;
+                case DATA_MAIN_GATE: return uiMainGateGUID;
+>>>>>>> d3c902915b66fd6fa4a498f00150863cac95e394
 
     uint64 GetData64(uint32 uiData)
     {

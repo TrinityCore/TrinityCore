@@ -25,6 +25,7 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
 #include "utgarde_keep.h"
+#include "Player.h"
 
 #define MAX_ENCOUNTER     3
 
@@ -165,7 +166,7 @@ public:
             }
         }
 
-        uint64 GetData64(uint32 identifier)
+        uint64 GetData64(uint32 identifier) const
         {
             switch (identifier)
             {
@@ -246,7 +247,7 @@ public:
             }
         }
 
-        uint32 GetData(uint32 type)
+        uint32 GetData(uint32 type) const
         {
             switch (type)
             {

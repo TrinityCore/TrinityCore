@@ -1,4 +1,4 @@
--- sp_dev_reguid procedure 
+-- sp_dev_reguid procedure
 /*!50003 DROP PROCEDURE IF EXISTS `sp_dev_reguid` */;
 DELIMITER ;;
 /*!50003 CREATE*/
@@ -158,4 +158,4 @@ BEGIN
     ALTER TABLE `smart_scripts` ADD PRIMARY KEY (`entryorguid`,`source_type`,`id`,`link`);
 
     END */;;
-	
+    

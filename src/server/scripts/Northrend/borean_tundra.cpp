@@ -42,6 +42,9 @@ EndContentData */
 #include "ScriptedGossip.h"
 #include "ScriptedEscortAI.h"
 #include "ScriptedFollowerAI.h"
+#include "Player.h"
+#include "SpellInfo.h"
+#include "WorldSession.h"
 
 /*######
 ## npc_sinkhole_kill_credit

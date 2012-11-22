@@ -17,11 +17,12 @@
  */
 
 #include "BattlegroundDS.h"
-#include "ObjectAccessor.h"
+#include "Creature.h"
+#include "GameObject.h"
 #include "Language.h"
+#include "ObjectAccessor.h"
 #include "Player.h"
 #include "WorldPacket.h"
-#include "GameObject.h"
 
 BattlegroundDS::BattlegroundDS()
 {

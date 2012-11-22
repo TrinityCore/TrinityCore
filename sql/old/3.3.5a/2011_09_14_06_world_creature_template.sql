@@ -34,7 +34,7 @@ WHERE `entry` IN
 37972,38399,38769,38770, -- Prince Keseleth
 37973,38400,38771,38772); -- Prince Taldaram
 
-UPDATE `creature_template` SET `mechanic_immune_mask`=`mechanic_immune_mask`&~2097152 /* INFECTED */ WHERE `entry` IN 
+UPDATE `creature_template` SET `mechanic_immune_mask`=`mechanic_immune_mask`&~2097152 /* INFECTED */ WHERE `entry` IN
 (36626,37504,37505,37506,-- Festergut
 36627,38390,38549,38550, -- Rotface
 36678,38431,38585,38586); -- Professor Putricide

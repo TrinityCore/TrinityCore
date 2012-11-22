@@ -7,7 +7,7 @@ INSERT INTO `script_texts` (`npc_entry`, `entry`, `content_default`, `comment`) 
 (29309,-1619016,'For the Lich King!','Elder Nadox SAY_SLAY_2');
 
 DELETE FROM `script_texts` WHERE `entry` IN (-1000637,-1000638,-1000639,-1000640);
-INSERT INTO `script_texts` (`npc_entry`, `entry`, `content_default`, `comment`) VALUES 
+INSERT INTO `script_texts` (`npc_entry`, `entry`, `content_default`, `comment`) VALUES
 ('17807', '-1000637', 'Let the trial begin, Bloodwrath, attack!', 'npc_second_trial_controller TEXT_SECOND_TRIAL_1'),
 ('17807', '-1000638', 'Champion Lightrend, make me proud!', 'npc_second_trial_controller TEXT_SECOND_TRIAL_2'),
 ('17807', '-1000639', 'Show this upstart how a real Blood Knight fights, Swiftblade!', 'npc_second_trial_controller TEXT_SECOND_TRIAL_3'),

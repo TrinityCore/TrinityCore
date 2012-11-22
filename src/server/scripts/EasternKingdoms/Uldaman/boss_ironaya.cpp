@@ -26,11 +26,13 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 
-#define SAY_AGGRO                   -1070000
-
-#define SPELL_ARCINGSMASH           8374
-#define SPELL_KNOCKAWAY             10101
-#define SPELL_WSTOMP                11876
+enum Ironaya
+{
+    SAY_AGGRO                   = 0,
+    SPELL_ARCINGSMASH           = 8374,
+    SPELL_KNOCKAWAY             = 10101,
+    SPELL_WSTOMP                = 11876,
+};
 
 class boss_ironaya : public CreatureScript
 {
@@ -58,7 +60,7 @@ class boss_ironaya : public CreatureScript
 
             void EnterCombat(Unit* /*who*/)
             {
-                DoScriptText(SAY_AGGRO, me);
+                Talk(SAY_AGGRO);
             }
 
             void UpdateAI(const uint32 uiDiff)

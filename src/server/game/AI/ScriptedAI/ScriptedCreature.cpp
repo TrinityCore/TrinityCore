@@ -77,17 +77,13 @@ void SummonList::RemoveNotExisting()
     }
 }
 
-bool SummonList::HasEntry(uint32 entry)
+bool SummonList::HasEntry(uint32 entry) const
 {
-    for (iterator i = begin(); i != end();)
+    for (const_iterator i = begin(); i != end(); ++i)
     {
         Creature* summon = Unit::GetCreature(*me, *i);
-        if (!summon)
-            erase(i++);
-        else if (summon->GetEntry() == entry)
+        if (summon && summon->GetEntry() == entry)
             return true;
-        else
-            ++i;
     }
 
     return false;

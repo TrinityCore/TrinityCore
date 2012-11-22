@@ -1,6 +1,6 @@
 -- Death Knight
 DELETE FROM `spell_bonus_data` WHERE `entry` IN(58621, 47632, 47633, 50444, 70890, 50526, 48982, 59754, 49184);
-INSERT INTO `spell_bonus_data` (`entry`, `direct_bonus`, `dot_bonus`, `ap_bonus`, `ap_dot_bonus`, `comments`) VALUES 
+INSERT INTO `spell_bonus_data` (`entry`, `direct_bonus`, `dot_bonus`, `ap_bonus`, `ap_dot_bonus`, `comments`) VALUES
 (58621, 0, -1,  0.08,  -1, 'Death Knight - Glyph of Chains of Ice'),        -- Shouldn't scale with SP.
 (47632, 0, -1,  0.15,  -1, 'Death Knight - Death Coil'),                    -- Shouldn't scale with SP.
 (47633, 0, -1,  0.15,  -1, 'Death Knight - Death Coil (Heal)'),             -- Shouldn't scale with SP.
@@ -15,13 +15,13 @@ INSERT INTO `spell_bonus_data` (`entry`, `direct_bonus`, `dot_bonus`, `ap_bonus`
 DELETE FROM `spell_bonus_data` WHERE `entry` IN(48450, 48451); -- Lifebloom Rank 2, Rank 3
 DELETE FROM `spell_bonus_data` WHERE `entry` IN(48567, 48568); -- Lacerate Rank 2, Rank 3
 DELETE FROM `spell_bonus_data` WHERE `entry` IN(33745, 9007);
-INSERT INTO `spell_bonus_data` (`entry`, `direct_bonus`, `dot_bonus`, `ap_bonus`, `ap_dot_bonus`, `comments`) VALUES 
+INSERT INTO `spell_bonus_data` (`entry`, `direct_bonus`, `dot_bonus`, `ap_bonus`, `ap_dot_bonus`, `comments`) VALUES
 (33745, 0,  0,  0.01,   0.01, 'Druid - Lacerate ($AP*0.05/number of ticks)'), -- Direct damage should scale with AP, based on DrDamage addon(3.3.5a).
 (9007, -1,  0, -1,      0.03, 'Druid - Pounce Bleed (Triggered)');            -- Shouldn't scale with SP. Increase AP coefficient, based on DrDamage addon(3.3.5a) and Wowwiki.com.
 
 -- Hunter
 DELETE FROM `spell_bonus_data` WHERE `entry` IN(56641, 42243, 3674, 19306, 1495, 63468, 136);
-INSERT INTO `spell_bonus_data` (`entry`, `direct_bonus`, `dot_bonus`, `ap_bonus`, `ap_dot_bonus`, `comments`) VALUES 
+INSERT INTO `spell_bonus_data` (`entry`, `direct_bonus`, `dot_bonus`, `ap_bonus`, `ap_dot_bonus`, `comments`) VALUES
 (56641,  0, -1,  0.1,  -1,     'Hunter - Steady Shot'),                              -- Shouldn't scale with SP.
 (42243,  0, -1,  0.0837, -1,   'Hunter - Volley (Triggered)'),                       -- Shouldn't scale with SP.
 (3674,  -1,  0, -1,     0.023, 'Hunter - Black Arrow ($RAP*0.1 / number of ticks)'), -- Shouldn't scale with SP. Increase AP coefficient, based on DrDamage addon(3.3.5a).
@@ -33,7 +33,7 @@ INSERT INTO `spell_bonus_data` (`entry`, `direct_bonus`, `dot_bonus`, `ap_bonus`
 -- Mage
 DELETE FROM `spell_bonus_data` WHERE `entry`=7269; -- Arcane Missiles Triggered Spell Rank 2
 DELETE FROM `spell_bonus_data` WHERE `entry` IN(133, 44614, 44457, 44461);
-INSERT INTO `spell_bonus_data` (`entry`, `direct_bonus`, `dot_bonus`, `ap_bonus`, `ap_dot_bonus`, `comments`) VALUES 
+INSERT INTO `spell_bonus_data` (`entry`, `direct_bonus`, `dot_bonus`, `ap_bonus`, `ap_dot_bonus`, `comments`) VALUES
 (133,    1,       0,   -1, -1, 'Mage - Fireball'),                                -- DoT componenet shouldn't scale.
 (44614,  0.8571,  0,   -1, -1, 'Mage - Frostfire Bolt'),                          -- DoT componenet shouldn't scale.
 (44457, -1,       0.2, -1, -1, 'Mage - Living Bomb ($SP*0.8 / number of ticks)'), -- Direct damage bonus correction.
@@ -41,7 +41,7 @@ INSERT INTO `spell_bonus_data` (`entry`, `direct_bonus`, `dot_bonus`, `ap_bonus`
 
 -- Paladin
 DELETE FROM `spell_bonus_data` WHERE `entry` IN(633, 54158, 20467, 20187, 31803, 53742, 31804, 53733);
-INSERT INTO `spell_bonus_data` (`entry`, `direct_bonus`, `dot_bonus`, `ap_bonus`, `ap_dot_bonus`, `comments`) VALUES 
+INSERT INTO `spell_bonus_data` (`entry`, `direct_bonus`, `dot_bonus`, `ap_bonus`, `ap_dot_bonus`, `comments`) VALUES
 (633,    0,     -1,      -1,     -1,      'Paladin - Lay on Hands'),               -- Shouldn't scale with SP.
 (54158,  0.27,  -1,       0.175, -1,      'Paladin - Judgement (Seal of Light, Seal of Wisdom, Seal of Justice)'), -- Increase coefficient, based on Wowwiki.com.
 (20467,  0.14,  -1,       0.115, -1,      'Paladin - Judgement of Command'),       -- Decrease coefficient, based on Wowwiki.com.
@@ -55,7 +55,7 @@ INSERT INTO `spell_bonus_data` (`entry`, `direct_bonus`, `dot_bonus`, `ap_bonus`
 DELETE FROM `spell_bonus_data` WHERE `entry` IN(52983, 52954, 58985); -- Penance Heal Rank 2, Rank 3, Rank 4
 DELETE FROM `spell_bonus_data` WHERE `entry` IN(52998, 52999, 53000); -- Penance Hurt Rank 2, Rank 3, Rank 4
 DELETE FROM `spell_bonus_data` WHERE `entry` IN(7001);
-INSERT INTO `spell_bonus_data` (`entry`, `direct_bonus`, `dot_bonus`, `ap_bonus`, `ap_dot_bonus`, `comments`) VALUES 
+INSERT INTO `spell_bonus_data` (`entry`, `direct_bonus`, `dot_bonus`, `ap_bonus`, `ap_dot_bonus`, `comments`) VALUES
 (7001, -1, 0.626, -1, -1, 'Priest - Lightwell Renew ($SP*1.878 / number of ticks)'); -- Increase coefficient, based on DrDamage addon(3.3.5a).
 
 -- Rogue
@@ -63,7 +63,7 @@ DELETE FROM `spell_bonus_data` WHERE `entry` IN(819, 11353, 11354, 25349, 26968,
 DELETE FROM `spell_bonus_data` WHERE `entry` IN(8685, 8689, 11335, 11336, 11337, 26890, 57964, 57965); -- Instant Poison Rank 2, Rank 3, etc.
 DELETE FROM `spell_bonus_data` WHERE `entry` IN(13222, 13223, 13224, 27189, 57974, 57975); -- Wound Poison Rank 2, Rank 3, etc.
 DELETE FROM `spell_bonus_data` WHERE `entry` IN(32645, 2098, 703, 1776, 1943, 8680, 26688, 13218);
-INSERT INTO `spell_bonus_data` (`entry`, `direct_bonus`, `dot_bonus`, `ap_bonus`, `ap_dot_bonus`, `comments`) VALUES 
+INSERT INTO `spell_bonus_data` (`entry`, `direct_bonus`, `dot_bonus`, `ap_bonus`, `ap_dot_bonus`, `comments`) VALUES
 (32645, 0, -1, -1,    -1,    'Rogue - Envenom'),           -- Shouldn't scale with SP.
 (2098,  0, -1, -1,    -1,    'Rogue - Eviscerate'),        -- Shouldn't scale with SP.
 (703,  -1,  0, -1,     0.07, 'Rogue - Garrote'),           -- Shouldn't scale with SP.
