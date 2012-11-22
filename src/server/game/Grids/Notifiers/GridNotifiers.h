@@ -1026,10 +1026,10 @@ namespace Trinity
 
     // Creature checks
 
-    class NearestHostileUnitCheck
+    class NearestAttackableUnitCheck
     {
         public:
-            explicit NearestHostileUnitCheck(Creature const* creature, float dist = 0) : me(creature)
+            explicit NearestAttackableUnitCheck(Creature const* creature, float dist = 0) : me(creature)
             {
                 m_range = (dist == 0 ? 9999 : dist);
             }
@@ -1048,7 +1048,38 @@ namespace Trinity
     private:
             Creature const* me;
             float m_range;
-            NearestHostileUnitCheck(NearestHostileUnitCheck const&);
+            NearestAttackableUnitCheck(NearestAttackableUnitCheck const&);
+    };
+ 
+    class AnyHostileUnitInAggroRangeCheck
+    {
+        public:
+            explicit AnyHostileUnitInAggroRangeCheck(Creature const* creature, bool useLOS = false) : me(creature)
+            {
+                m_useLOS = useLOS;
+            }
+            bool operator()(Unit* u)
+            {
+                // Constrain distance check to aggro radius
+                if (!me->IsWithinDistInMap(u, me->GetAttackDistance(u)))
+                    return false;
+
+                if (!me->IsValidAttackTarget(u))
+                   return false;
+
+                if (!me->IsHostileTo(u))
+                    return false;
+
+                if (m_useLOS && !me->IsWithinLOSInMap(u))
+                    return false;
+
+                return true;
+            }
+
+    private:
+            Creature const* me;
+            bool m_useLOS;
+            AnyHostileUnitInAggroRangeCheck(AnyHostileUnitInAggroRangeCheck const&);
     };
 
     class NearestHostileUnitInAttackDistanceCheck

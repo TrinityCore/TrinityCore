@@ -1483,16 +1483,16 @@ bool Creature::canStartAttack(Unit const* who, bool force) const
     return IsWithinLOSInMap(who);
 }
 
-float Creature::GetAttackDistance(Unit const* player) const
+float Creature::GetAttackDistance(Unit const* target) const
 {
     float aggroRate = sWorld->getRate(RATE_CREATURE_AGGRO);
     if (aggroRate == 0)
         return 0.0f;
 
-    uint32 playerlevel   = player->getLevelForTarget(this);
-    uint32 creaturelevel = getLevelForTarget(player);
+    uint32 targetlevel   = target->getLevelForTarget(this);
+    uint32 creaturelevel = getLevelForTarget(target);
 
-    int32 leveldif       = int32(playerlevel) - int32(creaturelevel);
+    int32 leveldif       = int32(targetlevel) - int32(creaturelevel);
 
     // "The maximum Aggro Radius has a cap of 25 levels under. Example: A level 30 char has the same Aggro Radius of a level 5 char on a level 60 mob."
     if (leveldif < - 25)
@@ -1511,7 +1511,7 @@ float Creature::GetAttackDistance(Unit const* player) const
         RetDistance += GetTotalAuraModifier(SPELL_AURA_MOD_DETECT_RANGE);
 
         // detected range auras
-        RetDistance += player->GetTotalAuraModifier(SPELL_AURA_MOD_DETECTED_RANGE);
+        RetDistance += target->GetTotalAuraModifier(SPELL_AURA_MOD_DETECTED_RANGE);
     }
 
     // "Minimum Aggro Radius for a mob seems to be combat range (5 yards)"
@@ -1815,11 +1815,37 @@ Unit* Creature::SelectNearestTarget(float dist) const
         if (dist == 0.0f)
             dist = MAX_VISIBILITY_DISTANCE;
 
-        Trinity::NearestHostileUnitCheck u_check(this, dist);
-        Trinity::UnitLastSearcher<Trinity::NearestHostileUnitCheck> searcher(this, target, u_check);
+        Trinity::NearestAttackableUnitCheck u_check(this, dist);	
+        Trinity::UnitLastSearcher<Trinity::NearestAttackableUnitCheck> searcher(this, target, u_check);
 
-        TypeContainerVisitor<Trinity::UnitLastSearcher<Trinity::NearestHostileUnitCheck>, WorldTypeMapContainer > world_unit_searcher(searcher);
-        TypeContainerVisitor<Trinity::UnitLastSearcher<Trinity::NearestHostileUnitCheck>, GridTypeMapContainer >  grid_unit_searcher(searcher);
+        TypeContainerVisitor<Trinity::UnitLastSearcher<Trinity::NearestAttackableUnitCheck>, WorldTypeMapContainer > world_unit_searcher(searcher);
+        TypeContainerVisitor<Trinity::UnitLastSearcher<Trinity::NearestAttackableUnitCheck>, GridTypeMapContainer >  grid_unit_searcher(searcher);
+
+        cell.Visit(p, world_unit_searcher, *GetMap(), *this, dist);
+        cell.Visit(p, grid_unit_searcher, *GetMap(), *this, dist);
+   }
+
+    return target;
+}
+
+Unit* Creature::SelectHostileTargetInAggroRange(bool useLOS) const
+{
+    // Select any hostile unit within aggro range, constrained to LOS if requested.
+    // Will only return hostile targets
+    CellCoord p(Trinity::ComputeCellCoord(GetPositionX(), GetPositionY()));
+    Cell cell(p);
+    cell.SetNoCreate();
+    Unit* target = NULL;
+
+    // Cell.Visit() needs a constraint but this searcher narrows it by aggro radius
+    float dist = MAX_VISIBILITY_DISTANCE;
+   {
+
+        Trinity::AnyHostileUnitInAggroRangeCheck u_check(this, useLOS);
+        Trinity::UnitSearcher<Trinity::AnyHostileUnitInAggroRangeCheck> searcher(this, target, u_check);
+
+        TypeContainerVisitor<Trinity::UnitSearcher<Trinity::AnyHostileUnitInAggroRangeCheck>, WorldTypeMapContainer > world_unit_searcher(searcher);
+        TypeContainerVisitor<Trinity::UnitSearcher<Trinity::AnyHostileUnitInAggroRangeCheck>, GridTypeMapContainer >  grid_unit_searcher(searcher);
 
         cell.Visit(p, world_unit_searcher, *GetMap(), *this, dist);
         cell.Visit(p, grid_unit_searcher, *GetMap(), *this, dist);
