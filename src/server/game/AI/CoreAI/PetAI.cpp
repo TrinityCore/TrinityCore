@@ -413,9 +413,8 @@ Unit* PetAI::SelectNextTarget()
     // Note: Creature::SelectNearestTarget() If no distance is supplied it uses MAX_VISIBILITY_DISTANCE
     // We also want to lock this to LOS so pet doesn't go running through walls and stuff
     if (me->HasReactState(REACT_AGGRESSIVE))
-        if (Unit* nearTarget = me->ToCreature()->SelectNearestTarget())
-            if (nearTarget->IsHostileTo(me) && !nearTarget->HasBreakableByDamageCrowdControlAura())
-                if (nearTarget->IsWithinLOS(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ()))
+        if (Unit* nearTarget = me->ToCreature()->SelectHostileTargetInAggroRange(true))
+            if (!nearTarget->HasBreakableByDamageCrowdControlAura())
                     return nearTarget;
 
     // Default - no valid targets
