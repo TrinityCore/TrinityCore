@@ -2546,7 +2546,7 @@ class Player : public Unit, public GridObject<Player>
 
         bool IsNeverVisible() const;
 
-        bool IsVisibleGloballyFor(Player* player) const;
+        bool IsVisibleGloballyFor(Player const* player) const;
 
         void SendInitialVisiblePackets(Unit* target);
         void UpdateObjectVisibility(bool forced = true);

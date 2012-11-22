@@ -53,10 +53,10 @@ enum ChatNotify
     CHAT_MODERATION_OFF_NOTICE        = 0x10,           //+ "[%s] Channel moderation disabled by %s.";
     CHAT_MUTED_NOTICE                 = 0x11,           //+ "[%s] You do not have permission to speak.";
     CHAT_PLAYER_KICKED_NOTICE         = 0x12,           //? "[%s] Player %s kicked by %s.";
-    CHAT_BANNED_NOTICE                = 0x13,           //+ "[%s] You are banned from that channel.";
-    CHAT_PLAYER_BANNED_NOTICE         = 0x14,           //? "[%s] Player %s banned by %s.";
+    CHAT_BANNED_NOTICE                = 0x13,           //+ "[%s] You are bannedStore from that channel.";
+    CHAT_PLAYER_BANNED_NOTICE         = 0x14,           //? "[%s] Player %s bannedStore by %s.";
     CHAT_PLAYER_UNBANNED_NOTICE       = 0x15,           //? "[%s] Player %s unbanned by %s.";
-    CHAT_PLAYER_NOT_BANNED_NOTICE     = 0x16,           //+ "[%s] Player %s is not banned.";
+    CHAT_PLAYER_NOT_BANNED_NOTICE     = 0x16,           //+ "[%s] Player %s is not bannedStore.";
     CHAT_PLAYER_ALREADY_MEMBER_NOTICE = 0x17,           //+ "[%s] Player %s is already on the channel.";
     CHAT_INVITE_NOTICE                = 0x18,           //+ "%2$s has invited you to join the channel '%1$s'.";
     CHAT_INVITE_WRONG_FACTION_NOTICE  = 0x19,           //+ "Target is in the wrong alliance for %s.";
@@ -64,7 +64,7 @@ enum ChatNotify
     CHAT_INVALID_NAME_NOTICE          = 0x1B,           //+ "Invalid channel name";
     CHAT_NOT_MODERATED_NOTICE         = 0x1C,           //+ "%s is not moderated";
     CHAT_PLAYER_INVITED_NOTICE        = 0x1D,           //+ "[%s] You invited %s to join the channel";
-    CHAT_PLAYER_INVITE_BANNED_NOTICE  = 0x1E,           //+ "[%s] %s has been banned.";
+    CHAT_PLAYER_INVITE_BANNED_NOTICE  = 0x1E,           //+ "[%s] %s has been bannedStore.";
     CHAT_THROTTLED_NOTICE             = 0x1F,           //+ "[%s] The number of messages that can be sent to this channel is limited, please wait to send another message.";
     CHAT_NOT_IN_AREA_NOTICE           = 0x20,           //+ "[%s] You are not in the correct area for this channel."; -- The user is trying to send a chat to a zone specific channel, and they're not physically in that zone.
     CHAT_NOT_IN_LFG_NOTICE            = 0x21,           //+ "[%s] You must be queued in looking for group before joining this channel."; -- The user must be in the looking for group system to join LFG chat channels.
@@ -147,18 +147,45 @@ class Channel
         }
     };
 
-    typedef     std::map<uint64, PlayerInfo> PlayerList;
-    PlayerList  players;
-    typedef     std::set<uint64> BannedList;
-    BannedList  banned;
-    bool        m_announce;
-    bool        m_ownership;
-    std::string m_name;
-    std::string m_password;
-    uint8       m_flags;
-    uint32      m_channelId;
-    uint64      m_ownerGUID;
-    bool        m_IsSaved;
+    public:
+        Channel(std::string const& name, uint32 channel_id, uint32 Team = 0);
+        std::string const& GetName() const { return _name; }
+        uint32 GetChannelId() const { return _channelId; }
+        bool IsConstant() const { return _channelId != 0; }
+        bool IsAnnounce() const { return _announce; }
+        bool IsLFG() const { return GetFlags() & CHANNEL_FLAG_LFG; }
+        std::string const& GetPassword() const { return _password; }
+        void SetPassword(std::string const& npassword) { _password = npassword; }
+        void SetAnnounce(bool nannounce) { _announce = nannounce; }
+        uint32 GetNumPlayers() const { return playersStore.size(); }
+        uint8 GetFlags() const { return _flags; }
+        bool HasFlag(uint8 flag) const { return _flags & flag; }
+
+        void JoinChannel(Player* player, std::string const& pass);
+        void LeaveChannel(Player* player, bool send = true);
+        void KickOrBan(Player const* player, std::string const& badname, bool ban);
+        void Kick(Player const* player, std::string const& badname) { KickOrBan(player, badname, false); }
+        void Ban(Player const* player, std::string const& badname) { KickOrBan(player, badname, true); }
+        void UnBan(Player const* player, std::string const& badname);
+        void Password(Player const* player, std::string const& pass);
+        void SetMode(Player const* player, std::string const& p2n, bool mod, bool set);
+        void SetOwner(uint64 guid, bool exclaim = true);
+        void SetOwner(Player const* player, std::string const& name);
+        void SendWhoOwner(uint64 guid);
+        void SetModerator(Player const* player, std::string const& newname) { SetMode(player, newname, true, true); }
+        void UnsetModerator(Player const* player, std::string const& newname) { SetMode(player, newname, true, false); }
+        void SetMute(Player const* player, std::string const& newname) { SetMode(player, newname, false, true); }
+        void UnsetMute(Player const* player, std::string const& newname) { SetMode(player, newname, false, false); }
+        void List(Player const* player);
+        void Announce(Player const* player);
+        void Say(uint64 guid, std::string const& what, uint32 lang);
+        void Invite(Player const* player, std::string const& newp);
+        void Voice(uint64 guid1, uint64 guid2);
+        void DeVoice(uint64 guid1, uint64 guid2);
+        void JoinNotify(uint64 guid);                                           // invisible notify
+        void LeaveNotify(uint64 guid);                                          // invisible notify
+        void SetOwnership(bool ownership) { _ownership = ownership; };
+        static void CleanOldChannelsInDB();
 
     private:
         // initial packet data (notify type and channel name)
@@ -199,91 +226,62 @@ class Channel
         void MakeVoiceOn(WorldPacket* data, uint64 guid);                       //+ 0x22
         void MakeVoiceOff(WorldPacket* data, uint64 guid);                      //+ 0x23
 
-        void SendToAll(WorldPacket* data, uint64 p = 0);
+        void SendToAll(WorldPacket* data, uint64 guid = 0);
         void SendToAllButOne(WorldPacket* data, uint64 who);
         void SendToOne(WorldPacket* data, uint64 who);
 
-        bool IsOn(uint64 who) const { return players.find(who) != players.end(); }
-        bool IsBanned(uint64 guid) const { return banned.find(guid) != banned.end(); }
+        bool IsOn(uint64 who) const { return playersStore.find(who) != playersStore.end(); }
+        bool IsBanned(uint64 guid) const { return bannedStore.find(guid) != bannedStore.end(); }
 
         void UpdateChannelInDB() const;
         void UpdateChannelUseageInDB() const;
 
-        uint8 GetPlayerFlags(uint64 p) const
+        uint8 GetPlayerFlags(uint64 guid) const
         {
-            PlayerList::const_iterator p_itr = players.find(p);
-            if (p_itr == players.end())
-                return 0;
-
-            return p_itr->second.flags;
+            PlayerContainer::const_iterator itr = playersStore.find(guid);
+            return itr != playersStore.end() ? itr->second.flags : 0;
         }
 
-        void SetModerator(uint64 p, bool set)
+        void SetModerator(uint64 guid, bool set)
         {
-            if (players[p].IsModerator() != set)
+            if (playersStore[guid].IsModerator() != set)
             {
-                uint8 oldFlag = GetPlayerFlags(p);
-                players[p].SetModerator(set);
+                uint8 oldFlag = GetPlayerFlags(guid);
+                playersStore[guid].SetModerator(set);
 
                 WorldPacket data;
-                MakeModeChange(&data, p, oldFlag);
+                MakeModeChange(&data, guid, oldFlag);
                 SendToAll(&data);
             }
         }
 
-        void SetMute(uint64 p, bool set)
+        void SetMute(uint64 guid, bool set)
         {
-            if (players[p].IsMuted() != set)
+            if (playersStore[guid].IsMuted() != set)
             {
-                uint8 oldFlag = GetPlayerFlags(p);
-                players[p].SetMuted(set);
+                uint8 oldFlag = GetPlayerFlags(guid);
+                playersStore[guid].SetMuted(set);
 
                 WorldPacket data;
-                MakeModeChange(&data, p, oldFlag);
+                MakeModeChange(&data, guid, oldFlag);
                 SendToAll(&data);
             }
         }
 
-    public:
-        uint32 m_Team;
-        Channel(std::string const& name, uint32 channel_id, uint32 Team = 0);
-        std::string const& GetName() const { return m_name; }
-        uint32 GetChannelId() const { return m_channelId; }
-        bool IsConstant() const { return m_channelId != 0; }
-        bool IsAnnounce() const { return m_announce; }
-        bool IsLFG() const { return GetFlags() & CHANNEL_FLAG_LFG; }
-        std::string const& GetPassword() const { return m_password; }
-        void SetPassword(std::string const& npassword) { m_password = npassword; }
-        void SetAnnounce(bool nannounce) { m_announce = nannounce; }
-        uint32 GetNumPlayers() const { return players.size(); }
-        uint8 GetFlags() const { return m_flags; }
-        bool HasFlag(uint8 flag) const { return m_flags & flag; }
+        typedef std::map<uint64, PlayerInfo> PlayerContainer;
+        typedef std::set<uint64> BannedContainer;
 
-        void Join(uint64 p, const char *pass);
-        void Leave(uint64 p, bool send = true);
-        void KickOrBan(uint64 good, const char *badname, bool ban);
-        void Kick(uint64 good, const char *badname) { KickOrBan(good, badname, false); }
-        void Ban(uint64 good, const char *badname) { KickOrBan(good, badname, true); }
-        void UnBan(uint64 good, const char *badname);
-        void Password(uint64 p, const char *pass);
-        void SetMode(uint64 p, const char *p2n, bool mod, bool set);
-        void SetOwner(uint64 p, bool exclaim = true);
-        void SetOwner(uint64 p, const char *newname);
-        void SendWhoOwner(uint64 p);
-        void SetModerator(uint64 p, const char *newname) { SetMode(p, newname, true, true); }
-        void UnsetModerator(uint64 p, const char *newname) { SetMode(p, newname, true, false); }
-        void SetMute(uint64 p, const char *newname) { SetMode(p, newname, false, true); }
-        void UnsetMute(uint64 p, const char *newname) { SetMode(p, newname, false, false); }
-        void List(Player* p);
-        void Announce(uint64 p);
-        void Say(uint64 p, const char *what, uint32 lang);
-        void Invite(uint64 p, const char *newp);
-        void Voice(uint64 guid1, uint64 guid2);
-        void DeVoice(uint64 guid1, uint64 guid2);
-        void JoinNotify(uint64 guid);                                           // invisible notify
-        void LeaveNotify(uint64 guid);                                          // invisible notify
-        void SetOwnership(bool ownership) { m_ownership = ownership; };
-        static void CleanOldChannelsInDB();
+        bool _announce;
+        bool _ownership;
+        bool _IsSaved;
+        uint8 _flags;
+        uint32 _channelId;
+        uint32 _Team;
+        uint64 _ownerGUID;
+        std::string _name;
+        std::string _password;
+        PlayerContainer playersStore;
+        BannedContainer bannedStore;
 };
 #endif
 

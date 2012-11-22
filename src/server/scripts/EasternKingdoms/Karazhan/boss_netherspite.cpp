@@ -28,17 +28,21 @@ EndScriptData */
 #include "karazhan.h"
 #include "Player.h"
 
-#define EMOTE_PHASE_PORTAL          -1532089
-#define EMOTE_PHASE_BANISH          -1532090
+enum Netherspite
+{
+    EMOTE_PHASE_PORTAL          = 0,
+    EMOTE_PHASE_BANISH          = 1,
 
-#define SPELL_NETHERBURN_AURA       30522
-#define SPELL_VOIDZONE              37063
-#define SPELL_NETHER_INFUSION       38688
-#define SPELL_NETHERBREATH          38523
-#define SPELL_BANISH_VISUAL         39833
-#define SPELL_BANISH_ROOT           42716
-#define SPELL_EMPOWERMENT           38549
-#define SPELL_NETHERSPITE_ROAR      38684
+    SPELL_NETHERBURN_AURA       = 30522,
+    SPELL_VOIDZONE              = 37063,
+    SPELL_NETHER_INFUSION       = 38688,
+    SPELL_NETHERBREATH          = 38523,
+    SPELL_BANISH_VISUAL         = 39833,
+    SPELL_BANISH_ROOT           = 42716,
+    SPELL_EMPOWERMENT           = 38549,
+    SPELL_NETHERSPITE_ROAR      = 38684,
+};
+
 
 const float PortalCoord[3][3] =
 {
@@ -229,7 +233,7 @@ public:
             PortalPhase = true;
             PortalTimer = 10000;
             EmpowermentTimer = 10000;
-            DoScriptText(EMOTE_PHASE_PORTAL, me);
+            Talk(EMOTE_PHASE_PORTAL);
         }
 
         void SwitchToBanishPhase()
@@ -241,7 +245,7 @@ public:
             DestroyPortals();
             PhaseTimer = 30000;
             PortalPhase = false;
-            DoScriptText(EMOTE_PHASE_BANISH, me);
+            Talk(EMOTE_PHASE_BANISH);
 
             for (int i=0; i<3; ++i)
                 me->RemoveAurasDueToSpell(NetherBuff[i]);
