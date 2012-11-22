@@ -4989,7 +4989,8 @@ void AuraEffect::HandleAuraDummy(AuraApplication const* aurApp, uint8 mode, bool
                 case 52916: // Honor Among Thieves
                     if (target->GetTypeId() == TYPEID_PLAYER)
                         if (Unit* spellTarget = ObjectAccessor::GetUnit(*target, target->ToPlayer()->GetComboTarget()))
-                            target->CastSpell(spellTarget, 51699, true);
+                            if (caster)
+                                caster->CastSpell(spellTarget, 51699, true);
                    break;
                 case 53601: // Sacred Shield
                     // reset both swing timers just to be sure
