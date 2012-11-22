@@ -647,7 +647,7 @@ struct boss_faction_championsAI : public BossAI
                         temp->AI()->Talk(SAY_KILL_PLAYER);
 
 
-                instance->SetData(DATA_TRIBUTE_TO_IMMORTALITY_ELEGIBLE, 0);
+                instance->SetData(DATA_TRIBUTE_TO_IMMORTALITY_ELIGIBLE, 0);
             }
         }
     }
