@@ -1052,6 +1052,35 @@ namespace Trinity
             NearestHostileUnitCheck(NearestHostileUnitCheck const&);
     };
 
+    class AggressivePetHostileUnitCheck
+    {
+        public:
+            explicit AggressivePetHostileUnitCheck(Creature const* creature, bool useLOS = false) : me(creature)
+            {
+            }
+            bool operator()(Unit* u)
+            {
+                if (!u->IsHostileTo(me))
+                    return false;
+
+                if (!me->IsValidAttackTarget(u))
+                    return false;
+
+                if (m_useLOS && !u->IsWithinLOSInMap(me))
+                    return false;
+
+                if (!u->IsWithinDistInMap(me, me->GetPetAggroRange(u)))
+                    return false;
+
+                return true;
+            }
+
+    private:
+            Creature const* me;
+            bool m_useLOS;
+            AggressivePetHostileUnitCheck(AggressivePetHostileUnitCheck const&);
+    };
+
     class NearestHostileUnitInAttackDistanceCheck
     {
         public:
