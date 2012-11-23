@@ -541,7 +541,12 @@ class boss_professor_putricide : public CreatureScript
                 switch (type)
                 {
                     case DATA_EXPERIMENT_STAGE:
-                        return _experimentState;
+                    {
+                        // ALSO MODIFIES!
+                        uint32 ret = uint32(_experimentState);
+                        _experimentState ^= true;
+                        return ret;
+                    }
                     case DATA_PHASE:
                         return _phase;
                     case DATA_ABOMINATION:
@@ -1004,10 +1009,7 @@ class spell_putricide_unstable_experiment : public SpellScriptLoader
                 if (GetCaster()->GetTypeId() != TYPEID_UNIT)
                     return;
 
-                Creature* creature = GetCaster()->ToCreature();
-
-                uint32 stage = creature->AI()->GetData(DATA_EXPERIMENT_STAGE);
-                creature->AI()->SetData(DATA_EXPERIMENT_STAGE, !stage);
+                uint32 stage = GetCaster()->ToCreature()->AI()->GetData(DATA_EXPERIMENT_STAGE);
 
                 Creature* target = NULL;
                 std::list<Creature*> creList;
