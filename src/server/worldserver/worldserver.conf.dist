@@ -3069,5 +3069,34 @@ Armory.Enable = 1
 
 AllowTwoSide.Interaction.Chat.Area = 415
 
+###################################################################################################################
+# MULTIKILL SYSTEM
+#
+# MultiKill.Enable
+# Description: Enable Disable Multikill System.
+# Default: 0 - (Disabled)
+# 1 - (Enabled)
+#
+# MultiKill.BattleGround.Only
+# Description: System works only battlegrounds.
+# Default: 0 - (Disabled)
+# 1 - (Enabled)
+#
+# MultiKill.Log
+# Description: Enable/Disable Multkill Logging in DB.
+# Default: 0 - (Disabled)
+# 1 - (Enabled)
+#
+# MultiKill.Time.Between
+# Description: The period between murders which it is possible to consider simultaneous.
+# Default: 15
+#
+###################################################################################################################
+
+MultiKill.Enable = 0
+MultiKill.BattleGround.Only = 0
+MultiKill.Log = 0
+MultiKill.Time.Between = 15
+
 #
 ###################################################################################################################

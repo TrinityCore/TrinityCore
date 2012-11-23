@@ -736,6 +736,12 @@ class PlayerScript : public ScriptObject
 
         // Called when a player switches to a new zone
         virtual void OnUpdateZone(Player* /*player*/, uint32 /*newZone*/, uint32 /*newArea*/) { }
+
+        // Called when a player joined the battle
+        virtual void OnPlayerJoinedBattleground(Player* /*player*/, Battleground* /*bg*/) { }
+
+        // Called when player ...
+        virtual void OnPlayerFirstKillBattleground(Player* /*player*/, Battleground* /*bg*/) { }
 };
 
 class GuildScript : public ScriptObject
@@ -1008,6 +1014,8 @@ class ScriptMgr
         void OnPlayerCreate(Player* player);
         void OnPlayerDelete(uint64 guid);
         void OnPlayerBindToInstance(Player* player, Difficulty difficulty, uint32 mapid, bool permanent);
+        void OnPlayerJoinedBattleground(Player* player, Battleground* bg);
+        void OnPlayerFirstKillBattleground(Player* player, Battleground* bg);
         void OnPlayerUpdateZone(Player* player, uint32 newZone, uint32 newArea);
 
     public: /* GuildScript */

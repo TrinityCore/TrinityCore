@@ -204,6 +204,8 @@ Battleground::Battleground()
     StartMessageIds[BG_STARTING_EVENT_SECOND] = LANG_BG_WS_START_ONE_MINUTE;
     StartMessageIds[BG_STARTING_EVENT_THIRD]  = LANG_BG_WS_START_HALF_MINUTE;
     StartMessageIds[BG_STARTING_EVENT_FOURTH] = LANG_BG_WS_HAS_BEGUN;
+    // MultiKill System
+    firstkill = true;
 }
 
 Battleground::~Battleground()
@@ -1278,6 +1280,8 @@ void Battleground::AddPlayer(Player* player)
     // setup BG group membership
     PlayerAddedToBGCheckIfBGIsRunning(player);
     AddOrSetPlayerToCorrectBgGroup(player, team);
+    // MultiKill System
+    sScriptMgr->OnPlayerJoinedBattleground(player, this);
 }
 
 // this method adds player to his team's bg group, or sets his correct group if player is already in bg group
@@ -1442,6 +1446,11 @@ void Battleground::UpdatePlayerScore(Player* Source, uint32 type, uint32 value, 
     {
         case SCORE_KILLING_BLOWS:                           // Killing blows
             itr->second->KillingBlows += value;
+            if (firstkill)
+            {
+                sScriptMgr->OnPlayerFirstKillBattleground(Source, this);
+                firstkill = false;
+            }
             break;
         case SCORE_DEATHS:                                  // Deaths
             itr->second->Deaths += value;

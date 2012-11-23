@@ -296,6 +296,9 @@ class Battleground
 
         virtual void DestroyGate(Player* /*player*/, GameObject* /*go*/) {}
 
+        /* MultiKill System */
+        bool firstkill;
+
         /* achievement req. */
         virtual bool IsAllNodesConrolledByTeam(uint32 /*team*/) const { return false; }
         void StartTimedAchievement(AchievementCriteriaTimedTypes type, uint32 entry);
