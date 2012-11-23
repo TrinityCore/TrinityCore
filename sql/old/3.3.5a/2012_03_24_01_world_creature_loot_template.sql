@@ -1,5 +1,5 @@
 -- -----------------------------------
--- --  Loot for The Siege of Ulduar -- 
+-- --  Loot for The Siege of Ulduar --
 -- -----------------------------------
 
 -- Old Cleanups:
@@ -122,7 +122,7 @@ INSERT INTO `reference_loot_template` (`entry`,`item`,`ChanceOrQuestChance`,`loo
 (@Razor25Ref,45150,0,1,1,1,1), -- Collar of the Wyrmhunter
 (@Razor25Ref,45151,0,1,1,1,1), -- Belt of the Fallen Wyrm
 (@Razor25Ref,45510,0,1,1,1,1), -- Libram of Discord
- 
+
 -- XT-002 Deconstructor 10man
 (@XT002_10Ref,45675,0,1,1,1,1), -- Power Enchancing Loop
 (@XT002_10Ref,45676,0,1,1,1,1), -- Chestplate of Vicious Potency
@@ -156,7 +156,7 @@ INSERT INTO `reference_loot_template` (`entry`,`item`,`ChanceOrQuestChance`,`loo
 (@XT002_25Ref,45259,0,1,1,1,1), -- Quartz-studded Harness
 (@XT002_25Ref,45255,0,1,1,1,1); -- Thunderfall Totem
 -- -----------------------------------------------------------------------------------------------
--- -- END OF REFERENCES -- -- END OF REFERENCES -- -- END OF REFERENCES -- -- END OF REFERENCES -- 
+-- -- END OF REFERENCES -- -- END OF REFERENCES -- -- END OF REFERENCES -- -- END OF REFERENCES --
 -- -- END OF REFERENCES -- -- END OF REFERENCES -- -- END OF REFERENCES -- -- END OF REFERENCES --
 -- -- END OF REFERENCES -- -- END OF REFERENCES -- -- END OF REFERENCES -- -- END OF REFERENCES --
 -- -----------------------------------------------------------------------------------------------
@@ -177,7 +177,7 @@ INSERT INTO `reference_loot_template` (`entry`,`item`,`ChanceOrQuestChance`,`loo
 DELETE FROM `creature_loot_template` WHERE `entry` IN (@FlameLevi10,@FlameLevi25,@IgnisFM10,@IgnisFM25,@Razorscale10,@Razorscale25,@XT002_10,@XT002_25);
 INSERT INTO `creature_loot_template` (`entry`,`item`,`ChanceOrQuestChance`,`lootmode`,`groupid`,`mincountOrRef`,`maxcount`) VALUES
 -- ---------------------------
--- -- Flame Levithian 10man -- 
+-- -- Flame Levithian 10man --
 -- ---------------------------
 (@FlameLevi10,1,100,1,0,-@EmblemRef,1), -- 1x emblem
 (@FlameLevi10,2,100,1,0,-@Flame10Ref,2), -- 2 from 10man reference
@@ -200,14 +200,14 @@ INSERT INTO `creature_loot_template` (`entry`,`item`,`ChanceOrQuestChance`,`loot
 (@FlameLevi10,45300,0,16,1,1,1), -- Mantle of Fiery Vengeance
 (@FlameLevi10,45297,0,16,1,1,1), -- Shimmering Seal
 -- Shared Loot over the modes (masked)
--- Non-Normal (Modes 2|4|8|16) 
-(@FlameLevi10,11,5,30,0,-34154,1), -- 1 from recepies (chanced) 
+-- Non-Normal (Modes 2|4|8|16)
+(@FlameLevi10,11,5,30,0,-34154,1), -- 1 from recepies (chanced)
 -- More then 1 tower up (Modes 4|8|16)
 (@FlameLevi10,@Orb,100,28,0,1,3), -- Runed Orb (1-3)
 -- More then 2 towers up (Modes 8|16)
 (@FlameLevi10,12,100,24,0,-34154,1), -- 1 from recepies
 -- ---------------------------
--- -- Flame Levithian 25man -- 
+-- -- Flame Levithian 25man --
 -- ---------------------------
 (@FlameLevi25,1,100,1,0,-@EmblemRef,1), -- 1x emblem
 (@FlameLevi25,2,100,1,0,-@Flame25Ref,3), -- 3 from 25man reference
@@ -235,7 +235,7 @@ INSERT INTO `creature_loot_template` (`entry`,`item`,`ChanceOrQuestChance`,`loot
 -- All Modes (1|2|4|8|16):
 (@FlameLevi25,11,5,31,0,-@OrbRef,1), -- Runed Orb (1x Chanced)
 (@FlameLevi25,45038,8,1,0,1,1), -- Fragment of Val'anyr (quest only!?)
-(@FlameLevi25,12,5,31,0,-34154,1), -- 1 from recepies (chanced) 
+(@FlameLevi25,12,5,31,0,-34154,1), -- 1 from recepies (chanced)
 -- More then 1 tower up (Modes 4|8|16)
 (@FlameLevi25,13,100,28,0,-@OrbRef,2), -- Runed Orb (2x garanteed)
 -- More then 2 towers up (Modes 8|16)
@@ -269,7 +269,7 @@ INSERT INTO `creature_loot_template` (`entry`,`item`,`ChanceOrQuestChance`,`loot
 -- -------------------------
 -- X002 Deconstructor 10man (and hardmode)
 (@XT002_10,1,100,3,0,-@XT002_10Ref,2), -- 2items from Ref loot
-(@XT002_10,@Emblem,100,3,0,1,1), -- 1x Emblem 
+(@XT002_10,@Emblem,100,3,0,1,1), -- 1x Emblem
 -- Hard mode 10man only:
 (@XT002_10,45442,0,2,1,1,1), -- Sorthalis,Hammer of the Watchers
 (@XT002_10,45443,0,2,1,1,1), -- Charm of Meticulous Timing

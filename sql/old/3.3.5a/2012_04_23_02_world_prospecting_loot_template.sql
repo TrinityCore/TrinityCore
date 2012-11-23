@@ -1,4 +1,4 @@
-SET @TinRef := 13000; 
+SET @TinRef := 13000;
 SET @TBC1 := @TinRef+1;
 SET @TBC2 := @TinRef+2;
 SET @WOTLK1 := @TinRef+3;
@@ -7,18 +7,18 @@ SET @WOTLK3 := @TinRef+5;
 
 SET @Copper := 2770;
 SET @Tin := 2771;
-SET @Iron := 2772; 
+SET @Iron := 2772;
 SET @Mithril := 3858;
 SET @Thorium := 10620;
-SET @FelIron := 23424; 
-SET @Adamantite := 23425; 
-SET @Cobalt := 36909; 
+SET @FelIron := 23424;
+SET @Adamantite := 23425;
+SET @Cobalt := 36909;
 SET @Saronite := 36912;
 SET @Titanium := 36910;
 
 -- Reference Loot Templates
 DELETE FROM `reference_loot_template` WHERE `entry` BETWEEN @TinRef AND @TinRef+5;
-INSERT INTO `reference_loot_template` (`entry`,`item`,`ChanceOrQuestChance`,`lootmode`,`groupid`,`mincountOrRef`,`maxcount`) VALUES 
+INSERT INTO `reference_loot_template` (`entry`,`item`,`ChanceOrQuestChance`,`lootmode`,`groupid`,`mincountOrRef`,`maxcount`) VALUES
 -- Stupid Tin
 (@TinRef,1529,0,1,1,1,1),  -- Jade
 (@TinRef,3864,0,1,1,1,1),  -- Citrine
@@ -35,7 +35,7 @@ INSERT INTO `reference_loot_template` (`entry`,`item`,`ChanceOrQuestChance`,`loo
 (@TBC2,23437,0,1,1,1,1), -- Talasite
 (@TBC2,23438,0,1,1,1,1), -- Star of Elune
 (@TBC2,23439,0,1,1,1,1), -- Noble Topaz
-(@TBC2,23440,0,1,1,1,1), -- Dawnstone 
+(@TBC2,23440,0,1,1,1,1), -- Dawnstone
 (@TBC2,23441,0,1,1,1,1), -- Nightseye
 -- WOTLK Greens
 (@WOTLK1,36917,0,1,1,1,2), -- Bloodstone
@@ -61,7 +61,7 @@ INSERT INTO `reference_loot_template` (`entry`,`item`,`ChanceOrQuestChance`,`loo
 -- --------------------------------------------------------
 -- Prospecting Loot Templates
 DELETE FROM `prospecting_loot_template` WHERE `entry` IN (@Copper,@Tin,@Iron,@Mithril,@Thorium,@FelIron,@Adamantite,@Cobalt,@Saronite,@Titanium);
-INSERT INTO `prospecting_loot_template` (`entry`,`item`,`ChanceOrQuestChance`,`lootmode`,`groupid`,`mincountOrRef`,`maxcount`) VALUES 
+INSERT INTO `prospecting_loot_template` (`entry`,`item`,`ChanceOrQuestChance`,`lootmode`,`groupid`,`mincountOrRef`,`maxcount`) VALUES
 -- Copper Ore
 (@Copper,774,0,1,1,1,1), -- Malachite
 (@Copper,818,0,1,1,1,1), -- Tigerseye

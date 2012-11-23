@@ -46,7 +46,7 @@ DELETE FROM `gameobject` WHERE `id`=202178;
 
 -- Mode specific objects (instance portal) reused deleted guids
 DELETE FROM `gameobject` WHERE `id` IN (202315,202316,202317,202318);
-INSERT INTO `gameobject` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`position_x`,`position_y`,`position_z`,`orientation`,`rotation0`,`rotation1`,`rotation2`,`rotation3`,`spawntimesecs`,`animprogress`,`state`) VALUES 
+INSERT INTO `gameobject` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`position_x`,`position_y`,`position_z`,`orientation`,`rotation0`,`rotation1`,`rotation2`,`rotation3`,`spawntimesecs`,`animprogress`,`state`) VALUES
 (150308,202318,631,5,1,82.1685,2211.82,33.0959,3.14159,0,0,1,0,6000,100,1),
 (150310,202316,631,10,1,82.1685,2211.82,33.0959,3.14159,0,0,1,0,6000,100,1),
 (150321,202317,631,5,1,82.1685,2211.82,33.0959,3.14159,0,0,1,0,6000,100,1),

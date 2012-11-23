@@ -20,6 +20,7 @@
 #include "ScriptedGossip.h"
 #include "ulduar.h"
 #include "InstanceScript.h"
+#include "Player.h"
 
 /*
 The teleporter appears to be active and stable.

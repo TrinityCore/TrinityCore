@@ -132,7 +132,7 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,
 (15,7692,0,0,1,8,10005,0,0,0,0,'','Show gossip option if player has rewarded quest 10005');
 
 -- Gossip Update from Malcrom
-DELETE FROM `gossip_menu` WHERE `entry` IN (1042,1043,1044,1045,1046,1047,1048,1049,1050,1052,1053);  	
+DELETE FROM `gossip_menu` WHERE `entry` IN (1042,1043,1044,1045,1046,1047,1048,1049,1050,1052,1053);
 INSERT INTO `gossip_menu` (`entry`,`text_id`) VALUES
 (1042,1635),(1043,1640),(1044,1644),(1045,1643),(1045,1753),
 (1046,1648),(1047,1754),(1048,1650),(1049,1755),

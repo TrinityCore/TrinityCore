@@ -25,4 +25,4 @@ ALTER TABLE `guild_bank_item` DROP COLUMN `item_entry`;
 ALTER TABLE `mail_items` DROP COLUMN `item_template`;
 
 -- Delete orphan records (use at your own risk)
--- DELETE FROM item_instance WHERE itemEntry = 0; 
+-- DELETE FROM item_instance WHERE itemEntry = 0;

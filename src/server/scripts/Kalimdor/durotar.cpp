@@ -19,6 +19,7 @@
 #include "ScriptedCreature.h"
 #include "Vehicle.h"
 #include "SpellScript.h"
+#include "Player.h"
 
 /*######
 ##Quest 5441: Lazy Peons

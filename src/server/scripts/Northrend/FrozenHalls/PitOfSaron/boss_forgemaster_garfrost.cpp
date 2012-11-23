@@ -186,7 +186,7 @@ class boss_garfrost : public CreatureScript
                 }
             }
 
-            uint32 GetData(uint32 /*type*/)
+            uint32 GetData(uint32 /*type*/) const
             {
                 return _permafrostStack;
             }

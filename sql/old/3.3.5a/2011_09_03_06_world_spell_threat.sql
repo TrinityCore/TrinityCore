@@ -48,7 +48,7 @@ INSERT INTO `spell_threat` VALUES
     (50181, 0,   0.00, 0.0),  -- Vendetta - Proc
 -- Druid
 -- Src: http://www.tankspot.com/showthread.php?47813-WOTLK-Bear-Threat-Values&p=200948#post200948
-    (17057, 0,   0.00, 0.0),  -- Furor - Proc 
+    (17057, 0,   0.00, 0.0),  -- Furor - Proc
     (5211,  53,  1.00, 0.0),  -- Bash (Rank 3)
     (6798,  105, 1.00, 0.0),  -- Bash (Rank 2)
     (8983,  158, 1.00, 0.0),  -- Bash (Rank 1)

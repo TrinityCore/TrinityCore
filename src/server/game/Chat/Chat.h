@@ -20,16 +20,18 @@
 #define TRINITYCORE_CHAT_H
 
 #include "SharedDefines.h"
-#include "Player.h"
+#include "WorldSession.h"
 
 #include <vector>
 
 class ChatHandler;
-class WorldSession;
-class WorldObject;
 class Creature;
+class Group;
 class Player;
 class Unit;
+class WorldSession;
+class WorldObject;
+
 struct GameTele;
 
 class ChatCommand
@@ -48,7 +50,6 @@ class ChatHandler
     public:
         WorldSession* GetSession() { return m_session; }
         explicit ChatHandler(WorldSession* session) : m_session(session), sentErrorMessage(false) {}
-        explicit ChatHandler(Player* player) : m_session(player->GetSession()), sentErrorMessage(false) {}
         virtual ~ChatHandler() {}
 
         static void FillMessageData(WorldPacket* data, WorldSession* session, uint8 type, uint32 language, const char *channelName, uint64 target_guid, const char *message, Unit* speaker);
@@ -115,7 +116,7 @@ class ChatHandler
         bool extractPlayerTarget(char* args, Player** player, uint64* player_guid = NULL, std::string* player_name = NULL);
 
         std::string playerLink(std::string const& name) const { return m_session ? "|cffffffff|Hplayer:"+name+"|h["+name+"]|h|r" : name; }
-        std::string GetNameLink(Player* chr) const { return playerLink(chr->GetName()); }
+        std::string GetNameLink(Player* chr) const;
 
         GameObject* GetNearbyGameObject();
         GameObject* GetObjectGlobalyWithGuidOrNearWithDbGuid(uint32 lowguid, uint32 entry);

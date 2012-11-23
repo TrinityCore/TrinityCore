@@ -58,12 +58,12 @@ INSERT INTO `spell_area` (`spell`,`area`,`autocast`) VALUES
 -- Spell scripts. replace with SAI
 DELETE FROM `spell_scripts` WHERE `id`=49899;
 INSERT INTO `spell_scripts` (`id`,`delay`,`command`,`datalong`,`datalong2`,`dataint`,`x`,`y`,`z`,`o`) VALUES
-(49899,0,1,406,0,0,0,0,0,0); -- Activate Robotic Arms 
+(49899,0,1,406,0,0,0,0,0,0); -- Activate Robotic Arms
 
 -- Spell Target position for Wintergrasp Graveyard spells
 DELETE FROM `spell_target_position` WHERE `id` IN (59760,59762,59763,59765,59766,59767,59769);
 INSERT INTO `spell_target_position` (`id`,`target_map`,`target_position_x`,`target_position_y`,`target_position_z`,`target_orientation`) VALUES
-(59760,571,5537.986,2897.493,517.057,4.819249), -- Teleport: Fortress Graveyard 
+(59760,571,5537.986,2897.493,517.057,4.819249), -- Teleport: Fortress Graveyard
 (59762,571,5104.750,2300.940,368.579,0.733038), -- Teleport: Sunken Ring "area 4538"
 (59763,571,5099.120,3466.036,368.484,5.317802), -- Teleport: Broken Temple "area 4539 & 4589"
 (59765,571,5032.454,3711.382,372.468,3.971623), -- Teleport: Horde Landing Zone

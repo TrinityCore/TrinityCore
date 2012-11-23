@@ -18,7 +18,7 @@
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
-
+#include "Player.h"
 #include "naxxramas.h"
 
 //Stalagg
@@ -215,7 +215,7 @@ public:
                 polaritySwitch = data ? true : false;
         }
 
-        uint32 GetData(uint32 id)
+        uint32 GetData(uint32 id) const
         {
             if (id != DATA_POLARITY_SWITCH)
                 return 0;

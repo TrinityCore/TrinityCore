@@ -613,7 +613,7 @@ DELETE FROM `creature_addon` WHERE `guid`=@NPC;
 INSERT INTO `creature_addon` (`guid`,`path_id`,`bytes2`,`mount`,`auras`) VALUES (@NPC,@PATH,1,0, '');
 DELETE FROM `waypoint_data` WHERE `id`=@PATH;
 INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`,`delay`,`move_flag`,`action`,`action_chance`,`wpguid`) VALUES
-(@PATH,1,-10596.3,-1164.096,30.05967,0,0,0,100,0), 
+(@PATH,1,-10596.3,-1164.096,30.05967,0,0,0,100,0),
 (@PATH,2,-10590.63,-1156.783,30.05967,0,0,0,100,0),
 (@PATH,3,-10590.52,-1155.93,30.05967,55000,0,0,100,0),
 (@PATH,4,-10590.21,-1156.136,30.05967,0,0,0,100,0),
@@ -627,7 +627,7 @@ DELETE FROM `creature_addon` WHERE `guid`=@NPC;
 INSERT INTO `creature_addon` (`guid`,`path_id`,`bytes2`,`mount`,`auras`) VALUES (@NPC,@PATH,1,0, '');
 DELETE FROM `waypoint_data` WHERE `id`=@PATH;
 INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`,`delay`,`move_flag`,`action`,`action_chance`,`wpguid`) VALUES
-(@PATH,1,-10494.12,-1160.191,28.37647,45000,0,0,100,0), 
+(@PATH,1,-10494.12,-1160.191,28.37647,45000,0,0,100,0),
 (@PATH,2,-10498.6,-1160.361,28.08655,0,0,0,100,0),
 (@PATH,3,-10498.77,-1161.604,28.08655,9000,0,0,100,0),
 (@PATH,4,-10498.77,-1161.249,28.08655,0,0,0,100,0),

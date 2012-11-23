@@ -154,7 +154,7 @@ class boss_ignis : public CreatureScript
                 DoScriptText(SAY_DEATH, me);
             }
 
-            uint32 GetData(uint32 type)
+            uint32 GetData(uint32 type) const
             {
                 if (type == DATA_SHATTERED)
                     return _shattered ? 1 : 0;

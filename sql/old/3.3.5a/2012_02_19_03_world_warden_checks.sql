@@ -13,7 +13,7 @@ CREATE TABLE `warden_checks` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
-INSERT INTO `warden_checks`(`id`,`type`,`data`,`str`,`address`,`length`,`result`,`comment`) VALUES 
+INSERT INTO `warden_checks`(`id`,`type`,`data`,`str`,`address`,`length`,`result`,`comment`) VALUES
 (1,178,'07F223143C69271AA2A851FECF6DC883A9D3A7DBA6FE26CC','',710730,23,'',NULL),
 (2,191,'C7D18F99DBC446A4B36E78B9130B6FA2E365B3D2D4199DF5','',28940,17,'',NULL),
 (3,191,'AA1A8559776F873F26954F15E49E6041EDC2C3766AD87A59','',21826,11,'',NULL),
