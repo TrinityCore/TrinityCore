@@ -16,20 +16,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-<<<<<<< HEAD
 #include "AnticheatMgr.h"
-#include "Common.h"
-#include "Language.h"
-#include "DatabaseEnv.h"
-#include "Log.h"
-#include "Opcodes.h"
-#include "SpellMgr.h"
-#include "World.h"
-#include "WorldPacket.h"
-#include "WorldSession.h"
-#include "UpdateMask.h"
-=======
->>>>>>> upstream/master
 #include "Player.h"
 #include "AccountMgr.h"
 #include "AchievementMgr.h"
@@ -89,21 +76,10 @@
 #include "Vehicle.h"
 #include "Weather.h"
 #include "WeatherMgr.h"
-<<<<<<< HEAD
-#include "LFGMgr.h"
-#include "CharacterDatabaseCleaner.h"
-#include "InstanceScript.h"
-#include <cmath>
-#include "AccountMgr.h"
-#include "../../../scripts/Custom/Transmogrification.h"
-#include "Battlefield.h"
-#include "BattlefieldMgr.h"
-#include "BattlefieldWG.h"
-=======
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
->>>>>>> upstream/master
+#include "../../../scripts/Custom/Transmogrification.h"
 
 #define ZONE_UPDATE_INTERVAL (1*IN_MILLISECONDS)
 
