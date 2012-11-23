@@ -17682,6 +17682,16 @@ bool CharmInfo::IsCommandAttack()
     return m_isCommandAttack;
 }
 
+void CharmInfo::SetIsCommandFollow(bool val)
+{
+    m_isCommandFollow = val;
+}
+
+bool CharmInfo::IsCommandFollow()
+{
+    return m_isCommandFollow;
+}
+
 void CharmInfo::SaveStayPosition()
 {
     //! At this point a new spline destination is enabled because of Unit::StopMoving()
