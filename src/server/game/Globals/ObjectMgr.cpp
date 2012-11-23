@@ -16,36 +16,38 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "AccountMgr.h"
+#include "AchievementMgr.h"
+#include "ArenaTeam.h"
+#include "ArenaTeamMgr.h"
+#include "Chat.h"
 #include "Common.h"
 #include "DatabaseEnv.h"
+#include "DisableMgr.h"
+#include "GameEventMgr.h"
+#include "GossipDef.h"
+#include "GroupMgr.h"
+#include "GuildMgr.h"
+#include "InstanceSaveMgr.h"
+#include "Language.h"
+#include "LFGMgr.h"
 #include "Log.h"
 #include "MapManager.h"
 #include "ObjectMgr.h"
-#include "ArenaTeamMgr.h"
-#include "GuildMgr.h"
-#include "GroupMgr.h"
-#include "SpellMgr.h"
-#include "UpdateMask.h"
-#include "World.h"
-#include "ArenaTeam.h"
-#include "Transport.h"
-#include "Language.h"
-#include "GameEventMgr.h"
-#include "Spell.h"
-#include "Chat.h"
-#include "AccountMgr.h"
-#include "InstanceSaveMgr.h"
-#include "SpellAuras.h"
-#include "Util.h"
-#include "WaypointManager.h"
-#include "GossipDef.h"
-#include "Vehicle.h"
-#include "AchievementMgr.h"
-#include "DisableMgr.h"
-#include "ScriptMgr.h"
-#include "SpellScript.h"
+#include "Pet.h"
 #include "PoolMgr.h"
-#include "LFGMgr.h"
+#include "ReputationMgr.h"
+#include "ScriptMgr.h"
+#include "SpellAuras.h"
+#include "Spell.h"
+#include "SpellMgr.h"
+#include "SpellScript.h"
+#include "Transport.h"
+#include "UpdateMask.h"
+#include "Util.h"
+#include "Vehicle.h"
+#include "WaypointManager.h"
+#include "World.h"
 
 ScriptMapMap sQuestEndScripts;
 ScriptMapMap sQuestStartScripts;
@@ -227,11 +229,29 @@ bool SpellClickInfo::IsFitToRequirements(Unit const* clicker, Unit const* clicke
     return true;
 }
 
-ObjectMgr::ObjectMgr(): _auctionId(1), _equipmentSetGuid(1),
-    _itemTextId(1), _mailId(1), _hiPetNumber(1), _hiCharGuid(1),
-    _hiCreatureGuid(1), _hiPetGuid(1), _hiVehicleGuid(1), _hiItemGuid(1),
-    _hiGoGuid(1), _hiDoGuid(1), _hiCorpseGuid(1), _hiMoTransGuid(1)
-{}
+ObjectMgr::ObjectMgr():
+    _auctionId(1),
+    _equipmentSetGuid(1),
+    _itemTextId(1),
+    _mailId(1),
+    _hiPetNumber(1),
+    _hiCharGuid(1),
+    _hiCreatureGuid(1),
+    _hiPetGuid(1),
+    _hiVehicleGuid(1),
+    _hiItemGuid(1),
+    _hiGoGuid(1),
+    _hiDoGuid(1),
+    _hiCorpseGuid(1),
+    _hiMoTransGuid(1)
+{
+    for (uint8 i = 0; i < MAX_CLASSES; ++i)
+    {
+        _playerClassInfo[i] = NULL;
+        for (uint8 j = 0; j < MAX_RACES; ++j)
+            _playerInfo[j][i] = NULL;
+    }
+}
 
 ObjectMgr::~ObjectMgr()
 {
@@ -243,11 +263,21 @@ ObjectMgr::~ObjectMgr()
 
     // free only if loaded
     for (int class_ = 0; class_ < MAX_CLASSES; ++class_)
-        delete[] _playerClassInfo[class_].levelInfo;
+    {
+        if (_playerClassInfo[class_])
+            delete[] _playerClassInfo[class_]->levelInfo;
+        delete _playerClassInfo[class_];
+    }
 
     for (int race = 0; race < MAX_RACES; ++race)
+    {
         for (int class_ = 0; class_ < MAX_CLASSES; ++class_)
-            delete[] _playerInfo[race][class_].levelInfo;
+        {
+            if (_playerInfo[race][class_])
+                delete[] _playerInfo[race][class_]->levelInfo;
+            delete _playerInfo[race][class_];
+        }
+    }
 
     for (CacheVendorItemContainer::iterator itr = _cacheVendorItemStore.begin(); itr != _cacheVendorItemStore.end(); ++itr)
         itr->second.Clear();
@@ -257,6 +287,9 @@ ObjectMgr::~ObjectMgr()
     for (DungeonEncounterContainer::iterator itr =_dungeonEncounterStore.begin(); itr != _dungeonEncounterStore.end(); ++itr)
         for (DungeonEncounterList::iterator encounterItr = itr->second.begin(); encounterItr != itr->second.end(); ++encounterItr)
             delete *encounterItr;
+
+    for (AccessRequirementContainer::iterator itr = _accessRequirementStore.begin(); itr != _accessRequirementStore.end(); ++itr)
+        delete itr->second;
 }
 
 void ObjectMgr::AddLocaleString(std::string const& s, LocaleConstant locale, StringVector& data)
@@ -2923,8 +2956,11 @@ PetLevelInfo const* ObjectMgr::GetPetLevelInfo(uint32 creature_id, uint8 level) 
 
 void ObjectMgr::PlayerCreateInfoAddItemHelper(uint32 race_, uint32 class_, uint32 itemId, int32 count)
 {
+    if (!_playerInfo[race_][class_])
+        return;
+
     if (count > 0)
-        _playerInfo[race_][class_].item.push_back(PlayerCreateInfoItem(itemId, count));
+        _playerInfo[race_][class_]->item.push_back(PlayerCreateInfoItem(itemId, count));
     else
     {
         if (count < -1)
@@ -3031,17 +3067,16 @@ void ObjectMgr::LoadPlayerInfo()
                     continue;
                 }
 
-                PlayerInfo* pInfo = &_playerInfo[current_race][current_class];
-
-                pInfo->mapId       = mapId;
-                pInfo->areaId      = areaId;
-                pInfo->positionX   = positionX;
-                pInfo->positionY   = positionY;
-                pInfo->positionZ   = positionZ;
-                pInfo->orientation = orientation;
-
-                pInfo->displayId_m = rEntry->model_m;
-                pInfo->displayId_f = rEntry->model_f;
+                PlayerInfo* info = new PlayerInfo();
+                info->mapId = mapId;
+                info->areaId = areaId;
+                info->positionX = positionX;
+                info->positionY = positionY;
+                info->positionZ = positionZ;
+                info->orientation = orientation;
+                info->displayId_m = rEntry->model_m;
+                info->displayId_f = rEntry->model_f;
+                _playerInfo[current_race][current_class] = info;
 
                 ++count;
             }
@@ -3164,10 +3199,16 @@ void ObjectMgr::LoadPlayerInfo()
                     uint32 max_class = current_class ? current_class + 1 : MAX_CLASSES;
                     for (uint32 r = min_race; r < max_race; ++r)
                         for (uint32 c = min_class; c < max_class; ++c)
-                            _playerInfo[r][c].spell.push_back(fields[2].GetUInt32());
+                            if (PlayerInfo * info = _playerInfo[r][c])
+                                info->spell.push_back(fields[2].GetUInt32());
                 }
+                else if (PlayerInfo * info = _playerInfo[current_race][current_class])
+                    info->spell.push_back(fields[2].GetUInt32());
                 else
-                    _playerInfo[current_race][current_class].spell.push_back(fields[2].GetUInt32());
+                {
+                    sLog->outError(LOG_FILTER_SQL, "Wrong race: %u, class: %u combination in `playercreateinfo_spell` table, ignoring.", current_race, current_class);
+                    continue;
+                }
 
                 ++count;
             }
@@ -3212,8 +3253,8 @@ void ObjectMgr::LoadPlayerInfo()
                     continue;
                 }
 
-                PlayerInfo* pInfo = &_playerInfo[current_race][current_class];
-                pInfo->action.push_back(PlayerCreateInfoAction(fields[2].GetUInt16(), fields[3].GetUInt32(), fields[4].GetUInt16()));
+                if (PlayerInfo* info = _playerInfo[current_race][current_class])
+                    info->action.push_back(PlayerCreateInfoAction(fields[2].GetUInt16(), fields[3].GetUInt32(), fields[4].GetUInt16()));
 
                 ++count;
             }
@@ -3228,13 +3269,12 @@ void ObjectMgr::LoadPlayerInfo()
     {
         uint32 oldMSTime = getMSTime();
 
-        //                                                 0      1      2       3
+        //                                                0      1      2       3
         QueryResult result  = WorldDatabase.Query("SELECT class, level, basehp, basemana FROM player_classlevelstats");
 
         if (!result)
         {
             sLog->outError(LOG_FILTER_SQL, ">> Loaded 0 level health/mana definitions. DB table `game_event_condition` is empty.");
-
             exit(1);
         }
 
@@ -3259,15 +3299,18 @@ void ObjectMgr::LoadPlayerInfo()
                 continue;
             }
 
-            PlayerClassInfo* pClassInfo = &_playerClassInfo[current_class];
+            PlayerClassInfo* info = _playerClassInfo[current_class];
+            if (!info)
+            {
+                info = new PlayerClassInfo();
+                info->levelInfo = new PlayerClassLevelInfo[sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL)];
+                _playerClassInfo[current_class] = info;
+            }
 
-            if (!pClassInfo->levelInfo)
-                pClassInfo->levelInfo = new PlayerClassLevelInfo[sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL)];
+            PlayerClassLevelInfo& levelInfo = info->levelInfo[current_level-1];
 
-            PlayerClassLevelInfo* pClassLevelInfo = &pClassInfo->levelInfo[current_level-1];
-
-            pClassLevelInfo->basehealth = fields[2].GetUInt16();
-            pClassLevelInfo->basemana   = fields[3].GetUInt16();
+            levelInfo.basehealth = fields[2].GetUInt16();
+            levelInfo.basemana   = fields[3].GetUInt16();
 
             ++count;
         }
@@ -3280,7 +3323,7 @@ void ObjectMgr::LoadPlayerInfo()
             if (!sChrClassesStore.LookupEntry(class_))
                 continue;
 
-            PlayerClassInfo* pClassInfo = &_playerClassInfo[class_];
+            PlayerClassInfo* pClassInfo = _playerClassInfo[class_];
 
             // fatal error if no level 1 data
             if (!pClassInfo->levelInfo || pClassInfo->levelInfo[0].basehealth == 0)
@@ -3351,16 +3394,14 @@ void ObjectMgr::LoadPlayerInfo()
                 continue;
             }
 
-            PlayerInfo* pInfo = &_playerInfo[current_race][current_class];
-
-            if (!pInfo->levelInfo)
-                pInfo->levelInfo = new PlayerLevelInfo[sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL)];
-
-            PlayerLevelInfo* pLevelInfo = &pInfo->levelInfo[current_level-1];
-
-            for (int i = 0; i < MAX_STATS; i++)
+            if (PlayerInfo* info = _playerInfo[current_race][current_class])
             {
-                pLevelInfo->stats[i] = fields[i+3].GetUInt8();
+                if (!info->levelInfo)
+                    info->levelInfo = new PlayerLevelInfo[sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL)];
+
+                PlayerLevelInfo& levelInfo = info->levelInfo[current_level-1];
+                for (int i = 0; i < MAX_STATS; i++)
+                    levelInfo.stats[i] = fields[i+3].GetUInt8();
             }
 
             ++count;
@@ -3380,10 +3421,8 @@ void ObjectMgr::LoadPlayerInfo()
                 if (!sChrClassesStore.LookupEntry(class_))
                     continue;
 
-                PlayerInfo* pInfo = &_playerInfo[race][class_];
-
-                // skip non loaded combinations
-                if (!pInfo->displayId_m || !pInfo->displayId_f)
+                PlayerInfo* info = _playerInfo[race][class_];
+                if (!info)
                     continue;
 
                 // skip expansion races if not playing with expansion
@@ -3395,7 +3434,7 @@ void ObjectMgr::LoadPlayerInfo()
                     continue;
 
                 // fatal error if no level 1 data
-                if (!pInfo->levelInfo || pInfo->levelInfo[0].stats[0] == 0)
+                if (!info->levelInfo || info->levelInfo[0].stats[0] == 0)
                 {
                     sLog->outError(LOG_FILTER_SQL, "Race %i Class %i Level 1 does not have stats data!", race, class_);
                     exit(1);
@@ -3404,10 +3443,10 @@ void ObjectMgr::LoadPlayerInfo()
                 // fill level gaps
                 for (uint8 level = 1; level < sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL); ++level)
                 {
-                    if (pInfo->levelInfo[level].stats[0] == 0)
+                    if (info->levelInfo[level].stats[0] == 0)
                     {
                         sLog->outError(LOG_FILTER_SQL, "Race %i Class %i Level %i does not have stats data. Using stats data of level %i.", race, class_, level+1, level);
-                        pInfo->levelInfo[level] = pInfo->levelInfo[level-1];
+                        info->levelInfo[level] = info->levelInfo[level-1];
                     }
                 }
             }
@@ -3480,7 +3519,7 @@ void ObjectMgr::GetPlayerClassLevelInfo(uint32 class_, uint8 level, PlayerClassL
     if (level < 1 || class_ >= MAX_CLASSES)
         return;
 
-    PlayerClassInfo const* pInfo = &_playerClassInfo[class_];
+    PlayerClassInfo const* pInfo = _playerClassInfo[class_];
 
     if (level > sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
         level = sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL);
@@ -3493,8 +3532,8 @@ void ObjectMgr::GetPlayerLevelInfo(uint32 race, uint32 class_, uint8 level, Play
     if (level < 1 || race >= MAX_RACES || class_ >= MAX_CLASSES)
         return;
 
-    PlayerInfo const* pInfo = &_playerInfo[race][class_];
-    if (pInfo->displayId_m == 0 || pInfo->displayId_f == 0)
+    PlayerInfo const* pInfo = _playerInfo[race][class_];
+    if (!pInfo)
         return;
 
     if (level <= sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
@@ -3506,7 +3545,7 @@ void ObjectMgr::GetPlayerLevelInfo(uint32 race, uint32 class_, uint8 level, Play
 void ObjectMgr::BuildPlayerLevelInfo(uint8 race, uint8 _class, uint8 level, PlayerLevelInfo* info) const
 {
     // base data (last known level)
-    *info = _playerInfo[race][_class].levelInfo[sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL)-1];
+    *info = _playerInfo[race][_class]->levelInfo[sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL)-1];
 
     // if conversion from uint32 to uint8 causes unexpected behaviour, change lvl to uint32
     for (uint8 lvl = sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL)-1; lvl < level; ++lvl)
@@ -5898,7 +5937,13 @@ void ObjectMgr::LoadAccessRequirements()
 {
     uint32 oldMSTime = getMSTime();
 
-    _accessRequirementStore.clear();                                  // need for reload case
+    if (!_accessRequirementStore.empty())
+    {
+        for (AccessRequirementContainer::iterator itr = _accessRequirementStore.begin(); itr != _accessRequirementStore.end(); ++itr)
+            delete itr->second;
+
+        _accessRequirementStore.clear();                                  // need for reload case
+    }
 
     //                                               0      1           2          3          4     5      6             7             8                      9
     QueryResult result = WorldDatabase.Query("SELECT mapid, difficulty, level_min, level_max, item, item2, quest_done_A, quest_done_H, completed_achievement, quest_failed_text FROM access_requirement");
@@ -5920,61 +5965,61 @@ void ObjectMgr::LoadAccessRequirements()
         uint8 difficulty = fields[1].GetUInt8();
         uint32 requirement_ID = MAKE_PAIR32(mapid, difficulty);
 
-        AccessRequirement ar;
+        AccessRequirement* ar = new AccessRequirement();
 
-        ar.levelMin                 = fields[2].GetUInt8();
-        ar.levelMax                 = fields[3].GetUInt8();
-        ar.item                     = fields[4].GetUInt32();
-        ar.item2                    = fields[5].GetUInt32();
-        ar.quest_A                  = fields[6].GetUInt32();
-        ar.quest_H                  = fields[7].GetUInt32();
-        ar.achievement              = fields[8].GetUInt32();
-        ar.questFailedText          = fields[9].GetString();
+        ar->levelMin = fields[2].GetUInt8();
+        ar->levelMax = fields[3].GetUInt8();
+        ar->item = fields[4].GetUInt32();
+        ar->item2 = fields[5].GetUInt32();
+        ar->quest_A = fields[6].GetUInt32();
+        ar->quest_H = fields[7].GetUInt32();
+        ar->achievement = fields[8].GetUInt32();
+        ar->questFailedText = fields[9].GetString();
 
-        if (ar.item)
+        if (ar->item)
         {
-            ItemTemplate const* pProto = GetItemTemplate(ar.item);
+            ItemTemplate const* pProto = GetItemTemplate(ar->item);
             if (!pProto)
             {
-                sLog->outError(LOG_FILTER_GENERAL, "Key item %u does not exist for map %u difficulty %u, removing key requirement.", ar.item, mapid, difficulty);
-                ar.item = 0;
+                sLog->outError(LOG_FILTER_GENERAL, "Key item %u does not exist for map %u difficulty %u, removing key requirement.", ar->item, mapid, difficulty);
+                ar->item = 0;
             }
         }
 
-        if (ar.item2)
+        if (ar->item2)
         {
-            ItemTemplate const* pProto = GetItemTemplate(ar.item2);
+            ItemTemplate const* pProto = GetItemTemplate(ar->item2);
             if (!pProto)
             {
-                sLog->outError(LOG_FILTER_GENERAL, "Second item %u does not exist for map %u difficulty %u, removing key requirement.", ar.item2, mapid, difficulty);
-                ar.item2 = 0;
+                sLog->outError(LOG_FILTER_GENERAL, "Second item %u does not exist for map %u difficulty %u, removing key requirement.", ar->item2, mapid, difficulty);
+                ar->item2 = 0;
             }
         }
 
-        if (ar.quest_A)
+        if (ar->quest_A)
         {
-            if (!GetQuestTemplate(ar.quest_A))
+            if (!GetQuestTemplate(ar->quest_A))
             {
-                sLog->outError(LOG_FILTER_SQL, "Required Alliance Quest %u not exist for map %u difficulty %u, remove quest done requirement.", ar.quest_A, mapid, difficulty);
-                ar.quest_A = 0;
+                sLog->outError(LOG_FILTER_SQL, "Required Alliance Quest %u not exist for map %u difficulty %u, remove quest done requirement.", ar->quest_A, mapid, difficulty);
+                ar->quest_A = 0;
             }
         }
 
-        if (ar.quest_H)
+        if (ar->quest_H)
         {
-            if (!GetQuestTemplate(ar.quest_H))
+            if (!GetQuestTemplate(ar->quest_H))
             {
-                sLog->outError(LOG_FILTER_SQL, "Required Horde Quest %u not exist for map %u difficulty %u, remove quest done requirement.", ar.quest_H, mapid, difficulty);
-                ar.quest_H = 0;
+                sLog->outError(LOG_FILTER_SQL, "Required Horde Quest %u not exist for map %u difficulty %u, remove quest done requirement.", ar->quest_H, mapid, difficulty);
+                ar->quest_H = 0;
             }
         }
 
-        if (ar.achievement)
+        if (ar->achievement)
         {
-            if (!sAchievementStore.LookupEntry(ar.achievement))
+            if (!sAchievementStore.LookupEntry(ar->achievement))
             {
-                sLog->outError(LOG_FILTER_SQL, "Required Achievement %u not exist for map %u difficulty %u, remove quest done requirement.", ar.achievement, mapid, difficulty);
-                ar.achievement = 0;
+                sLog->outError(LOG_FILTER_SQL, "Required Achievement %u not exist for map %u difficulty %u, remove quest done requirement.", ar->achievement, mapid, difficulty);
+                ar->achievement = 0;
             }
         }
 
@@ -8202,7 +8247,7 @@ bool ObjectMgr::IsVendorItemValid(uint32 vendor_entry, uint32 item_id, int32 max
     if (!cInfo)
     {
         if (player)
-            ChatHandler(player).SendSysMessage(LANG_COMMAND_VENDORSELECTION);
+            ChatHandler(player->GetSession()).SendSysMessage(LANG_COMMAND_VENDORSELECTION);
         else
             sLog->outError(LOG_FILTER_SQL, "Table `(game_event_)npc_vendor` have data for not existed creature template (Entry: %u), ignore", vendor_entry);
         return false;
@@ -8213,7 +8258,7 @@ bool ObjectMgr::IsVendorItemValid(uint32 vendor_entry, uint32 item_id, int32 max
         if (!skip_vendors || skip_vendors->count(vendor_entry) == 0)
         {
             if (player)
-                ChatHandler(player).SendSysMessage(LANG_COMMAND_VENDORSELECTION);
+                ChatHandler(player->GetSession()).SendSysMessage(LANG_COMMAND_VENDORSELECTION);
             else
                 sLog->outError(LOG_FILTER_SQL, "Table `(game_event_)npc_vendor` have data for not creature template (Entry: %u) without vendor flag, ignore", vendor_entry);
 
@@ -8226,7 +8271,7 @@ bool ObjectMgr::IsVendorItemValid(uint32 vendor_entry, uint32 item_id, int32 max
     if (!sObjectMgr->GetItemTemplate(item_id))
     {
         if (player)
-            ChatHandler(player).PSendSysMessage(LANG_ITEM_NOT_FOUND, item_id);
+            ChatHandler(player->GetSession()).PSendSysMessage(LANG_ITEM_NOT_FOUND, item_id);
         else
             sLog->outError(LOG_FILTER_SQL, "Table `(game_event_)npc_vendor` for Vendor (Entry: %u) have in item list non-existed item (%u), ignore", vendor_entry, item_id);
         return false;
@@ -8235,7 +8280,7 @@ bool ObjectMgr::IsVendorItemValid(uint32 vendor_entry, uint32 item_id, int32 max
     if (ExtendedCost && !sItemExtendedCostStore.LookupEntry(ExtendedCost))
     {
         if (player)
-            ChatHandler(player).PSendSysMessage(LANG_EXTENDED_COST_NOT_EXIST, ExtendedCost);
+            ChatHandler(player->GetSession()).PSendSysMessage(LANG_EXTENDED_COST_NOT_EXIST, ExtendedCost);
         else
             sLog->outError(LOG_FILTER_SQL, "Table `(game_event_)npc_vendor` have Item (Entry: %u) with wrong ExtendedCost (%u) for vendor (%u), ignore", item_id, ExtendedCost, vendor_entry);
         return false;
@@ -8244,7 +8289,7 @@ bool ObjectMgr::IsVendorItemValid(uint32 vendor_entry, uint32 item_id, int32 max
     if (maxcount > 0 && incrtime == 0)
     {
         if (player)
-            ChatHandler(player).PSendSysMessage("MaxCount != 0 (%u) but IncrTime == 0", maxcount);
+            ChatHandler(player->GetSession()).PSendSysMessage("MaxCount != 0 (%u) but IncrTime == 0", maxcount);
         else
             sLog->outError(LOG_FILTER_SQL, "Table `(game_event_)npc_vendor` has `maxcount` (%u) for item %u of vendor (Entry: %u) but `incrtime`=0, ignore", maxcount, item_id, vendor_entry);
         return false;
@@ -8252,7 +8297,7 @@ bool ObjectMgr::IsVendorItemValid(uint32 vendor_entry, uint32 item_id, int32 max
     else if (maxcount == 0 && incrtime > 0)
     {
         if (player)
-            ChatHandler(player).PSendSysMessage("MaxCount == 0 but IncrTime<>= 0");
+            ChatHandler(player->GetSession()).PSendSysMessage("MaxCount == 0 but IncrTime<>= 0");
         else
             sLog->outError(LOG_FILTER_SQL, "Table `(game_event_)npc_vendor` has `maxcount`=0 for item %u of vendor (Entry: %u) but `incrtime`<>0, ignore", item_id, vendor_entry);
         return false;
@@ -8265,7 +8310,7 @@ bool ObjectMgr::IsVendorItemValid(uint32 vendor_entry, uint32 item_id, int32 max
     if (vItems->FindItemCostPair(item_id, ExtendedCost))
     {
         if (player)
-            ChatHandler(player).PSendSysMessage(LANG_ITEM_ALREADY_IN_LIST, item_id, ExtendedCost);
+            ChatHandler(player->GetSession()).PSendSysMessage(LANG_ITEM_ALREADY_IN_LIST, item_id, ExtendedCost);
         else
             sLog->outError(LOG_FILTER_SQL, "Table `npc_vendor` has duplicate items %u (with extended cost %u) for vendor (Entry: %u), ignoring", item_id, ExtendedCost, vendor_entry);
         return false;
@@ -8274,7 +8319,7 @@ bool ObjectMgr::IsVendorItemValid(uint32 vendor_entry, uint32 item_id, int32 max
     if (vItems->GetItemCount() >= MAX_VENDOR_ITEMS)
     {
         if (player)
-            ChatHandler(player).SendSysMessage(LANG_COMMAND_ADDVENDORITEMITEMS);
+            ChatHandler(player->GetSession()).SendSysMessage(LANG_COMMAND_ADDVENDORITEMITEMS);
         else
             sLog->outError(LOG_FILTER_SQL, "Table `npc_vendor` has too many items (%u >= %i) for vendor (Entry: %u), ignore", vItems->GetItemCount(), MAX_VENDOR_ITEMS, vendor_entry);
         return false;
@@ -8694,4 +8739,16 @@ VehicleAccessoryList const* ObjectMgr::GetVehicleAccessoryList(Vehicle* veh) con
     if (itr != _vehicleTemplateAccessoryStore.end())
         return &itr->second;
     return NULL;
+}
+
+PlayerInfo const* ObjectMgr::GetPlayerInfo(uint32 race, uint32 class_) const
+{
+    if (race >= MAX_RACES)
+        return NULL;
+    if (class_ >= MAX_CLASSES)
+        return NULL;
+    PlayerInfo const* info = _playerInfo[race][class_];
+    if (!info)
+        return NULL;
+    return info;
 }

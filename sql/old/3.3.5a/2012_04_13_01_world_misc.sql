@@ -6,7 +6,7 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (17, 0, 74222, 3, 31, 3, 6119, 0, 63, '', 'Gnomish Playback Device on Tog Rustsprocket');
 
 -- fix revenge ap coeff -- by ric101 closes #3344
-UPDATE `spell_bonus_data` SET `ap_bonus` = 0.310 WHERE `entry` = 6572; 
+UPDATE `spell_bonus_data` SET `ap_bonus` = 0.310 WHERE `entry` = 6572;
 
 -- fix life seed sp coeff -- by warpten closes #4162
 DELETE FROM `spell_bonus_data` WHERE `entry`=48503;
@@ -28,7 +28,7 @@ UPDATE `gameobject` SET `guid` = 10714 WHERE `guid` = 61895 AND `id` = 2157;
 
 -- update npc texts. by helias closes #6098
 DELETE FROM `npc_text` WHERE `ID` IN (10719,10782,10783,10787,10788,2838,9072,9110,10310,13293,13641,14089,15077,15155,15240,15412,15866,15873,15877,8663,8244,8254,8255,8282,8291,8296,8298,11093,3464,4776,4713,12130,13002,9984,12977,12978,10918,10999,10986,10991);
-INSERT INTO `npc_text` (`ID`, `text0_0`, `text0_1`, `lang0`, `prob0`, `em0_0`, `em0_1`, `em0_2`, `em0_3`, `em0_4`, `em0_5`) VALUES 
+INSERT INTO `npc_text` (`ID`, `text0_0`, `text0_1`, `lang0`, `prob0`, `em0_0`, `em0_1`, `em0_2`, `em0_3`, `em0_4`, `em0_5`) VALUES
 (10719, '<The chime of A"dal"s voice echoes reassuringly through your mind.>$B$BWorry not, child.  Look in your pack and you will find it once more.', NULL, 0, 1, 0, 0, 0, 0, 0, 0),
 (10782, 'Sayoc, da ugly orc here, teach you daggers. You want teaching in other places, you talk to Ileda in da Farstrider Square of Silvermoon or Archibald in the War Quarter of Undercity, hokay?', 'Sayoc, da ugly orc here, teach you daggers. You want teaching in other places, you talk to Ileda in da Farstrider Square of Silvermoon or Archibald in the War Quarter of Undercity, hokay?', 1, 1, 0, 0, 0, 0, 0, 0),
 (10783, 'You want to punch things, yah? Talk to Sayoc right here. He teach you.', 'You want to punch things, yah? Talk to Sayoc right here. He teach you.', 1, 1, 0, 0, 0, 0, 0, 0),
@@ -133,7 +133,7 @@ UPDATE `areatrigger_teleport` SET `target_position_x`=-248.149292, `target_posit
 
 -- Add pamphlets to mail loot by gecko32 closes #5408
 DELETE FROM `mail_loot_template` WHERE `entry` BETWEEN 224 AND 233;
-INSERT INTO `mail_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `lootmode`, `groupid`, `mincountOrRef`, `maxcount`) VALUES 
+INSERT INTO `mail_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `lootmode`, `groupid`, `mincountOrRef`, `maxcount`) VALUES
 (224, 46875, 100, 1, 0, 1, 1), -- Riding Training Pamphlet Elwynn Forest
 (225, 46876, 100, 1, 0, 1, 1), -- Riding Training Pamphlet Darnassus
 (226, 46877, 100, 1, 0, 1, 1), -- Riding Training Pamphlet Dun Morogh drawf
@@ -193,7 +193,7 @@ INSERT INTO `creature_onkill_reputation` (`creature_id`, `RewOnKillRepFaction1`,
 (38480, 1156, 0, 7, 0, 15, 0, 0, 0, 0), -- Darkfallen Noble
 (38481, 1156, 0, 7, 0, 15, 0, 0, 0, 0); -- Spire Gargoyle
 
--- fix procs by warpten closes #4467 for 
+-- fix procs by warpten closes #4467 for
 -- Needle-Encrusted Scorpion
 DELETE FROM `spell_proc_event` WHERE `entry`=71404;
 INSERT INTO `spell_proc_event` (`entry`,`SchoolMask`,`SpellFamilyName`,`SpellFamilyMask0`,`SpellFamilyMask1`,`SpellFamilyMask2`,`procFlags`,`procEx`,`ppmRate`,`CustomChance`,`Cooldown`) VALUES

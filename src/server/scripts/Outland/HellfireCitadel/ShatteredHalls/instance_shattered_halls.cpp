@@ -87,7 +87,7 @@ class instance_shattered_halls : public InstanceMapScript
                 }
             }
 
-            uint32 GetData(uint32 type)
+            uint32 GetData(uint32 type) const
             {
                 switch (type)
                 {
@@ -99,7 +99,7 @@ class instance_shattered_halls : public InstanceMapScript
                 return 0;
             }
 
-            uint64 GetData64(uint32 data)
+            uint64 GetData64(uint32 data) const
             {
                 switch (data)
                 {

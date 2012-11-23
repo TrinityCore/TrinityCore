@@ -1,7 +1,7 @@
 -- Fix quest What Illidan Wants, Illidan Gets...
 -- Make the npc_text entries work properly
 DELETE FROM `gossip_menu` WHERE `entry` IN (8336,8342,8341,8340,8339,8338) AND `text_id` IN (10401,10405,10406,10407,10408,10409);
-INSERT INTO `gossip_menu` (`entry`,`text_id`) VALUES 
+INSERT INTO `gossip_menu` (`entry`,`text_id`) VALUES
 (8336,10401),
 (8342,10405),
 (8341,10406),

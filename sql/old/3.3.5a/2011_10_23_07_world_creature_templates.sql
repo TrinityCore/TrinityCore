@@ -50,7 +50,7 @@ UPDATE `creature_model_info` SET `bounding_radius`=0.25,`combat_reach`=0,`gender
 UPDATE `creature_model_info` SET `bounding_radius`=1,`combat_reach`=0,`gender`=2 WHERE `modelid` IN (1141,1418); -- Rat
 UPDATE `creature_model_info` SET `bounding_radius`=0.075,`combat_reach`=0,`gender`=2 WHERE `modelid`=24719; -- [DND] Shaker - Small
 -- Addon data
-UPDATE `creature_template_addon` SET `bytes1`=0,`bytes2`=257,`mount`=0,`emote`=0,`auras`=NULL WHERE `entry` IN 
+UPDATE `creature_template_addon` SET `bytes1`=0,`bytes2`=257,`mount`=0,`emote`=0,`auras`=NULL WHERE `entry` IN
 (2456 -- Newton Burnside
 ,2457 -- John Burnside
 ,1285 -- Thurman Mullby
@@ -89,7 +89,7 @@ UPDATE `creature_template_addon` SET `bytes1`=0,`bytes2`=257,`mount`=0,`emote`=0
 
 -- Frederick Stover
 -- Lina Stover
-UPDATE `creature_template_addon` SET `bytes1`=0,`bytes2`=258,`mount`=0,`emote`=0,`auras`=NULL WHERE `entry` IN (1297,1298); 
+UPDATE `creature_template_addon` SET `bytes1`=0,`bytes2`=258,`mount`=0,`emote`=0,`auras`=NULL WHERE `entry` IN (1297,1298);
 DELETE FROM `creature_template_addon` WHERE `entry` IN (37574,37543,29093,25058);
 INSERT INTO `creature_template_addon` (`entry`,`mount`,`bytes1`,`bytes2`,`emote`,`auras`) VALUES
 (37574,0,0,1,0, NULL), -- [DND] Shaker - Small

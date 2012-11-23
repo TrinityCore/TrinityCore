@@ -21,11 +21,12 @@
 #include "ObjectMgr.h"
 #include "WorldPacket.h"
 
-#include "Miscellaneous/Formulas.h"
+#include "Formulas.h"
 #include "GameObject.h"
-#include "Miscellaneous/Language.h"
+#include "Language.h"
 #include "Player.h"
 #include "SpellAuras.h"
+#include "WorldSession.h"
 
 BattlegroundAV::BattlegroundAV()
 {
@@ -1694,4 +1695,17 @@ bool BattlegroundAV::IsAllTowersControlledAndCaptainAlive(uint32 team) const
     }
 
     return false;
+}
+
+uint32 BattlegroundAV::GetPrematureWinner()
+{
+    uint32 allianceScore = m_Team_Scores[GetTeamIndexByTeamId(ALLIANCE)];
+    uint32 hordeScore = m_Team_Scores[GetTeamIndexByTeamId(HORDE)];
+    
+    if (allianceScore > hordeScore)
+        return ALLIANCE;
+    else if (hordeScore > allianceScore)
+        return HORDE;
+    
+    return Battleground::GetPrematureWinner();
 }

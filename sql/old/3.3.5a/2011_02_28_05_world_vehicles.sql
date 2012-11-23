@@ -93,7 +93,7 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,
 (16,0,33845,0,1,64373,0,0,0,'', 'Vehicle Quel''dorei Steed requires aura Armistice'),
 (16,0,33844,0,1,64373,0,0,0,'', 'Vehicle Sunreaver Hawkstrider requires aura Armistice'),
 (16,0,33217,0,1,64373,0,0,0,'', 'Vehicle Stormwind Steed requires aura Armistice');
--- race conditions 
+-- race conditions
 
 DELETE FROM `creature_template_addon` WHERE `entry` IN (33782,33318,33323,33322,33317,33319,33316,33321,33324,33320,33845,33844,33217);
 INSERT INTO `creature_template_addon` (`entry`,`mount`,`bytes1`,`bytes2`,`emote`,`auras`) VALUES

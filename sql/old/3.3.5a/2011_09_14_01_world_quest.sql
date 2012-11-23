@@ -71,7 +71,7 @@ INSERT INTO `waypoints` (`entry`,`pointid`,`position_x`,`position_y`,`position_z
 
 -- Phasing Spell
 DELETE FROM `spell_area` WHERE `spell`=55857 AND `area`=4455;
-INSERT INTO `spell_area`(`spell`,`area`,`quest_start`,`quest_start_active`,`quest_end`,`aura_spell`,`racemask`,`gender`,`autocast`) VALUES 
+INSERT INTO `spell_area`(`spell`,`area`,`quest_start`,`quest_start_active`,`quest_end`,`aura_spell`,`racemask`,`gender`,`autocast`) VALUES
 (55857,4455,12983,1,12983,0,0,2,1);
 
 -- From Nay:

@@ -26,6 +26,7 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "shadow_labyrinth.h"
+#include "Player.h"
 
 #define SAY_INTRO                       -1555028
 #define SAY_AGGRO1                      -1555029

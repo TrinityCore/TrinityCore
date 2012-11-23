@@ -1,9 +1,9 @@
 CREATE TABLE `temp_convert_spells`
 (
-	`id` INT(11),
-	`effMask` INT(11),
-	`onlyPlayers` TINYINT(3),
-	PRIMARY KEY (`id`)
+    `id` INT(11),
+    `effMask` INT(11),
+    `onlyPlayers` TINYINT(3),
+    PRIMARY KEY (`id`)
 );
 
 INSERT INTO `temp_convert_spells` VALUES
@@ -3554,12 +3554,12 @@ UPDATE `conditions` SET `SourceGroup` = (SELECT `effMask` FROM `temp_convert_spe
 
 CREATE TABLE `temp_cond_vals`
 (
-	`sourceGroup` INT(11),
-	`sourceEntry` INT(11),
-	`conditionValue1` INT(11),
-	`conditionValue2` INT(11),
-	`elseGroup` INT(11) AUTO_INCREMENT,
-	PRIMARY KEY (`sourceGroup`, `sourceEntry`, `elseGroup`)
+    `sourceGroup` INT(11),
+    `sourceEntry` INT(11),
+    `conditionValue1` INT(11),
+    `conditionValue2` INT(11),
+    `elseGroup` INT(11) AUTO_INCREMENT,
+    PRIMARY KEY (`sourceGroup`, `sourceEntry`, `elseGroup`)
 ) ENGINE=MYISAM;
 
 INSERT INTO `temp_cond_vals` (`sourceGroup`, `sourceEntry`, `conditionValue1`, `conditionValue2`) SELECT `SourceGroup`, `SourceEntry`, `ConditionValue1`, `ConditionValue2` FROM `conditions` WHERE `ConditionTypeOrReference` = 18;

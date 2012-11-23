@@ -6,7 +6,7 @@ INSERT INTO `spell_script_target` () VALUES (46589, 1, 30614);
 INSERT INTO `spell_script_target` () VALUES (45839, 1, 25653);
 
 DELETE FROM `creature_template` WHERE entry in (30598, 30614);
-INSERT INTO `creature_template` () VALUES 
+INSERT INTO `creature_template` () VALUES
 (30598, 0, 4449, 0, 4449, 0, 'Spike Target', '', '', 70, 70, 1, 1, 0, 0, 0, 14, 14, 0, 1, 1, 0, 0, 0, 0, 0, 2600, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '', 0, 3, 0, 0, 0, 1, 0, 0, 128, ''),
 (30614, 0, 4449, 0, 4449, 0, 'Spike Target 2', '', '', 70, 70, 1, 1, 0, 0, 0, 14, 14, 0, 1, 1, 0, 0, 0, 0, 0, 2600, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '', 0, 3, 0, 0, 0, 1, 0, 0, 128, '');
 

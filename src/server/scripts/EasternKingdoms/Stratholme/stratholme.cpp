@@ -34,6 +34,8 @@ EndContentData */
 #include "ScriptedCreature.h"
 #include "stratholme.h"
 #include "Group.h"
+#include "Player.h"
+#include "SpellInfo.h"
 
 /*######
 ## go_gauntlet_gate (this is the _first_ of the gauntlet gates, two exist)

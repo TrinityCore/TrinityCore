@@ -31,6 +31,7 @@ EndContentData */
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
+#include "Player.h"
 
 /*######
 ## mob_webbed_creature

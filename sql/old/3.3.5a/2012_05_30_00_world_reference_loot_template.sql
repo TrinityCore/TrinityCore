@@ -1,4 +1,4 @@
-SET @Twins := 34329; 
+SET @Twins := 34329;
 SET @emblem := 49426;
 DELETE FROM `reference_loot_template` WHERE `entry`=@Twins;
 INSERT INTO `reference_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `lootmode`, `groupid`, `mincountOrRef`, `maxcount`) VALUES

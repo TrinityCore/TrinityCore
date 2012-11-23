@@ -19,6 +19,7 @@
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
 #include "forge_of_souls.h"
+#include "Player.h"
 
 enum Events
 {

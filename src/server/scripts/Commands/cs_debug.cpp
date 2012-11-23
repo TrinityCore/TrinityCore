@@ -31,6 +31,7 @@ EndScriptData */
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
 #include "GossipDef.h"
+#include "Language.h"
 
 #include <fstream>
 

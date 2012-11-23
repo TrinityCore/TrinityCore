@@ -319,12 +319,12 @@ INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equ
 (@GUID+286,9257,229,1,1,0,0,75.31803,-587.21405,30.68769,2.86234,7200,0,0,1,0,0),
 (@GUID+287,9257,229,1,1,0,0,-8.240628,-580.9951,29.2742,5.67232,7200,0,0,1,0,0),
 (@GUID+288,9257,229,1,1,0,0,-56.70842,-586.1366,29.2742,1.2915436,7200,0,0,1,0,0);
- 
+
 -- Add sitting to some Scarshield Legionnaires
 DELETE FROM `creature_addon` WHERE `guid` IN (209318,209333,209315,209337,209308,209312,209331,209320,209335);
 INSERT INTO `creature_addon` (`guid`,`bytes1`,`bytes2`) VALUES
 (209318,1,1),(209333,1,1),(209315,1,1),(209337,1,1),(209308,1,1),(209312,1,1),(209331,1,1),(209320,1,1),(209335,1,1);
- 
+
 -- Pathing for Blackhand Dreadweaver Entry: 9817
 SET @NPC := @GUID+116;
 SET @PATH := @NPC * 10;
@@ -354,7 +354,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,19,142.107,-253.858,110.808,0,0,0,100,0),
 (@PATH,20,149.232,-254.785,110.835,0,0,0,100,0),
 (@PATH,21,156.027,-256.98,110.873,0,0,0,100,0);
- 
+
 -- Pathing for Rage Talon Dragonspawn Entry: 9096
 SET @NPC := @GUID+13;
 SET @PATH := @NPC * 10;
@@ -385,7 +385,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,20,157.819,-330.472,70.9563,0,0,0,100,0),
 (@PATH,21,151.347,-332.406,70.9563,0,0,0,100,0),
 (@PATH,22,141.415,-328.32,70.9563,0,0,0,100,0);
- 
+
 -- Pathing for Rage Talon Dragonspawn Entry: 9096
 SET @NPC := @GUID+3;
 SET @PATH := @NPC * 10;
@@ -398,7 +398,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,2,103.388,-312.501,106.436,0,0,0,100,0),
 (@PATH,3,102.492,-284.08,106.436,0,0,0,100,0),
 (@PATH,4,102.111,-255.036,106.436,0,0,0,100,0);
- 
+
 -- Pathing for Rage Talon Flamescale Entry: 10083
 SET @NPC := @GUID+25;
 SET @PATH := @NPC * 10;
@@ -411,7 +411,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,2,151.43,-299.848,110.655,0,0,0,100,0),
 (@PATH,3,151.826,-337.478,110.948,0,0,0,100,0),
 (@PATH,4,151.43,-299.848,110.655,0,0,0,100,0);
- 
+
 -- Pathing for Rage Talon Flamescale Entry: 10083
 SET @NPC := @GUID+26;
 SET @PATH := @NPC * 10;
@@ -426,7 +426,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,4,113.681,-366.227,116.844,0,0,0,100,0),
 (@PATH,5,134.314,-365.853,116.844,0,0,0,100,0),
 (@PATH,6,159.69,-366.065,116.844,0,0,0,100,0);
- 
+
 -- Pathing for Blackhand Veteran Entry: 9819
 SET @NPC := @GUID+77;
 SET @PATH := @NPC * 10;
@@ -455,7 +455,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,18,141.56,-328.348,110.948,0,0,0,100,0),
 (@PATH,19,145.867,-339.175,110.95,0,0,0,100,0),
 (@PATH,20,151.986,-343.381,110.952,0,0,0,100,0);
- 
+
 -- Pathing for Blackhand Veteran Entry: 9819
 SET @NPC := @GUID+68;
 SET @PATH := @NPC * 10;
@@ -488,7 +488,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,22,137.621,-374.032,116.807,0,0,0,100,0),
 (@PATH,23,138.003,-383.829,121.975,0,0,0,100,0),
 (@PATH,24,137.681,-374.135,116.807,0,0,0,100,0);
- 
+
 -- Pathing for Rage Talon Dragon Guard Entry: 10366
 SET @NPC := @GUID+32;
 SET @PATH := @NPC * 10;
@@ -515,7 +515,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,16,106.258,-474.643,116.842,0,0,0,100,0),
 (@PATH,17,120.161,-474.673,116.842,0,0,0,100,0),
 (@PATH,18,137.109,-474.652,116.842,0,0,0,100,0);
- 
+
 -- Pathing for Jed Runewatcher Entry: 10509 "RARE"
 SET @NPC := @GUID+153;
 SET @PATH := @NPC * 10;
@@ -545,7 +545,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,19,160.079,-280.562,110.652,0,0,0,100,0),
 (@PATH,20,144.032,-280.615,110.653,0,0,0,100,0),
 (@PATH,21,142.987,-312.006,110.658,0,0,0,100,0);
- 
+
 -- Pathing for Blackhand Assassin Entry: 10318
 SET @NPC := @GUID+173;
 SET @PATH := @NPC * 10;
@@ -583,7 +583,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,27,60.60706,-474.3578,112.1393,0,0,0,100,0),
 (@PATH,28,70.90186,-474.6028,115.4964,0,0,0,100,0);
 -- 0xF13000284E0957D1 .go 83.54216 -474.6622 116.8424
- 
+
 -- Pathing for Blackhand Assassin Entry: 10318
 SET @NPC := @GUID+155;
 SET @PATH := @NPC * 10;
@@ -609,7 +609,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,15,112.9668,-557.6212,107.6628,0,0,0,100,0),
 (@PATH,16,117.2911,-562.6133,107.403,0,0,0,100,0);
 -- 0xF13000284E0957CB .go 117.5151 -567.9547 107.125
- 
+
 -- Pathing for Blackhand Iron Guard Entry: 10319
 SET @NPC := @GUID+185;
 SET @PATH := @NPC * 10;
@@ -625,7 +625,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,5,10.9487,-465.839,110.938,0,0,0,100,0),
 (@PATH,6,12.0295,-481.36,110.935,0,0,0,100,0),
 (@PATH,7,27.209,-487.106,110.949,0,0,0,100,0);
- 
+
 -- Pathing for Blackhand Iron Guard Entry: 10319
 SET @NPC := @GUID+187;
 SET @PATH := @NPC * 10;
@@ -644,7 +644,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,8,32.9856,-441.198,110.948,0,0,0,100,0),
 (@PATH,9,33.2187,-432.523,110.949,0,0,0,100,0),
 (@PATH,10,32.9856,-441.198,110.948,0,0,0,100,0);
- 
+
 -- Pathing for Blackhand Iron Guard Entry: 10319
 SET @NPC := @GUID+180;
 SET @PATH := @NPC * 10;
@@ -684,7 +684,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,29,137.726,-471.057,116.836,0,0,0,100,0),
 (@PATH,30,137.759,-466.307,116.807,0,0,0,100,0),
 (@PATH,31,137.438,-458.164,121.874,0,0,0,100,0);
- 
+
 -- Pathing for Goraluk Anvilcrack Entry: 10899
 SET @NPC := @GUID+39;
 SET @PATH := @NPC * 10;
@@ -725,7 +725,7 @@ INSERT INTO `waypoint_scripts` (`id`,`delay`,`command`,`datalong`,`datalong2`,`o
 (@PATH+3,0,30,0,0,1.801312,94),
 (@PATH+3,1,1,28,1,0,95),
 (@PATH+3,22,1,0,1,0,96);
- 
+
 -- Pathing for Rage Talon Captain Entry: 10371
 SET @NPC := @GUID+42;
 SET @PATH := @NPC * 10;
@@ -746,7 +746,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,10,-0.199047,-320.916,110.942,0,0,0,100,0),
 (@PATH,11,0.073367,-274.516,110.929,0,0,0,100,0),
 (@PATH,12,17.7263,-263.467,110.943,0,0,0,100,0);
- 
+
 -- Pathing for Blackrock Drake Entry: 8964
 SET @NPC := 3343;
 SET @PATH := @NPC * 10;
@@ -776,7 +776,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,19,-7502.939,-1142.821,286.4399,0,0,0,100,0),
 (@PATH,20,-7499.304,-1120.659,286.4399,0,0,0,100,0),
 (@PATH,21,-7502.985,-1091.508,286.4399,0,0,0,100,0);
- 
+
 -- Pathing for Blackrock Drake Entry: 8964
 SET @NPC := 3344;
 SET @PATH := @NPC * 10;
@@ -811,7 +811,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,24,-7562.621,-1112.578,307.4555,0,0,0,100,0),
 (@PATH,25,-7567.333,-1126.35,304.3445,0,0,0,100,0),
 (@PATH,26,-7587.611,-1127.057,299.0391,0,0,0,100,0);
- 
+
 -- Pathing for Scarshield Legionnaire Entry: 9097
 SET @NPC := @GUID+228;
 SET @PATH := @NPC * 10;
@@ -832,7 +832,7 @@ INSERT INTO `waypoint_scripts` (`id`,`delay`,`command`,`datalong`,`datalong2`,`o
 (@PATH+2,0,30,0,0,3.892084,100),
 (@PATH+2,7,1,69,1,0,101),
 (@PATH+2,16,1,0,1,0,102);
- 
+
 -- Pathing for Scarshield Legionnaire Entry: 9097
 SET @NPC := @GUID+209;
 SET @PATH := @NPC * 10;
@@ -859,7 +859,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,16,34.57693,-329.2669,53.62961,0,0,0,100,0),
 (@PATH,17,41.51676,-327.2762,53.74633,0,0,0,100,0),
 (@PATH,18,53.45955,-325.36,53.91605,0,0,0,100,0);
- 
+
 -- Pathing for Scarshield Legionnaire Entry: 9097
 SET @NPC := @GUID+229;
 SET @PATH := @NPC * 10;
@@ -896,7 +896,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,26,67.14284,-292.4547,60.63996,0,0,0,100,0),
 (@PATH,27,74.20583,-289.4101,60.64116,0,0,0,100,0),
 (@PATH,28,81.97402,-288.0753,60.66125,0,0,0,100,0);
- 
+
 -- Pathing for Scarshield Legionnaire Entry: 9097
 SET @NPC := @GUID+230;
 SET @PATH := @NPC * 10;
@@ -938,7 +938,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,31,71.19937,-288.5282,60.61031,0,0,0,100,0),
 (@PATH,32,76.71995,-286.1484,60.66695,0,0,0,100,0),
 (@PATH,33,83.98484,-287.0403,60.643,0,0,0,100,0);
- 
+
 -- Pathing for Scarshield Spellbinder Entry: 9098
 SET @NPC := @GUID+252;
 SET @PATH := @NPC * 10;

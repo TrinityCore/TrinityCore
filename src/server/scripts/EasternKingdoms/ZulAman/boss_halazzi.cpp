@@ -26,7 +26,7 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "zulaman.h"
-//#include "spell.h"
+#include "SpellInfo.h"
 
 #define YELL_AGGRO "Get on your knees and bow to da fang and claw!"
 #define SOUND_AGGRO                    12020

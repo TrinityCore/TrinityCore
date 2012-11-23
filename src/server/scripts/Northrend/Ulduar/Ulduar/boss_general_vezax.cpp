@@ -20,6 +20,7 @@
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"
 #include "ulduar.h"
+#include "Player.h"
 
 enum VezaxYells
 {
@@ -234,7 +235,7 @@ class boss_general_vezax : public CreatureScript
                 }
             }
 
-            uint32 GetData(uint32 type)
+            uint32 GetData(uint32 type) const
             {
                 switch (type)
                 {

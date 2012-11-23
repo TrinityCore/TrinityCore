@@ -16,24 +16,24 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Player.h"
-#include "ObjectMgr.h"
-#include "ArenaTeamMgr.h"
-#include "World.h"
-#include "WorldPacket.h"
 #include "ArenaTeam.h"
+#include "ArenaTeamMgr.h"
 #include "Battleground.h"
 #include "BattlegroundMgr.h"
 #include "Creature.h"
 #include "Formulas.h"
 #include "GridNotifiersImpl.h"
 #include "Group.h"
-#include "Language.h"
 #include "MapManager.h"
 #include "Object.h"
-#include "SpellAuras.h"
+#include "ObjectMgr.h"
+#include "Player.h"
+#include "ReputationMgr.h"
 #include "SpellAuraEffects.h"
+#include "SpellAuras.h"
 #include "Util.h"
+#include "World.h"
+#include "WorldPacket.h"
 
 namespace Trinity
 {
@@ -404,6 +404,17 @@ inline void Battleground::_ProcessRessurect(uint32 diff)
     }
 }
 
+uint32 Battleground::GetPrematureWinner()
+{
+    uint32 winner = 0;
+    if (GetPlayersCountByTeam(ALLIANCE) >= GetMinPlayersPerTeam())
+        winner = ALLIANCE;
+    else if (GetPlayersCountByTeam(HORDE) >= GetMinPlayersPerTeam())
+        winner = HORDE;
+        
+    return winner;
+}
+
 inline void Battleground::_ProcessProgress(uint32 diff)
 {
     // *********************************************************
@@ -418,13 +429,7 @@ inline void Battleground::_ProcessProgress(uint32 diff)
     else if (m_PrematureCountDownTimer < diff)
     {
         // time's up!
-        uint32 winner = 0;
-        if (GetPlayersCountByTeam(ALLIANCE) >= GetMinPlayersPerTeam())
-            winner = ALLIANCE;
-        else if (GetPlayersCountByTeam(HORDE) >= GetMinPlayersPerTeam())
-            winner = HORDE;
-
-        EndBattleground(winner);
+        EndBattleground(GetPrematureWinner());
         m_PrematureCountDown = false;
     }
     else if (!sBattlegroundMgr->isTesting())
@@ -642,7 +647,12 @@ void Battleground::SendPacketToTeam(uint32 TeamID, WorldPacket* packet, Player* 
     for (BattlegroundPlayerMap::const_iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
         if (Player* player = _GetPlayerForTeam(TeamID, itr, "SendPacketToTeam"))
             if (self || sender != player)
-                player->GetSession()->SendPacket(packet);
+            {
+                WorldSession* session = player->GetSession();
+                sLog->outDebug(LOG_FILTER_BATTLEGROUND, "%s %s - SendPacketToTeam %u, Player: %s", GetOpcodeNameForLogging(packet->GetOpcode()).c_str(),
+                    session->GetPlayerInfo().c_str(), TeamID, sender ? sender->GetName().c_str() : "null");
+                session->SendPacket(packet);
+            }
 }
 
 void Battleground::PlaySoundToAll(uint32 SoundID)
@@ -1064,7 +1074,7 @@ void Battleground::RemovePlayerAtLeave(uint64 guid, bool Transport, bool SendPac
         if (Transport)
             player->TeleportToBGEntryPoint();
 
-        sLog->outInfo(LOG_FILTER_BATTLEGROUND, "BATTLEGROUND: Removed player %s from Battleground.", player->GetName().c_str());
+        sLog->outDebug(LOG_FILTER_BATTLEGROUND, "Removed player %s from Battleground.", player->GetName().c_str());
     }
 
     //battleground object will be deleted next Battleground::Update() call
@@ -1078,9 +1088,6 @@ void Battleground::Reset()
     SetStartTime(0);
     SetEndTime(0);
     SetLastResurrectTime(0);
-    SetArenaType(0);
-    SetRated(false);
-
     m_Events = 0;
 
     if (m_InvitedAlliance > 0 || m_InvitedHorde > 0)
@@ -1177,10 +1184,9 @@ void Battleground::AddPlayer(Player* player)
             player->ResetAllPowers();
         }
 
-        WorldPacket teammate;
-        teammate.Initialize(SMSG_ARENA_OPPONENT_UPDATE, 8);
-        teammate << uint64(player->GetGUID());
-        SendPacketToTeam(team, &teammate, player, false);
+        WorldPacket data(SMSG_ARENA_OPPONENT_UPDATE, 8);
+        data << uint64(player->GetGUID());
+        SendPacketToTeam(team, &data, player, false);
     }
     else
     {
@@ -1203,9 +1209,6 @@ void Battleground::AddPlayer(Player* player)
     // setup BG group membership
     PlayerAddedToBGCheckIfBGIsRunning(player);
     AddOrSetPlayerToCorrectBgGroup(player, team);
-
-    // Log
-    sLog->outInfo(LOG_FILTER_BATTLEGROUND, "BATTLEGROUND: Player %s joined the battle.", player->GetName().c_str());
 }
 
 // this method adds player to his team's bg group, or sets his correct group if player is already in bg group

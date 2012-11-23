@@ -16,18 +16,71 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "AccountMgr.h"
+#include "CalendarMgr.h"
+#include "Chat.h"
+#include "Config.h"
 #include "DatabaseEnv.h"
 #include "Guild.h"
 #include "GuildMgr.h"
-#include "ScriptMgr.h"
-#include "Chat.h"
-#include "Config.h"
-#include "SocialMgr.h"
+#include "Language.h"
 #include "Log.h"
-#include "AccountMgr.h"
+#include "ScriptMgr.h"
+#include "SocialMgr.h"
+#include "Opcodes.h"
 
 #define MAX_GUILD_BANK_TAB_TEXT_LEN 500
 #define EMBLEM_PRICE 10 * GOLD
+
+std::string _GetGuildEventString(GuildEvents event)
+{
+    switch (event)
+    {
+        case GE_PROMOTION:
+            return "Member promotion";
+        case GE_DEMOTION:
+            return "Member demotion";
+        case GE_MOTD:
+            return "Guild MOTD";
+        case GE_JOINED:
+            return "Member joined";
+        case GE_LEFT:
+            return "Member left";
+        case GE_REMOVED:
+            return "Member removed";
+        case GE_LEADER_IS:
+            return "Leader is";
+        case GE_LEADER_CHANGED:
+            return "Leader changed";
+        case GE_DISBANDED:
+            return "Guild disbanded";
+        case GE_TABARDCHANGE:
+            return "Tabard change";
+        case GE_RANK_UPDATED:
+            return "Rank updated";
+        case GE_RANK_DELETED:
+            return "Rank deleted";
+        case GE_SIGNED_ON:
+            return "Member signed on";
+        case GE_SIGNED_OFF:
+            return "Member signed off";
+        case GE_GUILDBANKBAGSLOTS_CHANGED:
+            return "Bank bag slots changed";
+        case GE_BANK_TAB_PURCHASED:
+            return "Bank tab purchased";
+        case GE_BANK_TAB_UPDATED:
+            return "Bank tab updated";
+        case GE_BANK_MONEY_SET:
+            return "Bank money set";
+        case GE_BANK_MONEY_CHANGED:
+            return "Bank money changed";
+        case GE_BANK_TEXT_CHANGED:
+            return "Bank tab text changed";
+        default:
+            break;
+    }
+    return "<None>";
+}
 
 inline uint32 _GetGuildBankTabPrice(uint8 tabId)
 {
@@ -240,9 +293,9 @@ void Guild::RankInfo::CreateMissingTabsIfNeeded(uint8 tabs, SQLTransaction& tran
 
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_GUILD_BANK_RIGHT);
         stmt->setUInt32(0, m_guildId);
-        stmt->setUInt8 (1, i);
-        stmt->setUInt8 (2, m_rankId);
-        stmt->setUInt32(3, rightsAndSlots.GetRights());
+        stmt->setUInt8(1, i);
+        stmt->setUInt8(2, m_rankId);
+        stmt->setUInt8(3, rightsAndSlots.GetRights());
         stmt->setUInt32(4, rightsAndSlots.GetSlots());
         trans->Append(stmt);
     }
@@ -1428,24 +1481,21 @@ void Guild::HandleBuyBankTab(WorldSession* session, uint8 tabId)
     if (_GetPurchasedTabsSize() >= GUILD_BANK_MAX_TABS)
         return;
 
-        if (tabId != _GetPurchasedTabsSize())
-            return;
+    if (tabId != _GetPurchasedTabsSize())
+        return;
 
-        uint32 tabCost = _GetGuildBankTabPrice(tabId) * GOLD;
-        if (!tabCost)
-            return;
+    uint32 tabCost = _GetGuildBankTabPrice(tabId) * GOLD;
+    if (!tabCost)
+        return;
 
-        if (!player->HasEnoughMoney(tabCost))                   // Should not happen, this is checked by client
-            return;
+    if (!player->HasEnoughMoney(tabCost))                   // Should not happen, this is checked by client
+        return;
 
-        player->ModifyMoney(-int32(tabCost));
+    player->ModifyMoney(-int32(tabCost));
 
-    uint8 rankId = member->GetRankId();
     _CreateNewBankTab();
-    _SetRankBankMoneyPerDay(rankId, uint32(GUILD_WITHDRAW_MONEY_UNLIMITED));
-    GuildBankRightsAndSlots rightsAndSlots(tabId);
-    _SetRankBankTabRightsAndSlots(rankId, rightsAndSlots);
-    SendBankTabsInfo(session);
+    _BroadcastEvent(GE_BANK_TAB_PURCHASED, 0);
+    SendPermissions(session); /// Hack to force client to update permissions
 }
 
 void Guild::HandleInviteMember(WorldSession* session, std::string const& name)
@@ -1532,6 +1582,8 @@ void Guild::HandleLeaveMember(WorldSession* session)
 
         SendCommandResult(session, GUILD_COMMAND_QUIT, ERR_GUILD_COMMAND_SUCCESS, m_name);
     }
+
+    sCalendarMgr->RemovePlayerGuildEventsAndSignups(player->GetGUID(), GetId());
 }
 
 void Guild::HandleRemoveMember(WorldSession* session, std::string const& name)
@@ -2091,6 +2143,39 @@ void Guild::BroadcastPacket(WorldPacket* packet) const
             player->GetSession()->SendPacket(packet);
 }
 
+void Guild::MassInviteToEvent(WorldSession* session, uint32 minLevel, uint32 maxLevel, uint32 minRank)
+{
+    uint32 count = 0;
+
+    WorldPacket data(SMSG_CALENDAR_FILTER_GUILD);
+    data << uint32(count); // count placeholder
+
+    for (Members::const_iterator itr = m_members.begin(); itr != m_members.end(); ++itr)
+    {
+        // not sure if needed, maybe client checks it as well
+        if (count >= CALENDAR_MAX_INVITES)
+        {
+            if (Player* player = session->GetPlayer())
+                sCalendarMgr->SendCalendarCommandResult(player->GetGUID(), CALENDAR_ERROR_INVITES_EXCEEDED);
+            return;
+        }
+
+        Member* member = itr->second;
+        uint32 level = Player::GetLevelFromDB(member->GetGUID());
+
+        if (member->GetGUID() != session->GetPlayer()->GetGUID() && level >= minLevel && level <= maxLevel && member->IsRankNotLower(minRank))
+        {
+            data.appendPackGUID(member->GetGUID());
+            data << uint8(0); // unk
+            ++count;
+        }
+    }
+
+    data.put<uint32>(0, count);
+
+    session->SendPacket(&data);
+}
+
 // Members handling
 bool Guild::AddMember(uint64 guid, uint8 rankId)
 {
@@ -2298,6 +2383,10 @@ void Guild::_CreateNewBankTab()
     stmt->setUInt32(0, m_id);
     stmt->setUInt8 (1, tabId);
     trans->Append(stmt);
+
+    ++tabId;
+    for (Ranks::iterator itr = m_ranks.begin(); itr != m_ranks.end(); ++itr)
+        (*itr).CreateMissingTabsIfNeeded(tabId, trans, false);
 
     CharacterDatabase.CommitTransaction(trans);
 }
@@ -2734,7 +2823,9 @@ void Guild::_BroadcastEvent(GuildEvents guildEvent, uint64 guid, const char* par
         data << uint64(guid);
 
     BroadcastPacket(&data);
-    sLog->outDebug(LOG_FILTER_GUILD, "SMSG_GUILD_EVENT [Broadcast] Event: %u", guildEvent);
+
+    if (sLog->ShouldLog(LOG_FILTER_GUILD, LOG_LEVEL_DEBUG))
+        sLog->outDebug(LOG_FILTER_GUILD, "SMSG_GUILD_EVENT [Broadcast] Event: %s (%u)", _GetGuildEventString(guildEvent).c_str(), guildEvent);
 }
 
 void Guild::_SendBankList(WorldSession* session /* = NULL*/, uint8 tabId /*= 0*/, bool sendAllSlots /*= false*/, SlotIds *slots /*= NULL*/) const

@@ -27,6 +27,7 @@ EndScriptData */
 #include "ScriptedCreature.h"
 #include "the_eye.h"
 #include "WorldPacket.h"
+#include "Opcodes.h"
 
 enum eEnums
 {
@@ -926,8 +927,7 @@ class boss_kaelthas : public CreatureScript
                                                 unit->CastSpell(unit, SPELL_GRAVITY_LAPSE_AURA, true, 0, 0, me->GetGUID());
 
                                                 //Using packet workaround
-                                                WorldPacket data(12);
-                                                data.SetOpcode(SMSG_MOVE_SET_CAN_FLY);
+                                                WorldPacket data(SMSG_MOVE_SET_CAN_FLY, 12);
                                                 data.append(unit->GetPackGUID());
                                                 data << uint32(0);
                                                 unit->SendMessageToSet(&data, true);
@@ -953,8 +953,7 @@ class boss_kaelthas : public CreatureScript
                                             if (Unit* unit = Unit::GetUnit(*me, (*i)->getUnitGuid()))
                                             {
                                                 //Using packet workaround
-                                                WorldPacket data(12);
-                                                data.SetOpcode(SMSG_MOVE_UNSET_CAN_FLY);
+                                                WorldPacket data(SMSG_MOVE_UNSET_CAN_FLY, 12);
                                                 data.append(unit->GetPackGUID());
                                                 data << uint32(0);
                                                 unit->SendMessageToSet(&data, true);

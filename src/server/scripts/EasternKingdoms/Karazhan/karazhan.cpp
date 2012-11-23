@@ -34,6 +34,7 @@ EndContentData */
 #include "ScriptedGossip.h"
 #include "karazhan.h"
 #include "ScriptedEscortAI.h"
+#include "Player.h"
 
 /*######
 # npc_barnesAI
@@ -62,26 +63,26 @@ struct Dialogue
 
 static Dialogue OzDialogue[]=
 {
-    {-1532103, 6000},
-    {-1532104, 18000},
-    {-1532105, 9000},
-    {-1532106, 15000}
+    {0, 6000},
+    {1, 18000},
+    {2, 9000},
+    {3, 15000}
 };
 
 static Dialogue HoodDialogue[]=
 {
-    {-1532107, 6000},
-    {-1532108, 10000},
-    {-1532109, 14000},
-    {-1532110, 15000}
+    {4, 6000},
+    {5, 10000},
+    {6, 14000},
+    {7, 15000}
 };
 
 static Dialogue RAJDialogue[]=
 {
-    {-1532111, 5000},
-    {-1532112, 7000},
-    {-1532113, 14000},
-    {-1532114, 14000}
+    {8, 5000},
+    {9, 7000},
+    {10, 14000},
+    {11, 14000}
 };
 
 // Entries and spawn locations for creatures in Oz event
@@ -224,7 +225,8 @@ public:
             }
 
             if (text)
-                 DoScriptText(text, me);
+                 CreatureAI::Talk(text);
+            
         }
 
         void PrepareEncounter()

@@ -16,15 +16,16 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "ConditionMgr.h"
+#include "GameEventMgr.h"
+#include "InstanceScript.h"
+#include "ObjectMgr.h"
 #include "Player.h"
+#include "ReputationMgr.h"
+#include "ScriptedCreature.h"
+#include "ScriptMgr.h"
 #include "SpellAuras.h"
 #include "SpellMgr.h"
-#include "GameEventMgr.h"
-#include "ObjectMgr.h"
-#include "InstanceScript.h"
-#include "ConditionMgr.h"
-#include "ScriptMgr.h"
-#include "ScriptedCreature.h"
 #include "Spell.h"
 
 // Checks if object meets the condition

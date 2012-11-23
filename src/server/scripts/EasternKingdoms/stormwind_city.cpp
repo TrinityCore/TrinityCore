@@ -37,6 +37,7 @@ EndContentData */
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
 #include "ScriptedEscortAI.h"
+#include "Player.h"
 
 /*######
 ## npc_archmage_malin
@@ -205,13 +206,13 @@ public:
 
 enum eLordGregorLescovar
 {
-    SAY_LESCOVAR_2 = -1000457,
-    SAY_GUARD_2    = -1000458,
-    SAY_LESCOVAR_3 = -1000459,
-    SAY_MARZON_1   = -1000460,
-    SAY_LESCOVAR_4 = -1000461,
-    SAY_TYRION_2   = -1000462,
-    SAY_MARZON_2   = -1000463,
+    SAY_GUARD_2    = 0,
+    SAY_LESCOVAR_2 = 0,
+    SAY_LESCOVAR_3 = 1,
+    SAY_LESCOVAR_4 = 2,
+    SAY_MARZON_1   = 0,
+    SAY_MARZON_2   = 1,
+    SAY_TYRION_2   = 0,
 
     NPC_STORMWIND_ROYAL = 1756,
     NPC_MARZON_BLADE    = 1755,
@@ -276,7 +277,7 @@ public:
             {
                 case 14:
                     SetEscortPaused(true);
-                    DoScriptText(SAY_LESCOVAR_2, me);
+                    Talk(SAY_LESCOVAR_2);
                     uiTimer = 3000;
                     uiPhase = 1;
                     break;
@@ -317,7 +318,7 @@ public:
                     {
                         case 1:
                             if (Creature* pGuard = me->FindNearestCreature(NPC_STORMWIND_ROYAL, 8.0f, true))
-                                DoScriptText(SAY_GUARD_2, pGuard);
+                                pGuard->AI()->Talk(SAY_GUARD_2);
                             uiTimer = 3000;
                             uiPhase = 2;
                             break;
@@ -332,18 +333,18 @@ public:
                             uiPhase = 0;
                             break;
                         case 4:
-                            DoScriptText(SAY_LESCOVAR_3, me);
+                            Talk(SAY_LESCOVAR_3);
                             uiTimer = 0;
                             uiPhase = 0;
                             break;
                         case 5:
                             if (Creature* pMarzon = Unit::GetCreature(*me, MarzonGUID))
-                                DoScriptText(SAY_MARZON_1, pMarzon);
+                                pMarzon->AI()->Talk(SAY_MARZON_1);
                             uiTimer = 3000;
                             uiPhase = 6;
                             break;
                         case 6:
-                            DoScriptText(SAY_LESCOVAR_4, me);
+                            Talk(SAY_LESCOVAR_4);
                             if (Player* player = GetPlayerForEscort())
                                 player->AreaExploredOrEventHappens(QUEST_THE_ATTACK);
                             uiTimer = 2000;
@@ -351,7 +352,7 @@ public:
                             break;
                         case 7:
                             if (Creature* pTyrion = me->FindNearestCreature(NPC_TYRION, 20.0f, true))
-                                DoScriptText(SAY_TYRION_2, pTyrion);
+                                pTyrion->AI()->Talk(SAY_TYRION_2);
                             if (Creature* pMarzon = Unit::GetCreature(*me, MarzonGUID))
                                 pMarzon->setFaction(14);
                             me->setFaction(14);
@@ -399,7 +400,7 @@ public:
 
         void EnterCombat(Unit* who)
         {
-            DoScriptText(SAY_MARZON_2, me);
+            Talk(SAY_MARZON_2);
 
             if (me->isSummon())
             {
@@ -463,14 +464,14 @@ public:
 
 enum eTyrionSpybot
 {
-    SAY_QUEST_ACCEPT_ATTACK  = -1000499,
-    SAY_TYRION_1             = -1000450,
-    SAY_SPYBOT_1             = -1000451,
-    SAY_GUARD_1              = -1000452,
-    SAY_SPYBOT_2             = -1000453,
-    SAY_SPYBOT_3             = -1000454,
-    SAY_LESCOVAR_1           = -1000455,
-    SAY_SPYBOT_4             = -1000456,
+    SAY_QUEST_ACCEPT_ATTACK  = 0,
+    SAY_SPYBOT_1             = 1,
+    SAY_SPYBOT_2             = 2,
+    SAY_SPYBOT_3             = 3,
+    SAY_SPYBOT_4             = 4,
+    SAY_TYRION_1             = 0,
+    SAY_GUARD_1              = 0,
+    SAY_LESCOVAR_1           = 0,
 
     NPC_PRIESTESS_TYRIONA    = 7779,
     NPC_LORD_GREGOR_LESCOVAR = 1754,
@@ -510,13 +511,13 @@ public:
                     break;
                 case 5:
                     SetEscortPaused(true);
-                    DoScriptText(SAY_SPYBOT_1, me);
+                    Talk(SAY_SPYBOT_1);
                     uiTimer = 2000;
                     uiPhase = 5;
                     break;
                 case 17:
                     SetEscortPaused(true);
-                    DoScriptText(SAY_SPYBOT_3, me);
+                    Talk(SAY_SPYBOT_3);
                     uiTimer = 3000;
                     uiPhase = 8;
                     break;
@@ -532,13 +533,13 @@ public:
                     switch (uiPhase)
                     {
                         case 1:
-                            DoScriptText(SAY_QUEST_ACCEPT_ATTACK, me);
+                            Talk(SAY_QUEST_ACCEPT_ATTACK);
                             uiTimer = 3000;
                             uiPhase = 2;
                             break;
                         case 2:
                             if (Creature* pTyrion = me->FindNearestCreature(NPC_TYRION, 10.0f))
-                                DoScriptText(SAY_TYRION_1, pTyrion);
+                                pTyrion->AI()->Talk(SAY_TYRION_1);
                             uiTimer = 3000;
                             uiPhase = 3;
                             break;
@@ -554,12 +555,12 @@ public:
                            break;
                         case 5:
                             if (Creature* pGuard = me->FindNearestCreature(NPC_STORMWIND_ROYAL, 10.0f, true))
-                                DoScriptText(SAY_GUARD_1, pGuard);
+                                pGuard->AI()->Talk(SAY_GUARD_1);
                             uiTimer = 3000;
                             uiPhase = 6;
                             break;
                         case 6:
-                            DoScriptText(SAY_SPYBOT_2, me);
+                            Talk(SAY_SPYBOT_2);
                             uiTimer = 3000;
                             uiPhase = 7;
                             break;
@@ -570,12 +571,12 @@ public:
                             break;
                         case 8:
                             if (Creature* pLescovar = me->FindNearestCreature(NPC_LORD_GREGOR_LESCOVAR, 10.0f))
-                                DoScriptText(SAY_LESCOVAR_1, pLescovar);
+                                pLescovar->AI()->Talk(SAY_LESCOVAR_1);
                             uiTimer = 3000;
                             uiPhase = 9;
                             break;
                         case 9:
-                            DoScriptText(SAY_SPYBOT_4, me);
+                            Talk(SAY_SPYBOT_4);
                             uiTimer = 3000;
                             uiPhase = 10;
                             break;

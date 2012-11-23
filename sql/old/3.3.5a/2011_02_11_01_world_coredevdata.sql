@@ -21,7 +21,7 @@ INSERT INTO `creature` (guid, id, map, spawnMask, phaseMask, modelid, equipment_
 (100234, 28183, 578, 3, 1, 0, 0, 1328.00171, 1061.15283, 439.232849, 2.8972466, 120, 0, 0, 1, 0, 0, 0);
 
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceEntry` IN (54069,56251);
-INSERT INTO `conditions` (SourceTypeOrReferenceId, SourceGroup, SourceEntry, ElseGroup, ConditionTypeOrReference, ConditionValue1, ConditionValue2, ConditionValue3, ErrorTextId, ScriptName, COMMENT) VALUES 
+INSERT INTO `conditions` (SourceTypeOrReferenceId, SourceGroup, SourceEntry, ElseGroup, ConditionTypeOrReference, ConditionValue1, ConditionValue2, ConditionValue3, ErrorTextId, ScriptName, COMMENT) VALUES
 (13,0,54069,0,18,1,28183,0,0,'',NULL),
 (13,0,56251,0,18,1,28183,0,0,'',NULL);
 
@@ -29,7 +29,7 @@ DELETE FROM `creature_template_addon` WHERE `entry`=28183;
 INSERT INTO `creature_template_addon` (entry,auras) VALUE (28183,'50798 0');
 
 DELETE FROM `creature_text` WHERE `entry`=27447;
-INSERT INTO `creature_text` (entry,groupid,id,TEXT,TYPE,LANGUAGE,sound) VALUES 
+INSERT INTO `creature_text` (entry,groupid,id,TEXT,TYPE,LANGUAGE,sound) VALUES
 (27447,0,0,'There will be no mercy!',1,0,13649),
 (27447,1,1,'Blast them! Destroy them!',1,0,13650),
 (27447,2,2,'%s calls an Azure Ring Captain!',3,0,0),

@@ -13,8 +13,8 @@ SET @AREA1699 := @REST+11; -- Area 1699 (21 nodes)
 SET @AREA1700 := @REST+12; -- Area 1700 (28 nodes)
 SET @AREA1701 := @REST+13; -- Area 1701 (39 nodes)
 
-DELETE FROM `pool_template` WHERE `entry` BETWEEN @REST AND @REST+17 ; 
-INSERT INTO `pool_template` (`entry`,`max_limit`,`description`) VALUES 
+DELETE FROM `pool_template` WHERE `entry` BETWEEN @REST AND @REST+17 ;
+INSERT INTO `pool_template` (`entry`,`max_limit`,`description`) VALUES
 (@REST,18, 'Master Zone 17 Leftover Areas (18 out of 88 nodes)'),
 (@AREA17,60, 'Master Zone 17 Area 17 (60 out of 305 nodes'),
 (@AREA383,8, 'Master Zone 17 Area 383 (8 out of 41 nodes'),
@@ -30,8 +30,8 @@ INSERT INTO `pool_template` (`entry`,`max_limit`,`description`) VALUES
 (@AREA1700,10, 'Master Zone 17 Area 1700 (6 out of 28 nodes'),
 (@AREA1701,10, 'Master Zone 17 Area 1701 (8 out of 39 nodes');
 
-DELETE FROM `pool_gameobject` WHERE `pool_entry` BETWEEN @REST AND @REST+17 ; 
-INSERT INTO `pool_gameobject` (`guid`,`pool_entry`,`chance`,`description`) VALUES 
+DELETE FROM `pool_gameobject` WHERE `pool_entry` BETWEEN @REST AND @REST+17 ;
+INSERT INTO `pool_gameobject` (`guid`,`pool_entry`,`chance`,`description`) VALUES
 -- Nodes are numbered based on GUID, comment shows area and type
 -- Pooled per area for more randomness
 (462,@AREA17,0, 'Silverleaf,Zone 17,Area 17,node 1'),

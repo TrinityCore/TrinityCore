@@ -6,7 +6,7 @@ DELETE FROM `spell_script_names` WHERE `spell_id`=-51685 AND `ScriptName`='spell
 DELETE FROM `spell_script_names` WHERE `spell_id`=66118 AND `ScriptName`='spell_gen_leeching_swarm';
 DELETE FROM `spell_script_names` WHERE `spell_id` IN (20911,25899) AND `ScriptName`='spell_pal_blessing_of_sanctuary';
 
-INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES 
+INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 (41337,'spell_gen_aura_of_anger'),
 (46394,'spell_gen_burn_brutallus'),
 (-53302,'spell_hun_sniper_training'),
