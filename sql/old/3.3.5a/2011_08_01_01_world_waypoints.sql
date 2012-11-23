@@ -1,6 +1,6 @@
 -- All emotes, mostly ONESHOT_TALK
 DELETE FROM `creature_addon` WHERE `guid` IN (49115,49114,49742,49741,49754,49120,49121,49122,49738,49105,49104,49737,91479,91478,91511,91512,91465,91464,49702,49701,91477,91476,91495,91496,49703,49704,91491,91490,91442,91443,49753,49314,49313,49310,49784,49785,49778,49779,49780,51459,51456,51457,51966,51965,49273,49272,49786,49787,49280,49281,49279,49799,49798,49797,49796,49795,49793,49794);
-INSERT INTO `creature_addon` (`guid`,`path_id`,`mount`,`bytes1`,`bytes2`,`emote`,`auras`) VALUES 
+INSERT INTO `creature_addon` (`guid`,`path_id`,`mount`,`bytes1`,`bytes2`,`emote`,`auras`) VALUES
 (49115,0,0,0,0,1,''),(49114,0,0,0,0,1,''),(49742,0,0,0,0,1,''),(49741,0,0,0,0,1,''),(49754,0,0,0,0,1,''),(49120,0,0,0,0,1,''),
 (49121,0,0,0,0,1,''),(49122,0,0,0,0,1,''),(49738,0,0,0,0,1,''),(49105,0,0,0,0,1,''),(49104,0,0,0,0,1,''),(49737,0,0,0,0,1,''),
 (91479,0,0,0,0,1,''),(91478,0,0,0,0,1,''),(91511,0,0,0,0,1,''),(91512,0,0,0,0,1,''),(91465,0,0,0,0,1,''),(91464,0,0,0,0,1,''),
@@ -33,7 +33,7 @@ UPDATE `creature` SET `MovementType`=0,`spawndist`=0,`orientation`=5.284594 WHER
 UPDATE `creature` SET `MovementType`=0,`spawndist`=0 WHERE `guid` IN (51382,51375,51381,51383,51372,51370,51369,49359,49361,49362,49218,49219,49234,49235,49259,49260,91463,91462,91461,91459,91460,91439,49140,49139);
 
 -- Double spawned creatures. Removing addon data to prevent errors
-DELETE FROM `creature` WHERE `guid`=49806 AND `id`=11360; 
+DELETE FROM `creature` WHERE `guid`=49806 AND `id`=11360;
 DELETE FROM `creature_addon` WHERE `guid`=49806;
 DELETE FROM `creature` WHERE `guid`=49056 AND `id`=15111;
 DELETE FROM `creature_addon` WHERE `guid` IN (15111,49056);
@@ -47,7 +47,7 @@ DELETE FROM `creature_addon` WHERE `guid` IN (49138,49137);
 -- Missing spawns
 -- Hakkari Priest
 DELETE FROM `creature` WHERE `guid`=200616 AND `id`=11830;
-INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`,`npcflag`,`unit_flags`,`dynamicflags`) VALUES 
+INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`,`npcflag`,`unit_flags`,`dynamicflags`) VALUES
 (200616,11830,309,1,1,11758,0,-11942.391602,-1640.220825,42.506130,2.932328,7200,0,0,17094,12170,0,0,0,0);
 -- Razzashi Adder
 DELETE FROM `creature` WHERE `guid` IN (200617,200618) AND `id` IN (11372);

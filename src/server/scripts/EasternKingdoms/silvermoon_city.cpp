@@ -29,13 +29,15 @@ EndContentData */
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "Player.h"
+#include "SpellInfo.h"
 
 /*#######
 # npc_blood_knight_stillblade
 #######*/
 enum eStillbladeData
 {
-    SAY_HEAL                    = -1000193,
+    SAY_HEAL                    = 0,
 
     QUEST_REDEEMING_THE_DEAD    = 9685,
     SPELL_SHIMMERING_VESSEL     = 31225,
@@ -96,7 +98,7 @@ public:
                 me->SetStandState(UNIT_STAND_STATE_STAND);
                 me->SetUInt32Value(UNIT_DYNAMIC_FLAGS, 0);
                 //me->RemoveAllAuras();
-                DoScriptText(SAY_HEAL, me);
+                Talk(SAY_HEAL);
                 spellHit = true;
             }
         }

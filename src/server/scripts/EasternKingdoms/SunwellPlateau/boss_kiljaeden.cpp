@@ -28,50 +28,39 @@ EndScriptData */
 #include "ScriptedCreature.h"
 #include "sunwell_plateau.h"
 #include <math.h>
+#include "Player.h"
 
 /*** Speech and sounds***/
 enum Yells
 {
-    // These are used throughout Sunwell and Magisters(?). Players can hear this while running through the instances.
-    SAY_KJ_OFFCOMBAT1                           = -1580066,
-    SAY_KJ_OFFCOMBAT2                           = -1580067,
-    SAY_KJ_OFFCOMBAT3                           = -1580068,
-    SAY_KJ_OFFCOMBAT4                           = -1580069,
-    SAY_KJ_OFFCOMBAT5                           = -1580070,
+    SAY_KJ_OFFCOMBAT                            = 0,
+    
+    SAY_KALECGOS_ENCOURAGE                      = 0,
+    SAY_KALECGOS_READY1                         = 1,
+    SAY_KALECGOS_READY2                         = 2,
+    SAY_KALECGOS_READY3                         = 3,
+    SAY_KALECGOS_READY4                         = 4,
+    SAY_KALECGOS_AWAKEN                         = 5,
+    SAY_KALECGOS_LETGO                          = 6,
+    SAY_KALECGOS_FOCUS                          = 7,
+    SAY_KALECGOS_FATE                           = 8,
+    SAY_KALECGOS_GOODBYE                        = 9,
+    SAY_KALECGOS_JOIN                           = 10,
 
-    // Encounter speech and sounds
-    SAY_KJ_EMERGE                               = -1580071,
-    SAY_KJ_SLAY1                                = -1580072,
-    SAY_KJ_SLAY2                                = -1580073,
-    SAY_KJ_REFLECTION1                          = -1580074,
-    SAY_KJ_REFLECTION2                          = -1580075,
-    SAY_KJ_DARKNESS1                            = -1580076,
-    SAY_KJ_DARKNESS2                            = -1580077,
-    SAY_KJ_DARKNESS3                            = -1580078,
-    SAY_KJ_PHASE3                               = -1580079,
-    SAY_KJ_PHASE4                               = -1580080,
-    SAY_KJ_PHASE5                               = -1580081,
-    SAY_KJ_DEATH                                = -1580093,
-    EMOTE_KJ_DARKNESS                           = -1580094,
+    SAY_KJ_DEATH                                = 0,
+    SAY_KJ_SLAY                                 = 1,
+    SAY_KJ_REFLECTION                           = 2,
+    SAY_KJ_EMERGE                               = 3,
+    SAY_KJ_DARKNESS                             = 4,
+    SAY_KJ_PHASE3                               = 5,
+    SAY_KJ_PHASE4                               = 6,
+    SAY_KJ_PHASE5                               = 7,
+    EMOTE_KJ_DARKNESS                           = 8,
 
-    /*** Kalecgos - Anveena speech at the beginning of Phase 5; Anveena's sacrifice ***/
-    SAY_KALECGOS_AWAKEN                         = -1580082,
-    SAY_ANVEENA_IMPRISONED                      = -1580083,
-    SAY_KALECGOS_LETGO                          = -1580084,
-    SAY_ANVEENA_LOST                            = -1580085,
-    SAY_KALECGOS_FOCUS                          = -1580086,
-    SAY_ANVEENA_KALEC                           = -1580087,
-    SAY_KALECGOS_FATE                           = -1580088,
-    SAY_ANVEENA_GOODBYE                         = -1580089,
-    SAY_KALECGOS_GOODBYE                        = -1580090,
-    SAY_KALECGOS_ENCOURAGE                      = -1580091,
-
-    /*** Kalecgos says throughout the fight ***/
-    SAY_KALECGOS_JOIN                           = -1580092,
-    SAY_KALEC_ORB_READY1                        = -1580095,
-    SAY_KALEC_ORB_READY2                        = -1580096,
-    SAY_KALEC_ORB_READY3                        = -1580097,
-    SAY_KALEC_ORB_READY4                        = -1580098
+    SAY_ANVEENA_IMPRISONED                      = 0,
+    SAY_ANVEENA_LOST                            = 1,
+    SAY_ANVEENA_KALEC                           = 2,
+    SAY_ANVEENA_GOODBYE                         = 3,
 };
 
 /*** Spells used during the encounter ***/
@@ -321,7 +310,7 @@ public:
                         pOrb->Refresh();
                     }
                 }
-                DoScriptText(SAY_KALECGOS_ENCOURAGE, me);
+                Talk(SAY_KALECGOS_ENCOURAGE);
             }
             else
             {
@@ -337,10 +326,10 @@ public:
                     ++EmpowerCount;
                     switch (EmpowerCount)
                     {
-                        case 1: DoScriptText(SAY_KALEC_ORB_READY1, me); break;
-                        case 2: DoScriptText(SAY_KALEC_ORB_READY2, me); break;
-                        case 3: DoScriptText(SAY_KALEC_ORB_READY3, me); break;
-                        case 4: DoScriptText(SAY_KALEC_ORB_READY4, me); break;
+                        case 1: Talk(SAY_KALECGOS_READY1); break;
+                        case 2: Talk(SAY_KALECGOS_READY2); break;
+                        case 3: Talk(SAY_KALECGOS_READY3); break;
+                        case 4: Talk(SAY_KALECGOS_READY4); break;
                     }
                 }
             }
@@ -468,7 +457,7 @@ public:
             if (uiRandomSayTimer < diff)
             {
                 if (instance && instance->GetData(DATA_MURU_EVENT) != DONE && instance->GetData(DATA_KILJAEDEN_EVENT) == NOT_STARTED)
-                    DoScriptText(RAND(SAY_KJ_OFFCOMBAT1, SAY_KJ_OFFCOMBAT2, SAY_KJ_OFFCOMBAT3, SAY_KJ_OFFCOMBAT4, SAY_KJ_OFFCOMBAT5), me);
+                    Talk(SAY_KJ_OFFCOMBAT);
                 uiRandomSayTimer = 30000;
             } else uiRandomSayTimer -= diff;
 
@@ -612,7 +601,7 @@ public:
 
         void JustDied(Unit* /*killer*/)
         {
-            DoScriptText(SAY_KJ_DEATH, me);
+            Talk(SAY_KJ_DEATH);
             summons.DespawnAll();
 
             if (instance)
@@ -621,7 +610,7 @@ public:
 
         void KilledUnit(Unit* /*victim*/)
         {
-            DoScriptText(RAND(SAY_KJ_SLAY1, SAY_KJ_SLAY2), me);
+            Talk(SAY_KJ_SLAY);
         }
 
         void EnterEvadeMode()
@@ -656,7 +645,7 @@ public:
 
         void CastSinisterReflection()
         {
-            DoScriptText(RAND(SAY_KJ_REFLECTION1, SAY_KJ_REFLECTION2), me);
+            Talk(SAY_KJ_REFLECTION);
             for (uint8 i = 0; i < 4; ++i)
             {
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true, -SPELL_VENGEANCE_OF_THE_BLUE_FLIGHT))
@@ -716,8 +705,8 @@ public:
                             {
                                 SpeechTimer = 0;
                                 if (instance)
-                                    if (Creature* pSpeechCreature = Unit::GetCreature(*me, instance->GetData64(Speeches[speechCount].creature)))
-                                        DoScriptText(Speeches[speechCount].textid, pSpeechCreature);
+                                    if (Creature* speechCreature = Unit::GetCreature(*me, instance->GetData64(Speeches[speechCount].creature)))
+                                        speechCreature->AI()->Talk(Speeches[speechCount].textid);
                                 if (speechCount == 12)
                                     if (Creature* pAnveena =  Unit::GetCreature(*me, instance->GetData64(DATA_ANVEENA)))
                                         pAnveena->CastSpell(me, SPELL_SACRIFICE_OF_ANVEENA, false);
@@ -798,7 +787,7 @@ public:
                                 // Begins to channel for 8 seconds, then deals 50'000 damage to all raid members.
                                 if (!IsInDarkness)
                                 {
-                                    DoScriptText(EMOTE_KJ_DARKNESS, me);
+                                    Talk(EMOTE_KJ_DARKNESS);
                                     DoCastAOE(SPELL_DARKNESS_OF_A_THOUSAND_SOULS, false);
                                     ChangeTimers(true, 9000);
                                     Timer[TIMER_DARKNESS] = 8750;
@@ -812,7 +801,7 @@ public:
                                     Timer[TIMER_DARKNESS] = (Phase == PHASE_SACRIFICE) ? 15000 : urand(40000, 70000);
                                     IsInDarkness = false;
                                     DoCastAOE(SPELL_DARKNESS_OF_A_THOUSAND_SOULS_DAMAGE);
-                                    DoScriptText(RAND(SAY_KJ_DARKNESS1, SAY_KJ_DARKNESS2, SAY_KJ_DARKNESS3), me);
+                                    Talk(SAY_KJ_DARKNESS);
                                 }
                                 Timer[TIMER_SOUL_FLAY] = 9000;
                             }

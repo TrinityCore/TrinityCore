@@ -46,6 +46,8 @@ EndContentData */
 #include "ScriptedEscortAI.h"
 #include "Group.h"
 #include "SpellScript.h"
+#include "Player.h"
+#include "WorldSession.h"
 
 /*#####
 # mob_mature_netherwing_drake

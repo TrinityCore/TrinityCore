@@ -587,12 +587,12 @@ bool Battlefield::AddOrSetPlayerToCorrectBfGroup(Player* player)
 //--------------------
 //-Battlefield Method-
 //--------------------
-BfGraveyard* Battlefield::GetGraveyardById(uint32 id)
+BfGraveyard* Battlefield::GetGraveyardById(uint32 id) const
 {
     if (id < m_GraveyardList.size())
     {
-        if (m_GraveyardList[id])
-            return m_GraveyardList[id];
+        if (BfGraveyard* graveyard = m_GraveyardList.at(id))
+            return graveyard;
         else
             sLog->outError(LOG_FILTER_BATTLEFIELD, "Battlefield::GetGraveyardById Id:%u not existed", id);
     }

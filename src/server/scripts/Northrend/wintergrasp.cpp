@@ -25,6 +25,7 @@
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
 #include "SpellScript.h"
+#include "Player.h"
 
 #define GOSSIP_HELLO_DEMO1  "Build catapult."
 #define GOSSIP_HELLO_DEMO2  "Build demolisher."
@@ -560,7 +561,7 @@ public:
             if (Battlefield* wg = sBattlefieldMgr->GetBattlefieldByBattleId(BATTLEFIELD_BATTLEID_WG))
                 if (Player* target = GetExplTargetUnit()->ToPlayer())
                     // check if we are in Wintergrasp at all, SotA uses same teleport spells
-                    if ((target->GetZoneId() == 4197) && target->GetTeamId() != wg->GetDefenderTeam() || target->HasAura(SPELL_WINTERGRASP_TELEPORT_TRIGGER))
+                    if ((target->GetZoneId() == 4197 && target->GetTeamId() != wg->GetDefenderTeam()) || target->HasAura(SPELL_WINTERGRASP_TELEPORT_TRIGGER))
                         return SPELL_FAILED_BAD_TARGETS;
             return SPELL_CAST_OK;
         }

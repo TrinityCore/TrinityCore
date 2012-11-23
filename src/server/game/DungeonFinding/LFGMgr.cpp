@@ -21,6 +21,7 @@
 #include "DisableMgr.h"
 #include "ObjectMgr.h"
 #include "SocialMgr.h"
+#include "Language.h"
 #include "LFGMgr.h"
 #include "LFGScripts.h"
 #include "LFGGroupData.h"
@@ -30,6 +31,7 @@
 #include "Player.h"
 #include "GroupMgr.h"
 #include "GameEventMgr.h"
+#include "WorldSession.h"
 
 LFGMgr::LFGMgr(): m_QueueTimer(0), m_lfgProposalId(1),
     m_options(sWorld->getIntConfig(CONFIG_LFG_OPTIONSMASK))
@@ -551,14 +553,17 @@ void LFGMgr::JoinLfg(Player* player, uint8 roles, LfgDungeonSet& dungeons, const
         LfgDungeonSet const& playerDungeons = GetSelectedDungeons(guid);
         if (playerDungeons == dungeons)                     // Joining the same dungeons -- Send OK
          {
-            LfgUpdateData updateData = LfgUpdateData(LFG_UPDATETYPE_ADDED_TO_QUEUE, dungeons, comment);
             player->GetSession()->SendLfgJoinResult(joinData); // Default value of joinData.result = LFG_JOIN_OK
             if (grp)
             {
+                LfgUpdateData updateData = LfgUpdateData(LFG_UPDATETYPE_ADDED_TO_QUEUE, dungeons, comment);
                 for (GroupReference* itr = grp->GetFirstMember(); itr != NULL; itr = itr->next())
                     if (itr->getSource() && itr->getSource()->GetSession())
                         itr->getSource()->GetSession()->SendLfgUpdateParty(updateData);
             }
+            else
+                player->GetSession()->SendLfgUpdatePlayer(LfgUpdateData(LFG_UPDATETYPE_JOIN_QUEUE, dungeons, comment));
+
             return;
         }
         else // Remove from queue and rejoin
@@ -689,7 +694,7 @@ void LFGMgr::JoinLfg(Player* player, uint8 roles, LfgDungeonSet& dungeons, const
 
         SetState(gguid, LFG_STATE_ROLECHECK);
         // Send update to player
-        LfgUpdateData updateData = LfgUpdateData(LFG_UPDATETYPE_JOIN_PROPOSAL, dungeons, comment);
+        LfgUpdateData updateData = LfgUpdateData(LFG_UPDATETYPE_JOIN_QUEUE, dungeons, comment);
         for (GroupReference* itr = grp->GetFirstMember(); itr != NULL; itr = itr->next())
         {
             if (Player* plrg = itr->getSource())
@@ -726,7 +731,7 @@ void LFGMgr::JoinLfg(Player* player, uint8 roles, LfgDungeonSet& dungeons, const
         }
         // Send update to player
         player->GetSession()->SendLfgJoinResult(joinData);
-        player->GetSession()->SendLfgUpdatePlayer(LfgUpdateData(LFG_UPDATETYPE_JOIN_PROPOSAL, dungeons, comment));
+        player->GetSession()->SendLfgUpdatePlayer(LfgUpdateData(LFG_UPDATETYPE_JOIN_QUEUE, dungeons, comment));
         SetState(gguid, LFG_STATE_QUEUED);
         SetRoles(guid, roles);
         debugNames.append(player->GetName());
@@ -749,10 +754,10 @@ void LFGMgr::JoinLfg(Player* player, uint8 roles, LfgDungeonSet& dungeons, const
 */
 void LFGMgr::LeaveLfg(uint64 guid)
 {
-    LfgState state = GetState(guid);
-    uint64 gguid = IS_GROUP(guid) ? guid : GetGroup(guid);
-
     sLog->outDebug(LOG_FILTER_LFG, "LFGMgr::Leave: [" UI64FMTD "]", guid);
+
+    uint64 gguid = IS_GROUP(guid) ? guid : GetGroup(guid);
+    LfgState state = GetState(guid);
     switch (state)
     {
         case LFG_STATE_QUEUED:
@@ -1962,11 +1967,10 @@ void LFGMgr::SetOptions(uint32 options)
     m_options = options;
 }
 
-LfgState LFGMgr::GetLfgStatus(uint64 guid, LfgUpdateData& data)
+LfgUpdateData LFGMgr::GetLfgStatus(uint64 guid)
 {
     LfgPlayerData& playerData = PlayersStore[guid];
-    data.dungeons = playerData.GetSelectedDungeons();
-    return playerData.GetState();
+    return LfgUpdateData(LFG_UPDATETYPE_UPDATE_STATUS, playerData.GetState(), playerData.GetSelectedDungeons());
 }
 
 bool LFGMgr::IsSeasonActive(uint32 dungeonId)

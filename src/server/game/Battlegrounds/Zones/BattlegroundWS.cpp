@@ -858,3 +858,12 @@ void BattlegroundWS::FillInitialWorldStates(WorldPacket& data)
         data << uint32(BG_WS_FLAG_STATE_ALLIANCE) << uint32(1);
 }
 
+uint32 BattlegroundWS::GetPrematureWinner()
+{
+    if (GetTeamScore(TEAM_ALLIANCE) > GetTeamScore(TEAM_HORDE))
+        return ALLIANCE;
+    else if (GetTeamScore(TEAM_HORDE) > GetTeamScore(TEAM_ALLIANCE))
+        return HORDE;
+        
+    return Battleground::GetPrematureWinner();
+}

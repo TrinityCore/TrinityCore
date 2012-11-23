@@ -18,6 +18,7 @@
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "violet_hold.h"
+#include "Player.h"
 
 enum Spells
 {

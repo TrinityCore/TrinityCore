@@ -3,7 +3,7 @@ SET @NPC = 3301;
 UPDATE `quest_end_scripts` SET `datalong2`=10000 WHERE `id`=231;
 -- Add text for Morgan Ladimore
 DELETE FROM `creature_text` WHERE `entry`=@NPC;
-INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) VALUES 
+INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) VALUES
 (@NPC, 1, 0, 'My sword Archeus served me well in life, but as at last my spirit may pass from the unhappy existence, I need it no longer.', 12, 0, 100, 0, 0, 0, 'Morgan Ladimore - A Daughter''s Love'),
 (@NPC, 2, 0, 'I shall cling to the love of my daugter and hope that I will find forgiveness under the Light for my sins.', 12, 0, 100, 0, 0, 0, 'Morgan Ladimore - A Daughter''s Love');
 -- Add SAI to Morgan Ladimore for on spawn

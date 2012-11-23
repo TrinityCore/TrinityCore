@@ -18,6 +18,7 @@
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "drak_tharon_keep.h"
+#include "Player.h"
 
 enum Spells
 {

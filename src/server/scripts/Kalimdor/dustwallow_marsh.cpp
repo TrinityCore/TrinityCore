@@ -36,6 +36,8 @@ EndContentData */
 #include "ScriptedEscortAI.h"
 #include "ScriptedGossip.h"
 #include "SpellScript.h"
+#include "Player.h"
+#include "WorldSession.h"
 
 /*######
 ## mobs_risen_husk_spirit

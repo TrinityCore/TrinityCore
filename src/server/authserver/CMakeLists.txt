@@ -15,15 +15,9 @@ file(GLOB_RECURSE sources_realms Realms/*.cpp Realms/*.h)
 file(GLOB_RECURSE sources_server Server/*.cpp Server/*.h)
 file(GLOB sources_localdir *.cpp *.h)
 
-if( USE_COREPCH )
-  include_directories(${CMAKE_CURRENT_BINARY_DIR})
-endif()
-
-if ( USE_COREPCH AND MSVC )
-  set(authserver_SRCS
-    PrecompiledHeaders/authPCH.cpp
-    PrecompiledHeaders/authPCH.h
-  )
+if (USE_COREPCH)
+  set(authserver_PCH_HDR PrecompiledHeaders/authPCH.h)
+  set(authserver_PCH_SRC PrecompiledHeaders/authPCH.cpp)
 endif()
 
 set(authserver_SRCS
@@ -62,34 +56,23 @@ include_directories(
   ${OPENSSL_INCLUDE_DIR}
 )
 
-set(authserver_LINK_FLAGS "")
-
 add_executable(authserver
   ${authserver_SRCS}
+  ${authserver_PCH_SRC}
 )
 
 add_dependencies(authserver revision.h)
 
 if( NOT WIN32 )
-  add_definitions(-D_TRINITY_REALM_CONFIG='"${CONF_DIR}/authserver.conf"')
+  set_target_properties(authserver PROPERTIES
+    COMPILE_DEFINITIONS _TRINITY_REALM_CONFIG="${CONF_DIR}/authserver.conf"
+  )
 endif()
-
-if( UNIX )
-  set(authserver_LINK_FLAGS "-pthread ${authserver_LINK_FLAGS}")
-endif()
-
-if( CMAKE_SYSTEM_NAME MATCHES "Darwin" )
-  set(authserver_LINK_FLAGS "-framework Carbon ${authserver_LINK_FLAGS}")
-endif()
-
-set_target_properties(authserver PROPERTIES LINK_FLAGS "${authserver_LINK_FLAGS}")
 
 target_link_libraries(authserver
   shared
   ${MYSQL_LIBRARY}
   ${OPENSSL_LIBRARIES}
-  ${OPENSSL_EXTRA_LIBRARIES}
-  ${OSX_LIBS}
 )
 
 if( WIN32 )
@@ -108,11 +91,6 @@ elseif( WIN32 )
 endif()
 
 # Generate precompiled header
-if( USE_COREPCH )
-  if(CMAKE_COMPILER_IS_GNUCXX)
-    add_precompiled_header(authserver ${CMAKE_CURRENT_SOURCE_DIR}/PrecompiledHeaders/authPCH.h)
-  elseif(MSVC)
-    add_native_precompiled_header(authserver ${CMAKE_CURRENT_SOURCE_DIR}/PrecompiledHeaders/authPCH)
-  endif()
+if (USE_COREPCH)
+  add_cxx_pch(authserver ${authserver_PCH_HDR} ${authserver_PCH_SRC})
 endif()
-

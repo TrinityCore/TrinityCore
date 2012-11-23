@@ -34,6 +34,7 @@ EndContentData */
 #include "SpellAuraEffects.h"
 #include "ScriptedEscortAI.h"
 #include "shadowfang_keep.h"
+#include "Player.h"
 
 /*######
 ## npc_shadowfang_prisoner
@@ -41,13 +42,13 @@ EndContentData */
 
 enum eEnums
 {
-    SAY_FREE_AS             = -1033000,
-    SAY_OPEN_DOOR_AS        = -1033001,
-    SAY_POST_DOOR_AS        = -1033002,
-    SAY_FREE_AD             = -1033003,
-    SAY_OPEN_DOOR_AD        = -1033004,
-    SAY_POST1_DOOR_AD       = -1033005,
-    SAY_POST2_DOOR_AD       = -1033006,
+    SAY_FREE_AS             = 0,
+    SAY_OPEN_DOOR_AS        = 1,
+    SAY_POST_DOOR_AS        = 2,
+    SAY_FREE_AD             = 0,
+    SAY_OPEN_DOOR_AD        = 1,
+    SAY_POST1_DOOR_AD       = 2,
+    SAY_POST2_DOOR_AD       = 3,
 
     SPELL_UNLOCK            = 6421,
     NPC_ASH                 = 3850,
@@ -109,15 +110,15 @@ public:
             {
                 case 0:
                     if (uiNpcEntry == NPC_ASH)
-                        DoScriptText(SAY_FREE_AS, me);
+                        Talk(SAY_FREE_AS);
                     else
-                        DoScriptText(SAY_FREE_AD, me);
+                        Talk(SAY_FREE_AD);
                     break;
                 case 10:
                     if (uiNpcEntry == NPC_ASH)
-                        DoScriptText(SAY_OPEN_DOOR_AS, me);
+                        Talk(SAY_OPEN_DOOR_AS);
                     else
-                        DoScriptText(SAY_OPEN_DOOR_AD, me);
+                        Talk(SAY_OPEN_DOOR_AD);
                     break;
                 case 11:
                     if (uiNpcEntry == NPC_ASH)
@@ -125,16 +126,16 @@ public:
                     break;
                 case 12:
                     if (uiNpcEntry == NPC_ASH)
-                        DoScriptText(SAY_POST_DOOR_AS, me);
+                        Talk(SAY_POST_DOOR_AS);
                     else
-                        DoScriptText(SAY_POST1_DOOR_AD, me);
+                        Talk(SAY_POST1_DOOR_AD);
 
                     if (instance)
                         instance->SetData(TYPE_FREE_NPC, DONE);
                     break;
                 case 13:
                     if (uiNpcEntry != NPC_ASH)
-                        DoScriptText(SAY_POST2_DOOR_AD, me);
+                        Talk(SAY_POST2_DOOR_AD);
                     break;
             }
         }

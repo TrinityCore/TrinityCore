@@ -15,25 +15,25 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "DatabaseEnv.h"
-#include "ObjectMgr.h"
-#include "ObjectDefines.h"
-#include "GridDefines.h"
-#include "GridNotifiers.h"
-#include "SpellMgr.h"
-#include "GridNotifiersImpl.h"
 #include "Cell.h"
 #include "CellImpl.h"
-#include "InstanceScript.h"
-#include "ScriptedCreature.h"
-#include "GossipDef.h"
-#include "ScriptedCreature.h"
-#include "SmartScript.h"
-#include "SmartAI.h"
-#include "Group.h"
-#include "Vehicle.h"
-#include "ScriptedGossip.h"
 #include "CreatureTextMgr.h"
+#include "DatabaseEnv.h"
+#include "GossipDef.h"
+#include "GridDefines.h"
+#include "GridNotifiers.h"
+#include "GridNotifiersImpl.h"
+#include "Group.h"
+#include "InstanceScript.h"
+#include "Language.h"
+#include "ObjectDefines.h"
+#include "ObjectMgr.h"
+#include "ScriptedCreature.h"
+#include "ScriptedGossip.h"
+#include "SmartAI.h"
+#include "SmartScript.h"
+#include "SpellMgr.h"
+#include "Vehicle.h"
 
 class TrinityStringTextBuilder
 {
@@ -472,6 +472,13 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
 
             for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); ++itr)
             {
+                // Special handling for vehicles
+                if (IsUnit(*itr))
+                    if (Vehicle* vehicle = (*itr)->ToUnit()->GetVehicleKit())
+                        for (SeatMap::iterator it = vehicle->Seats.begin(); it != vehicle->Seats.end(); ++it)
+                            if (Player* player = ObjectAccessor::FindPlayer(it->second.Passenger))
+                                player->AreaExploredOrEventHappens(e.action.quest.quest);
+
                 if (IsPlayer(*itr))
                 {
                     (*itr)->ToPlayer()->AreaExploredOrEventHappens(e.action.quest.quest);
@@ -746,12 +753,21 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
         }
         case SMART_ACTION_CALL_GROUPEVENTHAPPENS:
         {
+            if (!unit)
+                break;
+
             if (IsPlayer(unit) && GetBaseObject())
             {
                 unit->ToPlayer()->GroupEventHappens(e.action.quest.quest, GetBaseObject());
                 sLog->outDebug(LOG_FILTER_DATABASE_AI, "SmartScript::ProcessAction: SMART_ACTION_CALL_GROUPEVENTHAPPENS: Player %u, group credit for quest %u",
                     unit->GetGUIDLow(), e.action.quest.quest);
             }
+
+            // Special handling for vehicles
+            if (Vehicle* vehicle = unit->GetVehicleKit())
+                for (SeatMap::iterator it = vehicle->Seats.begin(); it != vehicle->Seats.end(); ++it)
+                    if (Player* player = ObjectAccessor::FindPlayer(it->second.Passenger))
+                        player->GroupEventHappens(e.action.quest.quest, GetBaseObject());
             break;
         }
         case SMART_ACTION_CALL_CASTEDCREATUREORGO:
@@ -878,6 +894,13 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
 
                 for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); ++itr)
                 {
+                    // Special handling for vehicles
+                    if (IsUnit(*itr))
+                        if (Vehicle* vehicle = (*itr)->ToUnit()->GetVehicleKit())
+                            for (SeatMap::iterator it = vehicle->Seats.begin(); it != vehicle->Seats.end(); ++it)
+                                if (Player* player = ObjectAccessor::FindPlayer(it->second.Passenger))
+                                    player->RewardPlayerAndGroupAtEvent(e.action.killedMonster.creature, player);
+
                     if (!IsPlayer(*itr))
                         continue;
 

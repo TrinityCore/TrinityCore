@@ -31,8 +31,9 @@
 #include "World.h"
 #include "Group.h"
 #include "SpellInfo.h"
+#include "Player.h"
 
-void WorldSession::HandleDismissCritter(WorldPacket &recvData)
+void WorldSession::HandleDismissCritter(WorldPacket& recvData)
 {
     uint64 guid;
     recvData >> guid;
@@ -138,7 +139,7 @@ void WorldSession::HandlePetStopAttack(WorldPacket &recvData)
     pet->AttackStop();
 }
 
-void WorldSession::HandlePetActionHelper(Unit* pet, uint64 guid1, uint16 spellid, uint16 flag, uint64 guid2)
+void WorldSession::HandlePetActionHelper(Unit* pet, uint64 guid1, uint32 spellid, uint16 flag, uint64 guid2)
 {
     CharmInfo* charmInfo = pet->GetCharmInfo();
     if (!charmInfo)
@@ -848,15 +849,15 @@ void WorldSession::SendPetNameInvalid(uint32 error, const std::string& name, Dec
     SendPacket(&data);
 }
 
-void WorldSession::HandlePetLearnTalent(WorldPacket & recvData)
+void WorldSession::HandlePetLearnTalent(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_PET_LEARN_TALENT");
 
     uint64 guid;
-    uint32 talent_id, requested_rank;
-    recvData >> guid >> talent_id >> requested_rank;
+    uint32 talentId, requestedRank;
+    recvData >> guid >> talentId >> requestedRank;
 
-    _player->LearnPetTalent(guid, talent_id, requested_rank);
+    _player->LearnPetTalent(guid, talentId, requestedRank);
     _player->SendTalentsInfoData(true);
 }
 

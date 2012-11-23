@@ -291,7 +291,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,3,3808.239,3432.998,82.97262,0,0,0,100,0),
 (@PATH,4,3812.432,3443.979,82.97263,0,0,0,100,0);
 
--- Remove 2 over spawns 
+-- Remove 2 over spawns
 DELETE FROM `creature` WHERE `guid` IN (99859,99858);
 DELETE FROM `creature_addon` WHERE `guid` IN (99859,99858);
 

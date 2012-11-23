@@ -9,7 +9,7 @@ UPDATE `smart_scripts` SET
     `action_type` = 22,
     `action_param1` = 1,
     `target_type` = 1
-WHERE 
+WHERE
     (`entryorguid` = 11457 AND
     `source_type` = 0 AND
     `id` = 10 AND

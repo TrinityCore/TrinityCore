@@ -32,6 +32,6 @@ INSERT INTO `reference_loot_template` (`entry`,`item`,`ChanceOrQuestChance`,`loo
 -- Assign to the chest
 DELETE FROM `gameobject_loot_template` WHERE `entry` IN (27985,27993);
 INSERT INTO `gameobject_loot_template` (`entry`,`item`,`ChanceOrQuestChance`,`lootmode`,`groupid`,`mincountOrRef`,`maxcount`) VALUES
-(27985,1,100,1,0,-@RefNormal,2), -- Two from Normal Reference Loot 
+(27985,1,100,1,0,-@RefNormal,2), -- Two from Normal Reference Loot
 (27993,1,100,1,0,-@RefHeroic,2), -- Two from Heroic Reference Loot
 (27993,43102,85,1,0,1,1); -- Frozen Orb

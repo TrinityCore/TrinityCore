@@ -9,7 +9,7 @@ INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equ
 
 -- Add missing spawns to db (trainers)
 DELETE FROM `creature` WHERE `guid` IN (40266,40510,40516,40517,40518,40601,40602,40603,41320,41674,41723,41775,41779,41780);
-INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`curhealth`) VALUES 
+INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`curhealth`) VALUES
 (40266,33608,530,1,1,-2263.63,5559.49,67.0918,5.91667,180,0,1), -- Alchemy
 (40510,33609,530,1,1,-2262.64,5561.96,67.0948,5.89921,180,0,1), -- Blacksmithing
 (40516,33610,530,1,1,-2261.59,5564.54,67.095,5.93412,180,0,1), -- Enchanting

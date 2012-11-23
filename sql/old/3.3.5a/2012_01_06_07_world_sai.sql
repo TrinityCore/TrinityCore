@@ -1,4 +1,4 @@
--- Fix Quest 11795, 11887 'Emergency Protocol: Section 8.2, Paragraph C', 'Emergency Supplies' 
+-- Fix Quest 11795, 11887 'Emergency Protocol: Section 8.2, Paragraph C', 'Emergency Supplies'
 SET @NPC    :=25841; -- Fizzcrank Recon Pilot
 SET @Gossip :=21248;
 

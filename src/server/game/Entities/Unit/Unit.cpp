@@ -16,49 +16,50 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Common.h"
-#include "CreatureAIImpl.h"
-#include "Log.h"
-#include "Opcodes.h"
-#include "WorldPacket.h"
-#include "WorldSession.h"
-#include "World.h"
-#include "ObjectMgr.h"
-#include "SpellMgr.h"
 #include "Unit.h"
-#include "QuestDef.h"
-#include "Player.h"
-#include "Creature.h"
-#include "Spell.h"
-#include "Group.h"
-#include "SpellAuras.h"
-#include "SpellAuraEffects.h"
-#include "MapManager.h"
-#include "ObjectAccessor.h"
-#include "CreatureAI.h"
-#include "Formulas.h"
-#include "Pet.h"
-#include "Util.h"
-#include "Totem.h"
-#include "Battleground.h"
-#include "OutdoorPvP.h"
-#include "InstanceSaveMgr.h"
-#include "GridNotifiersImpl.h"
-#include "CellImpl.h"
-#include "CreatureGroups.h"
-#include "PetAI.h"
-#include "PassiveAI.h"
-#include "TemporarySummon.h"
-#include "Vehicle.h"
-#include "Transport.h"
-#include "InstanceScript.h"
-#include "SpellInfo.h"
-#include "MoveSplineInit.h"
-#include "MoveSpline.h"
-#include "ConditionMgr.h"
-#include "UpdateFieldFlags.h"
+#include "Common.h"
 #include "Battlefield.h"
 #include "BattlefieldMgr.h"
+#include "Battleground.h"
+#include "CellImpl.h"
+#include "ConditionMgr.h"
+#include "CreatureAI.h"
+#include "CreatureAIImpl.h"
+#include "CreatureGroups.h"
+#include "Creature.h"
+#include "Formulas.h"
+#include "GridNotifiersImpl.h"
+#include "Group.h"
+#include "InstanceSaveMgr.h"
+#include "InstanceScript.h"
+#include "Log.h"
+#include "MapManager.h"
+#include "MoveSpline.h"
+#include "MoveSplineInit.h"
+#include "ObjectAccessor.h"
+#include "ObjectMgr.h"
+#include "Opcodes.h"
+#include "OutdoorPvP.h"
+#include "PassiveAI.h"
+#include "PetAI.h"
+#include "Pet.h"
+#include "Player.h"
+#include "QuestDef.h"
+#include "ReputationMgr.h"
+#include "SpellAuraEffects.h"
+#include "SpellAuras.h"
+#include "Spell.h"
+#include "SpellInfo.h"
+#include "SpellMgr.h"
+#include "TemporarySummon.h"
+#include "Totem.h"
+#include "Transport.h"
+#include "UpdateFieldFlags.h"
+#include "Util.h"
+#include "Vehicle.h"
+#include "World.h"
+#include "WorldPacket.h"
+#include "WorldSession.h"
 
 #include <math.h>
 
@@ -1328,7 +1329,7 @@ void Unit::DealMeleeDamage(CalcDamageInfo* damageInfo, bool durabilityLoss)
     // If this is a creature and it attacks from behind it has a probability to daze it's victim
     if ((damageInfo->hitOutCome == MELEE_HIT_CRIT || damageInfo->hitOutCome == MELEE_HIT_CRUSHING || damageInfo->hitOutCome == MELEE_HIT_NORMAL || damageInfo->hitOutCome == MELEE_HIT_GLANCING) &&
         GetTypeId() != TYPEID_PLAYER && !ToCreature()->IsControlledByPlayer() && !victim->HasInArc(M_PI, this)
-        && (victim->GetTypeId() == TYPEID_PLAYER || !victim->ToCreature()->isWorldBoss()))
+        && (victim->GetTypeId() == TYPEID_PLAYER || !victim->ToCreature()->isWorldBoss())&& !victim->IsVehicle())
     {
         // -probability is between 0% and 40%
         // 20% base chance
@@ -1341,7 +1342,10 @@ void Unit::DealMeleeDamage(CalcDamageInfo* damageInfo, bool durabilityLoss)
         uint32 VictimDefense=victim->GetDefenseSkillValue();
         uint32 AttackerMeleeSkill=GetUnitMeleeSkill();
 
-        Probability *= AttackerMeleeSkill/(float)VictimDefense;
+        Probability *= AttackerMeleeSkill/(float)VictimDefense*0.16;
+
+        if (Probability < 0)
+            Probability = 0;
 
         if (Probability > 40.0f)
             Probability = 40.0f;

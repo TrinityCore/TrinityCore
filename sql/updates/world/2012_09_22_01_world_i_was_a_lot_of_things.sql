@@ -2,7 +2,7 @@
 UPDATE `creature_template` SET `AIName`='',`ScriptName`='npc_shadowmoon_tuber_node',`flags_extra`=`flags_extra`|128 WHERE `entry`=21347;
 
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceEntry`=36652;
-INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,`ConditionTypeOrReference`,`ConditionValue1`,`ConditionValue2`,`Comment`) VALUES 
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,`ConditionTypeOrReference`,`ConditionValue1`,`ConditionValue2`,`Comment`) VALUES
 (13,1,36652,31,3,21347,'Tuber Whistle targets Shadowmoon Valley Tuber Node');
 
 UPDATE `creature_template` SET `AIName`='SmartAI',`ScriptName`='' WHERE `entry`=21195;
@@ -17,7 +17,7 @@ SET @BOAR_GUID    = 77832; -- 8
 
 DELETE FROM `creature` WHERE `id`=21347 OR `guid` BETWEEN @TRIGGER_GUID AND @TRIGGER_GUID + 9;
 SET @TRIGGER_GUID = @TRIGGER_GUID - 1;
-INSERT INTO `creature`(`guid`,`id`,`map`,`phaseMask`,`position_x`,`position_y`,`position_z`) 
+INSERT INTO `creature`(`guid`,`id`,`map`,`phaseMask`,`position_x`,`position_y`,`position_z`)
 SELECT (SELECT @TRIGGER_GUID:=@TRIGGER_GUID+1),21347,`map`,3,`position_x`,`position_y`,`position_z` FROM `gameobject` WHERE `id`=184701 LIMIT 10;
 
 DELETE FROM `creature` WHERE (`id`=21195 AND `map`=530) OR `guid` BETWEEN @BOAR_GUID AND @BOAR_GUID + 7;

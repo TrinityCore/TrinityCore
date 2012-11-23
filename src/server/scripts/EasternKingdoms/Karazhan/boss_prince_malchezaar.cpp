@@ -26,19 +26,7 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "karazhan.h"
-
-#define SAY_AGGRO           -1532091
-#define SAY_AXE_TOSS1       -1532092
-#define SAY_AXE_TOSS2       -1532093
-#define SAY_SPECIAL1        -1532094
-#define SAY_SPECIAL2        -1532095
-#define SAY_SPECIAL3        -1532096
-#define SAY_SLAY1           -1532097
-#define SAY_SLAY2           -1532098
-#define SAY_SLAY3           -1532099
-#define SAY_SUMMON1         -1532100
-#define SAY_SUMMON2         -1532101
-#define SAY_DEATH           -1532102
+#include "SpellInfo.h"
 
 // 18 Coordinates for Infernal spawns
 struct InfernalPoint
@@ -70,31 +58,43 @@ static InfernalPoint InfernalPoints[] =
     {-10935.7f, -1996.0f}
 };
 
-#define TOTAL_INFERNAL_POINTS       18
-
 //Enfeeble is supposed to reduce hp to 1 and then heal player back to full when it ends
 //Along with reducing healing and regen while enfeebled to 0%
 //This spell effect will only reduce healing
+enum PrinceMalchezaar
+{
+    SAY_AGGRO                   = 0,
+    SAY_AXE_TOSS1               = 1,
+    SAY_AXE_TOSS2               = 2,
+//  SAY_SPECIAL1                = 3, Not used, needs to be implemented, but I don't know where it should be used.
+//  SAY_SPECIAL2                = 4, Not used, needs to be implemented, but I don't know where it should be used.
+//  SAY_SPECIAL3                = 5, Not used, needs to be implemented, but I don't know where it should be used.
+    SAY_SLAY                    = 6,
+    SAY_SUMMON                  = 7,
+    SAY_DEATH                   = 8,
 
-#define SPELL_ENFEEBLE              30843                       //Enfeeble during phase 1 and 2
-#define SPELL_ENFEEBLE_EFFECT       41624
+    TOTAL_INFERNAL_POINTS       = 18,
 
-#define SPELL_SHADOWNOVA            30852                       //Shadownova used during all phases
-#define SPELL_SW_PAIN               30854                       //Shadow word pain during phase 1 and 3 (different targeting rules though)
-#define SPELL_THRASH_PASSIVE        12787                       //Extra attack chance during phase 2
-#define SPELL_SUNDER_ARMOR          30901                       //Sunder armor during phase 2
-#define SPELL_THRASH_AURA           12787                       //Passive proc chance for thrash
-#define SPELL_EQUIP_AXES            30857                       //Visual for axe equiping
-#define SPELL_AMPLIFY_DAMAGE        39095                       //Amplifiy during phase 3
-#define SPELL_CLEAVE                30131                       //Same as Nightbane.
-#define SPELL_HELLFIRE              30859                       //Infenals' hellfire aura
-#define NETHERSPITE_INFERNAL        17646                       //The netherspite infernal creature
-#define MALCHEZARS_AXE              17650                       //Malchezar's axes (creatures), summoned during phase 3
+    SPELL_ENFEEBLE              = 30843,                       //Enfeeble during phase 1 and 2
+    SPELL_ENFEEBLE_EFFECT       = 41624,
 
-#define INFERNAL_MODEL_INVISIBLE    11686                      //Infernal Effects
-#define SPELL_INFERNAL_RELAY        30834
+    SPELL_SHADOWNOVA            = 30852,                       //Shadownova used during all phases
+    SPELL_SW_PAIN               = 30854,                       //Shadow word pain during phase 1 and 3 (different targeting rules though)
+    SPELL_THRASH_PASSIVE        = 12787,                       //Extra attack chance during phase 2
+    SPELL_SUNDER_ARMOR          = 30901,                       //Sunder armor during phase 2
+    SPELL_THRASH_AURA           = 12787,                       //Passive proc chance for thrash
+    SPELL_EQUIP_AXES            = 30857,                       //Visual for axe equiping
+    SPELL_AMPLIFY_DAMAGE        = 39095,                       //Amplifiy during phase 3
+    SPELL_CLEAVE                = 30131,                       //Same as Nightbane.
+    SPELL_HELLFIRE              = 30859,                       //Infenals' hellfire aura
+    NETHERSPITE_INFERNAL        = 17646,                       //The netherspite infernal creature
+    MALCHEZARS_AXE              = 17650,                      //Malchezar's axes (creatures), summoned during phase 3
 
-#define EQUIP_ID_AXE                33542                      //Axes info
+    INFERNAL_MODEL_INVISIBLE    = 11686,                     //Infernal Effects
+    SPELL_INFERNAL_RELAY        = 30834,
+
+    EQUIP_ID_AXE                = 33542,                     //Axes info
+};
 
 //---------Infernal code first
 class netherspite_infernal : public CreatureScript
@@ -244,12 +244,12 @@ public:
 
         void KilledUnit(Unit* /*victim*/)
         {
-            DoScriptText(RAND(SAY_SLAY1, SAY_SLAY2, SAY_SLAY3), me);
+            Talk(SAY_SLAY);
         }
 
         void JustDied(Unit* /*killer*/)
         {
-            DoScriptText(SAY_DEATH, me);
+            Talk(SAY_DEATH);
 
             AxesCleanup();
             ClearWeapons();
@@ -265,7 +265,7 @@ public:
 
         void EnterCombat(Unit* /*who*/)
         {
-            DoScriptText(SAY_AGGRO, me);
+            Talk(SAY_AGGRO);
 
             if (instance)
                 instance->HandleGameObject(instance->GetData64(DATA_GO_NETHER_DOOR), false); // Open the door leading further in
@@ -383,7 +383,7 @@ public:
                 DoCast(Infernal, SPELL_INFERNAL_RELAY);
             }
 
-            DoScriptText(RAND(SAY_SUMMON1, SAY_SUMMON2), me);
+            Talk(SAY_SUMMON);
         }
 
         void UpdateAI(const uint32 diff)
@@ -415,7 +415,7 @@ public:
                     DoCast(me, SPELL_EQUIP_AXES);
 
                     //text
-                    DoScriptText(SAY_AXE_TOSS1, me);
+                    Talk(SAY_AXE_TOSS1);
 
                     //passive thrash aura
                     DoCast(me, SPELL_THRASH_AURA, true);
@@ -451,7 +451,7 @@ public:
                     //remove thrash
                     me->RemoveAurasDueToSpell(SPELL_THRASH_AURA);
 
-                    DoScriptText(SAY_AXE_TOSS2, me);
+                    Talk(SAY_AXE_TOSS2);
 
                     Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
                     for (uint8 i = 0; i < 2; ++i)

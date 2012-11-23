@@ -19,6 +19,7 @@
 #include "ScriptedCreature.h"
 #include "PassiveAI.h"
 #include "BattlegroundIC.h"
+#include "Player.h"
 
 // TO-DO: This should be done with SmartAI, but yet it does not correctly support vehicles's AIs.
 //        Even adding ReactState Passive we still have issues using SmartAI.

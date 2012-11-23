@@ -27,6 +27,8 @@ EndScriptData
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
+#include "Player.h"
+#include "WorldSession.h"
 
 #define GOSSIP_SUSURRUS         "I am ready."
 #define GOSSIP_NETHER_DRAKE     "I'm ready to fly! Take me up, dragon!"
@@ -51,8 +53,6 @@ EndScriptData
 #define GOSSIP_TARIOLSTRASZ2    "Can you spare a drake to travel to Lord Of Afrasastrasz, in the middle of the temple?"
 #define GOSSIP_TORASTRASZA1     "I would like to see Lord Of Afrasastrasz, in the middle of the temple."
 #define GOSSIP_TORASTRASZA2     "Yes, Please. I would like to return to the ground floor of the temple."
-#define GOSSIP_CAMILLE1         "I need to fly to the Windrunner Official business!"
-#define GOSSIP_CAMILLE2         "<The riding bat for the special task is necessary to me.>"
 #define GOSSIP_CRIMSONWING      "<Ride the gryphons to Survey Alcaz Island>"
 #define GOSSIP_THRICESTAR1      "Do you think I could take a ride on one of those flying machines?"
 #define GOSSIP_THRICESTAR2      "Kara, I need to be flown out the Dens of Dying to find Bixie."
@@ -158,12 +158,6 @@ public:
             player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TORASTRASZA1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 21);
             // top -> ground
             player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TORASTRASZA2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 22);
-            break;
-        case 23816: // Howling Fjord - Bat Handler Camille
-            if (!player->GetQuestRewardStatus(11229))
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_CAMILLE1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 23);
-            if (player->GetQuestStatus(11170) == QUEST_STATUS_INCOMPLETE)
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_CAMILLE2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 24);
             break;
         case 23704: // Dustwallow Marsh - Cassa Crimsonwing
             if (player->GetQuestStatus(11142) == QUEST_STATUS_INCOMPLETE)

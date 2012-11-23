@@ -14,4 +14,4 @@ UPDATE `quest_template` SET `PrevQuestId`=13664 WHERE `entry`=13788; -- Thread f
 UPDATE `quest_template` SET `PrevQuestId`=13664 WHERE `entry`=13809; -- Thread from Above only after The Black Knights Fall
 UPDATE `quest_template` SET `PrevQuestId`=13664 WHERE `entry`=13812; -- Thread from Above only after The Black Knights Fall
 -- Fix some startuperrors:
-UPDATE `creature_template` SET `npcflag`=`npcflag`|128 WHERE `entry` IN (32405,32407); 
+UPDATE `creature_template` SET `npcflag`=`npcflag`|128 WHERE `entry` IN (32405,32407);

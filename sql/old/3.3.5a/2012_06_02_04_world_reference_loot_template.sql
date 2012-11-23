@@ -1,4 +1,4 @@
-DELETE FROM `reference_loot_template` WHERE `entry` IN (14011,14012); 
+DELETE FROM `reference_loot_template` WHERE `entry` IN (14011,14012);
 INSERT INTO `reference_loot_template` (`entry`,`item`,`ChanceOrQuestChance`,`lootmode`,`groupid`,`mincountOrRef`,`maxcount`) VALUES
 (14011,37759,0,1,1,1,1), -- Rhie-ay's Clutching Gauntlets
 (14011,37768,0,1,1,1,1), -- Leggings of Violent Exsanguination

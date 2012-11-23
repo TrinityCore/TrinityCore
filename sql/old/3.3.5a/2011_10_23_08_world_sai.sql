@@ -1,9 +1,9 @@
-SET @ENTRY := 14354; -- the little bugger Pusillin 
+SET @ENTRY := 14354; -- the little bugger Pusillin
 
 SET @SPELL_1 := 14145; -- Fire Blast
 SET @SPELL_2 := 15228; -- Fireball
 SET @SPELL_3 := 22424; -- Blast Wave
-SET @SPELL_4 := 22735; -- Spirit of Runn Tum (reflect magic) 
+SET @SPELL_4 := 22735; -- Spirit of Runn Tum (reflect magic)
 SET @NPC_WILDSPAWN_IMP := 13276; -- 5 of them summoned by Pusillin during fight
 
 -- Gossip menu's from npc_text
@@ -18,7 +18,7 @@ SET @GOSSIP_OPTION_1 := 6877;
 SET @GOSSIP_OPTION_2 := 6878;
 SET @GOSSIP_OPTION_3 := 6879;
 SET @GOSSIP_OPTION_4 := 6880;
-SET @GOSSIP_OPTION_5 := 6881; 
+SET @GOSSIP_OPTION_5 := 6881;
 
 SET @SCRIPT_1 := 1435400; -- gossip
 SET @SCRIPT_2 := 1435401; -- gossip
@@ -41,7 +41,7 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
  (@ENTRY,0,2,0,64,1,100,0,0,0,0,0,@SA_SEND_GOSSIP,@GOSSIP_2,@GOSSIP_OPTION_2,0,0,0,0,7,0,0,0,0,0,0,0,'Pusillin - On Gossip Hello & Phase 2 - Send Gossip'),
  (@ENTRY,0,3,0,64,2,100,0,0,0,0,0,@SA_SEND_GOSSIP,@GOSSIP_3,@GOSSIP_OPTION_3,0,0,0,0,7,0,0,0,0,0,0,0,'Pusillin - On Gossip Hello & Phase 3 - Send Gossip'),
  (@ENTRY,0,4,0,64,4,100,0,0,0,0,0,@SA_SEND_GOSSIP,@GOSSIP_4,@GOSSIP_OPTION_4,0,0,0,0,7,0,0,0,0,0,0,0,'Pusillin - On Gossip Hello & Phase 4 - Send Gossip'),
- (@ENTRY,0,5,0,64,8,100,0,0,0,0,0,@SA_SEND_GOSSIP,@GOSSIP_5,@GOSSIP_OPTION_5,0,0,0,0,7,0,0,0,0,0,0,0,'Pusillin - On Gossip Hello & Phase 5 - Send Gossip'), 
+ (@ENTRY,0,5,0,64,8,100,0,0,0,0,0,@SA_SEND_GOSSIP,@GOSSIP_5,@GOSSIP_OPTION_5,0,0,0,0,7,0,0,0,0,0,0,0,'Pusillin - On Gossip Hello & Phase 5 - Send Gossip'),
 
 -- run script depending on phase
 (@ENTRY,0,6,0,62,0,100,0,@GOSSIP_OPTION_1,0,0,0,80,@SCRIPT_1,0,0,0,0,0,1,0,0,0,0,0,0,0,'Pusillin - On Gossip Select - Run Script 1'),
@@ -52,31 +52,31 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
 
  -- Waypoint 3 (chit-chat 1)
 (@ENTRY,0,11,12,40,0,100,0,3,@ENTRY,0,0,55,0,0,0,0,0,0,1,0,0,0,0,0,0,0,'Pusillin - At WP3 - stop'),
-(@ENTRY,0,12,0,61,0,100,0,0,0,0,0,81,3,0,0,0,0,0,1,0,0,0,0,0,0,0,'Pusillin - At WP3 - Turn on Gossip flag'), 
+(@ENTRY,0,12,0,61,0,100,0,0,0,0,0,81,3,0,0,0,0,0,1,0,0,0,0,0,0,0,'Pusillin - At WP3 - Turn on Gossip flag'),
 
 -- Waypoint 14 (chit-chat 2)
 (@ENTRY,0,13,14,40,0,100,0,14,@ENTRY*10,0,0,55,0,0,0,0,0,0,1,0,0,0,0,0,0,0,'Pusillin - At WP14 - stop'),
-(@ENTRY,0,14,0,61,0,100,0,0,0,0,0,81,3,0,0,0,0,0,1,0,0,0,0,0,0,0,'Pusillin - At WP14 - Turn on Gossip flag'), 
+(@ENTRY,0,14,0,61,0,100,0,0,0,0,0,81,3,0,0,0,0,0,1,0,0,0,0,0,0,0,'Pusillin - At WP14 - Turn on Gossip flag'),
 
 -- Waypoint 12 (chit-chat 3)
 (@ENTRY,0,15,16,40,0,100,0,12,@ENTRY*20,0,0,55,0,0,0,0,0,0,1,0,0,0,0,0,0,0,'Pusillin - At WP12 - stop'),
-(@ENTRY,0,16,0,61,0,100,0,0,0,0,0,81,3,0,0,0,0,0,1,0,0,0,0,0,0,0,'Pusillin - At WP12 - Turn on Gossip flag'), 
+(@ENTRY,0,16,0,61,0,100,0,0,0,0,0,81,3,0,0,0,0,0,1,0,0,0,0,0,0,0,'Pusillin - At WP12 - Turn on Gossip flag'),
 
 -- Waypoint 7 (chit-chat 4)
 (@ENTRY,0,17,18,40,0,100,0,7,@ENTRY*30,0,0,55,0,0,0,0,0,0,1,0,0,0,0,0,0,0,'Pusillin - At WP7 - stop'),
-(@ENTRY,0,18,0,61,0,100,0,0,0,0,0,81,3,0,0,0,0,0,1,0,0,0,0,0,0,0,'Pusillin - At WP7 - Turn on Gossip flag'), 
+(@ENTRY,0,18,0,61,0,100,0,0,0,0,0,81,3,0,0,0,0,0,1,0,0,0,0,0,0,0,'Pusillin - At WP7 - Turn on Gossip flag'),
 
 -- casts during fight
 (@ENTRY,0,19,0,0,0,100,0,1000,4250,8000,8000,11,@SPELL_1,0,0,0,0,0,2,0,0,0,0,0,0,0,'Pusillin - In Combat - Cast Fire Blast'),
 (@ENTRY,0,20,0,0,0,100,0,1000,1000,4000,4000,11,@SPELL_2,0,0,0,0,0,2,0,0,0,0,0,0,0,'Pusillin - In Combat - Cast Fireball'),
-(@ENTRY,0,21,0,0,0,100,0,2000,10000,10000,17500,11,@SPELL_3,0,0,0,0,0,2,0,0,0,0,0,0,0,'Pusillin - In Combat - Cast Blast Wave'), 
+(@ENTRY,0,21,0,0,0,100,0,2000,10000,10000,17500,11,@SPELL_3,0,0,0,0,0,2,0,0,0,0,0,0,0,'Pusillin - In Combat - Cast Blast Wave'),
 
 -- Script 1
 (@SCRIPT_1,9,0,0,0,0,100,0,0,0,0,0,72,0,0,0,0,0,0,7,0,0,0,0,0,0,0,'Pusillin - On Script 1 - Close Gossip'),
 (@SCRIPT_1,9,1,0,0,0,100,0,0,0,0,0,81,0,0,0,0,0,0,1,0,0,0,0,0,0,0,'Pusillin - On Script 1 - Turn Off Gossip Flags'),
 (@SCRIPT_1,9,2,0,0,0,100,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,'Pusillin - On Script 1 - Say Text 0'),
 (@SCRIPT_1,9,3,0,0,0,100,0,0,0,0,0,23,1,0,0,0,0,0,0,0,0,0,0,0,0,0,'Pusillin - On Script 1 - Set Phase to 2'),
-(@SCRIPT_1,9,4,0,0,0,100,0,0,0,0,0,53,1,@ENTRY,0,0,0,0,1,0,0,0,0,0,0,0,'Pusillin - On Script 1 - Start Waypoint Movement'), 
+(@SCRIPT_1,9,4,0,0,0,100,0,0,0,0,0,53,1,@ENTRY,0,0,0,0,1,0,0,0,0,0,0,0,'Pusillin - On Script 1 - Start Waypoint Movement'),
 
 -- Script 2
 (@SCRIPT_2,9,0,0,0,0,100,0,0,0,0,0,72,0,0,0,0,0,0,7,0,0,0,0,0,0,0,'Pusillin - On Script 2 - Close Gossip'),
@@ -90,7 +90,7 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
 (@SCRIPT_3,9,1,0,0,0,100,0,0,0,0,0,81,0,0,0,0,0,0,1,0,0,0,0,0,0,0,'Pusillin - On Script 3 - Turn Off Gossip Flags'),
 (@SCRIPT_3,9,2,0,0,0,100,0,0,0,0,0,1,2,0,0,0,0,0,1,0,0,0,0,0,0,0,'Pusillin - On Script 3 - Say Text 2'),
 (@SCRIPT_3,9,3,0,0,0,100,0,0,0,0,0,23,1,0,0,0,0,0,0,0,0,0,0,0,0,0,'Pusillin - On Script 3 - Set Phase to 4'),
-(@SCRIPT_3,9,4,0,0,0,100,0,0,0,0,0,53,1,@ENTRY*20,0,0,0,0,1,0,0,0,0,0,0,0,'Pusillin - On Script 3 - Start Waypoint Movement'), 
+(@SCRIPT_3,9,4,0,0,0,100,0,0,0,0,0,53,1,@ENTRY*20,0,0,0,0,1,0,0,0,0,0,0,0,'Pusillin - On Script 3 - Start Waypoint Movement'),
 
 -- Script 4
 (@SCRIPT_4,9,0,0,0,0,100,0,0,0,0,0,72,0,0,0,0,0,0,7,0,0,0,0,0,0,0,'Pusillin - On Script 4 - Close Gossip'),
@@ -118,7 +118,7 @@ DELETE FROM `waypoints` WHERE `entry` IN (@ENTRY,@ENTRY*10,@ENTRY*20,@ENTRY*30);
 INSERT INTO `waypoints` (`entry`,`pointid`,`position_x`,`position_y`,`position_z`,`point_comment`) VALUES
 (@ENTRY,1,82.88,-198.508,-4.1331,'Pusillin path'),
 (@ENTRY,2,-159.153,-201.138,-4.15275,'Pusillin path'),
-(@ENTRY,3,-154.512,-276.2,-4.14787,'Pusillin path'), 
+(@ENTRY,3,-154.512,-276.2,-4.14787,'Pusillin path'),
 (@ENTRY*10,1,-159.64,-320.208,-4.14787,'Pusillin path'),
 (@ENTRY*10,2,-142.923,-344.111,-4.11348,'Pusillin path'),
 (@ENTRY*10,3,-84.2623,-363.37,-4.14729,'Pusillin path'),
@@ -132,7 +132,7 @@ INSERT INTO `waypoints` (`entry`,`pointid`,`position_x`,`position_y`,`position_z
 (@ENTRY*10,11,38.3357,-357.051,-4.13201,'Pusillin path'),
 (@ENTRY*10,12,55.7067,-349.754,-4.07173,'Pusillin path'),
 (@ENTRY*10,13,88.4046,-354.125,-4.10444,'Pusillin path'),
-(@ENTRY*10,14,113.54,-372.365,-4.08966,'Pusillin path'), 
+(@ENTRY*10,14,113.54,-372.365,-4.08966,'Pusillin path'),
 (@ENTRY*20,1,111.71,-468.929,-2.71837,'Pusillin path'),
 (@ENTRY*20,2,111.557,-485.672,-6.88627,'Pusillin path'),
 (@ENTRY*20,3,111.29,-514.931,-6.91324,'Pusillin path'),
@@ -160,7 +160,7 @@ INSERT INTO `gossip_menu_option` (`menu_id`,`id`,`option_icon`,`option_text`,`op
 (@GOSSIP_OPTION_2,0,0,'Why you little...',1,1),
 (@GOSSIP_OPTION_3,0,0,'Mark my words, I will catch you, imp. And when I do!',1,1),
 (@GOSSIP_OPTION_4,0,0,'DIE!',1,1),
-(@GOSSIP_OPTION_5,0,0,'Prepare to meet your maker.',1,1); 
+(@GOSSIP_OPTION_5,0,0,'Prepare to meet your maker.',1,1);
 
 -- Pusillin texts
 DELETE FROM `creature_text` WHERE `entry`= @ENTRY;
@@ -169,7 +169,7 @@ INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`pr
 (@ENTRY,1,0,'Chase me if you dare! I run without a care!',12,0,0,0,0,0,'Pusillin text #2'),
 (@ENTRY,2,0,'Why would you ever want to harm me!? Come. Friends we can be!',12,0,0,0,0,0,'Pusillin text #3'),
 (@ENTRY,3,0,'DIE?! You make Pusillin cry!',12,0,0,0,0,0,'Pusillin text #4'),
-(@ENTRY,4,0,'Say hello to my little friends!',12,0,0,0,0,0,'Pusillin text #5'); 
+(@ENTRY,4,0,'Say hello to my little friends!',12,0,0,0,0,0,'Pusillin text #5');
 
 -- remove already spawned Wildspawn Imp
 DELETE FROM `creature` WHERE `guid`=56995;

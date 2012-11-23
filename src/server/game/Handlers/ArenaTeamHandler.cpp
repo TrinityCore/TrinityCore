@@ -27,6 +27,7 @@
 #include "ObjectMgr.h"
 #include "SocialMgr.h"
 #include "ArenaTeamMgr.h"
+#include "Opcodes.h"
 
 void WorldSession::HandleInspectArenaTeamsOpcode(WorldPacket & recvData)
 {

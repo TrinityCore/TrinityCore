@@ -21,11 +21,10 @@
 
 #include "ObjectAccessor.h"
 #include "WorldPacket.h"
-#include "World.h"
-#include "Group.h"
-#include "GroupMgr.h"
 #include "Battlefield.h"
+#include "World.h"
 
+class Group;
 class BattlefieldWG;
 class WintergraspCapturePoint;
 
@@ -153,10 +152,10 @@ class BfGraveyardWG : public BfGraveyard
     public:
         BfGraveyardWG(BattlefieldWG* Bf);
 
-        void SetTextId(uint32 textid) { m_GossipTextId = textid; }
-        uint32 GetTextId() { return m_GossipTextId; }
+        void SetTextId(int32 textid) { m_GossipTextId = textid; }
+        int32 GetTextId() { return m_GossipTextId; }
     protected:
-        uint32 m_GossipTextId;
+        int32 m_GossipTextId;
 };
 
 enum WGGraveyardId
@@ -227,7 +226,7 @@ struct BfWGCoordGY
     float o;
     uint32 gyid;
     uint8 type;
-    uint32 textid;              // for gossip menu
+    int32 textid;              // for gossip menu
     TeamId startcontrol;
 };
 
@@ -412,9 +411,9 @@ class BattlefieldWG : public Battlefield
         bool FindAndRemoveVehicleFromList(Unit* vehicle);
 
         // returns the graveyardId in the specified area.
-        uint8 GetSpiritGraveyardId(uint32 areaId);
+        uint8 GetSpiritGraveyardId(uint32 areaId) const;
 
-        uint32 GetData(uint32 data);
+        uint32 GetData(uint32 data) const;
 
     protected:
         bool m_isRelicInteractible;

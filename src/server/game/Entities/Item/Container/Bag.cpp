@@ -23,6 +23,7 @@
 #include "Bag.h"
 #include "Log.h"
 #include "UpdateData.h"
+#include "Player.h"
 
 Bag::Bag(): Item()
 {

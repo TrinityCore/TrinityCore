@@ -114,7 +114,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
                     return;
                 break;
             default:
-                sLog->outError(LOG_FILTER_NETWORKIO, "Player %s (GUID: %u) sent a chatmessage with an invalid language/message type combination", 
+                sLog->outError(LOG_FILTER_NETWORKIO, "Player %s (GUID: %u) sent a chatmessage with an invalid language/message type combination",
                                                      GetPlayer()->GetName().c_str(), GetPlayer()->GetGUIDLow());
 
                 recvData.rfinish();
@@ -561,8 +561,8 @@ void WorldSession::HandleTextEmoteOpcode(WorldPacket& recvData)
             // Only allow text-emotes for "dead" entities (feign death included)
             if (GetPlayer()->HasUnitState(UNIT_STATE_DIED))
                 break;
-             GetPlayer()->HandleEmoteCommand(emote_anim);
-             break;
+            GetPlayer()->HandleEmoteCommand(emote_anim);
+            break;
     }
 
     Unit* unit = ObjectAccessor::GetUnit(*_player, guid);

@@ -1,5 +1,5 @@
 DELETE FROM `achievement_criteria_data` WHERE criteria_id IN (5220, 5215, 5218, 5221, 5216, 5219, 5213, 5018, 5217, 5214, 5233, 5235, 5232, 5234, 5238, 5236, 5229, 5237, 5230, 5231);
-INSERT INTO `achievement_criteria_data` VALUES 
+INSERT INTO `achievement_criteria_data` VALUES
 -- Classes
 (5220,21, 1,0,''), -- Realm First! Level 80 Warrior
 (5215,21, 2,0,''), -- Realm First! Level 80 Paladin

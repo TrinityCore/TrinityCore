@@ -3,7 +3,7 @@ SET @epic := 25009;
 SET @gem := @entry+1;
 -- Create references
 DELETE FROM `reference_loot_template` WHERE `entry` IN(@entry,@epic,@gem);
-INSERT INTO `reference_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `lootmode`, `groupid`, `mincountOrRef`, `maxcount`) VALUES 
+INSERT INTO `reference_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `lootmode`, `groupid`, `mincountOrRef`, `maxcount`) VALUES
 (@entry,27452,0,1,1,1,1), -- Light Scribe Bands
 (@entry,27453,0,1,1,1,1), -- Averinn's RIng of Slaying
 (@entry,27454,0,1,1,1,1), -- Volcanic Pauldrons
@@ -26,7 +26,7 @@ INSERT INTO `reference_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `
 -- Assign loot to the chest
 SET @GOloot := 21764; -- lootid of Reinforced Fel Iron Chest Heroic
 DELETE FROM `gameobject_loot_template` WHERE `entry`=@GOloot;
-INSERT INTO `gameobject_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `lootmode`, `groupid`, `mincountOrRef`, `maxcount`) VALUES 
+INSERT INTO `gameobject_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `lootmode`, `groupid`, `mincountOrRef`, `maxcount`) VALUES
 (@GOloot,1,100,1,0,-@entry, 2), -- one from gear
 (@GOloot,2,30,1,0,-@gem,1), -- one gem (30%)
 (@GOloot,3,100,1,0,-@epic,1); -- one from epics
