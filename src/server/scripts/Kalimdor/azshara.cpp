@@ -358,14 +358,14 @@ public:
 
                 if (TeleportTimer <= diff)
                 {
-                    //temp solution - unit can't be teleported by core using spelleffect 5, only players
-                    if (me->GetMap())
-                    {
-                        me->SetPosition(3706.39f, -3969.15f, 35.9118f, 0);
-                        me->AI_SendMoveToPacket(3706.39f, -3969.15f, 35.9118f, 0, 0, 0);
-                    }
+                    // temp solution - unit can't be teleported by core using spelleffect 5, only players
+                    DoTeleportTo(3706.39f, -3969.15f, 35.9118f);
+
                     //begin swimming and summon depth charges
                     Player* player = Unit::GetPlayer(*me, PlayerGUID);
+                    if (!player)
+                        return;
+
                     SendText(MSG_ESCAPE_NOTICE, player);
                     DoCast(me, SPELL_PERIODIC_DEPTH_CHARGE);
                     me->SetUnitMovementFlags(MOVEMENTFLAG_HOVER | MOVEMENTFLAG_SWIMMING);
