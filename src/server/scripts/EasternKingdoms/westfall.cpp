@@ -39,11 +39,11 @@ EndContentData */
 
 enum eEnums
 {
-    SAY_DS_START        = -1000293,
-    SAY_DS_DOWN_1       = -1000294,
-    SAY_DS_DOWN_2       = -1000295,
-    SAY_DS_DOWN_3       = -1000296,
-    SAY_DS_PROLOGUE     = -1000297,
+    SAY_DS_START        = 0,
+    SAY_DS_DOWN_1       = 1,
+    SAY_DS_DOWN_2       = 2,
+    SAY_DS_DOWN_3       = 3,
+    SAY_DS_PROLOGUE     = 4,
 
     SPELL_SHOOT         = 6660,
     QUEST_TOME_VALOR    = 1651,
@@ -60,7 +60,7 @@ public:
     {
         if (quest->GetQuestId() == QUEST_TOME_VALOR)
         {
-            DoScriptText(SAY_DS_START, creature);
+            creature->AI()->Talk(SAY_DS_START);
 
             if (npc_escortAI* pEscortAI = CAST_AI(npc_daphne_stilwell::npc_daphne_stilwellAI, creature->AI()))
                 pEscortAI->Start(true, true, player->GetGUID());
@@ -88,13 +88,13 @@ public:
                 switch (uiWPHolder)
                 {
                     case 7:
-                        DoScriptText(SAY_DS_DOWN_1, me);
+                        Talk(SAY_DS_DOWN_1);
                         break;
                     case 8:
-                        DoScriptText(SAY_DS_DOWN_2, me);
+                        Talk(SAY_DS_DOWN_2);
                         break;
                     case 9:
-                        DoScriptText(SAY_DS_DOWN_3, me);
+                        Talk(SAY_DS_DOWN_3);
                         break;
                 }
             }
@@ -143,7 +143,7 @@ public:
                     SetRun(false);
                     break;
                 case 11:
-                    DoScriptText(SAY_DS_PROLOGUE, me);
+                    Talk(SAY_DS_PROLOGUE);
                     break;
                 case 13:
                     SetEquipmentSlots(true);
@@ -197,12 +197,14 @@ public:
 /*######
 ## npc_defias_traitor
 ######*/
+enum DefiasSays
+{
+    SAY_START                   = 0,
+    SAY_PROGRESS                = 1,
+    SAY_END                     = 2,
+    SAY_AGGRO                   = 3
+};
 
-#define SAY_START                   -1000101
-#define SAY_PROGRESS                -1000102
-#define SAY_END                     -1000103
-#define SAY_AGGRO_1                 -1000104
-#define SAY_AGGRO_2                 -1000105
 
 #define QUEST_DEFIAS_BROTHERHOOD    155
 
@@ -218,7 +220,7 @@ public:
             if (npc_escortAI* pEscortAI = CAST_AI(npc_defias_traitor::npc_defias_traitorAI, creature->AI()))
                 pEscortAI->Start(true, true, player->GetGUID());
 
-            DoScriptText(SAY_START, creature, player);
+            creature->AI()->Talk(SAY_START, player->GetGUID());
         }
 
         return true;
@@ -245,10 +247,10 @@ public:
                     SetRun(false);
                     break;
                 case 36:
-                    DoScriptText(SAY_PROGRESS, me, player);
+                    Talk(SAY_PROGRESS, player->GetGUID());
                     break;
                 case 44:
-                    DoScriptText(SAY_END, me, player);
+                    Talk(SAY_END, player->GetGUID());
                     player->GroupEventHappens(QUEST_DEFIAS_BROTHERHOOD, me);
                     break;
             }
@@ -256,7 +258,7 @@ public:
 
         void EnterCombat(Unit* who)
         {
-            DoScriptText(RAND(SAY_AGGRO_1, SAY_AGGRO_2), me, who);
+            Talk(SAY_AGGRO, who->GetGUID());
         }
 
         void Reset() {}
