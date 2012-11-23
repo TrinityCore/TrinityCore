@@ -553,6 +553,12 @@ class boss_professor_putricide : public CreatureScript
                 return 0;
             }
 
+            void SetData(uint32 id, uint32 data)
+            {
+                if (id == DATA_EXPERIMENT_STAGE)
+                    _experimentState = bool(data);
+            }
+
             void UpdateAI(uint32 const diff)
             {
                 if ((!(events.GetPhaseMask() & PHASE_MASK_NOT_SELF) && !UpdateVictim()) || !CheckInRoom())
