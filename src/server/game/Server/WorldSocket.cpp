@@ -678,7 +678,7 @@ int WorldSocket::ProcessIncoming(WorldPacket* new_pct)
         sPacketLog->LogPacket(*new_pct, CLIENT_TO_SERVER);
 
     if (m_Session)
-        sLog->outTrace(LOG_FILTER_OPCODES, "C->S %s %s", m_Session->GetPlayerInfo().c_str(), GetOpcodeNameForLogging(new_pct.GetOpcode()).c_str());
+        sLog->outTrace(LOG_FILTER_OPCODES, "C->S %s %s", m_Session->GetPlayerInfo().c_str(), GetOpcodeNameForLogging(new_pct->GetOpcode()).c_str());
 
     try
     {
