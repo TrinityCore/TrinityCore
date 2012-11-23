@@ -2,6 +2,7 @@
 #define DEF_TRANSMOGRIFICATION_H
 
 #include "Config.h"
+#include "Language.h"
 
 class Transmogrification
 {

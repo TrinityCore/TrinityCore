@@ -21,6 +21,7 @@
 #include "SharedDefines.h"
 #include "ScriptPCH.h"
 #include "AnticheatData.h"
+#include "Language.h"
 #include "Chat.h"
 
 class Player;
