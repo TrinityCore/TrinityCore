@@ -1884,6 +1884,7 @@ Unit* Creature::SelectHostileTargetInAggroRange(bool useLOS) const
     CellCoord p(Trinity::ComputeCellCoord(GetPositionX(), GetPositionY()));
     Cell cell(p);
     cell.SetNoCreate();
+
     Unit* target = NULL;
 
     // Cell.Visit() needs a constraint but this searcher narrows it by aggro radius
