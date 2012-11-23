@@ -1520,6 +1520,55 @@ float Creature::GetAttackDistance(Unit const* player) const
     return (RetDistance*aggroRate);
 }
 
+float Creature::GetPetAggroRange(Unit const* target) const
+{
+    // Determines the aggro range for Pets. Used for aggressive pet target selection.
+    // Based on data from wowwiki due to lack of 3.3.5a data
+
+    if (target && this->isPet())
+    {
+        uint32 targetLevel = 0;
+        
+        if (target->GetTypeId() == TYPEID_PLAYER)
+            targetLevel = target->getLevelForTarget(this);
+        else if (target->GetTypeId() == TYPEID_UNIT)
+            targetLevel = target->ToCreature()->getLevelForTarget(this);
+
+        uint32 myLevel = getLevelForTarget(target);
+        int32 levelDiff = int32(targetLevel) - int32(myLevel);
+        
+        // The maximum Aggro Radius is capped at 45 yards (25 level difference)
+        if (levelDiff < -25)
+            levelDiff = -25;
+
+        // The base aggro radius for mob of same level
+        float aggroRadius = 20;
+
+        // Aggro Radius varies with level difference at a rate of roughly 1 yard/level
+        aggroRadius -= (float)levelDiff;
+
+        // detect range auras
+        aggroRadius += GetTotalAuraModifier(SPELL_AURA_MOD_DETECT_RANGE);
+
+        // detected range auras
+        aggroRadius += target->GetTotalAuraModifier(SPELL_AURA_MOD_DETECTED_RANGE);
+
+        // Just in case, we don't want pets running all over the map
+        if (aggroRadius > MAX_AGGRO_RADIUS)
+            aggroRadius = MAX_AGGRO_RADIUS;
+
+        // Minimum Aggro Radius for a mob seems to be combat range (5 yards)
+        // hunter pets seem to ignore minimum aggro radius so we'll default it a little higher
+        if (aggroRadius <  5)
+            aggroRadius = 10;
+
+        return (aggroRadius);
+    }
+
+    // Default
+    return 0.0f;
+}
+
 void Creature::setDeathState(DeathState s)
 {
     Unit::setDeathState(s);
@@ -1822,6 +1871,28 @@ Unit* Creature::SelectNearestTarget(float dist) const
 
         cell.Visit(p, world_unit_searcher, *GetMap(), *this, dist);
         cell.Visit(p, grid_unit_searcher, *GetMap(), *this, dist);
+    }
+
+    return target;
+}
+
+Unit* Creature::AggressivePetSelectTarget(bool useLOS)
+{
+    CellCoord p(Trinity::ComputeCellCoord(GetPositionX(), GetPositionY()));
+    Cell cell(p);
+    cell.SetNoCreate();
+
+    Unit* target = NULL;
+
+    {
+        Trinity::AggressivePetHostileUnitCheck u_check(this, useLOS);
+        Trinity::UnitLastSearcher<Trinity::AggressivePetHostileUnitCheck> searcher(this, target, u_check);
+
+        TypeContainerVisitor<Trinity::UnitLastSearcher<Trinity::AggressivePetHostileUnitCheck>, WorldTypeMapContainer > world_unit_searcher(searcher);
+        TypeContainerVisitor<Trinity::UnitLastSearcher<Trinity::AggressivePetHostileUnitCheck>, GridTypeMapContainer >  grid_unit_searcher(searcher);
+
+        cell.Visit(p, world_unit_searcher, *GetMap(), *this, MAX_AGGRO_RADIUS);
+        cell.Visit(p, grid_unit_searcher, *GetMap(), *this, MAX_AGGRO_RADIUS);
     }
 
     return target;

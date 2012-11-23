@@ -253,6 +253,7 @@ enum UnitRename
 #define MAX_SPELL_CONTROL_BAR   10
 
 #define MAX_AGGRO_RESET_TIME 10 // in seconds
+#define MAX_AGGRO_RADIUS 45.0f  // Per wowwiki, aggro radius is capped at 45 yards for creatures with level difference > 25
 
 enum Swing
 {
@@ -1126,6 +1127,8 @@ struct CharmInfo
 
         void SetIsCommandAttack(bool val);
         bool IsCommandAttack();
+        void SetIsCommandFollow(bool val);
+        bool IsCommandFollow();
         void SetIsAtStay(bool val);
         bool IsAtStay();
         void SetIsFollowing(bool val);
@@ -1148,6 +1151,7 @@ struct CharmInfo
         ReactStates     m_oldReactState;
 
         bool m_isCommandAttack;
+        bool m_isCommandFollow;
         bool m_isAtStay;
         bool m_isFollowing;
         bool m_isReturning;
