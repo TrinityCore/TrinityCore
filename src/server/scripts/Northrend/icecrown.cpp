@@ -33,8 +33,8 @@ EndContentData */
 #include "SpellAuras.h"
 
 //global define faction in cpp
-#define FACTION_FRIENDLY            = 35
-#define FACTION_HOSTILE             = 14
+#define FACTION_FRIENDLY    35
+#define FACTION_HOSTILE     14
 
 /*######
 ## npc_arete
