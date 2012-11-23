@@ -621,11 +621,11 @@ void Channel::Say(uint64 guid, std::string const& what, uint32 lang)
     WorldPacket data(SMSG_MESSAGECHAT, 1 + 4 + 8 + 4 + _name.size() + 8 + 4 + what.size() + 1);
     data << uint8(CHAT_MSG_CHANNEL);
     data << uint32(lang);
-    data << guid;
+    data << uint64(guid);
     data << uint32(0);
     data << _name;
-    data << guid;
-    data << what.size() + 1;
+    data << uint64(guid);
+    data << uint32(what.size() + 1);
     data << what;
     data << uint8(player ? player->GetChatTag() : 0);
 
