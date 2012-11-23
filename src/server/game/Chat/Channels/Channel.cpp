@@ -479,10 +479,18 @@ void Channel::SetOwner(Player const* player, std::string const& newname)
     uint64 guid = player->GetGUID();
     uint32 sec = player->GetSession()->GetSecurity();
 
-    if (!IsOn(guid) || (!AccountMgr::IsGMAccount(sec) && guid != _ownerGUID))
+    if (!IsOn(guid))
     {
         WorldPacket data;
         MakeNotMember(&data);
+        SendToOne(&data, guid);
+        return;
+    }
+
+    if (!AccountMgr::IsGMAccount(sec) && guid != _ownerGUID)
+    {
+        WorldPacket data;
+        MakeNotOwner(&data);
         SendToOne(&data, guid);
         return;
     }
@@ -600,8 +608,6 @@ void Channel::Say(uint64 guid, std::string const& what, uint32 lang)
     if (sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_CHANNEL))
         lang = LANG_UNIVERSAL;
 
-    Player* player = ObjectAccessor::FindPlayer(guid);
-
     if (!IsOn(guid))
     {
         WorldPacket data;
@@ -627,6 +633,7 @@ void Channel::Say(uint64 guid, std::string const& what, uint32 lang)
     data << uint64(guid);
     data << uint32(what.size() + 1);
     data << what;
+    Player* player = ObjectAccessor::FindPlayer(guid);
     data << uint8(player ? player->GetChatTag() : 0);
 
     SendToAll(&data, !playersStore[guid].IsModerator() ? guid : false);
