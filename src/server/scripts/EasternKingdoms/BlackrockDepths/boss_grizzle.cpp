@@ -19,10 +19,11 @@
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 
-enum Spells
+enum Grizzle
 {
-    SPELL_GROUNDTREMOR                                     = 6524,
-    SPELL_FRENZY                                           = 28371
+    SPELL_GROUNDTREMOR      = 6524,
+    SPELL_FRENZY            = 28371,
+    EMOTE_FRENZY_KILL       = 0
 };
 
 class boss_grizzle : public CreatureScript
@@ -69,7 +70,7 @@ public:
                 if (Frenzy_Timer <= diff)
                 {
                     DoCast(me, SPELL_FRENZY);
-                    DoScriptText(EMOTE_GENERIC_FRENZY_KILL, me);
+                    Talk(EMOTE_FRENZY_KILL);
 
                     Frenzy_Timer = 15000;
                 } else Frenzy_Timer -= diff;

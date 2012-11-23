@@ -166,7 +166,7 @@ INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,
 
 -- A special surprise
 DELETE FROM `script_texts` WHERE `entry` BETWEEN -1609078 AND -1609025;
-DELETE FROM `creature_text` WHERE `entry` IN (29032,29061,29065,29067,29068,29070,29074,29072,29073,29071);
+DELETE FROM `creature_text` WHERE `entry` IN (29032,29061,29065,29067,29068,29070,29074,29072,29073,29071,29053);
 INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,`comment`,`text`) VALUES
 -- Malar Bravehorn
 (29032,0,0,12,0,100,"special_surprise SAY_EXEC_START_1","Come to finish the job, have you?"),
@@ -803,3 +803,167 @@ INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,
 (29183,84,0,16,0,100,"The Lich King","%s disappears. Tirion walks over to where Darion lay"),
 (29173,85,0,16,0,100,"","Light washes over the chapel ? the Light of Dawn is uncovered.");
 
+-- grimstone
+DELETE FROM `script_texts` WHERE `entry` BETWEEN -1230008 AND -1230003;
+DELETE FROM `creature_text` WHERE `entry`=10096;
+INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,`comment`,`text`) VALUES
+(10096,0,0,14,0,100,"grimstone SCRIPT_TEXT1","You have been sentenced to death for crimes against the Dark Iron nation!"),
+(10096,1,0,14,0,100,"grimstone SCRIPT_TEXT2","The Sons of Thaurissan shall watch you perish in the Ring of the Law!"),
+(10096,2,0,14,0,100,"grimstone SCRIPT_TEXT3","Unleash the fury and let it be done!"),
+(10096,3,0,14,0,100,"grimstone SCRIPT_TEXT4","Haha! I bet you thought you were done!"),
+(10096,4,0,14,0,100,"grimstone SCRIPT_TEXT5","But your real punishment lies ahead."),
+(10096,5,0,14,0,100,"grimstone SCRIPT_TEXT6","Good riddance!");
+
+-- rocknot
+DELETE FROM `script_texts` WHERE `entry`=-1230000;
+DELETE FROM `creature_text` WHERE `entry`=9503;
+INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,`comment`,`text`) VALUES
+(9503,0,0,12,0,100,"rocknot SAY_GOT_BEER","Ah, hits the spot!");
+
+-- doctor theolen krastinov
+-- No delete query here, it's a generic script text for frenzy emotes.
+DELETE FROM `creature_text` WHERE `entry`=9028;
+INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,`comment`,`text`) VALUES
+(9028,0,0,16,0,100,"grizzle EMOTE_FRENZY_KILL","%s goes into a killing frenzy!");
+
+-- dagran
+DELETE FROM `script_texts` WHERE `entry` BETWEEN -1230002 AND -1230001;
+DELETE FROM `creature_text` WHERE `entry`=9019;
+INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,`comment`,`text`) VALUES
+(9019,0,0,14,0,100,"dagran SAY_AGGRO","Come to aid the Throne!"),
+(9019,1,0,14,0,100,"dagran SAY_SLAY","Hail to the king, baby!");
+
+-- lilatha
+DELETE FROM `script_texts` WHERE `entry` BETWEEN -1000146 AND -1000140;
+DELETE FROM `creature_text` WHERE `entry` IN (16295,16220);
+INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,`comment`,`text`) VALUES
+(16295,0,0,12,0,100,"lilatha SAY_START","Let's go."),
+(16295,1,0,12,0,100,"lilatha SAY_PROGRESS1","$N, let's use the antechamber to the right."),
+(16295,2,0,12,0,100,"lilatha SAY_PROGRESS2","I can see the light at the end of the tunnel!"),
+(16295,3,0,12,0,100,"lilatha SAY_PROGRESS3","There's Farstrider Enclave now, $C. Not far to go... Look out! Troll ambush!!"),
+(16295,4,0,12,0,100,"lilatha SAY_END1","Thank you for saving my life and bringing me back to safety, $N"),
+(16295,5,0,12,0,100,"lilatha SAY_END2","Captain Helios, I've been rescued from the Amani Catacombs. Reporting for duty, sir!"),
+(16220,0,0,12,0,100,"lilatha CAPTAIN_ANSWER","Liatha, get someone to look at those injuries. Thank you for bringing her back safely.");
+
+-- stillblade
+DELETE FROM `script_texts` WHERE `entry`=-1000193;
+DELETE FROM `creature_text` WHERE `entry`=17768;
+INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,`comment`,`text`) VALUES
+(17768,0,0,12,0,100,"stillblade SAY_HEAL","Thank you, dear $C, you just saved my life.");
+
+-- stilwell
+DELETE FROM `script_texts` WHERE `entry` BETWEEN -1000297 AND -1000293;
+DELETE FROM `creature_text` WHERE `entry`=6182;
+INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,`comment`,`text`) VALUES
+(6182,0,0,12,0,100,"stilwell SAY_DS_START","To the house! Stay close to me, no matter what! I have my gun and ammo there!"),
+(6182,1,0,12,0,100,"stilwell SAY_DS_DOWN_1","We showed that one!"),
+(6182,2,0,12,0,100,"stilwell SAY_DS_DOWN_2","One more down!"),
+(6182,3,0,12,0,100,"stilwell SAY_DS_DOWN_3","We've done it! We won!"),
+(6182,4,0,12,0,100,"stilwell SAY_DS_PROLOGUE","Meet me down by the orchard-- I just need to put my gun away.");
+
+-- defias traitor
+DELETE FROM `script_texts` WHERE `entry` BETWEEN -1000105 AND -1000101;
+DELETE FROM `creature_text` WHERE `entry`=467;
+INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,`comment`,`text`) VALUES
+(467,0,0,12,0,100,"defias traitor SAY_START","Follow me, $N. I'll take you to the Defias hideout. But you better protect me or I am as good as dead."),
+(467,1,0,12,0,100,"defias traitor SAY_PROGRESS","The entrance is hidden here in Moonbrook. Keep your eyes peeled for thieves. They want me dead."),
+(467,2,0,12,0,100,"defias traitor SAY_END","You can go tell Stoutmantle this is where the Defias Gang is holed up, $N."),
+(467,3,0,12,0,100,"defias traitor SAY_AGGRO_1","%s coming in fast! Prepare to fight!"),
+(467,3,1,12,0,100,"defias traitor SAY_AGGRO_2","Help!");
+
+-- vexallus
+DELETE FROM `script_texts` WHERE `entry` BETWEEN -1585011 AND -1585007;
+DELETE FROM `creature_text` WHERE `entry`=24744;
+INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,`comment`,`text`) VALUES
+(24744,0,0,14,12389,100,"vexallus SAY_AGGRO","Drain...life!"),
+(24744,1,0,14,12392,100,"vexallus SAY_ENERGY","Un...con...tainable."),
+(24744,2,0,14,12390,100,"vexallus SAY_OVERLOAD","Un...leash..."),
+(24744,3,0,14,12393,100,"vexallus SAY_KILL","Con...sume."),
+(24744,4,0,41,0,100,"vexallus EMOTE_DISCHARGE_ENERGY","%s discharges pure energy!");
+
+-- kaelthas
+DELETE FROM `script_texts` WHERE `entry` BETWEEN -1585029 AND -1585023;
+DELETE FROM `creature_text` WHERE `entry`=24664;
+INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,`comment`,`text`) VALUES
+(24664,0,0,14,12413,100,"kaelthas MT SAY_AGGRO","Don't look so smug! I know what you're thinking, but Tempest Keep was merely a set back. Did you honestly believe I would trust the future to some blind, half-night elf mongrel? Oh no, he was merely an instrument, a stepping stone to a much larger plan! It has all led to this, and this time, you will not interfere!"),
+(24664,1,0,14,12415,100,"kaelthas MT SAY_PHOENIX","Vengeance burns!"),
+(24664,2,0,14,12417,100,"kaelthas MT SAY_FLAMESTRIKE","Felomin ashal!"),
+(24664,3,0,14,12418,100,"kaelthas MT SAY_GRAVITY_LAPSE","I'll turn your world... upside... down..."),
+(24664,4,0,14,12419,100,"kaelthas MT SAY_TIRED","Master... grant me strength."),
+(24664,5,0,14,12420,100,"kaelthas MT SAY_RECAST_GRAVITY","Do not... get too comfortable."),
+(24664,6,0,14,12421,100,"kaelthas MT SAY_DEATH","My demise accomplishes nothing! The Master will have you! You will drown in your own blood! This world shall burn! Aaaghh!");
+
+-- selin
+DELETE FROM `script_texts` WHERE `entry` BETWEEN -1585006 AND -1585000;
+DELETE FROM `creature_text` WHERE `entry`=24723;
+INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,`comment`,`text`) VALUES
+(24723,0,0,14,12378,100,"selin SAY_AGGRO","You only waste my time!"),
+(24723,1,0,14,12381,100,"selin SAY_ENERGY","My hunger knows no bounds!"),
+(24723,2,0,14,12382,100,"selin SAY_EMPOWERED","Yes! I am a god!"),
+(24723,3,0,14,12388,100,"selin SAY_KILL_1","Enough distractions!"),
+(24723,3,1,14,12385,100,"selin SAY_KILL_2","I am invincible!"),
+(24723,4,0,14,12383,100,"selin SAY_DEATH","No! More... I must have more!"),
+(24723,5,0,41,0,100,"selin EMOTE_CRYSTAL","%s begins to channel from the nearby Fel Crystal...");
+
+-- delrissa
+DELETE FROM `script_texts` WHERE `entry` BETWEEN -1585022 AND -1585012;
+DELETE FROM `creature_text` WHERE `entry`=24560;
+INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,`comment`,`text`) VALUES
+(24560,0,0,14,12395,100,"delrissa SAY_AGGRO","Annihilate them!"),
+(24560,1,0,14,12398,100,"delrissa LackeyDeath1","Oh, the horror."),
+(24560,2,0,14,12400,100,"delrissa LackeyDeath2","Well, aren't you lucky?"),
+(24560,3,0,14,12401,100,"delrissa LackeyDeath3","Now I'm getting annoyed."),
+(24560,4,0,14,12403,100,"delrissa LackeyDeath4","Lackies be damned! I'll finish you myself!"),
+(24560,5,0,14,12405,100,"delrissa PlayerDeath1","I call that a good start."),
+(24560,6,0,14,12407,100,"delrissa PlayerDeath2","I could have sworn there were more of you."),
+(24560,7,0,14,12409,100,"delrissa PlayerDeath3","Not really much of a group, anymore, is it?"),
+(24560,8,0,14,12410,100,"delrissa PlayerDeath4","One is such a lonely number."),
+(24560,9,0,14,12411,100,"delrissa PlayerDeath5","It's been a kick, really."),
+(24560,10,0,14,12397,100,"delrissa SAY_DEATH","Not what I had... planned...");
+
+-- lord gregor lescovar
+DELETE FROM `script_texts` WHERE `entry` BETWEEN -1000463 AND -1000457;
+DELETE FROM `creature_text` WHERE `entry` IN (1755,7766,1754,1756);
+INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,`comment`,`text`) VALUES
+(1756,0,0,12,0,100,"lord gregor lescovar SAY_GUARD_2","Yes, sir!"),
+(1754,0,0,12,0,100,"lord gregor lescovar SAY_LESCOVAR_2","It's time for my meditation, leave me."),
+(1754,1,0,12,0,100,"lord gregor lescovar SAY_LESCOVAR_3","There you are. What news from Westfall?"),
+(1754,2,0,12,0,100,"lord gregor lescovar SAY_LESCOVAR_4","Hmm, it could be that meddle Shaw. I will see what I can discover. Be off with you. I'll contact you again soon."),
+(1755,0,0,12,0,100,"lord gregor lescovar SAY_MARZON_1","VanCleef sends word that the plans are underway. But he's hear rumors about someone snooping about."),
+(1755,1,0,12,0,100,"lord gregor lescovar SAY_MARZON_2","The Defias shall succeed! No meek adventurer will stop us!"),
+(7766,0,0,14,0,100,"lord gregor lescovar SAY_TYRION_2","That's it! That's what you were waiting for! KILL THEM!");
+
+-- tyrion spybot
+DELETE FROM `script_texts` WHERE `entry` BETWEEN -1000456 AND -1000450 OR `entry`=-1000499;
+DELETE FROM `creature_text` WHERE `entry` IN (7766,8856,1756,1754);
+INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,`comment`,`text`) VALUES
+(8856,0,0,12,0,100,"tyrion spybot SAY_QUEST_ACCEPT_ATTACK","By your command!"),
+(8856,1,0,12,0,100,"tyrion spybot SAY_SPYBOT_1","Good day to you both. I would speak to Lord Lescovar."),
+(8856,2,0,12,0,100,"tyrion spybot SAY_SPYBOT_2","Thank you. The Light be with you both."),
+(8856,3,0,12,0,100,"tyrion spybot SAY_SPYBOT_3","Milord, your guest has arrived. He awaits your presence."),
+(8856,4,0,12,0,100,"tyrion spybot SAY_SPYBOT_4","I shall use the time wisely, milord. Thank you."),
+(7766,0,0,12,0,100,"tyrion spybot SAY_TYRION_1","Wait here. Spybot will make Lescovar come out as soon as possible. Be ready! Attack only after you've overheard their conversation."),
+(1756,0,0,12,0,100,"tyrion spybot SAY_GUARD_1","Of course. He awaits you in the library."),
+(1754,0,0,12,0,100,"tyrion spybot SAY_LESCOVAR_1","Ah, thank you kindly. I will leave you to the library while I tend to this small matter.");
+
+-- rager
+DELETE FROM `script_texts` WHERE `entry`=-1409002;
+DELETE FROM `creature_text` WHERE `entry`=11988;
+INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,`comment`,`text`) VALUES
+(11988,0,0,16,0,100,"core rager EMOTE_LOWHP","%s refuses to die while its master is in trouble.");
+
+-- ragnaros
+DELETE FROM `script_texts` WHERE `entry` BETWEEN -1409018 AND -1409008;
+DELETE FROM `creature_text` WHERE `entry`=11502;
+INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,`comment`,`text`) VALUES
+(11502,0,0,14,8040,100,"ragnaros SAY_SUMMON_MAJ","Behold Ragnaros, the Firelord! He who was ancient when this world was young! Bow before him, mortals! Bow before your ending!"),
+(11502,1,0,14,8043,100,"ragnaros SAY_ARRIVAL1_RAG","TOO SOON! YOU HAVE AWAKENED ME TOO SOON, EXECUTUS! WHAT IS THE MEANING OF THIS INTRUSION?"),
+(11502,2,0,14,8041,100,"ragnaros SAY_ARRIVAL2_MAJ","These mortal infidels, my lord! They have invaded your sanctum, and seek to steal your secrets!"),
+(11502,3,0,14,8044,100,"ragnaros SAY_ARRIVAL3_RAG","FOOL! YOU ALLOWED THESE INSECTS TO RUN RAMPANT THROUGH THE HALLOWED CORE, AND NOW YOU LEAD THEM TO MY VERY LAIR? YOU HAVE FAILED ME, EXECUTUS! JUSTICE SHALL BE MET, INDEED!"),
+(11502,4,0,14,8045,100,"ragnaros SAY_ARRIVAL5_RAG","NOW FOR YOU, INSECTS. BOLDLY YOU SAUGHT THE POWER OF RAGNAROS NOW YOU SHALL SEE IT FIRST HAND."),
+(11502,5,0,14,8049,100,"ragnaros SAY_REINFORCEMENTS1","COME FORTH, MY SERVANTS! DEFEND YOUR MASTER!"),
+(11502,6,0,14,8050,100,"ragnaros SAY_REINFORCEMENTS2","YOU CANNOT DEFEAT THE LIVING FLAME! COME YOU MINIONS OF FIRE! COME FORTH YOU CREATURES OF HATE! YOUR MASTER CALLS!"),
+(11502,7,0,14,8046,100,"ragnaros SAY_HAND","BY FIRE BE PURGED!"),
+(11502,8,0,14,8047,100,"ragnaros SAY_WRATH","TASTE THE FLAMES OF SULFURON!"),
+(11502,9,0,14,8051,100,"ragnaros SAY_KILL","DIE INSECT!"),
+(11502,10,0,14,8048,100,"ragnaros SAY_MAGMABURST","MY PATIENCE IS DWINDLING! COME, GNATS, TO YOUR DEATH!");
