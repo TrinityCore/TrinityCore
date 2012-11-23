@@ -297,7 +297,7 @@ void Channel::KickOrBan(Player const* player, std::string const& badname, bool b
         SendToOne(&data, good);
         return;
     }
-    
+
     Player* bad = sObjectAccessor->FindPlayerByName(badname);
     uint64 victim = bad ? bad->GetGUID() : 0;
     if (!victim || !IsOn(victim))
@@ -403,7 +403,7 @@ void Channel::Password(Player const* player, std::string const& pass)
         SendToOne(&data, guid);
         return;
     }
-    
+
     if (!playersStore[guid].IsModerator() && !AccountMgr::IsGMAccount(player->GetSession()->GetSecurity()))
     {
         WorldPacket data;
@@ -497,7 +497,7 @@ void Channel::SetOwner(Player const* player, std::string const& newname)
 
     Player* newp = sObjectAccessor->FindPlayerByName(newname);
     uint64 victim = newp ? newp->GetGUID() : 0;
-    
+
     if (!victim || !IsOn(victim) ||
         (newp->GetTeam() != player->GetTeam() && !sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_CHANNEL)))
     {
@@ -615,7 +615,7 @@ void Channel::Say(uint64 guid, std::string const& what, uint32 lang)
         SendToOne(&data, guid);
         return;
     }
-    
+
     if (playersStore[guid].IsMuted())
     {
         WorldPacket data;
