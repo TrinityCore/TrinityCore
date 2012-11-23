@@ -163,6 +163,9 @@ int WorldSocket::SendPacket(WorldPacket const& pct)
     if (sPacketLog->CanLogPacket())
         sPacketLog->LogPacket(pct, SERVER_TO_CLIENT);
 
+    if (m_Session)
+        sLog->outTrace(LOG_FILTER_OPCODES, "S->C %s %s", m_Session->GetPlayerInfo().c_str(), GetOpcodeNameForLogging(pct.GetOpcode()).c_str());
+
     // Create a copy of the original packet; this is to avoid issues if a hook modifies it.
     sScriptMgr->OnPacketSend(this, WorldPacket(pct));
 
@@ -673,6 +676,9 @@ int WorldSocket::ProcessIncoming(WorldPacket* new_pct)
     // Dump received packet.
     if (sPacketLog->CanLogPacket())
         sPacketLog->LogPacket(*new_pct, CLIENT_TO_SERVER);
+
+    if (m_Session)
+        sLog->outTrace(LOG_FILTER_OPCODES, "C->S %s %s", m_Session->GetPlayerInfo().c_str(), GetOpcodeNameForLogging(new_pct.GetOpcode()).c_str());
 
     try
     {
