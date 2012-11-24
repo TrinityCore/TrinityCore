@@ -3032,8 +3032,11 @@ void SpellMgr::LoadDbcDataCorrections()
                 break;
             case 49838: // Stop Time
             case 3600:  // Earthbind totem effect
+                spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_INITIAL_AGGRO;
+                break;
             case 50526: // Wandering plague
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_INITIAL_AGGRO;
+                spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_DONE_BONUS;
                 break;
             case 61407: // Energize Cores
             case 62136: // Energize Cores
