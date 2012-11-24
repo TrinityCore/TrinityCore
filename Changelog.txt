@@ -11,6 +11,7 @@
 #                                                                                          #
 ############################################################################################
 
+[94] --> Fix Normal and Glyph of Eternal Water - Water Elemental.
 [93] --> Fix Quests Argent Tournament.
 [92] --> Add [MOD] MultiKill.
 [91] --> Fix lowlevel pets cause big damage.
