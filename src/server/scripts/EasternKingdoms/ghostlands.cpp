@@ -111,18 +111,18 @@ public:
 
 enum eEnums
 {
-    SAY_START           = -1000140,
-    SAY_PROGRESS1       = -1000141,
-    SAY_PROGRESS2       = -1000142,
-    SAY_PROGRESS3       = -1000143,
-    SAY_END1            = -1000144,
-    SAY_END2            = -1000145,
-    SAY_CAPTAIN_ANSWER      = -1000146,
+    SAY_START                           = 0,
+    SAY_PROGRESS1                       = 1,
+    SAY_PROGRESS2                       = 2,
+    SAY_PROGRESS3                       = 3,
+    SAY_END1                            = 4,
+    SAY_END2                            = 5,
+    SAY_CAPTAIN_ANSWER                  = 0,
 
     QUEST_ESCAPE_FROM_THE_CATACOMBS     = 9212,
-    GO_CAGE             = 181152,
-    NPC_CAPTAIN_HELIOS  = 16220,
-    FACTION_SMOON_E     = 1603,
+    GO_CAGE                             = 181152,
+    NPC_CAPTAIN_HELIOS                  = 16220,
+    FACTION_SMOON_E                     = 1603
 };
 
 class npc_ranger_lilatha : public CreatureScript
@@ -146,18 +146,18 @@ public:
                     me->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
                     if (GameObject* Cage = me->FindNearestGameObject(GO_CAGE, 20))
                         Cage->SetGoState(GO_STATE_ACTIVE);
-                    DoScriptText(SAY_START, me, player);
+                    Talk(SAY_START, player->GetGUID());
                     break;
                 case 5:
-                    DoScriptText(SAY_PROGRESS1, me, player);
+                    Talk(SAY_PROGRESS1, player->GetGUID());
                     break;
                 case 11:
-                    DoScriptText(SAY_PROGRESS2, me, player);
+                    Talk(SAY_PROGRESS2, player->GetGUID());
                     me->SetOrientation(4.762841f);
                     break;
                 case 18:
                     {
-                        DoScriptText(SAY_PROGRESS3, me, player);
+                        Talk(SAY_PROGRESS3, player->GetGUID());
                         Creature* Summ1 = me->SummonCreature(16342, 7627.083984f, -7532.538086f, 152.128616f, 1.082733f, TEMPSUMMON_DEAD_DESPAWN, 0);
                         Creature* Summ2 = me->SummonCreature(16343, 7620.432129f, -7532.550293f, 152.454865f, 0.827478f, TEMPSUMMON_DEAD_DESPAWN, 0);
                         if (Summ1 && Summ2)
@@ -180,14 +180,14 @@ public:
                     break;
                 case 32:
                     me->SetOrientation(2.978281f);
-                    DoScriptText(SAY_END1, me, player);
+                    Talk(SAY_END1, player->GetGUID());
                     break;
                 case 33:
                     me->SetOrientation(5.858011f);
-                    DoScriptText(SAY_END2, me, player);
-                    Unit* CaptainHelios = me->FindNearestCreature(NPC_CAPTAIN_HELIOS, 50);
+                    Talk(SAY_END2, player->GetGUID());
+                    Creature* CaptainHelios = me->FindNearestCreature(NPC_CAPTAIN_HELIOS, 50);
                     if (CaptainHelios)
-                        DoScriptText(SAY_CAPTAIN_ANSWER, CaptainHelios, player);
+                        CaptainHelios->AI()->Talk(SAY_CAPTAIN_ANSWER, player->GetGUID());
                     break;
             }
         }
