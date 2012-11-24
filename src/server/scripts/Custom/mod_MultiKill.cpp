@@ -187,7 +187,7 @@ class Mod_MultiKill_PlayerScript : public PlayerScript
                 if (MultiKillInfo[i].Text != 0)
                 {
                     if (bg)
-                        bg->SendWarningToAll(MultiKillInfo[i].Text, player->GetName().c_str());
+                        bg->PSendMessageToAll(MultiKillInfo[i].Text, CHAT_MSG_SYSTEM, NULL, player->GetName().c_str());
                     else
                         sWorld->SendWorldText(MultiKillInfo[i].Text, player->GetName().c_str());
                 }
