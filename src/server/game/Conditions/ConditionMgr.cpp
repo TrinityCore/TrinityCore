@@ -1422,7 +1422,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond)
 
     if (cond->ConditionTarget >= cond->GetMaxAvailableConditionTargets())
     {
-        sLog->outError(LOG_FILTER_SQL, "SourceType %u, SourceEntry %u in `condition` table, has incorrect ConditionTarget set, ignoring.", cond->SourceType, cond->SourceEntry);
+        sLog->outError(LOG_FILTER_SQL, "SourceType %u, SourceEntry %u, SourceGroup %u in `condition` table, has incorrect ConditionTarget set, ignoring.", cond->SourceType, cond->SourceEntry, cond->SourceGroup);
         return false;
     }
 
