@@ -3089,16 +3089,6 @@ void Spell::prepare(SpellCastTargets const* targets, AuraEffect const* triggered
 
     sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Spell::prepare: spell id %u source %u caster %d customCastFlags %u mask %u", m_spellInfo->Id, m_caster->GetEntry(), m_originalCaster ? m_originalCaster->GetEntry() : -1, _triggeredCastFlags, m_targets.GetTargetMask());
 
-    if (GetCaster() && GetSpellInfo())
-        if (Player *tmpPlayer = GetCaster()->ToPlayer())
-            if (tmpPlayer->HaveSpectators())
-            {
-                SpectatorAddonMsg msg;
-                msg.SetPlayer(tmpPlayer->GetName());
-                msg.CastSpell(GetSpellInfo()->Id, GetSpellInfo()->CastTimeEntry->CastTime);
-                tmpPlayer->SendSpectatorAddonMsgToBG(msg);
-            }
-
     //Containers for channeled spells have to be set
     //TODO:Apply this to all casted spells if needed
     // Why check duration? 29350: channelled triggers channelled
@@ -4811,11 +4801,6 @@ SpellCastResult Spell::CheckCast(bool strict)
             return SPELL_FAILED_ONLY_INDOORS;
     }
 
-    if (Player *tmpPlayer = m_caster->ToPlayer())
-        if (tmpPlayer->isSpectator())
-            return SPELL_FAILED_SPELL_UNAVAILABLE;
-
-
     // only check at first call, Stealth auras are already removed at second call
     // for now, ignore triggered spells
     if (strict && !(_triggeredCastFlags & TRIGGERED_IGNORE_SHAPESHIFT))
@@ -5516,11 +5501,7 @@ SpellCastResult Spell::CheckCast(bool strict)
                     if (target->GetCharmerGUID())
                         return SPELL_FAILED_CHARMED;
 
-<<<<<<< HEAD
-					if (target->GetOwner() && target->GetOwner()->GetTypeId() == TYPEID_PLAYER)
-=======
                     if (target->GetOwner() && target->GetOwner()->GetTypeId() == TYPEID_PLAYER)
->>>>>>> 0fa484793acb1f6b556569ebfc9ce472372d5d78
                         return SPELL_FAILED_TARGET_IS_PLAYER_CONTROLLED;
 
                     int32 damage = CalculateDamage(i, target);

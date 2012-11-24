@@ -865,26 +865,15 @@ int WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
 
     // Must be done before WorldSession is created
     if (sWorld->getBoolConfig(CONFIG_WARDEN_ENABLED) && os != "Win" && os != "OSX")
-<<<<<<< HEAD
-     {
-        packet.Initialize(SMSG_AUTH_RESPONSE, 1);
-        packet << uint8(AUTH_REJECT);
-        SendPacket(packet);
-=======
     {
         packet.Initialize(SMSG_AUTH_RESPONSE, 1);
         packet << uint8(AUTH_REJECT);
         SendPacket(packet);
 
->>>>>>> 0fa484793acb1f6b556569ebfc9ce472372d5d78
         sLog->outError(LOG_FILTER_NETWORKIO, "WorldSocket::HandleAuthSession: Client %s attempted to log in using invalid client OS (%s).", GetRemoteAddress().c_str(), os.c_str());
         return -1;
     }
 
-<<<<<<< HEAD
-
-=======
->>>>>>> 0fa484793acb1f6b556569ebfc9ce472372d5d78
     // Checks gmlevel per Realm
     stmt = LoginDatabase.GetPreparedStatement(LOGIN_GET_GMLEVEL_BY_REALMID);
 

@@ -69,20 +69,26 @@ if( NOT WIN32 )
   )
 endif()
 
-target_link_libraries(authserver
-  shared
-  ${MYSQL_LIBRARY}
-  ${OPENSSL_LIBRARIES}
-)
-
 if( WIN32 )
   add_custom_command(TARGET authserver
     POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/authserver.conf.dist ${CMAKE_BINARY_DIR}/bin/$(ConfigurationName)/
   )
+  target_link_libraries(authserver
+    shared
+    ${MYSQL_LIBRARY}
+    ${OPENSSL_LIBRARIES}
+  )
 endif()
 
 if( UNIX )
+    find_package (Threads)
+    target_link_libraries(authserver
+    shared
+    ${MYSQL_LIBRARY}
+    ${OPENSSL_LIBRARIES}
+    ${CMAKE_THREAD_LIBS_INIT}
+  )
   install(TARGETS authserver DESTINATION bin)
   install(FILES  authserver.conf.dist DESTINATION etc)
 elseif( WIN32 )

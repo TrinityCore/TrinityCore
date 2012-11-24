@@ -915,22 +915,14 @@ BattlegroundQueueTypeId BattlegroundMgr::BGQueueTypeId(BattlegroundTypeId bgType
             return BATTLEGROUND_QUEUE_IC;
         case BATTLEGROUND_RB:
             return BATTLEGROUND_QUEUE_RB;
-<<<<<<< HEAD
-	    case BATTLEGROUND_SA:
-=======
         case BATTLEGROUND_SA:
->>>>>>> 0fa484793acb1f6b556569ebfc9ce472372d5d78
             return BATTLEGROUND_QUEUE_SA;
         case BATTLEGROUND_WS:
             return BATTLEGROUND_QUEUE_WS;
         case BATTLEGROUND_AA:
         case BATTLEGROUND_BE:
         case BATTLEGROUND_DS:
-<<<<<<< HEAD
-		case BATTLEGROUND_NA:	
-=======
         case BATTLEGROUND_NA:
->>>>>>> 0fa484793acb1f6b556569ebfc9ce472372d5d78
         case BATTLEGROUND_RL:
         case BATTLEGROUND_RV:
             switch (arenaType)

@@ -60,13 +60,13 @@ class npc_transmogrify : public CreatureScript
         }
 
         void TransmogrifyItem(Player* player, Creature* creature)
-        {
-            ChatHandler handler(player);
+        {   
+//        ChatHandler handler(player);
             Item *trItem = player->GetItemByPos(INVENTORY_SLOT_BAG_0, INVENTORY_SLOT_ITEM_START);
             Item *displayItem = player->GetItemByPos(INVENTORY_SLOT_BAG_0, INVENTORY_SLOT_ITEM_START + 1);
             if (!trItem || !displayItem)
             {
-                handler.PSendSysMessage("item #1 -> 1. miesto v tvojom batohu; Item #2 -> 2. miesto v tvojom batohu");
+ //               handler.PSendSysMessage("item #1 -> 1. miesto v tvojom batohu; Item #2 -> 2. miesto v tvojom batohu");
                 return;
             }
 
@@ -74,13 +74,13 @@ class npc_transmogrify : public CreatureScript
             switch (result)
             {
                 case FAKE_ERR_CANT_FIND_ITEM:
-                    handler.PSendSysMessage("Item nieje na 1. Mieste!");
+ //                   handler.PSendSysMessage("Item nieje na 1. Mieste!");
                     break;
                 case FAKE_ERR_WRONG_QUALITY:
-                    handler.PSendSysMessage("Item nieje správny");
+//                    handler.PSendSysMessage("Item nieje správny");
                     break;
                 case FAKE_ERR_DIFF_SLOTS:
-                handler.PSendSysMessage("item #1 -> 1. miesto v tvojom batohu; Item #2 -> 2. miesto v tvojom batohu");
+ //               handler.PSendSysMessage("item #1 -> 1. miesto v tvojom batohu; Item #2 -> 2. miesto v tvojom batohu");
                     break;
                 case FAKE_ERR_DIFF_CLASS:
                 case FAKE_ERR_OK:
@@ -99,11 +99,11 @@ class npc_transmogrify : public CreatureScript
 
         void ClearItem(Player *player, Creature* creature)
         {
-            ChatHandler handler(player);
+//            ChatHandler handler(player);
             Item *trItem = player->GetItemByPos(INVENTORY_SLOT_BAG_0, INVENTORY_SLOT_ITEM_START);
             if (!trItem)
             {
-                handler.PSendSysMessage("item #1 -> 1. miesto v tvojom batohu; Item #2 -> 2. miesto v tvojom batohu");
+//                handler.PSendSysMessage("item #1 -> 1. miesto v tvojom batohu; Item #2 -> 2. miesto v tvojom batohu");
                 return;
             }
 

@@ -27,11 +27,7 @@
 #include "SpellAuras.h"
 #include "TemporarySummon.h"
 #include "Vehicle.h"
-<<<<<<< HEAD
-#include "Player.h"
-=======
 #include "WorldSession.h"
->>>>>>> 0fa484793acb1f6b556569ebfc9ce472372d5d78
 
 enum WGVehicles
 {

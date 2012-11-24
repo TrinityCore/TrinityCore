@@ -760,6 +760,14 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                     break;
             }
             break;
+	           case SPELLFAMILY_MAGE:
+            // Cold Snap
+            if (m_spellInfo->Id == 11958)
+                // Normal and Glyph of Eternal Water - Water Elemental
+                if (Creature* playerPet = m_caster->ToPlayer()->GetGuardianPet())
+                    if ((playerPet->GetEntry() == 510 || playerPet->GetEntry() == 37994) && playerPet->isDead())
+                        playerPet->DespawnOrUnsummon();
+            break;
     }
 
     //spells triggered by dummy effect should not miss

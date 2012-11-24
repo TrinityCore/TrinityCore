@@ -1074,11 +1074,7 @@ void Battleground::RemovePlayerAtLeave(uint64 guid, bool Transport, bool SendPac
         if (Transport)
             player->TeleportToBGEntryPoint();
 
-<<<<<<< HEAD
-       sLog->outDebug(LOG_FILTER_BATTLEGROUND, "Removed player %s from Battleground.", player->GetName().c_str());
-=======
         sLog->outDebug(LOG_FILTER_BATTLEGROUND, "Removed player %s from Battleground.", player->GetName().c_str());
->>>>>>> 0fa484793acb1f6b556569ebfc9ce472372d5d78
     }
 
     //battleground object will be deleted next Battleground::Update() call
@@ -1092,10 +1088,7 @@ void Battleground::Reset()
     SetStartTime(0);
     SetEndTime(0);
     SetLastResurrectTime(0);
-<<<<<<< HEAD
 
-=======
->>>>>>> 0fa484793acb1f6b556569ebfc9ce472372d5d78
     m_Events = 0;
 
     if (m_InvitedAlliance > 0 || m_InvitedHorde > 0)
@@ -1217,10 +1210,6 @@ void Battleground::AddPlayer(Player* player)
     // setup BG group membership
     PlayerAddedToBGCheckIfBGIsRunning(player);
     AddOrSetPlayerToCorrectBgGroup(player, team);
-<<<<<<< HEAD
-
-=======
->>>>>>> 0fa484793acb1f6b556569ebfc9ce472372d5d78
 }
 
 // this method adds player to his team's bg group, or sets his correct group if player is already in bg group
@@ -1282,24 +1271,13 @@ void Battleground::EventPlayerLoggedOut(Player* player)
     m_Players[guid].OfflineRemoveTime = sWorld->GetGameTime() + MAX_OFFLINE_TIME;
     if (GetStatus() == STATUS_IN_PROGRESS)
     {
-        if (!player->isSpectator())
-        {
-            // drop flag and handle other cleanups
-            RemovePlayer(player, guid, GetPlayerTeam(guid));
+        // drop flag and handle other cleanups
+        RemovePlayer(player, guid, GetPlayerTeam(guid));
 
-            // 1 player is logging out, if it is the last, then end arena!
-            if (isArena())
-                if (GetAlivePlayersCountByTeam(player->GetTeam()) <= 1 && GetPlayersCountByTeam(GetOtherTeam(player->GetTeam())))
-                    EndBattleground(GetOtherTeam(player->GetTeam()));
-        }
-    }
-
-    if (!player->isSpectator())
-        player->LeaveBattleground();
-    else
-    {
-        player->TeleportToBGEntryPoint();
-        RemoveSpectator(player->GetGUID());
+        // 1 player is logging out, if it is the last, then end arena!
+        if (isArena())
+            if (GetAlivePlayersCountByTeam(player->GetTeam()) <= 1 && GetPlayersCountByTeam(GetOtherTeam(player->GetTeam())))
+                EndBattleground(GetOtherTeam(player->GetTeam()));
     }
 }
 
@@ -1439,17 +1417,6 @@ void Battleground::AddPlayerToResurrectQueue(uint64 npc_guid, uint64 player_guid
 
     player->CastSpell(player, SPELL_WAITING_FOR_RESURRECT, true);
 }
-
-void Battleground::SendSpectateAddonsMsg(SpectatorAddonMsg msg)
-{
-    if (!HaveSpectators())
-        return;
-
-    for (SpectatorList::iterator itr = m_Spectators.begin(); itr != m_Spectators.end(); ++itr)
-        msg.SendPacket(*itr);
-}
-
-
 
 void Battleground::RemovePlayerFromResurrectQueue(uint64 player_guid)
 {

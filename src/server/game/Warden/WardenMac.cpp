@@ -117,20 +117,12 @@ void WardenMac::RequestHash()
 struct keyData {
     union
     {
-<<<<<<< HEAD
-       struct
-=======
         struct
->>>>>>> 0fa484793acb1f6b556569ebfc9ce472372d5d78
         {
             uint8 bytes[16];
         } bytes;
 
-<<<<<<< HEAD
-       struct
-=======
         struct
->>>>>>> 0fa484793acb1f6b556569ebfc9ce472372d5d78
         {
             int ints[4];
         } ints;

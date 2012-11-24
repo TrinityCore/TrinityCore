@@ -30,12 +30,9 @@
 #include "SpellScript.h"
 #include "GossipDef.h"
 #include "CreatureAI.h"
-<<<<<<< HEAD
 #include "sc_npc_teleport.h"
-=======
 #include "Player.h"
 #include "WorldPacket.h"
->>>>>>> 0fa484793acb1f6b556569ebfc9ce472372d5d78
 
 // This is the global static registry of scripts.
 template<class TScript>

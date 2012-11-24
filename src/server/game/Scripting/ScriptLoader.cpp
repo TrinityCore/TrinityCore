@@ -24,13 +24,11 @@ void AddSC_example_gossip_codebox();
 void AddSC_example_misc();
 void AddSC_example_commandscript();
 
-// SAQIRMDEV USEFULL FIXES! A SAQIRM JE PAN
+//Custom Scriptes
 void AddSC_transmogrify_script();
-void AddSC_arena_spectator_script();
 void AddSC_utility_commandscript();
 void AddSC_npc_teleport();
 void AddSC_npc_supporter();
-
 void AddSC_guru_event();
 
 // spells
@@ -1283,7 +1281,6 @@ void AddCustomScripts()
 #ifdef SCRIPTS
     /* This is where custom scripts should be added. */
     AddSC_transmogrify_script();
-    AddSC_arena_spectator_script();
     AddSC_utility_commandscript();
     AddSC_EM_trader();
     AddSC_npc_teleport();
