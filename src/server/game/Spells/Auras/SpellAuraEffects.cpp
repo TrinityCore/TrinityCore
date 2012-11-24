@@ -3109,9 +3109,10 @@ void AuraEffect::HandleModPossess(AuraApplication const* aurApp, uint8 mode, boo
         target->RemoveCharmedBy(caster);
 }
 
-// only one spell has this aura
 void AuraEffect::HandleModPossessPet(AuraApplication const* aurApp, uint8 mode, bool apply) const
 {
+    // This handler only used by spell "Eyes of the Beast"
+
     if (!(mode & AURA_EFFECT_HANDLE_REAL))
         return;
 
@@ -3134,6 +3135,8 @@ void AuraEffect::HandleModPossessPet(AuraApplication const* aurApp, uint8 mode, 
         if (caster->ToPlayer()->GetPet() != pet)
             return;
 
+        // Must clear motion or 'Eyes of the Beast' won't work properly
+        pet->GetMotionMaster()->Clear();
         pet->SetCharmedBy(caster, CHARM_TYPE_POSSESS, aurApp);
     }
     else
@@ -3144,9 +3147,11 @@ void AuraEffect::HandleModPossessPet(AuraApplication const* aurApp, uint8 mode, 
             pet->Remove(PET_SAVE_NOT_IN_SLOT, true);
         else
         {
-            // Reinitialize the pet bar and make the pet come back to the owner
+            // Reinitialize the pet bar or it will appear greyed out
             caster->ToPlayer()->PetSpellInitialize();
-            if (!pet->getVictim())
+
+            // Follow owner only if not fighting or owner didn't click "stay" at new location
+            if (!pet->getVictim() && !pet->GetCharmInfo()->HasCommandState(COMMAND_STAY))
             {
                 pet->GetMotionMaster()->MoveFollow(caster, PET_FOLLOW_DIST, pet->GetFollowAngle());
                 //if (target->GetCharmInfo())

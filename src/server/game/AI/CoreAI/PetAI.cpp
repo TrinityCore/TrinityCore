@@ -426,6 +426,11 @@ void PetAI::HandleReturnMovement()
 {
     // Handles moving the pet back to stay or owner
 
+    // Prevent activating movement when under control of spells
+    // such as "Eyes of the Beast"
+    if (me->isCharmed())
+        return;
+
     if (me->GetCharmInfo()->HasCommandState(COMMAND_STAY))
     {
         if (!me->GetCharmInfo()->IsAtStay() && !me->GetCharmInfo()->IsReturning())
