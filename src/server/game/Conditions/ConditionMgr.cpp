@@ -720,12 +720,11 @@ void ConditionMgr::LoadConditions(bool isReload)
     }
 
     QueryResult result = WorldDatabase.Query("SELECT SourceTypeOrReferenceId, SourceGroup, SourceEntry, SourceId, ElseGroup, ConditionTypeOrReference, ConditionTarget, "
-                                             " ConditionValue1, ConditionValue2, ConditionValue3, NegativeCondition, ErrorTextId, ScriptName FROM conditions");
+                                             " ConditionValue1, ConditionValue2, ConditionValue3, NegativeCondition, ErrorType, ErrorTextId, ScriptName FROM conditions");
 
     if (!result)
     {
         sLog->outError(LOG_FILTER_SQL, ">> Loaded 0 conditions. DB table `conditions` is empty!");
-
         return;
     }
 
@@ -736,19 +735,20 @@ void ConditionMgr::LoadConditions(bool isReload)
         Field* fields = result->Fetch();
 
         Condition* cond = new Condition();
-        int32 iSourceTypeOrReferenceId   = fields[0].GetInt32();
+        int32 iSourceTypeOrReferenceId  = fields[0].GetInt32();
         cond->SourceGroup               = fields[1].GetUInt32();
         cond->SourceEntry               = fields[2].GetInt32();
         cond->SourceId                  = fields[3].GetInt32();
         cond->ElseGroup                 = fields[4].GetUInt32();
-        int32 iConditionTypeOrReference  = fields[5].GetInt32();
+        int32 iConditionTypeOrReference = fields[5].GetInt32();
         cond->ConditionTarget           = fields[6].GetUInt8();
         cond->ConditionValue1           = fields[7].GetUInt32();
         cond->ConditionValue2           = fields[8].GetUInt32();
         cond->ConditionValue3           = fields[9].GetUInt32();
         cond->NegativeCondition         = fields[10].GetUInt8();
-        cond->ErrorTextId                 = fields[11].GetUInt32();
-        cond->ScriptId                  = sObjectMgr->GetScriptId(fields[12].GetCString());
+        cond->ErrorType                 = fields[11].GetUInt32();
+        cond->ErrorTextId               = fields[12].GetUInt32();
+        cond->ScriptId                  = sObjectMgr->GetScriptId(fields[13].GetCString());
 
         if (iConditionTypeOrReference >= 0)
             cond->ConditionType = ConditionTypes(iConditionTypeOrReference);
@@ -823,6 +823,18 @@ void ConditionMgr::LoadConditions(bool isReload)
             sLog->outError(LOG_FILTER_SQL, "Condition type %u has not allowed value of SourceId = %u!", uint32(cond->SourceType), cond->SourceId);
             delete cond;
             continue;
+        }
+
+        if (cond->ErrorType && cond->SourceType != CONDITION_SOURCE_TYPE_SPELL)
+        {
+            sLog->outError(LOG_FILTER_SQL, "Condition type %u entry %i can't have ErrorType (%u), set to 0!", uint32(cond->SourceType), cond->SourceEntry, cond->ErrorType);
+            cond->ErrorType = 0;
+        }
+
+        if (cond->ErrorTextId && !cond->ErrorType)
+        {
+            sLog->outError(LOG_FILTER_SQL, "Condition type %u entry %i has any ErrorType, ErrorTextId (%u) is set, set to 0!", uint32(cond->SourceType), cond->SourceEntry, cond->ErrorTextId);
+            cond->ErrorTextId = 0;
         }
 
         if (cond->SourceGroup)
