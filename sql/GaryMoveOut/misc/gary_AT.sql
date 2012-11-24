@@ -322,6 +322,8 @@ UPDATE  `creature_template` SET  `ScriptName` =  'npc_argent_squire' WHERE  `ent
 UPDATE  `creature_template` SET  `ScriptName` =  'npc_argent_squire' WHERE  `entry` =33518;
 UPDATE  `creature_template` SET  `ScriptName` =  'npc_argent_squire' WHERE  `entry` =33522;
 UPDATE  `creature_template` SET  `ScriptName` =  'npc_argent_faction_rider' WHERE `entry` IN (33562,33559,33558,33564,33561,33382,33383,33384,33306,33285,33739,33738,33747,33743,33740,33746,33748,33744,33745,33749);
+UPDATE  `creature_template` SET  `ScriptName` =  'npc_argent_valiant' WHERE `entry`=33448;
+UPDATE  `creature_template` SET  `ScriptName` =  'npc_black_knights_grave' WHERE  `entry` =34735;
 
 -- ARGENT SQUIRE/GRUNTLING
 -- Gossip flag
