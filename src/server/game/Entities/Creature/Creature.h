@@ -622,7 +622,6 @@ class Creature : public Unit, public GridObject<Creature>, public MapCreature
 
         bool canStartAttack(Unit const* u, bool force) const;
         float GetAttackDistance(Unit const* target) const;
-	    float GetPetAggroRange(Unit const* target) const;
 
         void SendAIReaction(AiReaction reactionType);
 
@@ -630,7 +629,6 @@ class Creature : public Unit, public GridObject<Creature>, public MapCreature
 		Unit* SelectHostileTargetInAggroRange(bool useLOS = false) const;
         Unit* SelectNearestTargetInAttackDistance(float dist = 0) const;
         Player* SelectNearestPlayer(float distance = 0) const;
-        Unit* AggressivePetSelectTarget(bool useLOS = false);
 
         void DoFleeToGetAssistance();
         void CallForHelp(float fRadius);

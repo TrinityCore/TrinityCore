@@ -58,7 +58,5 @@ class PetAI : public CreatureAI
         void HandleReturnMovement();
         void DoAttack(Unit* target, bool chase);
         bool CanAttack(Unit* target);
-	    void ClearCharmInfoFlags();
 };
 #endif
-
