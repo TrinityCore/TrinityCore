@@ -5748,6 +5748,15 @@ void AuraEffect::HandlePeriodicDummyAuraTick(Unit* target, Unit* caster) const
                         target->RemoveAura(64821);
                     }
                     break;
+                case 67039: // argent squire mount
+                    if (caster && caster->GetOwner())
+                    {
+                        if (caster->GetOwner()->IsMounted())
+                            caster->Mount(29736);
+                        else if (caster->IsMounted())
+                                 caster->Dismount();
+                    }
+                    break;
             }
             break;
         case SPELLFAMILY_MAGE:
