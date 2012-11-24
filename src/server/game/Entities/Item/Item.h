@@ -152,6 +152,7 @@ enum SellResult
     SELL_ERR_ONLY_EMPTY_BAG                      = 6        // can only do with empty bags
 };
 
+
 enum FakeResult
 {
     FAKE_ERR_CANT_FIND_OWNER,
@@ -162,6 +163,7 @@ enum FakeResult
     FAKE_ERR_DIFF_RACE,
     FAKE_ERR_OK
 };
+
 
 
 // -1 from client enchantment slot number
@@ -354,9 +356,11 @@ class Item : public Object
 
         uint32 GetScriptId() const { return GetTemplate()->ScriptId; }
 
-        FakeResult SetFakeDisplay(uint32 iEntry);
+		
+       FakeResult SetFakeDisplay(uint32 iEntry);
         uint32 GetFakeDisplayEntry() { return m_fakeDisplayEntry; }
         void RemoveFakeDisplay();
+		
     private:
         std::string m_text;
         uint8 m_slot;
