@@ -26,6 +26,7 @@
 #include "Object.h"
 #include "Player.h"
 #include "Util.h"
+#include "WorldSession.h"
 
 BattlegroundAB::BattlegroundAB()
 {
@@ -546,6 +547,25 @@ void BattlegroundAB::EventPlayerClickedOnFlag(Player* source, GameObject* /*targ
             SendMessage2ToAll(LANG_BG_AB_NODE_TAKEN, CHAT_MSG_BG_SYSTEM_HORDE, NULL, LANG_BG_AB_HORDE, _GetNodeNameId(node));
     }
     PlaySoundToAll(sound);
+}
+
+uint32 BattlegroundAB::GetPrematureWinner()
+{
+    // How many bases each team owns
+    uint8 ally = 0, horde = 0;
+    for (uint8 i = 0; i < BG_AB_DYNAMIC_NODES_COUNT; ++i)
+        if (m_Nodes[i] == BG_AB_NODE_STATUS_ALLY_OCCUPIED)
+            ++ally;
+        else if (m_Nodes[i] == BG_AB_NODE_STATUS_HORDE_OCCUPIED)
+            ++horde;
+    
+    if (ally > horde)
+        return ALLIANCE;
+    else if (horde > ally)
+        return HORDE;
+    
+    // If the values are equal, fall back to the original result (based on number of players on each team)
+    return Battleground::GetPrematureWinner();
 }
 
 bool BattlegroundAB::SetupBattleground()

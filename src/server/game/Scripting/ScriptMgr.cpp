@@ -30,7 +30,12 @@
 #include "SpellScript.h"
 #include "GossipDef.h"
 #include "CreatureAI.h"
+<<<<<<< HEAD
 #include "sc_npc_teleport.h"
+=======
+#include "Player.h"
+#include "WorldPacket.h"
+>>>>>>> 0fa484793acb1f6b556569ebfc9ce472372d5d78
 
 // This is the global static registry of scripts.
 template<class TScript>
@@ -1190,12 +1195,12 @@ void ScriptMgr::OnShutdown()
     FOREACH_SCRIPT(WorldScript)->OnShutdown();
 }
 
-bool ScriptMgr::OnCriteriaCheck(AchievementCriteriaData const* data, Player* source, Unit* target)
+bool ScriptMgr::OnCriteriaCheck(uint32 scriptId, Player* source, Unit* target)
 {
     ASSERT(source);
     // target can be NULL.
 
-    GET_SCRIPT_RET(AchievementCriteriaScript, data->ScriptId, tmpscript, false);
+    GET_SCRIPT_RET(AchievementCriteriaScript, scriptId, tmpscript, false);
     return tmpscript->OnCheck(source, target);
 }
 

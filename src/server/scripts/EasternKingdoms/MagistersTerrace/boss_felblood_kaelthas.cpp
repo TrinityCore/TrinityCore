@@ -27,46 +27,57 @@ EndScriptData */
 #include "ScriptedCreature.h"
 #include "magisters_terrace.h"
 #include "WorldPacket.h"
+#include "Opcodes.h"
 
-#define SAY_AGGRO                   -1585023                //This yell should be done when the room is cleared. For now, set it as a movelineofsight yell.
-#define SAY_PHOENIX                 -1585024
-#define SAY_FLAMESTRIKE             -1585025
-#define SAY_GRAVITY_LAPSE           -1585026
-#define SAY_TIRED                   -1585027
-#define SAY_RECAST_GRAVITY          -1585028
-#define SAY_DEATH                   -1585029
+enum Says
+{
+    SAY_AGGRO                   = 0,                //This yell should be done when the room is cleared. For now, set it as a movelineofsight yell.
+    SAY_PHOENIX                 = 1,
+    SAY_FLAMESTRIKE             = 2,
+    SAY_GRAVITY_LAPSE           = 3,
+    SAY_TIRED                   = 4,
+    SAY_RECAST_GRAVITY          = 5,
+    SAY_DEATH                   = 6
+};
 
-/*** Spells ***/
 
-// Phase 1 spells
-#define SPELL_FIREBALL_NORMAL         44189                 // Deals 2700-3300 damage at current target
-#define SPELL_FIREBALL_HEROIC         46164                 //       4950-6050
+enum Spells
+{
+    // Phase 1 spells
+    SPELL_FIREBALL_NORMAL         = 44189,                 // Deals 2700-3300 damage at current target
+    SPELL_FIREBALL_HEROIC         = 46164,                 //       4950-6050
 
-#define SPELL_PHOENIX                 44194                 // Summons a phoenix (Doesn't work?)
-#define SPELL_PHOENIX_BURN            44197                 // A spell Phoenix uses to damage everything around
-#define SPELL_REBIRTH_DMG             44196                 // DMG if a Phoenix rebirth happen
+    SPELL_PHOENIX                 = 44194,                 // Summons a phoenix (Doesn't work?)
+    SPELL_PHOENIX_BURN            = 44197,                 // A spell Phoenix uses to damage everything around
+    SPELL_REBIRTH_DMG             = 44196,                 // DMG if a Phoenix rebirth happen
 
-#define SPELL_FLAMESTRIKE1_NORMAL     44190                 // Damage part
-#define SPELL_FLAMESTRIKE1_HEROIC     46163                 // Heroic damage part
-#define SPELL_FLAMESTRIKE2            44191                 // Flamestrike indicator before the damage
-#define SPELL_FLAMESTRIKE3            44192                 // Summons the trigger + animation (projectile)
+    SPELL_FLAMESTRIKE1_NORMAL     = 44190,                 // Damage part
+    SPELL_FLAMESTRIKE1_HEROIC     = 46163,                 // Heroic damage part
+    SPELL_FLAMESTRIKE2            = 44191,                 // Flamestrike indicator before the damage
+    SPELL_FLAMESTRIKE3            = 44192,                 // Summons the trigger + animation (projectile)
 
-#define SPELL_SHOCK_BARRIER           46165                 // Heroic only; 10k damage shield, followed by Pyroblast
-#define SPELL_PYROBLAST               36819                 // Heroic only; 45-55k fire damage
+    SPELL_SHOCK_BARRIER           = 46165,                 // Heroic only; 10k damage shield, followed by Pyroblast
+    SPELL_PYROBLAST               = 36819,                 // Heroic only; 45-55k fire damage
 
 // Phase 2 spells
-#define SPELL_GRAVITY_LAPSE_INITIAL   44224                 // Cast at the beginning of every Gravity Lapse
-#define SPELL_GRAVITY_LAPSE_CHANNEL   44251                 // Channeled; blue beam animation to every enemy in range
-#define SPELL_TELEPORT_CENTER         44218                 // Should teleport people to the center. Requires DB entry in spell_target_position.
-#define SPELL_GRAVITY_LAPSE_FLY       44227                 // Hastens flyspeed and allows flying for 1 minute. For some reason removes 44226.
-#define SPELL_GRAVITY_LAPSE_DOT       44226                 // Knocks up in the air and applies a 300 DPS DoT.
-#define SPELL_ARCANE_SPHERE_PASSIVE   44263                 // Passive auras on Arcane Spheres
-#define SPELL_POWER_FEEDBACK          44233                 // Stuns him, making him take 50% more damage for 10 seconds. Cast after Gravity Lapse
+    SPELL_GRAVITY_LAPSE_INITIAL   = 44224,                 // Cast at the beginning of every Gravity Lapse
+    SPELL_GRAVITY_LAPSE_CHANNEL   = 44251,                 // Channeled; blue beam animation to every enemy in range
+    SPELL_TELEPORT_CENTER         = 44218,                 // Should teleport people to the center. Requires DB entry in spell_target_position.
+    SPELL_GRAVITY_LAPSE_FLY       = 44227,                 // Hastens flyspeed and allows flying for 1 minute. For some reason removes 44226.
+    SPELL_GRAVITY_LAPSE_DOT       = 44226,                 // Knocks up in the air and applies a 300 DPS DoT.
+    SPELL_ARCANE_SPHERE_PASSIVE   = 44263,                 // Passive auras on Arcane Spheres
+    SPELL_POWER_FEEDBACK          = 44233                 // Stuns him, making him take 50% more damage for 10 seconds. Cast after Gravity Lapse
+};
 
-/*** Creatures ***/
-#define CREATURE_PHOENIX              24674
-#define CREATURE_PHOENIX_EGG          24675
-#define CREATURE_ARCANE_SPHERE        24708
+
+
+enum Creatures
+{
+    CREATURE_PHOENIX              = 24674,
+    CREATURE_PHOENIX_EGG          = 24675,
+    CREATURE_ARCANE_SPHERE        = 24708
+};
+
 
 /** Locations **/
 float KaelLocations[3][2]=
@@ -140,27 +151,21 @@ public:
             Phase = 0;
 
             if (instance)
-            {
                 instance->SetData(DATA_KAELTHAS_EVENT, NOT_STARTED);
-                instance->HandleGameObject(instance->GetData64(DATA_KAEL_DOOR), true);
-               // Open the big encounter door. Close it in Aggro and open it only in JustDied(and here)
-               // Small door opened after event are expected to be closed by default
-            }
         }
 
         void JustDied(Unit* /*killer*/)
         {
-            DoScriptText(SAY_DEATH, me);
+            Talk(SAY_DEATH);
 
             if (!instance)
                 return;
 
-            // Open the encounter door
-            instance->HandleGameObject(instance->GetData64(DATA_KAEL_DOOR), true);
+            instance->SetData(DATA_KAELTHAS_EVENT, DONE);
 
             // Enable the Translocation Orb Exit
             if (GameObject* escapeOrb = ObjectAccessor::GetGameObject(*me, instance->GetData64(DATA_ESCAPE_ORB)))
-                    escapeOrb->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                escapeOrb->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
         }
 
         void DamageTaken(Unit* /*done_by*/, uint32 &damage)
@@ -173,16 +178,15 @@ public:
         {
             if (!instance)
                 return;
-
-            //Close the encounter door, open it in JustDied/Reset
-            instance->HandleGameObject(instance->GetData64(DATA_KAEL_DOOR), false);
+            
+            instance->SetData(DATA_KAELTHAS_EVENT, IN_PROGRESS);
         }
 
         void MoveInLineOfSight(Unit* who)
         {
             if (!HasTaunted && me->IsWithinDistInMap(who, 40.0f))
             {
-                DoScriptText(SAY_AGGRO, me);
+                Talk(SAY_AGGRO);
                 HasTaunted = true;
             }
 
@@ -248,8 +252,7 @@ public:
                     // Also needs an exception in spell system.
                     unit->CastSpell(unit, SPELL_GRAVITY_LAPSE_FLY, true, 0, 0, me->GetGUID());
                     // Use packet hack
-                    WorldPacket data(12);
-                    data.SetOpcode(SMSG_MOVE_SET_CAN_FLY);
+                    WorldPacket data(SMSG_MOVE_SET_CAN_FLY, 12);
                     data.append(unit->GetPackGUID());
                     data << uint32(0);
                     unit->SendMessageToSet(&data, true);
@@ -269,8 +272,7 @@ public:
                     unit->RemoveAurasDueToSpell(SPELL_GRAVITY_LAPSE_FLY);
                     unit->RemoveAurasDueToSpell(SPELL_GRAVITY_LAPSE_DOT);
 
-                    WorldPacket data(12);
-                    data.SetOpcode(SMSG_MOVE_UNSET_CAN_FLY);
+                    WorldPacket data(SMSG_MOVE_UNSET_CAN_FLY, 12);
                     data.append(unit->GetPackGUID());
                     data << uint32(0);
                     unit->SendMessageToSet(&data, true);
@@ -323,7 +325,7 @@ public:
                             Phoenix->AI()->AttackStart(target);
                         }
 
-                        DoScriptText(SAY_PHOENIX, me);
+                        Talk(SAY_PHOENIX);
 
                         PhoenixTimer = 60000;
                     } else PhoenixTimer -= diff;
@@ -335,7 +337,7 @@ public:
                             me->InterruptSpell(CURRENT_CHANNELED_SPELL);
                             me->InterruptSpell(CURRENT_GENERIC_SPELL);
                             DoCast(target, SPELL_FLAMESTRIKE3, true);
-                            DoScriptText(SAY_FLAMESTRIKE, me);
+                            Talk(SAY_FLAMESTRIKE);
                         }
                         FlameStrikeTimer = urand(15000, 25000);
                     } else FlameStrikeTimer -= diff;
@@ -365,18 +367,14 @@ public:
                             case 0:
                                 if (FirstGravityLapse)          // Different yells at 50%, and at every following Gravity Lapse
                                 {
-                                    DoScriptText(SAY_GRAVITY_LAPSE, me);
+                                    Talk(SAY_GRAVITY_LAPSE);
                                     FirstGravityLapse = false;
 
                                     if (instance)
-                                    {
-                                        instance->HandleGameObject(instance->GetData64(DATA_KAEL_STATUE_LEFT), true);
-                                        instance->HandleGameObject(instance->GetData64(DATA_KAEL_STATUE_RIGHT), true);
-                                    }
-                                }else
-                                {
-                                    DoScriptText(SAY_RECAST_GRAVITY, me);
+                                        instance->SetData(DATA_KAELTHAS_STATUES, 1);
                                 }
+                                else
+                                    Talk(SAY_RECAST_GRAVITY);
 
                                 DoCast(me, SPELL_GRAVITY_LAPSE_INITIAL);
                                 GravityLapseTimer = 2000 + diff;// Don't interrupt the visual spell
@@ -419,7 +417,7 @@ public:
 
                             case 4:
                                 me->InterruptNonMeleeSpells(false);
-                                DoScriptText(SAY_TIRED, me);
+                                Talk(SAY_TIRED);
                                 DoCast(me, SPELL_POWER_FEEDBACK);
                                 RemoveGravityLapse();
                                 GravityLapseTimer = 10000;

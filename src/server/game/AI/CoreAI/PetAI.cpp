@@ -410,11 +410,20 @@ Unit* PetAI::SelectNextTarget()
             return ownerVictim;
 
     // Neither pet or owner had a target and aggressive pets can pick any target
+<<<<<<< HEAD
     // Note: Creature::SelectNearestTarget() If no distane is supplied it uses MAX_VISIBILITY_DISTANCE
     // We also want to lock this to LOS so pet doesn't go running through walls and stuff
     if (me->HasReactState(REACT_AGGRESSIVE))
         if (Unit* nearTarget = me->ToCreature()->SelectHostileTargetInAggroRange(true))
             if (!nearTarget->HasBreakableByDamageCrowdControlAura())
+=======
+    // Note: Creature::SelectNearestTarget() If no distance is supplied it uses MAX_VISIBILITY_DISTANCE
+    // We also want to lock this to LOS so pet doesn't go running through walls and stuff
+    if (me->HasReactState(REACT_AGGRESSIVE))
+        if (Unit* nearTarget = me->ToCreature()->SelectNearestTarget())
+            if (nearTarget->IsHostileTo(me) && !nearTarget->HasBreakableByDamageCrowdControlAura())
+                if (nearTarget->IsWithinLOS(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ()))
+>>>>>>> 0fa484793acb1f6b556569ebfc9ce472372d5d78
                     return nearTarget;
 
     // Default - no valid targets

@@ -24,38 +24,31 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "sunwell_plateau.h"
+#include "SpellInfo.h"
 
 enum Quotes
 {
-    //Alytesh
-    YELL_CANFLAGRATION          =   -1580044,
-    YELL_SISTER_SACROLASH_DEAD  =   -1580045,
-    YELL_ALY_KILL_1             =   -1580046,
-    YELL_ALY_KILL_2             =   -1580047,
-    YELL_ALY_DEAD               =   -1580048,
-    YELL_BERSERK                =   -1580049,
+    YELL_INTRO_SAC_1            = 0,
+    YELL_INTRO_SAC_3            = 1,
+    YELL_INTRO_SAC_5            = 2,
+    YELL_INTRO_SAC_7            = 3,
+    YELL_SAC_DEAD               = 4,
+    EMOTE_SHADOW_NOVA           = 5,
+    YELL_ENRAGE                 = 6,
+    YELL_SISTER_ALYTHESS_DEAD   = 7,
+    YELL_SAC_KILL               = 8,
+    YELL_SHADOW_NOVA            = 9,
 
-    //Sacrolash
-    YELL_SHADOW_NOVA            =   -1580050,
-    YELL_SISTER_ALYTHESS_DEAD   =   -1580051,
-    YELL_SAC_KILL_1             =   -1580052,
-    YELL_SAC_KILL_2             =   -1580053,
-    SAY_SAC_DEAD                =   -1580054,
-    YELL_ENRAGE                 =   -1580055,
-
-    //Intro
-    YELL_INTRO_SAC_1            =   -1580056,
-    YELL_INTRO_ALY_2            =   -1580057,
-    YELL_INTRO_SAC_3            =   -1580058,
-    YELL_INTRO_ALY_4            =   -1580059,
-    YELL_INTRO_SAC_5            =   -1580060,
-    YELL_INTRO_ALY_6            =   -1580061,
-    YELL_INTRO_SAC_7            =   -1580062,
-    YELL_INTRO_ALY_8            =   -1580063,
-
-    //Emote
-    EMOTE_SHADOW_NOVA           =   -1580064,
-    EMOTE_CONFLAGRATION         =   -1580065
+    YELL_INTRO_ALY_2            = 0,
+    YELL_INTRO_ALY_4            = 1,
+    YELL_INTRO_ALY_6            = 2,
+    YELL_INTRO_ALY_8            = 3,
+    EMOTE_CONFLAGRATION         = 4,
+    YELL_ALY_KILL               = 5,
+    YELL_ALY_DEAD               = 6,
+    YELL_SISTER_SACROLASH_DEAD  = 7,
+    YELL_CANFLAGRATION          = 8,
+    YELL_BERSERK                = 9,
 };
 
 enum Spells
@@ -164,7 +157,7 @@ public:
         void KilledUnit(Unit* /*victim*/)
         {
             if (rand()%4 == 0)
-                DoScriptText(RAND(YELL_SAC_KILL_1, YELL_SAC_KILL_2), me);
+                Talk(YELL_SAC_KILL);
         }
 
         void JustDied(Unit* /*killer*/)
@@ -172,7 +165,7 @@ public:
             // only if ALY death
             if (SisterDeath)
             {
-                DoScriptText(SAY_SAC_DEAD, me);
+                Talk(YELL_SAC_DEAD);
 
                 if (instance)
                     instance->SetData(DATA_EREDAR_TWINS_EVENT, DONE);
@@ -234,7 +227,7 @@ public:
                     Temp = Unit::GetUnit(*me, instance->GetData64(DATA_ALYTHESS));
                     if (Temp && Temp->isDead())
                     {
-                        DoScriptText(YELL_SISTER_ALYTHESS_DEAD, me);
+                        Talk(YELL_SISTER_ALYTHESS_DEAD);
                         DoCast(me, SPELL_EMPOWER);
                         me->InterruptSpell(CURRENT_GENERIC_SPELL);
                         SisterDeath = true;
@@ -274,8 +267,8 @@ public:
                         if (!SisterDeath)
                         {
                             if (target)
-                                DoScriptText(EMOTE_SHADOW_NOVA, me, target);
-                            DoScriptText(YELL_SHADOW_NOVA, me);
+                                Talk(EMOTE_SHADOW_NOVA, target->GetGUID());
+                            Talk(YELL_SHADOW_NOVA);
                         }
                         ShadownovaTimer = 30000+(rand()%5000);
                     }
@@ -323,7 +316,7 @@ public:
             if (EnrageTimer < diff && !Enraged)
             {
                 me->InterruptSpell(CURRENT_GENERIC_SPELL);
-                DoScriptText(YELL_ENRAGE, me);
+                Talk(YELL_ENRAGE);
                 DoCast(me, SPELL_ENRAGE);
                 Enraged = true;
             } else EnrageTimer -= diff;
@@ -456,7 +449,7 @@ public:
         {
             if (rand()%4 == 0)
             {
-                DoScriptText(RAND(YELL_ALY_KILL_1, YELL_ALY_KILL_2), me);
+                Talk(YELL_ALY_KILL);
             }
         }
 
@@ -464,7 +457,7 @@ public:
         {
             if (SisterDeath)
             {
-                DoScriptText(YELL_ALY_DEAD, me);
+                Talk(YELL_ALY_DEAD);
 
                 if (instance)
                     instance->SetData(DATA_EREDAR_TWINS_EVENT, DONE);
@@ -527,24 +520,24 @@ public:
             case 0: return 0;
             case 1:
                 if (Sacrolash)
-                    DoScriptText(YELL_INTRO_SAC_1, Sacrolash);
+                    Sacrolash->AI()->Talk(YELL_INTRO_SAC_1);
                 return 1000;
-            case 2: DoScriptText(YELL_INTRO_ALY_2, me); return 1000;
+            case 2: Talk(YELL_INTRO_ALY_2); return 1000;
             case 3:
                 if (Sacrolash)
-                    DoScriptText(YELL_INTRO_SAC_3, Sacrolash);
+                    Sacrolash->AI()->Talk(YELL_INTRO_SAC_3);
                 return 2000;
-            case 4: DoScriptText(YELL_INTRO_ALY_4, me); return 1000;
+            case 4: Talk(YELL_INTRO_ALY_4); return 1000;
             case 5:
                 if (Sacrolash)
-                    DoScriptText(YELL_INTRO_SAC_5, Sacrolash);
+                    Sacrolash->AI()->Talk(YELL_INTRO_SAC_5);
                 return 2000;
-            case 6: DoScriptText(YELL_INTRO_ALY_6, me); return 1000;
+            case 6: Talk(YELL_INTRO_ALY_6); return 1000;
             case 7:
                 if (Sacrolash)
-                    DoScriptText(YELL_INTRO_SAC_7, Sacrolash);
+                    Sacrolash->AI()->Talk(YELL_INTRO_SAC_7);
                 return 3000;
-            case 8: DoScriptText(YELL_INTRO_ALY_8, me); return 900000;
+            case 8: Talk(YELL_INTRO_ALY_8); return 900000;
             }
             return 10000;
         }
@@ -567,7 +560,7 @@ public:
                     Temp = Unit::GetUnit(*me, instance->GetData64(DATA_SACROLASH));
                     if (Temp && Temp->isDead())
                     {
-                        DoScriptText(YELL_SISTER_SACROLASH_DEAD, me);
+                        Talk(YELL_SISTER_SACROLASH_DEAD);
                         DoCast(me, SPELL_EMPOWER);
                         me->InterruptSpell(CURRENT_GENERIC_SPELL);
                         SisterDeath = true;
@@ -621,8 +614,8 @@ public:
                         if (!SisterDeath)
                         {
                             if (target)
-                                DoScriptText(EMOTE_CONFLAGRATION, me, target);
-                            DoScriptText(YELL_CANFLAGRATION, me);
+                                Talk(EMOTE_CONFLAGRATION, target->GetGUID());
+                            Talk(YELL_CANFLAGRATION);
                         }
 
                         BlazeTimer = 4000;
@@ -660,7 +653,7 @@ public:
             if (EnrageTimer < diff && !Enraged)
             {
                 me->InterruptSpell(CURRENT_GENERIC_SPELL);
-                DoScriptText(YELL_BERSERK, me);
+                Talk(YELL_BERSERK);
                 DoCast(me, SPELL_ENRAGE);
                 Enraged = true;
             } else EnrageTimer -= diff;

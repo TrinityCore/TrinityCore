@@ -23,7 +23,12 @@
 #include "ObjectAccessor.h"
 #include "MoveSplineInit.h"
 #include "MoveSpline.h"
+<<<<<<< HEAD
  
+=======
+#include "Player.h"
+
+>>>>>>> 0fa484793acb1f6b556569ebfc9ce472372d5d78
 #define MIN_QUIET_DISTANCE 28.0f
 #define MAX_QUIET_DISTANCE 43.0f
  

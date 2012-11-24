@@ -44,6 +44,7 @@
 #include "SharedDefines.h"
 #include "Formulas.h"
 #include "DisableMgr.h"
+#include "Opcodes.h"
 
 /*********************************************************/
 /***            BATTLEGROUND MANAGER                   ***/
@@ -699,8 +700,8 @@ void BattlegroundMgr::CreateInitialBattlegrounds()
         data.MaxPlayersPerTeam = fields[2].GetUInt16();
         data.LevelMin = fields[3].GetUInt8();
         data.LevelMax = fields[4].GetUInt8();
-        uint8 spawn = fields[9].GetUInt8();
-        data.StartMaxDist = float(spawn * spawn);
+        float dist = fields[9].GetFloat();
+        data.StartMaxDist = dist * dist;
 
         data.scriptId = sObjectMgr->GetScriptId(fields[11].GetCString());
         data.BattlegroundName = bl->name[sWorld->GetDefaultDbcLocale()];
@@ -914,14 +915,22 @@ BattlegroundQueueTypeId BattlegroundMgr::BGQueueTypeId(BattlegroundTypeId bgType
             return BATTLEGROUND_QUEUE_IC;
         case BATTLEGROUND_RB:
             return BATTLEGROUND_QUEUE_RB;
+<<<<<<< HEAD
 	    case BATTLEGROUND_SA:
+=======
+        case BATTLEGROUND_SA:
+>>>>>>> 0fa484793acb1f6b556569ebfc9ce472372d5d78
             return BATTLEGROUND_QUEUE_SA;
         case BATTLEGROUND_WS:
             return BATTLEGROUND_QUEUE_WS;
         case BATTLEGROUND_AA:
         case BATTLEGROUND_BE:
         case BATTLEGROUND_DS:
+<<<<<<< HEAD
 		case BATTLEGROUND_NA:	
+=======
+        case BATTLEGROUND_NA:
+>>>>>>> 0fa484793acb1f6b556569ebfc9ce472372d5d78
         case BATTLEGROUND_RL:
         case BATTLEGROUND_RV:
             switch (arenaType)

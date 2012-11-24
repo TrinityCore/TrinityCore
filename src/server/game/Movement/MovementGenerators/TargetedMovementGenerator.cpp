@@ -53,10 +53,28 @@ void TargetedMovementGeneratorMedium<T,D>::_setTargetLocation(T* owner)
         if (owner->IsWithinLOSInMap(owner->getVictim()))
             i_target->GetContactPoint(owner, x, y, z, dist);
         else
+<<<<<<< HEAD
 		{
             // to at i_offset distance from target and i_angle from target facing
          i_target->GetClosePoint(x, y, z, owner->GetObjectSize(), i_offset, i_angle);
 		}
+=======
+        {
+            float size;
+
+            // Pets need special handling.
+            // We need to subtract GetObjectSize() because it gets added back further down the chain
+            //  and that makes pets too far away. Subtracting it allows pets to properly
+            //  be (GetCombatReach() + i_offset) away.
+            if (owner->isPet())
+                size = i_target->GetCombatReach() - i_target->GetObjectSize();
+            else
+                size = owner->GetObjectSize();
+
+            // to at i_offset distance from target and i_angle from target facing
+            i_target->GetClosePoint(x, y, z, size, i_offset, i_angle);
+        }
+>>>>>>> 0fa484793acb1f6b556569ebfc9ce472372d5d78
     }
     else
     {

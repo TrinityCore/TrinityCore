@@ -23,6 +23,7 @@
 #include "Vehicle.h"
 #include "CombatAI.h"
 #include "oculus.h"
+#include "Player.h"
 
 #define GOSSIP_ITEM_DRAKES         "So where do we go from here?"
 #define GOSSIP_ITEM_BELGARISTRASZ1 "I want to fly on the wings of the Red Flight"

@@ -258,7 +258,7 @@ public:
             impaledList.push_back(guid);
         }
 
-        uint32 GetData(uint32 type)
+        uint32 GetData(uint32 type) const
         {
             if (type == DATA_SHARE_THE_LOVE)
                 return shareTheLove;

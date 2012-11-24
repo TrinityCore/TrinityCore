@@ -19,6 +19,7 @@
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
 #include "naxxramas.h"
+#include "Player.h"
 
 #define SAY_AGGRO           RAND(-1533109, -1533110, -1533111)
 #define SAY_SLAY            -1533112
@@ -80,7 +81,7 @@ public:
                 safetyDance = data ? true : false;
         }
 
-        uint32 GetData(uint32 type)
+        uint32 GetData(uint32 type) const
         {
             if (type == DATA_SAFETY_DANCE)
                 return safetyDance ? 1 : 0;

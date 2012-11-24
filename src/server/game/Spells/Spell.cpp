@@ -5516,7 +5516,11 @@ SpellCastResult Spell::CheckCast(bool strict)
                     if (target->GetCharmerGUID())
                         return SPELL_FAILED_CHARMED;
 
+<<<<<<< HEAD
 					if (target->GetOwner() && target->GetOwner()->GetTypeId() == TYPEID_PLAYER)
+=======
+                    if (target->GetOwner() && target->GetOwner()->GetTypeId() == TYPEID_PLAYER)
+>>>>>>> 0fa484793acb1f6b556569ebfc9ce472372d5d78
                         return SPELL_FAILED_TARGET_IS_PLAYER_CONTROLLED;
 
                     int32 damage = CalculateDamage(i, target);

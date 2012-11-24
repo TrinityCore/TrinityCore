@@ -108,7 +108,7 @@ public:
                 m_bVesperonKilled = true;
         }
 
-        uint32 GetData(uint32 uiType)
+        uint32 GetData(uint32 uiType) const
         {
             if (uiType == TYPE_SARTHARION_EVENT)
                 return m_auiEncounter[0];
@@ -122,7 +122,7 @@ public:
             return 0;
         }
 
-        uint64 GetData64(uint32 uiData)
+        uint64 GetData64(uint32 uiData) const
         {
             switch (uiData)
             {

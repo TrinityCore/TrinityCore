@@ -22,6 +22,8 @@
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "ahnkahet.h"
+#include "Player.h"
+#include "SpellInfo.h"
 
 enum Spells
 {

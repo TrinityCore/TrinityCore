@@ -26,63 +26,57 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "sunwell_plateau.h"
+#include "Player.h"
+#include "WorldSession.h"
 
 enum Yells
 {
-    //Kalecgos dragon form
-    SAY_EVIL_AGGRO                               = -1580000,
-    SAY_EVIL_SPELL1                              = -1580001,
-    SAY_EVIL_SPELL2                              = -1580002,
-    SAY_EVIL_SLAY1                               = -1580003,
-    SAY_EVIL_SLAY2                               = -1580004,
-    SAY_EVIL_ENRAGE                              = -1580005,
+    SAY_SATH_AGGRO                              = 0,
+    SAY_SATH_SLAY                               = 1,
+    SAY_SATH_DEATH                              = 2,
+    SAY_SATH_SPELL1                             = 3,
+    SAY_SATH_SPELL2                             = 4,
 
-    //Kalecgos humanoid form
-    SAY_GOOD_AGGRO                               = -1580006,
-    SAY_GOOD_NEAR_DEATH                          = -1580007,
-    SAY_GOOD_NEAR_DEATH2                         = -1580008,
-    SAY_GOOD_PLRWIN                              = -1580009,
+    SAY_EVIL_AGGRO                              = 0,
+    SAY_EVIL_SLAY                               = 1,
+    SAY_GOOD_PLRWIN                             = 2,
+    SAY_EVIL_ENRAGE                             = 3,
 
-    //Sathrovarr
-    SAY_SATH_AGGRO                               = -1580010,
-    SAY_SATH_DEATH                               = -1580011,
-    SAY_SATH_SPELL1                              = -1580012,
-    SAY_SATH_SPELL2                              = -1580013,
-    SAY_SATH_SLAY1                               = -1580014,
-    SAY_SATH_SLAY2                               = -1580015,
-    SAY_SATH_ENRAGE                              = -1580016,
+    SAY_GOOD_AGGRO                              = 0,
+    SAY_GOOD_NEAR_DEATH                         = 1,
+    SAY_GOOD_NEAR_DEATH2                        = 2,
 };
 
 enum Spells
 {
-    AURA_SUNWELL_RADIANCE                        = 45769,
-    AURA_SPECTRAL_EXHAUSTION                     = 44867,
-    AURA_SPECTRAL_REALM                          = 46021,
-    AURA_SPECTRAL_INVISIBILITY                   = 44801,
-    AURA_DEMONIC_VISUAL                          = 44800,
+    AURA_SUNWELL_RADIANCE                       = 45769,
+    AURA_SPECTRAL_EXHAUSTION                    = 44867,
+    AURA_SPECTRAL_REALM                         = 46021,
+    AURA_SPECTRAL_INVISIBILITY                  = 44801,
+    AURA_DEMONIC_VISUAL                         = 44800,
+    
+    SPELL_SPECTRAL_BLAST                        = 44869,
+    SPELL_TELEPORT_SPECTRAL                     = 46019,
+    SPELL_ARCANE_BUFFET                         = 45018,
+    SPELL_FROST_BREATH                          = 44799,
+    SPELL_TAIL_LASH                             = 45122,
 
-    SPELL_SPECTRAL_BLAST                         = 44869,
-    SPELL_TELEPORT_SPECTRAL                      = 46019,
-    SPELL_ARCANE_BUFFET                          = 45018,
-    SPELL_FROST_BREATH                           = 44799,
-    SPELL_TAIL_LASH                              = 45122,
+    SPELL_BANISH                                = 44836,
+    SPELL_TRANSFORM_KALEC                       = 44670,
+    SPELL_ENRAGE                                = 44807,
 
-    SPELL_BANISH                                 = 44836,
-    SPELL_TRANSFORM_KALEC                        = 44670,
-    SPELL_ENRAGE                                 = 44807,
+    SPELL_CORRUPTION_STRIKE                     = 45029,
+    SPELL_AGONY_CURSE                           = 45032,
+    SPELL_SHADOW_BOLT                           = 45031,
 
-    SPELL_CORRUPTION_STRIKE                      = 45029,
-    SPELL_AGONY_CURSE                            = 45032,
-    SPELL_SHADOW_BOLT                            = 45031,
-
-    SPELL_HEROIC_STRIKE                          = 45026,
-    SPELL_REVITALIZE                             = 45027
+    SPELL_HEROIC_STRIKE                         = 45026,
+    SPELL_REVITALIZE                            = 45027
 };
 
 enum SWPActions
 {
-    DO_ENRAGE                                    =  1,
-    DO_BANISH                                    =  2,
+    DO_ENRAGE                                   =  1,
+    DO_BANISH                                   =  2,
 };
 
 #define GO_FAILED   "You are unable to use this currently."
@@ -358,7 +352,7 @@ public:
         void EnterCombat(Unit* /*who*/)
         {
             me->SetStandState(UNIT_STAND_STATE_STAND);
-            DoScriptText(SAY_EVIL_AGGRO, me);
+            Talk(SAY_EVIL_AGGRO);
             DoZoneInCombat();
 
             if (instance)
@@ -367,7 +361,7 @@ public:
 
         void KilledUnit(Unit* /*victim*/)
         {
-            DoScriptText(RAND(SAY_EVIL_SLAY1, SAY_EVIL_SLAY2), me);
+            Talk(SAY_EVIL_SLAY);
         }
 
         void MovementInform(uint32 type, uint32 /*id*/)
@@ -406,7 +400,7 @@ public:
                 TalkTimer = 1000;
                 break;
             case 2:
-                DoScriptText(SAY_GOOD_PLRWIN, me);
+                Talk(SAY_GOOD_PLRWIN);
                 TalkTimer = 10000;
                 break;
             case 3:
@@ -424,7 +418,7 @@ public:
             switch (TalkSequence)
             {
             case 1:
-                DoScriptText(SAY_EVIL_ENRAGE, me);
+                Talk(SAY_EVIL_ENRAGE);
                 TalkTimer = 3000;
                 break;
             case 2:
@@ -503,20 +497,20 @@ public:
                 switch (YellSequence)
                 {
                 case 0:
-                    DoScriptText(SAY_GOOD_AGGRO, me);
+                    Talk(SAY_GOOD_AGGRO);
                     ++YellSequence;
                     break;
                 case 1:
                     if (HealthBelowPct(50))
                     {
-                        DoScriptText(SAY_GOOD_NEAR_DEATH, me);
+                        Talk(SAY_GOOD_NEAR_DEATH);
                         ++YellSequence;
                     }
                     break;
                 case 2:
                     if (HealthBelowPct(10))
                     {
-                        DoScriptText(SAY_GOOD_NEAR_DEATH2, me);
+                        Talk(SAY_GOOD_NEAR_DEATH2);
                         ++YellSequence;
                     }
                     break;
@@ -640,7 +634,7 @@ public:
                 me->AddThreat(Kalec, 100.0f);
                 Kalec->setActive(true);
             }
-            DoScriptText(SAY_SATH_AGGRO, me);
+            Talk(SAY_SATH_AGGRO);
         }
 
         void DamageTaken(Unit* done_by, uint32 &damage)
@@ -662,12 +656,12 @@ public:
                 EnterEvadeMode();
                 return;
             }
-            DoScriptText(RAND(SAY_SATH_SLAY1, SAY_SATH_SLAY2), me);
+            Talk(SAY_SATH_SLAY);
         }
 
         void JustDied(Unit* /*killer*/)
         {
-            DoScriptText(SAY_SATH_DEATH, me);
+            Talk(SAY_SATH_DEATH);
             me->SetPosition(me->GetPositionX(), me->GetPositionY(), DRAGON_REALM_Z, me->GetOrientation());
             TeleportAllPlayersBack();
             if (Creature* Kalecgos = Unit::GetCreature(*me, KalecgosGUID))
@@ -779,7 +773,7 @@ public:
 
             if (ShadowBoltTimer <= diff)
             {
-                if (!(rand()%5))DoScriptText(SAY_SATH_SPELL1, me);
+                if (!(rand()%5))Talk(SAY_SATH_SPELL1);
                 DoCast(me, SPELL_SHADOW_BOLT);
                 ShadowBoltTimer = 7000+(rand()%3000);
             } else ShadowBoltTimer -= diff;
@@ -794,7 +788,7 @@ public:
 
             if (CorruptionStrikeTimer <= diff)
             {
-                if (!(rand()%5))DoScriptText(SAY_SATH_SPELL2, me);
+                if (!(rand()%5))Talk(SAY_SATH_SPELL2);
                 DoCast(me->getVictim(), SPELL_CORRUPTION_STRIKE);
                 CorruptionStrikeTimer = 13000;
             } else CorruptionStrikeTimer -= diff;

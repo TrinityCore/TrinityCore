@@ -24,6 +24,7 @@
 #include "MapManager.h"
 #include "MoveSplineInit.h"
 #include "ulduar.h"
+#include "Player.h"
 
 enum Texts
 {
@@ -373,11 +374,11 @@ class boss_algalon_the_observer : public CreatureScript
                     case ACTION_INIT_ALGALON:
                         _firstPull = false;
                         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
-                        break;;
+                        break;
                 }
             }
 
-            uint32 GetData(uint32 type)
+            uint32 GetData(uint32 type) const
             {
                 return type == DATA_HAS_FED_ON_TEARS ? _fedOnTears : 1;
             }
@@ -727,7 +728,7 @@ class npc_living_constellation : public CreatureScript
                 _isActive = false;
             }
 
-            uint32 GetData(uint32 /*type*/)
+            uint32 GetData(uint32 /*type*/) const
             {
                 return _isActive ? 1 : 0;
             }

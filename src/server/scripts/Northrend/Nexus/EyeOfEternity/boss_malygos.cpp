@@ -34,6 +34,7 @@ Script Data End */
 #include "PassiveAI.h"
 #include "eye_of_eternity.h"
 #include "ScriptedEscortAI.h"
+#include "Player.h"
 
 enum Achievements
 {
@@ -250,7 +251,7 @@ public:
                 instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
         }
 
-        uint32 GetData(uint32 data)
+        uint32 GetData(uint32 data) const
         {
             if (data == DATA_SUMMON_DEATHS)
                 return _summonDeaths;

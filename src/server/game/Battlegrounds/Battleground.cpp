@@ -16,24 +16,24 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Player.h"
-#include "ObjectMgr.h"
-#include "ArenaTeamMgr.h"
-#include "World.h"
-#include "WorldPacket.h"
 #include "ArenaTeam.h"
+#include "ArenaTeamMgr.h"
 #include "Battleground.h"
 #include "BattlegroundMgr.h"
 #include "Creature.h"
 #include "Formulas.h"
 #include "GridNotifiersImpl.h"
 #include "Group.h"
-#include "Language.h"
 #include "MapManager.h"
 #include "Object.h"
-#include "SpellAuras.h"
+#include "ObjectMgr.h"
+#include "Player.h"
+#include "ReputationMgr.h"
 #include "SpellAuraEffects.h"
+#include "SpellAuras.h"
 #include "Util.h"
+#include "World.h"
+#include "WorldPacket.h"
 
 namespace Trinity
 {
@@ -404,6 +404,17 @@ inline void Battleground::_ProcessRessurect(uint32 diff)
     }
 }
 
+uint32 Battleground::GetPrematureWinner()
+{
+    uint32 winner = 0;
+    if (GetPlayersCountByTeam(ALLIANCE) >= GetMinPlayersPerTeam())
+        winner = ALLIANCE;
+    else if (GetPlayersCountByTeam(HORDE) >= GetMinPlayersPerTeam())
+        winner = HORDE;
+        
+    return winner;
+}
+
 inline void Battleground::_ProcessProgress(uint32 diff)
 {
     // *********************************************************
@@ -418,13 +429,7 @@ inline void Battleground::_ProcessProgress(uint32 diff)
     else if (m_PrematureCountDownTimer < diff)
     {
         // time's up!
-        uint32 winner = 0;
-        if (GetPlayersCountByTeam(ALLIANCE) >= GetMinPlayersPerTeam())
-            winner = ALLIANCE;
-        else if (GetPlayersCountByTeam(HORDE) >= GetMinPlayersPerTeam())
-            winner = HORDE;
-
-        EndBattleground(winner);
+        EndBattleground(GetPrematureWinner());
         m_PrematureCountDown = false;
     }
     else if (!sBattlegroundMgr->isTesting())
@@ -1069,7 +1074,11 @@ void Battleground::RemovePlayerAtLeave(uint64 guid, bool Transport, bool SendPac
         if (Transport)
             player->TeleportToBGEntryPoint();
 
+<<<<<<< HEAD
        sLog->outDebug(LOG_FILTER_BATTLEGROUND, "Removed player %s from Battleground.", player->GetName().c_str());
+=======
+        sLog->outDebug(LOG_FILTER_BATTLEGROUND, "Removed player %s from Battleground.", player->GetName().c_str());
+>>>>>>> 0fa484793acb1f6b556569ebfc9ce472372d5d78
     }
 
     //battleground object will be deleted next Battleground::Update() call
@@ -1083,7 +1092,10 @@ void Battleground::Reset()
     SetStartTime(0);
     SetEndTime(0);
     SetLastResurrectTime(0);
+<<<<<<< HEAD
 
+=======
+>>>>>>> 0fa484793acb1f6b556569ebfc9ce472372d5d78
     m_Events = 0;
 
     if (m_InvitedAlliance > 0 || m_InvitedHorde > 0)
@@ -1205,7 +1217,10 @@ void Battleground::AddPlayer(Player* player)
     // setup BG group membership
     PlayerAddedToBGCheckIfBGIsRunning(player);
     AddOrSetPlayerToCorrectBgGroup(player, team);
+<<<<<<< HEAD
 
+=======
+>>>>>>> 0fa484793acb1f6b556569ebfc9ce472372d5d78
 }
 
 // this method adds player to his team's bg group, or sets his correct group if player is already in bg group

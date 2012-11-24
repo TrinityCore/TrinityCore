@@ -165,6 +165,21 @@ struct keyData {
     };
 };
 
+struct keyData {
+    union
+    {
+        struct
+        {
+            uint8 bytes[20];
+        } bytes;
+
+        struct
+        {
+            uint32 ints[5];
+        } ints;
+    };
+};
+
 uint32 Warden::BuildChecksum(const uint8* data, uint32 length)
 {
     keyData hash;

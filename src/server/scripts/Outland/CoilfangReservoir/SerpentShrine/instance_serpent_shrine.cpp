@@ -26,6 +26,8 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
 #include "serpent_shrine.h"
+#include "Player.h"
+#include "TemporarySummon.h"
 
 #define MAX_ENCOUNTER 6
 #define SPELL_SCALDINGWATER 37284
@@ -242,7 +244,7 @@ class instance_serpent_shrine : public InstanceMapScript
                     LeotherasEventStarter = data;
             }
 
-            uint64 GetData64(uint32 identifier)
+            uint64 GetData64(uint32 identifier) const
             {
                 switch (identifier)
                 {
@@ -340,7 +342,7 @@ class instance_serpent_shrine : public InstanceMapScript
                     SaveToDB();
             }
 
-            uint32 GetData(uint32 type)
+            uint32 GetData(uint32 type) const
             {
                 switch (type)
                 {

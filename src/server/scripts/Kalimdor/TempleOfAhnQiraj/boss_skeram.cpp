@@ -27,6 +27,7 @@ EndScriptData */
 #include "ScriptedCreature.h"
 #include "temple_of_ahnqiraj.h"
 #include "Group.h"
+#include "Player.h"
 
 #define SAY_AGGRO1                  -1531000
 #define SAY_AGGRO2                  -1531001

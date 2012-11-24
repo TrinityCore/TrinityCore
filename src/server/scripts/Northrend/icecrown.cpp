@@ -31,6 +31,7 @@ EndContentData */
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
 #include "SpellAuras.h"
+#include "Player.h"
 
 //global define faction in cpp
 #define FACTION_FRIENDLY    35

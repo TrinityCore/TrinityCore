@@ -28,6 +28,8 @@ Script Data End */
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "utgarde_pinnacle.h"
+#include "Player.h"
+#include "SpellInfo.h"
 
 //Yell
 enum eYells

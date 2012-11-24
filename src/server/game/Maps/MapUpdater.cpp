@@ -69,7 +69,7 @@ MapUpdater::~MapUpdater()
 
 int MapUpdater::activate(size_t num_threads)
 {
-    return m_executor.activate((int)num_threads, new WDBThreadStartReq1, new WDBThreadEndReq1);
+    return m_executor.start((int)num_threads, new WDBThreadStartReq1, new WDBThreadEndReq1);
 }
 
 int MapUpdater::deactivate()

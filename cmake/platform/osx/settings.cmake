@@ -1,6 +1,4 @@
 set(MACOSX 1)
-set(OSX_LIBS /usr/lib/libcrypto.dylib)
-add_definitions(-D__ASSERTMACROS__)
 
 # set default configuration directory
 if( NOT CONF_DIR )
@@ -28,4 +26,8 @@ add_custom_target(uninstall
 )
 message(STATUS "OSX: Created uninstall target")
 
-include(${CMAKE_SOURCE_DIR}/cmake/compiler/xcode/settings.cmake)
+if (CMAKE_COMPILER_IS_GNUCC)
+  include(${CMAKE_SOURCE_DIR}/cmake/compiler/gcc/settings.cmake)
+elseif (${CMAKE_CXX_COMPILER_ID} MATCHES "Clang")
+  include(${CMAKE_SOURCE_DIR}/cmake/compiler/clang/settings.cmake)
+endif()

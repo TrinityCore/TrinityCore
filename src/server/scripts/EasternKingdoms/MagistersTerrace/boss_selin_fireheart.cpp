@@ -27,30 +27,37 @@ EndScriptData */
 #include "ScriptedCreature.h"
 #include "magisters_terrace.h"
 
-#define SAY_AGGRO                       -1585000
-#define SAY_ENERGY                      -1585001
-#define SAY_EMPOWERED                   -1585002
-#define SAY_KILL_1                      -1585003
-#define SAY_KILL_2                      -1585004
-#define SAY_DEATH                       -1585005
-#define EMOTE_CRYSTAL                   -1585006
+enum Says
+{
+    SAY_AGGRO                       = 0,
+    SAY_ENERGY                      = 1,
+    SAY_EMPOWERED                   = 2,
+    SAY_KILL                        = 3,
+    SAY_DEATH                       = 4,
+    EMOTE_CRYSTAL                   = 5
+};
 
-//Crystal effect spells
-#define SPELL_FEL_CRYSTAL_COSMETIC      44374
-#define SPELL_FEL_CRYSTAL_DUMMY         44329
-#define SPELL_FEL_CRYSTAL_VISUAL        44355
-#define SPELL_MANA_RAGE                 44320               // This spell triggers 44321, which changes scale and regens mana Requires an entry in spell_script_target
+enum Spells
+{
+    //Crystal effect spells
+    SPELL_FEL_CRYSTAL_COSMETIC      = 44374,
+    SPELL_FEL_CRYSTAL_DUMMY         = 44329,
+    SPELL_FEL_CRYSTAL_VISUAL        = 44355,
+    SPELL_MANA_RAGE                 = 44320,               // This spell triggers 44321, which changes scale and regens mana Requires an entry in spell_script_target
 
-//Selin's spells
-#define SPELL_DRAIN_LIFE                44294
-#define SPELL_FEL_EXPLOSION             44314
+    //Selin's spells
+    SPELL_DRAIN_LIFE                = 44294,
+    SPELL_FEL_EXPLOSION             = 44314,
 
-#define SPELL_DRAIN_MANA                46153               // Heroic only
+    SPELL_DRAIN_MANA                = 46153               // Heroic only
+};
 
-#define CRYSTALS_NUMBER                 5
-#define DATA_CRYSTALS                   6
-
-#define CREATURE_FEL_CRYSTAL            24722
+enum Misc
+{
+    CRYSTALS_NUMBER                 = 5,
+    DATA_CRYSTALS                   = 6,
+    CREATURE_FEL_CRYSTAL            = 24722
+};
 
 class boss_selin_fireheart : public CreatureScript
 {
@@ -75,6 +82,7 @@ public:
                 uint32 size = instance->GetData(DATA_FEL_CRYSTAL_SIZE);
                 for (uint8 i = 0; i < size; ++i)
                 {
+                    instance->SetData64(DATA_FEL_CRYSTAL, i);
                     uint64 guid = instance->GetData64(DATA_FEL_CRYSTAL);
                     sLog->outDebug(LOG_FILTER_TSCR, "Selin: Adding Fel Crystal " UI64FMTD " to list", guid);
                     Crystals.push_back(guid);
@@ -114,10 +122,6 @@ public:
                         creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                     }
                 }
-
-                instance->HandleGameObject(instance->GetData64(DATA_SELIN_ENCOUNTER_DOOR), true);
-                // Open the big encounter door. Close it in Aggro and open it only in JustDied(and here)
-                // Small door opened after event are expected to be closed by default
 
                 // Set Inst data for encounter
                 instance->SetData(DATA_SELIN_EVENT, NOT_STARTED);
@@ -164,8 +168,8 @@ public:
             }
             if (CrystalChosen)
             {
-                DoScriptText(SAY_ENERGY, me);
-                DoScriptText(EMOTE_CRYSTAL, me);
+                Talk(SAY_ENERGY);
+                Talk(EMOTE_CRYSTAL);
 
                 CrystalChosen->CastSpell(CrystalChosen, SPELL_FEL_CRYSTAL_COSMETIC, true);
 
@@ -195,16 +199,14 @@ public:
 
         void EnterCombat(Unit* /*who*/)
         {
-            DoScriptText(SAY_AGGRO, me);
-
+            Talk(SAY_AGGRO);
             if (instance)
-                instance->HandleGameObject(instance->GetData64(DATA_SELIN_ENCOUNTER_DOOR), false);
-                //Close the encounter door, open it in JustDied/Reset
+                instance->SetData(DATA_SELIN_EVENT, IN_PROGRESS);
          }
 
         void KilledUnit(Unit* /*victim*/)
         {
-            DoScriptText(RAND(SAY_KILL_1, SAY_KILL_2), me);
+            Talk(SAY_KILL);
         }
 
         void MovementInform(uint32 type, uint32 id)
@@ -231,14 +233,12 @@ public:
 
         void JustDied(Unit* /*killer*/)
         {
-            DoScriptText(SAY_DEATH, me);
+            Talk(SAY_DEATH);
 
             if (!instance)
                 return;
 
             instance->SetData(DATA_SELIN_EVENT, DONE);         // Encounter complete!
-            instance->HandleGameObject(instance->GetData64(DATA_SELIN_ENCOUNTER_DOOR), true);                  // Open the encounter door
-            instance->HandleGameObject(instance->GetData64(DATA_SELIN_DOOR), true);                 // Open the door leading further in
             ShatterRemainingCrystals();
         }
 
@@ -300,7 +300,7 @@ public:
                         IsDraining = false;
                         DrainingCrystal = false;
 
-                        DoScriptText(SAY_EMPOWERED, me);
+                        Talk(SAY_EMPOWERED);
 
                         Unit* CrystalChosen = Unit::GetUnit(*me, CrystalGUID);
                         if (CrystalChosen && CrystalChosen->isAlive())

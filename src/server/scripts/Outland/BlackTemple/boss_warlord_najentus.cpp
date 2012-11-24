@@ -26,6 +26,8 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "black_temple.h"
+#include "Player.h"
+#include "SpellInfo.h"
 
 enum eEnums
 {
