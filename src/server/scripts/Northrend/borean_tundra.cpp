@@ -29,7 +29,6 @@ npc_corastrasza
 npc_jenny
 npc_sinkhole_kill_credit
 npc_khunok_the_behemoth
-npc_scourge_prisoner
 mob_nerubar_victim
 npc_keristrasza
 npc_nesingwary_trapper
@@ -383,41 +382,6 @@ public:
     CreatureAI* GetAI(Creature* creature) const
     {
         return new mob_nerubar_victimAI(creature);
-    }
-};
-
-/*######
-## npc_scourge_prisoner
-######*/
-
-enum eScourgePrisoner
-{
-    GO_SCOURGE_CAGE = 187867
-};
-
-class npc_scourge_prisoner : public CreatureScript
-{
-public:
-    npc_scourge_prisoner() : CreatureScript("npc_scourge_prisoner") { }
-
-    struct npc_scourge_prisonerAI : public ScriptedAI
-    {
-        npc_scourge_prisonerAI(Creature* creature) : ScriptedAI (creature){}
-
-        void Reset()
-        {
-            me->SetReactState(REACT_PASSIVE);
-
-            if (GameObject* go = me->FindNearestGameObject(GO_SCOURGE_CAGE, 5.0f))
-                if (go->GetGoState() == GO_STATE_ACTIVE)
-                    go->SetGoState(GO_STATE_READY);
-        }
-
-    };
-
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new npc_scourge_prisonerAI(creature);
     }
 };
 
@@ -2548,7 +2512,6 @@ void AddSC_borean_tundra()
     new npc_corastrasza();
     new npc_iruk();
     new mob_nerubar_victim();
-    new npc_scourge_prisoner();
     new npc_jenny();
     new npc_fezzix_geartwist();
     new npc_nesingwary_trapper();
