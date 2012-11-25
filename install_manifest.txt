@@ -1,0 +1,4 @@
+/home/wotlkblizz/server/builds/20120720/bin/authserver
+/home/wotlkblizz/server/builds/20120720/etc/authserver.conf.dist
+/home/wotlkblizz/server/builds/20120720/bin/worldserver
+/home/wotlkblizz/server/builds/20120720/etc/worldserver.conf.dist

@@ -1,0 +1,1 @@
+/usr/bin/c++  -fPIC -O3 -DNDEBUG  -shared -Wl,-soname,libauthPCH.cpp_dephelp.so -o libauthPCH.cpp_dephelp.so CMakeFiles/authPCH.cpp_dephelp.dir/PrecompiledHeaders/authPCH.cpp.o 

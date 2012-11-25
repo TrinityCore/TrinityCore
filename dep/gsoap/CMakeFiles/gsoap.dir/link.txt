@@ -1,0 +1,2 @@
+/usr/bin/ar cr libgsoap.a  CMakeFiles/gsoap.dir/stdsoap2.cpp.o CMakeFiles/gsoap.dir/soapServer.cpp.o CMakeFiles/gsoap.dir/soapC.cpp.o
+/usr/bin/ranlib libgsoap.a
