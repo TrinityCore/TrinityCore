@@ -1130,7 +1130,7 @@ public:
         if (handler->HasLowerSecurity(target, 0))
             return false;
 
-        int32 amount = (uint32)atoi(args);
+        int32 amount = (uint32)atoi(args) + 100;
 
         target->ModifyCurrency(CURRENCY_TYPE_HONOR_POINTS, amount, true, true);
 

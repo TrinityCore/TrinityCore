@@ -419,6 +419,9 @@ class spell_warl_life_tap : public SpellScriptLoader
 
 // 48018 Demonic Circle: Summon
 /// Updated 4.3.4
+
+// 48020 Demonic Circle: Teleport
+/// Updated 4.3.4
 class spell_warl_demonic_circle_summon : public SpellScriptLoader
 {
     public:
@@ -470,8 +473,6 @@ class spell_warl_demonic_circle_summon : public SpellScriptLoader
         }
 };
 
-// 48020 Demonic Circle: Teleport
-/// Updated 4.3.4
 class spell_warl_demonic_circle_teleport : public SpellScriptLoader
 {
     public:
@@ -503,6 +504,8 @@ class spell_warl_demonic_circle_teleport : public SpellScriptLoader
         {
             return new spell_warl_demonic_circle_teleport_AuraScript();
         }
+};
+     }
 };
 
 // 48181 Haunt
