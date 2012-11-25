@@ -200,6 +200,13 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto,
                 return DIMINISHING_LIMITONLY;
             break;
         }
+        case SPELLFAMILY_SHAMAN:
+        {
+            // Earthgrab
+            if (spellproto->SpellFamilyFlags[2] & 0x00004000)
+                return DIMINISHING_NONE;
+            break;
+        }
         default:
             break;
     }
