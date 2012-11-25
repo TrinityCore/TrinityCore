@@ -12530,10 +12530,10 @@ void Player::MoveItemToInventory(ItemPosCountVec const& dest, Item* pItem, bool 
         // if this original item then it need create record in inventory
         // in case trade we already have item in other player inventory
         pLastItem->SetState(in_characterInventoryDB ? ITEM_CHANGED : ITEM_NEW, this);
-    }
 
-    if (pLastItem->HasFlag(ITEM_FIELD_FLAGS, ITEM_FLAG_BOP_TRADEABLE))
-        AddTradeableItem(pLastItem);
+        if (pLastItem->HasFlag(ITEM_FIELD_FLAGS, ITEM_FLAG_BOP_TRADEABLE))
+            AddTradeableItem(pLastItem);
+    }
 }
 
 void Player::DestroyItem(uint8 bag, uint8 slot, bool update)
@@ -17691,8 +17691,14 @@ Item* Player::_LoadItem(SQLTransaction& trans, uint32 zoneId, uint32 timeDiff, F
                     AllowedLooterSet looters;
                     for (Tokenizer::const_iterator itr = GUIDlist.begin(); itr != GUIDlist.end(); ++itr)
                         looters.insert(atol(*itr));
-                    item->SetSoulboundTradeable(looters);
-                    AddTradeableItem(item);
+
+                    if (looters.size() > 1 && item->GetTemplate()->GetMaxStackSize() == 1 && item->IsSoulBound())
+                    {
+                        item->SetSoulboundTradeable(looters);
+                        AddTradeableItem(item);
+                    }
+                    else
+                        item->ClearSoulboundTradeable(this);
                 }
                 else
                 {

@@ -2137,7 +2137,7 @@ class Unit : public WorldObject
         void AddPetAura(PetAura const* petSpell);
         void RemovePetAura(PetAura const* petSpell);
 
-        uint32 GetModelForForm(ShapeshiftForm form);
+        uint32 GetModelForForm(ShapeshiftForm form) const;
         uint32 GetModelForTotem(PlayerTotemType totemType);
 
         void SetReducedThreatPercent(uint32 pct, uint64 guid)
