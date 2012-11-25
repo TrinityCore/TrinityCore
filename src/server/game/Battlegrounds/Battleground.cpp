@@ -1275,8 +1275,8 @@ void Battleground::EventPlayerLoggedOut(Player* player)
 
         // 1 player is logging out, if it is the last, then end arena!
         if (isArena())
-            if (GetAlivePlayersCountByTeam(player->GetTeam()) <= 1 && GetPlayersCountByTeam(GetOtherTeam(player->GetTeam())))
-                EndBattleground(GetOtherTeam(player->GetTeam()));
+            if (GetAlivePlayersCountByTeam(player->GetBGTeam()) <= 1 && GetPlayersCountByTeam(GetOtherTeam(player->GetBGTeam())))
+                EndBattleground(GetOtherTeam(player->GetBGTeam()));
     }
 }
 
