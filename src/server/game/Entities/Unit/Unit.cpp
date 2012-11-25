@@ -16702,178 +16702,181 @@ uint32 Unit::GetCombatRatingDamageReduction(CombatRating cr, float rate, float c
     return CalculatePct(damage, percent);
 }
 
-uint32 Unit::GetModelForForm(ShapeshiftForm form)
+uint32 Unit::GetModelForForm(ShapeshiftForm form) const
 {
-    switch (form)
+    if (GetTypeId() == TYPEID_PLAYER)
     {
-        case FORM_CAT:
-            // Based on Hair color
-            if (getRace() == RACE_NIGHTELF)
-            {
-                uint8 hairColor = GetByteValue(PLAYER_BYTES, 3);
-                switch (hairColor)
+        switch (form)
+        {
+            case FORM_CAT:
+                // Based on Hair color
+                if (getRace() == RACE_NIGHTELF)
                 {
-                    case 7: // Violet
-                    case 8:
-                        return 29405;
-                    case 3: // Light Blue
-                        return 29406;
-                    case 0: // Green
-                    case 1: // Light Green
-                    case 2: // Dark Green
-                        return 29407;
-                    case 4: // White
-                        return 29408;
-                    default: // original - Dark Blue
-                        return 892;
-                }
-            }
-            // Based on Skin color
-            else if (getRace() == RACE_TAUREN)
-            {
-                uint8 skinColor = GetByteValue(PLAYER_BYTES, 0);
-                // Male
-                if (getGender() == GENDER_MALE)
-                {
-                    switch (skinColor)
+                    uint8 hairColor = GetByteValue(PLAYER_BYTES, 3);
+                    switch (hairColor)
                     {
-                        case 12: // White
-                        case 13:
-                        case 14:
-                        case 18: // Completly White
-                            return 29409;
-                        case 9: // Light Brown
-                        case 10:
-                        case 11:
-                            return 29410;
-                        case 6: // Brown
-                        case 7:
+                        case 7: // Violet
                         case 8:
+                            return 29405;
+                        case 3: // Light Blue
+                            return 29406;
+                        case 0: // Green
+                        case 1: // Light Green
+                        case 2: // Dark Green
+                            return 29407;
+                        case 4: // White
+                            return 29408;
+                        default: // original - Dark Blue
+                            return 892;
+                    }
+                }
+                // Based on Skin color
+                else if (getRace() == RACE_TAUREN)
+                {
+                    uint8 skinColor = GetByteValue(PLAYER_BYTES, 0);
+                    // Male
+                    if (getGender() == GENDER_MALE)
+                    {
+                        switch (skinColor)
+                        {
+                            case 12: // White
+                            case 13:
+                            case 14:
+                            case 18: // Completly White
+                                return 29409;
+                            case 9: // Light Brown
+                            case 10:
+                            case 11:
+                                return 29410;
+                            case 6: // Brown
+                            case 7:
+                            case 8:
+                                return 29411;
+                            case 0: // Dark
+                            case 1:
+                            case 2:
+                            case 3: // Dark Grey
+                            case 4:
+                            case 5:
+                                return 29412;
+                            default: // original - Grey
+                                return 8571;
+                        }
+                    }
+                    // Female
+                    else switch (skinColor)
+                    {
+                        case 10: // White
+                            return 29409;
+                        case 6: // Light Brown
+                        case 7:
+                            return 29410;
+                        case 4: // Brown
+                        case 5:
                             return 29411;
                         case 0: // Dark
                         case 1:
                         case 2:
-                        case 3: // Dark Grey
-                        case 4:
-                        case 5:
+                        case 3:
                             return 29412;
                         default: // original - Grey
                             return 8571;
                     }
                 }
-                // Female
-                else switch (skinColor)
+                else if (Player::TeamForRace(getRace()) == ALLIANCE)
+                    return 892;
+                else
+                    return 8571;
+            case FORM_DIREBEAR:
+            case FORM_BEAR:
+                // Based on Hair color
+                if (getRace() == RACE_NIGHTELF)
                 {
-                    case 10: // White
-                        return 29409;
-                    case 6: // Light Brown
-                    case 7:
-                        return 29410;
-                    case 4: // Brown
-                    case 5:
-                        return 29411;
-                    case 0: // Dark
-                    case 1:
-                    case 2:
-                    case 3:
-                        return 29412;
-                    default: // original - Grey
-                        return 8571;
+                    uint8 hairColor = GetByteValue(PLAYER_BYTES, 3);
+                    switch (hairColor)
+                    {
+                        case 0: // Green
+                        case 1: // Light Green
+                        case 2: // Dark Green
+                            return 29413; // 29415?
+                        case 6: // Dark Blue
+                            return 29414;
+                        case 4: // White
+                            return 29416;
+                        case 3: // Light Blue
+                            return 29417;
+                        default: // original - Violet
+                            return 2281;
+                    }
                 }
-            }
-            else if (Player::TeamForRace(getRace()) == ALLIANCE)
-                return 892;
-            else
-                return 8571;
-        case FORM_DIREBEAR:
-        case FORM_BEAR:
-            // Based on Hair color
-            if (getRace() == RACE_NIGHTELF)
-            {
-                uint8 hairColor = GetByteValue(PLAYER_BYTES, 3);
-                switch (hairColor)
+                // Based on Skin color
+                else if (getRace() == RACE_TAUREN)
                 {
-                    case 0: // Green
-                    case 1: // Light Green
-                    case 2: // Dark Green
-                        return 29413; // 29415?
-                    case 6: // Dark Blue
-                        return 29414;
-                    case 4: // White
-                        return 29416;
-                    case 3: // Light Blue
-                        return 29417;
-                    default: // original - Violet
-                        return 2281;
-                }
-            }
-            // Based on Skin color
-            else if (getRace() == RACE_TAUREN)
-            {
-                uint8 skinColor = GetByteValue(PLAYER_BYTES, 0);
-                // Male
-                if (getGender() == GENDER_MALE)
-                {
-                    switch (skinColor)
+                    uint8 skinColor = GetByteValue(PLAYER_BYTES, 0);
+                    // Male
+                    if (getGender() == GENDER_MALE)
+                    {
+                        switch (skinColor)
+                        {
+                            case 0: // Dark (Black)
+                            case 1:
+                            case 2:
+                                return 29418;
+                            case 3: // White
+                            case 4:
+                            case 5:
+                            case 12:
+                            case 13:
+                            case 14:
+                                return 29419;
+                            case 9: // Light Brown/Grey
+                            case 10:
+                            case 11:
+                            case 15:
+                            case 16:
+                            case 17:
+                                return 29420;
+                            case 18: // Completly White
+                                return 29421;
+                            default: // original - Brown
+                                return 2289;
+                        }
+                    }
+                    // Female
+                    else switch (skinColor)
                     {
                         case 0: // Dark (Black)
                         case 1:
-                        case 2:
                             return 29418;
-                        case 3: // White
-                        case 4:
-                        case 5:
-                        case 12:
-                        case 13:
-                        case 14:
+                        case 2: // White
+                        case 3:
                             return 29419;
-                        case 9: // Light Brown/Grey
-                        case 10:
-                        case 11:
-                        case 15:
-                        case 16:
-                        case 17:
+                        case 6: // Light Brown/Grey
+                        case 7:
+                        case 8:
+                        case 9:
                             return 29420;
-                        case 18: // Completly White
+                        case 10: // Completly White
                             return 29421;
                         default: // original - Brown
                             return 2289;
                     }
                 }
-                // Female
-                else switch (skinColor)
-                {
-                    case 0: // Dark (Black)
-                    case 1:
-                        return 29418;
-                    case 2: // White
-                    case 3:
-                        return 29419;
-                    case 6: // Light Brown/Grey
-                    case 7:
-                    case 8:
-                    case 9:
-                        return 29420;
-                    case 10: // Completly White
-                        return 29421;
-                    default: // original - Brown
-                        return 2289;
-                }
-            }
-            else if (Player::TeamForRace(getRace()) == ALLIANCE)
-                return 2281;
-            else
-                return 2289;
-        case FORM_FLIGHT:
-            if (Player::TeamForRace(getRace()) == ALLIANCE)
-                return 20857;
-            return 20872;
-        case FORM_FLIGHT_EPIC:
-            if (Player::TeamForRace(getRace()) == ALLIANCE)
-                return 21243;
-            return 21244;
-        default:
-            break;
+                else if (Player::TeamForRace(getRace()) == ALLIANCE)
+                    return 2281;
+                else
+                    return 2289;
+            case FORM_FLIGHT:
+                if (Player::TeamForRace(getRace()) == ALLIANCE)
+                    return 20857;
+                return 20872;
+            case FORM_FLIGHT_EPIC:
+                if (Player::TeamForRace(getRace()) == ALLIANCE)
+                    return 21243;
+                return 21244;
+            default:
+                break;
+        }
     }
 
     uint32 modelid = 0;
