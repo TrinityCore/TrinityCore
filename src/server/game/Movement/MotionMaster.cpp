@@ -338,7 +338,19 @@ void MotionMaster::MoveKnockbackFrom(float srcX, float srcY, float speedXY, floa
     float dist = 2 * moveTimeHalf * speedXY;
     float max_height = -Movement::computeFallElevation(moveTimeHalf,false,-speedZ);
 
-    _owner->GetNearPoint(_owner, x, y, z, _owner->GetObjectSize(), dist, _owner->GetAngle(srcX, srcY) + M_PI);
+    float angle = _owner->GetAngle(srcX, srcY) + M_PI;
+    float angleplus = angle;   
+    float angleminus = angle;
+
+    _owner->GetNearPoint(_owner, x, y, z, _owner->GetObjectSize(), dist, angle);
+    while (!_owner->IsWithinLOS(x,y,z))
+    {
+        angleplus += 0.1f;
+        angleminus -= 0.1f;
+        _owner->GetNearPoint(_owner, x, y, z, _owner->GetObjectSize(), dist, angleplus);
+        if (!_owner->IsWithinLOS(x,y,z))
+            _owner->GetNearPoint(_owner, x, y, z, _owner->GetObjectSize(), dist, angleminus);
+    }
 
     Movement::MoveSplineInit init(*_owner);
     init.MoveTo(x,y,z);
