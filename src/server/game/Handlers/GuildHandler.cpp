@@ -229,18 +229,6 @@ void WorldSession::HandleGuildDisbandOpcode(WorldPacket& /*recvPacket*/)
         guild->HandleDisband(this);
 }
 
-void WorldSession::HandleGuildLeaderOpcode(WorldPacket& recvPacket)
-{
-    std::string name;
-    recvPacket >> name;
-
-    sLog->outDebug(LOG_FILTER_GUILD, "CMSG_GUILD_LEADER [%s]: Target: %s", GetPlayerInfo().c_str(), name.c_str());
-
-    if (normalizePlayerName(name))
-        if (Guild* guild = GetPlayer()->GetGuild())
-            guild->HandleSetLeader(this, name);
-}
-
 void WorldSession::HandleGuildMOTDOpcode(WorldPacket& recvPacket)
 {
     uint32 motdLength = recvPacket.ReadBits(11);
@@ -824,4 +812,13 @@ void WorldSession::HandleGuildNewsUpdateStickyOpcode(WorldPacket& recvPacket)
 
     if (Guild* guild = GetPlayer()->GetGuild())
         guild->HandleNewsSetSticky(this, newsId, sticky);
+}
+
+void WorldSession::HandleGuildSetGuildMaster(WorldPacket& recvPacket)
+{
+    uint8 nameLength;
+    recvPacket >> nameLength;
+    std::string playerName = recvPacket.ReadString(nameLength);
+    if (Guild* guild = GetPlayer()->GetGuild())
+        guild->HandleSetNewGuildMaster(this, playerName);
 }
