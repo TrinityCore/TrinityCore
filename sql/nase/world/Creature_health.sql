@@ -1,0 +1,1 @@
+UPDATE `creature_template` SET `exp`=3 WHERE  `maxlevel` > '80' AND `exp` < '3' AND `minlevel` > '80';

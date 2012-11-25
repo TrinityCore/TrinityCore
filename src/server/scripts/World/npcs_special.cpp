@@ -2150,7 +2150,7 @@ public:
     {
         return new npc_shadowfiendAI(creature);
     }
-        }
+
 };
 
 /*######
