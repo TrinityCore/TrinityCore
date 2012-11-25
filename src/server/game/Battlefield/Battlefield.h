@@ -103,8 +103,9 @@ class BfCapturePoint
         virtual void SendChangePhase();
 
         bool SetCapturePointData(GameObject* capturePoint);
-        GameObject* GetCapturePointGo() { return m_capturePoint; }
-
+        GameObject* GetCapturePointGo();
+        uint32 GetCapturePointEntry(){ return m_capturePointEntry; }
+        
         TeamId GetTeamId() { return m_team; }
     protected:
         bool DelCapturePoint();
@@ -137,7 +138,7 @@ class BfCapturePoint
         uint32 m_capturePointEntry;
 
         // Gameobject related to that capture point
-        GameObject* m_capturePoint;
+        uint64 m_capturePointGUID;
 };
 
 class BfGraveyard
@@ -171,17 +172,7 @@ class BfGraveyard
         void RelocateDeadPlayers();
 
         // Check if this graveyard has a spirit guide
-        bool HasNpc(uint64 guid)
-        {
-            if (!m_SpiritGuide[0] || !m_SpiritGuide[1])
-                return false;
-
-            if (!sObjectAccessor->FindUnit(m_SpiritGuide[0]) ||
-                !sObjectAccessor->FindUnit(m_SpiritGuide[1]))
-                return false;
-
-            return (m_SpiritGuide[0] == guid || m_SpiritGuide[1] == guid);
-        }
+        bool HasNpc(uint64 guid);
 
         // Check if a player is in this graveyard's ressurect queue
         bool HasPlayer(uint64 guid) { return m_ResurrectQueue.find(guid) != m_ResurrectQueue.end(); }
@@ -299,6 +290,9 @@ class Battlefield : public ZoneScript
         Creature* SpawnCreature(uint32 entry, Position pos, TeamId team);
         GameObject* SpawnGameObject(uint32 entry, float x, float y, float z, float o);
 
+        Creature* GetCreature(uint64 GUID);
+        GameObject* GetGameObject(uint64 GUID);
+        
         // Script-methods
 
         /// Called on start
@@ -377,6 +371,7 @@ class Battlefield : public ZoneScript
         uint32 m_BattleId;                                      // BattleID (for packet)
         uint32 m_ZoneId;                                        // ZoneID of Wintergrasp = 4197
         uint32 m_MapId;                                         // MapId where is Battlefield
+        Map* m_Map;
         uint32 m_MaxPlayer;                                     // Maximum number of player that participated to Battlefield
         uint32 m_MinPlayer;                                     // Minimum number of player for Battlefield start
         uint32 m_MinLevel;                                      // Required level to participate at Battlefield
@@ -412,7 +407,7 @@ class Battlefield : public ZoneScript
         void BroadcastPacketToWar(WorldPacket& data) const;
 
         // CapturePoint system
-        void AddCapturePoint(BfCapturePoint* cp) { m_capturePoints[cp->GetCapturePointGo()->GetEntry()] = cp; }
+        void AddCapturePoint(BfCapturePoint* cp) { m_capturePoints[cp->GetCapturePointEntry()] = cp; }
 
         BfCapturePoint* GetCapturePoint(uint32 lowguid) const
         {
