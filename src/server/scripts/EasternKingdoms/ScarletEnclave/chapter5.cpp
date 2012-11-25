@@ -1135,7 +1135,7 @@ public:
 
                         case 49:
                             if (Creature* temp = Unit::GetCreature(*me, uiTirionGUID))
-                                Talk(SAY_LIGHT_OF_DAWN54);
+                                temp->AI()->Talk(SAY_LIGHT_OF_DAWN54);
                             JumpToNextStep(4000);
                             break;
 
