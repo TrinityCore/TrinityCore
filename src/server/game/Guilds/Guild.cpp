@@ -1588,20 +1588,20 @@ void Guild::HandleSetEmblem(WorldSession* session, const EmblemInfo& emblemInfo)
     }
 }
 
-void Guild::HandleSetLeader(WorldSession* session, std::string const& name)
+void Guild::HandleSetNewGuildMaster(WorldSession* session, std::string const& name)
 {
     Player* player = session->GetPlayer();
-    // Only leader can assign new leader
+    // Only the guild master can throne a new guild master
     if (!_IsLeader(player))
         SendCommandResult(session, GUILD_COMMAND_CHANGE_LEADER, ERR_GUILD_PERMISSIONS);
-    // Old leader must be a member of guild
-    else if (Member* pOldLeader = GetMember(player->GetGUID()))
+    // Old GM must be a guild member
+    else if (Member* oldGuildMaster = GetMember(player->GetGUID()))
     {
-        // New leader must be a member of guild
-        if (Member* pNewLeader = GetMember(name))
+        // Same for the new one
+        if (Member* newGuildMaster = GetMember(name))
         {
-            _SetLeaderGUID(pNewLeader);
-            pOldLeader->ChangeRank(GR_OFFICER);
+            _SetLeaderGUID(newGuildMaster);
+            oldGuildMaster->ChangeRank(GR_INITIATE);
             _BroadcastEvent(GE_LEADER_CHANGED, 0, player->GetName().c_str(), name.c_str());
         }
     }
