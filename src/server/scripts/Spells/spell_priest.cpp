@@ -43,6 +43,10 @@ enum PriestSpells
     PRIEST_SHADOWFORM_VISUAL_WITHOUT_GLYPH      = 107903,
     PRIEST_SHADOWFORM_VISUAL_WITH_GLYPH         = 107904,
     PRIEST_GLYPH_OF_SHADOW                      = 107906,
+    PRIEST_LEAP_OF_FAITH                        = 73325,
+    PRIEST_LEAP_OF_FAITH_TRIGGERED              = 92572,
+    PRIEST_LEAP_OF_FAITH_EFFECT_TRIGGER         = 92833,
+    PRIEST_LEAP_OF_FAITH_EFFECT                 = 92832
 };
 
 // Guardian Spirit
@@ -100,6 +104,45 @@ class spell_pri_guardian_spirit : public SpellScriptLoader
         {
             return new spell_pri_guardian_spirit_AuraScript();
         }
+};
+
+class spell_pri_leap_of_faith_effect_trigger : public SpellScriptLoader
+{
+public:
+    spell_pri_leap_of_faith_effect_trigger() : SpellScriptLoader("spell_pri_leap_of_faith_effect_trigger") { }
+
+    class spell_pri_leap_of_faith_effect_trigger_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_pri_leap_of_faith_effect_trigger_SpellScript);
+
+        bool Validate(SpellInfo const* /*entry*/)
+        {
+            if (!sSpellMgr->GetSpellInfo(PRIEST_LEAP_OF_FAITH_EFFECT))
+                return false;
+            return true;
+        }
+
+        void HandleEffectDummy(SpellEffIndex /*effIndex*/)
+        {
+            Position destPos;
+            GetHitDest()->GetPosition(&destPos);
+
+            SpellCastTargets targets;
+            targets.SetDst(destPos);
+            targets.SetUnitTarget(GetCaster());
+            GetHitUnit()->CastSpell(targets, sSpellMgr->GetSpellInfo(GetEffectValue()), NULL);
+        }
+
+        void Register()
+        {
+            OnEffectHitTarget += SpellEffectFn(spell_pri_leap_of_faith_effect_trigger_SpellScript::HandleEffectDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_pri_leap_of_faith_effect_trigger_SpellScript();
+    }
 };
 
 class spell_pri_mana_burn : public SpellScriptLoader
@@ -303,6 +346,7 @@ enum PrayerOfMending
 {
     SPELL_T9_HEALING_2_PIECE = 67201,
 };
+
 // Prayer of Mending Heal
 class spell_pri_prayer_of_mending_heal : public SpellScriptLoader
 {
@@ -379,14 +423,14 @@ class spell_pri_vampiric_touch : public SpellScriptLoader
         }
 };
 
-class spell_priest_renew : public SpellScriptLoader
+class spell_pri_renew : public SpellScriptLoader
 {
     public:
-        spell_priest_renew() : SpellScriptLoader("spell_priest_renew") { }
+        spell_pri_renew() : SpellScriptLoader("spell_pri_renew") { }
 
-        class spell_priest_renew_AuraScript : public AuraScript
+        class spell_pri_renew_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_priest_renew_AuraScript);
+            PrepareAuraScript(spell_pri_renew_AuraScript);
 
             bool Load()
             {
@@ -411,13 +455,13 @@ class spell_priest_renew : public SpellScriptLoader
 
             void Register()
             {
-                OnEffectApply += AuraEffectApplyFn(spell_priest_renew_AuraScript::HandleApplyEffect, EFFECT_0, SPELL_AURA_PERIODIC_HEAL, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+                OnEffectApply += AuraEffectApplyFn(spell_pri_renew_AuraScript::HandleApplyEffect, EFFECT_0, SPELL_AURA_PERIODIC_HEAL, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
             }
         };
 
         AuraScript* GetAuraScript() const
         {
-            return new spell_priest_renew_AuraScript();
+            return new spell_pri_renew_AuraScript();
         }
 };
 
@@ -496,6 +540,7 @@ class spell_pri_shadowform : public SpellScriptLoader
 void AddSC_priest_spell_scripts()
 {
     new spell_pri_guardian_spirit();
+    new spell_pri_leap_of_faith_effect_trigger();
     new spell_pri_mana_burn();
     new spell_pri_pain_and_suffering_proc();
     new spell_pri_penance();
@@ -503,7 +548,7 @@ void AddSC_priest_spell_scripts()
     new spell_pri_mind_sear();
     new spell_pri_prayer_of_mending_heal();
     new spell_pri_vampiric_touch();
-    new spell_priest_renew();
+    new spell_pri_renew();
     new spell_pri_shadow_word_death();
     new spell_pri_shadowform();
 }
