@@ -937,16 +937,9 @@ public:
         //No args required for players
         if (handler->GetSession() && AccountMgr::IsPlayerAccount(handler->GetSession()->GetSecurity()))
         {
-            Player* player = handler->GetSession()->GetPlayer();
-            if (player->isInFlight() || player->isInCombat())
-            {
-                handler->SendSysMessage(LANG_CANT_DO_NOW);
-                handler->SetSentErrorMessage(true);
-                return false;
-            }
-
-            //7355: "Stuck"
-            player->CastSpell(player, 7355, false);
+            // 7355: "Stuck"
+            if (Player* player = handler->GetSession()->GetPlayer())
+                player->CastSpell(player, 7355, false);
             return true;
         }
 
@@ -967,8 +960,13 @@ public:
 
         if (player->isInFlight() || player->isInCombat())
         {
-            handler->SendSysMessage(LANG_CANT_DO_NOW);
-            handler->SetSentErrorMessage(true);
+            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(7355);
+            if (!spellInfo)
+                return false;
+
+            if (Player* caster = handler->GetSession()->GetPlayer())
+                Spell::SendCastResult(caster, spellInfo, 0, SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW);
+
             return false;
         }
 
