@@ -1698,7 +1698,7 @@ void GameObject::CastSpell(Unit* target, uint32 spellId)
     {
         trigger->setFaction(owner->getFaction());
         // needed for GO casts for proper target validation checks
-        trigger->SetUInt64Value(UNIT_FIELD_SUMMONEDBY, owner->GetGUID());
+        trigger->SetOwnerGUID(owner->GetGUID());
         trigger->CastSpell(target ? target : trigger, spellInfo, true, 0, 0, owner->GetGUID());
     }
     else
