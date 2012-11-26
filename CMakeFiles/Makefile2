@@ -1036,10 +1036,10 @@ clean: src/server/worldserver/CMakeFiles/worldPCH.cpp_dephelp.dir/clean
 # Target rules for target src/server/worldserver/CMakeFiles/worldserver.dir
 
 # All Build rule for target.
-src/server/worldserver/CMakeFiles/worldserver.dir/all: dep/jemalloc/CMakeFiles/jemalloc.dir/all
+src/server/worldserver/CMakeFiles/worldserver.dir/all: dep/g3dlite/CMakeFiles/g3dlib.dir/all
 src/server/worldserver/CMakeFiles/worldserver.dir/all: dep/gsoap/CMakeFiles/gsoap.dir/all
 src/server/worldserver/CMakeFiles/worldserver.dir/all: src/genrev/CMakeFiles/revision.h.dir/all
-src/server/worldserver/CMakeFiles/worldserver.dir/all: dep/g3dlite/CMakeFiles/g3dlib.dir/all
+src/server/worldserver/CMakeFiles/worldserver.dir/all: dep/jemalloc/CMakeFiles/jemalloc.dir/all
 src/server/worldserver/CMakeFiles/worldserver.dir/all: src/server/shared/CMakeFiles/shared.dir/all
 src/server/worldserver/CMakeFiles/worldserver.dir/all: src/server/collision/CMakeFiles/collision.dir/all
 src/server/worldserver/CMakeFiles/worldserver.dir/all: src/server/game/CMakeFiles/game.dir/all
