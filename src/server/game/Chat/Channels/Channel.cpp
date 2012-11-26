@@ -639,9 +639,9 @@ void Channel::Say(uint64 guid, std::string const& what, uint32 lang)
 
         SendToAll(&data, !playersStore[guid].IsModerator() ? guid : false);
 
-        /*char msg[256];
-        snprintf(( char* )msg, 256, "MSG %s %s %s\n", GetName().c_str(), player->GetName().c_str(), what);
-        RASocket::raprint(msg);*/
+        char msg[256];
+        snprintf((char*)msg, 256, "MSG %s %s %s\n", GetName().c_str(), player->GetName().c_str(), what.c_str());
+        RASocket::raprint(msg);
     }
 }
 
