@@ -1013,8 +1013,8 @@ void BattlegroundMgr::CreateInitialBattlegrounds()
         data.MaxPlayersPerTeam = fields[2].GetUInt16();
         data.LevelMin = fields[3].GetUInt8();
         data.LevelMax = fields[4].GetUInt8();
-        uint8 spawn = fields[9].GetUInt8();
-        data.StartMaxDist = float(spawn * spawn);
+        float dist = fields[9].GetFloat();
+        data.StartMaxDist = dist * dist;
 
         data.scriptId = sObjectMgr->GetScriptId(fields[11].GetCString());
         data.BattlegroundName = bl->name;

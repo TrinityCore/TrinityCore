@@ -953,30 +953,6 @@ bool Creature::isCanTrainingAndResetTalentsOf(Player* player) const
         && player->getClass() == GetCreatureTemplate()->trainer_class;
 }
 
-void Creature::AI_SendMoveToPacket(float x, float y, float z, uint32 time, uint32 /*MovementFlags*/, uint8 /*type*/)
-{
-    /*    uint32 timeElap = getMSTime();
-        if ((timeElap - m_startMove) < m_moveTime)
-        {
-            oX = (dX - oX) * ((timeElap - m_startMove) / m_moveTime);
-            oY = (dY - oY) * ((timeElap - m_startMove) / m_moveTime);
-        }
-        else
-        {
-            oX = dX;
-            oY = dY;
-        }
-
-        dX = x;
-        dY = y;
-        m_orientation = atan2((oY - dY), (oX - dX));
-
-        m_startMove = getMSTime();
-        m_moveTime = time;*/
-    float speed = GetDistance(x, y, z) / ((float)time * 0.001f);
-    MonsterMoveWithSpeed(x, y, z, speed);
-}
-
 Player* Creature::GetLootRecipient() const
 {
     if (!m_lootRecipient)

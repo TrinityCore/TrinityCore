@@ -30,10 +30,10 @@ EndScriptData */
 
 enum Say
 {
-    SAY_EGGS_BROKEN1        = -1469022,
-    SAY_EGGS_BROKEN2        = -1469023,
-    SAY_EGGS_BROKEN3        = -1469024,
-    SAY_DEATH               = -1469025
+    SAY_EGGS_BROKEN1        = 0,
+    SAY_EGGS_BROKEN2        = 1,
+    SAY_EGGS_BROKEN3        = 2,
+    SAY_DEATH               = 3,
 };
 
 enum Spells

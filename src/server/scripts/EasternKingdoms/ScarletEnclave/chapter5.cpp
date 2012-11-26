@@ -51,93 +51,78 @@ enum mograine
     WORLD_STATE_COUNTDOWN             = 3603,
     WORLD_STATE_EVENT_BEGIN           = 3605,
 
-    SAY_LIGHT_OF_DAWN01               = -1609201, // pre text
-    SAY_LIGHT_OF_DAWN02               = -1609202,
-    SAY_LIGHT_OF_DAWN03               = -1609203,
-    SAY_LIGHT_OF_DAWN04               = -1609204, // intro
-    SAY_LIGHT_OF_DAWN05               = -1609205,
-    SAY_LIGHT_OF_DAWN06               = -1609206,
-    SAY_LIGHT_OF_DAWN07               = -1609207, // During the fight - Korfax, Champion of the Light
-    SAY_LIGHT_OF_DAWN08               = -1609208, // Lord Maxwell Tyrosus
-    SAY_LIGHT_OF_DAWN09               = -1609209, // Highlord Darion Mograine
-    SAY_LIGHT_OF_DAWN10               = -1609210,
-    SAY_LIGHT_OF_DAWN11               = -1609211,
-    SAY_LIGHT_OF_DAWN12               = -1609212,
-    SAY_LIGHT_OF_DAWN13               = -1609213,
-    SAY_LIGHT_OF_DAWN14               = -1609214,
-    SAY_LIGHT_OF_DAWN15               = -1609215,
-    SAY_LIGHT_OF_DAWN16               = -1609216,
-    SAY_LIGHT_OF_DAWN17               = -1609217,
-    SAY_LIGHT_OF_DAWN18               = -1609218,
-    SAY_LIGHT_OF_DAWN19               = -1609219,
-    SAY_LIGHT_OF_DAWN20               = -1609220,
-    SAY_LIGHT_OF_DAWN21               = -1609221,
-    SAY_LIGHT_OF_DAWN22               = -1609222,
-    SAY_LIGHT_OF_DAWN23               = -1609223,
-    SAY_LIGHT_OF_DAWN24               = -1609224,
-    SAY_LIGHT_OF_DAWN25               = -1609225, // After the fight
-    SAY_LIGHT_OF_DAWN26               = -1609226, // Highlord Tirion Fordring
-    SAY_LIGHT_OF_DAWN27               = -1609227, // Highlord Darion Mograine
-    SAY_LIGHT_OF_DAWN28               = -1609228, // Highlord Tirion Fordring
-    SAY_LIGHT_OF_DAWN29               = -1609229, // Highlord Tirion Fordring
-    SAY_LIGHT_OF_DAWN30               = -1609230, // Highlord Tirion Fordring
-    SAY_LIGHT_OF_DAWN31               = -1609231, // Highlord Tirion Fordring
-    SAY_LIGHT_OF_DAWN32               = -1609232, // Highlord Alexandros Mograine
-    SAY_LIGHT_OF_DAWN33               = -1609233, // Highlord Darion Mograine
-    SAY_LIGHT_OF_DAWN34               = -1609234, // Highlord Darion Mograine
-    SAY_LIGHT_OF_DAWN35               = -1609235, // Darion Mograine
-    SAY_LIGHT_OF_DAWN36               = -1609236, // Darion Mograine
-    SAY_LIGHT_OF_DAWN37               = -1609237, // Highlord Alexandros Mograine
-    SAY_LIGHT_OF_DAWN38               = -1609238, // Darion Mograine
-    SAY_LIGHT_OF_DAWN39               = -1609239, // Highlord Alexandros Mograine
-    SAY_LIGHT_OF_DAWN40               = -1609240, // Darion Mograine
-    SAY_LIGHT_OF_DAWN41               = -1609241, // Highlord Alexandros Mograine
-    SAY_LIGHT_OF_DAWN42               = -1609242, // Highlord Alexandros Mograine
-    SAY_LIGHT_OF_DAWN43               = -1609243, // The Lich King
-    SAY_LIGHT_OF_DAWN44               = -1609244, // Highlord Darion Mograine
-    SAY_LIGHT_OF_DAWN45               = -1609245, // The Lich King
-    SAY_LIGHT_OF_DAWN46               = -1609246, // The Lich King
-    SAY_LIGHT_OF_DAWN47               = -1609247, // Highlord Tirion Fordring
-    SAY_LIGHT_OF_DAWN48               = -1609248, // The Lich King
-    SAY_LIGHT_OF_DAWN49               = -1609249, // The Lich King
-    SAY_LIGHT_OF_DAWN50               = -1609250, // Lord Maxwell Tyrosus
-    SAY_LIGHT_OF_DAWN51               = -1609251, // The Lich King
-    SAY_LIGHT_OF_DAWN52               = -1609252, // Highlord Darion Mograine
-    SAY_LIGHT_OF_DAWN53               = -1609253, // Highlord Darion Mograine
-    SAY_LIGHT_OF_DAWN54               = -1609254, // Highlord Tirion Fordring
-    SAY_LIGHT_OF_DAWN55               = -1609255, // The Lich King
-    SAY_LIGHT_OF_DAWN56               = -1609256, // Highlord Tirion Fordring
-    SAY_LIGHT_OF_DAWN57               = -1609257, // The Lich King
-    SAY_LIGHT_OF_DAWN58               = -1609258, // The Lich King
-    SAY_LIGHT_OF_DAWN59               = -1609259, // The Lich King
-    SAY_LIGHT_OF_DAWN60               = -1609260, // Highlord Tirion Fordring
-    SAY_LIGHT_OF_DAWN61               = -1609261, // Highlord Tirion Fordring
-    SAY_LIGHT_OF_DAWN62               = -1609262, // Highlord Tirion Fordring
-    SAY_LIGHT_OF_DAWN63               = -1609263, // Highlord Tirion Fordring
-    SAY_LIGHT_OF_DAWN64               = -1609264, // Highlord Tirion Fordring
-    SAY_LIGHT_OF_DAWN65               = -1609265, // Highlord Tirion Fordring
-    SAY_LIGHT_OF_DAWN66               = -1609266, // Highlord Tirion Fordring
-    SAY_LIGHT_OF_DAWN67               = -1609267, // Highlord Tirion Fordring
-    SAY_LIGHT_OF_DAWN68               = -1609268, // Highlord Darion Mograine
+    SAY_LIGHT_OF_DAWN01               = 0, // pre text
+    SAY_LIGHT_OF_DAWN02               = 1,
+    SAY_LIGHT_OF_DAWN03               = 2,
+    SAY_LIGHT_OF_DAWN04               = 3, // intro
+    SAY_LIGHT_OF_DAWN05               = 4,
+    SAY_LIGHT_OF_DAWN06               = 5,
+    SAY_LIGHT_OF_DAWN07               = 6, // During the fight - Korfax, Champion of the Light
+    SAY_LIGHT_OF_DAWN08               = 7, // Lord Maxwell Tyrosus
+    SAY_LIGHT_OF_DAWN09               = 8, // Highlord Darion Mograine
+    SAY_LIGHT_OF_DAWN25               = 24, // After the fight
+    SAY_LIGHT_OF_DAWN26               = 25, // Highlord Tirion Fordring
+    SAY_LIGHT_OF_DAWN27               = 26, // Highlord Darion Mograine
+    SAY_LIGHT_OF_DAWN28               = 27, // Highlord Tirion Fordring
+    SAY_LIGHT_OF_DAWN29               = 28, // Highlord Tirion Fordring
+    SAY_LIGHT_OF_DAWN30               = 29, // Highlord Tirion Fordring
+    SAY_LIGHT_OF_DAWN31               = 30, // Highlord Tirion Fordring
+    SAY_LIGHT_OF_DAWN32               = 31, // Highlord Alexandros Mograine
+    SAY_LIGHT_OF_DAWN33               = 32, // Highlord Darion Mograine
+    SAY_LIGHT_OF_DAWN34               = 33, // Highlord Darion Mograine
+    SAY_LIGHT_OF_DAWN35               = 34, // Darion Mograine
+    SAY_LIGHT_OF_DAWN36               = 35, // Darion Mograine
+    SAY_LIGHT_OF_DAWN37               = 36, // Highlord Alexandros Mograine
+    SAY_LIGHT_OF_DAWN38               = 37, // Darion Mograine
+    SAY_LIGHT_OF_DAWN39               = 38, // Highlord Alexandros Mograine
+    SAY_LIGHT_OF_DAWN40               = 39, // Darion Mograine
+    SAY_LIGHT_OF_DAWN41               = 40, // Highlord Alexandros Mograine
+    SAY_LIGHT_OF_DAWN42               = 41, // Highlord Alexandros Mograine
+    SAY_LIGHT_OF_DAWN43               = 42, // The Lich King
+    SAY_LIGHT_OF_DAWN44               = 43, // Highlord Darion Mograine
+    SAY_LIGHT_OF_DAWN45               = 44, // The Lich King
+    SAY_LIGHT_OF_DAWN46               = 45, // The Lich King
+    SAY_LIGHT_OF_DAWN47               = 46, // Highlord Tirion Fordring
+    SAY_LIGHT_OF_DAWN48               = 47, // The Lich King
+    SAY_LIGHT_OF_DAWN49               = 48, // The Lich King
+    SAY_LIGHT_OF_DAWN50               = 49, // Lord Maxwell Tyrosus
+    SAY_LIGHT_OF_DAWN51               = 50, // The Lich King
+    SAY_LIGHT_OF_DAWN52               = 51, // Highlord Darion Mograine
+    SAY_LIGHT_OF_DAWN53               = 52, // Highlord Darion Mograine
+    SAY_LIGHT_OF_DAWN54               = 53, // Highlord Tirion Fordring
+    SAY_LIGHT_OF_DAWN55               = 54, // The Lich King
+    SAY_LIGHT_OF_DAWN56               = 55, // Highlord Tirion Fordring
+    SAY_LIGHT_OF_DAWN57               = 56, // The Lich King
+    SAY_LIGHT_OF_DAWN58               = 57, // The Lich King
+    SAY_LIGHT_OF_DAWN59               = 58, // The Lich King
+    SAY_LIGHT_OF_DAWN60               = 59, // Highlord Tirion Fordring
+    SAY_LIGHT_OF_DAWN61               = 60, // Highlord Tirion Fordring
+    SAY_LIGHT_OF_DAWN62               = 61, // Highlord Tirion Fordring
+    SAY_LIGHT_OF_DAWN63               = 62, // Highlord Tirion Fordring
+    SAY_LIGHT_OF_DAWN64               = 63, // Highlord Tirion Fordring
+    SAY_LIGHT_OF_DAWN65               = 64, // Highlord Tirion Fordring
+    SAY_LIGHT_OF_DAWN66               = 65, // Highlord Tirion Fordring
+    SAY_LIGHT_OF_DAWN67               = 66, // Highlord Tirion Fordring
+    SAY_LIGHT_OF_DAWN68               = 67, // Highlord Darion Mograine
 
-    EMOTE_LIGHT_OF_DAWN01             = -1609269,  // Emotes
-    EMOTE_LIGHT_OF_DAWN02             = -1609270,
-    EMOTE_LIGHT_OF_DAWN03             = -1609271,
-    EMOTE_LIGHT_OF_DAWN04             = -1609272,
-    EMOTE_LIGHT_OF_DAWN05             = -1609273,
-    EMOTE_LIGHT_OF_DAWN06             = -1609274,
-    EMOTE_LIGHT_OF_DAWN07             = -1609275,
-    EMOTE_LIGHT_OF_DAWN08             = -1609276,
-    EMOTE_LIGHT_OF_DAWN09             = -1609277,
-    EMOTE_LIGHT_OF_DAWN10             = -1609278,
-    EMOTE_LIGHT_OF_DAWN11             = -1609279,
-    EMOTE_LIGHT_OF_DAWN12             = -1609280,
-    EMOTE_LIGHT_OF_DAWN13             = -1609281,
-    EMOTE_LIGHT_OF_DAWN14             = -1609282,
-    EMOTE_LIGHT_OF_DAWN15             = -1609283,
-    EMOTE_LIGHT_OF_DAWN16             = -1609284,
-    EMOTE_LIGHT_OF_DAWN17             = -1609285,
-    EMOTE_LIGHT_OF_DAWN18             = -1609286,
+    EMOTE_LIGHT_OF_DAWN01             = 68,  // Emotes
+    EMOTE_LIGHT_OF_DAWN02             = 69,
+    EMOTE_LIGHT_OF_DAWN03             = 70,
+    EMOTE_LIGHT_OF_DAWN04             = 71,
+    EMOTE_LIGHT_OF_DAWN05             = 72,
+    EMOTE_LIGHT_OF_DAWN06             = 73,
+    EMOTE_LIGHT_OF_DAWN07             = 74,
+    EMOTE_LIGHT_OF_DAWN08             = 75,
+    EMOTE_LIGHT_OF_DAWN09             = 76,
+    EMOTE_LIGHT_OF_DAWN10             = 77,
+    EMOTE_LIGHT_OF_DAWN11             = 78,
+    EMOTE_LIGHT_OF_DAWN12             = 79,
+    EMOTE_LIGHT_OF_DAWN13             = 80,
+    EMOTE_LIGHT_OF_DAWN14             = 81,
+    EMOTE_LIGHT_OF_DAWN15             = 82,
+    EMOTE_LIGHT_OF_DAWN16             = 83,
+    EMOTE_LIGHT_OF_DAWN17             = 84,
+    EMOTE_LIGHT_OF_DAWN18             = 85,
 
     GO_LIGHT_OF_DAWN                  = 191330,
     SPELL_THE_LIGHT_OF_DAWN_Q         = 53606, // quest credit
@@ -512,9 +497,9 @@ public:
                     SetHoldState(true);
                     SpawnNPC();
                     if (Creature* temp = Unit::GetCreature(*me, uiKorfaxGUID))
-                        DoScriptText(SAY_LIGHT_OF_DAWN07, temp);
+                        temp->AI()->Talk(SAY_LIGHT_OF_DAWN07);
                     if (Creature* temp = Unit::GetCreature(*me, uiMaxwellGUID))
-                        DoScriptText(SAY_LIGHT_OF_DAWN08, temp);
+                        temp->AI()->Talk(SAY_LIGHT_OF_DAWN08);
 
                     for (uint8 i = 0; i < ENCOUNTER_GHOUL_NUMBER; ++i)
                         NPCChangeTarget(uiGhoulGUID[i]);
@@ -546,7 +531,7 @@ public:
                 {
                     //Unit* pTirion = Unit::GetCreature(*me, uiTirionGUID);
 
-                    DoScriptText(EMOTE_LIGHT_OF_DAWN05, me);
+                    Talk(EMOTE_LIGHT_OF_DAWN05);
                     if (me->HasAura(SPELL_THE_LIGHT_OF_DAWN, 0))
                         me->RemoveAurasDueToSpell(SPELL_THE_LIGHT_OF_DAWN);
                     if (Creature* temp = Unit::GetCreature(*me, uiKoltiraGUID))
@@ -583,7 +568,7 @@ public:
                 }
                 break;
                 case 4:
-                    DoScriptText(SAY_LIGHT_OF_DAWN27, me);
+                    Talk(SAY_LIGHT_OF_DAWN27);
                     me->SetStandState(UNIT_STAND_STATE_KNEEL);
 
                     if (Creature* temp = Unit::GetCreature(*me, uiKoltiraGUID))
@@ -593,7 +578,7 @@ public:
                     SetHoldState(true);
                     break;
                 case 5:
-                    DoScriptText(SAY_LIGHT_OF_DAWN33, me);
+                    Talk(SAY_LIGHT_OF_DAWN33);
                     SetHoldState(true);
                     break;
                 case 6:
@@ -609,7 +594,7 @@ public:
                     me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 0, uint32(EQUIP_UNEQUIP));
                     if (Creature* temp = Unit::GetCreature(*me, uiTirionGUID))
                         me->CastSpell(temp, SPELL_ASHBRINGER, true);
-                    DoScriptText(EMOTE_LIGHT_OF_DAWN14, me);
+                    Talk(EMOTE_LIGHT_OF_DAWN14);
                     SetHoldState(true);
                     break;
             }
@@ -645,7 +630,7 @@ public:
                             break;
 
                         case 2:
-                            DoScriptText(SAY_LIGHT_OF_DAWN04, me);
+                            Talk(SAY_LIGHT_OF_DAWN04);
                             if (Creature* pKoltira = GetClosestCreatureWithEntry(me, NPC_KOLTIRA_DEATHWEAVER, 50.0f))
                                 uiKoltiraGUID = pKoltira->GetGUID();
                             if (Creature* pOrbaz = GetClosestCreatureWithEntry(me, NPC_ORBAZ_BLOODBANE, 50.0f))
@@ -656,7 +641,7 @@ public:
                             break;
 
                         case 3: // rise
-                            DoScriptText(SAY_LIGHT_OF_DAWN05, me);
+                            Talk(SAY_LIGHT_OF_DAWN05);
                             JumpToNextStep(3000);
                             break;
 
@@ -734,7 +719,7 @@ public:
                             break;
 
                         case 8: // summon announce
-                            DoScriptText(SAY_LIGHT_OF_DAWN06, me);
+                            Talk(SAY_LIGHT_OF_DAWN06);
                             JumpToNextStep(5000);
                             break;
 
@@ -773,34 +758,34 @@ public:
                         // ******* After battle *****************************************************************
                         case 11: // Tirion starts to speak
                             if (Creature* temp = Unit::GetCreature(*me, uiTirionGUID))
-                                DoScriptText(SAY_LIGHT_OF_DAWN28, temp);
+                                temp->AI()->Talk(SAY_LIGHT_OF_DAWN28);
                             JumpToNextStep(21000);
                             break;
 
                         case 12:
                             if (Creature* temp = Unit::GetCreature(*me, uiTirionGUID))
-                                DoScriptText(SAY_LIGHT_OF_DAWN29, temp);
+                                temp->AI()->Talk(SAY_LIGHT_OF_DAWN29);
                             JumpToNextStep(13000);
                             break;
 
                         case 13:
                             if (Creature* temp = Unit::GetCreature(*me, uiTirionGUID))
-                                DoScriptText(SAY_LIGHT_OF_DAWN30, temp);
+                                temp->AI()->Talk(SAY_LIGHT_OF_DAWN30);
                             JumpToNextStep(13000);
                             break;
 
                         case 14:
                             me->SetStandState(UNIT_STAND_STATE_STAND);
-                            DoScriptText(SAY_LIGHT_OF_DAWN31, me);
+                            Talk(SAY_LIGHT_OF_DAWN31);
                             JumpToNextStep(7000);
                             break;
 
                         case 15: // summon gate
-                            if (Unit* temp = me->SummonCreature(NPC_HIGHLORD_ALEXANDROS_MOGRAINE, LightofDawnLoc[22].x, LightofDawnLoc[22].y, LightofDawnLoc[22].z, LightofDawnLoc[22].o, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 300000))
+                            if (Creature* temp = me->SummonCreature(NPC_HIGHLORD_ALEXANDROS_MOGRAINE, LightofDawnLoc[22].x, LightofDawnLoc[22].y, LightofDawnLoc[22].z, LightofDawnLoc[22].o, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 300000))
                             {
                                 temp->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                                 temp->CastSpell(temp, SPELL_ALEXANDROS_MOGRAINE_SPAWN, true);
-                                DoScriptText(EMOTE_LIGHT_OF_DAWN06, temp);
+                                temp->AI()->Talk(EMOTE_LIGHT_OF_DAWN06);
                                 uiAlexandrosGUID = temp->GetGUID();
                             }
                             JumpToNextStep(4000);
@@ -811,7 +796,7 @@ public:
                             {
                                 temp->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                                 temp->GetMotionMaster()->MovePoint(0, LightofDawnLoc[23].x, LightofDawnLoc[23].y, LightofDawnLoc[23].z);
-                                DoScriptText(SAY_LIGHT_OF_DAWN32, temp);
+                                temp->AI()->Talk(SAY_LIGHT_OF_DAWN32);
                             }
                             SetHoldState(false); // makes darion turns back
                             JumpToNextStep(5000);
@@ -819,14 +804,14 @@ public:
 
                         case 17:
                             me->SetStandState(UNIT_STAND_STATE_KNEEL);
-                            DoScriptText(SAY_LIGHT_OF_DAWN34, me);
+                            Talk(SAY_LIGHT_OF_DAWN34);
                             JumpToNextStep(5000);
                             break;
 
                         case 18: // Darion's spirit out
-                            if (Unit* temp = me->SummonCreature(NPC_DARION_MOGRAINE, LightofDawnLoc[24].x, LightofDawnLoc[24].y, LightofDawnLoc[24].z, LightofDawnLoc[24].o, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 300000))
+                            if (Creature* temp = me->SummonCreature(NPC_DARION_MOGRAINE, LightofDawnLoc[24].x, LightofDawnLoc[24].y, LightofDawnLoc[24].z, LightofDawnLoc[24].o, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 300000))
                             {
-                                DoScriptText(SAY_LIGHT_OF_DAWN35, temp);
+                                temp->AI()->Talk(SAY_LIGHT_OF_DAWN35);
                                 temp->SetWalk(false);
                                 uiDarionGUID = temp->GetGUID();
                             }
@@ -836,7 +821,7 @@ public:
                         case 19: // runs to father
                             if (Creature* temp = Unit::GetCreature(*me, uiDarionGUID))
                             {
-                                DoScriptText(EMOTE_LIGHT_OF_DAWN07, temp);
+                                temp->AI()->Talk(EMOTE_LIGHT_OF_DAWN07);
                                 temp->GetMotionMaster()->MovePoint(0, LightofDawnLoc[25].x, LightofDawnLoc[25].y, LightofDawnLoc[25].z);
                             }
                             JumpToNextStep(4000);
@@ -844,31 +829,31 @@ public:
 
                         case 20:
                             if (Creature* temp = Unit::GetCreature(*me, uiDarionGUID))
-                                DoScriptText(SAY_LIGHT_OF_DAWN36, temp);
+                                temp->AI()->Talk(SAY_LIGHT_OF_DAWN36);
                             JumpToNextStep(4000);
                             break;
 
                         case 21:
                             if (Creature* temp = Unit::GetCreature(*me, uiDarionGUID))
-                                DoScriptText(EMOTE_LIGHT_OF_DAWN08, temp);
+                                temp->AI()->Talk(EMOTE_LIGHT_OF_DAWN08);
                             JumpToNextStep(4000);
                             break;
 
                         case 22:
                             if (Creature* temp = Unit::GetCreature(*me, uiAlexandrosGUID))
-                                DoScriptText(SAY_LIGHT_OF_DAWN37, temp);
+                                temp->AI()->Talk(SAY_LIGHT_OF_DAWN37);
                             JumpToNextStep(8000);
                             break;
 
                         case 23:
                             if (Creature* temp = Unit::GetCreature(*me, uiDarionGUID))
-                                DoScriptText(SAY_LIGHT_OF_DAWN38, temp);
+                                temp->AI()->Talk(SAY_LIGHT_OF_DAWN38);
                             JumpToNextStep(8000);
                             break;
 
                         case 24:
                             if (Creature* temp = Unit::GetCreature(*me, uiAlexandrosGUID))
-                                DoScriptText(SAY_LIGHT_OF_DAWN39, temp);
+                                temp->AI()->Talk(SAY_LIGHT_OF_DAWN39);
 
                             if (Creature* temp = Unit::GetCreature(*me, uiTirionGUID)) // Tirion moves forward here
                                 temp->GetMotionMaster()->MovePoint(0, LightofDawnLoc[1].x, LightofDawnLoc[1].y, LightofDawnLoc[1].z);
@@ -878,13 +863,13 @@ public:
 
                         case 25:
                             if (Creature* temp = Unit::GetCreature(*me, uiDarionGUID))
-                                DoScriptText(SAY_LIGHT_OF_DAWN40, temp);
+                                temp->AI()->Talk(SAY_LIGHT_OF_DAWN40);
                             JumpToNextStep(11000);
                             break;
 
                         case 26:
                             if (Creature* temp = Unit::GetCreature(*me, uiAlexandrosGUID))
-                                DoScriptText(SAY_LIGHT_OF_DAWN41, temp);
+                                temp->AI()->Talk(SAY_LIGHT_OF_DAWN41);
                             JumpToNextStep(5000);
                             break;
 
@@ -896,14 +881,14 @@ public:
 
                         case 28:
                             if (Creature* temp = Unit::GetCreature(*me, uiAlexandrosGUID))
-                                DoScriptText(SAY_LIGHT_OF_DAWN42, temp);
+                                temp->AI()->Talk(SAY_LIGHT_OF_DAWN42);
                             JumpToNextStep(6000);
                             break;
 
                         case 29: // lich king spawns
-                            if (Unit* temp = me->SummonCreature(NPC_THE_LICH_KING, LightofDawnLoc[26].x, LightofDawnLoc[26].y, LightofDawnLoc[26].z, LightofDawnLoc[26].o, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 300000))
+                            if (Creature* temp = me->SummonCreature(NPC_THE_LICH_KING, LightofDawnLoc[26].x, LightofDawnLoc[26].y, LightofDawnLoc[26].z, LightofDawnLoc[26].o, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 300000))
                             {
-                                DoScriptText(SAY_LIGHT_OF_DAWN43, temp);
+                                temp->AI()->Talk(SAY_LIGHT_OF_DAWN43);
                                 uiLichKingGUID = temp->GetGUID();
                                 if (Unit* pAlex = Unit::GetCreature(*me, uiAlexandrosGUID))
                                     temp->CastSpell(pAlex, SPELL_SOUL_FEAST_ALEX, false);
@@ -914,21 +899,21 @@ public:
                         case 30:
                             if (Creature* temp = Unit::GetCreature(*me, uiAlexandrosGUID)) // just hide him
                             {
-                                DoScriptText(EMOTE_LIGHT_OF_DAWN09, temp);
+                                temp->AI()->Talk(EMOTE_LIGHT_OF_DAWN09);
                                 temp->SetVisible(false);
                             }
                             if (Creature* temp = Unit::GetCreature(*me, uiLichKingGUID))
                             {
                                 temp->InterruptNonMeleeSpells(false);
-                                DoScriptText(SAY_LIGHT_OF_DAWN45, temp);
+                                temp->AI()->Talk(SAY_LIGHT_OF_DAWN45);
                             }
                             JumpToNextStep(3000);
                             break;
 
                         case 31:
                             me->SetStandState(UNIT_STAND_STATE_STAND);
-                            DoScriptText(EMOTE_LIGHT_OF_DAWN10, me);
-                            DoScriptText(SAY_LIGHT_OF_DAWN44, me);
+                            Talk(EMOTE_LIGHT_OF_DAWN10);
+                            Talk(SAY_LIGHT_OF_DAWN44);
                             JumpToNextStep(3000);
                             break;
 
@@ -952,7 +937,7 @@ public:
                             if (Creature* temp = Unit::GetCreature(*me, uiLichKingGUID))
                             {
                                 temp->HandleEmoteCommand(EMOTE_ONESHOT_KICK);
-                                DoScriptText(SAY_LIGHT_OF_DAWN46, temp);
+                                temp->AI()->Talk(SAY_LIGHT_OF_DAWN46);
                             }
                             me->SetSpeed(MOVE_RUN, 6.0f);
                             me->SetStandState(UNIT_STAND_STATE_DEAD);
@@ -967,33 +952,33 @@ public:
 
                         case 38:
                             if (Creature* temp = Unit::GetCreature(*me, uiTirionGUID))
-                                DoScriptText(SAY_LIGHT_OF_DAWN47, temp);
+                                temp->AI()->Talk(SAY_LIGHT_OF_DAWN47);
                             JumpToNextStep(8000);
                             break;
 
                         case 39:
                             if (Creature* temp = Unit::GetCreature(*me, uiLichKingGUID))
-                                DoScriptText(SAY_LIGHT_OF_DAWN48, temp);
+                                temp->AI()->Talk(SAY_LIGHT_OF_DAWN48);
                             JumpToNextStep(15000);
                             break;
 
                         case 40:
                             if (Creature* temp = Unit::GetCreature(*me, uiLichKingGUID))
-                                DoScriptText(SAY_LIGHT_OF_DAWN49, temp);
+                                temp->AI()->Talk(SAY_LIGHT_OF_DAWN49);
                             JumpToNextStep(17000);
                             break;
 
                         case 41: // Lich king - Apocalypse
                             if (Creature* temp = Unit::GetCreature(*me, uiLichKingGUID))
                             {
-                                DoScriptText(EMOTE_LIGHT_OF_DAWN11, temp);
-                                DoScriptText(SAY_LIGHT_OF_DAWN51, temp);
-                                if (Unit* pTirion = Unit::GetCreature(*me, uiTirionGUID))
+                                temp->AI()->Talk(EMOTE_LIGHT_OF_DAWN11);
+                                temp->AI()->Talk(SAY_LIGHT_OF_DAWN51);
+                                if (Creature* pTirion = Unit::GetCreature(*me, uiTirionGUID))
                                 {
                                     pTirion->SetStandState(UNIT_STAND_STATE_KNEEL);
                                     //temp->CastSpell(pTirion, SPELL_APOCALYPSE, false); // not working
                                     temp->CastSpell(pTirion, SPELL_SOUL_FEAST_TIRION, false);
-                                    DoScriptText(EMOTE_LIGHT_OF_DAWN12, pTirion);
+                                    pTirion->AI()->Talk(EMOTE_LIGHT_OF_DAWN12);
                                 }
                             }
                             JumpToNextStep(2000);
@@ -1035,7 +1020,7 @@ public:
                                     temp->SetWalk(false);
                                     temp->SetSpeed(MOVE_RUN, 2.0f);
                                     temp->GetMotionMaster()->MovePoint(0, fLichPositionX, fLichPositionY, fLichPositionZ);
-                                    DoScriptText(SAY_LIGHT_OF_DAWN50, temp);
+                                    temp->AI()->Talk(SAY_LIGHT_OF_DAWN50);
                                 }
                                 if (Creature* temp = Unit::GetCreature(*me, uiKorfaxGUID))
                                 {
@@ -1058,7 +1043,7 @@ public:
 
                         case 43: // They all got kicked
                             if (Creature* temp = Unit::GetCreature(*me, uiLichKingGUID))
-                                DoScriptText(EMOTE_LIGHT_OF_DAWN13, temp);
+                                temp->AI()->Talk(EMOTE_LIGHT_OF_DAWN13);
 
                             if (Creature* temp = Unit::GetCreature(*me, uiMaxwellGUID))
                             {
@@ -1107,7 +1092,7 @@ public:
                             break;
 
                         case 45:
-                            DoScriptText(SAY_LIGHT_OF_DAWN52, me);
+                            Talk(SAY_LIGHT_OF_DAWN52);
                             JumpToNextStep(5000);
                             break;
 
@@ -1115,14 +1100,14 @@ public:
                             me->SetSpeed(MOVE_RUN, 1.0f);
                             me->SetWalk(true);
                             me->SetStandState(UNIT_STAND_STATE_STAND);
-                            DoScriptText(SAY_LIGHT_OF_DAWN53, me);
+                            Talk(SAY_LIGHT_OF_DAWN53);
                             SetHoldState(false); // Darion throws sword
                             JumpToNextStep(7000);
                             break;
 
                         case 47: // Ashbringer rebirth
                             me->SetStandState(UNIT_STAND_STATE_KNEEL);
-                            DoScriptText(EMOTE_LIGHT_OF_DAWN15, me);
+                            Talk(EMOTE_LIGHT_OF_DAWN15);
                             if (Creature* temp = Unit::GetCreature(*me, uiTirionGUID))
                             {
                                 temp->SetStandState(UNIT_STAND_STATE_STAND);
@@ -1150,26 +1135,26 @@ public:
 
                         case 49:
                             if (Creature* temp = Unit::GetCreature(*me, uiTirionGUID))
-                                DoScriptText(SAY_LIGHT_OF_DAWN54, temp);
+                                temp->AI()->Talk(SAY_LIGHT_OF_DAWN54);
                             JumpToNextStep(4000);
                             break;
 
                         case 50:
                             if (Creature* temp = Unit::GetCreature(*me, uiLichKingGUID))
-                                DoScriptText(SAY_LIGHT_OF_DAWN55, temp);
+                                temp->AI()->Talk(SAY_LIGHT_OF_DAWN55);
                             JumpToNextStep(5000);
                             break;
 
                         case 51:
                             if (Creature* temp = Unit::GetCreature(*me, uiTirionGUID))
-                                DoScriptText(SAY_LIGHT_OF_DAWN56, temp);
+                                temp->AI()->Talk(SAY_LIGHT_OF_DAWN56);
                             JumpToNextStep(1000);
                             break;
 
                         case 52: // Tiron charges
                             if (Creature* temp = Unit::GetCreature(*me, uiTirionGUID))
                             {
-                                DoScriptText(EMOTE_LIGHT_OF_DAWN16, temp);
+                                temp->AI()->Talk(EMOTE_LIGHT_OF_DAWN16);
                                 temp->CastSpell(temp, SPELL_TIRION_CHARGE, false); // jumping charge
                                 temp->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_READY2H);
                                 temp->SetSpeed(MOVE_RUN, 3.0f); // workarounds, make Tirion still running
@@ -1183,7 +1168,7 @@ public:
 
                         case 53:
                             if (Creature* temp = Unit::GetCreature(*me, uiLichKingGUID))
-                                DoScriptText(SAY_LIGHT_OF_DAWN57, temp);
+                                temp->AI()->Talk(SAY_LIGHT_OF_DAWN57);
                             JumpToNextStep(1000);
                             break;
 
@@ -1211,13 +1196,13 @@ public:
 
                         case 57:
                             if (Creature* temp = Unit::GetCreature(*me, uiLichKingGUID))
-                                DoScriptText(SAY_LIGHT_OF_DAWN58, temp);
+                                temp->AI()->Talk(SAY_LIGHT_OF_DAWN58);
                             JumpToNextStep(10000);
                             break;
 
                         case 58:
                             if (Creature* temp = Unit::GetCreature(*me, uiLichKingGUID))
-                                DoScriptText(SAY_LIGHT_OF_DAWN59, temp);
+                                temp->AI()->Talk(SAY_LIGHT_OF_DAWN59);
                             JumpToNextStep(10000);
                             break;
 
@@ -1236,7 +1221,7 @@ public:
                         case 60:
                             if (Creature* temp = Unit::GetCreature(*me, uiLichKingGUID)) // Lich king disappears here
                             {
-                                DoScriptText(EMOTE_LIGHT_OF_DAWN17, temp);
+                                temp->AI()->Talk(EMOTE_LIGHT_OF_DAWN17);
                                 temp->Kill(temp);
                             }
                             JumpToNextStep(10000);
@@ -1244,7 +1229,7 @@ public:
 
                         case 61:
                             if (Creature* temp = Unit::GetCreature(*me, uiTirionGUID))
-                                DoScriptText(SAY_LIGHT_OF_DAWN60, temp);
+                                temp->AI()->Talk(SAY_LIGHT_OF_DAWN60);
                             JumpToNextStep(3000);
                             break;
 
@@ -1261,50 +1246,50 @@ public:
                             if (Creature* temp = Unit::GetCreature(*me, uiTirionGUID))
                             {
                                 temp->GetMotionMaster()->MovePoint(0, LightofDawnLoc[8].x, LightofDawnLoc[8].y, LightofDawnLoc[8].z);
-                                DoScriptText(SAY_LIGHT_OF_DAWN61, temp);
+                                temp->AI()->Talk(SAY_LIGHT_OF_DAWN61);
                             }
                             JumpToNextStep(15000);
                             break;
 
                         case 64:
                             if (Creature* temp = Unit::GetCreature(*me, uiTirionGUID))
-                                DoScriptText(SAY_LIGHT_OF_DAWN62, temp);
+                                temp->AI()->Talk(SAY_LIGHT_OF_DAWN62);
                             JumpToNextStep(7000);
                             break;
 
                         case 65:
                             if (Creature* temp = Unit::GetCreature(*me, uiTirionGUID))
-                                DoScriptText(SAY_LIGHT_OF_DAWN63, temp);
+                                temp->AI()->Talk(SAY_LIGHT_OF_DAWN63);
                             JumpToNextStep(10000);
                             break;
 
                         case 66:
                             if (Creature* temp = Unit::GetCreature(*me, uiTirionGUID))
-                                DoScriptText(SAY_LIGHT_OF_DAWN64, temp);
+                                temp->AI()->Talk(SAY_LIGHT_OF_DAWN64);
                             JumpToNextStep(11000);
                             break;
 
                         case 67:
                             if (Creature* temp = Unit::GetCreature(*me, uiTirionGUID))
-                                DoScriptText(SAY_LIGHT_OF_DAWN65, temp);
+                                temp->AI()->Talk(SAY_LIGHT_OF_DAWN65);
                             JumpToNextStep(10000);
                             break;
 
                         case 68:
                             if (Creature* temp = Unit::GetCreature(*me, uiTirionGUID))
-                                DoScriptText(SAY_LIGHT_OF_DAWN66, temp);
+                                temp->AI()->Talk(SAY_LIGHT_OF_DAWN66);
                             JumpToNextStep(8000);
                             break;
 
                         case 69:
                             if (Creature* temp = Unit::GetCreature(*me, uiTirionGUID))
-                                DoScriptText(SAY_LIGHT_OF_DAWN67, temp);
+                                temp->AI()->Talk(SAY_LIGHT_OF_DAWN67);
                             JumpToNextStep(10000);
                             break;
 
                         case 70:
                             me->SetStandState(UNIT_STAND_STATE_STAND);
-                            DoScriptText(SAY_LIGHT_OF_DAWN68, me);
+                            Talk(SAY_LIGHT_OF_DAWN68);
                             JumpToNextStep(10000);
                             break;
 
@@ -1382,12 +1367,7 @@ public:
 
                 if (uiFight_speech <= diff)
                 {
-                    DoScriptText(RAND(SAY_LIGHT_OF_DAWN09, SAY_LIGHT_OF_DAWN10, SAY_LIGHT_OF_DAWN11,
-                                      SAY_LIGHT_OF_DAWN12, SAY_LIGHT_OF_DAWN13, SAY_LIGHT_OF_DAWN14,
-                                      SAY_LIGHT_OF_DAWN15, SAY_LIGHT_OF_DAWN16, SAY_LIGHT_OF_DAWN17,
-                                      SAY_LIGHT_OF_DAWN18, SAY_LIGHT_OF_DAWN19, SAY_LIGHT_OF_DAWN20,
-                                      SAY_LIGHT_OF_DAWN21, SAY_LIGHT_OF_DAWN22, SAY_LIGHT_OF_DAWN23,
-                                      SAY_LIGHT_OF_DAWN24), me);
+                    Talk(SAY_LIGHT_OF_DAWN09);
                     uiFight_speech = urand(15000, 20000);
                 } else uiFight_speech -= diff;
 
@@ -1420,11 +1400,11 @@ public:
                 if (uiFight_duration <= diff + 5000)
                 {
                     if (!uiTirionGUID)
-                        if (Unit* temp = me->SummonCreature(NPC_HIGHLORD_TIRION_FORDRING, LightofDawnLoc[0].x, LightofDawnLoc[0].y, LightofDawnLoc[0].z, 1.528f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 600000))
+                        if (Creature* temp = me->SummonCreature(NPC_HIGHLORD_TIRION_FORDRING, LightofDawnLoc[0].x, LightofDawnLoc[0].y, LightofDawnLoc[0].z, 1.528f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 600000))
                         {
                             temp->setFaction(me->getFaction());
                             temp->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 0, uint32(EQUIP_UNEQUIP));
-                            DoScriptText(SAY_LIGHT_OF_DAWN25, temp);
+                            temp->AI()->Talk(SAY_LIGHT_OF_DAWN25);
                             uiTirionGUID = temp->GetGUID();
                         }
                 }
@@ -1501,7 +1481,7 @@ public:
                     }
 
                     if (Creature* temp = Unit::GetCreature(*me, uiOrbazGUID))
-                        DoScriptText(EMOTE_LIGHT_OF_DAWN04, temp);
+                        temp->AI()->Talk(EMOTE_LIGHT_OF_DAWN04);
 
                     if (Creature* temp = Unit::GetCreature(*me, uiThassarianGUID))
                     {
@@ -1516,7 +1496,7 @@ public:
                     }
 
                     if (Creature* temp = Unit::GetCreature(*me, uiTirionGUID))
-                        DoScriptText(SAY_LIGHT_OF_DAWN26, temp);
+                        temp->AI()->Talk(SAY_LIGHT_OF_DAWN26);
 
                     SetHoldState(false);
 

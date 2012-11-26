@@ -16,23 +16,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: Stormwind_City
-SD%Complete: 0
-SDComment:
-SDCategory: Stormwind City
-EndScriptData */
-
-/* ContentData
-EndContentData */
-
-#include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "ScriptedGossip.h"
-#include "ScriptedEscortAI.h"
-#include "Player.h"
-
-
 void AddSC_stormwind_city()
 {
 }

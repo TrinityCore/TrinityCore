@@ -16,23 +16,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: Azshara
-SD%Complete: 0
-SDComment: Quest support:
-SDCategory: Azshara
-EndScriptData */
-
-/* ContentData
-EndContentData */
-
-#include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "ScriptedGossip.h"
-#include "Player.h"
-#include "SpellInfo.h"
-#include "WorldSession.h"
-
 void AddSC_azshara()
 {
 }
