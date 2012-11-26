@@ -209,7 +209,6 @@ SET(CMAKE_DEPENDS_CHECK_CXX
   "/home/wotlkblizz/src/20120720/src/server/scripts/EasternKingdoms/westfall.cpp" "/home/wotlkblizz/src/20120720/src/server/scripts/CMakeFiles/scripts.dir/EasternKingdoms/westfall.cpp.o"
   "/home/wotlkblizz/src/20120720/src/server/scripts/EasternKingdoms/wetlands.cpp" "/home/wotlkblizz/src/20120720/src/server/scripts/CMakeFiles/scripts.dir/EasternKingdoms/wetlands.cpp.o"
   "/home/wotlkblizz/src/20120720/src/server/scripts/Events/childrens_week.cpp" "/home/wotlkblizz/src/20120720/src/server/scripts/CMakeFiles/scripts.dir/Events/childrens_week.cpp.o"
-  "/home/wotlkblizz/src/20120720/src/server/scripts/Events/event.cpp" "/home/wotlkblizz/src/20120720/src/server/scripts/CMakeFiles/scripts.dir/Events/event.cpp.o"
   "/home/wotlkblizz/src/20120720/src/server/scripts/Examples/example_commandscript.cpp" "/home/wotlkblizz/src/20120720/src/server/scripts/CMakeFiles/scripts.dir/Examples/example_commandscript.cpp.o"
   "/home/wotlkblizz/src/20120720/src/server/scripts/Examples/example_creature.cpp" "/home/wotlkblizz/src/20120720/src/server/scripts/CMakeFiles/scripts.dir/Examples/example_creature.cpp.o"
   "/home/wotlkblizz/src/20120720/src/server/scripts/Examples/example_escort.cpp" "/home/wotlkblizz/src/20120720/src/server/scripts/CMakeFiles/scripts.dir/Examples/example_escort.cpp.o"

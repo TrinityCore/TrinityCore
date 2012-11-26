@@ -21,10 +21,10 @@
  * Scriptnames of files in this file should be prefixed with "spell_mage_".
  */
 
-#include "Player.h"
 #include "ScriptMgr.h"
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"
+
 
 enum MageSpells
 {
@@ -38,6 +38,8 @@ enum MageSpells
     SPELL_MAGE_GLYPH_OF_ETERNAL_WATER            = 70937,
     SPELL_MAGE_SUMMON_WATER_ELEMENTAL_PERMANENT  = 70908,
     SPELL_MAGE_SUMMON_WATER_ELEMENTAL_TEMPORARY  = 70907,
+	SPELL_MAGE_CAUTERIZE                         = 86949,
+	SPELL_MAGE_CAUTERIZE_DOT                     = 87023,
     SPELL_MAGE_GLYPH_OF_BLAST_WAVE               = 62126,
 };
 
@@ -75,6 +77,69 @@ class spell_mage_blast_wave : public SpellScriptLoader
         }
 };
 
+// Cauterize
+class spell_mag_cauterize : public SpellScriptLoader
+{
+    public:
+        spell_mag_cauterize() : SpellScriptLoader("spell_mag_cauterize") { }
+
+        class spell_mag_cauterize_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_mag_cauterize_AuraScript);
+
+            uint32 absorbChance;
+
+            bool Validate(SpellInfo const* /*spellEntry*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_CAUTERIZE))
+                    return false;
+                return true;
+            }
+
+            bool Load()
+            {
+                absorbChance = GetSpellInfo()->Effects[EFFECT_0].CalcValue();
+                return GetUnitOwner()->ToPlayer();
+            }
+
+            void CalculateAmount(AuraEffect const* /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
+            {
+                // Set absorbtion amount to unlimited
+                amount = -1;
+            }
+
+            void Absorb(AuraEffect* /*aurEff*/, DamageInfo & dmgInfo, uint32 & absorbAmount)
+            {
+                Player* target = GetTarget()->ToPlayer();
+                if (dmgInfo.GetDamage() < target->GetHealth() || target->HasSpellCooldown(SPELL_MAGE_CAUTERIZE) ||  !roll_chance_i(absorbChance))
+                    return;    
+
+                target->CastSpell(target, SPELL_MAGE_CAUTERIZE_DOT, true);
+		      target->SetHealth(target->CountPctFromMaxHealth(40));
+                target->AddSpellCooldown(SPELL_MAGE_CAUTERIZE, 0, time(NULL) + 60);
+
+                uint32 health10 = target->CountPctFromMaxHealth(10);
+
+                // hp > 10% - absorb hp till 10%
+                if (target->GetHealth() > health10)
+                    absorbAmount = dmgInfo.GetDamage() - target->GetHealth() + health10;
+                // hp lower than 10% - absorb everything
+                else
+                    absorbAmount = dmgInfo.GetDamage();
+            }
+
+            void Register()
+            {
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_mag_cauterize_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
+                OnEffectAbsorb += AuraEffectAbsorbFn(spell_mag_cauterize_AuraScript::Absorb, EFFECT_0);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_mag_cauterize_AuraScript();
+        }
+};
 class spell_mage_cold_snap : public SpellScriptLoader
 {
     public:
@@ -204,11 +269,22 @@ class spell_mage_summon_water_elemental : public SpellScriptLoader
                 else
                     caster->CastSpell(caster, SPELL_MAGE_SUMMON_WATER_ELEMENTAL_TEMPORARY, true);
             }
+            
+            SpellCastResult HandleCheckCast() {
+                Unit *caster = GetCaster();
+                if (caster->GetPetGUID())
+                    return SPELL_FAILED_ALREADY_HAVE_SUMMON;
+                if (caster->GetCharmGUID())
+                    return SPELL_FAILED_ALREADY_HAVE_CHARM;
+                
+                return SPELL_CAST_OK;
+            }
 
             void Register()
             {
                 // add dummy effect spell handler to Summon Water Elemental
                 OnEffectHit += SpellEffectFn(spell_mage_summon_water_elemental_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnCheckCast += SpellCheckCastFn(spell_mage_summon_water_elemental_SpellScript::HandleCheckCast);
             }
         };
 
@@ -380,49 +456,6 @@ class spell_mage_living_bomb : public SpellScriptLoader
         }
 };
 
-enum ConeOfColdSpells
-{
-    SPELL_CONE_OF_COLD_AURA_R1      = 11190, // Improved Cone of Cold Rank 1 aura
-    SPELL_CONE_OF_COLD_AURA_R2      = 12489, // Improved Cone of Cold Rank 2 aura
-    SPELL_CONE_OF_COLD_TRIGGER_R1   = 83301, // Improved Cone of Cold Rank 1 Trigger
-    SPELL_CONE_OF_COLD_TRIGGER_R2   = 83302, // Improved Cone of Cold Rank 2 Trigger
-};
-
-// 120 Cone of Cold
-/// Updated 4.3.4
-class spell_mage_cone_of_cold : public SpellScriptLoader
-{
-public:
-    spell_mage_cone_of_cold() : SpellScriptLoader("spell_mage_cone_of_cold") { }
-
-    class spell_mage_cone_of_cold_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_mage_cone_of_cold_SpellScript);
-
-        void HandleConeOfColdScript(SpellEffIndex /*effIndex*/)
-        {
-            Unit* caster = GetCaster();
-            if (Unit* unitTarget = GetHitUnit())
-            {
-                if (caster->HasAura(SPELL_CONE_OF_COLD_AURA_R1)) // Improved Cone of Cold Rank 1
-                    unitTarget->CastSpell(unitTarget, SPELL_CONE_OF_COLD_TRIGGER_R1, true);
-                else if (caster->HasAura(SPELL_CONE_OF_COLD_AURA_R2)) // Improved Cone of Cold Rank 2
-                        unitTarget->CastSpell(unitTarget, SPELL_CONE_OF_COLD_TRIGGER_R2, true);
-            }
-        }
-
-        void Register()
-        {
-            OnEffectHitTarget += SpellEffectFn(spell_mage_cone_of_cold_SpellScript::HandleConeOfColdScript, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
-        }
-    };
-
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_mage_cone_of_cold_SpellScript();
-    }
-};
-
 void AddSC_mage_spell_scripts()
 {
     new spell_mage_blast_wave();
@@ -433,5 +466,5 @@ void AddSC_mage_spell_scripts()
     new spell_mage_polymorph_cast_visual();
     new spell_mage_summon_water_elemental();
     new spell_mage_living_bomb();
-    new spell_mage_cone_of_cold();
+    new spell_mag_cauterize();
 }

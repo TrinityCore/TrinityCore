@@ -573,7 +573,6 @@ FILE(REMOVE_RECURSE
   "CMakeFiles/scripts.dir/Northrend/DraktharonKeep/boss_tharon_ja.cpp.o"
   "CMakeFiles/scripts.dir/Northrend/DraktharonKeep/boss_dred.cpp.o"
   "CMakeFiles/scripts.dir/Events/childrens_week.cpp.o"
-  "CMakeFiles/scripts.dir/Events/event.cpp.o"
   "CMakeFiles/scripts.dir/PrecompiledHeaders/ScriptPCH.cpp.o"
   "libscripts.pdb"
   "libscripts.a"

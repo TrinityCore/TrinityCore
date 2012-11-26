@@ -13822,33 +13822,9 @@ src/server/scripts/CMakeFiles/scripts.dir/Events/childrens_week.cpp.o.provides: 
 src/server/scripts/CMakeFiles/scripts.dir/Events/childrens_week.cpp.o.provides.build: src/server/scripts/CMakeFiles/scripts.dir/Events/childrens_week.cpp.o
 .PHONY : src/server/scripts/CMakeFiles/scripts.dir/Events/childrens_week.cpp.o.provides.build
 
-src/server/scripts/CMakeFiles/scripts.dir/Events/event.cpp.o: src/server/scripts/CMakeFiles/scripts.dir/flags.make
-src/server/scripts/CMakeFiles/scripts.dir/Events/event.cpp.o: src/server/scripts/Events/event.cpp
-	$(CMAKE_COMMAND) -E cmake_progress_report /home/wotlkblizz/src/20120720/CMakeFiles $(CMAKE_PROGRESS_575)
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Building CXX object src/server/scripts/CMakeFiles/scripts.dir/Events/event.cpp.o"
-	cd /home/wotlkblizz/src/20120720/src/server/scripts && /usr/bin/c++   $(CXX_DEFINES) $(CXX_FLAGS) -include /home/wotlkblizz/src/20120720/src/server/scripts/ScriptPCH.h -o CMakeFiles/scripts.dir/Events/event.cpp.o -c /home/wotlkblizz/src/20120720/src/server/scripts/Events/event.cpp
-
-src/server/scripts/CMakeFiles/scripts.dir/Events/event.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/scripts.dir/Events/event.cpp.i"
-	cd /home/wotlkblizz/src/20120720/src/server/scripts && /usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -include /home/wotlkblizz/src/20120720/src/server/scripts/ScriptPCH.h -E /home/wotlkblizz/src/20120720/src/server/scripts/Events/event.cpp > CMakeFiles/scripts.dir/Events/event.cpp.i
-
-src/server/scripts/CMakeFiles/scripts.dir/Events/event.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/scripts.dir/Events/event.cpp.s"
-	cd /home/wotlkblizz/src/20120720/src/server/scripts && /usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -include /home/wotlkblizz/src/20120720/src/server/scripts/ScriptPCH.h -S /home/wotlkblizz/src/20120720/src/server/scripts/Events/event.cpp -o CMakeFiles/scripts.dir/Events/event.cpp.s
-
-src/server/scripts/CMakeFiles/scripts.dir/Events/event.cpp.o.requires:
-.PHONY : src/server/scripts/CMakeFiles/scripts.dir/Events/event.cpp.o.requires
-
-src/server/scripts/CMakeFiles/scripts.dir/Events/event.cpp.o.provides: src/server/scripts/CMakeFiles/scripts.dir/Events/event.cpp.o.requires
-	$(MAKE) -f src/server/scripts/CMakeFiles/scripts.dir/build.make src/server/scripts/CMakeFiles/scripts.dir/Events/event.cpp.o.provides.build
-.PHONY : src/server/scripts/CMakeFiles/scripts.dir/Events/event.cpp.o.provides
-
-src/server/scripts/CMakeFiles/scripts.dir/Events/event.cpp.o.provides.build: src/server/scripts/CMakeFiles/scripts.dir/Events/event.cpp.o
-.PHONY : src/server/scripts/CMakeFiles/scripts.dir/Events/event.cpp.o.provides.build
-
 src/server/scripts/CMakeFiles/scripts.dir/PrecompiledHeaders/ScriptPCH.cpp.o: src/server/scripts/CMakeFiles/scripts.dir/flags.make
 src/server/scripts/CMakeFiles/scripts.dir/PrecompiledHeaders/ScriptPCH.cpp.o: src/server/scripts/PrecompiledHeaders/ScriptPCH.cpp
-	$(CMAKE_COMMAND) -E cmake_progress_report /home/wotlkblizz/src/20120720/CMakeFiles $(CMAKE_PROGRESS_576)
+	$(CMAKE_COMMAND) -E cmake_progress_report /home/wotlkblizz/src/20120720/CMakeFiles $(CMAKE_PROGRESS_575)
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Building CXX object src/server/scripts/CMakeFiles/scripts.dir/PrecompiledHeaders/ScriptPCH.cpp.o"
 	cd /home/wotlkblizz/src/20120720/src/server/scripts && /usr/bin/c++   $(CXX_DEFINES) $(CXX_FLAGS) -include /home/wotlkblizz/src/20120720/src/server/scripts/ScriptPCH.h -o CMakeFiles/scripts.dir/PrecompiledHeaders/ScriptPCH.cpp.o -c /home/wotlkblizz/src/20120720/src/server/scripts/PrecompiledHeaders/ScriptPCH.cpp
 
@@ -14446,7 +14422,6 @@ scripts_OBJECTS = \
 "CMakeFiles/scripts.dir/Northrend/DraktharonKeep/boss_tharon_ja.cpp.o" \
 "CMakeFiles/scripts.dir/Northrend/DraktharonKeep/boss_dred.cpp.o" \
 "CMakeFiles/scripts.dir/Events/childrens_week.cpp.o" \
-"CMakeFiles/scripts.dir/Events/event.cpp.o" \
 "CMakeFiles/scripts.dir/PrecompiledHeaders/ScriptPCH.cpp.o"
 
 # External object files for target scripts
@@ -15026,7 +15001,6 @@ src/server/scripts/libscripts.a: src/server/scripts/CMakeFiles/scripts.dir/North
 src/server/scripts/libscripts.a: src/server/scripts/CMakeFiles/scripts.dir/Northrend/DraktharonKeep/boss_tharon_ja.cpp.o
 src/server/scripts/libscripts.a: src/server/scripts/CMakeFiles/scripts.dir/Northrend/DraktharonKeep/boss_dred.cpp.o
 src/server/scripts/libscripts.a: src/server/scripts/CMakeFiles/scripts.dir/Events/childrens_week.cpp.o
-src/server/scripts/libscripts.a: src/server/scripts/CMakeFiles/scripts.dir/Events/event.cpp.o
 src/server/scripts/libscripts.a: src/server/scripts/CMakeFiles/scripts.dir/PrecompiledHeaders/ScriptPCH.cpp.o
 src/server/scripts/libscripts.a: src/server/scripts/CMakeFiles/scripts.dir/build.make
 src/server/scripts/libscripts.a: src/server/scripts/CMakeFiles/scripts.dir/link.txt
@@ -15612,7 +15586,6 @@ src/server/scripts/CMakeFiles/scripts.dir/requires: src/server/scripts/CMakeFile
 src/server/scripts/CMakeFiles/scripts.dir/requires: src/server/scripts/CMakeFiles/scripts.dir/Northrend/DraktharonKeep/boss_tharon_ja.cpp.o.requires
 src/server/scripts/CMakeFiles/scripts.dir/requires: src/server/scripts/CMakeFiles/scripts.dir/Northrend/DraktharonKeep/boss_dred.cpp.o.requires
 src/server/scripts/CMakeFiles/scripts.dir/requires: src/server/scripts/CMakeFiles/scripts.dir/Events/childrens_week.cpp.o.requires
-src/server/scripts/CMakeFiles/scripts.dir/requires: src/server/scripts/CMakeFiles/scripts.dir/Events/event.cpp.o.requires
 src/server/scripts/CMakeFiles/scripts.dir/requires: src/server/scripts/CMakeFiles/scripts.dir/PrecompiledHeaders/ScriptPCH.cpp.o.requires
 .PHONY : src/server/scripts/CMakeFiles/scripts.dir/requires
 

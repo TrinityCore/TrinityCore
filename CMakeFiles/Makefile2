@@ -779,7 +779,7 @@ all: src/server/authserver/CMakeFiles/authserver.dir/all
 
 # Build rule for subdir invocation for target.
 src/server/authserver/CMakeFiles/authserver.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/wotlkblizz/src/20120720/CMakeFiles 5
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/wotlkblizz/src/20120720/CMakeFiles 4
 	$(MAKE) -f CMakeFiles/Makefile2 src/server/authserver/CMakeFiles/authserver.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/wotlkblizz/src/20120720/CMakeFiles 0
 .PHONY : src/server/authserver/CMakeFiles/authserver.dir/rule
@@ -804,13 +804,13 @@ clean: src/server/authserver/CMakeFiles/authserver.dir/clean
 src/server/authserver/CMakeFiles/generate_authPCH.cpp.dir/all: src/server/authserver/CMakeFiles/authPCH.cpp_dephelp.dir/all
 	$(MAKE) -f src/server/authserver/CMakeFiles/generate_authPCH.cpp.dir/build.make src/server/authserver/CMakeFiles/generate_authPCH.cpp.dir/depend
 	$(MAKE) -f src/server/authserver/CMakeFiles/generate_authPCH.cpp.dir/build.make src/server/authserver/CMakeFiles/generate_authPCH.cpp.dir/build
-	$(CMAKE_COMMAND) -E cmake_progress_report /home/wotlkblizz/src/20120720/CMakeFiles  28
+	$(CMAKE_COMMAND) -E cmake_progress_report /home/wotlkblizz/src/20120720/CMakeFiles 
 	@echo "Built target generate_authPCH.cpp"
 .PHONY : src/server/authserver/CMakeFiles/generate_authPCH.cpp.dir/all
 
 # Build rule for subdir invocation for target.
 src/server/authserver/CMakeFiles/generate_authPCH.cpp.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/wotlkblizz/src/20120720/CMakeFiles 1
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/wotlkblizz/src/20120720/CMakeFiles 0
 	$(MAKE) -f CMakeFiles/Makefile2 src/server/authserver/CMakeFiles/generate_authPCH.cpp.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/wotlkblizz/src/20120720/CMakeFiles 0
 .PHONY : src/server/authserver/CMakeFiles/generate_authPCH.cpp.dir/rule
@@ -888,13 +888,13 @@ clean: src/server/scripts/CMakeFiles/ScriptPCH.cpp_dephelp.dir/clean
 src/server/scripts/CMakeFiles/generate_ScriptPCH.cpp.dir/all: src/server/scripts/CMakeFiles/ScriptPCH.cpp_dephelp.dir/all
 	$(MAKE) -f src/server/scripts/CMakeFiles/generate_ScriptPCH.cpp.dir/build.make src/server/scripts/CMakeFiles/generate_ScriptPCH.cpp.dir/depend
 	$(MAKE) -f src/server/scripts/CMakeFiles/generate_ScriptPCH.cpp.dir/build.make src/server/scripts/CMakeFiles/generate_ScriptPCH.cpp.dir/build
-	$(CMAKE_COMMAND) -E cmake_progress_report /home/wotlkblizz/src/20120720/CMakeFiles 
+	$(CMAKE_COMMAND) -E cmake_progress_report /home/wotlkblizz/src/20120720/CMakeFiles  28
 	@echo "Built target generate_ScriptPCH.cpp"
 .PHONY : src/server/scripts/CMakeFiles/generate_ScriptPCH.cpp.dir/all
 
 # Build rule for subdir invocation for target.
 src/server/scripts/CMakeFiles/generate_ScriptPCH.cpp.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/wotlkblizz/src/20120720/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/wotlkblizz/src/20120720/CMakeFiles 1
 	$(MAKE) -f CMakeFiles/Makefile2 src/server/scripts/CMakeFiles/generate_ScriptPCH.cpp.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/wotlkblizz/src/20120720/CMakeFiles 0
 .PHONY : src/server/scripts/CMakeFiles/generate_ScriptPCH.cpp.dir/rule
@@ -930,7 +930,7 @@ all: src/server/scripts/CMakeFiles/scripts.dir/all
 
 # Build rule for subdir invocation for target.
 src/server/scripts/CMakeFiles/scripts.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/wotlkblizz/src/20120720/CMakeFiles 64
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/wotlkblizz/src/20120720/CMakeFiles 65
 	$(MAKE) -f CMakeFiles/Makefile2 src/server/scripts/CMakeFiles/scripts.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/wotlkblizz/src/20120720/CMakeFiles 0
 .PHONY : src/server/scripts/CMakeFiles/scripts.dir/rule
@@ -1036,10 +1036,10 @@ clean: src/server/worldserver/CMakeFiles/worldPCH.cpp_dephelp.dir/clean
 # Target rules for target src/server/worldserver/CMakeFiles/worldserver.dir
 
 # All Build rule for target.
-src/server/worldserver/CMakeFiles/worldserver.dir/all: dep/g3dlite/CMakeFiles/g3dlib.dir/all
+src/server/worldserver/CMakeFiles/worldserver.dir/all: dep/jemalloc/CMakeFiles/jemalloc.dir/all
 src/server/worldserver/CMakeFiles/worldserver.dir/all: dep/gsoap/CMakeFiles/gsoap.dir/all
 src/server/worldserver/CMakeFiles/worldserver.dir/all: src/genrev/CMakeFiles/revision.h.dir/all
-src/server/worldserver/CMakeFiles/worldserver.dir/all: dep/jemalloc/CMakeFiles/jemalloc.dir/all
+src/server/worldserver/CMakeFiles/worldserver.dir/all: dep/g3dlite/CMakeFiles/g3dlib.dir/all
 src/server/worldserver/CMakeFiles/worldserver.dir/all: src/server/shared/CMakeFiles/shared.dir/all
 src/server/worldserver/CMakeFiles/worldserver.dir/all: src/server/collision/CMakeFiles/collision.dir/all
 src/server/worldserver/CMakeFiles/worldserver.dir/all: src/server/game/CMakeFiles/game.dir/all
@@ -1057,7 +1057,7 @@ all: src/server/worldserver/CMakeFiles/worldserver.dir/all
 
 # Build rule for subdir invocation for target.
 src/server/worldserver/CMakeFiles/worldserver.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/wotlkblizz/src/20120720/CMakeFiles 99
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/wotlkblizz/src/20120720/CMakeFiles 100
 	$(MAKE) -f CMakeFiles/Makefile2 src/server/worldserver/CMakeFiles/worldserver.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/wotlkblizz/src/20120720/CMakeFiles 0
 .PHONY : src/server/worldserver/CMakeFiles/worldserver.dir/rule

@@ -5619,7 +5619,6 @@ uint32 Spell::GetCCDelay(SpellInfo const* _spell)
 		SPELL_AURA_MOD_CONFUSE,
 		SPELL_AURA_MOD_FEAR,
 		SPELL_AURA_MOD_DISARM,
-		SPELL_AURA_MOD_ROOT,
 		SPELL_AURA_MOD_POSSESS
 	};
 	uint8 CCDArraySize = 6;
@@ -7325,7 +7324,7 @@ void Spell::PrepareTriggersExecutedOnHit()
 enum GCDLimits
 {
     MIN_GCD = 900,
-    MAX_GCD = 1400
+    MAX_GCD = 1450
 };
 
 bool Spell::HasGlobalCooldown() const

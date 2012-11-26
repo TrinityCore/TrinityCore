@@ -5122,30 +5122,6 @@ Events/childrens_week.cpp.s:
 	cd /home/wotlkblizz/src/20120720 && $(MAKE) -f src/server/scripts/CMakeFiles/scripts.dir/build.make src/server/scripts/CMakeFiles/scripts.dir/Events/childrens_week.cpp.s
 .PHONY : Events/childrens_week.cpp.s
 
-Events/event.o: Events/event.cpp.o
-.PHONY : Events/event.o
-
-# target to build an object file
-Events/event.cpp.o:
-	cd /home/wotlkblizz/src/20120720 && $(MAKE) -f src/server/scripts/CMakeFiles/scripts.dir/build.make src/server/scripts/CMakeFiles/scripts.dir/Events/event.cpp.o
-.PHONY : Events/event.cpp.o
-
-Events/event.i: Events/event.cpp.i
-.PHONY : Events/event.i
-
-# target to preprocess a source file
-Events/event.cpp.i:
-	cd /home/wotlkblizz/src/20120720 && $(MAKE) -f src/server/scripts/CMakeFiles/scripts.dir/build.make src/server/scripts/CMakeFiles/scripts.dir/Events/event.cpp.i
-.PHONY : Events/event.cpp.i
-
-Events/event.s: Events/event.cpp.s
-.PHONY : Events/event.s
-
-# target to generate assembly for a file
-Events/event.cpp.s:
-	cd /home/wotlkblizz/src/20120720 && $(MAKE) -f src/server/scripts/CMakeFiles/scripts.dir/build.make src/server/scripts/CMakeFiles/scripts.dir/Events/event.cpp.s
-.PHONY : Events/event.cpp.s
-
 Examples/example_commandscript.o: Examples/example_commandscript.cpp.o
 .PHONY : Examples/example_commandscript.o
 
@@ -14662,9 +14638,6 @@ help:
 	@echo "... Events/childrens_week.o"
 	@echo "... Events/childrens_week.i"
 	@echo "... Events/childrens_week.s"
-	@echo "... Events/event.o"
-	@echo "... Events/event.i"
-	@echo "... Events/event.s"
 	@echo "... Examples/example_commandscript.o"
 	@echo "... Examples/example_commandscript.i"
 	@echo "... Examples/example_commandscript.s"

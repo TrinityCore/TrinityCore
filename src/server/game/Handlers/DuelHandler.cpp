@@ -45,6 +45,23 @@ void WorldSession::HandleDuelAcceptedOpcode(WorldPacket& recvPacket)
     sLog->outDebug(LOG_FILTER_NETWORKIO, "Player 1 is: %u (%s)", player->GetGUIDLow(), player->GetName().c_str());
     sLog->outDebug(LOG_FILTER_NETWORKIO, "Player 2 is: %u (%s)", plTarget->GetGUIDLow(), plTarget->GetName().c_str());
 
+    player->SetHealth(player->GetMaxHealth());
+    player->SetPower(POWER_MANA, player->GetMaxPower(POWER_MANA));
+    plTarget->SetHealth(plTarget->GetMaxHealth());
+    plTarget->SetPower(POWER_MANA, plTarget->GetMaxPower(POWER_MANA));
+    player->RemoveArenaSpellCooldowns();
+    plTarget->RemoveArenaSpellCooldowns();
+    player->RemoveAura(57723);
+    player->RemoveAura(57724);
+    player->RemoveAura(25771);
+    player->RemoveAura(41425);
+    player->RemoveAura(61987);
+    plTarget->RemoveAura(57723);
+    plTarget->RemoveAura(57724);
+    plTarget->RemoveAura(25771);
+    plTarget->RemoveAura(41425);
+    plTarget->RemoveAura(61987);
+
     time_t now = time(NULL);
     player->duel->startTimer = now;
     plTarget->duel->startTimer = now;

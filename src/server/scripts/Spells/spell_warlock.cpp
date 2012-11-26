@@ -505,8 +505,6 @@ class spell_warl_demonic_circle_teleport : public SpellScriptLoader
             return new spell_warl_demonic_circle_teleport_AuraScript();
         }
 };
-     }
-};
 
 // 48181 Haunt
 /// Updated 4.3.4
