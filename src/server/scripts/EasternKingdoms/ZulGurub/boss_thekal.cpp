@@ -27,11 +27,11 @@ EndScriptData */
 #include "ScriptedCreature.h"
 #include "zulgurub.h"
 
-#define SAY_AGGRO               -1309009
-#define SAY_DEATH               -1309010
-
-enum eSpells
+enum Thekal
 {
+    SAY_AGGRO                 = 0,
+    SAY_DEATH                 = 1,
+
     SPELL_MORTALCLEAVE        = 22859,
     SPELL_SILENCE             = 22666,
     SPELL_FRENZY              = 8269,
@@ -53,7 +53,7 @@ enum eSpells
     SPELL_SINISTERSTRIKE      = 15581,
     SPELL_GOUGE               = 12540,
     SPELL_KICK                = 15614,
-    SPELL_BLIND               = 21060,
+    SPELL_BLIND               = 21060
 };
 
 class boss_thekal : public CreatureScript
@@ -106,12 +106,12 @@ class boss_thekal : public CreatureScript
 
             void EnterCombat(Unit* /*who*/)
             {
-                DoScriptText(SAY_AGGRO, me);
+                Talk(SAY_AGGRO);
             }
 
             void JustDied(Unit* /*killer*/)
             {
-                DoScriptText(SAY_DEATH, me);
+                Talk(SAY_DEATH);
                 if (instance)
                     instance->SetData(DATA_THEKAL, DONE);
             }

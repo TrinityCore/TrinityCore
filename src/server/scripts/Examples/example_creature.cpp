@@ -45,17 +45,18 @@ enum Yells
     //List of text id's. The text is stored in database, also in a localized version
     //(if translation not exist for the textId, default english text will be used)
     //Not required to define in this way, but simplify if changes are needed.
-    SAY_AGGRO                                   = -1999900,
-    SAY_RANDOM_0                                = -1999901,
-    SAY_RANDOM_1                                = -1999902,
-    SAY_RANDOM_2                                = -1999903,
-    SAY_RANDOM_3                                = -1999904,
-    SAY_RANDOM_4                                = -1999905,
-    SAY_BERSERK                                 = -1999906,
-    SAY_PHASE                                   = -1999907,
-    SAY_DANCE                                   = -1999908,
-    SAY_SALUTE                                  = -1999909,
-    SAY_EVADE                                   = -1999910,
+    //These texts must be added to the creature texts of the npc for which the script is assigned.
+    SAY_AGGRO                                   = 0, // "Let the games begin."
+    SAY_RANDOM                                  = 1, // "I see endless suffering. I see torment. I see rage. I see everything.",
+                                                     // "Muahahahaha",
+                                                     // "These mortal infedels my lord, they have invaded your sanctum and seek to steal your secrets.",
+                                                     // "You are already dead.",
+                                                     // "Where to go? What to do? So many choices that all end in pain, end in death."
+    SAY_BERSERK                                 = 2, // "$N, I sentance you to death!"
+    SAY_PHASE                                   = 3, // "The suffering has just begun!"
+    SAY_DANCE                                   = 4, // "I always thought I was a good dancer."
+    SAY_SALUTE                                  = 5, // "Move out Soldier!"
+    SAY_EVADE                                   = 6  // "Help $N! I'm under attack!"
 };
 
 enum Spells
@@ -127,7 +128,7 @@ class example_creature : public CreatureScript
             void EnterCombat(Unit* who)
             {
                 //Say some stuff
-                DoScriptText(SAY_AGGRO, me, who);
+                Talk(SAY_AGGRO, who->GetGUID());
             }
 
             // *** HANDLED FUNCTION ***
@@ -142,7 +143,7 @@ class example_creature : public CreatureScript
             // Called when going out of combat. Reset is called just after.
             void EnterEvadeMode()
             {
-                DoScriptText(SAY_EVADE, me);
+                Talk(SAY_EVADE);
             }
 
             // *** HANDLED FUNCTION ***
@@ -154,10 +155,10 @@ class example_creature : public CreatureScript
                 switch (uiTextEmote)
                 {
                     case TEXT_EMOTE_DANCE:
-                        DoScriptText(SAY_DANCE, me);
+                        Talk(SAY_DANCE);
                         break;
                     case TEXT_EMOTE_SALUTE:
-                        DoScriptText(SAY_SALUTE, me);
+                        Talk(SAY_SALUTE);
                         break;
                 }
              }
@@ -173,7 +174,7 @@ class example_creature : public CreatureScript
                     if (m_uiSayTimer <= uiDiff)
                     {
                         //Random switch between 5 outcomes
-                        DoScriptText(RAND(SAY_RANDOM_0, SAY_RANDOM_1, SAY_RANDOM_2, SAY_RANDOM_3, SAY_RANDOM_4), me);
+                        Talk(SAY_RANDOM);
 
                         m_uiSayTimer = 45000;                      //Say something agian in 45 seconds
                     }
@@ -235,7 +236,7 @@ class example_creature : public CreatureScript
                     if (m_uiBeserkTimer <= uiDiff)
                     {
                         //Say our line then cast uber death spell
-                        DoScriptText(SAY_BERSERK, me, me->getVictim());
+                        Talk(SAY_BERSERK, me->getVictim() ? me->getVictim()->GetGUID() : 0);
                         DoCast(me->getVictim(), SPELL_BERSERK);
 
                         //Cast our beserk spell agian in 12 seconds if we didn't kill everyone
@@ -250,7 +251,7 @@ class example_creature : public CreatureScript
                     {
                         //Go to next phase
                         ++m_uiPhase;
-                        DoScriptText(SAY_PHASE, me);
+                        Talk(SAY_PHASE);
                         DoCast(me, SPELL_FRENZY);
                     }
                     else
