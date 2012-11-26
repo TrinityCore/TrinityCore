@@ -30,11 +30,11 @@ enum eCorporalKeeshan
 {
     QUEST_MISSING_IN_ACTION = 219,
 
-    SAY_CORPORAL_1  = -1000464,
-    SAY_CORPORAL_2  = -1000465,
-    SAY_CORPORAL_3  = -1000466,
-    SAY_CORPORAL_4  = -1000467,
-    SAY_CORPORAL_5  = -1000468,
+    SAY_CORPORAL_1  = 0,
+    SAY_CORPORAL_2  = 1,
+    SAY_CORPORAL_3  = 2,
+    SAY_CORPORAL_4  = 3,
+    SAY_CORPORAL_5  = 4,
 
     SPELL_MOCKING_BLOW  = 21008,
     SPELL_SHIELD_BASH   = 11972,
@@ -50,7 +50,7 @@ public:
         if (quest->GetQuestId() == QUEST_MISSING_IN_ACTION)
         {
             CAST_AI(npc_corporal_keeshan::npc_corporal_keeshanAI, creature->AI())->Start(true, false, player->GetGUID(), quest);
-            DoScriptText(SAY_CORPORAL_1, creature);
+            creature->AI()->Talk(SAY_CORPORAL_1);
         }
 
         return false;
@@ -124,23 +124,23 @@ public:
                             uiPhase = 2;
                             break;
                         case 2:
-                            DoScriptText(SAY_CORPORAL_2, me);
+                            Talk(SAY_CORPORAL_2);
                             uiTimer = 15000;
                             uiPhase = 3;
                             break;
                         case 3:
-                            DoScriptText(SAY_CORPORAL_3, me);
+                            Talk(SAY_CORPORAL_3);
                             me->SetStandState(UNIT_STAND_STATE_STAND);
                             SetEscortPaused(false);
                             uiTimer = 0;
                             uiPhase = 0;
                             break;
                         case 4:
-                            DoScriptText(SAY_CORPORAL_4, me);
+                            Talk(SAY_CORPORAL_4);
                             uiTimer = 2500;
                             uiPhase = 5;
                         case 5:
-                            DoScriptText(SAY_CORPORAL_5, me);
+                            Talk(SAY_CORPORAL_5);
                             uiTimer = 0;
                             uiPhase = 0;
                     }
