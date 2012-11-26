@@ -1,2 +1,0 @@
--- ALTER TABLE `quest_template` CHANGE `MinLevel` `MinLevel` tinyint(4) NOT NULL DEFAULT '0';
--- Properly fixed in 53a2b8622812f365ca7d31fdbf75fe9a1707ac7
