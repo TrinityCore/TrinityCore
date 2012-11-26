@@ -37,12 +37,12 @@ EndContentData */
 
 enum AmeData
 {
-    SAY_READY               = -1000517,
-    SAY_AGGRO1              = -1000518,
-    SAY_SEARCH              = -1000519,
-    SAY_AGGRO2              = -1000520,
-    SAY_AGGRO3              = -1000521,
-    SAY_FINISH              = -1000522,
+    SAY_READY               = 0,
+    SAY_AGGRO1              = 1,
+    SAY_SEARCH              = 2,
+    SAY_AGGRO2              = 3,
+    SAY_AGGRO3              = 4,
+    SAY_FINISH              = 5,
 
     SPELL_DEMORALIZINGSHOUT = 13730,
 
@@ -62,7 +62,7 @@ public:
         if (quest->GetQuestId() == QUEST_CHASING_AME)
         {
             CAST_AI(npc_escortAI, (creature->AI()))->Start(false, false, player->GetGUID());
-            DoScriptText(SAY_READY, creature, player);
+            creature->AI()->Talk(SAY_READY, player->GetGUID());
             creature->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
             // Change faction so mobs attack
             creature->setFaction(113);
@@ -89,21 +89,21 @@ public:
                 {
                     case 19:
                         me->SummonCreature(ENTRY_STOMPER, -6391.69f, -1730.49f, -272.83f, 4.96f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
-                        DoScriptText(SAY_AGGRO1, me, player);
+                        Talk(SAY_AGGRO1, player->GetGUID());
                         break;
                     case 28:
-                        DoScriptText(SAY_SEARCH, me, player);
+                        Talk(SAY_SEARCH, player->GetGUID());
                         break;
                     case 38:
                         me->SummonCreature(ENTRY_TARLORD, -6370.75f, -1382.84f, -270.51f, 6.06f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
-                        DoScriptText(SAY_AGGRO2, me, player);
+                        Talk(SAY_AGGRO2, player->GetGUID());
                         break;
                     case 49:
                         me->SummonCreature(ENTRY_TARLORD1, -6324.44f, -1181.05f, -270.17f, 4.34f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
-                        DoScriptText(SAY_AGGRO3, me, player);
+                        Talk(SAY_AGGRO3, player->GetGUID());
                         break;
                     case 55:
-                        DoScriptText(SAY_FINISH, me, player);
+                        Talk(SAY_FINISH, player->GetGUID());
                         player->GroupEventHappens(QUEST_CHASING_AME, me);
                         break;
                 }
@@ -147,27 +147,20 @@ public:
 
 enum Ringo
 {
-    SAY_RIN_START_1             = -1000416,
-    SAY_RIN_START_2             = -1000417,
+    SAY_RIN_START               = 0,
 
-    SAY_FAINT_1                 = -1000418,
-    SAY_FAINT_2                 = -1000419,
-    SAY_FAINT_3                 = -1000420,
-    SAY_FAINT_4                 = -1000421,
+    SAY_FAINT                   = 1,
 
-    SAY_WAKE_1                  = -1000422,
-    SAY_WAKE_2                  = -1000423,
-    SAY_WAKE_3                  = -1000424,
-    SAY_WAKE_4                  = -1000425,
+    SAY_WAKE                    = 2,
 
-    SAY_RIN_END_1               = -1000426,
-    SAY_SPR_END_2               = -1000427,
-    SAY_RIN_END_3               = -1000428,
-    EMOTE_RIN_END_4             = -1000429,
-    EMOTE_RIN_END_5             = -1000430,
-    SAY_RIN_END_6               = -1000431, // signed for 6784
-    SAY_SPR_END_7               = -1000432,
-    EMOTE_RIN_END_8             = -1000433,
+    SAY_RIN_END_1               = 3,
+    SAY_SPR_END_2               = 0,
+    SAY_RIN_END_3               = 4,
+    EMOTE_RIN_END_4             = 5,
+    EMOTE_RIN_END_5             = 6,
+    SAY_RIN_END_6               = 7,
+    SAY_SPR_END_7               = 1,
+    EMOTE_RIN_END_8             = 8,
 
     SPELL_REVIVE_RINGO          = 15591,
     QUEST_A_LITTLE_HELP         = 4491,
@@ -184,10 +177,10 @@ public:
     {
         if (quest->GetQuestId() == QUEST_A_LITTLE_HELP)
         {
-            if (npc_ringoAI* pRingoAI = CAST_AI(npc_ringo::npc_ringoAI, creature->AI()))
+            if (npc_ringoAI* ringoAI = CAST_AI(npc_ringo::npc_ringoAI, creature->AI()))
             {
                 creature->SetStandState(UNIT_STAND_STATE_STAND);
-                pRingoAI->StartFollow(player, FACTION_ESCORTEE, quest);
+                ringoAI->StartFollow(player, FACTION_ESCORTEE, quest);
             }
         }
 
@@ -249,7 +242,7 @@ public:
             {
                 SetFollowPaused(true);
 
-                DoScriptText(RAND(SAY_FAINT_1, SAY_FAINT_2, SAY_FAINT_3, SAY_FAINT_4), me);
+                Talk(SAY_FAINT);
             }
 
             //what does actually happen here? Emote? Aura?
@@ -263,7 +256,7 @@ public:
             if (HasFollowState(STATE_FOLLOW_POSTEVENT))
                 return;
 
-            DoScriptText(RAND(SAY_WAKE_1, SAY_WAKE_2, SAY_WAKE_3, SAY_WAKE_4), me);
+            Talk(SAY_WAKE);
 
             SetFollowPaused(false);
         }
@@ -276,8 +269,8 @@ public:
                 {
                     if (EndEventTimer <= Diff)
                     {
-                        Unit* pSpraggle = Unit::GetUnit(*me, SpraggleGUID);
-                        if (!pSpraggle || !pSpraggle->isAlive())
+                        Creature* spraggle = Creature::GetCreature(*me, SpraggleGUID);
+                        if (!spraggle || !spraggle->isAlive())
                         {
                             SetFollowComplete();
                             return;
@@ -286,37 +279,37 @@ public:
                         switch (EndEventProgress)
                         {
                             case 1:
-                                DoScriptText(SAY_RIN_END_1, me);
+                                Talk(SAY_RIN_END_1);
                                 EndEventTimer = 3000;
                                 break;
                             case 2:
-                                DoScriptText(SAY_SPR_END_2, pSpraggle);
+                                spraggle->AI()->Talk(SAY_SPR_END_2);
                                 EndEventTimer = 5000;
                                 break;
                             case 3:
-                                DoScriptText(SAY_RIN_END_3, me);
+                                Talk(SAY_RIN_END_3);
                                 EndEventTimer = 1000;
                                 break;
                             case 4:
-                                DoScriptText(EMOTE_RIN_END_4, me);
+                                Talk(EMOTE_RIN_END_4);
                                 SetFaint();
                                 EndEventTimer = 9000;
                                 break;
                             case 5:
-                                DoScriptText(EMOTE_RIN_END_5, me);
+                                Talk(EMOTE_RIN_END_5);
                                 ClearFaint();
                                 EndEventTimer = 1000;
                                 break;
                             case 6:
-                                DoScriptText(SAY_RIN_END_6, me);
+                                Talk(SAY_RIN_END_6);
                                 EndEventTimer = 3000;
                                 break;
                             case 7:
-                                DoScriptText(SAY_SPR_END_7, pSpraggle);
+                                spraggle->AI()->Talk(SAY_SPR_END_7);
                                 EndEventTimer = 10000;
                                 break;
                             case 8:
-                                DoScriptText(EMOTE_RIN_END_8, me);
+                                Talk(EMOTE_RIN_END_8);
                                 EndEventTimer = 5000;
                                 break;
                             case 9:
