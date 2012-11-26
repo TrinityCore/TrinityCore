@@ -368,10 +368,13 @@ bool Group::AddMember(Player* player)
     if (player)
     {
         player->SetGroupInvite(NULL);
-        if (player->GetGroup() && (isBGGroup() || isBFGroup())) // if player is in group and he is being added to BG raid group, then call SetBattlegroundRaid()
-            player->SetBattlegroundOrBattlefieldRaid(this, subGroup);
-        else if (player->GetGroup()) //if player is in bg raid and we are adding him to normal group, then call SetOriginalGroup()
-            player->SetOriginalGroup(this, subGroup);
+        if (player->GetGroup())
+        {
+            if (isBGGroup() || isBFGroup()) // if player is in group and he is being added to BG raid group, then call SetBattlegroundRaid()
+                player->SetBattlegroundOrBattlefieldRaid(this, subGroup);
+            else //if player is in bg raid and we are adding him to normal group, then call SetOriginalGroup()
+                player->SetOriginalGroup(this, subGroup);
+        }
         else //if player is not in group, then call set group
             player->SetGroup(this, subGroup);
 
