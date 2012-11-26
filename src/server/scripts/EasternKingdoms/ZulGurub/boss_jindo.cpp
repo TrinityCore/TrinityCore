@@ -29,7 +29,7 @@ EndScriptData */
 
 enum Jindo
 {
-    SAY_AGGRO                       = 0,
+    SAY_AGGRO                       = 1,
 
     SPELL_BRAINWASHTOTEM            = 24262,
     SPELL_POWERFULLHEALINGWARD      = 24309,               //We will not use this spell. We will summon a totem by script cause the spell totems will not cast.
