@@ -207,6 +207,13 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto,
                 return DIMINISHING_LIMITONLY;
             break;
         }
+        case SPELLFAMILY_SHAMAN:
+        {
+            // Earthgrab
+            if (spellproto->SpellFamilyFlags[2] & 0x00004000)
+                return DIMINISHING_NONE;
+            break;
+        }
         default:
             break;
     }
@@ -3041,9 +3048,12 @@ void SpellMgr::LoadDbcDataCorrections()
             case 5171: // Slice and Dice rank1
             case 6774: // Slice and Dice rank2
             case 52916: // Honor Among Thieves
-            case 3600: // Earthbind totem effect
+            case 3600:  // Earthbind totem effect
+                spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_INITIAL_AGGRO;
+                break;
             case 50526: // Wandering plague
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_INITIAL_AGGRO;
+                spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_DONE_BONUS;
                 break;
             case 61407: // Energize Cores
             case 62136: // Energize Cores
