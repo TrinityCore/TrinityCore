@@ -34,7 +34,7 @@ EndScriptData */
 enum eEnums
 {
     SAY_BOSS_DIE_AD         = 0,
-    SAY_BOSS_DIE_AS         = 0,
+    SAY_BOSS_DIE_AS         = 3,
     SAY_ARCHMAGE            = 0,
 
     NPC_ASH                 = 3850,
