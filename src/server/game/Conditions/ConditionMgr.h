@@ -53,7 +53,7 @@ enum ConditionTypes
     CONDITION_ACHIEVEMENT           = 17,                   // achievement_id   0              0                  true if achievement is complete
     CONDITION_TITLE                 = 18,                   // title id         0              0                  true if player has title
     CONDITION_SPAWNMASK             = 19,                   // spawnMask        0              0                  true if in spawnMask
-    CONDITION_UNUSED_20             = 20,                   //
+    CONDITION_GENDER                = 20,                   // gender           0              0                  true if player's gender is equal to gender
     CONDITION_UNUSED_21             = 21,                   //
     CONDITION_MAPID                 = 22,                   // map_id           0              0                  true if in map_id
     CONDITION_AREAID                = 23,                   // area_id          0              0                  true if in area_id
