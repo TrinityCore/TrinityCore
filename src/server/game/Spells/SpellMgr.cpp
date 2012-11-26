@@ -106,6 +106,8 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto,
             // Dragon's Breath
             else if (spellproto->SpellFamilyFlags[0] & 0x800000)
                 return DIMINISHING_DRAGONS_BREATH;
+           if (spellproto->Id == 82691)
+                return DIMINISHING_DISORIENT;
             break;
         }
         case SPELLFAMILY_WARRIOR:
@@ -2975,6 +2977,15 @@ void SpellMgr::LoadDbcDataCorrections()
 {
     uint32 oldMSTime = getMSTime();
 
+        switch (spellInfo->Id)
+        {
+				case 82691: // Ring of frost
+                spellInfo->MaxAffectedTargets = 3;
+                break;
+	            default:
+                break;
+		}
+
     /*SpellEntry* spellInfo = NULL;
     for (uint32 i = 0; i < sSpellStore.GetNumRows(); ++i)
     {
@@ -3114,6 +3125,7 @@ void SpellMgr::LoadDbcDataCorrections()
             case 28542: // Life Drain - Sapphiron
             case 66588: // Flaming Spear
             case 54171: // Divine Storm
+			case 82691: // Ring of frost
                 spellInfo->MaxAffectedTargets = 3;
                 break;
             case 38310: // Multi-Shot

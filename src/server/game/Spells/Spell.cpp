@@ -1417,6 +1417,10 @@ void Spell::SelectImplicitCasterDestTargets(SpellEffIndex effIndex, SpellImplici
         m_caster->GetFirstCollisionPosition(pos, dist, angle);
     else
         m_caster->GetNearPosition(pos, dist, angle);
+
+    if (!(&pos)->IsPositionValid())
+        m_caster->GetPosition(&pos);
+
     m_targets.SetDst(*m_caster);
     m_targets.ModDst(pos);
 }
@@ -1434,17 +1438,34 @@ void Spell::SelectImplicitTargetDestTargets(SpellEffIndex effIndex, SpellImplici
             break;
     }
 
+    float dist;
     float angle = targetType.CalcDirectionAngle();
-    float objSize = target->GetObjectSize();
-    float dist = m_spellInfo->Effects[effIndex].CalcRadius(m_caster);
+    float objSize = m_caster->GetObjectSize();
+    if (targetType.GetTarget() == TARGET_DEST_CASTER_SUMMON)
+        dist = PET_FOLLOW_DIST;
+    else
+        dist = m_spellInfo->Effects[effIndex].CalcRadius(m_caster);
+
     if (dist < objSize)
         dist = objSize;
-    else if (targetType.GetTarget() == TARGET_DEST_TARGET_RANDOM)
+    else if (targetType.GetTarget() == TARGET_DEST_CASTER_RANDOM)
         dist = objSize + (dist - objSize) * (float)rand_norm();
 
     Position pos;
-    target->GetNearPosition(pos, dist, angle);
-    m_targets.SetDst(*target);
+            switch (targetType.GetTarget())
+            {	
+                 case TARGET_DEST_CASTER_FRONT_LEAP:
+                 case TARGET_DEST_CASTER_FRONT_LEFT:
+                 case TARGET_DEST_CASTER_BACK_LEFT:
+                 case TARGET_DEST_CASTER_BACK_RIGHT:
+                 case TARGET_DEST_CASTER_FRONT_RIGHT:
+                   m_caster->GetFirstCollisionPosition(pos, dist, angle);
+                   break;
+              default:
+                    m_caster->GetNearPosition(pos, dist, angle);
+                   break;
+            }
+    m_targets.SetDst(*m_caster);
     m_targets.ModDst(pos);
 }
 

@@ -1,1 +1,0 @@
-UPDATE `creature_template` SET `ScriptName`='npc_four_car_garage' WHERE `entry`=35273;

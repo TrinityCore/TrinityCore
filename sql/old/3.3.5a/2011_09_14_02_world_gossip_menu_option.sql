@@ -1,6 +1,0 @@
-UPDATE `gossip_menu_option` SET `option_text`='I seem to have misplaced my Zandalar Madcap''s Mantle. Can you help?' WHERE `menu_id`=21270 AND `id`=0; -- It said: "...Zandalar Madcap's Belt." (Wrong name, that item doesn't exist)
-UPDATE `gossip_menu_option` SET `option_text`='I seem to have misplaced my Zandalar Predator''s Mantle. Can you help?' WHERE `menu_id`=21271 AND `id`=2; -- It said: "...Zandalar Predator's Tunic." (Wrong name, that item doesn't exist)
-UPDATE `gossip_menu_option` SET `option_text`='I seem to have misplaced my Maelstrom''s Tendril. Can you help?' WHERE `menu_id`=21271 AND `id`=4; -- It said: "... Malestrom's Tendril." (Typo)
-UPDATE `gossip_menu_option` SET `option_text`='I seem to have misplaced my Maelstrom''s Tendril. Can you help?' WHERE `menu_id`=21271 AND `id`=5; -- It said: "... Malestrom's Tendril." (Typo)
-UPDATE `gossip_menu_option` SET `option_text`='I seem to have misplaced my Maelstrom''s Tendril. Can you help?' WHERE `menu_id`=21271 AND `id`=6; -- It said: "... Malestrom's Tendril." (Typo)
-UPDATE `smart_scripts` SET `comment`='Falthir the Sightless - On gossip select 2 give item Zandalar Madcap''s Mantle' WHERE `entryorguid`=14905 AND `id`=2; -- It said: "...Zandalar Augur''s Belt" (Wrong name, that item doesn't correspond with rouge class)

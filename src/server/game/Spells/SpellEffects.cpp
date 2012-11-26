@@ -415,6 +415,14 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                             damage += damage / 6;
                     }
                 }
+                        if (m_caster->HasAura(6229))
+			 {
+			     if (m_caster->HasAura(91713))
+			     {
+                                  m_caster->RemoveAura(6229);
+				 m_caster->CastSpell(m_caster, 91711, true);
+		             }
+			 }
                 break;
             }
             case SPELLFAMILY_PRIEST:
@@ -644,6 +652,15 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                     spell_id = CalculateDamage(0, NULL);
                     break;
             }
+            break;
+
+		case SPELLFAMILY_MAGE:
+            // Cold Snap
+            if (m_spellInfo->Id == 11958)
+                // Normal and Glyph of Eternal Water - Water Elemental
+                if (Creature* playerPet = m_caster->ToPlayer()->GetGuardianPet())
+                    if ((playerPet->GetEntry() == 510 || playerPet->GetEntry() == 37994) && playerPet->isDead())
+                        playerPet->DespawnOrUnsummon();
             break;
     }
 
@@ -3439,6 +3456,25 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
                                 aurEff->GetBase()->SetMaxDuration(countMin + 3000);
                             }
                         }
+                    }
+                    return;
+                }
+				// Fel Flame
+                case 77799:
+                {
+                    // search DoT
+                        if (spellInfo->Id == 348 && spellInfo->Id == 30108 &&
+                            aurEff->GetCasterGUID() == m_caster->GetGUID())
+                    {
+                        uint32 countMin = aurEff->GetBase()->GetMaxDuration();
+                        uint32 countMax = spellInfo->GetMaxDuration();
+
+                        if (countMin < countMax)
+                        {
+                            aurEff->GetBase()->SetDuration(uint32(aurEff->GetBase()->GetDuration() + 6000));
+                            aurEff->GetBase()->SetMaxDuration(countMin + 6000);
+                        }
+
                     }
                     return;
                 }

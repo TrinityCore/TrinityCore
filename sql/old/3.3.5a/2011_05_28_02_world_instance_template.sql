@@ -1,1 +1,0 @@
-UPDATE `instance_template` SET `script`= 'instance_ruby_sanctum' WHERE `map`=724;
