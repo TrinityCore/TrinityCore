@@ -33,23 +33,27 @@ void LfgPlayerData::SetState(LfgState state)
         case LFG_STATE_FINISHED_DUNGEON:
             m_Roles = 0;
             m_SelectedDungeons.clear();
+            m_Comment = "";
             // No break on purpose
         case LFG_STATE_DUNGEON:
-            m_OldState = m_State;
+            m_OldState = state;
             // No break on purpose
         default:
             m_State = state;
     }
 }
 
-void LfgPlayerData::ClearState()
+void LfgPlayerData::RestoreState()
 {
-    m_SelectedDungeons.clear();
-    m_Roles = 0;
+    if (m_OldState == LFG_STATE_NONE)
+    {
+        m_SelectedDungeons.clear();
+        m_Roles = 0;
+    }
     m_State = m_OldState;
 }
 
-void LfgPlayerData::SetLockedDungeons(const LfgLockMap& lockStatus)
+void LfgPlayerData::SetLockedDungeons(LfgLockMap const& lockStatus)
 {
     m_LockedDungeons = lockStatus;
 }
@@ -69,12 +73,12 @@ void LfgPlayerData::SetRoles(uint8 roles)
     m_Roles = roles;
 }
 
-void LfgPlayerData::SetComment(const std::string& comment)
+void LfgPlayerData::SetComment(std::string const& comment)
 {
     m_Comment = comment;
 }
 
-void LfgPlayerData::SetSelectedDungeons(const LfgDungeonSet& dungeons)
+void LfgPlayerData::SetSelectedDungeons(LfgDungeonSet const& dungeons)
 {
     m_SelectedDungeons = dungeons;
 }
