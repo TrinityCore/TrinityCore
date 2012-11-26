@@ -1,4 +1,4 @@
-﻿-- The Battle For Crusaders' Pinnacle (13141)
+-- The Battle For Crusaders' Pinnacle (13141)
 
 SET @SPELL_ITEM_BANNER      := 58013; -- Plant Blessed Banner
 SET @SPELL_TORCH            := 58121;
