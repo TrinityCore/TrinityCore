@@ -28,22 +28,20 @@ EndScriptData */
 
 enum Say
 {
-    SAY_AGGRO               = -1469007,
-    SAY_XHEALTH             = -1469008,
-    SAY_SHADOWFLAME         = -1469009,
-    SAY_RAISE_SKELETONS     = -1469010,
-    SAY_SLAY                = -1469011,
-    SAY_DEATH               = -1469012,
+    SAY_RANDOM              = 0,
+    SAY_RAISE_SKELETONS     = 1,
+    SAY_SLAY                = 2,
+    SAY_DEATH               = 3,
 
-    SAY_MAGE                = -1469013,
-    SAY_WARRIOR             = -1469014,
-    SAY_DRUID               = -1469015,
-    SAY_PRIEST              = -1469016,
-    SAY_PALADIN             = -1469017,
-    SAY_SHAMAN              = -1469018,
-    SAY_WARLOCK             = -1469019,
-    SAY_HUNTER              = -1469020,
-    SAY_ROGUE               = -1469021
+    SAY_MAGE                = 4,
+    SAY_WARRIOR             = 5,
+    SAY_DRUID               = 6,
+    SAY_PRIEST              = 7,
+    SAY_PALADIN             = 8,
+    SAY_SHAMAN              = 9,
+    SAY_WARLOCK             = 10,
+    SAY_HUNTER              = 11,
+    SAY_ROGUE               = 12,
 };
 
 enum Spells
@@ -109,17 +107,17 @@ public:
             if (rand()%5)
                 return;
 
-            DoScriptText(SAY_SLAY, me, Victim);
+            Talk(SAY_SLAY, Victim->GetGUID());
         }
 
         void JustDied(Unit* /*killer*/)
         {
-            DoScriptText(SAY_DEATH, me);
+            Talk(SAY_DEATH);
         }
 
         void EnterCombat(Unit* who)
         {
-            DoScriptText(RAND(SAY_XHEALTH, SAY_AGGRO, SAY_SHADOWFLAME), me);
+            Talk(SAY_RANDOM);
 
             DoCast(who, SPELL_SHADOWFLAME_INITIAL);
             DoZoneInCombat();
@@ -184,39 +182,39 @@ public:
                 switch (urand(0, 8))
                 {
                     case 0:
-                        DoScriptText(SAY_MAGE, me);
+                        Talk(SAY_MAGE);
                         DoCast(me, SPELL_MAGE);
                         break;
                     case 1:
-                        DoScriptText(SAY_WARRIOR, me);
+                        Talk(SAY_WARRIOR);
                         DoCast(me, SPELL_WARRIOR);
                         break;
                     case 2:
-                        DoScriptText(SAY_DRUID, me);
+                        Talk(SAY_DRUID);
                         DoCast(me, SPELL_DRUID);
                         break;
                     case 3:
-                        DoScriptText(SAY_PRIEST, me);
+                        Talk(SAY_PRIEST);
                         DoCast(me, SPELL_PRIEST);
                         break;
                     case 4:
-                        DoScriptText(SAY_PALADIN, me);
+                        Talk(SAY_PALADIN);
                         DoCast(me, SPELL_PALADIN);
                         break;
                     case 5:
-                        DoScriptText(SAY_SHAMAN, me);
+                        Talk(SAY_SHAMAN);
                         DoCast(me, SPELL_SHAMAN);
                         break;
                     case 6:
-                        DoScriptText(SAY_WARLOCK, me);
+                        Talk(SAY_WARLOCK);
                         DoCast(me, SPELL_WARLOCK);
                         break;
                     case 7:
-                        DoScriptText(SAY_HUNTER, me);
+                        Talk(SAY_HUNTER);
                         DoCast(me, SPELL_HUNTER);
                         break;
                     case 8:
-                        DoScriptText(SAY_ROGUE, me);
+                        Talk(SAY_ROGUE);
                         DoCast(me, SPELL_ROGUE);
                         break;
                 }
@@ -228,7 +226,7 @@ public:
             if (!Phase3 && HealthBelowPct(20))
             {
                 Phase3 = true;
-                DoScriptText(SAY_RAISE_SKELETONS, me);
+                Talk(SAY_RAISE_SKELETONS);
             }
 
             DoMeleeAttackIfReady();

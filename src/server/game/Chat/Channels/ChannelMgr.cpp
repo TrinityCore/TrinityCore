@@ -43,7 +43,7 @@ ChannelMgr* ChannelMgr::forTeam(uint32 team)
     return NULL;
 }
 
-Channel* ChannelMgr::GetJoinChannel(std::string const& name, uint32 channel_id)
+Channel* ChannelMgr::GetJoinChannel(std::string const& name, uint32 channelId)
 {
     std::wstring wname;
     Utf8toWStr(name, wname);
@@ -53,7 +53,7 @@ Channel* ChannelMgr::GetJoinChannel(std::string const& name, uint32 channel_id)
 
     if (i == channels.end())
     {
-        Channel* nchan = new Channel(name, channel_id, team);
+        Channel* nchan = new Channel(name, channelId, team);
         channels[wname] = nchan;
         return nchan;
     }

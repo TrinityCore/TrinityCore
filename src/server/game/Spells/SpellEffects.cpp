@@ -5123,12 +5123,11 @@ void Spell::EffectDurabilityDamage(SpellEffIndex effIndex)
 
     int32 slot = m_spellInfo->Effects[effIndex].MiscValue;
 
-    // FIXME: some spells effects have value -1/-2
-    // Possibly its mean -1 all player equipped items and -2 all items
+    // -1 means all player equipped items and -2 all items
     if (slot < 0)
     {
         unitTarget->ToPlayer()->DurabilityPointsLossAll(damage, (slot < -1));
-        ExecuteLogEffectDurabilityDamage(effIndex, unitTarget, -1, -1); // -1 -1 pair triggers SPELL_DURABILITY_DAMAGE_ALL event
+        ExecuteLogEffectDurabilityDamage(effIndex, unitTarget, -1, -1);
         return;
     }
 

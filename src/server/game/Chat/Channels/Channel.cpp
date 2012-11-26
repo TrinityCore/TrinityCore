@@ -297,7 +297,7 @@ void Channel::KickOrBan(Player const* player, std::string const& badname, bool b
         SendToOne(&data, good);
         return;
     }
-    
+
     Player* bad = sObjectAccessor->FindPlayerByName(badname);
     uint64 victim = bad ? bad->GetGUID() : 0;
     if (!victim || !IsOn(victim))
@@ -403,7 +403,7 @@ void Channel::Password(Player const* player, std::string const& pass)
         SendToOne(&data, guid);
         return;
     }
-    
+
     if (!playersStore[guid].IsModerator() && !AccountMgr::IsGMAccount(player->GetSession()->GetSecurity()))
     {
         WorldPacket data;
@@ -479,7 +479,7 @@ void Channel::SetOwner(Player const* player, std::string const& newname)
     uint64 guid = player->GetGUID();
     uint32 sec = player->GetSession()->GetSecurity();
 
-    if (!IsOn(guid) || (!AccountMgr::IsGMAccount(sec) && guid != _ownerGUID))
+    if (!IsOn(guid))
     {
         WorldPacket data;
         MakeNotMember(&data);
@@ -487,9 +487,17 @@ void Channel::SetOwner(Player const* player, std::string const& newname)
         return;
     }
 
+    if (!AccountMgr::IsGMAccount(sec) && guid != _ownerGUID)
+    {
+        WorldPacket data;
+        MakeNotOwner(&data);
+        SendToOne(&data, guid);
+        return;
+    }
+
     Player* newp = sObjectAccessor->FindPlayerByName(newname);
     uint64 victim = newp ? newp->GetGUID() : 0;
-    
+
     if (!victim || !IsOn(victim) ||
         (newp->GetTeam() != player->GetTeam() && !sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_CHANNEL)))
     {
@@ -600,8 +608,6 @@ void Channel::Say(uint64 guid, std::string const& what, uint32 lang)
     if (sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_CHANNEL))
         lang = LANG_UNIVERSAL;
 
-    Player* player = ObjectAccessor::FindPlayer(guid);
-
     if (!IsOn(guid))
     {
         WorldPacket data;
@@ -609,7 +615,7 @@ void Channel::Say(uint64 guid, std::string const& what, uint32 lang)
         SendToOne(&data, guid);
         return;
     }
-    
+
     if (playersStore[guid].IsMuted())
     {
         WorldPacket data;
@@ -621,12 +627,13 @@ void Channel::Say(uint64 guid, std::string const& what, uint32 lang)
     WorldPacket data(SMSG_MESSAGECHAT, 1 + 4 + 8 + 4 + _name.size() + 8 + 4 + what.size() + 1);
     data << uint8(CHAT_MSG_CHANNEL);
     data << uint32(lang);
-    data << guid;
+    data << uint64(guid);
     data << uint32(0);
     data << _name;
-    data << guid;
-    data << what.size() + 1;
+    data << uint64(guid);
+    data << uint32(what.size() + 1);
     data << what;
+    Player* player = ObjectAccessor::FindPlayer(guid);
     data << uint8(player ? player->GetChatTag() : 0);
 
     SendToAll(&data, !playersStore[guid].IsModerator() ? guid : false);
