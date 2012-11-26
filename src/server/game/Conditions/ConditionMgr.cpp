@@ -105,6 +105,12 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo)
                 condMeets = unit->getRaceMask() & ConditionValue1;
             break;
         }
+        case CONDITION_GENDER:
+        {
+            if (Player* player = object->ToPlayer())
+                condMeets = player->getGender() == ConditionValue1;
+            break;
+        }
         case CONDITION_SKILL:
         {
             if (Player* player = object->ToPlayer())
@@ -441,6 +447,9 @@ uint32 Condition::GetSearcherTypeMaskForCondition()
             break;
         case CONDITION_SPAWNMASK:
             mask |= GRID_MAP_TYPE_MASK_ALL;
+            break;
+        case CONDITION_GENDER:
+            mask |= GRID_MAP_TYPE_MASK_PLAYER;
             break;
         default:
             ASSERT(false && "Condition::GetSearcherTypeMaskForCondition - missing condition handling!");
@@ -1616,6 +1625,20 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond)
                 sLog->outError(LOG_FILTER_SQL, "Race condition has useless data in value3 (%u)!", cond->ConditionValue3);
             break;
         }
+        case CONDITION_GENDER:
+        {
+            if (!Player::IsValidGender(uint8(cond->ConditionValue1)))
+            {
+                sLog->outError(LOG_FILTER_SQL, "Gender condition has invalid gender (%u), skipped", cond->ConditionValue1);
+                return false;
+            }
+
+            if (cond->ConditionValue2)
+                sLog->outError(LOG_FILTER_SQL, "Gender condition has useless data in value2 (%u)!", cond->ConditionValue2);
+            if (cond->ConditionValue3)
+                sLog->outError(LOG_FILTER_SQL, "Gender condition has useless data in value3 (%u)!", cond->ConditionValue3);
+            break;
+        }
         case CONDITION_MAPID:
         {
             MapEntry const* me = sMapStore.LookupEntry(cond->ConditionValue1);
@@ -1875,9 +1898,6 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond)
             }
             break;
         }
-        case CONDITION_UNUSED_20:
-            sLog->outError(LOG_FILTER_SQL, "Found ConditionTypeOrReference = CONDITION_UNUSED_20 in `conditions` table - ignoring");
-            return false;
         case CONDITION_UNUSED_21:
             sLog->outError(LOG_FILTER_SQL, "Found ConditionTypeOrReference = CONDITION_UNUSED_21 in `conditions` table - ignoring");
             return false;
