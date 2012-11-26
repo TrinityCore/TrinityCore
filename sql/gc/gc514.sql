@@ -1470,6 +1470,11 @@ INSERT INTO `spell_linked_spell`(`spell_trigger`, `spell_effect`, `type`, `comme
 -- Book "Soothsaying for Dummies" script
 UPDATE `gameobject_template` SET `ScriptName`='go_soothsaying_for_dummies' WHERE `entry`=177226;
 
+-- adding ".die noloot" command
+DELETE FROM command WHERE name = 'die noloot';
+INSERT INTO command (name, security, help) VALUES
+('die noloot', 3, "Syntax: .die noloot");
+
 #######################
 -- HEADLESS HORSEMAN ##
 #######################
