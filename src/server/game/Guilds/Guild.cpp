@@ -249,7 +249,7 @@ void Guild::BankEventLogEntry::WritePacket(WorldPacket& data) const
             data << uint8(m_destTabId);
             break;
         default:
-            data << uint64(m_itemOrMoney);
+            data << uint32(m_itemOrMoney);
     }
 
     data << uint32(time(NULL) - m_timestamp);
