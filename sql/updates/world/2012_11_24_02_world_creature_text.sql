@@ -223,21 +223,16 @@ INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,
 (14515,1,0,14,0,100,"arlokk SAY_FEAST_PANTHER","Feast on $n, my pretties!"),
 (14515,2,0,14,8412,100,"arlokk SAY_DEATH","At last, I am free of the Soulflayer!");
 
--- mandokir
-DELETE FROM `script_texts` WHERE `entry` BETWEEN -1309019 AND -1309015;
+-- mandokir / jindo
+DELETE FROM `script_texts` WHERE `entry` BETWEEN -1309019 AND -1309014;
 DELETE FROM `creature_text` WHERE `entry` IN (11382,11380);
 INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,`comment`,`text`) VALUES
 (11382,0,0,14,8413,100,"mandokir SAY_AGGRO","I'll feed your souls to Hakkar himself!"),
 (11382,1,0,14,0,100,"mandokir SAY_DING_KILL","DING!"),
 (11382,2,0,14,0,100,"mandokir SAY_WATCH","I'm keeping my eye on you, $N!"),
 (11382,3,0,14,0,100,"mandokir SAY_WATCH_WHISPER","Don't make me angry. You won't like it when I'm angry."),
-(11380,0,0,14,0,100,"mandokir SAY_GRATS_JINDO","GRATS!");
-
--- jindo
-DELETE FROM `script_texts` WHERE `entry`=-1309014;
-DELETE FROM `creature_text` WHERE `entry`=11380;
-INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,`comment`,`text`) VALUES
-(11380,0,0,14,8425,100,"jindo SAY_AGGRO","Welcome to da great show friends! Step right up to die!");
+(11380,0,0,14,0,100,"mandokir SAY_GRATS_JINDO","GRATS!"),
+(11380,1,0,14,8425,100,"jindo SAY_AGGRO","Welcome to da great show friends! Step right up to die!");
 
 -- marli
 DELETE FROM `script_texts` WHERE `entry` BETWEEN -1309008 AND -1309005;
@@ -336,3 +331,16 @@ INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,
 (9999,7,0,12,0,100,"ringo SAY_RIN_END_6","Ugh."),
 (9997,1,0,12,0,100,"ringo SAY_SPR_END_7","Ringo? Wake up! Don't worry, I'll take care of you."),
 (9999,8,0,16,0,100,"ringo EMOTE_RIN_END_8","%s fades away after a long pause.");
+
+-- Corrections
+DELETE FROM `creature_text` WHERE `entry`=3850;
+INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,`language`,`emote`,`comment`,`text`) VALUES
+(3850,0,0,14,0,100,7,1,"prisoner ashcrombe SAY_FREE_AS","Follow me and I'll open the courtyard door for you."),
+(3850,1,0,14,0,100,7,1,"prisoner ashcrombe SAY_OPEN_DOOR_AS","I have just the spell to get this door open. Too bad the cell doors weren't locked so haphazardly."),
+(3850,2,0,14,0,100,7,1,"prisoner ashcrombe SAY_POST_DOOR_AS","There it is! Wide open. Good luck to you conquering what lies beyond. I must report back to the Kirin Tor at once!"),
+(3850,3,0,12,0,100,7,1,"prisoner ashcrombe SAY_BOSS_DIE_AS","For once I agree with you... scum.");
+
+DELETE FROM `creature_text` WHERE `entry`=7766;
+INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,`comment`,`text`) VALUES
+(7766,0,0,12,0,100,"tyrion spybot SAY_TYRION_1","Wait here. Spybot will make Lescovar come out as soon as possible. Be ready! Attack only after you've overheard their conversation."),
+(7766,1,0,14,0,100,"lord gregor lescovar SAY_TYRION_2","That's it! That's what you were waiting for! KILL THEM!");
