@@ -35,7 +35,7 @@ WDTFile::WDTFile(char* file_name, char* file_name1) : WDT(file_name), gWmoInstan
     filename.append(file_name1,strlen(file_name1));
 }
 
-bool WDTFile::init(char *map_id, unsigned int mapID)
+bool WDTFile::init(char */*map_id*/, unsigned int mapID)
 {
     if (WDT.isEof())
     {
