@@ -27,7 +27,7 @@
 #include "WorldPacket.h"
 #include "WorldSession.h"
 
-void WorldSession::HandleLearnTalentOpcode(WorldPacket & recvData)
+void WorldSession::HandleLearnTalentOpcode(WorldPacket& recvData)
 {
     uint32 talentId, requestedRank;
     recvData >> talentId >> requestedRank;

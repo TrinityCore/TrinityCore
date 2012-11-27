@@ -54,7 +54,7 @@ class ByteBufferPositionException : public ByteBufferException
         {
             ACE_Stack_Trace trace;
 
-            sLog->outError(LOG_FILTER_GENERAL, "Attempted to %s value with size: "SIZEFMTD" in ByteBuffer (pos: " SIZEFMTD " size: "SIZEFMTD")\n[Stack trace: %s]" ,
+            sLog->outError(LOG_FILTER_NETWORKIO, "Attempted to %s value with size: "SIZEFMTD" in ByteBuffer (pos: " SIZEFMTD " size: "SIZEFMTD")\n[Stack trace: %s]" ,
                 (_add ? "put" : "get"), ValueSize, Pos, Size, trace.c_str());
         }
 
@@ -76,7 +76,7 @@ class ByteBufferSourceException : public ByteBufferException
         {
             ACE_Stack_Trace trace;
 
-            sLog->outError(LOG_FILTER_GENERAL, "Attempted to put a %s in ByteBuffer (pos: "SIZEFMTD" size: "SIZEFMTD")\n[Stack trace: %s]",
+            sLog->outError(LOG_FILTER_NETWORKIO, "Attempted to put a %s in ByteBuffer (pos: "SIZEFMTD" size: "SIZEFMTD")\n[Stack trace: %s]",
                 (ValueSize > 0 ? "NULL-pointer" : "zero-sized value"), Pos, Size, trace.c_str());
         }
 };

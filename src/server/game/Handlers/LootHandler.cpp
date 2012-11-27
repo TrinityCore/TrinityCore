@@ -32,7 +32,7 @@
 #include "WorldPacket.h"
 #include "WorldSession.h"
 
-void WorldSession::HandleAutostoreLootItemOpcode(WorldPacket & recvData)
+void WorldSession::HandleAutostoreLootItemOpcode(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_AUTOSTORE_LOOT_ITEM");
     Player* player = GetPlayer();
@@ -212,7 +212,7 @@ void WorldSession::HandleLootMoneyOpcode(WorldPacket& /*recvData*/)
     }
 }
 
-void WorldSession::HandleLootOpcode(WorldPacket & recvData)
+void WorldSession::HandleLootOpcode(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_LOOT");
 

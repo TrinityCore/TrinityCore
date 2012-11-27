@@ -646,13 +646,6 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
                 float mwb = ((mwb_min + mwb_max) / 2 + ap * mws / 14000) * 0.25f * 6.0f;
                 amount += int32(caster->ApplyEffectModifiers(m_spellInfo, m_effIndex, mwb));
             }
-            // Unholy Blight damage over time effect
-            else if (GetId() == 50536)
-            {
-                m_canBeRecalculated = false;
-                // we're getting total damage on aura apply, change it to be damage per tick
-                amount = int32((float)amount / GetTotalTicks());
-            }
             break;
         case SPELL_AURA_PERIODIC_ENERGIZE:
             switch (m_spellInfo->Id)

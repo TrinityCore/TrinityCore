@@ -138,7 +138,7 @@ void WorldSession::SendAuctionRemovedNotification(uint32 auctionId, uint32 itemE
 }
 
 //this void creates new auction and adds auction to some auctionhouse
-void WorldSession::HandleAuctionSellItem(WorldPacket & recvData)
+void WorldSession::HandleAuctionSellItem(WorldPacket& recvData)
 {
     uint64 auctioneer, bid, buyout;
     uint32 itemsCount, etime;
@@ -514,7 +514,7 @@ void WorldSession::HandleAuctionPlaceBid(WorldPacket& recvData)
 }
 
 //this void is called when auction_owner cancels his auction
-void WorldSession::HandleAuctionRemoveItem(WorldPacket & recvData)
+void WorldSession::HandleAuctionRemoveItem(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_AUCTION_REMOVE_ITEM");
 
@@ -589,7 +589,7 @@ void WorldSession::HandleAuctionRemoveItem(WorldPacket & recvData)
 }
 
 //called when player lists his bids
-void WorldSession::HandleAuctionListBidderItems(WorldPacket & recvData)
+void WorldSession::HandleAuctionListBidderItems(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_AUCTION_LIST_BIDDER_ITEMS");
 
@@ -646,7 +646,7 @@ void WorldSession::HandleAuctionListBidderItems(WorldPacket & recvData)
 }
 
 //this void sends player info about his auctions
-void WorldSession::HandleAuctionListOwnerItems(WorldPacket & recvData)
+void WorldSession::HandleAuctionListOwnerItems(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_AUCTION_LIST_OWNER_ITEMS");
 
@@ -683,7 +683,7 @@ void WorldSession::HandleAuctionListOwnerItems(WorldPacket & recvData)
 }
 
 //this void is called when player clicks on search button
-void WorldSession::HandleAuctionListItems(WorldPacket & recvData)
+void WorldSession::HandleAuctionListItems(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_AUCTION_LIST_ITEMS");
 
@@ -746,7 +746,7 @@ void WorldSession::HandleAuctionListItems(WorldPacket & recvData)
     SendPacket(&data);
 }
 
-void WorldSession::HandleAuctionListPendingSales(WorldPacket & recvData)
+void WorldSession::HandleAuctionListPendingSales(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_AUCTION_LIST_PENDING_SALES");
 

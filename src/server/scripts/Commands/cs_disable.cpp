@@ -22,9 +22,9 @@ Comment: All disable related commands
 Category: commandscripts
 EndScriptData */
 
+#include "DisableMgr.h"
 #include "AchievementMgr.h"
 #include "Chat.h"
-#include "DisableMgr.h"
 #include "Language.h"
 #include "ObjectMgr.h"
 #include "OutdoorPvP.h"
