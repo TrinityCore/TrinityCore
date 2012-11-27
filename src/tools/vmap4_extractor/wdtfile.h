@@ -10,6 +10,9 @@ class ADTFile;
 
 class WDTFile
 {
+private:
+    MPQFile WDT;
+    string filename;
 public:
     WDTFile(char* file_name, char* file_name1);
     ~WDTFile(void);
@@ -19,10 +22,6 @@ public:
     int gnWMO;
 
     ADTFile* GetMap(int x, int z);
-
-private:
-    MPQFile WDT;
-    string filename;
 };
 
 #endif

@@ -113,4 +113,3 @@ class FollowMovementGenerator : public TargetedMovementGeneratorMedium<T, Follow
 };
 
 #endif
-

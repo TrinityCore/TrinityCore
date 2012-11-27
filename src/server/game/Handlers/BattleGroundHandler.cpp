@@ -35,7 +35,7 @@
 #include "DisableMgr.h"
 #include "Group.h"
 
-void WorldSession::HandleBattlemasterHelloOpcode(WorldPacket & recvData)
+void WorldSession::HandleBattlemasterHelloOpcode(WorldPacket& recvData)
 {
     uint64 guid;
     recvData >> guid;
@@ -70,7 +70,7 @@ void WorldSession::SendBattleGroundList(uint64 guid, BattlegroundTypeId bgTypeId
     SendPacket(&data);
 }
 
-void WorldSession::HandleBattlemasterJoinOpcode(WorldPacket & recvData)
+void WorldSession::HandleBattlemasterJoinOpcode(WorldPacket& recvData)
 {
     uint32 bgTypeId_;
     uint32 instanceId;
@@ -661,7 +661,7 @@ void WorldSession::HandleBattlefieldStatusOpcode(WorldPacket & /*recvData*/)
     }
 }
 
-void WorldSession::HandleBattlemasterJoinArena(WorldPacket & recvData)
+void WorldSession::HandleBattlemasterJoinArena(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_BATTLEMASTER_JOIN_ARENA");
 
@@ -768,7 +768,7 @@ void WorldSession::HandleBattlemasterJoinArena(WorldPacket & recvData)
     sBattlegroundMgr->ScheduleQueueUpdate(matchmakerRating, arenatype, bgQueueTypeId, bgTypeId, bracketEntry->GetBracketId());
 }
 
-void WorldSession::HandleReportPvPAFK(WorldPacket & recvData)
+void WorldSession::HandleReportPvPAFK(WorldPacket& recvData)
 {
     uint64 playerGuid;
     recvData >> playerGuid;
