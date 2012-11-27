@@ -34,6 +34,8 @@ void AddSC_System_Censure();
 void AddSC_ArgentTournament();
 // Npc Top 10 Arena Teams
 void AddSC_npc_arena_setup();
+// [MOD] MultiKill
+void AddSC_Mod_Multikill(); // by Codels
 
 // spells
 void AddSC_deathknight_spell_scripts();
@@ -1322,5 +1324,7 @@ void AddCustomScripts()
     AddSC_crypt_run();
     // Npc Top 10 Arena Teams
     AddSC_npc_arena_setup();
+    // [MOD] MultiKill
+    AddSC_Mod_Multikill(); // by Codels
 #endif
 }
