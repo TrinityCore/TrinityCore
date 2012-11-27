@@ -3459,21 +3459,26 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
                     }
                     return;
                 }
-				// Fel Flame
+		      // Fel Flame
                 case 77799:
                 {
+                    Unit::AuraEffectList const &mPeriodic = unitTarget->GetAuraEffectsByType(SPELL_AURA_PERIODIC_DAMAGE);
+                    for (Unit::AuraEffectList::const_iterator i = mPeriodic.begin(); i != mPeriodic.end(); ++i)
+                    {
+                        AuraEffect const* aurEff = *i;
                     // search DoT
-                        if (spellInfo->Id == 348 && spellInfo->Id == 30108 &&
+                        if (m_spellInfo->Id == 348 && m_spellInfo->Id == 30108 &&
                             aurEff->GetCasterGUID() == m_caster->GetGUID())
                     {
                         uint32 countMin = aurEff->GetBase()->GetMaxDuration();
-                        uint32 countMax = spellInfo->GetMaxDuration();
+                        uint32 countMax = m_spellInfo->GetMaxDuration();
 
                         if (countMin < countMax)
                         {
                             aurEff->GetBase()->SetDuration(uint32(aurEff->GetBase()->GetDuration() + 6000));
                             aurEff->GetBase()->SetMaxDuration(countMin + 6000);
                         }
+                      }
 
                     }
                     return;

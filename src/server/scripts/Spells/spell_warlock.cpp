@@ -37,6 +37,7 @@ enum WarlockSpells
     WARLOCK_IMPROVED_HEALTHSTONE_R2         = 18693,
     WARLOCK_DEMONIC_CIRCLE_SUMMON           = 48018,
     WARLOCK_DEMONIC_CIRCLE_TELEPORT         = 48020,
+	WARLOCK_DEMONIC_CIRCLE_ALLOW_CAST       = 62388,
     WARLOCK_HAUNT                           = 48181,
     WARLOCK_HAUNT_HEAL                      = 48210,
     WARLOCK_UNSTABLE_AFFLICTION_DISPEL      = 31117,
@@ -416,9 +417,6 @@ class spell_warl_life_tap : public SpellScriptLoader
         }
 };
 
-// 48018 Demonic Circle: Summon
-/// Updated 4.3.4
-
 // 48020 Demonic Circle: Teleport
 /// Updated 4.3.4
 class spell_warl_demonic_circle_summon : public SpellScriptLoader
@@ -436,7 +434,7 @@ class spell_warl_demonic_circle_summon : public SpellScriptLoader
                 if (!(mode & AURA_EFFECT_HANDLE_REAPPLY))
                     GetTarget()->RemoveGameObject(GetId(), true);
 
-                GetTarget()->RemoveAura(WARLOCK_DEMONIC_CIRCLE_SUMMON);
+                GetTarget()->RemoveAura(WARLOCK_DEMONIC_CIRCLE_ALLOW_CAST);
             }
 
             void HandleDummyTick(AuraEffect const* /*aurEff*/)
@@ -451,11 +449,11 @@ class spell_warl_demonic_circle_summon : public SpellScriptLoader
 
                     if (GetTarget()->IsWithinDist(circle, spellInfo->GetMaxRange(true)))
                     {
-                        if (!GetTarget()->HasAura(WARLOCK_DEMONIC_CIRCLE_SUMMON))
-                            GetTarget()->CastSpell(GetTarget(), WARLOCK_DEMONIC_CIRCLE_SUMMON, true);
+                        if (!GetTarget()->HasAura(WARLOCK_DEMONIC_CIRCLE_ALLOW_CAST))
+                            GetTarget()->CastSpell(GetTarget(), WARLOCK_DEMONIC_CIRCLE_ALLOW_CAST, true);
                     }
                     else
-                        GetTarget()->RemoveAura(WARLOCK_DEMONIC_CIRCLE_SUMMON);
+                        GetTarget()->RemoveAura(WARLOCK_DEMONIC_CIRCLE_ALLOW_CAST);
                 }
             }
 

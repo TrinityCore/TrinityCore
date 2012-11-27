@@ -1869,9 +1869,6 @@ public:
             // here should be auras (not present in client dbc): 35657, 35658, 35659, 35660 selfcasted by mirror images (stats related?)
             // Clone Me!
             owner->CastSpell(me, 45204, false);
-			owner->CastSpell(me, 65047, true);
-            owner->CastSpell(me, 65047, false);
-            owner->CastSpell(me, 65047, false);
         }
 
         // Do not reload Creature templates on evade mode enter - prevent visual lost

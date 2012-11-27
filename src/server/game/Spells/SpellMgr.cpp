@@ -2977,15 +2977,6 @@ void SpellMgr::LoadDbcDataCorrections()
 {
     uint32 oldMSTime = getMSTime();
 
-        switch (spellInfo->Id)
-        {
-				case 82691: // Ring of frost
-                spellInfo->MaxAffectedTargets = 3;
-                break;
-	            default:
-                break;
-		}
-
     /*SpellEntry* spellInfo = NULL;
     for (uint32 i = 0; i < sSpellStore.GetNumRows(); ++i)
     {

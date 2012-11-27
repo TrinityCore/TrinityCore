@@ -1,1 +1,0 @@
-/usr/bin/c++  -fPIC -O3 -DNDEBUG  -shared -Wl,-soname,libScriptPCH.cpp_dephelp.so -o libScriptPCH.cpp_dephelp.so CMakeFiles/ScriptPCH.cpp_dephelp.dir/PrecompiledHeaders/ScriptPCH.cpp.o 
