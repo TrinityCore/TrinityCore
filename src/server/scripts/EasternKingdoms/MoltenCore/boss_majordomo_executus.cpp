@@ -32,17 +32,14 @@ EndScriptData */
 
 enum Texts
 {
-    SAY_AGGRO           = -1409003,
-    SAY_SPAWN           = -1409004,
-    SAY_SLAY            = -1409005,
-    SAY_SPECIAL         = -1409006,
-    SAY_DEFEAT          = -1409007,
+    SAY_AGGRO           = 0,
+    SAY_SPAWN           = 1,
+    SAY_SLAY            = 2,
+    SAY_SPECIAL         = 3,
+    SAY_DEFEAT          = 4,
 
-    SAY_SUMMON_MAJ      = -1409008,
-    SAY_ARRIVAL1_RAG    = -1409009,
-    SAY_ARRIVAL2_MAJ    = -1409010,
-    SAY_ARRIVAL3_RAG    = -1409011,
-    SAY_ARRIVAL5_RAG    = -1409012,
+    SAY_SUMMON_MAJ      = 5,
+    SAY_ARRIVAL2_MAJ    = 6
 };
 
 enum Spells
@@ -84,13 +81,13 @@ class boss_majordomo : public CreatureScript
             void KilledUnit(Unit* /*victim*/)
             {
                 if (urand(0, 99) < 25)
-                    DoScriptText(SAY_SLAY, me);
+                    Talk(SAY_SLAY);
             }
 
             void EnterCombat(Unit* who)
             {
                 BossAI::EnterCombat(who);
-                DoScriptText(SAY_AGGRO, me);
+                Talk(SAY_AGGRO);
                 events.ScheduleEvent(EVENT_MAGIC_REFLECTION, 30000);
                 events.ScheduleEvent(EVENT_DAMAGE_REFLECTION, 15000);
                 events.ScheduleEvent(EVENT_BLAST_WAVE, 10000);
@@ -111,7 +108,7 @@ class boss_majordomo : public CreatureScript
                         instance->UpdateEncounterState(ENCOUNTER_CREDIT_KILL_CREATURE, me->GetEntry(), me);
                         me->setFaction(35);
                         me->AI()->EnterEvadeMode();
-                        DoScriptText(SAY_DEFEAT, me);
+                        Talk(SAY_DEFEAT);
                         _JustDied();
                         events.ScheduleEvent(EVENT_OUTRO_1, 32000);
                         return;
@@ -168,7 +165,7 @@ class boss_majordomo : public CreatureScript
                                     instance->instance->SummonCreature(NPC_RAGNAROS, RagnarosSummonPos);
                                 break;
                             case EVENT_OUTRO_3:
-                                DoScriptText(SAY_ARRIVAL2_MAJ, me);
+                                Talk(SAY_ARRIVAL2_MAJ);
                                 break;
                             default:
                                 break;
@@ -182,7 +179,7 @@ class boss_majordomo : public CreatureScript
                 if (action == ACTION_START_RAGNAROS)
                 {
                     me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-                    DoScriptText(SAY_SUMMON_MAJ, me);
+                    Talk(SAY_SUMMON_MAJ);
                     events.ScheduleEvent(EVENT_OUTRO_2, 8000);
                     events.ScheduleEvent(EVENT_OUTRO_3, 24000);
                 }

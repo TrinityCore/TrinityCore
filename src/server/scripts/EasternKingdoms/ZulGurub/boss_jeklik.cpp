@@ -27,22 +27,24 @@ EndScriptData */
 #include "ScriptedCreature.h"
 #include "zulgurub.h"
 
-#define SAY_AGGRO                   -1309002
-#define SAY_RAIN_FIRE               -1309003
-#define SAY_DEATH                   -1309004
+enum Jeklik
+{
+    SAY_AGGRO                   = 0,
+    SAY_RAIN_FIRE               = 1,
+    SAY_DEATH                   = 2,
 
-#define SPELL_CHARGE              22911
-#define SPELL_SONICBURST          23918
-#define SPELL_SCREECH             6605
-#define SPELL_SHADOW_WORD_PAIN    23952
-#define SPELL_MIND_FLAY           23953
-#define SPELL_CHAIN_MIND_FLAY     26044                     //Right ID unknown. So disabled
-#define SPELL_GREATERHEAL         23954
-#define SPELL_BAT_FORM            23966
+    SPELL_CHARGE                = 22911,
+    SPELL_SONICBURST            = 23918,
+    SPELL_SCREECH               = 6605,
+    SPELL_SHADOW_WORD_PAIN      = 23952,
+    SPELL_MIND_FLAY             = 23953,
+    SPELL_CHAIN_MIND_FLAY       = 26044, //Right ID unknown. So disabled
+    SPELL_GREATERHEAL           = 23954,
+    SPELL_BAT_FORM              = 23966,
 
-// Batriders Spell
-
-#define SPELL_BOMB                40332                     //Wrong ID but Magmadars bomb is not working...
+    // Batriders Spell
+    SPELL_BOMB                  = 40332 //Wrong ID but Magmadars bomb is not working...
+};
 
 class boss_jeklik : public CreatureScript
 {
@@ -91,13 +93,13 @@ class boss_jeklik : public CreatureScript
 
             void EnterCombat(Unit* /*who*/)
             {
-                DoScriptText(SAY_AGGRO, me);
+                Talk(SAY_AGGRO);
                 DoCast(me, SPELL_BAT_FORM);
             }
 
             void JustDied(Unit* /*killer*/)
             {
-                DoScriptText(SAY_DEATH, me);
+                Talk(SAY_DEATH);
 
                 if (instance)
                     instance->SetData(DATA_JEKLIK, DONE);
