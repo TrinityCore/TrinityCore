@@ -43,6 +43,7 @@ enum DeathKnightSpells
     DK_SPELL_IMPROVED_UNHOLY_PRESENCE_TRIGGERED = 63622,
     SPELL_DK_ITEM_T8_MELEE_4P_BONUS             = 64736,
     DK_SPELL_BLACK_ICE_R1                       = 49140,
+    DK_SPELL_UNHOLY_BLIGHT                      = 50536
 };
 
 // 50462 - Anti-Magic Shell (on raid member)
@@ -848,6 +849,47 @@ class spell_dk_death_grip : public SpellScriptLoader
         }
 };
 
+/* Spell: Unholy Blight
+   ID: 50536
+   Note: As of Patch 3.2.0 (2009-08-04) the spell's damage accumulates in the same way as Ignite and Deep Wounds. */
+class spell_dk_unholy_blight : public SpellScriptLoader
+{
+public:
+    spell_dk_unholy_blight() : SpellScriptLoader("spell_dk_unholy_blight") { }
+
+    class spell_dk_unholy_blight_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_dk_unholy_blight_AuraScript);
+
+        bool Validate(SpellInfo const* /*entry*/)
+        {
+            if (!sSpellMgr->GetSpellInfo(DK_SPELL_UNHOLY_BLIGHT))
+                return false;
+            return true;
+        }
+
+        void CalculateAmount(AuraEffect const* aurEff, int32 & amount, bool & /*canBeRecalculated*/)
+        {   
+            if (Unit* caster = GetCaster())
+                if (Unit* victim = GetUnitOwner())
+                {
+                    amount = amount / aurEff->GetTotalTicks();
+                    amount += victim->GetRemainingPeriodicAmount(caster->GetGUID(), DK_SPELL_UNHOLY_BLIGHT, SPELL_AURA_PERIODIC_DAMAGE);
+                }
+        }
+
+        void Register()
+        {
+            DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dk_unholy_blight_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_dk_unholy_blight_AuraScript();
+    }
+};
+
 void AddSC_deathknight_spell_scripts()
 {
     new spell_dk_anti_magic_shell_raid();
@@ -866,4 +908,5 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_death_strike();
     new spell_dk_death_coil();
     new spell_dk_death_grip();
+    new spell_dk_unholy_blight();
 }
