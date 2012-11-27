@@ -7545,12 +7545,18 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
             // Unholy Blight
             if (dummySpell->Id == 49194)
             {
+                triggered_spell_id = 50536;
+                SpellInfo const* unholyBlight = sSpellMgr->GetSpellInfo(triggered_spell_id);
+                if (!unholyBlight)
+                    return false;
+
                 basepoints0 = CalculatePct(int32(damage), triggerAmount);
-                // Glyph of Unholy Blight
+
+                //Glyph of Unholy Blight
                 if (AuraEffect* glyph=GetAuraEffect(63332, 0))
                     AddPct(basepoints0, glyph->GetAmount());
-
-                triggered_spell_id = 50536;
+                
+                basepoints0 = basepoints0 / (unholyBlight->GetMaxDuration() / unholyBlight->Effects[0].Amplitude);
                 basepoints0 += victim->GetRemainingPeriodicAmount(GetGUID(), triggered_spell_id, SPELL_AURA_PERIODIC_DAMAGE);
                 break;
             }
