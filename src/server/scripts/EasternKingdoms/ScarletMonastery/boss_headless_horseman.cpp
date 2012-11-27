@@ -34,7 +34,7 @@ EndScriptData */
 //this texts are already used by 3975 and 3976
 enum Says
 {
-    SAY_LOST_HEAD               = 0,    
+    SAY_LOST_HEAD               = 0,
     SAY_PLAYER_DEATH            = 1,
 
     SAY_ENTRANCE                = 0,
