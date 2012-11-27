@@ -199,7 +199,7 @@ void ReputationMgr::SendState(FactionState const* faction)
 
 void ReputationMgr::SendInitialReputations()
 {
-    uint8 count = 256;
+    uint16 count = 256;
     WorldPacket data(SMSG_INITIALIZE_FACTIONS, 4 + count * 5);
     data << uint32(count);
 
