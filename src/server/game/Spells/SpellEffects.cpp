@@ -468,15 +468,6 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                         damage = unitTarget->CountPctFromMaxHealth(damage);
                         break;
                     }
-                    // Crystalspawn Giant - Quake
-                    case 81008:
-                    case 92631:
-                    {
-                        //avoid damage when players jumps
-                        if (unitTarget->GetUnitMovementFlags() == MOVEMENTFLAG_JUMPING || unitTarget->GetTypeId() != TYPEID_PLAYER)
-                            return;
-                        break;
-                    }
                     // Gargoyle Strike
                     case 51963:
                     {
@@ -530,13 +521,13 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                         if ((*i)->GetSpellInfo()->SpellFamilyFlags[0] & 0x4)
                         {
                             uint32 pdamage = uint32(std::max((*i)->GetAmount(), 0));
-                            pdamage = m_caster->SpellDamageBonus(unitTarget, (*i)->GetSpellInfo(), pdamage, DOT, (*i)->GetBase()->GetStackAmount());
+                            pdamage = m_caster->SpellDamageBonusDone(unitTarget, (*i)->GetSpellInfo(), pdamage, DOT, (*i)->GetBase()->GetStackAmount());
                             uint32 pct_dir = m_caster->CalculateSpellDamage(unitTarget, m_spellInfo, (effIndex + 1));
                             uint8 baseTotalTicks = uint8(m_caster->CalcSpellDuration((*i)->GetSpellInfo()) / (*i)->GetSpellInfo()->Effects[EFFECT_2].Amplitude);
-                            damage += int32(CalculatePctU(pdamage * baseTotalTicks, pct_dir));
+                            damage += int32(CalculatePct(pdamage * baseTotalTicks, pct_dir));
 
                             uint32 pct_dot = m_caster->CalculateSpellDamage(unitTarget, m_spellInfo, (effIndex + 2)) / 3;
-                            m_spellValue->EffectBasePoints[1] = m_spellInfo->Effects[EFFECT_1].CalcBaseValue(int32(CalculatePctU(pdamage * baseTotalTicks, pct_dot)));
+                            m_spellValue->EffectBasePoints[1] = m_spellInfo->Effects[EFFECT_1].CalcBaseValue(int32(CalculatePct(pdamage * baseTotalTicks, pct_dot)));
 
                             apply_direct_bonus = false;
                             break;
@@ -547,7 +538,7 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
             }  
             case SPELLFAMILY_PRIEST:
             {
-				              switch (m_spellInfo->Id)
+		     switch (m_spellInfo->Id)
                 {
                     case 73413:  // inner will
                         m_caster->RemoveAurasDueToSpell(588);
