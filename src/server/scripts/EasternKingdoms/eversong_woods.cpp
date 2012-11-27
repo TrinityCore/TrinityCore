@@ -517,9 +517,12 @@ public:
 ## npc_infused_crystal
 ######*/
 
-#define MOB_ENRAGED_WRAITH  17086
-#define EMOTE   -1000283
-#define QUEST_POWERING_OUR_DEFENSES 8490
+enum InfusedCrystal
+{
+    MOB_ENRAGED_WRAITH          = 17086,
+    EMOTE                       = 0,
+    QUEST_POWERING_OUR_DEFENSES = 8490
+};
 
 struct Location
 {
@@ -597,7 +600,7 @@ public:
         {
             if (EndTimer < diff && Progress)
             {
-                DoScriptText(EMOTE, me);
+                Talk(EMOTE);
                 Completed = true;
                 if (PlayerGUID)
                     if (Player* player = Unit::GetPlayer(*me, PlayerGUID))
