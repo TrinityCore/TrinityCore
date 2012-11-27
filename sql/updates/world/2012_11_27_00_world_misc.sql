@@ -1,4 +1,4 @@
-DELETE FROM `disables` WHERE `sourceType`=4 AND `entry` IN (7568,7568);
+DELETE FROM `disables` WHERE `sourceType`=4 AND `entry` IN (7567,7568);
 
 DELETE FROM `achievement_criteria_data` WHERE `criteria_id` IN (7567,7568);
 INSERT INTO `achievement_criteria_data` (`criteria_id`,`type`,`value1`,`value2`,`ScriptName`) VALUES
