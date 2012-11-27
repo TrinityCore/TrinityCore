@@ -203,7 +203,7 @@ class boss_sapphiron : public CreatureScript
                     if (Player* player = ObjectAccessor::GetPlayer(*me, itr->first))
                         player->RemoveAura(SPELL_ICEBOLT);
 
-                    if (GameObject* go = GameObject::GetGameObject(*me, itr->second))
+                    if (GameObject* go = ObjectAccessor::GetGameObject(*me, itr->second))
                         go->Delete();
                 }
                 _iceblocks.clear();
