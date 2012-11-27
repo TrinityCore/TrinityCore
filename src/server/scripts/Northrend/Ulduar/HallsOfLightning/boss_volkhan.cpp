@@ -23,6 +23,7 @@ SDComment: Event should be pretty close minus a few visual flaws
 SDCategory: Halls of Lightning
 EndScriptData */
 
+#include "AchievementMgr.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "halls_of_lightning.h"
@@ -155,7 +156,7 @@ public:
 
             if (IsHeroic() && GolemsShattered < 5)
             {
-                AchievementEntry const* AchievShatterResistant = sAchievementStore.LookupEntry(ACHIEVEMENT_SHATTER_RESISTANT);
+                AchievementEntry const* AchievShatterResistant = sAchievementMgr->GetAchievement(ACHIEVEMENT_SHATTER_RESISTANT);
                 if (AchievShatterResistant)
                 {
                     Map* map = me->GetMap();

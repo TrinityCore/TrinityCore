@@ -17,6 +17,7 @@
  */
 
 #include "ConditionMgr.h"
+#include "AchievementMgr.h"
 #include "GameEventMgr.h"
 #include "InstanceScript.h"
 #include "ObjectMgr.h"
@@ -1421,6 +1422,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond)
 
     return true;
 }
+
 bool ConditionMgr::isConditionTypeValid(Condition* cond)
 {
     if (cond->ConditionType == CONDITION_NONE || cond->ConditionType >= CONDITION_MAX)
@@ -1584,7 +1586,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond)
         }
         case CONDITION_ACHIEVEMENT:
         {
-            AchievementEntry const* achievement = sAchievementStore.LookupEntry(cond->ConditionValue1);
+            AchievementEntry const* achievement = sAchievementMgr->GetAchievement(cond->ConditionValue1);
             if (!achievement)
             {
                 sLog->outError(LOG_FILTER_SQL, "Achivement condition has non existing achivement id (%u), skipped", cond->ConditionValue1);

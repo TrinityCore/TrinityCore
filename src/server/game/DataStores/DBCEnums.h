@@ -79,12 +79,12 @@ enum AchievementCriteriaCondition
 {
     ACHIEVEMENT_CRITERIA_CONDITION_NONE            = 0,
     ACHIEVEMENT_CRITERIA_CONDITION_NO_DEATH        = 1,    // reset progress on death
-    ACHIEVEMENT_CRITERIA_CONDITION_UNK1            = 2,    // only used in "Complete a daily quest every day for five consecutive days"
+    ACHIEVEMENT_CRITERIA_CONDITION_UNK2            = 2,    // only used in "Complete a daily quest every day for five consecutive days"
     ACHIEVEMENT_CRITERIA_CONDITION_BG_MAP          = 3,    // requires you to be on specific map, reset at change
     ACHIEVEMENT_CRITERIA_CONDITION_NO_LOSE         = 4,    // only used in "Win 10 arenas without losing"
     ACHIEVEMENT_CRITERIA_CONDITION_NO_SPELL_HIT    = 9,    // requires the player not to be hit by specific spell
     ACHIEVEMENT_CRITERIA_CONDITION_NOT_IN_GROUP    = 10,   // requires the player not to be in group
-    ACHIEVEMENT_CRITERIA_CONDITION_UNK3            = 13    // unk
+    ACHIEVEMENT_CRITERIA_CONDITION_UNK13           = 13    // unk
 };
 
 enum AchievementCriteriaFlags
@@ -140,7 +140,7 @@ enum AchievementCriteriaTypes
     ACHIEVEMENT_CRITERIA_TYPE_LEARN_SPELL                   = 34,
     ACHIEVEMENT_CRITERIA_TYPE_HONORABLE_KILL                = 35,
     ACHIEVEMENT_CRITERIA_TYPE_OWN_ITEM                      = 36,
-    ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_ARENA               = 37, // TODO: the archievements 1162 and 1163 requires a special rating which can't be found in the dbc
+    ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_ARENA               = 37,
     ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_TEAM_RATING           = 38,
     ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_PERSONAL_RATING       = 39,
     ACHIEVEMENT_CRITERIA_TYPE_LEARN_SKILL_LEVEL             = 40,
@@ -213,14 +213,9 @@ enum AchievementCriteriaTypes
     ACHIEVEMENT_CRITERIA_TYPE_ACCEPTED_SUMMONINGS           = 114,
     ACHIEVEMENT_CRITERIA_TYPE_EARN_ACHIEVEMENT_POINTS       = 115,
     ACHIEVEMENT_CRITERIA_TYPE_USE_LFD_TO_GROUP_WITH_PLAYERS = 119,
-    // 120
-    // 121
-    // 122
-    // 123
-    // 0..123 => 124 criteria types total
 };
 
-#define ACHIEVEMENT_CRITERIA_TYPE_TOTAL 124
+#define ACHIEVEMENT_CRITERIA_TYPE_TOTAL 120
 
 enum AchievementCategory
 {
