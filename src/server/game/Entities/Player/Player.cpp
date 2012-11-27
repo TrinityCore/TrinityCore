@@ -207,12 +207,12 @@ void PlayerTaxi::AppendTaximaskTo(ByteBuffer& data, bool all)
 {
     if (all)
     {
-        for (uint8 i=0; i<TaxiMaskSize; i++)
+        for (uint8 i = 0; i < TaxiMaskSize; ++i)
             data << uint32(sTaxiNodesMask[i]);              // all existed nodes
     }
     else
     {
-        for (uint8 i=0; i<TaxiMaskSize; i++)
+        for (uint8 i = 0; i < TaxiMaskSize; ++i)
             data << uint32(m_taximask[i]);                  // known nodes
     }
 }
@@ -221,9 +221,9 @@ bool PlayerTaxi::LoadTaxiDestinationsFromString(const std::string& values, uint3
 {
     ClearTaxiDestinations();
 
-    Tokenizer tokens(values, ' ');
+    Tokenizer Tokenizer(values, ' ');
 
-    for (Tokenizer::const_iterator iter = tokens.begin(); iter != tokens.end(); ++iter)
+    for (Tokenizer::const_iterator iter = Tokenizer.begin(); iter != Tokenizer.end(); ++iter)
     {
         uint32 node = uint32(atol(*iter));
         AddTaxiDestination(node);
@@ -728,7 +728,7 @@ Player::Player(WorldSession* session): Unit(true)
     m_DailyQuestChanged = false;
     m_lastDailyQuestTime = 0;
 
-    for (uint8 i=0; i<MAX_TIMERS; i++)
+    for (uint8 i=0; i < MAX_TIMERS; i++)
         m_MirrorTimer[i] = DISABLED_MIRROR_TIMER;
 
     m_MirrorTimerFlags = UNDERWATER_NONE;
@@ -743,7 +743,7 @@ Player::Player(WorldSession* session): Unit(true)
 
     for (uint8 j = 0; j < PLAYER_MAX_BATTLEGROUND_QUEUES; ++j)
     {
-        m_bgBattlegroundQueueID[j].bgQueueTypeId  = BATTLEGROUND_QUEUE_NONE;
+        m_bgBattlegroundQueueID[j].bgQueueTypeId = BATTLEGROUND_QUEUE_NONE;
         m_bgBattlegroundQueueID[j].invitedToInstance = 0;
     }
 
@@ -990,8 +990,7 @@ bool Player::Create(uint32 guidlow, CharacterCreateInfo* createInfo)
     SetFloatValue(UNIT_MOD_CAST_SPEED, 1.0f);               // fix cast time showed in spell tooltip on client
     SetFloatValue(UNIT_FIELD_HOVERHEIGHT, 1.0f);            // default for players in 3.0.3
 
-                                                            // -1 is default value
-    SetInt32Value(PLAYER_FIELD_WATCHED_FACTION_INDEX, uint32(-1));
+    SetInt32Value(PLAYER_FIELD_WATCHED_FACTION_INDEX, uint32(-1));  // -1 is default value
 
     SetUInt32Value(PLAYER_BYTES, (createInfo->Skin | (createInfo->Face << 8) | (createInfo->HairStyle << 16) | (createInfo->HairColor << 24)));
     SetUInt32Value(PLAYER_BYTES_2, (createInfo->FacialHair |
