@@ -25,7 +25,7 @@ void AddSC_example_misc();
 void AddSC_example_commandscript();
 
 //Custom
-void Flame_orb()
+void AddSC_Flame_orb_script();
 
 // spells
 void AddSC_deathknight_spell_scripts();
@@ -1267,6 +1267,6 @@ void AddCustomScripts()
 {
 #ifdef SCRIPTS
     /* This is where custom scripts should be added. */
-	AddSC_Flame_orb()
+        AddSC_Flame_orb_script();
 #endif
 }

@@ -186,7 +186,7 @@ class spell_mage_frostfire_orb : public CreatureScript
         };
 };
 
-void AddSC_Flame_orb()
+void AddSC_Flame_orb_script()
 {
   new spell_mage_flame_orb();
   new spell_mage_frostfire_orb();
