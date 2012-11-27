@@ -106,7 +106,7 @@ class BfCapturePoint
         bool SetCapturePointData(GameObject* capturePoint);
         GameObject* GetCapturePointGo();
         uint32 GetCapturePointEntry(){ return m_capturePointEntry; }
-        
+
         TeamId GetTeamId() { return m_team; }
     protected:
         bool DelCapturePoint();
@@ -294,7 +294,7 @@ class Battlefield : public ZoneScript
 
         Creature* GetCreature(uint64 GUID);
         GameObject* GetGameObject(uint64 GUID);
-        
+
         // Script-methods
 
         /// Called on start

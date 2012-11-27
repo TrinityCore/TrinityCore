@@ -1201,7 +1201,7 @@ struct BfWGGameObjectBuilding
     {
         if (!go)
             return;
-        
+
         // GameObject associated to object
         m_BuildGUID = go->GetGUID();
 

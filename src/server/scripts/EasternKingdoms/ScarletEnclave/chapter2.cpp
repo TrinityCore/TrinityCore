@@ -171,7 +171,7 @@ public:
                     ++speechCounter;
                     DoCastAOE(SPELL_THREAT_PULSE, true);
 
-                } else 
+                } else
                     speechTimer -= diff;
 
                 return;
