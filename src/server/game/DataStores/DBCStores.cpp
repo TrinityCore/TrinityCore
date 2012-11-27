@@ -17,11 +17,9 @@
  */
 
 #include "DBCStores.h"
-
 #include "Log.h"
 #include "SharedDefines.h"
 #include "SpellMgr.h"
-
 #include "DBCfmt.h"
 
 #include <map>

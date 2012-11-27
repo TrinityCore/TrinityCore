@@ -146,7 +146,7 @@ void WorldSession::HandleLfgSetBootVoteOpcode(WorldPacket& recvData)
     uint64 guid = GetPlayer()->GetGUID();
     sLog->outDebug(LOG_FILTER_LFG, "CMSG_LFG_SET_BOOT_VOTE %s agree: %u",
         GetPlayerInfo().c_str(), agree ? 1 : 0);
-    sLFGMgr->UpdateBoot(guid, agree);
+    sLFGMgr->UpdateBoot(guid, agree ? LFG_ANSWER_AGREE : LFG_ANSWER_DENY);
 }
 
 void WorldSession::HandleLfgTeleportOpcode(WorldPacket& recvData)

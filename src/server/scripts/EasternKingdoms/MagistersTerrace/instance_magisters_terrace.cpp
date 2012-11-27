@@ -150,7 +150,7 @@ public:
                         HandleGameObject(SelinEncounterDoorGUID, false);
                     else if (data == NOT_STARTED)
                         HandleGameObject(SelinEncounterDoorGUID, true);
-                        
+
                     Encounter[0] = data;
                     break;
                 case DATA_VEXALLUS_EVENT:
@@ -184,7 +184,7 @@ public:
                     StatuesState = data;
                     break;
             }
-            
+
             SaveToDB();
         }
 
@@ -245,7 +245,7 @@ public:
             OUT_SAVE_INST_DATA_COMPLETE;
             return saveStream.str();
         }
-        
+
         void Load(const char* str)
         {
             if (!str)
@@ -257,7 +257,7 @@ public:
             OUT_LOAD_INST_DATA(str);
 
             std::istringstream loadStream(str);
-            
+
             for (uint32 i = 0; i < MAX_ENCOUNTER; ++i)
             {
                 uint32 tmpState;
@@ -272,7 +272,7 @@ public:
 
             OUT_LOAD_INST_DATA_COMPLETE;
         }
-            
+
         uint64 GetData64(uint32 identifier) const
         {
             switch (identifier)

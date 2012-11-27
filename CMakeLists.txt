@@ -12,7 +12,7 @@
 project(TrinityCore)
 
 # CMake policies (can not be handled elsewhere)
-cmake_minimum_required(VERSION 2.6)
+cmake_minimum_required(VERSION 2.8)
 cmake_policy(SET CMP0005 OLD)
 
 # Set RPATH-handing (CMake parameters)

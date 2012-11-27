@@ -407,13 +407,17 @@ void Battlefield::PlayerAcceptInviteToWar(Player* player)
 void Battlefield::TeamCastSpell(TeamId team, int32 spellId)
 {
     if (spellId > 0)
+    {
         for (GuidSet::const_iterator itr = m_PlayersInWar[team].begin(); itr != m_PlayersInWar[team].end(); ++itr)
             if (Player* player = sObjectAccessor->FindPlayer(*itr))
                 player->CastSpell(player, uint32(spellId), true);
+    }
     else
+    {
         for (GuidSet::const_iterator itr = m_PlayersInWar[team].begin(); itr != m_PlayersInWar[team].end(); ++itr)
             if (Player* player = sObjectAccessor->FindPlayer(*itr))
                 player->RemoveAuraFromStack(uint32(-spellId));
+    }
 }
 
 void Battlefield::BroadcastPacketToZone(WorldPacket& data) const
@@ -656,7 +660,7 @@ void Battlefield::RemovePlayerFromResurrectQueue(uint64 playerGuid)
     }
 }
 
-void Battlefield::SendAreaSpiritHealerQueryOpcode(Player* player, const uint64 &guid)
+void Battlefield::SendAreaSpiritHealerQueryOpcode(Player* player, uint64 guid)
 {
     WorldPacket data(SMSG_AREA_SPIRIT_HEALER_TIME, 12);
     uint32 time = m_LastResurectTimer;  // resurrect every 30 seconds
@@ -913,7 +917,7 @@ bool BfCapturePoint::HandlePlayerEnter(Player* player)
             player->SendUpdateWorldState(capturePoint->GetGOInfo()->capturePoint.worldstate3, m_neutralValuePct);
         }
     }
-    
+
     return m_activePlayers[player->GetTeamId()].insert(player->GetGUID()).second;
 }
 
@@ -936,7 +940,7 @@ void BfCapturePoint::SendChangePhase()
 {
     if (!m_capturePointGUID)
         return;
-        
+
     if (GameObject* capturePoint = m_Bf->GetGameObject(m_capturePointGUID))
     {
         // send this too, sometimes the slider disappears, dunno why :(
@@ -984,9 +988,9 @@ bool BfCapturePoint::SetCapturePointData(GameObject* capturePoint)
     return true;
 }
 
-GameObject* BfCapturePoint::GetCapturePointGo() 
-{ 
-    return m_Bf->GetGameObject(m_capturePointGUID); 
+GameObject* BfCapturePoint::GetCapturePointGo()
+{
+    return m_Bf->GetGameObject(m_capturePointGUID);
 }
 
 bool BfCapturePoint::DelCapturePoint()
@@ -1034,13 +1038,13 @@ bool BfCapturePoint::Update(uint32 diff)
         Trinity::AnyPlayerInObjectRangeCheck checker(capturePoint, radius);
         Trinity::PlayerListSearcher<Trinity::AnyPlayerInObjectRangeCheck> searcher(capturePoint, players, checker);
         capturePoint->VisitNearbyWorldObject(radius, searcher);
-    
+
         for (std::list<Player*>::iterator itr = players.begin(); itr != players.end(); ++itr)
             if ((*itr)->IsOutdoorPvPActive())
                 if (m_activePlayers[(*itr)->GetTeamId()].insert((*itr)->GetGUID()).second)
                     HandlePlayerEnter(*itr);
     }
-    
+
     // get the difference of numbers
     float fact_diff = ((float) m_activePlayers[0].size() - (float) m_activePlayers[1].size()) * diff / BATTLEFIELD_OBJECTIVE_UPDATE_INTERVAL;
     if (G3D::fuzzyEq(fact_diff, 0.0f))

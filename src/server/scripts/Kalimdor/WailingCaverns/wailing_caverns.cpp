@@ -26,6 +26,7 @@ EndScriptData */
 /* ContentData
 EndContentData */
 
+#include "AchievementMgr.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
@@ -318,7 +319,7 @@ public:
                                 eventTimer = 3000;
                                 if (Creature* naralex = instance->instance->GetCreature(instance->GetData64(DATA_NARALEX)))
                                 {
-                                    AchievementEntry const* AchievWC = sAchievementStore.LookupEntry(ACHIEVEMENT_WAILING_CAVERNS);
+                                    AchievementEntry const* AchievWC = sAchievementMgr->GetAchievement(ACHIEVEMENT_WAILING_CAVERNS);
                                     if (AchievWC)
                                     {
                                         Map* map = me->GetMap();
