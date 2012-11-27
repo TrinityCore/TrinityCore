@@ -48,7 +48,7 @@ bool IsPrimaryProfessionSkill(uint32 skill)
 
 bool IsWeaponSkill(uint32 skill)
 {
-	SkillLineEntry const* pSkill = sSkillLineStore.LookupEntry(skill);
+    SkillLineEntry const* pSkill = sSkillLineStore.LookupEntry(skill);
     if (!pSkill)
         return false;
     if (pSkill->categoryId != SKILL_CATEGORY_WEAPON)

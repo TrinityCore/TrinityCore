@@ -6280,8 +6280,8 @@ void Player::UpdateSkillsForLevel()
         if (GetSkillRangeType(pSkill, false) != SKILL_RANGE_LEVEL)
             continue;
 
-		if (IsWeaponSkill(pSkill->id))
-+			continue;
+        if (IsWeaponSkill(pSkill->id))
+            continue;
 
         uint16 field = itr->second.pos / 2;
         uint8 offset = itr->second.pos & 1; // itr->second.pos % 2
@@ -6311,8 +6311,8 @@ void Player::UpdateSkillsToMaxSkillsForLevel()
         if (IsProfessionOrRidingSkill(pskill))
             continue;
 
-		if (IsWeaponSkill(pSkill->id))
-+			continue;
+        if (IsWeaponSkill(pskill))
+            continue;
 
         uint16 field = itr->second.pos / 2;
         uint8 offset = itr->second.pos & 1; // itr->second.pos % 2
