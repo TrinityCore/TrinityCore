@@ -27,20 +27,23 @@ EndScriptData */
 #include "ScriptedCreature.h"
 #include "zulgurub.h"
 
-#define SAY_AGGRO                       -1309014
+enum Jindo
+{
+    SAY_AGGRO                       = 1,
 
-#define SPELL_BRAINWASHTOTEM            24262
-#define SPELL_POWERFULLHEALINGWARD      24309               //We will not use this spell. We will summon a totem by script cause the spell totems will not cast.
-#define SPELL_HEX                       24053
-#define SPELL_DELUSIONSOFJINDO          24306
-#define SPELL_SHADEOFJINDO              24308               //We will not use this spell. We will summon a shade by script.
+    SPELL_BRAINWASHTOTEM            = 24262,
+    SPELL_POWERFULLHEALINGWARD      = 24309,               //We will not use this spell. We will summon a totem by script cause the spell totems will not cast.
+    SPELL_HEX                       = 24053,
+    SPELL_DELUSIONSOFJINDO          = 24306,
+    SPELL_SHADEOFJINDO              = 24308,               //We will not use this spell. We will summon a shade by script.
 
-//Healing Ward Spell
-#define SPELL_HEAL                      38588               //Totems are not working right. Right heal spell ID is 24311 but this spell is not casting...
+    //Healing Ward Spell
+    SPELL_HEAL                      = 38588,               //Totems are not working right. Right heal spell ID is 24311 but this spell is not casting...
 
-//Shade of Jindo Spell
-#define SPELL_SHADOWSHOCK               19460
-#define SPELL_INVISIBLE                 24699
+    //Shade of Jindo Spell
+    SPELL_SHADOWSHOCK               = 19460,
+    SPELL_INVISIBLE                 = 24699
+};
 
 class boss_jindo : public CreatureScript
 {
@@ -72,7 +75,7 @@ class boss_jindo : public CreatureScript
 
             void EnterCombat(Unit* /*who*/)
             {
-                DoScriptText(SAY_AGGRO, me);
+                Talk(SAY_AGGRO);
             }
 
             void UpdateAI(const uint32 diff)

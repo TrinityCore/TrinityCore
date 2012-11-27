@@ -34,9 +34,10 @@ enum eEnums
     SPELL_POLYMORPH         = 12826,
     SPELL_MARK_OF_THE_WILD  = 26990,
 
-    SAY_NOT_INTERESTED      = -1999922,
-    SAY_WRONG               = -1999923,
-    SAY_CORRECT             = -1999924
+    //These texts must be added to the creature texts of the npc for which the script is assigned.
+    SAY_NOT_INTERESTED      = 0, // "Normal select, guess you're not interested."
+    SAY_WRONG               = 1, // "Wrong!"
+    SAY_CORRECT             = 2  // "You're right, you are allowed to see my inner secrets."
 };
 
 #define GOSSIP_ITEM_1       "A quiz: what's your name?"
@@ -66,7 +67,8 @@ class example_gossip_codebox : public CreatureScript
             player->PlayerTalkClass->ClearMenus();
             if (action == GOSSIP_ACTION_INFO_DEF+2)
             {
-                DoScriptText(SAY_NOT_INTERESTED, creature);
+                //Read comment in enum
+                creature->AI()->Talk(SAY_NOT_INTERESTED);
                 player->CLOSE_GOSSIP_MENU();
             }
 
@@ -83,12 +85,14 @@ class example_gossip_codebox : public CreatureScript
                 case GOSSIP_ACTION_INFO_DEF+1:
                     if (player->GetName() != code)
                     {
-                        DoScriptText(SAY_WRONG, creature);
+                        //Read comment in enum
+                        creature->AI()->Talk(SAY_WRONG);
                         creature->CastSpell(player, SPELL_POLYMORPH, true);
                     }
                     else
                     {
-                        DoScriptText(SAY_CORRECT, creature);
+                        //Read comment in enum
+                        creature->AI()->Talk(SAY_CORRECT);
                         creature->CastSpell(player, SPELL_MARK_OF_THE_WILD, true);
                     }
                     player->CLOSE_GOSSIP_MENU();
