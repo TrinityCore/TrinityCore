@@ -658,6 +658,7 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
                         AddPct(amount, m_spellInfo->Effects[EFFECT_2].CalcValue(caster));
                 }
             }
+            break;
         case SPELL_AURA_PERIODIC_ENERGIZE:
             switch (m_spellInfo->Id)
             {
