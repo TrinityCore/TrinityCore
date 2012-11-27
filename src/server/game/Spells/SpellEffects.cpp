@@ -414,17 +414,9 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                         if (unitTarget->GetAuraEffect(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_WARLOCK, 0x4, 0, 0))
                             damage += damage / 6;
                     }
-                }
-                        if (m_caster->HasAura(6229))
-			 {
-			     if (m_caster->HasAura(91713))
-			     {
-                                  m_caster->RemoveAura(6229);
-				 m_caster->CastSpell(m_caster, 91711, true);
-		             }
-			 }
                 break;
-            }
+				}
+            }  
             case SPELLFAMILY_PRIEST:
             {
                 // Improved Mind Blast (Mind Blast in shadow form bonus)
@@ -3467,7 +3459,7 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
                     {
                         AuraEffect const* aurEff = *i;
                     // search DoT
-                        if (m_spellInfo->Id == 348 && m_spellInfo->Id == 30108 &&
+                        if (m_spellInfo->SpellFamilyName == SPELLFAMILY_WARLOCK && m_spellInfo->Id == 348 | 30108 &&
                             aurEff->GetCasterGUID() == m_caster->GetGUID())
                     {
                         uint32 countMin = aurEff->GetBase()->GetMaxDuration();

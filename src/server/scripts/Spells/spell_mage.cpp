@@ -37,6 +37,10 @@ enum MageSpells
     SPELL_MAGE_WORGEN_FORM                       = 32819,
     SPELL_MAGE_SHEEP_FORM                        = 32820,
     SPELL_MAGE_GLYPH_OF_ETERNAL_WATER            = 70937,
+	SPELL_MAGE_FLAME_ORB                         = 57752,
+    SPELL_MAGE_FROSTFIRE_ORB                     = 45322,
+	SPELL_MAGE_ORB_TALENT_R1                     = 84726,
+	SPELL_MAGE_ORB_TALENT_R2                     = 84727,
     SPELL_MAGE_SUMMON_WATER_ELEMENTAL_PERMANENT  = 70908,
     SPELL_MAGE_SUMMON_WATER_ELEMENTAL_TEMPORARY  = 70907,
     SPELL_MAGE_CAUTERIZE                         = 86949,
@@ -116,7 +120,7 @@ class spell_mag_cauterize : public SpellScriptLoader
                     return;    
 
                 target->CastSpell(target, SPELL_MAGE_CAUTERIZE_DOT, true);
-		      target->SetHealth(target->CountPctFromMaxHealth(40));
+		        target->SetHealth(target->CountPctFromMaxHealth(40));
                 target->AddSpellCooldown(SPELL_MAGE_CAUTERIZE, 0, time(NULL) + 60);
 
                 uint32 health10 = target->CountPctFromMaxHealth(10);
@@ -292,6 +296,46 @@ class spell_mage_summon_water_elemental : public SpellScriptLoader
         SpellScript* GetSpellScript() const
         {
             return new spell_mage_summon_water_elemental_SpellScript();
+        }
+};
+
+class spell_mage_orb : public SpellScriptLoader
+{
+    public:
+        spell_mage_orb() : SpellScriptLoader("spell_mage_orb") { }
+
+        class spell_mage_orb_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_mage_orb_SpellScript);
+
+            bool Validate(SpellInfo const* /*spellEntry*/)
+            {
+				if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_FLAME_ORB) || !sSpellMgr->GetSpellInfo(SPELL_MAGE_FROSTFIRE_ORB))
+                    return false;
+                return true;
+            }
+
+            void HandleDummy(SpellEffIndex /*effIndex*/)
+            {
+                Unit* caster = GetCaster();
+                // Check Talent
+                if (caster->HasAura(SPELL_MAGE_ORB_TALENT_R2) || caster->HasAura(SPELL_MAGE_ORB_TALENT_R1))
+                    caster->CastSpell(caster, SPELL_MAGE_FROSTFIRE_ORB, true);
+                else
+                    caster->CastSpell(caster, SPELL_MAGE_FLAME_ORB, true);
+            }
+            
+
+            void Register()
+            {
+                // add dummy effect spell handler to Flame orb
+                OnEffectHit += SpellEffectFn(spell_mage_orb_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_mage_orb_SpellScript();
         }
 };
 
@@ -508,6 +552,7 @@ void AddSC_mage_spell_scripts()
     new spell_mage_incanters_absorbtion_manashield();
     new spell_mage_polymorph_cast_visual();
     new spell_mage_summon_water_elemental();
+	new spell_mage_orb();
     new spell_mage_living_bomb();
     new spell_mage_cone_of_cold();
     new spell_mag_cauterize();
