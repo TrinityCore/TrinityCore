@@ -178,7 +178,7 @@ public:
         {
             if (!instance)
                 return;
-            
+
             instance->SetData(DATA_KAELTHAS_EVENT, IN_PROGRESS);
         }
 

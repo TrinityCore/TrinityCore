@@ -860,7 +860,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature *creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_blessed_bannerAI(creature);
     }

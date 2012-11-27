@@ -37,7 +37,7 @@ EndContentData */
 ## npc_disciple_of_naralex
 ######*/
 
-enum eEnums
+enum Enums
 {
     //say
     SAY_MAKE_PREPARATIONS         = -1043001,
@@ -76,7 +76,6 @@ enum eEnums
 #define GOSSIP_ID_START_1       698  //Naralex sleeps again!
 #define GOSSIP_ID_START_2       699  //The fanglords are dead!
 #define GOSSIP_ITEM_NARALEX     "Let the event begin!"
-#define ACHIEVEMENT_WAILING_CAVERNS 630
 
 class npc_disciple_of_naralex : public CreatureScript
 {
@@ -318,17 +317,6 @@ public:
                                 eventTimer = 3000;
                                 if (Creature* naralex = instance->instance->GetCreature(instance->GetData64(DATA_NARALEX)))
                                 {
-                                    AchievementEntry const* AchievWC = sAchievementStore.LookupEntry(ACHIEVEMENT_WAILING_CAVERNS);
-                                    if (AchievWC)
-                                    {
-                                        Map* map = me->GetMap();
-                                        if (map && map->IsDungeon())
-                                        {
-                                            Map::PlayerList const &players = map->GetPlayers();
-                                            for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
-                                                itr->getSource()->CompletedAchievement(AchievWC);
-                                        }
-                                    }
                                     if (me->HasAura(SPELL_NARALEXS_AWAKENING))
                                         me->RemoveAura(SPELL_NARALEXS_AWAKENING);
                                     naralex->SetStandState(UNIT_STAND_STATE_STAND);

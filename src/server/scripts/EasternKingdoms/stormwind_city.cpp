@@ -212,7 +212,7 @@ enum eLordGregorLescovar
     SAY_LESCOVAR_4 = 2,
     SAY_MARZON_1   = 0,
     SAY_MARZON_2   = 1,
-    SAY_TYRION_2   = 0,
+    SAY_TYRION_2   = 1,
 
     NPC_STORMWIND_ROYAL = 1756,
     NPC_MARZON_BLADE    = 1755,

@@ -20,6 +20,7 @@
 #include "ScriptedEscortAI.h"
 #include "Player.h"
 #include "SpellInfo.h"
+#include "CreatureTextMgr.h"
 
 //How to win friends and influence enemies
 // texts signed for creature 28939 but used for 28939, 28940, 28610
@@ -30,21 +31,13 @@ enum win_friends
     SAY_PERSUADED2                    = 3,
     SAY_PERSUADED3                    = 4,
     SAY_PERSUADED4                    = 5,
-    SAY_PERSUADED6                    = 6,
+    SAY_PERSUADED5                    = 6,
+    SAY_PERSUADED6                    = 7,
+    SAY_PERSUADE_RAND                 = 8,
     SPELL_PERSUASIVE_STRIKE           = 52781,
     SPELL_THREAT_PULSE                = 58111,
     QUEST_HOW_TO_WIN_FRIENDS          = 12720,
 };
-
-#define SAY_PERSUADED5  "LIES! The pain you are about to endure will be talked about for years to come!"
-
-#define SAY_PERSUADE1   "I'll tear the secrets from your soul! Tell me about the \"Crimson Dawn\" and your life may be spared!"
-#define SAY_PERSUADE2   "Tell me what you know about \"Crimson Dawn\" or the beatings will continue!"
-#define SAY_PERSUADE3   "I'm through being courteous with your kind, human! What is the \"Crimson Dawn\"?"
-#define SAY_PERSUADE4   "Is your life worth so little? Just tell me what I need to know about \"Crimson Dawn\" and I'll end your suffering quickly."
-#define SAY_PERSUADE5   "I can keep this up for a very long time, Scarlet dog! Tell me about the \"Crimson Dawn\"!"
-#define SAY_PERSUADE6   "What is the \"Crimson Dawn\"?"
-#define SAY_PERSUADE7   "\"Crimson Dawn\"! What is it! Speak!"
 
 class npc_crusade_persuaded : public CreatureScript
 {
@@ -90,30 +83,7 @@ public:
                         me->SetReactState(REACT_PASSIVE);
                         DoCastAOE(SPELL_THREAT_PULSE, true);
 
-                        switch (urand(1, 7))
-                        {
-                            case 1:
-                                player->Say(SAY_PERSUADE1, LANG_UNIVERSAL);
-                                break;
-                            case 2:
-                                player->Say(SAY_PERSUADE2, LANG_UNIVERSAL);
-                                break;
-                            case 3:
-                                player->Say(SAY_PERSUADE3, LANG_UNIVERSAL);
-                                break;
-                            case 4:
-                                player->Say(SAY_PERSUADE4, LANG_UNIVERSAL);
-                                break;
-                            case 5:
-                                player->Say(SAY_PERSUADE5, LANG_UNIVERSAL);
-                                break;
-                            case 6:
-                                player->Say(SAY_PERSUADE6, LANG_UNIVERSAL);
-                                break;
-                            case 7:
-                                player->Say(SAY_PERSUADE7, LANG_UNIVERSAL);
-                                break;
-                        }
+                        sCreatureTextMgr->SendChat(me, SAY_PERSUADE_RAND, 0, CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_NORMAL, 0, TEAM_OTHER, false, player);
                         Talk(SAY_CRUSADER);
                     }
                 }
@@ -156,7 +126,7 @@ public:
                             break;
 
                         case 5:
-                            player->Say(SAY_PERSUADED5, LANG_UNIVERSAL);
+                            sCreatureTextMgr->SendChat(me, SAY_PERSUADED5, 0, CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_NORMAL, 0, TEAM_OTHER, false, player);
                             speechTimer = 8000;
                             break;
 
@@ -171,7 +141,7 @@ public:
                     ++speechCounter;
                     DoCastAOE(SPELL_THREAT_PULSE, true);
 
-                } else 
+                } else
                     speechTimer -= diff;
 
                 return;

@@ -1701,11 +1701,11 @@ uint32 BattlegroundAV::GetPrematureWinner()
 {
     uint32 allianceScore = m_Team_Scores[GetTeamIndexByTeamId(ALLIANCE)];
     uint32 hordeScore = m_Team_Scores[GetTeamIndexByTeamId(HORDE)];
-    
+
     if (allianceScore > hordeScore)
         return ALLIANCE;
     else if (hordeScore > allianceScore)
         return HORDE;
-    
+
     return Battleground::GetPrematureWinner();
 }

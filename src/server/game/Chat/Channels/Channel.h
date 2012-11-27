@@ -28,6 +28,8 @@
 #include "Opcodes.h"
 #include "WorldPacket.h"
 
+class Player;
+
 enum ChatNotify
 {
     CHAT_JOINED_NOTICE                = 0x00,           //+ "%s joined channel.";
