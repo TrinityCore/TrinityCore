@@ -1261,7 +1261,7 @@ void LFGMgr::RemoveProposal(LfgProposalContainer::iterator itProposal, LfgUpdate
             RestoreState(guid, "Proposal Fail (didn't accepted or in group with someone that didn't accept");
             if (gguid != guid)
             {
-                RestoreState(it->second.group, "Proposal Fail (someone in group didn't accepted)");                
+                RestoreState(it->second.group, "Proposal Fail (someone in group didn't accepted)");
                 SendLfgUpdateParty(guid, updateData);
             }
             else
@@ -1375,7 +1375,7 @@ void LFGMgr::UpdateBoot(uint64 guid, LfgAnswer answer)
             return;
 
         boot.votes[guid] = answer;
-    
+
         for (LfgAnswerContainer::const_iterator itVotes = boot.votes.begin(); itVotes != boot.votes.end(); ++itVotes)
         {
             if (itVotes->second != LFG_ANSWER_PENDING)

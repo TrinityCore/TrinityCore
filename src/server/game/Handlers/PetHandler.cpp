@@ -56,7 +56,7 @@ void WorldSession::HandleDismissCritter(WorldPacket& recvData)
     }
 }
 
-void WorldSession::HandlePetAction(WorldPacket & recvData)
+void WorldSession::HandlePetAction(WorldPacket& recvData)
 {
     uint64 guid1;
     uint32 data;
@@ -403,7 +403,7 @@ void WorldSession::HandlePetActionHelper(Unit* pet, uint64 guid1, uint32 spellid
     }
 }
 
-void WorldSession::HandlePetNameQuery(WorldPacket & recvData)
+void WorldSession::HandlePetNameQuery(WorldPacket& recvData)
 {
     sLog->outInfo(LOG_FILTER_NETWORKIO, "HandlePetNameQuery. CMSG_PET_NAME_QUERY");
 
@@ -470,7 +470,7 @@ bool WorldSession::CheckStableMaster(uint64 guid)
     return true;
 }
 
-void WorldSession::HandlePetSetAction(WorldPacket & recvData)
+void WorldSession::HandlePetSetAction(WorldPacket& recvData)
 {
     sLog->outInfo(LOG_FILTER_NETWORKIO, "HandlePetSetAction. CMSG_PET_SET_ACTION");
 
@@ -587,7 +587,7 @@ void WorldSession::HandlePetSetAction(WorldPacket & recvData)
     }
 }
 
-void WorldSession::HandlePetRename(WorldPacket & recvData)
+void WorldSession::HandlePetRename(WorldPacket& recvData)
 {
     sLog->outInfo(LOG_FILTER_NETWORKIO, "HandlePetRename. CMSG_PET_RENAME");
 
@@ -672,7 +672,7 @@ void WorldSession::HandlePetRename(WorldPacket & recvData)
     pet->SetUInt32Value(UNIT_FIELD_PET_NAME_TIMESTAMP, uint32(time(NULL))); // cast can't be helped
 }
 
-void WorldSession::HandlePetAbandon(WorldPacket & recvData)
+void WorldSession::HandlePetAbandon(WorldPacket& recvData)
 {
     uint64 guid;
     recvData >> guid;                                      //pet guid
@@ -868,7 +868,7 @@ void WorldSession::HandlePetLearnTalent(WorldPacket& recvData)
     _player->SendTalentsInfoData(true);
 }
 
-void WorldSession::HandleLearnPreviewTalentsPet(WorldPacket & recvData)
+void WorldSession::HandleLearnPreviewTalentsPet(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_LEARN_PREVIEW_TALENTS_PET");
 

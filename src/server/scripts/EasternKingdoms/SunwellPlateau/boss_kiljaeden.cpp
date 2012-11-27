@@ -34,7 +34,7 @@ EndScriptData */
 enum Yells
 {
     SAY_KJ_OFFCOMBAT                            = 0,
-    
+
     SAY_KALECGOS_ENCOURAGE                      = 0,
     SAY_KALECGOS_READY1                         = 1,
     SAY_KALECGOS_READY2                         = 2,
