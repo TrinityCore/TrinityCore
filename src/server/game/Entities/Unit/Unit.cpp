@@ -6589,6 +6589,14 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
         {
             switch (dummySpell->Id)
             {
+                // Tidal Force
+                    case 55198:
+                    {
+                        // Remove aura stack from  caster
+                        RemoveAuraFromStack(55166);
+                        // drop charges
+                        return false;
+                    }
                 // Totemic Power (The Earthshatterer set)
                 case 28823:
                 {
