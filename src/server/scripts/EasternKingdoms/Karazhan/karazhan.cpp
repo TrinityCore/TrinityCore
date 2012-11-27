@@ -226,7 +226,6 @@ public:
 
             if (text)
                  CreatureAI::Talk(text);
-            
         }
 
         void PrepareEncounter()

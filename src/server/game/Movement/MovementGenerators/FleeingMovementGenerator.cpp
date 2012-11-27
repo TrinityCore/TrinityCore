@@ -355,7 +355,7 @@ void FleeingMovementGenerator<T>::DoReset(T &owner)
 }
 
 template<class T>
-bool FleeingMovementGenerator<T>::DoUpdate(T &owner, const uint32 &time_diff)
+bool FleeingMovementGenerator<T>::DoUpdate(T &owner, uint32 time_diff)
 {
     if (!&owner || !owner.isAlive())
         return false;
@@ -382,8 +382,8 @@ template void FleeingMovementGenerator<Player>::_setTargetLocation(Player &);
 template void FleeingMovementGenerator<Creature>::_setTargetLocation(Creature &);
 template void FleeingMovementGenerator<Player>::DoReset(Player &);
 template void FleeingMovementGenerator<Creature>::DoReset(Creature &);
-template bool FleeingMovementGenerator<Player>::DoUpdate(Player &, const uint32 &);
-template bool FleeingMovementGenerator<Creature>::DoUpdate(Creature &, const uint32 &);
+template bool FleeingMovementGenerator<Player>::DoUpdate(Player &, uint32);
+template bool FleeingMovementGenerator<Creature>::DoUpdate(Creature &, uint32);
 
 void TimedFleeingMovementGenerator::Finalize(Unit &owner)
 {
@@ -399,7 +399,7 @@ void TimedFleeingMovementGenerator::Finalize(Unit &owner)
     }
 }
 
-bool TimedFleeingMovementGenerator::Update(Unit & owner, const uint32& time_diff)
+bool TimedFleeingMovementGenerator::Update(Unit & owner, uint32 time_diff)
 {
     if (!owner.isAlive())
         return false;
@@ -414,7 +414,7 @@ bool TimedFleeingMovementGenerator::Update(Unit & owner, const uint32& time_diff
     if (i_totalFleeTime.Passed())
         return false;
 
-    // This calls grant-parent Update method hiden by FleeingMovementGenerator::Update(Creature &, const uint32 &) version
+    // This calls grant-parent Update method hiden by FleeingMovementGenerator::Update(Creature &, uint32) version
     // This is done instead of casting Unit& to Creature& and call parent method, then we can use Unit directly
     return MovementGeneratorMedium< Creature, FleeingMovementGenerator<Creature> >::Update(owner, time_diff);
 }
