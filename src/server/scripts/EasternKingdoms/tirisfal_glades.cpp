@@ -128,7 +128,7 @@ public:
                 switch (m_uiPhase)
                 {
                     case 1:
-                        DoScriptText(SAY_COMPLETE, me);
+                        Talk(SAY_COMPLETE);
                         ++m_uiPhase;
                         break;
                     case 2:
