@@ -27,7 +27,7 @@ namespace Movement
 
     /// Velocity bounds that makes fall speed limited
     float terminalVelocity = 60.148003f;
-    float terminalSafefallVelocity = 7.f;
+    float terminalSafefallVelocity = 7.0f;
 
     const float terminal_length = float(terminalVelocity * terminalVelocity) / (2.0f * gravity);
     const float terminal_safefall_length = (terminalSafefallVelocity * terminalSafefallVelocity) / (2.0f * gravity);

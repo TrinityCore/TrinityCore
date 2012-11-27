@@ -26,11 +26,6 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "Player.h"
 
-enum eSay
-{
-    SAY_HI  = -1999925
-};
-
 class AT_example_areatrigger : public AreaTriggerScript
 {
     public:
@@ -42,7 +37,7 @@ class AT_example_areatrigger : public AreaTriggerScript
 
         bool OnTrigger(Player* player, AreaTriggerEntry const* /*trigger*/)
         {
-            DoScriptText(SAY_HI, player);
+            player->Kill(player);
             return true;
         }
 };

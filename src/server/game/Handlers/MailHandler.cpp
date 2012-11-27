@@ -343,7 +343,7 @@ void WorldSession::HandleSendMail(WorldPacket& recvData)
 }
 
 //called when mail is read
-void WorldSession::HandleMailMarkAsRead(WorldPacket & recvData)
+void WorldSession::HandleMailMarkAsRead(WorldPacket& recvData)
 {
     uint64 mailbox;
     uint32 mailId;
@@ -366,7 +366,7 @@ void WorldSession::HandleMailMarkAsRead(WorldPacket & recvData)
 }
 
 //called when client deletes mail
-void WorldSession::HandleMailDelete(WorldPacket & recvData)
+void WorldSession::HandleMailDelete(WorldPacket& recvData)
 {
     uint64 mailbox;
     uint32 mailId;
@@ -394,7 +394,7 @@ void WorldSession::HandleMailDelete(WorldPacket & recvData)
     player->SendMailResult(mailId, MAIL_DELETED, MAIL_OK);
 }
 
-void WorldSession::HandleMailReturnToSender(WorldPacket & recvData)
+void WorldSession::HandleMailReturnToSender(WorldPacket& recvData)
 {
     uint64 mailbox;
     uint32 mailId;

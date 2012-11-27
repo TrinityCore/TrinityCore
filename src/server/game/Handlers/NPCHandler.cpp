@@ -48,7 +48,7 @@ enum StableResultCode
     STABLE_ERR_EXOTIC       = 0x0C                          // "you are unable to control exotic creatures"
 };
 
-void WorldSession::HandleTabardVendorActivateOpcode(WorldPacket & recvData)
+void WorldSession::HandleTabardVendorActivateOpcode(WorldPacket& recvData)
 {
     uint64 guid;
     recvData >> guid;
@@ -103,7 +103,7 @@ void WorldSession::SendShowBank(uint64 guid)
     SendPacket(&data);
 }
 
-void WorldSession::HandleTrainerListOpcode(WorldPacket & recvData)
+void WorldSession::HandleTrainerListOpcode(WorldPacket& recvData)
 {
     uint64 guid;
 
@@ -322,7 +322,7 @@ void WorldSession::SendTrainerBuyFailed(uint64 guid, uint32 spellId, uint32 reas
     SendPacket(&data);
 }
 
-void WorldSession::HandleGossipHelloOpcode(WorldPacket & recvData)
+void WorldSession::HandleGossipHelloOpcode(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GOSSIP_HELLO");
 
@@ -369,7 +369,7 @@ void WorldSession::HandleGossipHelloOpcode(WorldPacket & recvData)
     unit->AI()->sGossipHello(_player);
 }
 
-/*void WorldSession::HandleGossipSelectOptionOpcode(WorldPacket & recvData)
+/*void WorldSession::HandleGossipSelectOptionOpcode(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_PACKETIO, "WORLD: CMSG_GOSSIP_SELECT_OPTION");
 
@@ -410,7 +410,7 @@ void WorldSession::HandleGossipHelloOpcode(WorldPacket & recvData)
     }
 }*/
 
-void WorldSession::HandleSpiritHealerActivateOpcode(WorldPacket & recvData)
+void WorldSession::HandleSpiritHealerActivateOpcode(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_SPIRIT_HEALER_ACTIVATE");
 
@@ -522,7 +522,7 @@ void WorldSession::SendBindPoint(Creature* npc)
     _player->PlayerTalkClass->SendCloseGossip();
 }
 
-void WorldSession::HandleListStabledPetsOpcode(WorldPacket & recvData)
+void WorldSession::HandleListStabledPetsOpcode(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recv MSG_LIST_STABLED_PETS");
     uint64 npcGUID;
@@ -616,7 +616,7 @@ void WorldSession::SendStableResult(uint8 res)
     SendPacket(&data);
 }
 
-void WorldSession::HandleStablePet(WorldPacket & recvData)
+void WorldSession::HandleStablePet(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recv CMSG_STABLE_PET");
     uint64 npcGUID;
@@ -691,7 +691,7 @@ void WorldSession::HandleStablePetCallback(PreparedQueryResult result)
         SendStableResult(STABLE_ERR_STABLE);
 }
 
-void WorldSession::HandleUnstablePet(WorldPacket & recvData)
+void WorldSession::HandleUnstablePet(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recv CMSG_UNSTABLE_PET.");
     uint64 npcGUID;
@@ -772,7 +772,7 @@ void WorldSession::HandleUnstablePetCallback(PreparedQueryResult result, uint32 
     SendStableResult(STABLE_SUCCESS_UNSTABLE);
 }
 
-void WorldSession::HandleBuyStableSlot(WorldPacket & recvData)
+void WorldSession::HandleBuyStableSlot(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recv CMSG_BUY_STABLE_SLOT.");
     uint64 npcGUID;
@@ -810,7 +810,7 @@ void WorldSession::HandleStableRevivePet(WorldPacket &/* recvData */)
     sLog->outDebug(LOG_FILTER_NETWORKIO, "HandleStableRevivePet: Not implemented");
 }
 
-void WorldSession::HandleStableSwapPet(WorldPacket & recvData)
+void WorldSession::HandleStableSwapPet(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recv CMSG_STABLE_SWAP_PET.");
     uint64 npcGUID;

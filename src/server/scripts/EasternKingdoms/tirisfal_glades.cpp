@@ -16,21 +16,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: Tirisfal_Glades
-SD%Complete: 0
-SDComment:
-SDCategory: Tirisfal Glades
-EndScriptData */
-
-/* ContentData
-EndContentData */
-
-#include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "Player.h"
-
-
 void AddSC_tirisfal_glades()
 {
 }

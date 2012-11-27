@@ -538,10 +538,15 @@ float SpellEffectInfo::CalcRadius(Unit* caster, Spell* spell) const
 {
     if (!HasRadius())
         return 0.0f;
-    //TODO: FIX radius value
-    float radius = RadiusEntry->ID;
-    if (Player* modOwner = (caster ? caster->GetSpellModOwner() : NULL))
-        modOwner->ApplySpellMod(_spellInfo->Id, SPELLMOD_RADIUS, radius, spell);
+
+    float radius = RadiusEntry->RadiusMin;
+    if (caster)
+    {
+        radius += RadiusEntry->RadiusPerLevel * caster->getLevel();
+        radius = std::min(radius, RadiusEntry->RadiusMax);
+        if (Player* modOwner = caster->GetSpellModOwner())
+            modOwner->ApplySpellMod(_spellInfo->Id, SPELLMOD_RADIUS, radius, spell);
+    }
 
     return radius;
 }

@@ -16,23 +16,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: Ungoro Crater
-SD%Complete: 0
-SDComment: Support for Quest:
-SDCategory: Ungoro Crater
-EndScriptData */
-
-/* ContentData
-EndContentData */
-
-#include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "ScriptedEscortAI.h"
-#include "ScriptedFollowerAI.h"
-#include "Player.h"
-#include "SpellInfo.h"
-
 void AddSC_ungoro_crater()
 {
 }

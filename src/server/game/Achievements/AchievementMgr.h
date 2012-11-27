@@ -71,7 +71,6 @@ enum AchievementCriteriaDataType
 
 #define MAX_ACHIEVEMENT_CRITERIA_DATA_TYPE               22 // maximum value in AchievementCriteriaDataType enum
 
-
 struct AchievementCriteriaData
 {
     AchievementCriteriaDataType dataType;
@@ -175,7 +174,7 @@ struct AchievementCriteriaData
     }
 
     bool IsValid(AchievementCriteriaEntry const* criteria);
-    bool Meets(uint32 criteria_id, Player const* source, Unit const* target, uint32 miscvalue1 = 0) const;
+    bool Meets(uint32 criteria_id, Player const* source, Unit const* target, uint32 miscValue1 = 0) const;
 };
 
 struct AchievementCriteriaDataSet
@@ -183,7 +182,7 @@ struct AchievementCriteriaDataSet
         AchievementCriteriaDataSet() : criteria_id(0) {}
         typedef std::vector<AchievementCriteriaData> Storage;
         void Add(AchievementCriteriaData const& data) { storage.push_back(data); }
-        bool Meets(Player const* source, Unit const* target, uint32 miscvalue = 0) const;
+        bool Meets(Player const* source, Unit const* target, uint32 miscValue = 0) const;
         void SetCriteriaId(uint32 id) {criteria_id = id;}
     private:
         uint32 criteria_id;

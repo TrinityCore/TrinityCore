@@ -62,7 +62,7 @@ void WorldSession::HandleSplitItemOpcode(WorldPacket& recvData)
     _player->SplitItem(src, dst, count);
 }
 
-void WorldSession::HandleSwapInvItemOpcode(WorldPacket & recvData)
+void WorldSession::HandleSwapInvItemOpcode(WorldPacket& recvData)
 {
     //sLog->outDebug(LOG_FILTER_PACKETIO, "WORLD: CMSG_SWAP_INV_ITEM");
     uint8 srcslot, dstslot;
@@ -141,7 +141,7 @@ void WorldSession::HandleSwapItem(WorldPacket& recvData)
     _player->SwapItem(src, dst);
 }
 
-void WorldSession::HandleAutoEquipItemOpcode(WorldPacket & recvData)
+void WorldSession::HandleAutoEquipItemOpcode(WorldPacket& recvData)
 {
     //sLog->outDebug(LOG_FILTER_PACKETIO, "WORLD: CMSG_AUTOEQUIP_ITEM");
     uint8 srcbag, srcslot;
@@ -235,7 +235,7 @@ void WorldSession::HandleAutoEquipItemOpcode(WorldPacket & recvData)
     }
 }
 
-void WorldSession::HandleDestroyItemOpcode(WorldPacket & recvData)
+void WorldSession::HandleDestroyItemOpcode(WorldPacket& recvData)
 {
     //sLog->outDebug(LOG_FILTER_PACKETIO, "WORLD: CMSG_DESTROY_ITEM");
     uint8 bag, slot, count, data1, data2, data3;
@@ -473,7 +473,7 @@ void WorldSession::HandleReadItem(WorldPacket& recvData)
         _player->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, NULL, NULL);
 }
 
-void WorldSession::HandleSellItemOpcode(WorldPacket & recvData)
+void WorldSession::HandleSellItemOpcode(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_SELL_ITEM");
     uint64 vendorguid, itemguid;
@@ -635,7 +635,7 @@ void WorldSession::HandleBuybackItem(WorldPacket& recvData)
         _player->SendBuyError(BUY_ERR_CANT_FIND_ITEM, creature, 0, 0);
 }
 
-void WorldSession::HandleBuyItemInSlotOpcode(WorldPacket & recvData)
+void WorldSession::HandleBuyItemInSlotOpcode(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_BUY_ITEM_IN_SLOT");
     uint64 vendorguid, bagguid;
@@ -702,7 +702,7 @@ void WorldSession::HandleBuyItemOpcode(WorldPacket& recvData)
         sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: received wrong itemType (%u) in HandleBuyItemOpcode", itemType);
 }
 
-void WorldSession::HandleListInventoryOpcode(WorldPacket & recvData)
+void WorldSession::HandleListInventoryOpcode(WorldPacket& recvData)
 {
     uint64 guid;
 
@@ -1449,7 +1449,7 @@ void WorldSession::HandleItemRefund(WorldPacket &recvData)
  *
  * This function is called when player clicks on item which has some flag set
  */
-void WorldSession::HandleItemTextQuery(WorldPacket & recvData )
+void WorldSession::HandleItemTextQuery(WorldPacket& recvData )
 {
     uint64 itemGuid;
     recvData >> itemGuid;

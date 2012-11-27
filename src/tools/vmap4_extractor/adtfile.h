@@ -109,6 +109,11 @@ struct MapChunkHeader
 
 class ADTFile
 {
+private:
+    //size_t mcnk_offsets[256], mcnk_sizes[256];
+    MPQFile ADT;
+    //mcell Mcell;
+    string Adtfilename;
 public:
     ADTFile(char* filename);
     ~ADTFile();
@@ -126,11 +131,6 @@ public:
         return Mcell;
     }
 */
-private:
-    //size_t mcnk_offsets[256], mcnk_sizes[256];
-    MPQFile ADT;
-    //mcell Mcell;
-    string Adtfilename;
 };
 
 const char * GetPlainName(const char * FileName);
