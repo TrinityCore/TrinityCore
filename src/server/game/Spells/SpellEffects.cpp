@@ -495,6 +495,18 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
             }
             case SPELLFAMILY_WARLOCK:
             {
+                // Rain of Fire
+                if (m_spellInfo->Id == 42223)
+                {
+                    sLog->outDetail("Aftermath handling");
+                    if(m_caster->HasAura(85113)) // Aftermath Rank 1
+                        if (roll_chance_f(6.0f))
+                            m_caster->CastSpell(unitTarget, 85387, true);
+
+                    if(m_caster->HasAura(85114)) // Aftermath Rank 2
+                        if (roll_chance_f(12.0f))
+                            m_caster->CastSpell(unitTarget, 85387, true);
+                }
                 // Incinerate Rank 1 & 2
                 if ((m_spellInfo->SpellFamilyFlags[1] & 0x000040) && m_spellInfo->SpellIconID == 2128)
                 {
@@ -899,9 +911,23 @@ void Spell::EffectTriggerSpell(SpellEffIndex effIndex)
         // special cases
         switch (triggered_spell_id)
         {
+		   case 35009: // Invisible
+		   m_caster->CombatStop();
+		      return;
+
+          case 62196: // Shadow. Trigger
+             m_caster->CombatStop();
+                return;
+
+          case 58984: // Shadowmeld
+             m_caster->CombatStop();
+                return;
+
             // Vanish (not exist)
             case 18461:
             {
+			    m_caster->AttackStop();
+                m_caster->CombatStop();
                 unitTarget->RemoveMovementImpairingAuras();
                 unitTarget->RemoveAurasByType(SPELL_AURA_MOD_STALKED);
 
