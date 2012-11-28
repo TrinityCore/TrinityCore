@@ -11,6 +11,7 @@
 #                                                                                          #
 ############################################################################################
 
+[96] --> Fix Isle of Conquest - Teleports.
 [95] --> Fix Halion.
 [94] --> Fix Normal and Glyph of Eternal Water - Water Elemental.
 [93] --> Fix Quests Argent Tournament.
