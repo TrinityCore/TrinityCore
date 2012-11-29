@@ -11143,6 +11143,12 @@ void Unit::SetInCombatState(bool PvP, Unit* enemy)
             Dismount();
     }
 
+	    if (GetTypeId() == TYPEID_PLAYER && ToPlayer()->getRace() == RACE_WORGEN && HasAura(94293))
+    {
+        ToPlayer()->setInWorgenForm(UNIT_FLAG2_WORGEN_TRANSFORM3);
+    }
+
+
     for (Unit::ControlList::iterator itr = m_Controlled.begin(); itr != m_Controlled.end(); ++itr)
     {
         (*itr)->SetInCombatState(PvP, enemy);
@@ -15905,44 +15911,14 @@ void Unit::ApplyResilience(Unit const* victim, float* crit, int32* damage, bool 
     if (!target)
         return;
 
-    switch (type)
+    if (source && damage)
     {
-        case CR_CRIT_TAKEN_MELEE:
-            // Crit chance reduction works against nonpets
-            if (crit)
-                *crit -= target->GetMeleeCritChanceReduction();
-            if (source && damage)
-            {
-                if (isCrit)
-                    *damage -= target->GetMeleeCritDamageReduction(*damage);
-                *damage -= target->GetMeleeDamageReduction(*damage);
-            }
-            break;
-        case CR_CRIT_TAKEN_RANGED:
-            // Crit chance reduction works against nonpets
-            if (crit)
-                *crit -= target->GetRangedCritChanceReduction();
-            if (source && damage)
-            {
-                if (isCrit)
-                    *damage -= target->GetRangedCritDamageReduction(*damage);
-                *damage -= target->GetRangedDamageReduction(*damage);
-            }
-            break;
-        case CR_CRIT_TAKEN_SPELL:
-            // Crit chance reduction works against nonpets
-            if (crit)
-                *crit -= target->GetSpellCritChanceReduction();
-            if (source && damage)
-            {
-                if (isCrit)
-                    *damage -= target->GetSpellCritDamageReduction(*damage);
-                *damage -= target->GetSpellDamageReduction(*damage);
-            }
-            break;
-        default:
-            break;
+       *damage -= target->ToPlayer()->GetPlayerDamageReduction(*damage);
+		  if (isCrit)
+            *damage -= target->ToPlayer()->GetPlayerCritDamageReduction(*damage);
     }
+
+          
 }
 
 // Melee based spells can be miss, parry or dodge on this step

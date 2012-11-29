@@ -3372,6 +3372,12 @@ void Spell::EffectWeaponDmg(SpellEffIndex effIndex)
         {
             switch (m_spellInfo->Id)
             {
+                case 68996:                                 // Two forms (worgen transformation spell)
+                {
+                    if (m_caster->GetTypeId() == TYPEID_PLAYER && !m_caster->isInCombat())
+                        m_caster->ToPlayer()->toggleWorgenForm();
+                    return;
+                }
                 case 69055:     // Saber Lash
                 case 70814:     // Saber Lash
                 {
@@ -3890,7 +3896,7 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
                     {
                         AuraEffect const* aurEff = *i;
                     // search DoT
-                        if (m_spellInfo->SpellFamilyName == SPELLFAMILY_WARLOCK && m_spellInfo->Id == 348 | 30108 &&
+                        if (m_spellInfo->SpellFamilyName == SPELLFAMILY_WARLOCK && m_spellInfo->Id == 348 &&
                             aurEff->GetCasterGUID() == m_caster->GetGUID())
                     {
                         uint32 countMin = aurEff->GetBase()->GetMaxDuration();

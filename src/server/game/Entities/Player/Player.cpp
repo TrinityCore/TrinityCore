@@ -6789,6 +6789,43 @@ void Player::SendMovieStart(uint32 MovieId)
     SendDirectMessage(&data);
 }
 
+bool Player::isInWorgenForm()
+{
+    return GetUInt32Value(UNIT_FIELD_FLAGS_2) & IN_WORGEN_FORM ? true : false;
+}
+
+void Player::setInHumanForm()
+{
+    if (isInCombat())
+        return;
+
+    uint32 newFlag = GetUInt32Value(UNIT_FIELD_FLAGS_2) & ~IN_WORGEN_FORM;
+    SetUInt32Value(UNIT_FIELD_FLAGS_2, newFlag);
+    m_ExtraFlags &= ~PLAYER_EXTRA_WORGEN_FORM;
+}
+
+void Player::setInWorgenForm(uint32 form)
+{
+    if (isInWorgenForm())
+        return;
+    SetFlag(UNIT_FIELD_FLAGS_2, form);
+    m_ExtraFlags |= PLAYER_EXTRA_WORGEN_FORM;
+}
+
+bool Player::toggleWorgenForm(uint32 form)
+{
+    if (isInWorgenForm())
+    {
+        setInHumanForm();
+        return false;
+    }
+    else
+    {
+        setInWorgenForm(form);
+        return true;
+    }
+}
+
 void Player::CheckAreaExploreAndOutdoor()
 {
     if (!isAlive())

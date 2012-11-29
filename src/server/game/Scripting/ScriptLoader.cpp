@@ -248,6 +248,7 @@ void AddSC_duskwood();
 void AddSC_eastern_plaguelands();
 void AddSC_eversong_woods();
 void AddSC_ghostlands();
+void AddSC_gilneas();
 void AddSC_hinterlands();
 void AddSC_ironforge();
 void AddSC_isle_of_queldanas();
@@ -871,6 +872,7 @@ void AddEasternKingdomsScripts()
     AddSC_eastern_plaguelands();
     AddSC_eversong_woods();
     AddSC_ghostlands();
+    AddSC_gilneas();
     AddSC_hinterlands();
     AddSC_ironforge();
     AddSC_isle_of_queldanas();

@@ -606,6 +606,8 @@ enum PlayerExtraFlags
 
     // other states
     PLAYER_EXTRA_PVP_DEATH          = 0x0100                // store PvP death status until corpse creating.
+    PLAYER_EXTRA_PVP_DEATH          = 0x0100,                // store PvP death status until corpse creating.
+    PLAYER_EXTRA_WORGEN_FORM        = 0x0200                // Player is in worgen form.
 };
 
 // 2^n values
@@ -2576,6 +2578,14 @@ class Player : public Unit, public GridObject<Player>
 
         void SendCinematicStart(uint32 CinematicSequenceId);
         void SendMovieStart(uint32 MovieId);
+
+		void SendClearFocus(Unit* target);
+ 
+        //Worgen Transformations
+        bool isInWorgenForm();
+        void setInHumanForm();
+        void setInWorgenForm(uint32 form = UNIT_FLAG2_WORGEN_TRANSFORM);
+        bool toggleWorgenForm(uint32 form = UNIT_FLAG2_WORGEN_TRANSFORM);
 
         /*********************************************************/
         /***                 INSTANCE SYSTEM                   ***/

@@ -200,6 +200,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleForceReaction,                             //139 SPELL_AURA_FORCE_REACTION
     &AuraEffect::HandleAuraModRangedHaste,                        //140 SPELL_AURA_MOD_RANGED_HASTE
     &AuraEffect::HandleUnused,                                    //141 SPELL_AURA_141
+	&AuraEffect::HandleAuraSwapSpells,                            //371 For Cataclysm 
     &AuraEffect::HandleAuraModBaseResistancePCT,                  //142 SPELL_AURA_MOD_BASE_RESISTANCE_PCT
     &AuraEffect::HandleAuraModResistanceExclusive,                //143 SPELL_AURA_MOD_RESISTANCE_EXCLUSIVE
     &AuraEffect::HandleNoImmediateEffect,                         //144 SPELL_AURA_SAFE_FALL                         implemented in WorldSession::HandleMovementOpcodes
@@ -429,7 +430,6 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleUnused,                                    //368 unused (4.3.4)
     &AuraEffect::HandleNULL,                                      //369 SPELL_AURA_ENABLE_POWER_BAR_TIMER
     &AuraEffect::HandleNULL,                                      //370 SPELL_AURA_SET_FAIR_FAR_CLIP
-	&AuraEffect::HandleAuraSwapSpells                            //371 For Cataclysm 
 };
 
 AuraEffect::AuraEffect(Aura* base, uint8 effIndex, int32 *baseAmount, Unit* caster):
@@ -3065,6 +3065,20 @@ void AuraEffect::HandleAuraModRoot(AuraApplication const* aurApp, uint8 mode, bo
     Unit* target = aurApp->GetTarget();
 
     target->SetControlled(apply, UNIT_STATE_ROOT);
+	if (apply)
+    {
+        switch (GetSpellInfo()->Id)
+        {
+            case 69001: //Transform: Worgen. not used?
+            {
+                if (target->GetTypeId() == TYPEID_PLAYER)
+                    target->ToPlayer()->setInWorgenForm();
+                break;
+            }
+            default:
+                break;
+        }
+    }
 }
 
 void AuraEffect::HandlePreventFleeing(AuraApplication const* aurApp, uint8 mode, bool apply) const
@@ -5563,7 +5577,7 @@ void AuraEffect::HandleAuraSwapSpells(AuraApplication const * aurApp, uint8 mode
 
         SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(itr->first);
 
-        if (!IsAffectedBySpell(spellInfo))
+        if (!IsAffectedBySpellMod(spellInfo))
             continue;
 
         foundAny = true;

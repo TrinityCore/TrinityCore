@@ -1486,6 +1486,39 @@ class spell_q11010_q11102_q11023_q11008_check_fly_mount : public SpellScriptLoad
         }
 };
 
+class spell_worgen_last_stand_movie : public SpellScriptLoader
+{
+    public:
+        spell_worgen_last_stand_movie() : SpellScriptLoader("spell_worgen_last_stand_movie") { }
+
+        class spell_worgen_last_stand_movie_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_worgen_last_stand_movie_SpellScript);
+
+            void HandleScript(SpellEffIndex /*effIndex*/)
+            {
+                if (!(GetHitUnit() && GetHitUnit()->isAlive()))
+                    return;
+
+                if (GetHitUnit()->GetTypeId() == TYPEID_PLAYER)
+                {
+                    GetHitUnit()->ToPlayer()->SendMovieStart(21);
+                    GetHitUnit()->ToPlayer()->CastSpell(GetHitUnit(), 68996, true);
+                }
+            }
+
+            void Register()
+            {
+                OnEffectHit += SpellEffectFn(spell_worgen_last_stand_movie_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_worgen_last_stand_movie_SpellScript();
+        }
+};
+
 void AddSC_quest_spell_scripts()
 {
     new spell_q55_sacred_cleansing();
@@ -1522,4 +1555,5 @@ void AddSC_quest_spell_scripts()
     new spell_q11010_q11102_q11023_aggro_burst();
     new spell_q11010_q11102_q11023_choose_loc();
     new spell_q11010_q11102_q11023_q11008_check_fly_mount();
+	new spell_worgen_last_stand_movie();
 }

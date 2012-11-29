@@ -553,6 +553,8 @@ enum CombatRating
     CR_HIT_TAKEN_SPELL          = 13,
     CR_CRIT_TAKEN_MELEE         = 14,
     CR_CRIT_TAKEN_RANGED        = 15,
+	CR_RESILIENCE_CRIT_TAKEN    = 14,
+	CR_RESILIENCE_PLAYER_DAMAGE_TAKEN = 15,
     CR_CRIT_TAKEN_SPELL         = 16,
     CR_HASTE_MELEE              = 17,
     CR_HASTE_RANGED             = 18,
@@ -634,8 +636,13 @@ enum UnitFlags2
     UNIT_FLAG2_DISABLE_TURN                 = 0x00008000,
     UNIT_FLAG2_UNK2                         = 0x00010000,
     UNIT_FLAG2_PLAY_DEATH_ANIM              = 0x00020000,   // Plays special death animation upon death
-    UNIT_FLAG2_ALLOW_CHEAT_SPELLS           = 0x00040000    // Allows casting spells with AttributesEx7 & SPELL_ATTR7_IS_CHEAT_SPELL
+    UNIT_FLAG2_ALLOW_CHEAT_SPELLS           = 0x00040000,    // Allows casting spells with AttributesEx7 & SPELL_ATTR7_IS_CHEAT_SPELL
+    UNIT_FLAG2_WORGEN_TRANSFORM             = 0x00080000,   // transform to worgen
+    UNIT_FLAG2_WORGEN_TRANSFORM2            = 0x00100000,   // transform to worgen, less animation
+    UNIT_FLAG2_WORGEN_TRANSFORM3            = 0x00200000    // transform to worgen, less animation(why twice?)
 };
+
+#define IN_WORGEN_FORM (UNIT_FLAG2_WORGEN_TRANSFORM|UNIT_FLAG2_WORGEN_TRANSFORM2|UNIT_FLAG2_WORGEN_TRANSFORM3)
 
 /// Non Player Character flags
 enum NPCFlags
@@ -1454,11 +1461,13 @@ class Unit : public WorldObject
         uint32 GetMeleeCritDamageReduction(uint32 damage) const { return GetCombatRatingDamageReduction(CR_CRIT_TAKEN_MELEE, 2.2f, 33.0f, damage); }
         uint32 GetRangedCritDamageReduction(uint32 damage) const { return GetCombatRatingDamageReduction(CR_CRIT_TAKEN_RANGED, 2.2f, 33.0f, damage); }
         uint32 GetSpellCritDamageReduction(uint32 damage) const { return GetCombatRatingDamageReduction(CR_CRIT_TAKEN_SPELL, 2.2f, 33.0f, damage); }
+        uint32 GetPlayerCritDamageReduction(uint32 damage) const { return GetCombatRatingDamageReduction(CR_RESILIENCE_CRIT_TAKEN, 2.2f, 33.0f, damage); }
 
         // player or player's pet resilience (-1%), cap 100%
         uint32 GetMeleeDamageReduction(uint32 damage) const { return GetCombatRatingDamageReduction(CR_CRIT_TAKEN_MELEE, 2.0f, 100.0f, damage); }
         uint32 GetRangedDamageReduction(uint32 damage) const { return GetCombatRatingDamageReduction(CR_CRIT_TAKEN_RANGED, 2.0f, 100.0f, damage); }
         uint32 GetSpellDamageReduction(uint32 damage) const { return GetCombatRatingDamageReduction(CR_CRIT_TAKEN_SPELL, 2.0f, 100.0f, damage); }
+		uint32 GetPlayerDamageReduction(uint32 damage) const { return GetCombatRatingDamageReduction(CR_RESILIENCE_PLAYER_DAMAGE_TAKEN, 2.0f, 100.0f, damage); }
 
         void ApplyResilience(const Unit* victim, float * crit, int32 * damage, bool isCrit, CombatRating type) const;
 
