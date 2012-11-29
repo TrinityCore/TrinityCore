@@ -11,6 +11,7 @@
 #                                                                                          #
 ############################################################################################
 
+[98] --> Fix Sunwell Plateau. (Test!)
 [97] --> Fixed a crash with npc_boneguard_mounted script. (Thx fiveofeight)
 [96] --> Fix Isle of Conquest - Teleports.
 [95] --> Fix Halion.
