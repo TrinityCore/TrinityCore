@@ -13110,14 +13110,14 @@ int32 Unit::GetCreatePowers(Powers power) const
             return (GetTypeId() == TYPEID_PLAYER || !((Creature const*)this)->isPet() || ((Pet const*)this)->getPetType() != HUNTER_PET ? 0 : 100);
         case POWER_ENERGY:
             return 100;
+		case POWER_SOUL_SHARDS:
+           return 3;
         case POWER_RUNIC_POWER:
             return 1000;
         case POWER_RUNES:
             return 0;
         case POWER_HEALTH:
             return 0;
-	  case POWER_SOULSHARDS:
-            return (GetTypeId() == TYPEID_PLAYER && ToPlayer()->getClass() == CLASS_WARLOCK ? 3 : 0);
         case POWER_ECLIPSE:
             return (GetTypeId() == TYPEID_PLAYER && ToPlayer()->getClass() == CLASS_DRUID ? 100 : 0);
         case POWER_HOLY_POWER:

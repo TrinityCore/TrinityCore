@@ -759,14 +759,14 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
             {
                 std::list<Creature*> templist;
 
-                CellCoord pair(SkyFire::ComputeCellCoord(m_caster->GetPositionX(), m_caster->GetPositionY()));
+                CellCoord pair(Trinity::ComputeCellCoord(m_caster->GetPositionX(), m_caster->GetPositionY()));
                 Cell cell(pair);
                 cell.SetNoCreate();
 
                 Trinity::AllFriendlyCreaturesInGrid check(m_caster);
                 Trinity::CreatureListSearcher<Trinity::AllFriendlyCreaturesInGrid> searcher(m_caster, templist, check);
 
-                TypeContainerVisitor<SkyFire::CreatureListSearcher<Trinity::AllFriendlyCreaturesInGrid>, GridTypeMapContainer> cSearcher(searcher);
+                TypeContainerVisitor<Trinity::CreatureListSearcher<Trinity::AllFriendlyCreaturesInGrid>, GridTypeMapContainer> cSearcher(searcher);
 
                 cell.Visit(pair, cSearcher, *(m_caster->GetMap()), *m_caster, m_caster->GetGridActivationRange());
 
@@ -790,7 +790,7 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                             (*itr)->CastSpell((*itr), 92853, true);
                             (*itr)->DisappearAndDie();
                         }
-                    }
+					}
                     templist.clear();
             }
                         m_caster->CastSpell(unitTarget, 79061, true); // Mark of the Wild (Caster)
