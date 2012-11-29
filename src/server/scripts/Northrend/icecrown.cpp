@@ -1454,6 +1454,7 @@ public:
 
             switch (events.ExecuteEvent())
             {
+
                 case EVENT_BONEGUARD_SHIELD:
                     me->CastSpell(me, SPELL_DEFEND);
                     events.ScheduleEvent(EVENT_BONEGUARD_SHIELD, 7000);
@@ -1473,19 +1474,22 @@ public:
                     events.ScheduleEvent(EVENT_BONEGUARD_SHIELD_OOC, 50000);
                     break;
                 case EVENT_BONEGUARD_CHARGE:
-                    if (me->GetDistance(me->getVictim()) > 10.0f && me->GetDistance(me->getVictim()) <= 25.0f)
+                    if (UpdateVictim())
                     {
-                        DoCastVictim(SPELL_CHARGE_COMBAT);
-                        events.ScheduleEvent(EVENT_BONEGUARD_CHARGE, 10000);
-                    }
-                    else
-                    {
-                        // move away for charge...
-                        float angle = me->GetAngle(me->getVictim());
-                        float x = me->GetPositionX() + 20.0f * cos(angle);
-                        float y = me->GetPositionY() + 20.0f * sin(angle);
-                        me->GetMotionMaster()->MovePoint(0, x, y, me->GetPositionZ());
-                        bCharge = true;
+                        if (me->GetDistance(me->getVictim()) > 10.0f && me->GetDistance(me->getVictim()) <= 25.0f)
+                        {
+                            DoCastVictim(SPELL_CHARGE_COMBAT);
+                            events.ScheduleEvent(EVENT_BONEGUARD_CHARGE, 10000);
+                        }
+                        else
+                        {
+                            // move away for charge...
+                            float angle = me->GetAngle(me->getVictim());
+                            float x = me->GetPositionX() + 20.0f * cos(angle);
+                            float y = me->GetPositionY() + 20.0f * sin(angle);
+                            me->GetMotionMaster()->MovePoint(0, x, y, me->GetPositionZ());
+                            bCharge = true;
+                        }
                     }
                     break;
                 case EVENT_BONEGUARD_SHIELD_BREAKER:
@@ -1505,50 +1509,6 @@ public:
     {
         return new npc_boneguard_mountedAI(creature);
     }
-};
-
-
-enum TrampleScourge
-{
-    SPELL_TRAMPLE_TRIGGERED = 63001,
-    NPC_BONEGUARD_FOOTMAN   = 33438,
-};
-
-class spell_gen_trample_scourge : public SpellScriptLoader
-{
-    public:
-        spell_gen_trample_scourge() : SpellScriptLoader("spell_gen_trample_scourge") { }
-
-        class spell_gen_trample_scourge_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_gen_trample_scourge_AuraScript);
-
-            void HandlePeriodicTick(AuraEffect const* /*aurEff*/)
-            {
-                PreventDefaultAction();
-                Unit* caster = GetCaster();
-                std::list<Creature*> footmen;
-                GetCaster()->GetCreatureListWithEntryInGrid(footmen, NPC_BONEGUARD_FOOTMAN, 5.0f);
-                footmen.sort(Trinity::ObjectDistanceOrderPred(caster));
-                for (std::list<Creature*>::iterator itr = footmen.begin(); itr != footmen.end(); ++itr)
-                {
-                    Player* caster = GetCaster()->ToPlayer();
-                    Unit* bfootmen = (*itr);
-                    caster->CastSpell(bfootmen, SPELL_TRAMPLE_TRIGGERED, true);
-                }
-            }
-
-
-            void Register()
-            {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_gen_trample_scourge_AuraScript::HandlePeriodicTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_gen_trample_scourge_AuraScript();
-        }
 };
 
 // Battle for Crusaders' Pinnacle
@@ -1687,6 +1647,7 @@ public:
         }
 
         void UpdateAI(uint32 const diff)
+
         {
             events.Update(diff);
 
@@ -1922,6 +1883,50 @@ public:
         return new npc_blessed_bannerAI(creature);
     }
 };
+
+enum TrampleScourge
+{
+    SPELL_TRAMPLE_TRIGGERED = 63001,
+    NPC_BONEGUARD_FOOTMAN   = 33438,
+};
+
+class spell_gen_trample_scourge : public SpellScriptLoader
+{
+    public:
+        spell_gen_trample_scourge() : SpellScriptLoader("spell_gen_trample_scourge") { }
+
+        class spell_gen_trample_scourge_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_gen_trample_scourge_AuraScript);
+
+            void HandlePeriodicTick(AuraEffect const* /*aurEff*/)
+            {
+                PreventDefaultAction();
+                Unit* caster = GetCaster();
+                std::list<Creature*> footmen;
+                GetCaster()->GetCreatureListWithEntryInGrid(footmen, NPC_BONEGUARD_FOOTMAN, 5.0f);
+                footmen.sort(Trinity::ObjectDistanceOrderPred(caster));
+                for (std::list<Creature*>::iterator itr = footmen.begin(); itr != footmen.end(); ++itr)
+                {
+                    Player* caster = GetCaster()->ToPlayer();
+                    Unit* bfootmen = (*itr);
+                    caster->CastSpell(bfootmen, SPELL_TRAMPLE_TRIGGERED, true);
+                }
+            }
+
+
+            void Register()
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_gen_trample_scourge_AuraScript::HandlePeriodicTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_gen_trample_scourge_AuraScript();
+        }
+};
+
 
 void AddSC_icecrown()
 {
