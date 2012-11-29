@@ -3745,6 +3745,25 @@ void Spell::finish(bool ok)
     // Stop Attack for some spells
     if (m_spellInfo->Attributes & SPELL_ATTR0_STOP_ATTACK_TARGET)
         m_caster->AttackStop();
+
+	    switch (m_spellInfo->Id)
+		{
+		   case 30455: // Ice Lance
+           case 44572: // Deep Freeze
+                if (m_caster->HasAura(44544)) // Fingers of Frost
+                     m_caster->RemoveAuraFromStack(44544);
+                break;
+           case 2061: // Flash heal
+                if(m_caster->HasAura(88688)) // Surge of Light 	
+                m_caster->RemoveAura(88688);	
+                break;	
+            case 85673: // Word of Glory	
+            case 53600: // Shield of the Righteous	
+            case 85256: // Templar's Verdict
+            case 84963: // Inquisition	
+                m_caster->SetPower(POWER_HOLY_POWER, 0);
+                break;
+		}
 }
 
 void Spell::SendCastResult(SpellCastResult result)
@@ -4869,7 +4888,7 @@ SpellCastResult Spell::CheckCast(bool strict)
     {
         // skip stuck spell to allow use it in falling case and apply spell limitations at movement
         if ((!m_caster->HasUnitMovementFlag(MOVEMENTFLAG_FALLING_FAR) || m_spellInfo->Effects[0].Effect != SPELL_EFFECT_STUCK) &&
-            (IsAutoRepeat() || (m_spellInfo->AuraInterruptFlags & AURA_INTERRUPT_FLAG_NOT_SEATED) != 0) && m_caster->HasAuraTypeWithAffectMask(SPELL_AURA_CAST_WHILE_WALKING, m_spellInfo))
+            (IsAutoRepeat() || (m_spellInfo->AuraInterruptFlags & AURA_INTERRUPT_FLAG_NOT_SEATED) != 0) && !m_caster->HasAuraTypeWithAffectMask(SPELL_AURA_CAST_WHILE_WALKING, m_spellInfo))
             return SPELL_FAILED_MOVING;
     }
 

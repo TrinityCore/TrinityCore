@@ -429,6 +429,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleUnused,                                    //368 unused (4.3.4)
     &AuraEffect::HandleNULL,                                      //369 SPELL_AURA_ENABLE_POWER_BAR_TIMER
     &AuraEffect::HandleNULL,                                      //370 SPELL_AURA_SET_FAIR_FAR_CLIP
+	&AuraEffect::HandleAuraSwapSpells,                            //For Cataclysm
 };
 
 AuraEffect::AuraEffect(Aura* base, uint8 effIndex, int32 *baseAmount, Unit* caster):
@@ -1229,6 +1230,27 @@ void AuraEffect::PeriodicTick(AuraApplication * aurApp, Unit* caster) const
             break;
         case SPELL_AURA_PERIODIC_DAMAGE:
         case SPELL_AURA_PERIODIC_DAMAGE_PERCENT:
+			 			{
+ 			if (!caster)
+ 			break;
+ 
+ 			if (!target->isAlive())
+ 				return;
+ 
+ 			if (target->HasUnitState(UNIT_STATE_ISOLATED)) {
+ 				SendTickImmune(target, caster);
+ 			return;
+ 		}
+ 			// Dark Evangelism
+ 			if (target->HasAura(15407)) // Mind Flay
+ 			{
+ 				if (caster->HasAura(81659)) // Rank 1
+ 					caster->CastSpell(caster, 87117, true);
+ 				else if (caster->HasAura(81662)) // Rank 2
+ 					caster->CastSpell(caster, 87118, true);
+ 
+				m_caster->CastSpell(m_caster, 87154, true);
+ 			}
             HandlePeriodicDamageAurasTick(target, caster);
             break;
         case SPELL_AURA_PERIODIC_LEECH:
@@ -1253,6 +1275,10 @@ void AuraEffect::PeriodicTick(AuraApplication * aurApp, Unit* caster) const
         case SPELL_AURA_POWER_BURN:
             HandlePeriodicPowerBurnAuraTick(target, caster);
             break;
+	    case SPELL_AURA_DUMMY:
+             // Haunting Spirits
+             if (GetId() == 7057)
+                 target->CastSpell((Unit*)NULL, GetAmount(), true);
         default:
             break;
     }
@@ -4643,6 +4669,29 @@ void AuraEffect::HandleModDamagePercentDone(AuraApplication const* aurApp, uint8
     {
         // done in Player::_ApplyWeaponDependentAuraMods for SPELL_SCHOOL_MASK_NORMAL && EquippedItemClass != -1 and also for wand case
     }
+	// Magic damage percent modifiers implemented in Unit::SpellDamageBonus
+    // Send info to client
+    if (target->GetTypeId() == TYPEID_PLAYER)
+        for (int i = SPELL_SCHOOL_HOLY; i < MAX_SPELL_SCHOOL; ++i)
+            target->ApplyModSignedFloatValue(PLAYER_FIELD_MOD_DAMAGE_DONE_PCT+i,GetAmount()/100.0f,apply);
+     
+    if (GetSpellProto()->Id == 84963) //Inquisition
+    {
+        switch (GetBase()->GetUnitOwner()->GetPower(POWER_HOLY_POWER))
+        {
+            case 0: // 1HP
+                GetBase()->SetDuration(4000);
+                break;
+            case 1: // 2HP
+                GetBase()->SetDuration(8000);
+                break;
+            case 2: // 3HP
+                GetBase()->SetDuration(12000);
+                break;
+        }
+    target->SetPower(POWER_HOLY_POWER,0);
+     
+    }
 }
 
 void AuraEffect::HandleModOffhandDamagePercent(AuraApplication const* aurApp, uint8 mode, bool apply) const
@@ -5488,7 +5537,49 @@ void AuraEffect::HandleAuraOverrideSpells(AuraApplication const* aurApp, uint8 m
                     target->RemoveTemporarySpell(spellId);
     }
 }
+void AuraEffect::HandleAuraSwapSpells(AuraApplication const * aurApp, uint8 mode, bool apply) const
+{
+    if (!(mode & AURA_EFFECT_HANDLE_REAL))
+        return;
 
+    Player* target = aurApp->GetTarget()->ToPlayer();
+
+    if (!target)
+        return;
+
+    uint32 newSpellId = uint32(GetAmount());
+    bool foundAny = false;
+    PlayerSpellMap const& spells = target->GetSpellMap();
+
+    for (PlayerSpellMap::const_iterator itr = spells.begin(); itr != spells.end(); ++itr)
+    {
+        if (itr->second->state == PLAYERSPELL_REMOVED)
+            continue;
+
+        if (!itr->second->active || itr->second->disabled)
+            continue;
+
+        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(itr->first);
+
+        if (!IsAffectedOnSpell(spellInfo))
+            continue;
+
+        foundAny = true;
+
+        if (apply)
+            target->AddSpellSwap(itr->first, newSpellId);
+        else
+            target->RemoveSpellSwap(itr->first);
+    }
+
+    if (foundAny)
+    {
+        if (apply)
+            target->AddTemporarySpell(newSpellId);
+        else
+            target->RemoveTemporarySpell(newSpellId);
+    }
+}
 void AuraEffect::HandleAuraSetVehicle(AuraApplication const* aurApp, uint8 mode, bool apply) const
 {
     if (!(mode & AURA_EFFECT_HANDLE_REAL))

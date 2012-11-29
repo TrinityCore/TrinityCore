@@ -2977,6 +2977,42 @@ void SpellMgr::LoadDbcDataCorrections()
 {
     uint32 oldMSTime = getMSTime();
 
+	     switch (spellInfo->Id)
+        {
+			case 28176: // nether ward // fel armor // demon armor
+			case 687:
+				spellInfo->Effects[2].BasePoints = 91711;
+				break;
+            case 29576: // Multi-Shot
+            case 41303: // Soul Drain
+            case 54172: // Divine Storm (heal)
+            case 54171: // Divine Storm
+			case 82691: // Ring of frost
+                spellInfo->MaxAffectedTargets = 3;
+                break;
+            case 51466: // Elemental Oath (Rank 1)
+            case 51470: // Elemental Oath (Rank 2)
+                spellInfo->Effect[EFFECT_1] = SPELL_EFFECT_APPLY_AURA;
+                spellInfo->EffectApplyAuraName[EFFECT_1] = SPELL_AURA_ADD_FLAT_MODIFIER;
+                spellInfo->EffectMiscValue[EFFECT_1] = SPELLMOD_EFFECT2;
+                spellInfo->EffectSpellClassMask[EFFECT_1] = flag96(0x00000000, 0x00004000, 0x00000000);
+                break;
+		    case 87491:
+            case 87492:
+            case 87493:
+            case 86467:
+            case 87494:
+            case 87495:
+            case 87496:
+            case 87497:
+            case 87498:
+		    case 87500:
+			    spellInfo->Effects[0].Effect = NULL;
+			   break;
+		     default:
+	           break;
+		 }
+
     /*SpellEntry* spellInfo = NULL;
     for (uint32 i = 0; i < sSpellStore.GetNumRows(); ++i)
     {
@@ -3103,22 +3139,6 @@ void SpellMgr::LoadDbcDataCorrections()
             case 36384: // Skartax Purple Beam
                 spellInfo->MaxAffectedTargets = 2;
                 break;
-            case 41376: // Spite
-            case 39992: // Needle Spine
-            case 29576: // Multi-Shot
-            case 40816: // Saber Lash
-            case 37790: // Spread Shot
-            case 46771: // Flame Sear
-            case 45248: // Shadow Blades
-            case 41303: // Soul Drain
-            case 54172: // Divine Storm (heal)
-            case 29213: // Curse of the Plaguebringer - Noth
-            case 28542: // Life Drain - Sapphiron
-            case 66588: // Flaming Spear
-            case 54171: // Divine Storm
-			case 82691: // Ring of frost
-                spellInfo->MaxAffectedTargets = 3;
-                break;
             case 38310: // Multi-Shot
             case 53385: // Divine Storm (Damage)
                 spellInfo->MaxAffectedTargets = 4;
@@ -3192,22 +3212,6 @@ void SpellMgr::LoadDbcDataCorrections()
                 break;
             // Master Shapeshifter: missing stance data for forms other than bear - bear version has correct data
             // To prevent aura staying on target after talent unlearned
-            case 48420:
-                spellInfo->Stances = 1 << (FORM_CAT - 1);
-                break;
-            case 48421:
-                spellInfo->Stances = 1 << (FORM_MOONKIN - 1);
-                break;
-            case 48422:
-                spellInfo->Stances = 1 << (FORM_TREE - 1);
-                break;
-            case 51466: // Elemental Oath (Rank 1)
-            case 51470: // Elemental Oath (Rank 2)
-                spellInfo->Effect[EFFECT_1] = SPELL_EFFECT_APPLY_AURA;
-                spellInfo->EffectApplyAuraName[EFFECT_1] = SPELL_AURA_ADD_FLAT_MODIFIER;
-                spellInfo->EffectMiscValue[EFFECT_1] = SPELLMOD_EFFECT2;
-                spellInfo->EffectSpellClassMask[EFFECT_1] = flag96(0x00000000, 0x00004000, 0x00000000);
-                break;
             case 47569: // Improved Shadowform (Rank 1)
                 // with this spell atrribute aura can be stacked several times
                 spellInfo->Attributes &= ~SPELL_ATTR0_NOT_SHAPESHIFT;

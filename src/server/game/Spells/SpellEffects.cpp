@@ -552,6 +552,7 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
             {
 	  // Chakra
       // Solves the problem that a player has more than one chakra buff active at the same time
+				               //Dark Evangelism  not implemented yet
       if(m_spellInfo->Id == 14751 /*Chakra*/) {
 
         if(m_caster->HasAura(81208 /*Chakra: Serenity*/))
@@ -572,9 +573,83 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                     case 588:    // inner fire
                         m_caster->RemoveAurasDueToSpell(73413);
                          break;
+                
+
+				         // Shadow orbs
+                         if (m_caster->HasAura(77487))
+                         {
+                             uint8 stack = m_caster->GetAura(77487)->GetStackAmount();
+                             uint32 pct = stack * 10;
+ 
+                             // Mastery
+                             if (m_caster->HasAuraType(SPELL_AURA_MASTERY))
+                                 if (m_caster->ToPlayer()->GetTalentBranchSpec(m_caster->ToPlayer()->GetActiveSpec()) == BS_PRIEST_SHADOW)
+                                     pct += 1.5f * m_caster->ToPlayer()->GetMasteryPoints();
+ 
+                             AddPctN(damage, pct);
+                             m_caster->RemoveAurasDueToSpell(77487);
+                         }
+ 
+                         //Mind Melt Aura remove
+                         m_caster->RemoveAurasDueToSpell(87160);
+                         m_caster->RemoveAurasDueToSpell(81292);
+                         break;
+ 
+                     // Smite, Mind Spike
+                     case 585:
+                     case 73510:
+                         // Chakra: Chastise
+                         if (m_caster->HasAura(14751)) 
+                             m_caster->CastSpell(m_caster, 81209, true); 
+                      break;
+				 default;
+				      break;
+			 }
+				if (m_caster->HasAura(81659)) // Evangelism Rank 1
+                {
+                    if (m_spellInfo->Id == 585 || m_spellInfo->Id == 14914 || m_spellInfo->Id == 15407)  // Smite | Holy Fire | mind flay
+					{
+					    m_caster->CastSpell(m_caster, 81660, true);
+                        m_caster->CastSpell(m_caster, 87154, true);
+						m_caster->RemoveAurasDueToSpell(87118);
+						m_caster->RemoveAurasDueToSpell(87117);
+					}
                 }
 
-                if (m_spellInfo->Id == 589 || m_spellInfo->Id == 15407)  //Shadow Word: Pain | mind flay
+                if (m_caster->HasAura(81662)) // Evangelism Rank 2
+                {
+                    if (m_spellInfo->Id == 585 || m_spellInfo->Id == 14914 || m_spellInfo->Id == 15407)  // Smite | Holy Fire | mind flay
+					{
+                        m_caster->CastSpell(m_caster, 81661, true);
+						// Trigger to activate archangel
+						m_caster->CastSpell(m_caster, 87154, true);
+						m_caster->RemoveAurasDueToSpell(87118);
+						m_caster->RemoveAurasDueToSpell(87117);
+					}
+                }
+                if (m_spellInfo->Id == 87151)
+                 {
+                    // holy
+                    if (Aura* holy = m_caster->GetAura(81661))
+                     {
+                        int32 bp = holy->GetStackAmount() * 3;
+                        //Give mana
+                        m_caster->CastSpell(m_caster,87152,true);
+                        //Cast visual & mod healing
+                        m_caster->CastCustomSpell(m_caster, 81700,&bp,NULL,NULL, true);
+                         m_caster->RemoveAurasDueToSpell(81661);
+                     }
+                    // dark
+                    if (Aura* shadow = m_caster->GetAura(87118))
+                     {
+                        int32 bp = shadow->GetStackAmount() * 4;
+                        int32 bp_ = 5;
+                        m_caster->CastCustomSpell(m_caster, 87152, &bp_, NULL,NULL, true);
+                        m_caster->CastCustomSpell(m_caster, 87153,&bp,&bp,NULL, true);
+                         m_caster->RemoveAurasDueToSpell(87118);
+                     }
+                 }
+				if (m_spellInfo->Id == 589 || m_spellInfo->Id == 15407)  //Shadow Word: Pain | mind flay
                 {
                     if (m_caster->HasSpell(95740))   // Shadow Orbs
                     {
@@ -589,18 +664,7 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                             m_caster->CastSpell(m_caster, 77487, true);
                     }
                 }
-
-                if (m_caster->HasAura(81659)) // Evangelism Rank 1
-                {
-                    if (m_spellInfo->Id == 585 || m_spellInfo->Id == 14914 || m_spellInfo->Id == 15407)  // Smite | Holy Fire | mind flay
-                        m_caster->CastSpell(m_caster, 81660, true);
-                }
-
-                if (m_caster->HasAura(81662)) // Evangelism Rank 2
-                {
-                    if (m_spellInfo->Id == 585 || m_spellInfo->Id == 14914 || m_spellInfo->Id == 15407)  // Smite | Holy Fire | mind flay
-                        m_caster->CastSpell(m_caster, 81661, true);
-                }
+				break;
                 // Improved Mind Blast (Mind Blast in shadow form bonus)
                 if (m_caster->GetShapeshiftForm() == FORM_SHADOW && (m_spellInfo->SpellFamilyFlags[0] & 0x00002000))
                 {
@@ -720,7 +784,7 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
 			case SPELLFAMILY_PALADIN:
             {
                 // Hammer of the Righteous
-                if (m_spellInfo->SpellFamilyFlags[1]&0x00040000)
+                if (m_spellInfo->SpellFamilyFlags[1] & 0x00040000)
                 {
                     // Add main hand dps * effect[2] amount
                     float average = (m_caster->GetFloatValue(UNIT_FIELD_MINDAMAGE) + m_caster->GetFloatValue(UNIT_FIELD_MAXDAMAGE)) / 2;
@@ -728,7 +792,24 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                     damage += count * int32(average * IN_MILLISECONDS) / m_caster->GetAttackTime(BASE_ATTACK);
                     break;
                 }
-                break;
+                
+                if (m_spellInfo->Id == 53600) //Shield of  Righteous
+                {
+                    switch(m_caster->GetPower(POWER_HOLY_POWER))
+                    {
+                        case 0:
+                            damage = int32(damage * 1.16f);
+                            break;
+                        case 1: 
+                            damage = int32((damage * 1.16f) * 3);
+                            break;
+                        case 2: 
+                            damage = int32((damage * 1.16f) * 6);
+                            break;
+                    }
+                }
+
+             break;
             }
             case SPELLFAMILY_DEATHKNIGHT:
             {
@@ -1409,6 +1490,17 @@ void Spell::EffectApplyAura(SpellEffIndex effIndex)
 
     if (!m_spellAura || !unitTarget)
         return;
+
+	    switch (m_spellAura->GetId())
+    {
+        case 38177:  // Blackwhelp Net
+            if (unitTarget->GetEntry() != 21387)
+                return;
+        case 85673:  // Word of Glory
+            if (!m_caster->HasAura(93466))
+                return;
+    }
+
     ASSERT(unitTarget == m_spellAura->GetOwner());
     m_spellAura->_ApplyEffectForTargets(effIndex);
 }
@@ -3357,8 +3449,110 @@ void Spell::EffectWeaponDmg(SpellEffIndex effIndex)
             // Kill Shot - bonus damage from Ranged Attack Power
             if (m_spellInfo->SpellFamilyFlags[1] & 0x800000)
                 spell_bonus += int32(0.45f * m_caster->GetTotalAttackPowerValue(RANGED_ATTACK));
+			// steady shot focus effect (it has its own skill for this)
+            if (m_spellInfo->SpellFamilyFlags[1] & 0x1)
+                m_caster->CastSpell(m_caster, 77443, true);
+
+            if (m_spellInfo->SpellFamilyFlags[2] & 0x20)
+                m_caster->CastSpell(m_caster, 51755, true);
             break;
         }
+		case SPELLFAMILY_MAGE:
+			{
+			     // Cone of Cold
+                if (m_spellInfo->SpellFamilyFlags[0] & SPELLFAMILYFLAG1_MAGE_CONEOFCOLD)
+                {
+                    if (m_caster->HasAura(11190)) // Improved Cone of Cold Rank 1
+                    {
+                        m_caster->CastCustomSpell(unitTarget, 83301, &bp, NULL, NULL, true, 0);
+                    }
+
+                    if (m_caster->HasAura(12489)) // Improved Cone of Cold Rank 2
+                    {
+                        m_caster->CastCustomSpell(unitTarget, 83302, &bp, NULL, NULL, true, 0);
+                    }
+                }
+			if (m_spellInfo->Id == 11129) //Combustion
+            {
+				//Dots na Targetu
+                int32 bp = 0;
+                Unit::AuraEffectList const &mPeriodic =    unitTarget->GetAuraEffectsByType(SPELL_AURA_PERIODIC_DAMAGE);
+                //periodicky DMG
+                for (Unit::AuraEffectList::const_iterator i = mPeriodic.begin(); i != mPeriodic.end(); ++i)                 
+                    if ((*i)->GetCasterGUID() == m_caster->GetGUID())
+                        bp += (*i)->GetAmount();             
+                m_caster->CastCustomSpell(unitTarget, 83853, &bp,NULL, NULL, true);
+            }
+                switch (m_spellInfo->Id)
+                {
+                case 1459: // Arcane Brilliance
+                    {
+                        if (m_caster->GetTypeId() == TYPEID_PLAYER)
+                        {
+                            std::list<Unit*> PartyMembers;
+                            m_caster->GetPartyMembers(PartyMembers);
+                            bool Continue = false;
+                            uint32 player = 0;
+                            for (std::list<Unit*>::iterator itr = PartyMembers.begin(); itr != PartyMembers.end(); ++itr) // If caster is in party with a player
+                            {
+                                ++player;
+                                if (Continue == false && player > 1)
+                                    Continue = true;
+                            }
+
+                            if (Continue == true)
+                                m_caster->CastSpell(unitTarget, 79058, true); // Arcane Brilliance (For all)
+                            else
+                                m_caster->CastSpell(unitTarget, 79057, true); // Arcane Brilliance (Only for caster)
+                        }
+                        break;
+                    }
+                case 42955: // Conjure Refreshment
+                    {
+                        if (m_caster->getLevel() > 33 && m_caster->getLevel() < 44)
+                            m_caster->CastSpell(m_caster, 92739, true);
+
+                        if (m_caster->getLevel() > 43 && m_caster->getLevel() < 54)
+                            m_caster->CastSpell(m_caster, 92799, true);
+
+                        if (m_caster->getLevel() > 53 && m_caster->getLevel() < 65)
+                            m_caster->CastSpell(m_caster, 92802, true);
+
+                        if (m_caster->getLevel() > 64 && m_caster->getLevel() < 74)
+                            m_caster->CastSpell(m_caster, 92805, true);
+
+                        if (m_caster->getLevel() > 73 && m_caster->getLevel() < 80)
+                            m_caster->CastSpell(m_caster, 74625, true);
+
+                        if (m_caster->getLevel() > 79 && m_caster->getLevel() < 85)
+                            m_caster->CastSpell(m_caster, 92822, true);
+
+                        if (m_caster->getLevel() == 85)
+                            m_caster->CastSpell(m_caster, 92727, true);
+                        break;
+                    }
+                case 43987: // Ritual of Refreshment
+                    {
+                        if (m_caster->GetTypeId() == TYPEID_PLAYER)
+                        {
+                            m_caster->ToPlayer()->RemoveSpellCooldown(74650, true); // Rank 1
+                            m_caster->ToPlayer()->RemoveSpellCooldown(92824, true); // Rank 2
+                            m_caster->ToPlayer()->RemoveSpellCooldown(92827, true); // Rank 3
+
+                            if (m_caster->getLevel() > 75 && m_caster->getLevel() < 80)
+                                m_caster->CastSpell(m_caster, 74650, true);
+
+                            if (m_caster->getLevel() > 80 && m_caster->getLevel() < 85)
+                                m_caster->CastSpell(m_caster, 92824, true);
+
+                            if (m_caster->getLevel() == 85)
+                                m_caster->CastSpell(m_caster, 92827, true);
+                        }
+                        break;
+                    }
+                }
+                break;
+            }
         case SPELLFAMILY_DEATHKNIGHT:
         {
             // Blood Strike

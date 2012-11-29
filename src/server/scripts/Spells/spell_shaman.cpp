@@ -40,6 +40,10 @@ enum ShamanSpells
     SHAMAN_SPELL_EARTH_GRASP               = 51483,
     EARTHBIND_TOTEM_SPELL_EARTHGRAB        = 64695,
 
+	//Totemic Wrath
+	SHAMAN_SPELL_TOTEMIC_WRATH             = 77746,
+	SHAMAN_SPELL_TOTEMIC_WRATH_BUFF        = 77747,
+
     // For Earthen Power
     SHAMAN_TOTEM_SPELL_EARTHBIND_TOTEM     = 6474,
     SHAMAN_TOTEM_SPELL_EARTHEN_POWER       = 59566,
@@ -544,6 +548,49 @@ class spell_sha_flame_shock : public SpellScriptLoader
         }
 };
 
+/// Totemic Wrath
+class spell_sha_totemic_wrath : public SpellScriptLoader
+{
+public:
+    spell_sha_totemic_wrath() : SpellScriptLoader("spell_sha_totemic_wrath") { }
+
+    class spell_sha_totemic_wrath_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_sha_totemic_wrath_AuraScript); 
+
+        bool Validate(SpellEntry const * /*spellEntry*/)
+        {
+            if (!sSpellStore.LookupEntry(SHAMAN_SPELL_TOTEMIC_WRATH)) 
+                return false;
+            if (!sSpellStore.LookupEntry(SHAMAN_SPELL_TOTEMIC_WRATH_BUFF))
+                return false;
+            return true;
+        }
+
+        void HandleEffectApply(AuraEffect const * aurEff, AuraEffectHandleModes /*mode*/)
+        {
+            Unit* target = GetTarget();
+            if(target->ToPlayer())
+                return; // just apply as dummy
+
+            // applied by a totem - cast the real aura if owner has the talent
+            if (Unit *caster = aurEff->GetBase()->GetCaster())
+                if (caster->GetAuraEffect(SPELL_AURA_DUMMY, SPELLFAMILY_GENERIC, 2019, 0))
+                    target->CastSpell(target, SHAMAN_SPELL_TOTEMIC_WRATH, true, NULL, aurEff);
+        }
+
+        void Register()
+        {
+            OnEffectApply += AuraEffectApplyFn(spell_sha_totemic_wrath_AuraScript::HandleEffectApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        }
+    };
+
+    AuraScript *GetAuraScript() const
+    {
+        return new spell_sha_totemic_wrath_AuraScript();
+    }
+};
+
 void AddSC_shaman_spell_scripts()
 {
     new spell_sha_fire_nova();
@@ -557,4 +604,5 @@ void AddSC_shaman_spell_scripts()
     new spell_sha_lava_lash();
     new spell_sha_chain_heal();
     new spell_sha_flame_shock();
+	new spell_sha_totemic_wrath();
 }

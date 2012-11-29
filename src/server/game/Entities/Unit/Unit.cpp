@@ -5853,17 +5853,51 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                     triggered_spell_id = 17941;
                     break;
                 }
-                // Soul Leech
-                case 30293:
-                case 30295:
-                {
-                    basepoints0 = CalculatePct(int32(damage), triggerAmount);
-                    target = this;
-                    triggered_spell_id = 30294;
-                    // Replenishment
-                    CastSpell(this, 57669, true, castItem, triggeredByAura);
-                    break;
-                }
+               // Soul Leech
+				case 30293:
+				case 30295:
+				case 30296:
+				{
+					// Improved Soul Leech
+					AuraEffectList const& SoulLeechAuras = GetAuraEffectsByType(SPELL_AURA_DUMMY);
+					for (Unit::AuraEffectList::const_iterator i =
+							SoulLeechAuras.begin(); i != SoulLeechAuras.end();
+							++i)
+					{
+						if ((*i)->GetId() == 54117 || (*i)->GetId() == 54118)
+						{
+							if ((*i)->GetEffIndex() != 0) continue;
+							basepoints0 = int32((*i)->GetAmount());
+							target = GetGuardianPet();
+							if (target)
+							{
+								// regen mana for pet
+								CastCustomSpell(target, 54607, &basepoints0,
+										NULL, NULL, true, castItem,
+										triggeredByAura);
+							}
+							// regen mana for caster
+							CastCustomSpell(this, 59117, &basepoints0, NULL,
+									NULL, true, castItem, triggeredByAura);
+							// Get second aura of spell for replenishment effect on party
+							if (AuraEffect const * aurEff = (*i)->GetBase()->GetEffect(1))
+							{
+								// Replenishment - roll chance
+								if (roll_chance_i(aurEff->GetAmount()))
+								{
+									CastSpell(this, 57669, true, castItem,
+											triggeredByAura);
+								}
+							}
+							break;
+						}
+					}
+					// health
+					basepoints0 = int32(GetHealth() * triggerAmount / 100);
+					target = this;
+					triggered_spell_id = 30294;
+					break;
+				}
                 // Shadowflame (Voidheart Raiment set bonus)
                 case 37377:
                 {
@@ -7636,6 +7670,31 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
                     basepoints0 += victim->GetRemainingPeriodicAmount(GetGUID(), trigger_spell_id, SPELL_AURA_PERIODIC_DAMAGE);
                     break;
                 }
+				if (auraSpellInfo->SpellIconID == 2225)     // Serpent Spread
+				{
+					if ( !(auraSpellInfo->ProcFlags == 0x1140) )
+						return false;
+
+					switch (auraSpellInfo->Id)
+					{
+					case 87934:     trigger_spell_id = 88453; break;
+					case 87935:     trigger_spell_id = 88466; break;
+					default:
+						return false;
+					}
+					break;
+				}
+				if (auraSpellInfo->Id == 82661)       // Aspect of the Fox: Focus bonus
+				{
+					if ( !((auraSpellInfo->ProcFlags & PROC_FLAG_TAKEN_MELEE_AUTO_ATTACK) || (auraSpellInfo->ProcFlags & PROC_FLAG_TAKEN_SPELL_MELEE_DMG_CLASS)) )
+						return false;
+					target = this;
+					basepoints0 = auraSpellInfo->Effects[0].BasePoints;
+					trigger_spell_id = 82716;
+					break;
+				}
+				break;
+			}
                 // Item - Hunter T9 4P Bonus
                 if (auraSpellInfo->Id == 67151)
                 {
@@ -7725,7 +7784,7 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
             case SPELLFAMILY_SHAMAN:
             {
                 switch (auraSpellInfo->Id)
-                {
+					{
                     // Lightning Shield (The Ten Storms set)
                     case 23551:
                     {
@@ -8020,6 +8079,48 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
                         CastSpell(this, 70831, true, castItem, triggeredByAura);
             break;
         }
+		// Rolling Thunder
+		case 88765:
+		{
+			if (Aura * lightningShield = GetAura(324))
+			{
+				uint8 lsCharges = lightningShield->GetCharges();
+				if (lsCharges < 9)
+				{
+					lightningShield->SetCharges(lsCharges + 1);
+				}
+			}
+			break;
+		}
+		 case 52179: // Astral Shift
+         {
+ 			if(!procSpell)
+ 				return false;
+             if (procSpell == 0 || !(procEx & (PROC_EX_NORMAL_HIT|PROC_EX_CRITICAL_HIT)) || this == victim)
+                 return false;
+             // Need stun, fear or silence mechanic
+             if (!(procSpell->GetAllEffectsMechanicMask() & ((1<<MECHANIC_SILENCE)|(1<<MECHANIC_STUN)|(1<<MECHANIC_FEAR))))
+                 return false;
+             break;
+         }
+         // Burning Determination
+         case 54748:
+         {
+             if (!procSpell)
+                 return false;
+             // Need Interrupt or Silenced mechanic
+             if (!(procSpell->GetAllEffectsMechanicMask() & ((1<<MECHANIC_INTERRUPT)|(1<<MECHANIC_SILENCE))))
+                 return false;
+             break;
+         }
+         // Lock and Load
+         case 56453:
+         {
+             // Proc only from Frost/Freezing trap activation or from Freezing Arrow (the periodic dmg proc handled elsewhere)
+             if (!(procFlags & PROC_FLAG_DONE_TRAP_ACTIVATION) || !procSpell || !(procSpell->SchoolMask & SPELL_SCHOOL_MASK_FROST) || !roll_chance_i(triggerAmount))
+                 return false;
+             break;
+         }
         // Glyph of Death's Embrace
         case 58679:
         {
@@ -8051,6 +8152,77 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
                 return false;
             break;
         }
+					// Efflorescence
+ 		case 34151:
+ 		case 81274:
+ 		case 81275:
+ 			{
+ 				basepoints0 = CalculatePctN(int32(damage), triggerAmount);
+ 				break;
+ 			}
+ 		case 81162: //Will of the necropolis - proc only if 30% health
+ 			{
+ 				if(GetHealth() - damage > CountPctFromMaxHealth(30))
+ 					return false;
+ 				break;
+ 			}
+ 		case 89007: // Masochism
+ 			{
+ 				if(!(damage > CountPctFromMaxHealth(10) || (procSpell && procSpell->Id == 32409))) // Proc only if the damage is equal or more than 10% of the total health
+ 					return false;
+ 				break;
+ 			}
+ 		case 84584: // Slaughter rank 1
+ 		case 84585: // Slaughter rank 2
+ 		case 84586: // Slaughter rank 3
+ 			if(procSpell->Id != 12294) // Proc only from mortal strike
+ 				return false;
+ 			break;
+ 		case 85416:
+ 			if(procSpell->Id != 35395 && procSpell->Id != 53595) // Proc only from crusader strike and Hammer of the Righteous
+ 				return false;
+ 			break;
+ 		case 82925: // Master marksman
+ 			if(procSpell->Id != 56641) // Proc only from steady shot
+ 				return false;
+ 			break;
+ 			//Mind Melt
+ 		case 87160:
+ 		case 81292:
+ 			{
+ 				//Proc only from mind spike
+ 				if(procSpell->Id != 73510)
+ 					return false;
+ 				break;
+ 			}
+ 		case 87098: // Invocation
+ 			if(procSpell->Id != 2139) // Proc only from counterspell
+ 				return false;
+ 			break;
+ 			//Shadow Infusion
+ 		case 91342:
+ 			{
+ 				if(procSpell->Id != 47632 && procSpell->Id != 47633)
+ 					return false;
+ 				break;
+ 			}
+ 			//Entrapment
+ 		case 19185:
+ 		case 64803:
+ 			{
+ 				if(procSpell->Id != 13809 || procSpell->Id != 82941 || procSpell->Id != 34600 || procSpell->Id != 82948) // Ice Trap & Snake Trap
+ 					return false;
+ 				break;
+ 			}
+ 		case 80396: // Potion of Illusion
+ 			{
+ 				if (victim->GetTypeId() != TYPEID_UNIT)
+ 					return false;
+ 				// critters are not allowed
+ 				if (victim->GetCreatureType() == CREATURE_TYPE_CRITTER)
+ 					return false;
+ 				break;
+ 			}
         // Culling the Herd
         case 70893:
         {
@@ -9986,6 +10158,30 @@ uint32 Unit::SpellHealingBonusDone(Unit* victim, SpellInfo const* spellProto, ui
     // No bonus healing for potion spells
     if (spellProto->SpellFamilyName == SPELLFAMILY_POTION)
         return healamount;
+
+	    // and Warlock's Healthstones
+    if (spellProto->SpellFamilyName == SPELLFAMILY_WARLOCK && (spellProto->SpellFamilyFlags[0] & 0x10000))
+    {
+        healamount = 0.45 * (GetCreateHealth());
+        return healamount;
+    }
+
+    if (spellProto->Id == 85673)    // Word of Glory
+    {
+        uint32 am = GetPower(POWER_HOLY_POWER);
+        am = am > 0 ? am : 1;                              // proc Chance?
+        healamount = (((spellProto->Effects[0].BasePoints + spellProto->Effects[0].BasePoints / 2) + 0.198 * GetTotalAttackPowerValue(BASE_ATTACK))) * am;
+
+        uint32 chance = 0;
+        if (HasAura(87163))   // Eternal Glory rank1
+            chance = 15;
+        else if (HasAura(87164))   // Eternal Glory rank2
+            chance = 30;
+
+        if(!roll_chance_i(chance))
+            SetPower(POWER_HOLY_POWER, 0);
+    }
+
 
     float DoneTotalMod = 1.0f;
     int32 DoneTotal = 0;
