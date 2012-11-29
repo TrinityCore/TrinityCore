@@ -43,11 +43,24 @@ npc_locksmith            75%    list of keys needs to be confirmed
 npc_firework            100%    NPC's summoned by rockets and rocket clusters, for making them cast visual
 EndContentData */
 
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "ScriptedGossip.h"
 #include "ScriptPCH.h"
 #include "ScriptedEscortAI.h"
 #include "ObjectMgr.h"
 #include "ScriptMgr.h"
 #include "World.h"
+#include "PetAI.h" 	
+#include "PassiveAI.h"  	
+#include "CombatAI.h"  	
+#include "GameEventMgr.h"  	
+#include "GridNotifiers.h"  	
+#include "GridNotifiersImpl.h"  	
+#include "Cell.h"	  	
+#include "CellImpl.h"  	
+#include "SpellAuras.h"
+#include "Pet.h"
 
 /*########
 # npc_air_force_bots
@@ -131,14 +144,14 @@ public:
             }
 
             if (!SpawnAssoc)
-                sLog->outErrorDb("TCSR: Creature template entry %u has ScriptName npc_air_force_bots, but it's not handled by that script", creature->GetEntry());
+                sLog->outError(LOG_FILTER_SQL, "TCSR: Creature template entry %u has ScriptName npc_air_force_bots, but it's not handled by that script", creature->GetEntry());
             else
             {
                 CreatureTemplate const* spawnedTemplate = sObjectMgr->GetCreatureTemplate(SpawnAssoc->spawnedCreatureEntry);
 
                 if (!spawnedTemplate)
                 {
-                    sLog->outErrorDb("TCSR: Creature template entry %u does not exist in DB, which is required by npc_air_force_bots", SpawnAssoc->spawnedCreatureEntry);
+                    sLog->outError(LOG_FILTER_SQL, "TCSR: Creature template entry %u does not exist in DB, which is required by npc_air_force_bots", SpawnAssoc->spawnedCreatureEntry);
                     SpawnAssoc = NULL;
                     return;
                 }
@@ -158,7 +171,7 @@ public:
                 SpawnedGUID = summoned->GetGUID();
             else
             {
-                sLog->outErrorDb("TCSR: npc_air_force_bots: wasn't able to spawn Creature %u", SpawnAssoc->spawnedCreatureEntry);
+                sLog->outError(LOG_FILTER_SQL, "TCSR: npc_air_force_bots: wasn't able to spawn Creature %u", SpawnAssoc->spawnedCreatureEntry);
                 SpawnAssoc = NULL;
             }
 
@@ -428,7 +441,7 @@ public:
             float x, y, z;
             me->GetPosition(x, y, z);
             me->Relocate(x, y, z + 0.94f);
-            me->SetLevitate(true);
+            me->SetDisableGravity(true);
             me->HandleEmoteCommand(EMOTE_ONESHOT_DANCE);
             WorldPacket data;                       //send update position to client
             me->BuildHeartBeatMsg(&data);
@@ -846,7 +859,7 @@ void npc_doctor::npc_doctorAI::UpdateAI(uint32 const diff)
                     patientEntry = HordeSoldierId[rand() % 3];
                     break;
                 default:
-                    sLog->outError("TSCR: Invalid entry for Triage doctor. Please check your database");
+                    sLog->outError(LOG_FILTER_TSCR, "Invalid entry for Triage doctor. Please check your database");
                     return;
             }
 
@@ -1343,7 +1356,7 @@ public:
             case GOSSIP_OPTION_LEARNDUALSPEC:
                 if (player->GetSpecsCount() == 1 && !(player->getLevel() < sWorld->getIntConfig(CONFIG_MIN_DUALSPEC_LEVEL)))
                 {
-                    if (!player->HasEnoughMoney(100000))
+                    if (!player->HasEnoughMoney(uint64(100000)))
                     {
                         player->SendBuyError(BUY_ERR_NOT_ENOUGHT_MONEY, 0, 0, 0);
                         player->PlayerTalkClass->SendCloseGossip();
@@ -1351,7 +1364,7 @@ public:
                     }
                     else
                     {
-                        player->ModifyMoney(-100000);
+                        player->ModifyMoney(uint64(-100000));
 
                         // Cast spells that teach dual spec
                         // Both are also ImplicitTarget self and must be cast by player
@@ -1822,13 +1835,13 @@ public:
     {
         mob_mojoAI(Creature* creature) : ScriptedAI(creature) {Reset();}
 
-        uint32 Hearts;
-        uint64 VictimGUID;
+        uint32 hearts;
+        uint64 victimGUID;
 
         void Reset()
         {
-            VictimGUID = 0;
-            Hearts = 15000;
+            victimGUID = 0;
+            hearts = 15000;
             if (Unit* own = me->GetOwner())
                 me->GetMotionMaster()->MoveFollow(own, 0, 0);
         }
@@ -1839,12 +1852,12 @@ public:
         {
             if (me->HasAura(20372))
             {
-                if (Hearts <= diff)
+                if (hearts <= diff)
                 {
                     me->RemoveAurasDueToSpell(20372);
-                    Hearts = 15000;
+                    hearts = 15000;
                 }
-                Hearts -= diff;
+                hearts -= diff;
             }
         }
 
@@ -1888,14 +1901,14 @@ public:
                 }
 
                 me->MonsterWhisper(whisp.c_str(), player->GetGUID());
-                if (VictimGUID)
-                    if (Player* victim = Unit::GetPlayer(*me, VictimGUID))
+                if (victimGUID)
+                    if (Player* victim = Unit::GetPlayer(*me, victimGUID))
                         victim->RemoveAura(43906);//remove polymorph frog thing
                 me->AddAura(43906, player);//add polymorph frog thing
-                VictimGUID = player->GetGUID();
+                victimGUID = player->GetGUID();
                 DoCast(me, 20372, true);//tag.hearts
                 me->GetMotionMaster()->MoveFollow(player, 0, 0);
-                Hearts = 15000;
+                hearts = 15000;
             }
         }
     };
@@ -1975,8 +1988,8 @@ public:
             DespawnTimer = 0;
             // Find victim of Summon Gargoyle spell
             std::list<Unit*> targets;
-            SkyFire::AnyUnfriendlyUnitInObjectRangeCheck u_check(me, me, 30);
-            SkyFire::UnitListSearcher<SkyFire::AnyUnfriendlyUnitInObjectRangeCheck> searcher(me, targets, u_check);
+           Trinity::AnyUnfriendlyUnitInObjectRangeCheck u_check(me, me, 30);
+           Trinity::UnitListSearcher<Trinity::AnyUnfriendlyUnitInObjectRangeCheck> searcher(me, targets, u_check);
             me->VisitNearbyObject(30, searcher);
             for (std::list<Unit*>::const_iterator iter = targets.begin(); iter != targets.end(); ++iter)
                 if ((*iter)->GetAura(49206, ownerGuid))
@@ -2014,8 +2027,8 @@ public:
             me->AddUnitMovementFlag(MOVEMENTFLAG_CAN_FLY|MOVEMENTFLAG_ASCENDING|MOVEMENTFLAG_FLYING);
             me->SetSpeed(MOVE_FLIGHT, 0.75f, true);
             me->SetSpeed(MOVE_RUN, 0.75f, true);
-            float x = me->GetPositionX() + 20 * cos(me->GetOrientation());
-            float y = me->GetPositionY() + 20 * sin(me->GetOrientation());
+            float x = me->GetPositionX() + 20 * std::cos(me->GetOrientation());
+            float y = me->GetPositionY() + 20 * std::sin(me->GetOrientation());
             float z = me->GetPositionZ() + 40;
             me->GetMotionMaster()->Clear(false);
             me->GetMotionMaster()->MovePoint(0, x, y, z);
@@ -2216,6 +2229,78 @@ public:
 };
 
 /*######
+# npc_fire_elemental
+	  	
+######*/
+	  	
+#define SPELL_FIRENOVA        12470
+#define SPELL_FIRESHIELD      13376
+#define SPELL_FIREBLAST       57984
+
+class npc_fire_elemental : public CreatureScript
+{
+public:
+    npc_fire_elemental() : CreatureScript("npc_fire_elemental") { }
+
+    struct npc_fire_elementalAI : public ScriptedAI
+    {
+        npc_fire_elementalAI(Creature* creature) : ScriptedAI(creature) {}
+
+        uint32 FireNova_Timer;
+        uint32 FireShield_Timer;
+        uint32 FireBlast_Timer;
+
+        void Reset()
+       {
+            FireNova_Timer = 5000 + rand() % 15000; // 5-20 sec cd
+            FireBlast_Timer = 5000 + rand() % 15000; // 5-20 sec cd
+            FireShield_Timer = 0;
+            me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_FIRE, true);
+        }
+
+        void UpdateAI(const uint32 diff)
+        {
+            if (!UpdateVictim())
+                return;
+
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
+
+           if (FireShield_Timer <= diff)
+            {
+                DoCast(me->getVictim(), SPELL_FIRESHIELD);
+               FireShield_Timer = 2 * IN_MILLISECONDS;
+           }
+            else
+                FireShield_Timer -= diff;
+
+            if (FireBlast_Timer <= diff)
+            {
+                DoCast(me->getVictim(), SPELL_FIREBLAST);
+                FireBlast_Timer = 5000 + rand() % 15000; // 5-20 sec cd
+            }
+            else
+                FireBlast_Timer -= diff;
+
+            if (FireNova_Timer <= diff)
+            {
+                DoCast(me->getVictim(), SPELL_FIRENOVA);
+                FireNova_Timer = 5000 + rand() % 15000; // 5-20 sec cd
+            }
+           else
+                FireNova_Timer -= diff;
+
+            DoMeleeAttackIfReady();
+        }
+    };
+
+    CreatureAI* GetAI(Creature* creature) const	  	
+    {
+        return new npc_fire_elementalAI(creature);
+    }
+};
+  
+/*######
 # npc_wormhole
 ######*/
 
@@ -2227,11 +2312,14 @@ public:
 
 enum Wormhole
 {
-    SPELL_HOWLING_FJORD         = 67838,
+    SPELL_BOREAN_TUNDRA         = 67834,
     SPELL_SHOLAZAR_BASIN        = 67835,
     SPELL_ICECROWN              = 67836,
     SPELL_STORM_PEAKS           = 67837,
+    SPELL_HOWLING_FJORD         = 67838,
+    SPELL_UNDERGROUND           = 68081,
 
+	DATA_SHOW_UNDERGROUND       = 1,
     TEXT_WORMHOLE               = 907
 };
 
@@ -2677,16 +2765,16 @@ public:
         }
         if (doSwitch)
         {
-            if (!player->HasEnoughMoney(EXP_COST))
+            if (!player->HasEnoughMoney(uint64(EXP_COST)))
                 player->SendBuyError(BUY_ERR_NOT_ENOUGHT_MONEY, 0, 0, 0);
             else if (noXPGain)
             {
-                player->ModifyMoney(-EXP_COST);
+                player->ModifyMoney(-int64(EXP_COST));
                 player->RemoveFlag(PLAYER_FLAGS, PLAYER_FLAGS_NO_XP_GAIN);
             }
             else if (!noXPGain)
             {
-                player->ModifyMoney(-EXP_COST);
+                player->ModifyMoney(-int64(EXP_COST));
                 player->SetFlag(PLAYER_FLAGS, PLAYER_FLAGS_NO_XP_GAIN);
             }
         }
@@ -3083,14 +3171,14 @@ public:
             float x, y, z;
             me->GetPosition(x, y, z);
             {
-                CellCoord pair(SkyFire::ComputeCellCoord(x, y));
+                CellCoord pair(Trinity::ComputeCellCoord(x, y));
                 Cell cell(pair);
                 cell.SetNoCreate();
 
-                SkyFire::AllFriendlyCreaturesInGrid check(me);
-                SkyFire::CreatureListSearcher<SkyFire::AllFriendlyCreaturesInGrid> searcher(me, templist, check);
+                Trinity::AllFriendlyCreaturesInGrid check(me);
+                Trinity::CreatureListSearcher<Trinity::AllFriendlyCreaturesInGrid> searcher(me, templist, check);
 
-                TypeContainerVisitor<SkyFire::CreatureListSearcher<SkyFire::AllFriendlyCreaturesInGrid>, GridTypeMapContainer> cSearcher(searcher);
+                TypeContainerVisitor<Trinity::CreatureListSearcher<Trinity::AllFriendlyCreaturesInGrid>, GridTypeMapContainer> cSearcher(searcher);
 
                 cell.Visit(pair, cSearcher, *(me->GetMap()), *me, me->GetGridActivationRange());
 
@@ -3127,8 +3215,8 @@ public:
 
             // Find all the enemies
             std::list<Unit*> targets;
-            SkyFire::AnyUnfriendlyUnitInObjectRangeCheck u_check(me, me, 5.0f);
-            SkyFire::UnitListSearcher<SkyFire::AnyUnfriendlyUnitInObjectRangeCheck> searcher(me, targets, u_check);
+            Trinity::AnyUnfriendlyUnitInObjectRangeCheck u_check(me, me, 5.0f);
+            Trinity::UnitListSearcher<Trinity::AnyUnfriendlyUnitInObjectRangeCheck> searcher(me, targets, u_check);
             me->VisitNearbyObject(5.0f, searcher);
             for (std::list<Unit*>::const_iterator iter = targets.begin(); iter != targets.end(); ++iter)
                 CheckIfMoveInRing(*iter);
@@ -3379,8 +3467,8 @@ class npc_power_word_barrier : public CreatureScript
 
            //Check friendly entities
            std::list<Unit*> targets;
-            SkyFire::AnyFriendlyUnitInObjectRangeCheck u_check(me, me, 7.0f);
-            SkyFire::UnitListSearcher<SkyFire::AnyFriendlyUnitInObjectRangeCheck>searcher(me, targets, u_check);
+            Trinity::AnyFriendlyUnitInObjectRangeCheck u_check(me, me, 7.0f);
+            Trinity::UnitListSearcher<Trinity::AnyFriendlyUnitInObjectRangeCheck>searcher(me, targets, u_check);
 
             me->VisitNearbyObject(7.0f, searcher);
             for (std::list<Unit*>::const_iterator iter = targets.begin(); iter != targets.end(); ++iter)
@@ -3445,15 +3533,15 @@ public:
             float x, y, z;
             me->GetPosition(x, y, z);
             {
-                CellCoord pair(SkyFire::ComputeCellCoord(x, y));
+                CellCoord pair(Trinity::ComputeCellCoord(x, y));
                 Cell cell(pair);
                 cell.SetNoCreate();
 
                 std::list<Creature*> templist;
-                SkyFire::AllCreaturesOfEntryInRange check(me, NPC_WILD_MUSHROOM, 100);
-                SkyFire::CreatureListSearcher<SkyFire::AllCreaturesOfEntryInRange> searcher(me, templist, check);
+                Trinity::AllCreaturesOfEntryInRange check(me, NPC_WILD_MUSHROOM, 100);
+                Trinity::CreatureListSearcher<Trinity::AllCreaturesOfEntryInRange> searcher(me, templist, check);
 
-                TypeContainerVisitor<SkyFire::CreatureListSearcher<SkyFire::AllCreaturesOfEntryInRange>, GridTypeMapContainer> cSearcher(searcher);
+                TypeContainerVisitor<Trinity::CreatureListSearcher<Trinity::AllCreaturesOfEntryInRange>, GridTypeMapContainer> cSearcher(searcher);
                 cell.Visit(pair, cSearcher, *(me->GetMap()), *me, me->GetGridActivationRange());
 
                 if (!templist.empty())
@@ -3468,11 +3556,11 @@ public:
                         }
                     }
 
-                sLog->outString("Found %u mushrooms", count);
+                sLog->outInfo(LOG_FILTER_GENERAL, "Found %u mushrooms", count);
 
                 if (count >= 3) // Only 3 mushrooms can be summoned at a time
                 {
-                    sLog->outString("Found %u mushrooms, deleting first", count);
+                    sLog->outInfo(LOG_FILTER_GENERAL, "Found %u mushrooms, deleting first", count);
                     if (first)
                     {
                         first->DisappearAndDie();
@@ -3493,7 +3581,7 @@ public:
             {
                 if (!isReady)
                 {
-                    sLog->outString("Invisible!");
+                    sLog->outInfo(LOG_FILTER_GENERAL, "Invisible!");
                     isReady = true;
 
                     //Make it invisible
@@ -3602,6 +3690,7 @@ void AddSC_npcs_special()
     new npc_experience;
     new npc_firework;
     // new npc_guardian_of_ancient_kings;
+	new npc_fire_elemental();
     new npc_flame_orb;
     new npc_ring_of_frost;
     new npc_frostfire_orb;

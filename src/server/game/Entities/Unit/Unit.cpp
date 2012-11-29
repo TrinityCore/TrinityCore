@@ -6361,7 +6361,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
             {
                 if (effIndex != 0)
                     return false;
-                triggered_spell_id = 25742;
+                triggered_spell_id = 101423;
                 float ap = GetTotalAttackPowerValue(BASE_ATTACK);
                 int32 holy = SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_HOLY) +
                              victim->SpellBaseDamageBonusTaken(SPELL_SCHOOL_MASK_HOLY);
@@ -7670,7 +7670,7 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
                     basepoints0 += victim->GetRemainingPeriodicAmount(GetGUID(), trigger_spell_id, SPELL_AURA_PERIODIC_DAMAGE);
                     break;
                 }
-				if (auraSpellInfo->SpellIconID == 2225)     // Serpent Spread
+		      if (auraSpellInfo->SpellIconID == 2225)     // Serpent Spread
 				{
 					if ( !(auraSpellInfo->ProcFlags == 0x1140) )
 						return false;
@@ -7693,8 +7693,6 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
 					trigger_spell_id = 82716;
 					break;
 				}
-				break;
-			}
                 // Item - Hunter T9 4P Bonus
                 if (auraSpellInfo->Id == 67151)
                 {
@@ -8152,12 +8150,12 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
                 return false;
             break;
         }
-					// Efflorescence
+		// Efflorescence
  		case 34151:
  		case 81274:
  		case 81275:
  			{
- 				basepoints0 = CalculatePctN(int32(damage), triggerAmount);
+ 				basepoints0 = CalculatePct(int32(damage), triggerAmount);
  				break;
  			}
  		case 81162: //Will of the necropolis - proc only if 30% health
@@ -10180,7 +10178,7 @@ uint32 Unit::SpellHealingBonusDone(Unit* victim, SpellInfo const* spellProto, ui
 
         if(!roll_chance_i(chance))
             SetPower(POWER_HOLY_POWER, 0);
-    }
+     }
 
 
     float DoneTotalMod = 1.0f;

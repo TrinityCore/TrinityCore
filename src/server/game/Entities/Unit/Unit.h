@@ -1812,6 +1812,16 @@ class Unit : public WorldObject
         uint32 GetDiseasesByCaster(uint64 casterGUID, bool remove = false);
         uint32 GetDoTsByCaster(uint64 casterGUID) const;
 
+	    std::list<uint32> m_soulswapdots; //Used by Soul Swap
+        Unit* m_havocTarget;
+        bool m_sburnMarked;
+        void MarkSoulBurn(bool apply) { m_sburnMarked = apply;}
+        std::list<AuraEffect const*> GetAuraDoTsByCaster(uint64 casterGUID); // Used by Soul Swap
+        inline void StoreSoulSwapDoTs(std::list<uint32> list){ m_soulswapdots = list; }; //Used by Soul Swap
+        inline std::list<uint32> GetSoulSwapDots() { return m_soulswapdots; } // Used by Soul Swap
+        void SetHavocTarget(Unit* target) { m_havocTarget = target; }
+		bool isSoulBurnActive() { return HasAuraEffect(74434, 1); }
+
         int32 GetTotalAuraModifier(AuraType auratype) const;
         float GetTotalAuraMultiplier(AuraType auratype) const;
         int32 GetMaxPositiveAuraModifier(AuraType auratype);
@@ -2204,6 +2214,16 @@ class Unit : public WorldObject
             if (!_focusSpell)
                 SetUInt64Value(UNIT_FIELD_TARGET, guid);
         }
+        void AddSpellSwap(uint32 oldSpell, uint32 newSpell) { _spellSwaps[oldSpell] = newSpell; }
+        void RemoveSpellSwap(uint32 originalSpell) { _spellSwaps.erase(originalSpell); }
+        uint32 GetSpellForCast(uint32 spellId) const
+        {
+            std::map<uint32, uint32>::const_iterator itr = _spellSwaps.find(spellId);
+            if (itr != _spellSwaps.end())
+                return itr->second;
+
+            return spellId;
+		}
 
         // Handling caster facing during spellcast
         void FocusTarget(Spell const* focusSpell, uint64 target);
@@ -2344,6 +2364,7 @@ class Unit : public WorldObject
         bool _isWalkingBeforeCharm; // Are we walking before we were charmed?
 
         time_t _lastDamagedTime; // Part of Evade mechanics
+		std::map<uint32, uint32> _spellSwaps;
 };
 
 namespace Trinity

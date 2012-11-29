@@ -429,7 +429,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleUnused,                                    //368 unused (4.3.4)
     &AuraEffect::HandleNULL,                                      //369 SPELL_AURA_ENABLE_POWER_BAR_TIMER
     &AuraEffect::HandleNULL,                                      //370 SPELL_AURA_SET_FAIR_FAR_CLIP
-	&AuraEffect::HandleAuraSwapSpells,                            //For Cataclysm
+	&AuraEffect::HandleAuraSwapSpells                            //371 For Cataclysm 
 };
 
 AuraEffect::AuraEffect(Aura* base, uint8 effIndex, int32 *baseAmount, Unit* caster):
@@ -1230,17 +1230,18 @@ void AuraEffect::PeriodicTick(AuraApplication * aurApp, Unit* caster) const
             break;
         case SPELL_AURA_PERIODIC_DAMAGE:
         case SPELL_AURA_PERIODIC_DAMAGE_PERCENT:
-			 			{
+			{
  			if (!caster)
  			break;
  
  			if (!target->isAlive())
  				return;
  
- 			if (target->HasUnitState(UNIT_STATE_ISOLATED)) {
+ 			if (target->HasUnitState(UNIT_STATE_ISOLATED)) 
+			{
  				SendTickImmune(target, caster);
- 			return;
- 		}
+ 			    return;
+ 		    }
  			// Dark Evangelism
  			if (target->HasAura(15407)) // Mind Flay
  			{
@@ -1248,11 +1249,11 @@ void AuraEffect::PeriodicTick(AuraApplication * aurApp, Unit* caster) const
  					caster->CastSpell(caster, 87117, true);
  				else if (caster->HasAura(81662)) // Rank 2
  					caster->CastSpell(caster, 87118, true);
- 
-				m_caster->CastSpell(m_caster, 87154, true);
+				    caster->CastSpell(caster, 87154, true);
  			}
             HandlePeriodicDamageAurasTick(target, caster);
             break;
+			}
         case SPELL_AURA_PERIODIC_LEECH:
             HandlePeriodicHealthLeechAuraTick(target, caster);
             break;
@@ -1279,6 +1280,7 @@ void AuraEffect::PeriodicTick(AuraApplication * aurApp, Unit* caster) const
              // Haunting Spirits
              if (GetId() == 7057)
                  target->CastSpell((Unit*)NULL, GetAmount(), true);
+			 break;
         default:
             break;
     }
@@ -4675,7 +4677,7 @@ void AuraEffect::HandleModDamagePercentDone(AuraApplication const* aurApp, uint8
         for (int i = SPELL_SCHOOL_HOLY; i < MAX_SPELL_SCHOOL; ++i)
             target->ApplyModSignedFloatValue(PLAYER_FIELD_MOD_DAMAGE_DONE_PCT+i,GetAmount()/100.0f,apply);
      
-    if (GetSpellProto()->Id == 84963) //Inquisition
+    if (GetSpellInfo()->Id == 84963) //Inquisition
     {
         switch (GetBase()->GetUnitOwner()->GetPower(POWER_HOLY_POWER))
         {
@@ -5561,7 +5563,7 @@ void AuraEffect::HandleAuraSwapSpells(AuraApplication const * aurApp, uint8 mode
 
         SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(itr->first);
 
-        if (!IsAffectedOnSpell(spellInfo))
+        if (!IsAffectedBySpell(spellInfo))
             continue;
 
         foundAny = true;

@@ -199,7 +199,6 @@ class spell_warl_create_healthstone : public SpellScriptLoader
             void Register()
             {
                 OnEffectHitTarget += SpellEffectFn(spell_warl_create_healthstone_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
-                OnCheckCast += SpellCheckCastFn(spell_warl_create_healthstone_SpellScript::CheckCast);
             }
         };
 
