@@ -430,7 +430,9 @@ enum AuraType
     SPELL_AURA_368                                          = 368,  // Not used in 4.3.4
     SPELL_AURA_ENABLE_POWER_BAR_TIMER                       = 369,
     SPELL_AURA_SET_FAIR_FAR_CLIP                            = 370,  // Overrides client's View Distance setting to max("Fair", current_setting)
-    TOTAL_AURAS                                             = 371   // 4.3.4
+    SPELL_AURA_SWAP_SPELLS                                  = 371,
+    SPELL_AURA_SWAP_SPELLS_2                                = 372,
+    TOTAL_AURAS                                             = 373   // 4.3.4
 };
 
 enum AuraObjectType

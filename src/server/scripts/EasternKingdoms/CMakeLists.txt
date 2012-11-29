@@ -49,10 +49,6 @@ set(scripts_STAT_SRCS
   EasternKingdoms/Gnomeregan/gnomeregan.cpp
   EasternKingdoms/Gnomeregan/gnomeregan.h
   EasternKingdoms/redridge_mountains.cpp
-  
-  EasternKingdoms/Gilneas/gilneas.cpp
-  EasternKingdoms/Gilneas/gilneas.h
-  
   EasternKingdoms/BlackrockDepths/boss_high_interrogator_gerstahn.cpp
   EasternKingdoms/BlackrockDepths/boss_gorosh_the_dervish.cpp
   EasternKingdoms/BlackrockDepths/blackrock_depths.cpp

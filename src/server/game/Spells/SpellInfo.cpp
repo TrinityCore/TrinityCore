@@ -539,17 +539,11 @@ float SpellEffectInfo::CalcRadius(Unit* caster, Spell* spell) const
     if (!HasRadius())
         return 0.0f;
 
-    float radius;
-    if (_spellInfo->IsPositiveEffect(_effIndex))
-        radius = RadiusEntry->radiusFriend;
-    else
-       radius = RadiusEntry->radiusHostile;
-	
+     float radius = RadiusEntry->ID;
 
         if (Player* modOwner = caster->GetSpellModOwner())
             modOwner->ApplySpellMod(_spellInfo->Id, SPELLMOD_RADIUS, radius, spell);
-    }
-
+    
     return radius;
 }
 

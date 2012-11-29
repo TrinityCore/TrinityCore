@@ -498,7 +498,7 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                 // Rain of Fire
                 if (m_spellInfo->Id == 42223)
                 {
-                    sLog->outDetail("Aftermath handling");
+                    sLog->outInfo(LOG_FILTER_SPELLS_AURAS, "Aftermath handling");
                     if(m_caster->HasAura(85113)) // Aftermath Rank 1
                         if (roll_chance_f(6.0f))
                             m_caster->CastSpell(unitTarget, 85387, true);
@@ -581,12 +581,12 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                              uint8 stack = m_caster->GetAura(77487)->GetStackAmount();
                              uint32 pct = stack * 10;
  
-                             // Mastery
+                         /*    // Mastery
                              if (m_caster->HasAuraType(SPELL_AURA_MASTERY))
-                                 if (m_caster->ToPlayer()->GetTalentBranchSpec(m_caster->ToPlayer()->GetActiveSpec()) == BS_PRIEST_SHADOW)
-                                     pct += 1.5f * m_caster->ToPlayer()->GetMasteryPoints();
+                                 if (m_caster->HasAura(87327))
+                                     pct += 1.5f * m_caster->ToPlayer()->GetMasteryPoints(); */
  
-                             AddPctN(damage, pct);
+                             AddPct(damage, pct);
                              m_caster->RemoveAurasDueToSpell(77487);
                          }
  
@@ -602,7 +602,7 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                          if (m_caster->HasAura(14751)) 
                              m_caster->CastSpell(m_caster, 81209, true); 
                       break;
-				 default;
+					 default:
 				      break;
 			 }
 				if (m_caster->HasAura(81659)) // Evangelism Rank 1
@@ -694,6 +694,106 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                     // 25 energy = 100% more damage
                     AddPct(damage, energy * 4);
                 }
+							if(m_spellInfo->Id == 80964)  // Skull Bash (bear) 
+			{
+				if (AuraEffect const* aurEff = m_caster->GetAuraEffect(SPELL_AURA_ADD_FLAT_MODIFIER, SPELLFAMILY_DRUID, 473, 1))
+				{
+					switch(aurEff->GetId())
+					{
+					case 16940: // Brutal Impact (Rank 1)
+						{
+							m_caster->CastSpell(unitTarget, 82364 ,true);
+							break;
+						}
+					case 16941: // Brutal Impact (Rank 2)
+						{
+							m_caster->CastSpell(unitTarget, 82365 ,true);
+							break;
+						}
+					}
+				}
+				m_caster->CastSpell(unitTarget,93983,true);  
+			}
+			if(m_spellInfo->Id == 80965)  // Skull Bash(cat) 
+			{ 
+				if (AuraEffect const* aurEff = m_caster->GetAuraEffect(SPELL_AURA_ADD_FLAT_MODIFIER, SPELLFAMILY_DRUID, 473, 1))
+				{
+					switch(aurEff->GetId())
+					{
+					case 16940: // Brutal Impact (Rank 1)
+						{
+							m_caster->CastSpell(unitTarget, 82364 ,true);
+							break;
+						}
+					case 16941: // Brutal Impact (Rank 2)
+						{
+							m_caster->CastSpell(unitTarget, 82365 ,true);
+							break;
+						}
+					}
+				}
+				m_caster->CastSpell(unitTarget,93983,true); 
+			}
+			// Starfall
+            if (m_spellInfo->SpellFamilyFlags[2] & SPELLFAMILYFLAG2_DRUID_STARFALL)
+            {
+                // Shapeshifting into an animal form or mounting cancels the effect.
+                if (m_caster->GetCreatureType() == CREATURE_TYPE_BEAST || m_caster->IsMounted())
+                {
+                    if (m_triggeredByAuraSpell)
+                        m_caster->RemoveAurasDueToSpell(m_triggeredByAuraSpell->Id);
+                    return;
+                }
+
+                // Any effect which causes you to lose control of your character will suppress the starfall effect.
+                if (m_caster->HasUnitState(UNIT_STATE_STUNNED | UNIT_STATE_FLEEING | UNIT_STATE_ROOT | UNIT_STATE_CONFUSED))
+                    return;
+
+                m_caster->CastSpell(unitTarget, damage, true);
+                return;
+            }
+
+            // Wild mushroom: detonate (prepare this to move to scripting).
+            // summoned npc may need further scripting.
+            if (m_spellInfo->Id == 88751)
+            {
+                std::list<Creature*> templist;
+
+                CellCoord pair(SkyFire::ComputeCellCoord(m_caster->GetPositionX(), m_caster->GetPositionY()));
+                Cell cell(pair);
+                cell.SetNoCreate();
+
+                Trinity::AllFriendlyCreaturesInGrid check(m_caster);
+                Trinity::CreatureListSearcher<Trinity::AllFriendlyCreaturesInGrid> searcher(m_caster, templist, check);
+
+                TypeContainerVisitor<SkyFire::CreatureListSearcher<Trinity::AllFriendlyCreaturesInGrid>, GridTypeMapContainer> cSearcher(searcher);
+
+                cell.Visit(pair, cSearcher, *(m_caster->GetMap()), *m_caster, m_caster->GetGridActivationRange());
+
+                if (!templist.empty())
+                    for (std::list<Creature*>::const_iterator itr = templist.begin(); itr != templist.end(); ++itr)
+                    {
+                        // You cannot detonate other people's mushrooms
+                        if ((*itr)->GetOwner() != m_caster)
+                            continue;
+
+                        // Range check to find all enemies nearby
+                        std::list<Unit*> targets;
+                        Trinity::AnyUnfriendlyUnitInObjectRangeCheck u_check((*itr), (*itr), 6.0f);
+                        Trinity::UnitListSearcher<Trinity::AnyUnfriendlyUnitInObjectRangeCheck> searcher((*itr), targets, u_check);
+                        (*itr)->VisitNearbyObject(6.0f, searcher);
+                        for (std::list<Unit*>::const_iterator iter = targets.begin(); iter != targets.end(); ++iter)
+                        {
+                            // Damage spell
+                            (*itr)->CastSpell((*iter), 88747, true);
+                            // Suicide spell
+                            (*itr)->CastSpell((*itr), 92853, true);
+                            (*itr)->DisappearAndDie();
+                        }
+                    }
+                    templist.clear();
+            }
+                        m_caster->CastSpell(unitTarget, 79061, true); // Mark of the Wild (Caster)
                 break;
             }
             case SPELLFAMILY_ROGUE:
@@ -3470,12 +3570,12 @@ void Spell::EffectWeaponDmg(SpellEffIndex effIndex)
                 {
                     if (m_caster->HasAura(11190)) // Improved Cone of Cold Rank 1
                     {
-                        m_caster->CastCustomSpell(unitTarget, 83301, &bp, NULL, NULL, true, 0);
+                        m_caster->CastSpell(unitTarget, 83301, true);
                     }
 
                     if (m_caster->HasAura(12489)) // Improved Cone of Cold Rank 2
                     {
-                        m_caster->CastCustomSpell(unitTarget, 83302, &bp, NULL, NULL, true, 0);
+                        m_caster->CastSpell(unitTarget, 83302, true);
                     }
                 }
 			if (m_spellInfo->Id == 11129) //Combustion
@@ -5266,6 +5366,7 @@ void Spell::EffectSelfResurrect(SpellEffIndex effIndex)
     player->SetPower(POWER_RAGE, 0);
     player->SetPower(POWER_ENERGY, player->GetMaxPower(POWER_ENERGY));
     player->SetPower(POWER_FOCUS, 0);
+	player->SetPower(POWER_ECLIPSE, 0);
 
     player->SpawnCorpseBones();
 }
