@@ -5613,7 +5613,30 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                 }
                 break;
             }
-
+ 	        // Permafrost
+ 	        if (dummySpell->SpellIconID == 143)
+ 
+ 	            if (!procSpell)
+ 	                return false;
+ 
+	            basepoints0 = damage * triggerAmount / 100;
+				triggered_spell_id = 91394;
+ 				break;
+ 			}
+ 			// Burnout
+ 			if (dummySpell->SpellIconID == 2998)
+ 			{
+ 				if (!procSpell)
+                     return false;
+ 
+                 int32 cost = int32(procSpell->ManaCost + CalculatePct(GetCreateMana(), procSpell->ManaCostPercentage));
+                 basepoints0 = CalculatePct(cost, triggerAmount);
+                 if (basepoints0 <= 0)
+                     return false;
+                 triggered_spell_id = 44450;
+                 target = this;
+                 break;
+             }
             // Hot Streak & Improved Hot Streak
             if (dummySpell->SpellIconID == 2999)
             {
@@ -7804,6 +7827,21 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
             }
             case SPELLFAMILY_SHAMAN:
             {
+				    switch (auraSpellInfo->Id)
+					{
+						// Rolling Thunder
+					case 88765:
+						{
+							if (Aura * lightningShield = GetAura(324))
+							{
+								uint8 lsCharges = lightningShield->GetCharges();
+								if(lsCharges < 9)
+								{
+									lightningShield->SetCharges(lsCharges + 1);
+								}
+							}
+							break;
+						}
                 switch (auraSpellInfo->Id)
 					{
                     // Lightning Shield (The Ten Storms set)
