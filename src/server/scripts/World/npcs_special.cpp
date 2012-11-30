@@ -3467,8 +3467,8 @@ class npc_power_word_barrier : public CreatureScript
 
            //Check friendly entities
            std::list<Unit*> targets;
-            SkyFire::AnyFriendlyUnitInObjectRangeCheck u_check(me, me, 7.0f);
-            SkyFire::UnitListSearcher<SkyFire::AnyFriendlyUnitInObjectRangeCheck>searcher(me, targets, u_check);
+            Trinity::AnyFriendlyUnitInObjectRangeCheck u_check(me, me, 7.0f);
+            Trinity::UnitListSearcher<Trinity::AnyFriendlyUnitInObjectRangeCheck>searcher(me, targets, u_check);
 
             me->VisitNearbyObject(7.0f, searcher);
             for (std::list<Unit*>::const_iterator iter = targets.begin(); iter != targets.end(); ++iter)
