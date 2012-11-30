@@ -3305,6 +3305,61 @@ class spell_gen_gift_of_naaru : public SpellScriptLoader
         }
 };
 
+enum Replenishment
+{
+    SPELL_REPLENISHMENT             = 57669,
+    SPELL_INFINITE_REPLENISHMENT    = 61782
+};
+
+class spell_gen_replenishment : public SpellScriptLoader
+{
+    public:
+        spell_gen_replenishment() : SpellScriptLoader("spell_gen_replenishment") { }
+
+        class spell_gen_replenishment_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_gen_replenishment_AuraScript);
+
+            bool Validate(SpellInfo const* /*spell*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_REPLENISHMENT) ||
+                   !sSpellMgr->GetSpellInfo(SPELL_INFINITE_REPLENISHMENT))
+                    return false;
+                return true;
+            }
+
+            bool Load()
+            {
+                return GetUnitOwner()->GetPower(POWER_MANA);
+            }
+
+            void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
+            {
+                switch (GetSpellInfo()->Id)
+                {
+                    case SPELL_REPLENISHMENT:
+                        amount = GetUnitOwner()->GetMaxPower(POWER_MANA) * 0.002f;
+                        break;
+                    case SPELL_INFINITE_REPLENISHMENT:
+                        amount = GetUnitOwner()->GetMaxPower(POWER_MANA) * 0.0025f;
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            void Register()
+            {
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_gen_replenishment_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_PERIODIC_ENERGIZE);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_gen_replenishment_AuraScript();
+        }
+};
+
 void AddSC_generic_spell_scripts()
 {
     new spell_gen_absorb0_hitlimit1();
@@ -3381,4 +3436,5 @@ void AddSC_generic_spell_scripts()
     new spell_gen_upper_deck_create_foam_sword();
     new spell_gen_bonked();
     new spell_gen_gift_of_naaru();
+    new spell_gen_replenishment();
 }
