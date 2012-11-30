@@ -5887,8 +5887,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                 {
                     triggered_spell_id = 96379;
                     basepoints0 = CalculatePct(int32(damage), triggerAmount);
-					float add_spellpower = (float)(SpellBaseDamageBonusDone() + victim->SpellBaseDamageBonusTaken());
-			        ApplyPct(add_spellpower, 8.0f); //8%*SP 
                     break;
                 }
                 // Glyph of Shadowflame
@@ -6990,15 +6988,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                 triggered_spell_id = 379;
                 break;
             }
-			//SpellPower Gain
-			if (dummySpell->Id == 77747)
-			{
-				if(HasAura == 77747){
-			float add_spellpower = (float)(SpellBaseDamageBonusDone() + victim->SpellBaseDamageBonusTaken());
-			ApplyPct(add_spellpower, 10.0f);
-				}
-
-			}
             // Flametongue Weapon (Passive)
             if (dummySpell->SpellFamilyFlags[0] & 0x200000)
             {
