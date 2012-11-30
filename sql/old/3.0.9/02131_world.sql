@@ -6,7 +6,7 @@ UPDATE `command` SET `name`="ahbotoption" WHERE `name`="ahbotoptions";
 DELETE FROM `command` WHERE `name` IN ('reload tickets');
 DELETE FROM `command` WHERE `name` LIKE "path%";
 DELETE FROM `command` WHERE `name` LIKE "wp%";
-INSERT INTO `command` VALUES 
+INSERT INTO `command` VALUES
 ('wp load',2,'Syntax: .wp load $pathid\nLoad pathid number for selected creature. Creature must have no waypoint data.'),
 ('wp event',2,'Syntax: .wp event $subcommand\nType .path event to see the list of possible subcommands or .help path event $subcommand to see info on subcommands.'),
 ('wp event add',2,'Syntax: .wp event add $subcommand\nAdd new waypoint action in DB.'),

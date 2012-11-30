@@ -27,19 +27,20 @@ EndScriptData */
 #include "ScriptedCreature.h"
 #include "karazhan.h"
 
-#define SAY_AGGRO           -1532011
-#define SAY_SPECIAL_1       -1532012
-#define SAY_SPECIAL_2       -1532013
-#define SAY_KILL_1          -1532014
-#define SAY_KILL_2          -1532015
-#define SAY_KILL_3          -1532016
-#define SAY_DEATH           -1532017
+enum Moroes
+{
+    SAY_AGGRO           = 0,
+    SAY_SPECIAL         = 1,
+    SAY_KILL            = 2,
+    SAY_DEATH           = 3,
 
-#define SPELL_VANISH        29448
-#define SPELL_GARROTE       37066
-#define SPELL_BLIND         34694
-#define SPELL_GOUGE         29425
-#define SPELL_FRENZY        37023
+    SPELL_VANISH        = 29448,
+    SPELL_GARROTE       = 37066,
+    SPELL_BLIND         = 34694,
+    SPELL_GOUGE         = 29425,
+    SPELL_FRENZY        = 37023,
+};
+
 
 #define POS_Z               81.73f
 
@@ -124,19 +125,19 @@ public:
         {
             StartEvent();
 
-            DoScriptText(SAY_AGGRO, me);
+            Talk(SAY_AGGRO);
             AddsAttack();
             DoZoneInCombat();
         }
 
         void KilledUnit(Unit* /*victim*/)
         {
-            DoScriptText(RAND(SAY_KILL_1, SAY_KILL_2, SAY_KILL_3), me);
+            Talk(SAY_KILL);
         }
 
         void JustDied(Unit* /*killer*/)
         {
-            DoScriptText(SAY_DEATH, me);
+            Talk(SAY_DEATH);
 
             if (instance)
                 instance->SetData(TYPE_MOROES, DONE);
@@ -294,7 +295,7 @@ public:
             {
                 if (Wait_Timer <= diff)
                 {
-                    DoScriptText(RAND(SAY_SPECIAL_1, SAY_SPECIAL_2), me);
+                    Talk(SAY_SPECIAL);
 
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                         target->CastSpell(target, SPELL_GARROTE, true);

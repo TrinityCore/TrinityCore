@@ -29,6 +29,7 @@ EndScriptData */
 
 enum eEnums
 {
+    EMOTE_FRENZY_KILL           = 0,
     SPELL_REND                  = 16509,
     SPELL_BACKHAND              = 18103,
     SPELL_FRENZY                = 8269
@@ -67,7 +68,10 @@ public:
                 instance->SetData(DATA_DOCTORTHEOLENKRASTINOV_DEATH, 0);
 
                 if (instance->GetData(TYPE_GANDLING) == IN_PROGRESS)
+                {
+                    instance->SetData(TYPE_GANDLING, IN_PROGRESS);
                     me->SummonCreature(1853, 180.73f, -9.43856f, 75.507f, 1.61399f, TEMPSUMMON_DEAD_DESPAWN, 0);
+                }
             }
         }
 
@@ -100,7 +104,7 @@ public:
                 if (m_uiFrenzy_Timer <= uiDiff)
                 {
                     DoCast(me, SPELL_FRENZY);
-                    DoScriptText(EMOTE_GENERIC_FRENZY_KILL, me);
+                    Talk(EMOTE_FRENZY_KILL);
 
                     m_uiFrenzy_Timer = 120000;
                 }

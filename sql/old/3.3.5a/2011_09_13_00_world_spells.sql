@@ -4,7 +4,7 @@ DELETE FROM `npc_spellclick_spells` WHERE `npc_entry` IN (33139,34111);
 INSERT INTO `npc_spellclick_spells`(`npc_entry`,`spell_id`,`quest_start`,`quest_start_active`,`quest_end`,`cast_flags`,`aura_required`,`aura_forbidden`,`user_type`) VALUES
 (34111,46598,0,0,0,1,0,0,0),
 (33139,46598,0,0,0,1,0,0,0);
- 
+
 -- Added Burn to Vehicles for Hard mode Mechanics
 -- Thanks to horn for the reminder
 -- Burn Secondary Effect from Vehicles

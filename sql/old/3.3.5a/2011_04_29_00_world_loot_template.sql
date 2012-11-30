@@ -2,7 +2,7 @@
 SET @REF:= 34348; -- (found by StoredProc)
 
 -- Delete all so we can also renumber the itemids on refs for old loot
-DELETE FROM `creature_loot_template` WHERE `entry`=11583; 
+DELETE FROM `creature_loot_template` WHERE `entry`=11583;
 INSERT INTO `creature_loot_template` (`entry`,`item`,`ChanceOrQuestChance`,`lootmode`,`groupid`,`mincountOrRef`,`maxcount`) VALUES
 (11583,19002,100,1,0,1,1),
 (11583,19003,100,1,0,1,1),

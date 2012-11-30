@@ -31,7 +31,7 @@ Icecrown       guid 163200 - 164399 pool 11400 - 11799
 -- ----------------------------------------
 -- -- Fixup ore spawns for Borean Tundra --
 -- ----------------------------------------
-SET @RANGE    := 150; 
+SET @RANGE    := 150;
 SET @GUID1    := 160000;
 SET @GUID2    := @GUID1 + @RANGE;
 SET @POOL     := 10000;
@@ -2267,7 +2267,7 @@ INSERT INTO `pool_pool` (`pool_id`,`mother_pool`,`chance`,`description`) VALUES
 
 -- -----------------------------------------
 -- -- Fixup ore spawns for Sholazar Basin --
--- ----------------------------------------- 
+-- -----------------------------------------
 SET @RANGE    := 350;
 SET @GUID1    := 161400;
 SET @GUID2    := @GUID1 + @RANGE;

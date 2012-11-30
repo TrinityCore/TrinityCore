@@ -20,6 +20,7 @@
 #define _REFERENCE_H
 
 #include "Dynamic/LinkedList.h"
+#include <assert.h>
 
 //=====================================================
 

@@ -18,6 +18,7 @@
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "naxxramas.h"
+#include "SpellInfo.h"
 
 enum Yells
 {
@@ -117,7 +118,7 @@ class boss_faerlina : public CreatureScript
                 }
             }
 
-            uint32 GetData(uint32 type)
+            uint32 GetData(uint32 type) const
             {
                 if (type == DATA_FRENZY_DISPELS)
                     return _frenzyDispels;

@@ -1,6 +1,6 @@
 -- Update creature gossip_menu_option from sniff
 DELETE FROM `gossip_menu_option` WHERE `menu_id` IN (8803,8808,8894,9045,9621,9879,9895,9987,10117,10218) AND `id`=0;
-DELETE FROM `gossip_menu_option` WHERE `menu_id`=9879 AND `id`=1;                 
+DELETE FROM `gossip_menu_option` WHERE `menu_id`=9879 AND `id`=1;
 INSERT INTO `gossip_menu_option` (`menu_id`,`id`,`option_icon`,`option_text`,`option_id`,`npc_option_npcflag`,`action_menu_id`,`action_poi_id`,`box_coded`,`box_money`,`box_text`) VALUES
 (8803,0,1, 'I need some booze, Coot.',3,128,0,0,0,0, ''),
 (8808,0,1, 'I require some components, Sorely.',3,128,0,0,0,0, ''),

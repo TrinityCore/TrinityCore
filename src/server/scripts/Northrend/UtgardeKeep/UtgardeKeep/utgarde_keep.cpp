@@ -143,17 +143,10 @@ public:
                     }
                 }
             }
-
-            switch (near_f)
-            {
-                case 1:  return 1;
-                case 2:  return 2;
-                case 3:  return 3;
-                default: return 0;
-            }
+            return near_f > 0 && near_f < 4 ? near_f : 0;
         }
 
-        void UpdateAI(const uint32 /*diff*/)
+        void UpdateAI(uint32 const /* diff */)
         {
             if (fm_Type == 0)
                 fm_Type = GetForgeMasterType();
@@ -239,9 +232,115 @@ class spell_fixate : public SpellScriptLoader
             return new spell_fixate_SpellScript();
         }
 };
+
+enum EnslavedProtoDrake
+{
+    TYPE_PROTODRAKE_AT      = 28,
+    DATA_PROTODRAKE_MOVE    = 6,
+
+    PATH_PROTODRAKE         = 125946,
+
+    EVENT_REND              = 1,
+    EVENT_FLAME_BREATH      = 2,
+    EVENT_KNOCKAWAY         = 3,
+
+    SPELL_REND              = 43931,
+    SPELL_FLAME_BREATH      = 50653,
+    SPELL_KNOCK_AWAY        = 49722,
+
+    POINT_LAST              = 5,
+};
+
+const Position protodrakeCheckPos = {206.24f, -190.28f, 200.11f, 0.f};
+
+class npc_enslaved_proto_drake : public CreatureScript
+{
+public:
+    npc_enslaved_proto_drake() : CreatureScript("npc_enslaved_proto_drake") { }
+
+    struct npc_enslaved_proto_drakeAI : public ScriptedAI
+    {
+        npc_enslaved_proto_drakeAI(Creature* creature) : ScriptedAI(creature)
+        {
+            _setData = false;
+        }
+
+        void Reset()
+        {
+            _events.Reset();
+            _events.ScheduleEvent(EVENT_REND, urand(2000, 3000));
+            _events.ScheduleEvent(EVENT_FLAME_BREATH, urand(5500, 7000));
+            _events.ScheduleEvent(EVENT_KNOCKAWAY, urand(3500, 6000));
+        }
+
+        void MovementInform(uint32 type, uint32 id)
+        {
+            if (type == WAYPOINT_MOTION_TYPE && id == POINT_LAST)
+            {
+                me->RemoveByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
+            }
+        }
+
+        void SetData(uint32 type, uint32 data)
+        {
+            if (type == TYPE_PROTODRAKE_AT && data == DATA_PROTODRAKE_MOVE && !_setData && me->GetDistance(protodrakeCheckPos) < 5.0f)
+            {
+                _setData = true;
+                me->SetByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
+                me->GetMotionMaster()->MovePath(PATH_PROTODRAKE, false);
+            }
+        }
+
+        void UpdateAI(uint32 const diff)
+        {
+            if (!UpdateVictim())
+                return;
+
+            _events.Update(diff);
+
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
+
+            while (uint32 eventid = _events.ExecuteEvent())
+            {
+                switch (eventid)
+                {
+                    case EVENT_REND:
+                        DoCast(SPELL_REND);
+                        _events.ScheduleEvent(EVENT_REND, urand(15000, 20000));
+                        break;
+                    case EVENT_FLAME_BREATH:
+                        DoCast(SPELL_FLAME_BREATH);
+                        _events.ScheduleEvent(EVENT_FLAME_BREATH, urand(11000, 12000));
+                        break;
+                    case EVENT_KNOCKAWAY:
+                        DoCast(SPELL_KNOCK_AWAY);
+                        _events.ScheduleEvent(EVENT_KNOCKAWAY, urand(7000, 8500));
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            DoMeleeAttackIfReady();
+        }
+
+    private:
+        bool _setData;
+        EventMap _events;
+
+    };
+
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new npc_enslaved_proto_drakeAI(creature);
+    }
+};
+
 void AddSC_utgarde_keep()
 {
     new npc_dragonflayer_forge_master();
+    new npc_enslaved_proto_drake();
     new spell_ticking_time_bomb();
     new spell_fixate();
 }

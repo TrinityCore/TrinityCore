@@ -1563,7 +1563,7 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 -- Add random movement to other 6 Niffelem Forefathers
 UPDATE `creature` SET `spawndist`=25,`MovementType`=1 WHERE `id`=29974 AND `MovementType`=0;
 
--- Add random movement to Frostborn Ghost & Frostborn Warriors 
+-- Add random movement to Frostborn Ghost & Frostborn Warriors
 UPDATE `creature` SET `spawndist`=25,`MovementType`=1 WHERE `id` IN (30144,30135);
 
 -- Pathing for Forgotten Footman Entry: 27229

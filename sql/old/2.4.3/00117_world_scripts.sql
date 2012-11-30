@@ -1,8 +1,8 @@
--- 
+--
 -- NOTE: If you have temporary stored data in table `eventai_localized_texts` make sure to make backup of this before running this update!
 -- NOTE: If you have any texts in current eventai_texts and they are not using entries valid for *_texts table, you _will_ get error messages on startup.
 -- NOTE: Do not run this update twice, it may create bad data if you choose to do so.
--- 
+--
 
 -- drop obsolete table
 DROP TABLE eventai_localized_texts;

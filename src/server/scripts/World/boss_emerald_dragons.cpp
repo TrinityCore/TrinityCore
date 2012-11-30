@@ -366,7 +366,7 @@ class boss_lethon : public CreatureScript
                 {
                     Position targetPos;
                     target->GetPosition(&targetPos);
-                    me->GetMap()->SummonCreature(NPC_SPIRIT_SHADE, targetPos, NULL, 50000, (Unit*)this);
+                    me->SummonCreature(NPC_SPIRIT_SHADE, targetPos, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 50000);
                 }
             }
 

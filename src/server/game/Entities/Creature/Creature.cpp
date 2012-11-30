@@ -16,40 +16,42 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "BattlegroundMgr.h"
+#include "CellImpl.h"
 #include "Common.h"
-#include "DatabaseEnv.h"
-#include "WorldPacket.h"
-#include "World.h"
-#include "ObjectMgr.h"
-#include "GroupMgr.h"
-#include "SpellMgr.h"
+#include "CreatureAI.h"
+#include "CreatureAISelector.h"
+#include "CreatureGroups.h"
 #include "Creature.h"
-#include "QuestDef.h"
+#include "DatabaseEnv.h"
+#include "Formulas.h"
+#include "GameEventMgr.h"
 #include "GossipDef.h"
-#include "Player.h"
-#include "PoolMgr.h"
-#include "Opcodes.h"
+#include "GridNotifiers.h"
+#include "GridNotifiersImpl.h"
+#include "Group.h"
+#include "GroupMgr.h"
+#include "InstanceScript.h"
 #include "Log.h"
 #include "LootMgr.h"
 #include "MapManager.h"
-#include "CreatureAI.h"
-#include "CreatureAISelector.h"
-#include "Formulas.h"
-#include "WaypointMovementGenerator.h"
-#include "InstanceScript.h"
-#include "BattlegroundMgr.h"
-#include "Util.h"
-#include "GridNotifiers.h"
-#include "GridNotifiersImpl.h"
-#include "CellImpl.h"
-#include "OutdoorPvPMgr.h"
-#include "GameEventMgr.h"
-#include "CreatureGroups.h"
-#include "Vehicle.h"
-#include "SpellAuraEffects.h"
-#include "Group.h"
-#include "MoveSplineInit.h"
 #include "MoveSpline.h"
+#include "MoveSplineInit.h"
+#include "ObjectMgr.h"
+#include "Opcodes.h"
+#include "OutdoorPvPMgr.h"
+#include "Player.h"
+#include "PoolMgr.h"
+#include "QuestDef.h"
+#include "SpellAuraEffects.h"
+#include "SpellMgr.h"
+#include "TemporarySummon.h"
+#include "Util.h"
+#include "Vehicle.h"
+#include "WaypointMovementGenerator.h"
+#include "World.h"
+#include "WorldPacket.h"
+
 // apply implementation of the singletons
 
 TrainerSpell const* TrainerSpellData::Find(uint32 spell_id) const
@@ -951,30 +953,6 @@ bool Creature::isCanTrainingAndResetTalentsOf(Player* player) const
     return player->getLevel() >= 10
         && GetCreatureTemplate()->trainer_type == TRAINER_TYPE_CLASS
         && player->getClass() == GetCreatureTemplate()->trainer_class;
-}
-
-void Creature::AI_SendMoveToPacket(float x, float y, float z, uint32 time, uint32 /*MovementFlags*/, uint8 /*type*/)
-{
-    /*    uint32 timeElap = getMSTime();
-        if ((timeElap - m_startMove) < m_moveTime)
-        {
-            oX = (dX - oX) * ((timeElap - m_startMove) / m_moveTime);
-            oY = (dY - oY) * ((timeElap - m_startMove) / m_moveTime);
-        }
-        else
-        {
-            oX = dX;
-            oY = dY;
-        }
-
-        dX = x;
-        dY = y;
-        m_orientation = atan2((oY - dY), (oX - dX));
-
-        m_startMove = getMSTime();
-        m_moveTime = time;*/
-    float speed = GetDistance(x, y, z) / ((float)time * 0.001f);
-    MonsterMoveWithSpeed(x, y, z, speed);
 }
 
 Player* Creature::GetLootRecipient() const

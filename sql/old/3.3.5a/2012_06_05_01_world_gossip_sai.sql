@@ -10,7 +10,7 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
 DELETE FROM `gossip_menu` WHERE `entry` IN (3050,3051,3052,3053,3054);
 INSERT INTO `gossip_menu` (`entry`,`text_id`) VALUES (3050,3759),(3051,3760),(3052,3761),(3053,3762),(3054,3763);
 DELETE FROM `gossip_menu_option` WHERE `menu_id` BETWEEN 3049 AND 3054;
-INSERT INTO `gossip_menu_option` (`menu_id`, `id`, `option_icon`, `option_text`, `option_id`, `npc_option_npcflag`, `action_menu_id`, `action_poi_id`, `box_coded`, `box_money`, `box_text`) VALUES 
+INSERT INTO `gossip_menu_option` (`menu_id`, `id`, `option_icon`, `option_text`, `option_id`, `npc_option_npcflag`, `action_menu_id`, `action_poi_id`, `box_coded`, `box_money`, `box_text`) VALUES
 (3049,0,0, 'You will have to excuse me, Lorax, I do not speak ''crazy''.',1,1,3050,0,0,0, ''),
 (3050,0,0, 'My apologies, I did not realize that you could understand what I was saying. What is it you are doing out here?',1,1,3051,0,0,0, ''),
 (3051,0,0, 'Do you? Perhaps you should tell me what it is that is bothering you',1,1,3052,0,0,0, ''),

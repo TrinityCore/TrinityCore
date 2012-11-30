@@ -12,12 +12,12 @@ UPDATE `creature_template` SET `unit_flags`=`unit_flags`|33280 WHERE `entry`=331
 UPDATE `creature_template` SET `speed_run`=2.14286 WHERE `entry`=34120; -- Brann's Flying Machine
 UPDATE `creature_template` SET `speed_walk`=1.6,`speed_run`=1.42857 WHERE `entry`=33118; -- Ignis the Furnace Master
 UPDATE `creature_template` SET `unit_flags`=`unit_flags`|33554688 WHERE `entry`=33121; -- Iron Construct
- 
+
 -- Model data
 UPDATE `creature_model_info` SET `bounding_radius`=5,`combat_reach`=1,`gender`=2 WHERE `modelid`=25870; -- Salvaged Chopper
 UPDATE `creature_model_info` SET `bounding_radius`=0.6,`combat_reach`=1,`gender`=1 WHERE `modelid`=28787; -- Razorscale
 UPDATE `creature_model_info` SET `bounding_radius`=0.62,`combat_reach`=1,`gender`=0 WHERE `modelid`=29185; -- Ignis the Furnace Master
- 
+
 -- Addon data
 DELETE FROM `creature_template_addon` WHERE `entry` IN (33114,33142,33143,33139,33189,33216,33572,33090,33186,33287,33259,34120,
 23033,34086,33118,33210,33121,34085,33816);

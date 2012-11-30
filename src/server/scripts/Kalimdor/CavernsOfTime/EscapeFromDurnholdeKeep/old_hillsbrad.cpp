@@ -34,6 +34,7 @@ EndContentData */
 #include "ScriptedGossip.h"
 #include "ScriptedEscortAI.h"
 #include "old_hillsbrad.h"
+#include "Player.h"
 
 #define QUEST_ENTRY_HILLSBRAD   10282
 #define QUEST_ENTRY_DIVERSION   10283

@@ -41,7 +41,7 @@ enum LfgUpdateType
     LFG_UPDATETYPE_DEFAULT                       = 0,      // Internal Use
     LFG_UPDATETYPE_LEADER_UNK1                   = 1,      // FIXME: At group leave
     LFG_UPDATETYPE_ROLECHECK_ABORTED             = 4,
-    LFG_UPDATETYPE_JOIN_PROPOSAL                 = 5,
+    LFG_UPDATETYPE_JOIN_QUEUE                    = 5,
     LFG_UPDATETYPE_ROLECHECK_FAILED              = 6,
     LFG_UPDATETYPE_REMOVED_FROM_QUEUE            = 7,
     LFG_UPDATETYPE_PROPOSAL_FAILED               = 8,

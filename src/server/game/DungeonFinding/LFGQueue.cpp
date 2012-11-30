@@ -483,12 +483,7 @@ LfgCompatibility LFGQueue::CheckCompatibility(LfgGuidList check)
     }
 
     proposal.queues = check;
-    if (check.size() == 1)
-    {
-        for (LfgGroupsMap::const_iterator it = proposalGroups.begin(); it != proposalGroups.end(); ++it)
-            if (proposal.group && it->second != proposal.group)
-                proposal.isNew = false;
-    }
+    proposal.isNew = numLfgGroups != 1;
 
     if (!sLFGMgr->AllQueued(check))
     {

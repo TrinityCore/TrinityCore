@@ -59,6 +59,7 @@ EndContentData */
 #include "Cell.h"
 #include "CellImpl.h"
 #include "SpellAuras.h"
+#include "Pet.h"
 
 /*########
 # npc_air_force_bots
@@ -2287,7 +2288,7 @@ class npc_wormhole : public CreatureScript
                 _showUnderground = urand(0, 100) == 0; // Guessed value, it is really rare though
             }
 
-            uint32 GetData(uint32 type)
+            uint32 GetData(uint32 type) const
             {
                 return (type == DATA_SHOW_UNDERGROUND && _showUnderground) ? 1 : 0;
             }
@@ -3160,7 +3161,7 @@ public:
                 me->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
         }
 
-        void EnterCombat(Unit * /*who*/) { }
+        void EnterCombat(Unit* /*who*/) { }
 
         void DoAction(const int32 /*param*/)
         {

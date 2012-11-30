@@ -33,6 +33,7 @@ EndContentData */
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "uldaman.h"
+#include "Player.h"
 
 /*######
 ## mob_jadespine_basilisk

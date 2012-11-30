@@ -1,4 +1,4 @@
--- Scourge Deathspeaker SAI 
+-- Scourge Deathspeaker SAI
 UPDATE `creature_template` SET `AIName`= 'SmartAI' WHERE `entry`=27615;
 DELETE FROM `creature_ai_scripts` WHERE `creature_id`=27615;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=27615;
@@ -35,7 +35,7 @@ DELETE FROM `smart_scripts` WHERE `source_type`=0 AND `entryorguid`=@ENTRY;
 INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
 (@ENTRY,0,0,0,1,0,100,1,1000,1000,1000,1000,11,38469,0,0,0,0,0,19,22139,0,0,0,0,0,0,'Dark Conclave Ritualist - OOC - Dark Conclave Ritualist Channel');
 
--- Shattered Sun Marksman fixup (tested) 
+-- Shattered Sun Marksman fixup (tested)
 -- Console no longer spamming waypoint script errors in The Dawning Square
 UPDATE `creature_template` SET `AIName`= 'SmartAI' WHERE `entry`=24938;
 -- Shattered Sun Marksman shoot at Bridge Marksman Target Dummy SAI
@@ -55,7 +55,7 @@ DELETE FROM `waypoint_scripts` WHERE `id` BETWEEN 80 AND 111;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=0 WHERE `guid` IN (65694,65695,65696,65697,65698,65699,65700,65702);
 UPDATE `creature_addon` SET `path_id`=0 WHERE `guid` IN (65694,65695,65696,65697,65698,65699,65700,65702);
 
--- Fix Spell condition for Spell 45223 to target Bridge Marksman Target Dummy 25192 
+-- Fix Spell condition for Spell 45223 to target Bridge Marksman Target Dummy 25192
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceEntry`=45223;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,`ElseGroup`,`ConditionTypeOrReference`,`ConditionValue1`,`ConditionValue2`,`ConditionValue3`,`ErrorTextId`,`ScriptName`,`Comment`) VALUES
 (13,0,45223,0,18,1,25192,0,0,'','Spell 45223 targets Bridge Marksman Target Dummy');

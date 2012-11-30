@@ -16,34 +16,37 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "AccountMgr.h"
+#include "ArenaTeam.h"
+#include "ArenaTeamMgr.h"
+#include "Battleground.h"
+#include "CalendarMgr.h"
+#include "Chat.h"
 #include "Common.h"
+#include "DatabaseEnv.h"
+#include "Group.h"
+#include "Guild.h"
+#include "GuildMgr.h"
+#include "Language.h"
+#include "LFGMgr.h"
+#include "Log.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
-#include "ArenaTeamMgr.h"
-#include "GuildMgr.h"
+#include "Opcodes.h"
+#include "Pet.h"
+#include "PlayerDump.h"
+#include "Player.h"
+#include "ReputationMgr.h"
+#include "ScriptMgr.h"
+#include "SharedDefines.h"
+#include "SocialMgr.h"
 #include "SystemConfig.h"
+#include "UpdateMask.h"
+#include "Util.h"
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
-#include "DatabaseEnv.h"
 
-#include "ArenaTeam.h"
-#include "Chat.h"
-#include "Group.h"
-#include "Guild.h"
-#include "Language.h"
-#include "Log.h"
-#include "Opcodes.h"
-#include "Player.h"
-#include "PlayerDump.h"
-#include "SharedDefines.h"
-#include "SocialMgr.h"
-#include "UpdateMask.h"
-#include "Util.h"
-#include "ScriptMgr.h"
-#include "Battleground.h"
-#include "AccountMgr.h"
-#include "LFGMgr.h"
 
 class LoginQueryHolder : public SQLQueryHolder
 {
@@ -249,7 +252,7 @@ void WorldSession::HandleCharEnumOpcode(WorldPacket & /*recvData*/)
     _charEnumCallback = CharacterDatabase.AsyncQuery(stmt);
 }
 
-void WorldSession::HandleCharCreateOpcode(WorldPacket & recvData)
+void WorldSession::HandleCharCreateOpcode(WorldPacket& recvData)
 {
     std::string name;
     uint8 race_, class_;
@@ -670,7 +673,7 @@ void WorldSession::HandleCharCreateCallback(PreparedQueryResult result, Characte
     }
 }
 
-void WorldSession::HandleCharDeleteOpcode(WorldPacket & recvData)
+void WorldSession::HandleCharDeleteOpcode(WorldPacket& recvData)
 {
     uint64 guid;
     recvData >> guid;
@@ -726,6 +729,7 @@ void WorldSession::HandleCharDeleteOpcode(WorldPacket & recvData)
             sLog->outCharDump(dump.c_str(), GetAccountId(), GUID_LOPART(guid), name.c_str());
     }
 
+    sCalendarMgr->RemoveAllPlayerEventsAndInvites(guid);
     Player::DeleteFromDB(guid, GetAccountId());
 
     WorldPacket data(SMSG_CHAR_DELETE, 1);
@@ -733,7 +737,7 @@ void WorldSession::HandleCharDeleteOpcode(WorldPacket & recvData)
     SendPacket(&data);
 }
 
-void WorldSession::HandlePlayerLoginOpcode(WorldPacket & recvData)
+void WorldSession::HandlePlayerLoginOpcode(WorldPacket& recvData)
 {
     if (PlayerLoading() || GetPlayer() != NULL)
     {
@@ -772,7 +776,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
 
     Player* pCurrChar = new Player(this);
      // for send server info and strings (config)
-    ChatHandler chH = ChatHandler(pCurrChar);
+    ChatHandler chH = ChatHandler(pCurrChar->GetSession());
 
     // "GetAccountId() == db stored account id" checked in LoadFromDB (prevent login not own character using cheating tools)
     if (!pCurrChar->LoadFromDB(GUID_LOPART(playerGuid), holder))
@@ -1002,7 +1006,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
     delete holder;
 }
 
-void WorldSession::HandleSetFactionAtWar(WorldPacket & recvData)
+void WorldSession::HandleSetFactionAtWar(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_SET_FACTION_ATWAR");
 
@@ -1022,7 +1026,7 @@ void WorldSession::HandleSetFactionCheat(WorldPacket & /*recvData*/)
     GetPlayer()->GetReputationMgr().SendStates();
 }
 
-void WorldSession::HandleTutorialFlag(WorldPacket & recvData)
+void WorldSession::HandleTutorialFlag(WorldPacket& recvData)
 {
     uint32 data;
     recvData >> data;
@@ -1050,7 +1054,7 @@ void WorldSession::HandleTutorialReset(WorldPacket & /*recvData*/)
         SetTutorialInt(i, 0x00000000);
 }
 
-void WorldSession::HandleSetWatchedFactionOpcode(WorldPacket & recvData)
+void WorldSession::HandleSetWatchedFactionOpcode(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_SET_WATCHED_FACTION");
     uint32 fact;
@@ -1058,7 +1062,7 @@ void WorldSession::HandleSetWatchedFactionOpcode(WorldPacket & recvData)
     GetPlayer()->SetUInt32Value(PLAYER_FIELD_WATCHED_FACTION_INDEX, fact);
 }
 
-void WorldSession::HandleSetFactionInactiveOpcode(WorldPacket & recvData)
+void WorldSession::HandleSetFactionInactiveOpcode(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_SET_FACTION_INACTIVE");
     uint32 replistid;
@@ -1275,7 +1279,7 @@ void WorldSession::HandleSetPlayerDeclinedNames(WorldPacket& recvData)
     SendPacket(&data);
 }
 
-void WorldSession::HandleAlterAppearance(WorldPacket & recvData)
+void WorldSession::HandleAlterAppearance(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_ALTER_APPEARANCE");
 
@@ -1347,7 +1351,7 @@ void WorldSession::HandleAlterAppearance(WorldPacket & recvData)
     _player->SetStandState(0);                              // stand up
 }
 
-void WorldSession::HandleRemoveGlyph(WorldPacket & recvData)
+void WorldSession::HandleRemoveGlyph(WorldPacket& recvData)
 {
     uint32 slot;
     recvData >> slot;

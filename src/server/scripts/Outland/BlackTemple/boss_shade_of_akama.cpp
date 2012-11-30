@@ -27,6 +27,7 @@ EndScriptData */
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
 #include "black_temple.h"
+#include "Player.h"
 
 #define SAY_DEATH                   -1564013
 #define SAY_LOW_HEALTH              -1564014

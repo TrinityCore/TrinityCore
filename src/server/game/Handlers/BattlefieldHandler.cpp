@@ -25,6 +25,7 @@
 #include "Battlefield.h"
 #include "BattlefieldMgr.h"
 #include "Opcodes.h"
+#include "Player.h"
 
 //This send to player windows for invite player to join the war
 //Param1:(BattleId) the BattleId of Bf
@@ -101,7 +102,7 @@ void WorldSession::HandleBfQueueInviteResponse(WorldPacket & recvData)
     uint8 Accepted;
 
     recvData >> BattleId >> Accepted;
-    sLog->outError(LOG_FILTER_GENERAL, "HandleQueueInviteResponse: BattleID:%u Accepted:%u", BattleId, Accepted);
+    sLog->outDebug(LOG_FILTER_GENERAL, "HandleQueueInviteResponse: BattleID:%u Accepted:%u", BattleId, Accepted);
     Battlefield* Bf = sBattlefieldMgr->GetBattlefieldByBattleId(BattleId);
     if (!Bf)
         return;
@@ -119,7 +120,7 @@ void WorldSession::HandleBfEntryInviteResponse(WorldPacket & recvData)
     uint8 Accepted;
 
     recvData >> BattleId >> Accepted;
-    sLog->outError(LOG_FILTER_GENERAL, "HandleBattlefieldInviteResponse: BattleID:%u Accepted:%u", BattleId, Accepted);
+    sLog->outDebug(LOG_FILTER_GENERAL, "HandleBattlefieldInviteResponse: BattleID:%u Accepted:%u", BattleId, Accepted);
     Battlefield* Bf = sBattlefieldMgr->GetBattlefieldByBattleId(BattleId);
     if (!Bf)
         return;
@@ -141,7 +142,7 @@ void WorldSession::HandleBfExitRequest(WorldPacket & recvData)
     uint32 BattleId;
 
     recvData >> BattleId;
-    sLog->outError(LOG_FILTER_GENERAL, "HandleBfExitRequest: BattleID:%u ", BattleId);
+    sLog->outDebug(LOG_FILTER_GENERAL, "HandleBfExitRequest: BattleID:%u ", BattleId);
     Battlefield* Bf = sBattlefieldMgr->GetBattlefieldByBattleId(BattleId);
     if (!Bf)
         return;

@@ -1,6 +1,6 @@
 -- Add missing Invisible Stalker (Floating)
 SET @GUID := 85175; -- 2 Required
-DELETE FROM `creature` WHERE `guid` BETWEEN @GUID AND @GUID+1; 
+DELETE FROM `creature` WHERE `guid` BETWEEN @GUID AND @GUID+1;
 INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`DeathState`,`MovementType`) VALUES
 (@GUID,23033,571,1,1,0,0,3799.331,3428.748,92.80447,3.804818,120,0,0,1,0,0,0),
 (@GUID+1,23033,571,1,1,0,0,3789.681,3434.306,92.37619,4.764749,120,0,0,1,0,0,0);
@@ -8,7 +8,7 @@ INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equ
 SET @ENTRY  := 26073; -- NPC entry
 SET @SPELL1 := 45492; -- Shadow Nova
 SET @SPELL2 := 11640; -- Renew         cast once below 45%
-SET @SPELL3 := 15587; -- Mind Blast    cast below 45% after renew 
+SET @SPELL3 := 15587; -- Mind Blast    cast below 45% after renew
 UPDATE `creature` SET `modelid`=0,`spawndist`=0,`MovementType`=0 WHERE `id`=@ENTRY;
 DELETE FROM `creature_addon` WHERE `guid`=85240;
 DELETE FROM `creature_template_addon` WHERE `entry`=26073;

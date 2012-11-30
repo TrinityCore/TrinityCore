@@ -168,7 +168,7 @@ public:
                 instance->SetData(DATA_TROLLGORE_EVENT, DONE);
         }
 
-        uint32 GetData(uint32 type)
+        uint32 GetData(uint32 type) const
         {
             if (type == DATA_CONSUMPTION_JUNCTION)
                 return consumptionJunction ? 1 : 0;

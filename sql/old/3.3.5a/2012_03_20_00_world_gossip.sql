@@ -1,13 +1,13 @@
 -- Creature Gossip_menu_id Update from sniff
-UPDATE `creature_template` SET `gossip_menu_id`=9052 WHERE `entry`=24965; -- Vindicator Xayann 
-UPDATE `creature_template` SET `gossip_menu_id`=9050 WHERE `entry`=24975; -- Mar'nah 
-UPDATE `creature_template` SET `gossip_menu_id`=9126 WHERE `entry`=25032; -- Eldara Dawnrunner 
-UPDATE `creature_template` SET `gossip_menu_id`=9087 WHERE `entry`=25046; -- Smith Hauthaa 
-UPDATE `creature_template` SET `gossip_menu_id`=9064 WHERE `entry`=25057; -- Battlemage Arynna 
-UPDATE `creature_template` SET `gossip_menu_id`=9062, `AIName`='SmartAI', `ScriptName`='' WHERE `entry`=25059; -- Ayren Cloudbreaker 
-UPDATE `creature_template` SET `gossip_menu_id`=9063 WHERE `entry`=25061; -- Harbinger Inuuro 
-UPDATE `creature_template` SET `gossip_menu_id`=9127 WHERE `entry`=25069; -- Magister Ilastar 
-UPDATE `creature_template` SET `gossip_menu_id`=9115 WHERE `entry`=25112; -- Anchorite Ayuri 
+UPDATE `creature_template` SET `gossip_menu_id`=9052 WHERE `entry`=24965; -- Vindicator Xayann
+UPDATE `creature_template` SET `gossip_menu_id`=9050 WHERE `entry`=24975; -- Mar'nah
+UPDATE `creature_template` SET `gossip_menu_id`=9126 WHERE `entry`=25032; -- Eldara Dawnrunner
+UPDATE `creature_template` SET `gossip_menu_id`=9087 WHERE `entry`=25046; -- Smith Hauthaa
+UPDATE `creature_template` SET `gossip_menu_id`=9064 WHERE `entry`=25057; -- Battlemage Arynna
+UPDATE `creature_template` SET `gossip_menu_id`=9062, `AIName`='SmartAI', `ScriptName`='' WHERE `entry`=25059; -- Ayren Cloudbreaker
+UPDATE `creature_template` SET `gossip_menu_id`=9063 WHERE `entry`=25061; -- Harbinger Inuuro
+UPDATE `creature_template` SET `gossip_menu_id`=9127 WHERE `entry`=25069; -- Magister Ilastar
+UPDATE `creature_template` SET `gossip_menu_id`=9115 WHERE `entry`=25112; -- Anchorite Ayuri
 UPDATE `creature_template` SET `gossip_menu_id`=9105 WHERE `entry`=25169; -- Archmage Ne'thul
 UPDATE `creature_template` SET `gossip_menu_id`=9286 WHERE `entry`=25632; -- Vindicator Moorba
 UPDATE `creature_template` SET `gossip_menu_id`=9285 WHERE `entry`=25638; -- Captain Selana
@@ -56,13 +56,13 @@ DELETE FROM `gossip_menu_option` WHERE `menu_id`=9062 AND `id` IN (0,1);
 DELETE FROM `gossip_menu_option` WHERE `menu_id`=9286 AND `id`=2;
 INSERT INTO `gossip_menu_option` (`menu_id`, `id`, `option_icon`,`option_text`,`option_id`,`npc_option_npcflag`,`action_menu_id`,`action_poi_id`,`box_coded`,`box_money`,`box_text`)VALUES
 (9050,0,1,'Let me browse your goods.',3,128,0,0,0,0,''),
-(9062,0,0,'Speaking of action, I''ve been ordered to undertake an air strike.',1,1,0,0,0,0,''), 
+(9062,0,0,'Speaking of action, I''ve been ordered to undertake an air strike.',1,1,0,0,0,0,''),
 (9062,1,0,'I need to intercept the Dawnblade reinforcements.',1,1,0,0,0,0,''),
 (9087,0,1,'Let me browse your goods.',3,128,0,0,0,0,''),
 (9126,0,1,'Let me browse your goods.',3,128,0,0,0,0,''),
 (9198,0,1,'Let me browse your goods.',3,128,0,0,0,0,''),
 (9285,0,0,'Give me a situation report, Captain.',1,1,9287,0,0,0,''),
-(9286,2,0,'What is the current state of the Sunwell''s Gates?',1,1,9293,0,0,0,''), 
+(9286,2,0,'What is the current state of the Sunwell''s Gates?',1,1,9293,0,0,0,''),
 (9287,0,0,'What went wrong?',1,1,9288,0,0,0,''),
 (9288,0,0,'Why did they stop?',1,1,9289,0,0,0,''),
 (9289,0,0,'Your insight is appreciated.',1,1,9290,0,0,0,'');

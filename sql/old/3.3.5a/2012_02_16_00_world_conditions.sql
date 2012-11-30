@@ -1,7 +1,7 @@
 CREATE TABLE `temp_convert_spells`
 (
-	`id` INT(11),
-	PRIMARY KEY (`id`)
+    `id` INT(11),
+    PRIMARY KEY (`id`)
 );
 
 -- spells with EffectImplicitTarget In (6,21, 25) + spells having Targets & 1115534
@@ -12751,26 +12751,26 @@ INSERT INTO `temp_convert_spells` VALUES
 (79397);
 CREATE TABLE `temp_cond_vals`
 (
-	`spellId` INT(11),
-	`elseGroup` INT(11) AUTO_INCREMENT,
-	`entry` INT(11),
-	`dead` INT(11),
-	`errorTextId` INT(11),
-	`comment` VARCHAR(255),
-	PRIMARY KEY (`spellId`, `elseGroup`)
+    `spellId` INT(11),
+    `elseGroup` INT(11) AUTO_INCREMENT,
+    `entry` INT(11),
+    `dead` INT(11),
+    `errorTextId` INT(11),
+    `comment` VARCHAR(255),
+    PRIMARY KEY (`spellId`, `elseGroup`)
 ) ENGINE=MYISAM;
 
 CREATE TABLE `temp_item_spell`
 (
-	`itemId` INT(11),
-	`spellId` INT(11),
-	PRIMARY KEY (`itemId`, `spellId`)
+    `itemId` INT(11),
+    `spellId` INT(11),
+    PRIMARY KEY (`itemId`, `spellId`)
 );
 
 CREATE TABLE `temp_item`
 (
-	`itemId` INT(11),
-	PRIMARY KEY (`itemId`)
+    `itemId` INT(11),
+    PRIMARY KEY (`itemId`)
 );
 
 INSERT INTO `temp_item` SELECT DISTINCT `SourceEntry` FROM `conditions` WHERE `SourceTypeOrReferenceId` = 18;

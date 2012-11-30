@@ -28,6 +28,7 @@
 #include "TemporarySummon.h"
 #include "Object.h"
 #include "DBCStores.h"
+#include "World.h"
 
 using G3D::Vector3;
 using G3D::Ray;

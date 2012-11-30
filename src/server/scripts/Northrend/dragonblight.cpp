@@ -33,6 +33,7 @@ EndContentData */
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"
 #include "ScriptedEscortAI.h"
+#include "Player.h"
 
 enum eEnums
 {

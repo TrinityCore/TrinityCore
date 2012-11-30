@@ -37,6 +37,7 @@ EndContentData */
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "Player.h"
 
 /*######
 ## at_coilfang_waterfall

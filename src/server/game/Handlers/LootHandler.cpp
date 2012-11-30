@@ -17,20 +17,21 @@
  */
 
 #include "Common.h"
-#include "WorldPacket.h"
 #include "Log.h"
 #include "Corpse.h"
+#include "Creature.h"
 #include "GameObject.h"
-#include "Player.h"
-#include "ObjectAccessor.h"
-#include "WorldSession.h"
-#include "LootMgr.h"
-#include "Object.h"
 #include "Group.h"
+#include "LootMgr.h"
+#include "ObjectAccessor.h"
+#include "Object.h"
+#include "Opcodes.h"
+#include "Player.h"
 #include "World.h"
-#include "Util.h"
+#include "WorldPacket.h"
+#include "WorldSession.h"
 
-void WorldSession::HandleAutostoreLootItemOpcode(WorldPacket & recvData)
+void WorldSession::HandleAutostoreLootItemOpcode(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_AUTOSTORE_LOOT_ITEM");
     Player* player = GetPlayer();
@@ -202,7 +203,7 @@ void WorldSession::HandleLootMoneyOpcode(WorldPacket & /*recvData*/)
     }
 }
 
-void WorldSession::HandleLootOpcode(WorldPacket & recvData)
+void WorldSession::HandleLootOpcode(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_LOOT");
 
@@ -428,7 +429,7 @@ void WorldSession::DoLootRelease(uint64 lguid)
     loot->RemoveLooter(player->GetGUID());
 }
 
-void WorldSession::HandleLootMasterGiveOpcode(WorldPacket & recvData)
+void WorldSession::HandleLootMasterGiveOpcode(WorldPacket& recvData)
 {
     uint8 slotid;
     uint64 lootguid, target_playerguid;

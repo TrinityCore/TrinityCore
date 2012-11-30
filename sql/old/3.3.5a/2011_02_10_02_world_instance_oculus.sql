@@ -5,7 +5,7 @@ UPDATE `creature_template` SET `InhabitType`=5 WHERE `entry`=30879;
 
 -- spell script target
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceEntry`=57963;
-INSERT INTO `conditions` (SourceTypeOrReferenceId, SourceGroup, SourceEntry, ElseGroup, ConditionTypeOrReference, ConditionValue1, ConditionValue2, ConditionValue3, ErrorTextId, ScriptName, COMMENT) VALUES 
+INSERT INTO `conditions` (SourceTypeOrReferenceId, SourceGroup, SourceEntry, ElseGroup, ConditionTypeOrReference, ConditionValue1, ConditionValue2, ConditionValue3, ErrorTextId, ScriptName, COMMENT) VALUES
 (13,0,57963,0,18,1,27656,0,0,'',NULL);
 
 -- not sure about this, execute at your own risk

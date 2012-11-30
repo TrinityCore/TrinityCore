@@ -23,6 +23,7 @@
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
 #include "halls_of_reflection.h"
+#include "Player.h"
 
 enum
 {

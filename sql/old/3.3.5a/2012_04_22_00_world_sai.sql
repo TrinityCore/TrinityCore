@@ -5,7 +5,7 @@ SET @GOSSIP := 9832;
 UPDATE `creature_template` SET `AIName`='SmartAI', `ScriptName`='' WHERE `entry`=@ROSS;
 
 DELETE FROM `gossip_menu_option` WHERE `menu_id`=@GOSSIP AND `id`>0 AND `id`<11;
-INSERT INTO `gossip_menu_option` (`menu_id`, `id`, `option_icon`, `option_text`, `option_id`, `npc_option_npcflag`, `action_menu_id`, `action_poi_id`, `box_coded`, `box_money`, `box_text`) VALUES 
+INSERT INTO `gossip_menu_option` (`menu_id`, `id`, `option_icon`, `option_text`, `option_id`, `npc_option_npcflag`, `action_menu_id`, `action_poi_id`, `box_coded`, `box_money`, `box_text`) VALUES
 (@GOSSIP, 1, 0, 'I''ve lost my Blood Knight Tabard.', 1, 1, 0, 0, 0, 0, ''),
 (@GOSSIP, 2, 0, 'I''ve lost my Tabard of the Hand.', 1, 1, 0, 0, 0, 0, ''),
 (@GOSSIP, 3, 0, 'I''ve lost my Tabard of the Protector.', 1, 1, 0, 0, 0, 0, ''),
