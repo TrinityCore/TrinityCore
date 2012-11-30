@@ -275,14 +275,8 @@ enum ClintarSpirit
 {
     ASPECT_RAVEN                        = 22915,
 
-    //from -1000292 to -1000287 are signed for 7806. but all this texts ids wrong.
-    CLINTAR_SPIRIT_SAY_START            = -1000286,
-    CLINTAR_SPIRIT_SAY_UNDER_ATTACK_1   = -1000287,
-    CLINTAR_SPIRIT_SAY_UNDER_ATTACK_2   = -1000288,
-    CLINTAR_SPIRIT_SAY_GET_ONE          = -1000289,
-    CLINTAR_SPIRIT_SAY_GET_TWO          = -1000290,
-    CLINTAR_SPIRIT_SAY_GET_THREE        = -1000291,
-    CLINTAR_SPIRIT_SAY_GET_FINAL        = -1000292
+    // Texts for EnterCombat, the event and the end of the event are missing
+    CLINTAR_SPIRIT_SAY_START            = 0,
 };
 
 class npc_clintar_spirit : public CreatureScript
@@ -350,15 +344,6 @@ public:
             npc_escortAI::EnterEvadeMode();
         }
 
-        void EnterCombat(Unit* who)
-        {
-            switch (urand(0, 1))
-            {
-                case 0: DoScriptText(CLINTAR_SPIRIT_SAY_UNDER_ATTACK_1, me, who); break;
-                case 1: DoScriptText(CLINTAR_SPIRIT_SAY_UNDER_ATTACK_2, me, who); break;
-            }
-        }
-
         void StartEvent(Player* player)
         {
             if (player && player->GetQuestStatus(10965) == QUEST_STATUS_INCOMPLETE)
@@ -410,7 +395,7 @@ public:
                         switch (Step)
                         {
                             case 0:
-                                me->Say(CLINTAR_SPIRIT_SAY_START, 0, PlayerGUID);
+                                Talk(CLINTAR_SPIRIT_SAY_START, PlayerGUID);
                                 EventTimer = 8000;
                                 Step = 1;
                                 break;
@@ -429,7 +414,7 @@ public:
                                 break;
                             case 1:
                                 me->SetUInt32Value(UNIT_NPC_EMOTESTATE, 0);
-                                DoScriptText(CLINTAR_SPIRIT_SAY_GET_ONE, me, player);
+                                // Needs text
                                 EventOnWait = false;
                                 break;
                         }
@@ -452,7 +437,7 @@ public:
                         switch (Step)
                         {
                             case 0:
-                                DoScriptText(CLINTAR_SPIRIT_SAY_GET_TWO, me, player);
+                                // Needs text
                                 EventTimer = 15000;
                                 Step = 1;
                                 break;
@@ -496,7 +481,7 @@ public:
                         switch (Step)
                         {
                             case 0:
-                                DoScriptText(CLINTAR_SPIRIT_SAY_GET_THREE, me, player);
+                                // Needs text
                                 EventTimer = 4000;
                                 Step = 1;
                                 break;
@@ -510,7 +495,7 @@ public:
                         {
                             case 0:
                                 me->SetUInt32Value(UNIT_NPC_EMOTESTATE, 2);
-                                DoScriptText(CLINTAR_SPIRIT_SAY_GET_FINAL, me, player);
+                                // Needs text
                                 player->CompleteQuest(10965);
                                 EventTimer = 1500;
                                 Step = 1;
