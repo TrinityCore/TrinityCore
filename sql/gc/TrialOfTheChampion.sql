@@ -469,7 +469,7 @@ INSERT INTO `creature_template_addon` (`entry`,`bytes2`,`auras`) VALUES
 UPDATE  `gameobject` SET  `state` = '1' WHERE `gameobject`.`guid` =150073;
 UPDATE  `gameobject` SET  `state` = '1' WHERE `gameobject`.`guid` =150074;
 
-DELETE FROM spell_script_names WHERE ABS(spell_id) = 66903;
+DELETE FROM spell_script_names WHERE spell_id IN (66903, 67680);
 INSERT INTO spell_script_names (spell_id, ScriptName) VALUES
 (67680, 'spell_eadric_hoj'), -- Eadric's Hammer of Justice
 (66903, 'spell_eadric_hoj'); 
