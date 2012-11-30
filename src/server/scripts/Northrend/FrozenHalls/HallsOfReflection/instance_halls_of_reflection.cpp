@@ -31,9 +31,7 @@ EndScriptData */
 #include "ScriptedCreature.h"
 #include "InstanceScript.h"
 #include "halls_of_reflection.h"
-<<<<<<< HEAD
 #include "World.h"
-=======
 #include "Player.h"
 
 #define MAX_ENCOUNTER 3
@@ -113,7 +111,6 @@ static Position RiflemanSpawnPos[ENCOUNTER_WAVE_RIFLEMAN] =
     {5295.64f, 1973.76f, 707.778f, 1.18682f},
     {5282.9f, 2019.6f, 707.778f, 5.88176f},
 };
->>>>>>> d3c902915b66fd6fa4a498f00150863cac95e394
 
 class instance_halls_of_reflection : public InstanceMapScript
 {
@@ -369,16 +366,12 @@ public:
             }
         }
 
-<<<<<<< HEAD
         const char* Save()
-=======
-        uint32 GetData(uint32 type) const
->>>>>>> d3c902915b66fd6fa4a498f00150863cac95e394
         {
             return strSaveData.c_str();
         }
 
-        uint32 GetData(uint32 uiType)
+        uint32 GetData(uint32 uiType) const
         {
             switch(uiType)
             {
@@ -401,11 +394,7 @@ public:
             return 0;
         }
 
-<<<<<<< HEAD
         void SetData64(uint32 uiData, uint64 uiGuid)
-=======
-        uint64 GetData64(uint32 identifier) const
->>>>>>> d3c902915b66fd6fa4a498f00150863cac95e394
         {
             switch(uiData)
             {
@@ -415,7 +404,7 @@ public:
             }
         }
 
-        uint64 GetData64(uint32 uiData)
+        uint64 GetData64(uint32 uiData) const
         {
             switch(uiData)
             {

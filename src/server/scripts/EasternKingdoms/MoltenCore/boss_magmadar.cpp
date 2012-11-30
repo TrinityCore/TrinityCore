@@ -30,7 +30,7 @@ EndScriptData */
 
 enum Texts
 {
-    EMOTE_FRENZY        = -1409001,
+    EMOTE_FRENZY        = 0
 };
 
 enum Spells
@@ -88,7 +88,7 @@ class boss_magmadar : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_FRENZY:
-                            DoScriptText(EMOTE_FRENZY, me);
+                            Talk(EMOTE_FRENZY);
                             DoCast(me, SPELL_FRENZY);
                             events.ScheduleEvent(EVENT_FRENZY, 15000);
                             break;

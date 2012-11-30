@@ -29,7 +29,7 @@
 #include "Item.h"
 #include "AccountMgr.h"
 
-void WorldSession::HandleSendMail(WorldPacket & recvData)
+void WorldSession::HandleSendMail(WorldPacket& recvData)
 {
     uint64 mailbox, unk3;
     std::string receiver, subject, body;
@@ -303,7 +303,7 @@ void WorldSession::HandleSendMail(WorldPacket & recvData)
 }
 
 //called when mail is read
-void WorldSession::HandleMailMarkAsRead(WorldPacket & recvData)
+void WorldSession::HandleMailMarkAsRead(WorldPacket& recvData)
 {
     uint64 mailbox;
     uint32 mailId;
@@ -327,7 +327,7 @@ void WorldSession::HandleMailMarkAsRead(WorldPacket & recvData)
 }
 
 //called when client deletes mail
-void WorldSession::HandleMailDelete(WorldPacket & recvData)
+void WorldSession::HandleMailDelete(WorldPacket& recvData)
 {
     uint64 mailbox;
     uint32 mailId;
@@ -356,7 +356,7 @@ void WorldSession::HandleMailDelete(WorldPacket & recvData)
     player->SendMailResult(mailId, MAIL_DELETED, MAIL_OK);
 }
 
-void WorldSession::HandleMailReturnToSender(WorldPacket & recvData)
+void WorldSession::HandleMailReturnToSender(WorldPacket& recvData)
 {
     uint64 mailbox;
     uint32 mailId;
@@ -421,7 +421,7 @@ void WorldSession::HandleMailReturnToSender(WorldPacket & recvData)
 }
 
 //called when player takes item attached in mail
-void WorldSession::HandleMailTakeItem(WorldPacket & recvData)
+void WorldSession::HandleMailTakeItem(WorldPacket& recvData)
 {
     uint64 mailbox;
     uint32 mailId;
@@ -518,7 +518,7 @@ void WorldSession::HandleMailTakeItem(WorldPacket & recvData)
         player->SendMailResult(mailId, MAIL_ITEM_TAKEN, MAIL_ERR_EQUIP_ERROR, msg);
 }
 
-void WorldSession::HandleMailTakeMoney(WorldPacket & recvData)
+void WorldSession::HandleMailTakeMoney(WorldPacket& recvData)
 {
     uint64 mailbox;
     uint32 mailId;
@@ -553,7 +553,7 @@ void WorldSession::HandleMailTakeMoney(WorldPacket & recvData)
 }
 
 //called when player lists his received mails
-void WorldSession::HandleGetMailList(WorldPacket & recvData)
+void WorldSession::HandleGetMailList(WorldPacket& recvData)
 {
     uint64 mailbox;
     recvData >> mailbox;
@@ -674,7 +674,7 @@ void WorldSession::HandleGetMailList(WorldPacket & recvData)
 }
 
 //used when player copies mail body to his inventory
-void WorldSession::HandleMailCreateTextItem(WorldPacket & recvData)
+void WorldSession::HandleMailCreateTextItem(WorldPacket& recvData)
 {
     uint64 mailbox;
     uint32 mailId;
