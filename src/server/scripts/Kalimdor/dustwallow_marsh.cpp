@@ -758,9 +758,9 @@ public:
 
     bool OnGossipHello(Player* player, GameObject* go)
     {
+        go->UseDoorOrButton();
         if (Creature* prisoner = go->FindNearestCreature(NPC_THERAMORE_PRISONER, 1.0f))
         {
-            go->UseDoorOrButton();
             if (player)
                 player->KilledMonsterCredit(NPC_THERAMORE_PRISONER, 0);
 
