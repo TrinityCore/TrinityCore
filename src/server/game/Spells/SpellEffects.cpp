@@ -3686,17 +3686,6 @@ void Spell::EffectWeaponDmg(SpellEffIndex effIndex)
                         m_caster->CastSpell(unitTarget, 83302, true);
                     }
                 }
-			if (m_spellInfo->Id == 11129) //Combustion
-            {
-				//Dots na Targetu
-                int32 bp = 0;
-                Unit::AuraEffectList const &mPeriodic =    unitTarget->GetAuraEffectsByType(SPELL_AURA_PERIODIC_DAMAGE);
-                //periodicky DMG
-                for (Unit::AuraEffectList::const_iterator i = mPeriodic.begin(); i != mPeriodic.end(); ++i)                 
-                    if ((*i)->GetCasterGUID() == m_caster->GetGUID())
-                        bp += (*i)->GetAmount();             
-                m_caster->CastCustomSpell(unitTarget, 83853, &bp,NULL, NULL, true);
-            }
                 switch (m_spellInfo->Id)
                 {
                 case 1459: // Arcane Brilliance

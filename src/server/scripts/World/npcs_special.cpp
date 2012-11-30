@@ -3467,8 +3467,8 @@ class npc_power_word_barrier : public CreatureScript
 
            //Check friendly entities
            std::list<Unit*> targets;
-            Trinity::AnyFriendlyUnitInObjectRangeCheck u_check(me, me, 7.0f);
-            Trinity::UnitListSearcher<Trinity::AnyFriendlyUnitInObjectRangeCheck>searcher(me, targets, u_check);
+            SkyFire::AnyFriendlyUnitInObjectRangeCheck u_check(me, me, 7.0f);
+            SkyFire::UnitListSearcher<SkyFire::AnyFriendlyUnitInObjectRangeCheck>searcher(me, targets, u_check);
 
             me->VisitNearbyObject(7.0f, searcher);
             for (std::list<Unit*>::const_iterator iter = targets.begin(); iter != targets.end(); ++iter)
@@ -3660,41 +3660,41 @@ public:
 
 void AddSC_npcs_special()
 {
-    new npc_air_force_bots;
-    new npc_lunaclaw_spirit;
-    new npc_chicken_cluck;
-    new npc_dancing_flames;
-    new npc_doctor;
-    new npc_injured_patient;
-    new npc_garments_of_quests;
-    new npc_guardian;
-    new npc_kingdom_of_dalaran_quests;
-    new npc_mount_vendor;
-    new npc_rogue_trainer;
-    new npc_sayge;
-    new npc_steam_tonk;
-    new npc_tonk_mine;
-    new npc_winter_reveler;
-    new npc_brewfest_reveler;
-    new npc_snake_trap;
-    new npc_mirror_image;
-    new npc_ebon_gargoyle;
-    new npc_lightwell;
-    new mob_mojo;
-    new npc_training_dummy;
-    new npc_shadowfiend;
-    new npc_wormhole;
-    new npc_pet_trainer;
-    new npc_locksmith;
-    new npc_tabard_vendor;
-    new npc_experience;
-    new npc_firework;
-    // new npc_guardian_of_ancient_kings;
+    new npc_air_force_bots();
+    new npc_lunaclaw_spirit();
+    new npc_chicken_cluck();
+    new npc_dancing_flames();
+    new npc_doctor();
+    new npc_injured_patient();
+    new npc_garments_of_quests();
+    new npc_guardian();
+    new npc_kingdom_of_dalaran_quests();
+    new npc_mount_vendor();
+    new npc_rogue_trainer();
+    new npc_sayge();
+    new npc_steam_tonk();
+    new npc_tonk_mine();
+    new npc_winter_reveler();
+    new npc_brewfest_reveler();
+    new npc_snake_trap();
+    new npc_mirror_image();
+    new npc_ebon_gargoyle();
+    new npc_lightwell();
+    new mob_mojo();
+    new npc_training_dummy();
+    new npc_shadowfiend();
+    new npc_wormhole();
+    new npc_pet_trainer();
+    new npc_locksmith();
+    new npc_tabard_vendor();
+    new npc_experience();
+    new npc_firework();
+    // new npc_guardian_of_ancient_kings();
 	new npc_fire_elemental();
-    new npc_flame_orb;
-    new npc_ring_of_frost;
-    new npc_frostfire_orb;
-    new npc_power_word_barrier;
-    new npc_wild_mushroom;
+    new npc_flame_orb();
+    new npc_ring_of_frost();
+    new npc_frostfire_orb();
+    new npc_power_word_barrier();
+    new npc_wild_mushroom();
 	new npc_shadowy_apparition();
 }
