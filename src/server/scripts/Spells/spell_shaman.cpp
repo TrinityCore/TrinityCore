@@ -59,9 +59,10 @@ enum ShamanSpells
     ICON_ID_SOOTHING_RAIN                  = 2011,
     SPELL_HEALING_STREAM_TOTEM_HEAL        = 52042,
 
-	SHAMAN_SPELL_FULMINATION               = 88766,
-    SHAMAN_SPELl_FULMINATION_INFO          = 88767,
-	SHAMAN_SPELL_FULMINATION_TRIGGERED     = 95774,
+    SHAMAN_SPELL_FULMINATION               = 88766,
+    SHAMAN_SPELL_FULMINATION_TRIGGERED     = 88767,
+    SHAMAN_SPELL_FULMINATION_INFO          = 95774,
+    SHAMAN_SPELL_LIGHTNING_SHIELD_PROC     = 26364,
 
     SHAMAN_SPELL_EARTHQUAKE_KNOCKDOWN       = 77505,
 
@@ -678,7 +679,7 @@ public:
                           int32 basePoints = caster->CalculateSpellDamage(target, spellInfo, 0);
 
                           uint32 damage = usedCharges
-                                  * caster->SpellDamageBonus(target, spellInfo,
+                                  * caster->SpellDamageBonusDone(target, spellInfo,
                                   basePoints, SPELL_DIRECT_DAMAGE,effIndex);
                           caster->CastCustomSpell(SHAMAN_SPELL_FULMINATION_TRIGGERED,
                                   SPELLVALUE_BASE_POINT0, damage, target, true, NULL,
@@ -686,10 +687,10 @@ public:
                           lightningShield->SetCharges(IsCharges - usedCharges);
                   }
 
-                  //register functions used in spell script - names of these functions do not matter
-                  void Register() {
-                          OnEffect +=
-                                  SpellEffectFn(spell_sha_fulminationSpellScript::HandleFulmination,EFFECT_FIRST_FOUND, SPELL_EFFECT_ANY);
+                  // OnEffectHitTarget -> SpellEffectFn
+                 void Register()
+                  {
+                          OnEffectHitTarget += SpellEffectFn(spell_sha_fulminationSpellScript::HandleFulmination, EFFECT_FIRST_FOUND, SPELL_EFFECT_ANY);
                   }
           };
 
@@ -721,7 +722,8 @@ public:
 
         void OnQuake ()
         {
-            int32 chance = SpellMgr::CalculateSpellEffectAmount(GetSpellInfo(), EFFECT_1);
+            //10% Chance to Knockdown.. 
+            int32 chance = 10;
             Unit* target = GetHitUnit();
 
             if (roll_chance_i(chance))
@@ -768,7 +770,7 @@ class spell_sha_astral_shift : public SpellScriptLoader
             {
                 // reduces all damage taken while stun, fear or silence
                 if (GetTarget()->GetUInt32Value(UNIT_FIELD_FLAGS) & (UNIT_FLAG_FLEEING | UNIT_FLAG_SILENCED) || (GetTarget()->GetUInt32Value(UNIT_FIELD_FLAGS) & (UNIT_FLAG_STUNNED) && GetTarget()->HasAuraWithMechanic(1<<MECHANIC_STUN)))
-                    absorbAmount = CalculatePctN(dmgInfo.GetDamage(), absorbPct);
+                    absorbAmount = CalculatePct(dmgInfo.GetDamage(), absorbPct);
             }
 
             void Register()
@@ -797,8 +799,8 @@ void AddSC_shaman_spell_scripts()
     new spell_sha_lava_lash();
     new spell_sha_chain_heal();
     new spell_sha_flame_shock();
-	new spell_sha_totemic_wrath();
+    new spell_sha_totemic_wrath();
     new spell_sha_fulmination();
-	new spell_sha_earthquake();
-	new spell_sha_astral_shift()
+    new spell_sha_earthquake();
+    new spell_sha_astral_shift();
 }

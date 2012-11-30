@@ -5615,7 +5615,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
             }
  	        // Permafrost
  	        if (dummySpell->SpellIconID == 143)
- 
+			{
  	            if (!procSpell)
  	                return false;
  
@@ -7827,9 +7827,9 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
             }
             case SPELLFAMILY_SHAMAN:
             {
-				    switch (auraSpellInfo->Id)
+                switch (auraSpellInfo->Id)
 					{
-						// Rolling Thunder
+					// Rolling Thunder
 					case 88765:
 						{
 							if (Aura * lightningShield = GetAura(324))
@@ -7842,8 +7842,6 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
 							}
 							break;
 						}
-                switch (auraSpellInfo->Id)
-					{
                     // Lightning Shield (The Ten Storms set)
                     case 23551:
                     {
