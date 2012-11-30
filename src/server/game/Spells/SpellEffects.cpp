@@ -480,6 +480,114 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
             }
             case SPELLFAMILY_WARRIOR:
             {
+				switch(m_spellInfo->Id)
+                {
+                    // WARLOCK PET SPELL DMG
+                    case 89751: // Felstorm
+                    case 7814:  // Lash of Pain
+                    case 30213: // Legion Strike
+                    case 54049: // Shadow Bite
+                    case 3716:  // Torment
+                    {
+                        float spellpower = (float)(m_caster->GetOwner()->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_SHADOW));
+                        damage += int32((spellpower * 0.5f) / 2);
+                        break;
+                    }
+                    case 3110: // Firebolt
+                    {
+                        if (m_caster->isPet())
+                        {
+                            float spellpower = (float)(m_caster->GetOwner()->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_FIRE));
+                            damage += int32(spellpower * 0.329f);
+
+                            int32 bp0 = 0;
+                            if (m_caster->GetOwner()->ToPlayer()->HasAura(91986)) // Burning Embers
+                            {
+                                bp0 = CalculatePct(int32(damage), 15) /7;
+                                m_caster->CastCustomSpell(unitTarget, 85421, &bp0, NULL, NULL, true);
+                            }
+                            if (m_caster->GetOwner()->ToPlayer()->HasAura(85112))
+                            {
+                                bp0 = CalculatePct(int32(damage), 30) /7;
+                                m_caster->CastCustomSpell(unitTarget, 85421, &bp0, NULL, NULL, true);
+                            }
+                            // Empowered Imp
+                            if (m_caster->GetOwner()->ToPlayer()->HasAura(47220) && roll_chance_i(2) || m_caster->GetOwner()->ToPlayer()->HasAura(47221) && roll_chance_i(4))
+                                m_caster->CastSpell(m_caster->GetOwner()->ToPlayer(),47283,true);
+                        }
+                        break;
+                    }
+                    case 5676: // Searing Pain
+                    {
+                        if(m_caster->isSoulBurnActive())
+                        {
+                            m_caster->CastSpell(m_caster,79440,true);
+                            m_caster->RemoveAurasDueToSpell(74434);
+                        }
+                        break;
+                    }
+                    case 6353: // Soul Fire
+                    {
+                        int32 bp0 = 0;
+                        if (m_caster->HasAura(91986)) // Burning Embers
+                        {
+                            bp0 = CalculatePct(int32(damage), 15) /7;
+                            m_caster->CastCustomSpell(unitTarget, 85421, &bp0, NULL, NULL, true);
+                        }
+                        if (m_caster->HasAura(85112))
+                        {
+                            bp0 = CalculatePct(int32(damage), 30) /7;
+                            m_caster->CastCustomSpell(unitTarget, 85421, &bp0, NULL, NULL, true);
+                        }
+                        if(m_caster->HasAura(18120)) // Improved soul fire rank 2
+                        {
+                            bp0 = 8;
+                            m_caster->CastCustomSpell(m_caster,85383,&bp0,NULL,NULL,true);
+                        }
+                        if(m_caster->HasAura(18119)) // Improved soul fire rank 1
+                        {
+                            bp0 = 4;
+                            m_caster->CastCustomSpell(m_caster,85383,&bp0,NULL,NULL,true);
+                        }
+                        break;
+                    }
+                    case 86121: // Soul Swap
+                    {
+                        m_caster->CastSpell(m_caster,86211,true); //This is the buff that overrides Soul Swap with Soul Swap: Exhale
+                        std::list<AuraEffect const*> dotsList = unitTarget->GetAuraDoTsByCaster(m_caster->GetGUID());
+                        std::list<uint32> lst;
+                        if(!dotsList.empty())
+                        {
+                            for(std::list<AuraEffect const*>::iterator itr = dotsList.begin(); itr != dotsList.end(); ++itr)
+                            {
+                                lst.push_back((*itr)->GetId());
+                                if(!m_caster->HasAura(56226)) //Glyph of Soul Swap
+                                    unitTarget->RemoveAurasDueToSpell((*itr)->GetId());
+                            }
+                        }
+                        if(m_caster->HasAura(56226)) //Glyph of Soul Swap
+                            m_caster->CastSpell(m_caster,94229,true); //The cooldown marker
+                        m_caster->StoreSoulSwapDoTs(lst);
+                        break;
+                    }
+                    case 86213: // Soul Swap: Exhale
+                    {
+                        std::list<uint32> dotsList = m_caster->GetSoulSwapDots();
+                        if(!dotsList.empty() && dotsList.size() >= 1)
+                        {
+                            for(std::list<uint32>::iterator itr = dotsList.begin(); itr != dotsList.end(); ++itr)
+                            {
+                                if(!(*itr))
+                                    break;
+                                m_caster->CastSpell(unitTarget,(*itr),true); //
+                            }
+                        }
+                        else
+                            sLog->outError(LOG_FILTER_SPELLS_AURAS, "Player (GUID %u) tried to release Soul Swap stored dots without having any previously stored dot",m_caster->GetGUIDLow());
+                        m_caster->RemoveAurasDueToSpell(86211);
+                        break;
+                    }
+                }
                 // Victory Rush
                 if (m_spellInfo->Id == 34428)
                     ApplyPct(damage, m_caster->GetTotalAttackPowerValue(BASE_ATTACK));
