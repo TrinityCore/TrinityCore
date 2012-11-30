@@ -5354,7 +5354,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                     triggered_spell_id = 69961; // Glyph of Scourge Strike
                     break;
                 }
-                // Glyph of Life Tap
+				// Glyph of Life Tap
                 case 63320:
                 {
                     triggered_spell_id = 63321; // Life Tap

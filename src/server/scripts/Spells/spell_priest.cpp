@@ -46,7 +46,14 @@ enum PriestSpells
     PRIEST_LEAP_OF_FAITH                        = 73325,
     PRIEST_LEAP_OF_FAITH_TRIGGERED              = 92572,
     PRIEST_LEAP_OF_FAITH_EFFECT_TRIGGER         = 92833,
-    PRIEST_LEAP_OF_FAITH_EFFECT                 = 92832
+    PRIEST_LEAP_OF_FAITH_EFFECT                 = 92832,
+	PRIEST_SPELL_REVELATIONS                    = 88627,
+    PRIEST_SPELL_RENEW                          = 139,
+    PRIEST_SPELL_SANCTUARY_4YD_DUMMY            = 88667,
+    PRIEST_SPELL_SANCTUARY_4YD_HEAL             = 88668,
+    PRIEST_SPELL_SANCTUARY_8YD_DUMMY            = 88685,
+    PRIEST_SPELL_SANCTUARY_8YD_HEAL             = 88686,
+
 };
 
 // Guardian Spirit

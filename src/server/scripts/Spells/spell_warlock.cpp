@@ -758,36 +758,7 @@ public:
     }
 };
 
-//80398 Dark Intent
-class spell_warlock_dark_intent: public SpellScriptLoader {
-public:
-        spell_warlock_dark_intent() :
-                        SpellScriptLoader("spell_warlock_dark_intent") {
-        }
 
-        class spell_warlock_dark_intent_SpellScript: public SpellScript {
-                PrepareSpellScript(spell_warlock_dark_intent_SpellScript)
-
-                void HandleScriptEffect(SpellEffIndex effIndex) {
-                        Unit* caster = GetCaster();
-                        Unit* target = GetHitUnit();
-
-                        if (!caster || !target)
-                                return;
-
-                        caster->CastSpell(target, WARLOCK_DARK_INTENT_EFFECT, true);
-                        target->CastSpell(caster, WARLOCK_DARK_INTENT_EFFECT, true);
-                }
-
-                void Register() {
-                        OnEffect += SpellEffectFn(spell_warlock_dark_intent_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_TRIGGER_SPELL);
-                }
-        };
-
-        SpellScript* GetSpellScript() const {
-                return new spell_warlock_dark_intent_SpellScript();
-        }
-};
 
 void AddSC_warlock_spell_scripts()
 {
@@ -807,5 +778,4 @@ void AddSC_warlock_spell_scripts()
 	new spell_warl_drain_life();
 	new spell_warl_nether_ward_swap_supressor();
 	new spell_warl_fel_flame();
-    new spell_warl_dark_intent();
 }

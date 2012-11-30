@@ -2234,6 +2234,9 @@ class Unit : public WorldObject
             return spellId;
 		}
 
+		float GetHealAbsorb() const { return _healAbsorb; };
+        void SetHealAbsorb(float absorb) { _healAbsorb = absorb; };
+
         // Handling caster facing during spellcast
         void FocusTarget(Spell const* focusSpell, uint64 target);
         void ReleaseFocus(Spell const* focusSpell);
@@ -2374,6 +2377,7 @@ class Unit : public WorldObject
 
         time_t _lastDamagedTime; // Part of Evade mechanics
 		std::map<uint32, uint32> _spellSwaps;
+		float _healAbsorb;
 };
 
 namespace Trinity
