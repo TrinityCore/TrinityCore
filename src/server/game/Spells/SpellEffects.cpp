@@ -480,6 +480,21 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
             }
             case SPELLFAMILY_WARRIOR:
             {
+                // Victory Rush
+                if (m_spellInfo->Id == 34428)
+                    ApplyPct(damage, m_caster->GetTotalAttackPowerValue(BASE_ATTACK));
+                // Shockwave
+                else if (m_spellInfo->Id == 46968)
+                {
+                    int32 pct = m_caster->CalculateSpellDamage(unitTarget, m_spellInfo, 2);
+                    if (pct > 0)
+                        damage += int32(CalculatePct(m_caster->GetTotalAttackPowerValue(BASE_ATTACK), pct));
+                    break;
+                }
+                break;
+            }
+            case SPELLFAMILY_WARLOCK:
+            {
 				switch(m_spellInfo->Id)
                 {
                     // WARLOCK PET SPELL DMG
@@ -588,21 +603,6 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                         break;
                     }
                 }
-                // Victory Rush
-                if (m_spellInfo->Id == 34428)
-                    ApplyPct(damage, m_caster->GetTotalAttackPowerValue(BASE_ATTACK));
-                // Shockwave
-                else if (m_spellInfo->Id == 46968)
-                {
-                    int32 pct = m_caster->CalculateSpellDamage(unitTarget, m_spellInfo, 2);
-                    if (pct > 0)
-                        damage += int32(CalculatePct(m_caster->GetTotalAttackPowerValue(BASE_ATTACK), pct));
-                    break;
-                }
-                break;
-            }
-            case SPELLFAMILY_WARLOCK:
-            {
                 // Rain of Fire
                 if (m_spellInfo->Id == 42223)
                 {
