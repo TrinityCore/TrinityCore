@@ -64,7 +64,7 @@ enum ShamanSpells
     SHAMAN_SPELL_FULMINATION_INFO          = 95774,
     SHAMAN_SPELL_LIGHTNING_SHIELD_PROC     = 26364,
 
-    SHAMAN_SPELL_EARTHQUAKE_KNOCKDOWN       = 77505,
+    SHAMAN_SPELL_EARTHQUAKE_KNOCKDOWN       = 77478,
 
 };
 
@@ -595,8 +595,7 @@ public:
         {
             if (!sSpellStore.LookupEntry(SHAMAN_SPELL_TOTEMIC_WRATH)) 
                 return false;
-            if (!sSpellStore.LookupEntry(SHAMAN_SPELL_TOTEMIC_WRATH_BUFF))
-                return false;
+
             return true;
         }
 

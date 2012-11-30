@@ -607,13 +607,22 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                 if (m_spellInfo->Id == 42223)
                 {
                     sLog->outInfo(LOG_FILTER_SPELLS_AURAS, "Aftermath handling");
-                    if(m_caster->HasAura(85113)) // Aftermath Rank 1
+                    if(m_caster->HasAura(18120)) // Aftermath Rank 1
                         if (roll_chance_f(6.0f))
                             m_caster->CastSpell(unitTarget, 85387, true);
 
-                    if(m_caster->HasAura(85114)) // Aftermath Rank 2
+                    if(m_caster->HasAura(18119)) // Aftermath Rank 2
                         if (roll_chance_f(12.0f))
                             m_caster->CastSpell(unitTarget, 85387, true);
+                }
+				if (m_spellInfo->Id == 17962)
+                {
+                    sLog->outInfo(LOG_FILTER_SPELLS_AURAS, "Aftermath handling");
+                    if(m_caster->HasAura(85113)) // Aftermath Rank 1
+                            m_caster->CastSpell(unitTarget, 18118, true);
+
+                    if(m_caster->HasAura(85114)) // Aftermath Rank 2
+                            m_caster->CastSpell(unitTarget, 18118, true);
                 }
                 // Incinerate Rank 1 & 2
                 if ((m_spellInfo->SpellFamilyFlags[1] & 0x000040) && m_spellInfo->SpellIconID == 2128)
