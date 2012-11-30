@@ -1430,9 +1430,11 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
             }
             break;
         case SPELLFAMILY_HUNTER:
+		{
             switch (GetId())
             {
                 case 19574: // Bestial Wrath
+				{
                     // The Beast Within cast on owner if talent present
                     if (Unit* owner = target->GetOwner())
                     {
@@ -1446,8 +1448,23 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                         }
                     }
                     break;
+				}
+				case 1130:  // Hunter's Mark
+                case 88691: // Marked for Death
+                {
+                    // Resistance is Futile
+                    if (caster->HasAura(82893) || caster->HasAura(82894))
+                    {
+                        if (apply)
+                            caster->CastSpell(target,83676,true);
+                        else
+                            target->RemoveAurasDueToSpell(83676,caster->GetGUID());
+                    }
+                    break;
+                }
             }
             break;
+		}
         case SPELLFAMILY_PALADIN:
             switch (GetId())
             {

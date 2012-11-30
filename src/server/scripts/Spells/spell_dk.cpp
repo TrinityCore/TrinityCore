@@ -43,6 +43,55 @@ enum DeathKnightSpells
     DK_SPELL_IMPROVED_UNHOLY_PRESENCE_TRIGGERED = 63622,
     SPELL_DK_ITEM_T8_MELEE_4P_BONUS             = 64736,
     DK_SPELL_BLACK_ICE_R1                       = 49140,
+	DK_SPELL_NECROTIC_STRIKE_AURA               = 73975,
+
+
+};
+
+//Necrotic Strike 
+class spell_dk_necrotic_strike : public SpellScriptLoader
+{
+public:
+    spell_dk_necrotic_strike() : SpellScriptLoader("spell_dk_necrotic_strike") { }
+
+    class spell_dk_necrotic_strike_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_dk_necrotic_strike_SpellScript);
+
+        bool Validate(SpellEntry const * /*spellEntry*/)
+        {
+            return sSpellStore.LookupEntry(DK_SPELL_NECROTIC_STRIKE_AURA);
+        }
+
+        void HandleBeforeHit()
+        {
+            if (Unit* target = GetHitUnit())
+            {
+                if (!target->HasAura(DK_SPELL_NECROTIC_STRIKE_AURA))
+                    target->SetHealAbsorb(0.0f);
+            }
+        }
+
+        void HandleAfterHit()
+        {
+            if (Unit* target = GetHitUnit())
+            {
+                float absorb = GetCaster()->GetTotalAttackPowerValue(BASE_ATTACK) * 0.75f + target->GetHealAbsorb();
+                target->SetHealAbsorb(absorb);
+            }
+        }
+
+        void Register()
+        {
+            BeforeHit += SpellHitFn(spell_dk_necrotic_strike_SpellScript::HandleBeforeHit);
+            AfterHit += SpellHitFn(spell_dk_necrotic_strike_SpellScript::HandleAfterHit);
+        }
+    };
+
+    SpellScript *GetSpellScript() const
+    {
+        return new spell_dk_necrotic_strike_SpellScript();
+    }
 };
 
 // 50462 - Anti-Magic Shell (on raid member)

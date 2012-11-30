@@ -48,6 +48,13 @@ enum HunterSpells
     HUNTER_SPELL_ASPECT_OF_THE_BEAST_PET         = 61669,
     HUNTER_SPELL_KILL_COMMAND                    = 34026,
     HUNTER_SPELL_KILL_COMMAND_TRIGGER            = 83381,
+    HUNTER_SPELL_RESISTANCE_IS_FUTILE            = 82897,
+    HUNTER_SPELL_FOCUS_FIRE                      = 82692,
+    HUNTER_PET_SPELL_FRENZY                      = 19615,
+    HUNTER_PET_SPELL_FOCUS_FIRE_REGEN            = 83468,
+    HUNTER_VISUAL_FOCUS_FIRE                     = 88843,
+    HUNTER_PET_AURA_FRENZY_TRIGGER               = 20784, // Tamed Pet Passive 07 (DND)
+    HUNTER_SPELL_STREADY_SHOT_ATTACK_SPEED       = 53220,
 
 };
 
@@ -764,6 +771,295 @@ public:
         return new spell_hun_kill_command_SpellScript();
     }
 };
+
+class spell_hun_resistance_is_futile : public SpellScriptLoader
+{
+public:
+    spell_hun_resistance_is_futile() : SpellScriptLoader("spell_hun_resistance_is_futile") { }
+
+    class spell_hun_resistance_is_futile_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_hun_resistance_is_futile_AuraScript)
+
+        void HandlePeriodic(AuraEffect const* aurEff)
+        {
+            Unit* auraBearer = GetUnitOwner();
+            Unit* playerTarget = GetCaster();
+
+            if (!auraBearer || !playerTarget)
+                return;
+
+            AuraEffect const* resistanceIsFutileTalent = playerTarget->GetDummyAuraEffect(SPELLFAMILY_HUNTER, 5119, 0);
+
+            if (!resistanceIsFutileTalent)
+                return;
+
+            if (auraBearer->isMoving() && roll_chance_i(resistanceIsFutileTalent->GetAmount()))
+                playerTarget->CastSpell(playerTarget, HUNTER_SPELL_RESISTANCE_IS_FUTILE, true);
+        }
+
+        void Register()
+        {
+            OnEffectPeriodic += AuraEffectPeriodicFn(spell_hun_resistance_is_futile_AuraScript::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_hun_resistance_is_futile_AuraScript();
+    }
+ };
+
+// 13165 - Aspect of the Hawk
+class spell_hun_aspect_of_the_hawk: public SpellScriptLoader
+{
+   public:
+       spell_hun_aspect_of_the_hawk() : SpellScriptLoader("spell_hun_aspect_of_the_hawk") {}
+
+   class spell_hun_aspect_of_the_hawk_AuraScript: public AuraScript
+   {
+       PrepareAuraScript(spell_hun_aspect_of_the_hawk_AuraScript);
+
+       void CalculateAmount(AuraEffect const * /*aurEff*/, int32 & amount,  bool & /*canBeRecalculated*/) 
+       {
+           amount = 23.52f * GetCaster()->getLevel();
+       }
+
+       void Register()
+       {
+           DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_hun_aspect_of_the_hawk_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_MOD_RANGED_ATTACK_POWER);
+       }
+   };
+
+   AuraScript *GetAuraScript() const
+   {
+       return new spell_hun_aspect_of_the_hawk_AuraScript();
+   }
+};
+
+// 82692 Focus Fire
+class spell_hun_focus_fire : public SpellScriptLoader
+{
+public:
+    spell_hun_focus_fire() : SpellScriptLoader("spell_hun_focus_fire") { }
+
+    // SpellScript
+    class spell_hun_focus_fire_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_hun_focus_fire_SpellScript)
+
+        bool Validate(SpellInfo const* /*spellEntry*/)
+        {
+            if (!sSpellMgr->GetSpellInfo(HUNTER_SPELL_FOCUS_FIRE))
+                return false;
+            return true;
+        }
+
+        SpellCastResult CheckFrenzyStack()
+        {
+            Unit * pet = GetCaster()->GetGuardianPet();
+            if (!pet)
+                return SPELL_FAILED_NO_PET;
+
+            if (pet->HasAura(HUNTER_PET_SPELL_FRENZY))
+                return SPELL_CAST_OK;
+            else
+                return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
+        }
+
+        void RemoveFrenzyStacks()
+        {
+            if (Unit* pet = GetCaster()->GetGuardianPet())
+                pet->RemoveAura(HUNTER_PET_SPELL_FRENZY);
+        }
+
+        void Register()
+        {
+            OnCheckCast += SpellCheckCastFn(spell_hun_focus_fire_SpellScript::CheckFrenzyStack);
+            AfterHit += SpellHitFn(spell_hun_focus_fire_SpellScript::RemoveFrenzyStacks);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_hun_focus_fire_SpellScript();
+    }
+
+    // AuraScript
+    class spell_hun_focus_fire_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_hun_focus_fire_AuraScript);
+
+        uint32 GetFrenzyStackCount()
+        {
+            if (Unit* pet = GetUnitOwner()->GetGuardianPet())
+            {
+                if (pet->HasAura(HUNTER_PET_SPELL_FRENZY))
+                    return pet->GetAuraCount(HUNTER_PET_SPELL_FRENZY);
+                else
+                    return 0;
+            }
+            return 0;
+        }
+
+        void CalculateAmount(AuraEffect const* /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
+        {
+            if (Unit* caster = GetUnitOwner())
+                amount = GetSpellInfo()->Effects[0].BasePoints * GetFrenzyStackCount();
+        }
+
+        void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        {
+            if (Unit* caster = GetUnitOwner())
+            {
+                if (Unit* pet = caster->GetGuardianPet())
+                {
+                    int32 basepoint0 = GetAura()->GetEffect(1)->GetAmount() * GetFrenzyStackCount();
+                    caster->CastCustomSpell(pet, HUNTER_PET_SPELL_FOCUS_FIRE_REGEN, &basepoint0, NULL, NULL, true);
+                }
+            }
+        }
+
+        void Register()
+        {
+            DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_hun_focus_fire_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_MOD_RANGED_HASTE);
+            OnEffectApply += AuraEffectApplyFn(spell_hun_focus_fire_AuraScript::OnApply, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_hun_focus_fire_AuraScript();
+    }
+};
+
+// 19615 Frenzy Effect
+class spell_hun_frenzy_effect : public SpellScriptLoader
+{
+public:
+    spell_hun_frenzy_effect() : SpellScriptLoader("spell_hun_frenzy_effect") { }
+
+    class spell_hun_frenzy_effect_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_hun_frenzy_effect_AuraScript)
+
+        int32 GetHasteValue()
+        {
+            if (Unit* pet = GetUnitOwner())
+            {
+                if (pet->HasAura(HUNTER_PET_AURA_FRENZY_TRIGGER))
+                {
+                    if (Aura* frenzyAura = pet->GetAura(HUNTER_PET_AURA_FRENZY_TRIGGER))
+                        return frenzyAura->GetEffect(0)->GetAmount();
+                }
+                else
+                    return 0;
+            }
+            return 0;
+        }
+
+        void CalculateAmount(AuraEffect const* /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
+        {
+            if (Unit* pet = GetUnitOwner())
+            {
+                Unit* petOwner = pet->GetOwner();
+
+                if (!petOwner)
+                    return;
+
+                amount = GetHasteValue();
+            }
+        }
+
+        void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        {
+            // Apply UI Visual when at 5 stack
+            if (Unit* petOwner = GetUnitOwner()->GetOwner())
+            {
+                if (GetStackAmount() >= GetSpellInfo()->StackAmount)
+                    petOwner->AddAura(HUNTER_VISUAL_FOCUS_FIRE, petOwner);
+            }
+        }
+
+        void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        {
+            if (Unit* pet = GetUnitOwner())
+            {
+                if (Unit * petOwner = pet->GetOwner())
+                    petOwner->RemoveAura(HUNTER_VISUAL_FOCUS_FIRE);
+            }
+        }
+
+        void Register()
+        {
+             AfterEffectApply += AuraEffectApplyFn(spell_hun_frenzy_effect_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MOD_MELEE_ATTACK_SPEED, AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK);
+             AfterEffectRemove += AuraEffectApplyFn(spell_hun_frenzy_effect_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MOD_MELEE_ATTACK_SPEED, AURA_EFFECT_HANDLE_REAL);
+             DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_hun_frenzy_effect_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_MOD_MELEE_ATTACK_SPEED);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_hun_frenzy_effect_AuraScript();
+    }
+};
+
+// 56641 Steady Shot
+class spell_hun_steady_shot: public SpellScriptLoader
+{
+public:
+    spell_hun_steady_shot () :
+            SpellScriptLoader("spell_hun_steady_shot")
+    {
+    }
+
+    class spell_hun_steady_shot_SpellScript: public SpellScript
+    {
+        PrepareSpellScript(spell_hun_steady_shot_SpellScript)
+
+        void HandleDummy (SpellEffIndex /*effIndex*/)
+        {
+            ++castCount;
+            if (castCount > 1)
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    int32 speed0 = 0;
+                    if (caster->HasAura(53221))
+                        speed0 = 5;
+                    if (caster->HasAura(53222))
+                        speed0 = 10;
+                    if (caster->HasAura(53224))
+                        speed0 = 15;
+
+                    if (speed0)
+                        caster->CastCustomSpell(caster, HUNTER_SPELL_STREADY_SHOT_ATTACK_SPEED, &speed0, NULL, NULL, true, 0, 0, caster->GetGUID());
+
+                    castCount = 0;
+
+                    if (caster->GetTypeId() != TYPEID_PLAYER)
+                        return;
+
+                    caster->ToPlayer()->KilledMonsterCredit(44175, 0);
+                }
+            }
+        }
+
+        void Register ()
+        {
+            OnEffectHit += SpellEffectFn(spell_hun_steady_shot_SpellScript::HandleDummy, EFFECT_2, SPELL_EFFECT_DUMMY);
+        }
+
+    private:
+        int castCount;
+    };
+
+    SpellScript* GetSpellScript () const
+    {
+        return new spell_hun_steady_shot_SpellScript();
+    }
+};
+
 void AddSC_hunter_spell_scripts()
 {
     new spell_hun_aspect_of_the_beast();
@@ -781,4 +1077,9 @@ void AddSC_hunter_spell_scripts()
     new spell_hun_disengage();
     new spell_hun_tame_beast();
 	new spell_hun_kill_command();
+	new spell_hun_resistance_is_futile();
+	new spell_hun_focus_fire();
+    new spell_hun_frenzy_effect();
+    new spell_hun_aspect_of_the_hawk();
+    new spell_hun_steady_shot();
 }

@@ -2790,6 +2790,10 @@ void SpellMgr::LoadSpellCustomAttr()
 
         switch (spellInfo->Id)
         {
+			case 687:   // Demon Armor's correct swap spellid for nether ward
+            case 28176: // Fel Armor's correct swap spellid for nether ward
+                spellInfo->Effects[2].BasePoints = 91711;
+                break;
             case 60256:
                 //Crashes client on pressing ESC (Maybe because of ReqSpellFocus and GameObject)
                 spellInfo->AttributesEx4 &= ~SPELL_ATTR4_TRIGGERED;

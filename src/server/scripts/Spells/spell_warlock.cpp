@@ -52,6 +52,10 @@ enum WarlockSpells
     WARLOCK_IMPROVED_LIFE_TAP_ICON_ID       = 208,
     WARLOCK_MANA_FEED_ICON_ID               = 1982,
 	WARLOCK_DRAIN_LIFE                      = 89653,
+	WARLOCK_NETHER_WARD                     = 91713,
+    WARLOCK_FEL_FLAMES_IMMOLATE             = 348,
+	WARLOCK_FEL_FLAMES_UNSTABLE             = 30108,
+
 };
 
 /// Updated 4.3.4
@@ -682,6 +686,109 @@ class spell_warl_drain_life : public SpellScriptLoader
          return new spell_warl_drain_life_AuraScript();
          }
 };
+
+// 687,28176 Demon armor and Fel armor swap controller
+class spell_warl_nether_ward_swap_supressor: public SpellScriptLoader
+{
+public:
+    spell_warl_nether_ward_swap_supressor() : SpellScriptLoader("spell_warl_nether_ward_swap_supressor") {}
+
+    class spell_warl_nether_ward_swap_supressor_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_warl_nether_ward_swap_supressor_SpellScript);
+
+        void PreventSwapApplicationOnCaster(WorldObject*& target)
+        {
+            // If the warlock doesnt have the Nether Ward talent,
+            // do not allow the swap effect to hit the warlock
+            if (!GetCaster()->HasAura(WARLOCK_NETHER_WARD))
+                target = NULL;
+        }
+
+        void Register()
+        {
+            OnObjectTargetSelect += SpellObjectTargetSelectFn(spell_warl_nether_ward_swap_supressor_SpellScript::PreventSwapApplicationOnCaster, EFFECT_2, TARGET_UNIT_CASTER);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_warl_nether_ward_swap_supressor_SpellScript();
+    }
+};
+
+class spell_warl_fel_flame: public SpellScriptLoader {
+public:
+    spell_warl_fel_flame() : SpellScriptLoader("spell_warl_fel_flame") {}
+
+    class spell_warl_fel_flame_SpellScript: public SpellScript {
+        PrepareSpellScript(spell_warl_fel_flame_SpellScript)
+
+        void HandleOnHit() 
+        {
+            Unit* unitTarget = GetHitUnit();
+            Unit* caster = GetCaster();
+
+            // Immolate
+            if (Aura* aur = unitTarget->GetOwnedAura(WARLOCK_FEL_FLAMES_IMMOLATE, caster->GetGUID()))
+            {
+                if (aur->GetDuration() + 6000 > 15000)
+                    aur->SetDuration(15000);
+                else
+                    aur->SetDuration(aur->GetDuration() + 6000);
+            }
+
+            //Unstable Affliction
+            if (Aura* aur = unitTarget->GetOwnedAura(WARLOCK_FEL_FLAMES_UNSTABLE, caster->GetGUID()))
+            {
+                if (aur->GetDuration() + 6000 > 15000)
+                    aur->SetDuration(15000);
+                else
+                    aur->SetDuration(aur->GetDuration() + 6000);
+            }
+        }
+
+        void Register() {
+            OnHit += SpellHitFn(spell_warl_fel_flame_SpellScript::HandleOnHit);
+        }
+    };
+
+    SpellScript* GetSpellScript() const {
+        return new spell_warl_fel_flame_SpellScript();
+    }
+};
+
+//80398 Dark Intent
+class spell_warlock_dark_intent: public SpellScriptLoader {
+public:
+        spell_warlock_dark_intent() :
+                        SpellScriptLoader("spell_warlock_dark_intent") {
+        }
+
+        class spell_warlock_dark_intent_SpellScript: public SpellScript {
+                PrepareSpellScript(spell_warlock_dark_intent_SpellScript)
+
+                void HandleScriptEffect(SpellEffIndex effIndex) {
+                        Unit* caster = GetCaster();
+                        Unit* target = GetHitUnit();
+
+                        if (!caster || !target)
+                                return;
+
+                        caster->CastSpell(target, WARLOCK_DARK_INTENT_EFFECT, true);
+                        target->CastSpell(caster, WARLOCK_DARK_INTENT_EFFECT, true);
+                }
+
+                void Register() {
+                        OnEffect += SpellEffectFn(spell_warlock_dark_intent_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_TRIGGER_SPELL);
+                }
+        };
+
+        SpellScript* GetSpellScript() const {
+                return new spell_warlock_dark_intent_SpellScript();
+        }
+};
+
 void AddSC_warlock_spell_scripts()
 {
     new spell_warl_banish();
@@ -698,4 +805,7 @@ void AddSC_warlock_spell_scripts()
     new spell_warl_bane_of_doom();
     new spell_warl_health_funnel();
 	new spell_warl_drain_life();
+	new spell_warl_nether_ward_swap_supressor();
+	new spell_warl_fel_flame();
+    new spell_warl_dark_intent();
 }

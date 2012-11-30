@@ -5883,6 +5883,12 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
             }
             switch (dummySpell->Id)
             {
+			     case 28176: // Fel Armor
+                {
+                    triggered_spell_id = 96379;
+                    basepoints0 = CalculatePct(int32(damage), triggerAmount);
+                    break;
+                }
                 // Glyph of Shadowflame
                 case 63310:
                 {
@@ -6389,6 +6395,26 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
 
             switch (dummySpell->Id)
             {
+				case 82897: // Resistance is Futile kill command refund proc
+                {
+                    // Proc only on the damage spell
+                    if (procSpell->Id != 34026)
+                        return false;
+
+                    Unit* currentTarget = getVictim();
+
+                    if (!currentTarget)
+                        return false;
+
+                    // Check for Hunter's mark or Marked for Death on currentTarget
+                    if (currentTarget->HasAuraTypeWithFamilyFlags(SPELL_AURA_RANGED_ATTACK_POWER_ATTACKER_BONUS,SPELLFAMILY_HUNTER,1024))
+                    {
+                        CastSpell(this,86316,true);
+                        return true;
+                    }
+                    else
+                        return false;
+                }
                 case 34477: // Misdirection
                 {
                     if (!GetMisdirectionTarget())
