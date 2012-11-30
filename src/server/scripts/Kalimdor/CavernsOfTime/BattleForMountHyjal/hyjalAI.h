@@ -132,12 +132,6 @@ enum TargetType                                             // Used in the spell
     TARGETTYPE_VICTIM   = 2,
 };
 
-struct Yells
-{
-    uint32 id;                                              // Used to determine the type of yell (attack, rally, etc)
-    int32 textid;                                           // The text id to be yelled
-};
-
 enum YellId
 {
     ATTACKED     = 0,                                       // Used when attacked and set in combat
@@ -147,32 +141,6 @@ enum YellId
     FAILURE      = 4,                                       // Used when raid has failed (unsure where to place)
     SUCCESS      = 5,                                       // Used when the raid has sucessfully defeated a wave phase
     DEATH        = 6,                                       // Used on death
-};
-
-const Yells JainaQuotes[]=
-{
-    {ATTACKED, -1534000},
-    {ATTACKED, -1534001},
-    {INCOMING, -1534002},
-    {BEGIN, -1534003},
-    {RALLY, -1534004},
-    {RALLY, -1534005},
-    {FAILURE, -1534006},
-    {SUCCESS, -1534007},
-    {DEATH, -1534008},
-};
-
-const Yells ThrallQuotes[]=
-{
-    {ATTACKED, -1534009},
-    {ATTACKED, -1534010},
-    {INCOMING, -1534011},
-    {BEGIN, -1534012},
-    {RALLY, -1534013},
-    {RALLY, -1534014},
-    {FAILURE, -1534015},
-    {SUCCESS, -1534016},
-    {DEATH, -1534017},
 };
 
 struct hyjalAI : public npc_escortAI
@@ -214,8 +182,6 @@ struct hyjalAI : public npc_escortAI
     void StartEvent(Player* player);                        // Begins the event by gossip click
 
     uint32 GetInstanceData(uint32 Event);                   // Gets instance data for this instance, used to check if raid has gotten past a certain point and can access the next phase
-
-    void Talk(uint32 id);                                   // Searches for the appropriate yell and sound and uses it to inform the raid of various things
 
     public:
         InstanceScript* instance;

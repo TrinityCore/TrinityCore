@@ -29,13 +29,12 @@ EndScriptData */
 
 enum eEnums
 {
-    SAY_ENTER           = -1269012,
-    SAY_AGGRO           = -1269013,
-    SAY_BANISH          = -1269014,
-    SAY_SLAY1           = -1269015,
-    SAY_SLAY2           = -1269016,
-    SAY_DEATH           = -1269017,
-    EMOTE_FRENZY        = -1269018,
+    SAY_ENTER           = 0,
+    SAY_AGGRO           = 1,
+    SAY_BANISH          = 2,
+    SAY_SLAY            = 3,
+    SAY_DEATH           = 4,
+    EMOTE_FRENZY        = 5,
 
     SPELL_CLEAVE        = 40504,
     SPELL_TIME_STOP     = 31422,
@@ -76,7 +75,7 @@ public:
 
         void EnterCombat(Unit* /*who*/)
         {
-            DoScriptText(SAY_AGGRO, me);
+            Talk(SAY_AGGRO);
         }
 
         void MoveInLineOfSight(Unit* who)
@@ -86,7 +85,7 @@ public:
             {
                 if (me->IsWithinDistInMap(who, 20.0f))
                 {
-                    DoScriptText(SAY_BANISH, me);
+                    Talk(SAY_BANISH);
                     me->DealDamage(who, who->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
                 }
             }
@@ -96,7 +95,7 @@ public:
 
         void JustDied(Unit* /*killer*/)
         {
-            DoScriptText(SAY_DEATH, me);
+            Talk(SAY_DEATH);
 
              if (instance)
              {
@@ -107,7 +106,7 @@ public:
 
         void KilledUnit(Unit* /*victim*/)
         {
-            DoScriptText(RAND(SAY_SLAY1, SAY_SLAY2), me);
+            Talk(SAY_SLAY);
         }
 
         void UpdateAI(const uint32 diff)
@@ -133,7 +132,7 @@ public:
             //Frenzy
             if (Frenzy_Timer <= diff)
             {
-                DoScriptText(EMOTE_FRENZY, me);
+                Talk(EMOTE_FRENZY);
                 DoCast(me, SPELL_ENRAGE);
                 Frenzy_Timer = 20000+rand()%15000;
             } else Frenzy_Timer -= diff;
