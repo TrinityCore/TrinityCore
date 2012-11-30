@@ -1402,12 +1402,12 @@ public:
 
     bool OnGossipHello(Player* player, GameObject* go)
     {
+        go->UseDoorOrButton();
         if (player->GetQuestStatus(QUEST_OUR_ONLY_HOPE) == QUEST_STATUS_INCOMPLETE)
         {
             Creature* pGymerDummy = go->FindNearestCreature(NPC_GYMER_DUMMY, 20.0f);
             if (pGymerDummy)
             {
-                go->UseDoorOrButton();
                 player->KilledMonsterCredit(pGymerDummy->GetEntry(), pGymerDummy->GetGUID());
                 pGymerDummy->CastSpell(pGymerDummy, 55529, true);
                 pGymerDummy->DisappearAndDie();

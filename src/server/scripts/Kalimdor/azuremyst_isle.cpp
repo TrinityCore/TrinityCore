@@ -584,6 +584,7 @@ public:
 
     bool OnGossipHello(Player* player, GameObject* go)
     {
+        go->UseDoorOrButton();
         if (player->GetQuestStatus(QUEST_STRENGTH_ONE) == QUEST_STATUS_INCOMPLETE)
         {
             if (Creature* ravager = go->FindNearestCreature(NPC_DEATH_RAVAGER, 5.0f, true))
@@ -743,6 +744,7 @@ class go_bristlelimb_cage : public GameObjectScript
 
         bool OnGossipHello(Player* player, GameObject* go)
         {
+            go->SetGoState(GO_STATE_READY);
             if (player->GetQuestStatus(QUEST_THE_PROPHECY_OF_AKIDA) == QUEST_STATUS_INCOMPLETE)
             {
                 if (Creature* capitive = go->FindNearestCreature(NPC_STILLPINE_CAPITIVE, 5.0f, true))
