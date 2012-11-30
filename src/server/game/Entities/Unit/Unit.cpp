@@ -6022,9 +6022,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                             {
                                 // Replenishment - roll chance
                                 if (roll_chance_i(aurEff->GetAmount()))
-                                {
                                     CastSpell(this, 57669, true, castItem, triggeredByAura);
-                                }
                             }
                             break;
                         }
