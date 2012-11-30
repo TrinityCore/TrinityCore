@@ -27,21 +27,23 @@ EndScriptData */
 #include "ScriptedCreature.h"
 #include "old_hillsbrad.h"
 
-#define SAY_ENTER1                  -1560013
-#define SAY_ENTER2                  -1560014
-#define SAY_ENTER3                  -1560015
-#define SAY_AGGRO1                  -1560016
-#define SAY_AGGRO2                  -1560017
-#define SAY_SLAY1                   -1560018
-#define SAY_SLAY2                   -1560019
-#define SAY_BREATH1                 -1560020
-#define SAY_BREATH2                 -1560021
-#define SAY_DEATH                   -1560022
+/*###################
+# boss_epoch_hunter #
+####################*/
 
-#define SPELL_SAND_BREATH           31914
-#define SPELL_IMPENDING_DEATH       31916
-#define SPELL_MAGIC_DISRUPTION_AURA 33834
-#define SPELL_WING_BUFFET           31475
+enum EpochHunter
+{
+    SAY_ENTER                   = 0,
+    SAY_AGGRO                   = 1,
+    SAY_SLAY                    = 2,
+    SAY_BREATH                  = 3,
+    SAY_DEATH                   = 4,
+
+    SPELL_SAND_BREATH           = 31914,
+    SPELL_IMPENDING_DEATH       = 31916,
+    SPELL_MAGIC_DISRUPTION_AURA = 33834,
+    SPELL_WING_BUFFET           = 31475
+};
 
 class boss_epoch_hunter : public CreatureScript
 {
@@ -77,17 +79,17 @@ public:
 
         void EnterCombat(Unit* /*who*/)
         {
-            DoScriptText(RAND(SAY_AGGRO1, SAY_AGGRO2), me);
+            Talk(SAY_AGGRO);
         }
 
         void KilledUnit(Unit* /*victim*/)
         {
-            DoScriptText(RAND(SAY_SLAY1, SAY_SLAY2), me);
+            Talk(SAY_SLAY);
         }
 
         void JustDied(Unit* /*killer*/)
         {
-            DoScriptText(SAY_DEATH, me);
+            Talk(SAY_DEATH);
 
             if (instance && instance->GetData(TYPE_THRALL_EVENT) == IN_PROGRESS)
                 instance->SetData(TYPE_THRALL_PART4, DONE);
@@ -107,7 +109,7 @@ public:
 
                 DoCast(me->getVictim(), SPELL_SAND_BREATH);
 
-                DoScriptText(RAND(SAY_BREATH1, SAY_BREATH2), me);
+                Talk(SAY_BREATH);
 
                 SandBreath_Timer = urand(10000, 20000);
             } else SandBreath_Timer -= diff;
