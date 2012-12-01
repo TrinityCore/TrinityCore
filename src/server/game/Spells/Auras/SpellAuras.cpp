@@ -1238,6 +1238,41 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                     }
                 }
                 break;
+			case SPELLFAMILY_WARRIOR:
+			if(GetId() == 1715) // Hamstring
+			{
+				if(caster->HasAura(12668)) // Improved Hamstring rank 2
+				{
+					if(target->HasAura(1715)) // If he already has hamstring
+					{
+						caster->CastSpell(target,23694,false); // Not triggered
+						if(!caster->ToPlayer()->HasSpellCooldown(23694))
+							caster->ToPlayer()->AddSpellCooldown(23694,0,uint32(time(NULL) + 30000)); // Add 30 seconds cooldown
+					}
+				}
+				if(caster->HasAura(12289)) // Improved Hamstring rank 1
+				{
+					if(target->HasAura(1715)) // If he already has hamstring
+					{
+						caster->CastSpell(target,23694,false); // Not triggered
+						if(!caster->ToPlayer()->HasSpellCooldown(23694))
+							caster->ToPlayer()->AddSpellCooldown(23694,0,uint32(time(NULL) + 60000)); // Add 60 seconds cooldown
+					}
+				}
+			}
+			if (!caster)
+				break;
+
+			switch (GetId())
+			{
+			case 50227: // Warrior - Sword and Board
+				{
+					// Reset cooldown on shield slam if needed
+					caster->ToPlayer()->RemoveSpellCooldown(23922, true);
+					break;
+				}
+			}
+			break;
             case SPELLFAMILY_ROGUE:
                 // Sprint (skip non player casted spells by category)
                 if (GetSpellInfo()->SpellFamilyFlags[0] & 0x40 && GetSpellInfo()->Category == 44)

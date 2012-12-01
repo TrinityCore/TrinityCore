@@ -3233,7 +3233,7 @@ public:
 enum FlameOrb
 {
     SPELL_FLAME_ORB_DAMAGE          = 86719,
-    FLAME_ORB_DISTANCE              = 120
+    FLAME_ORB_DISTANCE              = 40
 };
 
 class npc_flame_orb : public CreatureScript
@@ -3251,22 +3251,19 @@ public:
             o = me->GetOrientation();
             me->NearTeleportTo(x, y, z, o, true);
             angle = me->GetOwner()->GetAngle(me);
-            newx = me->GetPositionX() + FLAME_ORB_DISTANCE/2 * cos(angle);
-            newy = me->GetPositionY() + FLAME_ORB_DISTANCE/2 * sin(angle);
-            CombatCheck = false;
+            newx = me->GetPositionX() + FLAME_ORB_DISTANCE/2;
+            newy = me->GetPositionY() + FLAME_ORB_DISTANCE/2;
         }
 
         float x, y, z, o, newx, newy, angle;
-        bool CombatCheck;
         uint32 DespawnTimer;
         uint32 DespawnCheckTimer;
         uint32 DamageTimer;
 
         void EnterCombat(Unit* /*target*/)
         {
-            me->GetMotionMaster()->MoveCharge(newx, newy, z, 1.14286f);  // Normal speed
+            me->GetMotionMaster()->MoveCharge(newx, newy, z, 0.86286f);  // Normal speed
             DespawnTimer = 15 * IN_MILLISECONDS;
-            CombatCheck = true;
         }
 
         void Reset()
@@ -3274,10 +3271,7 @@ public:
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE|UNIT_FLAG_NON_ATTACKABLE);
             me->AddUnitMovementFlag(MOVEMENTFLAG_FLYING);
             me->SetReactState(REACT_PASSIVE);
-            if (CombatCheck == true)
-                DespawnTimer = 15 * IN_MILLISECONDS;
-            else
-                DespawnTimer = 4 * IN_MILLISECONDS;
+            DespawnTimer = 15 * IN_MILLISECONDS;
             DamageTimer = 1 * IN_MILLISECONDS;
             me->GetMotionMaster()->MovePoint(0, newx, newy, z);
         }
@@ -3321,7 +3315,7 @@ enum FrostfireOrb
 {
     SPELL_FROSTFIRE_ORB_DAMAGE_RANK_1   = 95969,
     SPELL_FROSTFIRE_ORB_DAMAGE_RANK_2   = 84721,
-    FROSTFIRE_ORB_DISTANCE              = 120
+    FROSTFIRE_ORB_DISTANCE              = 40
 };
 
 class npc_frostfire_orb : public CreatureScript
@@ -3339,22 +3333,19 @@ public:
             o = me->GetOrientation();
             me->NearTeleportTo(x, y, z, o, true);
             angle = me->GetOwner()->GetAngle(me);
-            newx = me->GetPositionX() + FROSTFIRE_ORB_DISTANCE/2 * cos(angle);
-            newy = me->GetPositionY() + FROSTFIRE_ORB_DISTANCE/2 * sin(angle);
-            CombatCheck = false;
+            newx = me->GetPositionX() + FROSTFIRE_ORB_DISTANCE/2;
+            newy = me->GetPositionY() + FROSTFIRE_ORB_DISTANCE/2;
         }
 
         float x,y,z,o,newx,newy,angle;
-        bool CombatCheck;
         uint32 despawnTimer;
         uint32 despawnCheckTimer;
         uint32 damageTimer;
 
         void EnterCombat(Unit* /*target*/)
         {
-            me->GetMotionMaster()->MoveCharge(newx, newy, z, 1.14286f); // Normal speed
+            me->GetMotionMaster()->MoveCharge(newx, newy, z, 0.86286f); // Normal speed
             despawnTimer = 15 * IN_MILLISECONDS;
-            CombatCheck = true;
         }
 
         void Reset()
@@ -3362,10 +3353,7 @@ public:
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
             me->AddUnitMovementFlag(MOVEMENTFLAG_FLYING);
             me->SetReactState(REACT_PASSIVE);
-            if (CombatCheck == true)
-                despawnTimer = 15 * IN_MILLISECONDS;
-            else
-                despawnTimer = 4 * IN_MILLISECONDS;
+            despawnTimer = 15 * IN_MILLISECONDS;
             damageTimer = 1 * IN_MILLISECONDS;
             me->GetMotionMaster()->MovePoint(0, newx, newy, z);
         }
@@ -3556,11 +3544,8 @@ public:
                         }
                     }
 
-                sLog->outInfo(LOG_FILTER_GENERAL, "Found %u mushrooms", count);
-
                 if (count >= 3) // Only 3 mushrooms can be summoned at a time
                 {
-                    sLog->outInfo(LOG_FILTER_GENERAL, "Found %u mushrooms, deleting first", count);
                     if (first)
                     {
                         first->DisappearAndDie();
@@ -3581,7 +3566,6 @@ public:
             {
                 if (!isReady)
                 {
-                    sLog->outInfo(LOG_FILTER_GENERAL, "Invisible!");
                     isReady = true;
 
                     //Make it invisible
