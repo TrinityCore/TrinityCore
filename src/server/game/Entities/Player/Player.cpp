@@ -21016,7 +21016,7 @@ bool Player::BuyItemFromVendorSlot(uint64 vendorguid, uint32 vendorslot, uint32 
     if (count < 1) count = 1;
 
     // cheating attempt
-    if (slot > MAX_BAG_SIZE && slot !=NULL_SLOT)
+    if (slot > MAX_BAG_SIZE && slot != NULL_SLOT)
         return false;
 
     if (!isAlive())
