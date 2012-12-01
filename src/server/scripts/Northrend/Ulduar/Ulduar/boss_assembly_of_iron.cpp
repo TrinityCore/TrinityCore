@@ -33,6 +33,7 @@ enum AssemblySpells
     // General
     SPELL_SUPERCHARGE                            = 61920,
     SPELL_BERSERK                                = 47008, // Hard enrage, don't know the correct ID.
+    SPELL_KILL_CREDIT                            = 65195, // spell_dbc
 
     // Steelbreaker
     SPELL_HIGH_VOLTAGE                           = 61890,
@@ -136,9 +137,7 @@ class boss_steelbreaker : public CreatureScript
 
         struct boss_steelbreakerAI : public BossAI
         {
-            boss_steelbreakerAI(Creature* creature) : BossAI(creature, BOSS_ASSEMBLY_OF_IRON)
-            {
-            }
+            boss_steelbreakerAI(Creature* creature) : BossAI(creature, BOSS_ASSEMBLY_OF_IRON) { }
 
             uint32 phase;
 
@@ -185,7 +184,7 @@ class boss_steelbreaker : public CreatureScript
 
                 if (instance->GetBossState(BOSS_ASSEMBLY_OF_IRON) == DONE)
                 {
-                    // todo: kill credit
+                    DoCastAOE(SPELL_KILL_CREDIT);
                     Talk(SAY_STEELBREAKER_ENCOUNTER_DEFEATED);
                 }
                 else
@@ -267,9 +266,7 @@ class boss_runemaster_molgeim : public CreatureScript
 
         struct boss_runemaster_molgeimAI : public BossAI
         {
-            boss_runemaster_molgeimAI(Creature* creature) : BossAI(creature, BOSS_ASSEMBLY_OF_IRON)
-            {
-            }
+            boss_runemaster_molgeimAI(Creature* creature) : BossAI(creature, BOSS_ASSEMBLY_OF_IRON) { }
 
             uint32 phase;
 
@@ -295,6 +292,7 @@ class boss_runemaster_molgeim : public CreatureScript
                 switch (action)
                 {
                     case ACTION_SUPERCHARGE:
+                    {
                         me->SetFullHealth();
                         me->AddAura(SPELL_SUPERCHARGE, me);
                         events.SetPhase(++phase);
@@ -304,7 +302,8 @@ class boss_runemaster_molgeim : public CreatureScript
                             events.RescheduleEvent(EVENT_RUNE_OF_DEATH, 30000);
                         if (phase >= 3)
                             events.RescheduleEvent(EVENT_RUNE_OF_SUMMONING, urand(20000, 30000));
-                    break;
+                        break;
+                    }
                 }
             }
 
@@ -314,7 +313,7 @@ class boss_runemaster_molgeim : public CreatureScript
 
                 if (instance->GetBossState(BOSS_ASSEMBLY_OF_IRON) == DONE)
                 {
-                    // todo: kill credit
+                    DoCastAOE(SPELL_KILL_CREDIT);
                     Talk(SAY_MOLGEIM_ENCOUNTER_DEFEATED);
                 }
                 else
@@ -416,9 +415,7 @@ class boss_stormcaller_brundir : public CreatureScript
 
         struct boss_stormcaller_brundirAI : public BossAI
         {
-            boss_stormcaller_brundirAI(Creature* creature) : BossAI(creature, BOSS_ASSEMBLY_OF_IRON)
-            {
-            }
+            boss_stormcaller_brundirAI(Creature* creature) : BossAI(creature, BOSS_ASSEMBLY_OF_IRON) { }
 
             uint32 phase;
 
@@ -429,7 +426,7 @@ class boss_stormcaller_brundir : public CreatureScript
                 me->RemoveAllAuras();
                 me->SetDisableGravity(false);
                 me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_INTERRUPT, false);  // Should be interruptable unless overridden by spell (Overload)
-                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_STUN, false);   // Reset immumity, Brundir should be stunnable by default
+                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_STUN, false);       // Reset immumity, Brundir should be stunnable by default
             }
 
             void EnterCombat(Unit* /*who*/)
@@ -448,6 +445,7 @@ class boss_stormcaller_brundir : public CreatureScript
                 switch (action)
                 {
                     case ACTION_SUPERCHARGE:
+                    {
                         me->SetFullHealth();
                         me->AddAura(SPELL_SUPERCHARGE, me);
                         events.SetPhase(++phase);
@@ -461,8 +459,8 @@ class boss_stormcaller_brundir : public CreatureScript
                             events.RescheduleEvent(EVENT_LIGHTNING_TENDRILS, urand(50000, 60000));
                             me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_STUN, true); // Apply immumity to stuns
                         }
-                    break;
-
+                        break;
+                    }
                 }
             }
 
@@ -472,7 +470,7 @@ class boss_stormcaller_brundir : public CreatureScript
 
                 if (instance->GetBossState(BOSS_ASSEMBLY_OF_IRON) == DONE)
                 {
-                    // todo: kill credit
+                    DoCastAOE(SPELL_KILL_CREDIT);
                     Talk(SAY_BRUNDIR_ENCOUNTER_DEFEATED);
                 }
                 else
