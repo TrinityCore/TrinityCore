@@ -668,19 +668,53 @@ class spell_pal_divine_sacrifice : public SpellScriptLoader
         }
 };
 
+class spell_pal_sacred_shield : public SpellScriptLoader
+{
+    public:
+        spell_pal_sacred_shield() : SpellScriptLoader("spell_pal_sacred_shield") { }
+
+        class spell_pal_sacred_shield_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_pal_sacred_shield_SpellScript);
+
+            SpellCastResult CheckCast()
+            {
+                Unit* caster = GetCaster();
+                if (caster->GetTypeId() != TYPEID_PLAYER)
+                    return SPELL_FAILED_DONT_REPORT;
+
+                if (!caster->HealthBelowPct(30))
+                    return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
+
+                return SPELL_CAST_OK;
+            }
+
+            void Register()
+            {
+                OnCheckCast += SpellCheckCastFn(spell_pal_sacred_shield_SpellScript::CheckCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_pal_sacred_shield_SpellScript();
+        }
+};
+
 void AddSC_paladin_spell_scripts()
 {
     //new spell_pal_ardent_defender();
     new spell_pal_blessing_of_faith();
     new spell_pal_blessing_of_sanctuary();
+    new spell_pal_divine_sacrifice();
+    new spell_pal_exorcism_and_holy_wrath_damage();
     new spell_pal_guarded_by_the_light();
+    new spell_pal_hand_of_sacrifice();
     new spell_pal_holy_shock();
     new spell_pal_judgement_of_command();
     new spell_pal_divine_storm();
     new spell_pal_divine_storm_dummy();
     new spell_pal_lay_on_hands();
     new spell_pal_righteous_defense();
-    new spell_pal_exorcism_and_holy_wrath_damage();
-    new spell_pal_hand_of_sacrifice();
-    new spell_pal_divine_sacrifice();
+    new spell_pal_sacred_shield();
 }

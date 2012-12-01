@@ -26,12 +26,14 @@
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"
 
-enum RogueSpells
+enum RogueData
 {
     ROGUE_SPELL_SHIV_TRIGGERED                   = 5940,
     ROGUE_SPELL_GLYPH_OF_PREPARATION             = 56819,
     ROGUE_SPELL_PREY_ON_THE_WEAK                 = 58670,
     ROGUE_SPELL_CHEAT_DEATH_COOLDOWN             = 31231,
+
+    ROGUE_ICON_IMPROVED_RECUPERATE               = 4819
 };
 
 // Cheat Death
@@ -418,12 +420,61 @@ class spell_rog_shadowstep : public SpellScriptLoader
         }
 };
 
+class spell_rog_recuperate : public SpellScriptLoader
+{
+    public:
+        spell_rog_recuperate() : SpellScriptLoader("spell_rog_recuperate") { }
+
+        class spell_rog_recuperate_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_rog_recuperate_AuraScript);
+
+            bool Load()
+            {
+                return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+            }
+
+            void OnPeriodic(AuraEffect const* /*aurEff*/)
+            {
+                if (Unit* caster = GetCaster())
+                    if (AuraEffect* effect = GetAura()->GetEffect(EFFECT_0))
+                        effect->RecalculateAmount(caster);
+            }
+
+            void CalculateBonus(AuraEffect const* /*aurEff*/, int32& amount, bool& canBeRecalculated)
+            {
+                canBeRecalculated = false;
+                if (Unit* caster = GetCaster())
+                {
+                    int32 baseAmount = GetSpellInfo()->Effects[EFFECT_0].CalcValue(caster) * 1000;
+                    // Improved Recuperate
+                    if (AuraEffect const* auraEffect = caster->GetDummyAuraEffect(SPELLFAMILY_ROGUE, ROGUE_ICON_IMPROVED_RECUPERATE, EFFECT_0))
+                        baseAmount += auraEffect->GetAmount();
+
+                    amount = CalculatePct(caster->GetMaxHealth(), float(baseAmount) / 1000.0f);
+                }
+            }
+
+            void Register()
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_rog_recuperate_AuraScript::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_rog_recuperate_AuraScript::CalculateBonus, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_rog_recuperate_AuraScript();
+        }
+};
+
 void AddSC_rogue_spell_scripts()
 {
     new spell_rog_cheat_death();
     new spell_rog_nerves_of_steel();
     new spell_rog_preparation();
     new spell_rog_prey_on_the_weak();
+    new spell_rog_recuperate();
     new spell_rog_shiv();
     new spell_rog_deadly_poison();
     new spell_rog_shadowstep();
