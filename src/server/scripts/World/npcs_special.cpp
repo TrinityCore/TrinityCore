@@ -3278,7 +3278,7 @@ public:
 
         void UpdateAI(const uint32 diff)
         {
-            if (!me->isInCombat() && CombatCheck == false)
+            if (!me->isInCombat())
             {
                 me->SetSpeed(MOVE_RUN, 2, true);
                 me->SetSpeed(MOVE_FLIGHT, 2, true);
@@ -3360,7 +3360,7 @@ public:
 
         void UpdateAI(const uint32 diff)
         {
-            if (!me->isInCombat() && CombatCheck == false)
+            if (!me->isInCombat())
             {
                 me->SetSpeed(MOVE_RUN, 2, true);
                 me->SetSpeed(MOVE_FLIGHT, 2, true);

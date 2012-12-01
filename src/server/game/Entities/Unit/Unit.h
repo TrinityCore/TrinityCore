@@ -2237,6 +2237,10 @@ class Unit : public WorldObject
 		float GetHealAbsorb() const { return _healAbsorb; };
         void SetHealAbsorb(float absorb) { _healAbsorb = absorb; };
 
+		int32 eclipse;
+        int32 GetEclipsePower() {return eclipse;};
+        void SetEclipsePower(int32 power);
+
         // Handling caster facing during spellcast
         void FocusTarget(Spell const* focusSpell, uint64 target);
         void ReleaseFocus(Spell const* focusSpell);

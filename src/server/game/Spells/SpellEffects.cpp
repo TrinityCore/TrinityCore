@@ -837,7 +837,7 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                     // Improved Insect Swarm
                     if (AuraEffect const * aurEff = m_caster->GetDummyAuraEffect(SPELLFAMILY_DRUID, 1771, 0))
                         if (unitTarget->GetAuraEffect(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_DRUID, 0x00200000, 0, 0))
-                            AddPctN(damage, aurEff->GetAmount());
+                            AddPct(damage, aurEff->GetAmount());
 
                     if (m_caster->HasAura(16913))
                     {
