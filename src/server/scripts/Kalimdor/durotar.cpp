@@ -28,7 +28,7 @@
 
 enum LazyPeonYells
 {
-    SAY_SPELL_HIT                                 = -1000600   //Ow! OK, I''ll get back to work, $N!'
+    SAY_SPELL_HIT                                 = 0
 };
 
 enum LazyPeon
