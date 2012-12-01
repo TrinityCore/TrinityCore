@@ -9948,13 +9948,19 @@ int32 Unit::SpellBaseDamageBonusDone(SpellSchoolMask schoolMask)
 {
     int32 DoneAdvertisedBenefit = 0;
 
-   AuraEffectList const& mDamageDone = GetAuraEffectsByType(SPELL_AURA_MOD_DAMAGE_DONE);
+ /*  AuraEffectList const& mDamageDone = GetAuraEffectsByType(SPELL_AURA_MOD_DAMAGE_DONE);
     for (AuraEffectList::const_iterator i = mDamageDone.begin(); i != mDamageDone.end(); ++i)
         if (((*i)->GetMiscValue() & schoolMask) != 0 &&
         (*i)->GetSpellInfo()->EquippedItemClass == -1 &&
                                                             // -1 == any item class (not wand then)
         (*i)->GetSpellInfo()->EquippedItemInventoryTypeMask == 0)
                                                             // 0 == any inventory type (not wand then)
+            DoneAdvertisedBenefit += (*i)->GetAmount(); */
+
+
+    AuraEffectList const& mHealingDone = GetAuraEffectsByType(SPELL_AURA_MOD_HEALING_DONE);
+    for (AuraEffectList::const_iterator i = mHealingDone.begin(); i != mHealingDone.end(); ++i)
+        if (!(*i)->GetMiscValue() || ((*i)->GetMiscValue() & schoolMask) != 0)
             DoneAdvertisedBenefit += (*i)->GetAmount();
 
     if (GetTypeId() == TYPEID_PLAYER)
@@ -9966,32 +9972,6 @@ int32 Unit::SpellBaseDamageBonusDone(SpellSchoolMask schoolMask)
         if (GetPowerIndexByClass(POWER_MANA, getClass()) != MAX_POWERS)
             DoneAdvertisedBenefit += std::max(0, int32(GetStat(STAT_INTELLECT)) - 10);  // spellpower from intellect
 
-		//HACK FIX ON TOTEMIC WRATH, FEL ARMOR, INNER FIRE
-		if (HasAura(77747))
-		{
-	    DoneAdvertisedBenefit += (int32(DoneAdvertisedBenefit) * 0.10f); // Totemic Wrath
-		}
-		if (HasAura(588))
-		{
-	    DoneAdvertisedBenefit += (int32(DoneAdvertisedBenefit) * 0.06f); // Inner Fire
-		}
-		if (HasAura(28176))
-		{
-	    DoneAdvertisedBenefit += (int32(DoneAdvertisedBenefit) * 0.08f); // Fel Armor
-		}
-        if (HasAura(55565))
-		{
-	    DoneAdvertisedBenefit += (int32(DoneAdvertisedBenefit) * 0.05f); // Custom Trigger 5% Spell Power
-		}
-		if (HasAura(55595))
-		{
-	    DoneAdvertisedBenefit += (int32(DoneAdvertisedBenefit) * 0.10f); // Custom Trigger 10% Spell Power
-		}
-		if (HasAura(61633))
-		{
-	    DoneAdvertisedBenefit += (int32(DoneAdvertisedBenefit) * 0.20f); // Custom Trigger 20% Spell Power
-		}
-       //HACK FIX ON TOTEMIC WRATH, FEL ARMOR, INNER FIRE .. Custom Trigger
 
 		// Damage bonus from stats
         AuraEffectList const& mDamageDoneOfStatPercent = GetAuraEffectsByType(SPELL_AURA_MOD_SPELL_DAMAGE_OF_STAT_PERCENT);
