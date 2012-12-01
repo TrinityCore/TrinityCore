@@ -3313,6 +3313,13 @@ void SpellMgr::LoadDbcDataCorrections()
             case 70650: // Death Knight T10 Tank 2P Bonus
                 spellInfo->EffectApplyAuraName[0] = SPELL_AURA_ADD_PCT_MODIFIER;
                 break;
+            case 71838: // Drain Life - Bryntroll Normal
+            case 71839: // Drain Life - Bryntroll Heroic
+                spellInfo->AttributesEx2 |= SPELL_ATTR2_CANT_CRIT;
+                break;
+            case 34471: // The Beast Within
+                spellInfo->AttributesEx5 |= SPELL_ATTR5_USABLE_WHILE_CONFUSED | SPELL_ATTR5_USABLE_WHILE_FEARED | SPELL_ATTR5_USABLE_WHILE_STUNNED;
+                break;
             // ULDUAR SPELLS
             //
             case 62374: // Pursued (Flame Leviathan)
