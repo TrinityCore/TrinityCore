@@ -294,7 +294,7 @@ DELETE FROM `script_texts` WHERE `entry` BETWEEN -1595025 AND -1595009;
 DELETE FROM `creature_text` WHERE `entry`=26533;
 INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,`comment`,`text`) VALUES
 (26533,0,0,14,14410,100,"malganis SAY_INTRO_1 | culling SAY_PHASE206","Yes, this is the beginning. I've been waiting for you, young prince. I am Mal'Ganis."),
-(26533,1,0,14,14411,100,"malganis SAY_INTRO_2 | culling SAY_PHASE207","As you can see, your people are now mine. I will now turn this city household by household, until the flame of life has been snuffed out... forever.");
+(26533,1,0,14,14411,100,"malganis SAY_INTRO_2 | culling SAY_PHASE207","As you can see, your people are now mine. I will now turn this city household by household, until the flame of life has been snuffed out... forever."),
 (26533,2,0,14,14413,100,"malganis SAY_AGGRO","This will be a fine test...Prince Arthas..."),
 (26533,3,0,14,14416,100,"malganis SAY_KILL_1","All too easy..."),
 (26533,3,1,14,14417,100,"malganis SAY_KILL_2","The dark lord is displeased with your interference..."),
@@ -361,7 +361,7 @@ INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,
 
 -- sprysprocket
 DELETE FROM `script_texts` WHERE `entry` BETWEEN -1000356 AND -1000351;
-DELETE FROM `creature_text` WHERE `entry` IN (18588,18760,18262);
+DELETE FROM `creature_text` WHERE `entry`=23002;
 INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,`comment`,`text`) VALUES
 (23002,0,0,14,0,100,"sprysprocket SAY_START","You, there! Hand over that moonstone and nobody gets hurt!"),
 (23002,1,0,15,0,100,"sprysprocket SAY_WHISPER_CHILL","Just chill!"),
