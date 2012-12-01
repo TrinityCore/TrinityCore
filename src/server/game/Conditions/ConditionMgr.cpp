@@ -702,7 +702,7 @@ ConditionList ConditionMgr::GetConditionsForSmartEvent(int32 entryOrGuid, uint32
 ConditionList ConditionMgr::GetConditionsForNpcVendorEvent(uint32 creatureId, uint32 itemId)
 {
     ConditionList cond;
-    CreatureSpellConditionContainer::const_iterator itr = NpcVendorConditionContainerStore.find(creatureId);
+    NpcVendorConditionContainer::const_iterator itr = NpcVendorConditionContainerStore.find(creatureId);
     if (itr != NpcVendorConditionContainerStore.end())
     {
         ConditionTypeContainer::const_iterator i = (*itr).second.find(itemId);
@@ -941,7 +941,7 @@ void ConditionMgr::LoadConditions(bool isReload)
                 case CONDITION_SOURCE_TYPE_NPC_VENDOR:
                 {
                     NpcVendorConditionContainerStore[cond->SourceGroup][cond->SourceEntry].push_back(cond);
-                    valid =  true;
+                    valid = true;
                     ++count;
                     continue;
                 }
