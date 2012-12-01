@@ -46,8 +46,8 @@ enum MageSpells
     SPELL_MAGE_CAUTERIZE                         = 86949,
     SPELL_MAGE_CAUTERIZE_DOT                     = 87023,
     SPELL_MAGE_GLYPH_OF_BLAST_WAVE               = 62126,
-	SPELL_MAGE_CONJURE_REFRESHMENT               = 42955,
 
+    SPELL_MAGE_CONJURE_REFRESHMENT               = 42955,
 };
 
 class spell_mage_blast_wave : public SpellScriptLoader
@@ -613,6 +613,7 @@ class spell_mage_conjure_refreshment : public SpellScriptLoader
             return new spell_mage_conjure_refreshment_SpellScript();
         }
 };
+
 void AddSC_mage_spell_scripts()
 {
     new spell_mage_blast_wave();

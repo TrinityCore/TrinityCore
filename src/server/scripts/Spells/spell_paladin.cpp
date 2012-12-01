@@ -51,6 +51,8 @@ enum PaladinSpells
 
     SPELL_HAND_OF_SACRIFICE                      = 6940,
     SPELL_DIVINE_SACRIFICE                       = 64205,
+	SPELL_HOLY_WRATH                             = 64205,
+
 };
 
 // 31850 - Ardent Defender
@@ -700,6 +702,43 @@ class spell_pal_sacred_shield : public SpellScriptLoader
        }
 };
 
+class spell_pal_holy_wrath : public SpellScriptLoader
+{
+    public:
+        spell_pal_holy_wrath() : SpellScriptLoader("spell_pal_holy_wrath") { }
+
+        class spell_pal_holy_wrath_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_pal_holy_wrath_SpellScript);
+
+            SpellCastResult CheckCast()
+            {
+                Unit* caster = GetCaster();
+
+			       if (Unit* target = GetExplTargetUnit())
+                   {
+                        if (target->GetTypeId() == TYPEID_PLAYER && target->GetCreatureType() == CREATURE_TYPE_DEMON)     
+                            return SPELL_FAILED_BAD_TARGETS;
+
+                        if (target->GetTypeId() == TYPEID_PLAYER && target->GetCreatureType() == CREATURE_TYPE_UNDEAD)
+                            return SPELL_FAILED_BAD_TARGETS;
+			   	   }
+				   else
+                    return SPELL_FAILED_BAD_TARGETS;
+
+                return SPELL_CAST_OK;
+           }
+            void Register()
+            {
+                OnCheckCast += SpellCheckCastFn(spell_pal_sacred_shield_SpellScript::CheckCast);
+            }	
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_pal_sacred_shield_SpellScript();
+       }
+};
 
 void AddSC_paladin_spell_scripts()
 {
@@ -717,4 +756,5 @@ void AddSC_paladin_spell_scripts()
     new spell_pal_lay_on_hands();
     new spell_pal_righteous_defense();
     new spell_pal_sacred_shield();
+	new spell_pal_holy_wrath();
 }

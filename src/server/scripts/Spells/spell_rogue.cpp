@@ -26,7 +26,7 @@
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"
 
-enum RogueSpells
+enum RogueData
 {
     ROGUE_SPELL_SHIV_TRIGGERED                   = 5940,
     ROGUE_SPELL_GLYPH_OF_PREPARATION             = 56819,
@@ -428,7 +428,7 @@ class spell_rog_recuperate : public SpellScriptLoader
         class spell_rog_recuperate_AuraScript : public AuraScript
         {
             PrepareAuraScript(spell_rog_recuperate_AuraScript);
- 
+
             bool Load()
             {
                 return GetCaster()->GetTypeId() == TYPEID_PLAYER;
@@ -437,7 +437,8 @@ class spell_rog_recuperate : public SpellScriptLoader
             void OnPeriodic(AuraEffect const* /*aurEff*/)
             {
                 if (Unit* caster = GetCaster())
-                   if (AuraEffect* effect = GetAura()->GetEffect(EFFECT_0))
+
+                    if (AuraEffect* effect = GetAura()->GetEffect(EFFECT_0))
                         effect->RecalculateAmount(caster);
             }
 
@@ -449,10 +450,10 @@ class spell_rog_recuperate : public SpellScriptLoader
                     int32 baseAmount = GetSpellInfo()->Effects[EFFECT_0].CalcValue(caster) * 1000;
                     // Improved Recuperate
                     if (AuraEffect const* auraEffect = caster->GetDummyAuraEffect(SPELLFAMILY_ROGUE, ROGUE_ICON_IMPROVED_RECUPERATE, EFFECT_0))
-                     baseAmount += auraEffect->GetAmount();
+                        baseAmount += auraEffect->GetAmount();
 
-	                  amount = CalculatePct(caster->GetMaxHealth(), float(baseAmount) / 1000.0f);
-               }
+                    amount = CalculatePct(caster->GetMaxHealth(), float(baseAmount) / 1000.0f);
+                }
             }
 
             void Register()
@@ -474,6 +475,7 @@ void AddSC_rogue_spell_scripts()
     new spell_rog_nerves_of_steel();
     new spell_rog_preparation();
     new spell_rog_prey_on_the_weak();
+    new spell_rog_recuperate();
     new spell_rog_shiv();
     new spell_rog_deadly_poison();
     new spell_rog_shadowstep();
