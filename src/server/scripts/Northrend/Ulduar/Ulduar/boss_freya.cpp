@@ -148,7 +148,7 @@ enum FreyaSpells
     // Attuned To Nature spells
     SPELL_ATTUNED_TO_NATURE_2_DOSE_REDUCTION     = 62524,
     SPELL_ATTUNED_TO_NATURE_10_DOSE_REDUCTION    = 62525,
-    SPELL_ATTUNED_TO_NATURE_25_DOSE_REDUCTION    = 62521,
+    SPELL_ATTUNED_TO_NATURE_25_DOSE_REDUCTION    = 62521
 };
 
 enum FreyaNpcs
@@ -166,13 +166,13 @@ enum FreyaNpcs
     NPC_IRON_ROOTS                               = 33088,
     NPC_STRENGTHENED_IRON_ROOTS                  = 33168,
 
-    OBJECT_NATURE_BOMB                           = 194902,
+    OBJECT_NATURE_BOMB                           = 194902
 };
 
 enum FreyaActions
 {
     ACTION_ELDER_DEATH                           = 1,
-    ACTION_ELDER_FREYA_KILLED                    = 2,
+    ACTION_ELDER_FREYA_KILLED                    = 2
 };
 
 enum FreyaEvents
@@ -200,13 +200,16 @@ enum FreyaEvents
     // Elder Brightleaf
     EVENT_SOLAR_FLARE                            = 15,
     EVENT_UNSTABLE_SUN_BEAM                      = 16,
-    EVENT_FLUX                                   = 17,
+    EVENT_FLUX                                   = 17
 };
 
-#define WAVE_TIME                                60000 // Normal wave is one minute
-#define TIME_DIFFERENCE                          10000 // If difference between waveTime and WAVE_TIME is bigger then TIME_DIFFERENCE, schedule EVENT_WAVE in 10 seconds
-#define DATA_GETTING_BACK_TO_NATURE              1
-#define DATA_KNOCK_ON_WOOD                       2
+enum Misc
+{
+    WAVE_TIME                                   = 60000, // Normal wave is one minute
+    TIME_DIFFERENCE                             = 10000, // If difference between waveTime and WAVE_TIME is bigger then TIME_DIFFERENCE, schedule EVENT_WAVE in 10 seconds
+    DATA_GETTING_BACK_TO_NATURE                 = 1,
+    DATA_KNOCK_ON_WOOD                          = 2
+};
 
 class npc_iron_roots : public CreatureScript
 {
@@ -262,9 +265,7 @@ class boss_freya : public CreatureScript
 
         struct boss_freyaAI : public BossAI
         {
-            boss_freyaAI(Creature* creature) : BossAI(creature, BOSS_FREYA)
-            {
-            }
+            boss_freyaAI(Creature* creature) : BossAI(creature, BOSS_FREYA) { }
 
             uint64 ElementalGUID[3][2];
 
@@ -1519,19 +1520,17 @@ class npc_unstable_sun_beam : public CreatureScript
 class spell_freya_attuned_to_nature_dose_reduction : public SpellScriptLoader
 {
     public:
-        spell_freya_attuned_to_nature_dose_reduction() : SpellScriptLoader("spell_freya_attuned_to_nature_dose_reduction")
-        {
-        }
+        spell_freya_attuned_to_nature_dose_reduction() : SpellScriptLoader("spell_freya_attuned_to_nature_dose_reduction") {  }
 
         class spell_freya_attuned_to_nature_dose_reduction_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_freya_attuned_to_nature_dose_reduction_SpellScript)
+            PrepareSpellScript(spell_freya_attuned_to_nature_dose_reduction_SpellScript);
 
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
                 Unit* target = GetHitUnit();
-                SpellInfo const* spellInfo = GetSpellInfo();
-                switch (spellInfo->Id)
+
+                switch (GetSpellInfo()->Id)
                 {
                     case SPELL_ATTUNED_TO_NATURE_2_DOSE_REDUCTION:
                         if (target->HasAura(GetEffectValue()))
@@ -1568,9 +1567,7 @@ class spell_freya_attuned_to_nature_dose_reduction : public SpellScriptLoader
 class spell_freya_iron_roots : public SpellScriptLoader
 {
     public:
-        spell_freya_iron_roots() : SpellScriptLoader("spell_freya_iron_roots")
-        {
-        }
+        spell_freya_iron_roots() : SpellScriptLoader("spell_freya_iron_roots") { }
 
         class spell_freya_iron_roots_SpellScript : public SpellScript
         {
@@ -1603,80 +1600,44 @@ class spell_freya_iron_roots : public SpellScriptLoader
 class achievement_getting_back_to_nature : public AchievementCriteriaScript
 {
     public:
-        achievement_getting_back_to_nature() : AchievementCriteriaScript("achievement_getting_back_to_nature")
-        {
-        }
+        achievement_getting_back_to_nature() : AchievementCriteriaScript("achievement_getting_back_to_nature") { }
 
         bool OnCheck(Player* /*player*/, Unit* target)
         {
-            if (!target)
-                return false;
-
-            if (Creature* Freya = target->ToCreature())
-                if (Freya->AI()->GetData(DATA_GETTING_BACK_TO_NATURE) >= 25)
-                    return true;
-
-            return false;
+            return target && target->GetAI()->GetData(DATA_GETTING_BACK_TO_NATURE) >= 25;
         }
 };
 
 class achievement_knock_on_wood : public AchievementCriteriaScript
 {
    public:
-       achievement_knock_on_wood() : AchievementCriteriaScript("achievement_knock_on_wood")
-       {
-       }
+       achievement_knock_on_wood() : AchievementCriteriaScript("achievement_knock_on_wood") { }
 
        bool OnCheck(Player* /*player*/, Unit* target)
        {
-           if (!target)
-               return false;
-
-           if (Creature* Freya = target->ToCreature())
-               if (Freya->AI()->GetData(DATA_KNOCK_ON_WOOD) >= 1)
-                   return true;
-
-           return false;
+           return target && target->GetAI()->GetData(DATA_KNOCK_ON_WOOD) >= 1;
        }
 };
 
 class achievement_knock_knock_on_wood : public AchievementCriteriaScript
 {
    public:
-       achievement_knock_knock_on_wood() : AchievementCriteriaScript("achievement_knock_knock_on_wood")
-       {
-       }
+       achievement_knock_knock_on_wood() : AchievementCriteriaScript("achievement_knock_knock_on_wood") { }
 
        bool OnCheck(Player* /*player*/, Unit* target)
        {
-           if (!target)
-               return false;
-
-           if (Creature* Freya = target->ToCreature())
-               if (Freya->AI()->GetData(DATA_KNOCK_ON_WOOD) >= 2)
-                   return true;
-
-           return false;
+           return target && target->GetAI()->GetData(DATA_KNOCK_ON_WOOD) >= 2;
        }
 };
 
 class achievement_knock_knock_knock_on_wood : public AchievementCriteriaScript
 {
    public:
-       achievement_knock_knock_knock_on_wood() : AchievementCriteriaScript("achievement_knock_knock_knock_on_wood")
-       {
-       }
+       achievement_knock_knock_knock_on_wood() : AchievementCriteriaScript("achievement_knock_knock_knock_on_wood") { }
 
        bool OnCheck(Player* /*player*/, Unit* target)
        {
-           if (!target)
-               return false;
-
-           if (Creature* Freya = target->ToCreature())
-               if (Freya->AI()->GetData(DATA_KNOCK_ON_WOOD) == 3)
-                   return true;
-
-           return false;
+           return target && target->GetAI()->GetData(DATA_KNOCK_ON_WOOD) == 3;
        }
 };
 
