@@ -125,7 +125,7 @@ class boss_sapphiron : public CreatureScript
                 _EnterCombat();
 
                 me->CastSpell(me, SPELL_FROST_AURA, true);
-            
+
                 events.ScheduleEvent(EVENT_BERSERK, 15 * MINUTE * IN_MILLISECONDS);
                 EnterPhaseGround();
 
