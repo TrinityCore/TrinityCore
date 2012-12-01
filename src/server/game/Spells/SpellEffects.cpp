@@ -1181,6 +1181,22 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                             break;
                     }
                 }
+			 if (m_spellInfo->Id == 85256) //Templar´s Verdic
+                {
+                    switch(m_caster->GetPower(POWER_HOLY_POWER))
+                    {
+                        case 0:
+                            damage = int32(damage * 0.39f);
+                            break;
+                        case 1: 
+                            damage = int32(damage * 1.17f);
+                            break;
+                        case 2: 
+                            damage = int32(damage * 3.31);
+                            break;
+                    }
+                }
+
 
              break;
             }

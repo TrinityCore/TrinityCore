@@ -6299,6 +6299,24 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                     return true;
                 }
             }
+			// Eclipse
+			if (dummySpell->SpellIconID == 2856 && GetTypeId() == TYPEID_PLAYER)
+            {
+                if (!procSpell || effIndex != 0)
+                    return false;
+
+                bool isWrathSpell = (procSpell->SpellFamilyFlags[0] & 1);
+
+                if (!roll_chance_f(dummySpell->ProcChance * (isWrathSpell ? 0.6f : 1.0f)))
+                    return false;
+
+                target = this;
+                if (target->HasAura(isWrathSpell ? 48517 : 48518))
+                    return false;
+
+                triggered_spell_id = isWrathSpell ? 48518 : 48517;
+                break;
+            }
             // Living Seed
             if (dummySpell->SpellIconID == 2860)
             {
@@ -9930,7 +9948,7 @@ int32 Unit::SpellBaseDamageBonusDone(SpellSchoolMask schoolMask)
 {
     int32 DoneAdvertisedBenefit = 0;
 
-    AuraEffectList const& mDamageDone = GetAuraEffectsByType(SPELL_AURA_MOD_DAMAGE_DONE);
+   AuraEffectList const& mDamageDone = GetAuraEffectsByType(SPELL_AURA_MOD_DAMAGE_DONE);
     for (AuraEffectList::const_iterator i = mDamageDone.begin(); i != mDamageDone.end(); ++i)
         if (((*i)->GetMiscValue() & schoolMask) != 0 &&
         (*i)->GetSpellInfo()->EquippedItemClass == -1 &&
@@ -9943,12 +9961,13 @@ int32 Unit::SpellBaseDamageBonusDone(SpellSchoolMask schoolMask)
     {
         // Base value
         DoneAdvertisedBenefit += ToPlayer()->GetBaseSpellPowerBonus();
+		DoneAdvertisedBenefit += ToPlayer()->GetBaseSpellDamageBonus();
 
         // Check if we are ever using mana - PaperDollFrame.lua
         if (GetPowerIndexByClass(POWER_MANA, getClass()) != MAX_POWERS)
             DoneAdvertisedBenefit += std::max(0, int32(GetStat(STAT_INTELLECT)) - 10);  // spellpower from intellect
-
-        // Damage bonus from stats
+	
+		// Damage bonus from stats
         AuraEffectList const& mDamageDoneOfStatPercent = GetAuraEffectsByType(SPELL_AURA_MOD_SPELL_DAMAGE_OF_STAT_PERCENT);
         for (AuraEffectList::const_iterator i = mDamageDoneOfStatPercent.begin(); i != mDamageDoneOfStatPercent.end(); ++i)
         {
@@ -10245,8 +10264,16 @@ uint32 Unit::SpellHealingBonusDone(Unit* victim, SpellInfo const* spellProto, ui
 	    // and Warlock's Healthstones
     if (spellProto->SpellFamilyName == SPELLFAMILY_WARLOCK && (spellProto->SpellFamilyFlags[0] & 0x10000))
     {
-        healamount = 0.45 * (GetCreateHealth());
+		if (owner->HasAura(74434))
+		{
+        healamount = 0.40 * (owner->GetMaxHealth());
         return healamount;
+		}
+		else
+		{
+        healamount = 0.20 * (owner->GetMaxHealth());
+        return healamount;
+		}
     }
 
     if (spellProto->Id == 85673)    // Word of Glory
@@ -17309,6 +17336,42 @@ void Unit::SetFacingToObject(WorldObject* object)
 
     // TODO: figure out under what conditions creature will move towards object instead of facing it where it currently is.
     SetFacingTo(GetAngle(object));
+}
+
+void Unit::SetEclipsePower(int32 power)
+{
+    eclipse = power;
+
+    if (eclipse == 0)
+    {
+        if (HasAura(67483))
+            RemoveAurasDueToSpell(67483);
+        if (HasAura(67484))
+            RemoveAurasDueToSpell(67484);
+    }
+
+    if (eclipse >= 100)
+    {
+        if (HasAura(48518))
+            RemoveAurasDueToSpell(48518);
+        eclipse = 100;
+        AddAura(48517, ToPlayer());
+    }
+
+    if (eclipse <= -100)
+    {
+        if (HasAura(48517))
+            RemoveAurasDueToSpell(48517);
+        eclipse = -100;
+        AddAura(48518, ToPlayer());
+    }
+
+    WorldPacket data(SMSG_POWER_UPDATE);
+    data.append(GetPackGUID());
+    data << int32(1);
+    data << int8(POWER_ECLIPSE);
+    data << int32(eclipse);
+    SendMessageToSet(&data, GetTypeId() == TYPEID_PLAYER ? true : false);
 }
 
 bool Unit::SetWalk(bool enable)

@@ -1354,7 +1354,7 @@ class Unit : public WorldObject
         void setPowerType(Powers power);
         int32 GetPower(Powers power) const;
         int32 GetMinPower(Powers power) const { return power == POWER_ECLIPSE ? -100 : 0; }
-        int32 GetMaxPower(Powers power) const;
+       int32 GetMaxPower(Powers power) const { return GetInt32Value(UNIT_FIELD_MAXPOWER1+power); }
         void SetPower(Powers power, int32 val);
         void SetMaxPower(Powers power, int32 val);
         // returns the change in power
