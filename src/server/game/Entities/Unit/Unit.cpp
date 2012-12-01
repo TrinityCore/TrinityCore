@@ -10290,14 +10290,14 @@ uint32 Unit::SpellHealingBonusDone(Unit* victim, SpellInfo const* spellProto, ui
 	    // and Warlock's Healthstones
     if (spellProto->SpellFamilyName == SPELLFAMILY_WARLOCK && (spellProto->SpellFamilyFlags[0] & 0x10000))
     {
-		if (owner->HasAura(74434))
+		if (HasAura(74434))
 		{
-        healamount = 0.40 * (owner->GetMaxHealth());
+        healamount = 0.40 *(GetMaxHealth());
         return healamount;
 		}
 		else
 		{
-        healamount = 0.20 * (owner->GetMaxHealth());
+        healamount = 0.20 *(GetMaxHealth());
         return healamount;
 		}
     }
