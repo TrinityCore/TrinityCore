@@ -149,7 +149,7 @@ class boss_steelbreaker : public CreatureScript
                 me->RemoveAllAuras();
             }
 
-            void EnterCombat(Unit* who)
+            void EnterCombat(Unit* /*who*/)
             {
                 _EnterCombat();
                 Talk(SAY_STEELBREAKER_AGGRO);
@@ -280,7 +280,7 @@ class boss_runemaster_molgeim : public CreatureScript
                 me->RemoveAllAuras();
             }
 
-            void EnterCombat(Unit* who)
+            void EnterCombat(Unit* /*who*/)
             {
                 _EnterCombat();
                 Talk(SAY_MOLGEIM_AGGRO);
@@ -432,7 +432,7 @@ class boss_stormcaller_brundir : public CreatureScript
                 me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_STUN, false);   // Reset immumity, Brundir should be stunnable by default
             }
 
-            void EnterCombat(Unit* who)
+            void EnterCombat(Unit* /*who*/)
             {
                 _EnterCombat();
                 Talk(SAY_BRUNDIR_AGGRO);
