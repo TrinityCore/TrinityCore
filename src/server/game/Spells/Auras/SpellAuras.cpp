@@ -1437,6 +1437,17 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
             }
             break;
         case SPELLFAMILY_DRUID:
+		 // Solar Eclipse Sunfire check
+            if (GetSpellInfo()->Id == 48517)
+            {
+                if (!caster)
+                    return;
+                                    // Sunfire talent
+                if (apply && caster->HasAura(93401))
+                    caster->CastSpell(caster,94338,true); // Moonfire swapper
+                else
+                    caster->RemoveAurasDueToSpell(94338);
+            }
             // Enrage
             if ((GetSpellInfo()->SpellFamilyFlags[0] & 0x80000) && GetSpellInfo()->SpellIconID == 961)
             {
@@ -1532,19 +1543,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                     break;
             }
             break;
-        case SPELLFAMILY_DRUID:
-            // Solar Eclipse Sunfire check
-            if (GetSpellInfo()->Id == 48517)
-            {
-                if (!caster)
-                    return;
-                                    // Sunfire talent
-                if (apply && caster->HasAura(93401))
-                    caster->CastSpell(caster,94338,true); // Moonfire swapper
-                else
-                    caster->RemoveAurasDueToSpell(94338);
-            }
-            break;
+
         case SPELLFAMILY_WARLOCK:
             // Drain Soul - If the target is at or below 25% health, Drain Soul causes four times the normal damage
             if (GetSpellInfo()->SpellFamilyFlags[0] & 0x00004000)
