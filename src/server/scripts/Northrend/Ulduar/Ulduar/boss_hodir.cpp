@@ -67,6 +67,8 @@ enum HodirSpells
     SPELL_ICE_SHARD                              = 62457,
     SPELL_ICE_SHARD_HIT                          = 65370,
 
+    SPELL_KILL_CREDIT                            = 64899,
+
     // Druids
     SPELL_WRATH                                  = 62793,
     SPELL_STARLIGHT                              = 62807,
@@ -372,6 +374,8 @@ class boss_hodir : public CreatureScript
 
                     me->setFaction(35);
                     me->DespawnOrUnsummon(10000);
+
+                    DoCastAOE(SPELL_KILL_CREDIT);
 
                     _JustDied();
                 }
