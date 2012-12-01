@@ -8,8 +8,7 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-set(scripts_STAT_SRCS
-  ${scripts_STAT_SRCS}
+set(scripts_STAT_COMMANDS_SRCS
   Commands/cs_account.cpp
   Commands/cs_achievement.cpp
   Commands/cs_ban.cpp
@@ -107,6 +106,15 @@ set(scripts_STAT_SRCS
 #  Commands/cs_bindsight.cpp
 #  Commands/cs_unbindsight.cpp
 #  Commands/cs_playall.cpp
+)
+
+set(scripts_STAT_SRCS
+  ${scripts_STAT_SRCS}
+  ${scripts_STAT_COMMANDS_SRCS}
+)
+
+source_group(Commands FILES
+  ${scripts_STAT_COMMANDS_SRCS}
 )
 
 message("  -> Prepared: Commands")

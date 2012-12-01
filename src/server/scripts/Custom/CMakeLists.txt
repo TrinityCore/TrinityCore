@@ -8,8 +8,16 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
+set(scripts_STAT_CUSTOM_SRCS
+)
+
 set(scripts_STAT_SRCS
   ${scripts_STAT_SRCS}
+  ${scripts_STAT_CUSTOM_SRCS}
+)
+
+source_group(Custom FILES
+  ${scripts_STAT_CUSTOM_SRCS}
 )
 
 message("  -> Prepared: Custom")

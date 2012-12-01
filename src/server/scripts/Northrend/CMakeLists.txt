@@ -8,8 +8,7 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-set(scripts_STAT_SRCS
-  ${scripts_STAT_SRCS}
+set(scripts_STAT_NORTHREND_SRCS
   Northrend/wintergrasp.cpp
   Northrend/isle_of_conquest.cpp
   Northrend/storm_peaks.cpp
@@ -194,6 +193,15 @@ set(scripts_STAT_SRCS
   Northrend/DraktharonKeep/drak_tharon_keep.h
   Northrend/DraktharonKeep/boss_tharon_ja.cpp
   Northrend/DraktharonKeep/boss_dred.cpp
+)
+
+set(scripts_STAT_SRCS
+  ${scripts_STAT_SRCS}
+  ${scripts_STAT_NORTHREND_SRCS}
+)
+
+source_group(Northrend FILES
+  ${scripts_STAT_NORTHREND_SRCS}
 )
 
 message("  -> Prepared: Northrend")

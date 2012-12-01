@@ -8,8 +8,7 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-set(scripts_STAT_SRCS
-  ${scripts_STAT_SRCS}
+set(scripts_STAT_SPELLS_SRCS
   Spells/spell_shaman.cpp
   Spells/spell_hunter.cpp
   Spells/spell_rogue.cpp
@@ -25,6 +24,15 @@ set(scripts_STAT_SRCS
   Spells/spell_item.cpp
   Spells/spell_holiday.cpp
   Spells/spell_pet.cpp
+)
+
+set(scripts_STAT_SRCS
+  ${scripts_STAT_SRCS}
+  ${scripts_STAT_SPELLS_SRCS}
+)
+
+source_group(Spells FILES
+  ${scripts_STAT_SPELLS_SRCS}
 )
 
 message("  -> Prepared: Spells")

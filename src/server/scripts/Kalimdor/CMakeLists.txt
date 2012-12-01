@@ -8,8 +8,7 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-set(scripts_STAT_SRCS
-  ${scripts_STAT_SRCS}
+set(scripts_STAT_KALIMDOR_SRCS
   Kalimdor/stonetalon_mountains.cpp
   Kalimdor/silithus.cpp
   Kalimdor/moonglade.cpp
@@ -111,6 +110,15 @@ set(scripts_STAT_SRCS
   Kalimdor/OnyxiasLair/boss_onyxia.cpp
   Kalimdor/OnyxiasLair/onyxias_lair.h
   Kalimdor/OnyxiasLair/instance_onyxias_lair.cpp
+)
+
+set(scripts_STAT_SRCS
+  ${scripts_STAT_SRCS}
+  ${scripts_STAT_KALIMDOR_SRCS}
+)
+
+source_group(Kalimdor FILES
+  ${scripts_STAT_KALIMDOR_SRCS}
 )
 
 message("  -> Prepared: Kalimdor")

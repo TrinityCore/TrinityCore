@@ -8,14 +8,22 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-set(scripts_STAT_SRCS
-  ${scripts_STAT_SRCS}
+set(scripts_STAT_EXAMPLES_SRCS
   Examples/example_misc.cpp
   Examples/example_gossip_codebox.cpp
   Examples/example_escort.cpp
   Examples/example_creature.cpp
   Examples/example_spell.cpp
   Examples/example_commandscript.cpp
+)
+
+set(scripts_STAT_SRCS
+  ${scripts_STAT_SRCS}
+  ${scripts_STAT_EXAMPLES_SRCS}
+)
+
+source_group(Examples FILES
+  ${scripts_STAT_EXAMPLES_SRCS}
 )
 
 message("  -> Prepared: Examples")
