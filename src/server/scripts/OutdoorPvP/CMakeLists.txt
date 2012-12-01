@@ -8,8 +8,7 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-set(scripts_STAT_SRCS
-  ${scripts_STAT_SRCS}
+set(scripts_STAT_OUTDOOR_PVP_SRCS
   OutdoorPvP/OutdoorPvPTF.cpp
   OutdoorPvP/OutdoorPvPSI.cpp
   OutdoorPvP/OutdoorPvPSI.h
@@ -22,6 +21,15 @@ set(scripts_STAT_SRCS
   OutdoorPvP/OutdoorPvPHP.h
   OutdoorPvP/OutdoorPvPZM.h
   OutdoorPvP/OutdoorPvPNA.h
+)
+
+set(scripts_STAT_SRCS
+  ${scripts_STAT_SRCS}
+  ${scripts_STAT_OUTDOOR_PVP_SRCS}
+)
+
+source_group(OutdoorPvP FILES
+  ${scripts_STAT_OUTDOOR_PVP_SRCS}
 )
 
 message("  -> Prepared: Outdoor PVP Zones")

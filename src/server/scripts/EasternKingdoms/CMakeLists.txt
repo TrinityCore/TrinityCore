@@ -8,8 +8,7 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-set(scripts_STAT_SRCS
-  ${scripts_STAT_SRCS}
+set(scripts_STAT_EASTERN_KINGDOMS_SRCS
   EasternKingdoms/ghostlands.cpp
   EasternKingdoms/eversong_woods.cpp
   EasternKingdoms/AlteracValley/boss_galvangar.cpp
@@ -203,6 +202,15 @@ set(scripts_STAT_SRCS
   EasternKingdoms/Karazhan/boss_moroes.cpp
   EasternKingdoms/Karazhan/boss_terestian_illhoof.cpp
   EasternKingdoms/Karazhan/karazhan.h
+)
+
+set(scripts_STAT_SRCS
+  ${scripts_STAT_SRCS}
+  ${scripts_STAT_EASTERN_KINGDOMS_SRCS}
+)
+
+source_group(EasternKingdoms FILES
+  ${scripts_STAT_EASTERN_KINGDOMS_SRCS}
 )
 
 message("  -> Prepared: Eastern Kingdoms")
