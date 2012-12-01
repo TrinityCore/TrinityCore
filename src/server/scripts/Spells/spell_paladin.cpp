@@ -51,7 +51,6 @@ enum PaladinSpells
 
     SPELL_HAND_OF_SACRIFICE                      = 6940,
     SPELL_DIVINE_SACRIFICE                       = 64205,
-	SPELL_HOLY_WRATH                             = 64205,
 
 };
 
