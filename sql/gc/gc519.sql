@@ -1487,6 +1487,9 @@ INSERT INTO `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `comm
 (73189, 72145, 1, 'Rotface: Apply Green Blight Residue'),
 (73190, 72145, 1, 'Rotface: Apply Green Blight Residue');
 
+-- Festergut interrupt immunity
+UPDATE `creature_template` SET `mechanic_immune_mask` = `mechanic_immune_mask` | 33554432 WHERE `entry` IN (36626, 37504, 37505, 37506);
+
 ####################
 -- Forge of Souls ##
 ####################
