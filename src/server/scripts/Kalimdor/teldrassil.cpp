@@ -38,8 +38,8 @@ EndContentData */
 
 enum Mist
 {
-    SAY_AT_HOME             = -1000323,
-    EMOTE_AT_HOME           = -1000324,
+    SAY_AT_HOME             = 0,
+    EMOTE_AT_HOME           = 1,
     QUEST_MIST              = 938,
     NPC_ARYNIA              = 3519,
     FACTION_DARNASSUS       = 79
@@ -78,7 +78,7 @@ public:
             {
                 if (me->IsWithinDistInMap(who, 10.0f))
                 {
-                    DoScriptText(SAY_AT_HOME, who);
+                    Talk(SAY_AT_HOME, who->GetGUID());
                     DoComplete();
                 }
             }
@@ -86,7 +86,7 @@ public:
 
         void DoComplete()
         {
-            DoScriptText(EMOTE_AT_HOME, me);
+            Talk(EMOTE_AT_HOME);
 
             Player* player = GetLeaderForFollower();
             if (player && player->GetQuestStatus(QUEST_MIST) == QUEST_STATUS_INCOMPLETE)
