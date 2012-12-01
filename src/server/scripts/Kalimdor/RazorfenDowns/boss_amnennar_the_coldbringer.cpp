@@ -26,16 +26,19 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 
-#define SAY_AGGRO               -1129000
-#define SAY_SUMMON60            -1129001
-#define SAY_SUMMON30            -1129002
-#define SAY_HP                  -1129003
-#define SAY_KILL                -1129004
+enum AmnennarTheColdbringer
+{
+    SAY_AGGRO               = 0,
+    SAY_SUMMON60            = 1,
+    SAY_SUMMON30            = 2,
+    SAY_HP                  = 3,
+    SAY_KILL                = 4,
 
-#define SPELL_AMNENNARSWRATH    13009
-#define SPELL_FROSTBOLT         15530
-#define SPELL_FROST_NOVA        15531
-#define SPELL_FROST_SPECTRES    12642
+    SPELL_AMNENNARSWRATH    = 13009,
+    SPELL_FROSTBOLT         = 15530,
+    SPELL_FROST_NOVA        = 15531,
+    SPELL_FROST_SPECTRES    = 12642
+};
 
 class boss_amnennar_the_coldbringer : public CreatureScript
 {
@@ -70,12 +73,12 @@ public:
 
         void EnterCombat(Unit* /*who*/)
         {
-            DoScriptText(SAY_AGGRO, me);
+            Talk(SAY_AGGRO);
         }
 
         void KilledUnit(Unit* /*victim*/)
         {
-            DoScriptText(SAY_KILL, me);
+            Talk(SAY_KILL);
         }
 
         void UpdateAI(const uint32 diff)
@@ -105,20 +108,20 @@ public:
 
             if (!Spectrals60 && HealthBelowPct(60))
             {
-                DoScriptText(SAY_SUMMON60, me);
+                Talk(SAY_SUMMON60);
                 DoCast(me->getVictim(), SPELL_FROST_SPECTRES);
                 Spectrals60 = true;
             }
 
             if (!Hp && HealthBelowPct(50))
             {
-                DoScriptText(SAY_HP, me);
+                Talk(SAY_HP);
                 Hp = true;
             }
 
             if (!Spectrals30 && HealthBelowPct(30))
             {
-                DoScriptText(SAY_SUMMON30, me);
+                Talk(SAY_SUMMON30);
                 DoCast(me->getVictim(), SPELL_FROST_SPECTRES);
                 Spectrals30 = true;
             }
