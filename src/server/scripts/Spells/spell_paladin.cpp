@@ -680,15 +680,14 @@ class spell_pal_sacred_shield : public SpellScriptLoader
             SpellCastResult CheckCast()
             {
                 Unit* caster = GetCaster();
-                if (caster->GetTypeId() != TYPEID_PLAYER)
-                    return SPELL_FAILED_DONT_REPORT;
-
-                if (!caster->HealthBelowPct(30))
-                    return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
-
+                if (caster->HealthBelowPct(30))
                 return SPELL_CAST_OK;
            }
-
+            void HandleScript()
+			{
+            Unit* caster = GetCaster();
+            caster->CastSpell(caster, 96263, true);
+			}
             void Register()
             {
                 OnCheckCast += SpellCheckCastFn(spell_pal_sacred_shield_SpellScript::CheckCast);
