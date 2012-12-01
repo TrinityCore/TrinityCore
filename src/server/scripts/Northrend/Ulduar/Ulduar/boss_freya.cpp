@@ -27,34 +27,23 @@
 enum FreyaYells
 {
     // Freya
-    SAY_AGGRO                                    = -1603180,
-    SAY_AGGRO_WITH_ELDER                         = -1603181,
-    SAY_SLAY_1                                   = -1603182,
-    SAY_SLAY_2                                   = -1603183,
-    SAY_DEATH                                    = -1603184,
-    SAY_BERSERK                                  = -1603185,
-    SAY_SUMMON_CONSERVATOR                       = -1603186,
-    SAY_SUMMON_TRIO                              = -1603187,
-    SAY_SUMMON_LASHERS                           = -1603188,
-    SAY_YS_HELP                                  = -1603189,
+    SAY_AGGRO                                    = 0,
+    SAY_AGGRO_WITH_ELDER                         = 1,
+    SAY_SLAY                                     = 2,
+    SAY_DEATH                                    = 3,
+    SAY_BERSERK                                  = 4,
+    SAY_SUMMON_CONSERVATOR                       = 5,
+    SAY_SUMMON_TRIO                              = 6,
+    SAY_SUMMON_LASHERS                           = 7,
+    EMOTE_LIFEBINDERS_GIFT                       = 8,
+    EMOTE_ALLIES_OF_NATURE                       = 9,
+    EMOTE_GROUND_TREMOR                          = 10,
+    EMOTE_IRON_ROOTS                             = 11,
 
-    // Elder Brightleaf
-    SAY_BRIGHTLEAF_AGGRO                         = -1603190,
-    SAY_BRIGHTLEAF_SLAY_1                        = -1603191,
-    SAY_BRIGHTLEAF_SLAY_2                        = -1603192,
-    SAY_BRIGHTLEAF_DEATH                         = -1603193,
-
-    // Elder Ironbranch
-    SAY_IRONBRANCH_AGGRO                         = -1603194,
-    SAY_IRONBRANCH_SLAY_1                        = -1603195,
-    SAY_IRONBRANCH_SLAY_2                        = -1603196,
-    SAY_IRONBRANCH_DEATH                         = -1603197,
-
-    // Elder Stonebark
-    SAY_STONEBARK_AGGRO                          = -1603198,
-    SAY_STONEBARK_SLAY_1                         = -1603199,
-    SAY_STONEBARK_SLAY_2                         = -1603200,
-    SAY_STONEBARK_DEATH                          = -1603201,
+    // Elder Brightleaf / Elder Ironbranch / Elder Stonebark
+    SAY_ELDER_AGGRO                              = 0,
+    SAY_ELDER_SLAY                               = 1,
+    SAY_ELDER_DEATH                              = 2
 };
 
 enum FreyaSpells
@@ -143,7 +132,7 @@ enum FreyaSpells
     // Nature Bomb
     SPELL_NATURE_BOMB                            = 64587,
     SPELL_OBJECT_BOMB                            = 64600,
-    SPELL_SUMMON_NATURE_BOMB                     = 64606,
+    SPELL_SUMMON_NATURE_BOMB                     = 64604,
 
     // Unstable Sun Beam
     SPELL_UNSTABLE_SUN_BEAM                      = 62211,
@@ -316,9 +305,10 @@ class boss_freya : public CreatureScript
                     random[n] = false;
             }
 
-            void KilledUnit(Unit* /*who*/)
+            void KilledUnit(Unit* who)
             {
-                DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2), me);
+                if (who->GetTypeId() == TYPEID_PLAYER)
+                    Talk(SAY_SLAY);
             }
 
             void DamageTaken(Unit* who, uint32& damage)
@@ -369,9 +359,9 @@ class boss_freya : public CreatureScript
                 }
 
                 if (elderCount == 0)
-                    DoScriptText(SAY_AGGRO, me);
+                    Talk(SAY_AGGRO);
                 else
-                    DoScriptText(SAY_AGGRO_WITH_ELDER, me);
+                    Talk(SAY_AGGRO_WITH_ELDER);
 
                 me->CastCustomSpell(SPELL_ATTUNED_TO_NATURE, SPELLVALUE_AURA_STACK, 150, me, true);
 
@@ -409,7 +399,7 @@ class boss_freya : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_ENRAGE:
-                            DoScriptText(SAY_BERSERK, me);
+                            Talk(SAY_BERSERK);
                             DoCast(me, SPELL_ENRAGE);
                             break;
                         case EVENT_SUNBEAM:
@@ -418,17 +408,9 @@ class boss_freya : public CreatureScript
                             events.ScheduleEvent(EVENT_SUNBEAM, urand(10000, 15000));
                             break;
                         case EVENT_NATURE_BOMB:
-                        {
-                            // On every player
-                            std::list<Player*> PlayerList;
-                            Trinity::AnyPlayerInObjectRangeCheck checker(me, 50.0f);
-                            Trinity::PlayerListSearcher<Trinity::AnyPlayerInObjectRangeCheck> searcher(me, PlayerList, checker);
-                            me->VisitNearbyWorldObject(50.0f, searcher);
-                            for (std::list<Player*>::const_iterator itr = PlayerList.begin(); itr != PlayerList.end(); ++itr)
-                                (*itr)->CastSpell(*itr, SPELL_SUMMON_NATURE_BOMB, true);
+                            DoCastAOE(SPELL_SUMMON_NATURE_BOMB, true);
                             events.ScheduleEvent(EVENT_NATURE_BOMB, urand(10000, 12000));
                             break;
-                        }
                         case EVENT_UNSTABLE_ENERGY:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
                                 DoCast(target, SPELL_FREYA_UNSTABLE_SUNBEAM, true);
@@ -442,15 +424,18 @@ class boss_freya : public CreatureScript
                                 events.ScheduleEvent(EVENT_NATURE_BOMB, urand(10000, 20000));
                             break;
                         case EVENT_EONAR_GIFT:
+                            Talk(EMOTE_LIFEBINDERS_GIFT);
                             DoCast(me, SPELL_SUMMON_EONAR_GIFT);
                             events.ScheduleEvent(EVENT_EONAR_GIFT, urand(40000, 50000));
                             break;
                         case EVENT_STRENGTHENED_IRON_ROOTS:
+                            Talk(EMOTE_IRON_ROOTS);
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true, -SPELL_ROOTS_FREYA))
                                 target->CastSpell(target, SPELL_ROOTS_FREYA, true); // This must be casted by Target self
                             events.ScheduleEvent(EVENT_STRENGTHENED_IRON_ROOTS, urand(12000, 20000));
                             break;
                         case EVENT_GROUND_TREMOR:
+                            Talk(EMOTE_GROUND_TREMOR);
                             DoCastAOE(SPELL_FREYA_GROUND_TREMOR);
                             events.ScheduleEvent(EVENT_GROUND_TREMOR, urand(25000, 28000));
                             break;
@@ -573,20 +558,21 @@ class boss_freya : public CreatureScript
                 switch (GetWaveId())
                 {
                     case 0:
-                        DoScriptText(SAY_SUMMON_LASHERS, me);
+                        Talk(SAY_SUMMON_LASHERS);
                         for (uint8 n = 0; n < 10; ++n)
                             DoCast(SPELL_SUMMON_LASHERS);
                         break;
                     case 1:
-                        DoScriptText(SAY_SUMMON_TRIO, me);
+                        Talk(SAY_SUMMON_TRIO);
                         DoCast(SPELL_SUMMON_TRIO);
                         trioWaveCount++;
                         break;
                     case 2:
-                        DoScriptText(SAY_SUMMON_CONSERVATOR, me);
+                        Talk(SAY_SUMMON_CONSERVATOR);
                         DoCast(SPELL_SUMMON_ANCIENT_CONSERVATOR);
                         break;
                 }
+                Talk(EMOTE_ALLIES_OF_NATURE);
                 waveCount++;
             }
 
@@ -602,7 +588,7 @@ class boss_freya : public CreatureScript
 
                 me->CastSpell((Unit*)NULL, summonSpell[me->GetMap()->GetDifficulty()][elderCount], true);
 
-                DoScriptText(SAY_DEATH, me);
+                Talk(SAY_DEATH);
                 me->SetReactState(REACT_PASSIVE);
                 _JustDied();
                 me->RemoveAllAuras();
@@ -705,17 +691,18 @@ class boss_elder_brightleaf : public CreatureScript
                 lumberjack = false;
             }
 
-            void KilledUnit(Unit* /*who*/)
+            void KilledUnit(Unit* who)
             {
-                DoScriptText(RAND(SAY_BRIGHTLEAF_SLAY_1, SAY_BRIGHTLEAF_SLAY_2), me);
+                if (who->GetTypeId() == TYPEID_PLAYER)
+                    Talk(SAY_ELDER_SLAY);
             }
 
             void JustDied(Unit* killer)
             {
                 _JustDied();
-                DoScriptText(SAY_BRIGHTLEAF_DEATH, me);
+                Talk(SAY_ELDER_DEATH);
 
-                if (killer && killer->GetTypeId() == TYPEID_PLAYER)
+                if (killer->GetTypeId() == TYPEID_PLAYER)
                 {
                     if (Creature* Ironbranch = ObjectAccessor::GetCreature(*me, instance->GetData64(BOSS_IRONBRANCH)))
                         Ironbranch->AI()->DoAction(ACTION_ELDER_DEATH);
@@ -729,7 +716,7 @@ class boss_elder_brightleaf : public CreatureScript
             {
                 _EnterCombat();
                 if (!me->HasAura(SPELL_DRAINED_OF_POWER))
-                    DoScriptText(SAY_BRIGHTLEAF_AGGRO, me);
+                    Talk(SAY_ELDER_AGGRO);
             }
 
             void UpdateAI(uint32 const diff)
@@ -825,17 +812,18 @@ class boss_elder_stonebark : public CreatureScript
                 lumberjack = false;
             }
 
-            void KilledUnit(Unit* /*who*/)
+            void KilledUnit(Unit* who)
             {
-                DoScriptText(RAND(SAY_STONEBARK_SLAY_1, SAY_STONEBARK_SLAY_2), me);
+                if (who->GetTypeId() == TYPEID_PLAYER)
+                    Talk(SAY_ELDER_SLAY);
             }
 
             void JustDied(Unit* killer)
             {
                 _JustDied();
-                DoScriptText(SAY_STONEBARK_DEATH, me);
+                Talk(SAY_ELDER_DEATH);
 
-                if (killer && killer->GetTypeId() == TYPEID_PLAYER)
+                if (killer->GetTypeId() == TYPEID_PLAYER)
                 {
                     if (Creature* Ironbranch = ObjectAccessor::GetCreature(*me, instance->GetData64(BOSS_IRONBRANCH)))
                         Ironbranch->AI()->DoAction(ACTION_ELDER_DEATH);
@@ -849,7 +837,7 @@ class boss_elder_stonebark : public CreatureScript
             {
                 _EnterCombat();
                 if (!me->HasAura(SPELL_DRAINED_OF_POWER))
-                    DoScriptText(SAY_STONEBARK_AGGRO, me);
+                    Talk(SAY_ELDER_AGGRO);
             }
 
             void DamageTaken(Unit* who, uint32& damage)
@@ -951,17 +939,18 @@ class boss_elder_ironbranch : public CreatureScript
                 lumberjack = false;
             }
 
-            void KilledUnit(Unit* /*who*/)
+            void KilledUnit(Unit* who)
             {
-                DoScriptText(RAND(SAY_IRONBRANCH_SLAY_1, SAY_IRONBRANCH_SLAY_2), me);
+                if (who->GetTypeId() == TYPEID_PLAYER)
+                    Talk(SAY_ELDER_SLAY);
             }
 
             void JustDied(Unit* killer)
             {
                 _JustDied();
-                DoScriptText(SAY_IRONBRANCH_DEATH, me);
+                Talk(SAY_ELDER_DEATH);
 
-                if (killer && killer->GetTypeId() == TYPEID_PLAYER)
+                if (killer->GetTypeId() == TYPEID_PLAYER)
                 {
                     if (Creature* Brightleaf = ObjectAccessor::GetCreature(*me, instance->GetData64(BOSS_BRIGHTLEAF)))
                         Brightleaf->AI()->DoAction(ACTION_ELDER_DEATH);
@@ -975,7 +964,7 @@ class boss_elder_ironbranch : public CreatureScript
             {
                 _EnterCombat();
                 if (!me->HasAura(SPELL_DRAINED_OF_POWER))
-                    DoScriptText(SAY_IRONBRANCH_AGGRO, me);
+                    Talk(SAY_ELDER_AGGRO);
             }
 
             void UpdateAI(uint32 const diff)

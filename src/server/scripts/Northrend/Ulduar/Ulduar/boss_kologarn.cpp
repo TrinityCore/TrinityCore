@@ -76,15 +76,15 @@ enum Events
 
 enum Yells
 {
-    SAY_AGGRO                                   = -1603230,
-    SAY_SLAY_1                                  = -1603231,
-    SAY_SLAY_2                                  = -1603232,
-    SAY_LEFT_ARM_GONE                           = -1603233,
-    SAY_RIGHT_ARM_GONE                          = -1603234,
-    SAY_SHOCKWAVE                               = -1603235,
-    SAY_GRAB_PLAYER                             = -1603236,
-    SAY_DEATH                                   = -1603237,
-    SAY_BERSERK                                 = -1603238,
+    SAY_AGGRO                               = 0,
+    SAY_SLAY                                = 1,
+    SAY_LEFT_ARM_GONE                       = 2,
+    SAY_RIGHT_ARM_GONE                      = 3,
+    SAY_SHOCKWAVE                           = 4,
+    SAY_GRAB_PLAYER                         = 5,
+    SAY_DEATH                               = 6,
+    SAY_BERSERK                             = 7,
+    EMOTE_STONE_GRIP                        = 8
 };
 
 class boss_kologarn : public CreatureScript
@@ -113,7 +113,7 @@ class boss_kologarn : public CreatureScript
 
             void EnterCombat(Unit* /*who*/)
             {
-                DoScriptText(SAY_AGGRO, me);
+                Talk(SAY_AGGRO);
 
                 events.ScheduleEvent(EVENT_MELEE_CHECK, 6000);
                 events.ScheduleEvent(EVENT_SMASH, 5000);
@@ -138,7 +138,7 @@ class boss_kologarn : public CreatureScript
 
             void JustDied(Unit* /*killer*/)
             {
-                DoScriptText(SAY_DEATH, me);
+                Talk(SAY_DEATH);
                 DoCast(SPELL_KOLOGARN_PACIFY);
                 me->GetMotionMaster()->MoveTargetedHome();
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
@@ -146,9 +146,10 @@ class boss_kologarn : public CreatureScript
                 _JustDied();
             }
 
-            void KilledUnit(Unit* /*who*/)
+            void KilledUnit(Unit* who)
             {
-                DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2), me);
+                if (who->GetTypeId() == TYPEID_PLAYER)
+                    Talk(SAY_SLAY);
             }
 
             void PassengerBoarded(Unit* who, int8 /*seatId*/, bool apply)
@@ -160,7 +161,7 @@ class boss_kologarn : public CreatureScript
                     if (!apply && isEncounterInProgress)
                     {
                         who->ToCreature()->DisappearAndDie();
-                        DoScriptText(SAY_LEFT_ARM_GONE, me);
+                        Talk(SAY_LEFT_ARM_GONE);
                         events.ScheduleEvent(EVENT_RESPAWN_LEFT_ARM, 40000);
                     }
                 }
@@ -171,7 +172,7 @@ class boss_kologarn : public CreatureScript
                     if (!apply && isEncounterInProgress)
                     {
                         who->ToCreature()->DisappearAndDie();
-                        DoScriptText(SAY_RIGHT_ARM_GONE, me);
+                        Talk(SAY_RIGHT_ARM_GONE);
                         events.ScheduleEvent(EVENT_RESPAWN_RIGHT_ARM, 40000);
                     }
                 }
@@ -272,7 +273,7 @@ class boss_kologarn : public CreatureScript
                             break;
                         case EVENT_ENRAGE:
                             DoCast(SPELL_BERSERK);
-                            DoScriptText(SAY_BERSERK, me);
+                            Talk(SAY_BERSERK);
                             break;
                         case EVENT_RESPAWN_LEFT_ARM:
                         case EVENT_RESPAWN_RIGHT_ARM:
@@ -290,7 +291,8 @@ class boss_kologarn : public CreatureScript
                             if (right)
                             {
                                 DoCast(SPELL_STONE_GRIP);
-                                DoScriptText(SAY_GRAB_PLAYER, me);
+                                Talk(SAY_GRAB_PLAYER);
+                                Talk(EMOTE_STONE_GRIP);
                             }
                             events.ScheduleEvent(EVENT_STONE_GRIP, 25 * IN_MILLISECONDS);
                         }
