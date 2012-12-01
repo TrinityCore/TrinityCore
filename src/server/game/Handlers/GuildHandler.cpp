@@ -816,8 +816,9 @@ void WorldSession::HandleGuildNewsUpdateStickyOpcode(WorldPacket& recvPacket)
 
 void WorldSession::HandleGuildSetGuildMaster(WorldPacket& recvPacket)
 {
-    uint8 nameLength;
-    recvPacket >> nameLength;
+    uint8 nameLength = recvPacket.ReadBits(7);
+    // This is related to guild master inactivity.
+    /*bool isDethrone = */recvPacket.ReadBit();
     std::string playerName = recvPacket.ReadString(nameLength);
     if (Guild* guild = GetPlayer()->GetGuild())
         guild->HandleSetNewGuildMaster(this, playerName);
