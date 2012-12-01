@@ -9972,6 +9972,19 @@ int32 Unit::SpellBaseDamageBonusDone(SpellSchoolMask schoolMask)
         if (GetPowerIndexByClass(POWER_MANA, getClass()) != MAX_POWERS)
             DoneAdvertisedBenefit += std::max(0, int32(GetStat(STAT_INTELLECT)) - 10);  // spellpower from intellect
 
+    //HACK FIX ON TOTEMIC WRATH, FEL ARMOR, INNER FIRE
+	if (HasAura(77747))
+       DoneAdvertisedBenefit += (int32(DoneAdvertisedBenefit) * 0.10f); // Totemic Wrath
+
+    if (HasAura(588))
+       DoneAdvertisedBenefit += (int32(DoneAdvertisedBenefit) * 0.07f); // Inner Fire
+
+    if (HasAura(28176))
+       DoneAdvertisedBenefit += (int32(DoneAdvertisedBenefit) * 0.10f); // Fel Armor
+	  	
+	  	
+
+       //HACK FIX ON TOTEMIC WRATH, FEL ARMOR, INNER FIRE .. Custom Trigger
 
 		// Damage bonus from stats
         AuraEffectList const& mDamageDoneOfStatPercent = GetAuraEffectsByType(SPELL_AURA_MOD_SPELL_DAMAGE_OF_STAT_PERCENT);

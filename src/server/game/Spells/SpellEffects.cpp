@@ -946,17 +946,17 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                         }
                     }
                 }
-                // Starsurge
-                else if (m_spellInfo->Id == 78674) // Starsurge 
+				else if (m_spellInfo->Id == 78674) // Starsurge 
                 {
+                // Starsurge
                     if (m_caster->HasAura(16913)) // Moonfury
                     {
                         int32 eclipse = 0;
                         if (m_caster->GetPower(POWER_ECLIPSE) < 0)
-                            eclipse = -15;
+                            eclipse += -15;
                         else if (m_caster->GetPower(POWER_ECLIPSE) > 0)
-                            eclipse = 15;
-
+                            eclipse += 15;
+                    
                         m_caster->SetEclipsePower(int32(m_caster->GetEclipsePower() + eclipse));
                         //m_caster->CastCustomSpell(m_caster, 86605, &eclipse, 0, 0, true); // Starsurge
 
