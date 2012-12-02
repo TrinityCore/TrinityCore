@@ -6340,12 +6340,15 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                     break;
                 }
 			   case 56807: // Glyph of hemorrhage
-					basepoints0 = int32(0.40f * damage);
+                  {
+			   basepoints0 = int32(0.40f * damage);
                     triggered_spell_id = 89775;
                     break;
+                  }
                 // Venomous wounds
                 case 79133:
                 case 79134:
+                {
                    if (effIndex != 0)
                         return false;
 
@@ -6376,6 +6379,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                     this->CastCustomSpell(this, 51637, &basepoints0, NULL, NULL, true);
                     triggered_spell_id = 79136;
                     break;
+                 }
                 case 57934: // Tricks of the Trade
                 {
                     Unit* redirectTarget = GetMisdirectionTarget();
