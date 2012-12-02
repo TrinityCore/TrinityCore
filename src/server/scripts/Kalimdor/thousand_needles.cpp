@@ -44,7 +44,7 @@ EndContentData */
 
 enum Kanati
 {
-    SAY_KAN_START              = -1000410,
+    SAY_KAN_START              = 0,
 
     QUEST_PROTECT_KANATI        = 4966,
     NPC_GALAK_ASS               = 10720
@@ -82,7 +82,7 @@ public:
             switch (waypointId)
             {
                 case 0:
-                    DoScriptText(SAY_KAN_START, me);
+                    Talk(SAY_KAN_START);
                     DoSpawnGalak();
                     break;
                 case 1:
@@ -112,11 +112,11 @@ public:
 
 enum Lakota
 {
-    SAY_LAKO_START              = -1000365,
-    SAY_LAKO_LOOK_OUT           = -1000366,
-    SAY_LAKO_HERE_COME          = -1000367,
-    SAY_LAKO_MORE               = -1000368,
-    SAY_LAKO_END                = -1000369,
+    SAY_LAKO_START              = 0,
+    SAY_LAKO_LOOK_OUT           = 1,
+    SAY_LAKO_HERE_COME          = 2,
+    SAY_LAKO_MORE               = 3,
+    SAY_LAKO_END                = 4,
 
     QUEST_FREE_AT_LAST          = 4904,
     NPC_GRIM_BANDIT             = 10758,
@@ -146,7 +146,7 @@ public:
     {
         if (quest->GetQuestId() == QUEST_FREE_AT_LAST)
         {
-            DoScriptText(SAY_LAKO_START, creature, player);
+            creature->AI()->Talk(SAY_LAKO_START, player->GetGUID());
             creature->setFaction(FACTION_ESCORTEE_LAKO);
 
             if (npc_lakota_windsongAI* pEscortAI = CAST_AI(npc_lakota_windsong::npc_lakota_windsongAI, creature->AI()))
@@ -171,15 +171,15 @@ public:
             switch (waypointId)
             {
                 case 8:
-                    DoScriptText(SAY_LAKO_LOOK_OUT, me);
+                    Talk(SAY_LAKO_LOOK_OUT);
                     DoSpawnBandits(ID_AMBUSH_1);
                     break;
                 case 14:
-                    DoScriptText(SAY_LAKO_HERE_COME, me);
+                    Talk(SAY_LAKO_HERE_COME);
                     DoSpawnBandits(ID_AMBUSH_2);
                     break;
                 case 21:
-                    DoScriptText(SAY_LAKO_MORE, me);
+                    Talk(SAY_LAKO_MORE);
                     DoSpawnBandits(ID_AMBUSH_3);
                     break;
                 case 45:
@@ -204,9 +204,9 @@ public:
 
 enum Packa
 {
-    SAY_START           = -1000362,
-    SAY_WYVERN          = -1000363,
-    SAY_COMPLETE        = -1000364,
+    SAY_START           = 0,
+    SAY_WYVERN          = 1,
+    SAY_COMPLETE        = 2,
 
     QUEST_HOMEWARD      = 4770,
     NPC_WYVERN          = 4107,
@@ -229,7 +229,7 @@ public:
     {
         if (quest->GetQuestId() == QUEST_HOMEWARD)
         {
-            DoScriptText(SAY_START, creature, player);
+            creature->AI()->Talk(SAY_START, player->GetGUID());
             creature->setFaction(FACTION_ESCORTEE);
 
             if (npc_paoka_swiftmountainAI* pEscortAI = CAST_AI(npc_paoka_swiftmountain::npc_paoka_swiftmountainAI, creature->AI()))
@@ -254,11 +254,11 @@ public:
             switch (waypointId)
             {
                 case 15:
-                    DoScriptText(SAY_WYVERN, me);
+                    Talk(SAY_WYVERN);
                     DoSpawnWyvern();
                     break;
                 case 26:
-                    DoScriptText(SAY_COMPLETE, me);
+                    Talk(SAY_COMPLETE);
                     break;
                 case 27:
                     if (Player* player = GetPlayerForEscort())

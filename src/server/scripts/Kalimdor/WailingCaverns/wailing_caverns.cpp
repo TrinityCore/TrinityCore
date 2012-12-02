@@ -39,33 +39,30 @@ EndContentData */
 
 enum Enums
 {
-    //say
-    SAY_MAKE_PREPARATIONS         = -1043001,
-    SAY_TEMPLE_OF_PROMISE         = -1043002,
-    SAY_MUST_CONTINUE             = -1043003,
-    SAY_BANISH_THE_SPIRITS        = -1043004,
-    SAY_CAVERNS_PURIFIED          = -1043005,
-    SAY_BEYOND_THIS_CORRIDOR      = -1043006,
-    SAY_EMERALD_DREAM             = -1043007,
-    SAY_MUTANUS_THE_DEVOURER      = -1043012,
-    SAY_NARALEX_AWAKES            = -1043014,
-    SAY_THANK_YOU                 = -1043015,
-    SAY_FAREWELL                  = -1043016,
-    SAY_ATTACKED                  = -1043017,
-    //yell
-    SAY_AT_LAST                   = -1043000,
-    SAY_I_AM_AWAKE                = -1043013,
-    //emote
-    EMOTE_AWAKENING_RITUAL        = -1043008,
-    EMOTE_TROUBLED_SLEEP          = -1043009,
-    EMOTE_WRITHE_IN_AGONY         = -1043010,
-    EMOTE_HORRENDOUS_VISION       = -1043011,
-    //spell
+    SAY_AT_LAST                   = 0,
+    SAY_MAKE_PREPARATIONS         = 1,
+    SAY_TEMPLE_OF_PROMISE         = 2,
+    SAY_MUST_CONTINUE             = 3,
+    SAY_BANISH_THE_SPIRITS        = 4,
+    SAY_CAVERNS_PURIFIED          = 5,
+    SAY_BEYOND_THIS_CORRIDOR      = 6,
+    SAY_EMERALD_DREAM             = 7,
+    EMOTE_AWAKENING_RITUAL        = 8,
+    EMOTE_TROUBLED_SLEEP          = 0,
+    EMOTE_WRITHE_IN_AGONY         = 1,
+    EMOTE_HORRENDOUS_VISION       = 2,
+    SAY_MUTANUS_THE_DEVOURER      = 9,
+    SAY_I_AM_AWAKE                = 3,
+    SAY_NARALEX_AWAKES            = 10,
+    SAY_THANK_YOU                 = 4,
+    SAY_FAREWELL                  = 5,
+    SAY_ATTACKED                  = 11,
+
     SPELL_MARK_OF_THE_WILD_RANK_2 = 5232,
     SPELL_SERPENTINE_CLEANSING    = 6270,
     SPELL_NARALEXS_AWAKENING      = 6271,
     SPELL_FLIGHT_FORM             = 33943,
-    //npc entry
+
     NPC_DEVIATE_RAVAGER           = 3636,
     NPC_DEVIATE_VIPER             = 5755,
     NPC_DEVIATE_MOCCASIN          = 5762,
@@ -97,7 +94,7 @@ public:
             if (instance)
                 instance->SetData(TYPE_NARALEX_EVENT, IN_PROGRESS);
 
-            DoScriptText(SAY_MAKE_PREPARATIONS, creature);
+            creature->AI()->Talk(SAY_MAKE_PREPARATIONS);
 
             creature->setFaction(250);
             creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
@@ -124,7 +121,7 @@ public:
 
                 if (!instance->GetData(TYPE_NARALEX_YELLED))
                 {
-                    DoScriptText(SAY_AT_LAST, creature);
+                    creature->AI()->Talk(SAY_AT_LAST);
                     instance->SetData(TYPE_NARALEX_YELLED, 1);
                 }
             }
@@ -166,7 +163,7 @@ public:
                     instance->SetData(TYPE_NARALEX_PART1, IN_PROGRESS);
                     break;
                 case 5:
-                    DoScriptText(SAY_MUST_CONTINUE, me);
+                    Talk(SAY_MUST_CONTINUE);
                     instance->SetData(TYPE_NARALEX_PART1, DONE);
                     break;
                 case 11:
@@ -175,7 +172,7 @@ public:
                     instance->SetData(TYPE_NARALEX_PART2, IN_PROGRESS);
                     break;
                 case 19:
-                    DoScriptText(SAY_BEYOND_THIS_CORRIDOR, me);
+                    Talk(SAY_BEYOND_THIS_CORRIDOR);
                     break;
                 case 24:
                     eventProgress = 1;
@@ -192,7 +189,7 @@ public:
 
         void EnterCombat(Unit* who)
         {
-            DoScriptText(SAY_ATTACKED, me, who);
+            Talk(SAY_ATTACKED, who->GetGUID());
         }
 
         void JustDied(Unit* /*slayer*/)
@@ -229,7 +226,7 @@ public:
                             if (eventProgress == 1)
                             {
                                 ++eventProgress;
-                                DoScriptText(SAY_TEMPLE_OF_PROMISE, me);
+                                Talk(SAY_TEMPLE_OF_PROMISE);
                                 me->SummonCreature(NPC_DEVIATE_RAVAGER, -82.1763f, 227.874f, -93.3233f, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5000);
                                 me->SummonCreature(NPC_DEVIATE_RAVAGER, -72.9506f, 216.645f, -93.6756f, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5000);
                             }
@@ -238,7 +235,7 @@ public:
                             if (eventProgress == 1)
                             {
                                 ++eventProgress;
-                                DoScriptText(SAY_BANISH_THE_SPIRITS, me);
+                                Talk(SAY_BANISH_THE_SPIRITS);
                                 DoCast(me, SPELL_SERPENTINE_CLEANSING);
                                 //CAST_AI(npc_escort::npc_escortAI, me->AI())->SetCanDefend(false);
                                 eventTimer = 30000;
@@ -250,7 +247,7 @@ public:
                             if (eventProgress == 2)
                             {
                                 //CAST_AI(npc_escort::npc_escortAI, me->AI())->SetCanDefend(true);
-                                DoScriptText(SAY_CAVERNS_PURIFIED, me);
+                                Talk(SAY_CAVERNS_PURIFIED);
                                 instance->SetData(TYPE_NARALEX_PART2, DONE);
                                 if (me->HasAura(SPELL_SERPENTINE_CLEANSING))
                                     me->RemoveAura(SPELL_SERPENTINE_CLEANSING);
@@ -262,7 +259,7 @@ public:
                                 ++eventProgress;
                                 eventTimer = 4000;
                                 me->SetStandState(UNIT_STAND_STATE_KNEEL);
-                                DoScriptText(SAY_EMERALD_DREAM, me);
+                                Talk(SAY_EMERALD_DREAM);
                             }
                             else
                             if (eventProgress == 2)
@@ -272,7 +269,7 @@ public:
                                 //CAST_AI(npc_escort::npc_escortAI, me->AI())->SetCanDefend(false);
                                 if (Creature* naralex = instance->instance->GetCreature(instance->GetData64(DATA_NARALEX)))
                                     DoCast(naralex, SPELL_NARALEXS_AWAKENING, true);
-                                DoScriptText(EMOTE_AWAKENING_RITUAL, me);
+                                Talk(EMOTE_AWAKENING_RITUAL);
                             }
                             else
                             if (eventProgress == 3)
@@ -280,7 +277,7 @@ public:
                                 ++eventProgress;
                                 eventTimer = 15000;
                                 if (Creature* naralex = instance->instance->GetCreature(instance->GetData64(DATA_NARALEX)))
-                                    DoScriptText(EMOTE_TROUBLED_SLEEP, naralex);
+                                    naralex->AI()->Talk(EMOTE_TROUBLED_SLEEP);
                                 me->SummonCreature(NPC_DEVIATE_MOCCASIN, 135.943f, 199.701f, -103.529f, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 15000);
                                 me->SummonCreature(NPC_DEVIATE_MOCCASIN, 151.08f,  221.13f,  -103.609f, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 15000);
                                 me->SummonCreature(NPC_DEVIATE_MOCCASIN, 128.007f, 227.428f, -97.421f, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 15000);
@@ -291,7 +288,7 @@ public:
                                 ++eventProgress;
                                 eventTimer = 30000;
                                 if (Creature* naralex = instance->instance->GetCreature(instance->GetData64(DATA_NARALEX)))
-                                    DoScriptText(EMOTE_WRITHE_IN_AGONY, naralex);
+                                    naralex->AI()->Talk(EMOTE_WRITHE_IN_AGONY);
                                 me->SummonCreature(NPC_NIGHTMARE_ECTOPLASM, 133.413f, 207.188f, -102.469f, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 15000);
                                 me->SummonCreature(NPC_NIGHTMARE_ECTOPLASM, 142.857f, 218.645f, -102.905f, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 15000);
                                 me->SummonCreature(NPC_NIGHTMARE_ECTOPLASM, 105.102f, 227.211f, -102.752f, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 15000);
@@ -305,9 +302,9 @@ public:
                             {
                                 ++eventProgress;
                                 if (Creature* naralex = instance->instance->GetCreature(instance->GetData64(DATA_NARALEX)))
-                                    DoScriptText(EMOTE_HORRENDOUS_VISION, naralex);
+                                    naralex->AI()->Talk(EMOTE_HORRENDOUS_VISION);
                                 me->SummonCreature(NPC_MUTANUS_THE_DEVOURER, 150.872f, 262.905f, -103.503f, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 300000);
-                                DoScriptText(SAY_MUTANUS_THE_DEVOURER, me);
+                                Talk(SAY_MUTANUS_THE_DEVOURER);
                                 instance->SetData(TYPE_MUTANUS_THE_DEVOURER, IN_PROGRESS);
                             }
                             else
@@ -320,9 +317,9 @@ public:
                                     if (me->HasAura(SPELL_NARALEXS_AWAKENING))
                                         me->RemoveAura(SPELL_NARALEXS_AWAKENING);
                                     naralex->SetStandState(UNIT_STAND_STATE_STAND);
-                                    DoScriptText(SAY_I_AM_AWAKE, naralex);
+                                    naralex->AI()->Talk(SAY_I_AM_AWAKE);
                                 }
-                                DoScriptText(SAY_NARALEX_AWAKES, me);
+                                Talk(SAY_NARALEX_AWAKES);
                             }
                             else
                             if (eventProgress == 7)
@@ -330,7 +327,7 @@ public:
                                 ++eventProgress;
                                 eventTimer = 6000;
                                 if (Creature* naralex = instance->instance->GetCreature(instance->GetData64(DATA_NARALEX)))
-                                    DoScriptText(SAY_THANK_YOU, naralex);
+                                    naralex->AI()->Talk(SAY_THANK_YOU);
                             }
                             else
                             if (eventProgress == 8)
@@ -339,7 +336,7 @@ public:
                                 eventTimer = 8000;
                                 if (Creature* naralex = instance->instance->GetCreature(instance->GetData64(DATA_NARALEX)))
                                 {
-                                    DoScriptText(SAY_FAREWELL, naralex);
+                                    naralex->AI()->Talk(SAY_FAREWELL);
                                     naralex->AddAura(SPELL_FLIGHT_FORM, naralex);
                                 }
                                 SetRun();

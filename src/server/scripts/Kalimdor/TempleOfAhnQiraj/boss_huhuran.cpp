@@ -26,15 +26,18 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 
-#define EMOTE_GENERIC_FRENZY_KILL   -1000001
-#define EMOTE_GENERIC_BERSERK       -1000004
+enum Huhuran
+{
+    EMOTE_FRENZY_KILL           = 0,
+    EMOTE_BERSERK               = 1,
 
-#define SPELL_FRENZY 26051
-#define SPELL_BERSERK 26068
-#define SPELL_POISONBOLT 26052
-#define SPELL_NOXIOUSPOISON 26053
-#define SPELL_WYVERNSTING 26180
-#define SPELL_ACIDSPIT 26050
+    SPELL_FRENZY                = 26051,
+    SPELL_BERSERK               = 26068,
+    SPELL_POISONBOLT            = 26052,
+    SPELL_NOXIOUSPOISON         = 26053,
+    SPELL_WYVERNSTING           = 26180,
+    SPELL_ACIDSPIT              = 26050
+};
 
 class boss_huhuran : public CreatureScript
 {
@@ -87,7 +90,7 @@ public:
             if (!Frenzy && Frenzy_Timer <= diff)
             {
                 DoCast(me, SPELL_FRENZY);
-                DoScriptText(EMOTE_GENERIC_FRENZY_KILL, me);
+                Talk(EMOTE_FRENZY_KILL);
                 Frenzy = true;
                 PoisonBolt_Timer = 3000;
                 Frenzy_Timer = urand(25000, 35000);
@@ -136,7 +139,7 @@ public:
             if (!Berserk && HealthBelowPct(31))
             {
                 me->InterruptNonMeleeSpells(false);
-                DoScriptText(EMOTE_GENERIC_BERSERK, me);
+                Talk(EMOTE_BERSERK);
                 DoCast(me, SPELL_BERSERK);
                 Berserk = true;
             }

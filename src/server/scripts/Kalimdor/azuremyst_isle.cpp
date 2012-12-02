@@ -47,15 +47,9 @@ EndContentData */
 
 enum draeneiSurvivor
 {
-    SAY_HEAL1           = -1000176,
-    SAY_HEAL2           = -1000177,
-    SAY_HEAL3           = -1000178,
-    SAY_HEAL4           = -1000179,
+    SAY_HEAL            = 0,
 
-    SAY_HELP1           = -1000180,
-    SAY_HELP2           = -1000181,
-    SAY_HELP3           = -1000182,
-    SAY_HELP4           = -1000183,
+    SAY_HELP            = 1,
 
     SPELL_IRRIDATION    = 35046,
     SPELL_STUNNED       = 28630
@@ -108,7 +102,7 @@ public:
             if (CanSayHelp && who->GetTypeId() == TYPEID_PLAYER && me->IsFriendlyTo(who) && me->IsWithinDistInMap(who, 25.0f))
             {
                 //Random switch between 4 texts
-                DoScriptText(RAND(SAY_HELP1, SAY_HELP2, SAY_HELP3, SAY_HELP4), me, who);
+                Talk(SAY_HELP, who->GetGUID());
 
                 SayHelpTimer = 20000;
                 CanSayHelp = false;
@@ -140,7 +134,7 @@ public:
 
                     if (Player* player = Unit::GetPlayer(*me, pCaster))
                     {
-                        DoScriptText(RAND(SAY_HEAL1, SAY_HEAL2, SAY_HEAL3, SAY_HEAL4), me, player);
+                        Talk(SAY_HEAL, player->GetGUID());
 
                         player->TalkedToCreature(me->GetEntry(), me->GetGUID());
                     }
@@ -181,9 +175,9 @@ public:
 
 enum Overgrind
 {
-    SAY_TEXT        = -1000184,
-    SAY_EMOTE       = -1000185,
-    ATTACK_YELL     = -1000186,
+    SAY_TEXT        = 0,
+    SAY_EMOTE       = 1,
+    ATTACK_YELL     = 2,
 
     AREA_COVE       = 3579,
     AREA_ISLE       = 3639,
@@ -257,7 +251,7 @@ public:
 
         void EnterCombat(Unit* who)
         {
-            DoScriptText(ATTACK_YELL, me, who);
+            Talk(ATTACK_YELL, who->GetGUID());
         }
 
         void UpdateAI(const uint32 diff)
@@ -266,8 +260,8 @@ public:
             {
                 if (EmoteTimer <= diff)
                 {
-                    DoScriptText(SAY_TEXT, me);
-                    DoScriptText(SAY_EMOTE, me);
+                    Talk(SAY_TEXT);
+                    Talk(SAY_EMOTE);
                     EmoteTimer = urand(120000, 150000);
                 } else EmoteTimer -= diff;
             }
@@ -338,12 +332,12 @@ public:
 
 enum Magwin
 {
-    SAY_START                   = -1000111,
-    SAY_AGGRO                   = -1000112,
-    SAY_PROGRESS                = -1000113,
-    SAY_END1                    = -1000114,
-    SAY_END2                    = -1000115,
-    EMOTE_HUG                   = -1000116,
+    SAY_START                   = 0,
+    SAY_AGGRO                   = 1,
+    SAY_PROGRESS                = 2,
+    SAY_END1                    = 3,
+    SAY_END2                    = 4,
+    EMOTE_HUG                   = 5,
 
     QUEST_A_CRY_FOR_SAY_HELP    = 9528
 };
@@ -380,17 +374,17 @@ public:
                 switch (waypointId)
                 {
                     case 0:
-                        DoScriptText(SAY_START, me, player);
+                        Talk(SAY_START, player->GetGUID());
                         break;
                     case 17:
-                        DoScriptText(SAY_PROGRESS, me, player);
+                        Talk(SAY_PROGRESS, player->GetGUID());
                         break;
                     case 28:
-                        DoScriptText(SAY_END1, me, player);
+                        Talk(SAY_END1, player->GetGUID());
                         break;
                     case 29:
-                        DoScriptText(EMOTE_HUG, me, player);
-                        DoScriptText(SAY_END2, me, player);
+                        Talk(EMOTE_HUG, player->GetGUID());
+                        Talk(SAY_END2, player->GetGUID());
                         player->GroupEventHappens(QUEST_A_CRY_FOR_SAY_HELP, me);
                         break;
                 }
@@ -399,7 +393,7 @@ public:
 
         void EnterCombat(Unit* who)
         {
-            DoScriptText(SAY_AGGRO, me, who);
+            Talk(SAY_AGGRO, who->GetGUID());
         }
 
         void Reset() {}
@@ -417,15 +411,15 @@ enum Geezle
 
     SPELL_TREE_DISGUISE = 30298,
 
-    GEEZLE_SAY_1    = -1000629,
-    SPARK_SAY_2     = -1000630,
-    SPARK_SAY_3     = -1000631,
-    GEEZLE_SAY_4    = -1000632,
-    SPARK_SAY_5     = -1000633,
-    SPARK_SAY_6     = -1000634,
-    GEEZLE_SAY_7    = -1000635,
+    GEEZLE_SAY_1    = 0,
+    SPARK_SAY_2     = 0,
+    SPARK_SAY_3     = 1,
+    GEEZLE_SAY_4    = 1,
+    SPARK_SAY_5     = 2,
+    SPARK_SAY_6     = 3,
+    GEEZLE_SAY_7    = 2,
 
-    EMOTE_SPARK     = -1000636,
+    EMOTE_SPARK     = 4,
 
     MOB_SPARK       = 17243,
     GO_NAGA_FLAG    = 181694
@@ -479,41 +473,49 @@ public:
         uint32 NextStep(uint8 Step)
         {
             Creature* Spark = Unit::GetCreature(*me, SparkGUID);
+            if (!Spark)
+                return 99999999;
 
             switch (Step)
             {
                 case 0:
-                    if (Spark)
-                        Spark->GetMotionMaster()->MovePoint(0, -5080.70f, -11253.61f, 0.56f);
+                    Spark->GetMotionMaster()->MovePoint(0, -5080.70f, -11253.61f, 0.56f);
                     me->GetMotionMaster()->MovePoint(0, -5092.26f, -11252, 0.71f);
-                    return 9000; // NPCs are walking up to fire
+                    return 9000;
                 case 1:
                     DespawnNagaFlag(true);
-                    DoScriptText(EMOTE_SPARK, Spark);
+                    Spark->AI()->Talk(EMOTE_SPARK);
                     return 1000;
                 case 2:
-                    DoScriptText(GEEZLE_SAY_1, me, Spark);
-                    if (Spark)
-                    {
-                        Spark->SetInFront(me);
-                        me->SetInFront(Spark);
-                    }
+                    Talk(GEEZLE_SAY_1, SparkGUID);
+                    Spark->SetInFront(me);
+                    me->SetInFront(Spark);
                     return 5000;
-                case 3: DoScriptText(SPARK_SAY_2, Spark); return 7000;
-                case 4: DoScriptText(SPARK_SAY_3, Spark); return 8000;
-                case 5: DoScriptText(GEEZLE_SAY_4, me, Spark); return 8000;
-                case 6: DoScriptText(SPARK_SAY_5, Spark); return 9000;
-                case 7: DoScriptText(SPARK_SAY_6, Spark); return 8000;
-                case 8: DoScriptText(GEEZLE_SAY_7, me, Spark); return 2000;
+                case 3: 
+                    Spark->AI()->Talk(SPARK_SAY_2); 
+                    return 7000;
+                case 4: 
+                    Spark->AI()->Talk(SPARK_SAY_3);
+                    return 8000;
+                case 5: 
+                    Talk(GEEZLE_SAY_4, SparkGUID);
+                    return 8000;
+                case 6: 
+                    Spark->AI()->Talk(SPARK_SAY_5);
+                    return 9000;
+                case 7: 
+                    Spark->AI()->Talk(SPARK_SAY_6); 
+                    return 8000;
+                case 8: 
+                    Talk(GEEZLE_SAY_7, SparkGUID); 
+                    return 2000;
                 case 9:
                     me->GetMotionMaster()->MoveTargetedHome();
-                    if (Spark)
-                        Spark->GetMotionMaster()->MovePoint(0, SparkPos);
+                     Spark->GetMotionMaster()->MovePoint(0, SparkPos);
                     CompleteQuest();
                     return 9000;
                 case 10:
-                    if (Spark)
-                        Spark->DisappearAndDie();
+                    Spark->DisappearAndDie();
                     DespawnNagaFlag(false);
                     me->DisappearAndDie();
                 default: return 99999999;
@@ -658,9 +660,7 @@ enum BristlelimbCage
     NPC_STILLPINE_CAPITIVE              = 17375,
     GO_BRISTELIMB_CAGE                  = 181714,
 
-    CAPITIVE_SAY_1                      = -1000474,
-    CAPITIVE_SAY_2                      = -1000475,
-    CAPITIVE_SAY_3                      = -1000476,
+    CAPITIVE_SAY                        = 0,
 
     POINT_INIT                          = 1,
     EVENT_DESPAWN                       = 1,
@@ -673,9 +673,7 @@ class npc_stillpine_capitive : public CreatureScript
 
         struct npc_stillpine_capitiveAI : public ScriptedAI
         {
-            npc_stillpine_capitiveAI(Creature* creature) : ScriptedAI(creature)
-            {
-            }
+            npc_stillpine_capitiveAI(Creature* creature) : ScriptedAI(creature) {}
 
             void Reset()
             {
@@ -693,7 +691,7 @@ class npc_stillpine_capitive : public CreatureScript
             {
                 if (owner)
                 {
-                    DoScriptText(RAND(CAPITIVE_SAY_1, CAPITIVE_SAY_2, CAPITIVE_SAY_3), me, owner);
+                    Talk(CAPITIVE_SAY, owner->GetGUID());
                     _player = owner;
                 }
                 Position pos;

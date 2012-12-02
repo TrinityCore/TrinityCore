@@ -66,26 +66,26 @@ public:
     {
         npc_sinkhole_kill_creditAI(Creature* creature) : ScriptedAI(creature){}
 
-        uint32 uiPhaseTimer;
-        uint8  Phase;
+        uint32 phaseTimer;
+        uint8  phase;
         uint64 casterGuid;
 
         void Reset()
         {
-            uiPhaseTimer = 500;
-            Phase = 0;
+            phaseTimer = 500;
+            phase = 0;
             casterGuid = 0;
         }
 
         void SpellHit(Unit* caster, const SpellInfo* spell)
         {
-            if (Phase)
+            if (phase)
                 return;
 
             if (spell->Id == SPELL_SET_CART && caster->GetTypeId() == TYPEID_PLAYER
                 && CAST_PLR(caster)->GetQuestStatus(11897) == QUEST_STATUS_INCOMPLETE)
             {
-                Phase = 1;
+                phase = 1;
                 casterGuid = caster->GetGUID();
             }
         }
@@ -94,32 +94,32 @@ public:
 
         void UpdateAI(const uint32 diff)
         {
-            if (!Phase)
+            if (!phase)
                 return;
 
-            if (uiPhaseTimer <= diff)
+            if (phaseTimer <= diff)
             {
-                switch (Phase)
+                switch (phase)
                 {
                     case 1:
                         DoCast(me, SPELL_EXPLODE_CART, true);
                         DoCast(me, SPELL_SUMMON_CART, true);
                         if (GameObject* cart = me->FindNearestGameObject(188160, 3))
                             cart->SetUInt32Value(GAMEOBJECT_FACTION, 14);
-                        uiPhaseTimer = 3000;
-                        Phase = 2;
+                        phaseTimer = 3000;
+                        phase = 2;
                         break;
                     case 2:
                         if (GameObject* cart = me->FindNearestGameObject(188160, 3))
                             cart->UseDoorOrButton();
                         DoCast(me, SPELL_EXPLODE_CART, true);
-                        uiPhaseTimer = 3000;
-                        Phase = 3;
+                        phaseTimer = 3000;
+                        phase = 3;
                         break;
                     case 3:
                         DoCast(me, SPELL_EXPLODE_CART, true);
-                        uiPhaseTimer = 2000;
-                        Phase = 4;
+                        phaseTimer = 2000;
+                        phase = 4;
                     case 5:
                         DoCast(me, SPELL_SUMMON_WORM, true);
                         if (Unit* worm = me->FindNearestCreature(26250, 3))
@@ -127,8 +127,8 @@ public:
                             worm->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                             worm->HandleEmoteCommand(EMOTE_ONESHOT_EMERGE);
                         }
-                        uiPhaseTimer = 1000;
-                        Phase = 6;
+                        phaseTimer = 1000;
+                        phase = 6;
                         break;
                     case 6:
                         DoCast(me, SPELL_EXPLODE_CART, true);
@@ -137,21 +137,21 @@ public:
                             me->Kill(worm);
                             worm->RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
                         }
-                        uiPhaseTimer = 2000;
-                        Phase = 7;
+                        phaseTimer = 2000;
+                        phase = 7;
                         break;
                     case 7:
                         DoCast(me, SPELL_EXPLODE_CART, true);
                         if (Player* caster = Unit::GetPlayer(*me, casterGuid))
                             caster->KilledMonster(me->GetCreatureTemplate(), me->GetGUID());
-                        uiPhaseTimer = 5000;
-                        Phase = 8;
+                        phaseTimer = 5000;
+                        phase = 8;
                         break;
                     case 8:
                         EnterEvadeMode();
                         break;
                 }
-            } else uiPhaseTimer -= diff;
+            } else phaseTimer -= diff;
 
         }
 
@@ -547,14 +547,14 @@ public:
         npc_nesingwary_trapperAI(Creature* creature) : ScriptedAI(creature) { creature->SetVisible(false); }
 
         uint64 go_caribouGUID;
-        uint8  Phase;
-        uint32 uiPhaseTimer;
+        uint8  phase;
+        uint32 phaseTimer;
 
         void Reset()
         {
             me->SetVisible(false);
-            uiPhaseTimer = 2500;
-            Phase = 1;
+            phaseTimer = 2500;
+            phase = 1;
             go_caribouGUID = 0;
         }
 
@@ -578,41 +578,41 @@ public:
 
         void UpdateAI(const uint32 diff)
         {
-            if (uiPhaseTimer <= diff)
+            if (phaseTimer <= diff)
             {
-                switch (Phase)
+                switch (phase)
                 {
                     case 1:
                         me->SetVisible(true);
-                        uiPhaseTimer = 2000;
-                        Phase = 2;
+                        phaseTimer = 2000;
+                        phase = 2;
                         break;
                     case 2:
                         if (GameObject* go_fur = me->FindNearestGameObject(GO_HIGH_QUALITY_FUR, 11.0f))
                             me->GetMotionMaster()->MovePoint(0, go_fur->GetPositionX(), go_fur->GetPositionY(), go_fur->GetPositionZ());
-                        uiPhaseTimer = 1500;
-                        Phase = 3;
+                        phaseTimer = 1500;
+                        phase = 3;
                         break;
                     case 3:
-                        //DoScriptText(SAY_NESINGWARY_1, me);
-                        uiPhaseTimer = 2000;
-                        Phase = 4;
+                        //Talk(SAY_NESINGWARY_1);
+                        phaseTimer = 2000;
+                        phase = 4;
                         break;
                     case 4:
                         me->HandleEmoteCommand(EMOTE_ONESHOT_LOOT);
-                        uiPhaseTimer = 1000;
-                        Phase = 5;
+                        phaseTimer = 1000;
+                        phase = 5;
                         break;
                     case 5:
                         me->HandleEmoteCommand(EMOTE_ONESHOT_NONE);
-                        uiPhaseTimer = 500;
-                        Phase = 6;
+                        phaseTimer = 500;
+                        phase = 6;
                         break;
                     case 6:
                         if (GameObject* go_fur = me->FindNearestGameObject(GO_HIGH_QUALITY_FUR, 11.0f))
                             go_fur->Delete();
-                        uiPhaseTimer = 500;
-                        Phase = 7;
+                        phaseTimer = 500;
+                        phase = 7;
                         break;
                     case 7:
                     {
@@ -627,16 +627,16 @@ public:
                                 break;
                             }
                         }
-                        Phase = 8;
-                        uiPhaseTimer = 1000;
+                        phase = 8;
+                        phaseTimer = 1000;
                     }
                     break;
                     case 8:
                         DoCast(me, SPELL_TRAPPED, true);
-                        Phase = 0;
+                        phase = 0;
                         break;
                 }
-            } else uiPhaseTimer -= diff;
+            } else phaseTimer -= diff;
         }
     };
 
@@ -658,12 +658,12 @@ enum eLurgglbr
 
     FACTION_ESCORTEE_A                  = 774,
     FACTION_ESCORTEE_H                  = 775,
-};
 
-/*#define SAY_WP_1_LUR_START  -1571004
-#define SAY_WP_1_LUR_END    -1571005
-#define SAY_WP_41_LUR_START -1571006
-#define SAY_WP_41_LUR_END   -1571007*/
+    SAY_START_1                         = 0,
+    SAY_START_2                         = 1,
+    SAY_END_1                           = 2,
+    SAY_END_2                           = 3
+};
 
 class npc_lurgglbr : public CreatureScript
 {
@@ -710,12 +710,12 @@ public:
                     switch (IntroPhase)
                     {
                         case 1:
-                            //DoScriptText(SAY_WP_1_LUR_START, me);
+                            Talk(SAY_START_1);
                             IntroPhase = 2;
                             IntroTimer = 7500;
                             break;
                         case 2:
-                            //DoScriptText(SAY_WP_1_LUR_END, me);
+                            Talk(SAY_END_1);
                             IntroPhase = 3;
                             IntroTimer = 7500;
                             break;
@@ -725,12 +725,12 @@ public:
                             IntroTimer = 0;
                             break;
                         case 4:
-                            //DoScriptText(SAY_WP_41_LUR_START, me);
+                            Talk(SAY_START_2);
                             IntroPhase = 5;
                             IntroTimer = 8000;
                             break;
                         case 5:
-                            //DoScriptText(SAY_WP_41_LUR_END, me);
+                            Talk(SAY_END_2);
                             IntroPhase = 6;
                             IntroTimer = 2500;
                             break;
@@ -915,26 +915,30 @@ enum eThassarian
     NPC_GENERAL_ARLOS       = 25250,
     NPC_LERYSSA             = 25251,
 
-    SAY_TALBOT_1            = -1571004,
-    SAY_LICH_1              = -1571005,
-    SAY_TALBOT_2            = -1571006,
-    SAY_THASSARIAN_1        = -1571007,
-    SAY_THASSARIAN_2        = -1571008,
-    SAY_LICH_2              = -1571009,
-    SAY_THASSARIAN_3        = -1571010,
-    SAY_TALBOT_3            = -1571011,
-    SAY_LICH_3              = -1571012,
-    SAY_TALBOT_4            = -1571013,
-    SAY_ARLOS_1             = -1571014,
-    SAY_ARLOS_2             = -1571015,
-    SAY_LERYSSA_1           = -1571016,
-    SAY_THASSARIAN_4        = -1571017,
-    SAY_LERYSSA_2           = -1571018,
-    SAY_THASSARIAN_5        = -1571019,
-    SAY_LERYSSA_3           = -1571020,
-    SAY_THASSARIAN_6        = -1571021,
-    SAY_LERYSSA_4           = -1571022,
-    SAY_THASSARIAN_7        = -1571023,
+    SAY_THASSARIAN_1        = 0,
+    SAY_THASSARIAN_2        = 1,
+    SAY_THASSARIAN_3        = 2,
+    SAY_THASSARIAN_4        = 3,
+    SAY_THASSARIAN_5        = 4,
+    SAY_THASSARIAN_6        = 5,
+    SAY_THASSARIAN_7        = 6,
+
+    SAY_TALBOT_1            = 0,
+    SAY_TALBOT_2            = 1,
+    SAY_TALBOT_3            = 2,
+    SAY_TALBOT_4            = 3,
+
+    SAY_LICH_1              = 0,
+    SAY_LICH_2              = 1,
+    SAY_LICH_3              = 2,
+    
+    SAY_ARLOS_1             = 0,
+    SAY_ARLOS_2             = 1,
+
+    SAY_LERYSSA_1           = 0,
+    SAY_LERYSSA_2           = 1,
+    SAY_LERYSSA_3           = 2,
+    SAY_LERYSSA_4           = 3
 };
 
 #define GOSSIP_ITEM_T   "Let's do this, Thassarian. It's now or never."
@@ -946,40 +950,38 @@ public:
 
     struct npc_thassarianAI : public npc_escortAI
     {
-        npc_thassarianAI(Creature* creature) : npc_escortAI(creature)
-        {
-        }
+        npc_thassarianAI(Creature* creature) : npc_escortAI(creature) {}
 
-        uint64 uiArthas;
-        uint64 uiTalbot;
-        uint64 uiLeryssa;
-        uint64 uiArlos;
+        uint64 arthasGUID;
+        uint64 talbotGUID;
+        uint64 leryssaGUID;
+        uint64 arlosGUID;
 
-        bool bArthasInPosition;
-        bool bArlosInPosition;
-        bool bLeryssaInPosition;
-        bool bTalbotInPosition;
+        bool arthasInPosition;
+        bool arlosInPosition;
+        bool leryssaInPosition;
+        bool talbotInPosition;
 
-        uint32 uiPhase;
-        uint32 uiPhaseTimer;
+        uint32 phase;
+        uint32 phaseTimer;
 
         void Reset()
         {
             me->RestoreFaction();
             me->RemoveStandFlags(UNIT_STAND_STATE_SIT);
 
-            uiArthas = 0;
-            uiTalbot = 0;
-            uiLeryssa = 0;
-            uiArlos = 0;
+            arthasGUID = 0;
+            talbotGUID = 0;
+            leryssaGUID = 0;
+            arlosGUID = 0;
 
-            bArthasInPosition           = false;
-            bArlosInPosition            = false;
-            bLeryssaInPosition          = false;
-            bTalbotInPosition           = false;
+            arthasInPosition = false;
+            arlosInPosition = false;
+            leryssaInPosition = false;
+            talbotInPosition = false;
 
-            uiPhase = 0;
-            uiPhaseTimer = 0;
+            phase = 0;
+            phaseTimer = 0;
         }
 
         void WaypointReached(uint32 waypointId)
@@ -992,25 +994,25 @@ public:
             {
                 case 3:
                     SetEscortPaused(true);
-                    if (Creature* pArthas = me->SummonCreature(NPC_IMAGE_LICH_KING, 3730.313f, 3518.689f, 473.324f, 1.562f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 120000))
+                    if (Creature* arthas = me->SummonCreature(NPC_IMAGE_LICH_KING, 3730.313f, 3518.689f, 473.324f, 1.562f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 120000))
                     {
-                        uiArthas = pArthas->GetGUID();
-                        pArthas->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                        pArthas->SetReactState(REACT_PASSIVE);
-                        pArthas->SetWalk(true);
-                        pArthas->GetMotionMaster()->MovePoint(0, 3737.374756f, 3564.841309f, 477.433014f);
+                        arthasGUID = arthas->GetGUID();
+                        arthas->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                        arthas->SetReactState(REACT_PASSIVE);
+                        arthas->SetWalk(true);
+                        arthas->GetMotionMaster()->MovePoint(0, 3737.374756f, 3564.841309f, 477.433014f);
                     }
-                    if (Creature* pTalbot = me->SummonCreature(NPC_COUNSELOR_TALBOT, 3747.23f, 3614.936f, 473.321f, 4.462012f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 120000))
+                    if (Creature* talbot = me->SummonCreature(NPC_COUNSELOR_TALBOT, 3747.23f, 3614.936f, 473.321f, 4.462012f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 120000))
                     {
-                        uiTalbot = pTalbot->GetGUID();
-                        pTalbot->SetWalk(true);
-                        pTalbot->GetMotionMaster()->MovePoint(0, 3738.000977f, 3568.882080f, 477.433014f);
+                        talbotGUID = talbot->GetGUID();
+                        talbot->SetWalk(true);
+                        talbot->GetMotionMaster()->MovePoint(0, 3738.000977f, 3568.882080f, 477.433014f);
                     }
                     me->SetWalk(false);
                     break;
                 case 4:
                     SetEscortPaused(true);
-                    uiPhase = 7;
+                    phase = 7;
                     break;
             }
         }
@@ -1019,173 +1021,173 @@ public:
         {
             npc_escortAI::UpdateAI(uiDiff);
 
-            if (bArthasInPosition && bTalbotInPosition)
+            if (arthasInPosition && talbotInPosition)
             {
-                uiPhase = 1;
-                bArthasInPosition = false;
-                bTalbotInPosition = false;
+                phase = 1;
+                arthasInPosition = false;
+                talbotInPosition = false;
             }
 
-            if (bArlosInPosition && bLeryssaInPosition)
+            if (arlosInPosition && leryssaInPosition)
             {
-                bArlosInPosition   = false;
-                bLeryssaInPosition = false;
-                DoScriptText(SAY_THASSARIAN_1, me);
+                arlosInPosition   = false;
+                leryssaInPosition = false;
+                Talk(SAY_THASSARIAN_1);
                 SetEscortPaused(false);
             }
 
-            if (uiPhaseTimer <= uiDiff)
+            if (phaseTimer <= uiDiff)
             {
-                Creature* pTalbot = me->GetCreature(*me, uiTalbot);
-                Creature* pArthas = me->GetCreature(*me, uiArthas);
-                switch (uiPhase)
+                Creature* talbot = me->GetCreature(*me, talbotGUID);
+                Creature* arthas = me->GetCreature(*me, arthasGUID);
+                switch (phase)
                 {
                     case 1:
-                        if (pTalbot)
-                            pTalbot->SetStandState(UNIT_STAND_STATE_KNEEL);
-                        uiPhaseTimer = 3000;
-                        ++uiPhase;
+                        if (talbot)
+                            talbot->SetStandState(UNIT_STAND_STATE_KNEEL);
+                        phaseTimer = 3000;
+                        ++phase;
                         break;
 
                     case 2:
-                        if (pTalbot)
+                        if (talbot)
                         {
-                            pTalbot->UpdateEntry(NPC_PRINCE_VALANAR, ALLIANCE);
-                            pTalbot->setFaction(14);
-                            pTalbot->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                            pTalbot->SetReactState(REACT_PASSIVE);
+                            talbot->UpdateEntry(NPC_PRINCE_VALANAR, ALLIANCE);
+                            talbot->setFaction(14);
+                            talbot->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                            talbot->SetReactState(REACT_PASSIVE);
                         }
-                        uiPhaseTimer = 5000;
-                        ++uiPhase;
+                        phaseTimer = 5000;
+                        ++phase;
                         break;
 
                     case 3:
-                        if (pTalbot)
-                            DoScriptText(SAY_TALBOT_1, pTalbot);
-                        uiPhaseTimer = 5000;
-                        ++uiPhase;
+                        if (talbot)
+                            talbot->AI()->Talk(SAY_TALBOT_1);
+                        phaseTimer = 5000;
+                        ++phase;
                         break;
 
                     case 4:
-                        if (pArthas)
-                            DoScriptText(SAY_LICH_1, pArthas);
-                        uiPhaseTimer = 5000;
-                        ++uiPhase;
+                        if (arthas)
+                            arthas->AI()->Talk(SAY_LICH_1);
+                        phaseTimer = 5000;
+                        ++phase;
                         break;
 
                     case 5:
-                        if (pTalbot)
-                            DoScriptText(SAY_TALBOT_2, pTalbot);
-                        uiPhaseTimer = 5000;
-                        ++uiPhase;
+                        if (talbot)
+                            talbot->AI()->Talk(SAY_TALBOT_2);
+                        phaseTimer = 5000;
+                        ++phase;
                         break;
 
                     case 6:
-                        if (Creature* pArlos = me->SummonCreature(NPC_GENERAL_ARLOS, 3745.527100f, 3615.655029f, 473.321533f, 4.447805f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 120000))
+                        if (Creature* arlos = me->SummonCreature(NPC_GENERAL_ARLOS, 3745.527100f, 3615.655029f, 473.321533f, 4.447805f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 120000))
                         {
-                            uiArlos = pArlos->GetGUID();
-                            pArlos->SetWalk(true);
-                            pArlos->GetMotionMaster()->MovePoint(0, 3735.570068f, 3572.419922f, 477.441010f);
+                            arlosGUID = arlos->GetGUID();
+                            arlos->SetWalk(true);
+                            arlos->GetMotionMaster()->MovePoint(0, 3735.570068f, 3572.419922f, 477.441010f);
                         }
-                        if (Creature* pLeryssa = me->SummonCreature(NPC_LERYSSA, 3749.654541f, 3614.959717f, 473.323486f, 4.524959f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 120000))
+                        if (Creature* leryssa = me->SummonCreature(NPC_LERYSSA, 3749.654541f, 3614.959717f, 473.323486f, 4.524959f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 120000))
                         {
-                            uiLeryssa = pLeryssa->GetGUID();
-                            pLeryssa->SetWalk(false);
-                            pLeryssa->SetReactState(REACT_PASSIVE);
-                            pLeryssa->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                            pLeryssa->GetMotionMaster()->MovePoint(0, 3741.969971f, 3571.439941f, 477.441010f);
+                            leryssaGUID = leryssa->GetGUID();
+                            leryssa->SetWalk(false);
+                            leryssa->SetReactState(REACT_PASSIVE);
+                            leryssa->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                            leryssa->GetMotionMaster()->MovePoint(0, 3741.969971f, 3571.439941f, 477.441010f);
                         }
-                        uiPhaseTimer = 2000;
-                        uiPhase = 0;
+                        phaseTimer = 2000;
+                        phase = 0;
                         break;
 
                     case 7:
-                        DoScriptText(SAY_THASSARIAN_2, me);
-                        uiPhaseTimer = 5000;
-                        ++uiPhase;
+                        Talk(SAY_THASSARIAN_2);
+                        phaseTimer = 5000;
+                        ++phase;
                         break;
 
                     case 8:
-                        if (pArthas && pTalbot)
+                        if (arthas && talbot)
                         {
-                            pArthas->SetInFront(me); //The client doesen't update with the new orientation :l
-                            pTalbot->SetStandState(UNIT_STAND_STATE_STAND);
-                            DoScriptText(SAY_LICH_2, pArthas);
+                            arthas->SetInFront(me); //The client doesen't update with the new orientation :l
+                            talbot->SetStandState(UNIT_STAND_STATE_STAND);
+                            arthas->AI()->Talk(SAY_LICH_2);
                         }
-                        uiPhaseTimer = 5000;
-                        uiPhase = 9;
+                        phaseTimer = 5000;
+                        phase = 9;
                         break;
 
                    case 9:
-                        DoScriptText(SAY_THASSARIAN_3, me);
-                        uiPhaseTimer = 5000;
-                        uiPhase = 10;
+                        Talk(SAY_THASSARIAN_3);
+                        phaseTimer = 5000;
+                        phase = 10;
                         break;
 
                    case 10:
-                        if (pTalbot)
-                            DoScriptText(SAY_TALBOT_3, pTalbot);
-                        uiPhaseTimer = 5000;
-                        uiPhase = 11;
+                        if (talbot)
+                            talbot->AI()->Talk(SAY_TALBOT_3);
+                        phaseTimer = 5000;
+                        phase = 11;
                         break;
 
                    case 11:
-                        if (pArthas)
-                            DoScriptText(SAY_LICH_3, pArthas);
-                        uiPhaseTimer = 5000;
-                        uiPhase = 12;
+                        if (arthas)
+                            arthas->AI()->Talk(SAY_LICH_3);
+                        phaseTimer = 5000;
+                        phase = 12;
                         break;
 
                     case 12:
-                        if (pTalbot)
-                            DoScriptText(SAY_TALBOT_4, pTalbot);
-                        uiPhaseTimer = 2000;
-                        uiPhase = 13;
+                        if (talbot)
+                            talbot->AI()->Talk(SAY_TALBOT_4);
+                        phaseTimer = 2000;
+                        phase = 13;
                         break;
 
                     case 13:
-                        if (pArthas)
-                            pArthas->RemoveFromWorld();
-                        ++uiPhase;
+                        if (arthas)
+                            arthas->RemoveFromWorld();
+                        ++phase;
                         break;
 
                     case 14:
                         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                        if (pTalbot)
+                        if (talbot)
                         {
-                            pTalbot->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                            pTalbot->SetReactState(REACT_AGGRESSIVE);
-                            pTalbot->CastSpell(me, SPELL_SHADOW_BOLT, false);
+                            talbot->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                            talbot->SetReactState(REACT_AGGRESSIVE);
+                            talbot->CastSpell(me, SPELL_SHADOW_BOLT, false);
                         }
-                        uiPhaseTimer = 1500;
-                        ++uiPhase;
+                        phaseTimer = 1500;
+                        ++phase;
                         break;
 
                     case 15:
                         me->SetReactState(REACT_AGGRESSIVE);
-                        AttackStart(pTalbot);
-                        uiPhase = 0;
+                        AttackStart(talbot);
+                        phase = 0;
                         break;
 
                     case 16:
                         me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
-                        uiPhaseTimer = 20000;
-                        ++uiPhase;
+                        phaseTimer = 20000;
+                        ++phase;
                         break;
 
                    case 17:
-                        if (Creature* pLeryssa = me->GetCreature(*me, uiLeryssa))
-                            pLeryssa->RemoveFromWorld();
-                        if (Creature* pArlos= me->GetCreature(*me, uiArlos))
-                            pArlos->RemoveFromWorld();
-                        if (pTalbot)
-                            pTalbot->RemoveFromWorld();
+                        if (Creature* leryssa = me->GetCreature(*me, leryssaGUID))
+                            leryssa->RemoveFromWorld();
+                        if (Creature* arlos= me->GetCreature(*me, arlosGUID))
+                            arlos->RemoveFromWorld();
+                        if (talbot)
+                            talbot->RemoveFromWorld();
                         me->RemoveStandFlags(UNIT_STAND_STATE_SIT);
                         SetEscortPaused(false);
-                        uiPhaseTimer = 0;
-                        uiPhase = 0;
+                        phaseTimer = 0;
+                        phase = 0;
                 }
-            } else uiPhaseTimer -= uiDiff;
+            } else phaseTimer -= uiDiff;
 
             if (!UpdateVictim())
                 return;
@@ -1195,17 +1197,17 @@ public:
 
         void JustDied(Unit* /*killer*/)
         {
-            if (Creature* pTalbot = me->GetCreature(*me, uiTalbot))
-                pTalbot->RemoveFromWorld();
+            if (Creature* talbot = me->GetCreature(*me, talbotGUID))
+                talbot->RemoveFromWorld();
 
-            if (Creature* pLeryssa = me->GetCreature(*me, uiLeryssa))
-                pLeryssa->RemoveFromWorld();
+            if (Creature* leryssa = me->GetCreature(*me, leryssaGUID))
+                leryssa->RemoveFromWorld();
 
-            if (Creature* pArlos = me->GetCreature(*me, uiArlos))
-                pArlos->RemoveFromWorld();
+            if (Creature* arlos = me->GetCreature(*me, arlosGUID))
+                arlos->RemoveFromWorld();
 
-            if (Creature* pArthas = me->GetCreature(*me, uiArthas))
-                pArthas->RemoveFromWorld();
+            if (Creature* arthas = me->GetCreature(*me, arthasGUID))
+                arthas->RemoveFromWorld();
         }
     };
 
@@ -1266,7 +1268,7 @@ public:
 
             if (me->isSummon())
                 if (Unit* summoner = me->ToTempSummon()->GetSummoner())
-                    CAST_AI(npc_thassarian::npc_thassarianAI, CAST_CRE(summoner)->AI())->bArthasInPosition = true;
+                    CAST_AI(npc_thassarian::npc_thassarianAI, CAST_CRE(summoner)->AI())->arthasInPosition = true;
         }
     };
 
@@ -1298,7 +1300,7 @@ public:
             me->CastSpell(me, SPELL_STUN, true);
             if (me->isSummon())
                 if (Unit* summoner = me->ToTempSummon()->GetSummoner())
-                    CAST_AI(npc_thassarian::npc_thassarianAI, CAST_CRE(summoner)->AI())->bArlosInPosition = true;
+                    CAST_AI(npc_thassarian::npc_thassarianAI, CAST_CRE(summoner)->AI())->arlosInPosition = true;
         }
     };
 
@@ -1330,23 +1332,23 @@ public:
             creature->RestoreFaction();
         }
 
-        uint64 LeryssaGUID;
-        uint64 ArlosGUID;
+        uint64 leryssaGUID;
+        uint64 arlosGUID;
 
         bool bCheck;
 
-        uint32 uiShadowBoltTimer;
-        uint32 uiDeflectionTimer;
-        uint32 uiSoulBlastTimer;
+        uint32 shadowBoltTimer;
+        uint32 deflectionTimer;
+        uint32 soulBlastTimer;
 
         void Reset()
         {
-            LeryssaGUID         = 0;
-            ArlosGUID           = 0;
+            leryssaGUID         = 0;
+            arlosGUID           = 0;
             bCheck              = false;
-            uiShadowBoltTimer   = urand(5000, 12000);
-            uiDeflectionTimer   = urand(20000, 25000);
-            uiSoulBlastTimer    = urand (12000, 18000);
+            shadowBoltTimer   = urand(5000, 12000);
+            deflectionTimer   = urand(20000, 25000);
+            soulBlastTimer    = urand (12000, 18000);
         }
         void MovementInform(uint32 uiType, uint32 /*uiId*/)
         {
@@ -1355,17 +1357,17 @@ public:
 
             if (me->isSummon())
                 if (Unit* summoner = me->ToTempSummon()->GetSummoner())
-                    CAST_AI(npc_thassarian::npc_thassarianAI, CAST_CRE(summoner)->AI())->bTalbotInPosition = true;
+                    CAST_AI(npc_thassarian::npc_thassarianAI, CAST_CRE(summoner)->AI())->talbotInPosition = true;
         }
 
         void UpdateAI(const uint32 uiDiff)
         {
             if (bCheck)
             {
-                if (Creature* pLeryssa = me->FindNearestCreature(NPC_LERYSSA, 50.0f, true))
-                    LeryssaGUID = pLeryssa->GetGUID();
-                if (Creature* pArlos = me->FindNearestCreature(NPC_GENERAL_ARLOS, 50.0f, true))
-                    ArlosGUID = pArlos->GetGUID();
+                if (Creature* leryssa = me->FindNearestCreature(NPC_LERYSSA, 50.0f, true))
+                    leryssaGUID = leryssa->GetGUID();
+                if (Creature* arlos = me->FindNearestCreature(NPC_GENERAL_ARLOS, 50.0f, true))
+                    arlosGUID = arlos->GetGUID();
                 bCheck = false;
             }
 
@@ -1374,23 +1376,23 @@ public:
 
             if (me->GetAreaId() == 4125)
             {
-                if (uiShadowBoltTimer <= uiDiff)
+                if (shadowBoltTimer <= uiDiff)
                 {
                     DoCast(me->getVictim(), SPELL_SHADOW_BOLT);
-                    uiShadowBoltTimer = urand(5000, 12000);
-                } else uiShadowBoltTimer -= uiDiff;
+                    shadowBoltTimer = urand(5000, 12000);
+                } else shadowBoltTimer -= uiDiff;
 
-                if (uiDeflectionTimer <= uiDiff)
+                if (deflectionTimer <= uiDiff)
                 {
                     DoCast(me->getVictim(), SPELL_DEFLECTION);
-                    uiDeflectionTimer = urand(20000, 25000);
-                } else uiDeflectionTimer -= uiDiff;
+                    deflectionTimer = urand(20000, 25000);
+                } else deflectionTimer -= uiDiff;
 
-                if (uiSoulBlastTimer <= uiDiff)
+                if (soulBlastTimer <= uiDiff)
                 {
                     DoCast(me->getVictim(), SPELL_SOUL_BLAST);
-                    uiSoulBlastTimer  = urand (12000, 18000);
-                } else uiSoulBlastTimer -= uiDiff;
+                    soulBlastTimer  = urand (12000, 18000);
+                } else soulBlastTimer -= uiDiff;
             }
 
             DoMeleeAttackIfReady();
@@ -1398,22 +1400,22 @@ public:
 
        void JustDied(Unit* killer)
        {
-            if (!LeryssaGUID || !ArlosGUID)
+            if (!leryssaGUID || !arlosGUID)
                 return;
 
-            Creature* pLeryssa = Unit::GetCreature(*me, LeryssaGUID);
-            Creature* pArlos = Unit::GetCreature(*me, ArlosGUID);
-            if (!pLeryssa || !pArlos)
+            Creature* leryssa = Unit::GetCreature(*me, leryssaGUID);
+            Creature* arlos = Unit::GetCreature(*me, arlosGUID);
+            if (!leryssa || !arlos)
                 return;
 
-            DoScriptText(SAY_ARLOS_1, pArlos);
-            DoScriptText(SAY_ARLOS_2, pArlos);
-            DoScriptText(SAY_LERYSSA_1, pLeryssa);
-            pArlos->Kill(pArlos, false);
-            pLeryssa->RemoveAura(SPELL_STUN);
-            pLeryssa->ClearUnitState(UNIT_STATE_STUNNED);
-            pLeryssa->SetWalk(false);
-            pLeryssa->GetMotionMaster()->MovePoint(0, 3722.114502f, 3564.201660f, 477.441437f);
+            arlos->AI()->Talk(SAY_ARLOS_1);
+            arlos->AI()->Talk(SAY_ARLOS_2);
+            leryssa->AI()->Talk(SAY_LERYSSA_1);
+            arlos->Kill(arlos, false);
+            leryssa->RemoveAura(SPELL_STUN);
+            leryssa->ClearUnitState(UNIT_STATE_STUNNED);
+            leryssa->SetWalk(false);
+            leryssa->GetMotionMaster()->MovePoint(0, 3722.114502f, 3564.201660f, 477.441437f);
 
             if (Player* player = killer->ToPlayer())
                 player->RewardPlayerAndGroupAtEvent(NPC_PRINCE_VALANAR, 0);
@@ -1440,33 +1442,33 @@ public:
         npc_leryssaAI(Creature* creature) : ScriptedAI(creature)
         {
             bDone = false;
-            Phase = 0;
-            uiPhaseTimer = 0;
+            phase = 0;
+            phaseTimer = 0;
 
             creature->RemoveStandFlags(UNIT_STAND_STATE_SIT);
         }
 
         bool bDone;
 
-        uint32 Phase;
-        uint32 uiPhaseTimer;
+        uint32 phase;
+        uint32 phaseTimer;
 
-        void MovementInform(uint32 uiType, uint32 /*uiId*/)
+        void MovementInform(uint32 type, uint32 /*uiId*/)
         {
-            if (uiType != POINT_MOTION_TYPE)
+            if (type != POINT_MOTION_TYPE)
                 return;
 
             if (!bDone)
             {
-                if (Creature* pTalbot = me->FindNearestCreature(NPC_PRINCE_VALANAR, 50.0f, true))
-                    CAST_AI(npc_counselor_talbot::npc_counselor_talbotAI, pTalbot->GetAI())->bCheck = true;
+                if (Creature* talbot = me->FindNearestCreature(NPC_PRINCE_VALANAR, 50.0f, true))
+                    CAST_AI(npc_counselor_talbot::npc_counselor_talbotAI, talbot->GetAI())->bCheck = true;
 
                 me->AddUnitState(UNIT_STATE_STUNNED);
                 me->CastSpell(me, SPELL_STUN, true);
 
                 if (me->isSummon())
                     if (Unit* summoner = me->ToTempSummon()->GetSummoner())
-                        CAST_AI(npc_thassarian::npc_thassarianAI, summoner->GetAI())->bLeryssaInPosition = true;
+                        CAST_AI(npc_thassarian::npc_thassarianAI, summoner->GetAI())->leryssaInPosition = true;
                 bDone = true;
             }
             else
@@ -1475,8 +1477,8 @@ public:
                 if (me->isSummon())
                     if (Unit* summoner = me->ToTempSummon()->GetSummoner())
                     summoner->SetStandState(UNIT_STAND_STATE_SIT);
-                uiPhaseTimer = 1500;
-                Phase = 1;
+                phaseTimer = 1500;
+                phase = 1;
             }
         }
 
@@ -1484,59 +1486,63 @@ public:
         {
             ScriptedAI::UpdateAI(uiDiff);
 
-            if (uiPhaseTimer <= uiDiff)
+            if (phaseTimer <= uiDiff)
             {
-                switch (Phase)
+                switch (phase)
                 {
                     case 1:
                         if (me->isSummon())
-                            if (Unit* pThassarian = me->ToTempSummon()->GetSummoner())
-                                DoScriptText(SAY_THASSARIAN_4, pThassarian);
-                        uiPhaseTimer = 5000;
-                        ++Phase;
+                            if (Unit* summoner = me->ToTempSummon()->GetSummoner())
+                                if (Creature* thassarian = summoner->ToCreature())
+                                    thassarian->AI()->Talk(SAY_THASSARIAN_4);
+                        phaseTimer = 5000;
+                        ++phase;
                         break;
                     case 2:
-                        DoScriptText(SAY_LERYSSA_2, me);
-                        uiPhaseTimer = 5000;
-                        ++Phase;
+                        Talk(SAY_LERYSSA_2);
+                        phaseTimer = 5000;
+                        ++phase;
                         break;
                     case 3:
                         if (me->isSummon())
-                            if (Unit* pThassarian = me->ToTempSummon()->GetSummoner())
-                                DoScriptText(SAY_THASSARIAN_5, pThassarian);
-                        uiPhaseTimer = 5000;
-                        ++Phase;
+                            if (Unit* summoner = me->ToTempSummon()->GetSummoner())
+                                if (Creature* thassarian = summoner->ToCreature())
+                                    thassarian->AI()->Talk(SAY_THASSARIAN_5);
+                        phaseTimer = 5000;
+                        ++phase;
                         break;
                     case 4:
-                        DoScriptText(SAY_LERYSSA_3, me);
-                        uiPhaseTimer = 5000;
-                        ++Phase;
+                        Talk(SAY_LERYSSA_3);
+                        phaseTimer = 5000;
+                        ++phase;
                         break;
                     case 5:
                         if (me->isSummon())
-                            if (Unit* pThassarian = me->ToTempSummon()->GetSummoner())
-                        DoScriptText(SAY_THASSARIAN_6, pThassarian);
-                        uiPhaseTimer = 5000;
-                        ++Phase;
+                            if (Unit* summoner = me->ToTempSummon()->GetSummoner())
+                                if (Creature* thassarian = summoner->ToCreature())
+                                    thassarian->AI()->Talk(SAY_THASSARIAN_6);
+                        phaseTimer = 5000;
+                        ++phase;
                         break;
 
                     case 6:
-                        DoScriptText(SAY_LERYSSA_4, me);
-                        uiPhaseTimer = 5000;
-                        ++Phase;
+                        Talk(SAY_LERYSSA_4);
+                        phaseTimer = 5000;
+                        ++phase;
                         break;
                     case 7:
                         if (me->isSummon())
-                            if (Unit* pThassarian = me->ToTempSummon()->GetSummoner())
-                            {
-                                DoScriptText(SAY_THASSARIAN_7, pThassarian);
-                                CAST_AI(npc_thassarian::npc_thassarianAI, pThassarian->GetAI())->uiPhase = 16;
-                            }
-                        uiPhaseTimer = 5000;
-                        Phase = 0;
+                            if (Unit* summoner = me->ToTempSummon()->GetSummoner())
+                                if (Creature* thassarian = summoner->ToCreature())
+                                {
+                                    thassarian->AI()->Talk(SAY_THASSARIAN_7);
+                                    CAST_AI(npc_thassarian::npc_thassarianAI, thassarian->GetAI())->phase = 16;
+                                }
+                        phaseTimer = 5000;
+                        phase = 0;
                         break;
                 }
-            } else uiPhaseTimer -= uiDiff;
+            } else phaseTimer -= uiDiff;
 
             if (!UpdateVictim())
                 return;
@@ -1640,13 +1646,13 @@ enum eImprisionedBerylSorcerer
 
     NPC_IMPRISONED_BERYL_SORCERER   = 25478,
 
-    SAY_IMPRISIONED_BERYL_1         = -1571024,
-    SAY_IMPRISIONED_BERYL_2         = -1571025,
-    SAY_IMPRISIONED_BERYL_3         = -1571026,
-    SAY_IMPRISIONED_BERYL_4         = -1571027,
-    SAY_IMPRISIONED_BERYL_5         = -1571028,
-    SAY_IMPRISIONED_BERYL_6         = -1571029,
-    SAY_IMPRISIONED_BERYL_7         = -1571030,
+    SAY_IMPRISIONED_BERYL_1         = 0,
+    SAY_IMPRISIONED_BERYL_2         = 1,
+    SAY_IMPRISIONED_BERYL_3         = 2,
+    SAY_IMPRISIONED_BERYL_4         = 3,
+    SAY_IMPRISIONED_BERYL_5         = 4,
+    SAY_IMPRISIONED_BERYL_6         = 5,
+    SAY_IMPRISIONED_BERYL_7         = 6
 };
 
 class npc_imprisoned_beryl_sorcerer : public CreatureScript
@@ -1709,25 +1715,25 @@ public:
                 switch (step)
                 {
                     case 1:
-                        DoScriptText(SAY_IMPRISIONED_BERYL_1, me);
+                        Talk(SAY_IMPRISIONED_BERYL_1);
                         break;
                     case 2:
-                        DoScriptText(SAY_IMPRISIONED_BERYL_2, me, caster);
+                        Talk(SAY_IMPRISIONED_BERYL_2, caster->GetGUID());
                         break;
                     case 3:
-                        DoScriptText(SAY_IMPRISIONED_BERYL_3, me);
+                        Talk(SAY_IMPRISIONED_BERYL_3);
                         break;
                     case 4:
-                        DoScriptText(SAY_IMPRISIONED_BERYL_4, me);
+                        Talk(SAY_IMPRISIONED_BERYL_4);
                         break;
                     case 5:
-                        DoScriptText(SAY_IMPRISIONED_BERYL_5, me);
+                        Talk(SAY_IMPRISIONED_BERYL_5);
                         break;
                     case 6:
-                        DoScriptText(SAY_IMPRISIONED_BERYL_6, me, caster);
+                        Talk(SAY_IMPRISIONED_BERYL_6, caster->GetGUID());
                         break;
                     case 7:
-                        DoScriptText(SAY_IMPRISIONED_BERYL_7, me);
+                        Talk(SAY_IMPRISIONED_BERYL_7);
                         caster->KilledMonsterCredit(NPC_IMPRISONED_BERYL_SORCERER, 0);
                         break;
                 }
@@ -1744,18 +1750,16 @@ public:
 /*######
 ## npc_mootoo_the_younger
 ######*/
-enum Script_Texts_Mootoo_the_Younger
+enum MootooTheYounger
 {
-    SAY_1                    =-1750040,
-    SAY_2                    =-1750041,
-    SAY_3                    =-1750042,
-    SAY_4                    =-1750043,
-    SAY_5                    =-1750044
-};
-enum Mootoo_the_Younger_Entries
-{
-    NPC_MOOTOO_THE_YOUNGER          =25504,
-    QUEST_ESCAPING_THE_MIST         =11664
+    SAY_1                       = 0,
+    SAY_2                       = 1,
+    SAY_3                       = 2,
+    SAY_4                       = 3,
+    SAY_5                       = 4,
+
+    NPC_MOOTOO_THE_YOUNGER      = 25504,
+    QUEST_ESCAPING_THE_MIST     = 11664
 };
 
 class npc_mootoo_the_younger : public CreatureScript
@@ -1777,7 +1781,7 @@ public:
                 break;
             }
             creature->SetStandState(UNIT_STAND_STATE_STAND);
-            DoScriptText(SAY_1, creature);
+            creature->AI()->Talk(SAY_1);
             CAST_AI(npc_escortAI, (creature->AI()))->Start(true, false, player->GetGUID());
         }
         return true;
@@ -1808,19 +1812,19 @@ public:
             {
                 case 10:
                     me->HandleEmoteCommand(EMOTE_ONESHOT_EXCLAMATION);
-                    DoScriptText(SAY_2, me);
+                    Talk(SAY_2);
                     break;
                 case 12:
-                    DoScriptText(SAY_3, me);
+                    Talk(SAY_3);
                     me->HandleEmoteCommand(EMOTE_ONESHOT_LOOT);
                     break;
                 case 16:
-                    DoScriptText(SAY_4, me);
+                    Talk(SAY_4);
                     me->HandleEmoteCommand(EMOTE_ONESHOT_EXCLAMATION);
                     break;
                 case 20:
                     me->SetPhaseMask(1, true);
-                    DoScriptText(SAY_5, me);
+                    Talk(SAY_5);
                     me->HandleEmoteCommand(EMOTE_ONESHOT_EXCLAMATION);
                     player->GroupEventHappens(QUEST_ESCAPING_THE_MIST, me);
                     SetRun(true);
@@ -1839,15 +1843,13 @@ public:
 ## npc_bonker_togglevolt
 ######*/
 
-enum Bonker_Togglevolt_Entries
+enum BonkerTogglevolt
 {
-    NPC_BONKER_TOGGLEVOLT = 25589,
-    QUEST_GET_ME_OUTA_HERE = 11673
-};
-enum Script_Texts_Bonker_Togglevolt
-{
-    SAY_bonker_1 = -1700002,
-    SAY_bonker_2 = -1700003
+    NPC_BONKER_TOGGLEVOLT   = 25589,
+    QUEST_GET_ME_OUTA_HERE  = 11673,
+
+    SAY_BONKER_1            = 0,
+    SAY_BONKER_2            = 1
 };
 
 class npc_bonker_togglevolt : public CreatureScript
@@ -1860,7 +1862,7 @@ public:
         if (quest->GetQuestId() == QUEST_GET_ME_OUTA_HERE)
         {
             creature->SetStandState(UNIT_STAND_STATE_STAND);
-            DoScriptText(SAY_bonker_2, creature, player);
+            creature->AI()->Talk(SAY_BONKER_2, player->GetGUID());
             CAST_AI(npc_escortAI, (creature->AI()))->Start(true, true, player->GetGUID());
         }
         return true;
@@ -1889,7 +1891,7 @@ public:
             {
                 if (Bonker_agro == 0)
                 {
-                    DoScriptText(SAY_bonker_1, me);
+                    Talk(SAY_BONKER_1);
                     Bonker_agro++;
                 }
                 DoMeleeAttackIfReady();
@@ -2307,10 +2309,10 @@ enum eHiddenCultist
     NPC_SALTY_JOHN_THORPE                       = 25248,
     NPC_GUARD_MITCHELLS                         = 25828,
 
-    SAY_HIDDEN_CULTIST_1                        = -1571044,
-    SAY_HIDDEN_CULTIST_2                        = -1571045,
-    SAY_HIDDEN_CULTIST_3                        = -1571046,
-    SAY_HIDDEN_CULTIST_4                        = -1571047
+    SAY_HIDDEN_CULTIST_1                        = 0,
+    SAY_HIDDEN_CULTIST_2                        = 1,
+    SAY_HIDDEN_CULTIST_3                        = 2,
+    SAY_HIDDEN_CULTIST_4                        = 3
 };
 
 const char* GOSSIP_ITEM_TOM_HEGGER = "What do you know about the Cult of the Damned?";
@@ -2392,17 +2394,17 @@ public:
                         {
                             case NPC_SALTY_JOHN_THORPE:
                                 me->SetUInt32Value(UNIT_NPC_EMOTESTATE, 0);
-                                DoScriptText(SAY_HIDDEN_CULTIST_1, me);
+                                Talk(SAY_HIDDEN_CULTIST_1);
                                 uiEventTimer = 5000;
                                 uiEventPhase = 2;
                                 break;
                             case NPC_GUARD_MITCHELLS:
-                                DoScriptText(SAY_HIDDEN_CULTIST_2, me);
+                                Talk(SAY_HIDDEN_CULTIST_2);
                                 uiEventTimer = 5000;
                                 uiEventPhase = 2;
                                 break;
                             case NPC_TOM_HEGGER:
-                                DoScriptText(SAY_HIDDEN_CULTIST_3, me);
+                                Talk(SAY_HIDDEN_CULTIST_3);
                                 uiEventTimer = 5000;
                                 uiEventPhase = 2;
                                 break;
@@ -2412,7 +2414,7 @@ public:
                         switch (me->GetEntry())
                         {
                             case NPC_SALTY_JOHN_THORPE:
-                                DoScriptText(SAY_HIDDEN_CULTIST_4, me);
+                                Talk(SAY_HIDDEN_CULTIST_4);
                                 if (Player* player = me->GetPlayer(*me, uiPlayerGUID))
                                 {
                                     me->SetInFront(player);
