@@ -43,4 +43,3 @@ class ConfusedMovementGenerator : public MovementGeneratorMedium< T, ConfusedMov
         uint32 i_nextMove;
 };
 #endif
-

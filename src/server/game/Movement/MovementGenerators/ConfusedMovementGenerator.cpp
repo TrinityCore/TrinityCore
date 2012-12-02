@@ -170,4 +170,3 @@ template void ConfusedMovementGenerator<Player>::DoReset(Player &player);
 template void ConfusedMovementGenerator<Creature>::DoReset(Creature &creature);
 template bool ConfusedMovementGenerator<Player>::DoUpdate(Player &player, uint32 diff);
 template bool ConfusedMovementGenerator<Creature>::DoUpdate(Creature &creature, uint32 diff);
-
