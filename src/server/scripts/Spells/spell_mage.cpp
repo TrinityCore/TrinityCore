@@ -47,6 +47,12 @@ enum MageSpells
     SPELL_MAGE_CAUTERIZE_DOT                     = 87023,
     SPELL_MAGE_GLYPH_OF_BLAST_WAVE               = 62126,
 
+	//early frost
+    SPELL_MAGE_EARLY_FROST_R1_T                  = 83049,
+   	SPELL_MAGE_EARLY_FROST_R2_T                  = 83050,
+    SPELL_MAGE_EARLY_FROST_R1_CD                 = 83162,
+    SPELL_MAGE_EARLY_FROST_R2_CD                 = 83239,
+
     SPELL_MAGE_CONJURE_REFRESHMENT               = 42955,
 };
 
@@ -559,8 +565,8 @@ const ConjureRefreshmentData _conjureData[MAX_CONJURE_REFRESHMENT_SPELLS] =
     { 44, 53, 92799 },
     { 54, 63, 92802 },
     { 64, 73, 92805 },
-    { 74, 79, 74625 },
-    { 80, 84, 92822 },
+    { 74, 80, 74625 },
+    { 81, 84, 92822 },
     { 85, 85, 92727 }
 };
 
@@ -614,6 +620,44 @@ class spell_mage_conjure_refreshment : public SpellScriptLoader
         }
 };
 
+class spell_mage_frost_bolt : public SpellScriptLoader
+{
+public:
+   spell_mage_frost_bolt() : SpellScriptLoader("spell_mage_frost_bolt") { }
+
+    class spell_mage_frost_bolt_SpellScript : public SpellScript
+    {
+       PrepareSpellScript(spell_mage_frost_bolt_SpellScript);
+
+        void HandleFrostBoltScript(SpellEffIndex /*effIndex*/)
+       {
+
+        Unit* caster = GetCaster();
+  
+	      if (!caster->HasAura(SPELL_MAGE_EARLY_FROST_R1_CD)) // Check Trigger
+	      {
+	       if (caster->HasAura(SPELL_MAGE_EARLY_FROST_R1_T)) // Check Talent
+		       caster->CastSpell(caster, SPELL_MAGE_EARLY_FROST_R1_CD, true); // Cast Trigger - 15 Sec Cooldown
+	      } 
+          else if (!caster->HasAura(SPELL_MAGE_EARLY_FROST_R2_CD)) // Check Trigger (R2)
+	      {
+	           if (caster->HasAura(SPELL_MAGE_EARLY_FROST_R2_T))  // Check Talent (R2)
+		          caster->CastSpell(caster, SPELL_MAGE_EARLY_FROST_R2_CD, true); // Cast Trigger (R2) - 15Sec Cooldown
+	      }
+
+       }
+        void Register()
+       {
+           OnEffectHitTarget += SpellEffectFn(spell_mage_frost_bolt_SpellScript::HandleFrostBoltScript, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+       }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_mage_frost_bolt_SpellScript();
+    }
+};
+
 void AddSC_mage_spell_scripts()
 {
     new spell_mage_blast_wave();
@@ -628,4 +672,5 @@ void AddSC_mage_spell_scripts()
     new spell_mage_cone_of_cold();
     new spell_mag_cauterize();
 	new spell_mage_conjure_refreshment();
+    new spell_mage_frost_bolt();
 }
