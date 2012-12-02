@@ -463,9 +463,11 @@ typedef UNORDERED_MAP<uint8, MailLevelRewardList> MailLevelRewardContainer;
 // We assume the rate is in general the same for all three types below, but chose to keep three for scalability and customization
 struct RepRewardRate
 {
-    float quest_rate;                                       // We allow rate = 0.0 in database. For this case, it means that
-    float creature_rate;                                    // no reputation are given at all for this faction/rate type.
-    float spell_rate;
+    float questRate;            // We allow rate = 0.0 in database. For this case, it means that
+    float questDailyRate;
+    float questWeeklyRate;
+    float creatureRate;         // no reputation are given at all for this faction/rate type.
+    float spellRate;
 };
 
 struct ReputationOnKillEntry

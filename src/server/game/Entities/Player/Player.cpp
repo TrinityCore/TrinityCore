@@ -6923,37 +6923,76 @@ ReputationRank Player::GetReputationRank(uint32 faction) const
     return GetReputationMgr().GetRank(factionEntry);
 }
 
-//Calculate total reputation percent player gain with quest/creature level
-int32 Player::CalculateReputationGain(uint32 creatureOrQuestLevel, int32 rep, int32 faction, bool for_quest, bool noQuestBonus)
+// Calculate total reputation percent player gain with quest/creature level
+int32 Player::CalculateReputationGain(ReputationSource source, uint32 creatureOrQuestLevel, int32 rep, int32 faction, bool noQuestBonus)
 {
     float percent = 100.0f;
 
-    // Get the generic rate first
-    if (RepRewardRate const* repData = sObjectMgr->GetRepRewardRate(faction))
-    {
-        float repRate = for_quest ? repData->quest_rate : repData->creature_rate;
-        percent *= repRate;
-    }
+    float repMod = noQuestBonus ? 0.0f : float(GetTotalAuraModifier(SPELL_AURA_MOD_REPUTATION_GAIN));
 
-    float rate = for_quest ? sWorld->getRate(RATE_REPUTATION_LOWLEVEL_QUEST) : sWorld->getRate(RATE_REPUTATION_LOWLEVEL_KILL);
-
-    if (rate != 1.0f && creatureOrQuestLevel <= Trinity::XP::GetGrayLevel(getLevel()))
-        percent *= rate;
-
-    float repMod = noQuestBonus ? 0.0f : (float)GetTotalAuraModifier(SPELL_AURA_MOD_REPUTATION_GAIN);
-
-    if (!for_quest)
+    // faction specific auras only seem to apply to kills
+    if (source == REPUTATION_SOURCE_KILL)
         repMod += GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_FACTION_REPUTATION_GAIN, faction);
 
     percent += rep > 0 ? repMod : -repMod;
 
+    float rate;
+    switch (source)
+    {
+        case REPUTATION_SOURCE_KILL:
+            rate = sWorld->getRate(RATE_REPUTATION_LOWLEVEL_KILL);
+            break;
+        case REPUTATION_SOURCE_QUEST:
+        case REPUTATION_SOURCE_DAYLIY_QUEST:
+        case REPUTATION_SOURCE_WEEKLY_QUEST:
+            rate = sWorld->getRate(RATE_REPUTATION_LOWLEVEL_QUEST);
+            break;
+        case REPUTATION_SOURCE_SPELL:
+        default:
+            rate = 1.0f;
+            break;
+    }
+
+    if (rate != 1.0f && creatureOrQuestLevel <= Trinity::XP::GetGrayLevel(getLevel()))
+        percent *= rate;
+
     if (percent <= 0.0f)
         return 0;
 
-    return int32(rep*percent/100);
+    // Multiply result with the faction specific rate
+    if (RepRewardRate const* repData = sObjectMgr->GetRepRewardRate(faction))
+    {
+        float repRate = 0.0f;
+        switch (source)
+        {
+            case REPUTATION_SOURCE_KILL:
+                repRate = repData->creatureRate;
+                break;
+            case REPUTATION_SOURCE_QUEST:
+                repRate = repData->questRate;
+                break;
+            case REPUTATION_SOURCE_DAYLIY_QUEST:
+                repRate = repData->questDailyRate;
+                break;
+            case REPUTATION_SOURCE_WEEKLY_QUEST:
+                repRate = repData->questWeeklyRate;
+                break;
+            case REPUTATION_SOURCE_SPELL:
+                repRate = repData->spellRate;
+                break;
+        }
+
+        // for custom, a rate of 0.0 will totally disable reputation gain for this faction/type
+        if (repRate <= 0.0f)
+            return 0;
+
+        percent *= repRate;
+    }
+
+    return int32(rep * percent / 100.0f);
 }
 
-//Calculates how many reputation points player gains in victim's enemy factions
+// Calculates how many reputation points player gains in victim's enemy factions
 void Player::RewardReputation(Unit* victim, float rate)
 {
     if (!victim || victim->GetTypeId() == TYPEID_PLAYER)
@@ -6963,7 +7002,6 @@ void Player::RewardReputation(Unit* victim, float rate)
         return;
 
     ReputationOnKillEntry const* Rep = sObjectMgr->GetReputationOnKilEntry(victim->ToCreature()->GetCreatureTemplate()->Entry);
-
     if (!Rep)
         return;
 
@@ -6994,8 +7032,10 @@ void Player::RewardReputation(Unit* victim, float rate)
     uint32 team = GetTeam();
     float favored_rep_mult = 0;
 
-    if ((HasAura(32096) || HasAura(32098)) && (zone == 3483 || zone == 3562 || zone == 3836 || zone == 3713 || zone == 3714)) favored_rep_mult = 0.25; // Thrallmar's Favor and Honor Hold's Favor
-    else if (HasAura(30754) && (Rep->RepFaction1 == 609 || Rep->RepFaction2 == 609) && !ChampioningFaction)                   favored_rep_mult = 0.25; // Cenarion Favor
+    if ((HasAura(32096) || HasAura(32098)) && (zone == 3483 || zone == 3562 || zone == 3836 || zone == 3713 || zone == 3714))
+        favored_rep_mult = 0.25; // Thrallmar's Favor and Honor Hold's Favor
+    else if (HasAura(30754) && (Rep->RepFaction1 == 609 || Rep->RepFaction2 == 609) && !ChampioningFaction)
+        favored_rep_mult = 0.25; // Cenarion Favor
 
     if (favored_rep_mult > 0) favored_rep_mult *= 2; // Multiplied by 2 because the reputation is divided by 2 for some reason (See "donerep1 / 2" and "donerep2 / 2") -- if you know why this is done, please update/explain :)
     // Favored reputation increase END
@@ -7004,7 +7044,7 @@ void Player::RewardReputation(Unit* victim, float rate)
 
     if (Rep->RepFaction1 && (!Rep->TeamDependent || team == ALLIANCE))
     {
-        int32 donerep1 = CalculateReputationGain(victim->getLevel(), Rep->RepValue1, ChampioningFaction ? ChampioningFaction : Rep->RepFaction1, false);
+        int32 donerep1 = CalculateReputationGain(REPUTATION_SOURCE_KILL, victim->getLevel(), Rep->RepValue1, ChampioningFaction ? ChampioningFaction : Rep->RepFaction1, false);
         donerep1 = int32(donerep1*(rate + favored_rep_mult));
 
         if (recruitAFriend)
@@ -7018,7 +7058,7 @@ void Player::RewardReputation(Unit* victim, float rate)
 
     if (Rep->RepFaction2 && (!Rep->TeamDependent || team == HORDE))
     {
-        int32 donerep2 = CalculateReputationGain(victim->getLevel(), Rep->RepValue2, ChampioningFaction ? ChampioningFaction : Rep->RepFaction2, false);
+        int32 donerep2 = CalculateReputationGain(REPUTATION_SOURCE_KILL, victim->getLevel(), Rep->RepValue2, ChampioningFaction ? ChampioningFaction : Rep->RepFaction2, false);
         donerep2 = int32(donerep2*(rate + favored_rep_mult));
 
         if (recruitAFriend)
@@ -7031,7 +7071,7 @@ void Player::RewardReputation(Unit* victim, float rate)
     }
 }
 
-//Calculate how many reputation points player gain with the quest
+// Calculate how many reputation points player gain with the quest
 void Player::RewardReputation(Quest const* quest)
 {
     bool recruitAFriend = GetsRecruitAFriendBonus(false);
@@ -7043,7 +7083,14 @@ void Player::RewardReputation(Quest const* quest)
             continue;
         if (quest->RewardFactionValueIdOverride[i])
         {
-            int32 rep = CalculateReputationGain(GetQuestLevel(quest), quest->RewardFactionValueIdOverride[i]/100, quest->RewardFactionId[i], true, true);
+            int32 rep = 0;
+
+            if (quest->IsDaily())
+                rep = CalculateReputationGain(REPUTATION_SOURCE_DAYLIY_QUEST, GetQuestLevel(quest), quest->RewardFactionValueIdOverride[i]/100, quest->RewardFactionId[i], true);
+            else if (quest->IsWeekly())
+                rep = CalculateReputationGain(REPUTATION_SOURCE_WEEKLY_QUEST, GetQuestLevel(quest), quest->RewardFactionValueIdOverride[i]/100, quest->RewardFactionId[i], true);
+            else
+                rep = CalculateReputationGain(REPUTATION_SOURCE_QUEST, GetQuestLevel(quest), quest->RewardFactionValueIdOverride[i]/100, quest->RewardFactionId[i], true);
 
             if (recruitAFriend)
                 rep = int32(rep * (1 + sWorld->getRate(RATE_REPUTATION_RECRUIT_A_FRIEND_BONUS)));
@@ -7059,11 +7106,15 @@ void Player::RewardReputation(Quest const* quest)
             if (const QuestFactionRewEntry* pRow = sQuestFactionRewardStore.LookupEntry(row))
             {
                 int32 repPoints = pRow->QuestRewFactionValue[field];
-
                 if (!repPoints)
                     continue;
 
-                repPoints = CalculateReputationGain(GetQuestLevel(quest), repPoints, quest->RewardFactionId[i], true);
+                if (quest->IsDaily())
+                    repPoints = CalculateReputationGain(REPUTATION_SOURCE_DAYLIY_QUEST, GetQuestLevel(quest), repPoints, quest->RewardFactionId[i], true);
+                else if (quest->IsDaily())
+                    repPoints = CalculateReputationGain(REPUTATION_SOURCE_WEEKLY_QUEST, GetQuestLevel(quest), repPoints, quest->RewardFactionId[i], true);
+                else
+                    repPoints = CalculateReputationGain(REPUTATION_SOURCE_QUEST, GetQuestLevel(quest), repPoints, quest->RewardFactionId[i], true);
 
                 if (recruitAFriend)
                     repPoints = int32(repPoints * (1 + sWorld->getRate(RATE_REPUTATION_RECRUIT_A_FRIEND_BONUS)));
