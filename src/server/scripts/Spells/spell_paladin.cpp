@@ -715,27 +715,27 @@ class spell_pal_holy_wrath : public SpellScriptLoader
                 Unit* caster = GetCaster();
 
 			       if (Unit* target = GetExplTargetUnit())
-                   {
+				   {
                         if (target->GetTypeId() == TYPEID_PLAYER && target->GetCreatureType() == CREATURE_TYPE_DEMON)     
                             return SPELL_FAILED_BAD_TARGETS;
 
                         if (target->GetTypeId() == TYPEID_PLAYER && target->GetCreatureType() == CREATURE_TYPE_UNDEAD)
                             return SPELL_FAILED_BAD_TARGETS;
-			   	   }
+				   }
 				   else
-                    return SPELL_FAILED_BAD_TARGETS;
+                     return SPELL_FAILED_BAD_TARGETS;
 
                 return SPELL_CAST_OK;
            }
             void Register()
             {
-                OnCheckCast += SpellCheckCastFn(spell_pal_sacred_shield_SpellScript::CheckCast);
+                OnCheckCast += SpellCheckCastFn(spell_pal_holy_wrath_SpellScript::CheckCast);
             }	
         };
 
         SpellScript* GetSpellScript() const
         {
-            return new spell_pal_sacred_shield_SpellScript();
+            return new spell_pal_holy_wrath_SpellScript();
        }
 };
 

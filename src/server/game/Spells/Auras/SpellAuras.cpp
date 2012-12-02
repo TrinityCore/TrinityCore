@@ -195,6 +195,8 @@ void AuraApplication::BuildUpdatePacket(ByteBuffer& data, bool remove) const
     uint32 flags = _flags;
     if (aura->GetMaxDuration() > 0 && !(aura->GetSpellInfo()->AttributesEx5 & SPELL_ATTR5_HIDE_DURATION))
         flags |= AFLAG_DURATION;
+    if (!aura->IsPassive())
+        flags |= AFLAG_ANY_EFFECT_AMOUNT_SENT;
     data << uint16(flags);
     data << uint8(aura->GetCasterLevel());
     // send stack amount for aura which could be stacked (never 0 - causes incorrect display) or charges
@@ -209,6 +211,8 @@ void AuraApplication::BuildUpdatePacket(ByteBuffer& data, bool remove) const
         data << uint32(aura->GetMaxDuration());
         data << uint32(aura->GetDuration());
     }
+
+
 
     if (flags & AFLAG_ANY_EFFECT_AMOUNT_SENT)
         for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)

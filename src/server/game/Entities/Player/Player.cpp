@@ -3424,6 +3424,7 @@ void Player::InitStatsForLevel(bool reapplyMods)
         SetPower(POWER_RAGE, GetMaxPower(POWER_RAGE));
     SetPower(POWER_FOCUS, GetMaxPower(POWER_FOCUS));
     SetPower(POWER_RUNIC_POWER, 0);
+	SetPower(POWER_ECLIPSE, 0);
 
     // update level to hunter/summon pet
     if (Pet* pet = GetPet())
@@ -7190,7 +7191,7 @@ bool Player::RewardHonor(Unit* victim, uint32 groupsize, int32 honor, bool pvpto
                 victim_guid = 0;                        // Don't show HK: <rank> message, only log.
 
             honor_f = ceil(Trinity::Honor::hk_honor_at_level_f(k_level) * (v_level - k_grey) / (k_level - k_grey));
-
+            honor_f = honor_f * 3;
             // count the number of playerkills in one day
             ApplyModUInt32Value(PLAYER_FIELD_KILLS, 1, true);
             // and those in a lifetime
@@ -7202,13 +7203,9 @@ bool Player::RewardHonor(Unit* victim, uint32 groupsize, int32 honor, bool pvpto
             UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_HONORABLE_KILL, 1, 0, 0, victim);
         }
         else
-        {
-            if (!victim->ToCreature()->isRacialLeader())
-                return false;
-
-            honor_f = 100.0f;                               // ??? need more info
-            victim_rank = 19;                               // HK: Leader
-        }
+		{
+			honor_f = 0;
+		}
     }
 
     if (victim != NULL)
@@ -7650,7 +7647,7 @@ uint32 Player::_GetCurrencyWeekCap(const CurrencyTypesEntry* currency) const
             return Trinity::Currency::BgConquestRatingCalculator(GetRBGPersonalRating()) * 100;
         case CURRENCY_TYPE_HONOR_POINTS:
         {
-            uint32 honorcap = sWorld->getIntConfig(CONFIG_CURRENCY_MAX_HONOR_POINTS);
+            uint32 honorcap = 4000;
             if (honorcap > 0)
                 cap = honorcap;
             break;

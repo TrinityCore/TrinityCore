@@ -9948,25 +9948,30 @@ int32 Unit::SpellBaseDamageBonusDone(SpellSchoolMask schoolMask)
 {
     int32 DoneAdvertisedBenefit = 0;
 
- /*  AuraEffectList const& mDamageDone = GetAuraEffectsByType(SPELL_AURA_MOD_DAMAGE_DONE);
+   AuraEffectList const& mDamageDone = GetAuraEffectsByType(SPELL_AURA_MOD_DAMAGE_DONE);
     for (AuraEffectList::const_iterator i = mDamageDone.begin(); i != mDamageDone.end(); ++i)
-        if (((*i)->GetMiscValue() & schoolMask) != 0 &&
-        (*i)->GetSpellInfo()->EquippedItemClass == -1 &&
-                                                            // -1 == any item class (not wand then)
-        (*i)->GetSpellInfo()->EquippedItemInventoryTypeMask == 0)
-                                                            // 0 == any inventory type (not wand then)
-            DoneAdvertisedBenefit += (*i)->GetAmount(); */
+        if (!(*i)->GetMiscValue() || ((*i)->GetMiscValue() & schoolMask) != 0)
+            DoneAdvertisedBenefit += (*i)->GetAmount(); 
+                                                            
 
 
-    AuraEffectList const& mHealingDone = GetAuraEffectsByType(SPELL_AURA_MOD_HEALING_DONE);
+/*    AuraEffectList const& mHealingDone = GetAuraEffectsByType(SPELL_AURA_MOD_HEALING_DONE);
     for (AuraEffectList::const_iterator i = mHealingDone.begin(); i != mHealingDone.end(); ++i)
         if (!(*i)->GetMiscValue() || ((*i)->GetMiscValue() & schoolMask) != 0)
-            DoneAdvertisedBenefit += (*i)->GetAmount();
+            DoneAdvertisedBenefit += (*i)->GetAmount();  UNUSED*/
 
     if (GetTypeId() == TYPEID_PLAYER)
     {
         // Base value
-        DoneAdvertisedBenefit += ToPlayer()->GetBaseSpellPowerBonus();
+
+		  uint32 spellPower = ToPlayer()->GetBaseSpellPowerBonus();
+        // Spell power from SPELL_AURA_MOD_SPELL_POWER_PCT
+        AuraEffectList const& mSpellPowerPct = GetAuraEffectsByType(SPELL_AURA_MOD_SPELL_POWER_PCT);
+        for (AuraEffectList::const_iterator i = mSpellPowerPct.begin(); i != mSpellPowerPct.end(); ++i)
+        {
+            AddPct(spellPower, (*i)->GetAmount());
+        }
+        DoneAdvertisedBenefit += spellPower;
 
         // Check if we are ever using mana - PaperDollFrame.lua
         if (GetPowerIndexByClass(POWER_MANA, getClass()) != MAX_POWERS)
@@ -10537,8 +10542,14 @@ int32 Unit::SpellBaseHealingBonusDone(SpellSchoolMask schoolMask)
     // Healing bonus of spirit, intellect and strength
     if (GetTypeId() == TYPEID_PLAYER)
     {
-        // Base value
-        AdvertisedBenefit += ToPlayer()->GetBaseSpellPowerBonus();
+        uint32 spellPower = ToPlayer()->GetBaseSpellPowerBonus();
+        // Spell power from SPELL_AURA_MOD_SPELL_POWER_PCT
+        AuraEffectList const& mSpellPowerPct = GetAuraEffectsByType(SPELL_AURA_MOD_SPELL_POWER_PCT);
+        for (AuraEffectList::const_iterator i = mSpellPowerPct.begin(); i != mSpellPowerPct.end(); ++i)
+        {
+            AddPct(spellPower, (*i)->GetAmount());
+        }
+        AdvertisedBenefit += spellPower;
 
         // Check if we are ever using mana - PaperDollFrame.lua
         if (GetPowerIndexByClass(POWER_MANA, getClass()) != MAX_POWERS)
