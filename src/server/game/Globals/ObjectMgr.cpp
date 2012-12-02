@@ -2110,8 +2110,8 @@ uint32 FillItemArmor(uint32 itemlevel, uint32 itemClass, uint32 itemSubclass, ui
     if (itemClass != ITEM_CLASS_ARMOR || itemSubclass != ITEM_SUBCLASS_ARMOR_SHIELD)
     {
         ItemArmorQualityEntry const* armorQuality = sItemArmorQualityStore.LookupEntry(itemlevel);
-        ItemArmorTotalEntry const* armorToral = sItemArmorTotalStore.LookupEntry(itemlevel);
-        if (!armorQuality || !armorToral)
+        ItemArmorTotalEntry const* armorTotal = sItemArmorTotalStore.LookupEntry(itemlevel);
+        if (!armorQuality || !armorTotal)
             return 0;
 
         if (inventoryType == INVTYPE_ROBE)
@@ -2124,7 +2124,7 @@ uint32 FillItemArmor(uint32 itemlevel, uint32 itemClass, uint32 itemSubclass, ui
         if (itemSubclass < ITEM_SUBCLASS_ARMOR_CLOTH)
             return 0;
 
-        return uint32(armorQuality->Value[quality] * armorToral->Value[quality] * location->Value[itemSubclass - 1] + 0.5f);
+        return uint32(armorQuality->Value[quality] * armorTotal->Value[itemSubclass - 1] * location->Value[itemSubclass - 1] + 0.5f);
     }
 
     // shields
