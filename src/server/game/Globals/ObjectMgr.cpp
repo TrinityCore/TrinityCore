@@ -6644,13 +6644,11 @@ void ObjectMgr::LoadReputationRewardRate()
 
     _repRewardRateStore.clear();                             // for reload case
 
-    uint32 count = 0; //                                0          1            2             3
-    QueryResult result = WorldDatabase.Query("SELECT faction, quest_rate, creature_rate, spell_rate FROM reputation_reward_rate");
-
+    uint32 count = 0; //                                0          1             2                   3               4            5
+    QueryResult result = WorldDatabase.Query("SELECT faction, quest_rate, quest_daily_rate, quest_weekly_rate, creature_rate, spell_rate FROM reputation_reward_rate");
     if (!result)
     {
         sLog->outError(LOG_FILTER_SQL, ">> Loaded `reputation_reward_rate`, table is empty!");
-
         return;
     }
 
@@ -6658,13 +6656,15 @@ void ObjectMgr::LoadReputationRewardRate()
     {
         Field* fields = result->Fetch();
 
-        uint32 factionId        = fields[0].GetUInt32();
+        uint32 factionId            = fields[0].GetUInt32();
 
         RepRewardRate repRate;
 
-        repRate.quest_rate      = fields[1].GetFloat();
-        repRate.creature_rate   = fields[2].GetFloat();
-        repRate.spell_rate      = fields[3].GetFloat();
+        repRate.questRate           = fields[1].GetFloat();
+        repRate.questDailyRate      = fields[2].GetFloat();
+        repRate.questWeeklyRate     = fields[3].GetFloat();
+        repRate.creatureRate        = fields[4].GetFloat();
+        repRate.spellRate           = fields[5].GetFloat();
 
         FactionEntry const* factionEntry = sFactionStore.LookupEntry(factionId);
         if (!factionEntry)
@@ -6673,21 +6673,33 @@ void ObjectMgr::LoadReputationRewardRate()
             continue;
         }
 
-        if (repRate.quest_rate < 0.0f)
+        if (repRate.questRate < 0.0f)
         {
-            sLog->outError(LOG_FILTER_SQL, "Table reputation_reward_rate has quest_rate with invalid rate %f, skipping data for faction %u", repRate.quest_rate, factionId);
+            sLog->outError(LOG_FILTER_SQL, "Table reputation_reward_rate has quest_rate with invalid rate %f, skipping data for faction %u", repRate.questRate, factionId);
             continue;
         }
 
-        if (repRate.creature_rate < 0.0f)
+        if (repRate.questDailyRate < 0.0f)
         {
-            sLog->outError(LOG_FILTER_SQL, "Table reputation_reward_rate has creature_rate with invalid rate %f, skipping data for faction %u", repRate.creature_rate, factionId);
+            sLog->outError(LOG_FILTER_SQL, "Table reputation_reward_rate has quest_daily_rate with invalid rate %f, skipping data for faction %u", repRate.questRate, factionId);
             continue;
         }
 
-        if (repRate.spell_rate < 0.0f)
+        if (repRate.questWeeklyRate < 0.0f)
         {
-            sLog->outError(LOG_FILTER_SQL, "Table reputation_reward_rate has spell_rate with invalid rate %f, skipping data for faction %u", repRate.spell_rate, factionId);
+            sLog->outError(LOG_FILTER_SQL, "Table reputation_reward_rate has quest_weekly_rate with invalid rate %f, skipping data for faction %u", repRate.questRate, factionId);
+            continue;
+        }
+
+        if (repRate.creatureRate < 0.0f)
+        {
+            sLog->outError(LOG_FILTER_SQL, "Table reputation_reward_rate has creature_rate with invalid rate %f, skipping data for faction %u", repRate.creatureRate, factionId);
+            continue;
+        }
+
+        if (repRate.spellRate < 0.0f)
+        {
+            sLog->outError(LOG_FILTER_SQL, "Table reputation_reward_rate has spell_rate with invalid rate %f, skipping data for faction %u", repRate.spellRate, factionId);
             continue;
         }
 
