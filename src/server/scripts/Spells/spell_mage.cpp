@@ -892,8 +892,6 @@ void AddSC_mage_spell_scripts()
     new spell_mage_blast_wave();
     new spell_mage_cold_snap();
     new spell_mage_frost_warding_trigger();
-    new spell_mage_incanters_absorbtion_absorb();
-    new spell_mage_incanters_absorbtion_manashield();
     new spell_mage_polymorph_cast_visual();
     new spell_mage_summon_water_elemental();
 	new spell_mage_orb();
