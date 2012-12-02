@@ -634,16 +634,15 @@ public:
 
         Unit* caster = GetCaster();
   
-	      if (!caster->HasAura(SPELL_MAGE_EARLY_FROST_R1_CD)) // Check Trigger
+	      if (!caster->HasAura(SPELL_MAGE_EARLY_FROST_R1_CD) || !caster->HasAura(SPELL_MAGE_EARLY_FROST_R2_CD)) // Check Trigger
 	      {
 	       if (caster->HasAura(SPELL_MAGE_EARLY_FROST_R1_T)) // Check Talent
 		       caster->CastSpell(caster, SPELL_MAGE_EARLY_FROST_R1_CD, true); // Cast Trigger - 15 Sec Cooldown
-	      } 
-          else if (!caster->HasAura(SPELL_MAGE_EARLY_FROST_R2_CD)) // Check Trigger (R2)
-	      {
-	           if (caster->HasAura(SPELL_MAGE_EARLY_FROST_R2_T))  // Check Talent (R2)
-		          caster->CastSpell(caster, SPELL_MAGE_EARLY_FROST_R2_CD, true); // Cast Trigger (R2) - 15Sec Cooldown
-	      }
+	   
+	       if (caster->HasAura(SPELL_MAGE_EARLY_FROST_R2_T))  // Check Talent (R2)
+		      caster->CastSpell(caster, SPELL_MAGE_EARLY_FROST_R2_CD, true); // Cast Trigger (R2) - 15Sec Cooldown
+		   }
+		  
 
        }
         void Register()

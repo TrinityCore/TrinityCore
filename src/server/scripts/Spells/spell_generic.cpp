@@ -3335,6 +3335,52 @@ class spell_gen_increase_stats_buff : public SpellScriptLoader
         }
 };
 
+
+class shooting_stars_aura : public SpellScriptLoader
+{
+public:
+  shooting_stars_aura() : SpellScriptLoader("shooting_stars_aura") { }
+
+    class shooting_stars_aura_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(shooting_stars_aura_AuraScript);
+
+        bool Validate(SpellInfo const* /*spellEntry*/)
+        {
+          if (!sSpellMgr->GetSpellInfo(93398) || !sSpellMgr->GetSpellInfo(93399) || !sSpellMgr->GetSpellInfo(93400)) return false;
+              return true;
+        }
+
+        void HandleApplyEffect(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        {
+          if (Player* target = GetTarget()->ToPlayer())
+          {
+              target->RemoveSpellCooldown(78674, true); // Remove cooldown of Starsurge
+          }
+        }
+
+        void HandlProcEffect(AuraEffect const * aurEff, Unit* pUnit, Unit *victim, uint32 damage, SpellInfo const* procSpell, uint32 procFlag, uint32 procExtra, WeaponAttackType attType, int32 cooldown)
+        {
+          if (Player* target = pUnit->ToPlayer())
+          {
+              target->RemoveSpellCooldown(78674, true); // Remove cooldown of Starsurge
+          }
+        }
+
+        void Register()
+        {
+          OnEffectApply += AuraEffectApplyFn(shooting_stars_aura_AuraScript::HandleApplyEffect, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+          OnEffectProc += AuraEffectProcFn(shooting_stars_aura_AuraScript::HandlProcEffect, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+        }
+    };
+
+
+    AuraScript* GetAuraScript() const
+    {
+        return new shooting_stars_aura_AuraScript();
+    }
+};
+
 void AddSC_generic_spell_scripts()
 {
     new spell_gen_absorb0_hitlimit1();
@@ -3418,4 +3464,5 @@ void AddSC_generic_spell_scripts()
     new spell_gen_increase_stats_buff("spell_pri_shadow_protection");
     new spell_gen_increase_stats_buff("spell_mage_arcane_brilliance");
     new spell_gen_increase_stats_buff("spell_mage_dalaran_brilliance");
+	new shooting_stars_aura();
 }

@@ -712,10 +712,9 @@ class spell_pal_holy_wrath : public SpellScriptLoader
 
             SpellCastResult CheckCast()
             {
-				Unit* target = GetExplTargetUnit();
-
-                        if (target->GetTypeId() == TYPEID_PLAYER && (target->GetCreatureType() == CREATURE_TYPE_DEMON | CREATURE_TYPE_UNDEAD))     
-                            return SPELL_FAILED_BAD_TARGETS;
+				if (Unit* target = GetExplTargetUnit())
+                    if (target->GetTypeId() == TYPEID_PLAYER && (target->GetCreatureType() == CREATURE_TYPE_DEMON | CREATURE_TYPE_UNDEAD))     
+                           return SPELL_FAILED_BAD_TARGETS;
 	
                    return SPELL_CAST_OK;
            }
