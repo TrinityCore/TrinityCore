@@ -689,7 +689,7 @@ class spell_mage_frostbolt : public SpellScriptLoader
             void Register()
             {
                 OnHit += SpellHitFn(spell_mage_frostbolt_SpellScript::RecalculateDamage);
-				OnCheckCast += SpellCheckCastFn(spell_mage_frostbolt_SpellScript::HandleFrostBoltScript, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+				OnEffectHit += SpellEffectFn(spell_mage_frostbolt_SpellScript::HandleFrostBoltScript, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
             }
         };
 
