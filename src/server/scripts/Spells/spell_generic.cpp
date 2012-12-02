@@ -3359,18 +3359,9 @@ public:
           }
         }
 
-        void HandlProcEffect(AuraEffect const * aurEff, Unit* pUnit, Unit *victim, uint32 damage, SpellInfo const* procSpell, uint32 procFlag, uint32 procExtra, WeaponAttackType attType, int32 cooldown)
-        {
-          if (Player* target = pUnit->ToPlayer())
-          {
-              target->RemoveSpellCooldown(78674, true); // Remove cooldown of Starsurge
-          }
-        }
-
         void Register()
         {
           OnEffectApply += AuraEffectApplyFn(shooting_stars_aura_AuraScript::HandleApplyEffect, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
-          OnCheckCast += SpellCheckCastFn(shooting_stars_aura_AuraScript::HandlProcEffect, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
         }
     };
 
