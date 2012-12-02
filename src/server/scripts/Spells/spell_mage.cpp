@@ -633,21 +633,21 @@ public:
        {
 
         Unit* caster = GetCaster();
-  
-	      if (!caster->HasAura(SPELL_MAGE_EARLY_FROST_R1_CD) || !caster->HasAura(SPELL_MAGE_EARLY_FROST_R2_CD)) // Check Trigger
-	      {
-	       if (caster->HasAura(SPELL_MAGE_EARLY_FROST_R1_T)) // Check Talent
-		       caster->CastSpell(caster, SPELL_MAGE_EARLY_FROST_R1_CD, true); // Cast Trigger - 15 Sec Cooldown
+ 
+	      if (caster->HasAura(SPELL_MAGE_EARLY_FROST_R1_T)) // Check Talent
+			 if (!caster->HasAura(SPELL_MAGE_EARLY_FROST_R1_CD)) // Check Trigger 
+		         caster->CastSpell(caster, SPELL_MAGE_EARLY_FROST_R1_CD, true); // Cast Trigger - 15 Sec Cooldown
 	   
-	       if (caster->HasAura(SPELL_MAGE_EARLY_FROST_R2_T))  // Check Talent (R2)
-		      caster->CastSpell(caster, SPELL_MAGE_EARLY_FROST_R2_CD, true); // Cast Trigger (R2) - 15Sec Cooldown
+	      if (caster->HasAura(SPELL_MAGE_EARLY_FROST_R2_T)) // Check Talent
+			 if (!caster->HasAura(SPELL_MAGE_EARLY_FROST_R2_CD)) // Check Trigger 
+		         caster->CastSpell(caster, SPELL_MAGE_EARLY_FROST_R2_CD, true); // Cast Trigger - 15 Sec Cooldown
 		   }
 		  
 
        }
         void Register()
        {
-           OnEffectHitTarget += SpellEffectFn(spell_mage_frost_bolt_SpellScript::HandleFrostBoltScript, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+           OnCheckCast += SpellCheckCastFn(spell_mage_frost_bolt_SpellScript::HandleFrostBoltScript, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
        }
     };
 

@@ -3370,7 +3370,7 @@ public:
         void Register()
         {
           OnEffectApply += AuraEffectApplyFn(shooting_stars_aura_AuraScript::HandleApplyEffect, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
-          OnEffectProc += AuraEffectProcFn(shooting_stars_aura_AuraScript::HandlProcEffect, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
+          OnCheckCast += SpellCheckCastFn(shooting_stars_aura_AuraScript::HandlProcEffect, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL);
         }
     };
 
