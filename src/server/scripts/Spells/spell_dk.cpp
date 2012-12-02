@@ -45,7 +45,6 @@ enum DeathKnightSpells
     DK_SPELL_BLACK_ICE_R1                       = 49140,
 	DK_SPELL_NECROTIC_STRIKE_AURA               = 73975,
 
-
 };
 
 //Necrotic Strike 
@@ -896,6 +895,7 @@ class spell_dk_death_grip : public SpellScriptLoader
             return new spell_dk_death_grip_SpellScript();
         }
 };
+
 
 void AddSC_deathknight_spell_scripts()
 {

@@ -37,7 +37,7 @@ enum WarlockSpells
     WARLOCK_HEALTHSTONE_HEAL                = 6262,
     WARLOCK_DEMONIC_CIRCLE_SUMMON           = 48018,
     WARLOCK_DEMONIC_CIRCLE_TELEPORT         = 48020,
-	WARLOCK_DEMONIC_CIRCLE_ALLOW_CAST       = 62388,
+	WARLOCK_DEMONIC_CIRCLE_ALLOW_CAST       = 102357,
     WARLOCK_HAUNT                           = 48181,
     WARLOCK_HAUNT_HEAL                      = 48210,
     WARLOCK_UNSTABLE_AFFLICTION_DISPEL      = 31117,
@@ -441,6 +441,13 @@ class spell_warl_demonic_circle_teleport : public SpellScriptLoader
         class spell_warl_demonic_circle_teleport_AuraScript : public AuraScript
         {
             PrepareAuraScript(spell_warl_demonic_circle_teleport_AuraScript);
+
+			 bool Validate(SpellInfo const* /*spell*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(WARLOCK_DEMONIC_CIRCLE_ALLOW_CAST))
+                    return false;
+                return true;
+            }
 
             void HandleTeleport(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {

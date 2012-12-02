@@ -565,7 +565,7 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
                         // +80.68% from sp bonus
                         DoneActualBenefit += caster->SpellBaseDamageBonusDone(m_spellInfo->GetSchoolMask()) * 0.8068f;
                     }
-                    break;
+		    	  break;
                 case SPELLFAMILY_PRIEST:
                     // Power Word: Shield
                     if (GetSpellInfo()->SpellFamilyFlags[0] & 0x1)
