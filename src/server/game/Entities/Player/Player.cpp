@@ -7647,7 +7647,7 @@ uint32 Player::_GetCurrencyWeekCap(const CurrencyTypesEntry* currency) const
             return Trinity::Currency::BgConquestRatingCalculator(GetRBGPersonalRating()) * 100;
         case CURRENCY_TYPE_HONOR_POINTS:
         {
-            uint32 honorcap = 4000;
+            uint32 honorcap = 400000;
             if (honorcap > 0)
                 cap = honorcap;
             break;

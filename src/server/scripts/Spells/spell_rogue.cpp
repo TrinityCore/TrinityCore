@@ -420,14 +420,14 @@ class spell_rog_shadowstep : public SpellScriptLoader
         }
 };
 
-class spell_rog_recuperate : public SpellScriptLoader
+class spell_rog_recuperate_heal : public SpellScriptLoader
 {
     public:
-        spell_rog_recuperate() : SpellScriptLoader("spell_rog_recuperate") { }
+        spell_rog_recuperate_heal() : SpellScriptLoader("spell_rog_recuperate_heal") { }
 
-        class spell_rog_recuperate_AuraScript : public AuraScript
+        class spell_rog_recuperate_heal_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_rog_recuperate_AuraScript);
+            PrepareAuraScript(spell_rog_recuperate_heal_AuraScript);
 
             bool Load()
             {
@@ -458,14 +458,14 @@ class spell_rog_recuperate : public SpellScriptLoader
 
             void Register()
             {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_rog_recuperate_AuraScript::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
-                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_rog_recuperate_AuraScript::CalculateBonus, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_rog_recuperate_heal_AuraScript::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_rog_recuperate_heal_AuraScript::CalculateBonus, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
             }
         };
 
         AuraScript* GetAuraScript() const
         {
-            return new spell_rog_recuperate_AuraScript();
+            return new spell_rog_recuperate_heal_AuraScript();
         }
 };
 
@@ -479,5 +479,5 @@ void AddSC_rogue_spell_scripts()
     new spell_rog_shiv();
     new spell_rog_deadly_poison();
     new spell_rog_shadowstep();
-	new spell_rog_recuperate();
+	new spell_rog_recuperate_heal();
 }
