@@ -8750,6 +8750,18 @@ void Player::CastItemCombatSpell(Unit* target, WeaponAttackType attType, uint32 
             if (FindCurrentSpellBySpellId(5938) && e_slot == TEMP_ENCHANTMENT_SLOT)
                 chance = 100.0f;
 
+			// Fan of Knives
+            if(FindCurrentSpellBySpellId(51723) && e_slot == TEMP_ENCHANTMENT_SLOT)
+            {
+                if(HasAura(16513)) // Vile Poisons rank 1
+                    chance = 33.0f;
+                if(HasAura(16514)) // Vile Poisons rank 2
+                    chance = 67.0f;
+                if(HasAura(16515)) // Vile Poisons rank 3
+                    chance = 100.0f;
+            }
+
+
             if (roll_chance_f(chance))
             {
                 if (spellInfo->IsPositive())

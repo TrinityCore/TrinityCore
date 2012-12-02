@@ -1391,9 +1391,25 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                 }
                 break;
             case SPELLFAMILY_ROGUE:
-                // Remove Vanish on stealth remove
-                if (GetId() == 1784)
-                    target->RemoveAurasWithFamily(SPELLFAMILY_ROGUE, 0x0000800, 0, 0, target->GetGUID());
+               // Cast stealth at vanish 3 seconds end
+                if (GetId() == 11327 && removeMode == AURA_REMOVE_BY_EXPIRE)
+                    caster->AddAura(1784 /* == stealth */, caster);
+                // Rupture & venomeous wounds energy regain at target's death
+                else if(GetId() == 1943 && removeMode == AURA_REMOVE_BY_DEATH &&        // If rupture's target dies
+                    (caster->HasSpell(79133) || caster->HasSpell(79134)))               // Only if has talent
+                {
+                    int32 basepoints0 = GetDuration() / 200;
+                    // for each remaining 0.2 second, give 1 energy
+                    caster->CastCustomSpell(caster, 51637, &basepoints0, NULL, NULL, true);
+                }
+                // Blackjack/Groggy on sap removal
+                else if(GetId() == 6770)
+                {
+                   if(caster->HasAura(79125)) // Rank 2
+                        caster->CastSpell(target, 79126, true);
+                    else if(caster->HasAura(79123)) // Rank 1
+                        caster->CastSpell(target, 79124, true);	
+                }
                 break;
             case SPELLFAMILY_PALADIN:
                 // Remove the immunity shield marker on Forbearance removal if AW marker is not present
@@ -1469,11 +1485,11 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                 if (AuraEffect const* aurEff = target->GetAuraEffect(31223, 0))
                 {
                     if (!apply)
-                        target->CastSpell(target, 31666, true);
+                       caster->GetAura(31665)->SetDuration(6000, true);
                     else
                     {
                         int32 basepoints0 = aurEff->GetAmount();
-                        target->CastCustomSpell(target, 31665, &basepoints0, NULL, NULL, true);
+                        caster->CastCustomSpell(target, 31665, &basepoints0, NULL, NULL, true);
                     }
                 }
                 break;
