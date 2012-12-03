@@ -537,7 +537,6 @@ bool Unit::HasBreakableByDamageCrowdControlAura(Unit* excludeCasterChannel) cons
     return (   HasBreakableByDamageAuraType(SPELL_AURA_MOD_CONFUSE, excludeAura)
             || HasBreakableByDamageAuraType(SPELL_AURA_MOD_FEAR, excludeAura)
             || HasBreakableByDamageAuraType(SPELL_AURA_MOD_STUN, excludeAura)
-            || HasBreakableByDamageAuraType(SPELL_AURA_MOD_ROOT, excludeAura)
             || HasBreakableByDamageAuraType(SPELL_AURA_TRANSFORM, excludeAura));
 }
 
@@ -7089,22 +7088,16 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                 if (GetTypeId() != TYPEID_PLAYER  || !victim || !victim->isAlive() || !castItem || !castItem->IsEquipped())
                     return false;
 
-                WeaponAttackType attType = WeaponAttackType(Player::GetAttackBySlot(castItem->GetSlot()));
-                if ((attType != BASE_ATTACK && attType != OFF_ATTACK)
-                    || (attType == BASE_ATTACK && procFlag & PROC_FLAG_DONE_OFFHAND_ATTACK)
-                    || (attType == OFF_ATTACK && procFlag & PROC_FLAG_DONE_MAINHAND_ATTACK))
-                    return false;
-
                 float fire_onhit = float(CalculatePct(dummySpell->Effects[EFFECT_0]. CalcValue(), 1.0f));
 
-                float add_spellpower = (float)(SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_FIRE)
-                                     + victim->SpellBaseDamageBonusTaken(SPELL_SCHOOL_MASK_FIRE));
+                float add_spellpower = (float)(SpellBaseDamageBonus(SPELL_SCHOOL_MASK_FIRE)
+                                     + SpellBaseDamageBonusForVictim(SPELL_SCHOOL_MASK_FIRE, victim));
 
                 // 1.3speed = 5%, 2.6speed = 10%, 4.0 speed = 15%, so, 1.0speed = 3.84%
                 ApplyPct(add_spellpower, 3.84f);
 
                 // Enchant on Off-Hand and ready?
-                if (castItem->GetSlot() == EQUIPMENT_SLOT_OFFHAND && procFlag & PROC_FLAG_DONE_OFFHAND_ATTACK)
+                if (castItem->GetSlot() == EQUIPMENT_SLOT_OFFHAND && isAttackReady(OFF_ATTACK))
                 {
                     float BaseWeaponSpeed = GetAttackTime(OFF_ATTACK) / 1000.0f;
 
@@ -7114,7 +7107,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                 }
 
                 // Enchant on Main-Hand and ready?
-                else if (castItem->GetSlot() == EQUIPMENT_SLOT_MAINHAND && procFlag & PROC_FLAG_DONE_MAINHAND_ATTACK)
+                else if (castItem->GetSlot() == EQUIPMENT_SLOT_MAINHAND && isAttackReady(BASE_ATTACK))
                 {
                     float BaseWeaponSpeed = GetAttackTime(BASE_ATTACK) / 1000.0f;
 
