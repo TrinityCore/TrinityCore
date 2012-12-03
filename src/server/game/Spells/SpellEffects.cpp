@@ -617,7 +617,6 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                 }
 				if (m_spellInfo->Id == 17962)
                 {
-                    sLog->outInfo(LOG_FILTER_SPELLS_AURAS, "Aftermath handling");
                     if(m_caster->HasAura(85113)) // Aftermath Rank 1
                             m_caster->CastSpell(unitTarget, 18118, true);
 
@@ -1139,6 +1138,16 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
             }
             case SPELLFAMILY_HUNTER:
             {
+		       	   if (m_spellInfo->Id == 13809 || m_spellInfo->Id == 60192 || m_spellInfo->Id == 1499 || m_spellInfo->Id == 82941 || m_spellInfo->Id == 3674)
+                   {
+                       if(m_caster->HasAura(56342)) // Lock and Load Rank 1
+					       if (roll_chance_f(45.0f))
+                               m_caster->CastSpell(m_caster, 56453, true);
+
+                       if(m_caster->HasAura(56343)) // Lock And Load Rank 2
+						   if (roll_chance_f(90.0f))
+                               m_caster->CastSpell(m_caster, 56453, true);
+                    }
 				    // Rapid Recuperation
                     if (m_caster->HasAura(3045))
                         if (m_caster->HasAura(53228))                // Rank 1
