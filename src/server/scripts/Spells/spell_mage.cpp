@@ -40,6 +40,7 @@ enum MageSpells
     SPELL_MAGE_SUMMON_WATER_ELEMENTAL_TEMPORARY  = 70907,
     SPELL_MAGE_GLYPH_OF_BLAST_WAVE               = 62126,
     SPELL_MAGE_CONJURE_REFRESHMENT               = 42955,
+    SPELL_MAGE_COMBUSTION_PERIODIC_DAMAGE        = 83853,
 };
 
 class spell_mage_blast_wave : public SpellScriptLoader
@@ -493,6 +494,52 @@ class spell_mage_conjure_refreshment : public SpellScriptLoader
         }
 };
 
+// 11129 Combustion
+/// Updated 4.3.4
+class spell_mage_combustion : public SpellScriptLoader
+{
+    public:
+        spell_mage_combustion() : SpellScriptLoader("spell_mage_combustion") { }
+
+        class spell_mage_combustion_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_mage_combustion_SpellScript);
+
+            bool Validate(SpellInfo const* /*spellEntry*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_COMBUSTION_PERIODIC_DAMAGE))
+                    return false;
+                return true;
+            }
+
+            void HandleDummy(SpellEffIndex /*effIndex*/)
+            {
+                if (Unit* target = GetHitUnit())
+                {
+                    int32 basePoints0 = 0;
+                    Unit::AuraEffectList const& targetAuras = target->GetAuraEffectsByType(SPELL_AURA_PERIODIC_DAMAGE);
+
+                    for (Unit::AuraEffectList::const_iterator i = targetAuras.begin(); i != targetAuras.end(); ++i)
+                        if ((*i)->GetCaster() == GetCaster() && (*i)->GetSpellInfo()->SchoolMask == SPELL_SCHOOL_MASK_FIRE)
+                            basePoints0 += (*i)->GetAmount();
+
+                    if (basePoints0)
+                        GetCaster()->CastCustomSpell(target, SPELL_MAGE_COMBUSTION_PERIODIC_DAMAGE, &basePoints0, NULL, NULL, true);
+                }
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_mage_combustion_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_mage_combustion_SpellScript();
+        }
+};
+
 void AddSC_mage_spell_scripts()
 {
     new spell_mage_blast_wave();
@@ -504,4 +551,5 @@ void AddSC_mage_spell_scripts()
     new spell_mage_summon_water_elemental();
     new spell_mage_living_bomb();
     new spell_mage_cone_of_cold();
+    new spell_mage_combustion();
 }
