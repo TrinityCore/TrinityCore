@@ -3730,6 +3730,15 @@ void ObjectMgr::LoadQuests()
             }
         }
 
+        if (qinfo->Flags & QUEST_TRINITY_FLAGS_MONTHLY)
+        {
+            if (!(qinfo->Flags & QUEST_TRINITY_FLAGS_REPEATABLE))
+            {
+                sLog->outError(LOG_FILTER_SQL, "Monthly quest %u not marked as repeatable in `SpecialFlags`, added.", qinfo->GetQuestId());
+                qinfo->Flags |= QUEST_TRINITY_FLAGS_REPEATABLE;
+            }
+        }
+
         if (qinfo->Flags & QUEST_FLAGS_AUTO_REWARDED)
         {
             // at auto-reward can be rewarded only RewardChoiceItemId[0]
