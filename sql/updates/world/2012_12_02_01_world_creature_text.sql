@@ -697,14 +697,14 @@ INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,
 (36658,11,0,14,16764,100,"Tyrannus SAY_MARK_RIMEFANG_1","Rimefang, destroy this fool!"),
 (36658,12,0,41,0,100,"Tyrannus SAY_MARK_RIMEFANG_2","The frostwyrm Rimefang gazes at $N and readies an icy attack!"),
 (36658,13,0,14,16765,100,"Tyrannus SAY_DARK_MIGHT_1","Power... overwhelming!"),
-(36658,14,0,41,0,100,"Tyrannus SAY_DARK_MIGHT_2","Scourgelord Tyrannus roars and swells with dark might!"),
+(36658,14,0,41,0,100,"Tyrannus SAY_DARK_MIGHT_2","Scourgelord Tyrannus roars and swells with dark might!");
 
 -- Gorkun
 DELETE FROM `creature_text` WHERE `entry`=37592;
 INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,`comment`,`text`) VALUES
 (37592,0,0,14,17150,100,"Gorkun SAY_GORKUN_INTRO_2","Heroes! We will hold off the undead as long as we can, even to our dying breath. Deal with the Scourgelord!"),
 (37592,1,0,14,0,100,"Gorkun SAY_GORKUN_OUTRO_1","Brave champions, we owe you our lives, our freedom... Though it be a tiny gesture in the face of this enormous debt, I pledge that from this day forth, all will know of your deeds, and the blazing path of light you cut through the shadow of this dark citadel."),
-(37592,2,0,14,0,100,"Gorkun SAY_GORKUN_OUTRO_2","This day will stand as a testament not only to your valor, but to the fact that no foe, not even the Lich King himself, can stand when Alliance and Horde set aside their differences and ---"),
+(37592,2,0,14,0,100,"Gorkun SAY_GORKUN_OUTRO_2","This day will stand as a testament not only to your valor, but to the fact that no foe, not even the Lich King himself, can stand when Alliance and Horde set aside their differences and ---");
 
 -- Jaina
 DELETE FROM `creature_text` WHERE `entry`=36993;
