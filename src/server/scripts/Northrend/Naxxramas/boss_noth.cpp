@@ -19,21 +19,25 @@
 #include "ScriptedCreature.h"
 #include "naxxramas.h"
 
-#define SAY_AGGRO               RAND(-1533075, -1533076, -1533077)
-#define SAY_SUMMON              -1533078
-#define SAY_SLAY                RAND(-1533079, -1533080)
-#define SAY_DEATH               -1533081
+enum Noth
+{
+    SAY_AGGRO                       = 0,
+    SAY_SUMMON                      = 1,
+    SAY_SLAY                        = 2,
+    SAY_DEATH                       = 3,
 
-#define SOUND_DEATH      8848
+    SOUND_DEATH                     = 8848,
 
-#define SPELL_CURSE_PLAGUEBRINGER       RAID_MODE(29213, 54835)
+    SPELL_CURSE_PLAGUEBRINGER       = 29213, // 25-man: 54835
+    SPELL_CRIPPLE                   = 29212, // 25-man: 54814
+    SPELL_TELEPORT                  = 29216,
+
+    MOB_WARRIOR                     = 16984,
+    MOB_CHAMPION                    = 16983,
+    MOB_GUARDIAN                    = 16981
+};
+
 #define SPELL_BLINK                     RAND(29208, 29209, 29210, 29211)
-#define SPELL_CRIPPLE                   RAID_MODE(29212, 54814)
-#define SPELL_TELEPORT                  29216
-
-#define MOB_WARRIOR         16984
-#define MOB_CHAMPION        16983
-#define MOB_GUARDIAN        16981
 
 // Teleport position of Noth on his balcony
 #define TELE_X 2631.370f
@@ -90,7 +94,7 @@ public:
         void EnterCombat(Unit* /*who*/)
         {
             _EnterCombat();
-            DoScriptText(SAY_AGGRO, me);
+            Talk(SAY_AGGRO);
             balconyCount = 0;
             EnterPhaseGround();
         }
@@ -115,7 +119,7 @@ public:
         void KilledUnit(Unit* /*victim*/)
         {
             if (!(rand()%5))
-                DoScriptText(SAY_SLAY, me);
+                Talk(SAY_SLAY);
         }
 
         void JustSummoned(Creature* summon)
@@ -128,7 +132,7 @@ public:
         void JustDied(Unit* /*killer*/)
         {
             _JustDied();
-            DoScriptText(SAY_DEATH, me);
+            Talk(SAY_DEATH);
         }
 
         void SummonUndead(uint32 entry, uint32 num)
@@ -157,7 +161,7 @@ public:
                         events.ScheduleEvent(EVENT_CURSE, urand(50000, 60000));
                         return;
                     case EVENT_WARRIOR:
-                        DoScriptText(SAY_SUMMON, me);
+                        Talk(SAY_SUMMON);
                         SummonUndead(MOB_WARRIOR, RAID_MODE(2, 3));
                         events.ScheduleEvent(EVENT_WARRIOR, 30000);
                         return;
@@ -178,7 +182,7 @@ public:
                         waveCount = 0;
                         return;
                     case EVENT_WAVE:
-                        DoScriptText(SAY_SUMMON, me);
+                        Talk(SAY_SUMMON);
                         switch (balconyCount)
                         {
                             case 0: SummonUndead(MOB_CHAMPION, RAID_MODE(2, 4)); break;
