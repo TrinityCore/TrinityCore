@@ -23,15 +23,15 @@
 
 enum Yells
 {
-    SAY_AGGRO             = 0,
-    SAY_PHASE2            = 1,
-    SAY_PHASE3            = 2,
-    SAY_DEATH             = 3,
-    SAY_SLAY              = 4,
-    SAY_THROW_SARONITE    = 5,
-    SAY_CAST_DEEP_FREEZE  = 6,
+    SAY_AGGRO               = 0,
+    SAY_PHASE2              = 1,
+    SAY_PHASE3              = 2,
+    SAY_DEATH               = 3,
+    SAY_SLAY                = 4,
+    SAY_THROW_SARONITE      = 5,
+    SAY_CAST_DEEP_FREEZE    = 6,
 
-    SAY_TYRANNUS_DEATH  = -1658007, // todo
+    SAY_TYRANNUS_DEATH      = 0
 };
 
 enum Spells
@@ -129,7 +129,7 @@ enum Events
                 Talk(SAY_DEATH);
 
                 if (Creature* tyrannus = me->GetCreature(*me, instance->GetData64(DATA_TYRANNUS)))
-                    DoScriptText(SAY_TYRANNUS_DEATH, tyrannus);
+                    tyrannus->AI()->Talk(SAY_TYRANNUS_DEATH);
 
                 instance->SetBossState(DATA_GARFROST, DONE);
             }
