@@ -30,13 +30,13 @@
 ## npc_agnetta_tyrsdottar
 ######*/
 
-#define SAY_AGGRO                  -1571003
 #define GOSSIP_AGNETTA             "Skip the warmup, sister... or are you too scared to face soemeone your own size?"
 
 enum eAgnetta
 {
     QUEST_ITS_THAT_YOUR_GOBLIN      = 12969,
-    FACTION_HOSTILE_AT1             = 45
+    FACTION_HOSTILE_AT1             = 45,
+    SAY_AGGRO                       = 0
 };
 
 class npc_agnetta_tyrsdottar : public CreatureScript
@@ -73,7 +73,7 @@ public:
         player->PlayerTalkClass->ClearMenus();
         if (action == GOSSIP_ACTION_INFO_DEF+1)
         {
-            DoScriptText(SAY_AGGRO, creature);
+            creature->AI()->Talk(SAY_AGGRO);
             player->CLOSE_GOSSIP_MENU();
             creature->setFaction(FACTION_HOSTILE_AT1);
             creature->AI()->AttackStart(player);
@@ -143,8 +143,8 @@ public:
 enum eInjuredGoblin
 {
     QUEST_BITTER_DEPARTURE     = 12832,
-    SAY_QUEST_ACCEPT           =  -1800042,
-    SAY_END_WP_REACHED         =  -1800043
+    SAY_QUEST_ACCEPT           = 0,
+    SAY_END_WP_REACHED         = 1
 };
 
 #define GOSSIP_ITEM_1       "I am ready, lets get you out of here"
@@ -167,7 +167,7 @@ public:
             switch (waypointId)
             {
                 case 26:
-                    DoScriptText(SAY_END_WP_REACHED, me, player);
+                    Talk(SAY_END_WP_REACHED, player->GetGUID());
                     break;
                 case 27:
                     player->GroupEventHappens(QUEST_BITTER_DEPARTURE, me);
@@ -218,7 +218,7 @@ public:
     bool OnQuestAccept(Player* /*player*/, Creature* creature, Quest const* quest)
     {
         if (quest->GetQuestId() == QUEST_BITTER_DEPARTURE)
-            DoScriptText(SAY_QUEST_ACCEPT, creature);
+            creature->AI()->Talk(SAY_QUEST_ACCEPT);
 
         return false;
     }

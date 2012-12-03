@@ -22,14 +22,10 @@
 
 enum Yells
 {
-    SAY_GREET       = -1533009,
-    SAY_AGGRO_1     = -1533010,
-    SAY_AGGRO_2     = -1533011,
-    SAY_AGGRO_3     = -1533012,
-    SAY_AGGRO_4     = -1533013,
-    SAY_SLAY_1      = -1533014,
-    SAY_SLAY_2      = -1533015,
-    SAY_DEATH       = -1533016
+    SAY_GREET       = 0,
+    SAY_AGGRO       = 1,
+    SAY_SLAY        = 2,
+    SAY_DEATH       = 3
 };
 
 enum Spells
@@ -71,7 +67,7 @@ class boss_faerlina : public CreatureScript
             void EnterCombat(Unit* /*who*/)
             {
                 _EnterCombat();
-                DoScriptText(RAND(SAY_AGGRO_1, SAY_AGGRO_2, SAY_AGGRO_3, SAY_AGGRO_4), me);
+                Talk(SAY_AGGRO);
                 events.ScheduleEvent(EVENT_POISON, urand(10000, 15000));
                 events.ScheduleEvent(EVENT_FIRE, urand(6000, 18000));
                 events.ScheduleEvent(EVENT_FRENZY, urand(60000, 80000));
@@ -88,7 +84,7 @@ class boss_faerlina : public CreatureScript
             {
                 if (!_introDone && who->GetTypeId() == TYPEID_PLAYER)
                 {
-                    DoScriptText(SAY_GREET, me);
+                    Talk(SAY_GREET);
                     _introDone = true;
                 }
 
@@ -98,13 +94,13 @@ class boss_faerlina : public CreatureScript
             void KilledUnit(Unit* /*victim*/)
             {
                 if (!urand(0, 2))
-                    DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2), me);
+                    Talk(SAY_SLAY);
             }
 
             void JustDied(Unit* /*killer*/)
             {
                 _JustDied();
-                DoScriptText(SAY_DEATH, me);
+                Talk(SAY_DEATH);
             }
 
             void SpellHit(Unit* caster, SpellInfo const* spell)

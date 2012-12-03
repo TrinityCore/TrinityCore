@@ -45,11 +45,11 @@ enum Spells
 
 enum Yells
 {
-    SAY_AGGRO_1                                   = -1578000,
-    SAY_AGGRO_2                                   = -1578001,
-    SAY_AGGRO_3                                   = -1578002,
-    SAY_AGGRO_4                                   = -1578003,
-    SAY_TELEPORT                                  = -1578004,
+    SAY_AGGRO_1                                   = 0,
+    SAY_AGGRO_2                                   = 1,
+    SAY_AGGRO_3                                   = 2,
+    SAY_AGGRO_4                                   = 3,
+    SAY_TELEPORT                                  = 1
 };
 
 enum eCreature
@@ -82,11 +82,6 @@ static Summons Group[]=
 static uint32 TeleportSpells[]=
 {
     SPELL_SUMMON_MENAGERIE, SPELL_SUMMON_MENAGERIE_2, SPELL_SUMMON_MENAGERIE_3
-};
-
-static int32 SayAggro[]=
-{
-    SAY_AGGRO_1, SAY_AGGRO_2, SAY_AGGRO_3, SAY_AGGRO_4
 };
 
 class boss_urom : public CreatureScript
@@ -153,7 +148,7 @@ public:
             {
                 if (me->Attack(who, true))
                 {
-                    DoScriptText(SayAggro[3], me);
+                    Talk(RAND(SAY_AGGRO_1, SAY_AGGRO_2, SAY_AGGRO_3, SAY_AGGRO_4));
 
                     me->SetInCombatWith(who);
                     who->SetInCombatWith(me);
@@ -217,7 +212,7 @@ public:
             if (!instance || instance->GetData(DATA_UROM_PLATAFORM) > 2)
                 return;
 
-            DoScriptText(SayAggro[instance->GetData(DATA_UROM_PLATAFORM)], me);
+            Talk(instance->GetData(DATA_UROM_PLATAFORM) < 5 ? instance->GetData(DATA_UROM_PLATAFORM) : 0);
             DoCast(TeleportSpells[instance->GetData(DATA_UROM_PLATAFORM)]);
         }
 
@@ -233,7 +228,7 @@ public:
             if (teleportTimer <= uiDiff)
             {
                 me->InterruptNonMeleeSpells(false);
-                DoScriptText(SAY_TELEPORT, me);
+                Talk(SAY_TELEPORT);
                 me->GetMotionMaster()->MoveIdle();
                 DoCast(SPELL_TELEPORT);
                 teleportTimer = urand(30000, 35000);
