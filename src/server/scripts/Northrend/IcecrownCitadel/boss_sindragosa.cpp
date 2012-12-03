@@ -36,6 +36,7 @@ enum Texts
                                              // A flaw of mortality...
     SAY_BERSERK                         = 9, // Enough! I tire of these games!
     SAY_DEATH                           = 10, // Free...at last...
+    EMOTE_BERSERK_RAID                  = 11
 };
 
 enum Spells
@@ -440,7 +441,7 @@ class boss_sindragosa : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_BERSERK:
-                            DoScriptText(EMOTE_GENERIC_BERSERK_RAID, me);
+                            Talk(EMOTE_BERSERK_RAID);
                             Talk(SAY_BERSERK);
                             DoCast(me, SPELL_BERSERK);
                             break;
