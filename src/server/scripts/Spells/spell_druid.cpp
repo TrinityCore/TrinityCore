@@ -944,6 +944,64 @@ class spell_druid_wild_mushroom_detonate : public SpellScriptLoader
         }
 };
 
+// Wild mushroom, 88747
+class spell_druid_wild_mushroom : public SpellScriptLoader
+{
+    public:
+        spell_druid_wild_mushroom() : SpellScriptLoader("spell_druid_wild_mushroom") { }
+
+        class spell_druid_wild_mushroom_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_druid_wild_mushroom_SpellScript)
+
+            void HandleSummon(SpellEffIndex effIndex)
+            {
+                if (Player* player = GetCaster()->ToPlayer())
+                {
+                    PreventHitDefaultEffect(effIndex);
+                    const SpellInfo* spell = GetSpellInfo();
+                    
+                    std::list<Creature*> list;
+                    player->GetCreatureListWithEntryInGrid(list, DRUID_NPC_WILD_MUSHROOM, 500.0f);
+                    for (std::list<Creature*>::iterator i = list.begin(); i != list.end(); ++i)
+                    {
+                        if ((*i)->isSummon() && (*i)->GetCharmerOrOwner() == player)
+                            if (!player)
+                                return;
+                        continue;
+ 
+                        list.remove((*i));
+                    }
+
+                    if ((int32)list.size() >= spell->Effects[0].BasePoints) // Max 3
+                        list.front()->ToTempSummon()->UnSummon();
+
+                    Position pos;
+                    GetHitDest()->GetPosition(&pos);
+                    const SummonPropertiesEntry* properties = sSummonPropertiesStore.LookupEntry(spell->Effects[effIndex].MiscValueB);
+                    TempSummon* summon = player->SummonCreature(spell->Effects[0].MiscValue, pos, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, spell->GetDuration());
+                    if (!summon)
+                        return;
+                    summon->SetUInt64Value(UNIT_FIELD_SUMMONEDBY, player->GetGUID());
+                    summon->setFaction(player->getFaction());
+                    summon->SetUInt32Value(UNIT_CREATED_BY_SPELL, GetSpellInfo()->Id);
+                    summon->SetMaxHealth(5);
+                }
+            }
+
+            void Register()
+            {
+                OnEffectLaunch += SpellEffectFn(spell_druid_wild_mushroom_SpellScript::HandleSummon, EFFECT_0, SPELL_EFFECT_SUMMON);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_druid_wild_mushroom_SpellScript();
+        }
+};
+
+
 void AddSC_druid_spell_scripts()
 {
     new spell_dru_enrage();
@@ -963,4 +1021,5 @@ void AddSC_druid_spell_scripts()
     new spell_dru_t10_restoration_4p_bonus();
     new spell_dru_eclipse_energize();
 	new spell_druid_wild_mushroom_detonate();
+	new spell_druid_wild_mushroom();
 }

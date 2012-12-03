@@ -64,68 +64,68 @@ enum ShamanSpells
     SHAMAN_SPELL_FULMINATION_INFO          = 95774,
     SHAMAN_SPELL_LIGHTNING_SHIELD_PROC     = 26364,
 
-    SHAMAN_SPELL_EARTHQUAKE_KNOCKDOWN       = 77478,
+    SHAMAN_SPELL_EARTHQUAKE_KNOCKDOWN      = 77505,
 
 };
 
 // 1535 Fire Nova
 class spell_sha_fire_nova : public SpellScriptLoader
 {
-    public:
-        spell_sha_fire_nova() : SpellScriptLoader("spell_sha_fire_nova") { }
+public:
+    spell_sha_fire_nova() : SpellScriptLoader("spell_sha_fire_nova") { }
 
-        class spell_sha_fire_nova_SpellScript : public SpellScript
+    class spell_sha_fire_nova_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_sha_fire_nova_SpellScript);
+
+        bool Validate(SpellInfo const* spellEntry)
         {
-            PrepareSpellScript(spell_sha_fire_nova_SpellScript);
+            if (!sSpellMgr->GetSpellInfo(SHAMAN_SPELL_FIRE_NOVA_R1))
+                return false;
+            if (sSpellMgr->GetFirstSpellInChain(SHAMAN_SPELL_FIRE_NOVA_R1) != sSpellMgr->GetFirstSpellInChain(spellEntry->Id))
+                return false;
 
-            bool Validate(SpellInfo const* spellEntry)
-            {
-                if (!sSpellMgr->GetSpellInfo(SHAMAN_SPELL_FIRE_NOVA_R1))
-                    return false;
-                if (sSpellMgr->GetFirstSpellInChain(SHAMAN_SPELL_FIRE_NOVA_R1) != sSpellMgr->GetFirstSpellInChain(spellEntry->Id))
-                    return false;
-
-                uint8 rank = sSpellMgr->GetSpellRank(spellEntry->Id);
-                if (!sSpellMgr->GetSpellWithRank(SHAMAN_SPELL_FIRE_NOVA_TRIGGERED_R1, rank, true))
-                    return false;
-                return true;
-            }
-
-            SpellCastResult CheckFireTotem()
-            {
-                // fire totem
-                if (!GetCaster()->m_SummonSlot[1])
-                {
-                    SetCustomCastResultMessage(SPELL_CUSTOM_ERROR_MUST_HAVE_FIRE_TOTEM);
-                    return SPELL_FAILED_CUSTOM_ERROR;
-                }
-
-                return SPELL_CAST_OK;
-            }
-
-            void HandleDummy(SpellEffIndex /*effIndex*/)
-            {
-                Unit* caster = GetCaster();
-                uint8 rank = sSpellMgr->GetSpellRank(GetSpellInfo()->Id);
-                if (uint32 spellId = sSpellMgr->GetSpellWithRank(SHAMAN_SPELL_FIRE_NOVA_TRIGGERED_R1, rank))
-                {
-                    Creature* totem = caster->GetMap()->GetCreature(caster->m_SummonSlot[1]);
-                    if (totem && totem->isTotem())
-                        totem->CastSpell(totem, spellId, true);
-                }
-            }
-
-            void Register()
-            {
-                OnCheckCast += SpellCheckCastFn(spell_sha_fire_nova_SpellScript::CheckFireTotem);
-                OnEffectHitTarget += SpellEffectFn(spell_sha_fire_nova_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_sha_fire_nova_SpellScript();
+            uint8 rank = sSpellMgr->GetSpellRank(spellEntry->Id);
+            if (!sSpellMgr->GetSpellWithRank(SHAMAN_SPELL_FIRE_NOVA_TRIGGERED_R1, rank, true))
+                return false;
+            return true;
         }
+
+        SpellCastResult CheckFireTotem()
+        {
+            // fire totem
+            if (!GetCaster()->m_SummonSlot[1])
+            {
+                SetCustomCastResultMessage(SPELL_CUSTOM_ERROR_MUST_HAVE_FIRE_TOTEM);
+                return SPELL_FAILED_CUSTOM_ERROR;
+            }
+
+            return SPELL_CAST_OK;
+        }
+
+        void HandleDummy(SpellEffIndex /*effIndex*/)
+        {
+            Unit* caster = GetCaster();
+            uint8 rank = sSpellMgr->GetSpellRank(GetSpellInfo()->Id);
+            if (uint32 spellId = sSpellMgr->GetSpellWithRank(SHAMAN_SPELL_FIRE_NOVA_TRIGGERED_R1, rank))
+            {
+                Creature* totem = caster->GetMap()->GetCreature(caster->m_SummonSlot[1]);
+                if (totem && totem->isTotem())
+                    totem->CastSpell(totem, spellId, true);
+            }
+        }
+
+        void Register()
+        {
+            OnCheckCast += SpellCheckCastFn(spell_sha_fire_nova_SpellScript::CheckFireTotem);
+            OnEffectHitTarget += SpellEffectFn(spell_sha_fire_nova_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_sha_fire_nova_SpellScript();
+    }
 };
 
 // 16191 Mana Tide
@@ -785,6 +785,34 @@ class spell_sha_astral_shift : public SpellScriptLoader
         }
 };
 
+// 73920 - Healing Rain
+class spell_sha_healing_rain : public SpellScriptLoader
+{
+public:
+    spell_sha_healing_rain() : SpellScriptLoader("spell_sha_healing_rain") { }
+
+    class spell_sha_healing_rain_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_sha_healing_rain_AuraScript);
+
+        void OnTick(AuraEffect const* aurEff)
+        {
+            if (DynamicObject* dynObj = GetCaster()->GetDynObject(73920))
+                GetCaster()->CastSpell(dynObj->GetPositionX(), dynObj->GetPositionY(), dynObj->GetPositionZ(), 73921, true);
+        }
+
+        void Register()
+        {
+            OnEffectPeriodic += AuraEffectPeriodicFn(spell_sha_healing_rain_AuraScript::OnTick, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_sha_healing_rain_AuraScript();
+    }
+};
+
 void AddSC_shaman_spell_scripts()
 {
     new spell_sha_fire_nova();
@@ -802,4 +830,5 @@ void AddSC_shaman_spell_scripts()
     new spell_sha_fulmination();
     new spell_sha_earthquake();
     new spell_sha_astral_shift();
+	new spell_sha_healing_rain();
 }

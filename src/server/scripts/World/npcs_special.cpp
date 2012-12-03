@@ -3345,6 +3345,7 @@ public:
         }
 
       //  float x,y,z,o,newx,newy,angle;
+		float x,y,z,o,angle;
         bool CombatCheck;
         uint32 despawnTimer;
         uint32 despawnCheckTimer;
