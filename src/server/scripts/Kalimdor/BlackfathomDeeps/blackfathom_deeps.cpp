@@ -192,8 +192,8 @@ public:
 
 enum Morridune
 {
-    SAY_MORRIDUNE_1 = -1048003,
-    SAY_MORRIDUNE_2 = -1048004
+    SAY_MORRIDUNE_1 = 0,
+    SAY_MORRIDUNE_2 = 1
 };
 
 class npc_morridune : public CreatureScript
@@ -231,7 +231,7 @@ public:
     {
         npc_morriduneAI(Creature* creature) : npc_escortAI(creature)
         {
-            DoScriptText(SAY_MORRIDUNE_1, creature);
+            creature->AI()->Talk(SAY_MORRIDUNE_1);
             me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
             Start(false, false, 0);
         }
@@ -245,7 +245,7 @@ public:
                     me->SetOrientation(1.775791f);
                     me->SendMovementFlagUpdate();
                     me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-                    DoScriptText(SAY_MORRIDUNE_2, me);
+                    Talk(SAY_MORRIDUNE_2);
                     break;
             }
         }
