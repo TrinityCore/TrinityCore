@@ -700,6 +700,112 @@ public:
     }
 };
 
+// Mind Spike
+// Spell Id: 73510
+class spell_pri_mind_spike : public SpellScriptLoader
+{
+    public:
+        spell_pri_mind_spike() : SpellScriptLoader("spell_pri_mind_spike") { }
+
+        class spell_pri_mind_spike_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_pri_mind_spike_SpellScript);
+
+            void HandleDummy(SpellEffIndex /*effIndex*/)
+            {
+                Unit* target = GetHitUnit();
+                
+                if (!target)
+                    return;
+
+                target->RemoveAurasByType(SPELL_AURA_PERIODIC_DAMAGE,GetCaster()->GetGUID());
+                target->RemoveAurasByType(SPELL_AURA_PERIODIC_LEECH,GetCaster()->GetGUID());
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_pri_mind_spike_SpellScript::HandleDummy, EFFECT_2, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_pri_mind_spike_SpellScript;
+        }
+};
+
+// Mind Blast
+// Spell Id: 8092
+class spell_pri_mind_blast : public SpellScriptLoader
+{
+    public:
+        spell_pri_mind_blast() : SpellScriptLoader("spell_pri_mind_blast") { }
+
+        class spell_pri_mind_blast_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_pri_mind_blast_SpellScript);
+
+            void HandleAfterHit()
+            {
+                Unit* target = GetHitUnit();
+                
+                if (!target)
+                    return;
+
+                target->RemoveAurasDueToSpell(87178,GetCaster()->GetGUID());
+            }
+
+            void Register()
+            {
+                AfterHit += SpellHitFn(spell_pri_mind_blast_SpellScript::HandleAfterHit);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_pri_mind_blast_SpellScript;
+        }
+};
+
+class spell_pri_chakra_sanctuary_heal_target_selector: public SpellScriptLoader
+{
+public:
+    spell_pri_chakra_sanctuary_heal_target_selector() : SpellScriptLoader("spell_pri_chakra_sanctuary_heal_target_selector") {}
+
+    class spell_pri_chakra_sanctuary_heal_target_selector_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_pri_chakra_sanctuary_heal_target_selector_SpellScript);
+
+        float x,y;
+
+        bool Load()
+        {
+            if (GetCaster()->GetTypeId() != TYPEID_PLAYER)
+                return false;
+
+            GetExplTargetDest()->GetPosition(x,y);
+            return true;
+        }
+
+        void FilterTargets(std::list<WorldObject*>& unitList)
+        {
+            unitList.remove_if(DistanceCheck(x,y));
+        }
+
+        void Register()
+        {
+            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_pri_chakra_sanctuary_heal_target_selector_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ALLY);
+        }
+
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_pri_chakra_sanctuary_heal_target_selector_SpellScript();
+    }
+};
+
+
 void AddSC_priest_spell_scripts()
 {
     new spell_pri_guardian_spirit();
@@ -717,4 +823,7 @@ void AddSC_priest_spell_scripts()
 	new spell_pri_chakra_swap_supressor();
     new spell_pri_chakra_serenity_proc();
     new spell_pri_chakra_sanctuary_heal();
+	new spell_pri_chakra_sanctuary_heal_target_selector();
+	new spell_pri_mind_spike();
+    new spell_pri_mind_blast();
 }

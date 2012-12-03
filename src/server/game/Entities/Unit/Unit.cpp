@@ -6394,6 +6394,30 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
 
             switch (dummySpell->SpellIconID)
             {
+                case 2225: // Serpent Spread
+                 {
+                    // Proc only on multi-shot
+                    if (!target || procSpell->Id != 2643)
+                        return false;
+
+                    switch(triggerAmount)
+                    {
+                        case 30:
+                        {
+                            // Serpent sting 6s duration
+                            triggered_spell_id = 88453;
+                            break;
+                        }
+                        case 60:
+                        {
+                            // Serpent sting 9s duration
+                            triggered_spell_id = 88466;
+                            break;
+                        }
+                        break;
+                    }
+                    break;
+                }
                 case 2909: // Cut to the Chase
                 {
                     // "refresh your Slice and Dice duration to its 5 combo point maximum"
@@ -10011,20 +10035,6 @@ int32 Unit::SpellBaseDamageBonusDone(SpellSchoolMask schoolMask)
         // Check if we are ever using mana - PaperDollFrame.lua
         if (GetPowerIndexByClass(POWER_MANA, getClass()) != MAX_POWERS)
             DoneAdvertisedBenefit += std::max(0, int32(GetStat(STAT_INTELLECT)) - 10);  // spellpower from intellect
-
-    //HACK FIX ON TOTEMIC WRATH, FEL ARMOR, INNER FIRE
-	if (HasAura(77747))
-       DoneAdvertisedBenefit += (int32(DoneAdvertisedBenefit) * 0.10f); // Totemic Wrath
-
-    if (HasAura(588))
-       DoneAdvertisedBenefit += (int32(DoneAdvertisedBenefit) * 0.07f); // Inner Fire
-
-    if (HasAura(28176))
-       DoneAdvertisedBenefit += (int32(DoneAdvertisedBenefit) * 0.10f); // Fel Armor
-	  	
-	  	
-
-       //HACK FIX ON TOTEMIC WRATH, FEL ARMOR, INNER FIRE .. Custom Trigger
 
 		// Damage bonus from stats
         AuraEffectList const& mDamageDoneOfStatPercent = GetAuraEffectsByType(SPELL_AURA_MOD_SPELL_DAMAGE_OF_STAT_PERCENT);

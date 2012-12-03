@@ -3233,7 +3233,7 @@ public:
 enum FlameOrb
 {
     SPELL_FLAME_ORB_DAMAGE          = 86719,
-    FLAME_ORB_DISTANCE              = 40
+    FLAME_ORB_DISTANCE              = 120
 };
 
 class npc_flame_orb : public CreatureScript
@@ -3251,19 +3251,22 @@ public:
             o = me->GetOrientation();
             me->NearTeleportTo(x, y, z, o, true);
             angle = me->GetOwner()->GetAngle(me);
-            newx = me->GetPositionX() + FLAME_ORB_DISTANCE/2;
-            newy = me->GetPositionY() + FLAME_ORB_DISTANCE/2;
+         //   newx = me->GetPositionX() + FLAME_ORB_DISTANCE/2 * cos(angle);
+       //     newy = me->GetPositionY() + FLAME_ORB_DISTANCE/2 * sin(angle);
+            CombatCheck = false;
         }
 
         float x, y, z, o, newx, newy, angle;
+        bool CombatCheck;
         uint32 DespawnTimer;
         uint32 DespawnCheckTimer;
         uint32 DamageTimer;
 
         void EnterCombat(Unit* /*target*/)
         {
-            me->GetMotionMaster()->MoveCharge(newx, newy, z, 0.86286f);  // Normal speed
+          //  me->GetMotionMaster()->MoveCharge(newx, newy, z, 1.14286f);  // Normal speed
             DespawnTimer = 15 * IN_MILLISECONDS;
+            CombatCheck = true;
         }
 
         void Reset()
@@ -3271,18 +3274,21 @@ public:
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE|UNIT_FLAG_NON_ATTACKABLE);
             me->AddUnitMovementFlag(MOVEMENTFLAG_FLYING);
             me->SetReactState(REACT_PASSIVE);
-            DespawnTimer = 15 * IN_MILLISECONDS;
+            if (CombatCheck == true)
+                DespawnTimer = 15 * IN_MILLISECONDS;
+            else
+                DespawnTimer = 4 * IN_MILLISECONDS;
             DamageTimer = 1 * IN_MILLISECONDS;
-            me->GetMotionMaster()->MovePoint(0, newx, newy, z);
+       //     me->GetMotionMaster()->MovePoint(0, newx, newy, z);
         }
 
         void UpdateAI(const uint32 diff)
         {
-            if (!me->isInCombat())
+         /*   if (!me->isInCombat() && CombatCheck == false)
             {
                 me->SetSpeed(MOVE_RUN, 2, true);
                 me->SetSpeed(MOVE_FLIGHT, 2, true);
-            }
+            } */
 
             if (DespawnTimer <= diff)
             {
@@ -3315,7 +3321,7 @@ enum FrostfireOrb
 {
     SPELL_FROSTFIRE_ORB_DAMAGE_RANK_1   = 95969,
     SPELL_FROSTFIRE_ORB_DAMAGE_RANK_2   = 84721,
-    FROSTFIRE_ORB_DISTANCE              = 40
+    FROSTFIRE_ORB_DISTANCE              = 120
 };
 
 class npc_frostfire_orb : public CreatureScript
@@ -3331,21 +3337,24 @@ public:
             y = me->GetPositionY();
             z = me->GetOwner()->GetPositionZ()+2;
             o = me->GetOrientation();
-            me->NearTeleportTo(x, y, z, o, true);
+        //    me->NearTeleportTo(x, y, z, o, true);
             angle = me->GetOwner()->GetAngle(me);
-            newx = me->GetPositionX() + FROSTFIRE_ORB_DISTANCE/2;
-            newy = me->GetPositionY() + FROSTFIRE_ORB_DISTANCE/2;
+        //    newx = me->GetPositionX() + FROSTFIRE_ORB_DISTANCE/2 * cos(angle);
+        //    newy = me->GetPositionY() + FROSTFIRE_ORB_DISTANCE/2 * sin(angle);
+            CombatCheck = false;
         }
 
-        float x,y,z,o,newx,newy,angle;
+      //  float x,y,z,o,newx,newy,angle;
+        bool CombatCheck;
         uint32 despawnTimer;
         uint32 despawnCheckTimer;
         uint32 damageTimer;
 
         void EnterCombat(Unit* /*target*/)
         {
-            me->GetMotionMaster()->MoveCharge(newx, newy, z, 0.86286f); // Normal speed
+          //  me->GetMotionMaster()->MoveCharge(newx, newy, z, 1.14286f); // Normal speed
             despawnTimer = 15 * IN_MILLISECONDS;
+            CombatCheck = true;
         }
 
         void Reset()
@@ -3353,18 +3362,21 @@ public:
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
             me->AddUnitMovementFlag(MOVEMENTFLAG_FLYING);
             me->SetReactState(REACT_PASSIVE);
-            despawnTimer = 15 * IN_MILLISECONDS;
+            if (CombatCheck == true)
+                despawnTimer = 15 * IN_MILLISECONDS;
+            else
+                despawnTimer = 4 * IN_MILLISECONDS;
             damageTimer = 1 * IN_MILLISECONDS;
-            me->GetMotionMaster()->MovePoint(0, newx, newy, z);
+          //  me->GetMotionMaster()->MovePoint(0, newx, newy, z);
         }
 
         void UpdateAI(const uint32 diff)
         {
-            if (!me->isInCombat())
+         /*   if (!me->isInCombat() && CombatCheck == false)
             {
                 me->SetSpeed(MOVE_RUN, 2, true);
                 me->SetSpeed(MOVE_FLIGHT, 2, true);
-            }
+            } */
 
             if (despawnTimer <= diff)
                 me->DisappearAndDie();
@@ -3470,120 +3482,7 @@ class npc_power_word_barrier : public CreatureScript
     }
 };
 
-// Wild Mushroom for spell 88747
-enum WildMushroom
-{
-    NPC_WILD_MUSHROOM   = 47649,
-    SPELL_INVISIBILITY  = 43221
-};
 
-class npc_wild_mushroom : public CreatureScript
-{
-public:
-    npc_wild_mushroom() : CreatureScript("npc_wild_mushroom") { }
-
-    struct npc_wild_mushroomAI : public ScriptedAI
-    {
-        npc_wild_mushroomAI(Creature* creature) : ScriptedAI(creature) {}
-
-        bool isReady;
-        uint32 timer;
-
-        Unit* owner;
-        void Reset()
-        {
-            timer = 6000; // 6sec - the mushroom should become invisible
-            isReady = false;
-        }
-
-        void InitializeAI()
-        {
-            ScriptedAI::InitializeAI();
-            owner = me->GetOwner();
-
-            if (!owner || owner->GetTypeId() != TYPEID_PLAYER)
-                    return;
-
-            me->SetReactState(REACT_PASSIVE);
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-        }
-
-        void IsSummonedBy(Unit* summoner)
-        {
-            Creature* first;
-            uint32 count = 0;
-
-            if (!summoner)
-                return;
-
-            std::list<Creature*> templist;
-            float x, y, z;
-            me->GetPosition(x, y, z);
-            {
-                CellCoord pair(Trinity::ComputeCellCoord(x, y));
-                Cell cell(pair);
-                cell.SetNoCreate();
-
-                std::list<Creature*> templist;
-                Trinity::AllCreaturesOfEntryInRange check(me, NPC_WILD_MUSHROOM, 100);
-                Trinity::CreatureListSearcher<Trinity::AllCreaturesOfEntryInRange> searcher(me, templist, check);
-
-                TypeContainerVisitor<Trinity::CreatureListSearcher<Trinity::AllCreaturesOfEntryInRange>, GridTypeMapContainer> cSearcher(searcher);
-                cell.Visit(pair, cSearcher, *(me->GetMap()), *me, me->GetGridActivationRange());
-
-                if (!templist.empty())
-                for (std::list<Creature*>::const_iterator itr = templist.begin(); itr != templist.end(); ++itr)
-                    if (Unit* own = (*itr)->GetOwner())
-                    {
-                        if (own->GetGUID() == me->GetOwner()->GetGUID())
-                        {
-                            if (count == 0)
-                                first = (*itr);
-                            ++count;
-                        }
-                    }
-
-                if (count >= 3) // Only 3 mushrooms can be summoned at a time
-                {
-                    if (first)
-                    {
-                        first->DisappearAndDie();
-                        first = NULL;
-                        count = 0;
-                    }
-                }
-                templist.clear();
-            }
-        }
-        void EnterEvadeMode() { return; }
-
-        void EnterCombat(Unit* /*target*/) {}
-
-        void UpdateAI(const uint32 diff)
-        {
-            if (timer <= diff)
-            {
-                if (!isReady)
-                {
-                    isReady = true;
-
-                    //Make it invisible
-                    me->CastSpell(me, SPELL_INVISIBILITY, true);
-                    return;
-                }
-                else return;
-            }
-            else timer -= diff;
-            return;
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new npc_wild_mushroomAI(creature);
-    }
-};
 
 class npc_shadowy_apparition : public CreatureScript
 {
@@ -3679,6 +3578,5 @@ void AddSC_npcs_special()
     new npc_ring_of_frost();
     new npc_frostfire_orb();
     new npc_power_word_barrier();
-    new npc_wild_mushroom();
 	new npc_shadowy_apparition();
 }

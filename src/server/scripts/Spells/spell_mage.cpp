@@ -66,6 +66,8 @@ enum MageSpells
     SPELL_MAGE_SHATTERED_BARRIER_FREEZE_R1       = 55080,
     SPELL_MAGE_SHATTERED_BARRIER_FREEZE_R2       = 83073,
     SPELL_MAGE_FINGERS_OF_FROST                  = 44544,
+	SPELL_MAGE_COMBUSTION_PERIODIC_DAMAGE        = 83853,
+
 };
 
 enum MageIcons
@@ -672,7 +674,7 @@ class spell_mage_frostbolt : public SpellScriptLoader
                     }
             }
 
-			void HandleFrostBoltScript(SpellEffIndex /*effIndex*/)
+			void HandleEarlyFrostScript(SpellEffIndex /*effIndex*/)
             {
 
             Unit* caster = GetCaster();
@@ -689,7 +691,7 @@ class spell_mage_frostbolt : public SpellScriptLoader
             void Register()
             {
                 OnHit += SpellHitFn(spell_mage_frostbolt_SpellScript::RecalculateDamage);
-				OnEffectHit += SpellEffectFn(spell_mage_frostbolt_SpellScript::HandleFrostBoltScript, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+				OnEffectHit += SpellEffectFn(spell_mage_frostbolt_SpellScript::HandleEarlyFrostScript, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
             }
         };
 
@@ -887,6 +889,53 @@ class spell_mage_water_elemental_freeze : public SpellScriptLoader
         }
 };
 
+// 11129 Combustion
+/// Updated 4.3.4
+class spell_mage_combustion : public SpellScriptLoader
+{
+    public:
+        spell_mage_combustion() : SpellScriptLoader("spell_mage_combustion") { }
+
+        class spell_mage_combustion_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_mage_combustion_SpellScript);
+
+            bool Validate(SpellInfo const* /*spellEntry*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_COMBUSTION_PERIODIC_DAMAGE))
+                    return false;
+                return true;
+            }
+
+            void HandleDummy(SpellEffIndex /*effIndex*/)
+            {
+                if (Unit* target = GetHitUnit())
+                {
+                    int32 basePoints0 = 0;
+                    Unit::AuraEffectList const& targetAuras = target->GetAuraEffectsByType(SPELL_AURA_PERIODIC_DAMAGE);
+
+                    for (Unit::AuraEffectList::const_iterator i = targetAuras.begin(); i != targetAuras.end(); ++i)
+                        if ((*i)->GetCaster() == GetCaster() && (*i)->GetSpellInfo()->SchoolMask == SPELL_SCHOOL_MASK_FIRE)
+                            basePoints0 += (*i)->GetAmount();
+
+                    if (basePoints0)
+                        GetCaster()->CastCustomSpell(target, SPELL_MAGE_COMBUSTION_PERIODIC_DAMAGE, &basePoints0, NULL, NULL, true);
+                }
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_mage_combustion_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_mage_combustion_SpellScript();
+        }
+};
+
+
 void AddSC_mage_spell_scripts()
 {
     new spell_mage_blast_wave();
@@ -906,4 +955,5 @@ void AddSC_mage_spell_scripts()
     new spell_mage_mage_ward();
     new spell_mage_replenish_mana();	
     new spell_mage_water_elemental_freeze();
+	new spell_mage_combustion();
 }

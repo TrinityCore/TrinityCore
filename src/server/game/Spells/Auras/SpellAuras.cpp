@@ -1381,9 +1381,10 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                 }
                 break;
             case SPELLFAMILY_ROGUE:
-               // Cast stealth at vanish 3 seconds end
-                if (GetId() == 11327 && removeMode == AURA_REMOVE_BY_EXPIRE)
-                    caster->AddAura(1784 /* == stealth */, caster);
+               // Remove Vanish on stealth remove
+                if (GetId() == 1784)
+                    target->RemoveAurasWithFamily(SPELLFAMILY_ROGUE, 0x0000800, 0, 0, target->GetGUID());
+
                 // Rupture & venomeous wounds energy regain at target's death
                 else if(GetId() == 1943 && removeMode == AURA_REMOVE_BY_DEATH &&        // If rupture's target dies
                     (caster->HasSpell(79133) || caster->HasSpell(79134)))               // Only if has talent
@@ -1392,6 +1393,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                     // for each remaining 0.2 second, give 1 energy
                     caster->CastCustomSpell(caster, 51637, &basepoints0, NULL, NULL, true);
                 }
+
                 // Blackjack/Groggy on sap removal
                 else if(GetId() == 6770)
                 {
@@ -1481,6 +1483,14 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                         int32 basepoints0 = aurEff->GetAmount();
                         caster->CastCustomSpell(target, 31665, &basepoints0, NULL, NULL, true);
                     }
+                }
+				 // Overkill
+                if (target->HasAura(58426))
+                {
+                    if (!apply)
+                        target->CastSpell(target,58428,true);
+                    else
+                        target->CastSpell(target,58427,true);
                 }
                 break;
             }

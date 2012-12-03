@@ -53,6 +53,8 @@ enum HunterSpells
     HUNTER_VISUAL_FOCUS_FIRE                     = 88843,
     HUNTER_PET_AURA_FRENZY_TRIGGER               = 20784, // Tamed Pet Passive 07 (DND)
     HUNTER_SPELL_STREADY_SHOT_ATTACK_SPEED       = 53220,
+	HUNTER_SPELL_SERPENT_STING                   = 1978,
+    HUNTER_SPELL_COBRA_SHOT_ENERGIZE             = 91954,
 
 };
 
@@ -108,43 +110,43 @@ class spell_hun_aspect_of_the_beast : public SpellScriptLoader
 // 53209 Chimera Shot
 class spell_hun_chimera_shot : public SpellScriptLoader
 {
-    public:
-        spell_hun_chimera_shot() : SpellScriptLoader("spell_hun_chimera_shot") { }
+public:
+    spell_hun_chimera_shot() : SpellScriptLoader("spell_hun_chimera_shot") { }
 
-        class spell_hun_chimera_shot_SpellScript : public SpellScript
+    class spell_hun_chimera_shot_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_hun_chimera_shot_SpellScript)
+        bool Validate(SpellInfo const* /*spellEntry*/)
         {
-            PrepareSpellScript(spell_hun_chimera_shot_SpellScript);
+            if (!sSpellMgr->GetSpellInfo(HUNTER_SPELL_CHIMERA_SHOT_HEALING))
+                return false;
+            return true;
+        }
 
-            bool Validate(SpellInfo const* /*spellEntry*/)
-            {
-                if (!sSpellMgr->GetSpellInfo(HUNTER_SPELL_CHIMERA_SHOT_HEALING))
-                    return false;
-                return true;
-            }
-
-            void HandleScriptEffect(SpellEffIndex /*effIndex*/)
-            {
+        void HandleScriptEffect(SpellEffIndex /*effIndex*/)
+        {
             Unit* target = GetHitUnit();
 
             if (!target)
-			return;
+                return;
 
-            if (Aura* serpentSting = target->GetAura(1978, GetCaster()->GetGUID()))
-                serpentSting->RefreshDuration();
+            // Get normal serpent sting or Serpent Spread's proc result one
+            if (AuraEffect* serpentSting = target->GetAuraEffect(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_HUNTER,16384,0,0,GetCaster()->GetGUID()))
+                serpentSting->GetBase()->RefreshDuration();
 
-            GetCaster()->CastSpell(GetCaster(), HUNTER_SPELL_CHIMERA_SHOT_HEALING, true);
-            }
-
-            void Register()
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_hun_chimera_shot_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_hun_chimera_shot_SpellScript();
+            GetCaster()->CastSpell(GetCaster(),HUNTER_SPELL_CHIMERA_SHOT_HEALING,true);
         }
+
+        void Register()
+        {
+            OnEffectHitTarget += SpellEffectFn(spell_hun_chimera_shot_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_hun_chimera_shot_SpellScript();
+    }
 };
 
 // 53412 Invigoration
@@ -227,25 +229,16 @@ class spell_hun_masters_call : public SpellScriptLoader
 
         class spell_hun_masters_call_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_hun_masters_call_SpellScript);
-
+            PrepareSpellScript(spell_hun_masters_call_SpellScript)
             bool Validate(SpellInfo const* spellEntry)
             {
-                if (!sSpellMgr->GetSpellInfo(HUNTER_SPELL_MASTERS_CALL_TRIGGERED) || !sSpellMgr->GetSpellInfo(spellEntry->Effects[EFFECT_0].CalcValue()) || !sSpellMgr->GetSpellInfo(spellEntry->Effects[EFFECT_1].CalcValue()))
+                if (!sSpellMgr->GetSpellInfo(HUNTER_SPELL_MASTERS_CALL_TRIGGERED))
+                    return false;
+                if (!sSpellMgr->GetSpellInfo(spellEntry->Effects[EFFECT_0].CalcValue()))
+                    return false;
+                if (!sSpellMgr->GetSpellInfo(spellEntry->Effects[EFFECT_1].CalcValue()))
                     return false;
                 return true;
-            }
-
-            void HandleDummy(SpellEffIndex /*effIndex*/)
-            {
-                if (Unit* ally = GetHitUnit())
-                    if (Player* caster = GetCaster()->ToPlayer())
-                        if (Pet* target = caster->GetPet())
-                        {
-                            TriggerCastFlags castMask = TriggerCastFlags(TRIGGERED_FULL_MASK & ~TRIGGERED_IGNORE_CASTER_AURASTATE);
-                            target->CastSpell(ally, GetEffectValue(), castMask);
-                            target->CastSpell(ally, GetSpellInfo()->Effects[EFFECT_0].CalcValue(), castMask);
-                        }
             }
 
             void HandleScriptEffect(SpellEffIndex /*effIndex*/)
@@ -254,13 +247,21 @@ class spell_hun_masters_call : public SpellScriptLoader
                 {
                     // Cannot be processed while pet is dead
                     TriggerCastFlags castMask = TriggerCastFlags(TRIGGERED_FULL_MASK & ~TRIGGERED_IGNORE_CASTER_AURASTATE);
+                    target->CastSpell(target, GetEffectValue(), castMask);
                     target->CastSpell(target, HUNTER_SPELL_MASTERS_CALL_TRIGGERED, castMask);
+                    // there is a possibility that this effect should access effect 0 (dummy) target, but i dubt that
+                    // it's more likely that on on retail it's possible to call target selector based on dbc values
+                    // anyways, we're using GetTargetUnit() here and it's ok
+                    if (Unit* ally = GetExplTargetUnit())
+                    {
+                        target->CastSpell(ally, GetEffectValue(), castMask);
+                        target->CastSpell(ally, GetSpellInfo()->Effects[EFFECT_0].CalcValue(), castMask);
+                    }
                 }
             }
 
             void Register()
             {
-                OnEffectHitTarget += SpellEffectFn(spell_hun_masters_call_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
                 OnEffectHitTarget += SpellEffectFn(spell_hun_masters_call_SpellScript::HandleScriptEffect, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
@@ -1007,6 +1008,86 @@ public:
     }
 };
 
+// 1978 Serpent Sting
+class spell_hun_serpent_sting : public SpellScriptLoader
+{
+public:
+    spell_hun_serpent_sting() : SpellScriptLoader("spell_hun_serpent_sting") { }
+
+    class spell_hun_serpent_sting_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_hun_serpent_sting_AuraScript)
+
+        void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        {
+            Unit* caster = GetCaster();
+
+            if (!caster)
+                return;
+
+            if (Unit* target = GetTarget())
+            {
+                if (AuraEffect const* aurEff = caster->GetAuraEffect(SPELL_AURA_DUMMY, SPELLFAMILY_HUNTER, 536, EFFECT_0))
+                {
+                    int32 basepoints0 = aurEff->GetAmount() * GetAura()->GetEffect(EFFECT_0)->GetTotalTicks() * caster->SpellDamageBonus(target, GetSpellInfo(), GetAura()->GetEffect(0)->GetAmount(), DOT) / 100;
+                    caster->CastCustomSpell(target, 83077, &basepoints0, NULL, NULL, true, NULL, GetAura()->GetEffect(0));
+                }
+            }
+        }
+
+        void Register()
+        {
+            AfterEffectApply += AuraEffectApplyFn(spell_hun_serpent_sting_AuraScript::OnApply, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_hun_serpent_sting_AuraScript();
+    }
+};
+
+// 77767 Cobra Shot
+class spell_hun_cobra_shot : public SpellScriptLoader
+{
+public:
+    spell_hun_cobra_shot() : SpellScriptLoader("spell_hun_cobra_shot") { }
+
+    class spell_hun_cobra_shot_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_hun_cobra_shot_SpellScript)
+        bool Validate(SpellInfo const* /*spellEntry*/)
+        {
+            if (!sSpellMgr->GetSpellInfo(HUNTER_SPELL_COBRA_SHOT_ENERGIZE))
+                return false;
+            return true;
+        }
+
+        void HandleScriptEffect(SpellEffIndex /*effIndex*/)
+        {
+            Unit* target = GetHitUnit();
+
+            if (!target)
+                return;
+
+            // Get normal serpent sting or Serpent Spread's proc result one
+            if (AuraEffect* serpentSting = target->GetAuraEffect(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_HUNTER,16384,0,0,GetCaster()->GetGUID()))
+                serpentSting->GetBase()->SetDuration(serpentSting->GetBase()->GetDuration() + (GetSpellInfo()->Effects[EFFECT_1].BasePoints * 1000));
+
+            GetCaster()->CastSpell(GetCaster(),HUNTER_SPELL_COBRA_SHOT_ENERGIZE,true);
+        }
+
+        void Register()
+        {
+            OnEffectHitTarget += SpellEffectFn(spell_hun_cobra_shot_SpellScript::HandleScriptEffect, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_hun_cobra_shot_SpellScript();
+    }
+};
 
 void AddSC_hunter_spell_scripts()
 {
@@ -1030,4 +1111,6 @@ void AddSC_hunter_spell_scripts()
     new spell_hun_frenzy_effect();
     new spell_hun_aspect_of_the_hawk();
     new spell_hun_steady_shot();
+	new spell_hun_serpent_sting();
+	new spell_hun_cobra_shot();
 }

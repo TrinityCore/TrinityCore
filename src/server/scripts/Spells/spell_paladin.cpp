@@ -52,6 +52,9 @@ enum PaladinSpells
     SPELL_HAND_OF_SACRIFICE                      = 6940,
     SPELL_DIVINE_SACRIFICE                       = 64205,
 
+	SPELL_PALADIN_CONSECRATION_SUMMON            = 82366,
+    SPELL_PALADIN_CONSECRATION_DAMAGE            = 81297,
+
 };
 
 // 31850 - Ardent Defender
@@ -735,6 +738,63 @@ class spell_pal_holy_wrath : public SpellScriptLoader
        }
 };
 
+class spell_pal_consecration : public SpellScriptLoader
+{
+public:
+    spell_pal_consecration() : SpellScriptLoader("spell_pal_consecration") { }
+
+    class spell_pal_consecration_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_pal_consecration_AuraScript)
+        
+        float x, y, z;
+	
+        bool Load()
+        {
+           if (GetCaster()->GetTypeId() != TYPEID_PLAYER)
+               return false;
+
+            return true;
+         }
+
+        bool Validate (SpellInfo *const /*spellEntry*/)
+        {
+            if (!sSpellMgr->GetSpellInfo(SPELL_PALADIN_CONSECRATION_DAMAGE) ||
+                !sSpellMgr->GetSpellInfo(SPELL_PALADIN_CONSECRATION_SUMMON))
+                return false;
+
+            return true;
+        }
+
+        void HandlePeriodicDummy(AuraEffect const* aurEff)
+        {
+            uint64 consecrationNpcGUID = GetCaster()->m_SummonSlot[1];
+
+            if (!consecrationNpcGUID)
+               return;
+
+            Unit* consecrationNpc = ObjectAccessor::GetCreature(*GetCaster(),consecrationNpcGUID);
+
+            if (!consecrationNpc)
+                return;
+
+            consecrationNpc->GetPosition(x,y,z);
+            consecrationNpc->CastSpell(x,y,z,SPELL_PALADIN_CONSECRATION_DAMAGE,true,NULL,NULL,GetCaster()->GetGUID());  
+        }
+
+        void Register()
+        {
+            OnEffectPeriodic += AuraEffectPeriodicFn(spell_pal_consecration_AuraScript::HandlePeriodicDummy,EFFECT_1,SPELL_AURA_PERIODIC_DUMMY);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_pal_consecration_AuraScript();
+    }
+};
+
+
 void AddSC_paladin_spell_scripts()
 {
     //new spell_pal_ardent_defender();
@@ -752,4 +812,5 @@ void AddSC_paladin_spell_scripts()
     new spell_pal_righteous_defense();
     new spell_pal_sacred_shield();
 	new spell_pal_holy_wrath();
+	new spell_pal_consecration();
 }
