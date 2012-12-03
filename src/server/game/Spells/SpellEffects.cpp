@@ -1138,16 +1138,58 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
             }
             case SPELLFAMILY_HUNTER:
             {
-		       	   if (m_spellInfo->Id == 13809 || m_spellInfo->Id == 60192 || m_spellInfo->Id == 1499 || m_spellInfo->Id == 82941 || m_spellInfo->Id == 3674)
+				  //TnT & Lock and Load
+		       	   if (m_spellInfo->Id == 13809) // Frenzing Trap
                    {
                        if(m_caster->HasAura(56342)) // Lock and Load Rank 1
-					       if (roll_chance_f(45.0f))
+					       if (roll_chance_f(50.0f))
                                m_caster->CastSpell(m_caster, 56453, true);
 
                        if(m_caster->HasAura(56343)) // Lock And Load Rank 2
-						   if (roll_chance_f(90.0f))
+						   if (roll_chance_f(100.0f))
                                m_caster->CastSpell(m_caster, 56453, true);
                     }
+				   	if (m_spellInfo->Id == 1499) // Ice Trap
+                   {
+                       if(m_caster->HasAura(56342)) // Lock and Load Rank 1
+					       if (roll_chance_f(50.0f))
+                               m_caster->CastSpell(m_caster, 56453, true);
+
+                       if(m_caster->HasAura(56343)) // Lock And Load Rank 2
+						   if (roll_chance_f(100.0f))
+                               m_caster->CastSpell(m_caster, 56453, true);
+                    }
+					if (m_spellInfo->Id == 3674) // Black Arrow
+                   {
+                       if(m_caster->HasAura(56333)) // T.N.T Rank 1
+					       if (roll_chance_f(10.0f))
+                               m_caster->CastSpell(m_caster, 56453, true);
+
+					    if(m_caster->HasAura(56336)) // T.N.T Rank 2
+					       if (roll_chance_f(20.0f))
+                               m_caster->CastSpell(m_caster, 56453, true);
+                    }
+					if (m_spellInfo->Id == 13813) // Explosive Trap
+                   {
+                       if(m_caster->HasAura(56333)) // T.N.T Rank 1
+					       if (roll_chance_f(10.0f))
+                               m_caster->CastSpell(m_caster, 56453, true);
+
+					    if(m_caster->HasAura(56336)) // T.N.T Rank 2
+					       if (roll_chance_f(20.0f))
+                               m_caster->CastSpell(m_caster, 56453, true);
+                    }
+					if (m_spellInfo->Id == 13795) // Immolation Trap
+                   {
+                       if(m_caster->HasAura(56333)) // T.N.T Rank 1
+					       if (roll_chance_f(10.0f))
+                               m_caster->CastSpell(m_caster, 56453, true);
+
+					    if(m_caster->HasAura(56336)) // T.N.T Rank 213795
+					       if (roll_chance_f(20.0f))
+                               m_caster->CastSpell(m_caster, 56453, true);
+                    }
+					//TnT & Lock and Load
 				    // Rapid Recuperation
                     if (m_caster->HasAura(3045))
                         if (m_caster->HasAura(53228))                // Rank 1
