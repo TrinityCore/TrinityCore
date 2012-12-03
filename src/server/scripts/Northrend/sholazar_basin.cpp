@@ -44,9 +44,9 @@ EndContentData */
 
 enum eRainspeaker
 {
-    SAY_START_IRO                       = -1571000,
-    SAY_QUEST_ACCEPT_IRO                = -1571001,
-    SAY_END_IRO                         = -1571002,
+    SAY_START_IRO                       = 0,
+    SAY_QUEST_ACCEPT_IRO                = 1,
+    SAY_END_IRO                         = 2,
 
     QUEST_FORTUNATE_MISUNDERSTANDINGS   = 12570,
     FACTION_ESCORTEE_A                  = 774,
@@ -106,7 +106,7 @@ public:
                 case 28:
                     player->GroupEventHappens(QUEST_FORTUNATE_MISUNDERSTANDINGS, me);
                     // me->RestoreFaction();
-                    DoScriptText(SAY_END_IRO, me);
+                    Talk(SAY_END_IRO);
                     SetRun(false);
                     break;
             }
@@ -146,7 +146,7 @@ public:
             CAST_AI(npc_escortAI, (creature->AI()))->Start(true, false, player->GetGUID());
             CAST_AI(npc_escortAI, (creature->AI()))->SetMaxPlayerDistance(35.0f);
             creature->SetUnitMovementFlags(MOVEMENTFLAG_FALLING);
-            DoScriptText(SAY_START_IRO, creature);
+            creature->AI()->Talk(SAY_START_IRO);
 
             switch (player->GetTeam()){
             case ALLIANCE:
@@ -162,7 +162,7 @@ public:
 
     bool OnQuestAccept(Player* /*player*/, Creature* creature, Quest const* /*_Quest*/)
     {
-        DoScriptText(SAY_QUEST_ACCEPT_IRO, creature);
+        creature->AI()->Talk(SAY_QUEST_ACCEPT_IRO);
         return false;
     }
 
@@ -184,7 +184,7 @@ enum eVekjik
     GOSSIP_TEXTID_VEKJIK1       = 13137,
     GOSSIP_TEXTID_VEKJIK2       = 13138,
 
-    SAY_TEXTID_VEKJIK1          = -1000208,
+    SAY_TEXTID_VEKJIK1          = 0,
 
     SPELL_FREANZYHEARTS_FURY    = 51469,
 
@@ -223,7 +223,7 @@ public:
                 break;
             case GOSSIP_ACTION_INFO_DEF+2:
                 player->CLOSE_GOSSIP_MENU();
-                DoScriptText(SAY_TEXTID_VEKJIK1, creature, player);
+                creature->AI()->Talk(SAY_TEXTID_VEKJIK1, player->GetGUID());
                 player->AreaExploredOrEventHappens(QUEST_MAKING_PEACE);
                 creature->CastSpell(player, SPELL_FREANZYHEARTS_FURY, false);
                 break;
@@ -342,13 +342,13 @@ enum eEnums
     SPELL_EXPLODE_CRYSTAL       = 62487,
     SPELL_FLAMES                = 64561,
 
-    SAY_WP_7                    = -1800047,
-    SAY_WP_6                    = -1800048,
-    SAY_WP_5                    = -1800049,
-    SAY_WP_4                    = -1800050,
-    SAY_WP_3                    = -1800051,
-    SAY_WP_2                    = -1800052,
-    SAY_WP_1                    = -1800053,
+    SAY_WP_1                    = 0,
+    SAY_WP_2                    = 1,
+    SAY_WP_3                    = 2,
+    SAY_WP_4                    = 3,
+    SAY_WP_5                    = 4,
+    SAY_WP_6                    = 5,
+    SAY_WP_7                    = 6,
 
     QUEST_DISASTER              = 12688
 };
@@ -371,19 +371,19 @@ public:
             switch (waypointId)
             {
                 case 0:
-                    DoScriptText(SAY_WP_2, me);
+                    Talk(SAY_WP_2);
                     break;
                 case 1:
-                    DoScriptText(SAY_WP_3, me);
+                    Talk(SAY_WP_3);
                     me->CastSpell(5918.33f, 5372.91f, -98.770f, SPELL_EXPLODE_CRYSTAL, true);
                     me->SummonGameObject(184743, 5918.33f, 5372.91f, -98.770f, 0, 0, 0, 0, 0, TEMPSUMMON_MANUAL_DESPAWN);     //approx 3 to 4 seconds
                     me->HandleEmoteCommand(EMOTE_ONESHOT_LAUGH);
                     break;
                 case 2:
-                    DoScriptText(SAY_WP_4, me);
+                    Talk(SAY_WP_4);
                     break;
                 case 7:
-                    DoScriptText(SAY_WP_5, me);
+                    Talk(SAY_WP_5);
                     break;
                 case 8:
                     me->CastSpell(5887.37f, 5379.39f, -91.289f, SPELL_EXPLODE_CRYSTAL, true);
@@ -391,13 +391,13 @@ public:
                     me->HandleEmoteCommand(EMOTE_ONESHOT_LAUGH);
                     break;
                 case 9:
-                    DoScriptText(SAY_WP_6, me);
+                    Talk(SAY_WP_6);
                     break;
                 case 13:
                     if (player)
                     {
                         player->GroupEventHappens(QUEST_DISASTER, me);
-                        DoScriptText(SAY_WP_7, me);
+                        Talk(SAY_WP_7);
                     }
                     break;
             }
@@ -448,7 +448,7 @@ public:
                 creature->setFaction(113);
 
                 pEscortAI->Start(false, false, player->GetGUID());
-                DoScriptText(SAY_WP_1, creature);
+                creature->AI()->Talk(SAY_WP_1);
             }
         }
         return true;
@@ -713,8 +713,8 @@ enum eAdventurousDwarf
 
     GOSSIP_MENU_DWARF   = 13307,
 
-    SAY_DWARF_OUCH      = -1571042,
-    SAY_DWARF_HELP      = -1571043
+    SAY_DWARF_OUCH      = 0,
+    SAY_DWARF_HELP      = 1
 };
 
 class npc_adventurous_dwarf : public CreatureScript
@@ -724,7 +724,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const
     {
-        DoScriptText(SAY_DWARF_OUCH, creature);
+        creature->AI()->Talk(SAY_DWARF_OUCH);
         return NULL;
     }
 
@@ -758,7 +758,7 @@ public:
         }
         if (spellId)
             player->CastSpell(player, spellId, true);
-        DoScriptText(SAY_DWARF_HELP, creature);
+        creature->AI()->Talk(SAY_DWARF_HELP);
         creature->DespawnOrUnsummon();
         return true;
     }
