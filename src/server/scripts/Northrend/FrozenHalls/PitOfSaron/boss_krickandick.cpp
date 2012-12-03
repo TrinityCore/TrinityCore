@@ -48,33 +48,30 @@ enum Spells
 enum Yells
 {
     // Krick
-    SAY_KRICK_AGGRO                             = -1658010,
-    SAY_KRICK_SLAY_1                            = -1658011,
-    SAY_KRICK_SLAY_2                            = -1658012,
-    SAY_KRICK_BARRAGE_1                         = -1658013,
-    SAY_KRICK_BARRAGE_2                         = -1658014,
-    SAY_KRICK_POISON_NOVA                       = -1658015,
-    SAY_KRICK_CHASE_1                           = -1658016,
-    SAY_KRICK_CHASE_2                           = -1658017,
-    SAY_KRICK_CHASE_3                           = -1658018,
+    SAY_KRICK_AGGRO                             = 0,
+    SAY_KRICK_SLAY                              = 1,
+    SAY_KRICK_BARRAGE_1                         = 2,
+    SAY_KRICK_BARRAGE_2                         = 3,
+    SAY_KRICK_POISON_NOVA                       = 4,
+    SAY_KRICK_CHASE                             = 5,
+    SAY_KRICK_OUTRO_1                           = 6,
+    SAY_KRICK_OUTRO_3                           = 7,
+    SAY_KRICK_OUTRO_5                           = 8,
+    SAY_KRICK_OUTRO_8                           = 9,
 
     // Ick
-    SAY_ICK_POISON_NOVA                         = -1658020,
-    SAY_ICK_CHASE_1                             = -1658021,
+    SAY_ICK_POISON_NOVA                         = 0,
+    SAY_ICK_CHASE_1                             = 1,
 
     // OUTRO
-    SAY_KRICK_OUTRO_1                           = -1658030,
-    SAY_JAYNA_OUTRO_2                           = -1658031,
-    SAY_SYLVANAS_OUTRO_2                        = -1658032,
-    SAY_KRICK_OUTRO_3                           = -1658033,
-    SAY_JAYNA_OUTRO_4                           = -1658034,
-    SAY_SYLVANAS_OUTRO_4                        = -1658035,
-    SAY_KRICK_OUTRO_5                           = -1658036,
-    SAY_TYRANNUS_OUTRO_7                        = -1658037,
-    SAY_KRICK_OUTRO_8                           = -1658038,
-    SAY_TYRANNUS_OUTRO_9                        = -1658039,
-    SAY_JAYNA_OUTRO_10                          = -1658040,
-    SAY_SYLVANAS_OUTRO_10                       = -1658041,
+    SAY_JAYNA_OUTRO_2                           = 0,
+    SAY_JAYNA_OUTRO_4                           = 1,
+    SAY_JAYNA_OUTRO_10                          = 2,
+    SAY_SYLVANAS_OUTRO_2                        = 0,
+    SAY_SYLVANAS_OUTRO_4                        = 1,
+    SAY_SYLVANAS_OUTRO_10                       = 2,
+    SAY_TYRANNUS_OUTRO_7                        = 1,
+    SAY_TYRANNUS_OUTRO_9                        = 2,
 };
 
 enum Events
@@ -167,7 +164,7 @@ class boss_ick : public CreatureScript
             void EnterCombat(Unit* /*who*/)
             {
                 if (Creature* krick = GetKrick())
-                    DoScriptText(SAY_KRICK_AGGRO, krick);
+                    krick->AI()->Talk(SAY_KRICK_AGGRO);
 
                 events.ScheduleEvent(EVENT_MIGHTY_KICK, 20000);
                 events.ScheduleEvent(EVENT_TOXIC_WASTE, 5000);
@@ -250,8 +247,8 @@ class boss_ick : public CreatureScript
                         case EVENT_EXPLOSIVE_BARRAGE:
                             if (Creature* krick = GetKrick())
                             {
-                                DoScriptText(SAY_KRICK_BARRAGE_1, krick);
-                                DoScriptText(SAY_KRICK_BARRAGE_2, krick);
+                                krick->AI()->Talk(SAY_KRICK_BARRAGE_1);
+                                krick->AI()->Talk(SAY_KRICK_BARRAGE_2);
                                 krick->CastSpell(krick, SPELL_EXPLOSIVE_BARRAGE_KRICK, true);
                                 DoCast(me, SPELL_EXPLOSIVE_BARRAGE_ICK);
                             }
@@ -259,14 +256,14 @@ class boss_ick : public CreatureScript
                             break;
                         case EVENT_POISON_NOVA:
                             if (Creature* krick = GetKrick())
-                                DoScriptText(SAY_KRICK_POISON_NOVA, krick);
+                                krick->AI()->Talk(SAY_KRICK_POISON_NOVA);
 
-                            DoScriptText(SAY_ICK_POISON_NOVA, me);
+                            Talk(SAY_ICK_POISON_NOVA);
                             DoCast(me, SPELL_POISON_NOVA);
                             break;
                         case EVENT_PURSUIT:
                             if (Creature* krick = GetKrick())
-                                DoScriptText(RAND(SAY_KRICK_CHASE_1, SAY_KRICK_CHASE_2, SAY_KRICK_CHASE_3), krick);
+                                krick->AI()->Talk(SAY_KRICK_CHASE);
                             DoCast(me, SPELL_PURSUIT);
                             break;
                         default:
@@ -328,7 +325,7 @@ class boss_krick : public CreatureScript
                 if (victim == me)
                     return;
 
-                DoScriptText(RAND(SAY_KRICK_SLAY_1, SAY_KRICK_SLAY_2), me);
+                Talk(SAY_KRICK_SLAY);
             }
 
             void JustSummoned(Creature* summon)
@@ -362,7 +359,7 @@ class boss_krick : public CreatureScript
                 if (type != POINT_MOTION_TYPE || id != POINT_KRICK_INTRO)
                     return;
 
-                DoScriptText(SAY_KRICK_OUTRO_1, me);
+                Talk(SAY_KRICK_OUTRO_1);
                 _phase = PHASE_OUTRO;
                 _events.Reset();
                 _events.ScheduleEvent(EVENT_OUTRO_1, 1000);
@@ -404,28 +401,28 @@ class boss_krick : public CreatureScript
                                 jainaOrSylvanas->SetFacingToObject(me);
                                 me->SetFacingToObject(jainaOrSylvanas);
                                 if (_instanceScript->GetData(DATA_TEAM_IN_INSTANCE) == ALLIANCE)
-                                    DoScriptText(SAY_JAYNA_OUTRO_2, jainaOrSylvanas);
+                                    jainaOrSylvanas->AI()->Talk(SAY_JAYNA_OUTRO_2);
                                 else
-                                    DoScriptText(SAY_SYLVANAS_OUTRO_2, jainaOrSylvanas);
+                                    jainaOrSylvanas->AI()->Talk(SAY_SYLVANAS_OUTRO_2);
                             }
                             _events.ScheduleEvent(EVENT_OUTRO_3, 5000);
                             break;
                         case EVENT_OUTRO_3:
-                            DoScriptText(SAY_KRICK_OUTRO_3, me);
+                            Talk(SAY_KRICK_OUTRO_3);
                             _events.ScheduleEvent(EVENT_OUTRO_4, 18000);
                             break;
                         case EVENT_OUTRO_4:
                             if (Creature* jainaOrSylvanas = ObjectAccessor::GetCreature(*me, _outroNpcGUID))
                             {
                                 if (_instanceScript->GetData(DATA_TEAM_IN_INSTANCE) == ALLIANCE)
-                                    DoScriptText(SAY_JAYNA_OUTRO_4, jainaOrSylvanas);
+                                    jainaOrSylvanas->AI()->Talk(SAY_JAYNA_OUTRO_4);
                                 else
-                                    DoScriptText(SAY_SYLVANAS_OUTRO_4, jainaOrSylvanas);
+                                    jainaOrSylvanas->AI()->Talk(SAY_SYLVANAS_OUTRO_4);
                             }
                             _events.ScheduleEvent(EVENT_OUTRO_5, 5000);
                             break;
                         case EVENT_OUTRO_5:
-                            DoScriptText(SAY_KRICK_OUTRO_5, me);
+                            Talk(SAY_KRICK_OUTRO_5);
                             _events.ScheduleEvent(EVENT_OUTRO_6, 1000);
                             break;
                         case EVENT_OUTRO_6:
@@ -439,7 +436,7 @@ class boss_krick : public CreatureScript
                             break;
                         case EVENT_OUTRO_7:
                             if (Creature* tyrannus = ObjectAccessor::GetCreature(*me, _tyrannusGUID))
-                                DoScriptText(SAY_TYRANNUS_OUTRO_7, tyrannus);
+                                tyrannus->AI()->Talk(SAY_TYRANNUS_OUTRO_7);
                             _events.ScheduleEvent(EVENT_OUTRO_8, 5000);
                             break;
                         case EVENT_OUTRO_8:
@@ -450,7 +447,7 @@ class boss_krick : public CreatureScript
                             _events.ScheduleEvent(EVENT_OUTRO_9, 2000);
                             break;
                         case EVENT_OUTRO_9:
-                            DoScriptText(SAY_KRICK_OUTRO_8, me);
+                            Talk(SAY_KRICK_OUTRO_8);
                             // TODO: Tyrannus starts killing Krick.
                             // there shall be some visual spell effect
                             if (Creature* tyrannus = ObjectAccessor::GetCreature(*me, _tyrannusGUID))
@@ -472,16 +469,16 @@ class boss_krick : public CreatureScript
                             break;
                         case EVENT_OUTRO_12:
                             if (Creature* tyrannus = ObjectAccessor::GetCreature(*me, _tyrannusGUID))
-                                DoScriptText(SAY_TYRANNUS_OUTRO_9, tyrannus);
+                                tyrannus->AI()->Talk(SAY_TYRANNUS_OUTRO_9);
                             _events.ScheduleEvent(EVENT_OUTRO_13, 2000);
                             break;
                         case EVENT_OUTRO_13:
                             if (Creature* jainaOrSylvanas = ObjectAccessor::GetCreature(*me, _outroNpcGUID))
                             {
                                 if (_instanceScript->GetData(DATA_TEAM_IN_INSTANCE) == ALLIANCE)
-                                    DoScriptText(SAY_JAYNA_OUTRO_10, jainaOrSylvanas);
+                                    jainaOrSylvanas->AI()->Talk(SAY_JAYNA_OUTRO_10);
                                 else
-                                    DoScriptText(SAY_SYLVANAS_OUTRO_10, jainaOrSylvanas);
+                                    jainaOrSylvanas->AI()->Talk(SAY_SYLVANAS_OUTRO_10);
                             }
                             // End of OUTRO. for now...
                             _events.ScheduleEvent(EVENT_OUTRO_END, 3000);
@@ -636,19 +633,18 @@ class spell_krick_pursuit : public SpellScriptLoader
 
             void HandleScriptEffect(SpellEffIndex /*effIndex*/)
             {
-                if (GetCaster()->GetTypeId() != TYPEID_UNIT)
-                    return;
-
-                Unit* caster = GetCaster();
-                CreatureAI* ickAI = caster->ToCreature()->AI();
-                if (Unit* target = ickAI->SelectTarget(SELECT_TARGET_RANDOM, 0, 200.0f, true))
-                {
-                    DoScriptText(SAY_ICK_CHASE_1, caster, target);
-                    caster->AddAura(GetSpellInfo()->Id, target);
-                    CAST_AI(boss_ick::boss_ickAI, ickAI)->SetTempThreat(caster->getThreatManager().getThreat(target));
-                    caster->AddThreat(target, float(GetEffectValue()));
-                    target->AddThreat(caster, float(GetEffectValue()));
-                }
+                if (GetCaster())
+                    if (Creature* ick = GetCaster()->ToCreature())
+                    {
+                        if (Unit* target = ick->AI()->SelectTarget(SELECT_TARGET_RANDOM, 0, 200.0f, true))
+                        {
+                            ick->AI()->Talk(SAY_ICK_CHASE_1, target->GetGUID());
+                            ick->AddAura(GetSpellInfo()->Id, target);
+                            CAST_AI(boss_ick::boss_ickAI, ick->AI())->SetTempThreat(ick->getThreatManager().getThreat(target));
+                            ick->AddThreat(target, float(GetEffectValue()));
+                            target->AddThreat(ick, float(GetEffectValue()));
+                        }
+                    }
             }
 
             void Register()

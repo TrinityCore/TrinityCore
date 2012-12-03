@@ -25,32 +25,36 @@
 
 enum Yells
 {
-    SAY_AMBUSH_1                    = -1658050,
-    SAY_AMBUSH_2                    = -1658051,
-    SAY_GAUNTLET_START              = -1658052,
-    SAY_TYRANNUS_INTRO_1            = -1658053,
-    SAY_GORKUN_INTRO_2              = -1658054,
-    SAY_TYRANNUS_INTRO_3            = -1658055,
+    //Gorkun
+    SAY_GORKUN_INTRO_2              = 0,
+    SAY_GORKUN_OUTRO_1              = 1,
+    SAY_GORKUN_OUTRO_2              = 2,
+    
+    //Tyrannus
+    SAY_AMBUSH_1                    = 3,
+    SAY_AMBUSH_2                    = 4,
+    SAY_GAUNTLET_START              = 5,
+    SAY_TYRANNUS_INTRO_1            = 6,
+    SAY_TYRANNUS_INTRO_3            = 7,
+    SAY_AGGRO                       = 8,
+    SAY_SLAY                        = 9,
+    SAY_DEATH                       = 10,
+    SAY_MARK_RIMEFANG_1             = 11,
+    SAY_MARK_RIMEFANG_2             = 12,
+    SAY_DARK_MIGHT_1                = 13,
+    SAY_DARK_MIGHT_2                = 14,
+    
+    //Jaina
+    SAY_JAYNA_OUTRO_3               = 3,
+    SAY_JAYNA_OUTRO_4               = 4,
+    SAY_JAYNA_OUTRO_5               = 5,
 
-    SAY_AGGRO                       = -1658056,
-    SAY_SLAY_1                      = -1658057,
-    SAY_SLAY_2                      = -1658058,
-    SAY_DEATH                       = -1658059,
-    SAY_MARK_RIMEFANG_1             = -1658060,
-    SAY_MARK_RIMEFANG_2             = -1658061,
-    SAY_DARK_MIGHT_1                = -1658062,
-    SAY_DARK_MIGHT_2                = -1658063,
-
-    SAY_GORKUN_OUTRO_1              = -1658064,
-    SAY_GORKUN_OUTRO_2              = -1658065,
-    SAY_JAYNA_OUTRO_3               = -1658066,
-    SAY_SYLVANAS_OUTRO_3            = -1658067,
-    SAY_JAYNA_OUTRO_4               = -1658068,
-    SAY_SYLVANAS_OUTRO_4            = -1658069,
-    SAY_JAYNA_OUTRO_5               = -1658070,
+    //Sylvanas
+    SAY_SYLVANAS_OUTRO_3            = 3,
+    SAY_SYLVANAS_OUTRO_4            = 4
 };
 
-enum Spells
+enum Spelsl
 {
     SPELL_OVERLORD_BRAND            = 69172,
     SPELL_OVERLORD_BRAND_HEAL       = 69190,
@@ -156,7 +160,7 @@ class boss_tyrannus : public CreatureScript
 
             void EnterCombat(Unit* /*who*/)
             {
-                DoScriptText(SAY_AGGRO, me);
+                Talk(SAY_AGGRO);
             }
 
             void AttackStart(Unit* victim)
@@ -180,12 +184,12 @@ class boss_tyrannus : public CreatureScript
             void KilledUnit(Unit* victim)
             {
                 if (victim->GetTypeId() == TYPEID_PLAYER)
-                    DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2), me);
+                    Talk(SAY_SLAY);
             }
 
             void JustDied(Unit* /*killer*/)
             {
-                DoScriptText(SAY_DEATH, me);
+                Talk(SAY_DEATH);
                 instance->SetBossState(DATA_TYRANNUS, DONE);
 
                 // Prevent corpse despawning
@@ -201,7 +205,7 @@ class boss_tyrannus : public CreatureScript
             {
                 if (actionId == ACTION_START_INTRO)
                 {
-                    DoScriptText(SAY_TYRANNUS_INTRO_1, me);
+                    Talk(SAY_TYRANNUS_INTRO_1);
                     events.SetPhase(PHASE_INTRO);
                     events.ScheduleEvent(EVENT_INTRO_1, 14000, 0, PHASE_INTRO);
                     events.ScheduleEvent(EVENT_INTRO_2, 22000, 0, PHASE_INTRO);
@@ -223,10 +227,10 @@ class boss_tyrannus : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_INTRO_1:
-                            //DoScriptText(SAY_GORKUN_INTRO_2, pGorkunOrVictus);
+                            //Talk(SAY_GORKUN_INTRO_2, pGorkunOrVictus);
                             break;
                         case EVENT_INTRO_2:
-                            DoScriptText(SAY_TYRANNUS_INTRO_3, me);
+                            Talk(SAY_TYRANNUS_INTRO_3);
                             break;
                         case EVENT_INTRO_3:
                             me->ExitVehicle();
@@ -254,16 +258,16 @@ class boss_tyrannus : public CreatureScript
                             events.ScheduleEvent(EVENT_UNHOLY_POWER, 1000);
                             break;
                         case EVENT_UNHOLY_POWER:
-                            DoScriptText(SAY_DARK_MIGHT_1, me);
-                            DoScriptText(SAY_DARK_MIGHT_2, me);
+                            Talk(SAY_DARK_MIGHT_1);
+                            Talk(SAY_DARK_MIGHT_2);
                             DoCast(me, SPELL_UNHOLY_POWER);
                             events.ScheduleEvent(EVENT_FORCEFUL_SMASH, urand(40000, 48000));
                             break;
                         case EVENT_MARK_OF_RIMEFANG:
-                            DoScriptText(SAY_MARK_RIMEFANG_1, me);
+                            Talk(SAY_MARK_RIMEFANG_1);
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true))
                             {
-                                DoScriptText(SAY_MARK_RIMEFANG_2, me, target);
+                                Talk(SAY_MARK_RIMEFANG_2, target->GetGUID());
                                 DoCast(target, SPELL_MARK_OF_RIMEFANG);
                             }
                             events.ScheduleEvent(EVENT_MARK_OF_RIMEFANG, urand(24000, 26000));
