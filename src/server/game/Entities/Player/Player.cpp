@@ -1024,7 +1024,7 @@ bool Player::Create(uint32 guidlow, CharacterCreateInfo* createInfo)
     InitRunes();
 
     SetUInt32Value(PLAYER_FIELD_COINAGE, sWorld->getIntConfig(CONFIG_START_PLAYER_MONEY));
-    SetCurrency((CURRENCY_TYPE_HONOR_POINTS, sWorld->getIntConfig(CONFIG_CURRENCY_START_HONOR_POINTS)) / 100);
+    SetCurrency(CURRENCY_TYPE_HONOR_POINTS, sWorld->getIntConfig(CONFIG_CURRENCY_START_HONOR_POINTS));
     SetCurrency(CURRENCY_TYPE_JUSTICE_POINTS, sWorld->getIntConfig(CONFIG_CURRENCY_START_JUSTICE_POINTS));
     SetCurrency(CURRENCY_TYPE_CONQUEST_POINTS, sWorld->getIntConfig(CONFIG_CURRENCY_START_CONQUEST_POINTS));
 
@@ -7148,7 +7148,7 @@ bool Player::RewardHonor(Unit* victim, uint32 groupsize, int32 honor, bool pvpto
         return true;
 
     // Promote to float for calculations
-    float honor_f = (float)honor / 100;
+    float honor_f = (float)honor;
 
     if (honor_f <= 0)
     {
@@ -7217,6 +7217,7 @@ bool Player::RewardHonor(Unit* victim, uint32 groupsize, int32 honor, bool pvpto
     }
 
     honor_f *= sWorld->getRate(RATE_HONOR);
+    honor_f /= 100; // Extended Cost Bug (Tempotary Fix)
     // Back to int now
     honor = int32(honor_f);
     // honor - for show honor points in log
