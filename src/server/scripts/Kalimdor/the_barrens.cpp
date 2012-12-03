@@ -83,17 +83,14 @@ public:
 
 enum Gilthares
 {
-    SAY_GIL_START               = -1000370,
-    SAY_GIL_AT_LAST             = -1000371,
-    SAY_GIL_PROCEED             = -1000372,
-    SAY_GIL_FREEBOOTERS         = -1000373,
-    SAY_GIL_AGGRO_1             = -1000374,
-    SAY_GIL_AGGRO_2             = -1000375,
-    SAY_GIL_AGGRO_3             = -1000376,
-    SAY_GIL_AGGRO_4             = -1000377,
-    SAY_GIL_ALMOST              = -1000378,
-    SAY_GIL_SWEET               = -1000379,
-    SAY_GIL_FREED               = -1000380,
+    SAY_GIL_START               = 0,
+    SAY_GIL_AT_LAST             = 1,
+    SAY_GIL_PROCEED             = 2,
+    SAY_GIL_FREEBOOTERS         = 3,
+    SAY_GIL_AGGRO               = 4,
+    SAY_GIL_ALMOST              = 5,
+    SAY_GIL_SWEET               = 6,
+    SAY_GIL_FREED               = 7,
 
     QUEST_FREE_FROM_HOLD        = 898,
     AREA_MERCHANT_COAST         = 391,
@@ -112,7 +109,7 @@ public:
             creature->setFaction(FACTION_ESCORTEE);
             creature->SetStandState(UNIT_STAND_STATE_STAND);
 
-            DoScriptText(SAY_GIL_START, creature, player);
+            creature->AI()->Talk(SAY_GIL_START, player->GetGUID());
 
             if (npc_giltharesAI* pEscortAI = CAST_AI(npc_gilthares::npc_giltharesAI, creature->AI()))
                 pEscortAI->Start(false, false, player->GetGUID(), quest);
@@ -140,22 +137,22 @@ public:
             switch (waypointId)
             {
                 case 16:
-                    DoScriptText(SAY_GIL_AT_LAST, me, player);
+                    Talk(SAY_GIL_AT_LAST, player->GetGUID());
                     break;
                 case 17:
-                    DoScriptText(SAY_GIL_PROCEED, me, player);
+                    Talk(SAY_GIL_PROCEED, player->GetGUID());
                     break;
                 case 18:
-                    DoScriptText(SAY_GIL_FREEBOOTERS, me, player);
+                    Talk(SAY_GIL_FREEBOOTERS, player->GetGUID());
                     break;
                 case 37:
-                    DoScriptText(SAY_GIL_ALMOST, me, player);
+                    Talk(SAY_GIL_ALMOST,player->GetGUID());
                     break;
                 case 47:
-                    DoScriptText(SAY_GIL_SWEET, me, player);
+                    Talk(SAY_GIL_SWEET, player->GetGUID());
                     break;
                 case 53:
-                    DoScriptText(SAY_GIL_FREED, me, player);
+                    Talk(SAY_GIL_FREED, player->GetGUID());
                     player->GroupEventHappens(QUEST_FREE_FROM_HOLD, me);
                     break;
             }
@@ -171,7 +168,7 @@ public:
             if (who->GetTypeId() != TYPEID_PLAYER && me->GetAreaId() == AREA_MERCHANT_COAST)
             {
                 //appears to be pretty much random (possible only if escorter not in combat with who yet?)
-                DoScriptText(RAND(SAY_GIL_AGGRO_1, SAY_GIL_AGGRO_2, SAY_GIL_AGGRO_3, SAY_GIL_AGGRO_4), me, who);
+                Talk(SAY_GIL_AGGRO, who->GetGUID());
             }
         }
     };
@@ -324,11 +321,11 @@ enum TwiggyFlathead
     NPC_BIG_WILL                = 6238,
     NPC_AFFRAY_CHALLENGER       = 6240,
 
-    SAY_BIG_WILL_READY          = -1000123,
-    SAY_TWIGGY_FLATHEAD_BEGIN   = -1000124,
-    SAY_TWIGGY_FLATHEAD_FRAY    = -1000125,
-    SAY_TWIGGY_FLATHEAD_DOWN    = -1000126,
-    SAY_TWIGGY_FLATHEAD_OVER    = -1000127,
+    SAY_BIG_WILL_READY          = 0,
+    SAY_TWIGGY_FLATHEAD_BEGIN   = 0,
+    SAY_TWIGGY_FLATHEAD_FRAY    = 1,
+    SAY_TWIGGY_FLATHEAD_DOWN    = 2,
+    SAY_TWIGGY_FLATHEAD_OVER    = 3
 };
 
 Position const AffrayChallengerLoc[6] =
@@ -412,7 +409,7 @@ public:
                     return;
 
                 if (!pWarrior->isAlive() && pWarrior->GetQuestStatus(1719) == QUEST_STATUS_INCOMPLETE) {
-                    DoScriptText(SAY_TWIGGY_FLATHEAD_DOWN, me);
+                    Talk(SAY_TWIGGY_FLATHEAD_DOWN);
                     pWarrior->FailQuest(1719);
 
                     for (uint8 i = 0; i < 6; ++i) // unsummon challengers
@@ -441,7 +438,7 @@ public:
 
                     if (x >= -1684 && x <= -1674 && y >= -4334 && y <= -4324) {
                         pWarrior->AreaExploredOrEventHappens(1719);
-                        DoScriptText(SAY_TWIGGY_FLATHEAD_BEGIN, me, pWarrior);
+                        Talk(SAY_TWIGGY_FLATHEAD_BEGIN, pWarrior->GetGUID());
 
                         for (uint8 i = 0; i < 6; ++i)
                         {
@@ -470,7 +467,7 @@ public:
                                 Creature* creature = Unit::GetCreature((*me), AffrayChallenger[i]);
                                 if ((!creature || (!creature->isAlive())) && !ChallengerDown[i])
                                 {
-                                    DoScriptText(SAY_TWIGGY_FLATHEAD_DOWN, me);
+                                    Talk(SAY_TWIGGY_FLATHEAD_DOWN);
                                     ChallengerDown[i] = true;
                                 }
                             }
@@ -482,7 +479,7 @@ public:
                     {
                         if (Wave < 6 && AffrayChallenger[Wave] && !EventBigWill)
                         {
-                            DoScriptText(SAY_TWIGGY_FLATHEAD_FRAY, me);
+                            Talk(SAY_TWIGGY_FLATHEAD_FRAY);
                             Creature* creature = Unit::GetCreature((*me), AffrayChallenger[Wave]);
                             if (creature && (creature->isAlive()))
                             {
@@ -512,7 +509,7 @@ public:
                             Creature* creature = Unit::GetCreature((*me), BigWill);
                             if (!creature || !creature->isAlive())
                             {
-                                DoScriptText(SAY_TWIGGY_FLATHEAD_OVER, me);
+                                Talk(SAY_TWIGGY_FLATHEAD_OVER);
                                 Reset();
                             }
                         }
@@ -530,14 +527,14 @@ public:
 
 enum Wizzlecrank
 {
-    SAY_START           = -1000298,
-    SAY_STARTUP1        = -1000299,
-    SAY_STARTUP2        = -1000300,
-    SAY_MERCENARY       = -1000301,
-    SAY_PROGRESS_1      = -1000302,
-    SAY_PROGRESS_2      = -1000303,
-    SAY_PROGRESS_3      = -1000304,
-    SAY_END             = -1000305,
+    SAY_MERCENARY       = 0,
+    SAY_START           = 0,
+    SAY_STARTUP1        = 1,
+    SAY_STARTUP2        = 2,
+    SAY_PROGRESS_1      = 3,
+    SAY_PROGRESS_2      = 4,
+    SAY_PROGRESS_3      = 5,
+    SAY_END             = 6,
 
     QUEST_ESCAPE        = 863,
     FACTION_RATCHET     = 637,
@@ -581,7 +578,7 @@ public:
             switch (waypointId)
             {
                 case 0:
-                    DoScriptText(SAY_STARTUP1, me);
+                    Talk(SAY_STARTUP1);
                     break;
                 case 9:
                     SetRun(false);
@@ -589,7 +586,7 @@ public:
                 case 17:
                     if (Creature* temp = me->SummonCreature(NPC_MERCENARY, 1128.489f, -3037.611f, 92.701f, 1.472f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000))
                     {
-                        DoScriptText(SAY_MERCENARY, temp);
+                        temp->AI()->Talk(SAY_MERCENARY);
                         me->SummonCreature(NPC_MERCENARY, 1160.172f, -2980.168f, 97.313f, 3.690f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
                     }
                     break;
@@ -609,10 +606,10 @@ public:
             switch (PointId)
             {
                 case 9:
-                    DoScriptText(SAY_STARTUP2, me, player);
+                    Talk(SAY_STARTUP2, player->GetGUID());
                     break;
                 case 18:
-                    DoScriptText(SAY_PROGRESS_1, me, player);
+                    Talk(SAY_PROGRESS_1, player->GetGUID());
                     SetRun();
                     break;
             }
@@ -638,13 +635,13 @@ public:
                         switch (PostEventCount)
                         {
                             case 0:
-                                DoScriptText(SAY_PROGRESS_2, me);
+                                Talk(SAY_PROGRESS_2);
                                 break;
                             case 1:
-                                DoScriptText(SAY_PROGRESS_3, me);
+                                Talk(SAY_PROGRESS_3);
                                 break;
                             case 2:
-                                DoScriptText(SAY_END, me);
+                                Talk(SAY_END);
                                 break;
                             case 3:
                                 if (Player* player = GetPlayerForEscort())
