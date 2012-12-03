@@ -1029,7 +1029,7 @@ public:
             {
                 if (AuraEffect const* aurEff = caster->GetAuraEffect(SPELL_AURA_DUMMY, SPELLFAMILY_HUNTER, 536, EFFECT_0))
                 {
-                    int32 basepoints0 = aurEff->GetAmount() * GetAura()->GetEffect(EFFECT_0)->GetTotalTicks() * caster->SpellDamageBonus(target, GetSpellInfo(), GetAura()->GetEffect(0)->GetAmount(), DOT) / 100;
+                    int32 basepoints0 = aurEff->GetAmount() * GetAura()->GetEffect(EFFECT_0)->GetTotalTicks() * caster->SpellDamageBonusDone(target, GetSpellInfo(), GetAura()->GetEffect(0)->GetAmount(), DOT) / 100;
                     caster->CastCustomSpell(target, 83077, &basepoints0, NULL, NULL, true, NULL, GetAura()->GetEffect(0));
                 }
             }

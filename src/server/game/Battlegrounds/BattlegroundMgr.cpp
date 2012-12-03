@@ -411,8 +411,7 @@ void BattlegroundMgr::BuildPvpLogDataPacket(WorldPacket* data, Battleground* bg)
 
         if (!isArena)
         {
-          //  buff << uint32(itr->second->BonusHonor / 100);
-			buff << uint32(itr->second->BonusHonor);
+            buff << uint32(itr->second->BonusHonor / 100);
             buff << uint32(itr->second->Deaths);
             buff << uint32(itr->second->HonorableKills);
         }
