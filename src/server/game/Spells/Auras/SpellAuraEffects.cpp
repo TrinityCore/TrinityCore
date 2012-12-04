@@ -842,90 +842,57 @@ void AuraEffect::CalculatePeriodic(Unit* caster, bool resetPeriodicTimer /*= tru
     }
 }
 
-void AuraEffect::CalculateSpellMod(SpellInfo const *spellInfo, Unit * target)
+void AuraEffect::CalculateSpellMod()
 {
+    switch (GetAuraType())
+    {
+        case SPELL_AURA_DUMMY:
+            switch (GetSpellInfo()->SpellFamilyName)
+            {
+                case SPELLFAMILY_DRUID:
+                    switch (GetId())
+                    {
+                        case 34246:                                 // Idol of the Emerald Queen
+                        case 60779:                                 // Idol of Lush Moss
+                        {
+                            if (!m_spellmod)
+                            {
+                                m_spellmod = new SpellModifier(GetBase());
+                                m_spellmod->op = SPELLMOD_DOT;
+                                m_spellmod->type = SPELLMOD_FLAT;
+                                m_spellmod->spellId = GetId();
+                                m_spellmod->mask[1] = 0x0010;
+                            }
+                            m_spellmod->value = GetAmount()/7;
+                        }
+                        break;
+                    }
+                    break;
+                default:
+                    break;
+            }
+            break;
+        case SPELL_AURA_ADD_FLAT_MODIFIER:
+        case SPELL_AURA_ADD_PCT_MODIFIER:
+            if (!m_spellmod)
+            {
+                m_spellmod = new SpellModifier(GetBase());
+                m_spellmod->op = SpellModOp(GetMiscValue());
+                ASSERT(m_spellmod->op < MAX_SPELLMOD);
 
-  switch (GetAuraType())
-     {
-         case SPELL_AURA_DUMMY:
-             switch(GetSpellInfo()->SpellFamilyName)
-             {
-                 case SPELLFAMILY_PRIEST:
-                     // Pain and Suffering
-                     if (m_spellInfo->SpellIconID == 2874)
-                     {
-                         if (!m_spellmod)
-                         {
-                            m_spellmod = new SpellModifier(GetBase(), this);
-                             m_spellmod->op = SPELLMOD_DOT;
-                             m_spellmod->type = SPELLMOD_PCT;
-                             m_spellmod->spellId = GetId();
-                             m_spellmod->mask[1] = 0x00002000;
-                         }
-                         m_spellmod->value = GetAmount();
-                     }
-                     break;
-                 case SPELLFAMILY_DRUID:
-                     switch (GetId())
-                     {
-                         case 34246:                                 // Idol of the Emerald Queen
-                         case 60779:                                 // Idol of Lush Moss
-                         {
-                             if (!m_spellmod)
-                             {
-                                m_spellmod = new SpellModifier(GetBase(), this);
-                                 m_spellmod->op = SPELLMOD_DOT;
-                                 m_spellmod->type = SPELLMOD_FLAT;
-                                 m_spellmod->spellId = GetId();
-                                 m_spellmod->mask[1] = 0x0010;
-                             }
-                             m_spellmod->value = GetAmount()/7;
-                         }
-                         break;
-                     }
-                     break;
-                 default:
-                     break;
-             }
-         case SPELL_AURA_MOD_SPELL_CRIT_CHANCE:
-             switch(GetId())
-             {
-                 case 51466: // Elemental oath
-                 case 51470: // Elemental oath
-                     // "while Clearcasting from Elemental Focus is active, you deal 5%/10% more spell damage."
-                     if (!m_spellmod)
-                     {
-                        m_spellmod = new SpellModifier(GetBase(), this);
-                         m_spellmod->op = SPELLMOD_EFFECT2;
-                         m_spellmod->type = SPELLMOD_FLAT;
-                         m_spellmod->spellId = GetId();
-                         m_spellmod->mask[1] = 0x0004000;
-                     }
-                     m_spellmod->value = GetBase()->GetUnitOwner()->CalculateSpellDamage(GetBase()->GetUnitOwner(), GetSpellInfo(), 1);
-                     break;
-                 default:
-                     break;
-             }
-             break;
-         case SPELL_AURA_ADD_FLAT_MODIFIER:
-         case SPELL_AURA_ADD_PCT_MODIFIER:
-             if (!m_spellmod)
-             {
-                m_spellmod = new SpellModifier(GetBase(), this);
-                 m_spellmod->op = SpellModOp(GetMiscValue());
-                 ASSERT(m_spellmod->op < MAX_SPELLMOD);
- 
-                 m_spellmod->type = SpellModType(GetAuraType());    // SpellModType value == spell aura types
-                 m_spellmod->spellId = GetId();
-                 m_spellmod->mask = GetSpellInfo()->Effects[GetEffIndex()].SpellClassMask;
-                 m_spellmod->charges = GetBase()->GetCharges();
-             }
-             m_spellmod->value = GetAmount();
-             break;
-         default:
-             break;
-     }
-    GetBase()->CallScriptEffectCalcSpellModHandlers(const_cast<AuraEffect const*>(this), m_spellmod, spellInfo, target);
+                m_spellmod->type = SpellModType(GetAuraType());    // SpellModType value == spell aura types
+                m_spellmod->spellId = GetId();
+                m_spellmod->mask = GetSpellInfo()->Effects[GetEffIndex()].SpellClassMask;
+                m_spellmod->charges = GetBase()->GetCharges();
+            }
+            m_spellmod->value = GetAmount();
+            break;
+        default:
+            break;
+    }
+    GetBase()->CallScriptEffectCalcSpellModHandlers(const_cast<AuraEffect const*>(this), m_spellmod);
+}
+
 void AuraEffect::ChangeAmount(int32 newAmount, bool mark, bool onStackOrReapply)
 {
     // Reapply if amount change

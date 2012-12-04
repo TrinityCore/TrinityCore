@@ -337,22 +337,6 @@ class SpellCastTargets;
 typedef std::list<Unit*> UnitList;
 typedef std::list< std::pair<Aura*, uint8> > DispelChargesList;
 
- struct SpellModifier
- {
-    SpellModifier(Aura * _ownerAura = NULL, AuraEffect * _ownerAurEff = NULL) : charges(0), ownerAura(_ownerAura), ownerAuraEffect(_ownerAurEff) {}
-    SpellModOp   op   : 8;
-    SpellModType type : 8;
-    int16 charges     : 16;
-    int32 value;
-    flag96 mask;
-    uint32 spellId;
-    Aura * const ownerAura;
-    AuraEffect * ownerAuraEffect;
-    void Recalculate(SpellInfo const *spellInfo, Unit* pTarget);
-};
-
-typedef std::list<SpellModifier*> SpellModList;
-
 struct SpellImmune
 {
     uint32 type;
@@ -2270,15 +2254,6 @@ class Unit : public WorldObject
         time_t GetLastDamagedTime() const { return _lastDamagedTime; }
         void SetLastDamagedTime(time_t val) { _lastDamagedTime = val; }
 
-		 void AddSpellMod(SpellModifier* mod, bool apply);
-		 void RemoveSpellMods(Spell* spell);
-         void RestoreSpellMods(Spell* spell, uint32 ownerAuraId = 0, Aura* aura = NULL);
-         void RestoreAllSpellMods(uint32 ownerAuraId = 0, Aura* aura = NULL);
-		 void DropModCharge(SpellModifier* mod, Spell* spell);
-		 void DropModCharge(SpellModifier* mod, Spell* spell);
-         void SetSpellModTakingSpell(Spell* spell, bool apply);
-		 template <class T> T ApplySpellMod(uint32 spellId, SpellModOp op, T &basevalue, Spell* spell = NULL, Unit* pTarget = NULL)
-
     protected:
         explicit Unit (bool isWorldObject);
 
@@ -2443,61 +2418,5 @@ namespace Trinity
         private:
             const bool m_ascending;
     };
-}
-
-SpellInfo const* GetSpellInfo(uint32 spellId);
-
-// "the bodies of template functions must be made available in a header file"
-template <class T> T Unit::ApplySpellMod(uint32 spellId, SpellModOp op, T &basevalue, Spell* spell, Unit* pTarget)
-{
-    SpellInfo const* spellInfo = GetSpellInfo(spellId);
-    if (!spellInfo)
-        return 0;
-    float totalmul = 1.0f;
-    int32 totalflat = 0;
-
-    // Drop charges for triggering spells instead of triggered ones
-    if (m_spellModTakingSpell)
-        spell = m_spellModTakingSpell;
-
-    for (SpellModList::iterator itr = m_spellMods[op].begin(); itr != m_spellMods[op].end(); ++itr)
-    {
-        SpellModifier *mod = *itr;
-
-        // Charges can be set only for mods with auras
-        if (!mod->ownerAura)
-            ASSERT(mod->charges == 0);
-
-        if (!IsAffectedBySpellmod(spellInfo, mod, spell))
-            continue;
-
-        // Calculate spell mod value before applying
-        // Value of some spell mods depends on which spell is casting, caster and/or target's stats, e.g.:
-        // 77226 Deep Healing: Increases the potency of your healing spells ... based on the current health level of your target
-        // 76547 Mana Adept:   Increases all spell damage done by up to 0%, based on the amount of mana the Mage has unspent
-        // 76613 Frostburn:    All your spells deal 0% increased damage against 'Frozen' targets
-        // current solution is treat these spell effects as spell mods and recalculate spell mod value before applying
-        mod->Recalculate(spellInfo, pTarget);
-
-        if (mod->type == SPELLMOD_FLAT)
-            totalflat += mod->value;
-        else if (mod->type == SPELLMOD_PCT)
-        {
-            // skip percent mods for null basevalue (most important for spell mods with charges)
-            if (basevalue == T(0))
-                continue;
-
-            // special case (skip > 10sec spell casts for instant cast setting)
-            if (mod->op == SPELLMOD_CASTING_TIME && basevalue >= T(10000) && mod->value <= -100)
-                continue;
-
-            totalmul += CalculatePct(1.0f, mod->value);
-        }
-
-        DropModCharge(mod, spell);
-    }
-    float diff = (float)basevalue * (totalmul - 1.0f) + (float)totalflat;
-    basevalue = T((float)basevalue + diff);
-    return T(diff);
 }
 #endif

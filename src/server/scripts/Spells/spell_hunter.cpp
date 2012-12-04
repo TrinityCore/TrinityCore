@@ -55,8 +55,6 @@ enum HunterSpells
     HUNTER_SPELL_STREADY_SHOT_ATTACK_SPEED       = 53220,
 	HUNTER_SPELL_SERPENT_STING                   = 1978,
     HUNTER_SPELL_COBRA_SHOT_ENERGIZE             = 91954,
-    HUNTER_SPELL_TNT_R1                          = 56333,
-    HUNTER_SPELL_TNT_R2                          = 56336,
 
 };
 
@@ -1091,42 +1089,6 @@ public:
     }
 };
 
-// 56453 Lock and Load Proc
-class spell_hun_tnt : public SpellScriptLoader
-{
-public:
-    spell_hun_tnt() : SpellScriptLoader("spell_hun_tnt") { }
-
-    class spell_hun_tnt_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_hun_tnt_SpellScript)
-        bool Validate(SpellInfo const* /*spellEntry*/)
-        {
-            if (!sSpellMgr->GetSpellInfo(HUNTER_SPELL_TNT_R1) || !sSpellMgr->GetSpellInfo(HUNTER_SPELL_TNT_R2))
-                return false;
-
-            return true;
-        }
-
-        void HandleScriptEffect(SpellEffIndex /*effIndex*/)
-        {
-            Unit* caster = GetCaster();
-
-			if (roll_chance_f(20f))
-            caster->CastSpell(caster, 56453, true); // Lock and Load
-        }
-
-        void Register()
-        {
-            OnEffectHitTarget += SpellEffectFn(spell_hun_tnt_SpellScript::HandleScriptEffect, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
-        }
-    };
-
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_hun_tnt_SpellScript();
-    }
-};
 void AddSC_hunter_spell_scripts()
 {
     new spell_hun_aspect_of_the_beast();
@@ -1151,5 +1113,4 @@ void AddSC_hunter_spell_scripts()
     new spell_hun_steady_shot();
 	new spell_hun_serpent_sting();
 	new spell_hun_cobra_shot();
-	new spell_hun_tnt();
 }
