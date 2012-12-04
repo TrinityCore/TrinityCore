@@ -916,7 +916,7 @@ class spell_mage_combustion : public SpellScriptLoader
 
                     for (Unit::AuraEffectList::const_iterator i = targetAuras.begin(); i != targetAuras.end(); ++i)
                         if ((*i)->GetCaster() == GetCaster() && (*i)->GetSpellInfo()->SchoolMask == SPELL_SCHOOL_MASK_FIRE)
-                            basePoints0 += (*i)->GetAmount();
+                            basePoints0 += (*i)->GetAmount() / 1.33f; // Penalty [Very High Tick]
 
                     if (basePoints0)
                         GetCaster()->CastCustomSpell(target, SPELL_MAGE_COMBUSTION_PERIODIC_DAMAGE, &basePoints0, NULL, NULL, true);

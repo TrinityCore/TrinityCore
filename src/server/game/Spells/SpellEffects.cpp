@@ -1154,58 +1154,6 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
             }
             case SPELLFAMILY_HUNTER:
             {
-				  //TnT & Lock and Load
-		       	   if (m_spellInfo->Id == 13809) // Frenzing Trap
-                   {
-                       if(m_caster->HasAura(56342)) // Lock and Load Rank 1
-					       if (roll_chance_f(50.0f))
-                               m_caster->CastSpell(m_caster, 56453, true);
-
-                       if(m_caster->HasAura(56343)) // Lock And Load Rank 2
-						   if (roll_chance_f(100.0f))
-                               m_caster->CastSpell(m_caster, 56453, true);
-                    }
-				   	if (m_spellInfo->Id == 1499) // Ice Trap
-                   {
-                       if(m_caster->HasAura(56342)) // Lock and Load Rank 1
-					       if (roll_chance_f(50.0f))
-                               m_caster->CastSpell(m_caster, 56453, true);
-
-                       if(m_caster->HasAura(56343)) // Lock And Load Rank 2
-						   if (roll_chance_f(100.0f))
-                               m_caster->CastSpell(m_caster, 56453, true);
-                    }
-					if (m_spellInfo->Id == 3674) // Black Arrow
-                   {
-                       if(m_caster->HasAura(56333)) // T.N.T Rank 1
-					       if (roll_chance_f(10.0f))
-                               m_caster->CastSpell(m_caster, 56453, true);
-
-					    if(m_caster->HasAura(56336)) // T.N.T Rank 2
-					       if (roll_chance_f(20.0f))
-                               m_caster->CastSpell(m_caster, 56453, true);
-                    }
-					if (m_spellInfo->Id == 13813) // Explosive Trap
-                   {
-                       if(m_caster->HasAura(56333)) // T.N.T Rank 1
-					       if (roll_chance_f(10.0f))
-                               m_caster->CastSpell(m_caster, 56453, true);
-
-					    if(m_caster->HasAura(56336)) // T.N.T Rank 2
-					       if (roll_chance_f(20.0f))
-                               m_caster->CastSpell(m_caster, 56453, true);
-                    }
-					if (m_spellInfo->Id == 13795) // Immolation Trap
-                   {
-                       if(m_caster->HasAura(56333)) // T.N.T Rank 1
-					       if (roll_chance_f(10.0f))
-                               m_caster->CastSpell(m_caster, 56453, true);
-
-					    if(m_caster->HasAura(56336)) // T.N.T Rank 213795
-					       if (roll_chance_f(20.0f))
-                               m_caster->CastSpell(m_caster, 56453, true);
-                    }
-					//TnT & Lock and Load
 				    // Rapid Recuperation
                     if (m_caster->HasAura(3045))
                         if (m_caster->HasAura(53228))                // Rank 1
@@ -3899,7 +3847,7 @@ void Spell::EffectWeaponDmg(SpellEffIndex effIndex)
                     m_caster->ToPlayer()->AddComboPoints(unitTarget, 1, this);
             }
             // Shred, Maul - Rend and Tear
-            else if (m_spellInfo->SpellFamilyFlags[0] & 0x00008800 && unitTarget->HasAuraState(AURA_STATE_BLEEDING))
+            else if (m_spellInfo->SpellFamilyFlags[0] & 0x00008800 && unitTarget->HasAuraState(AURA_STATE_BLEEDING) || unitTarget->HasAura(772) || unitTarget->HasAura(94009))
             {
                 if (AuraEffect const* rendAndTear = m_caster->GetDummyAuraEffect(SPELLFAMILY_DRUID, 2859, 0))
                     totalDamagePercentMod *= float((rendAndTear->GetAmount() + 100.0f) / 100.0f);
@@ -3921,19 +3869,6 @@ void Spell::EffectWeaponDmg(SpellEffIndex effIndex)
         }
 		case SPELLFAMILY_MAGE:
 			{
-			     // Cone of Cold
-                if (m_spellInfo->SpellFamilyFlags[0] & SPELLFAMILYFLAG1_MAGE_CONEOFCOLD)
-                {
-                    if (m_caster->HasAura(11190)) // Improved Cone of Cold Rank 1
-                    {
-                        m_caster->CastSpell(unitTarget, 83301, true);
-                    }
-
-                    if (m_caster->HasAura(12489)) // Improved Cone of Cold Rank 2
-                    {
-                        m_caster->CastSpell(unitTarget, 83302, true);
-                    }
-                }
                 switch (m_spellInfo->Id)
                 {
                 case 1459: // Arcane Brilliance
@@ -3955,49 +3890,6 @@ void Spell::EffectWeaponDmg(SpellEffIndex effIndex)
                                 m_caster->CastSpell(unitTarget, 79058, true); // Arcane Brilliance (For all)
                             else
                                 m_caster->CastSpell(unitTarget, 79057, true); // Arcane Brilliance (Only for caster)
-                        }
-                        break;
-                    }
-                case 42955: // Conjure Refreshment
-                    {
-                        if (m_caster->getLevel() > 33 && m_caster->getLevel() < 44)
-                            m_caster->CastSpell(m_caster, 92739, true);
-
-                        if (m_caster->getLevel() > 43 && m_caster->getLevel() < 54)
-                            m_caster->CastSpell(m_caster, 92799, true);
-
-                        if (m_caster->getLevel() > 53 && m_caster->getLevel() < 65)
-                            m_caster->CastSpell(m_caster, 92802, true);
-
-                        if (m_caster->getLevel() > 64 && m_caster->getLevel() < 74)
-                            m_caster->CastSpell(m_caster, 92805, true);
-
-                        if (m_caster->getLevel() > 73 && m_caster->getLevel() < 80)
-                            m_caster->CastSpell(m_caster, 74625, true);
-
-                        if (m_caster->getLevel() > 79 && m_caster->getLevel() < 85)
-                            m_caster->CastSpell(m_caster, 92822, true);
-
-                        if (m_caster->getLevel() == 85)
-                            m_caster->CastSpell(m_caster, 92727, true);
-                        break;
-                    }
-                case 43987: // Ritual of Refreshment
-                    {
-                        if (m_caster->GetTypeId() == TYPEID_PLAYER)
-                        {
-                            m_caster->ToPlayer()->RemoveSpellCooldown(74650, true); // Rank 1
-                            m_caster->ToPlayer()->RemoveSpellCooldown(92824, true); // Rank 2
-                            m_caster->ToPlayer()->RemoveSpellCooldown(92827, true); // Rank 3
-
-                            if (m_caster->getLevel() > 75 && m_caster->getLevel() < 80)
-                                m_caster->CastSpell(m_caster, 74650, true);
-
-                            if (m_caster->getLevel() > 80 && m_caster->getLevel() < 85)
-                                m_caster->CastSpell(m_caster, 92824, true);
-
-                            if (m_caster->getLevel() == 85)
-                                m_caster->CastSpell(m_caster, 92827, true);
                         }
                         break;
                     }
