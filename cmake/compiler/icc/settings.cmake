@@ -9,7 +9,10 @@ endif()
 
 if( WITH_WARNINGS )
   add_definitions(-w1)
-  message(STATUS "ICC: All warnings enabled")
+  message(STATUS "ICC All warnings enabled")
+else()
+  add_definitions(-w)
+  message(STATUS "ICC: All warnings disabled")
 endif()
 
 if( WITH_COREDEBUG )

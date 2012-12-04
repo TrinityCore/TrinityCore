@@ -1,0 +1,50 @@
+Source: libmpq
+Priority: extra
+Maintainer: Georg Lukas <georg@op-co.de>
+Build-Depends: debhelper (>= 7), autotools-dev, libbz2-dev
+Standards-Version: 3.7.3
+Section: libs
+Homepage: https://libmpq.org/
+
+Package: libmpq-dev
+Section: libdevel
+Architecture: any
+Depends: libmpq0 (= ${binary:Version})
+Description: Headers for libmpq, a library for MoPaQ mpq archives
+ libmpq is a library for extracting and manipulating MoPaQ mpq archives.
+ This package provides header files and bindings for applications using
+ the libmpq library for the following languages:
+   * C
+   * Python
+   * D
+
+Package: libmpq0
+Section: libs
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: A library for extracting and manipulating MoPaQ mpq archives
+ MPQ, or MoPaQ, is a proprietary archive format created by
+ Mike O'Brien, the man hailed as Blizzard's multiplayer engine
+ genius, back in 1996 as a general purpose archive for use with
+ Diablo, and named narcissistically for its creator
+ "Mike O'brien PaCK". The copyrights to it, however, are held by
+ Havas Interactive, Blizzard's parent company. The archive format
+ is used by many Blizzard titles like Diablo, Diablo 2, Starcraft,
+ Warcraft 2: BNE, a newer version in Warcraft 3 and World of
+ Warcraft (WoW).
+
+Package: libmpq0-dbg
+Section: libdevel
+Architecture: any
+Depends: libmpq0 (= ${binary:Version})
+Description: Debug symbols for libmpq0 library package
+
+Package: python-mpq
+Architecture: all
+Depends: ${python:Depends}
+XB-Python-Version: ${python:Versions}
+XS-Python-Version: current
+Description: Python bindings for libmpq, a library for MoPaQ mpq archives
+ libmpq is a library for extracting and manipulating MoPaQ mpq archives.
+ This package provides the python bindings for libmpq.
+

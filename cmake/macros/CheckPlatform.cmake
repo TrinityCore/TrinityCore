@@ -11,6 +11,8 @@ include("${CMAKE_SOURCE_DIR}/cmake/platform/settings.cmake")
 
 if(WIN32)
   include("${CMAKE_SOURCE_DIR}/cmake/platform/win/settings.cmake")
+elseif(APPLE)
+  include("${CMAKE_SOURCE_DIR}/cmake/platform/osx/settings.cmake")
 elseif(UNIX)
   include("${CMAKE_SOURCE_DIR}/cmake/platform/unix/settings.cmake")
 endif()
