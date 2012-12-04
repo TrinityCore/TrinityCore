@@ -550,7 +550,7 @@ public:
                     case 22:
                         if (instance)
                             if (Creature* temp = Unit::GetCreature(*me, instance->GetData64(DATA_ABEDNEUM)))
-                                Talk(SAY_EVENT_D_2_ABED);
+                                temp->AI()->Talk(SAY_EVENT_D_2_ABED);
                         SpawnDwarf(1);
                         JumpToNextStep(5000);
                         break;
