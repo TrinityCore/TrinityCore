@@ -767,9 +767,9 @@ AuraScript::EffectCalcSpellModHandler::EffectCalcSpellModHandler(AuraEffectCalcS
     pEffectHandlerScript = _pEffectHandlerScript;
 }
 
-void AuraScript::EffectCalcSpellModHandler::Call(AuraScript* auraScript, AuraEffect const* aurEff, SpellModifier*& spellMod)
+void AuraScript::EffectCalcSpellModHandler::Call(AuraScript* auraScript, AuraEffect const* aurEff, SpellModifier*& spellMod, SpellInfo const *spellInfo, Unit * target)
 {
-    (auraScript->*pEffectHandlerScript)(aurEff, spellMod);
+    (auraScript->*pEffectHandlerScript)(aurEff, spellMod, spellInfo, target);
 }
 
 AuraScript::EffectApplyHandler::EffectApplyHandler(AuraEffectApplicationModeFnType _pEffectHandlerScript, uint8 _effIndex, uint16 _effName, AuraEffectHandleModes _mode)
