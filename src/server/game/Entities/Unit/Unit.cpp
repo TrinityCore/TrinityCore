@@ -17572,15 +17572,13 @@ void Unit::SendMovementCanFlyChange()
 bool Unit::IsSplineEnabled() const
 {
     return movespline->Initialized();
-
-
 }
 
 bool Unit::IsInWorgenForm(bool inPermanent) const
 {
-    AuraList const& vTransformAuras = GetAurasByType(SPELL_AURA_WORGEN_ALTERED_FORM);
-    for (AuraList::const_iterator itr = vTransformAuras.begin(); itr != vTransformAuras.end(); ++itr)
-        if (!inPermanent || (*itr)->GetHolder()->IsPermanent())
+    AuraEffectList const& vTransformAuras = GetAuraEffectsByType(SPELL_AURA_WORGEN_ALTERED_FORM);
+	for (Unit::AuraEffectList::const_iterator itr = vTransformAuras.begin(); itr != vTransformAuras.end(); ++itr)
+        if (!inPermanent || (*itr)->GetBase()->IsPermanent())
             return true;
 
     return false;
