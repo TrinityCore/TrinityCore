@@ -466,6 +466,7 @@ struct RepRewardRate
     float questRate;            // We allow rate = 0.0 in database. For this case, it means that
     float questDailyRate;
     float questWeeklyRate;
+    float questMonthlyRate;
     float creatureRate;         // no reputation are given at all for this faction/rate type.
     float spellRate;
 };
