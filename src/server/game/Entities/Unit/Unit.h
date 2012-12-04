@@ -2102,6 +2102,8 @@ class Unit : public WorldObject
         void SetExtraUnitMovementFlags(uint16 f) { m_movementInfo.flags2 = f; }
         bool IsSplineEnabled() const;
 
+		bool IsInWorgenForm(bool inPermanent = false) const;
+
         float GetPositionZMinusOffset() const
         {
             float offset = 0.0f;

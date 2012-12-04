@@ -792,6 +792,8 @@ void Unit::CastStop(uint32 except_spellid)
     for (uint32 i = CURRENT_FIRST_NON_MELEE_SPELL; i < CURRENT_MAX_SPELL; i++)
         if (m_currentSpells[i] && m_currentSpells[i]->m_spellInfo->Id != except_spellid)
             InterruptSpell(CurrentSpellTypes(i), false);
+
+
 }
 
 void Unit::CastSpell(SpellCastTargets const& targets, SpellInfo const* spellInfo, CustomSpellValues const* value, TriggerCastFlags triggerFlags, Item* castItem, AuraEffect const* triggeredByAura, uint64 originalCaster)
@@ -11345,6 +11347,8 @@ void Unit::SetInCombatState(bool PvP, Unit* enemy)
         (*itr)->SetInCombatState(PvP, enemy);
         (*itr)->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PET_IN_COMBAT);
     }
+    if (getRace() == RACE_WORGEN && !IsInWorgenForm(true))
+       CastSpell(this, 97709, true);   // cast Altered Form
 }
 
 void Unit::ClearInCombat()
@@ -17574,6 +17578,16 @@ void Unit::SendMovementCanFlyChange()
 bool Unit::IsSplineEnabled() const
 {
     return movespline->Initialized();
+
+    bool Unit::IsInWorgenForm(bool inPermanent) const
+	{
+    AuraList const& vTransformAuras = GetAurasByType(SPELL_AURA_WORGEN_ALTERED_FORM);
+    for (AuraList::const_iterator itr = vTransformAuras.begin(); itr != vTransformAuras.end(); ++itr)
+        if (!inPermanent || (*itr)->GetHolder()->IsPermanent())
+            return true;
+
+    return false;
+    }
 }
 
 void Unit::FocusTarget(Spell const* focusSpell, uint64 target)

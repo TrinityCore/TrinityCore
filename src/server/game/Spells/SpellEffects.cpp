@@ -344,9 +344,25 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
         {
             case SPELLFAMILY_GENERIC:
             {
-                // Meteor like spells (divided damage to targets)
-                if (m_spellInfo->AttributesCu & SPELL_ATTR0_CU_SHARE_DAMAGE)
-                {
+            // Stoneskin
+            else if (m_spellInfo->Id == 20594)
+                 m_caster->CastSpell(m_caster, 65116, true);                   // Stoneskin - armor 10% for 8 sec
+            else if (m_spellInfo->Id == 68992)                                // Darkflight
+            {
+                m_caster->CastSpell(m_caster, 96223, true);                     // Run Speed Marker
+                m_caster->CastSpell(m_caster, 97709, true);                     // Altered Form
+            }
+            else if (m_spellInfo->Id == 68996)                                     // Two Forms
+            {
+                if (m_caster->IsInWorgenForm())
+                    m_caster->RemoveAura(SPELL_AURA_WORGEN_ALTERED_FORM);
+                else
+                    m_caster->CastSpell(m_caster, 97709, true);                 // Altered Form
+            }
+            break;
+            // Meteor like spells (divided damage to targets)
+            if (m_spellInfo->AttributesCu & SPELL_ATTR0_CU_SHARE_DAMAGE)
+             {
                     uint32 count = 0;
                     for (std::list<TargetInfo>::iterator ihit= m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end(); ++ihit)
                         if (ihit->effectMask & (1<<effIndex))
