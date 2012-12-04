@@ -2107,8 +2107,7 @@ class Player : public Unit, public GridObject<Player>
         float GetRatingBonusValue(CombatRating cr) const;
 
         /// Returns base spellpower bonus from spellpower stat on items, without spellpower from intellect stat
-        uint32 GetSpellPowerBonus() { return m_spellPowerFromIntellect + m_baseSpellPower; }
-        uint32 GetBaseSpellPower(){ return m_spellPowerFromIntellect; }
+        uint32 GetBaseSpellPowerBonus() const { return m_baseSpellPower; }
         int32 GetSpellPenetrationItemMod() const { return m_spellPenetrationItemMod; }
 
         float GetExpertiseDodgeOrParryReduction(WeaponAttackType attType) const;
@@ -2947,7 +2946,6 @@ class Player : public Unit, public GridObject<Player>
         float m_auraBaseMod[BASEMOD_END][MOD_END];
         int16 m_baseRatingValue[MAX_COMBAT_RATING];
         uint32 m_baseSpellPower;
-		uint32 m_spellPowerFromIntellect;
         uint32 m_baseManaRegen;
         uint32 m_baseHealthRegen;
         int32 m_spellPenetrationItemMod;
