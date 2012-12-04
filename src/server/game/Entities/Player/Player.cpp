@@ -6943,7 +6943,7 @@ int32 Player::CalculateReputationGain(ReputationSource source, uint32 creatureOr
             rate = sWorld->getRate(RATE_REPUTATION_LOWLEVEL_KILL);
             break;
         case REPUTATION_SOURCE_QUEST:
-        case REPUTATION_SOURCE_DAYLIY_QUEST:
+        case REPUTATION_SOURCE_DAILY_QUEST:
         case REPUTATION_SOURCE_WEEKLY_QUEST:
         case REPUTATION_SOURCE_MONTHLY_QUEST:
             rate = sWorld->getRate(RATE_REPUTATION_LOWLEVEL_QUEST);
@@ -6972,7 +6972,7 @@ int32 Player::CalculateReputationGain(ReputationSource source, uint32 creatureOr
             case REPUTATION_SOURCE_QUEST:
                 repRate = repData->questRate;
                 break;
-            case REPUTATION_SOURCE_DAYLIY_QUEST:
+            case REPUTATION_SOURCE_DAILY_QUEST:
                 repRate = repData->questDailyRate;
                 break;
             case REPUTATION_SOURCE_WEEKLY_QUEST:
@@ -7090,7 +7090,7 @@ void Player::RewardReputation(Quest const* quest)
             int32 rep = 0;
 
             if (quest->IsDaily())
-                rep = CalculateReputationGain(REPUTATION_SOURCE_DAYLIY_QUEST, GetQuestLevel(quest), quest->RewardFactionValueIdOverride[i]/100, quest->RewardFactionId[i], true);
+                rep = CalculateReputationGain(REPUTATION_SOURCE_DAILY_QUEST, GetQuestLevel(quest), quest->RewardFactionValueIdOverride[i]/100, quest->RewardFactionId[i], true);
             else if (quest->IsWeekly())
                 rep = CalculateReputationGain(REPUTATION_SOURCE_WEEKLY_QUEST, GetQuestLevel(quest), quest->RewardFactionValueIdOverride[i]/100, quest->RewardFactionId[i], true);
             else if (quest->IsMonthly())
@@ -7116,7 +7116,7 @@ void Player::RewardReputation(Quest const* quest)
                     continue;
 
                 if (quest->IsDaily())
-                    repPoints = CalculateReputationGain(REPUTATION_SOURCE_DAYLIY_QUEST, GetQuestLevel(quest), repPoints, quest->RewardFactionId[i], true);
+                    repPoints = CalculateReputationGain(REPUTATION_SOURCE_DAILY_QUEST, GetQuestLevel(quest), repPoints, quest->RewardFactionId[i], true);
                 else if (quest->IsWeekly())
                     repPoints = CalculateReputationGain(REPUTATION_SOURCE_WEEKLY_QUEST, GetQuestLevel(quest), repPoints, quest->RewardFactionId[i], true);
                 else if (quest->IsMonthly())
