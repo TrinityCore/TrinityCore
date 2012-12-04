@@ -345,7 +345,8 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
             case SPELLFAMILY_GENERIC:
             {
             // Stoneskin
-            else if (m_spellInfo->Id == 20594)
+
+            if (m_spellInfo->Id == 20594)
                  m_caster->CastSpell(m_caster, 65116, true);                   // Stoneskin - armor 10% for 8 sec
             else if (m_spellInfo->Id == 68992)                                // Darkflight
             {
@@ -359,7 +360,6 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                 else
                     m_caster->CastSpell(m_caster, 97709, true);                 // Altered Form
             }
-            break;
             // Meteor like spells (divided damage to targets)
             if (m_spellInfo->AttributesCu & SPELL_ATTR0_CU_SHARE_DAMAGE)
              {

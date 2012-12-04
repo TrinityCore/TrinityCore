@@ -7099,20 +7099,24 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                 // Enchant on Off-Hand and ready?
                 if (castItem->GetSlot() == EQUIPMENT_SLOT_OFFHAND && isAttackReady(OFF_ATTACK))
                 {
-                   float BaseWeaponSpeed = GetAttackTime(OFF_ATTACK) / 1000.0f; 
+              /*     float BaseWeaponSpeed = GetAttackTime(OFF_ATTACK) / 1000.0f; 
 
                     // Value1: add the tooltip damage by swingspeed + Value2: add spelldmg by swingspeed
-                    basepoints0 = int32(/*(fire_onhit * BaseWeaponSpeed) + */(add_spellpower * BaseWeaponSpeed) * 2);
+                    basepoints0 = int32((fire_onhit * BaseWeaponSpeed) + (add_spellpower * BaseWeaponSpeed) * 2); */
+
+                    basepoints0 = int32((add_spellpower * 10) / 100);
                     triggered_spell_id = 10444;
                 }
 
                 // Enchant on Main-Hand and ready?
                 else if (castItem->GetSlot() == EQUIPMENT_SLOT_MAINHAND && isAttackReady(BASE_ATTACK))
                 {
-                    float BaseWeaponSpeed = GetAttackTime(BASE_ATTACK) / 1000.0f;
+                 /*   float BaseWeaponSpeed = GetAttackTime(BASE_ATTACK) / 1000.0f;
 
                     // Value1: add the tooltip damage by swingspeed +  Value2: add spelldmg by swingspeed
-                    basepoints0 = int32(/*(fire_onhit * BaseWeaponSpeed) + */(add_spellpower * BaseWeaponSpeed) * 2);
+                    basepoints0 = int32((fire_onhit * BaseWeaponSpeed) + (add_spellpower * BaseWeaponSpeed) * 2); */
+
+                    basepoints0 = int32((add_spellpower * 10) / 100);
                     triggered_spell_id = 10444;
                 }
 

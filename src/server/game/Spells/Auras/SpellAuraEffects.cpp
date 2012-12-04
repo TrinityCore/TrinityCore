@@ -416,7 +416,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleUnused,                                    //355 unused (4.3.4)
     &AuraEffect::HandleNULL,                                      //356 SPELL_AURA_356
     &AuraEffect::HandleNULL,                                      //357 SPELL_AURA_ENABLE_BOSS1_UNIT_FRAME
-    &Aura::HandleNoImmediateEffect,                               //358 SPELL_AURA_WORGEN_TRANSFORM
+    &AuraEffect::HandleNoImmediateEffect,                               //358 SPELL_AURA_WORGEN_TRANSFORM
     &AuraEffect::HandleNULL,                                      //359 SPELL_AURA_359
     &AuraEffect::HandleNULL,                                      //360 SPELL_AURA_PROC_TRIGGER_SPELL_COPY
     &AuraEffect::HandleNULL,                                      //361 SPELL_AURA_PROC_TRIGGER_SPELL_2 implemented in Unit::ProcDamageAndSpellFor

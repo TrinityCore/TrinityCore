@@ -5112,7 +5112,7 @@ SpellCastResult Spell::CheckCast(bool strict)
         {
             case SPELL_EFFECT_DUMMY:
             {
-			else if (m_spellInfo->Id == 68996)          // Two forms
+			if (m_spellInfo->Id == 68996)          // Two forms
                 {
                    if (m_caster->isInCombat())
                         return SPELL_FAILED_AFFECTING_COMBAT;
