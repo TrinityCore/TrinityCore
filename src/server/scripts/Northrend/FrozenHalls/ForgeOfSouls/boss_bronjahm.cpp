@@ -24,10 +24,10 @@
 enum Yells
 {
     SAY_AGGRO           = 0,
-    SAY_CORRUPT_SOUL    = 1,
-    SAY_SOUL_STORM      = 2,
-    SAY_SLAY            = 3,
-    SAY_DEATH           = 4
+    SAY_SLAY            = 1,
+    SAY_DEATH           = 2,
+    SAY_SOUL_STORM      = 3,
+    SAY_CORRUPT_SOUL    = 4
 };
 
 enum Spells
@@ -47,10 +47,10 @@ enum Spells
 enum Events
 {
     EVENT_MAGIC_BANE    = 1,
-    EVENT_SHADOW_BOLT,
-    EVENT_CORRUPT_SOUL,
-    EVENT_SOULSTORM,
-    EVENT_FEAR
+    EVENT_SHADOW_BOLT   = 2,
+    EVENT_CORRUPT_SOUL  = 3,
+    EVENT_SOULSTORM     = 4,
+    EVENT_FEAR          = 5,
 };
 
 enum CombatPhases
@@ -406,7 +406,6 @@ void AddSC_boss_bronjahm()
 {
     new boss_bronjahm();
     new mob_corrupted_soul_fragment();
-
     new spell_bronjahm_magic_bane();
     new spell_bronjahm_consume_soul();
     new spell_bronjahm_soulstorm_channel();

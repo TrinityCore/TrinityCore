@@ -245,7 +245,7 @@ class boss_sapphiron : public CreatureScript
                         switch (eventId)
                         {
                             case EVENT_BERSERK:
-                                DoScriptText(EMOTE_ENRAGE, me);
+                                Talk(EMOTE_ENRAGE);
                                 DoCast(me, SPELL_BERSERK);
                                 return;
                             case EVENT_CLEAVE:

@@ -29,16 +29,16 @@
 
 enum Yells
 {
-    SAY_AGGRO                                   = 0,
+    SAY_FACE_AGGRO                              = 0,
     SAY_FACE_ANGER_SLAY                         = 1,
     SAY_FACE_SORROW_SLAY                        = 2,
     SAY_FACE_DESIRE_SLAY                        = 3,
-    SAY_DEATH                                   = 4,
+    SAY_FACE_DEATH                              = 4,
     EMOTE_MIRRORED_SOUL                         = 5,
     EMOTE_UNLEASH_SOUL                          = 6,
-    SAY_UNLEASH_SOUL                            = 7,
+    SAY_FACE_UNLEASH_SOUL                       = 7,
     EMOTE_WAILING_SOUL                          = 8,
-    SAY_WAILING_SOUL                            = 9,
+    SAY_FACE_WAILING_SOUL                       = 9,
 
     SAY_JAINA_OUTRO                             = 0,
     SAY_SYLVANAS_OUTRO                          = 0
@@ -46,15 +46,15 @@ enum Yells
 
 enum Spells
 {
-    SPELL_PHANTOM_BLAST                           = 68982,
-    H_SPELL_PHANTOM_BLAST                         = 70322,
-    SPELL_MIRRORED_SOUL                           = 69051,
-    SPELL_WELL_OF_SOULS                           = 68820,
-    SPELL_UNLEASHED_SOULS                         = 68939,
-    SPELL_WAILING_SOULS_STARTING                  = 68912,  // Initial spell cast at begining of wailing souls phase
-    SPELL_WAILING_SOULS_BEAM                      = 68875,  // the beam visual
-    SPELL_WAILING_SOULS                           = 68873,  // the actual spell
-    H_SPELL_WAILING_SOULS                         = 70324
+    SPELL_PHANTOM_BLAST                         = 68982,
+    H_SPELL_PHANTOM_BLAST                       = 70322,
+    SPELL_MIRRORED_SOUL                         = 69051,
+    SPELL_WELL_OF_SOULS                         = 68820,
+    SPELL_UNLEASHED_SOULS                       = 68939,
+    SPELL_WAILING_SOULS_STARTING                = 68912,  // Initial spell cast at begining of wailing souls phase
+    SPELL_WAILING_SOULS_BEAM                    = 68875,  // the beam visual
+    SPELL_WAILING_SOULS                         = 68873,  // the actual spell
+    H_SPELL_WAILING_SOULS                       = 70324
 //    68871, 68873, 68875, 68876, 68899, 68912, 70324,
 // 68899 trigger 68871
 };
@@ -62,12 +62,12 @@ enum Spells
 enum Events
 {
     EVENT_PHANTOM_BLAST         = 1,
-    EVENT_MIRRORED_SOUL,
-    EVENT_WELL_OF_SOULS,
-    EVENT_UNLEASHED_SOULS,
-    EVENT_WAILING_SOULS,
-    EVENT_WAILING_SOULS_TICK,
-    EVENT_FACE_ANGER
+    EVENT_MIRRORED_SOUL         = 2,
+    EVENT_WELL_OF_SOULS         = 3,
+    EVENT_UNLEASHED_SOULS       = 4,
+    EVENT_WAILING_SOULS         = 5,
+    EVENT_WAILING_SOULS_TICK    = 6,
+    EVENT_FACE_ANGER            = 7,
 };
 
 enum eEnum
@@ -146,7 +146,7 @@ class boss_devourer_of_souls : public CreatureScript
             void EnterCombat(Unit* /*who*/)
             {
                 _EnterCombat();
-                Talk(SAY_AGGRO);
+                Talk(SAY_FACE_AGGRO);
 
                 if (!me->FindNearestCreature(NPC_CRUCIBLE_OF_SOULS, 60)) // Prevent double spawn
                     instance->instance->SummonCreature(NPC_CRUCIBLE_OF_SOULS, CrucibleSummonPos);
@@ -205,7 +205,7 @@ class boss_devourer_of_souls : public CreatureScript
 
                 Position spawnPoint = {5618.139f, 2451.873f, 705.854f, 0};
 
-                Talk(SAY_DEATH);
+                Talk(SAY_FACE_DEATH);
 
                 int32 entryIndex;
                 if (instance->GetData(DATA_TEAM_IN_INSTANCE) == ALLIANCE)
@@ -277,7 +277,7 @@ class boss_devourer_of_souls : public CreatureScript
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                                 DoCast(target, SPELL_UNLEASHED_SOULS);
                             me->SetDisplayId(DISPLAY_SORROW);
-                            Talk(SAY_UNLEASH_SOUL);
+                            Talk(SAY_FACE_UNLEASH_SOUL);
                             Talk(EMOTE_UNLEASH_SOUL);
                             events.ScheduleEvent(EVENT_UNLEASHED_SOULS, 30*IN_MILLISECONDS);
                             events.ScheduleEvent(EVENT_FACE_ANGER, 5*IN_MILLISECONDS);
@@ -287,7 +287,7 @@ class boss_devourer_of_souls : public CreatureScript
                             return;
                         case EVENT_WAILING_SOULS:
                             me->SetDisplayId(DISPLAY_DESIRE);
-                            Talk(SAY_WAILING_SOUL);
+                            Talk(SAY_FACE_WAILING_SOUL);
                             Talk(EMOTE_WAILING_SOUL);
                             DoCast(me, SPELL_WAILING_SOULS_STARTING);
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
@@ -383,6 +383,5 @@ class achievement_three_faced : public AchievementCriteriaScript
 void AddSC_boss_devourer_of_souls()
 {
     new boss_devourer_of_souls();
-
     new achievement_three_faced();
 }

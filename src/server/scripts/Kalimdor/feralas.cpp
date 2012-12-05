@@ -75,12 +75,10 @@ public:
 
 enum OOX
 {
-    //signed for 7806
-    SAY_OOX_START           = -1000287,
-    SAY_OOX_AGGRO1          = -1000288,
-    SAY_OOX_AGGRO2          = -1000289,
-    SAY_OOX_AMBUSH          = -1000290,
-    SAY_OOX_END             = -1000292,
+    SAY_OOX_START           = 0,
+    SAY_OOX_AGGRO           = 1,
+    SAY_OOX_AMBUSH          = 2,
+    SAY_OOX_END             = 3,
 
     NPC_YETI                = 7848,
     NPC_GORILLA             = 5260,
@@ -103,7 +101,7 @@ public:
     {
         if (quest->GetQuestId() == QUEST_RESCUE_OOX22FE)
         {
-            DoScriptText(SAY_OOX_START, creature);
+            creature->AI()->Talk(SAY_OOX_START);
             //change that the npc is not lying dead on the ground
             creature->SetStandState(UNIT_STAND_STATE_STAND);
 
@@ -135,28 +133,28 @@ public:
             {
                 // First Ambush(3 Yetis)
                 case 11:
-                    DoScriptText(SAY_OOX_AMBUSH, me);
+                    Talk(SAY_OOX_AMBUSH);
                     me->SummonCreature(NPC_YETI, -4841.01f, 1593.91f, 73.42f, 3.98f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
                     me->SummonCreature(NPC_YETI, -4837.61f, 1568.58f, 78.21f, 3.13f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
                     me->SummonCreature(NPC_YETI, -4841.89f, 1569.95f, 76.53f, 0.68f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
                     break;
                 //Second Ambush(3 Gorillas)
                 case 21:
-                    DoScriptText(SAY_OOX_AMBUSH, me);
+                    Talk(SAY_OOX_AMBUSH);
                     me->SummonCreature(NPC_GORILLA, -4595.81f, 2005.99f, 53.08f, 3.74f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
                     me->SummonCreature(NPC_GORILLA, -4597.53f, 2008.31f, 52.70f, 3.78f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
                     me->SummonCreature(NPC_GORILLA, -4599.37f, 2010.59f, 52.77f, 3.84f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
                     break;
                 //Third Ambush(4 Gnolls)
                 case 30:
-                    DoScriptText(SAY_OOX_AMBUSH, me);
+                    Talk(SAY_OOX_AMBUSH);
                     me->SummonCreature(NPC_WOODPAW_REAVER, -4425.14f, 2075.87f, 47.77f, 3.77f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
                     me->SummonCreature(NPC_WOODPAW_BRUTE, -4426.68f, 2077.98f, 47.57f, 3.77f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
                     me->SummonCreature(NPC_WOODPAW_MYSTIC, -4428.33f, 2080.24f, 47.43f, 3.87f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
                     me->SummonCreature(NPC_WOODPAW_ALPHA, -4430.04f, 2075.54f, 46.83f, 3.81f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
                     break;
                 case 37:
-                    DoScriptText(SAY_OOX_END, me);
+                    Talk(SAY_OOX_END);
                     // Award quest credit
                     if (Player* player = GetPlayerForEscort())
                         player->GroupEventHappens(QUEST_RESCUE_OOX22FE, me);
@@ -174,7 +172,7 @@ public:
         {
             //For an small probability the npc says something when he get aggro
             if (urand(0, 9) > 7)
-                DoScriptText(RAND(SAY_OOX_AGGRO1, SAY_OOX_AGGRO2), me);
+                Talk(SAY_OOX_AGGRO);
         }
 
         void JustSummoned(Creature* summoned)

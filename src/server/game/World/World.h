@@ -474,9 +474,10 @@ enum RealmZone
 
 enum WorldStates
 {
-    WS_WEEKLY_QUEST_RESET_TIME = 20002,                     // Next weekly reset time
-    WS_BG_DAILY_RESET_TIME     = 20003,                     // Next daily BG reset time
-    WS_GUILD_DAILY_RESET_TIME  = 20006,                     // Next guild cap reset time
+    WS_WEEKLY_QUEST_RESET_TIME  = 20002,                     // Next weekly reset time
+    WS_BG_DAILY_RESET_TIME      = 20003,                     // Next daily BG reset time
+    WS_MONTHLY_QUEST_RESET_TIME = 20004,                     // Next monthly reset time
+    WS_GUILD_DAILY_RESET_TIME   = 20006,                     // Next guild cap reset time
 };
 
 /// Storage class for commands issued for delayed execution
@@ -747,10 +748,12 @@ class World
 
         void InitDailyQuestResetTime();
         void InitWeeklyQuestResetTime();
+        void InitMonthlyQuestResetTime();
         void InitRandomBGResetTime();
         void InitGuildResetTime();
         void ResetDailyQuests();
         void ResetWeeklyQuests();
+        void ResetMonthlyQuests();
         void ResetRandomBG();
         void ResetGuildCap();
     private:
@@ -812,6 +815,7 @@ class World
         // next daily quests and random bg reset time
         time_t m_NextDailyQuestReset;
         time_t m_NextWeeklyQuestReset;
+        time_t m_NextMonthlyQuestReset;
         time_t m_NextRandomBGReset;
         time_t m_NextGuildReset;
 
