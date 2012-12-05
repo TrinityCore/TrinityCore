@@ -617,7 +617,7 @@ void WorldSession::HandleGetMailList(WorldPacket& recvData)
         data << uint32((*itr)->stationery);                  // stationery (Stationery.dbc)
         data << uint32((*itr)->money);                       // Gold
         data << uint32((*itr)->checked);                     // flags
-        data << float(((*itr)->expire_time-time(NULL))/DAY); // Time
+        data << float(float((*itr)->expire_time-time(NULL))/DAY); // Time
         data << uint32((*itr)->mailTemplateId);              // mail template (MailTemplate.dbc)
         data << (*itr)->subject;                             // Subject string - once 00, when mail type = 3, max 256
         data << (*itr)->body;                                // message? max 8000
