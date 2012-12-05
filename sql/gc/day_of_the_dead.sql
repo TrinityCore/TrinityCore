@@ -56,6 +56,10 @@ INSERT INTO `creature_involvedrelation` (`id`, `quest`) VALUES
 (35260,14172),
 (35261,14173);
 
+DELETE FROM `game_event_creature` WHERE `guid` = 42662;
+INSERT INTO `game_event_creature` (`eventEntry`, `guid`) VALUES
+(51, 42662);
+
 SET @npcguid = 1000000;
 DELETE FROM `creature` WHERE `guid` BETWEEN @npcguid AND @npcguid + 142;
 INSERT INTO `creature` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`) VALUES
