@@ -82,7 +82,7 @@ bool Player::UpdateStats(Stats stat)
             UpdateMaxPower(POWER_MANA);
             UpdateAllSpellCritChances();
             UpdateArmor();      
-			UpdateSpellPower();
+	       UpdateSpellPower();
 			//SPELL_AURA_MOD_RESISTANCE_OF_INTELLECT_PERCENT, only armor currently
             break;
         case STAT_SPIRIT:
@@ -93,22 +93,11 @@ bool Player::UpdateStats(Stats stat)
 
     if (stat == STAT_STRENGTH)
         UpdateAttackPowerAndDamage(false);
-	        if (HasAuraTypeWithMiscvalue(SPELL_AURA_MOD_RANGED_ATTACK_POWER_OF_STAT_PERCENT, stat))
-            UpdateAttackPowerAndDamage(true);
     else if (stat == STAT_AGILITY)
     {
         UpdateAttackPowerAndDamage(false);
         UpdateAttackPowerAndDamage(true);
     }
-    else
-    {
-        // Need update (exist AP from stat auras)
-        if (HasAuraTypeWithMiscvalue(SPELL_AURA_MOD_ATTACK_POWER_OF_STAT_PERCENT, stat))
-            UpdateAttackPowerAndDamage(false);
-        if (HasAuraTypeWithMiscvalue(SPELL_AURA_MOD_RANGED_ATTACK_POWER_OF_STAT_PERCENT, stat))
-            UpdateAttackPowerAndDamage(true);
-    }
-
     UpdateSpellDamageAndHealingBonus();
     UpdateManaRegen();
 
@@ -236,9 +225,8 @@ void Player::UpdateSpellPower()
     for (int i = SPELL_SCHOOL_HOLY; i < MAX_SPELL_SCHOOL; ++i)
         ApplyModUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS + i, spellPowerFromIntellect - m_spellPowerFromIntellect, true);
 
-    _spellPowerFromIntellect = spellPowerFromIntellect;
+    m_spellPowerFromIntellect = spellPowerFromIntellect;
 }
-
 
 float Player::GetHealthBonusFromStamina()
 {
@@ -393,15 +381,11 @@ void Player::UpdateAttackPowerAndDamage(bool ranged)
     //add dynamic flat mods
     if (!ranged)
     {
-       AuraEffectList const& mAPbyArmor = GetAuraEffectsByType(SPELL_AURA_MOD_ATTACK_POWER_OF_ARMOR);
+        AuraEffectList const& mAPbyArmor = GetAuraEffectsByType(SPELL_AURA_MOD_ATTACK_POWER_OF_ARMOR);
         for (AuraEffectList::const_iterator iter = mAPbyArmor.begin(); iter != mAPbyArmor.end(); ++iter)
+            // always: ((*i)->GetModifier()->m_miscvalue == 1 == SPELL_SCHOOL_MASK_NORMAL)
             attPowerMod += int32(GetArmor() / (*iter)->GetAmount());
     }
-    else
-    {
-     AuraEffectList const& mAPbyStat = GetAuraEffectsByType(SPELL_AURA_MOD_ATTACK_POWER_OF_STAT_PERCENT);
-     for (AuraEffectList::const_iterator i = mAPbyStat.begin(); i != mAPbyStat.end(); ++i)
-        {
 
     SetInt32Value(index, (uint32)base_attPower);            //UNIT_FIELD_(RANGED)_ATTACK_POWER field
 

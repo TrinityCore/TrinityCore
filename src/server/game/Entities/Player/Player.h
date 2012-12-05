@@ -2086,6 +2086,7 @@ class Player : public Unit, public GridObject<Player>
         bool UpdateAllStats();
         void UpdateResistances(uint32 school);
         void UpdateArmor();
+		void UpdateSpellPower();
         void UpdateMaxHealth();
         void UpdateMaxPower(Powers power);
         void UpdateAttackPowerAndDamage(bool ranged = false);
