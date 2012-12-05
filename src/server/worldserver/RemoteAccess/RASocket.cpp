@@ -431,6 +431,7 @@ int RASocket::sendf(const char* msg)
     ACE_OS::memcpy(outputBuffer+outputBufferLen, msg, msgLen);
     outputBufferLen += msgLen;
     send(msg);
+    send("\r");
 
     return 0;
 }
