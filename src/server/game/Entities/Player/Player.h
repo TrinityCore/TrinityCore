@@ -2949,7 +2949,7 @@ class Player : public Unit, public GridObject<Player>
         uint32 m_baseSpellPower;
         uint32 m_baseManaRegen;
         uint32 m_baseHealthRegen;
-		uint32 _spellPowerFromIntellect;
+		uint32 m_spellPowerFromIntellect;
         int32 m_spellPenetrationItemMod;
 
         SpellModList m_spellMods[MAX_SPELLMOD];

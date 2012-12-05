@@ -537,9 +537,9 @@ bool SpellEffectInfo::HasRadius() const
 float SpellEffectInfo::CalcRadius(Unit* caster, Spell* spell) const
 {
     if (!HasRadius())
-        return 0.0f;
+        return 8.0f;
 
-    float radius = RadiusEntry->RadiusMin;
+    float radius = _spellInfo->IsPositiveEffect(_effIndex) ? RadiusEntry->radiusFriend : RadiusEntry->radiusHostile;
     if (caster)
     {
         radius += RadiusEntry->RadiusPerLevel * caster->getLevel();

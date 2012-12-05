@@ -1,1 +1,0 @@
-/usr/bin/c++  -fPIC -O3 -DNDEBUG  -shared -Wl,-soname,libcollisionPCH.cpp_dephelp.so -o libcollisionPCH.cpp_dephelp.so CMakeFiles/collisionPCH.cpp_dephelp.dir/PrecompiledHeaders/collisionPCH.cpp.o 
