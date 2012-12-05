@@ -26,17 +26,20 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 
-#define SAY_AGGRO                   -1531008
-#define SAY_SLAY                    -1531009
-#define SAY_DEATH                   -1531010
+enum Sartura
+{
+    SAY_AGGRO           = 0,
+    SAY_SLAY            = 1,
+    SAY_DEATH           = 2,
 
-#define SPELL_WHIRLWIND                              26083
-#define SPELL_ENRAGE                                 28747            //Not sure if right ID.
-#define SPELL_ENRAGEHARD                             28798
+    SPELL_WHIRLWIND     = 26083,
+    SPELL_ENRAGE        = 28747,            //Not sure if right ID.
+    SPELL_ENRAGEHARD    = 28798,
 
 //Guard Spell
-#define SPELL_WHIRLWINDADD                           26038
-#define SPELL_KNOCKBACK                              26027
+    SPELL_WHIRLWINDADD  = 26038,
+    SPELL_KNOCKBACK     = 26027
+};
 
 class boss_sartura : public CreatureScript
 {
@@ -82,17 +85,17 @@ public:
 
         void EnterCombat(Unit* /*who*/)
         {
-            DoScriptText(SAY_AGGRO, me);
+            Talk(SAY_AGGRO);
         }
 
          void JustDied(Unit* /*killer*/)
          {
-             DoScriptText(SAY_DEATH, me);
+             Talk(SAY_DEATH);
          }
 
          void KilledUnit(Unit* /*victim*/)
          {
-             DoScriptText(SAY_SLAY, me);
+             Talk(SAY_SLAY);
          }
 
         void UpdateAI(const uint32 diff)
