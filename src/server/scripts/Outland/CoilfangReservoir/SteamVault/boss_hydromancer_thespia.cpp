@@ -32,20 +32,20 @@ EndContentData */
 #include "ScriptedCreature.h"
 #include "steam_vault.h"
 
-#define SAY_SUMMON                  -1545000
-#define SAY_AGGRO_1                 -1545001
-#define SAY_AGGRO_2                 -1545002
-#define SAY_AGGRO_3                 -1545003
-#define SAY_SLAY_1                  -1545004
-#define SAY_SLAY_2                  -1545005
-#define SAY_DEAD                    -1545006
+enum HydromancerThespia
+{
+    SAY_SUMMON                  = 0,
+    SAY_AGGRO                   = 1,
+    SAY_SLAY                    = 2,
+    SAY_DEAD                    = 3,
 
-#define SPELL_LIGHTNING_CLOUD       25033
-#define SPELL_LUNG_BURST            31481
-#define SPELL_ENVELOPING_WINDS      31718
+    SPELL_LIGHTNING_CLOUD       = 25033,
+    SPELL_LUNG_BURST            = 31481,
+    SPELL_ENVELOPING_WINDS      = 31718,
 
-#define SPELL_WATER_BOLT_VOLLEY     34449
-#define H_SPELL_WATER_BOLT_VOLLEY   37924
+    SPELL_WATER_BOLT_VOLLEY     = 34449,
+    H_SPELL_WATER_BOLT_VOLLEY   = 37924
+};
 
 class boss_hydromancer_thespia : public CreatureScript
 {
@@ -82,7 +82,7 @@ public:
 
         void JustDied(Unit* /*killer*/)
         {
-            DoScriptText(SAY_DEAD, me);
+            Talk(SAY_DEAD);
 
             if (instance)
                 instance->SetData(TYPE_HYDROMANCER_THESPIA, DONE);
@@ -90,12 +90,12 @@ public:
 
         void KilledUnit(Unit* /*victim*/)
         {
-            DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2), me);
+            Talk(SAY_SLAY);
         }
 
         void EnterCombat(Unit* /*who*/)
         {
-            DoScriptText(RAND(SAY_AGGRO_1, SAY_AGGRO_2, SAY_AGGRO_3), me);
+            Talk(SAY_AGGRO);
 
             if (instance)
                 instance->SetData(TYPE_HYDROMANCER_THESPIA, IN_PROGRESS);

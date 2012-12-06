@@ -19,7 +19,10 @@
 #include "ScriptedCreature.h"
 #include "vault_of_archavon.h"
 
-#define EMOTE_BERSERK           -1590002
+enum
+{
+    EMOTE_BERSERK           = 0
+};
 
 //Spells Archavon
 #define SPELL_ROCK_SHARDS        58678
@@ -109,7 +112,7 @@ class boss_archavon : public CreatureScript
                             break;
                         case EVENT_BERSERK:
                             DoCast(me, SPELL_BERSERK);
-                            DoScriptText(EMOTE_BERSERK, me);
+                            Talk(EMOTE_BERSERK);
                             break;
                         default:
                             break;

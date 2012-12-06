@@ -28,21 +28,21 @@ EndScriptData */
 #include "steam_vault.h"
 #include "SpellInfo.h"
 
-#define SAY_INTRO                   -1545016
-#define SAY_REGEN                   -1545017
-#define SAY_AGGRO1                  -1545018
-#define SAY_AGGRO2                  -1545019
-#define SAY_AGGRO3                  -1545020
-#define SAY_SLAY1                   -1545021
-#define SAY_SLAY2                   -1545022
-#define SAY_DEATH                   -1545023
+enum NagaDistiller
+{
+    SAY_INTRO                   = 0,
+    SAY_REGEN                   = 1,
+    SAY_AGGRO                   = 2,
+    SAY_SLAY                    = 3,
+    SAY_DEATH                   = 4,
 
-#define SPELL_SPELL_REFLECTION      31534
-#define SPELL_IMPALE                39061
-#define SPELL_WARLORDS_RAGE         37081
-#define SPELL_WARLORDS_RAGE_NAGA    31543
+    SPELL_SPELL_REFLECTION      = 31534,
+    SPELL_IMPALE                = 39061,
+    SPELL_WARLORDS_RAGE         = 37081,
+    SPELL_WARLORDS_RAGE_NAGA    = 31543,
 
-#define SPELL_WARLORDS_RAGE_PROC    36453
+    SPELL_WARLORDS_RAGE_PROC    = 36453
+};
 
 class mob_naga_distiller : public CreatureScript
 {
@@ -139,7 +139,7 @@ public:
 
         void EnterCombat(Unit* /*who*/)
         {
-            DoScriptText(RAND(SAY_AGGRO1, SAY_AGGRO2, SAY_AGGRO3), me);
+            Talk(SAY_AGGRO);
 
             if (instance)
                 instance->SetData(TYPE_WARLORD_KALITHRESH, IN_PROGRESS);
@@ -147,7 +147,7 @@ public:
 
         void KilledUnit(Unit* /*victim*/)
         {
-            DoScriptText(RAND(SAY_SLAY1, SAY_SLAY2), me);
+            Talk(SAY_SLAY);
         }
 
         void SpellHit(Unit* /*caster*/, const SpellInfo* spell)
@@ -161,7 +161,7 @@ public:
 
         void JustDied(Unit* /*killer*/)
         {
-            DoScriptText(SAY_DEATH, me);
+            Talk(SAY_DEATH);
 
             if (instance)
                 instance->SetData(TYPE_WARLORD_KALITHRESH, DONE);
@@ -176,7 +176,7 @@ public:
             {
                 if (Creature* distiller = me->FindNearestCreature(17954, 100.0f))
                 {
-                    DoScriptText(SAY_REGEN, me);
+                    Talk(SAY_REGEN);
                     DoCast(me, SPELL_WARLORDS_RAGE);
                     CAST_AI(mob_naga_distiller::mob_naga_distillerAI, distiller->AI())->StartRageGen(me);
                 }

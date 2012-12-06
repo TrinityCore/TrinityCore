@@ -33,14 +33,11 @@ EndContentData */
 
 enum ePrince
 {
-    SAY_INTRO                       = -1557000,
-    SAY_AGGRO_1                     = -1557001,
-    SAY_AGGRO_2                     = -1557002,
-    SAY_AGGRO_3                     = -1557003,
-    SAY_SLAY_1                      = -1557004,
-    SAY_SLAY_2                      = -1557005,
-    SAY_SUMMON                      = -1557006,
-    SAY_DEAD                        = -1557007,
+    SAY_INTRO                       = 0,
+    SAY_AGGRO                       = 1,
+    SAY_SLAY                        = 2,
+    SAY_SUMMON                      = 3,
+    SAY_DEAD                        = 4,
 
     SPELL_BLINK                     = 34605,
     SPELL_FROSTBOLT                 = 32364,
@@ -110,14 +107,14 @@ public:
         {
             if (!HasTaunted && who->GetTypeId() == TYPEID_PLAYER && me->IsWithinDistInMap(who, 100.0f))
             {
-                DoScriptText(SAY_INTRO, me);
+                Talk(SAY_INTRO);
                 HasTaunted = true;
             }
         }
 
         void EnterCombat(Unit* /*who*/)
         {
-            DoScriptText(RAND(SAY_AGGRO_1, SAY_AGGRO_2, SAY_AGGRO_3), me);
+            Talk(SAY_AGGRO);
 
             DoZoneInCombat();
             summons.DoZoneInCombat();
@@ -143,12 +140,12 @@ public:
 
         void KilledUnit(Unit* /*victim*/)
         {
-            DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2), me);
+            Talk(SAY_SLAY);
         }
 
         void JustDied(Unit* /*killer*/)
         {
-            DoScriptText(SAY_DEAD, me);
+            Talk(SAY_DEAD);
             summons.DespawnAll();
         }
 
@@ -203,7 +200,7 @@ public:
                     me->InterruptNonMeleeSpells(true);
 
                 if (!urand(0, 3))
-                    DoScriptText(SAY_SUMMON, me);
+                    Talk(SAY_SUMMON);
 
                 DoCast(me, SPELL_ETHEREAL_BEACON, true);
 
