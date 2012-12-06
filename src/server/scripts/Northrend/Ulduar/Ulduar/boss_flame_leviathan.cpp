@@ -1176,7 +1176,7 @@ class npc_lorekeeper : public CreatureScript
                             if (Creature* Branz = creature->FindNearestCreature(NPC_BRANZ_BRONZBEARD, 1000, true))
                             {
                                 Delorah->GetMotionMaster()->MovePoint(0, Branz->GetPositionX()-4, Branz->GetPositionY(), Branz->GetPositionZ());
-                                //TODO DoScriptText(xxxx, Delorah, Branz); when reached at branz
+                                //TODO Delorah->AI()->Talk(xxxx, Branz->GetGUID()); when reached at branz
                             }
                         }
                     }
