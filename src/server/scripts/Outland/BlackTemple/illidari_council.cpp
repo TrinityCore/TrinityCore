@@ -29,34 +29,68 @@ EndScriptData */
 #include "SpellAuraEffects.h"
 #include "black_temple.h"
 
-//Speech'n'Sounds
-#define SAY_GATH_SLAY           -1564085
-#define SAY_GATH_SLAY_COMNT     -1564089
-#define SAY_GATH_DEATH          -1564093
-#define SAY_GATH_SPECIAL1       -1564077
-#define SAY_GATH_SPECIAL2       -1564081
+enum IllidariCouncil
+{
+    //Speech'n'Sounds
+    SAY_GATH_SPECIAL1           = 2,
+    SAY_GATH_SPECIAL2           = 3,
+    SAY_GATH_SLAY               = 4,
+    SAY_GATH_COMNT              = 5,
+    SAY_GATH_DEATH              = 6,
+    
+    SAY_MALA_SPECIAL1           = 2,
+    SAY_MALA_SPECIAL2           = 3,
+    SAY_MALA_SLAY               = 4,
+    SAY_MALA_COMNT              = 5,
+    SAY_MALA_DEATH              = 6,
 
-#define SAY_VERA_SLAY           -1564086
-#define SAY_VERA_COMNT          -1564089 //signed for 22949
-#define SAY_VERA_DEATH          -1564094
-#define SAY_VERA_SPECIAL1       -1564078
-#define SAY_VERA_SPECIAL2       -1564082
+    SAY_ZERE_SPECIAL1           = 2,
+    SAY_ZERE_SPECIAL2           = 3,
+    SAY_ZERE_SLAY               = 4,
+    SAY_ZERE_COMNT              = 5,
+    SAY_ZERE_DEATH              = 6,
 
-#define SAY_MALA_SLAY           -1564087
-#define SAY_MALA_COMNT          -1564090
-#define SAY_MALA_DEATH          -1564095
-#define SAY_MALA_SPECIAL1       -1564079
-#define SAY_MALA_SPECIAL2       -1564083
+    SAY_VERA_SPECIAL1           = 2,
+    SAY_VERA_SPECIAL2           = 3,
+    SAY_VERA_SLAY               = 4,
+    SAY_VERA_COMNT              = 5,
+    SAY_VERA_DEATH              = 6,
 
-#define SAY_ZERE_SLAY           -1564088
-#define SAY_ZERE_COMNT          -1564091
-#define SAY_ZERE_DEATH          -1564096
-#define SAY_ZERE_SPECIAL1       -1564080
-#define SAY_ZERE_SPECIAL2       -1564084
+    AKAMAID                     = 23089,
+
+    // High Nethermancer Zerevor's spells
+    SPELL_FLAMESTRIKE           = 41481,
+    SPELL_BLIZZARD              = 41482,
+    SPELL_ARCANE_BOLT           = 41483,
+    SPELL_ARCANE_EXPLOSION      = 41524,
+    SPELL_DAMPEN_MAGIC          = 41478,
+
+    // Lady Malande's spells
+    SPELL_EMPOWERED_SMITE       = 41471,
+    SPELL_CIRCLE_OF_HEALING     = 41455,
+    SPELL_REFLECTIVE_SHIELD     = 41475,
+    SPELL_REFLECTIVE_SHIELD_T   = 33619,
+    SPELL_DIVINE_WRATH          = 41472,
+    SPELL_HEAL_VISUAL           = 24171,
+
+    // Gathios the Shatterer's spells
+    SPELL_BLESS_PROTECTION      = 41450,
+    SPELL_BLESS_SPELLWARD       = 41451,
+    SPELL_CONSECRATION          = 41541,
+    SPELL_HAMMER_OF_JUSTICE     = 41468,
+    SPELL_SEAL_OF_COMMAND       = 41469,
+    SPELL_SEAL_OF_BLOOD         = 41459,
+    SPELL_CHROMATIC_AURA        = 41453,
+    SPELL_DEVOTION_AURA         = 41452,
+
+    // Veras Darkshadow's spells
+    SPELL_DEADLY_POISON         = 41485,
+    SPELL_ENVENOM               = 41487,
+    SPELL_VANISH                = 41479,
+    SPELL_BERSERK               = 45078
+};
 
 #define ERROR_INST_DATA           "SD2 ERROR: Instance Data for Black Temple not set properly; Illidari Council event will not function properly."
-
-#define AKAMAID                 23089
 
 struct CouncilYells
 {
@@ -66,52 +100,20 @@ struct CouncilYells
 
 static CouncilYells CouncilAggro[]=
 {
-    {-1564069, 5000},                                       // Gathios
-    {-1564070, 5500},                                       // Veras
-    {-1564071, 5000},                                       // Malande
-    {-1564072, 0},                                          // Zerevor
+    {0, 5000},                                       // Gathios
+    {0, 5500},                                       // Veras
+    {0, 5000},                                       // Malande
+    {0, 0},                                          // Zerevor
 };
 
 // Need to get proper timers for this later
 static CouncilYells CouncilEnrage[]=
 {
-    {-1564073, 2000},                                       // Gathios
-    {-1564074, 6000},                                       // Veras
-    {-1564075, 5000},                                       // Malande
-    {-1564076, 0},                                          // Zerevor
+    {1, 2000},                                       // Gathios
+    {1, 6000},                                       // Veras
+    {1, 5000},                                       // Malande
+    {1, 0},                                          // Zerevor
 };
-
-// High Nethermancer Zerevor's spells
-#define SPELL_FLAMESTRIKE          41481
-#define SPELL_BLIZZARD             41482
-#define SPELL_ARCANE_BOLT          41483
-#define SPELL_ARCANE_EXPLOSION     41524
-#define SPELL_DAMPEN_MAGIC         41478
-
-// Lady Malande's spells
-#define SPELL_EMPOWERED_SMITE      41471
-#define SPELL_CIRCLE_OF_HEALING    41455
-#define SPELL_REFLECTIVE_SHIELD    41475
-#define SPELL_REFLECTIVE_SHIELD_T  33619
-#define SPELL_DIVINE_WRATH         41472
-#define SPELL_HEAL_VISUAL          24171
-
-// Gathios the Shatterer's spells
-#define SPELL_BLESS_PROTECTION     41450
-#define SPELL_BLESS_SPELLWARD      41451
-#define SPELL_CONSECRATION         41541
-#define SPELL_HAMMER_OF_JUSTICE    41468
-#define SPELL_SEAL_OF_COMMAND      41469
-#define SPELL_SEAL_OF_BLOOD        41459
-#define SPELL_CHROMATIC_AURA       41453
-#define SPELL_DEVOTION_AURA        41452
-
-// Veras Darkshadow's spells
-#define SPELL_DEADLY_POISON        41485
-#define SPELL_ENVENOM              41487
-#define SPELL_VANISH               41479
-
-#define SPELL_BERSERK              45078
 
 class mob_blood_elf_council_voice_trigger : public CreatureScript
 {
@@ -179,9 +181,9 @@ public:
             {
                 if (AggroYellTimer <= diff)
             {
-                if (Unit* pMember = Unit::GetUnit(*me, Council[YellCounter]))
+                if (Creature* pMember = Creature::GetCreature(*me, Council[YellCounter]))
                 {
-                    DoScriptText(CouncilAggro[YellCounter].entry, pMember);
+                    pMember->AI()->Talk(CouncilAggro[YellCounter].entry);
                     AggroYellTimer = CouncilAggro[YellCounter].timer;
                 }
                 ++YellCounter;
@@ -194,10 +196,10 @@ public:
             {
                 if (EnrageTimer <= diff)
             {
-                if (Unit* pMember = Unit::GetUnit(*me, Council[YellCounter]))
+                if (Creature* pMember = Creature::GetCreature(*me, Council[YellCounter]))
                 {
                     pMember->CastSpell(pMember, SPELL_BERSERK, true);
-                    DoScriptText(CouncilEnrage[YellCounter].entry, pMember);
+                    pMember->AI()->Talk(CouncilEnrage[YellCounter].entry);
                     EnrageTimer = CouncilEnrage[YellCounter].timer;
                 }
                 ++YellCounter;
@@ -497,12 +499,12 @@ public:
 
         void KilledUnit(Unit* /*victim*/)
         {
-            DoScriptText(SAY_GATH_SLAY, me);
+            Talk(SAY_GATH_SLAY);
         }
 
         void JustDied(Unit* /*killer*/)
         {
-            DoScriptText(SAY_GATH_DEATH, me);
+            Talk(SAY_GATH_DEATH);
         }
 
         Unit* SelectCouncilMember()
@@ -631,12 +633,12 @@ public:
 
         void KilledUnit(Unit* /*victim*/)
         {
-            DoScriptText(SAY_ZERE_SLAY, me);
+            Talk(SAY_ZERE_SLAY);
         }
 
         void JustDied(Unit* /*killer*/)
         {
-            DoScriptText(SAY_ZERE_DEATH, me);
+            Talk(SAY_ZERE_DEATH);
         }
 
         void UpdateAI(const uint32 diff)
@@ -731,12 +733,12 @@ public:
 
         void KilledUnit(Unit* /*victim*/)
         {
-            DoScriptText(SAY_MALA_SLAY, me);
+            Talk(SAY_MALA_SLAY);
         }
 
         void JustDied(Unit* /*killer*/)
         {
-            DoScriptText(SAY_MALA_DEATH, me);
+            Talk(SAY_MALA_DEATH);
         }
 
         void UpdateAI(const uint32 diff)
@@ -817,12 +819,12 @@ public:
 
         void KilledUnit(Unit* /*victim*/)
         {
-            DoScriptText(SAY_VERA_SLAY, me);
+            Talk(SAY_VERA_SLAY);
         }
 
         void JustDied(Unit* /*killer*/)
         {
-            DoScriptText(SAY_VERA_DEATH, me);
+            Talk(SAY_VERA_DEATH);
         }
 
         void UpdateAI(const uint32 diff)
