@@ -29,12 +29,15 @@ EndScriptData */
 #include "black_temple.h"
 #include "Player.h"
 
-#define SAY_DEATH                   -1564013
-#define SAY_LOW_HEALTH              -1564014
-// Ending cinematic text
-#define SAY_FREE                    -1564015
-#define SAY_BROKEN_FREE_01          -1564016
-#define SAY_BROKEN_FREE_02          -1564017
+enum ShadeOfAkama
+{
+    SAY_DEATH                   = 0,
+    SAY_LOW_HEALTH              = 1,
+    // Ending cinematic text
+    SAY_FREE                    = 2,
+    SAY_BROKEN_FREE_01          = 0,
+    SAY_BROKEN_FREE_02          = 1
+};
 
 #define GOSSIP_ITEM                 "We are ready to fight alongside you, Akama"
 
@@ -704,7 +707,7 @@ public:
 
         void JustDied(Unit* /*killer*/)
         {
-            DoScriptText(SAY_DEATH, me);
+            Talk(SAY_DEATH);
             EventBegun = false;
             ShadeHasDied = false;
             StartCombat = false;
@@ -729,7 +732,7 @@ public:
 
             if (HealthBelowPct(15) && !HasYelledOnce)
             {
-                DoScriptText(SAY_LOW_HEALTH, me);
+                Talk(SAY_LOW_HEALTH);
                 HasYelledOnce = true;
             }
 
@@ -825,7 +828,7 @@ public:
                         SummonBrokenTimer = 1;
                         break;
                     case 1:
-                        DoScriptText(SAY_FREE, me);
+                        Talk(SAY_FREE);
                         ++EndingTalkCount;
                         SoulRetrieveTimer = 25000;
                         break;
@@ -838,7 +841,7 @@ public:
                                 {
                                     if (!Yelled)
                                     {
-                                        DoScriptText(SAY_BROKEN_FREE_01, unit);
+                                        unit->AI()->Talk(SAY_BROKEN_FREE_01);
                                         Yelled = true;
                                     }
                                     unit->HandleEmoteCommand(EMOTE_ONESHOT_KNEEL);
@@ -863,7 +866,7 @@ public:
                         {
                             for (std::list<uint64>::const_iterator itr = BrokenList.begin(); itr != BrokenList.end(); ++itr)
                                 if (Creature* unit = Unit::GetCreature((*me), *itr))
-                                    unit->MonsterYell(SAY_BROKEN_FREE_02, LANG_UNIVERSAL, 0);
+                                    unit->AI()->Talk(SAY_BROKEN_FREE_02);
                         }
                         SoulRetrieveTimer = 0;
                         break;
