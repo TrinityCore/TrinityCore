@@ -26,21 +26,19 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 
-#define SAY_AGGRO_1                     -1557008
-#define SAY_AGGRO_2                     -1557009
-#define SAY_AGGRO_3                     -1557010
+enum Pandemonius
+{
+    SAY_AGGRO                       = 0,
+    SAY_KILL                        = 1,
+    SAY_DEATH                       = 2,
+    EMOTE_DARK_SHELL                = 3,
 
-#define SAY_KILL_1                      -1557011
-#define SAY_KILL_2                      -1557012
+    SPELL_VOID_BLAST                = 32325,
+    H_SPELL_VOID_BLAST              = 38760,
+    SPELL_DARK_SHELL                = 32358,
+    H_SPELL_DARK_SHELL              = 38759
+};
 
-#define SAY_DEATH                       -1557013
-
-#define EMOTE_DARK_SHELL                -1557014
-
-#define SPELL_VOID_BLAST                32325
-#define H_SPELL_VOID_BLAST              38760
-#define SPELL_DARK_SHELL                32358
-#define H_SPELL_DARK_SHELL              38759
 
 class boss_pandemonius : public CreatureScript
 {
@@ -71,17 +69,17 @@ public:
 
         void JustDied(Unit* /*killer*/)
         {
-            DoScriptText(SAY_DEATH, me);
+            Talk(SAY_DEATH);
         }
 
         void KilledUnit(Unit* /*victim*/)
         {
-            DoScriptText(RAND(SAY_KILL_1, SAY_KILL_2), me);
+            Talk(SAY_KILL);
         }
 
         void EnterCombat(Unit* /*who*/)
         {
-            DoScriptText(RAND(SAY_AGGRO_1, SAY_AGGRO_2, SAY_AGGRO_3), me);
+            Talk(SAY_AGGRO);
         }
 
         void UpdateAI(const uint32 diff)
@@ -112,7 +110,7 @@ public:
                     if (me->IsNonMeleeSpellCasted(false))
                         me->InterruptNonMeleeSpells(true);
 
-                    DoScriptText(EMOTE_DARK_SHELL, me);
+                    Talk(EMOTE_DARK_SHELL);
 
                     DoCast(me, SPELL_DARK_SHELL);
                     DarkShell_Timer = 20000;

@@ -56,7 +56,7 @@ class boss_thorim : public CreatureScript
 
             void EnterEvadeMode()
             {
-                DoScriptText(SAY_WIPE, me);
+                Talk(SAY_WIPE);
                 _EnterEvadeMode();
             }
 
@@ -68,7 +68,7 @@ class boss_thorim : public CreatureScript
 
             void JustDied(Unit* /*killer*/)
             {
-                DoScriptText(SAY_DEATH, me);
+                Talk(SAY_DEATH);
                 _JustDied();
             }
 
