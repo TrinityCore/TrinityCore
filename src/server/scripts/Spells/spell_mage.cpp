@@ -43,7 +43,8 @@ enum MageSpells
 	SPELL_MAGE_ORB_TALENT_R2                     = 84727,
     SPELL_MAGE_SUMMON_WATER_ELEMENTAL_PERMANENT  = 70908,
     SPELL_MAGE_SUMMON_WATER_ELEMENTAL_TEMPORARY  = 70907,
-    SPELL_MAGE_CAUTERIZE                         = 86949,
+    SPELL_MAGE_CAUTERIZE_R2                      = 86949,
+	SPELL_MAGE_CAUTERIZE_R1                      = 86948,
     SPELL_MAGE_CAUTERIZE_DOT                     = 87023,
     SPELL_MAGE_GLYPH_OF_BLAST_WAVE               = 62126,
 
@@ -141,51 +142,27 @@ class spell_mag_cauterize : public SpellScriptLoader
         {
             PrepareAuraScript(spell_mag_cauterize_AuraScript);
 
-            uint32 absorbChance;
-
             bool Validate(SpellInfo const* /*spellEntry*/)
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_CAUTERIZE))
+                if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_CAUTERIZE_R1) || !sSpellMgr->GetSpellInfo(SPELL_MAGE_CAUTERIZE_R2))
                     return false;
                 return true;
             }
 
-            bool Load()
-            {
-                absorbChance = GetSpellInfo()->Effects[EFFECT_0].CalcValue();
-                return GetUnitOwner()->ToPlayer();
-            }
-
-            void CalculateAmount(AuraEffect const* /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
-            {
-                // Set absorbtion amount to unlimited
-                amount = -1;
-            }
-
-            void Absorb(AuraEffect* /*aurEff*/, DamageInfo & dmgInfo, uint32 & absorbAmount)
+            void HasDamage(AuraEffect* /*aurEff*/, DamageInfo & dmgInfo)
             {
                 Player* target = GetTarget()->ToPlayer();
-                if (dmgInfo.GetDamage() < target->GetHealth() || target->HasSpellCooldown(SPELL_MAGE_CAUTERIZE) ||  !roll_chance_i(absorbChance))
+                if (dmgInfo.GetDamage() < target->GetHealth() || target->HasSpellCooldown(SPELL_MAGE_CAUTERIZE_R1) || target->HasSpellCooldown(SPELL_MAGE_CAUTERIZE_R2) || !roll_chance_i(absorbChance))
                     return;    
 
                 target->CastSpell(target, SPELL_MAGE_CAUTERIZE_DOT, true);
 		        target->SetHealth(target->CountPctFromMaxHealth(40));
                 target->AddSpellCooldown(SPELL_MAGE_CAUTERIZE, 0, time(NULL) + 60);
-
-                uint32 health10 = target->CountPctFromMaxHealth(10);
-
-                // hp > 10% - absorb hp till 10%
-                if (target->GetHealth() > health10)
-                    absorbAmount = dmgInfo.GetDamage() - target->GetHealth() + health10;
-                // hp lower than 10% - absorb everything
-                else
-                    absorbAmount = dmgInfo.GetDamage();
             }
 
             void Register()
             {
-                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_mag_cauterize_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
-                OnEffectAbsorb += AuraEffectAbsorbFn(spell_mag_cauterize_AuraScript::Absorb, EFFECT_0);
+                OnEffectHasDamage += AuraEffectHasDamageFn(spell_mag_cauterize_AuraScript::HasDamage, EFFECT_0);
             }
         };
 

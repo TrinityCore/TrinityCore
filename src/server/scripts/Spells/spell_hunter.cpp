@@ -1105,13 +1105,13 @@ public:
         {
             Unit* caster = GetCaster();
 
-            if (caster->HasAura(HUNTER_SPELL_TNT_R1);
+            if (caster->HasAura(HUNTER_SPELL_TNT_R1))
 			   if (roll_chance_i(10))
                   caster->CastSpell(caster, HUNTER_SPELL_TNT, true);
 
-			if (caster->HasAura(HUNTER_SPELL_TNT_R2);
+			if (caster->HasAura(HUNTER_SPELL_TNT_R2))
 			   if (roll_chance_i(20))
-                  caster->CastSpell(caster, HUNTER_SPELL_TNT, true);
+                     caster->CastSpell(caster, HUNTER_SPELL_TNT, true);
         }
 
         void Register()
