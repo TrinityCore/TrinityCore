@@ -29,7 +29,7 @@ EndScriptData */
 
 enum eEnums
 {
-    SAY_AGGRO               = -1542008,
+    SAY_AGGRO               = 0,
 
     SPELL_SLIME_SPRAY       = 30913,
     SPELL_POISON_CLOUD      = 30916,
@@ -73,7 +73,7 @@ class boss_broggok : public CreatureScript
 
             void EnterCombat(Unit* /*who*/)
             {
-                DoScriptText(SAY_AGGRO, me);
+                Talk(SAY_AGGRO);
             }
 
             void JustSummoned(Creature* summoned)
