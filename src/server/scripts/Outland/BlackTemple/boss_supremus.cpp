@@ -28,32 +28,35 @@ EndScriptData */
 #include "PassiveAI.h"
 #include "black_temple.h"
 
-#define EMOTE_NEW_TARGET            -1564010
-#define EMOTE_PUNCH_GROUND          -1564011                //DoScriptText(EMOTE_PUNCH_GROUND, me);
-#define EMOTE_GROUND_CRACK          -1564012
+enum Supremus
+{
+    EMOTE_NEW_TARGET            = 0,
+    EMOTE_PUNCH_GROUND          = 1,                //Talk(EMOTE_PUNCH_GROUND);
+    EMOTE_GROUND_CRACK          = 2,
 
-//Spells
-#define SPELL_MOLTEN_PUNCH          40126
-#define SPELL_HATEFUL_STRIKE        41926
-#define SPELL_MOLTEN_FLAME          40980
-#define SPELL_VOLCANIC_ERUPTION     40117
-#define SPELL_VOLCANIC_SUMMON       40276
-#define SPELL_BERSERK               45078
+    //Spells
+    SPELL_MOLTEN_PUNCH          = 40126,
+    SPELL_HATEFUL_STRIKE        = 41926,
+    SPELL_MOLTEN_FLAME          = 40980,
+    SPELL_VOLCANIC_ERUPTION     = 40117,
+    SPELL_VOLCANIC_SUMMON       = 40276,
+    SPELL_BERSERK               = 45078,
 
-#define CREATURE_VOLCANO            23085
-#define CREATURE_STALKER            23095
+    CREATURE_VOLCANO            = 23085,
+    CREATURE_STALKER            = 23095,
 
-#define PHASE_STRIKE    1
-#define PHASE_CHASE     2
+    PHASE_STRIKE                = 1,
+    PHASE_CHASE                 = 2,
 
-#define EVENT_BERSERK           1
-#define EVENT_SWITCH_PHASE      2
-#define EVENT_FLAME             3
-#define EVENT_VOLCANO           4
-#define EVENT_SWITCH_TARGET     5
-#define EVENT_HATEFUL_STRIKE    6
+    EVENT_BERSERK               = 1,
+    EVENT_SWITCH_PHASE          = 2,
+    EVENT_FLAME                 = 3,
+    EVENT_VOLCANO               = 4,
+    EVENT_SWITCH_TARGET         = 5,
+    EVENT_HATEFUL_STRIKE        = 6,
 
-#define GCD_CAST    1
+    GCD_CAST                    = 1
+};
 
 class molten_flame : public CreatureScript
 {
@@ -230,7 +233,7 @@ public:
                         {
                             DoResetThreat();
                             me->AddThreat(target, 5000000.0f);
-                            DoScriptText(EMOTE_NEW_TARGET, me);
+                            Talk(EMOTE_NEW_TARGET);
                         }
                         events.ScheduleEvent(EVENT_SWITCH_TARGET, 10000, 0, PHASE_CHASE);
                         break;
@@ -242,7 +245,7 @@ public:
                         {
                             //DoCast(target, SPELL_VOLCANIC_SUMMON);//movement bugged
                             me->SummonCreature(CREATURE_VOLCANO, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 30000);
-                            DoScriptText(EMOTE_GROUND_CRACK, me);
+                            Talk(EMOTE_GROUND_CRACK);
                             events.DelayEvents(1500, GCD_CAST);
                         }
                         events.ScheduleEvent(EVENT_VOLCANO, 10000, GCD_CAST, PHASE_CHASE);

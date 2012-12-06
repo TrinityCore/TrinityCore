@@ -39,7 +39,7 @@ enum eSpells
     SPELL_REVENGE                 = 19130,
     SPELL_REVENGE_H               = 40392,
     SPELL_KIDNEY_SHOT             = 30621,
-    SPELL_FIRE_NOVA_VISUAL        = 19823,
+    SPELL_FIRE_NOVA_VISUAL        = 19823
 };
 
 enum eUnits
@@ -50,20 +50,17 @@ enum eUnits
     ENTRY_NAZAN                       = 17536,
     ENTRY_LIQUID_FIRE                 = 22515,
     ENTRY_REINFORCED_FEL_IRON_CHEST   = 185168,
-    ENTRY_REINFORCED_FEL_IRON_CHEST_H = 185169,
+    ENTRY_REINFORCED_FEL_IRON_CHEST_H = 185169
 };
 
 enum eSays
 {
-    SAY_INTRO                     = -1543017,
-    SAY_WIPE                      = -1543018,
-    SAY_AGGRO_1                   = -1543019,
-    SAY_AGGRO_2                   = -1543020,
-    SAY_AGGRO_3                   = -1543021,
-    SAY_KILL_1                    = -1543022,
-    SAY_KILL_2                    = -1543023,
-    SAY_DIE                       = -1543024,
-    EMOTE                         = -1543025,
+    SAY_INTRO                     = 0,
+    SAY_WIPE                      = 1,
+    SAY_AGGRO                     = 2,
+    SAY_KILL                      = 3,
+    SAY_DIE                       = 4,
+    EMOTE                         = 5
 };
 
 const float VazrudenMiddle[3] = {-1406.5f, 1746.5f, 81.2f};
@@ -153,7 +150,7 @@ class boss_nazan : public CreatureScript
                         if (Unit* victim = SelectTarget(SELECT_TARGET_NEAREST, 0))
                             me->AI()->AttackStart(victim);
                         DoStartMovement(me->getVictim());
-                        DoScriptText(EMOTE, me);
+                        Talk(EMOTE);
                         return;
                     }
                     else
@@ -229,19 +226,19 @@ class boss_vazruden : public CreatureScript
 
             void EnterCombat(Unit* /*who*/)
             {
-                DoScriptText(RAND(SAY_AGGRO_1, SAY_AGGRO_2, SAY_AGGRO_3), me);
+                Talk(SAY_AGGRO);
             }
 
             void KilledUnit(Unit* who)
             {
                 if (who && who->GetEntry() != ENTRY_VAZRUDEN)
-                    DoScriptText(RAND(SAY_KILL_1, SAY_KILL_2), me);
+                    Talk(SAY_KILL);
             }
 
             void JustDied(Unit* killer)
             {
                 if (killer && killer != me)
-                    DoScriptText(SAY_DIE, me);
+                    Talk(SAY_DIE);
             }
 
             void UpdateAI(const uint32 diff)
@@ -252,7 +249,7 @@ class boss_vazruden : public CreatureScript
                     {
                         if (!WipeSaid)
                         {
-                            DoScriptText(SAY_WIPE, me);
+                            Talk(SAY_WIPE);
                             WipeSaid = true;
                         }
                         me->DisappearAndDie();
@@ -364,7 +361,7 @@ class boss_vazruden_the_herald : public CreatureScript
                 {
                     phase = 1;
                     check = 0;
-                    DoScriptText(SAY_INTRO, me);
+                    Talk(SAY_INTRO);
                 }
             }
 
