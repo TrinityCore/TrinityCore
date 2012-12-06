@@ -87,11 +87,12 @@ public:
 
 enum eNetherdrake
 {
-    SAY_NIHIL_1                 = -1000169, //signed for 5955
-    SAY_NIHIL_2                 = -1000170, //signed for 5955
-    SAY_NIHIL_3                 = -1000171, //signed for 5955
-    SAY_NIHIL_4                 = -1000172, //signed for 20021, used by 20021, 21817, 21820, 21821, 21823
-    SAY_NIHIL_INTERRUPT         = -1000173, //signed for 20021, used by 20021, 21817, 21820, 21821, 21823
+    //Used by 20021, 21817, 21820, 21821, 21823 but not existing in database
+    SAY_NIHIL_1                 = 0,
+    SAY_NIHIL_2                 = 1,
+    SAY_NIHIL_3                 = 2,
+    SAY_NIHIL_4                 = 3,
+    SAY_NIHIL_INTERRUPT         = 4,
 
     ENTRY_WHELP                 = 20021,
     ENTRY_PROTO                 = 21821,
@@ -176,7 +177,7 @@ public:
                 //we are nihil, so say before transform
                 if (me->GetEntry() == ENTRY_NIHIL)
                 {
-                    DoScriptText(SAY_NIHIL_INTERRUPT, me);
+                    Talk(SAY_NIHIL_INTERRUPT);
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                     IsNihil = false;
                 }
@@ -203,19 +204,19 @@ public:
                     switch (NihilSpeech_Phase)
                     {
                         case 0:
-                            DoScriptText(SAY_NIHIL_1, me);
+                            Talk(SAY_NIHIL_1);
                             ++NihilSpeech_Phase;
                             break;
                         case 1:
-                            DoScriptText(SAY_NIHIL_2, me);
+                            Talk(SAY_NIHIL_2);
                             ++NihilSpeech_Phase;
                             break;
                         case 2:
-                            DoScriptText(SAY_NIHIL_3, me);
+                            Talk(SAY_NIHIL_3);
                             ++NihilSpeech_Phase;
                             break;
                         case 3:
-                            DoScriptText(SAY_NIHIL_4, me);
+                            Talk(SAY_NIHIL_4);
                             ++NihilSpeech_Phase;
                             break;
                         case 4:
@@ -266,7 +267,7 @@ public:
 
 enum eDaranelle
 {
-    SAY_SPELL_INFLUENCE     = -1000174,
+    SAY_SPELL_INFLUENCE     = 0,
     SPELL_LASHHAN_CHANNEL   = 36904
 };
 
@@ -294,7 +295,7 @@ public:
             {
                 if (who->HasAura(SPELL_LASHHAN_CHANNEL) && me->IsWithinDistInMap(who, 10.0f))
                 {
-                    DoScriptText(SAY_SPELL_INFLUENCE, me, who);
+                    Talk(SAY_SPELL_INFLUENCE, who->GetGUID());
                     //TODO: Move the below to updateAI and run if this statement == true
                     DoCast(who, 37028, true);
                 }

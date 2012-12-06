@@ -27,31 +27,26 @@ EndScriptData */
 #include "ScriptedCreature.h"
 #include "sethekk_halls.h"
 
-#define SAY_INTRO                   -1556007
+enum TailonkingIkiss
+{
+    SAY_INTRO                   = 0,
+    SAY_AGGRO                   = 1,
+    SAY_SLAY                    = 2,
+    SAY_DEATH                   = 3,
+    EMOTE_ARCANE_EXP            = 4,
 
-#define SAY_AGGRO_1                 -1556008
-#define SAY_AGGRO_2                 -1556009
-#define SAY_AGGRO_3                 -1556010
-
-#define SAY_SLAY_1                  -1556011
-#define SAY_SLAY_2                  -1556012
-#define SAY_DEATH                   -1556013
-#define EMOTE_ARCANE_EXP            -1556015
-
-#define SPELL_BLINK                 38194
-#define SPELL_BLINK_TELEPORT        38203
-#define SPELL_MANA_SHIELD           38151
-#define SPELL_ARCANE_BUBBLE         9438
-#define H_SPELL_SLOW                35032
-
-#define SPELL_POLYMORPH             38245
-#define H_SPELL_POLYMORPH           43309
-
-#define SPELL_ARCANE_VOLLEY         35059
-#define H_SPELL_ARCANE_VOLLEY       40424
-
-#define SPELL_ARCANE_EXPLOSION      38197
-#define H_SPELL_ARCANE_EXPLOSION    40425
+    SPELL_BLINK                 = 38194,
+    SPELL_BLINK_TELEPORT        = 38203,
+    SPELL_MANA_SHIELD           = 38151,
+    SPELL_ARCANE_BUBBLE         = 9438,
+    H_SPELL_SLOW                = 35032,
+    SPELL_POLYMORPH             = 38245,
+    H_SPELL_POLYMORPH           = 43309,
+    SPELL_ARCANE_VOLLEY         = 35059,
+    H_SPELL_ARCANE_VOLLEY       = 40424,
+    SPELL_ARCANE_EXPLOSION      = 38197,
+    H_SPELL_ARCANE_EXPLOSION    = 40425
+};
 
 class boss_talon_king_ikiss : public CreatureScript
 {
@@ -99,7 +94,7 @@ public:
                 if (!Intro && me->IsWithinDistInMap(who, 100))
                 {
                     Intro = true;
-                    DoScriptText(SAY_INTRO, me);
+                    Talk(SAY_INTRO);
                 }
 
                 if (!me->CanFly() && me->GetDistanceZ(who) > CREATURE_Z_ATTACK_RANGE)
@@ -116,12 +111,12 @@ public:
 
         void EnterCombat(Unit* /*who*/)
         {
-            DoScriptText(RAND(SAY_AGGRO_1, SAY_AGGRO_2, SAY_AGGRO_3), me);
+            Talk(SAY_AGGRO);
         }
 
         void JustDied(Unit* /*killer*/)
         {
-            DoScriptText(SAY_DEATH, me);
+            Talk(SAY_DEATH);
 
             if (instance)
                 instance->SetData(DATA_IKISSDOOREVENT, DONE);
@@ -129,7 +124,7 @@ public:
 
         void KilledUnit(Unit* /*victim*/)
         {
-            DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2), me);
+            Talk(SAY_SLAY);
         }
 
         void UpdateAI(const uint32 diff)
@@ -183,7 +178,7 @@ public:
 
             if (Blink_Timer <= diff)
             {
-                DoScriptText(EMOTE_ARCANE_EXP, me);
+                Talk(EMOTE_ARCANE_EXP);
 
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                 {

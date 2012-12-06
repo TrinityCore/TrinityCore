@@ -26,28 +26,25 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 
-#define SAY_SUMMON                  -1556000
+enum DarkweaverSyth
+{
+    SAY_SUMMON                  = 0,
+    SAY_AGGRO                   = 1,
+    SAY_SLAY                    = 2,
+    SAY_DEATH                   = 3,
 
-#define SAY_AGGRO_1                 -1556001
-#define SAY_AGGRO_2                 -1556002
-#define SAY_AGGRO_3                 -1556003
+    SPELL_FROST_SHOCK           = 21401, //37865
+    SPELL_FLAME_SHOCK           = 34354,
+    SPELL_SHADOW_SHOCK          = 30138,
+    SPELL_ARCANE_SHOCK          = 37132,
 
-#define SAY_SLAY_1                  -1556004
-#define SAY_SLAY_2                  -1556005
+    SPELL_CHAIN_LIGHTNING       = 15659, //15305
 
-#define SAY_DEATH                   -1556006
-
-#define SPELL_FROST_SHOCK           21401 //37865
-#define SPELL_FLAME_SHOCK           34354
-#define SPELL_SHADOW_SHOCK          30138
-#define SPELL_ARCANE_SHOCK          37132
-
-#define SPELL_CHAIN_LIGHTNING       15659 //15305
-
-#define SPELL_SUMMON_SYTH_FIRE      33537                   // Spawns 19203
-#define SPELL_SUMMON_SYTH_ARCANE    33538                   // Spawns 19205
-#define SPELL_SUMMON_SYTH_FROST     33539                   // Spawns 19204
-#define SPELL_SUMMON_SYTH_SHADOW    33540                   // Spawns 19206
+    SPELL_SUMMON_SYTH_FIRE      = 33537,                   // Spawns 19203
+    SPELL_SUMMON_SYTH_ARCANE    = 33538,                   // Spawns 19205
+    SPELL_SUMMON_SYTH_FROST     = 33539,                   // Spawns 19204
+    SPELL_SUMMON_SYTH_SHADOW    = 33540                    // Spawns 19206
+};
 
 #define SPELL_FLAME_BUFFET          DUNGEON_MODE(33526, 38141)
 #define SPELL_ARCANE_BUFFET         DUNGEON_MODE(33527, 38138)
@@ -95,12 +92,12 @@ public:
 
         void EnterCombat(Unit* /*who*/)
         {
-            DoScriptText(RAND(SAY_AGGRO_1, SAY_AGGRO_2, SAY_AGGRO_3), me);
+            Talk(SAY_AGGRO);
         }
 
         void JustDied(Unit* /*killer*/)
         {
-            DoScriptText(SAY_DEATH, me);
+            Talk(SAY_DEATH);
         }
 
         void KilledUnit(Unit* /*victim*/)
@@ -108,7 +105,7 @@ public:
             if (rand()%2)
                 return;
 
-            DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2), me);
+            Talk(SAY_SLAY);
         }
 
         void JustSummoned(Creature* summoned)
@@ -119,7 +116,7 @@ public:
 
         void SythSummoning()
         {
-            DoScriptText(SAY_SUMMON, me);
+            Talk(SAY_SUMMON);
 
             if (me->IsNonMeleeSpellCasted(false))
                 me->InterruptNonMeleeSpells(false);
