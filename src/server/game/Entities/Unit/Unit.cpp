@@ -6830,6 +6830,26 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                     triggered_spell_id = 28850;
                     break;
                 }
+				                // Telluric Currents
+                 case 82984:
+                 case 82988:
+                 {
+                     basepoints0 = triggerAmount * damage / 100;
+                     target = this;
+                     triggered_spell_id = 82987;
+                     break;
+                 }
+                 // Tidal Waves
+                 case 51562:
+                 case 51563:
+                 case 51564:
+                 {
+                    CustomSpellValues values;
+                    values.AddSpellMod(SPELLVALUE_BASE_POINT0, -(dummySpell->Effects[0].BasePoints));
+                    values.AddSpellMod(SPELLVALUE_BASE_POINT1, dummySpell->Effects[0].BasePoints);
+                    CastCustomSpell(53390, values, this);
+                     break;
+                 }
                 // Windfury Weapon (Passive) 1-8 Ranks
                 case 33757:
                 {
@@ -7031,11 +7051,11 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                     }
                     // if not found Flame Shock
                     return false;
-                }
                 break;
-            }
+				}
                 case 51483: // Earth's Grasp (Rank 1)
                 case 51485: // Earth's Grasp (Rank 2)
+				{
                    // Earthbind Totem summon only
                    if (procSpell->Id != 2484)
                         return false;
@@ -7046,6 +7066,8 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
 
                     triggered_spell_id = 64695;
                 break;
+				}
+			}
             // Frozen Power
             if (dummySpell->SpellIconID == 3780)
             {
@@ -7088,7 +7110,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                 if (GetTypeId() != TYPEID_PLAYER  || !victim || !victim->isAlive() || !castItem || !castItem->IsEquipped())
                     return false;
 
-         //      float fire_onhit = float(CalculatePct(dummySpell->Effects[EFFECT_0]. CalcValue(), 1.0f)); CAUSE CRASH
+               float fire_onhit = float(CalculatePct(dummySpell->Effects[EFFECT_0]. CalcValue(), 1.0f)); CAUSE CRASH
 
                float add_spellpower = (float)(SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_FIRE)
                                      + victim->SpellBaseDamageBonusTaken(SPELL_SCHOOL_MASK_FIRE));
@@ -7099,10 +7121,10 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                 // Enchant on Off-Hand and ready?
                 if (castItem->GetSlot() == EQUIPMENT_SLOT_OFFHAND && isAttackReady(OFF_ATTACK))
                 {
-              /*     float BaseWeaponSpeed = GetAttackTime(OFF_ATTACK) / 1000.0f; 
+                   float BaseWeaponSpeed = GetAttackTime(OFF_ATTACK) / 1000.0f; 
 
                     // Value1: add the tooltip damage by swingspeed + Value2: add spelldmg by swingspeed
-                    basepoints0 = int32((fire_onhit * BaseWeaponSpeed) + (add_spellpower * BaseWeaponSpeed) * 2); */
+                    basepoints0 = int32((fire_onhit * BaseWeaponSpeed) + (add_spellpower * BaseWeaponSpeed) * 2); 
 
                     basepoints0 = int32((add_spellpower * 10) / 100);
                     triggered_spell_id = 10444;
@@ -7111,10 +7133,10 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                 // Enchant on Main-Hand and ready?
                 else if (castItem->GetSlot() == EQUIPMENT_SLOT_MAINHAND && isAttackReady(BASE_ATTACK))
                 {
-                 /*   float BaseWeaponSpeed = GetAttackTime(BASE_ATTACK) / 1000.0f;
+                    float BaseWeaponSpeed = GetAttackTime(BASE_ATTACK) / 1000.0f;
 
                     // Value1: add the tooltip damage by swingspeed +  Value2: add spelldmg by swingspeed
-                    basepoints0 = int32((fire_onhit * BaseWeaponSpeed) + (add_spellpower * BaseWeaponSpeed) * 2); */
+                    basepoints0 = int32((fire_onhit * BaseWeaponSpeed) + (add_spellpower * BaseWeaponSpeed) * 2); 
 
                     basepoints0 = int32((add_spellpower * 10) / 100);
                     triggered_spell_id = 10444;
@@ -10023,16 +10045,22 @@ int32 Unit::SpellBaseDamageBonusDone(SpellSchoolMask schoolMask)
 {
     int32 DoneAdvertisedBenefit = 0;
 
- AuraEffectList const& mHealingDone = GetAuraEffectsByType(SPELL_AURA_MOD_HEALING_DONE);
+ /*AuraEffectList const& mHealingDone = GetAuraEffectsByType(SPELL_AURA_MOD_HEALING_DONE);
     for (AuraEffectList::const_iterator i = mHealingDone.begin(); i != mHealingDone.end(); ++i)
         if (!(*i)->GetMiscValue() || ((*i)->GetMiscValue() & schoolMask) != 0)
-            DoneAdvertisedBenefit += (*i)->GetAmount();
+            DoneAdvertisedBenefit += (*i)->GetAmount(); UNUSED FOR NOW */
+
+	  AuraEffectList const& mDamageDone = GetAuraEffectsByType(SPELL_AURA_MOD_DAMAGE_DONE);
+     for (AuraEffectList::const_iterator i = mDamageDone.begin(); i != mDamageDone.end(); ++i)
+         if (((*i)->GetMiscValue() & schoolMask) != 0 &&
+         (*i)->GetSpellInfo()->EquippedItemClass == -1 &&
+                                                             // -1 == any item class (not wand then)
+         (*i)->GetSpellInfo()->EquippedItemInventoryTypeMask == 0)	
+                                                             // 0 == any inventory type (not wand then)
                                                             
 
     if (GetTypeId() == TYPEID_PLAYER)
     {
-        // Base value
-
 		  uint32 spellPower = ToPlayer()->GetSpellPowerBonus();
         // Spell power from SPELL_AURA_MOD_SPELL_POWER_PCT
         AuraEffectList const& mSpellPowerPct = GetAuraEffectsByType(SPELL_AURA_MOD_SPELL_POWER_PCT);
@@ -10043,8 +10071,8 @@ int32 Unit::SpellBaseDamageBonusDone(SpellSchoolMask schoolMask)
         DoneAdvertisedBenefit += spellPower;
 
         // Check if we are ever using mana - PaperDollFrame.lua
-        if (GetPowerIndexByClass(POWER_MANA, getClass()) != MAX_POWERS)
-            DoneAdvertisedBenefit += std::max(0, int32(GetStat(STAT_INTELLECT)) - 10);  // spellpower from intellect
+       /* if (GetPowerIndexByClass(POWER_MANA, getClass()) != MAX_POWERS)
+            DoneAdvertisedBenefit += std::max(0, int32(GetStat(STAT_INTELLECT)) - 10);  // spellpower from intellect  UN-USED FOR NOW*/
 
 		// Damage bonus from stats
         AuraEffectList const& mDamageDoneOfStatPercent = GetAuraEffectsByType(SPELL_AURA_MOD_SPELL_DAMAGE_OF_STAT_PERCENT);

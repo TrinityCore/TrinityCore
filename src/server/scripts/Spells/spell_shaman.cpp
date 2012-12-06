@@ -65,6 +65,7 @@ enum ShamanSpells
     SHAMAN_SPELL_LIGHTNING_SHIELD_PROC     = 26364,
 
     SHAMAN_SPELL_EARTHQUAKE_KNOCKDOWN      = 77505,
+	SHAMAN_SPELL_MANA_TIDE_TOTEM           = 16191,
 
 };
 
@@ -126,37 +127,6 @@ public:
     {
         return new spell_sha_fire_nova_SpellScript();
     }
-};
-
-// 16191 Mana Tide
-/// Updated 4.3.4
-class spell_sha_mana_tide : public SpellScriptLoader
-{
-    public:
-        spell_sha_mana_tide() : SpellScriptLoader("spell_sha_mana_tide") { }
-
-        class spell_sha_mana_tide_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_sha_mana_tide_AuraScript);
-
-            void CalculateAmount(AuraEffect const* aurEff, int32& amount, bool& /*canBeRecalculated*/)
-            {
-                ///@TODO: Exclude the "short term" buffs from the stat value
-                if (Unit* caster = GetCaster())
-                    if (Unit* owner = caster->GetOwner())
-                        amount = CalculatePct(owner->GetStat(STAT_SPIRIT), aurEff->GetAmount());
-            }
-
-            void Register()
-            {
-                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_sha_mana_tide_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_MOD_STAT);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_sha_mana_tide_AuraScript();
-        }
 };
 
 // 6474 - Earthbind Totem - Fix Talent:Earthen Power, Earth's Grasp
@@ -813,10 +783,47 @@ public:
     }
 };
 
+// 16191 - Mana Tide
+class spell_sha_mana_tide : public SpellScriptLoader
+{
+    public:
+        spell_sha_mana_tide() : SpellScriptLoader("spell_sha_mana_tide") { }
+
+        class spell_sha_mana_tide_AuraScript : public AuraScript
+       {
+            PrepareAuraScript(spell_sha_mana_tide_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellEntry*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SHAMAN_SPELL_MANA_TIDE_TOTEM))
+                    return false;
+                return true;
+            }
+
+            void CalculateAmount(AuraEffect const* /*aurEff*/, int32 &amount, bool & /*canBeRecalculated*/)
+            {
+                // 400% of caster's spirit
+                // Caster is totem, we need owner
+                if (Unit* owner = GetCaster()->GetOwner())
+                    amount = int32(owner->GetStat(STAT_SPIRIT) * 4.0f);
+            }
+
+            void Register()
+            {
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_sha_mana_tide_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_MOD_STAT);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_sha_mana_tide_AuraScript();
+        }
+};
+
+
 void AddSC_shaman_spell_scripts()
 {
     new spell_sha_fire_nova();
-    new spell_sha_mana_tide();
     new spell_sha_earthbind_totem();
     new spell_sha_earthen_power();
     new spell_sha_bloodlust();
@@ -831,4 +838,5 @@ void AddSC_shaman_spell_scripts()
     new spell_sha_earthquake();
     new spell_sha_astral_shift();
 	new spell_sha_healing_rain();
+	new spell_sha_mana_tide();
 }

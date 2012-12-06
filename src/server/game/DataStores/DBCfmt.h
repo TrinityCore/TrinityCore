@@ -169,5 +169,6 @@ char const WMOAreaTableEntryfmt[]="niiixxxxxiixxxx";
 char const WorldMapAreaEntryfmt[]="xinxffffixxxxx";
 char const WorldMapOverlayEntryfmt[]="nxiiiixxxxxxxxx";
 char const WorldSafeLocsEntryfmt[]="nifffx";
+const char WorldStateEntryfmt[]="niiissisiisssisiii";
 
 #endif

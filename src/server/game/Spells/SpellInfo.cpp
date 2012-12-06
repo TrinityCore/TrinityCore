@@ -536,12 +536,10 @@ bool SpellEffectInfo::HasRadius() const
 
 float SpellEffectInfo::CalcRadius(Unit* caster, Spell* spell) const
 {
+    if (!HasRadius())
+        return 8.0f;
+
     float radius = RadiusEntry->RadiusMin;
-
-	if (!HasRadius() || radius == 0)
-      return 8.0f;
-
-
     if (caster)
     {
         radius += RadiusEntry->RadiusPerLevel * caster->getLevel();
@@ -552,6 +550,7 @@ float SpellEffectInfo::CalcRadius(Unit* caster, Spell* spell) const
 
     return radius;
 }
+
 
 
 uint32 SpellEffectInfo::GetProvidedTargetMask() const

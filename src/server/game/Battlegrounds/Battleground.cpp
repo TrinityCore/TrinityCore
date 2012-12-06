@@ -905,7 +905,7 @@ void Battleground::EndBattleground(uint32 winner)
             {
                 // update achievement BEFORE personal rating update
                 uint32 rating = player->GetArenaPersonalRating(winnerArenaTeam->GetSlot());
-                player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_ARENA, rating ? rating : 1);
+               // player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_ARENA, rating ? rating : 1);
                 player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_ARENA, GetMapId());
                 player->ModifyCurrency(CURRENCY_TYPE_CONQUEST_META_ARENA, sWorld->getIntConfig(CONFIG_CURRENCY_CONQUEST_POINTS_ARENA_REWARD));
 
@@ -943,7 +943,7 @@ void Battleground::EndBattleground(uint32 winner)
             else // 50cp awarded for each non-rated battleground won
                 player->ModifyCurrency(CURRENCY_TYPE_CONQUEST_META_BG, BG_REWARD_WINNER_CONQUEST_LAST );
 
-            player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_BG, 1);
+          //  player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_BG, 1);
             if (!guildAwarded)
             {
                 guildAwarded = true;
@@ -973,7 +973,7 @@ void Battleground::EndBattleground(uint32 winner)
         sBattlegroundMgr->BuildBattlegroundStatusPacket(&data, this, player, player->GetBattlegroundQueueIndex(bgQueueTypeId), STATUS_IN_PROGRESS, player->GetBattlegroundQueueJoinTime(GetTypeID()), GetElapsedTime(), GetArenaType());
         player->GetSession()->SendPacket(&data);
 
-        player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_BATTLEGROUND, 1);
+      //  player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_BATTLEGROUND, 1);
     }
 
     if (isArena() && isRated() && winnerArenaTeam && loserArenaTeam && winnerArenaTeam != loserArenaTeam)

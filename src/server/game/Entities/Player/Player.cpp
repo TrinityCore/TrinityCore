@@ -7288,6 +7288,9 @@ void Player::_LoadCurrency(PreparedQueryResult result)
         cur.weekCount = fields[1].GetUInt32();
         cur.totalCount = fields[2].GetUInt32();
 
+      		if (currencyID == 392) // Hack (Honor)
+			cur.totalCount /= 100;
+
         _currencyStorage.insert(PlayerCurrenciesMap::value_type(currencyID, cur));
 
         // load total conquest cap. should be after insert.
@@ -7297,7 +7300,6 @@ void Player::_LoadCurrency(PreparedQueryResult result)
             if (cap > _ConquestCurrencyTotalWeekCap)
                 _ConquestCurrencyTotalWeekCap = cap;
         }
-
     } while (result->NextRow());
 }
 

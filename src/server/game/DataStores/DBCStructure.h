@@ -2253,6 +2253,13 @@ struct WMOAreaTableEntry
     //uint32 field14;                                       // 14
 };
 
++struct PhaseEntry
+{
+    uint32 ID;                                              // 0
+    char* Name;                                             // 1
+    uint32 phaseShift;                                      // 2
+};
+
 struct WorldMapAreaEntry
 {
     //uint32  ID;                                           // 0
@@ -2334,6 +2341,28 @@ struct WorldStateUI
     uint32    unk7;                                         // 62       Unused in 3.3.5a
 };
 */
+
+struct WorldStateEntry
+{
+    uint32    ID;                                           // 0        m_ID
+    uint32    map_id;                                       // 1        WorldState bind map
+    uint32    m_zone;                                       // 2        WorldState bind zone (0 - on battlegrounds)
+    uint32    m_flags;                                      // 3
+    char*     m_uiIcon;                                     // 4
+    char*     m_uiMessage1;                                 // 5
+    uint32    m_flags1;                                     // 6       string flags
+    char*     m_uiMessage2;                                 // 7
+    uint32    m_flags2;                                     // 8       string flags
+    uint32    m_state;                                      // 9       WorldState ID (not unique!) 0 - for battleground states.
+    char*     m_uiIcon1;                                    // 10
+    char*     m_uiIcon2;                                    // 11
+    char*     m_uiMessage3;                                 // 12
+    uint32    m_flags3;                                     // 13       string flags
+    char*     m_uiType;                                     // 14       only CAPTUREPOINT type, or NULL
+    uint32    m_unk60;                                      // 15
+    uint32    m_unk61;                                      // 16
+    uint32    m_unk62;                                      // 17       only 0
+};
 
 // GCC have alternative #pragma pack() syntax and old gcc version not support pack(pop), also any gcc version not support it at some platform
 #if defined(__GNUC__)

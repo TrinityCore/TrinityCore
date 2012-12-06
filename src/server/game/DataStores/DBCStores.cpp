@@ -887,8 +887,11 @@ Calculation on Gilneas and group maps of LostIslands calculated as CONTENT_1_60.
 ContentLevels GetContentLevelsForMapAndZone(uint32 mapid, uint32 zoneId)
 {
     mapid = GetVirtualMapForMapAndZone(mapid, zoneId);
-    if (mapid < 2)
+    if (mapid < 2 || mapid == 648 || mapid == 654 || mapid == 638 || mapid == 655 || mapid == 656 || mapid == 661 || mapid == 659)
         return CONTENT_1_60;
+
+	 if (zoneId == 5034 || zoneId == 4922 || zoneId == 616 || zoneId == 5146 || zoneId == 5042)
+         return CONTENT_81_85;
 
     MapEntry const* mapEntry = sMapStore.LookupEntry(mapid);
     if (!mapEntry)
