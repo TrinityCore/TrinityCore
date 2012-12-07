@@ -11,6 +11,7 @@
 #                                                                                          #
 ############################################################################################
 
+[100] --> Scripts/BlackTemple: Prevent Akama (Shade Encounter) to aggro outside of event.
 [99] --> Fix Bonus 4P T10 Warrior.
 [98] --> Fix Sunwell Plateau. (Test!)
 [97] --> Fixed a crash with npc_boneguard_mounted script. (Thx fiveofeight)
