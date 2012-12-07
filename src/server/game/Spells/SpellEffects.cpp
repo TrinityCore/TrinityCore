@@ -3902,16 +3902,11 @@ void Spell::EffectWeaponDmg(SpellEffIndex effIndex)
             }
         case SPELLFAMILY_DEATHKNIGHT:
         {
-			// Hungering Cold
-            if (m_spellInfo->SpellFamilyFlags[1] & SPELLFAMILYFLAG1_DK_HUNGERING_COLD)
-            {
-                m_caster->CastSpell(m_caster, 51209, true);
-            }
+
            // Death strike
             if (m_spellInfo->SpellFamilyFlags[0] & SPELLFAMILYFLAG_DK_DEATH_STRIKE)
             {
-                     bp = std::min<int32>(m_caster->CountPctFromMaxHealth(damage), CalculatePct(m_caster->GetDamageTakenInPastSecs(5), 15));
-
+                     bp = m_caster->CountPctFromMaxHealth(7);
                 // Improved Death Strike
                 if (AuraEffect const* aurEff = m_caster->GetAuraEffect(SPELL_AURA_ADD_PCT_MODIFIER, SPELLFAMILY_DEATHKNIGHT, 2751, 0))
                     AddPct(bp, m_caster->CalculateSpellDamage(m_caster, aurEff->GetSpellInfo(), 2));

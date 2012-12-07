@@ -4090,11 +4090,6 @@ void Player::learnSpell(uint32 spell_id, bool dependent)
                 learnSpell(itr2->second, false);
         }
     }
-	  if (!learning)
-        return;
-    // If the learned spell is one of the mastery passives, activate the mastery spell.
-    if (HasAura(SPELL_AURA_MASTERY))
-        CastMasterySpells(this);
 }
 
 void Player::removeSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
