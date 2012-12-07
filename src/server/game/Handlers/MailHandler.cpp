@@ -40,7 +40,7 @@ void WorldSession::HandleSendMail(WorldPacket& recvData)
     recvData >> unk1;
     recvData >> unk2; // Stationery?
 
-    recvData >> money >> COD;                              // money and cod
+    recvData >> COD >> money;                              // money and cod
     bodyLength = recvData.ReadBits(12);
     subjectLength = recvData.ReadBits(9);
 
