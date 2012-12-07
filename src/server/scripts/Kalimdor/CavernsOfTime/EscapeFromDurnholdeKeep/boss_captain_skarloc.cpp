@@ -27,19 +27,25 @@ EndScriptData */
 #include "ScriptedCreature.h"
 #include "old_hillsbrad.h"
 
-#define SAY_ENTER                   -1560000
-#define SAY_TAUNT1                  -1560001
-#define SAY_TAUNT2                  -1560002
-#define SAY_SLAY1                   -1560003
-#define SAY_SLAY2                   -1560004
-#define SAY_DEATH                   -1560005
+/*######################
+# boss_captain_skarloc #
+#######################*/
 
-#define SPELL_HOLY_LIGHT            29427
-#define SPELL_CLEANSE               29380
-#define SPELL_HAMMER_OF_JUSTICE     13005
-#define SPELL_HOLY_SHIELD           31904
-#define SPELL_DEVOTION_AURA         8258
-#define SPELL_CONSECRATION          38385
+enum CaptainSkarloc
+{
+    SAY_ENTER                   = 0,
+    SAY_TAUNT1                  = 1,
+    SAY_TAUNT2                  = 2,
+    SAY_SLAY                    = 3,
+    SAY_DEATH                   = 4,
+
+    SPELL_HOLY_LIGHT            = 29427,
+    SPELL_CLEANSE               = 29380,
+    SPELL_HAMMER_OF_JUSTICE     = 13005,
+    SPELL_HOLY_SHIELD           = 31904,
+    SPELL_DEVOTION_AURA         = 8258,
+    SPELL_CONSECRATION          = 38385
+};
 
 class boss_captain_skarloc : public CreatureScript
 {
@@ -80,18 +86,18 @@ public:
         void EnterCombat(Unit* /*who*/)
         {
             //This is not correct. Should taunt Thrall before engage in combat
-            DoScriptText(SAY_TAUNT1, me);
-            DoScriptText(SAY_TAUNT2, me);
+            Talk(SAY_TAUNT1);
+            Talk(SAY_TAUNT2);
         }
 
         void KilledUnit(Unit* /*victim*/)
         {
-            DoScriptText(RAND(SAY_SLAY1, SAY_SLAY2), me);
+            Talk(SAY_SLAY);
         }
 
         void JustDied(Unit* /*killer*/)
         {
-            DoScriptText(SAY_DEATH, me);
+            Talk(SAY_DEATH);
 
             if (instance && instance->GetData(TYPE_THRALL_EVENT) == IN_PROGRESS)
                 instance->SetData(TYPE_THRALL_PART1, DONE);

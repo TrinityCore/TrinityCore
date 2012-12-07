@@ -124,7 +124,7 @@ enum __QuestGiverStatus
     DIALOG_STATUS_REWARD                   = 0x400          // yellow dot on minimap
 };
 
-enum __QuestFlags
+enum QuestFlags
 {
     // Flags used at server and sent to client
     QUEST_FLAGS_NONE           = 0x00000000,
@@ -165,7 +165,7 @@ enum __QuestSpecialFlags
     QUEST_SPECIAL_FLAGS_EXPLORATION_OR_EVENT = 0x002, // if required area explore, spell SPELL_EFFECT_QUEST_COMPLETE casting, table `*_script` command SCRIPT_COMMAND_QUEST_EXPLORED use, set from script)
     QUEST_SPECIAL_FLAGS_AUTO_ACCEPT          = 0x004, // quest is to be auto-accepted.
     QUEST_SPECIAL_FLAGS_DF_QUEST             = 0x008, // quest is used by Dungeon Finder.
-
+    QUEST_SPECIAL_FLAGS_MONTHLY              = 0x010, // quest is reset at the begining of the month
     // room for more custom flags
 
     QUEST_SPECIAL_FLAGS_DB_ALLOWED = QUEST_SPECIAL_FLAGS_REPEATABLE | QUEST_SPECIAL_FLAGS_EXPLORATION_OR_EVENT | QUEST_SPECIAL_FLAGS_AUTO_ACCEPT | QUEST_SPECIAL_FLAGS_DF_QUEST,
@@ -274,7 +274,6 @@ class Quest
         uint32 GetSoundTurnIn() const { return SoundTurnIn; }
         uint32 GetIncompleteEmote() const { return EmoteOnIncomplete; }
         uint32 GetCompleteEmote() const { return EmoteOnComplete; }
-        uint32 GetQuestStartScript() const { return StartScript; }
         uint32 GetQuestCompleteScript() const { return CompleteScript; }
         bool   IsRepeatable() const { return SpecialFlags & QUEST_SPECIAL_FLAGS_REPEATABLE; }
         bool   IsAutoAccept() const;
@@ -289,6 +288,7 @@ class Quest
         uint32 GetQuestTurnInPortrait() const { return QuestTurnInPortrait; }
         bool   IsDaily() const { return Flags & QUEST_FLAGS_DAILY; }
         bool   IsWeekly() const { return Flags & QUEST_FLAGS_WEEKLY; }
+        bool   IsMonthly() const { return Flags & QUEST_SPECIAL_FLAGS_MONTHLY; }
         bool   IsSeasonal() const { return (ZoneOrSort == -QUEST_SORT_SEASONAL || ZoneOrSort == -QUEST_SORT_SPECIAL || ZoneOrSort == -QUEST_SORT_LUNAR_FESTIVAL || ZoneOrSort == -QUEST_SORT_MIDSUMMER || ZoneOrSort == -QUEST_SORT_BREWFEST || ZoneOrSort == -QUEST_SORT_LOVE_IS_IN_THE_AIR || ZoneOrSort == -QUEST_SORT_NOBLEGARDEN) && !IsRepeatable(); }
         bool   IsDailyOrWeekly() const { return Flags & (QUEST_FLAGS_DAILY | QUEST_FLAGS_WEEKLY); }
         bool   IsRaidQuest() const { return Type == QUEST_TYPE_RAID || Type == QUEST_TYPE_RAID_10 || Type == QUEST_TYPE_RAID_25; }
@@ -402,7 +402,6 @@ class Quest
         uint32 PointOption;
         uint32 EmoteOnIncomplete;
         uint32 EmoteOnComplete;
-        uint32 StartScript;
         uint32 CompleteScript;
         // new in 4.x
         uint32 MinimapTargetMark;

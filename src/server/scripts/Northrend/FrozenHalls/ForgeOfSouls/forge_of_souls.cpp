@@ -42,21 +42,21 @@ enum Events
 
 enum Yells
 {
-    SAY_JAINA_INTRO_1                           = -1632040,
-    SAY_JAINA_INTRO_2                           = -1632041,
-    SAY_JAINA_INTRO_3                           = -1632042,
-    SAY_JAINA_INTRO_4                           = -1632043,
-    SAY_JAINA_INTRO_5                           = -1632044,
-    SAY_JAINA_INTRO_6                           = -1632045,
-    SAY_JAINA_INTRO_7                           = -1632046,
-    SAY_JAINA_INTRO_8                           = -1632047,
+    SAY_JAINA_INTRO_1                           = 0,
+    SAY_JAINA_INTRO_2                           = 1,
+    SAY_JAINA_INTRO_3                           = 2,
+    SAY_JAINA_INTRO_4                           = 3,
+    SAY_JAINA_INTRO_5                           = 4,
+    SAY_JAINA_INTRO_6                           = 5,
+    SAY_JAINA_INTRO_7                           = 6,
+    SAY_JAINA_INTRO_8                           = 7,
 
-    SAY_SYLVANAS_INTRO_1                        = -1632050,
-    SAY_SYLVANAS_INTRO_2                        = -1632051,
-    SAY_SYLVANAS_INTRO_3                        = -1632052,
-    SAY_SYLVANAS_INTRO_4                        = -1632053,
-    SAY_SYLVANAS_INTRO_5                        = -1632054,
-    SAY_SYLVANAS_INTRO_6                        = -1632055,
+    SAY_SYLVANAS_INTRO_1                        = 0,
+    SAY_SYLVANAS_INTRO_2                        = 1,
+    SAY_SYLVANAS_INTRO_3                        = 2,
+    SAY_SYLVANAS_INTRO_4                        = 3,
+    SAY_SYLVANAS_INTRO_5                        = 4,
+    SAY_SYLVANAS_INTRO_6                        = 5,
 };
 
 enum eSylvanas
@@ -120,32 +120,32 @@ public:
                 switch (events.ExecuteEvent())
                 {
                     case EVENT_INTRO_1:
-                        DoScriptText(SAY_SYLVANAS_INTRO_1, me);
+                        Talk(SAY_SYLVANAS_INTRO_1);
                         events.ScheduleEvent(EVENT_INTRO_2, 11500);
                         break;
 
                     case EVENT_INTRO_2:
-                        DoScriptText(SAY_SYLVANAS_INTRO_2, me);
+                        Talk(SAY_SYLVANAS_INTRO_2);
                         events.ScheduleEvent(EVENT_INTRO_3, 10500);
                         break;
 
                     case EVENT_INTRO_3:
-                        DoScriptText(SAY_SYLVANAS_INTRO_3, me);
+                        Talk(SAY_SYLVANAS_INTRO_3);
                         events.ScheduleEvent(EVENT_INTRO_4, 9500);
                         break;
 
                     case EVENT_INTRO_4:
-                        DoScriptText(SAY_SYLVANAS_INTRO_4, me);
+                        Talk(SAY_SYLVANAS_INTRO_4);
                         events.ScheduleEvent(EVENT_INTRO_5, 10500);
                         break;
 
                     case EVENT_INTRO_5:
-                        DoScriptText(SAY_SYLVANAS_INTRO_5, me);
+                        Talk(SAY_SYLVANAS_INTRO_5);
                         events.ScheduleEvent(EVENT_INTRO_6, 9500);
                         break;
 
                     case EVENT_INTRO_6:
-                        DoScriptText(SAY_SYLVANAS_INTRO_6, me);
+                        Talk(SAY_SYLVANAS_INTRO_6);
                         // End of Intro
                         phase = PHASE_NORMAL;
                         break;
@@ -246,42 +246,42 @@ public:
                 switch (events.ExecuteEvent())
                 {
                     case EVENT_INTRO_1:
-                        DoScriptText(SAY_JAINA_INTRO_1, me);
+                        Talk(SAY_JAINA_INTRO_1);
                         events.ScheduleEvent(EVENT_INTRO_2, 8000);
                         break;
 
                     case EVENT_INTRO_2:
-                        DoScriptText(SAY_JAINA_INTRO_2, me);
+                        Talk(SAY_JAINA_INTRO_2);
                         events.ScheduleEvent(EVENT_INTRO_3, 8500);
                         break;
 
                     case EVENT_INTRO_3:
-                        DoScriptText(SAY_JAINA_INTRO_3, me);
+                        Talk(SAY_JAINA_INTRO_3);
                         events.ScheduleEvent(EVENT_INTRO_4, 8000);
                         break;
 
                     case EVENT_INTRO_4:
-                        DoScriptText(SAY_JAINA_INTRO_4, me);
+                        Talk(SAY_JAINA_INTRO_4);
                         events.ScheduleEvent(EVENT_INTRO_5, 10000);
                         break;
 
                     case EVENT_INTRO_5:
-                        DoScriptText(SAY_JAINA_INTRO_5, me);
+                        Talk(SAY_JAINA_INTRO_5);
                         events.ScheduleEvent(EVENT_INTRO_6, 8000);
                         break;
 
                     case EVENT_INTRO_6:
-                        DoScriptText(SAY_JAINA_INTRO_6, me);
+                        Talk(SAY_JAINA_INTRO_6);
                         events.ScheduleEvent(EVENT_INTRO_7, 12000);
                         break;
 
                     case EVENT_INTRO_7:
-                        DoScriptText(SAY_JAINA_INTRO_7, me);
+                        Talk(SAY_JAINA_INTRO_7);
                         events.ScheduleEvent(EVENT_INTRO_8, 8000);
                         break;
 
                     case EVENT_INTRO_8:
-                        DoScriptText(SAY_JAINA_INTRO_8, me);
+                        Talk(SAY_JAINA_INTRO_8);
                         // End of Intro
                         phase = PHASE_NORMAL;
                         break;

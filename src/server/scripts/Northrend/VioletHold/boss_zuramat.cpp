@@ -38,14 +38,12 @@ enum ZuramatCreatures
 
 enum Yells
 {
-    SAY_AGGRO                                   = -1608037,
-    SAY_SLAY_1                                  = -1608038,
-    SAY_SLAY_2                                  = -1608039,
-    SAY_SLAY_3                                  = -1608040,
-    SAY_DEATH                                   = -1608041,
-    SAY_SPAWN                                   = -1608042,
-    SAY_SHIELD                                  = -1608043,
-    SAY_WHISPER                                 = -1608044
+    SAY_AGGRO                                   = 0,
+    SAY_SLAY                                    = 1,
+    SAY_DEATH                                   = 2,
+    SAY_SPAWN                                   = 3,
+    SAY_SHIELD                                  = 4,
+    SAY_WHISPER                                 = 5
 };
 
 #define DATA_VOID_DANCE                         2153
@@ -106,7 +104,7 @@ public:
 
         void EnterCombat(Unit* /*who*/)
         {
-            DoScriptText(SAY_AGGRO, me);
+            Talk(SAY_AGGRO);
             if (instance)
             {
                 if (GameObject* pDoor = instance->instance->GetGameObject(instance->GetData64(DATA_ZURAMAT_CELL)))
@@ -168,7 +166,7 @@ public:
 
         void JustDied(Unit* /*killer*/)
         {
-            DoScriptText(SAY_DEATH, me);
+            Talk(SAY_DEATH);
 
             if (instance)
             {
@@ -190,7 +188,7 @@ public:
             if (victim == me)
                 return;
 
-            DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2, SAY_SLAY_3), me);
+            Talk(SAY_SLAY);
         }
 
         void JustSummoned(Creature* summon)

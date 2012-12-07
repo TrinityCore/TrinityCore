@@ -16,23 +16,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: Thousand Needles
-SD%Complete: 0
-SDComment: Support for Quest:
-SDCategory: Thousand Needles
-EndScriptData */
-
-/* ContentData
-EndContentData */
-
-#include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "ScriptedGossip.h"
-#include "ScriptedEscortAI.h"
-#include "Player.h"
-
-
 void AddSC_thousand_needles()
 {
 }

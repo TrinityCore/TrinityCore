@@ -127,8 +127,9 @@ enum ConditionSourceType
     CONDITION_SOURCE_TYPE_QUEST_SHOW_MARK                = 20,
     CONDITION_SOURCE_TYPE_VEHICLE_SPELL                  = 21,
     CONDITION_SOURCE_TYPE_SMART_EVENT                    = 22,
-    CONDITION_SOURCE_TYPE_PHASE_DEFINITION               = 23,
-    CONDITION_SOURCE_TYPE_MAX                            = 24  //MAX
+    CONDITION_SOURCE_TYPE_NPC_VENDOR                     = 23,
+    CONDITION_SOURCE_TYPE_PHASE_DEFINITION               = 24,
+    CONDITION_SOURCE_TYPE_MAX                            = 25  // MAX
 };
 
 enum ComparisionType
@@ -216,6 +217,7 @@ typedef std::list<Condition*> ConditionList;
 typedef std::map<uint32, ConditionList> ConditionTypeContainer;
 typedef std::map<ConditionSourceType, ConditionTypeContainer> ConditionContainer;
 typedef std::map<uint32, ConditionTypeContainer> CreatureSpellConditionContainer;
+typedef std::map<uint32, ConditionTypeContainer> NpcVendorConditionContainer;
 typedef std::map<std::pair<int32, uint32 /*SAI source_type*/>, ConditionTypeContainer> SmartEventConditionContainer;
 typedef std::map<int32 /*zoneId*/, ConditionTypeContainer> PhaseDefinitionConditionContainer;
 
@@ -245,6 +247,7 @@ class ConditionMgr
         ConditionList GetConditionsForSmartEvent(int32 entryOrGuid, uint32 eventId, uint32 sourceType);
         ConditionList GetConditionsForVehicleSpell(uint32 creatureId, uint32 spellId);
         ConditionList GetConditionsForPhaseDefinition(uint32 zone, uint32 entry);
+        ConditionList GetConditionsForNpcVendorEvent(uint32 creatureId, uint32 itemId);
 
     private:
         bool isSourceTypeValid(Condition* cond);
@@ -261,6 +264,7 @@ class ConditionMgr
         ConditionReferenceContainer       ConditionReferenceStore;
         CreatureSpellConditionContainer   VehicleSpellConditionStore;
         CreatureSpellConditionContainer   SpellClickEventConditionStore;
+        NpcVendorConditionContainer       NpcVendorConditionContainerStore;
         SmartEventConditionContainer      SmartEventConditionStore;
         PhaseDefinitionConditionContainer PhaseDefinitionsConditionStore;
 };

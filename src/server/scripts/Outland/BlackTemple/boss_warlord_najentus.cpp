@@ -31,16 +31,12 @@ EndScriptData */
 
 enum eEnums
 {
-    SAY_AGGRO                       = -1564000,
-    SAY_NEEDLE1                     = -1564001,
-    SAY_NEEDLE2                     = -1564002,
-    SAY_SLAY1                       = -1564003,
-    SAY_SLAY2                       = -1564004,
-    SAY_SPECIAL1                    = -1564005,
-    SAY_SPECIAL2                    = -1564006,
-    SAY_ENRAGE1                     = -1564007,           //is this text actually in use?
-    SAY_ENRAGE2                     = -1564008,
-    SAY_DEATH                       = -1564009,
+    SAY_AGGRO                       = 0,
+    SAY_NEEDLE                      = 1,
+    SAY_SLAY                        = 2,
+    SAY_SPECIAL                     = 3,
+    SAY_ENRAGE                      = 4,
+    SAY_DEATH                       = 5,
 
     //Spells
     SPELL_NEEDLE_SPINE              = 39992,
@@ -97,7 +93,7 @@ public:
 
         void KilledUnit(Unit* /*victim*/)
         {
-            DoScriptText(urand(0, 1) ? SAY_SLAY1 : SAY_SLAY2, me);
+            Talk(SAY_SLAY);
             events.DelayEvents(5000, GCD_YELL);
         }
 
@@ -106,7 +102,7 @@ public:
             if (instance)
                 instance->SetData(DATA_HIGHWARLORDNAJENTUSEVENT, DONE);
 
-            DoScriptText(SAY_DEATH, me);
+            Talk(SAY_DEATH);
         }
 
         void SpellHit(Unit* /*caster*/, const SpellInfo* spell)
@@ -124,7 +120,7 @@ public:
             if (instance)
                 instance->SetData(DATA_HIGHWARLORDNAJENTUSEVENT, IN_PROGRESS);
 
-            DoScriptText(SAY_AGGRO, me);
+            Talk(SAY_AGGRO);
             DoZoneInCombat();
             events.ScheduleEvent(EVENT_BERSERK, 480000, GCD_CAST);
             events.ScheduleEvent(EVENT_YELL, 45000 + (rand()%76)*1000, GCD_YELL);
@@ -166,7 +162,7 @@ public:
                         ResetTimer(45000);
                         break;
                     case EVENT_BERSERK:
-                        DoScriptText(SAY_ENRAGE2, me);
+                        Talk(SAY_ENRAGE);
                         DoCast(me, SPELL_BERSERK, true);
                         events.DelayEvents(15000, GCD_YELL);
                         break;
@@ -180,7 +176,7 @@ public:
                             SpineTargetGUID = target->GetGUID();
                             //must let target summon, otherwise you cannot click the spine
                             target->SummonGameObject(GOBJECT_SPINE, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), me->GetOrientation(), 0, 0, 0, 0, 30);
-                            DoScriptText(urand(0, 1) ? SAY_NEEDLE1 : SAY_NEEDLE2, me);
+                            Talk(SAY_NEEDLE);
                             events.DelayEvents(1500, GCD_CAST);
                             events.DelayEvents(15000, GCD_YELL);
                         }
@@ -199,7 +195,7 @@ public:
                         return;
                     }
                     case EVENT_YELL:
-                        DoScriptText(RAND(SAY_SPECIAL1, SAY_SPECIAL2), me);
+                        Talk(SAY_SPECIAL);
                         events.ScheduleEvent(EVENT_YELL, urand(25000, 100000), GCD_YELL);
                         events.DelayEvents(15000, GCD_YELL);
                         break;

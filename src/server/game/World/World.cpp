@@ -1698,7 +1698,6 @@ void World::SetInitialWorldSettings()
     LoadAutobroadcasts();
 
     ///- Load and initialize scripts
-    sObjectMgr->LoadQuestStartScripts();                         // must be after load Creature/Gameobject(Template/Data) and QuestTemplate
     sObjectMgr->LoadQuestEndScripts();                           // must be after load Creature/Gameobject(Template/Data) and QuestTemplate
     sObjectMgr->LoadSpellScripts();                              // must be after load Creature/Gameobject(Template/Data)
     sObjectMgr->LoadGameObjectScripts();                         // must be after load Creature/Gameobject(Template/Data)
@@ -1817,6 +1816,9 @@ void World::SetInitialWorldSettings()
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Calculate next weekly quest reset time...");
     InitWeeklyQuestResetTime();
+
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Calculate next monthly quest reset time...");
+    InitMonthlyQuestResetTime();
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Calculate random battleground reset time...");
     InitRandomBGResetTime();
@@ -1978,8 +1980,13 @@ void World::Update(uint32 diff)
         m_NextDailyQuestReset += DAY;
     }
 
+    /// Handle weekly quests reset time
     if (m_gameTime > m_NextWeeklyQuestReset)
         ResetWeeklyQuests();
+
+    /// Handle monthly quests reset time
+    if (m_gameTime > m_NextMonthlyQuestReset)
+        ResetMonthlyQuests();
 
     if (m_gameTime > m_NextRandomBGReset)
         ResetRandomBG();
@@ -2783,6 +2790,13 @@ void World::InitDailyQuestResetTime()
         m_NextDailyQuestReset = (curTime >= curDayResetTime) ? curDayResetTime + DAY : curDayResetTime;
 }
 
+void World::InitMonthlyQuestResetTime()
+{
+    time_t wstime = uint64(sWorld->getWorldState(WS_MONTHLY_QUEST_RESET_TIME));
+    time_t curtime = time(NULL);
+    m_NextMonthlyQuestReset = wstime < curtime ? curtime : time_t(wstime);
+}
+
 void World::InitRandomBGResetTime()
 {
     time_t bgtime = uint64(sWorld->getWorldState(WS_BG_DAILY_RESET_TIME));
@@ -2914,6 +2928,8 @@ void World::SetPlayerSecurityLimit(AccountTypes _sec)
 
 void World::ResetWeeklyQuests()
 {
+    sLog->outInfo(LOG_FILTER_GENERAL, "Weekly quests reset for all characters.");
+
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_QUEST_STATUS_WEEKLY);
     CharacterDatabase.Execute(stmt);
 
@@ -2926,6 +2942,57 @@ void World::ResetWeeklyQuests()
 
     // change available weeklies
     sPoolMgr->ChangeWeeklyQuests();
+}
+
+void World::ResetMonthlyQuests()
+{
+    sLog->outInfo(LOG_FILTER_GENERAL, "Monthly quests reset for all characters.");
+
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_QUEST_STATUS_MONTHLY);
+    CharacterDatabase.Execute(stmt);
+
+    for (SessionMap::const_iterator itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
+        if (itr->second->GetPlayer())
+            itr->second->GetPlayer()->ResetMonthlyQuestStatus();
+
+    time_t mostRecentQuestTime = 0;
+
+    // generate time
+    time_t curTime = time(NULL);
+    tm localTm = *localtime(&curTime);
+
+    int month   = localTm.tm_mon;
+    int year    = localTm.tm_year;
+
+    ++month;
+
+    // month 11 is december, next is january (0)
+    if (month > 11)
+    {
+        month = 0;
+        year += 1;
+    }
+
+    // reset time for next month
+    localTm.tm_year     = year;
+    localTm.tm_mon      = month;
+    localTm.tm_mday     = 1;        // don't know if we really need config option for day / hour
+    localTm.tm_hour     = 0;
+    localTm.tm_min      = 0;
+    localTm.tm_sec      = 0;
+
+    time_t nextMonthResetTime = mktime(&localTm);
+
+    // last reset time before current moment
+    time_t resetTime = (curTime < nextMonthResetTime) ? nextMonthResetTime - MONTH : nextMonthResetTime;
+
+    // need reset (if we have quest time before last reset time (not processed by some reason)
+    if (mostRecentQuestTime && mostRecentQuestTime <= resetTime)
+        m_NextMonthlyQuestReset = mostRecentQuestTime;
+    else // plan next reset time
+        m_NextMonthlyQuestReset = (curTime >= nextMonthResetTime) ? nextMonthResetTime + MONTH : nextMonthResetTime;
+
+    sWorld->setWorldState(WS_MONTHLY_QUEST_RESET_TIME, uint64(m_NextMonthlyQuestReset));
 }
 
 void World::ResetEventSeasonalQuests(uint16 event_id)
