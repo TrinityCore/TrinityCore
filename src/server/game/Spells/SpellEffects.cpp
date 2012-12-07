@@ -715,7 +715,7 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
 
                             // Mastery
                             if (m_caster->HasAuraType(SPELL_AURA_MASTERY))
-                                if (m_caster->ToPlayer()->GetTalentBranchSpec(m_caster->ToPlayer()->GetActiveSpec()) == BS_PRIEST_SHADOW)
+                                if (m_caster->ToPlayer()->GetActiveSpec() == 759)
                                     pct += 1.5f * m_caster->ToPlayer()->GetMasteryPoints();
  
                              AddPct(damage, pct);
@@ -3750,6 +3750,9 @@ void Spell::EffectWeaponDmg(SpellEffIndex effIndex)
     if (!unitTarget || !unitTarget->isAlive())
         return;
 
+	 uint32 spell_id = 0;
+    int32 bp = 0;
+
     // multiple weapon dmg effect workaround
     // execute only the last weapon damage
     // and handle all effects at once
@@ -3899,15 +3902,15 @@ void Spell::EffectWeaponDmg(SpellEffIndex effIndex)
             }
         case SPELLFAMILY_DEATHKNIGHT:
         {
-			  // Hungering Cold
+			// Hungering Cold
             if (m_spellInfo->SpellFamilyFlags[1] & SPELLFAMILYFLAG1_DK_HUNGERING_COLD)
             {
-                m_caster->CastCustomSpell(m_caster, 51209, &bp, NULL, NULL, true);
+                m_caster->CastSpell(m_caster, 51209, true);
             }
            // Death strike
             if (m_spellInfo->SpellFamilyFlags[0] & SPELLFAMILYFLAG_DK_DEATH_STRIKE)
             {
-                    bp = m_caster->CountPctFromMaxHealth(7);
+                     bp = std::min<int32>(m_caster->CountPctFromMaxHealth(damage), CalculatePct(m_caster->GetDamageTakenInPastSecs(5), 15));
 
                 // Improved Death Strike
                 if (AuraEffect const* aurEff = m_caster->GetAuraEffect(SPELL_AURA_ADD_PCT_MODIFIER, SPELLFAMILY_DEATHKNIGHT, 2751, 0))
@@ -4009,9 +4012,9 @@ void Spell::EffectWeaponDmg(SpellEffIndex effIndex)
                     spell_id = 46585;
 
                 if (m_targets.HasDst())
-                    targets.SetDst(*m_targets.GetDstPos());
+                    m_targets.SetDst(*m_targets.GetDstPos());
                 else
-                    targets.SetDst(*m_caster);
+                    m_targets.SetDst(*m_caster);
 
                 // Remove cooldown - summon spells have category
                 m_caster->ToPlayer()->RemoveSpellCooldown(52150, true);
