@@ -712,11 +712,11 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                          {
                              uint8 stack = m_caster->GetAura(77487)->GetStackAmount();
                              uint32 pct = stack * 10;
- 
-                         /*    // Mastery
-                             if (m_caster->HasAuraType(SPELL_AURA_MASTERY))
-                                 if (m_caster->HasAura(87327))
-                                     pct += 1.5f * m_caster->ToPlayer()->GetMasteryPoints(); */
+
+                            // Mastery
+                            if (m_caster->HasAuraType(SPELL_AURA_MASTERY))
+                                if (m_caster->ToPlayer()->GetTalentBranchSpec(m_caster->ToPlayer()->GetActiveSpec()) == BS_PRIEST_SHADOW)
+                                    pct += 1.5f * m_caster->ToPlayer()->GetMasteryPoints();
  
                              AddPct(damage, pct);
                              m_caster->RemoveAurasDueToSpell(77487);
@@ -1900,9 +1900,9 @@ void Spell::EffectApplyAura(SpellEffIndex effIndex)
         case 38177:  // Blackwhelp Net
             if (unitTarget->GetEntry() != 21387)
                 return;
-        case 85673:  // Word of Glory
+  /*      case 85673:  // Word of Glory
             if (!m_caster->HasAura(93466))
-                return;
+                return;*/
     }
 
     ASSERT(unitTarget == m_spellAura->GetOwner());
@@ -2190,6 +2190,7 @@ void Spell::EffectHealPct(SpellEffIndex /*effIndex*/)
 
     uint32 heal = m_originalCaster->SpellHealingBonusDone(unitTarget, m_spellInfo, unitTarget->CountPctFromMaxHealth(damage), HEAL);
     heal = unitTarget->SpellHealingBonusTaken(m_originalCaster, m_spellInfo, heal, HEAL);
+
 
     m_healing += heal;
 }
@@ -3898,6 +3899,25 @@ void Spell::EffectWeaponDmg(SpellEffIndex effIndex)
             }
         case SPELLFAMILY_DEATHKNIGHT:
         {
+			  // Hungering Cold
+            if (m_spellInfo->SpellFamilyFlags[1] & SPELLFAMILYFLAG1_DK_HUNGERING_COLD)
+            {
+                m_caster->CastCustomSpell(m_caster, 51209, &bp, NULL, NULL, true);
+            }
+           // Death strike
+            if (m_spellInfo->SpellFamilyFlags[0] & SPELLFAMILYFLAG_DK_DEATH_STRIKE)
+            {
+                    bp = m_caster->CountPctFromMaxHealth(7);
+
+                // Improved Death Strike
+                if (AuraEffect const* aurEff = m_caster->GetAuraEffect(SPELL_AURA_ADD_PCT_MODIFIER, SPELLFAMILY_DEATHKNIGHT, 2751, 0))
+                    AddPct(bp, m_caster->CalculateSpellDamage(m_caster, aurEff->GetSpellInfo(), 2));
+
+                // Glyph of Dark Succor
+                if (AuraEffect const* aurEff = m_caster->GetAuraEffect(96279, 0))
+                    if (bp < int32(m_caster->CountPctFromMaxHealth(aurEff->GetAmount())))
+                        if (m_caster->HasAura(48265) || m_caster->HasAura(48266)) // Only in frost/unholy presence
+                            bp = m_caster->CountPctFromMaxHealth(aurEff->GetAmount());
             // Blood Strike
             if (m_spellInfo->SpellFamilyFlags[0] & 0x400000)
             {
@@ -3906,16 +3926,6 @@ void Spell::EffectWeaponDmg(SpellEffIndex effIndex)
                 if (AuraEffect const* aurEff = m_caster->GetAuraEffect(64736, EFFECT_0))
                     AddPct(bonusPct, aurEff->GetAmount());
                 AddPct(totalDamagePercentMod, bonusPct);
-                break;
-            }
-            // Death Strike
-            if (m_spellInfo->SpellFamilyFlags[0] & 0x10)
-            {
-                // Glyph of Death Strike
-                // 2% more damage per 5 runic power, up to a maximum of 40%
-                if (AuraEffect const* aurEff = m_caster->GetAuraEffect(59336, EFFECT_0))
-                    if (uint32 runic = std::min<uint32>(uint32(m_caster->GetPower(POWER_RUNIC_POWER) / 2.5f), aurEff->GetSpellInfo()->Effects[EFFECT_1].CalcValue(m_caster)))
-                        AddPct(totalDamagePercentMod, runic);
                 break;
             }
             // Obliterate (12.5% more damage per disease)
@@ -3943,6 +3953,69 @@ void Spell::EffectWeaponDmg(SpellEffIndex effIndex)
                     AddPct(bonusPct, aurEff->GetAmount());
 
                 AddPct(totalDamagePercentMod, bonusPct);
+                break;
+            }
+               // Blood Shield
+               if (AuraEffect const* aurEff = m_caster->GetAuraEffect(77513, 1))
+               {
+                   // Blood Presence
+                   if (m_caster->HasAura(48263))
+                   {
+                       int32 shield = int32(bp * (50.0f + (6.25f * m_caster->ToPlayer()->GetMasteryPoints())) / 100.0f);
+                       m_caster->CastCustomSpell(m_caster, 77535, &shield, NULL, NULL, false);
+                   }
+               }
+
+                m_caster->CastCustomSpell(m_caster, 45470, &bp, NULL, NULL, false);
+                return;
+			}
+			// Death Coil
+			if (m_spellInfo->SpellFamilyFlags[0] & SPELLFAMILYFLAG_DK_DEATH_COIL)
+			{
+				if (m_caster->IsFriendlyTo(unitTarget))
+				{
+					int32 bp = (985 + damage) * 3.5;
+					m_caster->CastCustomSpell(unitTarget, 47633, &bp, NULL, NULL, true);
+				}
+				else
+				{
+					int32 bp = 985 + damage;
+					m_caster->CastCustomSpell(unitTarget, 47632, &bp, NULL, NULL, true);
+				}
+				return;
+			}
+		    switch (m_spellInfo->Id)
+			{
+			case 49020: // Obliterate
+            case 66198: // Obliterate Off-Hand
+                {
+                    uint32 count = unitTarget->GetDiseasesByCaster(m_caster->GetGUID());
+                    if (count > 0)
+                       damage = int32(damage + (damage * count * 12.5 / 100));
+                    break;
+                }
+            case 46584: // Raise Dead
+                if (m_caster->GetTypeId() != TYPEID_PLAYER)
+                    return;
+
+                if (effIndex != 0)
+                    return;
+                // Do we have talent Master of Ghouls?
+                if (m_caster->HasAura(52143))
+                    // summon as pet
+                    spell_id = 52150;
+                else
+                    // or guardian
+                    spell_id = 46585;
+
+                if (m_targets.HasDst())
+                    targets.SetDst(*m_targets.GetDstPos());
+                else
+                    targets.SetDst(*m_caster);
+
+                // Remove cooldown - summon spells have category
+                m_caster->ToPlayer()->RemoveSpellCooldown(52150, true);
+                m_caster->ToPlayer()->RemoveSpellCooldown(46585, true);
                 break;
             }
             break;

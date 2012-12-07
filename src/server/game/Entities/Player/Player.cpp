@@ -857,6 +857,8 @@ Player::Player(WorldSession* session): Unit(true), phaseMgr(this)
 
     SetPendingBind(0, 0);
 
+	_canUseMastery = false;
+
     _activeCheats = CHEAT_NONE;
     _maxPersonalArenaRate = 0;
     _ConquestCurrencyTotalWeekCap = 0;
@@ -2646,6 +2648,9 @@ void Player::Regenerate(Powers power)
             }
         }
         break;
+        case POWER_FOCUS:
+            addvalue += 12.0f * _modAttackSpeedPct[RANGED_ATTACK] * sWorld->getRate(RATE_POWER_FOCUS) * haste;
+            break;
         case POWER_HOLY_POWER:                                          // Regenerate holy power
         {
             if (!isInCombat())
@@ -3317,7 +3322,7 @@ void Player::InitStatsForLevel(bool reapplyMods)
     {
         SetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_NEG+i, 0);
         SetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS+i, 0);
-        SetFloatValue(PLAYER_FIELD_MOD_DAMAGE_DONE_PCT+i, 1.0f);
+        SetFloatValue(PLAYER_FIELD_MOD_DAMAGE_DONE_PCT+i, 1.00f);
     }
 
     SetFloatValue(PLAYER_FIELD_MOD_SPELL_POWER_PCT, 1.0f);
@@ -3335,9 +3340,13 @@ void Player::InitStatsForLevel(bool reapplyMods)
     SetFloatValue(UNIT_FIELD_MAXRANGEDDAMAGE, 0.0f);
     SetFloatValue(PLAYER_FIELD_WEAPON_DMG_MULTIPLIERS, 1.0f);
 
-    SetInt32Value(UNIT_FIELD_ATTACK_POWER,            0);
+    SetInt32Value(UNIT_FIELD_ATTACK_POWER, 0);
+    SetInt32Value(UNIT_FIELD_ATTACK_POWER_MOD_POS, 0);
+    SetInt32Value(UNIT_FIELD_ATTACK_POWER_MOD_NEG, 0);
     SetFloatValue(UNIT_FIELD_ATTACK_POWER_MULTIPLIER, 0.0f);
-    SetInt32Value(UNIT_FIELD_RANGED_ATTACK_POWER,     0);
+    SetInt32Value(UNIT_FIELD_RANGED_ATTACK_POWER, 0);
+    SetInt32Value(UNIT_FIELD_RANGED_ATTACK_POWER_MOD_POS, 0);
+    SetInt32Value(UNIT_FIELD_RANGED_ATTACK_POWER_MOD_NEG, 0);
     SetFloatValue(UNIT_FIELD_RANGED_ATTACK_POWER_MULTIPLIER, 0.0f);
 
     // Base crit values (will be recalculated in UpdateAllStats() at loading and in _ApplyAllStatBonuses() at reset
@@ -4084,6 +4093,11 @@ void Player::learnSpell(uint32 spell_id, bool dependent)
                 learnSpell(itr2->second, false);
         }
     }
+	  if (!learnedSpell)
+        return;
+    // If the learned spell is one of the mastery passives, activate the mastery spell.
+    if (learnedSpell->HasAura(SPELL_AURA_MASTERY))
+        CastMasterySpells(this);
 }
 
 void Player::removeSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
@@ -4555,6 +4569,11 @@ bool Player::ResetTalents(bool no_cost)
         if (specSpells)
             for (size_t i = 0; i < specSpells->size(); ++i)
                 removeSpell(specSpells->at(i), true);
+
+	    TalentTabEntry const* talentTabInfo = sTalentTabStore.LookupEntry(talentTabs[i]);
+        for (uint32 j = 0; j < MAX_MASTERY_SPELLS; ++j)
+            if (uint32 mastery = talentTabInfo->MasterySpellId[j])
+                removeSpell(mastery, true);
     }
 
     SetPrimaryTalentTree(GetActiveSpec(), 0);
@@ -6028,6 +6047,9 @@ void Player::UpdateRating(CombatRating cr)
         case CR_WEAPON_SKILL_MAINHAND:                      // Implemented in Unit::RollMeleeOutcomeAgainst
         case CR_WEAPON_SKILL_OFFHAND:
         case CR_WEAPON_SKILL_RANGED:
+	    case CR_MASTERY:                                    // Implemented in Player::UpdateMastery
+            UpdateMasteryPercentage();
+            break;
             break;
         case CR_EXPERTISE:
             if (affectStats)
@@ -6040,6 +6062,11 @@ void Player::UpdateRating(CombatRating cr)
             if (affectStats)
                 UpdateArmorPenetration(amount);
             break;
+		case CR_MASTERY:
+            UpdateMastery();
+            break;
+		default:
+			break;
     }
 }
 
@@ -8349,11 +8376,22 @@ void Player::_ApplyItemBonuses(ItemTemplate const* proto, uint8 slot, bool apply
                 ApplyRatingMod(CR_EXPERTISE, int32(val), apply);
                 break;
             case ITEM_MOD_ATTACK_POWER:
-                HandleStatModifier(UNIT_MOD_ATTACK_POWER, TOTAL_VALUE, float(val), apply);
-                HandleStatModifier(UNIT_MOD_ATTACK_POWER_RANGED, TOTAL_VALUE, float(val), apply);
+                if (float(val) > 0.f)
+                {
+                    HandleStatModifier(UNIT_MOD_ATTACK_POWER_POS, TOTAL_VALUE, float(val), apply);
+                    HandleStatModifier(UNIT_MOD_ATTACK_POWER_RANGED_POS, TOTAL_VALUE, float(val), apply);
+                }
+                else
+                {
+                    HandleStatModifier(UNIT_MOD_ATTACK_POWER_NEG, TOTAL_VALUE, -float(val), apply);
+                    HandleStatModifier(UNIT_MOD_ATTACK_POWER_RANGED_NEG, TOTAL_VALUE, -float(val), apply);
+                }
                 break;
             case ITEM_MOD_RANGED_ATTACK_POWER:
-                HandleStatModifier(UNIT_MOD_ATTACK_POWER_RANGED, TOTAL_VALUE, float(val), apply);
+                if (float(val) > 0.f)
+                    HandleStatModifier(UNIT_MOD_ATTACK_POWER_RANGED_POS, TOTAL_VALUE, float(val), apply);
+                else
+                    HandleStatModifier(UNIT_MOD_ATTACK_POWER_RANGED_NEG, TOTAL_VALUE, -float(val), apply);
                 break;
             case ITEM_MOD_MANA_REGENERATION:
                 ApplyManaRegenBonus(int32(val), apply);
@@ -8366,6 +8404,9 @@ void Player::_ApplyItemBonuses(ItemTemplate const* proto, uint8 slot, bool apply
                 break;
             case ITEM_MOD_HEALTH_REGEN:
                 ApplyHealthRegenBonus(int32(val), apply);
+                break;
+			case ITEM_MOD_MASTERY_RATING:
+                ApplyRatingMod(CR_MASTERY, int32(val), apply);
                 break;
             case ITEM_MOD_SPELL_PENETRATION:
                 ApplyModInt32Value(PLAYER_FIELD_MOD_TARGET_RESISTANCE, -val, apply);
@@ -8389,6 +8430,11 @@ void Player::_ApplyItemBonuses(ItemTemplate const* proto, uint8 slot, bool apply
             case ITEM_MOD_ARCANE_RESISTANCE:
                 HandleStatModifier(UNIT_MOD_RESISTANCE_ARCANE, BASE_VALUE, float(val), apply);
                 break;
+		    // deprecated item mods
+            case ITEM_MOD_SPELL_HEALING_DONE:
+            case ITEM_MOD_SPELL_DAMAGE_DONE:
+                break;
+        
         }
     }
 
@@ -13703,13 +13749,24 @@ void Player::ApplyReforgeEnchantment(Item* item, bool apply)
         case ITEM_MOD_EXPERTISE_RATING:
             ApplyRatingMod(CR_EXPERTISE, -int32(removeValue), apply);
             break;
-        case ITEM_MOD_ATTACK_POWER:
-            HandleStatModifier(UNIT_MOD_ATTACK_POWER, TOTAL_VALUE, -removeValue, apply);
-            HandleStatModifier(UNIT_MOD_ATTACK_POWER_RANGED, TOTAL_VALUE, -removeValue, apply);
-            break;
-        case ITEM_MOD_RANGED_ATTACK_POWER:
-            HandleStatModifier(UNIT_MOD_ATTACK_POWER_RANGED, TOTAL_VALUE, -removeValue, apply);
-            break;
+            case ITEM_MOD_ATTACK_POWER:
+                if (float(removeValue) > 0.f)
+                {
+                    HandleStatModifier(UNIT_MOD_ATTACK_POWER_POS, TOTAL_VALUE, float(removeValue), apply);
+                    HandleStatModifier(UNIT_MOD_ATTACK_POWER_RANGED_POS, TOTAL_VALUE, float(removeValue), apply);
+                }
+                else
+                {
+                    HandleStatModifier(UNIT_MOD_ATTACK_POWER_NEG, TOTAL_VALUE, -float(removeValue), apply);
+                    HandleStatModifier(UNIT_MOD_ATTACK_POWER_RANGED_NEG, TOTAL_VALUE, -float(removeValue), apply);
+                }
+                break;
+            case ITEM_MOD_RANGED_ATTACK_POWER:
+                if (float(removeValue) > 0.f)
+                    HandleStatModifier(UNIT_MOD_ATTACK_POWER_RANGED_POS, TOTAL_VALUE, float(removeValue), apply);
+                else
+                    HandleStatModifier(UNIT_MOD_ATTACK_POWER_RANGED_NEG, TOTAL_VALUE, -float(removeValue), apply);
+                break;;
         case ITEM_MOD_MANA_REGENERATION:
             ApplyManaRegenBonus(-int32(removeValue), apply);
             break;
@@ -13722,12 +13779,19 @@ void Player::ApplyReforgeEnchantment(Item* item, bool apply)
         case ITEM_MOD_HEALTH_REGEN:
             ApplyHealthRegenBonus(-int32(removeValue), apply);
             break;
+		case ITEM_MOD_MASTERY_RATING:
+                ApplyRatingMod(CR_MASTERY, int32(removeValue), apply);
+                break;
         case ITEM_MOD_SPELL_PENETRATION:
             ApplyModInt32Value(PLAYER_FIELD_MOD_TARGET_RESISTANCE, -int32(removeValue), apply);
             m_spellPenetrationItemMod += apply ? -int32(removeValue) : int32(removeValue);
             break;
         case ITEM_MOD_BLOCK_VALUE:
             HandleBaseModValue(SHIELD_BLOCK_VALUE, FLAT_MOD, -removeValue, apply);
+            break;
+		// deprecated item mods
+        case ITEM_MOD_SPELL_HEALING_DONE:
+        case ITEM_MOD_SPELL_DAMAGE_DONE:
             break;
     }
 
@@ -13816,12 +13880,23 @@ void Player::ApplyReforgeEnchantment(Item* item, bool apply)
             ApplyRatingMod(CR_EXPERTISE, int32(addValue), apply);
             break;
         case ITEM_MOD_ATTACK_POWER:
-            HandleStatModifier(UNIT_MOD_ATTACK_POWER, TOTAL_VALUE, addValue, apply);
-            HandleStatModifier(UNIT_MOD_ATTACK_POWER_RANGED, TOTAL_VALUE, addValue, apply);
-            break;
-        case ITEM_MOD_RANGED_ATTACK_POWER:
-            HandleStatModifier(UNIT_MOD_ATTACK_POWER_RANGED, TOTAL_VALUE, addValue, apply);
-            break;
+                if (float(addValue) > 0.f)
+                {
+                    HandleStatModifier(UNIT_MOD_ATTACK_POWER_POS, TOTAL_VALUE, float(addValue), apply);
+                    HandleStatModifier(UNIT_MOD_ATTACK_POWER_RANGED_POS, TOTAL_VALUE, float(addValue), apply);
+                }
+                else
+                {
+                    HandleStatModifier(UNIT_MOD_ATTACK_POWER_NEG, TOTAL_VALUE, -float(addValue), apply);
+                    HandleStatModifier(UNIT_MOD_ATTACK_POWER_RANGED_NEG, TOTAL_VALUE, -float(addValue), apply);
+                }
+                break;
+            case ITEM_MOD_RANGED_ATTACK_POWER:
+                if (float(addValue) > 0.f)
+                    HandleStatModifier(UNIT_MOD_ATTACK_POWER_RANGED_POS, TOTAL_VALUE, float(addValue), apply);
+                else
+                    HandleStatModifier(UNIT_MOD_ATTACK_POWER_RANGED_NEG, TOTAL_VALUE, -float(addValue), apply);
+                break;
         case ITEM_MOD_MANA_REGENERATION:
             ApplyManaRegenBonus(int32(addValue), apply);
             break;
@@ -13830,6 +13905,9 @@ void Player::ApplyReforgeEnchantment(Item* item, bool apply)
             break;
         case ITEM_MOD_SPELL_POWER:
             ApplySpellPowerBonus(int32(addValue), apply);
+            break;
+	    case ITEM_MOD_MASTERY_RATING:
+            ApplyRatingMod(CR_MASTERY, int32(addValue), apply);
             break;
         case ITEM_MOD_HEALTH_REGEN:
             ApplyHealthRegenBonus(int32(addValue), apply);
@@ -13841,6 +13919,11 @@ void Player::ApplyReforgeEnchantment(Item* item, bool apply)
         case ITEM_MOD_BLOCK_VALUE:
             HandleBaseModValue(SHIELD_BLOCK_VALUE, FLAT_MOD, addValue, apply);
             break;
+		// deprecated item mods
+       case ITEM_MOD_SPELL_HEALING_DONE:
+       case ITEM_MOD_SPELL_DAMAGE_DONE:
+                break;
+        
     }
 }
 
@@ -14146,12 +14229,23 @@ void Player::ApplyEnchantment(Item* item, EnchantmentSlot slot, bool apply, bool
                             sLog->outDebug(LOG_FILTER_PLAYER_ITEMS, "+ %u EXPERTISE", enchant_amount);
                             break;
                         case ITEM_MOD_ATTACK_POWER:
-                            HandleStatModifier(UNIT_MOD_ATTACK_POWER, TOTAL_VALUE, float(enchant_amount), apply);
-                            HandleStatModifier(UNIT_MOD_ATTACK_POWER_RANGED, TOTAL_VALUE, float(enchant_amount), apply);
+                            if (float(enchant_amount) > 0.f)
+                            {
+                                HandleStatModifier(UNIT_MOD_ATTACK_POWER_POS, TOTAL_VALUE, float(enchant_amount), apply);
+                                HandleStatModifier(UNIT_MOD_ATTACK_POWER_RANGED_POS, TOTAL_VALUE, float(enchant_amount), apply);
+                            }
+                            else
+                            {
+                                HandleStatModifier(UNIT_MOD_ATTACK_POWER_NEG, TOTAL_VALUE, -float(enchant_amount), apply);
+                                HandleStatModifier(UNIT_MOD_ATTACK_POWER_RANGED_NEG, TOTAL_VALUE, -float(enchant_amount), apply);
+                            }
                             sLog->outDebug(LOG_FILTER_PLAYER_ITEMS, "+ %u ATTACK_POWER", enchant_amount);
                             break;
                         case ITEM_MOD_RANGED_ATTACK_POWER:
-                            HandleStatModifier(UNIT_MOD_ATTACK_POWER_RANGED, TOTAL_VALUE, float(enchant_amount), apply);
+                            if (float(enchant_amount) > 0.f)
+                                HandleStatModifier(UNIT_MOD_ATTACK_POWER_RANGED_POS, TOTAL_VALUE, float(enchant_amount), apply);
+                            else
+                                HandleStatModifier(UNIT_MOD_ATTACK_POWER_RANGED_NEG, TOTAL_VALUE, -float(enchant_amount), apply);
                             sLog->outDebug(LOG_FILTER_PLAYER_ITEMS, "+ %u RANGED_ATTACK_POWER", enchant_amount);
                             break;
                         case ITEM_MOD_MANA_REGENERATION:
@@ -14179,6 +14273,11 @@ void Player::ApplyEnchantment(Item* item, EnchantmentSlot slot, bool apply, bool
                             HandleBaseModValue(SHIELD_BLOCK_VALUE, FLAT_MOD, float(enchant_amount), apply);
                             sLog->outDebug(LOG_FILTER_PLAYER_ITEMS, "+ %u BLOCK_VALUE", enchant_amount);
                             break;
+					    case ITEM_MOD_MASTERY_RATING:
+                            ApplyRatingMod(CR_MASTERY, int32(enchant_amount), apply);
+                            break;
+						case ITEM_MOD_SPELL_HEALING_DONE:   // deprecated
+                        case ITEM_MOD_SPELL_DAMAGE_DONE:    // deprecated
                         default:
                             break;
                     }
@@ -17515,6 +17614,9 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
                 break;
         }
     }
+
+	    if (HasAura(94293)) // Set Worgen form at login.
+        CastSpell(this, 69001, true);
 
     // RaF stuff.
     m_grantableLevels = fields[59].GetUInt8();
@@ -25000,9 +25102,15 @@ bool Player::LearnTalent(uint32 talentId, uint32 talentRank)
     {
         SetPrimaryTalentTree(GetActiveSpec(), talentInfo->TalentTab);
         std::vector<uint32> const* specSpells = GetTalentTreePrimarySpells(talentInfo->TalentTab);
-        if (specSpells)
+       
+		if (specSpells)
             for (size_t i = 0; i < specSpells->size(); ++i)
                 learnSpell(specSpells->at(i), false);
+
+		if (CanUseMastery())
+            for (uint32 i = 0; i < MAX_MASTERY_SPELLS; ++i)
+                if (uint32 mastery = talentTabInfo->MasterySpellId[i])
+                    learnSpell(mastery, false);
     }
 
     // update free talent points
@@ -25854,6 +25962,12 @@ void Player::ActivateSpec(uint8 spec)
         if (specSpells)
             for (size_t i = 0; i < specSpells->size(); ++i)
                 removeSpell(specSpells->at(i), true);
+
+		TalentTabEntry const* talentTabInfo = sTalentTabStore.LookupEntry(talentTabs[i]);
+        for (uint32 i = 0; i < MAX_MASTERY_SPELLS; ++i)
+            if (uint32 mastery = talentTabInfo->MasterySpellId[i])
+                removeSpell(mastery, true);
+    
     }
 
     // set glyphs
@@ -25901,6 +26015,12 @@ void Player::ActivateSpec(uint8 spec)
     if (specSpells)
         for (size_t i = 0; i < specSpells->size(); ++i)
             learnSpell(specSpells->at(i), false);
+
+	if (CanUseMastery())
+        if (TalentTabEntry const* talentTabInfo = sTalentTabStore.LookupEntry(GetPrimaryTalentTree(GetActiveSpec())))
+            for (uint32 i = 0; i < MAX_MASTERY_SPELLS; ++i)
+                if (uint32 mastery = talentTabInfo->MasterySpellId[i])
+                    learnSpell(mastery, false);
 
     // set glyphs
     for (uint8 slot = 0; slot < MAX_GLYPH_SLOT_INDEX; ++slot)
@@ -26765,4 +26885,78 @@ Pet* Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
     //ObjectAccessor::UpdateObjectVisibility(pet);
 
     return pet;
+}
+
+void Player::RemoveOrAddMasterySpells()
+{
+    if (!isAlive())
+        return;
+
+    if (!HasAuraType(SPELL_AURA_MASTERY) || GetTalentMap(GetActiveSpec()) == NULL)
+    {
+        if (HasAura(77514))
+            RemoveAurasDueToSpell(77514);
+
+        if (HasAura(77515))
+            RemoveAurasDueToSpell(77515);
+
+        if (HasAura(77493))
+            RemoveAurasDueToSpell(77493);
+
+        if (HasAura(76658))
+            RemoveAurasDueToSpell(76658);
+
+        if (HasAura(76657))
+            RemoveAurasDueToSpell(76657);
+
+        if (HasAura(76595))
+            RemoveAurasDueToSpell(76595);
+
+        if (HasAura(76671))
+            RemoveAurasDueToSpell(76671);
+
+        if (HasAura(77220))
+            RemoveAurasDueToSpell(77220);
+
+        if (HasAura(76857))
+            RemoveAurasDueToSpell(76857);
+    }
+    else if (HasAuraType(SPELL_AURA_MASTERY))
+    {
+        if (GetTalentMap(GetActiveSpec()) == BS_DEATH_KNIGHT_FROST)
+            if (!HasAura(77514))
+             AddAura(77514, this);
+
+        if (GetTalentMap(GetActiveSpec()) == BS_DEATH_KNIGHT_UNHOLY)
+            if (!HasAura(77515))
+                AddAura(77515, this);
+
+        if (GetTalentMap(GetActiveSpec()) == BS_DRUID_FERAL_COMBAT)
+            if (!HasAura(77493))
+                AddAura(77493, this);
+
+        if (GetTalentMap(GetActiveSpec()) == BS_HUNTER_SURVIVAL)
+            if (!HasAura(76658))
+                AddAura(76658, this);
+
+        if (GetTalentMap(GetActiveSpec()) == BS_HUNTER_BEAST_MASTERY)
+            if (!HasAura(76657))
+                AddAura(76657, this);
+
+        if (GetTalentMap(GetActiveSpec()) == BS_MAGE_FIRE)
+            if (!HasAura(76595))
+                AddAura(76595, this);
+
+        if (GetTalentMap(GetActiveSpec()) == BS_PALADIN_PROTECTION)
+            if (!HasAura(76671))
+                AddAura(76671, this);
+
+        if (GetTalentMap(GetActiveSpec()) == BS_WARLOCK_DESTRUCTION)
+            if (!HasAura(77220))
+                AddAura(77220, this);
+
+        if (GetTalentMap(GetActiveSpec()) == BS_WARRIOR_PROTECTION)
+            if (!HasAura(76857))
+                AddAura(76857, this);
+    }
 }
