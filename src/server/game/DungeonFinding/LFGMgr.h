@@ -322,7 +322,7 @@ class LFGMgr
 
         // Vote kick
         void InitBoot(uint64 gguid, uint64 kguid, uint64 vguid, std::string const& reason);
-        void UpdateBoot(uint64 guid, LfgAnswer accept = LFG_ANSWER_PENDING);
+        void UpdateBoot(uint64 guid, bool accept);
 
         void InitializeLockedDungeons(Player* player, uint8 level = 0);
 

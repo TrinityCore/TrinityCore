@@ -142,7 +142,7 @@ enum Actions
 enum Yells
 {
     //Text emote
-    EMOTE_WEAKENED                              = -1531011,
+    EMOTE_WEAKENED                              = 0,
 
     // ****** Out of Combat ******
     // Random Wispers - No txt only sound
@@ -712,7 +712,7 @@ public:
                     {
                         instance->SetData(DATA_CTHUN_PHASE, PHASE_CTHUN_WEAK);
 
-                        DoScriptText(EMOTE_WEAKENED, me);
+                        Talk(EMOTE_WEAKENED);
                         PhaseTimer = 45000;
 
                         DoCast(me, SPELL_PURPLE_COLORATION, true);

@@ -75,10 +75,9 @@ public:
 
 enum KyleFrenzied
 {
-    //emote signed for 7780 but propably thats wrong id.
-    EMOTE_SEE_LUNCH         = -1000340,
-    EMOTE_EAT_LUNCH         = -1000341,
-    EMOTE_DANCE             = -1000342,
+    EMOTE_SEE_LUNCH         = 0,
+    EMOTE_EAT_LUNCH         = 1,
+    EMOTE_DANCE             = 2,
 
     SPELL_LUNCH             = 42222,
     NPC_KYLE_FRENZIED       = 23616,
@@ -133,7 +132,7 @@ public:
                 }
 
                 EventActive = true;
-                DoScriptText(EMOTE_SEE_LUNCH, me);
+                Talk(EMOTE_SEE_LUNCH);
                 me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_CREATURE_SPECIAL);
             }
         }
@@ -172,7 +171,7 @@ public:
                             }
                             break;
                         case 2:
-                            DoScriptText(EMOTE_EAT_LUNCH, me);
+                            Talk(EMOTE_EAT_LUNCH);
                             me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_USE_STANDING);
                             break;
                         case 3:
@@ -183,7 +182,7 @@ public:
                             break;
                         case 4:
                             EventTimer = 30000;
-                            DoScriptText(EMOTE_DANCE, me);
+                            Talk(EMOTE_DANCE);
                             me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_DANCESPECIAL);
                             break;
                         case 5:

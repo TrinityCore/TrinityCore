@@ -34,6 +34,14 @@ static DoorData const doorData[] =
     {0,                                 0,              DOOR_TYPE_ROOM,         BOUNDARY_NONE   },
 };
 
+MinionData const minionData[] =
+{
+    { NPC_STEELBREAKER,   BOSS_ASSEMBLY_OF_IRON },
+    { NPC_MOLGEIM,        BOSS_ASSEMBLY_OF_IRON },
+    { NPC_BRUNDIR,        BOSS_ASSEMBLY_OF_IRON },
+    { 0,                  0,                    }
+};
+
 class instance_ulduar : public InstanceMapScript
 {
     public:
@@ -42,8 +50,6 @@ class instance_ulduar : public InstanceMapScript
         struct instance_ulduar_InstanceMapScript : public InstanceScript
         {
             instance_ulduar_InstanceMapScript(InstanceMap* map) : InstanceScript(map) { }
-
-            std::string m_strInstData;
 
             // Creatures
             uint64 LeviathanGUID;
@@ -99,6 +105,7 @@ class instance_ulduar : public InstanceMapScript
             {
                 SetBossNumber(MAX_ENCOUNTER);
                 LoadDoorData(doorData);
+                LoadMinionData(minionData);
                 IgnisGUID                        = 0;
                 RazorscaleGUID                   = 0;
                 RazorscaleController             = 0;
@@ -202,18 +209,24 @@ class instance_ulduar : public InstanceMapScript
                     case NPC_XT_TOY_PILE:
                         for (uint8 i = 0; i < 4; ++i)
                             if (!XTToyPileGUIDs[i])
+                            {
                                 XTToyPileGUIDs[i] = creature->GetGUID();
+                                break;
+                            }
                         break;
 
                     // Assembly of Iron
                     case NPC_STEELBREAKER:
                         AssemblyGUIDs[0] = creature->GetGUID();
+                        AddMinion(creature, true);
                         break;
                     case NPC_MOLGEIM:
                         AssemblyGUIDs[1] = creature->GetGUID();
+                        AddMinion(creature, true);
                         break;
                     case NPC_BRUNDIR:
                         AssemblyGUIDs[2] = creature->GetGUID();
+                        AddMinion(creature, true);
                         break;
 
                     // Freya's Keeper
@@ -314,9 +327,24 @@ class instance_ulduar : public InstanceMapScript
             {
                 switch (creature->GetEntry())
                 {
+                    case NPC_XT_TOY_PILE:
+                        for (uint8 i = 0; i < 4; ++i)
+                            if (XTToyPileGUIDs[i] == creature->GetGUID())
+                            {
+                                XTToyPileGUIDs[i] = 0;
+                                break;
+                            }
+                        break;
+                    case NPC_STEELBREAKER:
+                    case NPC_MOLGEIM:
+                    case NPC_BRUNDIR:
+                        AddMinion(creature, false);
+                        break;
                     case NPC_BRANN_BRONZBEARD_ALG:
                         if (BrannBronzebeardAlgGUID == creature->GetGUID())
                             BrannBronzebeardAlgGUID = 0;
+                        break;
+                    default:
                         break;
                 }
             }
@@ -707,11 +735,11 @@ class instance_ulduar : public InstanceMapScript
                         return RazorHarpoonGUIDs[3];
 
                     // Assembly of Iron
-                    case BOSS_STEELBREAKER:
+                    case DATA_STEELBREAKER:
                         return AssemblyGUIDs[0];
-                    case BOSS_MOLGEIM:
+                    case DATA_MOLGEIM:
                         return AssemblyGUIDs[1];
-                    case BOSS_BRUNDIR:
+                    case DATA_BRUNDIR:
                         return AssemblyGUIDs[2];
 
                     // Freya's Keepers

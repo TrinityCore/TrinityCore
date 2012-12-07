@@ -472,6 +472,7 @@ uint32 Condition::GetMaxAvailableConditionTargets()
         case CONDITION_SOURCE_TYPE_GOSSIP_MENU:
         case CONDITION_SOURCE_TYPE_GOSSIP_MENU_OPTION:
         case CONDITION_SOURCE_TYPE_SMART_EVENT:
+        case CONDITION_SOURCE_TYPE_NPC_VENDOR:
             return 2;
         default:
             return 1;
@@ -623,7 +624,8 @@ bool ConditionMgr::CanHaveSourceGroupSet(ConditionSourceType sourceType) const
             sourceType == CONDITION_SOURCE_TYPE_SPELL_IMPLICIT_TARGET ||
             sourceType == CONDITION_SOURCE_TYPE_SPELL_CLICK_EVENT ||
             sourceType == CONDITION_SOURCE_TYPE_SMART_EVENT ||
-            sourceType == CONDITION_SOURCE_TYPE_PHASE_DEFINITION);
+            sourceType == CONDITION_SOURCE_TYPE_PHASE_DEFINITION ||
+            sourceType == CONDITION_SOURCE_TYPE_NPC_VENDOR);
 }
 
 bool ConditionMgr::CanHaveSourceIdSet(ConditionSourceType sourceType) const
@@ -649,7 +651,6 @@ ConditionList ConditionMgr::GetConditionsForNotGroupedEntry(ConditionSourceType 
     }
     return spellCond;
 }
-
 
 ConditionList ConditionMgr::GetConditionsForSpellClickEvent(uint32 creatureId, uint32 spellId)
 {
@@ -712,7 +713,22 @@ ConditionList ConditionMgr::GetConditionsForPhaseDefinition(uint32 zone, uint32 
             sLog->outDebug(LOG_FILTER_CONDITIONSYS, "GetConditionsForPhaseDefinition: found conditions for zone %u entry %u", zone, entry);
         }
     }
+    return cond;
+}
 
+ConditionList ConditionMgr::GetConditionsForNpcVendorEvent(uint32 creatureId, uint32 itemId)
+{
+    ConditionList cond;
+    NpcVendorConditionContainer::const_iterator itr = NpcVendorConditionContainerStore.find(creatureId);
+    if (itr != NpcVendorConditionContainerStore.end())
+    {
+        ConditionTypeContainer::const_iterator i = (*itr).second.find(itemId);
+        if (i != (*itr).second.end())
+        {
+            cond = (*i).second;
+            sLog->outDebug(LOG_FILTER_CONDITIONSYS, "GetConditionsForNpcVendorEvent: found conditions for creature entry %u item %u", creatureId, itemId);
+        }
+    }
     return cond;
 }
 
@@ -942,6 +958,13 @@ void ConditionMgr::LoadConditions(bool isReload)
                 case CONDITION_SOURCE_TYPE_PHASE_DEFINITION:
                 {
                     PhaseDefinitionsConditionStore[cond->SourceGroup][cond->SourceEntry].push_back(cond);
+                    valid = true;
+                    ++count;
+                    continue;
+                }
+                case CONDITION_SOURCE_TYPE_NPC_VENDOR:
+                {
+                    NpcVendorConditionContainerStore[cond->SourceGroup][cond->SourceEntry].push_back(cond);
                     valid = true;
                     ++count;
                     continue;
@@ -1444,6 +1467,21 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond)
                 return false;
             }
             break;
+        case CONDITION_SOURCE_TYPE_NPC_VENDOR:
+        {
+            if (!sObjectMgr->GetCreatureTemplate(cond->SourceGroup))
+            {
+                sLog->outError(LOG_FILTER_SQL, "SourceEntry %u in `condition` table, does not exist in `creature_template`, ignoring.", cond->SourceGroup);
+                return false;
+            }
+            ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(cond->SourceEntry);
+            if (!itemTemplate)
+            {
+                sLog->outError(LOG_FILTER_SQL, "SourceEntry %u in `condition` table, does not exist in `item_template`, ignoring.", cond->SourceEntry);
+                return false;
+            }
+            break;
+        }
         case CONDITION_SOURCE_TYPE_GOSSIP_MENU:
         case CONDITION_SOURCE_TYPE_GOSSIP_MENU_OPTION:
         case CONDITION_SOURCE_TYPE_SMART_EVENT:
@@ -2019,6 +2057,19 @@ void ConditionMgr::Clean()
     }
 
     PhaseDefinitionsConditionStore.clear();
+
+    for (NpcVendorConditionContainer::iterator itr = NpcVendorConditionContainerStore.begin(); itr != NpcVendorConditionContainerStore.end(); ++itr)
+    {
+        for (ConditionTypeContainer::iterator it = itr->second.begin(); it != itr->second.end(); ++it)
+        {
+            for (ConditionList::const_iterator i = it->second.begin(); i != it->second.end(); ++i)
+                delete *i;
+            it->second.clear();
+        }
+        itr->second.clear();
+    }
+
+    NpcVendorConditionContainerStore.clear();
 
     // this is a BIG hack, feel free to fix it if you can figure out the ConditionMgr ;)
     for (std::list<Condition*>::const_iterator itr = AllocatedMemoryStore.begin(); itr != AllocatedMemoryStore.end(); ++itr)
