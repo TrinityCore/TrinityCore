@@ -722,10 +722,17 @@ class npc_adventurous_dwarf : public CreatureScript
 public:
     npc_adventurous_dwarf() : CreatureScript("npc_adventurous_dwarf") { }
 
+    struct npc_adventurous_dwarfAI : public ScriptedAI
+    {
+        npc_adventurous_dwarfAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Talk(SAY_DWARF_OUCH);
+        }
+    };
+
     CreatureAI* GetAI(Creature* creature) const
     {
-        creature->AI()->Talk(SAY_DWARF_OUCH);
-        return NULL;
+        return new npc_adventurous_dwarfAI(creature);
     }
 
     bool OnGossipHello(Player* player, Creature* creature)
@@ -750,14 +757,23 @@ public:
     {
         player->PlayerTalkClass->ClearMenus();
         uint32 spellId = 0;
+
         switch (action)
         {
-            case GOSSIP_ACTION_INFO_DEF + 1: spellId = SPELL_ADD_ORANGE;     break;
-            case GOSSIP_ACTION_INFO_DEF + 2: spellId = SPELL_ADD_BANANAS;    break;
-            case GOSSIP_ACTION_INFO_DEF + 3: spellId = SPELL_ADD_PAPAYA;     break;
+            case GOSSIP_ACTION_INFO_DEF + 1:
+                spellId = SPELL_ADD_ORANGE;
+                break;
+            case GOSSIP_ACTION_INFO_DEF + 2:
+                spellId = SPELL_ADD_BANANAS;
+                break;
+            case GOSSIP_ACTION_INFO_DEF + 3:
+                spellId = SPELL_ADD_PAPAYA;
+                break;
         }
+
         if (spellId)
             player->CastSpell(player, spellId, true);
+
         creature->AI()->Talk(SAY_DWARF_HELP);
         creature->DespawnOrUnsummon();
         return true;
