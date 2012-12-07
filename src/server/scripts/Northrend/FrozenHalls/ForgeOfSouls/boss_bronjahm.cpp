@@ -406,7 +406,6 @@ void AddSC_boss_bronjahm()
 {
     new boss_bronjahm();
     new mob_corrupted_soul_fragment();
-
     new spell_bronjahm_magic_bane();
     new spell_bronjahm_consume_soul();
     new spell_bronjahm_soulstorm_channel();

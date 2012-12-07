@@ -23,7 +23,7 @@
 #include "CellImpl.h"
 #include "obsidian_sanctum.h"
 
-enum eEnums
+enum Enums
 {
     //Sartharion Yell
     SAY_SARTHARION_AGGRO                        = 0,
@@ -39,6 +39,9 @@ enum eEnums
 
     WHISPER_HATCH_EGGS                          = 6,
     WHISPER_OPEN_PORTAL                         = 6, // whisper, shared by two dragons
+
+    WHISPER_SHADRON_DICIPLE                     = 7,
+    WHISPER_VESPERON_DICIPLE                    = 7,
 
     //Sartharion Spells
     SPELL_BERSERK                               = 61632,    // Increases the caster's attack speed by 150% and all damage it deals by 500% for 5 min.
