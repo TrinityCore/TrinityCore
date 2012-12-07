@@ -3510,9 +3510,6 @@ void AddSC_generic_spell_scripts()
     new spell_gen_increase_stats_buff("spell_pri_shadow_protection");
     new spell_gen_increase_stats_buff("spell_mage_arcane_brilliance");
     new spell_gen_increase_stats_buff("spell_mage_dalaran_brilliance");
-<<<<<<< HEAD
 	new shooting_stars_aura();
-=======
     new spell_gen_replenishment();
->>>>>>> fb2e5c3c5840a77452a2418805eabd01147a4346
 }

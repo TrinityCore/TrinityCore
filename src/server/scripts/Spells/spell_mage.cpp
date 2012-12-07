@@ -37,20 +37,20 @@ enum MageSpells
     SPELL_MAGE_WORGEN_FORM                       = 32819,
     SPELL_MAGE_SHEEP_FORM                        = 32820,
     SPELL_MAGE_GLYPH_OF_ETERNAL_WATER            = 70937,
-	SPELL_MAGE_FLAME_ORB                         = 57752,
+    SPELL_MAGE_FLAME_ORB                         = 57752,
     SPELL_MAGE_FROSTFIRE_ORB                     = 45322,
-	SPELL_MAGE_ORB_TALENT_R1                     = 84726,
-	SPELL_MAGE_ORB_TALENT_R2                     = 84727,
+    SPELL_MAGE_ORB_TALENT_R1                     = 84726,
+    SPELL_MAGE_ORB_TALENT_R2                     = 84727,
     SPELL_MAGE_SUMMON_WATER_ELEMENTAL_PERMANENT  = 70908,
     SPELL_MAGE_SUMMON_WATER_ELEMENTAL_TEMPORARY  = 70907,
     SPELL_MAGE_CAUTERIZE_R2                      = 86949,
-	SPELL_MAGE_CAUTERIZE_R1                      = 86948,
+    SPELL_MAGE_CAUTERIZE_R1                      = 86948,
     SPELL_MAGE_CAUTERIZE_DOT                     = 87023,
     SPELL_MAGE_GLYPH_OF_BLAST_WAVE               = 62126,
 
 	//early frost
     SPELL_MAGE_EARLY_FROST_R1_T                  = 83049,
-   	SPELL_MAGE_EARLY_FROST_R2_T                  = 83050,
+    SPELL_MAGE_EARLY_FROST_R2_T                  = 83050,
     SPELL_MAGE_EARLY_FROST_R1_CD                 = 83162,
     SPELL_MAGE_EARLY_FROST_R2_CD                 = 83239,
 
@@ -67,7 +67,7 @@ enum MageSpells
     SPELL_MAGE_SHATTERED_BARRIER_FREEZE_R1       = 55080,
     SPELL_MAGE_SHATTERED_BARRIER_FREEZE_R2       = 83073,
     SPELL_MAGE_FINGERS_OF_FROST                  = 44544,
-	SPELL_MAGE_COMBUSTION_PERIODIC_DAMAGE        = 83853,
+    SPELL_MAGE_COMBUSTION_PERIODIC_DAMAGE        = 83853,
 
 };
 
@@ -142,6 +142,8 @@ class spell_mag_cauterize : public SpellScriptLoader
         {
             PrepareAuraScript(spell_mag_cauterize_AuraScript);
 
+            uint32 Cauterize;
+
             bool Validate(SpellInfo const* /*spellEntry*/)
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_CAUTERIZE_R1) || !sSpellMgr->GetSpellInfo(SPELL_MAGE_CAUTERIZE_R2))
@@ -149,20 +151,35 @@ class spell_mag_cauterize : public SpellScriptLoader
                 return true;
             }
 
-            void HasDamage(AuraEffect* /*aurEff*/, DamageInfo & dmgInfo)
+           bool Load()
+            {
+                Cauterize = GetSpellInfo()->Effects[EFFECT_0].CalcValue();
+                return GetUnitOwner()->ToPlayer();
+            }
+
+            void CauterizeAmount(AuraEffect const* /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
+            {
+                // Set absorbtion amount to unlimited
+                amount = -1;
+            }
+
+            void Absorb(AuraEffect* /*aurEff*/, DamageInfo & dmgInfo, uint32 & Cauterize)
             {
                 Player* target = GetTarget()->ToPlayer();
-                if (dmgInfo.GetDamage() < target->GetHealth() || target->HasSpellCooldown(SPELL_MAGE_CAUTERIZE_R1) || target->HasSpellCooldown(SPELL_MAGE_CAUTERIZE_R2) || !roll_chance_i(absorbChance))
+                if (dmgInfo.GetDamage() < target->GetHealth() || target->HasSpellCooldown(SPELL_MAGE_CAUTERIZE_R1) || target->HasSpellCooldown(SPELL_MAGE_CAUTERIZE_R2))
                     return;    
 
                 target->CastSpell(target, SPELL_MAGE_CAUTERIZE_DOT, true);
-		        target->SetHealth(target->CountPctFromMaxHealth(40));
-                target->AddSpellCooldown(SPELL_MAGE_CAUTERIZE, 0, time(NULL) + 60);
+		      target->SetHealth(target->CountPctFromMaxHealth(40));
+                target->AddSpellCooldown(SPELL_MAGE_CAUTERIZE_R1, 0, time(NULL) + 60);
+                target->AddSpellCooldown(SPELL_MAGE_CAUTERIZE_R2, 0, time(NULL) + 60);
+
             }
 
             void Register()
             {
-                OnEffectHasDamage += AuraEffectHasDamageFn(spell_mag_cauterize_AuraScript::HasDamage, EFFECT_0);
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_mag_cauterize_AuraScript::CauterizeAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
+                OnEffectAbsorb += AuraEffectAbsorbFn(spell_mag_cauterize_AuraScript::Absorb, EFFECT_0);
             }
         };
 
@@ -171,6 +188,8 @@ class spell_mag_cauterize : public SpellScriptLoader
             return new spell_mag_cauterize_AuraScript();
         }
 };
+
+// Cold Snap
 class spell_mage_cold_snap : public SpellScriptLoader
 {
     public:
@@ -920,11 +939,11 @@ void AddSC_mage_spell_scripts()
     new spell_mage_frost_warding_trigger();
     new spell_mage_polymorph_cast_visual();
     new spell_mage_summon_water_elemental();
-	new spell_mage_orb();
+    new spell_mage_orb();
     new spell_mage_living_bomb();
     new spell_mage_cone_of_cold();
     new spell_mag_cauterize();
-	new spell_mage_conjure_refreshment();
+    new spell_mage_conjure_refreshment();
     new spell_mage_blizzard();
     new spell_mage_frostbolt();
     new spell_mage_ice_barrier();
@@ -932,5 +951,5 @@ void AddSC_mage_spell_scripts()
     new spell_mage_mage_ward();
     new spell_mage_replenish_mana();	
     new spell_mage_water_elemental_freeze();
-	new spell_mage_combustion();
+    new spell_mage_combustion();
 }
