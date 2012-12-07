@@ -936,6 +936,8 @@ void AddSC_mage_spell_scripts()
 {
     new spell_mage_blast_wave();
     new spell_mage_cold_snap();
+    new spell_mage_cone_of_cold();
+    new spell_mage_conjure_refreshment();
     new spell_mage_frost_warding_trigger();
     new spell_mage_polymorph_cast_visual();
     new spell_mage_summon_water_elemental();

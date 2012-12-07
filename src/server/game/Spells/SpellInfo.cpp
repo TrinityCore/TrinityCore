@@ -341,7 +341,7 @@ SpellEffectInfo::SpellEffectInfo(SpellEntry const* /*spellEntry*/, SpellInfo con
     TargetA = SpellImplicitTargetInfo(_effect ? _effect->EffectImplicitTargetA : 0);
     TargetB = SpellImplicitTargetInfo(_effect ? _effect->EffectImplicitTargetB : 0);
     RadiusEntry = _effect && _effect->EffectRadiusIndex ? sSpellRadiusStore.LookupEntry(_effect->EffectRadiusIndex) : NULL;
-	MaxRadiusEntry = _effect && _effect->EffectRadiusMaxIndex ? sSpellRadiusStore.LookupEntry(_effect->EffectRadiusMaxIndex) : NULL;
+    MaxRadiusEntry = _effect && _effect->EffectRadiusMaxIndex ? sSpellRadiusStore.LookupEntry(_effect->EffectRadiusMaxIndex) : NULL;
     ChainTarget = _effect ? _effect->EffectChainTarget : 0;
     ItemType = _effect ? _effect->EffectItemType : 0;
     TriggerSpell = _effect ? _effect->EffectTriggerSpell : 0;
@@ -540,14 +540,17 @@ bool SpellEffectInfo::HasMaxRadius() const
     return MaxRadiusEntry != NULL;
 }
 
-
 float SpellEffectInfo::CalcRadius(Unit* caster, Spell* spell) const
 {
-     if (!HasRadius())
+    if (!HasRadius())
     {
         if (HasMaxRadius())
+        {
+            //! Still not sure which to pick. Anyway at the current time (Patch 4.3.4) most of the spell effects
+            //! have no radius mod per level, and RadiusMin is equal to RadiusMax.
             return MaxRadiusEntry->RadiusMin;
-         return 0.0f;
+        }
+        return 0.0f;
     }
 
 	float radius = RadiusEntry->RadiusMin;

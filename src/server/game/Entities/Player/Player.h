@@ -2112,9 +2112,12 @@ class Player : public Unit, public GridObject<Player>
         void UpdateRating(CombatRating cr);
         void UpdateAllRatings();
 		void UpdateMastery();
-        bool CanUseMastery() const { return _canUseMastery; }
-        void SetMasteryState(bool apply) { _canUseMastery = apply; UpdateMastery(); }
+        bool CanUseMastery() const { return m_canUseMastery; }
+        void SetMasteryState(bool apply) { m_canUseMastery = apply; UpdateMastery(); }
         void CastMasterySpells(Player* caster);
+		float GetMasteryPoints() { return CaclulateMasteryFromMasteryRating(m_baseRatingValue[CR_MASTERY]); }
+        float CaclulateMasteryFromMasteryRating(int32 curr_rating)  { return float(curr_rating * 0.0055779569892473f); }
+        int32 CaclulateMasteryRatingFromMastery(float curr_mastery) { return int32(curr_mastery / 0.0055779569892473f); }
 
         void CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bool addTotalPct, float& min_damage, float& max_damage);
 
@@ -2140,6 +2143,8 @@ class Player : public Unit, public GridObject<Player>
         void UpdateMeleeHitChances();
         void UpdateRangedHitChances();
         void UpdateSpellHitChances();
+
+  
 
         void UpdateAllSpellCritChances();
         void UpdateSpellCritChance(uint32 school);
@@ -3146,7 +3151,7 @@ class Player : public Unit, public GridObject<Player>
         uint32 _ConquestCurrencyTotalWeekCap;
 
         PhaseMgr phaseMgr;
-		bool _canUseMastery;
+		bool m_canUseMastery;
 };
 
 void AddItemsSetItem(Player*player, Item* item);
