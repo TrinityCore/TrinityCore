@@ -28,15 +28,20 @@ EndScriptData */
 #include "shadow_labyrinth.h"
 #include "SpellInfo.h"
 
-#define EMOTE_SONIC_BOOM            -1555036
+enum Murmur
+{
+    SPELL_RESONANCE             = 33657,
+    SPELL_MAGNETIC_PULL         = 33689,
+    SPELL_SONIC_SHOCK           = 38797,
+    SPELL_THUNDERING_STORM      = 39365,
+    EMOTE_SONIC_BOOM            = 0
+};
 
 #define SPELL_SONIC_BOOM_CAST       DUNGEON_MODE(33923, 38796)
 #define SPELL_SONIC_BOOM_EFFECT     DUNGEON_MODE(33666, 38795)
-#define SPELL_RESONANCE             33657
+
 #define SPELL_MURMURS_TOUCH         DUNGEON_MODE(33711, 38794)
-#define SPELL_MAGNETIC_PULL         33689
-#define SPELL_SONIC_SHOCK           38797
-#define SPELL_THUNDERING_STORM      39365
+
 
 class boss_murmur : public CreatureScript
 {
@@ -123,7 +128,7 @@ public:
             }
             if (SonicBoom_Timer <= diff)
             {
-                DoScriptText(EMOTE_SONIC_BOOM, me);
+                Talk(EMOTE_SONIC_BOOM);
                 DoCast(me, SPELL_SONIC_BOOM_CAST);
                 SonicBoom_Timer = 30000;
                 SonicBoom = true;

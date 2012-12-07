@@ -32,12 +32,9 @@ EndContentData */
 
 enum eSays
 {
-    SAY_AGGRO1                     = -1540042,
-    SAY_AGGRO2                     = -1540043,
-    SAY_AGGRO3                     = -1540044,
-    SAY_SLAY1                      = -1540045,
-    SAY_SLAY2                      = -1540046,
-    SAY_DEATH                      = -1540047,
+    SAY_AGGRO                      = 0,
+    SAY_SLAY                       = 1,
+    SAY_DEATH                      = 2
 };
 
 enum eSpells
@@ -111,7 +108,7 @@ class boss_warchief_kargath_bladefist : public CreatureScript
 
             void EnterCombat(Unit* /*who*/)
             {
-                DoScriptText(RAND(SAY_AGGRO1, SAY_AGGRO2, SAY_AGGRO3), me);
+                Talk(SAY_AGGRO);
             }
 
             void JustSummoned(Creature* summoned)
@@ -134,13 +131,13 @@ class boss_warchief_kargath_bladefist : public CreatureScript
             {
                 if (victim->GetTypeId() == TYPEID_PLAYER)
                 {
-                    DoScriptText(RAND(SAY_SLAY1, SAY_SLAY2), me);
+                    Talk(SAY_SLAY);
                 }
             }
 
             void JustDied(Unit* /*killer*/)
             {
-                DoScriptText(SAY_DEATH, me);
+                Talk(SAY_DEATH);
                 removeAdds();
             }
 

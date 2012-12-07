@@ -16,6 +16,7 @@
  */
 
 #include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 #include "InstanceScript.h"
 #include "violet_hold.h"
 #include "Player.h"
@@ -94,7 +95,7 @@ const Position MiddleRoomPortalSaboLocation = {1896.622925f, 804.854126f, 38.504
 //Cyanigosa's prefight event data
 enum Yells
 {
-    CYANIGOSA_SAY_SPAWN                           = -1608005
+    CYANIGOSA_SAY_SPAWN                           = 0
 };
 
 enum Spells
@@ -742,7 +743,7 @@ public:
                     {
                         case 1:
                             pCyanigosa->CastSpell(pCyanigosa, CYANIGOSA_BLUE_AURA, false);
-                            DoScriptText(CYANIGOSA_SAY_SPAWN, pCyanigosa);
+                            pCyanigosa->AI()->Talk(CYANIGOSA_SAY_SPAWN);
                             uiCyanigosaEventTimer = 7*IN_MILLISECONDS;
                             ++uiCyanigosaEventPhase;
                             break;
