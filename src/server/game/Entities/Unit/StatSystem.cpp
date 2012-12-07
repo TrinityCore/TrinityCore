@@ -347,12 +347,12 @@ void Player::UpdateAttackPowerAndDamage(bool ranged)
                 float mLevelMult = 0.0f;
                 float weapon_bonus = 0.0f;
 
-                if (IsInShapeshiftForm())
+                if (GetShapeshiftForm())
                 {
-                                        if (Item* mainHand = _items[EQUIPMENT_SLOT_MAINHAND])
-                                                val2 += (mainHand->GetTemplate()->DPS - 54.8) * 14;
+                 if (Item* mainHand = m_items[EQUIPMENT_SLOT_MAINHAND])
+                      val2 += (mainHand->GetTemplate()->DPS - 54.8) * 14;
 
-                                        Unit::AuraEffectList const& mDummy = GetAuraEffectsByType(SPELL_AURA_DUMMY);
+                       Unit::AuraEffectList const& mDummy = GetAuraEffectsByType(SPELL_AURA_DUMMY);
                     for (Unit::AuraEffectList::const_iterator itr = mDummy.begin(); itr != mDummy.end(); ++itr)
                     {
                         AuraEffect* aurEff = *itr;
@@ -364,7 +364,7 @@ void Player::UpdateAttackPowerAndDamage(bool ranged)
                                     mLevelMult = CalculatePct(1.0f, aurEff->GetAmount());
                                     break;
                                 case 1: // Predatory Strikes (effect 1)
-                                    if (Item* mainHand = _items[EQUIPMENT_SLOT_MAINHAND])
+                                    if (Item* mainHand = m_items[EQUIPMENT_SLOT_MAINHAND])
                                     {
                                         // also gains % attack power from equipped weapon
                                         ItemTemplate const *proto = mainHand->GetTemplate();
@@ -667,7 +667,7 @@ void Player::UpdateMastery()
                     continue;
 
                 if (!lastDummyEffect)
-                    aura->GetEffect(j - 1)->SetAmount(int32(value * aura->GetSpellInfo()->Effects[j - 1].BonusCoefficient));
+                    aura->GetEffect(j - 1)->SetAmount(int32(value * aura->GetSpellInfo()->Effects[j - 1].BonusMultiplier));
                 else
                     lastDummyEffect = false;
             }
@@ -1102,6 +1102,7 @@ void Creature::UpdateDamagePhysical(WeaponAttackType attType)
 #define ENTRY_FIRE_ELEMENTAL    15438
 #define ENTRY_GHOUL             26125
 #define ENTRY_BLOODWORM         28017
+#define ENTRY_INFERNAL          89
 
 bool Guardian::UpdateStats(Stats stat)
 {
@@ -1303,11 +1304,11 @@ void Guardian::UpdateAttackPowerAndDamage(bool ranged)
             float mod = 1.0f;                                                 //Hunter contribution modifier
             if (isPet())
             {
-                PetSpellMap::const_iterator itr = ToPet()->_spells.find(62758);    //Wild Hunt rank 1
-                if (itr == ToPet()->_spells.end())
-                    itr = ToPet()->_spells.find(62762);                            //Wild Hunt rank 2
+                PetSpellMap::const_iterator itr = ToPet()->m_spells.find(62758);    //Wild Hunt rank 1
+                if (itr == ToPet()->m_spells.end())
+                    itr = ToPet()->m_spells.find(62762);                            //Wild Hunt rank 2
 
-                if (itr != ToPet()->_spells.end())                                 // If pet has Wild Hunt
+                if (itr != ToPet()->m_spells.end())                                 // If pet has Wild Hunt
                 {
                     SpellInfo const* sProto = sSpellMgr->GetSpellInfo(itr->first); // Then get the SpellProto and add the dummy effect value
                     mod += CalculatePct(1.0f, sProto->Effects[1].CalcValue());
