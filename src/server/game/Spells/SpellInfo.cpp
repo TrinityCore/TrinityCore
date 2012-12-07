@@ -540,6 +540,10 @@ float SpellEffectInfo::CalcRadius(Unit* caster, Spell* spell) const
         return 8.0f;
 
     float radius = RadiusEntry->RadiusMin;
+
+	  if (radius == 0)
+		  radius = 8.0f; //Hack, but all spells with radius 0, should have 8yds
+
     if (caster)
     {
         radius += RadiusEntry->RadiusPerLevel * caster->getLevel();

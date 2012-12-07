@@ -218,7 +218,7 @@ void Player::UpdateArmor()
 
 void Player::UpdateSpellPower()
 {
-    uint32 spellPowerFromIntellect = uint32(GetStat(STAT_INTELLECT) - GetCreateStat(STAT_INTELLECT));
+    uint32 spellPowerFromIntellect = /*uint32(GetStat(STAT_INTELLECT) - GetCreateStat(STAT_INTELLECT))*/0;
 
     //apply only the diff between the last and the new value.
     ApplyModUInt32Value(PLAYER_FIELD_MOD_HEALING_DONE_POS, spellPowerFromIntellect - m_spellPowerFromIntellect, true);

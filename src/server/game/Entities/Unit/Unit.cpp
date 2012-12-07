@@ -10045,19 +10045,11 @@ int32 Unit::SpellBaseDamageBonusDone(SpellSchoolMask schoolMask)
 {
     int32 DoneAdvertisedBenefit = 0;
 
- /*AuraEffectList const& mHealingDone = GetAuraEffectsByType(SPELL_AURA_MOD_HEALING_DONE);
+ AuraEffectList const& mHealingDone = GetAuraEffectsByType(SPELL_AURA_MOD_HEALING_DONE);
     for (AuraEffectList::const_iterator i = mHealingDone.begin(); i != mHealingDone.end(); ++i)
         if (!(*i)->GetMiscValue() || ((*i)->GetMiscValue() & schoolMask) != 0)
-            DoneAdvertisedBenefit += (*i)->GetAmount(); UNUSED FOR NOW */
+            DoneAdvertisedBenefit += (*i)->GetAmount(); 
 
-	  AuraEffectList const& mDamageDone = GetAuraEffectsByType(SPELL_AURA_MOD_DAMAGE_DONE);
-     for (AuraEffectList::const_iterator i = mDamageDone.begin(); i != mDamageDone.end(); ++i)
-         if (((*i)->GetMiscValue() & schoolMask) != 0 &&
-         (*i)->GetSpellInfo()->EquippedItemClass == -1 &&
-                                                             // -1 == any item class (not wand then)
-         (*i)->GetSpellInfo()->EquippedItemInventoryTypeMask == 0)	
-                                                             // 0 == any inventory type (not wand then)
-                                                            
 
     if (GetTypeId() == TYPEID_PLAYER)
     {
@@ -10071,8 +10063,8 @@ int32 Unit::SpellBaseDamageBonusDone(SpellSchoolMask schoolMask)
         DoneAdvertisedBenefit += spellPower;
 
         // Check if we are ever using mana - PaperDollFrame.lua
-       /* if (GetPowerIndexByClass(POWER_MANA, getClass()) != MAX_POWERS)
-            DoneAdvertisedBenefit += std::max(0, int32(GetStat(STAT_INTELLECT)) - 10);  // spellpower from intellect  UN-USED FOR NOW*/
+        if (GetPowerIndexByClass(POWER_MANA, getClass()) != MAX_POWERS)
+            DoneAdvertisedBenefit += std::max(0, int32(GetStat(STAT_INTELLECT)) - 10);  // spellpower from intellect
 
 		// Damage bonus from stats
         AuraEffectList const& mDamageDoneOfStatPercent = GetAuraEffectsByType(SPELL_AURA_MOD_SPELL_DAMAGE_OF_STAT_PERCENT);
