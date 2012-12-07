@@ -403,7 +403,7 @@ void BattlegroundMgr::BuildPvpLogDataPacket(WorldPacket* data, Battleground* bg)
         data->WriteBit(playerGUID[5]);
         data->WriteBit(playerGUID[1]);
         data->WriteBit(playerGUID[6]);
-        data->WriteBit(player->GetTeam() == ALLIANCE);
+        data->WriteBit(player->GetBGTeam() == ALLIANCE);
         data->WriteBit(playerGUID[7]);
 
         buff << uint32(itr->second->HealingDone);             // healing done
@@ -444,7 +444,7 @@ void BattlegroundMgr::BuildPvpLogDataPacket(WorldPacket* data, Battleground* bg)
                         break;
                     case 529:
                         data->WriteBits(0x00000002, 24);
-                        buff << uint32(((BattlegroundABScore*)itr->second)->BasesAssaulted);      // bases asssulted
+                        buff << uint32(((BattlegroundABScore*)itr->second)->BasesAssaulted);      // bases assaulted
                         buff << uint32(((BattlegroundABScore*)itr->second)->BasesDefended);       // bases defended
                         break;
                     case 30:
@@ -462,7 +462,7 @@ void BattlegroundMgr::BuildPvpLogDataPacket(WorldPacket* data, Battleground* bg)
                         break;
                     case 628:                                   // IC
                         data->WriteBits(0x00000002, 24);
-                        buff << uint32(((BattlegroundICScore*)itr->second)->BasesAssaulted);       // bases asssulted
+                        buff << uint32(((BattlegroundICScore*)itr->second)->BasesAssaulted);       // bases assaulted
                         buff << uint32(((BattlegroundICScore*)itr->second)->BasesDefended);        // bases defended
                         break;
                     case 726:
@@ -472,7 +472,7 @@ void BattlegroundMgr::BuildPvpLogDataPacket(WorldPacket* data, Battleground* bg)
                         break;
                     case 761:
                         data->WriteBits(0x00000002, 24);
-                        buff << uint32(((BattlegroundBFGScore*)itr->second)->BasesAssaulted);      // bases asssulted
+                        buff << uint32(((BattlegroundBFGScore*)itr->second)->BasesAssaulted);      // bases assaulted
                         buff << uint32(((BattlegroundBFGScore*)itr->second)->BasesDefended);       // bases defended
                         break;
                     default:
@@ -495,7 +495,7 @@ void BattlegroundMgr::BuildPvpLogDataPacket(WorldPacket* data, Battleground* bg)
                 break;
             case BATTLEGROUND_AB:
                 data->WriteBits(0x00000002, 24);
-                buff << uint32(((BattlegroundABScore*)itr->second)->BasesAssaulted);      // bases asssulted
+                buff << uint32(((BattlegroundABScore*)itr->second)->BasesAssaulted);      // bases assaulted
                 buff << uint32(((BattlegroundABScore*)itr->second)->BasesDefended);       // bases defended
                 break;
             case BATTLEGROUND_EY:
@@ -509,7 +509,7 @@ void BattlegroundMgr::BuildPvpLogDataPacket(WorldPacket* data, Battleground* bg)
                 break;
             case BATTLEGROUND_IC:
                 data->WriteBits(0x00000002, 24);
-                buff << uint32(((BattlegroundICScore*)itr->second)->BasesAssaulted);       // bases asssulted
+                buff << uint32(((BattlegroundICScore*)itr->second)->BasesAssaulted);       // bases assaulted
                 buff << uint32(((BattlegroundICScore*)itr->second)->BasesDefended);        // bases defended
                 break;
             case BATTLEGROUND_TP:
@@ -519,7 +519,7 @@ void BattlegroundMgr::BuildPvpLogDataPacket(WorldPacket* data, Battleground* bg)
                 break;
             case BATTLEGROUND_BFG:
                 data->WriteBits(0x00000002, 24);
-                buff << uint32(((BattlegroundBFGScore*)itr->second)->BasesAssaulted);      // bases asssulted
+                buff << uint32(((BattlegroundBFGScore*)itr->second)->BasesAssaulted);      // bases assaulted
                 buff << uint32(((BattlegroundBFGScore*)itr->second)->BasesDefended);       // bases defended
                 break;
             case BATTLEGROUND_NA:
@@ -576,7 +576,7 @@ void BattlegroundMgr::BuildPvpLogDataPacket(WorldPacket* data, Battleground* bg)
     *data << uint8(bg->GetPlayersCountByTeam(HORDE));
 
     if (bg->GetStatus() == STATUS_WAIT_LEAVE)
-        *data << uint8(bg->GetWinner());                    // who win
+        *data << uint8(bg->GetWinner());
 
     *data << uint8(bg->GetPlayersCountByTeam(ALLIANCE));
 }
@@ -777,7 +777,7 @@ Battleground* BattlegroundMgr::GetBattlegroundTemplate(BattlegroundTypeId bgType
         return NULL;
 
     BattlegroundContainer const& bgs = itr->second.m_Battlegrounds;
-    //map is sorted and we can be sure that lowest instance id has only BG template
+    // map is sorted and we can be sure that lowest instance id has only BG template
     return bgs.empty() ? NULL : bgs.begin()->second;
 }
 
@@ -1497,4 +1497,3 @@ void BattlegroundMgr::RemoveBattleground(BattlegroundTypeId bgTypeId, uint32 ins
 {
     bgDataStore[bgTypeId].m_Battlegrounds.erase(instanceId);
 }
-
