@@ -788,9 +788,9 @@ void Player::UpdateArmorPenetration(int32 amount)
 
 void Player::UpdateMasteryPercentage()
 {
-    if (CanMastery())
+    if (CanUseMastery())
     {
-        SetInt32Value(PLAYER_FIELD_COMBAT_RATING_1 + CR_MASTERY, _baseRatingValue[CR_MASTERY]);
+        SetInt32Value(PLAYER_FIELD_COMBAT_RATING_1 + CR_MASTERY, m_baseRatingValue[CR_MASTERY]);
         SetFloatValue(PLAYER_MASTERY, GetMasteryPoints());
     }
 }
