@@ -319,64 +319,65 @@ class spell_warr_slam : public SpellScriptLoader
         }
 };
 
-enum Execute
+enum executebonus
 {
-    SPELL_EXECUTE               = 20647,
-    SPELL_GLYPH_OF_EXECUTION    = 58367,
-    ICON_ID_SUDDEN_DEATH        = 1989,
+    SPELL_EXECUTE_BONUS     = 20647,
+    SPELL_EXECUTE_PROC      = 52437,
 };
 
-class spell_warr_execute : public SpellScriptLoader
+class spell_warr_execute_bonus : public SpellScriptLoader
 {
     public:
-        spell_warr_execute() : SpellScriptLoader("spell_warr_execute") { }
+        spell_warr_execute_bonus() : SpellScriptLoader("spell_warr_execute_bonus") { }
 
-        class spell_warr_execute_SpellScript : public SpellScript
+        class spell_warr_execute_bonus_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_warr_execute_SpellScript);
+            PrepareSpellScript(spell_warr_execute_bonus_SpellScript);
 
             bool Validate(SpellInfo const* /*SpellEntry*/)
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_EXECUTE) || !sSpellMgr->GetSpellInfo(SPELL_GLYPH_OF_EXECUTION))
+                if (!sSpellMgr->GetSpellInfo(SPELL_EXECUTE_BONUS))
                     return false;
                 return true;
             }
-            void HandleDummy(SpellEffIndex effIndex)
+
+            void HandleDummy(SpellEffIndex /* effIndex */)
             {
-                Unit* caster = GetCaster();
-                if (Unit* target = GetHitUnit())
-                {
-                    SpellInfo const* spellInfo = GetSpellInfo();
-                    int32 rageUsed = std::min<int32>(300 - spellInfo->CalcPowerCost(caster, SpellSchoolMask(spellInfo->SchoolMask)), caster->GetPower(POWER_RAGE));
-                    int32 newRage = std::max<int32>(0, caster->GetPower(POWER_RAGE) - rageUsed);
-
-                    // Sudden Death rage save
-                    if (AuraEffect* aurEff = caster->GetAuraEffect(SPELL_AURA_PROC_TRIGGER_SPELL, SPELLFAMILY_GENERIC, ICON_ID_SUDDEN_DEATH, EFFECT_0))
-                    {
-                        int32 ragesave = aurEff->GetSpellInfo()->Effects[EFFECT_1].CalcValue() * 10;
-                        newRage = std::max(newRage, ragesave);
-                    }
-
-                    caster->SetPower(POWER_RAGE, uint32(newRage));
-                    // Glyph of Execution bonus
-                    if (AuraEffect* aurEff = caster->GetAuraEffect(SPELL_GLYPH_OF_EXECUTION, EFFECT_0))
-                        rageUsed += aurEff->GetAmount() * 10;
-
-
-                    int32 bp = GetEffectValue() + int32(rageUsed * spellInfo->Effects[effIndex].DamageMultiplier + caster->GetTotalAttackPowerValue(BASE_ATTACK) * 0.2f);
-                    caster->CastCustomSpell(target,SPELL_EXECUTE,&bp,0,0,true,0,0,GetOriginalCaster()->GetGUID());
-                }
+                int32 bp0 = GetEffectValue();
+                if (GetHitUnit())
+                    GetCaster()->CastCustomSpell(GetHitUnit(), SPELL_EXECUTE_BONUS, &bp0, NULL, NULL, true, 0);
             }
 
             void Register()
             {
-                OnEffectHitTarget += SpellEffectFn(spell_warr_execute_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnEffectHitTarget += SpellEffectFn(spell_warr_execute_bonus_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        class spell_warr_execute_bonus_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_warr_execute_bonus_AuraScript);
+
+            void HandleEffectCalcSpellMod(AuraEffect const* aurEff, SpellModifier*& spellMod)
+            {
+                if (spellMod && spellMod->spellId == SPELL_EXECUTE_PROC)
+                    spellMod->charges++;
+            }
+
+            void Register()
+            {
+                DoEffectCalcSpellMod += AuraEffectCalcSpellModFn(spell_warr_execute_bonus_AuraScript::HandleEffectCalcSpellMod, EFFECT_0, SPELL_AURA_ADD_PCT_MODIFIER);
             }
         };
 
         SpellScript* GetSpellScript() const
         {
-            return new spell_warr_execute_SpellScript();
+            return new spell_warr_execute_bonus_SpellScript();
+        }
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_warr_execute_bonus_AuraScript();
         }
 };
 
