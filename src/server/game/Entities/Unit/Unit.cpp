@@ -7110,15 +7110,17 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                 if (GetTypeId() != TYPEID_PLAYER  || !victim || !victim->isAlive() || !castItem || !castItem->IsEquipped())
                     return false;
 
-               float fire_onhit = float(CalculatePct(dummySpell->Effects[EFFECT_0]. CalcValue(), 1.0f));
+               //float fire_onhit = float(CalculatePct(dummySpell->Effects[EFFECT_0]. CalcValue(), 1.0f));
 
                float add_spellpower = (float)(SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_FIRE)
                                      + victim->SpellBaseDamageBonusTaken(SPELL_SCHOOL_MASK_FIRE));
 
                 // 1.3speed = 5%, 2.6speed = 10%, 4.0 speed = 15%, so, 1.0speed = 3.84%
                 ApplyPct(add_spellpower, 3.84f);
+				triggered_spell_id = 10444;
+                basepoints0 = int32((add_spellpower * 10));
 
-                // Enchant on Off-Hand and ready?
+              /*  // Enchant on Off-Hand and ready?
                 if (castItem->GetSlot() == EQUIPMENT_SLOT_OFFHAND && isAttackReady(OFF_ATTACK))
                 {
                    float BaseWeaponSpeed = GetAttackTime(OFF_ATTACK) / 1000.0f; 
@@ -7140,13 +7142,14 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
 
                     basepoints0 = int32((add_spellpower * 10) / 100);
                     triggered_spell_id = 10444;
-                }
-
+                } 
                 // If not ready, we should  return, shouldn't we?!
                 else
-                    return false;
+                    return false; */
 
-                CastCustomSpell(victim, triggered_spell_id, &basepoints0, true);
+
+
+                CastCustomSpell(victim, triggered_spell_id, &basepoints0, NULL, NULL, true, castItem, triggeredByAura);
                 return true;
             }
             // Static Shock
@@ -7167,6 +7170,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                 return false;
             }
             break;
+          
         }
         case SPELLFAMILY_DEATHKNIGHT:
         {

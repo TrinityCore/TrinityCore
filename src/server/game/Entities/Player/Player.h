@@ -290,6 +290,42 @@ enum TrainerSpellState
     TRAINER_SPELL_GREEN_DISABLED = 10                       // custom value, not send to client: formally green but learn not allowed
 };
 
+/*
+enum TalentBranchSpec
+{
+    BS_WARRIOR_ARMS         = 746,
+    BS_WARRIOR_FURY         = 815,
+    BS_WARRIOR_PROTECTION   = 845,
+    BS_PALADIN_HOLY         = 831,
+    BS_PALADIN_PROTECTION   = 839,
+    BS_PALADIN_RETRIBUTION  = 855,
+    BS_HUNTER_BEAST_MASTERY = 811,
+    BS_HUNTER_MARKMANSHIP   = 807,
+    BS_HUNTER_SURVIVAL      = 809,
+    BG_ROGUE_ASSASINATION   = 182,
+    BS_ROGUE_COMBAT         = 181,
+    BS_ROGUE_SUBTLETY       = 183,
+    BS_PRIEST_DISCIPLINE    = 760,
+    BS_PRIEST_HOLY          = 813,
+    BS_PRIEST_SHADOW        = 759,
+    BS_DEATH_KNIGHT_BLOOD   = 398,
+    BS_DEATH_KNIGHT_FROST   = 399,
+    BS_DEATH_KNIGHT_UNHOLY  = 400,
+    BS_SHAMAN_ELEMENTAL     = 261,
+    BS_SHAMAN_ENCHANCEMENT  = 263,
+    BS_SHAMAN_RESTORATION   = 262,
+    BS_MAGE_ARCANE          = 799,
+    BS_MAGE_FIRE            = 851,
+    BS_MAGE_FROST           = 823,
+    BS_WARLOCK_AFFLICTION   = 871,
+    BS_WARLOCK_DEMONOLOGY   = 867,
+    BS_WARLOCK_DESTRUCTION  = 865,
+    BS_DRUID_BALANCE        = 752,
+    BS_DRUID_FERAL_COMBAT   = 750,
+    BS_DRUID_RESTORATION    = 748
+}; */
+
+
 enum ActionButtonUpdateState
 {
     ACTIONBUTTON_UNCHANGED = 0,
@@ -1235,6 +1271,7 @@ struct PlayerTalentInfo
     time_t ResetTalentsTime;
     uint8 ActiveSpec;
     uint8 SpecsCount;
+	uint32 m_branchSpec[MAX_TALENT_SPECS];
 
 private:
     PlayerTalentInfo(PlayerTalentInfo const&);
@@ -1907,6 +1944,10 @@ class Player : public Unit, public GridObject<Player>
         void LearnPetTalent(uint64 petGuid, uint32 talentId, uint32 talentRank);
         bool AddTalent(uint32 spellId, uint8 spec, bool learning);
         bool HasTalent(uint32 spell_id, uint8 spec) const;
+
+		/*void SetTalentBranchSpec(uint32 branchSpec, uint8 spec) { m_branchSpec[spec] = branchSpec; }
+        uint32 GetTalentBranchSpec(uint8 spec) const { return m_branchSpec[spec]; } */
+
         uint32 CalculateTalentsPoints() const;
 
         // Dual Spec
@@ -2118,6 +2159,7 @@ class Player : public Unit, public GridObject<Player>
 		float GetMasteryPoints() { return CaclulateMasteryFromMasteryRating(m_baseRatingValue[CR_MASTERY]); }
         float CaclulateMasteryFromMasteryRating(int32 curr_rating)  { return float(curr_rating * 0.0055779569892473f); }
         int32 CaclulateMasteryRatingFromMastery(float curr_mastery) { return int32(curr_mastery / 0.0055779569892473f); }
+		void RemoveOrAddMasterySpells();
 
         void CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bool addTotalPct, float& min_damage, float& max_damage);
 
@@ -2874,6 +2916,7 @@ class Player : public Unit, public GridObject<Player>
         void _LoadGlyphs(PreparedQueryResult result);
         void _LoadTalents(PreparedQueryResult result);
         void _LoadInstanceTimeRestrictions(PreparedQueryResult result);
+		//void _LoadTalentBranchSpecs(PreparedQueryResult result);
         void _LoadCurrency(PreparedQueryResult result);
         void _LoadCUFProfiles(PreparedQueryResult result);
 
@@ -2897,6 +2940,7 @@ class Player : public Unit, public GridObject<Player>
         void _SaveBGData(SQLTransaction& trans);
         void _SaveGlyphs(SQLTransaction& trans);
         void _SaveTalents(SQLTransaction& trans);
+		//void _SaveTalentBranchSpecs(SQLTransaction& trans);
         void _SaveStats(SQLTransaction& trans);
         void _SaveInstanceTimeRestrictions(SQLTransaction& trans);
         void _SaveCurrency(SQLTransaction& trans);

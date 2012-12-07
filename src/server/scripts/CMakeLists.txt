@@ -37,6 +37,7 @@ if(SCRIPTS)
   include(Kalimdor/CMakeLists.txt)
   include(Outland/CMakeLists.txt)
   include(Northrend/CMakeLists.txt)
+  include(Maelstorm/CMakeLists.txt)
   include(Events/CMakeLists.txt)
 endif()
 
