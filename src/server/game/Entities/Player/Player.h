@@ -1271,7 +1271,7 @@ struct PlayerTalentInfo
     time_t ResetTalentsTime;
     uint8 ActiveSpec;
     uint8 SpecsCount;
-	uint32 m_branchSpec[MAX_TALENT_SPECS];
+//	uint32 m_branchSpec[MAX_TALENT_SPECS];
 
 private:
     PlayerTalentInfo(PlayerTalentInfo const&);

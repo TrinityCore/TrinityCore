@@ -67,6 +67,9 @@ enum ShamanSpells
     SHAMAN_SPELL_EARTHQUAKE_KNOCKDOWN      = 77505,
 	SHAMAN_SPELL_MANA_TIDE_TOTEM           = 16191,
 
+    SPELL_SHAMAN_EARTHQUAKE               = 61882,
+    SPELL_SHAMAN_EARTHQUAKE_DAMAGE        = 77478,
+
 };
 
 // 1535 Fire Nova
@@ -156,7 +159,6 @@ class spell_sha_earthbind_totem : public SpellScriptLoader
                         if (roll_chance_i(aur->GetBaseAmount()))
                             GetTarget()->CastSpell((Unit*)NULL, SHAMAN_TOTEM_SPELL_EARTHEN_POWER, true);
             }
-
             void Apply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (!GetCaster())
@@ -165,10 +167,17 @@ class spell_sha_earthbind_totem : public SpellScriptLoader
                 if (!owner)
                     return;
                 // Earth's Grasp
-                if (AuraEffect* aurEff = owner->GetAuraEffectOfRankedSpell(SHAMAN_SPELL_EARTH_GRASP, EFFECT_0))
+                if (GetCaster()->HasAura(51483))
                 {
-                    if (roll_chance_i(aurEff->GetAmount()))
-                        GetCaster()->CastSpell(GetCaster(), EARTHBIND_TOTEM_SPELL_EARTHGRAB, false);
+                    if (roll_chance_i(50))
+                        GetCaster()->CastSpell(GetCaster(), EARTHBIND_TOTEM_SPELL_EARTHGRAB, true);
+					      return true;
+                }
+			    else if (GetCaster()->HasAura(51485))
+                {
+                    if (roll_chance_i(100))
+                        GetCaster()->CastSpell(GetCaster(), EARTHBIND_TOTEM_SPELL_EARTHGRAB, true);
+					     return true;
                 }
             }
 
@@ -669,47 +678,6 @@ public:
           }
 };
 
-// 77478 - Earthquake
-class spell_sha_earthquake: public SpellScriptLoader
-{
-public:
-    spell_sha_earthquake () :
-            SpellScriptLoader("spell_sha_earthquake")
-    {
-    }
-
-    class spell_sha_earthquake_SpellScript: public SpellScript
-    {
-        PrepareSpellScript(spell_sha_earthquake_SpellScript);
-
-        bool Validate (SpellEntry const* /*spellInfo*/)
-        {
-            if (!sSpellStore.LookupEntry(SHAMAN_SPELL_EARTHQUAKE_KNOCKDOWN))
-                return false;
-            return true;
-        }
-
-        void OnQuake ()
-        {
-            //10% Chance to Knockdown.. 
-            int32 chance = 10;
-            Unit* target = GetHitUnit();
-
-            if (roll_chance_i(chance))
-                GetCaster()->CastSpell(target, SHAMAN_SPELL_EARTHQUAKE_KNOCKDOWN, true);
-        }
-
-        void Register ()
-        {
-            OnHit += SpellHitFn(spell_sha_earthquake_SpellScript::OnQuake);
-        }
-    };
-
-    SpellScript* GetSpellScript () const
-    {
-        return new spell_sha_earthquake_SpellScript();
-    }
-};
 
 // 51474 - Astral shift
 class spell_sha_astral_shift : public SpellScriptLoader
@@ -820,6 +788,72 @@ class spell_sha_mana_tide : public SpellScriptLoader
         }
 };
 
+// EarthQuake 61882
+class spell_sha_earthquake : public SpellScriptLoader
+{
+public:
+    spell_sha_earthquake() : SpellScriptLoader("spell_sha_earthquake") { }
+
+    class spell_sha_earthquake_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_sha_earthquake_AuraScript)
+        
+        float x, y, z;
+	
+        bool Load()
+        {
+           if (GetCaster()->GetTypeId() != TYPEID_PLAYER)
+               return false;
+
+            return true;
+         }
+
+        bool Validate (SpellInfo *const /*spellEntry*/)
+        {
+            if (!sSpellStore.LookupEntry(SPELL_SHAMAN_EARTHQUAKE))
+                return false;
+            return true;
+        }
+
+		void OnQuake ()
+        {
+            //10% Chance to Knockdown.. 
+            int32 chance = 10;
+            Unit* target = GetHitUnit();
+
+            if (roll_chance_i(chance))
+                GetCaster()->CastSpell(target, SHAMAN_SPELL_EARTHQUAKE_KNOCKDOWN, true);
+        }
+
+        void HandlePeriodicDummy(AuraEffect const* aurEff)
+        {
+            uint64 earthquakeNpcGUID = GetCaster()->m_SummonSlot[1];
+
+            if (!earthquakeNpcGUID)
+               return;
+
+            Unit* earthquakeNpc = ObjectAccessor::GetCreature(*GetCaster(),earthquakeNpcGUID);
+
+            if (!consecrationNpc)
+                return;
+
+            earthquakeNpc->GetPosition(x,y,z);
+            earthquakeNpc->CastSpell(x,y,z,SPELL_SHAMAN_EARTHQUAKE_DAMAGE,true,NULL,NULL,GetCaster()->GetGUID());  
+        }
+
+        void Register()
+        {
+			OnEffectPeriodic += AuraEffectPeriodicFn(spell_sha_earthquake_AuraScript::HandlePeriodicDummy,EFFECT_1,SPELL_AURA_PERIODIC_DUMMY);
+			OnHit += SpellHitFn(spell_sha_earthquake_SpellScript::OnQuake);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_sha_earthquake_AuraScript();
+    }
+};
+
 
 void AddSC_shaman_spell_scripts()
 {
@@ -835,8 +869,8 @@ void AddSC_shaman_spell_scripts()
     new spell_sha_flame_shock();
     new spell_sha_totemic_wrath();
     new spell_sha_fulmination();
-    new spell_sha_earthquake();
     new spell_sha_astral_shift();
 	new spell_sha_healing_rain();
 	new spell_sha_mana_tide();
+	new spell_sha_earthquake();
 }

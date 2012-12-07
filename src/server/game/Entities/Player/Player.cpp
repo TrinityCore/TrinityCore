@@ -25082,10 +25082,10 @@ bool Player::LearnTalent(uint32 talentId, uint32 talentRank)
             for (size_t i = 0; i < specSpells->size(); ++i)
                 learnSpell(specSpells->at(i), false);
 
-		if (CanUseMastery())
+		/*if (CanUseMastery())
             for (uint32 i = 0; i < MAX_MASTERY_SPELLS; ++i)
                 if (uint32 mastery = talentTabInfo->MasterySpellId[i])
-                    learnSpell(mastery, false);
+                    learnSpell(mastery, false);*/
     }
 
     // update free talent points
@@ -25992,11 +25992,11 @@ void Player::ActivateSpec(uint8 spec)
         for (size_t i = 0; i < specSpells->size(); ++i)
             learnSpell(specSpells->at(i), false);
 
-	if (CanUseMastery())
+/*	if (CanUseMastery())
         if (TalentTabEntry const* talentTabInfo = sTalentTabStore.LookupEntry(GetPrimaryTalentTree(GetActiveSpec())))
             for (uint32 i = 0; i < MAX_MASTERY_SPELLS; ++i)
                 if (uint32 mastery = talentTabInfo->MasterySpellId[i])
-                    learnSpell(mastery, false);
+                    learnSpell(mastery, false);*/
 
     // set glyphs
     for (uint8 slot = 0; slot < MAX_GLYPH_SLOT_INDEX; ++slot)
