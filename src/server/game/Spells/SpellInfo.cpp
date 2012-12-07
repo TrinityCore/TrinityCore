@@ -341,6 +341,7 @@ SpellEffectInfo::SpellEffectInfo(SpellEntry const* /*spellEntry*/, SpellInfo con
     TargetA = SpellImplicitTargetInfo(_effect ? _effect->EffectImplicitTargetA : 0);
     TargetB = SpellImplicitTargetInfo(_effect ? _effect->EffectImplicitTargetB : 0);
     RadiusEntry = _effect && _effect->EffectRadiusIndex ? sSpellRadiusStore.LookupEntry(_effect->EffectRadiusIndex) : NULL;
+	MaxRadiusEntry = _effect && _effect->EffectRadiusMaxIndex ? sSpellRadiusStore.LookupEntry(_effect->EffectRadiusMaxIndex) : NULL;
     ChainTarget = _effect ? _effect->EffectChainTarget : 0;
     ItemType = _effect ? _effect->EffectItemType : 0;
     TriggerSpell = _effect ? _effect->EffectTriggerSpell : 0;
@@ -534,16 +535,22 @@ bool SpellEffectInfo::HasRadius() const
     return RadiusEntry != NULL;
 }
 
+bool SpellEffectInfo::HasMaxRadius() const
+{
+    return MaxRadiusEntry != NULL;
+}
+
+
 float SpellEffectInfo::CalcRadius(Unit* caster, Spell* spell) const
 {
-    if (!HasRadius())
-        return 8.0f;
+     if (!HasRadius())
+    {
+        if (HasMaxRadius())
+            return MaxRadiusEntry->radiusMin;
+         return 0.0f;
+    }
 
-    float radius = RadiusEntry->RadiusMin;
-
-	  if (radius == 0)
-		  radius = 8.0f; //Hack, but all spells with radius 0, should have 8yds
-
+	float radius = RadiusEntry->radiusMin;
     if (caster)
     {
         radius += RadiusEntry->RadiusPerLevel * caster->getLevel();

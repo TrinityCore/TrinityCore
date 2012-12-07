@@ -30,17 +30,13 @@ EndScriptData */
 
 enum eEnums
 {
-    SAY_AGGRO                   = -1565010,
-    SAY_SLAM1                   = -1565011,
-    SAY_SLAM2                   = -1565012,
-    SAY_SHATTER1                = -1565013,
-    SAY_SHATTER2                = -1565014,
-    SAY_SLAY1                   = -1565015,
-    SAY_SLAY2                   = -1565016,
-    SAY_SLAY3                   = -1565017,
-    SAY_DEATH                   = -1565018,
+    SAY_AGGRO                   = 0,
+    SAY_SLAM                    = 1,
+    SAY_SHATTER                 = 2,
+    SAY_SLAY                    = 3,
+    SAY_DEATH                   = 4,
 
-    EMOTE_GROW                  = -1565019,
+    EMOTE_GROW                  = 5,
 
     SPELL_GROWTH                = 36300,
     SPELL_CAVE_IN               = 36240,
@@ -100,7 +96,7 @@ public:
 
         void EnterCombat(Unit* /*who*/)
         {
-            DoScriptText(SAY_AGGRO, me);
+            Talk(SAY_AGGRO);
 
             if (instance)
                 instance->SetData(DATA_GRUULEVENT, IN_PROGRESS);
@@ -108,12 +104,12 @@ public:
 
         void KilledUnit(Unit* /*victim*/)
         {
-            DoScriptText(RAND(SAY_SLAY1, SAY_SLAY2, SAY_SLAY3), me);
+            Talk(SAY_SLAY);
         }
 
         void JustDied(Unit* /*killer*/)
         {
-            DoScriptText(SAY_DEATH, me);
+            Talk(SAY_DEATH);
 
             if (instance)
             {
@@ -172,7 +168,7 @@ public:
             // Gruul can cast this spell up to 30 times
             if (m_uiGrowth_Timer <= uiDiff)
             {
-                DoScriptText(EMOTE_GROW, me);
+                Talk(EMOTE_GROW);
                 DoCast(me, SPELL_GROWTH);
                 m_uiGrowth_Timer = 30000;
             }

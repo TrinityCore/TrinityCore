@@ -16,24 +16,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: Darkshore
-SD%Complete: 0
-SDComment: Quest support:
-SDCategory: Darkshore
-EndScriptData */
-
-/* ContentData
-EndContentData */
-
-#include "ScriptMgr.h"
-#include "ScriptedCreature.h"
-#include "ScriptedGossip.h"
-#include "ScriptedEscortAI.h"
-#include "ScriptedFollowerAI.h"
-#include "Player.h"
-#include "SpellInfo.h"
-
 void AddSC_darkshore()
 {
 }

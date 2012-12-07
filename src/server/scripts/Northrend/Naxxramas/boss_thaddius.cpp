@@ -24,9 +24,9 @@
 //Stalagg
 enum StalaggYells
 {
-    SAY_STAL_AGGRO          = -1533023, //not used
-    SAY_STAL_SLAY           = -1533024, //not used
-    SAY_STAL_DEATH          = -1533025  //not used
+    SAY_STAL_AGGRO          = 0,
+    SAY_STAL_SLAY           = 1,
+    SAY_STAL_DEATH          = 2
 };
 
 enum StalagSpells
@@ -40,9 +40,9 @@ enum StalagSpells
 //Feugen
 enum FeugenYells
 {
-    SAY_FEUG_AGGRO          = -1533026, //not used
-    SAY_FEUG_SLAY           = -1533027, //not used
-    SAY_FEUG_DEATH          = -1533028 //not used
+    SAY_FEUG_AGGRO          = 0,
+    SAY_FEUG_SLAY           = 1,
+    SAY_FEUG_DEATH          = 2
 };
 
 enum FeugenSpells
@@ -67,17 +67,12 @@ enum ThaddiusActions
 //Thaddius
 enum ThaddiusYells
 {
-    SAY_GREET               = -1533029, //not used
-    SAY_AGGRO_1             = -1533030,
-    SAY_AGGRO_2             = -1533031,
-    SAY_AGGRO_3             = -1533032,
-    SAY_SLAY                = -1533033,
-    SAY_ELECT               = -1533034, //not used
-    SAY_DEATH               = -1533035,
-    SAY_SCREAM1             = -1533036, //not used
-    SAY_SCREAM2             = -1533037, //not used
-    SAY_SCREAM3             = -1533038, //not used
-    SAY_SCREAM4             = -1533039 //not used
+    SAY_GREET               = 0,
+    SAY_AGGRO               = 1,
+    SAY_SLAY                = 2,
+    SAY_ELECT               = 3,
+    SAY_DEATH               = 4,
+    SAY_SCREAM              = 5
 };
 
 enum ThaddiusSpells
@@ -155,13 +150,13 @@ public:
         void KilledUnit(Unit* /*victim*/)
         {
             if (!(rand()%5))
-                DoScriptText(SAY_SLAY, me);
+                Talk(SAY_SLAY);
         }
 
         void JustDied(Unit* /*killer*/)
         {
             _JustDied();
-            DoScriptText(SAY_DEATH, me);
+            Talk(SAY_DEATH);
         }
 
         void DoAction(const int32 action)
@@ -198,7 +193,7 @@ public:
         void EnterCombat(Unit* /*who*/)
         {
             _EnterCombat();
-            DoScriptText(RAND(SAY_AGGRO_1, SAY_AGGRO_2, SAY_AGGRO_3), me);
+            Talk(SAY_AGGRO);
             events.ScheduleEvent(EVENT_SHIFT, 30000);
             events.ScheduleEvent(EVENT_CHAIN, urand(10000, 20000));
             events.ScheduleEvent(EVENT_BERSERK, 360000);
@@ -315,13 +310,21 @@ public:
             magneticPullTimer = 20000;
         }
 
+        void KilledUnit(Unit* /*victim*/)
+        {
+            if (!(rand()%5))
+                Talk(SAY_STAL_SLAY);
+        }
+
         void EnterCombat(Unit* /*who*/)
         {
+            Talk(SAY_STAL_AGGRO);
             DoCast(SPELL_STALAGG_TESLA);
         }
 
         void JustDied(Unit* /*killer*/)
         {
+            Talk(SAY_STAL_DEATH);
             if (instance)
                 if (Creature* pThaddius = me->GetCreature(*me, instance->GetData64(DATA_THADDIUS)))
                     if (pThaddius->AI())
@@ -399,13 +402,21 @@ public:
             staticFieldTimer = 5000;
         }
 
+        void KilledUnit(Unit* /*victim*/)
+        {
+            if (!(rand()%5))
+                Talk(SAY_FEUG_SLAY);
+        }
+
         void EnterCombat(Unit* /*who*/)
         {
+            Talk(SAY_FEUG_AGGRO);
             DoCast(SPELL_FEUGEN_TESLA);
         }
 
         void JustDied(Unit* /*killer*/)
         {
+            Talk(SAY_FEUG_DEATH);
             if (instance)
                 if (Creature* pThaddius = me->GetCreature(*me, instance->GetData64(DATA_THADDIUS)))
                     if (pThaddius->AI())

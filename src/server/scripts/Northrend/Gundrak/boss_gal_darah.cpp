@@ -38,16 +38,12 @@ enum Spells
 //Yells
 enum Yells
 {
-    SAY_AGGRO                                     = -1604000,
-    SAY_SLAY_1                                    = -1604001,
-    SAY_SLAY_2                                    = -1604002,
-    SAY_SLAY_3                                    = -1604003,
-    SAY_DEATH                                     = -1604004,
-    SAY_SUMMON_RHINO_1                            = -1604005,
-    SAY_SUMMON_RHINO_2                            = -1604006,
-    SAY_SUMMON_RHINO_3                            = -1604007,
-    SAY_TRANSFORM_1                               = -1604008,  //Phase change
-    SAY_TRANSFORM_2                               = -1604009
+    SAY_AGGRO                                     = 0,
+    SAY_SLAY                                      = 1,
+    SAY_DEATH                                     = 2,
+    SAY_SUMMON_RHINO                              = 3,
+    SAY_TRANSFORM_1                               = 4,
+    SAY_TRANSFORM_2                               = 5
 };
 
 enum Displays
@@ -125,7 +121,7 @@ public:
 
         void EnterCombat(Unit* /*who*/)
         {
-            DoScriptText(SAY_AGGRO, me);
+            Talk(SAY_AGGRO);
 
             if (instance)
                 instance->SetData(DATA_GAL_DARAH_EVENT, IN_PROGRESS);
@@ -146,7 +142,7 @@ public:
                             me->SetDisplayId(DISPLAY_RHINO);
                             Phase = RHINO;
                             uiPhaseCounter = 0;
-                            DoScriptText(SAY_TRANSFORM_1, me);
+                            Talk(SAY_TRANSFORM_1);
                             uiTransformationTimer = 5*IN_MILLISECONDS;
                             bStartOfTransformation = true;
                             me->ClearUnitState(UNIT_STATE_STUNNED|UNIT_STATE_ROOT);
@@ -169,7 +165,7 @@ public:
                         if (uiStampedeTimer <= diff)
                         {
                             DoCast(me, SPELL_STAMPEDE);
-                            DoScriptText(RAND(SAY_SUMMON_RHINO_1, SAY_SUMMON_RHINO_2, SAY_SUMMON_RHINO_3), me);
+                            Talk(SAY_SUMMON_RHINO);
                             uiStampedeTimer = 15*IN_MILLISECONDS;
                         } else uiStampedeTimer -= diff;
 
@@ -189,7 +185,7 @@ public:
                             me->SetDisplayId(DISPLAY_TROLL);
                             Phase = TROLL;
                             uiPhaseCounter = 0;
-                            DoScriptText(SAY_TRANSFORM_2, me);
+                            Talk(SAY_TRANSFORM_2);
                             uiTransformationTimer = 9*IN_MILLISECONDS;
                             bStartOfTransformation = true;
                             me->ClearUnitState(UNIT_STATE_STUNNED|UNIT_STATE_ROOT);
@@ -268,7 +264,7 @@ public:
 
         void JustDied(Unit* /*killer*/)
         {
-            DoScriptText(SAY_DEATH, me);
+            Talk(SAY_DEATH);
 
             if (instance)
                 instance->SetData(DATA_GAL_DARAH_EVENT, DONE);
@@ -279,7 +275,7 @@ public:
             if (victim == me)
                 return;
 
-            DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2, SAY_SLAY_3), me);
+            Talk(SAY_SLAY);
         }
     };
 

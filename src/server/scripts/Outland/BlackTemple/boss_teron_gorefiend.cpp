@@ -27,30 +27,29 @@ EndScriptData */
 #include "ScriptedCreature.h"
 #include "black_temple.h"
 
- //Speech'n'sound
-#define SAY_INTRO                       -1564037
-#define SAY_AGGRO                       -1564038
-#define SAY_SLAY1                       -1564039
-#define SAY_SLAY2                       -1564040
-#define SAY_SPELL1                      -1564041
-#define SAY_SPELL2                      -1564042
-#define SAY_SPECIAL1                    -1564043
-#define SAY_SPECIAL2                    -1564044
-#define SAY_ENRAGE                      -1564045
-#define SAY_DEATH                       -1564046
+enum DoomBlossom
+{
+    //Speech'n'sound
+    SAY_INTRO                       = 0,
+    SAY_AGGRO                       = 1,
+    SAY_SLAY                        = 2,
+    SAY_SPELL                       = 3,
+    SAY_SPECIAL                     = 4,
+    SAY_ENRAGE                      = 5,
+    SAY_DEATH                       = 6,
 
-//Spells
-#define SPELL_INCINERATE                40239
-#define SPELL_CRUSHING_SHADOWS          40243
-#define SPELL_SHADOWBOLT                40185
-#define SPELL_PASSIVE_SHADOWFORM        40326
-#define SPELL_SHADOW_OF_DEATH           40251
-#define SPELL_BERSERK                   45078
+    //Spells
+    SPELL_INCINERATE                = 40239,
+    SPELL_CRUSHING_SHADOWS          = 40243,
+    SPELL_SHADOWBOLT                = 40185,
+    SPELL_PASSIVE_SHADOWFORM        = 40326,
+    SPELL_SHADOW_OF_DEATH           = 40251,
+    SPELL_BERSERK                   = 45078,
+    SPELL_ATROPHY                   = 40327,               // Shadowy Constructs use this when they get within melee range of a player
 
-#define SPELL_ATROPHY                   40327               // Shadowy Constructs use this when they get within melee range of a player
-
-#define CREATURE_DOOM_BLOSSOM           23123
-#define CREATURE_SHADOWY_CONSTRUCT      23111
+    CREATURE_DOOM_BLOSSOM           = 23123,
+    CREATURE_SHADOWY_CONSTRUCT      = 23111
+};
 
 class mob_doom_blossom : public CreatureScript
 {
@@ -278,7 +277,7 @@ public:
 
                     me->GetMotionMaster()->Clear(false);
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                    DoScriptText(SAY_INTRO, me);
+                    Talk(SAY_INTRO);
                     me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_TALK);
                     AggroTargetGUID = who->GetGUID();
                     Intro = true;
@@ -290,7 +289,7 @@ public:
 
         void KilledUnit(Unit* /*victim*/)
         {
-            DoScriptText(RAND(SAY_SLAY1, SAY_SLAY2), me);
+            Talk(SAY_SLAY);
         }
 
         void JustDied(Unit* /*killer*/)
@@ -298,7 +297,7 @@ public:
             if (instance)
                 instance->SetData(DATA_TERONGOREFIENDEVENT, DONE);
 
-            DoScriptText(SAY_DEATH, me);
+            Talk(SAY_DEATH);
         }
 
         float CalculateRandomLocation(float Loc, uint32 radius)
@@ -387,7 +386,7 @@ public:
                 {
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                    DoScriptText(SAY_AGGRO, me);
+                    Talk(SAY_AGGRO);
                     me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_NONE);
                     Done = true;
                     if (AggroTargetGUID)
@@ -461,7 +460,7 @@ public:
 
                 if (target)
                 {
-                    DoScriptText(RAND(SAY_SPECIAL1, SAY_SPECIAL2), me);
+                    Talk(SAY_SPECIAL);
                     DoCast(target, SPELL_INCINERATE);
                     IncinerateTimer = urand(20, 51) * 1000;
                 }
@@ -494,7 +493,7 @@ public:
 
             if (RandomYellTimer <= diff)
             {
-                DoScriptText(RAND(SAY_SPELL1, SAY_SPELL2), me);
+                Talk(SAY_SPELL);
                 RandomYellTimer = urand(50, 101) * 1000;
             } else RandomYellTimer -= diff;
 
@@ -503,7 +502,7 @@ public:
                 if (EnrageTimer <= diff)
             {
                 DoCast(me, SPELL_BERSERK);
-                DoScriptText(SAY_ENRAGE, me);
+                Talk(SAY_ENRAGE);
             } else EnrageTimer -= diff;
             }
 

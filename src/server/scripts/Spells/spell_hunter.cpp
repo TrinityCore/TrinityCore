@@ -1127,6 +1127,36 @@ public:
 };
 
 
+class spell_hun_furious_howl : public SpellScriptLoader
+{
+    public:
+        spell_hun_furious_howl() : SpellScriptLoader("spell_hun_furious_howl") { }
+
+        class spell_hun_furious_howl_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_hun_furious_howl_SpellScript);
+
+            void FilterTargets(std::list<WorldObject*>& targets)
+            {
+                targets.clear();
+                targets.push_back(GetCaster());
+                if (Unit* owner = GetCaster()->GetOwner())
+                    targets.push_back(owner);
+            }
+
+            void Register()
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_hun_furious_howl_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_CASTER_AREA_PARTY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_hun_furious_howl_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_CASTER_AREA_PARTY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_hun_furious_howl_SpellScript();
+        }
+};
+
 void AddSC_hunter_spell_scripts()
 {
     new spell_hun_aspect_of_the_beast();
@@ -1152,4 +1182,5 @@ void AddSC_hunter_spell_scripts()
 	new spell_hun_serpent_sting();
 	new spell_hun_cobra_shot();
 	new spell_hun_tnt();
+    new spell_hun_furious_howl();
 }

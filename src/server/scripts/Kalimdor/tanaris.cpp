@@ -38,6 +38,111 @@ EndContentData */
 #include "WorldSession.h"
 
 /*######
+## mob_aquementas
+######*/
+
+enum Aquementas
+{
+    AGGRO_YELL_AQUE     = 0,
+
+    SPELL_AQUA_JET      = 13586,
+    SPELL_FROST_SHOCK   = 15089
+};
+
+class mob_aquementas : public CreatureScript
+{
+public:
+    mob_aquementas() : CreatureScript("mob_aquementas") { }
+
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new mob_aquementasAI (creature);
+    }
+
+    struct mob_aquementasAI : public ScriptedAI
+    {
+        mob_aquementasAI(Creature* creature) : ScriptedAI(creature) {}
+
+        uint32 SendItemTimer;
+        uint32 SwitchFactionTimer;
+        bool isFriendly;
+
+        uint32 FrostShockTimer;
+        uint32 AquaJetTimer;
+
+        void Reset()
+        {
+            SendItemTimer = 0;
+            SwitchFactionTimer = 10000;
+            me->setFaction(35);
+            isFriendly = true;
+
+            AquaJetTimer = 5000;
+            FrostShockTimer = 1000;
+        }
+
+        void SendItem(Unit* receiver)
+        {
+            if (CAST_PLR(receiver)->HasItemCount(11169, 1, false) &&
+                CAST_PLR(receiver)->HasItemCount(11172, 11, false) &&
+                CAST_PLR(receiver)->HasItemCount(11173, 1, false) &&
+                !CAST_PLR(receiver)->HasItemCount(11522, 1, true))
+            {
+                ItemPosCountVec dest;
+                uint8 msg = CAST_PLR(receiver)->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, 11522, 1, NULL);
+                if (msg == EQUIP_ERR_OK)
+                    CAST_PLR(receiver)->StoreNewItem(dest, 11522, 1, true);
+            }
+        }
+
+        void EnterCombat(Unit* who)
+        {
+            Talk(AGGRO_YELL_AQUE, who->GetGUID());
+        }
+
+        void UpdateAI(const uint32 diff)
+        {
+            if (isFriendly)
+            {
+                if (SwitchFactionTimer <= diff)
+                {
+                    me->setFaction(91);
+                    isFriendly = false;
+                } else SwitchFactionTimer -= diff;
+            }
+
+            if (!UpdateVictim())
+                return;
+
+            if (!isFriendly)
+            {
+                if (SendItemTimer <= diff)
+                {
+                    if (me->getVictim()->GetTypeId() == TYPEID_PLAYER)
+                        SendItem(me->getVictim());
+                    SendItemTimer = 5000;
+                } else SendItemTimer -= diff;
+            }
+
+            if (FrostShockTimer <= diff)
+            {
+                DoCast(me->getVictim(), SPELL_FROST_SHOCK);
+                FrostShockTimer = 15000;
+            } else FrostShockTimer -= diff;
+
+            if (AquaJetTimer <= diff)
+            {
+                DoCast(me, SPELL_AQUA_JET);
+                AquaJetTimer = 15000;
+            } else AquaJetTimer -= diff;
+
+            DoMeleeAttackIfReady();
+        }
+    };
+
+};
+
+/*######
 ## npc_custodian_of_time
 ######*/
 
@@ -221,13 +326,11 @@ public:
 
 enum Npc00X17
 {
-    //texts are signed for 7806
-    SAY_OOX_START           = -1000287,
-    SAY_OOX_AGGRO1          = -1000288,
-    SAY_OOX_AGGRO2          = -1000289,
-    SAY_OOX_AMBUSH          = -1000290,
-    SAY_OOX17_AMBUSH_REPLY  = -1000291,
-    SAY_OOX_END             = -1000292,
+    SAY_OOX_START           = 0,
+    SAY_OOX_AGGRO           = 1,
+    SAY_OOX_AMBUSH          = 2,
+    SAY_OOX17_AMBUSH_REPLY  = 0,
+    SAY_OOX_END             = 3,
 
     Q_OOX17                 = 648,
     SPAWN_FIRST             = 7803,
@@ -248,7 +351,7 @@ public:
             creature->SetFullHealth();
             creature->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
             creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
-            DoScriptText(SAY_OOX_START, creature);
+            creature->AI()->Talk(SAY_OOX_START);
 
             if (npc_escortAI* pEscortAI = CAST_AI(npc_OOX17::npc_OOX17AI, creature->AI()))
                 pEscortAI->Start(true, false, player->GetGUID());
@@ -275,18 +378,18 @@ public:
                         me->SummonCreature(SPAWN_FIRST, -8350.96f, -4445.79f, 10.10f, 6.20f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
                         me->SummonCreature(SPAWN_FIRST, -8355.96f, -4447.79f, 10.10f, 6.27f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
                         me->SummonCreature(SPAWN_FIRST, -8353.96f, -4442.79f, 10.10f, 6.08f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
-                        DoScriptText(SAY_OOX_AMBUSH, me);
+                        Talk(SAY_OOX_AMBUSH);
                         break;
                     case 56:
                         me->SummonCreature(SPAWN_SECOND_1, -7510.07f, -4795.50f, 9.35f, 6.06f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
                         me->SummonCreature(SPAWN_SECOND_2, -7515.07f, -4797.50f, 9.35f, 6.22f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
                         me->SummonCreature(SPAWN_SECOND_2, -7518.07f, -4792.50f, 9.35f, 6.22f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
-                        DoScriptText(SAY_OOX_AMBUSH, me);
-                        if (Unit* scoff = me->FindNearestCreature(SPAWN_SECOND_2, 30))
-                            DoScriptText(SAY_OOX17_AMBUSH_REPLY, scoff);
+                        Talk(SAY_OOX_AMBUSH);
+                        if (Creature* scoff = me->FindNearestCreature(SPAWN_SECOND_2, 30))
+                            scoff->AI()->Talk(SAY_OOX17_AMBUSH_REPLY);
                         break;
                     case 86:
-                        DoScriptText(SAY_OOX_END, me);
+                        Talk(SAY_OOX_END);
                         player->GroupEventHappens(Q_OOX17, me);
                         break;
                 }
@@ -297,7 +400,7 @@ public:
 
         void EnterCombat(Unit* /*who*/)
         {
-            DoScriptText(RAND(SAY_OOX_AGGRO1, SAY_OOX_AGGRO2), me);
+            Talk(SAY_OOX_AGGRO);
         }
 
         void JustSummoned(Creature* summoned)
@@ -305,6 +408,168 @@ public:
             summoned->AI()->AttackStart(me);
         }
     };
+};
+
+/*####
+# npc_tooga
+####*/
+
+enum Tooga
+{
+    SAY_TOOG_WORRIED            = 0,
+    SAY_TOOG_POST_1             = 1,
+    SAY_TORT_POST_2             = 0,
+    SAY_TOOG_POST_3             = 2,
+    SAY_TORT_POST_4             = 1,
+    SAY_TOOG_POST_5             = 3,
+    SAY_TORT_POST_6             = 2,
+
+    QUEST_TOOGA                 = 1560,
+    NPC_TORTA                   = 6015,
+
+    POINT_ID_TO_WATER           = 1,
+    FACTION_TOOG_ESCORTEE       = 113
+};
+
+Position const ToWaterLoc = {-7032.664551f, -4906.199219f, -1.606446f, 0.0f};
+
+class npc_tooga : public CreatureScript
+{
+public:
+    npc_tooga() : CreatureScript("npc_tooga") { }
+
+    bool OnQuestAccept(Player* player, Creature* creature, const Quest* quest)
+    {
+        if (quest->GetQuestId() == QUEST_TOOGA)
+        {
+            if (npc_toogaAI* pToogaAI = CAST_AI(npc_tooga::npc_toogaAI, creature->AI()))
+                pToogaAI->StartFollow(player, FACTION_TOOG_ESCORTEE, quest);
+        }
+
+        return true;
+    }
+
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new npc_toogaAI(creature);
+    }
+
+    struct npc_toogaAI : public FollowerAI
+    {
+        npc_toogaAI(Creature* creature) : FollowerAI(creature) { }
+
+        uint32 CheckSpeechTimer;
+        uint32 PostEventTimer;
+        uint32 PhasePostEvent;
+
+        uint64 TortaGUID;
+
+        void Reset()
+        {
+            CheckSpeechTimer = 2500;
+            PostEventTimer = 1000;
+            PhasePostEvent = 0;
+
+            TortaGUID = 0;
+        }
+
+        void MoveInLineOfSight(Unit* who)
+        {
+            FollowerAI::MoveInLineOfSight(who);
+
+            if (!me->getVictim() && !HasFollowState(STATE_FOLLOW_COMPLETE | STATE_FOLLOW_POSTEVENT) && who->GetEntry() == NPC_TORTA)
+            {
+                if (me->IsWithinDistInMap(who, INTERACTION_DISTANCE))
+                {
+                    Player* player = GetLeaderForFollower();
+                    if (player && player->GetQuestStatus(QUEST_TOOGA) == QUEST_STATUS_INCOMPLETE)
+                        player->GroupEventHappens(QUEST_TOOGA, me);
+
+                    TortaGUID = who->GetGUID();
+                    SetFollowComplete(true);
+                }
+            }
+        }
+
+        void MovementInform(uint32 MotionType, uint32 PointId)
+        {
+            FollowerAI::MovementInform(MotionType, PointId);
+
+            if (MotionType != POINT_MOTION_TYPE)
+                return;
+
+            if (PointId == POINT_ID_TO_WATER)
+                SetFollowComplete();
+        }
+
+        void UpdateFollowerAI(const uint32 Diff)
+        {
+            if (!UpdateVictim())
+            {
+                //we are doing the post-event, or...
+                if (HasFollowState(STATE_FOLLOW_POSTEVENT))
+                {
+                    if (PostEventTimer <= Diff)
+                    {
+                        PostEventTimer = 5000;
+
+                        Creature* torta = Creature::GetCreature(*me, TortaGUID);
+                        if (!torta || !torta->isAlive())
+                        {
+                            //something happened, so just complete
+                            SetFollowComplete();
+                            return;
+                        }
+
+                        switch (PhasePostEvent)
+                        {
+                            case 1:
+                                Talk(SAY_TOOG_POST_1);
+                                break;
+                            case 2:
+                                torta->AI()->Talk(SAY_TORT_POST_2);
+                                break;
+                            case 3:
+                                Talk(SAY_TOOG_POST_3);
+                                break;
+                            case 4:
+                                torta->AI()->Talk(SAY_TORT_POST_4);
+                                break;
+                            case 5:
+                                Talk(SAY_TOOG_POST_5);
+                                break;
+                            case 6:
+                                torta->AI()->Talk(SAY_TORT_POST_6);
+                                me->GetMotionMaster()->MovePoint(POINT_ID_TO_WATER, ToWaterLoc);
+                                break;
+                        }
+
+                        ++PhasePostEvent;
+                    }
+                    else
+                        PostEventTimer -= Diff;
+                }
+                //...we are doing regular speech check
+                else if (HasFollowState(STATE_FOLLOW_INPROGRESS))
+                {
+                    if (CheckSpeechTimer <= Diff)
+                    {
+                        CheckSpeechTimer = 5000;
+
+                        if (urand(0, 9) > 8)
+                            Talk(SAY_TOOG_WORRIED);
+                    }
+                    else
+                        CheckSpeechTimer -= Diff;
+                }
+
+                return;
+            }
+
+            DoMeleeAttackIfReady();
+        }
+    };
+
 };
 
 void AddSC_tanaris()
