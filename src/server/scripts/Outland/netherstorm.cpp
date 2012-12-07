@@ -45,12 +45,12 @@ EndContentData */
 //used by 20209, 20417, 20418, 20440, signed for 20209
 enum eManaforgeConsoleData
 {
-    EMOTE_START                 = -1000211,
-    EMOTE_60                    = -1000212,
-    EMOTE_30                    = -1000213,
-    EMOTE_10                    = -1000214,
-    EMOTE_COMPLETE              = -1000215,
-    EMOTE_ABORT                 = -1000216,
+    EMOTE_START                 = 0,
+    EMOTE_60                    = 1,
+    EMOTE_30                    = 2,
+    EMOTE_10                    = 3,
+    EMOTE_COMPLETE              = 4,
+    EMOTE_ABORT                 = 5,
 
     ENTRY_BNAAR_C_CONSOLE       = 20209,
     ENTRY_CORUU_C_CONSOLE       = 20417,
@@ -114,7 +114,7 @@ public:
 
         void JustDied(Unit* /*killer*/)
         {
-            DoScriptText(EMOTE_ABORT, me);
+            Talk(EMOTE_ABORT);
 
             if (someplayer)
             {
@@ -247,31 +247,32 @@ public:
                         if (someplayer)
                         {
                             Unit* u = Unit::GetUnit(*me, someplayer);
-                            if (u && u->GetTypeId() == TYPEID_PLAYER) DoScriptText(EMOTE_START, me, u);
+                            if (u && u->GetTypeId() == TYPEID_PLAYER) 
+                                Talk(EMOTE_START, u->GetGUID());
                         }
                         Event_Timer = 60000;
                         Wave = true;
                         ++Phase;
                         break;
                     case 2:
-                        DoScriptText(EMOTE_60, me);
+                        Talk(EMOTE_60);
                         Event_Timer = 30000;
                         ++Phase;
                         break;
                     case 3:
-                        DoScriptText(EMOTE_30, me);
+                        Talk(EMOTE_30);
                         Event_Timer = 20000;
                         DoFinalSpawnForCreature(me);
                         ++Phase;
                         break;
                     case 4:
-                        DoScriptText(EMOTE_10, me);
+                        Talk(EMOTE_10);
                         Event_Timer = 10000;
                         Wave = false;
                         ++Phase;
                         break;
                     case 5:
-                        DoScriptText(EMOTE_COMPLETE, me);
+                        Talk(EMOTE_COMPLETE);
                         if (someplayer)
                         {
                             Unit* u = Unit::GetUnit(*me, someplayer);
@@ -361,18 +362,20 @@ public:
 // The Speech of Dawnforge, Ardonis & Pathaleon
 enum eCommanderDawnforgeData
 {
-    SAY_COMMANDER_DAWNFORGE_1       = -1000128,
-    SAY_ARCANIST_ARDONIS_1          = -1000129,
-    SAY_COMMANDER_DAWNFORGE_2       = -1000130,
-    SAY_PATHALEON_CULATOR_IMAGE_1   = -1000131,
-    SAY_COMMANDER_DAWNFORGE_3       = -1000132,
-    SAY_PATHALEON_CULATOR_IMAGE_2   = -1000133,
-    SAY_PATHALEON_CULATOR_IMAGE_2_1 = -1000134,
-    SAY_PATHALEON_CULATOR_IMAGE_2_2 = -1000135,
-    SAY_COMMANDER_DAWNFORGE_4       = -1000136,
-    SAY_ARCANIST_ARDONIS_2          = -1000136,
-    SAY_COMMANDER_DAWNFORGE_5       = -1000137,
+    SAY_COMMANDER_DAWNFORGE_1       = 0,
+    SAY_COMMANDER_DAWNFORGE_2       = 1,
+    SAY_COMMANDER_DAWNFORGE_3       = 2,
+    SAY_COMMANDER_DAWNFORGE_4       = 3,
+    SAY_COMMANDER_DAWNFORGE_5       = 4,
 
+    SAY_ARCANIST_ARDONIS_1          = 0,
+    SAY_ARCANIST_ARDONIS_2          = 1,
+
+    SAY_PATHALEON_CULATOR_IMAGE_1   = 0,
+    SAY_PATHALEON_CULATOR_IMAGE_2   = 1,
+    SAY_PATHALEON_CULATOR_IMAGE_2_1 = 2,
+    SAY_PATHALEON_CULATOR_IMAGE_2_2 = 3,
+    
     QUEST_INFO_GATHERING            = 10198,
     SPELL_SUNFURY_DISGUISE          = 34603,
 };
@@ -516,8 +519,8 @@ public:
                 return;
             }
 
-            Unit* ardonis = Unit::GetUnit(*me, ardonisGUID);
-            Unit* pathaleon = Unit::GetUnit(*me, pathaleonGUID);
+            Creature* ardonis = Creature::GetCreature(*me, ardonisGUID);
+            Creature* pathaleon = Creature::GetCreature(*me, pathaleonGUID);
             Player* player = Unit::GetPlayer(*me, PlayerGUID);
 
             if (!ardonis || !player)
@@ -536,19 +539,19 @@ public:
             switch (Phase)
             {
             case 1:
-                DoScriptText(SAY_COMMANDER_DAWNFORGE_1, me);
+                Talk(SAY_COMMANDER_DAWNFORGE_1);
                 ++Phase;
                 Phase_Timer = 16000;
                 break;
                 //Phase 2 Ardonis say
             case 2:
-                DoScriptText(SAY_ARCANIST_ARDONIS_1, ardonis);
+                ardonis->AI()->Talk(SAY_ARCANIST_ARDONIS_1);
                 ++Phase;
                 Phase_Timer = 16000;
                 break;
                 //Phase 3 Dawnforge say
             case 3:
-                DoScriptText(SAY_COMMANDER_DAWNFORGE_2, me);
+                Talk(SAY_COMMANDER_DAWNFORGE_2);
                 ++Phase;
                 Phase_Timer = 16000;
                 break;
@@ -561,7 +564,7 @@ public:
                 break;
                 //Phase 5 Pathaleon say
             case 5:
-                DoScriptText(SAY_PATHALEON_CULATOR_IMAGE_1, pathaleon);
+                pathaleon->AI()->Talk(SAY_PATHALEON_CULATOR_IMAGE_1);
                 ++Phase;
                 Phase_Timer = 6000;
                 break;
@@ -577,7 +580,7 @@ public:
                     break;
                     //Subphase 2 Dawnforge say
                 case 1:
-                    DoScriptText(SAY_COMMANDER_DAWNFORGE_3, me);
+                    Talk(SAY_COMMANDER_DAWNFORGE_3);
                     PhaseSubphase = 0;
                     ++Phase;
                     Phase_Timer = 8000;
@@ -590,19 +593,19 @@ public:
                 {
                     //Subphase 1
                 case 0:
-                    DoScriptText(SAY_PATHALEON_CULATOR_IMAGE_2, pathaleon);
+                    pathaleon->AI()->Talk(SAY_PATHALEON_CULATOR_IMAGE_2);
                     ++PhaseSubphase;
                     Phase_Timer = 12000;
                     break;
                     //Subphase 2
                 case 1:
-                    DoScriptText(SAY_PATHALEON_CULATOR_IMAGE_2_1, pathaleon);
+                    pathaleon->AI()->Talk(SAY_PATHALEON_CULATOR_IMAGE_2_1);
                     ++PhaseSubphase;
                     Phase_Timer = 16000;
                     break;
                     //Subphase 3
                 case 2:
-                    DoScriptText(SAY_PATHALEON_CULATOR_IMAGE_2_2, pathaleon);
+                    pathaleon->AI()->Talk(SAY_PATHALEON_CULATOR_IMAGE_2_2);
                     PhaseSubphase = 0;
                     ++Phase;
                     Phase_Timer = 10000;
@@ -611,8 +614,8 @@ public:
                 break;
                 //Phase 8 Dawnforge & Ardonis say
             case 8:
-                DoScriptText(SAY_COMMANDER_DAWNFORGE_4, me);
-                DoScriptText(SAY_ARCANIST_ARDONIS_2, ardonis);
+                Talk(SAY_COMMANDER_DAWNFORGE_4);
+                ardonis->AI()->Talk(SAY_ARCANIST_ARDONIS_2);
                 ++Phase;
                 Phase_Timer = 4000;
                 break;
@@ -627,7 +630,7 @@ public:
                 break;
                 //Phase 10 Dawnforge say
             case 10:
-                DoScriptText(SAY_COMMANDER_DAWNFORGE_5, me);
+                Talk(SAY_COMMANDER_DAWNFORGE_5);
                 player->AreaExploredOrEventHappens(QUEST_INFO_GATHERING);
                 Reset();
                 break;
@@ -667,7 +670,7 @@ enum eProfessorDabiriData
 {
     SPELL_PHASE_DISTRUPTOR  = 35780,
 
-    WHISPER_DABIRI          = -1000522,
+  //WHISPER_DABIRI          = 0, not existing in database
 
     QUEST_DIMENSIUS         = 10439,
     QUEST_ON_NETHERY_WINGS  = 10438,
@@ -680,13 +683,9 @@ class npc_professor_dabiri : public CreatureScript
 public:
     npc_professor_dabiri() : CreatureScript("npc_professor_dabiri") { }
 
-    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest)
-    {
-        if (quest->GetQuestId() == QUEST_DIMENSIUS)
-            DoScriptText(WHISPER_DABIRI, creature, player);
-
-        return true;
-    }
+    //OnQuestAccept: 
+    //if (quest->GetQuestId() == QUEST_DIMENSIUS)
+        //creature->AI()->Talk(WHISPER_DABIRI, player->GetGUID());
 
     bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
     {
@@ -725,7 +724,7 @@ enum ePhaseHunterData
     NPC_PHASE_HUNTER_ENTRY          = 18879,
     NPC_DRAINED_PHASE_HUNTER_ENTRY  = 19595,
 
-    EMOTE_WEAK                      = -1000303,
+    EMOTE_WEAK                      = 0,
 
     // Spells
     SPELL_RECHARGING_BATTERY        = 34219,
@@ -827,7 +826,7 @@ public:
                 if (!Weak && HealthBelowPct(WeakPercent)
                     && player->GetQuestStatus(QUEST_RECHARGING_THE_BATTERIES) == QUEST_STATUS_INCOMPLETE)
                 {
-                    DoScriptText(EMOTE_WEAK, me);
+                    Talk(EMOTE_WEAK);
                     Weak = true;
                 }
                 if (Weak && !Drained && me->HasAura(SPELL_RECHARGING_BATTERY))
@@ -857,8 +856,8 @@ enum eBessyData
     N_THADELL       = 20464,
     SPAWN_FIRST     = 20512,
     SPAWN_SECOND    = 19881,
-    SAY_THADELL_1   = -1000524,
-    SAY_THADELL_2   = -1000525,
+    SAY_THADELL_1   = 0,
+    SAY_THADELL_2   = 1,
 };
 
 class npc_bessy : public CreatureScript
@@ -912,11 +911,11 @@ public:
                 case 12:
                     player->GroupEventHappens(Q_ALMABTRIEB, me);
                     if (me->FindNearestCreature(N_THADELL, 30))
-                        DoScriptText(SAY_THADELL_1, me);
+                        Talk(SAY_THADELL_1);
                     break;
                 case 13:
                     if (me->FindNearestCreature(N_THADELL, 30))
-                        DoScriptText(SAY_THADELL_2, me, player);
+                        Talk(SAY_THADELL_2, player->GetGUID());
                     break;
             }
         }
