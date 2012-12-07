@@ -171,13 +171,11 @@ class spell_sha_earthbind_totem : public SpellScriptLoader
                 {
                     if (roll_chance_i(50))
                         GetCaster()->CastSpell(GetCaster(), EARTHBIND_TOTEM_SPELL_EARTHGRAB, true);
-					      return true;
                 }
 			    else if (GetCaster()->HasAura(51485))
                 {
                     if (roll_chance_i(100))
                         GetCaster()->CastSpell(GetCaster(), EARTHBIND_TOTEM_SPELL_EARTHGRAB, true);
-					     return true;
                 }
             }
 
@@ -815,36 +813,29 @@ public:
             return true;
         }
 
-		void OnQuake ()
-        {
-            //10% Chance to Knockdown.. 
-            int32 chance = 10;
-            Unit* target = GetHitUnit();
-
-            if (roll_chance_i(chance))
-                GetCaster()->CastSpell(target, SHAMAN_SPELL_EARTHQUAKE_KNOCKDOWN, true);
-        }
-
         void HandlePeriodicDummy(AuraEffect const* aurEff)
         {
             uint64 earthquakeNpcGUID = GetCaster()->m_SummonSlot[1];
+            int32 chance = 10;
 
             if (!earthquakeNpcGUID)
                return;
 
             Unit* earthquakeNpc = ObjectAccessor::GetCreature(*GetCaster(),earthquakeNpcGUID);
 
-            if (!consecrationNpc)
+            if (!earthquakeNpc)
                 return;
 
             earthquakeNpc->GetPosition(x,y,z);
             earthquakeNpc->CastSpell(x,y,z,SPELL_SHAMAN_EARTHQUAKE_DAMAGE,true,NULL,NULL,GetCaster()->GetGUID());  
+            if (roll_chance_i(chance))
+                earthquakeNpc->CastSpell(x,y,z,SHAMAN_SPELL_EARTHQUAKE_KNOCKDOWN,true,NULL,NULL,GetCaster()->GetGUID());
         }
+
 
         void Register()
         {
 			OnEffectPeriodic += AuraEffectPeriodicFn(spell_sha_earthquake_AuraScript::HandlePeriodicDummy,EFFECT_1,SPELL_AURA_PERIODIC_DUMMY);
-			OnHit += SpellHitFn(spell_sha_earthquake_SpellScript::OnQuake);
         }
     };
 
