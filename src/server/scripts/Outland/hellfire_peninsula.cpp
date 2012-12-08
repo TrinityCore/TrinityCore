@@ -46,8 +46,8 @@ EndContentData */
 
 enum eAeranas
 {
-    SAY_SUMMON              = -1000138,
-    SAY_FREE                = -1000139,
+    SAY_SUMMON              = 0,
+    SAY_FREE                = 1,
 
     FACTION_HOSTILE         = 16,
     FACTION_FRIENDLY        = 35,
@@ -85,7 +85,7 @@ public:
             me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
             me->setFaction(FACTION_FRIENDLY);
 
-            DoScriptText(SAY_SUMMON, me);
+            Talk(SAY_SUMMON);
         }
 
         void UpdateAI(const uint32 diff)
@@ -109,7 +109,7 @@ public:
                 me->RemoveAllAuras();
                 me->DeleteThreatList();
                 me->CombatStop(true);
-                DoScriptText(SAY_FREE, me);
+                Talk(SAY_FREE);
                 return;
             }
 
@@ -136,9 +136,9 @@ public:
 
 enum eAncestralWolf
 {
-    EMOTE_WOLF_LIFT_HEAD            = -1000496,
-    EMOTE_WOLF_HOWL                 = -1000497,
-    SAY_WOLF_WELCOME                = -1000498,
+    EMOTE_WOLF_LIFT_HEAD            = 0,
+    EMOTE_WOLF_HOWL                 = 1,
+    SAY_WOLF_WELCOME                = 2,
 
     SPELL_ANCESTRAL_WOLF_BUFF       = 29981,
 
@@ -168,7 +168,7 @@ public:
             Reset();
         }
 
-        Unit* pRyga;
+        Creature* pRyga;
 
         void Reset()
         {
@@ -178,8 +178,9 @@ public:
 
         void MoveInLineOfSight(Unit* who)
         {
-            if (!pRyga && who->GetTypeId() == TYPEID_UNIT && who->GetEntry() == NPC_RYGA && me->IsWithinDistInMap(who, 15.0f))
-                pRyga = who;
+            if (!pRyga && who->GetEntry() == NPC_RYGA && me->IsWithinDistInMap(who, 15.0f))
+                if (Creature* temp = who->ToCreature())
+                    pRyga = temp;
 
             npc_escortAI::MoveInLineOfSight(who);
         }
@@ -189,14 +190,14 @@ public:
             switch (waypointId)
             {
                 case 0:
-                    DoScriptText(EMOTE_WOLF_LIFT_HEAD, me);
+                    Talk(EMOTE_WOLF_LIFT_HEAD);
                     break;
                 case 2:
-                    DoScriptText(EMOTE_WOLF_HOWL, me);
+                    Talk(EMOTE_WOLF_HOWL);
                     break;
                 case 50:
                     if (pRyga && pRyga->isAlive() && !pRyga->isInCombat())
-                        DoScriptText(SAY_WOLF_WELCOME, pRyga);
+                        pRyga->AI()->Talk(SAY_WOLF_WELCOME);
                     break;
             }
         }
@@ -368,12 +369,12 @@ public:
 
 enum eWoundedBloodElf
 {
-    SAY_ELF_START               = -1000117,
-    SAY_ELF_SUMMON1             = -1000118,
-    SAY_ELF_RESTING             = -1000119,
-    SAY_ELF_SUMMON2             = -1000120,
-    SAY_ELF_COMPLETE            = -1000121,
-    SAY_ELF_AGGRO               = -1000122,
+    SAY_ELF_START               = 0,
+    SAY_ELF_SUMMON1             = 1,
+    SAY_ELF_RESTING             = 2,
+    SAY_ELF_SUMMON2             = 3,
+    SAY_ELF_COMPLETE            = 4,
+    SAY_ELF_AGGRO               = 5,
 
     QUEST_ROAD_TO_FALCON_WATCH  = 9375
 };
@@ -415,25 +416,25 @@ public:
             switch (waypointId)
             {
                 case 0:
-                    DoScriptText(SAY_ELF_START, me, player);
+                    Talk(SAY_ELF_START, player->GetGUID());
                     break;
                 case 9:
-                    DoScriptText(SAY_ELF_SUMMON1, me, player);
+                    Talk(SAY_ELF_SUMMON1, player->GetGUID());
                     // Spawn two Haal'eshi Talonguard
                     DoSpawnCreature(16967, -15, -15, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
                     DoSpawnCreature(16967, -17, -17, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
                     break;
                 case 13:
-                    DoScriptText(SAY_ELF_RESTING, me, player);
+                    Talk(SAY_ELF_RESTING, player->GetGUID());
                     break;
                 case 14:
-                    DoScriptText(SAY_ELF_SUMMON2, me, player);
+                    Talk(SAY_ELF_SUMMON2, player->GetGUID());
                     // Spawn two Haal'eshi Windwalker
                     DoSpawnCreature(16966, -15, -15, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
                     DoSpawnCreature(16966, -17, -17, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
                     break;
                 case 27:
-                    DoScriptText(SAY_ELF_COMPLETE, me, player);
+                    Talk(SAY_ELF_COMPLETE, player->GetGUID());
                     // Award quest credit
                     player->GroupEventHappens(QUEST_ROAD_TO_FALCON_WATCH, me);
                     break;
@@ -445,7 +446,7 @@ public:
         void EnterCombat(Unit* /*who*/)
         {
             if (HasEscortState(STATE_ESCORT_ESCORTING))
-                DoScriptText(SAY_ELF_AGGRO, me);
+                Talk(SAY_ELF_AGGRO);
         }
 
         void JustSummoned(Creature* summoned)
