@@ -3001,6 +3001,9 @@ void SpellMgr::LoadDbcDataCorrections()
 
         switch (spellInfo->Id)
         {
+            case 53096: // Quetz'lun's Judgment
+                spellInfo->MaxAffectedTargets = 1;
+                break;
             case 42730:
                 spellInfo->EffectTriggerSpell[EFFECT_1] = 42739;
                 break;
