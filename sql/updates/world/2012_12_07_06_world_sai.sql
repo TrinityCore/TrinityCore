@@ -3,8 +3,8 @@
 DELETE FROM `quest_end_scripts` WHERE `id` IN (996,998,1514,2523,2878,3363,4113,4114,4115,4116,4117,4118,4119,4221,4222,4343,4401,4403,4443,4444,4445,4446,4447,4448,4461,4462,4464,4465,4466,4467);
 DELETE FROM `smart_scripts` WHERE `entryorguid` IN (164887,173327,174599,164886,171939,171942,174594,174595,174600,174596,164888,174597,164885,174601,174602,174603,174598,174604,173284,174605,174606,174607,174684,173324,174686,174608,174712,174713,174708,174709) AND `source_type`=1;
 INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
-(164887,1,0,1,20,0,100,0,996	,0,0,0,70,5000,0,0,0,0,0,14,48878,0,0,0,0,0,0, 'On Quest "Corrupted Windblossom" Complete - After 5 seconds - Summon Cleansed Windblossom'),
-(173327,1,0,1,20,0,100,0,998	,0,0,0,70,5000,0,0,0,0,0,14,48879,0,0,0,0,0,0, 'On Quest "Corrupted Windblossom" Complete - After 5 seconds - Summon Cleansed Windblossom'),
+(164887,1,0,1,20,0,100,0,996 ,0,0,0,70,5000,0,0,0,0,0,14,48878,0,0,0,0,0,0, 'On Quest "Corrupted Windblossom" Complete - After 5 seconds - Summon Cleansed Windblossom'),
+(173327,1,0,1,20,0,100,0,998 ,0,0,0,70,5000,0,0,0,0,0,14,48879,0,0,0,0,0,0, 'On Quest "Corrupted Windblossom" Complete - After 5 seconds - Summon Cleansed Windblossom'),
 (174599,1,0,1,20,0,100,0,1514,0,0,0,70,5000,0,0,0,0,0,14,48880,0,0,0,0,0,0, 'On Quest "Corrupted Windblossom" Complete - After 5 seconds - Summon Cleansed Windblossom'),
 (164886,1,0,1,20,0,100,0,2523,0,0,0,70,5000,0,0,0,0,0,14,48876,0,0,0,0,0,0, 'On Quest "Corrupted Songflower" Complete - After 5 seconds - Summon Cleansed Songflower'),
 (171939,1,0,1,20,0,100,0,2878,0,0,0,70,5000,0,0,0,0,0,14,48877,0,0,0,0,0,0, 'On Quest "Corrupted Songflower" Complete - After 5 seconds - Summon Cleansed Songflower'),
