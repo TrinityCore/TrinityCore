@@ -2312,7 +2312,7 @@ class Player : public Unit, public GridObject<Player>
         float  m_recallO;
         void   SaveRecallPosition();
 
-        void SetHomebind(WorldLocation const& loc, uint32 area_id);
+        void SetHomebind(WorldLocation const& loc, uint32 areaId);
 
         // Homebind coordinates
         uint32 m_homebindMapId;
