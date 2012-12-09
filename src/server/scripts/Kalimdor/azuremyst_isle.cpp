@@ -412,14 +412,14 @@ enum Geezle
     SPELL_TREE_DISGUISE = 30298,
 
     GEEZLE_SAY_1    = 0,
-    SPARK_SAY_2     = 0,
-    SPARK_SAY_3     = 1,
+    SPARK_SAY_2     = 3,
+    SPARK_SAY_3     = 4,
     GEEZLE_SAY_4    = 1,
-    SPARK_SAY_5     = 2,
-    SPARK_SAY_6     = 3,
+    SPARK_SAY_5     = 5,
+    SPARK_SAY_6     = 6,
     GEEZLE_SAY_7    = 2,
 
-    EMOTE_SPARK     = 4,
+    EMOTE_SPARK     = 7,
 
     MOB_SPARK       = 17243,
     GO_NAGA_FLAG    = 181694
