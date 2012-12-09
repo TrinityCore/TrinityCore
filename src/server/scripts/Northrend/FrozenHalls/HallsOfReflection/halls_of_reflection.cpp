@@ -70,7 +70,7 @@ enum Yells
     SAY_FALRIC_INTRO_1                  = 5,
     SAY_FALRIC_INTRO_2                  = 6,
 
-    SAY_MARWYN_INTRO_1                  = 0
+    SAY_MARWYN_INTRO_1                  = 4
 };
 
 enum Events
