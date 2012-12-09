@@ -6264,51 +6264,38 @@ void Spell::EffectBind(SpellEffIndex effIndex)
 
     Player* player = unitTarget->ToPlayer();
 
-    uint32 area_id;
-    WorldLocation loc;
-    if (m_spellInfo->Effects[effIndex].TargetA.GetTarget() == TARGET_DEST_DB || m_spellInfo->Effects[effIndex].TargetB.GetTarget() == TARGET_DEST_DB)
-    {
-        SpellTargetPosition const* st = sSpellMgr->GetSpellTargetPosition(m_spellInfo->Id);
-        if (!st)
-        {
-            sLog->outError(LOG_FILTER_SPELLS_AURAS, "Spell::EffectBind - unknown teleport coordinates for spell ID %u", m_spellInfo->Id);
-            return;
-        }
+    WorldLocation homeLoc;
+    uint32 areaId = player->GetAreaId();
 
-        loc.m_mapId       = st->target_mapId;
-        loc.m_positionX   = st->target_X;
-        loc.m_positionY   = st->target_Y;
-        loc.m_positionZ   = st->target_Z;
-        loc.m_orientation = st->target_Orientation;
-        area_id = player->GetAreaId();
-    }
+    if (m_spellInfo->Effects[effIndex].MiscValue)
+        areaId = m_spellInfo->Effects[effIndex].MiscValue;
+
+    if (m_targets.HasDst())
+        homeLoc.WorldRelocate(*destTarget);
     else
     {
-        player->GetPosition(&loc);
-        area_id = player->GetAreaId();
+        player->GetPosition(&homeLoc);
+        homeLoc.m_mapId = player->GetMapId();
     }
 
-    player->SetHomebind(loc, area_id);
+    player->SetHomebind(homeLoc, areaId);
 
     // binding
     WorldPacket data(SMSG_BINDPOINTUPDATE, (4+4+4+4+4));
-    data << float(loc.m_positionX);
-    data << float(loc.m_positionY);
-    data << float(loc.m_positionZ);
-    data << uint32(loc.m_mapId);
-    data << uint32(area_id);
+    data << float(homeLoc.GetPositionX());
+    data << float(homeLoc.GetPositionY());
+    data << float(homeLoc.GetPositionZ());
+    data << uint32(homeLoc.GetMapId());
+    data << uint32(areaId);
     player->SendDirectMessage(&data);
 
-    sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "New homebind X      : %f", loc.m_positionX);
-    sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "New homebind Y      : %f", loc.m_positionY);
-    sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "New homebind Z      : %f", loc.m_positionZ);
-    sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "New homebind MapId  : %u", loc.m_mapId);
-    sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "New homebind AreaId : %u", area_id);
+    sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "EffectBind: New homebind X: %f, Y: %f, Z: %f, MapId: %u, AreaId: %u",
+        homeLoc.GetPositionX(), homeLoc.GetPositionY(), homeLoc.GetPositionZ(), homeLoc.GetMapId(), areaId);
 
     // zone update
     data.Initialize(SMSG_PLAYERBOUND, 8+4);
     data << uint64(player->GetGUID());
-    data << uint32(area_id);
+    data << uint32(areaId);
     player->SendDirectMessage(&data);
 }
 
