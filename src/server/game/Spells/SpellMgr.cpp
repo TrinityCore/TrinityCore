@@ -3265,6 +3265,7 @@ void SpellMgr::LoadDbcDataCorrections()
             case 53246: // Marked for Death (Rank 5)
                 spellInfo->EffectSpellClassMask[0] = flag96(0x00067801, 0x10820001, 0x00000801);
                 break;
+            case 53434: // Call of the Wild (needs target selection script)
             case 70728: // Exploit Weakness (needs target selection script)
             case 70840: // Devious Minds (needs target selection script)
                 spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_CASTER;
