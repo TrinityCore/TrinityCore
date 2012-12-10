@@ -360,10 +360,16 @@ public:
         int32 newlevel = levelStr ? atoi(levelStr) : oldlevel;
 
         if (newlevel < 1)
+        {
+            handler->PSendSysMessage(LANG_COMMAND_LEVEL_RANGE_ERROR, MAX_LEVEL);
             return false;                                       // invalid level
+        }
 
-        if (newlevel > STRONG_MAX_LEVEL)                         // hardcoded maximum level
-            newlevel = STRONG_MAX_LEVEL;
+        if (newlevel > MAX_LEVEL)                               // hardcoded client/dbc maximum level
+        {
+            handler->PSendSysMessage(LANG_COMMAND_LEVEL_RANGE_ERROR, MAX_LEVEL);
+            newlevel = MAX_LEVEL;
+        }
 
         HandleCharacterLevel(target, targetGuid, oldlevel, newlevel, handler);
         if (!handler->GetSession() || handler->GetSession()->GetPlayer() != target)      // including player == NULL
@@ -733,13 +739,23 @@ public:
         int32 oldlevel = target ? target->getLevel() : Player::GetLevelFromDB(targetGuid);
         int32 addlevel = levelStr ? atoi(levelStr) : 1;
         int32 newlevel = oldlevel + addlevel;
+        bool warnRange = false;
 
         if (newlevel < 1)
+        {
             newlevel = 1;
+            warnRange = true;
+        }
 
-        if (newlevel > STRONG_MAX_LEVEL)                         // hardcoded maximum level
-            newlevel = STRONG_MAX_LEVEL;
+        if (newlevel > MAX_LEVEL)                               // hardcoded client/dbc maximum level
+        {
+            newlevel = MAX_LEVEL;
+            warnRange = true;
+        }
 
+        if (warnRange)
+            handler->PSendSysMessage(LANG_COMMAND_LEVEL_RANGE_ERROR, MAX_LEVEL);
+        
         HandleCharacterLevel(target, targetGuid, oldlevel, newlevel, handler);
 
         if (!handler->GetSession() || handler->GetSession()->GetPlayer() != target)      // including chr == NULL
