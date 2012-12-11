@@ -1857,11 +1857,6 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
                 trans->Append(stmt);
             }
 
-            // Delete all current quests
-            stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_QUESTSTATUS);
-            stmt->setUInt32(0, GUID_LOPART(guid));
-            trans->Append(stmt);
-
             // Delete record of the faction old completed quests
             {
                 std::ostringstream quests;
@@ -1979,6 +1974,26 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
                 stmt->setUInt32(0, (team == TEAM_ALLIANCE ? item_alliance : item_horde));
                 stmt->setUInt32(1, (team == TEAM_ALLIANCE ? item_horde : item_alliance));
                 stmt->setUInt32(2, guid);
+                trans->Append(stmt);
+            }
+
+            // Quest conversion
+            for (std::map<uint32, uint32>::const_iterator it = sObjectMgr->FactionChange_Quests.begin(); it != sObjectMgr->FactionChange_Quests.end(); ++it)
+            {
+                std::string team_id = (team == TEAM_ALLIANCE ? horde_id : alliance_id);
+                uint32 quest = (team == TEAM_ALLIANCE ? it->second : it->first);
+                uint32 quest_replacement = (team == TEAM_ALLIANCE ? it->first : it->second);
+
+                // Delete all current quests that are not marked for conversion
+                stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_QUESTSTATUS);
+                stmt->setUInt32(0, lowGuid);
+                stmt->setString(1, team_id);
+                trans->Append(stmt);
+
+                stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_QUEST_FACTION_CHANGE);
+                stmt->setUInt32(0, quest_replacement);
+                stmt->setUInt32(1, quest);
+                stmt->setUInt32(2, lowGuid);
                 trans->Append(stmt);
             }
 
