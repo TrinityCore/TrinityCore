@@ -63,7 +63,7 @@ ChatCommand* ChatHandler::getCommandTable()
     // cache for commands, needed because some commands are loaded dynamically through ScriptMgr
     // cache is never freed and will show as a memory leak in diagnostic tools
     // can't use vector as vector storage is implementation-dependent, eg, there can be alignment gaps between elements
-    static ChatCommand* commandTableCache = 0;
+    static ChatCommand* commandTableCache = NULL;
 
     if (LoadCommandTable())
     {
@@ -96,7 +96,6 @@ ChatCommand* ChatHandler::getCommandTable()
                 std::string name = fields[0].GetString();
 
                 SetDataForCommandInTable(commandTableCache, name.c_str(), fields[1].GetUInt8(), fields[2].GetString(), name);
-
             }
             while (result->NextRow());
         }
@@ -425,7 +424,7 @@ bool ChatHandler::SetDataForCommandInTable(ChatCommand* table, char const* text,
     return false;
 }
 
-int ChatHandler::ParseCommands(char const* text)
+bool ChatHandler::ParseCommands(char const* text)
 {
     ASSERT(text);
     ASSERT(*text);
@@ -433,23 +432,23 @@ int ChatHandler::ParseCommands(char const* text)
     std::string fullcmd = text;
 
     if (m_session && AccountMgr::IsPlayerAccount(m_session->GetSecurity()) && !sWorld->getBoolConfig(CONFIG_ALLOW_PLAYER_COMMANDS))
-       return 0;
+       return false;
 
     /// chat case (.command or !command format)
     if (m_session)
     {
         if (text[0] != '!' && text[0] != '.')
-            return 0;
+            return false;
     }
 
     /// ignore single . and ! in line
     if (strlen(text) < 2)
-        return 0;
+        return false;
     // original `text` can't be used. It content destroyed in command code processing.
 
     /// ignore messages staring from many dots.
     if ((text[0] == '.' && text[1] == '.') || (text[0] == '!' && text[1] == '!'))
-        return 0;
+        return false;
 
     /// skip first . or ! (in console allowed use command with . and ! and without its)
     if (text[0] == '!' || text[0] == '.')
@@ -458,11 +457,11 @@ int ChatHandler::ParseCommands(char const* text)
     if (!ExecuteCommandInTable(getCommandTable(), text, fullcmd))
     {
         if (m_session && AccountMgr::IsPlayerAccount(m_session->GetSecurity()))
-            return 0;
+            return false;
 
         SendSysMessage(LANG_NO_CMD);
     }
-    return 1;
+    return true;
 }
 
 bool ChatHandler::isValidChatMessage(char const* message)
@@ -1167,6 +1166,11 @@ LocaleConstant ChatHandler::GetSessionDbcLocale() const
 int ChatHandler::GetSessionDbLocaleIndex() const
 {
     return m_session->GetSessionDbLocaleIndex();
+}
+
+std::string ChatHandler::GetNameLink(Player* chr) const
+{
+    return playerLink(chr->GetName());
 }
 
 const char *CliHandler::GetTrinityString(int32 entry) const

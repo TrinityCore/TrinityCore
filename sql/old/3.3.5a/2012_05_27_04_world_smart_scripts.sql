@@ -8,7 +8,7 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
 (@ENTRY,0,0,1,11,0,100,0,0,0,0,0,11,@SPELL2,0,0,0,0,0,1,0,0,0,0,0,0,0,'Reconstructed Wyrm - On spawn - cast aura'),
 (@ENTRY,0,1,0,61,0,100,0,0,0,0,0,53,0,@ENTRY,0,0,0,0,1,0,0,0,0,0,0,0,'Reconstructed Wyrm - On spawn - Load Path');
 -- waypoints for Reconstructed Wyrm
-DELETE FROM `waypoints` WHERE `entry` IN (@ENTRY); 
+DELETE FROM `waypoints` WHERE `entry` IN (@ENTRY);
 INSERT INTO `waypoints` (`entry`,`pointid`,`position_x`,`position_y`,`position_z`,`point_comment`) VALUES
 (@ENTRY,1,4685.845,1130.759,150.1177, 'Reconstructed Wyrm'),
 (@ENTRY,2,4686.284,1131.658,150.1177, 'Reconstructed Wyrm'),

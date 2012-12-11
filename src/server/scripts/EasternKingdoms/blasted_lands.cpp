@@ -30,6 +30,7 @@ EndContentData */
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
+#include "Player.h"
 
 /*######
 ## npc_deathly_usher

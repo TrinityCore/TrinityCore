@@ -36,11 +36,11 @@ enum SpellEffIndex
 // loot modes for creatures and gameobjects, bitmask!
 enum LootModes
 {
-    LOOT_MODE_DEFAULT                  = 1,
-    LOOT_MODE_HARD_MODE_1              = 2,
-    LOOT_MODE_HARD_MODE_2              = 4,
-    LOOT_MODE_HARD_MODE_3              = 8,
-    LOOT_MODE_HARD_MODE_4              = 16
+    LOOT_MODE_DEFAULT                  = 0x1,
+    LOOT_MODE_HARD_MODE_1              = 0x2,
+    LOOT_MODE_HARD_MODE_2              = 0x4,
+    LOOT_MODE_HARD_MODE_3              = 0x8,
+    LOOT_MODE_HARD_MODE_4              = 0x10
 };
 
 enum Gender
@@ -53,28 +53,28 @@ enum Gender
 // Race value is index in ChrRaces.dbc
 enum Races
 {
-    RACE_NONE           = 0,
-    RACE_HUMAN          = 1,
-    RACE_ORC            = 2,
-    RACE_DWARF          = 3,
-    RACE_NIGHTELF       = 4,
-    RACE_UNDEAD_PLAYER  = 5,
-    RACE_TAUREN         = 6,
-    RACE_GNOME          = 7,
-    RACE_TROLL          = 8,
-    //RACE_GOBLIN         = 9,
-    RACE_BLOODELF       = 10,
-    RACE_DRAENEI        = 11
-    //RACE_FEL_ORC        = 12,
-    //RACE_NAGA           = 13,
-    //RACE_BROKEN         = 14,
-    //RACE_SKELETON       = 15,
-    //RACE_VRYKUL         = 16,
-    //RACE_TUSKARR        = 17,
-    //RACE_FOREST_TROLL   = 18,
-    //RACE_TAUNKA         = 19,
+    RACE_NONE               = 0,
+    RACE_HUMAN              = 1,
+    RACE_ORC                = 2,
+    RACE_DWARF              = 3,
+    RACE_NIGHTELF           = 4,
+    RACE_UNDEAD_PLAYER      = 5,
+    RACE_TAUREN             = 6,
+    RACE_GNOME              = 7,
+    RACE_TROLL              = 8,
+    //RACE_GOBLIN             = 9,
+    RACE_BLOODELF           = 10,
+    RACE_DRAENEI            = 11
+    //RACE_FEL_ORC            = 12,
+    //RACE_NAGA               = 13,
+    //RACE_BROKEN             = 14,
+    //RACE_SKELETON           = 15,
+    //RACE_VRYKUL             = 16,
+    //RACE_TUSKARR            = 17,
+    //RACE_FOREST_TROLL       = 18,
+    //RACE_TAUNKA             = 19,
     //RACE_NORTHREND_SKELETON = 20,
-    //RACE_ICE_TROLL      = 21
+    //RACE_ICE_TROLL          = 21
 };
 
 // max+1 for player race
@@ -82,13 +82,13 @@ enum Races
 
 #define RACEMASK_ALL_PLAYABLE \
     ((1<<(RACE_HUMAN-1))   |(1<<(RACE_ORC-1))          |(1<<(RACE_DWARF-1))   | \
-    (1<<(RACE_NIGHTELF-1))|(1<<(RACE_UNDEAD_PLAYER-1))|(1<<(RACE_TAUREN-1))  | \
-    (1<<(RACE_GNOME-1))   |(1<<(RACE_TROLL-1))        |(1<<(RACE_BLOODELF-1))| \
-    (1<<(RACE_DRAENEI-1)))
+     (1<<(RACE_NIGHTELF-1))|(1<<(RACE_UNDEAD_PLAYER-1))|(1<<(RACE_TAUREN-1))  | \
+     (1<<(RACE_GNOME-1))   |(1<<(RACE_TROLL-1))        |(1<<(RACE_BLOODELF-1))| \
+     (1<<(RACE_DRAENEI-1)))
 
 #define RACEMASK_ALLIANCE \
     ((1<<(RACE_HUMAN-1)) | (1<<(RACE_DWARF-1)) | (1<<(RACE_NIGHTELF-1)) | \
-    (1<<(RACE_GNOME-1)) | (1<<(RACE_DRAENEI-1)))
+     (1<<(RACE_GNOME-1)) | (1<<(RACE_DRAENEI-1)))
 
 #define RACEMASK_HORDE RACEMASK_ALL_PLAYABLE & ~RACEMASK_ALLIANCE
 
@@ -2519,47 +2519,47 @@ uint32 const CREATURE_TYPEMASK_MECHANICAL_OR_ELEMENTAL = (1 << (CREATURE_TYPE_ME
 // CreatureFamily.dbc
 enum CreatureFamily
 {
-    CREATURE_FAMILY_WOLF           = 1,
-    CREATURE_FAMILY_CAT            = 2,
-    CREATURE_FAMILY_SPIDER         = 3,
-    CREATURE_FAMILY_BEAR           = 4,
-    CREATURE_FAMILY_BOAR           = 5,
-    CREATURE_FAMILY_CROCOLISK      = 6,
-    CREATURE_FAMILY_CARRION_BIRD   = 7,
-    CREATURE_FAMILY_CRAB           = 8,
-    CREATURE_FAMILY_GORILLA        = 9,
-    CREATURE_FAMILY_HORSE_CUSTOM   = 10,                    // not exist in DBC but used for horse like beasts in DB
-    CREATURE_FAMILY_RAPTOR         = 11,
-    CREATURE_FAMILY_TALLSTRIDER    = 12,
-    CREATURE_FAMILY_FELHUNTER      = 15,
-    CREATURE_FAMILY_VOIDWALKER     = 16,
-    CREATURE_FAMILY_SUCCUBUS       = 17,
-    CREATURE_FAMILY_DOOMGUARD      = 19,
-    CREATURE_FAMILY_SCORPID        = 20,
-    CREATURE_FAMILY_TURTLE         = 21,
-    CREATURE_FAMILY_IMP            = 23,
-    CREATURE_FAMILY_BAT            = 24,
-    CREATURE_FAMILY_HYENA          = 25,
-    CREATURE_FAMILY_BIRD_OF_PREY   = 26,
-    CREATURE_FAMILY_WIND_SERPENT   = 27,
-    CREATURE_FAMILY_REMOTE_CONTROL = 28,
-    CREATURE_FAMILY_FELGUARD       = 29,
-    CREATURE_FAMILY_DRAGONHAWK     = 30,
-    CREATURE_FAMILY_RAVAGER        = 31,
-    CREATURE_FAMILY_WARP_STALKER   = 32,
-    CREATURE_FAMILY_SPOREBAT       = 33,
-    CREATURE_FAMILY_NETHER_RAY     = 34,
-    CREATURE_FAMILY_SERPENT        = 35,
-    CREATURE_FAMILY_MOTH           = 37,
-    CREATURE_FAMILY_CHIMAERA       = 38,
-    CREATURE_FAMILY_DEVILSAUR      = 39,
-    CREATURE_FAMILY_GHOUL          = 40,
-    CREATURE_FAMILY_SILITHID       = 41,
-    CREATURE_FAMILY_WORM           = 42,
-    CREATURE_FAMILY_RHINO          = 43,
-    CREATURE_FAMILY_WASP           = 44,
-    CREATURE_FAMILY_CORE_HOUND     = 45,
-    CREATURE_FAMILY_SPIRIT_BEAST   = 46
+    CREATURE_FAMILY_WOLF                = 1,
+    CREATURE_FAMILY_CAT                 = 2,
+    CREATURE_FAMILY_SPIDER              = 3,
+    CREATURE_FAMILY_BEAR                = 4,
+    CREATURE_FAMILY_BOAR                = 5,
+    CREATURE_FAMILY_CROCOLISK           = 6,
+    CREATURE_FAMILY_CARRION_BIRD        = 7,
+    CREATURE_FAMILY_CRAB                = 8,
+    CREATURE_FAMILY_GORILLA             = 9,
+    CREATURE_FAMILY_HORSE_CUSTOM        = 10,   // Does not exist in DBC but used for horse like beasts in DB
+    CREATURE_FAMILY_RAPTOR              = 11,
+    CREATURE_FAMILY_TALLSTRIDER         = 12,
+    CREATURE_FAMILY_FELHUNTER           = 15,
+    CREATURE_FAMILY_VOIDWALKER          = 16,
+    CREATURE_FAMILY_SUCCUBUS            = 17,
+    CREATURE_FAMILY_DOOMGUARD           = 19,
+    CREATURE_FAMILY_SCORPID             = 20,
+    CREATURE_FAMILY_TURTLE              = 21,
+    CREATURE_FAMILY_IMP                 = 23,
+    CREATURE_FAMILY_BAT                 = 24,
+    CREATURE_FAMILY_HYENA               = 25,
+    CREATURE_FAMILY_BIRD_OF_PREY        = 26,
+    CREATURE_FAMILY_WIND_SERPENT        = 27,
+    CREATURE_FAMILY_REMOTE_CONTROL      = 28,
+    CREATURE_FAMILY_FELGUARD            = 29,
+    CREATURE_FAMILY_DRAGONHAWK          = 30,
+    CREATURE_FAMILY_RAVAGER             = 31,
+    CREATURE_FAMILY_WARP_STALKER        = 32,
+    CREATURE_FAMILY_SPOREBAT            = 33,
+    CREATURE_FAMILY_NETHER_RAY          = 34,
+    CREATURE_FAMILY_SERPENT             = 35,
+    CREATURE_FAMILY_MOTH                = 37,
+    CREATURE_FAMILY_CHIMAERA            = 38,
+    CREATURE_FAMILY_DEVILSAUR           = 39,
+    CREATURE_FAMILY_GHOUL               = 40,
+    CREATURE_FAMILY_SILITHID            = 41,
+    CREATURE_FAMILY_WORM                = 42,
+    CREATURE_FAMILY_RHINO               = 43,
+    CREATURE_FAMILY_WASP                = 44,
+    CREATURE_FAMILY_CORE_HOUND          = 45,
+    CREATURE_FAMILY_SPIRIT_BEAST        = 46
 };
 
 enum CreatureTypeFlags
@@ -2992,7 +2992,7 @@ enum WeatherType
 
 enum ChatMsg
 {
-    CHAT_MSG_ADDON                  = 0xFFFFFFFF,
+    CHAT_MSG_ADDON                  = 0xFFFFFFFF, // -1
     CHAT_MSG_SYSTEM                 = 0x00,
     CHAT_MSG_SAY                    = 0x01,
     CHAT_MSG_PARTY                  = 0x02,
@@ -3076,8 +3076,11 @@ enum PetDiet
 
 #define CHAIN_SPELL_JUMP_RADIUS 8
 
-#define GUILD_BANKLOG_MAX_RECORDS   25
-#define GUILD_EVENTLOG_MAX_RECORDS  100
+enum GuildLogs
+{
+    GUILD_BANKLOG_MAX_RECORDS   = 25,
+    GUILD_EVENTLOG_MAX_RECORDS  = 100,
+};
 
 enum AiReaction
 {
@@ -3151,7 +3154,8 @@ enum SummonType
 
 enum EventId
 {
-    EVENT_CHARGE            = 1003
+    EVENT_CHARGE            = 1003,
+    EVENT_JUMP              = 1004
 };
 
 enum ResponseCodes
@@ -3230,9 +3234,7 @@ enum ResponseCodes
     CHAR_CREATE_CHARACTER_DELETE_MAIL                      = 0x41,
     CHAR_CREATE_CHARACTER_SWAP_FACTION                     = 0x42,
     CHAR_CREATE_CHARACTER_RACE_ONLY                        = 0x43,
-
     CHAR_CREATE_CHARACTER_GOLD_LIMIT                       = 0x44,
-
     CHAR_CREATE_FORCE_LOGIN                                = 0x45,
 
     CHAR_DELETE_IN_PROGRESS                                = 0x46,
@@ -3292,20 +3294,20 @@ enum BanReturn
 // indexes of BattlemasterList.dbc
 enum BattlegroundTypeId
 {
-    BATTLEGROUND_TYPE_NONE     = 0, // None
-    BATTLEGROUND_AV            = 1, // Alterac Valley
-    BATTLEGROUND_WS            = 2, // Warsong Gulch
-    BATTLEGROUND_AB            = 3, // Arathi Basin
-    BATTLEGROUND_NA            = 4, // Nagrand Arena
-    BATTLEGROUND_BE            = 5, // Blade's Edge Arena
-    BATTLEGROUND_AA            = 6, // All Arenas
-    BATTLEGROUND_EY            = 7, // Eye of the Storm
-    BATTLEGROUND_RL            = 8, // Ruins of Lordaernon
-    BATTLEGROUND_SA            = 9, // Strand of the Ancients
-    BATTLEGROUND_DS            = 10, // Dalaran Sewers
-    BATTLEGROUND_RV            = 11, // Ring of Valor
-    BATTLEGROUND_IC            = 30, // Isle of Conquest
-    BATTLEGROUND_RB            = 32 // Random Battleground
+    BATTLEGROUND_TYPE_NONE      = 0, // None
+    BATTLEGROUND_AV             = 1, // Alterac Valley
+    BATTLEGROUND_WS             = 2, // Warsong Gulch
+    BATTLEGROUND_AB             = 3, // Arathi Basin
+    BATTLEGROUND_NA             = 4, // Nagrand Arena
+    BATTLEGROUND_BE             = 5, // Blade's Edge Arena
+    BATTLEGROUND_AA             = 6, // All Arenas
+    BATTLEGROUND_EY             = 7, // Eye of the Storm
+    BATTLEGROUND_RL             = 8, // Ruins of Lordaernon
+    BATTLEGROUND_SA             = 9, // Strand of the Ancients
+    BATTLEGROUND_DS             = 10, // Dalaran Sewers
+    BATTLEGROUND_RV             = 11, // Ring of Valor
+    BATTLEGROUND_IC             = 30, // Isle of Conquest
+    BATTLEGROUND_RB             = 32 // Random Battleground
 };
 
 #define MAX_BATTLEGROUND_TYPE_ID 33
@@ -3422,105 +3424,112 @@ enum ActivateTaxiReply
     ERR_TAXINOTSTANDING             = 12
 };
 
-// Calendar - start
-
-enum CalendarFlags
+enum DuelCompleteType
 {
-    CALENDAR_FLAG_ALL_ALLOWED     = 0x001,
-    CALENDAR_FLAG_INVITES_LOCKED  = 0x010,
-    CALENDAR_FLAG_WITHOUT_INVITES = 0x040,
-    CALENDAR_FLAG_GUILD_ONLY      = 0x400
+    DUEL_INTERRUPTED = 0,
+    DUEL_WON         = 1,
+    DUEL_FLED        = 2
+};
+// handle the queue types and bg types separately to enable joining queue for different sized arenas at the same time
+enum BattlegroundQueueTypeId
+{
+    BATTLEGROUND_QUEUE_NONE     = 0,
+    BATTLEGROUND_QUEUE_AV       = 1,
+    BATTLEGROUND_QUEUE_WS       = 2,
+    BATTLEGROUND_QUEUE_AB       = 3,
+    BATTLEGROUND_QUEUE_EY       = 4,
+    BATTLEGROUND_QUEUE_SA       = 5,
+    BATTLEGROUND_QUEUE_IC       = 6,
+    BATTLEGROUND_QUEUE_RB       = 7,
+    BATTLEGROUND_QUEUE_2v2      = 8,
+    BATTLEGROUND_QUEUE_3v3      = 9,
+    BATTLEGROUND_QUEUE_5v5      = 10,
+    MAX_BATTLEGROUND_QUEUE_TYPES
 };
 
-enum CalendarActionData
+enum GroupJoinBattlegroundResult
 {
-    CALENDAR_ACTION_NONE,
-    CALENDAR_ACTION_ADD_EVENT,
-    CALENDAR_ACTION_MODIFY_EVENT,
-    CALENDAR_ACTION_REMOVE_EVENT,
-    CALENDAR_ACTION_COPY_EVENT,
-    CALENDAR_ACTION_ADD_EVENT_INVITE,
-    CALENDAR_ACTION_MODIFY_EVENT_INVITE,
-    CALENDAR_ACTION_MODIFY_MODERATOR_EVENT_INVITE,
-    CALENDAR_ACTION_REMOVE_EVENT_INVITE,
-    CALENDAR_ACTION_SIGNUP_TO_EVENT
+    // positive values are indexes in BattlemasterList.dbc
+    ERR_GROUP_JOIN_BATTLEGROUND_FAIL        = 0,            // Your group has joined a battleground queue, but you are not eligible (showed for non existing BattlemasterList.dbc indexes)
+    ERR_BATTLEGROUND_NONE                   = -1,           // not show anything
+    ERR_GROUP_JOIN_BATTLEGROUND_DESERTERS   = -2,           // You cannot join the battleground yet because you or one of your party members is flagged as a Deserter.
+    ERR_ARENA_TEAM_PARTY_SIZE               = -3,           // Incorrect party size for this arena.
+    ERR_BATTLEGROUND_TOO_MANY_QUEUES        = -4,           // You can only be queued for 2 battles at once
+    ERR_BATTLEGROUND_CANNOT_QUEUE_FOR_RATED = -5,           // You cannot queue for a rated match while queued for other battles
+    ERR_BATTLEDGROUND_QUEUED_FOR_RATED      = -6,           // You cannot queue for another battle while queued for a rated arena match
+    ERR_BATTLEGROUND_TEAM_LEFT_QUEUE        = -7,           // Your team has left the arena queue
+    ERR_BATTLEGROUND_NOT_IN_BATTLEGROUND    = -8,           // You can't do that in a battleground.
+    ERR_BATTLEGROUND_JOIN_XP_GAIN           = -9,           // wtf, doesn't exist in client...
+    ERR_BATTLEGROUND_JOIN_RANGE_INDEX       = -10,          // Cannot join the queue unless all members of your party are in the same battleground level range.
+    ERR_BATTLEGROUND_JOIN_TIMED_OUT         = -11,          // %s was unavailable to join the queue. (uint64 guid exist in client cache)
+    ERR_BATTLEGROUND_JOIN_FAILED            = -12,          // Join as a group failed (uint64 guid doesn't exist in client cache)
+    ERR_LFG_CANT_USE_BATTLEGROUND           = -13,          // You cannot queue for a battleground or arena while using the dungeon system.
+    ERR_IN_RANDOM_BG                        = -14,          // Can't do that while in a Random Battleground queue.
+    ERR_IN_NON_RANDOM_BG                    = -15           // Can't queue for Random Battleground while in another Battleground queue.
 };
 
-enum CalendarModerationRank
+enum PetNameInvalidReason
 {
-    CALENDAR_RANK_PLAYER,
-    CALENDAR_RANK_MODERATOR,
-    CALENDAR_RANK_OWNER
+    // custom, not send
+    PET_NAME_SUCCESS                                        = 0,
+
+    PET_NAME_INVALID                                        = 1,
+    PET_NAME_NO_NAME                                        = 2,
+    PET_NAME_TOO_SHORT                                      = 3,
+    PET_NAME_TOO_LONG                                       = 4,
+    PET_NAME_MIXED_LANGUAGES                                = 6,
+    PET_NAME_PROFANE                                        = 7,
+    PET_NAME_RESERVED                                       = 8,
+    PET_NAME_THREE_CONSECUTIVE                              = 11,
+    PET_NAME_INVALID_SPACE                                  = 12,
+    PET_NAME_CONSECUTIVE_SPACES                             = 13,
+    PET_NAME_RUSSIAN_CONSECUTIVE_SILENT_CHARACTERS          = 14,
+    PET_NAME_RUSSIAN_SILENT_CHARACTER_AT_BEGINNING_OR_END   = 15,
+    PET_NAME_DECLENSION_DOESNT_MATCH_BASE_NAME              = 16
 };
 
-enum CalendarSendEventType
+enum DungeonStatusFlag
 {
-    CALENDAR_SENDTYPE_GET,
-    CALENDAR_SENDTYPE_ADD,
-    CALENDAR_SENDTYPE_COPY
+    DUNGEON_STATUSFLAG_NORMAL = 0x01,
+    DUNGEON_STATUSFLAG_HEROIC = 0x02,
+
+    RAID_STATUSFLAG_10MAN_NORMAL = 0x01,
+    RAID_STATUSFLAG_25MAN_NORMAL = 0x02,
+    RAID_STATUSFLAG_10MAN_HEROIC = 0x04,
+    RAID_STATUSFLAG_25MAN_HEROIC = 0x08
 };
 
-enum CalendarEventType
+enum PartyResult
 {
-    CALENDAR_TYPE_RAID,
-    CALENDAR_TYPE_DUNGEON,
-    CALENDAR_TYPE_PVP,
-    CALENDAR_TYPE_MEETING,
-    CALENDAR_TYPE_OTHER
+    ERR_PARTY_RESULT_OK                 = 0,
+    ERR_BAD_PLAYER_NAME_S               = 1,
+    ERR_TARGET_NOT_IN_GROUP_S           = 2,
+    ERR_TARGET_NOT_IN_INSTANCE_S        = 3,
+    ERR_GROUP_FULL                      = 4,
+    ERR_ALREADY_IN_GROUP_S              = 5,
+    ERR_NOT_IN_GROUP                    = 6,
+    ERR_NOT_LEADER                      = 7,
+    ERR_PLAYER_WRONG_FACTION            = 8,
+    ERR_IGNORING_YOU_S                  = 9,
+    ERR_LFG_PENDING                     = 12,
+    ERR_INVITE_RESTRICTED               = 13,
+    ERR_GROUP_SWAP_FAILED               = 14,               // if (PartyOperation == PARTY_OP_SWAP) ERR_GROUP_SWAP_FAILED else ERR_INVITE_IN_COMBAT
+    ERR_INVITE_UNKNOWN_REALM            = 15,
+    ERR_INVITE_NO_PARTY_SERVER          = 16,
+    ERR_INVITE_PARTY_BUSY               = 17,
+    ERR_PARTY_TARGET_AMBIGUOUS          = 18,
+    ERR_PARTY_LFG_INVITE_RAID_LOCKED    = 19,
+    ERR_PARTY_LFG_BOOT_LIMIT            = 20,
+    ERR_PARTY_LFG_BOOT_COOLDOWN_S       = 21,
+    ERR_PARTY_LFG_BOOT_IN_PROGRESS      = 22,
+    ERR_PARTY_LFG_BOOT_TOO_FEW_PLAYERS  = 23,
+    ERR_PARTY_LFG_BOOT_NOT_ELIGIBLE_S   = 24,
+    ERR_RAID_DISALLOWED_BY_LEVEL        = 25,
+    ERR_PARTY_LFG_BOOT_IN_COMBAT        = 26,
+    ERR_VOTE_KICK_REASON_NEEDED         = 27,
+    ERR_PARTY_LFG_BOOT_DUNGEON_COMPLETE = 28,
+    ERR_PARTY_LFG_BOOT_LOOT_ROLLS       = 29,
+    ERR_PARTY_LFG_TELEPORT_IN_COMBAT    = 30
 };
-
-enum CalendarInviteStatus
-{
-    CALENDAR_STATUS_INVITED,
-    CALENDAR_STATUS_ACCEPTED,
-    CALENDAR_STATUS_DECLINED,
-    CALENDAR_STATUS_TENTATIVE,
-    CALENDAR_STATUS_OUT,
-    CALENDAR_STATUS_STANDBY,
-    CALENDAR_STATUS_CONFIRMED,
-    CALENDAR_STATUS_NO_OWNER,
-    CALENDAR_STATUS_8,
-    CALENDAR_STATUS_9
-};
-
-enum CalendarError
-{
-    CALENDAR_OK                                 = 0,
-    CALENDAR_ERROR_GUILD_EVENTS_EXCEEDED        = 1,
-    CALENDAR_ERROR_EVENTS_EXCEEDED              = 2,
-    CALENDAR_ERROR_SELF_INVITES_EXCEEDED        = 3,
-    CALENDAR_ERROR_OTHER_INVITES_EXCEEDED       = 4,
-    CALENDAR_ERROR_PERMISSIONS                  = 5,
-    CALENDAR_ERROR_EVENT_INVALID                = 6,
-    CALENDAR_ERROR_NOT_INVITED                  = 7,
-    CALENDAR_ERROR_INTERNAL                     = 8,
-    CALENDAR_ERROR_GUILD_PLAYER_NOT_IN_GUILD    = 9,
-    CALENDAR_ERROR_ALREADY_INVITED_TO_EVENT_S   = 10,
-    CALENDAR_ERROR_PLAYER_NOT_FOUND             = 11,
-    CALENDAR_ERROR_NOT_ALLIED                   = 12,
-    CALENDAR_ERROR_IGNORING_YOU_S               = 13,
-    CALENDAR_ERROR_INVITES_EXCEEDED             = 14,
-    CALENDAR_ERROR_INVALID_DATE                 = 16,
-    CALENDAR_ERROR_INVALID_TIME                 = 17,
-
-    CALENDAR_ERROR_NEEDS_TITLE                  = 19,
-    CALENDAR_ERROR_EVENT_PASSED                 = 20,
-    CALENDAR_ERROR_EVENT_LOCKED                 = 21,
-    CALENDAR_ERROR_DELETE_CREATOR_FAILED        = 22,
-    CALENDAR_ERROR_SYSTEM_DISABLED              = 24,
-    CALENDAR_ERROR_RESTRICTED_ACCOUNT           = 25,
-    CALENDAR_ERROR_ARENA_EVENTS_EXCEEDED        = 26,
-    CALENDAR_ERROR_RESTRICTED_LEVEL             = 27,
-    CALENDAR_ERROR_USER_SQUELCHED               = 28,
-    CALENDAR_ERROR_NO_INVITE                    = 29,
-
-    CALENDAR_ERROR_EVENT_WRONG_SERVER           = 36,
-    CALENDAR_ERROR_INVITE_WRONG_SERVER          = 37,
-    CALENDAR_ERROR_NO_GUILD_INVITES             = 38,
-    CALENDAR_ERROR_INVALID_SIGNUP               = 39,
-    CALENDAR_ERROR_NO_MODERATOR                 = 40
-};
-
-// Calendar - end
 
 #endif

@@ -14,7 +14,7 @@ INSERT INTO `game_event_temp` (`entryOld`,`entryNew`) VALUES
 -- Update game_event
 ALTER TABLE `game_event` DROP PRIMARY KEY;
 UPDATE `game_event`, `game_event_temp` SET `game_event`.`entry` = `game_event_temp`.`entryNew` WHERE `game_event`.`entry` = `game_event_temp`.`entryOld`;
-ALTER TABLE `game_event` 
+ALTER TABLE `game_event`
 CHANGE `entry` `eventEntry` TINYINT(3) UNSIGNED NOT NULL COMMENT 'Entry of the game event',
 ADD PRIMARY KEY (`eventEntry`);
 
@@ -47,7 +47,7 @@ ALTER TABLE `game_event_gameobject` CHANGE `event` `eventEntry` TINYINT(3) NOT N
 -- Update game_event_gameobject_quest
 ALTER TABLE `game_event_gameobject_quest` DROP PRIMARY KEY;
 UPDATE `game_event_gameobject_quest`, `game_event_temp` SET `game_event_gameobject_quest`.`event` = `game_event_temp`.`entryNew` WHERE `game_event_gameobject_quest`.`event` = `game_event_temp`.`entryOld`;
-ALTER TABLE `game_event_gameobject_quest` 
+ALTER TABLE `game_event_gameobject_quest`
 CHANGE `event` `eventEntry` TINYINT(3) UNSIGNED NOT NULL COMMENT 'Entry of the game event' FIRST,
 ADD PRIMARY KEY (`id`, `quest`, `eventEntry`);
 
@@ -62,7 +62,7 @@ ALTER TABLE `game_event_npc_vendor` CHANGE `event` `eventEntry` TINYINT(3) NOT N
 -- Update game_event_npcflag
 ALTER TABLE `game_event_npcflag` DROP PRIMARY KEY;
 UPDATE `game_event_npcflag`, `game_event_temp` SET `game_event_npcflag`.`event_id` = `game_event_temp`.`entryNew` WHERE `game_event_npcflag`.`event_id` = `game_event_temp`.`entryOld`;
-ALTER TABLE `game_event_npcflag` 
+ALTER TABLE `game_event_npcflag`
 CHANGE `event_id` `eventEntry` TINYINT(3) UNSIGNED NOT NULL COMMENT 'Entry of the game event' FIRST,
 ADD PRIMARY KEY (`guid`, `eventEntry`);
 

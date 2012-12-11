@@ -17,10 +17,12 @@
  */
 
 #include "DisableMgr.h"
+#include "AchievementMgr.h"
 #include "ObjectMgr.h"
 #include "OutdoorPvP.h"
 #include "SpellMgr.h"
 #include "VMapManager2.h"
+#include "Player.h"
 
 namespace DisableMgr
 {
@@ -172,7 +174,7 @@ void LoadDisables()
                     sLog->outError(LOG_FILTER_SQL, "Disable flags specified for outdoor PvP %u, useless data.", entry);
                 break;
             case DISABLE_TYPE_ACHIEVEMENT_CRITERIA:
-                if (!sAchievementCriteriaStore.LookupEntry(entry))
+                if (!sAchievementMgr->GetAchievementCriteria(entry))
                 {
                     sLog->outError(LOG_FILTER_SQL, "Achievement Criteria entry %u from `disables` doesn't exist in dbc, skipped.", entry);
                     continue;

@@ -11,7 +11,7 @@ UPDATE `creature_template` SET `gossip_menu_id`=7563 WHERE `entry`=18074;
 UPDATE `creature_template` SET `gossip_menu_id`=7592 WHERE `entry`=18200;
 UPDATE `creature_template` SET `gossip_menu_id`=7579 WHERE `entry`=18180;
 UPDATE `creature_template` SET `gossip_menu_id`=7607 WHERE `entry`=18218;
-UPDATE `creature_template` SET `gossip_menu_id`=7704 WHERE `entry`=18482;     
+UPDATE `creature_template` SET `gossip_menu_id`=7704 WHERE `entry`=18482;
 UPDATE `creature_template` SET `gossip_menu_id`=8493, `npcflag`=`npcflag`|1 WHERE `entry`=22113;
 
 DELETE FROM `gossip_menu` WHERE `entry`=7563 AND `text_id`=9181;

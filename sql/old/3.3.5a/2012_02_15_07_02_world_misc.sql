@@ -23,7 +23,7 @@ INSERT INTO `creature_involvedrelation` (`id`, `quest`) VALUES
 
 -- Loot: Crown Chemical Co. Supplies
 DELETE FROM `gameobject_loot_template` WHERE `entry`=27766;
-INSERT INTO `gameobject_loot_template` VALUES 
+INSERT INTO `gameobject_loot_template` VALUES
 (27766, 49867, -100, 1, 0, 1, 1); --  Crown Chemical Co. Supplies
 
 -- GO spawns
@@ -74,7 +74,7 @@ INSERT INTO `gameobject` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`position_x`
 (@OGUID+39, 201778, 1, 1, 1, 1380.96, -4429.36, 30.6772, 4.6503, 0, 0, 0.728713, -0.68482, 300, 0, 1),
 (@OGUID+40, 201778, 1, 1, 1, 1383.08, -4429.42, 30.651, 4.53642, 0, 0, 0.766505, -0.642238, 300, 0, 1),
 (@OGUID+41, 201778, 1, 1, 1, 1378.64, -4428.42, 30.6846, 5.23543, 0, 0, 0.500243, -0.865885, 300, 0, 1),
-(@OGUID+42, 201778, 1, 1, 1, 1377.05, -4429.39, 30.6467, 5.31397, 0, 0, 0.465863, -0.884857, 300, 0, 1); 
+(@OGUID+42, 201778, 1, 1, 1, 1377.05, -4429.39, 30.6467, 5.31397, 0, 0, 0.465863, -0.884857, 300, 0, 1);
 
 DELETE FROM `game_event_gameobject` WHERE `eventEntry`=@EVENT AND `guid` BETWEEN @OGUID AND @OGUID+42;
 INSERT INTO `game_event_gameobject` (`guid`, `eventEntry`) VALUES

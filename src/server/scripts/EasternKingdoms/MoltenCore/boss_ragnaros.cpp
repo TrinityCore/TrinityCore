@@ -29,17 +29,17 @@ EndScriptData */
 
 enum Texts
 {
-    SAY_REINFORCEMENTS1 = -1409013,
-    SAY_REINFORCEMENTS2 = -1409014,
-    SAY_HAND            = -1409015,
-    SAY_WRATH           = -1409016,
-    SAY_KILL            = -1409017,
-    SAY_MAGMABURST      = -1409018,
-    SAY_SUMMON_MAJ      = -1409008,
-    SAY_ARRIVAL1_RAG    = -1409009,
-    SAY_ARRIVAL2_MAJ    = -1409010,
-    SAY_ARRIVAL3_RAG    = -1409011,
-    SAY_ARRIVAL5_RAG    = -1409012,
+    SAY_SUMMON_MAJ      = 0,
+    SAY_ARRIVAL1_RAG    = 1,
+    SAY_ARRIVAL2_MAJ    = 2,
+    SAY_ARRIVAL3_RAG    = 3,
+    SAY_ARRIVAL5_RAG    = 4,
+    SAY_REINFORCEMENTS1 = 5,
+    SAY_REINFORCEMENTS2 = 6,
+    SAY_HAND            = 7,
+    SAY_WRATH           = 8,
+    SAY_KILL            = 9,
+    SAY_MAGMABURST      = 10
 };
 
 enum Spells
@@ -112,7 +112,7 @@ class boss_ragnaros : public CreatureScript
             void KilledUnit(Unit* /*victim*/)
             {
                 if (urand(0, 99) < 25)
-                    DoScriptText(SAY_KILL, me);
+                    Talk(SAY_KILL);
             }
 
             void UpdateAI(const uint32 diff)
@@ -137,16 +137,16 @@ class boss_ragnaros : public CreatureScript
                         switch (eventId)
                         {
                         case EVENT_INTRO_1:
-                            DoScriptText(SAY_ARRIVAL1_RAG, me);
+                            Talk(SAY_ARRIVAL1_RAG);
                             break;
                         case EVENT_INTRO_2:
-                            DoScriptText(SAY_ARRIVAL3_RAG, me);
+                            Talk(SAY_ARRIVAL3_RAG);
                             break;
                         case EVENT_INTRO_3:
                             me->HandleEmoteCommand(EMOTE_ONESHOT_ATTACK1H);
                             break;
                         case EVENT_INTRO_4:
-                            DoScriptText(SAY_ARRIVAL5_RAG, me);
+                            Talk(SAY_ARRIVAL5_RAG);
                             if (instance)
                                 if (Creature* executus = Unit::GetCreature(*me, instance->GetData64(BOSS_MAJORDOMO_EXECUTUS)))
                                     me->Kill(executus);
@@ -205,13 +205,13 @@ class boss_ragnaros : public CreatureScript
                             case EVENT_WRATH_OF_RAGNAROS:
                                 DoCastVictim(SPELL_WRATH_OF_RAGNAROS);
                                 if (urand(0, 1))
-                                    DoScriptText(SAY_WRATH, me);
+                                    Talk(SAY_WRATH);
                                 events.ScheduleEvent(EVENT_WRATH_OF_RAGNAROS, 25000);
                                 break;
                             case EVENT_HAND_OF_RAGNAROS:
                                 DoCast(me, SPELL_HAND_OF_RAGNAROS);
                                 if (urand(0, 1))
-                                    DoScriptText(SAY_HAND, me);
+                                    Talk(SAY_HAND);
                                 events.ScheduleEvent(EVENT_HAND_OF_RAGNAROS, 20000);
                                 break;
                             case EVENT_LAVA_BURST:
@@ -229,7 +229,7 @@ class boss_ragnaros : public CreatureScript
                                     if (!_hasYelledMagmaBurst)
                                     {
                                         //Say our dialog
-                                        DoScriptText(SAY_MAGMABURST, me);
+                                        Talk(SAY_MAGMABURST);
                                         _hasYelledMagmaBurst = true;
                                     }
                                 }
@@ -256,7 +256,7 @@ class boss_ragnaros : public CreatureScript
 
                                     if (!_hasSubmergedOnce)
                                     {
-                                        DoScriptText(SAY_REINFORCEMENTS1, me);
+                                        Talk(SAY_REINFORCEMENTS1);
 
                                         // summon 8 elementals
                                         for (uint8 i = 0; i < 8; ++i)
@@ -272,7 +272,7 @@ class boss_ragnaros : public CreatureScript
                                     }
                                     else
                                     {
-                                        DoScriptText(SAY_REINFORCEMENTS2, me);
+                                        Talk(SAY_REINFORCEMENTS2);
 
                                         for (uint8 i = 0; i < 8; ++i)
                                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))

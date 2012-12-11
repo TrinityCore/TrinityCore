@@ -21,6 +21,7 @@
 #include "SpellAuras.h"
 #include "MapManager.h"
 #include "icecrown_citadel.h"
+#include "Player.h"
 
 enum ScriptTexts
 {
@@ -246,7 +247,7 @@ class boss_lord_marrowgar : public CreatureScript
                 return &_coldflameLastPos;
             }
 
-            uint64 GetGUID(int32 type/* = 0 */)
+            uint64 GetGUID(int32 type/* = 0 */) const
             {
                 if (type == DATA_COLDFLAME_GUID)
                     return _coldflameTarget;

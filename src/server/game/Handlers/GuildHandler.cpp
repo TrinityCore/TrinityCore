@@ -28,29 +28,17 @@
 #include "GossipDef.h"
 #include "SocialMgr.h"
 
-// Helper for getting guild object of session's player.
-// If guild does not exist, sends error (if necessary).
-inline Guild* _GetPlayerGuild(WorldSession* session, bool sendError = false)
-{
-    if (uint32 guildId = session->GetPlayer()->GetGuildId())    // If guild id = 0, player is not in guild
-        if (Guild* guild = sGuildMgr->GetGuildById(guildId))   // Find guild by id
-            return guild;
-    if (sendError)
-        Guild::SendCommandResult(session, GUILD_CREATE_S, ERR_GUILD_PLAYER_NOT_IN_GUILD);
-    return NULL;
-}
-
 void WorldSession::HandleGuildQueryOpcode(WorldPacket& recvPacket)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GUILD_QUERY");
-
     uint32 guildId;
     recvPacket >> guildId;
-    // Use received guild id to access guild method (not player's guild id)
+
+    sLog->outDebug(LOG_FILTER_GUILD, "CMSG_GUILD_QUERY [%s]: Guild: %u", GetPlayerInfo().c_str(), guildId);
+    if (!guildId)
+        return;
+
     if (Guild* guild = sGuildMgr->GetGuildById(guildId))
         guild->HandleQuery(this);
-    else
-        Guild::SendCommandResult(this, GUILD_CREATE_S, ERR_GUILD_PLAYER_NOT_IN_GUILD);
 }
 
 void WorldSession::HandleGuildCreateOpcode(WorldPacket& recvPacket)
@@ -72,41 +60,39 @@ void WorldSession::HandleGuildCreateOpcode(WorldPacket& recvPacket)
 
 void WorldSession::HandleGuildInviteOpcode(WorldPacket& recvPacket)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GUILD_INVITE");
-
     std::string invitedName;
     recvPacket >> invitedName;
 
+    sLog->outDebug(LOG_FILTER_GUILD, "CMSG_GUILD_INVITE [%s]: Invited: %s", GetPlayerInfo().c_str(), invitedName.c_str());
     if (normalizePlayerName(invitedName))
-        if (Guild* guild = _GetPlayerGuild(this, true))
+        if (Guild* guild = GetPlayer()->GetGuild())
             guild->HandleInviteMember(this, invitedName);
 }
 
 void WorldSession::HandleGuildRemoveOpcode(WorldPacket& recvPacket)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GUILD_REMOVE");
-
     std::string playerName;
     recvPacket >> playerName;
 
+    sLog->outDebug(LOG_FILTER_GUILD, "CMSG_GUILD_REMOVE [%s]: Target: %s", GetPlayerInfo().c_str(), playerName.c_str());
+
     if (normalizePlayerName(playerName))
-        if (Guild* guild = _GetPlayerGuild(this, true))
+        if (Guild* guild = GetPlayer()->GetGuild())
             guild->HandleRemoveMember(this, playerName);
 }
 
 void WorldSession::HandleGuildAcceptOpcode(WorldPacket& /*recvPacket*/)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GUILD_ACCEPT");
-    // Player cannot be in guild
+    sLog->outDebug(LOG_FILTER_GUILD, "CMSG_GUILD_ACCEPT [%s]", GetPlayer()->GetName().c_str());
+
     if (!GetPlayer()->GetGuildId())
-        // Guild where player was invited must exist
         if (Guild* guild = sGuildMgr->GetGuildById(GetPlayer()->GetGuildIdInvited()))
             guild->HandleAcceptMember(this);
 }
 
 void WorldSession::HandleGuildDeclineOpcode(WorldPacket& /*recvPacket*/)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GUILD_DECLINE");
+    sLog->outDebug(LOG_FILTER_GUILD, "CMSG_GUILD_DECLINE [%s]", GetPlayerInfo().c_str());
 
     GetPlayer()->SetGuildIdInvited(0);
     GetPlayer()->SetInGuild(0);
@@ -114,125 +100,115 @@ void WorldSession::HandleGuildDeclineOpcode(WorldPacket& /*recvPacket*/)
 
 void WorldSession::HandleGuildInfoOpcode(WorldPacket& /*recvPacket*/)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GUILD_INFO");
+    sLog->outDebug(LOG_FILTER_GUILD, "CMSG_GUILD_INFO [%s]", GetPlayerInfo().c_str());
 
-    if (Guild* guild = _GetPlayerGuild(this, true))
+    if (Guild* guild = GetPlayer()->GetGuild())
         guild->SendInfo(this);
 }
 
 void WorldSession::HandleGuildRosterOpcode(WorldPacket& /*recvPacket*/)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GUILD_ROSTER");
+    sLog->outDebug(LOG_FILTER_GUILD, "CMSG_GUILD_ROSTER [%s]", GetPlayerInfo().c_str());
 
-    if (Guild* guild = _GetPlayerGuild(this))
+    if (Guild* guild = GetPlayer()->GetGuild())
         guild->HandleRoster(this);
+    else
+        Guild::SendCommandResult(this, GUILD_COMMAND_ROSTER, ERR_GUILD_PLAYER_NOT_IN_GUILD);
 }
 
 void WorldSession::HandleGuildPromoteOpcode(WorldPacket& recvPacket)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GUILD_PROMOTE");
-
     std::string playerName;
     recvPacket >> playerName;
 
+    sLog->outDebug(LOG_FILTER_GUILD, "CMSG_GUILD_PROMOTE [%s]: Target: %s", GetPlayerInfo().c_str(), playerName.c_str());
+
     if (normalizePlayerName(playerName))
-        if (Guild* guild = _GetPlayerGuild(this, true))
+        if (Guild* guild = GetPlayer()->GetGuild())
             guild->HandleUpdateMemberRank(this, playerName, false);
 }
 
 void WorldSession::HandleGuildDemoteOpcode(WorldPacket& recvPacket)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GUILD_DEMOTE");
-
     std::string playerName;
     recvPacket >> playerName;
 
+    sLog->outDebug(LOG_FILTER_GUILD, "CMSG_GUILD_DEMOTE [%s]: Target: %s", GetPlayerInfo().c_str(), playerName.c_str());
+
     if (normalizePlayerName(playerName))
-        if (Guild* guild = _GetPlayerGuild(this, true))
+        if (Guild* guild = GetPlayer()->GetGuild())
             guild->HandleUpdateMemberRank(this, playerName, true);
 }
 
 void WorldSession::HandleGuildLeaveOpcode(WorldPacket& /*recvPacket*/)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GUILD_LEAVE");
+    sLog->outDebug(LOG_FILTER_GUILD, "CMSG_GUILD_LEAVE [%s]", GetPlayerInfo().c_str());
 
-    if (Guild* guild = _GetPlayerGuild(this, true))
+    if (Guild* guild = GetPlayer()->GetGuild())
         guild->HandleLeaveMember(this);
 }
 
 void WorldSession::HandleGuildDisbandOpcode(WorldPacket& /*recvPacket*/)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GUILD_DISBAND");
+    sLog->outDebug(LOG_FILTER_GUILD, "CMSG_GUILD_DISBAND [%s]", GetPlayerInfo().c_str());
 
-    if (Guild* guild = _GetPlayerGuild(this, true))
+    if (Guild* guild = GetPlayer()->GetGuild())
         guild->HandleDisband(this);
 }
 
 void WorldSession::HandleGuildLeaderOpcode(WorldPacket& recvPacket)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GUILD_LEADER");
-
     std::string name;
     recvPacket >> name;
 
+    sLog->outDebug(LOG_FILTER_GUILD, "CMSG_GUILD_LEADER [%s]: Target: %s", GetPlayerInfo().c_str(), name.c_str());
+
     if (normalizePlayerName(name))
-        if (Guild* guild = _GetPlayerGuild(this, true))
+        if (Guild* guild = GetPlayer()->GetGuild())
             guild->HandleSetLeader(this, name);
 }
 
 void WorldSession::HandleGuildMOTDOpcode(WorldPacket& recvPacket)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GUILD_MOTD");
+    std::string motd;
+    recvPacket >> motd;
 
-    std::string motd;               // Empty by default
-    if (!recvPacket.empty())
-        recvPacket >> motd;
+    sLog->outDebug(LOG_FILTER_GUILD, "CMSG_GUILD_MOTD [%s]: MOTD: %s", GetPlayerInfo().c_str(), motd.c_str());
 
-    if (Guild* guild = _GetPlayerGuild(this, true))
+    if (Guild* guild = GetPlayer()->GetGuild())
         guild->HandleSetMOTD(this, motd);
 }
 
 void WorldSession::HandleGuildSetPublicNoteOpcode(WorldPacket& recvPacket)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GUILD_SET_PUBLIC_NOTE");
-
     std::string playerName;
-    recvPacket >> playerName;
+    std::string note;
+    recvPacket >> playerName >> note;
 
-    std::string publicNote;
-    recvPacket >> publicNote;
+    sLog->outDebug(LOG_FILTER_GUILD, "CMSG_GUILD_SET_PUBLIC_NOTE [%s]: Target: %s, Note: %s",
+         GetPlayerInfo().c_str(), playerName.c_str(), note.c_str());
 
     if (normalizePlayerName(playerName))
-        if (Guild* guild = _GetPlayerGuild(this, true))
-            guild->HandleSetMemberNote(this, playerName, publicNote, false);
+        if (Guild* guild = GetPlayer()->GetGuild())
+            guild->HandleSetMemberNote(this, playerName, note, true);
 }
 
 void WorldSession::HandleGuildSetOfficerNoteOpcode(WorldPacket& recvPacket)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GUILD_SET_OFFICER_NOTE");
-
     std::string playerName;
-    recvPacket >> playerName;
+    std::string note;
+    recvPacket >> playerName >> note;
 
-    std::string officerNote;
-    recvPacket >> officerNote;
+    sLog->outDebug(LOG_FILTER_GUILD, "CMSG_GUILD_SET_OFFICER_NOTE [%s]: Target: %s, Note: %s",
+         GetPlayerInfo().c_str(), playerName.c_str(), note.c_str());
 
     if (normalizePlayerName(playerName))
-        if (Guild* guild = _GetPlayerGuild(this, true))
-            guild->HandleSetMemberNote(this, playerName, officerNote, true);
+        if (Guild* guild = GetPlayer()->GetGuild())
+            guild->HandleSetMemberNote(this, playerName, note, false);
 }
 
 void WorldSession::HandleGuildRankOpcode(WorldPacket& recvPacket)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GUILD_RANK");
-
-    Guild* guild = _GetPlayerGuild(this, true);
-    if (!guild)
-    {
-        recvPacket.rpos(recvPacket.wpos());
-        return;
-    }
-
     uint32 rankId;
     recvPacket >> rankId;
 
@@ -245,7 +221,17 @@ void WorldSession::HandleGuildRankOpcode(WorldPacket& recvPacket)
     uint32 money;
     recvPacket >> money;
 
+    sLog->outDebug(LOG_FILTER_GUILD, "CMSG_GUILD_RANK [%s]: Rank: %s (%u)", GetPlayerInfo().c_str(), rankName.c_str(), rankId);
+
+    Guild* guild = GetPlayer()->GetGuild();
+    if (!guild)
+    {
+        recvPacket.rpos(recvPacket.wpos());
+        return;
+    }
+
     GuildBankRightsAndSlotsVec rightsAndSlots(GUILD_BANK_MAX_TABS);
+
     for (uint8 tabId = 0; tabId < GUILD_BANK_MAX_TABS; ++tabId)
     {
         uint32 bankRights;
@@ -254,7 +240,7 @@ void WorldSession::HandleGuildRankOpcode(WorldPacket& recvPacket)
         recvPacket >> bankRights;
         recvPacket >> slots;
 
-        rightsAndSlots[tabId] = GuildBankRightsAndSlots(uint8(bankRights), slots);
+        rightsAndSlots[tabId] = GuildBankRightsAndSlots(tabId, bankRights, slots);
     }
 
     guild->HandleSetRankInfo(this, rankId, rankName, rights, money, rightsAndSlots);
@@ -262,43 +248,47 @@ void WorldSession::HandleGuildRankOpcode(WorldPacket& recvPacket)
 
 void WorldSession::HandleGuildAddRankOpcode(WorldPacket& recvPacket)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GUILD_ADD_RANK");
-
     std::string rankName;
     recvPacket >> rankName;
 
-    if (Guild* guild = _GetPlayerGuild(this, true))
+    sLog->outDebug(LOG_FILTER_GUILD, "CMSG_GUILD_ADD_RANK [%s]: Rank: %s", GetPlayerInfo().c_str(), rankName.c_str());
+
+    if (Guild* guild = GetPlayer()->GetGuild())
         guild->HandleAddNewRank(this, rankName);
 }
 
 void WorldSession::HandleGuildDelRankOpcode(WorldPacket& /*recvPacket*/)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GUILD_DEL_RANK");
+    sLog->outDebug(LOG_FILTER_GUILD, "CMSG_GUILD_DEL_RANK [%s]", GetPlayerInfo().c_str());
 
-    if (Guild* guild = _GetPlayerGuild(this, true))
+    if (Guild* guild = GetPlayer()->GetGuild())
         guild->HandleRemoveLowestRank(this);
 }
 
 void WorldSession::HandleGuildChangeInfoTextOpcode(WorldPacket& recvPacket)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GUILD_INFO_TEXT");
-
     std::string info;
     recvPacket >> info;
 
-    if (Guild* guild = _GetPlayerGuild(this, true))
+    sLog->outDebug(LOG_FILTER_GUILD, "CMSG_GUILD_INFO_TEXT [%s]: %s", GetPlayerInfo().c_str(), info.c_str());
+
+    if (Guild* guild = GetPlayer()->GetGuild())
         guild->HandleSetInfo(this, info);
 }
 
 void WorldSession::HandleSaveGuildEmblemOpcode(WorldPacket& recvPacket)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received MSG_SAVE_GUILD_EMBLEM");
-
     uint64 vendorGuid;
     recvPacket >> vendorGuid;
 
     EmblemInfo emblemInfo;
     emblemInfo.ReadPacket(recvPacket);
+
+    sLog->outDebug(LOG_FILTER_GUILD, "MSG_SAVE_GUILD_EMBLEM [%s]: Guid: [" UI64FMTD
+        "] Style: %d, Color: %d, BorderStyle: %d, BorderColor: %d, BackgroundColor: %d"
+        , GetPlayerInfo().c_str(), vendorGuid, emblemInfo.GetStyle()
+        , emblemInfo.GetColor(), emblemInfo.GetBorderStyle()
+        , emblemInfo.GetBorderColor(), emblemInfo.GetBackgroundColor());
 
     if (GetPlayer()->GetNPCIfCanInteractWith(vendorGuid, UNIT_NPC_FLAG_TABARDDESIGNER))
     {
@@ -306,137 +296,127 @@ void WorldSession::HandleSaveGuildEmblemOpcode(WorldPacket& recvPacket)
         if (GetPlayer()->HasUnitState(UNIT_STATE_DIED))
             GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
 
-        if (Guild* guild = _GetPlayerGuild(this))
+        if (Guild* guild = GetPlayer()->GetGuild())
             guild->HandleSetEmblem(this, emblemInfo);
         else
-            // "You are not part of a guild!";
-            Guild::SendSaveEmblemResult(this, ERR_GUILDEMBLEM_NOGUILD);
+            Guild::SendSaveEmblemResult(this, ERR_GUILDEMBLEM_NOGUILD); // "You are not part of a guild!";
     }
     else
-    {
-        // "That's not an emblem vendor!"
-        Guild::SendSaveEmblemResult(this, ERR_GUILDEMBLEM_INVALIDVENDOR);
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleSaveGuildEmblemOpcode - Unit (GUID: %u) not found or you can't interact with him.", GUID_LOPART(vendorGuid));
-    }
+        Guild::SendSaveEmblemResult(this, ERR_GUILDEMBLEM_INVALIDVENDOR); // "That's not an emblem vendor!"
 }
 
 void WorldSession::HandleGuildEventLogQueryOpcode(WorldPacket& /* recvPacket */)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received (MSG_GUILD_EVENT_LOG_QUERY)");
+    sLog->outDebug(LOG_FILTER_GUILD, "MSG_GUILD_EVENT_LOG_QUERY [%s]", GetPlayerInfo().c_str());
 
-    if (Guild* guild = _GetPlayerGuild(this))
+    if (Guild* guild = GetPlayer()->GetGuild())
         guild->SendEventLog(this);
 }
 
-void WorldSession::HandleGuildBankMoneyWithdrawn(WorldPacket & /* recv_data */)
+void WorldSession::HandleGuildBankMoneyWithdrawn(WorldPacket & /* recvData */)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received (MSG_GUILD_BANK_MONEY_WITHDRAWN)");
+    sLog->outDebug(LOG_FILTER_GUILD, "MSG_GUILD_BANK_MONEY_WITHDRAWN [%s]", GetPlayerInfo().c_str());
 
-    if (Guild* guild = _GetPlayerGuild(this))
+    if (Guild* guild = GetPlayer()->GetGuild())
         guild->SendMoneyInfo(this);
 }
 
-void WorldSession::HandleGuildPermissions(WorldPacket& /* recv_data */)
+void WorldSession::HandleGuildPermissions(WorldPacket& /* recvData */)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received (MSG_GUILD_PERMISSIONS)");
+    sLog->outDebug(LOG_FILTER_GUILD, "MSG_GUILD_PERMISSIONS [%s]", GetPlayerInfo().c_str());
 
-    if (Guild* guild = _GetPlayerGuild(this))
+    if (Guild* guild = GetPlayer()->GetGuild())
         guild->SendPermissions(this);
 }
 
 // Called when clicking on Guild bank gameobject
-void WorldSession::HandleGuildBankerActivate(WorldPacket & recv_data)
+void WorldSession::HandleGuildBankerActivate(WorldPacket& recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received (CMSG_GUILD_BANKER_ACTIVATE)");
+    uint64 guid;
+    bool sendAllSlots;
+    recvData >> guid >> sendAllSlots;
 
-    uint64 GoGuid;
-    recv_data >> GoGuid;
+    sLog->outDebug(LOG_FILTER_GUILD, "CMSG_GUILD_BANKER_ACTIVATE [%s]: Go: [" UI64FMTD "] AllSlots: %u"
+        , GetPlayerInfo().c_str(), guid, sendAllSlots);
 
-    uint8 fullSlotList;
-    recv_data >> fullSlotList; // 0 = only slots updated in last operation are shown. 1 = all slots updated
-
-    if (GetPlayer()->GetGameObjectIfCanInteractWith(GoGuid, GAMEOBJECT_TYPE_GUILD_BANK))
+    Guild * const guild = GetPlayer()->GetGuild();
+    if (!guild)
     {
-        if (Guild* guild = _GetPlayerGuild(this))
-            guild->SendBankTabsInfo(this);
-        else
-            Guild::SendCommandResult(this, GUILD_UNK1, ERR_GUILD_PLAYER_NOT_IN_GUILD);
-    }
-}
-
-// Called when opening guild bank tab only (first one)
-void WorldSession::HandleGuildBankQueryTab(WorldPacket & recv_data)
-{
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received (CMSG_GUILD_BANK_QUERY_TAB)");
-
-    uint64 GoGuid;
-    recv_data >> GoGuid;
-
-    uint8 tabId;
-    recv_data >> tabId;
-
-    uint8 fullSlotList;
-    recv_data >> fullSlotList; // 0 = only slots updated in last operation are shown. 1 = all slots updated
-
-    if (GetPlayer()->GetGameObjectIfCanInteractWith(GoGuid, GAMEOBJECT_TYPE_GUILD_BANK))
-        if (Guild* guild = _GetPlayerGuild(this))
-            guild->SendBankTabData(this, tabId);
-}
-
-void WorldSession::HandleGuildBankDepositMoney(WorldPacket & recv_data)
-{
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received (CMSG_GUILD_BANK_DEPOSIT_MONEY)");
-
-    uint64 GoGuid;
-    recv_data >> GoGuid;
-
-    uint32 money;
-    recv_data >> money;
-
-    if (GetPlayer()->GetGameObjectIfCanInteractWith(GoGuid, GAMEOBJECT_TYPE_GUILD_BANK))
-        if (money && GetPlayer()->HasEnoughMoney(money))
-            if (Guild* guild = _GetPlayerGuild(this))
-                guild->HandleMemberDepositMoney(this, money);
-}
-
-void WorldSession::HandleGuildBankWithdrawMoney(WorldPacket & recv_data)
-{
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received (CMSG_GUILD_BANK_WITHDRAW_MONEY)");
-
-    uint64 GoGuid;
-    recv_data >> GoGuid;
-
-    uint32 money;
-    recv_data >> money;
-
-    if (money)
-        if (GetPlayer()->GetGameObjectIfCanInteractWith(GoGuid, GAMEOBJECT_TYPE_GUILD_BANK))
-            if (Guild* guild = _GetPlayerGuild(this))
-                guild->HandleMemberWithdrawMoney(this, money);
-}
-
-void WorldSession::HandleGuildBankSwapItems(WorldPacket & recv_data)
-{
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received (CMSG_GUILD_BANK_SWAP_ITEMS)");
-
-    uint64 GoGuid;
-    recv_data >> GoGuid;
-
-    if (!GetPlayer()->GetGameObjectIfCanInteractWith(GoGuid, GAMEOBJECT_TYPE_GUILD_BANK))
-    {
-        recv_data.rfinish();                   // Prevent additional spam at rejected packet
+        Guild::SendCommandResult(this, GUILD_COMMAND_VIEW_TAB, ERR_GUILD_PLAYER_NOT_IN_GUILD);
         return;
     }
 
-    Guild* guild = _GetPlayerGuild(this);
+    guild->SendBankTabsInfo(this, sendAllSlots);
+}
+
+// Called when opening guild bank tab only (first one)
+void WorldSession::HandleGuildBankQueryTab(WorldPacket& recvData)
+{
+    uint64 guid;
+    uint8 tabId;
+    bool full;
+
+    recvData >> guid >> tabId >> full;
+
+    sLog->outDebug(LOG_FILTER_GUILD, "CMSG_GUILD_BANK_QUERY_TAB [%s]: Go: [" UI64FMTD "], TabId: %u, ShowTabs: %u"
+        , GetPlayerInfo().c_str(), guid, tabId, full);
+
+    if (GetPlayer()->GetGameObjectIfCanInteractWith(guid, GAMEOBJECT_TYPE_GUILD_BANK))
+        if (Guild* guild = GetPlayer()->GetGuild())
+            guild->SendBankTabData(this, tabId);
+}
+
+void WorldSession::HandleGuildBankDepositMoney(WorldPacket& recvData)
+{
+    uint64 guid;
+    uint32 money;
+    recvData >> guid >> money;
+
+    sLog->outDebug(LOG_FILTER_GUILD, "CMSG_GUILD_BANK_DEPOSIT_MONEY [%s]: Go: [" UI64FMTD "], money: %u",
+        GetPlayerInfo().c_str(), guid, money);
+
+    if (GetPlayer()->GetGameObjectIfCanInteractWith(guid, GAMEOBJECT_TYPE_GUILD_BANK))
+        if (money && GetPlayer()->HasEnoughMoney(money))
+            if (Guild* guild = GetPlayer()->GetGuild())
+                guild->HandleMemberDepositMoney(this, money);
+}
+
+void WorldSession::HandleGuildBankWithdrawMoney(WorldPacket& recvData)
+{
+    uint64 guid;
+    uint32 money;
+    recvData >> guid >> money;
+
+    sLog->outDebug(LOG_FILTER_GUILD, "CMSG_GUILD_BANK_WITHDRAW_MONEY [%s]: Go: [" UI64FMTD "], money: %u",
+        GetPlayerInfo().c_str(), guid, money);
+
+    if (money && GetPlayer()->GetGameObjectIfCanInteractWith(guid, GAMEOBJECT_TYPE_GUILD_BANK))
+        if (Guild* guild = GetPlayer()->GetGuild())
+            guild->HandleMemberWithdrawMoney(this, money);
+}
+
+void WorldSession::HandleGuildBankSwapItems(WorldPacket& recvData)
+{
+    sLog->outDebug(LOG_FILTER_GUILD, "CMSG_GUILD_BANK_SWAP_ITEMS [%s]", GetPlayerInfo().c_str());
+
+    uint64 GoGuid;
+    recvData >> GoGuid;
+
+    if (!GetPlayer()->GetGameObjectIfCanInteractWith(GoGuid, GAMEOBJECT_TYPE_GUILD_BANK))
+    {
+        recvData.rfinish();                   // Prevent additional spam at rejected packet
+        return;
+    }
+
+    Guild* guild = GetPlayer()->GetGuild();
     if (!guild)
     {
-        recv_data.rfinish();                   // Prevent additional spam at rejected packet
+        recvData.rfinish();                   // Prevent additional spam at rejected packet
         return;
     }
 
     uint8 bankToBank;
-    recv_data >> bankToBank;
+    recvData >> bankToBank;
 
     uint8 tabId;
     uint8 slotId;
@@ -446,18 +426,18 @@ void WorldSession::HandleGuildBankSwapItems(WorldPacket & recv_data)
     if (bankToBank)
     {
         uint8 destTabId;
-        recv_data >> destTabId;
+        recvData >> destTabId;
 
         uint8 destSlotId;
-        recv_data >> destSlotId;
-        recv_data.read_skip<uint32>();                      // Always 0
+        recvData >> destSlotId;
+        recvData.read_skip<uint32>();                      // Always 0
 
-        recv_data >> tabId;
-        recv_data >> slotId;
-        recv_data >> itemEntry;
-        recv_data.read_skip<uint8>();                       // Always 0
+        recvData >> tabId;
+        recvData >> slotId;
+        recvData >> itemEntry;
+        recvData.read_skip<uint8>();                       // Always 0
 
-        recv_data >> splitedAmount;
+        recvData >> splitedAmount;
 
         guild->SwapItems(GetPlayer(), tabId, slotId, destTabId, destSlotId, splitedAmount);
     }
@@ -467,24 +447,24 @@ void WorldSession::HandleGuildBankSwapItems(WorldPacket & recv_data)
         uint8 playerSlotId = NULL_SLOT;
         uint8 toChar = 1;
 
-        recv_data >> tabId;
-        recv_data >> slotId;
-        recv_data >> itemEntry;
+        recvData >> tabId;
+        recvData >> slotId;
+        recvData >> itemEntry;
 
         uint8 autoStore;
-        recv_data >> autoStore;
+        recvData >> autoStore;
         if (autoStore)
         {
-            recv_data.read_skip<uint32>();                  // autoStoreCount
-            recv_data.read_skip<uint8>();                   // ToChar (?), always and expected to be 1 (autostore only triggered in Bank -> Char)
-            recv_data.read_skip<uint32>();                  // Always 0
+            recvData.read_skip<uint32>();                  // autoStoreCount
+            recvData.read_skip<uint8>();                   // ToChar (?), always and expected to be 1 (autostore only triggered in Bank -> Char)
+            recvData.read_skip<uint32>();                  // Always 0
         }
         else
         {
-            recv_data >> playerBag;
-            recv_data >> playerSlotId;
-            recv_data >> toChar;
-            recv_data >> splitedAmount;
+            recvData >> playerBag;
+            recvData >> playerSlotId;
+            recvData >> toChar;
+            recvData >> splitedAmount;
         }
 
         // Player <-> Bank
@@ -496,75 +476,68 @@ void WorldSession::HandleGuildBankSwapItems(WorldPacket & recv_data)
     }
 }
 
-void WorldSession::HandleGuildBankBuyTab(WorldPacket & recv_data)
+void WorldSession::HandleGuildBankBuyTab(WorldPacket& recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received (CMSG_GUILD_BANK_BUY_TAB)");
-
-    uint64 GoGuid;
-    recv_data >> GoGuid;
-
+    uint64 guid;
     uint8 tabId;
-    recv_data >> tabId;
 
-    if (GetPlayer()->GetGameObjectIfCanInteractWith(GoGuid, GAMEOBJECT_TYPE_GUILD_BANK))
-        if (Guild* guild = _GetPlayerGuild(this))
+    recvData >> guid >> tabId;
+
+    sLog->outDebug(LOG_FILTER_GUILD, "CMSG_GUILD_BANK_BUY_TAB [%s]: Go: [" UI64FMTD "], TabId: %u", GetPlayerInfo().c_str(), guid, tabId);
+
+
+    if (GetPlayer()->GetGameObjectIfCanInteractWith(guid, GAMEOBJECT_TYPE_GUILD_BANK))
+        if (Guild* guild = GetPlayer()->GetGuild())
             guild->HandleBuyBankTab(this, tabId);
 }
 
-void WorldSession::HandleGuildBankUpdateTab(WorldPacket & recv_data)
+void WorldSession::HandleGuildBankUpdateTab(WorldPacket& recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received (CMSG_GUILD_BANK_UPDATE_TAB)");
-
-    uint64 GoGuid;
-    recv_data >> GoGuid;
-
+    uint64 guid;
     uint8 tabId;
-    recv_data >> tabId;
+    std::string name, icon;
 
-    std::string name;
-    recv_data >> name;
+    recvData >> guid >> tabId >> name >> icon;
 
-    std::string icon;
-    recv_data >> icon;
+    sLog->outDebug(LOG_FILTER_GUILD, "CMSG_GUILD_BANK_UPDATE_TAB [%s]: Go: [" UI64FMTD "], TabId: %u, Name: %s, Icon: %s"
+        , GetPlayerInfo().c_str(), guid, tabId, name.c_str(), icon.c_str());
 
     if (!name.empty() && !icon.empty())
-        if (GetPlayer()->GetGameObjectIfCanInteractWith(GoGuid, GAMEOBJECT_TYPE_GUILD_BANK))
-            if (Guild* guild = _GetPlayerGuild(this))
+        if (GetPlayer()->GetGameObjectIfCanInteractWith(guid, GAMEOBJECT_TYPE_GUILD_BANK))
+            if (Guild* guild = GetPlayer()->GetGuild())
                 guild->HandleSetBankTabInfo(this, tabId, name, icon);
 }
 
-void WorldSession::HandleGuildBankLogQuery(WorldPacket & recv_data)
+void WorldSession::HandleGuildBankLogQuery(WorldPacket& recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received (MSG_GUILD_BANK_LOG_QUERY)");
-
     uint8 tabId;
-    recv_data >> tabId;
+    recvData >> tabId;
 
-    if (Guild* guild = _GetPlayerGuild(this))
+    sLog->outDebug(LOG_FILTER_GUILD, "MSG_GUILD_BANK_LOG_QUERY [%s]: TabId: %u", GetPlayerInfo().c_str(), tabId);
+
+    if (Guild* guild = GetPlayer()->GetGuild())
         guild->SendBankLog(this, tabId);
 }
 
-void WorldSession::HandleQueryGuildBankTabText(WorldPacket &recv_data)
+void WorldSession::HandleQueryGuildBankTabText(WorldPacket &recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received MSG_QUERY_GUILD_BANK_TEXT");
-
     uint8 tabId;
-    recv_data >> tabId;
+    recvData >> tabId;
 
-    if (Guild* guild = _GetPlayerGuild(this))
+    sLog->outDebug(LOG_FILTER_GUILD, "MSG_QUERY_GUILD_BANK_TEXT [%s]: TabId: %u", GetPlayerInfo().c_str(), tabId);
+
+    if (Guild* guild = GetPlayer()->GetGuild())
         guild->SendBankTabText(this, tabId);
 }
 
-void WorldSession::HandleSetGuildBankTabText(WorldPacket &recv_data)
+void WorldSession::HandleSetGuildBankTabText(WorldPacket &recvData)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_SET_GUILD_BANK_TEXT");
-
     uint8 tabId;
-    recv_data >> tabId;
-
     std::string text;
-    recv_data >> text;
+    recvData >> tabId >> text;
 
-    if (Guild* guild = _GetPlayerGuild(this))
+    sLog->outDebug(LOG_FILTER_GUILD, "CMSG_SET_GUILD_BANK_TEXT [%s]: TabId: %u, Text: %s", GetPlayerInfo().c_str(), tabId, text.c_str());
+
+    if (Guild* guild = GetPlayer()->GetGuild())
         guild->SetBankTabText(tabId, text);
 }

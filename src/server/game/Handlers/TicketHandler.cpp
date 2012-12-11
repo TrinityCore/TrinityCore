@@ -17,15 +17,16 @@
  */
 
 #include "zlib.h"
-#include "Language.h"
-#include "WorldPacket.h"
 #include "Common.h"
+#include "Language.h"
 #include "ObjectMgr.h"
-#include "TicketMgr.h"
+#include "Opcodes.h"
 #include "Player.h"
-#include "World.h"
-#include "WorldSession.h"
+#include "TicketMgr.h"
 #include "Util.h"
+#include "World.h"
+#include "WorldPacket.h"
+#include "WorldSession.h"
 
 void WorldSession::HandleGMTicketCreateOpcode(WorldPacket& recvData)
 {
@@ -96,7 +97,7 @@ void WorldSession::HandleGMTicketCreateOpcode(WorldPacket& recvData)
     SendPacket(&data);
 }
 
-void WorldSession::HandleGMTicketUpdateOpcode(WorldPacket & recvData)
+void WorldSession::HandleGMTicketUpdateOpcode(WorldPacket& recvData)
 {
     std::string message;
     recvData >> message;

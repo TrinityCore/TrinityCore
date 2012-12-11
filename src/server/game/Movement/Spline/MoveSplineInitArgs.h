@@ -22,6 +22,8 @@
 #include "MoveSplineFlag.h"
 #include <G3D/Vector3.h>
 
+class Unit;
+
 namespace Movement
 {
     typedef std::vector<Vector3> PointsArray;
@@ -61,7 +63,7 @@ namespace Movement
         bool TransformForTransport;
 
         /** Returns true to show that the arguments were configured correctly and MoveSpline initialization will succeed. */
-        bool Validate() const;
+        bool Validate(Unit* unit) const;
     private:
         bool _checkPathBounds() const;
     };

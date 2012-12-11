@@ -17,22 +17,24 @@
  */
 
 #include "Map.h"
-#include "GridStates.h"
-#include "ScriptMgr.h"
-#include "VMapFactory.h"
-#include "MapInstanced.h"
+#include "Battleground.h"
 #include "CellImpl.h"
+#include "DynamicTree.h"
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
-#include "Transport.h"
-#include "InstanceScript.h"
-#include "ObjectAccessor.h"
-#include "MapManager.h"
-#include "ObjectMgr.h"
+#include "GridStates.h"
 #include "Group.h"
+#include "InstanceScript.h"
 #include "LFGMgr.h"
-#include "DynamicTree.h"
+#include "MapInstanced.h"
+#include "MapManager.h"
+#include "ObjectAccessor.h"
+#include "ObjectMgr.h"
+#include "Pet.h"
+#include "ScriptMgr.h"
+#include "Transport.h"
 #include "Vehicle.h"
+#include "VMapFactory.h"
 
 union u_map_magic
 {
@@ -144,7 +146,7 @@ void Map::LoadMap(int gx, int gy, bool reload)
 
         // load grid map for base map
         if (!m_parentMap->GridMaps[gx][gy])
-            m_parentMap->EnsureGridCreated(GridCoord(63-gx, 63-gy));
+            m_parentMap->EnsureGridCreated_i(GridCoord(63-gx, 63-gy));
 
         ((MapInstanced*)(m_parentMap))->AddGridMapReference(GridCoord(gx, gy));
         GridMaps[gx][gy] = m_parentMap->GridMaps[gx][gy];
@@ -307,32 +309,34 @@ void Map::DeleteFromWorld(Player* player)
     delete player;
 }
 
+void Map::EnsureGridCreated(const GridCoord &p)
+{
+    TRINITY_GUARD(ACE_Thread_Mutex, Lock);
+    EnsureGridCreated_i(p);
+}
+
 //Create NGrid so the object can be added to it
 //But object data is not loaded here
-void Map::EnsureGridCreated(const GridCoord &p)
+void Map::EnsureGridCreated_i(const GridCoord &p)
 {
     if (!getNGrid(p.x_coord, p.y_coord))
     {
-        TRINITY_GUARD(ACE_Thread_Mutex, Lock);
-        if (!getNGrid(p.x_coord, p.y_coord))
-        {
-            sLog->outDebug(LOG_FILTER_MAPS, "Creating grid[%u, %u] for map %u instance %u", p.x_coord, p.y_coord, GetId(), i_InstanceId);
+        sLog->outDebug(LOG_FILTER_MAPS, "Creating grid[%u, %u] for map %u instance %u", p.x_coord, p.y_coord, GetId(), i_InstanceId);
 
-            setNGrid(new NGridType(p.x_coord*MAX_NUMBER_OF_GRIDS + p.y_coord, p.x_coord, p.y_coord, i_gridExpiry, sWorld->getBoolConfig(CONFIG_GRID_UNLOAD)),
-                p.x_coord, p.y_coord);
+        setNGrid(new NGridType(p.x_coord*MAX_NUMBER_OF_GRIDS + p.y_coord, p.x_coord, p.y_coord, i_gridExpiry, sWorld->getBoolConfig(CONFIG_GRID_UNLOAD)),
+            p.x_coord, p.y_coord);
 
-            // build a linkage between this map and NGridType
-            buildNGridLinkage(getNGrid(p.x_coord, p.y_coord));
+        // build a linkage between this map and NGridType
+        buildNGridLinkage(getNGrid(p.x_coord, p.y_coord));
 
-            getNGrid(p.x_coord, p.y_coord)->SetGridState(GRID_STATE_IDLE);
+        getNGrid(p.x_coord, p.y_coord)->SetGridState(GRID_STATE_IDLE);
 
-            //z coord
-            int gx = (MAX_NUMBER_OF_GRIDS - 1) - p.x_coord;
-            int gy = (MAX_NUMBER_OF_GRIDS - 1) - p.y_coord;
+        //z coord
+        int gx = (MAX_NUMBER_OF_GRIDS - 1) - p.x_coord;
+        int gy = (MAX_NUMBER_OF_GRIDS - 1) - p.y_coord;
 
-            if (!GridMaps[gx][gy])
-                LoadMapAndVMap(gx, gy);
-        }
+        if (!GridMaps[gx][gy])
+            LoadMapAndVMap(gx, gy);
     }
 }
 
@@ -1094,7 +1098,7 @@ bool GridMap::loadData(char *filename)
             return false;
         }
         // loadup height data
-        if (header.heightMapOffset && !loadHeihgtData(in, header.heightMapOffset, header.heightMapSize))
+        if (header.heightMapOffset && !loadHeightData(in, header.heightMapOffset, header.heightMapSize))
         {
             sLog->outError(LOG_FILTER_MAPS, "Error loading map height data\n");
             fclose(in);
@@ -1150,7 +1154,7 @@ bool GridMap::loadAreaData(FILE* in, uint32 offset, uint32 /*size*/)
     return true;
 }
 
-bool GridMap::loadHeihgtData(FILE* in, uint32 offset, uint32 /*size*/)
+bool GridMap::loadHeightData(FILE* in, uint32 offset, uint32 /*size*/)
 {
     map_heightHeader header;
     fseek(in, offset, SEEK_SET);

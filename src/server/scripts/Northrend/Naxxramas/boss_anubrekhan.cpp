@@ -19,11 +19,14 @@
 #include "ScriptedCreature.h"
 #include "naxxramas.h"
 
-#define SAY_GREET           RAND(-1533000, -1533004, -1533005, -1533006, -1533007)
-#define SAY_AGGRO           RAND(-1533001, -1533002, -1533003)
-#define SAY_SLAY            -1533008
+enum Anubrekhan
+{
+    SAY_AGGRO           = 0,
+    SAY_GREET           = 1,
+    SAY_SLAY            = 2,
 
-#define MOB_CRYPT_GUARD     16573
+    MOB_CRYPT_GUARD     = 16573
+};
 
 const Position GuardSummonPos = {3333.72f, -3476.30f, 287.1f, 6.2801f};
 
@@ -97,7 +100,7 @@ public:
                 if (victim->GetTypeId() == TYPEID_PLAYER)
                     victim->CastSpell(victim, SPELL_SUMMON_CORPSE_SCARABS_PLR, true, NULL, NULL, me->GetGUID());
 
-            DoScriptText(SAY_SLAY, me);
+            Talk(SAY_SLAY);
         }
 
         void JustDied(Unit* /*killer*/)
@@ -111,7 +114,7 @@ public:
         void EnterCombat(Unit* /*who*/)
         {
             _EnterCombat();
-            DoScriptText(SAY_AGGRO, me);
+            Talk(SAY_AGGRO);
             events.ScheduleEvent(EVENT_IMPALE, urand(10000, 20000));
             events.ScheduleEvent(EVENT_LOCUST, 90000);
             events.ScheduleEvent(EVENT_BERSERK, 600000);
@@ -124,7 +127,7 @@ public:
         {
             if (!hasTaunted && me->IsWithinDistInMap(who, 60.0f) && who->GetTypeId() == TYPEID_PLAYER)
             {
-                DoScriptText(SAY_GREET, me);
+                Talk(SAY_GREET);
                 hasTaunted = true;
             }
             ScriptedAI::MoveInLineOfSight(who);

@@ -20,6 +20,8 @@
 #include "ScriptedEscortAI.h"
 #include "ScriptedGossip.h"
 #include "blackrock_depths.h"
+#include "Player.h"
+#include "WorldSession.h"
 
 //go_shadowforge_brazier
 class go_shadowforge_brazier : public GameObjectScript
@@ -99,12 +101,12 @@ public:
 // npc_grimstone
 enum GrimstoneTexts
 {
-    SCRIPT_TEXT1          = -1230003,
-    SCRIPT_TEXT2          = -1230004,
-    SCRIPT_TEXT3          = -1230005,
-    SCRIPT_TEXT4          = -1230006,
-    SCRIPT_TEXT5          = -1230007,
-    SCRIPT_TEXT6          = -1230008
+    SAY_TEXT1          = 0,
+    SAY_TEXT2          = 1,
+    SAY_TEXT3          = 2,
+    SAY_TEXT4          = 3,
+    SAY_TEXT5          = 4,
+    SAY_TEXT6          = 5
 };
 
 //TODO: implement quest part of event (different end boss)
@@ -184,12 +186,12 @@ public:
             switch (waypointId)
             {
                 case 0:
-                    DoScriptText(SCRIPT_TEXT1, me);//2
+                    Talk(SAY_TEXT1);
                     CanWalk = false;
                     Event_Timer = 5000;
                     break;
                 case 1:
-                    DoScriptText(SCRIPT_TEXT2, me);//4
+                    Talk(SAY_TEXT2);
                     CanWalk = false;
                     Event_Timer = 5000;
                     break;
@@ -197,10 +199,10 @@ public:
                     CanWalk = false;
                     break;
                 case 3:
-                    DoScriptText(SCRIPT_TEXT3, me);//5
+                    Talk(SAY_TEXT3);
                     break;
                 case 4:
-                    DoScriptText(SCRIPT_TEXT4, me);//6
+                    Talk(SAY_TEXT4);
                     CanWalk = false;
                     Event_Timer = 5000;
                     break;
@@ -270,7 +272,7 @@ public:
                     switch (EventPhase)
                     {
                     case 0:
-                        DoScriptText(SCRIPT_TEXT5, me);//1
+                        Talk(SAY_TEXT5);
                         HandleGameObject(DATA_ARENA4, false);
                         Start(false, false);
                         CanWalk = true;
@@ -305,7 +307,7 @@ public:
                     case 7:
                         me->SetVisible(true);
                         HandleGameObject(DATA_ARENA1, false);
-                        DoScriptText(SCRIPT_TEXT6, me);//4
+                        Talk(SAY_TEXT6);
                         CanWalk = true;
                         Event_Timer = 0;
                         break;
@@ -1176,7 +1178,7 @@ public:
 // npc_rocknot
 enum RocknotSays
 {
-    SAY_GOT_BEER                       = -1230000
+    SAY_GOT_BEER                       = 0
 };
 
 enum RocknotSpells
@@ -1213,7 +1215,7 @@ public:
             //keep track of amount in instance script, returns SPECIAL if amount ok and event in progress
             if (instance->GetData(TYPE_BAR) == SPECIAL)
             {
-                DoScriptText(SAY_GOT_BEER, creature);
+                creature->AI()->Talk(SAY_GOT_BEER);
                 creature->CastSpell(creature, SPELL_DRUNKEN_RAGE, false);
 
                 if (npc_escortAI* escortAI = CAST_AI(npc_rocknot::npc_rocknotAI, creature->AI()))

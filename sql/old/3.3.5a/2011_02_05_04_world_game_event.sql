@@ -1,6 +1,6 @@
 -- Update Quest_conditions for Quest: The Lunar Festival
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=19 AND `SourceEntry`IN(8870,8871,8872,8873,8874,8875);
-INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,`ElseGroup`,`ConditionTypeOrReference`,`ConditionValue1`,`ConditionValue2`,`ConditionValue3`,`ErrorTextId`,`ScriptName`,`Comment`) VALUES 
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,`ElseGroup`,`ConditionTypeOrReference`,`ConditionValue1`,`ConditionValue2`,`ConditionValue3`,`ErrorTextId`,`ScriptName`,`Comment`) VALUES
 -- Alliance
 (19,0,8871,0,4,1519,0,0,0,0,'The Lunar Festival: Stormwind'),
 (19,0,8872,0,4,1657,0,0,0,0,'The Lunar Festival: Darnassus'),
@@ -13,7 +13,7 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,
 UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry` IN (15872,15873,15874,15879,15880,15882);
 DELETE FROM `creature_ai_scripts` WHERE `creature_id` IN (15872,15873,15874,15879,15880,15882); -- Cleanup
 DELETE FROM `smart_scripts` WHERE `entryorguid` IN (15872,15873,15874,15879,15880,15882);
-INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES 
+INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
 -- small fireworks
 -- blue firework
 (15879,0,0,0,1,0,100,1,0,0,0,0,11,26344,2,0,0,0,0,1,0,0,0,0,0,0,0, 'cast fireworks'),

@@ -18,15 +18,15 @@
 #ifndef DEF_RUINS_OF_AHNQIRAJ_H
 #define DEF_RUINS_OF_AHNQIRAJ_H
 
-enum Encounters
+enum DataTypes
 {
-    BOSS_KURINNAXX          = 0,
-    BOSS_RAJAXX             = 1,
-    BOSS_MOAM               = 2,
-    BOSS_BURU               = 3,
-    BOSS_AYAMISS            = 4,
-    BOSS_OSSIRIAN           = 5,
-    MAX_ENCOUNTER,
+    DATA_KURINNAXX          = 0,
+    DATA_RAJAXX             = 1,
+    DATA_MOAM               = 2,
+    DATA_BURU               = 3,
+    DATA_AYAMISS            = 4,
+    DATA_OSSIRIAN           = 5,
+    NUM_ENCOUNTER           = 6
 };
 
 enum Creatures
@@ -40,6 +40,13 @@ enum Creatures
     NPC_HIVEZARA_HORNET         = 15934,
     NPC_HIVEZARA_SWARMER        = 15546,
     NPC_HIVEZARA_LARVA          = 15555,
+    NPC_SAND_VORTEX             = 15428,
+    NPC_OSSIRIAN_TRIGGER        = 15590,
+};
+
+enum GameObjects
+{
+    GO_OSSIRIAN_CRYSTAL         = 180619,
 };
 
 #endif

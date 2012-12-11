@@ -29,10 +29,10 @@ class PointMovementGenerator : public MovementGeneratorMedium< T, PointMovementG
         PointMovementGenerator(uint32 _id, float _x, float _y, float _z, float _speed = 0.0f) : id(_id),
             i_x(_x), i_y(_y), i_z(_z), speed(_speed) {}
 
-        void Initialize(T &);
-        void Finalize(T &);
-        void Reset(T &);
-        bool Update(T &, const uint32 &);
+        void DoInitialize(T &);
+        void DoFinalize(T &);
+        void DoReset(T &);
+        bool DoUpdate(T &, uint32);
 
         void MovementInform(T &);
 
@@ -66,7 +66,7 @@ class EffectMovementGenerator : public MovementGenerator
         void Initialize(Unit &) {}
         void Finalize(Unit &unit);
         void Reset(Unit &) {}
-        bool Update(Unit &u, const uint32&);
+        bool Update(Unit &u, uint32);
         MovementGeneratorType GetMovementGeneratorType() { return EFFECT_MOTION_TYPE; }
     private:
         uint32 m_Id;

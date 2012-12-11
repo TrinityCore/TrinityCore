@@ -30,15 +30,20 @@ EndContentData */
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "Player.h"
+#include "Pet.h"
+#include "SpellInfo.h"
 
 /*######
 ## npc_converted_sentry
 ######*/
+enum ConvertedSentry
+{
+    SAY_CONVERTED           = 0,
 
-#define SAY_CONVERTED_1         -1000188
-#define SAY_CONVERTED_2         -1000189
+    SPELL_CONVERT_CREDIT    = 45009
+};
 
-#define SPELL_CONVERT_CREDIT    45009
 
 class npc_converted_sentry : public CreatureScript
 {
@@ -72,11 +77,7 @@ public:
             {
                 if (Timer <= diff)
                 {
-                    uint32 i = urand(1, 2);
-                    if (i == 1)
-                        DoScriptText(SAY_CONVERTED_1, me);
-                    else
-                        DoScriptText(SAY_CONVERTED_2, me);
+                    Talk(SAY_CONVERTED);
 
                     DoCast(me, SPELL_CONVERT_CREDIT);
                     if (me->isPet())

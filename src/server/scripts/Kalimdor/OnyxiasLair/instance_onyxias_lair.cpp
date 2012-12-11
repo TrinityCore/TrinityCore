@@ -29,6 +29,7 @@ EndScriptData */
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
 #include "onyxias_lair.h"
+#include "TemporarySummon.h"
 
 class instance_onyxias_lair : public InstanceMapScript
 {
@@ -189,7 +190,7 @@ public:
             }
         }
 
-        uint32 GetData(uint32 Type)
+        uint32 GetData(uint32 Type) const
         {
             switch (Type)
             {
@@ -200,7 +201,7 @@ public:
             return 0;
         }
 
-        uint64 GetData64(uint32 Data)
+        uint64 GetData64(uint32 Data) const
         {
             switch (Data)
             {

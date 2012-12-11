@@ -1706,7 +1706,7 @@ public:
                 if (pet->isGuardian())
                     ((Guardian*)pet)->SetBonusDamage(owner->GetTotalAttackPowerValue(BASE_ATTACK));
 
-                amount += owner->CalculateDamage(BASE_ATTACK, true, true);;
+                amount += owner->CalculateDamage(BASE_ATTACK, true, true);
             }
         }
 

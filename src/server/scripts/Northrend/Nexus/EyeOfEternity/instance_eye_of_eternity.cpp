@@ -19,6 +19,7 @@
 #include "ScriptedCreature.h"
 #include "InstanceScript.h"
 #include "eye_of_eternity.h"
+#include "Player.h"
 
 class instance_eye_of_eternity : public InstanceMapScript
 {
@@ -225,7 +226,7 @@ public:
             }
         }
 
-        uint64 GetData64(uint32 data)
+        uint64 GetData64(uint32 data) const
         {
             switch (data)
             {

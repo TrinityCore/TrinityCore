@@ -31,18 +31,11 @@ enum Spells
 
 enum Yells
 {
-    SAY_AGGRO                                     = -1578005,
-    SAY_KILL_1                                    = -1578006,
-    SAY_KILL_2                                    = -1578007,
-    SAY_KILL_3                                    = -1578008,
-    SAY_DEATH                                     = -1578009,
-    SAY_PULL_1                                    = -1578010,
-    SAY_PULL_2                                    = -1578011,
-    SAY_PULL_3                                    = -1578012,
-    SAY_PULL_4                                    = -1578013,
-    SAY_STOMP_1                                   = -1578014,
-    SAY_STOMP_2                                   = -1578015,
-    SAY_STOMP_3                                   = -1578016
+    SAY_AGGRO                                     = 0,
+    SAY_KILL                                      = 1,
+    SAY_DEATH                                     = 2,
+    SAY_PULL                                      = 3,
+    SAY_STOMP                                     = 4
 };
 
 enum DrakosAchievement
@@ -85,7 +78,7 @@ public:
         void EnterCombat(Unit* /*who*/)
         {
             _EnterCombat();
-            DoScriptText(SAY_AGGRO, me);
+            Talk(SAY_AGGRO);
         }
 
         void UpdateAI(const uint32 diff)
@@ -122,7 +115,7 @@ public:
                         events.ScheduleEvent(EVENT_MAGIC_PULL, 15000);
                         break;
                     case EVENT_STOMP:
-                        DoScriptText(RAND(SAY_STOMP_1, SAY_STOMP_2, SAY_STOMP_3), me);
+                        Talk(SAY_STOMP);
                         DoCast(SPELL_THUNDERING_STOMP);
                         events.ScheduleEvent(EVENT_STOMP, 17000);
                         break;
@@ -136,7 +129,7 @@ public:
         {
             _JustDied();
 
-            DoScriptText(SAY_DEATH, me);
+            Talk(SAY_DEATH);
 
             // start achievement timer (kill Eregos within 20 min)
             instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
@@ -144,7 +137,7 @@ public:
 
         void KilledUnit(Unit* /*victim*/)
         {
-            DoScriptText(RAND(SAY_KILL_1, SAY_KILL_2, SAY_KILL_3), me);
+            Talk(SAY_KILL);
         }
     private:
         bool postPull;

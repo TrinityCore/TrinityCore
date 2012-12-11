@@ -29,6 +29,9 @@
 #include "SpellAuraEffects.h"
 #include "ulduar.h"
 #include "Vehicle.h"
+#include "Player.h"
+#include "WorldPacket.h"
+#include "Opcodes.h"
 
 enum Spells
 {
@@ -154,15 +157,18 @@ enum XT002Data
 
 enum Yells
 {
-    SAY_AGGRO                                   = -1603300,
-    SAY_HEART_OPENED                            = -1603301,
-    SAY_HEART_CLOSED                            = -1603302,
-    SAY_TYMPANIC_TANTRUM                        = -1603303,
-    SAY_SLAY_1                                  = -1603304,
-    SAY_SLAY_2                                  = -1603305,
-    SAY_BERSERK                                 = -1603306,
-    SAY_DEATH                                   = -1603307,
-    SAY_SUMMON                                  = -1603308,
+    SAY_AGGRO                                   = 0,
+    SAY_HEART_OPENED                            = 1,
+    SAY_HEART_CLOSED                            = 2,
+    SAY_TYMPANIC_TANTRUM                        = 3,
+    SAY_SLAY                                    = 4,
+    SAY_BERSERK                                 = 5,
+    SAY_DEATH                                   = 6,
+    SAY_SUMMON                                  = 7,
+    EMOTE_HEART_OPENED                          = 8,
+    EMOTE_HEART_CLOSED                          = 9,
+    EMOTE_TYMPANIC_TANTRUM                      = 10,
+    EMOTE_SCRAPBOT                              = 11
 };
 
 enum AchievementCredits
@@ -220,7 +226,7 @@ class boss_xt002 : public CreatureScript
 
             void EnterCombat(Unit* /*who*/)
             {
-                DoScriptText(SAY_AGGRO, me);
+                Talk(SAY_AGGRO);
                 _EnterCombat();
 
                 events.ScheduleEvent(EVENT_ENRAGE, TIMER_ENRAGE);
@@ -245,14 +251,15 @@ class boss_xt002 : public CreatureScript
                 }
             }
 
-            void KilledUnit(Unit* /*victim*/)
+            void KilledUnit(Unit* who)
             {
-                DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2), me);
+                if (who->GetTypeId() == TYPEID_PLAYER)
+                    Talk(SAY_SLAY);
             }
 
             void JustDied(Unit* /*killer*/)
             {
-                DoScriptText(SAY_DEATH, me);
+                Talk(SAY_DEATH);
                 _JustDied();
             }
 
@@ -289,7 +296,8 @@ class boss_xt002 : public CreatureScript
                             events.ScheduleEvent(EVENT_GRAVITY_BOMB, TIMER_GRAVITY_BOMB);
                             break;
                         case EVENT_TYMPANIC_TANTRUM:
-                            DoScriptText(SAY_TYMPANIC_TANTRUM, me);
+                            Talk(SAY_TYMPANIC_TANTRUM);
+                            Talk(EMOTE_TYMPANIC_TANTRUM);
                             DoCast(SPELL_TYMPANIC_TANTRUM);
                             events.ScheduleEvent(EVENT_TYMPANIC_TANTRUM, urand(TIMER_TYMPANIC_TANTRUM_MIN, TIMER_TYMPANIC_TANTRUM_MAX));
                             break;
@@ -297,7 +305,7 @@ class boss_xt002 : public CreatureScript
                             SetPhaseOne();
                             break;
                         case EVENT_ENRAGE:
-                            DoScriptText(SAY_BERSERK, me);
+                            Talk(SAY_BERSERK);
                             DoCast(me, SPELL_ENRAGE);
                             break;
                         case EVENT_ENTER_HARD_MODE:
@@ -322,11 +330,12 @@ class boss_xt002 : public CreatureScript
                     if (me->GetHealthPct() > (25 * (4 - _heartExposed)))
                         ++_heartExposed;
 
+                    Talk(EMOTE_SCRAPBOT);
                     _healthRecovered = true;
                 }
             }
 
-            uint32 GetData(uint32 type)
+            uint32 GetData(uint32 type) const
             {
                 switch (type)
                 {
@@ -356,7 +365,8 @@ class boss_xt002 : public CreatureScript
 
             void ExposeHeart()
             {
-                DoScriptText(SAY_HEART_OPENED, me);
+                Talk(SAY_HEART_OPENED);
+                Talk(EMOTE_HEART_OPENED);
 
                 DoCast(me, SPELL_SUBMERGE);  // WIll make creature untargetable
                 me->AttackStop();
@@ -388,7 +398,8 @@ class boss_xt002 : public CreatureScript
 
             void SetPhaseOne()
             {
-                DoScriptText(SAY_HEART_CLOSED, me);
+                Talk(SAY_HEART_CLOSED);
+                Talk(EMOTE_HEART_CLOSED);
 
                 DoCast(me, SPELL_STAND);
                 me->SetReactState(REACT_AGGRESSIVE);
@@ -925,7 +936,8 @@ class spell_xt002_heart_overload_periodic : public SpellScriptLoader
                         }
                     }
 
-                    DoScriptText(SAY_SUMMON, caster->GetVehicleBase());
+                    if (Creature* base = caster->GetVehicleCreatureBase())
+                        base->AI()->Talk(SAY_SUMMON);
                 }
             }
 

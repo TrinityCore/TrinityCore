@@ -677,7 +677,7 @@ void SmartAI::CorpseRemoved(uint32& respawnDelay)
 
 void SmartAI::PassengerBoarded(Unit* who, int8 seatId, bool apply)
 {
-    GetScript()->ProcessEventsFor(SMART_EVENT_PASSENGER_BOARDED, who, (uint32)seatId, 0, apply);
+    GetScript()->ProcessEventsFor(apply ? SMART_EVENT_PASSENGER_BOARDED : SMART_EVENT_PASSENGER_REMOVED, who, uint32(seatId), 0, apply);
 }
 
 void SmartAI::InitializeAI()
@@ -698,7 +698,7 @@ void SmartAI::DoAction(const int32 param)
     GetScript()->ProcessEventsFor(SMART_EVENT_ACTION_DONE, NULL, param);
 }
 
-uint32 SmartAI::GetData(uint32 /*id*/)
+uint32 SmartAI::GetData(uint32 /*id*/) const
 {
     return 0;
 }
@@ -712,7 +712,7 @@ void SmartAI::SetGUID(uint64 /*guid*/, int32 /*id*/)
 {
 }
 
-uint64 SmartAI::GetGUID(int32 /*id*/)
+uint64 SmartAI::GetGUID(int32 /*id*/) const
 {
     return 0;
 }

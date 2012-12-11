@@ -2,7 +2,7 @@
 DELETE FROM `creature_loot_template` WHERE `entry`=31671;
 -- Savage worg
 DELETE FROM `creature_loot_template` WHERE `entry`=31678 AND `item` IN(39211,39212,33454);
-INSERT INTO `creature_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `mincountOrRef`, `maxcount`) VALUES 
+INSERT INTO `creature_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `mincountOrRef`, `maxcount`) VALUES
 (31678,39211,70,3,5),
 (31678,39212,16,2,4),
 (31678,33454, 3,1,1);
@@ -35,7 +35,7 @@ UPDATE `creature_template` SET `unit_flags`=2|4|256|512, `faction_A`=35, `factio
 -- Dragonflayer runecaster
 DELETE FROM `creature_ai_scripts` WHERE `creature_id`=23960;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=23960 AND `source_type`=0;
-INSERT INTO `smart_scripts` (`entryorguid`, `id`, `event_type`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `target_type`, `target_param2`, `comment`) VALUES 
+INSERT INTO `smart_scripts` (`entryorguid`, `id`, `event_type`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `target_type`, `target_param2`, `comment`) VALUES
 (23960,1,0,2,5000,7000,14000,17000,11,42740,11,30,'Dragonflayer Runecaster - In combat - Cast Njords Rune of Protection'),
 (23960,2,0,4,5000,7000,14000,17000,11,59616,11,30,'Dragonflayer Runecaster - In combat - Cast Njords Rune of Protection'),
 (23960,3,0,2,1000,2000,15000,18000,11,54965, 1, 0,'Dragonflayer Runecaster - In combat - Cast Bolthorns Rune of Flame'),
@@ -48,7 +48,7 @@ INSERT INTO `smart_scripts`(`entryorguid`,`event_type`,`event_param1`,`event_par
 (28419,0,5000,5000,30000,30000,11,40414,5,'Frenzied geist - In combat - Cast Fixate');
 
 -- Difficulty data for spells used in utgarde keep
-DELETE FROM `spelldifficulty_dbc` WHERE `id` IN(42669,42708,42750,42723,42729,43667,42702) OR `spellid0` IN(42669,42708,42750,42723,42729,43667,42702);
+DELETE FROM `spelldifficulty_dbc` WHERE `id` IN(42669,42708,42750,42723,42729,43667,42702,50653,43931) OR `spellid0` IN(42669,42708,42750,42723,42729,43667,42702,50653,43931);
 INSERT INTO `spelldifficulty_dbc`(`id`,`spellid0`,`spellid1`) VALUES
 (42669,42669,59706), -- Smash
 (42708,42708,59708), -- Staggering Roar
@@ -56,11 +56,13 @@ INSERT INTO `spelldifficulty_dbc`(`id`,`spellid0`,`spellid1`) VALUES
 (42723,42723,59709), -- Dark Smash
 (42729,42729,59734), -- Dreadful Roar
 (43667,43667,59389), -- Shadow Bolt
-(42702,42702,59397); -- Decrepify
+(42702,42702,59397), -- Decrepify
+(50653,50653,59692), -- Flame Breath
+(43931,43931,59691); -- Rend
 
 -- Ticking Time Bomb, Fixate
 DELETE FROM `spell_script_names` WHERE `spell_id` IN(59686,40414);
-INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES 
+INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (59686,'spell_ticking_time_bomb'),
 (40414,'spell_fixate');
 
@@ -88,7 +90,7 @@ INSERT INTO `creature_addon`(`guid`,`path_id`,`mount`,`bytes1`,`bytes2`,`auras`)
 
 -- Waypoint data
 DELETE FROM `waypoint_data` WHERE `id` IN (1259400,1259340,1259150,1259200,1259140,1259360,1259370,1259220);
-INSERT INTO `waypoint_data`(`id`,`point`,`position_x`,`position_y`,`position_z`) VALUES 
+INSERT INTO `waypoint_data`(`id`,`point`,`position_x`,`position_y`,`position_z`) VALUES
 (1259400,1,211.864,-352.629,196.144),
 (1259340,1,271.911,-318.506,185.049),
 (1259150,1,265.478,-199.246,186.812),
