@@ -11,4 +11,4 @@ CREATE TABLE `player_factionchange_quests` (
 -- ----------------------------
 -- Records of player_factionchange_quests
 -- ----------------------------
-INSERT INTO `player_factionchange_quests` VALUES ('13188', '13189');
+INSERT INTO `player_factionchange_quests` VALUES (13188, 13189);
