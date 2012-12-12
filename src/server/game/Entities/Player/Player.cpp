@@ -4184,11 +4184,11 @@ void Player::removeSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
     }
 
     if (spell_id == 46917 && m_canTitanGrip)
-        {
+    {
         SetCanTitanGrip(false);
         // Remove Titan's Grip damage penalty now
         RemoveAurasDueToSpell(49152);
-        }
+    }
     if (spell_id == 674 && m_canDualWield)
         SetCanDualWield(false);
 
