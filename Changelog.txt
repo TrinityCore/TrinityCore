@@ -11,6 +11,7 @@
 #                                                                                          #
 ############################################################################################
 
+[101] --> Fix Bonus 4P T10 Rogue.
 [100] --> Scripts/BlackTemple: Prevent Akama (Shade Encounter) to aggro outside of event.
 [99] --> Fix Bonus 4P T10 Warrior.
 [98] --> Fix Sunwell Plateau. (Test!)

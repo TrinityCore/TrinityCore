@@ -199,3 +199,7 @@ INSERT INTO spell_script_names VALUES (46916,'spell_warr_slam');
 -- Execute
 DELETE FROM spell_script_names WHERE spell_id = 52437;
 INSERT INTO spell_script_names VALUES (52437,'spell_warr_execute_bonus');
+
+-- Fix Rogue T10 4p bonus
+DELETE FROM spell_proc_event WHERE entry = 70803;
+INSERT INTO `spell_proc_event` VALUES('70803', '0', '8', '4063232', '8', '0', '0', '0', '0', '0', '0');
