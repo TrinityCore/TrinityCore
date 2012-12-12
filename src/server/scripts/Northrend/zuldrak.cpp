@@ -645,7 +645,7 @@ public:
             events.ScheduleEvent(EVENT_WHIRLWIND, 15000);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 const diff)
         {
             if (!UpdateVictim())
                 return;
@@ -662,31 +662,31 @@ public:
                     case EVENT_BLOOD_BOIL:
                             DoCastVictim(SPELL_BLOOD_BOIL);
                         events.ScheduleEvent(EVENT_BLOOD_BOIL, 8000);
-                        return;
+                        break;
                     case EVENT_BLOOD_PLAGUE:
                             DoCastVictim(SPELL_BLOOD_PLAGUE);
                         events.ScheduleEvent(EVENT_BLOOD_PLAGUE, 8000);
-                        return;
+                        break;
                     case EVENT_BLOOD_PRESENCE:
                             DoCast(SPELL_BLOOD_PRESENCE);
-                        return;
+                        break;
                     case EVENT_FROST_FEVER:
                             DoCastVictim(SPELL_FROST_FEVER);
                         events.ScheduleEvent(EVENT_FROST_FEVER, 15000);
-                        return;
+                        break;
                     case EVENT_WHIRLWIND:
                             DoCast(SPELL_WHIRLWIND);
-                        return;
+                        break;
                     case EVENT_DEFLECTION:
                             DoCastVictim(SPELL_DEFLECTION);
-                        return;
+                        break;
                     case EVENT_SLOW:
                             DoCastVictim(SPELL_SLOW);
                         events.ScheduleEvent(EVENT_SLOW, 9000);
-                        return;
+                        break;
                     case EVENT_HYSRERIA:
                             DoCast(SPELL_HYSRERIA);
-                        return;
+                        break;
                 }
             }
 
@@ -696,7 +696,7 @@ public:
         void JustDied(Unit* killer)
         {
 
-            if (Player* player = killer->GetCharmerOrOwnerPlayerOrPlayerItself()){
+            if (Player* player = killer->GetCharmerOrOwnerPlayerOrPlayerItself())
                 player->GroupEventHappens(QUEST_THE_CHAMPION_OF_ANGUISH, player);
             }
         }
@@ -1566,5 +1566,5 @@ void AddSC_zuldrak()
     new npc_elemental_lord;
     new npc_fiend_elemental;
     new go_scourge_enclosure;
-    new npc_vladof_the_butcher;
+    new npc_vladof_the_butcher();
 }
