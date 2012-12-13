@@ -36,29 +36,32 @@ EndContentData */
 #include "Player.h"
 #include "SpellInfo.h"
 
-#define SAY_ENTER               -1269020                    //where does this belong?
-#define SAY_INTRO               -1269021
-#define SAY_WEAK75              -1269022
-#define SAY_WEAK50              -1269023
-#define SAY_WEAK25              -1269024
-#define SAY_DEATH               -1269025
-#define SAY_WIN                 -1269026
-#define SAY_ORCS_ENTER          -1269027
-#define SAY_ORCS_ANSWER         -1269028
+enum MedivhBm
+{
+    SAY_ENTER               = 0,                    //where does this belong?
+    SAY_INTRO               = 1,
+    SAY_WEAK75              = 2,
+    SAY_WEAK50              = 3,
+    SAY_WEAK25              = 4,
+    SAY_DEATH               = 5,
+    SAY_WIN                 = 6,
+    SAY_ORCS_ENTER          = 7,
+    SAY_ORCS_ANSWER         = 8,
 
-#define SPELL_CHANNEL           31556
-#define SPELL_PORTAL_RUNE       32570                       //aura(portal on ground effect)
+    SPELL_CHANNEL           = 31556,
+    SPELL_PORTAL_RUNE       = 32570,                      //aura(portal on ground effect)
 
-#define SPELL_BLACK_CRYSTAL     32563                       //aura
-#define SPELL_PORTAL_CRYSTAL    32564                       //summon
+    SPELL_BLACK_CRYSTAL     = 32563,                      //aura
+    SPELL_PORTAL_CRYSTAL    = 32564,                      //summon
 
-#define SPELL_BANISH_PURPLE     32566                       //aura
-#define SPELL_BANISH_GREEN      32567                       //aura
+    SPELL_BANISH_PURPLE     = 32566,                      //aura
+    SPELL_BANISH_GREEN      = 32567,                      //aura
 
-#define SPELL_CORRUPT           31326
-#define SPELL_CORRUPT_AEONUS    37853
-
-#define C_COUNCIL_ENFORCER      17023
+    SPELL_CORRUPT           = 31326,
+    SPELL_CORRUPT_AEONUS    = 37853,
+    
+    C_COUNCIL_ENFORCER      = 17023
+};
 
 class npc_medivh_bm : public CreatureScript
 {
@@ -111,7 +114,7 @@ public:
                 if (instance->GetData(TYPE_MEDIVH) == IN_PROGRESS || instance->GetData(TYPE_MEDIVH) == DONE)
                     return;
 
-                DoScriptText(SAY_INTRO, me);
+                Talk(SAY_INTRO);
                 instance->SetData(TYPE_MEDIVH, IN_PROGRESS);
                 DoCast(me, SPELL_CHANNEL, false);
                 Check_Timer = 5000;
@@ -162,7 +165,7 @@ public:
             if (killer->GetEntry() == me->GetEntry())
                 return;
 
-            DoScriptText(SAY_DEATH, me);
+            Talk(SAY_DEATH);
         }
 
         void UpdateAI(const uint32 diff)
@@ -195,17 +198,17 @@ public:
 
                     if (Life25 && pct <= 25)
                     {
-                        DoScriptText(SAY_WEAK25, me);
+                        Talk(SAY_WEAK25);
                         Life25 = false;
                     }
                     else if (Life50 && pct <= 50)
                     {
-                        DoScriptText(SAY_WEAK50, me);
+                        Talk(SAY_WEAK50);
                         Life50 = false;
                     }
                     else if (Life75 && pct <= 75)
                     {
-                        DoScriptText(SAY_WEAK75, me);
+                        Talk(SAY_WEAK75);
                         Life75 = false;
                     }
 
@@ -220,7 +223,7 @@ public:
 
                     if (instance->GetData(TYPE_RIFT) == DONE)
                     {
-                        DoScriptText(SAY_WIN, me);
+                        Talk(SAY_WIN);
                         Check_Timer = 0;
 
                         if (me->HasAura(SPELL_CHANNEL))
@@ -363,11 +366,13 @@ public:
 
 };
 
-#define SAY_SAAT_WELCOME        -1269019
+enum Saat
+{
+    SPELL_CHRONO_BEACON     = 34975,
+    ITEM_CHRONO_BEACON      = 24289
+};
 
 #define GOSSIP_ITEM_OBTAIN      "[PH] Obtain Chrono-Beacon"
-#define SPELL_CHRONO_BEACON     34975
-#define ITEM_CHRONO_BEACON      24289
 
 class npc_saat : public CreatureScript
 {

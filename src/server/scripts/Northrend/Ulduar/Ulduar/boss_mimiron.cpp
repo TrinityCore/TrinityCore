@@ -35,8 +35,7 @@ enum Yells
     SAY_V07TRON_ACTIVATE                        = 11,
     SAY_V07TRON_SLAY                            = 12,
     SAY_V07TRON_DEATH                           = 13,
-    SAY_BERSERK                                 = 14,
-    SAY_YS_HELP                                 = 15
+    SAY_BERSERK                                 = 14
 };
 
 enum Spells

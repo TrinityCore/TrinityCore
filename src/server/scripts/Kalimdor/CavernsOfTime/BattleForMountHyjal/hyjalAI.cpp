@@ -619,42 +619,6 @@ uint32 hyjalAI::GetInstanceData(uint32 Event)
     return 0;
 }
 
-void hyjalAI::Talk(uint32 id)
-{
-    std::list<uint8> index;
-    for (uint8 i = 0; i < 9; ++i)
-    {
-        if (Faction == 0)                                    // Alliance
-        {
-            if (JainaQuotes[i].id == id)
-                index.push_back(i);
-        }
-        else if (Faction == 1)                               // Horde
-        {
-            if (ThrallQuotes[i].id == id)
-                index.push_back(i);
-        }
-    }
-
-    if (index.empty())
-        return;                                             // No quotes found, no use to continue
-
-    uint8 ind = *(index.begin()) + rand()%index.size();
-
-    int32 YellId = 0;
-    if (Faction == 0)                                        // Alliance
-    {
-        YellId = JainaQuotes[ind].textid;
-    }
-    else if (Faction == 1)                                   // Horde
-    {
-        YellId = ThrallQuotes[ind].textid;
-    }
-
-    if (YellId)
-        DoScriptText(YellId, me);
-}
-
 void hyjalAI::Retreat()
 {
     if (instance)

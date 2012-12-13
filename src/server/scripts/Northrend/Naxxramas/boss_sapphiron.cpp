@@ -125,7 +125,7 @@ class boss_sapphiron : public CreatureScript
                 _EnterCombat();
 
                 me->CastSpell(me, SPELL_FROST_AURA, true);
-            
+
                 events.ScheduleEvent(EVENT_BERSERK, 15 * MINUTE * IN_MILLISECONDS);
                 EnterPhaseGround();
 
@@ -245,7 +245,7 @@ class boss_sapphiron : public CreatureScript
                         switch (eventId)
                         {
                             case EVENT_BERSERK:
-                                DoScriptText(EMOTE_ENRAGE, me);
+                                Talk(EMOTE_ENRAGE);
                                 DoCast(me, SPELL_BERSERK);
                                 return;
                             case EVENT_CLEAVE:

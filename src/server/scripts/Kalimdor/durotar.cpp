@@ -28,7 +28,7 @@
 
 enum LazyPeonYells
 {
-    SAY_SPELL_HIT                                 = -1000600   //Ow! OK, I''ll get back to work, $N!'
+    SAY_SPELL_HIT                                 = 0
 };
 
 enum LazyPeon
@@ -77,7 +77,7 @@ public:
                 && CAST_PLR(caster)->GetQuestStatus(QUEST_LAZY_PEONS) == QUEST_STATUS_INCOMPLETE)
             {
                 caster->ToPlayer()->KilledMonsterCredit(me->GetEntry(), me->GetGUID());
-                DoScriptText(SAY_SPELL_HIT, me, caster);
+                Talk(SAY_SPELL_HIT, caster->GetGUID());
                 me->RemoveAllAuras();
                 if (GameObject* Lumberpile = me->FindNearestGameObject(GO_LUMBERPILE, 20))
                     me->GetMotionMaster()->MovePoint(1, Lumberpile->GetPositionX()-1, Lumberpile->GetPositionY(), Lumberpile->GetPositionZ());
