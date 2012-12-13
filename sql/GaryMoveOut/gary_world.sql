@@ -207,3 +207,8 @@ INSERT INTO `spell_proc_event` VALUES('70803', '0', '8', '4063232', '8', '0', '0
 -- Fix Illidan
 UPDATE `creature_template` SET `unit_flags` = 33554690 WHERE `entry` = 23070; -- c eyebeam target
 UPDATE `creature_template` SET `unit_flags` = 33685510, `ScriptName` = '' WHERE `entry` IN (23069, 23336, 23259); -- Demon Fire and Flame Crash, and blaze
+
+-- Fix Zul'drak arena
+UPDATE `creature_template` SET `ScriptName` = 'npc_vladof' WHERE `entry` =30022;
+UPDATE `creature_template` SET `faction_A` = '14',`faction_H` = '14' WHERE `entry` =30093;
+UPDATE `creature_template` SET `faction_A` = '14',`faction_H` = '14' WHERE `entry` =30110;

@@ -11,6 +11,7 @@
 #                                                                                          #
 ############################################################################################
 
+[103] --> Fix Zul'drak arena.
 [102] --> Scripts/BlackTemple: Fix Illidan.
 [101] --> Fix Bonus 4P T10 Rogue.
 [100] --> Scripts/BlackTemple: Prevent Akama (Shade Encounter) to aggro outside of event.
