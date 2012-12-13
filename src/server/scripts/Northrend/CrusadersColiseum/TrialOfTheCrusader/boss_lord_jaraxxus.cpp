@@ -62,15 +62,27 @@ enum BossSpells
 
     SPELL_BERSERK                     = 64238, // unused
 
+    // Fel Infernal
+    SPELL_FEL_INFERNO                 = 67047,
+    SPELL_FEL_STREAK                  = 66494, // charge effect, triggers 66517 and 66519
+    SPELL_FEL_HEAT_10                 = 66519, // triggered by Fel Streak
+    SPELL_FEL_HEAT_10_H               = 67043,
+    SPELL_FEL_HEAT_25                 = 67042,
+    SPELL_FEL_HEAT_25_H               = 67044,
+
     // Mistress of Pain spells
     SPELL_SHIVAN_SLASH                  = 67098,
     SPELL_SPINNING_STRIKE               = 66283,
     SPELL_MISTRESS_KISS                 = 66336,
-    SPELL_FEL_INFERNO                   = 67047,
-    SPELL_FEL_STREAK                    = 66494,
     SPELL_LORD_HITTIN                   = 66326,   // special effect preventing more specific spells be cast on the same player within 10 seconds
     SPELL_MISTRESS_KISS_DEBUFF          = 66334,
     SPELL_MISTRESS_KISS_DAMAGE_SILENCE  = 66359
+};
+
+enum FelModelIds
+{
+    MODEL_FEL_BALL          = 29485,
+    MODEL_FEL_INFERNAL      = 10906,
 };
 
 enum Events
@@ -324,6 +336,15 @@ class mob_fel_infernal : public CreatureScript
                 me->SetInCombatWithZone();
             }
 
+            void SpellHitTarget(Unit* /*target*/, SpellInfo const* spell)
+            {
+                if (spell->Id == SPELL_FEL_HEAT_10 ||
+                    spell->Id == SPELL_FEL_HEAT_10_H ||
+                    spell->Id == SPELL_FEL_HEAT_25 ||
+                    spell->Id == SPELL_FEL_HEAT_25_H)
+                    me->SetDisplayId(MODEL_FEL_INFERNAL);
+            }
+
             void UpdateAI(const uint32 diff)
             {
                 if (_instance && _instance->GetBossState(BOSS_JARAXXUS) != IN_PROGRESS)
@@ -338,7 +359,10 @@ class mob_fel_infernal : public CreatureScript
                 if (_felStreakTimer <= diff)
                 {
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
+                    {
                         DoCast(target, SPELL_FEL_STREAK);
+                        me->SetDisplayId(MODEL_FEL_BALL);
+                    }
                     _felStreakTimer = 30*IN_MILLISECONDS;
                 }
                 else
