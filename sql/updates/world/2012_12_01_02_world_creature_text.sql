@@ -3,7 +3,7 @@
 -- ------------------------------- --
 
 -- kodo round
-DELETE FROM `script_texts` WHERE `entry` BETWEEN -1000350 AND -1000348;
+-- DELETE FROM `script_texts` WHERE `entry` BETWEEN -1000350 AND -1000348;
 DELETE FROM `creature_text` WHERE `entry`=11596;
 INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,`comment`,`text`) VALUES
 (11596,0,0,12,0,100,"kodo round SAY_SMEED_HOME_1","Ah...the wondrous sound of kodos. I love the way they make the ground shake... inspect the beast for me."),
@@ -11,13 +11,13 @@ INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,
 (11596,0,2,12,0,100,"kodo round SAY_SMEED_HOME_3","That kodo sure is a beauty. Wait a minute, where are my bifocals? Perhaps you should inspect the beast for me.");
 
 -- lazy peon
-DELETE FROM `script_texts` WHERE `entry`=-1000600;
+-- DELETE FROM `script_texts` WHERE `entry`=-1000600;
 DELETE FROM `creature_text` WHERE `entry`=10556;
 INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,`comment`,`text`) VALUES
 (10556,0,0,12,0,100,"lazy peon SAY_WP_0","Ow! OK, I'll get back to work, $N!");
 
 -- amnennar
-DELETE FROM `script_texts` WHERE `entry` BETWEEN -1129004 AND -1129000;
+-- DELETE FROM `script_texts` WHERE `entry` BETWEEN -1129004 AND -1129000;
 DELETE FROM `creature_text` WHERE `entry`=7358;
 INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,`comment`,`text`) VALUES
 (7358,0,0,14,5825,100,"amnennar SAY_AGGRO","You'll never leave this place... alive."),
@@ -27,13 +27,13 @@ INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,
 (7358,4,0,14,5826,100,"amnennar SAY_KILL","Too...easy!");
 
 -- clintar
-DELETE FROM `script_texts` WHERE `entry`=-1000286;
+-- DELETE FROM `script_texts` WHERE `entry`=-1000286;
 DELETE FROM `creature_text` WHERE `entry`=22916;
 INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,`comment`,`text`) VALUES
 (22916,0,0,12,0,100,"clintar SAY_END","Lurosa, I am entrusting the Relics of Aviana to $N, who will take them to Morthis Whisperwing. I must return completely to the Emerald Dream now. Do not let $N fail!");
 
 -- gilthares
-DELETE FROM `script_texts` WHERE `entry` BETWEEN -1000380 AND -1000370;
+-- DELETE FROM `script_texts` WHERE `entry` BETWEEN -1000380 AND -1000370;
 DELETE FROM `creature_text` WHERE `entry`=3465;
 INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,`comment`,`text`) VALUES
 (3465,0,0,12,0,100,"gilthares SAY_GIL_START","Stay close, $n. I'll need all the help I can get to break out of here. Let's go!"),
@@ -49,7 +49,7 @@ INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,
 (3465,7,0,12,0,100,"gilthares SAY_GIL_FREED","Captain Brightsun, $N here has freed me! $N, I am certain the Captain will reward your bravery.");
 
 -- twiggy
-DELETE FROM `script_texts` WHERE `entry` BETWEEN -1000380 AND -1000370;
+-- DELETE FROM `script_texts` WHERE `entry` BETWEEN -1000380 AND -1000370;
 DELETE FROM `creature_text` WHERE `entry` IN (6238,6248);
 INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,`comment`,`text`) VALUES
 (6238,0,0,12,0,100,"big will SAY_BIG_WILL_READY","Ready when you are, $c."),
@@ -59,7 +59,7 @@ INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,
 (6248,3,0,12,0,100,"twiggy SAY_TWIGGY_OVER","The Affray is over.");
 
 -- wizzlecrank
-DELETE FROM `script_texts` WHERE `entry` BETWEEN -1000305 AND -1000298;
+-- DELETE FROM `script_texts` WHERE `entry` BETWEEN -1000305 AND -1000298;
 DELETE FROM `creature_text` WHERE `entry` IN (3282,3439);
 INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,`comment`,`text`) VALUES
 (3439,0,0,12,0,100,"wizzlecrank SAY_START","Alright, alright I think I can figure out how to operate this thing..."),
@@ -72,7 +72,7 @@ INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,
 (3439,6,0,12,0,100,"wizzlecrank SAY_END","Hmm... I don't think this blinking red light is a good thing...");
 
 -- muglash
-DELETE FROM `script_texts` WHERE `entry` BETWEEN -1800063 AND -1800054;
+-- DELETE FROM `script_texts` WHERE `entry` BETWEEN -1800063 AND -1800054;
 DELETE FROM `creature_text` WHERE `entry`=12717;
 INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,`comment`,`text`) VALUES
 (12717,0,0,12,0,100,"muglash SAY_MUG_START1","Are you sure that you are ready? If we do not have a group of your allies to aid us, we will surely fail."),
@@ -87,7 +87,7 @@ INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,
 (12717,9,0,12,0,100,"muglash SAY_MUG_RETURN","Please return to Zoram'gar and report our success to the Warsong runner.");
 
 -- jaina hyjal
-DELETE FROM `script_texts` WHERE `entry` BETWEEN -1534008 AND -1534000;
+-- DELETE FROM `script_texts` WHERE `entry` BETWEEN -1534008 AND -1534000;
 DELETE FROM `creature_text` WHERE `entry`=17772;
 INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,`comment`,`text`) VALUES
 (17772,0,0,14,11007,100,"jaina hyjal ATTACKED 1","I'm in jeopardy, help me if you can!"),
@@ -101,7 +101,7 @@ INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,
 (17772,6,0,14,11010,100,"jaina hyjal DEATH","I did... my best.");
 
 -- thrall hyjal
-DELETE FROM `script_texts` WHERE `entry` BETWEEN -1534017 AND -1534009;
+-- DELETE FROM `script_texts` WHERE `entry` BETWEEN -1534017 AND -1534009;
 DELETE FROM `creature_text` WHERE `entry`=17852;
 INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,`comment`,`text`) VALUES
 (17852,0,0,14,11031,100,"thrall hyjal ATTACKED 1","I will lie down for no one!"),
@@ -115,7 +115,7 @@ INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,
 (17852,6,0,14,11034,100,"thrall hyjal DEATH","Uraaa...");
 
 -- lieutenant drake
-DELETE FROM `script_texts` WHERE `entry` BETWEEN -1560012 AND -1560006;
+-- DELETE FROM `script_texts` WHERE `entry` BETWEEN -1560012 AND -1560006;
 DELETE FROM `creature_text` WHERE `entry`=17848;
 INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,`comment`,`text`) VALUES
 (17848,0,0,14,10428,100,"lieutenant drake SAY_ENTER","You there, fetch water quickly! Get these flames out before they spread to the rest of the keep! Hurry, damn you!"),
@@ -127,7 +127,7 @@ INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,
 (17848,5,0,14,10434,100,"lieutenant drake SAY_DEATH","Thrall... must not... go free.");
 
 -- thrall hillsbrad
-DELETE FROM `script_texts` WHERE `entry` BETWEEN -1560049 AND -1560023;
+-- DELETE FROM `script_texts` WHERE `entry` BETWEEN -1560049 AND -1560023;
 DELETE FROM `creature_text` WHERE `entry` IN (17876,18887);
 INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,`comment`,`text`) VALUES
 (17876,0,0,14,10465,100,"thrall hillsbrad SAY_TH_START_EVENT_PART1","Very well then. Let's go!"),
@@ -159,7 +159,7 @@ INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,
 (18887,1,0,12,0,100,"taretha SAY_TA_ESCAPED","Thrall, you escaped!");
 
 -- skarloc
-DELETE FROM `script_texts` WHERE `entry` BETWEEN -1560005 AND -1560000;
+-- DELETE FROM `script_texts` WHERE `entry` BETWEEN -1560005 AND -1560000;
 DELETE FROM `creature_text` WHERE `entry`=17862;
 INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,`comment`,`text`) VALUES
 (17862,0,0,14,10406,100,"skarloc SAY_ENTER","Thrall! You didn't really think you would escape did you? You and your allies shall answer to Blackmoore - after I've had my fun!"),
@@ -170,7 +170,7 @@ INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,
 (17862,4,0,14,10411,100,"skarloc SAY_DEATH","Guards! Urgh..Guards..!");
 
 -- epoch hunter
-DELETE FROM `script_texts` WHERE `entry` BETWEEN -1560022 AND -1560013;
+-- DELETE FROM `script_texts` WHERE `entry` BETWEEN -1560022 AND -1560013;
 DELETE FROM `creature_text` WHERE `entry`=18096;
 INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,`comment`,`text`) VALUES
 (18096,0,0,14,10418,100,"epoch hunter SAY_ENTER1","Thrall! Come outside and face your fate!"),
@@ -185,7 +185,7 @@ INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,
 (18096,4,0,14,10427,100,"epoch hunter SAY_DEATH","No!...The master... will not... be pleased.");
 
 -- meathook
-DELETE FROM `script_texts` WHERE `entry` BETWEEN -1595031 AND -1595026;
+-- DELETE FROM `script_texts` WHERE `entry` BETWEEN -1595031 AND -1595026;
 DELETE FROM `creature_text` WHERE `entry`=26529;
 INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,`comment`,`text`) VALUES
 (26529,0,0,14,13428,100,"meathook SAY_AGGRO","Play time!"),
@@ -196,7 +196,7 @@ INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,
 (26529,3,0,14,13433,100,"meathook SAY_DEATH","This... not fun...");
 
 -- epoch
-DELETE FROM `script_texts` WHERE `entry` BETWEEN -1595008 AND -1595000;
+-- DELETE FROM `script_texts` WHERE `entry` BETWEEN -1595008 AND -1595000;
 DELETE FROM `creature_text` WHERE `entry`=26532;
 INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,`comment`,`text`) VALUES
 (26532,0,0,14,13408,100,"epoch SAY_INTRO | culling SAY_PHASE314","Prince Arthas Menethil, on this day, a powerful darkness has taken hold of your soul. The death you are destined to visit upon others will this day be your own."),
@@ -210,7 +210,7 @@ INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,
 (26532,4,0,12,13416,100,"epoch SAY_DEATH","");
 
 -- salramm
-DELETE FROM `script_texts` WHERE `entry` BETWEEN -1595044 AND -1595032;
+-- DELETE FROM `script_texts` WHERE `entry` BETWEEN -1595044 AND -1595032;
 DELETE FROM `creature_text` WHERE `entry`=26530;
 INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,`comment`,`text`) VALUES
 (26530,0,0,14,13472,100,"salramm SAY_AGGRO","Ah, the entertainment has arrived!"),
@@ -228,7 +228,7 @@ INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,
 (26530,6,1,14,13477,100,"salramm SAY_SUMMON_GHOULS_2","Come, citizen of Stratholme! Meet your saviors.");
 
 -- culling of stratholme
-DELETE FROM `script_texts` WHERE `entry` BETWEEN -1595120 AND -1595070;
+-- DELETE FROM `script_texts` WHERE `entry` BETWEEN -1595120 AND -1595070;
 DELETE FROM `creature_text` WHERE `entry` IN (26499,26528,31126,28169,28167,26497);
 INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,`comment`,`text`) VALUES
 -- 26499
@@ -290,7 +290,7 @@ INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,
 (31126,1,0,12,0,100,"culling SAY_PHASE305","There's no need for you to understand, Arthas. All you need to do is die.");
 
 -- malganis
-DELETE FROM `script_texts` WHERE `entry` BETWEEN -1595025 AND -1595009;
+-- DELETE FROM `script_texts` WHERE `entry` BETWEEN -1595025 AND -1595009;
 DELETE FROM `creature_text` WHERE `entry`=26533;
 INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,`comment`,`text`) VALUES
 (26533,0,0,14,14410,100,"malganis SAY_INTRO_1 | culling SAY_PHASE206","Yes, this is the beginning. I've been waiting for you, young prince. I am Mal'Ganis."),
@@ -312,7 +312,7 @@ INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,
 (26533,10,0,14,14412,100,"malganis SAY_OUTRO","Your journey has just begun, young prince. Gather your forces and meet me in the artic land of Northrend. It is there that we shall settle the score between us. It is there that your true destiny will unfold.");
 
 -- chrono lord deja
-DELETE FROM `script_texts` WHERE `entry` BETWEEN -1269011 AND -1269006;
+-- DELETE FROM `script_texts` WHERE `entry` BETWEEN -1269011 AND -1269006;
 DELETE FROM `creature_text` WHERE `entry`=17879;
 INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,`comment`,`text`) VALUES
 (17879,0,0,14,10412,100,"chrono lord deja SAY_ENTER","Why do you aid the Magus? Just think of how many lives could be saved if the portal is never opened, if the resulting wars could be erased ..."),
@@ -323,7 +323,7 @@ INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,
 (17879,4,0,14,10417,100,"chrono lord deja SAY_DEATH","Time ... is on our side.");
 
 -- aeonus
-DELETE FROM `script_texts` WHERE `entry` BETWEEN -1269018 AND -1269012;
+-- DELETE FROM `script_texts` WHERE `entry` BETWEEN -1269018 AND -1269012;
 DELETE FROM `creature_text` WHERE `entry`=17881;
 INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,`comment`,`text`) VALUES
 (17881,0,0,14,10400,100,"aeonus SAY_ENTER","The time has come to shatter this clockwork universe forever! Let us no longer be slaves of the hourglass! I warn you: those who do not embrace the greater path shall become victims of its passing!"),
@@ -335,7 +335,7 @@ INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,
 (17881,5,0,16,0,100,"aeonus EMOTE_FRENZY","goes into a frenzy!");
 
 -- medivh
-DELETE FROM `script_texts` WHERE `entry` BETWEEN -1269028 AND -1269020;
+-- DELETE FROM `script_texts` WHERE `entry` BETWEEN -1269028 AND -1269020;
 DELETE FROM `creature_text` WHERE `entry`=15608;
 INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,`comment`,`text`) VALUES
 (15608,0,0,14,10435,100,"medivh SAY_ENTER","The time has come! Gul'dan, order your warlocks to double their efforts! Moments from now the gateway will open, and your Horde will be released upon this ripe, unsuspecting world!"),
@@ -349,7 +349,7 @@ INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,
 (15608,8,0,14,0,100,"medivh SAY_ORCS_ANSWER","Gul'dan speaks the truth! We should return at once to tell our brothers of the news! Retreat back trought the portal!");
 
 -- temporus
-DELETE FROM `script_texts` WHERE `entry` BETWEEN -1269005 AND -1269000;
+-- DELETE FROM `script_texts` WHERE `entry` BETWEEN -1269005 AND -1269000;
 DELETE FROM `creature_text` WHERE `entry`=17880;
 INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,`comment`,`text`) VALUES
 (17880,0,0,14,10442,100,"temporus SAY_ENTER","Why do you persist? Surely you can see the futility of it all. It is not too late! You may still leave with your lives ..."),
@@ -360,7 +360,7 @@ INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,
 (17880,4,0,14,10447,100,"temporus SAY_DEATH","My death means ... little.");
 
 -- sprysprocket
-DELETE FROM `script_texts` WHERE `entry` BETWEEN -1000356 AND -1000351;
+-- DELETE FROM `script_texts` WHERE `entry` BETWEEN -1000356 AND -1000351;
 DELETE FROM `creature_text` WHERE `entry`=23002;
 INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,`comment`,`text`) VALUES
 (23002,0,0,14,0,100,"sprysprocket SAY_START","You, there! Hand over that moonstone and nobody gets hurt!"),
@@ -370,14 +370,14 @@ INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,
 
 
 -- mist
-DELETE FROM `script_texts` WHERE `entry` BETWEEN -1000324 AND -1000323;
+-- DELETE FROM `script_texts` WHERE `entry` BETWEEN -1000324 AND -1000323;
 DELETE FROM `creature_text` WHERE `entry`=3568;
 INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,`comment`,`text`) VALUES
 (3568,0,0,12,0,100,"mist SAY_AT_HOME","Mist! I feared I would never see you again! Yes, I am well, do not worry for me. You must rest and recover your health."),
 (3568,1,0,16,0,100,"mist EMOTE_AT_HOME","%s growls in acknowledgement before straightening and making her way off into the forest.");
 
 -- anachronos the ancient
-DELETE FROM `script_texts` WHERE `entry` BETWEEN -1350030 AND -1350000;
+-- DELETE FROM `script_texts` WHERE `entry` BETWEEN -1350030 AND -1350000;
 DELETE FROM `creature_text` WHERE `entry` IN (15381,15382,15379,15380,15378);
 INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,`comment`,`text`) VALUES
 (15381,0,0,12,0,100,"anachronos the ancient ANACHRONOS_SAY_1","We must act quickly or all shall be lost!"),

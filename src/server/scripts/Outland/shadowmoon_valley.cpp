@@ -55,7 +55,7 @@ EndContentData */
 
 enum eMatureNetherwing
 {
-    SAY_JUST_EATEN              = -1000175,
+    SAY_JUST_EATEN              = 0,
 
     SPELL_PLACE_CARCASS         = 38439,
     SPELL_JUST_EATEN            = 38502,
@@ -152,7 +152,7 @@ public:
                     else if (bIsEating)
                     {
                         DoCast(me, SPELL_JUST_EATEN);
-                        DoScriptText(SAY_JUST_EATEN, me);
+                        Talk(SAY_JUST_EATEN);
 
                         if (Player* pPlr = Unit::GetPlayer(*me, uiPlayerGUID))
                         {
@@ -674,25 +674,25 @@ enum eOverlordData
     SPELL_THREE                     = 40216, // Dragonaw Faction
     SPELL_FOUR                      = 42016, // Dragonaw Trasform
 
-    OVERLORD_SAY_1                  = -1000606,
-    OVERLORD_SAY_2                  = -1000607,
-    OVERLORD_SAY_3                  = -1000608, //signed for 28315
-    OVERLORD_SAY_4                  = -1000609,
-    OVERLORD_SAY_5                  = -1000610,
-    OVERLORD_SAY_6                  = -1000611,
+    OVERLORD_SAY_1                  = 0,
+    OVERLORD_SAY_2                  = 1,
+  //OVERLORD_SAY_3                  = 2,
+    OVERLORD_SAY_4                  = 3,
+    OVERLORD_SAY_5                  = 4,
+    OVERLORD_SAY_6                  = 5,
 
-    OVERLORD_YELL_1                 = -1000612,
-    OVERLORD_YELL_2                 = -1000613,
+    OVERLORD_YELL_1                 = 6,
+    OVERLORD_YELL_2                 = 7,
 
-    LORD_ILLIDAN_SAY_1              = -1000614,
-    LORD_ILLIDAN_SAY_2              = -1000615,
-    LORD_ILLIDAN_SAY_3              = -1000616,
-    LORD_ILLIDAN_SAY_4              = -1000617,
-    LORD_ILLIDAN_SAY_5              = -1000618,
-    LORD_ILLIDAN_SAY_6              = -1000619,
-    LORD_ILLIDAN_SAY_7              = -1000620,
+    LORD_ILLIDAN_SAY_1              = 0,
+    LORD_ILLIDAN_SAY_2              = 1,
+    LORD_ILLIDAN_SAY_3              = 2,
+    LORD_ILLIDAN_SAY_4              = 3,
+    LORD_ILLIDAN_SAY_5              = 4,
+    LORD_ILLIDAN_SAY_6              = 5,
+    LORD_ILLIDAN_SAY_7              = 6,
 
-    YARZILL_THE_MERC_SAY            = -1000621,
+    YARZILL_THE_MERC_SAY            = 0
 };
 
 class npc_overlord_morghor : public CreatureScript
@@ -754,7 +754,7 @@ public:
             {
                 Player* player = Unit::GetPlayer(*me, PlayerGUID);
                 if (player)
-                    DoScriptText(OVERLORD_SAY_1, me, player);
+                    Talk(OVERLORD_SAY_1, player->GetGUID());
             }
             ConversationTimer = 4200;
             Step = 0;
@@ -764,7 +764,7 @@ public:
         uint32 NextStep(uint32 Step)
         {
             Player* player = Unit::GetPlayer(*me, PlayerGUID);
-            Unit* Illi = Unit::GetUnit(*me, IllidanGUID);
+            Creature* Illi = Creature::GetCreature(*me, IllidanGUID);
 
             if (!player || !Illi)
             {
@@ -782,7 +782,7 @@ public:
                     return 9000;
                     break;
                 case 2:
-                    DoScriptText(OVERLORD_YELL_1, me, player);
+                    Talk(OVERLORD_YELL_1, player->GetGUID());
                     return 4500;
                     break;
                 case 3:
@@ -790,7 +790,7 @@ public:
                     return 3200;
                     break;
                 case 4:
-                    DoScriptText(OVERLORD_SAY_2, me, player);
+                    Talk(OVERLORD_SAY_2, player->GetGUID());
                     return 2000;
                     break;
                 case 5:
@@ -805,31 +805,27 @@ public:
                     return 2000;
                     break;
                 case 7:
-                    DoScriptText(OVERLORD_YELL_2, me);
+                    Talk(OVERLORD_YELL_2);
                     return 4500;
                     break;
                 case 8:
                     me->SetUInt32Value(UNIT_FIELD_BYTES_1, 8);
-                    return 2500;
-                    break;
-                case 9:
-                    DoScriptText(OVERLORD_SAY_3, me);
-                    return 6500;
+                    return 9000;
                     break;
                 case 10:
-                    DoScriptText(LORD_ILLIDAN_SAY_1, Illi);
+                    Illi->AI()->Talk(LORD_ILLIDAN_SAY_1);
                     return 5000;
                     break;
                 case 11:
-                    DoScriptText(OVERLORD_SAY_4, me, player);
+                    Talk(OVERLORD_SAY_4, player->GetGUID());
                     return 6000;
                     break;
                 case 12:
-                    DoScriptText(LORD_ILLIDAN_SAY_2, Illi);
+                    Illi->AI()->Talk(LORD_ILLIDAN_SAY_2);
                     return 5500;
                     break;
                 case 13:
-                    DoScriptText(LORD_ILLIDAN_SAY_3, Illi);
+                    Illi->AI()->Talk(LORD_ILLIDAN_SAY_3);
                     return 4000;
                     break;
                 case 14:
@@ -837,7 +833,7 @@ public:
                     return 1500;
                     break;
                 case 15:
-                    DoScriptText(LORD_ILLIDAN_SAY_4, Illi);
+                    Illi->AI()->Talk(LORD_ILLIDAN_SAY_4);
                     return 1500;
                     break;
                 case 16:
@@ -847,15 +843,15 @@ public:
                     return 5000;
                     break;
                 case 17:
-                    DoScriptText(LORD_ILLIDAN_SAY_5, Illi);
+                    Illi->AI()->Talk(LORD_ILLIDAN_SAY_5);
                     return 5000;
                     break;
                 case 18:
-                    DoScriptText(LORD_ILLIDAN_SAY_6, Illi);
+                    Illi->AI()->Talk(LORD_ILLIDAN_SAY_6);
                     return 5000;
                     break;
                 case 19:
-                    DoScriptText(LORD_ILLIDAN_SAY_7, Illi);
+                    Illi->AI()->Talk(LORD_ILLIDAN_SAY_7);
                     return 5000;
                     break;
                 case 20:
@@ -864,7 +860,7 @@ public:
                     return 500;
                     break;
                 case 21:
-                    DoScriptText(OVERLORD_SAY_5, me);
+                    Talk(OVERLORD_SAY_5);
                     return 500;
                     break;
                 case 22:
@@ -881,7 +877,7 @@ public:
                     return 5000;
                     break;
                 case 25:
-                    DoScriptText(OVERLORD_SAY_6, me);
+                    Talk(OVERLORD_SAY_6);
                     return 2000;
                     break;
                 case 26:
@@ -905,24 +901,21 @@ public:
                     break;
                 case 29:
                     {
-                        Unit* Yarzill = me->FindNearestCreature(C_YARZILL, 50);
-                        if (Yarzill)
-                            DoScriptText(YARZILL_THE_MERC_SAY, Yarzill, player);
+                        if (Creature* Yarzill = me->FindNearestCreature(C_YARZILL, 50.0f))
+                            Yarzill->AI()->Talk(YARZILL_THE_MERC_SAY, player->GetGUID());
                         return 5000;
                     }
                     break;
                 case 30:
                     {
-                        Unit* Yarzill = me->FindNearestCreature(C_YARZILL, 50);
-                        if (Yarzill)
+                        if (Creature* Yarzill = me->FindNearestCreature(C_YARZILL, 50.0f))
                             Yarzill->SetTarget(0);
                         return 5000;
                     }
                     break;
                 case 31:
                     {
-                        Unit* Yarzill = me->FindNearestCreature(C_YARZILL, 50);
-                        if (Yarzill)
+                        if (Creature* Yarzill = me->FindNearestCreature(C_YARZILL, 50.0f))
                             Yarzill->CastSpell(player, 41540, true);
                         return 1000;
                     }
@@ -960,16 +953,13 @@ public:
 
 enum eEarthmender
 {
-    SAY_WIL_START               = -1000381,
-    SAY_WIL_AGGRO1              = -1000382,
-    SAY_WIL_AGGRO2              = -1000383,
-    SAY_WIL_PROGRESS1           = -1000384,
-    SAY_WIL_PROGRESS2           = -1000385,
-    SAY_WIL_FIND_EXIT           = -1000386,
-    SAY_WIL_PROGRESS4           = -1000387,
-    SAY_WIL_PROGRESS5           = -1000388,
-    SAY_WIL_JUST_AHEAD          = -1000389,
-    SAY_WIL_END                 = -1000390,
+    SAY_WIL_START               = 0,
+    SAY_WIL_AGGRO               = 1,
+    SAY_WIL_PROGRESS1           = 2,
+    SAY_WIL_PROGRESS2           = 3,
+    SAY_WIL_FIND_EXIT           = 4,
+    SAY_WIL_JUST_AHEAD          = 5,
+    SAY_WIL_END                 = 6,
 
     SPELL_CHAIN_LIGHTNING       = 16006,
     SPELL_EARTHBING_TOTEM       = 15786,
@@ -990,7 +980,7 @@ public:
     {
         if (quest->GetQuestId() == QUEST_ESCAPE_COILSCAR)
         {
-            DoScriptText(SAY_WIL_START, creature, player);
+            creature->AI()->Talk(SAY_WIL_START, player->GetGUID());
             creature->setFaction(FACTION_EARTHEN);
 
             if (npc_earthmender_wildaAI* pEscortAI = CAST_AI(npc_earthmender_wilda::npc_earthmender_wildaAI, creature->AI()))
@@ -1024,14 +1014,14 @@ public:
             switch (waypointId)
             {
                 case 13:
-                    DoScriptText(SAY_WIL_PROGRESS1, me, player);
+                    Talk(SAY_WIL_PROGRESS1, player->GetGUID());
                     DoSpawnAssassin();
                     break;
                 case 14:
                     DoSpawnAssassin();
                     break;
                 case 15:
-                    DoScriptText(SAY_WIL_FIND_EXIT, me, player);
+                    Talk(SAY_WIL_FIND_EXIT, player->GetGUID());
                     break;
                 case 19:
                     DoRandomSay();
@@ -1058,7 +1048,7 @@ public:
                     DoSpawnAssassin();
                     break;
                 case 39:
-                    DoScriptText(SAY_WIL_JUST_AHEAD, me, player);
+                    Talk(SAY_WIL_JUST_AHEAD, player->GetGUID());
                     break;
                 case 43:
                     DoRandomSay();
@@ -1067,7 +1057,7 @@ public:
                     DoSpawnAssassin();
                     break;
                 case 50:
-                    DoScriptText(SAY_WIL_END, me, player);
+                    Talk(SAY_WIL_END, player->GetGUID());
                     player->GroupEventHappens(QUEST_ESCAPE_COILSCAR, me);
                     break;
             }
@@ -1082,7 +1072,7 @@ public:
         //this is very unclear, random say without no real relevance to script/event
         void DoRandomSay()
         {
-            DoScriptText(RAND(SAY_WIL_PROGRESS2, SAY_WIL_PROGRESS4, SAY_WIL_PROGRESS5), me);
+            Talk(SAY_WIL_PROGRESS2);
         }
 
         void DoSpawnAssassin()
@@ -1102,7 +1092,7 @@ public:
             {
                 //appears to be random
                 if (urand(0, 1))
-                    DoScriptText(RAND(SAY_WIL_AGGRO1, SAY_WIL_AGGRO2), who);
+                    Talk(SAY_WIL_AGGRO);
             }
         }
 
@@ -1140,28 +1130,25 @@ npc_lord_illidan_stormrage : Creature that controls the event.
 go_crystal_prison : GameObject that begins the event and hands out quest
 EndContentData */
 
-#define END_TEXT -1000366 //signed for 10646
-
 #define QUEST_BATTLE_OF_THE_CRIMSON_WATCH 10781
 #define EVENT_AREA_RADIUS 65 //65yds
 #define EVENT_COOLDOWN 30000 //in ms. appear after event completed or failed (should be = Adds despawn time)
 
 struct TorlothCinematic
 {
-    int32 TextId;
     uint32 creature, Timer;
 };
 
 // Creature 0 - Torloth, 1 - Illidan
 static TorlothCinematic TorlothAnim[]=
 {
-    {-1000367, 0, 2000},
-    {-1000368, 1, 7000},
-    {-1000369, 0, 3000},
-    {0, 0, 2000}, // Torloth stand
-    {-1000370, 0, 1000},
-    {0, 0, 3000},
-    {0, 0, 0}
+    {0, 2000},
+    {1, 7000},
+    {0, 3000},
+    {0, 2000}, // Torloth stand
+    {0, 1000},
+    {0, 3000},
+    {0, 0}
 };
 
 struct Location
@@ -1195,15 +1182,14 @@ struct WaveData
 {
     uint8 SpawnCount, UsedSpawnPoint;
     uint32 CreatureId, SpawnTimer, YellTimer;
-    int32 WaveTextId;
 };
 
 static WaveData WavesInfo[]=
 {
-    {9, 0, 22075, 10000, 7000, -1000371},   //Illidari Soldier
-    {2, 9, 22074, 10000, 7000, -1000372},   //Illidari Mind Breaker
-    {4, 11, 19797, 10000, 7000, -1000373},  //Illidari Highlord
-    {1, 15, 22076, 10000, 7000, -1000374}   //Torloth The Magnificent
+    {9, 0, 22075, 10000, 7000},   //Illidari Soldier
+    {2, 9, 22074, 10000, 7000},   //Illidari Mind Breaker
+    {4, 11, 19797, 10000, 7000},  //Illidari Highlord
+    {1, 15, 22076, 10000, 7000}   //Torloth The Magnificent
 };
 
 struct SpawnSpells
@@ -1277,9 +1263,6 @@ public:
                 if (!creature)
                     return;
             }
-
-            if (TorlothAnim[AnimationCount].TextId)
-                DoScriptText(TorlothAnim[AnimationCount].TextId, creature);
 
             AnimationTimer = TorlothAnim[AnimationCount].Timer;
 
@@ -1377,7 +1360,6 @@ public:
 
             if (Creature* LordIllidan = (Unit::GetCreature(*me, LordIllidanGUID)))
             {
-                DoScriptText(END_TEXT, LordIllidan, killer);
                 LordIllidan->AI()->EnterEvadeMode();
             }
         }
@@ -1512,14 +1494,17 @@ public:
             {
                 if (!Announced && AnnounceTimer <= diff)
                 {
-                    DoScriptText(WavesInfo[WaveCount].WaveTextId, me);
                     Announced = true;
-                } else AnnounceTimer -= diff;
+                } 
+                else 
+                    AnnounceTimer -= diff;
 
                 if (WaveTimer <= diff)
                 {
                     SummonNextWave();
-                } else WaveTimer -= diff;
+                }
+                else
+                    WaveTimer -= diff;
             }
             CheckEventFail();
 

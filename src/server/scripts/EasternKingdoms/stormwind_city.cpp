@@ -470,8 +470,8 @@ enum eTyrionSpybot
     SAY_SPYBOT_3             = 3,
     SAY_SPYBOT_4             = 4,
     SAY_TYRION_1             = 0,
-    SAY_GUARD_1              = 0,
-    SAY_LESCOVAR_1           = 0,
+    SAY_GUARD_1              = 1,
+    SAY_LESCOVAR_1           = 3,
 
     NPC_PRIESTESS_TYRIONA    = 7779,
     NPC_LORD_GREGOR_LESCOVAR = 1754,

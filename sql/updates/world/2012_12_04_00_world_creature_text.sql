@@ -2,7 +2,7 @@
 -- Creature text conversion part 6 --
 -- ------------------------------- --
 -- moorabi
-DELETE FROM `script_texts` WHERE `entry` BETWEEN -1604017 AND -1604010;
+-- DELETE FROM `script_texts` WHERE `entry` BETWEEN -1604017 AND -1604010;
 DELETE FROM `creature_text` WHERE `entry`=29305;
 INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,`comment`,`text`) VALUES
 (29305,0,0,14,0,100,"moorabi SAY_AGGRO","We fought back da Scourge. What chance joo be thinkin' JOO got?"),
@@ -14,7 +14,7 @@ INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,
 (29305,5,0,41,0,100,"moorabi EMOTE_TRANSFORM","%s begins to transform!");
 
 -- Slad'ran
-DELETE FROM `script_texts` WHERE `entry` BETWEEN -1604023 AND -1604017;
+-- DELETE FROM `script_texts` WHERE `entry` BETWEEN -1604023 AND -1604017;
 DELETE FROM `creature_text` WHERE `entry`=29304;
 INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,`comment`,`text`) VALUES
 (29304,0,0,41,0,100,"Slad'ran EMOTE_TRANSFORM","%s begins to transform!"),
@@ -36,7 +36,7 @@ INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,
 (36853,11,0,41,0,100,"sindragosa EMOTE_BERSERK_RAID","%s goes into a berserker rage!");
 
 -- anubrekhan
-DELETE FROM `script_texts` WHERE `entry` BETWEEN -1533008 AND -1533000;
+-- DELETE FROM `script_texts` WHERE `entry` BETWEEN -1533008 AND -1533000;
 DELETE FROM `creature_text` WHERE `entry`=15956;
 INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,`comment`,`text`) VALUES
 (15956,0,0,14,8785,100,"anubrekhan SAY_AGGRO1","Just a little taste..."),
@@ -50,7 +50,7 @@ INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,
 (15956,2,0,14,8789,100,"anubrekhan SAY_SLAY","Shh... it will all be over soon.");
 
 -- faerlina
-DELETE FROM `script_texts` WHERE `entry` BETWEEN -1533016 AND -1533009;
+-- DELETE FROM `script_texts` WHERE `entry` BETWEEN -1533016 AND -1533009;
 DELETE FROM `creature_text` WHERE `entry`=15953;
 INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,`comment`,`text`) VALUES
 (15953,0,0,14,8799,100,"faerlina SAY_GREET","Your old lives, your mortal desires, mean nothing. You are acolytes of the master now, and you will serve the cause without question! The greatest glory is to die in the master's service!"),
@@ -63,7 +63,7 @@ INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,
 (15953,3,0,14,8798,100,"faerlina SAY_DEATH","The master... will avenge me!");
 
 -- korthazz
-DELETE FROM `script_texts` WHERE `entry` BETWEEN -1533057 AND -1533051;
+-- DELETE FROM `script_texts` WHERE `entry` BETWEEN -1533057 AND -1533051;
 DELETE FROM `creature_text` WHERE `entry`=16064;
 INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,`comment`,`text`) VALUES
 (16064,0,0,14,8899,100,"korthazz SAY_KORT_AGGRO","Come out and fight, ye wee ninny!"),
@@ -75,7 +75,7 @@ INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,
 (16064,4,0,14,8900,100,"korthazz SAY_KORT_DEATH","What a bloody waste this is!");
 
 -- blaumeux
-DELETE FROM `script_texts` WHERE `entry` BETWEEN -1533050 AND -1533044;
+-- DELETE FROM `script_texts` WHERE `entry` BETWEEN -1533050 AND -1533044;
 DELETE FROM `creature_text` WHERE `entry`=16065;
 INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,`comment`,`text`) VALUES
 (16065,0,0,14,8892,100,"blaumeux SAY_BLAU_AGGRO","Defend youself!"),
@@ -87,7 +87,7 @@ INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,
 (16065,4,0,14,8893,100,"blaumeux SAY_BLAU_DEATH","Tou... che!");
 
 -- rivendare
-DELETE FROM `script_texts` WHERE `entry` BETWEEN -1533074 AND -1533065;
+-- DELETE FROM `script_texts` WHERE `entry` BETWEEN -1533074 AND -1533065;
 DELETE FROM `creature_text` WHERE `entry`=30549;
 INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,`comment`,`text`) VALUES
 (30549,0,0,14,14571,100,"rivendare SAY_RIVE_AGGRO1","You seek death?"),
@@ -102,7 +102,7 @@ INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,
 (30549,4,0,14,14580,100,"rivendare SAY_RIVE_DEATH","Death... will not stop me...");
 
 -- zeliek
-DELETE FROM `script_texts` WHERE `entry` BETWEEN -1533064 AND -1533058;
+-- DELETE FROM `script_texts` WHERE `entry` BETWEEN -1533064 AND -1533058;
 DELETE FROM `creature_text` WHERE `entry`=16063;
 INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,`comment`,`text`) VALUES
 (16063,0,0,14,8913,100,"zeliek SAY_ZELI_AGGRO","Flee, before it's too late!"),
@@ -114,7 +114,7 @@ INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,
 (16063,4,0,14,8914,100,"zeliek SAY_ZELI_DEATH","It is... as it should be.");
 
 -- gothik
-DELETE FROM `script_texts` WHERE `entry` BETWEEN -1533043 AND -1533040;
+-- DELETE FROM `script_texts` WHERE `entry` BETWEEN -1533043 AND -1533040;
 DELETE FROM `creature_text` WHERE `entry`=16060;
 INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,`comment`,`text`) VALUES
 (16060,0,0,14,8807,100,"gothik SAY_SPEECH","Foolishly you have sought your own demise. Brazenly you have disregarded powers beyond your understanding. You have fought hard to invade the realm of the harvester. Now there is only one way out - to walk the lonely path of the damned."),
@@ -123,7 +123,7 @@ INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,
 (16060,3,0,14,8808,100,"gothik SAY_TELEPORT","I have waited long enough! Now, you face the harvester of souls!");
 
 -- heigan
-DELETE FROM `script_texts` WHERE `entry` BETWEEN -1533118 AND -1533109;
+-- DELETE FROM `script_texts` WHERE `entry` BETWEEN -1533118 AND -1533109;
 DELETE FROM `creature_text` WHERE `entry`=15936;
 INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,`comment`,`text`) VALUES
 (15936,0,0,14,8825,100,"heigan SAY_AGGRO1","You are mine now!"),
@@ -138,7 +138,7 @@ INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,
 (15936,3,0,14,8828,100,"heigan SAY_DEATH","Noo... o...");
 
 -- noth
-DELETE FROM `script_texts` WHERE `entry` BETWEEN -1533081 AND -1533075;
+-- DELETE FROM `script_texts` WHERE `entry` BETWEEN -1533081 AND -1533075;
 DELETE FROM `creature_text` WHERE `entry`=15954;
 INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,`comment`,`text`) VALUES
 (15954,0,0,14,8845,100,"noth SAY_AGGRO1","Glory to the master!"),
@@ -150,7 +150,7 @@ INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,
 (15954,3,0,14,8848,100,"noth SAY_DEATH","I will serve the master... in... death!");
 
 -- patchwerk
-DELETE FROM `script_texts` WHERE `entry` BETWEEN -1533022 AND -1533017;
+-- DELETE FROM `script_texts` WHERE `entry` BETWEEN -1533022 AND -1533017;
 DELETE FROM `creature_text` WHERE `entry`=16028;
 INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,`comment`,`text`) VALUES
 (16028,0,0,14,8909,100,"patchwerk SAY_AGGRO1","Patchwerk want to play!"),
@@ -161,7 +161,7 @@ INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,
 (16028,4,0,16,0,100,"patchwerk EMOTE_ENRAGE","%s becomes enraged!");
 
 -- stalagg
-DELETE FROM `script_texts` WHERE `entry` BETWEEN -1533025 AND -1533023;
+-- DELETE FROM `script_texts` WHERE `entry` BETWEEN -1533025 AND -1533023;
 DELETE FROM `creature_text` WHERE `entry`=15929;
 INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,`comment`,`text`) VALUES
 (15929,0,0,14,8864,100,"stalagg SAY_STAL_AGGRO","Stalagg crush you!"),
@@ -169,7 +169,7 @@ INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,
 (15929,2,0,14,8865,100,"stalagg SAY_STAL_DEATH","Master save me...");
 
 -- feugen
-DELETE FROM `script_texts` WHERE `entry` BETWEEN -1533028 AND -1533026;
+-- DELETE FROM `script_texts` WHERE `entry` BETWEEN -1533028 AND -1533026;
 DELETE FROM `creature_text` WHERE `entry`=15930;
 INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,`comment`,`text`) VALUES
 (15930,0,0,14,8802,100,"feugen SAY_FEUG_AGGRO","Feed you to master!"),
@@ -177,7 +177,7 @@ INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,
 (15930,2,0,14,8803,100,"feugen SAY_FEUG_DEATH","No... more... Feugen...");
 
 -- thaddius
-DELETE FROM `script_texts` WHERE `entry` BETWEEN -1533039 AND -1533029;
+-- DELETE FROM `script_texts` WHERE `entry` BETWEEN -1533039 AND -1533029;
 DELETE FROM `creature_text` WHERE `entry`=15928;
 INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,`comment`,`text`) VALUES
 (15928,0,0,14,8872,100,"thaddius SAY_GREET","You are too late... I... must... OBEY!"),
@@ -193,7 +193,7 @@ INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,
 (15928,5,3,14,8876,100,"thaddius SAY_SCREAM4","Please, nooo!");
 
 -- anomalus
-DELETE FROM `script_texts` WHERE `entry` BETWEEN -1576013 AND -1576010;
+-- DELETE FROM `script_texts` WHERE `entry` BETWEEN -1576013 AND -1576010;
 DELETE FROM `creature_text` WHERE `entry`=26763;
 INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,`comment`,`text`) VALUES
 (26763,0,0,14,13186,100,"anomalus SAY_AGGRO","Chaos beckons."),
@@ -201,7 +201,7 @@ INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,
 (26763,2,0,14,13188,100,"anomalus SAY_RIFT","Reality... unwoven."),
 (26763,3,0,14,13189,100,"anomalus SAY_SHIELD","Indestructible.");
 
-DELETE FROM `script_texts` WHERE `entry` BETWEEN -1576044 AND -1576040;
+-- DELETE FROM `script_texts` WHERE `entry` BETWEEN -1576044 AND -1576040;
 DELETE FROM `creature_text` WHERE `entry`=26723;
 INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,`comment`,`text`) VALUES
 (26723,0,0,14,13450,100,"keristrasza SAY_AGGRO","Preserve? Why? There's no truth in it. No no no... only in the taking! I see that now!"),
@@ -211,7 +211,7 @@ INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,
 (26723,4,0,14,13451,100,"keristrasza SAY_CRYSTAL_NOVA","Stay. Enjoy your final moments.");
 
 -- grand magus telestra
-DELETE FROM `script_texts` WHERE `entry` BETWEEN -1576005 AND -1576000;
+-- DELETE FROM `script_texts` WHERE `entry` BETWEEN -1576005 AND -1576000;
 DELETE FROM `creature_text` WHERE `entry`=26731;
 INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,`comment`,`text`) VALUES
 (26731,0,0,14,13319,100,"grand magus telestra SAY_AGGRO","You know what they say about curiosity."),
@@ -222,7 +222,7 @@ INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,
 (26731,4,1,14,13322,100,"grand magus telestra SAY_SPLIT_2","I'll give you more than you can handle.");
 
 -- drakos
-DELETE FROM `script_texts` WHERE `entry` BETWEEN -1578016 AND -1578005;
+-- DELETE FROM `script_texts` WHERE `entry` BETWEEN -1578016 AND -1578005;
 DELETE FROM `creature_text` WHERE `entry`=27654;
 INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,`comment`,`text`) VALUES
 (27654,0,0,14,13594,100,"drakos SAY_AGGRO","The prisoners shall not go free! The word of Malygos is law!"),
@@ -239,7 +239,7 @@ INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,
 (27654,4,2,14,13597,100,"drakos SAY_STOMP_3","Can you fly?");
 
 -- urom
-DELETE FROM `script_texts` WHERE `entry` BETWEEN -1578004 AND -1578000;
+-- DELETE FROM `script_texts` WHERE `entry` BETWEEN -1578004 AND -1578000;
 DELETE FROM `creature_text` WHERE `entry`=27655;
 INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,`comment`,`text`) VALUES
 (27655,0,0,14,0,100,"urom SAY_AGGRO_1","What do we have here... those that would defy the Spell-Weaver? Those without foresight our understanding. How can i make you see? Malygos is saving the world from itself! Bah! You are hardly worth my time!"),
@@ -249,7 +249,7 @@ INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,
 (27655,4,0,14,0,100,"urom SAY_TELEPORT","A taste... just a small taste... of the Spell-Weaver's power!");
 
 -- injured rainspeaker oracle
-DELETE FROM `script_texts` WHERE `entry` BETWEEN -1571002 AND -1571000;
+-- DELETE FROM `script_texts` WHERE `entry` BETWEEN -1571002 AND -1571000;
 DELETE FROM `creature_text` WHERE `entry`=28217;
 INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,`comment`,`text`) VALUES
 (28217,0,0,12,0,100,"injured rainspeaker oracle SAY_END_IRO","You save me! We thank you. We going to go back to village now. You come too... you can stay with us! Puppy-men kind of mean anyway. "),
@@ -257,13 +257,13 @@ INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,
 (28217,2,0,12,0,100,"injured rainspeaker oracle SAY_START_IRO","Home time!");
 
 -- vekjik
-DELETE FROM `script_texts` WHERE `entry`=-1000208;
+-- DELETE FROM `script_texts` WHERE `entry`=-1000208;
 DELETE FROM `creature_text` WHERE `entry`=28315;
 INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,`comment`,`text`) VALUES
 (28315,0,0,12,0,100,"vekjik SAY_TEXTID_VEKJIK1","Frenzyheart kill you if you come back. You no welcome here no more!");
 
 -- engineer helice
-DELETE FROM `script_texts` WHERE `entry` BETWEEN -1800053 AND -1800047;
+-- DELETE FROM `script_texts` WHERE `entry` BETWEEN -1800053 AND -1800047;
 DELETE FROM `creature_text` WHERE `entry`=28787;
 INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,`comment`,`text`) VALUES
 (28787,0,0,12,0,100,"engineer helice SAY_WP_1","We made it! Thank you for getting me out of that hell hole. Tell Hemet to expect me!"),
@@ -275,27 +275,27 @@ INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,
 (28787,6,0,12,0,100,"engineer helice SAY_WP_7","Let's get the hell out of here");
 
 -- adventurous dwarf
-DELETE FROM `script_texts` WHERE `entry` BETWEEN -1571043 AND -1571042;
+-- DELETE FROM `script_texts` WHERE `entry` BETWEEN -1571043 AND -1571042;
 DELETE FROM `creature_text` WHERE `entry`=28604;
 INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,`comment`,`text`) VALUES
 (28604,0,0,12,0,100,"adventurous dwarf SAY_DWARF_OUCH","Ouch! Watch where you're tugging!"),
 (28604,1,0,12,0,100,"adventurous dwarf SAY_DWARF_HELP","Glad I could help!");
 
 -- agnetta
-DELETE FROM `script_texts` WHERE `entry`=-1571003;
+-- DELETE FROM `script_texts` WHERE `entry`=-1571003;
 DELETE FROM `creature_text` WHERE `entry`=30154;
 INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,`comment`,`text`) VALUES
 (30154,0,0,12,0,100,"agnetta SAY_AGGRO","I'm not afraid of anything -- bring it on!");
 
 -- injured goblin
-DELETE FROM `script_texts` WHERE `entry` BETWEEN -1800043 AND -1800042;
+-- DELETE FROM `script_texts` WHERE `entry` BETWEEN -1800043 AND -1800042;
 DELETE FROM `creature_text` WHERE `entry`=29434;
 INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,`comment`,`text`) VALUES
 (29434,0,0,12,0,100,"injured goblin SAY_QUEST_START","Let me know when you're ready. I'd prefer sooner than later... what with the slowly dying from poison and all."),
 (29434,1,0,12,0,100,"injured goblin SAY_END_WP_REACHED","I'm going to bring the venom sack to Ricket... and then... you know... collapse. Thank you for helping me!");
 
 -- krystallus
-DELETE FROM `script_texts` WHERE `entry` BETWEEN -1599010 AND -1599007;
+-- DELETE FROM `script_texts` WHERE `entry` BETWEEN -1599010 AND -1599007;
 DELETE FROM `creature_text` WHERE `entry`=27977;
 INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,`comment`,`text`) VALUES
 (27977,0,0,14,14176,100,"krystallus SAY_AGGRO","Crush...."),
@@ -304,7 +304,7 @@ INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,
 (27977,3,0,14,14178,100,"krystallus SAY_SHATTER","Break.... you....");
 
 -- maiden of grief
-DELETE FROM `script_texts` WHERE `entry` BETWEEN -1599006 AND -1599000;
+-- DELETE FROM `script_texts` WHERE `entry` BETWEEN -1599006 AND -1599000;
 DELETE FROM `creature_text` WHERE `entry`=27975;
 INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,`comment`,`text`) VALUES
 (27975,0,0,14,13487,100,"maiden of grief SAY_AGGRO","You shouldn't have come...now you will die!"),
@@ -316,7 +316,7 @@ INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,
 (27975,3,0,14,13492,100,"maiden of grief SAY_STUN","So much lost time... that you'll never get back!");
 
 -- Sjonnir
-DELETE FROM `script_texts` WHERE `entry` BETWEEN -1599006 AND -1599000;
+-- DELETE FROM `script_texts` WHERE `entry` BETWEEN -1599006 AND -1599000;
 DELETE FROM `creature_text` WHERE `entry`=27978;
 INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,`comment`,`text`) VALUES
 (27978,0,0,14,14180,100,"Sjonnir SAY_AGGRO","Soft, vulnerable shells. Brief, fragile lives. You can not escape the curse of flesh!"),
@@ -326,7 +326,7 @@ INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,
 (27978,2,0,14,14184,100,"Sjonnir SAY_DEATH","Loken will not rest, until the forge is retaken. You changed nothing!");
 
 -- halls of stone
-DELETE FROM `script_texts` WHERE `entry` BETWEEN -1599068 AND -1599016;
+-- DELETE FROM `script_texts` WHERE `entry` BETWEEN -1599068 AND -1599016;
 DELETE FROM `creature_text` WHERE `entry` IN (30898,30899,30897,28070);
 INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,`comment`,`text`) VALUES
 -- brann
