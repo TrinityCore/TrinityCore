@@ -55,16 +55,13 @@ enum Spells
 //not in db
 enum Yells
 {
-    SAY_AGGRO                               = -1575028,
-    SAY_SLAY_1                              = -1575029,
-    SAY_SLAY_2                              = -1575030,
-    SAY_SLAY_3                              = -1575031,
-    SAY_SLAY_4                              = -1575032,
-    SAY_DEATH                               = -1575033,
-    SAY_SUMMON_BJORN                        = -1575034,
-    SAY_SUMMON_HALDOR                       = -1575035,
-    SAY_SUMMON_RANULF                       = -1575036,
-    SAY_SUMMON_TORGYN                       = -1575037
+    SAY_AGGRO                               = 0,
+    SAY_SLAY                                = 1,
+    SAY_DEATH                               = 2,
+    SAY_SUMMON_BJORN                        = 3,
+    SAY_SUMMON_HALDOR                       = 4,
+    SAY_SUMMON_RANULF                       = 5,
+    SAY_SUMMON_TORGYN                       = 6
 };
 
 enum Creatures
@@ -190,7 +187,7 @@ public:
 
         void EnterCombat(Unit* /*who*/)
         {
-            DoScriptText(SAY_AGGRO, me);
+            Talk(SAY_AGGRO);
 
             if (instance)
                 instance->SetData(DATA_KING_YMIRON_EVENT, IN_PROGRESS);
@@ -216,7 +213,7 @@ public:
             {
                 if (m_uiPause_Timer <= diff)
                 {
-                    DoScriptText(ActiveBoat[m_uiActiveOrder[m_uiActivedNumber]].say, me);
+                    Talk(ActiveBoat[m_uiActiveOrder[m_uiActivedNumber]].say);
                     DoCast(me, SPELL_CHANNEL_YMIRON_TO_SPIRIT); // should be on spirit
                     if (Creature* temp = me->SummonCreature(ActiveBoat[m_uiActiveOrder[m_uiActivedNumber]].npc, ActiveBoat[m_uiActiveOrder[m_uiActivedNumber]].SpawnX, ActiveBoat[m_uiActiveOrder[m_uiActivedNumber]].SpawnY, ActiveBoat[m_uiActiveOrder[m_uiActivedNumber]].SpawnZ, ActiveBoat[m_uiActiveOrder[m_uiActivedNumber]].SpawnO, TEMPSUMMON_CORPSE_DESPAWN, 0))
                     {
@@ -370,7 +367,7 @@ public:
 
         void JustDied(Unit* /*killer*/)
         {
-            DoScriptText(SAY_DEATH, me);
+            Talk(SAY_DEATH);
 
             DespawnBoatGhosts(m_uiActivedCreatureGUID);
             DespawnBoatGhosts(m_uiOrbGUID);
@@ -381,7 +378,7 @@ public:
 
         void KilledUnit(Unit* /*victim*/)
         {
-            DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2, SAY_SLAY_3, SAY_SLAY_4), me);
+            Talk(SAY_SLAY);
         }
 
         void DespawnBoatGhosts(uint64 m_uiCreatureGUID)

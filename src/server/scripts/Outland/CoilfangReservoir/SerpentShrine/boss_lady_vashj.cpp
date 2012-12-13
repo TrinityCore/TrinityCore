@@ -30,48 +30,47 @@ EndScriptData */
 #include "Player.h"
 #include "WorldSession.h"
 
-#define SAY_INTRO                   -1548042
-#define SAY_AGGRO1                  -1548043
-#define SAY_AGGRO2                  -1548044
-#define SAY_AGGRO3                  -1548045
-#define SAY_AGGRO4                  -1548046
-#define SAY_PHASE1                  -1548047
-#define SAY_PHASE2                  -1548048
-#define SAY_PHASE3                  -1548049
-#define SAY_BOWSHOT1                -1548050
-#define SAY_BOWSHOT2                -1548051
-#define SAY_SLAY1                   -1548052
-#define SAY_SLAY2                   -1548053
-#define SAY_SLAY3                   -1548054
-#define SAY_DEATH                   -1548055
+enum LadyVashj
+{
+    SAY_INTRO                   = 0,
+    SAY_AGGRO                   = 1,
+    SAY_PHASE1                  = 2,
+    SAY_PHASE2                  = 3,
+    SAY_PHASE3                  = 4,
+    SAY_BOWSHOT                 = 5,
+    SAY_SLAY                    = 6,
+    SAY_DEATH                   = 7,
 
-#define SPELL_SURGE                 38044
-#define SPELL_MULTI_SHOT            38310
-#define SPELL_SHOCK_BLAST           38509
-#define SPELL_ENTANGLE              38316
-#define SPELL_STATIC_CHARGE_TRIGGER 38280
-#define SPELL_FORKED_LIGHTNING      40088
-#define SPELL_SHOOT                 40873
-#define SPELL_POISON_BOLT           40095
-#define SPELL_TOXIC_SPORES          38575
-#define SPELL_MAGIC_BARRIER         38112
+    SPELL_SURGE                 = 38044,
+    SPELL_MULTI_SHOT            = 38310,
+    SPELL_SHOCK_BLAST           = 38509,
+    SPELL_ENTANGLE              = 38316,
+    SPELL_STATIC_CHARGE_TRIGGER = 38280,
+    SPELL_FORKED_LIGHTNING      = 40088,
+    SPELL_SHOOT                 = 40873,
+    SPELL_POISON_BOLT           = 40095,
+    SPELL_TOXIC_SPORES          = 38575,
+    SPELL_MAGIC_BARRIER         = 38112,
 
-#define MIDDLE_X                    30.134f
-#define MIDDLE_Y                    -923.65f
-#define MIDDLE_Z                    42.9f
+    SHIED_GENERATOR_CHANNEL     = 19870,
+    ENCHANTED_ELEMENTAL         = 21958,
+    TAINTED_ELEMENTAL           = 22009,
+    COILFANG_STRIDER            = 22056,
+    COILFANG_ELITE              = 22055,
+    TOXIC_SPOREBAT              = 22140,
+    TOXIC_SPORES_TRIGGER        = 22207
+};
 
-#define SPOREBAT_X                  30.977156f
+#define MIDDLE_X                30.134f
+#define MIDDLE_Y                -923.65f
+#define MIDDLE_Z                42.9f
+
+#define SPOREBAT_X              30.977156f
 #define SPOREBAT_Y                  -925.297761f
 #define SPOREBAT_Z                  77.176567f
 #define SPOREBAT_O                  5.223932f
 
-#define SHIED_GENERATOR_CHANNEL       19870
-#define ENCHANTED_ELEMENTAL           21958
-#define TAINTED_ELEMENTAL             22009
-#define COILFANG_STRIDER              22056
-#define COILFANG_ELITE                22055
-#define TOXIC_SPOREBAT                22140
-#define TOXIC_SPORES_TRIGGER          22207
+
 
 #define TEXT_NOT_INITIALIZED          "Instance script not initialized"
 #define TEXT_ALREADY_DEACTIVATED      "Already deactivated"
@@ -226,12 +225,12 @@ public:
         }
         void KilledUnit(Unit* /*victim*/)
         {
-            DoScriptText(RAND(SAY_SLAY1, SAY_SLAY2, SAY_SLAY3), me);
+            Talk(SAY_SLAY);
         }
 
         void JustDied(Unit* /*killer*/)
         {
-            DoScriptText(SAY_DEATH, me);
+            Talk(SAY_DEATH);
 
             if (instance)
                 instance->SetData(DATA_LADYVASHJEVENT, DONE);
@@ -239,7 +238,7 @@ public:
 
         void StartEvent()
         {
-            DoScriptText(RAND(SAY_AGGRO1, SAY_AGGRO2, SAY_AGGRO3, SAY_AGGRO4), me);
+            Talk(SAY_AGGRO);
 
             Phase = 1;
 
@@ -269,7 +268,7 @@ public:
             if (!Intro)
             {
                 Intro = true;
-                DoScriptText(SAY_INTRO, me);
+                Talk(SAY_INTRO);
             }
             if (!CanAttack)
                 return;
@@ -307,7 +306,7 @@ public:
             }
             if (rand()%3)
             {
-                DoScriptText(RAND(SAY_BOWSHOT1, SAY_BOWSHOT2), me);
+                Talk(SAY_BOWSHOT);
             }
         }
 
@@ -397,7 +396,7 @@ public:
                             if (Creature* creature = me->SummonCreature(SHIED_GENERATOR_CHANNEL, ShieldGeneratorChannelPos[i][0],  ShieldGeneratorChannelPos[i][1],  ShieldGeneratorChannelPos[i][2],  ShieldGeneratorChannelPos[i][3], TEMPSUMMON_CORPSE_DESPAWN, 0))
                                 ShieldGeneratorChannel[i] = creature->GetGUID();
 
-                        DoScriptText(SAY_PHASE2, me);
+                        Talk(SAY_PHASE2);
                     }
                 }
                 // Phase 3
@@ -527,7 +526,7 @@ public:
 
                         me->RemoveAurasDueToSpell(SPELL_MAGIC_BARRIER);
 
-                        DoScriptText(SAY_PHASE3, me);
+                        Talk(SAY_PHASE3);
 
                         Phase = 3;
 

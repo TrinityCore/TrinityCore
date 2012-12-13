@@ -66,7 +66,9 @@ void TargetedMovementGeneratorMedium<T,D>::_setTargetLocation(T &owner)
         // We need to subtract GetObjectSize() because it gets added back further down the chain
         //  and that makes pets too far away. Subtracting it allows pets to properly
         //  be (GetCombatReach() + i_offset) away.
-        if (owner.isPet())
+        // Only applies when i_target is pet's owner otherwise pets and mobs end up
+        //   doing a "dance" while fighting
+        if (owner.isPet() && i_target->GetTypeId() == TYPEID_PLAYER)
         {
             dist = i_target->GetCombatReach();
             size = i_target->GetCombatReach() - i_target->GetObjectSize();

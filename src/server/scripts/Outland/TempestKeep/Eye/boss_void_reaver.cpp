@@ -29,13 +29,10 @@ EndScriptData */
 
 enum eEnums
 {
-    SAY_AGGRO                   = -1550000,
-    SAY_SLAY1                   = -1550001,
-    SAY_SLAY2                   = -1550002,
-    SAY_SLAY3                   = -1550003,
-    SAY_DEATH                   = -1550004,
-    SAY_POUNDING1               = -1550005,
-    SAY_POUNDING2               = -1550006,
+    SAY_AGGRO                   = 0,
+    SAY_SLAY                    = 1,
+    SAY_DEATH                   = 2,
+    SAY_POUNDING                = 3,
 
     SPELL_POUNDING              = 34162,
     SPELL_ARCANE_ORB            = 34172,
@@ -83,12 +80,12 @@ class boss_void_reaver : public CreatureScript
 
             void KilledUnit(Unit* /*victim*/)
             {
-                DoScriptText(RAND(SAY_SLAY1, SAY_SLAY2, SAY_SLAY3), me);
+                Talk(SAY_SLAY);
             }
 
             void JustDied(Unit* /*killer*/)
             {
-                DoScriptText(SAY_DEATH, me);
+                Talk(SAY_DEATH);
                 DoZoneInCombat();
 
                 if (instance)
@@ -97,7 +94,7 @@ class boss_void_reaver : public CreatureScript
 
             void EnterCombat(Unit* /*who*/)
             {
-                DoScriptText(SAY_AGGRO, me);
+                Talk(SAY_AGGRO);
 
                 if (instance)
                     instance->SetData(DATA_VOIDREAVEREVENT, IN_PROGRESS);
@@ -111,7 +108,7 @@ class boss_void_reaver : public CreatureScript
                 if (Pounding_Timer <= diff)
                 {
                     DoCast(me->getVictim(), SPELL_POUNDING);
-                    DoScriptText(RAND(SAY_POUNDING1, SAY_POUNDING2), me);
+                    Talk(SAY_POUNDING);
                     Pounding_Timer = 15000; //cast time(3000) + cooldown time(12000)
                 }
                 else
