@@ -203,3 +203,7 @@ INSERT INTO spell_script_names VALUES (52437,'spell_warr_execute_bonus');
 -- Fix Rogue T10 4p bonus
 DELETE FROM spell_proc_event WHERE entry = 70803;
 INSERT INTO `spell_proc_event` VALUES('70803', '0', '8', '4063232', '8', '0', '0', '0', '0', '0', '0');
+
+-- Fix Illidan
+UPDATE `creature_template` SET `unit_flags` = 33554690 WHERE `entry` = 23070; -- c eyebeam target
+UPDATE `creature_template` SET `unit_flags` = 33685510, `ScriptName` = '' WHERE `entry` IN (23069, 23336, 23259); -- Demon Fire and Flame Crash, and blaze
