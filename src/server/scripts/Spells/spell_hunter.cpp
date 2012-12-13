@@ -45,6 +45,7 @@ enum HunterSpells
     HUNTER_SPELL_CHIMERA_SHOT_SERPENT            = 53353,
     HUNTER_SPELL_CHIMERA_SHOT_VIPER              = 53358,
     HUNTER_SPELL_CHIMERA_SHOT_SCORPID            = 53359,
+    HUNTER_SPELL_STEADY_SHOT_EFFECT              = 53220,
     HUNTER_SPELL_ASPECT_OF_THE_BEAST_PET         = 61669,
 };
 
@@ -142,6 +143,8 @@ class spell_hun_chimera_shot : public SpellScriptLoader
                                 basePoint = caster->SpellDamageBonusDone(unitTarget, aura->GetSpellInfo(), aurEff->GetAmount(), DOT, aura->GetStackAmount());
                                 ApplyPct(basePoint, TickCount * 40);
                                 basePoint = unitTarget->SpellDamageBonusTaken(caster, aura->GetSpellInfo(), basePoint, DOT, aura->GetStackAmount());
+                                if (caster->HasAura(HUNTER_SPELL_STEADY_SHOT_EFFECT))
+                                    basePoint *= 1.15f;
                             }
                             // Viper Sting - Instantly restores mana to you equal to 60% of the total amount drained by your Viper Sting.
                             else if (familyFlag[1] & 0x00000080)
