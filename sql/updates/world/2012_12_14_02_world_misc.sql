@@ -2,7 +2,7 @@ DELETE FROM `spell_script_names` WHERE `spell_id` IN (24750, 24751, 44436);
 INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 (24750, 'spell_trick'),
 (24751, 'spell_trick_or_treat'),
-(44436, 'spell_gen_tricky_treat');
+(44436, 'spell_tricky_treat');
 
 DELETE FROM `spell_linked_spell` WHERE `spell_trigger` IN (42965,42966);
 INSERT INTO `spell_linked_spell` (`spell_trigger`,`spell_effect`,`type`,`comment`) VALUES
