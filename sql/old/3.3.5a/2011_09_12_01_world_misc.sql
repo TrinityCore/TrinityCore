@@ -17,7 +17,7 @@ INSERT INTO `creature` (`guid`, `id`, `map`, `position_x`, `position_y`, `positi
 
 -- add weapons to creatures
 DELETE FROM `creature_equip_template` WHERE `entry`=2476;
-INSERT INTO `creature_equip_template` VALUES 
+INSERT INTO `creature_equip_template` VALUES
 (2476, 7714, 0, 0);
 
 -- correct creature_template

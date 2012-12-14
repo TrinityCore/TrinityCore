@@ -23,6 +23,7 @@
 #include "ObjectAccessor.h"
 #include "MoveSplineInit.h"
 #include "MoveSpline.h"
+#include "Player.h"
 
 #define MIN_QUIET_DISTANCE 28.0f
 #define MAX_QUIET_DISTANCE 43.0f
@@ -282,7 +283,7 @@ bool FleeingMovementGenerator<T>::_setMoveData(T &owner)
 }
 
 template<class T>
-void FleeingMovementGenerator<T>::Initialize(T &owner)
+void FleeingMovementGenerator<T>::DoInitialize(T &owner)
 {
     if (!&owner)
         return;
@@ -331,7 +332,7 @@ void FleeingMovementGenerator<Player>::_Init(Player &)
 }
 
 template<>
-void FleeingMovementGenerator<Player>::Finalize(Player &owner)
+void FleeingMovementGenerator<Player>::DoFinalize(Player &owner)
 {
     owner.RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_FLEEING);
     owner.ClearUnitState(UNIT_STATE_FLEEING|UNIT_STATE_FLEEING_MOVE);
@@ -339,7 +340,7 @@ void FleeingMovementGenerator<Player>::Finalize(Player &owner)
 }
 
 template<>
-void FleeingMovementGenerator<Creature>::Finalize(Creature &owner)
+void FleeingMovementGenerator<Creature>::DoFinalize(Creature &owner)
 {
     owner.RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_FLEEING);
     owner.ClearUnitState(UNIT_STATE_FLEEING|UNIT_STATE_FLEEING_MOVE);
@@ -348,13 +349,13 @@ void FleeingMovementGenerator<Creature>::Finalize(Creature &owner)
 }
 
 template<class T>
-void FleeingMovementGenerator<T>::Reset(T &owner)
+void FleeingMovementGenerator<T>::DoReset(T &owner)
 {
-    Initialize(owner);
+    DoInitialize(owner);
 }
 
 template<class T>
-bool FleeingMovementGenerator<T>::Update(T &owner, const uint32 &time_diff)
+bool FleeingMovementGenerator<T>::DoUpdate(T &owner, uint32 time_diff)
 {
     if (!&owner || !owner.isAlive())
         return false;
@@ -371,18 +372,18 @@ bool FleeingMovementGenerator<T>::Update(T &owner, const uint32 &time_diff)
     return true;
 }
 
-template void FleeingMovementGenerator<Player>::Initialize(Player &);
-template void FleeingMovementGenerator<Creature>::Initialize(Creature &);
+template void FleeingMovementGenerator<Player>::DoInitialize(Player &);
+template void FleeingMovementGenerator<Creature>::DoInitialize(Creature &);
 template bool FleeingMovementGenerator<Player>::_setMoveData(Player &);
 template bool FleeingMovementGenerator<Creature>::_setMoveData(Creature &);
 template bool FleeingMovementGenerator<Player>::_getPoint(Player &, float &, float &, float &);
 template bool FleeingMovementGenerator<Creature>::_getPoint(Creature &, float &, float &, float &);
 template void FleeingMovementGenerator<Player>::_setTargetLocation(Player &);
 template void FleeingMovementGenerator<Creature>::_setTargetLocation(Creature &);
-template void FleeingMovementGenerator<Player>::Reset(Player &);
-template void FleeingMovementGenerator<Creature>::Reset(Creature &);
-template bool FleeingMovementGenerator<Player>::Update(Player &, const uint32 &);
-template bool FleeingMovementGenerator<Creature>::Update(Creature &, const uint32 &);
+template void FleeingMovementGenerator<Player>::DoReset(Player &);
+template void FleeingMovementGenerator<Creature>::DoReset(Creature &);
+template bool FleeingMovementGenerator<Player>::DoUpdate(Player &, uint32);
+template bool FleeingMovementGenerator<Creature>::DoUpdate(Creature &, uint32);
 
 void TimedFleeingMovementGenerator::Finalize(Unit &owner)
 {
@@ -398,7 +399,7 @@ void TimedFleeingMovementGenerator::Finalize(Unit &owner)
     }
 }
 
-bool TimedFleeingMovementGenerator::Update(Unit & owner, const uint32& time_diff)
+bool TimedFleeingMovementGenerator::Update(Unit & owner, uint32 time_diff)
 {
     if (!owner.isAlive())
         return false;
@@ -413,7 +414,7 @@ bool TimedFleeingMovementGenerator::Update(Unit & owner, const uint32& time_diff
     if (i_totalFleeTime.Passed())
         return false;
 
-    // This calls grant-parent Update method hiden by FleeingMovementGenerator::Update(Creature &, const uint32 &) version
+    // This calls grant-parent Update method hiden by FleeingMovementGenerator::Update(Creature &, uint32) version
     // This is done instead of casting Unit& to Creature& and call parent method, then we can use Unit directly
     return MovementGeneratorMedium< Creature, FleeingMovementGenerator<Creature> >::Update(owner, time_diff);
 }

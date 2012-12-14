@@ -25,6 +25,7 @@ Script Data End */
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "Player.h"
 
 /*******************************************************
  * npc_warmage_violetstand

@@ -23,6 +23,7 @@
 #include <map>
 
 struct AuctionEntry;
+struct CalendarEvent;
 class Item;
 class Object;
 class Player;
@@ -36,7 +37,7 @@ enum MailMessageType
     MAIL_AUCTION        = 2,
     MAIL_CREATURE       = 3,                                // client send CMSG_CREATURE_QUERY on this mailmessagetype
     MAIL_GAMEOBJECT     = 4,                                // client send CMSG_GAMEOBJECT_QUERY on this mailmessagetype
-    MAIL_ITEM           = 5                                 // client send CMSG_ITEM_QUERY on this mailmessagetype
+    MAIL_CALENDAR       = 5
 };
 
 enum MailCheckMask
@@ -85,6 +86,7 @@ class MailSender
         {
         }
         MailSender(Object* sender, MailStationery stationery = MAIL_STATIONERY_DEFAULT);
+        MailSender(CalendarEvent* sender);
         MailSender(AuctionEntry* sender);
         MailSender(Player* sender);
     public:                                                 // Accessors
@@ -119,7 +121,7 @@ class MailDraft
         explicit MailDraft(uint16 mailTemplateId, bool need_items = true)
             : m_mailTemplateId(mailTemplateId), m_mailTemplateItemsNeed(need_items), m_money(0), m_COD(0)
         {}
-        MailDraft(std::string subject, std::string body)
+        MailDraft(std::string const& subject, std::string const& body)
             : m_mailTemplateId(0), m_mailTemplateItemsNeed(false), m_subject(subject), m_body(body), m_money(0), m_COD(0) {}
     public:                                                 // Accessors
         uint16 GetMailTemplateId() const { return m_mailTemplateId; }

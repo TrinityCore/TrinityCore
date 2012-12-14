@@ -27,33 +27,26 @@ EndScriptData */
 #include "ScriptedCreature.h"
 #include "shadow_labyrinth.h"
 
-#define SPELL_INCITE_CHAOS    33676
-#define SPELL_INCITE_CHAOS_B  33684                         //debuff applied to each member of party
-#define SPELL_CHARGE          33709
-#define SPELL_WAR_STOMP       33707
+enum BlackheartTheInciter
+{
+    SPELL_INCITE_CHAOS      = 33676,
+    SPELL_INCITE_CHAOS_B    = 33684,                         //debuff applied to each member of party
+    SPELL_CHARGE            = 33709,
+    SPELL_WAR_STOMP         = 33707,
 
-#define SAY_INTRO1          -1555008 //not used
-#define SAY_INTRO2          -1555009 //not used
-#define SAY_INTRO3          -1555010 //not used
-#define SAY_AGGRO1          -1555011
-#define SAY_AGGRO2          -1555012
-#define SAY_AGGRO3          -1555013
-#define SAY_SLAY1           -1555014
-#define SAY_SLAY2           -1555015
-#define SAY_HELP            -1555016 //not used
-#define SAY_DEATH           -1555017
+    SAY_INTRO               = 0,
+    SAY_AGGRO               = 1,
+    SAY_SLAY                = 2,
+    SAY_HELP                = 3,
+    SAY_DEATH               = 4,
 
-//below, not used
-#define SAY2_INTRO1         -1555018
-#define SAY2_INTRO2         -1555019
-#define SAY2_INTRO3         -1555020
-#define SAY2_AGGRO1         -1555021
-#define SAY2_AGGRO2         -1555022
-#define SAY2_AGGRO3         -1555023
-#define SAY2_SLAY1          -1555024
-#define SAY2_SLAY2          -1555025
-#define SAY2_HELP           -1555026
-#define SAY2_DEATH          -1555027
+    //below, not used
+    SAY2_INTRO              = 5,
+    SAY2_AGGRO              = 6,
+    SAY2_SLAY               = 7,
+    SAY2_HELP               = 8,
+    SAY2_DEATH              = 9
+};
 
 class boss_blackheart_the_inciter : public CreatureScript
 {
@@ -94,12 +87,12 @@ public:
 
         void KilledUnit(Unit* /*victim*/)
         {
-            DoScriptText(RAND(SAY_SLAY1, SAY_SLAY2), me);
+            Talk(SAY_SLAY);
         }
 
         void JustDied(Unit* /*killer*/)
         {
-            DoScriptText(SAY_DEATH, me);
+            Talk(SAY_DEATH);
 
             if (instance)
                 instance->SetData(DATA_BLACKHEARTTHEINCITEREVENT, DONE);
@@ -107,7 +100,7 @@ public:
 
         void EnterCombat(Unit* /*who*/)
         {
-            DoScriptText(RAND(SAY_AGGRO1, SAY_AGGRO2, SAY_AGGRO3), me);
+            Talk(SAY_AGGRO);
 
             if (instance)
                 instance->SetData(DATA_BLACKHEARTTHEINCITEREVENT, IN_PROGRESS);

@@ -38,15 +38,11 @@ enum Spells
 
 enum Yells
 {
-    SAY_INTRO                                   = -1595000, //"Prince Arthas Menethil, on this day, a powerful darkness has taken hold of your soul. The death you are destined to visit upon others will this day be your own."
-    SAY_AGGRO                                   = -1595001, //"We'll see about that, young prince."
-    SAY_TIME_WARP_1                             = -1595002, //"Tick tock, tick tock..."
-    SAY_TIME_WARP_2                             = -1595003, //"Not quick enough!"
-    SAY_TIME_WARP_3                             = -1595004, //"Let's get this over with. "
-    SAY_SLAY_1                                  = -1595005, //"There is no future for you."
-    SAY_SLAY_2                                  = -1595006, //"This is the hour of our greatest triumph!"
-    SAY_SLAY_3                                  = -1595007, //"You were destined to fail. "
-    SAY_DEATH                                   = -1595008 //"*gurgles*"
+    SAY_INTRO                                   = 0,
+    SAY_AGGRO                                   = 1,
+    SAY_TIME_WARP                               = 2,
+    SAY_SLAY                                    = 3,
+    SAY_DEATH                                   = 4
 };
 
 class boss_epoch : public CreatureScript
@@ -91,7 +87,7 @@ public:
 
         void EnterCombat(Unit* /*who*/)
         {
-            DoScriptText(SAY_AGGRO, me);
+            Talk(SAY_AGGRO);
 
             if (instance)
                 instance->SetData(DATA_EPOCH_EVENT, IN_PROGRESS);
@@ -124,7 +120,7 @@ public:
 
             if (uiTimeWarpTimer < diff)
             {
-                DoScriptText(RAND(SAY_TIME_WARP_1, SAY_TIME_WARP_2, SAY_TIME_WARP_3), me);
+                Talk(SAY_TIME_WARP);
                 DoCastAOE(SPELL_TIME_WARP);
                 uiTimeWarpTimer = 25300;
             } else uiTimeWarpTimer -= diff;
@@ -134,7 +130,7 @@ public:
 
         void JustDied(Unit* /*killer*/)
         {
-            DoScriptText(SAY_DEATH, me);
+            Talk(SAY_DEATH);
 
             if (instance)
                 instance->SetData(DATA_EPOCH_EVENT, DONE);
@@ -145,7 +141,7 @@ public:
             if (victim == me)
                 return;
 
-            DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2, SAY_SLAY_3), me);
+            Talk(SAY_SLAY);
         }
     };
 

@@ -38,7 +38,7 @@ INSERT INTO `creature_template_addon` (`entry`,`mount`,`bytes1`,`bytes2`,`emote`
 
 -- Trainer spells
 DELETE FROM `npc_trainer` WHERE `entry` IN (33608,33609,33610,33611,33612,33613,33614,33616,33618,33617,33619,33621,33615,33623);
-INSERT INTO `npc_trainer` (`entry`, `spell`, `spellcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES 
+INSERT INTO `npc_trainer` (`entry`, `spell`, `spellcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES
 (33608, -201001, 0, 0, 0, 0), -- Alchemy
 (33608, -201002, 0, 0, 0, 0), -- Alchemy
 (33608, -201003, 0, 0, 0, 0), -- Alchemy

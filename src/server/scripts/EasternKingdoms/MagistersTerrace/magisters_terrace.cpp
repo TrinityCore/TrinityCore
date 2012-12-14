@@ -30,6 +30,8 @@ EndContentData */
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
+#include "Player.h"
+#include "SpellInfo.h"
 
 /*######
 ## npc_kalecgos
@@ -140,14 +142,14 @@ public:
             if (lList.isEmpty())
                 return;
 
-            SpellInfo const* pSpell = sSpellMgr->GetSpellInfo(SPELL_ORB_KILL_CREDIT);
+            SpellInfo const* spell = sSpellMgr->GetSpellInfo(SPELL_ORB_KILL_CREDIT);
 
             for (Map::PlayerList::const_iterator i = lList.begin(); i != lList.end(); ++i)
             {
                 if (Player* player = i->getSource())
                 {
-                    if (pSpell && pSpell->Effects[0].MiscValue)
-                        player->KilledMonsterCredit(pSpell->Effects[0].MiscValue, 0);
+                    if (spell && spell->Effects[0].MiscValue)
+                        player->KilledMonsterCredit(spell->Effects[0].MiscValue, 0);
                 }
             }
         }
@@ -170,7 +172,6 @@ public:
             }
         }
     };
-
 };
 
 void AddSC_magisters_terrace()

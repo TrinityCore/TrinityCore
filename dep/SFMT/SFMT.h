@@ -123,7 +123,8 @@
 #define SFMT_PARITY 0x00000001, 0x00000000, 0x00000000, 0x5986f054  // Period certification vector
 #endif
 
-// Functions used by SFMTRand::RandomInitByArray
+// Functions used by SFMTRand::RandomInitByArray (UNUSED AND COMMENTED OUT)
+/*
 static uint32_t func1(uint32_t x) {
     return (x ^ (x >> 27)) * 1664525U;
 }
@@ -131,6 +132,7 @@ static uint32_t func1(uint32_t x) {
 static uint32_t func2(uint32_t x) {
     return (x ^ (x >> 27)) * 1566083941U;
 }
+*/
 
 // Subfunction for the sfmt algorithm
 static inline __m128i sfmt_recursion(__m128i const &a, __m128i const &b, 

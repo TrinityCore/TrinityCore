@@ -18,18 +18,19 @@
 
 #include "Common.h"
 #include "DatabaseEnv.h"
-#include "Opcodes.h"
 #include "Log.h"
+#include "ObjectAccessor.h"
+#include "Opcodes.h"
 #include "Player.h"
+#include "Pet.h"
+#include "UpdateMask.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
-#include "ObjectAccessor.h"
-#include "UpdateMask.h"
 
-void WorldSession::HandleLearnTalentOpcode(WorldPacket & recv_data)
+void WorldSession::HandleLearnTalentOpcode(WorldPacket& recvData)
 {
     uint32 talent_id, requested_rank;
-    recv_data >> talent_id >> requested_rank;
+    recvData >> talent_id >> requested_rank;
 
     _player->LearnTalent(talent_id, requested_rank);
     _player->SendTalentsInfoData(false);
@@ -54,11 +55,11 @@ void WorldSession::HandleLearnPreviewTalents(WorldPacket& recvPacket)
     _player->SendTalentsInfoData(false);
 }
 
-void WorldSession::HandleTalentWipeConfirmOpcode(WorldPacket & recv_data)
+void WorldSession::HandleTalentWipeConfirmOpcode(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "MSG_TALENT_WIPE_CONFIRM");
     uint64 guid;
-    recv_data >> guid;
+    recvData >> guid;
 
     Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_TRAINER);
     if (!unit)

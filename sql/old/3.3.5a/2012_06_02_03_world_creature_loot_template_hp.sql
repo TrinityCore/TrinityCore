@@ -1,8 +1,8 @@
-SET @RefDLK := 26043; 
+SET @RefDLK := 26043;
 SET @HFP := 6000;
 SET @HFP1 := @HFP+1;
 SET @HFP2 := @HFP+2;
-SET @Scrolls := @HFP+3; 
+SET @Scrolls := @HFP+3;
 -- ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 DELETE FROM `reference_loot_template` WHERE `entry` IN (@RefDLK,@HFP,@HFP1,@HFP2,@Scrolls);
 INSERT INTO `reference_loot_template` (`entry`,`item`,`ChanceOrQuestChance`,`lootmode`,`groupid`,`mincountOrRef`,`maxcount`) VALUES
@@ -62,7 +62,7 @@ INSERT INTO `reference_loot_template` (`entry`,`item`,`ChanceOrQuestChance`,`loo
 (@RefDLK,30740,0,1,1,1,1), -- Ripfiend Shoulderplates
 (@RefDLK,30741,0,1,1,1,1); -- Topaz-Studded Battlegrips
 -- ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-DELETE FROM `creature_loot_template` WHERE `entry` IN (18728,187281,19191,16977,19354,17084,17057,16873,16871,19422,16907,19424,19423,16903,16901,19701,16876,16925,18952,16972,16973,17014,16844,19299,16847,16863,18981,16959,19434,16938,16937,19312,22461,19190,18733,24918,18977,17034,19459,19136,19264,16954,18678,18827,16947,16845,19457,16967,16966,22374,18978,16880,17058,22323,19261,17035,17053,16978,16846,16912,16911,19408,17039,16857,18677,19192,16946,16950,16934,19189,19188,16932,16933,20798,19458,16974,19415,16878,16870,19295,16867,19414,19413,19410,19411,16960,16879,16929,16928,16927,19282,19335,19443,16951,19349,19350,16968,26222,26223,16975,20145,16904,16906,16905,19527,16939,18679,19263,19298,16964,19442,24919,18975); 
+DELETE FROM `creature_loot_template` WHERE `entry` IN (18728,187281,19191,16977,19354,17084,17057,16873,16871,19422,16907,19424,19423,16903,16901,19701,16876,16925,18952,16972,16973,17014,16844,19299,16847,16863,18981,16959,19434,16938,16937,19312,22461,19190,18733,24918,18977,17034,19459,19136,19264,16954,18678,18827,16947,16845,19457,16967,16966,22374,18978,16880,17058,22323,19261,17035,17053,16978,16846,16912,16911,19408,17039,16857,18677,19192,16946,16950,16934,19189,19188,16932,16933,20798,19458,16974,19415,16878,16870,19295,16867,19414,19413,19410,19411,16960,16879,16929,16928,16927,19282,19335,19443,16951,19349,19350,16968,26222,26223,16975,20145,16904,16906,16905,19527,16939,18679,19263,19298,16964,19442,24919,18975);
 INSERT INTO `creature_loot_template` (`entry`,`item`,`ChanceOrQuestChance`,`lootmode`,`groupid`,`mincountOrRef`,`maxcount`) VALUES
 -- ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- Doom Lord Kazzak, NPC 18728
@@ -91,7 +91,7 @@ INSERT INTO `creature_loot_template` (`entry`,`item`,`ChanceOrQuestChance`,`loot
 -- ---------------------------------------------------
 (16977,21877,55,1,0,1,1), -- Netherweave Cloth
 (16977,14047,15,1,0,1,3), -- Runecloth
-(16977,27859,10,1,0,1,1), -- Zanger Caps 
+(16977,27859,10,1,0,1,1), -- Zanger Caps
 (16977,28399,5,1,0,1,1), -- Filtered Draenic Water
 (16977,13446,2,1,0,1,1), -- Major Healing Potion
 (16977,1,90,1,0,-6001,1), -- Generic HellfirePeninsula Loot1
@@ -611,7 +611,7 @@ INSERT INTO `creature_loot_template` (`entry`,`item`,`ChanceOrQuestChance`,`loot
 -- ---------------------------------------------------
 (16978,28562,-100,1,0,1,1), -- QItem: Unyielding Battle Horn
 (16978,21877,55,1,0,1,1), -- Netherweave Cloth
-(16978,27859,5,1,0,1,1), -- Zanger Caps 
+(16978,27859,5,1,0,1,1), -- Zanger Caps
 (16978,28399,2.5,1,0,1,1), -- Filtered Draenic Water
 (16978,13446,2,1,0,1,1), -- Major Healing Potion
 (16978,13444,2,1,0,1,1), -- Major Mana Potion
@@ -1016,7 +1016,7 @@ INSERT INTO `creature_loot_template` (`entry`,`item`,`ChanceOrQuestChance`,`loot
 -- ---------------------------------------------------
 (16904,21877,60,1,0,1,1), -- Netherweave Cloth
 (16904,14047,20,1,0,1,3), -- Runecloth
-(16904,27859,8,1,0,1,1), -- Zanger Caps 
+(16904,27859,8,1,0,1,1), -- Zanger Caps
 (16904,28399,4,1,0,1,1), -- Filtered Draenic Water
 (16904,13446,2,1,0,1,1), -- Major Healing Potion
 (16904,13444,1,1,0,1,1), -- Major Mana Potion
@@ -1027,7 +1027,7 @@ INSERT INTO `creature_loot_template` (`entry`,`item`,`ChanceOrQuestChance`,`loot
 (16906,28552,15,1,0,1,1), -- A Mysterious Tome
 (16906,21877,60,1,0,1,1), -- Netherweave Cloth
 (16906,14047,20,1,0,1,3), -- Runecloth
-(16906,27859,8,1,0,1,1), -- Zanger Caps 
+(16906,27859,8,1,0,1,1), -- Zanger Caps
 (16906,28399,4,1,0,1,1), -- Filtered Draenic Water
 (16906,13446,2,1,0,1,1), -- Major Healing Potion
 (16906,13444,1,1,0,1,1), -- Major Mana Potion
@@ -1038,7 +1038,7 @@ INSERT INTO `creature_loot_template` (`entry`,`item`,`ChanceOrQuestChance`,`loot
 -- ---------------------------------------------------
 (16905,21877,60,1,0,1,1), -- Netherweave Cloth
 (16905,14047,20,1,0,1,3), -- Runecloth
-(16905,27859,8,1,0,1,1), -- Zanger Caps 
+(16905,27859,8,1,0,1,1), -- Zanger Caps
 (16905,28399,4,1,0,1,1), -- Filtered Draenic Water
 (16905,13446,2,1,0,1,1), -- Major Healing Potion
 (16905,13444,1,1,0,1,1), -- Major Mana Potion
@@ -1128,5 +1128,5 @@ INSERT INTO `creature_loot_template` (`entry`,`item`,`ChanceOrQuestChance`,`loot
 (18975,1,2,1,0,-6003,1), -- Scroll of * Reference
 (18975,2,90,1,0,-6000,1); -- Generic HellfirePeninsula Loot
 
-UPDATE `creature_template` SET `lootid`=`entry` WHERE `entry` IN (26222,26223); 
+UPDATE `creature_template` SET `lootid`=`entry` WHERE `entry` IN (26222,26223);
 DELETE FROM `reference_loot_template` WHERE `entry`=34081;

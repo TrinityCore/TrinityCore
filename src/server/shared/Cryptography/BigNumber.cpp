@@ -192,12 +192,12 @@ uint8 *BigNumber::AsByteArray(int minSize, bool reverse)
     return _array;
 }
 
-const char *BigNumber::AsHexStr()
+char * BigNumber::AsHexStr() const
 {
     return BN_bn2hex(_bn);
 }
 
-const char *BigNumber::AsDecStr()
+char * BigNumber::AsDecStr() const
 {
     return BN_bn2dec(_bn);
 }

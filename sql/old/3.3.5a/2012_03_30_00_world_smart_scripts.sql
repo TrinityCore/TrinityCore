@@ -1,7 +1,7 @@
 -- revised from Unholys original works
 -- quest 12702 chicken party!
 -- quest 12532 flown the coop!
--- 
+--
 SET @ENTRY := 28161; -- the chicken
 SET @PARTY := 12702; -- chicken party quest
 SET @COOP := 12532; -- flown the coop quest
@@ -9,7 +9,7 @@ SET @LIFE := 900000; -- minutes
 
 -- set up required spells for the spells to work as they should
 DELETE FROM `npc_spellclick_spells` WHERE `npc_entry`=@ENTRY;
-INSERT INTO `npc_spellclick_spells` (`npc_entry`,`spell_id`,`cast_flags`,`user_type`) VALUES 
+INSERT INTO `npc_spellclick_spells` (`npc_entry`,`spell_id`,`cast_flags`,`user_type`) VALUES
 (@ENTRY,39996,1,0), -- cover spell (dummy)
 (@ENTRY,51037,2,0); -- creates item in players back pack
 
@@ -29,7 +29,7 @@ DELETE FROM `quest_start_scripts` WHERE `id` IN (@PARTY,@COOP);
 
 -- start script for quest chicken party (they do not all spawn at same time)
 UPDATE `quest_template` SET `StartScript`=@PARTY WHERE `id`=@PARTY; -- 12072
-INSERT INTO `quest_start_scripts` (`id`,`delay`,`command`,`datalong`,`datalong2`,`dataint`,`x`,`y`,`z`,`o`) VALUES 
+INSERT INTO `quest_start_scripts` (`id`,`delay`,`command`,`datalong`,`datalong2`,`dataint`,`x`,`y`,`z`,`o`) VALUES
 (@PARTY,1,10,@ENTRY,@LIFE, 0,5251.09,4413.76,-96.086,4.8714),
 (@PARTY,2,10,@ENTRY,@LIFE, 0,5251.22,4419.74,-95.8995,3.58335),
 (@PARTY,23,10,@ENTRY,@LIFE, 0,5257.58,4421.77,-95.9072,2.62124),
@@ -63,7 +63,7 @@ INSERT INTO `quest_start_scripts` (`id`,`delay`,`command`,`datalong`,`datalong2`
 
 -- start script for quest flown the coop (they do not all spawn at same time)
 UPDATE `quest_template` SET `StartScript`=@COOP WHERE `id`=@COOP; -- 12532
-INSERT INTO `quest_start_scripts` (`id`,`delay`,`command`,`datalong`,`datalong2`,`dataint`,`x`,`y`,`z`,`o`) VALUES 
+INSERT INTO `quest_start_scripts` (`id`,`delay`,`command`,`datalong`,`datalong2`,`dataint`,`x`,`y`,`z`,`o`) VALUES
 (@COOP,23,10,@ENTRY,@LIFE,0, 5257.58,4421.77,-95.9072,2.62124),
 (@COOP,4,10,@ENTRY,@LIFE,0, 5255.97,4420.37,-95.9999,0.0451326),
 (@COOP,5,10,@ENTRY,@LIFE,0, 5256.78,4420.63,-95.9957,0.320021),

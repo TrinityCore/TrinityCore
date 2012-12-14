@@ -1,7 +1,7 @@
--- add spawn for Saragosa 
-SET @GUID := 40270; 
+-- add spawn for Saragosa
+SET @GUID := 40270;
 DELETE FROM `creature` WHERE `id`=26231;
-INSERT INTO creature (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`,`npcflag`,`unit_flags`,`dynamicflags`) VALUES 
+INSERT INTO creature (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`,`npcflag`,`unit_flags`,`dynamicflags`) VALUES
 (@GUID,26231,571,1,1,0,0,3981.03687,7148.006,666.1618,1.037019,120,0,0,1,0,0,0,0,0);
 -- Pathing for Saragosa Entry: 26231
 

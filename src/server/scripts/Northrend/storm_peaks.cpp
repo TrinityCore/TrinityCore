@@ -19,20 +19,24 @@
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
 #include "ScriptedEscortAI.h"
+#include "SpellScript.h"
+#include "SpellAuraEffects.h"
 #include "Vehicle.h"
 #include "CombatAI.h"
+#include "Player.h"
+#include "WorldSession.h"
 
 /*######
 ## npc_agnetta_tyrsdottar
 ######*/
 
-#define SAY_AGGRO                  -1571003
 #define GOSSIP_AGNETTA             "Skip the warmup, sister... or are you too scared to face soemeone your own size?"
 
 enum eAgnetta
 {
     QUEST_ITS_THAT_YOUR_GOBLIN      = 12969,
-    FACTION_HOSTILE_AT1             = 45
+    FACTION_HOSTILE_AT1             = 45,
+    SAY_AGGRO                       = 0
 };
 
 class npc_agnetta_tyrsdottar : public CreatureScript
@@ -69,7 +73,7 @@ public:
         player->PlayerTalkClass->ClearMenus();
         if (action == GOSSIP_ACTION_INFO_DEF+1)
         {
-            DoScriptText(SAY_AGGRO, creature);
+            creature->AI()->Talk(SAY_AGGRO);
             player->CLOSE_GOSSIP_MENU();
             creature->setFaction(FACTION_HOSTILE_AT1);
             creature->AI()->AttackStart(player);
@@ -139,8 +143,8 @@ public:
 enum eInjuredGoblin
 {
     QUEST_BITTER_DEPARTURE     = 12832,
-    SAY_QUEST_ACCEPT           =  -1800042,
-    SAY_END_WP_REACHED         =  -1800043
+    SAY_QUEST_ACCEPT           = 0,
+    SAY_END_WP_REACHED         = 1
 };
 
 #define GOSSIP_ITEM_1       "I am ready, lets get you out of here"
@@ -163,7 +167,7 @@ public:
             switch (waypointId)
             {
                 case 26:
-                    DoScriptText(SAY_END_WP_REACHED, me, player);
+                    Talk(SAY_END_WP_REACHED, player->GetGUID());
                     break;
                 case 27:
                     player->GroupEventHappens(QUEST_BITTER_DEPARTURE, me);
@@ -214,7 +218,7 @@ public:
     bool OnQuestAccept(Player* /*player*/, Creature* creature, Quest const* quest)
     {
         if (quest->GetQuestId() == QUEST_BITTER_DEPARTURE)
-            DoScriptText(SAY_QUEST_ACCEPT, creature);
+            creature->AI()->Talk(SAY_QUEST_ACCEPT);
 
         return false;
     }
@@ -564,6 +568,53 @@ class npc_hyldsmeet_protodrake : public CreatureScript
         }
 };
 
+enum CloseRift
+{
+    SPELL_DESPAWN_RIFT          = 61665
+};
+
+class spell_close_rift : public SpellScriptLoader
+{
+    public:
+        spell_close_rift() : SpellScriptLoader("spell_close_rift") { }
+
+        class spell_close_rift_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_close_rift_AuraScript);
+
+            bool Load()
+            {
+                _counter = 0;
+                return true;
+            }
+
+            bool Validate(SpellInfo const* /*spell*/)
+            {
+                return sSpellMgr->GetSpellInfo(SPELL_DESPAWN_RIFT);
+            }
+
+            void HandlePeriodic(AuraEffect const* /* aurEff */)
+            {
+                if (++_counter == 5)
+                    GetTarget()->CastSpell((Unit*)NULL, SPELL_DESPAWN_RIFT, true);
+            }
+
+            void Register()
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_close_rift_AuraScript::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+            }
+
+        private:
+            uint8 _counter;
+
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_close_rift_AuraScript();
+        }
+};
+
 void AddSC_storm_peaks()
 {
     new npc_agnetta_tyrsdottar();
@@ -574,4 +625,5 @@ void AddSC_storm_peaks()
     new npc_freed_protodrake();
     new npc_icefang();
     new npc_hyldsmeet_protodrake();
+    new spell_close_rift();
 }

@@ -23,6 +23,7 @@
 #include "Vehicle.h"
 #include "CombatAI.h"
 #include "oculus.h"
+#include "Player.h"
 
 #define GOSSIP_ITEM_DRAKES         "So where do we go from here?"
 #define GOSSIP_ITEM_BELGARISTRASZ1 "I want to fly on the wings of the Red Flight"
@@ -32,7 +33,7 @@
 #define GOSSIP_ITEM_ETERNOS1       "I want to fly on the wings of the Bronze Flight"
 #define GOSSIP_ITEM_ETERNOS2       "What abilities do Amber Drakes have?"
 
-#define HAS_ESSENCE(a) ((a)->HasItemCount(ITEM_EMERALD_ESSENCE, 1) || (a)->HasItemCount(ITEM_AMBER_ESSENCE, 1) || (a)->HasItemCount(ITEM_RUBY_ESSENCE, 1))
+#define HAS_ESSENCE(a) ((a)->HasItemCount(ITEM_EMERALD_ESSENCE) || (a)->HasItemCount(ITEM_AMBER_ESSENCE) || (a)->HasItemCount(ITEM_RUBY_ESSENCE))
 
 enum GossipNPCs
 {
@@ -232,7 +233,7 @@ public:
     {
         npc_verdisa_beglaristrasz_eternosAI(Creature* creature) : ScriptedAI(creature) { }
 
-        void MovementInform(uint32 type, uint32 id)
+        void MovementInform(uint32 /*type*/, uint32 id)
         {
             // When Belgaristraz finish his moving say grateful text
             if (me->GetEntry() == NPC_BELGARISTRASZ)

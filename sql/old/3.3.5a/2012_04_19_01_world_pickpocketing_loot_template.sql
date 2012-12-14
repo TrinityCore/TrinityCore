@@ -9,7 +9,7 @@ SET @CLAXREF := @GORLOCREF+6;
 SET @MAGMOTHREF := @GORLOCREF+7;
 -- Create reference templates
 DELETE FROM `reference_loot_template` WHERE `entry` BETWEEN @GORLOCREF AND @GORLOCREF+7;
-INSERT INTO `reference_loot_template` (`entry`,`item`,`ChanceOrQuestChance`,`lootmode`,`groupid`,`mincountOrRef`,`maxcount`) VALUES 
+INSERT INTO `reference_loot_template` (`entry`,`item`,`ChanceOrQuestChance`,`lootmode`,`groupid`,`mincountOrRef`,`maxcount`) VALUES
 (@GORLOCREF,29576,57,1,0,1,1), -- Shark Bait
 (@GORLOCREF,29569,30,1,0,1,1), -- Strong Junkbox
 (@GORLOCREF,27858,8,1,0,1,1), -- Sunspring Carp
@@ -137,7 +137,7 @@ SET @NPC52 := 25523;
 -- ----------------------
 UPDATE `creature_template` SET `pickpocketloot`=`entry` WHERE `entry` IN (@NPC,@NPC1,@NPC2,@NPC3,@NPC4,@NPC5,@NPC6,@NPC7,@NPC8,@NPC9,@NPC10,@NPC11,@NPC12,@NPC13,@NPC14,@NPC15,@NPC16,@NPC17,@NPC18,@NPC19,@NPC20,@NPC21,@NPC22,@NPC23,@NPC24,@NPC25,@NPC26,@NPC27,@NPC28,@NPC29,@NPC30,@NPC31,@NPC32,@NPC33,@NPC34,@NPC35,@NPC36,@NPC37,@NPC38,@NPC39,@NPC40,@NPC41,@NPC42,@NPC43,@NPC44,@NPC45,@NPC46,@NPC47,@NPC48,@NPC49,@NPC50,@NPC51,@NPC52);
 DELETE FROM `pickpocketing_loot_template` WHERE `entry` IN (@NPC,@NPC1,@NPC2,@NPC3,@NPC4,@NPC5,@NPC6,@NPC7,@NPC8,@NPC9,@NPC10,@NPC11,@NPC12,@NPC13,@NPC14,@NPC15,@NPC16,@NPC17,@NPC18,@NPC19,@NPC20,@NPC21,@NPC22,@NPC23,@NPC24,@NPC25,@NPC26,@NPC27,@NPC28,@NPC29,@NPC30,@NPC31,@NPC32,@NPC33,@NPC34,@NPC35,@NPC36,@NPC37,@NPC38,@NPC39,@NPC40,@NPC41,@NPC42,@NPC43,@NPC44,@NPC45,@NPC46,@NPC47,@NPC48,@NPC49,@NPC50,@NPC51,@NPC52);
-INSERT INTO `pickpocketing_loot_template` (`entry`,`item`,`ChanceOrQuestChance`,`lootmode`,`groupid`,`mincountOrRef`,`maxcount`) VALUES 
+INSERT INTO `pickpocketing_loot_template` (`entry`,`item`,`ChanceOrQuestChance`,`lootmode`,`groupid`,`mincountOrRef`,`maxcount`) VALUES
 -- -----------------------------------------------------------------------------------------------
 (@NPC,1,100,1,0,-@GORLOCREF,1), -- Gorloc ref loot template on Gorloc Gibberer
 (@NPC1,1,100,1,0,-@GORLOCREF,1), -- Gorloc ref loot template on Gorloc Hunter
@@ -182,7 +182,7 @@ INSERT INTO `pickpocketing_loot_template` (`entry`,`item`,`ChanceOrQuestChance`,
 (@NPC35,1,100,1,0,-@KVALDIRREF,1), -- Kvaldir ref loot template on Kvaldir Raider
 (@NPC36,1,100,1,0,-@KVALDIRREF,1), -- Kvaldir ref loot template on Heigarr the Horrible
 (@NPC37,1,100,1,0,-@KVALDIRREF,1), -- Kvaldir ref loot template on Ragnar Drakkarlund
-(@NPC37,35774,-100,1,0,1,1), -- Trident of Naz'jan on Ragnar Drakkarlund 
+(@NPC37,35774,-100,1,0,1,1), -- Trident of Naz'jan on Ragnar Drakkarlund
 (@NPC38,1,100,1,0,-@KVALDIRREF,1), -- Kvaldir ref loot template on Skadir Longboatsman
 (@NPC39,1,100,1,0,-@KVALDIRREF,1), -- Kvaldir ref loot template on Skadir Mistweaver
 (@NPC40,1,100,1,0,-@KVALDIRREF,1), -- Kvaldir ref loot template on Skadir Raider

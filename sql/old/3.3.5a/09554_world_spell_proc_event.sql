@@ -1,5 +1,5 @@
 DELETE FROM `spell_proc_event` WHERE `entry` IN (70727,70730,70803,70805,70841);
-INSERT INTO `spell_proc_event` VALUES 
+INSERT INTO `spell_proc_event` VALUES
 ( 70727, 0x00,   9, 0x00000000, 0x00000000, 0x00000000, 0x00000040, 0x00000000,   0,   0,   0), -- Item - Hunter T10 2P Bonus
 ( 70730, 0x00,   9, 0x00004000, 0x00001000, 0x00000000, 0x00040000, 0x00000000,   0,   0,   0), -- Item - Hunter T10 4P Bonus
 ( 70803, 0x00,   8, 0x003E0000, 0x00000008, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Item - Rogue T10 4P Bonus

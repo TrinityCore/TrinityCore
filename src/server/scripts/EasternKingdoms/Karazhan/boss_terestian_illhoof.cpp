@@ -28,35 +28,36 @@ EndScriptData */
 #include "karazhan.h"
 #include "PassiveAI.h"
 
-#define SAY_SLAY1                   -1532065
-#define SAY_SLAY2                   -1532066
-#define SAY_DEATH                   -1532067
-#define SAY_AGGRO                   -1532068
-#define SAY_SACRIFICE1              -1532069
-#define SAY_SACRIFICE2              -1532070
-#define SAY_SUMMON1                 -1532071
-#define SAY_SUMMON2                 -1532072
+enum TerestianIllhoof
+{
+    SAY_SLAY                    = 1,
+    SAY_DEATH                   = 2,
+    SAY_AGGRO                   = 3,
+    SAY_SACRIFICE               = 4,
+    SAY_SUMMON                  = 5,
 
-#define SPELL_SUMMON_DEMONCHAINS    30120                   // Summons demonic chains that maintain the ritual of sacrifice.
-#define SPELL_DEMON_CHAINS          30206                   // Instant - Visual Effect
-#define SPELL_ENRAGE                23537                   // Increases the caster's attack speed by 50% and the Physical damage it deals by 219 to 281 for 10 min.
-#define SPELL_SHADOW_BOLT           30055                   // Hurls a bolt of dark magic at an enemy, inflicting Shadow damage.
-#define SPELL_SACRIFICE             30115                   // Teleports and adds the debuff
-#define SPELL_BERSERK               32965                   // Increases attack speed by 75%. Periodically casts Shadow Bolt Volley.
-#define SPELL_SUMMON_FIENDISIMP     30184                   // Summons a Fiendish Imp.
-#define SPELL_SUMMON_IMP            30066                   // Summons Kil'rek
+    SPELL_SUMMON_DEMONCHAINS    = 30120,               // Summons demonic chains that maintain the ritual of sacrifice.
+    SPELL_DEMON_CHAINS          = 30206,                   // Instant - Visual Effect
+    SPELL_ENRAGE                = 23537,                   // Increases the caster's attack speed by 50% and the Physical damage it deals by 219 to 281 for 10 min.
+    SPELL_SHADOW_BOLT           = 30055,                   // Hurls a bolt of dark magic at an enemy, inflicting Shadow damage.
+    SPELL_SACRIFICE             = 30115,                   // Teleports and adds the debuff
+    SPELL_BERSERK               = 32965,                   // Increases attack speed by 75%. Periodically casts Shadow Bolt Volley.
+    SPELL_SUMMON_FIENDISIMP     = 30184,                   // Summons a Fiendish Imp.
+    SPELL_SUMMON_IMP            = 30066,                   // Summons Kil'rek
 
-#define SPELL_FIENDISH_PORTAL       30171                   // Opens portal and summons Fiendish Portal, 2 sec cast
-#define SPELL_FIENDISH_PORTAL_1     30179                   // Opens portal and summons Fiendish Portal, instant cast
+    SPELL_FIENDISH_PORTAL       = 30171,                   // Opens portal and summons Fiendish Portal, 2 sec cast
+    SPELL_FIENDISH_PORTAL_1     = 30179,                   // Opens portal and summons Fiendish Portal, instant cast
 
-#define SPELL_FIREBOLT              30050                   // Blasts a target for 150 Fire damage.
-#define SPELL_BROKEN_PACT           30065                   // All damage taken increased by 25%.
-#define SPELL_AMPLIFY_FLAMES        30053                   // Increases the Fire damage taken by an enemy by 500 for 25 sec.
+    SPELL_FIREBOLT              = 30050,                   // Blasts a target for 150 Fire damage.
+    SPELL_BROKEN_PACT           = 30065,                   // All damage taken increased by 25%.
+    SPELL_AMPLIFY_FLAMES        = 30053,                   // Increases the Fire damage taken by an enemy by 500 for 25 sec.
 
-#define CREATURE_DEMONCHAINS    17248
-#define CREATURE_FIENDISHIMP    17267
-#define CREATURE_PORTAL         17265
-#define CREATURE_KILREK         17229
+    CREATURE_DEMONCHAINS        = 17248,
+    CREATURE_FIENDISHIMP        = 17267,
+    CREATURE_PORTAL             = 17265,
+    CREATURE_KILREK             = 17229,
+};
+
 
 class mob_kilrek : public CreatureScript
 {
@@ -127,7 +128,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 class mob_demon_chain : public CreatureScript
@@ -165,7 +165,6 @@ public:
             }
         }
     };
-
 };
 
 class mob_fiendish_portal : public CreatureScript
@@ -200,7 +199,6 @@ public:
             summons.DespawnAll();
         }
     };
-
 };
 
 #define SPELL_FIREBOLT  30050   // Blasts a target for 181-209 Fire damage.
@@ -245,7 +243,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 class boss_terestian_illhoof : public CreatureScript
@@ -323,7 +320,7 @@ public:
 
         void EnterCombat(Unit* /*who*/)
         {
-            DoScriptText(SAY_AGGRO, me);
+            Talk(SAY_AGGRO);
         }
 
         void JustSummoned(Creature* summoned)
@@ -335,7 +332,7 @@ public:
 
                 if (summoned->GetUInt32Value(UNIT_CREATED_BY_SPELL) == SPELL_FIENDISH_PORTAL_1)
                 {
-                    DoScriptText(RAND(SAY_SUMMON1, SAY_SUMMON2), me);
+                    Talk(SAY_SUMMON);
                     SummonedPortals = true;
                 }
             }
@@ -343,7 +340,7 @@ public:
 
         void KilledUnit(Unit* /*victim*/)
         {
-            DoScriptText(RAND(SAY_SLAY1, SAY_SLAY2), me);
+            Talk(SAY_SLAY);
         }
 
         void JustDied(Unit* /*killer*/)
@@ -359,7 +356,7 @@ public:
                 }
             }
 
-            DoScriptText(SAY_DEATH, me);
+            Talk(SAY_DEATH);
 
             if (instance)
                 instance->SetData(TYPE_TERESTIAN, DONE);
@@ -382,7 +379,7 @@ public:
                     {
                         CAST_AI(mob_demon_chain::mob_demon_chainAI, Chains->AI())->SacrificeGUID = target->GetGUID();
                         Chains->CastSpell(Chains, SPELL_DEMON_CHAINS, true);
-                        DoScriptText(RAND(SAY_SACRIFICE1, SAY_SACRIFICE2), me);
+                        Talk(SAY_SACRIFICE);
                         SacrificeTimer = 30000;
                     }
                 }
@@ -422,7 +419,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 void AddSC_boss_terestian_illhoof()

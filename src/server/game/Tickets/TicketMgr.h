@@ -82,7 +82,7 @@ class GmTicket
 {
 public:
     GmTicket();
-    explicit GmTicket(Player* player, WorldPacket& recv_data);
+    explicit GmTicket(Player* player, WorldPacket& recvData);
     ~GmTicket();
 
     bool IsClosed() const { return _closedBy; }
@@ -94,8 +94,8 @@ public:
 
     uint32 GetId() const { return _id; }
     Player* GetPlayer() const { return ObjectAccessor::FindPlayer(_playerGuid); }
-    std::string GetPlayerName() const { return _playerName; }
-    std::string GetMessage() const { return _message; }
+    std::string const& GetPlayerName() const { return _playerName; }
+    std::string const& GetMessage() const { return _message; }
     Player* GetAssignedPlayer() const { return ObjectAccessor::FindPlayer(_assignedTo); }
     uint64 GetAssignedToGUID() const { return _assignedTo; }
     std::string GetAssignedToName() const
@@ -120,16 +120,16 @@ public:
             _escalatedStatus = TICKET_ASSIGNED;
     }
     void SetClosedBy(const int64& value) { _closedBy = value; }
-    void SetMessage(const std::string& message)
+    void SetMessage(std::string const& message)
     {
         _message = message;
         _lastModifiedTime = uint64(time(NULL));
     }
-    void SetComment(const std::string& comment) { _comment = comment; }
+    void SetComment(std::string const& comment) { _comment = comment; }
     void SetViewed() { _viewed = true; }
     void SetUnassigned();
 
-    void AppendResponse(const std::string& response) { _response += response; }
+    void AppendResponse(std::string const& response) { _response += response; }
 
     bool LoadFromDB(Field* fields);
     void SaveToDB(SQLTransaction& trans) const;
@@ -141,6 +141,9 @@ public:
     void TeleportTo(Player* player) const;
     std::string FormatMessageString(ChatHandler& handler, bool detailed = false) const;
     std::string FormatMessageString(ChatHandler& handler, const char* szClosedName, const char* szAssignedToName, const char* szUnassignedName, const char* szDeletedName) const;
+
+    void SetChatLog(std::list<uint32> time, std::string const& log);
+    std::string const& GetChatLog() const { return _chatLog; }
 
 private:
     uint32 _id;
@@ -160,7 +163,9 @@ private:
     GMTicketEscalationStatus _escalatedStatus;
     bool _viewed;
     bool _needResponse; // TODO: find out the use of this, and then store it in DB
+    bool _haveTicket;
     std::string _response;
+    std::string _chatLog; // No need to store in db, will be refreshed every session client side
 };
 typedef std::map<uint32, GmTicket*> GmTicketList;
 

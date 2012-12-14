@@ -182,9 +182,9 @@ void PlayerSocial::SendSocialList(Player* player)
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_CONTACT_LIST");
 }
 
-bool PlayerSocial::HasFriend(uint32 friend_guid)
+bool PlayerSocial::HasFriend(uint32 friendGuid)
 {
-    PlayerSocialMap::const_iterator itr = m_playerSocialMap.find(friend_guid);
+    PlayerSocialMap::const_iterator itr = m_playerSocialMap.find(friendGuid);
     if (itr != m_playerSocialMap.end())
         return itr->second.Flags & SOCIAL_FLAG_FRIEND;
     return false;
@@ -231,7 +231,7 @@ void SocialMgr::GetFriendInfo(Player* player, uint32 friendGUID, FriendInfo &fri
 
     // PLAYER see his team only and PLAYER can't see MODERATOR, GAME MASTER, ADMINISTRATOR characters
     // MODERATOR, GAME MASTER, ADMINISTRATOR can see all
-    if (pFriend && pFriend->GetName() &&
+    if (pFriend &&
         (!AccountMgr::IsPlayerAccount(security) ||
         ((pFriend->GetTeam() == team || allowTwoSideWhoList) && (pFriend->GetSession()->GetSecurity() <= gmLevelInWhoList))) &&
         pFriend->IsVisibleGloballyFor(player))
@@ -249,18 +249,18 @@ void SocialMgr::GetFriendInfo(Player* player, uint32 friendGUID, FriendInfo &fri
 
 void SocialMgr::MakeFriendStatusPacket(FriendsResult result, uint32 guid, WorldPacket* data)
 {
-    data->Initialize(SMSG_FRIEND_STATUS, 5);
+    data->Initialize(SMSG_FRIEND_STATUS, 9);
     *data << uint8(result);
     *data << uint64(guid);
 }
 
-void SocialMgr::SendFriendStatus(Player* player, FriendsResult result, uint32 friend_guid, bool broadcast)
+void SocialMgr::SendFriendStatus(Player* player, FriendsResult result, uint32 friendGuid, bool broadcast)
 {
     FriendInfo fi;
 
     WorldPacket data;
-    MakeFriendStatusPacket(result, friend_guid, &data);
-    GetFriendInfo(player, friend_guid, fi);
+    MakeFriendStatusPacket(result, friendGuid, &data);
+    GetFriendInfo(player, friendGuid, fi);
     switch (result)
     {
         case FRIEND_ADDED_OFFLINE:
@@ -329,7 +329,7 @@ PlayerSocial* SocialMgr::LoadFromDB(PreparedQueryResult result, uint32 guid)
     if (!result)
         return social;
 
-    uint32 friend_guid = 0;
+    uint32 friendGuid = 0;
     uint8 flags = 0;
     std::string note = "";
 
@@ -337,11 +337,11 @@ PlayerSocial* SocialMgr::LoadFromDB(PreparedQueryResult result, uint32 guid)
     {
         Field* fields = result->Fetch();
 
-        friend_guid = fields[0].GetUInt32();
+        friendGuid = fields[0].GetUInt32();
         flags = fields[1].GetUInt8();
         note = fields[2].GetString();
 
-        social->m_playerSocialMap[friend_guid] = FriendInfo(flags, note);
+        social->m_playerSocialMap[friendGuid] = FriendInfo(flags, note);
 
         // client's friends list and ignore list limit
         if (social->m_playerSocialMap.size() >= (SOCIALMGR_FRIEND_LIMIT + SOCIALMGR_IGNORE_LIMIT))
@@ -351,4 +351,3 @@ PlayerSocial* SocialMgr::LoadFromDB(PreparedQueryResult result, uint32 guid)
 
     return social;
 }
-

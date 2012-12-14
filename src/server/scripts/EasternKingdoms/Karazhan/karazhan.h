@@ -64,4 +64,3 @@ enum OperaEvents
 
 #define ERROR_INST_DATA(a)          sLog->outError(LOG_FILTER_TSCR, "Instance Data for Karazhan not set properly. Encounter for Creature Entry %u may not work properly.", a->GetEntry());
 #endif
-
