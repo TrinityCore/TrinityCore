@@ -387,7 +387,7 @@ public:
         {
             if (victim->GetTypeId() != TYPEID_PLAYER)
                 return;
-            
+
             Talk(DemonForm ? SAY_DEMON_SLAY : SAY_NIGHTELF_SLAY);
         }
 
