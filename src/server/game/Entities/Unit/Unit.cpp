@@ -2583,7 +2583,7 @@ SpellMissInfo Unit::MagicSpellHitResult(Unit* victim, SpellInfo const* spellInfo
     // cast by caster in front of victim
     int32 deflect_chance = (victim->GetTotalAuraModifier(SPELL_AURA_DEFLECT_SPELLS) * (100 - ignoredResistance) / 100) * 100;
 
-    if (deflect_chance > 0)
+    if (!victim->HasAuraType(SPELL_AURA_MOD_STUN) && !(spellInfo->AttributesEx3 & SPELL_ATTR3_IGNORE_HIT_RESULT) && deflect_chance > 0)
         if (victim->HasInArc(M_PI, this) || victim->HasAuraType(SPELL_AURA_IGNORE_HIT_DIRECTION))
         {
             int32 rand = irand(0, 10000);
