@@ -35,7 +35,7 @@ enum Skeram
     SAY_SLAY                    = 1,
     SAY_SPLIT                   = 2,
     SAY_DEATH                   = 3,
-    
+
     SPELL_ARCANE_EXPLOSION      = 25679,
     SPELL_EARTH_SHOCK           = 26194,
     SPELL_TRUE_FULFILLMENT      = 785,

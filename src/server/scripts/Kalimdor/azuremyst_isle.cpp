@@ -491,23 +491,23 @@ public:
                     Spark->SetInFront(me);
                     me->SetInFront(Spark);
                     return 5000;
-                case 3: 
-                    Spark->AI()->Talk(SPARK_SAY_2); 
+                case 3:
+                    Spark->AI()->Talk(SPARK_SAY_2);
                     return 7000;
-                case 4: 
+                case 4:
                     Spark->AI()->Talk(SPARK_SAY_3);
                     return 8000;
-                case 5: 
+                case 5:
                     Talk(GEEZLE_SAY_4, SparkGUID);
                     return 8000;
-                case 6: 
+                case 6:
                     Spark->AI()->Talk(SPARK_SAY_5);
                     return 9000;
-                case 7: 
-                    Spark->AI()->Talk(SPARK_SAY_6); 
+                case 7:
+                    Spark->AI()->Talk(SPARK_SAY_6);
                     return 8000;
-                case 8: 
-                    Talk(GEEZLE_SAY_7, SparkGUID); 
+                case 8:
+                    Talk(GEEZLE_SAY_7, SparkGUID);
                     return 2000;
                 case 9:
                     me->GetMotionMaster()->MoveTargetedHome();
