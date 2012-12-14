@@ -8903,7 +8903,9 @@ void Player::SendLoot(uint64 guid, LootType loot_type)
 
         loot = &item->loot;
 
-        if (!item->m_lootGenerated)
+        // If item doesn't already have loot, attempt to load it. If that
+        //  fails then this is first time opening, generate loot
+        if (!item->m_lootGenerated && !item->ItemContainerLoadLootFromDB())
         {
             item->m_lootGenerated = true;
             loot->clear();
@@ -8922,6 +8924,12 @@ void Player::SendLoot(uint64 guid, LootType loot_type)
                 default:
                     loot->generateMoneyLoot(item->GetTemplate()->MinMoneyLoot, item->GetTemplate()->MaxMoneyLoot);
                     loot->FillLoot(item->GetEntry(), LootTemplates_Item, this, true, loot->gold != 0);
+
+                    // Force save the loot and money items that were just rolled
+                    //  Also saves the container item ID in Loot struct (not to DB)
+                    if (loot->gold > 0 || loot->unlootedCount > 0)
+                        item->ItemContainerSaveLootToDB();
+
                     break;
             }
         }
@@ -12674,6 +12682,12 @@ void Player::DestroyItem(uint8 bag, uint8 slot, bool update)
         }
         else if (Bag* pBag = GetBagByPos(bag))
             pBag->RemoveItem(slot, update);
+
+        // Delete rolled money / loot from db.
+        // MUST be done before RemoveFromWorld() or GetTemplate() fails
+        if (ItemTemplate const* pTmp = pItem->GetTemplate())
+            if (pTmp->Flags & ITEM_PROTO_FLAG_OPENABLE)
+                pItem->ItemContainerDeleteLootMoneyAndLootItemsFromDB();
 
         if (IsInWorld() && update)
         {
@@ -24055,6 +24069,11 @@ void Player::StoreLootItem(uint8 lootSlot, Loot* loot)
         UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_ITEM, item->itemid, item->count);
         UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_TYPE, loot->loot_type, item->count);
         UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_EPIC_ITEM, item->itemid, item->count);
+
+        // LootItem is being removed (looted) from the container, delete it from the DB.
+        if (loot->containerID > 0)
+            loot->DeleteLootItemFromContainerItemDB(item->itemid);
+
     }
     else
         SendEquipError(msg, NULL, NULL, item->itemid);
