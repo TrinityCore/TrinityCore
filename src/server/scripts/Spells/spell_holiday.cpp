@@ -125,15 +125,15 @@ enum TrickSpells
     SPELL_TRICK_BUFF                    = 24753,
 };
 
-class spell_trick : public SpellScriptLoader
+class spell_hallow_end_trick : public SpellScriptLoader
 {
     public:
-        spell_trick() : SpellScriptLoader("spell_trick") {}
+        spell_hallow_end_trick() : SpellScriptLoader("spell_hallow_end_trick") { }
 
-        class spell_trick_SpellScript : public SpellScript
+        class spell_hallow_end_trick_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_trick_SpellScript);
-            bool Validate(SpellInfo const* /*spellEntry*/)
+            PrepareSpellScript(spell_hallow_end_trick_SpellScript);
+            bool Validate(SpellInfo const* /*spell*/)
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_PIRATE_COSTUME_MALE) || !sSpellMgr->GetSpellInfo(SPELL_PIRATE_COSTUME_FEMALE) || !sSpellMgr->GetSpellInfo(SPELL_NINJA_COSTUME_MALE)
                     || !sSpellMgr->GetSpellInfo(SPELL_NINJA_COSTUME_FEMALE) || !sSpellMgr->GetSpellInfo(SPELL_LEPER_GNOME_COSTUME_MALE) || !sSpellMgr->GetSpellInfo(SPELL_LEPER_GNOME_COSTUME_FEMALE)
@@ -176,13 +176,13 @@ class spell_trick : public SpellScriptLoader
 
             void Register()
             {
-                OnEffectHitTarget += SpellEffectFn(spell_trick_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget += SpellEffectFn(spell_hallow_end_trick_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
         SpellScript* GetSpellScript() const
         {
-            return new spell_trick_SpellScript();
+            return new spell_hallow_end_trick_SpellScript();
         }
 };
 
@@ -197,16 +197,16 @@ enum TrickOrTreatSpells
     SPELL_UPSET_TUMMY           = 42966
 };
 
-class spell_trick_or_treat : public SpellScriptLoader
+class spell_hallow_end_trick_or_treat : public SpellScriptLoader
 {
     public:
-        spell_trick_or_treat() : SpellScriptLoader("spell_trick_or_treat") {}
+        spell_hallow_end_trick_or_treat() : SpellScriptLoader("spell_hallow_end_trick_or_treat") {}
 
-        class spell_trick_or_treat_SpellScript : public SpellScript
+        class spell_hallow_end_trick_or_treat_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_trick_or_treat_SpellScript);
+            PrepareSpellScript(spell_hallow_end_trick_or_treat_SpellScript);
 
-            bool Validate(SpellInfo const* /*spellEntry*/)
+            bool Validate(SpellInfo const* /*spell*/)
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_TRICK) || !sSpellMgr->GetSpellInfo(SPELL_TREAT) || !sSpellMgr->GetSpellInfo(SPELL_TRICKED_OR_TREATED))
                     return false;
@@ -225,26 +225,26 @@ class spell_trick_or_treat : public SpellScriptLoader
 
             void Register()
             {
-                OnEffectHitTarget += SpellEffectFn(spell_trick_or_treat_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget += SpellEffectFn(spell_hallow_end_trick_or_treat_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
         SpellScript* GetSpellScript() const
         {
-            return new spell_trick_or_treat_SpellScript();
+            return new spell_hallow_end_trick_or_treat_SpellScript();
         }
 };
 
-class spell_tricky_treat : public SpellScriptLoader
+class spell_hallow_end_tricky_treat : public SpellScriptLoader
 {
     public:
-        spell_tricky_treat() : SpellScriptLoader("spell_tricky_treat") {}
+        spell_hallow_end_tricky_treat() : SpellScriptLoader("spell_hallow_end_tricky_treat") { }
 
-        class spell_tricky_treat_SpellScript : public SpellScript
+        class spell_hallow_end_tricky_treat_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_tricky_treat_SpellScript);
+            PrepareSpellScript(spell_hallow_end_tricky_treat_SpellScript);
 
-            bool Validate(SpellInfo const* /*spellEntry*/)
+            bool Validate(SpellInfo const* /*spell*/)
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_TRICKY_TREAT_SPEED))
                     return false;
@@ -264,20 +264,22 @@ class spell_tricky_treat : public SpellScriptLoader
 
             void Register()
             {
-                OnEffectHitTarget += SpellEffectFn(spell_tricky_treat_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget += SpellEffectFn(spell_hallow_end_tricky_treat_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
         SpellScript* GetSpellScript() const
         {
-            return new spell_tricky_treat_SpellScript();
+            return new spell_hallow_end_tricky_treat_SpellScript();
         }
 };
 
 void AddSC_holiday_spell_scripts()
 {
-    new spell_trick();
-    new spell_trick_or_treat();
-    new spell_tricky_treat();
+    // Love is in the Air
     new spell_love_is_in_the_air_romantic_picnic();
+    // Hallow's End
+    new spell_hallow_end_trick();
+    new spell_hallow_end_trick_or_treat();
+    new spell_hallow_end_tricky_treat();
 }
