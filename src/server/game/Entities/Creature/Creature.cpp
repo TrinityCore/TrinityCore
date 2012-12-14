@@ -2524,7 +2524,7 @@ float Creature::GetAggroRange(Unit const* target) const
     if (target && this->isPet())
     {
         uint32 targetLevel = 0;
-        
+
         if (target->GetTypeId() == TYPEID_PLAYER)
             targetLevel = target->getLevelForTarget(this);
         else if (target->GetTypeId() == TYPEID_UNIT)
@@ -2532,7 +2532,7 @@ float Creature::GetAggroRange(Unit const* target) const
 
         uint32 myLevel = getLevelForTarget(target);
         int32 levelDiff = int32(targetLevel) - int32(myLevel);
-        
+
         // The maximum Aggro Radius is capped at 45 yards (25 level difference)
         if (levelDiff < -25)
             levelDiff = -25;

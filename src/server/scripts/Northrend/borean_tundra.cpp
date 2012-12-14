@@ -931,7 +931,7 @@ enum eThassarian
     SAY_LICH_1              = 0,
     SAY_LICH_2              = 1,
     SAY_LICH_3              = 2,
-    
+
     SAY_ARLOS_1             = 0,
     SAY_ARLOS_2             = 1,
 

@@ -1495,8 +1495,8 @@ public:
                 if (!Announced && AnnounceTimer <= diff)
                 {
                     Announced = true;
-                } 
-                else 
+                }
+                else
                     AnnounceTimer -= diff;
 
                 if (WaveTimer <= diff)

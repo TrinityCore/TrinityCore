@@ -561,7 +561,7 @@ bool PetAI::CanAttack(Unit* target)
 
     // Follow
     if (me->GetCharmInfo()->HasCommandState(COMMAND_FOLLOW))
-        return !me->GetCharmInfo()->IsReturning();        
+        return !me->GetCharmInfo()->IsReturning();
 
     // default, though we shouldn't ever get here
     return false;

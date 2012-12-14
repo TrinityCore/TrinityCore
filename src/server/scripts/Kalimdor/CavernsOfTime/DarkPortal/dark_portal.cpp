@@ -59,7 +59,7 @@ enum MedivhBm
 
     SPELL_CORRUPT           = 31326,
     SPELL_CORRUPT_AEONUS    = 37853,
-    
+
     C_COUNCIL_ENFORCER      = 17023
 };
 
