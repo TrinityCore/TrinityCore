@@ -110,7 +110,174 @@ class spell_love_is_in_the_air_romantic_picnic : public SpellScriptLoader
         }
 };
 
+// 24750 Trick
+enum TrickSpells
+{
+    SPELL_PIRATE_COSTUME_MALE           = 24708,
+    SPELL_PIRATE_COSTUME_FEMALE         = 24709,
+    SPELL_NINJA_COSTUME_MALE            = 24710,
+    SPELL_NINJA_COSTUME_FEMALE          = 24711,
+    SPELL_LEPER_GNOME_COSTUME_MALE      = 24712,
+    SPELL_LEPER_GNOME_COSTUME_FEMALE    = 24713,
+    SPELL_SKELETON_COSTUME              = 24723,
+    SPELL_GHOST_COSTUME_MALE            = 24735,
+    SPELL_GHOST_COSTUME_FEMALE          = 24736,
+    SPELL_TRICK_BUFF                    = 24753,
+};
+
+class spell_trick : public SpellScriptLoader
+{
+    public:
+        spell_trick() : SpellScriptLoader("spell_trick") {}
+
+        class spell_trick_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_trick_SpellScript);
+            bool Validate(SpellInfo const* /*spellEntry*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_PIRATE_COSTUME_MALE) || !sSpellMgr->GetSpellInfo(SPELL_PIRATE_COSTUME_FEMALE) || !sSpellMgr->GetSpellInfo(SPELL_NINJA_COSTUME_MALE)
+                    || !sSpellMgr->GetSpellInfo(SPELL_NINJA_COSTUME_FEMALE) || !sSpellMgr->GetSpellInfo(SPELL_LEPER_GNOME_COSTUME_MALE) || !sSpellMgr->GetSpellInfo(SPELL_LEPER_GNOME_COSTUME_FEMALE)
+                    || !sSpellMgr->GetSpellInfo(SPELL_SKELETON_COSTUME) || !sSpellMgr->GetSpellInfo(SPELL_GHOST_COSTUME_MALE) || !sSpellMgr->GetSpellInfo(SPELL_GHOST_COSTUME_FEMALE) || !sSpellMgr->GetSpellInfo(SPELL_TRICK_BUFF))
+                    return false;
+                return true;
+            }
+
+            void HandleScript(SpellEffIndex /*effIndex*/)
+            {
+                Unit* caster = GetCaster();
+                if (Player* target = GetHitPlayer())
+                {
+                    uint8 gender = target->getGender();
+                    uint32 spellId = SPELL_TRICK_BUFF;
+                    switch (urand(0, 5))
+                    {
+                        case 1:
+                            spellId = gender ? SPELL_LEPER_GNOME_COSTUME_FEMALE : SPELL_LEPER_GNOME_COSTUME_MALE;
+                            break;
+                        case 2:
+                            spellId = gender ? SPELL_PIRATE_COSTUME_FEMALE : SPELL_PIRATE_COSTUME_MALE;
+                            break;
+                        case 3:
+                            spellId = gender ? SPELL_GHOST_COSTUME_FEMALE : SPELL_GHOST_COSTUME_MALE;
+                            break;
+                        case 4:
+                            spellId = gender ? SPELL_NINJA_COSTUME_FEMALE : SPELL_NINJA_COSTUME_MALE;
+                            break;
+                        case 5:
+                            spellId = SPELL_SKELETON_COSTUME;
+                            break;
+                        default:
+                            break;
+                    }
+
+                    caster->CastSpell(target, spellId, true, NULL);
+                }
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_trick_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_trick_SpellScript();
+        }
+};
+
+// 24751 Trick or Treat
+enum TrickOrTreatSpells
+{
+    SPELL_TRICK                 = 24714,
+    SPELL_TREAT                 = 24715,
+    SPELL_TRICKED_OR_TREATED    = 24755,
+    SPELL_TRICKY_TREAT_SPEED    = 42919,
+    SPELL_TRICKY_TREAT_TRIGGER  = 42965,
+    SPELL_UPSET_TUMMY           = 42966
+};
+
+class spell_trick_or_treat : public SpellScriptLoader
+{
+    public:
+        spell_trick_or_treat() : SpellScriptLoader("spell_trick_or_treat") {}
+
+        class spell_trick_or_treat_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_trick_or_treat_SpellScript);
+
+            bool Validate(SpellInfo const* /*spellEntry*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_TRICK) || !sSpellMgr->GetSpellInfo(SPELL_TREAT) || !sSpellMgr->GetSpellInfo(SPELL_TRICKED_OR_TREATED))
+                    return false;
+                return true;
+            }
+
+            void HandleScript(SpellEffIndex /*effIndex*/)
+            {
+                Unit* caster = GetCaster();
+                if (Player* target = GetHitPlayer())
+                {
+                    caster->CastSpell(target, roll_chance_i(50) ? SPELL_TRICK : SPELL_TREAT, true, NULL);
+                    caster->CastSpell(target, SPELL_TRICKED_OR_TREATED, true, NULL);
+                }
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_trick_or_treat_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_trick_or_treat_SpellScript();
+        }
+};
+
+class spell_tricky_treat : public SpellScriptLoader
+{
+    public:
+        spell_tricky_treat() : SpellScriptLoader("spell_tricky_treat") {}
+
+        class spell_tricky_treat_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_tricky_treat_SpellScript);
+
+            bool Validate(SpellInfo const* /*spellEntry*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_TRICKY_TREAT_SPEED))
+                    return false;
+                if (!sSpellMgr->GetSpellInfo(SPELL_TRICKY_TREAT_TRIGGER))
+                    return false;
+                if (!sSpellMgr->GetSpellInfo(SPELL_UPSET_TUMMY))
+                    return false;
+                return true;
+            }
+
+            void HandleScript(SpellEffIndex /*effIndex*/)
+            {
+                Unit* caster = GetCaster();
+                if (caster->HasAura(SPELL_TRICKY_TREAT_TRIGGER) && caster->GetAuraCount(SPELL_TRICKY_TREAT_SPEED) > 3 && roll_chance_i(33))
+                    caster->CastSpell(caster, SPELL_UPSET_TUMMY, true);
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_tricky_treat_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_tricky_treat_SpellScript();
+        }
+};
+
 void AddSC_holiday_spell_scripts()
 {
+    new spell_trick();
+    new spell_trick_or_treat();
+    new spell_tricky_treat();
     new spell_love_is_in_the_air_romantic_picnic();
 }
