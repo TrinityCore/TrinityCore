@@ -247,7 +247,7 @@ public:
                         if (someplayer)
                         {
                             Unit* u = Unit::GetUnit(*me, someplayer);
-                            if (u && u->GetTypeId() == TYPEID_PLAYER) 
+                            if (u && u->GetTypeId() == TYPEID_PLAYER)
                                 Talk(EMOTE_START, u->GetGUID());
                         }
                         Event_Timer = 60000;
@@ -375,7 +375,7 @@ enum eCommanderDawnforgeData
     SAY_PATHALEON_CULATOR_IMAGE_2   = 1,
     SAY_PATHALEON_CULATOR_IMAGE_2_1 = 2,
     SAY_PATHALEON_CULATOR_IMAGE_2_2 = 3,
-    
+
     QUEST_INFO_GATHERING            = 10198,
     SPELL_SUNFURY_DISGUISE          = 34603,
 };
@@ -683,7 +683,7 @@ class npc_professor_dabiri : public CreatureScript
 public:
     npc_professor_dabiri() : CreatureScript("npc_professor_dabiri") { }
 
-    //OnQuestAccept: 
+    //OnQuestAccept:
     //if (quest->GetQuestId() == QUEST_DIMENSIUS)
         //creature->AI()->Talk(WHISPER_DABIRI, player->GetGUID());
 
