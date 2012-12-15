@@ -62,6 +62,10 @@ void TargetedMovementGeneratorMedium<T,D>::_setTargetLocation(T* owner, bool upd
 
             // to at i_offset distance from target and i_angle from target facing
             i_target->GetClosePoint(x, y, z, size, i_offset, i_angle);
+            if (abs(i_target->GetPositionZ()-z)>1.5F) //Pet must be on same level as player
+            {
+                i_target->GetClosePoint(x, y, z, size, 0, 3.14F);//if it isn't, we shall place pet near player
+            }
         }
     }
     else
