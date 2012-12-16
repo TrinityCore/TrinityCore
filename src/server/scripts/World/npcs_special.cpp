@@ -913,7 +913,7 @@ public:
 
     struct npc_garments_of_questsAI : public npc_escortAI
     {
-        npc_garments_of_questsAI(Creature* creature) : npc_escortAI(creature) 
+        npc_garments_of_questsAI(Creature* creature) : npc_escortAI(creature)
         {
             Reset();
         }

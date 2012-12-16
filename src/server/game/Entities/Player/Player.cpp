@@ -7074,7 +7074,7 @@ void Player::RewardReputation(Unit* victim, float rate)
 
     if (Rep->RepFaction1 && (!Rep->TeamDependent || team == ALLIANCE))
     {
-        int32 donerep1 = CalculateReputationGain(REPUTATION_SOURCE_KILL, victim->getLevel(), Rep->RepValue1, ChampioningFaction ? ChampioningFaction : Rep->RepFaction1, false);
+        int32 donerep1 = CalculateReputationGain(REPUTATION_SOURCE_KILL, victim->getLevel(), Rep->RepValue1, ChampioningFaction ? ChampioningFaction : Rep->RepFaction1);
         donerep1 = int32(donerep1*(rate + favored_rep_mult));
 
         if (recruitAFriend)
@@ -7088,7 +7088,7 @@ void Player::RewardReputation(Unit* victim, float rate)
 
     if (Rep->RepFaction2 && (!Rep->TeamDependent || team == HORDE))
     {
-        int32 donerep2 = CalculateReputationGain(REPUTATION_SOURCE_KILL, victim->getLevel(), Rep->RepValue2, ChampioningFaction ? ChampioningFaction : Rep->RepFaction2, false);
+        int32 donerep2 = CalculateReputationGain(REPUTATION_SOURCE_KILL, victim->getLevel(), Rep->RepValue2, ChampioningFaction ? ChampioningFaction : Rep->RepFaction2);
         donerep2 = int32(donerep2*(rate + favored_rep_mult));
 
         if (recruitAFriend)
@@ -7135,25 +7135,25 @@ void Player::RewardReputation(Quest const* quest)
             uint32 row = ((quest->RewardFactionValueId[i] < 0) ? 1 : 0) + 1;
             uint32 field = abs(quest->RewardFactionValueId[i]);
 
-            if (const QuestFactionRewEntry* pRow = sQuestFactionRewardStore.LookupEntry(row))
+            if (QuestFactionRewEntry const* pRow = sQuestFactionRewardStore.LookupEntry(row))
             {
                 int32 repPoints = pRow->QuestRewFactionValue[field];
                 if (!repPoints)
                     continue;
 
                 if (quest->IsDaily())
-                    repPoints = CalculateReputationGain(REPUTATION_SOURCE_DAILY_QUEST, GetQuestLevel(quest), repPoints, quest->RewardFactionId[i], true);
+                    repPoints = CalculateReputationGain(REPUTATION_SOURCE_DAILY_QUEST, GetQuestLevel(quest), repPoints, quest->RewardFactionId[i]);
                 else if (quest->IsWeekly())
-                    repPoints = CalculateReputationGain(REPUTATION_SOURCE_WEEKLY_QUEST, GetQuestLevel(quest), repPoints, quest->RewardFactionId[i], true);
+                    repPoints = CalculateReputationGain(REPUTATION_SOURCE_WEEKLY_QUEST, GetQuestLevel(quest), repPoints, quest->RewardFactionId[i]);
                 else if (quest->IsMonthly())
-                    repPoints = CalculateReputationGain(REPUTATION_SOURCE_MONTHLY_QUEST, GetQuestLevel(quest), repPoints, quest->RewardFactionId[i], true);
+                    repPoints = CalculateReputationGain(REPUTATION_SOURCE_MONTHLY_QUEST, GetQuestLevel(quest), repPoints, quest->RewardFactionId[i]);
                 else
-                    repPoints = CalculateReputationGain(REPUTATION_SOURCE_QUEST, GetQuestLevel(quest), repPoints, quest->RewardFactionId[i], true);
+                    repPoints = CalculateReputationGain(REPUTATION_SOURCE_QUEST, GetQuestLevel(quest), repPoints, quest->RewardFactionId[i]);
 
                 if (recruitAFriend)
                     repPoints = int32(repPoints * (1 + sWorld->getRate(RATE_REPUTATION_RECRUIT_A_FRIEND_BONUS)));
 
-                if (const FactionEntry* factionEntry = sFactionStore.LookupEntry(quest->RewardFactionId[i]))
+                if (FactionEntry const* factionEntry = sFactionStore.LookupEntry(quest->RewardFactionId[i]))
                     GetReputationMgr().ModifyReputation(factionEntry, repPoints);
             }
         }

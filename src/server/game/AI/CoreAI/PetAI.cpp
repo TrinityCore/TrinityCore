@@ -551,10 +551,14 @@ bool PetAI::CanAttack(Unit* target)
         return (me->IsWithinMeleeRange(target) || me->GetCharmInfo()->IsCommandAttack());
 
     //  Pets attacking something (or chasing) should only switch targets if owner tells them to
-    if (me->getVictim() && (me->getVictim() != target))
+    if (me->getVictim() && me->getVictim() != target)
     {
         // Check if our owner selected this target and clicked "attack"
-        Unit* ownerTarget = me->GetCharmerOrOwner()->ToPlayer()->GetSelectedUnit();
+        Unit* ownerTarget = NULL;
+        if (Player* owner = me->GetCharmerOrOwner()->ToPlayer())
+            ownerTarget = owner->GetSelectedUnit();
+        else
+            ownerTarget = me->GetCharmerOrOwner()->getVictim();
 
         if (ownerTarget && me->GetCharmInfo()->IsCommandAttack())
             return (target->GetGUID() == ownerTarget->GetGUID());
@@ -562,7 +566,7 @@ bool PetAI::CanAttack(Unit* target)
 
     // Follow
     if (me->GetCharmInfo()->HasCommandState(COMMAND_FOLLOW))
-        return !me->GetCharmInfo()->IsReturning();        
+        return !me->GetCharmInfo()->IsReturning();
 
     // default, though we shouldn't ever get here
     return false;
