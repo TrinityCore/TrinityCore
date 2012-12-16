@@ -3466,28 +3466,30 @@ void Guild::GiveXP(uint32 xp, Player* source)
     {
         _experience -= sGuildMgr->GetXPForGuildLevel(GetLevel());
         ++_level;
-    }
 
-    // Find all guild perks to learn
-    std::vector<uint32> perksToLearn;
-    for (uint32 i = 0; i < sGuildPerkSpellsStore.GetNumRows(); ++i)
-        if (GuildPerkSpellsEntry const* entry = sGuildPerkSpellsStore.LookupEntry(i))
-            if (entry->Level > oldLevel && entry->Level <= GetLevel())
-                perksToLearn.push_back(entry->SpellId);
+        // Find all guild perks to learn
+        std::vector<uint32> perksToLearn;
+        for (uint32 i = 0; i < sGuildPerkSpellsStore.GetNumRows(); ++i)
+            if (GuildPerkSpellsEntry const* entry = sGuildPerkSpellsStore.LookupEntry(i))
+                if (entry->Level > oldLevel && entry->Level <= GetLevel())
+                    perksToLearn.push_back(entry->SpellId);
 
-    // Notify all online players that guild level changed and learn perks
-    for (Members::const_iterator itr = m_members.begin(); itr != m_members.end(); ++itr)
-    {
-        if (Player* player = itr->second->FindPlayer())
+        // Notify all online players that guild level changed and learn perks
+        for (Members::const_iterator itr = m_members.begin(); itr != m_members.end(); ++itr)
         {
-            player->SetGuildLevel(GetLevel());
-            for (size_t i = 0; i < perksToLearn.size(); ++i)
-                player->learnSpell(perksToLearn[i], true);
+            if (Player* player = itr->second->FindPlayer())
+            {
+                player->SetGuildLevel(GetLevel());
+                for (size_t i = 0; i < perksToLearn.size(); ++i)
+                    player->learnSpell(perksToLearn[i], true);
+            }
         }
-    }
 
-    AddGuildNews(GUILD_NEWS_LEVEL_UP, 0, 0, _level);
-    UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_REACH_GUILD_LEVEL, GetLevel(), 0, 0, NULL, source);
+        AddGuildNews(GUILD_NEWS_LEVEL_UP, 0, 0, _level);
+        UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_REACH_GUILD_LEVEL, GetLevel(), 0, 0, NULL, source);
+
+        ++oldLevel;
+    }
 }
 
 void Guild::SendGuildXP(WorldSession* session /* = NULL */) const
