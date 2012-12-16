@@ -35,16 +35,15 @@ EndScriptData */
 #include "CellImpl.h"
 #include "sunwell_plateau.h"
 
-enum Quotes
+enum Yells
 {
-    YELL_BIRTH                  =   -1580036,
-    YELL_KILL1                  =   -1580037,
-    YELL_KILL2                  =   -1580038,
-    YELL_BREATH                 =   -1580039,
-    YELL_TAKEOFF                =   -1580040,
-    YELL_BERSERK                =   -1580041,
-    YELL_DEATH                  =   -1580042,
-    YELL_KALECGOS               =   -1580043 // after felmyst's death spawned and say this
+    YELL_BIRTH                  = 0,
+    YELL_KILL                   = 1,
+    YELL_BREATH                 = 2,
+    YELL_TAKEOFF                = 3,
+    YELL_BERSERK                = 4,
+    YELL_DEATH                  = 5,
+  //YELL_KALECGOS               = 6, Not used. After felmyst's death spawned and say this
 };
 
 enum Spells
@@ -233,22 +232,22 @@ public:
             switch (rand()%2)
             {
                 case 0:
-                    DoScriptText(YELL_KILL1, me);
+                    Talk(YELL_KILL);
                     break;
                 case 1:
-                    DoScriptText(YELL_KILL2, me);
+                    Talk(YELL_KILL);
                     break;
             }
         }
 
         void JustRespawned()
         {
-            DoScriptText(YELL_BIRTH, me);
+            Talk(YELL_BIRTH);
         }
 
         void JustDied(Unit* Killer)
         {
-            DoScriptText(YELL_DEATH, me);
+            Talk(YELL_DEATH);
 
             if (pInstance)
                 pInstance->SetData(DATA_FELMYST_EVENT, DONE);
@@ -364,7 +363,7 @@ public:
                     me->HandleEmoteCommand(EMOTE_ONESHOT_LIFTOFF);
                     me->SetUnitMovementFlags(MOVEMENTFLAG_DISABLE_GRAVITY + MOVEMENTFLAG_ONTRANSPORT);
                     me->StopMoving();
-                    DoScriptText(YELL_TAKEOFF, me);
+                    Talk(YELL_TAKEOFF);
                     Timer[EVENT_FLIGHT_SEQUENCE] = 2000;
                     break;
                 case 1:
@@ -509,7 +508,7 @@ public:
                 switch (Event)
                 {
                     case EVENT_BERSERK:
-                        DoScriptText(YELL_BERSERK, me);
+                        Talk(YELL_BERSERK);
                         me->CastSpell(me, SPELL_BERSERK, true);
                         Timer[EVENT_BERSERK] = 10000;
                         break;
@@ -555,7 +554,7 @@ public:
                 switch (Event)
                 {
                     case EVENT_BERSERK:
-                        DoScriptText(YELL_BERSERK, me);
+                        Talk(YELL_BERSERK);
                         me->CastSpell(me, SPELL_BERSERK, true);
                         Timer[EVENT_BERSERK] = 0;
                         break;
