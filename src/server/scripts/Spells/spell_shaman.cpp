@@ -158,7 +158,7 @@ class spell_sha_earthbind_totem : public SpellScriptLoader
                 if (!owner)
                     return;
                 // Earth's Grasp
-                if (AuraEffect* aurEff = owner->GetAuraEffectOfRankedSpell(SHAMAN_SPELL_EARTH_GRASP, EFFECT_0))
+                if (AuraEffect* aurEff = owner->GetAuraEffectOfRankedSpell(SHAMAN_SPELL_EARTH_GRASP, EFFECT_1))
                 {
                     if (roll_chance_i(aurEff->GetAmount()))
                         GetCaster()->CastSpell(GetCaster(), EARTHBIND_TOTEM_SPELL_EARTHGRAB, false);
