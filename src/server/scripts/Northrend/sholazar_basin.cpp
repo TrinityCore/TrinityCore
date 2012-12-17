@@ -35,8 +35,9 @@ EndContentData */
 #include "ScriptedEscortAI.h"
 #include "SpellScript.h"
 #include "SpellAuras.h"
+#include "Vehicle.h"
+#include "CombatAI.h"
 #include "Player.h"
-#include "VehicleAI.h"
 
 /*######
 ## npc_injured_rainspeaker_oracle
@@ -993,50 +994,50 @@ public:
 may be easily converted to SAI when they get.*/
 enum SongOfWindAndWater
 {
-	// Spells
-	SPELL_DEVOUR_WIND = 52862,
-	SPELL_DEVOUR_WATER = 52864,
-	// NPCs
-	NPC_HAIPHOON_WATER = 28999,
-	NPC_HAIPHOON_AIR = 28985
+    // Spells
+    SPELL_DEVOUR_WIND = 52862,
+    SPELL_DEVOUR_WATER = 52864,
+    // NPCs
+    NPC_HAIPHOON_WATER = 28999,
+    NPC_HAIPHOON_AIR = 28985
 };
 
 class npc_haiphoon : public CreatureScript
 {
 public:
-	npc_haiphoon() : CreatureScript("npc_haiphoon") { }
+    npc_haiphoon() : CreatureScript("npc_haiphoon") { }
 
-	struct npc_haiphoonAI : public VehicleAI
-	{
-		npc_haiphoonAI(Creature* creature) : VehicleAI(creature) { }
+    struct npc_haiphoonAI : public VehicleAI
+    {
+        npc_haiphoonAI(Creature* creature) : VehicleAI(creature) { }
 
-		void SpellHitTarget(Unit* target, SpellInfo const* spell)
-		{
-			if (target == me)
-				return;
+        void SpellHitTarget(Unit* target, SpellInfo const* spell)
+        {
+            if (target == me)
+                return;
 
-			if (spell->Id == SPELL_DEVOUR_WIND)
-			{
-				if (Player* player = me->GetCharmerOrOwnerPlayerOrPlayerItself())
-				{
-					me->UpdateEntry(NPC_HAIPHOON_AIR);
-				}
-			}
+            if (spell->Id == SPELL_DEVOUR_WIND)
+            {
+                if (Player* player = me->GetCharmerOrOwnerPlayerOrPlayerItself())
+                {
+                    me->UpdateEntry(NPC_HAIPHOON_AIR);
+                }
+            }
 
-			if (spell->Id == SPELL_DEVOUR_WATER)
-			{
-				if (Player* player = me->GetCharmerOrOwnerPlayerOrPlayerItself())
-				{
-					me->UpdateEntry(NPC_HAIPHOON_WATER);
-				}
-			}
-		}
-	};
+            if (spell->Id == SPELL_DEVOUR_WATER)
+            {
+                if (Player* player = me->GetCharmerOrOwnerPlayerOrPlayerItself())
+                {
+                    me->UpdateEntry(NPC_HAIPHOON_WATER);
+                }
+            }
+        }
+    };
 
-	CreatureAI* GetAI(Creature* creature) const
-	{
-		return new npc_haiphoonAI(creature);
-	}
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new npc_haiphoonAI(creature);
+    }
 };
 
 void AddSC_sholazar_basin()
