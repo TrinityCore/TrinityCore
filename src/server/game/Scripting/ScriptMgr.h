@@ -600,7 +600,7 @@ class ConditionScript : public ScriptObject
         virtual bool OnConditionCheck(Condition* /*condition*/, ConditionSourceInfo& /*sourceInfo*/) { return true; }
 };
 
-class VehicleScript : public UnitScript
+class VehicleScript : public ScriptObject
 {
     protected:
 
