@@ -1016,20 +1016,13 @@ public:
             if (target == me)
                 return;
 
-            if (spell->Id == SPELL_DEVOUR_WIND)
+            if (spell->Id == SPELL_DEVOUR_WIND && me->GetCharmerOrOwnerPlayerOrPlayerItself())
             {
-                if (Player* player = me->GetCharmerOrOwnerPlayerOrPlayerItself())
-                {
-                    me->UpdateEntry(NPC_HAIPHOON_AIR);
-                }
+                me->UpdateEntry(NPC_HAIPHOON_AIR);
             }
-
-            if (spell->Id == SPELL_DEVOUR_WATER)
+            else if (spell->Id == SPELL_DEVOUR_WATER && me->GetCharmerOrOwnerPlayerOrPlayerItself())
             {
-                if (Player* player = me->GetCharmerOrOwnerPlayerOrPlayerItself())
-                {
-                    me->UpdateEntry(NPC_HAIPHOON_WATER);
-                }
+                me->UpdateEntry(NPC_HAIPHOON_WATER);
             }
         }
     };
