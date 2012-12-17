@@ -183,7 +183,7 @@ void PetAI::UpdateAI(const uint32 diff)
                     }
                 }
                 if (spellInfo->HasEffect(SPELL_EFFECT_JUMP_DEST))
-                       continue; //pets must jump only to target 
+                       continue; //pets must jump only to target
                 // No enemy, check friendly
                 if (!spellUsed)
                 {
