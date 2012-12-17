@@ -43,7 +43,7 @@ enum Says
     SAY_PHASE201                                = 10,
     SAY_PHASE203                                = 11,
     SAY_PHASE205                                = 12,
-    SAY_PHASE208                                = 13,    
+    SAY_PHASE208                                = 13,
     SAY_PHASE209                                = 14,
     SAY_PHASE210                                = 15,
 
@@ -96,7 +96,7 @@ enum Says
     SAY_PHASE117                                = 1,
 
     //Cityman
-    SAY_PHASE202                                = 0,  
+    SAY_PHASE202                                = 0,
 
     //Crazyman
     SAY_PHASE204                                = 0,

@@ -18,7 +18,7 @@
 /* ScriptData
 SDName: Sholazar_Basin
 SD%Complete: 100
-SDComment: Quest support: 12570, 12573, 12621.
+SDComment: Quest support: 12570, 12573, 12621, 12726
 SDCategory: Sholazar_Basin
 EndScriptData */
 
@@ -26,6 +26,7 @@ EndScriptData */
 npc_injured_rainspeaker_oracle
 npc_vekjik
 avatar_of_freya
+npc_haiphoon (Quest: "Song of Wind and Water")
 EndContentData */
 
 #include "ScriptMgr.h"
@@ -34,6 +35,8 @@ EndContentData */
 #include "ScriptedEscortAI.h"
 #include "SpellScript.h"
 #include "SpellAuras.h"
+#include "Vehicle.h"
+#include "CombatAI.h"
 #include "Player.h"
 
 /*######
@@ -984,6 +987,52 @@ public:
     }
 };
 
+/*######
+## Quest: Song of Wind and Water ID: 12726
+######*/
+/*This quest precisly needs core script since battle vehicles are not well integrated with SAI,
+may be easily converted to SAI when they get.*/
+enum SongOfWindAndWater
+{
+    // Spells
+    SPELL_DEVOUR_WIND = 52862,
+    SPELL_DEVOUR_WATER = 52864,
+    // NPCs
+    NPC_HAIPHOON_WATER = 28999,
+    NPC_HAIPHOON_AIR = 28985
+};
+
+class npc_haiphoon : public CreatureScript
+{
+public:
+    npc_haiphoon() : CreatureScript("npc_haiphoon") { }
+
+    struct npc_haiphoonAI : public VehicleAI
+    {
+        npc_haiphoonAI(Creature* creature) : VehicleAI(creature) { }
+
+        void SpellHitTarget(Unit* target, SpellInfo const* spell)
+        {
+            if (target == me)
+                return;
+
+            if (spell->Id == SPELL_DEVOUR_WIND && me->GetCharmerOrOwnerPlayerOrPlayerItself())
+            {
+                me->UpdateEntry(NPC_HAIPHOON_AIR);
+            }
+            else if (spell->Id == SPELL_DEVOUR_WATER && me->GetCharmerOrOwnerPlayerOrPlayerItself())
+            {
+                me->UpdateEntry(NPC_HAIPHOON_WATER);
+            }
+        }
+    };
+
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new npc_haiphoonAI(creature);
+    }
+};
+
 void AddSC_sholazar_basin()
 {
     new npc_injured_rainspeaker_oracle();
@@ -995,4 +1044,5 @@ void AddSC_sholazar_basin()
     new npc_jungle_punch_target();
     new spell_q12620_the_lifewarden_wrath();
     new spell_q12589_shoot_rjr();
+    new npc_haiphoon();
 }

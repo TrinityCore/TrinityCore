@@ -231,7 +231,7 @@ public:
     {
         npc_morriduneAI(Creature* creature) : npc_escortAI(creature)
         {
-            creature->AI()->Talk(SAY_MORRIDUNE_1);
+            Talk(SAY_MORRIDUNE_1);
             me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
             Start(false, false, 0);
         }
