@@ -19,7 +19,7 @@
 #ifndef DEF_TOC_H
 #define DEF_TOC_H
 
-enum eData
+enum Data
 {
     BOSS_GRAND_CHAMPIONS,
     BOSS_ARGENT_CHALLENGE_E,
@@ -54,7 +54,7 @@ enum Data64
     DATA_GRAND_CHAMPION_3
 };
 
-enum eNpcs
+enum CreatureIds
 {
     // Horde Champions
     NPC_MOKRA                   = 35572,
@@ -133,7 +133,7 @@ enum eNpcs
     MEMORY_VEZAX                = 35051
 };
 
-enum eGameObjects
+enum GameObjects
 {
     GO_MAIN_GATE                = 195647,
     GO_MAIN_GATE1               = 195650,
@@ -148,7 +148,7 @@ enum eGameObjects
     GO_PALETRESS_LOOT_H         = 195324
 };
 
-enum eVehicles
+enum Vehicles
 {
     //Grand Champions Alliance Vehicles
     VEHICLE_MARSHAL_JACOB_ALERIUS_MOUNT             = 35637,

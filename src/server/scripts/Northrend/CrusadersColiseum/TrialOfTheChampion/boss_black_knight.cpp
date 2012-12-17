@@ -44,7 +44,7 @@ enum eEnums
     SAY_START11             = -1999953, // I am too young.
 };
 
-enum eSpells
+enum Spells
 {
     //phase 1
     SPELL_PLAGUE_STRIKE     = 67724,
@@ -79,7 +79,7 @@ enum eSpells
     SPELL_KILL_CREDIT       = 68663
 };
 
-enum eModels
+enum Models
 {
     MODEL_SKELETON          = 29846,
     MODEL_GHOST             = 21300
@@ -98,7 +98,7 @@ enum IntroPhase
     FINISHED,
 };
 
-enum ePhases
+enum Phases
 {
     PHASE_UNDEAD            = 3,
     PHASE_SKELETON          = 4,
