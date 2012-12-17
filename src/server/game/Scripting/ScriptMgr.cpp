@@ -1474,7 +1474,7 @@ ConditionScript::ConditionScript(const char* name)
 }
 
 VehicleScript::VehicleScript(const char* name)
-    : UnitScript(name)
+    : ScriptObject(name)
 {
     ScriptRegistry<VehicleScript>::AddScript(this);
 }
