@@ -182,7 +182,8 @@ void PetAI::UpdateAI(const uint32 diff)
                         spellUsed = true;
                     }
                 }
-
+                if (spellInfo->HasEffect(SPELL_EFFECT_JUMP_DEST))
+                       continue; //pets must jump only to target 
                 // No enemy, check friendly
                 if (!spellUsed)
                 {
@@ -578,11 +579,19 @@ void PetAI::ReceiveEmote(Player* player, uint32 emote)
         {
             case TEXT_EMOTE_COWER:
                 if (me->isPet() && me->ToPet()->IsPetGhoul())
-                    me->HandleEmoteCommand(EMOTE_ONESHOT_ROAR);
+                    me->HandleEmoteCommand(/*EMOTE_ONESHOT_ROAR*/EMOTE_ONESHOT_OMNICAST_GHOUL);
                 break;
             case TEXT_EMOTE_ANGRY:
                 if (me->isPet() && me->ToPet()->IsPetGhoul())
-                    me->HandleEmoteCommand(EMOTE_ONESHOT_COWER);
+                    me->HandleEmoteCommand(/*EMOTE_ONESHOT_COWER*/EMOTE_STATE_STUN);
+                break;
+            case TEXT_EMOTE_GLARE:
+                if (me->isPet() && me->ToPet()->IsPetGhoul())
+                    me->HandleEmoteCommand(EMOTE_STATE_STUN);
+                break;
+            case TEXT_EMOTE_SOOTHE:
+                if (me->isPet() && me->ToPet()->IsPetGhoul())
+                    me->HandleEmoteCommand(EMOTE_ONESHOT_OMNICAST_GHOUL);
                 break;
         }
 }
