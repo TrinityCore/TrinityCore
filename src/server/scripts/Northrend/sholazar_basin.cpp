@@ -36,6 +36,7 @@ EndContentData */
 #include "SpellScript.h"
 #include "SpellAuras.h"
 #include "Player.h"
+#include "VehicleAI.h"
 
 /*######
 ## npc_injured_rainspeaker_oracle
@@ -999,7 +1000,7 @@ enum SongOfWindAndWater
 	NPC_HAIPHOON_WATER = 28999,
 	NPC_HAIPHOON_AIR = 28985
 };
- 
+
 class npc_haiphoon : public CreatureScript
 {
 public:
