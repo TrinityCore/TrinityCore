@@ -1993,7 +1993,8 @@ public:
                 JumpNextStep(5000);
                 break;
             case 14:
-                Talk(SAY_JAINA_FINAL_2 : SAY_SYLVANA_FINAL_2);
+                //Talk(SAY_JAINA_FINAL_2 : SAY_SYLVANA_FINAL_2); Do not know how to do. ;(
+                Talk(SAY_SYLVANA_FINAL_2);
                 JumpNextStep(8000);
                 break;
             case 15:
