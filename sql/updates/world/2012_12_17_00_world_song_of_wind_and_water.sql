@@ -1,4 +1,4 @@
-﻿-- Add DB suport for quest ID: 12726 "Song of Wind and Water"
+-- Add DB suport for quest ID: 12726 "Song of Wind and Water"
 -- Indexes:
 SET @HAIPHOON_W := 28999; -- WATER
 SET @HAIPHOON_A := 28985; -- AIR
