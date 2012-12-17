@@ -303,7 +303,7 @@ void BattlegroundMgr::BuildBattlegroundStatusPacket(WorldPacket *data, Battlegro
             data->WriteBit(bgGuid[7]);
             data->WriteBit(bgGuid[1]);
             data->WriteBit(playerGuid[5]);
-            data->WriteBit(player->GetBGTeam() == ALLIANCE);       // Battlefield Faction ( 0 horde, 1 alliance )
+            data->WriteBit(player->GetBGTeam() == TEAM_ALLIANCE);       // Battlefield Faction ( 0 horde, 1 alliance )
             data->WriteBit(bgGuid[0]);
             data->WriteBit(playerGuid[1]);
             data->WriteBit(bgGuid[3]);
