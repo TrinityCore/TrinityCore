@@ -119,83 +119,164 @@ public:
 };
 
 /*######
-## npc_squire_david
+## npc_argent_squire
 ######*/
 
-enum eSquireDavid
+enum eArgentSquire
 {
     QUEST_THE_ASPIRANT_S_CHALLENGE_H                    = 13680,
     QUEST_THE_ASPIRANT_S_CHALLENGE_A                    = 13679,
 
+    QUEST_THE_VALIANT_S_CHALLENGE_SM                    = 13731,
+    QUEST_THE_VALIANT_S_CHALLENGE_UC                    = 13729,
+    QUEST_THE_VALIANT_S_CHALLENGE_TB                    = 13728,
+    QUEST_THE_VALIANT_S_CHALLENGE_SJ                    = 13727,
+    QUEST_THE_VALIANT_S_CHALLENGE_OG                    = 13726,
+    QUEST_THE_VALIANT_S_CHALLENGE_DA                    = 13725,
+    QUEST_THE_VALIANT_S_CHALLENGE_EX                    = 13724,
+    QUEST_THE_VALIANT_S_CHALLENGE_GN                    = 13723,
+    QUEST_THE_VALIANT_S_CHALLENGE_IF                    = 13713,
+    QUEST_THE_VALIANT_S_CHALLENGE_SW                    = 13699,
+    
+    QUEST_THE_BLACK_KNGIHT_S_FALL                       = 13664,
+    
+    NPC_SQUIRE_DAVID                                    = 33447,
+    NPC_SQUIRE_DANNY                                    = 33518,
+    NPC_SQUIRE_CAVIN                                    = 33522,
+	
     NPC_ARGENT_VALIANT                                  = 33448,
-
+    NPC_ARGENT_CHAMPION                                 = 33707,
+    NPC_BLACK_KNIGHT                                    = 33785,
+    
     GOSSIP_TEXTID_SQUIRE                                = 14407
 };
 
 #define GOSSIP_SQUIRE_ITEM_1 "I am ready to fight!"
 #define GOSSIP_SQUIRE_ITEM_2 "How do the Argent Crusader raiders fight?"
 
-class npc_squire_david : public CreatureScript
+class npc_argent_squire : public CreatureScript
 {
 public:
-    npc_squire_david() : CreatureScript("npc_squire_david") { }
+    npc_argent_squire() : CreatureScript("npc_argent_squire") { }
 
     bool OnGossipHello(Player* player, Creature* creature)
     {
-        if (player->GetQuestStatus(QUEST_THE_ASPIRANT_S_CHALLENGE_H) == QUEST_STATUS_INCOMPLETE ||
-            player->GetQuestStatus(QUEST_THE_ASPIRANT_S_CHALLENGE_A) == QUEST_STATUS_INCOMPLETE)//We need more info about it.
+        
+		// Squire David handles Aspirant Stuff
+		if (creature->GetEntry() == NPC_SQUIRE_DAVID)
         {
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SQUIRE_ITEM_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SQUIRE_ITEM_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
+            if (player->GetQuestStatus(QUEST_THE_ASPIRANT_S_CHALLENGE_H) == QUEST_STATUS_INCOMPLETE || player->GetQuestStatus(QUEST_THE_ASPIRANT_S_CHALLENGE_A) == QUEST_STATUS_INCOMPLETE)//We need more info about it.
+			{
+				player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SQUIRE_ITEM_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SQUIRE_ITEM_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
+            }
+        }
+
+        // Squire Danny handles Valiant Stuff
+        if (creature->GetEntry() == NPC_SQUIRE_DANNY)
+        {
+				if (player->GetQuestStatus(QUEST_THE_VALIANT_S_CHALLENGE_SM) == QUEST_STATUS_INCOMPLETE ||
+				    player->GetQuestStatus(QUEST_THE_VALIANT_S_CHALLENGE_UC) == QUEST_STATUS_INCOMPLETE ||
+				    player->GetQuestStatus(QUEST_THE_VALIANT_S_CHALLENGE_TB) == QUEST_STATUS_INCOMPLETE ||
+				    player->GetQuestStatus(QUEST_THE_VALIANT_S_CHALLENGE_SJ) == QUEST_STATUS_INCOMPLETE ||
+				    player->GetQuestStatus(QUEST_THE_VALIANT_S_CHALLENGE_OG) == QUEST_STATUS_INCOMPLETE ||
+				    player->GetQuestStatus(QUEST_THE_VALIANT_S_CHALLENGE_DA) == QUEST_STATUS_INCOMPLETE ||
+				    player->GetQuestStatus(QUEST_THE_VALIANT_S_CHALLENGE_EX) == QUEST_STATUS_INCOMPLETE ||
+				    player->GetQuestStatus(QUEST_THE_VALIANT_S_CHALLENGE_GN) == QUEST_STATUS_INCOMPLETE ||
+				    player->GetQuestStatus(QUEST_THE_VALIANT_S_CHALLENGE_IF) == QUEST_STATUS_INCOMPLETE ||
+				    player->GetQuestStatus(QUEST_THE_VALIANT_S_CHALLENGE_SW) == QUEST_STATUS_INCOMPLETE)
+				{
+					player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SQUIRE_ITEM_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+		        }
+		}
+
+        // Squire Cavin handles the Black Knight
+        if (creature->GetEntry() == NPC_SQUIRE_CAVIN)
+        {
+                if (player->GetQuestStatus(QUEST_THE_BLACK_KNGIHT_S_FALL) == QUEST_STATUS_INCOMPLETE)
+                {
+                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SQUIRE_ITEM_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+                }
         }
 
         player->SEND_GOSSIP_MENU(GOSSIP_TEXTID_SQUIRE, creature->GetGUID());
         return true;
     }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
     {
         player->PlayerTalkClass->ClearMenus();
-        if (action == GOSSIP_ACTION_INFO_DEF+1)
+        if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
         {
             player->CLOSE_GOSSIP_MENU();
-            creature->SummonCreature(NPC_ARGENT_VALIANT, 8575.451f, 952.472f, 547.554f, 0.38f);
+            if (creature->GetEntry() == NPC_SQUIRE_DAVID)
+                creature->SummonCreature(NPC_ARGENT_VALIANT, 8575.451f, 952.472f, 547.554f, 0.38f);
+            else if (creature->GetEntry() == NPC_SQUIRE_DANNY)
+                creature->SummonCreature(NPC_ARGENT_CHAMPION, 8534.675781f, 1069.993042f, 552.022827f, 1.274804f);
+			else if (creature->GetEntry() == NPC_SQUIRE_CAVIN)
+			    creature->SummonCreature(NPC_BLACK_KNIGHT, 8430.522681f, 968.674318f, 545.674f, 0.001545f);
+
         }
         return true;
     }
 };
 
 /*######
-## npc_argent_valiant
+## npc_argent_combatant
 ######*/
 
-enum eArgentValiant
+enum eArgentCombatant
 {
-    SPELL_CHARGE                = 63010,
-    SPELL_SHIELD_BREAKER        = 65147,
-    SPELL_KILL_CREDIT           = 63049
+    SPELL_CHARGE_COMBAT         = 63010,
+    SPELL_SHIELD_BREAKER_COMBAT = 65147,
+    SPELL_DEFEND                = 62719,
+    SPELL_THRUST                = 62544,
+
+    NPC_ARGENT_VALIANT_CREDIT   = 63049,
+    NPC_ARGENT_CHAMPION_CREDIT  = 33708,
 };
 
-class npc_argent_valiant : public CreatureScript
+class npc_argent_combatant : public CreatureScript
 {
 public:
-    npc_argent_valiant() : CreatureScript("npc_argent_valiant") { }
+    npc_argent_combatant() : CreatureScript("npc_argent_combatant") { }
 
-    struct npc_argent_valiantAI : public ScriptedAI
+    struct npc_argent_combatantAI : public ScriptedAI
     {
-        npc_argent_valiantAI(Creature* creature) : ScriptedAI(creature)
+        npc_argent_combatantAI(Creature* creature) : ScriptedAI(creature)
         {
-            creature->GetMotionMaster()->MovePoint(0, 8599.258f, 963.951f, 547.553f);
+            if (creature->GetEntry() == NPC_ARGENT_VALIANT)
+            {
+                creature->GetMotionMaster()->MovePoint(0, 8599.258f, 963.951f, 547.553f);
+                creature->SetHomePosition(8599.258f, 963.951f, 547.553f, 0.18f);
+            }
+            if (creature->GetEntry() == NPC_ARGENT_CHAMPION)
+            {
+                creature->GetMotionMaster()->MovePoint(0, 8557.131836f, 1109.635742f, 556.787476f);
+                creature->SetHomePosition(8557.131836f, 1109.635742f, 556.787476f, 1.27f);
+            }
             creature->setFaction(35); //wrong faction in db?
         }
 
         uint32 uiChargeTimer;
         uint32 uiShieldBreakerTimer;
+        uint32 uiShieldTimer;
+        uint32 uiThrustTimer;
+        bool bCharge;
 
         void Reset()
         {
-            uiChargeTimer = 7000;
+            uiChargeTimer = 12000;
             uiShieldBreakerTimer = 10000;
+            uiShieldTimer = 4000;
+            uiThrustTimer = 2000;
+            bCharge = false;
+        }
+
+        void EnterCombat(Unit* /*who*/)
+        {
+            for (uint8 i = 0; i < 3; ++i)
+                DoCast(me, SPELL_DEFEND, true);
         }
 
         void MovementInform(uint32 uiType, uint32 /*uiId*/)
@@ -203,15 +284,30 @@ public:
             if (uiType != POINT_MOTION_TYPE)
                 return;
 
-            me->setFaction(14);
+            // charge after moving away from the victim
+            if (me->isInCombat() && me->getVictim() && bCharge)
+            {
+                me->GetMotionMaster()->Clear();
+                // but only after rangecheck
+                if (me->GetDistance(me->getVictim()) > 5.0f && me->GetDistance(me->getVictim()) <= 30.0f)
+                    DoCastVictim(SPELL_CHARGE_COMBAT);
+                me->GetMotionMaster()->MoveChase(me->getVictim());
+                uiChargeTimer = 7000;
+                bCharge = false;
+            }
+            else
+                me->setFaction(14);
         }
 
         void DamageTaken(Unit* pDoneBy, uint32& uiDamage)
         {
-            if (uiDamage > me->GetHealth() && pDoneBy->GetTypeId() == TYPEID_PLAYER)
+            if (uiDamage >= me->GetHealth() && pDoneBy->GetTypeId() == TYPEID_PLAYER)
             {
                 uiDamage = 0;
-                pDoneBy->CastSpell(pDoneBy, SPELL_KILL_CREDIT, true);
+                if (me->GetEntry() == NPC_ARGENT_VALIANT)
+                    pDoneBy->CastSpell(pDoneBy, NPC_ARGENT_VALIANT_CREDIT, true);
+                if (me->GetEntry() == NPC_ARGENT_CHAMPION)
+                    CAST_PLR(pDoneBy)->KilledMonsterCredit(NPC_ARGENT_CHAMPION_CREDIT, 0);
                 me->setFaction(35);
                 me->DespawnOrUnsummon(5000);
                 me->SetHomePosition(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation());
@@ -224,25 +320,53 @@ public:
             if (!UpdateVictim())
                 return;
 
-            if (uiChargeTimer <= uiDiff)
+            if (uiShieldTimer <= uiDiff)
             {
-                DoCastVictim(SPELL_CHARGE);
-                uiChargeTimer = 7000;
+                me->CastSpell(me, SPELL_DEFEND);
+                uiShieldTimer = 4000;
+            } else uiShieldTimer -= uiDiff;
+
+            if (uiChargeTimer <= uiDiff && !bCharge)
+            {
+                // directly charge if range is ok
+                if (me->GetDistance(me->getVictim()) > 5.0f && me->GetDistance(me->getVictim()) <= 30.0f)
+                    DoCastVictim(SPELL_CHARGE_COMBAT);
+                else
+                {
+                    // move away for charge...
+                    float angle = me->GetAngle(me->getVictim());
+                    float x = me->GetPositionX() + 20.0f * cos(angle);
+                    float y = me->GetPositionY() + 20.0f * sin(angle);
+                    me->GetMotionMaster()->MovePoint(0, x, y, me->GetPositionZ());
+                    bCharge = true;
+                }
             } else uiChargeTimer -= uiDiff;
+
+            // prevent shieldbreaker while moving away, npc is not facing player at that time
+            if (bCharge)
+                return;
 
             if (uiShieldBreakerTimer <= uiDiff)
             {
-                DoCastVictim(SPELL_SHIELD_BREAKER);
+                DoCastVictim(SPELL_SHIELD_BREAKER_COMBAT);
                 uiShieldBreakerTimer = 10000;
             } else uiShieldBreakerTimer -= uiDiff;
 
-            DoMeleeAttackIfReady();
+            if (me->IsWithinMeleeRange(me->getVictim()))
+            {
+                if (uiThrustTimer <= uiDiff)
+                {
+                    DoCastVictim(SPELL_THRUST);
+                    uiThrustTimer = 2000;
+                }
+                else uiThrustTimer -= uiDiff;
+            }
         }
     };
 
     CreatureAI* GetAI(Creature* creature) const
     {
-        return new npc_argent_valiantAI(creature);
+        return new npc_argent_combatantAI(creature);
     }
 };
 
@@ -869,8 +993,8 @@ public:
 void AddSC_icecrown()
 {
     new npc_arete;
-    new npc_squire_david;
-    new npc_argent_valiant;
+    new npc_argent_squire;
+    new npc_argent_combatant;
     new npc_guardian_pavilion;
     new npc_vereth_the_cunning;
     new npc_tournament_training_dummy;
