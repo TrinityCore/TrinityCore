@@ -27,7 +27,7 @@ EndScriptData */
 #include "ScriptedEscortAI.h"
 #include "trial_of_the_champion.h"
 
-enum eSpells
+enum Spells
 {
     //phase 1
     SPELL_PLAGUE_STRIKE     = 67884,
@@ -61,13 +61,13 @@ enum eSpells
     SPELL_KILL_CREDIT       = 68663
 };
 
-enum eModels
+enum Models
 {
     MODEL_SKELETON = 29846,
     MODEL_GHOST    = 21300
 };
 
-enum ePhases
+enum Phases
 {
     PHASE_UNDEAD    = 1,
     PHASE_SKELETON  = 2,

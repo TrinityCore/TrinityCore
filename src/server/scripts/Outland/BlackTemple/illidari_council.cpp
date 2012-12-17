@@ -37,7 +37,7 @@ enum IllidariCouncil
     SAY_GATH_SLAY               = 4,
     SAY_GATH_COMNT              = 5,
     SAY_GATH_DEATH              = 6,
-    
+
     SAY_MALA_SPECIAL1           = 2,
     SAY_MALA_SPECIAL2           = 3,
     SAY_MALA_SLAY               = 4,
