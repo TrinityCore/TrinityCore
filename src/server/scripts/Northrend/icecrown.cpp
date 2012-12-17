@@ -137,14 +137,14 @@ enum eArgentSquire
     QUEST_THE_VALIANT_S_CHALLENGE_GN                    = 13723,
     QUEST_THE_VALIANT_S_CHALLENGE_IF                    = 13713,
     QUEST_THE_VALIANT_S_CHALLENGE_SW                    = 13699,
-    
+  
     QUEST_THE_BLACK_KNGIHT_S_FALL                       = 13664,
-    
+	
     NPC_SQUIRE_DAVID                                    = 33447,
     NPC_SQUIRE_DANNY                                    = 33518,
     NPC_SQUIRE_CAVIN                                    = 33522,
 	
-    NPC_ARGENT_VALIANT                                  = 33448,
+	  NPC_ARGENT_VALIANT                                  = 33448,
     NPC_ARGENT_CHAMPION                                 = 33707,
     NPC_BLACK_KNIGHT                                    = 33785,
     
@@ -164,30 +164,30 @@ public:
         
 		// Squire David handles Aspirant Stuff
 		if (creature->GetEntry() == NPC_SQUIRE_DAVID)
-        {
+    {
             if (player->GetQuestStatus(QUEST_THE_ASPIRANT_S_CHALLENGE_H) == QUEST_STATUS_INCOMPLETE || player->GetQuestStatus(QUEST_THE_ASPIRANT_S_CHALLENGE_A) == QUEST_STATUS_INCOMPLETE)//We need more info about it.
-			{
-				player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SQUIRE_ITEM_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+			      {
+				        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SQUIRE_ITEM_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
                 player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SQUIRE_ITEM_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
             }
-        }
+    }
 
-        // Squire Danny handles Valiant Stuff
-        if (creature->GetEntry() == NPC_SQUIRE_DANNY)
-        {
-				if (player->GetQuestStatus(QUEST_THE_VALIANT_S_CHALLENGE_SM) == QUEST_STATUS_INCOMPLETE ||
-				    player->GetQuestStatus(QUEST_THE_VALIANT_S_CHALLENGE_UC) == QUEST_STATUS_INCOMPLETE ||
-				    player->GetQuestStatus(QUEST_THE_VALIANT_S_CHALLENGE_TB) == QUEST_STATUS_INCOMPLETE ||
-				    player->GetQuestStatus(QUEST_THE_VALIANT_S_CHALLENGE_SJ) == QUEST_STATUS_INCOMPLETE ||
-				    player->GetQuestStatus(QUEST_THE_VALIANT_S_CHALLENGE_OG) == QUEST_STATUS_INCOMPLETE ||
-				    player->GetQuestStatus(QUEST_THE_VALIANT_S_CHALLENGE_DA) == QUEST_STATUS_INCOMPLETE ||
-				    player->GetQuestStatus(QUEST_THE_VALIANT_S_CHALLENGE_EX) == QUEST_STATUS_INCOMPLETE ||
-				    player->GetQuestStatus(QUEST_THE_VALIANT_S_CHALLENGE_GN) == QUEST_STATUS_INCOMPLETE ||
-				    player->GetQuestStatus(QUEST_THE_VALIANT_S_CHALLENGE_IF) == QUEST_STATUS_INCOMPLETE ||
-				    player->GetQuestStatus(QUEST_THE_VALIANT_S_CHALLENGE_SW) == QUEST_STATUS_INCOMPLETE)
+    // Squire Danny handles Valiant Stuff
+    if (creature->GetEntry() == NPC_SQUIRE_DANNY)
+    {
+		    if (player->GetQuestStatus(QUEST_THE_VALIANT_S_CHALLENGE_SM) == QUEST_STATUS_INCOMPLETE ||
+					  player->GetQuestStatus(QUEST_THE_VALIANT_S_CHALLENGE_UC) == QUEST_STATUS_INCOMPLETE ||
+				  	player->GetQuestStatus(QUEST_THE_VALIANT_S_CHALLENGE_TB) == QUEST_STATUS_INCOMPLETE ||
+				  	player->GetQuestStatus(QUEST_THE_VALIANT_S_CHALLENGE_SJ) == QUEST_STATUS_INCOMPLETE ||
+				  	player->GetQuestStatus(QUEST_THE_VALIANT_S_CHALLENGE_OG) == QUEST_STATUS_INCOMPLETE ||
+				  	player->GetQuestStatus(QUEST_THE_VALIANT_S_CHALLENGE_DA) == QUEST_STATUS_INCOMPLETE ||
+				  	player->GetQuestStatus(QUEST_THE_VALIANT_S_CHALLENGE_EX) == QUEST_STATUS_INCOMPLETE ||
+				  	player->GetQuestStatus(QUEST_THE_VALIANT_S_CHALLENGE_GN) == QUEST_STATUS_INCOMPLETE ||
+					  player->GetQuestStatus(QUEST_THE_VALIANT_S_CHALLENGE_IF) == QUEST_STATUS_INCOMPLETE ||
+					  player->GetQuestStatus(QUEST_THE_VALIANT_S_CHALLENGE_SW) == QUEST_STATUS_INCOMPLETE)
 				{
-					player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SQUIRE_ITEM_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-		        }
+					  player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SQUIRE_ITEM_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+		    }
 		}
 
         // Squire Cavin handles the Black Knight
@@ -213,7 +213,7 @@ public:
                 creature->SummonCreature(NPC_ARGENT_VALIANT, 8575.451f, 952.472f, 547.554f, 0.38f);
             else if (creature->GetEntry() == NPC_SQUIRE_DANNY)
                 creature->SummonCreature(NPC_ARGENT_CHAMPION, 8534.675781f, 1069.993042f, 552.022827f, 1.274804f);
-			else if (creature->GetEntry() == NPC_SQUIRE_CAVIN)
+			      else if (creature->GetEntry() == NPC_SQUIRE_CAVIN)
 			    creature->SummonCreature(NPC_BLACK_KNIGHT, 8430.522681f, 968.674318f, 545.674f, 0.001545f);
 
         }
