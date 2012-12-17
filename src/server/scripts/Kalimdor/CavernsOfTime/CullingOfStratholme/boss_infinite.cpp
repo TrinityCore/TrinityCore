@@ -27,9 +27,9 @@ enum Spells
 
 enum Yells
 {
-    SAY_AGGRO                                   = -1595045,
-    SAY_FAIL                                    = -1595046,
-    SAY_DEATH                                   = -1595047
+    SAY_AGGRO                                   = 0,
+    SAY_DEATH                                   = 1,
+    SAY_FAIL                                    = 2
 };
 
 class boss_infinite_corruptor : public CreatureScript
@@ -59,11 +59,12 @@ public:
 
         void EnterCombat(Unit* /*who*/)
         {
+            Talk(SAY_AGGRO);
             if (instance)
                 instance->SetData(DATA_INFINITE_EVENT, IN_PROGRESS);
         }
 
-        void UpdateAI(const uint32 /*diff*/)
+        void UpdateAI(uint32 const /*diff*/)
         {
             //Return since we have no target
             if (!UpdateVictim())
@@ -74,6 +75,7 @@ public:
 
         void JustDied(Unit* /*killer*/)
         {
+            Talk(SAY_DEATH);
             if (instance)
                 instance->SetData(DATA_INFINITE_EVENT, DONE);
         }
