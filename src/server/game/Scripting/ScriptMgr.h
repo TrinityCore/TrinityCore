@@ -396,7 +396,7 @@ class UnitScript : public ScriptObject
 {
     protected:
 
-        UnitScript(const char* name);
+        UnitScript(const char* name, bool addToScripts = true);
 
     public:
         // Called when DoT's Tick Damage is being Dealt
