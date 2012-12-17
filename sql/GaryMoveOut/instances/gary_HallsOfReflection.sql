@@ -53,7 +53,7 @@ INSERT INTO `gameobject` (`id`, `map`, `spawnMask`, `phaseMask`, `position_x`, `
 (201911, 668, 3, 1, 5347.53, 1773.17, 766.504, 3.92515, 0, 0, 0.924232, -0.381833, 300, 0, 1);
 
 -- Texts
-DELETE FROM `script_texts` WHERE `entry` IN (-1594474, -1594473, -1594519, -1594520, -1594480, -1594488, -1594490, -1594496,
+/* DELETE FROM `script_texts` WHERE `entry` IN (-1594474, -1594473, -1594519, -1594520, -1594480, -1594488, -1594490, -1594496,
 -1594497, -1594500, -1594501, -1594503, -1594521, -1594479, -1594487, -1594489, -1594494, -1594495, -1594498, -1594499, -1594502, -1594524, -1594525,
 -1594486, -1594491, -1594491, -1594492, -1594493, -1594481, -1594482, -1594483, -1594504, -1594522, -1594523, -1594478, -1594477, -1594485, -1594526, -1594527);
 INSERT INTO `script_texts` (`npc_entry`, `entry`, `content_default` ,`comment`) VALUES
@@ -79,7 +79,7 @@ INSERT INTO `script_texts` (`npc_entry`, `entry`, `content_default` ,`comment`) 
 (36955, -1594499, 'What\'s this up there? The Skybreaker?', 'SAY_JAYNA_ESCAPE_02'),
 (36955, -1594502, 'By the light, we are trapped here!', 'SAY_JAYNA_TRAPPED'),
 (36955, -1594524, 'Bartlett? I have never thought of you arriving here in time...', 'JAYNA_FINAL2'),
-(36955, -1594525, 'We are save - for the moment... But we will meet him again...', 'JAYNA_FINAL3'),	
+(36955, -1594525, 'We are save - for the moment... But we will meet him again...', 'JAYNA_FINAL3'),
 (36954, -1594486, 'Just a simple thing that stops for long...', 'SAY_LK_W1'),	-- Lich King - Hunting Sequence
 (36954, -1594491, 'Minions, your master calls for your service!', 'SAY_LK_W2'),
 (36954, -1594492, 'Do you really think you may escape me that easily?', 'SAY_LK_W3'),
@@ -94,7 +94,48 @@ INSERT INTO `script_texts` (`npc_entry`, `entry`, `content_default` ,`comment`) 
 (37883, -1594522, 'Arthas still following you... gunners, fire down these walls!', 'SAY_SYLV_FIRE'), -- Korm
 (37883, -1594523, 'That was quite close...', 'SAY_SYLV_FINAL_1'),
 (37182, -1594526, 'Gunners, fire down these walls, Lady Jayna is in danger!', 'FIRE_A'),	-- Bartlett	
-(37182, -1594527, 'That was... really... close, mylady.', 'END_A');
+(37182, -1594527, 'That was... really... close, mylady.', 'END_A'); */
+
+DELETE FROM `creature_text` WHERE `entry` IN (37226, 36723, 37554, 36955, 36954, 37883, 37182);
+INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,`comment`,`text`) VALUES
+(37226,0,0,12,0,100,"LK_SYLVANAS_INTRO_END","Sylvanas... just another little trick of yours..."),
+(37226,1,0,12,0,100,"LK_JAYNA_INTRO_END","Jayna... do you really think that I am your prince any longer, in any way?"),
+(36723,0,0,12,0,100,"SAY_AGGRO_GENERAL","The master wants you dead, and I\'m here to fulfill this request!"),
+(36723,1,0,12,0,100,"SAY_DEATH_GENERAL","Free... at long last..."),
+(37554,0,0,12,0,100,"SAY_SYLVANA_AGGRO","Hurry up, this prison will not distract him for long!"),
+(37554,1,0,12,0,100,"SAY_SYVL_WALL1","I will take down this frozen barrier, protect me!"),
+(37554,2,0,12,0,100,"SAY_SYVL_WALL2","Another barrier... stop those minions from distracting me!"),
+(37554,3,0,12,0,100,"SAY_SYVL_WALL3","I hope this path will end up soon..."),
+(37554,4,0,12,0,100,"SAY_SYLV_WALL4","There is some way to icecrown behind this wall, hurry up!"),
+(37554,5,0,12,0,100,"SAY_SYLV_ESCAPE_01","Hurry up, the end of this path is near!"),
+(37554,6,0,12,0,100,"SAY_SYLV_ESCAPE_02","What\'s this up there... the Orgrim\'s Hammer?"),
+(37554,7,0,12,0,100,"SAY_SYVL_TRAPPED","Damn it, we are trapped here..."),
+(37554,8,0,12,0,100,"SAY_SYLVANA_FINAL_2","We are safe - for the moment..."),
+(36955,0,0,12,0,100,"SAY_JAYNA_AGGRO","Run... this prison will not stop him for long!"),
+(36955,1,0,12,0,100,"SAY_JAYNA_WALL1","An icy wall! Protect me, I will take care of this!"),
+(36955,2,0,12,0,100,"SAY_JAYNA_WALL2","Another barrier - I will break it down, but stop these minions!"),
+(36955,3,0,12,0,100,"SAY_JAYNA_WALL3","Does this way have any end?"),
+(36955,4,0,12,0,100,"SAY_JAYNA_WALL4","I hope we are close to the end of this path..."),
+(36955,5,0,12,0,100,"SAY_JAYNA_ESCAPE_01","This tunnel ends..."),
+(36955,6,0,12,0,100,"SAY_JAYNA_ESCAPE_02","What\'s this up there? The Skybreaker?"),
+(36955,7,0,12,0,100,"SAY_JAYNA_TRAPPED","By the light, we are trapped here!"),
+(36955,8,0,12,0,100,"JAYNA_FINAL2","Bartlett? I have never thought of you arriving here in time..."),
+(36955,9,0,12,0,100,"JAYNA_FINAL3","We are save - for the moment... But we will meet him again..."),
+(36954,0,0,12,0,100,"SAY_LK_W1","Just a simple thing that stops for long..."),
+(36954,1,0,12,0,100,"SAY_LK_W2","Minions, your master calls for your service!"),
+(36954,2,0,12,0,100,"SAY_LK_W3","Do you really think you may escape me that easily?"),
+(36954,3,0,12,0,100,"SAY_LK_W4","Oh, you think you may evade using this path... what a pity..."),
+(36954,4,0,12,0,100,"SAY_LK_WINTER","May the coldness of this eternal winter consume your bodies..."),
+(36954,5,0,12,0,100,"SAY_LK_GNOUL","Minions, hunt them!"),
+(36954,6,0,12,0,100,"SAY_LK_ABON","Monstrosities, hunt them!"),
+(36954,7,0,12,0,100,"SAY_LK_END_DUN","For the moment, you have escaped... but we will meet again..."),
+(36954,8,0,12,0,100,"SAY_LK_AGGRO_H","Sylvanas... you know that you cannot win this..."),
+(36954,9,0,12,0,100,"SAY_LK_AGGRO_A","Jayna... just another human that trusts in a part of me that has died long ago..."),
+(36954,10,0,12,0,100,"SAY_LK_WIN","As I have told you, running away does not prevent you from dying here!"),
+(37883,0,0,12,0,100,"SAY_SYLV_FIRE","Arthas still following you... gunners, fire down these walls!"),
+(37883,1,0,12,0,100,"SAY_SYLV_FINAL_1","That was quite close..."),
+(37182,0,0,12,0,100,"FIRE_A","Gunners, fire down these walls, Lady Jayna is in danger!"),
+(37182,1,3,12,0,100,"END_A","That was... really... close, mylady.");
 
 -- Waypoints Sylvanas
 DELETE FROM `script_waypoint` WHERE `entry`=37554;

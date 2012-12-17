@@ -807,7 +807,7 @@ public:
                         JumpToNextStep(3500);
                         break;
                     case 47:
-                        DTalk(SAY_EVENT_END_20);
+                        Talk(SAY_EVENT_END_20);
                         JumpToNextStep(8500);
                         break;
                     case 48:
