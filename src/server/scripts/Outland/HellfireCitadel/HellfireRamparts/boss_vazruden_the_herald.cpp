@@ -53,14 +53,16 @@ enum eUnits
     ENTRY_REINFORCED_FEL_IRON_CHEST_H = 185169
 };
 
-enum eSays
+enum Says
 {
     SAY_INTRO                     = 0,
-    SAY_WIPE                      = 1,
-    SAY_AGGRO                     = 2,
-    SAY_KILL                      = 3,
-    SAY_DIE                       = 4,
-    EMOTE                         = 5
+
+    SAY_WIPE                      = 0,
+    SAY_AGGRO                     = 1,
+    SAY_KILL                      = 2,
+    SAY_DIE                       = 3,
+
+    EMOTE                         = 0
 };
 
 const float VazrudenMiddle[3] = {-1406.5f, 1746.5f, 81.2f};

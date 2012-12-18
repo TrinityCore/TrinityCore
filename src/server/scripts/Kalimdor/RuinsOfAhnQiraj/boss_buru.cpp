@@ -29,7 +29,7 @@ EndScriptData */
 
 enum Yells
 {
-    EMOTE_TARGET               = -1509002
+    EMOTE_TARGET               = 0
 };
 
 class boss_buru : public CreatureScript
