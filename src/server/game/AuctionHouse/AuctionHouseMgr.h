@@ -118,7 +118,7 @@ class AuctionHouseObject
 
     void AddAuction(AuctionEntry* auction);
 
-    bool RemoveAuction(AuctionEntry* auction, uint32 itemEntry);
+    bool RemoveAuction(AuctionEntry* auction);
 
     void Update();
 
