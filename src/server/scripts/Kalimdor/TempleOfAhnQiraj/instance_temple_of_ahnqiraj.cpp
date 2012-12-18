@@ -105,7 +105,7 @@ class instance_temple_of_ahnqiraj : public InstanceMapScript
                 return false;
             }
 
-            uint32 GetData(uint32 type)
+            uint32 GetData(uint32 type) const
             {
                 switch (type)
                 {
@@ -133,7 +133,7 @@ class instance_temple_of_ahnqiraj : public InstanceMapScript
                 return 0;
             }
 
-            uint64 GetData64(uint32 identifier)
+            uint64 GetData64(uint32 identifier) const
             {
                 switch (identifier)
                 {
