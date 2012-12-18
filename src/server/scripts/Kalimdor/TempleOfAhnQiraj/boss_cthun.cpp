@@ -58,8 +58,6 @@ EndScriptData */
  * - the current phase is stored in the instance data to be easily shared between the eye and cthun.
  */
 
-#define PI                          3.14
-
 enum Phases
 {
     PHASE_NOT_STARTED                           = 0,
@@ -74,24 +72,6 @@ enum Phases
     PHASE_CTHUN_WEAK                            = 5,
 
     PHASE_CTHUN_DONE                            = 6,
-};
-
-enum Creatures
-{
-    MOB_CTHUN_PORTAL                            = 15896,
-
-    // ***** Main Phase 1 ********
-    BOSS_EYE_OF_CTHUN                           = 15589,
-    MOB_CLAW_TENTACLE                           = 15725,
-    MOB_EYE_TENTACLE                            = 15726,
-    MOB_SMALL_PORTAL                            = 15904,
-
-    // ***** Main Phase 2 ********
-    MOB_BODY_OF_CTHUN                           = 15809,
-    MOB_GIANT_CLAW_TENTACLE                     = 15728,
-    MOB_GIANT_EYE_TENTACLE                      = 15334,
-    MOB_FLESH_TENTACLE                          = 15802,
-    MOB_GIANT_PORTAL                            = 15910,
 };
 
 enum Spells

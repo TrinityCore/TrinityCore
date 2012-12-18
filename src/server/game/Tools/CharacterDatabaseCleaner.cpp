@@ -35,7 +35,7 @@ void CharacterDatabaseCleaner::CleanDatabase()
     uint32 oldMSTime = getMSTime();
 
     // check flags which clean ups are necessary
-    QueryResult result = CharacterDatabase.Query("SELECT value FROM worldstates WHERE entry = 20004");
+    QueryResult result = CharacterDatabase.PQuery("SELECT value FROM worldstates WHERE entry = %d", WS_CLEANING_FLAGS);
     if (!result)
         return;
 
@@ -60,12 +60,11 @@ void CharacterDatabaseCleaner::CleanDatabase()
     // NOTE: In order to have persistentFlags be set in worldstates for the next cleanup,
     // you need to define them at least once in worldstates.
     flags &= sWorld->getIntConfig(CONFIG_PERSISTENT_CHARACTER_CLEAN_FLAGS);
-    CharacterDatabase.DirectPExecute("UPDATE worldstates SET value = %u WHERE entry = 20004", flags);
+    CharacterDatabase.DirectPExecute("UPDATE worldstates SET value = %u WHERE entry = %d", flags, WS_CLEANING_FLAGS);
 
     sWorld->SetCleaningFlags(flags);
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Cleaned character database in %u ms", GetMSTimeDiffToNow(oldMSTime));
-
 }
 
 void CharacterDatabaseCleaner::CheckUnique(const char* column, const char* table, bool (*check)(uint32))
