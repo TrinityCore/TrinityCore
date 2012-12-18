@@ -473,8 +473,9 @@ void WorldSession::HandleAuctionPlaceBid(WorldPacket& recvData)
 
         auction->DeleteFromDB(trans);
 
+        uint32 itemEntry = auction->itemEntry;
         sAuctionMgr->RemoveAItem(auction->itemGUIDLow);
-        auctionHouse->RemoveAuction(auction);
+        auctionHouse->RemoveAuction(auction, itemEntry);
     }
     player->SaveInventoryAndGoldToDB(trans);
     CharacterDatabase.CommitTransaction(trans);
@@ -552,8 +553,9 @@ void WorldSession::HandleAuctionRemoveItem(WorldPacket& recvData)
     auction->DeleteFromDB(trans);
     CharacterDatabase.CommitTransaction(trans);
 
+    uint32 itemEntry = auction->itemEntry;
     sAuctionMgr->RemoveAItem(auction->itemGUIDLow);
-    auctionHouse->RemoveAuction(auction);
+    auctionHouse->RemoveAuction(auction, itemEntry);
 }
 
 //called when player lists his bids
