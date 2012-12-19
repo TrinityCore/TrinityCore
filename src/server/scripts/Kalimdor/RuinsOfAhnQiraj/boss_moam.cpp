@@ -21,8 +21,8 @@
 
 enum Texts
 {
-    EMOTE_AGGRO             = -1509000,
-    EMOTE_MANA_FULL         = -1509001
+    EMOTE_AGGRO             = 0,
+    EMOTE_MANA_FULL         = 1
 };
 
 enum Spells

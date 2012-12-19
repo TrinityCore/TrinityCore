@@ -1379,10 +1379,11 @@ FormulaScript::FormulaScript(const char* name)
     ScriptRegistry<FormulaScript>::AddScript(this);
 }
 
-UnitScript::UnitScript(const char* name)
+UnitScript::UnitScript(const char* name, bool addToScripts)
     : ScriptObject(name)
 {
-    ScriptRegistry<UnitScript>::AddScript(this);
+    if (addToScripts)
+        ScriptRegistry<UnitScript>::AddScript(this);
 }
 
 WorldMapScript::WorldMapScript(const char* name, uint32 mapId)
@@ -1419,7 +1420,7 @@ ItemScript::ItemScript(const char* name)
 }
 
 CreatureScript::CreatureScript(const char* name)
-    : UnitScript(name)
+    : UnitScript(name, false)
 {
     ScriptRegistry<CreatureScript>::AddScript(this);
 }
@@ -1473,7 +1474,7 @@ ConditionScript::ConditionScript(const char* name)
 }
 
 VehicleScript::VehicleScript(const char* name)
-    : UnitScript(name)
+    : ScriptObject(name)
 {
     ScriptRegistry<VehicleScript>::AddScript(this);
 }
@@ -1497,7 +1498,7 @@ AchievementCriteriaScript::AchievementCriteriaScript(const char* name)
 }
 
 PlayerScript::PlayerScript(const char* name)
-    : UnitScript(name)
+    : UnitScript(name, false)
 {
     ScriptRegistry<PlayerScript>::AddScript(this);
 }
