@@ -25,6 +25,7 @@
 #include <ace/Version.h>
 
 #include "Common.h"
+#include "SystemConfig.h"
 #include "Database/DatabaseEnv.h"
 #include "Configuration/Config.h"
 
@@ -40,6 +41,7 @@
 char serviceName[] = "worldserver";
 char serviceLongName[] = "TrinityCore world service";
 char serviceDescription[] = "TrinityCore World of Warcraft emulator world service";
+
 /*
  * -1 - not in service mode
  *  0 - stopped
@@ -49,9 +51,9 @@ char serviceDescription[] = "TrinityCore World of Warcraft emulator world servic
 int m_ServiceStatus = -1;
 #endif
 
-WorldDatabaseWorkerPool WorldDatabase;                      ///< Accessor to the world database
+WorldDatabaseWorkerPool		WorldDatabase;                      ///< Accessor to the world database
 CharacterDatabaseWorkerPool CharacterDatabase;              ///< Accessor to the character database
-LoginDatabaseWorkerPool LoginDatabase;                      ///< Accessor to the realm/login database
+LoginDatabaseWorkerPool		LoginDatabase;                      ///< Accessor to the realm/login database
 
 uint32 realmID;                                             ///< Id of the realm
 
@@ -128,17 +130,31 @@ extern int main(int argc, char **argv)
         #endif
         ++c;
     }
-
+	
     if (!ConfigMgr::Load(cfg_file))
     {
         printf("Invalid or missing configuration file : %s\n", cfg_file);
-        printf("Verify that the file exists and has \'[worldserver]' written in the top of the file!\n");
+        printf("Verify that the file exists and has \'[worldserver]\' written in the top of the file!\n");
         return 1;
     }
-    sLog->outInfo(LOG_FILTER_WORLDSERVER, "Using configuration file %s.", cfg_file);
 
-    sLog->outInfo(LOG_FILTER_WORLDSERVER, "Using SSL version: %s (library: %s)", OPENSSL_VERSION_TEXT, SSLeay_version(SSLEAY_VERSION));
-    sLog->outInfo(LOG_FILTER_WORLDSERVER, "Using ACE version: %s", ACE_VERSION);
+	sLog->outInfo(LOG_FILTER_WORLDSERVER, "%s WorldServer %s", _PACKAGENAME, _FULLVERSION);
+    sLog->outInfo(LOG_FILTER_WORLDSERVER, "<Ctrl-C> to stop.\n");
+
+	sLog->outInfo(LOG_FILTER_WORLDSERVER, " ______                       __");
+    sLog->outInfo(LOG_FILTER_WORLDSERVER, "/\\__  _\\       __          __/\\ \\__");
+    sLog->outInfo(LOG_FILTER_WORLDSERVER, "\\/_/\\ \\/ _ __ /\\_\\    ___ /\\_\\ \\, _\\  __  __");
+    sLog->outInfo(LOG_FILTER_WORLDSERVER, "   \\ \\ \\/\\`'__\\/\\ \\ /' _ `\\/\\ \\ \\ \\/ /\\ \\/\\ \\");
+    sLog->outInfo(LOG_FILTER_WORLDSERVER, "    \\ \\ \\ \\ \\/ \\ \\ \\/\\ \\/\\ \\ \\ \\ \\ \\_\\ \\ \\_\\ \\");
+    sLog->outInfo(LOG_FILTER_WORLDSERVER, "     \\ \\_\\ \\_\\  \\ \\_\\ \\_\\ \\_\\ \\_\\ \\__\\\\/`____ \\");
+    sLog->outInfo(LOG_FILTER_WORLDSERVER, "      \\/_/\\/_/   \\/_/\\/_/\\/_/\\/_/\\/__/ `/___/> \\");
+    sLog->outInfo(LOG_FILTER_WORLDSERVER, "                                 C O R E  /\\___/");
+    sLog->outInfo(LOG_FILTER_WORLDSERVER, "http://TrinityCore.org                    \\/__/\n");
+
+    sLog->outInfo(LOG_FILTER_WORLDSERVER, "Using configuration file %s.\n", cfg_file);
+
+    sLog->outInfo(LOG_FILTER_WORLDSERVER, "SSL version: %s", OPENSSL_VERSION_TEXT);
+    sLog->outInfo(LOG_FILTER_WORLDSERVER, "ACE version: %s\n", ACE_VERSION);
 
     ///- and run the 'Master'
     /// \todo Why do we need this 'Master'? Can't all of this be in the Main as for Realmd?
