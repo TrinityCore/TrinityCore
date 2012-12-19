@@ -49,18 +49,15 @@ enum Creatures
     MOB_GIANT_EYE_TENTACLE  = 15334,
     MOB_FLESH_TENTACLE      = 15802,
     MOB_GIANT_PORTAL        = 15910,
-    
+
     NPC_VISCIDUS            = 15299,
     NPC_GLOB_OF_VISCIDUS    = 15667,
-    
+
     NPC_SKERAM              = 15263,
     NPC_VEM                 = 15544,
     NPC_KRI                 = 15511,
     NPC_VEKLOR              = 15276,
     NPC_VEKNILASH           = 15275
 };
-
-#define PI                    3.14
-
 #endif
 
