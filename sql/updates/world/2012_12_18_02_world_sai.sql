@@ -1,4 +1,4 @@
-﻿SET @NPC_WARLORD_ZOLMAZ := 28902;
+SET @NPC_WARLORD_ZOLMAZ := 28902;
 SET @NPC_ENCHANTED_TIKI := 28927;
 SET @GO_ZOLMAZ_GATE := 190784;
 SET @GO_GATE_LEVER := 190834;
@@ -24,7 +24,7 @@ INSERT INTO `creature_template_addon` (`entry`,`path_id`,`mount`,`bytes1`,`bytes
 UPDATE `gameobject_template` SET `AIName`='SmartGameObjectAI' WHERE `entry`=@GO_GATE_LEVER;
 UPDATE `gameobject_template` SET `flags`=4 WHERE `entry` IN (190836,191766,194126);
 UPDATE `gameobject` SET `position_x`=6552.984, `position_y`=-3903.916, `position_z`=490.9412 WHERE `guid`=99744;
-     
+
 DELETE FROM `smart_scripts` WHERE `entryorguid` IN (@NPC_WARLORD_ZOLMAZ,@NPC_ENCHANTED_TIKI) AND `source_type`=0;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=@GO_GATE_LEVER AND `source_type`=1;
 INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES

@@ -29,7 +29,7 @@ DELETE FROM `creature_text` WHERE `entry`=@DARION_MORGRAINE;
 INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`probability`,`emote`,`duration`,`sound`,`comment`) VALUES
 (@DARION_MORGRAINE,0,0, '%s calls upon the mighty armies of the Scourge!',42,0,100,1,0,0, 'Highlord Darion Morgraine'),
 (@DARION_MORGRAINE,1,0, 'Armies of the Scourge, hear my call! The scarlet apocalypse has begun! Tear this land asunder and leave only death in your wake!',12,0,100,1,0,0, 'Highlord Darion Morgraine');
- 
+
 -- Convert quest_end_script "10988" to SAI
 -- Indexes:
 SET @Arthorn_Windsong := 22924;
