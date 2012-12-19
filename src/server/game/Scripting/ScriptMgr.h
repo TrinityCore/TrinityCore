@@ -395,7 +395,7 @@ class UnitScript : public ScriptObject
 {
     protected:
 
-        UnitScript(const char* name);
+        UnitScript(const char* name, bool addToScripts = true);
 
     public:
         // Called when DoT's Tick Damage is being Dealt
@@ -599,7 +599,7 @@ class ConditionScript : public ScriptObject
         virtual bool OnConditionCheck(Condition* /*condition*/, ConditionSourceInfo& /*sourceInfo*/) { return true; }
 };
 
-class VehicleScript : public UnitScript
+class VehicleScript : public ScriptObject
 {
     protected:
 
