@@ -5572,37 +5572,28 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                 // Shadow's Fate (Shadowmourne questline)
                 case 71169:
                 {
-                    target = triggeredByAura->GetCaster();
-                    if (!target)
-                        return false;
-                    Player* player = target->ToPlayer();
-                    if (!player)
-                        return false;
-                    // not checking Infusion auras because its in targetAuraSpell of credit spell
-                    if (player->GetQuestStatus(24749) == QUEST_STATUS_INCOMPLETE)       // Unholy Infusion
+                    uint32 questId = 0;
+                    uint32 spellId = 0;
+
+                    switch (GetEntry())
                     {
-                        if (GetEntry() != 36678)                                        // Professor Putricide
-                            return false;
-                        CastSpell(target, 71518, true);                                 // Quest Credit
-                        return true;
+                        case 36678:                 // NPC:     Professor Putricide
+                            spellId = 71518;        // Spell:   Unholy Infusion Credit
+                            break;
+                        case 37955:                 // NPC:     Blood-Queen Lana'thel
+                            spellId = 72934;        // Spell:   Quest Credit
+                            break;
+                        case 36853:                 // NPC:     Sindragosa <Queen of the Frostbrood>
+                            spellId = 72289;        // Spell:   Frost Infusion Quest Credit
+                            break;
+                        default:
+                            break;
                     }
-                    else if (player->GetQuestStatus(24756) == QUEST_STATUS_INCOMPLETE)  // Blood Infusion
-                    {
-                        if (GetEntry() != 37955)                                        // Blood-Queen Lana'thel
-                            return false;
-                        CastSpell(target, 72934, true);                                 // Quest Credit
-                        return true;
-                    }
-                    else if (player->GetQuestStatus(24757) == QUEST_STATUS_INCOMPLETE)  // Frost Infusion
-                    {
-                        if (GetEntry() != 36853)                                        // Sindragosa
-                            return false;
-                        CastSpell(target, 72289, true);                                 // Quest Credit
-                        return true;
-                    }
-                    else if (player->GetQuestStatus(24547) == QUEST_STATUS_INCOMPLETE)  // A Feast of Souls
-                        triggered_spell_id = 71203;
-                    break;
+
+                    CastSpell((Unit*)NULL, spellId, true);
+                    CastSpell((Unit*)NULL, 71203, true);
+
+                    return true;
                 }
                 // Essence of the Blood Queen
                 case 70871:
@@ -9051,23 +9042,31 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
                 return false;
 
             Player* player = ToPlayer();
-            if (player->GetQuestStatus(24749) == QUEST_STATUS_INCOMPLETE)       // Unholy Infusion
+            if (player->GetQuestStatus(24547) != QUEST_STATUS_INCOMPLETE)
             {
-                if (!player->HasAura(71516) || victim->GetEntry() != 36678)    // Shadow Infusion && Professor Putricide
+                uint32 spellId = 0;
+                uint32 questId = 0;
+                switch (victim->GetEntry())
+                {
+                case 36678:             // NPC:     Professor Putricide
+                    questId = 24749;    // Quest:   Unholy Infusion
+                    spellId = 71516;    // Spell:   Shadow Infusion
+                    break;
+                case 37955:             // NPC:     Blood-Queen Lana'thel
+                    questId = 24756;    // Quest:   Blood Infusion
+                    spellId = 72154;    // Spell:   Thirst Quenched
+                    break;
+                case 36853:             // NPC:     Sindragosa
+                    questId = 24757;    // Quest:   Frost Infusion
+                    spellId = 72290;    // Spell:   Frost-Imbued Blade
+                    break;
+                default:
+                    return false;
+                }
+
+                if (player->GetQuestStatus(questId) != QUEST_STATUS_INCOMPLETE || !player->HasAura(spellId))
                     return false;
             }
-            else if (player->GetQuestStatus(24756) == QUEST_STATUS_INCOMPLETE)  // Blood Infusion
-            {
-                if (!player->HasAura(72154) || victim->GetEntry() != 37955)    // Thirst Quenched && Blood-Queen Lana'thel
-                    return false;
-            }
-            else if (player->GetQuestStatus(24757) == QUEST_STATUS_INCOMPLETE)  // Frost Infusion
-            {
-                if (!player->HasAura(72290) || victim->GetEntry() != 36853)    // Frost-Imbued Blade && Sindragosa
-                    return false;
-            }
-            else if (player->GetQuestStatus(24547) != QUEST_STATUS_INCOMPLETE)  // A Feast of Souls
-                return false;
 
             if (victim->GetTypeId() != TYPEID_UNIT)
                 return false;
