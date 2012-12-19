@@ -5572,7 +5572,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                 // Shadow's Fate (Shadowmourne questline)
                 case 71169:
                 {
-                    uint32 questId = 0;
                     uint32 spellId = 0;
 
                     switch (GetEntry())
@@ -5589,8 +5588,9 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                         default:
                             break;
                     }
+                    if (spellId)
+                        CastSpell((Unit*)NULL, spellId, true);
 
-                    CastSpell((Unit*)NULL, spellId, true);
                     CastSpell((Unit*)NULL, 71203, true);
 
                     return true;
