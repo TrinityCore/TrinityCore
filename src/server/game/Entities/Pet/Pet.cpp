@@ -268,7 +268,7 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petentry, uint32 petnumber, bool c
     {
         SQLTransaction trans = CharacterDatabase.BeginTransaction();
 
-        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UDP_CHAR_PET_SLOT_BY_SLOT_EXCLUDE_ID);
+        stmt = CharacterDatabase.GetPreparedStatement(CHAR_UDP_CHAR_PET_SLOT_BY_SLOT_EXCLUDE_ID);
         stmt->setUInt8(0, uint8(PET_SAVE_NOT_IN_SLOT));
         stmt->setUInt32(1, ownerid);
         stmt->setUInt8(2, uint8(PET_SAVE_AS_CURRENT));
@@ -333,7 +333,7 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petentry, uint32 petnumber, bool c
 
     if (getPetType() == HUNTER_PET)
     {
-        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PET_DECLINED_NAME);
+        stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PET_DECLINED_NAME);
         stmt->setUInt32(0, owner->GetGUIDLow());
         stmt->setUInt32(1, GetCharmInfo()->GetPetNumber());
         PreparedQueryResult result = CharacterDatabase.Query(stmt);
@@ -429,7 +429,7 @@ void Pet::SavePetToDB(PetSaveMode mode)
         // prevent existence another hunter pet in PET_SAVE_AS_CURRENT and PET_SAVE_NOT_IN_SLOT
         if (getPetType() == HUNTER_PET && (mode == PET_SAVE_AS_CURRENT || mode > PET_SAVE_LAST_STABLE_SLOT))
         {
-            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_PET_BY_SLOT);
+            stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_PET_BY_SLOT);
             stmt->setUInt32(0, ownerLowGUID);
             stmt->setUInt8(1, uint8(PET_SAVE_AS_CURRENT));
             stmt->setUInt8(2, uint8(PET_SAVE_LAST_STABLE_SLOT));
@@ -1350,7 +1350,7 @@ void Pet::_SaveAuras(SQLTransaction& trans)
 
         uint8 index = 0;
 
-        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_PET_AURA);
+        stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_PET_AURA);
         stmt->setUInt32(index++, m_charmInfo->GetPetNumber());
         stmt->setUInt64(index++, casterGUID);
         stmt->setUInt32(index++, itr->second->GetId());
