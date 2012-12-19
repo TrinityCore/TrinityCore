@@ -1661,7 +1661,7 @@ bool ObjectMgr::MoveCreData(uint32 guid, uint32 mapId, Position pos)
             Creature* creature = new Creature;
             if (!creature->LoadCreatureFromDB(guid, map))
             {
-                sLog->outError(LOG_FILTER_GENERAL, "AddCreature: cannot add creature entry %u to map", guid);
+                sLog->outError(LOG_FILTER_GENERAL, "MoveCreData: Cannot add creature guid %u to map", guid);
                 delete creature;
                 return false;
             }
@@ -1713,7 +1713,7 @@ uint32 ObjectMgr::AddCreData(uint32 entry, uint32 /*team*/, uint32 mapId, float 
             Creature* creature = new Creature;
             if (!creature->LoadCreatureFromDB(guid, map))
             {
-                sLog->outError(LOG_FILTER_GENERAL, "AddCreature: cannot add creature entry %u to map", entry);
+                sLog->outError(LOG_FILTER_GENERAL, "AddCreature: Cannot add creature entry %u to map", entry);
                 delete creature;
                 return 0;
             }
@@ -1738,8 +1738,7 @@ void ObjectMgr::LoadGameobjects()
 
     if (!result)
     {
-        sLog->outError(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 gameobjects. DB table `gameobject` is empty.");
-
+        sLog->outError(LOG_FILTER_SQL, ">> Loaded 0 gameobjects. DB table `gameobject` is empty.");
         return;
     }
 

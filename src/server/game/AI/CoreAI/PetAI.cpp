@@ -181,8 +181,10 @@ void PetAI::UpdateAI(const uint32 diff)
                         spellUsed = true;
                     }
                 }
+
                 if (spellInfo->HasEffect(SPELL_EFFECT_JUMP_DEST))
-                       continue; //pets must jump only to target
+                    continue; // Pets must only jump to target
+
                 // No enemy, check friendly
                 if (!spellUsed)
                 {
@@ -266,6 +268,7 @@ void PetAI::UpdateAllies()
     //only pet and owner/not in group->ok
     if (m_AllySet.size() == 2 && !group)
         return;
+
     //owner is in group; group members filled in already (no raid -> subgroupcount = whole count)
     if (group && !group->isRaidGroup() && m_AllySet.size() == (group->GetMembersCount() + 2))
         return;
