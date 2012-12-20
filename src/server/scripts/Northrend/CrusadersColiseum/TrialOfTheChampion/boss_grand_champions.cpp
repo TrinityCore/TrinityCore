@@ -82,10 +82,10 @@ enum eSpells
 
 enum eEnums
 {
-    SAY_START                       = -1999939,
-    SAY_START_1                     = -1999939,
-    SAY_START2                      = -1999937,
-    SAY_START_2                     = -1999937,
+    SAY_START                       = 6,
+    SAY_START_1                     = 6,
+    SAY_START2                      = 0, // WTF!
+    SAY_START_2                     = 0, // WTF!
 };
 
 enum eSeat
@@ -557,7 +557,7 @@ class boss_warrior_toc5 : public CreatureScript
             {
                 bDone = true;
 
-                DoScriptText(SAY_START2, me);
+                Talk(SAY_START2);
                 me->RemoveAura(64723); // [DND] ReadyJoust Pose Effect
 
                 if (pInstance && me->GetGUID() == pInstance->GetData64(DATA_GRAND_CHAMPION_1))
@@ -633,7 +633,7 @@ class boss_warrior_toc5 : public CreatureScript
         {
             if (damage >= me->GetHealth())
             {
-                DoScriptText(SAY_START, me);
+                Talk(SAY_START);
                 // Instance encounter counting mechanics
                 if (!bCredit)
                 {
@@ -826,7 +826,7 @@ class boss_mage_toc5 : public CreatureScript
         void JustDied(Unit* /*killer*/)
         {
             hasBeenInCombat = false;
-            DoScriptText(SAY_START, me);
+            Talk(SAY_START);
             if (pInstance)
                 pInstance->SetData(BOSS_GRAND_CHAMPIONS, DONE);
         }
@@ -1015,7 +1015,7 @@ class boss_shaman_toc5 : public CreatureScript
         void JustDied(Unit* /*killer*/)
         {
             hasBeenInCombat = false;
-            DoScriptText(SAY_START, me);
+            Talk(SAY_START);
 
             if (pInstance)
                 pInstance->SetData(BOSS_GRAND_CHAMPIONS, DONE);
@@ -1255,8 +1255,8 @@ class boss_hunter_toc5 : public CreatureScript
 
         void JustDied(Unit* killer)
         {
-            hasBeenInCombat = false;	
-            DoScriptText(SAY_START, me);	
+            hasBeenInCombat = false;
+            Talk(SAY_START);
             if (pInstance)
                 pInstance->SetData(BOSS_GRAND_CHAMPIONS, DONE);
 
@@ -1444,7 +1444,7 @@ class boss_rouge_toc5 : public CreatureScript
         void JustDied(Unit* killer)
         {
             hasBeenInCombat = false;
-            DoScriptText(SAY_START, me);
+            Talk(SAY_START);
             if (pInstance)
                 pInstance->SetData(BOSS_GRAND_CHAMPIONS, DONE);
 

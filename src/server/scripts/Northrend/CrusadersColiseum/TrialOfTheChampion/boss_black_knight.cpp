@@ -29,22 +29,22 @@ EndScriptData */
 
 enum eEnums
 {
-    SAY_INTRO_1             = -1999928, // You spoiled my grand entrance, Rat.
-    SAY_INTRO_2             = -1999952, // What is the meaning of this? -Tirion
-    SAY_INTRO_3             = -1999929, // Did you honestly think an agent of the Lich King would be bested on the field of your pathetic little tournament?
-    SAY_INTRO_4             = -1999930, // I have come to finish my task
-    SAY_AGGRO               = -1999931, // This farce ends here!
-    SAY_AGGRO_A             = -1999998, // Don't just stand there; kill him!
-    SAY_AGGRO_H             = -1999999, // Tear him apart!
-    SAY_KILL_1              = -1999969, // Pathetic
-    SAY_KILL_2              = -1999970, // A waste of flesh.
-    SAY_PHASE_1             = -1999933, // My roting flash was just getting in the way!
-    SAY_PHASE_2             = -1999934, // I have no need for bones to best you!
-    SAY_DEATH               = -1999935, // No! I must not fail...again...
-    SAY_START11             = -1999953, // I am too young.
+    SAY_INTRO_1             = 0, // You spoiled my grand entrance, Rat.
+    SAY_INTRO_2             = 56, // What is the meaning of this? -Tirion
+    SAY_INTRO_3             = 1, // Did you honestly think an agent of the Lich King would be bested on the field of your pathetic little tournament?
+    SAY_INTRO_4             = 2, // I have come to finish my task
+    SAY_AGGRO               = 3, // This farce ends here!
+    SAY_AGGRO_A             = 51, // Don't just stand there; kill him!
+    SAY_AGGRO_H             = 51, // Tear him apart!
+    SAY_KILL_1              = 6, // Pathetic
+    SAY_KILL_2              = 6, // A waste of flesh.
+    SAY_PHASE_1             = 4, // My roting flash was just getting in the way!
+    SAY_PHASE_2             = 5, // I have no need for bones to best you!
+    SAY_DEATH               = 7, // No! I must not fail...again...
+    SAY_START11             = 0, // WTF! I am too young.
 };
 
-enum Spells
+enum eSpells
 {
     //phase 1
     SPELL_PLAGUE_STRIKE     = 67724,
@@ -79,7 +79,7 @@ enum Spells
     SPELL_KILL_CREDIT       = 68663
 };
 
-enum Models
+enum eModels
 {
     MODEL_SKELETON          = 29846,
     MODEL_GHOST             = 21300
@@ -98,7 +98,7 @@ enum IntroPhase
     FINISHED,
 };
 
-enum Phases
+enum ePhases
 {
     PHASE_UNDEAD            = 3,
     PHASE_SKELETON          = 4,
@@ -275,7 +275,7 @@ public:
                         case 1:
                         {
                             Creature* pAnnouncer = Unit::GetCreature(*me, instance->GetData64(DATA_ANNOUNCER));
-                            DoScriptText(SAY_START11, pAnnouncer);
+                            pAnnouncer->AI()->Talk(SAY_START11);
                             ++uiIntroPhase;
                             uiIntroTimer = 2000;
                             break;
@@ -291,12 +291,12 @@ public:
                             break;
                         }
                         case 3:
-                            DoScriptText(SAY_INTRO_3, me);
+                            Talk(SAY_INTRO_3);
                             ++uiIntroPhase;
                             uiIntroTimer = 6000;
                             break;
                         case 4:
-                            DoScriptText(SAY_INTRO_4, me);
+                            Talk(SAY_INTRO_4);
                             ++uiIntroPhase;
                             uiIntroTimer = 3000;
                             break;
@@ -326,10 +326,10 @@ public:
                     switch (uiPhase)
                     {
                         case PHASE_UNDEAD:
-                            DoScriptText(SAY_PHASE_1, me);
+                            Talk(SAY_PHASE_1);
                             break;
                         case PHASE_SKELETON:
-                            DoScriptText(SAY_PHASE_2, me);
+                            Talk(SAY_PHASE_2);
                             break;
                     }
 
@@ -510,7 +510,7 @@ public:
         void EnterCombat(Unit* who)
         {
             bEventInBattle = true;
-            DoScriptText(SAY_AGGRO, me);
+            Talk(SAY_AGGRO);
             SetEquipmentSlots(false, EQUIP_SWORD, EQUIP_NO_CHANGE, EQUIP_NO_CHANGE);
 
             if (me->ToTempSummon())
@@ -536,7 +536,8 @@ public:
 
         void KilledUnit(Unit* /*victim*/)
         {
-            DoScriptText(urand(0, 1) ? SAY_KILL_1 : SAY_KILL_2, me);
+            //Talk(urand(0, 1) ? SAY_KILL_1 : SAY_KILL_2);
+            Talk(urand(0, 1) ? SAY_KILL_1 : SAY_KILL_2);
             if (instance)
                 instance->SetData(BOSS_BLACK_KNIGHT, IN_PROGRESS);
         }
@@ -571,7 +572,7 @@ public:
 
         void JustDied(Unit* /*killer*/)
         {
-            DoScriptText(SAY_DEATH, me);
+            Talk(SAY_DEATH);
             if (TempSummon* summ = me->ToTempSummon())
                 summ->SetTempSummonType(TEMPSUMMON_DEAD_DESPAWN);
 
@@ -726,7 +727,7 @@ public:
                     break;
                 case 2:
                     me->SetSpeed(MOVE_FLIGHT, 2.0f);
-                    DoScriptText(SAY_INTRO_1, me);
+                    Talk(SAY_INTRO_1);
                     break;
                 case 3:
                     me->SetSpeed(MOVE_FLIGHT, 2.0f);
@@ -741,7 +742,7 @@ public:
                 {
                     me->SetSpeed(MOVE_FLIGHT, 2.0f);
                     Creature* pHighlord = Unit::GetCreature(*me, instance->GetData64(DATA_HIGHLORD));
-                    DoScriptText(SAY_INTRO_2, pHighlord);
+                    pHighlord->AI()->Talk(SAY_INTRO_2);
                     break;
                 }
                 case 7:

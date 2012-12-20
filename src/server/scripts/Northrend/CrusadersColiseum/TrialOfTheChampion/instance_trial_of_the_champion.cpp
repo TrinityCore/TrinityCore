@@ -29,9 +29,9 @@ EndScriptData */
 
 enum eEnums
 {
-    SAY_START                               = -1999927,
-    SAY_START11                             = -1999953,
-    SAY_START_9                             = -1999950
+    SAY_START                               = 0, // WTF!
+    SAY_START11                             = 0, // WTF!
+    SAY_START_9                             = 0  // WTF!
 };
 
 class instance_trial_of_the_champion : public InstanceMapScript
@@ -320,7 +320,7 @@ public:
                     uiAgroDone = uiData;
                     if (Creature* pAnnouncer = instance->GetCreature(uiAnnouncerGUID))
                     {
-                        DoScriptText(SAY_START11, pAnnouncer);
+                        pAnnouncer->AI()->Talk(SAY_START11);
                         pAnnouncer->SetVisible(false);
                     }
                     break;

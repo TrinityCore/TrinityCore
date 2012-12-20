@@ -25,34 +25,10 @@ EndScriptData */
 #include "ScriptPCH.h"
 #include "trial_of_the_champion.h"
 #include "ScriptedEscortAI.h"
-/*
-enum Yells
-{
-    // Eadric the Pure
-    SAY_INTRO                   = 0,
-    SAY_AGGRO                   = 1,
-    EMOTE_RADIANCE              = 2,
-    EMOTE_HAMMER_RIGHTEOUS      = 3,
-    SAY_HAMMER_RIGHTEOUS        = 4,
-    SAY_KILL_PLAYER             = 5,
-    SAY_DEFEATED                = 6,
 
-    // Argent Confessor Paletress
-    SAY_INTRO_1                 = 0,
-    SAY_INTRO_2                 = 1,
-    SAY_AGGRO                   = 2,
-    SAY_MEMORY_SUMMON           = 3,
-    SAY_MEMORY_DEATH            = 4,
-    SAY_KILL_PLAYER             = 5,
-    SAY_DEFEATED                = 6,
-
-    // Memory of X
-    EMOTE_WAKING_NIGHTMARE      = 0
-};
-*/
-enum Spells
+enum eSpells
 {
-    // Eadric the Pure
+    //Eadric
     SPELL_EADRIC_ACHIEVEMENT    = 68197,
     SPELL_HAMMER_JUSTICE        = 66863,
     SPELL_HAMMER_JUSTICE_STUN   = 66940,
@@ -104,23 +80,23 @@ enum Misc
 
 enum eEnums
 {
-    SAY_MEM_DIE                 = -1999968,
-    SAY_DEATH_P                 = -1999967,
-    SAY_INTRO_P2                = -1999966,
-    SAY_INTRO_P1                = -1999965,
-    SAY_INTRO_E                 = -1999964,
-    SAY_HAMMER_E                = -1999963,
-    SAY_DEATH_E                 = -1999962,
-    SAY_START_E                 = -1999961,
-    SAY_KILL1_P                 = -1999960,
-    SAY_KILL2_P                 = -1999959,
-    SAY_KILL1_E                 = -1999958,
-    SAY_KILL2_E                 = -1999957,
-    SAY_START_10                = -1999956,
-    SAY_START_8                 = -1999941,
-    SAY_START_P                 = -1999955,
-    SAY_START_7                 = -1999954,
-    SAY_START_6                 = -1999951
+    SAY_MEM_DIE                 = 4,
+    SAY_DEATH_P                 = 6,
+    SAY_INTRO_P2                = 1,
+    SAY_INTRO_P1                = 0,
+    SAY_INTRO_E                 = 0,
+    SAY_HAMMER_E                = 4,
+    SAY_DEATH_E                 = 6,
+    SAY_START_E                 = 1,
+    SAY_KILL1_P                 = 5,
+    SAY_KILL2_P                 = 5,
+    SAY_KILL1_E                 = 5,
+    SAY_KILL2_E                 = 5,
+    SAY_START_10                = 0, // WTF!
+    SAY_START_8                 = 0, // WTF!
+    SAY_START_P                 = 0,
+    SAY_START_7                 = 0, // WTF!
+    SAY_START_6                 = 3
 };
 
 class OrientationCheck
@@ -206,7 +182,7 @@ class boss_eadric : public CreatureScript
         {
             instance = creature->GetInstanceScript();
             creature->SetReactState(REACT_PASSIVE);
-            DoScriptText(SAY_INTRO_E, me);
+            Talk(SAY_INTRO_E);
             creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
 
             hasBeenInCombat=false;
@@ -269,7 +245,7 @@ class boss_eadric : public CreatureScript
 
                 EnterEvadeMode();
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                DoScriptText(SAY_DEATH_E, me);
+                Talk(SAY_DEATH_E);
                 me->setFaction(35);
                 bDone = true;
                 if (GameObject* pGO = GameObject::GetGameObject(*me, instance->GetData64(DATA_MAIN_GATE)))
@@ -292,7 +268,7 @@ class boss_eadric : public CreatureScript
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             _EnterCombat();
             me->SetHomePosition(746.843f, 665.000f, 412.339f, 4.670f);
-            DoScriptText(SAY_START_E, me);
+            Talk(SAY_START_E);
             hasBeenInCombat = true;
         }
 
@@ -327,7 +303,7 @@ class boss_eadric : public CreatureScript
                 {
                     if (target && target->isAlive())
                     {
-                        DoScriptText(SAY_HAMMER_E, me);
+                        Talk(SAY_HAMMER_E);
                         DoCast(target, SPELL_HAMMER_JUSTICE);
                         DoCast(target, SPELL_HAMMER_RIGHTEOUS);
                     }
@@ -380,7 +356,7 @@ class boss_paletress : public CreatureScript
             hasBeenInCombat = false;
             bCredit = false;
             MemoryGUID = 0;
-            DoScriptText(SAY_INTRO_P2, me);
+            Talk(SAY_INTRO_P2);
             creature->SetReactState(REACT_PASSIVE);
             creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             creature->RestoreFaction();
@@ -449,14 +425,14 @@ class boss_paletress : public CreatureScript
             _EnterCombat();
             me->SetHomePosition(746.843f, 665.000f, 412.339f, 4.670f);
             hasBeenInCombat = true;
-            DoScriptText(SAY_START_10, me);
+            Talk(SAY_START_10);
         }
 
         void SetData(uint32 uiId, uint32 uiValue)
         {
             if (uiId == 1)
                 me->RemoveAura(SPELL_SHIELD);
-                DoScriptText(SAY_MEM_DIE, me);
+                Talk(SAY_MEM_DIE);
         }
 
         void DamageTaken(Unit* /*who*/, uint32& damage)
@@ -472,7 +448,7 @@ class boss_paletress : public CreatureScript
 
                 EnterEvadeMode();
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                DoScriptText(SAY_DEATH_P, me);
+                Talk(SAY_DEATH_P);
                 me->setFaction(35);
                 bDone = true;
                 if (GameObject* pGO = GameObject::GetGameObject(*me, pInstance->GetData64(DATA_MAIN_GATE)))
@@ -561,7 +537,7 @@ class boss_paletress : public CreatureScript
 
             if (!bHealth && me->GetHealth() * 100 / me->GetMaxHealth() <= 35)
             {
-                DoScriptText(SAY_START_6, me);
+                Talk(SAY_START_6);
                 me->InterruptNonMeleeSpells(true);
                 DoCastAOE(SPELL_HOLY_NOVA, false);
                 DoCast(me, SPELL_SHIELD);

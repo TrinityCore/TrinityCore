@@ -31,18 +31,6 @@ EndContentData */
 #include "Vehicle.h"
 #include "Player.h"
 
-enum Yells
-{
-    SAY_INTRO_1         = 0,
-    SAY_INTRO_2         = 1,
-    SAY_INTRO_3         = 2,
-    SAY_AGGRO           = 3,
-    SAY_PHASE_2         = 4,
-    SAY_PHASE_3         = 5,
-    SAY_KILL_PLAYER     = 6,
-    SAY_DEATH           = 7
-};
-
 #define GOSSIP_START_EVENT1     "I'm ready to start challenge."
 #define GOSSIP_START_EVENT2     "I'm ready for the next challenge."
 
@@ -57,45 +45,45 @@ const Position SpawnPosition1 = {746.71f, 661.02f, 411.69f, 4.66995f};
 
 enum eEnums
 {
-    SAY_START             = -1999926,
-    SAY_START2            = -1999950,
-    SAY_START3            = -1999940,
-    SAY_START5            = -1999936,
-    SAY_START11           = -1999953,
-    CHAMP_INTRO_H1        = -1999942, // Jaeren: The Sunreavers are proud to present their representatives in this trial by combat.
-    CHAMP_INTRO_2         = -1999943, // Tirion: Welcome, champions. Today, before the eyes of your leaders and peers, you will prove youselves worthy combatants.
-    CHAMP_INTRO_H3        = -1999944, // Thrall: Fight well, Horde! Lok'tar Ogar!
-    CHAMP_INTRO_H4        = -1999945, // Garrosh: Finally, a fight worth watching.
-    CHAMP_INTRO_H5        = -1999946, // Varian: I did not come here to watch animals tear at each other senselessly, Tirion
-    CHAMP_INTRO_H6        = -1999992, // Jaina: They're worthy fighters, you'll see.
-    CHAMP_INTRO_A1        = -1999997, // The Silver Covenant is pleased to present their contenders for this event, Highlord.
-    CHAMP_INTRO_A3        = -1999993, // Varian: I have no taste for these games, Tirion.  Still... I trust they will perform admirably.
-    CHAMP_INTRO_A4        = -1999994, // Jaina: Of course they will.
-    CHAMP_INTRO_A5        = -1999995, // Garrosh: Admirably? Hah!  I will enjoy watching your weak little champions fail, human.
-    CHAMP_INTRO_A6        = -1999996, // Thrall: Garrosh, enough.
-    CHAMP_INTRO_7         = -1999947,
-    AN_7                  = -1999948,
-    AN_8                  = -1999949,
-    CHAMP_ORG_1           = -1999990,
-    CHAMP_ORG_2           = -1999991,
-    CHAMP_SW_1            = -1999980,
-    CHAMP_SW_2            = -1999981,
-    CHAMP_SM_1            = -1999988,
-    CHAMP_SM_2            = -1999989,
-    CHAMP_GN_1            = -1999976,
-    CHAMP_GN_2            = -1999977,
-    CHAMP_TB_1            = -1999986,
-    CHAMP_TB_2            = -1999987,
-    CHAMP_EXO_1           = -1999972,
-    CHAMP_EXO_2           = -1999973,
-    CHAMP_SJ_1            = -1999982,
-    CHAMP_SJ_2            = -1999983,
-    CHAMP_DAR_1           = -1999974,
-    CHAMP_DAR_2           = -1999975,
-    CHAMP_UC_1            = -1999984,
-    CHAMP_UC_2            = -1999985,
-    CHAMP_IF_1            = -1999978,
-    CHAMP_IF_2            = -1999979,
+    SAY_START             = 3,
+    SAY_START2            = 2,
+    SAY_START3            = 3,
+    SAY_START5            = 8,
+    SAY_START11           = 0, //WTF!?
+    CHAMP_INTRO_H1        = 2, // Jaeren: The Sunreavers are proud to present their representatives in this trial by combat.
+    CHAMP_INTRO_2         = 50, // Tirion: Welcome, champions. Today, before the eyes of your leaders and peers, you will prove youselves worthy combatants.
+    CHAMP_INTRO_H3        = 0, // Thrall: Fight well, Horde! Lok'tar Ogar!
+    CHAMP_INTRO_H4        = 0, // Garrosh: Finally, a fight worth watching.
+    CHAMP_INTRO_H5        = 52, // Varian: I did not come here to watch animals tear at each other senselessly, Tirion
+    CHAMP_INTRO_H6        = 0, // WTF! Jaina: They're worthy fighters, you'll see.
+    CHAMP_INTRO_A1        = 2, // The Silver Covenant is pleased to present their contenders for this event, Highlord.
+    CHAMP_INTRO_A3        = 50, // Varian: I have no taste for these games, Tirion.  Still... I trust they will perform admirably.
+    CHAMP_INTRO_A4        = 0, // WTF! Jaina: Of course they will.
+    CHAMP_INTRO_A5        = 52, // Garrosh: Admirably? Hah!  I will enjoy watching your weak little champions fail, human.
+    CHAMP_INTRO_A6        = 2, // Thrall: Garrosh, enough.
+    CHAMP_INTRO_7         = 51,
+    AN_7                  = 53,
+    AN_8                  = 54,
+    CHAMP_ORG_1           = 5,
+    CHAMP_ORG_2           = 0,
+    CHAMP_SW_1            = 6,
+    CHAMP_SW_2            = 0,
+    CHAMP_SM_1            = 3,
+    CHAMP_SM_2            = 0,
+    CHAMP_GN_1            = 5,
+    CHAMP_GN_2            = 0,
+    CHAMP_TB_1            = 7,
+    CHAMP_TB_2            = 0,
+    CHAMP_EXO_1           = 3,
+    CHAMP_EXO_2           = 0, // WTF!
+    CHAMP_SJ_1            = 4,
+    CHAMP_SJ_2            = 0, // WTF!
+    CHAMP_DAR_1           = 4,
+    CHAMP_DAR_2           = 0,
+    CHAMP_UC_1            = 6,
+    CHAMP_UC_2            = 0,
+    CHAMP_IF_1            = 7,
+    CHAMP_IF_2            = 0, // WTF!
 };
 
 enum IntroPhase
@@ -223,51 +211,51 @@ class npc_anstart : public CreatureScript
                     case 1:
                         pInstance->DoCastSpellOnPlayers(SPELL_HERALD_ARGENT);
                         if (pInstance->GetData(DATA_TEAM_IN_INSTANCE) == HORDE)
-                            DoScriptText(CHAMP_INTRO_H1, me);
+                            Talk(CHAMP_INTRO_H1);
                         else
-                            DoScriptText(CHAMP_INTRO_A1, me);
+                            Talk(CHAMP_INTRO_A1);
                         ++uiIntroPhase;
                         uiIntroTimer = 5000;
                         break;
                     case 2:
-                        DoScriptText(CHAMP_INTRO_2, pHighlord);
+                        pHighlord->AI()->Talk(CHAMP_INTRO_2);
                         ++uiIntroPhase;
                         uiIntroTimer = 13000;
                         break;
                     case 3:
                         if (pInstance->GetData(DATA_TEAM_IN_INSTANCE) == HORDE)
-                            DoScriptText(CHAMP_INTRO_H3, pTrall);
+                            pTrall->AI()->Talk(CHAMP_INTRO_H3);
                         else
-                            DoScriptText(CHAMP_INTRO_A3, pKing);
+                            pKing->AI()->Talk(CHAMP_INTRO_A3);
                         ++uiIntroPhase;
                         uiIntroTimer = 4000;
                         break;
                     case 4:
                         if (pInstance->GetData(DATA_TEAM_IN_INSTANCE) == HORDE)
-                            DoScriptText(CHAMP_INTRO_H4, pGarrosh);
+                            pGarrosh->AI()->Talk(CHAMP_INTRO_H4);
                         else
-                           DoScriptText(CHAMP_INTRO_A4, pLady);
+                            pLady->AI()->Talk(CHAMP_INTRO_A4);
                         ++uiIntroPhase;
                         uiIntroTimer = 4000;
                         break;
                     case 5:
                         if (pInstance->GetData(DATA_TEAM_IN_INSTANCE) == HORDE)
-                            DoScriptText(CHAMP_INTRO_H5, pKing);
+                            pKing->AI()->Talk(CHAMP_INTRO_H5);
                         else
-                            DoScriptText(CHAMP_INTRO_A5, pGarrosh);
+                            pGarrosh->AI()->Talk(CHAMP_INTRO_A5);
                         ++uiIntroPhase;
                         uiIntroTimer = 6000;
                         break;
                     case 6:
                         if (pInstance->GetData(DATA_TEAM_IN_INSTANCE) == HORDE)
-                            DoScriptText(CHAMP_INTRO_H6, pLady);
+                            pLady->AI()->Talk(CHAMP_INTRO_H6);
                         else
-                            DoScriptText(CHAMP_INTRO_A6, pTrall);
+                            pTrall->AI()->Talk(CHAMP_INTRO_A6);
                         ++uiIntroPhase;
                         uiIntroTimer = 6000;
                         break;
                     case 7:
-                        DoScriptText(CHAMP_INTRO_7, pHighlord);
+                        pHighlord->AI()->Talk(CHAMP_INTRO_7);
                         ++uiIntroPhase;
                         uiIntroTimer = 1000;
                         break;
@@ -458,13 +446,13 @@ class npc_announcer_toc5 : public CreatureScript
                 case 0:
                     if (pInstance->GetData(DATA_TEAM_IN_INSTANCE) == HORDE)
                     {
-                        DoScriptText(CHAMP_SW_1, me);
-                        DoScriptText(CHAMP_SW_2, me);
+                        Talk(CHAMP_SW_1);
+                        Talk(CHAMP_SW_2);
                     }
                     else
                     {
-                        DoScriptText(CHAMP_ORG_1, me);
-                        DoScriptText(CHAMP_ORG_2, me);
+                        Talk(CHAMP_ORG_1);
+                        Talk(CHAMP_ORG_2);
                     }
                         VEHICLE_TO_SUMMON1 = VEHICLE_MOKRA_SKILLCRUSHER_MOUNT;
                         VEHICLE_TO_SUMMON2 = VEHICLE_ORGRIMMAR_WOLF;
@@ -472,13 +460,13 @@ class npc_announcer_toc5 : public CreatureScript
                 case 1:
                     if (pInstance->GetData(DATA_TEAM_IN_INSTANCE) == HORDE)
                     {
-                        DoScriptText(CHAMP_GN_1, me);
-                        DoScriptText(CHAMP_GN_2, me);
+                        Talk(CHAMP_GN_1);
+                        Talk(CHAMP_GN_2);
                     }
                     else
                     {
-                        DoScriptText(CHAMP_SM_1, me);
-                        DoScriptText(CHAMP_SM_2, me);
+                        Talk(CHAMP_SM_1);
+                        Talk(CHAMP_SM_2);
                     }
                         VEHICLE_TO_SUMMON1 = VEHICLE_ERESSEA_DAWNSINGER_MOUNT;
                         VEHICLE_TO_SUMMON2 = VEHICLE_SILVERMOON_HAWKSTRIDER;
@@ -486,13 +474,13 @@ class npc_announcer_toc5 : public CreatureScript
                 case 2:
                     if (pInstance->GetData(DATA_TEAM_IN_INSTANCE) == HORDE)
                     {
-                        DoScriptText(CHAMP_EXO_1, me);
-                        DoScriptText(CHAMP_EXO_2, me);
+                        Talk(CHAMP_EXO_1);
+                        Talk(CHAMP_EXO_2);
                     }
                     else
                     {
-                        DoScriptText(CHAMP_TB_1, me);
-                        DoScriptText(CHAMP_TB_2, me);
+                        Talk(CHAMP_TB_1);
+                        Talk(CHAMP_TB_2);
                     }
                         VEHICLE_TO_SUMMON1 = VEHICLE_RUNOK_WILDMANE_MOUNT;
                         VEHICLE_TO_SUMMON2 = VEHICLE_THUNDER_BLUFF_KODO;
@@ -500,13 +488,13 @@ class npc_announcer_toc5 : public CreatureScript
                 case 3:
                     if (pInstance->GetData(DATA_TEAM_IN_INSTANCE) == HORDE)
                     {
-                        DoScriptText(CHAMP_DAR_1, me);
-                        DoScriptText(CHAMP_DAR_2, me);
+                        Talk(CHAMP_DAR_1);
+                        Talk(CHAMP_DAR_2);
                     }
                     else
                     {
-                        DoScriptText(CHAMP_SJ_1, me);
-                        DoScriptText(CHAMP_SJ_2, me);
+                        Talk(CHAMP_SJ_1);
+                        Talk(CHAMP_SJ_2);
                     }
                         VEHICLE_TO_SUMMON1 = VEHICLE_ZUL_TORE_MOUNT;
                         VEHICLE_TO_SUMMON2 = VEHICLE_DARKSPEAR_RAPTOR;
@@ -514,13 +502,13 @@ class npc_announcer_toc5 : public CreatureScript
                 case 4:
                     if (pInstance->GetData(DATA_TEAM_IN_INSTANCE) == HORDE)
                     {
-                        DoScriptText(CHAMP_IF_1, me);
-                        DoScriptText(CHAMP_IF_2, me);
+                        Talk(CHAMP_IF_1);
+                        Talk(CHAMP_IF_2);
                     }
                     else
                     {
-                        DoScriptText(CHAMP_UC_1, me);
-                        DoScriptText(CHAMP_UC_2, me);
+                        Talk(CHAMP_UC_1);
+                        Talk(CHAMP_UC_2);
                     }
                         VEHICLE_TO_SUMMON1 = VEHICLE_DEATHSTALKER_VESCERI_MOUNT;
                         VEHICLE_TO_SUMMON2 = VEHICLE_FORSAKE_WARHORSE;
@@ -622,7 +610,7 @@ class npc_announcer_toc5 : public CreatureScript
 
         void DoStartArgentChampionEncounter()
         {
-            DoScriptText(SAY_START3, me);
+            Talk(SAY_START3);
             if (Creature* pBoss = me->SummonCreature(uiArgentChampion, SpawnPosition))
             {
                 pBoss->GetMotionMaster()->MovePoint(1, 746.71f, 661.02f, 411.69f);
@@ -640,7 +628,7 @@ class npc_announcer_toc5 : public CreatureScript
 
         void EnterCombat(Unit* pWho)
         {
-            DoScriptText(SAY_START11, me);
+            Talk(SAY_START11);
             me->SetReactState(REACT_PASSIVE);
             if (Creature* pGhoul = me->SummonCreature(NPC_RISEN_JAEREN, 742.835f, 639.134f, 411.571f, 1.05731f))
             {
@@ -705,7 +693,7 @@ class npc_announcer_toc5 : public CreatureScript
                    me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                    me->SetReactState(REACT_AGGRESSIVE);
                    me->setFaction(2054);
-                   DoScriptText(SAY_START5, me);
+                   Talk(SAY_START5);
                 }
             }
         }
