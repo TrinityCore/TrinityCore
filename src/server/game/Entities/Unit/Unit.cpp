@@ -9038,40 +9038,10 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
         // Shadow's Fate (Shadowmourne questline)
         case 71169:
         {
-            if (GetTypeId() != TYPEID_PLAYER)
-                return false;
-
-            Player* player = ToPlayer();
-            if (player->GetQuestStatus(24547) != QUEST_STATUS_INCOMPLETE)
-            {
-                uint32 spellId = 0;
-                uint32 questId = 0;
-                switch (victim->GetEntry())
-                {
-                case 36678:             // NPC:     Professor Putricide
-                    questId = 24749;    // Quest:   Unholy Infusion
-                    spellId = 71516;    // Spell:   Shadow Infusion
-                    break;
-                case 37955:             // NPC:     Blood-Queen Lana'thel
-                    questId = 24756;    // Quest:   Blood Infusion
-                    spellId = 72154;    // Spell:   Thirst Quenched
-                    break;
-                case 36853:             // NPC:     Sindragosa
-                    questId = 24757;    // Quest:   Frost Infusion
-                    spellId = 72290;    // Spell:   Frost-Imbued Blade
-                    break;
-                default:
-                    return false;
-                }
-
-                if (player->GetQuestStatus(questId) != QUEST_STATUS_INCOMPLETE || !player->HasAura(spellId))
-                    return false;
-            }
-
-            if (victim->GetTypeId() != TYPEID_UNIT)
-                return false;
-            // critters are not allowed
-            if (victim->GetCreatureType() == CREATURE_TYPE_CRITTER)
+            // These lines handle on which targets the Shadow's Fate debuff could be applied to.
+            // The aura is already restricted to ICC, but it should not be applied to NPCs like
+            // bugs, rats or summons for example which don't give reputation.
+            if (GetTypeId() != TYPEID_PLAYER || victim->GetTypeId() != TYPEID_UNIT || victim->GetCreatureType() == CREATURE_TYPE_CRITTER)
                 return false;
             break;
         }
