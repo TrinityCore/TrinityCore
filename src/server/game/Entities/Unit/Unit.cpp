@@ -5572,28 +5572,42 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                 // Shadow's Fate (Shadowmourne questline)
                 case 71169:
                 {
-                    uint32 spellId = 0;
-
-                    switch (GetEntry())
+                    bool ok = false;
+                    if (GetMap()->GetDifficulty() == RAID_DIFFICULTY_25MAN_NORMAL || GetMap()->GetDifficulty() == RAID_DIFFICULTY_25MAN_HEROIC)
                     {
-                        case 36678:                 // NPC:     Professor Putricide
-                            spellId = 71518;        // Spell:   Unholy Infusion Credit
-                            break;
-                        case 37955:                 // NPC:     Blood-Queen Lana'thel
-                            spellId = 72934;        // Spell:   Quest Credit
-                            break;
-                        case 36853:                 // NPC:     Sindragosa <Queen of the Frostbrood>
-                            spellId = 72289;        // Spell:   Frost Infusion Quest Credit
-                            break;
-                        default:
-                            break;
+                        uint32 spellId = 0;
+
+                        switch (GetEntry())
+                        {
+                            case 36678:                 // NPC:     Professor Putricide
+                                spellId = 71518;        // Spell:   Unholy Infusion Credit
+                                break;
+                            case 37955:                 // NPC:     Blood-Queen Lana'thel
+                                spellId = 72934;        // Spell:   Quest Credit
+                                break;
+                            case 36853:                 // NPC:     Sindragosa <Queen of the Frostbrood>
+                                spellId = 72289;        // Spell:   Frost Infusion Quest Credit
+                                break;
+                            default:
+                                break;
+                        }
+
+                        if (spellId)
+                            CastSpell((Unit*)NULL, spellId, true);
+
+                        ok = true;
                     }
-                    if (spellId)
-                        CastSpell((Unit*)NULL, spellId, true);
 
-                    CastSpell((Unit*)NULL, 71203, true);
+                    // The spell usually only hits one target, but it should hit every player 
+                    // which applied Shadows Fate at least once to the victim.
+                    if (target->GetTypeId() == TYPEID_PLAYER && target->ToPlayer()->GetQuestStatus(24547) == QUEST_STATUS_INCOMPLETE)
+                    {
+                        triggered_spell_id = 71203;
+                        ok = true;
+                    }
 
-                    return true;
+                    if (!ok)
+                        return false;
                 }
                 // Essence of the Blood Queen
                 case 70871:
@@ -9043,7 +9057,11 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
                 return false;
 
             Player* player = ToPlayer();
-            if (player->GetQuestStatus(24547) != QUEST_STATUS_INCOMPLETE)
+            if (player->GetQuestStatus(24547) == QUEST_STATUS_INCOMPLETE)
+            {
+                break;
+            }
+            else if (player->GetDifficulty(true) == RAID_DIFFICULTY_25MAN_NORMAL || player->GetDifficulty(true) == RAID_DIFFICULTY_25MAN_HEROIC)
             {
                 uint32 spellId = 0;
                 uint32 questId = 0;
@@ -9067,8 +9085,11 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
 
                 if (player->GetQuestStatus(questId) != QUEST_STATUS_INCOMPLETE || !player->HasAura(spellId))
                     return false;
+
+                break;
             }
-            break;
+            else
+                return false;
         }
     }
 
