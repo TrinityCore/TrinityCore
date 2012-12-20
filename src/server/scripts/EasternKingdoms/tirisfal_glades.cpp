@@ -37,9 +37,9 @@ EndContentData */
 ## npc_calvin_montague
 ######*/
 
-enum eCalvin
+enum Calvin
 {
-    SAY_COMPLETE        = -1000431,
+    SAY_COMPLETE        = 0,
     SPELL_DRINK         = 2639,                             // possibly not correct spell (but iconId is correct)
     QUEST_590           = 590,
     FACTION_HOSTILE     = 168
@@ -113,22 +113,22 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 uiDiff)
+        void UpdateAI(uint32 const diff)
         {
             if (m_uiPhase)
             {
-                if (m_uiPhaseTimer <= uiDiff)
+                if (m_uiPhaseTimer <= diff)
                     m_uiPhaseTimer = 7500;
                 else
                 {
-                    m_uiPhaseTimer -= uiDiff;
+                    m_uiPhaseTimer -= diff;
                     return;
                 }
 
                 switch (m_uiPhase)
                 {
                     case 1:
-                        DoScriptText(SAY_COMPLETE, me);
+                        Talk(SAY_COMPLETE);
                         ++m_uiPhase;
                         break;
                     case 2:

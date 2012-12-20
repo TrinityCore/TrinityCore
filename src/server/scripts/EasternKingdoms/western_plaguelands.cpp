@@ -281,13 +281,13 @@ enum eTruuen
 
     QUEST_TOMB_LIGHTBRINGER     = 9446,
 
-    SAY_WP_0                    = -1800064,  //Beware! We are attacked!
-    SAY_WP_1                    = -1800065,  //It must be the purity of the Mark of the Lightbringer that is drawing forth the Scourge to attack us. We must proceed with caution lest we be overwhelmed!
-    SAY_WP_2                    = -1800066,  //This land truly needs to be cleansed by the Light! Let us continue on to the tomb. It isn't far now...
-    SAY_WP_3                    = -1800067,  //Be welcome, friends!
-    SAY_WP_4                    = -1800068,  //Thank you for coming here in remembrance of me. Your efforts in recovering that symbol, while unnecessary, are certainly touching to an old man's heart.
-    SAY_WP_5                    = -1800069,  //Please, rise my friend. Keep the Blessing as a symbol of the strength of the Light and how heroes long gone might once again rise in each of us to inspire.
-    SAY_WP_6                    = -1800070   //Thank you my friend for making this possible. This is a day that I shall never forget! I think I will stay a while. Please return to High Priestess MacDonnell at the camp. I know that she'll be keenly interested to know of what has transpired here.
+    SAY_WP_0                    = 0,  //Beware! We are attacked!
+    SAY_WP_1                    = 1,  //It must be the purity of the Mark of the Lightbringer that is drawing forth the Scourge to attack us. We must proceed with caution lest we be overwhelmed!
+    SAY_WP_2                    = 2,  //This land truly needs to be cleansed by the Light! Let us continue on to the tomb. It isn't far now...
+    SAY_WP_3                    = 0,  //Be welcome, friends!
+    SAY_WP_4                    = 0,  //Thank you for coming here in remembrance of me. Your efforts in recovering that symbol, while unnecessary, are certainly touching to an old man's heart.
+    SAY_WP_5                    = 1,  //Please, rise my friend. Keep the Blessing as a symbol of the strength of the Light and how heroes long gone might once again rise in each of us to inspire.
+    SAY_WP_6                    = 2   //Thank you my friend for making this possible. This is a day that I shall never forget! I think I will stay a while. Please return to High Priestess MacDonnell at the camp. I know that she'll be keenly interested to know of what has transpired here.
 };
 
 class npc_anchorite_truuen : public CreatureScript
@@ -339,12 +339,12 @@ public:
             switch (waypointId)
             {
                 case 8:
-                    DoScriptText(SAY_WP_0, me);
+                    Talk(SAY_WP_0);
                     me->SummonCreature(NPC_GHOUL, me->GetPositionX()+7.0f, me->GetPositionY()+7.0f, me->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 90000);
                     me->SummonCreature(NPC_GHOUL, me->GetPositionX()+5.0f, me->GetPositionY()+5.0f, me->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 90000);
                     break;
                 case 9:
-                    DoScriptText(SAY_WP_1, me);
+                    Talk(SAY_WP_1);
                     break;
                 case 14:
                     me->SummonCreature(NPC_GHOUL, me->GetPositionX()+7.0f, me->GetPositionY()+7.0f, me->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 90000);
@@ -353,25 +353,31 @@ public:
                     me->SummonCreature(NPC_GHOUL, me->GetPositionX()+8.0f, me->GetPositionY()+8.0f, me->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 90000);
                     break;
                 case 15:
-                    DoScriptText(SAY_WP_2, me);
+                    Talk(SAY_WP_2);
                 case 21:
                     Theldanis = GetClosestCreatureWithEntry(me, NPC_THEL_DANIS, 150);
-                    DoScriptText(SAY_WP_3, Theldanis);
+                    if (Theldanis)
+                        Theldanis->AI()->Talk(SAY_WP_3);
                     break;
                 case 22:
                     break;
                 case 23:
                     Ughost = me->SummonCreature(NPC_GHOST_UTHER, 971.86f, -1825.42f, 81.99f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
-                    Ughost->SetDisableGravity(true);
-                    DoScriptText(SAY_WP_4, Ughost, me);
+                    if (Ughost)
+                    {
+                        Ughost->SetDisableGravity(true);
+                        Ughost->AI()->Talk(SAY_WP_4, me->GetGUID());
+                    }
                     m_uiChatTimer = 4000;
                     break;
                 case 24:
-                    DoScriptText(SAY_WP_5, Ughost, me);
+                    if (Ughost)
+                        Ughost->AI()->Talk(SAY_WP_5, me->GetGUID());
                     m_uiChatTimer = 4000;
                     break;
                 case 25:
-                    DoScriptText(SAY_WP_6, Ughost, me);
+                    if (Ughost)
+                        Ughost->AI()->Talk(SAY_WP_6, me->GetGUID());
                     m_uiChatTimer = 4000;
                     break;
                 case 26:

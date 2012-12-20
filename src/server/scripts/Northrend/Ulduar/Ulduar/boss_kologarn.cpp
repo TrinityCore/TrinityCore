@@ -30,34 +30,40 @@ SDComment: TODO: Achievements
 SDCategory: Ulduar
 EndScriptData */
 
-#define SPELL_ARM_DEAD_DAMAGE   RAID_MODE(63629, 63979)
-#define SPELL_TWO_ARM_SMASH     RAID_MODE(63356, 64003)
-#define SPELL_ONE_ARM_SMASH     RAID_MODE(63573, 64006)
-#define SPELL_ARM_SWEEP         RAID_MODE(63766, 63983)
-#define SPELL_STONE_SHOUT       RAID_MODE(63716, 64005)
-#define SPELL_PETRIFY_BREATH    RAID_MODE(62030, 63980)
-#define SPELL_STONE_GRIP        RAID_MODE(62166, 63981)
-#define SPELL_STONE_GRIP_CANCEL 65594
-#define SPELL_SUMMON_RUBBLE     63633
-#define SPELL_FALLING_RUBBLE    63821
-#define SPELL_ARM_ENTER_VEHICLE 65343
-#define SPELL_ARM_ENTER_VISUAL  64753
+enum Spells
+{
+    SPELL_ARM_DEAD_DAMAGE               = 63629,
+    SPELL_TWO_ARM_SMASH                 = 63356,
+    SPELL_ONE_ARM_SMASH                 = 63573,
+    SPELL_ARM_SWEEP                     = 63766,
+    SPELL_STONE_SHOUT                   = 63716,
+    SPELL_PETRIFY_BREATH                = 62030,
+    SPELL_STONE_GRIP                    = 62166,
+    SPELL_STONE_GRIP_CANCEL             = 65594,
+    SPELL_SUMMON_RUBBLE                 = 63633,
+    SPELL_FALLING_RUBBLE                = 63821,
+    SPELL_ARM_ENTER_VEHICLE             = 65343,
+    SPELL_ARM_ENTER_VISUAL              = 64753,
 
-#define SPELL_SUMMON_FOCUSED_EYEBEAM        63342
-#define SPELL_FOCUSED_EYEBEAM_PERIODIC      RAID_MODE(63347, 63977)
-#define SPELL_FOCUSED_EYEBEAM_VISUAL        63369
-#define SPELL_FOCUSED_EYEBEAM_VISUAL_LEFT   63676
-#define SPELL_FOCUSED_EYEBEAM_VISUAL_RIGHT  63702
+    SPELL_SUMMON_FOCUSED_EYEBEAM        = 63342,
+    SPELL_FOCUSED_EYEBEAM_PERIODIC      = 63347,
+    SPELL_FOCUSED_EYEBEAM_VISUAL        = 63369,
+    SPELL_FOCUSED_EYEBEAM_VISUAL_LEFT   = 63676,
+    SPELL_FOCUSED_EYEBEAM_VISUAL_RIGHT  = 63702,
 
-// Passive
-#define SPELL_KOLOGARN_REDUCE_PARRY 64651
-#define SPELL_KOLOGARN_PACIFY       63726
-#define SPELL_KOLOGARN_UNK_0        65219   // Not found in DBC
+    // Passive
+    SPELL_KOLOGARN_REDUCE_PARRY         = 64651,
+    SPELL_KOLOGARN_PACIFY               = 63726,
+    SPELL_KOLOGARN_UNK_0                = 65219, // Not found in DBC
 
-#define SPELL_BERSERK           47008 // guess
+    SPELL_BERSERK                       = 47008  // guess
+};
 
-#define NPC_RUBBLE_STALKER      33809
-#define NPC_ARM_SWEEP_STALKER   33661
+enum NPCs
+{
+    NPC_RUBBLE_STALKER                  = 33809,
+    NPC_ARM_SWEEP_STALKER               = 33661
+};
 
 enum Events
 {
@@ -76,15 +82,15 @@ enum Events
 
 enum Yells
 {
-    SAY_AGGRO                                   = -1603230,
-    SAY_SLAY_1                                  = -1603231,
-    SAY_SLAY_2                                  = -1603232,
-    SAY_LEFT_ARM_GONE                           = -1603233,
-    SAY_RIGHT_ARM_GONE                          = -1603234,
-    SAY_SHOCKWAVE                               = -1603235,
-    SAY_GRAB_PLAYER                             = -1603236,
-    SAY_DEATH                                   = -1603237,
-    SAY_BERSERK                                 = -1603238,
+    SAY_AGGRO                               = 0,
+    SAY_SLAY                                = 1,
+    SAY_LEFT_ARM_GONE                       = 2,
+    SAY_RIGHT_ARM_GONE                      = 3,
+    SAY_SHOCKWAVE                           = 4,
+    SAY_GRAB_PLAYER                         = 5,
+    SAY_DEATH                               = 6,
+    SAY_BERSERK                             = 7,
+    EMOTE_STONE_GRIP                        = 8
 };
 
 class boss_kologarn : public CreatureScript
@@ -113,7 +119,7 @@ class boss_kologarn : public CreatureScript
 
             void EnterCombat(Unit* /*who*/)
             {
-                DoScriptText(SAY_AGGRO, me);
+                Talk(SAY_AGGRO);
 
                 events.ScheduleEvent(EVENT_MELEE_CHECK, 6000);
                 events.ScheduleEvent(EVENT_SMASH, 5000);
@@ -138,7 +144,7 @@ class boss_kologarn : public CreatureScript
 
             void JustDied(Unit* /*killer*/)
             {
-                DoScriptText(SAY_DEATH, me);
+                Talk(SAY_DEATH);
                 DoCast(SPELL_KOLOGARN_PACIFY);
                 me->GetMotionMaster()->MoveTargetedHome();
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
@@ -146,9 +152,10 @@ class boss_kologarn : public CreatureScript
                 _JustDied();
             }
 
-            void KilledUnit(Unit* /*who*/)
+            void KilledUnit(Unit* who)
             {
-                DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2), me);
+                if (who->GetTypeId() == TYPEID_PLAYER)
+                    Talk(SAY_SLAY);
             }
 
             void PassengerBoarded(Unit* who, int8 /*seatId*/, bool apply)
@@ -160,7 +167,7 @@ class boss_kologarn : public CreatureScript
                     if (!apply && isEncounterInProgress)
                     {
                         who->ToCreature()->DisappearAndDie();
-                        DoScriptText(SAY_LEFT_ARM_GONE, me);
+                        Talk(SAY_LEFT_ARM_GONE);
                         events.ScheduleEvent(EVENT_RESPAWN_LEFT_ARM, 40000);
                     }
                 }
@@ -171,7 +178,7 @@ class boss_kologarn : public CreatureScript
                     if (!apply && isEncounterInProgress)
                     {
                         who->ToCreature()->DisappearAndDie();
-                        DoScriptText(SAY_RIGHT_ARM_GONE, me);
+                        Talk(SAY_RIGHT_ARM_GONE);
                         events.ScheduleEvent(EVENT_RESPAWN_RIGHT_ARM, 40000);
                     }
                 }
@@ -272,7 +279,7 @@ class boss_kologarn : public CreatureScript
                             break;
                         case EVENT_ENRAGE:
                             DoCast(SPELL_BERSERK);
-                            DoScriptText(SAY_BERSERK, me);
+                            Talk(SAY_BERSERK);
                             break;
                         case EVENT_RESPAWN_LEFT_ARM:
                         case EVENT_RESPAWN_RIGHT_ARM:
@@ -290,11 +297,12 @@ class boss_kologarn : public CreatureScript
                             if (right)
                             {
                                 DoCast(SPELL_STONE_GRIP);
-                                DoScriptText(SAY_GRAB_PLAYER, me);
+                                Talk(SAY_GRAB_PLAYER);
+                                Talk(EMOTE_STONE_GRIP);
                             }
                             events.ScheduleEvent(EVENT_STONE_GRIP, 25 * IN_MILLISECONDS);
+                            break;
                         }
-                        break;
                         case EVENT_FOCUSED_EYEBEAM:
                             if (Unit* eyebeamTargetUnit = SelectTarget(SELECT_TARGET_FARTHEST, 0, 0, true))
                             {
@@ -404,12 +412,12 @@ class spell_ulduar_stone_grip_cast_target : public SpellScriptLoader
                 }
 
                 // For subsequent effects
-                m_unitList = unitList;
+                _unitList = unitList;
             }
 
             void FillTargetsSubsequential(std::list<WorldObject*>& unitList)
             {
-                unitList = m_unitList;
+                unitList = _unitList;
             }
 
             void Register()
@@ -419,8 +427,9 @@ class spell_ulduar_stone_grip_cast_target : public SpellScriptLoader
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_ulduar_stone_grip_cast_target_SpellScript::FillTargetsSubsequential, EFFECT_2, TARGET_UNIT_SRC_AREA_ENEMY);
             }
 
+        private:
             // Shared between effects
-            std::list<WorldObject*> m_unitList;
+            std::list<WorldObject*> _unitList;
         };
 
         SpellScript* GetSpellScript() const
@@ -625,10 +634,10 @@ class spell_kologarn_summon_focused_eyebeam : public SpellScriptLoader
         {
             PrepareSpellScript(spell_kologarn_summon_focused_eyebeam_SpellScript);
 
-            void HandleForceCast(SpellEffIndex eff)
+            void HandleForceCast(SpellEffIndex effIndex)
             {
-                PreventHitDefaultEffect(eff);
-                GetCaster()->CastSpell(GetCaster(), GetSpellInfo()->Effects[eff].TriggerSpell, true);
+                PreventHitDefaultEffect(effIndex);
+                GetCaster()->CastSpell(GetCaster(), GetSpellInfo()->Effects[effIndex].TriggerSpell, true);
             }
 
             void Register()

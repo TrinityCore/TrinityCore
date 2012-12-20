@@ -149,13 +149,13 @@ public:
 
 enum eMagharCaptive
 {
-    SAY_MAG_START               = -1000482,
-    SAY_MAG_NO_ESCAPE           = -1000483,
-    SAY_MAG_MORE                = -1000484,
-    SAY_MAG_MORE_REPLY          = -1000485,
-    SAY_MAG_LIGHTNING           = -1000486,
-    SAY_MAG_SHOCK               = -1000487,
-    SAY_MAG_COMPLETE            = -1000488,
+    SAY_MAG_START               = 0,
+    SAY_MAG_NO_ESCAPE           = 0,
+    SAY_MAG_MORE                = 1,
+    SAY_MAG_MORE_REPLY          = 0,
+    SAY_MAG_LIGHTNING           = 2,
+    SAY_MAG_SHOCK               = 3,
+    SAY_MAG_COMPLETE            = 4,
 
     SPELL_CHAIN_LIGHTNING       = 16006,
     SPELL_EARTHBIND_TOTEM       = 15786,
@@ -189,7 +189,7 @@ public:
 
                 pEscortAI->Start(true, false, player->GetGUID(), quest);
 
-                DoScriptText(SAY_MAG_START, creature);
+                creature->AI()->Talk(SAY_MAG_START);
 
                 creature->SummonCreature(NPC_MURK_RAIDER, m_afAmbushA[0]+2.5f, m_afAmbushA[1]-2.5f, m_afAmbushA[2], 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
                 creature->SummonCreature(NPC_MURK_PUTRIFIER, m_afAmbushA[0]-2.5f, m_afAmbushA[1]+2.5f, m_afAmbushA[2], 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
@@ -229,17 +229,17 @@ public:
             switch (waypointId)
             {
                 case 7:
-                    DoScriptText(SAY_MAG_MORE, me);
+                    Talk(SAY_MAG_MORE);
 
                     if (Creature* temp = me->SummonCreature(NPC_MURK_PUTRIFIER, m_afAmbushB[0], m_afAmbushB[1], m_afAmbushB[2], 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000))
-                        DoScriptText(SAY_MAG_MORE_REPLY, temp);
+                        temp->AI()->Talk(SAY_MAG_MORE_REPLY);
 
                     me->SummonCreature(NPC_MURK_PUTRIFIER, m_afAmbushB[0]-2.5f, m_afAmbushB[1]-2.5f, m_afAmbushB[2], 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
                     me->SummonCreature(NPC_MURK_SCAVENGER, m_afAmbushB[0]+2.5f, m_afAmbushB[1]+2.5f, m_afAmbushB[2], 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
                     me->SummonCreature(NPC_MURK_SCAVENGER, m_afAmbushB[0]+2.5f, m_afAmbushB[1]-2.5f, m_afAmbushB[2], 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
                     break;
                 case 16:
-                    DoScriptText(SAY_MAG_COMPLETE, me);
+                    Talk(SAY_MAG_COMPLETE);
 
                     if (Player* player = GetPlayerForEscort())
                         player->GroupEventHappens(QUEST_TOTEM_KARDASH_H, me);
@@ -252,7 +252,7 @@ public:
         void JustSummoned(Creature* summoned)
         {
             if (summoned->GetEntry() == NPC_MURK_BRUTE)
-                DoScriptText(SAY_MAG_NO_ESCAPE, summoned);
+                summoned->AI()->Talk(SAY_MAG_NO_ESCAPE);
 
             if (summoned->isTotem())
                 return;
@@ -270,7 +270,7 @@ public:
                 if (rand()%10)
                     return;
 
-                DoScriptText(SAY_MAG_LIGHTNING, me);
+                Talk(SAY_MAG_LIGHTNING);
             }
         }
 
@@ -367,18 +367,18 @@ enum CorkiData
   NPC_CORKI                                     = 18445,
   NPC_CORKI_CREDIT_1                            = 18369,
   GO_CORKIS_PRISON                              = 182349,
-  CORKI_SAY_THANKS                              = -1800071,
+  CORKI_SAY_THANKS                              = 0,
   // 2nd quest
   QUEST_CORKIS_GONE_MISSING_AGAIN               = 9924,
   NPC_CORKI_2                                   = 20812,
   GO_CORKIS_PRISON_2                            = 182350,
-  CORKI_SAY_PROMISE                             = -1800072,
+  CORKI_SAY_PROMISE                             = 0,
   // 3rd quest
   QUEST_CHOWAR_THE_PILLAGER                     = 9955,
   NPC_CORKI_3                                   = 18369,
   NPC_CORKI_CREDIT_3                            = 18444,
   GO_CORKIS_PRISON_3                            = 182521,
-  CORKI_SAY_LAST                                = -1800073
+  CORKI_SAY_LAST                                = 0
 };
 
 class go_corkis_prison : public GameObjectScript
@@ -468,11 +468,11 @@ public:
               Say_Timer = 5000;
               ReleasedFromCage = true;
               if (me->GetEntry() == NPC_CORKI)
-                  DoScriptText(CORKI_SAY_THANKS, me);
+                  Talk(CORKI_SAY_THANKS);
               if (me->GetEntry() == NPC_CORKI_2)
-                  DoScriptText(CORKI_SAY_PROMISE, me);
+                  Talk(CORKI_SAY_PROMISE);
               if (me->GetEntry() == NPC_CORKI_3)
-                  DoScriptText(CORKI_SAY_LAST, me);
+                  Talk(CORKI_SAY_LAST);
           }
       };
   };
@@ -521,7 +521,7 @@ public:
             {
                 creature->SetStandState(UNIT_STAND_STATE_STAND);
                 EscortAI->Start(true, false, player->GetGUID(), quest);
-                DoScriptText(SAY_KUR_START, creature);
+                creature->AI()->Talk(SAY_KUR_START);
 
                 creature->SummonCreature(NPC_KUR_MURK_RAIDER, kurenaiAmbushA[0]+2.5f, kurenaiAmbushA[1]-2.5f, kurenaiAmbushA[2], 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
                 creature->SummonCreature(NPC_KUR_MURK_BRUTE, kurenaiAmbushA[0]-2.5f, kurenaiAmbushA[1]+2.5f, kurenaiAmbushA[2], 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);

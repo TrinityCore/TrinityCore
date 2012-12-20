@@ -29,13 +29,11 @@ EndScriptData */
 
 enum eSays
 {
-    SAY_AGGRO                      = -1554013,
-    SAY_SUMMON                     = -1554014,
-    SAY_DRAGONS_BREATH_1           = -1554015,
-    SAY_DRAGONS_BREATH_2           = -1554016,
-    SAY_SLAY1                      = -1554017,
-    SAY_SLAY2                      = -1554018,
-    SAY_DEATH                      = -1554019,
+    SAY_AGGRO                      = 0,
+    SAY_SUMMON                     = 1,
+    SAY_DRAGONS_BREATH             = 2,
+    SAY_SLAY                       = 3,
+    SAY_DEATH                      = 4
 };
 
 enum eSpells
@@ -92,19 +90,19 @@ class boss_nethermancer_sepethrea : public CreatureScript
                 if (instance)
                     instance->SetData(DATA_NETHERMANCER_EVENT, IN_PROGRESS);
 
-                DoScriptText(SAY_AGGRO, me);
+                Talk(SAY_AGGRO);
                 DoCast(who, SPELL_SUMMON_RAGIN_FLAMES);
-                DoScriptText(SAY_SUMMON, me);
+                Talk(SAY_SUMMON);
             }
 
             void KilledUnit(Unit* /*victim*/)
             {
-                DoScriptText(RAND(SAY_SLAY1, SAY_SLAY2), me);
+                Talk(SAY_SLAY);
             }
 
             void JustDied(Unit* /*killer*/)
             {
-                DoScriptText(SAY_DEATH, me);
+                Talk(SAY_DEATH);
                 if (instance)
                     instance->SetData(DATA_NETHERMANCER_EVENT, DONE);
             }
@@ -140,7 +138,7 @@ class boss_nethermancer_sepethrea : public CreatureScript
                     {
                         if (rand()%2)
                             return;
-                        DoScriptText(RAND(SAY_DRAGONS_BREATH_1, SAY_DRAGONS_BREATH_2), me);
+                        Talk(SAY_DRAGONS_BREATH);
                     }
                     dragons_breath_Timer = urand(12000, 22000);
                 }

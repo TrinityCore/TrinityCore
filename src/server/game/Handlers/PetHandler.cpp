@@ -56,7 +56,7 @@ void WorldSession::HandleDismissCritter(WorldPacket& recvData)
     }
 }
 
-void WorldSession::HandlePetAction(WorldPacket & recvData)
+void WorldSession::HandlePetAction(WorldPacket& recvData)
 {
     uint64 guid1;
     uint32 data;
@@ -162,6 +162,7 @@ void WorldSession::HandlePetActionHelper(Unit* pet, uint64 guid1, uint32 spellid
 
                     charmInfo->SetIsCommandAttack(false);
                     charmInfo->SetIsAtStay(true);
+                    charmInfo->SetIsCommandFollow(false);
                     charmInfo->SetIsFollowing(false);
                     charmInfo->SetIsReturning(false);
                     charmInfo->SaveStayPosition();
@@ -175,6 +176,7 @@ void WorldSession::HandlePetActionHelper(Unit* pet, uint64 guid1, uint32 spellid
                     charmInfo->SetIsCommandAttack(false);
                     charmInfo->SetIsAtStay(false);
                     charmInfo->SetIsReturning(true);
+                    charmInfo->SetIsCommandFollow(true);
                     charmInfo->SetIsFollowing(false);
                     break;
                 case COMMAND_ATTACK:                        //spellid=1792  //ATTACK
@@ -208,6 +210,7 @@ void WorldSession::HandlePetActionHelper(Unit* pet, uint64 guid1, uint32 spellid
                             charmInfo->SetIsCommandAttack(true);
                             charmInfo->SetIsAtStay(false);
                             charmInfo->SetIsFollowing(false);
+                            charmInfo->SetIsCommandFollow(false);
                             charmInfo->SetIsReturning(false);
 
                             pet->ToCreature()->AI()->AttackStart(TargetUnit);
@@ -229,6 +232,7 @@ void WorldSession::HandlePetActionHelper(Unit* pet, uint64 guid1, uint32 spellid
                             charmInfo->SetIsCommandAttack(true);
                             charmInfo->SetIsAtStay(false);
                             charmInfo->SetIsFollowing(false);
+                            charmInfo->SetIsCommandFollow(false);
                             charmInfo->SetIsReturning(false);
 
                             pet->Attack(TargetUnit, true);
@@ -396,7 +400,7 @@ void WorldSession::HandlePetActionHelper(Unit* pet, uint64 guid1, uint32 spellid
     }
 }
 
-void WorldSession::HandlePetNameQuery(WorldPacket & recvData)
+void WorldSession::HandlePetNameQuery(WorldPacket& recvData)
 {
     sLog->outInfo(LOG_FILTER_NETWORKIO, "HandlePetNameQuery. CMSG_PET_NAME_QUERY");
 
@@ -463,7 +467,7 @@ bool WorldSession::CheckStableMaster(uint64 guid)
     return true;
 }
 
-void WorldSession::HandlePetSetAction(WorldPacket & recvData)
+void WorldSession::HandlePetSetAction(WorldPacket& recvData)
 {
     sLog->outInfo(LOG_FILTER_NETWORKIO, "HandlePetSetAction. CMSG_PET_SET_ACTION");
 
@@ -580,7 +584,7 @@ void WorldSession::HandlePetSetAction(WorldPacket & recvData)
     }
 }
 
-void WorldSession::HandlePetRename(WorldPacket & recvData)
+void WorldSession::HandlePetRename(WorldPacket& recvData)
 {
     sLog->outInfo(LOG_FILTER_NETWORKIO, "HandlePetRename. CMSG_PET_RENAME");
 
@@ -665,7 +669,7 @@ void WorldSession::HandlePetRename(WorldPacket & recvData)
     pet->SetUInt32Value(UNIT_FIELD_PET_NAME_TIMESTAMP, uint32(time(NULL))); // cast can't be helped
 }
 
-void WorldSession::HandlePetAbandon(WorldPacket & recvData)
+void WorldSession::HandlePetAbandon(WorldPacket& recvData)
 {
     uint64 guid;
     recvData >> guid;                                      //pet guid
@@ -861,7 +865,7 @@ void WorldSession::HandlePetLearnTalent(WorldPacket& recvData)
     _player->SendTalentsInfoData(true);
 }
 
-void WorldSession::HandleLearnPreviewTalentsPet(WorldPacket & recvData)
+void WorldSession::HandleLearnPreviewTalentsPet(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_LEARN_PREVIEW_TALENTS_PET");
 

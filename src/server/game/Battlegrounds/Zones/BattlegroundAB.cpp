@@ -558,12 +558,12 @@ uint32 BattlegroundAB::GetPrematureWinner()
             ++ally;
         else if (m_Nodes[i] == BG_AB_NODE_STATUS_HORDE_OCCUPIED)
             ++horde;
-    
+
     if (ally > horde)
         return ALLIANCE;
     else if (horde > ally)
         return HORDE;
-    
+
     // If the values are equal, fall back to the original result (based on number of players on each team)
     return Battleground::GetPrematureWinner();
 }

@@ -91,7 +91,6 @@ void AddSC_npc_innkeeper();
 void AddSC_npcs_special();
 void AddSC_npc_taxi();
 void AddSC_achievement_scripts();
-void AddSC_event_scripts();
 
 //eastern kingdoms
 void AddSC_alterac_valley();                 //Alterac Valley
@@ -322,6 +321,7 @@ void AddSC_boss_ayamiss();
 void AddSC_boss_ossirian();
 void AddSC_instance_ruins_of_ahnqiraj();
 void AddSC_boss_cthun();                     //Temple of ahn'qiraj
+void AddSC_boss_viscidus();
 void AddSC_boss_fankriss();
 void AddSC_boss_huhuran();
 void AddSC_bug_trio();
@@ -603,6 +603,9 @@ void AddSC_shattrath_city();
 void AddSC_terokkar_forest();
 void AddSC_zangarmarsh();
 
+// Events
+void AddSC_event_childrens_week();
+
 // battlegrounds
 
 // outdoor pvp
@@ -716,7 +719,6 @@ void AddWorldScripts()
     AddSC_npc_taxi();
     AddSC_achievement_scripts();
     AddSC_chat_log();
-    AddSC_event_scripts();
 #endif
 }
 
@@ -955,6 +957,7 @@ void AddKalimdorScripts()
     AddSC_boss_ossirian();
     AddSC_instance_ruins_of_ahnqiraj();
     AddSC_boss_cthun();                     //Temple of ahn'qiraj
+    AddSC_boss_viscidus();
     AddSC_boss_fankriss();
     AddSC_boss_huhuran();
     AddSC_bug_trio();
@@ -1243,6 +1246,13 @@ void AddNorthrendScripts()
     AddSC_zuldrak();
     AddSC_crystalsong_forest();
     AddSC_isle_of_conquest();
+#endif
+}
+
+void AddEventScripts()
+{
+#ifdef SCRIPTS
+    AddSC_event_childrens_week();
 #endif
 }
 

@@ -26,31 +26,31 @@ namespace Movement
 
     /// Velocity bounds that makes fall speed limited
     float terminalVelocity = 60.148003f;
-    float terminalSavefallVelocity = 7.f;
+    float terminalSafefallVelocity = 7.0f;
 
-    const float terminal_length = float(terminalVelocity * terminalVelocity) / (2.f * gravity);
-    const float terminal_savefall_length = (terminalSavefallVelocity * terminalSavefallVelocity) / (2.f * gravity);
-    const float terminalFallTime = float(terminalVelocity/gravity); // the time that needed to reach terminalVelocity
+    const float terminal_length = float(terminalVelocity * terminalVelocity) / (2.0f * gravity);
+    const float terminal_safefall_length = (terminalSafefallVelocity * terminalSafefallVelocity) / (2.0f * gravity);
+    const float terminalFallTime = float(terminalVelocity / gravity); // the time that needed to reach terminalVelocity
 
     float computeFallTime(float path_length, bool isSafeFall)
     {
-        if (path_length < 0.f)
-            return 0.f;
+        if (path_length < 0.0f)
+            return 0.0f;
 
         float time;
-        if ( isSafeFall )
+        if (isSafeFall)
         {
-            if (path_length >= terminal_savefall_length)
-                time = (path_length - terminal_savefall_length)/terminalSavefallVelocity + terminalSavefallVelocity/gravity;
+            if (path_length >= terminal_safefall_length)
+                time = (path_length - terminal_safefall_length) / terminalSafefallVelocity + terminalSafefallVelocity / gravity;
             else
-                time = sqrtf(2.f * path_length/gravity);
+                time = sqrtf(2.0f * path_length / gravity);
         }
         else
         {
             if (path_length >= terminal_length)
-                time = (path_length - terminal_length)/terminalVelocity + terminalFallTime;
+                time = (path_length - terminal_length) / terminalVelocity + terminalFallTime;
             else
-                time = sqrtf(2.f * path_length/gravity);
+                time = sqrtf(2.0f * path_length / gravity);
         }
 
         return time;
@@ -61,20 +61,21 @@ namespace Movement
         float termVel;
         float result;
 
-        if ( isSafeFall )
-            termVel = terminalSavefallVelocity;
+        if (isSafeFall)
+            termVel = terminalSafefallVelocity;
         else
             termVel = terminalVelocity;
 
-        if ( start_velocity > termVel )
+        if (start_velocity > termVel)
             start_velocity = termVel;
 
         float terminal_time = terminalFallTime - start_velocity / gravity; // the time that needed to reach terminalVelocity
 
-        if ( t_passed > terminal_time )
+        if (t_passed > terminal_time)
         {
-            result = terminalVelocity*(t_passed - terminal_time) +
-                start_velocity*terminal_time + gravity*terminal_time*terminal_time*0.5f;
+            result = terminalVelocity * (t_passed - terminal_time) +
+                start_velocity * terminal_time +
+                gravity * terminal_time * terminal_time*0.5f;
         }
         else
             result = t_passed * (start_velocity + t_passed * gravity * 0.5f);
@@ -100,7 +101,7 @@ namespace Movement
 
     #define STR(x) #x
 
-    const char * g_MovementFlag_names[]=
+    char const* g_MovementFlag_names[] =
     {
         STR(Forward            ),// 0x00000001,
         STR(Backward           ),// 0x00000002,
@@ -135,25 +136,25 @@ namespace Movement
         STR(Safe_Fall          ),// 0x20000000,               // Active Rogue Safe Fall Spell (Passive)
         STR(Hover              ),// 0x40000000
         STR(Unknown13          ),// 0x80000000
-        STR(Unk1              ),
-        STR(Unk2              ),
-        STR(Unk3              ),
-        STR(Fullspeedturning  ),
-        STR(Fullspeedpitching ),
-        STR(Allow_Pitching    ),
-        STR(Unk4              ),
-        STR(Unk5              ),
-        STR(Unk6              ),
-        STR(Unk7              ),
-        STR(Interp_Move       ),
-        STR(Interp_Turning    ),
-        STR(Interp_Pitching   ),
-        STR(Unk8              ),
-        STR(Unk9              ),
-        STR(Unk10             ),
+        STR(Unk1               ),
+        STR(Unk2               ),
+        STR(Unk3               ),
+        STR(Fullspeedturning   ),
+        STR(Fullspeedpitching  ),
+        STR(Allow_Pitching     ),
+        STR(Unk4               ),
+        STR(Unk5               ),
+        STR(Unk6               ),
+        STR(Unk7               ),
+        STR(Interp_Move        ),
+        STR(Interp_Turning     ),
+        STR(Interp_Pitching    ),
+        STR(Unk8               ),
+        STR(Unk9               ),
+        STR(Unk10              ),
     };
 
-    const char * g_SplineFlag_names[32]=
+    char const* g_SplineFlag_names[32] =
     {
         STR(AnimBit1     ),// 0x00000001,
         STR(AnimBit2     ),// 0x00000002,
@@ -190,11 +191,11 @@ namespace Movement
     };
 
     template<class Flags, int N>
-    void print_flags(Flags t, const char* (&names)[N], std::string& str)
+    void print_flags(Flags t, char const* (&names)[N], std::string& str)
     {
         for (int i = 0; i < N; ++i)
         {
-            if ((t & (Flags)(1 << i)) && names[i] != NULL)
+            if ((t & Flags(1 << i)) && names[i] != NULL)
                 str.append(" ").append(names[i]);
         }
     }
@@ -202,7 +203,7 @@ namespace Movement
     std::string MoveSplineFlag::ToString() const
     {
         std::string str;
-        print_flags(raw(),g_SplineFlag_names,str);
+        print_flags(raw(), g_SplineFlag_names, str);
         return str;
     }
 }

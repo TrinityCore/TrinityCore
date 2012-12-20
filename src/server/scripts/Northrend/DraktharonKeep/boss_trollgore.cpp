@@ -39,11 +39,11 @@ enum Spells
 
 enum Yells
 {
-    SAY_AGGRO                                     = -1600006,
-    SAY_KILL                                      = -1600007,
-    SAY_CONSUME                                   = -1600008,
-    SAY_EXPLODE                                   = -1600009,
-    SAY_DEATH                                     = -1600010
+    SAY_AGGRO                                     = 0,
+    SAY_KILL                                      = 1,
+    SAY_CONSUME                                   = 2,
+    SAY_EXPLODE                                   = 3,
+    SAY_DEATH                                     = 4
 };
 
 enum Creatures
@@ -102,7 +102,7 @@ public:
 
         void EnterCombat(Unit* /*who*/)
         {
-            DoScriptText(SAY_AGGRO, me);
+            Talk(SAY_AGGRO);
 
             if (instance)
                 instance->SetData(DATA_TROLLGORE_EVENT, IN_PROGRESS);
@@ -124,7 +124,7 @@ public:
 
             if (uiConsumeTimer <= diff)
             {
-                DoScriptText(SAY_CONSUME, me);
+                Talk(SAY_CONSUME);
                 DoCast(SPELL_CONSUME);
                 uiConsumeTimer = 15*IN_MILLISECONDS;
             } else uiConsumeTimer -= diff;
@@ -151,7 +151,7 @@ public:
             if (uiExplodeCorpseTimer <= diff)
             {
                 DoCast(SPELL_CORPSE_EXPLODE);
-                DoScriptText(SAY_EXPLODE, me);
+                Talk(SAY_EXPLODE);
                 uiExplodeCorpseTimer = urand(15*IN_MILLISECONDS, 19*IN_MILLISECONDS);
             } else uiExplodeCorpseTimer -= diff;
 
@@ -160,7 +160,7 @@ public:
 
         void JustDied(Unit* /*killer*/)
         {
-            DoScriptText(SAY_DEATH, me);
+            Talk(SAY_DEATH);
 
             lSummons.DespawnAll();
 
@@ -180,7 +180,7 @@ public:
         {
             if (victim == me)
                 return;
-            DoScriptText(SAY_KILL, me);
+            Talk(SAY_KILL);
         }
 
         void JustSummoned(Creature* summon)

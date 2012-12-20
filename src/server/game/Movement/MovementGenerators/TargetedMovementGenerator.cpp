@@ -104,7 +104,7 @@ void TargetedMovementGeneratorMedium<T,D>::_setTargetLocation(T* owner, bool upd
 }
 
 template<class T, typename D>
-bool TargetedMovementGeneratorMedium<T,D>::Update(T* owner, const uint32& time_diff)
+bool TargetedMovementGeneratorMedium<T,D>::Update(T* owner, uint32 time_diff)
 {
     if (!i_target.isValid() || !i_target->IsInWorld())
         return false;
@@ -293,10 +293,10 @@ template void TargetedMovementGeneratorMedium<Player,ChaseMovementGenerator<Play
 template void TargetedMovementGeneratorMedium<Player,FollowMovementGenerator<Player> >::_setTargetLocation(Player*, bool);
 template void TargetedMovementGeneratorMedium<Creature,ChaseMovementGenerator<Creature> >::_setTargetLocation(Creature*, bool);
 template void TargetedMovementGeneratorMedium<Creature,FollowMovementGenerator<Creature> >::_setTargetLocation(Creature*, bool);
-template bool TargetedMovementGeneratorMedium<Player,ChaseMovementGenerator<Player> >::Update(Player*, const uint32&);
-template bool TargetedMovementGeneratorMedium<Player,FollowMovementGenerator<Player> >::Update(Player*, const uint32&);
-template bool TargetedMovementGeneratorMedium<Creature,ChaseMovementGenerator<Creature> >::Update(Creature*, const uint32&);
-template bool TargetedMovementGeneratorMedium<Creature,FollowMovementGenerator<Creature> >::Update(Creature*, const uint32&);
+template bool TargetedMovementGeneratorMedium<Player,ChaseMovementGenerator<Player> >::Update(Player*, uint32);
+template bool TargetedMovementGeneratorMedium<Player,FollowMovementGenerator<Player> >::Update(Player*, uint32);
+template bool TargetedMovementGeneratorMedium<Creature,ChaseMovementGenerator<Creature> >::Update(Creature*, uint32);
+template bool TargetedMovementGeneratorMedium<Creature,FollowMovementGenerator<Creature> >::Update(Creature*, uint32);
 
 template void ChaseMovementGenerator<Player>::_reachTarget(Player*);
 template void ChaseMovementGenerator<Creature>::_reachTarget(Creature*);

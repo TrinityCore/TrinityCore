@@ -78,16 +78,16 @@ bool Player::UpdateStats(Stats stat)
             UpdateAllCritPercentages();
             UpdateDodgePercentage();
             break;
-        case STAT_STAMINA:   UpdateMaxHealth(); break;
+        case STAT_STAMINA:
+            UpdateMaxHealth();
+            break;
         case STAT_INTELLECT:
             UpdateMaxPower(POWER_MANA);
             UpdateAllSpellCritChances();
             UpdateArmor();                                  //SPELL_AURA_MOD_RESISTANCE_OF_INTELLECT_PERCENT, only armor currently
             break;
-
         case STAT_SPIRIT:
             break;
-
         default:
             break;
     }
