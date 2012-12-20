@@ -698,7 +698,7 @@ public:
 
             if (Player* player = killer->GetCharmerOrOwnerPlayerOrPlayerItself())
                 player->GroupEventHappens(QUEST_THE_CHAMPION_OF_ANGUISH, player);
-            }
+
         }
     };
 };
