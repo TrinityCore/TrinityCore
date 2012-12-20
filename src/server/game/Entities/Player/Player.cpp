@@ -13690,9 +13690,7 @@ void Player::ApplyReforgeEnchantment(Item* item, bool apply)
             ApplyRatingMod(CR_CRIT_SPELL, -int32(removeValue), apply);
             break;
         case ITEM_MOD_RESILIENCE_RATING:
-            ApplyRatingMod(CR_CRIT_TAKEN_MELEE, -int32(removeValue), apply);
-            ApplyRatingMod(CR_CRIT_TAKEN_RANGED, -int32(removeValue), apply);
-            ApplyRatingMod(CR_CRIT_TAKEN_SPELL, -int32(removeValue), apply);
+            ApplyRatingMod(CR_RESILIENCE_PLAYER_DAMAGE_TAKEN, -int32(removeValue), apply);
             break;
         case ITEM_MOD_HASTE_RATING:
             ApplyRatingMod(CR_HASTE_MELEE, -int32(removeValue), apply);
