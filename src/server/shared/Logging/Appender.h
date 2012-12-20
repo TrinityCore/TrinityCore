@@ -69,9 +69,10 @@ enum LogFilterType
     LOG_FILTER_OPCODES                           = 41,
     LOG_FILTER_SOAP                              = 42,
     LOG_FILTER_RBAC                              = 43
+    LOG_FILTER_AHBOT                             = 44
 };
 
-const uint8 MaxLogFilter = 43;
+const uint8 MaxLogFilter = 45;
 
 // Values assigned have their equivalent in enum ACE_Log_Priority
 enum LogLevel

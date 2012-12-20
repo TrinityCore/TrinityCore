@@ -887,7 +887,27 @@ enum TrinityStrings
     LANG_GROUP_FULL                     = 1148,
     LANG_GROUP_TYPE                     = 1149,
     LANG_GROUP_PLAYER_NAME_GUID         = 1150,
-    // Room for more level 3              1151-1199 not used
+    LANG_AHBOT_RELOAD_OK                = 1151,
+    LANG_AHBOT_STATUS_BAR_CONSOLE       = 1152,
+    LANG_AHBOT_STATUS_MIDBAR_CONSOLE    = 1153,
+    LANG_AHBOT_STATUS_TITLE1_CONSOLE    = 1154,
+    LANG_AHBOT_STATUS_TITLE1_CHAT       = 1155,
+    LANG_AHBOT_STATUS_FORMAT_CONSOLE    = 1156,
+    LANG_AHBOT_STATUS_FORMAT_CHAT       = 1157,
+    LANG_AHBOT_STATUS_ITEM_COUNT        = 1158,
+    LANG_AHBOT_STATUS_ITEM_RATIO        = 1159,
+    LANG_AHBOT_STATUS_TITLE2_CONSOLE    = 1160,
+    LANG_AHBOT_STATUS_TITLE2_CHAT       = 1161,
+    LANG_AHBOT_QUALITY_GREY             = 1162,
+    LANG_AHBOT_QUALITY_WHITE            = 1163,
+    LANG_AHBOT_QUALITY_GREEN            = 1164,
+    LANG_AHBOT_QUALITY_BLUE             = 1165,
+    LANG_AHBOT_QUALITY_PURPLE           = 1166,
+    LANG_AHBOT_QUALITY_ORANGE           = 1167,
+    LANG_AHBOT_QUALITY_YELLOW           = 1168,
+    LANG_AHBOT_ITEMS_AMOUNT             = 1169,
+    LANG_AHBOT_ITEMS_RATIO              = 1170,
+    // Room for more level 3              1171-1199 not used
 
     // Debug commands
     LANG_CINEMATIC_NOT_EXIST            = 1200,
