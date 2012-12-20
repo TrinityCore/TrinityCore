@@ -141,14 +141,17 @@ struct LootItem
     bool    is_counted        : 1;
     bool    needs_quest       : 1;                          // quest drop
     bool    follow_loot_rules : 1;
+    bool    canSave;
 
     // Constructor, copies most fields from LootStoreItem, generates random count and random suffixes/properties
     // Should be called for non-reference LootStoreItem entries only (mincountOrRef > 0)
     explicit LootItem(LootStoreItem const& li);
 
+    // Empty constructor for creating an empty LootItem to be filled in with DB data
+    LootItem() : canSave(true){};
+
     // Basic checks for player/item compatibility - if false no chance to see the item in the loot
     bool AllowedForPlayer(Player const* player) const;
-
     void AddAllowedLooter(Player const* player);
     const AllowedLooterSet & GetAllowedLooters() const { return allowedGUIDs; }
 };
@@ -223,6 +226,7 @@ class LootTemplate
         // Rolls for every item in the template and adds the rolled items the the loot
         void Process(Loot& loot, bool rate, uint16 lootMode, uint8 groupId = 0) const;
         void CopyConditions(ConditionList conditions);
+        void CopyConditions(LootItem* li) const;
 
         // True if template includes at least 1 quest drop entry
         bool HasQuestDrop(LootTemplateMap const& store, uint8 groupId = 0) const;
@@ -286,9 +290,17 @@ struct Loot
     uint8 unlootedCount;
     uint64 roundRobinPlayer;                                // GUID of the player having the Round-Robin ownership for the loot. If 0, round robin owner has released.
     LootType loot_type;                                     // required for achievement system
+    
+    // GUIDLow of container that holds this loot (item_instance.entry)
+    //  Only set for inventory items that can be right-click looted
+    uint32 containerID;
 
-    Loot(uint32 _gold = 0) : gold(_gold), unlootedCount(0), loot_type(LOOT_CORPSE) {}
+    Loot(uint32 _gold = 0) : gold(_gold), unlootedCount(0), loot_type(LOOT_CORPSE), containerID(0) {}
     ~Loot() { clear(); }
+
+    // For deleting items at loot removal since there is no backward interface to the Item()
+    void DeleteLootItemFromContainerItemDB(uint32 itemID);
+    void DeleteLootMoneyFromContainerItemDB();
 
     // if loot becomes invalid this reference is used to inform the listener
     void addLootValidatorRef(LootValidatorRef* pLootValidatorRef)
