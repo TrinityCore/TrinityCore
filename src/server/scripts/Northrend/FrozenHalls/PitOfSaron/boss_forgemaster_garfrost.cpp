@@ -23,15 +23,15 @@
 
 enum Yells
 {
-    SAY_AGGRO             = 0,
-    SAY_PHASE2            = 1,
-    SAY_PHASE3            = 2,
-    SAY_DEATH             = 3,
-    SAY_SLAY              = 4,
-    SAY_THROW_SARONITE    = 5,
-    SAY_CAST_DEEP_FREEZE  = 6,
+    SAY_AGGRO               = 0,
+    SAY_PHASE2              = 1,
+    SAY_PHASE3              = 2,
+    SAY_DEATH               = 3,
+    SAY_SLAY                = 4,
+    SAY_THROW_SARONITE      = 5,
+    SAY_CAST_DEEP_FREEZE    = 6,
 
-    SAY_TYRANNUS_DEATH  = -1658007, // todo
+    SAY_TYRANNUS_DEATH      = 0
 };
 
 enum Spells
@@ -47,16 +47,6 @@ enum Spells
 
 #define SPELL_PERMAFROST_HELPER RAID_MODE<uint32>(68786, 70336)
 #define SPELL_FORGE_BLADE_HELPER RAID_MODE<uint32>(68774, 70334)
-
-enum Events
-{
-    EVENT_THROW_SARONITE    = 1,
-    EVENT_CHILLING_WAVE     = 2,
-    EVENT_DEEP_FREEZE       = 3,
-    EVENT_JUMP              = 4,
-    EVENT_FORGING           = 5,
-    EVENT_RESUME_ATTACK     = 6,
-};
 
 enum Phases
 {
@@ -82,6 +72,15 @@ Position const southForgePos = {639.257f, -210.1198f, 529.015f, 0.523599f};
 
 class boss_garfrost : public CreatureScript
 {
+enum Events
+{
+    EVENT_THROW_SARONITE    = 1,
+    EVENT_CHILLING_WAVE     = 2,
+    EVENT_DEEP_FREEZE       = 3,
+    EVENT_JUMP              = 4,
+    EVENT_FORGING           = 5,
+    EVENT_RESUME_ATTACK     = 6,
+};
     public:
         boss_garfrost() : CreatureScript("boss_garfrost") { }
 
@@ -130,7 +129,7 @@ class boss_garfrost : public CreatureScript
                 Talk(SAY_DEATH);
 
                 if (Creature* tyrannus = me->GetCreature(*me, instance->GetData64(DATA_TYRANNUS)))
-                    DoScriptText(SAY_TYRANNUS_DEATH, tyrannus);
+                    tyrannus->AI()->Talk(SAY_TYRANNUS_DEATH);
 
                 instance->SetBossState(DATA_GARFROST, DONE);
             }

@@ -130,7 +130,7 @@ bool WaypointMovementGenerator<Creature>::StartMove(Creature* creature)
     return true;
 }
 
-bool WaypointMovementGenerator<Creature>::Update(Creature* creature, const uint32& diff)
+bool WaypointMovementGenerator<Creature>::Update(Creature* creature, uint32 diff)
 {
     // Waypoint movement can be switched on/off
     // This is quite handy for escort quests and other stuff
@@ -241,7 +241,7 @@ void FlightPathMovementGenerator::Reset(Player* player)
     init.Launch();
 }
 
-bool FlightPathMovementGenerator::Update(Player* player, const uint32& /*diff*/)
+bool FlightPathMovementGenerator::Update(Player* player, uint32 /*diff*/)
 {
     uint32 pointId = (uint32)player->movespline->currentPathIdx();
     if (pointId > i_currentNode)

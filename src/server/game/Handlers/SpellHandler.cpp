@@ -51,15 +51,8 @@ void WorldSession::HandleClientCastFlags(WorldPacket& recvPacket, uint8 castFlag
         recvPacket >> hasMovementData;
         if (hasMovementData)
         {
-            recvPacket.rfinish();
-            // movement packet for caster of the spell
-            /*recvPacket.read_skip<uint32>(); // MSG_MOVE_STOP - hardcoded in client
-            uint64 guid;
-            recvPacket.readPackGUID(guid);
-
-            MovementInfo movementInfo;
-            movementInfo.guid = guid;
-            ReadMovementInfo(recvPacket, &movementInfo);*/
+            recvPacket.SetOpcode(recvPacket.read<uint32>());
+            HandleMovementOpcodes(recvPacket);
         }
     }
 }
@@ -270,7 +263,7 @@ void WorldSession::HandleOpenItemOpcode(WorldPacket& recvPacket)
         pUser->SendLoot(item->GetGUID(), LOOT_CORPSE);
 }
 
-void WorldSession::HandleGameObjectUseOpcode(WorldPacket & recvData)
+void WorldSession::HandleGameObjectUseOpcode(WorldPacket& recvData)
 {
     uint64 guid;
 
@@ -486,7 +479,7 @@ void WorldSession::HandleCancelAutoRepeatSpellOpcode(WorldPacket& /*recvPacket*/
     _player->InterruptSpell(CURRENT_AUTOREPEAT_SPELL);
 }
 
-void WorldSession::HandleCancelChanneling(WorldPacket & recvData)
+void WorldSession::HandleCancelChanneling(WorldPacket& recvData)
 {
     recvData.read_skip<uint32>();                          // spellid, not used
 
@@ -556,7 +549,7 @@ void WorldSession::HandleSpellClick(WorldPacket& recvData)
     unit->HandleSpellClick(_player);
 }
 
-void WorldSession::HandleMirrorImageDataRequest(WorldPacket & recvData)
+void WorldSession::HandleMirrorImageDataRequest(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_GET_MIRRORIMAGE_DATA");
     uint64 guid;

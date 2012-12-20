@@ -126,30 +126,23 @@ public:
 
 };
 
-#define SAY_INTRO                   -1558000
-#define SAY_SUMMON                  -1558001
+enum ExarchMaladaar
+{
+    SAY_INTRO                   = 0,
+    SAY_SUMMON                  = 1,
+    SAY_AGGRO                   = 2,
+    SAY_ROAR                    = 3,
+    SAY_SLAY                    = 4,
+    SAY_DEATH                   = 5,
 
-#define SAY_AGGRO_1                 -1558002
-#define SAY_AGGRO_2                 -1558003
-#define SAY_AGGRO_3                 -1558004
+    SPELL_RIBBON_OF_SOULS       = 32422,
+    SPELL_SOUL_SCREAM           = 32421,
+    SPELL_STOLEN_SOUL           = 32346,
+    SPELL_STOLEN_SOUL_VISUAL    = 32395,
+    SPELL_SUMMON_AVATAR         = 32424,
 
-#define SAY_ROAR                    -1558005
-#define SAY_SOUL_CLEAVE             -1558006
-
-#define SAY_SLAY_1                  -1558007
-#define SAY_SLAY_2                  -1558008
-
-#define SAY_DEATH                   -1558009
-
-#define SPELL_RIBBON_OF_SOULS       32422
-#define SPELL_SOUL_SCREAM           32421
-
-#define SPELL_STOLEN_SOUL           32346
-#define SPELL_STOLEN_SOUL_VISUAL    32395
-
-#define SPELL_SUMMON_AVATAR         32424
-
-#define ENTRY_STOLEN_SOUL           18441
+    ENTRY_STOLEN_SOUL           = 18441
+};
 
 class boss_exarch_maladaar : public CreatureScript
 {
@@ -196,7 +189,7 @@ public:
         {
             if (!HasTaunted && me->IsWithinDistInMap(who, 150.0f))
             {
-                DoScriptText(SAY_INTRO, me);
+                Talk(SAY_INTRO);
                 HasTaunted = true;
             }
 
@@ -205,7 +198,7 @@ public:
 
         void EnterCombat(Unit* /*who*/)
         {
-            DoScriptText(RAND(SAY_AGGRO_1, SAY_AGGRO_2, SAY_AGGRO_3), me);
+            Talk(SAY_AGGRO);
         }
 
         void JustSummoned(Creature* summoned)
@@ -231,12 +224,12 @@ public:
             if (rand()%2)
                 return;
 
-            DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2), me);
+            Talk(SAY_SLAY);
         }
 
         void JustDied(Unit* /*killer*/)
         {
-            DoScriptText(SAY_DEATH, me);
+            Talk(SAY_DEATH);
             //When Exarch Maladar is defeated D'ore appear.
             me->SummonCreature(19412, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 600000);
         }
@@ -251,7 +244,7 @@ public:
                 if (me->IsNonMeleeSpellCasted(false))
                     me->InterruptNonMeleeSpells(true);
 
-                DoScriptText(SAY_SUMMON, me);
+                Talk(SAY_SUMMON);
 
                 DoCast(me, SPELL_SUMMON_AVATAR);
                 Avatar_summoned = true;
@@ -267,11 +260,7 @@ public:
                         if (me->IsNonMeleeSpellCasted(false))
                             me->InterruptNonMeleeSpells(true);
 
-                        uint32 i = urand(1, 2);
-                        if (i == 1)
-                            DoScriptText(SAY_ROAR, me);
-                        else
-                            DoScriptText(SAY_SOUL_CLEAVE, me);
+                        Talk(SAY_ROAR);
 
                         soulmodel = target->GetDisplayId();
                         soulholder = target->GetGUID();

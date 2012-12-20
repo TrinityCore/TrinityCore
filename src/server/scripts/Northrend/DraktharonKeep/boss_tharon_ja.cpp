@@ -44,14 +44,11 @@ enum Spells
 
 enum Yells
 {
-    SAY_AGGRO                                     = -1600011,
-    SAY_KILL_1                                    = -1600012,
-    SAY_KILL_2                                    = -1600013,
-    SAY_FLESH_1                                   = -1600014,
-    SAY_FLESH_2                                   = -1600015,
-    SAY_SKELETON_1                                = -1600016,
-    SAY_SKELETON_2                                = -1600017,
-    SAY_DEATH                                     = -1600018
+    SAY_AGGRO                                     = 0,
+    SAY_KILL                                      = 1,
+    SAY_FLESH                                     = 2,
+    SAY_SKELETON                                  = 3,
+    SAY_DEATH                                     = 4
 };
 enum Models
 {
@@ -104,7 +101,7 @@ public:
 
         void EnterCombat(Unit* /*who*/)
         {
-            DoScriptText(SAY_AGGRO, me);
+            Talk(SAY_AGGRO);
 
             if (instance)
                 instance->SetData(DATA_THARON_JA_EVENT, IN_PROGRESS);
@@ -150,7 +147,7 @@ public:
                 case GOING_FLESH:
                     if (uiPhaseTimer < diff)
                     {
-                        DoScriptText(RAND(SAY_FLESH_1, SAY_FLESH_2), me);
+                        Talk(SAY_FLESH);
                         me->SetDisplayId(MODEL_FLESH);
 
                         std::list<Unit*> playerList;
@@ -200,7 +197,7 @@ public:
                 case GOING_SKELETAL:
                     if (uiPhaseTimer < diff)
                     {
-                        DoScriptText(RAND(SAY_SKELETON_1, SAY_SKELETON_2), me);
+                        Talk(SAY_SKELETON);
                         me->DeMorph();
                         Phase = SKELETAL;
                         uiPhaseTimer = 20*IN_MILLISECONDS;
@@ -224,12 +221,12 @@ public:
 
         void KilledUnit(Unit* /*victim*/)
         {
-            DoScriptText(RAND(SAY_KILL_1, SAY_KILL_2), me);
+            Talk(SAY_KILL);
         }
 
         void JustDied(Unit* /*killer*/)
         {
-            DoScriptText(SAY_DEATH, me);
+            Talk(SAY_DEATH);
 
             if (instance)
             {

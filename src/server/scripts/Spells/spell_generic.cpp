@@ -367,59 +367,9 @@ class spell_gen_remove_flight_auras : public SpellScriptLoader
         }
 };
 
-// 66118 Leeching Swarm
-enum LeechingSwarmSpells
-{
-    SPELL_LEECHING_SWARM_DMG    = 66240,
-    SPELL_LEECHING_SWARM_HEAL   = 66125,
-};
-
-class spell_gen_leeching_swarm : public SpellScriptLoader
-{
-    public:
-        spell_gen_leeching_swarm() : SpellScriptLoader("spell_gen_leeching_swarm") { }
-
-        class spell_gen_leeching_swarm_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_gen_leeching_swarm_AuraScript);
-
-            bool Validate(SpellInfo const* /*spellEntry*/)
-            {
-                if (!sSpellMgr->GetSpellInfo(SPELL_LEECHING_SWARM_DMG) || !sSpellMgr->GetSpellInfo(SPELL_LEECHING_SWARM_HEAL))
-                    return false;
-                return true;
-            }
-
-            void HandleEffectPeriodic(AuraEffect const* aurEff)
-            {
-                Unit* caster = GetCaster();
-                if (Unit* target = GetTarget())
-                {
-                    int32 lifeLeeched = target->CountPctFromCurHealth(aurEff->GetAmount());
-                    if (lifeLeeched < 250)
-                        lifeLeeched = 250;
-                    // Damage
-                    caster->CastCustomSpell(target, SPELL_LEECHING_SWARM_DMG, &lifeLeeched, 0, 0, false);
-                    // Heal
-                    caster->CastCustomSpell(caster, SPELL_LEECHING_SWARM_HEAL, &lifeLeeched, 0, 0, false);
-                }
-            }
-
-            void Register()
-            {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_gen_leeching_swarm_AuraScript::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_gen_leeching_swarm_AuraScript();
-        }
-};
-
 enum EluneCandle
 {
-    NPC_OMEN = 15467,
+    NPC_OMEN                       = 15467,
 
     SPELL_ELUNE_CANDLE_OMEN_HEAD   = 26622,
     SPELL_ELUNE_CANDLE_OMEN_CHEST  = 26624,
@@ -480,128 +430,6 @@ class spell_gen_elune_candle : public SpellScriptLoader
         SpellScript* GetSpellScript() const
         {
             return new spell_gen_elune_candle_SpellScript();
-        }
-};
-
-// 24750 Trick
-enum TrickSpells
-{
-    SPELL_PIRATE_COSTUME_MALE           = 24708,
-    SPELL_PIRATE_COSTUME_FEMALE         = 24709,
-    SPELL_NINJA_COSTUME_MALE            = 24710,
-    SPELL_NINJA_COSTUME_FEMALE          = 24711,
-    SPELL_LEPER_GNOME_COSTUME_MALE      = 24712,
-    SPELL_LEPER_GNOME_COSTUME_FEMALE    = 24713,
-    SPELL_SKELETON_COSTUME              = 24723,
-    SPELL_GHOST_COSTUME_MALE            = 24735,
-    SPELL_GHOST_COSTUME_FEMALE          = 24736,
-    SPELL_TRICK_BUFF                    = 24753,
-};
-
-class spell_gen_trick : public SpellScriptLoader
-{
-    public:
-        spell_gen_trick() : SpellScriptLoader("spell_gen_trick") {}
-
-        class spell_gen_trick_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_gen_trick_SpellScript);
-            bool Validate(SpellInfo const* /*spellEntry*/)
-            {
-                if (!sSpellMgr->GetSpellInfo(SPELL_PIRATE_COSTUME_MALE) || !sSpellMgr->GetSpellInfo(SPELL_PIRATE_COSTUME_FEMALE) || !sSpellMgr->GetSpellInfo(SPELL_NINJA_COSTUME_MALE)
-                    || !sSpellMgr->GetSpellInfo(SPELL_NINJA_COSTUME_FEMALE) || !sSpellMgr->GetSpellInfo(SPELL_LEPER_GNOME_COSTUME_MALE) || !sSpellMgr->GetSpellInfo(SPELL_LEPER_GNOME_COSTUME_FEMALE)
-                    || !sSpellMgr->GetSpellInfo(SPELL_SKELETON_COSTUME) || !sSpellMgr->GetSpellInfo(SPELL_GHOST_COSTUME_MALE) || !sSpellMgr->GetSpellInfo(SPELL_GHOST_COSTUME_FEMALE) || !sSpellMgr->GetSpellInfo(SPELL_TRICK_BUFF))
-                    return false;
-                return true;
-            }
-
-            void HandleScript(SpellEffIndex /*effIndex*/)
-            {
-                Unit* caster = GetCaster();
-                if (Player* target = GetHitPlayer())
-                {
-                    uint8 gender = target->getGender();
-                    uint32 spellId = SPELL_TRICK_BUFF;
-                    switch (urand(0, 5))
-                    {
-                        case 1:
-                            spellId = gender ? SPELL_LEPER_GNOME_COSTUME_FEMALE : SPELL_LEPER_GNOME_COSTUME_MALE;
-                            break;
-                        case 2:
-                            spellId = gender ? SPELL_PIRATE_COSTUME_FEMALE : SPELL_PIRATE_COSTUME_MALE;
-                            break;
-                        case 3:
-                            spellId = gender ? SPELL_GHOST_COSTUME_FEMALE : SPELL_GHOST_COSTUME_MALE;
-                            break;
-                        case 4:
-                            spellId = gender ? SPELL_NINJA_COSTUME_FEMALE : SPELL_NINJA_COSTUME_MALE;
-                            break;
-                        case 5:
-                            spellId = SPELL_SKELETON_COSTUME;
-                            break;
-                        default:
-                            break;
-                    }
-
-                    caster->CastSpell(target, spellId, true, NULL);
-                }
-            }
-
-            void Register()
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_gen_trick_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_gen_trick_SpellScript();
-        }
-};
-
-// 24751 Trick or Treat
-enum TrickOrTreatSpells
-{
-    SPELL_TRICK                 = 24714,
-    SPELL_TREAT                 = 24715,
-    SPELL_TRICKED_OR_TREATED    = 24755
-};
-
-class spell_gen_trick_or_treat : public SpellScriptLoader
-{
-    public:
-        spell_gen_trick_or_treat() : SpellScriptLoader("spell_gen_trick_or_treat") {}
-
-        class spell_gen_trick_or_treat_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_gen_trick_or_treat_SpellScript);
-
-            bool Validate(SpellInfo const* /*spellEntry*/)
-            {
-                if (!sSpellMgr->GetSpellInfo(SPELL_TRICK) || !sSpellMgr->GetSpellInfo(SPELL_TREAT) || !sSpellMgr->GetSpellInfo(SPELL_TRICKED_OR_TREATED))
-                    return false;
-                return true;
-            }
-
-            void HandleScript(SpellEffIndex /*effIndex*/)
-            {
-                Unit* caster = GetCaster();
-                if (Player* target = GetHitPlayer())
-                {
-                    caster->CastSpell(target, roll_chance_i(50) ? SPELL_TRICK : SPELL_TREAT, true, NULL);
-                    caster->CastSpell(target, SPELL_TRICKED_OR_TREATED, true, NULL);
-                }
-            }
-
-            void Register()
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_gen_trick_or_treat_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_gen_trick_or_treat_SpellScript();
         }
 };
 
@@ -1590,7 +1418,7 @@ class spell_gen_luck_of_the_draw : public SpellScriptLoader
                             if (group->isLFGGroup())
                                 if (uint32 dungeonId = sLFGMgr->GetDungeon(group->GetGUID(), true))
                                     if (LFGDungeonData const* dungeon = sLFGMgr->GetLFGDungeon(dungeonId))
-                                        if (uint32(dungeon->map) == map->GetId() && dungeon->difficulty == uint32(map->GetDifficulty()))
+                                        if (uint32(dungeon->map) == map->GetId() && dungeon->difficulty == map->GetDifficulty())
                                             if (randomDungeon && randomDungeon->type == LFG_TYPE_RANDOM)
                                                 return; // in correct dungeon
 
@@ -3305,6 +3133,61 @@ class spell_gen_gift_of_naaru : public SpellScriptLoader
         }
 };
 
+enum Replenishment
+{
+    SPELL_REPLENISHMENT             = 57669,
+    SPELL_INFINITE_REPLENISHMENT    = 61782
+};
+
+class spell_gen_replenishment : public SpellScriptLoader
+{
+    public:
+        spell_gen_replenishment() : SpellScriptLoader("spell_gen_replenishment") { }
+
+        class spell_gen_replenishment_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_gen_replenishment_AuraScript);
+
+            bool Validate(SpellInfo const* /*spell*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_REPLENISHMENT) ||
+                   !sSpellMgr->GetSpellInfo(SPELL_INFINITE_REPLENISHMENT))
+                    return false;
+                return true;
+            }
+
+            bool Load()
+            {
+                return GetUnitOwner()->GetPower(POWER_MANA);
+            }
+
+            void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
+            {
+                switch (GetSpellInfo()->Id)
+                {
+                    case SPELL_REPLENISHMENT:
+                        amount = GetUnitOwner()->GetMaxPower(POWER_MANA) * 0.002f;
+                        break;
+                    case SPELL_INFINITE_REPLENISHMENT:
+                        amount = GetUnitOwner()->GetMaxPower(POWER_MANA) * 0.0025f;
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            void Register()
+            {
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_gen_replenishment_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_PERIODIC_ENERGIZE);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_gen_replenishment_AuraScript();
+        }
+};
+
 void AddSC_generic_spell_scripts()
 {
     new spell_gen_absorb0_hitlimit1();
@@ -3312,12 +3195,9 @@ void AddSC_generic_spell_scripts()
     new spell_gen_av_drekthar_presence();
     new spell_gen_burn_brutallus();
     new spell_gen_cannibalize();
-    new spell_gen_leeching_swarm();
     new spell_gen_parachute();
     new spell_gen_pet_summoned();
     new spell_gen_remove_flight_auras();
-    new spell_gen_trick();
-    new spell_gen_trick_or_treat();
     new spell_creature_permanent_feign_death();
     new spell_pvp_trinket_wotf_shared_cd();
     new spell_gen_animal_blood();
@@ -3381,4 +3261,5 @@ void AddSC_generic_spell_scripts()
     new spell_gen_upper_deck_create_foam_sword();
     new spell_gen_bonked();
     new spell_gen_gift_of_naaru();
+    new spell_gen_replenishment();
 }

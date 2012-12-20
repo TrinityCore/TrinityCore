@@ -118,7 +118,7 @@ void GameObject::RemoveFromOwner()
     else if (IS_PET_GUID(ownerGUID))
         ownerType = "pet";
 
-    sLog->outFatal(LOG_FILTER_GENERAL, "Delete GameObject (GUID: %u Entry: %u SpellId %u LinkedGO %u) that lost references to owner (GUID %u Type '%s') GO list. Crash possible later.",
+    sLog->outFatal(LOG_FILTER_GENERAL, "Removed GameObject (GUID: %u Entry: %u SpellId: %u LinkedGO: %u) that just lost any reference to the owner (GUID: %u Type: '%s') GO list",
         GetGUIDLow(), GetGOInfo()->entry, m_spellId, GetGOInfo()->GetLinkedGameObjectEntry(), GUID_LOPART(ownerGUID), ownerType);
     SetOwnerGUID(0);
 }
@@ -1698,7 +1698,7 @@ void GameObject::CastSpell(Unit* target, uint32 spellId)
     {
         trigger->setFaction(owner->getFaction());
         // needed for GO casts for proper target validation checks
-        trigger->SetUInt64Value(UNIT_FIELD_SUMMONEDBY, owner->GetGUID());
+        trigger->SetOwnerGUID(owner->GetGUID());
         trigger->CastSpell(target ? target : trigger, spellInfo, true, 0, 0, owner->GetGUID());
     }
     else

@@ -25,6 +25,7 @@
 #include "ScriptedCreature.h"
 #include "trial_of_the_crusader.h"
 #include "SpellScript.h"
+#include "SpellAuraEffects.h"
 #include <limits>
 
 enum Yells
@@ -53,54 +54,54 @@ enum Summons
 
 enum BossSpells
 {
-    SPELL_FREEZE_SLASH      = 66012,
-    SPELL_PENETRATING_COLD  = 66013,
-    SPELL_LEECHING_SWARM    = 66118,
-    SPELL_LEECHING_HEAL     = 66125,
-    SPELL_LEECHING_DAMAGE   = 66240,
-    SPELL_MARK              = 67574,
-    SPELL_SPIKE_CALL        = 66169,
-    SPELL_SUBMERGE_ANUBARAK = 65981,
-    SPELL_CLEAR_ALL_DEBUFFS = 34098,
-    SPELL_EMERGE_ANUBARAK   = 65982,
-    SPELL_SUMMON_BEATLES    = 66339,
-    SPELL_SUMMON_BURROWER   = 66332,
+    SPELL_FREEZE_SLASH          = 66012,
+    SPELL_PENETRATING_COLD      = 66013,
+    SPELL_LEECHING_SWARM        = 66118,
+    SPELL_LEECHING_SWARM_HEAL   = 66125,
+    SPELL_LEECHING_SWARM_DMG    = 66240,
+    SPELL_MARK                  = 67574,
+    SPELL_SPIKE_CALL            = 66169,
+    SPELL_SUBMERGE_ANUBARAK     = 65981,
+    SPELL_CLEAR_ALL_DEBUFFS     = 34098,
+    SPELL_EMERGE_ANUBARAK       = 65982,
+    SPELL_SUMMON_BEATLES        = 66339,
+    SPELL_SUMMON_BURROWER       = 66332,
 
     // Burrow
-    SPELL_CHURNING_GROUND   = 66969,
+    SPELL_CHURNING_GROUND       = 66969,
 
     // Scarab
-    SPELL_DETERMINATION     = 66092,
-    SPELL_ACID_MANDIBLE     = 65774, //Passive - Triggered
+    SPELL_DETERMINATION         = 66092,
+    SPELL_ACID_MANDIBLE         = 65774, //Passive - Triggered
 
     // Burrower
-    SPELL_SPIDER_FRENZY     = 66128,
-    SPELL_EXPOSE_WEAKNESS   = 67720, //Passive - Triggered
-    SPELL_SHADOW_STRIKE     = 66134,
-    SPELL_SUBMERGE_EFFECT   = 68394,
-    SPELL_AWAKENED          = 66311,
-    SPELL_EMERGE_EFFECT     = 65982,
+    SPELL_SPIDER_FRENZY         = 66128,
+    SPELL_EXPOSE_WEAKNESS       = 67720, //Passive - Triggered
+    SPELL_SHADOW_STRIKE         = 66134,
+    SPELL_SUBMERGE_EFFECT       = 68394,
+    SPELL_AWAKENED              = 66311,
+    SPELL_EMERGE_EFFECT         = 65982,
 
-    SPELL_PERSISTENT_DIRT   = 68048,
+    SPELL_PERSISTENT_DIRT       = 68048,
 
-    SUMMON_SCARAB           = NPC_SCARAB,
-    SUMMON_FROSTSPHERE      = NPC_FROST_SPHERE,
-    SPELL_BERSERK           = 26662,
+    SUMMON_SCARAB               = NPC_SCARAB,
+    SUMMON_FROSTSPHERE          = NPC_FROST_SPHERE,
+    SPELL_BERSERK               = 26662,
 
     //Frost Sphere
-    SPELL_FROST_SPHERE      = 67539,
-    SPELL_PERMAFROST        = 66193,
-    SPELL_PERMAFROST_VISUAL = 65882,
-    SPELL_PERMAFROST_MODEL  = 66185,
+    SPELL_FROST_SPHERE          = 67539,
+    SPELL_PERMAFROST            = 66193,
+    SPELL_PERMAFROST_VISUAL     = 65882,
+    SPELL_PERMAFROST_MODEL      = 66185,
 
     //Spike
-    SPELL_SUMMON_SPIKE      = 66169,
-    SPELL_SPIKE_SPEED1      = 65920,
-    SPELL_SPIKE_TRAIL       = 65921,
-    SPELL_SPIKE_SPEED2      = 65922,
-    SPELL_SPIKE_SPEED3      = 65923,
-    SPELL_SPIKE_FAIL        = 66181,
-    SPELL_SPIKE_TELE        = 66170
+    SPELL_SUMMON_SPIKE          = 66169,
+    SPELL_SPIKE_SPEED1          = 65920,
+    SPELL_SPIKE_TRAIL           = 65921,
+    SPELL_SPIKE_SPEED2          = 65922,
+    SPELL_SPIKE_SPEED3          = 65923,
+    SPELL_SPIKE_FAIL            = 66181,
+    SPELL_SPIKE_TELE            = 66170
 };
 
 #define SPELL_PERMAFROST_HELPER RAID_MODE<uint32>(66193, 67855, 67856, 67857)
@@ -841,6 +842,49 @@ class spell_impale : public SpellScriptLoader
         }
 };
 
+class spell_anubarak_leeching_swarm : public SpellScriptLoader
+{
+    public:
+        spell_anubarak_leeching_swarm() : SpellScriptLoader("spell_anubarak_leeching_swarm") { }
+
+        class spell_anubarak_leeching_swarm_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_anubarak_leeching_swarm_AuraScript);
+
+            bool Validate(SpellInfo const* /*spell*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_LEECHING_SWARM_DMG) || !sSpellMgr->GetSpellInfo(SPELL_LEECHING_SWARM_HEAL))
+                    return false;
+                return true;
+            }
+
+            void HandleEffectPeriodic(AuraEffect const* aurEff)
+            {
+                Unit* caster = GetCaster();
+                if (Unit* target = GetTarget())
+                {
+                    int32 lifeLeeched = target->CountPctFromCurHealth(aurEff->GetAmount());
+                    if (lifeLeeched < 250)
+                        lifeLeeched = 250;
+                    // Damage
+                    caster->CastCustomSpell(target, SPELL_LEECHING_SWARM_DMG, &lifeLeeched, 0, 0, false);
+                    // Heal
+                    caster->CastCustomSpell(caster, SPELL_LEECHING_SWARM_HEAL, &lifeLeeched, 0, 0, false);
+                }
+            }
+
+            void Register()
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_anubarak_leeching_swarm_AuraScript::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_anubarak_leeching_swarm_AuraScript();
+        }
+};
+
 void AddSC_boss_anubarak_trial()
 {
     new boss_anubarak_trial();
@@ -850,4 +894,5 @@ void AddSC_boss_anubarak_trial()
     new mob_frost_sphere();
 
     new spell_impale();
+    new spell_anubarak_leeching_swarm();
 }

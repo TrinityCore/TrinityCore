@@ -33,7 +33,8 @@ namespace Movement
     class MoveSplineFlag
     {
     public:
-        enum eFlags{
+        enum eFlags
+        {
             None                = 0x00000000,
                                                         // x00-xFF(first byte) used as animation Ids storage in pair with Animation flag
             Done                = 0x00000100,
@@ -73,8 +74,8 @@ namespace Movement
             Mask_Unused         = No_Spline|Enter_Cycle|Frozen|Unknown7|Unknown8|Unknown10|Unknown11|Unknown12|Unknown13
         };
 
-        inline uint32& raw() { return (uint32&)*this;}
-        inline const uint32& raw() const { return (const uint32&)*this;}
+        inline uint32& raw() { return (uint32&)*this; }
+        inline const uint32& raw() const { return (const uint32&)*this; }
 
         MoveSplineFlag() { raw() = 0; }
         MoveSplineFlag(uint32 f) { raw() = f; }
@@ -82,21 +83,21 @@ namespace Movement
 
         // Constant interface
 
-        bool isSmooth() const { return raw() & Mask_CatmullRom;}
-        bool isLinear() const { return !isSmooth();}
-        bool isFacing() const { return raw() & Mask_Final_Facing;}
+        bool isSmooth() const { return raw() & Mask_CatmullRom; }
+        bool isLinear() const { return !isSmooth(); }
+        bool isFacing() const { return raw() & Mask_Final_Facing; }
 
-        uint8 getAnimationId() const { return animId;}
-        bool hasAllFlags(uint32 f) const { return (raw() & f) == f;}
-        bool hasFlag(uint32 f) const { return (raw() & f) != 0;}
-        uint32 operator & (uint32 f) const { return (raw() & f);}
-        uint32 operator | (uint32 f) const { return (raw() | f);}
+        uint8 getAnimationId() const { return animId; }
+        bool hasAllFlags(uint32 f) const { return (raw() & f) == f; }
+        bool hasFlag(uint32 f) const { return (raw() & f) != 0; }
+        uint32 operator & (uint32 f) const { return (raw() & f); }
+        uint32 operator | (uint32 f) const { return (raw() | f); }
         std::string ToString() const;
 
         // Not constant interface
 
-        void operator &= (uint32 f) { raw() &= f;}
-        void operator |= (uint32 f) { raw() |= f;}
+        void operator &= (uint32 f) { raw() &= f; }
+        void operator |= (uint32 f) { raw() |= f; }
 
         void EnableAnimation(uint8 anim) { raw() = (raw() & ~(Mask_Animations | Falling | Parabolic)) | Animation | anim; }
         void EnableParabolic() { raw() = (raw() & ~(Mask_Animations | Falling | Animation)) | Parabolic; }
@@ -109,31 +110,31 @@ namespace Movement
         void EnableTransportEnter() { raw() = (raw() & ~TransportExit) | TransportEnter; }
         void EnableTransportExit() { raw() = (raw() & ~TransportEnter) | TransportExit; }
 
-        uint8 animId       : 8;
-        bool done          : 1;
-        bool falling       : 1;
-        bool no_spline     : 1;
-        bool parabolic     : 1;
-        bool walkmode      : 1;
-        bool flying        : 1;
-        bool orientationFixed : 1;
-        bool final_point   : 1;
-        bool final_target  : 1;
-        bool final_angle   : 1;
-        bool catmullrom    : 1;
-        bool cyclic        : 1;
-        bool enter_cycle   : 1;
-        bool animation     : 1;
-        bool frozen        : 1;
-        bool transportEnter: 1;
-        bool transportExit : 1;
-        bool unknown7      : 1;
-        bool unknown8      : 1;
+        uint8 animId              : 8;
+        bool done                : 1;
+        bool falling             : 1;
+        bool no_spline           : 1;
+        bool parabolic           : 1;
+        bool walkmode            : 1;
+        bool flying              : 1;
+        bool orientationFixed    : 1;
+        bool final_point         : 1;
+        bool final_target        : 1;
+        bool final_angle         : 1;
+        bool catmullrom          : 1;
+        bool cyclic              : 1;
+        bool enter_cycle         : 1;
+        bool animation           : 1;
+        bool frozen              : 1;
+        bool transportEnter      : 1;
+        bool transportExit       : 1;
+        bool unknown7            : 1;
+        bool unknown8            : 1;
         bool orientationInversed : 1;
-        bool unknown10     : 1;
-        bool unknown11     : 1;
-        bool unknown12     : 1;
-        bool unknown13     : 1;
+        bool unknown10           : 1;
+        bool unknown11           : 1;
+        bool unknown12           : 1;
+        bool unknown13           : 1;
     };
 #if defined( __GNUC__ )
 #pragma pack()

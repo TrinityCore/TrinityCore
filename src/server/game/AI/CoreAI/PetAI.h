@@ -31,16 +31,23 @@ class PetAI : public CreatureAI
 
         explicit PetAI(Creature* c);
 
-        void EnterEvadeMode();
         void UpdateAI(const uint32);
         static int Permissible(const Creature*);
 
         void KilledUnit(Unit* /*victim*/);
         void AttackStart(Unit* target);
         void MovementInform(uint32 moveType, uint32 data);
-        void OwnerDamagedBy(Unit* attacker);
+        void OwnerAttackedBy(Unit* attacker);
         void OwnerAttacked(Unit* target);
+        void AttackedBy(Unit* attacker);
         void ReceiveEmote(Player* player, uint32 textEmote);
+
+        // The following aren't used by the PetAI but need to be defined to override
+        //  default CreatureAI functions which interfere with the PetAI
+        //
+        void MoveInLineOfSight(Unit* /*who*/) {} // CreatureAI interferes with returning pets
+        void MoveInLineOfSight_Safe(Unit* /*who*/) {} // CreatureAI interferes with returning pets
+        void EnterEvadeMode() {} // For fleeing, pets don't use this type of Evade mechanic
 
     private:
         bool _isVisible(Unit*) const;
@@ -54,10 +61,11 @@ class PetAI : public CreatureAI
         std::set<uint64> m_AllySet;
         uint32 m_updateAlliesTimer;
 
-        Unit* SelectNextTarget();
+        Unit* SelectNextTarget(bool allowAutoSelect) const;
         void HandleReturnMovement();
         void DoAttack(Unit* target, bool chase);
         bool CanAttack(Unit* target);
+        void ClearCharmInfoFlags();
 };
 #endif
 

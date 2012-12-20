@@ -28,13 +28,11 @@ EndScriptData */
 
 enum eSays
 {
-    SAY_AGGRO_1                    = -1554006,
-    SAY_HAMMER_1                   = -1554007,
-    SAY_HAMMER_2                   = -1554008,
-    SAY_SLAY_1                     = -1554009,
-    SAY_SLAY_2                     = -1554010,
-    SAY_DEATH_1                    = -1554011,
-    EMOTE_HAMMER                   = -1554012,
+    SAY_AGGRO                      = 0,
+    SAY_HAMMER                     = 1,
+    SAY_SLAY                       = 2,
+    SAY_DEATH                      = 3,
+    EMOTE_HAMMER                   = 4
 };
 
 enum eSpells
@@ -76,7 +74,7 @@ class boss_gatewatcher_iron_hand : public CreatureScript
                 }
                 void EnterCombat(Unit* /*who*/)
                 {
-                    DoScriptText(SAY_AGGRO_1, me);
+                    Talk(SAY_AGGRO);
                 }
 
                 void KilledUnit(Unit* /*victim*/)
@@ -84,12 +82,12 @@ class boss_gatewatcher_iron_hand : public CreatureScript
                     if (rand()%2)
                         return;
 
-                    DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2), me);
+                    Talk(SAY_SLAY);
                 }
 
                 void JustDied(Unit* /*killer*/)
                 {
-                    DoScriptText(SAY_DEATH_1, me);
+                    Talk(SAY_DEATH);
                     //TODO: Add door check/open code
                 }
 
@@ -112,14 +110,14 @@ class boss_gatewatcher_iron_hand : public CreatureScript
                     if (Jackhammer_Timer <= diff)
                     {
                         //TODO: expect cast this about 5 times in a row (?), announce it by emote only once
-                        DoScriptText(EMOTE_HAMMER, me);
+                        Talk(EMOTE_HAMMER);
                         DoCast(me->getVictim(), SPELL_JACKHAMMER);
 
                         //chance to yell, but not same time as emote (after spell in fact casted)
                         if (rand()%2)
-                                            return;
+                            return;
 
-                        DoScriptText(RAND(SAY_HAMMER_1, SAY_HAMMER_2), me);
+                        Talk(SAY_HAMMER);
                         Jackhammer_Timer = 30000;
                     }
                     else

@@ -33,6 +33,18 @@ EndContentData */
 #include "Vehicle.h"
 #include "Player.h"
 
+enum Yells
+{
+    SAY_INTRO_1         = 0,
+    SAY_INTRO_2         = 1,
+    SAY_INTRO_3         = 2,
+    SAY_AGGRO           = 3,
+    SAY_PHASE_2         = 4,
+    SAY_PHASE_3         = 5,
+    SAY_KILL_PLAYER     = 6,
+    SAY_DEATH           = 7
+};
+
 #define GOSSIP_START_EVENT1     "I'm ready to start challenge."
 #define GOSSIP_START_EVENT2     "I'm ready for the next challenge."
 
