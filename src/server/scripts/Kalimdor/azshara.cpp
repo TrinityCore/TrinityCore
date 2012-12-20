@@ -195,12 +195,10 @@ enum RizzleSprysprocketData
     SPELL_PERIODIC_DEPTH_CHARGE     = 39912,
     SPELL_GIVE_SOUTHFURY_MOONSTONE  = 39886,
 
-    SAY_RIZZLE_START                = -1000351,
-    MSG_ESCAPE_NOTICE               = -1000352,
-    SAY_RIZZLE_GRENADE              = -1000353,
-    SAY_RIZZLE_GRENADE_BACKFIRE     = -1000354, // Not used
-    SAY_RIZZLE_FINAL                = -1000355,
-    SAY_RIZZLE_FINAL2               = -1000356, // Not used
+    SAY_RIZZLE_START                = 0,
+    SAY_RIZZLE_GRENADE              = 1,
+    SAY_RIZZLE_FINAL                = 2,
+    MSG_ESCAPE_NOTICE               = 3
 };
 
 #define GOSSIP_GET_MOONSTONE "Hand over the Southfury moonstone and I'll let you go."
@@ -366,7 +364,7 @@ public:
                     if (!player)
                         return;
 
-                    SendText(MSG_ESCAPE_NOTICE, player);
+                    Talk(MSG_ESCAPE_NOTICE, player->GetGUID());
                     DoCast(me, SPELL_PERIODIC_DEPTH_CHARGE);
                     me->SetUnitMovementFlags(MOVEMENTFLAG_HOVER | MOVEMENTFLAG_SWIMMING);
                     me->SetSpeed(MOVE_RUN, 0.85f, true);
@@ -389,7 +387,7 @@ public:
                 Player* player = Unit::GetPlayer(*me, PlayerGUID);
                 if (player)
                 {
-                   DoScriptText(SAY_RIZZLE_GRENADE, me, player);
+                   Talk(SAY_RIZZLE_GRENADE, player->GetGUID());
                    DoCast(player, SPELL_RIZZLE_FROST_GRENADE, true);
                 }
                 GrenadeTimer = 30000;
@@ -406,7 +404,7 @@ public:
 
                 if (me->IsWithinDist(player, 10) && me->GetPositionX() > player->GetPositionX() && !Reached)
                 {
-                    DoScriptText(SAY_RIZZLE_FINAL, me);
+                    Talk(SAY_RIZZLE_FINAL);
                     me->SetUInt32Value(UNIT_NPC_FLAGS, 1);
                     me->setFaction(35);
                     me->GetMotionMaster()->MoveIdle();
@@ -434,7 +432,7 @@ public:
             if (who->GetTypeId() == TYPEID_PLAYER && CAST_PLR(who)->GetQuestStatus(QUEST_CHASING_THE_MOONSTONE) == QUEST_STATUS_INCOMPLETE)
             {
                 PlayerGUID = who->GetGUID();
-                DoScriptText(SAY_RIZZLE_START, me);
+                Talk(SAY_RIZZLE_START);
                 DoCast(who, SPELL_RIZZLE_BLACKJACK, false);
                 return;
             }

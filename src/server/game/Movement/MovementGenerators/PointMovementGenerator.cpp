@@ -45,7 +45,7 @@ void PointMovementGenerator<T>::Initialize(T* unit)
 }
 
 template<class T>
-bool PointMovementGenerator<T>::Update(T* unit, const uint32& /*diff*/)
+bool PointMovementGenerator<T>::Update(T* unit, uint32 /*diff*/)
 {
     if (!unit)
         return false;
@@ -107,8 +107,8 @@ template void PointMovementGenerator<Player>::Finalize(Player*);
 template void PointMovementGenerator<Creature>::Finalize(Creature*);
 template void PointMovementGenerator<Player>::Reset(Player*);
 template void PointMovementGenerator<Creature>::Reset(Creature*);
-template bool PointMovementGenerator<Player>::Update(Player*, const uint32&);
-template bool PointMovementGenerator<Creature>::Update(Creature*, const uint32&);
+template bool PointMovementGenerator<Player>::Update(Player*, uint32);
+template bool PointMovementGenerator<Creature>::Update(Creature*, uint32);
 
 void AssistanceMovementGenerator::Finalize(Unit* unit)
 {
@@ -118,7 +118,7 @@ void AssistanceMovementGenerator::Finalize(Unit* unit)
         unit->GetMotionMaster()->MoveSeekAssistanceDistract(sWorld->getIntConfig(CONFIG_CREATURE_FAMILY_ASSISTANCE_DELAY));
 }
 
-bool EffectMovementGenerator::Update(Unit* unit, const uint32&)
+bool EffectMovementGenerator::Update(Unit* unit, uint32)
 {
     return !unit->movespline->Finalized();
 }

@@ -23,12 +23,11 @@
 
 enum Yells
 {
-    SAY_AGGRO           = -1632001,
-    SAY_SLAY_1          = -1632002,
-    SAY_SLAY_2          = -1632003,
-    SAY_DEATH           = -1632004,
-    SAY_SOUL_STORM      = -1632005,
-    SAY_CORRUPT_SOUL    = -1632006,
+    SAY_AGGRO           = 0,
+    SAY_SLAY            = 1,
+    SAY_DEATH           = 2,
+    SAY_SOUL_STORM      = 3,
+    SAY_CORRUPT_SOUL    = 4,
 };
 
 enum Spells
@@ -98,7 +97,7 @@ class boss_bronjahm : public CreatureScript
 
             void EnterCombat(Unit* /*who*/)
             {
-                DoScriptText(SAY_AGGRO, me);
+                Talk(SAY_AGGRO);
                 me->RemoveAurasDueToSpell(SPELL_SOULSTORM_CHANNEL);
 
                 instance->SetBossState(DATA_BRONJAHM, IN_PROGRESS);
@@ -106,7 +105,7 @@ class boss_bronjahm : public CreatureScript
 
             void JustDied(Unit* /*killer*/)
             {
-                DoScriptText(SAY_DEATH, me);
+                Talk(SAY_DEATH);
 
                 instance->SetBossState(DATA_BRONJAHM, DONE);
             }
@@ -114,7 +113,7 @@ class boss_bronjahm : public CreatureScript
             void KilledUnit(Unit* who)
             {
                 if (who->GetTypeId() == TYPEID_PLAYER)
-                    DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2), me);
+                    Talk(SAY_SLAY);
             }
 
             void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/)
@@ -163,13 +162,13 @@ class boss_bronjahm : public CreatureScript
                         case EVENT_CORRUPT_SOUL:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true))
                             {
-                                DoScriptText(SAY_CORRUPT_SOUL, me);
+                                Talk(SAY_CORRUPT_SOUL);
                                 DoCast(target, SPELL_CORRUPT_SOUL);
                             }
                             events.ScheduleEvent(EVENT_CORRUPT_SOUL, urand(25000, 35000), 0, PHASE_1);
                             break;
                         case EVENT_SOULSTORM:
-                            DoScriptText(SAY_SOUL_STORM, me);
+                            Talk(SAY_SOUL_STORM);
                             me->CastSpell(me, SPELL_SOULSTORM_VISUAL, true);
                             me->CastSpell(me, SPELL_SOULSTORM, false);
                             break;

@@ -376,14 +376,14 @@ class spell_pri_vampiric_touch : public SpellScriptLoader
         }
 };
 
-class spell_priest_renew : public SpellScriptLoader
+class spell_pri_renew : public SpellScriptLoader
 {
     public:
-        spell_priest_renew() : SpellScriptLoader("spell_priest_renew") { }
+        spell_pri_renew() : SpellScriptLoader("spell_pri_renew") { }
 
-        class spell_priest_renew_AuraScript : public AuraScript
+        class spell_pri_renew_AuraScript : public AuraScript
         {
-            PrepareAuraScript(spell_priest_renew_AuraScript);
+            PrepareAuraScript(spell_pri_renew_AuraScript);
 
             bool Load()
             {
@@ -408,13 +408,13 @@ class spell_priest_renew : public SpellScriptLoader
 
             void Register()
             {
-                OnEffectApply += AuraEffectApplyFn(spell_priest_renew_AuraScript::HandleApplyEffect, EFFECT_0, SPELL_AURA_PERIODIC_HEAL, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+                OnEffectApply += AuraEffectApplyFn(spell_pri_renew_AuraScript::HandleApplyEffect, EFFECT_0, SPELL_AURA_PERIODIC_HEAL, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
             }
         };
 
         AuraScript* GetAuraScript() const
         {
-            return new spell_priest_renew_AuraScript();
+            return new spell_pri_renew_AuraScript();
         }
 };
 
@@ -460,6 +460,6 @@ void AddSC_priest_spell_scripts()
     new spell_pri_mind_sear();
     new spell_pri_prayer_of_mending_heal();
     new spell_pri_vampiric_touch();
-    new spell_priest_renew();
+    new spell_pri_renew();
     new spell_pri_shadow_word_death();
 }

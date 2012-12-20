@@ -57,7 +57,7 @@ void ConfusedMovementGenerator<T>::Reset(T* unit)
 }
 
 template<class T>
-bool ConfusedMovementGenerator<T>::Update(T* unit, const uint32& diff)
+bool ConfusedMovementGenerator<T>::Update(T* unit, uint32 diff)
 {
     if (unit->HasUnitState(UNIT_STATE_ROOT | UNIT_STATE_STUNNED | UNIT_STATE_DISTRACTED))
         return true;
@@ -125,6 +125,6 @@ template void ConfusedMovementGenerator<Player>::Initialize(Player*);
 template void ConfusedMovementGenerator<Creature>::Initialize(Creature*);
 template void ConfusedMovementGenerator<Player>::Reset(Player*);
 template void ConfusedMovementGenerator<Creature>::Reset(Creature*);
-template bool ConfusedMovementGenerator<Player>::Update(Player*, const uint32&);
-template bool ConfusedMovementGenerator<Creature>::Update(Creature*, const uint32&);
+template bool ConfusedMovementGenerator<Player>::Update(Player*, uint32 diff);
+template bool ConfusedMovementGenerator<Creature>::Update(Creature*, uint32 diff);
 

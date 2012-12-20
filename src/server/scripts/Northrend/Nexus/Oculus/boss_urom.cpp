@@ -45,11 +45,14 @@ enum Spells
 
 enum Yells
 {
-    SAY_AGGRO_1                                   = -1578000,
-    SAY_AGGRO_2                                   = -1578001,
-    SAY_AGGRO_3                                   = -1578002,
-    SAY_AGGRO_4                                   = -1578003,
-    SAY_TELEPORT                                  = -1578004,
+    SAY_SUMMON_1                                  = 0,
+    SAY_SUMMON_2                                  = 1,
+    SAY_SUMMON_3                                  = 2,
+    SAY_AGGRO                                     = 3,
+    EMOTE_ARCANE_EXPLOSION                        = 4,
+    SAY_ARCANE_EXPLOSION                          = 5,
+    SAY_DEATH                                     = 6,
+    SAY_PLAYER_KILL                               = 7
 };
 
 enum eCreature
@@ -82,11 +85,6 @@ static Summons Group[]=
 static uint32 TeleportSpells[]=
 {
     SPELL_SUMMON_MENAGERIE, SPELL_SUMMON_MENAGERIE_2, SPELL_SUMMON_MENAGERIE_3
-};
-
-static int32 SayAggro[]=
-{
-    SAY_AGGRO_1, SAY_AGGRO_2, SAY_AGGRO_3, SAY_AGGRO_4
 };
 
 class boss_urom : public CreatureScript
@@ -153,7 +151,7 @@ public:
             {
                 if (me->Attack(who, true))
                 {
-                    DoScriptText(SayAggro[3], me);
+                    Talk(SAY_AGGRO);
 
                     me->SetInCombatWith(who);
                     who->SetInCombatWith(me);
@@ -209,6 +207,22 @@ public:
             {
                 SetPosition(i);
                 me->SummonCreature(Group[group[instance->GetData(DATA_UROM_PLATAFORM)]].entry[i], x, y, me->GetPositionZ(), me->GetOrientation());
+
+                // teleport to next platform and spawn adds
+                switch (instance->GetData(DATA_UROM_PLATAFORM))
+                {
+                    case 1:
+                        Talk(SAY_SUMMON_1);
+                        break;
+                    case 2:
+                        Talk(SAY_SUMMON_2);
+                        break;
+                    case 3:
+                        Talk(SAY_SUMMON_3);
+                        break;
+                    default:
+                        break;
+                }
             }
         }
 
@@ -217,13 +231,17 @@ public:
             if (!instance || instance->GetData(DATA_UROM_PLATAFORM) > 2)
                 return;
 
-            DoScriptText(SayAggro[instance->GetData(DATA_UROM_PLATAFORM)], me);
+            Talk(instance->GetData(DATA_UROM_PLATAFORM) < 5 ? instance->GetData(DATA_UROM_PLATAFORM) : 0);
             DoCast(TeleportSpells[instance->GetData(DATA_UROM_PLATAFORM)]);
+        }
+
+        void KilledUnit(Unit* /*victim*/)
+        {
+            Talk(SAY_PLAYER_KILL);
         }
 
         void UpdateAI(const uint32 uiDiff)
         {
-            //Return since we have no target
             if (!UpdateVictim())
                 return;
 
@@ -233,7 +251,6 @@ public:
             if (teleportTimer <= uiDiff)
             {
                 me->InterruptNonMeleeSpells(false);
-                DoScriptText(SAY_TELEPORT, me);
                 me->GetMotionMaster()->MoveIdle();
                 DoCast(SPELL_TELEPORT);
                 teleportTimer = urand(30000, 35000);
@@ -261,6 +278,9 @@ public:
                     me->NearTeleportTo(pPos.GetPositionX(), pPos.GetPositionY(), pPos.GetPositionZ(), pPos.GetOrientation());
                     me->GetMotionMaster()->MoveChase(me->getVictim(), 0, 0);
                     me->SetUnitMovementFlags(MOVEMENTFLAG_WALKING);
+
+                    Talk(EMOTE_ARCANE_EXPLOSION);
+                    Talk(SAY_ARCANE_EXPLOSION);
 
                     canCast = false;
                     canGoBack = false;
@@ -291,6 +311,7 @@ public:
         void JustDied(Unit* /*killer*/)
         {
             _JustDied();
+            Talk(SAY_DEATH);
             DoCast(me, SPELL_DEATH_SPELL, true); // we cast the spell as triggered or the summon effect does not occur
         }
 

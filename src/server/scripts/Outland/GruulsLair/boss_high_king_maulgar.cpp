@@ -27,46 +27,44 @@ EndScriptData */
 #include "ScriptedCreature.h"
 #include "gruuls_lair.h"
 
-#define SAY_AGGRO               -1565000
-#define SAY_ENRAGE              -1565001
-#define SAY_OGRE_DEATH1         -1565002
-#define SAY_OGRE_DEATH2         -1565003
-#define SAY_OGRE_DEATH3         -1565004
-#define SAY_OGRE_DEATH4         -1565005
-#define SAY_SLAY1               -1565006
-#define SAY_SLAY2               -1565007
-#define SAY_SLAY3               -1565008
-#define SAY_DEATH               -1565009
+enum HighKingMaulgar
+{
+    SAY_AGGRO                   = 0,
+    SAY_ENRAGE                  = 1,
+    SAY_OGRE_DEATH              = 2,
+    SAY_SLAY                    = 3,
+    SAY_DEATH                   = 4,
 
-// High King Maulgar
-#define SPELL_ARCING_SMASH      39144
-#define SPELL_MIGHTY_BLOW       33230
-#define SPELL_WHIRLWIND         33238
-#define SPELL_BERSERKER_C       26561
-#define SPELL_ROAR              16508
-#define SPELL_FLURRY            33232
-#define SPELL_DUAL_WIELD        29651 //used in phase
+    // High King Maulgar
+    SPELL_ARCING_SMASH          = 39144,
+    SPELL_MIGHTY_BLOW           = 33230,
+    SPELL_WHIRLWIND             = 33238,
+    SPELL_BERSERKER_C           = 26561,
+    SPELL_ROAR                  = 16508,
+    SPELL_FLURRY                = 33232,
+    SPELL_DUAL_WIELD            = 29651,
 
-// Olm the Summoner
-#define SPELL_DARK_DECAY        33129
-#define SPELL_DEATH_COIL        33130
-#define SPELL_SUMMON_WFH        33131
+    // Olm the Summoner
+    SPELL_DARK_DECAY            = 33129,
+    SPELL_DEATH_COIL            = 33130,
+    SPELL_SUMMON_WFH            = 33131,
 
-//Kiggler the Craed
-#define SPELL_GREATER_POLYMORPH     33173
-#define SPELL_LIGHTNING_BOLT        36152
-#define SPELL_ARCANE_SHOCK          33175
-#define SPELL_ARCANE_EXPLOSION      33237
+    //Kiggler the Craed
+    SPELL_GREATER_POLYMORPH     = 33173,
+    SPELL_LIGHTNING_BOLT        = 36152,
+    SPELL_ARCANE_SHOCK          = 33175,
+    SPELL_ARCANE_EXPLOSION      = 33237,
 
-//Blindeye the Seer
-#define SPELL_GREATER_PW_SHIELD         33147
-#define SPELL_HEAL                      33144
-#define SPELL_PRAYER_OH                 33152
+    //Blindeye the Seer
+    SPELL_GREATER_PW_SHIELD     = 33147,
+    SPELL_HEAL                  = 33144,
+    SPELL_PRAYER_OH             = 33152,
 
-//Krosh Firehand
-#define SPELL_GREATER_FIREBALL  33051
-#define SPELL_SPELLSHIELD       33054
-#define SPELL_BLAST_WAVE        33061
+    //Krosh Firehand
+    SPELL_GREATER_FIREBALL      = 33051,
+    SPELL_SPELLSHIELD           = 33054,
+    SPELL_BLAST_WAVE            = 33061
+};
 
 bool CheckAllBossDied(InstanceScript* instance, Creature* me)
 {
@@ -171,12 +169,12 @@ public:
 
         void KilledUnit(Unit* /*victim*/)
         {
-            DoScriptText(RAND(SAY_SLAY1, SAY_SLAY2, SAY_SLAY3), me);
+            Talk(SAY_SLAY);
         }
 
         void JustDied(Unit* /*killer*/)
         {
-            DoScriptText(SAY_DEATH, me);
+            Talk(SAY_DEATH);
 
             if (CheckAllBossDied(instance, me))
                 instance->SetData(DATA_MAULGAREVENT, DONE);
@@ -184,7 +182,7 @@ public:
 
            void AddDeath()
            {
-                DoScriptText(RAND(SAY_OGRE_DEATH1, SAY_OGRE_DEATH2, SAY_OGRE_DEATH3, SAY_OGRE_DEATH4), me);
+                Talk(SAY_OGRE_DEATH);
            }
 
         void EnterCombat(Unit* who)
@@ -211,7 +209,7 @@ public:
 
             GetCouncil();
 
-            DoScriptText(SAY_AGGRO, me);
+            Talk(SAY_AGGRO);
 
             instance->SetData64(DATA_MAULGAREVENT_TANK, who->GetGUID());
             instance->SetData(DATA_MAULGAREVENT, IN_PROGRESS);
@@ -269,7 +267,7 @@ public:
             if (!Phase2 && HealthBelowPct(50))
             {
                 Phase2 = true;
-                DoScriptText(SAY_ENRAGE, me);
+                Talk(SAY_ENRAGE);
 
                 DoCast(me, SPELL_DUAL_WIELD, true);
                 me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, 0);

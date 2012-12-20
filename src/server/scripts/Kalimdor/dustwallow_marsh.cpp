@@ -138,22 +138,16 @@ class mobs_risen_husk_spirit : public CreatureScript
 
 enum TheramoreGuard
 {
-    SAY_QUEST1                                   = -1000641,
-    SAY_QUEST2                                   = -1000642,
-    SAY_QUEST3                                   = -1000643,
-    SAY_QUEST4                                   = -1000644,
-    SAY_QUEST5                                   = -1000645,
-    SAY_QUEST6                                   = -1000646,
-    SAY_QUEST7                                   = -1000647,
-    SAY_QUEST8                                   = -1000648,
-    SAY_QUEST9                                   = -1000649,
+    QUEST_DISCREDITING_THE_DESERTERS            = 11133,
 
-    QUEST_DISCREDITING_THE_DESERTERS             = 11133,
+    NPC_THERAMORE_GUARD                         = 4979,
 
-    NPC_THERAMORE_GUARD                          = 4979,
+    SPELL_DOCTORED_LEAFLET                      = 42725,
+    SPELL_PROPAGANDIZED                         = 42246,
 
-    SPELL_DOCTORED_LEAFLET                       = 42725,
-    SPELL_PROPAGANDIZED                          = 42246,
+    SAY_QUEST1                                  = 0,
+    SAY_QUEST2                                  = 1,
+    SAY_QUEST3                                  = 2
 };
 
 #define GOSSIP_ITEM_THERAMORE_GUARD "You look like an intelligent person. Why don't you read one of these leaflets and give it some thought?"
@@ -181,7 +175,7 @@ public:
         {
             player->CLOSE_GOSSIP_MENU();
             player->KilledMonsterCredit(NPC_THERAMORE_GUARD, 0);
-            DoScriptText(SAY_QUEST1, creature);
+            creature->AI()->Talk(SAY_QUEST1);
             creature->CastSpell(creature, SPELL_DOCTORED_LEAFLET, false);
             creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
             CAST_AI(npc_theramore_guard::npc_theramore_guardAI, creature->AI())->YellTimer = 4000;
@@ -220,12 +214,12 @@ public:
                 switch (Step)
                 {
                     case 0:
-                        DoScriptText(RAND(SAY_QUEST2, SAY_QUEST3, SAY_QUEST4, SAY_QUEST5, SAY_QUEST6), me);
+                        Talk(SAY_QUEST2);
                         YellTimer = 3000;
                         ++Step;
                         break;
                     case 1:
-                        DoScriptText(RAND(SAY_QUEST7, SAY_QUEST8, SAY_QUEST9), me);
+                        Talk(SAY_QUEST3);
                         me->HandleEmoteCommand(EMOTE_ONESHOT_LAUGH);
                         Step = 0;
                         bYellTimer = false;
@@ -328,12 +322,11 @@ public:
 
 enum Hendel
 {
-    // looks like all this text ids are wrong.
-    SAY_PROGRESS_1_TER          = -1000411, // signed for 3568
-    SAY_PROGRESS_2_HEN          = -1000412, // signed for 3568
-    SAY_PROGRESS_3_TER          = -1000413,
-    SAY_PROGRESS_4_TER          = -1000414,
-    EMOTE_SURRENDER             = -1000415,
+    SAY_PROGRESS_1_TER          = 0,
+    SAY_PROGRESS_2_HEN          = 1,
+    SAY_PROGRESS_3_TER          = 2,
+    SAY_PROGRESS_4_TER          = 3,
+    EMOTE_SURRENDER             = 4,
 
     QUEST_MISSING_DIPLO_PT16    = 1324,
     FACTION_HOSTILE             = 168,                      //guessed, may be different
@@ -391,7 +384,7 @@ public:
                 if (Player* player = pDoneBy->GetCharmerOrOwnerPlayerOrPlayerItself())
                     player->GroupEventHappens(QUEST_MISSING_DIPLO_PT16, me);
 
-                DoScriptText(EMOTE_SURRENDER, me);
+                Talk(EMOTE_SURRENDER);
                 EnterEvadeMode();
             }
         }
@@ -407,8 +400,8 @@ Position const MovePosition = {-2967.030f, -3872.1799f, 35.620f, 0.0f};
 
 enum Zelfrax
 {
-    SAY_ZELFRAX     = -1000472,
-    SAY_ZELFRAX_2   = -1000473
+    SAY_ZELFRAX1     = 0,
+    SAY_ZELFRAX2     = 1
 };
 
 class npc_zelfrax : public CreatureScript
@@ -461,8 +454,8 @@ public:
         {
             SetCombatMovement(false);
             me->GetMotionMaster()->MovePoint(0, MovePosition);
-            DoScriptText(SAY_ZELFRAX, me);
-            DoScriptText(SAY_ZELFRAX_2, me);
+            Talk(SAY_ZELFRAX1);
+            Talk(SAY_ZELFRAX2);
         }
 
         void UpdateAI(uint32 const /*Diff*/)
@@ -484,16 +477,16 @@ enum Stinky
 {
     QUEST_STINKYS_ESCAPE_H                       = 1270,
     QUEST_STINKYS_ESCAPE_A                       = 1222,
-    SAY_QUEST_ACCEPTED                           = -1000507,
-    SAY_STAY_1                                   = -1000508,
-    SAY_STAY_2                                   = -1000509,
-    SAY_STAY_3                                   = -1000510,
-    SAY_STAY_4                                   = -1000511,
-    SAY_STAY_5                                   = -1000512,
-    SAY_STAY_6                                   = -1000513,
-    SAY_QUEST_COMPLETE                           = -1000514,
-    SAY_ATTACKED_1                               = -1000515,
-    EMOTE_DISAPPEAR                              = -1000516
+    SAY_QUEST_ACCEPTED                           = 0,
+    SAY_STAY_1                                   = 1,
+    SAY_STAY_2                                   = 2,
+    SAY_STAY_3                                   = 3,
+    SAY_STAY_4                                   = 4,
+    SAY_STAY_5                                   = 5,
+    SAY_STAY_6                                   = 6,
+    SAY_QUEST_COMPLETE                           = 7,
+    SAY_ATTACKED_1                               = 8,
+    EMOTE_DISAPPEAR                              = 9
 };
 
 class npc_stinky : public CreatureScript
@@ -514,7 +507,7 @@ public:
              {
                  creature->setFaction(FACTION_ESCORT_N_NEUTRAL_ACTIVE);
                  creature->SetStandState(UNIT_STAND_STATE_STAND);
-                 DoScriptText(SAY_QUEST_ACCEPTED, creature);
+                 creature->AI()->Talk(SAY_QUEST_ACCEPTED);
                  pEscortAI->Start(false, false, player->GetGUID());
              }
          }
@@ -534,29 +527,29 @@ public:
             switch (waypointId)
             {
                 case 7:
-                    DoScriptText(SAY_STAY_1, me, player);
+                    Talk(SAY_STAY_1, player->GetGUID());
                     break;
                 case 11:
-                    DoScriptText(SAY_STAY_2, me, player);
+                    Talk(SAY_STAY_2, player->GetGUID());
                     break;
                 case 25:
-                    DoScriptText(SAY_STAY_3, me, player);
+                    Talk(SAY_STAY_3, player->GetGUID());
                     break;
                 case 26:
-                    DoScriptText(SAY_STAY_4, me, player);
+                    Talk(SAY_STAY_4, player->GetGUID());
                     break;
                 case 27:
-                    DoScriptText(SAY_STAY_5, me, player);
+                    Talk(SAY_STAY_5, player->GetGUID());
                     break;
                 case 28:
-                    DoScriptText(SAY_STAY_6, me, player);
+                    Talk(SAY_STAY_6, player->GetGUID());
                     me->SetStandState(UNIT_STAND_STATE_KNEEL);
                     break;
                 case 29:
                     me->SetStandState(UNIT_STAND_STATE_STAND);
                     break;
                 case 37:
-                    DoScriptText(SAY_QUEST_COMPLETE, me, player);
+                    Talk(SAY_QUEST_COMPLETE, player->GetGUID());
                     me->SetSpeed(MOVE_RUN, 1.2f, true);
                     me->SetWalk(false);
                     if (player->GetQuestStatus(QUEST_STINKYS_ESCAPE_H))
@@ -565,14 +558,14 @@ public:
                         player->GroupEventHappens(QUEST_STINKYS_ESCAPE_A, me);
                     break;
                 case 39:
-                    DoScriptText(EMOTE_DISAPPEAR, me);
+                    Talk(EMOTE_DISAPPEAR);
                     break;
             }
         }
 
         void EnterCombat(Unit* who)
         {
-            DoScriptText(SAY_ATTACKED_1, me, who);
+            Talk(SAY_ATTACKED_1, who->GetGUID());
         }
 
         void Reset() {}
