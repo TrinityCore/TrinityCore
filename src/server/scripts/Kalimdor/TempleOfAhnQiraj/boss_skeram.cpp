@@ -46,12 +46,6 @@ enum Events
 };
 
 uint32 const BlinkSpells[3] = { 4801, 8195, 20449 };
-Position const BossPositions[3] =
-{
-    { -8306.68f, 2060.84f, 133.062f, 0.0f },
-    { -8330.63f, 2123.14f, 133.062f, 0.0f },
-    { -8344.97f, 2081.36f, 125.649f, 0.0f }
-};
 
 class boss_skeram : public CreatureScript
 {
@@ -89,14 +83,14 @@ class boss_skeram : public CreatureScript
                 {
                     while (_flag & (1 << Rand))
                         Rand = urand(0, 2);
-                    me->SetPosition(BossPositions[Rand]);
+                    DoCast(me, BlinkSpells[Rand]);
                     _flag |= (1 << Rand);
                     _flag |= (1 << 7);
                 }
 
                 while (_flag & (1 << Rand))
                     Rand = urand(0, 2);
-                creature->SetPosition(BossPositions[Rand]);
+                creature->CastSpell(creature, BlinkSpells[Rand]);
                 _flag |= (1 << Rand);
                 
                 if (_flag & (1 << 7))
@@ -134,7 +128,7 @@ class boss_skeram : public CreatureScript
                 events.ScheduleEvent(EVENT_ARCANE_EXPLOSION, urand(6000, 12000));
                 events.ScheduleEvent(EVENT_FULLFILMENT, 15000);
                 events.ScheduleEvent(EVENT_BLINK, urand(30000, 45000));
-                events.ScheduleEvent(EVENT_EARTH_SHOCK, 1000);
+                events.ScheduleEvent(EVENT_EARTH_SHOCK, 2000);
 
                 Talk(SAY_AGGRO);
             }
@@ -152,7 +146,7 @@ class boss_skeram : public CreatureScript
                     {
                         case EVENT_ARCANE_EXPLOSION:
                             // TODO: For some weird reason boss does not cast this
-                            DoCast(me, SPELL_ARCANE_EXPLOSION);
+                            DoCastAOE(SPELL_ARCANE_EXPLOSION, true);
                             events.ScheduleEvent(EVENT_ARCANE_EXPLOSION, urand(8000, 18000));
                             break;
                         case EVENT_FULLFILMENT:
@@ -169,7 +163,7 @@ class boss_skeram : public CreatureScript
                             break;
                         case EVENT_EARTH_SHOCK:
                             DoCastVictim(SPELL_EARTH_SHOCK);
-                            events.ScheduleEvent(EVENT_EARTH_SHOCK, 1000);
+                            events.ScheduleEvent(EVENT_EARTH_SHOCK, 2000);
                             break;
                     }
                 }
@@ -185,7 +179,7 @@ class boss_skeram : public CreatureScript
 
                 if (me->IsWithinMeleeRange(me->getVictim()))
                 {
-                    events.RescheduleEvent(EVENT_EARTH_SHOCK, 1000);
+                    events.RescheduleEvent(EVENT_EARTH_SHOCK, 2000);
                     DoMeleeAttackIfReady();
                 }
             }
