@@ -1224,7 +1224,7 @@ void Unit::CalculateMeleeDamage(Unit* victim, uint32 damage, CalcDamageInfo* dam
         damageInfo->HitInfo |= HITINFO_AFFECTS_VICTIM;
 
     int32 resilienceReduction = damageInfo->damage;
-    ApplyResilience(victim, &resilienceReduction, (damageInfo->hitOutCome == MELEE_HIT_CRIT));
+    ApplyResilience(victim, &resilienceReduction, damageInfo->hitOutCome == MELEE_HIT_CRIT);
     resilienceReduction = damageInfo->damage - resilienceReduction;
     damageInfo->damage      -= resilienceReduction;
     damageInfo->cleanDamage += resilienceReduction;
@@ -15674,11 +15674,13 @@ void Unit::ApplyResilience(Unit const* victim, int32* damage, bool isCrit) const
     if (IsVehicle() || (victim->IsVehicle() && victim->GetTypeId() != TYPEID_PLAYER))
         return;
 
-    Unit const* source = NULL;
-    if (GetTypeId() == TYPEID_PLAYER)
-        source = this;
-    else if (GetTypeId() == TYPEID_UNIT && GetOwner() && GetOwner()->GetTypeId() == TYPEID_PLAYER)
-        source = GetOwner();
+    // Don't consider resilience if not in PvP - player or pet
+    bool isAllowedSource = (GetTypeId() == TYPEID_PLAYER);
+    if (!isAllowedSource && GetTypeId() == TYPEID_UNIT && GetOwner() && GetOwner()->GetTypeId() == TYPEID_PLAYER)
+        isAllowedSource = true;
+
+    if (!isAllowedSource)
+        return;
 
     Unit const* target = NULL;
     if (victim->GetTypeId() == TYPEID_PLAYER)
@@ -15691,7 +15693,7 @@ void Unit::ApplyResilience(Unit const* victim, int32* damage, bool isCrit) const
 
     if (isCrit)
         *damage = target->GetCritDamageReduction(*damage);
-    * damage = target->GetDamageReduction(*damage);
+    *damage = target->GetDamageReduction(*damage);
 }
 
 // Melee based spells can be miss, parry or dodge on this step
