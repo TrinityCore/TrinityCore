@@ -11,6 +11,7 @@
 #                                                                                          #
 ############################################################################################
 
+[105] --> Add [MOD] CharacterHistory.
 [104] --> Fix quest The Ring of Blood: The Final Challenge (Nagrand Arena).
 [103] --> Fix Zul'drak arena.
 [102] --> Scripts/BlackTemple: Fix Illidan.
