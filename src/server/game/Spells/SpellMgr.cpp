@@ -3693,6 +3693,10 @@ void SpellMgr::LoadDbcDataCorrections()
             case 62012: // Turkey Caller
                 spellInfo->EffectRadiusIndex[0] = EFFECT_RADIUS_0_YARDS;    // 0yd
                 break;
+            case 28374: // Gluth's Decimate
+            case 54426: // Gluth's Decimate
+               spellInfo->AttributesEx |= SPELL_ATTR1_CANT_TARGET_SELF;
+               break;
             default:
                 break;
         }
