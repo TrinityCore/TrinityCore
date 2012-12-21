@@ -1932,7 +1932,7 @@ public:
                 if (Creature* Captain = me->SummonCreature(me->GetEntry() == NPC_JAINA_PART2? NPC_BARTLETT : NPC_KORM, OutroSpawns[2]))
                 {
                     //Captain->AI()->Talk(SAY_JAINA_FIRE : SAY_SYLVANA_FIRE); Do not know how to do. ;(
-                    Captain->AI()->Talk(SAY_SYLVANA_FIRE);
+                    Captain->AI()->Talk(me->GetEntry() == NPC_JAINA_PART2 ? SAY_JAINA_FIRE : SAY_SYLVANA_FIRE);
                     captain = Captain->GetGUID();
 
                     // Dungeon Browser reward triggering
@@ -1988,17 +1988,17 @@ public:
                 instance->SetData(DATA_LICHKING_EVENT, DONE);
                 if (Creature* Captain = me->GetCreature(*me, captain))
                     //Captain->AI()->Talk(SAY_JAINA_FINAL_1 : SAY_SYLVANA_FINAL_1); Do not know how to do. ;(
-                      Captain->AI()->Talk(SAY_SYLVANA_FINAL_1);
+                      Captain->AI()->Talk(me->GetEntry() == NPC_JAINA_PART2 ? SAY_JAINA_FINAL_1 : SAY_SYLVANA_FINAL_1);
                 me->SummonGameObject(me->GetEntry() == NPC_JAINA_PART2 ? GO_STAIRS_SKYBREAKER : GO_STAIRS_ORGRIM_HAMMER, 5247.45f, 1627.72f, 784.302f, 5.88208f, 0, 0, 0.199211f, -0.979957f, 1*DAY);
                 JumpNextStep(5000);
                 break;
             case 14:
                 //Talk(SAY_JAINA_FINAL_2 : SAY_SYLVANA_FINAL_2); Do not know how to do. ;(
-                Talk(SAY_SYLVANA_FINAL_2);
+                Talk(me->GetEntry() == NPC_JAINA_PART2 ? SAY_JAINA_FINAL_2 : SAY_SYLVANA_FINAL_2);
                 JumpNextStep(8000);
                 break;
             case 15:
-                Talk(SAY_JAINA_FINAL_3);
+                Talk(me->GetEntry() == NPC_JAINA_PART2 ? SAY_JAINA_FINAL_3:-0);
                 JumpNextStep(2000);
                 break;
             case 16:
