@@ -145,7 +145,6 @@ class boss_skeram : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_ARCANE_EXPLOSION:
-                            // TODO: For some weird reason boss does not cast this
                             DoCastAOE(SPELL_ARCANE_EXPLOSION, true);
                             events.ScheduleEvent(EVENT_ARCANE_EXPLOSION, urand(8000, 18000));
                             break;
@@ -195,7 +194,47 @@ class boss_skeram : public CreatureScript
     }
 };
 
+class PlayerOrPetCheck
+{
+    public:
+        bool operator()(WorldObject* object) const
+        {
+            if (object->GetTypeId() != TYPEID_PLAYER)
+                if (!object->ToCreature()->isPet())
+                    return true;
+
+            return false;
+        }
+};
+
+class spell_skeram_arcane_explosion : public SpellScriptLoader
+{
+    public:
+        spell_skeram_arcane_explosion() : SpellScriptLoader("spell_skeram_arcane_explosion") { }
+
+        class spell_skeram_arcane_explosion_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_skeram_arcane_explosion_SpellScript);
+
+            void FilterTargets(std::list<WorldObject*>& targets)
+            {
+                targets.remove_if(PlayerOrPetCheck());
+            }
+
+            void Register()
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_skeram_arcane_explosion_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_skeram_arcane_explosion_SpellScript();
+        }
+};
+
 void AddSC_boss_skeram()
 {
     new boss_skeram();
+    new spell_skeram_arcane_explosion();
 }
