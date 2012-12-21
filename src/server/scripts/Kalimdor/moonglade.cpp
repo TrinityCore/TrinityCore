@@ -37,6 +37,9 @@ EndContentData */
 #include "ScriptedGossip.h"
 #include "Player.h"
 #include "SpellInfo.h"
+#include "Cell.h"
+#include "CellImpl.h"
+#include "GridNotifiers.h"
 
 /*######
 ## npc_bunthen_plainswind
@@ -319,6 +322,28 @@ public:
             }
         }
 
+        void IsSummonedBy(Unit* /*summoner*/)
+        {            
+            std::list<Player*> playerOnQuestList;
+            Trinity::AnyPlayerInObjectRangeCheck checker(me, 5.0f);
+            Trinity::PlayerListSearcher<Trinity::AnyPlayerInObjectRangeCheck> searcher(me, playerOnQuestList, checker);
+            me->VisitNearbyWorldObject(5.0f, searcher);
+            for (std::list<Player*>::const_iterator itr = playerOnQuestList.begin(); itr != playerOnQuestList.end(); ++itr)
+            {
+                // Check if found player target has active quest
+                if (Player* player = (*itr))
+                {
+                    if (player->GetQuestStatus(10965) == QUEST_STATUS_INCOMPLETE)
+                    {
+                        StartEvent(player);
+                        break;
+                    }
+                }
+                else
+                    break;
+            }
+        }
+
         void JustDied(Unit* /*killer*/)
         {
             if (!PlayerGUID)
@@ -358,7 +383,7 @@ public:
             return;
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 const diff)
         {
             npc_escortAI::UpdateAI(diff);
 
@@ -533,30 +558,6 @@ public:
 };
 
 /*####
-# npc_clintar_dreamwalker
-####*/
-
-enum Clintar
-{
-    CLINTAR_SPIRIT      = 22916
-};
-
-class npc_clintar_dreamwalker : public CreatureScript
-{
-public:
-    npc_clintar_dreamwalker() : CreatureScript("npc_clintar_dreamwalker") { }
-
-    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest)
-    {
-        if (quest->GetQuestId() == 10965)
-            if (Creature* clintar_spirit = creature->SummonCreature(CLINTAR_SPIRIT, ClintarSpiritSummon, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 100000))
-                CAST_AI(npc_clintar_spirit::npc_clintar_spiritAI, clintar_spirit->AI())->StartEvent(player);
-        return true;
-    }
-
-};
-
-/*####
 # npc_omen
 ####*/
 
@@ -707,7 +708,6 @@ void AddSC_moonglade()
     new npc_bunthen_plainswind();
     new npc_great_bear_spirit();
     new npc_silva_filnaveth();
-    new npc_clintar_dreamwalker();
     new npc_clintar_spirit();
     new npc_omen();
     new npc_giant_spotlight();

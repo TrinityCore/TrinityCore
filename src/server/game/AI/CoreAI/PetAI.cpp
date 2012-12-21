@@ -183,6 +183,9 @@ void PetAI::UpdateAI(const uint32 diff)
                     }
                 }
 
+                if (spellInfo->HasEffect(SPELL_EFFECT_JUMP_DEST))
+                    continue; // Pets must only jump to target
+
                 // No enemy, check friendly
                 if (!spellUsed)
                 {
@@ -266,6 +269,7 @@ void PetAI::UpdateAllies()
     //only pet and owner/not in group->ok
     if (m_AllySet.size() == 2 && !group)
         return;
+
     //owner is in group; group members filled in already (no raid -> subgroupcount = whole count)
     if (group && !group->isRaidGroup() && m_AllySet.size() == (group->GetMembersCount() + 2))
         return;
@@ -579,11 +583,19 @@ void PetAI::ReceiveEmote(Player* player, uint32 emote)
         {
             case TEXT_EMOTE_COWER:
                 if (me->isPet() && me->ToPet()->IsPetGhoul())
-                    me->HandleEmoteCommand(EMOTE_ONESHOT_ROAR);
+                    me->HandleEmoteCommand(/*EMOTE_ONESHOT_ROAR*/EMOTE_ONESHOT_OMNICAST_GHOUL);
                 break;
             case TEXT_EMOTE_ANGRY:
                 if (me->isPet() && me->ToPet()->IsPetGhoul())
-                    me->HandleEmoteCommand(EMOTE_ONESHOT_COWER);
+                    me->HandleEmoteCommand(/*EMOTE_ONESHOT_COWER*/EMOTE_STATE_STUN);
+                break;
+            case TEXT_EMOTE_GLARE:
+                if (me->isPet() && me->ToPet()->IsPetGhoul())
+                    me->HandleEmoteCommand(EMOTE_STATE_STUN);
+                break;
+            case TEXT_EMOTE_SOOTHE:
+                if (me->isPet() && me->ToPet()->IsPetGhoul())
+                    me->HandleEmoteCommand(EMOTE_ONESHOT_OMNICAST_GHOUL);
                 break;
         }
 }

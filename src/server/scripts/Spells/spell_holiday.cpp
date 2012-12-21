@@ -274,6 +274,69 @@ class spell_hallow_end_tricky_treat : public SpellScriptLoader
         }
 };
 
+enum Mistletoe
+{
+    SPELL_CREATE_MISTLETOE          = 26206,
+    SPELL_CREATE_HOLLY              = 26207,
+    SPELL_CREATE_SNOWFLAKES         = 45036
+};
+
+class spell_winter_veil_mistletoe : public SpellScriptLoader
+{
+    public:
+        spell_winter_veil_mistletoe() : SpellScriptLoader("spell_winter_veil_mistletoe") { }
+
+        class spell_winter_veil_mistletoe_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_winter_veil_mistletoe_SpellScript);
+
+            bool Validate(SpellInfo const* /*spell*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_CREATE_MISTLETOE) ||
+                    !sSpellMgr->GetSpellInfo(SPELL_CREATE_HOLLY) ||
+                    !sSpellMgr->GetSpellInfo(SPELL_CREATE_SNOWFLAKES))
+                    return false;
+                return true;
+            }
+
+            void HandleScript(SpellEffIndex /*effIndex*/)
+            {
+                Unit* caster = GetCaster();
+
+                if (Player* target = GetHitPlayer())
+                {
+                    uint32 spellId = 0;
+                    switch (urand(0, 2))
+                    {
+                        case 0:
+                            spellId = SPELL_CREATE_MISTLETOE;
+                            break;
+                        case 1:
+                            spellId = SPELL_CREATE_HOLLY;
+                            break;
+                        case 2:
+                            spellId = SPELL_CREATE_SNOWFLAKES;
+                            break;
+                        default:
+                            return;
+                    }
+
+                    caster->CastSpell(target, spellId, true);
+                }
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_winter_veil_mistletoe_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_winter_veil_mistletoe_SpellScript();
+        }
+};
+
 void AddSC_holiday_spell_scripts()
 {
     // Love is in the Air
@@ -282,4 +345,6 @@ void AddSC_holiday_spell_scripts()
     new spell_hallow_end_trick();
     new spell_hallow_end_trick_or_treat();
     new spell_hallow_end_tricky_treat();
+    // Winter Veil
+    new spell_winter_veil_mistletoe();
 }

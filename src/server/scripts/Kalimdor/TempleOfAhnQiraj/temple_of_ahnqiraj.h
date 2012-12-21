@@ -19,19 +19,45 @@
 #ifndef DEF_TEMPLE_OF_AHNQIRAJ_H
 #define DEF_TEMPLE_OF_AHNQIRAJ_H
 
-#define DATA_SKERAM              1
-#define DATA_KRI                 2
-#define DATA_VEM                 3
-#define DATA_VEMISDEAD           4
-#define DATA_VEM_DEATH           5
-#define DATA_VEKLOR              6
-#define DATA_VEKLORISDEAD        7
-#define DATA_VEKLOR_DEATH        8
-#define DATA_VEKNILASH           9
-#define DATA_VEKNILASHISDEAD    10
-#define DATA_VEKNILASH_DEATH    11
-#define DATA_BUG_TRIO_DEATH     14
+enum DataTypes
+{
+    DATA_SKERAM             = 1,
+    DATA_KRI                = 2,
+    DATA_VEM                = 3,
+    DATA_VEMISDEAD          = 4,
+    DATA_VEM_DEATH          = 5,
+    DATA_VEKLOR             = 6,
+    DATA_VEKLORISDEAD       = 7,
+    DATA_VEKLOR_DEATH       = 8,
+    DATA_VEKNILASH          = 9,
+    DATA_VEKNILASHISDEAD    = 10,
+    DATA_VEKNILASH_DEATH    = 11,
+    DATA_BUG_TRIO_DEATH     = 14,
+    DATA_CTHUN_PHASE        = 20,
+    DATA_VISCIDUS           = 21
+};
 
-#define DATA_CTHUN_PHASE        20
+enum Creatures
+{
+    BOSS_EYE_OF_CTHUN       = 15589,
+    MOB_CTHUN_PORTAL        = 15896,
+    MOB_CLAW_TENTACLE       = 15725,
+    MOB_EYE_TENTACLE        = 15726,
+    MOB_SMALL_PORTAL        = 15904,
+    MOB_BODY_OF_CTHUN       = 15809,
+    MOB_GIANT_CLAW_TENTACLE = 15728,
+    MOB_GIANT_EYE_TENTACLE  = 15334,
+    MOB_FLESH_TENTACLE      = 15802,
+    MOB_GIANT_PORTAL        = 15910,
+
+    NPC_VISCIDUS            = 15299,
+    NPC_GLOB_OF_VISCIDUS    = 15667,
+
+    NPC_SKERAM              = 15263,
+    NPC_VEM                 = 15544,
+    NPC_KRI                 = 15511,
+    NPC_VEKLOR              = 15276,
+    NPC_VEKNILASH           = 15275
+};
 #endif
 

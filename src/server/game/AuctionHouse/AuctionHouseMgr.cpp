@@ -419,6 +419,8 @@ bool AuctionHouseObject::RemoveAuction(AuctionEntry* auction, uint32 /*itemEntry
 
     // we need to delete the entry, it is not referenced any more
     delete auction;
+    auction = NULL;
+
     return wasInMap;
 }
 
@@ -471,8 +473,8 @@ void AuctionHouseObject::Update()
         auction->DeleteFromDB(trans);
         CharacterDatabase.CommitTransaction(trans);
 
-        RemoveAuction(auction, itemEntry);
         sAuctionMgr->RemoveAItem(auction->itemGUIDLow);
+        RemoveAuction(auction, itemEntry);
     }
     while (result->NextRow());
 }

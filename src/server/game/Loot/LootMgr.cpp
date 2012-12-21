@@ -334,6 +334,7 @@ LootItem::LootItem(LootStoreItem const& li)
     is_blocked = 0;
     is_underthreshold = 0;
     is_counted = 0;
+    canSave = true;
 }
 
 // Basic checks for player/item compatibility - if false no chance to see the item in the loot
@@ -652,6 +653,33 @@ void Loot::generateMoneyLoot(uint32 minAmount, uint32 maxAmount)
         else
             gold = uint32(urand(minAmount >> 8, maxAmount >> 8) * sWorld->getRate(RATE_DROP_MONEY)) << 8;
     }
+}
+
+void Loot::DeleteLootItemFromContainerItemDB(uint32 itemID)
+{
+    // Deletes a single item associated with an openable item from the DB
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEMCONTAINER_ITEM);
+    stmt->setUInt32(0, containerID);
+    stmt->setUInt32(1, itemID);
+    CharacterDatabase.Execute(stmt);
+
+    // Mark the item looted to prevent resaving
+    for (LootItemList::iterator _itr = items.begin(); _itr != items.end(); _itr++)
+    {
+        if (!_itr->itemid == itemID)
+            continue;
+
+        _itr->canSave = true;
+        break;
+    }
+}
+
+void Loot::DeleteLootMoneyFromContainerItemDB()
+{
+    // Deletes money loot associated with an openable item from the DB
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEMCONTAINER_MONEY);
+    stmt->setUInt32(0, containerID);
+    CharacterDatabase.Execute(stmt);
 }
 
 LootItem* Loot::LootItemInSlot(uint32 lootSlot, Player* player, QuestItem* *qitem, QuestItem* *ffaitem, QuestItem* *conditem)
@@ -1237,6 +1265,19 @@ void LootTemplate::CopyConditions(ConditionList conditions)
 
     for (LootGroups::iterator i = Groups.begin(); i != Groups.end(); ++i)
         i->CopyConditions(conditions);
+}
+
+void LootTemplate::CopyConditions(LootItem* li) const
+{
+    // Copies the conditions list from a template item to a LootItem
+    for (LootStoreItemList::const_iterator _iter = Entries.begin(); _iter != Entries.end(); ++_iter)
+    {
+        if (!_iter->itemid == li->itemid)
+            continue;
+
+        li->conditions = _iter->conditions;
+        break;
+    }
 }
 
 // Rolls for every item in the template and adds the rolled items the the loot

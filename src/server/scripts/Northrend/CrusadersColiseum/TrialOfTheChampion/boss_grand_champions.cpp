@@ -1255,8 +1255,8 @@ class boss_hunter_toc5 : public CreatureScript
 
         void JustDied(Unit* killer)
         {
-            hasBeenInCombat = false;	
-            Talk(SAY_START);	
+            hasBeenInCombat = false;
+            Talk(SAY_START);
             if (pInstance)
                 pInstance->SetData(BOSS_GRAND_CHAMPIONS, DONE);
 
