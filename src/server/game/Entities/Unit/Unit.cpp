@@ -5608,6 +5608,8 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
 
                     if (!ok)
                         return false;
+
+                    break;
                 }
                 // Essence of the Blood Queen
                 case 70871:
