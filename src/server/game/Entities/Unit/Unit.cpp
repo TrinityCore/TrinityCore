@@ -15675,11 +15675,7 @@ void Unit::ApplyResilience(Unit const* victim, int32* damage, bool isCrit) const
         return;
 
     // Don't consider resilience if not in PvP - player or pet
-    bool isAllowedSource = (GetTypeId() == TYPEID_PLAYER);
-    if (!isAllowedSource && GetTypeId() == TYPEID_UNIT && GetOwner() && GetOwner()->GetTypeId() == TYPEID_PLAYER)
-        isAllowedSource = true;
-
-    if (!isAllowedSource)
+    if (!GetCharmerOrOwnerPlayerOrPlayerItself())
         return;
 
     Unit const* target = NULL;
