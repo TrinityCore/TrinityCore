@@ -5572,44 +5572,14 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                 // Shadow's Fate (Shadowmourne questline)
                 case 71169:
                 {
-                    bool ok = false;
-                    if (GetMap()->GetDifficulty() == RAID_DIFFICULTY_25MAN_NORMAL || GetMap()->GetDifficulty() == RAID_DIFFICULTY_25MAN_HEROIC)
-                    {
-                        uint32 spellId = 0;
-
-                        switch (GetEntry())
-                        {
-                            case 36678:                 // NPC:     Professor Putricide
-                                spellId = 71518;        // Spell:   Unholy Infusion Credit
-                                break;
-                            case 37955:                 // NPC:     Blood-Queen Lana'thel
-                                spellId = 72934;        // Spell:   Quest Credit
-                                break;
-                            case 36853:                 // NPC:     Sindragosa <Queen of the Frostbrood>
-                                spellId = 72289;        // Spell:   Frost Infusion Quest Credit
-                                break;
-                            default:
-                                break;
-                        }
-
-                        if (spellId)
-                            CastSpell((Unit*)NULL, spellId, true);
-
-                        ok = true;
-                    }
-
-                    // TODO: The aura should be applieable by multiple players
                     Unit* caster = triggeredByAura->GetCaster();
                     if (caster && caster->GetTypeId() == TYPEID_PLAYER && caster->ToPlayer()->GetQuestStatus(24547) == QUEST_STATUS_INCOMPLETE)
                     {
                         CastSpell(caster, 71203, true);
-                        ok = true;
+                        return true;
                     }
-
-                    if (!ok)
+                    else
                         return false;
-
-                    return true;
                 }
                 // Essence of the Blood Queen
                 case 70871:
@@ -9055,7 +9025,7 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
         case 71169:
         {
             // Victim needs more checks so bugs, rats or summons can not be affected by the proc.
-            if (GetTypeId() != TYPEID_PLAYER || victim->GetTypeId() != TYPEID_UNIT || victim->GetCreatureType() == CREATURE_TYPE_CRITTER)
+            if (GetTypeId() != TYPEID_PLAYER || !victim || victim->GetTypeId() != TYPEID_UNIT || victim->GetCreatureType() == CREATURE_TYPE_CRITTER)
                 return false;
 
             Player* player = ToPlayer();
