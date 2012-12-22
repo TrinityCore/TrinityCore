@@ -1261,11 +1261,19 @@ public:
 
         Unit* target = handler->getSelectedUnit();
         if (!target)
+    	{
             target = handler->GetSession()->GetPlayer();
-
+			handler->PSendSysMessage("You changed your display to %u.", target->GetName().c_str(), display_id);
+		}
         // check online security
         else if (target->GetTypeId() == TYPEID_PLAYER && handler->HasLowerSecurity(target->ToPlayer(), 0))
+		{
             return false;
+		}
+		else
+		{
+			handler->PSendSysMessage("You changed [%s]'s display to %u.", target->GetName().c_str(), display_id);
+		}
 
         target->SetDisplayId(display_id);
 
