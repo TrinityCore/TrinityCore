@@ -46,6 +46,17 @@ bool IsWeaponSkill(uint32 skill)
     return pSkill && pSkill->categoryId == SKILL_CATEGORY_WEAPON;
 }
 
+bool IsWeaponSkill(uint32 skill)
+{
+    SkillLineEntry const* pSkill = sSkillLineStore.LookupEntry(skill);
+    if (!pSkill)
+        return false;
+    if (pSkill->categoryId != SKILL_CATEGORY_WEAPON)
+        return false;
+
+    return true;
+}
+
 bool IsPartOfSkillLine(uint32 skillId, uint32 spellId)
 {
     SkillLineAbilityMapBounds skillBounds = sSpellMgr->GetSkillLineAbilityMapBounds(spellId);
