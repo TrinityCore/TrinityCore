@@ -5598,18 +5598,18 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                         ok = true;
                     }
 
-                    // The spell usually only hits one target, but it should hit every player
-                    // which applied Shadows Fate at least once to the victim.
-                    if (target->GetTypeId() == TYPEID_PLAYER && target->ToPlayer()->GetQuestStatus(24547) == QUEST_STATUS_INCOMPLETE)
+                    // TODO: The aura should be applieable by multiple players
+                    Unit* caster = triggeredByAura->GetCaster();
+                    if (caster && caster->GetTypeId() == TYPEID_PLAYER && caster->ToPlayer()->GetQuestStatus(24547) == QUEST_STATUS_INCOMPLETE)
                     {
-                        triggered_spell_id = 71203;
+                        CastSpell(caster, 71203, true);
                         ok = true;
                     }
 
                     if (!ok)
                         return false;
 
-                    break;
+                    return true;
                 }
                 // Essence of the Blood Queen
                 case 70871:
