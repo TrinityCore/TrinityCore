@@ -1972,8 +1972,13 @@ bool Aura::IsProcTriggeredOnEvent(AuraApplication* aurApp, ProcEventInfo& eventI
     if (!sSpellMgr->CanSpellTriggerProcOnEvent(*procEntry, eventInfo))
         return false;
 
+    // do checks using conditions table
+    ConditionList conditions = sConditionMgr->GetConditionsForNotGroupedEntry(CONDITION_SOURCE_TYPE_SPELL_PROC, GetSpellInfo()->Id);
+    ConditionSourceInfo condInfo = ConditionSourceInfo(eventInfo.GetActor(), eventInfo.GetActionTarget());
+    if (!sConditionMgr->IsObjectMeetToConditions(condInfo, conditions))
+        return false;
+
     // TODO:
-    // - do checks using conditions table for eventInfo->GetActor() and eventInfo->GetActionTarget()
     // - add DoCheckProc() AuraScript hook
     // to allow additional requirements for procs
     // this is needed because this is the last moment in which you can prevent aura charge drop on proc
