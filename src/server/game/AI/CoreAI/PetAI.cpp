@@ -106,12 +106,8 @@ void PetAI::UpdateAI(const uint32 diff)
         // Check before attacking to prevent pets from leaving stay position
         if (me->GetCharmInfo()->HasCommandState(COMMAND_STAY))
         {
-            // Case where pet was put on stay after "attack" was clicked and it gets attacked by
-            //  another creature. Pet can switch target if victim is out of range.
             if (me->GetCharmInfo()->IsCommandAttack() || (me->GetCharmInfo()->IsAtStay() && me->IsWithinMeleeRange(me->getVictim())))
                 DoMeleeAttackIfReady();
-            else if (me->GetCharmInfo()->IsCommandAttack() || (me->GetCharmInfo()->IsAtStay() && me->IsWithinMeleeRange(me->getAttackerForHelper())))
-                DoAttack(me->getAttackerForHelper(), false);
         }
         else
             DoMeleeAttackIfReady();
