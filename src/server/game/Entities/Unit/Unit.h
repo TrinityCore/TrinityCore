@@ -1261,12 +1261,22 @@ class Unit : public WorldObject
         }
         Unit* getAttackerForHelper() const                 // If someone wants to help, who to give them
         {
-            if (getVictim() != NULL)
-                return getVictim();
+            if (isPet())
+            {
+                if (!m_attackers.empty())
+                    return *(m_attackers.begin());
 
-            if (!m_attackers.empty())
-                return *(m_attackers.begin());
+                if (getVictim() != NULL)
+                    return getVictim();
+            }
+            else
+            {
+                if (getVictim() != NULL)
+                    return getVictim();
 
+                if (!m_attackers.empty())
+                    return *(m_attackers.begin());
+            }
             return NULL;
         }
         bool Attack(Unit* victim, bool meleeAttack);
