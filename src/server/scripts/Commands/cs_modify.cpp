@@ -1254,6 +1254,8 @@ public:
     //morph creature or player
     static bool HandleModifyMorphCommand(ChatHandler* handler, const char* args)
     {
+        ChatHandler chH = ChatHandler(handler->GetSession());
+
         if (!*args)
             return false;
 
@@ -1268,6 +1270,8 @@ public:
             return false;
 
         target->SetDisplayId(display_id);
+
+    	chH.PSendSysMessage("You changed [%s]'s display to %u.", target->GetName().c_str(), display_id);
 
         return true;
     }
