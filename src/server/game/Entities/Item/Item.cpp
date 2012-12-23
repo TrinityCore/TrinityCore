@@ -1210,7 +1210,6 @@ bool Item::CheckSoulboundTradeExpire()
 void Item::ItemContainerSaveLootToDB()
 {
     // Saves the money and item loot associated with an openable item to the DB
-
     if (loot.isLooted()) // no money and no loot
         return;
 
@@ -1235,7 +1234,6 @@ void Item::ItemContainerSaveLootToDB()
     // Save items
     if (!loot.isLooted())
     {
-        
         PreparedStatement* stmt_items = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEMCONTAINER_ITEMS);
         stmt_items->setUInt32(0, container_id);
         trans->Append(stmt_items);
@@ -1272,7 +1270,6 @@ void Item::ItemContainerSaveLootToDB()
 bool Item::ItemContainerLoadLootFromDB()
 {
     // Loads the money and item loot associated with an openable item from the DB
-
     // Default. If there are no records for this item then it will be rolled for in Player::SendLoot()
     m_lootGenerated = false;
 
@@ -1302,7 +1299,6 @@ bool Item::ItemContainerLoadLootFromDB()
         // Get a LootTemplate for the container item. This is where
         //  the saved loot was originally rolled from, we will copy conditions from it
         LootTemplate const* lt = LootTemplates_Item.GetLootFor(GetEntry());
-
         if (lt)
         {
             do
@@ -1335,24 +1331,24 @@ bool Item::ItemContainerLoadLootFromDB()
 
                 // Finally add the LootItem to the container
                 loot.items.push_back(loot_item);
-                
+
                 // Increment unlooted count
                 loot.unlootedCount++;
 
-            } while (item_result->NextRow());
+            }
+            while (item_result->NextRow());
         }
     }
 
-   // Mark the item if it has loot so it won't be generated again on open
-   m_lootGenerated = !loot.isLooted();
+    // Mark the item if it has loot so it won't be generated again on open
+    m_lootGenerated = !loot.isLooted();
 
-   return m_lootGenerated;
+    return m_lootGenerated;
 }
 
 void Item::ItemContainerDeleteLootItemsFromDB()
 {
     // Deletes items associated with an openable item from the DB
-
     uint32 containerId = GetGUIDLow();
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEMCONTAINER_ITEMS);
     stmt->setUInt32(0, containerId);
@@ -1364,7 +1360,6 @@ void Item::ItemContainerDeleteLootItemsFromDB()
 void Item::ItemContainerDeleteLootItemFromDB(uint32 itemID)
 {
     // Deletes a single item associated with an openable item from the DB
-
     uint32 containerId = GetGUIDLow();
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEMCONTAINER_ITEM);
     stmt->setUInt32(0, containerId);
@@ -1377,7 +1372,6 @@ void Item::ItemContainerDeleteLootItemFromDB(uint32 itemID)
 void Item::ItemContainerDeleteLootMoneyFromDB()
 {
     // Deletes the money loot associated with an openable item from the DB
-
     uint32 containerId = GetGUIDLow();
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEMCONTAINER_MONEY);
     stmt->setUInt32(0, containerId);
@@ -1389,8 +1383,6 @@ void Item::ItemContainerDeleteLootMoneyFromDB()
 void Item::ItemContainerDeleteLootMoneyAndLootItemsFromDB()
 {
     // Deletes money and items associated with an openable item from the DB
-
     ItemContainerDeleteLootMoneyFromDB();
     ItemContainerDeleteLootItemsFromDB();
 }
-
