@@ -274,21 +274,22 @@ class npc_wyrmrest_defender : public CreatureScript
             {
                 switch (spell->Id)
                 {
-                    // This is what happens on retail
-                case SPELL_WYRMREST_DEFENDER_MOUNT:
-                    Talk(WHISPER_MOUNTED, me->GetCharmerOrOwnerGUID());
-                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
-                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE);
-                    break;
+                    case SPELL_WYRMREST_DEFENDER_MOUNT:
+                        Talk(WHISPER_MOUNTED, me->GetCharmerOrOwnerGUID());
+                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
+                        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE);
+                        break;
                     // Both below are for checking low hp warning
-                case SPELL_DEFENDER_ON_LOW_HEALTH_EMOTE:
-                    Talk(BOSS_EMOTE_ON_LOW_HEALTH, me->GetCharmerOrOwnerGUID());
-                    break;
-                case SPELL_RENEW:
-                    if (!hpWarningReady && RenewRecoveryChecker <= 100)
-                        RenewRecoveryChecker = 20000;
+                    case SPELL_DEFENDER_ON_LOW_HEALTH_EMOTE:
+                        Talk(BOSS_EMOTE_ON_LOW_HEALTH, me->GetCharmerOrOwnerGUID());
+                        break;
+                    case SPELL_RENEW:
+                        if (!hpWarningReady && RenewRecoveryChecker <= 100)
+                        {
+                            RenewRecoveryChecker = 20000;
+                        }
                         renewRecoveryCanCheck = true;
-                    break;
+                        break;
                 }
             }
         };
