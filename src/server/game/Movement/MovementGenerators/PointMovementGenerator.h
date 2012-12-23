@@ -32,7 +32,7 @@ class PointMovementGenerator : public MovementGeneratorMedium< T, PointMovementG
         void Initialize(T*);
         void Finalize(T*);
         void Reset(T*);
-        bool Update(T*, const uint32 &);
+        bool Update(T*, uint32);
 
         void MovementInform(T*);
 
@@ -67,7 +67,7 @@ class EffectMovementGenerator : public MovementGenerator
         void Initialize(Unit*) {}
         void Finalize(Unit*);
         void Reset(Unit*) {}
-        bool Update(Unit*, const uint32&);
+        bool Update(Unit*, uint32);
         MovementGeneratorType GetMovementGeneratorType() { return EFFECT_MOTION_TYPE; }
     private:
         uint32 m_Id;

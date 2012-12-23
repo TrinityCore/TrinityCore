@@ -43,18 +43,6 @@ enum Sara
 
 enum YoggSaron_Yells
 {
-    SAY_PHASE2_1                                = -1603330,
-    SAY_PHASE2_2                                = -1603331,
-    SAY_PHASE2_3                                = -1603332,
-    SAY_PHASE2_4                                = -1603333,
-    SAY_PHASE2_5                                = -1603334,
-    SAY_PHASE3                                  = -1603335,
-    SAY_VISION                                  = -1603336,
-    SAY_SLAY_1                                  = -1603337,
-    SAY_SLAY_2                                  = -1603338,
-    WHISP_INSANITY_1                            = -1603339,
-    WHISP_INSANITY_2                            = -1603340,
-    SAY_DEATH                                   = -1603341,
 };
 
 enum

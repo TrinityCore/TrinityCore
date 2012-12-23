@@ -22,8 +22,9 @@ Comment: All disable related commands
 Category: commandscripts
 EndScriptData */
 
-#include "Chat.h"
 #include "DisableMgr.h"
+#include "AchievementMgr.h"
+#include "Chat.h"
 #include "Language.h"
 #include "ObjectMgr.h"
 #include "OutdoorPvP.h"
@@ -140,7 +141,7 @@ public:
             }
             case DISABLE_TYPE_ACHIEVEMENT_CRITERIA:
             {
-                if (!sAchievementCriteriaStore.LookupEntry(entry))
+                if (!sAchievementMgr->GetAchievementCriteria(entry))
                 {
                     handler->PSendSysMessage(LANG_COMMAND_NO_ACHIEVEMENT_CRITERIA_FOUND);
                     handler->SetSentErrorMessage(true);

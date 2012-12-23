@@ -368,10 +368,13 @@ bool Group::AddMember(Player* player)
     if (player)
     {
         player->SetGroupInvite(NULL);
-        if (player->GetGroup() && (isBGGroup() || isBFGroup())) // if player is in group and he is being added to BG raid group, then call SetBattlegroundRaid()
-            player->SetBattlegroundOrBattlefieldRaid(this, subGroup);
-        else if (player->GetGroup()) //if player is in bg raid and we are adding him to normal group, then call SetOriginalGroup()
-            player->SetOriginalGroup(this, subGroup);
+        if (player->GetGroup())
+        {
+            if (isBGGroup() || isBFGroup()) // if player is in group and he is being added to BG raid group, then call SetBattlegroundRaid()
+                player->SetBattlegroundOrBattlefieldRaid(this, subGroup);
+            else //if player is in bg raid and we are adding him to normal group, then call SetOriginalGroup()
+                player->SetOriginalGroup(this, subGroup);
+        }
         else //if player is not in group, then call set group
             player->SetGroup(this, subGroup);
 
@@ -770,7 +773,7 @@ void Group::Disband(bool hideDestroy /* = false */)
 /***                   LOOT SYSTEM                     ***/
 /*********************************************************/
 
-void Group::SendLootStartRoll(uint32 CountDown, uint32 mapid, const Roll &r)
+void Group::SendLootStartRoll(uint32 countDown, uint32 mapid, const Roll &r)
 {
     WorldPacket data(SMSG_LOOT_START_ROLL, (8+4+4+4+4+4+4+1));
     data << uint64(r.itemGUID);                             // guid of rolled item
@@ -780,7 +783,7 @@ void Group::SendLootStartRoll(uint32 CountDown, uint32 mapid, const Roll &r)
     data << uint32(r.itemRandomSuffix);                     // randomSuffix
     data << uint32(r.itemRandomPropId);                     // item random property ID
     data << uint32(r.itemCount);                            // items in stack
-    data << uint32(CountDown);                              // the countdown time to choose "need" or "greed"
+    data << uint32(countDown);                              // the countdown time to choose "need" or "greed"
     data << uint8(r.rollVoteMask);                          // roll type mask
 
     for (Roll::PlayerVote::const_iterator itr=r.playerVote.begin(); itr != r.playerVote.end(); ++itr)
@@ -914,7 +917,7 @@ void Group::GroupLoot(Loot* loot, WorldObject* pLootedObject)
         item = sObjectMgr->GetItemTemplate(i->itemid);
         if (!item)
         {
-            //sLog->outDebug("Group::GroupLoot: missing item prototype for item with id: %d", i->itemid);
+            //sLog->outDebug(LOG_FILTER_GENERAL, "Group::GroupLoot: missing item prototype for item with id: %d", i->itemid);
             continue;
         }
 
@@ -1001,7 +1004,7 @@ void Group::GroupLoot(Loot* loot, WorldObject* pLootedObject)
         item = sObjectMgr->GetItemTemplate(i->itemid);
         if (!item)
         {
-            //sLog->outDebug("Group::GroupLoot: missing item prototype for item with id: %d", i->itemid);
+            //sLog->outDebug(LOG_FILTER_GENERAL, "Group::GroupLoot: missing item prototype for item with id: %d", i->itemid);
             continue;
         }
 
@@ -1198,12 +1201,12 @@ void Group::NeedBeforeGreed(Loot* loot, WorldObject* lootedObject)
 
 void Group::MasterLoot(Loot* /*loot*/, WorldObject* pLootedObject)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "Group::MasterLoot (SMSG_LOOT_MASTER_LIST, 330)");
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "Group::MasterLoot (SMSG_LOOT_MASTER_LIST)");
 
     uint32 real_count = 0;
 
-    WorldPacket data(SMSG_LOOT_MASTER_LIST, 330);
-    data << (uint8)GetMembersCount();
+    WorldPacket data(SMSG_LOOT_MASTER_LIST, 1 + GetMembersCount() * 8);
+    data << uint8(GetMembersCount());
 
     for (GroupReference* itr = GetFirstMember(); itr != NULL; itr = itr->next())
     {
@@ -1507,7 +1510,7 @@ void Group::SendUpdateToPlayer(uint64 playerGUID, MemberSlot* slot)
 
         Player* member = ObjectAccessor::FindPlayer(citr->guid);
 
-        uint8 onlineState = (member) ? MEMBER_STATUS_ONLINE : MEMBER_STATUS_OFFLINE;
+        uint8 onlineState = member ? MEMBER_STATUS_ONLINE : MEMBER_STATUS_OFFLINE;
         onlineState = onlineState | ((isBGGroup() || isBFGroup()) ? MEMBER_STATUS_PVP : 0);
 
         data << citr->name;

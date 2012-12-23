@@ -31,7 +31,7 @@ class ConfusedMovementGenerator : public MovementGeneratorMedium< T, ConfusedMov
         void Initialize(T*);
         void Finalize(T*);
         void Reset(T*);
-        bool Update(T*, const uint32&);
+        bool Update(T*, uint32);
 
         MovementGeneratorType GetMovementGeneratorType() { return CONFUSED_MOTION_TYPE; }
     private:

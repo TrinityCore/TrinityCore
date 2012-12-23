@@ -28,12 +28,10 @@ EndScriptData */
 
 enum eSays
 {
-    SAY_AGGRO          = -1553007,
-    SAY_SLAY_1         = -1553008,
-    SAY_SLAY_2         = -1553009,
-    SAY_SUMMON_1       = -1553010,
-    SAY_SUMMON_2       = -1553011,
-    SAY_DEATH          = -1553012,
+    SAY_AGGRO          = 0,
+    SAY_SLAY           = 1,
+    SAY_SUMMON         = 2,
+    SAY_DEATH          = 3
 };
 
 enum eSpells
@@ -162,17 +160,17 @@ class boss_warp_splinter : public CreatureScript
 
             void EnterCombat(Unit* /*who*/)
             {
-                DoScriptText(SAY_AGGRO, me);
+                Talk(SAY_AGGRO);
             }
 
             void KilledUnit(Unit* /*victim*/)
             {
-                DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2), me);
+                Talk(SAY_SLAY);
             }
 
             void JustDied(Unit* /*killer*/)
             {
-                DoScriptText(SAY_DEATH, me);
+                Talk(SAY_DEATH);
             }
 
             void SummonTreants()
@@ -188,7 +186,7 @@ class boss_warp_splinter : public CreatureScript
                     if (Creature* pTreant = me->SummonCreature(CREATURE_TREANT, treant_pos[i][0], treant_pos[i][1], treant_pos[i][2], O, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 25000))
                         CAST_AI(mob_warp_splinter_treant::mob_warp_splinter_treantAI, pTreant->AI())->WarpGuid = me->GetGUID();
                 }
-                DoScriptText(RAND(SAY_SUMMON_1, SAY_SUMMON_2), me);
+                Talk(SAY_SUMMON);
             }
 
             void UpdateAI(const uint32 diff)

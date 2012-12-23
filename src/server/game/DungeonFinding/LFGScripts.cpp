@@ -161,7 +161,6 @@ void LFGGroupScript::OnRemoveMember(Group* group, uint64 guid, RemoveMethod meth
     }
 
     sLFGMgr->LeaveLfg(guid);
-    sLFGMgr->SetState(guid, LFG_STATE_NONE);
     sLFGMgr->SetGroup(guid, 0);
     uint8 players = sLFGMgr->RemovePlayerFromGroup(gguid, guid);
 

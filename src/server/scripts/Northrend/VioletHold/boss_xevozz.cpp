@@ -22,41 +22,38 @@
 
 enum Spells
 {
-    SPELL_ARCANE_BARRAGE_VOLLEY               = 54202,
-    SPELL_ARCANE_BARRAGE_VOLLEY_H             = 59483,
-    SPELL_ARCANE_BUFFET                       = 54226,
-    SPELL_ARCANE_BUFFET_H                     = 59485,
-    SPELL_SUMMON_ETHEREAL_SPHERE_1            = 54102,
-    SPELL_SUMMON_ETHEREAL_SPHERE_2            = 54137,
-    SPELL_SUMMON_ETHEREAL_SPHERE_3            = 54138,
+    SPELL_ARCANE_BARRAGE_VOLLEY                 = 54202,
+    SPELL_ARCANE_BARRAGE_VOLLEY_H               = 59483,
+    SPELL_ARCANE_BUFFET                         = 54226,
+    SPELL_ARCANE_BUFFET_H                       = 59485,
+    SPELL_SUMMON_ETHEREAL_SPHERE_1              = 54102,
+    SPELL_SUMMON_ETHEREAL_SPHERE_2              = 54137,
+    SPELL_SUMMON_ETHEREAL_SPHERE_3              = 54138,
 };
 
 enum NPCs
 {
-    NPC_ETHEREAL_SPHERE                       = 29271,
-    //NPC_ETHEREAL_SPHERE2                    = 32582, // heroic only?
+    NPC_ETHEREAL_SPHERE                         = 29271,
+    //NPC_ETHEREAL_SPHERE2                      = 32582, // heroic only?
 };
 
 enum CreatureSpells
 {
-    SPELL_ARCANE_POWER                             = 54160,
-    H_SPELL_ARCANE_POWER                           = 59474,
-    SPELL_SUMMON_PLAYERS                           = 54164,
-    SPELL_POWER_BALL_VISUAL                        = 54141,
+    SPELL_ARCANE_POWER                          = 54160,
+    H_SPELL_ARCANE_POWER                        = 59474,
+    SPELL_SUMMON_PLAYERS                        = 54164,
+    SPELL_POWER_BALL_VISUAL                     = 54141,
 };
 
 enum Yells
 {
-    SAY_AGGRO                                   = -1608027,
-    SAY_SLAY_1                                  = -1608028,
-    SAY_SLAY_2                                  = -1608029,
-    SAY_SLAY_3                                  = -1608030,
-    SAY_DEATH                                   = -1608031,
-    SAY_SPAWN                                   = -1608032,
-    SAY_CHARGED                                 = -1608033,
-    SAY_REPEAT_SUMMON_1                         = -1608034,
-    SAY_REPEAT_SUMMON_2                         = -1608035,
-    SAY_SUMMON_ENERGY                           = -1608036
+    SAY_AGGRO                                   = 0,
+    SAY_SLAY                                    = 1,
+    SAY_DEATH                                   = 2,
+    SAY_SPAWN                                   = 3,
+    SAY_CHARGED                                 = 4,
+    SAY_REPEAT_SUMMON                           = 5,
+    SAY_SUMMON_ENERGY                           = 6
 };
 
 class boss_xevozz : public CreatureScript
@@ -139,7 +136,7 @@ public:
 
         void EnterCombat(Unit* /*who*/)
         {
-            DoScriptText(SAY_AGGRO, me);
+            Talk(SAY_AGGRO);
             if (instance)
             {
                 if (GameObject* pDoor = instance->instance->GetGameObject(instance->GetData64(DATA_XEVOZZ_CELL)))
@@ -182,7 +179,7 @@ public:
 
             if (uiSummonEtherealSphere_Timer < uiDiff)
             {
-                DoScriptText(SAY_SPAWN, me);
+                Talk(SAY_SPAWN);
                 DoCast(me, SPELL_SUMMON_ETHEREAL_SPHERE_1);
                 if (IsHeroic()) // extra one for heroic
                     me->SummonCreature(NPC_ETHEREAL_SPHERE, me->GetPositionX()-5+rand()%10, me->GetPositionY()-5+rand()%10, me->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 40000);
@@ -197,7 +194,7 @@ public:
 
         void JustDied(Unit* /*killer*/)
         {
-            DoScriptText(SAY_DEATH, me);
+            Talk(SAY_DEATH);
 
             DespawnSphere();
 
@@ -220,7 +217,7 @@ public:
             if (victim == me)
                 return;
 
-            DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2, SAY_SLAY_3), me);
+            Talk(SAY_SLAY);
         }
     };
 

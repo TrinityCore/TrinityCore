@@ -1113,7 +1113,7 @@ bool GridMap::loadData(char* filename)
             return false;
         }
         // loadup height data
-        if (header.heightMapOffset && !loadHeihgtData(in, header.heightMapOffset, header.heightMapSize))
+        if (header.heightMapOffset && !loadHeightData(in, header.heightMapOffset, header.heightMapSize))
         {
             sLog->outError(LOG_FILTER_MAPS, "Error loading map height data\n");
             fclose(in);
@@ -1169,7 +1169,7 @@ bool GridMap::loadAreaData(FILE* in, uint32 offset, uint32 /*size*/)
     return true;
 }
 
-bool GridMap::loadHeihgtData(FILE* in, uint32 offset, uint32 /*size*/)
+bool GridMap::loadHeightData(FILE* in, uint32 offset, uint32 /*size*/)
 {
     map_heightHeader header;
     fseek(in, offset, SEEK_SET);
@@ -2489,7 +2489,7 @@ bool InstanceMap::AddPlayerToMap(Player* player)
                 if (uint32 dungeonId = sLFGMgr->GetDungeon(group->GetGUID(), true))
                     if (LFGDungeonData const* dungeon = sLFGMgr->GetLFGDungeon(dungeonId))
                         if (LFGDungeonData const* randomDungeon = sLFGMgr->GetLFGDungeon(*(sLFGMgr->GetSelectedDungeons(player->GetGUID()).begin())))
-                            if (uint32(dungeon->map) == GetId() && dungeon->difficulty == uint32(GetDifficulty()) && randomDungeon->type == uint32(LFG_TYPE_RANDOM))
+                            if (uint32(dungeon->map) == GetId() && dungeon->difficulty == GetDifficulty() && randomDungeon->type == LFG_TYPE_RANDOM)
                                 player->CastSpell(player, LFG_SPELL_LUCK_OF_THE_DRAW, true);
         }
 

@@ -125,7 +125,7 @@ enum Spells
 
 enum eSinclari
 {
-    SAY_SINCLARI_1                    = -1608045
+    SAY_SINCLARI_1                    = 0
 };
 
 float FirstPortalWPs [6][3] =
@@ -353,7 +353,7 @@ public:
                     switch (uiPhase)
                     {
                         case 1:
-                            DoScriptText(SAY_SINCLARI_1, me);
+                            Talk(SAY_SINCLARI_1);
                             uiTimer = 4000;
                             uiPhase = 2;
                             break;

@@ -43,23 +43,12 @@ EndContentData */
 
 enum Kerlonian
 {
-    SAY_KER_START               = -1000434,
-
-    EMOTE_KER_SLEEP_1           = -1000435,
-    EMOTE_KER_SLEEP_2           = -1000436,
-    EMOTE_KER_SLEEP_3           = -1000437,
-
-    SAY_KER_SLEEP_1             = -1000438,
-    SAY_KER_SLEEP_2             = -1000439,
-    SAY_KER_SLEEP_3             = -1000440,
-    SAY_KER_SLEEP_4             = -1000441,
-
-    EMOTE_KER_AWAKEN            = -1000445,
-
-    SAY_KER_ALERT_1             = -1000442,
-    SAY_KER_ALERT_2             = -1000443,
-
-    SAY_KER_END                 = -1000444,
+    SAY_KER_START               = 0,
+    EMOTE_KER_SLEEP             = 1,
+    SAY_KER_SLEEP               = 2,
+    SAY_KER_ALERT_1             = 3,
+    SAY_KER_END                 = 4,
+    EMOTE_KER_AWAKEN            = 5,
 
     SPELL_SLEEP_VISUAL          = 25148,
     SPELL_AWAKEN                = 17536,
@@ -81,7 +70,7 @@ public:
             if (npc_kerlonianAI* pKerlonianAI = CAST_AI(npc_kerlonian::npc_kerlonianAI, creature->AI()))
             {
                 creature->SetStandState(UNIT_STAND_STATE_STAND);
-                DoScriptText(SAY_KER_START, creature, player);
+                creature->AI()->Talk(SAY_KER_START, player->GetGUID());
                 pKerlonianAI->StartFollow(player, FACTION_KER_ESCORTEE, quest);
             }
         }
@@ -118,7 +107,7 @@ public:
                         if (player->GetQuestStatus(QUEST_SLEEPER_AWAKENED) == QUEST_STATUS_INCOMPLETE)
                             player->GroupEventHappens(QUEST_SLEEPER_AWAKENED, me);
 
-                        DoScriptText(SAY_KER_END, me);
+                        Talk(SAY_KER_END);
                     }
 
                     SetFollowComplete();
@@ -136,9 +125,9 @@ public:
         {
             SetFollowPaused(true);
 
-            DoScriptText(RAND(EMOTE_KER_SLEEP_1, EMOTE_KER_SLEEP_2, EMOTE_KER_SLEEP_3), me);
+            Talk(EMOTE_KER_SLEEP);
 
-            DoScriptText(RAND(SAY_KER_SLEEP_1, SAY_KER_SLEEP_2, SAY_KER_SLEEP_3, SAY_KER_SLEEP_4), me);
+            Talk(SAY_KER_SLEEP);
 
             me->SetStandState(UNIT_STAND_STATE_SLEEP);
             DoCast(me, SPELL_SLEEP_VISUAL, false);
@@ -149,7 +138,7 @@ public:
             me->RemoveAurasDueToSpell(SPELL_SLEEP_VISUAL);
             me->SetStandState(UNIT_STAND_STATE_STAND);
 
-            DoScriptText(EMOTE_KER_AWAKEN, me);
+            Talk(EMOTE_KER_AWAKEN);
 
             SetFollowPaused(false);
         }
@@ -187,19 +176,19 @@ public:
 
 enum Remtravel
 {
-    SAY_REM_START               = -1000327,
-    SAY_REM_AGGRO               = -1000328,
-    SAY_REM_RAMP1_1             = -1000329,
-    SAY_REM_RAMP1_2             = -1000330,
-    SAY_REM_BOOK                = -1000331,
-    SAY_REM_TENT1_1             = -1000332,
-    SAY_REM_TENT1_2             = -1000333,
-    SAY_REM_MOSS                = -1000334,
-    EMOTE_REM_MOSS              = -1000335,
-    SAY_REM_MOSS_PROGRESS       = -1000336,
-    SAY_REM_PROGRESS            = -1000337,
-    SAY_REM_REMEMBER            = -1000338,
-    EMOTE_REM_END               = -1000339,
+    SAY_REM_START               = 0,
+    SAY_REM_AGGRO               = 1,
+    SAY_REM_RAMP1_1             = 2,
+    SAY_REM_RAMP1_2             = 3,
+    SAY_REM_BOOK                = 4,
+    SAY_REM_TENT1_1             = 5,
+    SAY_REM_TENT1_2             = 6,
+    SAY_REM_MOSS                = 7,
+    EMOTE_REM_MOSS              = 8,
+    SAY_REM_MOSS_PROGRESS       = 9,
+    SAY_REM_PROGRESS            = 10,
+    SAY_REM_REMEMBER            = 11,
+    EMOTE_REM_END               = 12,
 
     FACTION_ESCORTEE            = 10,
     QUEST_ABSENT_MINDED_PT2     = 731,
@@ -242,40 +231,40 @@ public:
                 switch (waypointId)
                 {
                     case 0:
-                        DoScriptText(SAY_REM_START, me, player);
+                        Talk(SAY_REM_START, player->GetGUID());
                         break;
                     case 5:
-                        DoScriptText(SAY_REM_RAMP1_1, me, player);
+                        Talk(SAY_REM_RAMP1_1, player->GetGUID());
                         break;
                     case 6:
                         DoSpawnCreature(NPC_GRAVEL_SCOUT, -10.0f, 5.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
                         DoSpawnCreature(NPC_GRAVEL_BONE, -10.0f, 7.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
                         break;
                     case 9:
-                        DoScriptText(SAY_REM_RAMP1_2, me, player);
+                        Talk(SAY_REM_RAMP1_2, player->GetGUID());
                         break;
                     case 14:
                         //depend quest rewarded?
-                        DoScriptText(SAY_REM_BOOK, me, player);
+                        Talk(SAY_REM_BOOK, player->GetGUID());
                         break;
                     case 15:
-                        DoScriptText(SAY_REM_TENT1_1, me, player);
+                        Talk(SAY_REM_TENT1_1, player->GetGUID());
                         break;
                     case 16:
                         DoSpawnCreature(NPC_GRAVEL_SCOUT, -10.0f, 5.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
                         DoSpawnCreature(NPC_GRAVEL_BONE, -10.0f, 7.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
                         break;
                     case 17:
-                        DoScriptText(SAY_REM_TENT1_2, me, player);
+                        Talk(SAY_REM_TENT1_2, player->GetGUID());
                         break;
                     case 26:
-                        DoScriptText(SAY_REM_MOSS, me, player);
+                        Talk(SAY_REM_MOSS, player->GetGUID());
                         break;
                     case 27:
-                        DoScriptText(EMOTE_REM_MOSS, me, player);
+                        Talk(EMOTE_REM_MOSS, player->GetGUID());
                         break;
                     case 28:
-                        DoScriptText(SAY_REM_MOSS_PROGRESS, me, player);
+                        Talk(SAY_REM_MOSS_PROGRESS, player->GetGUID());
                         break;
                     case 29:
                         DoSpawnCreature(NPC_GRAVEL_SCOUT, -15.0f, 3.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
@@ -283,13 +272,13 @@ public:
                         DoSpawnCreature(NPC_GRAVEL_GEO, -15.0f, 7.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
                         break;
                     case 31:
-                        DoScriptText(SAY_REM_PROGRESS, me, player);
+                        Talk(SAY_REM_PROGRESS, player->GetGUID());
                         break;
                     case 41:
-                        DoScriptText(SAY_REM_REMEMBER, me, player);
+                        Talk(SAY_REM_REMEMBER, player->GetGUID());
                         break;
                     case 42:
-                        DoScriptText(EMOTE_REM_END, me, player);
+                        Talk(EMOTE_REM_END, player->GetGUID());
                         player->GroupEventHappens(QUEST_ABSENT_MINDED_PT2, me);
                         break;
                 }
@@ -301,7 +290,7 @@ public:
         void EnterCombat(Unit* who)
         {
             if (urand(0, 1))
-                DoScriptText(SAY_REM_AGGRO, me, who);
+                Talk(SAY_REM_AGGRO, who->GetGUID());
         }
 
         void JustSummoned(Creature* /*pSummoned*/)
@@ -319,8 +308,8 @@ public:
 
 enum Threshwackonator
 {
-    EMOTE_START             = -1000325, //signed for 4966
-    SAY_AT_CLOSE            = -1000326, //signed for 4966
+    EMOTE_START             = 0,
+    SAY_AT_CLOSE            = 1,
     QUEST_GYROMAST_REV      = 2078,
     NPC_GELKAK              = 6667,
     FACTION_HOSTILE         = 14
@@ -342,7 +331,7 @@ public:
 
             if (npc_threshwackonatorAI* pThreshAI = CAST_AI(npc_threshwackonator::npc_threshwackonatorAI, creature->AI()))
             {
-                DoScriptText(EMOTE_START, creature);
+                creature->AI()->Talk(EMOTE_START);
                 pThreshAI->StartFollow(player);
             }
         }
@@ -378,7 +367,7 @@ public:
             {
                 if (me->IsWithinDistInMap(who, 10.0f))
                 {
-                    DoScriptText(SAY_AT_CLOSE, who);
+                    Talk(SAY_AT_CLOSE, who->GetGUID());
                     DoAtEnd();
                 }
             }

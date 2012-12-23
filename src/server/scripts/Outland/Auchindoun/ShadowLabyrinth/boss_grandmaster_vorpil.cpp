@@ -28,30 +28,30 @@ EndScriptData */
 #include "shadow_labyrinth.h"
 #include "Player.h"
 
-#define SAY_INTRO                       -1555028
-#define SAY_AGGRO1                      -1555029
-#define SAY_AGGRO2                      -1555030
-#define SAY_AGGRO3                      -1555031
-#define SAY_HELP                        -1555032
-#define SAY_SLAY1                       -1555033
-#define SAY_SLAY2                       -1555034
-#define SAY_DEATH                       -1555035
+enum GrandmasterVorpil
+{
+    SAY_INTRO                   = 0,
+    SAY_AGGRO                   = 1,
+    SAY_HELP                    = 2,
+    SAY_SLAY                    = 3,
+    SAY_DEATH                   = 4,
 
-#define SPELL_RAIN_OF_FIRE          33617
-#define H_SPELL_RAIN_OF_FIRE        39363
+    SPELL_RAIN_OF_FIRE          = 33617,
+    H_SPELL_RAIN_OF_FIRE        = 39363,
 
-#define SPELL_DRAW_SHADOWS          33563
-#define SPELL_SHADOWBOLT_VOLLEY     33841
-#define SPELL_BANISH                38791
+    SPELL_DRAW_SHADOWS          = 33563,
+    SPELL_SHADOWBOLT_VOLLEY     = 33841,
+    SPELL_BANISH                = 38791,
 
-#define MOB_VOID_TRAVELER           19226
-#define SPELL_SACRIFICE             33587
-#define SPELL_SHADOW_NOVA           33846
-#define SPELL_EMPOWERING_SHADOWS    33783
-#define H_SPELL_EMPOWERING_SHADOWS  39364
+    MOB_VOID_TRAVELER           = 19226,
+    SPELL_SACRIFICE             = 33587,
+    SPELL_SHADOW_NOVA           = 33846,
+    SPELL_EMPOWERING_SHADOWS    = 33783,
+    H_SPELL_EMPOWERING_SHADOWS  = 39364,
 
-#define MOB_VOID_PORTAL             19224
-#define SPELL_VOID_PORTAL_VISUAL    33569
+    MOB_VOID_PORTAL             = 19224,
+    SPELL_VOID_PORTAL_VISUAL    = 33569
+};
 
 float VorpilPosition[3] = {-252.8820f, -264.3030f, 17.1f};
 
@@ -219,7 +219,7 @@ public:
             me->SummonCreature(MOB_VOID_TRAVELER, VoidPortalCoords[pos][0], VoidPortalCoords[pos][1], VoidPortalCoords[pos][2], 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5000);
             if (!HelpYell)
             {
-                DoScriptText(SAY_HELP, me);
+                Talk(SAY_HELP);
                 HelpYell = true;
             }
         }
@@ -232,12 +232,12 @@ public:
 
         void KilledUnit(Unit* /*victim*/)
         {
-            DoScriptText(RAND(SAY_SLAY1, SAY_SLAY2), me);
+            Talk(SAY_SLAY);
         }
 
         void JustDied(Unit* /*killer*/)
         {
-            DoScriptText(SAY_DEATH, me);
+            Talk(SAY_DEATH);
             destroyPortals();
 
             if (instance)
@@ -246,7 +246,7 @@ public:
 
         void EnterCombat(Unit* /*who*/)
         {
-            DoScriptText(RAND(SAY_AGGRO1, SAY_AGGRO2, SAY_AGGRO3), me);
+            Talk(SAY_AGGRO);
             summonPortals();
 
             if (instance)
@@ -259,7 +259,7 @@ public:
 
             if (!Intro && me->IsWithinLOSInMap(who)&& me->IsWithinDistInMap(who, 100) && me->IsValidAttackTarget(who))
             {
-                DoScriptText(SAY_INTRO, me);
+                Talk(SAY_INTRO);
                 Intro = true;
             }
         }

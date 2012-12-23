@@ -33,7 +33,7 @@
 #include "ScriptMgr.h"
 #include "GameObjectAI.h"
 
-void WorldSession::HandleQuestgiverStatusQueryOpcode(WorldPacket & recvData)
+void WorldSession::HandleQuestgiverStatusQueryOpcode(WorldPacket& recvData)
 {
     uint64 guid;
     recvData >> guid;
@@ -43,7 +43,7 @@ void WorldSession::HandleQuestgiverStatusQueryOpcode(WorldPacket & recvData)
     Object* questgiver = ObjectAccessor::GetObjectByTypeMask(*_player, guid, TYPEMASK_UNIT|TYPEMASK_GAMEOBJECT);
     if (!questgiver)
     {
-        sLog->outInfo(LOG_FILTER_NETWORKIO, "Error in CMSG_QUESTGIVER_STATUS_QUERY, called for not found questgiver (Typeid: %u GUID: %u)", GuidHigh2TypeId(GUID_HIPART(guid)), GUID_LOPART(guid));
+        sLog->outInfo(LOG_FILTER_NETWORKIO, "Error in CMSG_QUESTGIVER_STATUS_QUERY, called for non-existing questgiver (Typeid: %u GUID: %u)", GuidHigh2TypeId(GUID_HIPART(guid)), GUID_LOPART(guid));
         return;
     }
 
@@ -79,7 +79,7 @@ void WorldSession::HandleQuestgiverStatusQueryOpcode(WorldPacket & recvData)
     _player->PlayerTalkClass->SendQuestGiverStatus(questStatus, guid);
 }
 
-void WorldSession::HandleQuestgiverHelloOpcode(WorldPacket & recvData)
+void WorldSession::HandleQuestgiverHelloOpcode(WorldPacket& recvData)
 {
     uint64 guid;
     recvData >> guid;
@@ -109,7 +109,7 @@ void WorldSession::HandleQuestgiverHelloOpcode(WorldPacket & recvData)
     creature->AI()->sGossipHello(_player);
 }
 
-void WorldSession::HandleQuestgiverAcceptQuestOpcode(WorldPacket & recvData)
+void WorldSession::HandleQuestgiverAcceptQuestOpcode(WorldPacket& recvData)
 {
     uint64 guid;
     uint32 questId;
@@ -230,7 +230,7 @@ void WorldSession::HandleQuestgiverAcceptQuestOpcode(WorldPacket & recvData)
     _player->PlayerTalkClass->SendCloseGossip();
 }
 
-void WorldSession::HandleQuestgiverQueryQuestOpcode(WorldPacket & recvData)
+void WorldSession::HandleQuestgiverQueryQuestOpcode(WorldPacket& recvData)
 {
     uint64 guid;
     uint32 questId;
@@ -268,7 +268,7 @@ void WorldSession::HandleQuestgiverQueryQuestOpcode(WorldPacket & recvData)
     }
 }
 
-void WorldSession::HandleQuestQueryOpcode(WorldPacket & recvData)
+void WorldSession::HandleQuestQueryOpcode(WorldPacket& recvData)
 {
     if (!_player)
         return;
@@ -281,7 +281,7 @@ void WorldSession::HandleQuestQueryOpcode(WorldPacket & recvData)
         _player->PlayerTalkClass->SendQuestQueryResponse(quest);
 }
 
-void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPacket & recvData)
+void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPacket& recvData)
 {
     uint32 questId, reward;
     uint64 guid;
@@ -289,7 +289,7 @@ void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPacket & recvData)
 
     if (reward >= QUEST_REWARD_CHOICES_COUNT)
     {
-        sLog->outError(LOG_FILTER_NETWORKIO, "Error in CMSG_QUESTGIVER_CHOOSE_REWARD: player %s (guid %d) tried to get invalid reward (%u) (probably packet hacking)", _player->GetName().c_str(), _player->GetGUIDLow(), reward);
+        sLog->outError(LOG_FILTER_NETWORKIO, "Error in CMSG_QUESTGIVER_CHOOSE_REWARD: player %s (guid %d) tried to get invalid reward (%u) (possible packet-hacking detected)", _player->GetName().c_str(), _player->GetGUIDLow(), reward);
         return;
     }
 
@@ -308,7 +308,7 @@ void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPacket & recvData)
         if ((!_player->CanSeeStartQuest(quest) &&  _player->GetQuestStatus(questId) == QUEST_STATUS_NONE) ||
             (_player->GetQuestStatus(questId) != QUEST_STATUS_COMPLETE && !quest->IsAutoComplete()))
         {
-            sLog->outError(LOG_FILTER_NETWORKIO, "HACK ALERT: Player %s (guid: %u) is trying to complete quest (id: %u) but he has no right to do it!",
+            sLog->outError(LOG_FILTER_NETWORKIO, "Error in QUEST_STATUS_COMPLETE: player %s (guid %u) tried to complete quest %u, but is not allowed to do so (possible packet-hacking or high latency)",
                            _player->GetName().c_str(), _player->GetGUIDLow(), questId);
             return;
         }
@@ -365,7 +365,7 @@ void WorldSession::HandleQuestgiverChooseRewardOpcode(WorldPacket & recvData)
     }
 }
 
-void WorldSession::HandleQuestgiverRequestRewardOpcode(WorldPacket & recvData)
+void WorldSession::HandleQuestgiverRequestRewardOpcode(WorldPacket& recvData)
 {
     uint32 questId;
     uint64 guid;

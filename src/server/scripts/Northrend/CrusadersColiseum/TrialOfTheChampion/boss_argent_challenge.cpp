@@ -27,10 +27,34 @@ EndScriptData */
 #include "SpellScript.h"
 #include "trial_of_the_champion.h"
 #include "ScriptedEscortAI.h"
-
-enum eSpells
+/*
+enum Yells
 {
-    //Eadric
+    // Eadric the Pure
+    SAY_INTRO                   = 0,
+    SAY_AGGRO                   = 1,
+    EMOTE_RADIANCE              = 2,
+    EMOTE_HAMMER_RIGHTEOUS      = 3,
+    SAY_HAMMER_RIGHTEOUS        = 4,
+    SAY_KILL_PLAYER             = 5,
+    SAY_DEFEATED                = 6,
+
+    // Argent Confessor Paletress
+    SAY_INTRO_1                 = 0,
+    SAY_INTRO_2                 = 1,
+    SAY_AGGRO                   = 2,
+    SAY_MEMORY_SUMMON           = 3,
+    SAY_MEMORY_DEATH            = 4,
+    SAY_KILL_PLAYER             = 5,
+    SAY_DEFEATED                = 6,
+
+    // Memory of X
+    EMOTE_WAKING_NIGHTMARE      = 0
+};
+*/
+enum Spells
+{
+    // Eadric the Pure
     SPELL_EADRIC_ACHIEVEMENT    = 68197,
     SPELL_HAMMER_JUSTICE        = 66863,
     SPELL_HAMMER_RIGHTEOUS      = 66867,

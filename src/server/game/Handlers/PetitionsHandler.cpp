@@ -50,7 +50,7 @@ enum CharterCosts
     ARENA_TEAM_CHARTER_5v5_COST                   = 2000000
 };
 
-void WorldSession::HandlePetitionBuyOpcode(WorldPacket & recvData)
+void WorldSession::HandlePetitionBuyOpcode(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "Received opcode CMSG_PETITION_BUY");
 
@@ -305,7 +305,7 @@ void WorldSession::HandlePetitionShowSignOpcode(WorldPacket& recvData)
     SendPacket(&data);
 }
 
-void WorldSession::HandlePetitionQueryOpcode(WorldPacket & recvData)
+void WorldSession::HandlePetitionQueryOpcode(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "Received opcode CMSG_PETITION_QUERY");   // ok
 
@@ -380,7 +380,7 @@ void WorldSession::SendPetitionQueryOpcode(uint64 petitionguid)
     SendPacket(&data);
 }
 
-void WorldSession::HandlePetitionRenameOpcode(WorldPacket & recvData)
+void WorldSession::HandlePetitionRenameOpcode(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "Received opcode MSG_PETITION_RENAME");   // ok
 
@@ -453,7 +453,7 @@ void WorldSession::HandlePetitionRenameOpcode(WorldPacket & recvData)
     SendPacket(&data);
 }
 
-void WorldSession::HandlePetitionSignOpcode(WorldPacket & recvData)
+void WorldSession::HandlePetitionSignOpcode(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "Received opcode CMSG_PETITION_SIGN");    // ok
 
@@ -590,7 +590,7 @@ void WorldSession::HandlePetitionSignOpcode(WorldPacket & recvData)
         owner->GetSession()->SendPacket(&data);
 }
 
-void WorldSession::HandlePetitionDeclineOpcode(WorldPacket & recvData)
+void WorldSession::HandlePetitionDeclineOpcode(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "Received opcode MSG_PETITION_DECLINE");  // ok
 
@@ -620,7 +620,7 @@ void WorldSession::HandlePetitionDeclineOpcode(WorldPacket & recvData)
     }
 }
 
-void WorldSession::HandleOfferPetitionOpcode(WorldPacket & recvData)
+void WorldSession::HandleOfferPetitionOpcode(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "Received opcode CMSG_OFFER_PETITION");   // ok
 
@@ -729,7 +729,7 @@ void WorldSession::HandleOfferPetitionOpcode(WorldPacket & recvData)
     player->GetSession()->SendPacket(&data);
 }
 
-void WorldSession::HandleTurnInPetitionOpcode(WorldPacket & recvData)
+void WorldSession::HandleTurnInPetitionOpcode(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "Received opcode CMSG_TURN_IN_PETITION");
 
@@ -919,7 +919,7 @@ void WorldSession::HandleTurnInPetitionOpcode(WorldPacket & recvData)
     SendPacket(&data);
 }
 
-void WorldSession::HandlePetitionShowListOpcode(WorldPacket & recvData)
+void WorldSession::HandlePetitionShowListOpcode(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "Received CMSG_PETITION_SHOWLIST");
 

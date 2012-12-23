@@ -47,7 +47,7 @@ class TargetedMovementGeneratorMedium : public MovementGeneratorMedium< T, D >, 
         ~TargetedMovementGeneratorMedium() { delete i_path; }
 
     public:
-        bool Update(T*, const uint32 &);
+        bool Update(T*, uint32);
         Unit* GetTarget() const { return i_target.getTarget(); }
 
         void unitSpeedChanged() { i_recalculateTravel = true; }
@@ -114,4 +114,8 @@ class FollowMovementGenerator : public TargetedMovementGeneratorMedium<T, Follow
         void _updateSpeed(T* u);
 };
 
+<<<<<<< HEAD
 #endif
+=======
+#endif
+>>>>>>> a0239c2210a49a3b41a764d41d75098e8bb8ffeb

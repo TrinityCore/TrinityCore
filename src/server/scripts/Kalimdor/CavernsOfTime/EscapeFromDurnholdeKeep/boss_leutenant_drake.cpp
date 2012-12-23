@@ -56,18 +56,20 @@ public:
 ## boss_lieutenant_drake
 ######*/
 
-#define SAY_ENTER               -1560006
-#define SAY_AGGRO               -1560007
-#define SAY_SLAY1               -1560008
-#define SAY_SLAY2               -1560009
-#define SAY_MORTAL              -1560010
-#define SAY_SHOUT               -1560011
-#define SAY_DEATH               -1560012
+enum LieutenantDrake
+{
+    SAY_ENTER               = 0,
+    SAY_AGGRO               = 1,
+    SAY_SLAY                = 2,
+    SAY_MORTAL              = 3,
+    SAY_SHOUT               = 4,
+    SAY_DEATH               = 5,
 
-#define SPELL_WHIRLWIND         31909
-#define SPELL_HAMSTRING         9080
-#define SPELL_MORTAL_STRIKE     31911
-#define SPELL_FRIGHTENING_SHOUT 33789
+    SPELL_WHIRLWIND         = 31909,
+    SPELL_HAMSTRING         = 9080,
+    SPELL_MORTAL_STRIKE     = 31911,
+    SPELL_FRIGHTENING_SHOUT = 33789
+};
 
 struct Location
 {
@@ -135,17 +137,17 @@ public:
 
         void EnterCombat(Unit* /*who*/)
         {
-            DoScriptText(SAY_AGGRO, me);
+            Talk(SAY_AGGRO);
         }
 
         void KilledUnit(Unit* /*victim*/)
         {
-            DoScriptText(RAND(SAY_SLAY1, SAY_SLAY2), me);
+            Talk(SAY_SLAY);
         }
 
         void JustDied(Unit* /*killer*/)
         {
-            DoScriptText(SAY_DEATH, me);
+            Talk(SAY_DEATH);
         }
 
         void UpdateAI(const uint32 diff)
@@ -171,7 +173,7 @@ public:
             //Fear
             if (Fear_Timer <= diff)
             {
-                DoScriptText(SAY_SHOUT, me);
+                Talk(SAY_SHOUT);
                 DoCast(me->getVictim(), SPELL_FRIGHTENING_SHOUT);
                 Fear_Timer = 25000+rand()%10000;
             } else Fear_Timer -= diff;
@@ -179,7 +181,7 @@ public:
             //Mortal Strike
             if (MortalStrike_Timer <= diff)
             {
-                DoScriptText(SAY_MORTAL, me);
+                Talk(SAY_MORTAL);
                 DoCast(me->getVictim(), SPELL_MORTAL_STRIKE);
                 MortalStrike_Timer = 20000+rand()%10000;
             } else MortalStrike_Timer -= diff;

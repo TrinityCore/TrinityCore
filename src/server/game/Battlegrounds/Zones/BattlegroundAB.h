@@ -272,7 +272,7 @@ class BattlegroundAB : public Battleground
         /* achievement req. */
         bool IsAllNodesConrolledByTeam(uint32 team) const;  // overwrited
         bool IsTeamScores500Disadvantage(uint32 team) const { return m_TeamScores500Disadvantage[GetTeamIndexByTeamId(team)]; }
-        
+
         uint32 GetPrematureWinner();
     private:
         void PostUpdateImpl(uint32 diff);

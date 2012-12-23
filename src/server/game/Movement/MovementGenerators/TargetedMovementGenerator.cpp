@@ -42,6 +42,7 @@ void TargetedMovementGeneratorMedium<T,D>::_setTargetLocation(T* owner)
 
     if (!i_offset)
     {
+<<<<<<< HEAD
         float dist = 0.0f;
 
         if (owner->getVictim() && owner->getVictim()->GetGUID() == i_target->GetGUID())
@@ -49,6 +50,37 @@ void TargetedMovementGeneratorMedium<T,D>::_setTargetLocation(T* owner)
 
         if (dist < 0.5f)
             dist = 0.5f;
+=======
+        if (!i_offset)
+        {
+            // to nearest contact position
+            i_target->GetContactPoint(owner, x, y, z);
+        }
+        else
+        {
+            float dist;
+            float size;
+
+            // Pets need special handling.
+            // We need to subtract GetObjectSize() because it gets added back further down the chain
+            //  and that makes pets too far away. Subtracting it allows pets to properly
+            //  be (GetCombatReach() + i_offset) away.
+            // Only applies when i_target is pet's owner otherwise pets and mobs end up
+            //   doing a "dance" while fighting
+            if (owner->isPet() && i_target->GetTypeId() == TYPEID_PLAYER)
+            {
+                dist = i_target->GetCombatReach();
+                size = i_target->GetCombatReach() - i_target->GetObjectSize();
+            }
+            else
+            {
+                dist = i_offset + 1.0f;
+                size = owner->GetObjectSize();
+            }
+
+            if (i_target->IsWithinDistInMap(owner, dist))
+                return;
+>>>>>>> a0239c2210a49a3b41a764d41d75098e8bb8ffeb
 
         if (owner->IsWithinLOSInMap(owner->getVictim()))
             i_target->GetContactPoint(owner, x, y, z, dist);
@@ -121,7 +153,7 @@ void TargetedMovementGeneratorMedium<Creature,FollowMovementGenerator<Creature> 
 }
 
 template<class T, typename D>
-bool TargetedMovementGeneratorMedium<T,D>::Update(T* owner, const uint32& time_diff)
+bool TargetedMovementGeneratorMedium<T,D>::Update(T* owner, uint32 time_diff)
 {
     if (!i_target.isValid() || !i_target->IsInWorld())
         return false;
@@ -310,6 +342,7 @@ void FollowMovementGenerator<Creature>::MovementInform(Creature* unit)
 }
 
 //-----------------------------------------------//
+<<<<<<< HEAD
 template void TargetedMovementGeneratorMedium<Player,ChaseMovementGenerator<Player> >::_setTargetLocation(Player*);
 template void TargetedMovementGeneratorMedium<Player,FollowMovementGenerator<Player> >::_setTargetLocation(Player*);
 template void TargetedMovementGeneratorMedium<Creature,ChaseMovementGenerator<Creature> >::_setTargetLocation(Creature*);
@@ -318,6 +351,16 @@ template bool TargetedMovementGeneratorMedium<Player,ChaseMovementGenerator<Play
 template bool TargetedMovementGeneratorMedium<Player,FollowMovementGenerator<Player> >::Update(Player*, const uint32&);
 template bool TargetedMovementGeneratorMedium<Creature,ChaseMovementGenerator<Creature> >::Update(Creature*, const uint32&);
 template bool TargetedMovementGeneratorMedium<Creature,FollowMovementGenerator<Creature> >::Update(Creature*, const uint32&);
+=======
+template void TargetedMovementGeneratorMedium<Player,ChaseMovementGenerator<Player> >::_setTargetLocation(Player*, bool);
+template void TargetedMovementGeneratorMedium<Player,FollowMovementGenerator<Player> >::_setTargetLocation(Player*, bool);
+template void TargetedMovementGeneratorMedium<Creature,ChaseMovementGenerator<Creature> >::_setTargetLocation(Creature*, bool);
+template void TargetedMovementGeneratorMedium<Creature,FollowMovementGenerator<Creature> >::_setTargetLocation(Creature*, bool);
+template bool TargetedMovementGeneratorMedium<Player,ChaseMovementGenerator<Player> >::Update(Player*, uint32);
+template bool TargetedMovementGeneratorMedium<Player,FollowMovementGenerator<Player> >::Update(Player*, uint32);
+template bool TargetedMovementGeneratorMedium<Creature,ChaseMovementGenerator<Creature> >::Update(Creature*, uint32);
+template bool TargetedMovementGeneratorMedium<Creature,FollowMovementGenerator<Creature> >::Update(Creature*, uint32);
+>>>>>>> a0239c2210a49a3b41a764d41d75098e8bb8ffeb
 
 template void ChaseMovementGenerator<Player>::_reachTarget(Player*);
 template void ChaseMovementGenerator<Creature>::_reachTarget(Creature*);

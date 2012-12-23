@@ -24,68 +24,62 @@
 
 enum Texts
 {
-    SAY_KILL_1                          = -1599016,
-    SAY_KILL_2                          = -1599017,
-    SAY_KILL_3                          = -1599018,
-    SAY_LOW_HEALTH                      = -1599019,
-    SAY_DEATH                           = -1599020,
-    SAY_PLAYER_DEATH_1                  = -1599021,
-    SAY_PLAYER_DEATH_2                  = -1599022,
-    SAY_PLAYER_DEATH_3                  = -1599023,
-    SAY_ESCORT_START                    = -1599024,
+    SAY_KILL                            = 0,
+    SAY_LOW_HEALTH                      = 1,
+    SAY_DEATH                           = 2,
+    SAY_PLAYER_DEATH                    = 3,
+    SAY_ESCORT_START                    = 4,
 
-    SAY_SPAWN_DWARF                     = -1599025,
-    SAY_SPAWN_TROGG                     = -1599026,
-    SAY_SPAWN_OOZE                      = -1599027,
-    SAY_SPAWN_EARTHEN                   = -1599028,
+    SAY_SPAWN_DWARF                     = 5,
+    SAY_SPAWN_TROGG                     = 6,
+    SAY_SPAWN_OOZE                      = 7,
+    SAY_SPAWN_EARTHEN                   = 8,
 
-    SAY_EVENT_INTRO_1                   = -1599029,
-    SAY_EVENT_INTRO_2                   = -1599030,
-    SAY_EVENT_INTRO_3_ABED              = -1599031,
+    SAY_EVENT_INTRO_1                   = 9,
+    SAY_EVENT_INTRO_2                   = 10,
+    SAY_EVENT_A_1                       = 11,
+    SAY_EVENT_A_3                       = 12,
+    SAY_EVENT_B_1                       = 13,
+    SAY_EVENT_B_3                       = 14,
+    SAY_EVENT_C_1                       = 15,
+    SAY_EVENT_C_3                       = 16,
+    SAY_EVENT_D_1                       = 17,
+    SAY_EVENT_D_3                       = 18,
 
-    SAY_EVENT_A_1                       = -1599032,
-    SAY_EVENT_A_2_KADD                  = -1599033,
-    SAY_EVENT_A_3                       = -1599034,
+    SAY_EVENT_END_01                    = 19,
+    SAY_EVENT_END_02                    = 20,
+    SAY_EVENT_END_04                    = 21,
+    SAY_EVENT_END_06                    = 22,
+    SAY_EVENT_END_08                    = 23,
+    SAY_EVENT_END_10                    = 24,
+    SAY_EVENT_END_12                    = 25,
+    SAY_EVENT_END_14                    = 26,
+    SAY_EVENT_END_16                    = 27,
+    SAY_EVENT_END_18                    = 28,
+    SAY_EVENT_END_20                    = 29,
 
-    SAY_EVENT_B_1                       = -1599035,
-    SAY_EVENT_B_2_MARN                  = -1599036,
-    SAY_EVENT_B_3                       = -1599037,
+    SAY_VICTORY_SJONNIR_1               = 30,
+    SAY_VICTORY_SJONNIR_2               = 31,
+    SAY_ENTRANCE_MEET                   = 32,
 
-    SAY_EVENT_C_1                       = -1599038,
-    SAY_EVENT_C_2_ABED                  = -1599039,
-    SAY_EVENT_C_3                       = -1599040,
+    SAY_EVENT_INTRO_3_ABED              = 0,
+    SAY_EVENT_C_2_ABED                  = 1,
+    SAY_EVENT_D_2_ABED                  = 2,
+    SAY_EVENT_D_4_ABED                  = 3,
+    SAY_EVENT_END_03_ABED               = 4,
+    SAY_EVENT_END_05_ABED               = 5,
+    SAY_EVENT_END_07_ABED               = 6,
+    SAY_EVENT_END_21_ABED               = 7,
 
-    SAY_EVENT_D_1                       = -1599041,
-    SAY_EVENT_D_2_ABED                  = -1599042,
-    SAY_EVENT_D_3                       = -1599043,
-    SAY_EVENT_D_4_ABED                  = -1599044,
+    SAY_EVENT_A_2_KADD                  = 0,
+    SAY_EVENT_END_09_KADD               = 1,
+    SAY_EVENT_END_11_KADD               = 2,
+    SAY_EVENT_END_13_KADD               = 3,
 
-    SAY_EVENT_END_01                    = -1599045,
-    SAY_EVENT_END_02                    = -1599046,
-    SAY_EVENT_END_03_ABED               = -1599047,
-    SAY_EVENT_END_04                    = -1599048,
-    SAY_EVENT_END_05_ABED               = -1599049,
-    SAY_EVENT_END_06                    = -1599050,
-    SAY_EVENT_END_07_ABED               = -1599051,
-    SAY_EVENT_END_08                    = -1599052,
-    SAY_EVENT_END_09_KADD               = -1599053,
-    SAY_EVENT_END_10                    = -1599054,
-    SAY_EVENT_END_11_KADD               = -1599055,
-    SAY_EVENT_END_12                    = -1599056,
-    SAY_EVENT_END_13_KADD               = -1599057,
-    SAY_EVENT_END_14                    = -1599058,
-    SAY_EVENT_END_15_MARN               = -1599059,
-    SAY_EVENT_END_16                    = -1599060,
-    SAY_EVENT_END_17_MARN               = -1599061,
-    SAY_EVENT_END_18                    = -1599062,
-    SAY_EVENT_END_19_MARN               = -1599063,
-    SAY_EVENT_END_20                    = -1599064,
-    SAY_EVENT_END_21_ABED               = -1599065,
-
-    SAY_VICTORY_SJONNIR_1               = -1599066,
-    SAY_VICTORY_SJONNIR_2               = -1599067,
-
-    SAY_ENTRANCE_MEET                   = -1599068,
+    SAY_EVENT_B_2_MARN                  = 0,
+    SAY_EVENT_END_15_MARN               = 1,
+    SAY_EVENT_END_17_MARN               = 2,
+    SAY_EVENT_END_19_MARN               = 3,
 
     TEXT_ID_START                       = 13100,
     TEXT_ID_PROGRESS                    = 13101
@@ -363,12 +357,12 @@ public:
                     }
                     break;
                 case 13:
-                    DoScriptText(SAY_EVENT_INTRO_1, me);
+                    Talk(SAY_EVENT_INTRO_1);
                     SetEscortPaused(true);
                     JumpToNextStep(20000);
                     break;
                 case 17:
-                    DoScriptText(SAY_EVENT_INTRO_2, me);
+                    Talk(SAY_EVENT_INTRO_2);
                     if (instance)
                         instance->HandleGameObject(instance->GetData64(DATA_GO_TRIBUNAL_CONSOLE), true);
                     me->SetStandState(UNIT_STAND_STATE_KNEEL);
@@ -452,7 +446,7 @@ public:
                             instance->SetData(DATA_BRANN_EVENT, IN_PROGRESS);
                         }
                         bIsBattle = false;
-                        DoScriptText(SAY_ESCORT_START, me);
+                        Talk(SAY_ESCORT_START);
                         SetRun(true);
                         JumpToNextStep(0);
                         break;
@@ -463,21 +457,21 @@ public:
                     case 5:
                         if (instance)
                             if (Creature* temp = (Unit::GetCreature(*me, instance->GetData64(DATA_ABEDNEUM))))
-                                DoScriptText(SAY_EVENT_INTRO_3_ABED, temp);
+                                temp->AI()->Talk(SAY_EVENT_INTRO_3_ABED);
                             JumpToNextStep(8500);
                         break;
                     case 6:
-                        DoScriptText(SAY_EVENT_A_1, me);
+                        Talk(SAY_EVENT_A_1);
                         JumpToNextStep(6500);
                         break;
                     case 7:
                         if (instance)
                             if (Creature* temp = Unit::GetCreature(*me, instance->GetData64(DATA_KADDRAK)))
-                                DoScriptText(SAY_EVENT_A_2_KADD, temp);
+                                temp->AI()->Talk(SAY_EVENT_A_2_KADD);
                             JumpToNextStep(12500);
                         break;
                     case 8:
-                        DoScriptText(SAY_EVENT_A_3, me);
+                        Talk(SAY_EVENT_A_3);
                         if (instance)
                             instance->HandleGameObject(instance->GetData64(DATA_GO_KADDRAK), true);
                         if (Creature* temp = Unit::GetCreature(*me, uiControllerGUID))
@@ -490,18 +484,18 @@ public:
                         JumpToNextStep(20000);
                         break;
                     case 10:
-                        DoScriptText(SAY_EVENT_B_1, me);
+                        Talk(SAY_EVENT_B_1);
                         JumpToNextStep(6000);
                         break;
                     case 11:
                         if (instance)
                             if (Creature* temp = Unit::GetCreature(*me, instance->GetData64(DATA_MARNAK)))
-                                DoScriptText(SAY_EVENT_B_2_MARN, temp);
+                                temp->AI()->Talk(SAY_EVENT_B_2_MARN);
                         SpawnDwarf(1);
                         JumpToNextStep(20000);
                         break;
                     case 12:
-                        DoScriptText(SAY_EVENT_B_3, me);
+                        Talk(SAY_EVENT_B_3);
                         if (instance)
                             instance->HandleGameObject(instance->GetData64(DATA_GO_MARNAK), true);
                         if (Creature* temp = Unit::GetCreature(*me, uiControllerGUID))
@@ -517,7 +511,7 @@ public:
                         JumpToNextStep(20000);
                         break;
                     case 15:
-                        DoScriptText(SAY_EVENT_C_1, me);
+                        Talk(SAY_EVENT_C_1);
                         SpawnDwarf(1);
                         JumpToNextStep(10000);
                         break;
@@ -528,12 +522,12 @@ public:
                     case 17:
                         if (instance)
                             if (Creature* temp = Unit::GetCreature(*me, instance->GetData64(DATA_ABEDNEUM)))
-                                DoScriptText(SAY_EVENT_C_2_ABED, temp);
+                                temp->AI()->Talk(SAY_EVENT_C_2_ABED);
                             SpawnDwarf(1);
                         JumpToNextStep(20000);
                         break;
                     case 18:
-                        DoScriptText(SAY_EVENT_C_3, me);
+                        Talk(SAY_EVENT_C_3);
                         if (instance)
                             instance->HandleGameObject(instance->GetData64(DATA_GO_ABEDNEUM), true);
                         if (Creature* temp = Unit::GetCreature(*me, uiControllerGUID))
@@ -549,14 +543,14 @@ public:
                         JumpToNextStep(15000);
                         break;
                     case 21:
-                        DoScriptText(SAY_EVENT_D_1, me);
+                        Talk(SAY_EVENT_D_1);
                         SpawnDwarf(3);
                         JumpToNextStep(20000);
                         break;
                     case 22:
                         if (instance)
                             if (Creature* temp = Unit::GetCreature(*me, instance->GetData64(DATA_ABEDNEUM)))
-                                DoScriptText(SAY_EVENT_D_2_ABED, temp);
+                                temp->AI()->Talk(SAY_EVENT_D_2_ABED);
                         SpawnDwarf(1);
                         JumpToNextStep(5000);
                         break;
@@ -565,7 +559,7 @@ public:
                         JumpToNextStep(15000);
                         break;
                     case 24:
-                        DoScriptText(SAY_EVENT_D_3, me);
+                        Talk(SAY_EVENT_D_3);
                         SpawnDwarf(3);
                         JumpToNextStep(5000);
                         break;
@@ -580,13 +574,13 @@ public:
                     case 27:
                         if (instance)
                             if (Creature* temp = Unit::GetCreature(*me, instance->GetData64(DATA_ABEDNEUM)))
-                                DoScriptText(SAY_EVENT_D_4_ABED, temp);
+                                temp->AI()->Talk(SAY_EVENT_D_4_ABED);
                         SpawnDwarf(1);
                         JumpToNextStep(10000);
                         break;
                     case 28:
                         me->SetReactState(REACT_DEFENSIVE);
-                        DoScriptText(SAY_EVENT_END_01, me);
+                        Talk(SAY_EVENT_END_01);
                         me->SetStandState(UNIT_STAND_STATE_STAND);
                         if (instance)
                             instance->HandleGameObject(instance->GetData64(DATA_GO_SKY_FLOOR), true);
@@ -597,7 +591,7 @@ public:
                         JumpToNextStep(6500);
                         break;
                     case 29:
-                        DoScriptText(SAY_EVENT_END_02, me);
+                        Talk(SAY_EVENT_END_02);
                         if (instance)
                             instance->SetData(DATA_BRANN_EVENT, DONE);
                         me->CastSpell(me, SPELL_REWARD_ACHIEVEMENT, true);
@@ -606,97 +600,97 @@ public:
                     case 30:
                         if (instance)
                             if (Creature* temp = Unit::GetCreature(*me, instance->GetData64(DATA_ABEDNEUM)))
-                                DoScriptText(SAY_EVENT_END_03_ABED, temp);
+                                temp->AI()->Talk(SAY_EVENT_END_03_ABED);
                         JumpToNextStep(8500);
                         break;
                     case 31:
-                        DoScriptText(SAY_EVENT_END_04, me);
+                        Talk(SAY_EVENT_END_04);
                         JumpToNextStep(11500);
                         break;
                     case 32:
                         if (instance)
                             if (Creature* temp = Unit::GetCreature(*me, instance->GetData64(DATA_ABEDNEUM)))
-                                DoScriptText(SAY_EVENT_END_05_ABED, temp);
+                                temp->AI()->Talk(SAY_EVENT_END_05_ABED);
                             JumpToNextStep(11500);
                         break;
                     case 33:
-                        DoScriptText(SAY_EVENT_END_06, me);
+                        Talk(SAY_EVENT_END_06);
                         JumpToNextStep(4500);
                         break;
                     case 34:
                         if (instance)
                             if (Creature* temp = Unit::GetCreature(*me, instance->GetData64(DATA_ABEDNEUM)))
-                                DoScriptText(SAY_EVENT_END_07_ABED, temp);
+                                temp->AI()->Talk(SAY_EVENT_END_07_ABED);
                             JumpToNextStep(22500);
                         break;
                     case 35:
-                        DoScriptText(SAY_EVENT_END_08, me);
+                        Talk(SAY_EVENT_END_08);
                         JumpToNextStep(7500);
                         break;
                     case 36:
                         if (instance)
                             if (Creature* temp = Unit::GetCreature(*me, instance->GetData64(DATA_KADDRAK)))
-                                DoScriptText(SAY_EVENT_END_09_KADD, temp);
+                                temp->AI()->Talk(SAY_EVENT_END_09_KADD);
                         JumpToNextStep(18500);
                         break;
                     case 37:
-                        DoScriptText(SAY_EVENT_END_10, me);
+                        Talk(SAY_EVENT_END_10);
                         JumpToNextStep(5500);
                         break;
                     case 38:
                         if (instance)
                             if (Creature* temp = Unit::GetCreature(*me, instance->GetData64(DATA_KADDRAK)))
-                                DoScriptText(SAY_EVENT_END_11_KADD, temp);
+                                temp->AI()->Talk(SAY_EVENT_END_11_KADD);
                             JumpToNextStep(20500);
                         break;
                     case 39:
-                        DoScriptText(SAY_EVENT_END_12, me);
+                        Talk(SAY_EVENT_END_12);
                         JumpToNextStep(2500);
                         break;
                     case 40:
                         if (instance)
                             if (Creature* temp = Unit::GetCreature(*me, instance->GetData64(DATA_KADDRAK)))
-                                DoScriptText(SAY_EVENT_END_13_KADD, temp);
+                                temp->AI()->Talk(SAY_EVENT_END_13_KADD);
                         JumpToNextStep(19500);
                         break;
                     case 41:
-                        DoScriptText(SAY_EVENT_END_14, me);
+                        Talk(SAY_EVENT_END_14);
                         JumpToNextStep(10500);
                         break;
                     case 42:
                         if (instance)
                             if (Creature* temp = Unit::GetCreature(*me, instance->GetData64(DATA_MARNAK)))
-                                DoScriptText(SAY_EVENT_END_15_MARN, temp);
+                                temp->AI()->Talk(SAY_EVENT_END_15_MARN);
                             JumpToNextStep(6500);
                         break;
                     case 43:
-                        DoScriptText(SAY_EVENT_END_16, me);
+                        Talk(SAY_EVENT_END_16);
                         JumpToNextStep(6500);
                         break;
                     case 44:
                         if (instance)
                             if (Creature* temp = Unit::GetCreature(*me, instance->GetData64(DATA_MARNAK)))
-                                DoScriptText(SAY_EVENT_END_17_MARN, temp);
+                                temp->AI()->Talk(SAY_EVENT_END_17_MARN);
                             JumpToNextStep(25500);
                         break;
                     case 45:
-                        DoScriptText(SAY_EVENT_END_18, me);
+                        Talk(SAY_EVENT_END_18);
                         JumpToNextStep(23500);
                         break;
                     case 46:
                         if (instance)
                             if (Creature* temp = Unit::GetCreature(*me, instance->GetData64(DATA_MARNAK)))
-                                DoScriptText(SAY_EVENT_END_19_MARN, temp);
+                                temp->AI()->Talk(SAY_EVENT_END_19_MARN);
                             JumpToNextStep(3500);
                         break;
                     case 47:
-                        DoScriptText(SAY_EVENT_END_20, me);
+                        Talk(SAY_EVENT_END_20);
                         JumpToNextStep(8500);
                         break;
                     case 48:
                         if (instance)
                             if (Creature* temp = Unit::GetCreature(*me, instance->GetData64(DATA_ABEDNEUM)))
-                                DoScriptText(SAY_EVENT_END_21_ABED, temp);
+                                temp->AI()->Talk(SAY_EVENT_END_21_ABED);
                             JumpToNextStep(5500);
                         break;
                     case 49:
@@ -723,7 +717,7 @@ public:
 
             if (!bIsLowHP && HealthBelowPct(30))
             {
-                DoScriptText(SAY_LOW_HEALTH, me);
+                Talk(SAY_LOW_HEALTH);
                 bIsLowHP = true;
             }
             else if (bIsLowHP && !HealthBelowPct(30))
