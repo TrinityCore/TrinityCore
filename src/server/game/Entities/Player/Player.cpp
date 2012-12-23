@@ -20331,6 +20331,11 @@ void Player::WhisperAddon(const std::string& text, const std::string& prefix, Pl
 
 void Player::Whisper(const std::string& text, uint32 language, uint64 receiver)
 {
+    bool isAddonMessage = language == LANG_ADDON;
+
+    if (!isAddonMessage) // if not addon data
+        language = LANG_UNIVERSAL; // whispers should always be readable
+
     Player* rPlayer = ObjectAccessor::FindPlayer(receiver);
 
     std::string _text(text);
