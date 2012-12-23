@@ -31,10 +31,10 @@ enum Spells
     SPELL_REJOIN_VISCIDUS       = 25896,
     SPELL_VISCIDUS_EXPLODE      = 25938,
     SPELL_VISCIDUS_SUICIDE      = 26003,
+    SPELL_VISCIDUS_SHRINKS      = 25893,                   // Removed from client, in world.spell_dbc
 
     SPELL_MEMBRANE_VISCIDUS     = 25994,                   // damage reduction spell - removed from DBC
     SPELL_VISCIDUS_WEAKNESS     = 25926,                   // aura which procs at damage - should trigger the slow spells - removed from DBC
-    SPELL_VISCIDUS_SHRINKS      = 25893,                   // (6) Apply Aura #61: Mod Scale Value: -4 - removed from DBC
     SPELL_VISCIDUS_GROWS        = 25897,                   // removed from DBC
     SPELL_SUMMON_GLOBS          = 25885,                   // summons npc 15667 using spells from 25865 to 25884; All spells have target coords - removed from DBC
     SPELL_VISCIDUS_TELEPORT     = 25904,                   // removed from DBC
@@ -54,19 +54,26 @@ enum Phases
     PHASE_GLOB                  = 3
 };
 
+enum Emotes
+{
+    EMOTE_SLOW                  = 0,
+    EMOTE_FREEZE                = 1,
+    EMOTE_FROZEN                = 2,
+
+    EMOTE_CRACK                 = 3,
+    EMOTE_SHATTER               = 4,
+    EMOTE_EXPLODE               = 5
+};
+
 enum HitCounter
 {
-    HITCOUNTER_SLOW             = 100,  // "Viscidus begins to slow."
-    HITCOUNTER_SLOW_MORE        = 150,  // "Viscidus begins to freeze."
-    HITCOUNTER_FREEZE           = 200,  // "Viscidus is frozen solid."
+    HITCOUNTER_SLOW             = 100,
+    HITCOUNTER_SLOW_MORE        = 150,
+    HITCOUNTER_FREEZE           = 200,
 
-    // 4.3.4 data
-    HITCOUNTER_CRACK            = 50,   // "Viscidus begins to crack."
-    HITCOUNTER_SHATTER          = 100,  // "Viscidus looks ready to shatter."
-    HITCOUNTER_EXPLODE          = 150,  // "Viscidus explodes."
-
-    // 1.12 data
-    // HITCOUNTER_EXPLODE          = 75
+    HITCOUNTER_CRACK            = 50,
+    HITCOUNTER_SHATTER          = 100,
+    HITCOUNTER_EXPLODE          = 150,
 };
 
 enum MovePoints
@@ -74,7 +81,7 @@ enum MovePoints
     ROOM_CENTER                 = 1
 };
 
-Position const ViscidusCoord = { -7992.36f, 908.19f, -52.62f, 1.68f }; // TODO: Visci ain't room middle
+Position const ViscidusCoord = { -7992.36f, 908.19f, -52.62f, 1.68f }; // TODO: Visci isn't in room middle
 float const RoomRadius = 40.0f; // TODO: Not sure if its correct
 
 class boss_viscidus : public CreatureScript
@@ -102,6 +109,7 @@ class boss_viscidus : public CreatureScript
 
                 if (attacker->HasUnitState(UNIT_STATE_MELEE_ATTACKING) && _hitcounter >= HITCOUNTER_EXPLODE)
                 {
+                    Talk(EMOTE_EXPLODE);
                     events.Reset();
                     _phase = PHASE_GLOB;
                     DoCast(me, SPELL_VISCIDUS_EXPLODE);
@@ -125,6 +133,10 @@ class boss_viscidus : public CreatureScript
                         }
                     }
                 }
+                else if (_hitcounter == HITCOUNTER_SHATTER)
+                    Talk(EMOTE_SHATTER);
+                else if (_hitcounter == HITCOUNTER_CRACK)
+                    Talk(EMOTE_CRACK);
             }
 
             void SpellHit(Unit* /*caster*/, SpellInfo const* spell)
@@ -135,6 +147,8 @@ class boss_viscidus : public CreatureScript
 
                     if (_hitcounter >= HITCOUNTER_FREEZE)
                     {
+                        _hitcounter = 0;
+                        Talk(EMOTE_FROZEN);
                         _phase = PHASE_MELEE;
                         DoCast(me, SPELL_VISCIDUS_FREEZE);
                         me->RemoveAura(SPELL_VISCIDUS_SLOWED_MORE);
@@ -142,11 +156,15 @@ class boss_viscidus : public CreatureScript
                     }
                     else if (_hitcounter >= HITCOUNTER_SLOW_MORE)
                     {
+                        Talk(EMOTE_FREEZE);
                         me->RemoveAura(SPELL_VISCIDUS_SLOWED);
                         DoCast(me, SPELL_VISCIDUS_SLOWED_MORE);
                     }
                     else if (_hitcounter >= HITCOUNTER_SLOW)
+                    {
+                        Talk(EMOTE_SLOW);
                         DoCast(me, SPELL_VISCIDUS_SLOWED);
+                    }
                 }
             }
 
@@ -183,6 +201,7 @@ class boss_viscidus : public CreatureScript
 
                 if (_phase == PHASE_GLOB && summons.empty())
                 {
+                    DoResetThreat();
                     me->NearTeleportTo(ViscidusCoord.GetPositionX(),
                         ViscidusCoord.GetPositionY(),
                         ViscidusCoord.GetPositionZ(),
@@ -260,7 +279,7 @@ class npc_glob_of_viscidus : public CreatureScript
                     else
                     {
                         Viscidus->SetHealth(Viscidus->GetHealth() - Viscidus->GetMaxHealth() / 20);
-                        Viscidus->SetObjectScale(Viscidus->GetFloatValue(OBJECT_FIELD_SCALE_X) - 0.05f); // TODO: Not sure if blizzlike
+                        Viscidus->GetAI()->DoCast(Viscidus, SPELL_VISCIDUS_SHRINKS);
                     }
                 }
             }

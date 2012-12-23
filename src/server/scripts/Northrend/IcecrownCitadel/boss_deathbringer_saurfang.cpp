@@ -1218,6 +1218,12 @@ class spell_deathbringer_blood_nova_targeting : public SpellScriptLoader
                 if (targetsAtRange < minTargets)
                     targetsAtRange = std::min<uint32>(targets.size() - 1, minTargets);
 
+                if (!targetsAtRange)
+                {
+                    targets.clear();
+                    return;
+                }
+
                 std::list<WorldObject*>::const_iterator itr = targets.begin();
                 std::advance(itr, urand(0, targetsAtRange));
                 target = *itr;
@@ -1228,10 +1234,10 @@ class spell_deathbringer_blood_nova_targeting : public SpellScriptLoader
             // use the same target for first and second effect
             void FilterTargetsSubsequent(std::list<WorldObject*>& unitList)
             {
+                unitList.clear();
                 if (!target)
                     return;
 
-                unitList.clear();
                 unitList.push_back(target);
             }
 
