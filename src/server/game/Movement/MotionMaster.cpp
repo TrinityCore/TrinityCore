@@ -19,6 +19,7 @@
 #include "MotionMaster.h"
 #include "CreatureAISelector.h"
 #include "Creature.h"
+#include "CreatureAI.h"// required by EnterEvadeMode()
 
 #include "ConfusedMovementGenerator.h"
 #include "FleeingMovementGenerator.h"
@@ -94,7 +95,12 @@ void MotionMaster::UpdateMotion(uint32 diff)
     }
     else
         _cleanFlag &= ~MMCF_UPDATE;
-
+    if ((_owner->HasUnitState(UNIT_STATE_EVADE)))//placing EnterEvadeMode here is more correct than placing it in movement generator
+        if (top()->GetMovementGeneratorType() != HOME_MOTION_TYPE)
+        {
+            _owner->ClearUnitState(UNIT_STATE_EVADE);
+            _owner->ToCreature()->AI()->EnterEvadeMode();
+        }
     if (_expList)
     {
         for (size_t i = 0; i < _expList->size(); ++i)
