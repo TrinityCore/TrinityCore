@@ -265,14 +265,12 @@ enum eGurgthock
     NPC_FIEND_AIR                                 = 30045,
     NPC_FIEND_FIRE                                = 30042,
     NPC_FIEND_EARTH                               = 30043,
-<<<<<<< HEAD
     NPC_VLADOF	                                  = 30022,									
 	
     SAY_QUEST_ACCEPT_TUSKARRMAGEDON               = -1571031,
     SAY_QUEST_ACCEPT_KORRAK_1                     = -1571033,
     SAY_QUEST_ACCEPT_KORRAK_2                     = -1571034,
     SAY_QUEST_ACCEPT_MAGNATAUR                    = -1571035,
-=======
 
     SAY_QUEST_ACCEPT_TUSKARRMAGEDON               = 0,
     SAY_QUEST_ACCEPT_KORRAK_1                     = 1,
@@ -281,7 +279,6 @@ enum eGurgthock
     EMOTE_YGGDRAS_SPAWN                           = 4,
     SAY_STINKBEARD_SPAWN                          = 5,
     SAY_GURGTHOCK_ELEMENTAL_SPAWN                 = 6,
->>>>>>> a0239c2210a49a3b41a764d41d75098e8bb8ffeb
 
     SAY_CALL_FOR_HELP                             = 0,
     SAY_RECRUIT                                   = 0,

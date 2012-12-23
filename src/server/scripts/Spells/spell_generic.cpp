@@ -1371,13 +1371,10 @@ class spell_gen_luck_of_the_draw : public SpellScriptLoader
                         if (Map const* map = owner->GetMap())
                             if (group->isLFGGroup())
                                 if (uint32 dungeonId = sLFGMgr->GetDungeon(group->GetGUID(), true))
-<<<<<<< HEAD
                                     if (LFGDungeonEntry const* dungeon = sLFGDungeonStore.LookupEntry(dungeonId))
                                         if (uint32(dungeon->map) == map->GetId() && dungeon->difficulty == uint32(map->GetDifficulty()))
-=======
                                     if (LFGDungeonData const* dungeon = sLFGMgr->GetLFGDungeon(dungeonId))
                                         if (uint32(dungeon->map) == map->GetId() && dungeon->difficulty == map->GetDifficulty())
->>>>>>> a0239c2210a49a3b41a764d41d75098e8bb8ffeb
                                             if (randomDungeon && randomDungeon->type == LFG_TYPE_RANDOM)
                                                 return; // in correct dungeon
 
@@ -3092,7 +3089,6 @@ class spell_gen_gift_of_naaru : public SpellScriptLoader
         }
 };
 
-<<<<<<< HEAD
 enum PvPTrinketTriggeredSpells
 {
     SPELL_WILL_OF_THE_FORSAKEN_COOLDOWN_TRIGGER = 72752,
@@ -3131,7 +3127,6 @@ class spell_pvp_trinket_wotf_shared_cd : public SpellScriptLoader
                 data << uint32(spellInfo->Id);
                 data << uint32(0);
                 caster->GetSession()->SendPacket(&data);
-=======
 enum Replenishment
 {
     SPELL_REPLENISHMENT             = 57669,
@@ -3173,20 +3168,10 @@ class spell_gen_replenishment : public SpellScriptLoader
                     default:
                         break;
                 }
->>>>>>> a0239c2210a49a3b41a764d41d75098e8bb8ffeb
             }
 
             void Register()
             {
-<<<<<<< HEAD
-                OnEffectHit += SpellEffectFn(spell_pvp_trinket_wotf_shared_cd_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_DUMMY);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_pvp_trinket_wotf_shared_cd_SpellScript();
-=======
                 DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_gen_replenishment_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_PERIODIC_ENERGIZE);
             }
         };
@@ -3194,7 +3179,6 @@ class spell_gen_replenishment : public SpellScriptLoader
         AuraScript* GetAuraScript() const
         {
             return new spell_gen_replenishment_AuraScript();
->>>>>>> a0239c2210a49a3b41a764d41d75098e8bb8ffeb
         }
 };
 
@@ -3270,9 +3254,6 @@ void AddSC_generic_spell_scripts()
     new spell_gen_upper_deck_create_foam_sword();
     new spell_gen_bonked();
     new spell_gen_gift_of_naaru();
-<<<<<<< HEAD
     new spell_pvp_trinket_wotf_shared_cd();
-=======
     new spell_gen_replenishment();
->>>>>>> a0239c2210a49a3b41a764d41d75098e8bb8ffeb
 }
