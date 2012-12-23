@@ -59,7 +59,7 @@ enum Emotes
     EMOTE_SLOW                  = 0,
     EMOTE_FREEZE                = 1,
     EMOTE_FROZEN                = 2,
-    
+
     EMOTE_CRACK                 = 3,
     EMOTE_SHATTER               = 4,
     EMOTE_EXPLODE               = 5
