@@ -16662,6 +16662,7 @@ void Unit::NearTeleportTo(float x, float y, float z, float orientation, bool cas
         UpdatePosition(x, y, z, orientation, true);
         Position pos; // dummy, not used for creatures.
         SendTeleportPacket(pos);
+        UpdateObjectVisibility();
     }
 }
 
