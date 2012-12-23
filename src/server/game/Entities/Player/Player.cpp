@@ -5829,7 +5829,7 @@ float Player::GetRatingBonusValue(CombatRating cr) const
     float baseResult = float(GetUInt32Value(PLAYER_FIELD_COMBAT_RATING_1 + cr)) * GetRatingMultiplier(cr);
     if (cr != CR_RESILIENCE_PLAYER_DAMAGE_TAKEN)
         return baseResult;
-    return float(1.0f - pow(0.99f, baseResult));
+    return float(1.0f - pow(0.99f, baseResult)) * 100.0f;
 }
 
 float Player::GetExpertiseDodgeOrParryReduction(WeaponAttackType attType) const
@@ -5867,7 +5867,7 @@ float Player::OCTRegenMPPerSpirit()
 
 void Player::ApplyRatingMod(CombatRating cr, int32 value, bool apply)
 {
-    m_baseRatingValue[cr]+=(apply ? value : -value);
+    m_baseRatingValue[cr] +=(apply ? value : -value);
 
     // explicit affected values
     switch (cr)
@@ -5883,14 +5883,12 @@ void Player::ApplyRatingMod(CombatRating cr, int32 value, bool apply)
         }
         case CR_HASTE_RANGED:
         {
-            float RatingChange = value * GetRatingMultiplier(cr);
-            ApplyAttackTimePercentMod(RANGED_ATTACK, RatingChange, apply);
+            ApplyAttackTimePercentMod(RANGED_ATTACK, value * GetRatingMultiplier(cr), apply);
             break;
         }
         case CR_HASTE_SPELL:
         {
-            float RatingChange = value * GetRatingMultiplier(cr);
-            ApplyCastTimePercentMod(RatingChange, apply);
+            ApplyCastTimePercentMod(value * GetRatingMultiplier(cr), apply);
             break;
         }
         default:
@@ -6220,6 +6218,9 @@ void Player::UpdateSkillsForLevel()
         if (GetSkillRangeType(pSkill, false) != SKILL_RANGE_LEVEL)
             continue;
 
+        if (IsWeaponSkill(pSkill->id))
+            continue;
+
         uint16 field = itr->second.pos / 2;
         uint8 offset = itr->second.pos & 1; // itr->second.pos % 2
 
@@ -6246,6 +6247,9 @@ void Player::UpdateSkillsToMaxSkillsForLevel()
 
         uint32 pskill = itr->first;
         if (IsProfessionOrRidingSkill(pskill))
+            continue;
+
+        if (IsWeaponSkill(pskill))
             continue;
 
         uint16 field = itr->second.pos / 2;
