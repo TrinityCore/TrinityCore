@@ -15678,8 +15678,8 @@ void Unit::ApplyResilience(Unit const* victim, int32* damage, bool isCrit) const
         return;
 
     if (isCrit)
-        *damage = target->GetCritDamageReduction(*damage);
-    *damage = target->GetDamageReduction(*damage);
+        *damage -= target->GetCritDamageReduction(*damage);
+    *damage -= target->GetDamageReduction(*damage);
 }
 
 // Melee based spells can be miss, parry or dodge on this step
