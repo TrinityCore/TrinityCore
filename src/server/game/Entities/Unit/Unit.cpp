@@ -16721,7 +16721,7 @@ void Unit::SendTeleportPacket(Position& oldPos)
     data.WriteByteSeq(guid[6]);
     data << float(GetPositionY());
 
-    if (GetTypeId == TYPEID_PLAYER)
+    if (GetTypeId() == TYPEID_PLAYER)
         Relocate(&oldPos);
         
     SendMessageToSet(&data, false);
