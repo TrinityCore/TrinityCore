@@ -51,62 +51,65 @@ enum ScriptTexts
 enum Spells
 {
     // Festergut
-    SPELL_RELEASE_GAS_VISUAL            = 69125,
-    SPELL_GASEOUS_BLIGHT_LARGE          = 69157,
-    SPELL_GASEOUS_BLIGHT_MEDIUM         = 69162,
-    SPELL_GASEOUS_BLIGHT_SMALL          = 69164,
-    SPELL_MALLABLE_GOO_H                = 70852,
+    SPELL_RELEASE_GAS_VISUAL                = 69125,
+    SPELL_GASEOUS_BLIGHT_LARGE              = 69157,
+    SPELL_GASEOUS_BLIGHT_MEDIUM             = 69162,
+    SPELL_GASEOUS_BLIGHT_SMALL              = 69164,
+    SPELL_MALLABLE_GOO_H                    = 70852,
 
     // Rotface
-    SPELL_VILE_GAS_H                    = 69240,
+    SPELL_VILE_GAS_H                        = 69240,
 
     // Professor Putricide
-    SPELL_SLIME_PUDDLE_TRIGGER          = 70341,
-    SPELL_MALLEABLE_GOO                 = 70852,
-    SPELL_UNSTABLE_EXPERIMENT           = 70351,
-    SPELL_TEAR_GAS                      = 71617,    // phase transition
-    SPELL_TEAR_GAS_CREATURE             = 71618,
-    SPELL_TEAR_GAS_CANCEL               = 71620,
-    SPELL_TEAR_GAS_PERIODIC_TRIGGER     = 73170,
-    SPELL_CREATE_CONCOCTION             = 71621,
-    SPELL_GUZZLE_POTIONS                = 71893,
-    SPELL_OOZE_TANK_PROTECTION          = 71770,    // protects the tank
-    SPELL_CHOKING_GAS_BOMB              = 71255,
-    SPELL_OOZE_VARIABLE                 = 74118,
-    SPELL_GAS_VARIABLE                  = 74119,
-    SPELL_UNBOUND_PLAGUE                = 70911,
-    SPELL_UNBOUND_PLAGUE_SEARCHER       = 70917,
-    SPELL_PLAGUE_SICKNESS               = 70953,
-    SPELL_UNBOUND_PLAGUE_PROTECTION     = 70955,
-    SPELL_MUTATED_PLAGUE                = 72451,
-    SPELL_MUTATED_PLAGUE_CLEAR          = 72618,
+    SPELL_SLIME_PUDDLE_TRIGGER              = 70341,
+    SPELL_MALLEABLE_GOO                     = 70852,
+    SPELL_UNSTABLE_EXPERIMENT               = 70351,
+    SPELL_TEAR_GAS                          = 71617,    // phase transition
+    SPELL_TEAR_GAS_CREATURE                 = 71618,
+    SPELL_TEAR_GAS_CANCEL                   = 71620,
+    SPELL_TEAR_GAS_PERIODIC_TRIGGER         = 73170,
+    SPELL_CREATE_CONCOCTION                 = 71621,
+    SPELL_GUZZLE_POTIONS                    = 71893,
+    SPELL_OOZE_TANK_PROTECTION              = 71770,    // protects the tank
+    SPELL_CHOKING_GAS_BOMB                  = 71255,
+    SPELL_OOZE_VARIABLE                     = 74118,
+    SPELL_GAS_VARIABLE                      = 74119,
+    SPELL_UNBOUND_PLAGUE                    = 70911,
+    SPELL_UNBOUND_PLAGUE_SEARCHER           = 70917,
+    SPELL_PLAGUE_SICKNESS                   = 70953,
+    SPELL_UNBOUND_PLAGUE_PROTECTION         = 70955,
+    SPELL_MUTATED_PLAGUE                    = 72451,
+    SPELL_MUTATED_PLAGUE_CLEAR              = 72618,
 
     // Slime Puddle
-    SPELL_GROW_STACKER                  = 70345,
-    SPELL_GROW                          = 70347,
-    SPELL_SLIME_PUDDLE_AURA             = 70343,
+    SPELL_GROW_STACKER                      = 70345,
+    SPELL_GROW                              = 70347,
+    SPELL_SLIME_PUDDLE_AURA                 = 70343,
 
     // Gas Cloud
-    SPELL_GASEOUS_BLOAT_PROC            = 70215,
-    SPELL_GASEOUS_BLOAT                 = 70672,
-    SPELL_GASEOUS_BLOAT_PROTECTION      = 70812,
-    SPELL_EXPUNGED_GAS                  = 70701,
+    SPELL_GASEOUS_BLOAT_PROC                = 70215,
+    SPELL_GASEOUS_BLOAT                     = 70672,
+    SPELL_GASEOUS_BLOAT_PROTECTION          = 70812,
+    SPELL_EXPUNGED_GAS                      = 70701,
 
     // Volatile Ooze
-    SPELL_OOZE_ERUPTION                 = 70492,
-    SPELL_VOLATILE_OOZE_ADHESIVE        = 70447,
-    SPELL_OOZE_ERUPTION_SEARCH_PERIODIC = 70457,
-    SPELL_VOLATILE_OOZE_PROTECTION      = 70530,
+    SPELL_OOZE_ERUPTION                     = 70492,
+    SPELL_VOLATILE_OOZE_ADHESIVE            = 70447,
+    SPELL_OOZE_ERUPTION_SEARCH_PERIODIC     = 70457,
+    SPELL_VOLATILE_OOZE_PROTECTION          = 70530,
 
     // Choking Gas Bomb
-    SPELL_CHOKING_GAS_BOMB_PERIODIC     = 71259,
-    SPELL_CHOKING_GAS_EXPLOSION_TRIGGER = 71280,
+    SPELL_CHOKING_GAS_BOMB_PERIODIC         = 71259,
+    SPELL_CHOKING_GAS_EXPLOSION_TRIGGER     = 71280,
 
     // Mutated Abomination vehicle
-    SPELL_ABOMINATION_VEHICLE_POWER_DRAIN = 70385,
-    SPELL_MUTATED_TRANSFORMATION          = 70311,
-    SPELL_MUTATED_TRANSFORMATION_DAMAGE   = 70405,
-    SPELL_MUTATED_TRANSFORMATION_NAME     = 72401,
+    SPELL_ABOMINATION_VEHICLE_POWER_DRAIN   = 70385,
+    SPELL_MUTATED_TRANSFORMATION            = 70311,
+    SPELL_MUTATED_TRANSFORMATION_DAMAGE     = 70405,
+    SPELL_MUTATED_TRANSFORMATION_NAME       = 72401,
+
+    // Unholy Infusion
+    SPELL_UNHOLY_INFUSION_CREDIT            = 71518
 };
 
 #define SPELL_GASEOUS_BLOAT_HELPER RAID_MODE<uint32>(70672, 72455, 72832, 72833)
@@ -293,6 +296,10 @@ class boss_professor_putricide : public CreatureScript
             {
                 _JustDied();
                 Talk(SAY_DEATH);
+
+                if (Is25ManRaid() && me->HasAura(SPELL_SHADOWS_FATE))
+                    DoCastAOE(SPELL_UNHOLY_INFUSION_CREDIT, true);
+
                 DoCast(SPELL_MUTATED_PLAGUE_CLEAR);
             }
 
