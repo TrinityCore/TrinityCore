@@ -232,7 +232,7 @@ class boss_sindragosa : public CreatureScript
                 }
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /* killer */)
             {
                 _JustDied();
                 Talk(SAY_DEATH);
