@@ -3698,8 +3698,11 @@ void SpellMgr::LoadDbcDataCorrections()
                 break;
             case 28374: // Gluth's Decimate
             case 54426: // Gluth's Decimate
-               spellInfo->AttributesEx |= SPELL_ATTR1_CANT_TARGET_SELF;
-               break;
+                spellInfo->AttributesEx |= SPELL_ATTR1_CANT_TARGET_SELF;
+                break;
+            case 29307: // Infected Wounds (Zombie Chow)
+                spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
+                break;
             default:
                 break;
         }
