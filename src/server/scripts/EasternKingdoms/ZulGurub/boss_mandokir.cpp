@@ -22,6 +22,14 @@
 
 enum Yells
 {
+    SAY_AGGRO               = 0,
+    SAY_PLAYER_KILL         = 1,
+    SAY_DISMOUNT_OHGAN      = 2,
+    EMOTE_DEVASTATING_SLAM  = 3, // ID - 96739 Devastating Slam
+    SAY_REANIMATE_OHGAN     = 4, // ID - 96724 Reanimate Ohgan
+    EMOTE_FRENZY            = 5, // ID - 96800 Frenzy
+    SAY_FRENZY              = 6, // ID - 96800 Frenzy
+    SAY_DEATH               = 7
 };
 
 enum Spells
@@ -44,18 +52,25 @@ class boss_mandokir : public CreatureScript
 
             void Reset()
             {
-            }
-
-            void KilledUnit(Unit* /*victim*/)
-            {
+                _Reset();
             }
 
             void EnterCombat(Unit* /*who*/)
             {
+                _EnterCombat();
+                Talk(SAY_AGGRO);
             }
 
             void JustDied(Unit* /*killer*/)
             {
+                _JustDied();
+                Talk(SAY_DEATH);
+            }
+
+            void KilledUnit(Unit* victim)
+            {
+                if (victim->GetTypeId() == TYPEID_PLAYER)
+                    Talk(SAY_PLAYER_KILL);
             }
 
             void UpdateAI(uint32 const diff)

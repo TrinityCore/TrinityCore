@@ -22,6 +22,15 @@
 
 enum Yells
 {
+    SAY_AGGRO                       = 0,
+    EMOTE_ZANZIL_ZOMBIES            = 1, // ID - 96319 Zanzil's Resurrection Elixir
+    SAY_ZANZIL_ZOMBIES              = 2, // ID - 96319 Zanzil's Resurrection Elixir
+    EMOTE_ZANZIL_GRAVEYARD_GAS      = 3, // ID - 96338 Zanzil's Graveyard Gas
+    SAY_ZANZIL_GRAVEYARD_GAS        = 4, // ID - 96338 Zanzil's Graveyard Gas
+    EMOTE_ZANZIL_BERSEKER           = 5, // ID - 96316 Zanzil's Resurrection Elixir
+    SAY_ZANZIL_BERSEKER             = 6, // ID - 96316 Zanzil's Resurrection Elixir
+    SAY_PLAYER_KILL                 = 7,
+    SAY_DEATH                       = 8
 };
 
 enum Spells
@@ -39,20 +48,29 @@ class boss_zanzil : public CreatureScript
 
         struct boss_zanzilAI : public BossAI
         {
-            boss_zanzilAI(Creature* creature) : BossAI(creature, DATA_ZANZIL)
-            {
-            }
+            boss_zanzilAI(Creature* creature) : BossAI(creature, DATA_ZANZIL) { }
 
             void Reset()
             {
+                _Reset();
             }
 
             void EnterCombat(Unit* /*who*/)
             {
+                _EnterCombat();
+                Talk(SAY_AGGRO);
             }
 
             void JustDied(Unit* /*killer*/)
             {
+                _JustDied();
+                Talk(SAY_DEATH);
+            }
+
+            void KilledUnit(Unit* victim)
+            {
+                if (victim->GetTypeId() == TYPEID_PLAYER)
+                    Talk(SAY_PLAYER_KILL);
             }
 
             void UpdateAI(uint32 const diff)
