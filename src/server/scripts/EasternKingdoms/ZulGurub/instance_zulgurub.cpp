@@ -30,50 +30,54 @@ class instance_zulgurub : public InstanceMapScript
             instance_zulgurub_InstanceMapScript(Map* map) : InstanceScript(map)
             {
                 SetBossNumber(EncounterCount);
-                venoxisGUID     = 0;
-                mandokirGUID    = 0;
-                kilnaraGUID     = 0;
-                zanzilGUID      = 0;
-                jindoGUID       = 0;
-                hazzarahGUID    = 0;
-                renatakiGUID    = 0;
-                wushoolayGUID   = 0;
-                grilekGUID      = 0;
+                venoxisGUID         = 0;
+                mandokirGUID        = 0;
+                kilnaraGUID         = 0;
+                zanzilGUID          = 0;
+                jindoGUID           = 0;
+                hazzarahGUID        = 0;
+                renatakiGUID        = 0;
+                wushoolayGUID       = 0;
+                grilekGUID          = 0;
+                jindoTiggerGUID     = 0;
             }
 
             void OnCreatureCreate(Creature* creature)
             {
                 switch (creature->GetEntry())
                 {
-                   case NPC_VENOXIS:
-                      venoxisGUID = creature->GetGUID();
-                      break;
-                   case NPC_MANDOKIR:
-                      mandokirGUID = creature->GetGUID();
-                      break;
-                   case NPC_KILNARA:
-                      kilnaraGUID = creature->GetGUID();
-                      break;
-                   case NPC_ZANZIL:
-                      zanzilGUID = creature->GetGUID();
-                      break;
-                   case NPC_JINDO:
-                      jindoGUID = creature->GetGUID();
-                      break;
-                   case NPC_HAZZARAH:
-                      hazzarahGUID = creature->GetGUID();
-                      break;
-                   case NPC_RENATAKI:
-                      renatakiGUID = creature->GetGUID();
-                      break;
-                   case NPC_WUSHOOLAY:
-                      wushoolayGUID = creature->GetGUID();
-                      break;
-                   case NPC_GRILEK:
-                      grilekGUID = creature->GetGUID();
-                      break;
-                   default:
-                      break;
+                    case NPC_VENOXIS:
+                        venoxisGUID = creature->GetGUID();
+                        break;
+                    case NPC_MANDOKIR:
+                        mandokirGUID = creature->GetGUID();
+                        break;
+                    case NPC_KILNARA:
+                        kilnaraGUID = creature->GetGUID();
+                        break;
+                    case NPC_ZANZIL:
+                        zanzilGUID = creature->GetGUID();
+                        break;
+                    case NPC_JINDO:
+                        jindoGUID = creature->GetGUID();
+                        break;
+                    case NPC_HAZZARAH:
+                        hazzarahGUID = creature->GetGUID();
+                        break;
+                    case NPC_RENATAKI:
+                        renatakiGUID = creature->GetGUID();
+                        break;
+                    case NPC_WUSHOOLAY:
+                        wushoolayGUID = creature->GetGUID();
+                        break;
+                    case NPC_GRILEK:
+                        grilekGUID = creature->GetGUID();
+                        break;
+                    case NPC_JINDO_TRIGGER:
+                        jindoTiggerGUID = creature->GetGUID();
+                        break;
+                    default:
+                        break;
                 }
             }
 
@@ -84,18 +88,18 @@ class instance_zulgurub : public InstanceMapScript
 
                 switch (type)
                 {
-                   case DATA_VENOXIS:
-                   case DATA_MANDOKIR:
-                   case DATA_KILNARA:
-                   case DATA_ZANZIL:
-                   case DATA_JINDO:
-                   case DATA_HAZZARAH:
-                   case DATA_RENATAKI:
-                   case DATA_WUSHOOLAY:
-                   case DATA_GRILEK:
-                      break;
-                   default:
-                      break;
+                    case DATA_VENOXIS:
+                    case DATA_MANDOKIR:
+                    case DATA_KILNARA:
+                    case DATA_ZANZIL:
+                    case DATA_JINDO:
+                    case DATA_HAZZARAH:
+                    case DATA_RENATAKI:
+                    case DATA_WUSHOOLAY:
+                    case DATA_GRILEK:
+                        break;
+                    default:
+                        break;
                 }
 
                 return true;
@@ -141,6 +145,8 @@ class instance_zulgurub : public InstanceMapScript
                         return wushoolayGUID;
                     case DATA_GRILEK:
                         return grilekGUID;
+                    case DATA_JINDOR_TRIGGER:
+                        return jindoTiggerGUID;
                     default:
                         break;
                 }
@@ -202,6 +208,7 @@ class instance_zulgurub : public InstanceMapScript
              uint64 renatakiGUID;
              uint64 wushoolayGUID;
              uint64 grilekGUID;
+             uint64 jindoTiggerGUID;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const

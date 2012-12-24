@@ -22,6 +22,22 @@
 
 enum Yells
 {
+    // Jin'do the Godbreaker 
+    SAY_INTRO                   = 0,
+    SAY_AGGRO                   = 1,
+    EMOTE_SHADOWS_OF_HAKKAR     = 2, // ID - 97172 Shadows of Hakkar
+    SAY_JINDO_SPIRIT_PHASE      = 3,
+    //SAY_PLAYER_KILL             = 4, // missing data
+
+    // Spirit of Hakkar
+    SAY_SPIRIT_SPIRIT_PHASE     = 0,
+    SAY_SPIRIT_DEFEATED         = 1,
+
+    // Jin'do the Godbreaker - Trigger
+    SAY_JINDO_DEFEATED          = 0,
+
+    // Shadow of Hakkar
+    SAY_SHADOW_DEFEATED         = 0,
 };
 
 enum Spells
@@ -39,16 +55,17 @@ class boss_jindo_the_godbreaker : public CreatureScript
 
         struct boss_jindo_the_godbreakerAI : public BossAI
         {
-            boss_jindo_the_godbreakerAI(Creature* creature) : BossAI(creature, DATA_JINDO)
-            {
-            }
+            boss_jindo_the_godbreakerAI(Creature* creature) : BossAI(creature, DATA_JINDO) { }
 
             void Reset()
             {
+                _Reset();
             }
 
             void EnterCombat(Unit* /*who*/)
             {
+                _EnterCombat();
+                Talk(SAY_AGGRO);
             }
 
             void JustDied(Unit* /*killer*/)

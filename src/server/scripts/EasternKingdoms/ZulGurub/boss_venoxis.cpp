@@ -24,6 +24,14 @@
 
 enum Yells
 {
+    SAY_AGGRO               = 0,
+    SAY_BLOODVENOM          = 1, // ID - 96842 Venomous Effusion
+    SAY_TRANSFROM           = 2, // ID - 97354 Blessing of the Snake God
+    SAY_WORD_OF_HETHISS     = 3, // ID - 96560 Word of Hethiss
+    EMOTE_BLOODVENOM        = 4, // ID - 96842 Bloodvenom
+    EMOTE_VENOM_WITHDRAWAL  = 5, // ID - 96653 Venom Withdrawal
+    SAY_PLAYER_KILL         = 6,
+    SAY_DEATH               = 7
 };
 
 enum Spells
@@ -41,24 +49,29 @@ class boss_venoxis : public CreatureScript
 
         struct boss_venoxisAI : public BossAI
         {
-            boss_venoxisAI(Creature* creature) : BossAI(creature, DATA_VENOXIS)
-            {
-            }
+            boss_venoxisAI(Creature* creature) : BossAI(creature, DATA_VENOXIS) { }
 
             void Reset()
             {
+                _Reset();
             }
 
             void EnterCombat(Unit* /*who*/)
             {
-            }
-
-            void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/)
-            {
+                _EnterCombat();
+                Talk(SAY_AGGRO);
             }
 
             void JustDied(Unit* /*killer*/)
             {
+                _JustDied();
+                Talk(SAY_DEATH);
+            }
+
+            void KilledUnit(Unit* victim)
+            {
+                if (victim->GetTypeId() == TYPEID_PLAYER)
+                    Talk(SAY_PLAYER_KILL);
             }
 
             void UpdateAI(uint32 const diff)
