@@ -16669,10 +16669,10 @@ void Unit::NearTeleportTo(float x, float y, float z, float orientation, bool cas
 void Unit::SendTeleportPacket(Position& pos)
 {
     Position oldPos = {GetPositionX(), GetPositionY(), GetPositionZMinusOffset(), GetOrientation()};
-    
+
     if (GetTypeId() == TYPEID_UNIT)
         Relocate(&pos);
-        
+
     ObjectGuid guid = GetGUID();
     ObjectGuid transGuid = GetTransGUID();
 
@@ -16731,7 +16731,7 @@ void Unit::SendTeleportPacket(Position& pos)
         Relocate(&pos);
     else
         Relocate(&oldPos);
-        
+
     SendMessageToSet(&data, true);
 }
 

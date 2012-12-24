@@ -1680,7 +1680,7 @@ SpellCastResult SpellInfo::CheckTarget(Unit const* caster, WorldObject const* ta
     if (unitTarget->HasUnitState(UNIT_STATE_IN_FLIGHT))
         return SPELL_FAILED_BAD_TARGETS;
 
-    /* TARGET_UNIT_MASTER gets blocked here for passengers, because the whole idea of this check is to 
+    /* TARGET_UNIT_MASTER gets blocked here for passengers, because the whole idea of this check is to
     not allow passengers to be implicitly hit by spells, however this target type should be an exception,
     if this is left it kills spells that award kill credit from vehicle to master (few spells),
     the use of these 2 covers passenger target check, logically, if vehicle cast this to master it should always hit
