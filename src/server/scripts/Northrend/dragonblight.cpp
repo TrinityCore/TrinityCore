@@ -182,12 +182,12 @@ enum WyrmDefenderEnum
     // Quest data
     QUEST_DEFENDING_WYRMREST_TEMPLE          = 12372,
     GOSSIP_TEXTID_DEF1                       = 12899,
-    
+
     // Gossip data
     GOSSIP_TEXTID_DEF2                       = 12900,
 
     // Spells data
-    SPELL_CHARACTER_SCRIPT                   = 49213, 
+    SPELL_CHARACTER_SCRIPT                   = 49213,
     SPELL_DEFENDER_ON_LOW_HEALTH_EMOTE       = 52421, // ID - 52421 Wyrmrest Defender: On Low Health Boss Emote to Controller - Random /self/
     SPELL_RENEW                              = 49263, // casted to heal drakes
     SPELL_WYRMREST_DEFENDER_MOUNT            = 49256,
@@ -258,7 +258,7 @@ class npc_wyrmrest_defender : public CreatureScript
                     me->CastSpell(me, SPELL_DEFENDER_ON_LOW_HEALTH_EMOTE);
                     hpWarningReady = false;
                 }
-                
+
                 if (renewRecoveryCanCheck)
                 {
                     if (RenewRecoveryChecker <= diff)
