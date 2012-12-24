@@ -3661,6 +3661,13 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 49345: // Call Emerald Drake
                 spellInfo->Effects[EFFECT_1].Effect = 0;
                 break;
+            // Halls Of Origination spells
+            // Temple Guardian Anhuur
+            case 76606: // Disable Beacon Beams L
+            case 76608: // Disable Beacon Beams R
+                // Little hack, Increase the radius so it can hit the Cave In Stalkers in the platform.
+                spellInfo->Effects[EFFECT_0].MaxRadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_45_YARDS);
+                break;
             default:
                 break;
         }
