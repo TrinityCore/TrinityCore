@@ -328,6 +328,8 @@ void AddSC_wailing_caverns();                //Wailing caverns
 void AddSC_instance_wailing_caverns();
 void AddSC_zulfarrak();                     //Zul'Farrak generic
 void AddSC_instance_zulfarrak();            //Zul'Farrak instance script
+void AddSC_instance_halls_of_origination();
+void AddSC_boss_temple_guardian_anhuur();
 
 void AddSC_ashenvale();
 void AddSC_azshara();
@@ -979,6 +981,9 @@ void AddKalimdorScripts()
     AddSC_thunder_bluff();
     AddSC_ungoro_crater();
     AddSC_winterspring();
+
+    AddSC_instance_halls_of_origination();
+    AddSC_boss_temple_guardian_anhuur();
 #endif
 }
 
