@@ -82,7 +82,7 @@ class boss_kilnara : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new boss_kilnaraAI(creature);
+            return GetZulGurubAI<boss_kilnaraAI>(creature);
         }
 };
 

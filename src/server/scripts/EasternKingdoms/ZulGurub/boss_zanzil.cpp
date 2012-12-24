@@ -81,7 +81,7 @@ class boss_zanzil : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new boss_zanzilAI(creature);
+            return GetZulGurubAI<boss_zanzilAI>(creature);
         }
 };
 

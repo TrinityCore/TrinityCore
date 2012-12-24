@@ -81,7 +81,7 @@ class boss_jindo_the_godbreaker : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new boss_jindo_the_godbreakerAI(creature);
+            return GetZulGurubAI<boss_jindo_the_godbreakerAI>(creature);
         }
 };
 
