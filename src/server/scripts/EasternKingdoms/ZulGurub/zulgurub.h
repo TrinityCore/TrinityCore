@@ -54,7 +54,7 @@ enum CreatureIds
 };
 
 template<class AI>
-CreatureAI* GetZulGurubCitadelAI(Creature* creature)
+CreatureAI* GetZulGurubAI(Creature* creature)
 {
     if (InstanceMap* instance = creature->GetMap()->ToInstanceMap())
         if (instance->GetInstanceScript())
