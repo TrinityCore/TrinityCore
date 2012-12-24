@@ -16695,7 +16695,6 @@ void Unit::SendTeleportPacket(Position& pos)
         data.WriteBit(transGuid[6]);
         data.WriteBit(transGuid[4]);
     }
-
     data.WriteBit(guid[4]);
     data.WriteBit(guid[7]);
     data.WriteBit(guid[5]);
@@ -16731,7 +16730,6 @@ void Unit::SendTeleportPacket(Position& pos)
         Relocate(&pos);
     else
         Relocate(&oldPos);
-
     SendMessageToSet(&data, true);
 }
 
