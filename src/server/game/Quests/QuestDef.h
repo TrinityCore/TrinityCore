@@ -22,6 +22,7 @@
 #include "Define.h"
 #include "DatabaseEnv.h"
 #include "SharedDefines.h"
+#include "DBCEnums.h" 
 
 #include <string>
 #include <vector>
