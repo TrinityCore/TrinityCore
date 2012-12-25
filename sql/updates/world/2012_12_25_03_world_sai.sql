@@ -44,10 +44,10 @@ SET @ENTRY := 28136;
 UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=@ENTRY;
 DELETE FROM `smart_scripts` WHERE `source_type`=0 AND `entryorguid`=@ENTRY;
 INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES 
-(@ENTRY,0,0,1,54,0,100,0,0,0,0,0,11,50681,4,0,0,0,0,1,0,0,0,0,0,0,0, 'Crusader Jonothan - On Spawn - cast Bleeding Out'),
+(@ENTRY,0,0,1,54,0,100,0,0,0,0,0,11,50665,4,0,0,0,0,1,0,0,0,0,0,0,0, 'Crusader Jonothan - On Spawn - cast Bleeding Out'),
 (@ENTRY,0,1,2,61,0,100,0,0,0,0,0,29,0,0,0,0,0,0,7,0,0,0,0,0,0,0, 'Crusader Jonothan - On Spawn - follow envoker'),
 (@ENTRY,0,2,0,61,0,100,0,0,0,0,0,22,1,0,0,0,0,0,1,0,0,0,0,0,0,0, 'Crusader Jonothan - On Spawn - Set Phase 1'),
-(@ENTRY,0,3,0,23,0,100,0,50681,0,0,0,41,0,0,0,0,0,0,1,0,0,0,0,0,0,0, 'Crusader Jonothan - Aura missing - despawn'),
+(@ENTRY,0,3,0,23,0,100,0,50665,0,0,0,41,0,0,0,0,0,0,1,0,0,0,0,0,0,0, 'Crusader Jonothan - Aura missing - despawn'),
 (@ENTRY,0,4,0,8,1,100,0,50669,0,0,0,22,2,0,0,0,0,0,1,0,0,0,0,0,0,0, 'Crusader Jonothan - On spell hit - Set Phase 2'),
 (@ENTRY,0,5,0,1,2,100,1,0,0,0,0,11,50671,0,0,0,0,0,1,0,0,0,0,0,0,0, 'Crusader Jonothan - OOC - Cast Kill Credit Jonothan 01 (Phase 2)'),
 (@ENTRY,0,6,0,1,2,100,1,100,100,0,0,11,50709,0,0,0,0,0,1,0,0,0,0,0,0,0, 'Crusader Jonothan - OOC - Cast Strip Aura Jonothan 01 (Phase 2)'),
@@ -59,10 +59,10 @@ SET @ENTRY := 28148;
 UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=@ENTRY;
 DELETE FROM `smart_scripts` WHERE `source_type`=0 AND `entryorguid`=@ENTRY;
 INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES 
-(@ENTRY,0,0,1,54,0,100,0,0,0,0,0,11,50681,4,0,0,0,0,1,0,0,0,0,0,0,0, 'Crusader Josephine - On Spawn - cast Bleeding Out'),
+(@ENTRY,0,0,1,54,0,100,0,0,0,0,0,11,50695,4,0,0,0,0,1,0,0,0,0,0,0,0, 'Crusader Josephine - On Spawn - cast Bleeding Out'),
 (@ENTRY,0,1,2,61,0,100,0,0,0,0,0,29,0,0,0,0,0,0,7,0,0,0,0,0,0,0, 'Crusader Josephine - On Spawn - follow envoker'),
 (@ENTRY,0,2,0,61,0,100,0,0,0,0,0,22,1,0,0,0,0,0,1,0,0,0,0,0,0,0, 'Crusader Josephine - On Spawn - Set Phase 1'),
-(@ENTRY,0,3,0,23,0,100,0,50681,0,0,0,41,0,0,0,0,0,0,1,0,0,0,0,0,0,0, 'Crusader Josephine - Aura missing - despawn'),
+(@ENTRY,0,3,0,23,0,100,0,50695,0,0,0,41,0,0,0,0,0,0,1,0,0,0,0,0,0,0, 'Crusader Josephine - Aura missing - despawn'),
 (@ENTRY,0,4,0,8,1,100,0,50669,0,0,0,22,2,0,0,0,0,0,1,0,0,0,0,0,0,0, 'Crusader Josephine - On spell hit - Set Phase 2'),
 (@ENTRY,0,5,0,1,2,100,1,0,0,0,0,11,50698,0,0,0,0,0,1,0,0,0,0,0,0,0, 'Crusader Josephine - OOC - Cast Kill Credit Josephine 01 (Phase 2)'),
 (@ENTRY,0,6,0,1,2,100,1,100,100,0,0,11,50711,0,0,0,0,0,1,0,0,0,0,0,0,0, 'Crusader Josephine - OOC - Cast Strip Aura Josephine 01 (Phase 2)'),
