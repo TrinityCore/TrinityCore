@@ -22,6 +22,7 @@
 #include "Define.h"
 #include "DatabaseEnv.h"
 #include "SharedDefines.h"
+#include "DBCEnums.h"
 
 #include <string>
 #include <vector>
@@ -254,8 +255,8 @@ class Quest
         bool   IsMonthly() const { return Flags & QUEST_TRINITY_FLAGS_MONTHLY; }
         bool   IsSeasonal() const { return (ZoneOrSort == -QUEST_SORT_SEASONAL || ZoneOrSort == -QUEST_SORT_SPECIAL || ZoneOrSort == -QUEST_SORT_LUNAR_FESTIVAL || ZoneOrSort == -QUEST_SORT_MIDSUMMER || ZoneOrSort == -QUEST_SORT_BREWFEST || ZoneOrSort == -QUEST_SORT_LOVE_IS_IN_THE_AIR || ZoneOrSort == -QUEST_SORT_NOBLEGARDEN) && !IsRepeatable(); }
         bool   IsDailyOrWeekly() const { return Flags & (QUEST_FLAGS_DAILY | QUEST_FLAGS_WEEKLY); }
-        bool   IsRaidQuest() const { return Type == QUEST_TYPE_RAID || Type == QUEST_TYPE_RAID_10 || Type == QUEST_TYPE_RAID_25; }
-        bool   IsAllowedInRaid() const;
+        bool   IsRaidQuest(Difficulty difficulty) const;
+        bool   IsAllowedInRaid(Difficulty difficulty) const;
         bool   IsDFQuest() const { return Flags & QUEST_TRINITY_FLAGS_DF_QUEST; }
         uint32 CalculateHonorGain(uint8 level) const;
 
