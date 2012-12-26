@@ -6,6 +6,7 @@ INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language
 DELETE FROM `spell_script_names` WHERE `spell_id` IN (75540,94974,75519);
 INSERT INTO `spell_script_names` VALUES
 (75540,'spell_earthrager_ptah_flame_bolt'),
+(89881,'spell_earthrager_ptah_flame_bolt'),
 (75519 ,'spell_earthrager_ptah_explosion'),
 (94974,'spell_earthrager_ptah_earth_spike');
 
