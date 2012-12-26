@@ -23,6 +23,7 @@
 #include "DatabaseEnv.h"
 #include "SharedDefines.h"
 #include "WorldPacket.h"
+#include "DBCEnums.h"
 
 #include <string>
 #include <vector>
