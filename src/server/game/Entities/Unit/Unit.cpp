@@ -12887,7 +12887,7 @@ int32 Unit::GetCreatePowers(Powers power) const
         case POWER_ECLIPSE:
             return 0;
         case POWER_HOLY_POWER:
-            return 0;
+            return 3;
         case POWER_HEALTH:
             return 0;
         default:
