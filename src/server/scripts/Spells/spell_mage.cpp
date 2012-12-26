@@ -469,20 +469,20 @@ class spell_mage_blizzard : public SpellScriptLoader
    public:
        spell_mage_blizzard() : SpellScriptLoader("spell_mage_blizzard") { } 
 
-       bool Validate(SpellInfo const* /*spellEntry*/)
-       {
-           if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_CHILLED_R1))
-               return false;
-           if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_CHILLED_R2))
-               return false;
-           return true;
-       }
-
        class spell_mage_blizzard_SpellScript : public SpellScript
        {
            PrepareSpellScript(spell_mage_blizzard_SpellScript);
 
-           void AddChillEffect()
+           bool Validate(SpellInfo const* /*spellEntry*/)
+           {
+               if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_CHILLED_R1))
+                   return false;
+               if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_CHILLED_R2))
+                   return false;
+               return true;
+           }
+
+           void AddChillEffect(SpellEffIndex /*effIndex*/)
            {
                Unit* caster = GetCaster();
                if (Unit* unitTarget = GetHitUnit())
@@ -517,7 +517,7 @@ class spell_mage_frostbolt : public SpellScriptLoader
        {
            PrepareSpellScript(spell_mage_frostbolt_SpellScript);
 
-           void RecalculateDamage()
+           void RecalculateDamage(SpellEffIndex /*effIndex*/)
            {
                if (GetHitUnit() && GetHitUnit()->HasAuraState(AURA_STATE_FROZEN, GetSpellInfo(), GetCaster()))
                {
