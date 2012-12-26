@@ -18,9 +18,11 @@
 #include "ObjectMgr.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
-#include "SpellAuras.h"
-#include "halls_of_origination.h"
+#include "SpellScript.h"
+#include "SpellAuraEffects.h"
+#include "GridNotifiers.h"
 #include "Player.h"
+#include "halls_of_origination.h"
 
 enum Texts
 {
