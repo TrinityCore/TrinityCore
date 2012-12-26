@@ -49,7 +49,6 @@
 #include "WaypointManager.h"
 #include "World.h"
 
-ScriptMapMap sQuestEndScripts;
 ScriptMapMap sSpellScripts;
 ScriptMapMap sGameObjectScripts;
 ScriptMapMap sEventScripts;
@@ -60,7 +59,6 @@ std::string GetScriptsTableNameByType(ScriptsType type)
     std::string res = "";
     switch (type)
     {
-        case SCRIPTS_QUEST_END:     res = "quest_end_scripts";  break;
         case SCRIPTS_SPELL:         res = "spell_scripts";      break;
         case SCRIPTS_GAMEOBJECT:    res = "gameobject_scripts"; break;
         case SCRIPTS_EVENT:         res = "event_scripts";      break;
@@ -75,7 +73,6 @@ ScriptMapMap* GetScriptsMapByType(ScriptsType type)
     ScriptMapMap* res = NULL;
     switch (type)
     {
-        case SCRIPTS_QUEST_END:     res = &sQuestEndScripts;    break;
         case SCRIPTS_SPELL:         res = &sSpellScripts;       break;
         case SCRIPTS_GAMEOBJECT:    res = &sGameObjectScripts;  break;
         case SCRIPTS_EVENT:         res = &sEventScripts;       break;
@@ -3658,13 +3655,12 @@ void ObjectMgr::LoadQuests()
         "DetailsEmote1, DetailsEmote2, DetailsEmote3, DetailsEmote4, DetailsEmoteDelay1, DetailsEmoteDelay2, DetailsEmoteDelay3, DetailsEmoteDelay4, EmoteOnIncomplete, EmoteOnComplete, "
         //      136                 137                 138               139                  140                     141                     142                      143
         "OfferRewardEmote1, OfferRewardEmote2, OfferRewardEmote3, OfferRewardEmote4, OfferRewardEmoteDelay1, OfferRewardEmoteDelay2, OfferRewardEmoteDelay3, OfferRewardEmoteDelay4, "
-        //    144           145
-        "CompleteScript, WDBVerified"
+        //    144
+        "WDBVerified"
         " FROM quest_template");
     if (!result)
     {
         sLog->outError(LOG_FILTER_SQL, ">> Loaded 0 quests definitions. DB table `quest_template` is empty.");
-
         return;
     }
 
@@ -4680,18 +4676,6 @@ void ObjectMgr::LoadGameObjectScripts()
     {
         if (!GetGOData(itr->first))
             sLog->outError(LOG_FILTER_SQL, "Table `gameobject_scripts` has not existing gameobject (GUID: %u) as script id", itr->first);
-    }
-}
-
-void ObjectMgr::LoadQuestEndScripts()
-{
-    LoadScripts(SCRIPTS_QUEST_END);
-
-    // check ids
-    for (ScriptMapMap::const_iterator itr = sQuestEndScripts.begin(); itr != sQuestEndScripts.end(); ++itr)
-    {
-        if (!GetQuestTemplate(itr->first))
-            sLog->outError(LOG_FILTER_SQL, "Table `quest_end_scripts` has not existing quest (Id: %u) as script id", itr->first);
     }
 }
 

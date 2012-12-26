@@ -140,9 +140,7 @@ Quest::Quest(Field* questRecord)
     for (int i = 0; i < QUEST_EMOTE_COUNT; ++i)
         OfferRewardEmoteDelay[i] = questRecord[140+i].GetInt32();
 
-    CompleteScript = questRecord[144].GetUInt32();
-
-    // int32 WDBVerified = questRecord[145].GetInt32();
+    //int32 WDBVerified = questRecord[144].GetInt32();
 
     Flags |= SpecialFlags << 20;
     if (Flags & QUEST_TRINITY_FLAGS_AUTO_ACCEPT)
