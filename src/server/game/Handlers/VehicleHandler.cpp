@@ -35,12 +35,7 @@ void WorldSession::HandleDismissControlledVehicle(WorldPacket &recvData)
         return;
     }
 
-    uint64 guid;
-
-    recvData.readPackGUID(guid);
-
     MovementInfo mi;
-    mi.guid = guid;
     ReadMovementInfo(recvData, &mi);
 
     _player->m_movementInfo = mi;
