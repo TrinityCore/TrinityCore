@@ -63,6 +63,11 @@ enum GameObjects
     GO_ANHUURS_LEFT_BEACON          = 203133,
 };
 
+enum AreaIds
+{
+    AREA_TOMB_OF_THE_EARTHRAGER     = 5610,
+};
+
 template<class AI>
 CreatureAI* GetHallsOfOriginationAI(Creature* creature)
 {
