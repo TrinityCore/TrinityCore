@@ -107,18 +107,8 @@ void TargetedMovementGeneratorMedium<T,D>::_setTargetLocation(T* owner, bool upd
     bool result = i_path->CalculatePath(x, y, z, false );//for all units, including pets trying to find path without forcing
     if (!result || ( i_path->GetPathType() & PATHFIND_NOPATH ) || ( i_path->GetPathType() & PATHFIND_INCOMPLETE ) )
     {
-        if ( forceDest ) 
-        { //if pet cann't move to his master
-            i_recalculateTravel = true;// after teleport we need place pet on his place
-            if ((i_target->ToPlayer()->IsFalling()) && !i_target->ToPlayer()->IsInWater())// sometimes isFalling() returns true after player fell into water
-              return;// if player falling, pet may ignore his moving
-            z = i_target->GetPositionZ();
-            x = i_target->GetPositionX();
-            y = i_target->GetPositionY();
-            owner->NearTeleportTo ( x,y,z,0,false ); // just teleport him near master
-        }
-        else 
-        { //if other creature cann't move to target
+        if ( !forceDest ) 
+        { //if npc cann't move to target
             owner->AddUnitState(UNIT_STATE_EVADE);//it must evade
         }
         // Cant reach target
