@@ -302,6 +302,19 @@ void Object::DestroyForPlayer(Player* target, bool onDeath) const
 {
     ASSERT(target);
 
+    if (isType(TYPEMASK_UNIT) || isType(TYPEMASK_PLAYER))
+    {
+        if (Battleground* bg = target->GetBattleground())
+        {
+            if (bg->isArena())
+            {
+                WorldPacket data(SMSG_ARENA_UNIT_DESTROYED, 8);
+                data << uint64(GetGUID());
+                target->GetSession()->SendPacket(&data);
+            }
+        }
+    }
+
     WorldPacket data(SMSG_DESTROY_OBJECT, 8 + 1);
     data << uint64(GetGUID());
     //! If the following bool is true, the client will call "void CGUnit_C::OnDeath()" for this object.
