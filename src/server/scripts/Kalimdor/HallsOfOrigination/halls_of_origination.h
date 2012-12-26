@@ -46,6 +46,12 @@ enum Creatures
     BOSS_TEMPLE_GUARDIAN_ANHUUR     = 39425,
     NPC_CAVE_IN_STALKER             = 40183,
     NPC_SEARING_LIGHT               = 40283,
+    
+    BOSS_EARTHRAGER_PTAH            = 39428,
+    NPC_BEETLE_STALKER              = 40459, // Summons both Jeweled Scarab and Dustbone Horror
+    NPC_JEWELED_SCARAB              = 40458,
+    NPC_DUSTBONE_HORROR             = 40450,
+    NPC_QUICKSAND                   = 40503, // Summoned by a spell not in dbc (75550)
 };
 
 enum GameObjects

@@ -75,6 +75,18 @@ class instance_halls_of_origination : public InstanceMapScript
                 }
             }
 
+            void OnGameObjectRemove(GameObject* go)
+            {
+                switch (go->GetEntry())
+                {
+                    case GO_ANHUURS_BRIDGE:
+                    case GO_DOODAD_ULDUM_ELEVATOR_COL01:
+                    case GO_ANHUURS_DOOR:
+                        AddDoor(go, false);
+                        break;
+                }
+            }
+
             void OnCreatureCreate(Creature* creature)
             {
                 switch (creature->GetEntry())

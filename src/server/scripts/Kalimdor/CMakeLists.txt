@@ -111,8 +111,9 @@ set(scripts_STAT_SRCS
   Kalimdor/OnyxiasLair/onyxias_lair.h
   Kalimdor/OnyxiasLair/instance_onyxias_lair.cpp
   Kalimdor/HallsOfOrigination/halls_of_origination.h
-  Kalimdor/HallsOfOrigination/boss_temple_guardian_anhuur.cpp
   Kalimdor/HallsOfOrigination/instance_halls_of_origination.cpp
+  Kalimdor/HallsOfOrigination/boss_temple_guardian_anhuur.cpp
+  Kalimdor/HallsOfOrigination/boss_earthrager_ptah.cpp
 )
 
 message("  -> Prepared: Kalimdor")
