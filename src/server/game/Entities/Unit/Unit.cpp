@@ -998,10 +998,7 @@ void Unit::CalculateSpellDamageTaken(SpellNonMeleeDamage* damageInfo, int32 dama
                 damage -= damageInfo->blocked;
             }
 
-            if (attackType != RANGED_ATTACK)
-                ApplyResilience(victim, NULL, &damage, crit, CR_CRIT_TAKEN_MELEE);
-            else
-                ApplyResilience(victim, NULL, &damage, crit, CR_CRIT_TAKEN_RANGED);
+            ApplyResilience(victim, &damage, crit);
             break;
         }
         // Magical Attacks
@@ -1015,7 +1012,7 @@ void Unit::CalculateSpellDamageTaken(SpellNonMeleeDamage* damageInfo, int32 dama
                 damage = SpellCriticalDamageBonus(spellInfo, damage, victim);
             }
 
-            ApplyResilience(victim, NULL, &damage, crit, CR_CRIT_TAKEN_SPELL);
+            ApplyResilience(victim, &damage, crit);
             break;
         }
         default:
@@ -1227,10 +1224,7 @@ void Unit::CalculateMeleeDamage(Unit* victim, uint32 damage, CalcDamageInfo* dam
         damageInfo->HitInfo |= HITINFO_AFFECTS_VICTIM;
 
     int32 resilienceReduction = damageInfo->damage;
-    if (attackType != RANGED_ATTACK)
-        ApplyResilience(victim, NULL, &resilienceReduction, (damageInfo->hitOutCome == MELEE_HIT_CRIT), CR_CRIT_TAKEN_MELEE);
-    else
-        ApplyResilience(victim, NULL, &resilienceReduction, (damageInfo->hitOutCome == MELEE_HIT_CRIT), CR_CRIT_TAKEN_RANGED);
+    ApplyResilience(victim, &resilienceReduction, damageInfo->hitOutCome == MELEE_HIT_CRIT);
     resilienceReduction = damageInfo->damage - resilienceReduction;
     damageInfo->damage      -= resilienceReduction;
     damageInfo->cleanDamage += resilienceReduction;
@@ -2344,10 +2338,6 @@ SpellMissInfo Unit::MagicSpellHitResult(Unit* victim, SpellInfo const* spell)
     {
         // Chance hit from victim SPELL_AURA_MOD_ATTACKER_SPELL_HIT_CHANCE auras
         modHitChance += victim->GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_ATTACKER_SPELL_HIT_CHANCE, schoolMask);
-
-        // Decrease hit chance from victim rating bonus
-        if (victim->GetTypeId() == TYPEID_PLAYER)
-            modHitChance -= int32(victim->ToPlayer()->GetRatingBonusValue(CR_HIT_TAKEN_SPELL));
     }
 
     int32 HitChance = modHitChance * 100;
@@ -2579,12 +2569,6 @@ float Unit::GetUnitCriticalChance(WeaponAttackType attackType, const Unit* victi
         crit += victim->GetTotalAuraModifier(SPELL_AURA_MOD_ATTACKER_MELEE_CRIT_CHANCE);
 
     crit += victim->GetTotalAuraModifier(SPELL_AURA_MOD_ATTACKER_SPELL_AND_WEAPON_CRIT_CHANCE);
-
-    // reduce crit chance from Rating for players
-    if (attackType != RANGED_ATTACK)
-        ApplyResilience(victim, &crit, NULL, false, CR_CRIT_TAKEN_MELEE);
-    else
-        ApplyResilience(victim, &crit, NULL, false, CR_CRIT_TAKEN_RANGED);
 
     if (crit < 0.0f)
         crit = 0.0f;
@@ -5479,37 +5463,14 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                 // Shadow's Fate (Shadowmourne questline)
                 case 71169:
                 {
-                    target = triggeredByAura->GetCaster();
-                    if (!target)
+                    Unit* caster = triggeredByAura->GetCaster();
+                    if (caster && caster->GetTypeId() == TYPEID_PLAYER && caster->ToPlayer()->GetQuestStatus(24547) == QUEST_STATUS_INCOMPLETE)
+                    {
+                        CastSpell(caster, 71203, true);
+                        return true;
+                    }
+                    else
                         return false;
-                    Player* player = target->ToPlayer();
-                    if (!player)
-                        return false;
-                    // not checking Infusion auras because its in targetAuraSpell of credit spell
-                    if (player->GetQuestStatus(24749) == QUEST_STATUS_INCOMPLETE)       // Unholy Infusion
-                    {
-                        if (GetEntry() != 36678)                                        // Professor Putricide
-                            return false;
-                        CastSpell(target, 71518, true);                                 // Quest Credit
-                        return true;
-                    }
-                    else if (player->GetQuestStatus(24756) == QUEST_STATUS_INCOMPLETE)  // Blood Infusion
-                    {
-                        if (GetEntry() != 37955)                                        // Blood-Queen Lana'thel
-                            return false;
-                        CastSpell(target, 72934, true);                                 // Quest Credit
-                        return true;
-                    }
-                    else if (player->GetQuestStatus(24757) == QUEST_STATUS_INCOMPLETE)  // Frost Infusion
-                    {
-                        if (GetEntry() != 36853)                                        // Sindragosa
-                            return false;
-                        CastSpell(target, 72289, true);                                 // Quest Credit
-                        return true;
-                    }
-                    else if (player->GetQuestStatus(24547) == QUEST_STATUS_INCOMPLETE)  // A Feast of Souls
-                        triggered_spell_id = 71203;
-                    break;
                 }
                 // Essence of the Blood Queen
                 case 70871:
@@ -8060,34 +8021,44 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
         // Shadow's Fate (Shadowmourne questline)
         case 71169:
         {
-            if (GetTypeId() != TYPEID_PLAYER)
+            // Victim needs more checks so bugs, rats or summons can not be affected by the proc.
+            if (GetTypeId() != TYPEID_PLAYER || !victim || victim->GetTypeId() != TYPEID_UNIT || victim->GetCreatureType() == CREATURE_TYPE_CRITTER)
                 return false;
 
             Player* player = ToPlayer();
-            if (player->GetQuestStatus(24749) == QUEST_STATUS_INCOMPLETE)       // Unholy Infusion
+            if (player->GetQuestStatus(24547) == QUEST_STATUS_INCOMPLETE)
             {
-                if (!player->HasAura(71516) || victim->GetEntry() != 36678)    // Shadow Infusion && Professor Putricide
-                    return false;
+                break;
             }
-            else if (player->GetQuestStatus(24756) == QUEST_STATUS_INCOMPLETE)  // Blood Infusion
+            else if (player->GetDifficulty(true) == RAID_DIFFICULTY_25MAN_NORMAL || player->GetDifficulty(true) == RAID_DIFFICULTY_25MAN_HEROIC)
             {
-                if (!player->HasAura(72154) || victim->GetEntry() != 37955)    // Thirst Quenched && Blood-Queen Lana'thel
-                    return false;
-            }
-            else if (player->GetQuestStatus(24757) == QUEST_STATUS_INCOMPLETE)  // Frost Infusion
-            {
-                if (!player->HasAura(72290) || victim->GetEntry() != 36853)    // Frost-Imbued Blade && Sindragosa
-                    return false;
-            }
-            else if (player->GetQuestStatus(24547) != QUEST_STATUS_INCOMPLETE)  // A Feast of Souls
-                return false;
+                uint32 spellId = 0;
+                uint32 questId = 0;
+                switch (victim->GetEntry())
+                {
+                    case 36678:             // NPC:     Professor Putricide
+                        questId = 24749;    // Quest:   Unholy Infusion
+                        spellId = 71516;    // Spell:   Shadow Infusion
+                        break;
+                    case 37955:             // NPC:     Blood-Queen Lana'thel
+                        questId = 24756;    // Quest:   Blood Infusion
+                        spellId = 72154;    // Spell:   Thirst Quenched
+                        break;
+                    case 36853:             // NPC:     Sindragosa
+                        questId = 24757;    // Quest:   Frost Infusion
+                        spellId = 72290;    // Spell:   Frost-Imbued Blade
+                        break;
+                    default:
+                        return false;
+                }
 
-            if (victim->GetTypeId() != TYPEID_UNIT)
+                if (player->GetQuestStatus(questId) != QUEST_STATUS_INCOMPLETE || !player->HasAura(spellId))
+                    return false;
+
+                break;
+            }
+            else
                 return false;
-            // critters are not allowed
-            if (victim->GetCreatureType() == CREATURE_TYPE_CRITTER)
-                return false;
-            break;
         }
     }
 
@@ -9769,7 +9740,6 @@ bool Unit::isSpellCrit(Unit* victim, SpellInfo const* spellProto, SpellSchoolMas
                     crit_chance += victim->GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_ATTACKER_SPELL_CRIT_CHANCE, schoolMask);
                     // Modify critical chance by victim SPELL_AURA_MOD_ATTACKER_SPELL_AND_WEAPON_CRIT_CHANCE
                     crit_chance += victim->GetTotalAuraModifier(SPELL_AURA_MOD_ATTACKER_SPELL_AND_WEAPON_CRIT_CHANCE);
-                    ApplyResilience(victim, &crit_chance, NULL, false, CR_CRIT_TAKEN_SPELL);
                 }
                 // scripted (increase crit chance ... against ... target by x%
                 AuraEffectList const& mOverrideClassScript = GetAuraEffectsByType(SPELL_AURA_OVERRIDE_CLASS_SCRIPTS);
@@ -10568,7 +10538,7 @@ uint32 Unit::MeleeDamageBonusTaken(Unit* attacker, uint32 pdamage, WeaponAttackT
                 {
                     if (GetTypeId() != TYPEID_PLAYER)
                         continue;
-                    float mod = ToPlayer()->GetRatingBonusValue(CR_CRIT_TAKEN_MELEE) * (-8.0f);
+                    float mod = ToPlayer()->GetRatingBonusValue(CR_RESILIENCE_PLAYER_DAMAGE_TAKEN) * (-8.0f);
                     AddPct(TakenTotalMod, std::max(mod, float((*i)->GetAmount())));
                 }
                 break;
@@ -10880,7 +10850,10 @@ void Unit::CombatStart(Unit* target, bool initialAggro)
         if (!target->isInCombat() && target->GetTypeId() != TYPEID_PLAYER
             && !target->ToCreature()->HasReactState(REACT_PASSIVE) && target->ToCreature()->IsAIEnabled)
         {
-            target->ToCreature()->AI()->AttackStart(this);
+            if (target->isPet())
+                target->ToCreature()->AI()->AttackedBy(this); // PetAI has special handler before AttackStart()
+            else
+                target->ToCreature()->AI()->AttackStart(this);
         }
 
         SetInCombatWith(target);
@@ -12914,7 +12887,7 @@ int32 Unit::GetCreatePowers(Powers power) const
         case POWER_ECLIPSE:
             return 0;
         case POWER_HOLY_POWER:
-            return 0;
+            return 3;
         case POWER_HEALTH:
             return 0;
         default:
@@ -15685,17 +15658,15 @@ void Unit::SendPlaySpellVisualKit(uint32 id, uint32 unkParam)
     SendMessageToSet(&data, true);
 }
 
-void Unit::ApplyResilience(Unit const* victim, float* crit, int32* damage, bool isCrit, CombatRating type) const
+void Unit::ApplyResilience(Unit const* victim, int32* damage, bool isCrit) const
 {
     // player mounted on multi-passenger mount is also classified as vehicle
     if (IsVehicle() || (victim->IsVehicle() && victim->GetTypeId() != TYPEID_PLAYER))
         return;
 
-    Unit const* source = NULL;
-    if (GetTypeId() == TYPEID_PLAYER)
-        source = this;
-    else if (GetTypeId() == TYPEID_UNIT && GetOwner() && GetOwner()->GetTypeId() == TYPEID_PLAYER)
-        source = GetOwner();
+    // Don't consider resilience if not in PvP - player or pet
+    if (!GetCharmerOrOwnerPlayerOrPlayerItself())
+        return;
 
     Unit const* target = NULL;
     if (victim->GetTypeId() == TYPEID_PLAYER)
@@ -15706,44 +15677,9 @@ void Unit::ApplyResilience(Unit const* victim, float* crit, int32* damage, bool 
     if (!target)
         return;
 
-    switch (type)
-    {
-        case CR_CRIT_TAKEN_MELEE:
-            // Crit chance reduction works against nonpets
-            if (crit)
-                *crit -= target->GetMeleeCritChanceReduction();
-            if (source && damage)
-            {
-                if (isCrit)
-                    *damage -= target->GetMeleeCritDamageReduction(*damage);
-                *damage -= target->GetMeleeDamageReduction(*damage);
-            }
-            break;
-        case CR_CRIT_TAKEN_RANGED:
-            // Crit chance reduction works against nonpets
-            if (crit)
-                *crit -= target->GetRangedCritChanceReduction();
-            if (source && damage)
-            {
-                if (isCrit)
-                    *damage -= target->GetRangedCritDamageReduction(*damage);
-                *damage -= target->GetRangedDamageReduction(*damage);
-            }
-            break;
-        case CR_CRIT_TAKEN_SPELL:
-            // Crit chance reduction works against nonpets
-            if (crit)
-                *crit -= target->GetSpellCritChanceReduction();
-            if (source && damage)
-            {
-                if (isCrit)
-                    *damage -= target->GetSpellCritDamageReduction(*damage);
-                *damage -= target->GetSpellDamageReduction(*damage);
-            }
-            break;
-        default:
-            break;
-    }
+    if (isCrit)
+        *damage -= target->GetCritDamageReduction(*damage);
+    *damage -= target->GetDamageReduction(*damage);
 }
 
 // Melee based spells can be miss, parry or dodge on this step
@@ -16723,9 +16659,78 @@ void Unit::NearTeleportTo(float x, float y, float z, float orientation, bool cas
         ToPlayer()->TeleportTo(GetMapId(), x, y, z, orientation, TELE_TO_NOT_LEAVE_TRANSPORT | TELE_TO_NOT_LEAVE_COMBAT | TELE_TO_NOT_UNSUMMON_PET | (casting ? TELE_TO_SPELL : 0));
     else
     {
+        Position pos = {x, y, z, orientation};
+        SendTeleportPacket(pos);
         UpdatePosition(x, y, z, orientation, true);
-        SendMovementFlagUpdate();
+        UpdateObjectVisibility();
     }
+}
+
+void Unit::SendTeleportPacket(Position& pos)
+{
+    Position oldPos = {GetPositionX(), GetPositionY(), GetPositionZMinusOffset(), GetOrientation()};
+
+    if (GetTypeId() == TYPEID_UNIT)
+        Relocate(&pos);
+
+    ObjectGuid guid = GetGUID();
+    ObjectGuid transGuid = GetTransGUID();
+
+    WorldPacket data(MSG_MOVE_TELEPORT, 38);
+    data.WriteBit(guid[6]);
+    data.WriteBit(guid[0]);
+    data.WriteBit(guid[3]);
+    data.WriteBit(guid[2]);
+    data.WriteBit(0); // unknown
+    data.WriteBit(uint64(transGuid));
+    data.WriteBit(guid[1]);
+    if (transGuid)
+    {
+        data.WriteBit(transGuid[1]);
+        data.WriteBit(transGuid[3]);
+        data.WriteBit(transGuid[2]);
+        data.WriteBit(transGuid[5]);
+        data.WriteBit(transGuid[0]);
+        data.WriteBit(transGuid[7]);
+        data.WriteBit(transGuid[6]);
+        data.WriteBit(transGuid[4]);
+    }
+    data.WriteBit(guid[4]);
+    data.WriteBit(guid[7]);
+    data.WriteBit(guid[5]);
+    data.FlushBits();
+
+    if (transGuid)
+    {
+        data.WriteByteSeq(transGuid[6]);
+        data.WriteByteSeq(transGuid[5]);
+        data.WriteByteSeq(transGuid[1]);
+        data.WriteByteSeq(transGuid[7]);
+        data.WriteByteSeq(transGuid[0]);
+        data.WriteByteSeq(transGuid[2]);
+        data.WriteByteSeq(transGuid[4]);
+        data.WriteByteSeq(transGuid[3]);
+    }
+
+    data << uint32(0); // counter
+    data.WriteByteSeq(guid[1]);
+    data.WriteByteSeq(guid[2]);
+    data.WriteByteSeq(guid[3]);
+    data.WriteByteSeq(guid[5]);
+    data << float(GetPositionX());
+    data.WriteByteSeq(guid[4]);
+    data << float(GetOrientation());
+    data.WriteByteSeq(guid[7]);
+    data << float(GetPositionZMinusOffset());
+    data.WriteByteSeq(guid[0]);
+    data.WriteByteSeq(guid[6]);
+    data << float(GetPositionY());
+
+    if (GetTypeId() == TYPEID_PLAYER)
+        Relocate(&pos);
+    else
+        Relocate(&oldPos);
+    SendMessageToSet(&data, true);
 }
 
 bool Unit::UpdatePosition(float x, float y, float z, float orientation, bool teleport)

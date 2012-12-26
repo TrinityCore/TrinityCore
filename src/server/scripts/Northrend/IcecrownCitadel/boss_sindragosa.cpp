@@ -82,6 +82,9 @@ enum Spells
     SPELL_FOCUS_FIRE            = 71350,
     SPELL_ORDER_WHELP           = 71357,
     SPELL_CONCUSSIVE_SHOCK      = 71337,
+
+    // Frost Infusion
+    SPELL_FROST_INFUSION_CREDIT = 72289
 };
 
 enum Events
@@ -229,10 +232,14 @@ class boss_sindragosa : public CreatureScript
                 }
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /* killer */)
             {
-                BossAI::JustDied(killer);
+                _JustDied();
                 Talk(SAY_DEATH);
+
+                if (Is25ManRaid() && me->HasAura(SPELL_SHADOWS_FATE))
+                    DoCastAOE(SPELL_FROST_INFUSION_CREDIT, true);
+
             }
 
             void EnterCombat(Unit* victim)

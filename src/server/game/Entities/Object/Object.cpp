@@ -2294,6 +2294,11 @@ void WorldObject::BuildMonsterChat(WorldPacket* data, uint8 msgtype, char const*
     *data << (uint32)(strlen(text)+1);
     *data << text;
     *data << (uint8)0;                                      // ChatTag
+    if (msgtype == CHAT_MSG_RAID_BOSS_EMOTE || msgtype == CHAT_MSG_RAID_BOSS_WHISPER)
+    {
+        *data << float(0);
+        *data << uint8(0);
+    }
 }
 
 void Unit::BuildHeartBeatMsg(WorldPacket* data) const
@@ -2488,12 +2493,7 @@ void WorldObject::SetZoneScript()
             if (Battlefield* bf = sBattlefieldMgr->GetBattlefieldToZoneId(GetZoneId()))
                 m_zoneScript = bf;
             else
-            {
-                if (Battlefield* bf = sBattlefieldMgr->GetBattlefieldToZoneId(GetZoneId()))
-                    m_zoneScript = bf;
-                else
-                    m_zoneScript = sOutdoorPvPMgr->GetZoneScript(GetZoneId());
-            }
+                m_zoneScript = sOutdoorPvPMgr->GetZoneScript(GetZoneId());
         }
     }
 }

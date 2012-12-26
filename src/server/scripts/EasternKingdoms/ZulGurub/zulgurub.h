@@ -36,6 +36,9 @@ enum DataTypes
     DATA_RENATAKI           = 6,
     DATA_WUSHOOLAY          = 7,
     DATA_GRILEK             = 8,
+
+    // Jin'do the Godbreaker 
+    DATA_JINDOR_TRIGGER,
 };
 
 enum CreatureIds
@@ -51,10 +54,15 @@ enum CreatureIds
     NPC_RENATAKI            = 52269,
     NPC_WUSHOOLAY           = 52286,
     NPC_GRILEK              = 52258,
+
+    // Jin'do the Godbreaker 
+    NPC_JINDO_TRIGGER       = 52150,
+    NPC_SPIRIT_OF_HAKKAR    = 52222,
+    NPC_SHADOW_OF_HAKKAR    = 52650
 };
 
 template<class AI>
-CreatureAI* GetZulGurubCitadelAI(Creature* creature)
+CreatureAI* GetZulGurubAI(Creature* creature)
 {
     if (InstanceMap* instance = creature->GetMap()->ToInstanceMap())
         if (instance->GetInstanceScript())

@@ -535,14 +535,8 @@ void WorldSession::HandleMoveNotActiveMover(WorldPacket &recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd CMSG_MOVE_NOT_ACTIVE_MOVER");
 
-    uint64 old_mover_guid;
-    recvData.readPackGUID(old_mover_guid);
-
     MovementInfo mi;
     ReadMovementInfo(recvData, &mi);
-
-    mi.guid = old_mover_guid;
-
     _player->m_movementInfo = mi;
 }
 
@@ -558,21 +552,16 @@ void WorldSession::HandleMoveKnockBackAck(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_MOVE_KNOCK_BACK_ACK");
 
-    uint64 guid;
-    recvData.readPackGUID(guid);
-
-    if (_player->m_mover->GetGUID() != guid)
-        return;
-
-    recvData.read_skip<uint32>();                          // unk
-
     MovementInfo movementInfo;
     ReadMovementInfo(recvData, &movementInfo);
+
+    if (_player->m_mover->GetGUID() != movementInfo.guid)
+        return;
 
     _player->m_movementInfo = movementInfo;
 
     WorldPacket data(SMSG_MOVE_UPDATE_KNOCK_BACK, 66);
-    data.appendPackGUID(guid);
+    data.appendPackGUID(movementInfo.guid);
     _player->BuildMovementPacket(&data);
 
     // knockback specific info

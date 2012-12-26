@@ -173,8 +173,6 @@ void BattlegroundMgr::BuildBattlegroundStatusPacket(WorldPacket *data, Battlegro
             data->WriteBit(playerGuid[5]);
             data->WriteBit(playerGuid[2]);
 
-            data->FlushBits();
-
             data->WriteByteSeq(playerGuid[5]);
             data->WriteByteSeq(playerGuid[6]);
             data->WriteByteSeq(playerGuid[7]);
@@ -274,8 +272,6 @@ void BattlegroundMgr::BuildBattlegroundStatusPacket(WorldPacket *data, Battlegro
             data->WriteBit(bgGuid[5]);
             data->WriteBit(playerGuid[0]);
 
-            data->FlushBits();
-
             data->WriteByteSeq(bgGuid[6]);
             data->WriteByteSeq(bgGuid[5]);
             data->WriteByteSeq(bgGuid[7]);
@@ -346,7 +342,7 @@ void BattlegroundMgr::BuildBattlegroundStatusPacket(WorldPacket *data, Battlegro
 
             data->WriteByteSeq(playerGuid[0]);
             data->WriteByteSeq(playerGuid[3]);
-            data->WriteByteSeq(playerGuid[2]);
+            data->WriteByteSeq(bgGuid[2]);
 
             *data << uint32(bg->GetClientInstanceID()); // Client Instance ID or faction ?
 
@@ -403,7 +399,7 @@ void BattlegroundMgr::BuildPvpLogDataPacket(WorldPacket* data, Battleground* bg)
         data->WriteBit(playerGUID[5]);
         data->WriteBit(playerGUID[1]);
         data->WriteBit(playerGUID[6]);
-        data->WriteBit(player->GetBGTeam() == ALLIANCE);
+        data->WriteBit(player->GetBGTeam() == TEAM_ALLIANCE);
         data->WriteBit(playerGUID[7]);
 
         buff << uint32(itr->second->HealingDone);             // healing done

@@ -208,7 +208,7 @@ class boss_ignis : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_JET:
-                            me->MonsterTextEmote(EMOTE_JETS, 0, true);
+                            Talk(EMOTE_JETS);
                             DoCast(me, SPELL_FLAME_JETS);
                             events.ScheduleEvent(EVENT_JET, urand(35000, 40000));
                             break;
