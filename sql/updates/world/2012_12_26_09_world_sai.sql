@@ -1,5 +1,5 @@
 -- SAI for Razormaw Matriarch
-SET @ENTRY := 1021;
+SET @ENTRY := 1140;
 UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=@ENTRY;
 DELETE FROM `creature_ai_scripts` WHERE `creature_id`=@ENTRY;
 DELETE FROM `smart_scripts` WHERE `source_type`=0 AND `entryorguid`=@ENTRY;
