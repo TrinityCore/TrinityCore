@@ -3,7 +3,7 @@ INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language
 (39428, 0, 0, 'More carrion for the swarm...', 14, 0, 100, 0, 0, 18906, 'Earthrager Ptah - SAY_AGGRO'),
 (39428, 1, 0, 'Ptah... is... no more...', 14, 0, 100, 0, 0, 18905, 'Earthrager Ptah  - SAY_DEATH');
 
-DELETE FROM `spell_script_names` WHERE `spell_id` IN (75540,94974,75519);
+DELETE FROM `spell_script_names` WHERE `spell_id` IN (75540,89881,94974,75519);
 INSERT INTO `spell_script_names` VALUES
 (75540,'spell_earthrager_ptah_flame_bolt'),
 (89881,'spell_earthrager_ptah_flame_bolt'),
