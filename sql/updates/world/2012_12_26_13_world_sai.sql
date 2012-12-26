@@ -746,8 +746,8 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
 (@ENTRY,0,13,0,0,0,100,0,10200,26000,2500,6700,11,4974,32,0,0,0,0,2,0,0,0,0,0,0,0,"Witherbark Axe Thrower - In Combat - Cast Wither Touch"),
 (@ENTRY,0,14,0,2,0,100,1,0,15,0,0,23,1,0,0,0,0,0,1,0,0,0,0,0,0,0,"Witherbark Axe Thrower - At 15% HP - Increment Phase"),
 (@ENTRY,0,15,16,2,0,100,0,0,15,0,0,21,1,0,0,0,0,0,1,0,0,0,0,0,0,0,"Witherbark Axe Thrower - At 15% HP - Allow Combat Movement"),
-(@ENTRY,0,16,17,61,0,100,0,0,0,0,0,25,1,0,0,0,0,0,0,0,0,0,0,0,0,0,"Witherbark Axe Thrower - At 15% HP - Flee For Assist")
-(@ENTRY,0,17,0,61,0,100,1,0,0,0,0,40,1,0,0,0,0,0,1,0,0,0,0,0,0,0,"Witherbark Axe Thrower - On Evade - Display melee weapon");
+(@ENTRY,0,16,0,61,0,100,0,0,0,0,0,25,1,0,0,0,0,0,0,0,0,0,0,0,0,0,"Witherbark Axe Thrower - At 15% HP - Flee For Assist"),
+(@ENTRY,0,17,0,7,0,100,1,0,0,0,0,40,1,0,0,0,0,0,1,0,0,0,0,0,0,0,"Witherbark Axe Thrower - On Evade - Display melee weapon");
 
 -- Witherbark Witch Doctor SAI
 SET @ENTRY := 2555;
