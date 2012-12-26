@@ -274,7 +274,7 @@ void Battleground::Update(uint32 diff)
             // after 47 minutes without one team losing, the arena closes with no winner and no rating change
             if (isArena())
             {
-                if (GetElapsedTime() >= 47*MINUTE*IN_MILLISECONDS)
+                if (GetElapsedTime() >= 47 * MINUTE*IN_MILLISECONDS)
                 {
                     UpdateArenaWorldState();
                     CheckArenaAfterTimerConditions();
@@ -466,8 +466,8 @@ inline void Battleground::_ProcessJoin(uint32 diff)
     // *********************************************************
     ModifyStartDelayTime(diff);
 
-    // I know it's a too big but it's the value sent in packet, I get it from retail sniff.
-    SetRemainingTime(300000);
+    if (!isArena())
+        SetRemainingTime(300000);
 
     if (m_ResetStatTimer > 5000)
     {
