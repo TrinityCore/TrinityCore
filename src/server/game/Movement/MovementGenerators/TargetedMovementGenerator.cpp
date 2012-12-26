@@ -107,12 +107,13 @@ void TargetedMovementGeneratorMedium<T,D>::_setTargetLocation(T* owner, bool upd
     bool result = i_path->CalculatePath(x, y, z, false );//for all units, including pets trying to find path without forcing
     if (!result || ( i_path->GetPathType() & PATHFIND_NOPATH ) || ( i_path->GetPathType() & PATHFIND_INCOMPLETE ) )
     {
-        if ( !forceDest ) 
-        { //if npc cann't move to target
+        if ( !forceDest )
+        { //if other creature cann't move to target
             owner->AddUnitState(UNIT_STATE_EVADE);//it must evade
+            return;
         }
         // Cant reach target
-        return;
+        
     }
 
     D::_addUnitStateMove(owner);
