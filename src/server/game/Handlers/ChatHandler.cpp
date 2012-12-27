@@ -440,40 +440,51 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
         } break;
         case CHAT_MSG_AFK:
         {
-            if ((msg.empty() || !_player->isAFK()) && !_player->isInCombat())
+            if (!_player->isInCombat())
             {
-                if (!_player->isAFK())
+                if (_player->isAFK())                       // Already AFK
                 {
                     if (msg.empty())
-                        msg  = GetTrinityString(LANG_PLAYER_AFK_DEFAULT);
-                    _player->afkMsg = msg;
+                        _player->ToggleAFK();               // Remove AFK
+                    else
+                        _player->autoReplyMsg = msg;        // Update message
+                }
+                else                                        // New AFK mode
+                {
+                    _player->autoReplyMsg = msg.empty() ? GetTrinityString(LANG_PLAYER_AFK_DEFAULT) : msg;
+
+                    if (_player->isDND())
+                        _player->ToggleDND();
+
+                    _player->ToggleAFK();
                 }
 
                 sScriptMgr->OnPlayerChat(_player, type, lang, msg);
-
-                _player->ToggleAFK();
-                if (_player->isAFK() && _player->isDND())
-                    _player->ToggleDND();
             }
-        } break;
+            break;
+        }
         case CHAT_MSG_DND:
         {
-            if (msg.empty() || !_player->isDND())
+            if (_player->isDND())                           // Already DND
             {
-                if (!_player->isDND())
-                {
-                    if (msg.empty())
-                        msg = GetTrinityString(LANG_PLAYER_DND_DEFAULT);
-                    _player->dndMsg = msg;
-                }
+                if (msg.empty())
+                    _player->ToggleDND();                   // Remove DND
+                else
+                    _player->autoReplyMsg = msg;            // Update message
+            }
+            else                                            // New DND mode
+            {
+                _player->autoReplyMsg = msg.empty() ? GetTrinityString(LANG_PLAYER_DND_DEFAULT) : msg;
 
-                sScriptMgr->OnPlayerChat(_player, type, lang, msg);
+                if (_player->isAFK())
+                    _player->ToggleAFK();
 
                 _player->ToggleDND();
-                if (_player->isDND() && _player->isAFK())
-                    _player->ToggleAFK();
             }
-        } break;
+
+            sScriptMgr->OnPlayerChat(_player, type, lang, msg);
+            break;
+        }
         default:
             sLog->outError(LOG_FILTER_NETWORKIO, "CHAT: unknown message type %u, lang: %u", type, lang);
             break;
