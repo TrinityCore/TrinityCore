@@ -154,7 +154,7 @@ class boss_dred : public CreatureScript
                     ++raptorsKilled;
             }
 
-            uint32 GetData(uint32 type)
+            uint32 GetData(uint32 type) const
             {
                 if (type == DATA_KING_DRED)
                     return raptorsKilled;

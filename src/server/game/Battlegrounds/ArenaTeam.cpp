@@ -22,6 +22,9 @@
 #include "World.h"
 #include "Group.h"
 #include "ArenaTeamMgr.h"
+#include "Player.h"
+#include "WorldSession.h"
+#include "Opcodes.h"
 
 ArenaTeam::ArenaTeam()
     : TeamId(0), Type(0), TeamName(), CaptainGuid(0), BackgroundColor(0), EmblemStyle(0), EmblemColor(0),
@@ -36,17 +39,16 @@ ArenaTeam::ArenaTeam()
 }
 
 ArenaTeam::~ArenaTeam()
-{
-}
+{ }
 
-bool ArenaTeam::Create(uint64 captainGuid, uint8 type, std::string teamName, uint32 backgroundColor, uint8 emblemStyle, uint32 emblemColor, uint8 borderStyle, uint32 borderColor)
+bool ArenaTeam::Create(uint64 captainGuid, uint8 type, std::string const& teamName, uint32 backgroundColor, uint8 emblemStyle, uint32 emblemColor, uint8 borderStyle, uint32 borderColor)
 {
     // Check if captain is present
     if (!ObjectAccessor::FindPlayer(captainGuid))
         return false;
 
     // Check if arena team name is already taken
-    if (sArenaTeamMgr->GetArenaTeamByName(TeamName))
+    if (sArenaTeamMgr->GetArenaTeamByName(teamName))
         return false;
 
     // Generate new arena team id
@@ -177,7 +179,7 @@ bool ArenaTeam::AddMember(uint64 playerGuid)
             player->SetArenaTeamInfoField(GetSlot(), ARENA_TEAM_MEMBER, 1);
     }
 
-    sLog->outInfo(LOG_FILTER_ARENAS, "Player: %s [GUID: %u] joined arena team type: %u [Id: %u].", playerName.c_str(), GUID_LOPART(playerGuid), GetType(), GetId());
+    sLog->outInfo(LOG_FILTER_ARENAS, "Player: %s [GUID: %u] joined arena team type: %u [Id: %u, Name: %s].", playerName.c_str(), GUID_LOPART(playerGuid), GetType(), GetId(), GetName().c_str());
 
     return true;
 }
@@ -284,14 +286,15 @@ void ArenaTeam::SetCaptain(uint64 guid)
     CharacterDatabase.Execute(stmt);
 
     // Enable remove/promote buttons
-    Player* newCaptain = ObjectAccessor::FindPlayer(guid);
-    if (newCaptain)
+    if (Player* newCaptain = ObjectAccessor::FindPlayer(guid))
     {
         newCaptain->SetArenaTeamInfoField(GetSlot(), ARENA_TEAM_MEMBER, 0);
-        char const* oldCaptainName = oldCaptain ? oldCaptain->GetName() : "";
-        uint32 oldCaptainLowGuid = oldCaptain ? oldCaptain->GetGUIDLow() : 0;
-        sLog->outInfo(LOG_FILTER_ARENAS, "Player: %s [GUID: %u] promoted player: %s [GUID: %u] to leader of arena team [Id: %u] [Type: %u].",
-                        oldCaptainName, oldCaptainLowGuid, newCaptain->GetName(), newCaptain->GetGUIDLow(), GetId(), GetType());
+        if (oldCaptain)
+        {
+            sLog->outDebug(LOG_FILTER_BATTLEGROUND, "Player: %s [GUID: %u] promoted player: %s [GUID: %u] to leader of arena team [Id: %u] [Type: %u].",
+                oldCaptain->GetName().c_str(), oldCaptain->GetGUIDLow(), newCaptain->GetName().c_str(),
+                newCaptain->GetGUIDLow(), GetId(), GetType());
+        }
     }
 }
 
@@ -299,13 +302,11 @@ void ArenaTeam::DelMember(uint64 guid, bool cleanDb)
 {
     // Remove member from team
     for (MemberList::iterator itr = Members.begin(); itr != Members.end(); ++itr)
-    {
         if (itr->Guid == guid)
         {
             Members.erase(itr);
             break;
         }
-    }
 
     // Inform player and remove arena team info from player data
     if (Player* player = ObjectAccessor::FindPlayer(guid))
@@ -314,7 +315,7 @@ void ArenaTeam::DelMember(uint64 guid, bool cleanDb)
         // delete all info regarding this team
         for (uint32 i = 0; i < ARENA_TEAM_END; ++i)
             player->SetArenaTeamInfoField(GetSlot(), ArenaTeamInfoType(i), 0);
-        sLog->outInfo(LOG_FILTER_ARENAS, "Player: %s [GUID: %u] left arena team type: %u [Id: %u].", player->GetName(), player->GetGUIDLow(), GetType(), GetId());
+        sLog->outDebug(LOG_FILTER_ARENAS, "Player: %s [GUID: %u] left arena team type: %u [Id: %u].", player->GetName().c_str(), player->GetGUIDLow(), GetType(), GetId());
     }
 
     // Only used for single member deletion, for arena team disband we use a single query for more efficiency
@@ -336,10 +337,10 @@ void ArenaTeam::Disband(WorldSession* session)
     // Broadcast update
     if (session)
     {
-        BroadcastEvent(ERR_ARENA_TEAM_DISBANDED_S, 0, 2, session->GetPlayerName(), GetName(), "");
+        BroadcastEvent(ERR_ARENA_TEAM_DISBANDED_S, 0, 2, session->GetPlayerName().c_str(), GetName(), "");
 
         if (Player* player = session->GetPlayer())
-            sLog->outInfo(LOG_FILTER_ARENAS, "Player: %s [GUID: %u] disbanded arena team type: %u [Id: %u].", player->GetName(), player->GetGUIDLow(), GetType(), GetId());
+            sLog->outDebug(LOG_FILTER_ARENAS, "Player: %s [GUID: %u] disbanded arena team type: %u [Id: %u].", player->GetName().c_str(), player->GetGUIDLow(), GetType(), GetId());
     }
 
     // Update database
@@ -481,7 +482,7 @@ void ArenaTeam::BroadcastPacket(WorldPacket* packet)
             player->GetSession()->SendPacket(packet);
 }
 
-void ArenaTeam::BroadcastEvent(ArenaTeamEvents event, uint64 guid, uint8 strCount, std::string str1, std::string str2, std::string str3)
+void ArenaTeam::BroadcastEvent(ArenaTeamEvents event, uint64 guid, uint8 strCount, std::string const& str1, std::string const& str2, std::string const& str3)
 {
     WorldPacket data(SMSG_ARENA_TEAM_EVENT, 1+1+1);
     data << uint8(event);
@@ -510,6 +511,23 @@ void ArenaTeam::BroadcastEvent(ArenaTeamEvents event, uint64 guid, uint8 strCoun
     BroadcastPacket(&data);
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_ARENA_TEAM_EVENT");
+}
+
+void ArenaTeam::MassInviteToEvent(WorldSession* session)
+{
+    WorldPacket data(SMSG_CALENDAR_ARENA_TEAM, (Members.size() - 1) * (4 + 8 + 1));
+    data << uint32(Members.size() - 1);
+
+    for (MemberList::const_iterator itr = Members.begin(); itr != Members.end(); ++itr)
+    {
+        if (itr->Guid != session->GetPlayer()->GetGUID())
+        {
+            data.appendPackGUID(itr->Guid);
+            data << uint8(0); // unk
+        }
+    }
+
+    session->SendPacket(&data);
 }
 
 uint8 ArenaTeam::GetSlotByType(uint32 type)

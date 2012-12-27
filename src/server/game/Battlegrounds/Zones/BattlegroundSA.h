@@ -19,13 +19,12 @@
 #ifndef __BATTLEGROUNDSA_H
 #define __BATTLEGROUNDSA_H
 
-class Battleground;
+#include "Battleground.h"
 
-class BattlegroundSAScore : public BattlegroundScore
+struct BattlegroundSAScore : public BattlegroundScore
 {
-    public:
-        BattlegroundSAScore(): demolishers_destroyed(0), gates_destroyed(0) {};
-        virtual ~BattlegroundSAScore() {};
+    BattlegroundSAScore(): demolishers_destroyed(0), gates_destroyed(0) { }
+    ~BattlegroundSAScore() { }
     uint8 demolishers_destroyed;
     uint8 gates_destroyed;
 };
@@ -127,15 +126,19 @@ enum BG_SA_NPCs
     BG_SA_GUN_8,
     BG_SA_GUN_9,
     BG_SA_GUN_10,
-    BG_SA_DEMOLISHER_1,
-    BG_SA_DEMOLISHER_2,
-    BG_SA_DEMOLISHER_3,
-    BG_SA_DEMOLISHER_4,
     BG_SA_NPC_TRIGGER_1,
     BG_SA_NPC_TRIGGER_2,
     BG_SA_NPC_TRIGGER_3,
     BG_SA_NPC_TRIGGER_4,
     BG_SA_NPC_TRIGGER_5,
+    BG_SA_DEMOLISHER_1,
+    BG_SA_DEMOLISHER_2,
+    BG_SA_DEMOLISHER_3,
+    BG_SA_DEMOLISHER_4,
+    BG_SA_DEMOLISHER_5,
+    BG_SA_DEMOLISHER_6,
+    BG_SA_DEMOLISHER_7,
+    BG_SA_DEMOLISHER_8,
     BG_SA_NPC_SPARKLIGHT,
     BG_SA_NPC_RIGSPARK,
     BG_SA_MAXNPC
@@ -161,17 +164,22 @@ uint32 const BG_SA_NpcEntries[BG_SA_MAXNPC] =
     NPC_ANTI_PERSONNAL_CANNON,
     NPC_ANTI_PERSONNAL_CANNON,
     NPC_ANTI_PERSONNAL_CANNON,
-    // 4 beach demolishers
-    NPC_DEMOLISHER_SA,
-    NPC_DEMOLISHER_SA,
-    NPC_DEMOLISHER_SA,
-    NPC_DEMOLISHER_SA,
     // Triggers
     23472,
     23472,
     23472,
     23472,
     23472,
+    // 4 beach demolishers
+    NPC_DEMOLISHER_SA,
+    NPC_DEMOLISHER_SA,
+    NPC_DEMOLISHER_SA,
+    NPC_DEMOLISHER_SA,
+    // 4 factory demolishers
+    NPC_DEMOLISHER_SA,
+    NPC_DEMOLISHER_SA,
+    NPC_DEMOLISHER_SA,
+    NPC_DEMOLISHER_SA,
     // Used Demolisher Salesman
     NPC_RIGGER_SPARKLIGHT,
     NPC_GORGRIL_RIGSPARK
@@ -190,25 +198,25 @@ float const BG_SA_NpcSpawnlocs[BG_SA_MAXNPC + BG_SA_DEMOLISHER_AMOUNT][4] =
     { 1249.634f, -224.189f, 66.72f, 0.635f },
     { 1236.213f, 92.287f, 64.965f, 5.751f },
     { 1215.11f, 57.772f, 64.739f, 5.78f },
-    // Demolishers
-    { 1611.597656f, -117.270073f, 8.719355f, 2.513274f},
-    { 1575.562500f, -158.421875f, 5.024450f, 2.129302f},
-    { 1618.047729f, 61.424641f, 7.248210f, 3.979351f},
-    { 1575.103149f, 98.873344f, 2.830360f, 3.752458f},
     // Triggers
     { 1453.49f, -250.453f, 30.896f, 4.2883f},
     { 1377.05f, 97.036f, 30.8605f, 2.46539f},
     { 1186.05f, 58.8048f, 56.5491f, 2.75992f},
     { 1042.83f, -72.839f, 84.8145f, 3.58615f},
     { 1233.62f, -250.49f, 55.4036f, 3.7016f},
-    // Npcs
-    { 1348.644165f, -298.786469f, 31.080130f, 1.710423f},
-    { 1358.191040f, 195.527786f, 31.018187f, 4.171337f},
+    // Demolishers
+    { 1611.597656f, -117.270073f, 8.719355f, 2.513274f},
+    { 1575.562500f, -158.421875f, 5.024450f, 2.129302f},
+    { 1618.047729f, 61.424641f, 7.248210f, 3.979351f},
+    { 1575.103149f, 98.873344f, 2.830360f, 3.752458f},
     // Demolishers 2
     { 1371.055786f, -317.071136f, 35.007359f, 1.947460f},
     { 1424.034912f, -260.195190f, 31.084425f, 2.820013f},
     { 1353.139893f, 223.745438f, 35.265411f, 4.343684f},
-    { 1404.809570f, 197.027237f, 32.046032f, 3.605401f}
+    { 1404.809570f, 197.027237f, 32.046032f, 3.605401f},
+    // Npcs
+    { 1348.644165f, -298.786469f, 31.080130f, 1.710423f},
+    { 1358.191040f, 195.527786f, 31.018187f, 4.171337f}
 };
 
 enum BG_SA_Objects
@@ -220,6 +228,11 @@ enum BG_SA_Objects
     BG_SA_PURPLE_GATE,
     BG_SA_ANCIENT_GATE,
     BG_SA_TITAN_RELIC,
+    BG_SA_PORTAL_DEFFENDER_BLUE,
+    BG_SA_PORTAL_DEFFENDER_GREEN,
+    BG_SA_PORTAL_DEFFENDER_YELLOW,
+    BG_SA_PORTAL_DEFFENDER_PURPLE,
+    BG_SA_PORTAL_DEFFENDER_RED,
     BG_SA_BOAT_ONE,
     BG_SA_BOAT_TWO,
     BG_SA_SIGIL_1,
@@ -233,11 +246,6 @@ enum BG_SA_Objects
     BG_SA_CENTRAL_FLAG,
     BG_SA_RIGHT_FLAG,
     BG_SA_LEFT_FLAG,
-    BG_SA_PORTAL_DEFFENDER_BLUE,
-    BG_SA_PORTAL_DEFFENDER_GREEN,
-    BG_SA_PORTAL_DEFFENDER_YELLOW,
-    BG_SA_PORTAL_DEFFENDER_PURPLE,
-    BG_SA_PORTAL_DEFFENDER_RED,
     BG_SA_BOMB,
     BG_SA_MAXOBJ = BG_SA_BOMB+68
 };
@@ -251,6 +259,12 @@ float const BG_SA_ObjSpawnlocs[BG_SA_MAXOBJ][4] =
     { 1214.681f, 81.21f, 53.413f, 5.745f },
     { 878.555f, -108.2f, 117.845f, 0.0f },
     { 836.5f, -108.8f, 120.219f, 0.0f },
+    // Portal
+    {1468.380005f, -225.798996f, 30.896200f, 0.0f}, //blue
+    {1394.270020f, 72.551399f, 31.054300f, 0.0f}, //green
+    {1065.260010f, -89.79501f, 81.073402f, 0.0f}, //yellow
+    {1216.069946f, 47.904301f, 54.278198f, 0.0f}, //purple
+    {1255.569946f, -233.548996f, 56.43699f, 0.0f}, //red
     // Ships
     { 2679.696777f, -826.891235f, 3.712860f, 5.78367f}, //rot2 1 rot3 0.0002f
     { 2574.003662f, 981.261475f, 2.603424f, 0.807696f},
@@ -268,12 +282,6 @@ float const BG_SA_ObjSpawnlocs[BG_SA_MAXOBJ][4] =
     { 1215.108032f, -65.715767f, 70.084267f, -3.124123f},
     { 1338.859253f, -153.327316f, 30.895077f, -2.530723f},
     { 1309.192017f, 9.416233f, 30.893402f, 1.518436f},
-    // Portal
-    {1468.380005f, -225.798996f, 30.896200f, 0.0f}, //blue
-    {1394.270020f, 72.551399f, 31.054300f, 0.0f}, //green
-    {1065.260010f, -89.79501f, 81.073402f, 0.0f}, //yellow
-    {1216.069946f, 47.904301f, 54.278198f, 0.0f}, //purple
-    {1255.569946f, -233.548996f, 56.43699f, 0.0f}, //red
     // Bombs
     {1333.45f, 211.354f, 31.0538f, 5.03666f},
     {1334.29f, 209.582f, 31.0532f, 1.28088f},
@@ -367,6 +375,11 @@ uint32 const BG_SA_ObjEntries[BG_SA_MAXOBJ + BG_SA_FLAG_AMOUNT] =
     190723,
     192549,
     192834,
+    192819,
+    192819,
+    192819,
+    192819,
+    192819,
     0, // Boat
     0, // Boat
     192687,
@@ -380,11 +393,6 @@ uint32 const BG_SA_ObjEntries[BG_SA_MAXOBJ + BG_SA_FLAG_AMOUNT] =
     191310,
     191306,
     191308,
-    192819,
-    192819,
-    192819,
-    192819,
-    192819,
     190753
 };
 
@@ -444,25 +452,25 @@ class BattlegroundSA : public Battleground
 
         /* inherited from BattlegroundClass */
         /// Called when a player join battle
-        virtual void AddPlayer(Player* player);
+        void AddPlayer(Player* player);
         /// Called when battle start
-        virtual void StartingEventCloseDoors();
-        virtual void StartingEventOpenDoors();
+        void StartingEventCloseDoors();
+        void StartingEventOpenDoors();
         /// Called for ini battleground, after that the first player be entered
-        virtual bool SetupBattleground();
-        virtual void Reset();
+        bool SetupBattleground();
+        void Reset();
         /// Called for generate packet contain worldstate data
-        virtual void FillInitialWorldStates(WorldPacket& data);
+        void FillInitialWorldStates(WorldPacket& data);
         /// Called when a player deal damage to building (door)
-        virtual void EventPlayerDamagedGO(Player* player, GameObject* go, uint32 eventType);
+        void EventPlayerDamagedGO(Player* player, GameObject* go, uint32 eventType);
         /// Called when a player kill a unit in bg
-        virtual void HandleKillUnit(Creature* creature, Player* killer);
+        void HandleKillUnit(Creature* creature, Player* killer);
         /// Return the nearest graveyard where player can respawn
-        virtual WorldSafeLocsEntry const* GetClosestGraveYard(Player* player);
+        WorldSafeLocsEntry const* GetClosestGraveYard(Player* player);
         /// Called when a player click on flag (graveyard flag)
-        virtual void EventPlayerClickedOnFlag(Player* Source, GameObject* target_obj);
+        void EventPlayerClickedOnFlag(Player* Source, GameObject* target_obj);
         /// Called when a player use a gamobject (relic)
-        virtual void EventPlayerUsedGO(Player* Source, GameObject* object);
+        void EventPlayerUsedGO(Player* Source, GameObject* object);
         /// Return gate id, relative to bg data, according to gameobject id
         uint32 getGateIdFromDamagedOrDestroyEventId(uint32 id)
         {

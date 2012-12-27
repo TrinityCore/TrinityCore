@@ -19,12 +19,12 @@
 #ifndef TRINITY_DEFINE_H
 #define TRINITY_DEFINE_H
 
-#include <sys/types.h>
+#include "CompilerDefs.h"
 
 #include <ace/Basic_Types.h>
 #include <ace/ACE_export.h>
 
-#include "CompilerDefs.h"
+#include <cstddef>
 
 #define TRINITY_LITTLEENDIAN 0
 #define TRINITY_BIGENDIAN    1
@@ -69,6 +69,14 @@
 #  define ATTR_PRINTF(F, V)
 #  define ATTR_DEPRECATED
 #endif //COMPILER == COMPILER_GNU
+
+#define UI64FMTD ACE_UINT64_FORMAT_SPECIFIER
+#define UI64LIT(N) ACE_UINT64_LITERAL(N)
+
+#define SI64FMTD ACE_INT64_FORMAT_SPECIFIER
+#define SI64LIT(N) ACE_INT64_LITERAL(N)
+
+#define SIZEFMTD ACE_SIZE_T_FORMAT_SPECIFIER
 
 typedef ACE_INT64 int64;
 typedef ACE_INT32 int32;

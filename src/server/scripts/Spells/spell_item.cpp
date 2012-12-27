@@ -21,11 +21,13 @@
  * Scriptnames of files in this file should be prefixed with "spell_item_".
  */
 
+#include "Player.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"
 #include "SkillDiscovery.h"
+#include "Battleground.h"
 
 // Generic script for handling item dummy effects which trigger another spell.
 class spell_item_trigger_spell : public SpellScriptLoader
@@ -1844,7 +1846,7 @@ class spell_item_unusual_compass : public SpellScriptLoader
             {
                 Unit* caster = GetCaster();
                 caster->SetOrientation(frand(0.0f, 62832.0f) / 10000.0f);
-                caster->SendMovementFlagUpdate();
+                caster->SendMovementFlagUpdate(true);
             }
 
             void Register()

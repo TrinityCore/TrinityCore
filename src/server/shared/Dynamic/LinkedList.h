@@ -19,7 +19,8 @@
 #ifndef _LINKEDLIST
 #define _LINKEDLIST
 
-#include "Common.h"
+#include "Define.h"
+#include <iterator>
 
 //============================================
 class LinkedListHead;
@@ -32,7 +33,7 @@ class LinkedListElement
         LinkedListElement* iNext;
         LinkedListElement* iPrev;
     public:
-        LinkedListElement() { iNext = NULL; iPrev = NULL; }
+        LinkedListElement(): iNext(NULL), iPrev(NULL) {}
         ~LinkedListElement() { delink(); }
 
         bool hasNext() const { return(iNext && iNext->iNext != NULL); }
@@ -83,13 +84,12 @@ class LinkedListHead
         LinkedListElement iLast;
         uint32 iSize;
     public:
-        LinkedListHead()
+        LinkedListHead(): iSize(0)
         {
             // create empty list
 
             iFirst.iNext = &iLast;
             iLast.iPrev = &iFirst;
-            iSize = 0;
         }
 
         bool isEmpty() const { return(!iFirst.iNext->isInList()); }
@@ -153,13 +153,14 @@ class LinkedListHead
 
                 Iterator& operator=(Iterator const &_Right)
                 {
-                    return (*this) = _Right._Ptr;
+                    _Ptr = _Right._Ptr;
+                    return *this;
                 }
 
                 Iterator& operator=(const_pointer const &_Right)
                 {
-                    _Ptr = (pointer)_Right;
-                    return (*this);
+                    _Ptr = pointer(_Right);
+                    return *this;
                 }
 
                 reference operator*()
@@ -242,4 +243,3 @@ class LinkedListHead
 
 //============================================
 #endif
-

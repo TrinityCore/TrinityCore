@@ -21,6 +21,7 @@
 
 #include <ace/Singleton.h>
 #include <ace/Null_Mutex.h>
+#include <ace/INET_Addr.h>
 #include "Common.h"
 
 enum RealmFlags
@@ -39,7 +40,7 @@ enum RealmFlags
 // Storage object for a realm
 struct Realm
 {
-    std::string address;
+    char address[ACE_MAX_FULLY_QUALIFIED_NAME_LEN + 16];
     std::string name;
     uint8 icon;
     RealmFlags flag;
@@ -71,7 +72,7 @@ public:
 
 private:
     void UpdateRealms(bool init=false);
-    void UpdateRealm(uint32 ID, const std::string& name, const std::string& address, uint16 port, uint8 icon, RealmFlags flag, uint8 timezone, AccountTypes allowedSecurityLevel, float popu, uint32 build);
+    void UpdateRealm(uint32 ID, const std::string& name, ACE_INET_Addr const& address, uint8 icon, RealmFlags flag, uint8 timezone, AccountTypes allowedSecurityLevel, float popu, uint32 build);
 
     RealmMap m_realms;
     uint32   m_UpdateInterval;

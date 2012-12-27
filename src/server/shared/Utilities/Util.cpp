@@ -16,8 +16,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <iostream>
 #include "Util.h"
+#include "Common.h"
 #include "utf8.h"
 #include "SFMT.h"
 #include <ace/TSS_T.h>
@@ -28,16 +28,19 @@ static SFMTRandTSS sfmtRand;
 
 int32 irand(int32 min, int32 max)
 {
+    assert(max >= min);
     return int32(sfmtRand->IRandom(min, max));
 }
 
 uint32 urand(uint32 min, uint32 max)
 {
+    assert(max >= min);
     return sfmtRand->URandom(min, max);
 }
 
 float frand(float min, float max)
 {
+    assert(max >= min);
     return float(sfmtRand->Random() * (max - min) + min);
 }
 
@@ -56,13 +59,13 @@ double rand_chance(void)
     return sfmtRand->Random() * 100.0;
 }
 
-Tokens::Tokens(const std::string &src, const char sep, uint32 vectorReserve)
+Tokenizer::Tokenizer(const std::string &src, const char sep, uint32 vectorReserve)
 {
     m_str = new char[src.length() + 1];
     memcpy(m_str, src.c_str(), src.length() + 1);
 
     if (vectorReserve)
-        reserve(vectorReserve);
+        m_storage.reserve(vectorReserve);
 
     char* posold = m_str;
     char* posnew = m_str;
@@ -71,17 +74,17 @@ Tokens::Tokens(const std::string &src, const char sep, uint32 vectorReserve)
     {
         if (*posnew == sep)
         {
-            push_back(posold);
+            m_storage.push_back(posold);
             posold = posnew + 1;
 
-            *posnew = 0x00;
+            *posnew = '\0';
         }
-        else if (*posnew == 0x00)
+        else if (*posnew == '\0')
         {
             // Hack like, but the old code accepted these kind of broken strings,
             // so changing it would break other things
             if (posold != posnew)
-                push_back(posold);
+                m_storage.push_back(posold);
 
             break;
         }
@@ -145,6 +148,37 @@ std::string secsToTimeString(uint64 timeInSecs, bool shortText, bool hoursOnly)
     }
 
     return ss.str();
+}
+
+int32 MoneyStringToMoney(const std::string& moneyString)
+{
+    int32 money = 0;
+
+    if (!(std::count(moneyString.begin(), moneyString.end(), 'g') == 1 ||
+        std::count(moneyString.begin(), moneyString.end(), 's') == 1 ||
+        std::count(moneyString.begin(), moneyString.end(), 'c') == 1))
+        return 0; // Bad format
+
+    Tokenizer tokens(moneyString, ' ');
+    for (Tokenizer::const_iterator itr = tokens.begin(); itr != tokens.end(); ++itr)
+    {
+        std::string tokenString(*itr);
+        uint32 gCount = std::count(tokenString.begin(), tokenString.end(), 'g');
+        uint32 sCount = std::count(tokenString.begin(), tokenString.end(), 's');
+        uint32 cCount = std::count(tokenString.begin(), tokenString.end(), 'c');
+        if (gCount + sCount + cCount != 1)
+            return 0;
+
+        uint32 amount = atoi(*itr);
+        if (gCount == 1)
+            money += amount * 100 * 100;
+        else if (sCount == 1)
+            money += amount * 100;
+        else if (cCount == 1)
+            money += amount;
+    }
+
+    return money;
 }
 
 uint32 TimeStringToSecs(const std::string& timestring)
@@ -471,32 +505,24 @@ void vutf8printf(FILE* out, const char *str, va_list* ap)
 #endif
 }
 
-void hexEncodeByteArray(uint8* bytes, uint32 arrayLen, std::string& result)
+std::string ByteArrayToHexStr(uint8 const* bytes, uint32 arrayLen, bool reverse /* = false */)
 {
-    std::ostringstream ss;
-    for (uint32 i=0; i<arrayLen; ++i)
-    {
-        for (uint8 j=0; j<2; ++j)
-        {
-            unsigned char nibble = 0x0F & (bytes[i]>>((1-j)*4));
-            char encodedNibble;
-            if (nibble < 0x0A)
-                encodedNibble = '0'+nibble;
-            else
-                encodedNibble = 'A'+nibble-0x0A;
-            ss << encodedNibble;
-        }
-    }
-    result = ss.str();
-}
+    int32 init = 0;
+    int32 end = arrayLen;
+    int8 op = 1;
 
-std::string ByteArrayToHexStr(uint8* bytes, uint32 length)
-{
+    if (reverse)
+    {
+        init = arrayLen - 1;
+        end = -1;
+        op = -1;
+    }
+
     std::ostringstream ss;
-    for (uint32 i = 0; i < length; ++i)
+    for (int32 i = init; i != end; i += op)
     {
         char buffer[4];
-        sprintf(buffer, "%02X ", bytes[i]);
+        sprintf(buffer, "%02X", bytes[i]);
         ss << buffer;
     }
 

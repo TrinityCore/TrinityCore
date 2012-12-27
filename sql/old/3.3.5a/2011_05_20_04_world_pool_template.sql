@@ -5,8 +5,8 @@ SET @Area598 := @Rest+3; -- Area 598 (20 nodes)
 SET @Area602 := @Rest+4; -- Area 602 (27 nodes)
 SET @Area607 := @Rest+5; -- Area 607 (22 nodes)
 
-DELETE FROM `pool_template` WHERE `entry` BETWEEN @Rest AND @Rest+6 ; 
-INSERT INTO `pool_template` (`entry`,`max_limit`,`description`) VALUES 
+DELETE FROM `pool_template` WHERE `entry` BETWEEN @Rest AND @Rest+6 ;
+INSERT INTO `pool_template` (`entry`,`max_limit`,`description`) VALUES
 (@Rest   ,10, 'Master Herbs Zone 405 Leftover Areas (10 out of 41 nodes)'),
 (@Area405,8, 'Master Herbs Zone 405 Leftover Areas (8 out of 40 nodes)'),
 (@Area596,4, 'Master Herbs Zone 405 Leftover Areas (4 out of 18 nodes)'),
@@ -14,8 +14,8 @@ INSERT INTO `pool_template` (`entry`,`max_limit`,`description`) VALUES
 (@Area602,5, 'Master Herbs Zone 405 Leftover Areas (5 out of 27 nodes)'),
 (@Area607,5, 'Master Herbs Zone 405 Leftover Areas (5 out of 22 nodes)');
 
-DELETE FROM `pool_gameobject` WHERE `pool_entry` BETWEEN @REST AND @REST+5 ; 
-INSERT INTO `pool_gameobject` (`guid`,`pool_entry`,`chance`,`description`) VALUES 
+DELETE FROM `pool_gameobject` WHERE `pool_entry` BETWEEN @REST AND @REST+5 ;
+INSERT INTO `pool_gameobject` (`guid`,`pool_entry`,`chance`,`description`) VALUES
 -- node s are numbered based on GUID, comment shows area and type
 -- Pooled per area for more randomness
 (3126,@Area405,0,'Bruiseweed,Zone 405,405,node 14'),

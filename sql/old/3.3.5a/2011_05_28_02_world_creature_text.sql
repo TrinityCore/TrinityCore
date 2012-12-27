@@ -1,5 +1,5 @@
-DELETE FROM `creature_text` WHERE `entry` IN (39751,40429); 
-INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`probability`,`emote`,`duration`,`sound`,`comment`) VALUES 
+DELETE FROM `creature_text` WHERE `entry` IN (39751,40429);
+INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`probability`,`emote`,`duration`,`sound`,`comment`) VALUES
 (39751,0,0, 'Your power wanes, ancient one.... Soon you will join your friends.',14,0,100,0,0,17525, 'Baltharus the Warborn'),
 (39751,1,0, 'Ah, the entertainment has arrived.',14,0,100,0,0,17520, 'Baltharus the Warborn'),
 (39751,2,0, 'Baltharus leaves no survivors!',14,0,100,0,0,17521, 'Baltharus the Warborn'),

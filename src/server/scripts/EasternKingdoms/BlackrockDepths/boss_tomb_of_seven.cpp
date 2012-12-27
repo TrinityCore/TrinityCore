@@ -20,6 +20,7 @@
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
 #include "blackrock_depths.h"
+#include "Player.h"
 
 enum Spells
 {

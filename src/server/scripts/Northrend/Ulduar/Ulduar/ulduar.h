@@ -25,28 +25,25 @@ extern Position const AlgalonLandPos;
 
 enum UlduarBosses
 {
-    MAX_ENCOUNTER            = 20,
+    MAX_ENCOUNTER            = 17,
 
     BOSS_LEVIATHAN           = 0,
     BOSS_IGNIS               = 1,
     BOSS_RAZORSCALE          = 2,
     BOSS_XT002               = 3,
     BOSS_ASSEMBLY_OF_IRON    = 4,
-    BOSS_STEELBREAKER        = 5,
-    BOSS_MOLGEIM             = 6,
-    BOSS_BRUNDIR             = 7,
-    BOSS_KOLOGARN            = 8,
-    BOSS_AURIAYA             = 9,
-    BOSS_MIMIRON             = 10,
-    BOSS_HODIR               = 11,
-    BOSS_THORIM              = 12,
-    BOSS_FREYA               = 13,
-    BOSS_BRIGHTLEAF          = 14,
-    BOSS_IRONBRANCH          = 15,
-    BOSS_STONEBARK           = 16,
-    BOSS_VEZAX               = 17,
-    BOSS_YOGGSARON           = 18,
-    BOSS_ALGALON             = 19,
+    BOSS_KOLOGARN            = 5,
+    BOSS_AURIAYA             = 6,
+    BOSS_MIMIRON             = 7,
+    BOSS_HODIR               = 8,
+    BOSS_THORIM              = 9,
+    BOSS_FREYA               = 10,
+    BOSS_BRIGHTLEAF          = 11,
+    BOSS_IRONBRANCH          = 12,
+    BOSS_STONEBARK           = 13,
+    BOSS_VEZAX               = 14,
+    BOSS_YOGGSARON           = 15,
+    BOSS_ALGALON             = 16,
 };
 
 enum UlduarNPCs
@@ -206,6 +203,11 @@ enum UlduarData
     DATA_TOY_PILE_1,
     DATA_TOY_PILE_2,
     DATA_TOY_PILE_3,
+
+    // Assembly of Iron
+    DATA_STEELBREAKER,
+    DATA_MOLGEIM,
+    DATA_BRUNDIR,
 
     // Hodir
     DATA_HODIR_RARE_CACHE,

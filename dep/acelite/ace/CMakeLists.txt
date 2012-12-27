@@ -320,6 +320,11 @@ set(ace_STAT_SRCS
   XTI_ATM_Mcast.cpp
 )
 
+if (USE_COREPCH)
+  set(ace_PCH_HDR PrecompiledHeaders/WinAcePCH.h)
+  set(ace_PCH_SRC PrecompiledHeaders/WinAcePCH.cpp)
+endif()
+
 include_directories(
   ${CMAKE_SOURCE_DIR}/dep/acelite
   ${CMAKE_CURRENT_SOURCE_DIR}/PrecompiledHeaders
@@ -331,8 +336,14 @@ set_source_files_properties(Atomic_Op_Sparc.c Rtems_init.c PROPERTIES LANGUAGE C
 
 add_definitions(-DACE_BUILD_DLL)
 
-add_library(ace SHARED ${ace_STAT_SRCS})
+add_library(ace SHARED
+  ${ace_STAT_SRCS}
+  ${ace_PCH_SRC}
+)
 
-add_native_precompiled_header(ace ${CMAKE_CURRENT_SOURCE_DIR}/PrecompiledHeaders/WinAcePCH)
+# Generate precompiled header
+if( USE_COREPCH )
+  add_cxx_pch(ace ${ace_PCH_HDR} ${ace_PCH_SRC})
+endif()
 
 install(TARGETS ace RUNTIME DESTINATION "${CMAKE_INSTALL_PREFIX}")

@@ -1,4 +1,4 @@
--- Fix for Quest: 12843 "They Took Our Men!" 
+-- Fix for Quest: 12843 "They Took Our Men!"
 -- SAI for Rusty Cage
 SET @ENTRY=191544;
 UPDATE `gameobject_template` SET `AIName`='SmartGameObjectAI',`ScriptName`='' WHERE `entry`=@ENTRY;

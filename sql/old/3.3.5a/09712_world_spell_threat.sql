@@ -62,7 +62,7 @@ INSERT INTO `spell_threat`(`entry`,`Threat`) VALUES
 DELETE FROM `spell_threat` WHERE `entry` IN (47487,47488);
 INSERT INTO `spell_threat`(`entry`,`Threat`) VALUES
 (47487,546),    -- Rank 7
-(47488,770); 	-- Rank 8
+(47488,770);     -- Rank 8
 
 -- Sunder Armor (rank 7)
 DELETE FROM `spell_threat` WHERE `entry`=47467;

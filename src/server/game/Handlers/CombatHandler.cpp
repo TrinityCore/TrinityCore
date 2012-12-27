@@ -25,11 +25,13 @@
 #include "ObjectDefines.h"
 #include "Vehicle.h"
 #include "VehicleDefines.h"
+#include "Player.h"
+#include "Opcodes.h"
 
-void WorldSession::HandleAttackSwingOpcode(WorldPacket& recv_data)
+void WorldSession::HandleAttackSwingOpcode(WorldPacket& recvData)
 {
     uint64 guid;
-    recv_data >> guid;
+    recvData >> guid;
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd CMSG_ATTACKSWING Message guidlow:%u guidhigh:%u", GUID_LOPART(guid), GUID_HIPART(guid));
 
@@ -66,15 +68,15 @@ void WorldSession::HandleAttackSwingOpcode(WorldPacket& recv_data)
     _player->Attack(pEnemy, true);
 }
 
-void WorldSession::HandleAttackStopOpcode(WorldPacket & /*recv_data*/)
+void WorldSession::HandleAttackStopOpcode(WorldPacket & /*recvData*/)
 {
     GetPlayer()->AttackStop();
 }
 
-void WorldSession::HandleSetSheathedOpcode(WorldPacket& recv_data)
+void WorldSession::HandleSetSheathedOpcode(WorldPacket& recvData)
 {
     uint32 sheathed;
-    recv_data >> sheathed;
+    recvData >> sheathed;
 
     //sLog->outDebug(LOG_FILTER_PACKETIO, "WORLD: Recvd CMSG_SETSHEATHED Message guidlow:%u value1:%u", GetPlayer()->GetGUIDLow(), sheathed);
 

@@ -22,7 +22,6 @@
 #include "Creature.h"
 #include "CreatureAI.h"
 #include "Unit.h"
-#include "ConditionMgr.h"
 #include "Spell.h"
 
 #include "SmartScript.h"
@@ -151,7 +150,7 @@ class SmartAI : public CreatureAI
         void DoAction(const int32 param = 0);
 
         // Used in scripts to share variables
-        uint32 GetData(uint32 id = 0);
+        uint32 GetData(uint32 id = 0) const;
 
         // Used in scripts to share variables
         void SetData(uint32 id, uint32 value);
@@ -160,7 +159,7 @@ class SmartAI : public CreatureAI
         void SetGUID(uint64 guid, int32 id = 0);
 
         // Used in scripts to share variables
-        uint64 GetGUID(int32 id = 0);
+        uint64 GetGUID(int32 id = 0) const;
 
         //core related
         static int Permissible(const Creature*);

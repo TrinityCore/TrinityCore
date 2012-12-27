@@ -36,6 +36,7 @@ enum Texts
                                              // A flaw of mortality...
     SAY_BERSERK                         = 9, // Enough! I tire of these games!
     SAY_DEATH                           = 10, // Free...at last...
+    EMOTE_BERSERK_RAID                  = 11
 };
 
 enum Spells
@@ -81,6 +82,9 @@ enum Spells
     SPELL_FOCUS_FIRE            = 71350,
     SPELL_ORDER_WHELP           = 71357,
     SPELL_CONCUSSIVE_SHOCK      = 71337,
+
+    // Frost Infusion
+    SPELL_FROST_INFUSION_CREDIT = 72289
 };
 
 enum Events
@@ -228,10 +232,14 @@ class boss_sindragosa : public CreatureScript
                 }
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /* killer */)
             {
-                BossAI::JustDied(killer);
+                _JustDied();
                 Talk(SAY_DEATH);
+
+                if (Is25ManRaid() && me->HasAura(SPELL_SHADOWS_FATE))
+                    DoCastAOE(SPELL_FROST_INFUSION_CREDIT, true);
+
             }
 
             void EnterCombat(Unit* victim)
@@ -290,7 +298,7 @@ class boss_sindragosa : public CreatureScript
                 }
             }
 
-            uint32 GetData(uint32 type)
+            uint32 GetData(uint32 type) const
             {
                 if (type == DATA_MYSTIC_BUFFET_STACK)
                     return _mysticBuffetStack;
@@ -440,7 +448,7 @@ class boss_sindragosa : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_BERSERK:
-                            DoScriptText(EMOTE_GENERIC_BERSERK_RAID, me);
+                            Talk(EMOTE_BERSERK_RAID);
                             Talk(SAY_BERSERK);
                             DoCast(me, SPELL_BERSERK);
                             break;
@@ -978,7 +986,7 @@ class npc_sindragosa_trash : public CreatureScript
                     _isTaunted = data != 0;
             }
 
-            uint32 GetData(uint32 type)
+            uint32 GetData(uint32 type) const
             {
                 if (type == DATA_FROSTWYRM_OWNER)
                     return _frostwyrmId;

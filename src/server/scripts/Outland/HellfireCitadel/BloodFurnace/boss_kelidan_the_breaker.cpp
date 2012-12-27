@@ -35,14 +35,11 @@ EndContentData */
 
 enum eKelidan
 {
-    SAY_WAKE                    = -1542000,
-    SAY_ADD_AGGRO_1             = -1542001,
-    SAY_ADD_AGGRO_2             = -1542002,
-    SAY_ADD_AGGRO_3             = -1542003,
-    SAY_KILL_1                  = -1542004,
-    SAY_KILL_2                  = -1542005,
-    SAY_NOVA                    = -1542006,
-    SAY_DIE                     = -1542007,
+    SAY_WAKE                    = 0,
+    SAY_ADD_AGGRO               = 1,
+    SAY_KILL                    = 2,
+    SAY_NOVA                    = 3,
+    SAY_DIE                     = 4,
 
     SPELL_CORRUPTION            = 30938,
     SPELL_EVOCATION             = 30935,
@@ -117,7 +114,7 @@ class boss_kelidan_the_breaker : public CreatureScript
 
             void EnterCombat(Unit* who)
             {
-                DoScriptText(SAY_WAKE, me);
+                Talk(SAY_WAKE);
                 if (me->IsNonMeleeSpellCasted(false))
                     me->InterruptNonMeleeSpells(true);
                 DoStartMovement(who);
@@ -130,7 +127,7 @@ class boss_kelidan_the_breaker : public CreatureScript
                 if (rand()%2)
                     return;
 
-                DoScriptText(RAND(SAY_KILL_1, SAY_KILL_2), me);
+                Talk(SAY_KILL);
             }
 
             void ChannelerEngaged(Unit* who)
@@ -138,7 +135,7 @@ class boss_kelidan_the_breaker : public CreatureScript
                 if (who && !addYell)
                 {
                     addYell = true;
-                    DoScriptText(RAND(SAY_ADD_AGGRO_1, SAY_ADD_AGGRO_2, SAY_ADD_AGGRO_3), me);
+                    Talk(SAY_ADD_AGGRO);
                 }
                 for (uint8 i=0; i<5; ++i)
                 {
@@ -194,7 +191,7 @@ class boss_kelidan_the_breaker : public CreatureScript
 
             void JustDied(Unit* /*killer*/)
             {
-                DoScriptText(SAY_DIE, me);
+                Talk(SAY_DIE);
 
                 if (!instance)
                     return;
@@ -254,7 +251,7 @@ class boss_kelidan_the_breaker : public CreatureScript
                     if (me->IsNonMeleeSpellCasted(false))
                         me->InterruptNonMeleeSpells(true);
 
-                    DoScriptText(SAY_NOVA, me);
+                    Talk(SAY_NOVA);
 
                     if (SpellInfo const* nova = sSpellMgr->GetSpellInfo(SPELL_BURNING_NOVA))
                     {

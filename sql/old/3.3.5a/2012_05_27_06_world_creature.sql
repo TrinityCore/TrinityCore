@@ -1,13 +1,13 @@
 -- Tukemuth
 DELETE FROM `smart_scripts` WHERE `entryorguid`=32400;
-INSERT INTO `smart_scripts` VALUES 
+INSERT INTO `smart_scripts` VALUES
 (32400,0,0,0,9,0,100,0,0,5,9000,13000,11,50410,0,0,0,0,0,2,0,0,0,0,0,0,0, 'Tukemuth - Cast Tusk Strike'),
 (32400,0,1,0,0,0,100,0,9000,17000,15000,22000,11,57066,0,0,0,0,0,0,0,0,0,0,0,0,0, 'Tukemuth - Cast Trample');
 UPDATE `creature_template` SET faction_A=7,faction_H=7,mindmg=2926.0,maxdmg=3542.0,skinloot=70209,spell1=50410,spell2=57066,attackpower=3384,dmg_multiplier=1.0,AIName= 'SmartAI',mechanic_immune_mask=2147483647 where entry=32400;
 
 -- Fumblub Gearwind
 DELETE FROM `smart_scripts` WHERE `entryorguid`=32358;
-INSERT INTO `smart_scripts` VALUES 
+INSERT INTO `smart_scripts` VALUES
 (32358,0,0,0,0,0,100,0,4000,6000,12000,15000,11,60906,1,0,0,0,0,2,0,0,0,0,0,0,0, 'Fumblub Gearwind - Cast Machine Gun');
 UPDATE `creature_template` SET faction_A=14,faction_H=14,mindmg=2792,maxdmg=3376,spell1=60906,attackpower=3384,dmg_multiplier=1.0,AIName= 'SmartAI',mechanic_immune_mask=2147483647,type_flags=2048,InhabitType=4 where entry=32358;
 UPDATE `creature_addon` SET mount=22719,bytes1=33554432 where guid=151938;
@@ -107,7 +107,7 @@ UPDATE `creature_template` SET type_flags= '1',mechanic_immune_mask=66624 WHERE 
 
 -- Zuldrak Sentinel
 DELETE FROM `smart_scripts` WHERE `entryorguid`=32447;
-INSERT INTO `smart_scripts` VALUES 
+INSERT INTO `smart_scripts` VALUES
 (32447,0,0,0,0,0,100,0,0,5,9000,13000,11,55196,0,0,0,0,0,2,0,0,0,0,0,0,0, 'Zuldrak Sentinel - Cast Stomp'),
 (32447,0,1,0,0,0,100,0,15000,20000,21000,35000,11,54565,0,0,0,0,0,2,0,0,0,0,0,0,0, 'Zuldrak Sentinel - Cast Whammy');
 UPDATE `creature_template` SET mindmg= '3905',maxdmg= '4600',attackpower= '4252',dmg_multiplier= '1.0',mechanic_immune_mask= '66624',spell1= '54565',spell2= '55196',AIName= 'SmartAI' WHERE entry= '32447';

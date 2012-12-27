@@ -21,6 +21,7 @@
 #include "ScriptedGossip.h"
 #include "SpellAuras.h"
 #include "icecrown_citadel.h"
+#include "Player.h"
 
 enum ScriptTexts
 {
@@ -496,7 +497,7 @@ class boss_deathbringer_saurfang : public CreatureScript
                 DoMeleeAttackIfReady();
             }
 
-            uint32 GetData(uint32 type)
+            uint32 GetData(uint32 type) const
             {
                 if (type == DATA_MADE_A_MESS)
                     if (_fallenChampionCastCount < RAID_MODE<uint32>(3, 5, 3, 5))
@@ -1217,6 +1218,12 @@ class spell_deathbringer_blood_nova_targeting : public SpellScriptLoader
                 if (targetsAtRange < minTargets)
                     targetsAtRange = std::min<uint32>(targets.size() - 1, minTargets);
 
+                if (!targetsAtRange)
+                {
+                    targets.clear();
+                    return;
+                }
+
                 std::list<WorldObject*>::const_iterator itr = targets.begin();
                 std::advance(itr, urand(0, targetsAtRange));
                 target = *itr;
@@ -1227,10 +1234,10 @@ class spell_deathbringer_blood_nova_targeting : public SpellScriptLoader
             // use the same target for first and second effect
             void FilterTargetsSubsequent(std::list<WorldObject*>& unitList)
             {
+                unitList.clear();
                 if (!target)
                     return;
 
-                unitList.clear();
                 unitList.push_back(target);
             }
 

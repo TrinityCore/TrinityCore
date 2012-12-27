@@ -27,25 +27,28 @@ EndScriptData */
 #include "ScriptedCreature.h"
 #include "zulgurub.h"
 
-#define SAY_AGGRO               -1309015
-#define SAY_DING_KILL           -1309016
-#define SAY_GRATS_JINDO         -1309017
-#define SAY_WATCH               -1309018
-#define SAY_WATCH_WHISPER       -1309019                    //is this text for real? easter egg?
+enum Mandokir
+{
+    SAY_AGGRO               = 0,
+    SAY_DING_KILL           = 1,
+    SAY_WATCH               = 2,
+    SAY_WATCH_WHISPER       = 3,                    //is this text for real? easter egg?
+    SAY_GRATS_JINDO         = 0,
 
-#define SPELL_CHARGE            24408
-#define SPELL_CLEAVE            7160
-#define SPELL_FEAR              29321
-#define SPELL_WHIRLWIND         15589
-#define SPELL_MORTAL_STRIKE     16856
-#define SPELL_ENRAGE            24318
-#define SPELL_WATCH             24314
-#define SPELL_LEVEL_UP          24312
+    SPELL_CHARGE            = 24408,
+    SPELL_CLEAVE            = 7160,
+    SPELL_FEAR              = 29321,
+    SPELL_WHIRLWIND         = 15589,
+    SPELL_MORTAL_STRIKE     = 16856,
+    SPELL_ENRAGE            = 24318,
+    SPELL_WATCH             = 24314,
+    SPELL_LEVEL_UP          = 24312,
 
 //Ohgans Spells
-#define SPELL_SUNDERARMOR       24317
+    SPELL_SUNDERARMOR       = 24317,
 
-#define NPC_SPEAKER             11391
+    NPC_SPEAKER             = 11391
+};
 
 class boss_mandokir : public CreatureScript
 {
@@ -119,17 +122,17 @@ class boss_mandokir : public CreatureScript
 
                     if (KillCount == 3)
                     {
-                        DoScriptText(SAY_DING_KILL, me);
+                        Talk(SAY_DING_KILL);
 
                         if (instance)
                         {
                             uint64 JindoGUID = instance->GetData64(DATA_JINDO);
                             if (JindoGUID)
                             {
-                                if (Unit* jTemp = Unit::GetUnit(*me, JindoGUID))
+                                if (Creature* jTemp = Creature::GetCreature(*me, JindoGUID))
                                 {
                                     if (jTemp->isAlive())
-                                        DoScriptText(SAY_GRATS_JINDO, jTemp);
+                                        jTemp->AI()->Talk(SAY_GRATS_JINDO);
                                 }
                             }
                         }
@@ -141,7 +144,7 @@ class boss_mandokir : public CreatureScript
 
             void EnterCombat(Unit* /*who*/)
             {
-                DoScriptText(SAY_AGGRO, me);
+                Talk(SAY_AGGRO);
             }
 
             void UpdateAI(const uint32 diff)
@@ -205,7 +208,7 @@ class boss_mandokir : public CreatureScript
                     {
                         if (Unit* p = SelectTarget(SELECT_TARGET_RANDOM, 0))
                         {
-                            DoScriptText(SAY_WATCH, me, p);
+                            Talk(SAY_WATCH, p->GetGUID());
                             DoCast(p, SPELL_WATCH);
                             WatchTarget = p->GetGUID();
                             someWatched = true;

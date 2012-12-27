@@ -24,7 +24,6 @@
 #include <ace/Atomic_Op.h>
 
 #include "DBCStores.h"
-#include "Player.h"
 #include "SharedDefines.h"
 #include "World.h"
 #include "Weather.h"
@@ -70,8 +69,6 @@ struct OutdoorPvPData;
 
 #define VISIBLE_RANGE       166.0f                          //MAX visible range (size of grid)
 
-// Generic scripting text function.
-void DoScriptText(int32 textEntry, WorldObject* pSource, Unit* target = NULL);
 
 /*
     TODO: Add more script type classes.
@@ -395,7 +392,24 @@ class ItemScript : public ScriptObject
         virtual bool OnExpire(Player* /*player*/, ItemTemplate const* /*proto*/) { return false; }
 };
 
-class CreatureScript : public ScriptObject, public UpdatableScript<Creature>
+class UnitScript : public ScriptObject
+{
+    protected:
+
+        UnitScript(const char* name, bool addToScripts = true);
+
+    public:
+        // Called when DoT's Tick Damage is being Dealt
+        virtual void ModifyPeriodicDamageAurasTick(Unit* /*target*/, Unit* /*attacker*/, uint32& /*damage*/) { }
+
+        // Called when Melee Damage is being Dealt
+        virtual void ModifyMeleeDamage(Unit* /*target*/, Unit* /*attacker*/, uint32& /*damage*/) { }
+
+        // Called when Spell Damage is being Dealt
+        virtual void ModifySpellDamageTaken(Unit* /*target*/, Unit* /*attacker*/, int32& /*damage*/) { }
+};
+
+class CreatureScript : public UnitScript, public UpdatableScript<Creature>
 {
     protected:
 
@@ -657,7 +671,7 @@ class AchievementCriteriaScript : public ScriptObject
         virtual bool OnCheck(Player* source, Unit* target) = 0;
 };
 
-class PlayerScript : public ScriptObject
+class PlayerScript : public UnitScript
 {
     protected:
 
@@ -980,7 +994,7 @@ class ScriptMgr
 
     public: /* AchievementCriteriaScript */
 
-        bool OnCriteriaCheck(AchievementCriteriaData const* data, Player* source, Unit* target);
+        bool OnCriteriaCheck(uint32 scriptId, Player* source, Unit* target);
 
     public: /* PlayerScript */
 
@@ -1033,6 +1047,12 @@ class ScriptMgr
         void OnGroupRemoveMember(Group* group, uint64 guid, RemoveMethod method, uint64 kicker, const char* reason);
         void OnGroupChangeLeader(Group* group, uint64 newLeaderGuid, uint64 oldLeaderGuid);
         void OnGroupDisband(Group* group);
+
+    public: /* UnitScript */
+
+        void ModifyPeriodicDamageAurasTick(Unit* target, Unit* attacker, uint32& damage);
+        void ModifyMeleeDamage(Unit* target, Unit* attacker, uint32& damage);
+        void ModifySpellDamageTaken(Unit* target, Unit* attacker, int32& damage);
 
     public: /* Scheduled scripts */
 

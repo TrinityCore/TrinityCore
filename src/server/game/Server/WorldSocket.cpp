@@ -29,7 +29,7 @@
 
 #include "WorldSocket.h"
 #include "Common.h"
-
+#include "Player.h"
 #include "Util.h"
 #include "World.h"
 #include "WorldPacket.h"
@@ -162,6 +162,9 @@ int WorldSocket::SendPacket(WorldPacket const& pct)
     // Dump outgoing packet.
     if (sPacketLog->CanLogPacket())
         sPacketLog->LogPacket(pct, SERVER_TO_CLIENT);
+
+    if (m_Session)
+        sLog->outTrace(LOG_FILTER_OPCODES, "S->C %s %s", m_Session->GetPlayerInfo().c_str(), GetOpcodeNameForLogging(pct.GetOpcode()).c_str());
 
     // Create a copy of the original packet; this is to avoid issues if a hook modifies it.
     sScriptMgr->OnPacketSend(this, WorldPacket(pct));
@@ -483,7 +486,7 @@ int WorldSocket::handle_input_header (void)
         sLog->outError(LOG_FILTER_NETWORKIO, "WorldSocket::handle_input_header(): client (account: %u, char [GUID: %u, name: %s]) sent malformed packet (size: %d, cmd: %d)",
             m_Session ? m_Session->GetAccountId() : 0,
             _player ? _player->GetGUIDLow() : 0,
-            _player ? _player->GetName() : "<none>",
+            _player ? _player->GetName().c_str() : "<none>",
             header.size, header.cmd);
 
         errno = EINVAL;
@@ -674,6 +677,9 @@ int WorldSocket::ProcessIncoming(WorldPacket* new_pct)
     if (sPacketLog->CanLogPacket())
         sPacketLog->LogPacket(*new_pct, CLIENT_TO_SERVER);
 
+    if (m_Session)
+        sLog->outTrace(LOG_FILTER_OPCODES, "C->S %s %s", m_Session->GetPlayerInfo().c_str(), GetOpcodeNameForLogging(new_pct->GetOpcode()).c_str());
+
     try
     {
         switch (opcode)
@@ -683,7 +689,7 @@ int WorldSocket::ProcessIncoming(WorldPacket* new_pct)
             case CMSG_AUTH_SESSION:
                 if (m_Session)
                 {
-                    sLog->outError(LOG_FILTER_NETWORKIO, "WorldSocket::ProcessIncoming: received duplicate CMSG_AUTH_SESSION from %s", m_Session->GetPlayerName(false).c_str());
+                    sLog->outError(LOG_FILTER_NETWORKIO, "WorldSocket::ProcessIncoming: received duplicate CMSG_AUTH_SESSION from %s", m_Session->GetPlayerInfo().c_str());
                     return -1;
                 }
 
@@ -857,6 +863,17 @@ int WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
     uint32 recruiter = fields[9].GetUInt32();
     std::string os = fields[10].GetString();
 
+    // Must be done before WorldSession is created
+    if (sWorld->getBoolConfig(CONFIG_WARDEN_ENABLED) && os != "Win" && os != "OSX")
+    {
+        packet.Initialize(SMSG_AUTH_RESPONSE, 1);
+        packet << uint8(AUTH_REJECT);
+        SendPacket(packet);
+
+        sLog->outError(LOG_FILTER_NETWORKIO, "WorldSocket::HandleAuthSession: Client %s attempted to log in using invalid client OS (%s).", GetRemoteAddress().c_str(), os.c_str());
+        return -1;
+    }
+
     // Checks gmlevel per Realm
     stmt = LoginDatabase.GetPreparedStatement(LOGIN_GET_GMLEVEL_BY_REALMID);
 
@@ -1006,7 +1023,7 @@ int WorldSocket::HandlePing (WorldPacket& recvPacket)
                 if (m_Session && AccountMgr::IsPlayerAccount(m_Session->GetSecurity()))
                 {
                     sLog->outError(LOG_FILTER_NETWORKIO, "WorldSocket::HandlePing: %s kicked for over-speed pings (address: %s)",
-                        m_Session->GetPlayerName(false).c_str(), GetRemoteAddress().c_str());
+                        m_Session->GetPlayerInfo().c_str(), GetRemoteAddress().c_str());
 
                     return -1;
                 }

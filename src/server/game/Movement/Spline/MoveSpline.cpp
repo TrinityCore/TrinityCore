@@ -19,6 +19,7 @@
 #include "MoveSpline.h"
 #include <sstream>
 #include "Log.h"
+#include "Creature.h"
 
 namespace Movement{
 
@@ -50,15 +51,15 @@ Location MoveSpline::ComputePosition() const
         if (splineflags.final_angle)
             c.orientation = facing.angle;
         else if (splineflags.final_point)
-            c.orientation = atan2(facing.f.y-c.y, facing.f.x-c.x);
+            c.orientation = atan2(facing.f.y - c.y, facing.f.x - c.x);
         //nothing to do for MoveSplineFlag::Final_Target flag
     }
     else
     {
-        if (!splineflags.hasFlag(MoveSplineFlag::OrientationFixed|MoveSplineFlag::Falling))
+        if (!splineflags.hasFlag(MoveSplineFlag::OrientationFixed | MoveSplineFlag::Falling))
         {
             Vector3 hermite;
-            spline.evaluate_derivative(point_Idx,u,hermite);
+            spline.evaluate_derivative(point_Idx, u, hermite);
             c.orientation = atan2(hermite.y, hermite.x);
         }
 
@@ -195,12 +196,12 @@ MoveSpline::MoveSpline() : m_Id(0), time_passed(0),
 
 /// ============================================================================================
 
-bool MoveSplineInitArgs::Validate() const
+bool MoveSplineInitArgs::Validate(Unit* unit) const
 {
 #define CHECK(exp) \
     if (!(exp))\
     {\
-        sLog->outError(LOG_FILTER_GENERAL, "MoveSplineInitArgs::Validate: expression '%s' failed", #exp);\
+        sLog->outError(LOG_FILTER_GENERAL, "MoveSplineInitArgs::Validate: expression '%s' failed for GUID: %u Entry: %u", #exp, unit->GetTypeId() == TYPEID_PLAYER ? unit->GetGUIDLow() : unit->ToCreature()->GetDBTableGUIDLow(), unit->GetEntry());\
         return false;\
     }
     CHECK(path.size() > 1);

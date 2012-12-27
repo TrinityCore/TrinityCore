@@ -21,8 +21,8 @@
 
 enum Texts
 {
-    EMOTE_AGGRO             = -1509000,
-    EMOTE_MANA_FULL         = -1509001
+    EMOTE_AGGRO             = 0,
+    EMOTE_MANA_FULL         = 1
 };
 
 enum Spells
@@ -58,7 +58,7 @@ class boss_moam : public CreatureScript
 
         struct boss_moamAI : public BossAI
         {
-            boss_moamAI(Creature* creature) : BossAI(creature, BOSS_MOAM)
+            boss_moamAI(Creature* creature) : BossAI(creature, DATA_MOAM)
             {
             }
 

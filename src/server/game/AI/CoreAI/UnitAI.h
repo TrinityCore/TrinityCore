@@ -20,23 +20,14 @@
 #define TRINITY_UNITAI_H
 
 #include "Define.h"
-#include <list>
 #include "Unit.h"
+#include "Containers.h"
+#include <list>
 
-class Unit;
 class Player;
+class Quest;
+class Unit;
 struct AISpellInfoType;
-
-// Default script texts
-enum GeneralScriptTexts
-{
-    DEFAULT_TEXT                = -1000000,
-    EMOTE_GENERIC_FRENZY_KILL   = -1000001,
-    EMOTE_GENERIC_FRENZY        = -1000002,
-    EMOTE_GENERIC_ENRAGED       = -1000003,
-    EMOTE_GENERIC_BERSERK       = -1000004,
-    EMOTE_GENERIC_BERSERK_RAID  = -1000005 // RaidBossEmote version of the previous one
-};
 
 //Selection method used by SelectTarget
 enum SelectAggroTarget
@@ -60,7 +51,7 @@ struct DefaultTargetSelector : public std::unary_function<Unit*, bool>
     // dist: if 0: ignored, if > 0: maximum distance to the reference unit, if < 0: minimum distance to the reference unit
     // playerOnly: self explaining
     // aura: if 0: ignored, if > 0: the target shall have the aura, if < 0, the target shall NOT have the aura
-    DefaultTargetSelector(Unit const* unit, float dist, bool playerOnly, int32 aura) : me(unit), m_dist(dist), m_playerOnly(playerOnly), m_aura(aura) {}
+    DefaultTargetSelector(Unit const* unit, float dist, bool playerOnly, int32 aura) : me(unit), m_dist(dist), m_playerOnly(playerOnly), m_aura(aura) { }
 
     bool operator()(Unit const* target) const
     {
@@ -145,22 +136,22 @@ class UnitAI
 
         // Pass parameters between AI
         virtual void DoAction(int32 const /*param*/) {}
-        virtual uint32 GetData(uint32 /*id = 0*/) { return 0; }
+        virtual uint32 GetData(uint32 /*id = 0*/) const { return 0; }
         virtual void SetData(uint32 /*id*/, uint32 /*value*/) {}
         virtual void SetGUID(uint64 /*guid*/, int32 /*id*/ = 0) {}
-        virtual uint64 GetGUID(int32 /*id*/ = 0) { return 0; }
+        virtual uint64 GetGUID(int32 /*id*/ = 0) const { return 0; }
 
         Unit* SelectTarget(SelectAggroTarget targetType, uint32 position = 0, float dist = 0.0f, bool playerOnly = false, int32 aura = 0);
         // Select the targets satifying the predicate.
         // predicate shall extend std::unary_function<Unit*, bool>
         template <class PREDICATE> Unit* SelectTarget(SelectAggroTarget targetType, uint32 position, PREDICATE const& predicate)
         {
-            const std::list<HostileReference*>& threatlist = me->getThreatManager().getThreatList();
+            ThreatContainer::StorageType const& threatlist = me->getThreatManager().getThreatList();
             if (position >= threatlist.size())
                 return NULL;
 
             std::list<Unit*> targetList;
-            for (std::list<HostileReference*>::const_iterator itr = threatlist.begin(); itr != threatlist.end(); ++itr)
+            for (ThreatContainer::StorageType::const_iterator itr = threatlist.begin(); itr != threatlist.end(); ++itr)
                 if (predicate((*itr)->getTarget()))
                     targetList.push_back((*itr)->getTarget());
 
@@ -205,11 +196,11 @@ class UnitAI
         // predicate shall extend std::unary_function<Unit*, bool>
         template <class PREDICATE> void SelectTargetList(std::list<Unit*>& targetList, PREDICATE const& predicate, uint32 maxTargets, SelectAggroTarget targetType)
         {
-            std::list<HostileReference*> const& threatlist = me->getThreatManager().getThreatList();
+            ThreatContainer::StorageType const& threatlist = me->getThreatManager().getThreatList();
             if (threatlist.empty())
                 return;
 
-            for (std::list<HostileReference*>::const_iterator itr = threatlist.begin(); itr != threatlist.end(); ++itr)
+            for (ThreatContainer::StorageType::const_iterator itr = threatlist.begin(); itr != threatlist.end(); ++itr)
                 if (predicate((*itr)->getTarget()))
                     targetList.push_back((*itr)->getTarget());
 

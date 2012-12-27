@@ -26,48 +26,48 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "serpent_shrine.h"
+#include "Player.h"
 
-// --- Spells used by Leotheras The Blind
-#define SPELL_WHIRLWIND         37640
-#define SPELL_CHAOS_BLAST       37674
-#define SPELL_BERSERK           26662
-#define SPELL_INSIDIOUS_WHISPER 37676
-#define SPELL_DUAL_WIELD        42459
+enum LeotherasTheBlind
+{
+    // Spells used by Leotheras The Blind
+    SPELL_WHIRLWIND         = 37640,
+    SPELL_CHAOS_BLAST       = 37674,
+    SPELL_BERSERK           = 26662,
+    SPELL_INSIDIOUS_WHISPER = 37676,
+    SPELL_DUAL_WIELD        = 42459,
 
-// --- Spells used in banish phase ---
-#define BANISH_BEAM             38909
-#define AURA_BANISH             37833
+    // Spells used in banish phase
+    BANISH_BEAM             = 38909,
+    AURA_BANISH             = 37833,
 
-// --- Spells used by Greyheart Spellbinders
-#define SPELL_EARTHSHOCK        39076
-#define SPELL_MINDBLAST         37531
+    // Spells used by Greyheart Spellbinders
+    SPELL_EARTHSHOCK        = 39076,
+    SPELL_MINDBLAST         = 37531,
 
-// --- Spells used by Inner Demons and Creature ID
-#define INNER_DEMON_ID          21857
-#define AURA_DEMONIC_ALIGNMENT  37713
-#define SPELL_SHADOWBOLT        39309
-#define SPELL_SOUL_LINK         38007
-#define SPELL_CONSUMING_MADNESS 37749 //not supported by core yet
+    // Spells used by Inner Demons and Creature ID
+    INNER_DEMON_ID          = 21857,
+    AURA_DEMONIC_ALIGNMENT  = 37713,
+    SPELL_SHADOWBOLT        = 39309,
+    SPELL_SOUL_LINK         = 38007,
+    SPELL_CONSUMING_MADNESS = 37749,
 
-//Misc.
-#define MODEL_DEMON             20125
-#define MODEL_NIGHTELF          20514
-#define DEMON_FORM              21875
-#define MOB_SPELLBINDER         21806
-#define INNER_DEMON_VICTIM      1
+    //Misc.
+    MODEL_DEMON             = 20125,
+    MODEL_NIGHTELF          = 20514,
+    DEMON_FORM              = 21875,
+    MOB_SPELLBINDER         = 21806,
+    INNER_DEMON_VICTIM      = 1,
 
-#define SAY_AGGRO               -1548009
-#define SAY_SWITCH_TO_DEMON     -1548010
-#define SAY_INNER_DEMONS        -1548011
-#define SAY_DEMON_SLAY1         -1548012
-#define SAY_DEMON_SLAY2         -1548013
-#define SAY_DEMON_SLAY3         -1548014
-#define SAY_NIGHTELF_SLAY1      -1548015
-#define SAY_NIGHTELF_SLAY2      -1548016
-#define SAY_NIGHTELF_SLAY3      -1548017
-#define SAY_FINAL_FORM          -1548018
-#define SAY_FREE                -1548019
-#define SAY_DEATH               -1548020
+    SAY_AGGRO               = 0,
+    SAY_SWITCH_TO_DEMON     = 1,
+    SAY_INNER_DEMONS        = 2,
+    SAY_DEMON_SLAY          = 3,
+    SAY_NIGHTELF_SLAY       = 4,
+    SAY_FINAL_FORM          = 5,
+    SAY_FREE                = 6,
+    SAY_DEATH               = 7
+};
 
 class mob_inner_demon : public CreatureScript
 {
@@ -103,7 +103,7 @@ public:
                 victimGUID = guid;
         }
 
-        uint64 GetGUID(int32 id/* = 0 */)
+        uint64 GetGUID(int32 id/* = 0 */) const
         {
             if (id == INNER_DEMON_VICTIM)
                 return victimGUID;
@@ -171,7 +171,6 @@ public:
            DoMeleeAttackIfReady();
         }
     };
-
 };
 
 //Original Leotheras the Blind AI
@@ -263,7 +262,6 @@ public:
                 Creature* binder = me->SummonCreature(MOB_SPELLBINDER, nx, ny, z, o, TEMPSUMMON_DEAD_DESPAWN, 0);
                 if (binder)
                     SpellBinderGUID[i] = binder->GetGUID();
-
             }
         }
         void MoveInLineOfSight(Unit* who)
@@ -290,7 +288,7 @@ public:
 
         void StartEvent()
         {
-            DoScriptText(SAY_AGGRO, me);
+            Talk(SAY_AGGRO);
             if (instance)
                 instance->SetData(DATA_LEOTHERASTHEBLINDEVENT, IN_PROGRESS);
         }
@@ -390,19 +388,12 @@ public:
             if (victim->GetTypeId() != TYPEID_PLAYER)
                 return;
 
-            if (DemonForm)
-            {
-                DoScriptText(RAND(SAY_DEMON_SLAY1, SAY_DEMON_SLAY2, SAY_DEMON_SLAY3), me);
-            }
-            else
-            {
-                DoScriptText(RAND(SAY_NIGHTELF_SLAY1, SAY_NIGHTELF_SLAY2, SAY_NIGHTELF_SLAY3), me);
-            }
+            Talk(DemonForm ? SAY_DEMON_SLAY : SAY_NIGHTELF_SLAY);
         }
 
         void JustDied(Unit* /*killer*/)
         {
-            DoScriptText(SAY_DEATH, me);
+            Talk(SAY_DEATH);
 
             //despawn copy
             if (Demon)
@@ -494,7 +485,7 @@ public:
                         //switch to demon form
                         me->RemoveAurasDueToSpell(SPELL_WHIRLWIND, 0);
                         me->SetDisplayId(MODEL_DEMON);
-                        DoScriptText(SAY_SWITCH_TO_DEMON, me);
+                        Talk(SAY_SWITCH_TO_DEMON);
                         me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID  , 0);
                         me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID+1, 0);
                         DemonForm = true;
@@ -525,9 +516,9 @@ public:
                 //Summon Inner Demon
                 if (InnerDemons_Timer <= diff)
                 {
-                    std::list<HostileReference*>& ThreatList = me->getThreatManager().getThreatList();
+                    ThreatContainer::StorageType const & ThreatList = me->getThreatManager().getThreatList();
                     std::vector<Unit*> TargetList;
-                    for (std::list<HostileReference*>::const_iterator itr = ThreatList.begin(); itr != ThreatList.end(); ++itr)
+                    for (ThreatContainer::StorageType::const_iterator itr = ThreatList.begin(); itr != ThreatList.end(); ++itr)
                     {
                         Unit* tempTarget = Unit::GetUnit(*me, (*itr)->getUnitGuid());
                         if (tempTarget && tempTarget->GetTypeId() == TYPEID_PLAYER && tempTarget->GetGUID() != me->getVictim()->GetGUID() && TargetList.size()<5)
@@ -557,7 +548,7 @@ public:
                             }
                         }
                     }
-                    DoScriptText(SAY_INNER_DEMONS, me);
+                    Talk(SAY_INNER_DEMONS);
 
                     InnerDemons_Timer = 999999;
                 } else InnerDemons_Timer -= diff;
@@ -596,13 +587,12 @@ public:
                 IsFinalForm = true;
                 DemonForm = false;
 
-                DoScriptText(SAY_FINAL_FORM, me);
+                Talk(SAY_FINAL_FORM);
                 me->SetDisplayId(MODEL_NIGHTELF);
                 me->LoadEquipment(me->GetEquipmentId());
             }
         }
     };
-
 };
 
 //Leotheras the Blind Demon Form AI
@@ -631,7 +621,7 @@ public:
 
         void StartEvent()
         {
-            DoScriptText(SAY_FREE, me);
+            Talk(SAY_FREE);
         }
 
         void KilledUnit(Unit* victim)
@@ -639,7 +629,7 @@ public:
             if (victim->GetTypeId() != TYPEID_PLAYER)
                 return;
 
-            DoScriptText(RAND(SAY_DEMON_SLAY1, SAY_DEMON_SLAY2, SAY_DEMON_SLAY3), me);
+            Talk(SAY_DEMON_SLAY);
         }
 
         void JustDied(Unit* /*killer*/)
@@ -812,7 +802,6 @@ public:
 
         void JustDied(Unit* /*killer*/) {}
     };
-
 };
 
 void AddSC_boss_leotheras_the_blind()

@@ -25,10 +25,8 @@ enum Spells
     SPELL_SUMMON_CARRION_BEETLES                  = 53521,
     SPELL_LEECHING_SWARM                          = 53467,
     SPELL_POUND                                   = 53472,
-    SPELL_POUND_H                                 = 59433,
     SPELL_SUBMERGE                                = 53421,
     SPELL_IMPALE_DMG                              = 53454,
-    SPELL_IMPALE_DMG_H                            = 59446,
     SPELL_IMPALE_SHAKEGROUND                      = 53455,
     SPELL_IMPALE_SPIKE                            = 53539,   //this is not the correct visual effect
     //SPELL_IMPALE_TARGET                           = 53458,
@@ -46,17 +44,12 @@ enum Creatures
 // not in db
 enum Yells
 {
-    SAY_INTRO                                     = -1601010,
-    SAY_AGGRO                                     = -1601000,
-    SAY_SLAY_1                                    = -1601001,
-    SAY_SLAY_2                                    = -1601002,
-    SAY_SLAY_3                                    = -1601003,
-    SAY_LOCUST_1                                  = -1601005,
-    SAY_LOCUST_2                                  = -1601006,
-    SAY_LOCUST_3                                  = -1601007,
-    SAY_SUBMERGE_1                                = -1601008,
-    SAY_SUBMERGE_2                                = -1601009,
-    SAY_DEATH                                     = -1601004
+    SAY_AGGRO                                     = 0,
+    SAY_SLAY                                      = 1,
+    SAY_DEATH                                     = 2,
+    SAY_LOCUST                                    = 3,
+    SAY_SUBMERGE                                  = 4,
+    SAY_INTRO                                     = 5
 };
 
 enum
@@ -163,7 +156,7 @@ public:
 
         void EnterCombat(Unit* /*who*/)
         {
-            DoScriptText(SAY_AGGRO, me);
+            Talk(SAY_AGGRO);
             DelayTimer = 0;
             if (instance)
                 instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
@@ -211,7 +204,7 @@ public:
                         break;
                     case IMPALE_PHASE_DMG:
                         if (Creature* impaleTarget = Unit::GetCreature(*me, ImpaleTarget))
-                            me->CastSpell(impaleTarget, DUNGEON_MODE(SPELL_IMPALE_DMG, SPELL_IMPALE_DMG_H), true);
+                            me->CastSpell(impaleTarget, SPELL_IMPALE_DMG, true);
                         ImpalePhase = IMPALE_PHASE_TARGET;
                         ImpaleTimer = 9*IN_MILLISECONDS;
                         break;
@@ -328,7 +321,7 @@ public:
                     if (Unit* target = me->getVictim())
                     {
                         if (Creature* pImpaleTarget = DoSummonImpaleTarget(target))
-                            me->CastSpell(pImpaleTarget, DUNGEON_MODE(SPELL_POUND, SPELL_POUND_H), false);
+                            me->CastSpell(pImpaleTarget, SPELL_POUND, false);
                     }
                     PoundTimer = 16500;
                 } else PoundTimer -= diff;
@@ -340,7 +333,7 @@ public:
 
         void JustDied(Unit* /*killer*/)
         {
-            DoScriptText(SAY_DEATH, me);
+            Talk(SAY_DEATH);
             Summons.DespawnAll();
             if (instance)
                 instance->SetData(DATA_ANUBARAK_EVENT, DONE);
@@ -350,7 +343,7 @@ public:
         {
             if (victim == me)
                 return;
-            DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2, SAY_SLAY_3), me);
+            Talk(SAY_SLAY);
         }
 
         void JustSummoned(Creature* summon)

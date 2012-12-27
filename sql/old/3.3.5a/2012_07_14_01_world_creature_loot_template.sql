@@ -2,8 +2,8 @@
 UPDATE `creature_loot_template` SET `ChanceOrQuestChance`= -100 WHERE `item`=23270;
 
 -- update Al'ar loot
-SET @gear := 34053; 
-SET @talon := 34377; 
+SET @gear := 34053;
+SET @talon := 34377;
 SET @Alar := 19514;
 
 DELETE FROM `creature_loot_template` WHERE `entry`=@Alar;

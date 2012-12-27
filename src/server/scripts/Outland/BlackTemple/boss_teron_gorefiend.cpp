@@ -27,30 +27,29 @@ EndScriptData */
 #include "ScriptedCreature.h"
 #include "black_temple.h"
 
- //Speech'n'sound
-#define SAY_INTRO                       -1564037
-#define SAY_AGGRO                       -1564038
-#define SAY_SLAY1                       -1564039
-#define SAY_SLAY2                       -1564040
-#define SAY_SPELL1                      -1564041
-#define SAY_SPELL2                      -1564042
-#define SAY_SPECIAL1                    -1564043
-#define SAY_SPECIAL2                    -1564044
-#define SAY_ENRAGE                      -1564045
-#define SAY_DEATH                       -1564046
+enum DoomBlossom
+{
+    //Speech'n'sound
+    SAY_INTRO                       = 0,
+    SAY_AGGRO                       = 1,
+    SAY_SLAY                        = 2,
+    SAY_SPELL                       = 3,
+    SAY_SPECIAL                     = 4,
+    SAY_ENRAGE                      = 5,
+    SAY_DEATH                       = 6,
 
-//Spells
-#define SPELL_INCINERATE                40239
-#define SPELL_CRUSHING_SHADOWS          40243
-#define SPELL_SHADOWBOLT                40185
-#define SPELL_PASSIVE_SHADOWFORM        40326
-#define SPELL_SHADOW_OF_DEATH           40251
-#define SPELL_BERSERK                   45078
+    //Spells
+    SPELL_INCINERATE                = 40239,
+    SPELL_CRUSHING_SHADOWS          = 40243,
+    SPELL_SHADOWBOLT                = 40185,
+    SPELL_PASSIVE_SHADOWFORM        = 40326,
+    SPELL_SHADOW_OF_DEATH           = 40251,
+    SPELL_BERSERK                   = 45078,
+    SPELL_ATROPHY                   = 40327,               // Shadowy Constructs use this when they get within melee range of a player
 
-#define SPELL_ATROPHY                   40327               // Shadowy Constructs use this when they get within melee range of a player
-
-#define CREATURE_DOOM_BLOSSOM           23123
-#define CREATURE_SHADOWY_CONSTRUCT      23111
+    CREATURE_DOOM_BLOSSOM           = 23123,
+    CREATURE_SHADOWY_CONSTRUCT      = 23111
+};
 
 class mob_doom_blossom : public CreatureScript
 {
@@ -169,12 +168,12 @@ public:
 
         void CheckPlayers()
         {
-            std::list<HostileReference*>& m_threatlist = me->getThreatManager().getThreatList();
-            if (m_threatlist.empty())
+            ThreatContainer::StorageType const &threatlist = me->getThreatManager().getThreatList();
+            if (threatlist.empty())
                 return;                                         // No threat list. Don't continue.
-            std::list<HostileReference*>::const_iterator itr = m_threatlist.begin();
+            ThreatContainer::StorageType::const_iterator itr = threatlist.begin();
             std::list<Unit*> targets;
-            for (; itr != m_threatlist.end(); ++itr)
+            for (; itr != threatlist.end(); ++itr)
             {
                 Unit* unit = Unit::GetUnit(*me, (*itr)->getUnitGuid());
                 if (unit && unit->isAlive())
@@ -207,7 +206,6 @@ public:
             } else CheckTeronTimer -= diff;
         }
     };
-
 };
 
 class boss_teron_gorefiend : public CreatureScript
@@ -279,7 +277,7 @@ public:
 
                     me->GetMotionMaster()->Clear(false);
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                    DoScriptText(SAY_INTRO, me);
+                    Talk(SAY_INTRO);
                     me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_TALK);
                     AggroTargetGUID = who->GetGUID();
                     Intro = true;
@@ -291,7 +289,7 @@ public:
 
         void KilledUnit(Unit* /*victim*/)
         {
-            DoScriptText(RAND(SAY_SLAY1, SAY_SLAY2), me);
+            Talk(SAY_SLAY);
         }
 
         void JustDied(Unit* /*killer*/)
@@ -299,7 +297,7 @@ public:
             if (instance)
                 instance->SetData(DATA_TERONGOREFIENDEVENT, DONE);
 
-            DoScriptText(SAY_DEATH, me);
+            Talk(SAY_DEATH);
         }
 
         float CalculateRandomLocation(float Loc, uint32 radius)
@@ -317,20 +315,20 @@ public:
             return coord;
         }
 
-        void SetThreatList(Creature* Blossom)
+        void SetThreatList(Creature* blossom)
         {
-            if (!Blossom)
+            if (!blossom)
                 return;
 
-            std::list<HostileReference*>& m_threatlist = me->getThreatManager().getThreatList();
-            std::list<HostileReference*>::const_iterator i = m_threatlist.begin();
-            for (i = m_threatlist.begin(); i != m_threatlist.end(); ++i)
+            ThreatContainer::StorageType const &threatlist = me->getThreatManager().getThreatList();
+            ThreatContainer::StorageType::const_iterator i = threatlist.begin();
+            for (i = threatlist.begin(); i != threatlist.end(); ++i)
             {
                 Unit* unit = Unit::GetUnit(*me, (*i)->getUnitGuid());
                 if (unit && unit->isAlive())
                 {
                     float threat = DoGetThreat(unit);
-                    Blossom->AddThreat(unit, threat);
+                    blossom->AddThreat(unit, threat);
                 }
             }
         }
@@ -344,26 +342,26 @@ public:
             /**    WHAT IS FULLY NECESSARY FOR GOREFIEND TO BE 100% COMPLETE    *****/
             /************************************************************************/
 
-            Unit* Ghost = NULL;
+            Unit* ghost = NULL;
             if (GhostGUID)
-                Ghost = Unit::GetUnit(*me, GhostGUID);
-            if (Ghost && Ghost->isAlive() && Ghost->HasAura(SPELL_SHADOW_OF_DEATH))
+                ghost = Unit::GetUnit(*me, GhostGUID);
+            if (ghost && ghost->isAlive() && ghost->HasAura(SPELL_SHADOW_OF_DEATH))
             {
                 /*float x, y, z;
-                Ghost->GetPosition(x, y, z);
+                ghost->GetPosition(x, y, z);
                 Creature* control = me->SummonCreature(CREATURE_GHOST, x, y, z, 0, TEMPSUMMON_TIMED_DESAWN, 30000);
                 if (control)
                 {
-                    CAST_PLR(Ghost)->Possess(control);
-                    Ghost->DealDamage(Ghost, Ghost->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL,
+                    CAST_PLR(ghost)->Possess(control);
+                    ghost->DealDamage(ghost, ghost->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL,
                 false);
                 }*/
                 for (uint8 i = 0; i < 4; ++i)
                 {
                     Creature* Construct = NULL;
-                    float X = CalculateRandomLocation(Ghost->GetPositionX(), 10);
-                    float Y = CalculateRandomLocation(Ghost->GetPositionY(), 10);
-                    Construct = me->SummonCreature(CREATURE_SHADOWY_CONSTRUCT, X, Y, Ghost->GetPositionZ(), 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 45000);
+                    float X = CalculateRandomLocation(ghost->GetPositionX(), 10);
+                    float Y = CalculateRandomLocation(ghost->GetPositionY(), 10);
+                    Construct = me->SummonCreature(CREATURE_SHADOWY_CONSTRUCT, X, Y, ghost->GetPositionZ(), 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 45000);
                     if (Construct)
                     {
                         Construct->CastSpell(Construct, SPELL_PASSIVE_SHADOWFORM, true);
@@ -388,7 +386,7 @@ public:
                 {
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                    DoScriptText(SAY_AGGRO, me);
+                    Talk(SAY_AGGRO);
                     me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_NONE);
                     Done = true;
                     if (AggroTargetGUID)
@@ -462,7 +460,7 @@ public:
 
                 if (target)
                 {
-                    DoScriptText(RAND(SAY_SPECIAL1, SAY_SPECIAL2), me);
+                    Talk(SAY_SPECIAL);
                     DoCast(target, SPELL_INCINERATE);
                     IncinerateTimer = urand(20, 51) * 1000;
                 }
@@ -495,7 +493,7 @@ public:
 
             if (RandomYellTimer <= diff)
             {
-                DoScriptText(RAND(SAY_SPELL1, SAY_SPELL2), me);
+                Talk(SAY_SPELL);
                 RandomYellTimer = urand(50, 101) * 1000;
             } else RandomYellTimer -= diff;
 
@@ -504,14 +502,13 @@ public:
                 if (EnrageTimer <= diff)
             {
                 DoCast(me, SPELL_BERSERK);
-                DoScriptText(SAY_ENRAGE, me);
+                Talk(SAY_ENRAGE);
             } else EnrageTimer -= diff;
             }
 
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 void AddSC_boss_teron_gorefiend()

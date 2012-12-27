@@ -176,7 +176,7 @@ class GridMap
 
 
     bool loadAreaData(FILE* in, uint32 offset, uint32 size);
-    bool loadHeihgtData(FILE* in, uint32 offset, uint32 size);
+    bool loadHeightData(FILE* in, uint32 offset, uint32 size);
     bool loadLiquidData(FILE* in, uint32 offset, uint32 size);
 
     // Get height functions and pointers
@@ -499,6 +499,7 @@ class Map : public GridRefManager<NGridType>
 
         bool IsGridLoaded(const GridCoord &) const;
         void EnsureGridCreated(const GridCoord &);
+        void EnsureGridCreated_i(const GridCoord &);
         bool EnsureGridLoaded(Cell const&);
         void EnsureGridLoadedForActiveObject(Cell const&, WorldObject* object);
 

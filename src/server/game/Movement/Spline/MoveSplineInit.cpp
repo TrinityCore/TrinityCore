@@ -22,6 +22,8 @@
 #include "Unit.h"
 #include "Transport.h"
 #include "Vehicle.h"
+#include "WorldPacket.h"
+#include "Opcodes.h"
 
 namespace Movement
 {
@@ -98,7 +100,7 @@ namespace Movement
         if (!args.HasVelocity)
             args.velocity = unit.GetSpeed(SelectSpeedType(moveFlags));
 
-        if (!args.Validate())
+        if (!args.Validate(&unit))
             return;
 
         if (moveFlags & MOVEMENTFLAG_ROOT)

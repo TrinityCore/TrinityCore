@@ -34,6 +34,7 @@ EndContentData */
 #include "ScriptedGossip.h"
 #include "karazhan.h"
 #include "ScriptedEscortAI.h"
+#include "Player.h"
 
 /*######
 # npc_barnesAI
@@ -62,26 +63,26 @@ struct Dialogue
 
 static Dialogue OzDialogue[]=
 {
-    {-1532103, 6000},
-    {-1532104, 18000},
-    {-1532105, 9000},
-    {-1532106, 15000}
+    {0, 6000},
+    {1, 18000},
+    {2, 9000},
+    {3, 15000}
 };
 
 static Dialogue HoodDialogue[]=
 {
-    {-1532107, 6000},
-    {-1532108, 10000},
-    {-1532109, 14000},
-    {-1532110, 15000}
+    {4, 6000},
+    {5, 10000},
+    {6, 14000},
+    {7, 15000}
 };
 
 static Dialogue RAJDialogue[]=
 {
-    {-1532111, 5000},
-    {-1532112, 7000},
-    {-1532113, 14000},
-    {-1532114, 14000}
+    {8, 5000},
+    {9, 7000},
+    {10, 14000},
+    {11, 14000}
 };
 
 // Entries and spawn locations for creatures in Oz event
@@ -224,7 +225,7 @@ public:
             }
 
             if (text)
-                 DoScriptText(text, me);
+                 CreatureAI::Talk(text);
         }
 
         void PrepareEncounter()
@@ -321,7 +322,6 @@ public:
                         WipeTimer = 15000;
                     } else WipeTimer -= diff;
                 }
-
             }
         }
     };
@@ -344,17 +344,17 @@ public:
             case GOSSIP_ACTION_INFO_DEF+3:
                 player->CLOSE_GOSSIP_MENU();
                 pBarnesAI->m_uiEventId = EVENT_OZ;
-                sLog->outInfo(LOG_FILTER_TSCR, "TSCR: player (GUID " UI64FMTD ") manually set Opera event to EVENT_OZ", player->GetGUID());
+                sLog->outInfo(LOG_FILTER_TSCR, "player (GUID " UI64FMTD ") manually set Opera event to EVENT_OZ", player->GetGUID());
                 break;
             case GOSSIP_ACTION_INFO_DEF+4:
                 player->CLOSE_GOSSIP_MENU();
                 pBarnesAI->m_uiEventId = EVENT_HOOD;
-                sLog->outInfo(LOG_FILTER_TSCR, "TSCR: player (GUID " UI64FMTD ") manually set Opera event to EVENT_HOOD", player->GetGUID());
+                sLog->outInfo(LOG_FILTER_TSCR, "player (GUID " UI64FMTD ") manually set Opera event to EVENT_HOOD", player->GetGUID());
                 break;
             case GOSSIP_ACTION_INFO_DEF+5:
                 player->CLOSE_GOSSIP_MENU();
                 pBarnesAI->m_uiEventId = EVENT_RAJ;
-                sLog->outInfo(LOG_FILTER_TSCR, "TSCR: player (GUID " UI64FMTD ") manually set Opera event to EVENT_RAJ", player->GetGUID());
+                sLog->outInfo(LOG_FILTER_TSCR, "player (GUID " UI64FMTD ") manually set Opera event to EVENT_RAJ", player->GetGUID());
                 break;
         }
 
@@ -397,7 +397,6 @@ public:
     {
         return new npc_barnesAI(creature);
     }
-
 };
 
 /*###
@@ -438,7 +437,6 @@ public:
         player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
         return true;
     }
-
 };
 
 /*###
@@ -538,7 +536,7 @@ public:
 
         uint32 NextStep(uint32 Step)
         {
-            Unit* arca = Unit::GetUnit(*me, ArcanagosGUID);
+            Creature* arca = Unit::GetCreature(*me, ArcanagosGUID);
             Map* map = me->GetMap();
             switch (Step)
             {
@@ -548,21 +546,21 @@ public:
                 return 10000;
             case 2:
                 if (arca)
-                    CAST_CRE(arca)->MonsterYell(SAY_DIALOG_ARCANAGOS_2, LANG_UNIVERSAL, 0);
+                    arca->MonsterYell(SAY_DIALOG_ARCANAGOS_2, LANG_UNIVERSAL, 0);
                 return 20000;
             case 3:
                 me->MonsterYell(SAY_DIALOG_MEDIVH_3, LANG_UNIVERSAL, 0);
                 return 10000;
             case 4:
                 if (arca)
-                    CAST_CRE(arca)->MonsterYell(SAY_DIALOG_ARCANAGOS_4, LANG_UNIVERSAL, 0);
+                    arca->MonsterYell(SAY_DIALOG_ARCANAGOS_4, LANG_UNIVERSAL, 0);
                 return 20000;
             case 5:
                 me->MonsterYell(SAY_DIALOG_MEDIVH_5, LANG_UNIVERSAL, 0);
                 return 20000;
             case 6:
                 if (arca)
-                    CAST_CRE(arca)->MonsterYell(SAY_DIALOG_ARCANAGOS_6, LANG_UNIVERSAL, 0);
+                    arca->MonsterYell(SAY_DIALOG_ARCANAGOS_6, LANG_UNIVERSAL, 0);
                 return 10000;
             case 7:
                 FireArcanagosTimer = 500;
@@ -580,7 +578,7 @@ public:
                 return 1000;
             case 11:
                 if (arca)
-                    CAST_CRE(arca)->MonsterYell(SAY_DIALOG_ARCANAGOS_8, LANG_UNIVERSAL, 0);
+                    arca->MonsterYell(SAY_DIALOG_ARCANAGOS_8, LANG_UNIVERSAL, 0);
                 return 5000;
             case 12:
                 arca->GetMotionMaster()->MovePoint(0, -11010.82f, -1761.18f, 156.47f);
@@ -613,12 +611,10 @@ public:
                 return 5000;
             default : return 9999999;
             }
-
         }
 
         void UpdateAI(const uint32 diff)
         {
-
             if (YellTimer <= diff)
             {
                 if (EventStarted)
@@ -645,7 +641,6 @@ public:
             }
         }
     };
-
 };
 
 void AddSC_karazhan()

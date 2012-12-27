@@ -29,24 +29,25 @@ EndScriptData */
 enum eEnums
 {
     //signed for 24200, but used by 24200, 27390
-    YELL_SKARVALD_AGGRO                         = -1574011,
-    YELL_SKARVALD_DAL_DIED                      = -1574012,
-    YELL_SKARVALD_SKA_DIEDFIRST                 = -1574013,
-    YELL_SKARVALD_KILL                          = -1574014,
-    YELL_SKARVALD_DAL_DIEDFIRST                 = -1574015,
+    YELL_SKARVALD_AGGRO                         = 0,
+    YELL_SKARVALD_DAL_DIED                      = 1,
+    YELL_SKARVALD_SKA_DIEDFIRST                 = 2,
+    YELL_SKARVALD_KILL                          = 3,
+    YELL_SKARVALD_DAL_DIEDFIRST                 = 4,
 
     //signed for 24201, but used by 24201, 27389
-    YELL_DALRONN_AGGRO                          = -1574016,
-    YELL_DALRONN_SKA_DIED                       = -1574017,
-    YELL_DALRONN_DAL_DIEDFIRST                  = -1574018,
-    YELL_DALRONN_KILL                           = -1574019,
-    YELL_DALRONN_SKA_DIEDFIRST                  = -1574020,
+    YELL_DALRONN_AGGRO                          = 0,
+    YELL_DALRONN_SKA_DIED                       = 1,
+    YELL_DALRONN_DAL_DIEDFIRST                  = 2,
+    YELL_DALRONN_KILL                           = 3,
+    YELL_DALRONN_SKA_DIEDFIRST                  = 4,
 
 //Spells of Skarvald and his Ghost
     MOB_SKARVALD_THE_CONSTRUCTOR                = 24200,
     SPELL_CHARGE                                = 43651,
     SPELL_STONE_STRIKE                          = 48583,
     SPELL_SUMMON_SKARVALD_GHOST                 = 48613,
+    SPELL_ENRAGE                                = 48193,
     MOB_SKARVALD_GHOST                          = 27390,
 //Spells of Dalronn and his Ghost
     MOB_DALRONN_THE_CONTROLLER                  = 24201,
@@ -56,6 +57,20 @@ enum eEnums
     SPELL_DEBILITATE                            = 43650,
     SPELL_SUMMON_DALRONN_GHOST                  = 48612,
     MOB_DALRONN_GHOST                           = 27389
+};
+
+class SkarvaldChargePredicate
+{
+   public:
+      SkarvaldChargePredicate(Unit* unit) : me(unit) {}
+
+    bool operator() (WorldObject* object) const
+    {
+        return object->GetDistance2d(me) >= 5.0f && object->GetDistance2d(me) <= 30.0f;
+    }
+
+    private:
+        Unit* me;
 };
 
 class boss_skarvald_the_constructor : public CreatureScript
@@ -83,6 +98,7 @@ public:
         uint32 Response_Timer;
         uint32 Check_Timer;
         bool Dalronn_isDead;
+        bool Enraged;
 
         void Reset()
         {
@@ -90,6 +106,7 @@ public:
             StoneStrike_Timer = 10000;
             Dalronn_isDead = false;
             Check_Timer = 5000;
+            Enraged = false;
 
             ghost = (me->GetEntry() == MOB_SKARVALD_GHOST);
             if (!ghost && instance)
@@ -106,13 +123,22 @@ public:
         {
             if (!ghost && instance)
             {
-                DoScriptText(YELL_SKARVALD_AGGRO, me);
+                Talk(YELL_SKARVALD_AGGRO);
 
                 Unit* dalronn = Unit::GetUnit(*me, instance->GetData64(DATA_DALRONN));
                 if (dalronn && dalronn->isAlive() && !dalronn->getVictim())
                     dalronn->getThreatManager().addThreat(who, 0.0f);
 
                 instance->SetData(DATA_SKARVALD_DALRONN_EVENT, IN_PROGRESS);
+            }
+        }
+
+        void DamageTaken(Unit* /*attacker*/, uint32& damage)
+        {
+            if (!Enraged && !ghost && me->HealthBelowPctDamaged(15, damage))
+            {
+                Enraged = true;
+                DoCast(me, SPELL_ENRAGE);
             }
         }
 
@@ -125,13 +151,13 @@ public:
                 {
                     if (dalronn->isDead())
                     {
-                        DoScriptText(YELL_SKARVALD_DAL_DIED, me);
+                        Talk(YELL_SKARVALD_DAL_DIED);
 
                         instance->SetData(DATA_SKARVALD_DALRONN_EVENT, DONE);
                     }
                     else
                     {
-                        DoScriptText(YELL_SKARVALD_SKA_DIEDFIRST, me);
+                        Talk(YELL_SKARVALD_SKA_DIEDFIRST);
 
                         me->RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
                         //DoCast(me, SPELL_SUMMON_SKARVALD_GHOST, true);
@@ -150,7 +176,7 @@ public:
         {
             if (!ghost)
             {
-                DoScriptText(YELL_SKARVALD_KILL, me);
+                Talk(YELL_SKARVALD_KILL);
             }
         }
 
@@ -185,7 +211,7 @@ public:
                 {
                     if (Response_Timer <= diff)
                     {
-                        DoScriptText(YELL_SKARVALD_DAL_DIEDFIRST, me);
+                        Talk(YELL_SKARVALD_DAL_DIEDFIRST);
 
                         Response_Timer = 0;
                     } else Response_Timer -= diff;
@@ -194,7 +220,7 @@ public:
 
             if (Charge_Timer <= diff)
             {
-                DoCast(SelectTarget(SELECT_TARGET_RANDOM, 1), SPELL_CHARGE);
+                DoCast(SelectTarget(SELECT_TARGET_RANDOM, 0, SkarvaldChargePredicate(me)), SPELL_CHARGE);
                 Charge_Timer = 5000+rand()%5000;
             } else Charge_Timer -= diff;
 
@@ -204,7 +230,8 @@ public:
                 StoneStrike_Timer = 5000+rand()%5000;
             } else StoneStrike_Timer -= diff;
 
-            DoMeleeAttackIfReady();
+            if (!me->HasUnitState(UNIT_STATE_CASTING))
+                DoMeleeAttackIfReady();
         }
     };
 
@@ -283,14 +310,14 @@ public:
                 {
                     if (skarvald->isDead())
                     {
-                        DoScriptText(YELL_DALRONN_SKA_DIED, me);
+                        Talk(YELL_DALRONN_SKA_DIED);
 
                         if (instance)
                             instance->SetData(DATA_SKARVALD_DALRONN_EVENT, DONE);
                     }
                     else
                     {
-                        DoScriptText(YELL_DALRONN_DAL_DIEDFIRST, me);
+                        Talk(YELL_DALRONN_DAL_DIEDFIRST);
 
                         me->RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
                         //DoCast(me, SPELL_SUMMON_DALRONN_GHOST, true);
@@ -309,7 +336,7 @@ public:
         {
             if (!ghost)
             {
-                DoScriptText(YELL_DALRONN_KILL, me);
+                Talk(YELL_DALRONN_KILL);
             }
         }
 
@@ -328,7 +355,7 @@ public:
             {
                 if (AggroYell_Timer <= diff)
                 {
-                    DoScriptText(YELL_DALRONN_AGGRO, me);
+                    Talk(YELL_DALRONN_AGGRO);
 
                     AggroYell_Timer = 0;
                 } else AggroYell_Timer -= diff;
@@ -355,7 +382,7 @@ public:
                 {
                     if (Response_Timer <= diff)
                     {
-                        DoScriptText(YELL_DALRONN_SKA_DIEDFIRST, me);
+                        Talk(YELL_DALRONN_SKA_DIEDFIRST);
                         Response_Timer = 0;
                     } else Response_Timer -= diff;
                 }

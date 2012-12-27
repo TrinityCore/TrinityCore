@@ -21,17 +21,10 @@
 
 #include "ObjectAccessor.h"
 #include "WorldPacket.h"
-#include "World.h"
-#include "Group.h"
-#include "GroupMgr.h"
 #include "Battlefield.h"
+#include "World.h"
 
-uint32 const VehNumWorldState[2]        = { 3680, 3490 };
-uint32 const MaxVehNumWorldState[2]     = { 3681, 3491 };
-uint32 const ClockWorldState[2]         = { 3781, 4354 };
-uint32 const WintergraspFaction[3]      = { 1732, 1735, 35 };
-float const WintergraspStalkerPos[4]    = { 0, 0, 0, 0 };
-
+class Group;
 class BattlefieldWG;
 class WintergraspCapturePoint;
 
@@ -159,10 +152,10 @@ class BfGraveyardWG : public BfGraveyard
     public:
         BfGraveyardWG(BattlefieldWG* Bf);
 
-        void SetTextId(uint32 textid) { m_GossipTextId = textid; }
-        uint32 GetTextId() { return m_GossipTextId; }
+        void SetTextId(int32 textid) { m_GossipTextId = textid; }
+        int32 GetTextId() { return m_GossipTextId; }
     protected:
-        uint32 m_GossipTextId;
+        int32 m_GossipTextId;
 };
 
 enum WGGraveyardId
@@ -233,7 +226,7 @@ struct BfWGCoordGY
     float o;
     uint32 gyid;
     uint8 type;
-    uint32 textid;              // for gossip menu
+    int32 textid;              // for gossip menu
     TeamId startcontrol;
 };
 
@@ -390,10 +383,10 @@ class BattlefieldWG : public Battlefield
         bool SetupBattlefield();
 
         /// Return pointer to relic object
-        GameObject* GetRelic() { return m_titansRelic; }
+        GameObject* GetRelic() { return GetGameObject(m_titansRelicGUID); }
 
         /// Define relic object
-        void SetRelic(GameObject* relic) { m_titansRelic = relic; }
+        void SetRelic(uint64 relicGUID) { m_titansRelicGUID = relicGUID; }
 
         /// Check if players can interact with the relic (Only if the last door has been broken)
         bool CanInteractWithRelic() { return m_isRelicInteractible; }
@@ -404,9 +397,9 @@ class BattlefieldWG : public Battlefield
         void UpdateVehicleCountWG();
         void UpdateCounterVehicle(bool init);
 
-        WorldPacket BuildInitWorldStates();
         void SendInitWorldStatesTo(Player* player);
         void SendInitWorldStatesToAll();
+        void FillInitialWorldStates(WorldPacket& data);
 
         void HandleKill(Player* killer, Unit* victim);
         void OnUnitDeath(Unit* unit);
@@ -418,16 +411,17 @@ class BattlefieldWG : public Battlefield
         bool FindAndRemoveVehicleFromList(Unit* vehicle);
 
         // returns the graveyardId in the specified area.
-        uint8 GetSpiritGraveyardId(uint32 areaId);
+        uint8 GetSpiritGraveyardId(uint32 areaId) const;
 
-        uint32 GetData(uint32 data);
+        uint32 GetData(uint32 data) const;
+
     protected:
         bool m_isRelicInteractible;
 
         Workshop WorkshopsList;
 
-        GameObjectSet DefenderPortalList;
-        GameObjectSet m_KeepGameObject[2];
+        GuidSet DefenderPortalList;
+        GuidSet m_KeepGameObject[2];
         GameObjectBuilding BuildingsInZone;
 
         GuidSet m_vehicles[2];
@@ -438,16 +432,22 @@ class BattlefieldWG : public Battlefield
         uint32 m_tenacityStack;
         uint32 m_saveTimer;
 
-        GameObject* m_titansRelic;
+        uint64 m_titansRelicGUID;
 };
 
+uint32 const VehNumWorldState[]        = { 3680, 3490 };
+uint32 const MaxVehNumWorldState[]     = { 3681, 3491 };
+uint32 const ClockWorldState[]         = { 3781, 4354 };
+uint32 const WintergraspFaction[]      = { 1732, 1735, 35 };
+float const WintergraspStalkerPos[]    = { 4948.985f, 2937.789f, 550.5172f, 1.815142f };
+
 uint8 const WG_MAX_OBJ              = 32;
-uint8 const WG_KEEPGAMEOBJECT_MAX   = 44;
 uint8 const WG_MAX_TURRET           = 15;
 uint8 const WG_MAX_KEEP_NPC         = 39;
 uint8 const WG_MAX_OUTSIDE_NPC      = 14;
 uint8 const WG_OUTSIDE_ALLIANCE_NPC = 7;
 uint8 const WG_MAX_TELEPORTER       = 12;
+uint8 const WG_MAX_WORKSHOP = 6;
 
 enum WintergraspGameObjectBuildingType
 {
@@ -578,6 +578,19 @@ struct WintergraspBuildingSpawnData
     uint32 nameId;
 };
 
+struct WintergraspRebuildableBuildingData
+{
+    uint32 entry;
+    uint64 Guid;
+    uint32 WorldState;
+    float x;
+    float y;
+    float z;
+    float o;
+    uint32 type;
+    uint32 nameId;
+};
+
 const WintergraspBuildingSpawnData WGGameObjectBuilding[WG_MAX_OBJ] =
 {
     // Wall (Not spawned in db)
@@ -624,99 +637,6 @@ const WintergraspBuildingSpawnData WGGameObjectBuilding[WG_MAX_OBJ] =
 
     // Last door (Not spawned in db)
     { GO_WINTERGRASP_VAULT_GATE, 3773, 5397.11f, 2841.54f, 425.899f, 3.14159f, BATTLEFIELD_WG_OBJECTTYPE_DOOR_LAST, 0 },
-};
-
-
-// *********************************************************
-// **********Keep Element(GameObject,Creature)**************
-// *********************************************************
-
-// Keep gameobject
-// 192488 : 10 in sql, 19 in header
-// 192501 : 12 in sql, 17 in header
-// 192416 : 1 in sql, 33 in header
-// 192374 : 1 in sql, 1 in header
-// 192375 : 1 in sql, 1 in header
-// 192336 : 1 in sql, 1 in header
-// 192255 : 1 in sql, 1 in header
-// 192269 : 1 in sql, 7 in header
-// 192254 : 1 in sql, 1 in header
-// 192349 : 1 in sql, 1 in header
-// 192366 : 1 in sql, 3 in header
-// 192367 : 1 in sql, 1 in header
-// 192364 : 1 in sql, 1 in header
-// 192370 : 1 in sql, 1 in header
-// 192369 : 1 in sql, 1 in header
-// 192368 : 1 in sql, 1 in header
-// 192362 : 1 in sql, 1 in header
-// 192363 : 1 in sql, 1 in header
-// 192379 : 1 in sql, 1 in header
-// 192378 : 1 in sql, 1 in header
-// 192355 : 1 in sql, 1 in header
-// 192354 : 1 in sql, 1 in header
-// 192358 : 1 in sql, 1 in header
-// 192359 : 1 in sql, 1 in header
-// 192338 : 1 in sql, 1 in header
-// 192339 : 1 in sql, 1 in header
-// 192284 : 1 in sql, 1 in header
-// 192285 : 1 in sql, 1 in header
-// 192371 : 1 in sql, 1 in header
-// 192372 : 1 in sql, 1 in header
-// 192373 : 1 in sql, 1 in header
-// 192360 : 1 in sql, 1 in header
-// 192361 : 1 in sql, 1 in header
-// 192356 : 1 in sql, 1 in header
-// 192352 : 1 in sql, 1 in header
-// 192353 : 1 in sql, 1 in header
-// 192357 : 1 in sql, 1 in header
-// 192350 : 1 in sql, 1 in header
-// 192351 : 1 in sql, 1 in header
-const WintergraspObjectPositionData WGKeepGameObject[WG_KEEPGAMEOBJECT_MAX] =
-{
-    { 5262.540039f, 3047.949951f, 432.054993f, 3.106650f, 192488, 192501 },       // Flag on tower
-    { 5272.939941f, 2976.550049f, 444.492004f, 3.124120f, 192374, 192416 },       // Flag on Wall Intersect
-    { 5235.189941f, 2941.899902f, 444.278015f, 1.588250f, 192375, 192416 },       // Flag on Wall Intersect
-    { 5163.129883f, 2952.590088f, 433.502991f, 1.535890f, 192488, 192501 },       // Flag on tower
-    { 5145.109863f, 2935.000000f, 433.385986f, 3.141590f, 192488, 192501 },       // Flag on tower
-    { 5158.810059f, 2883.129883f, 431.618011f, 3.141590f, 192488, 192416 },       // Flag on wall
-    { 5154.490234f, 2862.149902f, 445.011993f, 3.141590f, 192336, 192416 },       // Flag on Wall Intersect
-    { 5154.520020f, 2853.310059f, 409.183014f, 3.141590f, 192255, 192269 },       // Flag on the floor
-    { 5154.459961f, 2828.939941f, 409.188995f, 3.141590f, 192254, 192269 },       // Flag on the floor
-    { 5155.310059f, 2820.739990f, 444.979004f, -3.13286f, 192349, 192416 },       // Flag on wall intersect
-    { 5160.339844f, 2798.610107f, 430.769012f, 3.141590f, 192488, 192416 },       // Flag on wall
-    { 5146.040039f, 2747.209961f, 433.584015f, 3.071770f, 192488, 192501 },       // Flag on tower
-    { 5163.779785f, 2729.679932f, 433.394012f, -1.58825f, 192488, 192501 },       // Flag on tower
-    { 5236.270020f, 2739.459961f, 444.992004f, -1.59698f, 192366, 192416 },       // Flag on wall intersect
-    { 5271.799805f, 2704.870117f, 445.183014f, -3.13286f, 192367, 192416 },       // Flag on wall intersect
-    { 5260.819824f, 2631.800049f, 433.324005f, 3.054330f, 192488, 192501 },       // Flag on tower
-    { 5278.379883f, 2613.830078f, 433.408997f, -1.58825f, 192488, 192501 },       // Flag on tower
-    { 5350.879883f, 2622.719971f, 444.686005f, -1.57080f, 192364, 192416 },       // Flag on wall intersect
-    { 5392.270020f, 2639.739990f, 435.330994f, 1.509710f, 192370, 192416 },       // Flag on wall intersect
-    { 5350.950195f, 2640.360107f, 435.407990f, 1.570800f, 192369, 192416 },       // Flag on wall intersect
-    { 5289.459961f, 2704.679932f, 435.875000f, -0.01745f, 192368, 192416 },       // Flag on wall intersect
-    { 5322.120117f, 2763.610107f, 444.973999f, -1.55334f, 192362, 192416 },       // Flag on wall intersect
-    { 5363.609863f, 2763.389893f, 445.023987f, -1.54462f, 192363, 192416 },       // Flag on wall intersect
-    { 5363.419922f, 2781.030029f, 435.763000f, 1.570800f, 192379, 192416 },       // Flag on wall intersect
-    { 5322.020020f, 2781.129883f, 435.811005f, 1.570800f, 192378, 192416 },       // Flag on wall intersect
-    { 5288.919922f, 2820.219971f, 435.721008f, 0.017452f, 192355, 192416 },       // Flag on wall intersect
-    { 5288.410156f, 2861.790039f, 435.721008f, 0.017452f, 192354, 192416 },       // Flag on wall intersect
-    { 5322.229980f, 2899.429932f, 435.808014f, -1.58825f, 192358, 192416 },       // Flag on wall intersect
-    { 5364.350098f, 2899.399902f, 435.838989f, -1.57080f, 192359, 192416 },       // Flag on wall intersect
-    { 5397.759766f, 2873.080078f, 455.460999f, 3.106650f, 192338, 192416 },       // Flag on keep
-    { 5397.390137f, 2809.330078f, 455.343994f, 3.106650f, 192339, 192416 },       // Flag on keep
-    { 5372.479980f, 2862.500000f, 409.049011f, 3.141590f, 192284, 192269 },       // Flag on floor
-    { 5371.490234f, 2820.800049f, 409.177002f, 3.141590f, 192285, 192269 },       // Flag on floor
-    { 5364.290039f, 2916.939941f, 445.330994f, 1.579520f, 192371, 192416 },       // Flag on wall intersect
-    { 5322.859863f, 2916.949951f, 445.153992f, 1.562070f, 192372, 192416 },       // Flag on wall intersect
-    { 5290.350098f, 2976.560059f, 435.221008f, 0.017452f, 192373, 192416 },       // Flag on wall intersect
-    { 5352.370117f, 3037.090088f, 435.252014f, -1.57080f, 192360, 192416 },       // Flag on wall intersect
-    { 5392.649902f, 3037.110107f, 433.713013f, -1.52716f, 192361, 192416 },       // Flag on wall intersect
-    { 5237.069824f, 2757.030029f, 435.795990f, 1.518440f, 192356, 192416 },       // Flag on wall intersect
-    { 5173.020020f, 2820.929932f, 435.720001f, 0.017452f, 192352, 192416 },       // Flag on wall intersect
-    { 5172.109863f, 2862.570068f, 435.721008f, 0.017452f, 192353, 192416 },       // Flag on wall intersect
-    { 5235.339844f, 2924.340088f, 435.040009f, -1.57080f, 192357, 192416 },       // Flag on wall intersect
-    { 5270.689941f, 2861.780029f, 445.058014f, -3.11539f, 192350, 192416 },       // Flag on wall intersect
-    { 5271.279785f, 2820.159912f, 445.200989f, -3.13286f, 192351, 192416 }        // Flag on wall intersect
 };
 
 const Position WGTurret[WG_MAX_TURRET] =
@@ -1112,8 +1032,6 @@ const WintergraspTowerCannonData TowerCannon[WG_MAX_TOWER_CANNON] =
 // *****************WorkShop Data & Element*****************
 // *********************************************************
 
-uint8 const WG_MAX_WORKSHOP = 6;
-
 struct WGWorkshopData
 {
     uint8 id;
@@ -1147,7 +1065,7 @@ struct BfWGGameObjectBuilding
     {
         m_WG = WG;
         m_Team = 0;
-        m_Build = NULL;
+        m_BuildGUID = 0;
         m_Type = 0;
         m_WorldState = 0;
         m_State = 0;
@@ -1161,7 +1079,7 @@ struct BfWGGameObjectBuilding
     BattlefieldWG* m_WG;
 
     // Linked gameobject
-    GameObject* m_Build;
+    uint64 m_BuildGUID;
 
     // eWGGameObjectBuildingType
     uint32 m_Type;
@@ -1176,7 +1094,7 @@ struct BfWGGameObjectBuilding
     uint32 m_NameId;
 
     // GameObject associations
-    GameObjectSet m_GameObjectList[2];
+    GuidSet m_GameObjectList[2];
 
     // Creature associations
     GuidSet m_CreatureBottomList[2];
@@ -1202,20 +1120,23 @@ struct BfWGGameObjectBuilding
                 break;
         }
 
-        // Rebuild gameobject
-        if (m_Build->IsDestructibleBuilding())
+        if (GameObject* build = m_WG->GetGameObject(m_BuildGUID))
         {
-            m_Build->SetDestructibleState(GO_DESTRUCTIBLE_REBUILDING, NULL, true);
-            if (m_Build->GetEntry() == GO_WINTERGRASP_VAULT_GATE)
-                if (GameObject* go = m_Build->FindNearestGameObject(GO_WINTERGRASP_KEEP_COLLISION_WALL, 10.0f))
-                    go->EnableCollision(true);
+            // Rebuild gameobject
+            if (build->IsDestructibleBuilding())
+            {
+                build->SetDestructibleState(GO_DESTRUCTIBLE_REBUILDING, NULL, true);
+                if (build->GetEntry() == GO_WINTERGRASP_VAULT_GATE)
+                    if (GameObject* go = build->FindNearestGameObject(GO_WINTERGRASP_KEEP_COLLISION_WALL, 50.0f))
+                        go->EnableCollision(true);
 
-            // Update worldstate
-            m_State = BATTLEFIELD_WG_OBJECTSTATE_ALLIANCE_INTACT - (m_Team * 3);
-            m_WG->SendUpdateWorldState(m_WorldState, m_State);
+                // Update worldstate
+                m_State = BATTLEFIELD_WG_OBJECTSTATE_ALLIANCE_INTACT - (m_Team * 3);
+                m_WG->SendUpdateWorldState(m_WorldState, m_State);
+            }
+            UpdateCreatureAndGo();
+            build->SetUInt32Value(GAMEOBJECT_FACTION, WintergraspFaction[m_Team]);
         }
-        UpdateCreatureAndGo();
-        m_Build->SetUInt32Value(GAMEOBJECT_FACTION, WintergraspFaction[m_Team]);
     }
 
     // Called when associated gameobject is damaged
@@ -1230,14 +1151,12 @@ struct BfWGGameObjectBuilding
             m_WG->SendWarningToAllInZone(m_NameId);
 
         for (GuidSet::const_iterator itr = m_CreatureTopList[m_WG->GetAttackerTeam()].begin(); itr != m_CreatureTopList[m_WG->GetAttackerTeam()].end(); ++itr)
-            if (Unit* unit = sObjectAccessor->FindUnit(*itr))
-                if (Creature* creature = unit->ToCreature())
-                    m_WG->HideNpc(creature);
+            if (Creature* creature = m_WG->GetCreature(*itr))
+                m_WG->HideNpc(creature);
 
         for (GuidSet::const_iterator itr = m_TurretTopList.begin(); itr != m_TurretTopList.end(); ++itr)
-            if (Unit* unit = sObjectAccessor->FindUnit(*itr))
-                if (Creature* creature = unit->ToCreature())
-                    m_WG->HideNpc(creature);
+            if (Creature* creature = m_WG->GetCreature(*itr))
+                m_WG->HideNpc(creature);
 
         if (m_Type == BATTLEFIELD_WG_OBJECTTYPE_KEEP_TOWER)
             m_WG->UpdateDamagedTowerCount(m_WG->GetDefenderTeam());
@@ -1264,8 +1183,9 @@ struct BfWGGameObjectBuilding
                 m_WG->UpdatedDestroyedTowerCount(TeamId(m_Team));
                 break;
             case BATTLEFIELD_WG_OBJECTTYPE_DOOR_LAST:
-                if (GameObject* go = m_Build->FindNearestGameObject(GO_WINTERGRASP_KEEP_COLLISION_WALL, 10.0f))
-                    go->EnableCollision(false);
+                if (GameObject* build = m_WG->GetGameObject(m_BuildGUID))
+                    if (GameObject* go = build->FindNearestGameObject(GO_WINTERGRASP_KEEP_COLLISION_WALL, 10.0f))
+                        go->EnableCollision(false);
                 m_WG->SetRelicInteractible(true);
                 if (m_WG->GetRelic())
                     m_WG->GetRelic()->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE);
@@ -1279,8 +1199,11 @@ struct BfWGGameObjectBuilding
 
     void Init(GameObject* go, uint32 type, uint32 worldstate, uint32 nameid)
     {
+        if (!go)
+            return;
+
         // GameObject associated to object
-        m_Build = go;
+        m_BuildGUID = go->GetGUID();
 
         // Type of building (WALL/TOWER/DOOR)
         m_Type = type;
@@ -1308,23 +1231,20 @@ struct BfWGGameObjectBuilding
         }
 
         m_State = sWorld->getWorldState(m_WorldState);
-        if (m_Build)
+        switch (m_State)
         {
-            switch (m_State)
-            {
-                case BATTLEFIELD_WG_OBJECTSTATE_ALLIANCE_INTACT:
-                case BATTLEFIELD_WG_OBJECTSTATE_HORDE_INTACT:
-                    m_Build->SetDestructibleState(GO_DESTRUCTIBLE_REBUILDING, NULL, true);
-                    break;
-                case BATTLEFIELD_WG_OBJECTSTATE_ALLIANCE_DESTROY:
-                case BATTLEFIELD_WG_OBJECTSTATE_HORDE_DESTROY:
-                    m_Build->SetDestructibleState(GO_DESTRUCTIBLE_DESTROYED);
-                    break;
-                case BATTLEFIELD_WG_OBJECTSTATE_ALLIANCE_DAMAGE:
-                case BATTLEFIELD_WG_OBJECTSTATE_HORDE_DAMAGE:
-                    m_Build->SetDestructibleState(GO_DESTRUCTIBLE_DAMAGED);
-                    break;
-            }
+            case BATTLEFIELD_WG_OBJECTSTATE_ALLIANCE_INTACT:
+            case BATTLEFIELD_WG_OBJECTSTATE_HORDE_INTACT:
+                go->SetDestructibleState(GO_DESTRUCTIBLE_REBUILDING, NULL, true);
+                break;
+            case BATTLEFIELD_WG_OBJECTSTATE_ALLIANCE_DESTROY:
+            case BATTLEFIELD_WG_OBJECTSTATE_HORDE_DESTROY:
+                go->SetDestructibleState(GO_DESTRUCTIBLE_DESTROYED);
+                break;
+            case BATTLEFIELD_WG_OBJECTSTATE_ALLIANCE_DAMAGE:
+            case BATTLEFIELD_WG_OBJECTSTATE_HORDE_DAMAGE:
+                go->SetDestructibleState(GO_DESTRUCTIBLE_DAMAGED);
+                break;
         }
 
         int32 towerid = -1;
@@ -1360,9 +1280,9 @@ struct BfWGGameObjectBuilding
             {
                 WintergraspObjectPositionData gobData = AttackTowers[towerid - 4].GameObject[i];
                 if (GameObject* go = m_WG->SpawnGameObject(gobData.entryHorde, gobData.x, gobData.y, gobData.z, gobData.o))
-                    m_GameObjectList[TEAM_HORDE].insert(go);
+                    m_GameObjectList[TEAM_HORDE].insert(go->GetGUID());
                 if (GameObject* go = m_WG->SpawnGameObject(gobData.entryAlliance, gobData.x, gobData.y, gobData.z, gobData.o))
-                    m_GameObjectList[TEAM_ALLIANCE].insert(go);
+                    m_GameObjectList[TEAM_ALLIANCE].insert(go->GetGUID());
             }
 
             // Spawn associate npc bottom
@@ -1446,64 +1366,59 @@ struct BfWGGameObjectBuilding
     void UpdateCreatureAndGo()
     {
         for (GuidSet::const_iterator itr = m_CreatureTopList[m_WG->GetDefenderTeam()].begin(); itr != m_CreatureTopList[m_WG->GetDefenderTeam()].end(); ++itr)
-            if (Unit* unit = sObjectAccessor->FindUnit(*itr))
-                if (Creature* creature = unit->ToCreature())
-                    m_WG->HideNpc(creature);
+            if (Creature* creature = m_WG->GetCreature(*itr))
+                m_WG->HideNpc(creature);
 
         for (GuidSet::const_iterator itr = m_CreatureTopList[m_WG->GetAttackerTeam()].begin(); itr != m_CreatureTopList[m_WG->GetAttackerTeam()].end(); ++itr)
-            if (Unit* unit = sObjectAccessor->FindUnit(*itr))
-                if (Creature* creature = unit->ToCreature())
-                    m_WG->ShowNpc(creature, true);
+            if (Creature* creature = m_WG->GetCreature(*itr))
+                m_WG->ShowNpc(creature, true);
 
         for (GuidSet::const_iterator itr = m_CreatureBottomList[m_WG->GetDefenderTeam()].begin(); itr != m_CreatureBottomList[m_WG->GetDefenderTeam()].end(); ++itr)
-            if (Unit* unit = sObjectAccessor->FindUnit(*itr))
-                if (Creature* creature = unit->ToCreature())
-                    m_WG->HideNpc(creature);
+            if (Creature* creature = m_WG->GetCreature(*itr))
+                m_WG->HideNpc(creature);
 
         for (GuidSet::const_iterator itr = m_CreatureBottomList[m_WG->GetAttackerTeam()].begin(); itr != m_CreatureBottomList[m_WG->GetAttackerTeam()].end(); ++itr)
-            if (Unit* unit = sObjectAccessor->FindUnit(*itr))
-                if (Creature* creature = unit->ToCreature())
-                    m_WG->ShowNpc(creature, true);
+            if (Creature* creature = m_WG->GetCreature(*itr))
+                m_WG->ShowNpc(creature, true);
 
-        for (GameObjectSet::const_iterator itr = m_GameObjectList[m_WG->GetDefenderTeam()].begin(); itr != m_GameObjectList[m_WG->GetDefenderTeam()].end(); ++itr)
-            (*itr)->SetRespawnTime(RESPAWN_ONE_DAY);
+        for (GuidSet::const_iterator itr = m_GameObjectList[m_WG->GetDefenderTeam()].begin(); itr != m_GameObjectList[m_WG->GetDefenderTeam()].end(); ++itr)
+            if (GameObject* object = m_WG->GetGameObject(*itr))
+                object->SetRespawnTime(RESPAWN_ONE_DAY);
 
-        for (GameObjectSet::const_iterator itr = m_GameObjectList[m_WG->GetAttackerTeam()].begin(); itr != m_GameObjectList[m_WG->GetAttackerTeam()].end(); ++itr)
-            (*itr)->SetRespawnTime(RESPAWN_IMMEDIATELY);
+        for (GuidSet::const_iterator itr = m_GameObjectList[m_WG->GetAttackerTeam()].begin(); itr != m_GameObjectList[m_WG->GetAttackerTeam()].end(); ++itr)
+            if (GameObject* object = m_WG->GetGameObject(*itr))
+                object->SetRespawnTime(RESPAWN_IMMEDIATELY);
     }
 
     void UpdateTurretAttack(bool disable)
     {
         for (GuidSet::const_iterator itr = m_TowerCannonBottomList.begin(); itr != m_TowerCannonBottomList.end(); ++itr)
         {
-            if (Unit* unit = sObjectAccessor->FindUnit(*itr))
+            if (Creature* creature = m_WG->GetCreature(*itr))
             {
-                if (Creature* creature = unit->ToCreature())
+                if (GameObject* build = m_WG->GetGameObject(m_BuildGUID))
                 {
-                    if (m_Build)
-                    {
-                        if (disable)
-                            m_WG->HideNpc(creature);
-                        else
-                            m_WG->ShowNpc(creature, true);
+                    if (disable)
+                        m_WG->HideNpc(creature);
+                    else
+                        m_WG->ShowNpc(creature, true);
 
-                        switch (m_Build->GetEntry())
+                    switch (build->GetEntry())
+                    {
+                        case GO_WINTERGRASP_FORTRESS_TOWER_1:
+                        case GO_WINTERGRASP_FORTRESS_TOWER_2:
+                        case GO_WINTERGRASP_FORTRESS_TOWER_3:
+                        case GO_WINTERGRASP_FORTRESS_TOWER_4:
                         {
-                            case GO_WINTERGRASP_FORTRESS_TOWER_1:
-                            case GO_WINTERGRASP_FORTRESS_TOWER_2:
-                            case GO_WINTERGRASP_FORTRESS_TOWER_3:
-                            case GO_WINTERGRASP_FORTRESS_TOWER_4:
-                            {
-                                creature->setFaction(WintergraspFaction[m_WG->GetDefenderTeam()]);
-                                break;
-                            }
-                            case GO_WINTERGRASP_SHADOWSIGHT_TOWER:
-                            case GO_WINTERGRASP_WINTER_S_EDGE_TOWER:
-                            case GO_WINTERGRASP_FLAMEWATCH_TOWER:
-                            {
-                                creature->setFaction(WintergraspFaction[m_WG->GetAttackerTeam()]);
-                                break;
-                            }
+                            creature->setFaction(WintergraspFaction[m_WG->GetDefenderTeam()]);
+                            break;
+                        }
+                        case GO_WINTERGRASP_SHADOWSIGHT_TOWER:
+                        case GO_WINTERGRASP_WINTER_S_EDGE_TOWER:
+                        case GO_WINTERGRASP_FLAMEWATCH_TOWER:
+                        {
+                            creature->setFaction(WintergraspFaction[m_WG->GetAttackerTeam()]);
+                            break;
                         }
                     }
                 }
@@ -1512,34 +1427,31 @@ struct BfWGGameObjectBuilding
 
         for (GuidSet::const_iterator itr = m_TurretTopList.begin(); itr != m_TurretTopList.end(); ++itr)
         {
-            if (Unit* unit = sObjectAccessor->FindUnit(*itr))
+            if (Creature* creature = m_WG->GetCreature(*itr))
             {
-                if (Creature* creature = unit->ToCreature())
+                if (GameObject* build = m_WG->GetGameObject(m_BuildGUID))
                 {
-                    if (m_Build)
-                    {
-                        if (disable)
-                            m_WG->HideNpc(creature);
-                        else
-                            m_WG->ShowNpc(creature, true);
+                    if (disable)
+                        m_WG->HideNpc(creature);
+                    else
+                        m_WG->ShowNpc(creature, true);
 
-                        switch (m_Build->GetEntry())
+                    switch (build->GetEntry())
+                    {
+                        case GO_WINTERGRASP_FORTRESS_TOWER_1:
+                        case GO_WINTERGRASP_FORTRESS_TOWER_2:
+                        case GO_WINTERGRASP_FORTRESS_TOWER_3:
+                        case GO_WINTERGRASP_FORTRESS_TOWER_4:
                         {
-                            case GO_WINTERGRASP_FORTRESS_TOWER_1:
-                            case GO_WINTERGRASP_FORTRESS_TOWER_2:
-                            case GO_WINTERGRASP_FORTRESS_TOWER_3:
-                            case GO_WINTERGRASP_FORTRESS_TOWER_4:
-                            {
-                                creature->setFaction(WintergraspFaction[m_WG->GetDefenderTeam()]);
-                                break;
-                            }
-                            case GO_WINTERGRASP_SHADOWSIGHT_TOWER:
-                            case GO_WINTERGRASP_WINTER_S_EDGE_TOWER:
-                            case GO_WINTERGRASP_FLAMEWATCH_TOWER:
-                            {
-                                creature->setFaction(WintergraspFaction[m_WG->GetAttackerTeam()]);
-                                break;
-                            }
+                            creature->setFaction(WintergraspFaction[m_WG->GetDefenderTeam()]);
+                            break;
+                        }
+                        case GO_WINTERGRASP_SHADOWSIGHT_TOWER:
+                        case GO_WINTERGRASP_WINTER_S_EDGE_TOWER:
+                        case GO_WINTERGRASP_FLAMEWATCH_TOWER:
+                        {
+                            creature->setFaction(WintergraspFaction[m_WG->GetAttackerTeam()]);
+                            break;
                         }
                     }
                 }
@@ -1626,19 +1538,19 @@ struct WGWorkshop
 struct WintergraspWorkshopData
 {
     BattlefieldWG* m_WG;                                    // Pointer to wintergrasp
-    GameObject* m_Build;
+    uint64 m_BuildGUID;
     uint32 m_Type;
     uint32 m_State;                                         // For worldstate
     uint32 m_WorldState;
     uint32 m_TeamControl;                                   // Team witch control the workshop
     GuidSet m_CreatureOnPoint[2];                           // Contain all Creature associate to this point
-    GameObjectSet m_GameObjectOnPoint[2];                   // Contain all Gameobject associate to this point
+    GuidSet m_GameObjectOnPoint[2];                     // Contain all Gameobject associate to this point
     uint32 m_NameId;                                        // Id of trinity_string witch contain name of this node, using for alert message
 
     WintergraspWorkshopData(BattlefieldWG* WG)
     {
         m_WG = WG;
-        m_Build = NULL;
+        m_BuildGUID = 0;
         m_Type = 0;
         m_State = 0;
         m_WorldState = 0;
@@ -1660,9 +1572,9 @@ struct WintergraspWorkshopData
     void AddGameObject(WintergraspObjectPositionData obj)
     {
         if (GameObject* gameobject = m_WG->SpawnGameObject(obj.entryHorde, obj.x, obj.y, obj.z, obj.o))
-            m_GameObjectOnPoint[TEAM_HORDE].insert(gameobject);
+            m_GameObjectOnPoint[TEAM_HORDE].insert(gameobject->GetGUID());
         if (GameObject* gameobject = m_WG->SpawnGameObject(obj.entryAlliance, obj.x, obj.y, obj.z, obj.o))
-            m_GameObjectOnPoint[TEAM_ALLIANCE].insert(gameobject);
+            m_GameObjectOnPoint[TEAM_ALLIANCE].insert(gameobject->GetGUID());
     }
 
     // Init method, setup variable
@@ -1689,23 +1601,23 @@ struct WintergraspWorkshopData
             {
                 // Show Alliance creature
                 for (GuidSet::const_iterator itr = m_CreatureOnPoint[TEAM_ALLIANCE].begin(); itr != m_CreatureOnPoint[TEAM_ALLIANCE].end(); ++itr)
-                    if (Unit* unit = sObjectAccessor->FindUnit(*itr))
-                        if (Creature* creature = unit->ToCreature())
-                            m_WG->ShowNpc(creature, creature->GetEntry() != 30499);
+                    if (Creature* creature = m_WG->GetCreature(*itr))
+                        m_WG->ShowNpc(creature, creature->GetEntry() != 30499);
 
                 // Hide Horde creature
                 for (GuidSet::const_iterator itr = m_CreatureOnPoint[TEAM_HORDE].begin(); itr != m_CreatureOnPoint[TEAM_HORDE].end(); ++itr)
-                    if (Unit* unit = sObjectAccessor->FindUnit(*itr))
-                        if (Creature* creature = unit->ToCreature())
-                            m_WG->HideNpc(creature);
+                    if (Creature* creature = m_WG->GetCreature(*itr))
+                        m_WG->HideNpc(creature);
 
                 // Show Alliance gameobject
-                for (GameObjectSet::const_iterator itr = m_GameObjectOnPoint[TEAM_ALLIANCE].begin(); itr != m_GameObjectOnPoint[TEAM_ALLIANCE].end(); ++itr)
-                    (*itr)->SetRespawnTime(RESPAWN_IMMEDIATELY);
+                for (GuidSet::const_iterator itr = m_GameObjectOnPoint[TEAM_ALLIANCE].begin(); itr != m_GameObjectOnPoint[TEAM_ALLIANCE].end(); ++itr)
+                    if (GameObject* object = m_WG->GetGameObject(*itr))
+                        object->SetRespawnTime(RESPAWN_IMMEDIATELY);
 
                 // Hide Horde gameobject
-                for (GameObjectSet::const_iterator itr = m_GameObjectOnPoint[TEAM_HORDE].begin(); itr != m_GameObjectOnPoint[TEAM_HORDE].end(); ++itr)
-                    (*itr)->SetRespawnTime(RESPAWN_ONE_DAY);
+                for (GuidSet::const_iterator itr = m_GameObjectOnPoint[TEAM_HORDE].begin(); itr != m_GameObjectOnPoint[TEAM_HORDE].end(); ++itr)
+                    if (GameObject* object = m_WG->GetGameObject(*itr))
+                        object->SetRespawnTime(RESPAWN_ONE_DAY);
 
 
                 // Updating worldstate
@@ -1728,23 +1640,23 @@ struct WintergraspWorkshopData
             {
                 // Show Horde creature
                 for (GuidSet::const_iterator itr = m_CreatureOnPoint[TEAM_HORDE].begin(); itr != m_CreatureOnPoint[TEAM_HORDE].end(); ++itr)
-                    if (Unit* unit = sObjectAccessor->FindUnit(*itr))
-                        if (Creature* creature = unit->ToCreature())
-                            m_WG->ShowNpc(creature, creature->GetEntry() != 30400);
+                    if (Creature* creature = m_WG->GetCreature(*itr))
+                        m_WG->ShowNpc(creature, creature->GetEntry() != 30400);
 
                 // Hide Alliance creature
                 for (GuidSet::const_iterator itr = m_CreatureOnPoint[TEAM_ALLIANCE].begin(); itr != m_CreatureOnPoint[TEAM_ALLIANCE].end(); ++itr)
-                    if (Unit* unit = sObjectAccessor->FindUnit(*itr))
-                        if (Creature* creature = unit->ToCreature())
-                            m_WG->HideNpc(creature);
+                    if (Creature* creature = m_WG->GetCreature(*itr))
+                        m_WG->HideNpc(creature);
 
                 // Hide Alliance gameobject
-                for (GameObjectSet::const_iterator itr = m_GameObjectOnPoint[TEAM_ALLIANCE].begin(); itr != m_GameObjectOnPoint[TEAM_ALLIANCE].end(); ++itr)
-                    (*itr)->SetRespawnTime(RESPAWN_ONE_DAY);
+                for (GuidSet::const_iterator itr = m_GameObjectOnPoint[TEAM_ALLIANCE].begin(); itr != m_GameObjectOnPoint[TEAM_ALLIANCE].end(); ++itr)
+                    if (GameObject* object = m_WG->GetGameObject(*itr))
+                        object->SetRespawnTime(RESPAWN_ONE_DAY);
 
                 // Show Horde gameobject
-                for (GameObjectSet::const_iterator itr = m_GameObjectOnPoint[TEAM_HORDE].begin(); itr != m_GameObjectOnPoint[TEAM_HORDE].end(); ++itr)
-                    (*itr)->SetRespawnTime(RESPAWN_IMMEDIATELY);
+                for (GuidSet::const_iterator itr = m_GameObjectOnPoint[TEAM_HORDE].begin(); itr != m_GameObjectOnPoint[TEAM_HORDE].end(); ++itr)
+                    if (GameObject* object = m_WG->GetGameObject(*itr))
+                        object->SetRespawnTime(RESPAWN_IMMEDIATELY);
 
                 // Update worlstate
                 m_State = BATTLEFIELD_WG_OBJECTSTATE_HORDE_INTACT;

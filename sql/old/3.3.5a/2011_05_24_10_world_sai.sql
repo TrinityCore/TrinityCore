@@ -1,10 +1,10 @@
 -- SAI for Grom'tor, Son of Oronok & Coilskar Commander (Shadowmoon Valley)
 SET @ENTRY := 21291;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=0,`position_x`=-2815.424,`position_y`=1771.031,`position_z`=59.10168,`orientation`=4.967079 WHERE `guid`=74574;
-UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=@ENTRY; 
-DELETE FROM `smart_scripts` WHERE `source_type`=0 AND `entryorguid`=@ENTRY; 
+UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=@ENTRY;
+DELETE FROM `smart_scripts` WHERE `source_type`=0 AND `entryorguid`=@ENTRY;
 DELETE FROM `smart_scripts` WHERE `source_type`=9 AND `entryorguid`=@ENTRY*100;
-INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES 
+INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
 -- AI
 (@ENTRY,0,0,0,11,0,100,0,0,0,0,0,53,0,@ENTRY,1,0,0,0,1,0,0,0,0,0,0,0, 'Grom''tor, Son of Oronok - On spawn - Start WP movement'),
 (@ENTRY,0,1,0,1,0,100,0,10000,30000,240000,240000,80,@ENTRY*100,0,0,0,0,0,1,0,0,0,0,0,0,0, 'Grom''tor, Son of Oronok - OOC - Run Script'),
@@ -48,9 +48,9 @@ INSERT INTO `waypoints` (`entry`,`pointid`,`position_x`,`position_y`,`position_z
 (@ENTRY,2,-2815.424,1771.031,59.10168, 'Grom''tor, Son of Oronok');
 -- SAI for Coilskar Commander
 SET @ENTRY := 21295;
-UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=@ENTRY; 
-DELETE FROM `smart_scripts` WHERE `source_type`=0 AND `entryorguid`=@ENTRY; 
-INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES 
+UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=@ENTRY;
+DELETE FROM `smart_scripts` WHERE `source_type`=0 AND `entryorguid`=@ENTRY;
+INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
 (@ENTRY,0,0,1,8,0,100,0,36539,0,0,0,11,36542,0,0,0,0,0,1,0,0,0,0,0,0,0, 'Coilskar Commander - On Spellhit 36539 - cast 36542 on self'),
 (@ENTRY,0,1,2,61,0,100,0,0,0,0,0,90,7,0,0,0,0,0,1,0,0,0,0,0,0,0, 'Coilskar Commander - On Spellhit 36539 - set bytes1 7'),
 (@ENTRY,0,2,0,61,0,100,0,0,0,0,0,22,1,0,0,0,0,0,1,0,0,0,0,0,0,0, 'Coilskar Commander - On Spellhit 36539 - set phase 1'),

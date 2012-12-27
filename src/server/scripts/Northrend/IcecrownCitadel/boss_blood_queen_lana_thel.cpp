@@ -37,6 +37,7 @@ enum Texts
     SAY_WIPE                    = 9,
     SAY_BERSERK                 = 10,
     SAY_DEATH                   = 11,
+    EMOTE_BERSERK_RAID          = 12
 };
 
 enum Spells
@@ -61,6 +62,9 @@ enum Spells
     SPELL_INCITE_TERROR                     = 73070,
     SPELL_BLOODBOLT_WHIRL                   = 71772,
     SPELL_ANNIHILATE                        = 71322,
+
+    // Blood Infusion
+    SPELL_BLOOD_INFUSION_CREDIT             = 72934
 };
 
 enum Shadowmourne
@@ -181,6 +185,10 @@ class boss_blood_queen_lana_thel : public CreatureScript
             {
                 _JustDied();
                 Talk(SAY_DEATH);
+
+                if (Is25ManRaid() && me->HasAura(SPELL_SHADOWS_FATE))
+                    DoCastAOE(SPELL_BLOOD_INFUSION_CREDIT, true);
+
                 CleanAuras();
                 // Blah, credit the quest
                 if (_creditBloodQuickening)
@@ -336,7 +344,7 @@ class boss_blood_queen_lana_thel : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_BERSERK:
-                            DoScriptText(EMOTE_GENERIC_BERSERK_RAID, me);
+                            Talk(EMOTE_BERSERK_RAID);
                             Talk(SAY_BERSERK);
                             DoCast(me, SPELL_BERSERK);
                             break;

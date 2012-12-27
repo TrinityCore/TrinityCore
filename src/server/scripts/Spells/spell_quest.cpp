@@ -21,6 +21,7 @@
  * Scriptnames of files in this file should be prefixed with "spell_q#questID_".
  */
 
+#include "Player.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
@@ -1283,7 +1284,10 @@ class spell_q12372_cast_from_gossip_trigger : public SpellScriptLoader
 // 49370 - Wyrmrest Defender: Destabilize Azure Dragonshrine Effect
 enum Quest12372Data
 {
+    // NPCs
     NPC_WYRMREST_TEMPLE_CREDIT       = 27698,
+    // Spells
+    WHISPER_ON_HIT_BY_FORCE_WHISPER       = 1
 };
 
 class spell_q12372_destabilize_azure_dragonshrine_dummy : public SpellScriptLoader
@@ -1314,6 +1318,34 @@ class spell_q12372_destabilize_azure_dragonshrine_dummy : public SpellScriptLoad
         SpellScript* GetSpellScript() const
         {
             return new spell_q12372_destabilize_azure_dragonshrine_dummy_SpellScript();
+        }
+};
+
+// ID - 50287 Azure Dragon: On Death Force Cast Wyrmrest Defender to Whisper to Controller - Random (casted from Azure Dragons and Azure Drakes on death)
+class spell_q12372_azure_on_death_force_whisper : public SpellScriptLoader
+{
+    public:
+        spell_q12372_azure_on_death_force_whisper() : SpellScriptLoader("spell_q12372_azure_on_death_force_whisper") { }
+
+        class spell_q12372_azure_on_death_force_whisper_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_q12372_azure_on_death_force_whisper_SpellScript);
+
+            void HandleScript(SpellEffIndex /*effIndex*/)
+            {
+                if (Creature* defender = GetHitCreature())
+                    defender->AI()->Talk(WHISPER_ON_HIT_BY_FORCE_WHISPER, defender->GetCharmerOrOwnerGUID());
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_q12372_azure_on_death_force_whisper_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_q12372_azure_on_death_force_whisper_SpellScript();
         }
 };
 
@@ -1431,7 +1463,7 @@ class spell_q11010_q11102_q11023_choose_loc : public SpellScriptLoader
                 Unit* caster = GetCaster();
                 // Check for player that is in 65 y range
                 std::list<Player*> playerList;
-                Trinity::AnyPlayerInObjectRangeCheck checker(caster, 765.0f);
+                Trinity::AnyPlayerInObjectRangeCheck checker(caster, 65.0f);
                 Trinity::PlayerListSearcher<Trinity::AnyPlayerInObjectRangeCheck> searcher(caster, playerList, checker);
                 caster->VisitNearbyWorldObject(65.0f, searcher);
                     for (std::list<Player*>::const_iterator itr = playerList.begin(); itr != playerList.end(); ++itr)
@@ -1521,4 +1553,5 @@ void AddSC_quest_spell_scripts()
     new spell_q11010_q11102_q11023_aggro_burst();
     new spell_q11010_q11102_q11023_choose_loc();
     new spell_q11010_q11102_q11023_q11008_check_fly_mount();
+    new spell_q12372_azure_on_death_force_whisper();
 }

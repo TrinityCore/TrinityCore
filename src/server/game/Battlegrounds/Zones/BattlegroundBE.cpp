@@ -16,7 +16,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Battleground.h"
 #include "BattlegroundBE.h"
 #include "Language.h"
 #include "Object.h"
@@ -65,11 +64,7 @@ void BattlegroundBE::StartingEventOpenDoors()
 void BattlegroundBE::AddPlayer(Player* player)
 {
     Battleground::AddPlayer(player);
-    //create score and add it to map, default values are set in constructor
-    BattlegroundBEScore* sc = new BattlegroundBEScore;
-
-    PlayerScores[player->GetGUID()] = sc;
-
+    PlayerScores[player->GetGUID()] = new BattlegroundScore;
     UpdateArenaWorldState();
 }
 
@@ -101,7 +96,7 @@ void BattlegroundBE::HandleKillPlayer(Player* player, Player* killer)
 
 bool BattlegroundBE::HandlePlayerUnderMap(Player* player)
 {
-    player->TeleportTo(GetMapId(), 6238.930176f, 262.963470f, 0.889519f, player->GetOrientation(), false);
+    player->TeleportTo(GetMapId(), 6238.930176f, 262.963470f, 0.889519f, player->GetOrientation());
     return true;
 }
 

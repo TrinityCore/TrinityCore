@@ -27,6 +27,7 @@
 #include "LFGMgr.h"
 #include "ScriptMgr.h"
 #include "ObjectAccessor.h"
+#include "WorldSession.h"
 
 LFGPlayerScript::LFGPlayerScript() : PlayerScript("LFGPlayerScript")
 {
@@ -34,24 +35,46 @@ LFGPlayerScript::LFGPlayerScript() : PlayerScript("LFGPlayerScript")
 
 void LFGPlayerScript::OnLevelChanged(Player* player, uint8 /*oldLevel*/)
 {
+    if (!sLFGMgr->isOptionEnabled(LFG_OPTION_ENABLE_DUNGEON_FINDER | LFG_OPTION_ENABLE_RAID_BROWSER))
+        return;
+
     sLFGMgr->InitializeLockedDungeons(player);
 }
 
 void LFGPlayerScript::OnLogout(Player* player)
 {
-    sLFGMgr->Leave(player);
-    LfgUpdateData updateData = LfgUpdateData(LFG_UPDATETYPE_REMOVED_FROM_QUEUE);
-    player->GetSession()->SendLfgUpdateParty(updateData);
-    player->GetSession()->SendLfgUpdatePlayer(updateData);
-    player->GetSession()->SendLfgUpdateSearch(false);
-    uint64 guid = player->GetGUID();
-    // TODO - Do not remove, add timer before deleting
-    sLFGMgr->RemovePlayerData(guid);
+    if (!sLFGMgr->isOptionEnabled(LFG_OPTION_ENABLE_DUNGEON_FINDER | LFG_OPTION_ENABLE_RAID_BROWSER))
+        return;
+
+    if (!player->GetGroup())
+    {
+        player->GetSession()->SendLfgLfrList(false);
+        sLFGMgr->LeaveLfg(player->GetGUID());
+    }
 }
 
 void LFGPlayerScript::OnLogin(Player* player)
 {
+    if (!sLFGMgr->isOptionEnabled(LFG_OPTION_ENABLE_DUNGEON_FINDER | LFG_OPTION_ENABLE_RAID_BROWSER))
+        return;
+
+    // Temporal: Trying to determine when group data and LFG data gets desynched
+    uint64 guid = player->GetGUID();
+    uint64 gguid = sLFGMgr->GetGroup(guid);
+
+    if (Group const* group = player->GetGroup())
+    {
+        uint64 gguid2 = group->GetGUID();
+        if (gguid != gguid2)
+        {
+            sLog->outError(LOG_FILTER_LFG, "%s on group %u but LFG has group %u saved... Fixing.",
+                player->GetSession()->GetPlayerInfo().c_str(), GUID_LOPART(gguid2), GUID_LOPART(gguid));
+            sLFGMgr->SetupGroupMember(guid, group->GetGUID());
+        }
+    }
+
     sLFGMgr->InitializeLockedDungeons(player);
+    sLFGMgr->SetTeam(player->GetGUID(), player->GetTeam());
     // TODO - Restore LfgPlayerData and send proper status to player if it was in a group
 }
 
@@ -68,80 +91,102 @@ LFGGroupScript::LFGGroupScript() : GroupScript("LFGGroupScript")
 
 void LFGGroupScript::OnAddMember(Group* group, uint64 guid)
 {
-    uint64 gguid = group->GetGUID();
-    if (!gguid)
+    if (!sLFGMgr->isOptionEnabled(LFG_OPTION_ENABLE_DUNGEON_FINDER | LFG_OPTION_ENABLE_RAID_BROWSER))
         return;
 
-    sLog->outDebug(LOG_FILTER_LFG, "LFGScripts::OnAddMember [" UI64FMTD "]: added [" UI64FMTD "]", gguid, guid);
-    LfgUpdateData updateData = LfgUpdateData(LFG_UPDATETYPE_CLEAR_LOCK_LIST);
-    for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
+    uint64 gguid = group->GetGUID();
+    uint64 leader = group->GetLeaderGUID();
+
+    if (leader == guid)
     {
-        if (Player* plrg = itr->getSource())
+        sLog->outDebug(LOG_FILTER_LFG, "LFGScripts::OnAddMember [" UI64FMTD "]: added [" UI64FMTD "] leader " UI64FMTD "]", gguid, guid, leader);
+        sLFGMgr->SetLeader(gguid, guid);
+    }
+    else
+    {
+        LfgState gstate = sLFGMgr->GetState(gguid);
+        LfgState state = sLFGMgr->GetState(guid);
+        sLog->outDebug(LOG_FILTER_LFG, "LFGScripts::OnAddMember [" UI64FMTD "]: added [" UI64FMTD "] leader " UI64FMTD "] gstate: %u, state: %u", gguid, guid, leader, gstate, state);
+        LfgUpdateData updateData = LfgUpdateData(LFG_UPDATETYPE_UPDATE_STATUS);
+        for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
         {
-            plrg->GetSession()->SendLfgUpdatePlayer(updateData);
-            plrg->GetSession()->SendLfgUpdateParty(updateData);
+            if (Player* plrg = itr->getSource())
+            {
+                plrg->GetSession()->SendLfgUpdatePlayer(updateData);
+                plrg->GetSession()->SendLfgUpdateParty(updateData);
+            }
         }
+
+        if (state == LFG_STATE_QUEUED)
+            sLFGMgr->LeaveLfg(guid);
+
+        // TODO - if group is queued and new player is added convert to rolecheck without notify the current players queued
+        if (gstate == LFG_STATE_QUEUED)
+            sLFGMgr->LeaveLfg(gguid);
     }
 
-    // TODO - if group is queued and new player is added convert to rolecheck without notify the current players queued
-    if (sLFGMgr->GetState(gguid) == LFG_STATE_QUEUED)
-        sLFGMgr->Leave(NULL, group);
-
-    if (sLFGMgr->GetState(guid) == LFG_STATE_QUEUED)
-        if (Player* player = ObjectAccessor::FindPlayer(guid))
-            sLFGMgr->Leave(player);
+    sLFGMgr->SetGroup(guid, gguid);
+    sLFGMgr->AddPlayerToGroup(gguid, guid);
 }
 
 void LFGGroupScript::OnRemoveMember(Group* group, uint64 guid, RemoveMethod method, uint64 kicker, char const* reason)
 {
+    if (!sLFGMgr->isOptionEnabled(LFG_OPTION_ENABLE_DUNGEON_FINDER | LFG_OPTION_ENABLE_RAID_BROWSER))
+        return;
+
     uint64 gguid = group->GetGUID();
-    if (!gguid || method == GROUP_REMOVEMETHOD_DEFAULT)
-        return;
-
     sLog->outDebug(LOG_FILTER_LFG, "LFGScripts::OnRemoveMember [" UI64FMTD "]: remove [" UI64FMTD "] Method: %d Kicker: [" UI64FMTD "] Reason: %s", gguid, guid, method, kicker, (reason ? reason : ""));
-    if (sLFGMgr->GetState(gguid) == LFG_STATE_QUEUED)
-    {
-        // TODO - Do not remove, just remove the one leaving and rejoin queue with all other data
-        sLFGMgr->Leave(NULL, group);
-    }
 
-    if (!group->isLFGGroup())
-        return;
+    bool isLFG = group->isLFGGroup();
 
-    if (method == GROUP_REMOVEMETHOD_KICK)                 // Player have been kicked
+    if (isLFG && method == GROUP_REMOVEMETHOD_KICK)        // Player have been kicked
     {
         // TODO - Update internal kick cooldown of kicker
         std::string str_reason = "";
         if (reason)
             str_reason = std::string(reason);
-        sLFGMgr->InitBoot(group, kicker, guid, str_reason);
+        sLFGMgr->InitBoot(gguid, kicker, guid, str_reason);
         return;
     }
 
-    uint32 state = sLFGMgr->GetState(gguid);
-    sLFGMgr->ClearState(guid);
-    sLFGMgr->SetState(guid, LFG_STATE_NONE);
+    LfgState state = sLFGMgr->GetState(gguid);
+
+    // If group is being formed after proposal success do nothing more
+    if (state == LFG_STATE_PROPOSAL && method == GROUP_REMOVEMETHOD_DEFAULT)
+    {
+        // LfgData: Remove player from group
+        sLFGMgr->SetGroup(guid, 0);
+        sLFGMgr->RemovePlayerFromGroup(gguid, guid);
+        return;
+    }
+
+    sLFGMgr->LeaveLfg(guid);
+    sLFGMgr->SetGroup(guid, 0);
+    uint8 players = sLFGMgr->RemovePlayerFromGroup(gguid, guid);
+
     if (Player* player = ObjectAccessor::FindPlayer(guid))
     {
-        if (method == GROUP_REMOVEMETHOD_LEAVE && state != LFG_STATE_FINISHED_DUNGEON && player->HasAura(LFG_SPELL_DUNGEON_COOLDOWN))
-            player->CastSpell(player, LFG_SPELL_DUNGEON_DESERTER, false);
-        /*
-        else if (group->isLfgKickActive())
+        if (method == GROUP_REMOVEMETHOD_LEAVE && state == LFG_STATE_DUNGEON &&
+            players >= LFG_GROUP_KICK_VOTES_NEEDED)
+            player->CastSpell(player, LFG_SPELL_DUNGEON_DESERTER, true);
+        //else if (state == LFG_STATE_BOOT)
             // Update internal kick cooldown of kicked
-        */
 
-        LfgUpdateData updateData = LfgUpdateData(LFG_UPDATETYPE_LEADER);
-        player->GetSession()->SendLfgUpdateParty(updateData);
-        if (player->GetMap()->IsDungeon())                    // Teleport player out the dungeon
+        player->GetSession()->SendLfgUpdateParty(LfgUpdateData(LFG_UPDATETYPE_LEADER_UNK1));
+        if (isLFG && player->GetMap()->IsDungeon())            // Teleport player out the dungeon
             sLFGMgr->TeleportPlayer(player, true);
     }
 
-    if (state != LFG_STATE_FINISHED_DUNGEON)// Need more players to finish the dungeon
-        sLFGMgr->OfferContinue(group);
+    if (isLFG && state != LFG_STATE_FINISHED_DUNGEON) // Need more players to finish the dungeon
+        if (Player* leader = ObjectAccessor::FindPlayer(sLFGMgr->GetLeader(gguid)))
+            leader->GetSession()->SendLfgOfferContinue(sLFGMgr->GetDungeon(gguid, false));
 }
 
 void LFGGroupScript::OnDisband(Group* group)
 {
+    if (!sLFGMgr->isOptionEnabled(LFG_OPTION_ENABLE_DUNGEON_FINDER | LFG_OPTION_ENABLE_RAID_BROWSER))
+        return;
+
     uint64 gguid = group->GetGUID();
     sLog->outDebug(LOG_FILTER_LFG, "LFGScripts::OnDisband [" UI64FMTD "]", gguid);
 
@@ -150,31 +195,26 @@ void LFGGroupScript::OnDisband(Group* group)
 
 void LFGGroupScript::OnChangeLeader(Group* group, uint64 newLeaderGuid, uint64 oldLeaderGuid)
 {
-    uint64 gguid = group->GetGUID();
-    if (!gguid)
+    if (!sLFGMgr->isOptionEnabled(LFG_OPTION_ENABLE_DUNGEON_FINDER | LFG_OPTION_ENABLE_RAID_BROWSER))
         return;
 
+    uint64 gguid = group->GetGUID();
+
     sLog->outDebug(LOG_FILTER_LFG, "LFGScripts::OnChangeLeader [" UI64FMTD "]: old [" UI64FMTD "] new [" UI64FMTD "]", gguid, newLeaderGuid, oldLeaderGuid);
-    Player* player = ObjectAccessor::FindPlayer(newLeaderGuid);
-
-    LfgUpdateData updateData = LfgUpdateData(LFG_UPDATETYPE_LEADER);
-    if (player)
-        player->GetSession()->SendLfgUpdateParty(updateData);
-
-    player = ObjectAccessor::FindPlayer(oldLeaderGuid);
-    if (player)
-    {
-        updateData.updateType = LFG_UPDATETYPE_GROUP_DISBAND;
-        player->GetSession()->SendLfgUpdateParty(updateData);
-    }
+    sLFGMgr->SetLeader(gguid, newLeaderGuid);
 }
 
 void LFGGroupScript::OnInviteMember(Group* group, uint64 guid)
 {
-    uint64 gguid = group->GetGUID();
-    if (!gguid)
+    if (!sLFGMgr->isOptionEnabled(LFG_OPTION_ENABLE_DUNGEON_FINDER | LFG_OPTION_ENABLE_RAID_BROWSER))
         return;
 
-    sLog->outDebug(LOG_FILTER_LFG, "LFGScripts::OnInviteMember [" UI64FMTD "]: invite [" UI64FMTD "] leader [" UI64FMTD "]", gguid, guid, group->GetLeaderGUID());
-    sLFGMgr->Leave(NULL, group);
+    uint64 gguid = group->GetGUID();
+    uint64 leader = group->GetLeaderGUID();
+    sLog->outDebug(LOG_FILTER_LFG, "LFGScripts::OnInviteMember [" UI64FMTD "]: invite [" UI64FMTD "] leader [" UI64FMTD "]", gguid, guid, leader);
+    // No gguid ==  new group being formed
+    // No leader == after group creation first invite is new leader
+    // leader and no gguid == first invite after leader is added to new group (this is the real invite)
+    if (leader && !gguid)
+        sLFGMgr->LeaveLfg(leader);
 }

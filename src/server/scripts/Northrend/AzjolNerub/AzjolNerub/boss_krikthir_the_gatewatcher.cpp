@@ -61,19 +61,12 @@ enum Mobs
 
 enum Yells
 {
-    SAY_AGGRO                                     = -1601011,
-    SAY_SLAY_1                                    = -1601012,
-    SAY_SLAY_2                                    = -1601013,
-    SAY_DEATH                                     = -1601014,
-    //Not in db
-    SAY_SEND_GROUP_1                              = -1601020,
-    SAY_SEND_GROUP_2                              = -1601021,
-    SAY_SEND_GROUP_3                              = -1601022,
-    SAY_SWARM_1                                   = -1601015,
-    SAY_SWARM_2                                   = -1601016,
-    SAY_PREFIGHT_1                                = -1601017,
-    SAY_PREFIGHT_2                                = -1601018,
-    SAY_PREFIGHT_3                                = -1601019
+    SAY_AGGRO                                     = 0,
+    SAY_SLAY                                      = 1,
+    SAY_DEATH                                     = 2,
+    SAY_SWARM                                     = 3,
+    SAY_PREFIGHT                                  = 4,
+    SAY_SEND_GROUP                                = 5
 };
 
 const Position SpawnPoint[] =
@@ -117,7 +110,7 @@ public:
 
         void EnterCombat(Unit* /*who*/)
         {
-            DoScriptText(SAY_AGGRO, me);
+            Talk(SAY_AGGRO);
             Summon();
             uiSummonTimer = 15*IN_MILLISECONDS;
 
@@ -180,7 +173,7 @@ public:
         }
         void JustDied(Unit* /*killer*/)
         {
-            DoScriptText(SAY_DEATH, me);
+            Talk(SAY_DEATH);
 
             if (instance)
                 instance->SetData(DATA_KRIKTHIR_THE_GATEWATCHER_EVENT, DONE);
@@ -191,7 +184,7 @@ public:
             if (victim == me)
                 return;
 
-            DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2), me);
+            Talk(SAY_SLAY);
         }
 
         void JustSummoned(Creature* summoned)

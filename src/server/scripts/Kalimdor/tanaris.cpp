@@ -38,6 +38,8 @@ EndContentData */
 #include "ScriptedGossip.h"
 #include "ScriptedEscortAI.h"
 #include "ScriptedFollowerAI.h"
+#include "Player.h"
+#include "WorldSession.h"
 
 /*######
 ## mob_aquementas
@@ -45,7 +47,7 @@ EndContentData */
 
 enum Aquementas
 {
-    AGGRO_YELL_AQUE     = -1000350,
+    AGGRO_YELL_AQUE     = 0,
 
     SPELL_AQUA_JET      = 13586,
     SPELL_FROST_SHOCK   = 15089
@@ -99,7 +101,7 @@ public:
 
         void EnterCombat(Unit* who)
         {
-            DoScriptText(AGGRO_YELL_AQUE, me, who);
+            Talk(AGGRO_YELL_AQUE, who->GetGUID());
         }
 
         void UpdateAI(const uint32 diff)
@@ -150,20 +152,20 @@ public:
 
 enum CustodianOfTime
 {
-    WHISPER_CUSTODIAN_1     = -1000217,
-    WHISPER_CUSTODIAN_2     = -1000218,
-    WHISPER_CUSTODIAN_3     = -1000219,
-    WHISPER_CUSTODIAN_4     = -1000220,
-    WHISPER_CUSTODIAN_5     = -1000221,
-    WHISPER_CUSTODIAN_6     = -1000222,
-    WHISPER_CUSTODIAN_7     = -1000223,
-    WHISPER_CUSTODIAN_8     = -1000224,
-    WHISPER_CUSTODIAN_9     = -1000225,
-    WHISPER_CUSTODIAN_10    = -1000226,
-    WHISPER_CUSTODIAN_11    = -1000227,
-    WHISPER_CUSTODIAN_12    = -1000228,
-    WHISPER_CUSTODIAN_13    = -1000229,
-    WHISPER_CUSTODIAN_14    = -1000230
+    WHISPER_CUSTODIAN_1     = 0,
+    WHISPER_CUSTODIAN_2     = 1,
+    WHISPER_CUSTODIAN_3     = 2,
+    WHISPER_CUSTODIAN_4     = 3,
+    WHISPER_CUSTODIAN_5     = 4,
+    WHISPER_CUSTODIAN_6     = 5,
+    WHISPER_CUSTODIAN_7     = 6,
+    WHISPER_CUSTODIAN_8     = 7,
+    WHISPER_CUSTODIAN_9     = 8,
+    WHISPER_CUSTODIAN_10    = 9,
+    WHISPER_CUSTODIAN_11    = 10,
+    WHISPER_CUSTODIAN_12    = 11,
+    WHISPER_CUSTODIAN_13    = 12,
+    WHISPER_CUSTODIAN_14    = 13
 };
 
 class npc_custodian_of_time : public CreatureScript
@@ -187,58 +189,58 @@ public:
                 switch (waypointId)
                 {
                     case 0:
-                        DoScriptText(WHISPER_CUSTODIAN_1, me, player);
+                        Talk(WHISPER_CUSTODIAN_1, player->GetGUID());
                         break;
                     case 1:
-                        DoScriptText(WHISPER_CUSTODIAN_2, me, player);
+                        Talk(WHISPER_CUSTODIAN_2, player->GetGUID());
                         break;
                     case 2:
-                        DoScriptText(WHISPER_CUSTODIAN_3, me, player);
+                        Talk(WHISPER_CUSTODIAN_3, player->GetGUID());
                         break;
                     case 3:
-                        DoScriptText(WHISPER_CUSTODIAN_4, me, player);
+                        Talk(WHISPER_CUSTODIAN_4, player->GetGUID());
                         break;
                     case 5:
-                        DoScriptText(WHISPER_CUSTODIAN_5, me, player);
+                        Talk(WHISPER_CUSTODIAN_5, player->GetGUID());
                         break;
                     case 6:
-                        DoScriptText(WHISPER_CUSTODIAN_6, me, player);
+                        Talk(WHISPER_CUSTODIAN_6, player->GetGUID());
                         break;
                     case 7:
-                        DoScriptText(WHISPER_CUSTODIAN_7, me, player);
+                        Talk(WHISPER_CUSTODIAN_7, player->GetGUID());
                         break;
                     case 8:
-                        DoScriptText(WHISPER_CUSTODIAN_8, me, player);
+                        Talk(WHISPER_CUSTODIAN_8, player->GetGUID());
                         break;
                     case 9:
-                        DoScriptText(WHISPER_CUSTODIAN_9, me, player);
+                        Talk(WHISPER_CUSTODIAN_9, player->GetGUID());
                         break;
                     case 10:
-                        DoScriptText(WHISPER_CUSTODIAN_4, me, player);
+                        Talk(WHISPER_CUSTODIAN_4, player->GetGUID());
                         break;
                     case 13:
-                        DoScriptText(WHISPER_CUSTODIAN_10, me, player);
+                        Talk(WHISPER_CUSTODIAN_10, player->GetGUID());
                         break;
                     case 14:
-                        DoScriptText(WHISPER_CUSTODIAN_4, me, player);
+                        Talk(WHISPER_CUSTODIAN_4, player->GetGUID());
                         break;
                     case 16:
-                        DoScriptText(WHISPER_CUSTODIAN_11, me, player);
+                        Talk(WHISPER_CUSTODIAN_11, player->GetGUID());
                         break;
                     case 17:
-                        DoScriptText(WHISPER_CUSTODIAN_12, me, player);
+                        Talk(WHISPER_CUSTODIAN_12, player->GetGUID());
                         break;
                     case 18:
-                        DoScriptText(WHISPER_CUSTODIAN_4, me, player);
+                        Talk(WHISPER_CUSTODIAN_4, player->GetGUID());
                         break;
                     case 22:
-                        DoScriptText(WHISPER_CUSTODIAN_13, me, player);
+                        Talk(WHISPER_CUSTODIAN_13, player->GetGUID());
                         break;
                     case 23:
-                        DoScriptText(WHISPER_CUSTODIAN_4, me, player);
+                        Talk(WHISPER_CUSTODIAN_4, player->GetGUID());
                         break;
                     case 24:
-                        DoScriptText(WHISPER_CUSTODIAN_14, me, player);
+                        Talk(WHISPER_CUSTODIAN_14, player->GetGUID());
                         DoCast(player, 34883);
                         // below here is temporary workaround, to be removed when spell works properly
                         player->AreaExploredOrEventHappens(10277);
@@ -425,13 +427,11 @@ public:
 
 enum Npc00X17
 {
-    //texts are signed for 7806
-    SAY_OOX_START           = -1000287,
-    SAY_OOX_AGGRO1          = -1000288,
-    SAY_OOX_AGGRO2          = -1000289,
-    SAY_OOX_AMBUSH          = -1000290,
-    SAY_OOX17_AMBUSH_REPLY  = -1000291,
-    SAY_OOX_END             = -1000292,
+    SAY_OOX_START           = 0,
+    SAY_OOX_AGGRO           = 1,
+    SAY_OOX_AMBUSH          = 2,
+    SAY_OOX17_AMBUSH_REPLY  = 0,
+    SAY_OOX_END             = 3,
 
     Q_OOX17                 = 648,
     SPAWN_FIRST             = 7803,
@@ -452,7 +452,7 @@ public:
             creature->SetFullHealth();
             creature->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
             creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
-            DoScriptText(SAY_OOX_START, creature);
+            creature->AI()->Talk(SAY_OOX_START);
 
             if (npc_escortAI* pEscortAI = CAST_AI(npc_OOX17::npc_OOX17AI, creature->AI()))
                 pEscortAI->Start(true, false, player->GetGUID());
@@ -479,18 +479,18 @@ public:
                         me->SummonCreature(SPAWN_FIRST, -8350.96f, -4445.79f, 10.10f, 6.20f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
                         me->SummonCreature(SPAWN_FIRST, -8355.96f, -4447.79f, 10.10f, 6.27f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
                         me->SummonCreature(SPAWN_FIRST, -8353.96f, -4442.79f, 10.10f, 6.08f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
-                        DoScriptText(SAY_OOX_AMBUSH, me);
+                        Talk(SAY_OOX_AMBUSH);
                         break;
                     case 56:
                         me->SummonCreature(SPAWN_SECOND_1, -7510.07f, -4795.50f, 9.35f, 6.06f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
                         me->SummonCreature(SPAWN_SECOND_2, -7515.07f, -4797.50f, 9.35f, 6.22f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
                         me->SummonCreature(SPAWN_SECOND_2, -7518.07f, -4792.50f, 9.35f, 6.22f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
-                        DoScriptText(SAY_OOX_AMBUSH, me);
-                        if (Unit* scoff = me->FindNearestCreature(SPAWN_SECOND_2, 30))
-                            DoScriptText(SAY_OOX17_AMBUSH_REPLY, scoff);
+                        Talk(SAY_OOX_AMBUSH);
+                        if (Creature* scoff = me->FindNearestCreature(SPAWN_SECOND_2, 30))
+                            scoff->AI()->Talk(SAY_OOX17_AMBUSH_REPLY);
                         break;
                     case 86:
-                        DoScriptText(SAY_OOX_END, me);
+                        Talk(SAY_OOX_END);
                         player->GroupEventHappens(Q_OOX17, me);
                         break;
                 }
@@ -501,7 +501,7 @@ public:
 
         void EnterCombat(Unit* /*who*/)
         {
-            DoScriptText(RAND(SAY_OOX_AGGRO1, SAY_OOX_AGGRO2), me);
+            Talk(SAY_OOX_AGGRO);
         }
 
         void JustSummoned(Creature* summoned)
@@ -517,14 +517,13 @@ public:
 
 enum Tooga
 {
-    SAY_TOOG_THIRST             = -1000391,
-    SAY_TOOG_WORRIED            = -1000392,
-    SAY_TOOG_POST_1             = -1000393,
-    SAY_TORT_POST_2             = -1000394,
-    SAY_TOOG_POST_3             = -1000395,
-    SAY_TORT_POST_4             = -1000396,
-    SAY_TOOG_POST_5             = -1000397,
-    SAY_TORT_POST_6             = -1000398,
+    SAY_TOOG_WORRIED            = 0,
+    SAY_TOOG_POST_1             = 1,
+    SAY_TORT_POST_2             = 0,
+    SAY_TOOG_POST_3             = 2,
+    SAY_TORT_POST_4             = 1,
+    SAY_TOOG_POST_5             = 3,
+    SAY_TORT_POST_6             = 2,
 
     QUEST_TOOGA                 = 1560,
     NPC_TORTA                   = 6015,
@@ -615,8 +614,8 @@ public:
                     {
                         PostEventTimer = 5000;
 
-                        Unit* pTorta = Unit::GetUnit(*me, TortaGUID);
-                        if (!pTorta || !pTorta->isAlive())
+                        Creature* torta = Creature::GetCreature(*me, TortaGUID);
+                        if (!torta || !torta->isAlive())
                         {
                             //something happened, so just complete
                             SetFollowComplete();
@@ -626,22 +625,22 @@ public:
                         switch (PhasePostEvent)
                         {
                             case 1:
-                                DoScriptText(SAY_TOOG_POST_1, me);
+                                Talk(SAY_TOOG_POST_1);
                                 break;
                             case 2:
-                                DoScriptText(SAY_TORT_POST_2, pTorta);
+                                torta->AI()->Talk(SAY_TORT_POST_2);
                                 break;
                             case 3:
-                                DoScriptText(SAY_TOOG_POST_3, me);
+                                Talk(SAY_TOOG_POST_3);
                                 break;
                             case 4:
-                                DoScriptText(SAY_TORT_POST_4, pTorta);
+                                torta->AI()->Talk(SAY_TORT_POST_4);
                                 break;
                             case 5:
-                                DoScriptText(SAY_TOOG_POST_5, me);
+                                Talk(SAY_TOOG_POST_5);
                                 break;
                             case 6:
-                                DoScriptText(SAY_TORT_POST_6, pTorta);
+                                torta->AI()->Talk(SAY_TORT_POST_6);
                                 me->GetMotionMaster()->MovePoint(POINT_ID_TO_WATER, ToWaterLoc);
                                 break;
                         }
@@ -659,7 +658,7 @@ public:
                         CheckSpeechTimer = 5000;
 
                         if (urand(0, 9) > 8)
-                            DoScriptText(RAND(SAY_TOOG_THIRST, SAY_TOOG_WORRIED), me);
+                            Talk(SAY_TOOG_WORRIED);
                     }
                     else
                         CheckSpeechTimer -= Diff;

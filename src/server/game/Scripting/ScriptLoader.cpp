@@ -61,6 +61,7 @@ void AddSC_guild_commandscript();
 void AddSC_honor_commandscript();
 void AddSC_instance_commandscript();
 void AddSC_learn_commandscript();
+void AddSC_lfg_commandscript();
 void AddSC_list_commandscript();
 void AddSC_lookup_commandscript();
 void AddSC_message_commandscript();
@@ -319,6 +320,7 @@ void AddSC_boss_ayamiss();
 void AddSC_boss_ossirian();
 void AddSC_instance_ruins_of_ahnqiraj();
 void AddSC_boss_cthun();                     //Temple of ahn'qiraj
+void AddSC_boss_viscidus();
 void AddSC_boss_fankriss();
 void AddSC_boss_huhuran();
 void AddSC_bug_trio();
@@ -502,6 +504,7 @@ void AddSC_ruby_sanctum();
 void AddSC_boss_baltharus_the_warborn();
 void AddSC_boss_saviana_ragefire();
 void AddSC_boss_general_zarithrian();
+void AddSC_boss_halion();
 
 void AddSC_dalaran();
 void AddSC_borean_tundra();
@@ -599,6 +602,9 @@ void AddSC_shattrath_city();
 void AddSC_terokkar_forest();
 void AddSC_zangarmarsh();
 
+// Events
+void AddSC_event_childrens_week();
+
 // battlegrounds
 
 // outdoor pvp
@@ -680,6 +686,7 @@ void AddCommandScripts()
     AddSC_instance_commandscript();
     AddSC_learn_commandscript();
     AddSC_lookup_commandscript();
+    AddSC_lfg_commandscript();
     AddSC_list_commandscript();
     AddSC_message_commandscript();
     AddSC_misc_commandscript();
@@ -948,6 +955,7 @@ void AddKalimdorScripts()
     AddSC_boss_ossirian();
     AddSC_instance_ruins_of_ahnqiraj();
     AddSC_boss_cthun();                     //Temple of ahn'qiraj
+    AddSC_boss_viscidus();
     AddSC_boss_fankriss();
     AddSC_boss_huhuran();
     AddSC_bug_trio();
@@ -1222,6 +1230,7 @@ void AddNorthrendScripts()
     AddSC_boss_baltharus_the_warborn();
     AddSC_boss_saviana_ragefire();
     AddSC_boss_general_zarithrian();
+    AddSC_boss_halion();
 
     AddSC_dalaran();
     AddSC_borean_tundra();
@@ -1235,6 +1244,13 @@ void AddNorthrendScripts()
     AddSC_zuldrak();
     AddSC_crystalsong_forest();
     AddSC_isle_of_conquest();
+#endif
+}
+
+void AddEventScripts()
+{
+#ifdef SCRIPTS
+    AddSC_event_childrens_week();
 #endif
 }
 

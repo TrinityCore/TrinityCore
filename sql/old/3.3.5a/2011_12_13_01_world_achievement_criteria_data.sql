@@ -1,7 +1,7 @@
 -- Experienced Drake Rider Achiev
- 
+
 DELETE FROM `disables` WHERE `entry` IN (7177,7178,7179);
- 
+
 DELETE FROM `achievement_criteria_data` WHERE `criteria_id` IN (7177,7178,7179);
 INSERT INTO `achievement_criteria_data` (`criteria_id`,`type`,`value1`,`value2`,`ScriptName`) VALUES
 (7177,5,49460,1,''),  -- Amber Drake

@@ -18,7 +18,7 @@
 #ifndef __BATTLEGROUNDRV_H
 #define __BATTLEGROUNDRV_H
 
-class Battleground;
+#include "Battleground.h"
 
 enum BattlegroundRVObjectTypes
 {
@@ -91,13 +91,6 @@ enum BattlegroundRVData
     BG_RV_WORLD_STATE                            = 0xe1a
 };
 
-class BattlegroundRVScore : public BattlegroundScore
-{
-    public:
-        BattlegroundRVScore() {};
-        virtual ~BattlegroundRVScore() {};
-};
-
 class BattlegroundRV : public Battleground
 {
     public:
@@ -105,11 +98,11 @@ class BattlegroundRV : public Battleground
         ~BattlegroundRV();
 
         /* inherited from BattlegroundClass */
-        virtual void AddPlayer(Player* player);
-        virtual void StartingEventCloseDoors();
-        virtual void StartingEventOpenDoors();
-        virtual void Reset();
-        virtual void FillInitialWorldStates(WorldPacket &d);
+        void AddPlayer(Player* player);
+        void StartingEventCloseDoors();
+        void StartingEventOpenDoors();
+        void Reset();
+        void FillInitialWorldStates(WorldPacket &d);
 
         void RemovePlayer(Player* player, uint64 guid, uint32 team);
         void HandleAreaTrigger(Player* Source, uint32 Trigger);
@@ -122,7 +115,7 @@ class BattlegroundRV : public Battleground
         uint32 State;
         bool   PillarCollision;
 
-        virtual void PostUpdateImpl(uint32 diff);
+        void PostUpdateImpl(uint32 diff);
 
     protected:
         uint32 getTimer() { return Timer; };

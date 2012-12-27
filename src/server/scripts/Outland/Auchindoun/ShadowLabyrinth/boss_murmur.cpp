@@ -26,16 +26,22 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "shadow_labyrinth.h"
+#include "SpellInfo.h"
 
-#define EMOTE_SONIC_BOOM            -1555036
+enum Murmur
+{
+    SPELL_RESONANCE             = 33657,
+    SPELL_MAGNETIC_PULL         = 33689,
+    SPELL_SONIC_SHOCK           = 38797,
+    SPELL_THUNDERING_STORM      = 39365,
+    EMOTE_SONIC_BOOM            = 0
+};
 
 #define SPELL_SONIC_BOOM_CAST       DUNGEON_MODE(33923, 38796)
 #define SPELL_SONIC_BOOM_EFFECT     DUNGEON_MODE(33666, 38795)
-#define SPELL_RESONANCE             33657
+
 #define SPELL_MURMURS_TOUCH         DUNGEON_MODE(33711, 38794)
-#define SPELL_MAGNETIC_PULL         33689
-#define SPELL_SONIC_SHOCK           38797
-#define SPELL_THUNDERING_STORM      39365
+
 
 class boss_murmur : public CreatureScript
 {
@@ -80,8 +86,8 @@ public:
 
         void SonicBoomEffect()
         {
-            std::list<HostileReference*> t_list = me->getThreatManager().getThreatList();
-            for (std::list<HostileReference*>::const_iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
+            ThreatContainer::StorageType const &t_list = me->getThreatManager().getThreatList();
+            for (ThreatContainer::StorageType::const_iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
             {
                Unit* target = Unit::GetUnit(*me, (*itr)->getUnitGuid());
                if (target && target->GetTypeId() == TYPEID_PLAYER)
@@ -122,7 +128,7 @@ public:
             }
             if (SonicBoom_Timer <= diff)
             {
-                DoScriptText(EMOTE_SONIC_BOOM, me);
+                Talk(EMOTE_SONIC_BOOM);
                 DoCast(me, SPELL_SONIC_BOOM_CAST);
                 SonicBoom_Timer = 30000;
                 SonicBoom = true;
@@ -165,8 +171,8 @@ public:
                 // Thundering Storm
                 if (ThunderingStorm_Timer <= diff)
                 {
-                    std::list<HostileReference*>& m_threatlist = me->getThreatManager().getThreatList();
-                    for (std::list<HostileReference*>::const_iterator i = m_threatlist.begin(); i != m_threatlist.end(); ++i)
+                    ThreatContainer::StorageType threatlist = me->getThreatManager().getThreatList();
+                    for (ThreatContainer::StorageType::const_iterator i = threatlist.begin(); i != threatlist.end(); ++i)
                         if (Unit* target = Unit::GetUnit(*me, (*i)->getUnitGuid()))
                             if (target->isAlive() && !me->IsWithinDist(target, 35, false))
                                 DoCast(target, SPELL_THUNDERING_STORM, true);
@@ -188,8 +194,8 @@ public:
                 return;
             if (!me->IsWithinMeleeRange(me->getVictim()))
             {
-                std::list<HostileReference*>& m_threatlist = me->getThreatManager().getThreatList();
-                for (std::list<HostileReference*>::const_iterator i = m_threatlist.begin(); i != m_threatlist.end(); ++i)
+                ThreatContainer::StorageType threatlist = me->getThreatManager().getThreatList();
+                for (ThreatContainer::StorageType::const_iterator i = threatlist.begin(); i != threatlist.end(); ++i)
                     if (Unit* target = Unit::GetUnit(*me, (*i)->getUnitGuid()))
                         if (target->isAlive() && me->IsWithinMeleeRange(target))
                         {
@@ -201,7 +207,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 void AddSC_boss_murmur()

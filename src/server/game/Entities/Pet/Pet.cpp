@@ -30,13 +30,14 @@
 #include "Unit.h"
 #include "Util.h"
 #include "Group.h"
+#include "Opcodes.h"
 
 #define PET_XP_FACTOR 0.05f
 
 Pet::Pet(Player* owner, PetType type) : Guardian(NULL, owner, true),
-m_usedTalentCount(0), m_removed(false), m_owner(owner),
-m_happinessTimer(7500), m_petType(type), m_duration(0),
-m_auraRaidUpdateMask(0), m_loading(false), m_declinedname(NULL)
+    m_usedTalentCount(0), m_removed(false), m_owner(owner),
+    m_happinessTimer(7500), m_petType(type), m_duration(0),
+    m_auraRaidUpdateMask(0), m_loading(false), m_declinedname(NULL)
 {
     m_unitTypeMask |= UNIT_MASK_PET;
     if (type == HUNTER_PET)
@@ -73,11 +74,11 @@ void Pet::AddToWorld()
     if (GetCharmInfo() && GetCharmInfo()->HasCommandState(COMMAND_FOLLOW))
     {
         GetCharmInfo()->SetIsCommandAttack(false);
+        GetCharmInfo()->SetIsCommandFollow(false);
         GetCharmInfo()->SetIsAtStay(false);
         GetCharmInfo()->SetIsFollowing(false);
         GetCharmInfo()->SetIsReturning(false);
     }
-
 }
 
 void Pet::RemoveFromWorld()
@@ -267,7 +268,7 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petentry, uint32 petnumber, bool c
     {
         SQLTransaction trans = CharacterDatabase.BeginTransaction();
 
-        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UDP_CHAR_PET_SLOT_BY_SLOT_EXCLUDE_ID);
+        stmt = CharacterDatabase.GetPreparedStatement(CHAR_UDP_CHAR_PET_SLOT_BY_SLOT_EXCLUDE_ID);
         stmt->setUInt8(0, uint8(PET_SAVE_NOT_IN_SLOT));
         stmt->setUInt32(1, ownerid);
         stmt->setUInt8(2, uint8(PET_SAVE_AS_CURRENT));
@@ -332,7 +333,7 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petentry, uint32 petnumber, bool c
 
     if (getPetType() == HUNTER_PET)
     {
-        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PET_DECLINED_NAME);
+        stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PET_DECLINED_NAME);
         stmt->setUInt32(0, owner->GetGUIDLow());
         stmt->setUInt32(1, GetCharmInfo()->GetPetNumber());
         PreparedQueryResult result = CharacterDatabase.Query(stmt);
@@ -428,7 +429,7 @@ void Pet::SavePetToDB(PetSaveMode mode)
         // prevent existence another hunter pet in PET_SAVE_AS_CURRENT and PET_SAVE_NOT_IN_SLOT
         if (getPetType() == HUNTER_PET && (mode == PET_SAVE_AS_CURRENT || mode > PET_SAVE_LAST_STABLE_SLOT))
         {
-            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_PET_BY_SLOT);
+            stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_PET_BY_SLOT);
             stmt->setUInt32(0, ownerLowGUID);
             stmt->setUInt8(1, uint8(PET_SAVE_AS_CURRENT));
             stmt->setUInt8(2, uint8(PET_SAVE_LAST_STABLE_SLOT));
@@ -456,7 +457,7 @@ void Pet::SavePetToDB(PetSaveMode mode)
         for (uint32 i = ACTION_BAR_INDEX_START; i < ACTION_BAR_INDEX_END; ++i)
         {
             ss << uint32(m_charmInfo->GetActionBarEntry(i)->GetType()) << ' '
-                << uint32(m_charmInfo->GetActionBarEntry(i)->GetAction()) << ' ';
+               << uint32(m_charmInfo->GetActionBarEntry(i)->GetAction()) << ' ';
         };
 
         ss  << "', "
@@ -562,7 +563,7 @@ void Pet::Update(uint32 diff)
             {
                 if (owner->GetPetGUID() != GetGUID())
                 {
-                    sLog->outError(LOG_FILTER_PETS, "Pet %u is not pet of owner %s, removed", GetEntry(), m_owner->GetName());
+                    sLog->outError(LOG_FILTER_PETS, "Pet %u is not pet of owner %s, removed", GetEntry(), m_owner->GetName().c_str());
                     Remove(getPetType() == HUNTER_PET?PET_SAVE_AS_DELETED:PET_SAVE_NOT_IN_SLOT);
                     return;
                 }
@@ -663,7 +664,7 @@ void Creature::Regenerate(Powers power)
     AuraEffectList const& ModPowerRegenPCTAuras = GetAuraEffectsByType(SPELL_AURA_MOD_POWER_REGEN_PERCENT);
     for (AuraEffectList::const_iterator i = ModPowerRegenPCTAuras.begin(); i != ModPowerRegenPCTAuras.end(); ++i)
         if (Powers((*i)->GetMiscValue()) == power)
-            AddPctN(addvalue, (*i)->GetAmount());
+            AddPct(addvalue, (*i)->GetAmount());
 
     addvalue += GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_POWER_REGEN, power) * (isHunterPet()? PET_FOCUS_REGEN_INTERVAL : CREATURE_REGEN_INTERVAL) / (5 * IN_MILLISECONDS);
 
@@ -1078,7 +1079,7 @@ bool Pet::HaveInDiet(ItemTemplate const* item) const
     return diet & FoodMask;
 }
 
-uint32 Pet::GetCurrentFoodBenefitLevel(uint32 itemlevel)
+uint32 Pet::GetCurrentFoodBenefitLevel(uint32 itemlevel) const
 {
     // -5 or greater food level
     if (getLevel() <= itemlevel + 5)                         //possible to feed level 60 pet with level 55 level food for full effect
@@ -1349,7 +1350,7 @@ void Pet::_SaveAuras(SQLTransaction& trans)
 
         uint8 index = 0;
 
-        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_PET_AURA);
+        stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_PET_AURA);
         stmt->setUInt32(index++, m_charmInfo->GetPetNumber());
         stmt->setUInt64(index++, casterGUID);
         stmt->setUInt32(index++, itr->second->GetId());
@@ -1882,7 +1883,7 @@ void Pet::ToggleAutocast(SpellInfo const* spellInfo, bool apply)
     }
 }
 
-bool Pet::IsPermanentPetFor(Player* owner)
+bool Pet::IsPermanentPetFor(Player* owner) const
 {
     switch (getPetType())
     {
@@ -1979,7 +1980,7 @@ void Pet::CastPetAura(PetAura const* aura)
 
     if (auraId == 35696)                                      // Demonic Knowledge
     {
-        int32 basePoints = CalculatePctF(aura->GetDamage(), GetStat(STAT_STAMINA) + GetStat(STAT_INTELLECT));
+        int32 basePoints = CalculatePct(aura->GetDamage(), GetStat(STAT_STAMINA) + GetStat(STAT_INTELLECT));
         CastCustomSpell(this, auraId, &basePoints, NULL, NULL, true);
     }
     else

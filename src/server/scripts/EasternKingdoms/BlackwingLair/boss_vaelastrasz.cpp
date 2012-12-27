@@ -26,14 +26,15 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
+#include "Player.h"
 
 enum Says
 {
-   SAY_LINE1           = -1469026,
-   SAY_LINE2           = -1469027,
-   SAY_LINE3           = -1469028,
-   SAY_HALFLIFE        = -1469029,
-   SAY_KILLTARGET      = -1469030
+   SAY_LINE1           = 0,
+   SAY_LINE2           = 1,
+   SAY_LINE3           = 2,
+   SAY_HALFLIFE        = 3,
+   SAY_KILLTARGET      = 4
 };
 
 #define GOSSIP_ITEM         "Start Event <Needs Gossip Text>"
@@ -129,7 +130,7 @@ public:
             PlayerGUID = target->GetGUID();
 
             //10 seconds
-            DoScriptText(SAY_LINE1, me);
+            Talk(SAY_LINE1);
 
             SpeechTimer = 10000;
             SpeechNum = 0;
@@ -143,7 +144,7 @@ public:
             if (rand()%5)
                 return;
 
-            DoScriptText(SAY_KILLTARGET, me, victim);
+            Talk(SAY_KILLTARGET, victim->GetGUID());
         }
 
         void EnterCombat(Unit* /*who*/)
@@ -166,13 +167,13 @@ public:
                     {
                         case 0:
                             //16 seconds till next line
-                            DoScriptText(SAY_LINE2, me);
+                            Talk(SAY_LINE2);
                             SpeechTimer = 16000;
                             ++SpeechNum;
                             break;
                         case 1:
                             //This one is actually 16 seconds but we only go to 10 seconds because he starts attacking after he says "I must fight this!"
-                            DoScriptText(SAY_LINE3, me);
+                            Talk(SAY_LINE3);
                             SpeechTimer = 10000;
                             ++SpeechNum;
                             break;
@@ -197,7 +198,7 @@ public:
             // Yell if hp lower than 15%
             if (HealthBelowPct(15) && !HasYelled)
             {
-                DoScriptText(SAY_HALFLIFE, me);
+                Talk(SAY_HALFLIFE);
                 HasYelled = true;
             }
 

@@ -2,7 +2,7 @@
 SET @GUID  := 42875;
 SET @ENTRY := 26257;
 DELETE FROM `creature` WHERE `guid` IN (@GUID,@GUID+1);
-INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`) VALUES 
+INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`) VALUES
 (@GUID,@ENTRY,571,1,1,0,0,3369.694,2528.735,197.4004,3.490659,180,0,0,1,0,0),
 (@GUID+1,@ENTRY,571,1,1,0,0,3346.363,2534.127,197.4004,4.258604,180,0,0,1,0,0);
 -- Add SAI
@@ -27,7 +27,7 @@ INSERT INTO `gameobject` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`position_x`
 SET @NPC := 111304;
 SET @PATH := @NPC*10;
 DELETE FROM `creature` WHERE `guid`=@NPC;
-INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`) VALUES 
+INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`) VALUES
 (@NPC,26276,571,1,1,0,0,3560.472,1769.351,171.9977,1.91463,120,0,0,1,0,2);
 DELETE FROM `creature_addon` WHERE `guid`=@NPC;
 INSERT INTO `creature_addon` (`guid`,`path_id`,`bytes1`,`bytes2`) VALUES (@NPC,@PATH,50331648,1);

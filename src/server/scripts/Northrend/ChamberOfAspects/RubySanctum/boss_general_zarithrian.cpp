@@ -158,9 +158,9 @@ class boss_general_zarithrian : public CreatureScript
                     {
                         case EVENT_SUMMON_ADDS:
                         {
-                            if (Creature* stalker1 = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_ZARITHIAN_SPAWN_STALKER_1)))
+                            if (Creature* stalker1 = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_ZARITHRIAN_SPAWN_STALKER_1)))
                                 stalker1->AI()->DoCast(stalker1, SPELL_SUMMON_FLAMECALLER);
-                            if (Creature* stalker2 = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_ZARITHIAN_SPAWN_STALKER_2)))
+                            if (Creature* stalker2 = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_ZARITHRIAN_SPAWN_STALKER_2)))
                                 stalker2->AI()->DoCast(stalker2, SPELL_SUMMON_FLAMECALLER);
                             Talk(SAY_ADDS);
                             events.ScheduleEvent(EVENT_SUMMON_ADDS, 42000);

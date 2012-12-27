@@ -28,6 +28,7 @@
 #include "TemporarySummon.h"
 #include "Object.h"
 #include "DBCStores.h"
+#include "World.h"
 
 using G3D::Vector3;
 using G3D::Ray;
@@ -148,7 +149,7 @@ bool GameObjectModel::initialize(const GameObject& go, const GameObjectDisplayIn
 
 GameObjectModel* GameObjectModel::Create(const GameObject& go)
 {
-    const GameObjectDisplayInfoEntry* info = sGameObjectDisplayInfoStore.LookupEntry(go.GetGOInfo()->displayId);
+    const GameObjectDisplayInfoEntry* info = sGameObjectDisplayInfoStore.LookupEntry(go.GetDisplayId());
     if (!info)
         return NULL;
 

@@ -17,25 +17,25 @@
  */
 
 #include "ObjectAccessor.h"
-#include "ObjectMgr.h"
-
-#include "Player.h"
-#include "Creature.h"
-#include "GameObject.h"
-#include "DynamicObject.h"
-#include "Vehicle.h"
-#include "WorldPacket.h"
-#include "Item.h"
-#include "Corpse.h"
-#include "GridNotifiers.h"
-#include "MapManager.h"
-#include "Map.h"
 #include "CellImpl.h"
+#include "Corpse.h"
+#include "Creature.h"
+#include "DynamicObject.h"
+#include "GameObject.h"
+#include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
-#include "Opcodes.h"
-#include "ObjectDefines.h"
+#include "Item.h"
+#include "Map.h"
 #include "MapInstanced.h"
+#include "MapManager.h"
+#include "ObjectDefines.h"
+#include "ObjectMgr.h"
+#include "Opcodes.h"
+#include "Pet.h"
+#include "Player.h"
+#include "Vehicle.h"
 #include "World.h"
+#include "WorldPacket.h"
 
 #include <cmath>
 
@@ -45,6 +45,12 @@ ObjectAccessor::ObjectAccessor()
 
 ObjectAccessor::~ObjectAccessor()
 {
+}
+
+Player* ObjectAccessor::GetObjectInWorld(uint64 guid, Player* /*typeSpecifier*/)
+{
+    Player* player = HashMapHolder<Player>::Find(guid);
+    return player && player->IsInWorld() ? player : NULL;
 }
 
 WorldObject* ObjectAccessor::GetWorldObject(WorldObject const& p, uint64 guid)
@@ -163,7 +169,7 @@ Unit* ObjectAccessor::FindUnit(uint64 guid)
     return GetObjectInWorld(guid, (Unit*)NULL);
 }
 
-Player* ObjectAccessor::FindPlayerByName(const char* name)
+Player* ObjectAccessor::FindPlayerByName(std::string const& name)
 {
     TRINITY_READ_GUARD(HashMapHolder<Player>::LockType, *HashMapHolder<Player>::GetLock());
     std::string nameStr = name;

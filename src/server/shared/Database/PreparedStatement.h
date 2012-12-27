@@ -21,6 +21,10 @@
 #include "SQLOperation.h"
 #include <ace/Future.h>
 
+#ifdef __APPLE__
+#undef TYPE_BOOL
+#endif
+
 //- Union for data buffer (upper-level bind -> queue -> lower-level bind)
 union PreparedStatementDataUnion
 {

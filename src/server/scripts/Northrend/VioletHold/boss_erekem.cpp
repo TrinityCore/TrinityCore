@@ -34,14 +34,12 @@ enum Spells
 
 enum Yells
 {
-    SAY_AGGRO                                   = -1608010,
-    SAY_SLAY_1                                  = -1608011,
-    SAY_SLAY_2                                  = -1608012,
-    SAY_SLAY_3                                  = -1608013,
-    SAY_DEATH                                   = -1608014,
-    SAY_SPAWN                                   = -1608015,
-    SAY_ADD_KILLED                              = -1608016,
-    SAY_BOTH_ADDS_KILLED                        = -1608017
+    SAY_AGGRO                                   = 0,
+    SAY_SLAY                                    = 1,
+    SAY_DEATH                                   = 2,
+    SAY_SPAWN                                   = 3,
+    SAY_ADD_KILLED                              = 4,
+    SAY_BOTH_ADDS_KILLED                        = 5
 };
 
 class boss_erekem : public CreatureScript
@@ -125,7 +123,7 @@ public:
 
         void EnterCombat(Unit* /*who*/)
         {
-            DoScriptText(SAY_AGGRO, me);
+            Talk(SAY_AGGRO);
             DoCast(me, SPELL_EARTH_SHIELD);
 
             if (instance)
@@ -209,7 +207,7 @@ public:
 
         void JustDied(Unit* /*killer*/)
         {
-            DoScriptText(SAY_DEATH, me);
+            Talk(SAY_DEATH);
 
             if (instance)
             {
@@ -230,7 +228,7 @@ public:
         {
             if (victim == me)
                 return;
-            DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2, SAY_SLAY_3), me);
+            Talk(SAY_SLAY);
         }
 
         uint64 GetChainHealTargetGUID()

@@ -222,7 +222,7 @@ INSERT INTO `game_event_gameobject` (`eventEntry`,`guid`) VALUES
 (@EVENT,@GUID+210),(@EVENT,@GUID+211),(@EVENT,@GUID+212),
 (@EVENT,@GUID+213),(@EVENT,@GUID+214),(@EVENT,@GUID+215),
 (@EVENT,@GUID+216),(@EVENT,@GUID+217),(@EVENT,@GUID+218),
-(@EVENT,@GUID+219); 
+(@EVENT,@GUID+219);
 
 DELETE FROM `gameobject` WHERE `id` BETWEEN 113768 AND 113772;
 INSERT INTO `gameobject` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`position_x`,`position_y`,`position_z`,`orientation`,`rotation0`,`rotation1`,`rotation2`,`rotation3`,`spawntimesecs`,`animprogress`,`state`) VALUES

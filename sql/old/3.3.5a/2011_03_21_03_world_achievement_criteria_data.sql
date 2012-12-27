@@ -5,7 +5,7 @@ DELETE FROM `achievement_criteria_data` WHERE `criteria_id` IN (
 11689,11690,11691,11692,11693, -- 10 Player
 11542,11546,11547,11549,11678  -- 25 Player
 ) AND `type` IN (0,12);
-INSERT INTO `achievement_criteria_data` (`criteria_id`, `type`, `value1`, `value2`, `ScriptName`) VALUES 
+INSERT INTO `achievement_criteria_data` (`criteria_id`, `type`, `value1`, `value2`, `ScriptName`) VALUES
 -- Call of the Crusade (10 player)
 (11684,12,0,0, ''),
 (11685,12,0,0, ''),

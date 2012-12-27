@@ -1,7 +1,7 @@
 -- Add Missing Black Blood of Draenor Spawns to db
 SET @GUID := 209032;
 DELETE FROM `creature` WHERE `guid` BETWEEN @GUID AND @GUID+36;
-INSERT IGNORE INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`DeathState`,`MovementType`) VALUES 
+INSERT IGNORE INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`DeathState`,`MovementType`) VALUES
 (@GUID+0,23286,530,1,1,0,0,-4989.68945,533.267,-6.23201227,2.588225,120,5,0,1,0,0,1),
 (@GUID+1,23286,530,1,1,0,0,-5008.07764,445.799774,-7.687496,4.848184,120,5,0,1,0,0,1),
 (@GUID+2,23286,530,1,1,0,0,-5012.0127,514.3434,-5.042469,5.13465834,120,5,0,1,0,0,1),
