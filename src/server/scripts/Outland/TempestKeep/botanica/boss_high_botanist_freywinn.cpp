@@ -31,7 +31,9 @@ enum eSays
     SAY_AGGRO                  = 0,
     SAY_KILL                   = 1,
     SAY_TREE                   = 2,
-    SAY_DEATH                  = 3
+    SAY_SUMMON                 = 3,
+    SAY_DEATH                  = 4,
+    SAY_OOC_RANDOM             = 5,
 };
 
 enum eSpells

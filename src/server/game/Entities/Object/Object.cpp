@@ -302,6 +302,19 @@ void Object::DestroyForPlayer(Player* target, bool onDeath) const
 {
     ASSERT(target);
 
+    if (isType(TYPEMASK_UNIT) || isType(TYPEMASK_PLAYER))
+    {
+        if (Battleground* bg = target->GetBattleground())
+        {
+            if (bg->isArena())
+            {
+                WorldPacket data(SMSG_ARENA_UNIT_DESTROYED, 8);
+                data << uint64(GetGUID());
+                target->GetSession()->SendPacket(&data);
+            }
+        }
+    }
+
     WorldPacket data(SMSG_DESTROY_OBJECT, 8 + 1);
     data << uint64(GetGUID());
     //! If the following bool is true, the client will call "void CGUnit_C::OnDeath()" for this object.
@@ -2254,6 +2267,7 @@ TempSummon* Map::SummonCreature(uint32 entry, Position const& pos, SummonPropert
                     mask = UNIT_MASK_GUARDIAN;
                     break;
                 case SUMMON_TYPE_TOTEM:
+                case SUMMON_TYPE_LIGHTWELL:
                     mask = UNIT_MASK_TOTEM;
                     break;
                 case SUMMON_TYPE_VEHICLE:
