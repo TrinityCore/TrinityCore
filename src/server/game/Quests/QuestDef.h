@@ -275,7 +275,6 @@ class Quest
         uint32 GetSoundTurnIn() const { return SoundTurnIn; }
         uint32 GetIncompleteEmote() const { return EmoteOnIncomplete; }
         uint32 GetCompleteEmote() const { return EmoteOnComplete; }
-        uint32 GetQuestCompleteScript() const { return CompleteScript; }
         bool   IsRepeatable() const { return SpecialFlags & QUEST_SPECIAL_FLAGS_REPEATABLE; }
         bool   IsAutoAccept() const;
         bool   IsAutoComplete() const;
@@ -403,7 +402,6 @@ class Quest
         uint32 PointOption;
         uint32 EmoteOnIncomplete;
         uint32 EmoteOnComplete;
-        uint32 CompleteScript;
         // new in 4.x
         uint32 MinimapTargetMark;
         uint32 RewardSkillId;

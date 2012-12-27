@@ -3180,7 +3180,8 @@ void AuraEffect::HandleAuraControlVehicle(AuraApplication const* aurApp, uint8 m
 
     if (apply)
     {
-        caster->_EnterVehicle(target->GetVehicleKit(), m_amount - 1, aurApp);
+        // correct amount is already calculated adding one more -1 meant calculated amount - 1
+        caster->_EnterVehicle(target->GetVehicleKit(), m_amount, aurApp);
     }
     else
     {

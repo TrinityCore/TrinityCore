@@ -1237,13 +1237,9 @@ void Battleground::AddPlayer(Player* player)
             player->CastSpell(player, SPELL_ARENA_PREPARATION, true);
             player->ResetAllPowers();
         }
-
         // Correctly display EnemyUnitFrame
         player->SetByteValue(PLAYER_BYTES_3, 3, player->GetBGTeam());
 
-        WorldPacket data(SMSG_ARENA_OPPONENT_UPDATE, 8);
-        data << uint64(player->GetGUID());
-        SendPacketToTeam(team, &data, player, false);
     }
     else
     {
@@ -1944,7 +1940,7 @@ int32 Battleground::GetObjectType(uint64 guid)
     return -1;
 }
 
-void Battleground::HandleKillUnit(Creature* /*creature*/, Player* /*killer*/)
+void Battleground::HandleKillUnit(Creature* /*victim*/, Player* /*killer*/)
 {
 }
 
