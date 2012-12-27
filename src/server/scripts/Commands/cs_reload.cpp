@@ -1004,9 +1004,6 @@ public:
         return true;
     }
 
-        return true;
-    }
-
     static bool HandleReloadSpellScriptsCommand(ChatHandler* handler, const char* args)
     {
         if (sScriptMgr->IsScriptScheduled())
