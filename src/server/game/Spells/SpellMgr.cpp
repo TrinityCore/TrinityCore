@@ -3212,15 +3212,8 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 64904: // Hymn of Hope
                 spellInfo->Effects[EFFECT_1].ApplyAuraName = SPELL_AURA_MOD_INCREASE_ENERGY_PERCENT;
                 break;
-            case 19465: // Improved Stings (Rank 2)
-                spellInfo->Effects[EFFECT_2].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_CASTER);
-                break;
             case 30421: // Nether Portal - Perseverence
                 spellInfo->Effects[2].BasePoints += 30000;
-                break;
-            case 16834: // Natural shapeshifter
-            case 16835:
-                spellInfo->DurationEntry = sSpellDurationStore.LookupEntry(21);
                 break;
             case 51735: // Ebon Plague
             case 51734:
@@ -3247,29 +3240,12 @@ void SpellMgr::LoadSpellInfoCorrections()
                 spellInfo->Effects[EFFECT_0].TargetB = SpellImplicitTargetInfo(TARGET_UNIT_SRC_AREA_ALLY);
                 spellInfo->Effects[EFFECT_1].TargetB = SpellImplicitTargetInfo(TARGET_UNIT_SRC_AREA_ALLY);
                 break;
-            case 57994: // Wind Shear - improper data for EFFECT_1 in 3.3.5 DBC, but is correct in 4.x
-                spellInfo->Effects[EFFECT_1].Effect = SPELL_EFFECT_MODIFY_THREAT_PERCENT;
-                spellInfo->Effects[EFFECT_1].BasePoints = -6; // -5%
-                break;
             case 63675: // Improved Devouring Plague
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_DONE_BONUS;
                 break;
             case 8145: // Tremor Totem (instant pulse)
             case 6474: // Earthbind Totem (instant pulse)
                 spellInfo->AttributesEx5 |= SPELL_ATTR5_START_PERIODIC_AT_APPLY;
-                break;
-            case 52109: // Flametongue Totem rank 1 (Aura)
-            case 52110: // Flametongue Totem rank 2 (Aura)
-            case 52111: // Flametongue Totem rank 3 (Aura)
-            case 52112: // Flametongue Totem rank 4 (Aura)
-            case 52113: // Flametongue Totem rank 5 (Aura)
-            case 58651: // Flametongue Totem rank 6 (Aura)
-            case 58654: // Flametongue Totem rank 7 (Aura)
-            case 58655: // Flametongue Totem rank 8 (Aura)
-                spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_CASTER);
-                spellInfo->Effects[EFFECT_1].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_CASTER);
-                spellInfo->Effects[EFFECT_0].TargetB = SpellImplicitTargetInfo();
-                spellInfo->Effects[EFFECT_1].TargetB = SpellImplicitTargetInfo();
                 break;
             case 53241: // Marked for Death (Rank 1)
             case 53243: // Marked for Death (Rank 2)
@@ -3321,16 +3297,6 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 64745: // Item - Death Knight T8 Tank 4P Bonus
             case 64936: // Item - Warrior T8 Protection 4P Bonus
                 spellInfo->Effects[0].BasePoints = 100; // 100% chance of procc'ing, not -10% (chance calculated in PrepareTriggersExecutedOnHit)
-                break;
-            case 19970: // Entangling Roots (Rank 6) -- Nature's Grasp Proc
-            case 19971: // Entangling Roots (Rank 5) -- Nature's Grasp Proc
-            case 19972: // Entangling Roots (Rank 4) -- Nature's Grasp Proc
-            case 19973: // Entangling Roots (Rank 3) -- Nature's Grasp Proc
-            case 19974: // Entangling Roots (Rank 2) -- Nature's Grasp Proc
-            case 19975: // Entangling Roots (Rank 1) -- Nature's Grasp Proc
-            case 27010: // Entangling Roots (Rank 7) -- Nature's Grasp Proc
-            case 53313: // Entangling Roots (Rank 8) -- Nature's Grasp Proc
-                spellInfo->CastTimeEntry = sSpellCastTimesStore.LookupEntry(1);
                 break;
             case 59414: // Pulsing Shockwave Aura (Loken)
                 // this flag breaks movement, remove it
@@ -3698,6 +3664,6 @@ void SpellMgr::LoadSpellInfoCorrections()
     properties->Type = SUMMON_TYPE_TOTEM;
     properties = const_cast<SummonPropertiesEntry*>(sSummonPropertiesStore.LookupEntry(647)); // 52893
     properties->Type = SUMMON_TYPE_TOTEM;
-    
+
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded SpellInfo corrections in %u ms", GetMSTimeDiffToNow(oldMSTime));
 }
