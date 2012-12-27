@@ -127,8 +127,7 @@ enum ScriptsType
 {
     SCRIPTS_FIRST = 1,
 
-    SCRIPTS_QUEST_END = SCRIPTS_FIRST,
-    SCRIPTS_SPELL,
+    SCRIPTS_SPELL = SCRIPTS_FIRST,
     SCRIPTS_GAMEOBJECT,
     SCRIPTS_EVENT,
     SCRIPTS_WAYPOINT,
@@ -361,7 +360,6 @@ typedef std::multimap<uint32, ScriptInfo> ScriptMap;
 typedef std::map<uint32, ScriptMap > ScriptMapMap;
 typedef std::multimap<uint32, uint32> SpellScriptsContainer;
 typedef std::pair<SpellScriptsContainer::iterator, SpellScriptsContainer::iterator> SpellScriptsBounds;
-extern ScriptMapMap sQuestEndScripts;
 extern ScriptMapMap sSpellScripts;
 extern ScriptMapMap sGameObjectScripts;
 extern ScriptMapMap sEventScripts;
@@ -858,7 +856,6 @@ class ObjectMgr
         }
 
         void LoadGameObjectScripts();
-        void LoadQuestEndScripts();
         void LoadEventScripts();
         void LoadSpellScripts();
         void LoadWaypointScripts();

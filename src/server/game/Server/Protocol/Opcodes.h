@@ -680,7 +680,7 @@ enum Opcodes
     SMSG_AREA_TRIGGER_MESSAGE                         = 0x4505,
     SMSG_AREA_TRIGGER_MOVEMENT_UPDATE                 = 0x3DB1,
     SMSG_ARENA_ERROR                                  = 0x2D17,
-    SMSG_ARENA_OPPONENT_UPDATE                        = 0x2637,
+    SMSG_ARENA_UNIT_DESTROYED                         = 0x2637,
     SMSG_ARENA_TEAM_CHANGE_FAILED_QUEUED              = 0x6E34,
     SMSG_ARENA_TEAM_COMMAND_RESULT                    = 0x39B3,
     SMSG_ARENA_TEAM_EVENT                             = 0x0617,
