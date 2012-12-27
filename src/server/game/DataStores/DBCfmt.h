@@ -23,8 +23,8 @@
 // n - index (included), l - bool, p - field present in sql dbc, a - field absent in sql dbc
 
 char const Achievementfmt[]="niixsxiixixxii";
-//const std::string CustomAchievementfmt="pppaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaapapaaaaaaaaaaaaaaaaaapp";
-//const std::string CustomAchievementIndex = "ID";
+const std::string CustomAchievementfmt="pppaaaapapaapp";
+const std::string CustomAchievementIndex = "ID";
 char const AchievementCriteriafmt[]="niiiiiiiisiiiiixxiiiiii";
 char const AreaTableEntryfmt[]="iiinixxxxxisiiiiifxxxxxxxx";
 char const AreaGroupEntryfmt[]="niiiiiii";
