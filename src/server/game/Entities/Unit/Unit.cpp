@@ -17375,6 +17375,31 @@ bool Unit::UpdatePosition(float x, float y, float z, float orientation, bool tel
     else if (turn)
         UpdateOrientation(orientation);
 
+    if (Creature* creature = ToCreature())
+    {
+        // Set the movement flags if the creature is in that mode. (Only fly if actually in air, only swim if in water, etc)
+        float ground = z;
+        GetMap()->GetWaterOrGroundLevel(x, y, z, &ground);
+
+        bool isInAir = G3D::fuzzyGt(z, ground);
+        CreatureTemplate const* cinfo = creature->GetCreatureTemplate();
+
+        if (cinfo->InhabitType & INHABIT_AIR && cinfo->InhabitType & INHABIT_GROUND && isInAir)
+            SetCanFly(true);
+        else if (cinfo->InhabitType & INHABIT_AIR && isInAir)
+            SetDisableGravity(true);
+        else
+        {
+            SetCanFly(false);
+            SetDisableGravity(false);
+        }
+
+        if (cinfo->InhabitType & INHABIT_WATER && GetMap()->IsInWater(x, y, z))
+            AddUnitMovementFlag(MOVEMENTFLAG_SWIMMING);
+        else
+            RemoveUnitMovementFlag(MOVEMENTFLAG_SWIMMING);
+    }
+
     // code block for underwater state update
     UpdateUnderwaterState(GetMap(), x, y, z);
 
