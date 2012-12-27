@@ -48,9 +48,9 @@ public:
         };
     	static ChatCommand lookupSpellCommandTable[] =
         {
-            { "id",             SEC_ADMINISTRATOR,  true,  &HandleLookupSpellIdCommand,        "", NULL },
-            { "",				SEC_ADMINISTRATOR,  true,  &HandleLookupSpellCommand,          "", NULL },
-			{ NULL,             0,                  false, NULL,                                "", NULL }
+            { "id",             SEC_ADMINISTRATOR,  true,  &HandleLookupSpellIdCommand,         "", NULL },
+            { "",		SEC_ADMINISTRATOR,  true,  &HandleLookupSpellCommand,           "", NULL },
+	    { NULL,             0,                  false, NULL,                                "", NULL }
         };
         static ChatCommand lookupCommandTable[] =
         {
@@ -64,7 +64,7 @@ public:
             { "quest",          SEC_ADMINISTRATOR,  true,  &HandleLookupQuestCommand,           "", NULL },
             { "player",         SEC_GAMEMASTER,     true,  NULL,                                "", lookupPlayerCommandTable },
             { "skill",          SEC_ADMINISTRATOR,  true,  &HandleLookupSkillCommand,           "", NULL },
-			{ "spell",          SEC_ADMINISTRATOR,  true,  NULL,								"", lookupSpellCommandTable },
+	    { "spell",          SEC_ADMINISTRATOR,  true,  NULL,				"", lookupSpellCommandTable },
             { "taxinode",       SEC_ADMINISTRATOR,  true,  &HandleLookupTaxiNodeCommand,        "", NULL },
             { "tele",           SEC_MODERATOR,      true,  &HandleLookupTeleCommand,            "", NULL },
             { "title",          SEC_GAMEMASTER,     true,  &HandleLookupTitleCommand,           "", NULL },
@@ -838,7 +838,7 @@ public:
     }
 
 
-	static bool HandleLookupSpellCommand(ChatHandler* handler, char const* args)
+    static bool HandleLookupSpellCommand(ChatHandler* handler, char const* args)
     {
         if (!*args)
             return false;
@@ -950,7 +950,7 @@ public:
         return true;
     }
 
-	static bool HandleLookupSpellIdCommand(ChatHandler* handler, char const* args)
+    static bool HandleLookupSpellIdCommand(ChatHandler* handler, char const* args)
     {
         if (!*args)
             return false;
@@ -958,28 +958,28 @@ public:
         // can be NULL at console call
         Player* target = handler->getSelectedPlayer();
 
-		uint32 id = atoi((char*)args);
+	uint32 id = atoi((char*)args);
 
         bool found = false;
         uint32 count = 0;
         uint32 maxResults = 1;
 
-		SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(id);
+	SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(id);
         if (spellInfo)
         {
-			int locale = handler->GetSessionDbcLocale();
+	    int locale = handler->GetSessionDbcLocale();
             std::string name = spellInfo->SpellName[locale];
             if (name.empty())
-			{
-				handler->SendSysMessage(LANG_COMMAND_NOSPELLFOUND);
-				return true;
-			}
+	    {
+		handler->SendSysMessage(LANG_COMMAND_NOSPELLFOUND);
+		return true;
+	    }
 
             if (locale < TOTAL_LOCALES)
             {
-				if (maxResults && count++ == maxResults)
+		if (maxResults && count++ == maxResults)
                 {
-					handler->PSendSysMessage(LANG_COMMAND_LOOKUP_MAX_RESULTS, maxResults);
+		    handler->PSendSysMessage(LANG_COMMAND_LOOKUP_MAX_RESULTS, maxResults);
                     return true;
                 }
 
@@ -1001,9 +1001,9 @@ public:
                 // send spell in "id - [name, rank N] [talent] [passive] [learn] [known]" format
                 std::ostringstream ss;
                 if (handler->GetSession())
-					ss << id << " - |cffffffff|Hspell:" << id << "|h[" << name;
-				else
-					ss << id << " - " << name;
+			ss << id << " - |cffffffff|Hspell:" << id << "|h[" << name;
+		else
+			ss << id << " - " << name;
 
                 // include rank in link name
                 if (rank)
