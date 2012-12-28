@@ -3661,6 +3661,7 @@ void SpellMgr::LoadDbcDataCorrections()
                 break;
             case 45524: // Chains of Ice
                 spellInfo->EffectImplicitTargetA[EFFECT_2] = 0;
+                spellInfo->EffectImplicitTargetA[2] = TARGET_UNIT_TARGET_ENEMY;
                 break;
             case 2378: // Minor Fortitude
                 spellInfo->manaCost = 0;
@@ -3683,9 +3684,6 @@ void SpellMgr::LoadDbcDataCorrections()
                 spellInfo->EffectApplyAuraName[0] = SPELL_AURA_ADD_FLAT_MODIFIER;
                 spellInfo->EffectBasePoints[0] = -1.5*IN_MILLISECONDS*0.66; // reduce cast time of seduction by 66%
                 spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_CASTER;
-                break;
-            case 45524: // Chains of Ice
-                spellInfo->EffectImplicitTargetA[2] = TARGET_UNIT_TARGET_ENEMY;
                 break;
             // OCULUS SPELLS
             // The spells below are here, because their effect 1 is giving warning, because the triggered spell is not found in dbc and is missing from encounter sniff.
