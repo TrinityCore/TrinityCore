@@ -3123,6 +3123,9 @@ void Player::GiveLevel(uint8 level)
         SetPower(POWER_RAGE, GetMaxPower(POWER_RAGE));
     SetPower(POWER_FOCUS, 0);
 
+    if (level >= 10 && getClass() == CLASS_WARLOCK)
+        this->SetPower(POWER_SOUL_SHARDS, 3);
+
     // update level to hunter/summon pet
     if (Pet* pet = GetPet())
         pet->SynchronizeLevelWithOwner();
