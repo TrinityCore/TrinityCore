@@ -3619,6 +3619,9 @@ void SpellMgr::LoadDbcDataCorrections()
             case 40167: // Introspection
                 spellInfo->Attributes |= SPELL_ATTR0_NEGATIVE_1;
                 break;
+            case 45524: // Chains of Ice
+                spellInfo->EffectImplicitTargetA[EFFECT_2] = 0;
+                break;
             case 2378: // Minor Fortitude
                 spellInfo->manaCost = 0;
                 spellInfo->manaPerSecond = 0;
