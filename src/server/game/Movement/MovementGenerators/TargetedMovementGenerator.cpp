@@ -46,6 +46,12 @@ void TargetedMovementGeneratorMedium<T,D>::_setTargetLocation(T* owner, bool upd
         {
             // to nearest contact position
             i_target->GetContactPoint(owner, x, y, z);
+            if (!i_target->IsWithinDist3d ( x, y, z, owner->GetCombatReach() ))
+            { // if creature cann't attack target, it's trying to find another path
+                z = i_target->GetPositionZ();
+                x = i_target->GetPositionX();
+                y = i_target->GetPositionY();// may be it's not correct, but I have no idea how to find another destanation point near target, but not in target
+            }
         }
         else
         {
@@ -74,6 +80,12 @@ void TargetedMovementGeneratorMedium<T,D>::_setTargetLocation(T* owner, bool upd
 
             // to at i_offset distance from target and i_angle from target facing
             i_target->GetClosePoint(x, y, z, size, i_offset, i_angle);
+            if ( (abs ( i_target->GetPositionZ()-z ) >1.5F)) 
+            { //Pet must be on same level as player
+                //if it isn't, we shall place pet near player
+                i_target->GetClosePoint ( x, y, z, i_target->GetObjectSize(), 0, 3.14F );
+                                
+            }
         }
     }
     else
@@ -89,15 +101,19 @@ void TargetedMovementGeneratorMedium<T,D>::_setTargetLocation(T* owner, bool upd
         i_path = new PathGenerator(owner);
 
     // allow pets to use shortcut if no path found when following their master
-    bool forceDest = (owner->GetTypeId() == TYPEID_UNIT && owner->ToCreature()->isPet()
+    bool forceDest = (owner->GetTypeId() == TYPEID_UNIT && (owner->ToCreature()->isPet() || owner->ToCreature()->isGuardian())//guards may teleport themselves to their masters too
                         && owner->HasUnitState(UNIT_STATE_FOLLOW));
 
-    bool result = i_path->CalculatePath(x, y, z, forceDest);
-    if (!result || (i_path->GetPathType() & PATHFIND_NOPATH))
+    bool result = i_path->CalculatePath(x, y, z, false );//for all units, including pets trying to find path without forcing
+    if (!result || ( i_path->GetPathType() & PATHFIND_NOPATH ) || ( i_path->GetPathType() & PATHFIND_INCOMPLETE ) )
     {
+        if ( !forceDest )
+        { //if other creature cann't move to target
+            owner->AddUnitState(UNIT_STATE_EVADE);//it must evade
+            return;
+        }
         // Cant reach target
-        i_recalculateTravel = true;
-        return;
+        
     }
 
     D::_addUnitStateMove(owner);
@@ -154,10 +170,10 @@ bool TargetedMovementGeneratorMedium<T,D>::Update(T* owner, uint32 time_diff)
         float allowed_dist = owner->GetCombatReach() + sWorld->getRate(RATE_TARGET_POS_RECALCULATION_RANGE);
         G3D::Vector3 dest = owner->movespline->FinalDestination();
 
-        if (owner->GetTypeId() == TYPEID_UNIT && owner->ToCreature()->CanFly())
-            targetMoved = !i_target->IsWithinDist3d(dest.x, dest.y, dest.z, allowed_dist);
-        else
-            targetMoved = !i_target->IsWithinDist2d(dest.x, dest.y, allowed_dist);
+//        if (owner->GetTypeId() == TYPEID_UNIT && owner->ToCreature()->CanFly())//if unit cann't fly it does not mean that its target cann't fly too
+        targetMoved = (!i_target->IsWithinDist3d(dest.x, dest.y, dest.z, allowed_dist) || !i_target->IsWithinLOS(dest.x, dest.y, dest.z) );//target can hide behind pillar, but unit must find it there
+//        else
+//            targetMoved = !i_target->IsWithinDist2d(dest.x, dest.y, allowed_dist);
     }
 
     if (i_recalculateTravel || targetMoved)
