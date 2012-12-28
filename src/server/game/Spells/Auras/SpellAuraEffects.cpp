@@ -454,6 +454,11 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
     // custom amount calculations go here
     switch (GetAuraType())
     {
+        // Control vehicle auras should not get m_amount sum out of basepoints and DieSide calculated together,
+        // but only from basepoints. Only such aura case fow now so handle it here.
+        case SPELL_AURA_CONTROL_VEHICLE:
+        m_amount = m_baseAmount;
+        break;
         // crowd control auras
         case SPELL_AURA_MOD_CONFUSE:
         case SPELL_AURA_MOD_FEAR:
@@ -3199,7 +3204,6 @@ void AuraEffect::HandleAuraControlVehicle(AuraApplication const* aurApp, uint8 m
 
     if (apply)
     {
-        // correct amount is already calculated adding one more -1 meant calculated amount - 1
         caster->_EnterVehicle(target->GetVehicleKit(), m_amount, aurApp);
     }
     else
