@@ -17381,7 +17381,7 @@ bool Unit::UpdatePosition(float x, float y, float z, float orientation, bool tel
         float ground = z;
         GetMap()->GetWaterOrGroundLevel(x, y, z, &ground);
 
-        bool isInAir = G3D::fuzzyGt(z, ground);
+        bool isInAir = G3D::fuzzyGt(z, ground + 0.05f);
         CreatureTemplate const* cinfo = creature->GetCreatureTemplate();
 
         if (cinfo->InhabitType & INHABIT_AIR && cinfo->InhabitType & INHABIT_GROUND && isInAir)
