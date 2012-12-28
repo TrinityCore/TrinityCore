@@ -3124,7 +3124,7 @@ void Player::GiveLevel(uint8 level)
     SetPower(POWER_FOCUS, 0);
 
     if (level >= 10 && getClass() == CLASS_WARLOCK)
-        SetPower(POWER_SOUL_SHARDS, 3);
+        CastSpell(this, 95810);
 
     // update level to hunter/summon pet
     if (Pet* pet = GetPet())
