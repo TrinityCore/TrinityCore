@@ -1052,12 +1052,10 @@ class go_captain_tyralius_prison : public GameObjectScript
 
         bool OnGossipHello(Player* player, GameObject* go)
         {
+            go->UseDoorOrButton();
             if (Creature* tyralius = go->FindNearestCreature(NPC_CAPTAIN_TYRALIUS, 1.0f))
             {
-                go->UseDoorOrButton();
-
                 player->KilledMonsterCredit(NPC_CAPTAIN_TYRALIUS, 0);
-
                 tyralius->AI()->Talk(SAY_FREE);
                 tyralius->DespawnOrUnsummon(8000);
             }
