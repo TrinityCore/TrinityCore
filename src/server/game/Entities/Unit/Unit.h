@@ -2169,6 +2169,8 @@ class Unit : public WorldObject
         void _EnterVehicle(Vehicle* vehicle, int8 seatId, AuraApplication const* aurApp = NULL);
 
         void BuildMovementPacket(ByteBuffer *data) const;
+        void ReadMovementInfo(WorldPacket& data, MovementInfo* mi);
+        void WriteMovementInfo(WorldPacket& data);
 
         bool isMoving() const   { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_MASK_MOVING); }
         bool isTurning() const  { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_MASK_TURNING); }

@@ -1666,7 +1666,7 @@ void WorldSession::HandleMoveSetCanFlyAckOpcode(WorldPacket& recvData)
 
     MovementInfo movementInfo;
     movementInfo.guid = guid;
-    ReadMovementInfo(recvData, &movementInfo);
+    _player->ReadMovementInfo(recvData, &movementInfo);
 
     recvData.read_skip<float>();                           // unk2
 
