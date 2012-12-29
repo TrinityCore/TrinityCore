@@ -406,6 +406,7 @@ public:
 
     bool OnGossipHello(Player* player, GameObject* go)
     {
+        go->UseDoorOrButton();
         if (player->GetQuestStatus(5151) == QUEST_STATUS_INCOMPLETE)
         {
             if (Creature* panther = go->FindNearestCreature(ENRAGED_PANTHER, 5, true))
