@@ -478,6 +478,23 @@ void Creature::Update(uint32 diff)
             RemoveUnitMovementFlag(MOVEMENTFLAG_SWIMMING);
     }
 
+    // Set the movement flags if the creature is in that mode. (Only fly if actually in air, only swim if in water, etc)
+    float ground = GetPositionZ();
+    GetMap()->GetWaterOrGroundLevel(GetPositionX(), GetPositionY(), GetPositionZ(), &ground);
+
+    bool isInAir = G3D::fuzzyGt(GetPositionZ(), ground + 0.05f);
+    CreatureTemplate const* cinfo = GetCreatureTemplate();
+
+    if (cinfo->InhabitType & INHABIT_AIR && cinfo->InhabitType & INHABIT_GROUND && isInAir)
+        SetCanFly(true);
+    else if (cinfo->InhabitType & INHABIT_AIR && isInAir)
+        SetDisableGravity(true);
+    else
+    {
+        SetCanFly(false);
+        SetDisableGravity(false);
+    }
+
     switch (m_deathState)
     {
         case JUST_RESPAWNED:
