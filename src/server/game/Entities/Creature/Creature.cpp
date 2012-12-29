@@ -438,7 +438,7 @@ bool Creature::UpdateEntry(uint32 Entry, uint32 team, const CreatureData* data)
     float ground = GetPositionZ();
     GetMap()->GetWaterOrGroundLevel(GetPositionX(), GetPositionY(), GetPositionZ(), &ground);
 
-    bool isInAir = G3D::fuzzyGt(GetPositionZ(), ground);
+    bool isInAir = G3D::fuzzyGt(GetPositionZ(), ground + 0.05f) || G3D::fuzzyLt(GetPositionZ(), ground - 0.05f); // Can be underground too, prevent the falling
 
     if (cInfo->InhabitType & INHABIT_AIR && cInfo->InhabitType & INHABIT_GROUND && isInAir)
         SetCanFly(true);
@@ -484,7 +484,7 @@ void Creature::Update(uint32 diff)
     float ground = GetPositionZ();
     GetMap()->GetWaterOrGroundLevel(GetPositionX(), GetPositionY(), GetPositionZ(), &ground);
 
-    bool isInAir = G3D::fuzzyGt(GetPositionZ(), ground + 0.05f);
+    bool isInAir = G3D::fuzzyGt(GetPositionZ(), ground + 0.05f) || G3D::fuzzyLt(GetPositionZ(), ground - 0.05f); // Can be underground too, prevent the falling
     CreatureTemplate const* cinfo = GetCreatureTemplate();
 
     if (cinfo->InhabitType & INHABIT_AIR && cinfo->InhabitType & INHABIT_GROUND && isInAir)
@@ -907,7 +907,7 @@ bool Creature::isCanTrainingOf(Player* player, bool msg) const
                 if (msg)
                 {
                     player->PlayerTalkClass->ClearMenus();
-                    switch (GetCreatureTemplate()->trainer_class)
+                    switch (GetCreatureTemplate()->trainer_race)
                     {
                         case RACE_DWARF:        player->PlayerTalkClass->SendGossipMenu(5865, GetGUID()); break;
                         case RACE_GNOME:        player->PlayerTalkClass->SendGossipMenu(4881, GetGUID()); break;
@@ -1582,7 +1582,7 @@ void Creature::setDeathState(DeathState s)
         float ground = GetPositionZ();
         GetMap()->GetWaterOrGroundLevel(GetPositionX(), GetPositionY(), GetPositionZ(), &ground);
 
-        bool isInAir = G3D::fuzzyGt(GetPositionZ(), ground);
+        bool isInAir = G3D::fuzzyGt(GetPositionZ(), ground + 0.05f) || G3D::fuzzyLt(GetPositionZ(), ground - 0.05f); // Can be underground too, prevent the falling
 
         if (cinfo->InhabitType & INHABIT_AIR && cinfo->InhabitType & INHABIT_GROUND && isInAir)
             SetCanFly(true);
