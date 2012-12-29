@@ -17064,7 +17064,7 @@ bool Unit::HandleSpellClick(Unit* clicker, int8 seatId)
             }
 
             if (IsInMap(caster))
-                caster->CastCustomSpell(itr->second.spellId, SpellValueMod(SPELLVALUE_BASE_POINT0+i), seatId, target, GetVehicleKit() ? TRIGGERED_IGNORE_CASTER_MOUNTED_OR_ON_VEHICLE : TRIGGERED_NONE, NULL, NULL, origCasterGUID);
+                caster->CastCustomSpell(itr->second.spellId, SpellValueMod(SPELLVALUE_BASE_POINT0+i), seatId + 1, target, GetVehicleKit() ? TRIGGERED_IGNORE_CASTER_MOUNTED_OR_ON_VEHICLE : TRIGGERED_NONE, NULL, NULL, origCasterGUID);
             else    // This can happen during Player::_LoadAuras
             {
                 int32 bp0 = seatId;
@@ -17094,7 +17094,7 @@ bool Unit::HandleSpellClick(Unit* clicker, int8 seatId)
 
 void Unit::EnterVehicle(Unit* base, int8 seatId)
 {
-    CastCustomSpell(VEHICLE_SPELL_RIDE_HARDCODED, SPELLVALUE_BASE_POINT0, seatId, base, TRIGGERED_IGNORE_CASTER_MOUNTED_OR_ON_VEHICLE);
+    CastCustomSpell(VEHICLE_SPELL_RIDE_HARDCODED, SPELLVALUE_BASE_POINT0, seatId + 1, base, TRIGGERED_IGNORE_CASTER_MOUNTED_OR_ON_VEHICLE);
 }
 
 void Unit::_EnterVehicle(Vehicle* vehicle, int8 seatId, AuraApplication const* aurApp)
