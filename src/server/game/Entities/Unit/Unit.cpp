@@ -17344,7 +17344,7 @@ void Unit::SendTeleportPacket(Position& pos)
         Relocate(&oldPos);
     if (GetTypeId() == TYPEID_PLAYER)
         Relocate(&pos);
-    SendMessageToSet(&data2, true);
+    SendMessageToSet(&data2, false);
 }
 
 bool Unit::UpdatePosition(float x, float y, float z, float orientation, bool teleport)
