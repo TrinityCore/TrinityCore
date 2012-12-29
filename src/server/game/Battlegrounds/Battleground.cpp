@@ -554,6 +554,9 @@ inline void Battleground::_ProcessJoin(uint32 diff)
                     sBattlegroundMgr->BuildBattlegroundStatusPacket(&status, this, player, queueSlot, STATUS_IN_PROGRESS, player->GetBattlegroundQueueJoinTime(m_TypeID), GetElapsedTime(), GetArenaType());
                     player->GetSession()->SendPacket(&status);
 
+                    // Correctly display EnemyUnitFrame
+                    player->SetByteValue(PLAYER_BYTES_3, 3, player->GetBGTeam());
+
                     player->RemoveAurasDueToSpell(SPELL_ARENA_PREPARATION);
                     player->ResetAllPowers();
                     if (!player->isGameMaster())
@@ -1237,9 +1240,6 @@ void Battleground::AddPlayer(Player* player)
             player->CastSpell(player, SPELL_ARENA_PREPARATION, true);
             player->ResetAllPowers();
         }
-        // Correctly display EnemyUnitFrame
-        player->SetByteValue(PLAYER_BYTES_3, 3, player->GetBGTeam());
-
     }
     else
     {
