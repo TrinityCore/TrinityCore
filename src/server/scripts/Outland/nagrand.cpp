@@ -388,11 +388,11 @@ public:
 
   bool OnGossipHello(Player* player, GameObject* go)
   {
+      go->SetGoState(GO_STATE_READY);
       if (go->GetEntry() == GO_CORKIS_PRISON)
       {
           if (Creature* corki = go->FindNearestCreature(NPC_CORKI, 25, true))
           {
-              go->SetGoState(GO_STATE_READY);
               corki->GetMotionMaster()->MovePoint(1, go->GetPositionX()+5, go->GetPositionY(), go->GetPositionZ());
               if (player)
                   player->KilledMonsterCredit(NPC_CORKI_CREDIT_1, 0);
@@ -403,7 +403,6 @@ public:
       {
           if (Creature* corki = go->FindNearestCreature(NPC_CORKI_2, 25, true))
           {
-              go->SetGoState(GO_STATE_READY);
               corki->GetMotionMaster()->MovePoint(1, go->GetPositionX()-5, go->GetPositionY(), go->GetPositionZ());
               if (player)
                   player->KilledMonsterCredit(NPC_CORKI_2, 0);
@@ -414,7 +413,6 @@ public:
       {
           if (Creature* corki = go->FindNearestCreature(NPC_CORKI_3, 25, true))
           {
-              go->SetGoState(GO_STATE_READY);
               corki->GetMotionMaster()->MovePoint(1, go->GetPositionX()+4, go->GetPositionY(), go->GetPositionZ());
               if (player)
                   player->KilledMonsterCredit(NPC_CORKI_CREDIT_3, 0);
@@ -683,12 +681,12 @@ class go_warmaul_prison : public GameObjectScript
 
         bool OnGossipHello(Player* player, GameObject* go)
         {
+            go->UseDoorOrButton();
             if (player->GetQuestStatus(QUEST_FINDING_THE_SURVIVORS) != QUEST_STATUS_INCOMPLETE)
                 return false;
 
             if (Creature* prisoner = go->FindNearestCreature(NPC_MAGHAR_PRISONER, 5.0f))
             {
-                go->UseDoorOrButton();
                 player->KilledMonsterCredit(NPC_MAGHAR_PRISONER, 0);
 
                 prisoner->AI()->Talk(SAY_FREE, player->GetGUID());

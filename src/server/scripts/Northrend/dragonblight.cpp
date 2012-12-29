@@ -33,6 +33,8 @@ EndContentData */
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"
 #include "ScriptedEscortAI.h"
+#include "Vehicle.h"
+#include "CombatAI.h"
 #include "Player.h"
 
 enum eEnums
@@ -172,15 +174,27 @@ public:
 };
 
 /*######
-## wyrmrest_defender
+## Quest: Defending Wyrmrest Temple ID: 12372
 ######*/
 
 enum WyrmDefenderEnum
 {
-    QUEST_DEFENDING_WYRMREST_TEMPLE  = 12372,
-    GOSSIP_TEXTID_DEF1               = 12899,
-    GOSSIP_TEXTID_DEF2               = 12900,
-    SPELL_CHARACTER_SCRIPT           = 49213
+    // Quest data
+    QUEST_DEFENDING_WYRMREST_TEMPLE          = 12372,
+    GOSSIP_TEXTID_DEF1                       = 12899,
+
+    // Gossip data
+    GOSSIP_TEXTID_DEF2                       = 12900,
+
+    // Spells data
+    SPELL_CHARACTER_SCRIPT                   = 49213,
+    SPELL_DEFENDER_ON_LOW_HEALTH_EMOTE       = 52421, // ID - 52421 Wyrmrest Defender: On Low Health Boss Emote to Controller - Random /self/
+    SPELL_RENEW                              = 49263, // casted to heal drakes
+    SPELL_WYRMREST_DEFENDER_MOUNT            = 49256,
+
+    // Texts data
+    WHISPER_MOUNTED                        = 0,
+    BOSS_EMOTE_ON_LOW_HEALTH               = 2
 };
 
 #define GOSSIP_ITEM_1      "We need to get into the fight. Are you ready?"
@@ -211,9 +225,78 @@ class npc_wyrmrest_defender : public CreatureScript
                 player->SEND_GOSSIP_MENU(GOSSIP_TEXTID_DEF2, creature->GetGUID());
                 // Makes player cast trigger spell for 49207 on self
                 player->CastSpell(player, SPELL_CHARACTER_SCRIPT, true);
+                // The gossip should not auto close
             }
 
             return true;
+        }
+
+        struct npc_wyrmrest_defenderAI : public VehicleAI
+        {
+            npc_wyrmrest_defenderAI(Creature* creature) : VehicleAI(creature) { }
+
+            bool hpWarningReady;
+            bool renewRecoveryCanCheck;
+
+            uint32 RenewRecoveryChecker;
+
+            void Reset()
+            {
+                hpWarningReady = true;
+                renewRecoveryCanCheck = false;
+
+                RenewRecoveryChecker = 0;
+            }
+
+            void UpdateAI(uint32 const diff)
+            {
+                // Check system for Health Warning should happen first time whenever get under 30%,
+                // after it should be able to happen only after recovery of last renew is fully done (20 sec),
+                // next one used won't interfere
+                if (hpWarningReady && me->GetHealthPct() <= 30.0f)
+                {
+                    me->CastSpell(me, SPELL_DEFENDER_ON_LOW_HEALTH_EMOTE);
+                    hpWarningReady = false;
+                }
+
+                if (renewRecoveryCanCheck)
+                {
+                    if (RenewRecoveryChecker <= diff)
+                    {
+                        renewRecoveryCanCheck = false;
+                        hpWarningReady = true;
+                    }
+                    else RenewRecoveryChecker -= diff;
+                }
+            }
+
+            void SpellHit(Unit* /*caster*/, SpellInfo const* spell)
+            {
+                switch (spell->Id)
+                {
+                    case SPELL_WYRMREST_DEFENDER_MOUNT:
+                        Talk(WHISPER_MOUNTED, me->GetCharmerOrOwnerGUID());
+                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
+                        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE);
+                        break;
+                    // Both below are for checking low hp warning
+                    case SPELL_DEFENDER_ON_LOW_HEALTH_EMOTE:
+                        Talk(BOSS_EMOTE_ON_LOW_HEALTH, me->GetCharmerOrOwnerGUID());
+                        break;
+                    case SPELL_RENEW:
+                        if (!hpWarningReady && RenewRecoveryChecker <= 100)
+                        {
+                            RenewRecoveryChecker = 20000;
+                        }
+                        renewRecoveryCanCheck = true;
+                        break;
+                }
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new npc_wyrmrest_defenderAI(creature);
         }
 };
 

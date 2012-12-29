@@ -1249,7 +1249,7 @@ OpcodeHandler opcodeTable[NUM_MSG_TYPES] =
     /*0x4C4*/ { "CMSG_GM_GRANT_ACHIEVEMENT",                    STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_NULL                     },
     /*0x4C5*/ { "CMSG_GM_REMOVE_ACHIEVEMENT",                   STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_NULL                     },
     /*0x4C6*/ { "CMSG_GM_SET_CRITERIA_FOR_PLAYER",              STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_NULL                     },
-    /*0x4C7*/ { "SMSG_ARENA_OPPONENT_UPDATE",                   STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               },
+    /*0x4C7*/ { "SMSG_ARENA_UNIT_DESTROYED",                    STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               },
     /*0x4C8*/ { "SMSG_ARENA_TEAM_CHANGE_FAILED_QUEUED",         STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               },
     /*0x4C9*/ { "CMSG_PROFILEDATA_REQUEST",                     STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_NULL                     },
     /*0x4CA*/ { "SMSG_PROFILEDATA_RESPONSE",                    STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               },

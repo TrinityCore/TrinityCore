@@ -433,27 +433,26 @@ bool Creature::UpdateEntry(uint32 Entry, uint32 team, const CreatureData* data)
         ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_ATTACK_ME, true);
     }
 
-    //! Suspect it works this way:
-    //! If creature can walk and fly (usually with pathing)
-    //! Set MOVEMENTFLAG_CAN_FLY. Otherwise if it can only fly
-    //! Set MOVEMENTFLAG_DISABLE_GRAVITY
-    //! The only time I saw Movement Flags: DisableGravity, CanFly, Flying (50332672) on the same unit
-    //! it was a vehicle
-    if (cInfo->InhabitType & INHABIT_AIR && cInfo->InhabitType & INHABIT_GROUND)
+    // Set the movement flags if the creature is in that mode. (Only fly if actually in air, only swim if in water, etc)
+    float ground = GetPositionZ();
+    GetMap()->GetWaterOrGroundLevel(GetPositionX(), GetPositionY(), GetPositionZ(), &ground);
+
+    bool isInAir = G3D::fuzzyGt(GetPositionZ(), ground + 0.05f) || G3D::fuzzyLt(GetPositionZ(), ground - 0.05f); // Can be underground too, prevent the falling
+
+    if (cInfo->InhabitType & INHABIT_AIR && cInfo->InhabitType & INHABIT_GROUND && isInAir)
         SetCanFly(true);
-    else if (cInfo->InhabitType & INHABIT_AIR)
+    else if (cInfo->InhabitType & INHABIT_AIR && isInAir)
         SetDisableGravity(true);
-    /*! Implemented in LoadCreatureAddon. Suspect there's a rule for UNIT_BYTE_1_FLAG_HOVER
-        in relation to DisableGravity also.
+    else
+    {
+        SetCanFly(false);
+        SetDisableGravity(false);
+    }
 
-    else if (GetByteValue(UNIT_FIELD_BYTES_1, 3) & UNIT_BYTE_1_FLAG_HOVER)
-        SetHover(true);
-
-    */
-
-    // TODO: Shouldn't we check whether or not the creature is in water first?
-    if (cInfo->InhabitType & INHABIT_WATER)
-        AddUnitMovementFlag(MOVEMENTFLAG_SWIMMING);
+    if (cInfo->InhabitType & INHABIT_WATER && IsInWater())
+         AddUnitMovementFlag(MOVEMENTFLAG_SWIMMING);
+    else
+        RemoveUnitMovementFlag(MOVEMENTFLAG_SWIMMING);
 
     return true;
 }
@@ -477,6 +476,23 @@ void Creature::Update(uint32 diff)
     {
         if (canWalk())
             RemoveUnitMovementFlag(MOVEMENTFLAG_SWIMMING);
+    }
+
+    // Set the movement flags if the creature is in that mode. (Only fly if actually in air, only swim if in water, etc)
+    float ground = GetPositionZ();
+    GetMap()->GetWaterOrGroundLevel(GetPositionX(), GetPositionY(), GetPositionZ(), &ground);
+
+    bool isInAir = G3D::fuzzyGt(GetPositionZ(), ground + 0.05f) || G3D::fuzzyLt(GetPositionZ(), ground - 0.05f); // Can be underground too, prevent the falling
+    CreatureTemplate const* cinfo = GetCreatureTemplate();
+
+    if (cinfo->InhabitType & INHABIT_AIR && cinfo->InhabitType & INHABIT_GROUND && isInAir)
+        SetCanFly(true);
+    else if (cinfo->InhabitType & INHABIT_AIR && isInAir)
+        SetDisableGravity(true);
+    else
+    {
+        SetCanFly(false);
+        SetDisableGravity(false);
     }
 
     switch (m_deathState)
@@ -892,7 +908,7 @@ bool Creature::isCanTrainingOf(Player* player, bool msg) const
                 if (msg)
                 {
                     player->PlayerTalkClass->ClearMenus();
-                    switch (GetCreatureTemplate()->trainer_class)
+                    switch (GetCreatureTemplate()->trainer_race)
                     {
                         case RACE_DWARF:        player->PlayerTalkClass->SendGossipMenu(5865, GetGUID()); break;
                         case RACE_GNOME:        player->PlayerTalkClass->SendGossipMenu(4881, GetGUID()); break;
@@ -1553,12 +1569,28 @@ void Creature::setDeathState(DeathState s)
         ResetPlayerDamageReq();
         CreatureTemplate const* cinfo = GetCreatureTemplate();
         SetWalk(true);
-        if (cinfo->InhabitType & INHABIT_AIR && cinfo->InhabitType & INHABIT_GROUND)
+
+        // Set the movement flags if the creature is in that mode. (Only fly if actually in air, only swim if in water, etc)
+        float ground = GetPositionZ();
+        GetMap()->GetWaterOrGroundLevel(GetPositionX(), GetPositionY(), GetPositionZ(), &ground);
+
+        bool isInAir = G3D::fuzzyGt(GetPositionZ(), ground + 0.05f) || G3D::fuzzyLt(GetPositionZ(), ground - 0.05f); // Can be underground too, prevent the falling
+
+        if (cinfo->InhabitType & INHABIT_AIR && cinfo->InhabitType & INHABIT_GROUND && isInAir)
             SetCanFly(true);
-        else if (cinfo->InhabitType & INHABIT_AIR)
+        else if (cinfo->InhabitType & INHABIT_AIR && isInAir)
             SetDisableGravity(true);
-        if (cinfo->InhabitType & INHABIT_WATER)
+        else
+        {
+            SetCanFly(false);
+            SetDisableGravity(false);
+        }
+
+        if (cinfo->InhabitType & INHABIT_WATER && IsInWater())
             AddUnitMovementFlag(MOVEMENTFLAG_SWIMMING);
+        else
+            RemoveUnitMovementFlag(MOVEMENTFLAG_SWIMMING);
+
         SetUInt32Value(UNIT_NPC_FLAGS, cinfo->npcflag);
         ClearUnitState(uint32(UNIT_STATE_ALL_STATE));
         SetMeleeDamageSchool(SpellSchools(cinfo->dmgschool));

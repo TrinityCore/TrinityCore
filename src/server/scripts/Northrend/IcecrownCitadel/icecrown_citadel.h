@@ -54,6 +54,9 @@ enum SharedSpells
     // The Lich King
     SPELL_ARTHAS_TELEPORTER_CEREMONY    = 72915,
     SPELL_FROSTMOURNE_TELEPORT_VISUAL   = 73078,
+
+    // Shadowmourne questline
+    SPELL_SHADOWS_FATE                  = 71169
 };
 
 enum TeleporterSpells
