@@ -908,7 +908,7 @@ bool Creature::isCanTrainingOf(Player* player, bool msg) const
                 if (msg)
                 {
                     player->PlayerTalkClass->ClearMenus();
-                    switch (GetCreatureTemplate()->trainer_class)
+                    switch (GetCreatureTemplate()->trainer_race)
                     {
                         case RACE_DWARF:        player->PlayerTalkClass->SendGossipMenu(5865, GetGUID()); break;
                         case RACE_GNOME:        player->PlayerTalkClass->SendGossipMenu(4881, GetGUID()); break;
