@@ -2170,9 +2170,13 @@ void WorldObject::SendMessageToSet(WorldPacket* data, bool self)
         SendMessageToSetInRange(data, GetVisibilityRange(), self);
 }
 
-void WorldObject::SendMessageToSetInRange(WorldPacket* data, float dist, bool /*self*/)
+void WorldObject::SendMessageToSetInRange(WorldPacket* data, float dist, bool self)
 {
-    Trinity::MessageDistDeliverer notifier(this, data, dist);
+    Player* skipped = NULL;
+    if (!self && GetTypeId() == TYPEID_PLAYER)
+        skipped = ToPlayer();
+
+    Trinity::MessageDistDeliverer notifier(this, data, dist, false, skipped);
     VisitNearbyWorldObject(dist, notifier);
 }
 
