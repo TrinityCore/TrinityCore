@@ -2094,6 +2094,89 @@ MovementStatusElements DismissControlledVehicle[] =
     MSEEnd,
 };
 
+// 4.3.4
+MovementStatusElements MoveUpdateTeleport[] =
+{
+    MSEPositionZ,
+    MSEPositionY,
+    MSEPositionX,
+    MSEHasOrientation,
+
+    MSEHasSpline,
+    MSEHasMovementFlags,
+    MSEHasGuidByte2,
+    MSEHasGuidByte4,
+    MSEHasGuidByte6,
+    MSEHasFallData,
+    MSEHasGuidByte0,
+    MSEHasTransportData,
+    MSEHasGuidByte5,
+
+    MSEHasTransportGuidByte1,
+    MSEHasTransportGuidByte4,
+    MSEHasTransportGuidByte5,
+    MSEHasTransportGuidByte3,
+    MSEHasTransportGuidByte0,
+    MSEHasTransportTime2,
+    MSEHasTransportGuidByte7,
+    MSEHasTransportGuidByte6,
+    MSEHasTransportTime3,
+    MSEHasTransportGuidByte2,
+
+    MSEZeroBit,
+
+    MSEHasGuidByte7,
+    MSEHasGuidByte3,
+    MSEHasPitch,
+    MSEHasMovementFlags2,
+    MSEHasTimestamp,
+
+    MSEHasFallDirection,
+    MSEMovementFlags2,
+    MSEHasSplineElevation,
+    MSEMovementFlags,
+    MSEHasGuidByte1,
+
+    MSEGuidByte7,
+    MSETransportGuidByte3,
+    MSETransportGuidByte4,
+    MSETransportOrientation,
+    MSETransportTime3,
+    MSETransportGuidByte1,
+    MSETransportTime2,
+    MSETransportPositionZ,
+    MSETransportGuidByte7,
+    MSETransportGuidByte0,
+    MSETransportGuidByte6,
+    MSETransportGuidByte5,
+    MSETransportGuidByte2,
+    MSETransportSeat,
+    MSETransportTime,
+    MSETransportPositionY,
+    MSETransportPositionX,
+
+    MSEGuidByte6,
+    MSEPitch,
+    MSESplineElevation,
+    MSEOrientation,
+    MSEGuidByte2,
+    MSEGuidByte3,
+    MSEGuidByte1,
+
+    MSEFallTime,
+    MSEFallHorizontalSpeed,
+    MSEFallSinAngle,
+    MSEFallCosAngle,
+    MSEFallVerticalSpeed,
+
+    MSEGuidByte5,
+    MSEGuidByte4,
+    MSETimestamp,
+    MSEGuidByte0,
+    
+    MSEEnd,
+};
+
 MovementStatusElements* GetMovementStatusElementsSequence(Opcodes opcode)
 {
     switch (opcode)
@@ -2152,6 +2235,8 @@ MovementStatusElements* GetMovementStatusElementsSequence(Opcodes opcode)
             return MoveNotActiveMover;
         case CMSG_DISMISS_CONTROLLED_VEHICLE:
             return DismissControlledVehicle;
+        case MSG_MOVE_UPDATE_TELEPORT:
+            return MoveUpdateTeleport;
         default:
             break;
     }
