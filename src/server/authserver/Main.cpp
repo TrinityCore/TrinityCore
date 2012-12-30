@@ -95,6 +95,7 @@ extern int main(int argc, char **argv)
         }
         ++c;
     }
+	
 
     if (!ConfigMgr::Load(cfg_file))
     {
@@ -103,11 +104,13 @@ extern int main(int argc, char **argv)
         return 1;
     }
 
-    sLog->outInfo(LOG_FILTER_AUTHSERVER, "%s (authserver)", _FULLVERSION);
+	sLog->outInfo(LOG_FILTER_WORLDSERVER, "%s AuthServer %s", _PACKAGENAME, _FULLVERSION);
     sLog->outInfo(LOG_FILTER_AUTHSERVER, "<Ctrl-C> to stop.\n");
-    sLog->outInfo(LOG_FILTER_AUTHSERVER, "Using configuration file %s.", cfg_file);
 
-    sLog->outWarn(LOG_FILTER_AUTHSERVER, "%s (Library: %s)", OPENSSL_VERSION_TEXT, SSLeay_version(SSLEAY_VERSION));
+    sLog->outInfo(LOG_FILTER_AUTHSERVER, "Using configuration file %s.\n", cfg_file);
+	
+    sLog->outInfo(LOG_FILTER_AUTHSERVER, "SSL version: %s", OPENSSL_VERSION_TEXT);
+    sLog->outInfo(LOG_FILTER_AUTHSERVER, "ACE version: %s\n", ACE_VERSION);
 
 #if defined (ACE_HAS_EVENT_POLL) || defined (ACE_HAS_DEV_POLL)
     ACE_Reactor::instance(new ACE_Reactor(new ACE_Dev_Poll_Reactor(ACE::max_handles(), 1), 1), true);
