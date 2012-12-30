@@ -365,7 +365,7 @@ bool PhaseMgr::IsConditionTypeSupported(ConditionTypes const conditionType)
         case CONDITION_TEAM:
         case CONDITION_CLASS:
         case CONDITION_RACE:
-        case CONDITION_INSTANCE_DATA:
+        case CONDITION_INSTANCE_INFO:
         case CONDITION_LEVEL:
             return true;
         default:
