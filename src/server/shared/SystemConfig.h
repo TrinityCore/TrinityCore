@@ -33,12 +33,16 @@
 #endif
 
 #if PLATFORM == PLATFORM_WINDOWS
+
 # ifdef _WIN64
-#  define _FULLVERSION _PACKAGENAME " rev. " VER_PRODUCTVERSION_STR " (Win64, "_BUILD_DIRECTIVE ")"
+#  define _PLATFORM "Win64"
 # else
-#  define _FULLVERSION _PACKAGENAME " rev. " VER_PRODUCTVERSION_STR " (Win32, " _BUILD_DIRECTIVE ")"
+#  define _PLATFORM "Win32"
 # endif
 #else
-#  define _FULLVERSION _PACKAGENAME " rev. " VER_PRODUCTVERSION_STR " (Unix, " _BUILD_DIRECTIVE ")"
+#  define _PLATFORM "Unix"
 #endif
+
+#define _FULLVERSION "(" _PLATFORM ", " _BUILD_DIRECTIVE ") Rev:" VER_PRODUCTVERSION_STR
+
 #endif
