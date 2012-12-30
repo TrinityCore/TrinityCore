@@ -29,6 +29,7 @@ void AddSC_utility_commandscript();
 void AddSC_npc_teleport();
 void AddSC_npc_supporter();
 void AddSC_guru_event();
+void AddSC_NPC_Transmogrify();
 
 // spells
 void AddSC_deathknight_spell_scripts();
@@ -1296,7 +1297,7 @@ void AddCustomScripts()
     AddSC_npc_teleport();
     AddSC_npc_supporter();
     AddSC_guru_event();
-  //  AddSC_NPC_Transmogrify();
+    AddSC_NPC_Transmogrify();
 
 #endif
 }
