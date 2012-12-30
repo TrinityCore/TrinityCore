@@ -1,4 +1,4 @@
-//$Id: Timer_Queue_Iterator.cpp 95334 2011-12-15 12:52:50Z msmit $
+//$Id: Timer_Queue_Iterator.cpp 96333 2012-11-23 08:08:31Z johnnyw $
 
 #ifndef ACE_TIMER_QUEUE_ITERATOR_CPP
 #define ACE_TIMER_QUEUE_ITERATOR_CPP
@@ -33,6 +33,10 @@ ACE_Timer_Node_T<TYPE>::dump (void) const
 
 template <class TYPE>
 ACE_Timer_Node_T<TYPE>::ACE_Timer_Node_T (void)
+  : act_ (0),
+    prev_ (0),
+    next_ (0),
+    timer_id_ (-1)
 {
   ACE_TRACE ("ACE_Timer_Node_T::ACE_Timer_Node_T");
 }

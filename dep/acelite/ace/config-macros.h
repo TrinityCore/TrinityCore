@@ -22,7 +22,7 @@
 #define ACE_CONFIG_MACROS_H
 
 #ifdef _WIN32
-  #include "ace/config-win32.h"
+  #include "ace/config-windows.h"
 #else
   #include "ace/config.h"
 #endif

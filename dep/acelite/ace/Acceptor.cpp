@@ -1,4 +1,4 @@
-// $Id: Acceptor.cpp 95730 2012-05-04 17:28:19Z johnnyw $
+// $Id: Acceptor.cpp 96532 2012-12-17 18:28:52Z johnnyw $
 
 #ifndef ACE_ACCEPTOR_CPP
 #define ACE_ACCEPTOR_CPP
@@ -288,7 +288,9 @@ ACE_Acceptor<SVC_HANDLER, ACE_PEER_ACCEPTOR_2>::accept_svc_handler
   bool reset_new_handle;
 
   if (reactor)
-    reset_new_handle = reactor->uses_event_associations ();
+    {
+      reset_new_handle = reactor->uses_event_associations ();
+    }
   else
     {
       // Acceptor is closed, so reject this call
@@ -1142,16 +1144,20 @@ ACE_Oneshot_Acceptor<SVC_HANDLER, ACE_PEER_ACCEPTOR_2>::handle_input (ACE_HANDLE
   // created handle.  This is because the newly created handle will
   // inherit the properties of the listen handle, including its event
   // associations.
-  bool const reset_new_handle = this->reactor ()->uses_event_associations ();
+  ACE_Reactor *reactor = this->reactor ();
+  bool reset_new_handle = false;
 
   // There is a use-case whereby this object will be gone upon return
   // from shared_accept - if the Svc_Handler deletes this Oneshot_Acceptor
   // during the shared_accept/activation steps. So, do whatever we need
   // to do with this object before calling shared_accept.
-  if (this->reactor ())
-    this->reactor ()->remove_handler
-      (this,
-       ACE_Event_Handler::ACCEPT_MASK | ACE_Event_Handler::DONT_CALL);
+  if (reactor)
+    {
+      reset_new_handle = reactor->uses_event_associations ();
+      reactor->remove_handler
+        (this,
+        ACE_Event_Handler::ACCEPT_MASK | ACE_Event_Handler::DONT_CALL);
+    }
 
   if (this->shared_accept (this->svc_handler_, // stream
                            0, // remote address

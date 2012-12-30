@@ -1,18 +1,20 @@
 // -*- C++ -*-
-// $Id: Event.inl 80826 2008-03-04 14:51:23Z wotte $
+// $Id: Event.inl 96220 2012-11-06 10:03:41Z mcorino $
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 
-ACE_INLINE ACE_event_t
-ACE_Event::handle (void) const
+template <class TIME_POLICY>
+ACE_Time_Value_T<TIME_POLICY>
+ACE_Event_T<TIME_POLICY>::gettimeofday (void) const
 {
-  return this->handle_;
+  return this->time_policy_ ();
 }
 
-ACE_INLINE void
-ACE_Event::handle (ACE_event_t new_handle)
+template <class TIME_POLICY>
+void
+ACE_Event_T<TIME_POLICY>::set_time_policy (TIME_POLICY const & rhs)
 {
-  this->handle_ = new_handle;
+  this->time_policy_ = rhs;
 }
 
 ACE_END_VERSIONED_NAMESPACE_DECL

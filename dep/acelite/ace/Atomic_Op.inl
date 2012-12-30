@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// $Id: Atomic_Op.inl 95225 2011-12-05 20:25:15Z shuston $
+// $Id: Atomic_Op.inl 96147 2012-09-15 01:13:21Z shuston $
 
 #if defined (ACE_HAS_INTRINSIC_INTERLOCKED)
 # include "ace/os_include/os_intrin.h"
@@ -524,6 +524,61 @@ ACE_Atomic_Op<ACE_Thread_Mutex, unsigned long>::operator= (unsigned long rhs)
   ACE_Atomic_Op_GCC<unsigned long>::operator= (rhs);
   return *this;
 }
+
+// The long long intrinsics are not available on PPC
+#if !defined (__powerpc__)
+ACE_INLINE
+ACE_Atomic_Op<ACE_Thread_Mutex, long long>::ACE_Atomic_Op (void) :
+  ACE_Atomic_Op_GCC<long long>()
+{
+}
+
+ACE_INLINE
+ACE_Atomic_Op<ACE_Thread_Mutex, long long>::ACE_Atomic_Op (long long c) :
+  ACE_Atomic_Op_GCC<long long>(c)
+{
+}
+
+ACE_INLINE
+ACE_Atomic_Op<ACE_Thread_Mutex, long long>::ACE_Atomic_Op (const ACE_Atomic_Op<ACE_Thread_Mutex, long long> &c) :
+  ACE_Atomic_Op_GCC<long long>(c)
+{
+}
+
+ACE_INLINE
+ACE_Atomic_Op<ACE_Thread_Mutex, long long>&
+ACE_Atomic_Op<ACE_Thread_Mutex, long long>::operator= (long long rhs)
+{
+  ACE_Atomic_Op_GCC<long long>::operator= (rhs);
+  return *this;
+}
+
+ACE_INLINE
+ACE_Atomic_Op<ACE_Thread_Mutex, unsigned long long>::ACE_Atomic_Op (void) :
+  ACE_Atomic_Op_GCC<unsigned long  long> ()
+{
+}
+
+ACE_INLINE
+ACE_Atomic_Op<ACE_Thread_Mutex, unsigned long  long>::ACE_Atomic_Op (unsigned long long c) :
+  ACE_Atomic_Op_GCC<unsigned long long>(c)
+{
+}
+
+ACE_INLINE
+ACE_Atomic_Op<ACE_Thread_Mutex, unsigned long long>::ACE_Atomic_Op (const ACE_Atomic_Op<ACE_Thread_Mutex, unsigned long long> &c) :
+  ACE_Atomic_Op_GCC<unsigned long long>(c)
+{
+}
+
+ACE_INLINE
+ACE_Atomic_Op<ACE_Thread_Mutex, unsigned long long>&
+ACE_Atomic_Op<ACE_Thread_Mutex, unsigned long long>::operator= (unsigned long long rhs)
+{
+  ACE_Atomic_Op_GCC<unsigned long long>::operator= (rhs);
+  return *this;
+}
+#endif /* !__powerpc__ */
 
 #if !defined (ACE_LACKS_GCC_ATOMIC_BUILTINS_2)
 ACE_INLINE

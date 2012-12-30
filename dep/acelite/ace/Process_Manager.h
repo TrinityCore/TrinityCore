@@ -4,7 +4,7 @@
 /**
  *  @file    Process_Manager.h
  *
- *  $Id: Process_Manager.h 92489 2010-11-05 00:33:37Z shuston $
+ *  $Id: Process_Manager.h 96133 2012-09-06 18:58:24Z shuston $
  *
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
  */
@@ -354,6 +354,12 @@ protected:
 #if !defined(ACE_WIN32)
   /// Collect one (or more, on unix) process exit status.
   virtual int handle_input (ACE_HANDLE proc);
+
+  /// If registered with a reactor for SIGCHLD and the reactor closes, this
+  /// will get called to notify.
+  virtual int handle_close (ACE_HANDLE handle,
+                            ACE_Reactor_Mask close_mask);
+
 #endif // !defined(ACE_WIN32)
 
   /**

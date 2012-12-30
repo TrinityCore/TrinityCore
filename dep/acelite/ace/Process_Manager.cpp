@@ -1,4 +1,4 @@
-// $Id: Process_Manager.cpp 94454 2011-09-08 17:36:56Z johnnyw $
+// $Id: Process_Manager.cpp 96133 2012-09-06 18:58:24Z shuston $
 
 // Process_Manager.cpp
 #include "ace/Process_Manager.h"
@@ -326,6 +326,19 @@ ACE_Process_Manager::handle_input (ACE_HANDLE)
                        ACE_Time_Value::zero);
    while (pid != 0 && pid != ACE_INVALID_PID);
 
+  return 0;
+}
+
+int
+ACE_Process_Manager::handle_close (ACE_HANDLE /* handle */,
+                                   ACE_Reactor_Mask close_mask)
+{
+  ACE_TRACE ("ACE_Process_Manager::handle_close");
+  if (close_mask == ACE_Event_Handler::SIGNAL_MASK)
+    {
+      // Reactor is telling us we're gone; don't unregister again later.
+      this->reactor (0);
+    }
   return 0;
 }
 

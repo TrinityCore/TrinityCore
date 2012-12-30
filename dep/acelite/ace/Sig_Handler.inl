@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// $Id: Sig_Handler.inl 80826 2008-03-04 14:51:23Z wotte $
+// $Id: Sig_Handler.inl 96181 2012-10-08 13:30:13Z shuston $
 
 ACE_INLINE
 ACE_Sig_Handler::ACE_Sig_Handler (void)

@@ -1,4 +1,4 @@
-// $Id: DLL_Manager.cpp 95913 2012-06-21 17:14:36Z johnnyw $
+// $Id: DLL_Manager.cpp 96137 2012-09-10 13:58:10Z johnnyw $
 
 #include "ace/DLL_Manager.h"
 
@@ -302,7 +302,7 @@ ACE_DLL_Handle::refcount (void) const
 }
 
 void *
-ACE_DLL_Handle::symbol (const ACE_TCHAR *sym_name, int ignore_errors)
+ACE_DLL_Handle::symbol (const ACE_TCHAR *sym_name, bool ignore_errors)
 {
   ACE_TRACE ("ACE_DLL_Handle::symbol");
   ACE_MT (ACE_GUARD_RETURN (ACE_Thread_Mutex, ace_mon, this->lock_, 0));
@@ -322,7 +322,7 @@ ACE_DLL_Handle::symbol (const ACE_TCHAR *sym_name, int ignore_errors)
       // error.  So you should check the error message also, but since
       // null symbols won't do us much good anyway, let's still report
       // an error.
-      if (!sym && ignore_errors != 1)
+      if (!sym && !ignore_errors)
         {
           if (ACE::debug ())
             ACE_ERROR ((LM_ERROR,
@@ -339,12 +339,12 @@ ACE_DLL_Handle::symbol (const ACE_TCHAR *sym_name, int ignore_errors)
 }
 
 ACE_SHLIB_HANDLE
-ACE_DLL_Handle::get_handle (int become_owner)
+ACE_DLL_Handle::get_handle (bool become_owner)
 {
   ACE_TRACE ("ACE_DLL_Handle::get_handle");
   ACE_MT (ACE_GUARD_RETURN (ACE_Thread_Mutex, ace_mon, this->lock_, 0));
 
-  if (this->refcount_ == 0 && become_owner != 0)
+  if (this->refcount_ == 0 && become_owner)
     {
       if (ACE::debug ())
         ACE_ERROR ((LM_ERROR,
@@ -356,7 +356,7 @@ ACE_DLL_Handle::get_handle (int become_owner)
 
   ACE_SHLIB_HANDLE handle = this->handle_;
 
-  if (become_owner != 0)
+  if (become_owner)
     {
       if (--this->refcount_ == 0)
         this->handle_ = ACE_SHLIB_INVALID_HANDLE;

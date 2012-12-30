@@ -1,4 +1,4 @@
-// $Id: Obstack_T.cpp 88793 2010-02-01 17:50:34Z cleeland $
+// $Id: Obstack_T.cpp 96230 2012-11-06 22:18:13Z schmidt $
 
 #ifndef ACE_OBSTACK_T_CPP
 #define ACE_OBSTACK_T_CPP
@@ -54,8 +54,8 @@ ACE_Obstack_T<ACE_CHAR_T>::request (size_t len)
   // chunk or will need a new one.
   if (this->curr_->cur_ + len >= this->curr_->end_)
     {
-      // Need a new chunk. Save the current one so the current string can be
-      // copied to the new chunk.
+      // Need a new chunk. Save the current one so the current string
+      // can be copied to the new chunk.
       ACE_Obchunk *temp = this->curr_;
       if (this->curr_->next_ == 0)
         {
@@ -122,7 +122,7 @@ ACE_Obstack_T<ACE_CHAR_T>::new_chunk (void)
 
 template <class ACE_CHAR_T>
 ACE_Obstack_T<ACE_CHAR_T>::ACE_Obstack_T (size_t size,
-                                    ACE_Allocator *allocator_strategy)
+                                          ACE_Allocator *allocator_strategy)
   : allocator_strategy_ (allocator_strategy),
     size_ (size),
     head_ (0),
@@ -156,7 +156,7 @@ ACE_Obstack_T<ACE_CHAR_T>::~ACE_Obstack_T (void)
 
 template <class ACE_CHAR_T> ACE_CHAR_T *
 ACE_Obstack_T<ACE_CHAR_T>::copy (const ACE_CHAR_T *s,
-                           size_t len)
+                                 size_t len)
 {
   ACE_TRACE ("ACE_Obstack_T<ACE_CHAR_T>::copy");
 

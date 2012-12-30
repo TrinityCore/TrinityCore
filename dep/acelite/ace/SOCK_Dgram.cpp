@@ -1,4 +1,4 @@
-// $Id: SOCK_Dgram.cpp 95533 2012-02-14 22:59:17Z wotte $
+// $Id: SOCK_Dgram.cpp 96526 2012-12-17 13:59:23Z sma $
 
 #include "ace/SOCK_Dgram.h"
 
@@ -543,7 +543,7 @@ ACE_SOCK_Dgram::make_multicast_ifaddr (ip_mreq *ret_mreq,
                                        const ACE_INET_Addr &mcast_addr,
                                        const ACE_TCHAR *net_if)
 {
-  ACE_TRACE ("ACE_SOCK_Dgram_Mcast::make_multicast_ifaddr");
+  ACE_TRACE ("ACE_SOCK_Dgram::make_multicast_ifaddr");
   ip_mreq  lmreq;       // Scratch copy.
   if (net_if != 0)
     {
@@ -556,17 +556,29 @@ ACE_SOCK_Dgram::make_multicast_ifaddr (ip_mreq *ret_mreq,
         ACE_HTONL (interface_addr.get_ip_address ());
 #else
       ifreq if_address;
-
       ACE_OS::strcpy (if_address.ifr_name, ACE_TEXT_ALWAYS_CHAR (net_if));
-
       if (ACE_OS::ioctl (this->get_handle (),
                          SIOCGIFADDR,
                          &if_address) == -1)
-        return -1;
-
-      sockaddr_in *socket_address =
-        reinterpret_cast<sockaddr_in*> (&if_address.ifr_addr);
-      lmreq.imr_interface.s_addr = socket_address->sin_addr.s_addr;
+        {
+          // The net_if name failed to be found. It seems that older linux
+          // kernals only support the actual interface name (eg. "eth0"),
+          // not the IP address string of the interface (eg. "192.168.0.1"),
+          // which newer kernals seem to automatically translate.
+          // So assume that we have been given an IP Address and translate
+          // that instead, similar to the above for windows.
+          ACE_INET_Addr interface_addr;
+          if (interface_addr.set (mcast_addr.get_port_number (), net_if) == -1)
+            return -1;  // Still doesn't work, unknown device specified.
+          lmreq.imr_interface.s_addr =
+            ACE_HTONL (interface_addr.get_ip_address ());
+        }
+      else
+        {
+          sockaddr_in *socket_address =
+            reinterpret_cast<sockaddr_in*> (&if_address.ifr_addr);
+          lmreq.imr_interface.s_addr = socket_address->sin_addr.s_addr;
+        }
 #endif /* ACE_WIN32 || __INTERIX */
     }
   else
@@ -589,7 +601,7 @@ ACE_SOCK_Dgram::make_multicast_ifaddr6 (ipv6_mreq *ret_mreq,
                                         const ACE_INET_Addr &mcast_addr,
                                         const ACE_TCHAR *net_if)
 {
-  ACE_TRACE ("ACE_SOCK_Dgram_Mcast::make_multicast_ifaddr6");
+  ACE_TRACE ("ACE_SOCK_Dgram::make_multicast_ifaddr6");
   ipv6_mreq  lmreq;       // Scratch copy.
 
   ACE_OS::memset (&lmreq,

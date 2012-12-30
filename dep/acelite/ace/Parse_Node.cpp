@@ -1,4 +1,4 @@
-// $Id: Parse_Node.cpp 91368 2010-08-16 13:03:34Z mhengstmengel $
+// $Id: Parse_Node.cpp 96483 2012-12-09 14:38:45Z johnnyw $
 #include "ace/Parse_Node.h"
 
 #if (ACE_USES_CLASSIC_SVC_CONF == 1)
@@ -426,6 +426,7 @@ ACE_Location_Node::dump (void) const
 
 ACE_Location_Node::ACE_Location_Node (void)
   : pathname_ (0),
+    must_delete_ (0),
     dll_ (),
     symbol_ (0)
 {

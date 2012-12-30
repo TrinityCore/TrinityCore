@@ -1,4 +1,4 @@
-// $Id: SV_Message_Queue.cpp 91286 2010-08-05 09:04:31Z johnnyw $
+// $Id: SV_Message_Queue.cpp 96483 2012-12-09 14:38:45Z johnnyw $
 
 #include "ace/SV_Message_Queue.h"
 #include "ace/Log_Msg.h"
@@ -21,7 +21,8 @@ ACE_SV_Message_Queue::dump (void) const
 #endif /* ACE_HAS_DUMP */
 }
 
-ACE_SV_Message_Queue::ACE_SV_Message_Queue (void)
+ACE_SV_Message_Queue::ACE_SV_Message_Queue (void) :
+  internal_id_ (-1)
 {
   ACE_TRACE ("ACE_SV_Message_Queue::ACE_SV_Message_Queue");
 }

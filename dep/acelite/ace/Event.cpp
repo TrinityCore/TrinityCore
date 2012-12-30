@@ -1,4 +1,4 @@
-// $Id: Event.cpp 91286 2010-08-05 09:04:31Z johnnyw $
+// $Id: Event.cpp 96220 2012-11-06 10:03:41Z mcorino $
 
 #include "ace/Event.h"
 
@@ -7,87 +7,36 @@
 #endif /* __ACE_INLINE__ */
 
 #include "ace/Log_Msg.h"
-
-
+#include "ace/Condition_Attributes.h"
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 
-ACE_Event::ACE_Event (int manual_reset,
-                      int initial_state,
-                      int type,
-                      const ACE_TCHAR *name,
-                      void *arg,
-                      LPSECURITY_ATTRIBUTES sa)
-  : removed_ (false)
+template <class TIME_POLICY>
+ACE_Event_T<TIME_POLICY>::ACE_Event_T (int manual_reset,
+                                       int initial_state,
+                                       int type,
+                                       const ACE_TCHAR *name,
+                                       void *arg,
+                                       LPSECURITY_ATTRIBUTES sa)
+  : ACE_Event_Base ()
 {
+  ACE_Condition_Attributes_T<TIME_POLICY> cond_attr (type);
   if (ACE_OS::event_init (&this->handle_,
+                          type,
+                          &const_cast<ACE_condattr_t&> (cond_attr.attributes ()),
                           manual_reset,
                           initial_state,
-                          type,
                           name,
                           arg,
                           sa) != 0)
     ACE_ERROR ((LM_ERROR,
                 ACE_TEXT ("%p\n"),
-                ACE_TEXT ("ACE_Event::ACE_Event")));
+                ACE_TEXT ("ACE_Event_T<TIME_POLICY>::ACE_Event_T")));
 }
 
-ACE_Event::~ACE_Event (void)
+template <class TIME_POLICY>
+ACE_Event_T<TIME_POLICY>::~ACE_Event_T (void)
 {
-  this->remove ();
-}
-
-int
-ACE_Event::remove (void)
-{
-  int result = 0;
-  if (!this->removed_)
-    {
-      this->removed_ = true;
-      result = ACE_OS::event_destroy (&this->handle_);
-    }
-  return result;
-}
-
-int
-ACE_Event::wait (void)
-{
-  return ACE_OS::event_wait (&this->handle_);
-}
-
-int
-ACE_Event::wait (const ACE_Time_Value *abstime, int use_absolute_time)
-{
-  return ACE_OS::event_timedwait (&this->handle_,
-                                  const_cast <ACE_Time_Value *> (abstime),
-                                  use_absolute_time);
-}
-
-int
-ACE_Event::signal (void)
-{
-  return ACE_OS::event_signal (&this->handle_);
-}
-
-int
-ACE_Event::pulse (void)
-{
-  return ACE_OS::event_pulse (&this->handle_);
-}
-
-int
-ACE_Event::reset (void)
-{
-  return ACE_OS::event_reset (&this->handle_);
-}
-
-void
-ACE_Event::dump (void) const
-{
-#if defined (ACE_HAS_DUMP)
-  ACE_DEBUG ((LM_DEBUG, ACE_BEGIN_DUMP, this));
-  ACE_DEBUG ((LM_DEBUG, ACE_END_DUMP));
-#endif /* ACE_HAS_DUMP */
 }
 
 ACE_END_VERSIONED_NAMESPACE_DECL
