@@ -25,7 +25,6 @@ void AddSC_example_misc();
 void AddSC_example_commandscript();
 
 //Custom Scriptes
-void AddSC_transmogrify_script();
 void AddSC_utility_commandscript();
 void AddSC_npc_teleport();
 void AddSC_npc_supporter();
@@ -1278,6 +1277,8 @@ void AddOutdoorPvPScripts()
 void AddBattlegroundScripts()
 {
 #ifdef SCRIPTS
+
+void AddSC_NPC_Transmogrify();
 #endif
 }
 
@@ -1290,12 +1291,12 @@ void AddCustomScripts()
 {
 #ifdef SCRIPTS
     /* This is where custom scripts should be added. */
-    AddSC_transmogrify_script();
     AddSC_utility_commandscript();
     AddSC_EM_trader();
     AddSC_npc_teleport();
-	AddSC_npc_supporter();
-	AddSC_guru_event();
+    AddSC_npc_supporter();
+    AddSC_guru_event();
+  //  AddSC_NPC_Transmogrify();
 
 #endif
 }

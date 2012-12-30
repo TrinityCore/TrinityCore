@@ -13702,7 +13702,7 @@ void Unit::SetHealth(uint32 val)
 
     SetUInt32Value(UNIT_FIELD_HEALTH, val);
 
-    // group update spectate
+    // group update
     if (Player* player = ToPlayer())
     {
         if (player->GetGroup())

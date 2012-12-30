@@ -30,13 +30,8 @@ class FleeingMovementGenerator : public MovementGeneratorMedium< T, FleeingMovem
         void Initialize(T*);
         void Finalize(T*);
         void Reset(T*);
-<<<<<<< HEAD
-        bool Update(T*, const uint32 &);
- 
-=======
         bool Update(T*, uint32);
 
->>>>>>> a0239c2210a49a3b41a764d41d75098e8bb8ffeb
         MovementGeneratorType GetMovementGeneratorType() { return FLEEING_MOTION_TYPE; }
  
     private:

@@ -2556,9 +2556,6 @@ bool Creature::SetHover(bool enable)
     data.append(GetPackGUID());
     SendMessageToSet(&data, false);
     return true;
-<<<<<<< HEAD
-}
-=======
 }
 
 float Creature::GetAggroRange(Unit const* target) const
@@ -2626,4 +2623,3 @@ Unit* Creature::SelectNearestHostileUnitInAggroRange(bool useLOS) const
 
     return target;
 }
->>>>>>> a0239c2210a49a3b41a764d41d75098e8bb8ffeb

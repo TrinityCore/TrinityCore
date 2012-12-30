@@ -124,11 +124,6 @@ template void ConfusedMovementGenerator<Player>::Initialize(Player*);
 template void ConfusedMovementGenerator<Creature>::Initialize(Creature*);
 template void ConfusedMovementGenerator<Player>::Reset(Player*);
 template void ConfusedMovementGenerator<Creature>::Reset(Creature*);
-<<<<<<< HEAD
-template bool ConfusedMovementGenerator<Player>::Update(Player*, const uint32&);
-template bool ConfusedMovementGenerator<Creature>::Update(Creature*, const uint32&);
-=======
 template bool ConfusedMovementGenerator<Player>::Update(Player*, uint32 diff);
 template bool ConfusedMovementGenerator<Creature>::Update(Creature*, uint32 diff);
 
->>>>>>> a0239c2210a49a3b41a764d41d75098e8bb8ffeb

@@ -3127,6 +3127,22 @@ class spell_pvp_trinket_wotf_shared_cd : public SpellScriptLoader
                 data << uint32(spellInfo->Id);
                 data << uint32(0);
                 caster->GetSession()->SendPacket(&data);
+            }
+
+        void Register()
+        {
+            OnEffectHit += SpellEffectFn(spell_pvp_trinket_wotf_shared_cd_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_DUMMY);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_pvp_trinket_wotf_shared_cd_SpellScript();
+    }
+};
+
+
+
 enum Replenishment
 {
     SPELL_REPLENISHMENT             = 57669,

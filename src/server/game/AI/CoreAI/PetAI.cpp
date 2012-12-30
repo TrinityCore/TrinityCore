@@ -597,9 +597,6 @@ void PetAI::ReceiveEmote(Player* player, uint32 emote)
                     me->HandleEmoteCommand(EMOTE_ONESHOT_OMNICAST_GHOUL);
                 break;
         }
-<<<<<<< HEAD
-}
-=======
 }
 
 void PetAI::ClearCharmInfoFlags()
@@ -637,4 +634,4 @@ void PetAI::AttackedBy(Unit* attacker)
     // Continue to evaluate and attack if necessary
     AttackStart(attacker);
 }
->>>>>>> a0239c2210a49a3b41a764d41d75098e8bb8ffeb
+

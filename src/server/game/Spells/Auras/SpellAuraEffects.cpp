@@ -3126,13 +3126,9 @@ void AuraEffect::HandleModPossessPet(AuraApplication const* aurApp, uint8 mode, 
         if (caster->ToPlayer()->GetPet() != pet)
             return;
 
-<<<<<<< HEAD
-		        pet->GetMotionMaster()->Clear();
-=======
         // Must clear current motion or pet leashes back to owner after a few yards
         //  when under spell 'Eyes of the Beast'
         pet->GetMotionMaster()->Clear();
->>>>>>> a0239c2210a49a3b41a764d41d75098e8bb8ffeb
         pet->SetCharmedBy(caster, CHARM_TYPE_POSSESS, aurApp);
     }
     else
@@ -3145,14 +3141,11 @@ void AuraEffect::HandleModPossessPet(AuraApplication const* aurApp, uint8 mode, 
         {
             // Reinitialize the pet bar or it will appear greyed out
             caster->ToPlayer()->PetSpellInitialize();
-<<<<<<< HEAD
-           // Follow owner only if not fighting or owner didn't click "stay" at new location
-=======
+
 
             // Follow owner only if not fighting or owner didn't click "stay" at new location
             // This may be confusing because pet bar shows "stay" when under the spell but it retains
             //  the "follow" flag. Player MUST click "stay" while under the spell.
->>>>>>> a0239c2210a49a3b41a764d41d75098e8bb8ffeb
             if (!pet->getVictim() && !pet->GetCharmInfo()->HasCommandState(COMMAND_STAY))
             {
                 pet->GetMotionMaster()->MoveFollow(caster, PET_FOLLOW_DIST, pet->GetFollowAngle());
