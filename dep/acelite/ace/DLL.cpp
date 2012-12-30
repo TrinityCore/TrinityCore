@@ -1,4 +1,4 @@
-// $Id: DLL.cpp 91286 2010-08-05 09:04:31Z johnnyw $
+// $Id: DLL.cpp 96137 2012-09-10 13:58:10Z johnnyw $
 
 #include "ace/DLL.h"
 
@@ -235,7 +235,7 @@ ACE_DLL::error (void) const
 // means the user temporarily wants to take the handle.
 
 ACE_SHLIB_HANDLE
-ACE_DLL::get_handle (int become_owner) const
+ACE_DLL::get_handle (bool become_owner) const
 {
   ACE_TRACE ("ACE_DLL::get_handle");
 

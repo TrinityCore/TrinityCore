@@ -2,7 +2,7 @@ TrinityCore uses (parts of or in whole) the following opensource software :
 
 ACE (ADAPTIVE Communication Environment)
   http://www.cs.wustl.edu/~schmidt/ACE.html
-  Version: 6.1.4
+  Version: 6.1.7
 
 bzip2 (a freely available, patent free, high-quality data compressor)
   http://www.bzip.org/
@@ -38,4 +38,4 @@ zlib (A Massively Spiffy Yet Delicately Unobtrusive Compression Library)
 
 gSOAP (a portable development toolkit for C and C++ XML Web services and XML data bindings)
   http://gsoap2.sourceforge.net/
-  Version: 2.8.10
+  Version: 2.8.12

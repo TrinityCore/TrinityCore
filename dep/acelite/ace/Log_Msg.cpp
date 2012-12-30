@@ -1,4 +1,4 @@
-// $Id: Log_Msg.cpp 95761 2012-05-15 18:23:04Z johnnyw $
+// $Id: Log_Msg.cpp 96132 2012-09-06 15:14:29Z shuston $
 
 // We need this to get the status of ACE_NTRACE...
 #include "ace/config-all.h"
@@ -481,7 +481,8 @@ ACE_Log_Msg::close (void)
         reinterpret_cast<ACE_thread_mutex_t *>
   (ACE_OS_Object_Manager::preallocated_object
    [ACE_OS_Object_Manager::ACE_LOG_MSG_INSTANCE_LOCK]);
-     ACE_OS::thread_mutex_lock (lock);
+      if (lock)
+        ACE_OS::thread_mutex_lock (lock);
 
      if (ACE_Log_Msg::key_created_)
        {
@@ -513,7 +514,8 @@ ACE_Log_Msg::close (void)
          ACE_Log_Msg::key_created_ = false;
        }
 
-     ACE_OS::thread_mutex_unlock (lock);
+     if (lock)
+       ACE_OS::thread_mutex_unlock (lock);
     }
 #endif /* (ACE_HAS_THREAD_SPECIFIC_STORAGE || ACE_HAS_TSS_EMULATION) && ACE_MT_SAFE */
 }

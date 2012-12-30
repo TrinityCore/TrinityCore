@@ -1,11 +1,12 @@
 // -*- C++ -*-
 //
-// $Id: Auto_Event.inl 80826 2008-03-04 14:51:23Z wotte $
+// $Id: Auto_Event.inl 96220 2012-11-06 10:03:41Z mcorino $
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 
+template <class TIME_POLICY>
 ACE_INLINE
-ACE_Auto_Event::~ACE_Auto_Event (void)
+ACE_Auto_Event_T<TIME_POLICY>::~ACE_Auto_Event_T (void)
 {
 }
 

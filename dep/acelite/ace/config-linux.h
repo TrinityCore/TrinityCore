@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// $Id: config-linux.h 96072 2012-08-17 12:29:59Z mcorino $
+// $Id: config-linux.h 96124 2012-09-05 22:16:02Z shuston $
 
 // The following configuration file is designed to work for Linux
 // platforms using GNU C++.
@@ -84,8 +84,9 @@
 
 // Then glibc/libc5 specific parts
 
-#if defined(__GLIBC__)
-# if (__GLIBC__  < 2) || (__GLIBC__ == 2 && __GLIBC_MINOR__ < 3)
+#if defined(__GLIBC__) || defined (__INTEL_COMPILER)
+# if !defined (__INTEL_COMPILER) && \
+     (__GLIBC__  < 2) || (__GLIBC__ == 2 && __GLIBC_MINOR__ < 3)
 #   define ACE_HAS_RUSAGE_WHO_ENUM enum __rusage_who
 #   define ACE_HAS_RLIMIT_RESOURCE_ENUM enum __rlimit_resource
 #   define ACE_LACKS_ISCTYPE

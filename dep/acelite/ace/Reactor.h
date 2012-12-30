@@ -4,7 +4,7 @@
 /**
  *  @file    Reactor.h
  *
- *  $Id: Reactor.h 95774 2012-05-17 15:45:58Z shuston $
+ *  $Id: Reactor.h 96184 2012-10-10 22:50:29Z shuston $
  *
  *  @author Irfan Pyarali <irfan@cs.wustl.edu>
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
@@ -462,15 +462,12 @@ public:
    * Install the new disposition (if given) and return the previous
    * disposition (if desired by the caller).
    *
-   * Note that, unlike removing handler for I/O events,
-   * ACE_Event_Handler::handle_close() will not be called when the
-   * handler is removed. Neither will any reference-counting activity be
-   * involved.
-   *
-   * @note There's an existing enhancement request in Bugzilla,
-   * #2368, to change this behavior so that ACE_Event_Handler::handle_close()
-   * is called when the signal handler is removed. Thus, there's some chance
-   * this behavior will change in a future version of ACE.
+   * Note that the registered handler's ACE_Event_Handler::handle_close ()
+   * callback will be called to indicate the signal handler has been removed.
+   * Unlike with I/O handles, there is no way to prevent this callback. The
+   * handle_close() callback can check the passed mask for the value
+   * ACE_Event_Handler::SIGNAL_MASK to tell when the callback is the result
+   * of a signal handler removal.
    */
   int remove_handler (int signum,
                       ACE_Sig_Action *new_disp,

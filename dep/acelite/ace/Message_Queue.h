@@ -4,7 +4,7 @@
 /**
  *  @file    Message_Queue.h
  *
- *  $Id: Message_Queue.h 96061 2012-08-16 09:36:07Z mcorino $
+ *  $Id: Message_Queue.h 96333 2012-11-23 08:08:31Z johnnyw $
  *
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
  */
@@ -190,10 +190,10 @@ public:
   /// and 0 if the queue's state is ACTIVATED or PULSED.
   virtual int deactivated (void) = 0;
 
-  /// Get the notification strategy for the <Message_Queue>
+  /// Get the notification strategy for the Message_Queue
   virtual ACE_Notification_Strategy *notification_strategy (void) = 0;
 
-  /// Set the notification strategy for the <Message_Queue>
+  /// Set the notification strategy for the Message_Queue
   virtual void notification_strategy (ACE_Notification_Strategy *s) = 0;
 
   // = Notification hook.

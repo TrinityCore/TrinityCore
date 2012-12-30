@@ -1,8 +1,6 @@
-// $Id: OS_NS_sys_uio.cpp 91286 2010-08-05 09:04:31Z johnnyw $
+// $Id: OS_NS_sys_uio.cpp 96519 2012-12-17 10:00:00Z johnnyw $
 
 #include "ace/OS_NS_sys_uio.h"
-
-
 
 #if !defined (ACE_HAS_INLINED_OSCALLS)
 # include "ace/OS_NS_sys_uio.inl"

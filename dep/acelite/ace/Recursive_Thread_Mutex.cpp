@@ -1,7 +1,7 @@
 /**
  * @file Recursive_Thread_Mutex.cpp
  *
- * $Id: Recursive_Thread_Mutex.cpp 91688 2010-09-09 11:21:50Z johnnyw $
+ * $Id: Recursive_Thread_Mutex.cpp 96261 2012-11-12 19:27:25Z johnnyw $
  *
  * Originally in Synch.cpp
  *
@@ -101,10 +101,6 @@ ACE_Recursive_Thread_Mutex::get_nesting_level (void)
   ACE_OS::mutex_unlock (&this->lock_.nesting_mutex_);
   return nesting_level;
 #endif /* !ACE_HAS_WINCE */
-}
-
-ACE_Recursive_Thread_Mutex::ACE_Recursive_Thread_Mutex (const ACE_Recursive_Thread_Mutex &)
-{
 }
 
 void

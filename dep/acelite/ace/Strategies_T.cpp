@@ -1,4 +1,4 @@
-// $Id: Strategies_T.cpp 95630 2012-03-22 13:04:47Z johnnyw $
+// $Id: Strategies_T.cpp 96474 2012-12-07 13:06:34Z johnnyw $
 
 #ifndef ACE_STRATEGIES_T_CPP
 #define ACE_STRATEGIES_T_CPP
@@ -314,7 +314,9 @@ ACE_Accept_Strategy<SVC_HANDLER, ACE_PEER_ACCEPTOR_2>::open
   // socket handle is "ready" and when we call <accept>.  During this
   // interval, the client can shutdown the connection, in which case,
   // the <accept> call can hang!
-  this->peer_acceptor_.enable (ACE_NONBLOCK);
+  if (this->peer_acceptor_.enable (ACE_NONBLOCK) == -1)
+    return -1;
+
   return 0;
 }
 

@@ -3,7 +3,7 @@
 /**
  *  @file    SSL_Context.h
  *
- *  $Id: SSL_Context.h 96087 2012-08-21 12:26:44Z sma $
+ *  $Id: SSL_Context.h 96231 2012-11-07 13:52:17Z johnnyw $
  *
  *  @author Carlos O'Ryan <coryan@ece.uci.edu>
  *  @author Ossama Othman <ossama@dre.vanderbilt.edu>
@@ -104,10 +104,12 @@ public:
 
   enum {
     INVALID_METHOD = -1,
+#if !defined (OPENSSL_NO_SSL2)
     SSLv2_client = 1,
     SSLv2_server,
     SSLv2,
-    SSLv3_client,
+#endif /* !OPENSSL_NO_SSL2 */
+    SSLv3_client = 4,
     SSLv3_server,
     SSLv3,
     SSLv23_client,

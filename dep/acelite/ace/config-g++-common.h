@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// $Id: config-g++-common.h 93500 2011-03-07 16:19:27Z vzykov $
+// $Id: config-g++-common.h 96157 2012-09-27 06:33:47Z johnnyw $
 
 // This configuration file is designed to be included by another,
 // specific configuration file.  It provides config information common
@@ -33,6 +33,12 @@
 // Versions of g++ prior to 3.3 had a buggy operator // new(nothrow)[]().
 #  define ACE_HAS_NEW_NOTHROW
 #endif /* __GNUC__ >= 3.3 */
+
+#if (__GNUC__ >= 5 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 7))
+# if __cplusplus > 199711L
+#  define ACE_HAS_CPP11
+# endif
+#endif
 
 #if (defined (i386) || defined (__i386__)) && !defined (ACE_SIZEOF_LONG_DOUBLE)
 # define ACE_SIZEOF_LONG_DOUBLE 12

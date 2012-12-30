@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// $Id: SV_Message_Queue.inl 80826 2008-03-04 14:51:23Z wotte $
+// $Id: SV_Message_Queue.inl 96483 2012-12-09 14:38:45Z johnnyw $
 
 #include "ace/Global_Macros.h"
 #include "ace/OS_NS_sys_msg.h"
@@ -38,7 +38,7 @@ ACE_INLINE int
 ACE_SV_Message_Queue::remove (void)
 {
   ACE_TRACE ("ACE_SV_Message_Queue::remove");
-  int result = this->control (IPC_RMID);
+  int const result = this->control (IPC_RMID);
   this->internal_id_ = -1;
   return result;
 }

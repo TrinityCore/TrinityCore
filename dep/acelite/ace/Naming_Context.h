@@ -4,7 +4,7 @@
 /**
  *  @file    Naming_Context.h
  *
- *  $Id: Naming_Context.h 93359 2011-02-11 11:33:12Z mcorino $
+ *  $Id: Naming_Context.h 96261 2012-11-12 19:27:25Z johnnyw $
  *
  *  @author Gerhard Lenzer
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
@@ -269,7 +269,6 @@ private:
 
   /// 1 if we're on the same local machine as the name server, else 0.
   int local (void);
-
 };
 
 /**

@@ -12,6 +12,7 @@
 set(ace_STAT_SRCS
   PrecompiledHeaders/WinAcePCH.cpp
   ACE.cpp
+  ACE.rc
   ACE_crc32.cpp
   ACE_crc_ccitt.cpp
   ace_wchar.cpp
@@ -31,7 +32,6 @@ set(ace_STAT_SRCS
   ATM_Stream.cpp
   Atomic_Op.cpp
   Atomic_Op_Sparc.c
-  Auto_Event.cpp
   Barrier.cpp
   Base_Thread_Adapter.cpp
   Based_Pointer_Repository.cpp
@@ -71,7 +71,7 @@ set(ace_STAT_SRCS
   Dynamic_Service_Dependency.cpp
   Encoding_Converter.cpp
   Encoding_Converter_Factory.cpp
-  Event.cpp
+  Event_Base.cpp
   Event_Handler.cpp
   Event_Handler_Handle_Timeout_Upcall.cpp
   FIFO.cpp
@@ -122,7 +122,6 @@ set(ace_STAT_SRCS
   LSOCK_Stream.cpp
   Malloc.cpp
   Malloc_Allocator.cpp
-  Manual_Event.cpp
   MEM_Acceptor.cpp
   MEM_Addr.cpp
   MEM_Connector.cpp
@@ -328,7 +327,6 @@ endif()
 include_directories(
   ${CMAKE_SOURCE_DIR}/dep/acelite
   ${CMAKE_CURRENT_SOURCE_DIR}/PrecompiledHeaders
-  ${CMAKE_SOURCE_DIR}/dep/zlib
 )
 
 # Needed for PCH support
