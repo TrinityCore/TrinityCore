@@ -1,5 +1,5 @@
 /* -*- C++ -*- */
-// $Id: config-hpux-11.00.h 96096 2012-08-23 12:34:02Z johnnyw $
+// $Id: config-hpux-11.00.h 96312 2012-11-20 23:57:54Z shuston $
 
 // The following configuration file is designed to work for HP
 // platforms running HP-UX 11.00 using aC++ or gcc (2.95 and up).
@@ -231,10 +231,9 @@
 
 // HP-UX 11 has reentrant netdb functions.  The catch is that the old
 // functions (gethostbyname, etc.) are thread-safe and the _r versions are
-// not used and will be removed at some point.  So, define things so
-// the _r versions are not used.  This will slow things down a bit due to
-// the extra mutex lock in the ACE_NETDBCALL_RETURN macro, and will be fixed
-// in the future (problem ID P64).
+// obsolescent.  So, define things so the _r versions are not used.
+// OS_NS_netdb.inl ensures no funny lock games are played in the
+// ACE_NETDBCALL_RETURN macro.
 #define ACE_LACKS_NETDB_REENTRANT_FUNCTIONS
 
 /* Platform lacks pri_t (e.g., Tandem NonStop UNIX). */

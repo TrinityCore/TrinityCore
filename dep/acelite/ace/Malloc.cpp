@@ -1,4 +1,4 @@
-// $Id: Malloc.cpp 91368 2010-08-16 13:03:34Z mhengstmengel $
+// $Id: Malloc.cpp 96261 2012-11-12 19:27:25Z johnnyw $
 
 #include "ace/Malloc.h"
 
@@ -98,6 +98,10 @@ ACE_Control_Block::dump (void) const
 }
 
 ACE_Control_Block::ACE_Name_Node::ACE_Name_Node (void)
+  : name_ (0),
+    pointer_ (0),
+    next_ (0),
+    prev_ (0)
 {
   ACE_TRACE ("ACE_Control_Block::ACE_Name_Node::ACE_Name_Node");
 }

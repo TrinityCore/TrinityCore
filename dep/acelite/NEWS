@@ -1,3 +1,37 @@
+USER VISIBLE CHANGES BETWEEN ACE-6.1.6 and ACE-6.1.7
+====================================================
+
+. Integrated several patches to simplify Debian/Ubuntu
+  packaging
+
+USER VISIBLE CHANGES BETWEEN ACE-6.1.5 and ACE-6.1.6
+====================================================
+
+. Added new event and sema initialization methods to OS_NS_Thread
+  to allow passing pre-initialized condition attributes providing
+  basic support for using time policies in ACE Event classes.
+
+. Added TIME_POLICY support to ACE_Event classes to allow for
+  monotonic timer support for ACE Events.
+
+. Added new regression test:
+  Monotonic_Manual_Event_Test
+
+USER VISIBLE CHANGES BETWEEN ACE-6.1.4 and ACE-6.1.5
+====================================================
+
+. When a ACE_Event_Handler registered for signals is unregistered,
+  whether by unregistering, returning -1 from handle_signal(), or by
+  the reactor closing, the ACE_Event_Handler::handle_close() hook will
+  be called. The close_mask passed will be ACE_Event_Handler::SIGNAL_MASK.
+  In previous versions, handle_close() would only be called when the
+  handle_signal() callback returned -1. This resolves Bugzilla #2368.
+
+. Some initial ACE unit tests to validate the C++11 support of various
+  compilers
+
+. Added support for OpenSuSE 12.2
+
 USER VISIBLE CHANGES BETWEEN ACE-6.1.3 and ACE-6.1.4
 ====================================================
 

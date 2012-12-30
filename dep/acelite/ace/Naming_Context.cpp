@@ -1,4 +1,4 @@
-// $Id: Naming_Context.cpp 93539 2011-03-13 09:40:44Z vzykov $
+// $Id: Naming_Context.cpp 96261 2012-11-12 19:27:25Z johnnyw $
 
 #include "ace/Get_Opt.h"
 #include "ace/Naming_Context.h"
@@ -140,7 +140,8 @@ ACE_Naming_Context::close (void)
 
 ACE_Naming_Context::ACE_Naming_Context (void)
   : name_options_ (0),
-    name_space_ (0)
+    name_space_ (0),
+    netnameserver_host_ (0)
 {
   ACE_TRACE ("ACE_Naming_Context::ACE_Naming_Context");
 

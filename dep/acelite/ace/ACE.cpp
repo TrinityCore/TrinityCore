@@ -1,4 +1,4 @@
-// $Id: ACE.cpp 96017 2012-08-08 22:18:09Z mitza $
+// $Id: ACE.cpp 96421 2012-11-29 21:28:39Z shuston $
 
 #include "ace/ACE.h"
 
@@ -2548,7 +2548,13 @@ ACE::handle_timed_complete (ACE_HANDLE h,
 
   else
 # if defined (ACE_HAS_POLL)
-    need_to_check = (fds.revents & POLLIN);
+    {
+      // The "official" bit for failed connect is POLLIN. However, POLLERR
+      // is often set and there are occasional cases seen with some kernels
+      // where only POLLERR is set on a failed connect.
+      need_to_check = (fds.revents & POLLIN) || (fds.revents & POLLERR);
+      known_failure = (fds.revents & POLLERR);
+    }
 # else
     need_to_check = true;
 # endif /* ACE_HAS_POLL */

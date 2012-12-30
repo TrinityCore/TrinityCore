@@ -4,7 +4,7 @@
 /**
  *  @file    Sig_Handler.h
  *
- *  $Id: Sig_Handler.h 84727 2009-03-05 19:22:29Z johnnyw $
+ *  $Id: Sig_Handler.h 96133 2012-09-06 18:58:24Z shuston $
  *
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
  */
@@ -130,6 +130,11 @@ protected:
                                  ACE_Sig_Action *new_disp = 0,
                                  ACE_Event_Handler **old_sh = 0,
                                  ACE_Sig_Action *old_disp = 0);
+
+  static int remove_handler_i (int signum,
+                               ACE_Sig_Action *new_disp = 0,
+                               ACE_Sig_Action *old_disp = 0,
+                               int sigkey = -1);
 
   /// Check whether the SIGNUM is within the legal range of signals.
   static int in_range (int signum);

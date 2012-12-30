@@ -4,12 +4,11 @@
 /**
  *  @file    Obchunk.h
  *
- *  $Id: Obchunk.h 80826 2008-03-04 14:51:23Z wotte $
+ *  $Id: Obchunk.h 96230 2012-11-06 22:18:13Z schmidt $
  *
  *  @author Doug Schmidt
  */
 //=============================================================================
-
 
 #ifndef ACE_OBCHUNK_H
 #define ACE_OBCHUNK_H

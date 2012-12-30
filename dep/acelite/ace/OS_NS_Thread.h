@@ -4,7 +4,7 @@
 /**
  *  @file   OS_NS_Thread.h
  *
- *  $Id: OS_NS_Thread.h 96061 2012-08-16 09:36:07Z mcorino $
+ *  $Id: OS_NS_Thread.h 96255 2012-11-12 10:47:27Z johnnyw $
  *
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
  *  @author Jesper S. M|ller<stophph@diku.dk>
@@ -1086,6 +1086,9 @@ namespace ACE_OS {
                      int type = ACE_DEFAULT_SYNCH_TYPE);
 
   ACE_NAMESPACE_INLINE_FUNCTION
+  int condattr_synctype (ACE_condattr_t &attributes, int& type);
+
+  ACE_NAMESPACE_INLINE_FUNCTION
   int condattr_destroy (ACE_condattr_t &attributes);
 
   ACE_NAMESPACE_INLINE_FUNCTION
@@ -1184,11 +1187,21 @@ namespace ACE_OS {
   extern ACE_Export
   int event_destroy (ACE_event_t *event);
 
-  extern ACE_Export
+  ACE_NAMESPACE_INLINE_FUNCTION
   int event_init (ACE_event_t *event,
                   int manual_reset = 0,
                   int initial_state = 0,
                   int type = ACE_DEFAULT_SYNCH_TYPE,
+                  const char *name = 0,
+                  void *arg = 0,
+                  LPSECURITY_ATTRIBUTES sa = 0);
+
+  extern ACE_Export
+  int event_init (ACE_event_t *event,
+                  int type,
+                  ACE_condattr_t *attributes,
+                  int manual_reset = 0,
+                  int initial_state = 0,
                   const char *name = 0,
                   void *arg = 0,
                   LPSECURITY_ATTRIBUTES sa = 0);
@@ -1199,6 +1212,16 @@ namespace ACE_OS {
                   int manual_reset,
                   int initial_state,
                   int type,
+                  const wchar_t *name,
+                  void *arg = 0,
+                  LPSECURITY_ATTRIBUTES sa = 0);
+
+  ACE_NAMESPACE_INLINE_FUNCTION
+  int event_init (ACE_event_t *event,
+                  int type,
+                  ACE_condattr_t *attributes,
+                  int manual_reset,
+                  int initial_state,
                   const wchar_t *name,
                   void *arg = 0,
                   LPSECURITY_ATTRIBUTES sa = 0);
@@ -1421,11 +1444,31 @@ namespace ACE_OS {
                  int max = 0x7fffffff,
                  LPSECURITY_ATTRIBUTES sa = 0);
 
+  ACE_NAMESPACE_INLINE_FUNCTION
+  int sema_init (ACE_sema_t *s,
+                 u_int count,
+                 int type,
+                 ACE_condattr_t *attributes,
+                 const char *name = 0,
+                 void *arg = 0,
+                 int max = 0x7fffffff,
+                 LPSECURITY_ATTRIBUTES sa = 0);
+
 # if defined (ACE_HAS_WCHAR)
   ACE_NAMESPACE_INLINE_FUNCTION
   int sema_init (ACE_sema_t *s,
                  u_int count,
                  int type,
+                 const wchar_t *name,
+                 void *arg = 0,
+                 int max = 0x7fffffff,
+                 LPSECURITY_ATTRIBUTES sa = 0);
+
+  ACE_NAMESPACE_INLINE_FUNCTION
+  int sema_init (ACE_sema_t *s,
+                 u_int count,
+                 int type,
+                 ACE_condattr_t *attributes,
                  const wchar_t *name,
                  void *arg = 0,
                  int max = 0x7fffffff,
@@ -1833,12 +1876,18 @@ ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 class ACE_Export ACE_event_t
 {
   friend int ACE_OS::event_init(ACE_event_t*, int, int, int, const char*, void*,int);
+  friend int ACE_OS::event_init(ACE_event_t*, int, ACE_condattr_t*, int, int, const char*, void*,int);
   friend int ACE_OS::event_destroy(ACE_event_t*);
   friend int ACE_OS::event_wait(ACE_event_t*);
   friend int ACE_OS::event_timedwait(ACE_event_t*, ACE_Time_Value*, int);
   friend int ACE_OS::event_signal(ACE_event_t*);
   friend int ACE_OS::event_pulse(ACE_event_t*);
   friend int ACE_OS::event_reset(ACE_event_t*);
+
+public:
+  /// Constructor initializing all pointer fields to null
+  ACE_event_t (void);
+
 protected:
 
   /// Event name if process shared.
