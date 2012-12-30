@@ -4,7 +4,7 @@
 /**
  *  @file    DLL_Manager.h
  *
- *  $Id: DLL_Manager.h 95913 2012-06-21 17:14:36Z johnnyw $
+ *  $Id: DLL_Manager.h 96137 2012-09-10 13:58:10Z johnnyw $
  *
  *  @author Don Hinton <dhinton@ieee.org>
  */
@@ -124,13 +124,13 @@ public:
   /// ignore_errors flag to supress logging errors if symbol_name isn't
   /// found.  This is nice if you just want to probe a dll to see what's
   /// available, since missing functions in that case aren't really errors.
-  void *symbol (const ACE_TCHAR *symbol_name, int ignore_errors = 0);
+  void *symbol (const ACE_TCHAR *symbol_name, bool ignore_errors = false);
 
   /**
-   * Return the handle to the caller.  If @a become_owner is non-0 then
+   * Return the handle to the caller.  If @a become_owner is true then
    * caller assumes ownership of the handle so we decrement the retcount.
    */
-  ACE_SHLIB_HANDLE get_handle (int become_owner = 0);
+  ACE_SHLIB_HANDLE get_handle (bool become_owner = false);
 
 private:
 

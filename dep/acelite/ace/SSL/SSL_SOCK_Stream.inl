@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// $Id: SSL_SOCK_Stream.inl 91103 2010-07-15 12:36:57Z mcorino $
+// $Id: SSL_SOCK_Stream.inl 96135 2012-09-07 20:02:50Z shuston $
 
 #include "ace/OS_NS_errno.h"
 #include "ace/Truncate.h"
@@ -115,22 +115,28 @@ ACE_SSL_SOCK_Stream::recv_i (void *buf,
     ACE::record_and_set_non_blocking_mode (handle,
                                            val);
 
-  // Only block on select() with a timeout if no data in the
-  // internal OpenSSL buffer is pending read completion for
-  // the same reasons stated above, i.e. all data must be read
-  // before blocking on select().
-  if (timeout != 0
-      && !::SSL_pending (this->ssl_))
-    {
-      if (ACE::enter_recv_timedwait (handle,
-                                     timeout,
-                                     val) == -1)
-        return -1;
-    }
-
+  // Only block to wait for I/O ready with a timeout if all on-hand data
+  // has been consumed. If there is remaining data in the SSL buffers
+  // the socket won't "select" even though SSL_read would complete.
+  // See "SSL and TLS" by Rescorla section 8.9 for more info.
+  bool peeking = false;
+  bool retry = false;
   if (flags)
     {
       if (ACE_BIT_ENABLED (flags, MSG_PEEK))
+        {
+          peeking = true;
+        }
+      else
+        {
+          ACE_NOTSUP_RETURN (-1);
+        }
+    }
+
+  do
+    {
+      retry = false;
+      if (peeking)
         {
           bytes_read = ::SSL_peek (this->ssl_,
                                    static_cast<char *> (buf),
@@ -138,66 +144,77 @@ ACE_SSL_SOCK_Stream::recv_i (void *buf,
         }
       else
         {
-          ACE_NOTSUP_RETURN (-1);
+          bytes_read = ::SSL_read (this->ssl_,
+                                   static_cast<char *> (buf),
+                                   ACE_Utils::truncate_cast<int> (n));
         }
-    }
-  else
-    {
-      bytes_read = ::SSL_read (this->ssl_,
-                               static_cast<char *> (buf),
-                               ACE_Utils::truncate_cast<int> (n));
-    }
 
-  int const status = ::SSL_get_error (this->ssl_, bytes_read);
-  switch (status)
-    {
-    case SSL_ERROR_NONE:
-      if (timeout != 0)
-        ACE::restore_non_blocking_mode (handle, val);
+      int const status = ::SSL_get_error (this->ssl_, bytes_read);
+      int substat = 0;
+      switch (status)
+        {
+        case SSL_ERROR_NONE:
+          break;
 
-      return bytes_read;
+        case SSL_ERROR_WANT_READ:
+        case SSL_ERROR_WANT_WRITE:
+          if (timeout == 0)
+            {
+              errno = EWOULDBLOCK;
+              bytes_read = -1;
+              break;
+            }
+          substat = ACE::handle_ready (handle,
+                                       timeout,
+                                       status == SSL_ERROR_WANT_READ,
+                                       status == SSL_ERROR_WANT_WRITE,
+                                       0);
+          if (substat == 1)   // Now ready to proceed
+            {
+              retry = true;
+              break;
+            }
+          bytes_read = -1;
+          if (substat == 0)
+            errno = ETIME;
+          break;
 
-    case SSL_ERROR_WANT_READ:
-    case SSL_ERROR_WANT_WRITE:
-      errno = EWOULDBLOCK;
+        case SSL_ERROR_ZERO_RETURN:
+          bytes_read = 0;
 
-      return -1;
+          // The peer has notified us that it is shutting down via the SSL
+          // "close_notify" message so we need to shutdown, too.
+          (void) ::SSL_shutdown (this->ssl_);
 
-    case SSL_ERROR_ZERO_RETURN:
-      if (timeout != 0)
-        ACE::restore_non_blocking_mode (handle, val);
+          break;
 
-      // The peer has notified us that it is shutting down via the SSL
-      // "close_notify" message so we need to shutdown, too.
-      (void) ::SSL_shutdown (this->ssl_);
+        case SSL_ERROR_SYSCALL:
+          if (bytes_read == 0)
+            // An EOF occured but the SSL "close_notify" message was not
+            // sent.  This is a protocol error, but we ignore it.
+            break;
 
-      return bytes_read;
+          // On some platforms (e.g. MS Windows) OpenSSL does not store
+          // the last error in errno so explicitly do so.
+          ACE_OS::set_errno_to_last_error ();
 
-    case SSL_ERROR_SYSCALL:
-      if (bytes_read == 0)
-        // An EOF occured but the SSL "close_notify" message was not
-        // sent.  This is a protocol error, but we ignore it.
-        return 0;
+          break;
 
-      // If not an EOF, then fall through to "default" case.
+        default:
+          // Reset errno to prevent previous values (e.g. EWOULDBLOCK)
+          // from being associated with a fatal SSL error.
+          bytes_read = -1;
+          errno = 0;
 
-      // On some platforms (e.g. MS Windows) OpenSSL does not store
-      // the last error in errno so explicitly do so.
-      ACE_OS::set_errno_to_last_error ();
+          ACE_SSL_Context::report_error ();
 
-      break;
+          break;
+        }
+    } while (retry);
 
-    default:
-      // Reset errno to prevent previous values (e.g. EWOULDBLOCK)
-      // from being associated with a fatal SSL error.
-      errno = 0;
-
-      ACE_SSL_Context::report_error ();
-
-      break;
-    }
-
-  return -1;
+  if (timeout != 0)
+    ACE::restore_non_blocking_mode (handle, val);
+  return bytes_read;
 }
 
 ACE_INLINE ssize_t

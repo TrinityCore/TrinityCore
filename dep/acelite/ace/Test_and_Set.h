@@ -4,7 +4,7 @@
 /**
  *  @file   Test_and_Set.h
  *
- *  $Id: Test_and_Set.h 80826 2008-03-04 14:51:23Z wotte $
+ *  $Id: Test_and_Set.h 96230 2012-11-06 22:18:13Z schmidt $
  */
 //=============================================================================
 
@@ -26,13 +26,11 @@ ACE_BEGIN_VERSIONED_NAMESPACE_DECL
  *
  * @brief Implements the classic ``test and set'' operation.
  *
- *
- *     This class keeps track of the status of <is_set_>, which can
- *     be set based on various events (such as receipt of a
- *     signal).  This class is derived from ACE_Event_Handler so
- *     that it can be "signaled" by a Reactor when a signal occurs.
- *     We assume that <TYPE> is a data type that can be assigned the
- *     value 0 or 1.
+ *     This class keeps track of the status of <is_set_>, which can be
+ *     set based on various events (such as receipt of a signal).
+ *     This class is derived from ACE_Event_Handler so that it can be
+ *     "signaled" by a Reactor when a signal occurs.  We assume that
+ *     <TYPE> is a data type that can be assigned the value 0 or 1.
  */
 template <class ACE_LOCK, class TYPE>
 class ACE_Test_and_Set : public ACE_Event_Handler

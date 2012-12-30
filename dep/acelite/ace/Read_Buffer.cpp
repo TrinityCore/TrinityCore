@@ -1,4 +1,4 @@
-// $Id: Read_Buffer.cpp 91286 2010-08-05 09:04:31Z johnnyw $
+// $Id: Read_Buffer.cpp 96261 2012-11-12 19:27:25Z johnnyw $
 
 #include "ace/Read_Buffer.h"
 
@@ -12,9 +12,6 @@
 #include "ace/Malloc_Base.h"
 #include "ace/Service_Config.h"
 #include "ace/OS_NS_stdio.h"
-
-
-
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 
@@ -35,7 +32,9 @@ ACE_Read_Buffer::dump (void) const
 ACE_Read_Buffer::ACE_Read_Buffer (FILE *fp,
                                   bool close_on_delete,
                                   ACE_Allocator *alloc)
-  : stream_ (fp),
+  : size_ (0),
+    occurrences_ (0),
+    stream_ (fp),
     close_on_delete_ (close_on_delete),
     allocator_ (alloc)
 {
@@ -48,7 +47,9 @@ ACE_Read_Buffer::ACE_Read_Buffer (FILE *fp,
 ACE_Read_Buffer::ACE_Read_Buffer (ACE_HANDLE handle,
                                   bool close_on_delete,
                                   ACE_Allocator *alloc)
-  : stream_ (ACE_OS::fdopen (handle, ACE_TEXT ("r"))),
+  : size_ (0),
+    occurrences_ (0),
+    stream_ (ACE_OS::fdopen (handle, ACE_TEXT ("r"))),
     close_on_delete_ (close_on_delete),
     allocator_ (alloc)
 {

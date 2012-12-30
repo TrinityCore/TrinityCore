@@ -1,4 +1,4 @@
-// $Id: SSL_Context.cpp 93497 2011-03-07 09:43:36Z vzykov $
+// $Id: SSL_Context.cpp 96231 2012-11-07 13:52:17Z johnnyw $
 #include "SSL_Context.h"
 
 #include "sslconf.h"
@@ -236,6 +236,7 @@ ACE_SSL_Context::set_mode (int mode)
 
   switch (mode)
     {
+#if !defined (OPENSSL_NO_SSL2)
     case ACE_SSL_Context::SSLv2_client:
       method = ::SSLv2_client_method ();
       break;
@@ -245,6 +246,7 @@ ACE_SSL_Context::set_mode (int mode)
     case ACE_SSL_Context::SSLv2:
       method = ::SSLv2_method ();
       break;
+#endif /* OPENSSL_NO_SSL2 */
     case ACE_SSL_Context::SSLv3_client:
       method = ::SSLv3_client_method ();
       break;
@@ -339,10 +341,12 @@ ACE_SSL_Context::load_trusted_ca (const char* ca_file,
       || mode_ == SSLv23_server
       || mode_ == TLSv1
       || mode_ == TLSv1_server
-      || mode_ == SSLv3
-      || mode_ == SSLv3_server
+#if !defined (OPENSSL_NO_SSL2)
       || mode_ == SSLv2
-      || mode_ == SSLv2_server)
+      || mode_ == SSLv2_server
+#endif /* !OPENSSL_NO_SSL2 */
+      || mode_ == SSLv3
+      || mode_ == SSLv3_server)
     {
       // Note: The STACK_OF(X509_NAME) pointer is a copy of the pointer in
       // the CTX; any changes to it by way of these function calls will

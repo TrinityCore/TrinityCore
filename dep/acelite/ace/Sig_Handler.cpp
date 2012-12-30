@@ -1,4 +1,4 @@
-// $Id: Sig_Handler.cpp 91626 2010-09-07 10:59:20Z johnnyw $
+// $Id: Sig_Handler.cpp 96181 2012-10-08 13:30:13Z shuston $
 
 #include "ace/Sig_Handler.h"
 #include "ace/Sig_Adapter.h"
@@ -54,6 +54,9 @@ ACE_ALLOC_HOOK_DEFINE(ACE_Sig_Handler)
 
 ACE_Sig_Handler::~ACE_Sig_Handler (void)
 {
+  for (int s = 1; s < ACE_NSIG; ++s)
+    if (ACE_Sig_Handler::signal_handlers_[s])
+      ACE_Sig_Handler::remove_handler_i (s);
 }
 
 void
@@ -194,6 +197,31 @@ ACE_Sig_Handler::register_handler (int signum,
                                               old_disp);
 }
 
+int
+ACE_Sig_Handler::remove_handler_i (int signum,
+                                   ACE_Sig_Action *new_disp,
+                                   ACE_Sig_Action *old_disp,
+                                   int)
+{
+  ACE_TRACE ("ACE_Sig_Handler::remove_handler_i");
+
+  ACE_Sig_Action sa (SIG_DFL, (sigset_t *) 0); // Reset to default disposition.
+
+  if (new_disp == 0)
+    new_disp = &sa;
+
+  ACE_Event_Handler *eh = ACE_Sig_Handler::signal_handlers_[signum];
+  ACE_Sig_Handler::signal_handlers_[signum] = 0;
+
+  // Allow the event handler to close down if necessary.
+  if (eh)
+    eh->handle_close (ACE_INVALID_HANDLE,
+                      ACE_Event_Handler::SIGNAL_MASK);
+
+  // Register either the new disposition or restore the default.
+  return new_disp->register_action (signum, old_disp);
+}
+
 // Remove an ACE_Event_Handler.
 
 int
@@ -209,17 +237,7 @@ ACE_Sig_Handler::remove_handler (int signum,
     ACE_GUARD_RETURN (ACE_Recursive_Thread_Mutex, m, *lock, -1));
 
   if (ACE_Sig_Handler::in_range (signum))
-    {
-      ACE_Sig_Action sa (SIG_DFL, (sigset_t *) 0); // Define the default disposition.
-
-      if (new_disp == 0)
-        new_disp = &sa;
-
-      ACE_Sig_Handler::signal_handlers_[signum] = 0;
-
-      // Register either the new disposition or restore the default.
-      return new_disp->register_action (signum, old_disp);
-    }
+    return ACE_Sig_Handler::remove_handler_i (signum, new_disp, old_disp);
 
   return -1;
 }
@@ -249,20 +267,7 @@ ACE_Sig_Handler::dispatch (int signum,
   if (eh != 0)
     {
       if (eh->handle_signal (signum, siginfo, ucontext) == -1)
-        {
-          // Define the default disposition.
-          ACE_Sig_Action sa ((ACE_SignalHandler) SIG_DFL, (sigset_t *) 0);
-
-          ACE_Sig_Handler::signal_handlers_[signum] = 0;
-
-          // Remove the current disposition by registering the default
-          // disposition.
-          sa.register_action (signum);
-
-          // Allow the event handler to close down if necessary.
-          eh->handle_close (ACE_INVALID_HANDLE,
-                            ACE_Event_Handler::SIGNAL_MASK);
-        }
+        ACE_Sig_Handler::remove_handler_i (signum);
 #if defined (ACE_WIN32)
       else
         // Win32 is weird in the sense that it resets the signal

@@ -4,7 +4,7 @@
 /**
  *  @file    DLL.h
  *
- *  $Id: DLL.h 95913 2012-06-21 17:14:36Z johnnyw $
+ *  $Id: DLL.h 96137 2012-09-10 13:58:10Z johnnyw $
  *
  *  @author Kirthika Parameswaran <kirthika@cs.wustl.edu>
  */
@@ -161,12 +161,12 @@ public:
   ACE_TCHAR *error (void) const;
 
   /**
-   * Return the handle to the caller.  If @a become_owner is non-0 then
+   * Return the handle to the caller.  If @a become_owner is true then
    * caller assumes ownership of the handle and the ACE_DLL object
    * won't call close() when it goes out of scope, even if
    * @c close_handle_on_destruction is set.
    */
-  ACE_SHLIB_HANDLE get_handle (int become_owner = 0) const;
+  ACE_SHLIB_HANDLE get_handle (bool become_owner = false) const;
 
   /// Set the handle for the DLL object. By default, the close()
   /// operation on / the object will be invoked before it is destroyed.
@@ -200,7 +200,6 @@ public:
 
   /// Flag to record if the last operation had an error.
   bool error_;
-
 };
 
 ACE_END_VERSIONED_NAMESPACE_DECL

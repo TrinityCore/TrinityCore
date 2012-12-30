@@ -1,4 +1,4 @@
-// $Id: SV_Semaphore_Simple.cpp 91287 2010-08-05 10:30:49Z johnnyw $
+// $Id: SV_Semaphore_Simple.cpp 96261 2012-11-12 19:27:25Z johnnyw $
 
 #include "ace/SV_Semaphore_Simple.h"
 #include "ace/Log_Msg.h"
@@ -211,7 +211,8 @@ ACE_SV_Semaphore_Simple::~ACE_SV_Semaphore_Simple (void)
   this->close ();
 }
 
-ACE_SV_Semaphore_Simple::ACE_SV_Semaphore_Simple (void)
+ACE_SV_Semaphore_Simple::ACE_SV_Semaphore_Simple (void) :
+  sem_number_ (0)
 {
   ACE_TRACE ("ACE_SV_Semaphore_Simple::ACE_SV_Semaphore_Simple");
   this->init ();

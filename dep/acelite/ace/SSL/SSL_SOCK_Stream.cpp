@@ -1,4 +1,4 @@
-// $Id: SSL_SOCK_Stream.cpp 91368 2010-08-16 13:03:34Z mhengstmengel $
+// $Id: SSL_SOCK_Stream.cpp 96125 2012-09-05 22:16:38Z shuston $
 
 #include "ace/Handle_Set.h"
 #include "ace/Log_Msg.h"
@@ -409,22 +409,9 @@ ACE_SSL_SOCK_Stream::recv_n (void *buf,
                       timeout);
 
       if (n < 0)
-        {
-          if (errno == EWOULDBLOCK)
-            {
-              // If blocked, try again.
-              n = 0;
-              continue;
-            }
-          else
-            {
-              return -1;
-            }
-        }
+        return -1;
       else if (n == 0)
-        {
-          break;
-        }
+        break;
     }
 
   return ACE_Utils::truncate_cast<ssize_t> (bytes_transferred);
@@ -455,22 +442,9 @@ ACE_SSL_SOCK_Stream::recv_n (void *buf, int len, int flags) const
                       flags);
 
       if (n < 0)
-        {
-          if (errno == EWOULDBLOCK)
-            {
-              // If blocked, try again.
-              n = 0;
-              continue;
-            }
-          else
-            {
-              return -1;
-            }
-        }
+        return -1;
       else if (n == 0)
-        {
-          break;
-        }
+        break;
     }
 
   return ACE_Utils::truncate_cast<ssize_t> (bytes_transferred);
@@ -498,24 +472,10 @@ ACE_SSL_SOCK_Stream::send_n (const void *buf, int len, int flags) const
       n = this->send ((const char*) buf + bytes_transferred,
                       len - bytes_transferred,
                       flags);
-
       if (n < 0)
-        {
-          if (errno == EWOULDBLOCK)
-            {
-              // If blocked, try again.
-              n = 0;
-              continue;
-            }
-          else
-            {
-              return -1;
-            }
-        }
+        return -1;
       else if (n == 0)
-        {
-          break;
-        }
+        break;
     }
 
   return ACE_Utils::truncate_cast<ssize_t> (bytes_transferred);

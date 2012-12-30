@@ -2,7 +2,7 @@
 /**
  * @file Condition_Attributes.cpp
  *
- * $Id: Condition_Attributes.cpp 96061 2012-08-16 09:36:07Z mcorino $
+ * $Id: Condition_Attributes.cpp 96265 2012-11-13 13:31:10Z johnnyw $
  *
  * Originally in Synch.cpp
  *
@@ -12,10 +12,6 @@
 #include "ace/Condition_Thread_Mutex.h"
 #include "ace/Condition_Attributes.h"
 
-#if defined (ACE_HAS_THREADS)
-
 #if !defined (__ACE_INLINE__)
 #include "ace/Condition_Attributes.inl"
 #endif /* __ACE_INLINE__ */
-
-#endif /* ACE_HAS_THREADS */

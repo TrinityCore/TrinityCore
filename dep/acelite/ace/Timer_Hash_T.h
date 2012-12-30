@@ -4,7 +4,7 @@
 /**
  *  @file    Timer_Hash_T.h
  *
- *  $Id: Timer_Hash_T.h 95807 2012-06-01 12:44:19Z johnnyw $
+ *  $Id: Timer_Hash_T.h 96230 2012-11-06 22:18:13Z schmidt $
  *
  *  @author Darrell Brunsch <brunsch@cs.wustl.edu>
  */
@@ -29,6 +29,7 @@ template <class TYPE, class FUNCTOR, class ACE_LOCK, class BUCKET, typename TIME
 class ACE_Timer_Hash_T;
 template <typename TYPE>
 class Hash_Token;
+class ACE_Event_Handler;
 
 /**
  * @class ACE_Timer_Hash_Upcall

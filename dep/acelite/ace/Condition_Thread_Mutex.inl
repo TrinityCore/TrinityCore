@@ -1,6 +1,5 @@
 // -*- C++ -*-
-//
-// $Id: Condition_Thread_Mutex.inl 96061 2012-08-16 09:36:07Z mcorino $
+// $Id: Condition_Thread_Mutex.inl 96174 2012-10-03 08:25:59Z johnnyw $
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
 

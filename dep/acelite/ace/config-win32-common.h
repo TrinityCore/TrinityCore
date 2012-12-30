@@ -527,9 +527,9 @@
 #  else
 #    pragma comment(lib, "ws2_32.lib")
 #    pragma comment(lib, "mswsock.lib")
-// #    if defined (ACE_HAS_IPV6)
+//#    if defined (ACE_HAS_IPV6)
 #      pragma comment(lib, "iphlpapi.lib")
-// #    endif
+//#    endif
 #  endif /* ACE_HAS_WINCE */
 # endif /* _MSC_VER */
 
