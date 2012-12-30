@@ -1,5 +1,5 @@
 /*
-	stdsoap2.h 2.8.10
+	stdsoap2.h 2.8.12
 
 	gSOAP runtime engine
 
@@ -51,7 +51,7 @@ A commercial use license is available from Genivia, Inc., contact@genivia.com
 --------------------------------------------------------------------------------
 */
 
-#define GSOAP_VERSION 20810
+#define GSOAP_VERSION 20812
 
 #ifdef WITH_SOAPDEFS_H
 # include "soapdefs.h"		/* include user-defined stuff */
@@ -1186,7 +1186,9 @@ extern const char soap_base64o[], soap_base64i[];
 # endif
 #endif
 
-/* gSOAP error codes */
+/* gSOAP status/error codes */
+
+typedef soap_int32 soap_status;
 
 #define SOAP_EOF			EOF
 #define SOAP_ERR			EOF
@@ -1313,7 +1315,7 @@ typedef soap_int32 soap_mode;
 #define SOAP_XML_CANONICAL	0x00010000	/* out: excC14N canonical XML */
 #define SOAP_XML_TREE		0x00020000	/* out: XML tree (no id/ref) */
 #define SOAP_XML_NIL		0x00040000	/* out: NULLs as xsi:nil */
-#define SOAP_XML_NOTYPE		0x00080000	/* out: NULLs as xsi:nil */
+#define SOAP_XML_NOTYPE		0x00080000	/* out: do not add xsi:type */
 
 #define SOAP_DOM_TREE		0x00100000      /* see DOM manual */
 #define SOAP_DOM_NODE		0x00200000
@@ -1410,11 +1412,27 @@ typedef soap_int32 soap_mode;
 # define SOAP_FREE(soap, ptr) free(ptr)
 #endif
 
-#ifndef SOAP_NEW				/* use C++ new operator */
-# if (defined(__GNUC__) && (__GNUC__ <= 2) && !defined(__BORLANDC__)) || defined(__clang__) || defined(_AIX)
-#  define SOAP_NEW(type) new type		/* old form w/o parenthesis */
-# else
-#  define SOAP_NEW(type) new (type)		/* prefer with parenthesis */
+#if !defined(WITH_LEAN) && !defined(WITH_COMPAT)
+# define SOAP_NOTHROW (std::nothrow)
+#else
+# define SOAP_NOTHROW
+#endif
+
+#if (defined(__GNUC__) && (__GNUC__ <= 2) && !defined(__BORLANDC__)) || defined(__clang__) || defined(_AIX)
+/* old form w/o parenthesis */
+# ifndef SOAP_NEW
+#  define SOAP_NEW(type) new SOAP_NOTHROW type
+# endif
+# ifndef SOAP_NEW_ARRAY
+#  define SOAP_NEW_ARRAY(type, n) new SOAP_NOTHROW type[n]
+# endif
+#else
+/* new form with parenthesis */
+# ifndef SOAP_NEW
+#  define SOAP_NEW(type) new SOAP_NOTHROW (type)
+# endif
+# ifndef SOAP_NEW_ARRAY
+#  define SOAP_NEW_ARRAY(type, n) new SOAP_NOTHROW (type[n])
 # endif
 #endif
 
@@ -1423,7 +1441,7 @@ typedef soap_int32 soap_mode;
 #endif
 
 #ifndef SOAP_NEW_COPY			/* use C++ new operator for ::copy() */
-# define SOAP_NEW_COPY(clas) new clas	/* prefer w/o parenthesis */
+# define SOAP_NEW_COPY(clas) new SOAP_NOTHROW clas
 #endif
 
 #ifndef SOAP_DELETE			/* use C++ delete operator */
@@ -1819,7 +1837,7 @@ extern "C" {
 
 struct SOAP_STD_API soap
 { short state;			/* 0 = uninitialized, 1 = initialized, 2 = copy of another soap struct */
-  short version;		/* 1 = SOAP1.1 and 2 = SOAP1.2 (set automatically from namespace URI in nsmap table) */
+  short version;		/* 1 = SOAP1.1 and 2 = SOAP1.2 (set automatically from namespace URI in nsmap table), 0 indicates non-SOAP content */
   soap_mode mode;
   soap_mode imode;
   soap_mode omode;
@@ -1828,7 +1846,7 @@ struct SOAP_STD_API soap
   const char *dime_id_format;	/* user-definable format string for integer DIME id (<SOAP_TAGLEN chars) */
   const char *http_version;	/* HTTP version used "1.0" or "1.1" */
   const char *http_content;	/* optional custom response content type (with SOAP_FILE) */
-  const char *encodingStyle;	/* default = NULL which means that SOAP encoding is used */
+  const char *encodingStyle;	/* default = "" which means that SOAP encoding is used */
   const char *actor;		/* SOAP-ENV:actor or role attribute value */
   const char *lang;		/* xml:lang attribute value of SOAP-ENV:Text */
   int recv_timeout;		/* when > 0, gives socket recv timeout in seconds, < 0 in usec */
@@ -1846,10 +1864,12 @@ struct SOAP_STD_API soap
   struct soap_blist *blist;	/* block allocation stack */
   struct soap_clist *clist;	/* class instance allocation list */
   void *alist;			/* memory allocation (malloc) list */
+#if !defined(WITH_LEAN) || !defined(WITH_NOIDREF)
   struct soap_ilist *iht[SOAP_IDHASH];
   struct soap_plist *pht[SOAP_PTRHASH];
   struct soap_pblk *pblk;	/* plist block allocation */
   short pidx;			/* plist block allocation */
+#endif
   struct SOAP_ENV__Header *header;
   struct SOAP_ENV__Fault *fault;
   int idnum;
@@ -1941,7 +1961,7 @@ struct SOAP_STD_API soap
   size_t buflen;	/* length of soap.buf[] content */
   soap_wchar ahead;	/* parser lookahead */
   short cdata;		/* CDATA parser state */
-  short body;		/* parsed XML element has a body or not */
+  short body;		/* HTTP or XML element has a body (1) or not (0) */
   unsigned int level;	/* XML nesting level */
   size_t count;		/* message length counter */
   size_t length;	/* message length as set by HTTP header */
@@ -2017,7 +2037,7 @@ struct SOAP_STD_API soap
   int cookie_max;
 #endif
 #ifndef WITH_NOIO
-  int ipv6_multicast_if; /* in6addr->sin6_scope_id IPv6 value */
+  unsigned int ipv6_multicast_if; /* in_addr_t in6addr->sin6_scope_id IPv6 value */
   char* ipv4_multicast_if; /* IP_MULTICAST_IF IPv4 setsockopt interface_addr */
   unsigned char ipv4_multicast_ttl; /* IP_MULTICAST_TTL value 0..255 */
 #ifdef WITH_IPV6
@@ -2333,6 +2353,7 @@ SOAP_FMAC1 int SOAP_FMAC2 soap_begin_count(struct soap*);
 SOAP_FMAC1 int SOAP_FMAC2 soap_end_count(struct soap*);
 SOAP_FMAC1 int SOAP_FMAC2 soap_begin_send(struct soap*);
 SOAP_FMAC1 int SOAP_FMAC2 soap_end_send(struct soap*);
+SOAP_FMAC1 int SOAP_FMAC2 soap_end_send_flush(struct soap*);
 
 SOAP_FMAC1 const struct soap_code_map* SOAP_FMAC2 soap_code(const struct soap_code_map*, const char*);
 SOAP_FMAC1 long SOAP_FMAC2 soap_code_int(const struct soap_code_map*, const char*, long);
@@ -2443,6 +2464,7 @@ SOAP_FMAC1 wchar_t* SOAP_FMAC2 soap_wstring_in(struct soap*, int, long, long);
 
 SOAP_FMAC1 int SOAP_FMAC2 soap_match_namespace(struct soap*, const char *, const char*, size_t n1, size_t n2);
 
+SOAP_FMAC1 void SOAP_FMAC2 soap_set_version(struct soap*, short);
 SOAP_FMAC1 int SOAP_FMAC2 soap_set_namespaces(struct soap*, const struct Namespace*);
 SOAP_FMAC1 void SOAP_FMAC2 soap_set_local_namespaces(struct soap*);
 
@@ -2467,7 +2489,7 @@ SOAP_FMAC1 void SOAP_FMAC2 soap_end_block(struct soap*, struct soap_blist*);
 SOAP_FMAC1 void SOAP_FMAC2 soap_update_pointers(struct soap *soap, char *start, char *end, char *p1, char *p2);
 
 SOAP_FMAC1 int SOAP_FMAC2 soap_envelope_begin_out(struct soap*);
-SOAP_FMAC1 int soap_envelope_end_out(struct soap*);
+SOAP_FMAC1 int SOAP_FMAC2 soap_envelope_end_out(struct soap*);
 
 SOAP_FMAC1 char * SOAP_FMAC2 soap_get_http_body(struct soap*);
 
