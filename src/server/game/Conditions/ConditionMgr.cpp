@@ -154,11 +154,27 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo)
         case CONDITION_ACTIVE_EVENT:
             condMeets = sGameEventMgr->IsActiveEvent(ConditionValue1);
             break;
-        case CONDITION_INSTANCE_DATA:
+        case CONDITION_INSTANCE_INFO:
         {
             Map* map = object->GetMap();
-            if (map && map->IsDungeon() && ((InstanceMap*)map)->GetInstanceScript())
-                condMeets = ((InstanceMap*)map)->GetInstanceScript()->GetData(ConditionValue1) == ConditionValue2;
+            if (map && map->IsDungeon())
+            {
+                if (InstanceScript const* instance = ((InstanceMap*)map)->GetInstanceScript())
+                {
+                    switch (ConditionValue3)
+                    {
+                        case INSTANCE_INFO_DATA:
+                            condMeets = instance->GetData(ConditionValue1) == ConditionValue2;
+                            break;
+                        case INSTANCE_INFO_DATA64:
+                            condMeets = instance->GetData64(ConditionValue1) == ConditionValue2;
+                            break;
+                        case INSTANCE_INFO_BOSS_STATE:
+                            condMeets = instance->GetBossState(ConditionValue1) == ConditionValue2;
+                            break;
+                    }
+                }
+            }
             break;
         }
         case CONDITION_MAPID:
@@ -367,7 +383,7 @@ uint32 Condition::GetSearcherTypeMaskForCondition()
         case CONDITION_ACTIVE_EVENT:
             mask |= GRID_MAP_TYPE_MASK_ALL;
             break;
-        case CONDITION_INSTANCE_DATA:
+        case CONDITION_INSTANCE_INFO:
             mask |= GRID_MAP_TYPE_MASK_ALL;
             break;
         case CONDITION_MAPID:
@@ -1899,7 +1915,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond)
             break;
         }
         case CONDITION_AREAID:
-        case CONDITION_INSTANCE_DATA:
+        case CONDITION_INSTANCE_INFO:
             break;
         case CONDITION_WORLD_STATE:
         {
