@@ -946,10 +946,10 @@ enum SpellEffects
     SPELL_EFFECT_163                                = 163, // Unused (4.3.4)
     SPELL_EFFECT_REMOVE_AURA                        = 164,
     SPELL_EFFECT_DAMAGE_FROM_MAX_HEALTH_PCT         = 165,
-    SPELL_EFFECT_166                                = 166,
+    SPELL_EFFECT_GIVE_CURRENCY                      = 166,
     SPELL_EFFECT_167                                = 167,
     SPELL_EFFECT_168                                = 168,
-    SPELL_EFFECT_169                                = 169,
+    SPELL_EFFECT_DESTROY_ITEM                       = 169,
     SPELL_EFFECT_170                                = 170,
     SPELL_EFFECT_171                                = 171, // Summons gamebject
     SPELL_EFFECT_172                                = 172, // Aoe ressurection
@@ -959,7 +959,7 @@ enum SpellEffects
     SPELL_EFFECT_176                                = 176, // Some kind of sanctuary effect (Vanish)
     SPELL_EFFECT_177                                = 177,
     SPELL_EFFECT_178                                = 178, // Unused (4.3.4)
-    SPELL_EFFECT_179                                = 179,
+    SPELL_EFFECT_CREATE_AREATRIGGER                 = 179,
     SPELL_EFFECT_180                                = 180, // Unused (4.3.4)
     SPELL_EFFECT_181                                = 181, // Unused (4.3.4)
     SPELL_EFFECT_182                                = 182,
