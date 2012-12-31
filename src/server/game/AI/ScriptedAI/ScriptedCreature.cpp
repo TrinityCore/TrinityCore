@@ -585,6 +585,20 @@ void BossAI::UpdateAI(uint32 const diff)
     DoMeleeAttackIfReady();
 }
 
+void BossAI::_DespawnAtEvade()
+{
+    uint32 corpseDelay = me->GetCorpseDelay();
+    uint32 respawnDelay = me->GetRespawnDelay();
+
+    me->SetCorpseDelay(1);
+    me->SetRespawnDelay(29);
+
+    me->DespawnOrUnsummon();
+
+    me->SetCorpseDelay(corpseDelay);
+    me->SetRespawnDelay(respawnDelay);
+}
+
 // WorldBossAI - for non-instanced bosses
 
 WorldBossAI::WorldBossAI(Creature* creature) :
