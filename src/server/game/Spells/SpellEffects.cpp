@@ -234,7 +234,7 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
     &Spell::EffectActivateSpec,                             //162 SPELL_EFFECT_TALENT_SPEC_SELECT       activate primary/secondary spec
     &Spell::EffectUnused,                                   //163 SPELL_EFFECT_163  unused
     &Spell::EffectRemoveAura,                               //164 SPELL_EFFECT_REMOVE_AURA
-    &Spell::EffectNULL,                                     //165 SPELL_EFFECT_165
+    &Spell::EffectDamageFromMaxHealthPCT,                   //165 SPELL_EFFECT_DAMAGE_FROM_MAX_HEALTH_PCT
     &Spell::EffectNULL,                                     //166 SPELL_EFFECT_166
     &Spell::EffectNULL,                                     //167 SPELL_EFFECT_167
     &Spell::EffectNULL,                                     //168 SPELL_EFFECT_168
@@ -5894,6 +5894,17 @@ void Spell::EffectRemoveAura(SpellEffIndex effIndex)
         return;
     // there may be need of specifying casterguid of removed auras
     unitTarget->RemoveAurasDueToSpell(m_spellInfo->Effects[effIndex].TriggerSpell);
+}
+
+void Spell::EffectDamageFromMaxHealthPCT(SpellEffIndex effIndex)
+{
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
+        return;
+
+    if (!unitTarget)
+        return;
+
+    m_damage += unitTarget->CountPctFromMaxHealth(damage);
 }
 
 void Spell::EffectCastButtons(SpellEffIndex effIndex)
