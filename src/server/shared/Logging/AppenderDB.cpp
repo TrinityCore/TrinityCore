@@ -18,8 +18,8 @@
 #include "AppenderDB.h"
 #include "Database/DatabaseEnv.h"
 
-AppenderDB::AppenderDB(uint8 id, std::string const& name, LogLevel level, uint8 realmId):
-Appender(id, name, APPENDER_DB, level), realm(realmId), enable(false)
+AppenderDB::AppenderDB(uint8 id, std::string const& name, LogLevel level, uint32 realmId)
+    : Appender(id, name, APPENDER_DB, level), realm(realmId), enable(false)
 {
 }
 
@@ -41,8 +41,8 @@ void AppenderDB::_write(LogMessage& message)
             PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_LOG);
             stmt->setUInt64(0, message.mtime);
             stmt->setUInt32(1, realm);
-            stmt->setUInt8(2, message.type);
-            stmt->setUInt8(3, message.level);
+            stmt->setUInt8(2, uint8(message.type));
+            stmt->setUInt8(3, uint8(message.level));
             stmt->setString(4, message.text);
             LoginDatabase.Execute(stmt);
             break;

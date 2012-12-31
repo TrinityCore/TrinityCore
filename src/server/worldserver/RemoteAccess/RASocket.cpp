@@ -32,7 +32,7 @@
 
 RASocket::RASocket()
 {
-    _minLevel = ConfigMgr::GetIntDefault("RA.MinLevel", 3);
+    _minLevel = uint8(ConfigMgr::GetIntDefault("RA.MinLevel", 3));
 }
 
 RASocket::~RASocket()
@@ -332,7 +332,7 @@ int RASocket::subnegotiate()
 
     //! Just send back end of subnegotiation packet
     uint8 const reply[2] = {0xFF, 0xF0};
-    return peer().send(reply, 2);
+    return int(peer().send(reply, 2));
 }
 
 int RASocket::svc(void)

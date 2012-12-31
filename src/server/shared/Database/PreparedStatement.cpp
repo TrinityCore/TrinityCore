@@ -33,7 +33,7 @@ void PreparedStatement::BindParameters()
 {
     ASSERT (m_stmt);
 
-    uint32 i = 0;
+    uint8 i = 0;
     for (; i < statement_data.size(); i++)
     {
         switch (statement_data[i].type)
