@@ -23,12 +23,12 @@
 class AppenderDB: public Appender
 {
     public:
-        AppenderDB(uint8 _id, std::string const& _name, LogLevel level, uint8 realmId);
+        AppenderDB(uint8 _id, std::string const& _name, LogLevel level, uint32 realmId);
         ~AppenderDB();
         void setEnable(bool enable);
 
     private:
-        uint8 realm;
+        uint32 realm;
         bool enable;
         void _write(LogMessage& message);
 };

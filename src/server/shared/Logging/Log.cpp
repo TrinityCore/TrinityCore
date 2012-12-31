@@ -169,7 +169,7 @@ void Log::CreateLoggerFromConfig(const char* name)
         return;
 
     LogLevel level = LOG_LEVEL_DISABLED;
-    int32 type = -1;
+    uint8 type = uint8(-1);
 
     std::string options = "Logger.";
     options.append(name);
@@ -190,7 +190,7 @@ void Log::CreateLoggerFromConfig(const char* name)
         return;
     }
 
-    type = atoi(*iter);
+    type = uint8(atoi(*iter));
     if (type > MaxLogFilter)
     {
         fprintf(stderr, "Log::CreateLoggerFromConfig: Wrong type %u for logger %s\n", type, name);
@@ -334,7 +334,7 @@ bool Log::SetLogLevel(std::string const& name, const char* newLevelc, bool isLog
 
 bool Log::ShouldLog(LogFilterType type, LogLevel level) const
 {
-    LoggerMap::const_iterator it = loggers.find(type);
+    LoggerMap::const_iterator it = loggers.find(uint8(type));
     if (it != loggers.end())
     {
         LogLevel loggerLevel = it->second.getLogLevel();

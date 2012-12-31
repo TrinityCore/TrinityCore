@@ -170,7 +170,7 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo)
                             condMeets = instance->GetData64(ConditionValue1) == ConditionValue2;
                             break;
                         case INSTANCE_INFO_BOSS_STATE:
-                            condMeets = instance->GetBossState(ConditionValue1) == ConditionValue2;
+                            condMeets = instance->GetBossState(ConditionValue1) == EncounterState(ConditionValue2);
                             break;
                     }
                 }
