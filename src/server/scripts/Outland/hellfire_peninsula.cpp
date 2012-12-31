@@ -53,9 +53,7 @@ enum eAeranas
     FACTION_FRIENDLY        = 35,
 
     SPELL_ENVELOPING_WINDS  = 15535,
-    SPELL_SHOCK             = 12553,
-
-    C_AERANAS               = 17085
+    SPELL_SHOCK             = 12553
 };
 
 class npc_aeranas : public CreatureScript
@@ -202,22 +200,6 @@ public:
             }
         }
     };
-};
-
-/*######
-## go_haaleshi_altar
-######*/
-
-class go_haaleshi_altar : public GameObjectScript
-{
-public:
-    go_haaleshi_altar() : GameObjectScript("go_haaleshi_altar") { }
-
-    bool OnGossipHello(Player* /*player*/, GameObject* go)
-    {
-        go->SummonCreature(C_AERANAS, -1321.79f, 4043.80f, 116.24f, 1.25f, TEMPSUMMON_TIMED_DESPAWN, 180000);
-        return false;
-    }
 };
 
 /*######
@@ -532,7 +514,6 @@ void AddSC_hellfire_peninsula()
 {
     new npc_aeranas();
     new npc_ancestral_wolf();
-    new go_haaleshi_altar();
     new npc_naladu();
     new npc_tracy_proudwell();
     new npc_trollbane();
