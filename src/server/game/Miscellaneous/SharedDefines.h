@@ -945,7 +945,7 @@ enum SpellEffects
     SPELL_EFFECT_TALENT_SPEC_SELECT                 = 162,
     SPELL_EFFECT_163                                = 163, // Unused (4.3.4)
     SPELL_EFFECT_REMOVE_AURA                        = 164,
-    SPELL_EFFECT_165                                = 165,
+    SPELL_EFFECT_DAMAGE_FROM_MAX_HEALTH_PCT         = 165,
     SPELL_EFFECT_166                                = 166,
     SPELL_EFFECT_167                                = 167,
     SPELL_EFFECT_168                                = 168,
