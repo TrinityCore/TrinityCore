@@ -447,7 +447,6 @@ class spell_mandokir_decapitate : public SpellScriptLoader
 
             void FilterTargets(std::list<WorldObject*>& targets)
             {
-                targets.remove(GetCaster()->getVictim());
                 if (targets.empty())
                     return;
 
