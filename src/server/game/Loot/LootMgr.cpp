@@ -666,7 +666,7 @@ void Loot::DeleteLootItemFromContainerItemDB(uint32 itemID)
     // Mark the item looted to prevent resaving
     for (LootItemList::iterator _itr = items.begin(); _itr != items.end(); _itr++)
     {
-        if (!_itr->itemid == itemID)
+        if (_itr->itemid != itemID)
             continue;
 
         _itr->canSave = true;
@@ -1272,7 +1272,7 @@ void LootTemplate::CopyConditions(LootItem* li) const
     // Copies the conditions list from a template item to a LootItem
     for (LootStoreItemList::const_iterator _iter = Entries.begin(); _iter != Entries.end(); ++_iter)
     {
-        if (!_iter->itemid == li->itemid)
+        if (_iter->itemid != li->itemid)
             continue;
 
         li->conditions = _iter->conditions;

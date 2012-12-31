@@ -61,7 +61,7 @@ void RARunnable::run()
 
     ACE_Acceptor<RASocket, ACE_SOCK_ACCEPTOR> acceptor;
 
-    uint16 raport = ConfigMgr::GetIntDefault("Ra.Port", 3443);
+    uint16 raport = uint16(ConfigMgr::GetIntDefault("Ra.Port", 3443));
     std::string stringip = ConfigMgr::GetStringDefault("Ra.IP", "0.0.0.0");
     ACE_INET_Addr listen_addr(raport, stringip.c_str());
 

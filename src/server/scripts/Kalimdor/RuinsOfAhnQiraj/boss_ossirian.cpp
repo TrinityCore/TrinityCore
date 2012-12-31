@@ -199,7 +199,7 @@ class boss_ossirian : public CreatureScript
                                                        CrystalCoordinates[CrystalIterator].GetPositionX(),
                                                        CrystalCoordinates[CrystalIterator].GetPositionY(),
                                                        CrystalCoordinates[CrystalIterator].GetPositionZ(),
-                                                       0, 0, 0, 0, 0, -1))
+                                                       0, 0, 0, 0, 0, uint32(-1)))
                     {
                         CrystalGUID = Crystal->GetGUID();
                         ++CrystalIterator;
