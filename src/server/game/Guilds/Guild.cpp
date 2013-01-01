@@ -2650,7 +2650,7 @@ bool Guild::AddMember(uint64 guid, uint8 rankId)
     _UpdateAccountsNumber();
     _LogEvent(GUILD_EVENT_LOG_JOIN_GUILD, lowguid);
     _BroadcastEvent(GE_JOINED, guid, name.c_str());
-    sGuildFinderMgr->RemoveMembershipRequest(player->GetGUIDLow(), GUID_LOPART(this->GetGUID()));
+    sGuildFinderMgr->RemoveMembershipRequest(lowguid, GUID_LOPART(GetGUID()));
 
     // Call scripts if member was succesfully added (and stored to database)
     sScriptMgr->OnGuildAddMember(this, player, rankId);
