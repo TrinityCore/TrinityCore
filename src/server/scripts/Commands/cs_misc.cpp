@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -637,7 +637,7 @@ public:
         return true;
     }
 
-    static bool HandleDieCommand(ChatHandler* handler, char const* args)
+    static bool HandleDieCommand(ChatHandler* handler, char const* /*args*/)
     {
         Unit* target = handler->getSelectedUnit();
 
@@ -656,9 +656,7 @@ public:
 
         if (target->isAlive())
         {
-            if (*args && !strcmp((char*)args, "noloot"))
-                handler->GetSession()->GetPlayer()->Kill(target);
-            else if (sWorld->getBoolConfig(CONFIG_DIE_COMMAND_MODE))
+            if (sWorld->getBoolConfig(CONFIG_DIE_COMMAND_MODE))
                 handler->GetSession()->GetPlayer()->Kill(target);
             else
                 handler->GetSession()->GetPlayer()->DealDamage(target, target->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -199,7 +199,7 @@ class boss_ossirian : public CreatureScript
                                                        CrystalCoordinates[CrystalIterator].GetPositionX(),
                                                        CrystalCoordinates[CrystalIterator].GetPositionY(),
                                                        CrystalCoordinates[CrystalIterator].GetPositionZ(),
-                                                       0, 0, 0, 0, 0, -1))
+                                                       0, 0, 0, 0, 0, uint32(-1)))
                     {
                         CrystalGUID = Crystal->GetGUID();
                         ++CrystalIterator;
