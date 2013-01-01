@@ -98,4 +98,3 @@ class Path
 typedef Path<PathNode> SimplePath;
 
 #endif
-

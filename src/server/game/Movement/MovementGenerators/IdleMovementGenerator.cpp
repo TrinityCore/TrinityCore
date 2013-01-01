@@ -103,4 +103,3 @@ void AssistanceDistractMovementGenerator::Finalize(Unit* unit)
     unit->ClearUnitState(UNIT_STATE_DISTRACTED);
     unit->ToCreature()->SetReactState(REACT_AGGRESSIVE);
 }
-
