@@ -55,32 +55,26 @@ class MovementGeneratorMedium : public MovementGenerator
         void Initialize(Unit* u)
         {
             //u->AssertIsType<T>();
-            (static_cast<D*>(this))->Initialize(static_cast<T*>(u));
+            (static_cast<D*>(this))->DoInitialize(static_cast<T*>(u));
         }
 
         void Finalize(Unit* u)
         {
             //u->AssertIsType<T>();
-            (static_cast<D*>(this))->Finalize(static_cast<T*>(u));
+            (static_cast<D*>(this))->DoFinalize(static_cast<T*>(u));
         }
 
         void Reset(Unit* u)
         {
             //u->AssertIsType<T>();
-            (static_cast<D*>(this))->Reset(static_cast<T*>(u));
+            (static_cast<D*>(this))->DoReset(static_cast<T*>(u));
         }
 
         bool Update(Unit* u, uint32 time_diff)
         {
             //u->AssertIsType<T>();
-            return (static_cast<D*>(this))->Update(static_cast<T*>(u), time_diff);
+            return (static_cast<D*>(this))->DoUpdate(static_cast<T*>(u), time_diff);
         }
-    public:
-        // will not link if not overridden in the generators
-        void Initialize(T* u);
-        void Finalize(T* u);
-        void Reset(T* u);
-        bool Update(T* u, const uint32& time_diff);
 };
 
 struct SelectableMovement : public FactoryHolder<MovementGenerator, MovementGeneratorType>
@@ -100,4 +94,3 @@ typedef FactoryHolder<MovementGenerator, MovementGeneratorType> MovementGenerato
 typedef FactoryHolder<MovementGenerator, MovementGeneratorType>::FactoryHolderRegistry MovementGeneratorRegistry;
 typedef FactoryHolder<MovementGenerator, MovementGeneratorType>::FactoryHolderRepository MovementGeneratorRepository;
 #endif
-

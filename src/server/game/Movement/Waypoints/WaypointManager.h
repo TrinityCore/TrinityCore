@@ -68,4 +68,3 @@ class WaypointMgr
 #define sWaypointMgr ACE_Singleton<WaypointMgr, ACE_Null_Mutex>::instance()
 
 #endif
-

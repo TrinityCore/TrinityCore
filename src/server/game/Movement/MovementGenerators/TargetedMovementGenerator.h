@@ -47,7 +47,7 @@ class TargetedMovementGeneratorMedium : public MovementGeneratorMedium< T, D >, 
         ~TargetedMovementGeneratorMedium() { delete i_path; }
 
     public:
-        bool Update(T*, uint32);
+        bool DoUpdate(T*, uint32);
         Unit* GetTarget() const { return i_target.getTarget(); }
 
         void unitSpeedChanged() { i_recalculateTravel = true; }
@@ -75,9 +75,9 @@ class ChaseMovementGenerator : public TargetedMovementGeneratorMedium<T, ChaseMo
 
         MovementGeneratorType GetMovementGeneratorType() { return CHASE_MOTION_TYPE; }
 
-        void Initialize(T*);
-        void Finalize(T*);
-        void Reset(T*);
+        void DoInitialize(T*);
+        void DoFinalize(T*);
+        void DoReset(T*);
         void MovementInform(T*);
 
         static void _clearUnitStateMove(T* u) { u->ClearUnitState(UNIT_STATE_CHASE_MOVE); }
@@ -99,9 +99,9 @@ class FollowMovementGenerator : public TargetedMovementGeneratorMedium<T, Follow
 
         MovementGeneratorType GetMovementGeneratorType() { return FOLLOW_MOTION_TYPE; }
 
-        void Initialize(T*);
-        void Finalize(T*);
-        void Reset(T*);
+        void DoInitialize(T*);
+        void DoFinalize(T*);
+        void DoReset(T*);
         void MovementInform(T*);
 
         static void _clearUnitStateMove(T* u) { u->ClearUnitState(UNIT_STATE_FOLLOW_MOVE); }
