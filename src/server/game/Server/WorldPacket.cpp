@@ -45,8 +45,7 @@ void WorldPacket::Compress(z_stream* compressionStream)
     *this << uint32(size);
     append(&storage[0], destsize);
     SetOpcode(opcode);
-
-    sLog->outInfo(LOG_FILTER_NETWORKIO, "Successfully compressed opcode %u (len %u) to %u (len %u)", uncompressedOpcode, size, opcode, destsize);
+    sLog->outInfo(LOG_FILTER_NETWORKIO, "%s (len %u) successfully compressed to %04X (len %u)", GetOpcodeNameForLogging(uncompressedOpcode).c_str(), size, opcode, destsize);
 }
 
 //! Compresses another packet and stores it in self (source left intact)
@@ -78,7 +77,7 @@ void WorldPacket::Compress(z_stream* compressionStream, WorldPacket const* sourc
 
     SetOpcode(opcode);
 
-    sLog->outInfo(LOG_FILTER_NETWORKIO, "Successfully compressed opcode %u (len %u) to %u (len %u)", uncompressedOpcode, size, opcode, destsize);
+    sLog->outInfo(LOG_FILTER_NETWORKIO, "%s (len %u) successfully compressed to %04X (len %u)", GetOpcodeNameForLogging(uncompressedOpcode).c_str(), size, opcode, destsize);
 }
 
 void WorldPacket::Compress(void* dst, uint32 *dst_size, const void* src, int src_size)
