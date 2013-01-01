@@ -348,7 +348,7 @@ void WorldSession::HandleItemQuerySingleOpcode(WorldPacket& recvData)
         }
 
         // resistances (7)
-        data << pProto->Armor;
+        data << (pProto->Armor ? pProto->Armor + uint32(pProto->ArmorDamageModifier) : 0);
         data << pProto->HolyRes;
         data << pProto->FireRes;
         data << pProto->NatureRes;
