@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -531,7 +531,7 @@ enum TrinityStrings
     LANG_NPC_SETDATA                    = 555,
 
     //! Old ones now free:
-    // LANG_HOVER_DISABLED              = 556,
+    LANG_COMMAND_NEAR_NPC_MESSAGE       = 556,
 
     LANG_YOURS_LEVEL_UP                 = 557,
     LANG_YOURS_LEVEL_DOWN               = 558,

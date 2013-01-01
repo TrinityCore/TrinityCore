@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -104,6 +104,7 @@ enum WorldDatabaseStatements
     WORLD_SEL_ITEM_TEMPLATE_BY_NAME,
     WORLD_SEL_CREATURE_BY_ID,
     WORLD_SEL_GAMEOBJECT_NEAREST,
+    WORLD_SEL_CREATURE_NEAREST,
     WORLD_SEL_GAMEOBJECT_TARGET,
     WORLD_INS_CREATURE,
     WORLD_DEL_GAME_EVENT_CREATURE,

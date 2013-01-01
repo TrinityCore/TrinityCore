@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -33,7 +33,7 @@ void PreparedStatement::BindParameters()
 {
     ASSERT (m_stmt);
 
-    uint32 i = 0;
+    uint8 i = 0;
     for (; i < statement_data.size(); i++)
     {
         switch (statement_data[i].type)
