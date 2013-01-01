@@ -347,11 +347,11 @@ private:
         _mm_free(ptr);
     }
 
+    __m128i  mask;                                // AND mask
+    __m128i  state[SFMT_N];                       // State vector for SFMT generator
     uint32_t ix;                                  // Index into state array
     uint32_t LastInterval;                        // Last interval length for IRandom
     uint32_t RLimit;                              // Rejection limit used by IRandom
-    __m128i  mask;                                // AND mask
-    __m128i  state[SFMT_N];                       // State vector for SFMT generator
 };
 
 #endif // SFMT_H

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -2380,6 +2380,7 @@ GameObject* WorldObject::SummonGameObject(uint32 entry, float x, float y, float 
         sLog->outError(LOG_FILTER_SQL, "Gameobject template %u not found in database!", entry);
         return NULL;
     }
+
     Map* map = GetMap();
     GameObject* go = new GameObject();
     if (!go->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_GAMEOBJECT), entry, map, GetPhaseMask(), x, y, z, ang, rotation0, rotation1, rotation2, rotation3, 100, GO_STATE_READY))
@@ -2387,13 +2388,14 @@ GameObject* WorldObject::SummonGameObject(uint32 entry, float x, float y, float 
         delete go;
         return NULL;
     }
+
     go->SetRespawnTime(respawnTime);
     if (GetTypeId() == TYPEID_PLAYER || GetTypeId() == TYPEID_UNIT) //not sure how to handle this
-        ((Unit*)this)->AddGameObject(go);
+        ToUnit()->AddGameObject(go);
     else
         go->SetSpawnedByDefault(false);
-    map->AddToMap(go);
 
+    map->AddToMap(go);
     return go;
 }
 

@@ -1,19 +1,19 @@
 /*
-* Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
-*
-* This program is free software; you can redistribute it and/or modify it
-* under the terms of the GNU General Public License as published by the
-* Free Software Foundation; either version 2 of the License, or (at your
-* option) any later version.
-*
-* This program is distributed in the hope that it will be useful, but WITHOUT
-* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
-* more details.
-*
-* You should have received a copy of the GNU General Public License along
-* with this program. If not, see <http://www.gnu.org/licenses/>.
-*/
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -150,7 +150,7 @@ class npc_winterfin_playmate : public CreatureScript
 
         struct npc_winterfin_playmateAI : public ScriptedAI
         {
-            npc_winterfin_playmateAI(Creature* creature) : ScriptedAI (creature) {}
+            npc_winterfin_playmateAI(Creature* creature) : ScriptedAI(creature) {}
 
             void Reset()
             {
@@ -167,7 +167,8 @@ class npc_winterfin_playmate : public CreatureScript
                         if (player->GetQuestStatus(QUEST_PLAYMATE_ORACLE) == QUEST_STATUS_INCOMPLETE)
                         {
                             playerGUID = player->GetGUID();
-                            if ((orphanGUID = getOrphanGUID(player, ORPHAN_ORACLE)))
+                            orphanGUID = getOrphanGUID(player, ORPHAN_ORACLE);
+                            if (orphanGUID)
                                 phase = 1;
                         }
             }
@@ -247,7 +248,7 @@ class npc_snowfall_glade_playmate : public CreatureScript
 
         struct npc_snowfall_glade_playmateAI : public ScriptedAI
         {
-            npc_snowfall_glade_playmateAI(Creature* creature) : ScriptedAI (creature) {}
+            npc_snowfall_glade_playmateAI(Creature* creature) : ScriptedAI(creature) {}
 
             void Reset()
             {
@@ -264,7 +265,8 @@ class npc_snowfall_glade_playmate : public CreatureScript
                         if (player->GetQuestStatus(QUEST_PLAYMATE_WOLVAR) == QUEST_STATUS_INCOMPLETE)
                         {
                             playerGUID = player->GetGUID();
-                            if ((orphanGUID = getOrphanGUID(player, ORPHAN_WOLVAR)))
+                            orphanGUID = getOrphanGUID(player, ORPHAN_WOLVAR);
+                            if (orphanGUID)
                                 phase = 1;
                         }
             }
@@ -343,7 +345,7 @@ class npc_the_biggest_tree : public CreatureScript
 
         struct npc_the_biggest_treeAI : public ScriptedAI
         {
-            npc_the_biggest_treeAI(Creature* creature) : ScriptedAI (creature)
+            npc_the_biggest_treeAI(Creature* creature) : ScriptedAI(creature)
             {
                 me->SetDisplayId(DISPLAY_INVISIBLE);
             }
@@ -363,7 +365,8 @@ class npc_the_biggest_tree : public CreatureScript
                         if (player->GetQuestStatus(QUEST_THE_BIGGEST_TREE_EVER) == QUEST_STATUS_INCOMPLETE)
                         {
                             playerGUID = player->GetGUID();
-                            if ((orphanGUID = getOrphanGUID(player, ORPHAN_ORACLE)))
+                            orphanGUID = getOrphanGUID(player, ORPHAN_ORACLE);
+                            if (orphanGUID)
                                 phase = 1;
                         }
             }
@@ -431,7 +434,7 @@ class npc_high_oracle_soo_roo : public CreatureScript
 
         struct npc_high_oracle_soo_rooAI : public ScriptedAI
         {
-            npc_high_oracle_soo_rooAI(Creature* creature) : ScriptedAI (creature) {}
+            npc_high_oracle_soo_rooAI(Creature* creature) : ScriptedAI(creature) {}
 
             void Reset()
             {
@@ -448,7 +451,8 @@ class npc_high_oracle_soo_roo : public CreatureScript
                         if (player->GetQuestStatus(QUEST_THE_BRONZE_DRAGONSHRINE_ORACLE) == QUEST_STATUS_INCOMPLETE)
                         {
                             playerGUID = player->GetGUID();
-                            if ((orphanGUID = getOrphanGUID(player, ORPHAN_ORACLE)))
+                            orphanGUID = getOrphanGUID(player, ORPHAN_ORACLE);
+                            if (orphanGUID)
                                 phase = 1;
                         }
             }
@@ -518,7 +522,7 @@ class npc_elder_kekek : public CreatureScript
 
         struct npc_elder_kekekAI : public ScriptedAI
         {
-            npc_elder_kekekAI(Creature* creature) : ScriptedAI (creature) {}
+            npc_elder_kekekAI(Creature* creature) : ScriptedAI(creature) {}
 
             void Reset()
             {
@@ -535,7 +539,8 @@ class npc_elder_kekek : public CreatureScript
                         if (player->GetQuestStatus(QUEST_THE_BRONZE_DRAGONSHRINE_WOLVAR) == QUEST_STATUS_INCOMPLETE)
                         {
                             playerGUID = player->GetGUID();
-                            if ((orphanGUID = getOrphanGUID(player, ORPHAN_WOLVAR)))
+                            orphanGUID = getOrphanGUID(player, ORPHAN_WOLVAR);
+                            if (orphanGUID)
                                 phase = 1;
                         }
             }
@@ -605,7 +610,7 @@ class npc_the_etymidian : public CreatureScript
 
         struct npc_the_etymidianAI : public ScriptedAI
         {
-            npc_the_etymidianAI(Creature* creature) : ScriptedAI (creature) {}
+            npc_the_etymidianAI(Creature* creature) : ScriptedAI(creature) {}
 
             void Reset()
             {
@@ -622,7 +627,8 @@ class npc_the_etymidian : public CreatureScript
                         if (player->GetQuestStatus(QUEST_MEETING_A_GREAT_ONE) == QUEST_STATUS_INCOMPLETE)
                         {
                             playerGUID = player->GetGUID();
-                            if ((orphanGUID = getOrphanGUID(player, ORPHAN_ORACLE)))
+                            orphanGUID = getOrphanGUID(player, ORPHAN_ORACLE);
+                            if (orphanGUID)
                                 phase = 1;
                         }
             }
@@ -700,7 +706,7 @@ class npc_alexstraza_the_lifebinder : public CreatureScript
 
         struct npc_alexstraza_the_lifebinderAI : public ScriptedAI
         {
-            npc_alexstraza_the_lifebinderAI(Creature* creature) : ScriptedAI (creature) {}
+            npc_alexstraza_the_lifebinderAI(Creature* creature) : ScriptedAI(creature) {}
 
             void Reset()
             {
@@ -734,15 +740,17 @@ class npc_alexstraza_the_lifebinder : public CreatureScript
                     {
                         if (player->GetQuestStatus(QUEST_THE_DRAGON_QUEEN_ORACLE) == QUEST_STATUS_INCOMPLETE)
                         {
-                            if ((orphanGUID = getOrphanGUID(player, ORPHAN_ORACLE)))
+                            playerGUID = player->GetGUID();
+                            orphanGUID = getOrphanGUID(player, ORPHAN_ORACLE);
+                            if (orphanGUID)
                                 phase = 1;
-                                playerGUID = player->GetGUID();
                         }
                         else if (player->GetQuestStatus(QUEST_THE_DRAGON_QUEEN_WOLVAR) == QUEST_STATUS_INCOMPLETE)
                         {
-                            if ((orphanGUID = getOrphanGUID(player, ORPHAN_WOLVAR)))
+                            playerGUID = player->GetGUID();
+                            orphanGUID = getOrphanGUID(player, ORPHAN_WOLVAR);
+                            if (orphanGUID)
                                 phase = 7;
-                                playerGUID = player->GetGUID();
                         }
                     }
             }
@@ -915,7 +923,7 @@ class npc_cw_area_trigger : public CreatureScript
 
         struct npc_cw_area_triggerAI : public ScriptedAI
         {
-            npc_cw_area_triggerAI(Creature* creature) : ScriptedAI (creature)
+            npc_cw_area_triggerAI(Creature* creature) : ScriptedAI(creature)
             {
                 me->SetDisplayId(DISPLAY_INVISIBLE);
             }
@@ -1011,7 +1019,7 @@ class npc_grizzlemaw_cw_trigger : public CreatureScript
 
         struct npc_grizzlemaw_cw_triggerAI : public ScriptedAI
         {
-            npc_grizzlemaw_cw_triggerAI(Creature* creature) : ScriptedAI (creature)
+            npc_grizzlemaw_cw_triggerAI(Creature* creature) : ScriptedAI(creature)
             {
                 me->SetDisplayId(DISPLAY_INVISIBLE);
             }
