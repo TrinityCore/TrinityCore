@@ -171,7 +171,7 @@ class boss_auriaya : public CreatureScript
                 }
             }
 
-            uint32 GetData(uint32 type)
+            uint32 GetData(uint32 type) const
             {
                 switch (type)
                 {
