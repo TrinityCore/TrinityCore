@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -666,7 +666,7 @@ void Loot::DeleteLootItemFromContainerItemDB(uint32 itemID)
     // Mark the item looted to prevent resaving
     for (LootItemList::iterator _itr = items.begin(); _itr != items.end(); _itr++)
     {
-        if (!_itr->itemid == itemID)
+        if (_itr->itemid != itemID)
             continue;
 
         _itr->canSave = true;
@@ -1272,7 +1272,7 @@ void LootTemplate::CopyConditions(LootItem* li) const
     // Copies the conditions list from a template item to a LootItem
     for (LootStoreItemList::const_iterator _iter = Entries.begin(); _iter != Entries.end(); ++_iter)
     {
-        if (!_iter->itemid == li->itemid)
+        if (_iter->itemid != li->itemid)
             continue;
 
         li->conditions = _iter->conditions;

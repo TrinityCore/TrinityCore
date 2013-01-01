@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -163,9 +163,9 @@ int32 MoneyStringToMoney(const std::string& moneyString)
     for (Tokenizer::const_iterator itr = tokens.begin(); itr != tokens.end(); ++itr)
     {
         std::string tokenString(*itr);
-        uint32 gCount = std::count(tokenString.begin(), tokenString.end(), 'g');
-        uint32 sCount = std::count(tokenString.begin(), tokenString.end(), 's');
-        uint32 cCount = std::count(tokenString.begin(), tokenString.end(), 'c');
+        size_t gCount = std::count(tokenString.begin(), tokenString.end(), 'g');
+        size_t sCount = std::count(tokenString.begin(), tokenString.end(), 's');
+        size_t cCount = std::count(tokenString.begin(), tokenString.end(), 'c');
         if (gCount + sCount + cCount != 1)
             return 0;
 
