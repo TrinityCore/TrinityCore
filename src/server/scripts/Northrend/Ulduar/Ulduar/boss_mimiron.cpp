@@ -741,7 +741,7 @@ class boss_mimiron : public CreatureScript
                 }
             }
 
-            uint32 GetData(uint32 type)
+            uint32 GetData(uint32 type) const
             {
                 switch (type)
                 {
@@ -750,11 +750,11 @@ class boss_mimiron : public CreatureScript
                     case DATA_FLAME_COUNT:
                         return _flameCount;
                     case DATA_AVOIDED_ROCKET_STRIKES:
-                        return _setUpUsTheBomb[DATA_AVOIDED_ROCKET_STRIKES] ? 1 : 0;
+                        return _setUpUsTheBomb.count(DATA_AVOIDED_ROCKET_STRIKES) ? 1 : 0;
                     case DATA_AVOIDED_PROXIMITY_MINES:
-                        return _setUpUsTheBomb[DATA_AVOIDED_PROXIMITY_MINES] ? 1 : 0;
+                        return _setUpUsTheBomb.count(DATA_AVOIDED_PROXIMITY_MINES) ? 1 : 0;
                     case DATA_AVOIDED_BOOM_BOT_EXPLOSION:
-                        return _setUpUsTheBomb[DATA_AVOIDED_BOOM_BOT_EXPLOSION] ? 1 : 0;
+                        return _setUpUsTheBomb.count(DATA_AVOIDED_BOOM_BOT_EXPLOSION) ? 1 : 0;
                     default:
                         break;
                 }
