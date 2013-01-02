@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -170,7 +170,7 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo)
                             condMeets = instance->GetData64(ConditionValue1) == ConditionValue2;
                             break;
                         case INSTANCE_INFO_BOSS_STATE:
-                            condMeets = instance->GetBossState(ConditionValue1) == ConditionValue2;
+                            condMeets = instance->GetBossState(ConditionValue1) == EncounterState(ConditionValue2);
                             break;
                     }
                 }
