@@ -182,4 +182,5 @@ class spell_commander_sarannis_summon_reinforcements : public SpellScriptLoader
 void AddSC_boss_commander_sarannis()
 {
     new boss_commander_sarannis();
+    new spell_commander_sarannis_summon_reinforcements();
 }
