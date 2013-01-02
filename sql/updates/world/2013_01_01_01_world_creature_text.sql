@@ -1,5 +1,5 @@
 -- NPC talk text convert from creature_ai_text. Moving boss to cpp.
-UPDATE `creature_template` SET `AIName`= '', `ScriptName`= 'boss_commander_sarannis' WHERE entry`=17976;
+UPDATE `creature_template` SET `AIName`= '', `ScriptName`= 'boss_commander_sarannis' WHERE `entry`=17976;
 DELETE FROM `creature_ai_scripts` WHERE `creature_id`=17976;
 DELETE FROM `creature_ai_texts` WHERE `entry` BETWEEN -39 AND -34;
 DELETE FROM `creature_text` WHERE `entry` IN (17976);
@@ -14,7 +14,7 @@ INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`pr
 (17976,6,0, 'I have not yet... begun to...',14,0,100,0,0,11079, 'Commander Sarannis - On Death Say');
 
 -- NPC talk text convert from creature_ai_text. Moving boss to cpp.
-UPDATE `creature_template` SET `AIName`= '', `ScriptName`= 'thorngrin_the_tender' WHERE entry`=17978;
+UPDATE `creature_template` SET `AIName`= '', `ScriptName`= 'thorngrin_the_tender' WHERE `entry`=17978;
 DELETE FROM `creature_ai_scripts` WHERE `creature_id`=17978;
 DELETE FROM `creature_ai_texts` WHERE entry BETWEEN -16 AND -9;
 DELETE FROM `creature_text` WHERE `entry` IN (17978);
