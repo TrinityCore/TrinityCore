@@ -126,6 +126,8 @@ struct MinionInfo
 };
 
 typedef std::multimap<uint32 /*entry*/, DoorInfo> DoorInfoMap;
+typedef std::pair<DoorInfoMap::const_iterator, DoorInfoMap::const_iterator> DoorInfoMapBounds;
+
 typedef std::map<uint32 /*entry*/, MinionInfo> MinionInfoMap;
 
 class InstanceScript : public ZoneScript
