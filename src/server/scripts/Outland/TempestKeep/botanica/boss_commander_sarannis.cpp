@@ -17,6 +17,7 @@
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "the_botanica.h"
 
 enum Says
 {
@@ -46,21 +47,22 @@ class boss_commander_sarannis : public CreatureScript
 {
     public: boss_commander_sarannis() : CreatureScript("boss_commander_sarannis") { }
 
-        struct boss_commander_sarannisAI : public ScriptedAI
+        struct boss_commander_sarannisAI : public BossAI
         {
             boss_commander_sarannisAI(Creature* creature) : BossAI(creature, DATA_COMMANDER_SARANNIS) { }
 
             void Reset()
             {
+                _Reset();
                 _phase = true;
             }
 
             void EnterCombat(Unit* /*who*/)
             {
+                _EnterCombat();
                 Talk(SAY_AGGRO);
-                _events.Reset();
-                _events.ScheduleEvent(EVENT_ARCANE_RESONANCE, 42700);
-                _events.ScheduleEvent(EVENT_ARCANE_DEVASTATION, 15200);
+                events.ScheduleEvent(EVENT_ARCANE_RESONANCE, 42700);
+                events.ScheduleEvent(EVENT_ARCANE_DEVASTATION, 15200);
             }
 
             void KilledUnit(Unit* /*victim*/)
@@ -70,6 +72,7 @@ class boss_commander_sarannis : public CreatureScript
 
             void JustDied(Unit* /*killer*/)
             {
+                _JustDied();
                 Talk(SAY_DEATH);
             }
 
@@ -86,32 +89,32 @@ class boss_commander_sarannis : public CreatureScript
 
             void JustSummoned(Creature* summon)
             {
-                ScriptedAI::JustSummoned(summon);
+                BossAI::JustSummoned(summon);
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 const diff)
             {
                 if (!UpdateVictim())
                     return;
 
-                _events.Update(diff);
+                events.Update(diff);
 
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
-                while (uint32 eventId = _events.ExecuteEvent())
+                while (uint32 eventId = events.ExecuteEvent())
                 {
                     switch (eventId)
                     {
                         case EVENT_ARCANE_RESONANCE:
                             Talk(SAY_ARCANE_RESONANCE);
                             DoCastVictim(SPELL_ARCANE_RESONANCE, true);
-                            _events.ScheduleEvent(EVENT_ARCANE_RESONANCE, 42700);
+                            events.ScheduleEvent(EVENT_ARCANE_RESONANCE, 42700);
                             break;
                         case EVENT_ARCANE_DEVASTATION:
                             Talk(SAY_ARCANE_DEVASTATION);
                             DoCastVictim(SPELL_ARCANE_DEVASTATION, true);
-                            _events.ScheduleEvent(EVENT_ARCANE_DEVASTATION, urand(11000, 19200));
+                            events.ScheduleEvent(EVENT_ARCANE_DEVASTATION, urand(11000, 19200));
                             break;
                         default:
                             break;
@@ -122,7 +125,6 @@ class boss_commander_sarannis : public CreatureScript
             }
 
         private:
-            EventMap _events;
             bool _phase;
         };
 
