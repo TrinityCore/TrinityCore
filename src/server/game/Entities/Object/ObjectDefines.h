@@ -187,13 +187,12 @@ bool IS_GROUP_GUID(uint64 guid)
 
 uint64 MAKE_NEW_GUID(uint32 l, uint32 e, uint32 h)
 {
-    return uint64(uint64(l) | (uint64(e) << 32) | (uint64(h) << (h == HIGHGUID_CORPSE) ? 48 : 52));
+    return uint64(uint64(l) | (uint64(e) << 24) | (uint64(h) << 48));
 }
 
 uint32 GUID_HIPART(uint64 guid)
 {
-    uint32 t = ((uint64(guid) >> 48) & 0x0000FFFF);
-    return (t == HIGHGUID_CORPSE) ? t : ((t >> 4) & 0x00000FFF);
+    return (uint32)((uint64(guid) >> 48) & 0x0000FFFF);
 }
 
 uint32 GUID_ENPART(uint64 x)
@@ -205,8 +204,9 @@ uint32 GUID_ENPART(uint64 x)
 
 uint32 GUID_LOPART(uint64 x)
 {
-    // _GUID_LOPART_3 and _GUID_LOPART_2 were both equal to PAIR64_LOPART
-    return PAIR64_LOPART(x);
+    return IsGuidHaveEnPart(x)
+            ? ((uint32)(x & UI64LIT(0x00000000FFFFFFFF)))
+            : ((uint32)(x & UI64LIT(0x0000000000FFFFFF)));
 }
 
 bool IsGuidHaveEnPart(uint64 guid)
