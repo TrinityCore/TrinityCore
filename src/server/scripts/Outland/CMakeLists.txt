@@ -62,7 +62,7 @@ set(scripts_STAT_SRCS
   Outland/TempestKeep/botanica/the_botanica.h
   Outland/TempestKeep/botanica/instance_the_botanica.cpp
   Outland/TempestKeep/botanica/boss_commander_sarannis.cpp
-  Outland/TempestKeep/botanica/thorngrin_the_tender.cpp
+  Outland/TempestKeep/botanica/boss_thorngrin_the_tender.cpp
   Outland/TempestKeep/botanica/boss_high_botanist_freywinn.cpp
   Outland/TempestKeep/botanica/boss_warp_splinter.cpp
   Outland/TempestKeep/botanica/boss_laj.cpp
