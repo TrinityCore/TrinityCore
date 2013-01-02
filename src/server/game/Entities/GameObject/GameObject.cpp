@@ -270,7 +270,7 @@ void GameObject::Update(uint32 diff)
     } else
         AI()->UpdateAI(diff);
 
-    if (IS_MO_TRANSPORT(GetGUID()))
+    if (IS_MO_TRANSPORT_GUID(GetGUID()))
     {
         //((Transport*)this)->Update(p_time);
         return;

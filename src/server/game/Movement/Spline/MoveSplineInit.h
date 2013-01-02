@@ -142,15 +142,15 @@ namespace Movement
     };
 
     inline void MoveSplineInit::SetFly() { args.flags.EnableFlying(); }
-    inline void MoveSplineInit::SetWalk(bool enable) { args.flags.walkmode = enable;}
-    inline void MoveSplineInit::SetSmooth() { args.flags.EnableCatmullRom();}
-    inline void MoveSplineInit::SetCyclic() { args.flags.cyclic = true;}
+    inline void MoveSplineInit::SetWalk(bool enable) { args.flags.walkmode = enable; }
+    inline void MoveSplineInit::SetSmooth() { args.flags.EnableCatmullRom(); }
+    inline void MoveSplineInit::SetCyclic() { args.flags.cyclic = true; }
     inline void MoveSplineInit::SetFall() { args.flags.EnableFalling();}
     inline void MoveSplineInit::SetVelocity(float vel) { args.velocity = vel; args.HasVelocity = true; }
     inline void MoveSplineInit::SetOrientationInversed() { args.flags.orientationInversed = true;}
     inline void MoveSplineInit::SetTransportEnter() { args.flags.EnableTransportEnter(); }
     inline void MoveSplineInit::SetTransportExit() { args.flags.EnableTransportExit(); }
-    inline void MoveSplineInit::SetOrientationFixed(bool enable) { args.flags.orientationFixed = enable;}
+    inline void MoveSplineInit::SetOrientationFixed(bool enable) { args.flags.orientationFixed = enable; }
 
     inline void MoveSplineInit::MovebyPath(const PointsArray& controls, int32 path_offset)
     {
@@ -161,8 +161,7 @@ namespace Movement
 
     inline void MoveSplineInit::MoveTo(float x, float y, float z, bool generatePath, bool forceDestination)
     {
-        Vector3 v(x, y, z);
-        MoveTo(v, generatePath, forceDestination);
+        MoveTo(G3D::Vector3(x, y, z), generatePath, forceDestination);
     }
 
     inline void MoveSplineInit::SetParabolic(float amplitude, float time_shift)

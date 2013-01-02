@@ -5655,12 +5655,11 @@ WorldSafeLocsEntry const* ObjectMgr::GetClosestGraveYard(float x, float y, float
     //     then check faction
     //   if mapId != graveyard.mapId (ghost in instance) and search any graveyard associated
     //     then check faction
-    GraveYardContainer::const_iterator graveLow  = GraveYardStore.lower_bound(zoneId);
-    GraveYardContainer::const_iterator graveUp   = GraveYardStore.upper_bound(zoneId);
+    GraveYardMapBounds range = GraveYardStore.equal_range(zoneId);
     MapEntry const* map = sMapStore.LookupEntry(MapId);
-    // not need to check validity of map object; MapId _MUST_ be valid here
 
-    if (graveLow == graveUp && !map->IsBattleArena())
+    // not need to check validity of map object; MapId _MUST_ be valid here
+    if (range.first == range.second && !map->IsBattleArena())
     {
         sLog->outError(LOG_FILTER_SQL, "Table `game_graveyard_zone` incomplete: Zone %u Team %u does not have a linked graveyard.", zoneId, team);
         return GetDefaultGraveYard(team);
@@ -5681,9 +5680,9 @@ WorldSafeLocsEntry const* ObjectMgr::GetClosestGraveYard(float x, float y, float
 
     MapEntry const* mapEntry = sMapStore.LookupEntry(MapId);
 
-    for (GraveYardContainer::const_iterator itr = graveLow; itr != graveUp; ++itr)
+    for (; range.first != range.second; ++range.first)
     {
-        GraveYardData const& data = itr->second;
+        GraveYardData const& data = range.first->second;
 
         WorldSafeLocsEntry const* entry = sWorldSafeLocsStore.LookupEntry(data.safeLocId);
         if (!entry)
@@ -5761,15 +5760,13 @@ WorldSafeLocsEntry const* ObjectMgr::GetClosestGraveYard(float x, float y, float
 
 GraveYardData const* ObjectMgr::FindGraveYardData(uint32 id, uint32 zoneId)
 {
-    GraveYardContainer::const_iterator graveLow  = GraveYardStore.lower_bound(zoneId);
-    GraveYardContainer::const_iterator graveUp   = GraveYardStore.upper_bound(zoneId);
-
-    for (GraveYardContainer::const_iterator itr = graveLow; itr != graveUp; ++itr)
+    GraveYardMapBounds range = GraveYardStore.equal_range(zoneId);
+    for (; range.first != range.second; ++range.first)
     {
-        if (itr->second.safeLocId == id)
-            return &itr->second;
+        GraveYardData const& data = range.first->second;
+        if (data.safeLocId == id)
+            return &data;
     }
-
     return NULL;
 }
 
@@ -5802,9 +5799,8 @@ bool ObjectMgr::AddGraveYardLink(uint32 id, uint32 zoneId, uint32 team, bool per
 
 void ObjectMgr::RemoveGraveYardLink(uint32 id, uint32 zoneId, uint32 team, bool persist /*= false*/)
 {
-    GraveYardContainer::iterator graveLow  = GraveYardStore.lower_bound(zoneId);
-    GraveYardContainer::iterator graveUp   = GraveYardStore.upper_bound(zoneId);
-    if (graveLow == graveUp)
+    GraveYardMapBoundsNonConst range = GraveYardStore.equal_range(zoneId);
+    if (range.first == range.second)
     {
         //sLog->outError(LOG_FILTER_SQL, "Table `game_graveyard_zone` incomplete: Zone %u Team %u does not have a linked graveyard.", zoneId, team);
         return;
@@ -5812,11 +5808,10 @@ void ObjectMgr::RemoveGraveYardLink(uint32 id, uint32 zoneId, uint32 team, bool 
 
     bool found = false;
 
-    GraveYardContainer::iterator itr;
 
-    for (itr = graveLow; itr != graveUp; ++itr)
+    for (; range.first != range.second; ++range.first)
     {
-        GraveYardData & data = itr->second;
+        GraveYardData & data = range.first->second;
 
         // skip not matching safezone id
         if (data.safeLocId != id)
@@ -5836,7 +5831,7 @@ void ObjectMgr::RemoveGraveYardLink(uint32 id, uint32 zoneId, uint32 team, bool 
         return;
 
     // remove from links
-    GraveYardStore.erase(itr);
+    GraveYardStore.erase(range.first);
 
     // remove link from DB
     if (persist)
@@ -8203,7 +8198,7 @@ void ObjectMgr::AddVendorItem(uint32 entry, uint32 item, int32 maxcount, uint32 
 
     if (persist)
     {
-        PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_INS_NPC_VENODR);
+        PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_INS_NPC_VENDOR);
 
         stmt->setUInt32(0, entry);
         stmt->setUInt32(1, item);
