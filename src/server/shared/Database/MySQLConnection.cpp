@@ -63,9 +63,6 @@ MySQLConnection::~MySQLConnection()
     for (size_t i = 0; i < m_stmts.size(); ++i)
         delete m_stmts[i];
 
-    for (PreparedStatementMap::const_iterator itr = m_queries.begin(); itr != m_queries.end(); ++itr)
-        free((void *)m_queries[itr->first].first);
-
     mysql_close(m_Mysql);
 }
 
@@ -150,8 +147,6 @@ bool MySQLConnection::Open()
 bool MySQLConnection::PrepareStatements()
 {
     DoPrepareStatements();
-    for (PreparedStatementMap::const_iterator itr = m_queries.begin(); itr != m_queries.end(); ++itr)
-        PrepareStatement(itr->first, itr->second.first, itr->second.second);
     return !m_prepareError;
 }
 
@@ -424,6 +419,8 @@ MySQLPreparedStatement* MySQLConnection::GetPreparedStatement(uint32 index)
 
 void MySQLConnection::PrepareStatement(uint32 index, const char* sql, ConnectionFlags flags)
 {
+    m_queries.insert(PreparedStatementMap::value_type(index, std::make_pair(sql, flags)));
+
     // For reconnection case
     if (m_reconnecting)
         delete m_stmts[index];

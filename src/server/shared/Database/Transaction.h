@@ -29,6 +29,9 @@ class Transaction
     friend class TransactionTask;
     friend class MySQLConnection;
 
+    template <typename T>
+    friend class DatabaseWorkerPool;
+
     public:
         Transaction() : _cleanedUp(false) {}
         ~Transaction() { Cleanup(); }
