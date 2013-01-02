@@ -71,7 +71,7 @@ set(scripts_STAT_SRCS
   EasternKingdoms/ScarletEnclave/chapter2.cpp
   EasternKingdoms/ScarletEnclave/chapter5.cpp
   EasternKingdoms/ScarletEnclave/chapter1.cpp
-  EasternKingdoms/ScarletEnclave/the_scarlet_enclave.cpp
+  EasternKingdoms/ScarletEnclave/zone_the_scarlet_enclave.cpp
   EasternKingdoms/zone_eastern_plaguelands.cpp
   EasternKingdoms/MoltenCore/boss_gehennas.cpp
   EasternKingdoms/MoltenCore/boss_lucifron.cpp
