@@ -38,7 +38,7 @@ template<class VISITOR, class TYPE_CONTAINER> void VisitorHelper(VISITOR &v, TYP
 }
 
 // terminate condition for container list
-template<class VISITOR> void VisitorHelper(VISITOR &v, ContainerList<TypeNull> &c)
+template<class VISITOR> void VisitorHelper(VISITOR &/*v*/, ContainerList<TypeNull> &/*c*/)
 {
 }
 
