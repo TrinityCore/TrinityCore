@@ -18,6 +18,7 @@
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "the_botanica.h"
+#include "SpellScript.h"
 
 enum Says
 {
@@ -131,6 +132,50 @@ class boss_commander_sarannis : public CreatureScript
         CreatureAI* GetAI(Creature* creature) const
         {
             return new boss_commander_sarannisAI(creature);
+        }
+};
+
+Position const PosSummonReinforcements[4] =
+{
+    { 160.4483f, 287.6435f, -3.887904f, 2.3841f },
+    { 153.4406f, 289.9929f, -4.736916f, 2.3841f },
+    { 154.4137f, 292.8956f, -4.683603f, 2.3841f },
+    { 157.1544f, 294.2599f, -4.726504f, 2.3841f }
+};
+
+enum Creatures
+{
+    NPC_SUMMONED_BLOODWARDER_MENDER     = 20083,
+    NPC_SUMMONED_BLOODWARDER_RESERVIST  = 20078
+};
+
+class spell_commander_sarannis_summon_reinforcements : public SpellScriptLoader
+{
+    public:
+        spell_commander_sarannis_summon_reinforcements() : SpellScriptLoader("spell_commander_sarannis_summon_reinforcements") { }
+
+        class spell_commander_sarannis_summon_reinforcements_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_commander_sarannis_summon_reinforcements_SpellScript);
+
+            void HandleCast(SpellEffIndex /*effIndex*/)
+            {
+                GetCaster()->SummonCreature(NPC_SUMMONED_BLOODWARDER_MENDER, PosSummonReinforcements[0], TEMPSUMMON_CORPSE_DESPAWN);
+                GetCaster()->SummonCreature(NPC_SUMMONED_BLOODWARDER_RESERVIST, PosSummonReinforcements[1], TEMPSUMMON_CORPSE_DESPAWN);
+                GetCaster()->SummonCreature(NPC_SUMMONED_BLOODWARDER_RESERVIST, PosSummonReinforcements[2], TEMPSUMMON_CORPSE_DESPAWN);
+                if (GetCaster()->GetMap()->IsHeroic())
+                    GetCaster()->SummonCreature(NPC_SUMMONED_BLOODWARDER_RESERVIST, PosSummonReinforcements[3], TEMPSUMMON_CORPSE_DESPAWN);
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_commander_sarannis_summon_reinforcements_SpellScript::HandleCast, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_commander_sarannis_summon_reinforcements_SpellScript();
         }
 };
 
