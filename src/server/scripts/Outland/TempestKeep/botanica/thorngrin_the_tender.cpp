@@ -17,6 +17,7 @@
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "the_botanica.h"
 
 enum Says
 {
@@ -55,17 +56,18 @@ class boss_thorngrin_the_tender : public CreatureScript
 
             void Reset()
             {
+                _Reset();
                 _phase1 = true;
                 _phase2 = true;
             }
 
             void EnterCombat(Unit* /*who*/)
             {
+                _EnterCombat();
                 Talk(SAY_AGGRO);
-                _events.Reset();
-                _events.ScheduleEvent(EVENT_SACRIFICE, 5700);
-                _events.ScheduleEvent(EVENT_HELLFIRE, IsHeroic() ? urand(17400, 19300) : 18000);
-                _events.ScheduleEvent(EVENT_ENRAGE, 12000);
+                events.ScheduleEvent(EVENT_SACRIFICE, 5700);
+                events.ScheduleEvent(EVENT_HELLFIRE, IsHeroic() ? urand(17400, 19300) : 18000);
+                events.ScheduleEvent(EVENT_ENRAGE, 12000);
             }
 
             void KilledUnit(Unit* /*victim*/)
@@ -75,6 +77,7 @@ class boss_thorngrin_the_tender : public CreatureScript
 
             void JustDied(Unit* /*killer*/)
             {
+                _JustDied();
                 Talk(SAY_DEATH);
             }
 
@@ -97,12 +100,12 @@ class boss_thorngrin_the_tender : public CreatureScript
                 if (!UpdateVictim())
                     return;
 
-                _events.Update(diff);
+                events.Update(diff);
 
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
-                while (uint32 eventId = _events.ExecuteEvent())
+                while (uint32 eventId = events.ExecuteEvent())
                 {
                     switch (eventId)
                     {
@@ -112,17 +115,17 @@ class boss_thorngrin_the_tender : public CreatureScript
                                 Talk(SAY_CAST_SACRIFICE);
                                 DoCast(target, SPELL_SACRIFICE, true);
                             }
-                            _events.ScheduleEvent(EVENT_SACRIFICE, 29400);
+                            events.ScheduleEvent(EVENT_SACRIFICE, 29400);
                             break;
                         case EVENT_HELLFIRE:
                             Talk(SAY_CAST_HELLFIRE);
                             DoCastVictim(DUNGEON_MODE(SPELL_HELLFIRE_NORMAL, SPELL_HELLFIRE_HEROIC), true);
-                            _events.ScheduleEvent(EVENT_HELLFIRE, IsHeroic() ? urand(17400, 19300) : 18000);
+                            events.ScheduleEvent(EVENT_HELLFIRE, IsHeroic() ? urand(17400, 19300) : 18000);
                             break;
                         case EVENT_ENRAGE:
                             Talk(EMOTE_ENRAGE);
                             DoCast(me, SPELL_ENRAGE);
-                            _events.ScheduleEvent(EVENT_ENRAGE, 33000);
+                            events.ScheduleEvent(EVENT_ENRAGE, 33000);
                             break;
                         default:
                             break;
@@ -133,7 +136,6 @@ class boss_thorngrin_the_tender : public CreatureScript
             }
 
         private:
-            EventMap _events;
             bool _phase1;
             bool _phase2;
         };
