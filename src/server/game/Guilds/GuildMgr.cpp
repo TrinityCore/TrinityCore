@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -67,7 +67,7 @@ Guild* GuildMgr::GetGuildByGuid(uint64 guid) const
 {
     // Full guids are only used when receiving/sending data to client
     // everywhere else guild id is used
-    if (IS_GUILD(guid))
+    if (IS_GUILD_GUID(guid))
         if (uint32 guildId = GUID_LOPART(guid))
             return GetGuildById(guildId);
 

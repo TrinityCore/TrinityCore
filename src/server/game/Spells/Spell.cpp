@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -821,11 +821,16 @@ void Spell::SelectEffectImplicitTargets(SpellEffIndex effIndex, SpellImplicitTar
                 return;
             // choose which targets we can select at once
             for (uint32 j = effIndex + 1; j < MAX_SPELL_EFFECTS; ++j)
-                if (GetSpellInfo()->Effects[effIndex].TargetA.GetTarget() == GetSpellInfo()->Effects[j].TargetA.GetTarget() &&
-                    GetSpellInfo()->Effects[effIndex].TargetB.GetTarget() == GetSpellInfo()->Effects[j].TargetB.GetTarget() &&
-                    GetSpellInfo()->Effects[effIndex].ImplicitTargetConditions == GetSpellInfo()->Effects[j].ImplicitTargetConditions &&
-                    GetSpellInfo()->Effects[effIndex].CalcRadius(m_caster) == GetSpellInfo()->Effects[j].CalcRadius(m_caster))
+            {
+                SpellEffectInfo const* effects = GetSpellInfo()->Effects;
+                if (effects[effIndex].TargetA.GetTarget() == effects[j].TargetA.GetTarget()
+                        && effects[effIndex].TargetB.GetTarget() == effects[j].TargetB.GetTarget()
+                        && effects[effIndex].ImplicitTargetConditions == effects[j].ImplicitTargetConditions
+                        && effects[effIndex].CalcRadius(m_caster) == effects[j].CalcRadius(m_caster))
+                {
                     effectMask |= 1 << j;
+                }
+            }
             processedEffectMask |= effectMask;
             break;
         default:
@@ -5295,7 +5300,7 @@ SpellCastResult Spell::CheckCast(bool strict)
                 }
                 break;
             }
-            case SPELL_EFFECT_SUMMON_DEAD_PET:
+            case SPELL_EFFECT_RESURRECT_PET:
             {
                 Creature* pet = m_caster->GetGuardianPet();
 

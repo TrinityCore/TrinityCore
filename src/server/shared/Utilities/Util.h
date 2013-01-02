@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -352,11 +352,6 @@ std::string ByteArrayToHexStr(uint8 const* bytes, uint32 length, bool reverse = 
 #ifndef _FLAG96
 #define _FLAG96
 
-#ifndef PAIR64_HIPART
-#define PAIR64_HIPART(x)   (uint32)((uint64(x) >> 32) & UI64LIT(0x00000000FFFFFFFF))
-#define PAIR64_LOPART(x)   (uint32)(uint64(x)         & UI64LIT(0x00000000FFFFFFFF))
-#endif
-
 // simple class for not-modifyable list
 template <typename T>
 class HookList
@@ -404,8 +399,8 @@ public:
 
     flag96(uint64 p1, uint32 p2)
     {
-        part[0] = PAIR64_LOPART(p1);
-        part[1] = PAIR64_HIPART(p1);
+        part[0] = (uint32)(p1 & UI64LIT(0x00000000FFFFFFFF));
+        part[1] = (uint32)((p1 >> 32) & UI64LIT(0x00000000FFFFFFFF));
         part[2] = p2;
     }
 

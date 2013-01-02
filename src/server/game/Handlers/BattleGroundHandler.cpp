@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -819,7 +819,7 @@ void WorldSession::HandleRequestRatedBgInfo(WorldPacket & recvData)
     SendPacket(&data);
 }
 
-void WorldSession::HandleRequestPvpOptions(WorldPacket& recvData)
+void WorldSession::HandleRequestPvpOptions(WorldPacket& /*recvData*/)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_REQUEST_PVP_OPTIONS_ENABLED");
 
@@ -836,14 +836,14 @@ void WorldSession::HandleRequestPvpOptions(WorldPacket& recvData)
     SendPacket(&data);
 }
 
-void WorldSession::HandleRequestPvpReward(WorldPacket& recvData)
+void WorldSession::HandleRequestPvpReward(WorldPacket& /*recvData*/)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_REQUEST_PVP_REWARDS");
 
     _player->SendPvpRewards();
 }
 
-void WorldSession::HandleRequestRatedBgStats(WorldPacket& recvData)
+void WorldSession::HandleRequestRatedBgStats(WorldPacket& /*recvData*/)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_REQUEST_RATED_BG_STATS");
 

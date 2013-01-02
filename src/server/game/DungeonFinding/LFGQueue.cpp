@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -358,7 +358,7 @@ LfgCompatibility LFGQueue::CheckCompatibility(LfgGuidList check)
 
         // Store group so we don't need to call Mgr to get it later (if it's player group will be 0 otherwise would have joined as group)
         for (LfgRolesMap::const_iterator it2 = itQueue->second.roles.begin(); it2 != itQueue->second.roles.end(); ++it2)
-            proposalGroups[it2->first] = IS_GROUP(itQueue->first) ? itQueue->first : 0;
+            proposalGroups[it2->first] = IS_GROUP_GUID(itQueue->first) ? itQueue->first : 0;
 
         numPlayers += itQueue->second.roles.size();
 
@@ -601,7 +601,7 @@ std::string LFGQueue::DumpQueueInfo() const
         for (LfgGuidList::const_iterator it = queue.begin(); it != queue.end(); ++it)
         {
             uint64 guid = *it;
-            if (IS_GROUP(guid))
+            if (IS_GROUP_GUID(guid))
             {
                 groups++;
                 playersInGroup += sLFGMgr->GetPlayerCount(guid);
