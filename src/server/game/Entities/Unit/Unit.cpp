@@ -3401,8 +3401,11 @@ void Unit::_UnapplyAura(AuraApplication * aurApp, AuraRemoveMode removeMode)
 {
     // aura can be removed from unit only if it's applied on it, shouldn't happen
     ASSERT(aurApp->GetBase()->GetApplicationOfTarget(GetGUID()) == aurApp);
+
     uint32 spellId = aurApp->GetBase()->GetId();
-    for (AuraApplicationMap::iterator iter = m_appliedAuras.lower_bound(spellId); iter != m_appliedAuras.upper_bound(spellId);)
+    AuraApplicationMapBoundsNonConst range = m_appliedAuras.equal_range(spellId);
+
+    for (AuraApplicationMap::iterator iter = range.first; iter != range.second;)
     {
         if (iter->second == aurApp)
         {
@@ -3492,20 +3495,33 @@ void Unit::RemoveOwnedAura(Aura* aura, AuraRemoveMode removeMode)
     ASSERT(aura->GetOwner() == this);
 
     uint32 spellId = aura->GetId();
-    for (AuraMap::iterator itr = m_ownedAuras.lower_bound(spellId); itr != m_ownedAuras.upper_bound(spellId); ++itr)
+    AuraMapBoundsNonConst range = m_ownedAuras.equal_range(spellId);
+
+    for (AuraMap::iterator itr = range.first; itr != range.second; ++itr)
+    {
         if (itr->second == aura)
         {
             RemoveOwnedAura(itr, removeMode);
             return;
         }
+    }
+
     ASSERT(false);
 }
 
 Aura* Unit::GetOwnedAura(uint32 spellId, uint64 casterGUID, uint64 itemCasterGUID, uint8 reqEffMask, Aura* except) const
 {
-    for (AuraMap::const_iterator itr = m_ownedAuras.lower_bound(spellId); itr != m_ownedAuras.upper_bound(spellId); ++itr)
-        if (((itr->second->GetEffectMask() & reqEffMask) == reqEffMask) && (!casterGUID || itr->second->GetCasterGUID() == casterGUID) && (!itemCasterGUID || itr->second->GetCastItemGUID() == itemCasterGUID) && (!except || except != itr->second))
+    AuraMapBounds range = m_ownedAuras.equal_range(spellId);
+    for (AuraMap::const_iterator itr = range.first; itr != range.second; ++itr)
+    {
+        if (((itr->second->GetEffectMask() & reqEffMask) == reqEffMask)
+                && (!casterGUID || itr->second->GetCasterGUID() == casterGUID)
+                && (!itemCasterGUID || itr->second->GetCastItemGUID() == itemCasterGUID)
+                && (!except || except != itr->second))
+        {
             return itr->second;
+        }
+    }
     return NULL;
 }
 
@@ -3524,11 +3540,12 @@ void Unit::RemoveAura(AuraApplicationMap::iterator &i, AuraRemoveMode mode)
 
 void Unit::RemoveAura(uint32 spellId, uint64 caster, uint8 reqEffMask, AuraRemoveMode removeMode)
 {
-    for (AuraApplicationMap::iterator iter = m_appliedAuras.lower_bound(spellId); iter != m_appliedAuras.upper_bound(spellId);)
+    AuraApplicationMapBoundsNonConst range = m_appliedAuras.equal_range(spellId);
+    for (AuraApplicationMap::iterator iter = range.first; iter != range.second;)
     {
         Aura const* aura = iter->second->GetBase();
         if (((aura->GetEffectMask() & reqEffMask) == reqEffMask)
-            && (!caster || aura->GetCasterGUID() == caster))
+                && (!caster || aura->GetCasterGUID() == caster))
         {
             RemoveAura(iter, removeMode);
             return;
@@ -3557,8 +3574,11 @@ void Unit::RemoveAura(AuraApplication * aurApp, AuraRemoveMode mode)
     // no need to remove
     if (aurApp->GetBase()->GetApplicationOfTarget(GetGUID()) != aurApp || aurApp->GetBase()->IsRemoved())
         return;
+
     uint32 spellId = aurApp->GetBase()->GetId();
-    for (AuraApplicationMap::iterator iter = m_appliedAuras.lower_bound(spellId); iter != m_appliedAuras.upper_bound(spellId);)
+    AuraApplicationMapBoundsNonConst range = m_appliedAuras.equal_range(spellId);
+
+    for (AuraApplicationMap::iterator iter = range.first; iter != range.second;)
     {
         if (aurApp == iter->second)
         {
@@ -3596,11 +3616,12 @@ void Unit::RemoveAurasDueToSpell(uint32 spellId, uint64 casterGUID, uint8 reqEff
 
 void Unit::RemoveAuraFromStack(uint32 spellId, uint64 casterGUID, AuraRemoveMode removeMode)
 {
-    for (AuraMap::iterator iter = m_ownedAuras.lower_bound(spellId); iter != m_ownedAuras.upper_bound(spellId);)
+    AuraMapBoundsNonConst range = m_ownedAuras.equal_range(spellId);
+    for (AuraMap::iterator iter = range.first; iter != range.second;)
     {
         Aura* aura = iter->second;
         if ((aura->GetType() == UNIT_AURA_TYPE)
-            && (!casterGUID || aura->GetCasterGUID() == casterGUID))
+                && (!casterGUID || aura->GetCasterGUID() == casterGUID))
         {
             aura->ModStackAmount(-1, removeMode);
             return;
@@ -3612,7 +3633,8 @@ void Unit::RemoveAuraFromStack(uint32 spellId, uint64 casterGUID, AuraRemoveMode
 
 void Unit::RemoveAurasDueToSpellByDispel(uint32 spellId, uint32 dispellerSpellId, uint64 casterGUID, Unit* dispeller, uint8 chargesRemoved/*= 1*/)
 {
-    for (AuraMap::iterator iter = m_ownedAuras.lower_bound(spellId); iter != m_ownedAuras.upper_bound(spellId);)
+    AuraMapBoundsNonConst range = m_ownedAuras.equal_range(spellId);
+    for (AuraMap::iterator iter = range.first; iter != range.second;)
     {
         Aura* aura = iter->second;
         if (aura->GetCasterGUID() == casterGUID)
@@ -3639,7 +3661,8 @@ void Unit::RemoveAurasDueToSpellByDispel(uint32 spellId, uint32 dispellerSpellId
 
 void Unit::RemoveAurasDueToSpellBySteal(uint32 spellId, uint64 casterGUID, Unit* stealer)
 {
-    for (AuraMap::iterator iter = m_ownedAuras.lower_bound(spellId); iter != m_ownedAuras.upper_bound(spellId);)
+    AuraMapBoundsNonConst range = m_ownedAuras.equal_range(spellId);
+    for (AuraMap::iterator iter = range.first; iter != range.second;)
     {
         Aura* aura = iter->second;
         if (aura->GetCasterGUID() == casterGUID)
@@ -3712,14 +3735,14 @@ void Unit::RemoveAurasDueToSpellBySteal(uint32 spellId, uint64 casterGUID, Unit*
     }
 }
 
-void Unit::RemoveAurasDueToItemSpell(Item* castItem, uint32 spellId)
+void Unit::RemoveAurasDueToItemSpell(uint32 spellId, uint64 castItemGuid)
 {
     for (AuraApplicationMap::iterator iter = m_appliedAuras.lower_bound(spellId); iter != m_appliedAuras.upper_bound(spellId);)
     {
-        if (!castItem || iter->second->GetBase()->GetCastItemGUID() == castItem->GetGUID())
+        if (iter->second->GetBase()->GetCastItemGUID() == castItemGuid)
         {
             RemoveAura(iter);
-            iter = m_appliedAuras.upper_bound(spellId);          // overwrite by more appropriate
+            iter = m_appliedAuras.lower_bound(spellId);
         }
         else
             ++iter;
@@ -3999,9 +4022,10 @@ void Unit::RemoveAllAurasExceptType(AuraType type)
 
 void Unit::DelayOwnedAuras(uint32 spellId, uint64 caster, int32 delaytime)
 {
-    for (AuraMap::iterator iter = m_ownedAuras.lower_bound(spellId); iter != m_ownedAuras.upper_bound(spellId);++iter)
+    AuraMapBoundsNonConst range = m_ownedAuras.equal_range(spellId);
+    for (; range.first != range.second; ++range.first)
     {
-        Aura* aura = iter->second;
+        Aura* aura = range.first->second;
         if (!caster || aura->GetCasterGUID() == caster)
         {
             if (aura->GetDuration() < delaytime)
@@ -4030,9 +4054,15 @@ void Unit::_ApplyAllAuraStatMods()
 
 AuraEffect* Unit::GetAuraEffect(uint32 spellId, uint8 effIndex, uint64 caster) const
 {
-    for (AuraApplicationMap::const_iterator itr = m_appliedAuras.lower_bound(spellId); itr != m_appliedAuras.upper_bound(spellId); ++itr)
-        if (itr->second->HasEffect(effIndex) && (!caster || itr->second->GetBase()->GetCasterGUID() == caster))
+    AuraApplicationMapBounds range = m_appliedAuras.equal_range(spellId);
+    for (AuraApplicationMap::const_iterator itr = range.first; itr != range.second; ++itr)
+    {
+        if (itr->second->HasEffect(effIndex)
+                && (!caster || itr->second->GetBase()->GetCasterGUID() == caster))
+        {
             return itr->second->GetBase()->GetEffect(effIndex);
+        }
+    }
     return NULL;
 }
 
@@ -4080,11 +4110,19 @@ AuraEffect* Unit::GetAuraEffect(AuraType type, SpellFamilyNames family, uint32 f
 
 AuraApplication * Unit::GetAuraApplication(uint32 spellId, uint64 casterGUID, uint64 itemCasterGUID, uint8 reqEffMask, AuraApplication * except) const
 {
-    for (AuraApplicationMap::const_iterator itr = m_appliedAuras.lower_bound(spellId); itr != m_appliedAuras.upper_bound(spellId); ++itr)
+    AuraApplicationMapBounds range = m_appliedAuras.equal_range(spellId);
+    for (; range.first != range.second; ++range.first)
     {
-        Aura const* aura = itr->second->GetBase();
-        if (((aura->GetEffectMask() & reqEffMask) == reqEffMask) && (!casterGUID || aura->GetCasterGUID() == casterGUID) && (!itemCasterGUID || aura->GetCastItemGUID() == itemCasterGUID) && (!except || except != itr->second))
-            return itr->second;
+        AuraApplication* app = range.first->second;
+        Aura const* aura = app->GetBase();
+
+        if (((aura->GetEffectMask() & reqEffMask) == reqEffMask)
+                && (!casterGUID || aura->GetCasterGUID() == casterGUID)
+                && (!itemCasterGUID || aura->GetCastItemGUID() == itemCasterGUID)
+                && (!except || except != app))
+        {
+            return app;
+        }
     }
     return NULL;
 }
@@ -4154,22 +4192,31 @@ void Unit::GetDispellableAuraList(Unit* caster, uint32 dispelMask, DispelCharges
 
 bool Unit::HasAuraEffect(uint32 spellId, uint8 effIndex, uint64 caster) const
 {
-    for (AuraApplicationMap::const_iterator itr = m_appliedAuras.lower_bound(spellId); itr != m_appliedAuras.upper_bound(spellId); ++itr)
-        if (itr->second->HasEffect(effIndex) && (!caster || itr->second->GetBase()->GetCasterGUID() == caster))
+    AuraApplicationMapBounds range = m_appliedAuras.equal_range(spellId);
+    for (AuraApplicationMap::const_iterator itr = range.first; itr != range.second; ++itr)
+    {
+        if (itr->second->HasEffect(effIndex)
+                && (!caster || itr->second->GetBase()->GetCasterGUID() == caster))
+        {
             return true;
+        }
+    }
     return false;
 }
 
 uint32 Unit::GetAuraCount(uint32 spellId) const
 {
     uint32 count = 0;
-    for (AuraApplicationMap::const_iterator itr = m_appliedAuras.lower_bound(spellId); itr != m_appliedAuras.upper_bound(spellId); ++itr)
+    AuraApplicationMapBounds range = m_appliedAuras.equal_range(spellId);
+
+    for (AuraApplicationMap::const_iterator itr = range.first; itr != range.second; ++itr)
     {
-        if (!itr->second->GetBase()->GetStackAmount())
-            count++;
+        if (itr->second->GetBase()->GetStackAmount() == 0)
+            ++count;
         else
             count += (uint32)itr->second->GetBase()->GetStackAmount();
     }
+
     return count;
 }
 
@@ -9682,7 +9729,8 @@ bool Unit::HasAuraState(AuraStateType flag, SpellInfo const* spellProto, Unit co
         // If aura with aurastate by caster not found return false
         if ((1<<(flag-1)) & PER_CASTER_AURA_STATE_MASK)
         {
-            for (AuraStateAurasMap::const_iterator itr = m_auraStateAuras.lower_bound(flag); itr != m_auraStateAuras.upper_bound(flag); ++itr)
+            AuraStateAurasMapBounds range = m_auraStateAuras.equal_range(flag);
+            for (AuraStateAurasMap::const_iterator itr = range.first; itr != range.second; ++itr)
                 if (itr->second->GetBase()->GetCasterGUID() == Caster->GetGUID())
                     return true;
             return false;

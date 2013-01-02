@@ -564,6 +564,8 @@ struct GraveYardData
 };
 
 typedef std::multimap<uint32, GraveYardData> GraveYardContainer;
+typedef std::pair<GraveYardContainer::const_iterator, GraveYardContainer::const_iterator> GraveYardMapBounds;
+typedef std::pair<GraveYardContainer::iterator, GraveYardContainer::iterator> GraveYardMapBoundsNonConst;
 
 typedef UNORDERED_MAP<uint32, VendorItemData> CacheVendorItemContainer;
 typedef UNORDERED_MAP<uint32, TrainerSpellData> CacheTrainerSpellContainer;
@@ -960,6 +962,8 @@ class ObjectMgr
         uint32 GeneratePetNumber();
 
         typedef std::multimap<int32, uint32> ExclusiveQuestGroups;
+        typedef std::pair<ExclusiveQuestGroups::const_iterator, ExclusiveQuestGroups::const_iterator> ExclusiveQuestGroupsBounds;
+
         ExclusiveQuestGroups mExclusiveQuestGroups;
 
         MailLevelReward const* GetMailLevelReward(uint32 level, uint32 raceMask)
@@ -1114,7 +1118,7 @@ class ObjectMgr
 
         VendorItemData const* GetNpcVendorItemList(uint32 entry) const
         {
-            CacheVendorItemContainer::const_iterator  iter = _cacheVendorItemStore.find(entry);
+            CacheVendorItemContainer::const_iterator iter = _cacheVendorItemStore.find(entry);
             if (iter == _cacheVendorItemStore.end())
                 return NULL;
 
@@ -1131,26 +1135,26 @@ class ObjectMgr
 
         SpellClickInfoMapBounds GetSpellClickInfoMapBounds(uint32 creature_id) const
         {
-            return SpellClickInfoMapBounds(_spellClickInfoStore.lower_bound(creature_id), _spellClickInfoStore.upper_bound(creature_id));
+            return _spellClickInfoStore.equal_range(creature_id);
         }
 
         GossipMenusMapBounds GetGossipMenusMapBounds(uint32 uiMenuId) const
         {
-            return GossipMenusMapBounds(_gossipMenusStore.lower_bound(uiMenuId), _gossipMenusStore.upper_bound(uiMenuId));
+            return _gossipMenusStore.equal_range(uiMenuId);
         }
 
         GossipMenusMapBoundsNonConst GetGossipMenusMapBoundsNonConst(uint32 uiMenuId)
         {
-            return GossipMenusMapBoundsNonConst(_gossipMenusStore.lower_bound(uiMenuId), _gossipMenusStore.upper_bound(uiMenuId));
+            return _gossipMenusStore.equal_range(uiMenuId);
         }
 
         GossipMenuItemsMapBounds GetGossipMenuItemsMapBounds(uint32 uiMenuId) const
         {
-            return GossipMenuItemsMapBounds(_gossipMenuItemsStore.lower_bound(uiMenuId), _gossipMenuItemsStore.upper_bound(uiMenuId));
+            return _gossipMenuItemsStore.equal_range(uiMenuId);
         }
         GossipMenuItemsMapBoundsNonConst GetGossipMenuItemsMapBoundsNonConst(uint32 uiMenuId)
         {
-            return GossipMenuItemsMapBoundsNonConst(_gossipMenuItemsStore.lower_bound(uiMenuId), _gossipMenuItemsStore.upper_bound(uiMenuId));
+            return _gossipMenuItemsStore.equal_range(uiMenuId);
         }
 
         // for wintergrasp only
