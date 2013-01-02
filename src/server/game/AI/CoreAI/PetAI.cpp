@@ -130,7 +130,6 @@ void PetAI::UpdateAI(const uint32 diff)
         }
         else
             HandleReturnMovement();
-
     }
 
     // Autocast (casted only in combat or persistent spells in any state)
