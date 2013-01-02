@@ -25,6 +25,7 @@ EndScriptData */
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "the_botanica.h"
 
 enum eSays
 {
@@ -58,7 +59,7 @@ class boss_high_botanist_freywinn : public CreatureScript
         {
         }
 
-        struct boss_high_botanist_freywinnAI : public ScriptedAI
+        struct boss_high_botanist_freywinnAI : public BossAI
         {
             boss_high_botanist_freywinnAI(Creature* creature) : BossAI(creature, DATA_HIGH_BOTANIST_FREYWINN) { }
 
