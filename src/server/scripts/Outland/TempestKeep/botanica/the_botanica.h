@@ -23,11 +23,11 @@ uint32 const EncounterCount = 5;
 
 enum DataTypes
 {
-    DATA_COMMANDER_SARANNIS             = 1,
-    DATA_HIGH_BOTANIST_FREYWINN         = 2,
-    DATA_THORNGRIN_THE_TENDER           = 3,
-    DATA_LAJ                            = 4,
-    DATA_WARP_SPLINTER                  = 5
+    DATA_COMMANDER_SARANNIS             = 0,
+    DATA_HIGH_BOTANIST_FREYWINN         = 1,
+    DATA_THORNGRIN_THE_TENDER           = 2,
+    DATA_LAJ                            = 3,
+    DATA_WARP_SPLINTER                  = 4
 };
 
 enum CreatureIds
