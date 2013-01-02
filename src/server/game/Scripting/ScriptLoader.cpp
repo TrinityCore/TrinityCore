@@ -1061,6 +1061,9 @@ void AddOutlandScripts()
     AddSC_boss_high_botanist_freywinn();    //TK Botanica
     AddSC_boss_laj();
     AddSC_boss_warp_splinter();
+    AddSC_boss_thorngrin_the_tender();
+    AddSC_boss_commander_sarannis();
+    AddSC_instance_the_botanica();
     AddSC_boss_alar();                      //TK The Eye
     AddSC_boss_kaelthas();
     AddSC_boss_void_reaver();
