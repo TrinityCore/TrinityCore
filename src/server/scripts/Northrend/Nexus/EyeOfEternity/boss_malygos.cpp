@@ -771,7 +771,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 const diff)
+        void UpdateAI(uint32 const /*diff*/)
         {
             // When duration of oppened riff visual ends,
             // closed one should be cast
