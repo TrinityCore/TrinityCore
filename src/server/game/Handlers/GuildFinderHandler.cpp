@@ -64,7 +64,7 @@ void WorldSession::HandleGuildFinderAddRecruit(WorldPacket& recvPacket)
         return;
     if (!(classRoles & GUILDFINDER_ALL_ROLES) || classRoles > GUILDFINDER_ALL_ROLES)
         return;
-    if (!(availability & ALL_WEEK) || availability > ALL_WEEK)
+    if (!(availability & AVAILABILITY_ALWAYS) || availability > AVAILABILITY_ALWAYS)
         return;
     if (!(guildInterests & ALL_INTERESTS) || guildInterests > ALL_INTERESTS)
         return;
@@ -85,7 +85,7 @@ void WorldSession::HandleGuildFinderBrowse(WorldPacket& recvPacket)
 
     if (!(classRoles & GUILDFINDER_ALL_ROLES) || classRoles > GUILDFINDER_ALL_ROLES)
         return;
-    if (!(availability & ALL_WEEK) || availability > ALL_WEEK)
+    if (!(availability & AVAILABILITY_ALWAYS) || availability > AVAILABILITY_ALWAYS)
         return;
     if (!(guildInterests & ALL_INTERESTS) || guildInterests > ALL_INTERESTS)
         return;
@@ -421,7 +421,7 @@ void WorldSession::HandleGuildFinderSetGuildPost(WorldPacket& recvPacket)
 
     if (!(classRoles & GUILDFINDER_ALL_ROLES) || classRoles > GUILDFINDER_ALL_ROLES)
         return;
-    if (!(availability & ALL_WEEK) || availability > ALL_WEEK)
+    if (!(availability & AVAILABILITY_ALWAYS) || availability > AVAILABILITY_ALWAYS)
         return;
     if (!(guildInterests & ALL_INTERESTS) || guildInterests > ALL_INTERESTS)
         return;
