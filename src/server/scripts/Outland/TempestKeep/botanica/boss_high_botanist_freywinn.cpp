@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -25,6 +25,7 @@ EndScriptData */
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "the_botanica.h"
 
 enum eSays
 {
@@ -33,7 +34,7 @@ enum eSays
     SAY_TREE                   = 2,
     SAY_SUMMON                 = 3,
     SAY_DEATH                  = 4,
-    SAY_OOC_RANDOM             = 5,
+    SAY_OOC_RANDOM             = 5
 };
 
 enum eSpells
@@ -44,7 +45,7 @@ enum eSpells
     SPELL_PLANT_WHITE          = 34759,
     SPELL_PLANT_GREEN          = 34761,
     SPELL_PLANT_BLUE           = 34762,
-    SPELL_PLANT_RED            = 34763,
+    SPELL_PLANT_RED            = 34763
 };
 
 #define ENTRY_FRAYER                19953
@@ -58,9 +59,9 @@ class boss_high_botanist_freywinn : public CreatureScript
         {
         }
 
-        struct boss_high_botanist_freywinnAI : public ScriptedAI
+        struct boss_high_botanist_freywinnAI : public BossAI
         {
-            boss_high_botanist_freywinnAI(Creature* creature) : ScriptedAI(creature) {}
+            boss_high_botanist_freywinnAI(Creature* creature) : BossAI(creature, DATA_HIGH_BOTANIST_FREYWINN) { }
 
             std::list<uint64> Adds_List;
 

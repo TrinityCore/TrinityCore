@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -28,10 +28,10 @@ class ConfusedMovementGenerator : public MovementGeneratorMedium< T, ConfusedMov
     public:
         explicit ConfusedMovementGenerator() : i_nextMoveTime(0) {}
 
-        void Initialize(T*);
-        void Finalize(T*);
-        void Reset(T*);
-        bool Update(T*, uint32);
+        void DoInitialize(T*);
+        void DoFinalize(T*);
+        void DoReset(T*);
+        bool DoUpdate(T*, uint32);
 
         MovementGeneratorType GetMovementGeneratorType() { return CONFUSED_MOTION_TYPE; }
     private:

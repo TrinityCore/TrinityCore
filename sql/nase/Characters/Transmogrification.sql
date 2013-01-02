@@ -1,6 +1,6 @@
 
 
-DROP TABLE IF EXISTS `fake_items`;
+DROP TABLE IF EXISTS `custom_transmogrification`;
 CREATE TABLE `custom_transmogrification` (
 
 `GUID` INT(10) UNSIGNED NOT NULL COMMENT 'Item guidLow',

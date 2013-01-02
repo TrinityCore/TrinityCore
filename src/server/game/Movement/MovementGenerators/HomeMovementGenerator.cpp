@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -23,12 +23,12 @@
 #include "MoveSplineInit.h"
 #include "MoveSpline.h"
 
-void HomeMovementGenerator<Creature>::Initialize(Creature* owner)
+void HomeMovementGenerator<Creature>::DoInitialize(Creature* owner)
 {
     _setTargetLocation(owner);
 }
 
-void HomeMovementGenerator<Creature>::Finalize(Creature* owner)
+void HomeMovementGenerator<Creature>::DoFinalize(Creature* owner)
 {
     if (arrived)
     {
@@ -39,7 +39,7 @@ void HomeMovementGenerator<Creature>::Finalize(Creature* owner)
     }
 }
 
-void HomeMovementGenerator<Creature>::Reset(Creature*)
+void HomeMovementGenerator<Creature>::DoReset(Creature*)
 {
 }
 
@@ -61,10 +61,11 @@ void HomeMovementGenerator<Creature>::_setTargetLocation(Creature* owner)
     init.Launch();
 
     arrived = false;
-    owner->ClearUnitState(UNIT_STATE_ALL_STATE & ~UNIT_STATE_EVADE);
+
+    owner->ClearUnitState(uint32(UNIT_STATE_ALL_STATE & ~UNIT_STATE_EVADE));
 }
 
-bool HomeMovementGenerator<Creature>::Update(Creature* owner, const uint32 /*time_diff*/)
+bool HomeMovementGenerator<Creature>::DoUpdate(Creature* owner, const uint32 /*time_diff*/)
 {
     arrived = owner->movespline->Finalized();
     return !arrived;

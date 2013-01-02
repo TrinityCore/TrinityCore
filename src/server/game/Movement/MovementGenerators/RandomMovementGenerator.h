@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -28,11 +28,11 @@ class RandomMovementGenerator : public MovementGeneratorMedium< T, RandomMovemen
         RandomMovementGenerator(float spawn_dist = 0.0f) : i_nextMoveTime(0), wander_distance(spawn_dist) {}
 
         void _setRandomLocation(T*);
-        void Initialize(T*);
-        void Finalize(T*);
-        void Reset(T*);
-        bool Update(T*, const uint32);
-        bool GetResetPosition(T*, float& x, float& y, float& z);
+        void DoInitialize(T*);
+        void DoFinalize(T*);
+        void DoReset(T*);
+        bool DoUpdate(T*, const uint32);
+        bool GetResetPos(T*, float& x, float& y, float& z);
         MovementGeneratorType GetMovementGeneratorType() { return RANDOM_MOTION_TYPE; }
     private:
         TimeTrackerSmall i_nextMoveTime;
@@ -41,4 +41,3 @@ class RandomMovementGenerator : public MovementGeneratorMedium< T, RandomMovemen
         float wander_distance;
 };
 #endif
-
