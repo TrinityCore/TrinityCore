@@ -746,7 +746,7 @@ class PlayerScript : public UnitScript
         // Called when a player is deleted.
         virtual void OnDelete(uint64 /*guid*/) { }
 
-        // Called whe is a player is about to be saved.
+        // Called when a player is about to be saved.
         virtual void OnSave(Player* /*player*/) { }
 
         // Called when a player is bound to an instance
