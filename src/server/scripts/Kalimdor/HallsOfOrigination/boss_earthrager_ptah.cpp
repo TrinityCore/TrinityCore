@@ -22,6 +22,7 @@
 #include "SpellAuraEffects.h"
 #include "Player.h"
 #include "Weather.h"
+#include "WorldSession.h"
 #include "halls_of_origination.h"
 
 enum Texts

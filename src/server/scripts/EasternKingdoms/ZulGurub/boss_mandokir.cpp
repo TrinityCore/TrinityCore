@@ -21,6 +21,7 @@
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"
 #include "Player.h"
+#include "GridNotifiers.h"
 #include "zulgurub.h"
 
 enum Yells
