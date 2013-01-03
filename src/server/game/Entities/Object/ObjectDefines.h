@@ -34,7 +34,7 @@ enum HighGuid
     HIGHGUID_DYNAMICOBJECT  = 0xF100,                      // blizz F100
     HIGHGUID_CORPSE         = 0xF101,                      // blizz F100
     HIGHGUID_MO_TRANSPORT   = 0x1FC0,                      // blizz 1FC0 (for GAMEOBJECT_TYPE_MO_TRANSPORT)
-    HIGHGUID_GROUP          = 0x1F05
+    HIGHGUID_GROUP          = 0x1F50
 };
 
 // used for creating values for respawn for example
@@ -198,15 +198,15 @@ uint32 GUID_HIPART(uint64 guid)
 uint32 GUID_ENPART(uint64 x)
 {
     return IsGuidHaveEnPart(x)
-            ? ((uint32)((x >> 32) & UI64LIT(0x00000000000FFFFF)))
+            ? (uint32)((x >> 24) & UI64LIT(0x0000000000FFFFFF))
             : 0;
 }
 
 uint32 GUID_LOPART(uint64 x)
 {
     return IsGuidHaveEnPart(x)
-            ? ((uint32)(x & UI64LIT(0x00000000FFFFFFFF)))
-            : ((uint32)(x & UI64LIT(0x0000000000FFFFFF)));
+            ? (uint32)(x & UI64LIT(0x0000000000FFFFFF))
+            : (uint32)(x & UI64LIT(0x00000000FFFFFFFF));
 }
 
 bool IsGuidHaveEnPart(uint64 guid)
