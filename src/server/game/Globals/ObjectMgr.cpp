@@ -52,7 +52,6 @@
 #include "World.h"
 
 ScriptMapMap sSpellScripts;
-ScriptMapMap sGameObjectScripts;
 ScriptMapMap sEventScripts;
 ScriptMapMap sWaypointScripts;
 
@@ -62,7 +61,6 @@ std::string GetScriptsTableNameByType(ScriptsType type)
     switch (type)
     {
         case SCRIPTS_SPELL:         res = "spell_scripts";      break;
-        case SCRIPTS_GAMEOBJECT:    res = "gameobject_scripts"; break;
         case SCRIPTS_EVENT:         res = "event_scripts";      break;
         case SCRIPTS_WAYPOINT:      res = "waypoint_scripts";   break;
         default: break;
@@ -76,7 +74,6 @@ ScriptMapMap* GetScriptsMapByType(ScriptsType type)
     switch (type)
     {
         case SCRIPTS_SPELL:         res = &sSpellScripts;       break;
-        case SCRIPTS_GAMEOBJECT:    res = &sGameObjectScripts;  break;
         case SCRIPTS_EVENT:         res = &sEventScripts;       break;
         case SCRIPTS_WAYPOINT:      res = &sWaypointScripts;    break;
         default: break;
@@ -4607,18 +4604,6 @@ void ObjectMgr::LoadScripts(ScriptsType type)
     while (result->NextRow());
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u script definitions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-}
-
-void ObjectMgr::LoadGameObjectScripts()
-{
-    LoadScripts(SCRIPTS_GAMEOBJECT);
-
-    // check ids
-    for (ScriptMapMap::const_iterator itr = sGameObjectScripts.begin(); itr != sGameObjectScripts.end(); ++itr)
-    {
-        if (!GetGOData(itr->first))
-            sLog->outError(LOG_FILTER_SQL, "Table `gameobject_scripts` has not existing gameobject (GUID: %u) as script id", itr->first);
-    }
 }
 
 void ObjectMgr::LoadSpellScripts()
