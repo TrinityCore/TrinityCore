@@ -5865,22 +5865,23 @@ void Spell::EffectPlayerNotification(SpellEffIndex effIndex)
 
     switch (m_spellInfo->Id)
     {
-        case 58730: // Restricted Flight Area
+        case 91604: // Restricted Flight Area
             unitTarget->ToPlayer()->GetSession()->SendNotification(LANG_ZONE_NOFLYZONE);
-            unitTarget->PlayDirectSound(9417); // Fel Reaver sound
+            break;
+        default:
             break;
     }
 
-    uint32 soundid = m_spellInfo->Effects[effIndex].MiscValue;
+    uint32 soundId = m_spellInfo->Effects[effIndex].MiscValue;
 
-    if (!sSoundEntriesStore.LookupEntry(soundid))
+    if (!sSoundEntriesStore.LookupEntry(soundId))
     {
-        sLog->outError(LOG_FILTER_SPELLS_AURAS, "EffectPlayerNotification: Sound (Id: %u) not exist in spell %u.", soundid, m_spellInfo->Id);
+        sLog->outError(LOG_FILTER_SPELLS_AURAS, "EffectPlayerNotification: Sound (Id: %u) not exist in spell %u.", soundId, m_spellInfo->Id);
         return;
     }
 
     WorldPacket data(SMSG_PLAY_SOUND, 4);
-    data << uint32(soundid);
+    data << uint32(soundId);
     unitTarget->ToPlayer()->GetSession()->SendPacket(&data);
 }
 
