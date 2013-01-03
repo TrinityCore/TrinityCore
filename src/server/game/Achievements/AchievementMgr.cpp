@@ -2032,7 +2032,8 @@ void AchievementMgr::RemoveTimedAchievement(AchievementCriteriaTimedTypes type, 
 
 void AchievementMgr::CompletedAchievement(AchievementEntry const* achievement)
 {
-    sLog->outInfo(LOG_FILTER_ACHIEVEMENTSYS, "AchievementMgr::CompletedAchievement(%u)", achievement->ID);
+    sLog->outInfo(LOG_FILTER_ACHIEVEMENTSYS, "AchievementMgr::CompletedAchievement(%u). Player: %s (%u)",
+        achievement->ID, m_player->GetName().c_str(), m_player->GetGUIDLow());
 
     // disable for gamemasters with GM-mode enabled
     if (m_player->isGameMaster())
