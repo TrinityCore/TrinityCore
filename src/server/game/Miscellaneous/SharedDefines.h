@@ -790,7 +790,7 @@ enum SpellEffects
     SPELL_EFFECT_APPLY_AREA_AURA_FRIEND             = 128,
     SPELL_EFFECT_APPLY_AREA_AURA_ENEMY              = 129,
     SPELL_EFFECT_REDIRECT_THREAT                    = 130,
-    SPELL_EFFECT_131                                = 131,
+    SPELL_EFFECT_PLAY_SOUND                         = 131,
     SPELL_EFFECT_PLAY_MUSIC                         = 132,
     SPELL_EFFECT_UNLEARN_SPECIALIZATION             = 133,
     SPELL_EFFECT_KILL_CREDIT2                       = 134,
