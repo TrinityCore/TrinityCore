@@ -60,7 +60,7 @@ class ReactorRunnable : protected ACE_Task_Base
             m_Connections(0),
             m_ThreadId(-1)
         {
-            ACE_Reactor_Impl* imp = 0;
+            ACE_Reactor_Impl* imp;
 
             #if defined (ACE_HAS_EVENT_POLL) || defined (ACE_HAS_DEV_POLL)
 
