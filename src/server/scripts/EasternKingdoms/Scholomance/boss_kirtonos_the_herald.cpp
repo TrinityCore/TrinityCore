@@ -37,7 +37,7 @@ enum Spells
     SPELL_KIRTONOS_TRANSFORM          = 16467,
 
     SPELL_SHADOW_BOLT                 = 17228,
-    SPELL_CURSE_OR_TONGUES            = 12889,
+    SPELL_CURSE_OF_TONGUES            = 12889,
     SPELL_DONINATE_MIND               = 14515
 };
 
@@ -54,7 +54,7 @@ enum Events
     EVENT_PIERCE_ARMOR                = 9,
     EVENT_DISARM                      = 10,
     EVENT_SHADOW_BOLT                 = 11,
-    EVENT_CURSE_OR_TONGUES            = 12,
+    EVENT_CURSE_OF_TONGUES            = 12,
     EVENT_DONINATE_MIND               = 13,
     EVENT_KIRTONOS_TRANSFORM          = 14
 };
@@ -112,7 +112,7 @@ class boss_kirtonos_the_herald : public CreatureScript
                 events.ScheduleEvent(EVENT_PIERCE_ARMOR, urand(18000, 18000));
                 events.ScheduleEvent(EVENT_DISARM, urand(22000, 22000));
                 events.ScheduleEvent(EVENT_SHADOW_BOLT, urand(42000, 42000));
-                events.ScheduleEvent(EVENT_CURSE_OR_TONGUES, urand(53000, 53000));
+                events.ScheduleEvent(EVENT_CURSE_OF_TONGUES, urand(53000, 53000));
                 events.ScheduleEvent(EVENT_DONINATE_MIND, urand(34000, 48000));
                 events.ScheduleEvent(EVENT_KIRTONOS_TRANSFORM, urand(20000, 20000));
                 _EnterCombat();
@@ -259,9 +259,9 @@ class boss_kirtonos_the_herald : public CreatureScript
                             DoCastVictim(SPELL_SHADOW_BOLT, true);
                             events.ScheduleEvent(EVENT_SHADOW_BOLT, urand(42000, 42000));
                             break;
-                        case EVENT_CURSE_OR_TONGUES:
-                            DoCastVictim(SPELL_CURSE_OR_TONGUES, true);
-                            events.ScheduleEvent(EVENT_CURSE_OR_TONGUES, urand(35000, 35000));
+                        case EVENT_CURSE_OF_TONGUES:
+                            DoCastVictim(SPELL_CURSE_OF_TONGUES, true);
+                            events.ScheduleEvent(EVENT_CURSE_OF_TONGUES, urand(35000, 35000));
                             break;
                         case EVENT_DONINATE_MIND:
                             DoCastVictim(SPELL_DONINATE_MIND, true);
