@@ -12722,7 +12722,7 @@ void Unit::UpdateSpeed(UnitMoveType mtype, bool forced)
                     //  to help prevent pet from lagging behind and despawning
                     float dist = GetDistance(pOwner);
                     float base_rate = 1.00f; // base speed is 100% of owner speed
-                    
+
                     if (dist < 5)
                         dist = 5;
 
