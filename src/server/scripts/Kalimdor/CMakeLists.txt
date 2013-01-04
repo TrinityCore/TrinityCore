@@ -116,6 +116,9 @@ set(scripts_STAT_SRCS
   Kalimdor/HallsOfOrigination/boss_temple_guardian_anhuur.cpp
   Kalimdor/HallsOfOrigination/boss_earthrager_ptah.cpp
   Kalimdor/HallsOfOrigination/boss_anraphet.cpp
+  Kalimdor/Firelands/instance_firelands.cpp
+  Kalimdor/Firelands/firelands.h
+  Kalimdor/Firelands/boss_alysrazor.cpp
 )
 
 message("  -> Prepared: Kalimdor")
