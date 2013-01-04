@@ -43,20 +43,30 @@ enum Spells
 
 enum Events
 {
-    EVENT_SWOOP                       = 1,
-    EVENT_WING_FLAP                   = 2,
-    EVENT_PIERCE_ARMOR                = 3,
-    EVENT_DISARM                      = 4,
-    EVENT_SHADOW_BOLT                 = 5,
-    EVENT_CURSE_OR_TONGUES            = 6,
-    EVENT_DONINATE_MIND               = 7,
-    EVENT_KIRTONOS_TRANSFORM          = 8
+    INTRO_1                           = 1,
+    INTRO_2                           = 2,
+    INTRO_3                           = 3,
+    INTRO_4                           = 4,
+    INTRO_5                           = 5,
+    EVENT_SWOOP                       = 6,
+    EVENT_WING_FLAP                   = 7,
+    EVENT_PIERCE_ARMOR                = 8,
+    EVENT_DISARM                      = 9,
+    EVENT_SHADOW_BOLT                 = 10,
+    EVENT_CURSE_OR_TONGUES            = 11,
+    EVENT_DONINATE_MIND               = 12,
+    EVENT_KIRTONOS_TRANSFORM          = 13
 };
 
 enum Points
 {
     MAX_KIRTONOS_WAYPOINTS_INTRO   = 14,
     POINT_KIRTONOS_LAND            = 14
+};
+
+enum Misc
+{
+    WEAPON_KIRTONOS_STAFF          = 11365
 };
 
 Position const kirtonosIntroWaypoint[MAX_KIRTONOS_WAYPOINTS_INTRO] =
@@ -90,8 +100,6 @@ class boss_kirtonos_the_herald : public CreatureScript
                 _combatPhase = 0;
                 _summonPhase = 0;
                 _summonTimer = 0;
-                if (GameObject* gate = me->GetMap()->GetGameObject(instance->GetData64(GO_GATE_KIRTONOS)))
-                    gate->SetGoState(GO_STATE_ACTIVE);
                 _Reset();
             }
 
@@ -148,7 +156,7 @@ class boss_kirtonos_the_herald : public CreatureScript
                 me->SetDisableGravity(true);
                 me->SetReactState(REACT_PASSIVE);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE);
-                _summonPhase = 1;
+                _summonPhase = INTRO_1;
                 _summonTimer = 1;
                 _currentPoint = 0;
             }
@@ -174,38 +182,38 @@ class boss_kirtonos_the_herald : public CreatureScript
                     {
                         switch (_summonPhase)
                         {
-                            case 1:
+                            case INTRO_1:
                                 if (_currentPoint < POINT_KIRTONOS_LAND)
                                     me->GetMotionMaster()->MovePoint(_currentPoint, kirtonosIntroWaypoint[_currentPoint]);
                                 else
                                 {
                                     _summonTimer = 1000;
-                                    _summonPhase = 2;
+                                    _summonPhase = INTRO_2;
                                 }
                                 break;
-                            case 2:
+                            case INTRO_2:
                                 me->GetMotionMaster()->MovePoint(0, 299.4884f, 92.76137f, 105.6335f);
                                 _summonTimer = 1000;
-                                _summonPhase = 3;
+                                _summonPhase = INTRO_3;
                                 break;
-                            case 3:
+                            case INTRO_3:
                                 if (GameObject* gate = me->GetMap()->GetGameObject(instance->GetData64(GO_GATE_KIRTONOS)))
                                     gate->SetGoState(GO_STATE_READY);
                                 me->SetFacingTo(0.01745329f);
                                 _summonTimer = 3000;
-                                _summonPhase = 4;
+                                _summonPhase = INTRO_4;
                                 break;
-                            case 4:
+                            case INTRO_4:
                                 if (GameObject* brazier = me->GetMap()->GetGameObject(instance->GetData64(GO_BRAZIER_OF_THE_HERALD)))
                                     brazier->SetGoState(GO_STATE_READY);
                                 me->SetDisableGravity(false);
                                 DoCast(me, SPELL_KIRTONOS_TRANSFORM);
                                 _summonTimer = 1000;
-                                _summonPhase = 5;
+                                _summonPhase = INTRO_5;
                                 break;
-                            case 5:
+                            case INTRO_5:
                                 me->HandleEmoteCommand(EMOTE_ONESHOT_ROAR);
-                                me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 0, uint32(11365));
+                                me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 0, uint32(WEAPON_KIRTONOS_STAFF));
                                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE);
                                 me->SetReactState(REACT_AGGRESSIVE);
                                 _summonTimer = 0;
@@ -273,6 +281,7 @@ class boss_kirtonos_the_herald : public CreatureScript
 enum Brazier_Of_The_Herald
 {
     NPC_KIRTONOS  = 10506,
+    SOUND_SCREECH = 557
 };
 
 class go_brazier_of_the_herald : public GameObjectScript
@@ -283,7 +292,7 @@ public:
     bool OnGossipHello(Player* player, GameObject* go)
     {
         go->UseDoorOrButton();
-        go->PlayDirectSound(557,0);
+        go->PlayDirectSound(SOUND_SCREECH,0);
         player->SummonCreature(NPC_KIRTONOS, 315.028f, 70.53845f, 102.1496f, 0.3859715f, TEMPSUMMON_DEAD_DESPAWN, 900000);
         return true;
     }
