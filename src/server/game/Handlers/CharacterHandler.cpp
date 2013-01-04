@@ -67,9 +67,8 @@ bool LoginQueryHolder::Initialize()
 
     bool res = true;
     uint32 lowGuid = GUID_LOPART(m_guid);
-    PreparedStatement* stmt = NULL;
 
-    stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER);
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER);
     stmt->setUInt32(0, lowGuid);
     res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_FROM, stmt);
 

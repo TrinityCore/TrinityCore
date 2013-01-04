@@ -1775,8 +1775,7 @@ void Pet::resetTalentsForAllPetsOf(Player* owner, Pet* online_pet /*= NULL*/)
         ss << id;
 
         need_comma = true;
-    }
-    while (resultPets->NextRow());
+    } while (resultPets->NextRow());
 
     ss << ") AND spell IN (";
 

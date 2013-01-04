@@ -41,6 +41,7 @@ Battlefield::Battlefield()
     m_TypeId = 0;
     m_BattleId = 0;
     m_ZoneId = 0;
+    m_Map = NULL;
     m_MapId = 0;
     m_MaxPlayer = 0;
     m_MinPlayer = 0;

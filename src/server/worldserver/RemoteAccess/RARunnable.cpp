@@ -35,7 +35,7 @@
 
 RARunnable::RARunnable()
 {
-    ACE_Reactor_Impl* imp = NULL;
+    ACE_Reactor_Impl* imp;
 
 #if defined (ACE_HAS_EVENT_POLL) || defined (ACE_HAS_DEV_POLL)
     imp = new ACE_Dev_Poll_Reactor();
