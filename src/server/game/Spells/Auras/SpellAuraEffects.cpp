@@ -2209,6 +2209,10 @@ void AuraEffect::HandleAuraTransform(AuraApplication const* aurApp, uint8 mode, 
                     case 42365:
                         target->SetDisplayId(21723);
                         break;
+                    // Frostmourne
+                    case 43827:
+                        target->SetDisplayId(30721);
+                        break;
                     // Dread Corsair
                     case 50517:
                     // Corsair Costume
