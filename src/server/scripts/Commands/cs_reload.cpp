@@ -97,7 +97,6 @@ public:
             { "gameobject_involvedrelation",  SEC_ADMINISTRATOR, true,  &HandleReloadGOQuestInvRelationsCommand,        "", NULL },
             { "gameobject_loot_template",     SEC_ADMINISTRATOR, true,  &HandleReloadLootTemplatesGameobjectCommand,    "", NULL },
             { "gameobject_questrelation",     SEC_ADMINISTRATOR, true,  &HandleReloadGOQuestRelationsCommand,           "", NULL },
-            { "gameobject_scripts",           SEC_ADMINISTRATOR, true,  &HandleReloadGameObjectScriptsCommand,          "", NULL },
             { "gm_tickets",                   SEC_ADMINISTRATOR, true,  &HandleReloadGMTicketsCommand,                  "", NULL },
             { "gossip_menu",                  SEC_ADMINISTRATOR, true,  &HandleReloadGossipMenuCommand,                 "", NULL },
             { "gossip_menu_option",           SEC_ADMINISTRATOR, true,  &HandleReloadGossipMenuOptionCommand,           "", NULL },
@@ -260,7 +259,6 @@ public:
         }
 
         sLog->outInfo(LOG_FILTER_GENERAL, "Re-Loading Scripts...");
-        HandleReloadGameObjectScriptsCommand(handler, "a");
         HandleReloadEventScriptsCommand(handler, "a");
         HandleReloadSpellScriptsCommand(handler, "a");
         handler->SendGlobalGMSysMessage("DB tables `*_scripts` reloaded.");
@@ -948,26 +946,6 @@ public:
         sLog->outInfo(LOG_FILTER_GENERAL, "Re-Loading Item set names...");
         sObjectMgr->LoadItemSetNames();
         handler->SendGlobalGMSysMessage("DB table `item_set_names` reloaded.");
-        return true;
-    }
-
-    static bool HandleReloadGameObjectScriptsCommand(ChatHandler* handler, const char* args)
-    {
-        if (sScriptMgr->IsScriptScheduled())
-        {
-            handler->SendSysMessage("DB scripts used currently, please attempt reload later.");
-            handler->SetSentErrorMessage(true);
-            return false;
-        }
-
-        if (*args != 'a')
-            sLog->outInfo(LOG_FILTER_GENERAL, "Re-Loading Scripts from `gameobject_scripts`...");
-
-        sObjectMgr->LoadGameObjectScripts();
-
-        if (*args != 'a')
-            handler->SendGlobalGMSysMessage("DB table `gameobject_scripts` reloaded.");
-
         return true;
     }
 
