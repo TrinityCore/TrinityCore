@@ -29,10 +29,19 @@
 
 DoorData const doorData[] = 
 {
-    {GO_ANHUURS_DOOR,                DATA_TEMPLE_GUARDIAN_ANHUUR, DOOR_TYPE_PASSAGE, BOUNDARY_NONE },
-    {GO_ANHUURS_BRIDGE,              DATA_TEMPLE_GUARDIAN_ANHUUR, DOOR_TYPE_PASSAGE, BOUNDARY_NONE },
-    {GO_DOODAD_ULDUM_ELEVATOR_COL01, DATA_TEMPLE_GUARDIAN_ANHUUR, DOOR_TYPE_PASSAGE, BOUNDARY_NONE },
-    {0,                              0,                           DOOR_TYPE_ROOM,    BOUNDARY_NONE }
+    {GO_ANHUURS_DOOR,                 DATA_TEMPLE_GUARDIAN_ANHUUR, DOOR_TYPE_PASSAGE, BOUNDARY_NONE },
+    {GO_ANHUURS_BRIDGE,               DATA_TEMPLE_GUARDIAN_ANHUUR, DOOR_TYPE_PASSAGE, BOUNDARY_NONE },
+    {GO_DOODAD_ULDUM_ELEVATOR_COL01,  DATA_TEMPLE_GUARDIAN_ANHUUR, DOOR_TYPE_PASSAGE, BOUNDARY_NONE },
+    {GO_VAULT_OF_LIGHTS_DOOR,         DATA_VAULT_OF_LIGHTS,        DOOR_TYPE_PASSAGE, BOUNDARY_NONE },
+    {GO_DOODAD_ULDUM_LIGHTMACHINE_02, DATA_EARTH_WARDEN,           DOOR_TYPE_PASSAGE, BOUNDARY_NONE },
+    {GO_DOODAD_ULDUM_LASERBEAMS01,    DATA_EARTH_WARDEN,           DOOR_TYPE_PASSAGE, BOUNDARY_NONE },
+    {GO_DOODAD_ULDUM_LIGHTMACHINE_01, DATA_FIRE_WARDEN,            DOOR_TYPE_PASSAGE, BOUNDARY_NONE },
+    {GO_DOODAD_ULDUM_LASERBEAMS_01,   DATA_FIRE_WARDEN,            DOOR_TYPE_PASSAGE, BOUNDARY_NONE },
+    {GO_DOODAD_ULDUM_LIGHTMACHINE_03, DATA_WATER_WARDEN,           DOOR_TYPE_PASSAGE, BOUNDARY_NONE },
+    {GO_DOODAD_ULDUM_LASERBEAMS_03,   DATA_WATER_WARDEN,           DOOR_TYPE_PASSAGE, BOUNDARY_NONE },
+    {GO_DOODAD_ULDUM_LIGHTMACHINE_04, DATA_AIR_WARDEN,             DOOR_TYPE_PASSAGE, BOUNDARY_NONE },
+    {GO_DOODAD_ULDUM_LASERBEAMS_02,   DATA_AIR_WARDEN,             DOOR_TYPE_PASSAGE, BOUNDARY_NONE },
+    {0,                              0,                            DOOR_TYPE_ROOM,    BOUNDARY_NONE }
 };
 
 class instance_halls_of_origination : public InstanceMapScript
@@ -51,6 +60,11 @@ class instance_halls_of_origination : public InstanceMapScript
                 AnhuursDoorGUID = 0;
                 AnhuurRightBeaconGUID = 0;
                 AnhuurLeftBeaconGUID = 0;
+                BrannBronzebeardGUID = 0;
+                AnraphetGUID = 0;
+                AnraphetDoorGUID = 0;
+                SunMirrorGUID = 0;
+                _deadElementals = 0;
             }
             
             void OnGameObjectCreate(GameObject* go)
@@ -60,6 +74,15 @@ class instance_halls_of_origination : public InstanceMapScript
                     case GO_ANHUURS_BRIDGE:
                         AnhuursBridgeGUID = go->GetGUID();
                     case GO_DOODAD_ULDUM_ELEVATOR_COL01:
+                    case GO_VAULT_OF_LIGHTS_DOOR:
+                    case GO_DOODAD_ULDUM_LIGHTMACHINE_01:
+                    case GO_DOODAD_ULDUM_LIGHTMACHINE_02:
+                    case GO_DOODAD_ULDUM_LIGHTMACHINE_03:
+                    case GO_DOODAD_ULDUM_LIGHTMACHINE_04:
+                    case GO_DOODAD_ULDUM_LASERBEAMS01:
+                    case GO_DOODAD_ULDUM_LASERBEAMS_01:
+                    case GO_DOODAD_ULDUM_LASERBEAMS_02:
+                    case GO_DOODAD_ULDUM_LASERBEAMS_03:
                         AddDoor(go, true);
                         break;
                     case GO_ANHUURS_DOOR:
@@ -72,6 +95,12 @@ class instance_halls_of_origination : public InstanceMapScript
                     case GO_ANHUURS_LEFT_BEACON:
                         AnhuurLeftBeaconGUID = go->GetGUID();
                         break;
+                    case GO_SUN_MIRROR:
+                        SunMirrorGUID = go->GetGUID();
+                        break;
+                    case GO_ANRAPHET_DOOR:
+                        AnraphetDoorGUID = go->GetGUID();
+                        break;
                 }
             }
 
@@ -82,6 +111,15 @@ class instance_halls_of_origination : public InstanceMapScript
                     case GO_ANHUURS_BRIDGE:
                     case GO_DOODAD_ULDUM_ELEVATOR_COL01:
                     case GO_ANHUURS_DOOR:
+                    case GO_VAULT_OF_LIGHTS_DOOR:
+                    case GO_DOODAD_ULDUM_LIGHTMACHINE_01:
+                    case GO_DOODAD_ULDUM_LIGHTMACHINE_02:
+                    case GO_DOODAD_ULDUM_LIGHTMACHINE_03:
+                    case GO_DOODAD_ULDUM_LIGHTMACHINE_04:
+                    case GO_DOODAD_ULDUM_LASERBEAMS01:
+                    case GO_DOODAD_ULDUM_LASERBEAMS_01:
+                    case GO_DOODAD_ULDUM_LASERBEAMS_02:
+                    case GO_DOODAD_ULDUM_LASERBEAMS_03:
                         AddDoor(go, false);
                         break;
                 }
@@ -94,7 +132,26 @@ class instance_halls_of_origination : public InstanceMapScript
                     case BOSS_TEMPLE_GUARDIAN_ANHUUR:
                         TempleGuardianAnhuurGUID = creature->GetGUID();
                         break;
+                    case NPC_BRANN_BRONZEBEARD_0:
+                        BrannBronzebeardGUID = creature->GetGUID();
+                        break;
+                    case BOSS_ANRAPHET:
+                        AnraphetGUID = creature->GetGUID();
+                        break;
                 }
+            }
+
+            uint32 GetData(uint32 data) const
+            {
+                switch (data)
+                {
+                    case DATA_DEAD_ELEMENTALS:
+                        return _deadElementals;
+                    default:
+                        break;
+                }
+                
+                return 0;
             }
 
             uint64 GetData64(uint32 index) const
@@ -111,9 +168,47 @@ class instance_halls_of_origination : public InstanceMapScript
                         return AnhuurRightBeaconGUID;
                     case DATA_ANHUUR_GUID:
                         return TempleGuardianAnhuurGUID;
+                    case DATA_BRANN_0_GUID:
+                        return BrannBronzebeardGUID;
+                    case DATA_ANRAPHET_GUID:
+                        return AnraphetGUID;
                 }
                 
                 return 0;
+            }
+
+            void IncreaseDeadElementals(uint32 inc)
+            {
+                _deadElementals += inc;
+                if (_deadElementals == 4)
+                {
+                    if (GameObject* mirror = instance->GetGameObject(SunMirrorGUID))
+                        mirror->SetGoState(GO_STATE_ACTIVE);
+                    if (GameObject* door = instance->GetGameObject(AnraphetDoorGUID))
+                        door->SetGoState(GO_STATE_ACTIVE);
+                }
+            }
+
+            void OnUnitDeath(Unit* unit)
+            {
+                Creature* creature = unit->ToCreature();
+                if (!creature)
+                    return;
+
+                switch (creature->GetEntry())
+                {
+                    case NPC_FIRE_WARDEN:
+                    case NPC_EARTH_WARDEN:
+                    case NPC_WATER_WARDEN:
+                    case NPC_AIR_WARDEN:
+                        uint32 data = creature->GetEntry() - WARDEN_ENTRY_DATA_DELTA;
+                        SetBossState(data, IN_PROGRESS); // Needs to be set to IN_PROGRESS or else the gameobjects state won't be updated
+                        SetBossState(data, DONE);
+                        IncreaseDeadElementals(1);
+                        if (Creature* brann = instance->GetCreature(BrannBronzebeardGUID))
+                            brann->AI()->DoAction(ACTION_ELEMENTAL_DIED);
+                        break;
+                }
             }
 
             std::string GetSaveData()
@@ -121,7 +216,7 @@ class instance_halls_of_origination : public InstanceMapScript
                 OUT_SAVE_INST_DATA;
 
                 std::ostringstream saveStream;
-                saveStream << "H O " << GetBossSaveData();
+                saveStream << "H O " << GetBossSaveData() << _deadElementals;
 
                 OUT_SAVE_INST_DATA_COMPLETE;
                 return saveStream.str();
@@ -152,6 +247,9 @@ class instance_halls_of_origination : public InstanceMapScript
                             tmpState = NOT_STARTED;
                         SetBossState(i, EncounterState(tmpState));
                     }
+                    uint32 tmp;
+                    loadStream >> tmp;
+                    IncreaseDeadElementals(tmp);
                 }
                 else
                     OUT_LOAD_INST_DATA_FAIL;
@@ -165,6 +263,11 @@ class instance_halls_of_origination : public InstanceMapScript
             uint64 AnhuursDoorGUID;
             uint64 AnhuurRightBeaconGUID;
             uint64 AnhuurLeftBeaconGUID;
+            uint64 BrannBronzebeardGUID;
+            uint64 AnraphetGUID;
+            uint64 AnraphetDoorGUID;
+            uint64 SunMirrorGUID;
+            uint32 _deadElementals;
         };
         
         InstanceScript* GetInstanceScript(InstanceMap* map) const
