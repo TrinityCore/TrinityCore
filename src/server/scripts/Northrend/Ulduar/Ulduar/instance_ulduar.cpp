@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -1260,7 +1260,7 @@ class instance_ulduar : public InstanceMapScript
                 }
             }
 
-            uint64 GetData64(uint32 data)
+            uint64 GetData64(uint32 data) const
             {
                 switch (data)
                 {                    
@@ -1342,7 +1342,7 @@ class instance_ulduar : public InstanceMapScript
                 return 0;
             }
 
-            uint32 GetData(uint32 type)
+            uint32 GetData(uint32 type) const
             {
                 switch (type)
                 {

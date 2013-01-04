@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -311,8 +311,10 @@ const T& RAND(const T& v1, const T& v2, const T& v3, const T& v4, const T& v5, c
     }
 }
 
-class EventMap : private std::map<uint32, uint32>
+class EventMap
 {
+    typedef std::map<uint32, uint32> StorageType;
+
     public:
         EventMap() : _time(0), _phase(0) {}
 
@@ -320,13 +322,16 @@ class EventMap : private std::map<uint32, uint32>
         uint32 GetTimer() const { return _time; }
 
         // Removes all events and clears phase
-        void Reset() { clear(); _time = 0; _phase = 0; }
+        void Reset()
+        {
+            _eventMap.clear(); _time = 0; _phase = 0;
+        }
 
         void Update(uint32 time) { _time += time; }
 
         uint32 GetPhaseMask() const { return (_phase >> 24) & 0xFF; }
 
-        bool Empty() const { return empty(); }
+        bool Empty() const { return _eventMap.empty(); }
 
         // Sets event phase, must be in range 1 - 8
         void SetPhase(uint32 phase)
@@ -346,14 +351,14 @@ class EventMap : private std::map<uint32, uint32>
                 eventId |= (1 << (groupId + 16));
             if (phase && phase < 8)
                 eventId |= (1 << (phase + 24));
-            const_iterator itr = find(time);
-            while (itr != end())
+            StorageType::const_iterator itr = _eventMap.find(time);
+            while (itr != _eventMap.end())
             {
                 ++time;
-                itr = find(time);
+                itr = _eventMap.find(time);
             }
 
-            insert(std::make_pair(time, eventId));
+            _eventMap.insert(StorageType::value_type(time, eventId));
         }
 
         // Removes event with specified id and creates new entry for it
@@ -366,41 +371,43 @@ class EventMap : private std::map<uint32, uint32>
         // Reschedules closest event
         void RepeatEvent(uint32 time)
         {
-            if (empty())
+            if (_eventMap.empty())
                 return;
 
-            uint32 eventId = begin()->second;
-            erase(begin());
+            uint32 eventId = _eventMap.begin()->second;
+            _eventMap.erase(_eventMap.begin());
             time += _time;
-            const_iterator itr = find(time);
-            while (itr != end())
+            StorageType::const_iterator itr = _eventMap.find(time);
+            while (itr != _eventMap.end())
             {
                 ++time;
-                itr = find(time);
+                itr = _eventMap.find(time);
             }
 
-            insert(std::make_pair(time, eventId));
+            _eventMap.insert(StorageType::value_type(time, eventId));
         }
 
         // Removes first event
         void PopEvent()
         {
-            erase(begin());
+            if (!_eventMap.empty())
+                _eventMap.erase(_eventMap.begin());
         }
 
         // Gets next event id to execute and removes it from map
         uint32 ExecuteEvent()
         {
-            while (!empty())
+            while (!_eventMap.empty())
             {
-                if (begin()->first > _time)
+                StorageType::iterator itr = _eventMap.begin();
+                if (itr->first > _time)
                     return 0;
-                else if (_phase && (begin()->second & 0xFF000000) && !(begin()->second & _phase))
-                    erase(begin());
+                else if (_phase && (itr->second & 0xFF000000) && !(itr->second & _phase))
+                    _eventMap.erase(itr);
                 else
                 {
-                    uint32 eventId = (begin()->second & 0x0000FFFF);
-                    erase(begin());
+                    uint32 eventId = (itr->second & 0x0000FFFF);
+                    _eventMap.erase(itr);
                     return eventId;
                 }
             }
@@ -410,14 +417,15 @@ class EventMap : private std::map<uint32, uint32>
         // Gets next event id to execute
         uint32 GetEvent()
         {
-            while (!empty())
+            while (!_eventMap.empty())
             {
-                if (begin()->first > _time)
+                StorageType::iterator itr = _eventMap.begin();
+                if (itr->first > _time)
                     return 0;
-                else if (_phase && (begin()->second & 0xFF000000) && !(begin()->second & _phase))
-                    erase(begin());
+                else if (_phase && (itr->second & 0xFF000000) && !(itr->second & _phase))
+                    _eventMap.erase(itr);
                 else
-                    return (begin()->second & 0x0000FFFF);
+                    return (itr->second & 0x0000FFFF);
             }
 
             return 0;
@@ -437,13 +445,13 @@ class EventMap : private std::map<uint32, uint32>
         {
             uint32 nextTime = _time + delay;
             uint32 groupMask = (1 << (groupId + 16));
-            for (iterator itr = begin(); itr != end() && itr->first < nextTime;)
+            for (StorageType::iterator itr = _eventMap.begin(); itr != _eventMap.end() && itr->first < nextTime;)
             {
                 if (itr->second & groupMask)
                 {
                     ScheduleEvent(itr->second, itr->first - _time + delay);
-                    erase(itr);
-                    itr = begin();
+                    _eventMap.erase(itr);
+                    itr = _eventMap.begin();
                 }
                 else
                     ++itr;
@@ -453,12 +461,12 @@ class EventMap : private std::map<uint32, uint32>
         // Cancel events with specified id
         void CancelEvent(uint32 eventId)
         {
-            for (iterator itr = begin(); itr != end();)
+            for (StorageType::iterator itr = _eventMap.begin(); itr != _eventMap.end();)
             {
                 if (eventId == (itr->second & 0x0000FFFF))
                 {
-                    erase(itr);
-                    itr = begin();
+                    _eventMap.erase(itr);
+                    itr = _eventMap.begin();
                 }
                 else
                     ++itr;
@@ -470,12 +478,12 @@ class EventMap : private std::map<uint32, uint32>
         {
             uint32 groupMask = (1 << (groupId + 16));
 
-            for (iterator itr = begin(); itr != end();)
+            for (StorageType::iterator itr = _eventMap.begin(); itr != _eventMap.end();)
             {
                 if (itr->second & groupMask)
                 {
-                    erase(itr);
-                    itr = begin();
+                    _eventMap.erase(itr);
+                    itr = _eventMap.begin();
                 }
                 else
                     ++itr;
@@ -486,7 +494,7 @@ class EventMap : private std::map<uint32, uint32>
         // To get how much time remains substract _time
         uint32 GetNextEventTime(uint32 eventId) const
         {
-            for (const_iterator itr = begin(); itr != end(); ++itr)
+            for (StorageType::const_iterator itr = _eventMap.begin(); itr != _eventMap.end(); ++itr)
                 if (eventId == (itr->second & 0x0000FFFF))
                     return itr->first;
 
@@ -496,6 +504,8 @@ class EventMap : private std::map<uint32, uint32>
     private:
         uint32 _time;
         uint32 _phase;
+
+        StorageType _eventMap;
 };
 
 enum AITarget
@@ -529,116 +539,6 @@ struct AISpellInfoType
 };
 
 AISpellInfoType* GetAISpellInfo(uint32 i);
-
-inline void CreatureAI::SetGazeOn(Unit* target)
-{
-    if (me->IsValidAttackTarget(target))
-    {
-        AttackStart(target);
-        me->SetReactState(REACT_PASSIVE);
-    }
-}
-
-inline bool CreatureAI::UpdateVictimWithGaze()
-{
-    if (!me->isInCombat())
-        return false;
-
-    if (me->HasReactState(REACT_PASSIVE))
-    {
-        if (me->getVictim())
-            return true;
-        else
-            me->SetReactState(REACT_AGGRESSIVE);
-    }
-
-    if (Unit* victim = me->SelectVictim())
-        AttackStart(victim);
-    return me->getVictim();
-}
-
-inline bool CreatureAI::UpdateVictim()
-{
-    if (!me->isInCombat())
-        return false;
-
-    if (!me->HasReactState(REACT_PASSIVE))
-    {
-        if (Unit* victim = me->SelectVictim())
-            AttackStart(victim);
-        return me->getVictim();
-    }
-    else if (me->getThreatManager().isThreatListEmpty())
-    {
-        EnterEvadeMode();
-        return false;
-    }
-
-    return true;
-}
-
-inline bool CreatureAI::_EnterEvadeMode()
-{
-    if (!me->isAlive())
-        return false;
-
-    // dont remove vehicle auras, passengers arent supposed to drop off the vehicle
-    me->RemoveAllAurasExceptType(SPELL_AURA_CONTROL_VEHICLE);
-
-    // sometimes bosses stuck in combat?
-    me->DeleteThreatList();
-    me->CombatStop(true);
-    me->LoadCreaturesAddon();
-    me->SetLootRecipient(NULL);
-    me->ResetPlayerDamageReq();
-
-    if (me->IsInEvadeMode())
-        return false;
-
-    return true;
-}
-
-inline void UnitAI::DoCast(Unit* victim, uint32 spellId, bool triggered)
-{
-    if (!victim || (me->HasUnitState(UNIT_STATE_CASTING) && !triggered))
-        return;
-
-    me->CastSpell(victim, spellId, triggered);
-}
-
-inline void UnitAI::DoCastVictim(uint32 spellId, bool triggered)
-{
-    // Why don't we check for casting unit_state and existing target as we do in DoCast(.. ?
-    me->CastSpell(me->getVictim(), spellId, triggered);
-}
-
-inline void UnitAI::DoCastAOE(uint32 spellId, bool triggered)
-{
-    if (!triggered && me->HasUnitState(UNIT_STATE_CASTING))
-        return;
-
-    me->CastSpell((Unit*)NULL, spellId, triggered);
-}
-
-inline Creature* CreatureAI::DoSummon(uint32 entry, const Position& pos, uint32 despawnTime, TempSummonType summonType)
-{
-    return me->SummonCreature(entry, pos, summonType, despawnTime);
-}
-
-inline Creature* CreatureAI::DoSummon(uint32 entry, WorldObject* obj, float radius, uint32 despawnTime, TempSummonType summonType)
-{
-    Position pos;
-    obj->GetRandomNearPosition(pos, radius);
-    return me->SummonCreature(entry, pos, summonType, despawnTime);
-}
-
-inline Creature* CreatureAI::DoSummonFlyer(uint32 entry, WorldObject* obj, float flightZ, float radius, uint32 despawnTime, TempSummonType summonType)
-{
-    Position pos;
-    obj->GetRandomNearPosition(pos, radius);
-    pos.m_positionZ += flightZ;
-    return me->SummonCreature(entry, pos, summonType, despawnTime);
-}
 
 #endif
 

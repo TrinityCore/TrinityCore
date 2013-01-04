@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -338,7 +338,7 @@ class boss_steelbreaker : public CreatureScript
                 DoAction(ACTION_UPDATEPHASE);
             }
 
-            uint32 GetData(uint32 type)
+            uint32 GetData(uint32 type) const
             {
                 if (type == DATA_I_CHOOSE_YOU_PHASE_CHECK)
                     return (_phase >= PHASE_2_DEAD) ? 1 : 0;
@@ -635,7 +635,7 @@ class boss_runemaster_molgeim : public CreatureScript
                 DoAction(ACTION_UPDATEPHASE);
             }
 
-            uint32 GetData(uint32 type)
+            uint32 GetData(uint32 type) const
             {
                 if (type == DATA_I_CHOOSE_YOU_PHASE_CHECK)
                     return (_phase >= PHASE_2_DEAD) ? 1 : 0;
@@ -931,7 +931,7 @@ class boss_stormcaller_brundir : public CreatureScript
                 DoAction(ACTION_UPDATEPHASE);
             }
 
-            uint32 GetData(uint32 type)
+            uint32 GetData(uint32 type) const
             {
                 switch (type)
                 {

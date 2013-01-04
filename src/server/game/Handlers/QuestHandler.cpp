@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -461,16 +461,8 @@ void WorldSession::HandleQuestConfirmAccept(WorldPacket& recvData)
         if (!pOriginalPlayer)
             return;
 
-        if (quest->IsRaidQuest())
-        {
-            if (!_player->IsInSameRaidWith(pOriginalPlayer))
-                return;
-        }
-        else
-        {
-            if (!_player->IsInSameGroupWith(pOriginalPlayer))
-                return;
-        }
+        if (!_player->IsInSameRaidWith(pOriginalPlayer))
+            return;
 
         if (_player->CanAddQuest(quest, true))
             _player->AddQuest(quest, NULL);                // NULL, this prevent DB script from duplicate running

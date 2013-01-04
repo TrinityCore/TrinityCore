@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -1268,7 +1268,7 @@ bool CreatureEventAI::CanCast(Unit* target, SpellInfo const* spell, bool trigger
         return false;
 
     //Check for power
-    if (!triggered && me->GetPower((Powers)spell->PowerType) < spell->CalcPowerCost(me, spell->GetSchoolMask()))
+    if (!triggered && me->GetPower((Powers)spell->PowerType) < uint32(spell->CalcPowerCost(me, spell->GetSchoolMask())))
         return false;
 
     //Unit is out of range of this spell

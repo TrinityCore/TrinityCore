@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -1275,7 +1275,6 @@ void Item::ItemContainerSaveLootToDB()
     // Save items
     if (!loot.isLooted())
     {
-
         PreparedStatement* stmt_items = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEMCONTAINER_ITEMS);
         stmt_items->setUInt32(0, container_id);
         trans->Append(stmt_items);
@@ -1341,7 +1340,6 @@ bool Item::ItemContainerLoadLootFromDB()
         // Get a LootTemplate for the container item. This is where
         //  the saved loot was originally rolled from, we will copy conditions from it
         LootTemplate const* lt = LootTemplates_Item.GetLootFor(GetEntry());
-
         if (lt)
         {
             do
@@ -1392,7 +1390,6 @@ bool Item::ItemContainerLoadLootFromDB()
 void Item::ItemContainerDeleteLootItemsFromDB()
 {
     // Deletes items associated with an openable item from the DB
-
     uint32 containerId = GetGUIDLow();
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEMCONTAINER_ITEMS);
     stmt->setUInt32(0, containerId);
@@ -1404,7 +1401,6 @@ void Item::ItemContainerDeleteLootItemsFromDB()
 void Item::ItemContainerDeleteLootItemFromDB(uint32 itemID)
 {
     // Deletes a single item associated with an openable item from the DB
-
     uint32 containerId = GetGUIDLow();
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEMCONTAINER_ITEM);
     stmt->setUInt32(0, containerId);
@@ -1417,7 +1413,6 @@ void Item::ItemContainerDeleteLootItemFromDB(uint32 itemID)
 void Item::ItemContainerDeleteLootMoneyFromDB()
 {
     // Deletes the money loot associated with an openable item from the DB
-
     uint32 containerId = GetGUIDLow();
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEMCONTAINER_MONEY);
     stmt->setUInt32(0, containerId);
@@ -1429,7 +1424,6 @@ void Item::ItemContainerDeleteLootMoneyFromDB()
 void Item::ItemContainerDeleteLootMoneyAndLootItemsFromDB()
 {
     // Deletes money and items associated with an openable item from the DB
-
     ItemContainerDeleteLootMoneyFromDB();
     ItemContainerDeleteLootItemsFromDB();
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -33,7 +33,7 @@ void PreparedStatement::BindParameters()
 {
     ASSERT (m_stmt);
 
-    uint32 i = 0;
+    uint8 i = 0;
     for (; i < statement_data.size(); i++)
     {
         switch (statement_data[i].type)
@@ -73,6 +73,9 @@ void PreparedStatement::BindParameters()
                 break;
             case TYPE_STRING:
                 m_stmt->setString(i, statement_data[i].str.c_str());
+                break;
+            case TYPE_NULL:
+                m_stmt->setNull(i);
                 break;
         }
     }
@@ -191,6 +194,14 @@ void PreparedStatement::setString(const uint8 index, const std::string& value)
     statement_data[index].type = TYPE_STRING;
 }
 
+void PreparedStatement::setNull(const uint8 index)
+{
+    if (index >= statement_data.size())
+        statement_data.resize(index+1);
+
+    statement_data[index].type = TYPE_NULL;
+}
+
 MySQLPreparedStatement::MySQLPreparedStatement(MYSQL_STMT* stmt) :
 m_Mstmt(stmt),
 m_bind(NULL)
@@ -230,11 +241,16 @@ void MySQLPreparedStatement::ClearParameters()
     }
 }
 
+static bool ParamenterIndexAssertFail(uint32 stmtIndex, uint8 index, uint32 paramCount)
+{
+    sLog->outError(LOG_FILTER_SQL_DRIVER, "Attempted to bind parameter %u%s on a PreparedStatement %u (statement has only %u parameters)", uint32(index) + 1, (index == 1 ? "st" : (index == 2 ? "nd" : (index == 3 ? "rd" : "nd"))), stmtIndex, paramCount);
+    return false;
+}
+
 //- Bind on mysql level
 bool MySQLPreparedStatement::CheckValidIndex(uint8 index)
 {
-    if (index >= m_paramCount)
-        return false;
+    ASSERT(index < m_paramCount || ParamenterIndexAssertFail(m_stmt->m_index, index, m_paramCount));
 
     if (m_paramsSet[index])
         sLog->outWarn(LOG_FILTER_SQL, "[WARNING] Prepared Statement (id: %u) trying to bind value on already bound index (%u).", m_stmt->m_index, index);
@@ -337,9 +353,24 @@ void MySQLPreparedStatement::setString(const uint8 index, const char* value)
     param->buffer = new char[len];
     param->buffer_length = len;
     param->is_null_value = 0;
+    delete param->length;
     param->length = new unsigned long(len-1);
 
     memcpy(param->buffer, value, len);
+}
+
+void MySQLPreparedStatement::setNull(const uint8 index)
+{
+    CheckValidIndex(index);
+    m_paramsSet[index] = true;
+    MYSQL_BIND* param = &m_bind[index];
+    param->buffer_type = MYSQL_TYPE_NULL;
+    delete [] static_cast<char *>(param->buffer);
+    param->buffer = NULL;
+    param->buffer_length = 0;
+    param->is_null_value = 1;
+    delete param->length;
+    param->length = NULL;
 }
 
 void MySQLPreparedStatement::setValue(MYSQL_BIND* param, enum_field_types type, const void* value, uint32 len, bool isUnsigned)
@@ -355,59 +386,62 @@ void MySQLPreparedStatement::setValue(MYSQL_BIND* param, enum_field_types type, 
     memcpy(param->buffer, value, len);
 }
 
-std::string MySQLPreparedStatement::getQueryString(const char *query)
+std::string MySQLPreparedStatement::getQueryString(std::string const& sqlPattern) const
 {
-    std::string queryString = query;
+    std::string queryString = sqlPattern;
 
-    uint32 pos = 0;
+    size_t pos = 0;
     for (uint32 i = 0; i < m_stmt->statement_data.size(); i++)
     {
-        pos = queryString.find("?", pos);
-        std::stringstream replace;
-
-        replace << '\'';
+        pos = queryString.find('?', pos);
+        std::stringstream ss;
 
         switch (m_stmt->statement_data[i].type)
         {
             case TYPE_BOOL:
-                replace << (m_stmt->statement_data[i].data.boolean ? '1' : '0');
+                ss << uint16(m_stmt->statement_data[i].data.boolean);
                 break;
             case TYPE_UI8:
-                replace << uint16(m_stmt->statement_data[i].data.ui8);  // stringstream will append a character with that code instead of numeric representation
+                ss << uint16(m_stmt->statement_data[i].data.ui8);  // stringstream will append a character with that code instead of numeric representation
                 break;
             case TYPE_UI16:
-                replace << m_stmt->statement_data[i].data.ui16;
+                ss << m_stmt->statement_data[i].data.ui16;
                 break;
             case TYPE_UI32:
-                replace << m_stmt->statement_data[i].data.ui32;
+                ss << m_stmt->statement_data[i].data.ui32;
                 break;
             case TYPE_I8:
-                replace << int16(m_stmt->statement_data[i].data.i8);  // stringstream will append a character with that code instead of numeric representation
+                ss << int16(m_stmt->statement_data[i].data.i8);  // stringstream will append a character with that code instead of numeric representation
                 break;
             case TYPE_I16:
-                replace << m_stmt->statement_data[i].data.i16;
+                ss << m_stmt->statement_data[i].data.i16;
                 break;
             case TYPE_I32:
-                replace << m_stmt->statement_data[i].data.i32;
+                ss << m_stmt->statement_data[i].data.i32;
                 break;
             case TYPE_UI64:
-                replace << m_stmt->statement_data[i].data.ui64;
+                ss << m_stmt->statement_data[i].data.ui64;
                 break;
             case TYPE_I64:
-                replace << m_stmt->statement_data[i].data.i64;
+                ss << m_stmt->statement_data[i].data.i64;
                 break;
             case TYPE_FLOAT:
-                replace << m_stmt->statement_data[i].data.f;
+                ss << m_stmt->statement_data[i].data.f;
                 break;
             case TYPE_DOUBLE:
-                replace << m_stmt->statement_data[i].data.d;
+                ss << m_stmt->statement_data[i].data.d;
                 break;
             case TYPE_STRING:
-                replace << m_stmt->statement_data[i].str;
+                ss << '\'' << m_stmt->statement_data[i].str << '\'';
+                break;
+            case TYPE_NULL:
+                ss << "NULL";
                 break;
         }
-        replace << '\'';
-        queryString.replace(pos, 1, replace.str());
+
+        std::string replaceStr = ss.str();
+        queryString.replace(pos, 1, replaceStr);
+        pos += replaceStr.length();
     }
 
     return queryString;

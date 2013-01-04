@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -820,7 +820,7 @@ class npc_yogg_saron_encounter_controller : public CreatureScript   // Should be
                 events.ScheduleEvent(EVENT_ENRAGE, 15*MINUTE*IN_MILLISECONDS);
             }
 
-            uint32 GetData(uint32 data)
+            uint32 GetData(uint32 data) const
             {
                 switch (data)
                 {
@@ -838,7 +838,7 @@ class npc_yogg_saron_encounter_controller : public CreatureScript   // Should be
                 return 0;
             }
 
-            uint64 GetGUID(int32 which)
+            uint64 GetGUID(int32 which) const
             {
                 return GetEventNPCGuid(static_cast<uint32>(which)); // cast is safe since controlled by myself, it's just an int32 due to signature match
             }
@@ -1076,7 +1076,7 @@ class npc_yogg_saron_encounter_controller : public CreatureScript   // Should be
                 }
             }
 
-            uint32 CountKeepersActive()
+            uint32 CountKeepersActive() const
             {
                 uint32 count = 0;
                 uint32 supportFlag = instance->GetData(DATA_KEEPER_SUPPORT_YOGG);
@@ -1212,9 +1212,9 @@ class npc_yogg_saron_encounter_controller : public CreatureScript   // Should be
                     DoSummon(NPC_KEEPER_HODIR, KeeperSpawnLocation[3], 0, TEMPSUMMON_MANUAL_DESPAWN);
             }
 
-            uint64 GetEventNPCGuid(uint32 entry)
+            uint64 GetEventNPCGuid(uint32 entry) const
             {
-                for (std::list<EventNPC>::iterator itr = _listEventNPCs.begin(); itr != _listEventNPCs.end(); ++itr)
+                for (std::list<EventNPC>::const_iterator itr = _listEventNPCs.begin(); itr != _listEventNPCs.end(); ++itr)
                 {
                     if (itr->entry == entry)
                         return itr->guid;
@@ -1222,7 +1222,7 @@ class npc_yogg_saron_encounter_controller : public CreatureScript   // Should be
                 return 0;
             }
 
-            bool IsEncounterInProgress()
+            bool IsEncounterInProgress() const
             {
                 if (me->GetMap())
                 {

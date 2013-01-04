@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -51,7 +51,7 @@ void LFGMgr::_LoadFromDB(Field* fields, uint64 guid)
     if (!fields)
         return;
 
-    if (!IS_GROUP(guid))
+    if (!IS_GROUP_GUID(guid))
         return;
 
     SetLeader(guid, MAKE_NEW_GUID(fields[0].GetUInt32(), 0, HIGHGUID_PLAYER));
@@ -77,7 +77,7 @@ void LFGMgr::_LoadFromDB(Field* fields, uint64 guid)
 
 void LFGMgr::_SaveToDB(uint64 guid, uint32 db_guid)
 {
-    if (!IS_GROUP(guid))
+    if (!IS_GROUP_GUID(guid))
         return;
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_LFG_DATA);
@@ -758,7 +758,7 @@ void LFGMgr::LeaveLfg(uint64 guid)
 {
     sLog->outDebug(LOG_FILTER_LFG, "LFGMgr::LeaveLfg: [" UI64FMTD "]", guid);
 
-    uint64 gguid = IS_GROUP(guid) ? guid : GetGroup(guid);
+    uint64 gguid = IS_GROUP_GUID(guid) ? guid : GetGroup(guid);
     LfgState state = GetState(guid);
     switch (state)
     {
@@ -1624,7 +1624,7 @@ LfgType LFGMgr::GetDungeonType(uint32 dungeonId)
 LfgState LFGMgr::GetState(uint64 guid)
 {
     LfgState state;
-    if (IS_GROUP(guid))
+    if (IS_GROUP_GUID(guid))
         state = GroupsStore[guid].GetState();
     else
         state = PlayersStore[guid].GetState();
@@ -1696,7 +1696,7 @@ uint8 LFGMgr::GetKicksLeft(uint64 guid)
 
 void LFGMgr::RestoreState(uint64 guid, char const *debugMsg)
 {
-    if (IS_GROUP(guid))
+    if (IS_GROUP_GUID(guid))
     {
         LfgGroupData& data = GroupsStore[guid];
         if (sLog->ShouldLog(LOG_FILTER_LFG, LOG_LEVEL_DEBUG))
@@ -1725,7 +1725,7 @@ void LFGMgr::RestoreState(uint64 guid, char const *debugMsg)
 
 void LFGMgr::SetState(uint64 guid, LfgState state)
 {
-    if (IS_GROUP(guid))
+    if (IS_GROUP_GUID(guid))
     {
         LfgGroupData& data = GroupsStore[guid];
         if (sLog->ShouldLog(LOG_FILTER_LFG, LOG_LEVEL_DEBUG))
@@ -1932,13 +1932,13 @@ void LFGMgr::SendLfgQueueStatus(uint64 guid, LfgQueueStatusData const& data)
 
 bool LFGMgr::IsLfgGroup(uint64 guid)
 {
-    return guid && IS_GROUP(guid) && GroupsStore[guid].IsLfgGroup();
+    return guid && IS_GROUP_GUID(guid) && GroupsStore[guid].IsLfgGroup();
 }
 
 LFGQueue& LFGMgr::GetQueue(uint64 guid)
 {
     uint8 queueId = 0;
-    if (IS_GROUP(guid))
+    if (IS_GROUP_GUID(guid))
     {
         const LfgGuidSet& players = GetPlayers(guid);
         uint64 pguid = players.empty() ? 0 : (*players.begin());

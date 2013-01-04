@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -998,7 +998,7 @@ class spell_gen_reflective_shield : public SpellScriptLoader
         {
             PrepareAuraScript(spell_gen_reflective_shield_AuraScript);
 
-            bool Validate(SpellEntry const * /*spellEntry*/)
+            bool Validate(SpellInfo const* /*spellEntry*/)
             {
                 return sSpellStore.LookupEntry(SPELL_REFLECTIVE_SHIELD_TRIGGERED);
             }

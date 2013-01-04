@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -309,6 +309,7 @@ public:
 
     bool OnGossipHello(Player* player, GameObject* go)
     {
+        go->UseDoorOrButton();
         int Random = rand() % (sizeof(NpcPrisonEntry) / sizeof(uint32));
 
         if (Creature* creature = player->SummonCreature(NpcPrisonEntry[Random], go->GetPositionX(), go->GetPositionY(), go->GetPositionZ(), go->GetAngle(player),
@@ -358,6 +359,7 @@ public:
 
     bool OnGossipHello(Player* player, GameObject* go)
     {
+        go->UseDoorOrButton();
         int Random = rand() % (sizeof(NpcStasisEntry) / sizeof(uint32));
 
         player->SummonCreature(NpcStasisEntry[Random], go->GetPositionX(), go->GetPositionY(), go->GetPositionZ(), go->GetAngle(player),
@@ -729,9 +731,9 @@ public:
 
     bool OnGossipHello(Player* player, GameObject* go)
     {
+        go->UseDoorOrButton();
         if (Creature* pNearestPrisoner = go->FindNearestCreature(NPC_SCOURGE_PRISONER, 5.0f, true))
         {
-            go->SetGoState(GO_STATE_ACTIVE);
             player->KilledMonsterCredit(NPC_SCOURGE_PRISONER, pNearestPrisoner->GetGUID());
             pNearestPrisoner->DisappearAndDie();
         }
@@ -811,6 +813,7 @@ public:
 
     bool OnGossipHello(Player* player, GameObject* go)
     {
+        go->UseDoorOrButton();
         Creature* pPrisoner = go->FindNearestCreature(NPC_EBON_BLADE_PRISONER_HUMAN, 5.0f, true);
         if (!pPrisoner)
         {
@@ -1047,6 +1050,7 @@ public:
 
     bool OnGossipHello(Player* player, GameObject* go)
     {
+        go->UseDoorOrButton();
         if (player->GetQuestStatus(QUEST_PRISONERS_OF_WYRMSKULL) != QUEST_STATUS_INCOMPLETE)
             return true;
 
@@ -1094,12 +1098,12 @@ public:
 
     bool OnGossipHello(Player* player, GameObject* go)
     {
+        go->UseDoorOrButton();
         if (player->GetQuestStatus(QUEST_OH_NOES_THE_TADPOLES) == QUEST_STATUS_INCOMPLETE)
         {
             Creature* pTadpole = go->FindNearestCreature(NPC_WINTERFIN_TADPOLE, 1.0f);
             if (pTadpole)
             {
-                go->UseDoorOrButton();
                 pTadpole->DisappearAndDie();
                 player->KilledMonsterCredit(NPC_WINTERFIN_TADPOLE, 0);
                 //FIX: Summon minion tadpole
@@ -1229,13 +1233,12 @@ class go_gjalerbron_cage : public GameObjectScript
 
         bool OnGossipHello(Player* player, GameObject* go)
         {
+            go->UseDoorOrButton();
             if ((player->GetTeamId() == TEAM_ALLIANCE && player->GetQuestStatus(QUEST_ALLIANCE_OF_KEYS_AND_CAGES) == QUEST_STATUS_INCOMPLETE) ||
                 (player->GetTeamId() == TEAM_HORDE && player->GetQuestStatus(QUEST_HORDE_OF_KEYS_AND_CAGES) == QUEST_STATUS_INCOMPLETE))
             {
                 if (Creature* prisoner = go->FindNearestCreature(NPC_GJALERBRON_PRISONER, 5.0f))
                 {
-                    go->UseDoorOrButton();
-
                     if (player)
                         player->KilledMonsterCredit(NPC_GJALERBRON_PRISONER, 0);
 
@@ -1258,6 +1261,7 @@ class go_large_gjalerbron_cage : public GameObjectScript
 
         bool OnGossipHello(Player* player, GameObject* go)
         {
+            go->UseDoorOrButton();
             if ((player->GetTeamId() == TEAM_ALLIANCE && player->GetQuestStatus(QUEST_ALLIANCE_OF_KEYS_AND_CAGES) == QUEST_STATUS_INCOMPLETE) ||
                 (player->GetTeamId() == TEAM_HORDE && player->GetQuestStatus(QUEST_HORDE_OF_KEYS_AND_CAGES) == QUEST_STATUS_INCOMPLETE))
             {
@@ -1265,7 +1269,6 @@ class go_large_gjalerbron_cage : public GameObjectScript
                 GetCreatureListWithEntryInGrid(prisonerList, go, NPC_GJALERBRON_PRISONER, INTERACTION_DISTANCE);
                 for (std::list<Creature*>::const_iterator itr = prisonerList.begin(); itr != prisonerList.end(); ++itr)
                 {
-                    go->UseDoorOrButton();
                     player->KilledMonsterCredit(NPC_GJALERBRON_PRISONER, (*itr)->GetGUID());
                     (*itr)->DespawnOrUnsummon(6000);
                     (*itr)->AI()->Talk(SAY_FREE);
@@ -1293,13 +1296,13 @@ class go_veil_skith_cage : public GameObjectScript
 
        bool OnGossipHello(Player* player, GameObject* go)
        {
+           go->UseDoorOrButton();
            if (player->GetQuestStatus(QUEST_MISSING_FRIENDS) == QUEST_STATUS_INCOMPLETE)
            {
                std::list<Creature*> childrenList;
                GetCreatureListWithEntryInGrid(childrenList, go, NPC_CAPTIVE_CHILD, INTERACTION_DISTANCE);
                for (std::list<Creature*>::const_iterator itr = childrenList.begin(); itr != childrenList.end(); ++itr)
                {
-                   go->UseDoorOrButton();
                    player->KilledMonsterCredit(NPC_CAPTIVE_CHILD, (*itr)->GetGUID());
                    (*itr)->DespawnOrUnsummon(5000);
                    (*itr)->GetMotionMaster()->MovePoint(1, go->GetPositionX()+5, go->GetPositionY(), go->GetPositionZ());
@@ -1330,10 +1333,10 @@ public:
 
     bool OnGossipHello(Player* player, GameObject* go)
     {
+        go->UseDoorOrButton(10);
         if (!player->HasAura(SPELL_RECENT_MEDITATION))
             if (player->GetQuestStatus(QUEST_THE_CLEANSING_HORDE) == QUEST_STATUS_INCOMPLETE || player->GetQuestStatus(QUEST_THE_CLEANSING_ALLIANCE) == QUEST_STATUS_INCOMPLETE)
             {
-                go->UseDoorOrButton(10);
                 player->CastSpell(player, SPELL_CLEANSING_SOUL);
                 player->SetStandState(UNIT_STAND_STATE_SIT);
             }
