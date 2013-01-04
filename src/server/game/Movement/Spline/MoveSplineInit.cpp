@@ -162,9 +162,11 @@ namespace Movement
     {
         if (_transformForTransport)
         {
-            float unused = 0.0f;
             if (TransportBase* transport = _owner.GetDirectTransport())
-                transport->CalculatePassengerOffset(input.x, input.y, input.z, unused);
+            {
+                float unused = 0.0f; // need reference
+                transport->CalculatePassengerOffset(input.x, input.y, input.z, 0.0f);
+            }
         }
 
         return input;
