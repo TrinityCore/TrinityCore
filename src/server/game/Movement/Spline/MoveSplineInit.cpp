@@ -165,7 +165,7 @@ namespace Movement
             if (TransportBase* transport = _owner.GetDirectTransport())
             {
                 float unused = 0.0f; // need reference
-                transport->CalculatePassengerOffset(input.x, input.y, input.z, 0.0f);
+                transport->CalculatePassengerOffset(input.x, input.y, input.z, unused);
             }
         }
 
