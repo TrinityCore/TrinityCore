@@ -18,6 +18,9 @@
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "scholomance.h"
+#include "MoveSplineInit.h"
+#include "GameObjectAI.h"
+#include "Player.h"
 
 enum Says
 {
