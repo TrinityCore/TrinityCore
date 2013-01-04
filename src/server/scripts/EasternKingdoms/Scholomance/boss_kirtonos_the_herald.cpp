@@ -34,7 +34,7 @@ enum Spells
     SPELL_PIERCE_ARMOR                = 6016,
     SPELL_DISARM                      = 8379,
 
-    SPELL_KIRTONOS_TRANSFORM          = 16467, // 9:56 10:14 10:33 10:49 // 10:57 attack stopped? Display id changed 12K hp 7534
+    SPELL_KIRTONOS_TRANSFORM          = 16467,
 
     SPELL_SHADOW_BOLT                 = 17228,
     SPELL_CURSE_OR_TONGUES            = 12889,
@@ -48,25 +48,26 @@ enum Events
     INTRO_3                           = 3,
     INTRO_4                           = 4,
     INTRO_5                           = 5,
-    EVENT_SWOOP                       = 6,
-    EVENT_WING_FLAP                   = 7,
-    EVENT_PIERCE_ARMOR                = 8,
-    EVENT_DISARM                      = 9,
-    EVENT_SHADOW_BOLT                 = 10,
-    EVENT_CURSE_OR_TONGUES            = 11,
-    EVENT_DONINATE_MIND               = 12,
-    EVENT_KIRTONOS_TRANSFORM          = 13
+    INTRO_6                           = 6,
+    EVENT_SWOOP                       = 7,
+    EVENT_WING_FLAP                   = 8,
+    EVENT_PIERCE_ARMOR                = 9,
+    EVENT_DISARM                      = 10,
+    EVENT_SHADOW_BOLT                 = 11,
+    EVENT_CURSE_OR_TONGUES            = 12,
+    EVENT_DONINATE_MIND               = 13,
+    EVENT_KIRTONOS_TRANSFORM          = 14
 };
 
 enum Points
 {
-    MAX_KIRTONOS_WAYPOINTS_INTRO   = 14,
-    POINT_KIRTONOS_LAND            = 14
+    MAX_KIRTONOS_WAYPOINTS_INTRO      = 14,
+    POINT_KIRTONOS_LAND               = 14
 };
 
 enum Misc
 {
-    WEAPON_KIRTONOS_STAFF          = 11365
+    WEAPON_KIRTONOS_STAFF             = 11365
 };
 
 Position const kirtonosIntroWaypoint[MAX_KIRTONOS_WAYPOINTS_INTRO] =
@@ -97,29 +98,24 @@ class boss_kirtonos_the_herald : public CreatureScript
 
             void Reset()
             {
-                _combatPhase = 0;
-                _summonPhase = 0;
-                _summonTimer = 0;
+                _introEvent  = 0;
+                _introTimer  = 0;
                 _Reset();
             }
 
             void EnterCombat(Unit* /*who*/)
             {
-                events.ScheduleEvent(EVENT_SWOOP, urand(7000, 8000));                 // Phase 1 10:04 10:19
-                events.ScheduleEvent(EVENT_WING_FLAP, urand(14000, 15000));           // Phase 1 10:11 10:24
-                events.ScheduleEvent(EVENT_PIERCE_ARMOR, urand(17000, 18000));        // Phase 1 10:14
-                events.ScheduleEvent(EVENT_DISARM, urand(21000, 22000));              // Phase 1 10:18 10:29
-
-                events.ScheduleEvent(EVENT_SHADOW_BOLT, urand(42200, 47700));         // Phase 2 10:38
-                events.ScheduleEvent(EVENT_CURSE_OR_TONGUES, urand(53200, 56000));    // Phase 2
-                events.ScheduleEvent(EVENT_DONINATE_MIND, urand(34000, 40000));       // Phase 2
-                events.ScheduleEvent(EVENT_KIRTONOS_TRANSFORM, urand(18000, 20000));  // Phase 2
+                _introTimer = 0;
+                _introEvent = 0;
+                events.ScheduleEvent(EVENT_SWOOP, urand(8000, 8000));
+                events.ScheduleEvent(EVENT_WING_FLAP, urand(15000, 15000));
+                events.ScheduleEvent(EVENT_PIERCE_ARMOR, urand(18000, 18000));
+                events.ScheduleEvent(EVENT_DISARM, urand(22000, 22000));
+                events.ScheduleEvent(EVENT_SHADOW_BOLT, urand(42000, 42000));
+                events.ScheduleEvent(EVENT_CURSE_OR_TONGUES, urand(53000, 53000));
+                events.ScheduleEvent(EVENT_DONINATE_MIND, urand(34000, 48000));
+                events.ScheduleEvent(EVENT_KIRTONOS_TRANSFORM, urand(20000, 20000));
                 _EnterCombat();
-            }
-
-            void KilledUnit(Unit* /*victim*/)
-            {
-
             }
 
             void JustDied(Unit* /*killer*/)
@@ -156,9 +152,10 @@ class boss_kirtonos_the_herald : public CreatureScript
                 me->SetDisableGravity(true);
                 me->SetReactState(REACT_PASSIVE);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE);
-                _summonPhase = INTRO_1;
-                _summonTimer = 1;
+                _introEvent = INTRO_1;
+                _introTimer = 1;
                 _currentPoint = 0;
+                Talk(EMOTE_SUMMONED);
             }
 
             void JustSummoned(Creature* summon)
@@ -176,53 +173,58 @@ class boss_kirtonos_the_herald : public CreatureScript
 
             void UpdateAI(uint32 const diff)
             {
-                if (_summonPhase)
+                if (_introEvent)
                 {
-                    if (_summonTimer <= diff)
+                    if (_introTimer <= diff)
                     {
-                        switch (_summonPhase)
+                        switch (_introEvent)
                         {
                             case INTRO_1:
                                 if (_currentPoint < POINT_KIRTONOS_LAND)
                                     me->GetMotionMaster()->MovePoint(_currentPoint, kirtonosIntroWaypoint[_currentPoint]);
                                 else
                                 {
-                                    _summonTimer = 1000;
-                                    _summonPhase = INTRO_2;
+                                    _introTimer = 1000;
+                                    _introEvent = INTRO_2;
                                 }
                                 break;
                             case INTRO_2:
+                                me->SetWalk(true);
                                 me->GetMotionMaster()->MovePoint(0, 299.4884f, 92.76137f, 105.6335f);
-                                _summonTimer = 1000;
-                                _summonPhase = INTRO_3;
+                                _introTimer = 1000;
+                                _introEvent = INTRO_3;
                                 break;
                             case INTRO_3:
                                 if (GameObject* gate = me->GetMap()->GetGameObject(instance->GetData64(GO_GATE_KIRTONOS)))
                                     gate->SetGoState(GO_STATE_READY);
                                 me->SetFacingTo(0.01745329f);
-                                _summonTimer = 3000;
-                                _summonPhase = INTRO_4;
+                                _introTimer = 3000;
+                                _introEvent = INTRO_4;
                                 break;
                             case INTRO_4:
                                 if (GameObject* brazier = me->GetMap()->GetGameObject(instance->GetData64(GO_BRAZIER_OF_THE_HERALD)))
                                     brazier->SetGoState(GO_STATE_READY);
                                 me->SetDisableGravity(false);
                                 DoCast(me, SPELL_KIRTONOS_TRANSFORM);
-                                _summonTimer = 1000;
-                                _summonPhase = INTRO_5;
+                                _introTimer = 1000;
+                                _introEvent = INTRO_5;
                                 break;
                             case INTRO_5:
                                 me->HandleEmoteCommand(EMOTE_ONESHOT_ROAR);
                                 me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 0, uint32(WEAPON_KIRTONOS_STAFF));
                                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE);
                                 me->SetReactState(REACT_AGGRESSIVE);
-                                _summonTimer = 0;
-                                _summonPhase = 0;
+                                _introTimer = 5000;
+                                _introEvent = INTRO_6;
+                            case INTRO_6:
+                                me->GetMotionMaster()->MovePoint(0, 314.8673f, 90.3021f, 101.6459f);
+                                _introTimer = 0;
+                                _introEvent = 0;
                             break;
                         }
                     }
                     else
-                    _summonTimer -= diff;
+                    _introTimer -= diff;
                 }
 
             if (!UpdateVictim())
@@ -239,19 +241,44 @@ class boss_kirtonos_the_herald : public CreatureScript
                     {
                         case EVENT_SWOOP:
                             DoCast(me, SPELL_SWOOP);
-                            events.ScheduleEvent(EVENT_SWOOP, urand(15000, 16000));
+                            events.ScheduleEvent(EVENT_SWOOP, urand(15000, 15000));
                             break;
                         case EVENT_WING_FLAP:
                             DoCast(me, SPELL_WING_FLAP);
-                            events.ScheduleEvent(EVENT_WING_FLAP, urand(13000, 14000));
+                            events.ScheduleEvent(EVENT_WING_FLAP, urand(13000, 13000));
                             break;
                         case EVENT_PIERCE_ARMOR:
                             DoCastVictim(SPELL_PIERCE_ARMOR, true);
-                            events.ScheduleEvent(EVENT_PIERCE_ARMOR, urand(16000, 17000));
+                            events.ScheduleEvent(EVENT_PIERCE_ARMOR, urand(12000, 12000));
                             break;
                         case EVENT_DISARM:
                             DoCastVictim(SPELL_DISARM, true);
-                            events.ScheduleEvent(EVENT_DISARM, urand(11000, 12000));
+                            events.ScheduleEvent(EVENT_DISARM, urand(11000, 11000));
+                            break;
+                        case EVENT_SHADOW_BOLT:
+                            DoCastVictim(SPELL_SHADOW_BOLT, true);
+                            events.ScheduleEvent(EVENT_SHADOW_BOLT, urand(42000, 42000));
+                            break;
+                        case EVENT_CURSE_OR_TONGUES:
+                            DoCastVictim(SPELL_CURSE_OR_TONGUES, true);
+                            events.ScheduleEvent(EVENT_CURSE_OR_TONGUES, urand(35000, 35000));
+                            break;
+                        case EVENT_DONINATE_MIND:
+                            DoCastVictim(SPELL_DONINATE_MIND, true);
+                            events.ScheduleEvent(EVENT_DONINATE_MIND, urand(44000, 48000));
+                            break;
+                        case EVENT_KIRTONOS_TRANSFORM:
+                            if (me->HasAura(SPELL_KIRTONOS_TRANSFORM))
+                            {
+                                me->RemoveAura(SPELL_KIRTONOS_TRANSFORM);
+                                me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 0, uint32(0));
+                            }
+                            else
+                            {
+                                DoCast(me, SPELL_KIRTONOS_TRANSFORM);
+                                me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 0, uint32(WEAPON_KIRTONOS_STAFF));
+                            }
+                            events.ScheduleEvent(EVENT_KIRTONOS_TRANSFORM, urand(16000, 18000));
                             break;
                         default:
                             break;
@@ -262,9 +289,8 @@ class boss_kirtonos_the_herald : public CreatureScript
             }
 
         private:
-            uint8 _combatPhase;
-            uint8 _summonPhase;
-            uint32 _summonTimer;
+            uint8 _introEvent;
+            uint32 _introTimer;
             uint32 _currentPoint;
         };
 
