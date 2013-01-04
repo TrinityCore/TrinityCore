@@ -334,7 +334,7 @@ class Spell
         void EffectPlayMusic(SpellEffIndex effIndex);
         void EffectSpecCount(SpellEffIndex effIndex);
         void EffectActivateSpec(SpellEffIndex effIndex);
-        void EffectPlayerNotification(SpellEffIndex effIndex);
+        void EffectPlaySound(SpellEffIndex effIndex);
         void EffectRemoveAura(SpellEffIndex effIndex);
         void EffectCastButtons(SpellEffIndex effIndex);
         void EffectRechargeManaGem(SpellEffIndex effIndex);
