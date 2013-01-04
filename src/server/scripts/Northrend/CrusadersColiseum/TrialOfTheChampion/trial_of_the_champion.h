@@ -1,6 +1,5 @@
 /*
  * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -41,6 +40,7 @@ enum eData
 enum Data64
 {
     DATA_ANNOUNCER,
+    DATA_ARGENT_CHAMPION,
     DATA_HIGHLORD,
     DATA_MAIN_GATE,
     DATA_MAIN_GATE1,
@@ -82,7 +82,7 @@ enum eNpcs
     NPC_GNOMERAGN_CHAMPION      = 35331,
     NPC_EXODAR_CHAMPION         = 35330,
     NPC_DRNASSUS_CHAMPION       = 35332,
-    NPC_IRONFORGE_CHAMPION      = 35329,
+    NPC_IRONFORGE_CHAMPION      = 35329,    
 
     NPC_EADRIC                  = 35119,
     NPC_PALETRESS               = 34928,
@@ -100,10 +100,10 @@ enum eNpcs
     NPC_JAEREN                  = 35004,
     NPC_ARELAS                  = 35005,
     NPC_HIGHLORD                = 34996,
-    
-    // Announcer
-    NPC_JAEREN_AN               = 35591,
-    NPC_ARELAS_AN               = 35592,
+    NPC_THRALL                  = 34994, 
+    NPC_GARROSH                 = 34995, 
+    NPC_VARIAN                  = 34990, 
+    NPC_JAINA_PROUDMOORE        = 34992,
 
     // Memory
     MEMORY_ALGALON              = 35052,
@@ -179,6 +179,11 @@ enum eVehicles
     VEHICLE_ARGENT_BATTLEWORG                       = 36558,
     VEHICLE_GR                                      = 35492, 
     VEHICLE_BLACK_KNIGHT                            = 35491
+};
+
+enum Actions
+{
+    ACTION_OUTRO                        = 0,
 };
 
 void HandleSpellOnPlayersInInstanceToC5(Unit* caller, uint32 spellId);

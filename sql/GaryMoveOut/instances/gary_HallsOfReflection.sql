@@ -1,379 +1,382 @@
--- Listing:
-DELETE FROM `creature` WHERE `guid` IN (250765, 250780) and `map`=668; -- Removes unused Uther + LK, TDB42-specific!
-UPDATE `creature_template` SET `mechanic_immune_mask`=617299955,`ScriptName`='npc_frostworn_general' WHERE `entry`=36723; -- add immunity + script
-UPDATE `creature_template` SET `ScriptName`='npc_jaina_and_sylvana_hor_part2' WHERE `entry` IN (36955, 37554); -- add script
-UPDATE `creature_template` SET `ScriptName`='boss_lich_king_hor' WHERE `entry`=36954; -- add script
-UPDATE `creature_template` SET `ScriptName`='npc_queldelar' WHERE `entry`=37158; -- add script
-UPDATE `creature_template` SET `ScriptName`='npc_spiritual_reflection' WHERE `entry`=37107; -- add script
-DELETE FROM `areatrigger_scripts` WHERE `entry`=5697;
-INSERT INTO `areatrigger_scripts` (`entry`, `ScriptName`) VALUES (5697, 'at_hor_waves_restarter'); -- script for areatrigger-restart
-UPDATE `gameobject_template` SET `flags`=1, `faction`=0 WHERE `entry` in (201385, 201885, 202396, 201911); -- update states for the walls
-UPDATE `creature_template` SET `unit_flags`=(2|33554432) WHERE `entry` IN (37906); -- update flags for the souls, should not be selectable
+DELETE FROM `creature` WHERE `id` =37225;  -- Remove spawned Uther
+DELETE FROM `creature` WHERE `guid` IN (2022890, 2022900);
+INSERT INTO `creature` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`) VALUES ('2022890', '38112', '668', '3', '1', '0', '0', '5271.65', '2042.5', '709.32', '5.51217', '604800', '0', '0', '377468', '0', '0', '0', '0', '0');
+INSERT INTO `creature` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`) VALUES ('2022900', '38113', '668', '3', '1', '0', '0', '5344.75', '1972.87', '709.319', '2.33445', '604800', '0', '0', '539240', '0', '0', '0', '0', '0');
 
--- Add-scripts : evasion
-UPDATE `creature_template` SET `ScriptName`='npc_raging_ghoul' WHERE `entry`=36940;
-UPDATE `creature_template` SET `ScriptName`='npc_risen_witch_doctor' WHERE `entry`=36941;
-UPDATE `creature_template` SET `ScriptName`='npc_abon' WHERE `entry`=37069;
+DELETE FROM `creature` WHERE `id` =36723; -- Frostsworn general
+INSERT INTO `creature` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`) VALUES (2022920, '36723', '668', '3', '1', '0', '2432', '5413.9', '2116.65', '707.695', '3.94765', '604800', '0', '0', '315000', '0', '0', '0', '0', '0');
 
--- Spawns
-DELETE FROM `creature` WHERE `id` IN (38112, 38113, 36723) AND `map`=668;
-INSERT INTO `creature` (`id`,`map`,`spawnMask`,`position_x`,`position_y`,`position_z`,`orientation`) VALUES
-(38112, 668, 3, 5274.27, 2040.25, 709.32, 5.46), -- Falric
-(38113, 668, 3, 5347.79, 1970.21, 709.32, 2.40), -- Marwyn
-(36723, 668, 3, 5414.16, 2116.62, 707.70, 4.03); -- Frostworn General
+DELETE FROM `creature_template` WHERE `entry` =37107; -- Spiritual Reflection
+INSERT INTO `creature_template` (`entry`, `difficulty_entry_1`, `difficulty_entry_2`, `difficulty_entry_3`, `KillCredit1`, `KillCredit2`, `modelid1`, `modelid2`, `modelid3`, `modelid4`, `name`, `subname`, `IconName`, `gossip_menu_id`, `minlevel`, `maxlevel`, `exp`, `faction_A`, `faction_H`, `npcflag`, `speed_walk`, `speed_run`, `scale`, `rank`, `mindmg`, `maxdmg`, `dmgschool`, `attackpower`, `dmg_multiplier`, `baseattacktime`, `rangeattacktime`, `unit_class`, `unit_flags`, `dynamicflags`, `family`, `trainer_type`, `trainer_spell`, `trainer_class`, `trainer_race`, `minrangedmg`, `maxrangedmg`, `rangedattackpower`, `type`, `type_flags`, `lootid`, `pickpocketloot`, `skinloot`, `resistance1`, `resistance2`, `resistance3`, `resistance4`, `resistance5`, `resistance6`, `spell1`, `spell2`, `spell3`, `spell4`, `spell5`, `spell6`, `spell7`, `spell8`, `PetSpellDataId`, `VehicleId`, `mingold`, `maxgold`, `AIName`, `MovementType`, `InhabitType`, `Health_mod`, `Mana_mod`, `Armor_mod`, `RacialLeader`, `questItem1`, `questItem2`, `questItem3`, `questItem4`, `questItem5`, `questItem6`, `movementId`, `RegenHealth`, `equipment_id`, `mechanic_immune_mask`, `flags_extra`, `ScriptName`, `WDBVerified`) VALUES ('37107', '37721', '0', '0', '0', '0', '24653', '0', '0', '0', 'Spiritual Reflection', '', '', '0', '80', '80', '2', '35', '35', '0', '1', '1.14286', '1', '1', '422', '586', '0', '642', '7.5', '0', '0', '1', '32784', '8', '0', '0', '0', '0', '0', '345', '509', '103', '7', '72', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '', '0', '3', '4', '1', '1', '0', '0', '0', '0', '0', '0', '0', '113', '1', '0', '0', '0', 'npc_spiritual_reflection', '12340');
+DELETE FROM `creature_template` WHERE `entry` =36954; -- The Lich King Part 1
+INSERT INTO `creature_template` (`entry`, `difficulty_entry_1`, `difficulty_entry_2`, `difficulty_entry_3`, `KillCredit1`, `KillCredit2`, `modelid1`, `modelid2`, `modelid3`, `modelid4`, `name`, `subname`, `IconName`, `gossip_menu_id`, `minlevel`, `maxlevel`, `exp`, `faction_A`, `faction_H`, `npcflag`, `speed_walk`, `speed_run`, `scale`, `rank`, `mindmg`, `maxdmg`, `dmgschool`, `attackpower`, `dmg_multiplier`, `baseattacktime`, `rangeattacktime`, `unit_class`, `unit_flags`, `dynamicflags`, `family`, `trainer_type`, `trainer_spell`, `trainer_class`, `trainer_race`, `minrangedmg`, `maxrangedmg`, `rangedattackpower`, `type`, `type_flags`, `lootid`, `pickpocketloot`, `skinloot`, `resistance1`, `resistance2`, `resistance3`, `resistance4`, `resistance5`, `resistance6`, `spell1`, `spell2`, `spell3`, `spell4`, `spell5`, `spell6`, `spell7`, `spell8`, `PetSpellDataId`, `VehicleId`, `mingold`, `maxgold`, `AIName`, `MovementType`, `InhabitType`, `Health_mod`, `Mana_mod`, `Armor_mod`, `RacialLeader`, `questItem1`, `questItem2`, `questItem3`, `questItem4`, `questItem5`, `questItem6`, `movementId`, `RegenHealth`, `equipment_id`, `mechanic_immune_mask`, `flags_extra`, `ScriptName`, `WDBVerified`) VALUES ('36954', '0', '0', '0', '0', '0', '30721', '0', '0', '0', 'The Lich King', '', '', '0', '83', '83', '2', '2102', '2102', '0', '1.8', '2', '1', '3', '509', '683', '0', '805', '35', '2000', '0', '1', '256', '8', '0', '0', '0', '0', '0', '371', '535', '135', '6', '268435500', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '', '0', '3', '2000', '500', '1', '0', '0', '0', '0', '0', '0', '0', '117', '1', '0', '8388624', '0', 'npc_lich_king_hr', '12340');
+DELETE FROM `creature` WHERE `id` =37226;  -- Remove DB spawned LK
+DELETE FROM `creature_template` WHERE `entry` =37226;
+INSERT INTO `creature_template` (`entry`, `difficulty_entry_1`, `difficulty_entry_2`, `difficulty_entry_3`, `KillCredit1`, `KillCredit2`, `modelid1`, `modelid2`, `modelid3`, `modelid4`, `name`, `subname`, `IconName`, `gossip_menu_id`, `minlevel`, `maxlevel`, `exp`, `faction_A`, `faction_H`, `npcflag`, `speed_walk`, `speed_run`, `scale`, `rank`, `mindmg`, `maxdmg`, `dmgschool`, `attackpower`, `dmg_multiplier`, `baseattacktime`, `rangeattacktime`, `unit_class`, `unit_flags`, `dynamicflags`, `family`, `trainer_type`, `trainer_spell`, `trainer_class`, `trainer_race`, `minrangedmg`, `maxrangedmg`, `rangedattackpower`, `type`, `type_flags`, `lootid`, `pickpocketloot`, `skinloot`, `resistance1`, `resistance2`, `resistance3`, `resistance4`, `resistance5`, `resistance6`, `spell1`, `spell2`, `spell3`, `spell4`, `spell5`, `spell6`, `spell7`, `spell8`, `PetSpellDataId`, `VehicleId`, `mingold`, `maxgold`, `AIName`, `MovementType`, `InhabitType`, `Health_mod`, `Mana_mod`, `Armor_mod`, `RacialLeader`, `questItem1`, `questItem2`, `questItem3`, `questItem4`, `questItem5`, `questItem6`, `movementId`, `RegenHealth`, `equipment_id`, `mechanic_immune_mask`, `flags_extra`, `ScriptName`, `WDBVerified`) VALUES ('37226', '0', '0', '0', '0', '0', '30721', '0', '0', '0', 'The Lich King', '', '', '0', '83', '83', '2', '2102', '2102', '0', '1.8', '2', '0.8', '3', '509', '683', '0', '805', '35', '2000', '0', '1', '768', '8', '0', '0', '0', '0', '0', '371', '535', '135', '6', '36', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '', '0', '3', '2000', '500', '1', '0', '0', '0', '0', '0', '0', '0', '151', '1', '2425', '617299955', '0', 'boss_lich_king_hor', '12340');
 
--- Update for the frostworn general in hc-mode
-UPDATE `creature_template` SET `faction_A`=16, `faction_H`=16, `baseattacktime`=2000, `unit_flags`=64, `equipment_id`=2437, `mechanic_immune_mask`=617299955 WHERE `entry`=37720;
 
--- Equipment updates for the heroic NPCs
-UPDATE `creature_template` SET `equipment_id`=2433 WHERE `entry`=38599;
-UPDATE `creature_template` SET `equipment_id`=2434 WHERE `entry`=38603;
-UPDATE `creature_template` SET `equipment_id`=14 WHERE `entry`=38563;
-UPDATE `creature_template` SET `equipment_id`=1218 WHERE `entry`=38564;
-UPDATE `creature_template` SET `equipment_id`=107 WHERE `entry`=38525;
-UPDATE `creature_template` SET `equipment_id`=2435 WHERE `entry`=38544;
+DELETE FROM `gameobject` WHERE `id` =202302;
+INSERT INTO `gameobject` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`) VALUES ('1530030', '202302', '668', '3', '1', '5309.51', '2006.64', '709.341', '5.50041', '0', '0', '0.381473', '-0.92438', '604800', '100', '1');
+DELETE FROM `gameobject` WHERE `id` =202236;
+INSERT INTO `gameobject` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`) VALUES ('1530040', '202236', '668', '3', '1', '5309.51', '2006.64', '709.341', '5.53575', '0', '0', '0.365077', '-0.930977', '604800', '100', '1');
+DELETE FROM `gameobject` WHERE `id` =201976;
+INSERT INTO `gameobject` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`) VALUES ('1530120', '201976', '668', '3', '1', '5264.6', '1959.55', '707.695', '0.736951', '0', '0', '0.360194', '0.932877', '300', '100', '0');
+DELETE FROM `gameobject` WHERE `id` =197341;
+INSERT INTO `gameobject` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`) VALUES ('1530110', '197341', '668', '3', '1', '5359.24', '2058.35', '707.695', '3.96022', '0', '0', '0.917394', '-0.397981', '300', '100', '1');
 
--- Faction-Updates for the mobs of the hunting waves
-UPDATE `creature_template` SET `faction_A`=1771, `faction_H`=1771 WHERE `entry` IN (37550, 37551, 37549);
+DELETE FROM `creature_template` WHERE `entry` =37554;  -- Sylvanas part 1
+INSERT INTO `creature_template` (`entry`, `difficulty_entry_1`, `difficulty_entry_2`, `difficulty_entry_3`, `KillCredit1`, `KillCredit2`, `modelid1`, `modelid2`, `modelid3`, `modelid4`, `name`, `subname`, `IconName`, `gossip_menu_id`, `minlevel`, `maxlevel`, `exp`, `faction_A`, `faction_H`, `npcflag`, `speed_walk`, `speed_run`, `scale`, `rank`, `mindmg`, `maxdmg`, `dmgschool`, `attackpower`, `dmg_multiplier`, `baseattacktime`, `rangeattacktime`, `unit_class`, `unit_flags`, `dynamicflags`, `family`, `trainer_type`, `trainer_spell`, `trainer_class`, `trainer_race`, `minrangedmg`, `maxrangedmg`, `rangedattackpower`, `type`, `type_flags`, `lootid`, `pickpocketloot`, `skinloot`, `resistance1`, `resistance2`, `resistance3`, `resistance4`, `resistance5`, `resistance6`, `spell1`, `spell2`, `spell3`, `spell4`, `spell5`, `spell6`, `spell7`, `spell8`, `PetSpellDataId`, `VehicleId`, `mingold`, `maxgold`, `AIName`, `MovementType`, `InhabitType`, `Health_mod`, `Mana_mod`, `Armor_mod`, `RacialLeader`, `questItem1`, `questItem2`, `questItem3`, `questItem4`, `questItem5`, `questItem6`, `movementId`, `RegenHealth`, `equipment_id`, `mechanic_immune_mask`, `flags_extra`, `ScriptName`, `WDBVerified`) VALUES ('37554', '0', '0', '0', '0', '0', '30776', '0', '0', '0', 'Lady Sylvanas Windrunner', '', '', '0', '80', '80', '2', '1770', '1770', '2', '0.888888', '0.99206', '0.8', '1', '346', '499', '0', '287', '7.5', '1000', '0', '8', '33088', '8', '0', '0', '0', '0', '0', '315', '468', '69', '7', '262144', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '', '0', '3', '500', '100', '1', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1290', '0', '0', 'npc_jaina_and_sylvana_hor_part2', '12340');
+DELETE FROM `creature_template` WHERE `entry` =36955; -- Lady Proudmoore part 1
+INSERT INTO `creature_template` (`entry`, `difficulty_entry_1`, `difficulty_entry_2`, `difficulty_entry_3`, `KillCredit1`, `KillCredit2`, `modelid1`, `modelid2`, `modelid3`, `modelid4`, `name`, `subname`, `IconName`, `gossip_menu_id`, `minlevel`, `maxlevel`, `exp`, `faction_A`, `faction_H`, `npcflag`, `speed_walk`, `speed_run`, `scale`, `rank`, `mindmg`, `maxdmg`, `dmgschool`, `attackpower`, `dmg_multiplier`, `baseattacktime`, `rangeattacktime`, `unit_class`, `unit_flags`, `dynamicflags`, `family`, `trainer_type`, `trainer_spell`, `trainer_class`, `trainer_race`, `minrangedmg`, `maxrangedmg`, `rangedattackpower`, `type`, `type_flags`, `lootid`, `pickpocketloot`, `skinloot`, `resistance1`, `resistance2`, `resistance3`, `resistance4`, `resistance5`, `resistance6`, `spell1`, `spell2`, `spell3`, `spell4`, `spell5`, `spell6`, `spell7`, `spell8`, `PetSpellDataId`, `VehicleId`, `mingold`, `maxgold`, `AIName`, `MovementType`, `InhabitType`, `Health_mod`, `Mana_mod`, `Armor_mod`, `RacialLeader`, `questItem1`, `questItem2`, `questItem3`, `questItem4`, `questItem5`, `questItem6`, `movementId`, `RegenHealth`, `equipment_id`, `mechanic_immune_mask`, `flags_extra`, `ScriptName`, `WDBVerified`) VALUES ('36955', '0', '0', '0', '0', '0', '30867', '0', '0', '0', 'Lady Jaina Proudmoore', '', '', '0', '80', '80', '2', '84', '84', '2', '1', '1.14286', '0.8', '1', '346', '499', '0', '287', '7.5', '0', '0', '8', '0', '8', '0', '0', '0', '0', '0', '315', '468', '69', '7', '262144', '0', '0', '0', '0', '0', '0', '0', '0', '0', '69708', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '', '0', '3', '500', '100', '1', '0', '0', '0', '0', '0', '0', '0', '0', '1', '1221', '0', '0', 'npc_jaina_and_sylvana_hor_part2', '12340');
 
--- Reward-Chests
-DELETE FROM `gameobject` where `id` IN (202337, 202212, 201710, 202336) AND `map`=668;
-INSERT INTO `gameobject` (`id`, `map`, `spawnMask`, `phaseMask`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`) VALUES
-(202337, 668, 2, 1, 5270.98, 1655.69, 784.305, 5.78677, 0, 0, 0.245669, -0.969354, 300, 0, 1), -- HC Horde
-(202212, 668, 1, 1, 5272.42, 1658.36, 784.305, 5.78677, 0, 0, 0.245669, -0.969354, 300, 0, 1), -- NH Horde
-(201710, 668, 1, 1, 5270.81, 1659.4, 784.304, 5.80798, 0, 0, 0.235376, -0.971904, 300, 0, 1), -- NH Alliance
-(202336, 668, 2, 1, 5269.42, 1656.7, 784.304, 5.80798, 0, 0, 0.235376, -0.971904, 300, 0, 1); -- HC Alliance
 
--- Gameobjects: Walls
-DELETE FROM `gameobject` WHERE `id` in (201385, 201885, 202396, 201911) AND `map`=668;
-INSERT INTO `gameobject` (`id`, `map`, `spawnMask`, `phaseMask`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`) VALUES 
-(201385, 668, 3, 1, 5569.35, 2131.58, 731, 4.25428, 0, 0, 0.849191, -0.528086, 300, 0, 1),
-(201885, 668, 3, 1, 5523.03, 2024.82, 732.238, 4.49612, 0, 0, 0.77929, -0.626664, 300, 0, 1),
-(202396, 668, 3, 1, 5451.86, 1902.04, 747.268, 4.13171, 0, 0, 0.879941, -0.475084, 300, 0, 1),
-(201911, 668, 3, 1, 5347.53, 1773.17, 766.504, 3.92515, 0, 0, 0.924232, -0.381833, 300, 0, 1);
+UPDATE  `creature_template` SET  `ScriptName` =  'npc_frostworn_general' WHERE  `entry` =36723;
+UPDATE  `creature_template` SET  `ScriptName` =  'npc_raging_gnoul' WHERE  `entry` =36940;
+UPDATE  `creature_template` SET  `ScriptName` =  'npc_risen_witch_doctor' WHERE  `entry` =36941;
+UPDATE  `creature_template` SET  `ScriptName` =  'npc_abon' WHERE  `entry` =37069;
 
--- Texts
-/* DELETE FROM `script_texts` WHERE `entry` IN (-1594474, -1594473, -1594519, -1594520, -1594480, -1594488, -1594490, -1594496,
--1594497, -1594500, -1594501, -1594503, -1594521, -1594479, -1594487, -1594489, -1594494, -1594495, -1594498, -1594499, -1594502, -1594524, -1594525,
--1594486, -1594491, -1594491, -1594492, -1594493, -1594481, -1594482, -1594483, -1594504, -1594522, -1594523, -1594478, -1594477, -1594485, -1594526, -1594527);
-INSERT INTO `script_texts` (`npc_entry`, `entry`, `content_default` ,`comment`) VALUES
-(37226, -1594474, 'Sylvanas... just another little trick of yours...', 'LK_SYLVANAS_INTRO_END'), -- LK-Intro-Event
-(37226, -1594473, 'Jayna... do you really think that I am your prince any longer, in any way?', 'LK_JAYNA_INTRO_END'),
-(36723, -1594519, 'The master wants you dead, and I\'m here to fulfill this request!', 'SAY_AGGRO_GENERAL'), -- Frostworn General
-(36723, -1594520, 'Free... at long last...', 'SAY_DEATH_GENERAL'),
-(37554, -1594480, 'Hurry up, this prison will not distract him for long!', 'SAY_SYLVANA_AGGRO'), -- Sylvanas
-(37554, -1594488, 'I will take down this frozen barrier, protect me!', 'SAY_SYVL_WALL1'),
-(37554, -1594490, 'Another barrier... stop those minions from distracting me!', 'SAY_SYVL_WALL2'),
-(37554, -1594496, 'I hope this path will end up soon...', 'SAY_SYVL_WALL3'),
-(37554, -1594497, 'There is some way to icecrown behind this wall, hurry up!', 'SAY_SYLV_WALL4'),
-(37554, -1594500, 'Hurry up, the end of this path is near!', 'SAY_SYLV_ESCAPE_01'),
-(37554, -1594501, 'What\'s this up there... the Orgrim\'s Hammer?', 'SAY_SYLV_ESCAPE_02'),
-(37554, -1594503, 'Damn it, we are trapped here...', 'SAY_SYVL_TRAPPED'),
-(37554, -1594521, 'We are safe - for the moment...', 'SAY_SYLVANA_FINAL_2'), -- end Sylvanas' escape talks
-(36955, -1594479, 'Run... this prison will not stop him for long!', 'SAY_JAYNA_AGGRO'), -- Jayna
-(36955, -1594487, 'An icy wall! Protect me, I will take care of this!', 'SAY_JAYNA_WALL1'),
-(36955, -1594489, 'Another barrier - I will break it down, but stop these minions!', 'SAY_JAYNA_WALL2'),
-(36955, -1594494, 'Does this way have any end?', 'SAY_JAYNA_WALL3'),
-(36955, -1594495, 'I hope we are close to the end of this path...', 'SAY_JAYNA_WALL4'),
-(36955, -1594498, 'This tunnel ends...', 'SAY_JAYNA_ESCAPE_01'),
-(36955, -1594499, 'What\'s this up there? The Skybreaker?', 'SAY_JAYNA_ESCAPE_02'),
-(36955, -1594502, 'By the light, we are trapped here!', 'SAY_JAYNA_TRAPPED'),
-(36955, -1594524, 'Bartlett? I have never thought of you arriving here in time...', 'JAYNA_FINAL2'),
-(36955, -1594525, 'We are save - for the moment... But we will meet him again...', 'JAYNA_FINAL3'),
-(36954, -1594486, 'Just a simple thing that stops for long...', 'SAY_LK_W1'),	-- Lich King - Hunting Sequence
-(36954, -1594491, 'Minions, your master calls for your service!', 'SAY_LK_W2'),
-(36954, -1594492, 'Do you really think you may escape me that easily?', 'SAY_LK_W3'),
-(36954, -1594493, 'Oh, you think you may evade using this path... what a pity...', 'SAY_LK_W4'),
-(36954, -1594481, 'May the coldness of this eternal winter consume your bodies...', 'SAY_LK_WINTER'),
-(36954, -1594482, 'Minions, hunt them!', 'SAY_LK_GNOUL'),
-(36954, -1594483, 'Monstrosities, hunt them!', 'SAY_LK_ABON'),
-(36954, -1594504, 'For the moment, you have escaped... but we will meet again...', 'SAY_LK_END_DUN'),
-(36954, -1594478, 'Sylvanas... you know that you cannot win this...', 'SAY_LK_AGGRO_H'),
-(36954, -1594477, 'Jayna... just another human that trusts in a part of me that has died long ago...', 'SAY_LK_AGGRO_A'),
-(36954, -1594485, 'As I have told you, running away does not prevent you from dying here!', 'SAY_LK_WIN'),
-(37883, -1594522, 'Arthas still following you... gunners, fire down these walls!', 'SAY_SYLV_FIRE'), -- Korm
-(37883, -1594523, 'That was quite close...', 'SAY_SYLV_FINAL_1'),
-(37182, -1594526, 'Gunners, fire down these walls, Lady Jayna is in danger!', 'FIRE_A'),	-- Bartlett	
-(37182, -1594527, 'That was... really... close, mylady.', 'END_A'); */
+-- Area Trigger, for wave restarter
+DELETE FROM `areatrigger_scripts` WHERE `entry` =5697;
+INSERT INTO `areatrigger_scripts` (`entry`, `ScriptName`) VALUES ('5697', 'at_hor_waves_restarter');
 
-DELETE FROM `creature_text` WHERE `entry` IN (37226, 36723, 37554, 36955, 36954, 37883, 37182);
-INSERT INTO `creature_text`(`entry`,`groupid`,`id`,`type`,`sound`,`probability`,`comment`,`text`) VALUES
-(37226,0,0,12,0,100,"LK_SYLVANAS_INTRO_END","Sylvanas... just another little trick of yours..."),
-(37226,1,0,12,0,100,"LK_JAYNA_INTRO_END","Jayna... do you really think that I am your prince any longer, in any way?"),
-(36723,0,0,12,0,100,"SAY_AGGRO_GENERAL","The master wants you dead, and I\'m here to fulfill this request!"),
-(36723,1,0,12,0,100,"SAY_DEATH_GENERAL","Free... at long last..."),
-(37554,0,0,12,0,100,"SAY_SYLVANA_AGGRO","Hurry up, this prison will not distract him for long!"),
-(37554,1,0,12,0,100,"SAY_SYVL_WALL1","I will take down this frozen barrier, protect me!"),
-(37554,2,0,12,0,100,"SAY_SYVL_WALL2","Another barrier... stop those minions from distracting me!"),
-(37554,3,0,12,0,100,"SAY_SYVL_WALL3","I hope this path will end up soon..."),
-(37554,4,0,12,0,100,"SAY_SYLV_WALL4","There is some way to icecrown behind this wall, hurry up!"),
-(37554,5,0,12,0,100,"SAY_SYLV_ESCAPE_01","Hurry up, the end of this path is near!"),
-(37554,6,0,12,0,100,"SAY_SYLV_ESCAPE_02","What\'s this up there... the Orgrim\'s Hammer?"),
-(37554,7,0,12,0,100,"SAY_SYVL_TRAPPED","Damn it, we are trapped here..."),
-(37554,8,0,12,0,100,"SAY_SYLVANA_FINAL_2","We are safe - for the moment..."),
-(36955,0,0,12,0,100,"SAY_JAYNA_AGGRO","Run... this prison will not stop him for long!"),
-(36955,1,0,12,0,100,"SAY_JAYNA_WALL1","An icy wall! Protect me, I will take care of this!"),
-(36955,2,0,12,0,100,"SAY_JAYNA_WALL2","Another barrier - I will break it down, but stop these minions!"),
-(36955,3,0,12,0,100,"SAY_JAYNA_WALL3","Does this way have any end?"),
-(36955,4,0,12,0,100,"SAY_JAYNA_WALL4","I hope we are close to the end of this path..."),
-(36955,5,0,12,0,100,"SAY_JAYNA_ESCAPE_01","This tunnel ends..."),
-(36955,6,0,12,0,100,"SAY_JAYNA_ESCAPE_02","What\'s this up there? The Skybreaker?"),
-(36955,7,0,12,0,100,"SAY_JAYNA_TRAPPED","By the light, we are trapped here!"),
-(36955,8,0,12,0,100,"JAYNA_FINAL2","Bartlett? I have never thought of you arriving here in time..."),
-(36955,9,0,12,0,100,"JAYNA_FINAL3","We are save - for the moment... But we will meet him again..."),
-(36954,0,0,12,0,100,"SAY_LK_W1","Just a simple thing that stops for long..."),
-(36954,1,0,12,0,100,"SAY_LK_W2","Minions, your master calls for your service!"),
-(36954,2,0,12,0,100,"SAY_LK_W3","Do you really think you may escape me that easily?"),
-(36954,3,0,12,0,100,"SAY_LK_W4","Oh, you think you may evade using this path... what a pity..."),
-(36954,4,0,12,0,100,"SAY_LK_WINTER","May the coldness of this eternal winter consume your bodies..."),
-(36954,5,0,12,0,100,"SAY_LK_GNOUL","Minions, hunt them!"),
-(36954,6,0,12,0,100,"SAY_LK_ABON","Monstrosities, hunt them!"),
-(36954,7,0,12,0,100,"SAY_LK_END_DUN","For the moment, you have escaped... but we will meet again..."),
-(36954,8,0,12,0,100,"SAY_LK_AGGRO_H","Sylvanas... you know that you cannot win this..."),
-(36954,9,0,12,0,100,"SAY_LK_AGGRO_A","Jayna... just another human that trusts in a part of me that has died long ago..."),
-(36954,10,0,12,0,100,"SAY_LK_WIN","As I have told you, running away does not prevent you from dying here!"),
-(37883,0,0,12,0,100,"SAY_SYLV_FIRE","Arthas still following you... gunners, fire down these walls!"),
-(37883,1,0,12,0,100,"SAY_SYLV_FINAL_1","That was quite close..."),
-(37182,0,0,12,0,100,"FIRE_A","Gunners, fire down these walls, Lady Jayna is in danger!"),
-(37182,1,3,12,0,100,"END_A","That was... really... close, mylady.");
+-- Normal
+UPDATE `creature_template` SET `unit_flags`=576 WHERE `entry` IN (38172, 38175, 38176, 38173, 38177, 38113, 38112);
+-- Heroic
+UPDATE `creature_template` SET `unit_flags`=576 WHERE `entry` IN (38599, 38603, 38524, 38525, 38563, 38544, 38564);
+-- Fix faction on Heroic 
+UPDATE `creature_template` SET `faction_A`=16, `faction_H`=16 WHERE `entry` = 37720;
+-- Sylvanas Waypoints to ship
+DELETE FROM `script_waypoint` WHERE `entry` =37554;
+INSERT INTO `script_waypoint` (`entry`, `pointid`, `location_x`, `location_y`, `location_z`, `waittime`, `point_comment`) VALUES
+(37554, 0, 5587.68, 2228.59, 733.011, 0, 'WP1'),
+(37554, 1, 5600.71, 2209.06, 731.618, 0, 'WP2'),
+(37554, 2, 5606.42, 2193.03, 731.129, 0, 'WP3'),
+(37554, 3, 5598.56, 2167.81, 730.918, 0, 'WP4 - Summon IceWall 01'),
+(37554, 4, 5556.44, 2099.83, 731.827, 0, 'WP5 - Spell Channel'),
+(37554, 5, 5543.5, 2071.23, 731.702, 0, 'WP6'),
+(37554, 6, 5528.97, 2036.12, 731.407, 0, 'WP7'),
+(37554, 7, 5512.04, 1996.7, 735.122, 0, 'WP8'),
+(37554, 8, 5504.49, 1988.79, 735.886, 0, 'WP9 - Spell Channel'),
+(37554, 9, 5489.65, 1966.39, 737.653, 0, 'WP10'),
+(37554, 10, 5475.52, 1943.18, 741.146, 0, 'WP11'),
+(37554, 11, 5466.93, 1926.05, 743.536, 0, 'WP12'),
+(37554, 12, 5445.16, 1894.95, 748.757, 0, 'WP13 - Spell Channel'),
+(37554, 13, 5425.91, 1869.71, 753.237, 0, 'WP14'),
+(37554, 14, 5405.12, 1833.94, 757.486, 0, 'WP15'),
+(37554, 15, 5370.32, 1799.38, 761.007, 0, 'WP16'),
+(37554, 16, 5335.42, 1766.95, 767.635, 0, 'WP17 - Spell Channel'),
+(37554, 17, 5311.44, 1739.39, 774.165, 0, 'WP18'),
+(37554, 18, 5283.59, 1703.76, 784.176, 0, 'WP19'),
+(37554, 19, 5260.4, 1677.78, 784.301, 3000, 'WP20'),
+(37554, 20, 5262.44, 1680.41, 784.294, 0, 'WP21'),
+(37554, 21, 5260.4, 1677.78, 784.301, 0, 'WP22');
+-- Lady Proudmoore Waypoints to ship
+DELETE FROM `script_waypoint` WHERE `entry` =36955;
+INSERT INTO `script_waypoint` (`entry`, `pointid`, `location_x`, `location_y`, `location_z`, `waittime`, `point_comment`) VALUES
+(36955, 0, 5587.68, 2228.59, 733.011, 0, 'WP1'),
+(36955, 1, 5600.71, 2209.06, 731.618, 0, 'WP2'),
+(36955, 2, 5606.42, 2193.03, 731.129, 0, 'WP3'),
+(36955, 3, 5598.56, 2167.81, 730.918, 0, 'WP4 - Summon IceWall 01'),
+(36955, 4, 5556.44, 2099.83, 731.827, 0, 'WP5 - Spell Channel'),
+(36955, 5, 5543.5, 2071.23, 731.702, 0, 'WP6'),
+(36955, 6, 5528.97, 2036.12, 731.407, 0, 'WP7'),
+(36955, 7, 5512.04, 1996.7, 735.122, 0, 'WP8'),
+(36955, 8, 5504.49, 1988.79, 735.886, 0, 'WP9 - Spell Channel'),
+(36955, 9, 5489.65, 1966.39, 737.653, 0, 'WP10'),
+(36955, 10, 5475.52, 1943.18, 741.146, 0, 'WP11'),
+(36955, 11, 5466.93, 1926.05, 743.536, 0, 'WP12'),
+(36955, 12, 5445.16, 1894.95, 748.757, 0, 'WP13 - Spell Channel'),
+(36955, 13, 5425.91, 1869.71, 753.237, 0, 'WP14'),
+(36955, 14, 5405.12, 1833.94, 757.486, 0, 'WP15'),
+(36955, 15, 5370.32, 1799.38, 761.007, 0, 'WP16'),
+(36955, 16, 5335.42, 1766.95, 767.635, 0, 'WP17 - Spell Channel'),
+(36955, 17, 5311.44, 1739.39, 774.165, 0, 'WP18'),
+(36955, 18, 5283.59, 1703.76, 784.176, 0, 'WP19'),
+(36955, 19, 5260.4, 1677.78, 784.301, 3000, 'WP20'),
+(36955, 20, 5262.44, 1680.41, 784.294, 0, 'WP21'),
+(36955, 21, 5260.4, 1677.78, 784.301, 0, 'WP22');
+-- Lich King Waypoints
+DELETE FROM `script_waypoint` WHERE `entry` =37226;
+INSERT INTO `script_waypoint` (`entry`, `pointid`, `location_x`, `location_y`, `location_z`, `waittime`, `point_comment`) VALUES
+(37226, 1, 5577.19, 2236, 733.012, 0, 'HoR WP LichKing'),
+(37226, 2, 5580.57, 2232.22, 733.012, 0, 'HoR WP LichKing'),
+(37226, 3, 5586.67, 2225.54, 733.012, 0, 'HoR WP LichKing'),
+(37226, 4, 5590.45, 2221.41, 733.012, 0, 'HoR WP LichKing'),
+(37226, 5, 5595.75, 2215.62, 732.101, 0, 'HoR WP LichKing'),
+(37226, 6, 5601.21, 2206.49, 731.54, 0, 'HoR WP LichKing'),
+(37226, 7, 5605.01, 2197.9, 731.667, 0, 'HoR WP LichKing'),
+(37226, 8, 5606.55, 2191.39, 730.977, 0, 'HoR WP LichKing'),
+(37226, 9, 5604.68, 2186.11, 730.998, 0, 'HoR WP LichKing'),
+(37226, 10, 5602.26, 2179.9, 730.967, 0, 'HoR WP LichKing'),
+(37226, 11, 5600.06, 2174.38, 730.924, 0, 'HoR WP LichKing'),
+(37226, 12, 5597.29, 2166.81, 730.924, 0, 'HoR WP LichKing'),
+(37226, 13, 5596.25, 2160.36, 730.931, 0, 'HoR WP LichKing'),
+(37226, 14, 5591.79, 2152.87, 731.008, 0, 'HoR WP LichKing'),
+(37226, 15, 5585.47, 2146.63, 731.109, 0, 'HoR WP LichKing'),
+(37226, 16, 5579.1, 2140.34, 731.18, 0, 'HoR WP LichKing'),
+(37226, 17, 5572.56, 2134.21, 731.092, 0, 'HoR WP LichKing'),
+(37226, 18, 5564.08, 2126.53, 730.816, 0, 'HoR WP LichKing'),
+(37226, 19, 5559.04, 2117.64, 730.812, 0, 'HoR WP LichKing'),
+(37226, 20, 5555.77, 2111.88, 730.995, 0, 'HoR WP LichKing'),
+(37226, 21, 5550.82, 2103.14, 731.123, 0, 'HoR WP LichKing'),
+(37226, 22, 5546.02, 2094.68, 731.16, 0, 'HoR WP LichKing'),
+(37226, 23, 5541.53, 2084.42, 730.999, 0, 'HoR WP LichKing'),
+(37226, 24, 5537.5, 2075.18, 730.901, 0, 'HoR WP LichKing'),
+(37226, 25, 5533.76, 2063.84, 730.87, 0, 'HoR WP LichKing'),
+(37226, 26, 5530.97, 2052.98, 730.981, 0, 'HoR WP LichKing'),
+(37226, 27, 5526.75, 2041.73, 731.193, 0, 'HoR WP LichKing'),
+(37226, 28, 5522.88, 2031.65, 731.7, 0, 'HoR WP LichKing'),
+(37226, 29, 5521.01, 2023.02, 732.396, 0, 'HoR WP LichKing'),
+(37226, 30, 5516.55, 2015.36, 733.12, 0, 'HoR WP LichKing'),
+(37226, 31, 5513.06, 2007.33, 733.99, 0, 'HoR WP LichKing'),
+(37226, 32, 5510.43, 1997.9, 735.016, 0, 'HoR WP LichKing'),
+(37226, 33, 5504.53, 1990.39, 735.748, 0, 'HoR WP LichKing'),
+(37226, 34, 5499.34, 1983.78, 736.29, 0, 'HoR WP LichKing'),
+(37226, 35, 5493.11, 1975.86, 736.852, 0, 'HoR WP LichKing'),
+(37226, 36, 5487.58, 1968.81, 737.394, 0, 'HoR WP LichKing'),
+(37226, 37, 5483.12, 1961.78, 738.06, 0, 'HoR WP LichKing'),
+(37226, 38, 5478.33, 1954.2, 739.343, 0, 'HoR WP LichKing'),
+(37226, 39, 5475.2, 1945.84, 740.697, 0, 'HoR WP LichKing'),
+(37226, 40, 5472.15, 1938.02, 741.884, 0, 'HoR WP LichKing'),
+(37226, 41, 5469.26, 1931.34, 742.813, 0, 'HoR WP LichKing'),
+(37226, 42, 5464.23, 1922.25, 744.055, 0, 'HoR WP LichKing'),
+(37226, 43, 5458.43, 1912.96, 745.229, 0, 'HoR WP LichKing'),
+(37226, 44, 5452.26, 1902.95, 747.091, 0, 'HoR WP LichKing'),
+(37226, 45, 5442.44, 1892.51, 749.208, 0, 'HoR WP LichKing'),
+(37226, 46, 5435.67, 1879.7, 751.776, 0, 'HoR WP LichKing'),
+(37226, 47, 5429.03, 1870.73, 753.151, 0, 'HoR WP LichKing'),
+(37226, 48, 5423.72, 1862.16, 754.263, 0, 'HoR WP LichKing'),
+(37226, 49, 5417.21, 1851.7, 755.507, 0, 'HoR WP LichKing'),
+(37226, 50, 5408.94, 1838.38, 757.002, 0, 'HoR WP LichKing'),
+(37226, 51, 5398.8, 1829.61, 757.742, 0, 'HoR WP LichKing'),
+(37226, 52, 5388.47, 1817.95, 759.285, 0, 'HoR WP LichKing'),
+(37226, 53, 5378.23, 1808.5, 760.316, 0, 'HoR WP LichKing'),
+(37226, 54, 5368.5, 1801.35, 760.845, 0, 'HoR WP LichKing'),
+(37226, 55, 5360.86, 1793.16, 762.271, 0, 'HoR WP LichKing'),
+(37226, 56, 5353.62, 1785.4, 763.868, 0, 'HoR WP LichKing'),
+(37226, 57, 5344.78, 1776.09, 765.759, 0, 'HoR WP LichKing'),
+(37226, 58, 5336.38, 1768.67, 767.324, 0, 'HoR WP LichKing'),
+(37226, 59, 5327.56, 1760.12, 769.332, 0, 'HoR WP LichKing'),
+(37226, 60, 5319.62, 1750.7, 771.487, 0, 'HoR WP LichKing'),
+(37226, 61, 5313.12, 1742.99, 773.424, 0, 'HoR WP LichKing'),
+(37226, 62, 5305.41, 1735.79, 775.473, 0, 'HoR WP LichKing'),
+(37226, 63, 5298.93, 1728.16, 777.573, 0, 'HoR WP LichKing'),
+(37226, 64, 5292.54, 1720.37, 779.862, 0, 'HoR WP LichKing'),
+(37226, 65, 5287.11, 1713.96, 781.667, 0, 'HoR WP LichKing'),
+(37226, 66, 5280.14, 1705.21, 784.65, 0, 'HoR WP LichKing'),
+(37226, 67, 5277.98, 1701.28, 785.224, 0, 'HoR WP LichKing');
 
--- Waypoints Sylvanas
-DELETE FROM `script_waypoint` WHERE `entry`=37554;
-INSERT INTO `script_waypoint` (`entry`,`pointid`,`location_x`,`location_y`,`location_z`,`waittime`) VALUES
-(37554, 1 ,5598.72, 2214.62, 731.92, 100),
-(37554, 2 ,5609.16, 2197.27, 731.72, 100),
-(37554, 3 ,5603.20, 2178.98, 730.99, 1000),
-(37554, 4 ,5585.38, 2145.15, 731.11, 0), -- zero: paused by script
-(37554, 5 ,5557.17, 2115.52, 730.88, 100),
-(37554, 6 ,5537.85, 2080.59, 730.96, 1000),
-(37554, 7 ,5523.64, 2045.21, 731.25, 0), -- zero: paused by script
-(37554, 8 ,5516.47, 2012.94, 733.36, 100), 
-(37554, 9 ,5503.78, 1990.06, 735.78, 1000),
-(37554, 10 ,5479.76, 1962.01, 738.34, 100),
-(37554, 11 ,5466.09, 1923.71, 743.88, 0), -- zero: paused by script
-(37554, 12 ,5446.50, 1895.15, 748.77, 100), 	
-(37554, 13 ,5426.25, 1867.75, 753.44, 1000),
-(37554, 14 ,5407.28, 1834.82, 757.53, 100),
-(37554, 15 ,5378.29, 1810.52, 760.13, 1000), 
-(37554, 16 ,5358.85, 1787.17, 763.27, 0), -- zero: paused by script
-(37554, 17 ,5325.15, 1757.24, 769.96, 100),
-(37554, 18 ,5304.65, 1735.27, 775.66, 100),
-(37554, 19 ,5285.97, 1707.51, 782.07, 3000),
-(37554, 20 ,5258.56, 1672.01, 784.30, 0),
-(37554, 21 ,5257.56, 1671.01, 784.30, 0); -- end Sylvanas
+-- Fix ice wall gobjects
+DELETE FROM `gameobject_template` WHERE `entry` =201385;
+INSERT INTO `gameobject_template` (`entry`, `type`, `displayId`, `name`, `IconName`, `castBarCaption`, `unk1`, `faction`, `flags`, `size`, `questItem1`, `questItem2`, `questItem3`, `questItem4`, `questItem5`, `questItem6`, `data0`, `data1`, `data2`, `data3`, `data4`, `data5`, `data6`, `data7`, `data8`, `data9`, `data10`, `data11`, `data12`, `data13`, `data14`, `data15`, `data16`, `data17`, `data18`, `data19`, `data20`, `data21`, `data22`, `data23`, `AIName`, `ScriptName`, `WDBVerified`) VALUES ('201385', '0', '9214', 'Ice Wall', '', '', '', '1375', '1', '2.5', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '', '', '12340');
+DELETE FROM `gameobject_template` WHERE `entry` =201885;
+INSERT INTO `gameobject_template` (`entry`, `type`, `displayId`, `name`, `IconName`, `castBarCaption`, `unk1`, `faction`, `flags`, `size`, `questItem1`, `questItem2`, `questItem3`, `questItem4`, `questItem5`, `questItem6`, `data0`, `data1`, `data2`, `data3`, `data4`, `data5`, `data6`, `data7`, `data8`, `data9`, `data10`, `data11`, `data12`, `data13`, `data14`, `data15`, `data16`, `data17`, `data18`, `data19`, `data20`, `data21`, `data22`, `data23`, `AIName`, `ScriptName`, `WDBVerified`) VALUES ('201885', '0', '9214', 'Ice Wall', '', '', '', '0', '1', '2', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '', '', '12340');
+DELETE FROM `gameobject_template` WHERE `entry` =202396;
+INSERT INTO `gameobject_template` (`entry`, `type`, `displayId`, `name`, `IconName`, `castBarCaption`, `unk1`, `faction`, `flags`, `size`, `questItem1`, `questItem2`, `questItem3`, `questItem4`, `questItem5`, `questItem6`, `data0`, `data1`, `data2`, `data3`, `data4`, `data5`, `data6`, `data7`, `data8`, `data9`, `data10`, `data11`, `data12`, `data13`, `data14`, `data15`, `data16`, `data17`, `data18`, `data19`, `data20`, `data21`, `data22`, `data23`, `AIName`, `ScriptName`, `WDBVerified`) VALUES ('202396', '0', '9214', 'Ice Wall', '', '', '', '114', '33', '2', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '', '', '12340');
+DELETE FROM `gameobject_template` WHERE `entry` =500001;
+INSERT INTO `gameobject_template` (`entry`, `type`, `displayId`, `name`, `IconName`, `castBarCaption`, `unk1`, `faction`, `flags`, `size`, `questItem1`, `questItem2`, `questItem3`, `questItem4`, `questItem5`, `questItem6`, `data0`, `data1`, `data2`, `data3`, `data4`, `data5`, `data6`, `data7`, `data8`, `data9`, `data10`, `data11`, `data12`, `data13`, `data14`, `data15`, `data16`, `data17`, `data18`, `data19`, `data20`, `data21`, `data22`, `data23`, `AIName`, `ScriptName`, `WDBVerified`) VALUES ('500001', '0', '9214', 'Ice Wall', '', '', '', '1375', '1', '2.5', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '', '', '1');
+DELETE FROM `gameobject_template` WHERE `entry` =201596; -- Cave
+INSERT INTO `gameobject_template` (`entry`, `type`, `displayId`, `name`, `IconName`, `castBarCaption`, `unk1`, `faction`, `flags`, `size`, `questItem1`, `questItem2`, `questItem3`, `questItem4`, `questItem5`, `questItem6`, `data0`, `data1`, `data2`, `data3`, `data4`, `data5`, `data6`, `data7`, `data8`, `data9`, `data10`, `data11`, `data12`, `data13`, `data14`, `data15`, `data16`, `data17`, `data18`, `data19`, `data20`, `data21`, `data22`, `data23`, `AIName`, `ScriptName`, `WDBVerified`) VALUES ('201596', '0', '9223', 'Cave In', '', '', '', '1375', '4', '2', '0', '0', '0', '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '', '', '12340');
+-- Gunship models
+DELETE FROM `gameobject_template` WHERE `entry` IN (201709, 500002, 202211, 500003);
+INSERT INTO `gameobject_template` (`entry`, `type`, `displayId`, `name`, `IconName`, `castBarCaption`, `unk1`, `faction`, `flags`, `size`, `questItem1`, `questItem2`, `questItem3`, `questItem4`, `questItem5`, `questItem6`, `data0`, `data1`, `data2`, `data3`, `data4`, `data5`, `data6`, `data7`, `data8`, `data9`, `data10`, `data11`, `data12`, `data13`, `data14`, `data15`, `data16`, `data17`, `data18`, `data19`, `data20`, `data21`, `data22`, `data23`, `AIName`, `ScriptName`, `WDBVerified`) VALUES
+(201709, 5, 9288, 'Gunship Stairs', '', '', '', 0, 1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '', '', 12340),
+(202211, 5, 9289, 'Gunship Stairs', '', '', '', 0, 1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '', '', 12340),
+(500002, 14, 9150, 'The Skybreaker', '', '', '', 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '', '', 1),
+(500003, 14, 8253, 'Orgrim''s Hammer', '', '', '', 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '', '', 1);
+-- Spawn Ships
+DELETE FROM `gameobject` WHERE `id` IN (201709, 500002, 202211, 500003);
+INSERT INTO `gameobject` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`) VALUES
+(150180, 202211, 631, 15, 1, -437.351, 1979.57, 190.897, 0, 0, 0, 0, 1, 6000, 100, 1),
+(150185, 202211, 631, 15, 1, -437.564, 1959.54, 203.37, 0, 0, 0, 0, 1, 6000, 100, 1),
+(153019, 500002, 668, 3, 1, 5247.09, 1586.39, 773.922, 5.86166, 0, 0, 0.209207, -0.977871, 300, 0, 1),
+(153020, 500003, 668, 3, 1, 5245.17, 1582.11, 761.72, 5.86166, 0, 0, 0.209207, -0.977871, 300, 0, 1);
 
--- Waypoints Jayna
-DELETE FROM `script_waypoint` WHERE `entry`=36955;
-INSERT INTO `script_waypoint` (`entry`,`pointid`,`location_x`,`location_y`,`location_z`,`waittime`) VALUES
-(36955, 1 ,5598.72, 2214.62, 731.92, 100),
-(36955, 2 ,5609.16, 2197.27, 731.72, 100),
-(36955, 3 ,5603.20, 2178.98, 730.99, 1000),
-(36955, 4 ,5585.38, 2145.15, 731.11, 0), -- zero: paused by script
-(36955, 5 ,5557.17, 2115.52, 730.88, 100),
-(36955, 6 ,5537.85, 2080.59, 730.96, 1000),
-(36955, 7 ,5523.64, 2045.21, 731.25, 0), -- zero: paused by script
-(36955, 8 ,5516.47, 2012.94, 733.36, 100), 
-(36955, 9 ,5503.78, 1990.06, 735.78, 1000),
-(36955, 10 ,5479.76, 1962.01, 738.34, 100),
-(36955, 11 ,5466.09, 1923.71, 743.88, 0), -- zero: paused by script
-(36955, 12 ,5446.50, 1895.15, 748.77, 100), 
-(36955, 13 ,5426.25, 1867.75, 753.44, 1000),
-(36955, 14 ,5407.28, 1834.82, 757.53, 100),
-(36955, 15 ,5378.29, 1810.52, 760.13, 1000), 
-(36955, 16 ,5358.85, 1787.17, 763.27, 0), -- zero: paused by script
-(36955, 17 ,5325.15, 1757.24, 769.96, 100),
-(36955, 18 ,5304.65, 1735.27, 775.66, 100),
-(36955, 19 ,5285.97, 1707.51, 782.07, 3000),
-(36955, 20 ,5258.56, 1672.01, 784.30, 0),
-(36955, 21 ,5257.56, 1671.01, 784.30, 0); -- end Jayna
-
--- Waypoints LK
-DELETE FROM `script_waypoint` WHERE `entry`=36954;
-INSERT INTO `script_waypoint` (`entry`,`pointid`,`location_x`,`location_y`,`location_z`,`waittime`) VALUES
-(36954, 1 ,5589.85, 2224.90, 733.01, 1000), -- casting sequence, still close to Jayna/Sylvanas anyhow
-(36954, 2 ,5598.72, 2214.62, 731.92, 1),
-(36954, 3 ,5609.16, 2197.27, 731.72, 1),
-(36954, 4 ,5603.20, 2178.98, 730.99, 1),
-(36954, 5 ,5585.38, 2145.15, 731.11, 1), 
-(36954, 6 ,5557.17, 2115.52, 730.88, 1),
-(36954, 7 ,5537.85, 2080.59, 730.96, 1),
-(36954, 8 ,5523.64, 2045.21, 731.25, 1),
-(36954, 9 ,5516.47, 2012.94, 733.36, 1), 
-(36954, 10 ,5503.78, 1990.06, 735.78, 1),
-(36954, 11 ,5479.76, 1962.01, 738.34, 1),
-(36954, 12 ,5466.09, 1923.71, 743.88, 1),
-(36954, 13 ,5446.50, 1895.15, 748.77, 1), 
-(36954, 14 ,5426.25, 1867.75, 753.44, 1),
-(36954, 15 ,5407.28, 1834.82, 757.53, 1),
-(36954, 16 ,5378.29, 1810.52, 760.13, 1), 
-(36954, 17 ,5355.38, 1781.95, 764.33, 1), 
-(36954, 18 ,5325.15, 1757.24, 769.96, 1),
-(36954, 19 ,5304.65, 1735.27, 775.66, 1),
-(36954, 20 ,5285.97, 1707.51, 782.07, 1);
-
--- make gameobjects unusable via database, not in script
-UPDATE `gameobject_template` SET `flags` = 36 WHERE `entry` IN (202302, 202236, 201976, 197341);
-
--- set default phasemask for some gameobjects
-UPDATE `gameobject` SET `phaseMask` = 2 WHERE `id` IN (202212, 202337, 201710, 202336, 201598, 201599, 202079);
-
--- Set some adds attackable and selectable
-UPDATE `creature_template` SET `unit_flags` = 0 WHERE `entry` IN (38177, 38173, 38176, 38175, 38172, 38524, 38525, 38563, 38544, 38564);
-
--- Set some flags for other npcs
-UPDATE `creature_template` SET `unit_flags` = 33554434 WHERE `entry` IN (38112, 38599, 38113, 38603);
-
--- Set some flags for other npcs
-UPDATE `creature_template` SET `unit_flags` = 2 WHERE `entry` IN (36723, 37720);
-
--- Delete default DB spawns of Uther and Lich King
-DELETE FROM `creature` WHERE `id` IN (37225, 37226);
-
--- Set gameobject respawn time default to 1 day
-UPDATE `gameobject` SET `spawntimesecs` = 86400 WHERE `map` = 668;
-
--- Set creature respawn time default to 1 day
-UPDATE `creature` SET `spawntimesecs` = 86400 WHERE `map` = 668;
-
--- Set default mechanic immune mask to boss npcs
-UPDATE `creature_template` SET `mechanic_immune_mask` = 650853247 WHERE `entry` IN (36723, 37720, 38112, 38599, 38113, 38603, 37226, 36954);
-
--- Close door Frostworn -> Lich King by default
-UPDATE `gameobject` SET `state` = 1 WHERE `id` = 197342;
-
--- Open up the ice walls by default
-UPDATE `gameobject` SET `state` = 0 WHERE `id` IN (201385, 201885, 202396, 201911) AND `map` = 668;
-
--- Some faction stuff
-UPDATE `creature_template` SET `faction_A` = 35, `faction_H` = 35 WHERE `entry` IN (37225, 37221, 36955, 37223, 37554, 37582, 37779, 37182, 37833, 37628, 37797);
-UPDATE `creature_template` SET `faction_A` = 113, `faction_H` = 113 WHERE `entry` IN (37221, 36955, 37223, 37554);
-
--- Default health values
-UPDATE `creature` SET `curhealth` = 377468 WHERE `id` = 38112;
-UPDATE `creature` SET `curhealth` = 539240 WHERE `id` = 38113;
-UPDATE `creature` SET `curhealth` = 315000 WHERE `id` = 36723;
-
--- Insert reputation values for trash waves Falric / Marwyn
-DELETE FROM `creature_onkill_reputation` WHERE `creature_id` IN (38177, 38564, 38173, 38525, 38176, 38544, 38175, 38563, 38172, 38524);
-INSERT INTO `creature_onkill_reputation` (creature_id, RewOnKillRepFaction1, RewOnKillRepFaction2, MaxStanding1, IsTeamAward1, RewOnKillRepValue1, MaxStanding2, IsTeamAward2, RewOnKillRepValue2, TeamDependent) VALUES
-(38177, 1037, 1052, 7, 0, 15, 7, 0, 15, 1),
-(38564, 1037, 1052, 7, 0, 15, 7, 0, 15, 1),
-(38173, 1037, 1052, 7, 0, 15, 7, 0, 15, 1),
-(38525, 1037, 1052, 7, 0, 15, 7, 0, 15, 1),
-(38176, 1037, 1052, 7, 0, 15, 7, 0, 15, 1),
-(38544, 1037, 1052, 7, 0, 15, 7, 0, 15, 1),
-(38175, 1037, 1052, 7, 0, 15, 7, 0, 15, 1),
-(38563, 1037, 1052, 7, 0, 15, 7, 0, 15, 1),
-(38172, 1037, 1052, 7, 0, 15, 7, 0, 15, 1),
-(38524, 1037, 1052, 7, 0, 15, 7, 0, 15, 1);
-
--- Default values for several doors
-UPDATE `gameobject_template` SET `faction` = 114, `flags` = `flags` | 4 WHERE `entry` IN (197343, 197342, 201596, 201385, 201885, 202396, 201911, 202211, 201709);
-
--- Quests should be given and accepted by both side npcs
-DELETE FROM `creature_questrelation` WHERE `quest` IN (24802, 24500);
-DELETE FROM `creature_involvedrelation` WHERE `quest` IN (24802, 24500);
-INSERT INTO `creature_questrelation` (id, quest) VALUES
-(37779, 24802),
-(37779, 24500),
-(37582, 24802),
-(37582, 24500);
-INSERT INTO `creature_involvedrelation` (id, quest) VALUES
-(37554, 24802),
-(37554, 24500),
-(36955, 24802),
-(36955, 24500);
-DELETE FROM `creature_questrelation` WHERE `quest` IN (24713, 24711);
-DELETE FROM `creature_involvedrelation` WHERE `quest` IN (24713, 24711);
-INSERT INTO `creature_questrelation` (id, quest) VALUES
-(38188, 24713),
-(38189, 24713),
-(38188, 24711),
-(38189, 24711);
-INSERT INTO `creature_involvedrelation` (id, quest) VALUES
-(37221, 24713),
-(37223, 24713),
-(37221, 24711),
-(37223, 24711);
-
--- Fix several loot templates - ONLY 1 item should drop off each non final boss in Frozen Halls
-UPDATE `creature_loot_template` SET `maxcount` = 1 WHERE `mincountOrRef` IN (-35058, -35057, -35060, -35061, -35053, -35054, -35055, -35056) AND `entry` IN (38112, 38599, 38113, 38603, 36476, 37627, 36494, 37613) AND `maxcount` = 2;
-
--- Set unattackable flag instead of ooc flag for Lich King, so AOE Effect will work
-UPDATE `creature_template` SET `unit_flags` = 2 WHERE `entry` = 36954;
-
--- Fix Marwyn, Falric and Frostsworn General, they should bind to instance on heroic
-UPDATE `creature_template` SET `flags_extra` = 1 WHERE `entry` IN (38603, 38599, 37720);
-
--- Spawn portal to dalaran at the end of instance
-DELETE FROM `gameobject` WHERE `id` = 202079 AND `map` = 668;
-INSERT INTO `gameobject` (id, map, spawnMask, phaseMask, position_x, position_y, position_z, orientation, rotation0, rotation1, rotation2, rotation3, spawntimesecs, animprogress, state) VALUES
-(202079, 668, 3, 2, 5242.23, 1656.34, 784.302, 0.811564, 0, 0, 0.394737, 0.918794, 300, 0, 1);
-
--- Jaina and Sylvanas part 2 should move at same speed
-UPDATE `creature_template` SET `speed_walk` = 1, `speed_run` = 1.14286 WHERE `entry` IN (36955, 37554);
-
--- Add Reference Loots
-SET @RefNormal := 35091;
-SET @RefHeroic := 35092;
-DELETE FROM `reference_loot_template` WHERE `entry` IN (@RefNormal,@RefHeroic);
-INSERT INTO `reference_loot_template` (`entry`,`item`,`ChanceOrQuestChance`,`lootmode`,`groupid`,`mincountOrRef`,`maxcount`) VALUES
--- Normal Loot
-(@RefNormal,49839,0,1,1,1,1), -- Mourning Malice
-(@RefNormal,49840,0,1,1,1,1), -- Hate-Forged Cleaver
-(@RefNormal,49841,0,1,1,1,1), -- Blackened Geist Ribs
-(@RefNormal,49842,0,1,1,1,1), -- Tapestry of the Frozen Throne
-(@RefNormal,49843,0,1,1,1,1), -- Crystalline Citadel Gauntlets
-(@RefNormal,49844,0,1,1,1,1), -- Crypt Fiend Slayer
-(@RefNormal,49845,0,1,1,1,1), -- Bone Golem Scapula
-(@RefNormal,49846,0,1,1,1,1), -- Chilled Heart of the Glacier
-(@RefNormal,49847,0,1,1,1,1), -- Legguards of Untimely Demise
-(@RefNormal,49848,0,1,1,1,1), -- Grim Lasher Shoulderguards
-(@RefNormal,49849,0,1,1,1,1), -- Tattered Glacial-Woven Hood
-(@RefNormal,49851,0,1,1,1,1), -- Greathelm of the Silver Hand
+-- Spawn Gobject
+DELETE FROM `gameobject` WHERE `id` IN ( 201385, 201885, 202396, 500001, 201596, 201709, 500002, 202211, 500003, 202079, 202212, 201710, 202337, 202336 );
+INSERT INTO `gameobject` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`) VALUES
+(121712, 202396, 631, 15, 1, 4309.69, 2491.27, 211.171, 0.209439, 0, 0, 0, 0, 120, 0, 0),
+(150180, 202211, 631, 15, 1, -437.351, 1979.57, 190.897, 0, 0, 0, 0, 1, 6000, 100, 1),
+(150185, 202211, 631, 15, 1, -437.564, 1959.54, 203.37, 0, 0, 0, 0, 1, 6000, 100, 1),
+(150335, 202079, 631, 15, 1, -72.7031, 2282.45, 32.8673, -1.5708, 0, 0, 0, 1, 6000, 100, 1),
+(153005, 201596, 668, 3, 1, 5275.28, 1694.23, 786.147, 0.981225, 0, 0, 0.471166, 0.882044, 25, 0, 0),
+(153006, 500001, 668, 3, 1, 5323.61, 1755.85, 770.305, 0.784186, 0, 0, 0.382124, 0.924111, 604800, 100, 0),
+(153009, 202396, 668, 3, 1, 5434.27, 1881.12, 751.303, 0.923328, 0, 0, 0.445439, 0.895312, 604800, 100, 0),
+(153010, 201885, 668, 3, 1, 5494.3, 1978.27, 736.689, 1.0885, 0, 0, 0.517777, 0.855516, 604800, 100, 0),
+(153015, 201385, 668, 3, 1, 5540.39, 2086.48, 731.066, 1.00057, 0, 0, 0.479677, 0.877445, 604800, 100, 0),
+(153016, 202337, 668, 2, 1, 5252.33, 1585.36, 796.062, 2.80195, 0, 0, 0.985615, 0.169007, 604800, 100, 1),
+(153017, 202336, 668, 2, 1, 5264.22, 1584.94, 794.359, 2.70142, 0, 0, 0.975878, 0.218315, 604800, 100, 1),
+(153018, 202079, 668, 3, 1, 5248.58, 1574.22, 795.209, 0, 0, 0, 0, 1, 604800, 100, 1),
+(153019, 500002, 668, 3, 1, 5247.09, 1586.39, 773.922, 5.86166, 0, 0, 0.209207, -0.977871, 300, 0, 1),
+(153020, 500003, 668, 3, 1, 5245.17, 1582.11, 761.72, 5.86166, 0, 0, 0.209207, -0.977871, 300, 0, 1),
+(153021, 202212, 668, 1, 1, 5253.03, 1585.13, 796.089, 2.75698, 0, 0, 0.981566, 0.191121, 300, 0, 1),
+(153022, 201710, 668, 1, 1, 5262.5, 1582.41, 794.342, 2.75698, 0, 0, 0.981566, 0.191121, 300, 0, 1);
+-- LK adds
+DELETE FROM `creature_template` WHERE `entry` IN (37014, 36940, 36941, 37069, 37550, 37551, 37549);
+INSERT INTO `creature_template` (`entry`, `difficulty_entry_1`, `difficulty_entry_2`, `difficulty_entry_3`, `KillCredit1`, `KillCredit2`, `modelid1`, `modelid2`, `modelid3`, `modelid4`, `name`, `subname`, `IconName`, `gossip_menu_id`, `minlevel`, `maxlevel`, `exp`, `faction_A`, `faction_H`, `npcflag`, `speed_walk`, `speed_run`, `scale`, `rank`, `mindmg`, `maxdmg`, `dmgschool`, `attackpower`, `dmg_multiplier`, `baseattacktime`, `rangeattacktime`, `unit_class`, `unit_flags`, `dynamicflags`, `family`, `trainer_type`, `trainer_spell`, `trainer_class`, `trainer_race`, `minrangedmg`, `maxrangedmg`, `rangedattackpower`, `type`, `type_flags`, `lootid`, `pickpocketloot`, `skinloot`, `resistance1`, `resistance2`, `resistance3`, `resistance4`, `resistance5`, `resistance6`, `spell1`, `spell2`, `spell3`, `spell4`, `spell5`, `spell6`, `spell7`, `spell8`, `PetSpellDataId`, `VehicleId`, `mingold`, `maxgold`, `AIName`, `MovementType`, `InhabitType`, `Health_mod`, `Mana_mod`, `Armor_mod`, `RacialLeader`, `questItem1`, `questItem2`, `questItem3`, `questItem4`, `questItem5`, `questItem6`, `movementId`, `RegenHealth`, `equipment_id`, `mechanic_immune_mask`, `flags_extra`, `ScriptName`, `WDBVerified`) VALUES
+(36940, 37550, 0, 0, 0, 0, 24993, 0, 0, 0, 'Raging Ghoul', '', '', 0, 80, 80, 2, 1771, 1771, 0, 2, 1.42857, 1, 0, 422, 586, 0, 642, 1, 2000, 0, 1, 0, 8, 0, 0, 0, 0, 0, 345, 509, 103, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '', 0, 3, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 151, 1, 0, 8388624, 0, 'npc_raging_gnoul', 12340),
+(36941, 37551, 0, 0, 0, 0, 25245, 0, 0, 0, 'Risen Witch Doctor', '', '', 0, 80, 80, 2, 1771, 1771, 0, 2, 1.42857, 1, 1, 417, 582, 0, 608, 7.5, 2000, 0, 2, 0, 8, 0, 0, 0, 0, 0, 341, 506, 80, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '', 0, 3, 6, 1, 1, 0, 0, 0, 0, 0, 0, 0, 151, 1, 0, 8388624, 0, 'npc_risen_witch_doctor', 12340),
+(37014, 0, 0, 0, 0, 0, 169, 16925, 0, 0, 'Ice Wall Target', '', '', 0, 60, 60, 0, 114, 114, 0, 1, 0.99206, 1, 0, 2, 2, 0, 24, 1, 2000, 0, 1, 33555200, 8, 0, 0, 0, 0, 0, 1, 1, 0, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '', 0, 7, 1.35, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 128, '', 12340),
+(37069, 37549, 0, 0, 0, 0, 30503, 0, 0, 0, 'Lumbering Abomination', '', '', 0, 80, 80, 2, 1771, 1771, 0, 1, 1.14286, 1, 1, 422, 586, 0, 642, 7.5, 2000, 0, 1, 0, 8, 0, 0, 0, 0, 0, 345, 509, 103, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '', 0, 3, 10, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 8388624, 0, 'npc_abon', 12340),
+(37549, 0, 0, 0, 37069, 0, 30503, 0, 0, 0, 'Lumbering Abomination (1)', '', '', 0, 80, 80, 2, 1771, 1771, 0, 1, 1.14286, 1, 1, 422, 586, 0, 642, 13, 0, 0, 1, 0, 8, 0, 0, 0, 0, 0, 345, 509, 103, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '', 0, 3, 15, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 8388624, 0, '', 12340),
+(37550, 0, 0, 0, 36940, 0, 24993, 0, 0, 0, 'Raging Ghoul (1)', '', '', 0, 80, 80, 2, 1771, 1771, 0, 2, 1.42857, 1, 0, 422, 586, 0, 642, 1, 0, 0, 1, 0, 8, 0, 0, 0, 0, 0, 345, 509, 103, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '', 0, 3, 1.5, 1, 1, 0, 0, 0, 0, 0, 0, 0, 151, 1, 0, 8388624, 0, '', 12340),
+(37551, 0, 0, 0, 36941, 0, 25245, 0, 0, 0, 'Risen Witch Doctor (1)', '', '', 0, 80, 80, 2, 1771, 1771, 0, 2, 1.42857, 1, 1, 417, 582, 0, 608, 13, 0, 0, 2, 0, 8, 0, 0, 0, 0, 0, 341, 506, 80, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '', 0, 3, 7.5, 1, 1, 0, 0, 0, 0, 0, 0, 0, 151, 1, 0, 8388624, 0, '', 12340);
+-- Correct spawn
+DELETE FROM `creature` WHERE `id` =37223;
+DELETE FROM `creature` WHERE `id` =37221;
+INSERT INTO `creature` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`) VALUES ('2022910', '37221', '668', '3', '1', '0', '0', '5236.67', '1929.91', '707.695', '0.837758', '604800', '0', '0', '5040000', '881400', '0', '0', '0', '0');
+-- Normal loot
+DELETE FROM `gameobject_loot_template` WHERE `entry` =27985;
+INSERT INTO `gameobject_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `lootmode`, `groupid`, `mincountOrRef`, `maxcount`) VALUES
+(27985, 43102, 100, 1, 0, 1, 1),
+(27985, 47241, 100, 1, 0, 2, 2),
+(27985, 100000, 100, 1, 1, -100000, 2);
+DELETE FROM `reference_loot_template` WHERE `entry` =100000;
+INSERT INTO `reference_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `lootmode`, `groupid`, `mincountOrRef`, `maxcount`) VALUES
+(100000, 49839, 0, 1, 1, 1, 1),
+(100000, 49840, 0, 1, 1, 1, 1),
+(100000, 49841, 0, 1, 1, 1, 1),
+(100000, 49842, 0, 1, 1, 1, 1),
+(100000, 49843, 0, 1, 1, 1, 1),
+(100000, 49844, 0, 1, 1, 1, 1),
+(100000, 49845, 0, 1, 1, 1, 1),
+(100000, 49846, 0, 1, 1, 1, 1),
+(100000, 49847, 0, 1, 1, 1, 1),
+(100000, 49848, 0, 1, 1, 1, 1),
+(100000, 49849, 0, 1, 1, 1, 1),
+(100000, 49851, 0, 1, 1, 1, 1);
 -- Heroic Loot
-(@RefHeroic,50303,0,1,1,1,1), -- Black Icicle
-(@RefHeroic,50302,0,1,1,1,1), -- Liar's Tongue
-(@RefHeroic,50311,0,1,1,1,1), -- Second Helm of the Executioner
-(@RefHeroic,50312,0,1,1,1,1), -- Chestguard of Broken Branches
-(@RefHeroic,50310,0,1,1,1,1), -- Fossilized Ammonite Choker
-(@RefHeroic,50313,0,1,1,1,1), -- Oath of Empress Zoe
-(@RefHeroic,50309,0,1,1,1,1), -- Shriveled Heart
-(@RefHeroic,50314,0,1,1,1,1), -- Strip of Remorse
-(@RefHeroic,50308,0,1,1,1,1), -- Blighted Leather Footpads
-(@RefHeroic,50305,0,1,1,1,1), -- Grinning Skull Boots
-(@RefHeroic,50306,0,1,1,1,1), -- The Lady's Promise
-(@RefHeroic,50304,0,1,1,1,1); -- Hoarfrost Gauntlets
--- Assign to the chest
-DELETE FROM `gameobject_loot_template` WHERE `entry` IN (27985,27993);
-INSERT INTO `gameobject_loot_template` (`entry`,`item`,`ChanceOrQuestChance`,`lootmode`,`groupid`,`mincountOrRef`,`maxcount`) VALUES
-(27985,1,100,1,0,-@RefNormal,2), -- Two from Normal Reference Loot 
-(27993,1,100,1,0,-@RefHeroic,2), -- Two from Heroic Reference Loot
-(27993,43102,85,1,0,1,1); -- Frozen Orb
+DELETE FROM `gameobject_loot_template` WHERE `entry` =27993;
+INSERT INTO `gameobject_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `lootmode`, `groupid`, `mincountOrRef`, `maxcount`) VALUES
+(27993, 43102, 100, 1, 0, 1, 1),
+(27993, 47241, 100, 1, 0, 2, 2),
+(27993, 100000, 100, 1, 1, -100001, 2);
+DELETE FROM `reference_loot_template` WHERE `entry` =100001;
+INSERT INTO `reference_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `lootmode`, `groupid`, `mincountOrRef`, `maxcount`) VALUES
+(100001, 50302, 0, 1, 1, 1, 1),
+(100001, 50303, 0, 1, 1, 1, 1),
+(100001, 50304, 0, 1, 1, 1, 1),
+(100001, 50305, 0, 1, 1, 1, 1),
+(100001, 50306, 0, 1, 1, 1, 1),
+(100001, 50308, 0, 1, 1, 1, 1),
+(100001, 50309, 0, 1, 1, 1, 1),
+(100001, 50310, 0, 1, 1, 1, 1),
+(100001, 50311, 0, 1, 1, 1, 1),
+(100001, 50312, 0, 1, 1, 1, 1),
+(100001, 50313, 0, 1, 1, 1, 1),
+(100001, 50314, 0, 1, 1, 1, 1);
+-- Fix portal spell
+UPDATE `gameobject_template` SET `data0`='53141' WHERE `entry`=202079;
 
--- Queldelar (37158)
-REPLACE INTO `creature_template` (`entry`, `difficulty_entry_1`, `difficulty_entry_2`, `difficulty_entry_3`, `KillCredit1`, `KillCredit2`, `modelid1`, `modelid2`, `modelid3`, `modelid4`, `name`, `subname`, `IconName`, `gossip_menu_id`, `minlevel`, `maxlevel`, `exp`, `faction_A`, `faction_H`, `npcflag`, `speed_walk`, `speed_run`, `scale`, `rank`, `mindmg`, `maxdmg`, `dmgschool`, `attackpower`, `dmg_multiplier`, `baseattacktime`, `rangeattacktime`, `unit_class`, `unit_flags`, `dynamicflags`, `family`, `trainer_type`, `trainer_spell`, `trainer_class`, `trainer_race`, `minrangedmg`, `maxrangedmg`, `rangedattackpower`, `type`, `type_flags`, `lootid`, `pickpocketloot`, `skinloot`, `resistance1`, `resistance2`, `resistance3`, `resistance4`, `resistance5`, `resistance6`, `spell1`, `spell2`, `spell3`, `spell4`, `spell5`, `spell6`, `spell7`, `spell8`, `PetSpellDataId`, `VehicleId`, `mingold`, `maxgold`, `AIName`, `MovementType`, `InhabitType`, `Health_mod`, `Mana_mod`, `Armor_mod`, `RacialLeader`, `questItem1`, `questItem2`, `questItem3`, `questItem4`, `questItem5`, `questItem6`, `movementId`, `RegenHealth`, `equipment_id`, `mechanic_immune_mask`, `flags_extra`, `ScriptName`, `WDBVerified`) VALUES (37158, 0, 0, 0, 0, 0, 30547, 30547, 0, 0, 'Quel\'Delar', '', '', 0, 80, 80, 2, 14, 14, 0, 1, 1.14286, 1, 1, 422, 586, 0, 642, 7.5, 0, 0, 1, 0, 8, 0, 0, 0, 0, 0, 345, 509, 103, 10, 0, 37158, 0, 0, 0, 0, 0, 0, 0, 0, 67541, 29426, 16856, 67716, 0, 0, 0, 0, 0, 0, 0, 0, '', 0, 5, 17, 5, 1, 0, 50254, 0, 0, 0, 0, 0, 0, 1, 3002, 0, 0, 'npc_queldelar_schwert', 12340);
-
--- Loot
-DELETE FROM `creature_loot_template` WHERE (`entry`=37158);
-INSERT INTO `creature_loot_template` VALUES 
-(37158, 50254, -100, 1, 0, 1, 1);
-
--- Equipment (Bildet später das sichtbare Schwert)
-DELETE FROM `creature_equip_template` WHERE (`entry`=3002);
-INSERT INTO `creature_equip_template` VALUES ('3002', '50048', '0', '0');
-
--- Queldelar Trigger
-REPLACE INTO `creature_template` (`entry`, `difficulty_entry_1`, `difficulty_entry_2`, `difficulty_entry_3`, `KillCredit1`, `KillCredit2`, `modelid1`, `modelid2`, `modelid3`, `modelid4`, `name`, `subname`, `IconName`, `gossip_menu_id`, `minlevel`, `maxlevel`, `exp`, `faction_A`, `faction_H`, `npcflag`, `speed_walk`, `speed_run`, `scale`, `rank`, `mindmg`, `maxdmg`, `dmgschool`, `attackpower`, `dmg_multiplier`, `baseattacktime`, `rangeattacktime`, `unit_class`, `unit_flags`, `dynamicflags`, `family`, `trainer_type`, `trainer_spell`, `trainer_class`, `trainer_race`, `minrangedmg`, `maxrangedmg`, `rangedattackpower`, `type`, `type_flags`, `lootid`, `pickpocketloot`, `skinloot`, `resistance1`, `resistance2`, `resistance3`, `resistance4`, `resistance5`, `resistance6`, `spell1`, `spell2`, `spell3`, `spell4`, `spell5`, `spell6`, `spell7`, `spell8`, `PetSpellDataId`, `VehicleId`, `mingold`, `maxgold`, `AIName`, `MovementType`, `InhabitType`, `Health_mod`, `Mana_mod`, `Armor_mod`, `RacialLeader`, `questItem1`, `questItem2`, `questItem3`, `questItem4`, `questItem5`, `questItem6`, `movementId`, `RegenHealth`, `equipment_id`, `mechanic_immune_mask`, `flags_extra`, `ScriptName`, `WDBVerified`) VALUES (37704, 0, 0, 0, 0, 0, 20570, 17612, 0, 0, 'Frostmourne Altar Bunny (Quel\'Delar)', '', '', 0, 80, 80, 2, 114, 114, 0, 1, 1.14286, 1, 0, 2, 2, 0, 24, 1, 2000, 0, 1, 33555200, 8, 0, 0, 0, 0, 0, 1, 1, 0, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '', 0, 3, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 'npc_queldelar', 12340);
-
-DELETE FROM `creature` WHERE `id`=37704;
-INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`,`npcflag`,`unit_flags`,`dynamicflags`) VALUES
-(303475, 37704, 668, 3, 1, 17612, 0, 5309.14, 2006.21, 715.783, 3.9619, 86400, 0, 0, 12600, 0, 0, 0, 0, 0);
-
-UPDATE `creature_template` SET `unit_flags`= 0 WHERE `entry` IN (
-38177,
-38173,
-38176,
-38175,
-38172,
-37906);
+-- Creature Text
+DELETE FROM `creature_text` WHERE `entry` IN (37221, 37225, 37223, 36954, 38112, 38113, 36955, 37554, 37226, 36723, 37182, 37833, 38177, 38173, 38176, 38175, 38172);
+INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) VALUES
+(37221, 0, 0, "The chill of this place... Brr... I can feel my blood freezing.", 14, 0, 10, 0, 0, 16631, "Jaina HoR Alliance Intro 1"),
+(37221, 1, 0, "What is that! Up ahead! Could it be? Heroes, at my side!", 14, 0, 10, 0, 0, 16632, "Jaina HoR Alliance Intro 2"),
+(37221, 2, 0, "Frostmourne: the blade that destroyed our kingdom...", 14, 0, 10, 0, 0, 16633, "Jaina HoR Alliance Intro 3"),
+(37221, 3, 0, "Stand back! Touch that blade and your soul will be scarred for all eternity! I must attempt to commune with the spirits locked away within Frostmourne. Give me space. Back up, please.", 14, 0, 10, 0, 0, 16634, "Jaina HoR Alliance Intro 4"),
+(37225, 0, 0, "Jaina! Could it truly be you?", 12, 0, 10, 0, 0, 16666, "Uther HoR Alliance Intro 5"),
+(37221, 4, 0, "Uther! Dear Uther! I... I'm so sorry.", 12, 0, 10, 0, 0, 16635, "Jaina HoR Alliance Intro 6"),
+(37225, 1, 0, "Jaina you haven't much time. The Lich King sees what the sword sees. He will be here shortly!", 12, 0, 10, 0, 0, 16667, "Uther HoR Alliance Intro 7"),
+(37221, 5, 0, "Arthas is here? Maybe I...", 12, 0, 10, 0, 0, 16636, "Jaina HoR Alliance Intro 8"),
+(37225, 2, 0, "No, girl. Arthas is not here. Arthas is merely a presence within the Lich King's mind. A dwindling presence...", 12, 0, 10, 0, 0, 16668, "Uther HoR Alliance Intro 9"),
+(37221, 6, 0, "But Uther, if there's any hope of reaching Arthas. I... I must try.", 12, 0, 10, 0, 0, 16637, "Jaina HoR Alliance Intro 10"),
+(37225, 3, 0, "Jaina, listen to me. You must destroy the Lich King. You cannot reason with him. He will kill you and your allies and raise you all as powerful soldiers of the Scourge.", 12, 0, 10, 0, 0, 16669, "Uther HoR Alliance Intro 11"),
+(37221, 7, 0, "Tell me how, Uther? How do I destroy my prince? My...", 12, 0, 10, 0, 0, 16638, "Jaina HoR Alliance Intro 12"),
+(37225, 4, 0, "Snap out of it, girl. You must destroy the Lich King at the place where he merged with Ner'zhul - atop the spire, at the Frozen Throne. It is the only way.", 12, 0, 10, 0, 0, 16670, "Uther HoR Alliance Intro 13"),
+(37221, 8, 0, "You're right, Uther. Forgive me. I... I don't know what got a hold of me. We will deliver this information to the King and the knights that battle the Scourge within Icecrown Citadel.", 12, 0, 10, 0, 0, 16639, "Jaina HoR Alliance Intro 14"),
+(37225, 5, 0, "There is... something else that you should know about the Lich King. Control over the Scourge must never be lost. Even if you were to strike down the Lich King, another would have to take his place. For without the control of its master, the Scourge would run rampant across the world - destroying all living things.", 12, 0, 10, 0, 0, 16671, "Uther HoR Alliance Intro 15"),
+(37225, 6, 0, "A grand sacrifice by a noble soul...", 12, 0, 10, 0, 0, 16672, "Uther HoR Alliance Intro 16"),
+(37221, 9, 0, "Who could bear such a burden?", 12, 0, 10, 0, 0, 16640, "Jaina HoR Alliance Intro 17"),
+(37225, 7, 0, "I do not know, Jaina. I suspect that the piece of Arthas that might be left inside the Lich King is all that holds the Scourge from annihilating Azeroth.", 12, 0, 10, 0, 0, 16673, "Uther HoR Alliance Intro 18"),
+(37221, 10, 0, "Then maybe there is still hope...", 12, 0, 10, 0, 0, 16641, "Jaina HoR Alliance Intro 19"),
+(37225, 8, 0, "No, Jaina! ARRRRRRGHHHH... He... He is coming. You... You must...", 12, 0, 10, 0, 0, 16674, "Uther HoR Alliance Intro 20"),
+(37223, 0, 0, "I... I don't believe it! Frostmourne stands before us, unguarded! Just as the Gnome claimed. Come, heroes!", 14, 0, 10, 0, 0, 17049, "Sylvanas HoR Horde Intro 1"),
+(37223, 1, 0, "Standing this close to the blade that ended my life... The pain... It is renewed.", 14, 0, 10, 0, 0, 17050, "Sylvanas HoR Horde Intro 2"),
+(37223, 2, 0, "I dare not touch it. Stand back! Stand back as I attempt to commune with the blade! Perhaps our salvation lies within...", 14, 0, 10, 0, 0, 17051, "Sylvanas HoR Horde Intro 3"),
+(37225, 9, 0, "Careful, girl. I've heard talk of that cursed blade saving us before. Look around you and see what has been born of Frostmourne.", 12, 0, 10, 0, 0, 16659, "Uther HoR Horde Intro 4"),
+(37223, 3, 0, "Uther...Uther the Lightbringer. How...", 12, 0, 10, 0, 0, 17052, "Sylvanas HoR Horde Intro 5"),
+(37225, 10, 0, "You haven't much time. The Lich King sees what the sword sees. He will be here shortly.", 12, 0, 10, 0, 0, 16660, "Uther HoR Horde Intro 6"),
+(37223, 4, 0, "The Lich King is here? Then my destiny shall be fulfilled today!", 12, 0, 10, 0, 0, 17053, "Sylvanas HoR Horde Intro 7"),
+(37225, 11, 0, "You cannot defeat the Lich King. Not here. You would be a fool to try. He will kill those who follow you and raise them as powerful servants of the Scourge. But for you, Sylvanas, his reward for you would be worse than the last.", 12, 0, 10, 0, 0, 16661, "Uther HoR Horde Intro 8"),
+(37223, 5, 0, "There must be a way... ", 12, 0, 10, 0, 0, 17054, "Sylvanas HoR Horde Intro 9"),
+(37225, 12, 0, "Perhaps, but know this: there must always be a Lich King. Even if you were to strike down Arthas, another would have to take his place, for without the control of the Lich King, the Scourge would wash over this world like locusts, destroying all that they touched.", 12, 0, 10, 0, 0, 16662, "Uther HoR Horde Intro 10"),
+(37223, 6, 0, "Who could bear such a burden?", 12, 0, 10, 0, 0, 17055, "Sylvanas HoR Horde Intro 11"),
+(37225, 13, 0, "I do not know, Banshee Queen. I suspect that the piece of Arthas that might be left inside the Lich King is all that holds the Scourge from annihilating Azeroth.", 12, 0, 10, 0, 0, 16663, "Uther HoR Horde Intro 12"),
+(37225, 14, 0, "Alas, the only way to defeat the Lich King is to destroy him at the place he was created.", 12, 0, 10, 0, 0, 16664, "Uther HoR Horde Intro 13"),
+(37223, 7, 0, "The Frozen Throne...", 12, 0, 10, 0, 0, 17056, "Sylvanas HoR Horde Intro 14"),
+(37225, 15, 0, "Aye. ARRRRRRGHHHH... He... He is coming. You... You must...", 12, 0, 10, 0, 0, 16665, "Uther HoR Horde Intro 15"),
+(36954, 0, 0, "SILENCE, PALADIN!", 14, 0, 10, 0, 0, 17225, "HoR Intro LK 1"),
+(36954, 1, 0, "So you wish to commune with the dead? You shall have your wish.", 14, 0, 10, 0, 0, 17226, "HoR Intro LK 2"),
+(36954, 2, 0, "Falric. Marwyn. Bring their corpses to my chamber when you are through.", 14, 0, 10, 0, 0, 17227, "HoR Intro LK 3"),
+(38112, 5, 0, "As you wish, my lord.", 14, 0, 10, 0, 0, 16717, "HoR Intro LK 4"),
+(38113, 5, 0, "As you wish, my lord.", 14, 0, 10, 0, 0, 16741, "HoR Intro LK 5"),
+(38112, 6, 0, "Soldiers of Lordaeron, rise to meet your master's call!", 14, 0, 10, 0, 0, 16714, "HoR Intro LK 6"),
+(37221, 11, 0, "You won't deny me this Arthas! I must know! I must find out!", 14, 0, 10, 0, 0, 16642, "HoR Alliance Intro 20"),
+(37223, 8, 0, "You will not escape me that easily, Arthas! I will have my vengeance!", 12, 0, 10, 0, 0, 17057, "Sylvanas HoR Horde Intro 16"),
+(36954, 3, 0, "Foolish girl, you seek that which I killed long ago. He is merely a ghost now, a faint echo in my mind.", 14, 0, 10, 0, 0, 17229, "HoR Intro LK 7 Alliance"),
+(36954, 4, 0, "I will not make the same mistake again Sylvanas, this time there will be no escape. You failed to serve me in undeath, now all that remains for you is oblivion.", 14, 0, 10, 0, 0, 17228, "HoR Intro LK 7 Horde"),
+(37226, 0, 0, "Your allies have arrived, Jaina, just as you promised. You will all become powerful agents of the Scourge.", 14, 0, 10, 0, 0, 17212, "HoR Escape Alliance 1"),
+(37226, 1, 0, "I will not make the same mistake again, Sylvanas. This time there will be no escape. You will all serve me in death!", 14, 0, 10, 0, 0, 17213, "HoR Escape Horde 1"),
+(36955, 0, 0, "He is too powerful, we must leave this place at once! My magic will hold him in place for only a short time! Come quickly, heroes!", 14, 0, 10, 0, 0, 16644, "HoR Escape Alliance 2"),
+(37554, 0, 0, "He's too powerful! Heroes, quickly, come to me! We must leave this place immediately! I will do what I can do hold him in place while we flee.", 14, 0, 10, 0, 0, 17058, "HoR Escape Horde 2"),
+(36955, 1, 0, "I will destroy this barrier. You must hold the undead back!", 14, 0, 10, 0, 0, 16607, "HoR Escape Alliance 3 Wall 1"),
+(37554, 1, 0, "No wall can hold the Banshee Queen! Keep the undead at bay, heroes! I will tear this barrier down!", 14, 0, 10, 0, 0, 17029, "HoR Escape Horde 3 Wall 1"),
+(37226, 2, 0, "Succumb to the chill of the grave.", 14, 0, 10, 0, 0, 17218, "HoR Escape 4 LK"),
+(36955, 2, 0, "Another ice wall! Keep the undead from interrupting my incantation so that I may bring this wall down!", 14, 0, 10, 0, 0, 16608, "HoR Escape Alliance 5 Wall 2"),
+(37554, 2, 0, "Another barrier? Stand strong, champions! I will bring the wall down!", 14, 0, 10, 0, 0, 17030, "HoR Escape Horde 5 Wall 2"),
+(37226, 3, 0, "Another dead end.", 14, 0, 10, 0, 0, 17219, "HoR Escape 6 LK"),
+(36955, 3, 0, "He's playing with us! I'll show him what happens to ice when it meets fire!", 14, 0, 10, 0, 0, 16609, "HoR Escape Alliance 7 Wall 3"),
+(37554, 3, 0, "I grow tired of these games, Arthas! Your walls can't stop me!", 14, 0, 10, 0, 0, 17031, "HoR Escape Horde 7 Wall 3"),
+(37226, 4, 0, "How long can you fight it?", 14, 0, 10, 0, 0, 17220, "HoR Escape 8 LK"),
+(36955, 4, 0, "Your barriers can't hold us back much longer, monster. I will shatter them all!", 14, 0, 10, 0, 0, 16610, "HoR Escape Alliance 9 Wall 4"),
+(37554, 4, 0, "You won't impede our escape, fiend. Keep the undead off me while I bring this barrier down!", 14, 0, 10, 0, 0, 17032, "HoR Escape Horde 9 Wall 4"),
+(36955, 5, 0, "There's an opening up ahead. GO NOW!", 14, 0, 10, 0, 0, 16645, "HoR Escape Alliance 10"),
+(37554, 5, 0, "There's an opening up ahead. GO NOW!", 14, 0, 10, 0, 0, 17059, "HoR Escape Horde 10"),
+(36955, 6, 0, "We're almost there... Don't give up!", 14, 0, 10, 0, 0, 16646, "HoR Escape Alliance 11"),
+(37554, 6, 0, "We're almost there... Don't give up!", 14, 0, 10, 0, 0, 17060, "HoR Escape Horde 11"),
+(36955, 7, 0, "It... It's a dead end. We have no choice but to fight. Steel yourself heroes, for this is our last stand!", 14, 0, 10, 0, 0, 16647, "HoR Escape Alliance 12"),
+(37554, 7, 0, "BLASTED DEAD END! So this is how it ends. Prepare yourselves, heroes, for today we make our final stand!", 14, 0, 10, 0, 0, 17061, "HoR Escape Horde 12"),
+(37182, 0, 0, "Fire! FIRE!", 14, 0, 10, 0, 0, 16721, "HoR Escape Alliance 14"),
+(37833, 0, 0, "Fire! FIRE!", 14, 0, 10, 0, 0, 16732, "HoR Escape Horde 14"),
+(37182, 1, 0, "Quickly, climb aboard! We mustn't tarry here! There's no telling when this whole mountainside will collapse.", 14, 0, 10, 0, 0, 16722, "HoR Escape Alliance 15"),
+(37833, 1, 0, "Get onboard, now! This whole mountainside could collapse at any moment.", 14, 0, 10, 0, 0, 16733, "HoR Escape Horde 15"),
+(36955, 8, 0, "Forgive me, heroes. I should have listened to Uther. I... I just had to see for myself. To look into his eyes one last time. I am sorry.", 14, 0, 10, 0, 0, 16648, "HoR Escape Alliance 16"),
+(37554, 8, 0, " We are safe, for now. His strength has increased ten-fold since our last battle! It will take a mighty army to destroy the Lich King, an army greater than even the Horde can rouse.", 14, 0, 10, 0, 0, 17062, "HoR Escape Horde 16"),
+(36955, 9, 0, "We now know what must be done. I will deliver this news to King Varian and Highlord Fordring.", 14, 0, 10, 0, 0, 16649, "HoR Escape Alliance 16"),
+(37226, 5, 0, "There is no escape!", 14, 0, 10, 0, 0, 17217, "boss_the_lich_king_hor 1"),
+(37226, 6, 0, "Succumb to the chill of the grave.", 14, 0, 10, 0, 0, 17218, "boss_the_lich_king_hor 2"),
+(37226, 7, 0, "Rise minions, do not left them us!", 14, 0, 10, 0, 0, 17216, "boss_the_lich_king_hor 3"),
+(37226, 8, 0, "Minions seize them.  Bring their corpses back to me!", 14, 0, 10, 0, 0, 17222, "boss_the_lich_king_hor 4"),
+(37226, 9, 0, "Death's cold embrace awaits.", 14, 0, 10, 0, 0, 17221, "boss_the_lich_king_hor 5"),
+(37226, 10, 0, "Nowhere to run! You're mine now...", 14, 0, 10, 0, 0, 17223, "boss_the_lich_king_hor 6"),
+(37226, 11, 0, "All is lost!", 14, 0, 10, 0, 0, 17215, "boss_the_lich_king_hor wipe"),
+(38112, 0, 0, "Men, women and children... None were spared the master's wrath. Your death will be no different.", 14, 0, 10, 0, 0, 16710, "HoR Falric Aggro"),
+(38112, 1, 0, "Sniveling maggot!", 14, 0, 10, 0, 0, 16711, "HoR Falric Slay 1"),
+(38112, 1, 1, "The children of Stratholme fought with more ferocity!", 14, 0, 10, 0, 0, 16712, "HoR Falric Slay 2"),
+(38112, 2, 0, "Despair... so delicious...", 14, 0, 10, 0, 0, 16715, "HoR Falric Impending Despair"),
+(38112, 3, 0, "Fear... so exhilarating...", 14, 0, 10, 0, 0, 16716, "HoR Falric Defiling Horor"),
+(38112, 4, 0, "Marwyn, finish them...", 14, 0, 10, 0, 0, 16713, "HoR Falric Death"),
+(38113, 0, 0, "Death is all that you will find here!", 14, 0, 10, 0, 0, 16734, "HoR Marwyn Aggro"),
+(38113, 1, 0, "I saw the same look in his eyes when he died. Terenas could hardly believe it. Hahahaha!", 14, 0, 10, 0, 0, 16735, "HoR Marwyn Slay 1"),
+(38113, 1, 1, "Choke on your suffering!", 14, 0, 10, 0, 0, 16736, "HoR Marwyn Slay 2"),
+(38113, 2, 0, "Your flesh has decayed before your very eyes!", 14, 0, 10, 0, 0, 16739, "HoR Marwyn Corrupted Flesh"),
+(38113, 3, 0, "Waste away into nothingness!", 14, 0, 10, 0, 0, 16734, "HoR Marwyn Well of Corruption"),
+(38113, 4, 0, "Yes... Run... Run to meet your destiny... Its bitter, cold embrace, awaits you.", 14, 0, 10, 0, 0, 16737, "HoR Marwyn Death"),
+(36723, 0, 0, "You are not worthy to face the Lich King!", 14, 0, 10, 0, 0, 16921, "HoR FrostSworn General Aggro"),
+(36723, 1, 0, "Master, I have failed...", 14, 0, 10, 0, 0, 16922, "HoR FrostSworn General Death"),
+(38177, 0, 0, 'This is not our final rest.', 12, 0, 10, 0, 0, 0, 'HoR Trash death'),
+(38173, 0, 0, 'This is not our final rest.', 12, 0, 10, 0, 0, 0, 'HoR Trash death'),
+(38176, 0, 0, 'This is not our final rest.', 12, 0, 10, 0, 0, 0, 'HoR Trash death'),
+(38175, 0, 0, 'This is not our final rest.', 12, 0, 10, 0, 0, 0, 'HoR Trash death'),
+(38172, 0, 0, 'This is not our final rest.', 12, 0, 10, 0, 0, 0, 'HoR Trash death'),
+(38177, 0, 1, 'All serve the master in death.', 12, 0, 10, 0, 0, 0, 'HoR Trash death'),
+(38173, 0, 1, 'All serve the master in death.', 12, 0, 10, 0, 0, 0, 'HoR Trash death'),
+(38176, 0, 1, 'All serve the master in death.', 12, 0, 10, 0, 0, 0, 'HoR Trash death'),
+(38175, 0, 1, 'All serve the master in death.', 12, 0, 10, 0, 0, 0, 'HoR Trash death'),
+(38172, 0, 1, 'All serve the master in death.', 12, 0, 10, 0, 0, 0, 'HoR Trash death'),
+(38177, 0, 2, 'Our souls will never be freed.', 12, 0, 10, 0, 0, 0, 'HoR Trash death'),
+(38173, 0, 2, 'Our souls will never be freed.', 12, 0, 10, 0, 0, 0, 'HoR Trash death'),
+(38176, 0, 2, 'Our souls will never be freed.', 12, 0, 10, 0, 0, 0, 'HoR Trash death'),
+(38175, 0, 2, 'Our souls will never be freed.', 12, 0, 10, 0, 0, 0, 'HoR Trash death'),
+(38172, 0, 2, 'Our souls will never be freed.', 12, 0, 10, 0, 0, 0, 'HoR Trash death');
