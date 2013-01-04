@@ -3624,11 +3624,6 @@ void SpellMgr::LoadSpellInfoCorrections()
                 // Aura is refreshed at 3 seconds, and the tick should happen at the fourth.
                 spellInfo->AttributesEx8 |= SPELL_ATTR8_DONT_RESET_PERIODIC_TIMER;
                 break;
-            // Earthrager Ptah
-            case 94974:
-                // Hacked as a timed event until SPELL_EFFECT_TRIGGER_MISSILE is correctly fixed.
-                spellInfo->Effects[EFFECT_0].TriggerSpell = 0;
-                break;
             default:
                 break;
         }

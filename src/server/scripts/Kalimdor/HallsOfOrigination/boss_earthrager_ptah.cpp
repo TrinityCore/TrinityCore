@@ -45,7 +45,6 @@ enum Spells
     SPELL_RAGING_SMASH              = 83650,
     SPELL_FLAME_BOLT                = 77370,
     SPELL_EARTH_SPIKE_WARN          = 94974,
-    SPELL_EARTH_SPIKE_ERUPT         = 75339,
     
     SPELL_PTAH_EXPLOSION            = 75519,
     SPELL_SANDSTORM                 = 75491,
@@ -89,22 +88,6 @@ public:
 protected:
     InstanceScript* _instance;
     Unit* _owner;
-};
-
-class EruptEarthSpike : public BasicEvent
-{
-public:
-    EruptEarthSpike(Unit* caster, WorldLocation const target) : _caster(caster), _target(target) { }
-
-    bool Execute(uint64 execTime, uint32 /*diff*/)
-    {
-        _caster->CastSpell(_target.GetPositionX(), _target.GetPositionY(), _target.GetPositionZ(), SPELL_EARTH_SPIKE_ERUPT, true);
-        return true;
-    }
-
-protected:
-    Unit* _caster;
-    WorldLocation const _target;
 };
 
 class boss_earthrager_ptah : public CreatureScript
@@ -315,34 +298,6 @@ class spell_earthrager_ptah_flame_bolt : public SpellScriptLoader
         }
 };
 
-class spell_earthrager_ptah_earth_spike : public SpellScriptLoader
-{
-public:
-    spell_earthrager_ptah_earth_spike() : SpellScriptLoader("spell_earthrager_ptah_earth_spike") { }
-
-    class spell_earthrager_ptah_earth_spike_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_earthrager_ptah_earth_spike_SpellScript);
-
-        void Launch(SpellEffIndex index)
-        {
-            PreventHitDefaultEffect(index);
-            // Erupt the spike in 4 seconds.
-            GetCaster()->m_Events.AddEvent(new EruptEarthSpike(GetCaster(), *GetExplTargetDest()), GetCaster()->m_Events.CalculateTime(4000));
-        }
-
-        void Register()
-        {
-            OnEffectHit += SpellEffectFn(spell_earthrager_ptah_earth_spike_SpellScript::Launch, EFFECT_0, SPELL_EFFECT_TRIGGER_MISSILE);
-        }
-    };
-
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_earthrager_ptah_earth_spike_SpellScript();
-    }
-};
-
 class spell_earthrager_ptah_explosion : public SpellScriptLoader
 {
 public:
@@ -387,6 +342,5 @@ void AddSC_boss_earthrager_ptah()
 {
     new boss_earthrager_ptah();
     new spell_earthrager_ptah_flame_bolt();
-    new spell_earthrager_ptah_earth_spike();
     new spell_earthrager_ptah_explosion();
 }
