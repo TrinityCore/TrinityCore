@@ -2011,7 +2011,6 @@ void Spell::SendLoot(uint64 guid, LootType loottype)
             case GAMEOBJECT_TYPE_DOOR:
             case GAMEOBJECT_TYPE_BUTTON:
                 gameObjTarget->UseDoorOrButton(0, false, player);
-                player->GetMap()->ScriptsStart(sGameObjectScripts, gameObjTarget->GetDBTableGUIDLow(), player, gameObjTarget);
                 return;
 
             case GAMEOBJECT_TYPE_QUESTGIVER:
