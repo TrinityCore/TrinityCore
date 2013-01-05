@@ -16,6 +16,7 @@
  */
 
 #include "ScriptMgr.h"
+#include "SpellScript.h"
 #include "ScriptedCreature.h"
 #include "drak_tharon_keep.h"
 
@@ -59,7 +60,8 @@ struct SummonerInfo
     uint32 data, spell, timer;
 };
 
-const SummonerInfo summoners[] = {
+const SummonerInfo summoners[] =
+{
     { DATA_NOVOS_SUMMONER_1, SPELL_SUMMON_RISEN_SHADOWCASTER, 15000 },
     { DATA_NOVOS_SUMMONER_2, SPELL_SUMMON_FETID_TROLL_CORPSE, 5000 },
     { DATA_NOVOS_SUMMONER_3, SPELL_SUMMON_HULKING_CORPSE, 30000 },
