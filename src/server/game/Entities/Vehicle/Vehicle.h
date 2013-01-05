@@ -22,6 +22,7 @@
 #include "ObjectDefines.h"
 #include "Object.h"
 #include "VehicleDefines.h"
+#include "Unit.h"
 
 struct VehicleEntry;
 
