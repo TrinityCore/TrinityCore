@@ -1287,11 +1287,6 @@ INSERT INTO `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `comm
 (57055, -56648, 2, 'Remove Potent Fungus - Amanitar encounter'),
 (56648, -57055, 2, 'Remove Mini - Amanitar encounter');
 
--- First RDF reward changed from EoF to 1 EoT
-UPDATE `quest_template` SET `RewardItemId1` = 49426, `RewardItemCount1` = 1 WHERE `Id` = 24788;
-
--- Weekly raid quests "X Must Die!" reward changed from 5 x EoF + 5 x EoT to 10 x EoT only
-UPDATE `quest_template` SET `RewardItemId1` = 47241, `RewardItemId2` = 0, `RewardItemCount1` = 10, `RewardItemCount2` = 0 WHERE `id` IN(24579, 24582, 24583, 24584, 24590, 24580, 24581, 24587, 24585, 24588, 24586, 24589);
 
 -- Tainted Helboar Meat should not have quest dependency
 UPDATE `creature_loot_template` SET `ChanceOrQuestChance` =100 WHERE `item` = 23270 AND `entry` IN(16992, 16879, 16863, 16880);
