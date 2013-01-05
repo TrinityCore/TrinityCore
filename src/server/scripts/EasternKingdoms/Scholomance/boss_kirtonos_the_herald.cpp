@@ -38,7 +38,7 @@ enum Spells
 
     SPELL_SHADOW_BOLT                 = 17228,
     SPELL_CURSE_OF_TONGUES            = 12889,
-    SPELL_DONINATE_MIND               = 14515
+    SPELL_DOMINATE_MIND               = 14515
 };
 
 enum Events
@@ -55,7 +55,7 @@ enum Events
     EVENT_DISARM                      = 10,
     EVENT_SHADOW_BOLT                 = 11,
     EVENT_CURSE_OF_TONGUES            = 12,
-    EVENT_DONINATE_MIND               = 13,
+    EVENT_DOMINATE_MIND               = 13,
     EVENT_KIRTONOS_TRANSFORM          = 14
 };
 
@@ -113,7 +113,7 @@ class boss_kirtonos_the_herald : public CreatureScript
                 events.ScheduleEvent(EVENT_DISARM, urand(22000, 22000));
                 events.ScheduleEvent(EVENT_SHADOW_BOLT, urand(42000, 42000));
                 events.ScheduleEvent(EVENT_CURSE_OF_TONGUES, urand(53000, 53000));
-                events.ScheduleEvent(EVENT_DONINATE_MIND, urand(34000, 48000));
+                events.ScheduleEvent(EVENT_DOMINATE_MIND, urand(34000, 48000));
                 events.ScheduleEvent(EVENT_KIRTONOS_TRANSFORM, urand(20000, 20000));
                 _EnterCombat();
             }
@@ -258,9 +258,9 @@ class boss_kirtonos_the_herald : public CreatureScript
                             DoCastVictim(SPELL_CURSE_OF_TONGUES, true);
                             events.ScheduleEvent(EVENT_CURSE_OF_TONGUES, 35000);
                             break;
-                        case EVENT_DONINATE_MIND:
-                            DoCastVictim(SPELL_DONINATE_MIND, true);
-                            events.ScheduleEvent(EVENT_DONINATE_MIND, urand(44000, 48000));
+                        case EVENT_DOMINATE_MIND:
+                            DoCastVictim(SPELL_DOMINATE_MIND, true);
+                            events.ScheduleEvent(EVENT_DOMINATE_MIND, urand(44000, 48000));
                             break;
                         case EVENT_KIRTONOS_TRANSFORM:
                             if (me->HasAura(SPELL_KIRTONOS_TRANSFORM))
