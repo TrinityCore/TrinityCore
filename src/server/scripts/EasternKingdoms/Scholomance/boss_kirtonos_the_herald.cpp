@@ -142,12 +142,7 @@ class boss_kirtonos_the_herald : public CreatureScript
                 me->DespawnOrUnsummon(5000);
             }
 
-            void DamageTaken(Unit* /*killer*/, uint32 &damage)
-            {
-
-            }
-
-            void IsSummonedBy(Unit* summoner)
+            void IsSummonedBy(Unit* /*summoner*/)
             {
                 me->SetDisableGravity(true);
                 me->SetReactState(REACT_PASSIVE);
@@ -227,7 +222,7 @@ class boss_kirtonos_the_herald : public CreatureScript
                     _introTimer -= diff;
                 }
 
-            if (!UpdateVictim())
+                if (!UpdateVictim())
                     return;
 
                 events.Update(diff);
@@ -241,27 +236,27 @@ class boss_kirtonos_the_herald : public CreatureScript
                     {
                         case EVENT_SWOOP:
                             DoCast(me, SPELL_SWOOP);
-                            events.ScheduleEvent(EVENT_SWOOP, urand(15000, 15000));
+                            events.ScheduleEvent(EVENT_SWOOP, 15000);
                             break;
                         case EVENT_WING_FLAP:
                             DoCast(me, SPELL_WING_FLAP);
-                            events.ScheduleEvent(EVENT_WING_FLAP, urand(13000, 13000));
+                            events.ScheduleEvent(EVENT_WING_FLAP, 13000);
                             break;
                         case EVENT_PIERCE_ARMOR:
                             DoCastVictim(SPELL_PIERCE_ARMOR, true);
-                            events.ScheduleEvent(EVENT_PIERCE_ARMOR, urand(12000, 12000));
+                            events.ScheduleEvent(EVENT_PIERCE_ARMOR, 12000);
                             break;
                         case EVENT_DISARM:
                             DoCastVictim(SPELL_DISARM, true);
-                            events.ScheduleEvent(EVENT_DISARM, urand(11000, 11000));
+                            events.ScheduleEvent(EVENT_DISARM, 11000);
                             break;
                         case EVENT_SHADOW_BOLT:
                             DoCastVictim(SPELL_SHADOW_BOLT, true);
-                            events.ScheduleEvent(EVENT_SHADOW_BOLT, urand(42000, 42000));
+                            events.ScheduleEvent(EVENT_SHADOW_BOLT, 42000);
                             break;
                         case EVENT_CURSE_OF_TONGUES:
                             DoCastVictim(SPELL_CURSE_OF_TONGUES, true);
-                            events.ScheduleEvent(EVENT_CURSE_OF_TONGUES, urand(35000, 35000));
+                            events.ScheduleEvent(EVENT_CURSE_OF_TONGUES, 35000);
                             break;
                         case EVENT_DONINATE_MIND:
                             DoCastVictim(SPELL_DONINATE_MIND, true);
@@ -312,16 +307,16 @@ enum Brazier_Of_The_Herald
 
 class go_brazier_of_the_herald : public GameObjectScript
 {
-public:
-    go_brazier_of_the_herald() : GameObjectScript("go_brazier_of_the_herald") { }
+    public:
+        go_brazier_of_the_herald() : GameObjectScript("go_brazier_of_the_herald") { }
 
-    bool OnGossipHello(Player* player, GameObject* go)
-    {
-        go->UseDoorOrButton();
-        go->PlayDirectSound(SOUND_SCREECH,0);
-        player->SummonCreature(NPC_KIRTONOS, 315.028f, 70.53845f, 102.1496f, 0.3859715f, TEMPSUMMON_DEAD_DESPAWN, 900000);
-        return true;
-    }
+        bool OnGossipHello(Player* player, GameObject* go)
+        {
+            go->UseDoorOrButton();
+            go->PlayDirectSound(SOUND_SCREECH, 0);
+            player->SummonCreature(NPC_KIRTONOS, 315.028f, 70.53845f, 102.1496f, 0.3859715f, TEMPSUMMON_DEAD_DESPAWN, 900000);
+            return true;
+        }
 };
 
 void AddSC_boss_kirtonos_the_herald()
