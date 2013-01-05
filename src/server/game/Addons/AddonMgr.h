@@ -37,9 +37,8 @@ struct AddonInfo
 
 struct SavedAddon
 {
-    SavedAddon(const std::string& name, uint32 crc)
+    SavedAddon(const std::string& name, uint32 crc) : Name(name)
     {
-        Name = name;
         CRC = crc;
     }
 

@@ -81,7 +81,7 @@ enum EventAI_ActionType
     ACTION_T_THREAT_SINGLE_PCT          = 13,               // Threat%, Target
     ACTION_T_THREAT_ALL_PCT             = 14,               // Threat%
     ACTION_T_QUEST_EVENT                = 15,               // QuestID, Target
-    ACTION_T_CAST_EVENT                 = 16,               // QuestID, SpellId, Target - must be removed as hack?
+    ACTION_T_CAST_EVENT                 = 16,               // CreatureId, SpellId, Target - must be removed as hack?
     ACTION_T_SET_UNIT_FIELD             = 17,               // Field_Number, Value, Target
     ACTION_T_SET_UNIT_FLAG              = 18,               // Flags (may be more than one field OR'd together), Target
     ACTION_T_REMOVE_UNIT_FLAG           = 19,               // Flags (may be more than one field OR'd together), Target
