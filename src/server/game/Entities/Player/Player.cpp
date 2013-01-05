@@ -1753,7 +1753,8 @@ void Player::Update(uint32 p_time)
     {
         if (p_time >= m_nextSave)
         {
-            // m_nextSave reseted in SaveToDB call
+            // m_nextSave reset in SaveToDB call
+            sScriptMgr->OnPlayerSave(this);
             SaveToDB();
             sLog->outDebug(LOG_FILTER_PLAYER, "Player '%s' (GUID: %u) saved", GetName().c_str(), GetGUIDLow());
         }
