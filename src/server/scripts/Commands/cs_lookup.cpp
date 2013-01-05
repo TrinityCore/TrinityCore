@@ -1033,7 +1033,7 @@ public:
                     found = true;
             }
         }
-        
+
         if (!found)
             handler->SendSysMessage(LANG_COMMAND_NOSPELLFOUND);
 

@@ -179,6 +179,7 @@ bool MapManager::CanPlayerEnter(uint32 mapid, Player* player, bool loginCheck)
         else    // attempt to downscale
             mapDiff = GetDownscaledMapDifficultyData(entry->MapID, targetDifficulty);
     }
+    // FIXME: mapDiff is never used
 
     //Bypass checks for GMs
     if (player->isGameMaster())
