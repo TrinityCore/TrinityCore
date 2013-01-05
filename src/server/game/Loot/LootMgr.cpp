@@ -664,7 +664,7 @@ void Loot::DeleteLootItemFromContainerItemDB(uint32 itemID)
     CharacterDatabase.Execute(stmt);
 
     // Mark the item looted to prevent resaving
-    for (LootItemList::iterator _itr = items.begin(); _itr != items.end(); _itr++)
+    for (LootItemList::iterator _itr = items.begin(); _itr != items.end(); ++_itr)
     {
         if (_itr->itemid != itemID)
             continue;
