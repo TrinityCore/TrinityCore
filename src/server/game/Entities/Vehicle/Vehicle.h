@@ -32,9 +32,6 @@ typedef std::set<uint64> GuidSet;
 class Vehicle : public TransportBase
 {
     public:
-        explicit Vehicle(Unit* unit, VehicleEntry const* vehInfo, uint32 creatureEntry);
-        virtual ~Vehicle();
-
         void Install();
         void Uninstall();
         void Reset(bool evading = false);
@@ -67,7 +64,20 @@ class Vehicle : public TransportBase
 
         VehicleSeatEntry const* GetSeatForPassenger(Unit* passenger);
 
+    protected:
+        friend bool Unit::CreateVehicleKit(uint32 id, uint32 creatureEntry);
+        Vehicle(Unit* unit, VehicleEntry const* vehInfo, uint32 creatureEntry);
+        friend void Unit::RemoveVehicleKit();
+        ~Vehicle();
+
     private:
+        enum Status
+        {
+            STATUS_NONE,
+            STATUS_INSTALLED,
+            STATUS_UNINSTALLING,
+        };
+
         SeatMap::iterator GetSeatIteratorForPassenger(Unit* passenger);
         void InitMovementInfoForBase();
 
@@ -82,7 +92,7 @@ class Vehicle : public TransportBase
         GuidSet vehiclePlayers;
         uint32 _usableSeatNum;         // Number of seats that match VehicleSeatEntry::UsableByPlayer, used for proper display flags
         uint32 _creatureEntry;         // Can be different than me->GetBase()->GetEntry() in case of players
-
+        Status _status;
         Position m_lastShootPos;
 };
 #endif
