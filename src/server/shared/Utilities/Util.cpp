@@ -20,6 +20,7 @@
 #include "Common.h"
 #include "utf8.h"
 #include "SFMT.h"
+#include "Errors.h" // for ASSERT
 #include <ace/TSS_T.h>
 #include <ace/INET_Addr.h>
 
@@ -28,19 +29,19 @@ static SFMTRandTSS sfmtRand;
 
 int32 irand(int32 min, int32 max)
 {
-    assert(max >= min);
+    ASSERT(max >= min);
     return int32(sfmtRand->IRandom(min, max));
 }
 
 uint32 urand(uint32 min, uint32 max)
 {
-    assert(max >= min);
+    ASSERT(max >= min);
     return sfmtRand->URandom(min, max);
 }
 
 float frand(float min, float max)
 {
-    assert(max >= min);
+    ASSERT(max >= min);
     return float(sfmtRand->Random() * (max - min) + min);
 }
 
