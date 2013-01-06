@@ -181,10 +181,10 @@ class instance_zulaman : public InstanceMapScript
 
             void CheckInstanceStatus()
             {
-                if (BossKilled >= DATA_HALAZZIEVENT-1)
+                if (BossKilled >= DATA_HALAZZIEVENT)
                     HandleGameObject(HexLordGateGUID, true);
 
-                if (BossKilled >= DATA_HEXLORDEVENT-1)
+                if (BossKilled >= DATA_HEXLORDEVENT)
                     HandleGameObject(ZulJinGateGUID, true);
             }
 
