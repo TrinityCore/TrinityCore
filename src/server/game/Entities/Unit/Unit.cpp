@@ -12716,7 +12716,7 @@ void Unit::UpdateSpeed(UnitMoveType mtype, bool forced)
             if (GetTypeId() == TYPEID_UNIT)
             {
                 Unit* pOwner = GetCharmerOrOwner();
-                if (isPet() && !isInCombat() && pOwner) // Must check for owner or crash on "Tame Beast"
+                if (isPet() || isGuardian() && !isInCombat() && pOwner) // Must check for owner or crash on "Tame Beast"
                 {
                     // For every yard over 5, increase speed by 0.01
                     //  to help prevent pet from lagging behind and despawning
