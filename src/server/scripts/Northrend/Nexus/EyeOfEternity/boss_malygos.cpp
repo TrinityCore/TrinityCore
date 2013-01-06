@@ -153,13 +153,13 @@ enum Texts
     SAY_KILLED_PLAYER_P_THREE           = 12,
     SAY_SPELL_CASTING_P_THREE           = 13,
     SAY_DEATH,
-     
+
     // Alexstrasza
     SAY_ONE                             = 0,
     SAY_TWO                             = 1,
     SAY_THREE                           = 2,
     SAY_FOUR                            = 3,
-     
+
     // Power Sparks
     EMOTE_POWER_SPARK_SUMMONED            = 0
 };

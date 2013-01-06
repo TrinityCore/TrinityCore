@@ -453,8 +453,8 @@ void WardenWin::HandleData(ByteBuffer &buff)
                 if (luaStrLen != 0)
                 {
                     char *str = new char[luaStrLen + 1];
-                    memset(str, 0, luaStrLen + 1);
                     memcpy(str, buff.contents() + buff.rpos(), luaStrLen);
+                    str[luaStrLen] = '\0'; // null terminator
                     sLog->outDebug(LOG_FILTER_WARDEN, "Lua string: %s", str);
                     delete[] str;
                 }
