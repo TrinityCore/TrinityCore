@@ -3565,7 +3565,6 @@ void SpellMgr::LoadDbcDataCorrections()
                 spellInfo->speed = 0.0f;    // This spell's summon happens instantly
                 break;
             case 71614: // Ice Lock
-            case 64044: // Psychic Horror: Fix Effect Like: Effect #1	 (6) Apply Aura #12: Stun  (http://www.armitage.cz/?spell=64044)
                 spellInfo->Mechanic = MECHANIC_STUN;
                 break;
             case 72762: // Defile

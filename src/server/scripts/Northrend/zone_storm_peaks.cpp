@@ -448,9 +448,13 @@ public:
                     CheckTimer = 5000;
                     if (me->GetAreaId() == AREA_VALLEY_OF_ANCIENT_WINTERS)
                     {
-                        Talk(TEXT_EMOTE, me->GetVehicleKit()->GetPassenger(0)->GetGUID());
-                        autoMove = true;
-                        wpReached = true;
+                        if (Vehicle* vehicle = me->GetVehicleKit())
+                            if (Unit* passenger = vehicle->GetPassenger(0))
+                            {
+                                Talk(TEXT_EMOTE, passenger->GetGUID());
+                                autoMove = true;
+                                wpReached = true;
+                            }
                     }
                 }
                 else
