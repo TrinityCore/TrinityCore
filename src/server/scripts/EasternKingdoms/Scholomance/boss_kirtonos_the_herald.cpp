@@ -33,9 +33,7 @@ enum Spells
     SPELL_WING_FLAP                   = 12882,
     SPELL_PIERCE_ARMOR                = 6016,
     SPELL_DISARM                      = 8379,
-
     SPELL_KIRTONOS_TRANSFORM          = 16467,
-
     SPELL_SHADOW_BOLT                 = 17228,
     SPELL_CURSE_OF_TONGUES            = 12889,
     SPELL_DOMINATE_MIND               = 14515
@@ -59,33 +57,11 @@ enum Events
     EVENT_KIRTONOS_TRANSFORM          = 14
 };
 
-enum Points
-{
-    MAX_KIRTONOS_WAYPOINTS_INTRO      = 14,
-    POINT_KIRTONOS_LAND               = 14
-};
-
 enum Misc
 {
-    WEAPON_KIRTONOS_STAFF             = 11365
-};
-
-Position const kirtonosIntroWaypoint[MAX_KIRTONOS_WAYPOINTS_INTRO] =
-{
-    {316.7087f, 71.26834f, 104.5843f, 0.0f},
-    {321.1605f, 72.80973f, 104.6676f, 0.0f},
-    {332.3713f, 77.98991f, 105.8621f, 0.0f},
-    {333.3254f, 86.60159f, 106.6399f, 0.0f},
-    {334.1263f, 101.6836f, 106.8343f, 0.0f},
-    {331.0458f, 114.5935f, 106.3621f, 0.0f},
-    {329.5439f, 126.7019f, 106.1399f, 0.0f},
-    {335.2471f, 136.5460f, 105.7232f, 0.0f},
-    {343.2100f, 139.9459f, 107.6399f, 0.0f},
-    {364.3288f, 140.9012f, 109.9454f, 0.0f},
-    {362.6760f, 115.6384f, 110.3065f, 0.0f},
-    {341.7896f, 91.94390f, 107.1676f, 0.0f},
-    {313.4945f, 93.45945f, 104.0565f, 0.0f},
-    {306.3839f, 93.61675f, 104.0565f, 0.0f},
+    WEAPON_KIRTONOS_STAFF             = 11365,
+    POINT_KIRTONOS_LAND               = 13,
+    KIRTONOS_PATH                     = 105061
 };
 
 class boss_kirtonos_the_herald : public CreatureScript
@@ -158,12 +134,13 @@ class boss_kirtonos_the_herald : public CreatureScript
                 BossAI::JustSummoned(summon);
             }
 
-            void MovementInform(uint32 movementType, uint32 pointId)
+            void MovementInform(uint32 type, uint32 id)
             {
-                if (movementType != POINT_MOTION_TYPE)
-                    return;
-
-                _currentPoint = pointId + 1;
+                if (type == WAYPOINT_MOTION_TYPE && id == POINT_KIRTONOS_LAND)
+                {
+                    _introTimer = 1500;
+                    _introEvent = INTRO_2;
+                }
             }
 
             void UpdateAI(uint32 const diff)
@@ -175,13 +152,8 @@ class boss_kirtonos_the_herald : public CreatureScript
                         switch (_introEvent)
                         {
                             case INTRO_1:
-                                if (_currentPoint < POINT_KIRTONOS_LAND)
-                                    me->GetMotionMaster()->MovePoint(_currentPoint, kirtonosIntroWaypoint[_currentPoint]);
-                                else
-                                {
-                                    _introTimer = 1000;
-                                    _introEvent = INTRO_2;
-                                }
+                                me->GetMotionMaster()->MovePath(KIRTONOS_PATH,false);
+                                _introEvent = 0;
                                 break;
                             case INTRO_2:
                                 me->SetWalk(true);
@@ -199,6 +171,7 @@ class boss_kirtonos_the_herald : public CreatureScript
                             case INTRO_4:
                                 if (GameObject* brazier = me->GetMap()->GetGameObject(instance->GetData64(GO_BRAZIER_OF_THE_HERALD)))
                                     brazier->SetGoState(GO_STATE_READY);
+                                me->SetWalk(true);
                                 me->SetDisableGravity(false);
                                 DoCast(me, SPELL_KIRTONOS_TRANSFORM);
                                 _introTimer = 1000;
