@@ -31,7 +31,7 @@ EndScriptData */
 
 enum Misc
 {
-    MAX_ENCOUNTER                  = 6,
+    MAX_ENCOUNTER                  = 7,
     RAND_VENDOR                    = 2,
     WORLDSTATE_SHOW_TIMER          = 3104,
     WORLDSTATE_TIME_TO_SACRIFICE   = 3106
@@ -127,8 +127,8 @@ class instance_zulaman : public InstanceMapScript
                 switch (creature->GetEntry())
                 {
                 case NPC_HARRISON_JONES:
-                    if (m_auiEncounter[0])
-                        creature->SetVisible(false);
+                    if ((DATA_GONGEVENT) == DONE)
+                        creature->RemoveFromWorld();
                 case NPC_JANALAI:
                 case NPC_ZULJIN:
                 case NPC_HEXLORD:
@@ -181,10 +181,10 @@ class instance_zulaman : public InstanceMapScript
 
             void CheckInstanceStatus()
             {
-                if (BossKilled >= DATA_HALAZZIEVENT)
+                if (BossKilled >= DATA_HALAZZIEVENT-1)
                     HandleGameObject(HexLordGateGUID, true);
 
-                if (BossKilled >= DATA_HEXLORDEVENT)
+                if (BossKilled >= DATA_HEXLORDEVENT-1)
                     HandleGameObject(ZulJinGateGUID, true);
             }
 
@@ -223,14 +223,11 @@ class instance_zulaman : public InstanceMapScript
                 switch (type)
                 {
                 case DATA_GONGEVENT:
-                    m_auiEncounter[0] = data;
-                    if (data == DONE)
-                    {
-
-                    }
+                    m_auiEncounter[DATA_GONGEVENT] = data;
+                    HandleGameObject(MassiveGateGUID, data == DONE);
                     break;
                 case DATA_NALORAKKEVENT:
-                    m_auiEncounter[1] = data;
+                    m_auiEncounter[DATA_NALORAKKEVENT] = data;
                     if (data == DONE)
                     {
                         if (QuestMinute)
@@ -242,7 +239,7 @@ class instance_zulaman : public InstanceMapScript
                     }
                     break;
                 case DATA_AKILZONEVENT:
-                    m_auiEncounter[2] = data;
+                    m_auiEncounter[DATA_AKILZONEVENT] = data;
                     HandleGameObject(AkilzonDoorGUID, data != IN_PROGRESS);
                     if (data == DONE)
                     {
@@ -255,23 +252,24 @@ class instance_zulaman : public InstanceMapScript
                     }
                     break;
                 case DATA_JANALAIEVENT:
-                    m_auiEncounter[3] = data;
-                    if (data == DONE) SummonHostage(2);
+                    m_auiEncounter[DATA_JANALAIEVENT] = data;
+                    if (data == DONE)
+                        SummonHostage(2);
                     break;
                 case DATA_HALAZZIEVENT:
-                    m_auiEncounter[4] = data;
+                    m_auiEncounter[DATA_HALAZZIEVENT] = data;
                     HandleGameObject(HalazziDoorGUID, data != IN_PROGRESS);
                     if (data == DONE) SummonHostage(3);
                     break;
                 case DATA_HEXLORDEVENT:
-                    m_auiEncounter[5] = data;
+                    m_auiEncounter[DATA_HEXLORDEVENT] = data;
                     if (data == IN_PROGRESS)
                         HandleGameObject(HexLordGateGUID, false);
                     else if (data == NOT_STARTED)
                         CheckInstanceStatus();
                     break;
                 case DATA_ZULJINEVENT:
-                    m_auiEncounter[6] = data;
+                    m_auiEncounter[DATA_ZULJINEVENT] = data;
                     HandleGameObject(ZulJinDoorGUID, data != IN_PROGRESS);
                     break;
                 case DATA_CHESTLOOTED:
