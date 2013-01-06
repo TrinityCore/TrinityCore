@@ -127,7 +127,7 @@ class instance_zulaman : public InstanceMapScript
                 switch (creature->GetEntry())
                 {
                 case NPC_HARRISON_JONES:
-                    if ((DATA_GONGEVENT) == DONE)
+                    if (m_auiEncounter[DATA_GONGEVENT] == DONE)
                         creature->RemoveFromWorld();
                 case NPC_JANALAI:
                 case NPC_ZULJIN:
