@@ -227,7 +227,8 @@ enum Events
     GONG_EVENT_6                      = 6,
     GONG_EVENT_7                      = 7,
     GONG_EVENT_8                      = 8,
-    GONG_EVENT_9                      = 9
+    GONG_EVENT_9                      = 9,
+    GONG_EVENT_10                     = 10
 };
 
 enum Entrys
@@ -278,6 +279,7 @@ class npc_harrison_jones : public CreatureScript
                     player->CLOSE_GOSSIP_MENU();
                     me->SetInFront(player);
                     me->SendMovementFlagUpdate(true);
+                    instance->SetData(DATA_GONGEVENT, IN_PROGRESS);
                     _gongEvent = GONG_EVENT_1;
                     _gongTimer = 1;
                }
@@ -303,12 +305,14 @@ class npc_harrison_jones : public CreatureScript
                                 _gongEvent = GONG_EVENT_3;
                                 break;
                             case GONG_EVENT_3:
+                                me->SetFacingTo(6.235659f);
                                 Talk(SAY_HARRISON_1);
-                                _gongTimer = 5000;
+                                DoCast(me, SPELL_BANGING_THE_GONG);
+                                me->SetSheath(SHEATH_STATE_MELEE);
+                                _gongTimer = 4000;
                                 _gongEvent = GONG_EVENT_4;
                                 break;
                             case GONG_EVENT_4:
-                                DoCast(me, SPELL_BANGING_THE_GONG);
                                 if (GameObject* gong = me->GetMap()->GetGameObject(instance->GetData64(GO_STRANGE_GONG)))
                                     gong->RemoveFlag(GAMEOBJECT_FLAGS,GO_FLAG_NOT_SELECTABLE);
                                 _gongTimer = 120000;
@@ -317,14 +321,12 @@ class npc_harrison_jones : public CreatureScript
                             case GONG_EVENT_5:
                                 if (GameObject* gong = me->GetMap()->GetGameObject(instance->GetData64(GO_STRANGE_GONG)))
                                     gong->SetFlag(GAMEOBJECT_FLAGS,GO_FLAG_NOT_SELECTABLE);
-
-                                // Remove Aura 45222 from all players
-
                                 if (instance)
                                     instance->SetData(DATA_GONGEVENT, DONE);  // This is temp
 
                                 if (instance->GetData(DATA_GONGEVENT) == DONE)
                                 {
+                                    // Save all players to instance
                                     me->GetMotionMaster()->MovePath(HARRISON_MOVE_2,false);
                                     _gongTimer = 5000;
                                     _gongEvent = 6;
@@ -336,7 +338,7 @@ class npc_harrison_jones : public CreatureScript
                                 }
                                 break;
                             case GONG_EVENT_6:
-                                    me->SetEntry(24375);
+                                    me->SetEntry(NPC_HARRISON_JONES_2);
                                     Talk(SAY_HARRISON_2);
                                     _gongTimer = 14000;
                                     _gongEvent = 7;
@@ -348,14 +350,24 @@ class npc_harrison_jones : public CreatureScript
                                     _gongEvent = 8;
                                 break;
                             case GONG_EVENT_8:
+                                     // entry 23597 guid 86194 UNIT_VIRTUAL_ITEM_SLOT_ID: 13631
                                      if (GameObject* gate = me->GetMap()->GetGameObject(instance->GetData64(GO_MASSIVE_GATE)))
                                          gate->SetGoState(GO_STATE_ACTIVE);
                                     _gongTimer = 1000;
                                     _gongEvent = 9;
                             case GONG_EVENT_9:
                                     DoCast(me, SPELL_STEALTH);
+                                    me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 0, uint32(0));
                                     me->GetMotionMaster()->MovePath(HARRISON_MOVE_3,false);
                                     me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_NONE);
+                                    _gongTimer = 1000;
+                                    _gongEvent = 10;
+                            case GONG_EVENT_10:
+                                    // move 23597 guid 86194
+                                    // path 138.2242 Y: 1586.994 Z: 43.5488
+                                    // path 131.8407 Y: 1590.247 Z: 43.61384
+                                    // Reach end of path turnto 2.024582 cast Spell ID: 43647 on self hits 24358 UNIT_VIRTUAL_ITEM_SLOT_ID: 33979
+                                    // wait 2 sec say text 0
                                     _gongTimer = 0;
                                     _gongEvent = 0;
                                 break;
