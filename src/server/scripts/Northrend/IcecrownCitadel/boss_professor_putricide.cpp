@@ -66,6 +66,7 @@ enum Spells
     SPELL_UNSTABLE_EXPERIMENT               = 70351,
     SPELL_TEAR_GAS                          = 71617,    // phase transition
     SPELL_TEAR_GAS_CREATURE                 = 71618,
+    SPELL_TEAR_GAS_PLAYER                   = 71615,
     SPELL_TEAR_GAS_CANCEL                   = 71620,
     SPELL_TEAR_GAS_PERIODIC_TRIGGER         = 73170,
     SPELL_CREATE_CONCOCTION                 = 71621,
@@ -633,14 +634,14 @@ class boss_professor_putricide : public CreatureScript
                             AttackStart(me->getVictim());
                             // remove Tear Gas
                             me->RemoveAurasDueToSpell(SPELL_TEAR_GAS_PERIODIC_TRIGGER);
-                            instance->DoRemoveAurasDueToSpellOnPlayers(71615);
+                            instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_TEAR_GAS_PLAYER);
                             DoCastAOE(SPELL_TEAR_GAS_CANCEL);
                             instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_GAS_VARIABLE);
                             instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_OOZE_VARIABLE);
                             for (SummonList::iterator itr = summons.begin(); itr != summons.end(); ++itr)
                                 if(Unit* unit = ObjectAccessor::GetUnit(*me, *itr))
                                     if (unit->GetEntry() == NPC_MUTATED_ABOMINATION_10 || unit->GetEntry() == NPC_MUTATED_ABOMINATION_25)
-                                        unit->RemoveAurasDueToSpell(71615);
+                                        unit->RemoveAurasDueToSpell(SPELL_TEAR_GAS_PLAYER);
                             break;
                         case EVENT_MALLEABLE_GOO:
                             if (Is25ManRaid())
