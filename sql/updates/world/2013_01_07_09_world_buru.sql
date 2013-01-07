@@ -1,7 +1,7 @@
 UPDATE `creature_template` SET ScriptName='npc_buru_egg' WHERE entry=15514;
 UPDATE `creature_template` SET `faction_A`=16,`faction_H`=16 WHERE `entry` IN (15514,15370);
 DELETE FROM `creature` WHERE `id`=15521; -- because **** you, thats why
-SET @GUID :=xxx; -- Change me plz
+SET @GUID :=61988;
 DELETE FROM `creature` WHERE `id`=15514;
 INSERT INTO `creature` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `MovementType`) VALUES
 (@GUID, 15514, 509, 1, 1, -9270.393, 1243.896, -63.76731, 2.722714, 7200, 0, 0),
