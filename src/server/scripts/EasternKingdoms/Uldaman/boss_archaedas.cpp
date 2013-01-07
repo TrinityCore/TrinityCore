@@ -39,7 +39,7 @@ enum Says
     SAY_KILL                    = 3
 };
 
-enum eSpells
+enum Spells
 {
     SPELL_GROUND_TREMOR              = 6524,
     SPELL_ARCHAEDAS_AWAKEN           = 10347,
@@ -48,6 +48,7 @@ enum eSpells
     SPELL_SUB_BOSS_AGGRO             = 11568,
     SPELL_AWAKEN_VAULT_WALKER        = 10258,
     SPELL_AWAKEN_EARTHEN_GUARDIAN    = 10252,
+    SPELL_SELF_DESTRUCT              = 9874
 };
 
 class boss_archaedas : public CreatureScript
@@ -216,8 +217,6 @@ SDComment: These mobs are initially frozen until Archaedas awakens them
 one at a time.
 EndScriptData */
 
-#define SPELL_ARCHAEDAS_AWAKEN  10347
-
 class mob_archaedas_minions : public CreatureScript
 {
     public:
@@ -315,8 +314,6 @@ SDComment: After activating the altar of the keepers, the stone keepers will
 wake up one by one.
 EndScriptData */
 
-#define SPELL_SELF_DESTRUCT 9874
-
 class mob_stonekeepers : public CreatureScript
 {
     public:
@@ -380,8 +377,6 @@ SDComment: Needs 1 person to activate the Archaedas script
 SDCategory: Uldaman
 EndScriptData */
 
-#define SPELL_BOSS_OBJECT_VISUAL    11206
-
 class go_altar_of_archaedas : public GameObjectScript
 {
     public:
@@ -410,8 +405,6 @@ SD%Complete: 100
 SDComment: Need 1 person to activate to open the altar.  One by one the StoneKeepers will activate.  After all four are dead than the door will open.
 SDCategory: Uldaman
 EndScriptData */
-
-#define SPELL_BOSS_OBJECT_VISUAL    11206
 
 class go_altar_of_the_keepers : public GameObjectScript
 {
