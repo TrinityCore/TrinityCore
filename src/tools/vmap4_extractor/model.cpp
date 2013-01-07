@@ -77,8 +77,7 @@ bool Model::ConvertToVMAPModel(const char * outfilename)
         return false;
     }
     fwrite(szRawVMAPMagic, 8, 1, output);
-    uint32 nVertices = 0;
-    nVertices = header.nBoundingVertices;
+    uint32 nVertices = header.nBoundingVertices;
     fwrite(&nVertices, sizeof(int), 1, output);
     uint32 nofgroups = 1;
     fwrite(&nofgroups,sizeof(uint32), 1, output);
@@ -91,8 +90,7 @@ bool Model::ConvertToVMAPModel(const char * outfilename)
     wsize = sizeof(branches) + sizeof(uint32) * branches;
     fwrite(&wsize, sizeof(int), 1, output);
     fwrite(&branches,sizeof(branches), 1, output);
-    uint32 nIndexes = 0;
-    nIndexes = header.nBoundingTriangles;
+    uint32 nIndexes = header.nBoundingTriangles;
     fwrite(&nIndexes,sizeof(uint32), 1, output);
     fwrite("INDX",4, 1, output);
     wsize = sizeof(uint32) + sizeof(unsigned short) * nIndexes;
