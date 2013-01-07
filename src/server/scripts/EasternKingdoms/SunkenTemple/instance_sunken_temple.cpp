@@ -41,7 +41,7 @@ enum Gameobject
 
 };
 
-enum Creature
+enum CreatureIds
 {
     NPC_MALFURION_STORMRAGE     = 15362
 };
