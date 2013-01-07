@@ -338,6 +338,8 @@ bool IsDisabledFor(DisableType type, uint32 entry, Unit const* unit, uint8 flags
             }
             else if (spellFlags & SPELL_DISABLE_DEPRECATED_SPELL)    // call not from spellcast
                 return true;
+            else if (flags & SPELL_DISABLE_LOS)
+                return spellFlags & SPELL_DISABLE_LOS;
 
             break;
         }
