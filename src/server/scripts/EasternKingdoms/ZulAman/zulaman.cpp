@@ -402,7 +402,7 @@ class npc_harrison_jones : public CreatureScript
                                                 if (ptarget->GetPositionX() > 120)
                                                 {
                                                     ptarget->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 0, uint32(WEAPON_SPEAR));
-                                                    //ptarget-> setdata for sai (I don't know how to do yet and answers are hard to get)
+                                                    ptarget->AI()->SetData(0,1);
                                                 }
                                             }
                                         }
