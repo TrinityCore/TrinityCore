@@ -128,7 +128,8 @@ enum ConditionSourceType
     CONDITION_SOURCE_TYPE_VEHICLE_SPELL                  = 21,
     CONDITION_SOURCE_TYPE_SMART_EVENT                    = 22,
     CONDITION_SOURCE_TYPE_NPC_VENDOR                     = 23,
-    CONDITION_SOURCE_TYPE_MAX                            = 24  // MAX
+    CONDITION_SOURCE_TYPE_SPELL_PROC                     = 24,
+    CONDITION_SOURCE_TYPE_MAX                            = 25  // MAX
 };
 
 enum ComparisionType
