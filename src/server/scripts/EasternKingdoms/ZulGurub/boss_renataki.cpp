@@ -27,10 +27,16 @@ EndScriptData */
 #include "ScriptedCreature.h"
 #include "zulgurub.h"
 
-#define SPELL_AMBUSH            24337
-#define SPELL_THOUSANDBLADES    24649
+enum Spells
+{
+    SPELL_AMBUSH                = 34794,
+    SPELL_THOUSANDBLADES        = 34799
+};
 
-#define EQUIP_ID_MAIN_HAND      0           //was item display id 31818, but this id does not exist
+enum Misc
+{
+    EQUIP_ID_MAIN_HAND          = 0  //was item display id 31818, but this id does not exist
+};
 
 class boss_renataki : public CreatureScript
 {
