@@ -231,8 +231,7 @@ enum Events
     GONG_EVENT_8                      = 8,
     GONG_EVENT_9                      = 9,
     GONG_EVENT_10                     = 10,
-    GONG_EVENT_11                     = 11,
-    GONG_EVENT_12                     = 12
+    GONG_EVENT_11                     = 11
 };
 
 enum Waypoints
@@ -261,8 +260,6 @@ enum Weapons
     WEAPON_MACE                         = 5301,
     WEAPON_SPEAR                        = 13631
 };
-
-Position const AmanishiGuardianLoc = {120.687f, 1674.0f, 42.0217f, 1.59044f};
 
 class npc_harrison_jones : public CreatureScript
 {
@@ -304,7 +301,6 @@ class npc_harrison_jones : public CreatureScript
                     me->SendMovementFlagUpdate(true);
                     me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                     Talk(SAY_HARRISON_0);
-                    instance->SetData(DATA_GONGEVENT, IN_PROGRESS);
                     _gongEvent = GONG_EVENT_1;
                     _gongTimer = 4000;
                }
@@ -335,8 +331,8 @@ class npc_harrison_jones : public CreatureScript
                         {
                             case GONG_EVENT_1:
                                 me->GetMotionMaster()->MovePath(HARRISON_MOVE_1,false);
-                                _gongTimer = 12000;
                                 _gongEvent = GONG_EVENT_2;
+                                _gongTimer = 12000;
                                 break;
                             case GONG_EVENT_2:
                                 me->SetFacingTo(6.235659f);
@@ -344,50 +340,50 @@ class npc_harrison_jones : public CreatureScript
                                 DoCast(me, SPELL_BANGING_THE_GONG);
                                 me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 0, uint32(WEAPON_MACE));
                                 me->SetSheath(SHEATH_STATE_MELEE);
-                                _gongTimer = 4000;
                                 _gongEvent = GONG_EVENT_3;
+                                _gongTimer = 4000;
                                 break;
                             case GONG_EVENT_3:
                                 if (GameObject* gong = me->GetMap()->GetGameObject(instance->GetData64(GO_STRANGE_GONG)))
                                     gong->RemoveFlag(GAMEOBJECT_FLAGS,GO_FLAG_NOT_SELECTABLE);
-                                _gongTimer = 105000;
                                 _gongEvent = GONG_EVENT_4;
+                                _gongTimer = 10500;
                                 break;
                             case GONG_EVENT_4:
                                 me->RemoveAura(SPELL_BANGING_THE_GONG);
                                 if (GameObject* gong = me->GetMap()->GetGameObject(instance->GetData64(GO_STRANGE_GONG)))
                                     gong->SetFlag(GAMEOBJECT_FLAGS,GO_FLAG_NOT_SELECTABLE);
 
-                                // trigger or gong will need to be scripted to set SPECIAL if enough players click gong.
+                                // trigger or gong will need to be scripted to set IN_PROGRESS after enough hits.
                                 // This is temp workaround.
                                 if (instance)
-                                    instance->SetData(DATA_GONGEVENT, SPECIAL); // to be removed.
+                                    instance->SetData(DATA_GONGEVENT, IN_PROGRESS); // to be removed.
 
-                                if (instance->GetData(DATA_GONGEVENT) == SPECIAL)
+                                if (instance->GetData(DATA_GONGEVENT) == IN_PROGRESS)
                                 {
                                     // Players are Now Saved to instance at SPECIAL (Player should be notified?)
                                     me->GetMotionMaster()->MovePath(HARRISON_MOVE_2,false);
+                                    _gongEvent = GONG_EVENT_5;
                                     _gongTimer = 5000;
-                                    _gongEvent = 5;
                                 }
                                 else
                                 {
                                     _gongTimer = 1000;
-                                    _gongEvent = 10;
+                                    _gongEvent = GONG_EVENT_9;
                                 }
                                 break;
                             case GONG_EVENT_5:
                                 me->SetEntry(NPC_HARRISON_JONES_1);
                                 me->SetDisplayId(MODEL_HARRISON_JONES_1);
                                 Talk(SAY_HARRISON_2);
-                                _gongTimer = 14000;
-                                _gongEvent = 6;
+                                _gongTimer = 12000;
+                                _gongEvent = GONG_EVENT_6;
                                 break;
                             case GONG_EVENT_6:
                                 me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_USE_STANDING);
                                 Talk(SAY_HARRISON_3);
                                 _gongTimer = 7000;
-                                _gongEvent = 7;
+                                _gongEvent = GONG_EVENT_7;
                                 break;
                             case GONG_EVENT_7:
                                 if (!uiTargetGUID)
@@ -403,8 +399,14 @@ class npc_harrison_jones : public CreatureScript
                                                 if (ptarget->GetPositionX() > 120)
                                                 {
                                                     ptarget->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 0, uint32(WEAPON_SPEAR));
+                                                    ptarget->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                                                    ptarget->SetReactState(REACT_PASSIVE);
                                                     ptarget->AI()->SetData(0,1);
                                                 }
+                                                else
+                                                    ptarget->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                                                    ptarget->SetReactState(REACT_PASSIVE);
+                                                    ptarget->AI()->SetData(0,2);
                                             }
                                         }
                                     }
@@ -412,44 +414,33 @@ class npc_harrison_jones : public CreatureScript
 
                                 if (GameObject* gate = me->GetMap()->GetGameObject(instance->GetData64(GO_MASSIVE_GATE)))
                                     gate->SetGoState(GO_STATE_ACTIVE);
-                                _gongTimer = 1000;
-                                _gongEvent = 8;
+                                _gongTimer = 2000;
+                                _gongEvent = GONG_EVENT_8;
+                                break;
                             case GONG_EVENT_8:
                                 DoCast(me, SPELL_STEALTH);
                                 me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 0, uint32(0));
-                                me->GetMotionMaster()->MovePath(HARRISON_MOVE_3,false);
                                 me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_NONE);
-                                _gongTimer = 100;
-                                _gongEvent = 9;
-                            case GONG_EVENT_9:
-                                // If player in 10.0f range
-                                    // Send setdata to SAI for previous target
-                                        // SAI BELOW
-                                        // move 23597, guid 86194 to be deleted
-                                        // path 138.2242 Y: 1586.994 Z: 43.5488
-                                        // path 131.8407 Y: 1590.247 Z: 43.61384
-                                        // Reach end of path turnto 2.024582 cast Spell ID: 43647 on self hits 24365 update UNIT_VIRTUAL_ITEM_SLOT_ID: 33979
-                                        // wait 2 sec say text 0
-                                // Set below after complete above
-                                _gongTimer = 0;
+                                me->GetMotionMaster()->MovePath(HARRISON_MOVE_3,false);
+                                _gongTimer = 1000;
                                 _gongEvent = 0;
                                 break;
-                            case GONG_EVENT_10:
+                            case GONG_EVENT_9:
                                 me->GetMotionMaster()->MovePoint(0, 120.687f, 1674.0f, 42.0217f);
                                 _gongTimer = 12000;
-                                _gongEvent = 11;
+                                _gongEvent = GONG_EVENT_10;
+                                break;
+                            case GONG_EVENT_10:
+                                    me->SetFacingTo(1.59044f);
+                                    _gongEvent = 11;
+                                    _gongTimer = 6000;
                                 break;
                             case GONG_EVENT_11:
-                                    me->SetFacingTo(1.59044f);
-                                    _gongTimer = 6000;
-                                    _gongEvent = 12;
-                                break;
-                            case GONG_EVENT_12:
                                     me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                                     if (instance)
                                         instance->SetData(DATA_GONGEVENT, NOT_STARTED);
-                                    _gongTimer = 0;
                                     _gongEvent = 0;
+                                    _gongTimer = 1000;
                                 break;
                         }
                     }
