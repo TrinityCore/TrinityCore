@@ -347,7 +347,7 @@ class npc_harrison_jones : public CreatureScript
                                 if (GameObject* gong = me->GetMap()->GetGameObject(instance->GetData64(GO_STRANGE_GONG)))
                                     gong->RemoveFlag(GAMEOBJECT_FLAGS,GO_FLAG_NOT_SELECTABLE);
                                 _gongEvent = GONG_EVENT_4;
-                                _gongTimer = 10500;
+                                _gongTimer = 105000;
                                 break;
                             case GONG_EVENT_4:
                                 me->RemoveAura(SPELL_BANGING_THE_GONG);

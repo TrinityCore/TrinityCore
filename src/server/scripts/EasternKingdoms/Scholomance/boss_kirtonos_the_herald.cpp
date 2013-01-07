@@ -156,7 +156,6 @@ class boss_kirtonos_the_herald : public CreatureScript
                                 _introEvent = 0;
                                 break;
                             case INTRO_2:
-                                me->SetWalk(true);
                                 me->GetMotionMaster()->MovePoint(0, 299.4884f, 92.76137f, 105.6335f);
                                 _introTimer = 1000;
                                 _introEvent = INTRO_3;
@@ -185,6 +184,7 @@ class boss_kirtonos_the_herald : public CreatureScript
                                 _introTimer = 5000;
                                 _introEvent = INTRO_6;
                             case INTRO_6:
+                                 // I don't know how to make him not swim across screen here. Tell me and I will fix.
                                 me->GetMotionMaster()->MovePoint(0, 314.8673f, 90.3021f, 101.6459f);
                                 _introTimer = 0;
                                 _introEvent = 0;
