@@ -26,9 +26,15 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 
-#define SAY_SPAWN   "TIMMY!"
+enum Says
+{
+    SAY_SPAWN                   = 0
+};
 
-#define SPELL_RAVENOUSCLAW    17470
+enum Spells
+{
+    SPELL_RAVENOUSCLAW          = 17470
+};
 
 class boss_timmy_the_cruel : public CreatureScript
 {
@@ -57,7 +63,7 @@ public:
         {
             if (!HasYelled)
             {
-                me->MonsterYell(SAY_SPAWN, LANG_UNIVERSAL, 0);
+                Talk(SAY_SPAWN);
                 HasYelled = true;
             }
         }
