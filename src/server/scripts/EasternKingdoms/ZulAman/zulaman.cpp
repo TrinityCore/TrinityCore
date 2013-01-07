@@ -33,6 +33,7 @@ EndContentData */
 #include "zulaman.h"
 #include "Player.h"
 #include "SpellInfo.h"
+#include "SpellScript.h"
 
 /*######
 ## npc_forest_frog
@@ -476,7 +477,6 @@ class spell_banging_the_gong : public SpellScriptLoader
             void Activate(SpellEffIndex index)
             {
                 PreventHitDefaultEffect(index);
-
                 GetHitGObj()->SendCustomAnim(0);
             }
 
