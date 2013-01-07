@@ -31,17 +31,13 @@ EndScriptData */
 #include "uldaman.h"
 #include "Player.h"
 
-#define SAY_AGGRO           "Who dares awaken Archaedas? Who dares the wrath of the makers!"
-#define SOUND_AGGRO         5855
-
-#define SAY_SUMMON          "Awake ye servants, defend the discs!"
-#define SOUND_SUMMON        5856
-
-#define SAY_SUMMON2         "To my side, brothers. For the makers!"
-#define SOUND_SUMMON2       5857
-
-#define SAY_KILL            "Reckless mortal."
-#define SOUND_KILL          5858
+enum Says
+{
+    SAY_AGGRO                   = 0,
+    SAY_SUMMON_GUARDIANS        = 1,
+    SAY_SUMMON_VAULT_WALKERS    = 2,
+    SAY_KILL                    = 3
+};
 
 enum eSpells
 {
@@ -122,8 +118,7 @@ class boss_archaedas : public CreatureScript
                 // Being woken up from the altar, start the awaken sequence
                 if (spell == sSpellMgr->GetSpellInfo(SPELL_ARCHAEDAS_AWAKEN))
                 {
-                    me->MonsterYell(SAY_AGGRO, LANG_UNIVERSAL, 0);
-                    DoPlaySoundToSet(me, SOUND_AGGRO);
+                    Talk(SAY_AGGRO);
                     iAwakenTimer = 4000;
                     bWakingUp = true;
                 }
@@ -131,8 +126,7 @@ class boss_archaedas : public CreatureScript
 
             void KilledUnit(Unit* /*victim*/)
             {
-                me->MonsterYell(SAY_KILL, LANG_UNIVERSAL, 0);
-                DoPlaySoundToSet(me, SOUND_KILL);
+                Talk(SAY_KILL);
             }
 
             void UpdateAI(const uint32 uiDiff)
@@ -172,8 +166,7 @@ class boss_archaedas : public CreatureScript
                     ActivateMinion(instance->GetData64(8), true);   // EarthenGuardian4
                     ActivateMinion(instance->GetData64(9), true);   // EarthenGuardian5
                     ActivateMinion(instance->GetData64(10), false); // EarthenGuardian6
-                    me->MonsterYell(SAY_SUMMON, LANG_UNIVERSAL, 0);
-                    DoPlaySoundToSet(me, SOUND_SUMMON);
+                    Talk(SAY_SUMMON_GUARDIANS);
                     bGuardiansAwake = true;
                 }
 
@@ -184,8 +177,7 @@ class boss_archaedas : public CreatureScript
                     ActivateMinion(instance->GetData64(2), true);    // VaultWalker2
                     ActivateMinion(instance->GetData64(3), true);    // VaultWalker3
                     ActivateMinion(instance->GetData64(4), false);    // VaultWalker4
-                    me->MonsterYell(SAY_SUMMON2, LANG_UNIVERSAL, 0);
-                    DoPlaySoundToSet(me, SOUND_SUMMON2);
+                    Talk(SAY_SUMMON_VAULT_WALKERS);
                     bVaultWalkersAwake = true;
                 }
 
