@@ -29,126 +29,148 @@
 enum WarriorSpells
 {
     WARRIOR_SPELL_LAST_STAND_TRIGGERED           = 12976,
+
+    WARRIOR_SPELL_BLOODTHIRST                    = 23885,
+    WARRIOR_SPELL_BLOODTHIRST_DAMAGE             = 23881,
 };
 
-class spell_warr_last_stand : public SpellScriptLoader
+class spell_warr_bloodthirst : public SpellScriptLoader
 {
     public:
-        spell_warr_last_stand() : SpellScriptLoader("spell_warr_last_stand") { }
+        spell_warr_bloodthirst() : SpellScriptLoader("spell_warr_bloodthirst") { }
 
-        class spell_warr_last_stand_SpellScript : public SpellScript
+        class spell_warr_bloodthirst_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_warr_last_stand_SpellScript);
+            PrepareSpellScript(spell_warr_bloodthirst_SpellScript);
 
-            bool Validate(SpellInfo const* /*spellEntry*/)
+            void HandleDamage(SpellEffIndex /*effIndex*/)
             {
-                if (!sSpellMgr->GetSpellInfo(WARRIOR_SPELL_LAST_STAND_TRIGGERED))
-                    return false;
-                return true;
+                int32 damage = GetEffectValue();
+                ApplyPct(damage, GetCaster()->GetTotalAttackPowerValue(BASE_ATTACK));
+
+                if (Unit* target = GetHitUnit())
+                {
+                    damage = GetCaster()->SpellDamageBonusDone(target, GetSpellInfo(), uint32(damage), SPELL_DIRECT_DAMAGE);
+                    damage = target->SpellDamageBonusTaken(GetCaster(), GetSpellInfo(), uint32(damage), SPELL_DIRECT_DAMAGE);
+                }
+                SetHitDamage(damage);
             }
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
-                if (Unit* caster = GetCaster())
-                {
-                    int32 healthModSpellBasePoints0 = int32(caster->CountPctFromMaxHealth(30));
-                    caster->CastCustomSpell(caster, WARRIOR_SPELL_LAST_STAND_TRIGGERED, &healthModSpellBasePoints0, NULL, NULL, true, NULL);
-                }
+                int32 damage = GetEffectValue();
+                GetCaster()->CastCustomSpell(GetCaster(), WARRIOR_SPELL_BLOODTHIRST, &damage, NULL, NULL, true, NULL);
             }
 
             void Register()
             {
-                // add dummy effect spell handler to Last Stand
-                OnEffectHit += SpellEffectFn(spell_warr_last_stand_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnEffectHitTarget += SpellEffectFn(spell_warr_bloodthirst_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+                OnEffectHit += SpellEffectFn(spell_warr_bloodthirst_SpellScript::HandleDummy, EFFECT_1, SPELL_EFFECT_DUMMY);
             }
         };
 
         SpellScript* GetSpellScript() const
         {
-            return new spell_warr_last_stand_SpellScript();
+            return new spell_warr_bloodthirst_SpellScript();
         }
 };
 
-class spell_warr_improved_spell_reflection : public SpellScriptLoader
+class spell_warr_bloodthirst_heal : public SpellScriptLoader
 {
     public:
-        spell_warr_improved_spell_reflection() : SpellScriptLoader("spell_warr_improved_spell_reflection") { }
+        spell_warr_bloodthirst_heal() : SpellScriptLoader("spell_warr_bloodthirst_heal") { }
 
-        class spell_warr_improved_spell_reflection_SpellScript : public SpellScript
+        class spell_warr_bloodthirst_heal_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_warr_improved_spell_reflection_SpellScript);
+            PrepareSpellScript(spell_warr_bloodthirst_heal_SpellScript);
 
-            void FilterTargets(std::list<WorldObject*>& unitList)
+            void HandleHeal(SpellEffIndex /*effIndex*/)
             {
-                if (GetCaster())
-                    unitList.remove(GetCaster());
+                if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(WARRIOR_SPELL_BLOODTHIRST_DAMAGE))
+                    SetHitHeal(GetCaster()->CountPctFromMaxHealth(spellInfo->Effects[EFFECT_1].CalcValue(GetCaster())));
             }
 
             void Register()
             {
-                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_warr_improved_spell_reflection_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_CASTER_AREA_PARTY);
+                OnEffectHitTarget += SpellEffectFn(spell_warr_bloodthirst_heal_SpellScript::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL);
             }
         };
 
         SpellScript* GetSpellScript() const
         {
-            return new spell_warr_improved_spell_reflection_SpellScript();
+            return new spell_warr_bloodthirst_heal_SpellScript();
         }
 };
 
-enum DamageReductionAura
+enum Charge
 {
-    SPELL_BLESSING_OF_SANCTUARY         = 20911,
-    SPELL_GREATER_BLESSING_OF_SANCTUARY = 25899,
-    SPELL_RENEWED_HOPE                  = 63944,
-    SPELL_DAMAGE_REDUCTION_AURA         = 68066,
+    SPELL_JUGGERNAUT_CRIT_BONUS_TALENT      = 64976,
+    SPELL_JUGGERNAUT_CRIT_BONUS_BUFF        = 65156,
+    SPELL_CHARGE                            = 34846,
 };
 
-class spell_warr_vigilance : public SpellScriptLoader
+class spell_warr_charge : public SpellScriptLoader
 {
-public:
-    spell_warr_vigilance() : SpellScriptLoader("spell_warr_vigilance") { }
+    public:
+        spell_warr_charge() : SpellScriptLoader("spell_warr_charge") { }
 
-    class spell_warr_vigilance_AuraScript : public AuraScript
-    {
-        PrepareAuraScript(spell_warr_vigilance_AuraScript);
-
-        bool Validate(SpellInfo const* /*SpellEntry*/)
+        class spell_warr_charge_SpellScript : public SpellScript
         {
-            if (!sSpellMgr->GetSpellInfo(SPELL_DAMAGE_REDUCTION_AURA))
-                return false;
-            return true;
-        }
+            PrepareSpellScript(spell_warr_charge_SpellScript);
 
-        void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-        {
-            if (Unit* target = GetTarget())
-                target->CastSpell(target, SPELL_DAMAGE_REDUCTION_AURA, true);
-        }
-
-        void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-        {
-            if (Unit* target = GetTarget())
+            bool Validate(SpellInfo const* /*Spell*/)
             {
-                if (target->HasAura(SPELL_DAMAGE_REDUCTION_AURA) && !(target->HasAura(SPELL_BLESSING_OF_SANCTUARY) ||
-                    target->HasAura(SPELL_GREATER_BLESSING_OF_SANCTUARY) ||
-                    target->HasAura(SPELL_RENEWED_HOPE)))
-                        target->RemoveAurasDueToSpell(SPELL_DAMAGE_REDUCTION_AURA);
+                if (!sSpellMgr->GetSpellInfo(SPELL_JUGGERNAUT_CRIT_BONUS_TALENT) || !sSpellMgr->GetSpellInfo(SPELL_JUGGERNAUT_CRIT_BONUS_BUFF) || !sSpellMgr->GetSpellInfo(SPELL_CHARGE))
+                    return false;
+                return true;
             }
-        }
+            void HandleDummy(SpellEffIndex /*effIndex*/)
+            {
+                int32 chargeBasePoints0 = GetEffectValue();
+                Unit* caster = GetCaster();
+                caster->CastCustomSpell(caster, SPELL_CHARGE, &chargeBasePoints0, NULL, NULL, true);
 
-        void Register()
+                // Juggernaut crit bonus
+                if (caster->HasAura(SPELL_JUGGERNAUT_CRIT_BONUS_TALENT))
+                    caster->CastSpell(caster, SPELL_JUGGERNAUT_CRIT_BONUS_BUFF, true);
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_warr_charge_SpellScript::HandleDummy, EFFECT_1, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
         {
-            OnEffectApply += AuraEffectApplyFn(spell_warr_vigilance_AuraScript::OnApply, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
-            OnEffectRemove += AuraEffectRemoveFn(spell_warr_vigilance_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+            return new spell_warr_charge_SpellScript();
         }
+};
 
-    };
+class spell_warr_concussion_blow : public SpellScriptLoader
+{
+    public:
+        spell_warr_concussion_blow() : SpellScriptLoader("spell_warr_concussion_blow") { }
 
-    AuraScript* GetAuraScript() const
-    {
-        return new spell_warr_vigilance_AuraScript();
-    }
+        class spell_warr_concussion_blow_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_warr_concussion_blow_SpellScript);
+
+            void HandleDummy(SpellEffIndex /* effIndex */)
+            {
+                SetHitDamage(CalculatePct(GetCaster()->GetTotalAttackPowerValue(BASE_ATTACK), GetEffectValue()));
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_warr_concussion_blow_SpellScript::HandleDummy, EFFECT_2, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_warr_concussion_blow_SpellScript();
+        }
 };
 
 enum DeepWounds
@@ -213,48 +235,204 @@ class spell_warr_deep_wounds : public SpellScriptLoader
         }
 };
 
-enum Charge
+enum Execute
 {
-    SPELL_JUGGERNAUT_CRIT_BONUS_TALENT      = 64976,
-    SPELL_JUGGERNAUT_CRIT_BONUS_BUFF        = 65156,
-    SPELL_CHARGE                            = 34846,
+    SPELL_EXECUTE               = 20647,
+    SPELL_GLYPH_OF_EXECUTION    = 58367,
+    ICON_ID_SUDDEN_DEATH        = 1989,
 };
 
-class spell_warr_charge : public SpellScriptLoader
+class spell_warr_execute : public SpellScriptLoader
 {
     public:
-        spell_warr_charge() : SpellScriptLoader("spell_warr_charge") { }
+        spell_warr_execute() : SpellScriptLoader("spell_warr_execute") { }
 
-        class spell_warr_charge_SpellScript : public SpellScript
+        class spell_warr_execute_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_warr_charge_SpellScript);
+            PrepareSpellScript(spell_warr_execute_SpellScript);
 
             bool Validate(SpellInfo const* /*SpellEntry*/)
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_JUGGERNAUT_CRIT_BONUS_TALENT) || !sSpellMgr->GetSpellInfo(SPELL_JUGGERNAUT_CRIT_BONUS_BUFF) || !sSpellMgr->GetSpellInfo(SPELL_CHARGE))
+                if (!sSpellMgr->GetSpellInfo(SPELL_EXECUTE) || !sSpellMgr->GetSpellInfo(SPELL_GLYPH_OF_EXECUTION))
                     return false;
                 return true;
             }
-            void HandleDummy(SpellEffIndex /* effIndex */)
-            {
-                int32 chargeBasePoints0 = GetEffectValue();
-                Unit* caster = GetCaster();
-                caster->CastCustomSpell(caster, SPELL_CHARGE, &chargeBasePoints0, NULL, NULL, true);
 
-                //Juggernaut crit bonus
-                if (caster->HasAura(SPELL_JUGGERNAUT_CRIT_BONUS_TALENT))
-                    caster->CastSpell(caster, SPELL_JUGGERNAUT_CRIT_BONUS_BUFF, true);
+            void HandleDummy(SpellEffIndex effIndex)
+            {
+                Unit* caster = GetCaster();
+                if (Unit* target = GetHitUnit())
+                {
+                    SpellInfo const* spellInfo = GetSpellInfo();
+                    int32 rageUsed = std::min<int32>(300 - spellInfo->CalcPowerCost(caster, SpellSchoolMask(spellInfo->SchoolMask)), caster->GetPower(POWER_RAGE));
+                    int32 newRage = std::max<int32>(0, caster->GetPower(POWER_RAGE) - rageUsed);
+
+                    // Sudden Death rage save
+                    if (AuraEffect* aurEff = caster->GetAuraEffect(SPELL_AURA_PROC_TRIGGER_SPELL, SPELLFAMILY_GENERIC, ICON_ID_SUDDEN_DEATH, EFFECT_0))
+                    {
+                        int32 ragesave = aurEff->GetSpellInfo()->Effects[EFFECT_1].CalcValue() * 10;
+                        newRage = std::max(newRage, ragesave);
+                    }
+
+                    caster->SetPower(POWER_RAGE, uint32(newRage));
+                    // Glyph of Execution bonus
+                    if (AuraEffect* aurEff = caster->GetAuraEffect(SPELL_GLYPH_OF_EXECUTION, EFFECT_0))
+                        rageUsed += aurEff->GetAmount() * 10;
+
+
+                    int32 bp = GetEffectValue() + int32(rageUsed * spellInfo->Effects[effIndex].DamageMultiplier + caster->GetTotalAttackPowerValue(BASE_ATTACK) * 0.2f);
+                    caster->CastCustomSpell(target, SPELL_EXECUTE, &bp, 0, 0, true, 0, 0, GetOriginalCaster()->GetGUID());
+                }
             }
 
             void Register()
             {
-                OnEffectHitTarget += SpellEffectFn(spell_warr_charge_SpellScript::HandleDummy, EFFECT_1, SPELL_EFFECT_DUMMY);
+                OnEffectHitTarget += SpellEffectFn(spell_warr_execute_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
         SpellScript* GetSpellScript() const
         {
-            return new spell_warr_charge_SpellScript();
+            return new spell_warr_execute_SpellScript();
+        }
+};
+
+class spell_warr_improved_spell_reflection : public SpellScriptLoader
+{
+    public:
+        spell_warr_improved_spell_reflection() : SpellScriptLoader("spell_warr_improved_spell_reflection") { }
+
+        class spell_warr_improved_spell_reflection_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_warr_improved_spell_reflection_SpellScript);
+
+            void FilterTargets(std::list<WorldObject*>& unitList)
+            {
+                if (GetCaster())
+                    unitList.remove(GetCaster());
+            }
+
+            void Register()
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_warr_improved_spell_reflection_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_CASTER_AREA_PARTY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_warr_improved_spell_reflection_SpellScript();
+        }
+};
+
+// 5246 - Intimidating Shout
+class spell_warr_intimidating_shout : public SpellScriptLoader
+{
+    public:
+        spell_warr_intimidating_shout() : SpellScriptLoader("spell_warr_intimidating_shout") { }
+
+        class spell_warr_intimidating_shout_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_warr_intimidating_shout_SpellScript);
+
+            void FilterTargets(std::list<WorldObject*>& unitList)
+            {
+                unitList.remove(GetExplTargetWorldObject());
+            }
+
+            void Register()
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_warr_intimidating_shout_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_warr_intimidating_shout_SpellScript::FilterTargets, EFFECT_2, TARGET_UNIT_SRC_AREA_ENEMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_warr_intimidating_shout_SpellScript();
+        }
+};
+
+class spell_warr_last_stand : public SpellScriptLoader
+{
+    public:
+        spell_warr_last_stand() : SpellScriptLoader("spell_warr_last_stand") { }
+
+        class spell_warr_last_stand_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_warr_last_stand_SpellScript);
+
+            bool Validate(SpellInfo const* /*spell*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(WARRIOR_SPELL_LAST_STAND_TRIGGERED))
+                    return false;
+                return true;
+            }
+
+            void HandleDummy(SpellEffIndex /*effIndex*/)
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    int32 healthModSpellBasePoints0 = int32(caster->CountPctFromMaxHealth(30));
+                    caster->CastCustomSpell(caster, WARRIOR_SPELL_LAST_STAND_TRIGGERED, &healthModSpellBasePoints0, NULL, NULL, true, NULL);
+                }
+            }
+
+            void Register()
+            {
+                // add dummy effect spell handler to Last Stand
+                OnEffectHit += SpellEffectFn(spell_warr_last_stand_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_warr_last_stand_SpellScript();
+        }
+};
+
+// -772 - Rend
+class spell_warr_rend : public SpellScriptLoader
+{
+    public:
+        spell_warr_rend() : SpellScriptLoader("spell_warr_rend") { }
+
+        class spell_warr_rend_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_warr_rend_AuraScript);
+
+            void CalculateAmount(AuraEffect const* aurEff, int32& amount, bool& canBeRecalculated)
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    canBeRecalculated = false;
+
+                    // $0.2 * (($MWB + $mwb) / 2 + $AP / 14 * $MWS) bonus per tick
+                    float ap = caster->GetTotalAttackPowerValue(BASE_ATTACK);
+                    int32 mws = caster->GetAttackTime(BASE_ATTACK);
+                    float mwbMin = caster->GetWeaponDamageRange(BASE_ATTACK, MINDAMAGE);
+                    float mwbMax = caster->GetWeaponDamageRange(BASE_ATTACK, MAXDAMAGE);
+                    float mwb = ((mwbMin + mwbMax) / 2 + ap * mws / 14000) * 0.2f;
+                    amount += int32(caster->ApplyEffectModifiers(GetSpellInfo(), aurEff->GetEffIndex(), mwb));
+
+                    // "If used while your target is above 75% health, Rend does 35% more damage."
+                    // as for 3.1.3 only ranks above 9
+                    if (GetSpellInfo()->GetRank() >= 9)
+                    {
+                        if (GetUnitOwner()->HasAuraState(AURA_STATE_HEALTH_ABOVE_75_PERCENT, GetSpellInfo(), caster))
+                            AddPct(amount, GetSpellInfo()->Effects[EFFECT_2].CalcValue(caster));
+                    }
+                }
+            }
+
+            void Register()
+            {
+                 DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_warr_rend_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_warr_rend_AuraScript();
         }
 };
 
@@ -297,171 +475,6 @@ class spell_warr_slam : public SpellScriptLoader
         }
 };
 
-enum Execute
-{
-    SPELL_EXECUTE               = 20647,
-    SPELL_GLYPH_OF_EXECUTION    = 58367,
-    ICON_ID_SUDDEN_DEATH        = 1989,
-};
-
-class spell_warr_execute : public SpellScriptLoader
-{
-    public:
-        spell_warr_execute() : SpellScriptLoader("spell_warr_execute") { }
-
-        class spell_warr_execute_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_warr_execute_SpellScript);
-
-            bool Validate(SpellInfo const* /*SpellEntry*/)
-            {
-                if (!sSpellMgr->GetSpellInfo(SPELL_EXECUTE) || !sSpellMgr->GetSpellInfo(SPELL_GLYPH_OF_EXECUTION))
-                    return false;
-                return true;
-            }
-            void HandleDummy(SpellEffIndex effIndex)
-            {
-                Unit* caster = GetCaster();
-                if (Unit* target = GetHitUnit())
-                {
-                    SpellInfo const* spellInfo = GetSpellInfo();
-                    int32 rageUsed = std::min<int32>(300 - spellInfo->CalcPowerCost(caster, SpellSchoolMask(spellInfo->SchoolMask)), caster->GetPower(POWER_RAGE));
-                    int32 newRage = std::max<int32>(0, caster->GetPower(POWER_RAGE) - rageUsed);
-
-                    // Sudden Death rage save
-                    if (AuraEffect* aurEff = caster->GetAuraEffect(SPELL_AURA_PROC_TRIGGER_SPELL, SPELLFAMILY_GENERIC, ICON_ID_SUDDEN_DEATH, EFFECT_0))
-                    {
-                        int32 ragesave = aurEff->GetSpellInfo()->Effects[EFFECT_1].CalcValue() * 10;
-                        newRage = std::max(newRage, ragesave);
-                    }
-
-                    caster->SetPower(POWER_RAGE, uint32(newRage));
-                    // Glyph of Execution bonus
-                    if (AuraEffect* aurEff = caster->GetAuraEffect(SPELL_GLYPH_OF_EXECUTION, EFFECT_0))
-                        rageUsed += aurEff->GetAmount() * 10;
-
-
-                    int32 bp = GetEffectValue() + int32(rageUsed * spellInfo->Effects[effIndex].DamageMultiplier + caster->GetTotalAttackPowerValue(BASE_ATTACK) * 0.2f);
-                    caster->CastCustomSpell(target,SPELL_EXECUTE,&bp,0,0,true,0,0,GetOriginalCaster()->GetGUID());
-                }
-            }
-
-            void Register()
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_warr_execute_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_warr_execute_SpellScript();
-        }
-};
-
-class spell_warr_concussion_blow : public SpellScriptLoader
-{
-    public:
-        spell_warr_concussion_blow() : SpellScriptLoader("spell_warr_concussion_blow") { }
-
-        class spell_warr_concussion_blow_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_warr_concussion_blow_SpellScript);
-
-            void HandleDummy(SpellEffIndex /* effIndex */)
-            {
-                SetHitDamage(CalculatePct(GetCaster()->GetTotalAttackPowerValue(BASE_ATTACK), GetEffectValue()));
-            }
-
-            void Register()
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_warr_concussion_blow_SpellScript::HandleDummy, EFFECT_2, SPELL_EFFECT_DUMMY);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_warr_concussion_blow_SpellScript();
-        }
-};
-
-enum Bloodthirst
-{
-    SPELL_BLOODTHIRST = 23885,
-};
-
-class spell_warr_bloodthirst : public SpellScriptLoader
-{
-    public:
-        spell_warr_bloodthirst() : SpellScriptLoader("spell_warr_bloodthirst") { }
-
-        class spell_warr_bloodthirst_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_warr_bloodthirst_SpellScript);
-
-            void HandleDamage(SpellEffIndex /*effIndex*/)
-            {
-                int32 damage = GetEffectValue();
-                ApplyPct(damage, GetCaster()->GetTotalAttackPowerValue(BASE_ATTACK));
-
-                if (Unit* target = GetHitUnit())
-                {
-                    damage = GetCaster()->SpellDamageBonusDone(target, GetSpellInfo(), uint32(damage), SPELL_DIRECT_DAMAGE);
-                    damage = target->SpellDamageBonusTaken(GetCaster(), GetSpellInfo(), uint32(damage), SPELL_DIRECT_DAMAGE);
-                }
-                SetHitDamage(damage);
-            }
-
-            void HandleDummy(SpellEffIndex /*effIndex*/)
-            {
-                int32 damage = GetEffectValue();
-                GetCaster()->CastCustomSpell(GetCaster(), SPELL_BLOODTHIRST, &damage, NULL, NULL, true, NULL);
-            }
-
-            void Register()
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_warr_bloodthirst_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
-                OnEffectHit += SpellEffectFn(spell_warr_bloodthirst_SpellScript::HandleDummy, EFFECT_1, SPELL_EFFECT_DUMMY);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_warr_bloodthirst_SpellScript();
-        }
-};
-
-enum BloodthirstHeal
-{
-    SPELL_BLOODTHIRST_DAMAGE = 23881,
-};
-
-class spell_warr_bloodthirst_heal : public SpellScriptLoader
-{
-    public:
-        spell_warr_bloodthirst_heal() : SpellScriptLoader("spell_warr_bloodthirst_heal") { }
-
-        class spell_warr_bloodthirst_heal_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_warr_bloodthirst_heal_SpellScript);
-
-            void HandleHeal(SpellEffIndex /*effIndex*/)
-            {
-                if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(SPELL_BLOODTHIRST_DAMAGE))
-                    SetHitHeal(GetCaster()->CountPctFromMaxHealth(spellInfo->Effects[EFFECT_1].CalcValue(GetCaster())));
-            }
-
-            void Register()
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_warr_bloodthirst_heal_SpellScript::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_warr_bloodthirst_heal_SpellScript();
-        }
-};
-
 enum Overpower
 {
     SPELL_UNRELENTING_ASSAULT_RANK_1        = 46859,
@@ -472,52 +485,109 @@ enum Overpower
 
 class spell_warr_overpower : public SpellScriptLoader
 {
-public:
-    spell_warr_overpower() : SpellScriptLoader("spell_warr_overpower") { }
+    public:
+        spell_warr_overpower() : SpellScriptLoader("spell_warr_overpower") { }
 
-    class spell_warr_overpower_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_warr_overpower_SpellScript);
-
-        void HandleEffect(SpellEffIndex /* effIndex */)
+        class spell_warr_overpower_SpellScript : public SpellScript
         {
-            uint32 spellId = 0;
-            if (GetCaster()->HasAura(SPELL_UNRELENTING_ASSAULT_RANK_1))
-                spellId = SPELL_UNRELENTING_ASSAULT_TRIGGER_1;
-            else if (GetCaster()->HasAura(SPELL_UNRELENTING_ASSAULT_RANK_2))
-                spellId = SPELL_UNRELENTING_ASSAULT_TRIGGER_2;
+            PrepareSpellScript(spell_warr_overpower_SpellScript);
 
-            if (!spellId)
-                return;
+            void HandleEffect(SpellEffIndex /*effIndex*/)
+            {
+                uint32 spellId = 0;
+                if (GetCaster()->HasAura(SPELL_UNRELENTING_ASSAULT_RANK_1))
+                    spellId = SPELL_UNRELENTING_ASSAULT_TRIGGER_1;
+                else if (GetCaster()->HasAura(SPELL_UNRELENTING_ASSAULT_RANK_2))
+                    spellId = SPELL_UNRELENTING_ASSAULT_TRIGGER_2;
 
-            if (Player* target = GetHitPlayer())
-                if (target->HasUnitState(UNIT_STATE_CASTING))
-                    target->CastSpell(target, spellId, true);
-        }
+                if (!spellId)
+                    return;
 
-        void Register()
+                if (Player* target = GetHitPlayer())
+                    if (target->HasUnitState(UNIT_STATE_CASTING))
+                        target->CastSpell(target, spellId, true);
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_warr_overpower_SpellScript::HandleEffect, EFFECT_0, SPELL_EFFECT_ANY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
         {
-            OnEffectHitTarget += SpellEffectFn(spell_warr_overpower_SpellScript::HandleEffect, EFFECT_0, SPELL_EFFECT_ANY);
+            return new spell_warr_overpower_SpellScript();
         }
-    };
+};
 
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_warr_overpower_SpellScript();
-    }
+enum DamageReductionAura
+{
+    SPELL_BLESSING_OF_SANCTUARY         = 20911,
+    SPELL_GREATER_BLESSING_OF_SANCTUARY = 25899,
+    SPELL_RENEWED_HOPE                  = 63944,
+    SPELL_DAMAGE_REDUCTION_AURA         = 68066,
+};
+
+class spell_warr_vigilance : public SpellScriptLoader
+{
+    public:
+        spell_warr_vigilance() : SpellScriptLoader("spell_warr_vigilance") { }
+
+        class spell_warr_vigilance_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_warr_vigilance_AuraScript);
+
+            bool Validate(SpellInfo const* /*SpellEntry*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_DAMAGE_REDUCTION_AURA))
+                    return false;
+                return true;
+            }
+
+            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (Unit* target = GetTarget())
+                    target->CastSpell(target, SPELL_DAMAGE_REDUCTION_AURA, true);
+            }
+
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (Unit* target = GetTarget())
+                {
+                    if (target->HasAura(SPELL_DAMAGE_REDUCTION_AURA) && !(target->HasAura(SPELL_BLESSING_OF_SANCTUARY) ||
+                        target->HasAura(SPELL_GREATER_BLESSING_OF_SANCTUARY) ||
+                        target->HasAura(SPELL_RENEWED_HOPE)))
+                            target->RemoveAurasDueToSpell(SPELL_DAMAGE_REDUCTION_AURA);
+                }
+            }
+
+            void Register()
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_warr_vigilance_AuraScript::OnApply, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+                OnEffectRemove += AuraEffectRemoveFn(spell_warr_vigilance_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+            }
+
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_warr_vigilance_AuraScript();
+        }
 };
 
 void AddSC_warrior_spell_scripts()
 {
-    new spell_warr_last_stand();
-    new spell_warr_improved_spell_reflection();
-    new spell_warr_vigilance();
-    new spell_warr_deep_wounds();
-    new spell_warr_charge();
-    new spell_warr_slam();
-    new spell_warr_execute();
-    new spell_warr_concussion_blow();
     new spell_warr_bloodthirst();
     new spell_warr_bloodthirst_heal();
+    new spell_warr_charge();
+    new spell_warr_concussion_blow();
+    new spell_warr_deep_wounds();
+    new spell_warr_execute();
+    new spell_warr_improved_spell_reflection();
+    new spell_warr_intimidating_shout();
+    new spell_warr_last_stand();
+    new spell_warr_rend();
+    new spell_warr_slam();
     new spell_warr_overpower();
+    new spell_warr_vigilance();
 }
