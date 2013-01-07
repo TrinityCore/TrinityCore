@@ -40,7 +40,7 @@ EndScriptData */
 #define SPELL_FIERY_BLAST           DUNGEON_MODE(N_SPELL_FIERY_BLAST, H_SPELL_FIERY_BLAST)
 #define SPELL_FOCUS_FIRE_VISUAL     42075 //need to find better visual
 
-enum Emote
+enum Say
 {
     EMOTE_FOCUSE                  = 0
 };
@@ -146,7 +146,7 @@ public:
                 {
                     FocusedTargetGUID = target->GetGUID();
                     me->SummonCreature(ENTRY_FOCUS_FIRE, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 5500);
-                    Talk(EMOTE_FOCUSE);
+                    Talk(EMOTE_FOCUSE, FocusedTargetGUID);
                 }
                 FocusFire_Timer = 15000+(rand()%5000);
             } else FocusFire_Timer -= diff;
