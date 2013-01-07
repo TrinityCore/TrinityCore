@@ -637,6 +637,10 @@ class boss_professor_putricide : public CreatureScript
                             DoCastAOE(SPELL_TEAR_GAS_CANCEL);
                             instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_GAS_VARIABLE);
                             instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_OOZE_VARIABLE);
+                            for (SummonList::iterator itr = summons.begin(); itr != summons.end(); ++itr)
+                                if(Unit* unit = ObjectAccessor::GetUnit(*me, *itr))
+                                    if (unit->GetEntry() == NPC_MUTATED_ABOMINATION_10 || unit->GetEntry() == NPC_MUTATED_ABOMINATION_25)
+                                        unit->RemoveAurasDueToSpell(71615);
                             break;
                         case EVENT_MALLEABLE_GOO:
                             if (Is25ManRaid())
