@@ -182,9 +182,6 @@ class instance_zulaman : public InstanceMapScript
 
             void CheckInstanceStatus()
             {
-                if (m_auiEncounter[DATA_GONGEVENT] == DONE)
-                    HandleGameObject(MassiveGateGUID, true);
-
                 if (BossKilled >= DATA_HALAZZIEVENT)
                     HandleGameObject(HexLordGateGUID, true);
 
@@ -228,9 +225,9 @@ class instance_zulaman : public InstanceMapScript
                 {
                 case DATA_GONGEVENT:
                     m_auiEncounter[DATA_GONGEVENT] = data;
-                    if (data == SPECIAL)
+                    if (data == IN_PROGRESS)
                         SaveToDB();
-                    if (data == DONE)
+                    else if (data == DONE)
                         QuestMinute = 21;
                     break;
                 case DATA_NALORAKKEVENT:
