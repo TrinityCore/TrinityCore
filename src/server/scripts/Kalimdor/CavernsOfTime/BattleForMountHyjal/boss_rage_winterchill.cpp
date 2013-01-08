@@ -25,16 +25,16 @@ enum Spells
     SPELL_FROST_ARMOR           = 31256,
     SPELL_DEATH_AND_DECAY       = 31258,
     SPELL_FROST_NOVA            = 31250,
-    SPELL_ICEBOLT               = 31249,
+    SPELL_ICEBOLT               = 31249
 };
 
 enum Texts
 {
-    SAY_ONDEATH         = 0,
-    SAY_ONSLAY          = 1,
-    SAY_DECAY           = 2,
-    SAY_NOVA            = 3,
-    SAY_ONAGGRO         = 4,
+    SAY_ONDEATH                 = 0,
+    SAY_ONSLAY                  = 1,
+    SAY_DECAY                   = 2,
+    SAY_NOVA                    = 3,
+    SAY_ONAGGRO                 = 4
 };
 
 class boss_rage_winterchill : public CreatureScript

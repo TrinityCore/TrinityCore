@@ -38,7 +38,7 @@ enum Spells
     SPELL_SUMMON_REINFORCEMENTS = 34803
 };
 
-enum
+enum Events
 {
     EVENT_ARCANE_RESONANCE      = 1,
     EVENT_ARCANE_DEVASTATION    = 2
