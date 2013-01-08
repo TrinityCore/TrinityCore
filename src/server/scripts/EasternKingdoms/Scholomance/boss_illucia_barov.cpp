@@ -27,97 +27,98 @@ EndScriptData */
 #include "ScriptedCreature.h"
 #include "scholomance.h"
 
-#define SPELL_CURSEOFAGONY      18671
-#define SPELL_SHADOWSHOCK       20603
-#define SPELL_SILENCE           15487
-#define SPELL_FEAR              6215
+enum Spells
+{
+    SPELL_CURSEOFAGONY          = 34794,
+    SPELL_SHADOWSHOCK           = 34799,
+    SPELL_SILENCE               = 34803,
+    SPELL_FEAR                  = 34803
+};
+
+enum Events
+{
+    EVENT_CURSEOFAGONY          = 1,
+    EVENT_SHADOWSHOCK           = 2,
+    EVENT_SILENCE               = 3,
+    EVENT_FEAR                  = 4
+};
 
 class boss_illucia_barov : public CreatureScript
 {
-public:
-    boss_illucia_barov() : CreatureScript("boss_illucia_barov") { }
+    public: boss_illucia_barov() : CreatureScript("boss_illucia_barov") { }
 
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new boss_illuciabarovAI (creature);
-    }
-
-    struct boss_illuciabarovAI : public ScriptedAI
-    {
-        boss_illuciabarovAI(Creature* creature) : ScriptedAI(creature) {}
-
-        uint32 CurseOfAgony_Timer;
-        uint32 ShadowShock_Timer;
-        uint32 Silence_Timer;
-        uint32 Fear_Timer;
-
-        void Reset()
+        struct boss_illuciabarovAI : public BossAI
         {
-            CurseOfAgony_Timer = 18000;
-            ShadowShock_Timer = 9000;
-            Silence_Timer = 5000;
-            Fear_Timer = 30000;
-        }
+            boss_illuciabarovAI(Creature* creature) : BossAI(creature,DATA_LADYILLUCIABAROV) {}
 
-        void JustDied(Unit* /*killer*/)
-        {
-            InstanceScript* instance = me->GetInstanceScript();
-            if (instance)
+            void Reset() {}
+
+            void JustDied(Unit* /*killer*/)
             {
-                instance->SetData(DATA_LADYILLUCIABAROV_DEATH, 0);
-
-                if (instance->GetData(TYPE_GANDLING) == IN_PROGRESS)
+                InstanceScript* instance = me->GetInstanceScript();
+                if (instance)
                 {
-                    instance->SetData(TYPE_GANDLING, IN_PROGRESS);
-                    me->SummonCreature(1853, 180.73f, -9.43856f, 75.507f, 1.61399f, TEMPSUMMON_DEAD_DESPAWN, 0);
+                    instance->SetData(DATA_LADYILLUCIABAROV, DONE);
+
+                    if (instance->GetData(TYPE_GANDLING) == IN_PROGRESS)
+                    {
+                        instance->SetData(TYPE_GANDLING, IN_PROGRESS);
+                        me->SummonCreature(1853, 180.73f, -9.43856f, 75.507f, 1.61399f, TEMPSUMMON_DEAD_DESPAWN, 0);
+                    }
                 }
             }
-        }
 
-        void EnterCombat(Unit* /*who*/)
+            void EnterCombat(Unit* /*who*/)
+            {
+                events.ScheduleEvent(EVENT_CURSEOFAGONY, 18000);
+                events.ScheduleEvent(EVENT_SHADOWSHOCK, 9000);
+                events.ScheduleEvent(EVENT_SILENCE, 5000);
+                events.ScheduleEvent(EVENT_FEAR, 30000);
+            }
+
+            void UpdateAI(uint32 const diff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                events.Update(diff);
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                while (uint32 eventId = events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        case EVENT_CURSEOFAGONY:
+                            DoCastVictim(SPELL_CURSEOFAGONY, true);
+                            events.ScheduleEvent(EVENT_CURSEOFAGONY, 30000);
+                            break;
+                        case EVENT_SHADOWSHOCK:
+                            DoCast(SelectTarget(SELECT_TARGET_RANDOM,0, 100, true),SPELL_SHADOWSHOCK,true);
+                            events.ScheduleEvent(EVENT_SHADOWSHOCK, 12000);
+                            break;
+                        case EVENT_SILENCE:
+                            DoCastVictim(SPELL_SILENCE, true);
+                            events.ScheduleEvent(EVENT_SILENCE, 14000);
+                            break;
+                        case EVENT_FEAR:
+                            DoCastVictim(SPELL_FEAR, true);
+                            events.ScheduleEvent(EVENT_FEAR, 30000);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
         {
+            return new boss_illuciabarovAI (creature);
         }
-
-        void UpdateAI(const uint32 diff)
-        {
-            if (!UpdateVictim())
-                return;
-
-            //CurseOfAgony_Timer
-            if (CurseOfAgony_Timer <= diff)
-            {
-                DoCast(me->getVictim(), SPELL_CURSEOFAGONY);
-                CurseOfAgony_Timer = 30000;
-            } else CurseOfAgony_Timer -= diff;
-
-            //ShadowShock_Timer
-            if (ShadowShock_Timer <= diff)
-            {
-                Unit* target = NULL;
-                target = SelectTarget(SELECT_TARGET_RANDOM, 0);
-                if (target) DoCast(target, SPELL_SHADOWSHOCK);
-
-                ShadowShock_Timer = 12000;
-            } else ShadowShock_Timer -= diff;
-
-            //Silence_Timer
-            if (Silence_Timer <= diff)
-            {
-                DoCast(me->getVictim(), SPELL_SILENCE);
-                Silence_Timer = 14000;
-            } else Silence_Timer -= diff;
-
-            //Fear_Timer
-            if (Fear_Timer <= diff)
-            {
-                DoCast(me->getVictim(), SPELL_FEAR);
-                Fear_Timer = 30000;
-            } else Fear_Timer -= diff;
-
-            DoMeleeAttackIfReady();
-        }
-    };
-
 };
 
 void AddSC_boss_illuciabarov()
