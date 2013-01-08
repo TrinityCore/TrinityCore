@@ -212,3 +212,6 @@ UPDATE `creature_template` SET `unit_flags` = 33685510, `ScriptName` = '' WHERE 
 UPDATE `creature_template` SET `ScriptName` = 'npc_vladof' WHERE `entry` =30022;
 UPDATE `creature_template` SET `faction_A` = '14',`faction_H` = '14' WHERE `entry` =30093;
 UPDATE `creature_template` SET `faction_A` = '14',`faction_H` = '14' WHERE `entry` =30110;
+
+-- Mr.Maniek ! <3
+UPDATE `creature_template` SET `ScriptName` = 'npc_maniek' WHERE `entry` = 91200;
