@@ -27,132 +27,132 @@ EndScriptData */
 #include "ScriptedCreature.h"
 #include "scholomance.h"
 
-#define SPELL_CALLOFGRAVES         17831
-#define SPELL_CORRUPTION           11672
-#define SPELL_FLASHHEAL            10917
-#define SPELL_RENEW                10929
-#define SPELL_HEALINGTOUCH         9889
+enum Spells
+{
+    SPELL_CALLOFGRAVES          = 17831,
+    SPELL_CORRUPTION            = 11672,
+    SPELL_FLASHHEAL             = 10917,
+    SPELL_RENEW                 = 10929,
+    SPELL_HEALINGTOUCH          = 9889
+};
+
+enum Events
+{
+    EVENT_CALLOFGRAVES          = 1,
+    EVENT_CORRUPTION            = 2,
+    EVENT_FLASHHEAL             = 3,
+    EVENT_RENEW                 = 4,
+    EVENT_HEALINGTOUCH          = 5
+};
 
 class boss_instructor_malicia : public CreatureScript
 {
-public:
-    boss_instructor_malicia() : CreatureScript("boss_instructor_malicia") { }
+    public: boss_instructor_malicia() : CreatureScript("boss_instructor_malicia") { }
 
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new boss_instructormaliciaAI (creature);
-    }
-
-    struct boss_instructormaliciaAI : public ScriptedAI
-    {
-        boss_instructormaliciaAI(Creature* creature) : ScriptedAI(creature) {}
-
-        uint32 CallOfGraves_Timer;
-        uint32 Corruption_Timer;
-        uint32 FlashHeal_Timer;
-        uint32 Renew_Timer;
-        uint32 HealingTouch_Timer;
-        uint32 FlashCounter;
-        uint32 TouchCounter;
-
-        void Reset()
+        struct boss_instructormaliciaAI : public BossAI
         {
-            CallOfGraves_Timer = 4000;
-            Corruption_Timer = 8000;
-            FlashHeal_Timer = 38000;
-            Renew_Timer = 32000;
-            HealingTouch_Timer = 45000;
-            FlashCounter = 0;
-            TouchCounter = 0;
-        }
+            boss_instructormaliciaAI(Creature* creature) : BossAI(creature, DATA_INSTRUCTORMALICIA) {}
 
-        void JustDied(Unit* /*killer*/)
-        {
-            InstanceScript* instance = me->GetInstanceScript();
-            if (instance)
+            uint32 FlashCounter;
+            uint32 TouchCounter;
+
+            void Reset()
             {
-                instance->SetData(DATA_INSTRUCTORMALICIA_DEATH, 0);
+                FlashCounter = 0;
+                TouchCounter = 0;
+            }
 
-                if (instance->GetData(TYPE_GANDLING) == IN_PROGRESS)
+            void JustDied(Unit* /*killer*/)
+            {
+                InstanceScript* instance = me->GetInstanceScript();
+                if (instance)
                 {
-                    instance->SetData(TYPE_GANDLING, IN_PROGRESS);
-                    me->SummonCreature(1853, 180.73f, -9.43856f, 75.507f, 1.61399f, TEMPSUMMON_DEAD_DESPAWN, 0);
+                    instance->SetData(DATA_INSTRUCTORMALICIA, DONE);
+
+                    if (instance->GetData(TYPE_GANDLING) == IN_PROGRESS)
+                    {
+                        instance->SetData(TYPE_GANDLING, IN_PROGRESS);
+                        me->SummonCreature(1853, 180.73f, -9.43856f, 75.507f, 1.61399f, TEMPSUMMON_DEAD_DESPAWN, 0);
+                    }
                 }
             }
-        }
 
-        void EnterCombat(Unit* /*who*/)
+            void EnterCombat(Unit* /*who*/)
+            {
+                events.ScheduleEvent(EVENT_CALLOFGRAVES, 4000);
+                events.ScheduleEvent(EVENT_CORRUPTION, 8000);
+                events.ScheduleEvent(EVENT_RENEW, 32000);
+                events.ScheduleEvent(EVENT_FLASHHEAL, 38000);
+                events.ScheduleEvent(EVENT_HEALINGTOUCH, 45000);
+            }
+
+            void UpdateAI(uint32 const diff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                events.Update(diff);
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                while (uint32 eventId = events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        case EVENT_CALLOFGRAVES:
+                            DoCastVictim(SPELL_CALLOFGRAVES, true);
+                            events.ScheduleEvent(EVENT_CALLOFGRAVES, 65000);
+                            break;
+                        case EVENT_CORRUPTION:
+                            DoCast(SelectTarget(SELECT_TARGET_RANDOM,0, 100, true),SPELL_CORRUPTION,true);
+                            events.ScheduleEvent(EVENT_CORRUPTION, 24000);
+                            break;
+                        case EVENT_RENEW:
+                            DoCast(me, SPELL_RENEW);
+                            events.ScheduleEvent(EVENT_RENEW, 10000);
+                            break;
+                        case EVENT_FLASHHEAL:
+                            //5 Flashheals will be casted
+                            DoCast(me, SPELL_FLASHHEAL);
+                            if (FlashCounter < 2)
+                            {
+                                events.ScheduleEvent(EVENT_FLASHHEAL, 5000);
+                                ++FlashCounter;
+                            }
+                            else
+                            {
+                                FlashCounter=0;
+                                events.ScheduleEvent(EVENT_FLASHHEAL, 30000);
+                            }
+                            break;
+                        case EVENT_HEALINGTOUCH:
+                            //3 Healing Touch will be casted
+                            DoCast(me, SPELL_HEALINGTOUCH);
+                            if (TouchCounter < 2)
+                            {
+                                events.ScheduleEvent(EVENT_HEALINGTOUCH, 5500);
+                                ++TouchCounter;
+                            }
+                            else
+                            {
+                                TouchCounter=0;
+                                events.ScheduleEvent(EVENT_HEALINGTOUCH, 30000);
+                            }
+                            break;
+                        default:
+                            break;
+                    }
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
         {
+            return new boss_instructormaliciaAI (creature);
         }
-
-        void UpdateAI(const uint32 diff)
-        {
-            if (!UpdateVictim())
-                return;
-
-            //CallOfGraves_Timer
-            if (CallOfGraves_Timer <= diff)
-            {
-                DoCast(me->getVictim(), SPELL_CALLOFGRAVES);
-                CallOfGraves_Timer = 65000;
-            } else CallOfGraves_Timer -= diff;
-
-            //Corruption_Timer
-            if (Corruption_Timer <= diff)
-            {
-                Unit* target = NULL;
-                target = SelectTarget(SELECT_TARGET_RANDOM, 0);
-                if (target) DoCast(target, SPELL_CORRUPTION);
-
-                Corruption_Timer = 24000;
-            } else Corruption_Timer -= diff;
-
-            //Renew_Timer
-            if (Renew_Timer <= diff)
-            {
-                DoCast(me, SPELL_RENEW);
-                Renew_Timer = 10000;
-            } else Renew_Timer -= diff;
-
-            //FlashHeal_Timer
-            if (FlashHeal_Timer <= diff)
-            {
-                DoCast(me, SPELL_FLASHHEAL);
-
-                //5 Flashheals will be casted
-                if (FlashCounter < 2)
-                {
-                    FlashHeal_Timer = 5000;
-                    ++FlashCounter;
-                }
-                else
-                {
-                    FlashCounter=0;
-                    FlashHeal_Timer = 30000;
-                }
-            } else FlashHeal_Timer -= diff;
-
-            //HealingTouch_Timer
-            if (HealingTouch_Timer <= diff)
-            {
-                DoCast(me, SPELL_HEALINGTOUCH);
-
-                //3 Healingtouchs will be casted
-                if (HealingTouch_Timer < 2)
-                {
-                    HealingTouch_Timer = 5500;
-                    ++TouchCounter;
-                }
-                else
-                {
-                    TouchCounter=0;
-                    HealingTouch_Timer = 30000;
-                }
-            } else HealingTouch_Timer -= diff;
-
-            DoMeleeAttackIfReady();
-        }
-    };
 
 };
 

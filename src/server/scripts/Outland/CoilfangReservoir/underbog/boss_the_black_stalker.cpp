@@ -26,15 +26,21 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 
-#define SPELL_LEVITATE             31704
-#define SPELL_SUSPENSION           31719
-#define SPELL_LEVITATION_PULSE     31701
-#define SPELL_MAGNETIC_PULL        31705
-#define SPELL_CHAIN_LIGHTNING      31717
-#define SPELL_STATIC_CHARGE        31715
-#define SPELL_SUMMON_SPORE_STRIDER 38755
+enum Spells
+{
+    SPELL_LEVITATE              = 31704,
+    SPELL_SUSPENSION            = 31719,
+    SPELL_LEVITATION_PULSE      = 31701,
+    SPELL_MAGNETIC_PULL         = 31705,
+    SPELL_CHAIN_LIGHTNING       = 31717,
+    SPELL_STATIC_CHARGE         = 31715,
+    SPELL_SUMMON_SPORE_STRIDER  = 38755
+};
 
-#define ENTRY_SPORE_STRIDER        22299
+enum CreatureIdS
+{
+    ENTRY_SPORE_STRIDER         = 22299
+};
 
 class boss_the_black_stalker : public CreatureScript
 {

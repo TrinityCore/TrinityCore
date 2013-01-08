@@ -27,8 +27,11 @@ EndScriptData */
 #include "ScriptedCreature.h"
 #include "zulgurub.h"
 
-#define SPELL_LIGHTNINGCLOUD         25033
-#define SPELL_LIGHTNINGWAVE          24819
+enum Spells
+{
+    SPELL_LIGHTNINGCLOUD        = 25033,
+    SPELL_LIGHTNINGWAVE         = 24819
+};
 
 class boss_wushoolay : public CreatureScript
 {
