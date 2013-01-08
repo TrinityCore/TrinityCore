@@ -42,7 +42,7 @@ EndScriptData */
 
 enum Say
 {
-    EMOTE_FOCUSE                  = 0
+    EMOTE_FOCUSED                  = 0
 };
 
 class boss_shirrak_the_dead_watcher : public CreatureScript
@@ -146,7 +146,7 @@ public:
                 {
                     FocusedTargetGUID = target->GetGUID();
                     me->SummonCreature(ENTRY_FOCUS_FIRE, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 5500);
-                    Talk(EMOTE_FOCUSE, FocusedTargetGUID);
+                    Talk(EMOTE_FOCUSED, FocusedTargetGUID);
                 }
                 FocusFire_Timer = 15000+(rand()%5000);
             } else FocusFire_Timer -= diff;
