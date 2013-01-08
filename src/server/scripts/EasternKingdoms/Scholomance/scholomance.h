@@ -24,12 +24,12 @@ uint32 const MAX_ENCOUNTER = 2;
 enum DataTypes
 {
     TYPE_GANDLING                       = 1,
-    DATA_DOCTORTHEOLENKRASTINOV_DEATH   = 2,
-    DATA_INSTRUCTORMALICIA_DEATH        = 3,
-    DATA_LADYILLUCIABAROV_DEATH         = 4,
-    DATA_LORDALEXEIBAROV_DEATH          = 5,
-    DATA_LOREKEEPERPOLKELT_DEATH        = 6,
-    DATA_THERAVENIAN_DEATH              = 7,
+    DATA_DOCTORTHEOLENKRASTINOV         = 2,
+    DATA_INSTRUCTORMALICIA              = 3,
+    DATA_LADYILLUCIABAROV               = 4,
+    DATA_LORDALEXEIBAROV                = 5,
+    DATA_LOREKEEPERPOLKELT              = 6,
+    DATA_THERAVENIAN                    = 7,
     TYPE_KIRTONOS                       = 8
 };
 
