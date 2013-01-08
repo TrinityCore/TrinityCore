@@ -284,7 +284,7 @@ void FollowMovementGenerator<T>::DoFinalize(T* owner)
 template<class T>
 void FollowMovementGenerator<T>::DoReset(T* owner)
 {
-    Initialize(owner);
+    DoInitialize(owner);
 }
 
 template<class T>
