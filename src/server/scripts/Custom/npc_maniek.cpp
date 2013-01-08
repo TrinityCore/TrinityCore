@@ -43,7 +43,7 @@ public:
 		    pPlayer->ADD_GOSSIP_ITEM( 5, "Teleport to Todesbresche", GOSSIP_SENDER_MAIN, 6206);
 		    pPlayer->ADD_GOSSIP_ITEM( 5, "Teleport to Acherus", GOSSIP_SENDER_MAIN, 6207);
 	    }
-		    pPlayer->ADD_GOSSIP_ITEM( 5, "Teleport to † Astranaar †", GOSSIP_SENDER_MAIN, 6266);
+		    pPlayer->ADD_GOSSIP_ITEM( 5, "Teleport to Astranaar", GOSSIP_SENDER_MAIN, 6266);
 	    if (PlayerLevel>=30)
 		    pPlayer->ADD_GOSSIP_ITEM( 5, "Teleport to Gurubashi Arena", GOSSIP_SENDER_MAIN, 6200);
 			pPlayer->ADD_GOSSIP_ITEM( 5, "Teleport to Gadgetzan", GOSSIP_SENDER_MAIN, 6267);
@@ -91,7 +91,6 @@ public:
             case 6403: custom_porter_port(0, -3964.02f, -1343.13f, 152.9f, 3.14183f, pPlayer, pCreature); break; //new pt
             case 6550: custom_porter_port(0, -7823.80f, -477.402f, 170.8f, 3.031973f, pPlayer, pCreature); break; //dt-renngebiet
             case 6266: custom_porter_port(1, 2730.27f, -368.802f, 108.886f, 4.07746f, pPlayer, pCreature); break; //astranar
-			case 6266: custom_porter_port(1, -13234.1f, 217.387f, 31.6759f, 1.0681f, pPlayer, pCreature); break; //dadgetzan
 	    }
 
         pPlayer->CLOSE_GOSSIP_MENU();
