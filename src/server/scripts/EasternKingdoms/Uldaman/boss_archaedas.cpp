@@ -31,19 +31,15 @@ EndScriptData */
 #include "uldaman.h"
 #include "Player.h"
 
-#define SAY_AGGRO           "Who dares awaken Archaedas? Who dares the wrath of the makers!"
-#define SOUND_AGGRO         5855
+enum Says
+{
+    SAY_AGGRO                   = 0,
+    SAY_SUMMON_GUARDIANS        = 1,
+    SAY_SUMMON_VAULT_WALKERS    = 2,
+    SAY_KILL                    = 3
+};
 
-#define SAY_SUMMON          "Awake ye servants, defend the discs!"
-#define SOUND_SUMMON        5856
-
-#define SAY_SUMMON2         "To my side, brothers. For the makers!"
-#define SOUND_SUMMON2       5857
-
-#define SAY_KILL            "Reckless mortal."
-#define SOUND_KILL          5858
-
-enum eSpells
+enum Spells
 {
     SPELL_GROUND_TREMOR              = 6524,
     SPELL_ARCHAEDAS_AWAKEN           = 10347,
@@ -52,6 +48,7 @@ enum eSpells
     SPELL_SUB_BOSS_AGGRO             = 11568,
     SPELL_AWAKEN_VAULT_WALKER        = 10258,
     SPELL_AWAKEN_EARTHEN_GUARDIAN    = 10252,
+    SPELL_SELF_DESTRUCT              = 9874
 };
 
 class boss_archaedas : public CreatureScript
@@ -122,8 +119,7 @@ class boss_archaedas : public CreatureScript
                 // Being woken up from the altar, start the awaken sequence
                 if (spell == sSpellMgr->GetSpellInfo(SPELL_ARCHAEDAS_AWAKEN))
                 {
-                    me->MonsterYell(SAY_AGGRO, LANG_UNIVERSAL, 0);
-                    DoPlaySoundToSet(me, SOUND_AGGRO);
+                    Talk(SAY_AGGRO);
                     iAwakenTimer = 4000;
                     bWakingUp = true;
                 }
@@ -131,8 +127,7 @@ class boss_archaedas : public CreatureScript
 
             void KilledUnit(Unit* /*victim*/)
             {
-                me->MonsterYell(SAY_KILL, LANG_UNIVERSAL, 0);
-                DoPlaySoundToSet(me, SOUND_KILL);
+                Talk(SAY_KILL);
             }
 
             void UpdateAI(const uint32 uiDiff)
@@ -172,8 +167,7 @@ class boss_archaedas : public CreatureScript
                     ActivateMinion(instance->GetData64(8), true);   // EarthenGuardian4
                     ActivateMinion(instance->GetData64(9), true);   // EarthenGuardian5
                     ActivateMinion(instance->GetData64(10), false); // EarthenGuardian6
-                    me->MonsterYell(SAY_SUMMON, LANG_UNIVERSAL, 0);
-                    DoPlaySoundToSet(me, SOUND_SUMMON);
+                    Talk(SAY_SUMMON_GUARDIANS);
                     bGuardiansAwake = true;
                 }
 
@@ -184,8 +178,7 @@ class boss_archaedas : public CreatureScript
                     ActivateMinion(instance->GetData64(2), true);    // VaultWalker2
                     ActivateMinion(instance->GetData64(3), true);    // VaultWalker3
                     ActivateMinion(instance->GetData64(4), false);    // VaultWalker4
-                    me->MonsterYell(SAY_SUMMON2, LANG_UNIVERSAL, 0);
-                    DoPlaySoundToSet(me, SOUND_SUMMON2);
+                    Talk(SAY_SUMMON_VAULT_WALKERS);
                     bVaultWalkersAwake = true;
                 }
 
@@ -223,8 +216,6 @@ SD%Complete: 100
 SDComment: These mobs are initially frozen until Archaedas awakens them
 one at a time.
 EndScriptData */
-
-#define SPELL_ARCHAEDAS_AWAKEN  10347
 
 class mob_archaedas_minions : public CreatureScript
 {
@@ -323,8 +314,6 @@ SDComment: After activating the altar of the keepers, the stone keepers will
 wake up one by one.
 EndScriptData */
 
-#define SPELL_SELF_DESTRUCT 9874
-
 class mob_stonekeepers : public CreatureScript
 {
     public:
@@ -388,8 +377,6 @@ SDComment: Needs 1 person to activate the Archaedas script
 SDCategory: Uldaman
 EndScriptData */
 
-#define SPELL_BOSS_OBJECT_VISUAL    11206
-
 class go_altar_of_archaedas : public GameObjectScript
 {
     public:
@@ -418,8 +405,6 @@ SD%Complete: 100
 SDComment: Need 1 person to activate to open the altar.  One by one the StoneKeepers will activate.  After all four are dead than the door will open.
 SDCategory: Uldaman
 EndScriptData */
-
-#define SPELL_BOSS_OBJECT_VISUAL    11206
 
 class go_altar_of_the_keepers : public GameObjectScript
 {

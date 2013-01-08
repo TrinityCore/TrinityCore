@@ -25,13 +25,13 @@ enum Spells
     SPELL_SHOOT                     = 16496,
     SPELL_STUNBOMB                  = 16497,
     SPELL_HEALING_POTION            = 15504,
-    SPELL_HOOKEDNET                 = 15609,
+    SPELL_HOOKEDNET                 = 15609
 };
 
 enum Events
 {
     EVENT_SHOOT                     = 1,
-    EVENT_STUN_BOMB                 = 2,
+    EVENT_STUN_BOMB                 = 2
 };
 
 class quartermaster_zigris : public CreatureScript
