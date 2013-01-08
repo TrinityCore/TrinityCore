@@ -1669,7 +1669,7 @@ class mob_toc_warrior : public CreatureScript
                             DoCastVictim(SPELL_SUNDER_ARMOR);
                             events.ScheduleEvent(EVENT_SUNDER_ARMOR, urand(2*IN_MILLISECONDS, 5*IN_MILLISECONDS));
                             return;
-                        case EVENT_SHATTERING_THROW:
+                        /* case EVENT_SHATTERING_THROW:
                             if (me->getVictim()->HasAuraWithMechanic(1<<MECHANIC_IMMUNE_SHIELD))
                             {
                                 DoCastVictim(SPELL_SHATTERING_THROW);
@@ -1677,7 +1677,7 @@ class mob_toc_warrior : public CreatureScript
                             }
                             else
                                 events.RescheduleEvent(EVENT_SHATTERING_THROW, 3*IN_MILLISECONDS);
-                            return;
+                            return; */
                         case EVENT_RETALIATION:
                             if (HealthBelowPct(50))
                             {
