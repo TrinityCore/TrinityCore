@@ -93,22 +93,22 @@ public:
         {
             switch (type)
             {
-                case DATA_LORDALEXEIBAROV_DEATH:
+                case DATA_LORDALEXEIBAROV:
                     IsBossDied[0] = true;
                     break;
-                case DATA_DOCTORTHEOLENKRASTINOV_DEATH:
+                case DATA_DOCTORTHEOLENKRASTINOV:
                     IsBossDied[1] = true;
                     break;
-                case DATA_THERAVENIAN_DEATH:
+                case DATA_THERAVENIAN:
                     IsBossDied[2] = true;
                     break;
-                case DATA_LOREKEEPERPOLKELT_DEATH:
+                case DATA_LOREKEEPERPOLKELT:
                     IsBossDied[3] = true;
                     break;
-                case DATA_INSTRUCTORMALICIA_DEATH:
+                case DATA_INSTRUCTORMALICIA:
                     IsBossDied[4] = true;
                     break;
-                case DATA_LADYILLUCIABAROV_DEATH:
+                case DATA_LADYILLUCIABAROV:
                     IsBossDied[5] = true;
                     break;
                 case TYPE_GANDLING:
