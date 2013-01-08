@@ -26,7 +26,7 @@ enum Yells
     SAY_AGGRO                   = 0,
     SAY_SLAY                    = 1,
     SAY_SPLIT                   = 2,
-    SAY_DEATH                   = 3,
+    SAY_DEATH                   = 3
 };
 
 enum Spells
@@ -79,20 +79,20 @@ class boss_skeram : public CreatureScript
             void JustSummoned(Creature* creature)
             {
                 // Shift the boss and images (Get it? *Shift*?)
-                uint8 Rand;
+                uint8 rand = 0;
                 if (_flag != 0)
                 {
-                    while (_flag & (1 << Rand))
-                        Rand = urand(0, 2);
-                    DoCast(me, BlinkSpells[Rand]);
-                    _flag |= (1 << Rand);
+                    while (_flag & (1 << rand))
+                        rand = urand(0, 2);
+                    DoCast(me, BlinkSpells[rand]);
+                    _flag |= (1 << rand);
                     _flag |= (1 << 7);
                 }
 
-                while (_flag & (1 << Rand))
-                    Rand = urand(0, 2);
-                creature->CastSpell(creature, BlinkSpells[Rand]);
-                _flag |= (1 << Rand);
+                while (_flag & (1 << rand))
+                    rand = urand(0, 2);
+                creature->CastSpell(creature, BlinkSpells[rand]);
+                _flag |= (1 << rand);
                 
                 if (_flag & (1 << 7))
                     _flag = 0;
