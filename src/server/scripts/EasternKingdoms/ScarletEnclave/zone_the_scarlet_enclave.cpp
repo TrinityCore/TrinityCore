@@ -23,8 +23,16 @@
 /*####
 ## npc_valkyr_battle_maiden
 ####*/
-#define SPELL_REVIVE 51918
-#define VALK_WHISPER "It is not yet your time, champion. Rise! Rise and fight once more!"
+
+enum Spells_VBM
+{
+    SPELL_REVIVE                = 51918
+};
+
+enum Says_VBM
+{
+    WHISPER_REVIVE              = 0
+};
 
 class npc_valkyr_battle_maiden : public CreatureScript
 {
@@ -96,7 +104,7 @@ public:
                         {
                             me->HandleEmoteCommand(EMOTE_ONESHOT_CUSTOM_SPELL_01);
                             DoCast(player, SPELL_REVIVE, true);
-                            me->MonsterWhisper(VALK_WHISPER, player->GetGUID());
+                            Talk(WHISPER_REVIVE,player->GetGUID());
                         }
                         FlyBackTimer = 5000;
                         break;

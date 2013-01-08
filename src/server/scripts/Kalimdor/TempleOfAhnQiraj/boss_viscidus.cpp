@@ -279,7 +279,7 @@ class npc_glob_of_viscidus : public CreatureScript
                     else
                     {
                         Viscidus->SetHealth(Viscidus->GetHealth() - Viscidus->GetMaxHealth() / 20);
-                        Viscidus->GetAI()->DoCast(Viscidus, SPELL_VISCIDUS_SHRINKS);
+                        Viscidus->CastSpell(Viscidus, SPELL_VISCIDUS_SHRINKS);
                     }
                 }
             }
