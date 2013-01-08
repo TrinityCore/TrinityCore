@@ -35,7 +35,7 @@ EndScriptData */
 # Once Aurius is defeated, he should be the one summoning the ghosts.
 #####*/
 
-enum CreatureIds
+enum SH_CreatureIds
 {
     SH_GREGOR                   = 17910,
     SH_CATHELA                  = 17911,
