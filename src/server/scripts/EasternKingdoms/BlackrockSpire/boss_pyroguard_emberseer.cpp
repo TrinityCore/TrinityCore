@@ -25,7 +25,7 @@ enum Text
     EMOTE_ONE_STACK                 = 0,
     EMOTE_TEN_STACK                 = 1,
     EMOTE_FREE_OF_BONDS             = 2,
-    YELL_FREE_OF_BONDS              = 3,
+    YELL_FREE_OF_BONDS              = 3
 };
 
 enum Spells
@@ -37,14 +37,14 @@ enum Spells
     SPELL_EMBERSEER_FULL_STRENGTH   = 16047, // Emberseer Full Strength
     SPELL_FIRENOVA                  = 23462, // Combat
     SPELL_FLAMEBUFFET               = 23341, // Combat
-    SPELL_PYROBLAST                 = 17274, // Combat
+    SPELL_PYROBLAST                 = 17274  // Combat
 };
 
 enum Events
 {
     EVENT_FIRENOVA                  = 1,
     EVENT_FLAMEBUFFET               = 2,
-    EVENT_PYROBLAST                 = 3,
+    EVENT_PYROBLAST                 = 3
 };
 
 

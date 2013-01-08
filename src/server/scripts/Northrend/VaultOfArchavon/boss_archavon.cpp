@@ -21,7 +21,8 @@
 
 enum
 {
-    EMOTE_BERSERK           = 0
+    EMOTE_BERSERK           = 0,
+    EMOTE_LEAP              = 1 // Not in use
 };
 
 //Spells Archavon
@@ -37,9 +38,6 @@ enum
 
 //4 Warders spawned
 #define ARCHAVON_WARDER          32353 //npc 32353
-
-//Yell
-#define SAY_LEAP "Archavon the Stone Watcher lunges for $N!" //$N should be the target
 
 enum Events
 {
