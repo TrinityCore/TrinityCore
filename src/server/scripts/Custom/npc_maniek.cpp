@@ -23,7 +23,7 @@ public:
         std::string kosten = (PlayerLevel <= 70) ? (PlayerLevel) + " Silver" : (PlayerLevel*10) + " Silver";
 
 		pPlayer->ADD_GOSSIP_ITEM( 10, "Teleports:", GOSSIP_SENDER_MAIN, 6111);
-		pPlayer->ADD_GOSSIP_ITEM( 10, " ", GOSSIP_SENDER_MAIN, 6111);
+		//pPlayer->ADD_GOSSIP_ITEM( 10, " ", GOSSIP_SENDER_MAIN, 6111);
 
         if (ALLIANCE == pPlayer->GetTeam())
         {
@@ -31,17 +31,20 @@ public:
 		    pPlayer->ADD_GOSSIP_ITEM( 5, "Teleport to Ironforge", GOSSIP_SENDER_MAIN, 6202);
 		    pPlayer->ADD_GOSSIP_ITEM( 5, "Teleport to Darnassus", GOSSIP_SENDER_MAIN, 6203);
 		    pPlayer->ADD_GOSSIP_ITEM( 5, "Teleport to Exodar", GOSSIP_SENDER_MAIN, 6204);
+        if (PlayerLevel>=68)
+		    pPlayer->ADD_GOSSIP_ITEM( 5, "Teleport to Northrend", GOSSIP_SENDER_MAIN, 6267);
         } else
         {
 		    pPlayer->ADD_GOSSIP_ITEM( 5, "Teleport to Orgrimmar", GOSSIP_SENDER_MAIN, 6211);
 		    pPlayer->ADD_GOSSIP_ITEM( 5, "Teleport to Thunder Bluff", GOSSIP_SENDER_MAIN, 6212);
 		    pPlayer->ADD_GOSSIP_ITEM( 5, "Teleport to Undercity", GOSSIP_SENDER_MAIN, 6213);
 		    pPlayer->ADD_GOSSIP_ITEM( 5, "Teleport to Silvermoon City", GOSSIP_SENDER_MAIN, 6214);
+        if (PlayerLevel>=68)
+            pPlayer->ADD_GOSSIP_ITEM( 5, "Teleport to Northrend", GOSSIP_SENDER_MAIN, 6268);
         }
 	    if (pPlayer->getClass()==6)
 	    {
-		    pPlayer->ADD_GOSSIP_ITEM( 5, "Teleport to Todesbresche", GOSSIP_SENDER_MAIN, 6206);
-		    pPlayer->ADD_GOSSIP_ITEM( 5, "Teleport to Acherus", GOSSIP_SENDER_MAIN, 6207);
+		    pPlayer->ADD_GOSSIP_ITEM( 5, "Teleport to Acherus The Ebon Hold", GOSSIP_SENDER_MAIN, 6207);
 	    }
 		    pPlayer->ADD_GOSSIP_ITEM( 5, "Teleport to Astranaar", GOSSIP_SENDER_MAIN, 6266);
 	    if (PlayerLevel>=30)
@@ -91,6 +94,8 @@ public:
             case 6403: custom_porter_port(0, -3964.02f, -1343.13f, 152.9f, 3.14183f, pPlayer, pCreature); break; //new pt
             case 6550: custom_porter_port(0, -7823.80f, -477.402f, 170.8f, 3.031973f, pPlayer, pCreature); break; //dt-renngebiet
             case 6266: custom_porter_port(1, 2730.27f, -368.802f, 108.886f, 4.07746f, pPlayer, pCreature); break; //astranar
+            case 6267: custom_porter_port(571, 2213.94f, 5273.14f, 12.1967f, 5.89294f, pPlayer, pCreature); break; //Northrend ALLIANCE
+            case 6268: custom_porter_port(571, 2649.82f, -4362.68f, 277.585f, 5.15979f, pPlayer, pCreature); break; //Northrend Horde
 	    }
 
         pPlayer->CLOSE_GOSSIP_MENU();
