@@ -57,7 +57,7 @@ enum Yells
     SAY_SLAY                                      = 3,
     SAY_DEATH                                     = 4,
     SAY_FEED                                      = 5,
-    SAY_VANISH                                    = 6,
+    SAY_VANISH                                    = 6
 };
 enum CombatPhase
 {

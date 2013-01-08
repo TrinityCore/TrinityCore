@@ -27,79 +27,87 @@ EndScriptData */
 #include "ScriptedCreature.h"
 #include "scholomance.h"
 
-#define SPELL_IMMOLATE             20294                    // Old ID  was 15570
-#define SPELL_VEILOFSHADOW         17820
+enum Spells
+{
+    SPELL_IMMOLATE                  = 20294, // Old ID  was 15570
+    SPELL_VEILOFSHADOW              = 17820
+};
+
+enum Events
+{
+    EVENT_IMMOLATE                  = 1,
+    EVENT_VEILOFSHADOW              = 2
+};
 
 class boss_lord_alexei_barov : public CreatureScript
 {
-public:
-    boss_lord_alexei_barov() : CreatureScript("boss_lord_alexei_barov") { }
+    public: boss_lord_alexei_barov() : CreatureScript("boss_lord_alexei_barov") { }
 
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new boss_lordalexeibarovAI (creature);
-    }
-
-    struct boss_lordalexeibarovAI : public ScriptedAI
-    {
-        boss_lordalexeibarovAI(Creature* creature) : ScriptedAI(creature) {}
-
-        uint32 Immolate_Timer;
-        uint32 VeilofShadow_Timer;
-
-        void Reset()
+        struct boss_lordalexeibarovAI : public BossAI
         {
-            Immolate_Timer = 7000;
-            VeilofShadow_Timer = 15000;
+            boss_lordalexeibarovAI(Creature* creature) : BossAI(creature, DATA_LORDALEXEIBAROV) {}
 
-            me->LoadCreaturesAddon();
-        }
-
-        void JustDied(Unit* /*killer*/)
-        {
-            InstanceScript* instance = me->GetInstanceScript();
-            if (instance)
+            void Reset()
             {
-                instance->SetData(DATA_LORDALEXEIBAROV_DEATH, 0);
+                me->LoadCreaturesAddon();
+            }
 
-                if (instance->GetData(TYPE_GANDLING) == IN_PROGRESS)
+            void JustDied(Unit* /*killer*/)
+            {
+                InstanceScript* instance = me->GetInstanceScript();
+                if (instance)
                 {
-                    instance->SetData(TYPE_GANDLING, IN_PROGRESS);
-                    me->SummonCreature(1853, 180.73f, -9.43856f, 75.507f, 1.61399f, TEMPSUMMON_DEAD_DESPAWN, 0);
+                    instance->SetData(DATA_LORDALEXEIBAROV, DONE);
+
+                    if (instance->GetData(TYPE_GANDLING) == IN_PROGRESS)
+                    {
+                        instance->SetData(TYPE_GANDLING, IN_PROGRESS);
+                        me->SummonCreature(1853, 180.73f, -9.43856f, 75.507f, 1.61399f, TEMPSUMMON_DEAD_DESPAWN, 0);
+                    }
                 }
             }
-        }
 
-        void EnterCombat(Unit* /*who*/)
-        {
-        }
-
-        void UpdateAI(const uint32 diff)
-        {
-            if (!UpdateVictim())
-                return;
-
-            //Immolate_Timer
-            if (Immolate_Timer <= diff)
+            void EnterCombat(Unit* /*who*/)
             {
-                Unit* target = NULL;
-                target = SelectTarget(SELECT_TARGET_RANDOM, 0);
-                if (target) DoCast(target, SPELL_IMMOLATE);
+                events.ScheduleEvent(EVENT_IMMOLATE, 7000);
+                events.ScheduleEvent(EVENT_VEILOFSHADOW, 15000);
+            }
 
-                Immolate_Timer = 12000;
-            } else Immolate_Timer -= diff;
-
-            //VeilofShadow_Timer
-            if (VeilofShadow_Timer <= diff)
+            void UpdateAI(uint32 const diff)
             {
-                DoCast(me->getVictim(), SPELL_VEILOFSHADOW);
-                VeilofShadow_Timer = 20000;
-            } else VeilofShadow_Timer -= diff;
+                if (!UpdateVictim())
+                    return;
 
-            DoMeleeAttackIfReady();
+                events.Update(diff);
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                while (uint32 eventId = events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        case EVENT_IMMOLATE:
+                            DoCast(SelectTarget(SELECT_TARGET_RANDOM,0, 100, true),SPELL_IMMOLATE,true);
+                            events.ScheduleEvent(EVENT_IMMOLATE, 12000);
+                            break;
+                        case EVENT_VEILOFSHADOW:
+                            DoCastVictim(SPELL_VEILOFSHADOW, true);
+                            events.ScheduleEvent(EVENT_VEILOFSHADOW, 20000);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new boss_lordalexeibarovAI (creature);
         }
-    };
-
 };
 
 void AddSC_boss_lordalexeibarov()

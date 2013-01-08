@@ -29,7 +29,7 @@ enum Texts
     SAY_INTRO               = 1,
     SAY_AGGRO               = 2,
     SAY_SLAY                = 3,
-    SAY_DEATH               = 4,
+    SAY_DEATH               = 4
 };
 
 enum Spells
@@ -40,12 +40,12 @@ enum Spells
     SPELL_SUPREME           = 25176,
     SPELL_SUMMON            = 20477,
     SPELL_SAND_STORM        = 25160,
-    SPELL_SUMMON_CRYSTAL    = 25192,
+    SPELL_SUMMON_CRYSTAL    = 25192
 };
 
 enum Actions
 {
-    ACTION_TRIGGER_WEAKNESS = 1,
+    ACTION_TRIGGER_WEAKNESS = 1
 };
 
 enum Events
