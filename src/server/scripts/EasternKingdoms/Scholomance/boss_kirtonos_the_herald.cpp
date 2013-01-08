@@ -103,7 +103,8 @@ class boss_kirtonos_the_herald : public CreatureScript
                     brazier->ResetDoorOrButton();
                     brazier->SetGoState(GO_STATE_READY);
                 }
-                _JustDied();
+                if (instance)
+                    instance->SetData(TYPE_KIRTONOS, DONE);
             }
 
             void EnterEvadeMode()
@@ -173,6 +174,7 @@ class boss_kirtonos_the_herald : public CreatureScript
                                 me->SetWalk(true);
                                 me->SetDisableGravity(false);
                                 DoCast(me, SPELL_KIRTONOS_TRANSFORM);
+                                me->SetCanFly(false);
                                 _introTimer = 1000;
                                 _introEvent = INTRO_5;
                                 break;
@@ -184,7 +186,6 @@ class boss_kirtonos_the_herald : public CreatureScript
                                 _introTimer = 5000;
                                 _introEvent = INTRO_6;
                             case INTRO_6:
-                                 // I don't know how to make him not swim across screen here. Tell me and I will fix.
                                 me->GetMotionMaster()->MovePoint(0, 314.8673f, 90.3021f, 101.6459f);
                                 _introTimer = 0;
                                 _introEvent = 0;
@@ -240,11 +241,13 @@ class boss_kirtonos_the_herald : public CreatureScript
                             {
                                 me->RemoveAura(SPELL_KIRTONOS_TRANSFORM);
                                 me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 0, uint32(0));
+                                me->SetCanFly(false);
                             }
                             else
                             {
                                 DoCast(me, SPELL_KIRTONOS_TRANSFORM);
                                 me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 0, uint32(WEAPON_KIRTONOS_STAFF));
+                                me->SetCanFly(true);
                             }
                             events.ScheduleEvent(EVENT_KIRTONOS_TRANSFORM, urand(16000, 18000));
                             break;
