@@ -280,15 +280,6 @@ vmap.enableLOS    = 1
 vmap.enableHeight = 1
 
 #
-#    vmap.ignoreSpellIds
-#        Description: These spells are ignored for LoS calculation.
-#                     List of ids with delimiter ','.
-#        Example:     "7720,1337"
-#        Default:     "7720"
-
-vmap.ignoreSpellIds = "7720"
-
-#
 #    vmap.petLOS
 #        Description: Check line of sight for pets, to avoid them attacking through walls.
 #        Default:     1 - (Enabled, each pet attack will be checked for line of sight)

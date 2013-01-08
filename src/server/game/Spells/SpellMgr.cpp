@@ -3301,6 +3301,7 @@ void SpellMgr::LoadDbcDataCorrections()
                 spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_CASTER;
                 spellInfo->EffectImplicitTargetB[0] = TARGET_UNIT_PET;
                 break;
+            case 53434: // Call of The Wild
             case 70893: // Culling The Herd (needs target selection script)
                 spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_CASTER;
                 spellInfo->EffectImplicitTargetB[0] = TARGET_UNIT_MASTER;

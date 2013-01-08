@@ -25,7 +25,7 @@
 #include "Vehicle.h"
 #include "GridNotifiers.h"
 
-enum ScriptTexts
+enum Say
 {
     // Festergut
     SAY_FESTERGUT_GASEOUS_BLIGHT    = 0,
@@ -45,7 +45,7 @@ enum ScriptTexts
     EMOTE_CHOKING_GAS_BOMB          = 10,
     SAY_KILL                        = 11,
     SAY_BERSERK                     = 12,
-    SAY_DEATH                       = 13,
+    SAY_DEATH                       = 13
 };
 
 enum Spells
@@ -66,6 +66,7 @@ enum Spells
     SPELL_UNSTABLE_EXPERIMENT               = 70351,
     SPELL_TEAR_GAS                          = 71617,    // phase transition
     SPELL_TEAR_GAS_CREATURE                 = 71618,
+    SPELL_TEAR_GAS_PLAYER                   = 71615,
     SPELL_TEAR_GAS_CANCEL                   = 71620,
     SPELL_TEAR_GAS_PERIODIC_TRIGGER         = 73170,
     SPELL_CREATE_CONCOCTION                 = 71621,
@@ -135,7 +136,7 @@ enum Events
     EVENT_CHOKING_GAS_BOMB      = 12,
     EVENT_UNBOUND_PLAGUE        = 13,
     EVENT_MUTATED_PLAGUE        = 14,
-    EVENT_PHASE_TRANSITION      = 15,
+    EVENT_PHASE_TRANSITION      = 15
 };
 
 enum Phases
@@ -148,14 +149,14 @@ enum Phases
     PHASE_COMBAT_3      = 6,
 
     PHASE_MASK_COMBAT   = (1 << PHASE_COMBAT_1) | (1 << PHASE_COMBAT_2) | (1 << PHASE_COMBAT_3),
-    PHASE_MASK_NOT_SELF = (1 << PHASE_FESTERGUT) | (1 << PHASE_ROTFACE),
+    PHASE_MASK_NOT_SELF = (1 << PHASE_FESTERGUT) | (1 << PHASE_ROTFACE)
 };
 
 enum Points
 {
     POINT_FESTERGUT = 366260,
     POINT_ROTFACE   = 366270,
-    POINT_TABLE     = 366780,
+    POINT_TABLE     = 366780
 };
 
 Position const festergutWatchPos = {4324.820f, 3166.03f, 389.3831f, 3.316126f}; //emote 432 (release gas)
@@ -169,7 +170,7 @@ enum PutricideData
 {
     DATA_EXPERIMENT_STAGE   = 1,
     DATA_PHASE              = 2,
-    DATA_ABOMINATION        = 3,
+    DATA_ABOMINATION        = 3
 };
 
 #define EXPERIMENT_STATE_OOZE   false
@@ -633,10 +634,14 @@ class boss_professor_putricide : public CreatureScript
                             AttackStart(me->getVictim());
                             // remove Tear Gas
                             me->RemoveAurasDueToSpell(SPELL_TEAR_GAS_PERIODIC_TRIGGER);
-                            instance->DoRemoveAurasDueToSpellOnPlayers(71615);
+                            instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_TEAR_GAS_PLAYER);
                             DoCastAOE(SPELL_TEAR_GAS_CANCEL);
                             instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_GAS_VARIABLE);
                             instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_OOZE_VARIABLE);
+                            for (SummonList::iterator itr = summons.begin(); itr != summons.end(); ++itr)
+                                if(Unit* unit = ObjectAccessor::GetUnit(*me, *itr))
+                                    if (unit->GetEntry() == NPC_MUTATED_ABOMINATION_10 || unit->GetEntry() == NPC_MUTATED_ABOMINATION_25)
+                                        unit->RemoveAurasDueToSpell(SPELL_TEAR_GAS_PLAYER);
                             break;
                         case EVENT_MALLEABLE_GOO:
                             if (Is25ManRaid())
