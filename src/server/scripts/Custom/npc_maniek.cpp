@@ -49,7 +49,7 @@ public:
 		    pPlayer->ADD_GOSSIP_ITEM( 5, "Teleport to Astranaar", GOSSIP_SENDER_MAIN, 6266);
 	    if (PlayerLevel>=30)
 		    pPlayer->ADD_GOSSIP_ITEM( 5, "Teleport to Gurubashi Arena", GOSSIP_SENDER_MAIN, 6200);
-			pPlayer->ADD_GOSSIP_ITEM( 5, "Teleport to Gadgetzan", GOSSIP_SENDER_MAIN, 6267);
+			pPlayer->ADD_GOSSIP_ITEM( 5, "Teleport to Gadgetzan", GOSSIP_SENDER_MAIN, 6269);
 	    if (PlayerLevel>=58)
 		    pPlayer->ADD_GOSSIP_ITEM( 5, "Teleport to Shattrath", GOSSIP_SENDER_MAIN, 6208);
 	    if (PlayerLevel>=65)
@@ -96,6 +96,7 @@ public:
             case 6266: custom_porter_port(1, 2730.27f, -368.802f, 108.886f, 4.07746f, pPlayer, pCreature); break; //astranar
             case 6267: custom_porter_port(571, 2213.94f, 5273.14f, 12.1967f, 5.89294f, pPlayer, pCreature); break; //Northrend ALLIANCE
             case 6268: custom_porter_port(571, 2649.82f, -4362.68f, 277.585f, 5.15979f, pPlayer, pCreature); break; //Northrend Horde
+            case 6269: custom_porter_port(1, -13234.1f, 217.387f, 31.6759f, 1.0681f, pPlayer, pCreature); break; //dadgetzan
 	    }
 
         pPlayer->CLOSE_GOSSIP_MENU();
