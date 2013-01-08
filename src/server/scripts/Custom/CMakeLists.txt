@@ -20,6 +20,7 @@ set(scripts_STAT_SRCS
   Custom/npc_crypt_run.cpp
   Custom/mod_MultiKill.cpp
   Custom/mod_CharacterHistory.cpp
+  Custom/npc_maniek.cpp
 )
 
 message("  -> Prepared: Custom")

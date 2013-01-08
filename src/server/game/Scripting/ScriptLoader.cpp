@@ -38,6 +38,8 @@ void AddSC_npc_arena_setup();
 void AddSC_Mod_Multikill(); // by Codels
 // [MOD] CharacterHistory
 void AddSC_Mod_CharacterHistory(); // by Codels
+// Mr.Maniek
+void AddSC_npc_maniek();
 
 // spells
 void AddSC_deathknight_spell_scripts();
@@ -1342,5 +1344,7 @@ void AddCustomScripts()
     AddSC_Mod_Multikill(); // by Codels
     // [MOD] CharacterHistory
     AddSC_Mod_CharacterHistory(); // by Codels
+    // Mr.Maniek
+    AddSC_npc_maniek();
 #endif
 }
