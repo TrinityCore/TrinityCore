@@ -107,20 +107,10 @@ void LFGGroupScript::OnAddMember(Group* group, uint64 guid)
         LfgState gstate = sLFGMgr->GetState(gguid);
         LfgState state = sLFGMgr->GetState(guid);
         sLog->outDebug(LOG_FILTER_LFG, "LFGScripts::OnAddMember [" UI64FMTD "]: added [" UI64FMTD "] leader " UI64FMTD "] gstate: %u, state: %u", gguid, guid, leader, gstate, state);
-        LfgUpdateData updateData = LfgUpdateData(LFG_UPDATETYPE_UPDATE_STATUS);
-        for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
-        {
-            if (Player* plrg = itr->getSource())
-            {
-                plrg->GetSession()->SendLfgUpdatePlayer(updateData);
-                plrg->GetSession()->SendLfgUpdateParty(updateData);
-            }
-        }
 
         if (state == LFG_STATE_QUEUED)
             sLFGMgr->LeaveLfg(guid);
 
-        // TODO - if group is queued and new player is added convert to rolecheck without notify the current players queued
         if (gstate == LFG_STATE_QUEUED)
             sLFGMgr->LeaveLfg(gguid);
     }
