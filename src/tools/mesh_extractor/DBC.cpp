@@ -5,7 +5,7 @@
 DBC::DBC( FILE* stream ) : StringBlock(NULL), StringBlockSize(0), IsFaulty(true)
 {
     char magic[5];
-    uint count = 0;
+    uint32 count = 0;
     count += fread(&magic, sizeof(char), 4, stream);
     magic[4] = '\0';
     count += fread(&RecordCount, sizeof(uint32), 1, stream);

@@ -235,7 +235,7 @@ namespace MMAP
 
             if (!(lheader.flags & MAP_LIQUID_NO_HEIGHT))
             {
-                uint toRead = lheader.width*lheader.height;
+                uint8 toRead = lheader.width*lheader.height;
                 liquid_map = new float [toRead];
                 if (fread(liquid_map, sizeof(float), toRead, mapFile) != toRead)
                     printf("TerrainBuilder::loadMap: Failed to read some data expected 1, read 0\n");
