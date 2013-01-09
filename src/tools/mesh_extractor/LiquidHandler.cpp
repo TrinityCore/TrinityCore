@@ -50,17 +50,17 @@ void LiquidHandler::HandleNewLiquid()
                 fseek(stream, chunk->Offset + information.OffsetMask2, SEEK_SET);
                 uint32 size = ceil(information.Width * information.Height / 8.0f);
                 uint8* altMask = new uint8[size];
-                fread(altMask, sizeof(uint8), size, stream);
-
-                for (uint32 mi = 0; mi < size; mi++)
-                    renderMask.Mask[mi + information.OffsetY] |= altMask[mi];
+                if (fread(altMask, sizeof(uint8), size, stream) == size)
+                    for (uint32 mi = 0; mi < size; mi++)
+                        renderMask.Mask[mi + information.OffsetY] |= altMask[mi];
                 delete[] altMask;
             }
             fseek(stream, chunk->Offset + information.OffsetHeightmap, SEEK_SET);
 
             for (int y = information.OffsetY; y < (information.OffsetY + information.Height); y++)
                 for (int x = information.OffsetX; x < (information.OffsetX + information.Width); x++)
-                    fread(&heights[x][y], sizeof(float), 1, stream);
+                    if (fread(&heights[x][y], sizeof(float), 1, stream) != 1)
+                        return;
         }
         else
         {

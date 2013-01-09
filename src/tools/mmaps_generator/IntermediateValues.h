@@ -35,7 +35,7 @@ namespace MMAP
         rcPolyMesh* polyMesh;
         rcPolyMeshDetail* polyMeshDetail;
 
-        IntermediateValues() :  compactHeightfield(NULL), heightfield(NULL),
+        IntermediateValues() :  heightfield(NULL), compactHeightfield(NULL),
                                 contours(NULL), polyMesh(NULL), polyMeshDetail(NULL) {}
         ~IntermediateValues();
 

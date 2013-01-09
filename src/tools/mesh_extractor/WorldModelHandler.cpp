@@ -10,16 +10,20 @@
 WorldModelDefinition WorldModelDefinition::Read( FILE* file )
 {
     WorldModelDefinition ret;
-    fread(&ret.MwidIndex, sizeof(uint32), 1, file);
-    fread(&ret.UniqueId, sizeof(uint32), 1, file);
+    int count = 0;
+    count += fread(&ret.MwidIndex, sizeof(uint32), 1, file);
+    count += fread(&ret.UniqueId, sizeof(uint32), 1, file);
     ret.Position = Vector3::Read(file);
     ret.Rotation = Vector3::Read(file);
     ret.UpperExtents = Vector3::Read(file);
     ret.LowerExtents = Vector3::Read(file);
-    fread(&ret.Flags, sizeof(uint16), 1, file);
-    fread(&ret.DoodadSet, sizeof(uint16), 1, file);
+    count += fread(&ret.Flags, sizeof(uint16), 1, file);
+    count += fread(&ret.DoodadSet, sizeof(uint16), 1, file);
     uint32 discard;
-    fread(&discard, sizeof(uint32), 1, file);
+    count += fread(&discard, sizeof(uint32), 1, file);
+
+    if (count != 5)
+         printf("WorldModelDefinition::Read: Error reading data, expected 5, read %d\n", count);
     return ret;
 }
 
@@ -44,7 +48,8 @@ void WorldModelHandler::ProcessInternal( ChunkedData* subChunks )
     for (uint32 i = 0; i < refCount; i++)
     {
         int32 index;
-        fread(&index, sizeof(int32), 1, stream);
+        if (fread(&index, sizeof(int32), 1, stream) != 1)
+            printf("WorldModelDefinition::Read: Error reading data, expected 1, read 0\n");
 
         if (index < 0 || uint32(index) >= _definitions->size())
             continue;
@@ -184,7 +189,8 @@ void WorldModelHandler::ReadModelPaths()
         FILE* stream = mwid->GetStream();
         fseek(stream, i * 4, SEEK_CUR);
         uint32 offset;
-        fread(&offset, sizeof(uint32), 1, stream);
+        if (fread(&offset, sizeof(uint32), 1, stream) != 1)
+            printf("WorldModelDefinition::Read: Error reading data, expected 1, read 0\n");
         FILE* dataStream = mwmo->GetStream();
         fseek(dataStream, offset + mwmo->Offset, SEEK_SET);
         _paths->push_back(Utils::ReadString(dataStream));

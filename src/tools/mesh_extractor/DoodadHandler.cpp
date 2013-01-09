@@ -30,7 +30,8 @@ void DoodadHandler::ProcessInternal( ChunkedData* subChunks )
     for (uint32 i = 0; i < refCount; i++)
     {
         int32 index;
-        fread(&index, sizeof(int32), 1, stream);
+        if (int count = fread(&index, sizeof(int32), 1, stream) != 1)
+            printf("DoodadHandler::ProcessInternal: Failed to read some data expected 1, read %d\n", count);
         if (index < 0 || uint32(index) >= _definitions->size())
             continue;
         DoodadDefinition doodad = (*_definitions)[index];
@@ -81,7 +82,8 @@ void DoodadHandler::ReadDoodadPaths( Chunk* id, Chunk* data )
         FILE* idStream = id->GetStream();
         fseek(idStream, i * 4, SEEK_CUR);
         uint32 offset;
-        fread(&offset, sizeof(uint32), 1, idStream);
+        if (fread(&offset, sizeof(uint32), 1, idStream) != 1)
+            printf("DoodadHandler::ReadDoodadPaths: Failed to read some data expected 1, read 0\n");
         FILE* dataStream = data->GetStream();
         fseek(dataStream, offset + data->Offset, SEEK_SET);
         _paths->push_back(Utils::ReadString(dataStream));

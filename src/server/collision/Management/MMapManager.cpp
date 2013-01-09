@@ -52,8 +52,14 @@ namespace MMAP
         }
 
         dtNavMeshParams params;
-        fread(&params, sizeof(dtNavMeshParams), 1, file);
+        int count = fread(&params, sizeof(dtNavMeshParams), 1, file);
         fclose(file);
+        if (count != 1)
+        {
+            sLog->outDebug(LOG_FILTER_MAPS, "MMAP:loadMapData: Error: Could not read params from file '%s'", fileName);
+            delete [] fileName;
+            return false;
+        }
 
         dtNavMesh* mesh = dtAllocNavMesh();
         ASSERT(mesh);
@@ -82,7 +88,7 @@ namespace MMAP
         return uint32(x << 16 | y);
     }
 
-    bool MMapManager::loadMap(const std::string& basePath, uint32 mapId, int32 x, int32 y)
+    bool MMapManager::loadMap(const std::string& /*basePath*/, uint32 mapId, int32 x, int32 y)
     {
         // make sure the mmap is loaded and ready to load tiles
         if (!loadMapData(mapId))
@@ -114,9 +120,7 @@ namespace MMAP
 
         // read header
         MmapTileHeader fileHeader;
-        fread(&fileHeader, sizeof(MmapTileHeader), 1, file);
-
-        if (fileHeader.mmapMagic != MMAP_MAGIC)
+        if (fread(&fileHeader, sizeof(MmapTileHeader), 1, file) != 1 || fileHeader.mmapMagic != MMAP_MAGIC)
         {
             sLog->outError(LOG_FILTER_MAPS, "MMAP:loadMap: Bad header in mmap %03u%02i%02i.mmtile", mapId, x, y);
             return false;
