@@ -36,7 +36,8 @@ void ChunkedData::Load( uint32 maxLength, uint32 chunksHint )
         // Utils::Reverse(nameBytes);
         name = std::string(name.rbegin(), name.rend());
         uint32 length;
-        fread(&length, sizeof(uint32), 1, Stream);
+        if (fread(&length, sizeof(uint32), 1, Stream) != 1)
+            continue;
         calcOffset += 8;
         Chunks.push_back(new Chunk(name.c_str(), length, calcOffset + baseOffset, Stream));
         calcOffset += length;

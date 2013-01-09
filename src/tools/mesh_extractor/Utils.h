@@ -40,7 +40,7 @@ template<typename T>
 struct Triangle
 {
     Triangle() {}
-    Triangle(Constants::TriangleType type, T v0, T v1, T v2) : Type(type), V0(v0), V1(v1), V2(v2) {}
+    Triangle(Constants::TriangleType type, T v0, T v1, T v2) : V0(v0), V1(v1), V2(v2), Type(type) {}
     T V0;
     T V1;
     T V2;

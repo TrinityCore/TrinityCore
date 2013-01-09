@@ -29,7 +29,7 @@
 
 // These make the linker happy.
 LoginDatabaseWorkerPool LoginDatabase;
-uint32 GetLiquidFlags(uint32 liquidType)
+uint32 GetLiquidFlags(uint32 /*liquidType*/)
 {
     return 0;
 }
@@ -37,7 +37,7 @@ uint32 GetLiquidFlags(uint32 liquidType)
 #include "DisableMgr.h"
 namespace DisableMgr
 {
-    bool IsDisabledFor(DisableType type, uint32 entry, Unit const* unit, uint8 flags)
+    bool IsDisabledFor(DisableType /*type*/, uint32 /*entry*/, Unit const* /*unit*/, uint8 /*flags*/)
     {
         return 0;
     }
@@ -50,15 +50,15 @@ namespace MMAP
     MapBuilder::MapBuilder(float maxWalkableAngle, bool skipLiquid,
         bool skipContinents, bool skipJunkMaps, bool skipBattlegrounds,
         bool debugOutput, bool bigBaseUnit, const char* offMeshFilePath) :
-    m_terrainBuilder(NULL),
+        m_terrainBuilder     (NULL),
         m_debugOutput        (debugOutput),
+        m_offMeshFilePath    (offMeshFilePath),
         m_skipContinents     (skipContinents),
         m_skipJunkMaps       (skipJunkMaps),
         m_skipBattlegrounds  (skipBattlegrounds),
         m_maxWalkableAngle   (maxWalkableAngle),
         m_bigBaseUnit        (bigBaseUnit),
-        m_rcContext          (NULL),
-        m_offMeshFilePath    (offMeshFilePath)
+        m_rcContext          (NULL)
     {
         m_terrainBuilder = new TerrainBuilder(skipLiquid);
 
@@ -250,9 +250,12 @@ namespace MMAP
 
         printf("Building mesh from file\n");
         int tileX, tileY, mapId;
-        fread(&mapId, sizeof(int), 1, file);
-        fread(&tileX, sizeof(int), 1, file);
-        fread(&tileY, sizeof(int), 1, file);
+        if (fread(&mapId, sizeof(int), 1, file) != 1)
+            return;
+        if (fread(&tileX, sizeof(int), 1, file) != 1)
+            return;
+        if (fread(&tileY, sizeof(int), 1, file) != 1)
+            return;
 
         dtNavMesh* navMesh = NULL;
         buildNavMesh(mapId, navMesh);
@@ -263,23 +266,26 @@ namespace MMAP
             return;
         }
 
-
-        int verticesCount, indicesCount;
-        fread(&verticesCount, sizeof(int), 1, file);
-        fread(&indicesCount, sizeof(int), 1, file);
+        uint verticesCount, indicesCount;
+        if (fread(&verticesCount, sizeof(uint), 1, file) != 1)
+            return;
+        if (fread(&indicesCount, sizeof(uint), 1, file) != 1)
+            return;
 
         float* verts = new float[verticesCount];
         int* inds = new int[indicesCount];
 
-        fread(verts, sizeof(float), verticesCount, file);
-        fread(inds, sizeof(int), indicesCount, file);
+        if (fread(verts, sizeof(float), verticesCount, file) != verticesCount)
+            return;
+        if (fread(inds, sizeof(int), indicesCount, file) != indicesCount)
+            return;
 
         MeshData data;
 
-        for (int i = 0; i < verticesCount; ++i)
+        for (uint i = 0; i < verticesCount; ++i)
             data.solidVerts.append(verts[i]);
 
-        for (int i = 0; i < indicesCount; ++i)
+        for (uint i = 0; i < indicesCount; ++i)
             data.solidTris.append(inds[i]);
 
         TerrainBuilder::cleanVertices(data.solidVerts, data.solidTris);
@@ -310,7 +316,7 @@ namespace MMAP
     /**************************************************************************/
     void MapBuilder::buildMap(uint32 mapID)
     {
-        printf("[Thread %i] Building map %03u:\n", ACE_Thread::self(), mapID);
+        printf("[Thread %u] Building map %03u:\n", uint32(ACE_Thread::self()), mapID);
 
         set<uint32>* tiles = getTileList(mapID);
 
@@ -409,7 +415,6 @@ namespace MMAP
         //if (tileBits < 1) tileBits = 1;                                     // need at least one bit!
         //int polyBits = sizeof(dtPolyRef)*8 - SALT_MIN_BITS - tileBits;
 
-        int tileBits = STATIC_TILE_BITS;
         int polyBits = STATIC_POLY_BITS;
 
         int maxTiles = tiles->size();
@@ -955,8 +960,10 @@ namespace MMAP
             return false;
 
         MmapTileHeader header;
-        fread(&header, sizeof(MmapTileHeader), 1, file);
+        int count = fread(&header, sizeof(MmapTileHeader), 1, file);
         fclose(file);
+        if (count != 1)
+            return false;
 
         if (header.mmapMagic != MMAP_MAGIC || header.dtVersion != DT_NAVMESH_VERSION)
             return false;

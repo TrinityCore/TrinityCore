@@ -3,7 +3,7 @@
 #include "Chunk.h"
 #include "Utils.h"
 
-WorldModelGroup::WorldModelGroup( std::string path, int groupIndex ) : GroupIndex(groupIndex), IsBad(false), MOBA(NULL)
+WorldModelGroup::WorldModelGroup( std::string path, int groupIndex ) : GroupIndex(groupIndex), MOBA(NULL), IsBad(false)
 {
     Data = new ChunkedData(path);
     if (!Data->Stream)
@@ -85,9 +85,13 @@ void WorldModelGroup::ReadTriangles()
         uint16 v0;
         uint16 v1;
         uint16 v2;
-        fread(&v0, sizeof(uint16), 1, stream);
-        fread(&v1, sizeof(uint16), 1, stream);
-        fread(&v2, sizeof(uint16), 1, stream);
+        int count = 0;
+        count += fread(&v0, sizeof(uint16), 1, stream);
+        count += fread(&v1, sizeof(uint16), 1, stream);
+        count += fread(&v2, sizeof(uint16), 1, stream);
+        if (count != 3)
+            printf("WorldModelGroup::ReadMaterials: Error reading data, expected 3, read %d\n", count);
+
         Triangles.push_back(Triangle<uint16>(Constants::TRIANGLE_TYPE_WMO, v0, v1, v2));
     }
 }
@@ -105,10 +109,12 @@ void WorldModelGroup::ReadMaterials()
     for (uint32 i = 0; i < triangleCount; i++)
     {
         uint8 tmp;
-        fread(&tmp, sizeof(uint8), 1, stream);
+        if (fread(&tmp, sizeof(uint8), 1, stream) != 1)
+            printf("WorldModelGroup::ReadMaterials: Error reading data, expected 1, read 0\n");
         TriangleFlags.push_back(tmp);
         // Read again for material.
-        fread(&tmp, sizeof(uint8), 1, stream);
+        if (fread(&tmp, sizeof(uint8), 1, stream) != 1)
+            printf("WorldModelGroup::ReadMaterials: Error reading data, expected 1, read 0\n");
         TriangleMaterials.push_back(tmp);
     }
 }
@@ -131,5 +137,7 @@ void WorldModelGroup::ReadBatches()
 
     MOBALength = chunk->Length / 2;
     MOBA = new uint16[MOBALength];
-    fread(MOBA, sizeof(uint16), MOBALength, chunk->GetStream());
+    int count = fread(MOBA, sizeof(uint16), MOBALength, chunk->GetStream());
+    if (count != MOBALength)
+        printf("WorldModelGroup::ReadBatches: Error reading data, expected %d, read %d\n", MOBALength, count);
 }

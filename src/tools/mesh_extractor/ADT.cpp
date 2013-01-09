@@ -3,7 +3,8 @@
 #include "LiquidHandler.h"
 #include "WorldModelHandler.h"
 
-ADT::ADT( std::string file ) : ObjectData(NULL), Data(NULL), _DoodadHandler(NULL), _WorldModelHandler(NULL), _LiquidHandler(NULL), HasObjectData(false)
+ADT::ADT( std::string file ) : ObjectData(NULL), Data(NULL), HasObjectData(false),
+    _DoodadHandler(NULL), _WorldModelHandler(NULL), _LiquidHandler(NULL)
 {
     Data = new ChunkedData(file);
     ObjectData = new ChunkedData(Utils::Replace(file, ".adt", "_obj0.adt"));
@@ -31,7 +32,6 @@ void ADT::Read()
 {
     Header.Read(Data->GetChunkByName("MHDR")->GetStream());
     MapChunks.reserve(16 * 16);
-    int mapChunkIndex = 0;
 
     for (std::vector<Chunk*>::iterator itr = Data->Chunks.begin(); itr != Data->Chunks.end(); ++itr)
         if ((*itr)->Name == "MCNK")

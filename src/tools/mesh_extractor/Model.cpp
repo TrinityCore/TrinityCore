@@ -47,9 +47,12 @@ void Model::ReadBoundingTriangles( FILE* stream )
     {
         Triangle<uint16> tri;
         tri.Type = Constants::TRIANGLE_TYPE_DOODAD;
-        fread(&tri.V0, sizeof(uint16), 1, stream);
-        fread(&tri.V1, sizeof(uint16), 1, stream);
-        fread(&tri.V2, sizeof(uint16), 1, stream);
+        int count = 0;
+        count += fread(&tri.V0, sizeof(uint16), 1, stream);
+        count += fread(&tri.V1, sizeof(uint16), 1, stream);
+        count += fread(&tri.V2, sizeof(uint16), 1, stream);
+        if (count != 3)
+            printf("Model::ReadBoundingTriangles: Error reading data, expected 3, read %d\n", count);
         Triangles.push_back(tri);
     }
 }

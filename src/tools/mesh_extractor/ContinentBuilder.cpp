@@ -16,7 +16,7 @@ private:
     dtNavMeshParams Params;
     ContinentBuilder* cBuilder;
 public:
-    BuilderThread(ContinentBuilder* _cBuilder, bool deb, dtNavMeshParams& params) : Free(true), debug(deb), Params(params), cBuilder(_cBuilder) {}
+    BuilderThread(ContinentBuilder* _cBuilder, bool deb, dtNavMeshParams& params) : debug(deb), Params(params), cBuilder(_cBuilder), Free(true) {}
     void SetData(int x, int y, int map, std::string cont) { X = x; Y = y; MapId = map; Continent = cont; }
 
     int svc()
@@ -113,7 +113,7 @@ void ContinentBuilder::Build(bool debug)
     std::vector<BuilderThread*> Threads;
     for (uint32 i = 0; i < NumberOfThreads; ++i)
         Threads.push_back(new BuilderThread(this, debug, params));
-    printf("Map %s ( %i ) has %i tiles. Building them with %i threads\n", Continent.c_str(), MapId, TileMap->TileTable.size(), NumberOfThreads);
+    printf("Map %s ( %i ) has %u tiles. Building them with %i threads\n", Continent.c_str(), MapId, uint32(TileMap->TileTable.size()), NumberOfThreads);
     for (std::vector<TilePos>::iterator itr = TileMap->TileTable.begin(); itr != TileMap->TileTable.end(); ++itr)
     {
         bool next = false;
