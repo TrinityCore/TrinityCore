@@ -266,10 +266,10 @@ namespace MMAP
             return;
         }
 
-        uint verticesCount, indicesCount;
-        if (fread(&verticesCount, sizeof(uint), 1, file) != 1)
+        uint32 verticesCount, indicesCount;
+        if (fread(&verticesCount, sizeof(uint32), 1, file) != 1)
             return;
-        if (fread(&indicesCount, sizeof(uint), 1, file) != 1)
+        if (fread(&indicesCount, sizeof(uint32), 1, file) != 1)
             return;
 
         float* verts = new float[verticesCount];
@@ -282,10 +282,10 @@ namespace MMAP
 
         MeshData data;
 
-        for (uint i = 0; i < verticesCount; ++i)
+        for (uint32 i = 0; i < verticesCount; ++i)
             data.solidVerts.append(verts[i]);
 
-        for (uint i = 0; i < indicesCount; ++i)
+        for (uint32 i = 0; i < indicesCount; ++i)
             data.solidTris.append(inds[i]);
 
         TerrainBuilder::cleanVertices(data.solidVerts, data.solidTris);
