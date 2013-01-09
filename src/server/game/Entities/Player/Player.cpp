@@ -25985,7 +25985,7 @@ void Player::SendRefundInfo(Item* item)
     data.WriteByteSeq(guid[2]);
     for (uint8 i = 0; i < MAX_ITEM_EXT_COST_CURRENCIES; ++i)                       // currency cost data
     {
-        data << uint32(iece->RequiredCurrencyCount[i]);
+        data << uint32(iece->RequiredCurrencyCount[i] / CURRENCY_PRECISION);
         data << uint32(iece->RequiredCurrency[i]);
     }
 
@@ -26039,7 +26039,7 @@ void Player::SendItemRefundResult(Item* item, ItemExtendedCostEntry const* iece,
     {
         for (uint8 i = 0; i < MAX_ITEM_EXT_COST_CURRENCIES; ++i)
         {
-            data << uint32(iece->RequiredCurrencyCount[i]);
+            data << uint32(iece->RequiredCurrencyCount[i] / CURRENCY_PRECISION);
             data << uint32(iece->RequiredCurrency[i]);
         }
 
@@ -26132,7 +26132,7 @@ void Player::RefundItem(Item* item)
     DestroyItem(item->GetBagSlot(), item->GetSlot(), true);
 
     // Grant back extendedcost items
-    for (uint8 i = 0; i < MAX_ITEM_EXT_COST_CURRENCIES; ++i)
+    for (uint8 i = 0; i < MAX_ITEM_EXT_COST_ITEMS; ++i)
     {
         uint32 count = iece->RequiredItemCount[i];
         uint32 itemid = iece->RequiredItem[i];
@@ -26146,11 +26146,18 @@ void Player::RefundItem(Item* item)
         }
     }
 
+    // Grant back currencies
+    for (uint8 i = 0; i < MAX_ITEM_EXT_COST_CURRENCIES; ++i)
+    {
+        uint32 count = iece->RequiredCurrencyCount[i];
+        uint32 currencyid = iece->RequiredCurrency[i];
+        if (count && currencyid)
+            ModifyCurrency(currencyid, count);
+    }
+
     // Grant back money
     if (moneyRefund)
         ModifyMoney(moneyRefund); // Saved in SaveInventoryAndGoldToDB
-
-    // Grant back Arena and Honor points ?
 
     SaveInventoryAndGoldToDB(trans);
 
