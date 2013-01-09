@@ -75,7 +75,7 @@ namespace MMAP
         LISTFILE_OK = 1
     };
 
-    inline ListFilesResult getDirContents(vector<string> &fileList, string dirpath = ".", string filter = "*", bool includeSubDirs = false)
+    inline ListFilesResult getDirContents(vector<string> &fileList, string dirpath = ".", string filter = "*")
     {
     #ifdef WIN32
         HANDLE hFind;

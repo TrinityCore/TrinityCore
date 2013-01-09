@@ -2,16 +2,19 @@
 #include "DBC.h"
 #include "Common.h"
 
-DBC::DBC( FILE* stream ) : StringBlock(NULL), IsFaulty(true), StringBlockSize(0)
+DBC::DBC( FILE* stream ) : StringBlock(NULL), StringBlockSize(0), IsFaulty(true)
 {
     char magic[5];
-    fread(&magic, sizeof(char), 4, stream);
+    uint count = 0;
+    count += fread(&magic, sizeof(char), 4, stream);
     magic[4] = '\0';
-    fread(&RecordCount, sizeof(uint32), 1, stream);
+    count += fread(&RecordCount, sizeof(uint32), 1, stream);
     Records.reserve(RecordCount);
-    fread(&Fields, sizeof(uint32), 1, stream);
-    fread(&RecordSize, sizeof(uint32), 1, stream);
-    fread(&StringBlockSize, sizeof(uint32), 1, stream);
+    count += fread(&Fields, sizeof(uint32), 1, stream);
+    count += fread(&RecordSize, sizeof(uint32), 1, stream);
+    count += fread(&StringBlockSize, sizeof(uint32), 1, stream);
+    if (count != 8)
+        printf("DBC::DBC: Failed to read some data expected 8, read %u\n", count);
 
     for (int i = 0; i < RecordCount; i++)
     {
@@ -26,13 +29,16 @@ DBC::DBC( FILE* stream ) : StringBlock(NULL), IsFaulty(true), StringBlockSize(0)
                 break;
             }
             uint32 tmp;
-            fread(&tmp, sizeof(uint32), 1, stream);
+            if (fread(&tmp, sizeof(uint32), 1, stream) != 1)
+                printf("DBC::DBC: Failed to read some data expected 1, read 0\n");
             rec->Values.push_back(tmp);
             size += 4;
         }
     }
     StringBlock = new uint8[StringBlockSize];
-    fread(StringBlock, sizeof(uint8), StringBlockSize, stream);
+    count = fread(StringBlock, sizeof(uint8), StringBlockSize, stream);
+    if (count != StringBlockSize)
+        printf("DBC::DBC: Failed to read some data expected %u, read %u\n", StringBlockSize, count);
 }
 
 std::string DBC::GetStringByOffset( int offset )

@@ -27,6 +27,9 @@
 
 namespace MMAP
 {
+
+    char const* MAP_VERSION_MAGIC = "v1.3";
+
     TerrainBuilder::TerrainBuilder(bool skipLiquid) : m_skipLiquid (skipLiquid){ }
     TerrainBuilder::~TerrainBuilder() { }
 
@@ -86,9 +89,8 @@ namespace MMAP
             return false;
 
         map_fileheader fheader;
-        fread(&fheader, sizeof(map_fileheader), 1, mapFile);
-
-        if (fheader.versionMagic != *((uint32 const*)(MAP_VERSION_MAGIC)))
+        if (fread(&fheader, sizeof(map_fileheader), 1, mapFile) != 1 ||
+            fheader.versionMagic != *((uint32 const*)(MAP_VERSION_MAGIC)))
         {
             fclose(mapFile);
             printf("%s is the wrong version, please extract new .map files\n", mapFileName);
@@ -97,10 +99,14 @@ namespace MMAP
 
         map_heightHeader hheader;
         fseek(mapFile, fheader.heightMapOffset, SEEK_SET);
-        fread(&hheader, sizeof(map_heightHeader), 1, mapFile);
 
-        bool haveTerrain = !(hheader.flags & MAP_HEIGHT_NO_HEIGHT);
-        bool haveLiquid = fheader.liquidMapOffset && !m_skipLiquid;
+        bool haveTerrain = false;
+        bool haveLiquid = false;
+        if (fread(&hheader, sizeof(map_heightHeader), 1, mapFile) == 1)
+        {
+            haveTerrain = !(hheader.flags & MAP_HEIGHT_NO_HEIGHT);
+            haveLiquid = fheader.liquidMapOffset && !m_skipLiquid;
+        }
 
         // no data in this map file
         if (!haveTerrain && !haveLiquid)
@@ -120,42 +126,53 @@ namespace MMAP
         // terrain data
         if (haveTerrain)
         {
-            int i;
             float heightMultiplier;
             float V9[V9_SIZE_SQ], V8[V8_SIZE_SQ];
+            int expected = V9_SIZE_SQ + V8_SIZE_SQ;
 
             if (hheader.flags & MAP_HEIGHT_AS_INT8)
             {
                 uint8 v9[V9_SIZE_SQ];
                 uint8 v8[V8_SIZE_SQ];
-                fread(v9, sizeof(uint8), V9_SIZE_SQ, mapFile);
-                fread(v8, sizeof(uint8), V8_SIZE_SQ, mapFile);
+                int count = 0;
+                count += fread(v9, sizeof(uint8), V9_SIZE_SQ, mapFile);
+                count += fread(v8, sizeof(uint8), V8_SIZE_SQ, mapFile);
+                if (count != expected)
+                    printf("TerrainBuilder::loadMap: Failed to read some data expected %d, read %d\n", expected, count);
+                    
                 heightMultiplier = (hheader.gridMaxHeight - hheader.gridHeight) / 255;
 
-                for (i = 0; i < V9_SIZE_SQ; ++i)
+                for (int i = 0; i < V9_SIZE_SQ; ++i)
                     V9[i] = (float)v9[i]*heightMultiplier + hheader.gridHeight;
 
-                for (i = 0; i < V8_SIZE_SQ; ++i)
+                for (int i = 0; i < V8_SIZE_SQ; ++i)
                     V8[i] = (float)v8[i]*heightMultiplier + hheader.gridHeight;
             }
             else if (hheader.flags & MAP_HEIGHT_AS_INT16)
             {
                 uint16 v9[V9_SIZE_SQ];
                 uint16 v8[V8_SIZE_SQ];
-                fread(v9, sizeof(uint16), V9_SIZE_SQ, mapFile);
-                fread(v8, sizeof(uint16), V8_SIZE_SQ, mapFile);
+                int count = 0;
+                count += fread(v9, sizeof(uint16), V9_SIZE_SQ, mapFile);
+                count += fread(v8, sizeof(uint16), V8_SIZE_SQ, mapFile);
+                if (count != expected)
+                    printf("TerrainBuilder::loadMap: Failed to read some data expected %d, read %d\n", expected, count);
+
                 heightMultiplier = (hheader.gridMaxHeight - hheader.gridHeight) / 65535;
 
-                for (i = 0; i < V9_SIZE_SQ; ++i)
+                for (int i = 0; i < V9_SIZE_SQ; ++i)
                     V9[i] = (float)v9[i]*heightMultiplier + hheader.gridHeight;
 
-                for (i = 0; i < V8_SIZE_SQ; ++i)
+                for (int i = 0; i < V8_SIZE_SQ; ++i)
                     V8[i] = (float)v8[i]*heightMultiplier + hheader.gridHeight;
             }
             else
             {
-                fread (V9, sizeof(float), V9_SIZE_SQ, mapFile);
-                fread(V8, sizeof(float), V8_SIZE_SQ, mapFile);
+                int count = 0;
+                count += fread(V9, sizeof(float), V9_SIZE_SQ, mapFile);
+                count += fread(V8, sizeof(float), V8_SIZE_SQ, mapFile);
+                if (count != expected)
+                    printf("TerrainBuilder::loadMap: Failed to read some data expected %d, read %d\n", expected, count);
             }
 
             // hole data
@@ -163,7 +180,8 @@ namespace MMAP
             {
                 memset(holes, 0, fheader.holesSize);
                 fseek(mapFile, fheader.holesOffset, SEEK_SET);
-                fread(holes, fheader.holesSize, 1, mapFile);
+                if (fread(holes, fheader.holesSize, 1, mapFile) != 1)
+                    printf("TerrainBuilder::loadMap: Failed to read some data expected 1, read 0\n");
             }
 
             int count = meshData.solidVerts.size() / 3;
@@ -172,7 +190,7 @@ namespace MMAP
 
             float coord[3];
 
-            for (i = 0; i < V9_SIZE_SQ; ++i)
+            for (int i = 0; i < V9_SIZE_SQ; ++i)
             {
                 getHeightCoord(i, GRID_V9, xoffset, yoffset, coord, V9);
                 meshData.solidVerts.append(coord[0]);
@@ -180,7 +198,7 @@ namespace MMAP
                 meshData.solidVerts.append(coord[1]);
             }
 
-            for (i = 0; i < V8_SIZE_SQ; ++i)
+            for (int i = 0; i < V8_SIZE_SQ; ++i)
             {
                 getHeightCoord(i, GRID_V8, xoffset, yoffset, coord, V8);
                 meshData.solidVerts.append(coord[0]);
@@ -188,10 +206,10 @@ namespace MMAP
                 meshData.solidVerts.append(coord[1]);
             }
 
-            int j, indices[3], loopStart, loopEnd, loopInc;
+            int indices[3], loopStart = 0, loopEnd = 0, loopInc = 0;
             getLoopVars(portion, loopStart, loopEnd, loopInc);
-            for (i = loopStart; i < loopEnd; i+=loopInc)
-                for (j = TOP; j <= BOTTOM; j+=1)
+            for (int i = loopStart; i < loopEnd; i+=loopInc)
+                for (int j = TOP; j <= BOTTOM; j+=1)
                 {
                     getHeightTriangle(i, Spot(j), indices);
                     ttriangles.append(indices[2] + count);
@@ -205,19 +223,25 @@ namespace MMAP
         {
             map_liquidHeader lheader;
             fseek(mapFile, fheader.liquidMapOffset, SEEK_SET);
-            fread(&lheader, sizeof(map_liquidHeader), 1, mapFile);
+            if (fread(&lheader, sizeof(map_liquidHeader), 1, mapFile) != 1)
+                printf("TerrainBuilder::loadMap: Failed to read some data expected 1, read 0\n");
+
 
             float* liquid_map = NULL;
 
             if (!(lheader.flags & MAP_LIQUID_NO_TYPE))
-                fread(liquid_type, sizeof(liquid_type), 1, mapFile);
+                if (fread(liquid_type, sizeof(liquid_type), 1, mapFile) != 1)
+                    printf("TerrainBuilder::loadMap: Failed to read some data expected 1, read 0\n");
 
             if (!(lheader.flags & MAP_LIQUID_NO_HEIGHT))
             {
-                liquid_map = new float [lheader.width*lheader.height];
-                fread(liquid_map, sizeof(float), lheader.width*lheader.height, mapFile);
+                uint toRead = lheader.width*lheader.height;
+                liquid_map = new float [toRead];
+                if (fread(liquid_map, sizeof(float), toRead, mapFile) != toRead)
+                    printf("TerrainBuilder::loadMap: Failed to read some data expected 1, read 0\n");
             }
 
+            // FIXME: "the address of ‘liquid_type’ will always evaluate as ‘true’"
             if (liquid_type && liquid_map)
             {
                 int count = meshData.liquidVerts.size() / 3;
@@ -263,9 +287,8 @@ namespace MMAP
 
                 delete [] liquid_map;
 
-                int indices[3], loopStart, loopEnd, loopInc, triInc;
+                int indices[3], loopStart = 0, loopEnd = 0, loopInc = 0, triInc = BOTTOM-TOP;
                 getLoopVars(portion, loopStart, loopEnd, loopInc);
-                triInc = BOTTOM-TOP;
 
                 // generate triangles
                 for (int i = loopStart; i < loopEnd; i+=loopInc)
@@ -283,7 +306,7 @@ namespace MMAP
 
         // now that we have gathered the data, we can figure out which parts to keep:
         // liquid above ground, ground above liquid
-        int loopStart, loopEnd, loopInc, tTriCount = 4;
+        int loopStart = 0, loopEnd = 0, loopInc = 0, tTriCount = 4;
         bool useTerrain, useLiquid;
 
         float* lverts = meshData.liquidVerts.getCArray();
@@ -313,6 +336,7 @@ namespace MMAP
                 useTerrain = true;
                 useLiquid = true;
                 uint8 liquidType = MAP_LIQUID_TYPE_NO_WATER;
+                // FIXME: "warning: the address of ‘liquid_type’ will always evaluate as ‘true’"
 
                 // if there is no liquid, don't use liquid
                 if (!liquid_type || !meshData.liquidVerts.size() || !ltriangles.size())
@@ -825,13 +849,13 @@ namespace MMAP
         while(fgets(buf, 512, fp))
         {
             float p0[3], p1[3];
-            int mid, tx, ty;
+            uint32 mid, tx, ty;
             float size;
-            if (10 != sscanf(buf, "%d %d,%d (%f %f %f) (%f %f %f) %f", &mid, &tx, &ty,
-                &p0[0], &p0[1], &p0[2], &p1[0], &p1[1], &p1[2], &size))
+            if (sscanf(buf, "%d %d,%d (%f %f %f) (%f %f %f) %f", &mid, &tx, &ty,
+                &p0[0], &p0[1], &p0[2], &p1[0], &p1[1], &p1[2], &size) != 10)
                 continue;
 
-            if (mapID == mid, tileX == tx, tileY == ty)
+            if (mapID == mid && tileX == tx && tileY == ty)
             {
                 meshData.offMeshConnections.append(p0[1]);
                 meshData.offMeshConnections.append(p0[2]);

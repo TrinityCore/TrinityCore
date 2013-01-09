@@ -6,6 +6,13 @@
 int holetab_h[4] = {0x1111, 0x2222, 0x4444, 0x8888};
 int holetab_v[4] = {0x000F, 0x00F0, 0x0F00, 0xF000};
 
+u_map_fcc MHDRMagic = { {'M','H','D','R'} };
+u_map_fcc MCINMagic = { {'M','C','I','N'} };
+u_map_fcc MH20Magic = { {'M','H','2','0'} };
+u_map_fcc MCNKMagic = { {'M','C','N','K'} };
+u_map_fcc MCVTMagic = { {'M','C','V','T'} };
+u_map_fcc MCLQMagic = { {'M','C','L','Q'} };
+
 bool isHole(int holes, int i, int j)
 {
     int testi = i / 2;
@@ -53,7 +60,7 @@ bool ADT_file::prepareLoadedData()
 
 bool adt_MHDR::prepareLoadedData()
 {
-    if (fcc != 'MHDR')
+    if (fcc != MHDRMagic.fcc)
         return false;
 
     if (size!=sizeof(adt_MHDR)-8)
@@ -72,7 +79,7 @@ bool adt_MHDR::prepareLoadedData()
 
 bool adt_MCIN::prepareLoadedData()
 {
-    if (fcc != 'MCIN')
+    if (fcc != MCINMagic.fcc)
         return false;
 
     // Check cells data
@@ -86,7 +93,7 @@ bool adt_MCIN::prepareLoadedData()
 
 bool adt_MH2O::prepareLoadedData()
 {
-    if (fcc != 'MH2O')
+    if (fcc != MH20Magic.fcc)
         return false;
 
     // Check liquid data
@@ -98,7 +105,7 @@ bool adt_MH2O::prepareLoadedData()
 
 bool adt_MCNK::prepareLoadedData()
 {
-    if (fcc != 'MCNK')
+    if (fcc != MCNKMagic.fcc)
         return false;
 
     // Check height map
@@ -113,7 +120,7 @@ bool adt_MCNK::prepareLoadedData()
 
 bool adt_MCVT::prepareLoadedData()
 {
-    if (fcc != 'MCVT')
+    if (fcc != MCVTMagic.fcc)
         return false;
 
     if (size != sizeof(adt_MCVT)-8)
@@ -124,7 +131,7 @@ bool adt_MCVT::prepareLoadedData()
 
 bool adt_MCLQ::prepareLoadedData()
 {
-    if (fcc != 'MCLQ')
+    if (fcc != MCLQMagic.fcc)
         return false;
 
     return true;
