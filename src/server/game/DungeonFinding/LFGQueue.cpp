@@ -139,7 +139,7 @@ void LFGQueue::RemoveFromCurrentQueue(uint64 guid)
     currentQueueStore.remove(guid);
 }
 
-void LFGQueue::AddQueueData(uint64 guid, time_t joinTime, const LfgDungeonSet &dungeons, const LfgRolesMap &rolesMap)
+void LFGQueue::AddQueueData(uint64 guid, time_t joinTime, LfgDungeonSet const& dungeons, LfgRolesMap const& rolesMap)
 {
     QueueDataStore[guid] = LfgQueueData(joinTime, dungeons, rolesMap);
     AddToQueue(guid);
@@ -216,7 +216,6 @@ void LFGQueue::SetCompatibilityData(std::string const& key, LfgCompatibilityData
 {
     CompatibleMapStore[key] = data;
 }
-
 
 /**
    Get the compatibility of a group of guids
@@ -482,8 +481,9 @@ LfgCompatibility LFGQueue::CheckCompatibility(LfgGuidList check)
         return LFG_COMPATIBLES_WITH_LESS_PLAYERS;
     }
 
+    uint64 gguid = *check.begin();
     proposal.queues = check;
-    proposal.isNew = numLfgGroups != 1;
+    proposal.isNew = numLfgGroups != 1 || !sLFGMgr->GetDungeon(gguid);
 
     if (!sLFGMgr->AllQueued(check))
     {
