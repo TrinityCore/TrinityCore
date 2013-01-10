@@ -2909,7 +2909,7 @@ Currency.StartJusticePoints = 0
 
 #
 #    Currency.MaxJusticePoints
-#        Amount honor points a player can have
+#        Amount justice points a player can have
 #        Default: 4000
 #
 
