@@ -26152,7 +26152,7 @@ void Player::RefundItem(Item* item)
         uint32 count = iece->RequiredCurrencyCount[i];
         uint32 currencyid = iece->RequiredCurrency[i];
         if (count && currencyid)
-            ModifyCurrency(currencyid, count);
+            ModifyCurrency(currencyid, count / CURRENCY_PRECISION);
     }
 
     // Grant back money

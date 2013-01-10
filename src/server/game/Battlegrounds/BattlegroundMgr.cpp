@@ -299,7 +299,7 @@ void BattlegroundMgr::BuildBattlegroundStatusPacket(WorldPacket *data, Battlegro
             data->WriteBit(bgGuid[7]);
             data->WriteBit(bgGuid[1]);
             data->WriteBit(playerGuid[5]);
-            data->WriteBit(player->GetBGTeam() == TEAM_HORDE);
+            data->WriteBit(player->GetBGTeam() == HORDE ? 0 : 1);
             data->WriteBit(bgGuid[0]);
             data->WriteBit(playerGuid[1]);
             data->WriteBit(bgGuid[3]);
@@ -399,7 +399,7 @@ void BattlegroundMgr::BuildPvpLogDataPacket(WorldPacket* data, Battleground* bg)
         data->WriteBit(playerGUID[5]);
         data->WriteBit(playerGUID[1]);
         data->WriteBit(playerGUID[6]);
-        data->WriteBit(player->GetBGTeam() == TEAM_ALLIANCE);
+        data->WriteBit(player->GetBGTeam() == HORDE ? 0 : 1);
         data->WriteBit(playerGUID[7]);
 
         buff << uint32(itr->second->HealingDone);             // healing done
