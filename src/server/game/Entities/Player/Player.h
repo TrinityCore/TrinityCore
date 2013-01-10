@@ -2935,6 +2935,14 @@ class Player : public Unit, public GridObject<Player>
         */
         uint32 _GetCurrencyWeekCap(const CurrencyTypesEntry* currency) const;
 
+        /*
+         * @name   _GetCurrencyTotalCap
+         * @brief  return total cap for selected currency
+     
+         * @param  currency CurrencyTypesEntry witch should get week cap
+         */
+        uint32 _GetCurrencyTotalCap(const CurrencyTypesEntry* currency) const;
+
         VoidStorageItem* _voidStorageItems[VOID_STORAGE_MAX_SLOT];
 
         std::vector<Item*> m_itemUpdateQueue;

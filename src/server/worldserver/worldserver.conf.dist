@@ -2857,44 +2857,8 @@ Guild.WeeklyReputationCap = 4375
 ###################################################################################################
 
 ###################################################################################################
+#
 # CURRENCIES SETTINGS
-#
-#    Currency.StartHonorPoints
-#        Amount of honor points that new players will start with
-#        Default: 0 (with precision)
-#
-
-Currency.StartHonorPoints = 0
-
-#    Currency.MaxHonorPoints
-#        Max honor points of players
-#        Default: 400000 (with precision)
-#
-
-Currency.MaxHonorPoints = 400000
-
-#    Currency.StartJusticePoints
-#        Amount of justice points that new players will start with
-#        Default: 0 (with precision)
-#
-
-Currency.StartJusticePoints = 0
-
-#    Currency.MaxJusticePoints
-#        Max justice points of players
-#        Default: 400000 (with precision)
-#
-
-Currency.MaxJusticePoints = 400000
-
-#
-#    Currency.StartConquestPoints
-#        Amount of conquest points that new players will start with
-#        Default: 0 (with precision)
-#
-
-Currency.StartConquestPoints = 0
-
 #
 #    Currency.ResetInterval
 #        How often should currency week count reset (days)
@@ -2918,6 +2882,46 @@ Currency.ResetWeekDay = 3
 #
 
 Currency.ResetHour = 6
+
+#
+#    Currency.StartHonorPoints
+#        Amount of honor points that new players will start with
+#        Default: 0 (with precision)
+#
+
+Currency.StartHonorPoints = 0
+
+#
+#    Currency.MaxHonorPoints
+#        Amount honor points a player can have
+#        Default: 4000
+#
+
+Currency.MaxHonorPoints = 4000
+
+#
+#    Currency.StartJusticePoints
+#        Amount of justice points that new players will start with
+#        Default: 0 (with precision)
+#
+
+Currency.StartJusticePoints = 0
+
+#
+#    Currency.MaxJusticePoints
+#        Amount honor points a player can have
+#        Default: 4000
+#
+
+Currency.MaxJusticePoints = 4000
+
+#
+#    Currency.StartConquestPoints
+#        Amount of conquest points that new players will start with
+#        Default: 0 (with precision)
+#
+
+Currency.StartConquestPoints = 0
 
 #
 #    Currency.ConquestPointsDefaultWeekCap

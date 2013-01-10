@@ -7437,6 +7437,11 @@ void Player::ModifyCurrency(uint32 id, int32 count, bool printLog/* = true*/, bo
     if (weekCap && count > int32(weekCap))
         count = weekCap;
 
+    // count can't be more then totalCap if used (totalCap > 0)
+    uint32 totalCap = _GetCurrencyTotalCap(currency);
+    if (totalCap && count > int32(totalCap))
+        count = totalCap;
+
     int32 newTotalCount = int32(oldTotalCount) + count;
     if (newTotalCount < 0)
         newTotalCount = 0;
@@ -7445,20 +7450,18 @@ void Player::ModifyCurrency(uint32 id, int32 count, bool printLog/* = true*/, bo
     if (newWeekCount < 0)
         newWeekCount = 0;
 
-    ASSERT(weekCap >= oldWeekCount);
-
     // if we get more then weekCap just set to limit
     if (weekCap && int32(weekCap) < newWeekCount)
     {
         newWeekCount = int32(weekCap);
-        // weekCap - oldWeekCount alwayt >= 0 as we set limit before!
+        // weekCap - oldWeekCount always >= 0 as we set limit before!
         newTotalCount = oldTotalCount + (weekCap - oldWeekCount);
     }
 
     // if we get more then totalCap set to maximum;
-    if (currency->TotalCap && int32(currency->TotalCap) < newTotalCount)
+    if (totalCap && int32(totalCap) < newTotalCount)
     {
-        newTotalCount = int32(currency->TotalCap);
+        newTotalCount = int32(totalCap);
         newWeekCount = weekCap;
     }
 
@@ -7571,10 +7574,29 @@ uint32 Player::_GetCurrencyWeekCap(const CurrencyTypesEntry* currency) const
             return _ConquestCurrencyTotalWeekCap;
         case CURRENCY_TYPE_CONQUEST_META_ARENA:
             // should add precision mod = 100
-            return Trinity::Currency::ConquestRatingCalculator(_maxPersonalArenaRate) * 100;
+            return Trinity::Currency::ConquestRatingCalculator(_maxPersonalArenaRate) * CURRENCY_PRECISION;
         case CURRENCY_TYPE_CONQUEST_META_BG:
             // should add precision mod = 100
-            return Trinity::Currency::BgConquestRatingCalculator(GetRBGPersonalRating()) * 100;
+            return Trinity::Currency::BgConquestRatingCalculator(GetRBGPersonalRating()) * CURRENCY_PRECISION;
+    }
+
+    if (cap != currency->WeekCap && IsInWorld() && !GetSession()->PlayerLoading())
+    {
+        WorldPacket packet(SMSG_UPDATE_CURRENCY_WEEK_LIMIT, 8);
+        packet << uint32(cap / ((currency->Flags & CURRENCY_FLAG_HIGH_PRECISION) ? 100 : 1));
+        packet << uint32(currency->ID);
+        GetSession()->SendPacket(&packet);
+    }
+
+    return cap;
+}
+
+uint32 Player::_GetCurrencyTotalCap(const CurrencyTypesEntry* currency) const
+{
+    uint32 cap = currency->TotalCap;
+
+    switch (currency->ID)
+    {
         case CURRENCY_TYPE_HONOR_POINTS:
         {
             uint32 honorcap = sWorld->getIntConfig(CONFIG_CURRENCY_MAX_HONOR_POINTS);
@@ -7591,16 +7613,7 @@ uint32 Player::_GetCurrencyWeekCap(const CurrencyTypesEntry* currency) const
         }
     }
 
-    if (cap != currency->WeekCap && IsInWorld() && !GetSession()->PlayerLoading())
-    {
-        WorldPacket packet(SMSG_UPDATE_CURRENCY_WEEK_LIMIT, 8);
-        packet << uint32(cap / ((currency->Flags & CURRENCY_FLAG_HIGH_PRECISION) ? 100 : 1));
-        packet << uint32(currency->ID);
-        GetSession()->SendPacket(&packet);
-    }
-
     return cap;
-
 }
 
 void Player::SetInGuild(uint32 guildId)
@@ -26152,7 +26165,7 @@ void Player::RefundItem(Item* item)
         uint32 count = iece->RequiredCurrencyCount[i];
         uint32 currencyid = iece->RequiredCurrency[i];
         if (count && currencyid)
-            ModifyCurrency(currencyid, count / CURRENCY_PRECISION);
+            ModifyCurrency(currencyid, count);
     }
 
     // Grant back money
