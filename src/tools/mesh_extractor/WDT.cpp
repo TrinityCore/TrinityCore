@@ -4,7 +4,7 @@
 #include "Utils.h"
 #include "WorldModelHandler.h"
 
-WDT::WDT(std::string file) : IsValid(false), IsGlobalModel(false)
+WDT::WDT(std::string file) : IsGlobalModel(false), IsValid(false)
 {
     Data = new ChunkedData(file, 2);
     ReadTileTable();
@@ -37,8 +37,13 @@ void WDT::ReadTileTable()
             const uint32 hasTileFlag = 0x1;
             uint32 flags;
             uint32 discard;
-            fread(&flags, sizeof(uint32), 1, stream);
-            fread(&discard, sizeof(uint32), 1, stream);
+            int count = 0;
+            count += fread(&flags, sizeof(uint32), 1, stream);
+            count += fread(&discard, sizeof(uint32), 1, stream);
+
+            if (count != 2)
+                printf("WDT::ReadTileTable: Failed to read some data expected 2, read %d\n", count);
+
             if (flags & hasTileFlag)
                 TileTable.push_back(TilePos(x, y));
 

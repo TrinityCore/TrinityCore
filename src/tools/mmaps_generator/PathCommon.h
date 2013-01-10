@@ -75,7 +75,7 @@ namespace MMAP
         LISTFILE_OK = 1
     };
 
-    inline ListFilesResult getDirContents(vector<string> &fileList, string dirpath = ".", string filter = "*", bool includeSubDirs = false)
+    inline ListFilesResult getDirContents(vector<string> &fileList, string dirpath = ".", string filter = "*")
     {
     #ifdef WIN32
         HANDLE hFind;
@@ -90,7 +90,7 @@ namespace MMAP
             return LISTFILE_DIRECTORY_NOT_FOUND;
         do
         {
-            if (includeSubDirs || (findFileInfo.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == 0)
+            if ((findFileInfo.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == 0)
                 fileList.push_back(string(findFileInfo.cFileName));
         }
         while (FindNextFile(hFind, &findFileInfo));

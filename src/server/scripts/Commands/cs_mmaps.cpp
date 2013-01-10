@@ -117,7 +117,7 @@ public:
         return true;
     }
 
-    static bool HandleMmapLocCommand(ChatHandler* handler, const char* args)
+    static bool HandleMmapLocCommand(ChatHandler* handler, char const* /*args*/)
     {
         handler->PSendSysMessage("mmap tileloc:");
 
@@ -171,7 +171,7 @@ public:
         return true;
     }
 
-    static bool HandleMmapLoadedTilesCommand(ChatHandler* handler, const char* args)
+    static bool HandleMmapLoadedTilesCommand(ChatHandler* handler, char const* /*args*/)
     {
         uint32 mapid = handler->GetSession()->GetPlayer()->GetMapId();
         dtNavMesh const* navmesh = MMAP::MMapFactory::createOrGetMMapManager()->GetNavMesh(mapid);
@@ -196,7 +196,7 @@ public:
         return true;
     }
 
-    static bool HandleMmapStatsCommand(ChatHandler* handler, const char* args)
+    static bool HandleMmapStatsCommand(ChatHandler* handler, char const* /*args*/)
     {
         uint32 mapId = handler->GetSession()->GetPlayer()->GetMapId();
         handler->PSendSysMessage("mmap stats:");
@@ -244,12 +244,12 @@ public:
         return true;
     }
 
-    static bool HandleMmapTestArea(ChatHandler* handler, const char* args)
+    static bool HandleMmapTestArea(ChatHandler* handler, char const* /*args*/)
     {
         float radius = 40.0f;
         WorldObject* object = handler->GetSession()->GetPlayer();
 
-        CellCoord pair(Trinity::ComputeCellCoord(object->GetPositionX(), object->GetPositionY()) );
+        CellCoord pair(Trinity::ComputeCellCoord(object->GetPositionX(), object->GetPositionY()));
         Cell cell(pair);
         cell.SetNoCreate();
 

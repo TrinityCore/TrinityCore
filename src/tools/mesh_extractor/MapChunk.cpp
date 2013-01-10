@@ -58,7 +58,8 @@ void MapChunk::GenerateVertices( FILE* stream )
         for (int i = 0; i < values; i++)
         {
             float tmp;
-            fread(&tmp, sizeof(float), 1, stream);
+            if (fread(&tmp, sizeof(float), 1, stream) != 1)
+                printf("MapChunk::GenerateVertices: Failed to read some data expected 1, read 0\n");
             Vector3 vert(Header.Position.x - (j * (Constants::UnitSize * 0.5f)), Header.Position.y - (i * Constants::UnitSize), Header.Position.z + tmp);
             if (values == 8)
                 vert.y -= Constants::UnitSize * 0.5f;

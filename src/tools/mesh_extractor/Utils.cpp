@@ -53,8 +53,7 @@ std::string Utils::ReadString( FILE* file )
     while (true)
     {
         char b;
-        fread(&b, sizeof(char), 1, file);
-        if (b == 0)
+        if (fread(&b, sizeof(char), 1, file) != 1 || b == 0)
             break;
         ret[i++] = b;
     }
@@ -155,7 +154,7 @@ Vector3 Utils::VectorTransform( Vector3 vec, G3D::Matrix4 matrix )
 
 std::string Utils::GetPathBase( std::string path )
 {
-    int lastIndex = path.find_last_of(".");
+    size_t lastIndex = path.find_last_of(".");
     if (lastIndex != std::string::npos)
         return path.substr(0, lastIndex);
     return path;
@@ -164,11 +163,12 @@ std::string Utils::GetPathBase( std::string path )
 Vector3 Vector3::Read( FILE* file )
 {
     Vector3 ret;
-    fread(&ret, sizeof(Vector3), 1, file);
+    if (fread(&ret, sizeof(Vector3), 1, file) != 1)
+        printf("Vector3::Read: Failed to read some data expected 1, read 0\n");
     return ret;
 }
 
-Vector3 Utils::GetLiquidVert(G3D::Matrix4 transformation, Vector3 basePosition, float height, int x, int y)
+Vector3 Utils::GetLiquidVert(G3D::Matrix4 transformation, Vector3 basePosition, float height, int /*x*/, int /*y*/)
 {
     if (Utils::Distance(height, 0.0f) > 0.5f)
         basePosition.z = 0.0f;
@@ -208,14 +208,18 @@ void Utils::SaveToDisk( FILE* stream, std::string path )
     FILE* disk = fopen(path.c_str(), "wb");
     if (!disk)
     {
-        printf("Could not save file %s to disk, please verify that you have write permissions on that directory\n", path.c_str());
+        printf("SaveToDisk: Could not save file %s to disk, please verify that you have write permissions on that directory\n", path.c_str());
         return;
     }
 
     uint32 size = Utils::Size(stream);
     uint8* data = new uint8[size];
     // Read the data to an array
-    fread(data, 1, size, stream);
+    if (fread(data, 1, size, stream) != 1)
+    {
+        printf("SaveToDisk: Error reading from Stream while trying to save file %s to disck.\n", path.c_str());
+        return;        
+    }
     // And write it in the file
     fwrite(data, 1, size, disk);
 
@@ -242,136 +246,164 @@ std::string Utils::GetExtension( std::string path )
 
 void MapChunkHeader::Read(FILE* stream)
 {
-    fread(&Flags, sizeof(uint32), 1, stream);
-    fread(&IndexX, sizeof(uint32), 1, stream);
-    fread(&IndexY, sizeof(uint32), 1, stream);
-    fread(&Layers, sizeof(uint32), 1, stream);
-    fread(&DoodadRefs, sizeof(uint32), 1, stream);
-    fread(&OffsetMCVT, sizeof(uint32), 1, stream);
-    fread(&OffsetMCNR, sizeof(uint32), 1, stream);
-    fread(&OffsetMCLY, sizeof(uint32), 1, stream);
-    fread(&OffsetMCRF, sizeof(uint32), 1, stream);
-    fread(&OffsetMCAL, sizeof(uint32), 1, stream);
-    fread(&SizeMCAL, sizeof(uint32), 1, stream);
-    fread(&OffsetMCSH, sizeof(uint32), 1, stream);
-    fread(&SizeMCSH, sizeof(uint32), 1, stream);
-    fread(&AreaId, sizeof(uint32), 1, stream);
-    fread(&MapObjectRefs, sizeof(uint32), 1, stream);
-    fread(&Holes, sizeof(uint32), 1, stream);
+    int count = 0;
+
+    count += fread(&Flags, sizeof(uint32), 1, stream);
+    count += fread(&IndexX, sizeof(uint32), 1, stream);
+    count += fread(&IndexY, sizeof(uint32), 1, stream);
+    count += fread(&Layers, sizeof(uint32), 1, stream);
+    count += fread(&DoodadRefs, sizeof(uint32), 1, stream);
+    count += fread(&OffsetMCVT, sizeof(uint32), 1, stream);
+    count += fread(&OffsetMCNR, sizeof(uint32), 1, stream);
+    count += fread(&OffsetMCLY, sizeof(uint32), 1, stream);
+    count += fread(&OffsetMCRF, sizeof(uint32), 1, stream);
+    count += fread(&OffsetMCAL, sizeof(uint32), 1, stream);
+    count += fread(&SizeMCAL, sizeof(uint32), 1, stream);
+    count += fread(&OffsetMCSH, sizeof(uint32), 1, stream);
+    count += fread(&SizeMCSH, sizeof(uint32), 1, stream);
+    count += fread(&AreaId, sizeof(uint32), 1, stream);
+    count += fread(&MapObjectRefs, sizeof(uint32), 1, stream);
+    count += fread(&Holes, sizeof(uint32), 1, stream);
     LowQualityTextureMap = new uint32[4];
-    fread(LowQualityTextureMap, sizeof(uint32), 4, stream);
-    fread(&PredTex, sizeof(uint32), 1, stream);
-    fread(&NumberEffectDoodad, sizeof(uint32), 1, stream);
-    fread(&OffsetMCSE, sizeof(uint32), 1, stream);
-    fread(&SoundEmitters, sizeof(uint32), 1, stream);
-    fread(&OffsetMCLQ, sizeof(uint32), 1, stream);
-    fread(&SizeMCLQ, sizeof(uint32), 1, stream);
+    count += fread(LowQualityTextureMap, sizeof(uint32), 4, stream);
+    count += fread(&PredTex, sizeof(uint32), 1, stream);
+    count += fread(&NumberEffectDoodad, sizeof(uint32), 1, stream);
+    count += fread(&OffsetMCSE, sizeof(uint32), 1, stream);
+    count += fread(&SoundEmitters, sizeof(uint32), 1, stream);
+    count += fread(&OffsetMCLQ, sizeof(uint32), 1, stream);
+    count += fread(&SizeMCLQ, sizeof(uint32), 1, stream);
     Position = Vector3::Read(stream);
-    fread(&OffsetMCCV, sizeof(uint32), 1, stream);
+    count += fread(&OffsetMCCV, sizeof(uint32), 1, stream);
+    
+    if (count != 27)
+         printf("MapChunkHeader::Read: Failed to read some data expected 27, read %d\n", count);
 }
 
 void MHDR::Read(FILE* stream)
 {
-    fread(&Flags, sizeof(uint32), 1, stream);
-    fread(&OffsetMCIN, sizeof(uint32), 1, stream);
-    fread(&OffsetMTEX, sizeof(uint32), 1, stream);
-    fread(&OffsetMMDX, sizeof(uint32), 1, stream);
-    fread(&OffsetMMID, sizeof(uint32), 1, stream);
-    fread(&OffsetMWMO, sizeof(uint32), 1, stream);
-    fread(&OffsetMWID, sizeof(uint32), 1, stream);
-    fread(&OffsetMDDF, sizeof(uint32), 1, stream);
-    fread(&OffsetMODF, sizeof(uint32), 1, stream);
-    fread(&OffsetMFBO, sizeof(uint32), 1, stream);
-    fread(&OffsetMH2O, sizeof(uint32), 1, stream);
-    fread(&OffsetMTFX, sizeof(uint32), 1, stream);
+    int count = 0;
+
+    count += fread(&Flags, sizeof(uint32), 1, stream);
+    count += fread(&OffsetMCIN, sizeof(uint32), 1, stream);
+    count += fread(&OffsetMTEX, sizeof(uint32), 1, stream);
+    count += fread(&OffsetMMDX, sizeof(uint32), 1, stream);
+    count += fread(&OffsetMMID, sizeof(uint32), 1, stream);
+    count += fread(&OffsetMWMO, sizeof(uint32), 1, stream);
+    count += fread(&OffsetMWID, sizeof(uint32), 1, stream);
+    count += fread(&OffsetMDDF, sizeof(uint32), 1, stream);
+    count += fread(&OffsetMODF, sizeof(uint32), 1, stream);
+    count += fread(&OffsetMFBO, sizeof(uint32), 1, stream);
+    count += fread(&OffsetMH2O, sizeof(uint32), 1, stream);
+    count += fread(&OffsetMTFX, sizeof(uint32), 1, stream);
+    
+    if (count != 12)
+         printf("MHDR::Read: Failed to read some data expected 12, read %d\n", count);
 }
 
 void ModelHeader::Read(FILE* stream)
 {
-    fread(&Magic, sizeof(char), 4, stream);
+    int count = 0;
+
+    count += fread(&Magic, sizeof(char), 4, stream);
     Magic[4] = '\0'; // null-terminate it.
-    fread(&Version, sizeof(uint32), 1, stream);
-    fread(&LengthModelName, sizeof(uint32), 1, stream);
-    fread(&OffsetName, sizeof(uint32), 1, stream);
-    fread(&ModelFlags, sizeof(uint32), 1, stream);
-    fread(&CountGlobalSequences, sizeof(uint32), 1, stream);
-    fread(&OffsetGlobalSequences, sizeof(uint32), 1, stream);
-    fread(&CountAnimations, sizeof(uint32), 1, stream);
-    fread(&OffsetAnimations, sizeof(uint32), 1, stream);
-    fread(&CountAnimationLookup, sizeof(uint32), 1, stream);
-    fread(&OffsetAnimationLookup, sizeof(uint32), 1, stream);
-    fread(&CountBones, sizeof(uint32), 1, stream);
-    fread(&OffsetBones, sizeof(uint32), 1, stream);
-    fread(&CountKeyBoneLookup, sizeof(uint32), 1, stream);
-    fread(&OffsetKeyBoneLookup, sizeof(uint32), 1, stream);
-    fread(&CountVertices, sizeof(uint32), 1, stream);
-    fread(&OffsetVertices, sizeof(uint32), 1, stream);
-    fread(&CountViews, sizeof(uint32), 1, stream);
-    fread(&CountColors, sizeof(uint32), 1, stream);
-    fread(&OffsetColors, sizeof(uint32), 1, stream);
-    fread(&CountTextures, sizeof(uint32), 1, stream);
-    fread(&OffsetTextures, sizeof(uint32), 1, stream);
-    fread(&CountTransparency, sizeof(uint32), 1, stream);
-    fread(&OffsetTransparency, sizeof(uint32), 1, stream);
-    fread(&CountUvAnimation, sizeof(uint32), 1, stream);
-    fread(&OffsetUvAnimation, sizeof(uint32), 1, stream);
-    fread(&CountTexReplace, sizeof(uint32), 1, stream);
-    fread(&OffsetTexReplace, sizeof(uint32), 1, stream);
-    fread(&CountRenderFlags, sizeof(uint32), 1, stream);
-    fread(&OffsetRenderFlags, sizeof(uint32), 1, stream);
-    fread(&CountBoneLookup, sizeof(uint32), 1, stream);
-    fread(&OffsetBoneLookup, sizeof(uint32), 1, stream);
-    fread(&CountTexLookup, sizeof(uint32), 1, stream);
-    fread(&OffsetTexLookup, sizeof(uint32), 1, stream);
-    fread(&CountTexUnits, sizeof(uint32), 1, stream);
-    fread(&OffsetTexUnits, sizeof(uint32), 1, stream);
-    fread(&CountTransLookup, sizeof(uint32), 1, stream);
-    fread(&OffsetTransLookup, sizeof(uint32), 1, stream);
-    fread(&CountUvAnimLookup, sizeof(uint32), 1, stream);
-    fread(&OffsetUvAnimLookup, sizeof(uint32), 1, stream);
+    count += fread(&Version, sizeof(uint32), 1, stream);
+    count += fread(&LengthModelName, sizeof(uint32), 1, stream);
+    count += fread(&OffsetName, sizeof(uint32), 1, stream);
+    count += fread(&ModelFlags, sizeof(uint32), 1, stream);
+    count += fread(&CountGlobalSequences, sizeof(uint32), 1, stream);
+    count += fread(&OffsetGlobalSequences, sizeof(uint32), 1, stream);
+    count += fread(&CountAnimations, sizeof(uint32), 1, stream);
+    count += fread(&OffsetAnimations, sizeof(uint32), 1, stream);
+    count += fread(&CountAnimationLookup, sizeof(uint32), 1, stream);
+    count += fread(&OffsetAnimationLookup, sizeof(uint32), 1, stream);
+    count += fread(&CountBones, sizeof(uint32), 1, stream);
+    count += fread(&OffsetBones, sizeof(uint32), 1, stream);
+    count += fread(&CountKeyBoneLookup, sizeof(uint32), 1, stream);
+    count += fread(&OffsetKeyBoneLookup, sizeof(uint32), 1, stream);
+    count += fread(&CountVertices, sizeof(uint32), 1, stream);
+    count += fread(&OffsetVertices, sizeof(uint32), 1, stream);
+    count += fread(&CountViews, sizeof(uint32), 1, stream);
+    count += fread(&CountColors, sizeof(uint32), 1, stream);
+    count += fread(&OffsetColors, sizeof(uint32), 1, stream);
+    count += fread(&CountTextures, sizeof(uint32), 1, stream);
+    count += fread(&OffsetTextures, sizeof(uint32), 1, stream);
+    count += fread(&CountTransparency, sizeof(uint32), 1, stream);
+    count += fread(&OffsetTransparency, sizeof(uint32), 1, stream);
+    count += fread(&CountUvAnimation, sizeof(uint32), 1, stream);
+    count += fread(&OffsetUvAnimation, sizeof(uint32), 1, stream);
+    count += fread(&CountTexReplace, sizeof(uint32), 1, stream);
+    count += fread(&OffsetTexReplace, sizeof(uint32), 1, stream);
+    count += fread(&CountRenderFlags, sizeof(uint32), 1, stream);
+    count += fread(&OffsetRenderFlags, sizeof(uint32), 1, stream);
+    count += fread(&CountBoneLookup, sizeof(uint32), 1, stream);
+    count += fread(&OffsetBoneLookup, sizeof(uint32), 1, stream);
+    count += fread(&CountTexLookup, sizeof(uint32), 1, stream);
+    count += fread(&OffsetTexLookup, sizeof(uint32), 1, stream);
+    count += fread(&CountTexUnits, sizeof(uint32), 1, stream);
+    count += fread(&OffsetTexUnits, sizeof(uint32), 1, stream);
+    count += fread(&CountTransLookup, sizeof(uint32), 1, stream);
+    count += fread(&OffsetTransLookup, sizeof(uint32), 1, stream);
+    count += fread(&CountUvAnimLookup, sizeof(uint32), 1, stream);
+    count += fread(&OffsetUvAnimLookup, sizeof(uint32), 1, stream);
     VertexBox[0] = Vector3::Read(stream);
     VertexBox[1] = Vector3::Read(stream);
-    fread(&VertexRadius, sizeof(float), 1, stream);
+    count += fread(&VertexRadius, sizeof(float), 1, stream);
     BoundingBox[0] = Vector3::Read(stream);
     BoundingBox[1] = Vector3::Read(stream);
-    fread(&BoundingRadius, sizeof(float), 1, stream);
-    fread(&CountBoundingTriangles, sizeof(uint32), 1, stream);
-    fread(&OffsetBoundingTriangles, sizeof(uint32), 1, stream);
-    fread(&CountBoundingVertices, sizeof(uint32), 1, stream);
-    fread(&OffsetBoundingVertices, sizeof(uint32), 1, stream);
-    fread(&CountBoundingNormals, sizeof(uint32), 1, stream);
-    fread(&OffsetBoundingNormals, sizeof(uint32), 1, stream);
+    count += fread(&BoundingRadius, sizeof(float), 1, stream);
+    count += fread(&CountBoundingTriangles, sizeof(uint32), 1, stream);
+    count += fread(&OffsetBoundingTriangles, sizeof(uint32), 1, stream);
+    count += fread(&CountBoundingVertices, sizeof(uint32), 1, stream);
+    count += fread(&OffsetBoundingVertices, sizeof(uint32), 1, stream);
+    count += fread(&CountBoundingNormals, sizeof(uint32), 1, stream);
+    count += fread(&OffsetBoundingNormals, sizeof(uint32), 1, stream);
+    
+    if (count != 51)
+         printf("ModelHeader::Read: Failed to read some data expected 51, read %d\n", count);
+
 }
 
 WorldModelHeader WorldModelHeader::Read(FILE* stream)
 {
     WorldModelHeader ret;
-    fread(&ret.CountMaterials, sizeof(uint32), 1, stream);
-    fread(&ret.CountGroups, sizeof(uint32), 1, stream);
-    fread(&ret.CountPortals, sizeof(uint32), 1, stream);
-    fread(&ret.CountLights, sizeof(uint32), 1, stream);
-    fread(&ret.CountModels, sizeof(uint32), 1, stream);
-    fread(&ret.CountDoodads, sizeof(uint32), 1, stream);
-    fread(&ret.CountSets, sizeof(uint32), 1, stream);
-    fread(&ret.AmbientColorUnk, sizeof(uint32), 1, stream);
-    fread(&ret.WmoId, sizeof(uint32), 1, stream);
+    int count = 0;
+
+    count += fread(&ret.CountMaterials, sizeof(uint32), 1, stream);
+    count += fread(&ret.CountGroups, sizeof(uint32), 1, stream);
+    count += fread(&ret.CountPortals, sizeof(uint32), 1, stream);
+    count += fread(&ret.CountLights, sizeof(uint32), 1, stream);
+    count += fread(&ret.CountModels, sizeof(uint32), 1, stream);
+    count += fread(&ret.CountDoodads, sizeof(uint32), 1, stream);
+    count += fread(&ret.CountSets, sizeof(uint32), 1, stream);
+    count += fread(&ret.AmbientColorUnk, sizeof(uint32), 1, stream);
+    count += fread(&ret.WmoId, sizeof(uint32), 1, stream);
     ret.BoundingBox[0] = Vector3::Read(stream);
     ret.BoundingBox[1] = Vector3::Read(stream);
-    fread(&ret.LiquidTypeRelated, sizeof(uint32), 1, stream);
+    count += fread(&ret.LiquidTypeRelated, sizeof(uint32), 1, stream);
+    
+    if (count != 10)
+         printf("WorldModelHeader::Read: Failed to read some data expected 10, read %d\n", count);
+
     return ret;
 }
 
 DoodadInstance DoodadInstance::Read(FILE* stream)
 {
     DoodadInstance ret;
-    fread(&ret.FileOffset, sizeof(uint32), 1, stream);
+    int count = 0;
+
+    count += fread(&ret.FileOffset, sizeof(uint32), 1, stream);
     ret.Position = Vector3::Read(stream);
-    fread(&ret.QuatW, sizeof(float), 1, stream);
-    fread(&ret.QuatX, sizeof(float), 1, stream);
-    fread(&ret.QuatY, sizeof(float), 1, stream);
-    fread(&ret.QuatZ, sizeof(float), 1, stream);
-    fread(&ret.Scale, sizeof(float), 1, stream);
-    fread(&ret.LightColor, sizeof(uint32), 1, stream);
+    count += fread(&ret.QuatW, sizeof(float), 1, stream);
+    count += fread(&ret.QuatX, sizeof(float), 1, stream);
+    count += fread(&ret.QuatY, sizeof(float), 1, stream);
+    count += fread(&ret.QuatZ, sizeof(float), 1, stream);
+    count += fread(&ret.Scale, sizeof(float), 1, stream);
+    count += fread(&ret.LightColor, sizeof(uint32), 1, stream);
+    
+    if (count != 7)
+         printf("DoodadInstance::Read: Failed to read some data expected 7, read %d\n", count);
+
     return ret;
 }
 
@@ -379,24 +411,35 @@ DoodadSet DoodadSet::Read(FILE* stream)
 {
     DoodadSet ret;
     char name[21];
-    fread(&name, sizeof(char), 20, stream);
+    int count = 0;
+
+    count += fread(&name, sizeof(char), 20, stream);
     name[20] = '\0';
     ret.Name = name;
-    fread(&ret.FirstInstanceIndex, sizeof(uint32), 1, stream);
-    fread(&ret.CountInstances, sizeof(uint32), 1, stream);
-    fread(&ret.UnknownZero, sizeof(uint32), 1, stream);
+    count += fread(&ret.FirstInstanceIndex, sizeof(uint32), 1, stream);
+    count += fread(&ret.CountInstances, sizeof(uint32), 1, stream);
+    count += fread(&ret.UnknownZero, sizeof(uint32), 1, stream);
+
+    if (count != 23)
+         printf("DoodadSet::Read: Failed to read some data expected 23, read %d\n", count);
+
     return ret;
 }
 
 LiquidHeader LiquidHeader::Read(FILE* stream)
 {
     LiquidHeader ret;
-    fread(&ret.CountXVertices, sizeof(uint32), 1, stream);
-    fread(&ret.CountYVertices, sizeof(uint32), 1, stream);
-    fread(&ret.Width, sizeof(uint32), 1, stream);
-    fread(&ret.Height, sizeof(uint32), 1, stream);
+    int count = 0;
+    count += fread(&ret.CountXVertices, sizeof(uint32), 1, stream);
+    count += fread(&ret.CountYVertices, sizeof(uint32), 1, stream);
+    count += fread(&ret.Width, sizeof(uint32), 1, stream);
+    count += fread(&ret.Height, sizeof(uint32), 1, stream);
     ret.BaseLocation = Vector3::Read(stream);
-    fread(&ret.MaterialId, sizeof(uint16), 1, stream);
+    count += fread(&ret.MaterialId, sizeof(uint16), 1, stream);
+
+    if (count != 5)
+         printf("LiquidHeader::Read: Failed to read some data expected 5, read %d\n", count);
+
     return ret;
 }
 
@@ -416,10 +459,12 @@ LiquidData LiquidData::Read(FILE* stream, LiquidHeader& header)
         for (uint32 x = 0; x < header.CountXVertices; x++)
         {
             uint32 discard;
-            fread(&discard, sizeof(uint32), 1, stream);
             float tmp;
-            fread(&tmp, sizeof(float), 1, stream);
-            ret.HeightMap[x][y] = tmp;
+            if (fread(&discard, sizeof(uint32), 1, stream) == 1 &&
+                fread(&tmp, sizeof(float), 1, stream) == 1)
+            {
+                ret.HeightMap[x][y] = tmp;
+            }
         }
     }
 
@@ -427,9 +472,9 @@ LiquidData LiquidData::Read(FILE* stream, LiquidHeader& header)
     {
         for (uint32 x = 0; x < header.Width; x++)
         {
-            uint8 tmp;
-            fread(&tmp, sizeof(uint8), 1, stream);
-            ret.RenderFlags[x][y] = tmp;
+            uint8 tmp = 0;
+            if (fread(&tmp, sizeof(uint8), 1, stream) == 1)
+                ret.RenderFlags[x][y] = tmp;
         }
     }
 
@@ -439,7 +484,8 @@ LiquidData LiquidData::Read(FILE* stream, LiquidHeader& header)
 H2ORenderMask H2ORenderMask::Read(FILE* stream)
 {
     H2ORenderMask ret;
-    fread(&ret.Mask, sizeof(uint8), 8, stream);
+    if (int count = fread(&ret.Mask, sizeof(uint8), 8, stream) != 8)
+        printf("H2OHeader::Read: Failed to read some data expected 8, read %d\n", count);
     return ret;
 }
 
@@ -458,25 +504,35 @@ bool MCNKLiquidData::IsWater(int x, int y, float height)
 H2OHeader H2OHeader::Read(FILE* stream)
 {
     H2OHeader ret;
-    fread(&ret.OffsetInformation, sizeof(uint32), 1, stream);
-    fread(&ret.LayerCount, sizeof(uint32), 1, stream);
-    fread(&ret.OffsetRender, sizeof(uint32), 1, stream);
+    int count = 0;
+    count += fread(&ret.OffsetInformation, sizeof(uint32), 1, stream);
+    count += fread(&ret.LayerCount, sizeof(uint32), 1, stream);
+    count += fread(&ret.OffsetRender, sizeof(uint32), 1, stream);
+
+    if (count != 3)
+        printf("H2OHeader::Read: Failed to read some data expected 3, read %d\n", count);
+
     return ret;
 }
 
 H2OInformation H2OInformation::Read(FILE* stream)
 {
     H2OInformation ret;
-    fread(&ret.LiquidType, sizeof(uint16), 1, stream);
-    fread(&ret.Flags, sizeof(uint16), 1, stream);
-    fread(&ret.HeightLevel1, sizeof(float), 1, stream);
-    fread(&ret.HeightLevel2, sizeof(float), 1, stream);
-    fread(&ret.OffsetX, sizeof(uint8), 1, stream);
-    fread(&ret.OffsetY, sizeof(uint8), 1, stream);
-    fread(&ret.Width, sizeof(uint8), 1, stream);
-    fread(&ret.Height, sizeof(uint8), 1, stream);
-    fread(&ret.OffsetMask2, sizeof(uint32), 1, stream);
-    fread(&ret.OffsetHeightmap, sizeof(uint32), 1, stream);
+    int count = 0;
+    count += fread(&ret.LiquidType, sizeof(uint16), 1, stream);
+    count += fread(&ret.Flags, sizeof(uint16), 1, stream);
+    count += fread(&ret.HeightLevel1, sizeof(float), 1, stream);
+    count += fread(&ret.HeightLevel2, sizeof(float), 1, stream);
+    count += fread(&ret.OffsetX, sizeof(uint8), 1, stream);
+    count += fread(&ret.OffsetY, sizeof(uint8), 1, stream);
+    count += fread(&ret.Width, sizeof(uint8), 1, stream);
+    count += fread(&ret.Height, sizeof(uint8), 1, stream);
+    count += fread(&ret.OffsetMask2, sizeof(uint32), 1, stream);
+    count += fread(&ret.OffsetHeightmap, sizeof(uint32), 1, stream);
+
+    if (count != 10)
+        printf("H2OInformation::Read: Failed to read some data expected 10, read %d\n", count);
+
     return ret;
 }
 
@@ -492,17 +548,21 @@ char* Utils::GetPlainName(const char* FileName)
 WMOGroupHeader WMOGroupHeader::Read( FILE* stream )
 {
     WMOGroupHeader ret;
-    fread(&ret.OffsetGroupName, sizeof(uint32), 1, stream);
-    fread(&ret.OffsetDescriptiveName, sizeof(uint32), 1, stream);
-    fread(&ret.Flags, sizeof(uint32), 1, stream);
+    int count = 0;
+    count += fread(&ret.OffsetGroupName, sizeof(uint32), 1, stream);
+    count += fread(&ret.OffsetDescriptiveName, sizeof(uint32), 1, stream);
+    count += fread(&ret.Flags, sizeof(uint32), 1, stream);
     ret.BoundingBox[0] = Vector3::Read(stream);
     ret.BoundingBox[1] = Vector3::Read(stream);
-    fread(&ret.OffsetPortals, sizeof(uint32), 1, stream);
-    fread(&ret.CountPortals, sizeof(uint32), 1, stream);
-    fread(&ret.CountBatches, sizeof(uint16), 4, stream);
-    fread(&ret.Fogs, sizeof(uint8), 4, stream);
-    fread(&ret.LiquidTypeRelated, sizeof(uint32), 1, stream);
-    fread(&ret.WmoId, sizeof(uint32), 1, stream);
-    
+    count += fread(&ret.OffsetPortals, sizeof(uint32), 1, stream);
+    count += fread(&ret.CountPortals, sizeof(uint32), 1, stream);
+    count += fread(&ret.CountBatches, sizeof(uint16), 4, stream);
+    count += fread(&ret.Fogs, sizeof(uint8), 4, stream);
+    count += fread(&ret.LiquidTypeRelated, sizeof(uint32), 1, stream);
+    count += fread(&ret.WmoId, sizeof(uint32), 1, stream);
+
+    if (count != 15)
+        printf("WMOGroupHeader::Read: Failed to read some data expected 15, read %d\n", count);
+
     return ret;
 }

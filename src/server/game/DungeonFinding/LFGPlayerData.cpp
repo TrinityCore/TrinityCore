@@ -113,12 +113,12 @@ uint8 LfgPlayerData::GetRoles() const
     return m_Roles;
 }
 
-const std::string& LfgPlayerData::GetComment() const
+std::string const& LfgPlayerData::GetComment() const
 {
     return m_Comment;
 }
 
-const LfgDungeonSet& LfgPlayerData::GetSelectedDungeons() const
+LfgDungeonSet const& LfgPlayerData::GetSelectedDungeons() const
 {
     return m_SelectedDungeons;
 }

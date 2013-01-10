@@ -763,7 +763,7 @@ OpcodeHandler opcodeTable[NUM_MSG_TYPES] =
     /*0x2DE*/ { "SMSG_FORCE_TURN_RATE_CHANGE",                  STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               },
     /*0x2DF*/ { "CMSG_FORCE_TURN_RATE_CHANGE_ACK",              STATUS_LOGGEDIN, PROCESS_THREADSAFE,   &WorldSession::HandleForceSpeedChangeAck       },
     /*0x2E0*/ { "MSG_PVP_LOG_DATA",                             STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandlePVPLogDataOpcode          },
-    /*0x2E1*/ { "CMSG_LEAVE_BATTLEFIELD",                       STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleLeaveBattlefieldOpcode    },
+    /*0x2E1*/ { "CMSG_LEAVE_BATTLEFIELD",                       STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleBattlefieldLeaveOpcode    },
     /*0x2E2*/ { "CMSG_AREA_SPIRIT_HEALER_QUERY",                STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleAreaSpiritHealerQueryOpcode},
     /*0x2E3*/ { "CMSG_AREA_SPIRIT_HEALER_QUEUE",                STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleAreaSpiritHealerQueueOpcode},
     /*0x2E4*/ { "SMSG_AREA_SPIRIT_HEALER_TIME",                 STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               },

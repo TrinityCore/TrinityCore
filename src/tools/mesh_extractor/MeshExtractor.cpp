@@ -59,7 +59,7 @@ void ExtractDBCs()
     {
         printf("Extracting DBCs for locale %s\n", MPQManager::Languages[*itr]);
         std::string path = baseDBCPath;
-        if (*itr != MPQHandler->BaseLocale)
+        if (*itr != uint32(MPQHandler->BaseLocale))
         {
             path += std::string(MPQManager::Languages[*itr]) + "/";
             Utils::CreateDir(path);
@@ -198,7 +198,6 @@ void ExtractGameobjectModels()
             fwrite(&model.Header.CountGroups, sizeof(uint32), 1, output);
             fwrite(&model.Header.WmoId, sizeof(uint32), 1, output);
 
-            uint32 i = 0;
             for (std::vector<WorldModelGroup>::iterator itr2 = model.Groups.begin(); itr2 != model.Groups.end(); ++itr2)
             {
                 fwrite(&itr2->Header.Flags, sizeof(uint32), 1, output);
@@ -261,7 +260,7 @@ bool HandleArgs(int argc, char** argv, uint32& threads, std::set<uint32>& mapLis
             for (Tokenizer::const_iterator itr = tokens.begin(); itr != tokens.end(); ++itr)
                 mapList.insert(atoi(*itr));
 
-            printf("Extracting only provided list of maps (%u).\n", mapList.size());
+            printf("Extracting only provided list of maps (%u).\n", uint32(mapList.size()));
         }
         else if (strcmp(argv[i], "--debug") == 0)
         {
@@ -314,18 +313,27 @@ void LoadTile(dtNavMesh*& navMesh, const char* tile)
 {
     FILE* f = fopen(tile, "rb");
     MmapTileHeader header;
-    fread(&header, sizeof(MmapTileHeader), 1, f);
-    uint8* nav = new uint8[header.size];
-    fread(nav, header.size, 1, f);
 
-    dtStatus res = navMesh->addTile(nav, header.size, DT_TILE_FREE_DATA, 0, NULL);
+    if (fread(&header, sizeof(MmapTileHeader), 1, f) != 1)
+        return;
+
+    uint8* nav = new uint8[header.size];
+    if (fread(nav, header.size, 1, f) != 1)
+        return;
+
+    navMesh->addTile(nav, header.size, DT_TILE_FREE_DATA, 0, NULL);
 
     fclose(f);
 }
 
 int main(int argc, char* argv[])
 {
-    system("pause");
+    if (!system("pause"))
+    {
+        printf("main: Error in system call to pause\n");
+        return -1;
+    }
+
     uint32 threads = 4, extractFlags = 0;
     std::set<uint32> mapIds;
     bool debug = false;
@@ -383,8 +391,13 @@ int main(int argc, char* argv[])
 
         FILE* mmap = fopen(".mmap", "rb");
         dtNavMeshParams params;
-        fread(&params, sizeof(dtNavMeshParams), 1, mmap);
+        int count = fread(&params, sizeof(dtNavMeshParams), 1, mmap);
         fclose(mmap);
+        if (count != 1)
+        {
+            printf("main: Error reading from .mmap\n");
+            return 0;
+        }
 
         dtNavMesh* navMesh = new dtNavMesh();
         dtNavMeshQuery* navMeshQuery = new dtNavMeshQuery();
@@ -401,10 +414,9 @@ int main(int argc, char* argv[])
 
         float nearestPt[3];
 
-        dtStatus status = navMeshQuery->findNearestPoly(m_spos, m_polyPickExt, &m_filter, &m_startRef, nearestPt);
-        status = navMeshQuery->findNearestPoly(m_epos, m_polyPickExt, &m_filter, &m_endRef, nearestPt);
+        navMeshQuery->findNearestPoly(m_spos, m_polyPickExt, &m_filter, &m_startRef, nearestPt);
+        navMeshQuery->findNearestPoly(m_epos, m_polyPickExt, &m_filter, &m_endRef, nearestPt);
 
-        //
         if ( !m_startRef || !m_endRef )
         {
             std::cerr << "Could not find any nearby poly's (" << m_startRef << "," << m_endRef << ")" << std::endl;

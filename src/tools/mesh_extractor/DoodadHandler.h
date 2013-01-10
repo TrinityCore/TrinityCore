@@ -19,12 +19,16 @@ public:
 
     void Read(FILE* stream)
     {
-        fread(&MmidIndex, sizeof(uint32), 1, stream);
-        fread(&UniqueId, sizeof(uint32), 1, stream);
+        int count = 0;
+        
+        count += fread(&MmidIndex, sizeof(uint32), 1, stream);
+        count += fread(&UniqueId, sizeof(uint32), 1, stream);
         Position = Vector3::Read(stream);
         Rotation = Vector3::Read(stream);
-        fread(&DecimalScale, sizeof(uint16), 1, stream);
-        fread(&Flags, sizeof(uint16), 1, stream);
+        count += fread(&DecimalScale, sizeof(uint16), 1, stream);
+        count += fread(&Flags, sizeof(uint16), 1, stream);
+        if (count != 4)
+            printf("DoodadDefinition::Read: Failed to read some data expected 4, read %d\n", count);
     }
 };
 

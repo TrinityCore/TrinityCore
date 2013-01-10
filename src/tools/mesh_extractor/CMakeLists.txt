@@ -26,6 +26,7 @@ if( UNIX )
     ${CMAKE_SOURCE_DIR}/dep/recastnavigation/Detour
     ${CMAKE_SOURCE_DIR}/dep/libmpq
     ${CMAKE_SOURCE_DIR}/dep/g3dlite/include
+    ${ACE_INCLUDE_DIR}
     ${MYSQL_INCLUDE_DIR}
     ${OPENSSL_INCLUDE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}
