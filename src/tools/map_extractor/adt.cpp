@@ -8,7 +8,7 @@ int holetab_v[4] = {0x000F, 0x00F0, 0x0F00, 0xF000};
 
 u_map_fcc MHDRMagic = { {'M','H','D','R'} };
 u_map_fcc MCINMagic = { {'M','C','I','N'} };
-u_map_fcc MH20Magic = { {'M','H','2','0'} };
+u_map_fcc MH2OMagic = { {'M','H','2','O'} };
 u_map_fcc MCNKMagic = { {'M','C','N','K'} };
 u_map_fcc MCVTMagic = { {'M','C','V','T'} };
 u_map_fcc MCLQMagic = { {'M','C','L','Q'} };
@@ -93,7 +93,7 @@ bool adt_MCIN::prepareLoadedData()
 
 bool adt_MH2O::prepareLoadedData()
 {
-    if (fcc != MH20Magic.fcc)
+    if (fcc != MH2OMagic.fcc)
         return false;
 
     // Check liquid data
