@@ -27,6 +27,13 @@ EndScriptData */
 #include "InstanceScript.h"
 #include "scholomance.h"
 
+enum CreatureId
+{
+    NPC_DARKMASTER_GANDLING    = 1853
+};
+
+Position const GandlingLoc = {180.7712f, -5.428603f, 75.57024f, 1.291544f};
+
 class instance_scholomance : public InstanceMapScript
 {
 public:
@@ -42,9 +49,7 @@ public:
         instance_scholomance_InstanceMapScript(Map* map) : InstanceScript(map) {}
 
         //Lord Alexei Barov, Doctor Theolen Krastinov, The Ravenian, Lorekeeper Polkelt, Instructor Malicia and the Lady Illucia Barov.
-        bool IsBossDied[6];
         uint32 m_auiEncounter[MAX_ENCOUNTER];
-
         uint64 GateKirtonosGUID;
         uint64 GateGandlingGUID;
         uint64 GateMiliciaGUID;
@@ -57,8 +62,6 @@ public:
 
         void Initialize()
         {
-            memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
-
             GateKirtonosGUID = 0;
             GateGandlingGUID = 0;
             GateMiliciaGUID = 0;
@@ -69,8 +72,8 @@ public:
             GateIlluciaGUID = 0;
             BrazierOfTheHeraldGUID = 0;
 
-            for (uint8 i = 0; i < 6; ++i)
-                IsBossDied[i] = false;
+            for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
+                m_auiEncounter[i] = NOT_STARTED;
         }
 
         void OnGameObjectCreate(GameObject* go)
@@ -94,37 +97,43 @@ public:
             switch (type)
             {
                 case DATA_LORDALEXEIBAROV:
-                    IsBossDied[0] = true;
+                    m_auiEncounter[DATA_LORDALEXEIBAROV] = data;
+                    CheckToSpawnGandling();
                     break;
                 case DATA_DOCTORTHEOLENKRASTINOV:
-                    IsBossDied[1] = true;
+                    m_auiEncounter[DATA_DOCTORTHEOLENKRASTINOV] = data;
+                    CheckToSpawnGandling();
                     break;
                 case DATA_THERAVENIAN:
-                    IsBossDied[2] = true;
+                    m_auiEncounter[DATA_THERAVENIAN] = data;
+                    CheckToSpawnGandling();
                     break;
                 case DATA_LOREKEEPERPOLKELT:
-                    IsBossDied[3] = true;
+                    m_auiEncounter[DATA_LOREKEEPERPOLKELT] = data;
+                    CheckToSpawnGandling();
                     break;
                 case DATA_INSTRUCTORMALICIA:
-                    IsBossDied[4] = true;
+                    m_auiEncounter[DATA_INSTRUCTORMALICIA] = data;
+                    CheckToSpawnGandling();
                     break;
                 case DATA_LADYILLUCIABAROV:
-                    IsBossDied[5] = true;
+                    m_auiEncounter[DATA_LADYILLUCIABAROV] = data;
+                    CheckToSpawnGandling();
                     break;
-                case TYPE_GANDLING:
-                    m_auiEncounter[0] = data;
+                case DATA_DARKMASTERGANDLING:
+                    m_auiEncounter[DATA_DARKMASTERGANDLING] = data;
                     break;
-                case TYPE_KIRTONOS:
-                    m_auiEncounter[1] = data;
+                case DATA_KIRTONOS:
+                    m_auiEncounter[DATA_KIRTONOS] = data;
                     break;
             }
         }
 
         uint32 GetData(uint32 type) const
         {
-            return (type == TYPE_GANDLING &&
-                IsBossDied[0] && IsBossDied[1] && IsBossDied[2] &&
-                IsBossDied[3] && IsBossDied[4] && IsBossDied[5])
+            return type == (m_auiEncounter[DATA_LORDALEXEIBAROV] == DONE) && (m_auiEncounter[DATA_DOCTORTHEOLENKRASTINOV] == DONE) &&
+                (m_auiEncounter[DATA_THERAVENIAN] == DONE) && (m_auiEncounter[DATA_LOREKEEPERPOLKELT] == DONE) &&
+                (m_auiEncounter[DATA_INSTRUCTORMALICIA] == DONE) && (m_auiEncounter[DATA_LADYILLUCIABAROV] == DONE)
                 ? IN_PROGRESS : 0;
         }
 
@@ -132,13 +141,32 @@ public:
         {
             switch (type)
             {
-                case GO_GATE_KIRTONOS:
-                    return GateKirtonosGUID;
-                case GO_BRAZIER_OF_THE_HERALD:
-                    return BrazierOfTheHeraldGUID;
+                case GO_GATE_KIRTONOS:           return GateKirtonosGUID; break;
+                case GO_GATE_GANDLING:           return GateGandlingGUID; break;
+                case GO_GATE_MALICIA:            return GateMiliciaGUID; break;
+                case GO_GATE_THEOLEN:            return GateTheolenGUID; break;
+                case GO_GATE_POLKELT:            return GatePolkeltGUID; break;
+                case GO_GATE_RAVENIAN:           return GateRavenianGUID; break;
+                case GO_GATE_BAROV:              return GateBarovGUID; break;
+                case GO_GATE_ILLUCIA:            return GateIlluciaGUID; break;
+                case GO_BRAZIER_OF_THE_HERALD:   return BrazierOfTheHeraldGUID; break;
             }
 
             return 0;
+        }
+
+        void CheckToSpawnGandling()
+        {
+            if (GetData(DATA_DARKMASTERGANDLING) == IN_PROGRESS)
+            {
+                Map::PlayerList const &PlayerList = instance->GetPlayers();
+                if (PlayerList.isEmpty())
+                    return;
+
+                Map::PlayerList::const_iterator i = PlayerList.begin();
+                if (Player* i_pl = i->getSource())
+                    i_pl->SummonCreature(NPC_DARKMASTER_GANDLING, GandlingLoc);
+            }
         }
     };
 };
