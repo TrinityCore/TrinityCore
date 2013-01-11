@@ -28,6 +28,7 @@
 
 class Group;
 class Player;
+class Quest;
 
 enum LfgOptions
 {
@@ -37,9 +38,9 @@ enum LfgOptions
 
 enum LFGMgrEnum
 {
-    LFG_TIME_ROLECHECK                           = 40 * IN_MILLISECONDS,
+    LFG_TIME_ROLECHECK                           = 45 * IN_MILLISECONDS,
     LFG_TIME_BOOT                                = 120,
-    LFG_TIME_PROPOSAL                            = 120,
+    LFG_TIME_PROPOSAL                            = 45,
     LFG_QUEUEUPDATE_INTERVAL                     = 15 * IN_MILLISECONDS,
     LFG_SPELL_DUNGEON_COOLDOWN                   = 71328,
     LFG_SPELL_DUNGEON_DESERTER                   = 71041,
@@ -188,27 +189,25 @@ struct LfgQueueStatusData
     uint8 dps;
 };
 
+struct LfgPlayerRewardData
+{
+    LfgPlayerRewardData(uint32 random, uint32 current, bool _done, Quest const* _quest):
+        rdungeonEntry(random), sdungeonEntry(current), done(_done), quest(_quest) { }
+    uint32 rdungeonEntry;
+    uint32 sdungeonEntry;
+    bool done;
+    Quest const* quest;
+};
+
 /// Reward info
 struct LfgReward
 {
-    uint32 maxLevel;
-    struct
-    {
-        uint32 questId;
-        uint32 variableMoney;
-        uint32 variableXP;
-    } reward[2];
+    LfgReward(uint32 _maxLevel = 0, uint32 _firstQuest = 0, uint32 _otherQuest = 0):
+        maxLevel(_maxLevel), firstQuest(_firstQuest), otherQuest(_otherQuest) { }
 
-    LfgReward(uint32 _maxLevel = 0, uint32 firstQuest = 0, uint32 firstVarMoney = 0, uint32 firstVarXp = 0, uint32 otherQuest = 0, uint32 otherVarMoney = 0, uint32 otherVarXp = 0)
-        : maxLevel(_maxLevel)
-    {
-        reward[0].questId = firstQuest;
-        reward[0].variableMoney = firstVarMoney;
-        reward[0].variableXP = firstVarXp;
-        reward[1].questId = otherQuest;
-        reward[1].variableMoney = otherVarMoney;
-        reward[1].variableXP = otherVarXp;
-    }
+    uint32 maxLevel;
+    uint32 firstQuest;
+    uint32 otherQuest;
 };
 
 /// Stores player data related to proposal to join
@@ -223,10 +222,11 @@ struct LfgProposalPlayer
 /// Stores group data related to proposal to join
 struct LfgProposal
 {
-    LfgProposal(uint32 dungeon = 0): dungeonId(dungeon), state(LFG_PROPOSAL_INITIATING),
+    LfgProposal(uint32 dungeon = 0): id(0), dungeonId(dungeon), state(LFG_PROPOSAL_INITIATING),
         group(0), leader(0), cancelTime(0), encounters(0), isNew(true)
         { }
 
+    uint32 id;                                             ///< Proposal Id
     uint32 dungeonId;                                      ///< Dungeon to join
     LfgProposalState state;                                ///< State of the proposal
     uint64 group;                                          ///< Proposal group (0 if new)
@@ -235,7 +235,8 @@ struct LfgProposal
     uint32 encounters;                                     ///< Dungeon Encounters
     bool isNew;                                            ///< Determines if it's new group or not
     LfgGuidList queues;                                    ///< Queue Ids to remove/readd
-    LfgProposalPlayerContainer players;                          ///< Players data
+    LfgGuidList showorder;                                 ///< Show order in update window
+    LfgProposalPlayerContainer players;                    ///< Players data
 };
 
 /// Stores all rolecheck info of a group that wants to join
@@ -299,7 +300,7 @@ class LFGMgr
 
         // Reward
         void LoadRewards();
-        void RewardDungeonDoneFor(uint32 const dungeonId, Player* player);
+        void FinishDungeon(uint64 gguid, uint32 dungeonId);
         LfgReward const* GetRandomDungeonReward(uint32 dungeon, uint8 level);
 
         // Queue
@@ -314,7 +315,7 @@ class LFGMgr
         void GetCompatibleDungeons(LfgDungeonSet& dungeons, LfgGuidSet const& players, LfgLockPartyMap& lockMap);
 
         // Proposals
-        uint32 AddProposal(LfgProposal const& proposal);
+        uint32 AddProposal(LfgProposal& proposal);
         void UpdateProposal(uint32 proposalId, uint64 guid, bool accept);
 
         // Teleportation
@@ -403,7 +404,7 @@ class LFGMgr
         void SendLfgRoleCheckUpdate(uint64 guid, LfgRoleCheck const& roleCheck);
         void SendLfgUpdateParty(uint64 guid, LfgUpdateData const& data);
         void SendLfgUpdatePlayer(uint64 guid, LfgUpdateData const& data);
-        void SendLfgUpdateProposal(uint64 guid, uint32 proposalId, LfgProposal const& proposal);
+        void SendLfgUpdateProposal(uint64 guid, LfgProposal const& proposal);
 
         // General variables
         uint32 m_QueueTimer;                               ///< used to check interval of update

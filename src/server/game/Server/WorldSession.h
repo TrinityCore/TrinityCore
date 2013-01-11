@@ -54,7 +54,7 @@ struct LfgLockStatus;
 struct LfgPlayerBoot;
 struct LfgProposal;
 struct LfgQueueStatusData;
-struct LfgReward;
+struct LfgPlayerRewardData;
 struct LfgRoleCheck;
 struct LfgUpdateData;
 struct MovementInfo;
@@ -275,7 +275,7 @@ class WorldSession
 
         void SendAttackStop(Unit const* enemy);
 
-        void SendBattleGroundList(uint64 guid, BattlegroundTypeId bgTypeId);
+        void SendBattleGroundList(uint64 guid, BattlegroundTypeId bgTypeId = BATTLEGROUND_RB);
 
         void SendTradeStatus(TradeStatus status);
         void SendUpdateTrade(bool trader_data = true);
@@ -333,7 +333,7 @@ class WorldSession
         void SendDiscoverNewTaxiNode(uint32 nodeid);
 
         // Guild/Arena Team
-        void SendArenaTeamCommandResult(uint32 team_action, std::string const& team, std::string const& player, uint32 error_id);
+        void SendArenaTeamCommandResult(uint32 team_action, std::string const& team, std::string const& player, uint32 error_id = 0);
         void SendNotInArenaTeamPacket(uint8 type);
         void SendPetitionShowList(uint64 guid);
 
@@ -791,7 +791,7 @@ class WorldSession
         void HandleInstanceLockResponse(WorldPacket& recvPacket);
 
         // Battlefield
-        void SendBfInvitePlayerToWar(uint64 guid, uint32 zoneId, uint32 pTime);
+        void SendBfInvitePlayerToWar(uint64 guid, uint32 zoneId, uint32 time);
         void SendBfInvitePlayerToQueue(uint64 guid);
         void SendBfQueueInviteResponse(uint64 guid, uint32 zoneId, bool canQueue = true, bool full = false);
         void SendBfEntered(uint64 guid);
@@ -814,16 +814,16 @@ class WorldSession
         void HandleLfrLeaveOpcode(WorldPacket& recvData);
         void HandleLfgGetStatus(WorldPacket& recvData);
 
-        void SendLfgUpdatePlayer(const LfgUpdateData& updateData);
-        void SendLfgUpdateParty(const LfgUpdateData& updateData);
+        void SendLfgUpdatePlayer(LfgUpdateData const& updateData);
+        void SendLfgUpdateParty(LfgUpdateData const& updateData);
         void SendLfgRoleChosen(uint64 guid, uint8 roles);
-        void SendLfgRoleCheckUpdate(const LfgRoleCheck& pRoleCheck);
+        void SendLfgRoleCheckUpdate(LfgRoleCheck const& pRoleCheck);
         void SendLfgLfrList(bool update);
-        void SendLfgJoinResult(const LfgJoinResultData& joinData);
-        void SendLfgQueueStatus(const LfgQueueStatusData& queueData);
-        void SendLfgPlayerReward(uint32 rdungeonEntry, uint32 sdungeonEntry, uint8 done, const LfgReward* reward, const Quest *qRew);
-        void SendLfgBootProposalUpdate(const LfgPlayerBoot& boot);
-        void SendLfgUpdateProposal(uint32 proposalId, const LfgProposal& proposal);
+        void SendLfgJoinResult(LfgJoinResultData const& joinData);
+        void SendLfgQueueStatus(LfgQueueStatusData const& queueData);
+        void SendLfgPlayerReward(LfgPlayerRewardData const& lfgPlayerRewardData);
+        void SendLfgBootProposalUpdate(LfgPlayerBoot const& boot);
+        void SendLfgUpdateProposal(LfgProposal const& proposal);
         void SendLfgDisabled();
         void SendLfgOfferContinue(uint32 dungeonEntry);
         void SendLfgTeleportError(uint8 err);

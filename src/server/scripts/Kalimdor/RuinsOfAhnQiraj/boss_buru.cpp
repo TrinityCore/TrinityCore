@@ -70,11 +70,11 @@ class boss_buru : public CreatureScript
             boss_buruAI(Creature* creature) : BossAI(creature, DATA_BURU)
             {
             }
-            
+
             void EnterEvadeMode()
             {
                 BossAI::EnterEvadeMode();
-                
+
                 for (std::list<uint64>::iterator i = Eggs.begin(); i != Eggs.end(); ++i)
                     if (Creature* egg = me->GetMap()->GetCreature(*Eggs.begin()))
                         egg->Respawn();
@@ -101,7 +101,7 @@ class boss_buru : public CreatureScript
                     if (_phase == PHASE_EGG)
                         me->DealDamage(me, 45000);
             }
-            
+
             void KilledUnit(Unit* victim)
             {
                 if (victim->GetTypeId() == TYPEID_PLAYER)
@@ -112,12 +112,12 @@ class boss_buru : public CreatureScript
             {
                 if (_phase != PHASE_EGG)
                     return;
-                
+
                 me->RemoveAurasDueToSpell(SPELL_FULL_SPEED);
                 me->RemoveAurasDueToSpell(SPELL_GATHERING_SPEED);
                 events.ScheduleEvent(EVENT_GATHERING_SPEED, 9000);
                 events.ScheduleEvent(EVENT_FULL_SPEED, 60000);
-                
+
                 if (Unit* victim = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
                 {
                     DoResetThreat();
@@ -125,21 +125,21 @@ class boss_buru : public CreatureScript
                     Talk(EMOTE_TARGET, victim->GetGUID());
                 }
             }
-            
+
             void ManageRespawn(uint64 EggGUID)
             {
                 ChaseNewVictim();
                 Eggs.push_back(EggGUID);
                 events.ScheduleEvent(EVENT_RESPAWN_EGG, 100000);
             }
-            
+
             void UpdateAI(uint32 const diff)
             {
                 if (!UpdateVictim())
                     return;
 
                 events.Update(diff);
-                
+
                 while (uint32 eventId = events.ExecuteEvent())
                 {
                     switch (eventId)
@@ -170,7 +170,7 @@ class boss_buru : public CreatureScript
                             break;
                     }
                 }
-                
+
                 if (me->GetHealthPct() < 20.0f && _phase == PHASE_EGG)
                 {
                     DoCast(me, SPELL_BURU_TRANSFORM); // Enrage
@@ -178,7 +178,7 @@ class boss_buru : public CreatureScript
                     me->RemoveAurasDueToSpell(SPELL_THORNS);
                     _phase = PHASE_TRANSFORM;
                 }
-                
+
                 DoMeleeAttackIfReady();
             }
         private:
@@ -203,14 +203,14 @@ class npc_buru_egg : public CreatureScript
             {
                 _instance = me->GetInstanceScript();
             }
-            
+
             void EnterCombat(Unit* attacker)
             {
                 if (Creature* buru = me->GetMap()->GetCreature(_instance->GetData64(DATA_BURU)))
                     if (!buru->isInCombat())
                         buru->AI()->AttackStart(attacker);
             }
-            
+
             void JustSummoned(Creature* who)
             {
                 if (who->GetEntry() == NPC_HATCHLING)
@@ -218,7 +218,7 @@ class npc_buru_egg : public CreatureScript
                         if (Unit* target = buru->AI()->SelectTarget(SELECT_TARGET_RANDOM))
                             who->AI()->AttackStart(target);
             }
-            
+
             void JustDied(Unit* /*killer*/)
             {
                 DoCastAOE(SPELL_EXPLODE, true);
@@ -247,13 +247,13 @@ class spell_egg_explosion : public SpellScriptLoader
         class spell_egg_explosion_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_egg_explosion_SpellScript);
-            
+
             void HandleAfterCast()
             {
                 if (Creature* buru = GetCaster()->FindNearestCreature(NPC_BURU, 5.f))
                     buru->AI()->DoAction(ACTION_EXPLODE);
             }
-            
+
             void HandleDummyHitTarget(SpellEffIndex /*effIndex*/)
             {
                 if (Unit* target = GetHitUnit())
