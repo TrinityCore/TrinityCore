@@ -1729,8 +1729,30 @@ public:
         }
         else
            handler->PSendSysMessage(LANG_PINFO_MAP_OFFLINE, map->name[locale], areaName.c_str());
+ 
+        uint32 guildId           = 0;
+        std::string guildName   = "";
+        std::string guildRank   = "";
+        std::string note        = "";
+        std::string officeNote  = "";
 
-        return true;
+        stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GUILD_MEMBER);
+    	stmt->setUInt32(0, GUID_LOPART(targetGuid));
+
+		result = CharacterDatabase.Query(stmt);
+		if (!result)
+            return false;
+		
+		Field* fields      = result->Fetch();
+		guildId            = fields[0].GetUInt32();
+		guildRank          = fields[2].GetString();
+		guildName          = fields[3].GetString();
+		note               = fields[4].GetString();
+		officeNote         = fields[5].GetString();
+		
+		handler->PSendSysMessage("Guild: %s (%u) Rank: %s Note: %s OffNote: %s",guildName.c_str(),guildId,guildRank.c_str(),note.c_str(),officeNote.c_str());        
+
+		return true;
     }
 
     static bool HandleRespawnCommand(ChatHandler* handler, char const* /*args*/)
