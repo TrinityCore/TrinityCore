@@ -29,20 +29,25 @@
 
 enum PriestSpells
 {
-    PRIEST_SPELL_GUARDIAN_SPIRIT_HEAL           = 48153,
-    PRIEST_SPELL_PENANCE_R1                     = 47540,
-    PRIEST_SPELL_PENANCE_R1_DAMAGE              = 47758,
-    PRIEST_SPELL_PENANCE_R1_HEAL                = 47757,
-    PRIEST_SPELL_REFLECTIVE_SHIELD_TRIGGERED    = 33619,
-    PRIEST_SPELL_REFLECTIVE_SHIELD_R1           = 33201,
-    PRIEST_SPELL_VAMPIRIC_TOUCH_DISPEL          = 64085,
-    PRIEST_SPELL_EMPOWERED_RENEW                = 63544,
-    PRIEST_ICON_ID_EMPOWERED_RENEW_TALENT       = 3021,
-    PRIEST_ICON_ID_PAIN_AND_SUFFERING           = 2874,
-    PRIEST_SHADOW_WORD_DEATH                    = 32409,
+    SPELL_PRIEST_EMPOWERED_RENEW                = 63544,
+    SPELL_PRIEST_GUARDIAN_SPIRIT_HEAL           = 48153,
+    SPELL_PRIEST_PENANCE_R1                     = 47540,
+    SPELL_PRIEST_PENANCE_R1_DAMAGE              = 47758,
+    SPELL_PRIEST_PENANCE_R1_HEAL                = 47757,
+    SPELL_PRIEST_REFLECTIVE_SHIELD_TRIGGERED    = 33619,
+    SPELL_PRIEST_REFLECTIVE_SHIELD_R1           = 33201,
+    SPELL_PRIEST_SHADOW_WORD_DEATH              = 32409,
+    SPELL_PRIEST_T9_HEALING_2P                  = 67201,
+    SPELL_PRIEST_VAMPIRIC_TOUCH_DISPEL          = 64085,
 };
 
-// Guardian Spirit
+enum PriestSpellIcons
+{
+    PRIEST_ICON_ID_EMPOWERED_RENEW_TALENT       = 3021,
+    PRIEST_ICON_ID_PAIN_AND_SUFFERING           = 2874,
+};
+
+// -47788 - Guardian Spirit
 class spell_pri_guardian_spirit : public SpellScriptLoader
 {
     public:
@@ -54,9 +59,9 @@ class spell_pri_guardian_spirit : public SpellScriptLoader
 
             uint32 healPct;
 
-            bool Validate(SpellInfo const* /*spellEntry*/)
+            bool Validate(SpellInfo const* /*spellInfo*/)
             {
-                if (!sSpellMgr->GetSpellInfo(PRIEST_SPELL_GUARDIAN_SPIRIT_HEAL))
+                if (!sSpellMgr->GetSpellInfo(SPELL_PRIEST_GUARDIAN_SPIRIT_HEAL))
                     return false;
                 return true;
             }
@@ -82,7 +87,7 @@ class spell_pri_guardian_spirit : public SpellScriptLoader
                 int32 healAmount = int32(target->CountPctFromMaxHealth(healPct));
                 // remove the aura now, we don't want 40% healing bonus
                 Remove(AURA_REMOVE_BY_ENEMY_SPELL);
-                target->CastCustomSpell(target, PRIEST_SPELL_GUARDIAN_SPIRIT_HEAL, &healAmount, NULL, NULL, true);
+                target->CastCustomSpell(target, SPELL_PRIEST_GUARDIAN_SPIRIT_HEAL, &healAmount, NULL, NULL, true);
                 absorbAmount = dmgInfo.GetDamage();
             }
 
@@ -99,6 +104,7 @@ class spell_pri_guardian_spirit : public SpellScriptLoader
         }
 };
 
+// -8129 - Mana Burn
 class spell_pri_mana_burn : public SpellScriptLoader
 {
     public:
@@ -126,6 +132,7 @@ class spell_pri_mana_burn : public SpellScriptLoader
         }
 };
 
+// -49821 - Mind Sear
 class spell_pri_mind_sear : public SpellScriptLoader
 {
     public:
@@ -152,12 +159,12 @@ class spell_pri_mind_sear : public SpellScriptLoader
         }
 };
 
+// 47948 - Pain and Suffering (Proc)
 class spell_pri_pain_and_suffering_proc : public SpellScriptLoader
 {
     public:
         spell_pri_pain_and_suffering_proc() : SpellScriptLoader("spell_pri_pain_and_suffering_proc") { }
 
-        // 47948 Pain and Suffering (proc)
         class spell_pri_pain_and_suffering_proc_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_pri_pain_and_suffering_proc_SpellScript);
@@ -182,6 +189,7 @@ class spell_pri_pain_and_suffering_proc : public SpellScriptLoader
         }
 };
 
+// -47540 - Penance
 class spell_pri_penance : public SpellScriptLoader
 {
     public:
@@ -196,18 +204,18 @@ class spell_pri_penance : public SpellScriptLoader
                 return GetCaster()->GetTypeId() == TYPEID_PLAYER;
             }
 
-            bool Validate(SpellInfo const* spellEntry)
+            bool Validate(SpellInfo const* spellInfo)
             {
-                if (!sSpellMgr->GetSpellInfo(PRIEST_SPELL_PENANCE_R1))
+                if (!sSpellMgr->GetSpellInfo(SPELL_PRIEST_PENANCE_R1))
                     return false;
                 // can't use other spell than this penance due to spell_ranks dependency
-                if (sSpellMgr->GetFirstSpellInChain(PRIEST_SPELL_PENANCE_R1) != sSpellMgr->GetFirstSpellInChain(spellEntry->Id))
+                if (sSpellMgr->GetFirstSpellInChain(SPELL_PRIEST_PENANCE_R1) != sSpellMgr->GetFirstSpellInChain(spellInfo->Id))
                     return false;
 
-                uint8 rank = sSpellMgr->GetSpellRank(spellEntry->Id);
-                if (!sSpellMgr->GetSpellWithRank(PRIEST_SPELL_PENANCE_R1_DAMAGE, rank, true))
+                uint8 rank = sSpellMgr->GetSpellRank(spellInfo->Id);
+                if (!sSpellMgr->GetSpellWithRank(SPELL_PRIEST_PENANCE_R1_DAMAGE, rank, true))
                     return false;
-                if (!sSpellMgr->GetSpellWithRank(PRIEST_SPELL_PENANCE_R1_HEAL, rank, true))
+                if (!sSpellMgr->GetSpellWithRank(SPELL_PRIEST_PENANCE_R1_HEAL, rank, true))
                     return false;
 
                 return true;
@@ -224,9 +232,9 @@ class spell_pri_penance : public SpellScriptLoader
                     uint8 rank = sSpellMgr->GetSpellRank(GetSpellInfo()->Id);
 
                     if (caster->IsFriendlyTo(unitTarget))
-                        caster->CastSpell(unitTarget, sSpellMgr->GetSpellWithRank(PRIEST_SPELL_PENANCE_R1_HEAL, rank), false, 0);
+                        caster->CastSpell(unitTarget, sSpellMgr->GetSpellWithRank(SPELL_PRIEST_PENANCE_R1_HEAL, rank), false, 0);
                     else
-                        caster->CastSpell(unitTarget, sSpellMgr->GetSpellWithRank(PRIEST_SPELL_PENANCE_R1_DAMAGE, rank), false, 0);
+                        caster->CastSpell(unitTarget, sSpellMgr->GetSpellWithRank(SPELL_PRIEST_PENANCE_R1_DAMAGE, rank), false, 0);
                 }
             }
 
@@ -253,7 +261,43 @@ class spell_pri_penance : public SpellScriptLoader
         }
 };
 
-// Reflective Shield
+// 33110 - Prayer of Mending Heal
+class spell_pri_prayer_of_mending_heal : public SpellScriptLoader
+{
+    public:
+        spell_pri_prayer_of_mending_heal() : SpellScriptLoader("spell_pri_prayer_of_mending_heal") { }
+
+        class spell_pri_prayer_of_mending_heal_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_pri_prayer_of_mending_heal_SpellScript);
+
+            void HandleHeal(SpellEffIndex /*effIndex*/)
+            {
+                if (Unit* caster = GetOriginalCaster())
+                {
+                    if (AuraEffect* aurEff = caster->GetAuraEffect(SPELL_PRIEST_T9_HEALING_2P, EFFECT_0))
+                    {
+                        int32 heal = GetHitHeal();
+                        AddPct(heal, aurEff->GetAmount());
+                        SetHitHeal(heal);
+                    }
+                }
+
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_pri_prayer_of_mending_heal_SpellScript::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_pri_prayer_of_mending_heal_SpellScript();
+        }
+};
+
+// -17 - Reflective Shield
 class spell_pri_reflective_shield_trigger : public SpellScriptLoader
 {
     public:
@@ -263,9 +307,9 @@ class spell_pri_reflective_shield_trigger : public SpellScriptLoader
         {
             PrepareAuraScript(spell_pri_reflective_shield_trigger_AuraScript);
 
-            bool Validate(SpellInfo const* /*spellEntry*/)
+            bool Validate(SpellInfo const* /*spellInfo*/)
             {
-                if (!sSpellMgr->GetSpellInfo(PRIEST_SPELL_REFLECTIVE_SHIELD_TRIGGERED) || !sSpellMgr->GetSpellInfo(PRIEST_SPELL_REFLECTIVE_SHIELD_R1))
+                if (!sSpellMgr->GetSpellInfo(SPELL_PRIEST_REFLECTIVE_SHIELD_TRIGGERED) || !sSpellMgr->GetSpellInfo(SPELL_PRIEST_REFLECTIVE_SHIELD_R1))
                     return false;
                 return true;
             }
@@ -277,10 +321,10 @@ class spell_pri_reflective_shield_trigger : public SpellScriptLoader
                     return;
 
                 if (GetCaster())
-                    if (AuraEffect* talentAurEff = target->GetAuraEffectOfRankedSpell(PRIEST_SPELL_REFLECTIVE_SHIELD_R1, EFFECT_0))
+                    if (AuraEffect* talentAurEff = target->GetAuraEffectOfRankedSpell(SPELL_PRIEST_REFLECTIVE_SHIELD_R1, EFFECT_0))
                     {
                         int32 bp = CalculatePct(absorbAmount, talentAurEff->GetAmount());
-                        target->CastCustomSpell(dmgInfo.GetAttacker(), PRIEST_SPELL_REFLECTIVE_SHIELD_TRIGGERED, &bp, NULL, NULL, true, NULL, aurEff);
+                        target->CastCustomSpell(dmgInfo.GetAttacker(), SPELL_PRIEST_REFLECTIVE_SHIELD_TRIGGERED, &bp, NULL, NULL, true, NULL, aurEff);
                     }
             }
 
@@ -296,86 +340,7 @@ class spell_pri_reflective_shield_trigger : public SpellScriptLoader
         }
 };
 
-enum PrayerOfMending
-{
-    SPELL_T9_HEALING_2_PIECE = 67201,
-};
-// Prayer of Mending Heal
-class spell_pri_prayer_of_mending_heal : public SpellScriptLoader
-{
-public:
-    spell_pri_prayer_of_mending_heal() : SpellScriptLoader("spell_pri_prayer_of_mending_heal") { }
-
-    class spell_pri_prayer_of_mending_heal_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_pri_prayer_of_mending_heal_SpellScript);
-
-        void HandleHeal(SpellEffIndex /*effIndex*/)
-        {
-            if (Unit* caster = GetOriginalCaster())
-            {
-                if (AuraEffect* aurEff = caster->GetAuraEffect(SPELL_T9_HEALING_2_PIECE, EFFECT_0))
-                {
-                    int32 heal = GetHitHeal();
-                    AddPct(heal, aurEff->GetAmount());
-                    SetHitHeal(heal);
-                }
-            }
-
-        }
-
-        void Register()
-        {
-            OnEffectHitTarget += SpellEffectFn(spell_pri_prayer_of_mending_heal_SpellScript::HandleHeal, EFFECT_0, SPELL_EFFECT_HEAL);
-        }
-    };
-
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_pri_prayer_of_mending_heal_SpellScript();
-    }
-};
-
-class spell_pri_vampiric_touch : public SpellScriptLoader
-{
-    public:
-        spell_pri_vampiric_touch() : SpellScriptLoader("spell_pri_vampiric_touch") { }
-
-        class spell_pri_vampiric_touch_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_pri_vampiric_touch_AuraScript);
-
-            bool Validate(SpellInfo const* /*spell*/)
-            {
-                if (!sSpellMgr->GetSpellInfo(PRIEST_SPELL_VAMPIRIC_TOUCH_DISPEL))
-                    return false;
-                return true;
-            }
-
-            void HandleDispel(DispelInfo* /*dispelInfo*/)
-            {
-                if (Unit* caster = GetCaster())
-                    if (Unit* target = GetUnitOwner())
-                        if (AuraEffect const* aurEff = GetEffect(EFFECT_1))
-                        {
-                            int32 damage = aurEff->GetAmount() * 8;
-                            // backfire damage
-                            caster->CastCustomSpell(target, PRIEST_SPELL_VAMPIRIC_TOUCH_DISPEL, &damage, NULL, NULL, true, NULL, aurEff);
-                        }
-            }
-
-            void Register()
-            {
-                AfterDispel += AuraDispelFn(spell_pri_vampiric_touch_AuraScript::HandleDispel);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_pri_vampiric_touch_AuraScript();
-        }
-};
-
+// -139 - Renew
 class spell_pri_renew : public SpellScriptLoader
 {
     public:
@@ -401,7 +366,7 @@ class spell_pri_renew : public SpellScriptLoader
                         heal = GetTarget()->SpellHealingBonusTaken(caster, GetSpellInfo(), heal, DOT);
 
                         int32 basepoints0 = empoweredRenewAurEff->GetAmount() * GetEffect(EFFECT_0)->GetTotalTicks() * int32(heal) / 100;
-                        caster->CastCustomSpell(GetTarget(), PRIEST_SPELL_EMPOWERED_RENEW, &basepoints0, NULL, NULL, true, NULL, aurEff);
+                        caster->CastCustomSpell(GetTarget(), SPELL_PRIEST_EMPOWERED_RENEW, &basepoints0, NULL, NULL, true, NULL, aurEff);
                     }
                 }
             }
@@ -418,6 +383,7 @@ class spell_pri_renew : public SpellScriptLoader
         }
 };
 
+// -32379 - Shadow Word Death
 class spell_pri_shadow_word_death : public SpellScriptLoader
 {
     public:
@@ -435,7 +401,7 @@ class spell_pri_shadow_word_death : public SpellScriptLoader
                 if (AuraEffect* aurEff = GetCaster()->GetDummyAuraEffect(SPELLFAMILY_PRIEST, PRIEST_ICON_ID_PAIN_AND_SUFFERING, EFFECT_1))
                     AddPct(damage, aurEff->GetAmount());
 
-                GetCaster()->CastCustomSpell(GetCaster(), PRIEST_SHADOW_WORD_DEATH, &damage, 0, 0, true);
+                GetCaster()->CastCustomSpell(GetCaster(), SPELL_PRIEST_SHADOW_WORD_DEATH, &damage, 0, 0, true);
             }
 
             void Register()
@@ -450,16 +416,57 @@ class spell_pri_shadow_word_death : public SpellScriptLoader
         }
 };
 
+// -34914 - Vampiric Touch
+class spell_pri_vampiric_touch : public SpellScriptLoader
+{
+    public:
+        spell_pri_vampiric_touch() : SpellScriptLoader("spell_pri_vampiric_touch") { }
+
+        class spell_pri_vampiric_touch_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_pri_vampiric_touch_AuraScript);
+
+            bool Validate(SpellInfo const* /*spell*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_PRIEST_VAMPIRIC_TOUCH_DISPEL))
+                    return false;
+                return true;
+            }
+
+            void HandleDispel(DispelInfo* /*dispelInfo*/)
+            {
+                if (Unit* caster = GetCaster())
+                    if (Unit* target = GetUnitOwner())
+                        if (AuraEffect const* aurEff = GetEffect(EFFECT_1))
+                        {
+                            int32 damage = aurEff->GetAmount() * 8;
+                            // backfire damage
+                            caster->CastCustomSpell(target, SPELL_PRIEST_VAMPIRIC_TOUCH_DISPEL, &damage, NULL, NULL, true, NULL, aurEff);
+                        }
+            }
+
+            void Register()
+            {
+                AfterDispel += AuraDispelFn(spell_pri_vampiric_touch_AuraScript::HandleDispel);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_pri_vampiric_touch_AuraScript();
+        }
+};
+
 void AddSC_priest_spell_scripts()
 {
     new spell_pri_guardian_spirit();
     new spell_pri_mana_burn();
+    new spell_pri_mind_sear();
     new spell_pri_pain_and_suffering_proc();
     new spell_pri_penance();
-    new spell_pri_reflective_shield_trigger();
-    new spell_pri_mind_sear();
     new spell_pri_prayer_of_mending_heal();
-    new spell_pri_vampiric_touch();
+    new spell_pri_reflective_shield_trigger();
     new spell_pri_renew();
     new spell_pri_shadow_word_death();
+    new spell_pri_vampiric_touch();
 }
