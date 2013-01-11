@@ -11,6 +11,7 @@
 #                                                                                          #
 ############################################################################################
 
+[110] --> Fix Arena frames (Test!).
 [109] --> Add Mr.Maniek ;)
 [108] --> Fix item procs of Reign of the Dead / Reign of the Unliving, cooldown should be used.
 [107] --> Fix Item - Shaman T10 Elemental 4P Bonus.

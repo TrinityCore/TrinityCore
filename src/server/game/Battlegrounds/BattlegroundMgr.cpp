@@ -207,7 +207,7 @@ void BattlegroundMgr::BuildBattlegroundStatusPacket(WorldPacket* data, Battlegro
             *data << uint64(0);                             // 3.3.5, unknown
             *data << uint32(Time1);                         // time to bg auto leave, 0 at bg start, 120000 after bg end, milliseconds
             *data << uint32(Time2);                         // time from bg start, milliseconds
-            *data << uint8(uiFrame);
+            *data << uint8(bg->GetStatus() == STATUS_IN_PROGRESS ? uiFrame : 0);
             break;
         default:
             sLog->outError(LOG_FILTER_BATTLEGROUND, "Unknown BG status!");
