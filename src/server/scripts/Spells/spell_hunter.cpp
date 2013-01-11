@@ -32,23 +32,25 @@
 
 enum HunterSpells
 {
-    HUNTER_SPELL_READINESS                       = 23989,
-    DRAENEI_SPELL_GIFT_OF_THE_NAARU              = 59543,
-    HUNTER_SPELL_BESTIAL_WRATH                   = 19574,
-    HUNTER_PET_SPELL_LAST_STAND_TRIGGERED        = 53479,
-    HUNTER_PET_HEART_OF_THE_PHOENIX              = 55709,
-    HUNTER_PET_HEART_OF_THE_PHOENIX_TRIGGERED    = 54114,
-    HUNTER_PET_HEART_OF_THE_PHOENIX_DEBUFF       = 55711,
-    HUNTER_PET_SPELL_CARRION_FEEDER_TRIGGERED    = 54045,
-    HUNTER_SPELL_INVIGORATION_TRIGGERED          = 53398,
-    HUNTER_SPELL_MASTERS_CALL_TRIGGERED          = 62305,
-    HUNTER_SPELL_CHIMERA_SHOT_SERPENT            = 53353,
-    HUNTER_SPELL_CHIMERA_SHOT_VIPER              = 53358,
-    HUNTER_SPELL_CHIMERA_SHOT_SCORPID            = 53359,
-    HUNTER_SPELL_ASPECT_OF_THE_BEAST_PET         = 61669,
+    SPELL_HUNTER_ASPECT_OF_THE_BEAST_PET            = 61669,
+    SPELL_HUNTER_BESTIAL_WRATH                      = 19574,
+    SPELL_HUNTER_CHIMERA_SHOT_SERPENT               = 53353,
+    SPELL_HUNTER_CHIMERA_SHOT_VIPER                 = 53358,
+    SPELL_HUNTER_CHIMERA_SHOT_SCORPID               = 53359,
+    SPELL_HUNTER_INVIGORATION_TRIGGERED             = 53398,
+    SPELL_HUNTER_MASTERS_CALL_TRIGGERED             = 62305,
+    SPELL_HUNTER_PET_LAST_STAND_TRIGGERED           = 53479,
+    SPELL_HUNTER_PET_HEART_OF_THE_PHOENIX           = 55709,
+    SPELL_HUNTER_PET_HEART_OF_THE_PHOENIX_TRIGGERED = 54114,
+    SPELL_HUNTER_PET_HEART_OF_THE_PHOENIX_DEBUFF    = 55711,
+    SPELL_HUNTER_PET_CARRION_FEEDER_TRIGGERED       = 54045,
+    SPELL_HUNTER_READINESS                          = 23989,
+    SPELL_HUNTER_SNIPER_TRAINING_R1                 = 53302,
+    SPELL_HUNTER_SNIPER_TRAINING_BUFF_R1            = 64418,
+    SPELL_DRAENEI_GIFT_OF_THE_NAARU                 = 59543,
 };
 
-// 13161 Aspect of the Beast
+// 13161 - Aspect of the Beast
 class spell_hun_aspect_of_the_beast : public SpellScriptLoader
 {
     public:
@@ -63,9 +65,9 @@ class spell_hun_aspect_of_the_beast : public SpellScriptLoader
                 return GetCaster()->GetTypeId() == TYPEID_PLAYER;
             }
 
-            bool Validate(SpellInfo const* /*entry*/)
+            bool Validate(SpellInfo const* /*spellInfo*/)
             {
-                if (!sSpellMgr->GetSpellInfo(HUNTER_SPELL_ASPECT_OF_THE_BEAST_PET))
+                if (!sSpellMgr->GetSpellInfo(SPELL_HUNTER_ASPECT_OF_THE_BEAST_PET))
                     return false;
                 return true;
             }
@@ -74,14 +76,14 @@ class spell_hun_aspect_of_the_beast : public SpellScriptLoader
             {
                 if (Player* caster = GetCaster()->ToPlayer())
                     if (Pet* pet = caster->GetPet())
-                        pet->RemoveAurasDueToSpell(HUNTER_SPELL_ASPECT_OF_THE_BEAST_PET);
+                        pet->RemoveAurasDueToSpell(SPELL_HUNTER_ASPECT_OF_THE_BEAST_PET);
             }
 
             void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Player* caster = GetCaster()->ToPlayer())
                     if (caster->GetPet())
-                        caster->CastSpell(caster, HUNTER_SPELL_ASPECT_OF_THE_BEAST_PET, true);
+                        caster->CastSpell(caster, SPELL_HUNTER_ASPECT_OF_THE_BEAST_PET, true);
             }
 
             void Register()
@@ -97,7 +99,7 @@ class spell_hun_aspect_of_the_beast : public SpellScriptLoader
         }
 };
 
-// 53209 Chimera Shot
+// 53209 - Chimera Shot
 class spell_hun_chimera_shot : public SpellScriptLoader
 {
     public:
@@ -107,9 +109,9 @@ class spell_hun_chimera_shot : public SpellScriptLoader
         {
             PrepareSpellScript(spell_hun_chimera_shot_SpellScript);
 
-            bool Validate(SpellInfo const* /*spellEntry*/)
+            bool Validate(SpellInfo const* /*spellInfo*/)
             {
-                if (!sSpellMgr->GetSpellInfo(HUNTER_SPELL_CHIMERA_SHOT_SERPENT) || !sSpellMgr->GetSpellInfo(HUNTER_SPELL_CHIMERA_SHOT_VIPER) || !sSpellMgr->GetSpellInfo(HUNTER_SPELL_CHIMERA_SHOT_SCORPID))
+                if (!sSpellMgr->GetSpellInfo(SPELL_HUNTER_CHIMERA_SHOT_SERPENT) || !sSpellMgr->GetSpellInfo(SPELL_HUNTER_CHIMERA_SHOT_VIPER) || !sSpellMgr->GetSpellInfo(SPELL_HUNTER_CHIMERA_SHOT_SCORPID))
                     return false;
                 return true;
             }
@@ -138,7 +140,7 @@ class spell_hun_chimera_shot : public SpellScriptLoader
                             if (familyFlag[0] & 0x4000)
                             {
                                 int32 TickCount = aurEff->GetTotalTicks();
-                                spellId = HUNTER_SPELL_CHIMERA_SHOT_SERPENT;
+                                spellId = SPELL_HUNTER_CHIMERA_SHOT_SERPENT;
                                 basePoint = caster->SpellDamageBonusDone(unitTarget, aura->GetSpellInfo(), aurEff->GetAmount(), DOT, aura->GetStackAmount());
                                 ApplyPct(basePoint, TickCount * 40);
                                 basePoint = unitTarget->SpellDamageBonusTaken(caster, aura->GetSpellInfo(), basePoint, DOT, aura->GetStackAmount());
@@ -147,7 +149,7 @@ class spell_hun_chimera_shot : public SpellScriptLoader
                             else if (familyFlag[1] & 0x00000080)
                             {
                                 int32 TickCount = aura->GetEffect(0)->GetTotalTicks();
-                                spellId = HUNTER_SPELL_CHIMERA_SHOT_VIPER;
+                                spellId = SPELL_HUNTER_CHIMERA_SHOT_VIPER;
 
                                 // Amount of one aura tick
                                 basePoint = int32(CalculatePct(unitTarget->GetMaxPower(POWER_MANA), aurEff->GetAmount()));
@@ -158,7 +160,7 @@ class spell_hun_chimera_shot : public SpellScriptLoader
                             }
                             // Scorpid Sting - Attempts to Disarm the target for 10 sec. This effect cannot occur more than once per 1 minute.
                             else if (familyFlag[0] & 0x00008000)
-                                spellId = HUNTER_SPELL_CHIMERA_SHOT_SCORPID;
+                                spellId = SPELL_HUNTER_CHIMERA_SHOT_SCORPID;
                             // ?? nothing say in spell desc (possibly need addition check)
                             //if (familyFlag & 0x0000010000000000LL || // dot
                             //    familyFlag & 0x0000100000000000LL)   // stun
@@ -173,7 +175,7 @@ class spell_hun_chimera_shot : public SpellScriptLoader
                     }
                     if (spellId)
                         caster->CastCustomSpell(unitTarget, spellId, &basePoint, 0, 0, true);
-                    if (spellId == HUNTER_SPELL_CHIMERA_SHOT_SCORPID && caster->ToPlayer()) // Scorpid Sting - Add 1 minute cooldown
+                    if (spellId == SPELL_HUNTER_CHIMERA_SHOT_SCORPID && caster->ToPlayer()) // Scorpid Sting - Add 1 minute cooldown
                         caster->ToPlayer()->AddSpellCooldown(spellId, 0, uint32(time(NULL) + 60));
                 }
             }
@@ -190,7 +192,38 @@ class spell_hun_chimera_shot : public SpellScriptLoader
         }
 };
 
-// 53412 Invigoration
+// 781 - Disengage
+class spell_hun_disengage : public SpellScriptLoader
+{
+    public:
+        spell_hun_disengage() : SpellScriptLoader("spell_hun_disengage") { }
+
+        class spell_hun_disengage_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_hun_disengage_SpellScript);
+
+            SpellCastResult CheckCast()
+            {
+                Unit* caster = GetCaster();
+                if (caster->GetTypeId() == TYPEID_PLAYER && !caster->isInCombat())
+                    return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
+
+                return SPELL_CAST_OK;
+            }
+
+            void Register()
+            {
+                OnCheckCast += SpellCheckCastFn(spell_hun_disengage_SpellScript::CheckCast);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_hun_disengage_SpellScript();
+        }
+};
+
+// 53412 - Invigoration
 class spell_hun_invigoration : public SpellScriptLoader
 {
     public:
@@ -200,9 +233,9 @@ class spell_hun_invigoration : public SpellScriptLoader
         {
             PrepareSpellScript(spell_hun_invigoration_SpellScript);
 
-            bool Validate(SpellInfo const* /*spellEntry*/)
+            bool Validate(SpellInfo const* /*spellInfo*/)
             {
-                if (!sSpellMgr->GetSpellInfo(HUNTER_SPELL_INVIGORATION_TRIGGERED))
+                if (!sSpellMgr->GetSpellInfo(SPELL_HUNTER_INVIGORATION_TRIGGERED))
                     return false;
                 return true;
             }
@@ -212,7 +245,7 @@ class spell_hun_invigoration : public SpellScriptLoader
                 if (Unit* unitTarget = GetHitUnit())
                     if (AuraEffect* aurEff = unitTarget->GetDummyAuraEffect(SPELLFAMILY_HUNTER, 3487, 0))
                         if (roll_chance_i(aurEff->GetAmount()))
-                            unitTarget->CastSpell(unitTarget, HUNTER_SPELL_INVIGORATION_TRIGGERED, true);
+                            unitTarget->CastSpell(unitTarget, SPELL_HUNTER_INVIGORATION_TRIGGERED, true);
             }
 
             void Register()
@@ -227,6 +260,7 @@ class spell_hun_invigoration : public SpellScriptLoader
         }
 };
 
+// 53478 - Last Stand Pet
 class spell_hun_last_stand_pet : public SpellScriptLoader
 {
     public:
@@ -236,9 +270,9 @@ class spell_hun_last_stand_pet : public SpellScriptLoader
         {
             PrepareSpellScript(spell_hun_last_stand_pet_SpellScript);
 
-            bool Validate(SpellInfo const* /*spellEntry*/)
+            bool Validate(SpellInfo const* /*spellInfo*/)
             {
-                if (!sSpellMgr->GetSpellInfo(HUNTER_PET_SPELL_LAST_STAND_TRIGGERED))
+                if (!sSpellMgr->GetSpellInfo(SPELL_HUNTER_PET_LAST_STAND_TRIGGERED))
                     return false;
                 return true;
             }
@@ -247,7 +281,7 @@ class spell_hun_last_stand_pet : public SpellScriptLoader
             {
                 Unit* caster = GetCaster();
                 int32 healthModSpellBasePoints0 = int32(caster->CountPctFromMaxHealth(30));
-                caster->CastCustomSpell(caster, HUNTER_PET_SPELL_LAST_STAND_TRIGGERED, &healthModSpellBasePoints0, NULL, NULL, true, NULL);
+                caster->CastCustomSpell(caster, SPELL_HUNTER_PET_LAST_STAND_TRIGGERED, &healthModSpellBasePoints0, NULL, NULL, true, NULL);
             }
 
             void Register()
@@ -263,6 +297,7 @@ class spell_hun_last_stand_pet : public SpellScriptLoader
         }
 };
 
+// 53271 - Masters Call
 class spell_hun_masters_call : public SpellScriptLoader
 {
     public:
@@ -272,9 +307,9 @@ class spell_hun_masters_call : public SpellScriptLoader
         {
             PrepareSpellScript(spell_hun_masters_call_SpellScript);
 
-            bool Validate(SpellInfo const* spellEntry)
+            bool Validate(SpellInfo const* spellInfo)
             {
-                if (!sSpellMgr->GetSpellInfo(HUNTER_SPELL_MASTERS_CALL_TRIGGERED) || !sSpellMgr->GetSpellInfo(spellEntry->Effects[EFFECT_0].CalcValue()) || !sSpellMgr->GetSpellInfo(spellEntry->Effects[EFFECT_1].CalcValue()))
+                if (!sSpellMgr->GetSpellInfo(SPELL_HUNTER_MASTERS_CALL_TRIGGERED) || !sSpellMgr->GetSpellInfo(spellInfo->Effects[EFFECT_0].CalcValue()) || !sSpellMgr->GetSpellInfo(spellInfo->Effects[EFFECT_1].CalcValue()))
                     return false;
                 return true;
             }
@@ -297,7 +332,7 @@ class spell_hun_masters_call : public SpellScriptLoader
                 {
                     // Cannot be processed while pet is dead
                     TriggerCastFlags castMask = TriggerCastFlags(TRIGGERED_FULL_MASK & ~TRIGGERED_IGNORE_CASTER_AURASTATE);
-                    target->CastSpell(target, HUNTER_SPELL_MASTERS_CALL_TRIGGERED, castMask);
+                    target->CastSpell(target, SPELL_HUNTER_MASTERS_CALL_TRIGGERED, castMask);
                 }
             }
 
@@ -314,6 +349,170 @@ class spell_hun_masters_call : public SpellScriptLoader
         }
 };
 
+// 34477 - Misdirection
+class spell_hun_misdirection : public SpellScriptLoader
+{
+    public:
+        spell_hun_misdirection() : SpellScriptLoader("spell_hun_misdirection") { }
+
+        class spell_hun_misdirection_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_hun_misdirection_AuraScript);
+
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (Unit* caster = GetCaster())
+                    if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_DEFAULT)
+                        caster->SetReducedThreatPercent(0, 0);
+            }
+
+            void Register()
+            {
+                AfterEffectRemove += AuraEffectRemoveFn(spell_hun_misdirection_AuraScript::OnRemove, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_hun_misdirection_AuraScript();
+        }
+};
+
+// 35079 - Misdirection proc
+class spell_hun_misdirection_proc : public SpellScriptLoader
+{
+    public:
+        spell_hun_misdirection_proc() : SpellScriptLoader("spell_hun_misdirection_proc") { }
+
+        class spell_hun_misdirection_proc_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_hun_misdirection_proc_AuraScript);
+
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (GetCaster())
+                    GetCaster()->SetReducedThreatPercent(0, 0);
+            }
+
+            void Register()
+            {
+                AfterEffectRemove += AuraEffectRemoveFn(spell_hun_misdirection_proc_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_hun_misdirection_proc_AuraScript();
+        }
+};
+
+// 54044 - Pet Carrion Feeder
+class spell_hun_pet_carrion_feeder : public SpellScriptLoader
+{
+    public:
+        spell_hun_pet_carrion_feeder() : SpellScriptLoader("spell_hun_pet_carrion_feeder") { }
+
+        class spell_hun_pet_carrion_feeder_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_hun_pet_carrion_feeder_SpellScript);
+
+            bool Load()
+            {
+                if (!GetCaster()->isPet())
+                    return false;
+                return true;
+            }
+
+            bool Validate(SpellInfo const* /*spellInfo*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_HUNTER_PET_CARRION_FEEDER_TRIGGERED))
+                    return false;
+                return true;
+            }
+
+            SpellCastResult CheckIfCorpseNear()
+            {
+                Unit* caster = GetCaster();
+                float max_range = GetSpellInfo()->GetMaxRange(false);
+                WorldObject* result = NULL;
+                // search for nearby enemy corpse in range
+                Trinity::AnyDeadUnitSpellTargetInRangeCheck check(caster, max_range, GetSpellInfo(), TARGET_CHECK_ENEMY);
+                Trinity::WorldObjectSearcher<Trinity::AnyDeadUnitSpellTargetInRangeCheck> searcher(caster, result, check);
+                caster->GetMap()->VisitFirstFound(caster->m_positionX, caster->m_positionY, max_range, searcher);
+                if (!result)
+                    return SPELL_FAILED_NO_EDIBLE_CORPSES;
+                return SPELL_CAST_OK;
+            }
+
+            void HandleDummy(SpellEffIndex /*effIndex*/)
+            {
+                Unit* caster = GetCaster();
+                caster->CastSpell(caster, SPELL_HUNTER_PET_CARRION_FEEDER_TRIGGERED, false);
+            }
+
+            void Register()
+            {
+                // add dummy effect spell handler to pet's Last Stand
+                OnEffectHit += SpellEffectFn(spell_hun_pet_carrion_feeder_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnCheckCast += SpellCheckCastFn(spell_hun_pet_carrion_feeder_SpellScript::CheckIfCorpseNear);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_hun_pet_carrion_feeder_SpellScript();
+        }
+};
+
+// 55709 - Pet Heart of the Phoenix
+class spell_hun_pet_heart_of_the_phoenix : public SpellScriptLoader
+{
+    public:
+        spell_hun_pet_heart_of_the_phoenix() : SpellScriptLoader("spell_hun_pet_heart_of_the_phoenix") { }
+
+        class spell_hun_pet_heart_of_the_phoenix_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_hun_pet_heart_of_the_phoenix_SpellScript);
+
+            bool Load()
+            {
+                if (!GetCaster()->isPet())
+                    return false;
+                return true;
+            }
+
+            bool Validate(SpellInfo const* /*spellInfo*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_HUNTER_PET_HEART_OF_THE_PHOENIX_TRIGGERED) || !sSpellMgr->GetSpellInfo(SPELL_HUNTER_PET_HEART_OF_THE_PHOENIX_DEBUFF))
+                    return false;
+                return true;
+            }
+
+            void HandleScript(SpellEffIndex /*effIndex*/)
+            {
+                Unit* caster = GetCaster();
+                if (Unit* owner = caster->GetOwner())
+                    if (!caster->HasAura(SPELL_HUNTER_PET_HEART_OF_THE_PHOENIX_DEBUFF))
+                    {
+                        owner->CastCustomSpell(SPELL_HUNTER_PET_HEART_OF_THE_PHOENIX_TRIGGERED, SPELLVALUE_BASE_POINT0, 100, caster, true);
+                        caster->CastSpell(caster, SPELL_HUNTER_PET_HEART_OF_THE_PHOENIX_DEBUFF, true);
+                    }
+            }
+
+            void Register()
+            {
+                // add dummy effect spell handler to pet's Last Stand
+                OnEffectHitTarget += SpellEffectFn(spell_hun_pet_heart_of_the_phoenix_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_hun_pet_heart_of_the_phoenix_SpellScript();
+        }
+};
+
+// 23989 - Readiness
 class spell_hun_readiness : public SpellScriptLoader
 {
     public:
@@ -340,9 +539,9 @@ class spell_hun_readiness : public SpellScriptLoader
                     ///! If spellId in cooldown map isn't valid, the above will return a null pointer.
                     if (spellInfo &&
                         spellInfo->SpellFamilyName == SPELLFAMILY_HUNTER &&
-                        spellInfo->Id != HUNTER_SPELL_READINESS &&
-                        spellInfo->Id != HUNTER_SPELL_BESTIAL_WRATH &&
-                        spellInfo->Id != DRAENEI_SPELL_GIFT_OF_THE_NAARU &&
+                        spellInfo->Id != SPELL_HUNTER_READINESS &&
+                        spellInfo->Id != SPELL_HUNTER_BESTIAL_WRATH &&
+                        spellInfo->Id != SPELL_DRAENEI_GIFT_OF_THE_NAARU &&
                         spellInfo->GetRecoveryTime() > 0)
                         caster->RemoveSpellCooldown((itr++)->first, true);
                     else
@@ -363,7 +562,7 @@ class spell_hun_readiness : public SpellScriptLoader
         }
 };
 
-// 37506 Scatter Shot
+// 37506 - Scatter Shot
 class spell_hun_scatter_shot : public SpellScriptLoader
 {
     public:
@@ -399,13 +598,7 @@ class spell_hun_scatter_shot : public SpellScriptLoader
         }
 };
 
-// 53302, 53303, 53304 Sniper Training
-enum eSniperTrainingSpells
-{
-    SPELL_SNIPER_TRAINING_R1        = 53302,
-    SPELL_SNIPER_TRAINING_BUFF_R1   = 64418,
-};
-
+// -53302 - Sniper Training
 class spell_hun_sniper_training : public SpellScriptLoader
 {
     public:
@@ -415,9 +608,9 @@ class spell_hun_sniper_training : public SpellScriptLoader
         {
             PrepareAuraScript(spell_hun_sniper_training_AuraScript);
 
-            bool Validate(SpellInfo const* /*entry*/)
+            bool Validate(SpellInfo const* /*spellInfo*/)
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_SNIPER_TRAINING_R1) || !sSpellMgr->GetSpellInfo(SPELL_SNIPER_TRAINING_BUFF_R1))
+                if (!sSpellMgr->GetSpellInfo(SPELL_HUNTER_SNIPER_TRAINING_R1) || !sSpellMgr->GetSpellInfo(SPELL_HUNTER_SNIPER_TRAINING_BUFF_R1))
                     return false;
                 return true;
             }
@@ -428,7 +621,7 @@ class spell_hun_sniper_training : public SpellScriptLoader
                 if (aurEff->GetAmount() <= 0)
                 {
                     Unit* caster = GetCaster();
-                    uint32 spellId = SPELL_SNIPER_TRAINING_BUFF_R1 + GetId() - SPELL_SNIPER_TRAINING_R1;
+                    uint32 spellId = SPELL_HUNTER_SNIPER_TRAINING_BUFF_R1 + GetId() - SPELL_HUNTER_SNIPER_TRAINING_R1;
                     if (Unit* target = GetTarget())
                         if (!target->HasAura(spellId))
                         {
@@ -464,197 +657,7 @@ class spell_hun_sniper_training : public SpellScriptLoader
         }
 };
 
-class spell_hun_pet_heart_of_the_phoenix : public SpellScriptLoader
-{
-    public:
-        spell_hun_pet_heart_of_the_phoenix() : SpellScriptLoader("spell_hun_pet_heart_of_the_phoenix") { }
-
-        class spell_hun_pet_heart_of_the_phoenix_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_hun_pet_heart_of_the_phoenix_SpellScript);
-
-            bool Load()
-            {
-                if (!GetCaster()->isPet())
-                    return false;
-                return true;
-            }
-
-            bool Validate(SpellInfo const* /*spellEntry*/)
-            {
-                if (!sSpellMgr->GetSpellInfo(HUNTER_PET_HEART_OF_THE_PHOENIX_TRIGGERED) || !sSpellMgr->GetSpellInfo(HUNTER_PET_HEART_OF_THE_PHOENIX_DEBUFF))
-                    return false;
-                return true;
-            }
-
-            void HandleScript(SpellEffIndex /*effIndex*/)
-            {
-                Unit* caster = GetCaster();
-                if (Unit* owner = caster->GetOwner())
-                    if (!caster->HasAura(HUNTER_PET_HEART_OF_THE_PHOENIX_DEBUFF))
-                    {
-                        owner->CastCustomSpell(HUNTER_PET_HEART_OF_THE_PHOENIX_TRIGGERED, SPELLVALUE_BASE_POINT0, 100, caster, true);
-                        caster->CastSpell(caster, HUNTER_PET_HEART_OF_THE_PHOENIX_DEBUFF, true);
-                    }
-            }
-
-            void Register()
-            {
-                // add dummy effect spell handler to pet's Last Stand
-                OnEffectHitTarget += SpellEffectFn(spell_hun_pet_heart_of_the_phoenix_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_hun_pet_heart_of_the_phoenix_SpellScript();
-        }
-};
-
-class spell_hun_pet_carrion_feeder : public SpellScriptLoader
-{
-    public:
-        spell_hun_pet_carrion_feeder() : SpellScriptLoader("spell_hun_pet_carrion_feeder") { }
-
-        class spell_hun_pet_carrion_feeder_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_hun_pet_carrion_feeder_SpellScript);
-
-            bool Load()
-            {
-                if (!GetCaster()->isPet())
-                    return false;
-                return true;
-            }
-
-            bool Validate(SpellInfo const* /*spellEntry*/)
-            {
-                if (!sSpellMgr->GetSpellInfo(HUNTER_PET_SPELL_CARRION_FEEDER_TRIGGERED))
-                    return false;
-                return true;
-            }
-
-            SpellCastResult CheckIfCorpseNear()
-            {
-                Unit* caster = GetCaster();
-                float max_range = GetSpellInfo()->GetMaxRange(false);
-                WorldObject* result = NULL;
-                // search for nearby enemy corpse in range
-                Trinity::AnyDeadUnitSpellTargetInRangeCheck check(caster, max_range, GetSpellInfo(), TARGET_CHECK_ENEMY);
-                Trinity::WorldObjectSearcher<Trinity::AnyDeadUnitSpellTargetInRangeCheck> searcher(caster, result, check);
-                caster->GetMap()->VisitFirstFound(caster->m_positionX, caster->m_positionY, max_range, searcher);
-                if (!result)
-                    return SPELL_FAILED_NO_EDIBLE_CORPSES;
-                return SPELL_CAST_OK;
-            }
-
-            void HandleDummy(SpellEffIndex /*effIndex*/)
-            {
-                Unit* caster = GetCaster();
-                caster->CastSpell(caster, HUNTER_PET_SPELL_CARRION_FEEDER_TRIGGERED, false);
-            }
-
-            void Register()
-            {
-                // add dummy effect spell handler to pet's Last Stand
-                OnEffectHit += SpellEffectFn(spell_hun_pet_carrion_feeder_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-                OnCheckCast += SpellCheckCastFn(spell_hun_pet_carrion_feeder_SpellScript::CheckIfCorpseNear);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_hun_pet_carrion_feeder_SpellScript();
-        }
-};
-
-// 34477 Misdirection
-class spell_hun_misdirection : public SpellScriptLoader
-{
-    public:
-        spell_hun_misdirection() : SpellScriptLoader("spell_hun_misdirection") { }
-
-        class spell_hun_misdirection_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_hun_misdirection_AuraScript);
-
-            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-            {
-                if (Unit* caster = GetCaster())
-                    if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_DEFAULT)
-                        caster->SetReducedThreatPercent(0, 0);
-            }
-
-            void Register()
-            {
-                AfterEffectRemove += AuraEffectRemoveFn(spell_hun_misdirection_AuraScript::OnRemove, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_hun_misdirection_AuraScript();
-        }
-};
-
-// 35079 Misdirection proc
-class spell_hun_misdirection_proc : public SpellScriptLoader
-{
-    public:
-        spell_hun_misdirection_proc() : SpellScriptLoader("spell_hun_misdirection_proc") { }
-
-        class spell_hun_misdirection_proc_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_hun_misdirection_proc_AuraScript);
-
-            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-            {
-                if (GetCaster())
-                    GetCaster()->SetReducedThreatPercent(0, 0);
-            }
-
-            void Register()
-            {
-                AfterEffectRemove += AuraEffectRemoveFn(spell_hun_misdirection_proc_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_hun_misdirection_proc_AuraScript();
-        }
-};
-
-class spell_hun_disengage : public SpellScriptLoader
-{
-    public:
-        spell_hun_disengage() : SpellScriptLoader("spell_hun_disengage") { }
-
-        class spell_hun_disengage_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_hun_disengage_SpellScript);
-
-            SpellCastResult CheckCast()
-            {
-                Unit* caster = GetCaster();
-                if (caster->GetTypeId() == TYPEID_PLAYER && !caster->isInCombat())
-                    return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
-
-                return SPELL_CAST_OK;
-            }
-
-            void Register()
-            {
-                OnCheckCast += SpellCheckCastFn(spell_hun_disengage_SpellScript::CheckCast);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_hun_disengage_SpellScript();
-        }
-};
-
+// 1515 - Tame Beast
 class spell_hun_tame_beast : public SpellScriptLoader
 {
     public:
@@ -706,6 +709,8 @@ class spell_hun_tame_beast : public SpellScriptLoader
         }
 };
 
+// -24604 - Furious Howl
+//  53434 - Call of the Wild
 class spell_hun_target_only_pet_and_owner : public SpellScriptLoader
 {
     public:
@@ -740,17 +745,17 @@ void AddSC_hunter_spell_scripts()
 {
     new spell_hun_aspect_of_the_beast();
     new spell_hun_chimera_shot();
+    new spell_hun_disengage();
     new spell_hun_invigoration();
     new spell_hun_last_stand_pet();
     new spell_hun_masters_call();
+    new spell_hun_misdirection();
+    new spell_hun_misdirection_proc();
+    new spell_hun_pet_carrion_feeder();
+    new spell_hun_pet_heart_of_the_phoenix();
     new spell_hun_readiness();
     new spell_hun_scatter_shot();
     new spell_hun_sniper_training();
-    new spell_hun_pet_heart_of_the_phoenix();
-    new spell_hun_pet_carrion_feeder();
-    new spell_hun_misdirection();
-    new spell_hun_misdirection_proc();
-    new spell_hun_disengage();
     new spell_hun_tame_beast();
     new spell_hun_target_only_pet_and_owner();
 }
