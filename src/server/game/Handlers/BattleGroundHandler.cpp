@@ -499,7 +499,7 @@ void WorldSession::HandleBattleFieldPortOpcode(WorldPacket &recvData)
     }
 }
 
-void WorldSession::HandleLeaveBattlefieldOpcode(WorldPacket& recvData)
+void WorldSession::HandleBattlefieldLeaveOpcode(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd CMSG_LEAVE_BATTLEFIELD Message");
 
