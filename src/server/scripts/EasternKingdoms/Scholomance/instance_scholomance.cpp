@@ -1,6 +1,5 @@
 /*
  * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,15 +16,16 @@
  */
 
 /* ScriptData
-SDName: Instance_Scholomance
-SD%Complete: 100
-SDComment:
-SDCategory: Scholomance
+Name: Instance_Scholomance
+%Complete: 100
+Comment:
+Category: Scholomance
 EndScriptData */
 
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
 #include "scholomance.h"
+#include "Player.h"
 
 enum CreatureId
 {
