@@ -71,7 +71,7 @@ class instance_ruins_of_ahnqiraj : public InstanceMapScript
 
                 return true;
             }
-            
+
             void SetData64(uint32 type, uint64 data)
             {
                 if (type == DATA_PARALYZED)

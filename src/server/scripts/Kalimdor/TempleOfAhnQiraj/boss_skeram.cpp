@@ -68,7 +68,7 @@ class boss_skeram : public CreatureScript
             {
                 Talk(SAY_SLAY);
             }
-            
+
             void EnterEvadeMode()
             {
                 ScriptedAI::EnterEvadeMode();
@@ -93,10 +93,10 @@ class boss_skeram : public CreatureScript
                     rand = urand(0, 2);
                 creature->CastSpell(creature, BlinkSpells[rand]);
                 _flag |= (1 << rand);
-                
+
                 if (_flag & (1 << 7))
                     _flag = 0;
-                
+
                 if (Unit* Target = SelectTarget(SELECT_TARGET_RANDOM))
                     creature->AI()->AttackStart(Target);
 
@@ -183,12 +183,12 @@ class boss_skeram : public CreatureScript
                     DoMeleeAttackIfReady();
                 }
             }
-        
+
         private:
             float _hpct;
             uint8 _flag;
         };
-    
+
     CreatureAI* GetAI(Creature* creature) const
     {
         return new boss_skeramAI(creature);
