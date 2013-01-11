@@ -32,7 +32,7 @@
 
 enum HunterSpells
 {
-    SPELL_HUNTER_ASPECT_OF_THE_BEAST_PET            = 61669,   
+    SPELL_HUNTER_ASPECT_OF_THE_BEAST_PET            = 61669,
     SPELL_HUNTER_BESTIAL_WRATH                      = 19574,
     SPELL_HUNTER_CHIMERA_SHOT_SERPENT               = 53353,
     SPELL_HUNTER_CHIMERA_SHOT_VIPER                 = 53358,
