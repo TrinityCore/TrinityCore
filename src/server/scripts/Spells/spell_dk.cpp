@@ -284,16 +284,16 @@ class spell_dk_corpse_explosion : public SpellScriptLoader
                     if (unitTarget->GetEntry() == 26125)
                     {
                         bp = int32(unitTarget->CountPctFromMaxHealth(25));
-                        unitTarget->CastCustomSpell(unitTarget, DK_SPELL_GHOUL_EXPLODE, &bp, NULL, NULL, false);
-                        caster->CastSpell(unitTarget, DK_SPELL_CORPSE_EXPLOSION_VISUAL, true);
+                        unitTarget->CastCustomSpell(unitTarget, SPELL_DK_GHOUL_EXPLODE, &bp, NULL, NULL, false);
+                        caster->CastSpell(unitTarget, SPELL_DK_CORPSE_EXPLOSION_VISUAL, true);
                         return SPELL_CAST_OK;
                     }
                     else if (unitTarget->isDead())
                     {
                         bp = GetSpellInfo()->Effects[EFFECT_0].BasePoints;
                         caster->CastCustomSpell(unitTarget, GetSpellInfo()->Effects[EFFECT_1].CalcValue(), &bp, NULL, NULL, true);
-                        unitTarget->CastSpell(unitTarget, DK_SPELL_CORPSE_EXPLOSION_TRIGGERED, true);
-                        caster->CastSpell(unitTarget, DK_SPELL_CORPSE_EXPLOSION_VISUAL, true);
+                        unitTarget->CastSpell(unitTarget, SPELL_DK_CORPSE_EXPLOSION_TRIGGERED, true);
+                        caster->CastSpell(unitTarget, SPELL_DK_CORPSE_EXPLOSION_VISUAL, true);
                         return SPELL_CAST_OK;
                     }
                 }
@@ -321,8 +321,8 @@ class spell_dk_corpse_explosion : public SpellScriptLoader
                 {
                     bp = GetSpellInfo()->Effects[EFFECT_0].BasePoints;
                     caster->CastCustomSpell(unitTarget, GetSpellInfo()->Effects[EFFECT_1].CalcValue(), &bp, NULL, NULL, true);
-                    unitTarget->CastSpell(unitTarget, DK_SPELL_CORPSE_EXPLOSION_TRIGGERED, true);
-                    caster->CastSpell(unitTarget, DK_SPELL_CORPSE_EXPLOSION_VISUAL, true);
+                    unitTarget->CastSpell(unitTarget, SPELL_DK_CORPSE_EXPLOSION_TRIGGERED, true);
+                    caster->CastSpell(unitTarget, SPELL_DK_CORPSE_EXPLOSION_VISUAL, true);
                     return SPELL_CAST_OK;
                 }
 
