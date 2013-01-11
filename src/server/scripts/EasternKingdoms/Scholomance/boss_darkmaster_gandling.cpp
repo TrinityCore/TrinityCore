@@ -1,6 +1,5 @@
 /*
  * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,12 +15,12 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: Boss_Darkmaster_Gandling
-SD%Complete: 90
-SDComment: Doors Not yet reopening.
-SDCategory: Scholomance
-EndScriptData */
+/*
+Name: Boss_Darkmaster_Gandling
+%Complete: 90
+Comment: Doors Not yet reopening.
+Category: Scholomance
+*/
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
