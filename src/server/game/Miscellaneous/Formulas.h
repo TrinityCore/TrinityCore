@@ -241,8 +241,8 @@ namespace Trinity
         inline uint32 BgConquestRatingCalculator(uint32 rate)
         {
             // WowWiki: Battleground ratings receive a bonus of 22.2% to the cap they generate
-            printf("%u",uint32(round(ConquestRatingCalculator(rate) * 1.222f)));
-            return uint32(round(ConquestRatingCalculator(rate) * 1.222f));
+            printf("%u",uint32(floor(ConquestRatingCalculator(rate) * 1.222f)));
+            return uint32(floor(ConquestRatingCalculator(rate) * 1.222f));
         }
     } // namespace Trinity::Currency
 } // namespace Trinity

@@ -25950,6 +25950,8 @@ void Player::DeleteRefundReference(uint32 it)
 
 void Player::SendRefundInfo(Item* item)
 {
+    const CurrencyTypesEntry* currencyType;
+    uint32 divisor;
     // This function call unsets ITEM_FLAGS_REFUNDABLE if played time is over 2 hours.
     item->UpdatePlayedTime(this);
 
@@ -25998,7 +26000,12 @@ void Player::SendRefundInfo(Item* item)
     data.WriteByteSeq(guid[2]);
     for (uint8 i = 0; i < MAX_ITEM_EXT_COST_CURRENCIES; ++i)                       // currency cost data
     {
-        data << uint32(iece->RequiredCurrencyCount[i] / CURRENCY_PRECISION);
+        currencyType = sCurrencyTypesStore.LookupEntry(iece->RequiredCurrency[i]);
+        if (currencyType && currencyType->Flags & CURRENCY_FLAG_HIGH_PRECISION)
+            divisor = 100;
+        else
+            divisor = 1;
+        data << uint32(iece->RequiredCurrencyCount[i] / divisor);
         data << uint32(iece->RequiredCurrency[i]);
     }
 
@@ -26037,6 +26044,8 @@ void Player::SendItemRefundResult(Item* item, ItemExtendedCostEntry const* iece,
 {
     ObjectGuid guid = item->GetGUID();
     WorldPacket data(SMSG_ITEM_REFUND_RESULT, 1 + 1 + 8 + 4*8 + 4 + 4*8 + 1);
+    const CurrencyTypesEntry* currencyType;
+    uint32 divisor;
     data.WriteBit(guid[4]);
     data.WriteBit(guid[5]);
     data.WriteBit(guid[1]);
@@ -26052,7 +26061,12 @@ void Player::SendItemRefundResult(Item* item, ItemExtendedCostEntry const* iece,
     {
         for (uint8 i = 0; i < MAX_ITEM_EXT_COST_CURRENCIES; ++i)
         {
-            data << uint32(iece->RequiredCurrencyCount[i] / CURRENCY_PRECISION);
+            currencyType = sCurrencyTypesStore.LookupEntry(iece->RequiredCurrency[i]);
+            if (currencyType && currencyType->Flags & CURRENCY_FLAG_HIGH_PRECISION)
+                divisor = 100;
+            else
+                divisor = 1;
+            data << uint32(iece->RequiredCurrencyCount[i] / divisor);
             data << uint32(iece->RequiredCurrency[i]);
         }
 
