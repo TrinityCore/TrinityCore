@@ -562,18 +562,19 @@ uint32 ArenaTeam::GetPoints(uint32 memberRating)
 
     if (rating <= 1500)
     {
-      points = 312 * 1.5;
+      points = 263 * 1.5;
     }
     else
       //points = 1511.26f / (1.0f + 1639.28f * exp(-0.00412f * (float)rating));
-	      points = ((float)rating * 0.3744f + 2.4f) * 1.5f;  // 1500rat => 656AP  && 2000rat => 869ap && 3100rat => 1338ap  (with all bonus)
+	      points = ((float)rating * 0.402f) * 1.5f;  // 1500rat => 656AP  && 2000rat => 869ap && 3100rat => 1338ap  (with all bonus)
 
     // Type penalties for teams < 5v5
     if (Type == ARENA_TEAM_2v2)
-        points *= 0.76f;
+        points *= 0.75f;
     else if (Type == ARENA_TEAM_3v3)
-        points *= 0.88f;
+        points *= 0.90f;
 
+		
     return (uint32) points;
 }
 
