@@ -16,25 +16,59 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ObjectMgr.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "Player.h"
 #include "ruins_of_ahnqiraj.h"
 
 enum Spells
 {
-    SPELL_STINGERSPRAY          =  25749,
-    SPELL_POISONSTINGER         =  25748, // Only used in phase 1
+    SPELL_STINGER_SPRAY         =  25749,
+    SPELL_POISON_STINGER        =  25748,
     SPELL_PARALYZE              =  25725,
     SPELL_TRASH                 =  3391,
-    SPELL_FRENZY                =  8269,  // Not used
+    SPELL_FRENZY                =  8269,
     SPELL_LASH                  =  25852,
-    SPELL_FEED                  =  25721,
+    SPELL_FEED                  =  25721
 };
 
-enum Says
+enum Events
 {
-    EMOTE_FRENZY                =  0 // Not used
+    EVENT_STINGER_SPRAY         = 0,
+    EVENT_POISON_STINGER        = 1,
+    EVENT_SUMMON_SWARMER        = 2,
+    EVENT_SWARMER_ATTACK        = 3,
+    EVENT_PARALYZE              = 4,
+    EVENT_LASH                  = 5,
+    EVENT_TRASH                 = 6
+};
+
+enum Emotes
+{
+    EMOTE_FRENZY                =  0
+};
+
+enum Phases
+{
+    PHASE_AIR                   = 0,
+    PHASE_GROUND                = 1
+};
+
+enum Points
+{
+    POINT_AIR                   = 0,
+    POINT_GROUND                = 1,
+    POINT_PARALYZE              = 2
+};
+
+const Position AyamissAirPos =  { -9689.292f, 1547.912f, 48.02729f, 0.0f };
+const Position AltarPos =       { -9717.18f, 1517.72f, 27.4677f, 0.0f };
+// TODO: These below are probably incorrect, taken from SD2
+const Position SwarmerPos =     { -9647.352f, 1578.062f, 55.32f, 0.0f };
+const Position LarvaPos[2] =
+{
+    { -9674.4707f, 1528.4133f, 22.457f, 0.0f },
+    { -9701.6005f, 1566.9993f, 24.118f, 0.0f }
 };
 
 class boss_ayamiss : public CreatureScript
@@ -42,27 +76,72 @@ class boss_ayamiss : public CreatureScript
     public:
         boss_ayamiss() : CreatureScript("boss_ayamiss") { }
 
-        struct boss_ayamissAI : public ScriptedAI
+        struct boss_ayamissAI : public BossAI
         {
-            boss_ayamissAI(Creature* creature) : ScriptedAI(creature)
+            boss_ayamissAI(Creature* creature) : BossAI(creature, DATA_AYAMISS)
             {
-                instance = creature->GetInstanceScript();
             }
-
-            uint32 STINGERSPRAY_Timer;
-            uint32 POISONSTINGER_Timer;
-            uint32 SUMMONSWARMER_Timer;
-            uint32 phase;
-
-            InstanceScript* instance;
 
             void Reset()
             {
-                STINGERSPRAY_Timer = 30000;
-                POISONSTINGER_Timer = 30000;
-                SUMMONSWARMER_Timer = 60000;
-                phase = 1;
+                _Reset();
+                _phase = PHASE_AIR;
+                _enraged = false;
+                SetCombatMovement(false);
+            }
 
+            void JustSummoned(Creature* who)
+            {
+                switch (who->GetEntry())
+                {
+                    case NPC_SWARMER:
+                        _swarmers.push_back(who->GetGUID());
+                        break;
+                    case NPC_LARVA:
+                        who->GetMotionMaster()->MovePoint(POINT_PARALYZE, AltarPos);
+                        break;
+                    case NPC_HORNET:
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
+                            who->AI()->AttackStart(target);
+                        break;
+                }
+            }
+
+            void MovementInform(uint32 type, uint32 id)
+            {
+                if (type == POINT_MOTION_TYPE)
+                {
+                    switch (id)
+                    {
+                        case POINT_AIR:
+                            me->AddUnitState(UNIT_STATE_ROOT);
+                            break;
+                        case POINT_GROUND:
+                            me->ClearUnitState(UNIT_STATE_ROOT);
+                            break;
+                    }
+                }
+            }
+
+            void EnterEvadeMode()
+            {
+                me->ClearUnitState(UNIT_STATE_ROOT);
+                BossAI::EnterEvadeMode();
+            }
+
+            void EnterCombat(Unit* attacker)
+            {
+                BossAI::EnterCombat(attacker);
+
+                events.ScheduleEvent(EVENT_STINGER_SPRAY, urand(20000, 30000));
+                events.ScheduleEvent(EVENT_POISON_STINGER, 5000);
+                events.ScheduleEvent(EVENT_SUMMON_SWARMER, 5000);
+                events.ScheduleEvent(EVENT_SWARMER_ATTACK, 60000);
+                events.ScheduleEvent(EVENT_PARALYZE, 15000);
+
+                me->SetCanFly(true);
+                me->SetDisableGravity(true);
+                me->GetMotionMaster()->MovePoint(POINT_AIR, AyamissAirPos);
             }
 
             void UpdateAI(uint32 const diff)
@@ -70,37 +149,148 @@ class boss_ayamiss : public CreatureScript
                 if (!UpdateVictim())
                     return;
 
-                //If he is 70% start phase 2
-                if (phase == 1 && !HealthAbovePct(70) && !me->IsNonMeleeSpellCasted(false))
+                events.Update(diff);
+
+                if (_phase == PHASE_AIR && me->GetHealthPct() < 70.0f)
                 {
-                    phase=2;
+                    _phase = PHASE_GROUND;
+                    SetCombatMovement(true);
+                    me->SetCanFly(false);
+                    Position VictimPos;
+                    me->getVictim()->GetPosition(&VictimPos);
+                    me->GetMotionMaster()->MovePoint(POINT_GROUND, VictimPos);
+                    DoResetThreat();
+                    events.ScheduleEvent(EVENT_LASH, urand(5000, 8000));
+                    events.ScheduleEvent(EVENT_TRASH, urand(3000, 6000));
+                    events.CancelEvent(EVENT_POISON_STINGER);
+                }
+                else
+                {
+                    DoMeleeAttackIfReady();
                 }
 
-                //STINGERSPRAY_Timer (only in phase2)
-                if (phase == 2 && STINGERSPRAY_Timer <= diff)
+                if (!_enraged && me->GetHealthPct() < 20.0f)
                 {
-                    DoCast(me->getVictim(), SPELL_STINGERSPRAY);
-                    STINGERSPRAY_Timer = 30000;
-                } else STINGERSPRAY_Timer -= diff;
+                    DoCast(me, SPELL_FRENZY);
+                    Talk(EMOTE_FRENZY);
+                    _enraged = true;
+                }
 
-                //POISONSTINGER_Timer (only in phase1)
-                if (phase == 1 && POISONSTINGER_Timer <= diff)
+                while (uint32 eventId = events.ExecuteEvent())
                 {
-                    DoCast(me->getVictim(), SPELL_POISONSTINGER);
-                    POISONSTINGER_Timer = 30000;
-                } else POISONSTINGER_Timer -= diff;
+                    switch (eventId)
+                    {
+                        case EVENT_STINGER_SPRAY:
+                            DoCast(me, SPELL_STINGER_SPRAY);
+                            events.ScheduleEvent(EVENT_STINGER_SPRAY, urand(15000, 20000));
+                            break;
+                        case EVENT_POISON_STINGER:
+                            DoCastVictim(SPELL_POISON_STINGER);
+                            events.ScheduleEvent(EVENT_POISON_STINGER, urand(2000, 3000));
+                            break;
+                        case EVENT_PARALYZE:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0, true))
+                            {
+                                DoCast(target, SPELL_PARALYZE);
+                                instance->SetData64(DATA_PARALYZED, target->GetGUID());
+                                uint8 Index = urand(0, 1);
+                                me->SummonCreature(NPC_LARVA, LarvaPos[Index], TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 30000);
+                            }
+                            events.ScheduleEvent(EVENT_PARALYZE, 15000);
+                            break;
+                        case EVENT_SWARMER_ATTACK:
+                            for (std::list<uint64>::iterator i = _swarmers.begin(); i != _swarmers.end(); ++i)
+                                if (Creature* swarmer = me->GetMap()->GetCreature(*i))
+                                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
+                                        swarmer->AI()->AttackStart(target);
 
-                DoMeleeAttackIfReady();
+                            _swarmers.clear();
+                            events.ScheduleEvent(EVENT_SWARMER_ATTACK, 60000);
+                            break;
+                        case EVENT_SUMMON_SWARMER:
+                            Position Pos;
+                            me->GetRandomPoint(SwarmerPos, 80.0f, Pos);
+                            me->SummonCreature(NPC_SWARMER, Pos);
+                            events.ScheduleEvent(EVENT_SUMMON_SWARMER, 5000);
+                            break;
+                        case EVENT_TRASH:
+                            DoCastVictim(SPELL_TRASH);
+                            events.ScheduleEvent(EVENT_TRASH, urand(5000, 7000));
+                            break;
+                        case EVENT_LASH:
+                            DoCastVictim(SPELL_LASH);
+                            events.ScheduleEvent(EVENT_LASH, urand(8000, 15000));
+                            break;
+                    }
+                }
             }
+        private:
+            std::list<uint64> _swarmers;
+            uint8 _phase;
+            bool _enraged;
         };
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new boss_ayamissAI (creature);
+            return new boss_ayamissAI(creature);
+        }
+};
+
+class npc_hive_zara_larva : public CreatureScript
+{
+    public:
+        npc_hive_zara_larva() : CreatureScript("npc_hive_zara_larva") { }
+
+        struct npc_hive_zara_larvaAI : public ScriptedAI
+        {
+            npc_hive_zara_larvaAI(Creature* creature) : ScriptedAI(creature)
+            {
+                _instance = me->GetInstanceScript();
+            }
+
+            void MovementInform(uint32 type, uint32 id)
+            {
+                if (type == POINT_MOTION_TYPE)
+                    if (id == POINT_PARALYZE)
+                        if (Player* target = ObjectAccessor::GetPlayer(*me, _instance->GetData64(DATA_PARALYZED)))
+                            DoCast(target, SPELL_FEED); // Omnomnom
+            }
+
+            void MoveInLineOfSight(Unit* who)
+            {
+                if (_instance->GetBossState(DATA_AYAMISS) == IN_PROGRESS)
+                    return;
+
+                ScriptedAI::MoveInLineOfSight(who);
+            }
+
+            void AttackStart(Unit* victim)
+            {
+                if (_instance->GetBossState(DATA_AYAMISS) == IN_PROGRESS)
+                    return;
+
+                ScriptedAI::AttackStart(victim);
+            }
+
+            void UpdateAI(uint32 const diff)
+            {
+                if (_instance->GetBossState(DATA_AYAMISS) == IN_PROGRESS)
+                    return;
+
+                ScriptedAI::UpdateAI(diff);
+            }
+        private:
+            InstanceScript* _instance;
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new npc_hive_zara_larvaAI(creature);
         }
 };
 
 void AddSC_boss_ayamiss()
 {
     new boss_ayamiss();
+    new npc_hive_zara_larva();
 }
