@@ -1,6 +1,5 @@
 /*
  * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -64,17 +63,8 @@ class boss_instructor_malicia : public CreatureScript
 
             void JustDied(Unit* /*killer*/)
             {
-                InstanceScript* instance = me->GetInstanceScript();
                 if (instance)
-                {
                     instance->SetData(DATA_INSTRUCTORMALICIA, DONE);
-
-                    if (instance->GetData(TYPE_GANDLING) == IN_PROGRESS)
-                    {
-                        instance->SetData(TYPE_GANDLING, IN_PROGRESS);
-                        me->SummonCreature(1853, 180.73f, -9.43856f, 75.507f, 1.61399f, TEMPSUMMON_DEAD_DESPAWN, 0);
-                    }
-                }
             }
 
             void EnterCombat(Unit* /*who*/)
