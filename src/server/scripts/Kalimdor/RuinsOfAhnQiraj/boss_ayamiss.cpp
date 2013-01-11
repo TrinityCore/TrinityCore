@@ -18,6 +18,7 @@
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "Player.h"
 #include "ruins_of_ahnqiraj.h"
 
 enum Spells
@@ -251,7 +252,7 @@ class npc_hive_zara_larva : public CreatureScript
             {
                 if (type == POINT_MOTION_TYPE)
                     if (id == POINT_PARALYZE)
-                        if (Player* target = Unit::GetPlayer(*me, _instance->GetData64(DATA_PARALYZED)))
+                        if (Player* target = ObjectAccessor::GetPlayer(*me, _instance->GetData64(DATA_PARALYZED)))
                             DoCast(target, SPELL_FEED); // Omnomnom
             }
             
