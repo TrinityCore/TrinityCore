@@ -186,7 +186,7 @@ class boss_headless_horseman : public CreatureScript
                     for (Map::PlayerList::const_iterator i = players.begin(); i != players.end(); ++i)
                         if (Player* player = i->getSource())
                             if (player->IsAtGroupRewardDistance(me))
-                                sLFGMgr->RewardDungeonDoneFor(285, player);
+                                sLFGMgr->FinishDungeon(player->GetGUID(), 285);
 
                 DoCast(me, SPELL_BURNING, true);
                 me->SummonCreature(NPC_SIR_THOMAS, 1762.863f, 1345.217f, 17.9f, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 60*IN_MILLISECONDS);
