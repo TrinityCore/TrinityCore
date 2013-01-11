@@ -89,7 +89,7 @@ class boss_ayamiss : public CreatureScript
                 _enraged = false;
                 SetCombatMovement(false);
             }
-            
+
             void JustSummoned(Creature* who)
             {
                 switch (who->GetEntry())
@@ -106,7 +106,7 @@ class boss_ayamiss : public CreatureScript
                         break;
                 }
             }
-            
+
             void MovementInform(uint32 type, uint32 id)
             {
                 if (type == POINT_MOTION_TYPE)
@@ -122,17 +122,17 @@ class boss_ayamiss : public CreatureScript
                     }
                 }
             }
-            
+
             void EnterEvadeMode()
             {
                 me->ClearUnitState(UNIT_STATE_ROOT);
                 BossAI::EnterEvadeMode();
             }
-            
+
             void EnterCombat(Unit* attacker)
             {
                 BossAI::EnterCombat(attacker);
-                
+
                 events.ScheduleEvent(EVENT_STINGER_SPRAY, urand(20000, 30000));
                 events.ScheduleEvent(EVENT_POISON_STINGER, 5000);
                 events.ScheduleEvent(EVENT_SUMMON_SWARMER, 5000);
@@ -148,7 +148,7 @@ class boss_ayamiss : public CreatureScript
             {
                 if (!UpdateVictim())
                     return;
-                
+
                 events.Update(diff);
 
                 if (_phase == PHASE_AIR && me->GetHealthPct() < 70.0f)
@@ -168,7 +168,7 @@ class boss_ayamiss : public CreatureScript
                 {
                     DoMeleeAttackIfReady();
                 }
-                
+
                 if (!_enraged && me->GetHealthPct() < 20.0f)
                 {
                     DoCast(me, SPELL_FRENZY);
@@ -247,7 +247,7 @@ class npc_hive_zara_larva : public CreatureScript
             {
                 _instance = me->GetInstanceScript();
             }
-            
+
             void MovementInform(uint32 type, uint32 id)
             {
                 if (type == POINT_MOTION_TYPE)
@@ -255,12 +255,12 @@ class npc_hive_zara_larva : public CreatureScript
                         if (Player* target = ObjectAccessor::GetPlayer(*me, _instance->GetData64(DATA_PARALYZED)))
                             DoCast(target, SPELL_FEED); // Omnomnom
             }
-            
+
             void MoveInLineOfSight(Unit* who)
             {
                 if (_instance->GetBossState(DATA_AYAMISS) == IN_PROGRESS)
                     return;
-                
+
                 ScriptedAI::MoveInLineOfSight(who);
             }
 
@@ -268,15 +268,15 @@ class npc_hive_zara_larva : public CreatureScript
             {
                 if (_instance->GetBossState(DATA_AYAMISS) == IN_PROGRESS)
                     return;
-                
+
                 ScriptedAI::AttackStart(victim);
             }
-            
+
             void UpdateAI(uint32 const diff)
             {
                 if (_instance->GetBossState(DATA_AYAMISS) == IN_PROGRESS)
                     return;
-                
+
                 ScriptedAI::UpdateAI(diff);
             }
         private:
