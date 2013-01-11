@@ -57,7 +57,7 @@ enum Events
     EVENT_KIRTONOS_TRANSFORM          = 14
 };
 
-enum Misc
+enum eMisc
 {
     WEAPON_KIRTONOS_STAFF             = 11365,
     POINT_KIRTONOS_LAND               = 13,
@@ -70,7 +70,7 @@ class boss_kirtonos_the_herald : public CreatureScript
 
         struct boss_kirtonos_the_heraldAI : public BossAI
         {
-            boss_kirtonos_the_heraldAI(Creature* creature) : BossAI(creature, TYPE_KIRTONOS) { }
+            boss_kirtonos_the_heraldAI(Creature* creature) : BossAI(creature, DATA_KIRTONOS) { }
 
             void Reset()
             {
@@ -104,7 +104,7 @@ class boss_kirtonos_the_herald : public CreatureScript
                     brazier->SetGoState(GO_STATE_READY);
                 }
                 if (instance)
-                    instance->SetData(TYPE_KIRTONOS, DONE);
+                    instance->SetData(DATA_KIRTONOS, DONE);
             }
 
             void EnterEvadeMode()
