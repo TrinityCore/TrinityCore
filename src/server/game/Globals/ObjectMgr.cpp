@@ -2957,32 +2957,23 @@ void ObjectMgr::PlayerCreateInfoAddItemHelper(uint32 race_, uint32 class_, uint3
             sLog->outError(LOG_FILTER_SQL, "Invalid count %i specified on item %u be removed from original player create info (use -1)!", count, itemId);
 
         uint32 RaceClass = (race_) | (class_ << 8);
-        bool doneOne = false;
-        for (uint32 i = 1; i < sCharStartOutfitStore.GetNumRows(); ++i)
+        for (uint32 gender = 0; gender < GENDER_NONE; ++gender)
         {
-            if (CharStartOutfitEntry const* entry = sCharStartOutfitStore.LookupEntry(i))
+            if (CharStartOutfitEntry const* entry = sCharStartOutfitStore.LookupEntry(RaceClass | (gender << 16)))
             {
-                if (entry->RaceClassGender == RaceClass || entry->RaceClassGender == (RaceClass | (1 << 16)))
+                bool found = false;
+                for (uint8 x = 0; x < MAX_OUTFIT_ITEMS; ++x)
                 {
-                    bool found = false;
-                    for (uint8 x = 0; x < MAX_OUTFIT_ITEMS; ++x)
+                    if (entry->ItemId[x] > 0 && uint32(entry->ItemId[x]) == itemId)
                     {
-                        if (entry->ItemId[x] > 0 && uint32(entry->ItemId[x]) == itemId)
-                        {
-                            found = true;
-                            const_cast<CharStartOutfitEntry*>(entry)->ItemId[x] = 0;
-                            break;
-                        }
-                    }
-
-                    if (!found)
-                        sLog->outError(LOG_FILTER_SQL, "Item %u specified to be removed from original create info not found in dbc!", itemId);
-
-                    if (!doneOne)
-                        doneOne = true;
-                    else
+                        found = true;
+                        const_cast<CharStartOutfitEntry*>(entry)->ItemId[x] = 0;
                         break;
+                    }
                 }
+
+                if (!found)
+                    sLog->outError(LOG_FILTER_SQL, "Item %u specified to be removed from original create info not found in dbc!", itemId);
             }
         }
     }
