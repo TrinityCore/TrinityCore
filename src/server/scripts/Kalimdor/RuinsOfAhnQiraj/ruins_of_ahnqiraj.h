@@ -26,7 +26,9 @@ enum DataTypes
     DATA_BURU               = 3,
     DATA_AYAMISS            = 4,
     DATA_OSSIRIAN           = 5,
-    NUM_ENCOUNTER           = 6
+    NUM_ENCOUNTER           = 6,
+
+    DATA_PARALYZED          = 7
 };
 
 enum Creatures
@@ -42,12 +44,15 @@ enum Creatures
     NPC_HIVEZARA_LARVA          = 15555,
     NPC_SAND_VORTEX             = 15428,
     NPC_OSSIRIAN_TRIGGER        = 15590,
-    NPC_HATCHLING               = 15521
+    NPC_HATCHLING               = 15521,
+    NPC_LARVA                   = 15555,
+    NPC_SWARMER                 = 15546,
+    NPC_HORNET                  = 15934
 };
 
 enum GameObjects
 {
-    GO_OSSIRIAN_CRYSTAL         = 180619,
+    GO_OSSIRIAN_CRYSTAL         = 180619
 };
 
 #endif
