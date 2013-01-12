@@ -50,16 +50,9 @@ class boss_illucia_barov : public CreatureScript
         {
             boss_illuciabarovAI(Creature* creature) : BossAI(creature,DATA_LADYILLUCIABAROV) {}
 
-            void Reset() {}
-
-            void JustDied(Unit* /*killer*/)
-            {
-                if (instance)
-                    instance->SetData(DATA_LADYILLUCIABAROV, DONE);
-            }
-
             void EnterCombat(Unit* /*who*/)
             {
+                _EnterCombat();
                 events.ScheduleEvent(EVENT_CURSEOFAGONY, 18000);
                 events.ScheduleEvent(EVENT_SHADOWSHOCK, 9000);
                 events.ScheduleEvent(EVENT_SILENCE, 5000);

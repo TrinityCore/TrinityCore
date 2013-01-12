@@ -58,20 +58,21 @@ class boss_darkmaster_gandling : public CreatureScript
 
             void Reset()
             {
+                _Reset();
                 if (GameObject* gate = me->GetMap()->GetGameObject(instance->GetData64(GO_GATE_GANDLING)))
                     gate->SetGoState(GO_STATE_ACTIVE);
             }
 
             void JustDied(Unit* /*killer*/)
             {
-                if (instance)
-                    instance->SetData(DATA_DARKMASTERGANDLING, DONE);
+                _JustDied();
                 if (GameObject* gate = me->GetMap()->GetGameObject(instance->GetData64(GO_GATE_GANDLING)))
                     gate->SetGoState(GO_STATE_ACTIVE);
             }
 
             void EnterCombat(Unit* /*who*/)
             {
+                _EnterCombat();
                 events.ScheduleEvent(EVENT_ARCANEMISSILES, 4500);
                 events.ScheduleEvent(EVENT_SHADOWSHIELD, 12000);
                 events.ScheduleEvent(EVENT_CURSE, 2000);
