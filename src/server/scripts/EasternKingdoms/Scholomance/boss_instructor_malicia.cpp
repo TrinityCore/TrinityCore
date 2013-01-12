@@ -57,18 +57,14 @@ class boss_instructor_malicia : public CreatureScript
 
             void Reset()
             {
+                _Reset();
                 FlashCounter = 0;
                 TouchCounter = 0;
             }
 
-            void JustDied(Unit* /*killer*/)
-            {
-                if (instance)
-                    instance->SetData(DATA_INSTRUCTORMALICIA, DONE);
-            }
-
             void EnterCombat(Unit* /*who*/)
             {
+                _EnterCombat();
                 events.ScheduleEvent(EVENT_CALLOFGRAVES, 4000);
                 events.ScheduleEvent(EVENT_CORRUPTION, 8000);
                 events.ScheduleEvent(EVENT_RENEW, 32000);
