@@ -29,39 +29,13 @@ EndScriptData */
 
 class instance_mechanar : public InstanceMapScript
 {
-    public: instance_mechanar(): InstanceMapScript("instance_mechanar", 554) {}
-
-        InstanceScript* GetInstanceScript(InstanceMap* map) const
-        {
-            return new instance_mechanar_InstanceMapScript(map);
-        }
+    public: instance_mechanar(): InstanceMapScript("instance_mechanar", 554) { }
 
         struct instance_mechanar_InstanceMapScript : public InstanceScript
         {
             instance_mechanar_InstanceMapScript(Map* map) : InstanceScript(map)
             {
                 SetBossNumber(EncounterCount);
-            }
-
-
-
-            uint32 GetData(uint32 type) const
-            {
-                switch (type)
-                {
-                    case DATA_GATEWATCHER_GYROKILL:   return SetBossNumber[DATA_GATEWATCHER_GYROKILL];
-                    case DATA_IRON_HAND:   return SetBossNumber[DATA_IRON_HAND];
-                    case DATA_MECHANOLORD_CAPACITUS:   return SetBossNumber[DATA_MECHANOLORD_CAPACITUS];
-                    case DATA_NETHERMANCER_SEPRETHREA:   return SetBossNumber[DATA_NETHERMANCER_SEPRETHREA];
-                    case DATA_PATHALEON_THE_CALCULATOR:   return SetBossNumber[DATA_PATHALEON_THE_CALCULATOR];
-                }
-
-                return false;
-            }
-
-            uint64 GetData64(uint32 /*identifier*/) const
-            {
-                return 0;
             }
 
             bool SetBossState(uint32 type, EncounterState state)
@@ -89,7 +63,7 @@ class instance_mechanar : public InstanceMapScript
                 OUT_SAVE_INST_DATA;
 
                 std::ostringstream saveStream;
-                saveStream << "S O " << GetBossSaveData();
+                saveStream << "M C " << GetBossSaveData();
 
                 OUT_SAVE_INST_DATA_COMPLETE;
                 return saveStream.str();
@@ -110,7 +84,7 @@ class instance_mechanar : public InstanceMapScript
                 std::istringstream loadStream(str);
                 loadStream >> dataHead1 >> dataHead2;
 
-                if (dataHead1 == 'S' && dataHead2 == 'O')
+                if (dataHead1 == 'M' && dataHead2 == 'C')
                 {
                     for (uint32 i = 0; i < EncounterCount; ++i)
                     {
@@ -127,10 +101,15 @@ class instance_mechanar : public InstanceMapScript
                 OUT_LOAD_INST_DATA_COMPLETE;
             }
         };
+
+        InstanceScript* GetInstanceScript(InstanceMap* map) const
+        {
+            return new instance_mechanar_InstanceMapScript(map);
+        }
 };
 
 void AddSC_instance_mechanar()
 {
-    new instance_mechanar;
+    new instance_mechanar();
 }
 
