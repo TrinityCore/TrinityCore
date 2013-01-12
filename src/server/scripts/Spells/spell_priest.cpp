@@ -249,7 +249,6 @@ class spell_pri_penance : public SpellScriptLoader
 
             void Register()
             {
-                // add dummy effect spell handler to Penance
                 OnEffectHitTarget += SpellEffectFn(spell_pri_penance_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
                 OnCheckCast += SpellCheckCastFn(spell_pri_penance_SpellScript::CheckCast);
             }
@@ -282,7 +281,6 @@ class spell_pri_prayer_of_mending_heal : public SpellScriptLoader
                         SetHitHeal(heal);
                     }
                 }
-
             }
 
             void Register()
