@@ -15,13 +15,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-Name: Instance_Scholomance
-%Complete: 100
-Comment:
-Category: Scholomance
-EndScriptData */
-
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
 #include "Player.h"
@@ -119,31 +112,22 @@ class instance_scholomance : public InstanceMapScript
                 {
                     case GO_GATE_KIRTONOS:
                         return GateKirtonosGUID;
-                        break;
                     case GO_GATE_GANDLING:
                         return GateGandlingGUID;
-                        break;
                     case GO_GATE_MALICIA:
                         return GateMiliciaGUID;
-                        break;
                     case GO_GATE_THEOLEN:
                         return GateTheolenGUID;
-                        break;
                     case GO_GATE_POLKELT:
                         return GatePolkeltGUID;
-                        break;
                     case GO_GATE_RAVENIAN:
                         return GateRavenianGUID;
-                        break;
                     case GO_GATE_BAROV:
                         return GateBarovGUID;
-                        break;
                     case GO_GATE_ILLUCIA:
                         return GateIlluciaGUID;
-                        break;
                     case GO_BRAZIER_OF_THE_HERALD:
                         return BrazierOfTheHeraldGUID;
-                        break;
                     default:
                         break;
                 }
