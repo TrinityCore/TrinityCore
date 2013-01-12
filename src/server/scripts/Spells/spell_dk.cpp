@@ -284,7 +284,7 @@ class spell_dk_corpse_explosion : public SpellScriptLoader
                     if (unitTarget->GetEntry() == 26125)
                     {
                         bp = int32(unitTarget->CountPctFromMaxHealth(25));
-                        unitTarget->CastCustomSpell(unitTarget, DK_SPELL_GHOUL_EXPLODE, &bp, NULL, NULL, false);
+                        unitTarget->CastCustomSpell(unitTarget, SPELL_DK_GHOUL_EXPLODE, &bp, NULL, NULL, false);
                         caster->CastSpell(unitTarget, SPELL_DK_CORPSE_EXPLOSION_VISUAL, true);
                         return SPELL_CAST_OK;
                     }
@@ -838,23 +838,13 @@ class spell_dk_will_of_the_necropolis : public SpellScriptLoader
         {
             PrepareAuraScript(spell_dk_will_of_the_necropolis_AuraScript);
 
-            bool Validate(SpellInfo const* spellInfo)
+            bool Validate(SpellInfo const* spellEntry)
             {
-                int32 damage = GetEffectValue();
-                Position const* pos = GetExplTargetDest();
-                if (Unit* target = GetHitUnit())
-                {
-                    if (!target->HasAuraType(SPELL_AURA_DEFLECT_SPELLS)) // Deterrence
-                    {
-                        target->CastSpell(pos->GetPositionX(), pos->GetPositionY(), pos->GetPositionZ(), damage, true);
-                        target->CastStop();
-                    }
-                }
                 // can't use other spell than will of the necropolis due to spell_ranks dependency
-                if (sSpellMgr->GetFirstSpellInChain(SPELL_DK_WILL_OF_THE_NECROPOLIS_AURA_R1) != sSpellMgr->GetFirstSpellInChain(spellInfo->Id))
+                if (sSpellMgr->GetFirstSpellInChain(SPELL_DK_WILL_OF_THE_NECROPOLIS_AURA_R1) != sSpellMgr->GetFirstSpellInChain(spellEntry->Id))
                     return false;
 
-                uint8 rank = sSpellMgr->GetSpellRank(spellInfo->Id);
+                uint8 rank = sSpellMgr->GetSpellRank(spellEntry->Id);
                 if (!sSpellMgr->GetSpellWithRank(SPELL_DK_WILL_OF_THE_NECROPOLIS_TALENT_R1, rank, true))
                     return false;
 
@@ -937,15 +927,15 @@ class spell_dk_raise_dead : public SpellScriptLoader
                 // check for Master of Ghouls talent
                 if (caster->HasAura(52143))
                     // summon as pet
-                    triggered_spell_id = DK_SPELL_RAISE_DEAD_IMPROVED;
+                    triggered_spell_id = SPELL_DK_RAISE_DEAD_IMPROVED;
                 else
                     // or guardian
-                    triggered_spell_id = DK_SPELL_RAISE_DEAD_NORMAL;
+                    triggered_spell_id = SPELL_DK_RAISE_DEAD_NORMAL;
 
                 if (!unitTarget)
                 {
                     // check for Glyph of Raise Dead
-                    if (caster->HasAura(DK_SPELL_GLYPH_OF_RAISE_DEAD))
+                    if (caster->HasAura(SPELL_DK_GLYPH_OF_RAISE_DEAD))
                     {
                         caster->CastSpell(caster->GetPositionX(),caster->GetPositionY(),caster->GetPositionZ(),triggered_spell_id, true);
                         return SPELL_CAST_OK;
