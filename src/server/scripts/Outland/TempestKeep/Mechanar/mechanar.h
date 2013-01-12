@@ -18,6 +18,8 @@
 #ifndef DEF_MECHANAR_H
 #define DEF_MECHANAR_H
 
+uint32 const EncounterCount             = 5;
+
 enum DataTypes
 {
     DATA_GATEWATCHER_GYROKILL           = 0,
@@ -25,11 +27,6 @@ enum DataTypes
     DATA_MECHANOLORD_CAPACITUS          = 2,
     DATA_NETHERMANCER_SEPRETHREA        = 3,
     DATA_PATHALEON_THE_CALCULATOR       = 4
-};
-
-enum Misc
-{
-    MAX_ENCOUNTER                       = 5
 };
 
 #endif
