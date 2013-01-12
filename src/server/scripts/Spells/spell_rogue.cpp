@@ -348,35 +348,6 @@ class spell_rog_prey_on_the_weak : public SpellScriptLoader
         }
 };
 
-// 36554 - Shadowstep
-class spell_rog_shadowstep : public SpellScriptLoader
-{
-    public:
-        spell_rog_shadowstep() : SpellScriptLoader("spell_rog_shadowstep") { }
-
-        class spell_rog_shadowstep_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_rog_shadowstep_SpellScript);
-
-            SpellCastResult CheckCast()
-            {
-                if (GetCaster()->HasUnitState(UNIT_STATE_ROOT))
-                    return SPELL_FAILED_ROOTED;
-                return SPELL_CAST_OK;
-            }
-
-            void Register()
-            {
-                OnCheckCast += SpellCheckCastFn(spell_rog_shadowstep_SpellScript::CheckCast);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_rog_shadowstep_SpellScript();
-        }
-};
-
 // 5938 - Shiv
 class spell_rog_shiv : public SpellScriptLoader
 {
@@ -425,6 +396,5 @@ void AddSC_rogue_spell_scripts()
     new spell_rog_nerves_of_steel();
     new spell_rog_preparation();
     new spell_rog_prey_on_the_weak();
-    new spell_rog_shadowstep();
     new spell_rog_shiv();
 }
