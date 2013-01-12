@@ -61,25 +61,18 @@ enum Events
     EVENT_ARCANE_EXPLOSION         = 4
 };
 
+enum Creatures
+{
+    NPC_NETHER_WRAITH               = 21062
+};
+
 class boss_pathaleon_the_calculator : public CreatureScript
 {
     public: boss_pathaleon_the_calculator(): CreatureScript("boss_pathaleon_the_calculator") {}
 
         struct boss_pathaleon_the_calculatorAI : public BossAI
         {
-            boss_pathaleon_the_calculatorAI(Creature* creature) : BossAI(creature,DATA_PATHALEON_THE_CALCULATOR), summons(me) {}
-
-            SummonList summons;
-            bool Enraged;
-            uint32 Counter;
-
-            void Reset()
-            {
-                _Reset();
-                Enraged = false;
-                Counter = 0;
-                summons.DespawnAll();
-            }
+            boss_pathaleon_the_calculatorAI(Creature* creature) : BossAI(creature, DATA_PATHALEON_THE_CALCULATOR) { }
 
             void EnterCombat(Unit* /*who*/)
             {
@@ -101,17 +94,15 @@ class boss_pathaleon_the_calculator : public CreatureScript
             {
                 _JustDied();
                 Talk(SAY_DEATH);
-                summons.DespawnAll();
             }
 
-            void JustSummoned(Creature* summon)
+            void DamageTaken(Unit* /*attacker*/, uint32& damage)
             {
-                summons.Summon(summon);
-            }
-
-            void SummonedCreatureDespawn(Creature* summon)
-            {
-                summons.Despawn(summon);
+                if (me->HealthBelowPctDamaged(20, damage) && !me->HasAura(SPELL_FRENZY))
+                {
+                    DoCast(me, SPELL_FRENZY);
+                    Talk(SAY_ENRAGE);
+                }
             }
 
             void UpdateAI(uint32 const diff)
@@ -120,13 +111,6 @@ class boss_pathaleon_the_calculator : public CreatureScript
                     return;
 
                 events.Update(diff);
-
-                if (!Enraged && HealthBelowPct(21))
-                {
-                    DoCast(me, SPELL_FRENZY);
-                    Talk(SAY_ENRAGE);
-                    Enraged = true;
-                }
 
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
@@ -138,10 +122,11 @@ class boss_pathaleon_the_calculator : public CreatureScript
                         case EVENT_SUMMON:
                             for (uint8 i = 0; i < 3; ++i)
                             {
-                                Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0);
-                                Creature* Wraith = me->SummonCreature(21062, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
-                                if (target && Wraith)
-                                    Wraith->AI()->AttackStart(target);
+                                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                                {
+                                    if (Creature* Wraith = me->SummonCreature(NPC_NETHER_WRAITH, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000))
+                                        Wraith->AI()->AttackStart(target);
+                                }
                             }
                             Talk(SAY_SUMMON);
                             events.ScheduleEvent(EVENT_SUMMON, urand(30000, 45000));
@@ -172,20 +157,17 @@ class boss_pathaleon_the_calculator : public CreatureScript
             }
         };
 
-            CreatureAI* GetAI(Creature* creature) const
-            {
-                return new boss_pathaleon_the_calculatorAI (creature);
-            }
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new boss_pathaleon_the_calculatorAI (creature);
+        }
 };
 
 class mob_nether_wraith : public CreatureScript
 {
     public:
 
-        mob_nether_wraith()
-            : CreatureScript("mob_nether_wraith")
-        {
-        }
+        mob_nether_wraith() : CreatureScript("mob_nether_wraith") { }
 
         struct mob_nether_wraithAI : public ScriptedAI
         {

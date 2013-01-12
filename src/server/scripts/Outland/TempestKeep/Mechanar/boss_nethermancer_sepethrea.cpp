@@ -145,10 +145,7 @@ class boss_nethermancer_sepethrea : public CreatureScript
 class mob_ragin_flames : public CreatureScript
 {
     public:
-        mob_ragin_flames()
-            : CreatureScript("mob_ragin_flames")
-        {
-        }
+        mob_ragin_flames() : CreatureScript("mob_ragin_flames") { }
 
             struct mob_ragin_flamesAI : public ScriptedAI
             {
@@ -235,4 +232,3 @@ void AddSC_boss_nethermancer_sepethrea()
     new boss_nethermancer_sepethrea();
     new mob_ragin_flames();
 }
-

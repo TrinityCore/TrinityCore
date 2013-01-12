@@ -16,7 +16,7 @@
  */
 
 /* ScriptData
-SDName: Boss_Gatewatcher_Gyrokill
+SDName: boss_gatewatcher_gyrokill
 SD%Complete: 99%
 SDComment:
 SDCategory: Tempest Keep, The Mechanar
@@ -50,13 +50,13 @@ enum Events
     EVENT_SHADOW_POWER              = 2
 };
 
-class Boss_Gatewatcher_Gyrokill : public CreatureScript
+class boss_gatewatcher_gyrokill : public CreatureScript
 {
-    public: Boss_Gatewatcher_Gyrokill() : CreatureScript("Boss_Gatewatcher_Gyrokill") { }
+    public: boss_gatewatcher_gyrokill() : CreatureScript("boss_gatewatcher_gyrokill") { }
 
-        struct Boss_Gatewatcher_GyrokillAI : public BossAI
+        struct boss_gatewatcher_gyrokillAI : public BossAI
         {
-            Boss_Gatewatcher_GyrokillAI(Creature* creature) : BossAI(creature, DATA_GATEWATCHER_GYROKILL) {}
+            boss_gatewatcher_gyrokillAI(Creature* creature) : BossAI(creature, DATA_GATEWATCHER_GYROKILL) {}
 
             void JustDied(Unit* /*killer*/)
             {
@@ -116,11 +116,11 @@ class Boss_Gatewatcher_Gyrokill : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new Boss_Gatewatcher_GyrokillAI (creature);
+            return new boss_gatewatcher_gyrokillAI (creature);
         }
 };
 
-void AddSC_Boss_Gatewatcher_Gyrokill()
+void AddSC_boss_gatewatcher_gyrokill()
 {
-    new Boss_Gatewatcher_Gyrokill();
+    new boss_gatewatcher_gyrokill();
 }
