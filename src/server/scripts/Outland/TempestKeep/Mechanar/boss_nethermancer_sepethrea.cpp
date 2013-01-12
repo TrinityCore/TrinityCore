@@ -65,30 +65,16 @@ class boss_nethermancer_sepethrea : public CreatureScript
 
         struct boss_nethermancer_sepethreaAI : public BossAI
         {
-            boss_nethermancer_sepethreaAI(Creature* creature) : BossAI(creature,DATA_NETHERMANCER_SEPRETHREA)
-            {
-                instance = creature->GetInstanceScript();
-            }
-
-            InstanceScript* instance;
-
-            void Reset()
-            {
-                if (instance)
-                    instance->SetData(DATA_NETHERMANCER_SEPRETHREA, NOT_STARTED);
-            }
+            boss_nethermancer_sepethreaAI(Creature* creature) : BossAI(creature,DATA_NETHERMANCER_SEPRETHREA) {}
 
             void EnterCombat(Unit* who)
             {
-                if (instance)
-                    instance->SetData(DATA_NETHERMANCER_SEPRETHREA, IN_PROGRESS);
-
+                _EnterCombat();
                 events.ScheduleEvent(EVENT_FROST_ATTACK, urand(7000, 10000));
                 events.ScheduleEvent(EVENT_ARCANE_BLAST, urand(12000, 18000));
                 events.ScheduleEvent(EVENT_DRAGONS_BREATH, urand(18000, 22000));
                 events.ScheduleEvent(EVENT_KNOCKBACK, urand(22000, 28000));
                 events.ScheduleEvent(EVENT_SOLARBURN, 30000);
-
                 Talk(SAY_AGGRO);
                 DoCast(who, SPELL_SUMMON_RAGIN_FLAMES);
                 Talk(SAY_SUMMON);
@@ -101,9 +87,8 @@ class boss_nethermancer_sepethrea : public CreatureScript
 
             void JustDied(Unit* /*killer*/)
             {
+                _JustDied();
                 Talk(SAY_DEATH);
-                if (instance)
-                    instance->SetData(DATA_NETHERMANCER_SEPRETHREA, DONE);
             }
 
             void UpdateAI(uint32 const diff)
