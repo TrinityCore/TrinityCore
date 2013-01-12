@@ -48,17 +48,13 @@ class boss_lord_alexei_barov : public CreatureScript
 
             void Reset()
             {
+                _Reset();
                 me->LoadCreaturesAddon();
-            }
-
-            void JustDied(Unit* /*killer*/)
-            {
-                if (instance)
-                    instance->SetData(DATA_LORDALEXEIBAROV, DONE);
             }
 
             void EnterCombat(Unit* /*who*/)
             {
+                _EnterCombat();
                 events.ScheduleEvent(EVENT_IMMOLATE, 7000);
                 events.ScheduleEvent(EVENT_VEILOFSHADOW, 15000);
             }
