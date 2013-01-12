@@ -66,7 +66,6 @@ public:
         {
             if (instance->GetBossState(DATA_PYROGAURD_EMBERSEER) == IN_PROGRESS)
                 OpenDoors(false);
-            instance->SetBossState(DATA_PYROGAURD_EMBERSEER,NOT_STARTED);
             // respawn any dead Blackhand Incarcerators
             DoCast(me, SPELL_ENCAGED_EMBERSEER);
             //DoCast(me, SPELL_FIRE_SHIELD_TRIGGER);
@@ -83,7 +82,6 @@ public:
 
         void JustDied(Unit* /*killer*/)
         {
-            instance->SetBossState(DATA_PYROGAURD_EMBERSEER,DONE);
             OpenDoors(true);
             _JustDied();
         }
@@ -102,7 +100,6 @@ public:
         void UpdateAI(uint32 const diff)
         {
             if (!UpdateVictim())
-
                 return;
 
             events.Update(diff);
@@ -115,11 +112,11 @@ public:
                 switch (eventId)
                 {
                     case EVENT_FIRENOVA:
-                        DoCast(me->getVictim(), SPELL_FIRENOVA);
+                        DoCastVictim(SPELL_FIRENOVA);
                         events.ScheduleEvent(EVENT_FIRENOVA, 6 * IN_MILLISECONDS);
                         break;
                     case EVENT_FLAMEBUFFET:
-                        DoCast(me->getVictim(), SPELL_FLAMEBUFFET);
+                        DoCastVictim(SPELL_FLAMEBUFFET);
                         events.ScheduleEvent(EVENT_FLAMEBUFFET, 14 * IN_MILLISECONDS);
                         break;
                     case EVENT_PYROBLAST:
@@ -129,6 +126,7 @@ public:
                         break;
                 }
             }
+
             DoMeleeAttackIfReady();
         }
     };
