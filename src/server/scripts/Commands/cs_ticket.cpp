@@ -386,12 +386,13 @@ public:
             return true;
         }
 
+        std::string AssignedTo = ticket->GetAssignedToName().c_str();
         SQLTransaction trans = SQLTransaction(NULL);
         ticket->SetUnassigned();
         ticket->SaveToDB(trans);
         sTicketMgr->UpdateLastChange();
 
-        std::string msg = ticket->FormatMessageString(*handler, NULL, ticket->GetAssignedToName().c_str(),
+        std::string msg = ticket->FormatMessageString(*handler, NULL, AssignedTo.c_str(),
             handler->GetSession() ? handler->GetSession()->GetPlayer()->GetName().c_str() : "Console", NULL);
         handler->SendGlobalGMSysMessage(msg.c_str());
 
