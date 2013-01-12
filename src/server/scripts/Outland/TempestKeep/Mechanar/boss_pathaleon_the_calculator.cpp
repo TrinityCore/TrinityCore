@@ -75,9 +75,7 @@ class boss_pathaleon_the_calculator : public CreatureScript
 
             void Reset()
             {
-                if (instance)
-                    instance->SetData(DATA_PATHALEON_THE_CALCULATOR, NOT_STARTED);
-
+                _Reset();
                 Enraged = false;
                 Counter = 0;
                 summons.DespawnAll();
@@ -85,16 +83,12 @@ class boss_pathaleon_the_calculator : public CreatureScript
 
             void EnterCombat(Unit* /*who*/)
             {
-                if (instance)
-                    instance->SetData(DATA_PATHALEON_THE_CALCULATOR, IN_PROGRESS);
-
+                _EnterCombat();
                 events.ScheduleEvent(EVENT_SUMMON, 30000);
                 events.ScheduleEvent(EVENT_MANA_TAP, urand(12000, 20000));
                 events.ScheduleEvent(EVENT_ARCANE_TORRENT, urand(16000, 25000));
                 events.ScheduleEvent(EVENT_DOMINATION, urand(25000, 40000));
-                if (IsHeroic())
-                    events.ScheduleEvent(EVENT_ARCANE_EXPLOSION, urand(8000, 13000));
-
+                events.ScheduleEvent(EVENT_ARCANE_EXPLOSION, urand(8000, 13000));
                 Talk(SAY_AGGRO);
             }
 
@@ -105,12 +99,9 @@ class boss_pathaleon_the_calculator : public CreatureScript
 
             void JustDied(Unit* /*killer*/)
             {
+                _JustDied();
                 Talk(SAY_DEATH);
-
                 summons.DespawnAll();
-
-                if (instance)
-                    instance->SetData(DATA_PATHALEON_THE_CALCULATOR, DONE);
             }
 
             void JustSummoned(Creature* summon)
