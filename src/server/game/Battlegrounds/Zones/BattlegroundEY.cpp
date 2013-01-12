@@ -383,8 +383,6 @@ void BattlegroundEY::HandleAreaTrigger(Player* player, uint32 trigger)
     if (!player->isAlive())                                  //hack code, must be removed later
         return;
 
-
-
     switch (trigger)
     {
         case TR_BLOOD_ELF_POINT:
