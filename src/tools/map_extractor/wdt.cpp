@@ -2,9 +2,9 @@
 
 #include "wdt.h"
 
-u_map_fcc MWMOMagic = { {'M', 'W', 'M', 'O'} };
-u_map_fcc MPHDMagic = { {'M', 'P', 'H', 'D'} };
-u_map_fcc MAINMagic = { {'M', 'A', 'I', 'N'} };
+u_map_fcc MWMOMagic = { {'O', 'M', 'W', 'M'} };
+u_map_fcc MPHDMagic = { {'D', 'H', 'P', 'M'} };
+u_map_fcc MAINMagic = { {'N', 'I', 'A', 'M'} };
 
 bool wdt_MWMO::prepareLoadedData()
 {

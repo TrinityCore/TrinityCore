@@ -6,7 +6,7 @@
 
 class MPQFile;
 
-u_map_fcc MverMagic = { {'M','V','E','R'} };
+u_map_fcc MverMagic = { {'R','E','V','M'} };
 
 FileLoader::FileLoader()
 {
