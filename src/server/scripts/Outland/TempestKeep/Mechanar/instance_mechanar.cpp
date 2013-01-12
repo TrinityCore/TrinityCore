@@ -27,15 +27,9 @@ EndScriptData */
 #include "InstanceScript.h"
 #include "mechanar.h"
 
-#define MAX_ENCOUNTER      1
-
 class instance_mechanar : public InstanceMapScript
 {
-    public:
-        instance_mechanar()
-            : InstanceMapScript("instance_mechanar", 554)
-        {
-        }
+    public: instance_mechanar(): InstanceMapScript("instance_mechanar", 554) {}
 
         struct instance_mechanar_InstanceMapScript : public InstanceScript
         {
@@ -45,7 +39,7 @@ class instance_mechanar : public InstanceMapScript
 
             void Initialize()
             {
-                memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
+                // memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
             }
 
             bool IsEncounterInProgress() const
@@ -61,7 +55,11 @@ class instance_mechanar : public InstanceMapScript
             {
                 switch (type)
                 {
-                case DATA_NETHERMANCER_EVENT:   return m_auiEncounter[0];
+                    case DATA_GATEWATCHER_GYROKILL:   return m_auiEncounter[DATA_GATEWATCHER_GYROKILL];
+                    case DATA_IRON_HAND:   return m_auiEncounter[DATA_IRON_HAND];
+                    case DATA_MECHANOLORD_CAPACITUS:   return m_auiEncounter[DATA_MECHANOLORD_CAPACITUS];
+                    case DATA_NETHERMANCER_SEPRETHREA:   return m_auiEncounter[DATA_NETHERMANCER_SEPRETHREA];
+                    case DATA_PATHALEON_THE_CALCULATOR:   return m_auiEncounter[DATA_PATHALEON_THE_CALCULATOR];
                 }
 
                 return false;
@@ -76,7 +74,11 @@ class instance_mechanar : public InstanceMapScript
             {
                 switch (type)
                 {
-                case DATA_NETHERMANCER_EVENT:   m_auiEncounter[0] = data;   break;
+                    case DATA_GATEWATCHER_GYROKILL:   m_auiEncounter[DATA_GATEWATCHER_GYROKILL] = data;   break;
+                    case DATA_IRON_HAND:   m_auiEncounter[DATA_IRON_HAND] = data;   break;
+                    case DATA_MECHANOLORD_CAPACITUS:   m_auiEncounter[DATA_MECHANOLORD_CAPACITUS] = data;   break;
+                    case DATA_NETHERMANCER_SEPRETHREA:   m_auiEncounter[DATA_NETHERMANCER_SEPRETHREA] = data;   break;
+                    case DATA_PATHALEON_THE_CALCULATOR:   m_auiEncounter[DATA_PATHALEON_THE_CALCULATOR] = data;   break;
                 }
             }
         };
