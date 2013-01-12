@@ -31,11 +31,67 @@ class instance_mechanar : public InstanceMapScript
 {
     public: instance_mechanar(): InstanceMapScript("instance_mechanar", 554) { }
 
+        InstanceScript* GetInstanceScript(InstanceMap* map) const
+        {
+            return new instance_mechanar_InstanceMapScript(map);
+        }
+
         struct instance_mechanar_InstanceMapScript : public InstanceScript
         {
             instance_mechanar_InstanceMapScript(Map* map) : InstanceScript(map)
             {
                 SetBossNumber(EncounterCount);
+                DoorMoArg1GUID          = 0;
+                DoorMoArg2GUID          = 0;
+                DoorNethermancerGUID    = 0;
+            }
+
+            void OnGameObjectCreate(GameObject* go)
+            {
+                switch (go->GetEntry())
+                {
+                    case GO_DOOR_MOARG_1:
+                        DoorMoArg1GUID = go->GetGUID();
+                        break;
+                    case GO_DOOR_MOARG_2:
+                        DoorMoArg2GUID = go->GetGUID();
+                        break;
+                    case GO_DOOR_NETHERMANCER:
+                        DoorNethermancerGUID = go->GetGUID();
+                        break;
+                    default:
+                        break;
+                }
+                CheckInstanceStatus();
+            }
+
+            void CheckInstanceStatus()
+            {
+                if (GetBossState(DATA_GATEWATCHER_IRON_HAND) == DONE)
+                    HandleGameObject(DoorMoArg1GUID, true);
+
+                if (GetBossState(DATA_GATEWATCHER_GYROKILL) == DONE)
+                    HandleGameObject(DoorMoArg2GUID, true);
+
+                if (GetBossState(DATA_NETHERMANCER_SEPRETHREA) == DONE)
+                    HandleGameObject(DoorNethermancerGUID, true);
+            }
+
+            uint64 GetData64(uint32 type) const
+            {
+                switch (type)
+                {
+                    case GO_DOOR_MOARG_1:
+                        return DoorMoArg1GUID;
+                    case GO_DOOR_MOARG_2:
+                        return DoorMoArg2GUID;
+                    case GO_DOOR_NETHERMANCER:
+                        return DoorNethermancerGUID;
+                    default:
+                        break;
+                }
+
+                return 0;
             }
 
             bool SetBossState(uint32 type, EncounterState state)
@@ -46,7 +102,7 @@ class instance_mechanar : public InstanceMapScript
                 switch (type)
                 {
                     case DATA_GATEWATCHER_GYROKILL:
-                    case DATA_IRON_HAND:
+                    case DATA_GATEWATCHER_IRON_HAND:
                     case DATA_MECHANOLORD_CAPACITUS:
                     case DATA_NETHERMANCER_SEPRETHREA:
                     case DATA_PATHALEON_THE_CALCULATOR:
@@ -100,12 +156,12 @@ class instance_mechanar : public InstanceMapScript
 
                 OUT_LOAD_INST_DATA_COMPLETE;
             }
-        };
 
-        InstanceScript* GetInstanceScript(InstanceMap* map) const
-        {
-            return new instance_mechanar_InstanceMapScript(map);
-        }
+        protected:
+            uint64 DoorMoArg1GUID;
+            uint64 DoorMoArg2GUID;
+            uint64 DoorNethermancerGUID;
+        };
 };
 
 void AddSC_instance_mechanar()
