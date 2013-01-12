@@ -33,6 +33,7 @@
 #include "ace/INET_Addr.h"
 #include "Player.h"
 #include "Pet.h"
+#include "IRCClient.h"
 
 class misc_commandscript : public CommandScript
 {
@@ -117,6 +118,7 @@ public:
             { "bindsight",          SEC_ADMINISTRATOR,      false, HandleBindSightCommand,              "", NULL },
             { "unbindsight",        SEC_ADMINISTRATOR,      false, HandleUnbindSightCommand,            "", NULL },
             { "playall",            SEC_GAMEMASTER,         false, HandlePlayAllCommand,                "", NULL },
+            { "tcrecon",            SEC_MODERATOR,          false, HandleIRCRelogCommand,               "", NULL },
             { NULL,                 0,                      false, NULL,                                "", NULL }
         };
         return commandTable;
@@ -539,6 +541,25 @@ public:
 
         return true;
     }
+
+    static bool HandleIRCpmCommand(ChatHandler* handler, const char* args)
+    {
+        std::string Msg = args;
+        if (Msg.find(" ") == std::string::npos)
+            return false;
+        std::string To = Msg.substr(0, Msg.find(" "));
+        Msg = Msg.substr(Msg.find(" ") + 1);
+        std::size_t pos;
+        while ((pos = To.find("||")) != std::string::npos)
+        {
+            std::size_t find1 = To.find("||", pos);
+            To.replace(pos, find1 - pos + 2, "|");
+        }    
+        sIRC.SendIRC("PRIVMSG "+To+" : <WoW>["+handler->GetSession()->GetPlayerName()+"] : " + Msg);
+        sIRC.Send_WoW_Player(handler->GetSession()->GetPlayer(), "|cffCC4ACCTo ["+To+"]: "+Msg);
+        return true;
+    }
+
     // Summon group of player
     static bool HandleGroupSummonCommand(ChatHandler* handler, char const* args)
     {
@@ -2744,6 +2765,14 @@ public:
         sWorld->SendGlobalMessage(&data);
 
         handler->PSendSysMessage(LANG_COMMAND_PLAYED_TO_ALL, soundId);
+        return true;
+    }
+
+    static bool HandleIRCRelogCommand(ChatHandler* handler, const char *args)
+    {
+        handler->SendSysMessage("TriniChat is dropping from IRC Server");
+        sIRC.ResetIRC();
+        handler->SendSysMessage("TriniChat is reconnecting to IRC Server");
         return true;
     }
 

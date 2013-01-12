@@ -49,6 +49,7 @@
 #include "GuildMgr.h"
 #include "InstanceSaveMgr.h"
 #include "InstanceScript.h"
+#include "IRCClient.h"
 #include "Language.h"
 #include "LFGMgr.h"
 #include "Log.h"
@@ -2431,6 +2432,15 @@ void Player::RemoveFromWorld()
             SetViewpoint(viewpoint, false);
         }
     }
+    // TODO: FIXME
+    if (sIRC.ajoin == 1)
+    {
+        QueryResult result = WorldDatabase.PQuery("SELECT `name` FROM `irc_inchan` WHERE `name` = '%s'", Unit::GetName());
+        if (!result)
+        {
+            sIRC.AutoJoinChannel(this);
+        }
+    }
 }
 
 void Player::RegenerateAll()
@@ -3047,6 +3057,17 @@ void Player::GiveLevel(uint8 level)
     InitTalentForLevel();
     InitTaxiNodesForLevel();
     InitGlyphsForLevel();
+
+    if ((sIRC.BOTMASK & 64) != 0)
+    {
+        char  temp [5];
+        sprintf(temp, "%u", level);
+        std::string plevel = temp;
+        std::string pname = GetName();
+        std::string ircchan = "#";
+        ircchan += sIRC._irc_chan[sIRC.Status].c_str();
+        sIRC.Send_IRC_Channel(ircchan, "\00311["+pname+"] : Has Reached Level: "+plevel, true);
+    }
 
     UpdateAllStats();
 

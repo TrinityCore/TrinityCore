@@ -27,6 +27,7 @@ EndScriptData */
 #include "ChannelMgr.h"
 #include "Language.h"
 #include "Player.h"
+#include "IRCClient.h"
 
 class message_commandscript : public CommandScript
 {
@@ -133,6 +134,13 @@ public:
         if (!*args)
             return false;
 
+        if ((sIRC.BOTMASK & 256) != 0)
+        {
+            std::string ircchan = "#";
+            ircchan += sIRC._irc_chan[sIRC.anchn].c_str();
+            sIRC.Send_IRC_Channel(ircchan, sIRC.MakeMsg("\00304,08\037/!\\\037\017\00304 System Message \00304,08\037/!\\\037\017 %s", "%s", args), true);
+        }
+
         char buff[2048];
         sprintf(buff, handler->GetTrinityString(LANG_SYSTEMMESSAGE), args);
         sWorld->SendServerMessage(SERVER_MSG_STRING, buff);
@@ -152,6 +160,13 @@ public:
     {
         if (!*args)
             return false;
+
+        if ((sIRC.BOTMASK & 256) != 0)
+        {
+            std::string ircchan = "#";
+            ircchan += sIRC._irc_chan[sIRC.anchn].c_str();
+            sIRC.Send_IRC_Channel(ircchan, sIRC.MakeMsg("\00304,08\037/!\\\037\017\00304 Global Notify \00304,08\037/!\\\037\017 %s", "%s", args), true);
+        }
 
         std::string str = handler->GetTrinityString(LANG_GLOBAL_NOTIFY);
         str += args;

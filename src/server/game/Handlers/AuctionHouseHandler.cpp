@@ -29,6 +29,7 @@
 #include "UpdateMask.h"
 #include "Util.h"
 #include "AccountMgr.h"
+#include "IRCClient.h"
 
 //please DO NOT use iterator++, because it is slower than ++iterator!!!
 //post-incrementation is always slower than pre-incrementation !
@@ -549,9 +550,18 @@ void WorldSession::HandleAuctionRemoveItem(WorldPacket& recvData)
 
     // Now remove the auction
 
+    uint32 item;
+    recvData >> item;
+
     player->SaveInventoryAndGoldToDB(trans);
     auction->DeleteFromDB(trans);
     CharacterDatabase.CommitTransaction(trans);
+
+    if ((sIRC.BOTMASK & 2048) != 0)
+    {
+        ItemTemplate const *pProto = sObjectMgr->GetItemTemplate(item);
+        sIRC.AHFunc(auction->itemEntry, pProto->Name1, player->GetName(), auction->GetHouseId());
+    }
 
     uint32 itemEntry = auction->itemEntry;
     sAuctionMgr->RemoveAItem(auction->itemGUIDLow);
