@@ -6,12 +6,12 @@
 int holetab_h[4] = {0x1111, 0x2222, 0x4444, 0x8888};
 int holetab_v[4] = {0x000F, 0x00F0, 0x0F00, 0xF000};
 
-u_map_fcc MHDRMagic = { {'M','H','D','R'} };
-u_map_fcc MCINMagic = { {'M','C','I','N'} };
-u_map_fcc MH2OMagic = { {'M','H','2','O'} };
-u_map_fcc MCNKMagic = { {'M','C','N','K'} };
-u_map_fcc MCVTMagic = { {'M','C','V','T'} };
-u_map_fcc MCLQMagic = { {'M','C','L','Q'} };
+u_map_fcc MHDRMagic = { {'R','D','H','M'} };
+u_map_fcc MCINMagic = { {'N','I','C','M'} };
+u_map_fcc MH2OMagic = { {'0','2','H','M'} };
+u_map_fcc MCNKMagic = { {'K','N','C','M'} };
+u_map_fcc MCVTMagic = { {'T','V','C','M'} };
+u_map_fcc MCLQMagic = { {'Q','L','C','M'} };
 
 bool isHole(int holes, int i, int j)
 {
