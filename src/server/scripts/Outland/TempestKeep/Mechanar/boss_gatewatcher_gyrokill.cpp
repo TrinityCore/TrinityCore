@@ -52,7 +52,7 @@ enum Events
 
 class boss_gatewatcher_gyrokill : public CreatureScript
 {
-    public: boss_gatewatcher_gyrokill() : CreatureScript("boss_gatewatcher_gyrokill") { }
+    public: boss_gatewatcher_gyrokill() : CreatureScript("boss_gatewatcher_gyrokill") {}
 
         struct boss_gatewatcher_gyrokillAI : public BossAI
         {
@@ -62,6 +62,8 @@ class boss_gatewatcher_gyrokill : public CreatureScript
             {
                 _JustDied();
                 Talk(SAY_DEATH);
+                if (GameObject* door = me->GetMap()->GetGameObject(instance->GetData64(GO_DOOR_MOARG_2)))
+                    door->SetGoState(GO_STATE_ACTIVE);
             }
 
             void EnterCombat(Unit* /*who*/)

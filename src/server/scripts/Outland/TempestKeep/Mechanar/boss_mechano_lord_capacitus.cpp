@@ -29,13 +29,12 @@ enum Spells
     SPELL_POSITIVE_CHARGE           = 39090,
     SPELL_NEGATIVE_POLARITY         = 39091,
     SPELL_NEGATIVE_CHARGE_STACK     = 39092,
-    SPELL_NEGATIVE_CHARGE           = 39093,
+    SPELL_NEGATIVE_CHARGE           = 39093
 };
 
 class spell_capacitus_polarity_charge : public SpellScriptLoader
 {
-    public:
-        spell_capacitus_polarity_charge() : SpellScriptLoader("spell_capacitus_polarity_charge") { }
+    public: spell_capacitus_polarity_charge() : SpellScriptLoader("spell_capacitus_polarity_charge") { }
 
         class spell_capacitus_polarity_charge_SpellScript : public SpellScript
         {
