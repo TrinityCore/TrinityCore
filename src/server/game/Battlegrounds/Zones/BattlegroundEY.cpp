@@ -261,7 +261,7 @@ void BattlegroundEY::UpdatePointStatuses()
 
                 if (point == FEL_REAVER && m_PointOwnedByTeam[point] == player->GetTeam())
                     if (m_FlagState && GetFlagPickerGUID() == player->GetGUID())
-                        if (player->GetDistance2d(2044,1730) < 2)
+                        if (player->GetDistance2d(2044.0f, 1730.0f) < 2.0f)
                             EventPlayerCapturedFlag(player, BG_EY_OBJECT_FLAG_FEL_REAVER);
             }
         }
