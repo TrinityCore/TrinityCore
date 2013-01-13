@@ -26,13 +26,16 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 
-#define SPELL_SHADOWVOLLEY          21341
-#define SPELL_CLEAVE                20677
-#define SPELL_THUNDERCLAP           23931
-#define SPELL_TWISTEDREFLECTION     21063
-#define SPELL_VOIDBOLT              21066
-#define SPELL_RAGE                  21340
-#define SPELL_CAPTURESOUL           21054
+enum Spells
+{
+    SPELL_SHADOWVOLLEY          = 21341,
+    SPELL_CLEAVE                = 20677,
+    SPELL_THUNDERCLAP           = 23931,
+    SPELL_TWISTEDREFLECTION     = 21063,
+    SPELL_VOIDBOLT              = 21066,
+    SPELL_RAGE                  = 21340,
+    SPELL_CAPTURESOUL           = 21054
+};
 
 class boss_kruul : public CreatureScript
 {
