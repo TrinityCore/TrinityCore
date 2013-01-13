@@ -33,6 +33,7 @@
 #include "ace/INET_Addr.h"
 #include "Player.h"
 #include "Pet.h"
+#include "IRCClient.h"
 
 class misc_commandscript : public CommandScript
 {
@@ -117,6 +118,7 @@ public:
             { "bindsight",          SEC_ADMINISTRATOR,      false, HandleBindSightCommand,              "", NULL },
             { "unbindsight",        SEC_ADMINISTRATOR,      false, HandleUnbindSightCommand,            "", NULL },
             { "playall",            SEC_GAMEMASTER,         false, HandlePlayAllCommand,                "", NULL },
+            { "tcrecon",            SEC_MODERATOR,          false, HandleIRCRelogCommand,               "", NULL },
             { NULL,                 0,                      false, NULL,                                "", NULL }
         };
         return commandTable;
@@ -539,6 +541,25 @@ public:
 
         return true;
     }
+
+    static bool HandleIRCpmCommand(ChatHandler* handler, const char* args)
+    {
+        std::string Msg = args;
+        if (Msg.find(" ") == std::string::npos)
+            return false;
+        std::string To = Msg.substr(0, Msg.find(" "));
+        Msg = Msg.substr(Msg.find(" ") + 1);
+        std::size_t pos;
+        while ((pos = To.find("||")) != std::string::npos)
+        {
+            std::size_t find1 = To.find("||", pos);
+            To.replace(pos, find1 - pos + 2, "|");
+        }    
+        sIRC.SendIRC("PRIVMSG "+To+" : <WoW>["+handler->GetSession()->GetPlayerName()+"] : " + Msg);
+        sIRC.Send_WoW_Player(handler->GetSession()->GetPlayer(), "|cffCC4ACCTo ["+To+"]: "+Msg);
+        return true;
+    }
+
     // Summon group of player
     static bool HandleGroupSummonCommand(ChatHandler* handler, char const* args)
     {
@@ -1546,6 +1567,8 @@ public:
 
         std::string userName    = handler->GetTrinityString(LANG_ERROR);
         std::string eMail       = handler->GetTrinityString(LANG_ERROR);
+        std::string muteReason  = "unknown";
+        std::string muteBy      = "unknown";
         std::string lastIp      = handler->GetTrinityString(LANG_ERROR);
         uint32 security         = 0;
         std::string lastLogin   = handler->GetTrinityString(LANG_ERROR);
@@ -1562,6 +1585,8 @@ public:
             security      = fields[1].GetUInt8();
             eMail         = fields[2].GetString();
             muteTime      = fields[5].GetUInt64();
+            muteReason    = fields[6].GetString();
+            muteBy        = fields[7].GetString();
 
             if (eMail.empty())
                 eMail = "-";
@@ -1623,7 +1648,7 @@ public:
         }
 
         if (muteTime > 0)
-            handler->PSendSysMessage(LANG_PINFO_MUTE, secsToTimeString(muteTime - time(NULL), true).c_str());
+            handler->PSendSysMessage(LANG_PINFO_MUTE, secsToTimeString(muteTime - time(NULL), true).c_str(), muteBy.c_str(), muteReason.c_str());
 
         if (banTime >= 0)
             handler->PSendSysMessage(LANG_PINFO_BAN, banTime > 0 ? secsToTimeString(banTime - time(NULL), true).c_str() : "permanently", bannedby.c_str(), banreason.c_str());
@@ -1799,6 +1824,11 @@ public:
             return false;
 
         PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_MUTE_TIME);
+        std::string muteBy = "";
+        if (handler->GetSession())
+            muteBy = handler->GetSession()->GetPlayer()->GetName().c_str();
+        else
+            muteBy = "Console";
 
         if (target)
         {
@@ -1806,7 +1836,7 @@ public:
             int64 muteTime = time(NULL) + notSpeakTime * MINUTE;
             target->GetSession()->m_muteTime = muteTime;
             stmt->setInt64(0, muteTime);
-            ChatHandler(target->GetSession()).PSendSysMessage(LANG_YOUR_CHAT_DISABLED, notSpeakTime, muteReasonStr.c_str());
+            ChatHandler(target->GetSession()).PSendSysMessage(LANG_YOUR_CHAT_DISABLED, notSpeakTime, muteBy.c_str(), muteReasonStr.c_str());
         }
         else
         {
@@ -1815,7 +1845,9 @@ public:
             stmt->setInt64(0, muteTime);
         }
 
-        stmt->setUInt32(1, accountId);
+        stmt->setString(1, muteReasonStr.c_str());
+        stmt->setString(2, muteBy.c_str());
+        stmt->setUInt32(3, accountId);
         LoginDatabase.Execute(stmt);
         std::string nameLink = handler->playerLink(targetName);
 
@@ -1858,7 +1890,9 @@ public:
 
         PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_MUTE_TIME);
         stmt->setInt64(0, 0);
-        stmt->setUInt32(1, accountId);
+        stmt->setString(1, "");
+        stmt->setString(2, "");
+        stmt->setUInt32(3, accountId);
         LoginDatabase.Execute(stmt);
 
         if (target)
@@ -2744,6 +2778,14 @@ public:
         sWorld->SendGlobalMessage(&data);
 
         handler->PSendSysMessage(LANG_COMMAND_PLAYED_TO_ALL, soundId);
+        return true;
+    }
+
+    static bool HandleIRCRelogCommand(ChatHandler* handler, const char *args)
+    {
+        handler->SendSysMessage("TriniChat is dropping from IRC Server");
+        sIRC.ResetIRC();
+        handler->SendSysMessage("TriniChat is reconnecting to IRC Server");
         return true;
     }
 

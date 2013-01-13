@@ -41,6 +41,7 @@
 #include "Timer.h"
 #include "Util.h"
 #include "AuthSocket.h"
+#include "../TriniChat/IRCClient.h"
 #include "RealmList.h"
 
 #include "BigNumber.h"
@@ -243,6 +244,15 @@ int Master::Run()
         runnable->setListenArguments(ConfigMgr::GetStringDefault("SOAP.IP", "127.0.0.1"), uint16(ConfigMgr::GetIntDefault("SOAP.Port", 7878)));
         soap_thread = new ACE_Based::Thread(runnable);
     }
+
+    // Start up TriniChat
+    if (sIRC.Active == 1)
+    {
+        ACE_Based::Thread irc(new IRCClient);
+        irc.setPriority ((ACE_Based::Priority)2);
+    }
+    else
+        sLog->outError(LOG_FILTER_GENERAL, "*** TriniChat Is Disabled. *");
 
     ///- Start up freeze catcher thread
     if (uint32 freeze_delay = ConfigMgr::GetIntDefault("MaxCoreStuckTime", 0))

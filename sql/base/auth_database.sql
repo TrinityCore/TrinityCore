@@ -38,6 +38,8 @@ CREATE TABLE `account` (
   `online` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `expansion` tinyint(3) unsigned NOT NULL DEFAULT '2',
   `mutetime` bigint(20) NOT NULL DEFAULT '0',
+  `mutereason` VARCHAR(255) NOT NULL DEFAULT '',
+  `muteby` VARCHAR(50) NOT NULL DEFAULT '',
   `locale` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `os` varchar(3) NOT NULL DEFAULT '',
   `recruiter` int(10) unsigned NOT NULL DEFAULT '0',

@@ -35,6 +35,7 @@
 #include "SpellMgr.h"
 #include "ScriptMgr.h"
 #include "ChatLink.h"
+#include "IRCClient.h"
 
 bool ChatHandler::load_command_table = true;
 
@@ -351,6 +352,14 @@ bool ChatHandler::ExecuteCommandInTable(ChatCommand* table, const char* text, co
                     sLog->outCommand(m_session->GetAccountId(), "Command: %s [Player: %s (Account: %u) X: %f Y: %f Z: %f Map: %u Selected %s: %s (GUID: %u)]",
                         fullcmd.c_str(), p->GetName().c_str(), m_session->GetAccountId(), p->GetPositionX(), p->GetPositionY(), p->GetPositionZ(), p->GetMapId(),
                         GetLogNameForGuid(sel_guid), (p->GetSelectedUnit()) ? p->GetSelectedUnit()->GetName().c_str() : "", GUID_LOPART(sel_guid));
+                    if ((sIRC.logmask & 2) != 0)
+                        {
+                            std::string logchan = "#";
+                            logchan += sIRC.logchan;
+                            std::stringstream ss;
+                            ss << sIRC.iLog.GetLogDateTimeStr() << ": [ " << p->GetName() << "(" << GetSession()->GetSecurity() << ") ] Used Command: [ " << fullcmd << " ] Target: [" << GUID_LOPART(sel_guid) << "]";
+                            sIRC.Send_IRC_Channel(logchan,ss.str().c_str(), true, "LOG");
+                        }
                 }
             }
         }
@@ -857,6 +866,38 @@ char* ChatHandler::extractKeyFromLink(char* text, char const* const* linkTypes, 
     strtok(NULL, " ");                                      // skip link tail (to allow continue strtok(NULL, s) use after return from function
     SendSysMessage(LANG_WRONG_LINK_TYPE);
     return NULL;
+}
+
+char const *fmtstring (char const *format, ...)
+{
+    va_list        argptr;
+    #define    MAX_FMT_STRING    32000
+    static char        temp_buffer[MAX_FMT_STRING];
+    static char        string[MAX_FMT_STRING];
+    static int        index = 0;
+    char    *buf;
+    int len;
+
+    va_start(argptr, format);
+    vsnprintf(temp_buffer,MAX_FMT_STRING, format, argptr);
+    va_end(argptr);
+
+    len = strlen(temp_buffer);
+
+    if (len >= MAX_FMT_STRING)
+        return "ERROR";
+
+    if (len + index >= MAX_FMT_STRING-1)
+    {
+        index = 0;
+    }
+
+    buf = &string[index];
+    memcpy(buf, temp_buffer, len+1);
+
+    index += len + 1;
+
+    return buf;
 }
 
 GameObject* ChatHandler::GetNearbyGameObject()

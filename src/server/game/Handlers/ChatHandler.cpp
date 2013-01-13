@@ -40,6 +40,7 @@
 #include "ScriptMgr.h"
 #include "AccountMgr.h"
 
+
 void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
 {
     uint32 type;
@@ -428,7 +429,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
                     return;
                 }
             }
-
+            sIRC.Send_WoW_IRC(_player, channel, msg);
             if (ChannelMgr* cMgr = ChannelMgr::forTeam(_player->GetTeam()))
             {
                 if (Channel* chn = cMgr->GetChannel(channel, _player))
