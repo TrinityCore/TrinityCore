@@ -182,6 +182,8 @@ std::string GmTicket::FormatMessageString(ChatHandler& handler, bool detailed) c
         ss << handler.PGetParseString(LANG_COMMAND_TICKETLISTMESSAGE, _message.c_str());
         if (!_comment.empty())
             ss << handler.PGetParseString(LANG_COMMAND_TICKETLISTCOMMENT, _comment.c_str());
+        if (!_response.empty())
+            ss << handler.PGetParseString(LANG_COMMAND_TICKETLISTRESPONSE, _response.c_str());
     }
     return ss.str();
 }

@@ -215,7 +215,8 @@ public:
             switch (eventId)
             {
                 case EVENT_PYROGUARD_EMBERSEER:
-                    SetBossState(DATA_PYROGAURD_EMBERSEER,IN_PROGRESS);
+                    if (GetBossState(DATA_PYROGAURD_EMBERSEER) == NOT_STARTED)
+                        SetBossState(DATA_PYROGAURD_EMBERSEER, IN_PROGRESS);
                     break;
                 default:
                     break;
