@@ -119,7 +119,7 @@ class instance_zulgurub : public InstanceMapScript
                 OUT_SAVE_INST_DATA;
 
                 std::ostringstream saveStream;
-                saveStream << "M C " << GetBossSaveData();
+                saveStream << "Z G " << GetBossSaveData();
 
                 OUT_SAVE_INST_DATA_COMPLETE;
                 return saveStream.str();
@@ -140,7 +140,7 @@ class instance_zulgurub : public InstanceMapScript
                 std::istringstream loadStream(str);
                 loadStream >> dataHead1 >> dataHead2;
 
-                if (dataHead1 == 'M' && dataHead2 == 'C')
+                if (dataHead1 == 'Z' && dataHead2 == 'G')
                 {
                     for (uint32 i = 0; i < EncounterCount; ++i)
                     {
