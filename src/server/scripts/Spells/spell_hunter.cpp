@@ -286,7 +286,6 @@ class spell_hun_last_stand_pet : public SpellScriptLoader
 
             void Register()
             {
-                // add dummy effect spell handler to pet's Last Stand
                 OnEffectHitTarget += SpellEffectFn(spell_hun_last_stand_pet_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
@@ -452,7 +451,6 @@ class spell_hun_pet_carrion_feeder : public SpellScriptLoader
 
             void Register()
             {
-                // add dummy effect spell handler to pet's Last Stand
                 OnEffectHit += SpellEffectFn(spell_hun_pet_carrion_feeder_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
                 OnCheckCast += SpellCheckCastFn(spell_hun_pet_carrion_feeder_SpellScript::CheckIfCorpseNear);
             }
@@ -501,7 +499,6 @@ class spell_hun_pet_heart_of_the_phoenix : public SpellScriptLoader
 
             void Register()
             {
-                // add dummy effect spell handler to pet's Last Stand
                 OnEffectHitTarget += SpellEffectFn(spell_hun_pet_heart_of_the_phoenix_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
@@ -551,7 +548,6 @@ class spell_hun_readiness : public SpellScriptLoader
 
             void Register()
             {
-                // add dummy effect spell handler to Readiness
                 OnEffectHitTarget += SpellEffectFn(spell_hun_readiness_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
