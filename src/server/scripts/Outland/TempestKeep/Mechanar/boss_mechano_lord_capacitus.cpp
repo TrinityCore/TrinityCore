@@ -15,21 +15,144 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-//! TODO - Boss not scripted, just ported required spellscript from core
-
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
+#include "mechanar.h"
 #include "Player.h"
 
 enum Spells
 {
+    SPELL_HEADCRACK                 = 35161,
+    SPELL_REFLECTIVE_MAGIC_SHIELD   = 35158,
+    SPELL_REFLECTIVE_DAMAGE_SHIELD  = 35159,
+    SPELL_POLARITY_SHIFT            = 39096,
+    SPELL_BERSERK                   = 26662,
+    SPELL_NETHER_CHARGE_TIMER       = 37670,
+    SPELL_NETHER_CHARGE_PASSIVE     = 37670,
+
     SPELL_POSITIVE_POLARITY         = 39088,
     SPELL_POSITIVE_CHARGE_STACK     = 39089,
     SPELL_POSITIVE_CHARGE           = 39090,
+
     SPELL_NEGATIVE_POLARITY         = 39091,
     SPELL_NEGATIVE_CHARGE_STACK     = 39092,
-    SPELL_NEGATIVE_CHARGE           = 39093,
+    SPELL_NEGATIVE_CHARGE           = 39093
+};
+
+enum Yells
+{
+    YELL_AGGRO                      = 0,
+    YELL_REFLECTIVE_MAGIC_SHIELD    = 1,
+    YELL_REFLECTIVE_DAMAGE_SHIELD   = 2,
+    YELL_KILL                       = 3,
+    YELL_DEATH                      = 4
+};
+
+enum Creatures
+{
+    NPC_NETHER_CHARGE               = 20405
+};
+
+enum Events
+{
+    EVENT_NONE                      = 0,
+
+    EVENT_HEADCRACK                 = 1,
+    EVENT_REFLECTIVE_DAMAGE_SHIELD  = 2,
+    EVENT_REFLECTIVE_MAGIE_SHIELD   = 3,
+    EVENT_POSITIVE_SHIFT            = 4,
+    EVENT_SUMMON_NETHER_CHARGE      = 5,
+    EVENT_BERSERK                   = 6
+};
+
+class boss_mechano_lord_capacitus : public CreatureScript
+{
+    public:
+        boss_mechano_lord_capacitus() : CreatureScript("boss_mechano_lord_capacitus") { }
+
+        struct boss_mechano_lord_capacitusAI : public BossAI
+        {
+            boss_mechano_lord_capacitusAI(Creature* creature) : BossAI(creature, DATA_MECHANOLORD_CAPACITUS) { }
+
+            void EnterCombat(Unit* /*who*/)
+            {
+                _EnterCombat();
+                Talk(YELL_AGGRO);
+                events.ScheduleEvent(EVENT_HEADCRACK, 10 * IN_MILLISECONDS);
+                events.ScheduleEvent(EVENT_REFLECTIVE_DAMAGE_SHIELD, 15 * IN_MILLISECONDS);
+                events.ScheduleEvent(EVENT_SUMMON_NETHER_CHARGE, 10 * IN_MILLISECONDS);
+                events.ScheduleEvent(EVENT_BERSERK, 3 * MINUTE * IN_MILLISECONDS);
+
+                if (IsHeroic())
+                    events.ScheduleEvent(EVENT_POSITIVE_SHIFT, 15 * IN_MILLISECONDS);
+            }
+
+            void KilledUnit(Unit* /*victim*/)
+            {
+                Talk(YELL_KILL);
+            }
+
+            void JustDied(Unit* /*victim*/)
+            {
+                _JustDied();
+                Talk(YELL_DEATH);
+            }
+
+            void UpdateAI(uint32 const diff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                events.Update(diff);
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                while (uint32 eventId = events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        case EVENT_HEADCRACK:
+                            DoCastVictim(SPELL_HEADCRACK);
+                            events.ScheduleEvent(EVENT_HEADCRACK, 10 * IN_MILLISECONDS);
+                            break;
+                        case EVENT_REFLECTIVE_DAMAGE_SHIELD:
+                            Talk(YELL_REFLECTIVE_DAMAGE_SHIELD);
+                            DoCast(me, SPELL_REFLECTIVE_DAMAGE_SHIELD);
+                            events.ScheduleEvent(EVENT_REFLECTIVE_MAGIE_SHIELD, 30 * IN_MILLISECONDS);
+                            break;
+                        case EVENT_REFLECTIVE_MAGIE_SHIELD:
+                            Talk(YELL_REFLECTIVE_MAGIC_SHIELD);
+                            DoCast(me, SPELL_REFLECTIVE_MAGIC_SHIELD);
+                            events.ScheduleEvent(EVENT_REFLECTIVE_DAMAGE_SHIELD, 30 * IN_MILLISECONDS);
+                            break;
+                        case EVENT_POSITIVE_SHIFT:
+                            DoCastAOE(SPELL_POLARITY_SHIFT);
+                            events.ScheduleEvent(EVENT_POSITIVE_SHIFT, urand(45, 60) * IN_MILLISECONDS);
+                            break;
+                        case EVENT_SUMMON_NETHER_CHARGE:
+                            Position pos;
+                            me->GetRandomNearPosition(pos, 5.0f);
+                            me->SummonCreature(NPC_NETHER_CHARGE, pos, TEMPSUMMON_TIMED_DESPAWN, 18000);
+                            events.ScheduleEvent(EVENT_SUMMON_NETHER_CHARGE, 10 * IN_MILLISECONDS);
+                            break;
+                        case EVENT_BERSERK:
+                            DoCast(me, SPELL_BERSERK);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new boss_mechano_lord_capacitusAI(creature);
+        }
 };
 
 class spell_capacitus_polarity_charge : public SpellScriptLoader
@@ -138,6 +261,7 @@ class spell_capacitus_polarity_shift : public SpellScriptLoader
 
 void AddSC_boss_mechano_lord_capacitus()
 {
+    new boss_mechano_lord_capacitus();
     new spell_capacitus_polarity_charge();
     new spell_capacitus_polarity_shift();
 }

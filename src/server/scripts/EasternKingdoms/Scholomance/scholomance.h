@@ -18,6 +18,8 @@
 #ifndef DEF_SCHOLOMANCE_H
 #define DEF_SCHOLOMANCE_H
 
+uint32 const EncounterCount             = 8;
+
 enum DataTypes
 {
     DATA_DOCTORTHEOLENKRASTINOV         = 0,
@@ -28,6 +30,11 @@ enum DataTypes
     DATA_THERAVENIAN                    = 5,
     DATA_DARKMASTERGANDLING             = 6,
     DATA_KIRTONOS                       = 7
+};
+
+enum CreatureIds
+{
+    NPC_DARKMASTER_GANDLING             = 1853
 };
 
 enum GameobjectIds
@@ -41,11 +48,6 @@ enum GameobjectIds
     GO_GATE_BAROV                       = 177373,
     GO_GATE_POLKELT                     = 177376,
     GO_BRAZIER_OF_THE_HERALD            = 175564
-};
-
-enum Misc
-{
-    MAX_ENCOUNTER                       = 8
 };
 
 #endif
