@@ -158,7 +158,7 @@ class boss_hakkar : public CreatureScript
                             break;
                         case EVENT_ASPECT_OF_ARLOKK:
                             DoCastVictim(SPELL_ASPECT_OF_ARLOKK, true);
-                            events.ScheduleEvent(EVENT_ASPECT_OF_ARLOKK, urand(10000, 15000);
+                            events.ScheduleEvent(EVENT_ASPECT_OF_ARLOKK, urand(10000, 15000));
                             break;
                         default:
                             break;

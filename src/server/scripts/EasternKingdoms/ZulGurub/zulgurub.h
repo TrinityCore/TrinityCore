@@ -34,7 +34,7 @@ enum DataTypes
     DATA_EDGE_OF_MADNESS    = 9,  // Optional Event Edge of Madness - one of: Gri'lek, Renataki, Hazza'rah, or Wushoolay
     DATA_LORKHAN            = 10, // Zealot Lor'Khan add to High priest Thekal!
     DATA_ZATH               = 11, // Zealot Zath add to High priest Thekal!
-    DATA_OHGAN              = 12  //  Bloodlord Mandokir's raptor mount
+    DATA_OHGAN              = 12  // Bloodlord Mandokir's raptor mount
 };
 
 enum CreatureIds
