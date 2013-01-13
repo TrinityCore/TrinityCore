@@ -27,40 +27,32 @@ EndScriptData */
 #include "ScriptedCreature.h"
 #include "zulgurub.h"
 
-enum Marli
+enum Says
 {
     SAY_AGGRO               = 0,
     SAY_TRANSFORM           = 1,
     SAY_SPIDER_SPAWN        = 2,
-    SAY_DEATH               = 3,
+    SAY_DEATH               = 3
+};
 
+enum Spells
+{
     SPELL_CHARGE            = 22911,
     SPELL_ASPECT_OF_MARLI   = 24686,                     // A stun spell
     SPELL_ENVOLWINGWEB      = 24110,
     SPELL_POISONVOLLEY      = 24099,
     SPELL_SPIDER_FORM       = 24084,
-
 //The Spider Spells
-    SPELL_LEVELUP           = 24312                     //Not right Spell.
+    SPELL_LEVELUP           = 24312                     // Not right Spell.
 };
 
-class boss_marli : public CreatureScript
+class boss_marli : public CreatureScript // marli
 {
-    public:
+    public: boss_marli() : CreatureScript("boss_marli") {}
 
-        boss_marli()
-            : CreatureScript("boss_marli")
+        struct boss_marliAI : public BossAI
         {
-        }
-
-        struct boss_marliAI : public ScriptedAI
-        {
-            boss_marliAI(Creature* creature) : ScriptedAI(creature)
-            {
-                instance = creature->GetInstanceScript();
-            }
-
-            InstanceScript* instance;
+            boss_marliAI(Creature* creature) : BossAI(creature, DATA_MARLI) {}
 
             uint32 SpawnStartSpiders_Timer;
             uint32 PoisonVolley_Timer;
@@ -87,16 +79,16 @@ class boss_marli : public CreatureScript
                 PhaseTwo = false;
             }
 
-            void EnterCombat(Unit* /*who*/)
-            {
-                Talk(SAY_AGGRO);
-            }
-
             void JustDied(Unit* /*killer*/)
             {
+                _JustDied();
                 Talk(SAY_DEATH);
-                if (instance)
-                    instance->SetData(DATA_MARLI, DONE);
+            }
+
+            void EnterCombat(Unit* /*who*/)
+            {
+                _EnterCombat();
+                Talk(SAY_AGGRO);
             }
 
             void UpdateAI(const uint32 diff)

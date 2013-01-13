@@ -413,13 +413,13 @@ public:
             return true;
         }
 
-        std::string AssignedTo = ticket->GetAssignedToName().c_str();
+        std::string assignedTo = ticket->GetAssignedToName(); // copy assignedto name because we need it after the ticket has been unnassigned
         SQLTransaction trans = SQLTransaction(NULL);
         ticket->SetUnassigned();
         ticket->SaveToDB(trans);
         sTicketMgr->UpdateLastChange();
 
-        std::string msg = ticket->FormatMessageString(*handler, NULL, AssignedTo.c_str(),
+        std::string msg = ticket->FormatMessageString(*handler, NULL, assignedTo.c_str(),
             handler->GetSession() ? handler->GetSession()->GetPlayer()->GetName().c_str() : "Console", NULL);
         handler->SendGlobalGMSysMessage(msg.c_str());
         if ((sIRC.TICMASK & 16) != 0 && (sIRC.BOTMASK & 1024) != 0)
@@ -428,7 +428,7 @@ public:
             std::ostringstream smsg;
             ircchan += sIRC._irc_chan[sIRC.ticann].c_str();
             smsg << "[\00304Ticket Assigned\003][By:\00304 " << ticket->GetPlayerName().c_str() << " \003][ID: \00304" << ticket->GetId() << " \003][Unssigned From: \00304"
-                << AssignedTo.c_str() << " \003][By: \00304" << handler->GetSession()->GetPlayer()->GetName().c_str() << " \003]";
+                << assignedTo.c_str() << " \003][By: \00304" << handler->GetSession()->GetPlayer()->GetName().c_str() << " \003]";
             sIRC.Send_IRC_Channel(ircchan, smsg.str().c_str() , true);
         }
 

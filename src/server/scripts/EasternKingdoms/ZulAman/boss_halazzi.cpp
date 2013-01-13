@@ -45,32 +45,37 @@ EndScriptData */
 #define YELL_BERSERK "Whatch you be doing? Pissin' yourselves..."
 #define SOUND_BERSERK                12025
 
-#define SPELL_DUAL_WIELD                29651
-#define SPELL_SABER_LASH                43267
-#define SPELL_FRENZY                    43139
-#define SPELL_FLAMESHOCK                43303
-#define SPELL_EARTHSHOCK                43305
-#define SPELL_TRANSFORM_SPLIT           43142
-#define SPELL_TRANSFORM_SPLIT2          43573
-#define SPELL_TRANSFORM_MERGE           43271
-#define SPELL_SUMMON_LYNX               43143
-#define SPELL_SUMMON_TOTEM              43302
-#define SPELL_BERSERK                   45078
+enum Spells
+{
+    SPELL_DUAL_WIELD            = 29651,
+    SPELL_SABER_LASH            = 43267,
+    SPELL_FRENZY                = 43139,
+    SPELL_FLAMESHOCK            = 43303,
+    SPELL_EARTHSHOCK            = 43305,
+    SPELL_TRANSFORM_SPLIT       = 43142,
+    SPELL_TRANSFORM_SPLIT2      = 43573,
+    SPELL_TRANSFORM_MERGE       = 43271,
+    SPELL_SUMMON_LYNX           = 43143,
+    SPELL_SUMMON_TOTEM          = 43302,
+    SPELL_BERSERK               = 45078,
+    SPELL_LYNX_FRENZY           = 43290, // Used by Spirit Lynx
+    SPELL_SHRED_ARMOR           = 43243  // Used by Spirit Lynx
+};
 
-#define MOB_SPIRIT_LYNX                 24143
-#define SPELL_LYNX_FRENZY               43290
-#define SPELL_SHRED_ARMOR               43243
-
-#define MOB_TOTEM                       24224
+enum Hal_CreatureIds
+{
+    NPC_SPIRIT_LYNX             = 24143,
+    NPC_TOTEM                   = 24224
+};
 
 enum PhaseHalazzi
 {
-    PHASE_NONE = 0,
-    PHASE_LYNX = 1,
-    PHASE_SPLIT = 2,
-    PHASE_HUMAN = 3,
-    PHASE_MERGE = 4,
-    PHASE_ENRAGE = 5
+    PHASE_NONE                  = 0,
+    PHASE_LYNX                  = 1,
+    PHASE_SPLIT                 = 2,
+    PHASE_HUMAN                 = 3,
+    PHASE_MERGE                 = 4,
+    PHASE_ENRAGE                = 5
 };
 
 class boss_halazzi : public CreatureScript
@@ -134,7 +139,7 @@ class boss_halazzi : public CreatureScript
             void JustSummoned(Creature* summon)
             {
                 summon->AI()->AttackStart(me->getVictim());
-                if (summon->GetEntry() == MOB_SPIRIT_LYNX)
+                if (summon->GetEntry() == NPC_SPIRIT_LYNX)
                     LynxGUID = summon->GetGUID();
             }
 
@@ -183,7 +188,7 @@ class boss_halazzi : public CreatureScript
                     break;
                 case PHASE_HUMAN:
                     //DoCast(me, SPELL_SUMMON_LYNX, true);
-                    DoSpawnCreature(MOB_SPIRIT_LYNX, 5, 5, 0, 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
+                    DoSpawnCreature(NPC_SPIRIT_LYNX, 5, 5, 0, 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
                     me->SetMaxHealth(400000);
                     me->SetHealth(400000);
                     ShockTimer = 10000;
@@ -412,4 +417,5 @@ void AddSC_boss_halazzi()
     new boss_halazzi();
     new mob_halazzi_lynx();
 }
+
 
