@@ -49,6 +49,11 @@ class boss_gahzranka : public CreatureScript // gahzranka
         {
             boss_gahzrankaAI(Creature* creature) : BossAI(creature, DATA_GAHZRANKA) {}
 
+            void Reset()
+            {
+                _Reset();
+            }
+
             void JustDied(Unit* /*killer*/)
             {
                 _JustDied();
