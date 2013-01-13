@@ -53,16 +53,9 @@ class boss_doctor_theolen_krastinov : public CreatureScript
         {
             boss_theolenkrastinovAI(Creature* creature) : BossAI(creature, DATA_DOCTORTHEOLENKRASTINOV) {}
 
-            void Reset() {}
-
-            void JustDied(Unit* /*killer*/)
-            {
-                if (instance)
-                    instance->SetData(DATA_DOCTORTHEOLENKRASTINOV, DONE);
-            }
-
             void EnterCombat(Unit* /*who*/)
             {
+                _EnterCombat();
                 events.ScheduleEvent(EVENT_REND, 8000);
                 events.ScheduleEvent(EVENT_BACKHAND, 9000);
                 events.ScheduleEvent(EVENT_FRENZY, 1000);

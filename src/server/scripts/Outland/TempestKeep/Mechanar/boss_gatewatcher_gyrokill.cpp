@@ -16,9 +16,9 @@
  */
 
 /* ScriptData
-SDName: Boss_Gatewatcher_Gyrokill
-SD%Complete: 0
-SDComment: Place Holder
+SDName: boss_gatewatcher_gyrokill
+SD%Complete: 99%
+SDComment:
 SDCategory: Tempest Keep, The Mechanar
 EndScriptData */
 
@@ -50,37 +50,27 @@ enum Events
     EVENT_SHADOW_POWER              = 2
 };
 
-class Boss_Gatewatcher_Gyrokill : public CreatureScript
+class boss_gatewatcher_gyrokill : public CreatureScript
 {
-    public: Boss_Gatewatcher_Gyrokill() : CreatureScript("Boss_Gatewatcher_Gyrokill") { }
+    public:
+        boss_gatewatcher_gyrokill() : CreatureScript("boss_gatewatcher_gyrokill") {}
 
-        struct Boss_Gatewatcher_GyrokillAI : public BossAI
+        struct boss_gatewatcher_gyrokillAI : public BossAI
         {
-            Boss_Gatewatcher_GyrokillAI(Creature* creature) : BossAI(creature, DATA_GATEWATCHER_GYROKILL) {}
-
-            void Reset()
-            {
-                if (instance)
-                    instance->SetData(DATA_GATEWATCHER_GYROKILL, NOT_STARTED);
-            }
+            boss_gatewatcher_gyrokillAI(Creature* creature) : BossAI(creature, DATA_GATEWATCHER_GYROKILL) {}
 
             void JustDied(Unit* /*killer*/)
             {
-                if (instance)
-                    instance->SetData(DATA_GATEWATCHER_GYROKILL, DONE);
-
+                _JustDied();
                 Talk(SAY_DEATH);
             }
 
             void EnterCombat(Unit* /*who*/)
             {
-                 if (instance)
-                    instance->SetData(DATA_GATEWATCHER_GYROKILL, IN_PROGRESS);
-
+                _EnterCombat();
                 events.ScheduleEvent(EVENT_STREAM_OF_MACHINE_FLUID, 10000);
                 events.ScheduleEvent(EVENT_SAW_BLADE, 20000);
                 events.ScheduleEvent(EVENT_SHADOW_POWER, 25000);
-
                 Talk(SAY_AGGRO);
             }
 
@@ -108,18 +98,12 @@ class Boss_Gatewatcher_Gyrokill : public CreatureScript
                             events.ScheduleEvent(EVENT_STREAM_OF_MACHINE_FLUID, urand(13000, 17000));
                             break;
                         case EVENT_SAW_BLADE:
-                            if (IsHeroic())
-                                DoCast(me, H_SPELL_SAW_BLADE);
-                            else
-                                DoCast(me, SPELL_SAW_BLADE);
+                            DoCast(me, SPELL_SAW_BLADE);
                             Talk(SAY_SAW_BLADEs);
                             events.ScheduleEvent(EVENT_SAW_BLADE, urand(20000, 30000));
                             break;
                         case EVENT_SHADOW_POWER:
-                            if (IsHeroic())
-                                DoCast(me, H_SPELL_SHADOW_POWER);
-                            else
-                                DoCast(me, SPELL_SHADOW_POWER);
+                            DoCast(me, SPELL_SHADOW_POWER);
                             events.ScheduleEvent(EVENT_SAW_BLADE, urand(25000, 35000));
                             break;
                         default:
@@ -133,11 +117,11 @@ class Boss_Gatewatcher_Gyrokill : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new Boss_Gatewatcher_GyrokillAI (creature);
+            return new boss_gatewatcher_gyrokillAI (creature);
         }
 };
 
-void AddSC_Boss_Gatewatcher_Gyrokill()
+void AddSC_boss_gatewatcher_gyrokill()
 {
-    new Boss_Gatewatcher_Gyrokill();
+    new boss_gatewatcher_gyrokill();
 }

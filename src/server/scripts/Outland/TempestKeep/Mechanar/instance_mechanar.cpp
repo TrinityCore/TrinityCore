@@ -16,70 +16,122 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: Instance_Mechanar
-SD%Complete: 100
-SDComment:
-SDCategory: Mechanar
-EndScriptData */
 
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
 #include "mechanar.h"
 
+static DoorData const doorData[] =
+{
+    { GO_DOOR_MOARG_1,          DATA_GATEWATCHER_IRON_HAND,     DOOR_TYPE_PASSAGE,  BOUNDARY_NONE },
+    { GO_DOOR_MOARG_2,          DATA_GATEWATCHER_GYROKILL,      DOOR_TYPE_PASSAGE,  BOUNDARY_NONE },
+    { GO_DOOR_NETHERMANCER,     DATA_NETHERMANCER_SEPRETHREA,   DOOR_TYPE_ROOM,     BOUNDARY_NONE },
+    {0,                         0,                              DOOR_TYPE_ROOM,     BOUNDARY_NONE }
+};
+
 class instance_mechanar : public InstanceMapScript
 {
-    public: instance_mechanar(): InstanceMapScript("instance_mechanar", 554) {}
+    public:
+        instance_mechanar(): InstanceMapScript("instance_mechanar", 554) { }
 
         struct instance_mechanar_InstanceMapScript : public InstanceScript
         {
-            instance_mechanar_InstanceMapScript(Map* map) : InstanceScript(map) {}
-
-            uint32 m_auiEncounter[MAX_ENCOUNTER];
-
-            void Initialize()
+            instance_mechanar_InstanceMapScript(Map* map) : InstanceScript(map)
             {
-                // memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
+                SetBossNumber(EncounterCount);
+                LoadDoorData(doorData);
+            }
+            
+
+            void OnGameObjectCreate(GameObject* gameObject)
+            {
+                switch (gameObject->GetEntry())
+                {
+                    case GO_DOOR_MOARG_1:
+                    case GO_DOOR_MOARG_2:
+                    case GO_DOOR_NETHERMANCER:
+                        AddDoor(gameObject, true);
+                        break;
+                    default:
+                        break;
+                }
             }
 
-            bool IsEncounterInProgress() const
+            void OnGameObjectRemove(GameObject* gameObject)
             {
-                for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
-                    if (m_auiEncounter[i] == IN_PROGRESS)
-                        return true;
-
-                return false;
+                switch (gameObject->GetEntry())
+                {
+                    case GO_DOOR_MOARG_1:
+                    case GO_DOOR_MOARG_2:
+                    case GO_DOOR_NETHERMANCER:
+                        AddDoor(gameObject, false);
+                        break;
+                    default:
+                        break;
+                }
             }
 
-            uint32 GetData(uint32 type) const
+            bool SetBossState(uint32 type, EncounterState state)
             {
+                if (!InstanceScript::SetBossState(type, state))
+                    return false;
+
                 switch (type)
                 {
-                    case DATA_GATEWATCHER_GYROKILL:   return m_auiEncounter[DATA_GATEWATCHER_GYROKILL];
-                    case DATA_IRON_HAND:   return m_auiEncounter[DATA_IRON_HAND];
-                    case DATA_MECHANOLORD_CAPACITUS:   return m_auiEncounter[DATA_MECHANOLORD_CAPACITUS];
-                    case DATA_NETHERMANCER_SEPRETHREA:   return m_auiEncounter[DATA_NETHERMANCER_SEPRETHREA];
-                    case DATA_PATHALEON_THE_CALCULATOR:   return m_auiEncounter[DATA_PATHALEON_THE_CALCULATOR];
+                    case DATA_GATEWATCHER_GYROKILL:
+                    case DATA_GATEWATCHER_IRON_HAND:
+                    case DATA_MECHANOLORD_CAPACITUS:
+                    case DATA_NETHERMANCER_SEPRETHREA:
+                    case DATA_PATHALEON_THE_CALCULATOR:
+                        break;
+                    default:
+                        break;
                 }
 
-                return false;
+                return true;
             }
 
-            uint64 GetData64(uint32 /*identifier*/) const
+            std::string GetSaveData()
             {
-                return 0;
+                OUT_SAVE_INST_DATA;
+
+                std::ostringstream saveStream;
+                saveStream << "M C " << GetBossSaveData();
+
+                OUT_SAVE_INST_DATA_COMPLETE;
+                return saveStream.str();
             }
 
-            void SetData(uint32 type, uint32 data)
+            void Load(const char* str)
             {
-                switch (type)
+                if (!str)
                 {
-                    case DATA_GATEWATCHER_GYROKILL:   m_auiEncounter[DATA_GATEWATCHER_GYROKILL] = data;   break;
-                    case DATA_IRON_HAND:   m_auiEncounter[DATA_IRON_HAND] = data;   break;
-                    case DATA_MECHANOLORD_CAPACITUS:   m_auiEncounter[DATA_MECHANOLORD_CAPACITUS] = data;   break;
-                    case DATA_NETHERMANCER_SEPRETHREA:   m_auiEncounter[DATA_NETHERMANCER_SEPRETHREA] = data;   break;
-                    case DATA_PATHALEON_THE_CALCULATOR:   m_auiEncounter[DATA_PATHALEON_THE_CALCULATOR] = data;   break;
+                    OUT_LOAD_INST_DATA_FAIL;
+                    return;
                 }
+
+                OUT_LOAD_INST_DATA(str);
+
+                char dataHead1, dataHead2;
+
+                std::istringstream loadStream(str);
+                loadStream >> dataHead1 >> dataHead2;
+
+                if (dataHead1 == 'M' && dataHead2 == 'C')
+                {
+                    for (uint32 i = 0; i < EncounterCount; ++i)
+                    {
+                        uint32 tmpState;
+                        loadStream >> tmpState;
+                        if (tmpState == IN_PROGRESS || tmpState > SPECIAL)
+                            tmpState = NOT_STARTED;
+                        SetBossState(i, EncounterState(tmpState));
+                    }
+                }
+                else
+                    OUT_LOAD_INST_DATA_FAIL;
+
+                OUT_LOAD_INST_DATA_COMPLETE;
             }
         };
 
@@ -91,6 +143,5 @@ class instance_mechanar : public InstanceMapScript
 
 void AddSC_instance_mechanar()
 {
-    new instance_mechanar;
+    new instance_mechanar();
 }
-
