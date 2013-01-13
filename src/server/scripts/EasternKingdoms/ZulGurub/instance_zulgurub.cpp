@@ -98,6 +98,31 @@ class instance_zulgurub : public InstanceMapScript
                 return true;
             }
 
+        uint32 GetData(uint32 type) const
+        {
+            switch (type)
+            {
+                    case DATA_JEKLIK:             return GetBossState(DATA_JEKLIK);
+                    case DATA_VENOXIS:            return GetBossState(DATA_VENOXIS);
+                    case DATA_MARLI:              return GetBossState(DATA_MARLI);
+                    case DATA_ARLOKK:             return GetBossState(DATA_ARLOKK);
+                    case DATA_HAKKAR:             return GetBossState(DATA_HAKKAR);
+                    case DATA_MANDOKIR:           return GetBossState(DATA_MANDOKIR);
+                    case DATA_JINDO:              return GetBossState(DATA_JINDO);
+                    case DATA_GAHZRANKA:          return GetBossState(DATA_GAHZRANKA);
+                    case DATA_EDGE_OF_MADNESS:    return GetBossState(DATA_EDGE_OF_MADNESS);
+                    case DATA_THEKAL:             return GetBossState(DATA_THEKAL);
+                    case DATA_LORKHAN:            return GetBossState(DATA_LORKHAN);
+                    case DATA_ZATH:               return GetBossState(DATA_ZATH);
+                    case DATA_OHGAN:              return GetBossState(DATA_OHGAN);
+                        break;
+                    default:
+                        break;
+            }
+
+            return 0;
+        }
+
             uint64 GetData64(uint32 uiData) const
             {
                 switch (uiData)
