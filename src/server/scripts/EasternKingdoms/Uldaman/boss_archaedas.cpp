@@ -399,35 +399,6 @@ class go_altar_of_archaedas : public GameObjectScript
         }
 };
 
-/* ScriptData
-SDName: go_altar_of_the_keepers
-SD%Complete: 100
-SDComment: Need 1 person to activate to open the altar.  One by one the StoneKeepers will activate.  After all four are dead than the door will open.
-SDCategory: Uldaman
-EndScriptData */
-
-class go_altar_of_the_keepers : public GameObjectScript
-{
-    public:
-
-        go_altar_of_the_keepers()
-            : GameObjectScript("go_altar_of_the_keepers")
-        {
-        }
-
-        bool OnGossipHello(Player* player, GameObject* /*go*/)
-        {
-            InstanceScript* instance = player->GetInstanceScript();
-            if (!instance)
-                return false;
-
-            player->CastSpell (player, SPELL_BOSS_OBJECT_VISUAL, false);
-
-            instance->SetData(DATA_STONE_KEEPERS, IN_PROGRESS); // activate the Stone Keepers
-            return false;
-        }
-};
-
 //This is the actual function called only once durring InitScripts()
 //It must define all handled functions that are to be run in this script
 void AddSC_boss_archaedas()
@@ -436,6 +407,5 @@ void AddSC_boss_archaedas()
     new mob_archaedas_minions();
     new mob_stonekeepers();
     new go_altar_of_archaedas();
-    new go_altar_of_the_keepers();
 }
 
