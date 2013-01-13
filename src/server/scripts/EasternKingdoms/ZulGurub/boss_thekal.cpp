@@ -89,6 +89,7 @@ class boss_thekal : public CreatureScript
 
             void Reset()
             {
+                _Reset();
                 Enraged = false;
                 WasDead = false;
             }

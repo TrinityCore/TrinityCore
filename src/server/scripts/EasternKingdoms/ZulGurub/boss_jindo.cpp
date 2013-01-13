@@ -71,6 +71,11 @@ class boss_jindo : public CreatureScript
         {
             boss_jindoAI(Creature* creature) : BossAI(creature, DATA_JINDO) {}
 
+            void Reset()
+            {
+                _Reset();
+            }
+
             void JustDied(Unit* /*killer*/)
             {
                 _JustDied();
