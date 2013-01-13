@@ -50,16 +50,9 @@ class boss_lorekeeper_polkelt : public CreatureScript
         {
             boss_lorekeeperpolkeltAI(Creature* creature) : BossAI(creature, DATA_LOREKEEPERPOLKELT) {}
 
-            void Reset() {}
-
-            void JustDied(Unit* /*killer*/)
-            {
-                if (instance)
-                    instance->SetData(DATA_LOREKEEPERPOLKELT, DONE);
-            }
-
             void EnterCombat(Unit* /*who*/)
             {
+                _EnterCombat();
                 events.ScheduleEvent(EVENT_VOLATILEINFECTION, 38000);
                 events.ScheduleEvent(EVENT_DARKPLAGUE, 8000);
                 events.ScheduleEvent(EVENT_CORROSIVEACID, 45000);

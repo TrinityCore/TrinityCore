@@ -31,7 +31,7 @@ void HomeMovementGenerator<Creature>::DoInitialize(Creature* owner)
 void HomeMovementGenerator<Creature>::DoFinalize(Creature* owner)
 {
     // sometimes movement wont be finished, clear UNIT_STAT_EVADE anyways
-    owner->ClearUnitState(UNIT_STAT_EVADE);
+    owner->ClearUnitState(UNIT_STATE_EVADE);
     if (arrived)
     {
         owner->SetWalk(true);
