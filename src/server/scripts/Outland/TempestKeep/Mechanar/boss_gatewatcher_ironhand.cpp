@@ -55,7 +55,8 @@ enum Events
 
 class boss_gatewatcher_iron_hand : public CreatureScript
 {
-    public: boss_gatewatcher_iron_hand(): CreatureScript("boss_gatewatcher_iron_hand") {}
+    public:
+        boss_gatewatcher_iron_hand(): CreatureScript("boss_gatewatcher_iron_hand") {}
 
         struct boss_gatewatcher_iron_handAI : public BossAI
         {
@@ -80,8 +81,6 @@ class boss_gatewatcher_iron_hand : public CreatureScript
             {
                 _JustDied();
                 Talk(SAY_DEATH);
-                if (GameObject* door = me->GetMap()->GetGameObject(instance->GetData64(GO_DOOR_MOARG_1)))
-                    door->SetGoState(GO_STATE_ACTIVE);
             }
 
             void UpdateAI(uint32 const diff)
@@ -93,7 +92,8 @@ class boss_gatewatcher_iron_hand : public CreatureScript
 
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
-                 while (uint32 eventId = events.ExecuteEvent())
+
+                while (uint32 eventId = events.ExecuteEvent())
                 {
                     switch (eventId)
                     {
@@ -122,10 +122,10 @@ class boss_gatewatcher_iron_hand : public CreatureScript
             }
         };
 
-            CreatureAI* GetAI(Creature* creature) const
-            {
-                return new boss_gatewatcher_iron_handAI(creature);
-            }
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new boss_gatewatcher_iron_handAI(creature);
+        }
 };
 
 void AddSC_boss_gatewatcher_iron_hand()

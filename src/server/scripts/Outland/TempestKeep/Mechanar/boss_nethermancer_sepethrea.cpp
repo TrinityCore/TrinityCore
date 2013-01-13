@@ -89,8 +89,6 @@ class boss_nethermancer_sepethrea : public CreatureScript
             {
                 _JustDied();
                 Talk(SAY_DEATH);
-                if (GameObject* door = me->GetMap()->GetGameObject(instance->GetData64(GO_DOOR_NETHERMANCER)))
-                    door->SetGoState(GO_STATE_ACTIVE);
             }
 
             void UpdateAI(uint32 const diff)

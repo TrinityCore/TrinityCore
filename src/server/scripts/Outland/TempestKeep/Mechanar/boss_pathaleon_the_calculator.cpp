@@ -68,7 +68,8 @@ enum Creatures
 
 class boss_pathaleon_the_calculator : public CreatureScript
 {
-    public: boss_pathaleon_the_calculator(): CreatureScript("boss_pathaleon_the_calculator") {}
+    public:
+        boss_pathaleon_the_calculator(): CreatureScript("boss_pathaleon_the_calculator") {}
 
         struct boss_pathaleon_the_calculatorAI : public BossAI
         {

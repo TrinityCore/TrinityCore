@@ -16,82 +16,59 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: Instance_Mechanar
-SD%Complete: 100
-SDComment:
-SDCategory: Mechanar
-EndScriptData */
 
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
 #include "mechanar.h"
 
+static DoorData const doorData[] =
+{
+    { GO_DOOR_MOARG_1,          DATA_GATEWATCHER_IRON_HAND,     DOOR_TYPE_PASSAGE,  BOUNDARY_NONE },
+    { GO_DOOR_MOARG_2,          DATA_GATEWATCHER_GYROKILL,      DOOR_TYPE_PASSAGE,  BOUNDARY_NONE },
+    { GO_DOOR_NETHERMANCER,     DATA_NETHERMANCER_SEPRETHREA,   DOOR_TYPE_ROOM,     BOUNDARY_NONE },
+    {0,                         0,                              DOOR_TYPE_ROOM,     BOUNDARY_NONE }
+};
+
 class instance_mechanar : public InstanceMapScript
 {
-    public: instance_mechanar(): InstanceMapScript("instance_mechanar", 554) { }
-
-        InstanceScript* GetInstanceScript(InstanceMap* map) const
-        {
-            return new instance_mechanar_InstanceMapScript(map);
-        }
+    public:
+        instance_mechanar(): InstanceMapScript("instance_mechanar", 554) { }
 
         struct instance_mechanar_InstanceMapScript : public InstanceScript
         {
             instance_mechanar_InstanceMapScript(Map* map) : InstanceScript(map)
             {
                 SetBossNumber(EncounterCount);
-                DoorMoArg1GUID          = 0;
-                DoorMoArg2GUID          = 0;
-                DoorNethermancerGUID    = 0;
+                LoadDoorData(doorData);
             }
+            
 
-            void OnGameObjectCreate(GameObject* go)
+            void OnGameObjectCreate(GameObject* gameObject)
             {
-                switch (go->GetEntry())
+                switch (gameObject->GetEntry())
                 {
                     case GO_DOOR_MOARG_1:
-                        DoorMoArg1GUID = go->GetGUID();
-                        break;
                     case GO_DOOR_MOARG_2:
-                        DoorMoArg2GUID = go->GetGUID();
-                        break;
                     case GO_DOOR_NETHERMANCER:
-                        DoorNethermancerGUID = go->GetGUID();
+                        AddDoor(gameObject, true);
                         break;
                     default:
                         break;
                 }
-                CheckInstanceStatus();
             }
 
-            void CheckInstanceStatus()
+            void OnGameObjectRemove(GameObject* gameObject)
             {
-                if (GetBossState(DATA_GATEWATCHER_IRON_HAND) == DONE)
-                    HandleGameObject(DoorMoArg1GUID, true);
-
-                if (GetBossState(DATA_GATEWATCHER_GYROKILL) == DONE)
-                    HandleGameObject(DoorMoArg2GUID, true);
-
-                if (GetBossState(DATA_NETHERMANCER_SEPRETHREA) == DONE)
-                    HandleGameObject(DoorNethermancerGUID, true);
-            }
-
-            uint64 GetData64(uint32 type) const
-            {
-                switch (type)
+                switch (gameObject->GetEntry())
                 {
                     case GO_DOOR_MOARG_1:
-                        return DoorMoArg1GUID;
                     case GO_DOOR_MOARG_2:
-                        return DoorMoArg2GUID;
                     case GO_DOOR_NETHERMANCER:
-                        return DoorNethermancerGUID;
+                        AddDoor(gameObject, false);
+                        break;
                     default:
                         break;
                 }
-
-                return 0;
             }
 
             bool SetBossState(uint32 type, EncounterState state)
@@ -156,12 +133,12 @@ class instance_mechanar : public InstanceMapScript
 
                 OUT_LOAD_INST_DATA_COMPLETE;
             }
-
-        protected:
-            uint64 DoorMoArg1GUID;
-            uint64 DoorMoArg2GUID;
-            uint64 DoorNethermancerGUID;
         };
+
+        InstanceScript* GetInstanceScript(InstanceMap* map) const
+        {
+            return new instance_mechanar_InstanceMapScript(map);
+        }
 };
 
 void AddSC_instance_mechanar()
