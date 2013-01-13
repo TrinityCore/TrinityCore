@@ -36,17 +36,29 @@ enum Says
 
 enum Spells
 {
-    SPELL_SHADOWWORDPAIN        = 23952,
+    SPELL_SHADOW_WORD_PAIN      = 23952,
     SPELL_GOUGE                 = 24698,
     SPELL_MARK                  = 24210,
     SPELL_CLEAVE                = 26350,                    //Perhaps not right. Not a red aura...
-    SPELL_PANTHER_TRANSFORM     = 24190,
+    SPELL_PANTHER_TRANSFORM     = 24190
+};
 
+enum Events
+{
+    EVENT_SHADOW_WORD_PAIN      = 0,
+    EVENT_GOUGE                 = 1,
+    EVENT_MARK                  = 2,
+    EVENT_CLEAVE                = 3,
+    EVENT_VANISH                = 4,
+    EVENT_VISIBLE               = 5,
+    EVENT_SUMMON                = 6,
+};
+
+enum ModelIds
+{
     MODEL_ID_NORMAL             = 15218,
     MODEL_ID_PANTHER            = 15215,
-    MODEL_ID_BLANK              = 11686,
-
-    NPC_ZULIAN_PROWLER          = 15101
+    MODEL_ID_BLANK              = 11686
 };
 
 class boss_arlokk : public CreatureScript
@@ -75,6 +87,7 @@ class boss_arlokk : public CreatureScript
 
             void Reset()
             {
+                _Reset();
                 m_uiShadowWordPain_Timer = 8000;
                 m_uiGouge_Timer = 14000;
                 m_uiMark_Timer = 35000;
@@ -112,7 +125,6 @@ class boss_arlokk : public CreatureScript
             {
                 if (instance)
                     instance->SetData(DATA_ARLOKK, NOT_STARTED);
-
                 //we should be summoned, so despawn
                 me->DespawnOrUnsummon();
             }
@@ -143,7 +155,7 @@ class boss_arlokk : public CreatureScript
                 {
                     if (m_uiShadowWordPain_Timer <= uiDiff)
                     {
-                        DoCast(me->getVictim(), SPELL_SHADOWWORDPAIN);
+                        DoCast(me->getVictim(), SPELL_SHADOW_WORD_PAIN);
                         m_uiShadowWordPain_Timer = 15000;
                     }
                     else
@@ -253,10 +265,7 @@ class boss_arlokk : public CreatureScript
 
 class go_gong_of_bethekk : public GameObjectScript
 {
-    public:
-        go_gong_of_bethekk() : GameObjectScript("go_gong_of_bethekk")
-        {
-        }
+    public: go_gong_of_bethekk() : GameObjectScript("go_gong_of_bethekk") {}
 
         bool OnGossipHello(Player* /*player*/, GameObject* go)
         {
