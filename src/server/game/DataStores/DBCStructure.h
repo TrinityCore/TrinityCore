@@ -670,6 +670,7 @@ struct CharStartOutfitEntry
     //int32 ItemInventorySlot[MAX_OUTFIT_ITEMS];            // 26-37 not required at server side
     uint32 PetDisplayId;                                    // 38 Pet Model ID for starting pet
     uint32 PetFamilyEntry;                                  // 39 Pet Family Entry for starting pet
+    //uint32 Unk[3];                                        // 40-42 Unknown
 };
 
 struct CharTitlesEntry
