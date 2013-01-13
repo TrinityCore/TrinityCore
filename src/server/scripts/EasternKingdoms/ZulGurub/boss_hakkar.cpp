@@ -27,19 +27,21 @@ EndScriptData */
 #include "ScriptedCreature.h"
 #include "zulgurub.h"
 
-enum Hakkar
+enum Says
 {
     SAY_AGGRO                   = 0,
     SAY_FLEEING                 = 1,
     SAY_MINION_DESTROY          = 2,                //where does it belong?
-    SAY_PROTECT_ALTAR           = 3,                //where does it belong?
+    SAY_PROTECT_ALTAR           = 3                 //where does it belong?
+};
 
+enum Spells
+{
     SPELL_BLOODSIPHON           = 24322,
     SPELL_CORRUPTEDBLOOD        = 24328,
     SPELL_CAUSEINSANITY         = 24327,                 //Not working disabled.
     SPELL_WILLOFHAKKAR          = 24178,
     SPELL_ENRAGE                = 24318,
-
 // The Aspects of all High Priests
     SPELL_ASPECT_OF_JEKLIK      = 24687,
     SPELL_ASPECT_OF_VENOXIS     = 24688,
@@ -48,23 +50,13 @@ enum Hakkar
     SPELL_ASPECT_OF_ARLOKK      = 24690
 };
 
-class boss_hakkar : public CreatureScript
+class boss_hakkar : public CreatureScript // hakkar
 {
-    public:
+    public: boss_hakkar() : CreatureScript("boss_hakkar") {}
 
-        boss_hakkar()
-            : CreatureScript("boss_hakkar")
+        struct boss_hakkarAI : public BossAI
         {
-        }
-
-        struct boss_hakkarAI : public ScriptedAI
-        {
-            boss_hakkarAI(Creature* creature) : ScriptedAI(creature)
-            {
-                instance = creature->GetInstanceScript();
-            }
-
-            InstanceScript* instance;
+            boss_hakkarAI(Creature* creature) : BossAI(creature, DATA_HAKKAR) {}
 
             uint32 BloodSiphon_Timer;
             uint32 CorruptedBlood_Timer;
@@ -109,8 +101,14 @@ class boss_hakkar : public CreatureScript
                 Enraged = false;
             }
 
+            void JustDied(Unit* /*killer*/)
+            {
+                _JustDied();
+            }
+
             void EnterCombat(Unit* /*who*/)
             {
+                _EnterCombat();
                 Talk(SAY_AGGRO);
             }
 

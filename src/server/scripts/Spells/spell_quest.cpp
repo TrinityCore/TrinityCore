@@ -25,6 +25,7 @@
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
+#include "SpellAuras.h"
 #include "Vehicle.h"
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
@@ -1517,6 +1518,49 @@ class spell_q11010_q11102_q11023_q11008_check_fly_mount : public SpellScriptLoad
         }
 };
 
+enum SpellZuldrakRat
+{
+    SPELL_SUMMON_GORGED_LURKING_BASILISK    = 50928
+};
+
+class spell_q12527_zuldrak_rat : public SpellScriptLoader
+{
+    public:
+        spell_q12527_zuldrak_rat() : SpellScriptLoader("spell_q12527_zuldrak_rat") { }
+
+        class spell_q12527_zuldrak_rat_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_q12527_zuldrak_rat_SpellScript);
+
+            bool Validate(SpellInfo const* /*spell*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_SUMMON_GORGED_LURKING_BASILISK))
+                    return false;
+                return true;
+            }
+
+            void HandleScriptEffect(SpellEffIndex /* effIndex */)
+            {
+                if (GetHitAura() && GetHitAura()->GetStackAmount() >= GetSpellInfo()->StackAmount)
+                {
+                    GetHitUnit()->CastSpell((Unit*) NULL, SPELL_SUMMON_GORGED_LURKING_BASILISK, true);
+                    if (Creature* basilisk = GetHitUnit()->ToCreature())
+                        basilisk->DespawnOrUnsummon();
+                }
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_q12527_zuldrak_rat_SpellScript::HandleScriptEffect, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_q12527_zuldrak_rat_SpellScript();
+        }
+};
+
 void AddSC_quest_spell_scripts()
 {
     new spell_q55_sacred_cleansing();
@@ -1554,4 +1598,5 @@ void AddSC_quest_spell_scripts()
     new spell_q11010_q11102_q11023_choose_loc();
     new spell_q11010_q11102_q11023_q11008_check_fly_mount();
     new spell_q12372_azure_on_death_force_whisper();
+    new spell_q12527_zuldrak_rat();
 }
