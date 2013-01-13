@@ -27,44 +27,42 @@ EndScriptData */
 #include "ScriptedCreature.h"
 #include "zulgurub.h"
 
-enum Mandokir
+enum Says
 {
-    SAY_AGGRO               = 0,
-    SAY_DING_KILL           = 1,
-    SAY_WATCH               = 2,
-    SAY_WATCH_WHISPER       = 3,                    //is this text for real? easter egg?
-    SAY_GRATS_JINDO         = 0,
+    SAY_AGGRO                 = 0,
+    SAY_DING_KILL             = 1,
+    SAY_WATCH                 = 2,
+    SAY_WATCH_WHISPER         = 3, // is this text for real? easter egg?
+    SAY_GRATS_JINDO           = 0,
+};
 
-    SPELL_CHARGE            = 24408,
-    SPELL_CLEAVE            = 7160,
-    SPELL_FEAR              = 29321,
-    SPELL_WHIRLWIND         = 15589,
-    SPELL_MORTAL_STRIKE     = 16856,
-    SPELL_ENRAGE            = 24318,
-    SPELL_WATCH             = 24314,
-    SPELL_LEVEL_UP          = 24312,
+enum Spells
+{
+    SPELL_CHARGE              = 24408,
+    SPELL_CLEAVE              = 7160,
+    SPELL_FEAR                = 29321,
+    SPELL_WHIRLWIND           = 15589,
+    SPELL_MORTAL_STRIKE       = 16856,
+    SPELL_ENRAGE              = 24318,
+    SPELL_WATCH               = 24314,
+    SPELL_LEVEL_UP            = 24312,
+    SPELL_SWIFT_ORANGE_RAPTOR = 23243,
+    // Ohgans Spell
+    SPELL_SUNDERARMOR         = 24317
+};
 
-//Ohgans Spells
-    SPELL_SUNDERARMOR       = 24317,
-
-    NPC_SPEAKER             = 11391
+enum CreatureId
+{
+    NPC_SPEAKER               = 11391
 };
 
 class boss_mandokir : public CreatureScript
 {
-    public:
+    public: boss_mandokir() : CreatureScript("boss_mandokir") {}
 
-        boss_mandokir()
-            : CreatureScript("boss_mandokir")
+        struct boss_mandokirAI : public BossAI
         {
-        }
-
-        struct boss_mandokirAI : public ScriptedAI
-        {
-            boss_mandokirAI(Creature* creature) : ScriptedAI(creature)
-            {
-                instance = creature->GetInstanceScript();
-            }
+            boss_mandokirAI(Creature* creature) : BossAI(creature, DATA_MANDOKIR) {}
 
             uint32 KillCount;
             uint32 Watch_Timer;
@@ -114,6 +112,11 @@ class boss_mandokir : public CreatureScript
                 DoCast(me, 23243);
             }
 
+            void JustDied(Unit* /*killer*/)
+            {
+                _JustDied();
+            }
+
             void KilledUnit(Unit* victim)
             {
                 if (victim->GetTypeId() == TYPEID_PLAYER)
@@ -144,6 +147,7 @@ class boss_mandokir : public CreatureScript
 
             void EnterCombat(Unit* /*who*/)
             {
+                _EnterCombat();
                 Talk(SAY_AGGRO);
             }
 
@@ -302,15 +306,10 @@ class boss_mandokir : public CreatureScript
         }
 };
 
-//Ohgan
+// Ohgan
 class mob_ohgan : public CreatureScript
 {
-    public:
-
-        mob_ohgan()
-            : CreatureScript("mob_ohgan")
-        {
-        }
+    public: mob_ohgan() : CreatureScript("mob_ohgan") {}
 
         struct mob_ohganAI : public ScriptedAI
         {
