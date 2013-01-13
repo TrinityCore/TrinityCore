@@ -38,15 +38,15 @@ enum Says
 enum Spells
 {
     SPELL_CHARGE            = 22911,
-    SPELL_ASPECT_OF_MARLI   = 24686,                     // A stun spell
+    SPELL_ASPECT_OF_MARLI   = 24686, // A stun spell
     SPELL_ENVOLWINGWEB      = 24110,
     SPELL_POISONVOLLEY      = 24099,
     SPELL_SPIDER_FORM       = 24084,
-//The Spider Spells
-    SPELL_LEVELUP           = 24312                     // Not right Spell.
+    // The Spider Spell
+    SPELL_LEVELUP           = 24312  // Not right Spell.
 };
 
-class boss_marli : public CreatureScript // marli
+class boss_marli : public CreatureScript
 {
     public: boss_marli() : CreatureScript("boss_marli") {}
 
@@ -214,15 +214,10 @@ class boss_marli : public CreatureScript // marli
         }
 };
 
-//Spawn of Marli
+// Spawn of Marli
 class mob_spawn_of_marli : public CreatureScript
 {
-    public:
-
-        mob_spawn_of_marli()
-            : CreatureScript("mob_spawn_of_marli")
-        {
-        }
+    public: mob_spawn_of_marli() : CreatureScript("mob_spawn_of_marli") {}
 
         struct mob_spawn_of_marliAI : public ScriptedAI
         {
