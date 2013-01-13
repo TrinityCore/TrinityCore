@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -70,9 +70,9 @@ public:
         return new boss_vexallusAI (creature);
     };
 
-    struct boss_vexallusAI : public ScriptedAI
+    struct boss_vexallusAI : public BossAI
     {
-        boss_vexallusAI(Creature* creature) : ScriptedAI(creature)
+        boss_vexallusAI(Creature* creature) : BossAI(creature, DATA_VEXALLUS_EVENT)
         {
             instance = creature->GetInstanceScript();
         }
@@ -87,6 +87,7 @@ public:
 
         void Reset()
         {
+            summons.DespawnAll();
             ChainLightningTimer = 8000;
             ArcaneShockTimer = 5000;
             OverloadTimer = 1200;
@@ -104,6 +105,7 @@ public:
 
         void JustDied(Unit* /*killer*/)
         {
+            summons.DespawnAll();
             if (instance)
                 instance->SetData(DATA_VEXALLUS_EVENT, DONE);
         }
@@ -206,7 +208,10 @@ public:
 
     struct mob_pure_energyAI : public ScriptedAI
     {
-        mob_pure_energyAI(Creature* creature) : ScriptedAI(creature) {}
+        mob_pure_energyAI(Creature* creature) : ScriptedAI(creature)
+        {
+            me->SetDisplayId(me->GetCreatureTemplate()->Modelid2);
+        }
 
         void Reset() {}
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -29,7 +29,7 @@ enum Texts
     SAY_INTRO               = 1,
     SAY_AGGRO               = 2,
     SAY_SLAY                = 3,
-    SAY_DEATH               = 4,
+    SAY_DEATH               = 4
 };
 
 enum Spells
@@ -40,12 +40,12 @@ enum Spells
     SPELL_SUPREME           = 25176,
     SPELL_SUMMON            = 20477,
     SPELL_SAND_STORM        = 25160,
-    SPELL_SUMMON_CRYSTAL    = 25192,
+    SPELL_SUMMON_CRYSTAL    = 25192
 };
 
 enum Actions
 {
-    ACTION_TRIGGER_WEAKNESS = 1,
+    ACTION_TRIGGER_WEAKNESS = 1
 };
 
 enum Events
@@ -89,7 +89,6 @@ class boss_ossirian : public CreatureScript
             boss_ossirianAI(Creature* creature) : BossAI(creature, DATA_OSSIRIAN)
             {
                 SaidIntro = false;
-                Reset();
             }
 
             uint64 TriggerGUID;
@@ -121,13 +120,9 @@ class boss_ossirian : public CreatureScript
             void DoAction(const int32 action)
             {
                 if (action == ACTION_TRIGGER_WEAKNESS)
-                {
                     if (Creature* Trigger = me->GetMap()->GetCreature(TriggerGUID))
-                    {
                         if (!Trigger->HasUnitState(UNIT_STATE_CASTING))
                             Trigger->CastSpell(Trigger, SpellWeakness[urand(0, 4)], false);
-                    }
-                }
             }
 
             void EnterCombat(Unit* /*who*/)
@@ -172,7 +167,7 @@ class boss_ossirian : public CreatureScript
             {
                 Cleanup();
                 summons.DespawnAll();
-                ScriptedAI::EnterEvadeMode();
+                BossAI::EnterEvadeMode();
             }
 
             void JustDied(Unit* /*killer*/)
@@ -199,7 +194,7 @@ class boss_ossirian : public CreatureScript
                                                        CrystalCoordinates[CrystalIterator].GetPositionX(),
                                                        CrystalCoordinates[CrystalIterator].GetPositionY(),
                                                        CrystalCoordinates[CrystalIterator].GetPositionZ(),
-                                                       0, 0, 0, 0, 0, -1))
+                                                       0, 0, 0, 0, 0, uint32(-1)))
                     {
                         CrystalGUID = Crystal->GetGUID();
                         ++CrystalIterator;
@@ -207,13 +202,14 @@ class boss_ossirian : public CreatureScript
                 }
             }
 
-            void MoveInLineOfSight(Unit* /*who*/)
+            void MoveInLineOfSight(Unit* who)
             {
                 if (!SaidIntro)
                 {
                     Talk(SAY_INTRO);
                     SaidIntro = true;
                 }
+                BossAI::MoveInLineOfSight(who);
             }
 
             void UpdateAI(uint32 const diff)

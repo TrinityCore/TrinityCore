@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -37,7 +37,7 @@ enum IllidariCouncil
     SAY_GATH_SLAY               = 4,
     SAY_GATH_COMNT              = 5,
     SAY_GATH_DEATH              = 6,
-    
+
     SAY_MALA_SPECIAL1           = 2,
     SAY_MALA_SPECIAL2           = 3,
     SAY_MALA_SLAY               = 4,

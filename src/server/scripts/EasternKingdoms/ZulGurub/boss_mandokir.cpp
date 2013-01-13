@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -50,21 +50,13 @@ enum Mandokir
     NPC_SPEAKER             = 11391
 };
 
-class boss_mandokir : public CreatureScript
+class boss_mandokir : public CreatureScript //mandokir
 {
-    public:
+    public: boss_mandokir() : CreatureScript("boss_mandokir") {}
 
-        boss_mandokir()
-            : CreatureScript("boss_mandokir")
+        struct boss_mandokirAI : public BossAI
         {
-        }
-
-        struct boss_mandokirAI : public ScriptedAI
-        {
-            boss_mandokirAI(Creature* creature) : ScriptedAI(creature)
-            {
-                instance = creature->GetInstanceScript();
-            }
+            boss_mandokirAI(Creature* creature) : BossAI(creature, DATA_MANDOKIR) {}
 
             uint32 KillCount;
             uint32 Watch_Timer;
@@ -114,6 +106,11 @@ class boss_mandokir : public CreatureScript
                 DoCast(me, 23243);
             }
 
+            void JustDied(Unit* /*killer*/)
+            {
+                _JustDied();
+            }
+
             void KilledUnit(Unit* victim)
             {
                 if (victim->GetTypeId() == TYPEID_PLAYER)
@@ -144,6 +141,7 @@ class boss_mandokir : public CreatureScript
 
             void EnterCombat(Unit* /*who*/)
             {
+                _EnterCombat();
                 Talk(SAY_AGGRO);
             }
 

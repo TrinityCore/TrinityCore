@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -40,7 +40,10 @@ EndScriptData */
 #define SPELL_FIERY_BLAST           DUNGEON_MODE(N_SPELL_FIERY_BLAST, H_SPELL_FIERY_BLAST)
 #define SPELL_FOCUS_FIRE_VISUAL     42075 //need to find better visual
 
-#define EMOTE_FOCUSES_ON            "focuses on "
+enum Say
+{
+    EMOTE_FOCUSED                  = 0
+};
 
 class boss_shirrak_the_dead_watcher : public CreatureScript
 {
@@ -143,13 +146,7 @@ public:
                 {
                     FocusedTargetGUID = target->GetGUID();
                     me->SummonCreature(ENTRY_FOCUS_FIRE, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 5500);
-
-                    // TODO: Find better way to handle emote
-                    // Emote
-                    std::string emote(EMOTE_FOCUSES_ON);
-                    emote.append(target->GetName());
-                    emote.push_back('!');
-                    me->MonsterTextEmote(emote.c_str(), 0, true);
+                    Talk(EMOTE_FOCUSED, FocusedTargetGUID);
                 }
                 FocusFire_Timer = 15000+(rand()%5000);
             } else FocusFire_Timer -= diff;

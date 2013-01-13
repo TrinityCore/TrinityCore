@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -88,12 +88,12 @@ enum PrinceMalchezaar
     SPELL_CLEAVE                = 30131,                       //Same as Nightbane.
     SPELL_HELLFIRE              = 30859,                       //Infenals' hellfire aura
     NETHERSPITE_INFERNAL        = 17646,                       //The netherspite infernal creature
-    MALCHEZARS_AXE              = 17650,                      //Malchezar's axes (creatures), summoned during phase 3
+    MALCHEZARS_AXE              = 17650,                       //Malchezar's axes (creatures), summoned during phase 3
 
-    INFERNAL_MODEL_INVISIBLE    = 11686,                     //Infernal Effects
+    INFERNAL_MODEL_INVISIBLE    = 11686,                       //Infernal Effects
     SPELL_INFERNAL_RELAY        = 30834,
 
-    EQUIP_ID_AXE                = 33542,                     //Axes info
+    EQUIP_ID_AXE                = 33542                        //Axes info
 };
 
 //---------Infernal code first

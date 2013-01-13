@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -27,10 +27,13 @@ EndScriptData */
 #include "ScriptedCreature.h"
 #include "stratholme.h"
 
-#define SPELL_ENCASINGWEBS          4962
-#define SPELL_PIERCEARMOR           6016
-#define SPELL_CRYPT_SCARABS         31602
-#define SPELL_RAISEUNDEADSCARAB     17235
+enum Spells
+{
+    SPELL_ENCASINGWEBS          = 4962,
+    SPELL_PIERCEARMOR           = 6016,
+    SPELL_CRYPT_SCARABS         = 31602,
+    SPELL_RAISEUNDEADSCARAB     = 17235
+};
 
 class boss_nerubenkan : public CreatureScript
 {

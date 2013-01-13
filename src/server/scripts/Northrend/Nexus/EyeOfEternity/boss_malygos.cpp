@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -35,10 +35,13 @@ Script Data End */
 #include "eye_of_eternity.h"
 #include "ScriptedEscortAI.h"
 #include "Player.h"
+#include "Vehicle.h"
+#include "CombatAI.h"
+#include "CreatureTextMgr.h"
 
 enum Achievements
 {
-    ACHIEV_TIMED_START_EVENT                      = 20387,
+    ACHIEV_TIMED_START_EVENT       = 20387,
 };
 
 enum Events
@@ -132,24 +135,35 @@ enum MalygosEvents
 
 #define TEN_MINUTES 600000
 
-enum MalygosSays
+enum Texts
 {
-    SAY_AGGRO_P_ONE,
-    SAY_KILLED_PLAYER_P_ONE,
-    SAY_END_P_ONE,
-    SAY_AGGRO_P_TWO,
-    SAY_ANTI_MAGIC_SHELL, // not sure when execute it
-    SAY_MAGIC_BLAST,  // not sure when execute it
-    SAY_KILLED_PLAYER_P_TWO,
-    SAY_END_P_TWO,
-    SAY_INTRO_P_THREE,
-    SAY_AGGRO_P_THREE,
-    SAY_SURGE_POWER,  // not sure when execute it
-    SAY_BUFF_SPARK,
-    SAY_KILLED_PLAYER_P_THREE,
-    SAY_SPELL_CASTING_P_THREE,
-    SAY_DEATH
+    // Malygos
+    SAY_AGGRO_P_ONE                     = 0,
+    SAY_KILLED_PLAYER_P_ONE             = 1,
+    SAY_END_P_ONE                       = 2,
+    SAY_AGGRO_P_TWO                     = 3,
+    SAY_ANTI_MAGIC_SHELL                = 4, // not sure when execute it
+    SAY_MAGIC_BLAST                     = 5,  // not sure when execute it
+    SAY_KILLED_PLAYER_P_TWO             = 6,
+    SAY_END_P_TWO                       = 7,
+    SAY_INTRO_P_THREE                   = 8,
+    SAY_AGGRO_P_THREE                   = 9,
+    SAY_SURGE_POWER                     = 10,  // not sure when execute it
+    SAY_BUFF_SPARK                      = 11,
+    SAY_KILLED_PLAYER_P_THREE           = 12,
+    SAY_SPELL_CASTING_P_THREE           = 13,
+    SAY_DEATH,
+
+    // Alexstrasza
+    SAY_ONE                             = 0,
+    SAY_TWO                             = 1,
+    SAY_THREE                           = 2,
+    SAY_FOUR                            = 3,
+
+    // Power Sparks
+    EMOTE_POWER_SPARK_SUMMONED            = 0
 };
+
 
 #define MAX_HOVER_DISK_WAYPOINTS 18
 
@@ -178,7 +192,7 @@ const Position HoverDiskWaypoints[MAX_HOVER_DISK_WAYPOINTS] =
 
 #define GROUND_Z 268
 
-// Source: Sniffs (x, y,z)
+// Source: Sniffs (x,y,z)
 #define MALYGOS_MAX_WAYPOINTS 16
 const Position MalygosPhaseTwoWaypoints[MALYGOS_MAX_WAYPOINTS] =
 {
@@ -316,6 +330,7 @@ public:
 
                     // The rest is handled in the AI of the vehicle.
                     target->CastSpell(target, SPELL_SUMMOM_RED_DRAGON, true);
+                    me->Attack(target, false);
                 }
             }
 
@@ -748,13 +763,18 @@ public:
             _instance = creature->GetInstanceScript();
         }
 
-        void Reset()
+        void SpellHit(Unit* /*caster*/, const SpellInfo* spell)
         {
-            _summonTimer = urand(5, 7)*IN_MILLISECONDS;
+            if (spell->Id == SPELL_PORTAL_OPENED)
+            {
+                DoCast(me, SPELL_SUMMON_POWER_PARK, true);
+            }
         }
 
-        void UpdateAI(uint32 const diff)
+        void UpdateAI(uint32 const /*diff*/)
         {
+            // When duration of oppened riff visual ends,
+            // closed one should be cast
             if (!me->HasAura(SPELL_PORTAL_VISUAL_CLOSED) &&
                 !me->HasAura(SPELL_PORTAL_OPENED))
                 DoCast(me, SPELL_PORTAL_VISUAL_CLOSED, true);
@@ -770,16 +790,6 @@ public:
                     }
                 }
             }
-
-            if (!me->HasAura(SPELL_PORTAL_OPENED))
-                return;
-
-            if (_summonTimer <= diff)
-            {
-                DoCast(SPELL_SUMMON_POWER_PARK);
-                _summonTimer = urand(5, 7)*IN_MILLISECONDS;
-            } else
-                _summonTimer -= diff;
         }
 
         void JustSummoned(Creature* summon)
@@ -811,6 +821,8 @@ public:
             _instance = creature->GetInstanceScript();
 
             MoveToMalygos();
+            // Talk range was not enough for this encounter
+            sCreatureTextMgr->SendChat(me, EMOTE_POWER_SPARK_SUMMONED, 0, CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_MAP);
         }
 
         void EnterEvadeMode()
@@ -853,14 +865,9 @@ public:
             }
         }
 
-        void DamageTaken(Unit* /*done_by*/, uint32& damage)
+        void JustDied(Unit* /*killer*/)
         {
-            if (damage > me->GetMaxHealth())
-            {
-                damage = 0;
-                DoCast(me, SPELL_POWER_SPARK_DEATH, true);
-                me->DespawnOrUnsummon(1000);
-            }
+            me->CastSpell(me, SPELL_POWER_SPARK_DEATH, true); // not supposed to hide the fact it's there by not selectable
         }
 
     private:
@@ -903,8 +910,7 @@ public:
             else
             {
                 // Error found: This is not called if the passenger is a player
-
-                if (unit->GetTypeId() == TYPEID_UNIT)
+                if (unit->GetTypeId() == TYPEID_UNIT || unit->GetTypeId() == TYPEID_PLAYER)
                 {
                     // This will only be called if the passenger dies
                     if (_instance)
@@ -1012,7 +1018,7 @@ public:
     };
 };
 
-// SmartAI does not work correctly for this (vehicles)
+// SmartAI does not work correctly for vehicles
 class npc_wyrmrest_skytalon : public CreatureScript
 {
 public:
@@ -1023,14 +1029,13 @@ public:
         return new npc_wyrmrest_skytalonAI (creature);
     }
 
-    struct npc_wyrmrest_skytalonAI : public NullCreatureAI
+    struct npc_wyrmrest_skytalonAI : public VehicleAI
     {
-        npc_wyrmrest_skytalonAI(Creature* creature) : NullCreatureAI(creature)
-        {
-            _instance = creature->GetInstanceScript();
+        npc_wyrmrest_skytalonAI(Creature* creature) : VehicleAI(creature) { }
 
-            _timer = 1000;
-            _entered = false;
+        void IsSummonedBy(Unit* summoner)
+        {
+            summoner->CastSpell(me, SPELL_RIDE_RED_DRAGON, true);
         }
 
         void PassengerBoarded(Unit* /*unit*/, int8 /*seat*/, bool apply)
@@ -1038,52 +1043,7 @@ public:
             if (!apply)
                 me->DespawnOrUnsummon();
         }
-
-        // we can't call this in reset function, it fails.
-        void MakePlayerEnter()
-        {
-            if (!_instance)
-                return;
-
-            if (Unit* summoner = me->ToTempSummon()->GetSummoner())
-            {
-                if (Creature* malygos = Unit::GetCreature(*me, _instance->GetData64(DATA_MALYGOS)))
-                {
-                    summoner->CastSpell(me, SPELL_RIDE_RED_DRAGON, true);
-                    float victimThreat = malygos->getThreatManager().getThreat(summoner);
-                    malygos->getThreatManager().resetAllAggro();
-                    malygos->AI()->AttackStart(me);
-                    malygos->AddThreat(me, victimThreat);
-                }
-            }
-        }
-
-        void UpdateAI(const uint32 diff)
-        {
-            if (!_entered)
-            {
-                if (_timer <= diff)
-                {
-                    MakePlayerEnter();
-                    _entered = true;
-                } else
-                    _timer -= diff;
-            }
-        }
-
-    private:
-        InstanceScript* _instance;
-        uint32 _timer;
-        bool _entered;
     };
-};
-
-enum AlexstraszaYells
-{
-    SAY_ONE,
-    SAY_TWO,
-    SAY_THREE,
-    SAY_FOUR
 };
 
 class npc_alexstrasza_eoe : public CreatureScript

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -27,18 +27,24 @@ EndScriptData */
 #include "InstanceScript.h"
 #include "sunken_temple.h"
 
-#define GO_ATALAI_STATUE1 148830
-#define GO_ATALAI_STATUE2 148831
-#define GO_ATALAI_STATUE3 148832
-#define GO_ATALAI_STATUE4 148833
-#define GO_ATALAI_STATUE5 148834
-#define GO_ATALAI_STATUE6 148835
-#define GO_ATALAI_IDOL 148836
+enum Gameobject
+{
+    GO_ATALAI_STATUE1           = 148830,
+    GO_ATALAI_STATUE2           = 148831,
+    GO_ATALAI_STATUE3           = 148832,
+    GO_ATALAI_STATUE4           = 148833,
+    GO_ATALAI_STATUE5           = 148834,
+    GO_ATALAI_STATUE6           = 148835,
+    GO_ATALAI_IDOL              = 148836,
+    GO_ATALAI_LIGHT1            = 148883,
+    GO_ATALAI_LIGHT2            = 148937
 
-#define GO_ATALAI_LIGHT1 148883
-#define GO_ATALAI_LIGHT2 148937
+};
 
-#define NPC_MALFURION_STORMRAGE 15362
+enum CreatureIds
+{
+    NPC_MALFURION_STORMRAGE     = 15362
+};
 
 class instance_sunken_temple : public InstanceMapScript
 {

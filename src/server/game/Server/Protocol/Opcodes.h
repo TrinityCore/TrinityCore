@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -1257,7 +1257,7 @@ enum Opcodes
     CMSG_GM_GRANT_ACHIEVEMENT                       = 0x4C4,
     CMSG_GM_REMOVE_ACHIEVEMENT                      = 0x4C5,
     CMSG_GM_SET_CRITERIA_FOR_PLAYER                 = 0x4C6,
-    SMSG_ARENA_OPPONENT_UPDATE                      = 0x4C7, // uint64
+    SMSG_ARENA_UNIT_DESTROYED                       = 0x4C7,
     SMSG_ARENA_TEAM_CHANGE_FAILED_QUEUED            = 0x4C8, // uint32 "Can't modify arena team while queued or in a match."
     CMSG_PROFILEDATA_REQUEST                        = 0x4C9,
     SMSG_PROFILEDATA_RESPONSE                       = 0x4CA,

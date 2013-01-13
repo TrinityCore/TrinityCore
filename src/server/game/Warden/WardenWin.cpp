@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -453,8 +453,8 @@ void WardenWin::HandleData(ByteBuffer &buff)
                 if (luaStrLen != 0)
                 {
                     char *str = new char[luaStrLen + 1];
-                    memset(str, 0, luaStrLen + 1);
                     memcpy(str, buff.contents() + buff.rpos(), luaStrLen);
+                    str[luaStrLen] = '\0'; // null terminator
                     sLog->outDebug(LOG_FILTER_WARDEN, "Lua string: %s", str);
                     delete[] str;
                 }

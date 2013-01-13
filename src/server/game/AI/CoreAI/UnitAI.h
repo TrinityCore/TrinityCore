@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -28,17 +28,6 @@ class Player;
 class Quest;
 class Unit;
 struct AISpellInfoType;
-
-// Default script texts
-enum GeneralScriptTexts
-{
-    DEFAULT_TEXT                = -1000000,
-    EMOTE_GENERIC_FRENZY_KILL   = -1000001,
-    EMOTE_GENERIC_FRENZY        = -1000002,
-    EMOTE_GENERIC_ENRAGED       = -1000003,
-    EMOTE_GENERIC_BERSERK       = -1000004,
-    EMOTE_GENERIC_BERSERK_RAID  = -1000005 // RaidBossEmote version of the previous one
-};
 
 //Selection method used by SelectTarget
 enum SelectAggroTarget
