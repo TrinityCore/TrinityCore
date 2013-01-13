@@ -347,6 +347,7 @@ class LFGMgr
         uint32 GetDungeon(uint64 guid, bool asId = true);
         uint32 GetDungeonMapId(uint64 guid);
         LfgState GetState(uint64 guid);
+        LfgState GetOldState(uint64 guid);
         uint8 GetKicksLeft(uint64 gguid);
         uint64 GetLeader(uint64 guid);
         bool IsLfgGroup(uint64 guid);
