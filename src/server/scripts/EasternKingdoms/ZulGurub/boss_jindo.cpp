@@ -27,19 +27,20 @@ EndScriptData */
 #include "ScriptedCreature.h"
 #include "zulgurub.h"
 
-enum Jindo
+enum Say
 {
-    SAY_AGGRO                       = 1,
+    SAY_AGGRO                       = 1
+};
 
+enum Spells
+{
     SPELL_BRAINWASHTOTEM            = 24262,
     SPELL_POWERFULLHEALINGWARD      = 24309,               //We will not use this spell. We will summon a totem by script cause the spell totems will not cast.
     SPELL_HEX                       = 24053,
     SPELL_DELUSIONSOFJINDO          = 24306,
     SPELL_SHADEOFJINDO              = 24308,               //We will not use this spell. We will summon a shade by script.
-
     //Healing Ward Spell
     SPELL_HEAL                      = 38588,               //Totems are not working right. Right heal spell ID is 24311 but this spell is not casting...
-
     //Shade of Jindo Spell
     SPELL_SHADOWSHOCK               = 19460,
     SPELL_INVISIBLE                 = 24699
@@ -47,16 +48,11 @@ enum Jindo
 
 class boss_jindo : public CreatureScript
 {
-    public:
+    public: boss_jindo() : CreatureScript("boss_jindo") {}
 
-        boss_jindo()
-            : CreatureScript("boss_jindo")
+        struct boss_jindoAI : public BossAI
         {
-        }
-
-        struct boss_jindoAI : public ScriptedAI
-        {
-            boss_jindoAI(Creature* creature) : ScriptedAI(creature) {}
+            boss_jindoAI(Creature* creature) : BossAI(creature, DATA_JINDO) {}
 
             uint32 BrainWashTotem_Timer;
             uint32 HealingWard_Timer;
@@ -73,8 +69,14 @@ class boss_jindo : public CreatureScript
                 Teleport_Timer = 5000;
             }
 
+            void JustDied(Unit* /*killer*/)
+            {
+                _JustDied();
+            }
+
             void EnterCombat(Unit* /*who*/)
             {
+                _EnterCombat();
                 Talk(SAY_AGGRO);
             }
 

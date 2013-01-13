@@ -30,8 +30,11 @@ EndScriptData */
 enum Thekal
 {
     SAY_AGGRO                 = 0,
-    SAY_DEATH                 = 1,
+    SAY_DEATH                 = 1
+};
 
+enum Spells
+{
     SPELL_MORTALCLEAVE        = 22859,
     SPELL_SILENCE             = 22666,
     SPELL_FRENZY              = 8269,
@@ -56,21 +59,13 @@ enum Thekal
     SPELL_BLIND               = 21060
 };
 
-class boss_thekal : public CreatureScript
+class boss_thekal : public CreatureScript // thekal
 {
-    public:
+    public: boss_thekal() : CreatureScript("boss_thekal") {}
 
-        boss_thekal()
-            : CreatureScript("boss_thekal")
+        struct boss_thekalAI : public BossAI
         {
-        }
-
-        struct boss_thekalAI : public ScriptedAI
-        {
-            boss_thekalAI(Creature* creature) : ScriptedAI(creature)
-            {
-                instance = creature->GetInstanceScript();
-            }
+            boss_thekalAI(Creature* creature) : BossAI(creature, DATA_THEKAL) {}
 
             uint32 MortalCleave_Timer;
             uint32 Silence_Timer;
@@ -104,16 +99,16 @@ class boss_thekal : public CreatureScript
                 WasDead = false;
             }
 
-            void EnterCombat(Unit* /*who*/)
-            {
-                Talk(SAY_AGGRO);
-            }
-
             void JustDied(Unit* /*killer*/)
             {
+                _JustDied();
                 Talk(SAY_DEATH);
-                if (instance)
-                    instance->SetData(DATA_THEKAL, DONE);
+            }
+
+            void EnterCombat(Unit* /*who*/)
+            {
+                _EnterCombat();
+                Talk(SAY_AGGRO);
             }
 
             void JustReachedHome()
