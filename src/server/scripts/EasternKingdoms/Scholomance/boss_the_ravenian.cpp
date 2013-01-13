@@ -42,7 +42,6 @@ enum Events
     EVENT_KNOCKAWAY                 = 4
 };
 
-
 class boss_the_ravenian : public CreatureScript
 {
     public: boss_the_ravenian() : CreatureScript("boss_the_ravenian") { }
@@ -51,16 +50,9 @@ class boss_the_ravenian : public CreatureScript
         {
             boss_theravenianAI(Creature* creature) : BossAI(creature, DATA_THERAVENIAN) {}
 
-            void Reset() {}
-
-            void JustDied(Unit* /*killer*/)
-            {
-                if (instance)
-                    instance->SetData(DATA_THERAVENIAN, DONE);
-            }
-
             void EnterCombat(Unit* /*who*/)
             {
+                _EnterCombat();
                 events.ScheduleEvent(EVENT_TRAMPLE, 24000);
                 events.ScheduleEvent(EVENT_CLEAVE, 15000);
                 events.ScheduleEvent(EVENT_SUNDERINCLEAVE, 40000);
