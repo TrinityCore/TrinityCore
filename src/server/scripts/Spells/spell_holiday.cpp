@@ -17,6 +17,7 @@
 
 /*
  * Spells used in holidays/game events that do not fit any other category.
+ * Ordered alphabetically using scriptname.
  * Scriptnames in this file should be prefixed with "spell_#holidayname_".
  */
 
@@ -133,6 +134,7 @@ class spell_hallow_end_trick : public SpellScriptLoader
         class spell_hallow_end_trick_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_hallow_end_trick_SpellScript);
+
             bool Validate(SpellInfo const* /*spell*/)
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_PIRATE_COSTUME_MALE) || !sSpellMgr->GetSpellInfo(SPELL_PIRATE_COSTUME_FEMALE) || !sSpellMgr->GetSpellInfo(SPELL_NINJA_COSTUME_MALE)
@@ -170,7 +172,7 @@ class spell_hallow_end_trick : public SpellScriptLoader
                             break;
                     }
 
-                    caster->CastSpell(target, spellId, true, NULL);
+                    caster->CastSpell(target, spellId, true);
                 }
             }
 
@@ -218,8 +220,8 @@ class spell_hallow_end_trick_or_treat : public SpellScriptLoader
                 Unit* caster = GetCaster();
                 if (Player* target = GetHitPlayer())
                 {
-                    caster->CastSpell(target, roll_chance_i(50) ? SPELL_TRICK : SPELL_TREAT, true, NULL);
-                    caster->CastSpell(target, SPELL_TRICKED_OR_TREATED, true, NULL);
+                    caster->CastSpell(target, roll_chance_i(50) ? SPELL_TRICK : SPELL_TREAT, true);
+                    caster->CastSpell(target, SPELL_TRICKED_OR_TREATED, true);
                 }
             }
 
