@@ -259,9 +259,10 @@ void BattlegroundEY::UpdatePointStatuses()
                         this->EventTeamLostPoint(player, point);
                 }
 
+                /// @workaround The original AreaTrigger is covered by a bigger one and not triggered on client side.
                 if (point == FEL_REAVER && m_PointOwnedByTeam[point] == player->GetTeam())
                     if (m_FlagState && GetFlagPickerGUID() == player->GetGUID())
-                        if (player->GetDistance2d(2044.0f, 1730.0f) < 2.0f)
+                        if (player->GetDistance(2044.0f, 1729.729f, 1190.03f) < 3.0f)
                             EventPlayerCapturedFlag(player, BG_EY_OBJECT_FLAG_FEL_REAVER);
             }
         }
