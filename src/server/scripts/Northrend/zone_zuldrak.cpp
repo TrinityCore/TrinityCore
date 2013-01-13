@@ -21,6 +21,7 @@
 #include "ScriptedEscortAI.h"
 #include "Player.h"
 #include "SpellInfo.h"
+#include "SpellScript.h"
 
 /*####
 ## npc_drakuru_shackles
@@ -1413,6 +1414,49 @@ public:
     }
 };
 
+enum SpellZuldrakRat
+{
+    SPELL_SUMMON_GORGED_LURKING_BASILISK    = 50928
+};
+
+class spell_zuldrak_rat : public SpellScriptLoader
+{
+    public:
+        spell_zuldrak_rat() : SpellScriptLoader("spell_zuldrak_rat") { }
+
+        class spell_zuldrak_rat_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_zuldrak_rat_SpellScript);
+
+            bool Validate(SpellInfo const* /*spell*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_SUMMON_GORGED_LURKING_BASILISK))
+                    return false;
+                return true;
+            }
+
+            void HandleScriptEffect(SpellEffIndex /* effIndex */)
+            {
+                if (GetHitAura() && GetHitAura()->GetStackAmount() >= GetSpellInfo()->StackAmount)
+                {
+                    GetHitUnit()->CastSpell((Unit*) NULL, SPELL_SUMMON_GORGED_LURKING_BASILISK, true);
+                    if (Creature* basilisk = GetHitUnit()->ToCreature())
+                        basilisk->DespawnOrUnsummon();
+                }
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_zuldrak_rat_SpellScript::HandleScriptEffect, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_zuldrak_rat_SpellScript();
+        }
+};
+
 void AddSC_zuldrak()
 {
     new npc_drakuru_shackles;
@@ -1428,4 +1472,5 @@ void AddSC_zuldrak()
     new npc_elemental_lord;
     new npc_fiend_elemental;
     new go_scourge_enclosure;
+    new spell_zuldrak_rat();
 }
