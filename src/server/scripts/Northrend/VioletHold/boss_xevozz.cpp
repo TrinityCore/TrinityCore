@@ -28,7 +28,7 @@ enum Spells
     SPELL_ARCANE_BUFFET_H                       = 59485,
     SPELL_SUMMON_ETHEREAL_SPHERE_1              = 54102,
     SPELL_SUMMON_ETHEREAL_SPHERE_2              = 54137,
-    SPELL_SUMMON_ETHEREAL_SPHERE_3              = 54138,
+    SPELL_SUMMON_ETHEREAL_SPHERE_3              = 54138
 };
 
 enum NPCs
@@ -42,7 +42,7 @@ enum CreatureSpells
     SPELL_ARCANE_POWER                          = 54160,
     H_SPELL_ARCANE_POWER                        = 59474,
     SPELL_SUMMON_PLAYERS                        = 54164,
-    SPELL_POWER_BALL_VISUAL                     = 54141,
+    SPELL_POWER_BALL_VISUAL                     = 54141
 };
 
 enum Yells
