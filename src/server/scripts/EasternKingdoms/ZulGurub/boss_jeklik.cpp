@@ -27,42 +27,34 @@ EndScriptData */
 #include "ScriptedCreature.h"
 #include "zulgurub.h"
 
-enum Jeklik
+enum Says
 {
     SAY_AGGRO                   = 0,
     SAY_RAIN_FIRE               = 1,
-    SAY_DEATH                   = 2,
+    SAY_DEATH                   = 2
+};
 
+enum Spells
+{
     SPELL_CHARGE                = 22911,
     SPELL_SONICBURST            = 23918,
     SPELL_SCREECH               = 6605,
     SPELL_SHADOW_WORD_PAIN      = 23952,
     SPELL_MIND_FLAY             = 23953,
-    SPELL_CHAIN_MIND_FLAY       = 26044, //Right ID unknown. So disabled
+    SPELL_CHAIN_MIND_FLAY       = 26044, // Right ID unknown. So disabled
     SPELL_GREATERHEAL           = 23954,
     SPELL_BAT_FORM              = 23966,
-
     // Batriders Spell
-    SPELL_BOMB                  = 40332 //Wrong ID but Magmadars bomb is not working...
+    SPELL_BOMB                  = 40332 // Wrong ID but Magmadars bomb is not working...
 };
 
-class boss_jeklik : public CreatureScript
+class boss_jeklik : public CreatureScript //jeklik
 {
-    public:
+    public: boss_jeklik() : CreatureScript("boss_jeklik") {}
 
-        boss_jeklik()
-            : CreatureScript("boss_jeklik")
+        struct boss_jeklikAI : public BossAI
         {
-        }
-
-        struct boss_jeklikAI : public ScriptedAI
-        {
-            boss_jeklikAI(Creature* creature) : ScriptedAI(creature)
-            {
-                instance = creature->GetInstanceScript();
-            }
-
-            InstanceScript* instance;
+            boss_jeklikAI(Creature* creature) : BossAI(creature, DATA_JEKLIK) {}
 
             uint32 Charge_Timer;
             uint32 SonicBurst_Timer;
@@ -91,18 +83,17 @@ class boss_jeklik : public CreatureScript
                 PhaseTwo = false;
             }
 
-            void EnterCombat(Unit* /*who*/)
-            {
-                Talk(SAY_AGGRO);
-                DoCast(me, SPELL_BAT_FORM);
-            }
-
             void JustDied(Unit* /*killer*/)
             {
+                _JustDied();
                 Talk(SAY_DEATH);
+            }
 
-                if (instance)
-                    instance->SetData(DATA_JEKLIK, DONE);
+            void EnterCombat(Unit* /*who*/)
+            {
+                _EnterCombat();
+                Talk(SAY_AGGRO);
+                DoCast(me, SPELL_BAT_FORM);
             }
 
             void UpdateAI(const uint32 diff)

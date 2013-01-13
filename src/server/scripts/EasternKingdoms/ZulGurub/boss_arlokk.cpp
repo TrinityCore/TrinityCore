@@ -27,14 +27,14 @@ EndScriptData */
 #include "ScriptedCreature.h"
 #include "zulgurub.h"
 
-enum eYells
+enum Says
 {
     SAY_AGGRO                   = 0,
     SAY_FEAST_PANTHER           = 1,
-    SAY_DEATH                   = 2,
+    SAY_DEATH                   = 2
 };
 
-enum eSpells
+enum Spells
 {
     SPELL_SHADOWWORDPAIN        = 23952,
     SPELL_GOUGE                 = 24698,
@@ -51,21 +51,11 @@ enum eSpells
 
 class boss_arlokk : public CreatureScript
 {
-    public:
+    public: boss_arlokk() : CreatureScript("boss_arlokk") {}
 
-        boss_arlokk()
-            : CreatureScript("boss_arlokk")
+        struct boss_arlokkAI : public BossAI
         {
-        }
-
-        struct boss_arlokkAI : public ScriptedAI
-        {
-            boss_arlokkAI(Creature* creature) : ScriptedAI(creature)
-            {
-                instance = creature->GetInstanceScript();
-            }
-
-            InstanceScript* instance;
+            boss_arlokkAI(Creature* creature) : BossAI(creature, DATA_ARLOKK) {}
 
             uint32 m_uiShadowWordPain_Timer;
             uint32 m_uiGouge_Timer;
@@ -104,8 +94,17 @@ class boss_arlokk : public CreatureScript
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             }
 
+            void JustDied(Unit* /*killer*/)
+            {
+                _JustDied();
+                Talk(SAY_DEATH);
+                me->SetDisplayId(MODEL_ID_NORMAL);
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            }
+
             void EnterCombat(Unit* /*who*/)
             {
+                _EnterCombat();
                 Talk(SAY_AGGRO);
             }
 
@@ -116,17 +115,6 @@ class boss_arlokk : public CreatureScript
 
                 //we should be summoned, so despawn
                 me->DespawnOrUnsummon();
-            }
-
-            void JustDied(Unit* /*killer*/)
-            {
-                Talk(SAY_DEATH);
-
-                me->SetDisplayId(MODEL_ID_NORMAL);
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-
-                if (instance)
-                    instance->SetData(DATA_ARLOKK, DONE);
             }
 
             void DoSummonPhanters()
