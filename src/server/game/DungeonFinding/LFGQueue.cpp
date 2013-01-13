@@ -483,7 +483,7 @@ LfgCompatibility LFGQueue::CheckCompatibility(LfgGuidList check)
 
     uint64 gguid = *check.begin();
     proposal.queues = check;
-    proposal.isNew = numLfgGroups != 1 || !sLFGMgr->GetDungeon(gguid);
+    proposal.isNew = numLfgGroups != 1 || sLFGMgr->GetOldState(gguid) != LFG_STATE_DUNGEON;
 
     if (!sLFGMgr->AllQueued(check))
     {

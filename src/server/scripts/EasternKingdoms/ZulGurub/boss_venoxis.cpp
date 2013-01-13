@@ -42,7 +42,6 @@ enum Spells
     SPELL_HOLY_NOVA                 = 23858,
     SPELL_HOLY_FIRE                 = 23860,
     SPELL_HOLY_WRATH                = 23979,
-
     // snake form
     SPELL_POISON_CLOUD              = 23861,
     SPELL_VENOM_SPIT                = 23862,
@@ -50,7 +49,6 @@ enum Spells
     SPELL_PARASITIC_SERPENT         = 23865,
     SPELL_SUMMON_PARASITIC_SERPENT  = 23866,
     SPELL_PARASITIC_SERPENT_TRIGGER = 23867,
-
     // used when swapping event-stages
     SPELL_VENOXIS_TRANSFORM         = 23849,    // 50% health - shapechange to cobra
     SPELL_FRENZY                    = 8269      // 20% health - frenzy

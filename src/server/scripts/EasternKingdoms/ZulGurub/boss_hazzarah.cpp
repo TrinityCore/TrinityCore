@@ -88,13 +88,12 @@ class boss_hazzarah : public CreatureScript
                             // We will just use one model for the beginning
                             for (uint8 i = 0; i < 3; ++i)
                             {
-                                Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0);
-                                if (!target)
-                                    return;
-
-                                Creature* Illusion = me->SummonCreature(NPC_NIGHTMARE_ILLUSION, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 30000);
-                                if (Illusion)
-                                    Illusion->AI()->AttackStart(target);
+                                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                                {
+                                    Creature* Illusion = me->SummonCreature(NPC_NIGHTMARE_ILLUSION, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 30000);
+                                    if (Illusion)
+                                        Illusion->AI()->AttackStart(target);
+                                }
                             }
                             events.ScheduleEvent(EVENT_ILLUSIONS, urand(15000, 25000));
                             break;
