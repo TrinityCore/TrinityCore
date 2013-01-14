@@ -79,7 +79,7 @@ void LoadGameObjectModelList()
 
         model_list.insert
         (
-            ModelList::value_type( displayId, GameobjectModelData(std::string(buff,name_length),AABox(v1,v2)) )
+            ModelList::value_type( displayId, GameobjectModelData(std::string(buff, name_length), AABox(v1, v2)) )
         );
     }
 

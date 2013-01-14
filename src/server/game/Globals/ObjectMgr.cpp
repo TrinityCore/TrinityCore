@@ -3180,10 +3180,10 @@ void ObjectMgr::LoadPlayerInfo()
                     uint32 max_class = current_class ? current_class + 1 : MAX_CLASSES;
                     for (uint32 r = min_race; r < max_race; ++r)
                         for (uint32 c = min_class; c < max_class; ++c)
-                            if (PlayerInfo * info = _playerInfo[r][c])
+                            if (PlayerInfo* info = _playerInfo[r][c])
                                 info->spell.push_back(fields[2].GetUInt32());
                 }
-                else if (PlayerInfo * info = _playerInfo[current_race][current_class])
+                else if (PlayerInfo* info = _playerInfo[current_race][current_class])
                     info->spell.push_back(fields[2].GetUInt32());
                 else
                 {

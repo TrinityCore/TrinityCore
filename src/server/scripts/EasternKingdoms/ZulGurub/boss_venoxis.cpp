@@ -54,11 +54,6 @@ enum Spells
     SPELL_FRENZY                    = 8269      // 20% health - frenzy
 };
 
-enum NPCs
-{
-    NPC_PARASITIC_SERPENT           = 14884
-};
-
 enum Events
 {
     // troll form
@@ -83,6 +78,11 @@ enum Phases
     PHASE_TWO                       = 2     // snake form
 };
 
+enum NPCs
+{
+    NPC_PARASITIC_SERPENT           = 14884
+};
+
 class boss_venoxis : public CreatureScript
 {
     public: boss_venoxis() : CreatureScript("boss_venoxis") {}
@@ -93,21 +93,14 @@ class boss_venoxis : public CreatureScript
 
             void Reset()
             {
-                events.Reset();
-                summons.DespawnAll();
-
-                // make sure this boss is properly reset
-                instance->SetBossState(DATA_VENOXIS, NOT_STARTED);
-
+                _Reset();
                 // remove all spells and auras from previous attempts
                 me->RemoveAllAuras();
                 me->SetReactState(REACT_PASSIVE);
-
                 // set some internally used variables to their defaults
                 _inMeleeRange = 0;
                 _transformed = false;
                 _frenzied = false;
-
                 events.SetPhase(PHASE_ONE);
             }
 

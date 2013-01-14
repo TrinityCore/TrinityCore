@@ -226,9 +226,9 @@ struct generic_halionAI : public BossAI
 {
     generic_halionAI(Creature* creature, uint32 bossId) : BossAI(creature, bossId), _canEvade(false) { }
 
-    void EnterCombat(Unit* who)
+    void EnterCombat(Unit* /*who*/)
     {
-        BossAI::EnterCombat(who);
+        _EnterCombat();
         me->AddAura(SPELL_TWILIGHT_PRECISION, me);
         _canEvade = false;
         events.ScheduleEvent(EVENT_CLEAVE, urand(8000, 10000));
@@ -239,13 +239,13 @@ struct generic_halionAI : public BossAI
     void Reset()
     {
         _canEvade = false;
-        BossAI::Reset();
+        _Reset();
     }
 
-    void EnterEvadeMode()
+    void JustReachedHome()
     {
-        BossAI::EnterEvadeMode();
         instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+        _JustReachedHome();
     }
 
     void ExecuteEvent(uint32 const eventId)
@@ -349,15 +349,20 @@ class boss_halion : public CreatureScript
                     controller->AI()->SetData(DATA_FIGHT_PHASE, PHASE_ONE);
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*killer*/)
             {
-                BossAI::JustDied(killer);
+                _JustDied();
 
                 Talk(SAY_DEATH);
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
 
+                if (Creature* twilightHalion = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_TWILIGHT_HALION)))
+                    if (twilightHalion->isAlive())
+                        twilightHalion->Kill(twilightHalion);
+  
                 if (Creature* controller = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_HALION_CONTROLLER)))
-                    me->Kill(controller);
+                    if (controller->isAlive())
+                        controller->Kill(controller);
             }
 
             Position const* GetMeteorStrikePosition() const { return &_meteorStrikePos; }
@@ -515,7 +520,8 @@ class boss_twilight_halion : public CreatureScript
                 }
 
                 if (Creature* controller = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_HALION_CONTROLLER)))
-                    controller->Kill(controller);
+                    if (controller->isAlive())
+                        controller->Kill(controller);
 
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
             }
@@ -592,7 +598,6 @@ class npc_halion_controller : public CreatureScript
                 _instance(creature->GetInstanceScript()), _summons(me)
             {
                 me->SetPhaseMask(me->GetPhaseMask() | 0x20, true);
-                _events.SetPhase(PHASE_INTRO);
             }
 
             void Reset()

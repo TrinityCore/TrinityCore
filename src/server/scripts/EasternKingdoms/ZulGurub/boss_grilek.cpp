@@ -47,6 +47,11 @@ class boss_grilek : public CreatureScript // grilek
         {
             boss_grilekAI(Creature* creature) : BossAI(creature, DATA_EDGE_OF_MADNESS) {}
 
+            void Reset()
+            {
+                _Reset();
+            }
+
             void JustDied(Unit* /*killer*/)
             {
                 _JustDied();

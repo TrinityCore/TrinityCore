@@ -104,7 +104,7 @@ public:
     {
         ASSERT(x < CELL_NUMBER && y < CELL_NUMBER);
         if (!nodes[x][y])
-            nodes[x][y] = NodeCreatorFunc::makeNode(x,y);
+            nodes[x][y] = NodeCreatorFunc::makeNode(x, y);
         return *nodes[x][y];
     }
 

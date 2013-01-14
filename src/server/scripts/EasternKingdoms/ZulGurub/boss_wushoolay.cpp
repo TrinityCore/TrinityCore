@@ -47,6 +47,11 @@ class boss_wushoolay : public CreatureScript
         {
             boss_wushoolayAI(Creature* creature) : BossAI(creature, DATA_EDGE_OF_MADNESS) {}
 
+            void Reset()
+            {
+                _Reset();
+            }
+
             void JustDied(Unit* /*killer*/)
             {
                 _JustDied();

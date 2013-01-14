@@ -518,7 +518,7 @@ class spell_astromancer_wrath_of_the_astromancer : public SpellScriptLoader
                     return;
 
                 Unit* target = GetUnitOwner();
-                target->CastSpell(target, GetSpellInfo()->Effects[EFFECT_1].CalcValue(),false);
+                target->CastSpell(target, GetSpellInfo()->Effects[EFFECT_1].CalcValue(), false);
             }
 
             void Register()

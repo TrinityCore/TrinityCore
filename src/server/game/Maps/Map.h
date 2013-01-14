@@ -526,6 +526,7 @@ class Map : public GridRefManager<NGridType>
         void SetUnloadReferenceLock(const GridCoord &p, bool on) { getNGrid(p.x_coord, p.y_coord)->setUnloadReferenceLock(on); }
 
         ACE_Thread_Mutex Lock;
+        ACE_Thread_Mutex GridLock;
 
         MapEntry const* i_mapEntry;
         uint8 i_spawnMode;
