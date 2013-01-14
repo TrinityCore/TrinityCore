@@ -242,10 +242,10 @@ struct generic_halionAI : public BossAI
         _Reset();
     }
 
-    void EnterEvadeMode()
+    void JustReachedHome()
     {
-        _EnterEvadeMode();
         instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+        _JustReachedHome();
     }
 
     void ExecuteEvent(uint32 const eventId)
