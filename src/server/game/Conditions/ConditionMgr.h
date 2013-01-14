@@ -54,7 +54,7 @@ enum ConditionTypes
     CONDITION_TITLE                 = 18,                   // title id         0              0                  true if player has title
     CONDITION_SPAWNMASK             = 19,                   // spawnMask        0              0                  true if in spawnMask
     CONDITION_GENDER                = 20,                   // gender           0              0                  true if player's gender is equal to gender
-    CONDITION_UNUSED_21             = 21,                   //
+    CONDITION_UNIT_STATE            = 21,                   // unitState        0              0                  true if unit has unitState
     CONDITION_MAPID                 = 22,                   // map_id           0              0                  true if in map_id
     CONDITION_AREAID                = 23,                   // area_id          0              0                  true if in area_id
     CONDITION_UNUSED_24             = 24,                   //

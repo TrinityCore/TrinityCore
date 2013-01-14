@@ -225,7 +225,7 @@ class boss_mandokir : public CreatureScript
                 return 0;
             }
 
-            void SetGUID(uint64 guid, int32 type/* = 0 */)
+            void SetGUID(uint64 guid, int32 /*type = 0 */)
             {
                 _reviveGUID = guid;
             }
@@ -341,7 +341,7 @@ class npc_ohgan : public CreatureScript
                 }
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 const /*diff*/)
             {
                 if (!UpdateVictim())
                     return;
@@ -378,7 +378,7 @@ class npc_chained_spirit : public CreatureScript
                 _revivePlayerGUID = 0;
             }
 
-            void SetGUID(uint64 guid, int32 type/* = 0 */)
+            void SetGUID(uint64 guid, int32 /*type = 0 */)
             {
                 _revivePlayerGUID = guid;
             }
@@ -711,7 +711,6 @@ class spell_mandokir_reanimate_ohgan : public SpellScriptLoader
 
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
-                Unit* caster = GetCaster();
                 if (Unit* target = GetHitUnit())
                 {
                     target->RemoveAura(SPELL_PERMANENT_FEIGN_DEATH);

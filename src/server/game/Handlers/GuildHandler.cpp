@@ -404,7 +404,7 @@ void WorldSession::HandleGuildBankerActivate(WorldPacket& recvPacket)
     if (!go)
         return;
 
-    Guild * const guild = GetPlayer()->GetGuild();
+    Guild* const guild = GetPlayer()->GetGuild();
     if (!guild)
     {
         Guild::SendCommandResult(this, GUILD_COMMAND_VIEW_TAB, ERR_GUILD_PLAYER_NOT_IN_GUILD);

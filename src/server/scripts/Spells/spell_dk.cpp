@@ -172,7 +172,7 @@ class spell_dk_anti_magic_zone : public SpellScriptLoader
                 return true;
             }
 
-            bool Validate(SpellInfo const* /*spellEntry*/)
+            bool Validate(SpellInfo const* /*spellInfo*/)
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_DK_ANTI_MAGIC_SHELL_TALENT))
                     return false;

@@ -1563,7 +1563,6 @@ void LFGMgr::FinishDungeon(uint64 gguid, const uint32 dungeonId)
         LfgPlayerRewardData data = LfgPlayerRewardData(dungeon->Entry(), GetDungeon(gguid, false), done, quest);
         player->GetSession()->SendLfgPlayerReward(data);
     }
-    SetDungeon(gguid, 0);
 }
 
 // --------------------------------------------------------------------------//
@@ -1632,6 +1631,18 @@ LfgState LFGMgr::GetState(uint64 guid)
     return state;
 }
 
+LfgState LFGMgr::GetOldState(uint64 guid)
+{
+    LfgState state;
+    if (IS_GROUP_GUID(guid))
+        state = GroupsStore[guid].GetOldState();
+    else
+        state = PlayersStore[guid].GetOldState();
+
+    sLog->outTrace(LOG_FILTER_LFG, "LFGMgr::GetOldState: [" UI64FMTD "] = %u", guid, state);
+    return state;
+}
+
 uint32 LFGMgr::GetDungeon(uint64 guid, bool asId /*= true */)
 {
     uint32 dungeon = GroupsStore[guid].GetDungeon(asId);
@@ -1693,7 +1704,7 @@ uint8 LFGMgr::GetKicksLeft(uint64 guid)
     return kicks;
 }
 
-void LFGMgr::RestoreState(uint64 guid, char const *debugMsg)
+void LFGMgr::RestoreState(uint64 guid, char const* debugMsg)
 {
     if (IS_GROUP_GUID(guid))
     {

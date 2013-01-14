@@ -36,60 +36,45 @@ enum eSays
     SAY_DEATH                      = 4
 };
 
-enum eSpells
+enum Spells
 {
-    SPELL_SUMMON_RAGIN_FLAMES      = 35275,
+    SPELL_SUMMON_RAGIN_FLAMES      = 35275, // Not scripted
     SPELL_FROST_ATTACK             = 35263,
     SPELL_ARCANE_BLAST             = 35314,
     SPELL_DRAGONS_BREATH           = 35250,
     SPELL_KNOCKBACK                = 37317,
     SPELL_SOLARBURN                = 35267,
-    H_SPELL_SUMMON_RAGIN_FLAMES    = 39084,
-    SPELL_INFERNO                  = 35268,
-    H_SPELL_INFERNO                = 39346,
-    SPELL_FIRE_TAIL                = 35278,
+    H_SPELL_SUMMON_RAGIN_FLAMES    = 39084, // Not scripted
+    SPELL_INFERNO                  = 35268, // Not scripted
+    H_SPELL_INFERNO                = 39346, // Not scripted
+    SPELL_FIRE_TAIL                = 35278  // Not scripted
+};
+
+enum Events
+{
+    EVENT_FROST_ATTACK             = 0,
+    EVENT_ARCANE_BLAST             = 1,
+    EVENT_DRAGONS_BREATH           = 2,
+    EVENT_KNOCKBACK                = 3,
+    EVENT_SOLARBURN                = 4
 };
 
 class boss_nethermancer_sepethrea : public CreatureScript
 {
-    public:
+    public: boss_nethermancer_sepethrea(): CreatureScript("boss_nethermancer_sepethrea") {}
 
-        boss_nethermancer_sepethrea()
-            : CreatureScript("boss_nethermancer_sepethrea")
+        struct boss_nethermancer_sepethreaAI : public BossAI
         {
-        }
-        struct boss_nethermancer_sepethreaAI : public ScriptedAI
-        {
-            boss_nethermancer_sepethreaAI(Creature* creature) : ScriptedAI(creature)
-            {
-                instance = creature->GetInstanceScript();
-            }
-
-            InstanceScript* instance;
-
-            uint32 frost_attack_Timer;
-            uint32 arcane_blast_Timer;
-            uint32 dragons_breath_Timer;
-            uint32 knockback_Timer;
-            uint32 solarburn_Timer;
-
-            void Reset()
-            {
-                frost_attack_Timer = urand(7000, 10000);
-                arcane_blast_Timer = urand(12000, 18000);
-                dragons_breath_Timer = urand(18000, 22000);
-                knockback_Timer = urand(22000, 28000);
-                solarburn_Timer = 30000;
-
-                if (instance)
-                    instance->SetData(DATA_NETHERMANCER_EVENT, NOT_STARTED);
-            }
+            boss_nethermancer_sepethreaAI(Creature* creature) : BossAI(creature, DATA_NETHERMANCER_SEPRETHREA) {}
 
             void EnterCombat(Unit* who)
             {
-                if (instance)
-                    instance->SetData(DATA_NETHERMANCER_EVENT, IN_PROGRESS);
-
+                _EnterCombat();
+                events.ScheduleEvent(EVENT_FROST_ATTACK, urand(7000, 10000));
+                events.ScheduleEvent(EVENT_ARCANE_BLAST, urand(12000, 18000));
+                events.ScheduleEvent(EVENT_DRAGONS_BREATH, urand(18000, 22000));
+                events.ScheduleEvent(EVENT_KNOCKBACK, urand(22000, 28000));
+                events.ScheduleEvent(EVENT_SOLARBURN, 30000);
                 Talk(SAY_AGGRO);
                 DoCast(who, SPELL_SUMMON_RAGIN_FLAMES);
                 Talk(SAY_SUMMON);
@@ -102,66 +87,50 @@ class boss_nethermancer_sepethrea : public CreatureScript
 
             void JustDied(Unit* /*killer*/)
             {
+                _JustDied();
                 Talk(SAY_DEATH);
-                if (instance)
-                    instance->SetData(DATA_NETHERMANCER_EVENT, DONE);
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 const diff)
             {
-                //Return since we have no target
                 if (!UpdateVictim())
                     return;
 
-                //Frost Attack
-                if (frost_attack_Timer <= diff)
-                {
-                    DoCast(me->getVictim(), SPELL_FROST_ATTACK);
+                events.Update(diff);
 
-                    frost_attack_Timer = urand(7000, 10000);
-                }
-                else
-                    frost_attack_Timer -= diff;
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
 
-                //Arcane Blast
-                if (arcane_blast_Timer <= diff)
+                while (uint32 eventId = events.ExecuteEvent())
                 {
-                    DoCast(me->getVictim(), SPELL_ARCANE_BLAST);
-                    arcane_blast_Timer = 15000;
-                }
-                else
-                    arcane_blast_Timer -= diff;
-                //Dragons Breath
-                if (dragons_breath_Timer <= diff)
-                {
-                    DoCast(me->getVictim(), SPELL_DRAGONS_BREATH);
+                    switch (eventId)
                     {
-                        if (rand()%2)
-                            return;
-                        Talk(SAY_DRAGONS_BREATH);
+                        case EVENT_FROST_ATTACK:
+                            DoCastVictim(SPELL_FROST_ATTACK, true);
+                            events.ScheduleEvent(EVENT_FROST_ATTACK, urand(7000, 10000));
+                            break;
+                        case EVENT_ARCANE_BLAST:
+                            DoCastVictim(SPELL_ARCANE_BLAST, true);
+                            events.ScheduleEvent(EVENT_ARCANE_BLAST, 15000);
+                            break;
+                        case EVENT_DRAGONS_BREATH:
+                            DoCastVictim(SPELL_DRAGONS_BREATH, true);
+                            events.ScheduleEvent(EVENT_DRAGONS_BREATH, urand(12000, 22000));
+                            if (roll_chance_i(50))
+                                Talk(SAY_DRAGONS_BREATH);
+                            break;
+                        case EVENT_KNOCKBACK:
+                            DoCastVictim(SPELL_KNOCKBACK, true);
+                            events.ScheduleEvent(EVENT_KNOCKBACK, urand(15000, 25000));
+                            break;
+                        case EVENT_SOLARBURN:
+                            DoCastVictim(SPELL_SOLARBURN, true);
+                            events.ScheduleEvent(EVENT_SOLARBURN, 30000);
+                            break;
+                        default:
+                            break;
                     }
-                    dragons_breath_Timer = urand(12000, 22000);
                 }
-                else
-                    dragons_breath_Timer -= diff;
-
-                //Knockback
-                if (knockback_Timer <= diff)
-                {
-                    DoCast(me->getVictim(), SPELL_KNOCKBACK);
-                    knockback_Timer = urand(15000, 25000);
-                }
-                else
-                    knockback_Timer -= diff;
-
-                //Solarburn
-                if (solarburn_Timer <= diff)
-                {
-                    DoCast(me->getVictim(), SPELL_SOLARBURN);
-                    solarburn_Timer = 30000;
-                }
-                else
-                    solarburn_Timer -= diff;
 
                 DoMeleeAttackIfReady();
             }
@@ -172,13 +141,11 @@ class boss_nethermancer_sepethrea : public CreatureScript
             return new boss_nethermancer_sepethreaAI(creature);
         }
 };
+
 class mob_ragin_flames : public CreatureScript
 {
     public:
-        mob_ragin_flames()
-            : CreatureScript("mob_ragin_flames")
-        {
-        }
+        mob_ragin_flames() : CreatureScript("mob_ragin_flames") { }
 
             struct mob_ragin_flamesAI : public ScriptedAI
             {
@@ -217,7 +184,7 @@ class mob_ragin_flames : public CreatureScript
                     {
                         if (instance)
                         {
-                            if (instance->GetData(DATA_NETHERMANCER_EVENT) != IN_PROGRESS)
+                            if (instance->GetData(DATA_NETHERMANCER_SEPRETHREA) != IN_PROGRESS)
                             {
                                 //remove
                                 me->setDeathState(JUST_DIED);
@@ -259,9 +226,9 @@ class mob_ragin_flames : public CreatureScript
                 return new mob_ragin_flamesAI(creature);
             }
 };
+
 void AddSC_boss_nethermancer_sepethrea()
 {
     new boss_nethermancer_sepethrea();
     new mob_ragin_flames();
 }
-
