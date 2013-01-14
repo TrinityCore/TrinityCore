@@ -37,7 +37,7 @@ bool DB2FileLoader::Load(const char *filename, const char *fmt)
         data=NULL;
     }
 
-    FILE * f = fopen(filename, "rb");
+    FILE* f = fopen(filename, "rb");
     if (!f)
         return false;
 
@@ -193,7 +193,7 @@ uint32 DB2FileLoader::GetFormatRecordSize(const char * format, int32* index_pos)
     int32 i = -1;
     for (uint32 x=0; format[x]; ++x)
     {
-        switch(format[x])
+        switch (format[x])
         {
             case FT_FLOAT:
             case FT_INT:
@@ -279,7 +279,7 @@ char* DB2FileLoader::AutoProduceData(const char* format, uint32& records, char**
 
         for (uint32 x = 0; x < fieldCount; x++)
         {
-            switch(format[x])
+            switch (format[x])
             {
                 case FT_FLOAT:
                     *((float*)(&dataTable[offset])) = getRecord(y).getFloat(x);
@@ -332,8 +332,8 @@ char* DB2FileLoader::AutoProduceStringsArrayHolders(const char* format, char* da
     {
         uint32 stringFieldNum = 0;
 
-        for(uint32 x = 0; x < fieldCount; x++)
-            switch(format[x])
+        for (uint32 x = 0; x < fieldCount; x++)
+            switch (format[x])
             {
                 case FT_FLOAT:
                 case FT_IND:
@@ -378,7 +378,7 @@ char* DB2FileLoader::AutoProduceStrings(const char* format, char* dataTable)
     for (uint32 y =0; y < recordCount; y++)
     {
         for (uint32 x = 0; x < fieldCount; x++)
-            switch(format[x])
+            switch (format[x])
         {
             case FT_FLOAT:
             case FT_IND:

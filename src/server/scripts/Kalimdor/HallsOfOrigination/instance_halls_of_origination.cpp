@@ -27,7 +27,7 @@
 #include "WorldPacket.h"
 #include "WorldSession.h"
 
-DoorData const doorData[] = 
+DoorData const doorData[] =
 {
     {GO_ANHUURS_DOOR,                 DATA_TEMPLE_GUARDIAN_ANHUUR, DOOR_TYPE_PASSAGE, BOUNDARY_NONE },
     {GO_ANHUURS_BRIDGE,               DATA_TEMPLE_GUARDIAN_ANHUUR, DOOR_TYPE_PASSAGE, BOUNDARY_NONE },
@@ -51,7 +51,7 @@ class instance_halls_of_origination : public InstanceMapScript
 
         struct instance_halls_of_origination_InstanceMapScript : public InstanceScript
         {
-            instance_halls_of_origination_InstanceMapScript(InstanceMap* map) : InstanceScript(map) 
+            instance_halls_of_origination_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
             {
                 SetBossNumber(EncounterCount);
                 LoadDoorData(doorData);
@@ -66,7 +66,7 @@ class instance_halls_of_origination : public InstanceMapScript
                 SunMirrorGUID = 0;
                 _deadElementals = 0;
             }
-            
+
             void OnGameObjectCreate(GameObject* go)
             {
                 switch (go->GetEntry())
@@ -150,7 +150,7 @@ class instance_halls_of_origination : public InstanceMapScript
                     default:
                         break;
                 }
-                
+
                 return 0;
             }
 
@@ -173,7 +173,7 @@ class instance_halls_of_origination : public InstanceMapScript
                     case DATA_ANRAPHET_GUID:
                         return AnraphetGUID;
                 }
-                
+
                 return 0;
             }
 
@@ -269,7 +269,7 @@ class instance_halls_of_origination : public InstanceMapScript
             uint64 SunMirrorGUID;
             uint32 _deadElementals;
         };
-        
+
         InstanceScript* GetInstanceScript(InstanceMap* map) const
         {
             return new instance_halls_of_origination_InstanceMapScript(map);

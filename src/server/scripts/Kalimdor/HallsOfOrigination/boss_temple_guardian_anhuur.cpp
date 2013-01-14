@@ -53,7 +53,7 @@ enum Spells
 
     SPELL_SHIELD_VISUAL_RIGHT    = 83698,
     SPELL_BEAM_OF_LIGHT_RIGHT    = 76573,
-    
+
     SPELL_SHIELD_VISUAL_LEFT     = 83697,
     SPELL_BEAM_OF_LIGHT_LEFT     = 74930,
 
@@ -196,12 +196,12 @@ public:
         {
             if (!UpdateVictim() || !CheckInRoom() || me->GetCurrentSpell(CURRENT_CHANNELED_SPELL) || _phase == PHASE_SHIELDED)
                 return;
-            
+
             events.Update(diff);
-            
+
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
-            
+
             while (uint32 eventId = events.ExecuteEvent())
             {
                 switch (eventId)
@@ -225,22 +225,22 @@ public:
                         Unit* target = me->FindNearestCreature(NPC_SEARING_LIGHT, 100.0f);
                         if (!target)
                             break;
-                            
+
                         std::list<Creature*> stalkers;
                         GetCreatureListWithEntryInGrid(stalkers, me, NPC_CAVE_IN_STALKER, 100.0f);
                         stalkers.remove_if(Trinity::HeightDifferenceCheck(ObjectAccessor::GetGameObject(*me, instance->GetData64(DATA_ANHUUR_DOOR)), 5.0f, true));
-                        
+
                         if (stalkers.empty())
                             break;
 
                         stalkers.sort(Trinity::ObjectDistanceOrderPred(target));
-                        
+
                         // Get the closest statue face (any of its eyes)
                         Creature* eye1 = stalkers.front();
                         stalkers.remove(eye1); // Remove the eye.
                         stalkers.sort(Trinity::ObjectDistanceOrderPred(eye1)); // Find the second eye.
                         Creature* eye2 = stalkers.front();
-                        
+
                         eye1->CastSpell(eye1, SPELL_SEARING_LIGHT, true);
                         eye2->CastSpell(eye2, SPELL_SEARING_LIGHT, true);
                         break;
@@ -267,11 +267,11 @@ class spell_anhuur_shield_of_light : public SpellScriptLoader
 {
     public:
         spell_anhuur_shield_of_light() : SpellScriptLoader("spell_anhuur_shield_of_light") { }
-        
+
         class spell_anhuur_shield_of_light_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_anhuur_shield_of_light_SpellScript);
-            
+
             void FilterTargets(std::list<WorldObject*>& targets)
             {
                 if (InstanceMap* instance = GetCaster()->GetMap()->ToInstanceMap())
@@ -288,13 +288,13 @@ class spell_anhuur_shield_of_light : public SpellScriptLoader
                     }
                 }
             }
-            
+
             void Register()
             {
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_anhuur_shield_of_light_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_SRC_AREA_ENTRY);
             }
         };
-        
+
         SpellScript* GetSpellScript() const
         {
             return new spell_anhuur_shield_of_light_SpellScript();
@@ -305,11 +305,11 @@ class spell_anhuur_disable_beacon_beams : public SpellScriptLoader
 {
     public:
         spell_anhuur_disable_beacon_beams() : SpellScriptLoader("spell_anhuur_disable_beacon_beams") { }
-        
+
         class spell_anhuur_disable_beacon_beams_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_anhuur_disable_beacon_beams_SpellScript);
-            
+
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
                 GetHitUnit()->RemoveAurasDueToSpell(GetEffectValue());
@@ -329,7 +329,7 @@ class spell_anhuur_disable_beacon_beams : public SpellScriptLoader
                 OnEffectHit += SpellEffectFn(spell_anhuur_disable_beacon_beams_SpellScript::Notify, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
-        
+
         SpellScript* GetSpellScript() const
         {
             return new spell_anhuur_disable_beacon_beams_SpellScript();

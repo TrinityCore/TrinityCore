@@ -32,7 +32,7 @@ typedef std::list<std::string> StoreProblemList1;
 
 uint32 DB2FilesCount = 0;
 
-static bool LoadDB2_assert_print(uint32 fsize,uint32 rsize, const std::string& filename)
+static bool LoadDB2_assert_print(uint32 fsize, uint32 rsize, const std::string& filename)
 {
     sLog->outError(LOG_FILTER_GENERAL, "Size of '%s' setted by format string (%u) not equal size of C++ structure (%u).", filename.c_str(), fsize, rsize);
 
@@ -62,7 +62,7 @@ inline void LoadDB2(StoreProblemList1& errlist, DB2Storage<T>& storage, const st
     if (!storage.Load(db2_filename.c_str()))
     {
         // sort problematic db2 to (1) non compatible and (2) nonexistent
-        if (FILE * f = fopen(db2_filename.c_str(), "rb"))
+        if (FILE* f = fopen(db2_filename.c_str(), "rb"))
         {
             char buf[100];
             snprintf(buf, 100,"(exist, but have %d fields instead " SIZEFMTD ") Wrong client version DBC file?", storage.GetFieldCount(), strlen(storage.GetFormat()));
@@ -96,7 +96,7 @@ void LoadDB2Stores(const std::string& dataPath)
         for (std::list<std::string>::iterator i = bad_db2_files.begin(); i != bad_db2_files.end(); ++i)
             str += *i + "\n";
 
-        sLog->outError(LOG_FILTER_GENERAL, "\nSome required *.db2 files (%u from %d) not found or not compatible:\n%s", (uint32)bad_db2_files.size(), DB2FilesCount,str.c_str());
+        sLog->outError(LOG_FILTER_GENERAL, "\nSome required *.db2 files (%u from %d) not found or not compatible:\n%s", (uint32)bad_db2_files.size(), DB2FilesCount, str.c_str());
         exit(1);
     }
 

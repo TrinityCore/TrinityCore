@@ -1734,7 +1734,7 @@ void Spell::SelectImplicitTrajTargets()
         m_targets.ModDst(trajDst);
     }
 
-    if (Vehicle * veh = m_caster->GetVehicleKit())
+    if (Vehicle* veh = m_caster->GetVehicleKit())
         veh->SetLastShootPos(*m_targets.GetDstPos());
 }
 
@@ -4981,7 +4981,7 @@ SpellCastResult Spell::CheckCast(bool strict)
             return SPELL_FAILED_ONLY_BATTLEGROUNDS;
 
     // do not allow spells to be cast in arenas or rated battlegrounds
-    if (Player * player = m_caster->ToPlayer())
+    if (Player* player = m_caster->ToPlayer())
         if (player->InArena()/* || player->InRatedBattleGround() NYI*/)
         {
             SpellCastResult castResult = CheckArenaAndRatedBattlegroundCastRules();

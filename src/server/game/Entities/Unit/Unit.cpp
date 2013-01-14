@@ -4876,7 +4876,7 @@ bool Unit::HandleSpellCritChanceAuraProc(Unit* victim, uint32 /*damage*/, AuraEf
     return true;
 }
 
-bool Unit::HandleAuraProcOnPowerAmount(Unit* victim, uint32 /*damage*/, AuraEffect* triggeredByAura, SpellInfo const *procSpell, uint32 procFlag, uint32 /*procEx*/, uint32 cooldown)
+bool Unit::HandleAuraProcOnPowerAmount(Unit* victim, uint32 /*damage*/, AuraEffect* triggeredByAura, SpellInfo const* procSpell, uint32 procFlag, uint32 /*procEx*/, uint32 cooldown)
 {
     // Get triggered aura spell info
     SpellInfo const* auraSpellInfo = triggeredByAura->GetSpellInfo();
@@ -4944,7 +4944,7 @@ bool Unit::HandleAuraProcOnPowerAmount(Unit* victim, uint32 /*damage*/, AuraEffe
                 uint32 solarEclipseMarker = 67483;
                 uint32 lunarEclipseMarker = 67484;
 
-                switch(effIndex)
+                switch (effIndex)
                 {
                     case 0:
                     {
@@ -4955,7 +4955,7 @@ bool Unit::HandleAuraProcOnPowerAmount(Unit* victim, uint32 /*damage*/, AuraEffe
                         if (HasAura(solarEclipseMarker))
                         {
                             RemoveAurasDueToSpell(solarEclipseMarker);
-                            CastSpell(this,lunarEclipseMarker,true);
+                            CastSpell(this, lunarEclipseMarker, true);
                         }
                         break;
                     }
@@ -4968,7 +4968,7 @@ bool Unit::HandleAuraProcOnPowerAmount(Unit* victim, uint32 /*damage*/, AuraEffe
                         if (HasAura(lunarEclipseMarker))
                         {
                             RemoveAurasDueToSpell(lunarEclipseMarker);
-                            CastSpell(this,solarEclipseMarker,true);
+                            CastSpell(this, solarEclipseMarker, true);
                         }
 
                         break;
@@ -16977,7 +16977,7 @@ void Unit::ReadMovementInfo(WorldPacket& data, MovementInfo* mi)
        if (GetTransport())
            GetTransport()->UpdatePosition(mi);
 
-    //! Anti-cheat checks. Please keep them in seperate if() blocks to maintain a clear overview.
+    //! Anti-cheat checks. Please keep them in seperate if () blocks to maintain a clear overview.
     //! Might be subject to latency, so just remove improper flags.
     #ifdef TRINITY_DEBUG
     #define REMOVE_VIOLATING_FLAGS(check, maskToRemove) \
@@ -17077,7 +17077,7 @@ void Unit::WriteMovementInfo(WorldPacket& data)
     ObjectGuid guid = mover->GetGUID();
     ObjectGuid tguid = hasTransportData ? GetTransport()->GetGUID() : 0;
 
-    for(uint32 i = 0; i < MSE_COUNT; ++i)
+    for (uint32 i = 0; i < MSE_COUNT; ++i)
     {
         MovementStatusElements element = sequence[i];
         if (element == MSEEnd)
@@ -17323,10 +17323,10 @@ void Unit::SendTeleportPacket(Position& pos)
 
     // Relocate the player/creature to its old position, so we can broadcast to nearby players correctly
     if (GetTypeId() == TYPEID_PLAYER)
-        Relocate(&pos); 
+        Relocate(&pos);
     else
         Relocate(&oldPos);
-    
+
     // Broadcast the packet to everyone except self.
     SendMessageToSet(&data, false);
 }

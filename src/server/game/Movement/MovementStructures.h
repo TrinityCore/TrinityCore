@@ -2173,7 +2173,7 @@ MovementStatusElements MoveUpdateTeleport[] =
     MSEGuidByte4,
     MSETimestamp,
     MSEGuidByte0,
-    
+
     MSEEnd,
 };
 
