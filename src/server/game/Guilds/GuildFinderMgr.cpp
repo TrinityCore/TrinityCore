@@ -142,7 +142,7 @@ void GuildFinderMgr::RemoveAllMembershipRequestsFromPlayer(uint32 playerId)
     for (MembershipRequestStore::iterator itr = _membershipRequests.begin(); itr != _membershipRequests.end(); ++itr)
     {
         std::vector<MembershipRequest>::iterator itr2 = itr->second.begin();
-        for(; itr2 != itr->second.end(); ++itr2)
+        for (; itr2 != itr->second.end(); ++itr2)
             if (itr2->GetPlayerGUID() == playerId)
                 break;
 
@@ -167,7 +167,7 @@ void GuildFinderMgr::RemoveAllMembershipRequestsFromPlayer(uint32 playerId)
 void GuildFinderMgr::RemoveMembershipRequest(uint32 playerId, uint32 guildId)
 {
     std::vector<MembershipRequest>::iterator itr = _membershipRequests[guildId].begin();
-    for(; itr != _membershipRequests[guildId].end(); ++itr)
+    for (; itr != _membershipRequests[guildId].end(); ++itr)
         if (itr->GetPlayerGUID() == playerId)
             break;
 
@@ -306,7 +306,7 @@ void GuildFinderMgr::DeleteGuild(uint32 guildId)
         // Notify the applicant his submition has been removed
         if (Player* player = ObjectAccessor::FindPlayer(MAKE_NEW_GUID(applicant, 0, HIGHGUID_PLAYER)))
             SendMembershipRequestListUpdate(*player);
-            
+
         ++itr;
     }
 

@@ -1246,7 +1246,7 @@ void Battleground::AddPlayer(Player* player)
         if (GetStatus() == STATUS_WAIT_JOIN)                 // not started yet
         {
             player->CastSpell(player, SPELL_PREPARATION, true);   // reduces all mana cost of spells.
-            
+
             int32 countdownMaxForBGType = isArena() ? ARENA_COUNTDOWN_MAX : BATTLEGROUND_COUNTDOWN_MAX;
             WorldPacket data(SMSG_START_TIMER, 4+4+4);
             data << uint32(0); // unk

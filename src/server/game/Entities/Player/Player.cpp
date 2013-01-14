@@ -1974,7 +1974,7 @@ bool Player::BuildEnumData(PreparedQueryResult result, ByteBuffer* dataBuffer, B
             continue;
         }
 
-        SpellItemEnchantmentEntry const *enchant = NULL;
+        SpellItemEnchantmentEntry const* enchant = NULL;
         uint32 enchants = GetUInt32ValueFromArray(equipment, visualbase + 1);
         for (uint8 enchantSlot = PERM_ENCHANTMENT_SLOT; enchantSlot <= TEMP_ENCHANTMENT_SLOT; ++enchantSlot)
         {
@@ -7228,7 +7228,7 @@ void Player::_SaveCurrency(SQLTransaction& trans)
         if (!entry) // should never happen
             continue;
 
-        switch(itr->second.state)
+        switch (itr->second.state)
         {
             case PLAYERCURRENCY_NEW:
                 stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_PLAYER_CURRENCY);
@@ -7469,7 +7469,7 @@ void Player::ModifyCurrency(uint32 id, int32 count, bool printLog/* = true*/, bo
             if (currency->Category == CURRENCY_CATEGORY_META_CONQUEST)
             {
                 //original conquest cap is highest of bg/arena conquest cap.
-                if(weekCap > _ConquestCurrencyTotalWeekCap)
+                if (weekCap > _ConquestCurrencyTotalWeekCap)
                     _ConquestCurrencyTotalWeekCap = weekCap;
                 // count was changed to week limit, now we can modify original points.
                 ModifyCurrency(CURRENCY_TYPE_CONQUEST_POINTS, count, printLog );
@@ -7477,7 +7477,7 @@ void Player::ModifyCurrency(uint32 id, int32 count, bool printLog/* = true*/, bo
             }
 
             // on new case just set init.
-            if(itr->second.state == PLAYERCURRENCY_NEW)
+            if (itr->second.state == PLAYERCURRENCY_NEW)
             {
                 SendNewCurrency(id);
                 return;
@@ -7521,7 +7521,7 @@ uint32 Player::GetCurrencyWeekCap(uint32 id, bool usePrecision) const
         return 0;
 
     uint32 cap = _GetCurrencyWeekCap(entry);
-    if(usePrecision && entry->Flags & CURRENCY_FLAG_HIGH_PRECISION)
+    if (usePrecision && entry->Flags & CURRENCY_FLAG_HIGH_PRECISION)
         cap /= 100;
 
     return cap;
@@ -11497,7 +11497,7 @@ InventoryResult Player::CanBankItem(uint8 bag, uint8 slot, ItemPosCountVec &dest
         return EQUIP_ERR_NOT_OWNER;
 
     // Currency Tokenizer are not supposed to be swapped out of their hidden bag
-    if(pItem->IsCurrencyToken())
+    if (pItem->IsCurrencyToken())
     {
         sLog->outError(LOG_FILTER_PLAYER, "Possible hacking attempt: Player %s [guid: %u] tried to move token [guid: %u, entry: %u] out of the currency bag!",
                 GetName().c_str(), GetGUIDLow(), pItem->GetGUIDLow(), pProto->ItemId);
@@ -21326,7 +21326,7 @@ void Player::InitDisplayIds()
     }
 }
 
-inline bool Player::_StoreOrEquipNewItem(uint32 vendorslot, uint32 item, uint8 count, uint8 bag, uint8 slot, int32 price, ItemTemplate const *pProto, Creature *pVendor, VendorItem const* crItem, bool bStore)
+inline bool Player::_StoreOrEquipNewItem(uint32 vendorslot, uint32 item, uint8 count, uint8 bag, uint8 slot, int32 price, ItemTemplate const* pProto, Creature* pVendor, VendorItem const* crItem, bool bStore)
 {
     ItemPosCountVec vDest;
     uint16 uiDest = 0;
@@ -23450,7 +23450,7 @@ uint32 Player::GetResurrectionSpellId()
 }
 
 // Used in triggers for check "Only to targets that grant experience or honor" req
-bool Player::isHonorOrXPTarget(Unit const *victim)
+bool Player::isHonorOrXPTarget(Unit const* victim)
 {
     uint8 v_level = victim->getLevel();
     uint8 k_grey  = Trinity::XP::GetGrayLevel(getLevel());

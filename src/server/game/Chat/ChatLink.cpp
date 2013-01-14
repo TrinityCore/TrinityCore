@@ -167,7 +167,7 @@ bool ItemChatLink::Initialize(std::istringstream& iss)
     return true;
 }
 
-inline std::string ItemChatLink::FormatName(uint8 index, ItemLocale const *locale, char* suffixStrings) const
+inline std::string ItemChatLink::FormatName(uint8 index, ItemLocale const* locale, char* suffixStrings) const
 {
     std::stringstream ss;
     if (locale == NULL || index >= locale->Name.size())

@@ -436,7 +436,7 @@ void WorldSession::HandleMailReturnToSender(WorldPacket& recvData)
         {
             for (MailItemInfoVec::iterator itr2 = m->items.begin(); itr2 != m->items.end(); ++itr2)
             {
-                if (Item * const item = player->GetMItem(itr2->item_guid))
+                if (Item* const item = player->GetMItem(itr2->item_guid))
                     draft.AddItem(item);
                 player->RemoveMItem(itr2->item_guid);
             }

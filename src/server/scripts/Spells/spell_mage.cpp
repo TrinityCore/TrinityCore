@@ -465,7 +465,7 @@ class spell_mage_conjure_refreshment : public SpellScriptLoader
 class spell_mage_blizzard : public SpellScriptLoader
 {
    public:
-       spell_mage_blizzard() : SpellScriptLoader("spell_mage_blizzard") { } 
+       spell_mage_blizzard() : SpellScriptLoader("spell_mage_blizzard") { }
 
        class spell_mage_blizzard_SpellScript : public SpellScript
        {
@@ -498,7 +498,7 @@ class spell_mage_blizzard : public SpellScriptLoader
            }
        };
 
-       SpellScript *GetSpellScript() const
+       SpellScript* GetSpellScript() const
        {
            return new spell_mage_blizzard_SpellScript();
        }
@@ -509,7 +509,7 @@ class spell_mage_blizzard : public SpellScriptLoader
 class spell_mage_frostbolt : public SpellScriptLoader
 {
    public:
-       spell_mage_frostbolt() : SpellScriptLoader("spell_mage_frostbolt") { } 
+       spell_mage_frostbolt() : SpellScriptLoader("spell_mage_frostbolt") { }
 
        class spell_mage_frostbolt_SpellScript : public SpellScript
        {
@@ -534,7 +534,7 @@ class spell_mage_frostbolt : public SpellScriptLoader
            }
        };
 
-       SpellScript *GetSpellScript() const
+       SpellScript* GetSpellScript() const
        {
            return new spell_mage_frostbolt_SpellScript();
        }

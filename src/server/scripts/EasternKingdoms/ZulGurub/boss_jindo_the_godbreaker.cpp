@@ -22,7 +22,7 @@
 
 enum Yells
 {
-    // Jin'do the Godbreaker 
+    // Jin'do the Godbreaker
     SAY_INTRO                   = 0,
     SAY_AGGRO                   = 1,
     EMOTE_SHADOWS_OF_HAKKAR     = 2, // ID - 97172 Shadows of Hakkar

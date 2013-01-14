@@ -2267,7 +2267,7 @@ class Player : public Unit, public GridObject<Player>
         bool IsAtRecruitAFriendDistance(WorldObject const* pOther) const;
         void RewardPlayerAndGroupAtKill(Unit* victim, bool isBattleGround);
         void RewardPlayerAndGroupAtEvent(uint32 creature_id, WorldObject* pRewardSource);
-        bool isHonorOrXPTarget(Unit const *victim);
+        bool isHonorOrXPTarget(Unit const* victim);
 
         bool GetsRecruitAFriendBonus(bool forXP);
         uint8 GetGrantableLevels() { return m_grantableLevels; }
@@ -2938,7 +2938,7 @@ class Player : public Unit, public GridObject<Player>
         /*
          * @name   _GetCurrencyTotalCap
          * @brief  return total cap for selected currency
-     
+
          * @param  currency CurrencyTypesEntry witch should get week cap
          */
         uint32 _GetCurrencyTotalCap(const CurrencyTypesEntry* currency) const;
