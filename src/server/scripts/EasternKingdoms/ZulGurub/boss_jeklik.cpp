@@ -70,6 +70,7 @@ class boss_jeklik : public CreatureScript //jeklik
 
             void Reset()
             {
+                _Reset();
                 Charge_Timer = 20000;
                 SonicBurst_Timer = 8000;
                 Screech_Timer = 13000;

@@ -102,7 +102,7 @@ class boss_archaedas : public CreatureScript
                     DoCast(minion, SPELL_AWAKEN_VAULT_WALKER, flag);
                     minion->CastSpell(minion, SPELL_ARCHAEDAS_AWAKEN, true);
                     minion->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                    minion->RemoveFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_DISABLE_MOVE);
+                    minion->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
                     minion->setFaction(14);
                 }
             }

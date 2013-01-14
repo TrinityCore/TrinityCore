@@ -815,7 +815,7 @@ void WorldSession::ReadMovementInfo(WorldPacket &data, MovementInfo* mi)
     if (mi->HasMovementFlag(MOVEMENTFLAG_SPLINE_ELEVATION))
         data >> mi->splineElevation;
 
-    //! Anti-cheat checks. Please keep them in seperate if() blocks to maintain a clear overview.
+    //! Anti-cheat checks. Please keep them in seperate if () blocks to maintain a clear overview.
     //! Might be subject to latency, so just remove improper flags.
     #ifdef TRINITY_DEBUG
     #define REMOVE_VIOLATING_FLAGS(check, maskToRemove) \

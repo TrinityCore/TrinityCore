@@ -57,6 +57,7 @@ class boss_renataki : public CreatureScript
 
             void Reset()
             {
+                _Reset();
                 Invisible_Timer = urand(8000, 18000);
                 Ambush_Timer = 3000;
                 Visible_Timer = 4000;

@@ -91,7 +91,7 @@ class boss_instructor_malicia : public CreatureScript
                             events.ScheduleEvent(EVENT_CALLOFGRAVES, 65000);
                             break;
                         case EVENT_CORRUPTION:
-                            DoCast(SelectTarget(SELECT_TARGET_RANDOM,0, 100, true),SPELL_CORRUPTION,true);
+                            DoCast(SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true), SPELL_CORRUPTION, true);
                             events.ScheduleEvent(EVENT_CORRUPTION, 24000);
                             break;
                         case EVENT_RENEW:

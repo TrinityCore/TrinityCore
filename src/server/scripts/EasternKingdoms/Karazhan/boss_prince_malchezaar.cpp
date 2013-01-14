@@ -603,7 +603,7 @@ public:
 
 void netherspite_infernal::netherspite_infernalAI::Cleanup()
 {
-    Creature *pMalchezaar = Unit::GetCreature(*me, malchezaar);
+    Creature* pMalchezaar = Unit::GetCreature(*me, malchezaar);
 
     if (pMalchezaar && pMalchezaar->isAlive())
         CAST_AI(boss_malchezaar::boss_malchezaarAI, pMalchezaar->AI())->Cleanup(me, point);
