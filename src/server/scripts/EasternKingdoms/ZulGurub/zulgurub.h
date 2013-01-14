@@ -45,7 +45,9 @@ enum CreatureIds
     NPC_JINDO_THE_HEXXER    = 11380,
     NPC_NIGHTMARE_ILLUSION  = 15163,
     NPC_ZULIAN_PROWLER      = 15101,
-    NPC_SPEAKER             = 11391
+    NPC_SPEAKER             = 11391,
+    NPC_SHADE_OF_JINDO      = 14986,
+    NPC_SACRIFICED_TROLL    = 14826
 };
 
 #endif
