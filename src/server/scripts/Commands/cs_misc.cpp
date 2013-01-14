@@ -1546,6 +1546,8 @@ public:
 
         std::string userName    = handler->GetTrinityString(LANG_ERROR);
         std::string eMail       = handler->GetTrinityString(LANG_ERROR);
+        std::string muteReason  = "";
+        std::string muteBy      = "";
         std::string lastIp      = handler->GetTrinityString(LANG_ERROR);
         uint32 security         = 0;
         std::string lastLogin   = handler->GetTrinityString(LANG_ERROR);
@@ -1562,6 +1564,8 @@ public:
             security      = fields[1].GetUInt8();
             eMail         = fields[2].GetString();
             muteTime      = fields[5].GetUInt64();
+            muteReason    = fields[6].GetString();
+            muteBy        = fields[7].GetString();
 
             if (eMail.empty())
                 eMail = "-";
@@ -1623,7 +1627,7 @@ public:
         }
 
         if (muteTime > 0)
-            handler->PSendSysMessage(LANG_PINFO_MUTE, secsToTimeString(muteTime - time(NULL), true).c_str());
+            handler->PSendSysMessage(LANG_PINFO_MUTE, secsToTimeString(muteTime - time(NULL), true).c_str(), muteBy.c_str(), muteReason.c_str());
 
         if (banTime >= 0)
             handler->PSendSysMessage(LANG_PINFO_BAN, banTime > 0 ? secsToTimeString(banTime - time(NULL), true).c_str() : "permanently", bannedby.c_str(), banreason.c_str());
@@ -1799,6 +1803,11 @@ public:
             return false;
 
         PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_MUTE_TIME);
+        std::string muteBy = "";
+        if (handler->GetSession())
+          muteBy = handler->GetSession()->GetPlayer()->GetName().c_str();
+        else
+          muteBy = "Console";
 
         if (target)
         {
@@ -1806,7 +1815,7 @@ public:
             int64 muteTime = time(NULL) + notSpeakTime * MINUTE;
             target->GetSession()->m_muteTime = muteTime;
             stmt->setInt64(0, muteTime);
-            ChatHandler(target->GetSession()).PSendSysMessage(LANG_YOUR_CHAT_DISABLED, notSpeakTime, muteReasonStr.c_str());
+            ChatHandler(target->GetSession()).PSendSysMessage(LANG_YOUR_CHAT_DISABLED, notSpeakTime, muteBy.c_str(), muteReasonStr.c_str());
         }
         else
         {
@@ -1815,7 +1824,9 @@ public:
             stmt->setInt64(0, muteTime);
         }
 
-        stmt->setUInt32(1, accountId);
+        stmt->setString(1, muteReasonStr.c_str());
+        stmt->setString(2, muteBy.c_str());
+        stmt->setUInt32(3, accountId);
         LoginDatabase.Execute(stmt);
         std::string nameLink = handler->playerLink(targetName);
 
@@ -1858,7 +1869,9 @@ public:
 
         PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_MUTE_TIME);
         stmt->setInt64(0, 0);
-        stmt->setUInt32(1, accountId);
+        stmt->setString(1, "");
+        stmt->setString(2, "");
+        stmt->setUInt32(3, accountId);
         LoginDatabase.Execute(stmt);
 
         if (target)
