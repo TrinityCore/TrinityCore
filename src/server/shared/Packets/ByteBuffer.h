@@ -52,7 +52,7 @@ class ByteBufferPositionException : public ByteBufferException
         {
             ACE_Stack_Trace trace;
 
-            sLog->outError(LOG_FILTER_NETWORKIO, "Attempted to %s value with size: "SIZEFMTD" in ByteBuffer (pos: " SIZEFMTD " size: "SIZEFMTD")\n[Stacktrace: %s]" ,
+            sLog->outError(LOG_FILTER_NETWORKIO, "Attempted to %s value with size: "SIZEFMTD" in ByteBuffer (pos: " SIZEFMTD " size: "SIZEFMTD")\n[Stacktrace: %s]",
                 (_add ? "put" : "get"), ValueSize, Pos, Size, trace.c_str());
         }
 

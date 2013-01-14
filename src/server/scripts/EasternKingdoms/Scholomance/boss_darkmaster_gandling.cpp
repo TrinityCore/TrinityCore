@@ -117,7 +117,7 @@ class boss_darkmaster_gandling : public CreatureScript
                         case EVENT_SHADOW_PORTAL:
                             if (HealthAbovePct(3))
                             {
-                                DoCast(SelectTarget(SELECT_TARGET_RANDOM,0, 100, true),SPELL_SHADOW_PORTAL,true);
+                                DoCast(SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true), SPELL_SHADOW_PORTAL, true);
                                 events.ScheduleEvent(EVENT_SHADOW_PORTAL, urand(17000, 27000));
                             }
                     }
@@ -172,7 +172,7 @@ class spell_shadow_portal : public SpellScriptLoader
                 {
                     if (attempts++ >= 6) break;
 
-                    switch (urand(0,5))
+                    switch (urand(0, 5))
                     {
                         case ROOM_HALL_OF_SECRETS:
                             if (InstanceScript* instance = GetCaster()->GetInstanceScript())
@@ -223,7 +223,7 @@ class spell_shadow_portal : public SpellScriptLoader
         }
 };
 
-// Script for Shadow Portal spells 17863,17939,17943,17944,17946,17948
+// Script for Shadow Portal spells 17863, 17939, 17943, 17944, 17946, 17948
 Position const SummonPos[18] =
 {
     // Hall of Secrects
@@ -331,7 +331,7 @@ class spell_shadow_portal_rooms : public SpellScriptLoader
                         if (Summoned)
                         {
                             Summoned->GetMotionMaster()->MoveRandom(5);
-                            Summoned->AI()->SetData(0,phase_to_set);
+                            Summoned->AI()->SetData(0, phase_to_set);
                         }
                     }
 
