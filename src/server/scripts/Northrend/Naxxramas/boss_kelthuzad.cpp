@@ -603,7 +603,7 @@ public:
                             ThreatContainer::StorageType const &threatList = me->getThreatManager().getThreatList();
                             for (ThreatContainer::StorageType::const_iterator itr = threatList.begin(); itr != threatList.end(); ++itr)
                             {
-                                Unit * const target = (*itr)->getTarget();
+                                Unit* const target = (*itr)->getTarget();
 
                                 if (target->GetTypeId() == TYPEID_PLAYER
                                         && target->getPowerType() == POWER_MANA

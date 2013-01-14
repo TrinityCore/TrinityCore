@@ -27,7 +27,7 @@ namespace Movement
     struct Location : public Vector3
     {
         Location() : orientation(0) {}
-        Location(float x, float y, float z, float o) : Vector3(x,y,z), orientation(o) {}
+        Location(float x, float y, float z, float o) : Vector3(x, y, z), orientation(o) {}
         Location(const Vector3& v) : Vector3(v), orientation(0) {}
         Location(const Vector3& v, float o) : Vector3(v), orientation(o) {}
 
@@ -101,14 +101,14 @@ namespace Movement
             ASSERT(Initialized());
             do
                 handler(_updateState(difftime));
-            while(difftime > 0);
+            while (difftime > 0);
         }
 
         void updateState(int32 difftime)
         {
             ASSERT(Initialized());
             do _updateState(difftime);
-            while(difftime > 0);
+            while (difftime > 0);
         }
 
         Location ComputePosition() const;

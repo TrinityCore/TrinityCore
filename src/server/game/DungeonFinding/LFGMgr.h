@@ -347,6 +347,7 @@ class LFGMgr
         uint32 GetDungeon(uint64 guid, bool asId = true);
         uint32 GetDungeonMapId(uint64 guid);
         LfgState GetState(uint64 guid);
+        LfgState GetOldState(uint64 guid);
         uint8 GetKicksLeft(uint64 gguid);
         uint64 GetLeader(uint64 guid);
         bool IsLfgGroup(uint64 guid);
@@ -382,8 +383,8 @@ class LFGMgr
 
     private:
         uint8 GetTeam(uint64 guid);
-        void RestoreState(uint64 guid, char const *debugMsg);
-        void ClearState(uint64 guid, char const *debugMsg);
+        void RestoreState(uint64 guid, char const* debugMsg);
+        void ClearState(uint64 guid, char const* debugMsg);
         void SetDungeon(uint64 guid, uint32 dungeon);
         void SetSelectedDungeons(uint64 guid, LfgDungeonSet const& dungeons);
         void SetLockedDungeons(uint64 guid, LfgLockMap const& lock);

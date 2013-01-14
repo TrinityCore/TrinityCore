@@ -135,13 +135,18 @@ class boss_general_zarithrian : public CreatureScript
                     Talk(SAY_KILL);
             }
 
+            bool CanAIAttack(Unit const* /*target*/) const
+            {
+                return (instance->GetBossState(DATA_SAVIANA_RAGEFIRE) == DONE && instance->GetBossState(DATA_BALTHARUS_THE_WARBORN) == DONE);
+            }
+
             void UpdateAI(uint32 const diff)
             {
                 if (!UpdateVictim())
                     return;
 
                 // Can't use room boundary here, the gameobject is spawned at the same position as the boss. This is just as good anyway.
-                if (me->GetPositionX() > 3060.0f)
+                if (me->GetPositionX() > 3058.0f)
                 {
                     EnterEvadeMode();
                     return;
@@ -159,9 +164,11 @@ class boss_general_zarithrian : public CreatureScript
                         case EVENT_SUMMON_ADDS:
                         {
                             if (Creature* stalker1 = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_ZARITHRIAN_SPAWN_STALKER_1)))
-                                stalker1->AI()->DoCast(stalker1, SPELL_SUMMON_FLAMECALLER);
+                                stalker1->CastSpell(stalker1, SPELL_SUMMON_FLAMECALLER, false);
+
                             if (Creature* stalker2 = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_ZARITHRIAN_SPAWN_STALKER_2)))
-                                stalker2->AI()->DoCast(stalker2, SPELL_SUMMON_FLAMECALLER);
+                                stalker2->CastSpell(stalker2, SPELL_SUMMON_FLAMECALLER, false);
+
                             Talk(SAY_ADDS);
                             events.ScheduleEvent(EVENT_SUMMON_ADDS, 42000);
                             break;
@@ -195,9 +202,8 @@ class npc_onyx_flamecaller : public CreatureScript
 
         struct npc_onyx_flamecallerAI : public npc_escortAI
         {
-            npc_onyx_flamecallerAI(Creature* creature) : npc_escortAI(creature)
+            npc_onyx_flamecallerAI(Creature* creature) : npc_escortAI(creature), _instance(creature->GetInstanceScript())
             {
-                _instance = creature->GetInstanceScript();
                 npc_escortAI::SetDespawnAtEnd(false);
             }
 
@@ -289,7 +295,6 @@ class npc_onyx_flamecaller : public CreatureScript
             }
         private:
             EventMap _events;
-            bool _movementComplete;
             InstanceScript* _instance;
             uint8 _lavaGoutCount;
         };

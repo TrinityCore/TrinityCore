@@ -540,13 +540,13 @@ public:
                 Player* player = Player::GetPlayer(*me, playerGUID);
                 Creature* orphan = Creature::GetCreature(*me, orphanGUID);
 
-                if(!orphan || !player)
+                if (!orphan || !player)
                 {
                     Reset();
                     return;
                 }
 
-                switch(phase)
+                switch (phase)
                 {
                     case 1:
                         orphan->GetMotionMaster()->MovePoint(0, me->GetPositionX() + cos(me->GetOrientation()) * 5, me->GetPositionY() + sin(me->GetOrientation()) * 5, me->GetPositionZ());

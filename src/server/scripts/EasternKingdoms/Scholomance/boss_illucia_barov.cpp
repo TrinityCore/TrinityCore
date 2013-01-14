@@ -48,18 +48,11 @@ class boss_illucia_barov : public CreatureScript
 
         struct boss_illuciabarovAI : public BossAI
         {
-            boss_illuciabarovAI(Creature* creature) : BossAI(creature,DATA_LADYILLUCIABAROV) {}
-
-            void Reset() {}
-
-            void JustDied(Unit* /*killer*/)
-            {
-                if (instance)
-                    instance->SetData(DATA_LADYILLUCIABAROV, DONE);
-            }
+            boss_illuciabarovAI(Creature* creature) : BossAI(creature, DATA_LADYILLUCIABAROV) {}
 
             void EnterCombat(Unit* /*who*/)
             {
+                _EnterCombat();
                 events.ScheduleEvent(EVENT_CURSEOFAGONY, 18000);
                 events.ScheduleEvent(EVENT_SHADOWSHOCK, 9000);
                 events.ScheduleEvent(EVENT_SILENCE, 5000);
@@ -85,7 +78,7 @@ class boss_illucia_barov : public CreatureScript
                             events.ScheduleEvent(EVENT_CURSEOFAGONY, 30000);
                             break;
                         case EVENT_SHADOWSHOCK:
-                            DoCast(SelectTarget(SELECT_TARGET_RANDOM,0, 100, true),SPELL_SHADOWSHOCK,true);
+                            DoCast(SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true), SPELL_SHADOWSHOCK, true);
                             events.ScheduleEvent(EVENT_SHADOWSHOCK, 12000);
                             break;
                         case EVENT_SILENCE:

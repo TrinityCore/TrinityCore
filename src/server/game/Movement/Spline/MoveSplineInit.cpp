@@ -157,7 +157,7 @@ namespace Movement
         args.flags.smoothGroundPath = true; // enabled by default, CatmullRom mode or client config "pathSmoothing" will disable this
     }
 
-    void MoveSplineInit::SetFacing(const Unit * target)
+    void MoveSplineInit::SetFacing(const Unit* target)
     {
         args.flags.EnableFacingTarget();
         args.facing.target = target->GetGUID();

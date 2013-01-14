@@ -48,17 +48,13 @@ class boss_lord_alexei_barov : public CreatureScript
 
             void Reset()
             {
+                _Reset();
                 me->LoadCreaturesAddon();
-            }
-
-            void JustDied(Unit* /*killer*/)
-            {
-                if (instance)
-                    instance->SetData(DATA_LORDALEXEIBAROV, DONE);
             }
 
             void EnterCombat(Unit* /*who*/)
             {
+                _EnterCombat();
                 events.ScheduleEvent(EVENT_IMMOLATE, 7000);
                 events.ScheduleEvent(EVENT_VEILOFSHADOW, 15000);
             }
@@ -78,7 +74,7 @@ class boss_lord_alexei_barov : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_IMMOLATE:
-                            DoCast(SelectTarget(SELECT_TARGET_RANDOM,0, 100, true),SPELL_IMMOLATE,true);
+                            DoCast(SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true), SPELL_IMMOLATE, true);
                             events.ScheduleEvent(EVENT_IMMOLATE, 12000);
                             break;
                         case EVENT_VEILOFSHADOW:
