@@ -43,7 +43,7 @@ enum WarriorSpells
 
 enum WarriorSpellIcons
 {
-    WARRIOR_ICON_ID_SUDDEN_DEATH        = 1989,
+    WARRIOR_ICON_ID_SUDDEN_DEATH                    = 1989,
 };
 
 /// Updated 4.3.4
@@ -296,7 +296,7 @@ class spell_warr_last_stand : public SpellScriptLoader
         {
             PrepareSpellScript(spell_warr_last_stand_SpellScript);
 
-            bool Validate(SpellInfo const* /*spellEntry*/)
+            bool Validate(SpellInfo const* /*spellInfo*/)
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_WARRIOR_LAST_STAND_TRIGGERED))
                     return false;

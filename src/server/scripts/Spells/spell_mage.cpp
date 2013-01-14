@@ -28,40 +28,55 @@
 
 enum MageSpells
 {
+    SPELL_MAGE_FLAMESTRIKE                       = 2120,
+
+    SPELL_MAGE_CHILLED_R1                        = 12484,
+    SPELL_MAGE_CHILLED_R2                        = 12485,
+
     SPELL_MAGE_COLD_SNAP                         = 11958,
+
+    SPELL_MAGE_CONE_OF_COLD_AURA_R1              = 11190,
+    SPELL_MAGE_CONE_OF_COLD_AURA_R2              = 12489,
+    SPELL_MAGE_CONE_OF_COLD_TRIGGER_R1           = 83301,
+    SPELL_MAGE_CONE_OF_COLD_TRIGGER_R2           = 83302,
+
+    SPELL_MAGE_FROST_WARDING_R1                  = 28332,
+    SPELL_MAGE_FROST_WARDING_TRIGGERED           = 57776,
+
+    SPELL_MAGE_SHATTERED_BARRIER_R1              = 44745,
+    SPELL_MAGE_SHATTERED_BARRIER_R2              = 54787,
+    SPELL_MAGE_SHATTERED_BARRIER_FREEZE_R1       = 55080,
+    SPELL_MAGE_SHATTERED_BARRIER_FREEZE_R2       = 83073,
+
+    SPELL_MAGE_INCANTER_S_ABSORPTION_TRIGGERED   = 44413,
+    SPELL_MAGE_INCANTER_S_ABSORPTION_KNOCKBACK   = 86261,
+
     SPELL_MAGE_SQUIRREL_FORM                     = 32813,
     SPELL_MAGE_GIRAFFE_FORM                      = 32816,
     SPELL_MAGE_SERPENT_FORM                      = 32817,
     SPELL_MAGE_DRAGONHAWK_FORM                   = 32818,
     SPELL_MAGE_WORGEN_FORM                       = 32819,
     SPELL_MAGE_SHEEP_FORM                        = 32820,
+
+    SPELL_MAGE_IMPROVED_MANA_GEM_TRIGGERED       = 83098,
+
     SPELL_MAGE_GLYPH_OF_ETERNAL_WATER            = 70937,
     SPELL_MAGE_SUMMON_WATER_ELEMENTAL_PERMANENT  = 70908,
     SPELL_MAGE_SUMMON_WATER_ELEMENTAL_TEMPORARY  = 70907,
-    SPELL_MAGE_GLYPH_OF_BLAST_WAVE               = 62126,
-    SPELL_MAGE_CONJURE_REFRESHMENT               = 42955,
-    SPELL_MAGE_FLAMESTRIKE                       = 2120,
-    SPELL_MAGE_CHILLED_R1                        = 12484,
-    SPELL_MAGE_CHILLED_R2                        = 12485,
-    SPELL_MAGE_INCANTER_S_ABSORPTION_TRIGGERED   = 44413,
-    SPELL_MAGE_INCANTER_S_ABSORPTION_KNOCKBACK   = 86261,
-    SPELL_MAGE_IMPROVED_MANA_GEM_TRIGGERED       = 83098,
-    SPELL_MAGE_SHATTERED_BARRIER_R1              = 44745,
-    SPELL_MAGE_SHATTERED_BARRIER_R2              = 54787,
-    SPELL_MAGE_SHATTERED_BARRIER_FREEZE_R1       = 55080,
-    SPELL_MAGE_SHATTERED_BARRIER_FREEZE_R2       = 83073,
-    SPELL_MAGE_FINGERS_OF_FROST                  = 44544,
+
+    SPELL_MAGE_FINGERS_OF_FROST                  = 44544
 };
 
 enum MageIcons
 {
-    ICON_MAGE_SHATTER                       = 976,
-    ICON_MAGE_IMPROVED_FLAMESTRIKE          = 37,
-    ICON_MAGE_IMPROVED_FREEZE               = 94,
-    ICON_MAGE_INCANTER_S_ABSORPTION         = 2941,
-    ICON_MAGE_IMPROVED_MANA_GEM             = 1036,
+    ICON_MAGE_SHATTER                            = 976,
+    ICON_MAGE_IMPROVED_FLAMESTRIKE               = 37,
+    ICON_MAGE_IMPROVED_FREEZE                    = 94,
+    ICON_MAGE_INCANTER_S_ABSORPTION              = 2941,
+    ICON_MAGE_IMPROVED_MANA_GEM                  = 1036
 };
 
+// 11113 - Blast Wave
 class spell_mage_blast_wave : public SpellScriptLoader
 {
     public:
@@ -115,6 +130,51 @@ class spell_mage_blast_wave : public SpellScriptLoader
         }
 };
 
+// 42208 - Blizzard
+/// Updated 4.3.4
+class spell_mage_blizzard : public SpellScriptLoader
+{
+   public:
+       spell_mage_blizzard() : SpellScriptLoader("spell_mage_blizzard") { }
+
+       class spell_mage_blizzard_SpellScript : public SpellScript
+       {
+           PrepareSpellScript(spell_mage_blizzard_SpellScript);
+
+           bool Validate(SpellInfo const* /*spellInfo*/)
+           {
+               if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_CHILLED_R1))
+                   return false;
+               if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_CHILLED_R2))
+                   return false;
+               return true;
+           }
+
+           void AddChillEffect(SpellEffIndex /*effIndex*/)
+           {
+               Unit* caster = GetCaster();
+               if (Unit* unitTarget = GetHitUnit())
+               {
+                   if (caster->IsScriptOverriden(GetSpellInfo(), 836))
+                       caster->CastSpell(unitTarget, SPELL_MAGE_CHILLED_R1, true);
+                   else if (caster->IsScriptOverriden(GetSpellInfo(), 988))
+                       caster->CastSpell(unitTarget, SPELL_MAGE_CHILLED_R2, true);
+               }
+           }
+
+           void Register()
+           {
+               OnEffectHitTarget += SpellEffectFn(spell_mage_blizzard_SpellScript::AddChillEffect, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+           }
+       };
+
+       SpellScript* GetSpellScript() const
+       {
+           return new spell_mage_blizzard_SpellScript();
+       }
+};
+
+// 11958 - Cold Snap
 class spell_mage_cold_snap : public SpellScriptLoader
 {
     public:
@@ -161,233 +221,39 @@ class spell_mage_cold_snap : public SpellScriptLoader
         }
 };
 
-enum SilvermoonPolymorph
-{
-    NPC_AUROSALIA   = 18744,
-};
-
-// TODO: move out of here and rename - not a mage spell
-class spell_mage_polymorph_cast_visual : public SpellScriptLoader
+// 120 - Cone of Cold
+/// Updated 4.3.4
+class spell_mage_cone_of_cold : public SpellScriptLoader
 {
     public:
-        spell_mage_polymorph_cast_visual() : SpellScriptLoader("spell_mage_polymorph_visual") { }
+        spell_mage_cone_of_cold() : SpellScriptLoader("spell_mage_cone_of_cold") { }
 
-        class spell_mage_polymorph_cast_visual_SpellScript : public SpellScript
+        class spell_mage_cone_of_cold_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_mage_polymorph_cast_visual_SpellScript);
+            PrepareSpellScript(spell_mage_cone_of_cold_SpellScript);
 
-            static const uint32 PolymorhForms[6];
-
-            bool Validate(SpellInfo const* /*spellEntry*/)
-            {
-                // check if spell ids exist in dbc
-                for (uint32 i = 0; i < 6; i++)
-                    if (!sSpellMgr->GetSpellInfo(PolymorhForms[i]))
-                        return false;
-                return true;
-            }
-
-            void HandleDummy(SpellEffIndex /*effIndex*/)
-            {
-                if (Unit* target = GetCaster()->FindNearestCreature(NPC_AUROSALIA, 30.0f))
-                    if (target->GetTypeId() == TYPEID_UNIT)
-                        target->CastSpell(target, PolymorhForms[urand(0, 5)], true);
-            }
-
-            void Register()
-            {
-                // add dummy effect spell handler to Polymorph visual
-                OnEffectHitTarget += SpellEffectFn(spell_mage_polymorph_cast_visual_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_mage_polymorph_cast_visual_SpellScript();
-        }
-};
-
-const uint32 spell_mage_polymorph_cast_visual::spell_mage_polymorph_cast_visual_SpellScript::PolymorhForms[6] =
-{
-    SPELL_MAGE_SQUIRREL_FORM,
-    SPELL_MAGE_GIRAFFE_FORM,
-    SPELL_MAGE_SERPENT_FORM,
-    SPELL_MAGE_DRAGONHAWK_FORM,
-    SPELL_MAGE_WORGEN_FORM,
-    SPELL_MAGE_SHEEP_FORM
-};
-
-class spell_mage_summon_water_elemental : public SpellScriptLoader
-{
-    public:
-        spell_mage_summon_water_elemental() : SpellScriptLoader("spell_mage_summon_water_elemental") { }
-
-        class spell_mage_summon_water_elemental_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_mage_summon_water_elemental_SpellScript);
-
-            bool Validate(SpellInfo const* /*spellEntry*/)
-            {
-                if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_GLYPH_OF_ETERNAL_WATER) || !sSpellMgr->GetSpellInfo(SPELL_MAGE_SUMMON_WATER_ELEMENTAL_TEMPORARY) || !sSpellMgr->GetSpellInfo(SPELL_MAGE_SUMMON_WATER_ELEMENTAL_PERMANENT))
-                    return false;
-                return true;
-            }
-
-            void HandleDummy(SpellEffIndex /*effIndex*/)
+            void HandleConeOfColdScript(SpellEffIndex /*effIndex*/)
             {
                 Unit* caster = GetCaster();
-                // Glyph of Eternal Water
-                if (caster->HasAura(SPELL_MAGE_GLYPH_OF_ETERNAL_WATER))
-                    caster->CastSpell(caster, SPELL_MAGE_SUMMON_WATER_ELEMENTAL_PERMANENT, true);
-                else
-                    caster->CastSpell(caster, SPELL_MAGE_SUMMON_WATER_ELEMENTAL_TEMPORARY, true);
-            }
-
-            void Register()
-            {
-                // add dummy effect spell handler to Summon Water Elemental
-                OnEffectHit += SpellEffectFn(spell_mage_summon_water_elemental_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_mage_summon_water_elemental_SpellScript();
-        }
-};
-
-// Frost Warding
-class spell_mage_frost_warding_trigger : public SpellScriptLoader
-{
-    public:
-        spell_mage_frost_warding_trigger() : SpellScriptLoader("spell_mage_frost_warding_trigger") { }
-
-        class spell_mage_frost_warding_trigger_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_mage_frost_warding_trigger_AuraScript);
-
-            enum Spells
-            {
-                SPELL_MAGE_FROST_WARDING_TRIGGERED = 57776,
-                SPELL_MAGE_FROST_WARDING_R1 = 28332,
-            };
-
-            bool Validate(SpellInfo const* /*spellEntry*/)
-            {
-                if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_FROST_WARDING_TRIGGERED) || !sSpellMgr->GetSpellInfo(SPELL_MAGE_FROST_WARDING_R1))
-                    return false;
-                return true;
-            }
-
-            void Absorb(AuraEffect* aurEff, DamageInfo & dmgInfo, uint32 & absorbAmount)
-            {
-                Unit* target = GetTarget();
-                if (AuraEffect* talentAurEff = target->GetAuraEffectOfRankedSpell(SPELL_MAGE_FROST_WARDING_R1, EFFECT_0))
+                if (Unit* unitTarget = GetHitUnit())
                 {
-                    int32 chance = talentAurEff->GetSpellInfo()->Effects[EFFECT_1].CalcValue();
-
-                    if (roll_chance_i(chance))
-                    {
-                        int32 bp = dmgInfo.GetDamage();
-                        dmgInfo.AbsorbDamage(bp);
-                        target->CastCustomSpell(target, SPELL_MAGE_FROST_WARDING_TRIGGERED, &bp, NULL, NULL, true, NULL, aurEff);
-                        absorbAmount = 0;
-                        PreventDefaultAction();
-                    }
+                    if (caster->HasAura(SPELL_MAGE_CONE_OF_COLD_AURA_R1)) // Improved Cone of Cold Rank 1
+                        unitTarget->CastSpell(unitTarget, SPELL_MAGE_CONE_OF_COLD_TRIGGER_R1, true);
+                    else if (caster->HasAura(SPELL_MAGE_CONE_OF_COLD_AURA_R2)) // Improved Cone of Cold Rank 2
+                        unitTarget->CastSpell(unitTarget, SPELL_MAGE_CONE_OF_COLD_TRIGGER_R2, true);
                 }
             }
 
             void Register()
             {
-                 OnEffectAbsorb += AuraEffectAbsorbFn(spell_mage_frost_warding_trigger_AuraScript::Absorb, EFFECT_0);
+                OnEffectHitTarget += SpellEffectFn(spell_mage_cone_of_cold_SpellScript::HandleConeOfColdScript, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
             }
         };
 
-        AuraScript* GetAuraScript() const
+        SpellScript* GetSpellScript() const
         {
-            return new spell_mage_frost_warding_trigger_AuraScript();
+            return new spell_mage_cone_of_cold_SpellScript();
         }
-};
-
-class spell_mage_living_bomb : public SpellScriptLoader
-{
-    public:
-        spell_mage_living_bomb() : SpellScriptLoader("spell_mage_living_bomb") { }
-
-        class spell_mage_living_bomb_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_mage_living_bomb_AuraScript);
-
-            bool Validate(SpellInfo const* spell)
-            {
-                if (!sSpellMgr->GetSpellInfo(uint32(spell->Effects[EFFECT_1].CalcValue())))
-                    return false;
-                return true;
-            }
-
-            void AfterRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
-            {
-                AuraRemoveMode removeMode = GetTargetApplication()->GetRemoveMode();
-                if (removeMode != AURA_REMOVE_BY_ENEMY_SPELL && removeMode != AURA_REMOVE_BY_EXPIRE)
-                    return;
-
-                if (Unit* caster = GetCaster())
-                    caster->CastSpell(GetTarget(), uint32(aurEff->GetAmount()), true, NULL, aurEff);
-            }
-
-            void Register()
-            {
-                AfterEffectRemove += AuraEffectRemoveFn(spell_mage_living_bomb_AuraScript::AfterRemove, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_mage_living_bomb_AuraScript();
-        }
-};
-
-enum ConeOfColdSpells
-{
-    SPELL_CONE_OF_COLD_AURA_R1      = 11190, // Improved Cone of Cold Rank 1 aura
-    SPELL_CONE_OF_COLD_AURA_R2      = 12489, // Improved Cone of Cold Rank 2 aura
-    SPELL_CONE_OF_COLD_TRIGGER_R1   = 83301, // Improved Cone of Cold Rank 1 Trigger
-    SPELL_CONE_OF_COLD_TRIGGER_R2   = 83302, // Improved Cone of Cold Rank 2 Trigger
-};
-
-// 120 Cone of Cold
-/// Updated 4.3.4
-class spell_mage_cone_of_cold : public SpellScriptLoader
-{
-public:
-    spell_mage_cone_of_cold() : SpellScriptLoader("spell_mage_cone_of_cold") { }
-
-    class spell_mage_cone_of_cold_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_mage_cone_of_cold_SpellScript);
-
-        void HandleConeOfColdScript(SpellEffIndex /*effIndex*/)
-        {
-            Unit* caster = GetCaster();
-            if (Unit* unitTarget = GetHitUnit())
-            {
-                if (caster->HasAura(SPELL_CONE_OF_COLD_AURA_R1)) // Improved Cone of Cold Rank 1
-                    unitTarget->CastSpell(unitTarget, SPELL_CONE_OF_COLD_TRIGGER_R1, true);
-                else if (caster->HasAura(SPELL_CONE_OF_COLD_AURA_R2)) // Improved Cone of Cold Rank 2
-                        unitTarget->CastSpell(unitTarget, SPELL_CONE_OF_COLD_TRIGGER_R2, true);
-            }
-        }
-
-        void Register()
-        {
-            OnEffectHitTarget += SpellEffectFn(spell_mage_cone_of_cold_SpellScript::HandleConeOfColdScript, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
-        }
-    };
-
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_mage_cone_of_cold_SpellScript();
-    }
 };
 
 // 42955 Conjure Refreshment
@@ -400,7 +266,7 @@ struct ConjureRefreshmentData
 };
 
 uint8 const MAX_CONJURE_REFRESHMENT_SPELLS = 7;
-const ConjureRefreshmentData _conjureData[MAX_CONJURE_REFRESHMENT_SPELLS] =
+ConjureRefreshmentData const _conjureData[MAX_CONJURE_REFRESHMENT_SPELLS] =
 {
     { 33, 43, 92739 },
     { 44, 53, 92799 },
@@ -411,6 +277,7 @@ const ConjureRefreshmentData _conjureData[MAX_CONJURE_REFRESHMENT_SPELLS] =
     { 85, 85, 92727 }
 };
 
+// 42955 - Conjure Refreshment
 class spell_mage_conjure_refreshment : public SpellScriptLoader
 {
     public:
@@ -420,7 +287,7 @@ class spell_mage_conjure_refreshment : public SpellScriptLoader
         {
             PrepareSpellScript(spell_mage_conjure_refreshment_SpellScript);
 
-            bool Validate(SpellInfo const* /*spellEntry*/)
+            bool Validate(SpellInfo const* /*spellInfo*/)
             {
                 for (uint8 i = 0; i < MAX_CONJURE_REFRESHMENT_SPELLS; ++i)
                     if (!sSpellMgr->GetSpellInfo(_conjureData[i].spellId))
@@ -460,51 +327,54 @@ class spell_mage_conjure_refreshment : public SpellScriptLoader
         }
 };
 
-// 42208 Blizzard
-/// Updated 4.3.4
-class spell_mage_blizzard : public SpellScriptLoader
+// -6143, -543 - Frost Warding
+class spell_mage_frost_warding_trigger : public SpellScriptLoader
 {
-   public:
-       spell_mage_blizzard() : SpellScriptLoader("spell_mage_blizzard") { }
+    public:
+        spell_mage_frost_warding_trigger() : SpellScriptLoader("spell_mage_frost_warding_trigger") { }
 
-       class spell_mage_blizzard_SpellScript : public SpellScript
-       {
-           PrepareSpellScript(spell_mage_blizzard_SpellScript);
+        class spell_mage_frost_warding_trigger_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_mage_frost_warding_trigger_AuraScript);
 
-           bool Validate(SpellInfo const* /*spellEntry*/)
-           {
-               if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_CHILLED_R1))
-                   return false;
-               if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_CHILLED_R2))
-                   return false;
-               return true;
-           }
+            bool Validate(SpellInfo const* /*spellInfo*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_FROST_WARDING_TRIGGERED) || !sSpellMgr->GetSpellInfo(SPELL_MAGE_FROST_WARDING_R1))
+                    return false;
+                return true;
+            }
 
-           void AddChillEffect(SpellEffIndex /*effIndex*/)
-           {
-               Unit* caster = GetCaster();
-               if (Unit* unitTarget = GetHitUnit())
-               {
-                   if (caster->IsScriptOverriden(GetSpellInfo(), 836))
-                       caster->CastSpell(unitTarget, SPELL_MAGE_CHILLED_R1, true);
-                   else if (caster->IsScriptOverriden(GetSpellInfo(), 988))
-                       caster->CastSpell(unitTarget, SPELL_MAGE_CHILLED_R2, true);
-               }
-           }
+            void Absorb(AuraEffect* aurEff, DamageInfo & dmgInfo, uint32 & absorbAmount)
+            {
+                Unit* target = GetTarget();
+                if (AuraEffect* talentAurEff = target->GetAuraEffectOfRankedSpell(SPELL_MAGE_FROST_WARDING_R1, EFFECT_0))
+                {
+                    int32 chance = talentAurEff->GetSpellInfo()->Effects[EFFECT_1].CalcValue();
 
-           void Register()
-           {
-               OnEffectHitTarget += SpellEffectFn(spell_mage_blizzard_SpellScript::AddChillEffect, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
-           }
-       };
+                    if (roll_chance_i(chance))
+                    {
+                        int32 bp = dmgInfo.GetDamage();
+                        dmgInfo.AbsorbDamage(bp);
+                        target->CastCustomSpell(target, SPELL_MAGE_FROST_WARDING_TRIGGERED, &bp, NULL, NULL, true, NULL, aurEff);
+                        absorbAmount = 0;
+                        PreventDefaultAction();
+                    }
+                }
+            }
 
-       SpellScript* GetSpellScript() const
-       {
-           return new spell_mage_blizzard_SpellScript();
-       }
+            void Register()
+            {
+                 OnEffectAbsorb += AuraEffectAbsorbFn(spell_mage_frost_warding_trigger_AuraScript::Absorb, EFFECT_0);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_mage_frost_warding_trigger_AuraScript();
+        }
 };
 
-// 116 Frostbolt
+// 116 - Frostbolt
 /// Updated 4.3.4
 class spell_mage_frostbolt : public SpellScriptLoader
 {
@@ -540,7 +410,46 @@ class spell_mage_frostbolt : public SpellScriptLoader
        }
 };
 
-// 11426 Ice Barrier
+// -44457 - Living Bomb
+class spell_mage_living_bomb : public SpellScriptLoader
+{
+    public:
+        spell_mage_living_bomb() : SpellScriptLoader("spell_mage_living_bomb") { }
+
+        class spell_mage_living_bomb_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_mage_living_bomb_AuraScript);
+
+            bool Validate(SpellInfo const* spellInfo)
+            {
+                if (!sSpellMgr->GetSpellInfo(uint32(spellInfo->Effects[EFFECT_1].CalcValue())))
+                    return false;
+                return true;
+            }
+
+            void AfterRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+            {
+                AuraRemoveMode removeMode = GetTargetApplication()->GetRemoveMode();
+                if (removeMode != AURA_REMOVE_BY_ENEMY_SPELL && removeMode != AURA_REMOVE_BY_EXPIRE)
+                    return;
+
+                if (Unit* caster = GetCaster())
+                    caster->CastSpell(GetTarget(), uint32(aurEff->GetAmount()), true, NULL, aurEff);
+            }
+
+            void Register()
+            {
+                AfterEffectRemove += AuraEffectRemoveFn(spell_mage_living_bomb_AuraScript::AfterRemove, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_mage_living_bomb_AuraScript();
+        }
+};
+
+// 11426 - Ice Barrier
 /// Updated 4.3.4
 class spell_mage_ice_barrier : public SpellScriptLoader
 {
@@ -574,11 +483,11 @@ class spell_mage_ice_barrier : public SpellScriptLoader
        }
 };
 
-// 1463 Mana Shield
+// 1463 - Mana Shield
 /// Updated 4.3.4
 class spell_mage_mana_shield : public SpellScriptLoader
 {
-   public:
+    public:
        spell_mage_mana_shield() : SpellScriptLoader("spell_mage_mana_shield") { }
 
        class spell_mage_mana_shield_AuraScript : public AuraScript
@@ -613,7 +522,7 @@ class spell_mage_mana_shield : public SpellScriptLoader
        }
 };
 
-// 543 Mage Ward
+// 543 - Mage Ward
 /// Updated 4.3.4
 class spell_mage_mage_ward : public SpellScriptLoader
 {
@@ -645,7 +554,63 @@ class spell_mage_mage_ward : public SpellScriptLoader
        }
 };
 
-// 5405 Replenish Mana (Mana Gem)
+enum SilvermoonPolymorph
+{
+    NPC_AUROSALIA       = 18744
+};
+
+// TODO: move out of here and rename - not a mage spell
+class spell_mage_polymorph_cast_visual : public SpellScriptLoader
+{
+    public:
+        spell_mage_polymorph_cast_visual() : SpellScriptLoader("spell_mage_polymorph_visual") { }
+
+        class spell_mage_polymorph_cast_visual_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_mage_polymorph_cast_visual_SpellScript);
+
+            static const uint32 PolymorhForms[6];
+
+            bool Validate(SpellInfo const* /*spellInfo*/)
+            {
+                // check if spell ids exist in dbc
+                for (uint32 i = 0; i < 6; i++)
+                    if (!sSpellMgr->GetSpellInfo(PolymorhForms[i]))
+                        return false;
+                return true;
+            }
+
+            void HandleDummy(SpellEffIndex /*effIndex*/)
+            {
+                if (Unit* target = GetCaster()->FindNearestCreature(NPC_AUROSALIA, 30.0f))
+                    if (target->GetTypeId() == TYPEID_UNIT)
+                        target->CastSpell(target, PolymorhForms[urand(0, 5)], true);
+            }
+
+            void Register()
+            {
+                // add dummy effect spell handler to Polymorph visual
+                OnEffectHitTarget += SpellEffectFn(spell_mage_polymorph_cast_visual_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_mage_polymorph_cast_visual_SpellScript();
+        }
+};
+
+uint32 const spell_mage_polymorph_cast_visual::spell_mage_polymorph_cast_visual_SpellScript::PolymorhForms[6] =
+{
+    SPELL_MAGE_SQUIRREL_FORM,
+    SPELL_MAGE_GIRAFFE_FORM,
+    SPELL_MAGE_SERPENT_FORM,
+    SPELL_MAGE_DRAGONHAWK_FORM,
+    SPELL_MAGE_WORGEN_FORM,
+    SPELL_MAGE_SHEEP_FORM
+};
+
+// 5405  - Replenish Mana (Mana Gem)
 /// Updated 4.3.4
 class spell_mage_replenish_mana : public SpellScriptLoader
 {
@@ -656,7 +621,7 @@ class spell_mage_replenish_mana : public SpellScriptLoader
        {
            PrepareSpellScript(spell_mage_replenish_mana_SpellScript);
 
-           bool Validate(SpellInfo const* /*spellEntry*/)
+           bool Validate(SpellInfo const* /*spellInfo*/)
            {
                if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_IMPROVED_MANA_GEM_TRIGGERED))
                    return false;
@@ -684,6 +649,46 @@ class spell_mage_replenish_mana : public SpellScriptLoader
        }
 };
 
+// 31687 - Summon Water Elemental
+class spell_mage_summon_water_elemental : public SpellScriptLoader
+{
+    public:
+        spell_mage_summon_water_elemental() : SpellScriptLoader("spell_mage_summon_water_elemental") { }
+
+        class spell_mage_summon_water_elemental_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_mage_summon_water_elemental_SpellScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_GLYPH_OF_ETERNAL_WATER) || !sSpellMgr->GetSpellInfo(SPELL_MAGE_SUMMON_WATER_ELEMENTAL_TEMPORARY) || !sSpellMgr->GetSpellInfo(SPELL_MAGE_SUMMON_WATER_ELEMENTAL_PERMANENT))
+                    return false;
+                return true;
+            }
+
+            void HandleDummy(SpellEffIndex /*effIndex*/)
+            {
+                Unit* caster = GetCaster();
+                // Glyph of Eternal Water
+                if (caster->HasAura(SPELL_MAGE_GLYPH_OF_ETERNAL_WATER))
+                    caster->CastSpell(caster, SPELL_MAGE_SUMMON_WATER_ELEMENTAL_PERMANENT, true);
+                else
+                    caster->CastSpell(caster, SPELL_MAGE_SUMMON_WATER_ELEMENTAL_TEMPORARY, true);
+            }
+
+            void Register()
+            {
+                // add dummy effect spell handler to Summon Water Elemental
+                OnEffectHit += SpellEffectFn(spell_mage_summon_water_elemental_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_mage_summon_water_elemental_SpellScript();
+        }
+};
+
 // 33395 Water Elemental's Freeze
 /// Updated 4.3.4
 class spell_mage_water_elemental_freeze : public SpellScriptLoader
@@ -695,7 +700,7 @@ class spell_mage_water_elemental_freeze : public SpellScriptLoader
        {
            PrepareSpellScript(spell_mage_water_elemental_freeze_SpellScript);
 
-           bool Validate(SpellInfo const* /*spellEntry*/)
+           bool Validate(SpellInfo const* /*spellInfo*/)
            {
                if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_FINGERS_OF_FROST))
                    return false;
@@ -742,18 +747,18 @@ class spell_mage_water_elemental_freeze : public SpellScriptLoader
 void AddSC_mage_spell_scripts()
 {
     new spell_mage_blast_wave();
+    new spell_mage_blizzard();
     new spell_mage_cold_snap();
     new spell_mage_cone_of_cold();
     new spell_mage_conjure_refreshment();
     new spell_mage_frost_warding_trigger();
-    new spell_mage_polymorph_cast_visual();
-    new spell_mage_summon_water_elemental();
-    new spell_mage_living_bomb();
-    new spell_mage_blizzard();
     new spell_mage_frostbolt();
+    new spell_mage_living_bomb();
     new spell_mage_ice_barrier();
     new spell_mage_mana_shield();
     new spell_mage_mage_ward();
+    new spell_mage_polymorph_cast_visual();
     new spell_mage_replenish_mana();
+    new spell_mage_summon_water_elemental();
     new spell_mage_water_elemental_freeze();
 }
