@@ -45,12 +45,12 @@ class Log
         bool ShouldLog(LogFilterType type, LogLevel level) const;
         bool SetLogLevel(std::string const& name, char const* level, bool isLogger = true);
 
-        void outTrace(LogFilterType f, char const* str, ...) ATTR_PRINTF(3,4);
-        void outDebug(LogFilterType f, char const* str, ...) ATTR_PRINTF(3,4);
-        void outInfo(LogFilterType f, char const* str, ...) ATTR_PRINTF(3,4);
-        void outWarn(LogFilterType f, char const* str, ...) ATTR_PRINTF(3,4);
-        void outError(LogFilterType f, char const* str, ...) ATTR_PRINTF(3,4);
-        void outFatal(LogFilterType f, char const* str, ...) ATTR_PRINTF(3,4);
+        void outTrace(LogFilterType f, char const* str, ...) ATTR_PRINTF(3, 4);
+        void outDebug(LogFilterType f, char const* str, ...) ATTR_PRINTF(3, 4);
+        void outInfo(LogFilterType f, char const* str, ...) ATTR_PRINTF(3, 4);
+        void outWarn(LogFilterType f, char const* str, ...) ATTR_PRINTF(3, 4);
+        void outError(LogFilterType f, char const* str, ...) ATTR_PRINTF(3, 4);
+        void outFatal(LogFilterType f, char const* str, ...) ATTR_PRINTF(3, 4);
 
         void EnableDBAppenders();
         void outCommand(uint32 account, const char * str, ...) ATTR_PRINTF(3, 4);

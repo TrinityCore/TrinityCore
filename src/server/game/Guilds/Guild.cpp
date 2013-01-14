@@ -235,7 +235,7 @@ void Guild::BankEventLogEntry::WritePacket(WorldPacket& data) const
     data << uint8(m_eventType);
     data << uint64(MAKE_NEW_GUID(m_playerGuid, 0, HIGHGUID_PLAYER));
 
-    switch(m_eventType)
+    switch (m_eventType)
     {
         case GUILD_BANK_LOG_DEPOSIT_ITEM:
         case GUILD_BANK_LOG_WITHDRAW_ITEM:

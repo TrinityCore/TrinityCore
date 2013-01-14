@@ -146,7 +146,7 @@ public:
                     Talk(SAY_GIL_FREEBOOTERS, player->GetGUID());
                     break;
                 case 37:
-                    Talk(SAY_GIL_ALMOST,player->GetGUID());
+                    Talk(SAY_GIL_ALMOST, player->GetGUID());
                     break;
                 case 47:
                     Talk(SAY_GIL_SWEET, player->GetGUID());

@@ -51,11 +51,6 @@ enum Spells
     SPELL_SUNDERARMOR         = 24317
 };
 
-enum CreatureId
-{
-    NPC_SPEAKER               = 11391
-};
-
 class boss_mandokir : public CreatureScript
 {
     public: boss_mandokir() : CreatureScript("boss_mandokir") {}

@@ -77,6 +77,11 @@ class boss_marli : public CreatureScript
         {
             boss_marliAI(Creature* creature) : BossAI(creature, DATA_MARLI) {}
 
+            void Reset()
+            {
+                _Reset();
+            }
+
             void JustDied(Unit* /*killer*/)
             {
                 _JustDied();

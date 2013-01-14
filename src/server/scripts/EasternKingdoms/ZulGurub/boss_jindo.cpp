@@ -55,12 +55,6 @@ enum Events
     EVENT_TELEPORT                  = 4
 };
 
-enum CreatureId
-{
-    NPC_SHADE_OF_JINDO              = 14986,
-    NPC_SACRIFICED_TROLL            = 14826
-};
-
 Position const TeleportLoc = {-11583.7783f, -1249.4278f, 77.5471f, 4.745f};
 
 class boss_jindo : public CreatureScript
@@ -70,6 +64,11 @@ class boss_jindo : public CreatureScript
         struct boss_jindoAI : public BossAI
         {
             boss_jindoAI(Creature* creature) : BossAI(creature, DATA_JINDO) {}
+
+            void Reset()
+            {
+                _Reset();
+            }
 
             void JustDied(Unit* /*killer*/)
             {

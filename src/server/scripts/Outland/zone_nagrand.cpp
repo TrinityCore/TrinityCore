@@ -639,7 +639,7 @@ public:
             if (ChainLightningTimer <= diff)
             {
                 DoCast(me->getVictim(), SPELL_KUR_CHAIN_LIGHTNING);
-                ChainLightningTimer = urand(7000,14000);
+                ChainLightningTimer = urand(7000, 14000);
             } else ChainLightningTimer -= diff;
 
             if (HealthBelowPct(30))
@@ -654,7 +654,7 @@ public:
             if (FrostShockTimer <= diff)
             {
                 DoCast(me->getVictim(), SPELL_KUR_FROST_SHOCK);
-                FrostShockTimer = urand(7500,15000);
+                FrostShockTimer = urand(7500, 15000);
             } else FrostShockTimer -= diff;
 
             DoMeleeAttackIfReady();
