@@ -727,7 +727,7 @@ void WorldSession::HandleBattlemasterJoinArena(WorldPacket& recvData)
     BattlegroundQueue &bgQueue = sBattlegroundMgr->GetBattlegroundQueue(bgQueueTypeId);
 
     uint32 avgTime = 0;
-    GroupQueueInfo* ginfo;
+    GroupQueueInfo* ginfo = NULL;
 
     err = grp->CanJoinBattlegroundQueue(bg, bgQueueTypeId, arenatype, arenatype, true, arenaslot);
     if (!err)

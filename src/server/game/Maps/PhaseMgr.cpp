@@ -218,7 +218,7 @@ void PhaseMgr::SetCustomPhase(uint32 const phaseMask)
 uint32 PhaseData::GetCurrentPhasemask() const
 {
     if (player->isGameMaster())
-        return PHASEMASK_ANYWHERE;
+        return uint32(PHASEMASK_ANYWHERE);
 
     if (_CustomPhasemask)
         return _CustomPhasemask;

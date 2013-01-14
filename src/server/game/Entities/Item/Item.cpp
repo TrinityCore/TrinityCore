@@ -1327,7 +1327,7 @@ uint32 Item::GetSellPrice(ItemTemplate const* proto, bool& normalSellPrice)
             inventoryType = INVTYPE_CHEST;
 
         float typeFactor = 0.0f;
-        uint8 wepType = -1;
+        int8 weapType = -1;
 
         switch (inventoryType)
         {
@@ -1349,29 +1349,19 @@ uint32 Item::GetSellPrice(ItemTemplate const* proto, bool& normalSellPrice)
                 {
                     case ITEM_SUBCLASS_ARMOR_MISCELLANEOUS:
                     case ITEM_SUBCLASS_ARMOR_CLOTH:
-                    {
                         typeFactor = armorPrice->ClothFactor;
                         break;
-                    }
                     case ITEM_SUBCLASS_ARMOR_LEATHER:
-                    {
-                        typeFactor = armorPrice->ClothFactor;
+                        typeFactor = armorPrice->LeatherFactor;
                         break;
-                    }
                     case ITEM_SUBCLASS_ARMOR_MAIL:
-                    {
-                        typeFactor = armorPrice->ClothFactor;
+                        typeFactor = armorPrice->MailFactor;
                         break;
-                    }
                     case ITEM_SUBCLASS_ARMOR_PLATE:
-                    {
-                        typeFactor = armorPrice->ClothFactor;
+                        typeFactor = armorPrice->PlateFactor;
                         break;
-                    }
                     default:
-                    {
                         return 0;
-                    }
                 }
 
                 break;
@@ -1386,32 +1376,37 @@ uint32 Item::GetSellPrice(ItemTemplate const* proto, bool& normalSellPrice)
                 break;
             }
             case INVTYPE_WEAPONMAINHAND:
-                wepType = 0;             // unk enum, fall back
+                weapType = 0;
+                break;
             case INVTYPE_WEAPONOFFHAND:
-                wepType = 1;             // unk enum, fall back
+                weapType = 1;
+                break;
             case INVTYPE_WEAPON:
-                wepType = 2;             // unk enum, fall back
+                weapType = 2;
+                break;
             case INVTYPE_2HWEAPON:
-                wepType = 3;             // unk enum, fall back
+                weapType = 3;
+                break;
             case INVTYPE_RANGED:
             case INVTYPE_RANGEDRIGHT:
             case INVTYPE_RELIC:
-            {
-                wepType = 4;             // unk enum
-
-                ImportPriceWeaponEntry const* weaponPrice = sImportPriceWeaponStore.LookupEntry(wepType + 1);
-                if (!weaponPrice)
-                    return 0;
-
-                typeFactor = weaponPrice->Factor;
+                weapType = 4;
                 break;
-            }
             default:
                 return proto->BuyPrice;
         }
 
+        if (weapType != -1)
+        {
+            ImportPriceWeaponEntry const* weaponPrice = sImportPriceWeaponStore.LookupEntry(weapType + 1);
+            if (!weaponPrice)
+                return 0;
+
+            typeFactor = weaponPrice->Factor;
+        }
+
         normalSellPrice = false;
-        return (uint32)(qualityFactor * proto->Unk430_2 * proto->Unk430_1 * typeFactor * baseFactor);
+        return uint32(qualityFactor * proto->Unk430_2 * proto->Unk430_1 * typeFactor * baseFactor);
     }
 }
 
@@ -1453,7 +1448,7 @@ int32 Item::GetReforgableStat(ItemModType statType) const
 {
     ItemTemplate const* proto = GetTemplate();
     for (uint32 i = 0; i < MAX_ITEM_PROTO_STATS; ++i)
-        if (proto->ItemStat[i].ItemStatType == statType)
+        if (ItemModType(proto->ItemStat[i].ItemStatType) == statType)
             return proto->ItemStat[i].ItemStatValue;
 
     int32 randomPropId = GetItemRandomPropertyId();
@@ -1469,7 +1464,7 @@ int32 Item::GetReforgableStat(ItemModType statType) const
         for (uint32 e = PROP_ENCHANTMENT_SLOT_0; e <= PROP_ENCHANTMENT_SLOT_4; ++e)
             if (SpellItemEnchantmentEntry const* enchant = sSpellItemEnchantmentStore.LookupEntry(GetEnchantmentId(EnchantmentSlot(e))))
                 for (uint32 f = 0; f < MAX_ITEM_ENCHANTMENT_EFFECTS; ++f)
-                    if (enchant->type[f] == ITEM_ENCHANTMENT_TYPE_STAT && enchant->spellid[f] == statType)
+                    if (enchant->type[f] == ITEM_ENCHANTMENT_TYPE_STAT && ItemModType(enchant->spellid[f]) == statType)
                         for (int k = 0; k < 5; ++k)
                             if (randomSuffix->enchant_id[k] == enchant->ID)
                                 return int32((randomSuffix->prefix[k] * GetItemSuffixFactor()) / 10000);
@@ -1483,7 +1478,7 @@ int32 Item::GetReforgableStat(ItemModType statType) const
         for (uint32 e = PROP_ENCHANTMENT_SLOT_0; e <= PROP_ENCHANTMENT_SLOT_4; ++e)
             if (SpellItemEnchantmentEntry const* enchant = sSpellItemEnchantmentStore.LookupEntry(GetEnchantmentId(EnchantmentSlot(e))))
                 for (uint32 f = 0; f < MAX_ITEM_ENCHANTMENT_EFFECTS; ++f)
-                    if (enchant->type[f] == ITEM_ENCHANTMENT_TYPE_STAT && enchant->spellid[f] == statType)
+                    if (enchant->type[f] == ITEM_ENCHANTMENT_TYPE_STAT && ItemModType(enchant->spellid[f]) == statType)
                         for (int k = 0; k < MAX_ITEM_ENCHANTMENT_EFFECTS; ++k)
                             if (randomProp->enchant_id[k] == enchant->ID)
                                 return int32(enchant->amount[k]);
