@@ -76,7 +76,7 @@ class SummonScarab : public BasicEvent
 public:
     SummonScarab(Unit* owner, InstanceScript* instance) : _owner(owner), _instance(instance) { }
 
-    bool Execute(uint64 execTime, uint32 /*diff*/)
+    bool Execute(uint64 /*execTime*/, uint32 /*diff*/)
     {
         if (!_instance || _instance->GetBossState(DATA_EARTHRAGER_PTAH) != IN_PROGRESS)
             return true;    // delete event
@@ -178,7 +178,7 @@ public:
             }
         }
 
-        void SetData(uint32 index, uint32 value)
+        void SetData(uint32 index, uint32 /*value*/)
         {
             if (index == DATA_SUMMON_DEATHS)
             {
@@ -311,7 +311,7 @@ public:
         {
             if (Unit* ptah = GetCaster())
             {
-                ptah->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_UNK_29 | UNIT_FLAG_UNK_31);
+                ptah->SetFlag(UNIT_FIELD_FLAGS, uint32(UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_UNK_29 | UNIT_FLAG_UNK_31));
                 ptah->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_FEIGN_DEATH);
             }
         }
@@ -320,7 +320,7 @@ public:
         {
             if (Unit* ptah = GetCaster())
             {
-                ptah->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_UNK_29 | UNIT_FLAG_UNK_31);
+                ptah->RemoveFlag(UNIT_FIELD_FLAGS, uint32(UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_UNK_29 | UNIT_FLAG_UNK_31));
                 ptah->RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_FEIGN_DEATH);
             }
         }
