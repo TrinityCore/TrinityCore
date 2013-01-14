@@ -50,7 +50,7 @@ enum PaladinSpells
     SPELL_PALADIN_IMMUNE_SHIELD_MARKER           = 61988,
 
     SPELL_PALADIN_HAND_OF_SACRIFICE              = 6940,
-    SPELL_PALADIN_DIVINE_SACRIFICE               = 64205,
+    SPELL_PALADIN_DIVINE_SACRIFICE               = 64205
 };
 
 // 31850 - Ardent Defender
@@ -685,6 +685,7 @@ class spell_pal_righteous_defense : public SpellScriptLoader
         }
 };
 
+// 85285 - Sacred Shield
 class spell_pal_sacred_shield : public SpellScriptLoader
 {
     public:

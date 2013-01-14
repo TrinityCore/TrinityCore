@@ -57,6 +57,7 @@ enum WarlockSpellIcons
     WARLOCK_ICON_ID_MANA_FEED                       = 1982
 };
 
+// 710 - Banish
 /// Updated 4.3.4
 class spell_warl_banish : public SpellScriptLoader
 {
@@ -111,7 +112,7 @@ class spell_warl_banish : public SpellScriptLoader
         }
 };
 
-// 6201 Create Healthstone
+// 6201 - Create Healthstone
 class spell_warl_create_healthstone : public SpellScriptLoader
 {
     public:
@@ -183,7 +184,8 @@ class spell_warl_create_healthstone : public SpellScriptLoader
         }
 };
 
-uint32 const spell_warl_create_healthstone::spell_warl_create_healthstone_SpellScript::iTypes[8][3] = {
+uint32 const spell_warl_create_healthstone::spell_warl_create_healthstone_SpellScript::iTypes[8][3] =
+{
     { 5512, 19004, 19005},              // Minor Healthstone
     { 5511, 19006, 19007},              // Lesser Healthstone
     { 5509, 19008, 19009},              // Healthstone
@@ -194,7 +196,7 @@ uint32 const spell_warl_create_healthstone::spell_warl_create_healthstone_SpellS
     {36892, 36893, 36894}               // Fel Healthstone
 };
 
-// 603 Bane of Doom
+// 603 - Bane of Doom
 /// Updated 4.3.4
 class spell_warl_bane_of_doom : public SpellScriptLoader
 {
@@ -205,7 +207,7 @@ class spell_warl_bane_of_doom : public SpellScriptLoader
         {
             PrepareAuraScript(spell_warl_curse_of_doom_AuraScript);
 
-            bool Validate(SpellInfo const* /*spell*/)
+            bool Validate(SpellInfo const* /*spellInfo*/)
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_WARLOCK_BANE_OF_DOOM_EFFECT))
                     return false;
@@ -242,7 +244,7 @@ class spell_warl_bane_of_doom : public SpellScriptLoader
         }
 };
 
-// 48018 Demonic Circle: Summon
+// 48018 - Demonic Circle: Summon
 /// Updated 4.3.4
 class spell_warl_demonic_circle_summon : public SpellScriptLoader
 {
@@ -295,7 +297,7 @@ class spell_warl_demonic_circle_summon : public SpellScriptLoader
         }
 };
 
-// 48020 Demonic Circle: Teleport
+// 48020 - Demonic Circle: Teleport
 /// Updated 4.3.4
 class spell_warl_demonic_circle_teleport : public SpellScriptLoader
 {
@@ -330,7 +332,7 @@ class spell_warl_demonic_circle_teleport : public SpellScriptLoader
         }
 };
 
-// 47193 Demonic Empowerment
+// 47193 - Demonic Empowerment
 /// Updated 4.3.4
 class spell_warl_demonic_empowerment : public SpellScriptLoader
 {
@@ -393,7 +395,7 @@ class spell_warl_demonic_empowerment : public SpellScriptLoader
         }
 };
 
-// 47422 Everlasting Affliction
+// 47422 - Everlasting Affliction
 /// Updated 4.3.4
 class spell_warl_everlasting_affliction : public SpellScriptLoader
 {
@@ -424,7 +426,7 @@ class spell_warl_everlasting_affliction : public SpellScriptLoader
         }
 };
 
-// 48181 Haunt
+// 48181 - Haunt
 /// Updated 4.3.4
 class spell_warl_haunt : public SpellScriptLoader
 {
@@ -452,7 +454,7 @@ class spell_warl_haunt : public SpellScriptLoader
         {
             PrepareAuraScript(spell_warl_haunt_AuraScript);
 
-            bool Validate(SpellInfo const* /*spell*/)
+            bool Validate(SpellInfo const* /*spellInfo*/)
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_WARLOCK_HAUNT_HEAL))
                     return false;
@@ -485,7 +487,7 @@ class spell_warl_haunt : public SpellScriptLoader
         }
 };
 
-// 755 Health Funnel
+// 755 - Health Funnel
 /// Updated 4.3.4
 class spell_warl_health_funnel : public SpellScriptLoader
 {
@@ -529,7 +531,7 @@ class spell_warl_health_funnel : public SpellScriptLoader
         }
 };
 
-// 1454 Life Tap
+// 1454 - Life Tap
 /// Updated 4.3.4
 class spell_warl_life_tap : public SpellScriptLoader
 {
@@ -545,7 +547,7 @@ class spell_warl_life_tap : public SpellScriptLoader
                 return GetCaster()->GetTypeId() == TYPEID_PLAYER;
             }
 
-            bool Validate(SpellInfo const* /*spell*/)
+            bool Validate(SpellInfo const* /*spellInfo*/)
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_WARLOCK_LIFE_TAP_ENERGIZE) || !sSpellMgr->GetSpellInfo(SPELL_WARLOCK_LIFE_TAP_ENERGIZE_2))
                     return false;
@@ -599,7 +601,7 @@ class spell_warl_life_tap : public SpellScriptLoader
         }
 };
 
-// 27285 Seed of Corruption
+// 27285 - Seed of Corruption
 /// Updated 4.3.4
 class spell_warl_seed_of_corruption : public SpellScriptLoader
 {
@@ -628,7 +630,7 @@ class spell_warl_seed_of_corruption : public SpellScriptLoader
         }
 };
 
-// 29858 Soulshatter
+// 29858 - Soulshatter
 /// Updated 4.3.4
 class spell_warl_soulshatter : public SpellScriptLoader
 {
@@ -639,7 +641,7 @@ class spell_warl_soulshatter : public SpellScriptLoader
         {
             PrepareSpellScript(spell_warl_soulshatter_SpellScript);
 
-            bool Validate(SpellInfo const* /*spell*/)
+            bool Validate(SpellInfo const* /*spellInfo*/)
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_WARLOCK_SOULSHATTER))
                     return false;
@@ -666,6 +668,7 @@ class spell_warl_soulshatter : public SpellScriptLoader
         }
 };
 
+// 30108, 34438, 34439, 35183 - Unstable Affliction
 /// Updated 4.3.4
 class spell_warl_unstable_affliction : public SpellScriptLoader
 {
@@ -676,7 +679,7 @@ class spell_warl_unstable_affliction : public SpellScriptLoader
         {
             PrepareAuraScript(spell_warl_unstable_affliction_AuraScript);
 
-            bool Validate(SpellInfo const* /*spell*/)
+            bool Validate(SpellInfo const* /*spellInfo*/)
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_WARLOCK_UNSTABLE_AFFLICTION_DISPEL))
                     return false;

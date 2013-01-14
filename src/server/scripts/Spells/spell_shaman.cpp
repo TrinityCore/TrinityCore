@@ -49,10 +49,11 @@ enum ShamanSpells
 
 enum ShamanSpellIcons
 {
-    SHAMAN_ICON_ID_SOOTHING_RAIN       = 2011,
-    SHAMAN_ICON_ID_SHAMAN_LAVA_FLOW    = 3087
+    SHAMAN_ICON_ID_SOOTHING_RAIN                = 2011,
+    SHAMAN_ICON_ID_SHAMAN_LAVA_FLOW             = 3087
 };
 
+// 52759 - Ancestral Awakening
 /// Updated 4.3.4
 class spell_sha_ancestral_awakening_proc : public SpellScriptLoader
 {
@@ -89,6 +90,7 @@ class spell_sha_ancestral_awakening_proc : public SpellScriptLoader
         }
 };
 
+// 2825 - Bloodlust
 /// Updated 4.3.4
 class spell_sha_bloodlust : public SpellScriptLoader
 {
@@ -134,7 +136,7 @@ class spell_sha_bloodlust : public SpellScriptLoader
         }
 };
 
-// 1064 Chain Heal
+// 1064 - Chain Heal
 /// Updated 4.3.4
 class spell_sha_chain_heal : public SpellScriptLoader
 {
@@ -264,6 +266,7 @@ class EarthenPowerTargetSelector
         }
 };
 
+// 59566 - Earthen Power
 class spell_sha_earthen_power : public SpellScriptLoader
 {
     public:
@@ -326,6 +329,7 @@ class spell_sha_fire_nova : public SpellScriptLoader
         }
 };
 
+// 8050 -Flame Shock
 /// Updated 4.3.4
 class spell_sha_flame_shock : public SpellScriptLoader
 {
@@ -373,6 +377,7 @@ class spell_sha_flame_shock : public SpellScriptLoader
         }
 };
 
+// 52041 - Healing Stream Totem
 /// Updated 4.3.4
 class spell_sha_healing_stream_totem : public SpellScriptLoader
 {
@@ -422,6 +427,7 @@ class spell_sha_healing_stream_totem : public SpellScriptLoader
         }
 };
 
+// 32182 - Heroism
 /// Updated 4.3.4
 class spell_sha_heroism : public SpellScriptLoader
 {
@@ -467,6 +473,7 @@ class spell_sha_heroism : public SpellScriptLoader
         }
 };
 
+// 60103 - Lava Lash
 /// Updated 4.3.4
 class spell_sha_lava_lash : public SpellScriptLoader
 {
@@ -511,7 +518,7 @@ class spell_sha_lava_lash : public SpellScriptLoader
         }
 };
 
-// 16191 Mana Tide
+// 16191 - Mana Tide
 /// Updated 4.3.4
 class spell_sha_mana_tide_totem : public SpellScriptLoader
 {
