@@ -380,11 +380,11 @@ namespace VMAP
                 }
             }
 
-            fwrite(&displayId,sizeof(uint32),1,model_list_copy);
-            fwrite(&name_length,sizeof(uint32),1,model_list_copy);
-            fwrite(&buff,sizeof(char),name_length,model_list_copy);
-            fwrite(&bounds.low(),sizeof(Vector3),1,model_list_copy);
-            fwrite(&bounds.high(),sizeof(Vector3),1,model_list_copy);
+            fwrite(&displayId, sizeof(uint32), 1, model_list_copy);
+            fwrite(&name_length, sizeof(uint32), 1, model_list_copy);
+            fwrite(&buff, sizeof(char), name_length, model_list_copy);
+            fwrite(&bounds.low(), sizeof(Vector3), 1, model_list_copy);
+            fwrite(&bounds.high(), sizeof(Vector3), 1, model_list_copy);
         }
 
         fclose(model_list);

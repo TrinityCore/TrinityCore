@@ -61,7 +61,7 @@ protected:
     void EvaluateLinear(index_type, float, Vector3&) const;
     void EvaluateCatmullRom(index_type, float, Vector3&) const;
     void EvaluateBezier3(index_type, float, Vector3&) const;
-    typedef void (SplineBase::*EvaluationMethtod)(index_type,float,Vector3&) const;
+    typedef void (SplineBase::*EvaluationMethtod)(index_type, float, Vector3&) const;
     static EvaluationMethtod evaluators[ModesEnd];
 
     void EvaluateDerivativeLinear(index_type, float, Vector3&) const;
@@ -91,13 +91,13 @@ public:
         @param t - percent of segment length, assumes that t in range [0, 1]
         @param Idx - spline segment index, should be in range [first, last)
      */
-    void evaluate_percent(index_type Idx, float u, Vector3& c) const {(this->*evaluators[m_mode])(Idx,u,c);}
+    void evaluate_percent(index_type Idx, float u, Vector3& c) const {(this->*evaluators[m_mode])(Idx, u,c);}
 
     /** Caclulates derivation in index Idx, and percent of segment length t
         @param Idx - spline segment index, should be in range [first, last)
         @param t  - percent of spline segment length, assumes that t in range [0, 1]
      */
-    void evaluate_derivative(index_type Idx, float u, Vector3& hermite) const {(this->*derivative_evaluators[m_mode])(Idx,u,hermite);}
+    void evaluate_derivative(index_type Idx, float u, Vector3& hermite) const {(this->*derivative_evaluators[m_mode])(Idx, u,hermite);}
 
     /**  Bounds for spline indexes. All indexes should be in range [first, last). */
     index_type first() const { return index_lo;}
@@ -119,7 +119,7 @@ public:
         would be no harm to have some custom initializers. */
     template<class Init> inline void init_spline(Init& initializer)
     {
-        initializer(m_mode,cyclic,points,index_lo,index_hi);
+        initializer(m_mode, cyclic, points, index_lo, index_hi);
     }
 
     void clear();
@@ -156,20 +156,20 @@ public:
     /** Calculates the position for given segment Idx, and percent of segment length t
         @param t = partial_segment_length / whole_segment_length
         @param Idx - spline segment index, should be in range [first, last). */
-    void evaluate_percent(index_type Idx, float u, Vector3& c) const { SplineBase::evaluate_percent(Idx,u,c);}
+    void evaluate_percent(index_type Idx, float u, Vector3& c) const { SplineBase::evaluate_percent(Idx, u,c);}
 
     /** Caclulates derivation for index Idx, and percent of segment length t
         @param Idx - spline segment index, should be in range [first, last)
         @param t  - percent of spline segment length, assumes that t in range [0, 1]. */
-    void evaluate_derivative(index_type Idx, float u, Vector3& c) const { SplineBase::evaluate_derivative(Idx,u,c);}
+    void evaluate_derivative(index_type Idx, float u, Vector3& c) const { SplineBase::evaluate_derivative(Idx, u,c);}
 
     // Assumes that t in range [0, 1]
     index_type computeIndexInBounds(float t) const;
     void computeIndex(float t, index_type& out_idx, float& out_u) const;
 
     /** Initializes spline. Don't call other methods while spline not initialized. */
-    void init_spline(const Vector3 * controls, index_type count, EvaluationMode m) { SplineBase::init_spline(controls,count,m);}
-    void init_cyclic_spline(const Vector3 * controls, index_type count, EvaluationMode m, index_type cyclic_point) { SplineBase::init_cyclic_spline(controls,count,m,cyclic_point);}
+    void init_spline(const Vector3 * controls, index_type count, EvaluationMode m) { SplineBase::init_spline(controls, count, m);}
+    void init_cyclic_spline(const Vector3 * controls, index_type count, EvaluationMode m, index_type cyclic_point) { SplineBase::init_cyclic_spline(controls, count, m,cyclic_point);}
 
     /**  Initializes lengths with SplineBase::SegLength method. */
     void initLengths();
@@ -181,7 +181,7 @@ public:
         index_type i = index_lo;
         lengths.resize(index_hi+1);
         length_type prev_length = 0, new_length = 0;
-        while(i < index_hi)
+        while (i < index_hi)
         {
             new_length = cacher(*this, i);
             lengths[++i] = new_length;

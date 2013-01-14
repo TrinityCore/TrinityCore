@@ -1688,7 +1688,7 @@ void Battleground::SendWarningToAll(int32 entry, ...)
     if (!entry)
         return;
 
-    char const *format = sObjectMgr->GetTrinityStringForDBCLocale(entry);
+    char const* format = sObjectMgr->GetTrinityStringForDBCLocale(entry);
 
     char str[1024];
     va_list ap;

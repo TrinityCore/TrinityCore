@@ -544,7 +544,7 @@ public:
                 switch (AnimationCount)
                 {
                     case 0:
-                        Talk(ANACHRONOS_SAY_1,Fandral->GetGUID());
+                        Talk(ANACHRONOS_SAY_1, Fandral->GetGUID());
                         break;
                     case 1:
                         Fandral->SetTarget(me->GetGUID());

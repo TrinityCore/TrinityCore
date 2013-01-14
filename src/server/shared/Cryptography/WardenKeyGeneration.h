@@ -73,7 +73,7 @@ private:
 
     SHA1Hash sh;
     uint32 taken;
-    uint8 o0[20],o1[20],o2[20];
+    uint8 o0[20], o1[20], o2[20];
 };
 
 #endif

@@ -93,7 +93,7 @@ template<> struct hash<std::string>
 {
     size_t operator()(const std::string &__x) const
     {
-        return hash<char const *>()(__x.c_str());
+        return hash<char const*>()(__x.c_str());
     }
 };
 
