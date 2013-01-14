@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -68,7 +68,7 @@ void CalendarMgr::LoadFromDB()
             if (flags & CALENDAR_FLAG_GUILD_EVENT || flags & CALENDAR_FLAG_WITHOUT_INVITES)
                 guildId = Player::GetGuildIdFromDB(creatorGUID);
 
-            CalendarEvent* calendarEvent = new CalendarEvent(eventId, creatorGUID , guildId, type, dungeonId, time_t(eventTime), flags, time_t(timezoneTime), title, description);
+            CalendarEvent* calendarEvent = new CalendarEvent(eventId, creatorGUID, guildId, type, dungeonId, time_t(eventTime), flags, time_t(timezoneTime), title, description);
             _events.insert(calendarEvent);
 
             _maxEventId = std::max(_maxEventId, eventId);

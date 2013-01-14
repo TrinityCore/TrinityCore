@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -67,9 +67,8 @@ bool LoginQueryHolder::Initialize()
 
     bool res = true;
     uint32 lowGuid = GUID_LOPART(m_guid);
-    PreparedStatement* stmt = NULL;
 
-    stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER);
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER);
     stmt->setUInt32(0, lowGuid);
     res &= SetPreparedQuery(PLAYER_LOGIN_QUERY_LOAD_FROM, stmt);
 
@@ -1806,7 +1805,7 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
         if (recvData.GetOpcode() == CMSG_CHAR_FACTION_CHANGE)
         {
             // Delete all Flypaths
-            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_TAXI_PATH);
+            stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_TAXI_PATH);
             stmt->setUInt32(0, lowGuid);
             trans->Append(stmt);
 
@@ -1851,7 +1850,7 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
                 taximaskstream << '0';
                 std::string taximask = taximaskstream.str();
 
-                PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_TAXIMASK);
+                stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_TAXIMASK);
                 stmt->setString(0, taximask);
                 stmt->setUInt32(1, lowGuid);
                 trans->Append(stmt);
@@ -1898,7 +1897,7 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
             if (!sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_GUILD))
             {
                 // Reset guild
-                PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GUILD_MEMBER);
+                stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GUILD_MEMBER);
 
                 stmt->setUInt32(0, lowGuid);
 
@@ -1911,7 +1910,7 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
             if (!sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_ADD_FRIEND))
             {
                 // Delete Friend List
-                PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_SOCIAL_BY_GUID);
+                stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_SOCIAL_BY_GUID);
                 stmt->setUInt32(0, lowGuid);
                 trans->Append(stmt);
 
@@ -1957,7 +1956,7 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
                 uint32 achiev_alliance = it->first;
                 uint32 achiev_horde = it->second;
 
-                PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_ACHIEVEMENT_BY_ACHIEVEMENT);
+                stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_ACHIEVEMENT_BY_ACHIEVEMENT);
                 stmt->setUInt16(0, uint16(team == TEAM_ALLIANCE ? achiev_alliance : achiev_horde));
                 stmt->setUInt32(1, lowGuid);
                 trans->Append(stmt);
@@ -1975,7 +1974,7 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
                 uint32 item_alliance = it->first;
                 uint32 item_horde = it->second;
 
-                PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_INVENTORY_FACTION_CHANGE);
+                stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_INVENTORY_FACTION_CHANGE);
                 stmt->setUInt32(0, (team == TEAM_ALLIANCE ? item_alliance : item_horde));
                 stmt->setUInt32(1, (team == TEAM_ALLIANCE ? item_horde : item_alliance));
                 stmt->setUInt32(2, guid);
@@ -1988,7 +1987,7 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
                 uint32 spell_alliance = it->first;
                 uint32 spell_horde = it->second;
 
-                PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_SPELL_BY_SPELL);
+                stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_SPELL_BY_SPELL);
                 stmt->setUInt32(0, (team == TEAM_ALLIANCE ? spell_alliance : spell_horde));
                 stmt->setUInt32(1, lowGuid);
                 trans->Append(stmt);
@@ -2009,7 +2008,7 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
                 uint32 oldReputation = (team == TEAM_ALLIANCE) ? reputation_horde : reputation_alliance;
 
                 // select old standing set in db
-                PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_REP_BY_FACTION);
+                stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_REP_BY_FACTION);
                 stmt->setUInt32(0, oldReputation);
                 stmt->setUInt32(1, lowGuid);
                 PreparedQueryResult result = CharacterDatabase.Query(stmt);
@@ -2101,7 +2100,7 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
                     for (uint32 index = 0; index < ktcount; ++index)
                         ss << knownTitles[index] << ' ';
 
-                    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_TITLES_FACTION_CHANGE);
+                    stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_TITLES_FACTION_CHANGE);
                     stmt->setString(0, ss.str().c_str());
                     stmt->setUInt32(1, lowGuid);
                     trans->Append(stmt);

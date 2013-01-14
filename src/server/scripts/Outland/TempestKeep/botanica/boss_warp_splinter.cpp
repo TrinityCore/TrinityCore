@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -25,6 +25,7 @@ EndScriptData */
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "the_botanica.h"
 
 enum eSays
 {
@@ -40,13 +41,13 @@ enum eSpells
     SUMMON_TREANTS     = 34727, // DBC: 34727, 34731, 34733, 34734, 34736, 34739, 34741 (with Ancestral Life spell 34742)   // won't work (guardian summon)
     ARCANE_VOLLEY      = 36705,
     ARCANE_VOLLEY_H    = 39133,
-    SPELL_HEAL_FATHER  = 6262,
+    SPELL_HEAL_FATHER  = 6262
 };
 
 enum eOthers
 {
     CREATURE_TREANT    = 19949,
-    TREANT_SPAWN_DIST  = 50, //50 yards from Warp Splinter's spawn point
+    TREANT_SPAWN_DIST  = 50 //50 yards from Warp Splinter's spawn point
 };
 
 float treant_pos[6][3] =
@@ -134,9 +135,9 @@ class boss_warp_splinter : public CreatureScript
             : CreatureScript("boss_warp_splinter")
         {
         }
-        struct boss_warp_splinterAI : public ScriptedAI
+        struct boss_warp_splinterAI : public BossAI
         {
-            boss_warp_splinterAI(Creature* creature) : ScriptedAI(creature)
+            boss_warp_splinterAI(Creature* creature) : BossAI(creature, DATA_WARP_SPLINTER)
             {
                 Treant_Spawn_Pos_X = creature->GetPositionX();
                 Treant_Spawn_Pos_Y = creature->GetPositionY();

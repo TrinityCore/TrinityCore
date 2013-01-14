@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -418,7 +418,7 @@ enum SpellAttr4
     SPELL_ATTR4_UNK5                             = 0x00000020, //  5
     SPELL_ATTR4_NOT_STEALABLE                    = 0x00000040, //  6 although such auras might be dispellable, they cannot be stolen
     SPELL_ATTR4_TRIGGERED                        = 0x00000080, //  7 spells forced to be triggered
-    SPELL_ATTR4_UNK8                             = 0x00000100, //  8 ignores taken percent damage mods?
+    SPELL_ATTR4_FIXED_DAMAGE                     = 0x00000100, //  8 ignores taken percent damage mods?
     SPELL_ATTR4_TRIGGER_ACTIVATE                 = 0x00000200, //  9 initially disabled / trigger activate from event (Execute, Riposte, Deep Freeze end other)
     SPELL_ATTR4_SPELL_VS_EXTEND_COST             = 0x00000400, // 10 Rogue Shiv have this flag
     SPELL_ATTR4_UNK11                            = 0x00000800, // 11
@@ -432,7 +432,7 @@ enum SpellAttr4
     SPELL_ATTR4_UNK19                            = 0x00080000, // 19 proc dalayed, after damage or don't proc on absorb?
     SPELL_ATTR4_NOT_CHECK_SELFCAST_POWER         = 0x00100000, // 20 supersedes message "More powerful spell applied" for self casts.
     SPELL_ATTR4_UNK21                            = 0x00200000, // 21 Pally aura, dk presence, dudu form, warrior stance, shadowform, hunter track
-    SPELL_ATTR4_UNK22                            = 0x00400000, // 22 Seal of Command (42058,57770) and Gymer's Smash 55426
+    SPELL_ATTR4_UNK22                            = 0x00400000, // 22 Seal of Command (42058, 57770) and Gymer's Smash 55426
     SPELL_ATTR4_UNK23                            = 0x00800000, // 23
     SPELL_ATTR4_UNK24                            = 0x01000000, // 24 some shoot spell
     SPELL_ATTR4_IS_PET_SCALING                   = 0x02000000, // 25 pet scaling auras
@@ -441,7 +441,7 @@ enum SpellAttr4
     SPELL_ATTR4_UNK28                            = 0x10000000, // 28 Aimed Shot
     SPELL_ATTR4_UNK29                            = 0x20000000, // 29
     SPELL_ATTR4_UNK30                            = 0x40000000, // 30
-    SPELL_ATTR4_UNK31                            = 0x80000000  // 31 Polymorph (chicken) 228 and Sonic Boom (38052,38488)
+    SPELL_ATTR4_UNK31                            = 0x80000000  // 31 Polymorph (chicken) 228 and Sonic Boom (38052, 38488)
 };
 
 enum SpellAttr5
@@ -546,10 +546,10 @@ enum SpellAttr7
     SPELL_ATTR7_UNK25                            = 0x02000000, // 25
     SPELL_ATTR7_UNK26                            = 0x04000000, // 26
     SPELL_ATTR7_UNK27                            = 0x08000000, // 27 Not set
-    SPELL_ATTR7_UNK28                            = 0x10000000, // 28 related to player positive buff
+    SPELL_ATTR7_BENEFIT_FROM_SPELLMOD            = 0x10000000, // 28 Non-permanent, non-passive buffs that may benefit from spellmods
     SPELL_ATTR7_UNK29                            = 0x20000000, // 29 only 69028, 71237
     SPELL_ATTR7_UNK30                            = 0x40000000, // 30 Burning Determination, Divine Sacrifice, Earth Shield, Prayer of Mending
-    SPELL_ATTR7_UNK31                            = 0x80000000  // 31 only 70769
+    SPELL_ATTR7_CLIENT_INDICATOR                 = 0x80000000
 };
 
 #define MIN_TALENT_SPEC         0
@@ -767,7 +767,7 @@ enum SpellEffects
     SPELL_EFFECT_SUMMON_OBJECT_SLOT3                = 106,
     SPELL_EFFECT_SUMMON_OBJECT_SLOT4                = 107,
     SPELL_EFFECT_DISPEL_MECHANIC                    = 108,
-    SPELL_EFFECT_SUMMON_DEAD_PET                    = 109,
+    SPELL_EFFECT_RESURRECT_PET                      = 109,
     SPELL_EFFECT_DESTROY_ALL_TOTEMS                 = 110,
     SPELL_EFFECT_DURABILITY_DAMAGE                  = 111,
     SPELL_EFFECT_112                                = 112,
@@ -789,7 +789,7 @@ enum SpellEffects
     SPELL_EFFECT_APPLY_AREA_AURA_FRIEND             = 128,
     SPELL_EFFECT_APPLY_AREA_AURA_ENEMY              = 129,
     SPELL_EFFECT_REDIRECT_THREAT                    = 130,
-    SPELL_EFFECT_131                                = 131,
+    SPELL_EFFECT_PLAY_SOUND                         = 131,
     SPELL_EFFECT_PLAY_MUSIC                         = 132,
     SPELL_EFFECT_UNLEARN_SPECIALIZATION             = 133,
     SPELL_EFFECT_KILL_CREDIT2                       = 134,
@@ -3146,10 +3146,11 @@ enum SummonType
     SUMMON_TYPE_MINIPET     = 5,
     SUMMON_TYPE_GUARDIAN2   = 6,
     SUMMON_TYPE_WILD2       = 7,
-    SUMMON_TYPE_WILD3       = 8,
+    SUMMON_TYPE_WILD3       = 8,    // Related to phases and DK prequest line (3.3.5a)
     SUMMON_TYPE_VEHICLE     = 9,
-    SUMMON_TYPE_VEHICLE2    = 10,
-    SUMMON_TYPE_OBJECT      = 11
+    SUMMON_TYPE_VEHICLE2    = 10,   // Oculus and Argent Tournament vehicles (3.3.5a)
+    SUMMON_TYPE_LIGHTWELL   = 11,
+    SUMMON_TYPE_JEEVES      = 12
 };
 
 enum EventId

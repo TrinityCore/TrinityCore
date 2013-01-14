@@ -118,7 +118,7 @@ namespace Movement
         }
 
         PacketBuilder::WriteMonsterMove(move_spline, data);
-        unit.SendMessageToSet(&data,true);
+        unit.SendMessageToSet(&data, true);
     }
 
     MoveSplineInit::MoveSplineInit(Unit& m) : unit(m)
@@ -130,7 +130,7 @@ namespace Movement
         args.flags.flying = unit.m_movementInfo.HasMovementFlag((MovementFlags)(MOVEMENTFLAG_CAN_FLY|MOVEMENTFLAG_DISABLE_GRAVITY));
     }
 
-    void MoveSplineInit::SetFacing(const Unit * target)
+    void MoveSplineInit::SetFacing(const Unit* target)
     {
         args.flags.EnableFacingTarget();
         args.facing.target = target->GetGUID();
@@ -162,9 +162,11 @@ namespace Movement
     {
         if (_transformForTransport)
         {
-            float unused = 0.0f;
             if (TransportBase* transport = _owner.GetDirectTransport())
+            {
+                float unused = 0.0f; // need reference
                 transport->CalculatePassengerOffset(input.x, input.y, input.z, unused);
+            }
         }
 
         return input;

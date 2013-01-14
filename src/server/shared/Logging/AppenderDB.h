@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -23,12 +23,12 @@
 class AppenderDB: public Appender
 {
     public:
-        AppenderDB(uint8 _id, std::string const& _name, LogLevel level, uint8 realmId);
+        AppenderDB(uint8 _id, std::string const& _name, LogLevel level, uint32 realmId);
         ~AppenderDB();
         void setEnable(bool enable);
 
     private:
-        uint8 realm;
+        uint32 realm;
         bool enable;
         void _write(LogMessage& message);
 };

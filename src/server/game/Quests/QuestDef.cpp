@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -140,9 +140,7 @@ Quest::Quest(Field* questRecord)
     for (int i = 0; i < QUEST_EMOTE_COUNT; ++i)
         OfferRewardEmoteDelay[i] = questRecord[140+i].GetInt32();
 
-    CompleteScript = questRecord[144].GetUInt32();
-
-    // int32 WDBVerified = questRecord[145].GetInt32();
+    //int32 WDBVerified = questRecord[144].GetInt32();
 
     Flags |= SpecialFlags << 20;
     if (Flags & QUEST_TRINITY_FLAGS_AUTO_ACCEPT)
@@ -219,9 +217,26 @@ bool Quest::IsAutoComplete() const
     return sWorld->getBoolConfig(CONFIG_QUEST_IGNORE_AUTO_COMPLETE) ? false : (Method == 0 || HasFlag(QUEST_FLAGS_AUTOCOMPLETE));
 }
 
-bool Quest::IsAllowedInRaid() const
+bool Quest::IsRaidQuest(Difficulty difficulty) const
 {
-    if (IsRaidQuest())
+    switch (Type)
+    {
+        case QUEST_TYPE_RAID:
+            return true;
+        case QUEST_TYPE_RAID_10:
+            return !(difficulty & RAID_DIFFICULTY_MASK_25MAN);
+        case QUEST_TYPE_RAID_25:
+            return difficulty & RAID_DIFFICULTY_MASK_25MAN;
+        default:
+            break;
+    }
+
+    return false;
+}
+
+bool Quest::IsAllowedInRaid(Difficulty difficulty) const
+{
+    if (IsRaidQuest(difficulty))
         return true;
 
     return sWorld->getBoolConfig(CONFIG_QUEST_IGNORE_RAID);

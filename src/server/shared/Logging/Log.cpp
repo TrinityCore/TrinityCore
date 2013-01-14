@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2008 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -82,7 +82,7 @@ void Log::CreateAppenderFromConfig(const char* name)
     if (!name || *name == '\0')
         return;
 
-    // Format=type,level,flags,optional1,optional2
+    // Format=type, level, flags, optional1, optional2
     // if type = File. optional1 = file and option2 = mode
     // if type = Console. optional1 = Color
     std::string options = "Appender.";
@@ -169,7 +169,7 @@ void Log::CreateLoggerFromConfig(const char* name)
         return;
 
     LogLevel level = LOG_LEVEL_DISABLED;
-    int32 type = -1;
+    uint8 type = uint8(-1);
 
     std::string options = "Logger.";
     options.append(name);
@@ -190,7 +190,7 @@ void Log::CreateLoggerFromConfig(const char* name)
         return;
     }
 
-    type = atoi(*iter);
+    type = uint8(atoi(*iter));
     if (type > MaxLogFilter)
     {
         fprintf(stderr, "Log::CreateLoggerFromConfig: Wrong type %u for logger %s\n", type, name);
@@ -334,7 +334,7 @@ bool Log::SetLogLevel(std::string const& name, const char* newLevelc, bool isLog
 
 bool Log::ShouldLog(LogFilterType type, LogLevel level) const
 {
-    LoggerMap::const_iterator it = loggers.find(type);
+    LoggerMap::const_iterator it = loggers.find(uint8(type));
     if (it != loggers.end())
     {
         LogLevel loggerLevel = it->second.getLogLevel();

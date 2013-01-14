@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -35,15 +35,22 @@ EndScriptData */
 # Once Aurius is defeated, he should be the one summoning the ghosts.
 #####*/
 
-#define SH_GREGOR           17910
-#define SH_CATHELA          17911
-#define SH_NEMAS            17912
-#define SH_AELMAR           17913
-#define SH_VICAR            17914
-#define SH_QUEST_CREDIT     17915
+enum SH_CreatureIds
+{
+    SH_GREGOR                   = 17910,
+    SH_CATHELA                  = 17911,
+    SH_NEMAS                    = 17912,
+    SH_AELMAR                   = 17913,
+    SH_VICAR                    = 17914,
+    SH_QUEST_CREDIT             = 17915
+};
 
-#define SPELL_HOLY_LIGHT    25263
-#define SPELL_DIVINE_SHIELD 13874
+enum Spells
+{
+    SPELL_HOLY_LIGHT            = 25263,
+    SPELL_DIVINE_SHIELD         = 13874
+};
+
 class boss_silver_hand_bosses : public CreatureScript
 {
 public:

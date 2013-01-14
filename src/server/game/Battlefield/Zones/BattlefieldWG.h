@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2010 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -406,7 +405,7 @@ class BattlefieldWG : public Battlefield
         void PromotePlayer(Player* killer);
 
         void UpdateTenacity();
-        void ProcessEvent(WorldObject *obj, uint32 eventId);
+        void ProcessEvent(WorldObject* obj, uint32 eventId);
 
         bool FindAndRemoveVehicleFromList(Unit* vehicle);
 
@@ -563,7 +562,7 @@ struct WintergraspObjectPositionData
 };
 
 // *****************************************************
-// ************ Destructible (Wall,Tower..) ************
+// ************ Destructible (Wall, Tower..) ************
 // *****************************************************
 
 struct WintergraspBuildingSpawnData
@@ -756,7 +755,7 @@ const WintergraspTeleporterData WGPortalDefenderData[WG_MAX_TELEPORTER] =
 };
 
 // *********************************************************
-// **********Tower Element(GameObject,Creature)*************
+// **********Tower Element(GameObject, Creature)*************
 // *********************************************************
 
 struct WintergraspTowerData
@@ -1056,7 +1055,7 @@ const WGWorkshopData WorkshopsData[WG_MAX_WORKSHOP] =
 };
 
 // ********************************************************************
-// *         Structs using for Building,Graveyard,Workshop            *
+// *         Structs using for Building, Graveyard, Workshop            *
 // ********************************************************************
 // Structure for different buildings that can be destroyed during battle
 struct BfWGGameObjectBuilding

@@ -46,14 +46,6 @@ struct ScriptPointMove
 
 typedef std::vector<ScriptPointMove> ScriptPointVector;
 
-struct StringTextData
-{
-    uint32 uiSoundId;
-    uint8  uiType;
-    uint32 uiLanguage;
-    uint32 uiEmote;
-};
-
 class SystemMgr
 {
         friend class ACE_Singleton<SystemMgr, ACE_Null_Mutex>;
@@ -61,25 +53,10 @@ class SystemMgr
         ~SystemMgr() {}
 
     public:
-        //Maps and lists
-        typedef UNORDERED_MAP<int32, StringTextData> TextDataMap;
         typedef UNORDERED_MAP<uint32, ScriptPointVector> PointMoveMap;
 
         //Database
-        void LoadScriptTexts();
-        void LoadScriptTextsCustom();
         void LoadScriptWaypoints();
-
-        //Retrive from storage
-        StringTextData const* GetTextData(int32 textId) const
-        {
-            TextDataMap::const_iterator itr = m_mTextDataMap.find(textId);
-
-            if (itr == m_mTextDataMap.end())
-                return NULL;
-
-            return &itr->second;
-        }
 
         ScriptPointVector const& GetPointMoveList(uint32 creatureEntry) const
         {
@@ -92,7 +69,6 @@ class SystemMgr
         }
 
     protected:
-        TextDataMap     m_mTextDataMap;                     //additional data for text strings
         PointMoveMap    m_mPointMoveMap;                    //coordinates for waypoints
 
     private:

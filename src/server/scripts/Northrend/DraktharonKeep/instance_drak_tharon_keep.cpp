@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,6 +16,7 @@
  */
 
 #include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 #include "InstanceScript.h"
 #include "drak_tharon_keep.h"
 
@@ -30,17 +31,23 @@
 
 enum Creatures
 {
-    NPC_TROLLGORE                                 = 26630,
-    NPC_NOVOS                                     = 26631,
-    NPC_KING_DRED                                 = 27483,
-    NPC_THARON_JA                                 = 26632
+    NPC_TROLLGORE                               = 26630,
+    NPC_NOVOS                                   = 26631,
+    NPC_KING_DRED                               = 27483,
+    NPC_THARON_JA                               = 26632,
+    NPC_CRYSTAL_CHANNEL_TARGET                  = 26712,
+    NPC_CRYSTAL_HANDLER                         = 26627
 };
 enum GameObjects
 {
-    GO_NOVOS_CRYSTAL_1                            = 189299,
-    GO_NOVOS_CRYSTAL_2                            = 189300,
-    GO_NOVOS_CRYSTAL_3                            = 189301,
-    GO_NOVOS_CRYSTAL_4                            = 189302
+    GO_NOVOS_CRYSTAL_1                          = 189299,
+    GO_NOVOS_CRYSTAL_2                          = 189300,
+    GO_NOVOS_CRYSTAL_3                          = 189301,
+    GO_NOVOS_CRYSTAL_4                          = 189302
+};
+enum Achievements
+{
+    ACM_CRITERIA_OH_NOVOS                       = 7361
 };
 
 class instance_drak_tharon : public InstanceMapScript
@@ -52,17 +59,22 @@ public:
     {
         instance_drak_tharon_InstanceScript(Map* map) : InstanceScript(map) {}
 
-        uint8 uiDredAchievCounter;
+        uint8 dredAchievCounter;
 
-        uint64 uiTrollgore;
-        uint64 uiNovos;
-        uint64 uiDred;
-        uint64 uiTharonJa;
+        uint64 trollgoreGUID;
+        uint64 novosGUID;
+        uint64 dredGUID;
+        uint64 tharonJaGUID;
 
-        uint64 uiNovosCrystal1;
-        uint64 uiNovosCrystal2;
-        uint64 uiNovosCrystal3;
-        uint64 uiNovosCrystal4;
+        uint64 novosCrystalGUID1;
+        uint64 novosCrystalGUID2;
+        uint64 novosCrystalGUID3;
+        uint64 novosCrystalGUID4;
+
+        uint64 novosSummonerGUID1;
+        uint64 novosSummonerGUID2;
+        uint64 novosSummonerGUID3;
+        uint64 novosSummonerGUID4;
 
         uint16 m_auiEncounter[MAX_ENCOUNTER];
 
@@ -71,15 +83,23 @@ public:
         void Initialize()
         {
             memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
-            uiTrollgore = 0;
-            uiNovos = 0;
-            uiDred = 0;
-            uiTharonJa = 0;
-            uiNovosCrystal1 = 0;
-            uiNovosCrystal2 = 0;
-            uiNovosCrystal3 = 0;
-            uiNovosCrystal4 = 0;
-            uiDredAchievCounter = 0;
+
+            dredAchievCounter = 0;
+
+            trollgoreGUID = 0;
+            novosGUID = 0;
+            dredGUID = 0;
+            tharonJaGUID = 0;
+
+            novosCrystalGUID1 = 0;
+            novosCrystalGUID2 = 0;
+            novosCrystalGUID3 = 0;
+            novosCrystalGUID4 = 0;
+
+            novosSummonerGUID1 = 0;
+            novosSummonerGUID2 = 0;
+            novosSummonerGUID3 = 0;
+            novosSummonerGUID4 = 0;
         }
 
         bool IsEncounterInProgress() const
@@ -96,16 +116,20 @@ public:
             switch (go->GetEntry())
             {
                 case GO_NOVOS_CRYSTAL_1:
-                    uiNovosCrystal1 = go->GetGUID();
+                    novosCrystalGUID1 = go->GetGUID();
+                    go->SetGoState(GO_STATE_READY);
                     break;
                 case GO_NOVOS_CRYSTAL_2:
-                    uiNovosCrystal2 = go->GetGUID();
+                    novosCrystalGUID2 = go->GetGUID();
+                    go->SetGoState(GO_STATE_READY);
                     break;
                 case GO_NOVOS_CRYSTAL_3:
-                    uiNovosCrystal3 = go->GetGUID();
+                    novosCrystalGUID3 = go->GetGUID();
+                    go->SetGoState(GO_STATE_READY);
                     break;
                 case GO_NOVOS_CRYSTAL_4:
-                    uiNovosCrystal4 = go->GetGUID();
+                    novosCrystalGUID4 = go->GetGUID();
+                    go->SetGoState(GO_STATE_READY);
                     break;
             }
         }
@@ -115,32 +139,55 @@ public:
             switch (creature->GetEntry())
             {
                 case NPC_TROLLGORE:
-                    uiTrollgore = creature->GetGUID();
+                    trollgoreGUID = creature->GetGUID();
                     break;
                 case NPC_NOVOS:
-                    uiNovos = creature->GetGUID();
+                    novosGUID = creature->GetGUID();
                     break;
                 case NPC_KING_DRED:
-                    uiDred = creature->GetGUID();
+                    dredGUID = creature->GetGUID();
                     break;
                 case NPC_THARON_JA:
-                    uiTharonJa = creature->GetGUID();
+                    tharonJaGUID = creature->GetGUID();
+                    break;
+                case NPC_CRYSTAL_CHANNEL_TARGET:
+                    InitializeNovosSummoner(creature);
                     break;
             }
+        }
+
+        void InitializeNovosSummoner(Creature* creature)
+        {
+            float x = creature->GetPositionX();
+            float y = creature->GetPositionY();
+            float z = creature->GetPositionZ();
+
+            if (x < -374.0f && x > -379.0f && y > -820.0f && y < -815.0f && z < 60.0f && z > 58.0f)
+                novosSummonerGUID1 = creature->GetGUID();
+            else if (x < -379.0f && x > -385.0f && y > -820.0f && y < -815.0f && z < 60.0f && z > 58.0f)
+                novosSummonerGUID2 = creature->GetGUID();
+            else if (x < -374.0f && x > -385.0f && y > -827.0f && y < -820.0f && z < 60.0f && z > 58.0f)
+                novosSummonerGUID3 = creature->GetGUID();
+            else if (x < -338.0f && x > -344.0f && y > -727.0f && y < 721.0f && z < 30.0f && z > 26.0f)
+                novosSummonerGUID4 = creature->GetGUID();
         }
 
         uint64 GetData64(uint32 identifier) const
         {
             switch (identifier)
             {
-                case DATA_TROLLGORE:          return uiTrollgore;
-                case DATA_NOVOS:              return uiNovos;
-                case DATA_DRED:               return uiDred;
-                case DATA_THARON_JA:          return uiTharonJa;
-                case DATA_NOVOS_CRYSTAL_1:    return uiNovosCrystal1;
-                case DATA_NOVOS_CRYSTAL_2:    return uiNovosCrystal2;
-                case DATA_NOVOS_CRYSTAL_3:    return uiNovosCrystal3;
-                case DATA_NOVOS_CRYSTAL_4:    return uiNovosCrystal4;
+                case DATA_TROLLGORE:          return trollgoreGUID;
+                case DATA_NOVOS:              return novosGUID;
+                case DATA_DRED:               return dredGUID;
+                case DATA_THARON_JA:          return tharonJaGUID;
+                case DATA_NOVOS_CRYSTAL_1:    return novosCrystalGUID1;
+                case DATA_NOVOS_CRYSTAL_2:    return novosCrystalGUID2;
+                case DATA_NOVOS_CRYSTAL_3:    return novosCrystalGUID3;
+                case DATA_NOVOS_CRYSTAL_4:    return novosCrystalGUID4;
+                case DATA_NOVOS_SUMMONER_1:   return novosSummonerGUID1;
+                case DATA_NOVOS_SUMMONER_2:   return novosSummonerGUID2;
+                case DATA_NOVOS_SUMMONER_3:   return novosSummonerGUID3;
+                case DATA_NOVOS_SUMMONER_4:   return novosSummonerGUID4;
             }
 
             return 0;
@@ -164,7 +211,7 @@ public:
                     break;
 
                 case DATA_KING_DRED_ACHIEV:
-                    uiDredAchievCounter = data;
+                    dredAchievCounter = data;
                     break;
             }
 
@@ -182,7 +229,7 @@ public:
                 case DATA_NOVOS_EVENT:        return m_auiEncounter[1];
                 case DATA_DRED_EVENT:         return m_auiEncounter[2];
                 case DATA_THARON_JA_EVENT:    return m_auiEncounter[3];
-                case DATA_KING_DRED_ACHIEV:   return uiDredAchievCounter;
+                case DATA_KING_DRED_ACHIEV:   return dredAchievCounter;
             }
             return 0;
         }
@@ -197,6 +244,14 @@ public:
 
             OUT_SAVE_INST_DATA_COMPLETE;
             return saveStream.str();
+        }
+
+        void OnUnitDeath(Unit* unit)
+        {
+            if (unit->GetEntry() == NPC_CRYSTAL_HANDLER)
+                if (novosGUID)
+                    if (Creature* novos = instance->GetCreature(novosGUID))
+                        novos->AI()->DoAction(ACTION_CRYSTAL_HANDLER_DIED);
         }
 
         void Load(const char* in)

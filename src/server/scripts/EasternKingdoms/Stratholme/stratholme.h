@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -19,24 +19,65 @@
 #ifndef DEF_STRATHOLME_H
 #define DEF_STRATHOLME_H
 
-#define TYPE_BARON_RUN          1
-#define TYPE_BARONESS           2
-#define TYPE_NERUB              3
-#define TYPE_PALLID             4
-#define TYPE_RAMSTEIN           5
-#define TYPE_BARON              6
+enum DataTypes
+{
+    TYPE_BARON_RUN                      = 1,
+    TYPE_BARONESS                       = 2,
+    TYPE_NERUB                          = 3,
+    TYPE_PALLID                         = 4,
+    TYPE_RAMSTEIN                       = 5,
+    TYPE_BARON                          = 6,
 
-#define DATA_BARON              10
-#define DATA_YSIDA_TRIGGER      11
+    TYPE_MALOWN                         = 7,
 
-#define TYPE_SH_QUEST           20
-#define TYPE_SH_CATHELA         21
-#define TYPE_SH_GREGOR          22
-#define TYPE_SH_NEMAS           23
-#define TYPE_SH_VICAR           24
-#define TYPE_SH_AELMAR          25
+    DATA_BARON                          = 10,
+    DATA_YSIDA_TRIGGER                  = 11,
 
-#define QUEST_DEAD_MAN_PLEA     8945
-#define SPELL_BARON_ULTIMATUM   27861
+    TYPE_SH_QUEST                       = 20,
+    TYPE_SH_CATHELA                     = 21,
+    TYPE_SH_GREGOR                      = 22,
+    TYPE_SH_NEMAS                       = 23,
+    TYPE_SH_VICAR                       = 24,
+    TYPE_SH_AELMAR                      = 25
+};
+
+enum CreatureIds
+{
+    NPC_CRYSTAL                         = 10415, // ziggurat crystal
+    NPC_BARON                           = 10440, // ziggurat crystal
+    NPC_YSIDA_TRIGGER                   = 16100, // ziggurat crystal
+
+    NPC_RAMSTEIN                        = 10439,
+    NPC_ABOM_BILE                       = 10416,
+    NPC_ABOM_VENOM                      = 10417,
+    NPC_BLACK_GUARD                     = 10394,
+    NPC_YSIDA                           = 16031,
+};
+
+enum GameobjectIds
+{
+    GO_DOOR_HALAZZI                     = 186303,
+    GO_SERVICE_ENTRANCE                 = 175368,
+    GO_GAUNTLET_GATE1                   = 175357,
+    GO_ZIGGURAT1                        = 175380,  // baroness
+    GO_ZIGGURAT2                        = 175379,  // nerub'enkan
+    GO_ZIGGURAT3                        = 175381,  // maleki
+    GO_ZIGGURAT4                        = 175405,  // rammstein
+    GO_ZIGGURAT5                        = 175796,  // baron
+    GO_PORT_GAUNTLET                    = 175374,  // port from gauntlet to slaugther
+    GO_PORT_SLAUGTHER                   = 175373,  // port at slaugther
+    GO_PORT_ELDERS                      = 175377   // port at elders square
+};
+
+enum QuestIds
+{
+    QUEST_DEAD_MAN_PLEA                 = 8945
+};
+
+enum SpellIds
+{
+    SPELL_BARON_ULTIMATUM               = 27861
+};
+
 #endif
 

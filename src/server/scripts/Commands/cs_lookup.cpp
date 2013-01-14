@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -46,6 +46,14 @@ public:
             { "email",          SEC_GAMEMASTER,     true,  &HandleLookupPlayerEmailCommand,     "", NULL },
             { NULL,             0,                  false, NULL,                                "", NULL }
         };
+
+        static ChatCommand lookupSpellCommandTable[] =
+        {
+            { "id",             SEC_ADMINISTRATOR,  true,  &HandleLookupSpellIdCommand,         "", NULL },
+            { "",               SEC_ADMINISTRATOR,  true,  &HandleLookupSpellCommand,           "", NULL },
+            { NULL,             0,                  false, NULL,                                "", NULL }
+        };
+
         static ChatCommand lookupCommandTable[] =
         {
             { "area",           SEC_MODERATOR,      true,  &HandleLookupAreaCommand,            "", NULL },
@@ -58,13 +66,14 @@ public:
             { "quest",          SEC_ADMINISTRATOR,  true,  &HandleLookupQuestCommand,           "", NULL },
             { "player",         SEC_GAMEMASTER,     true,  NULL,                                "", lookupPlayerCommandTable },
             { "skill",          SEC_ADMINISTRATOR,  true,  &HandleLookupSkillCommand,           "", NULL },
-            { "spell",          SEC_ADMINISTRATOR,  true,  &HandleLookupSpellCommand,           "", NULL },
+            { "spell",          SEC_ADMINISTRATOR,  true,  NULL,                                "", lookupSpellCommandTable },
             { "taxinode",       SEC_ADMINISTRATOR,  true,  &HandleLookupTaxiNodeCommand,        "", NULL },
             { "tele",           SEC_MODERATOR,      true,  &HandleLookupTeleCommand,            "", NULL },
             { "title",          SEC_GAMEMASTER,     true,  &HandleLookupTitleCommand,           "", NULL },
             { "map",            SEC_ADMINISTRATOR,  true,  &HandleLookupMapCommand,             "", NULL },
             { NULL,             0,                  false, NULL,                                "", NULL }
         };
+
         static ChatCommand commandTable[] =
         {
             { "lookup",         SEC_ADMINISTRATOR,  true,  NULL,                                "", lookupCommandTable },
@@ -937,6 +946,94 @@ public:
                 }
             }
         }
+        if (!found)
+            handler->SendSysMessage(LANG_COMMAND_NOSPELLFOUND);
+
+        return true;
+    }
+
+    static bool HandleLookupSpellIdCommand(ChatHandler* handler, char const* args)
+    {
+        if (!*args)
+            return false;
+
+        // can be NULL at console call
+        Player* target = handler->getSelectedPlayer();
+
+        uint32 id = atoi((char*)args);
+
+        bool found = false;
+        uint32 count = 0;
+        uint32 maxResults = 1;
+
+        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(id);
+        if (spellInfo)
+        {
+            int locale = handler->GetSessionDbcLocale();
+            std::string name = spellInfo->SpellName[locale];
+            if (name.empty())
+            {
+                handler->SendSysMessage(LANG_COMMAND_NOSPELLFOUND);
+                return true;
+            }
+
+            if (locale < TOTAL_LOCALES)
+            {
+                if (maxResults && count++ == maxResults)
+                {
+                    handler->PSendSysMessage(LANG_COMMAND_LOOKUP_MAX_RESULTS, maxResults);
+                    return true;
+                }
+
+                bool known = target && target->HasSpell(id);
+                bool learn = (spellInfo->Effects[0].Effect == SPELL_EFFECT_LEARN_SPELL);
+
+                SpellInfo const* learnSpellInfo = sSpellMgr->GetSpellInfo(spellInfo->Effects[0].TriggerSpell);
+
+                uint32 talentCost = GetTalentSpellCost(id);
+
+                bool talent = (talentCost > 0);
+                bool passive = spellInfo->IsPassive();
+                bool active = target && target->HasAura(id);
+
+                // unit32 used to prevent interpreting uint8 as char at output
+                // find rank of learned spell for learning spell, or talent rank
+                uint32 rank = talentCost ? talentCost : learn && learnSpellInfo ? learnSpellInfo->GetRank() : spellInfo->GetRank();
+
+                // send spell in "id - [name, rank N] [talent] [passive] [learn] [known]" format
+                std::ostringstream ss;
+                if (handler->GetSession())
+                    ss << id << " - |cffffffff|Hspell:" << id << "|h[" << name;
+                else
+                    ss << id << " - " << name;
+
+                // include rank in link name
+                if (rank)
+                    ss << handler->GetTrinityString(LANG_SPELL_RANK) << rank;
+
+                if (handler->GetSession())
+                    ss << ' ' << localeNames[locale] << "]|h|r";
+                else
+                    ss << ' ' << localeNames[locale];
+
+                if (talent)
+                    ss << handler->GetTrinityString(LANG_TALENT);
+                if (passive)
+                    ss << handler->GetTrinityString(LANG_PASSIVE);
+                if (learn)
+                    ss << handler->GetTrinityString(LANG_LEARN);
+                if (known)
+                    ss << handler->GetTrinityString(LANG_KNOWN);
+                if (active)
+                    ss << handler->GetTrinityString(LANG_ACTIVE);
+
+                handler->SendSysMessage(ss.str().c_str());
+
+                if (!found)
+                    found = true;
+            }
+        }
+
         if (!found)
             handler->SendSysMessage(LANG_COMMAND_NOSPELLFOUND);
 

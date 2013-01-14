@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -21,7 +21,8 @@
 
 enum
 {
-    EMOTE_BERSERK           = 0
+    EMOTE_BERSERK           = 0,
+    EMOTE_LEAP              = 1 // Not in use
 };
 
 //Spells Archavon
@@ -37,9 +38,6 @@ enum
 
 //4 Warders spawned
 #define ARCHAVON_WARDER          32353 //npc 32353
-
-//Yell
-#define SAY_LEAP "Archavon the Stone Watcher lunges for $N!" //$N should be the target
 
 enum Events
 {

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -914,7 +914,7 @@ public:
 
     struct npc_garments_of_questsAI : public npc_escortAI
     {
-        npc_garments_of_questsAI(Creature* creature) : npc_escortAI(creature) 
+        npc_garments_of_questsAI(Creature* creature) : npc_escortAI(creature)
         {
             Reset();
         }
@@ -1563,7 +1563,7 @@ public:
 /*####
 ## npc_brewfest_reveler
 ####*/
-/*
+
 class npc_brewfest_reveler : public CreatureScript
 {
 public:
@@ -1587,51 +1587,7 @@ public:
         return new npc_brewfest_revelerAI(creature);
     }
 };
-*/
 
-/*####
-## npc_winter_reveler
-####*/
-
-enum WinterReveler
-{
-    SPELL_MISTLETOE_DEBUFF       = 26218,
-    SPELL_CREATE_MISTLETOE       = 26206,
-    SPELL_CREATE_HOLLY           = 26207,
-    SPELL_CREATE_SNOWFLAKES      = 45036,
-};
-
-class npc_winter_reveler : public CreatureScript
-{
-    public:
-        npc_winter_reveler() : CreatureScript("npc_winter_reveler") { }
-
-        struct npc_winter_revelerAI : public ScriptedAI
-        {
-            npc_winter_revelerAI(Creature* creature) : ScriptedAI(creature) {}
-
-            void ReceiveEmote(Player* player, uint32 emote)
-            {
-                if (player->HasAura(SPELL_MISTLETOE_DEBUFF))
-                    return;
-
-                if (!IsHolidayActive(HOLIDAY_FEAST_OF_WINTER_VEIL))
-                    return;
-
-                if (emote == TEXT_EMOTE_KISS)
-                {
-                    uint32 spellId = RAND<uint32>(SPELL_CREATE_MISTLETOE, SPELL_CREATE_HOLLY, SPELL_CREATE_SNOWFLAKES);
-                    me->CastSpell(player, spellId, false);
-                    me->CastSpell(player, SPELL_MISTLETOE_DEBUFF, false);
-                }
-            }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const
-        {
-            return new npc_winter_revelerAI(creature);
-        }
-};
 
 /*####
 ## npc_snake_trap_serpents
@@ -2555,11 +2511,11 @@ public:
                 break;
             case GOSSIP_ACTION_INFO_DEF + 8:
                 player->CLOSE_GOSSIP_MENU();
-                player->AddItem(ITEM_KEY_TO_THE_FOCUSING_IRIS,1);
+                player->AddItem(ITEM_KEY_TO_THE_FOCUSING_IRIS, 1);
                 break;
             case GOSSIP_ACTION_INFO_DEF + 9:
                 player->CLOSE_GOSSIP_MENU();
-                player->AddItem(ITEM_HC_KEY_TO_THE_FOCUSING_IRIS,1);
+                player->AddItem(ITEM_HC_KEY_TO_THE_FOCUSING_IRIS, 1);
                 break;
         }
         return true;
@@ -3081,7 +3037,7 @@ public:
                 {
                     if (!me->FindNearestCreature(NPC_OMEN, 100.0f, false) && me->GetDistance2d(omenSummonPos.GetPositionX(), omenSummonPos.GetPositionY()) <= 100.0f)
                     {
-                        switch (urand(0,9))
+                        switch (urand(0, 9))
                         {
                             case 0:
                             case 1:
@@ -3249,8 +3205,7 @@ void AddSC_npcs_special()
     new npc_sayge();
     new npc_steam_tonk();
     new npc_tonk_mine();
-    new npc_winter_reveler();
-//    new npc_brewfest_reveler();
+    new npc_brewfest_reveler();
     new npc_snake_trap();
     new npc_mirror_image();
     new npc_ebon_gargoyle();

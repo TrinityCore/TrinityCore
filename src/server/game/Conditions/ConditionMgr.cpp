@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -154,11 +154,27 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo)
         case CONDITION_ACTIVE_EVENT:
             condMeets = sGameEventMgr->IsActiveEvent(ConditionValue1);
             break;
-        case CONDITION_INSTANCE_DATA:
+        case CONDITION_INSTANCE_INFO:
         {
             Map* map = object->GetMap();
-            if (map && map->IsDungeon() && ((InstanceMap*)map)->GetInstanceScript())
-                condMeets = ((InstanceMap*)map)->GetInstanceScript()->GetData(ConditionValue1) == ConditionValue2;
+            if (map && map->IsDungeon())
+            {
+                if (InstanceScript const* instance = ((InstanceMap*)map)->GetInstanceScript())
+                {
+                    switch (ConditionValue3)
+                    {
+                        case INSTANCE_INFO_DATA:
+                            condMeets = instance->GetData(ConditionValue1) == ConditionValue2;
+                            break;
+                        case INSTANCE_INFO_DATA64:
+                            condMeets = instance->GetData64(ConditionValue1) == ConditionValue2;
+                            break;
+                        case INSTANCE_INFO_BOSS_STATE:
+                            condMeets = instance->GetBossState(ConditionValue1) == EncounterState(ConditionValue2);
+                            break;
+                    }
+                }
+            }
             break;
         }
         case CONDITION_MAPID:
@@ -295,6 +311,12 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo)
             condMeets = ((1 << object->GetMap()->GetSpawnMode()) & ConditionValue1);
             break;
         }
+        case CONDITION_UNIT_STATE:
+        {
+            if (Unit* unit = object->ToUnit())
+                condMeets = unit->HasUnitState(ConditionValue1);
+            break;
+        }
         default:
             condMeets = false;
             break;
@@ -367,7 +389,7 @@ uint32 Condition::GetSearcherTypeMaskForCondition()
         case CONDITION_ACTIVE_EVENT:
             mask |= GRID_MAP_TYPE_MASK_ALL;
             break;
-        case CONDITION_INSTANCE_DATA:
+        case CONDITION_INSTANCE_INFO:
             mask |= GRID_MAP_TYPE_MASK_ALL;
             break;
         case CONDITION_MAPID:
@@ -452,6 +474,9 @@ uint32 Condition::GetSearcherTypeMaskForCondition()
         case CONDITION_GENDER:
             mask |= GRID_MAP_TYPE_MASK_PLAYER;
             break;
+        case CONDITION_UNIT_STATE:
+            mask |= GRID_MAP_TYPE_MASK_CREATURE | GRID_MAP_TYPE_MASK_PLAYER;
+            break;
         default:
             ASSERT(false && "Condition::GetSearcherTypeMaskForCondition - missing condition handling!");
             break;
@@ -473,6 +498,7 @@ uint32 Condition::GetMaxAvailableConditionTargets()
         case CONDITION_SOURCE_TYPE_GOSSIP_MENU_OPTION:
         case CONDITION_SOURCE_TYPE_SMART_EVENT:
         case CONDITION_SOURCE_TYPE_NPC_VENDOR:
+        case CONDITION_SOURCE_TYPE_SPELL_PROC:
             return 2;
         default:
             return 1;
@@ -1338,7 +1364,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond)
 
             if ((cond->SourceGroup > MAX_EFFECT_MASK) || !cond->SourceGroup)
             {
-                sLog->outError(LOG_FILTER_SQL, "SourceEntry %u in `condition` table, has incorrect SourceGroup %u (spell effectMask) set , ignoring.", cond->SourceEntry, cond->SourceGroup);
+                sLog->outError(LOG_FILTER_SQL, "SourceEntry %u in `condition` table, has incorrect SourceGroup %u (spell effectMask) set, ignoring.", cond->SourceEntry, cond->SourceGroup);
                 return false;
             }
 
@@ -1387,6 +1413,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond)
             break;
         }
         case CONDITION_SOURCE_TYPE_SPELL:
+        case CONDITION_SOURCE_TYPE_SPELL_PROC:
         {
             SpellInfo const* spellProto = sSpellMgr->GetSpellInfo(cond->SourceEntry);
             if (!spellProto)
@@ -1899,7 +1926,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond)
             break;
         }
         case CONDITION_AREAID:
-        case CONDITION_INSTANCE_DATA:
+        case CONDITION_INSTANCE_INFO:
             break;
         case CONDITION_WORLD_STATE:
         {
@@ -1939,9 +1966,15 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond)
             }
             break;
         }
-        case CONDITION_UNUSED_21:
-            sLog->outError(LOG_FILTER_SQL, "Found ConditionTypeOrReference = CONDITION_UNUSED_21 in `conditions` table - ignoring");
-            return false;
+        case CONDITION_UNIT_STATE:
+        {
+            if (cond->ConditionValue1 > uint32(UNIT_STATE_ALL_STATE))
+            {
+                sLog->outError(LOG_FILTER_SQL, "UnitState condition has non existing UnitState in value1 (%u), skipped", cond->ConditionValue1);
+                return false;
+            }
+            break;
+        }
         case CONDITION_UNUSED_24:
             sLog->outError(LOG_FILTER_SQL, "Found ConditionTypeOrReference = CONDITION_UNUSED_24 in `conditions` table - ignoring");
             return false;

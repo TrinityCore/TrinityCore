@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -387,7 +387,7 @@ bool Unit::haveOffhandWeapon() const
 void Unit::MonsterMoveWithSpeed(float x, float y, float z, float speed)
 {
     Movement::MoveSplineInit init(*this);
-    init.MoveTo(x,y,z);
+    init.MoveTo(x, y, z);
     init.SetVelocity(speed);
     init.Launch();
 }
@@ -650,7 +650,7 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
     sLog->outDebug(LOG_FILTER_UNITS, "DealDamageStart");
 
     uint32 health = victim->GetHealth();
-    sLog->outInfo(LOG_FILTER_UNITS, "deal dmg:%d to health:%d ", damage, health);
+    sLog->outDebug(LOG_FILTER_UNITS, "Unit " UI64FMTD " dealt %u damage to unit " UI64FMTD, GetGUID(), damage, victim->GetGUID());
 
     // duel ends when player has 1 or less hp
     bool duel_hasEnded = false;
@@ -1046,6 +1046,9 @@ void Unit::CalculateSpellDamageTaken(SpellNonMeleeDamage* damageInfo, int32 dama
             break;
     }
 
+    // Script Hook For CalculateSpellDamageTaken -- Allow scripts to change the Damage post class mitigation calculations
+    sScriptMgr->ModifySpellDamageTaken(damageInfo->target, damageInfo->attacker, damage);
+
     // Calculate absorb resist
     if (damage > 0)
     {
@@ -1141,6 +1144,9 @@ void Unit::CalculateMeleeDamage(Unit* victim, uint32 damage, CalcDamageInfo* dam
     // Add melee damage bonus
     damage = MeleeDamageBonusDone(damageInfo->target, damage, damageInfo->attackType);
     damage = damageInfo->target->MeleeDamageBonusTaken(this, damage, damageInfo->attackType);
+
+    // Script Hook For CalculateMeleeDamage -- Allow scripts to change the Damage pre class mitigation calculations
+    sScriptMgr->ModifyMeleeDamage(damageInfo->target, damageInfo->attacker, damage);
 
     // Calculate armor reduction
     if (IsDamageReducedByArmor((SpellSchoolMask)(damageInfo->damageSchoolMask)))
@@ -3147,7 +3153,10 @@ void Unit::UpdateUnderwaterState(Map* m, float x, float y, float z)
         if (liquid && liquid->SpellId)
         {
             if (res & (LIQUID_MAP_UNDER_WATER | LIQUID_MAP_IN_WATER))
-                CastSpell(this, liquid->SpellId, true);
+            {
+                if (!HasAura(liquid->SpellId))
+                    CastSpell(this, liquid->SpellId, true);
+            }
             else
                 RemoveAurasDueToSpell(liquid->SpellId);
         }
@@ -3425,8 +3434,11 @@ void Unit::_UnapplyAura(AuraApplication * aurApp, AuraRemoveMode removeMode)
 {
     // aura can be removed from unit only if it's applied on it, shouldn't happen
     ASSERT(aurApp->GetBase()->GetApplicationOfTarget(GetGUID()) == aurApp);
+
     uint32 spellId = aurApp->GetBase()->GetId();
-    for (AuraApplicationMap::iterator iter = m_appliedAuras.lower_bound(spellId); iter != m_appliedAuras.upper_bound(spellId);)
+    AuraApplicationMapBoundsNonConst range = m_appliedAuras.equal_range(spellId);
+
+    for (AuraApplicationMap::iterator iter = range.first; iter != range.second;)
     {
         if (iter->second == aurApp)
         {
@@ -3516,20 +3528,33 @@ void Unit::RemoveOwnedAura(Aura* aura, AuraRemoveMode removeMode)
     ASSERT(aura->GetOwner() == this);
 
     uint32 spellId = aura->GetId();
-    for (AuraMap::iterator itr = m_ownedAuras.lower_bound(spellId); itr != m_ownedAuras.upper_bound(spellId); ++itr)
+    AuraMapBoundsNonConst range = m_ownedAuras.equal_range(spellId);
+
+    for (AuraMap::iterator itr = range.first; itr != range.second; ++itr)
+    {
         if (itr->second == aura)
         {
             RemoveOwnedAura(itr, removeMode);
             return;
         }
+    }
+
     ASSERT(false);
 }
 
 Aura* Unit::GetOwnedAura(uint32 spellId, uint64 casterGUID, uint64 itemCasterGUID, uint8 reqEffMask, Aura* except) const
 {
-    for (AuraMap::const_iterator itr = m_ownedAuras.lower_bound(spellId); itr != m_ownedAuras.upper_bound(spellId); ++itr)
-        if (((itr->second->GetEffectMask() & reqEffMask) == reqEffMask) && (!casterGUID || itr->second->GetCasterGUID() == casterGUID) && (!itemCasterGUID || itr->second->GetCastItemGUID() == itemCasterGUID) && (!except || except != itr->second))
+    AuraMapBounds range = m_ownedAuras.equal_range(spellId);
+    for (AuraMap::const_iterator itr = range.first; itr != range.second; ++itr)
+    {
+        if (((itr->second->GetEffectMask() & reqEffMask) == reqEffMask)
+                && (!casterGUID || itr->second->GetCasterGUID() == casterGUID)
+                && (!itemCasterGUID || itr->second->GetCastItemGUID() == itemCasterGUID)
+                && (!except || except != itr->second))
+        {
             return itr->second;
+        }
+    }
     return NULL;
 }
 
@@ -3548,11 +3573,12 @@ void Unit::RemoveAura(AuraApplicationMap::iterator &i, AuraRemoveMode mode)
 
 void Unit::RemoveAura(uint32 spellId, uint64 caster, uint8 reqEffMask, AuraRemoveMode removeMode)
 {
-    for (AuraApplicationMap::iterator iter = m_appliedAuras.lower_bound(spellId); iter != m_appliedAuras.upper_bound(spellId);)
+    AuraApplicationMapBoundsNonConst range = m_appliedAuras.equal_range(spellId);
+    for (AuraApplicationMap::iterator iter = range.first; iter != range.second;)
     {
         Aura const* aura = iter->second->GetBase();
         if (((aura->GetEffectMask() & reqEffMask) == reqEffMask)
-            && (!caster || aura->GetCasterGUID() == caster))
+                && (!caster || aura->GetCasterGUID() == caster))
         {
             RemoveAura(iter, removeMode);
             return;
@@ -3581,8 +3607,11 @@ void Unit::RemoveAura(AuraApplication * aurApp, AuraRemoveMode mode)
     // no need to remove
     if (aurApp->GetBase()->GetApplicationOfTarget(GetGUID()) != aurApp || aurApp->GetBase()->IsRemoved())
         return;
+
     uint32 spellId = aurApp->GetBase()->GetId();
-    for (AuraApplicationMap::iterator iter = m_appliedAuras.lower_bound(spellId); iter != m_appliedAuras.upper_bound(spellId);)
+    AuraApplicationMapBoundsNonConst range = m_appliedAuras.equal_range(spellId);
+
+    for (AuraApplicationMap::iterator iter = range.first; iter != range.second;)
     {
         if (aurApp == iter->second)
         {
@@ -3620,11 +3649,12 @@ void Unit::RemoveAurasDueToSpell(uint32 spellId, uint64 casterGUID, uint8 reqEff
 
 void Unit::RemoveAuraFromStack(uint32 spellId, uint64 casterGUID, AuraRemoveMode removeMode)
 {
-    for (AuraMap::iterator iter = m_ownedAuras.lower_bound(spellId); iter != m_ownedAuras.upper_bound(spellId);)
+    AuraMapBoundsNonConst range = m_ownedAuras.equal_range(spellId);
+    for (AuraMap::iterator iter = range.first; iter != range.second;)
     {
         Aura* aura = iter->second;
         if ((aura->GetType() == UNIT_AURA_TYPE)
-            && (!casterGUID || aura->GetCasterGUID() == casterGUID))
+                && (!casterGUID || aura->GetCasterGUID() == casterGUID))
         {
             aura->ModStackAmount(-1, removeMode);
             return;
@@ -3636,7 +3666,8 @@ void Unit::RemoveAuraFromStack(uint32 spellId, uint64 casterGUID, AuraRemoveMode
 
 void Unit::RemoveAurasDueToSpellByDispel(uint32 spellId, uint32 dispellerSpellId, uint64 casterGUID, Unit* dispeller, uint8 chargesRemoved/*= 1*/)
 {
-    for (AuraMap::iterator iter = m_ownedAuras.lower_bound(spellId); iter != m_ownedAuras.upper_bound(spellId);)
+    AuraMapBoundsNonConst range = m_ownedAuras.equal_range(spellId);
+    for (AuraMap::iterator iter = range.first; iter != range.second;)
     {
         Aura* aura = iter->second;
         if (aura->GetCasterGUID() == casterGUID)
@@ -3663,7 +3694,8 @@ void Unit::RemoveAurasDueToSpellByDispel(uint32 spellId, uint32 dispellerSpellId
 
 void Unit::RemoveAurasDueToSpellBySteal(uint32 spellId, uint64 casterGUID, Unit* stealer)
 {
-    for (AuraMap::iterator iter = m_ownedAuras.lower_bound(spellId); iter != m_ownedAuras.upper_bound(spellId);)
+    AuraMapBoundsNonConst range = m_ownedAuras.equal_range(spellId);
+    for (AuraMap::iterator iter = range.first; iter != range.second;)
     {
         Aura* aura = iter->second;
         if (aura->GetCasterGUID() == casterGUID)
@@ -3736,14 +3768,14 @@ void Unit::RemoveAurasDueToSpellBySteal(uint32 spellId, uint64 casterGUID, Unit*
     }
 }
 
-void Unit::RemoveAurasDueToItemSpell(Item* castItem, uint32 spellId)
+void Unit::RemoveAurasDueToItemSpell(uint32 spellId, uint64 castItemGuid)
 {
     for (AuraApplicationMap::iterator iter = m_appliedAuras.lower_bound(spellId); iter != m_appliedAuras.upper_bound(spellId);)
     {
-        if (!castItem || iter->second->GetBase()->GetCastItemGUID() == castItem->GetGUID())
+        if (iter->second->GetBase()->GetCastItemGUID() == castItemGuid)
         {
             RemoveAura(iter);
-            iter = m_appliedAuras.upper_bound(spellId);          // overwrite by more appropriate
+            iter = m_appliedAuras.lower_bound(spellId);
         }
         else
             ++iter;
@@ -4023,9 +4055,10 @@ void Unit::RemoveAllAurasExceptType(AuraType type)
 
 void Unit::DelayOwnedAuras(uint32 spellId, uint64 caster, int32 delaytime)
 {
-    for (AuraMap::iterator iter = m_ownedAuras.lower_bound(spellId); iter != m_ownedAuras.upper_bound(spellId);++iter)
+    AuraMapBoundsNonConst range = m_ownedAuras.equal_range(spellId);
+    for (; range.first != range.second; ++range.first)
     {
-        Aura* aura = iter->second;
+        Aura* aura = range.first->second;
         if (!caster || aura->GetCasterGUID() == caster)
         {
             if (aura->GetDuration() < delaytime)
@@ -4054,9 +4087,15 @@ void Unit::_ApplyAllAuraStatMods()
 
 AuraEffect* Unit::GetAuraEffect(uint32 spellId, uint8 effIndex, uint64 caster) const
 {
-    for (AuraApplicationMap::const_iterator itr = m_appliedAuras.lower_bound(spellId); itr != m_appliedAuras.upper_bound(spellId); ++itr)
-        if (itr->second->HasEffect(effIndex) && (!caster || itr->second->GetBase()->GetCasterGUID() == caster))
+    AuraApplicationMapBounds range = m_appliedAuras.equal_range(spellId);
+    for (AuraApplicationMap::const_iterator itr = range.first; itr != range.second; ++itr)
+    {
+        if (itr->second->HasEffect(effIndex)
+                && (!caster || itr->second->GetBase()->GetCasterGUID() == caster))
+        {
             return itr->second->GetBase()->GetEffect(effIndex);
+        }
+    }
     return NULL;
 }
 
@@ -4104,11 +4143,19 @@ AuraEffect* Unit::GetAuraEffect(AuraType type, SpellFamilyNames family, uint32 f
 
 AuraApplication * Unit::GetAuraApplication(uint32 spellId, uint64 casterGUID, uint64 itemCasterGUID, uint8 reqEffMask, AuraApplication * except) const
 {
-    for (AuraApplicationMap::const_iterator itr = m_appliedAuras.lower_bound(spellId); itr != m_appliedAuras.upper_bound(spellId); ++itr)
+    AuraApplicationMapBounds range = m_appliedAuras.equal_range(spellId);
+    for (; range.first != range.second; ++range.first)
     {
-        Aura const* aura = itr->second->GetBase();
-        if (((aura->GetEffectMask() & reqEffMask) == reqEffMask) && (!casterGUID || aura->GetCasterGUID() == casterGUID) && (!itemCasterGUID || aura->GetCastItemGUID() == itemCasterGUID) && (!except || except != itr->second))
-            return itr->second;
+        AuraApplication* app = range.first->second;
+        Aura const* aura = app->GetBase();
+
+        if (((aura->GetEffectMask() & reqEffMask) == reqEffMask)
+                && (!casterGUID || aura->GetCasterGUID() == casterGUID)
+                && (!itemCasterGUID || aura->GetCastItemGUID() == itemCasterGUID)
+                && (!except || except != app))
+        {
+            return app;
+        }
     }
     return NULL;
 }
@@ -4178,22 +4225,31 @@ void Unit::GetDispellableAuraList(Unit* caster, uint32 dispelMask, DispelCharges
 
 bool Unit::HasAuraEffect(uint32 spellId, uint8 effIndex, uint64 caster) const
 {
-    for (AuraApplicationMap::const_iterator itr = m_appliedAuras.lower_bound(spellId); itr != m_appliedAuras.upper_bound(spellId); ++itr)
-        if (itr->second->HasEffect(effIndex) && (!caster || itr->second->GetBase()->GetCasterGUID() == caster))
+    AuraApplicationMapBounds range = m_appliedAuras.equal_range(spellId);
+    for (AuraApplicationMap::const_iterator itr = range.first; itr != range.second; ++itr)
+    {
+        if (itr->second->HasEffect(effIndex)
+                && (!caster || itr->second->GetBase()->GetCasterGUID() == caster))
+        {
             return true;
+        }
+    }
     return false;
 }
 
 uint32 Unit::GetAuraCount(uint32 spellId) const
 {
     uint32 count = 0;
-    for (AuraApplicationMap::const_iterator itr = m_appliedAuras.lower_bound(spellId); itr != m_appliedAuras.upper_bound(spellId); ++itr)
+    AuraApplicationMapBounds range = m_appliedAuras.equal_range(spellId);
+
+    for (AuraApplicationMap::const_iterator itr = range.first; itr != range.second; ++itr)
     {
-        if (!itr->second->GetBase()->GetStackAmount())
-            count++;
+        if (itr->second->GetBase()->GetStackAmount() == 0)
+            ++count;
         else
             count += (uint32)itr->second->GetBase()->GetStackAmount();
     }
+
     return count;
 }
 
@@ -5630,37 +5686,14 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                 // Shadow's Fate (Shadowmourne questline)
                 case 71169:
                 {
-                    target = triggeredByAura->GetCaster();
-                    if (!target)
+                    Unit* caster = triggeredByAura->GetCaster();
+                    if (caster && caster->GetTypeId() == TYPEID_PLAYER && caster->ToPlayer()->GetQuestStatus(24547) == QUEST_STATUS_INCOMPLETE)
+                    {
+                        CastSpell(caster, 71203, true);
+                        return true;
+                    }
+                    else
                         return false;
-                    Player* player = target->ToPlayer();
-                    if (!player)
-                        return false;
-                    // not checking Infusion auras because its in targetAuraSpell of credit spell
-                    if (player->GetQuestStatus(24749) == QUEST_STATUS_INCOMPLETE)       // Unholy Infusion
-                    {
-                        if (GetEntry() != 36678)                                        // Professor Putricide
-                            return false;
-                        CastSpell(target, 71518, true);                                 // Quest Credit
-                        return true;
-                    }
-                    else if (player->GetQuestStatus(24756) == QUEST_STATUS_INCOMPLETE)  // Blood Infusion
-                    {
-                        if (GetEntry() != 37955)                                        // Blood-Queen Lana'thel
-                            return false;
-                        CastSpell(target, 72934, true);                                 // Quest Credit
-                        return true;
-                    }
-                    else if (player->GetQuestStatus(24757) == QUEST_STATUS_INCOMPLETE)  // Frost Infusion
-                    {
-                        if (GetEntry() != 36853)                                        // Sindragosa
-                            return false;
-                        CastSpell(target, 72289, true);                                 // Quest Credit
-                        return true;
-                    }
-                    else if (player->GetQuestStatus(24547) == QUEST_STATUS_INCOMPLETE)  // A Feast of Souls
-                        triggered_spell_id = 71203;
-                    break;
                 }
                 // Essence of the Blood Queen
                 case 70871:
@@ -6552,8 +6585,8 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                     RemoveAura(57934);
                     if (!redirectTarget)
                         break;
-                    CastSpell(this,59628,true);
-                    CastSpell(redirectTarget,57933,true);
+                    CastSpell(this, 59628, true);
+                    CastSpell(redirectTarget, 57933, true);
                     break;
                 }
             }
@@ -6746,7 +6779,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
 
                 if (triggered_spell_id && beaconTarget)
                 {
-                    victim->CastCustomSpell(beaconTarget, triggered_spell_id, &basepoints0, NULL, NULL, true, 0, triggeredByAura);
+                    victim->CastCustomSpell(beaconTarget, triggered_spell_id, &basepoints0, NULL, NULL, true);
                     return true;
                 }
 
@@ -9137,34 +9170,44 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
         // Shadow's Fate (Shadowmourne questline)
         case 71169:
         {
-            if (GetTypeId() != TYPEID_PLAYER)
+            // Victim needs more checks so bugs, rats or summons can not be affected by the proc.
+            if (GetTypeId() != TYPEID_PLAYER || !victim || victim->GetTypeId() != TYPEID_UNIT || victim->GetCreatureType() == CREATURE_TYPE_CRITTER)
                 return false;
 
             Player* player = ToPlayer();
-            if (player->GetQuestStatus(24749) == QUEST_STATUS_INCOMPLETE)       // Unholy Infusion
+            if (player->GetQuestStatus(24547) == QUEST_STATUS_INCOMPLETE)
             {
-                if (!player->HasAura(71516) || victim->GetEntry() != 36678)    // Shadow Infusion && Professor Putricide
-                    return false;
+                break;
             }
-            else if (player->GetQuestStatus(24756) == QUEST_STATUS_INCOMPLETE)  // Blood Infusion
+            else if (player->GetDifficulty(true) == RAID_DIFFICULTY_25MAN_NORMAL || player->GetDifficulty(true) == RAID_DIFFICULTY_25MAN_HEROIC)
             {
-                if (!player->HasAura(72154) || victim->GetEntry() != 37955)    // Thirst Quenched && Blood-Queen Lana'thel
-                    return false;
-            }
-            else if (player->GetQuestStatus(24757) == QUEST_STATUS_INCOMPLETE)  // Frost Infusion
-            {
-                if (!player->HasAura(72290) || victim->GetEntry() != 36853)    // Frost-Imbued Blade && Sindragosa
-                    return false;
-            }
-            else if (player->GetQuestStatus(24547) != QUEST_STATUS_INCOMPLETE)  // A Feast of Souls
-                return false;
+                uint32 spellId = 0;
+                uint32 questId = 0;
+                switch (victim->GetEntry())
+                {
+                    case 36678:             // NPC:     Professor Putricide
+                        questId = 24749;    // Quest:   Unholy Infusion
+                        spellId = 71516;    // Spell:   Shadow Infusion
+                        break;
+                    case 37955:             // NPC:     Blood-Queen Lana'thel
+                        questId = 24756;    // Quest:   Blood Infusion
+                        spellId = 72154;    // Spell:   Thirst Quenched
+                        break;
+                    case 36853:             // NPC:     Sindragosa
+                        questId = 24757;    // Quest:   Frost Infusion
+                        spellId = 72290;    // Spell:   Frost-Imbued Blade
+                        break;
+                    default:
+                        return false;
+                }
 
-            if (victim->GetTypeId() != TYPEID_UNIT)
+                if (player->GetQuestStatus(questId) != QUEST_STATUS_INCOMPLETE || !player->HasAura(spellId))
+                    return false;
+
+                break;
+            }
+            else
                 return false;
-            // critters are not allowed
-            if (victim->GetCreatureType() == CREATURE_TYPE_CRITTER)
-                return false;
-            break;
         }
     }
 
@@ -9782,7 +9825,8 @@ bool Unit::HasAuraState(AuraStateType flag, SpellInfo const* spellProto, Unit co
         // If aura with aurastate by caster not found return false
         if ((1<<(flag-1)) & PER_CASTER_AURA_STATE_MASK)
         {
-            for (AuraStateAurasMap::const_iterator itr = m_auraStateAuras.lower_bound(flag); itr != m_auraStateAuras.upper_bound(flag); ++itr)
+            AuraStateAurasMapBounds range = m_auraStateAuras.equal_range(flag);
+            for (AuraStateAurasMap::const_iterator itr = range.first; itr != range.second; ++itr)
                 if (itr->second->GetBase()->GetCasterGUID() == Caster->GetGUID())
                     return true;
             return false;
@@ -12223,7 +12267,10 @@ void Unit::CombatStart(Unit* target, bool initialAggro)
         if (!target->isInCombat() && target->GetTypeId() != TYPEID_PLAYER
             && !target->ToCreature()->HasReactState(REACT_PASSIVE) && target->ToCreature()->IsAIEnabled)
         {
-            target->ToCreature()->AI()->AttackStart(this);
+            if (target->isPet())
+                target->ToCreature()->AI()->AttackedBy(this); // PetAI has special handler before AttackStart()
+            else
+                target->ToCreature()->AI()->AttackStart(this);
         }
 
         SetInCombatWith(target);
@@ -12775,9 +12822,27 @@ void Unit::UpdateSpeed(UnitMoveType mtype, bool forced)
         case MOVE_SWIM:
         case MOVE_FLIGHT:
         {
-            // Set creature speed rate from CreatureInfo
+            // Set creature speed rate
             if (GetTypeId() == TYPEID_UNIT)
-                speed *= ToCreature()->GetCreatureTemplate()->speed_run;    // at this point, MOVE_WALK is never reached
+            {
+                Unit* pOwner = GetCharmerOrOwner();
+                if ((isPet() || isGuardian()) && !isInCombat() && pOwner) // Must check for owner or crash on "Tame Beast"
+                {
+                    // For every yard over 5, increase speed by 0.01
+                    //  to help prevent pet from lagging behind and despawning
+                    float dist = GetDistance(pOwner);
+                    float base_rate = 1.00f; // base speed is 100% of owner speed
+
+                    if (dist < 5)
+                        dist = 5;
+
+                    float mult = base_rate + ((dist - 5) * 0.01f);
+
+                    speed *= pOwner->GetSpeedRate(mtype) * mult; // pets derive speed from owner when not in combat
+                }
+                else
+                    speed *= ToCreature()->GetCreatureTemplate()->speed_run;    // at this point, MOVE_WALK is never reached
+            }
 
             // Normalize speed by 191 aura SPELL_AURA_USE_NORMAL_MOVEMENT_SPEED if need
             // TODO: possible affect only on MOVE_RUN
@@ -14493,6 +14558,12 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
         }
     }
 
+    Unit* actor = isVictim ? target : this;
+    Unit* actionTarget = !isVictim ? target : this;
+
+    DamageInfo damageInfo = DamageInfo(actor, actionTarget, damage, procSpell, procSpell ? SpellSchoolMask(procSpell->SchoolMask) : SPELL_SCHOOL_MASK_NORMAL, SPELL_DIRECT_DAMAGE);
+    ProcEventInfo eventInfo = ProcEventInfo(actor, actionTarget, target, procFlag, 0, 0, procExtra, NULL, &damageInfo, NULL /*HealInfo*/);
+
     ProcTriggeredList procTriggered;
     // Fill procTriggered list
     for (AuraApplicationMap::const_iterator itr = GetAppliedAuras().begin(); itr!= GetAppliedAuras().end(); ++itr)
@@ -14514,6 +14585,12 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
                 active = true;
 
         if (!IsTriggeredAtSpellProcEvent(target, triggerData.aura, procSpell, procFlag, procExtra, attType, isVictim, active, triggerData.spellProcEvent))
+            continue;
+
+        // do checks using conditions table
+        ConditionList conditions = sConditionMgr->GetConditionsForNotGroupedEntry(CONDITION_SOURCE_TYPE_SPELL_PROC, spellProto->Id);
+        ConditionSourceInfo condInfo = ConditionSourceInfo(eventInfo.GetActor(), eventInfo.GetActionTarget());
+        if (!sConditionMgr->IsObjectMeetToConditions(condInfo, conditions))
             continue;
 
         // Triggered spells not triggering additional spells
@@ -15261,7 +15338,7 @@ void Unit::UpdateAuraForGroup(uint8 slot)
     }
 }
 
-float Unit::CalculateDefaultCoefficient(SpellInfo const *spellInfo, DamageEffectType damagetype) const
+float Unit::CalculateDefaultCoefficient(SpellInfo const* spellInfo, DamageEffectType damagetype) const
 {
     // Damage over Time spells bonus calculation
     float DotFactor = 1.0f;
@@ -17184,11 +17261,15 @@ bool Unit::HandleSpellClick(Unit* clicker, int8 seatId)
             }
 
             if (IsInMap(caster))
-                caster->CastCustomSpell(itr->second.spellId, SpellValueMod(SPELLVALUE_BASE_POINT0+i), seatId+1, target, GetVehicleKit() ? TRIGGERED_IGNORE_CASTER_MOUNTED_OR_ON_VEHICLE : TRIGGERED_NONE, NULL, NULL, origCasterGUID);
+                caster->CastCustomSpell(itr->second.spellId, SpellValueMod(SPELLVALUE_BASE_POINT0+i), seatId + 1, target, GetVehicleKit() ? TRIGGERED_IGNORE_CASTER_MOUNTED_OR_ON_VEHICLE : TRIGGERED_NONE, NULL, NULL, origCasterGUID);
             else    // This can happen during Player::_LoadAuras
             {
-                int32 bp0 = seatId;
-                Aura::TryRefreshStackOrCreate(spellEntry, MAX_EFFECT_MASK, this, clicker, &bp0, NULL, origCasterGUID);
+                int32 bp0[MAX_SPELL_EFFECTS];
+                for (uint32 j = 0; j < MAX_SPELL_EFFECTS; ++j)
+                    bp0[j] = spellEntry->Effects[j].BasePoints;
+
+                bp0[i] = seatId;
+                Aura::TryRefreshStackOrCreate(spellEntry, MAX_EFFECT_MASK, this, clicker, bp0, NULL, origCasterGUID);
             }
         }
         else
@@ -17214,7 +17295,7 @@ bool Unit::HandleSpellClick(Unit* clicker, int8 seatId)
 
 void Unit::EnterVehicle(Unit* base, int8 seatId)
 {
-    CastCustomSpell(VEHICLE_SPELL_RIDE_HARDCODED, SPELLVALUE_BASE_POINT0, seatId+1, base, TRIGGERED_IGNORE_CASTER_MOUNTED_OR_ON_VEHICLE);
+    CastCustomSpell(VEHICLE_SPELL_RIDE_HARDCODED, SPELLVALUE_BASE_POINT0, seatId + 1, base, TRIGGERED_IGNORE_CASTER_MOUNTED_OR_ON_VEHICLE);
 }
 
 void Unit::_EnterVehicle(Vehicle* vehicle, int8 seatId, AuraApplication const* aurApp)
@@ -17444,9 +17525,27 @@ void Unit::NearTeleportTo(float x, float y, float z, float orientation, bool cas
         ToPlayer()->TeleportTo(GetMapId(), x, y, z, orientation, TELE_TO_NOT_LEAVE_TRANSPORT | TELE_TO_NOT_LEAVE_COMBAT | TELE_TO_NOT_UNSUMMON_PET | (casting ? TELE_TO_SPELL : 0));
     else
     {
+        Position pos = {x, y, z, orientation};
+        SendTeleportPacket(pos);
         UpdatePosition(x, y, z, orientation, true);
-        SendMovementFlagUpdate();
+        UpdateObjectVisibility();
     }
+}
+
+void Unit::SendTeleportPacket(Position& pos)
+{
+    Position oldPos = { GetPositionX(), GetPositionY(), GetPositionZMinusOffset(), GetOrientation() };
+    if (GetTypeId() == TYPEID_UNIT)
+        Relocate(&pos);
+
+    WorldPacket data2(MSG_MOVE_TELEPORT, 38);
+    data2.append(GetPackGUID());
+    BuildMovementPacket(&data2);
+    if (GetTypeId() == TYPEID_UNIT)
+        Relocate(&oldPos);
+    if (GetTypeId() == TYPEID_PLAYER)
+        Relocate(&pos);
+    SendMessageToSet(&data2, false);
 }
 
 bool Unit::UpdatePosition(float x, float y, float z, float orientation, bool teleport)

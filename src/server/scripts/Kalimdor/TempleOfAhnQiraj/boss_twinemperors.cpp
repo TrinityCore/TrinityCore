@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -27,38 +27,43 @@ EndScriptData */
 #include "ScriptedCreature.h"
 #include "temple_of_ahnqiraj.h"
 #include "WorldPacket.h"
-
 #include "Item.h"
 #include "Spell.h"
 
-#define SPELL_HEAL_BROTHER          7393
-#define SPELL_TWIN_TELEPORT         800                     // CTRA watches for this spell to start its teleport timer
-#define SPELL_TWIN_TELEPORT_VISUAL  26638                   // visual
+enum Spells
+{
+    SPELL_HEAL_BROTHER            = 7393,
+    SPELL_TWIN_TELEPORT           = 800,                     // CTRA watches for this spell to start its teleport timer
+    SPELL_TWIN_TELEPORT_VISUAL    = 26638,                  // visual
+    SPELL_EXPLODEBUG              = 804,
+    SPELL_MUTATE_BUG              = 802,
+    SPELL_BERSERK                 = 26662,
+    SPELL_UPPERCUT                = 26007,
+    SPELL_UNBALANCING_STRIKE      = 26613,
+    SPELL_SHADOWBOLT              = 26006,
+    SPELL_BLIZZARD                = 26607,
+    SPELL_ARCANEBURST             = 568,
+};
 
-#define SPELL_EXPLODEBUG            804
-#define SPELL_MUTATE_BUG            802
+enum Sound
+{
+    SOUND_VL_AGGRO                = 8657,                    //8657 - Aggro - To Late
+    SOUND_VL_KILL                 = 8658,                    //8658 - Kill - You will not
+    SOUND_VL_DEATH                = 8659,                    //8659 - Death
+    SOUND_VN_DEATH                = 8660,                    //8660 - Death - Feel
+    SOUND_VN_AGGRO                = 8661,                    //8661 - Aggro - Let none
+    SOUND_VN_KILL                 = 8662,                    //8661 - Kill - your fate
+};
 
-#define SOUND_VN_DEATH              8660                    //8660 - Death - Feel
-#define SOUND_VN_AGGRO              8661                    //8661 - Aggro - Let none
-#define SOUND_VN_KILL               8662                    //8661 - Kill - your fate
+enum Misc
+{
+    PULL_RANGE                    = 50,
+    ABUSE_BUG_RANGE               = 20,
+    VEKLOR_DIST                   = 20,                      // VL will not come to melee when attacking
+    TELEPORTTIME                  = 30000
+};
 
-#define SOUND_VL_AGGRO              8657                    //8657 - Aggro - To Late
-#define SOUND_VL_KILL               8658                    //8658 - Kill - You will not
-#define SOUND_VL_DEATH              8659                    //8659 - Death
 
-#define PULL_RANGE                  50
-#define ABUSE_BUG_RANGE             20
-#define SPELL_BERSERK               26662
-#define TELEPORTTIME                30000
-
-#define SPELL_UPPERCUT              26007
-#define SPELL_UNBALANCING_STRIKE    26613
-
-#define VEKLOR_DIST                 20                      // VL will not come to melee when attacking
-
-#define SPELL_SHADOWBOLT            26006
-#define SPELL_BLIZZARD              26607
-#define SPELL_ARCANEBURST           568
 
 struct boss_twinemperorsAI : public ScriptedAI
 {

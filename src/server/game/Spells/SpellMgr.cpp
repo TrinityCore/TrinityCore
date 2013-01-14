@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -573,12 +573,12 @@ uint32 SpellMgr::GetSpellWithRank(uint32 spell_id, uint32 rank, bool strict) con
 
 SpellRequiredMapBounds SpellMgr::GetSpellsRequiredForSpellBounds(uint32 spell_id) const
 {
-    return SpellRequiredMapBounds(mSpellReq.lower_bound(spell_id), mSpellReq.upper_bound(spell_id));
+    return mSpellReq.equal_range(spell_id);
 }
 
 SpellsRequiringSpellMapBounds SpellMgr::GetSpellsRequiringSpellBounds(uint32 spell_id) const
 {
-    return SpellsRequiringSpellMapBounds(mSpellsReqSpell.lower_bound(spell_id), mSpellsReqSpell.upper_bound(spell_id));
+    return mSpellsReqSpell.equal_range(spell_id);
 }
 
 bool SpellMgr::IsSpellRequiringSpell(uint32 spellid, uint32 req_spellid) const
@@ -618,7 +618,7 @@ SpellLearnSkillNode const* SpellMgr::GetSpellLearnSkill(uint32 spell_id) const
 
 SpellLearnSpellMapBounds SpellMgr::GetSpellLearnSpellMapBounds(uint32 spell_id) const
 {
-    return SpellLearnSpellMapBounds(mSpellLearnSpells.lower_bound(spell_id), mSpellLearnSpells.upper_bound(spell_id));
+    return mSpellLearnSpells.equal_range(spell_id);
 }
 
 bool SpellMgr::IsSpellLearnSpell(uint32 spell_id) const
@@ -646,7 +646,7 @@ SpellTargetPosition const* SpellMgr::GetSpellTargetPosition(uint32 spell_id) con
 SpellSpellGroupMapBounds SpellMgr::GetSpellSpellGroupMapBounds(uint32 spell_id) const
 {
     spell_id = GetFirstSpellInChain(spell_id);
-    return SpellSpellGroupMapBounds(mSpellSpellGroup.lower_bound(spell_id), mSpellSpellGroup.upper_bound(spell_id));
+    return mSpellSpellGroup.equal_range(spell_id);
 }
 
 bool SpellMgr::IsSpellMemberOfSpellGroup(uint32 spellid, SpellGroup groupid) const
@@ -662,7 +662,7 @@ bool SpellMgr::IsSpellMemberOfSpellGroup(uint32 spellid, SpellGroup groupid) con
 
 SpellGroupSpellMapBounds SpellMgr::GetSpellGroupSpellMapBounds(SpellGroup group_id) const
 {
-    return SpellGroupSpellMapBounds(mSpellGroupSpell.lower_bound(group_id), mSpellGroupSpell.upper_bound(group_id));
+    return mSpellGroupSpell.equal_range(group_id);
 }
 
 void SpellMgr::GetSetOfSpellsInSpellGroup(SpellGroup group_id, std::set<uint32>& foundSpells) const
@@ -1012,7 +1012,7 @@ SpellThreatEntry const* SpellMgr::GetSpellThreatEntry(uint32 spellID) const
 
 SkillLineAbilityMapBounds SpellMgr::GetSkillLineAbilityMapBounds(uint32 spell_id) const
 {
-    return SkillLineAbilityMapBounds(mSkillLineAbilityMap.lower_bound(spell_id), mSkillLineAbilityMap.upper_bound(spell_id));
+    return mSkillLineAbilityMap.equal_range(spell_id);
 }
 
 PetAura const* SpellMgr::GetPetAura(uint32 spell_id, uint8 eff)
@@ -1062,27 +1062,27 @@ PetDefaultSpellsEntry const* SpellMgr::GetPetDefaultSpellsEntry(int32 id) const
 
 SpellAreaMapBounds SpellMgr::GetSpellAreaMapBounds(uint32 spell_id) const
 {
-    return SpellAreaMapBounds(mSpellAreaMap.lower_bound(spell_id), mSpellAreaMap.upper_bound(spell_id));
+    return mSpellAreaMap.equal_range(spell_id);
 }
 
 SpellAreaForQuestMapBounds SpellMgr::GetSpellAreaForQuestMapBounds(uint32 quest_id) const
 {
-    return SpellAreaForQuestMapBounds(mSpellAreaForQuestMap.lower_bound(quest_id), mSpellAreaForQuestMap.upper_bound(quest_id));
+    return mSpellAreaForQuestMap.equal_range(quest_id);
 }
 
 SpellAreaForQuestMapBounds SpellMgr::GetSpellAreaForQuestEndMapBounds(uint32 quest_id) const
 {
-    return SpellAreaForQuestMapBounds(mSpellAreaForQuestEndMap.lower_bound(quest_id), mSpellAreaForQuestEndMap.upper_bound(quest_id));
+    return mSpellAreaForQuestEndMap.equal_range(quest_id);
 }
 
 SpellAreaForAuraMapBounds SpellMgr::GetSpellAreaForAuraMapBounds(uint32 spell_id) const
 {
-    return SpellAreaForAuraMapBounds(mSpellAreaForAuraMap.lower_bound(spell_id), mSpellAreaForAuraMap.upper_bound(spell_id));
+    return mSpellAreaForAuraMap.equal_range(spell_id);
 }
 
 SpellAreaForAreaMapBounds SpellMgr::GetSpellAreaForAreaMapBounds(uint32 area_id) const
 {
-    return SpellAreaForAreaMapBounds(mSpellAreaForAreaMap.lower_bound(area_id), mSpellAreaForAreaMap.upper_bound(area_id));
+    return mSpellAreaForAreaMap.equal_range(area_id);
 }
 
 bool SpellArea::IsFitToRequirements(Player const* player, uint32 newZone, uint32 newArea) const
@@ -1836,14 +1836,14 @@ void SpellMgr::LoadSpellProcs()
         int32 spellId = fields[0].GetInt32();
 
         bool allRanks = false;
-        if (spellId <=0)
+        if (spellId < 0)
         {
             allRanks = true;
             spellId = -spellId;
         }
 
-        SpellInfo const* spellEntry = GetSpellInfo(spellId);
-        if (!spellEntry)
+        SpellInfo const* spellInfo = GetSpellInfo(spellId);
+        if (!spellInfo)
         {
             sLog->outError(LOG_FILTER_SQL, "Spell %u listed in `spell_proc` does not exist", spellId);
             continue;
@@ -1851,9 +1851,9 @@ void SpellMgr::LoadSpellProcs()
 
         if (allRanks)
         {
-            if (GetFirstSpellInChain(spellId) != uint32(spellId))
+            if (spellInfo->GetFirstRankSpell()->Id != uint32(spellId))
             {
-                sLog->outError(LOG_FILTER_SQL, "Spell %u listed in `spell_proc` is not first rank of spell.", fields[0].GetInt32());
+                sLog->outError(LOG_FILTER_SQL, "Spell %u listed in `spell_proc` is not first rank of spell.", spellId);
                 continue;
             }
         }
@@ -1876,79 +1876,77 @@ void SpellMgr::LoadSpellProcs()
         baseProcEntry.cooldown        = uint32(cooldown);
         baseProcEntry.charges         = fields[14].GetUInt32();
 
-        while (true)
+        while (spellInfo)
         {
-            if (mSpellProcMap.find(spellId) != mSpellProcMap.end())
+            if (mSpellProcMap.find(spellInfo->Id) != mSpellProcMap.end())
             {
-                sLog->outError(LOG_FILTER_SQL, "Spell %u listed in `spell_proc` has duplicate entry in the table", spellId);
+                sLog->outError(LOG_FILTER_SQL, "Spell %u listed in `spell_proc` has duplicate entry in the table", spellInfo->Id);
                 break;
             }
             SpellProcEntry procEntry = SpellProcEntry(baseProcEntry);
 
             // take defaults from dbcs
             if (!procEntry.typeMask)
-                procEntry.typeMask = spellEntry->ProcFlags;
+                procEntry.typeMask = spellInfo->ProcFlags;
             if (!procEntry.charges)
-                procEntry.charges = spellEntry->ProcCharges;
+                procEntry.charges = spellInfo->ProcCharges;
             if (!procEntry.chance && !procEntry.ratePerMinute)
-                procEntry.chance = float(spellEntry->ProcChance);
+                procEntry.chance = float(spellInfo->ProcChance);
 
             // validate data
             if (procEntry.schoolMask & ~SPELL_SCHOOL_MASK_ALL)
-                sLog->outError(LOG_FILTER_SQL, "`spell_proc` table entry for spellId %u has wrong `schoolMask` set: %u", spellId, procEntry.schoolMask);
+                sLog->outError(LOG_FILTER_SQL, "`spell_proc` table entry for spellId %u has wrong `schoolMask` set: %u", spellInfo->Id, procEntry.schoolMask);
             if (procEntry.spellFamilyName && (procEntry.spellFamilyName < 3 || procEntry.spellFamilyName > 17 || procEntry.spellFamilyName == 14 || procEntry.spellFamilyName == 16))
-                sLog->outError(LOG_FILTER_SQL, "`spell_proc` table entry for spellId %u has wrong `spellFamilyName` set: %u", spellId, procEntry.spellFamilyName);
+                sLog->outError(LOG_FILTER_SQL, "`spell_proc` table entry for spellId %u has wrong `spellFamilyName` set: %u", spellInfo->Id, procEntry.spellFamilyName);
             if (procEntry.chance < 0)
             {
-                sLog->outError(LOG_FILTER_SQL, "`spell_proc` table entry for spellId %u has negative value in `chance` field", spellId);
+                sLog->outError(LOG_FILTER_SQL, "`spell_proc` table entry for spellId %u has negative value in `chance` field", spellInfo->Id);
                 procEntry.chance = 0;
             }
             if (procEntry.ratePerMinute < 0)
             {
-                sLog->outError(LOG_FILTER_SQL, "`spell_proc` table entry for spellId %u has negative value in `ratePerMinute` field", spellId);
+                sLog->outError(LOG_FILTER_SQL, "`spell_proc` table entry for spellId %u has negative value in `ratePerMinute` field", spellInfo->Id);
                 procEntry.ratePerMinute = 0;
             }
             if (cooldown < 0)
             {
-                sLog->outError(LOG_FILTER_SQL, "`spell_proc` table entry for spellId %u has negative value in `cooldown` field", spellId);
+                sLog->outError(LOG_FILTER_SQL, "`spell_proc` table entry for spellId %u has negative value in `cooldown` field", spellInfo->Id);
                 procEntry.cooldown = 0;
             }
             if (procEntry.chance == 0 && procEntry.ratePerMinute == 0)
-                sLog->outError(LOG_FILTER_SQL, "`spell_proc` table entry for spellId %u doesn't have `chance` and `ratePerMinute` values defined, proc will not be triggered", spellId);
+                sLog->outError(LOG_FILTER_SQL, "`spell_proc` table entry for spellId %u doesn't have `chance` and `ratePerMinute` values defined, proc will not be triggered", spellInfo->Id);
             if (procEntry.charges > 99)
             {
-                sLog->outError(LOG_FILTER_SQL, "`spell_proc` table entry for spellId %u has too big value in `charges` field", spellId);
+                sLog->outError(LOG_FILTER_SQL, "`spell_proc` table entry for spellId %u has too big value in `charges` field", spellInfo->Id);
                 procEntry.charges = 99;
             }
             if (!procEntry.typeMask)
-                sLog->outError(LOG_FILTER_SQL, "`spell_proc` table entry for spellId %u doesn't have `typeMask` value defined, proc will not be triggered", spellId);
-            if (procEntry.spellTypeMask & ~PROC_SPELL_PHASE_MASK_ALL)
-                sLog->outError(LOG_FILTER_SQL, "`spell_proc` table entry for spellId %u has wrong `spellTypeMask` set: %u", spellId, procEntry.spellTypeMask);
+                sLog->outError(LOG_FILTER_SQL, "`spell_proc` table entry for spellId %u doesn't have `typeMask` value defined, proc will not be triggered", spellInfo->Id);
+            if (procEntry.spellTypeMask & ~PROC_SPELL_TYPE_MASK_ALL)
+                sLog->outError(LOG_FILTER_SQL, "`spell_proc` table entry for spellId %u has wrong `spellTypeMask` set: %u", spellInfo->Id, procEntry.spellTypeMask);
             if (procEntry.spellTypeMask && !(procEntry.typeMask & (SPELL_PROC_FLAG_MASK | PERIODIC_PROC_FLAG_MASK)))
-                sLog->outError(LOG_FILTER_SQL, "`spell_proc` table entry for spellId %u has `spellTypeMask` value defined, but it won't be used for defined `typeMask` value", spellId);
+                sLog->outError(LOG_FILTER_SQL, "`spell_proc` table entry for spellId %u has `spellTypeMask` value defined, but it won't be used for defined `typeMask` value", spellInfo->Id);
             if (!procEntry.spellPhaseMask && procEntry.typeMask & REQ_SPELL_PHASE_PROC_FLAG_MASK)
-                sLog->outError(LOG_FILTER_SQL, "`spell_proc` table entry for spellId %u doesn't have `spellPhaseMask` value defined, but it's required for defined `typeMask` value, proc will not be triggered", spellId);
+                sLog->outError(LOG_FILTER_SQL, "`spell_proc` table entry for spellId %u doesn't have `spellPhaseMask` value defined, but it's required for defined `typeMask` value, proc will not be triggered", spellInfo->Id);
             if (procEntry.spellPhaseMask & ~PROC_SPELL_PHASE_MASK_ALL)
-                sLog->outError(LOG_FILTER_SQL, "`spell_proc` table entry for spellId %u has wrong `spellPhaseMask` set: %u", spellId, procEntry.spellPhaseMask);
+                sLog->outError(LOG_FILTER_SQL, "`spell_proc` table entry for spellId %u has wrong `spellPhaseMask` set: %u", spellInfo->Id, procEntry.spellPhaseMask);
             if (procEntry.spellPhaseMask && !(procEntry.typeMask & REQ_SPELL_PHASE_PROC_FLAG_MASK))
-                sLog->outError(LOG_FILTER_SQL, "`spell_proc` table entry for spellId %u has `spellPhaseMask` value defined, but it won't be used for defined `typeMask` value", spellId);
+                sLog->outError(LOG_FILTER_SQL, "`spell_proc` table entry for spellId %u has `spellPhaseMask` value defined, but it won't be used for defined `typeMask` value", spellInfo->Id);
             if (procEntry.hitMask & ~PROC_HIT_MASK_ALL)
-                sLog->outError(LOG_FILTER_SQL, "`spell_proc` table entry for spellId %u has wrong `hitMask` set: %u", spellId, procEntry.hitMask);
+                sLog->outError(LOG_FILTER_SQL, "`spell_proc` table entry for spellId %u has wrong `hitMask` set: %u", spellInfo->Id, procEntry.hitMask);
             if (procEntry.hitMask && !(procEntry.typeMask & TAKEN_HIT_PROC_FLAG_MASK || (procEntry.typeMask & DONE_HIT_PROC_FLAG_MASK && (!procEntry.spellPhaseMask || procEntry.spellPhaseMask & (PROC_SPELL_PHASE_HIT | PROC_SPELL_PHASE_FINISH)))))
-                sLog->outError(LOG_FILTER_SQL, "`spell_proc` table entry for spellId %u has `hitMask` value defined, but it won't be used for defined `typeMask` and `spellPhaseMask` values", spellId);
+                sLog->outError(LOG_FILTER_SQL, "`spell_proc` table entry for spellId %u has `hitMask` value defined, but it won't be used for defined `typeMask` and `spellPhaseMask` values", spellInfo->Id);
 
-            mSpellProcMap[spellId] = procEntry;
+            mSpellProcMap[spellInfo->Id] = procEntry;
 
             if (allRanks)
-            {
-                spellId = GetNextSpellInChain(spellId);
-                spellEntry = GetSpellInfo(spellId);
-            }
+                spellInfo = spellInfo->GetNextRankSpell();
             else
                 break;
         }
         ++count;
-    } while (result->NextRow());
+    }
+    while (result->NextRow());
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u spell proc conditions and data in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
@@ -3041,10 +3039,6 @@ void SpellMgr::LoadDbcDataCorrections()
                 // because of bug in dbc
                 spellInfo->procChance = 0;
                 break;
-            case 45524: // Chains of Ice
-                // this will fix self-damage caused by Glyph of Chains of Ice
-                spellInfo->EffectImplicitTargetA[2] = TARGET_UNIT_TARGET_ENEMY;
-                break;
             case 32182: // Heroism
                 spellInfo->excludeCasterAuraSpell = 57723; // Exhaustion
                 break;
@@ -3493,6 +3487,9 @@ void SpellMgr::LoadDbcDataCorrections()
             case 71123: // Decimate (Stinky & Precious)
                 spellInfo->EffectRadiusIndex[0] = EFFECT_RADIUS_100_YARDS; // 100yd
                 break;
+            case 71169: // Shadow's Fate
+                spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
+                break;
             case 72378: // Blood Nova (Deathbringer Saurfang)
             case 73058: // Blood Nova (Deathbringer Saurfang)
                 spellInfo->EffectRadiusIndex[0] = EFFECT_RADIUS_200_YARDS;
@@ -3715,6 +3712,9 @@ void SpellMgr::LoadDbcDataCorrections()
             case 40166: // Introspection
             case 40167: // Introspection
                 spellInfo->Attributes |= SPELL_ATTR0_NEGATIVE_1;
+                break;
+            case 45524: // Chains of Ice
+                spellInfo->EffectImplicitTargetA[EFFECT_2] = 0;
                 break;
             case 2378: // Minor Fortitude
                 spellInfo->manaCost = 0;

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -1534,7 +1534,7 @@ public:
                 return false;
 
             Field* fields     = result->Fetch();
-            totalPlayerTime = fields[0].GetUInt32();
+            totalPlayerTime   = fields[0].GetUInt32();
             level             = fields[1].GetUInt8();
             money             = fields[2].GetUInt32();
             accId             = fields[3].GetUInt32();
@@ -1617,7 +1617,7 @@ public:
         if (result2)
         {
             Field* fields = result2->Fetch();
-            banTime       = int64(fields[1].GetBool() ? 0 : fields[0].GetUInt32());
+            banTime       = int64(fields[1].GetUInt64() ? 0 : fields[0].GetUInt32());
             bannedby      = fields[2].GetString();
             banreason     = fields[3].GetString();
         }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -29,33 +29,15 @@ EndScriptData */
 #include "stratholme.h"
 #include "Player.h"
 
-#define GO_SERVICE_ENTRANCE     175368
-#define GO_GAUNTLET_GATE1       175357
-#define GO_ZIGGURAT1            175380                      //baroness
-#define GO_ZIGGURAT2            175379                      //nerub'enkan
-#define GO_ZIGGURAT3            175381                      //maleki
-#define GO_ZIGGURAT4            175405                      //rammstein
-#define GO_ZIGGURAT5            175796                      //baron
-#define GO_PORT_GAUNTLET        175374                      //port from gauntlet to slaugther
-#define GO_PORT_SLAUGTHER       175373                      //port at slaugther
-#define GO_PORT_ELDERS          175377                      //port at elders square
-
-#define C_CRYSTAL               10415                       //three ziggurat crystals
-#define C_BARON                 10440
-#define C_YSIDA_TRIGGER         16100
-
-#define C_RAMSTEIN              10439
-#define C_ABOM_BILE             10416
-#define C_ABOM_VENOM            10417
-#define C_BLACK_GUARD           10394
-#define C_YSIDA                 16031
-
-#define MAX_ENCOUNTER              6
+enum Misc
+{
+    MAX_ENCOUNTER           = 6
+};
 
 enum InstanceEvents
 {
     EVENT_BARON_RUN         = 1,
-    EVENT_SLAUGHTER_SQUARE  = 2,
+    EVENT_SLAUGHTER_SQUARE  = 2
 };
 
 class instance_stratholme : public InstanceMapScript
@@ -148,17 +130,17 @@ class instance_stratholme : public InstanceMapScript
             {
                 switch (creature->GetEntry())
                 {
-                    case C_BARON:
+                    case NPC_BARON:
                         baronGUID = creature->GetGUID();
                         break;
-                    case C_YSIDA_TRIGGER:
+                    case NPC_YSIDA_TRIGGER:
                         ysidaTriggerGUID = creature->GetGUID();
                         break;
-                    case C_CRYSTAL:
+                    case NPC_CRYSTAL:
                         crystalsGUID.insert(creature->GetGUID());
                         break;
-                    case C_ABOM_BILE:
-                    case C_ABOM_VENOM:
+                    case NPC_ABOM_BILE:
+                    case NPC_ABOM_VENOM:
                         abomnationGUID.insert(creature->GetGUID());
                         break;
                 }
@@ -168,11 +150,11 @@ class instance_stratholme : public InstanceMapScript
             {
                 switch (creature->GetEntry())
                 {
-                    case C_CRYSTAL:
+                    case NPC_CRYSTAL:
                         crystalsGUID.erase(creature->GetGUID());
                         break;
-                    case C_ABOM_BILE:
-                    case C_ABOM_VENOM:
+                    case NPC_ABOM_BILE:
+                    case NPC_ABOM_VENOM:
                         abomnationGUID.erase(creature->GetGUID());
                         break;
                 }
@@ -255,7 +237,7 @@ class instance_stratholme : public InstanceMapScript
                                 {
                                     Position ysidaPos;
                                     ysidaTrigger->GetPosition(&ysidaPos);
-                                    ysidaTrigger->SummonCreature(C_YSIDA, ysidaPos, TEMPSUMMON_TIMED_DESPAWN, 1800000);
+                                    ysidaTrigger->SummonCreature(NPC_YSIDA, ysidaPos, TEMPSUMMON_TIMED_DESPAWN, 1800000);
                                 }
                                 events.CancelEvent(EVENT_BARON_RUN);
                                 break;
@@ -300,7 +282,7 @@ class instance_stratholme : public InstanceMapScript
                                 //a bit itchy, it should close the door after 10 secs, but it doesn't. skipping it for now.
                                 //UpdateGoState(ziggurat4GUID, 0, true);
                                 if (Creature* pBaron = instance->GetCreature(baronGUID))
-                                    pBaron->SummonCreature(C_RAMSTEIN, 4032.84f, -3390.24f, 119.73f, 4.71f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 1800000);
+                                    pBaron->SummonCreature(NPC_RAMSTEIN, 4032.84f, -3390.24f, 119.73f, 4.71f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 1800000);
                                 sLog->outDebug(LOG_FILTER_TSCR, "Instance Stratholme: Ramstein spawned.");
                             }
                             else
@@ -455,7 +437,7 @@ class instance_stratholme : public InstanceMapScript
                             if (Creature* baron = instance->GetCreature(baronGUID))
                             {
                                 for (uint8 i = 0; i < 4; ++i)
-                                    baron->SummonCreature(C_BLACK_GUARD, 4032.84f, -3390.24f, 119.73f, 4.71f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 1800000);
+                                    baron->SummonCreature(NPC_BLACK_GUARD, 4032.84f, -3390.24f, 119.73f, 4.71f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 1800000);
 
                                 HandleGameObject(ziggurat4GUID, true);
                                 HandleGameObject(ziggurat5GUID, true);

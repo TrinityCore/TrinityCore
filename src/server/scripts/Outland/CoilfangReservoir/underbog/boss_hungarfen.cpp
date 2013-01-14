@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -26,8 +26,11 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 
-#define SPELL_FOUL_SPORES   31673
-#define SPELL_ACID_GEYSER   38739
+enum Spells
+{
+    SPELL_FOUL_SPORES           = 31673,
+    SPELL_ACID_GEYSER           = 38739
+};
 
 class boss_hungarfen : public CreatureScript
 {
