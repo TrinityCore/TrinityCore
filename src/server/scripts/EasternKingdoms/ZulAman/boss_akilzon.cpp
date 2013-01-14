@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -38,7 +38,7 @@ enum Spells
 {
     SPELL_STATIC_DISRUPTION     = 43622,
     SPELL_STATIC_VISUAL         = 45265,
-    SPELL_CALL_LIGHTNING        = 43661, //Missing timer
+    SPELL_CALL_LIGHTNING        = 43661, // Missing timer
     SPELL_GUST_OF_WIND          = 43621,
     SPELL_ELECTRICAL_STORM      = 43648,
     SPELL_BERSERK               = 45078,
@@ -46,25 +46,24 @@ enum Spells
     SPELL_EAGLE_SWOOP           = 44732
 };
 
-//"Your death gonna be quick, strangers. You shoulda never have come to this place..."
-#define SAY_ONAGGRO "I be da predator! You da prey..."
-#define SAY_ONDEATH "You can't... kill... me spirit!"
-#define SAY_ONSLAY1 "Ya got nothin'!"
-#define SAY_ONSLAY2 "Stop your cryin'!"
-#define SAY_ONSUMMON "Feed, me bruddahs!"
-#define SAY_ONENRAGE "All you be doing is wasting my time!"
-#define SOUND_ONAGGRO 12013
-#define SOUND_ONDEATH 12019
-#define SOUND_ONSLAY1 12017
-#define SOUND_ONSLAY2 12018
-#define SOUND_ONSUMMON 12014
-#define SOUND_ONENRAGE 12016
+enum Says
+{
+    SAY_AGGRO                   = 0,
+    SAY_SUMMON                  = 1,
+    SAY_INTRO                   = 2, // Not used in script
+    SAY_ENRAGE                  = 3,
+    SAY_KILL                    = 4,
+    SAY_DEATH                   = 5
+};
 
-#define MOB_SOARING_EAGLE 24858
-#define SE_LOC_X_MAX 400
-#define SE_LOC_X_MIN 335
-#define SE_LOC_Y_MAX 1435
-#define SE_LOC_Y_MIN 1370
+enum Misc
+{
+    MOB_SOARING_EAGLE           = 24858,
+    SE_LOC_X_MAX                = 400,
+    SE_LOC_X_MIN                = 335,
+    SE_LOC_Y_MAX                = 1435,
+    SE_LOC_Y_MIN                = 1370
+};
 
 class boss_akilzon : public CreatureScript
 {
@@ -130,8 +129,7 @@ class boss_akilzon : public CreatureScript
 
             void EnterCombat(Unit* /*who*/)
             {
-                me->MonsterYell(SAY_ONAGGRO, LANG_UNIVERSAL, 0);
-                DoPlaySoundToSet(me, SOUND_ONAGGRO);
+                Talk(SAY_AGGRO);
                 //DoZoneInCombat();
                 if (instance)
                     instance->SetData(DATA_AKILZONEVENT, IN_PROGRESS);
@@ -139,8 +137,7 @@ class boss_akilzon : public CreatureScript
 
             void JustDied(Unit* /*killer*/)
             {
-                me->MonsterYell(SAY_ONDEATH, LANG_UNIVERSAL, 0);
-                DoPlaySoundToSet(me, SOUND_ONDEATH);
+                Talk(SAY_DEATH);
                 if (instance)
                     instance->SetData(DATA_AKILZONEVENT, DONE);
                 DespawnSummons();
@@ -148,17 +145,7 @@ class boss_akilzon : public CreatureScript
 
             void KilledUnit(Unit* /*victim*/)
             {
-                switch (urand(0, 1))
-                {
-                    case 0:
-                        me->MonsterYell(SAY_ONSLAY1, LANG_UNIVERSAL, 0);
-                        DoPlaySoundToSet(me, SOUND_ONSLAY1);
-                        break;
-                    case 1:
-                        me->MonsterYell(SAY_ONSLAY2, LANG_UNIVERSAL, 0);
-                        DoPlaySoundToSet(me, SOUND_ONSLAY2);
-                        break;
-                }
+                Talk(SAY_KILL);
             }
 
             void DespawnSummons()
@@ -276,8 +263,7 @@ class boss_akilzon : public CreatureScript
 
                 if (Enrage_Timer <= diff)
                 {
-                    me->MonsterYell(SAY_ONENRAGE, LANG_UNIVERSAL, 0);
-                    DoPlaySoundToSet(me, SOUND_ONENRAGE);
+                    Talk(SAY_ENRAGE);
                     DoCast(me, SPELL_BERSERK, true);
                     Enrage_Timer = 600000;
                 } else Enrage_Timer -= diff;
@@ -351,8 +337,7 @@ class boss_akilzon : public CreatureScript
 
                 if (SummonEagles_Timer <= diff)
                 {
-                    me->MonsterYell(SAY_ONSUMMON, LANG_UNIVERSAL, 0);
-                    DoPlaySoundToSet(me, SOUND_ONSUMMON);
+                    Talk(SAY_SUMMON);
 
                     float x, y, z;
                     me->GetPosition(x, y, z);

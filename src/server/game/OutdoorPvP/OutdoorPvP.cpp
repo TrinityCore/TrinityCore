@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -392,7 +392,7 @@ void OutdoorPvP::SendUpdateWorldState(uint32 field, uint32 value)
     if (m_sendUpdate)
         for (int i = 0; i < 2; ++i)
             for (PlayerSet::iterator itr = m_players[i].begin(); itr != m_players[i].end(); ++itr)
-                if (Player * const player = ObjectAccessor::FindPlayer(*itr))
+                if (Player* const player = ObjectAccessor::FindPlayer(*itr))
                     player->SendUpdateWorldState(field, value);
 }
 
@@ -402,7 +402,7 @@ void OPvPCapturePoint::SendUpdateWorldState(uint32 field, uint32 value)
     {
         // send to all players present in the area
         for (PlayerSet::iterator itr = m_activePlayers[team].begin(); itr != m_activePlayers[team].end(); ++itr)
-            if (Player * const player = ObjectAccessor::FindPlayer(*itr))
+            if (Player* const player = ObjectAccessor::FindPlayer(*itr))
                 player->SendUpdateWorldState(field, value);
     }
 }
@@ -424,7 +424,7 @@ void OPvPCapturePoint::SendObjectiveComplete(uint32 id, uint64 guid)
 
     // send to all players present in the area
     for (PlayerSet::iterator itr = m_activePlayers[team].begin(); itr != m_activePlayers[team].end(); ++itr)
-        if (Player * const player = ObjectAccessor::FindPlayer(*itr))
+        if (Player* const player = ObjectAccessor::FindPlayer(*itr))
             player->KilledMonsterCredit(id, guid);
 }
 
@@ -563,7 +563,7 @@ void OutdoorPvP::BroadcastPacket(WorldPacket &data) const
     // This is faster than sWorld->SendZoneMessage
     for (uint32 team = 0; team < 2; ++team)
         for (PlayerSet::const_iterator itr = m_players[team].begin(); itr != m_players[team].end(); ++itr)
-            if (Player * const player = ObjectAccessor::FindPlayer(*itr))
+            if (Player* const player = ObjectAccessor::FindPlayer(*itr))
                 player->GetSession()->SendPacket(&data);
 }
 
@@ -583,13 +583,13 @@ void OutdoorPvP::TeamCastSpell(TeamId team, int32 spellId)
     if (spellId > 0)
     {
         for (PlayerSet::iterator itr = m_players[team].begin(); itr != m_players[team].end(); ++itr)
-            if (Player * const player = ObjectAccessor::FindPlayer(*itr))
+            if (Player* const player = ObjectAccessor::FindPlayer(*itr))
                 player->CastSpell(player, (uint32)spellId, true);
     }
     else
     {
         for (PlayerSet::iterator itr = m_players[team].begin(); itr != m_players[team].end(); ++itr)
-            if (Player * const player = ObjectAccessor::FindPlayer(*itr))
+            if (Player* const player = ObjectAccessor::FindPlayer(*itr))
                 player->RemoveAura((uint32)-spellId); // by stack?
     }
 }

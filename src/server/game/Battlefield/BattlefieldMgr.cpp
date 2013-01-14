@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2008-2010 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -52,7 +51,7 @@ void BattlefieldMgr::InitBattlefield()
     /* For Cataclysm: Tol Barad
        pBf = new BattlefieldTB;
        // respawn, init variables
-       if(!pBf->SetupBattlefield())
+       if (!pBf->SetupBattlefield())
        {
        sLog->outDebug(LOG_FILTER_BATTLEFIELD, "Battlefield : Tol Barad init failed.");
        delete pBf;
@@ -69,7 +68,7 @@ void BattlefieldMgr::AddZone(uint32 zoneid, Battlefield *handle)
     m_BattlefieldMap[zoneid] = handle;
 }
 
-void BattlefieldMgr::HandlePlayerEnterZone(Player * player, uint32 zoneid)
+void BattlefieldMgr::HandlePlayerEnterZone(Player* player, uint32 zoneid)
 {
     BattlefieldMap::iterator itr = m_BattlefieldMap.find(zoneid);
     if (itr == m_BattlefieldMap.end())
@@ -82,7 +81,7 @@ void BattlefieldMgr::HandlePlayerEnterZone(Player * player, uint32 zoneid)
     sLog->outDebug(LOG_FILTER_BATTLEFIELD, "Player %u entered outdoorpvp id %u", player->GetGUIDLow(), itr->second->GetTypeId());
 }
 
-void BattlefieldMgr::HandlePlayerLeaveZone(Player * player, uint32 zoneid)
+void BattlefieldMgr::HandlePlayerLeaveZone(Player* player, uint32 zoneid)
 {
     BattlefieldMap::iterator itr = m_BattlefieldMap.find(zoneid);
     if (itr == m_BattlefieldMap.end())
@@ -130,7 +129,7 @@ void BattlefieldMgr::Update(uint32 diff)
     }
 }
 
-ZoneScript *BattlefieldMgr::GetZoneScript(uint32 zoneId)
+ZoneScript* BattlefieldMgr::GetZoneScript(uint32 zoneId)
 {
     BattlefieldMap::iterator itr = m_BattlefieldMap.find(zoneId);
     if (itr != m_BattlefieldMap.end())

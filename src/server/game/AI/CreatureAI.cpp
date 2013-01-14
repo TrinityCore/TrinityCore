@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -174,3 +174,91 @@ void CreatureAI::EnterEvadeMode()
     if (!me->getVictim())
         AttackStart(attacker);
 }*/
+
+void CreatureAI::SetGazeOn(Unit* target)
+{
+    if (me->IsValidAttackTarget(target))
+    {
+        AttackStart(target);
+        me->SetReactState(REACT_PASSIVE);
+    }
+}
+
+bool CreatureAI::UpdateVictimWithGaze()
+{
+    if (!me->isInCombat())
+        return false;
+
+    if (me->HasReactState(REACT_PASSIVE))
+    {
+        if (me->getVictim())
+            return true;
+        else
+            me->SetReactState(REACT_AGGRESSIVE);
+    }
+
+    if (Unit* victim = me->SelectVictim())
+        AttackStart(victim);
+    return me->getVictim();
+}
+
+bool CreatureAI::UpdateVictim()
+{
+    if (!me->isInCombat())
+        return false;
+
+    if (!me->HasReactState(REACT_PASSIVE))
+    {
+        if (Unit* victim = me->SelectVictim())
+            AttackStart(victim);
+        return me->getVictim();
+    }
+    else if (me->getThreatManager().isThreatListEmpty())
+    {
+        EnterEvadeMode();
+        return false;
+    }
+
+    return true;
+}
+
+bool CreatureAI::_EnterEvadeMode()
+{
+    if (!me->isAlive())
+        return false;
+
+    // dont remove vehicle auras, passengers arent supposed to drop off the vehicle
+    me->RemoveAllAurasExceptType(SPELL_AURA_CONTROL_VEHICLE);
+
+    // sometimes bosses stuck in combat?
+    me->DeleteThreatList();
+    me->CombatStop(true);
+    me->LoadCreaturesAddon();
+    me->SetLootRecipient(NULL);
+    me->ResetPlayerDamageReq();
+
+    if (me->IsInEvadeMode())
+        return false;
+
+    return true;
+}
+
+Creature* CreatureAI::DoSummon(uint32 entry, const Position& pos, uint32 despawnTime, TempSummonType summonType)
+{
+    return me->SummonCreature(entry, pos, summonType, despawnTime);
+}
+
+Creature* CreatureAI::DoSummon(uint32 entry, WorldObject* obj, float radius, uint32 despawnTime, TempSummonType summonType)
+{
+    Position pos;
+    obj->GetRandomNearPosition(pos, radius);
+    return me->SummonCreature(entry, pos, summonType, despawnTime);
+}
+
+Creature* CreatureAI::DoSummonFlyer(uint32 entry, WorldObject* obj, float flightZ, float radius, uint32 despawnTime, TempSummonType summonType)
+{
+    Position pos;
+    obj->GetRandomNearPosition(pos, radius);
+    pos.m_positionZ += flightZ;
+    return me->SummonCreature(entry, pos, summonType, despawnTime);
+}

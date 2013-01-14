@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -21,10 +21,10 @@
 
 enum Texts
 {
-    SAY_AGGRO                           = 0, // You will sssuffer for this intrusion! (17528)
-    SAY_CONFLAGRATION                   = 1, // Burn in the master's flame! (17532)
-    EMOTE_ENRAGED                       = 2, // %s becomes enraged!
-    SAY_KILL                            = 3, // Halion will be pleased. (17530) - As it should be.... (17529)
+    SAY_AGGRO                   = 0, // You will sssuffer for this intrusion! (17528)
+    SAY_CONFLAGRATION           = 1, // Burn in the master's flame! (17532)
+    EMOTE_ENRAGED               = 2, // %s becomes enraged!
+    SAY_KILL                    = 3, // Halion will be pleased. (17530) - As it should be.... (17529)
 };
 
 enum Spells
@@ -38,28 +38,28 @@ enum Spells
 
 enum Events
 {
-    EVENT_ENRAGE                    = 1,
-    EVENT_FLIGHT                    = 2,
-    EVENT_FLAME_BREATH              = 3,
-    EVENT_CONFLAGRATION             = 4,
-    EVENT_LAND_GROUND               = 5,
-    EVENT_AIR_MOVEMENT              = 6,
+    EVENT_ENRAGE                = 1,
+    EVENT_FLIGHT                = 2,
+    EVENT_FLAME_BREATH          = 3,
+    EVENT_CONFLAGRATION         = 4,
+    EVENT_LAND_GROUND           = 5,
+    EVENT_AIR_MOVEMENT          = 6,
 
     // Event group
-    EVENT_GROUP_LAND_PHASE          = 1,
+    EVENT_GROUP_LAND_PHASE      = 1,
 };
 
 enum MovementPoints
 {
-    POINT_FLIGHT            = 1,
-    POINT_LAND              = 2,
-    POINT_TAKEOFF           = 3,
-    POINT_LAND_GROUND       = 4
+    POINT_FLIGHT                = 1,
+    POINT_LAND                  = 2,
+    POINT_TAKEOFF               = 3,
+    POINT_LAND_GROUND           = 4
 };
 
 enum Misc
 {
-    SOUND_ID_DEATH          = 17531,
+    SOUND_ID_DEATH              = 17531,
 };
 
 Position const SavianaRagefireFlyOutPos  = {3155.51f, 683.844f, 95.0f,   4.69f};

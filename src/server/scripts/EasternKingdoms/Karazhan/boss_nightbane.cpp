@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -27,25 +27,30 @@ EndScriptData */
 #include "ScriptedCreature.h"
 #include "karazhan.h"
 
-//phase 1
-#define SPELL_BELLOWING_ROAR        39427
-#define SPELL_CHARRED_EARTH         30129
-#define SPELL_DISTRACTING_ASH       30130
-#define SPELL_SMOLDERING_BREATH     30210
-#define SPELL_TAIL_SWEEP            25653
-//phase 2
-#define SPELL_RAIN_OF_BONES         37098
-#define SPELL_SMOKING_BLAST         37057
-#define SPELL_FIREBALL_BARRAGE      30282
-#define SPELL_SEARING_CINDERS       30127
-#define SPELL_SUMMON_SKELETON       30170
+enum Spells
+{
+    // phase 1
+    SPELL_BELLOWING_ROAR        = 39427,
+    SPELL_CHARRED_EARTH         = 30129,
+    SPELL_DISTRACTING_ASH       = 30130,
+    SPELL_SMOLDERING_BREATH     = 30210,
+    SPELL_TAIL_SWEEP            = 25653,
+    // phase 2
+    SPELL_RAIN_OF_BONES         = 37098,
+    SPELL_SMOKING_BLAST         = 37057,
+    SPELL_FIREBALL_BARRAGE      = 30282,
+    SPELL_SEARING_CINDERS       = 30127,
+    SPELL_SUMMON_SKELETON       = 30170
+};
 
-#define EMOTE_SUMMON                "An ancient being awakens in the distance..."
-#define YELL_AGGRO                  "What fools! I shall bring a quick end to your suffering!"
-#define YELL_FLY_PHASE              "Miserable vermin. I shall exterminate you from the air!"
-#define YELL_LAND_PHASE_1           "Enough! I shall land and crush you myself!"
-#define YELL_LAND_PHASE_2           "Insects! Let me show you my strength up close!"
-#define EMOTE_BREATH                "takes a deep breath."
+enum Says
+{
+    EMOTE_SUMMON                = 0, // Not used in script
+    YELL_AGGRO                  = 1,
+    YELL_FLY_PHASE              = 2,
+    YELL_LAND_PHASE             = 3,
+    EMOTE_BREATH                = 4
+};
 
 float IntroWay[8][3] =
 {
@@ -161,7 +166,7 @@ public:
                 instance->SetData(TYPE_NIGHTBANE, IN_PROGRESS);
 
             HandleTerraceDoors(false);
-            me->MonsterYell(YELL_AGGRO, LANG_UNIVERSAL, 0);
+           Talk(YELL_AGGRO);
         }
 
         void AttackStart(Unit* who)
@@ -205,7 +210,7 @@ public:
             {
                 if (id == 0)
                 {
-                    me->MonsterTextEmote(EMOTE_BREATH, 0, true);
+                    Talk(EMOTE_BREATH);
                     Flying = false;
                     Phase = 2;
                     return;
@@ -237,7 +242,7 @@ public:
 
         void TakeOff()
         {
-            me->MonsterYell(YELL_FLY_PHASE, LANG_UNIVERSAL, 0);
+            Talk(YELL_FLY_PHASE);
 
             me->InterruptSpell(CURRENT_GENERIC_SPELL);
             me->HandleEmoteCommand(EMOTE_ONESHOT_LIFTOFF);
@@ -403,7 +408,7 @@ public:
 
                 if (FlyTimer <= diff) //landing
                 {
-                    me->MonsterYell(RAND(*YELL_LAND_PHASE_1, *YELL_LAND_PHASE_2), LANG_UNIVERSAL, 0);
+                    Talk(YELL_LAND_PHASE);
 
                     me->GetMotionMaster()->Clear(false);
                     me->GetMotionMaster()->MovePoint(3, IntroWay[3][0], IntroWay[3][1], IntroWay[3][2]);

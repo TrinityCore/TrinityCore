@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -29,17 +29,17 @@ EndScriptData */
 
 enum Texts
 {
-    SAY_SUMMON_MAJ      = 0,
-    SAY_ARRIVAL1_RAG    = 1,
-    SAY_ARRIVAL2_MAJ    = 2,
-    SAY_ARRIVAL3_RAG    = 3,
-    SAY_ARRIVAL5_RAG    = 4,
-    SAY_REINFORCEMENTS1 = 5,
-    SAY_REINFORCEMENTS2 = 6,
-    SAY_HAND            = 7,
-    SAY_WRATH           = 8,
-    SAY_KILL            = 9,
-    SAY_MAGMABURST      = 10
+    SAY_SUMMON_MAJ              = 0,
+    SAY_ARRIVAL1_RAG            = 1,
+    SAY_ARRIVAL2_MAJ            = 2,
+    SAY_ARRIVAL3_RAG            = 3,
+    SAY_ARRIVAL5_RAG            = 4,
+    SAY_REINFORCEMENTS1         = 5,
+    SAY_REINFORCEMENTS2         = 6,
+    SAY_HAND                    = 7,
+    SAY_WRATH                   = 8,
+    SAY_KILL                    = 9,
+    SAY_MAGMABURST              = 10
 };
 
 enum Spells
@@ -53,24 +53,24 @@ enum Spells
     SPELL_RAGEMERGE             = 20568,
     SPELL_MELT_WEAPON           = 21388,
     SPELL_ELEMENTAL_FIRE        = 20564,
-    SPELL_ERRUPTION             = 17731,
+    SPELL_ERRUPTION             = 17731
 };
 
 enum Events
 {
-    EVENT_ERUPTION          = 1,
-    EVENT_WRATH_OF_RAGNAROS = 2,
-    EVENT_HAND_OF_RAGNAROS  = 3,
-    EVENT_LAVA_BURST        = 4,
-    EVENT_ELEMENTAL_FIRE    = 5,
-    EVENT_MAGMA_BLAST       = 6,
-    EVENT_SUBMERGE          = 7,
+    EVENT_ERUPTION              = 1,
+    EVENT_WRATH_OF_RAGNAROS     = 2,
+    EVENT_HAND_OF_RAGNAROS      = 3,
+    EVENT_LAVA_BURST            = 4,
+    EVENT_ELEMENTAL_FIRE        = 5,
+    EVENT_MAGMA_BLAST           = 6,
+    EVENT_SUBMERGE              = 7,
 
-    EVENT_INTRO_1           = 8,
-    EVENT_INTRO_2           = 9,
-    EVENT_INTRO_3           = 10,
-    EVENT_INTRO_4           = 11,
-    EVENT_INTRO_5           = 12,
+    EVENT_INTRO_1               = 8,
+    EVENT_INTRO_2               = 9,
+    EVENT_INTRO_3               = 10,
+    EVENT_INTRO_4               = 11,
+    EVENT_INTRO_5               = 12
 };
 
 class boss_ragnaros : public CreatureScript

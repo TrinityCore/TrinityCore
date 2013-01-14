@@ -1,4 +1,4 @@
-# Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+# Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
 #
 # This file is free software; as a special exception the author gives
 # unlimited permission to copy and/or distribute it, with or without
@@ -10,9 +10,9 @@
 
 set(scripts_STAT_SRCS
   ${scripts_STAT_SRCS}
-  Northrend/wintergrasp.cpp
+  Northrend/zone_wintergrasp.cpp
   Northrend/isle_of_conquest.cpp
-  Northrend/storm_peaks.cpp
+  Northrend/zone_storm_peaks.cpp
   Northrend/Ulduar/HallsOfLightning/instance_halls_of_lightning.cpp
   Northrend/Ulduar/HallsOfLightning/boss_bjarngrim.cpp
   Northrend/Ulduar/HallsOfLightning/halls_of_lightning.h
@@ -78,8 +78,8 @@ set(scripts_STAT_SRCS
   Northrend/Nexus/Oculus/boss_urom.cpp
   Northrend/Nexus/Oculus/oculus.cpp
   Northrend/Nexus/Oculus/instance_oculus.cpp
-  Northrend/Nexus/Nexus/commander_kolurg.cpp
-  Northrend/Nexus/Nexus/commander_stoutbeard.cpp
+  Northrend/Nexus/Nexus/boss_commander_kolurg.cpp
+  Northrend/Nexus/Nexus/boss_commander_stoutbeard.cpp
   Northrend/Nexus/Nexus/boss_ormorok.cpp
   Northrend/Nexus/Nexus/boss_magus_telestra.cpp
   Northrend/Nexus/Nexus/instance_nexus.cpp
@@ -117,14 +117,14 @@ set(scripts_STAT_SRCS
   Northrend/Naxxramas/instance_naxxramas.cpp
   Northrend/Naxxramas/boss_grobbulus.cpp
   Northrend/Naxxramas/boss_noth.cpp
-  Northrend/crystalsong_forest.cpp
+  Northrend/zone_crystalsong_forest.cpp
   Northrend/VaultOfArchavon/boss_archavon.cpp
   Northrend/VaultOfArchavon/boss_koralon.cpp
   Northrend/VaultOfArchavon/vault_of_archavon.h
   Northrend/VaultOfArchavon/instance_vault_of_archavon.cpp
   Northrend/VaultOfArchavon/boss_emalon.cpp
   Northrend/VaultOfArchavon/boss_toravon.cpp
-  Northrend/sholazar_basin.cpp
+  Northrend/zone_sholazar_basin.cpp
   Northrend/UtgardeKeep/UtgardePinnacle/boss_palehoof.cpp
   Northrend/UtgardeKeep/UtgardePinnacle/boss_svala.cpp
   Northrend/UtgardeKeep/UtgardePinnacle/instance_pinnacle.cpp
@@ -137,8 +137,8 @@ set(scripts_STAT_SRCS
   Northrend/UtgardeKeep/UtgardeKeep/instance_utgarde_keep.cpp
   Northrend/UtgardeKeep/UtgardeKeep/boss_keleseth.cpp
   Northrend/UtgardeKeep/UtgardeKeep/utgarde_keep.cpp
-  Northrend/dragonblight.cpp
-  Northrend/grizzly_hills.cpp
+  Northrend/zone_dragonblight.cpp
+  Northrend/zone_grizzly_hills.cpp
   Northrend/AzjolNerub/AzjolNerub/azjol_nerub.h
   Northrend/AzjolNerub/AzjolNerub/instance_azjol_nerub.cpp
   Northrend/AzjolNerub/AzjolNerub/boss_krikthir_the_gatewatcher.cpp
@@ -176,8 +176,8 @@ set(scripts_STAT_SRCS
   Northrend/IcecrownCitadel/boss_valithria_dreamwalker.cpp
   Northrend/IcecrownCitadel/boss_sindragosa.cpp
   Northrend/IcecrownCitadel/boss_the_lich_king.cpp
-  Northrend/zuldrak.cpp
-  Northrend/icecrown.cpp
+  Northrend/zone_zuldrak.cpp
+  Northrend/zone_icecrown.cpp
   Northrend/Gundrak/boss_slad_ran.cpp
   Northrend/Gundrak/instance_gundrak.cpp
   Northrend/Gundrak/boss_drakkari_colossus.cpp
@@ -185,9 +185,9 @@ set(scripts_STAT_SRCS
   Northrend/Gundrak/boss_gal_darah.cpp
   Northrend/Gundrak/boss_moorabi.cpp
   Northrend/Gundrak/boss_eck.cpp
-  Northrend/borean_tundra.cpp
-  Northrend/howling_fjord.cpp
-  Northrend/dalaran.cpp
+  Northrend/zone_borean_tundra.cpp
+  Northrend/zone_howling_fjord.cpp
+  Northrend/zone_dalaran.cpp
   Northrend/DraktharonKeep/boss_trollgore.cpp
   Northrend/DraktharonKeep/instance_drak_tharon_keep.cpp
   Northrend/DraktharonKeep/boss_novos.cpp

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -32,10 +32,11 @@ enum Midnight
     SAY_MIDNIGHT_KILL           = 0,
     SAY_APPEAR                  = 1,
     SAY_MOUNT                   = 2,
-    SAY_KILL                    = 3,
-    SAY_DISARMED                = 4,
-    SAY_DEATH                   = 5,
-    SAY_RANDOM                  = 6,
+
+    SAY_KILL                    = 0,
+    SAY_DISARMED                = 1,
+    SAY_DEATH                   = 2,
+    SAY_RANDOM                  = 3,
 
     SPELL_SHADOWCLEAVE          = 29832,
     SPELL_INTANGIBLE_PRESENCE   = 29833,

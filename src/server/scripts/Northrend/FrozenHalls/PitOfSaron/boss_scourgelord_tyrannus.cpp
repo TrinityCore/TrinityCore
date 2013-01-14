@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -29,7 +29,7 @@ enum Yells
     SAY_GORKUN_INTRO_2              = 0,
     SAY_GORKUN_OUTRO_1              = 1,
     SAY_GORKUN_OUTRO_2              = 2,
-    
+
     //Tyrannus
     SAY_AMBUSH_1                    = 3,
     SAY_AMBUSH_2                    = 4,
@@ -43,7 +43,7 @@ enum Yells
     SAY_MARK_RIMEFANG_2             = 12,
     SAY_DARK_MIGHT_1                = 13,
     SAY_DARK_MIGHT_2                = 14,
-    
+
     //Jaina
     SAY_JAYNA_OUTRO_3               = 3,
     SAY_JAYNA_OUTRO_4               = 4,

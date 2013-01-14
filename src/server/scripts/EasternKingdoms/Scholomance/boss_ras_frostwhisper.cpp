@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -26,12 +26,15 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 
-#define SPELL_FROSTBOLT         21369
-#define SPELL_ICEARMOR          18100                       //This is actually a buff he gives himself
-#define SPELL_FREEZE            18763
-#define SPELL_FEAR              26070
-#define SPELL_CHILLNOVA         18099
-#define SPELL_FROSTVOLLEY       8398
+enum Spells
+{
+    SPELL_FROSTBOLT         = 21369,
+    SPELL_ICEARMOR          = 18100, // This is actually a buff he gives himself
+    SPELL_FREEZE            = 18763,
+    SPELL_FEAR              = 26070,
+    SPELL_CHILLNOVA         = 18099,
+    SPELL_FROSTVOLLEY       = 8398
+};
 
 class boss_boss_ras_frostwhisper : public CreatureScript
 {

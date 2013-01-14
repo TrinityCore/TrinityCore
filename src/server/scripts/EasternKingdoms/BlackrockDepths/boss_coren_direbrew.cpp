@@ -3,6 +3,7 @@
 ######*/
 
 #include "ScriptPCH.h"
+#include "Group.h"
 #include "LFGMgr.h"
 /*####
 ## brewfest_trigger 2
@@ -961,12 +962,9 @@ public:
             Map* map = me->GetMap();
             if (map && map->IsDungeon())
             {
-                Map::PlayerList const& players = map->GetPlayers();
+                Map::PlayerList const& players = me->GetMap()->GetPlayers();
                 if (!players.isEmpty())
-                    for (Map::PlayerList::const_iterator i = players.begin(); i != players.end(); ++i)
-                        if (Player* player = i->getSource())
-                            if (player->GetDistance(me) < 100.0f)
-                                sLFGMgr->RewardDungeonDoneFor(287, player);
+                    sLFGMgr->FinishDungeon(players.begin()->getSource()->GetGroup()->GetGUID(), 287);            
             }
         }
 

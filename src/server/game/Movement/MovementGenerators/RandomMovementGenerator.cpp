@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -165,8 +165,8 @@ bool RandomMovementGenerator<Creature>::GetResetPosition(Creature &creature, flo
     creature.GetRespawnPosition(x, y, z, NULL, &radius);
 
     // use current if in range
-    if (creature.IsWithinDist2d(x,y,radius))
-        creature.GetPosition(x,y,z);
+    if (creature.IsWithinDist2d(x, y,radius))
+        creature.GetPosition(x, y, z);
 
     return true;
 }

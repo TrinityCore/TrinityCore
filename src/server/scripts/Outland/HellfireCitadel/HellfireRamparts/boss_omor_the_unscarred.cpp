@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -29,24 +29,24 @@ EndScriptData */
 
 enum eSays
 {
-    SAY_AGGRO                  = 0,
-    SAY_SUMMON                 = 1,
-    SAY_CURSE                  = 2,
-    SAY_KILL_1                 = 3,
-    SAY_DIE                    = 4,
-    SAY_WIPE                   = 5,
+    SAY_AGGRO                    = 0,
+    SAY_SUMMON                   = 1,
+    SAY_CURSE                    = 2,
+    SAY_KILL_1                   = 3,
+    SAY_DIE                      = 4,
+    SAY_WIPE                     = 5
 };
 
 enum eSpells
 {
-    SPELL_ORBITAL_STRIKE       = 30637,
-    SPELL_SHADOW_WHIP          = 30638,
-    SPELL_TREACHEROUS_AURA     = 30695,
-    H_SPELL_BANE_OF_TREACHERY  = 37566,
-    SPELL_DEMONIC_SHIELD       = 31901,
-    SPELL_SHADOW_BOLT          = 30686,
-    H_SPELL_SHADOW_BOLT        = 39297,
-    SPELL_SUMMON_FIENDISH_HOUND= 30707,
+    SPELL_ORBITAL_STRIKE         = 30637,
+    SPELL_SHADOW_WHIP            = 30638,
+    SPELL_TREACHEROUS_AURA       = 30695,
+    H_SPELL_BANE_OF_TREACHERY    = 37566,
+    SPELL_DEMONIC_SHIELD         = 31901,
+    SPELL_SHADOW_BOLT            = 30686,
+    H_SPELL_SHADOW_BOLT          = 39297,
+    SPELL_SUMMON_FIENDISH_HOUND  = 30707
 };
 
 class boss_omor_the_unscarred : public CreatureScript

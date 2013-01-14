@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -129,7 +129,7 @@ void EffectMovementGenerator::Finalize(Unit &unit)
     // Need restore previous movement since we have no proper states system
     //if (unit.isAlive() && !unit.HasUnitState(UNIT_STATE_CONFUSED|UNIT_STATE_FLEEING))
     //{
-    //    if (Unit * victim = unit.getVictim())
+    //    if (Unit* victim = unit.getVictim())
     //        unit.GetMotionMaster()->MoveChase(victim);
     //    else
     //        unit.GetMotionMaster()->Initialize();

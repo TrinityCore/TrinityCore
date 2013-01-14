@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -27,56 +27,39 @@ EndScriptData */
 #include "ScriptedCreature.h"
 #include "stratholme.h"
 
-#define SAY_0    "Intruders! More pawns of the Argent Dawn, no doubt. I already count one of their number among my prisoners. Withdraw from my domain before she is executed!"
-#define SAY_1    "You're still here? Your foolishness is amusing! The Argent Dawn wench needn't suffer in vain. Leave at once and she shall be spared!"
-#define SAY_2    "I shall take great pleasure in taking this poor wretch's life! It's not too late, she needn't suffer in vain. Turn back and her death shall be merciful!"
-#define SAY_3    "May this prisoner's death serve as a warning. None shall defy the Scourge and live!"
-#define SAY_4    "So you see fit to toy with the Lich King's creations? Ramstein, be sure to give the intruders a proper greeting."
-#define SAY_5    "Time to take matters into my own hands. Come. Enter my domain and challenge the might of the Scourge!"
+enum Says
+{
+    SAY_BARON_RUN_START         = 0,
+    SAY_BARON_RUN_BOSS_KILL     = 1,
+    SAY_BARON_RUN_FAIL          = 2,
+    SAY_EVENT_RAMSTEIN          = 3,
+    SAY_EVENT_BARON             = 4
+};
 
-#define ADD_1X 4017.403809f
-#define ADD_1Y -3339.703369f
-#define ADD_1Z 115.057655f
-#define ADD_1O 5.487860f
+enum Spells
+{
+    SPELL_SHADOWBOLT            = 17393,
+    SPELL_CLEAVE                = 15284,
+    SPELL_MORTALSTRIKE          = 15708,
 
-#define ADD_2X 4013.189209f
-#define ADD_2Y -3351.808350f
-#define ADD_2Z 115.052254f
-#define ADD_2O 0.134280f
+    SPELL_UNHOLY_AURA           = 15284,
+    SPELL_RAISEDEAD             = 15708,  //triggers death pact (17471)
 
-#define ADD_3X 4017.738037f
-#define ADD_3Y -3363.478016f
-#define ADD_3Z 115.057274f
-#define ADD_3O 0.723313f
+    SPELL_RAISE_DEAD1           = 17475,
+    SPELL_RAISE_DEAD2           = 17476,
+    SPELL_RAISE_DEAD3           = 17477,
+    SPELL_RAISE_DEAD4           = 17478,
+    SPELL_RAISE_DEAD5           = 17479,
+    SPELL_RAISE_DEAD6           = 17480,
+};
 
-#define ADD_4X 4048.877197f
-#define ADD_4Y -3363.223633f
-#define ADD_4Z 115.054253f
-#define ADD_4O 3.627735f
-
-#define ADD_5X 4051.777588f
-#define ADD_5Y -3350.893311f
-#define ADD_5Z 115.055351f
-#define ADD_5O 3.066176f
-
-#define ADD_6X 4048.375977f
-#define ADD_6Y -3339.966309f
-#define ADD_6Z 115.055222f
-#define ADD_6O 2.457497f
-
-#define SPELL_SHADOWBOLT    17393
-#define SPELL_CLEAVE        15284
-#define SPELL_MORTALSTRIKE  15708
-
-#define SPELL_UNHOLY_AURA   17467
-#define SPELL_RAISEDEAD     17473                           //triggers death pact (17471)
-
-#define SPELL_RAISE_DEAD1   17475
-#define SPELL_RAISE_DEAD2   17476
-#define SPELL_RAISE_DEAD3   17477
-#define SPELL_RAISE_DEAD4   17478
-#define SPELL_RAISE_DEAD5   17479
-#define SPELL_RAISE_DEAD6   17480
+// Define Add positions
+Position const ADD_POS_1 = {4017.403809f, -3339.703369f, 115.057655f, 5.487860f};
+Position const ADD_POS_2 = {4013.189209f, -3351.808350f, 115.052254f, 0.134280f};
+Position const ADD_POS_3 = {4017.738037f, -3363.478016f, 115.057274f, 0.723313f};
+Position const ADD_POS_4 = {4048.877197f, -3363.223633f, 115.054253f, 3.627735f};
+Position const ADD_POS_5 = {4051.777588f, -3350.893311f, 115.055351f, 3.066176f};
+Position const ADD_POS_6 = {4048.375977f, -3339.966309f, 115.055222f, 2.457497f};
 
 class boss_baron_rivendare : public CreatureScript
 {
@@ -172,12 +155,12 @@ public:
             //SummonSkeletons
             if (SummonSkeletons_Timer <= diff)
             {
-                me->SummonCreature(11197, ADD_1X, ADD_1Y, ADD_1Z, ADD_1O, TEMPSUMMON_TIMED_DESPAWN, 29000);
-                me->SummonCreature(11197, ADD_2X, ADD_2Y, ADD_2Z, ADD_2O, TEMPSUMMON_TIMED_DESPAWN, 29000);
-                me->SummonCreature(11197, ADD_3X, ADD_3Y, ADD_3Z, ADD_3O, TEMPSUMMON_TIMED_DESPAWN, 29000);
-                me->SummonCreature(11197, ADD_4X, ADD_4Y, ADD_4Z, ADD_4O, TEMPSUMMON_TIMED_DESPAWN, 29000);
-                me->SummonCreature(11197, ADD_5X, ADD_5Y, ADD_5Z, ADD_5O, TEMPSUMMON_TIMED_DESPAWN, 29000);
-                me->SummonCreature(11197, ADD_6X, ADD_6Y, ADD_6Z, ADD_6O, TEMPSUMMON_TIMED_DESPAWN, 29000);
+                me->SummonCreature(11197, ADD_POS_1, TEMPSUMMON_TIMED_DESPAWN, 29000);
+                me->SummonCreature(11197, ADD_POS_2, TEMPSUMMON_TIMED_DESPAWN, 29000);
+                me->SummonCreature(11197, ADD_POS_3, TEMPSUMMON_TIMED_DESPAWN, 29000);
+                me->SummonCreature(11197, ADD_POS_4, TEMPSUMMON_TIMED_DESPAWN, 29000);
+                me->SummonCreature(11197, ADD_POS_5, TEMPSUMMON_TIMED_DESPAWN, 29000);
+                me->SummonCreature(11197, ADD_POS_6, TEMPSUMMON_TIMED_DESPAWN, 29000);
 
                 //34 seconds until we should cast this again
                 SummonSkeletons_Timer = 40000;
