@@ -72,8 +72,6 @@ class boss_hakkar : public CreatureScript
         {
             boss_hakkarAI(Creature* creature) : BossAI(creature, DATA_HAKKAR) {}
 
-            bool Enraged;
-
             void Reset()
             {
                 _Reset();
