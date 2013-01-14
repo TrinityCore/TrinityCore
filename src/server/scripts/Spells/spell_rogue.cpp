@@ -250,7 +250,7 @@ class spell_rog_preparation : public SpellScriptLoader
                 return GetCaster()->GetTypeId() == TYPEID_PLAYER;
             }
 
-            bool Validate(SpellInfo const* /*spellEntry*/)
+            bool Validate(SpellInfo const* /*spellInfo*/)
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_ROGUE_GLYPH_OF_PREPARATION))
                     return false;
@@ -292,7 +292,6 @@ class spell_rog_preparation : public SpellScriptLoader
 
             void Register()
             {
-                // add dummy effect spell handler to Preparation
                 OnEffectHitTarget += SpellEffectFn(spell_rog_preparation_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };

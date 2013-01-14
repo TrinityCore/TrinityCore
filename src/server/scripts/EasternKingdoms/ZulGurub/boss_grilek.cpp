@@ -27,60 +27,73 @@ EndScriptData */
 #include "ScriptedCreature.h"
 #include "zulgurub.h"
 
-#define SPELL_AVARTAR                24646                  //The Enrage Spell
-#define SPELL_GROUNDTREMOR            6524
-
-class boss_grilek : public CreatureScript
+enum Spells
 {
-    public:
-        boss_grilek() : CreatureScript("boss_grilek") { }
+    SPELL_AVATAR                    = 24646, // Enrage Spell
+    SPELL_GROUND_TREMOR             = 6524
+};
 
-        struct boss_grilekAI : public ScriptedAI
+enum Events
+{
+    EVENT_AVATAR                    = 0,
+    EVENT_GROUND_TREMOR             = 1
+};
+
+class boss_grilek : public CreatureScript // grilek
+{
+    public: boss_grilek() : CreatureScript("boss_grilek") {}
+
+        struct boss_grilekAI : public BossAI
         {
-            boss_grilekAI(Creature* creature) : ScriptedAI(creature) { }
-
-            uint32 Avartar_Timer;
-            uint32 GroundTremor_Timer;
+            boss_grilekAI(Creature* creature) : BossAI(creature, DATA_EDGE_OF_MADNESS) {}
 
             void Reset()
             {
-                Avartar_Timer = urand(15000, 25000);
-                GroundTremor_Timer = urand(8000, 16000);
+                _Reset();
+            }
+
+            void JustDied(Unit* /*killer*/)
+            {
+                _JustDied();
             }
 
             void EnterCombat(Unit* /*who*/)
             {
+                _EnterCombat();
+                events.ScheduleEvent(EVENT_AVATAR, urand(15000, 25000));
+                events.ScheduleEvent(EVENT_GROUND_TREMOR, urand(15000, 25000));
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 const diff)
             {
-                //Return since we have no target
                 if (!UpdateVictim())
                     return;
 
-                //Avartar_Timer
-                if (Avartar_Timer <= diff)
+                events.Update(diff);
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                while (uint32 eventId = events.ExecuteEvent())
                 {
-
-                    DoCast(me, SPELL_AVARTAR);
-                    Unit* target = NULL;
-
-                    target = SelectTarget(SELECT_TARGET_RANDOM, 1);
-
-                    if (DoGetThreat(me->getVictim()))
-                        DoModifyThreatPercent(me->getVictim(), -50);
-                    if (target)
-                        AttackStart(target);
-
-                    Avartar_Timer = urand(25000, 35000);
-                } else Avartar_Timer -= diff;
-
-                //GroundTremor_Timer
-                if (GroundTremor_Timer <= diff)
-                {
-                    DoCast(me->getVictim(), SPELL_GROUNDTREMOR);
-                    GroundTremor_Timer = urand(12000, 16000);
-                } else GroundTremor_Timer -= diff;
+                    switch (eventId)
+                    {
+                        case EVENT_AVATAR:
+                            DoCast(me, SPELL_AVATAR);
+                            if (DoGetThreat(me->getVictim()))
+                                DoModifyThreatPercent(me->getVictim(), -50);
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
+                                AttackStart(target);
+                            events.ScheduleEvent(EVENT_AVATAR, urand(25000, 35000));
+                            break;
+                        case EVENT_GROUND_TREMOR:
+                            DoCastVictim(SPELL_GROUND_TREMOR, true);
+                            events.ScheduleEvent(EVENT_GROUND_TREMOR, urand(12000, 16000));
+                            break;
+                        default:
+                            break;
+                    }
+                }
 
                 DoMeleeAttackIfReady();
             }

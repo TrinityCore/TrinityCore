@@ -314,7 +314,7 @@ class npc_harrison_jones : public CreatureScript
                     me->SetEntry(NPC_HARRISON_JONES_2);
                     me->SetDisplayId(MODEL_HARRISON_JONES_2);
                     me->SetTarget(0);
-                    me->SetByteValue(UNIT_FIELD_BYTES_1,0,UNIT_STAND_STATE_DEAD);
+                    me->SetByteValue(UNIT_FIELD_BYTES_1, 0,UNIT_STAND_STATE_DEAD);
                     me->SetFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_DEAD);
                     if (instance)
                         instance->SetData(DATA_GONGEVENT, DONE);
@@ -330,7 +330,7 @@ class npc_harrison_jones : public CreatureScript
                         switch (_gongEvent)
                         {
                             case GONG_EVENT_1:
-                                me->GetMotionMaster()->MovePath(HARRISON_MOVE_1,false);
+                                me->GetMotionMaster()->MovePath(HARRISON_MOVE_1, false);
                                 _gongEvent = GONG_EVENT_2;
                                 _gongTimer = 12000;
                                 break;
@@ -345,14 +345,14 @@ class npc_harrison_jones : public CreatureScript
                                 break;
                             case GONG_EVENT_3:
                                 if (GameObject* gong = me->GetMap()->GetGameObject(instance->GetData64(GO_STRANGE_GONG)))
-                                    gong->RemoveFlag(GAMEOBJECT_FLAGS,GO_FLAG_NOT_SELECTABLE);
+                                    gong->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
                                 _gongEvent = GONG_EVENT_4;
                                 _gongTimer = 105000;
                                 break;
                             case GONG_EVENT_4:
                                 me->RemoveAura(SPELL_BANGING_THE_GONG);
                                 if (GameObject* gong = me->GetMap()->GetGameObject(instance->GetData64(GO_STRANGE_GONG)))
-                                    gong->SetFlag(GAMEOBJECT_FLAGS,GO_FLAG_NOT_SELECTABLE);
+                                    gong->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
 
                                 // trigger or gong will need to be scripted to set IN_PROGRESS after enough hits.
                                 // This is temp workaround.
@@ -362,7 +362,7 @@ class npc_harrison_jones : public CreatureScript
                                 if (instance->GetData(DATA_GONGEVENT) == IN_PROGRESS)
                                 {
                                     // Players are Now Saved to instance at SPECIAL (Player should be notified?)
-                                    me->GetMotionMaster()->MovePath(HARRISON_MOVE_2,false);
+                                    me->GetMotionMaster()->MovePath(HARRISON_MOVE_2, false);
                                     _gongEvent = GONG_EVENT_5;
                                     _gongTimer = 5000;
                                 }
@@ -401,12 +401,12 @@ class npc_harrison_jones : public CreatureScript
                                                     ptarget->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 0, uint32(WEAPON_SPEAR));
                                                     ptarget->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
                                                     ptarget->SetReactState(REACT_PASSIVE);
-                                                    ptarget->AI()->SetData(0,1);
+                                                    ptarget->AI()->SetData(0, 1);
                                                 }
                                                 else
                                                     ptarget->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
                                                     ptarget->SetReactState(REACT_PASSIVE);
-                                                    ptarget->AI()->SetData(0,2);
+                                                    ptarget->AI()->SetData(0, 2);
                                             }
                                         }
                                     }
@@ -421,7 +421,7 @@ class npc_harrison_jones : public CreatureScript
                                 DoCast(me, SPELL_STEALTH);
                                 me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 0, uint32(0));
                                 me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_NONE);
-                                me->GetMotionMaster()->MovePath(HARRISON_MOVE_3,false);
+                                me->GetMotionMaster()->MovePath(HARRISON_MOVE_3, false);
                                 _gongTimer = 1000;
                                 _gongEvent = 0;
                                 break;

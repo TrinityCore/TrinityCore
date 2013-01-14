@@ -423,7 +423,7 @@ public:
                 Unit* player = me->GetVehicleKit()->GetPassenger(0);
                 if (player && player->GetTypeId() == TYPEID_PLAYER)
                 {
-                    // for each prisoner on drake,give credit
+                    // for each prisoner on drake, give credit
                     for (uint8 i = 1; i < 4; ++i)
                         if (Unit* prisoner = me->GetVehicleKit()->GetPassenger(i))
                         {

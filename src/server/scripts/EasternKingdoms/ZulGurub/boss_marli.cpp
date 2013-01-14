@@ -27,192 +27,189 @@ EndScriptData */
 #include "ScriptedCreature.h"
 #include "zulgurub.h"
 
-enum Marli
+enum Says
 {
     SAY_AGGRO               = 0,
     SAY_TRANSFORM           = 1,
     SAY_SPIDER_SPAWN        = 2,
-    SAY_DEATH               = 3,
+    SAY_DEATH               = 3
+};
 
-    SPELL_CHARGE            = 22911,
-    SPELL_ASPECT_OF_MARLI   = 24686,                     // A stun spell
-    SPELL_ENVOLWINGWEB      = 24110,
-    SPELL_POISONVOLLEY      = 24099,
-    SPELL_SPIDER_FORM       = 24084,
+enum Spells
+{
+    SPELL_CHARGE              = 22911,
+    SPELL_ASPECT_OF_MARLI     = 24686, // A stun spell
+    SPELL_ENVOLWINGWEB        = 24110,
+    SPELL_POISON_VOLLEY       = 24099,
+    SPELL_SPIDER_FORM         = 24084,
+    // The Spider Spell
+    SPELL_LEVELUP             = 24312  // Not right Spell.
+};
 
-//The Spider Spells
-    SPELL_LEVELUP           = 24312                     //Not right Spell.
+enum Events
+{
+    EVENT_SPAWN_START_SPIDERS = 0, // Phase 1
+    EVENT_POISON_VOLLEY       = 1, // Phase All
+    EVENT_SPAWN_SPIDER        = 2, // Phase All
+    EVENT_CHARGE_PLAYER       = 3, // Phase 3
+    EVENT_ASPECT_OF_MARLI     = 4, // Phase 2
+    EVENT_TRANSFORM           = 5, // Phase 2
+    EVENT_TRANSFORM_BACK      = 6  // Phase 3
+};
+
+enum Phases
+{
+    PHASE_ONE                 = 1,
+    PHASE_TWO                 = 2,
+    PHASE_THREE               = 3
+};
+
+enum ModelId
+{
+    MODEL_MARLI               = 15220
 };
 
 class boss_marli : public CreatureScript
 {
-    public:
+    public: boss_marli() : CreatureScript("boss_marli") {}
 
-        boss_marli()
-            : CreatureScript("boss_marli")
+        struct boss_marliAI : public BossAI
         {
-        }
-
-        struct boss_marliAI : public ScriptedAI
-        {
-            boss_marliAI(Creature* creature) : ScriptedAI(creature)
-            {
-                instance = creature->GetInstanceScript();
-            }
-
-            InstanceScript* instance;
-
-            uint32 SpawnStartSpiders_Timer;
-            uint32 PoisonVolley_Timer;
-            uint32 SpawnSpider_Timer;
-            uint32 Charge_Timer;
-            uint32 Aspect_Timer;
-            uint32 Transform_Timer;
-            uint32 TransformBack_Timer;
-
-            bool Spawned;
-            bool PhaseTwo;
+            boss_marliAI(Creature* creature) : BossAI(creature, DATA_MARLI) {}
 
             void Reset()
             {
-                SpawnStartSpiders_Timer = 1000;
-                PoisonVolley_Timer = 15000;
-                SpawnSpider_Timer = 30000;
-                Charge_Timer = 1500;
-                Aspect_Timer = 12000;
-                Transform_Timer = 45000;
-                TransformBack_Timer = 25000;
-
-                Spawned = false;
-                PhaseTwo = false;
-            }
-
-            void EnterCombat(Unit* /*who*/)
-            {
-                Talk(SAY_AGGRO);
+                _Reset();
             }
 
             void JustDied(Unit* /*killer*/)
             {
+                _JustDied();
                 Talk(SAY_DEATH);
-                if (instance)
-                    instance->SetData(DATA_MARLI, DONE);
             }
 
-            void UpdateAI(const uint32 diff)
+            void EnterCombat(Unit* /*who*/)
+            {
+                _EnterCombat();
+                events.ScheduleEvent(EVENT_SPAWN_START_SPIDERS, 1000, 0, PHASE_ONE);
+                Talk(SAY_AGGRO);
+            }
+
+            void UpdateAI(uint32 const diff)
             {
                 if (!UpdateVictim())
                     return;
 
-                if (me->getVictim() && me->isAlive())
+                events.Update(diff);
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                while (uint32 eventId = events.ExecuteEvent())
                 {
-                    if (PoisonVolley_Timer <= diff)
+                    switch (eventId)
                     {
-                        DoCast(me->getVictim(), SPELL_POISONVOLLEY);
-                        PoisonVolley_Timer = urand(10000, 20000);
-                    } else PoisonVolley_Timer -= diff;
+                        case EVENT_SPAWN_START_SPIDERS:
 
-                    if (!PhaseTwo && Aspect_Timer <= diff)
-                    {
-                        DoCast(me->getVictim(), SPELL_ASPECT_OF_MARLI);
-                        Aspect_Timer = urand(13000, 18000);
-                    } else Aspect_Timer -= diff;
-
-                    if (!Spawned && SpawnStartSpiders_Timer <= diff)
-                    {
-                        Talk(SAY_SPIDER_SPAWN);
-
-                        Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0);
-                        if (!target)
-                            return;
-
-                        Creature* Spider = NULL;
-
-                        Spider = me->SummonCreature(15041, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
-                        if (Spider)
-                            Spider->AI()->AttackStart(target);
-                        Spider = me->SummonCreature(15041, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
-                        if (Spider)
-                            Spider->AI()->AttackStart(target);
-                        Spider = me->SummonCreature(15041, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
-                        if (Spider)
-                            Spider->AI()->AttackStart(target);
-                        Spider = me->SummonCreature(15041, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
-                        if (Spider)
-                            Spider->AI()->AttackStart(target);
-
-                        Spawned = true;
-                    } else SpawnStartSpiders_Timer -= diff;
-
-                    if (SpawnSpider_Timer <= diff)
-                    {
-                        Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0);
-                        if (!target)
-                            return;
-
-                        Creature* Spider = me->SummonCreature(15041, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
-                        if (Spider)
-                            Spider->AI()->AttackStart(target);
-                        SpawnSpider_Timer = urand(12000, 17000);
-                    } else SpawnSpider_Timer -= diff;
-
-                    if (!PhaseTwo && Transform_Timer <= diff)
-                    {
-                        Talk(SAY_TRANSFORM);
-                        DoCast(me, SPELL_SPIDER_FORM);
-                        const CreatureTemplate* cinfo = me->GetCreatureTemplate();
-                        me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, (cinfo->mindmg +((cinfo->mindmg/100) * 35)));
-                        me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, (cinfo->maxdmg +((cinfo->maxdmg/100) * 35)));
-                        me->UpdateDamagePhysical(BASE_ATTACK);
-                        DoCast(me->getVictim(), SPELL_ENVOLWINGWEB);
-
-                        if (DoGetThreat(me->getVictim()))
-                            DoModifyThreatPercent(me->getVictim(), -100);
-
-                        PhaseTwo = true;
-                        Transform_Timer = urand(35000, 60000);
-                    } else Transform_Timer -= diff;
-
-                    if (PhaseTwo)
-                    {
-                        if (Charge_Timer <= diff)
-                        {
-                            Unit* target = NULL;
-                            int i = 0;
-                            while (i < 3)                           // max 3 tries to get a random target with power_mana
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                             {
-                                ++i;
-                                target = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true);  // not aggro leader
-                                if (target && target->getPowerType() == POWER_MANA)
+                                Talk(SAY_SPIDER_SPAWN);
+                                Creature* Spider = NULL;
+                                Spider = me->SummonCreature(15041, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
+                                if (Spider)
+                                    Spider->AI()->AttackStart(target);
+                                Spider = me->SummonCreature(15041, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
+                                if (Spider)
+                                    Spider->AI()->AttackStart(target);
+                                Spider = me->SummonCreature(15041, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
+                                if (Spider)
+                                    Spider->AI()->AttackStart(target);
+                                Spider = me->SummonCreature(15041, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
+                                if (Spider)
+                                    Spider->AI()->AttackStart(target);
+                            }
+                            events.ScheduleEvent(EVENT_ASPECT_OF_MARLI, 12000, 0, PHASE_TWO);
+                            events.ScheduleEvent(EVENT_TRANSFORM, 45000, 0, PHASE_TWO);
+                            events.ScheduleEvent(EVENT_POISON_VOLLEY, 15000);
+                            events.ScheduleEvent(EVENT_SPAWN_SPIDER, 30000);
+                            events.ScheduleEvent(EVENT_TRANSFORM, 45000, 0, PHASE_TWO);
+                            events.SetPhase(PHASE_TWO);
+                            break;
+                        case EVENT_POISON_VOLLEY:
+                            DoCastVictim(SPELL_POISON_VOLLEY, true);
+                            events.ScheduleEvent(EVENT_POISON_VOLLEY, urand(10000, 20000));
+                            break;
+                        case EVENT_ASPECT_OF_MARLI:
+                            DoCastVictim(SPELL_ASPECT_OF_MARLI, true);
+                            events.ScheduleEvent(EVENT_ASPECT_OF_MARLI, urand(13000, 18000), 0, PHASE_TWO);
+                            break;
+                        case EVENT_SPAWN_SPIDER:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                            {
+                                Creature* Spider = me->SummonCreature(15041, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
+                                if (Spider)
+                                    Spider->AI()->AttackStart(target);
+                            }
+                            events.ScheduleEvent(EVENT_SPAWN_SPIDER, urand(12000, 17000));
+                            break;
+                        case EVENT_TRANSFORM:
+                            {
+                                Talk(SAY_TRANSFORM);
+                                DoCast(me, SPELL_SPIDER_FORM);
+                                const CreatureTemplate* cinfo = me->GetCreatureTemplate();
+                                me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, (cinfo->mindmg +((cinfo->mindmg/100) * 35)));
+                                me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, (cinfo->maxdmg +((cinfo->maxdmg/100) * 35)));
+                                me->UpdateDamagePhysical(BASE_ATTACK);
+                                DoCast(me->getVictim(), SPELL_ENVOLWINGWEB);
+                                if (DoGetThreat(me->getVictim()))
+                                    DoModifyThreatPercent(me->getVictim(), -100);
+                                events.ScheduleEvent(EVENT_CHARGE_PLAYER, 1500, 0, PHASE_THREE);
+                                events.ScheduleEvent(EVENT_TRANSFORM_BACK, 25000, 0, PHASE_THREE);
+                                events.SetPhase(PHASE_THREE);
+                                break;
+                            }
+                        case EVENT_CHARGE_PLAYER:
+                            {
+                                Unit* target = NULL;
+                                int i = 0;
+                                while (i < 3) // max 3 tries to get a random target with power_mana
+                                {
+                                    ++i;
+                                    Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true);  // not aggro leader
+                                    if (target && target->getPowerType() == POWER_MANA)
                                         i = 3;
+                                }
+                                if (target)
+                                {
+                                    DoCast(target, SPELL_CHARGE);
+                                    //me->SetPosition(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0);
+                                    //me->SendMonsterMove(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, true, 1);
+                                    AttackStart(target);
+                                }
+                                events.ScheduleEvent(EVENT_CHARGE_PLAYER, 8000, 0, PHASE_THREE);
+                                break;
                             }
-                            if (target)
+                        case EVENT_TRANSFORM_BACK:
                             {
-                                DoCast(target, SPELL_CHARGE);
-                                //me->SetPosition(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0);
-                                //me->SendMonsterMove(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, true, 1);
-                                AttackStart(target);
+                                me->SetDisplayId(MODEL_MARLI);
+                                const CreatureTemplate* cinfo = me->GetCreatureTemplate();
+                                me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, (cinfo->mindmg +((cinfo->mindmg/100) * 1)));
+                                me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, (cinfo->maxdmg +((cinfo->maxdmg/100) * 1)));
+                                me->UpdateDamagePhysical(BASE_ATTACK);
+                                events.ScheduleEvent(EVENT_ASPECT_OF_MARLI, 12000, 0, PHASE_TWO);
+                                events.ScheduleEvent(EVENT_TRANSFORM, 45000, 0, PHASE_TWO);
+                                events.ScheduleEvent(EVENT_POISON_VOLLEY, 15000);
+                                events.ScheduleEvent(EVENT_SPAWN_SPIDER, 30000);
+                                events.ScheduleEvent(EVENT_TRANSFORM, urand(35000, 60000), 0, PHASE_TWO);
+                                events.SetPhase(PHASE_TWO);
+                                break;
                             }
-
-                            Charge_Timer = 8000;
-                        } else Charge_Timer -= diff;
-
-                        if (TransformBack_Timer <= diff)
-                        {
-                            me->SetDisplayId(15220);
-                            const CreatureTemplate* cinfo = me->GetCreatureTemplate();
-                            me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, (cinfo->mindmg +((cinfo->mindmg/100) * 1)));
-                            me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, (cinfo->maxdmg +((cinfo->maxdmg/100) * 1)));
-                            me->UpdateDamagePhysical(BASE_ATTACK);
-
-                            PhaseTwo = false;
-                            TransformBack_Timer = urand(25000, 40000);
-                        } else TransformBack_Timer -= diff;
-
+                        default:
+                            break;
                     }
-
-                    DoMeleeAttackIfReady();
                 }
+
+                DoMeleeAttackIfReady();
             }
         };
 
@@ -222,15 +219,10 @@ class boss_marli : public CreatureScript
         }
 };
 
-//Spawn of Marli
+// Spawn of Marli
 class mob_spawn_of_marli : public CreatureScript
 {
-    public:
-
-        mob_spawn_of_marli()
-            : CreatureScript("mob_spawn_of_marli")
-        {
-        }
+    public: mob_spawn_of_marli() : CreatureScript("mob_spawn_of_marli") {}
 
         struct mob_spawn_of_marliAI : public ScriptedAI
         {
@@ -275,4 +267,3 @@ void AddSC_boss_marli()
     new boss_marli();
     new mob_spawn_of_marli();
 }
-

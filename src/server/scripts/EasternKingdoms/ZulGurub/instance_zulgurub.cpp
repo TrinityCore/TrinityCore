@@ -29,33 +29,28 @@ EndScriptData */
 
 class instance_zulgurub : public InstanceMapScript
 {
-    public:
-        instance_zulgurub()
-            : InstanceMapScript("instance_zulgurub", 309)
-        {
-        }
+    public: instance_zulgurub(): InstanceMapScript("instance_zulgurub", 309) {}
 
         struct instance_zulgurub_InstanceMapScript : public InstanceScript
         {
-            instance_zulgurub_InstanceMapScript(Map* map) : InstanceScript(map) {}
+            instance_zulgurub_InstanceMapScript(Map* map) : InstanceScript(map)
+            {
+                SetBossNumber(EncounterCount);
+            }
 
             //If all High Priest bosses were killed. Lorkhan, Zath and Ohgan are added too.
-            uint32 m_auiEncounter[MAX_ENCOUNTERS];
-
             //Storing Lorkhan, Zath and Thekal because we need to cast on them later. Jindo is needed for healfunction too.
-            uint64 m_uiLorKhanGUID;
-            uint64 m_uiZathGUID;
-            uint64 m_uiThekalGUID;
-            uint64 m_uiJindoGUID;
+            uint64 LorKhanGUID;
+            uint64 ZathGUID;
+            uint64 ThekalGUID;
+            uint64 JindoGUID;
 
             void Initialize()
             {
-                memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
-
-                m_uiLorKhanGUID = 0;
-                m_uiZathGUID = 0;
-                m_uiThekalGUID = 0;
-                m_uiJindoGUID = 0;
+                LorKhanGUID = 0;
+                ZathGUID = 0;
+                ThekalGUID = 0;
+                JindoGUID = 0;
             }
 
             bool IsEncounterInProgress() const
@@ -68,89 +63,123 @@ class instance_zulgurub : public InstanceMapScript
             {
                 switch (creature->GetEntry())
                 {
-                    case 11347: m_uiLorKhanGUID = creature->GetGUID(); break;
-                    case 11348: m_uiZathGUID = creature->GetGUID(); break;
-                    case 14509: m_uiThekalGUID = creature->GetGUID(); break;
-                    case 11380: m_uiJindoGUID = creature->GetGUID(); break;
+                    case NPC_ZEALOT_LORKHAN: LorKhanGUID = creature->GetGUID(); break;
+                    case NPC_ZEALOT_ZATH: ZathGUID = creature->GetGUID(); break;
+                    case NPC_HIGH_PRIEST_THEKAL: ThekalGUID = creature->GetGUID(); break;
+                    case NPC_JINDO_THE_HEXXER: JindoGUID = creature->GetGUID(); break;
                 }
             }
 
-            void SetData(uint32 uiType, uint32 uiData)
+            bool SetBossState(uint32 type, EncounterState state)
             {
-                switch (uiType)
+                if (!InstanceScript::SetBossState(type, state))
+                    return false;
+
+                switch (type)
                 {
-                    case DATA_ARLOKK:
-                        m_auiEncounter[0] = uiData;
-                        break;
-
                     case DATA_JEKLIK:
-                        m_auiEncounter[1] = uiData;
-                        break;
-
                     case DATA_VENOXIS:
-                        m_auiEncounter[2] = uiData;
-                        break;
-
                     case DATA_MARLI:
-                        m_auiEncounter[3] = uiData;
-                        break;
-
+                    case DATA_ARLOKK:
+                    case DATA_HAKKAR:
+                    case DATA_MANDOKIR:
+                    case DATA_JINDO:
+                    case DATA_GAHZRANKA:
+                    case DATA_EDGE_OF_MADNESS:
                     case DATA_THEKAL:
-                        m_auiEncounter[4] = uiData;
-                        break;
-
                     case DATA_LORKHAN:
-                        m_auiEncounter[5] = uiData;
-                        break;
-
                     case DATA_ZATH:
-                        m_auiEncounter[6] = uiData;
-                        break;
-
                     case DATA_OHGAN:
-                        m_auiEncounter[7] = uiData;
+                        break;
+                    default:
                         break;
                 }
+
+                return true;
             }
 
-            uint32 GetData(uint32 uiType) const
+        uint32 GetData(uint32 type) const
+        {
+            switch (type)
             {
-                switch (uiType)
-                {
-                    case DATA_ARLOKK:
-                        return m_auiEncounter[0];
-                    case DATA_JEKLIK:
-                        return m_auiEncounter[1];
-                    case DATA_VENOXIS:
-                        return m_auiEncounter[2];
-                    case DATA_MARLI:
-                        return m_auiEncounter[3];
-                    case DATA_THEKAL:
-                        return m_auiEncounter[4];
-                    case DATA_LORKHAN:
-                        return m_auiEncounter[5];
-                    case DATA_ZATH:
-                        return m_auiEncounter[6];
-                    case DATA_OHGAN:
-                        return m_auiEncounter[7];
-                }
-                return 0;
+                    case DATA_JEKLIK:             return GetBossState(DATA_JEKLIK);
+                    case DATA_VENOXIS:            return GetBossState(DATA_VENOXIS);
+                    case DATA_MARLI:              return GetBossState(DATA_MARLI);
+                    case DATA_ARLOKK:             return GetBossState(DATA_ARLOKK);
+                    case DATA_HAKKAR:             return GetBossState(DATA_HAKKAR);
+                    case DATA_MANDOKIR:           return GetBossState(DATA_MANDOKIR);
+                    case DATA_JINDO:              return GetBossState(DATA_JINDO);
+                    case DATA_GAHZRANKA:          return GetBossState(DATA_GAHZRANKA);
+                    case DATA_EDGE_OF_MADNESS:    return GetBossState(DATA_EDGE_OF_MADNESS);
+                    case DATA_THEKAL:             return GetBossState(DATA_THEKAL);
+                    case DATA_LORKHAN:            return GetBossState(DATA_LORKHAN);
+                    case DATA_ZATH:               return GetBossState(DATA_ZATH);
+                    case DATA_OHGAN:              return GetBossState(DATA_OHGAN);
+                        break;
+                    default:
+                        break;
             }
+
+            return 0;
+        }
 
             uint64 GetData64(uint32 uiData) const
             {
                 switch (uiData)
                 {
                     case DATA_LORKHAN:
-                        return m_uiLorKhanGUID;
+                        return LorKhanGUID;
                     case DATA_ZATH:
-                        return m_uiZathGUID;
+                        return ZathGUID;
                     case DATA_THEKAL:
-                        return m_uiThekalGUID;
+                        return ThekalGUID;
                     case DATA_JINDO:
-                        return m_uiJindoGUID;
+                        return JindoGUID;
                 }
                 return 0;
+            }
+
+            std::string GetSaveData()
+            {
+                OUT_SAVE_INST_DATA;
+
+                std::ostringstream saveStream;
+                saveStream << "Z G " << GetBossSaveData();
+
+                OUT_SAVE_INST_DATA_COMPLETE;
+                return saveStream.str();
+            }
+
+            void Load(const char* str)
+            {
+                if (!str)
+                {
+                    OUT_LOAD_INST_DATA_FAIL;
+                    return;
+                }
+
+                OUT_LOAD_INST_DATA(str);
+
+                char dataHead1, dataHead2;
+
+                std::istringstream loadStream(str);
+                loadStream >> dataHead1 >> dataHead2;
+
+                if (dataHead1 == 'Z' && dataHead2 == 'G')
+                {
+                    for (uint32 i = 0; i < EncounterCount; ++i)
+                    {
+                        uint32 tmpState;
+                        loadStream >> tmpState;
+                        if (tmpState == IN_PROGRESS || tmpState > SPECIAL)
+                            tmpState = NOT_STARTED;
+                        SetBossState(i, EncounterState(tmpState));
+                    }
+                }
+                else
+                    OUT_LOAD_INST_DATA_FAIL;
+
+                OUT_LOAD_INST_DATA_COMPLETE;
             }
         };
 

@@ -41,7 +41,7 @@ class instance_mechanar : public InstanceMapScript
                 SetBossNumber(EncounterCount);
                 LoadDoorData(doorData);
             }
-            
+
 
             void OnGameObjectCreate(GameObject* gameObject)
             {

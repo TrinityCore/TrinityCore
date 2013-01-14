@@ -25,62 +25,78 @@ EndScriptData */
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "zulgurub.h"
 
-#define SPELL_FROSTBREATH            16099
-#define SPELL_MASSIVEGEYSER          22421                  //Not working. Cause its a summon...
-#define SPELL_SLAM                   24326
-
-class boss_gahzranka : public CreatureScript
+enum Spells
 {
-    public:
-        boss_gahzranka() : CreatureScript("boss_gahzranka") { }
+    SPELL_FROSTBREATH               = 16099,
+    SPELL_MASSIVEGEYSER             = 22421, // Not working. (summon)
+    SPELL_SLAM                      = 24326
+};
 
-        struct boss_gahzrankaAI : public ScriptedAI
+enum Events
+{
+    EVENT_FROSTBREATH               = 0,
+    EVENT_MASSIVEGEYSER             = 1,
+    EVENT_SLAM                      = 2
+};
+
+class boss_gahzranka : public CreatureScript // gahzranka
+{
+    public: boss_gahzranka() : CreatureScript("boss_gahzranka") {}
+
+        struct boss_gahzrankaAI : public BossAI
         {
-            boss_gahzrankaAI(Creature* creature) : ScriptedAI(creature) { }
-            uint32 Frostbreath_Timer;
-            uint32 MassiveGeyser_Timer;
-            uint32 Slam_Timer;
+            boss_gahzrankaAI(Creature* creature) : BossAI(creature, DATA_GAHZRANKA) {}
 
             void Reset()
             {
-                Frostbreath_Timer = 8000;
-                MassiveGeyser_Timer = 25000;
-                Slam_Timer = 17000;
+                _Reset();
+            }
+
+            void JustDied(Unit* /*killer*/)
+            {
+                _JustDied();
             }
 
             void EnterCombat(Unit* /*who*/)
             {
+                _EnterCombat();
+                events.ScheduleEvent(EVENT_FROSTBREATH, 8000);
+                events.ScheduleEvent(EVENT_MASSIVEGEYSER, 25000);
+                events.ScheduleEvent(EVENT_SLAM, 17000);
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 const diff)
             {
-                //Return since we have no target
                 if (!UpdateVictim())
                     return;
 
-                //Frostbreath_Timer
-                if (Frostbreath_Timer <= diff)
-                {
-                    DoCast(me->getVictim(), SPELL_FROSTBREATH);
-                    Frostbreath_Timer = urand(7000, 11000);
-                } else Frostbreath_Timer -= diff;
+                events.Update(diff);
 
-                //MassiveGeyser_Timer
-                if (MassiveGeyser_Timer <= diff)
-                {
-                    DoCast(me->getVictim(), SPELL_MASSIVEGEYSER);
-                    DoResetThreat();
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
 
-                    MassiveGeyser_Timer = urand(22000, 32000);
-                } else MassiveGeyser_Timer -= diff;
-
-                //Slam_Timer
-                if (Slam_Timer <= diff)
+                while (uint32 eventId = events.ExecuteEvent())
                 {
-                    DoCast(me->getVictim(), SPELL_SLAM);
-                    Slam_Timer = urand(12000, 20000);
-                } else Slam_Timer -= diff;
+                    switch (eventId)
+                    {
+                        case EVENT_FROSTBREATH:
+                            DoCastVictim(SPELL_FROSTBREATH, true);
+                            events.ScheduleEvent(EVENT_FROSTBREATH, urand(7000, 11000));
+                            break;
+                        case EVENT_MASSIVEGEYSER:
+                            DoCastVictim(SPELL_MASSIVEGEYSER, true);
+                            events.ScheduleEvent(EVENT_MASSIVEGEYSER, urand(22000, 32000));
+                            break;
+                        case EVENT_SLAM:
+                            DoCastVictim(SPELL_SLAM, true);
+                            events.ScheduleEvent(EVENT_SLAM, urand(12000, 20000));
+                            break;
+                        default:
+                            break;
+                    }
+                }
 
                 DoMeleeAttackIfReady();
             }

@@ -72,12 +72,12 @@ namespace VMAP
         uint32 liquidflags;
         std::vector<MeshTriangle> triangles;
         std::vector<G3D::Vector3> vertexArray;
-        class WmoLiquid *liquid;
+        class WmoLiquid* liquid;
 
         GroupModel_Raw() : liquid(0) {}
         ~GroupModel_Raw();
 
-        bool Read(FILE * f);
+        bool Read(FILE* f);
     };
 
     struct WorldModel_Raw

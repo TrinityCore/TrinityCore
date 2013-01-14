@@ -33,53 +33,63 @@ enum Spells
     SPELL_LIGHTNINGWAVE         = 24819
 };
 
+enum Events
+{
+    EVENT_LIGHTNINGCLOUD        = 0,
+    EVENT_LIGHTNINGWAVE         = 1
+};
+
 class boss_wushoolay : public CreatureScript
 {
-    public:
+    public: boss_wushoolay() : CreatureScript("boss_wushoolay") {}
 
-        boss_wushoolay()
-            : CreatureScript("boss_wushoolay")
+        struct boss_wushoolayAI : public BossAI
         {
-        }
-
-        struct boss_wushoolayAI : public ScriptedAI
-        {
-            boss_wushoolayAI(Creature* creature) : ScriptedAI(creature) {}
-
-            uint32 LightningCloud_Timer;
-            uint32 LightningWave_Timer;
+            boss_wushoolayAI(Creature* creature) : BossAI(creature, DATA_EDGE_OF_MADNESS) {}
 
             void Reset()
             {
-                LightningCloud_Timer = urand(5000, 10000);
-                LightningWave_Timer = urand(8000, 16000);
+                _Reset();
+            }
+
+            void JustDied(Unit* /*killer*/)
+            {
+                _JustDied();
             }
 
             void EnterCombat(Unit* /*who*/)
             {
+                _EnterCombat();
+                events.ScheduleEvent(EVENT_LIGHTNINGCLOUD, urand(5000, 10000));
+                events.ScheduleEvent(EVENT_LIGHTNINGWAVE, urand(8000, 16000));
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 const diff)
             {
                 if (!UpdateVictim())
                     return;
 
-                //LightningCloud_Timer
-                if (LightningCloud_Timer <= diff)
-                {
-                    DoCast(me->getVictim(), SPELL_LIGHTNINGCLOUD);
-                    LightningCloud_Timer = urand(15000, 20000);
-                } else LightningCloud_Timer -= diff;
+                events.Update(diff);
 
-                //LightningWave_Timer
-                if (LightningWave_Timer <= diff)
-                {
-                    Unit* target = NULL;
-                    target = SelectTarget(SELECT_TARGET_RANDOM, 0);
-                    if (target) DoCast(target, SPELL_LIGHTNINGWAVE);
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
 
-                    LightningWave_Timer = urand(12000, 16000);
-                } else LightningWave_Timer -= diff;
+                while (uint32 eventId = events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        case EVENT_LIGHTNINGCLOUD:
+                            DoCastVictim(SPELL_LIGHTNINGCLOUD, true);
+                            events.ScheduleEvent(EVENT_LIGHTNINGCLOUD, urand(15000, 20000));
+                            break;
+                        case EVENT_LIGHTNINGWAVE:
+                            DoCast(SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true), SPELL_LIGHTNINGWAVE);
+                            events.ScheduleEvent(EVENT_LIGHTNINGWAVE, urand(12000, 16000));
+                            break;
+                        default:
+                            break;
+                    }
+                }
 
                 DoMeleeAttackIfReady();
             }

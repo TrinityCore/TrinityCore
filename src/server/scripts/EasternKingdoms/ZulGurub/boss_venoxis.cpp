@@ -27,10 +27,10 @@
  * - Fix timers (research some more)
  */
 
-enum Texts
+enum Says
 {
     SAY_VENOXIS_TRANSFORM           = 1,        // Let the coils of hate unfurl!
-    SAY_VENOXIS_DEATH               = 2,        // Ssserenity.. at lassst!
+    SAY_VENOXIS_DEATH               = 2         // Ssserenity.. at lassst!
 };
 
 enum Spells
@@ -42,7 +42,6 @@ enum Spells
     SPELL_HOLY_NOVA                 = 23858,
     SPELL_HOLY_FIRE                 = 23860,
     SPELL_HOLY_WRATH                = 23979,
-
     // snake form
     SPELL_POISON_CLOUD              = 23861,
     SPELL_VENOM_SPIT                = 23862,
@@ -50,15 +49,9 @@ enum Spells
     SPELL_PARASITIC_SERPENT         = 23865,
     SPELL_SUMMON_PARASITIC_SERPENT  = 23866,
     SPELL_PARASITIC_SERPENT_TRIGGER = 23867,
-
     // used when swapping event-stages
     SPELL_VENOXIS_TRANSFORM         = 23849,    // 50% health - shapechange to cobra
-    SPELL_FRENZY                    = 8269,     // 20% health - frenzy
-};
-
-enum NPCs
-{
-    NPC_PARASITIC_SERPENT           = 14884,
+    SPELL_FRENZY                    = 8269      // 20% health - frenzy
 };
 
 enum Events
@@ -70,10 +63,8 @@ enum Events
     EVENT_HOLY_NOVA                 = 4,
     EVENT_HOLY_FIRE                 = 5,
     EVENT_HOLY_WRATH                = 6,
-
     // phase-changing
     EVENT_TRANSFORM                 = 7,
-
     // snake form events
     EVENT_POISON_CLOUD              = 8,
     EVENT_VENOM_SPIT                = 9,
@@ -84,49 +75,48 @@ enum Events
 enum Phases
 {
     PHASE_ONE                       = 1,    // troll form
-    PHASE_TWO                       = 2,    // snake form
+    PHASE_TWO                       = 2     // snake form
+};
+
+enum NPCs
+{
+    NPC_PARASITIC_SERPENT           = 14884
 };
 
 class boss_venoxis : public CreatureScript
 {
-    public:
-        boss_venoxis() : CreatureScript("boss_venoxis") {}
+    public: boss_venoxis() : CreatureScript("boss_venoxis") {}
 
         struct boss_venoxisAI : public BossAI
         {
-            boss_venoxisAI(Creature* creature) : BossAI(creature, DATA_VENOXIS)
-            {
-            }
+            boss_venoxisAI(Creature* creature) : BossAI(creature, DATA_VENOXIS) {}
 
             void Reset()
             {
-                events.Reset();
-                summons.DespawnAll();
-
-                // make sure this boss is properly reset
-                instance->SetBossState(DATA_VENOXIS, NOT_STARTED);
-
+                _Reset();
                 // remove all spells and auras from previous attempts
                 me->RemoveAllAuras();
                 me->SetReactState(REACT_PASSIVE);
-
                 // set some internally used variables to their defaults
                 _inMeleeRange = 0;
                 _transformed = false;
                 _frenzied = false;
-
                 events.SetPhase(PHASE_ONE);
+            }
+
+            void JustDied(Unit* /*killer*/)
+            {
+                _JustDied();
+                Talk(SAY_VENOXIS_DEATH);
+                me->RemoveAllAuras();
             }
 
             void EnterCombat(Unit* /*who*/)
             {
+                _EnterCombat();
                 me->SetReactState(REACT_AGGRESSIVE);
-
-                instance->SetBossState(DATA_VENOXIS, IN_PROGRESS);
-
                 // Always running events
                 events.ScheduleEvent(EVENT_THRASH, 5000);
-
                 // Phase one events (regular form)
                 events.ScheduleEvent(EVENT_HOLY_NOVA, 5000, 0, PHASE_ONE);
                 events.ScheduleEvent(EVENT_DISPEL_MAGIC, 35000, 0, PHASE_ONE);
@@ -155,14 +145,6 @@ class boss_venoxis : public CreatureScript
                     _frenzied = true;
                     events.ScheduleEvent(EVENT_FRENZY, 100);
                 }
-            }
-
-            void JustDied(Unit* /*killer*/)
-            {
-                Talk(SAY_VENOXIS_DEATH);
-                // venoxis is dead, mark him as such for the instance
-                instance->SetBossState(DATA_VENOXIS, DONE);
-                me->RemoveAllAuras();
             }
 
             void UpdateAI(const uint32 diff)

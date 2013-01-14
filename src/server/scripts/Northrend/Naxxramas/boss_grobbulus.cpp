@@ -20,25 +20,33 @@
 #include "naxxramas.h"
 #include "SpellInfo.h"
 
-#define SPELL_BOMBARD_SLIME         28280
+enum Spells
+{
+    SPELL_BOMBARD_SLIME         = 28280,
+    SPELL_POISON_CLOUD          = 28240,
+    SPELL_MUTATING_INJECTION    = 28169,
+    SPELL_SLIME_SPRAY           = 28157,
+    H_SPELL_SLIME_SPRAY         = 54364,
+    SPELL_BERSERK               = 26662,
+    SPELL_POISON_CLOUD_ADD      = 59116
+};
 
-#define SPELL_POISON_CLOUD          28240
-#define SPELL_MUTATING_INJECTION    28169
-#define SPELL_SLIME_SPRAY           RAID_MODE(28157, 54364)
-#define SPELL_BERSERK               26662
-#define SPELL_POISON_CLOUD_ADD      59116
+enum Events
+{
+    EVENT_BERSERK               = 0,
+    EVENT_CLOUD                 = 1,
+    EVENT_INJECT                = 2,
+    EVENT_SPRAY                 = 3
+};
 
-#define EVENT_BERSERK   1
-#define EVENT_CLOUD     2
-#define EVENT_INJECT    3
-#define EVENT_SPRAY     4
-
-#define MOB_FALLOUT_SLIME   16290
+enum CreatureId
+{
+    MOB_FALLOUT_SLIME           = 16290
+};
 
 class boss_grobbulus : public CreatureScript
 {
-public:
-    boss_grobbulus() : CreatureScript("boss_grobbulus") { }
+public: boss_grobbulus() : CreatureScript("boss_grobbulus") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
