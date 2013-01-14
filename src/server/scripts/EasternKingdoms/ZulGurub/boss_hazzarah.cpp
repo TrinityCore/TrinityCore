@@ -48,6 +48,11 @@ class boss_hazzarah : public CreatureScript
         {
             boss_hazzarahAI(Creature* creature) : BossAI(creature, DATA_EDGE_OF_MADNESS) {}
 
+            void Reset()
+            {
+                _Reset();
+            }
+
             void JustDied(Unit* /*killer*/)
             {
                 _JustDied();

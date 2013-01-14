@@ -114,7 +114,7 @@ public:
 
             if (instance)
             {
-                if (Creature *temp =  Unit::GetCreature(*me, instance->GetData64(DATA_ALYTHESS)))
+                if (Creature* temp =  Unit::GetCreature(*me, instance->GetData64(DATA_ALYTHESS)))
                 {
                     if (temp->isDead())
                         temp->Respawn();
@@ -145,7 +145,7 @@ public:
 
             if (instance)
             {
-                Creature *temp = Unit::GetCreature(*me, instance->GetData64(DATA_ALYTHESS));
+                Creature* temp = Unit::GetCreature(*me, instance->GetData64(DATA_ALYTHESS));
                 if (temp && temp->isAlive() && !temp->getVictim())
                     temp->AI()->AttackStart(who);
             }
@@ -374,7 +374,7 @@ public:
 
             if (instance)
             {
-                if (Creature *temp = Unit::GetCreature((*me), instance->GetData64(DATA_SACROLASH)))
+                if (Creature* temp = Unit::GetCreature((*me), instance->GetData64(DATA_SACROLASH)))
                 {
                     if (temp->isDead())
                         temp->Respawn();
@@ -406,7 +406,7 @@ public:
 
             if (instance)
             {
-                Creature *temp = Unit::GetCreature(*me, instance->GetData64(DATA_SACROLASH));
+                Creature* temp = Unit::GetCreature(*me, instance->GetData64(DATA_SACROLASH));
                 if (temp && temp->isAlive() && !temp->getVictim())
                     temp->AI()->AttackStart(who);
             }

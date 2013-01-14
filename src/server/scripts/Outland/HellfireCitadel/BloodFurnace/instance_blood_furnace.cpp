@@ -375,23 +375,23 @@ class instance_blood_furnace : public InstanceMapScript
                 switch (id)
                 {
                     case DATA_PRISON_CELL5:
-                        HandleGameObject(PrisonCell5GUID,true);
+                        HandleGameObject(PrisonCell5GUID, true);
                         ActivatePrisoners(PrisonersCell5);
                         break;
                     case DATA_PRISON_CELL6:
-                        HandleGameObject(PrisonCell6GUID,true);
+                        HandleGameObject(PrisonCell6GUID, true);
                         ActivatePrisoners(PrisonersCell6);
                         break;
                     case DATA_PRISON_CELL7:
-                        HandleGameObject(PrisonCell7GUID,true);
+                        HandleGameObject(PrisonCell7GUID, true);
                         ActivatePrisoners(PrisonersCell7);
                         break;
                     case DATA_PRISON_CELL8:
-                        HandleGameObject(PrisonCell8GUID,true);
+                        HandleGameObject(PrisonCell8GUID, true);
                         ActivatePrisoners(PrisonersCell8);
                         break;
                     case DATA_DOOR5:
-                        HandleGameObject(Door5GUID,true);
+                        HandleGameObject(Door5GUID, true);
                         if (Creature* broggok = instance->GetCreature(BroggokGUID))
                             broggok->AI()->DoAction(ACTION_ACTIVATE_BROGGOK);
                         break;

@@ -39,7 +39,7 @@ template<typename T, class S> struct Finder
 class Tokenizer
 {
 public:
-    typedef std::vector<char const *> StorageType;
+    typedef std::vector<char const*> StorageType;
 
     typedef StorageType::size_type size_type;
 

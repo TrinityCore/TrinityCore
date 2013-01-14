@@ -1594,7 +1594,7 @@ class spell_gen_gnomish_transporter : public SpellScriptLoader
             void HandleDummy(SpellEffIndex /* effIndex */)
             {
                 Unit* caster = GetCaster();
-                caster->CastSpell(caster, roll_chance_i(50) ? SPELL_TRANSPORTER_SUCCESS : SPELL_TRANSPORTER_FAILURE , true);
+                caster->CastSpell(caster, roll_chance_i(50) ? SPELL_TRANSPORTER_SUCCESS : SPELL_TRANSPORTER_FAILURE, true);
             }
 
             void Register()
