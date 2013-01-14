@@ -38,7 +38,7 @@ WardenMac::~WardenMac()
 {
 }
 
-void WardenMac::Init(WorldSession *pClient, BigNumber *K)
+void WardenMac::Init(WorldSession* pClient, BigNumber* K)
 {
     _session = pClient;
     // Generate Warden Key

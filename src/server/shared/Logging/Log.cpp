@@ -82,7 +82,7 @@ void Log::CreateAppenderFromConfig(const char* name)
     if (!name || *name == '\0')
         return;
 
-    // Format=type,level,flags,optional1,optional2
+    // Format=type, level, flags, optional1, optional2
     // if type = File. optional1 = file and option2 = mode
     // if type = Console. optional1 = Color
     std::string options = "Appender.";

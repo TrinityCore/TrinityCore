@@ -339,7 +339,7 @@ void WorldSession::HandleGuildBankerActivate(WorldPacket& recvData)
     sLog->outDebug(LOG_FILTER_GUILD, "CMSG_GUILD_BANKER_ACTIVATE [%s]: Go: [" UI64FMTD "] AllSlots: %u"
         , GetPlayerInfo().c_str(), guid, sendAllSlots);
 
-    Guild * const guild = GetPlayer()->GetGuild();
+    Guild* const guild = GetPlayer()->GetGuild();
     if (!guild)
     {
         Guild::SendCommandResult(this, GUILD_COMMAND_VIEW_TAB, ERR_GUILD_PLAYER_NOT_IN_GUILD);

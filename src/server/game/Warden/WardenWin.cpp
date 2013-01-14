@@ -42,7 +42,7 @@ WardenWin::~WardenWin()
 {
 }
 
-void WardenWin::Init(WorldSession* session, BigNumber *k)
+void WardenWin::Init(WorldSession* session, BigNumber* k)
 {
     _session = session;
     // Generate Warden Key
@@ -368,7 +368,7 @@ void WardenWin::HandleData(ByteBuffer &buff)
         sLog->outDebug(LOG_FILTER_WARDEN, "Ticks diff %u", ourTicks - newClientTicks);
     }
 
-    WardenCheckResult *rs;
+    WardenCheckResult* rs;
     WardenCheck *rd;
     uint8 type;
     uint16 checkFailed = 0;

@@ -251,7 +251,7 @@ public:
 
                     if (TempSummon* _me = me->ToTempSummon())
                         if (Creature* sladran = _me->GetSummoner()->ToCreature())
-                            sladran->AI()->SetGUID(target->GetGUID() ,DATA_SNAKES_WHYD_IT_HAVE_TO_BE_SNAKES);
+                            sladran->AI()->SetGUID(target->GetGUID(), DATA_SNAKES_WHYD_IT_HAVE_TO_BE_SNAKES);
 
                     me->DespawnOrUnsummon();
                 }

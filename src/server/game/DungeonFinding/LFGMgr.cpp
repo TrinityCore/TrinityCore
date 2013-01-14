@@ -1704,7 +1704,7 @@ uint8 LFGMgr::GetKicksLeft(uint64 guid)
     return kicks;
 }
 
-void LFGMgr::RestoreState(uint64 guid, char const *debugMsg)
+void LFGMgr::RestoreState(uint64 guid, char const* debugMsg)
 {
     if (IS_GROUP_GUID(guid))
     {
