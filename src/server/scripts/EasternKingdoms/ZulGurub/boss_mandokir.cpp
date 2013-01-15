@@ -32,23 +32,64 @@ enum Says
     SAY_AGGRO                 = 0,
     SAY_DING_KILL             = 1,
     SAY_WATCH                 = 2,
-    SAY_WATCH_WHISPER         = 3, // is this text for real? easter egg?
+    SAY_WATCH_WHISPER         = 3,
+    SAY_OHGAN_DEAD            = 4,
     SAY_GRATS_JINDO           = 0,
 };
 
 enum Spells
 {
-    SPELL_CHARGE              = 24408,
-    SPELL_CLEAVE              = 7160,
+    SPELL_CHARGE              = 24408, // seen
+    SPELL_OVERPOWER           = 24407, // Seen
     SPELL_FEAR                = 29321,
-    SPELL_WHIRLWIND           = 15589,
-    SPELL_MORTAL_STRIKE       = 16856,
-    SPELL_ENRAGE              = 24318,
-    SPELL_WATCH               = 24314,
-    SPELL_LEVEL_UP            = 24312,
-    SPELL_SWIFT_ORANGE_RAPTOR = 23243,
-    // Ohgans Spell
-    SPELL_SUNDERARMOR         = 24317
+    SPELL_WHIRLWIND           = 13736, // Triggers 15589
+    SPELL_MORTAL_STRIKE       = 16856, // Seen
+    SPELL_FRENZY              = 24318, // seen
+    SPELL_WATCH               = 24314, // seen 24315, 24316
+    SPELL_WATCH_CHARGE        = 24315, // Triggers 24316
+    SPELL_LEVEL_UP            = 24312  //
+};
+
+enum Events
+{
+    EVENT_CHECK_START         = 1,
+    EVENT_STARTED             = 2,
+    EVENT_OVERPOWER           = 3,
+    EVENT_MORTAL_STRIKE       = 4,
+    EVENT_WHIRLWIND           = 5,
+    EVENT_CHECK_OHGAN         = 6,
+    EVENT_WATCH_PLAYER        = 7
+};
+
+enum Misc
+{
+    MODEL_OHGAN_MOUNT         = 15271,
+    PATH_MANDOKIR             = 492861,
+    CHAINED_SPIRT_COUNT       = 20
+};
+
+Position const PosSummonChainedSpirits[CHAINED_SPIRT_COUNT] =
+{
+    { -12167.17f, -1979.330f, 133.0992f, 2.268928f },
+    { -12262.74f, -1953.394f, 133.5496f, 0.593412f },
+    { -12176.89f, -1983.068f, 133.7841f, 2.129302f },
+    { -12226.45f, -1977.933f, 132.7982f, 1.466077f },
+    { -12204.74f, -1890.431f, 135.7569f, 4.415683f },
+    { -12216.70f, -1891.806f, 136.3496f, 4.677482f },
+    { -12236.19f, -1892.034f, 134.1041f, 5.044002f },
+    { -12248.24f, -1893.424f, 134.1182f, 5.270895f },
+    { -12257.36f, -1897.663f, 133.1484f, 5.462881f },
+    { -12265.84f, -1903.077f, 133.1649f, 5.654867f },
+    { -12158.69f, -1972.707f, 133.8751f, 2.408554f },
+    { -12178.82f, -1891.974f, 134.1786f, 3.944444f },
+    { -12193.36f, -1890.039f, 135.1441f, 4.188790f },
+    { -12275.59f, -1932.845f, 134.9017f, 0.174533f },
+    { -12273.51f, -1941.539f, 136.1262f, 0.314159f },
+    { -12247.02f, -1963.497f, 133.9476f, 0.872665f },
+    { -12238.68f, -1969.574f, 133.6273f, 1.134464f },
+    { -12192.78f, -1982.116f, 132.6966f, 1.919862f },
+    { -12210.81f, -1979.316f, 133.8700f, 1.797689f },
+    { -12283.51f, -1924.839f, 133.5170f, 0.069813f }
 };
 
 class boss_mandokir : public CreatureScript
@@ -59,52 +100,15 @@ class boss_mandokir : public CreatureScript
         {
             boss_mandokirAI(Creature* creature) : BossAI(creature, DATA_MANDOKIR) {}
 
-            uint32 KillCount;
-            uint32 Watch_Timer;
-            uint32 TargetInRange;
-            uint32 Cleave_Timer;
-            uint32 Whirlwind_Timer;
-            uint32 Fear_Timer;
-            uint32 MortalStrike_Timer;
-            uint32 Check_Timer;
-            float targetX;
-            float targetY;
-            float targetZ;
-
-            InstanceScript* instance;
-
-            bool endWatch;
-            bool someWatched;
-            bool RaptorDead;
-            bool CombatStart;
-            bool SpeakerDead;
-
-            uint64 WatchTarget;
+            uint8 killCount;
 
             void Reset()
             {
-                KillCount = 0;
-                Watch_Timer = 33000;
-                Cleave_Timer = 7000;
-                Whirlwind_Timer = 20000;
-                Fear_Timer = 1000;
-                MortalStrike_Timer = 1000;
-                Check_Timer = 1000;
-
-                targetX = 0.0f;
-                targetY = 0.0f;
-                targetZ = 0.0f;
-                TargetInRange = 0;
-
-                WatchTarget = 0;
-
-                someWatched = false;
-                endWatch = false;
-                RaptorDead = false;
-                CombatStart = false;
-                SpeakerDead = false;
-
-                DoCast(me, 23243);
+                _Reset();
+                killCount = 0;
+                me->Mount(MODEL_OHGAN_MOUNT);
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC|UNIT_FLAG_IMMUNE_TO_NPC);
+                events.ScheduleEvent(EVENT_CHECK_START, 1000);
             }
 
             void JustDied(Unit* /*killer*/)
@@ -112,186 +116,126 @@ class boss_mandokir : public CreatureScript
                 _JustDied();
             }
 
-            void KilledUnit(Unit* victim)
+            void Evade(Unit* /*killer*/)
             {
-                if (victim->GetTypeId() == TYPEID_PLAYER)
-                {
-                    ++KillCount;
 
-                    if (KillCount == 3)
-                    {
-                        Talk(SAY_DING_KILL);
-
-                        if (instance)
-                        {
-                            uint64 JindoGUID = instance->GetData64(DATA_JINDO);
-                            if (JindoGUID)
-                            {
-                                if (Creature* jTemp = Creature::GetCreature(*me, JindoGUID))
-                                {
-                                    if (jTemp->isAlive())
-                                        jTemp->AI()->Talk(SAY_GRATS_JINDO);
-                                }
-                            }
-                        }
-                        DoCast(me, SPELL_LEVEL_UP, true);
-                        KillCount = 0;
-                    }
-                }
             }
 
             void EnterCombat(Unit* /*who*/)
             {
                 _EnterCombat();
+                events.ScheduleEvent(EVENT_OVERPOWER, urand(7000, 9000));
+                events.ScheduleEvent(EVENT_MORTAL_STRIKE, urand(12000, 18000));
+                events.ScheduleEvent(EVENT_WHIRLWIND, urand(24000, 30000));
+                events.ScheduleEvent(EVENT_CHECK_OHGAN, 1000);
+                events.ScheduleEvent(EVENT_WATCH_PLAYER, urand(13000, 15000));
+                me->SetSpeed(MOVE_RUN, false);
+                me->GetMotionMaster()->Clear(true);
                 Talk(SAY_AGGRO);
+                me->Dismount();
+                // Summon Ohgan (Spell missing) TEMP HACK
+                me->SummonCreature(NPC_OHGAN, me->getVictim()->GetPositionX(), me->getVictim()->GetPositionY(), me->getVictim()->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 35000);
+                for (int i = 0; i < CHAINED_SPIRT_COUNT; ++i)
+                    me->SummonCreature(NPC_CHAINED_SPIRT, PosSummonChainedSpirits[i], TEMPSUMMON_CORPSE_DESPAWN);
             }
 
-            void UpdateAI(const uint32 diff)
+            void KilledUnit(Unit* victim)
             {
-                if (!SpeakerDead)
+                if (victim->GetTypeId() == TYPEID_PLAYER)
                 {
-                    if (!me->FindNearestCreature(NPC_SPEAKER, 100.0f, true))
+                    if (++killCount == 3 && instance)
                     {
-                        me->GetMotionMaster()->MovePoint(0, -12196.3f, -1948.37f, 130.36f);
-                        SpeakerDead = true;
+                        Talk(SAY_DING_KILL);
+                        if (uint64 JindoGUID = instance->GetData64(DATA_JINDO))
+                            if (Creature* jTemp = Creature::GetCreature(*me, JindoGUID))
+                                if (jTemp->isAlive())
+                                    jTemp->AI()->Talk(SAY_GRATS_JINDO);
+                        DoCast(me, SPELL_LEVEL_UP, true);
+                        killCount = 0;
                     }
                 }
+            }
 
-                if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() != POINT_MOTION_TYPE && SpeakerDead)
-                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+            void UpdateAI(uint32 const diff)
+            {
+
+                events.Update(diff);
 
                 if (!UpdateVictim())
+                    if (instance->GetBossState(DATA_MANDOKIR) == NOT_STARTED || instance->GetBossState(DATA_MANDOKIR) == SPECIAL)
+                    {
+                        while (uint32 eventId = events.ExecuteEvent())
+                        {
+                            switch (eventId)
+                            {
+                                case EVENT_CHECK_START:
+                                    if(instance)
+                                        if (instance->GetBossState(DATA_MANDOKIR) == SPECIAL)
+                                        {
+                                            me->SetSpeed(MOVE_RUN, true);
+                                            me->GetMotionMaster()->MovePoint(0, -12197.86f, -1949.392f, 130.2745f);
+                                            events.ScheduleEvent(EVENT_STARTED, 3000);
+                                        }
+                                        else
+                                            events.ScheduleEvent(EVENT_CHECK_START, 1000);
+                                    break;
+                                case EVENT_STARTED:
+                                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC|UNIT_FLAG_IMMUNE_TO_NPC);
+                                    me->SetReactState(REACT_AGGRESSIVE);
+                                    me->GetMotionMaster()->MovePath(PATH_MANDOKIR,false);
+                                    break;
+                                default:
+                                    break;
+                            }
+                        }
+                    }
                     return;
 
-                if (me->getVictim() && me->isAlive())
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                while (uint32 eventId = events.ExecuteEvent())
                 {
-                    if (!CombatStart)
+                    switch (eventId)
                     {
-                        //At combat Start Mandokir is mounted so we must unmount it first
-                        me->Dismount();
-
-                        //And summon his raptor
-                        me->SummonCreature(14988, me->getVictim()->GetPositionX(), me->getVictim()->GetPositionY(), me->getVictim()->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 35000);
-                        CombatStart = true;
-                    }
-
-                    if (Watch_Timer <= diff)                         //Every 20 Sec Mandokir will check this
-                    {
-                        if (WatchTarget)                             //If someone is watched and If the Position of the watched target is different from the one stored, or are attacking, mandokir will charge him
-                        {
-                            Unit* unit = Unit::GetUnit(*me, WatchTarget);
-
-                            if (unit && (
-                                targetX != unit->GetPositionX() ||
-                                targetY != unit->GetPositionY() ||
-                                targetZ != unit->GetPositionZ() ||
-                                unit->isInCombat()))
-                            {
-                                if (me->IsWithinMeleeRange(unit))
+                        case EVENT_OVERPOWER:
+                            DoCastVictim(SPELL_OVERPOWER, true);
+                            events.ScheduleEvent(EVENT_OVERPOWER, urand(6000, 12000));
+                            break;
+                        case EVENT_MORTAL_STRIKE:
+                            if (me->getVictim() && me->getVictim()->HealthBelowPct(50))
+                                DoCastVictim(SPELL_MORTAL_STRIKE, true);
+                            events.ScheduleEvent(EVENT_MORTAL_STRIKE, urand(12000, 18000));
+                            break;
+                        case EVENT_WHIRLWIND:
+                            DoCast(me, SPELL_WHIRLWIND);
+                            events.ScheduleEvent(EVENT_WHIRLWIND, urand(22000, 26000));
+                            break;
+                        case EVENT_CHECK_OHGAN:
+                            if (instance)
+                                if (instance->GetBossState(DATA_OHGAN) == DONE)
                                 {
-                                    DoCast(unit, 24316);
+                                    DoCast(me, SPELL_FRENZY);
+                                    Talk(SAY_OHGAN_DEAD);
                                 }
                                 else
-                                {
-                                    DoCast(unit, SPELL_CHARGE);
-                                    //me->SendMonsterMove(unit->GetPositionX(), unit->GetPositionY(), unit->GetPositionZ(), 0, true, 1);
-                                    AttackStart(unit);
-                                }
-                            }
-                        }
-                        someWatched = false;
-                        Watch_Timer = 20000;
-                    } else Watch_Timer -= diff;
-
-                    if ((Watch_Timer < 8000) && !someWatched)       //8 sec(cast time + expire time) before the check for the watch effect mandokir will cast watch debuff on a random target
-                    {
-                        if (Unit* p = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                        {
-                            Talk(SAY_WATCH, p->GetGUID());
-                            DoCast(p, SPELL_WATCH);
-                            WatchTarget = p->GetGUID();
-                            someWatched = true;
-                            endWatch = true;
-                        }
-                    }
-
-                    if ((Watch_Timer < 1000) && endWatch)           //1 sec before the debuf expire, store the target position
-                    {
-                        Unit* unit = Unit::GetUnit(*me, WatchTarget);
-                        if (unit)
-                        {
-                            targetX = unit->GetPositionX();
-                            targetY = unit->GetPositionY();
-                            targetZ = unit->GetPositionZ();
-                        }
-                        endWatch = false;
-                    }
-
-                    if (!someWatched)
-                    {
-                        //Cleave
-                        if (Cleave_Timer <= diff)
-                        {
-                            DoCast(me->getVictim(), SPELL_CLEAVE);
-                            Cleave_Timer = 7000;
-                        } else Cleave_Timer -= diff;
-
-                        //Whirlwind
-                        if (Whirlwind_Timer <= diff)
-                        {
-                            DoCast(me, SPELL_WHIRLWIND);
-                            Whirlwind_Timer = 18000;
-                        } else Whirlwind_Timer -= diff;
-
-                        //If more then 3 targets in melee range mandokir will cast fear
-                        if (Fear_Timer <= diff)
-                        {
-                            TargetInRange = 0;
-
-                            std::list<HostileReference*>::const_iterator i = me->getThreatManager().getThreatList().begin();
-                            for (; i != me->getThreatManager().getThreatList().end(); ++i)
+                                    events.ScheduleEvent(EVENT_CHECK_OHGAN, 1000);
+                            break;
+                        case EVENT_WATCH_PLAYER:
+                            if (Unit* player = SelectTarget(SELECT_TARGET_RANDOM, 0, 40, true))
                             {
-                                Unit* unit = Unit::GetUnit(*me, (*i)->getUnitGuid());
-                                if (unit && me->IsWithinMeleeRange(unit))
-                                    ++TargetInRange;
+                                DoCast(player, SPELL_WATCH);
+                                Talk(SAY_WATCH, player->GetGUID());
+                                // Not complete
                             }
-
-                            if (TargetInRange > 3)
-                                DoCast(me->getVictim(), SPELL_FEAR);
-
-                            Fear_Timer = 4000;
-                        } else Fear_Timer -=diff;
-
-                        //Mortal Strike if target below 50% hp
-                        if (me->getVictim() && me->getVictim()->HealthBelowPct(50))
-                        {
-                            if (MortalStrike_Timer <= diff)
-                            {
-                                DoCast(me->getVictim(), SPELL_MORTAL_STRIKE);
-                                MortalStrike_Timer = 15000;
-                            } else MortalStrike_Timer -= diff;
-                        }
+                            events.ScheduleEvent(EVENT_WATCH_PLAYER, urand(12000, 15000));
+                            break;
+                        default:
+                            break;
                     }
-                    //Checking if Ohgan is dead. If yes Mandokir will enrage.
-                    if (Check_Timer <= diff)
-                    {
-                        if (instance)
-                        {
-                            if (instance->GetData(DATA_OHGAN) == DONE)
-                            {
-                                if (!RaptorDead)
-                                {
-                                    DoCast(me, SPELL_ENRAGE);
-                                    RaptorDead = true;
-                                }
-                            }
-                        }
-
-                        Check_Timer = 1000;
-                    } else Check_Timer -= diff;
-
-                    DoMeleeAttackIfReady();
                 }
+
+                DoMeleeAttackIfReady();
             }
         };
 
@@ -302,6 +246,12 @@ class boss_mandokir : public CreatureScript
 };
 
 // Ohgan
+
+enum O_Spells
+{
+    SPELL_SUNDERARMOR         = 24317
+};
+
 class mob_ohgan : public CreatureScript
 {
     public: mob_ohgan() : CreatureScript("mob_ohgan") {}
@@ -310,7 +260,7 @@ class mob_ohgan : public CreatureScript
         {
             mob_ohganAI(Creature* creature) : ScriptedAI(creature)
             {
-                instance = creature->GetInstanceScript();
+                instance = me->GetInstanceScript();
             }
 
             uint32 SunderArmor_Timer;
@@ -326,7 +276,7 @@ class mob_ohgan : public CreatureScript
             void JustDied(Unit* /*killer*/)
             {
                 if (instance)
-                    instance->SetData(DATA_OHGAN, DONE);
+                    instance->SetBossState(DATA_OHGAN, DONE);
             }
 
             void UpdateAI (const uint32 diff)
@@ -338,7 +288,7 @@ class mob_ohgan : public CreatureScript
                 //SunderArmor_Timer
                 if (SunderArmor_Timer <= diff)
                 {
-                    DoCast(me->getVictim(), SPELL_SUNDERARMOR);
+                    DoCastVictim(SPELL_SUNDERARMOR, true);
                     SunderArmor_Timer = urand(10000, 15000);
                 } else SunderArmor_Timer -= diff;
 
@@ -352,9 +302,76 @@ class mob_ohgan : public CreatureScript
         }
 };
 
+// Vilebranch Speaker
+
+enum VS_Spells
+{
+    SPELL_DEMORALIZING_SHOUT  = 13730,
+    SPELL_CLEAVE              = 15284
+};
+
+class mob_vilebranch_speaker : public CreatureScript
+{
+    public: mob_vilebranch_speaker() : CreatureScript("mob_vilebranch_speaker") {}
+
+        struct mob_vilebranch_speakerAI : public ScriptedAI
+        {
+            mob_vilebranch_speakerAI(Creature* creature) : ScriptedAI(creature)
+            {
+                instance = me->GetInstanceScript();
+            }
+
+            uint32 demoralizing_Shout_Timer;
+            uint32 cleave_Timer;
+            InstanceScript* instance;
+
+            void Reset()
+            {
+                demoralizing_Shout_Timer = urand (2000, 4000);
+                cleave_Timer = urand (5000, 8000);
+            }
+
+            void EnterCombat(Unit* /*who*/) {}
+
+            void JustDied(Unit* /*killer*/)
+            {
+                if (instance)
+                    instance->SetBossState(DATA_MANDOKIR, SPECIAL);
+            }
+
+            void UpdateAI (const uint32 diff)
+            {
+                // Return since we have no target
+                if (!UpdateVictim())
+                    return;
+
+                // demoralizing_Shout_Timer
+                if (demoralizing_Shout_Timer <= diff)
+                {
+                    DoCast(me, SPELL_DEMORALIZING_SHOUT);
+                    demoralizing_Shout_Timer = urand(22000, 30000);
+                } else demoralizing_Shout_Timer -= diff;
+
+                // cleave_Timer
+                if (cleave_Timer <= diff)
+                {
+                    DoCastVictim(SPELL_CLEAVE, true);
+                    cleave_Timer = urand(6000, 9000);
+                } else cleave_Timer -= diff;
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new mob_vilebranch_speakerAI(creature);
+        }
+};
+
 void AddSC_boss_mandokir()
 {
     new boss_mandokir();
     new mob_ohgan();
+    new mob_vilebranch_speaker();
 }
-
