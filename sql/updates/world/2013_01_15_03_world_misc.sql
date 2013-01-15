@@ -1,4 +1,4 @@
-﻿-- Reconnaissance Flight (12671)
+-- Reconnaissance Flight (12671)
 
 SET @QUEST          := 12671;
 SET @PLANE          := 28710; -- Vic's Flying Machine
