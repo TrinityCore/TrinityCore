@@ -202,21 +202,12 @@ void BattlegroundMgr::BuildBattlegroundStatusPacket(WorldPacket* data, Battlegro
             *data << uint64(0);                                 // 3.3.5, unknown
             *data << uint32(Time1);                             // time to remove from queue, milliseconds
             break;
-<<<<<<< HEAD
-        case STATUS_IN_PROGRESS:                            // status_in_progress
-            *data << uint32(bg->GetMapId());                // map id
-            *data << uint64(0);                             // 3.3.5, unknown
-            *data << uint32(Time1);                         // time to bg auto leave, 0 at bg start, 120000 after bg end, milliseconds
-            *data << uint32(Time2);                         // time from bg start, milliseconds
-            *data << uint8(arenaFaction);                   // arenafaction (0 for horde, 1 for alliance) 
-=======
         case STATUS_IN_PROGRESS:                                // status_in_progress
             *data << uint32(bg->GetMapId());                    // map id
             *data << uint64(0);                                 // 3.3.5, unknown
             *data << uint32(Time1);                             // time to bg auto leave, 0 at bg start, 120000 after bg end, milliseconds
             *data << uint32(Time2);                             // time from bg start, milliseconds
             *data << uint8(arenaFaction == ALLIANCE ? 1 : 0);   // arenafaction (0 for horde, 1 for alliance)
->>>>>>> e6a07076c3b275c60598abd08e21444313e7a0da
             break;
         default:
             sLog->outError(LOG_FILTER_BATTLEGROUND, "Unknown BG status!");
