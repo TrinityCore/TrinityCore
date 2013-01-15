@@ -6,7 +6,7 @@ UPDATE `gameobject` SET `spawntimesecs`=300,`animprogress`=100 WHERE `guid`=221;
 UPDATE `event_scripts` SET `x`=4029.0,`y`=4883.078,`z`=-12.71482,`o`=1.310609 WHERE `id`=17207 AND `command`=10 AND `datalong`=25832;
 -- Max Blasto: SAI
 UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=25832;
-DELETE FROM `smart_scripts` WHERE `entryorguid`=25833 AND `source_type`=0;
+DELETE FROM `smart_scripts` WHERE `entryorguid`=25832 AND `source_type`=0;
 INSERT INTO `smart_scripts`(`entryorguid`,`id`,`event_type`,`action_type`,`action_param1`,`target_type`,`target_param1`,`comment`) VALUE
 (25832,0,54,49,0,21,20,'Max Blasto - Just summoned - Start attack'),
 (25832,1,4,1,0,0,0,'Max Blasto - On aggro - Say');
