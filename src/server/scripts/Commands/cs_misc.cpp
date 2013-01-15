@@ -1805,9 +1805,9 @@ public:
         PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_MUTE_TIME);
         std::string muteBy = "";
         if (handler->GetSession())
-          muteBy = handler->GetSession()->GetPlayer()->GetName().c_str();
+            muteBy = handler->GetSession()->GetPlayerName();
         else
-          muteBy = "Console";
+            muteBy = "Console";
 
         if (target)
         {
