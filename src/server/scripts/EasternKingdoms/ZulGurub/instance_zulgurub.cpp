@@ -40,17 +40,18 @@ class instance_zulgurub : public InstanceMapScript
 
             //If all High Priest bosses were killed. Lorkhan, Zath and Ohgan are added too.
             //Storing Lorkhan, Zath and Thekal because we need to cast on them later. Jindo is needed for healfunction too.
-            uint64 LorKhanGUID;
-            uint64 ZathGUID;
-            uint64 ThekalGUID;
-            uint64 JindoGUID;
+
+            uint64 lorKhanGUID;
+            uint64 zathGUID;
+            uint64 thekalGUID;
+            uint64 jindoGUID;
 
             void Initialize()
             {
-                LorKhanGUID = 0;
-                ZathGUID = 0;
-                ThekalGUID = 0;
-                JindoGUID = 0;
+                lorKhanGUID = 0;
+                zathGUID = 0;
+                thekalGUID = 0;
+                jindoGUID = 0;
             }
 
             bool IsEncounterInProgress() const
@@ -63,78 +64,21 @@ class instance_zulgurub : public InstanceMapScript
             {
                 switch (creature->GetEntry())
                 {
-                    case NPC_ZEALOT_LORKHAN: LorKhanGUID = creature->GetGUID(); break;
-                    case NPC_ZEALOT_ZATH: ZathGUID = creature->GetGUID(); break;
-                    case NPC_HIGH_PRIEST_THEKAL: ThekalGUID = creature->GetGUID(); break;
-                    case NPC_JINDO_THE_HEXXER: JindoGUID = creature->GetGUID(); break;
+                    case NPC_ZEALOT_LORKHAN:        lorKhanGUID = creature->GetGUID(); break;
+                    case NPC_ZEALOT_ZATH:           zathGUID = creature->GetGUID();    break;
+                    case NPC_HIGH_PRIEST_THEKAL:    thekalGUID = creature->GetGUID();  break;
+                    case NPC_JINDO_THE_HEXXER:      jindoGUID = creature->GetGUID();   break;
                 }
             }
-
-            bool SetBossState(uint32 type, EncounterState state)
-            {
-                if (!InstanceScript::SetBossState(type, state))
-                    return false;
-
-                switch (type)
-                {
-                    case DATA_JEKLIK:
-                    case DATA_VENOXIS:
-                    case DATA_MARLI:
-                    case DATA_ARLOKK:
-                    case DATA_HAKKAR:
-                    case DATA_MANDOKIR:
-                    case DATA_JINDO:
-                    case DATA_GAHZRANKA:
-                    case DATA_EDGE_OF_MADNESS:
-                    case DATA_THEKAL:
-                    case DATA_LORKHAN:
-                    case DATA_ZATH:
-                    case DATA_OHGAN:
-                        break;
-                    default:
-                        break;
-                }
-
-                return true;
-            }
-
-        uint32 GetData(uint32 type) const
-        {
-            switch (type)
-            {
-                    case DATA_JEKLIK:             return GetBossState(DATA_JEKLIK);
-                    case DATA_VENOXIS:            return GetBossState(DATA_VENOXIS);
-                    case DATA_MARLI:              return GetBossState(DATA_MARLI);
-                    case DATA_ARLOKK:             return GetBossState(DATA_ARLOKK);
-                    case DATA_HAKKAR:             return GetBossState(DATA_HAKKAR);
-                    case DATA_MANDOKIR:           return GetBossState(DATA_MANDOKIR);
-                    case DATA_JINDO:              return GetBossState(DATA_JINDO);
-                    case DATA_GAHZRANKA:          return GetBossState(DATA_GAHZRANKA);
-                    case DATA_EDGE_OF_MADNESS:    return GetBossState(DATA_EDGE_OF_MADNESS);
-                    case DATA_THEKAL:             return GetBossState(DATA_THEKAL);
-                    case DATA_LORKHAN:            return GetBossState(DATA_LORKHAN);
-                    case DATA_ZATH:               return GetBossState(DATA_ZATH);
-                    case DATA_OHGAN:              return GetBossState(DATA_OHGAN);
-                        break;
-                    default:
-                        break;
-            }
-
-            return 0;
-        }
 
             uint64 GetData64(uint32 uiData) const
             {
                 switch (uiData)
                 {
-                    case DATA_LORKHAN:
-                        return LorKhanGUID;
-                    case DATA_ZATH:
-                        return ZathGUID;
-                    case DATA_THEKAL:
-                        return ThekalGUID;
-                    case DATA_JINDO:
-                        return JindoGUID;
+                    case DATA_LORKHAN:             return lorKhanGUID;
+                    case DATA_ZATH:                return zathGUID;
+                    case DATA_THEKAL:              return thekalGUID;
+                    case DATA_JINDO:               return jindoGUID;
                 }
                 return 0;
             }
