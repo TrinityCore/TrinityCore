@@ -214,9 +214,9 @@ class go_gong_of_bethekk : public GameObjectScript
         {
             if (InstanceScript* instance = go->GetInstanceScript())
             {
-                if (instance->GetData(DATA_ARLOKK) == DONE || instance->GetData(DATA_ARLOKK) == IN_PROGRESS)
+                if (instance->GetData(DATA_ARLOKK) == DONE || instance->GetBossState(DATA_ARLOKK) == IN_PROGRESS)
                     return true;
-                instance->SetData(DATA_ARLOKK, IN_PROGRESS);
+                instance->SetBossState(DATA_ARLOKK, IN_PROGRESS);
                 return true;
             }
 
