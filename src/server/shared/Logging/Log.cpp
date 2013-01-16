@@ -31,7 +31,6 @@
 
 Log::Log() : worker(NULL)
 {
-    SetRealmID(0);
     m_logsTimestamp = "_" + GetTimestampStr();
     LoadFromConfig();
 }
@@ -154,7 +153,7 @@ void Log::CreateAppenderFromConfig(const char* name)
         case APPENDER_DB:
         {
             uint8 id = NextAppenderId();
-            appenders[id] = new AppenderDB(id, name, level, realm);
+            appenders[id] = new AppenderDB(id, name, level);
             break;
         }
         default:
@@ -263,13 +262,6 @@ void Log::ReadLoggersFromConfig()
     // root logger must exist. Marking as disabled as its not configured
     if (loggers.find(LOG_FILTER_GENERAL) == loggers.end())
         loggers[LOG_FILTER_GENERAL].Create("root", LOG_FILTER_GENERAL, LOG_LEVEL_DISABLED);
-}
-
-void Log::EnableDBAppenders()
-{
-    for (AppenderMap::iterator it = appenders.begin(); it != appenders.end(); ++it)
-        if (it->second && it->second->getType() == APPENDER_DB)
-            ((AppenderDB *)it->second)->setEnable(true);
 }
 
 void Log::vlog(LogFilterType filter, LogLevel level, char const* str, va_list argptr)
@@ -463,9 +455,11 @@ void Log::outCommand(uint32 account, const char * str, ...)
     write(msg);
 }
 
-void Log::SetRealmID(uint32 id)
+void Log::SetRealmId(uint32 id)
 {
-    realm = id;
+    for (AppenderMap::iterator it = appenders.begin(); it != appenders.end(); ++it)
+        if (it->second && it->second->getType() == APPENDER_DB)
+            ((AppenderDB *)it->second)->setRealmId(id);
 }
 
 void Log::Close()
