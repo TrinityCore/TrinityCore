@@ -90,15 +90,15 @@ class boss_hakkar : public CreatureScript
                 events.ScheduleEvent(EVENT_CAUSE_INSANITY, 17000);
                 events.ScheduleEvent(EVENT_WILL_OF_HAKKAR, 17000);
                 events.ScheduleEvent(EVENT_ENRAGE, 600000);
-                if (instance->GetData(DATA_JEKLIK) != DONE)
+                if (instance->GetBossState(DATA_JEKLIK) != DONE)
                     events.ScheduleEvent(EVENT_ASPECT_OF_JEKLIK, 4000);
-                if (instance->GetData(DATA_VENOXIS) != DONE)
+                if (instance->GetBossState(DATA_VENOXIS) != DONE)
                     events.ScheduleEvent(EVENT_ASPECT_OF_VENOXIS, 7000);
-                if (instance->GetData(DATA_MARLI) != DONE)
+                if (instance->GetBossState(DATA_MARLI) != DONE)
                     events.ScheduleEvent(EVENT_ASPECT_OF_MARLI, 12000);
-                if (instance->GetData(DATA_THEKAL) != DONE)
+                if (instance->GetBossState(DATA_THEKAL) != DONE)
                     events.ScheduleEvent(EVENT_ASPECT_OF_THEKAL, 8000);
-                if (instance->GetData(DATA_ARLOKK) != DONE)
+                if (instance->GetBossState(DATA_ARLOKK) != DONE)
                     events.ScheduleEvent(EVENT_ASPECT_OF_ARLOKK, 18000);
                 Talk(SAY_AGGRO);
             }
