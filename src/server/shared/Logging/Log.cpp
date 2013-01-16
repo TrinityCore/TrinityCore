@@ -273,12 +273,16 @@ void Log::vlog(LogFilterType filter, LogLevel level, char const* str, va_list ar
 
 void Log::write(LogMessage* msg)
 {
+    if (loggers.empty())
+        return;
+
+    msg->text.append("\n");
+    Logger* logger = GetLoggerByType(msg->type);
+
     if (worker)
-    {
-        msg->text.append("\n");
-        Logger* logger = GetLoggerByType(msg->type);
         worker->enqueue(new LogOperation(logger, msg));
-    }
+    else
+        logger->write(*msg);
 }
 
 std::string Log::GetTimestampStr()
@@ -478,7 +482,10 @@ void Log::Close()
 void Log::LoadFromConfig()
 {
     Close();
-    worker = new LogWorker();
+
+    if (ConfigMgr::GetBoolDefault("Log.Async.Enable", false))
+        worker = new LogWorker();
+
     AppenderId = 0;
     m_logsDir = ConfigMgr::GetStringDefault("LogsDir", "");
     if (!m_logsDir.empty())
