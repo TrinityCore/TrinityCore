@@ -20,6 +20,8 @@
 
 uint32 const EncounterCount = 13;
 
+#define ZGScriptName "instance_zulgurub"
+
 enum DataTypes
 {
     DATA_JEKLIK             = 0,  // Main boss
@@ -45,11 +47,22 @@ enum CreatureIds
     NPC_JINDO_THE_HEXXER    = 11380,
     NPC_NIGHTMARE_ILLUSION  = 15163,
     NPC_ZULIAN_PROWLER      = 15101,
-    NPC_SPEAKER             = 11391,
+    NPC_VILEBRANCH_SPEAKER  = 11391,
     NPC_SHADE_OF_JINDO      = 14986,
     NPC_SACRIFICED_TROLL    = 14826,
     NPC_OHGAN               = 14988,
-    NPC_CHAINED_SPIRT       = 15117
+    NPC_CHAINED_SPIRT       = 15117,
+    NPC_MANDOKIR            = 11382
 };
+
+template<class AI>
+CreatureAI* GetZulGurubAI(Creature* creature)
+{
+    if (InstanceMap* instance = creature->GetMap()->ToInstanceMap())
+        if (instance->GetInstanceScript())
+            if (instance->GetScriptId() == sObjectMgr->GetScriptId(ZGScriptName))
+                return new AI(creature);
+    return NULL;
+}
 
 #endif
