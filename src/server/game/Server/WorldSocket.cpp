@@ -784,7 +784,8 @@ int WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
 {
     uint8 digest[20];
     uint32 clientSeed;
-    uint16 clientBuild, security;
+    uint8 security;
+    uint16 clientBuild;
     uint32 id;
     uint32 addonSize;
     LocaleConstant locale;
@@ -833,12 +834,7 @@ int WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
 
     if (sWorld->IsClosed())
     {
-        WorldPacket packet(SMSG_AUTH_RESPONSE, 1);
-        packet.WriteBit(0); // has queue info
-        packet.WriteBit(0); // has account info
-        packet << uint8(AUTH_REJECT);
-        SendPacket(packet);
-
+        SendAuthResponseError(AUTH_REJECT);
         sLog->outError(LOG_FILTER_NETWORKIO, "WorldSocket::HandleAuthSession: World closed, denying client (%s).", GetRemoteAddress().c_str());
         return -1;
     }
@@ -853,13 +849,7 @@ int WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
     // Stop if the account is not found
     if (!result)
     {
-        WorldPacket packet(SMSG_AUTH_RESPONSE, 1);
-        packet.WriteBit(0); // has queue info
-        packet.WriteBit(0); // has account info
-        packet << uint8(AUTH_UNKNOWN_ACCOUNT);
-
-        SendPacket(packet);
-
+        SendAuthResponseError(AUTH_UNKNOWN_ACCOUNT);
         sLog->outError(LOG_FILTER_NETWORKIO, "WorldSocket::HandleAuthSession: Sent Auth Response (unknown account).");
         return -1;
     }
@@ -880,22 +870,13 @@ int WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
     {
         if (strcmp (fields[2].GetCString(), GetRemoteAddress().c_str()))
         {
-            WorldPacket packet(SMSG_AUTH_RESPONSE, 1);
-            packet.WriteBit(0); // has queue info
-            packet.WriteBit(0); // has account info
-            packet << uint8(AUTH_FAILED);
-            SendPacket(packet);
-
+            SendAuthResponseError(AUTH_FAILED);
             sLog->outDebug(LOG_FILTER_NETWORKIO, "WorldSocket::HandleAuthSession: Sent Auth Response (Account IP differs).");
             return -1;
         }
     }
 
     id = fields[0].GetUInt32();
-    /*
-    if (security > SEC_ADMINISTRATOR)                        // prevent invalid security settings in DB
-        security = SEC_ADMINISTRATOR;
-        */
 
     k.SetHexStr(fields[1].GetCString());
 
@@ -923,10 +904,7 @@ int WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
     // Must be done before WorldSession is created
     if (sWorld->getBoolConfig(CONFIG_WARDEN_ENABLED) && os != "Win" && os != "OSX")
     {
-        WorldPacket packet(SMSG_AUTH_RESPONSE, 1);
-        packet << uint8(AUTH_REJECT);
-        SendPacket(packet);
-
+        SendAuthResponseError(AUTH_REJECT);
         sLog->outError(LOG_FILTER_NETWORKIO, "WorldSocket::HandleAuthSession: Client %s attempted to log in using invalid client OS (%s).", GetRemoteAddress().c_str(), os.c_str());
         return -1;
     }
@@ -957,12 +935,7 @@ int WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
 
     if (banresult) // if account banned
     {
-        WorldPacket packet(SMSG_AUTH_RESPONSE, 1);
-        packet.WriteBit(0); // has queue info
-        packet.WriteBit(0); // has account info
-        packet << uint8(AUTH_BANNED);
-        SendPacket(packet);
-
+        SendAuthResponseError(AUTH_BANNED);
         sLog->outError(LOG_FILTER_NETWORKIO, "WorldSocket::HandleAuthSession: Sent Auth Response (Account banned).");
         return -1;
     }
@@ -972,13 +945,7 @@ int WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
     sLog->outDebug(LOG_FILTER_NETWORKIO, "Allowed Level: %u Player Level %u", allowedAccountType, AccountTypes(security));
     if (allowedAccountType > SEC_PLAYER && AccountTypes(security) < allowedAccountType)
     {
-        WorldPacket packet(SMSG_AUTH_RESPONSE, 1);
-        packet.WriteBit(0); // has queue info
-        packet.WriteBit(0); // has account info
-        packet << uint8(AUTH_UNAVAILABLE);
-
-        SendPacket(packet);
-
+        SendAuthResponseError(AUTH_UNAVAILABLE);
         sLog->outInfo(LOG_FILTER_NETWORKIO, "WorldSocket::HandleAuthSession: User tries to login but his security level is not enough");
         return -1;
     }
@@ -998,12 +965,7 @@ int WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
 
     if (memcmp(sha.GetDigest(), digest, 20))
     {
-        WorldPacket packet(SMSG_AUTH_RESPONSE, 1);
-        packet.WriteBit(0); // has queue info
-        packet.WriteBit(0); // has account info
-        packet << uint8(AUTH_FAILED);
-        SendPacket(packet);
-
+        SendAuthResponseError(AUTH_FAILED);
         sLog->outError(LOG_FILTER_NETWORKIO, "WorldSocket::HandleAuthSession: Authentication failed for account: %u ('%s') address: %s", id, account.c_str(), address.c_str());
         return -1;
     }
@@ -1113,4 +1075,13 @@ int WorldSocket::HandlePing (WorldPacket& recvPacket)
     WorldPacket packet(SMSG_PONG, 4);
     packet << ping;
     return SendPacket(packet);
+}
+
+void WorldSocket::SendAuthResponseError(uint8 code)
+{
+        WorldPacket packet(SMSG_AUTH_RESPONSE, 1);
+        packet.WriteBit(0); // has queue info
+        packet.WriteBit(0); // has account info
+        packet << uint8(code);
+        SendPacket(packet);
 }

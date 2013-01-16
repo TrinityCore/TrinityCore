@@ -188,9 +188,6 @@ class CharacterCreateInfo
 
         /// Server side data
         uint8 CharCount;
-
-    private:
-        virtual ~CharacterCreateInfo(){};
 };
 
 /// Player session in the World
