@@ -49,7 +49,8 @@ enum CreatureIds
     NPC_SHADE_OF_JINDO      = 14986,
     NPC_SACRIFICED_TROLL    = 14826,
     NPC_OHGAN               = 14988,
-    NPC_CHAINED_SPIRT       = 15117
+    NPC_CHAINED_SPIRT       = 15117,
+    NPC_MANDOKIR            = 11382
 };
 
 #endif

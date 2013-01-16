@@ -25,6 +25,7 @@ EndScriptData */
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "Spell.h"
 #include "zulgurub.h"
 
 enum Says
@@ -52,19 +53,22 @@ enum Spells
 
 enum Events
 {
-    EVENT_CHECK_START         = 1,
-    EVENT_STARTED             = 2,
-    EVENT_OVERPOWER           = 3,
-    EVENT_MORTAL_STRIKE       = 4,
-    EVENT_WHIRLWIND           = 5,
-    EVENT_CHECK_OHGAN         = 6,
-    EVENT_WATCH_PLAYER        = 7
+    EVENT_CHECK_SPEAKER       = 1,
+    EVENT_CHECK_START         = 2,
+    EVENT_STARTED             = 3,
+    EVENT_OVERPOWER           = 4,
+    EVENT_MORTAL_STRIKE       = 5,
+    EVENT_WHIRLWIND           = 6,
+    EVENT_CHECK_OHGAN         = 7,
+    EVENT_WATCH_PLAYER        = 8,
+    EVENT_CHARGE_PLAYER       = 9
 };
 
 enum Misc
 {
     MODEL_OHGAN_MOUNT         = 15271,
     PATH_MANDOKIR             = 492861,
+    POINT_MANDOKIR_END        = 24,
     CHAINED_SPIRT_COUNT       = 20
 };
 
@@ -92,6 +96,12 @@ Position const PosSummonChainedSpirits[CHAINED_SPIRT_COUNT] =
     { -12283.51f, -1924.839f, 133.5170f, 0.069813f }
 };
 
+Position const PosMandokir[2] =
+{
+    { -12167.8f, -1927.25f, 153.73f, 3.76991f },
+    { -12197.86f, -1949.392f, 130.2745f, 0.0f }
+};
+
 class boss_mandokir : public CreatureScript
 {
     public: boss_mandokir() : CreatureScript("boss_mandokir") {}
@@ -101,24 +111,35 @@ class boss_mandokir : public CreatureScript
             boss_mandokirAI(Creature* creature) : BossAI(creature, DATA_MANDOKIR) {}
 
             uint8 killCount;
+            uint64 chainedSpirtGUIDs[CHAINED_SPIRT_COUNT];
 
             void Reset()
             {
-                _Reset();
-                killCount = 0;
+                if (me->GetPositionZ() > 140.0f)
+                {
+                    _Reset();
+                    killCount = 0;
+                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC|UNIT_FLAG_IMMUNE_TO_NPC);
+                    events.ScheduleEvent(EVENT_CHECK_START, 1000);
+                    if (uint64 speakerGUID = instance->GetData64(NPC_SPEAKER))
+                        if (Creature* speaker = Creature::GetCreature(*me, NPC_SPEAKER))
+                            if (!speaker->isAlive())
+                                speaker->Respawn(true);
+                }
+                summons.DespawnAll();
                 me->Mount(MODEL_OHGAN_MOUNT);
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC|UNIT_FLAG_IMMUNE_TO_NPC);
-                events.ScheduleEvent(EVENT_CHECK_START, 1000);
             }
 
             void JustDied(Unit* /*killer*/)
             {
-                _JustDied();
-            }
-
-            void Evade(Unit* /*killer*/)
-            {
-
+                // Do not want to unsummon Ohgan
+                for (int i = 0; i < CHAINED_SPIRT_COUNT; ++i)
+                {
+                    if (Creature* unsummon = Creature::GetCreature(*me, chainedSpirtGUIDs[i]))
+                        unsummon->DespawnOrUnsummon();
+                }
+                instance->SetBossState(DATA_MANDOKIR, DONE);
+                instance->SaveToDB();
             }
 
             void EnterCombat(Unit* /*who*/)
@@ -129,14 +150,20 @@ class boss_mandokir : public CreatureScript
                 events.ScheduleEvent(EVENT_WHIRLWIND, urand(24000, 30000));
                 events.ScheduleEvent(EVENT_CHECK_OHGAN, 1000);
                 events.ScheduleEvent(EVENT_WATCH_PLAYER, urand(13000, 15000));
-                me->SetSpeed(MOVE_RUN, false);
-                me->GetMotionMaster()->Clear(true);
+                events.ScheduleEvent(EVENT_CHARGE_PLAYER, urand(33000, 38000));
+                me->SetHomePosition(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation());
                 Talk(SAY_AGGRO);
                 me->Dismount();
                 // Summon Ohgan (Spell missing) TEMP HACK
-                me->SummonCreature(NPC_OHGAN, me->getVictim()->GetPositionX(), me->getVictim()->GetPositionY(), me->getVictim()->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 35000);
+                me->SummonCreature(NPC_OHGAN, me->GetPositionX()-3, me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 35000);
+                // Summon Chained Spirits
                 for (int i = 0; i < CHAINED_SPIRT_COUNT; ++i)
-                    me->SummonCreature(NPC_CHAINED_SPIRT, PosSummonChainedSpirits[i], TEMPSUMMON_CORPSE_DESPAWN);
+                {
+                    Creature* chainedSpirt = NULL;
+                    chainedSpirt = me->SummonCreature(NPC_CHAINED_SPIRT, PosSummonChainedSpirits[i], TEMPSUMMON_CORPSE_DESPAWN);
+                    chainedSpirtGUIDs[i] = chainedSpirt->GetGUID();
+                }
+                DoZoneInCombat();
             }
 
             void KilledUnit(Unit* victim)
@@ -156,9 +183,23 @@ class boss_mandokir : public CreatureScript
                 }
             }
 
+            void MovementInform(uint32 type, uint32 id)
+            {
+                if (type == WAYPOINT_MOTION_TYPE)
+                {
+                    me->SetWalk(false);
+                    if (id == POINT_MANDOKIR_END)
+                    {
+                        me->SetHomePosition(PosMandokir[0]);
+                        if (instance)
+                            instance->SetBossState(DATA_MANDOKIR, NOT_STARTED);
+                        me->DespawnOrUnsummon(6000); // No idea how to respawn on wipe.
+                    }
+                }
+            }
+
             void UpdateAI(uint32 const diff)
             {
-
                 events.Update(diff);
 
                 if (!UpdateVictim())
@@ -172,16 +213,14 @@ class boss_mandokir : public CreatureScript
                                     if(instance)
                                         if (instance->GetBossState(DATA_MANDOKIR) == SPECIAL)
                                         {
-                                            me->SetSpeed(MOVE_RUN, true);
-                                            me->GetMotionMaster()->MovePoint(0, -12197.86f, -1949.392f, 130.2745f);
-                                            events.ScheduleEvent(EVENT_STARTED, 3000);
+                                            me->GetMotionMaster()->MovePoint(0, PosMandokir[1].m_positionX, PosMandokir[1].m_positionY, PosMandokir[1].m_positionZ);
+                                            events.ScheduleEvent(EVENT_STARTED, 6000);
                                         }
                                         else
                                             events.ScheduleEvent(EVENT_CHECK_START, 1000);
                                     break;
                                 case EVENT_STARTED:
                                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC|UNIT_FLAG_IMMUNE_TO_NPC);
-                                    me->SetReactState(REACT_AGGRESSIVE);
                                     me->GetMotionMaster()->MovePath(PATH_MANDOKIR,false);
                                     break;
                                 default:
@@ -222,13 +261,16 @@ class boss_mandokir : public CreatureScript
                                     events.ScheduleEvent(EVENT_CHECK_OHGAN, 1000);
                             break;
                         case EVENT_WATCH_PLAYER:
-                            if (Unit* player = SelectTarget(SELECT_TARGET_RANDOM, 0, 40, true))
+                            if (Unit* player = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                             {
                                 DoCast(player, SPELL_WATCH);
                                 Talk(SAY_WATCH, player->GetGUID());
-                                // Not complete
                             }
                             events.ScheduleEvent(EVENT_WATCH_PLAYER, urand(12000, 15000));
+                            break;
+                        case EVENT_CHARGE_PLAYER:
+                                DoCast(SelectTarget(SELECT_TARGET_RANDOM, 0, 40, true), SPELL_CHARGE);
+                                events.ScheduleEvent(EVENT_CHARGE_PLAYER, urand(22000, 30000));
                             break;
                         default:
                             break;
@@ -369,9 +411,39 @@ class mob_vilebranch_speaker : public CreatureScript
         }
 };
 
+class spell_threatening_gaze : public SpellScriptLoader
+{
+    public:
+        spell_threatening_gaze() : SpellScriptLoader("spell_threatening_gaze") { }
+
+        class spell_threatening_gaze_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_threatening_gaze_AuraScript);
+
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (Unit* caster = GetCaster())
+                    if(Unit* target = GetTarget())
+                        if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE && GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_DEATH)
+                            caster->CastSpell(target, SPELL_WATCH_CHARGE);
+            }
+
+            void Register()
+            {
+                OnEffectRemove += AuraEffectRemoveFn(spell_threatening_gaze_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_threatening_gaze_AuraScript();
+        }
+};
+
 void AddSC_boss_mandokir()
 {
     new boss_mandokir();
     new mob_ohgan();
     new mob_vilebranch_speaker();
+    new spell_threatening_gaze();
 }
