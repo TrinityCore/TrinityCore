@@ -23,10 +23,12 @@ SDComment: Ohgan function needs improvements.
 SDCategory: Zul'Gurub
 EndScriptData */
 
+#include "zulgurub.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "Spell.h"
-#include "zulgurub.h"
+#include "SpellAuras.h"
+#include "SpellScript.h"
 
 enum Says
 {
@@ -108,10 +110,7 @@ class boss_mandokir : public CreatureScript
 
         struct boss_mandokirAI : public BossAI
         {
-            boss_mandokirAI(Creature* creature) : BossAI(creature, DATA_MANDOKIR) {}
-
-            uint8 killCount;
-            uint64 chainedSpirtGUIDs[CHAINED_SPIRT_COUNT];
+            boss_mandokirAI(Creature* creature) : BossAI(creature, DATA_MANDOKIR) { }
 
             void Reset()
             {
@@ -121,10 +120,9 @@ class boss_mandokir : public CreatureScript
                     killCount = 0;
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC|UNIT_FLAG_IMMUNE_TO_NPC);
                     events.ScheduleEvent(EVENT_CHECK_START, 1000);
-                    if (uint64 speakerGUID = instance->GetData64(NPC_SPEAKER))
-                        if (Creature* speaker = Creature::GetCreature(*me, NPC_SPEAKER))
-                            if (!speaker->isAlive())
-                                speaker->Respawn(true);
+                    if (Creature* speaker = Creature::GetCreature(*me, instance->GetData64(NPC_VILEBRANCH_SPEAKER)))
+                        if (!speaker->isAlive())
+                            speaker->Respawn(true);
                 }
                 summons.DespawnAll();
                 me->Mount(MODEL_OHGAN_MOUNT);
@@ -134,10 +132,8 @@ class boss_mandokir : public CreatureScript
             {
                 // Do not want to unsummon Ohgan
                 for (int i = 0; i < CHAINED_SPIRT_COUNT; ++i)
-                {
                     if (Creature* unsummon = Creature::GetCreature(*me, chainedSpirtGUIDs[i]))
                         unsummon->DespawnOrUnsummon();
-                }
                 instance->SetBossState(DATA_MANDOKIR, DONE);
                 instance->SaveToDB();
             }
@@ -159,8 +155,7 @@ class boss_mandokir : public CreatureScript
                 // Summon Chained Spirits
                 for (int i = 0; i < CHAINED_SPIRT_COUNT; ++i)
                 {
-                    Creature* chainedSpirt = NULL;
-                    chainedSpirt = me->SummonCreature(NPC_CHAINED_SPIRT, PosSummonChainedSpirits[i], TEMPSUMMON_CORPSE_DESPAWN);
+                    Creature* chainedSpirt = me->SummonCreature(NPC_CHAINED_SPIRT, PosSummonChainedSpirits[i], TEMPSUMMON_CORPSE_DESPAWN);
                     chainedSpirtGUIDs[i] = chainedSpirt->GetGUID();
                 }
                 DoZoneInCombat();
@@ -168,18 +163,17 @@ class boss_mandokir : public CreatureScript
 
             void KilledUnit(Unit* victim)
             {
-                if (victim->GetTypeId() == TYPEID_PLAYER)
+                if (victim->GetTypeId() != TYPEID_PLAYER)
+                    return;
+
+                if (++killCount == 3)
                 {
-                    if (++killCount == 3 && instance)
-                    {
-                        Talk(SAY_DING_KILL);
-                        if (uint64 JindoGUID = instance->GetData64(DATA_JINDO))
-                            if (Creature* jTemp = Creature::GetCreature(*me, JindoGUID))
-                                if (jTemp->isAlive())
-                                    jTemp->AI()->Talk(SAY_GRATS_JINDO);
-                        DoCast(me, SPELL_LEVEL_UP, true);
-                        killCount = 0;
-                    }
+                    Talk(SAY_DING_KILL);
+                    if (Creature* jindo = Creature::GetCreature(*me, instance->GetData64(DATA_JINDO)))
+                        if (jindo->isAlive())
+                            jindo->AI()->Talk(SAY_GRATS_JINDO);
+                    DoCast(me, SPELL_LEVEL_UP, true);
+                    killCount = 0;
                 }
             }
 
@@ -191,8 +185,7 @@ class boss_mandokir : public CreatureScript
                     if (id == POINT_MANDOKIR_END)
                     {
                         me->SetHomePosition(PosMandokir[0]);
-                        if (instance)
-                            instance->SetBossState(DATA_MANDOKIR, NOT_STARTED);
+                        instance->SetBossState(DATA_MANDOKIR, NOT_STARTED);
                         me->DespawnOrUnsummon(6000); // No idea how to respawn on wipe.
                     }
                 }
@@ -203,6 +196,7 @@ class boss_mandokir : public CreatureScript
                 events.Update(diff);
 
                 if (!UpdateVictim())
+                {
                     if (instance->GetBossState(DATA_MANDOKIR) == NOT_STARTED || instance->GetBossState(DATA_MANDOKIR) == SPECIAL)
                     {
                         while (uint32 eventId = events.ExecuteEvent())
@@ -221,7 +215,7 @@ class boss_mandokir : public CreatureScript
                                     break;
                                 case EVENT_STARTED:
                                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC|UNIT_FLAG_IMMUNE_TO_NPC);
-                                    me->GetMotionMaster()->MovePath(PATH_MANDOKIR,false);
+                                    me->GetMotionMaster()->MovePath(PATH_MANDOKIR, false);
                                     break;
                                 default:
                                     break;
@@ -229,6 +223,7 @@ class boss_mandokir : public CreatureScript
                         }
                     }
                     return;
+                }
 
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
@@ -251,14 +246,13 @@ class boss_mandokir : public CreatureScript
                             events.ScheduleEvent(EVENT_WHIRLWIND, urand(22000, 26000));
                             break;
                         case EVENT_CHECK_OHGAN:
-                            if (instance)
-                                if (instance->GetBossState(DATA_OHGAN) == DONE)
-                                {
-                                    DoCast(me, SPELL_FRENZY);
-                                    Talk(SAY_OHGAN_DEAD);
-                                }
-                                else
-                                    events.ScheduleEvent(EVENT_CHECK_OHGAN, 1000);
+                            if (instance->GetBossState(DATA_OHGAN) == DONE)
+                            {
+                                DoCast(me, SPELL_FRENZY);
+                                Talk(SAY_OHGAN_DEAD);
+                            }
+                            else
+                                events.ScheduleEvent(EVENT_CHECK_OHGAN, 1000);
                             break;
                         case EVENT_WATCH_PLAYER:
                             if (Unit* player = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
@@ -269,8 +263,8 @@ class boss_mandokir : public CreatureScript
                             events.ScheduleEvent(EVENT_WATCH_PLAYER, urand(12000, 15000));
                             break;
                         case EVENT_CHARGE_PLAYER:
-                                DoCast(SelectTarget(SELECT_TARGET_RANDOM, 0, 40, true), SPELL_CHARGE);
-                                events.ScheduleEvent(EVENT_CHARGE_PLAYER, urand(22000, 30000));
+                            DoCast(SelectTarget(SELECT_TARGET_RANDOM, 0, 40, true), SPELL_CHARGE);
+                            events.ScheduleEvent(EVENT_CHARGE_PLAYER, urand(22000, 30000));
                             break;
                         default:
                             break;
@@ -279,17 +273,21 @@ class boss_mandokir : public CreatureScript
 
                 DoMeleeAttackIfReady();
             }
+
+        private:
+            uint8 killCount;
+            uint64 chainedSpirtGUIDs[CHAINED_SPIRT_COUNT];
         };
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new boss_mandokirAI(creature);
+            return GetZulGurubAI<boss_mandokirAI>(creature);
         }
 };
 
 // Ohgan
 
-enum O_Spells
+enum OhganSpells
 {
     SPELL_SUNDERARMOR         = 24317
 };
@@ -300,13 +298,7 @@ class mob_ohgan : public CreatureScript
 
         struct mob_ohganAI : public ScriptedAI
         {
-            mob_ohganAI(Creature* creature) : ScriptedAI(creature)
-            {
-                instance = me->GetInstanceScript();
-            }
-
-            uint32 SunderArmor_Timer;
-            InstanceScript* instance;
+            mob_ohganAI(Creature* creature) : ScriptedAI(creature), instance(creature->GetInstanceScript()) { }
 
             void Reset()
             {
@@ -317,17 +309,15 @@ class mob_ohgan : public CreatureScript
 
             void JustDied(Unit* /*killer*/)
             {
-                if (instance)
-                    instance->SetBossState(DATA_OHGAN, DONE);
+                instance->SetBossState(DATA_OHGAN, DONE);
             }
 
-            void UpdateAI (const uint32 diff)
+            void UpdateAI(const uint32 diff)
             {
-                //Return since we have no target
+                // Return since we have no target
                 if (!UpdateVictim())
                     return;
 
-                //SunderArmor_Timer
                 if (SunderArmor_Timer <= diff)
                 {
                     DoCastVictim(SPELL_SUNDERARMOR, true);
@@ -336,17 +326,19 @@ class mob_ohgan : public CreatureScript
 
                 DoMeleeAttackIfReady();
             }
+
+        private:
+            uint32 SunderArmor_Timer;
+            InstanceScript* instance;
         };
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new mob_ohganAI(creature);
+            return GetZulGurubAI<mob_ohganAI>(creature);
         }
 };
 
-// Vilebranch Speaker
-
-enum VS_Spells
+enum VilebranchSpells
 {
     SPELL_DEMORALIZING_SHOUT  = 13730,
     SPELL_CLEAVE              = 15284
@@ -358,14 +350,7 @@ class mob_vilebranch_speaker : public CreatureScript
 
         struct mob_vilebranch_speakerAI : public ScriptedAI
         {
-            mob_vilebranch_speakerAI(Creature* creature) : ScriptedAI(creature)
-            {
-                instance = me->GetInstanceScript();
-            }
-
-            uint32 demoralizing_Shout_Timer;
-            uint32 cleave_Timer;
-            InstanceScript* instance;
+            mob_vilebranch_speakerAI(Creature* creature) : ScriptedAI(creature), instance(creature->GetInstanceScript()) { }
 
             void Reset()
             {
@@ -377,24 +362,21 @@ class mob_vilebranch_speaker : public CreatureScript
 
             void JustDied(Unit* /*killer*/)
             {
-                if (instance)
-                    instance->SetBossState(DATA_MANDOKIR, SPECIAL);
+                instance->SetBossState(DATA_MANDOKIR, SPECIAL);
             }
 
-            void UpdateAI (const uint32 diff)
+            void UpdateAI(const uint32 diff)
             {
                 // Return since we have no target
                 if (!UpdateVictim())
                     return;
 
-                // demoralizing_Shout_Timer
                 if (demoralizing_Shout_Timer <= diff)
                 {
                     DoCast(me, SPELL_DEMORALIZING_SHOUT);
                     demoralizing_Shout_Timer = urand(22000, 30000);
                 } else demoralizing_Shout_Timer -= diff;
 
-                // cleave_Timer
                 if (cleave_Timer <= diff)
                 {
                     DoCastVictim(SPELL_CLEAVE, true);
@@ -403,6 +385,11 @@ class mob_vilebranch_speaker : public CreatureScript
 
                 DoMeleeAttackIfReady();
             }
+
+        private:
+            uint32 demoralizing_Shout_Timer;
+            uint32 cleave_Timer;
+            InstanceScript* instance;
         };
 
         CreatureAI* GetAI(Creature* creature) const
