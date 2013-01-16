@@ -45,6 +45,7 @@ class instance_zulgurub : public InstanceMapScript
             uint64 zathGUID;
             uint64 thekalGUID;
             uint64 jindoGUID;
+            uint64 speakerGUID;
 
             void Initialize()
             {
@@ -52,6 +53,7 @@ class instance_zulgurub : public InstanceMapScript
                 zathGUID = 0;
                 thekalGUID = 0;
                 jindoGUID = 0;
+                speakerGUID = 0;
             }
 
             bool IsEncounterInProgress() const
@@ -64,10 +66,25 @@ class instance_zulgurub : public InstanceMapScript
             {
                 switch (creature->GetEntry())
                 {
-                    case NPC_ZEALOT_LORKHAN:        lorKhanGUID = creature->GetGUID(); break;
-                    case NPC_ZEALOT_ZATH:           zathGUID = creature->GetGUID();    break;
-                    case NPC_HIGH_PRIEST_THEKAL:    thekalGUID = creature->GetGUID();  break;
-                    case NPC_JINDO_THE_HEXXER:      jindoGUID = creature->GetGUID();   break;
+                    case NPC_ZEALOT_LORKHAN:
+                        lorKhanGUID = creature->GetGUID();
+                        break;
+                    case NPC_ZEALOT_ZATH:
+                        zathGUID = creature->GetGUID();
+                        break;
+                    case NPC_HIGH_PRIEST_THEKAL:
+                        thekalGUID = creature->GetGUID();
+                        break;
+                    case NPC_JINDO_THE_HEXXER:
+                        jindoGUID = creature->GetGUID();
+                        break;
+                    case NPC_SPEAKER:
+                        speakerGUID = creature->GetGUID();
+                        break;
+                    case NPC_MANDOKIR:
+                        if (GetBossState(DATA_MANDOKIR) == DONE)
+                            creature->DespawnOrUnsummon();
+                        break;
                 }
             }
 
@@ -75,10 +92,18 @@ class instance_zulgurub : public InstanceMapScript
             {
                 switch (uiData)
                 {
-                    case DATA_LORKHAN:             return lorKhanGUID;
-                    case DATA_ZATH:                return zathGUID;
-                    case DATA_THEKAL:              return thekalGUID;
-                    case DATA_JINDO:               return jindoGUID;
+                    case DATA_LORKHAN:
+                        return lorKhanGUID;
+                        break;
+                    case DATA_ZATH:
+                        return zathGUID;
+                        break;
+                    case DATA_THEKAL:
+                        return thekalGUID;
+                        break;
+                    case DATA_JINDO:
+                        return jindoGUID;
+                        break;
                 }
                 return 0;
             }
