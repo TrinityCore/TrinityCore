@@ -28,7 +28,7 @@ class AppenderFile: public Appender
         FILE* OpenFile(std::string const& _name, std::string const& _mode, bool _backup);
 
     private:
-        void _write(LogMessage& message);
+        void _write(LogMessage const& message);
         FILE* logfile;
         std::string filename;
         std::string logDir;

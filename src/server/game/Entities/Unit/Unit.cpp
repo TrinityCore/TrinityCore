@@ -14452,7 +14452,8 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
     Unit* actionTarget = !isVictim ? target : this;
 
     DamageInfo damageInfo = DamageInfo(actor, actionTarget, damage, procSpell, procSpell ? SpellSchoolMask(procSpell->SchoolMask) : SPELL_SCHOOL_MASK_NORMAL, SPELL_DIRECT_DAMAGE);
-    ProcEventInfo eventInfo = ProcEventInfo(actor, actionTarget, target, procFlag, 0, 0, procExtra, NULL, &damageInfo, NULL /*HealInfo*/);
+    HealInfo healInfo = HealInfo(actor, actionTarget, damage, procSpell, procSpell ? SpellSchoolMask(procSpell->SchoolMask) : SPELL_SCHOOL_MASK_NORMAL);
+    ProcEventInfo eventInfo = ProcEventInfo(actor, actionTarget, target, procFlag, 0, 0, procExtra, NULL, &damageInfo, &healInfo);
 
     ProcTriggeredList procTriggered;
     // Fill procTriggered list
@@ -14481,6 +14482,10 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
         ConditionList conditions = sConditionMgr->GetConditionsForNotGroupedEntry(CONDITION_SOURCE_TYPE_SPELL_PROC, spellProto->Id);
         ConditionSourceInfo condInfo = ConditionSourceInfo(eventInfo.GetActor(), eventInfo.GetActionTarget());
         if (!sConditionMgr->IsObjectMeetToConditions(condInfo, conditions))
+            continue;
+
+        // AuraScript Hook
+        if (!triggerData.aura->CallScriptCheckProcHandlers(itr->second, eventInfo))
             continue;
 
         // Triggered spells not triggering additional spells
@@ -14531,14 +14536,20 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
         SpellInfo const* spellInfo = i->aura->GetSpellInfo();
         uint32 Id = i->aura->GetId();
 
+        AuraApplication const* aurApp = i->aura->GetApplicationOfTarget(GetGUID());
+
+        bool prepare = i->aura->CallScriptPrepareProcHandlers(aurApp, eventInfo);
+
         // For players set spell cooldown if need
         uint32 cooldown = 0;
-        if (GetTypeId() == TYPEID_PLAYER && i->spellProcEvent && i->spellProcEvent->cooldown)
+        if (prepare && GetTypeId() == TYPEID_PLAYER && i->spellProcEvent && i->spellProcEvent->cooldown)
             cooldown = i->spellProcEvent->cooldown;
 
         // Note: must SetCantProc(false) before return
         if (spellInfo->AttributesEx3 & SPELL_ATTR3_DISABLE_PROC)
             SetCantProc(true);
+
+        i->aura->CallScriptProcHandlers(aurApp, eventInfo);
 
         // This bool is needed till separate aura effect procs are still here
         bool handled = false;
@@ -14557,6 +14568,13 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
 
                 AuraEffect* triggeredByAura = i->aura->GetEffect(effIndex);
                 ASSERT(triggeredByAura);
+
+                bool prevented = i->aura->CallScriptEffectProcHandlers(triggeredByAura, aurApp, eventInfo);
+                if (prevented)
+                {
+                    takeCharges = true;
+                    continue;
+                }
 
                 switch (triggeredByAura->GetAuraType())
                 {
@@ -14725,12 +14743,15 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
                         takeCharges = true;
                         break;
                 } // switch (triggeredByAura->GetAuraType())
+                i->aura->CallScriptAfterEffectProcHandlers(triggeredByAura, aurApp, eventInfo);
             } // for (uint8 effIndex = 0; effIndex < MAX_SPELL_EFFECTS; ++effIndex)
         } // if (!handled)
 
         // Remove charge (aura can be removed by triggers)
-        if (useCharges && takeCharges)
+        if (prepare && useCharges && takeCharges)
             i->aura->DropCharge();
+
+        i->aura->CallScriptAfterProcHandlers(aurApp, eventInfo);
 
         if (spellInfo->AttributesEx3 & SPELL_ATTR3_DISABLE_PROC)
             SetCantProc(false);
@@ -14752,7 +14773,7 @@ void Unit::GetProcAurasTriggeredOnEvent(std::list<AuraApplication*>& aurasTrigge
             if (!(*itr)->GetRemoveMode())
                 if ((*itr)->GetBase()->IsProcTriggeredOnEvent(*itr, eventInfo))
                 {
-                    (*itr)->GetBase()->PrepareProcToTrigger();
+                    (*itr)->GetBase()->PrepareProcToTrigger(*itr, eventInfo);
                     aurasTriggeringProc.push_back(*itr);
                 }
         }
@@ -14764,7 +14785,7 @@ void Unit::GetProcAurasTriggeredOnEvent(std::list<AuraApplication*>& aurasTrigge
         {
             if (itr->second->GetBase()->IsProcTriggeredOnEvent(itr->second, eventInfo))
             {
-                itr->second->GetBase()->PrepareProcToTrigger();
+                itr->second->GetBase()->PrepareProcToTrigger(itr->second, eventInfo);
                 aurasTriggeringProc.push_back(itr->second);
             }
         }
