@@ -204,14 +204,13 @@ class boss_mandokir : public CreatureScript
                             switch (eventId)
                             {
                                 case EVENT_CHECK_START:
-                                    if(instance)
-                                        if (instance->GetBossState(DATA_MANDOKIR) == SPECIAL)
-                                        {
-                                            me->GetMotionMaster()->MovePoint(0, PosMandokir[1].m_positionX, PosMandokir[1].m_positionY, PosMandokir[1].m_positionZ);
-                                            events.ScheduleEvent(EVENT_STARTED, 6000);
-                                        }
-                                        else
-                                            events.ScheduleEvent(EVENT_CHECK_START, 1000);
+                                    if (instance->GetBossState(DATA_MANDOKIR) == SPECIAL)
+                                    {
+                                        me->GetMotionMaster()->MovePoint(0, PosMandokir[1].m_positionX, PosMandokir[1].m_positionY, PosMandokir[1].m_positionZ);
+                                        events.ScheduleEvent(EVENT_STARTED, 6000);
+                                    }
+                                    else
+                                        events.ScheduleEvent(EVENT_CHECK_START, 1000);
                                     break;
                                 case EVENT_STARTED:
                                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC|UNIT_FLAG_IMMUNE_TO_NPC);
