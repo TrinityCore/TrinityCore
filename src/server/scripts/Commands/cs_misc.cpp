@@ -1750,7 +1750,7 @@ public:
         note               = fields[4].GetString();
         officeNote         = fields[5].GetString();
         
-        handler->PSendSysMessage("Guild: %s (%u) Rank: %s Note: %s OffNote: %s",guildName.c_str(),guildId,guildRank.c_str(),note.c_str(),officeNote.c_str());
+        handler->PSendSysMessage(LANG_PINFO_MAP_OFFLINE,guildName.c_str(),guildId,guildRank.c_str(),note.c_str(),officeNote.c_str());
 
         return true;
     }
