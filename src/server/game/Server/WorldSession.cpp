@@ -789,7 +789,7 @@ void WorldSession::SetAccountData(AccountDataType type, time_t tm, std::string c
 
 void WorldSession::SendAccountDataTimes(uint32 mask)
 {
-    WorldPacket data(SMSG_ACCOUNT_DATA_TIMES, 4+1+4+NUM_ACCOUNT_DATA_TYPES*4);
+    WorldPacket data(SMSG_ACCOUNT_DATA_TIMES, 4 + 1 + 4 + NUM_ACCOUNT_DATA_TYPES * 4);
     data << uint32(time(NULL));                             // Server time
     data << uint8(1);
     data << uint32(mask);                                   // type mask

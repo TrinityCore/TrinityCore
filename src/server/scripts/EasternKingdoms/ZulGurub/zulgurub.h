@@ -23,6 +23,8 @@
 
 uint32 const EncounterCount = 5;
 
+#define ZGScriptName "instance_zulgurub"
+
 enum DataTypes
 {
     DATA_VENOXIS                    = 0,
