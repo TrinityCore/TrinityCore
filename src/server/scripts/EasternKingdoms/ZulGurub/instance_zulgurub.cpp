@@ -149,7 +149,7 @@ class instance_zulgurub : public InstanceMapScript
             uint64 ZealotZathGUID;
             uint64 HighPriestTekalGUID;
             uint64 JindoTheHexxerGUID;
-            uint64 VilebranchSpeakerGUID
+            uint64 VilebranchSpeakerGUID;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const
