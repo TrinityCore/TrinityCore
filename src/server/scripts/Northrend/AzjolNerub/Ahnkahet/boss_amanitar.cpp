@@ -89,11 +89,11 @@ public:
         {
             _EnterCombat();
 
-            events.ScheduleEvent(EVENT_ROOT, urand(5,9)*IN_MILLISECONDS);
-            events.ScheduleEvent(EVENT_BASH, urand(10,14)*IN_MILLISECONDS);
-            events.ScheduleEvent(EVENT_BOLT, urand(15,20)*IN_MILLISECONDS);
-            events.ScheduleEvent(EVENT_MINI, urand(12,18)*IN_MILLISECONDS);
-            events.ScheduleEvent(EVENT_SPAWN, 5 *IN_MILLISECONDS);
+            events.ScheduleEvent(EVENT_ROOT, urand(5, 9) * IN_MILLISECONDS);
+            events.ScheduleEvent(EVENT_BASH, urand(10, 14) * IN_MILLISECONDS);
+            events.ScheduleEvent(EVENT_BOLT, urand(15, 20) * IN_MILLISECONDS);
+            events.ScheduleEvent(EVENT_MINI, urand(12, 18) * IN_MILLISECONDS);
+            events.ScheduleEvent(EVENT_SPAWN, 5  * IN_MILLISECONDS);
 
             me->SetInCombatWithZone();
             if (instance)
@@ -123,7 +123,7 @@ public:
                     {
                         u = 1 - u;
                         trigger->DisappearAndDie();
-                        me->SummonCreature(u > 0 ? NPC_POISONOUS_MUSHROOM : NPC_HEALTHY_MUSHROOM, pos, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 60*IN_MILLISECONDS);
+                        me->SummonCreature(u > 0 ? NPC_POISONOUS_MUSHROOM : NPC_HEALTHY_MUSHROOM, pos, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 60 * IN_MILLISECONDS);
                     }
                 }
             }
@@ -145,23 +145,23 @@ public:
                 {
                     case EVENT_SPAWN:
                         SpawnAdds();
-                        events.ScheduleEvent(EVENT_SPAWN, 20*IN_MILLISECONDS);
+                        events.ScheduleEvent(EVENT_SPAWN, 20 * IN_MILLISECONDS);
                         break;
                     case EVENT_MINI:
                         DoCast(SPELL_MINI);
-                        events.ScheduleEvent(EVENT_MINI, urand(25,30)*IN_MILLISECONDS);
+                        events.ScheduleEvent(EVENT_MINI, urand(25, 30) * IN_MILLISECONDS);
                         break;
                     case EVENT_ROOT:
-                        DoCast(SelectTarget(SELECT_TARGET_RANDOM,0, 100, true),SPELL_ENTANGLING_ROOTS,true);
-                        events.ScheduleEvent(EVENT_ROOT, urand(10,15)*IN_MILLISECONDS);
+                        DoCast(SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true), SPELL_ENTANGLING_ROOTS, true);
+                        events.ScheduleEvent(EVENT_ROOT, urand(10, 15) * IN_MILLISECONDS);
                         break;
                     case EVENT_BASH:
                         DoCastVictim(SPELL_BASH);
-                        events.ScheduleEvent(EVENT_BASH, urand(7,12)*IN_MILLISECONDS);
+                        events.ScheduleEvent(EVENT_BASH, urand(7, 12) * IN_MILLISECONDS);
                         break;
                     case EVENT_BOLT:
-                        DoCast(SelectTarget(SELECT_TARGET_RANDOM,0, 100, true),SPELL_VENOM_BOLT_VOLLEY,true);
-                        events.ScheduleEvent(EVENT_BOLT, urand(18,22)*IN_MILLISECONDS);
+                        DoCast(SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true), SPELL_VENOM_BOLT_VOLLEY, true);
+                        events.ScheduleEvent(EVENT_BOLT, urand(18, 22) * IN_MILLISECONDS);
                         break;
                     default:
                         break;
@@ -191,7 +191,7 @@ public:
         void Reset()
         {
             events.Reset();
-            events.ScheduleEvent(EVENT_AURA, 1*IN_MILLISECONDS);
+            events.ScheduleEvent(EVENT_AURA, 1 * IN_MILLISECONDS);
 
             me->SetDisplayId(me->GetCreatureTemplate()->Modelid2);
             DoCast(SPELL_PUTRID_MUSHROOM);
@@ -231,7 +231,7 @@ public:
                             DoCast(me, SPELL_POISONOUS_MUSHROOM_VISUAL_AREA, true);
                             DoCast(me, SPELL_POISONOUS_MUSHROOM_POISON_CLOUD);
                         }
-                        events.ScheduleEvent(EVENT_AURA, 7*IN_MILLISECONDS);
+                        events.ScheduleEvent(EVENT_AURA, 7 * IN_MILLISECONDS);
                         break;
                     default:
                         break;

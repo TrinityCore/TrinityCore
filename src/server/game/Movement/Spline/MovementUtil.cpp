@@ -103,39 +103,39 @@ namespace Movement
 
     char const* g_MovementFlag_names[] =
     {
-        STR(Forward            ),// 0x00000001,
-        STR(Backward           ),// 0x00000002,
-        STR(Strafe_Left        ),// 0x00000004,
-        STR(Strafe_Right       ),// 0x00000008,
-        STR(Turn_Left          ),// 0x00000010,
-        STR(Turn_Right         ),// 0x00000020,
-        STR(Pitch_Up           ),// 0x00000040,
-        STR(Pitch_Down         ),// 0x00000080,
+        STR(Forward            ), // 0x00000001,
+        STR(Backward           ), // 0x00000002,
+        STR(Strafe_Left        ), // 0x00000004,
+        STR(Strafe_Right       ), // 0x00000008,
+        STR(Turn_Left          ), // 0x00000010,
+        STR(Turn_Right         ), // 0x00000020,
+        STR(Pitch_Up           ), // 0x00000040,
+        STR(Pitch_Down         ), // 0x00000080,
 
-        STR(Walk               ),// 0x00000100,               // Walking
-        STR(Ontransport        ),// 0x00000200,
-        STR(Levitation         ),// 0x00000400,
-        STR(Root               ),// 0x00000800,
-        STR(Falling            ),// 0x00001000,
-        STR(Fallingfar         ),// 0x00002000,
-        STR(Pendingstop        ),// 0x00004000,
-        STR(PendingSTRafestop  ),// 0x00008000,
-        STR(Pendingforward     ),// 0x00010000,
-        STR(Pendingbackward    ),// 0x00020000,
-        STR(PendingSTRafeleft  ),// 0x00040000,
-        STR(PendingSTRaferight ),// 0x00080000,
-        STR(Pendingroot        ),// 0x00100000,
-        STR(Swimming           ),// 0x00200000,               // Appears With Fly Flag Also
-        STR(Ascending          ),// 0x00400000,               // Swim Up Also
-        STR(Descending         ),// 0x00800000,               // Swim Down Also
-        STR(Can_Fly            ),// 0x01000000,               // Can Fly In 3.3?
-        STR(Flying             ),// 0x02000000,               // Actual Flying Mode
-        STR(Spline_Elevation   ),// 0x04000000,               // Used For Flight Paths
-        STR(Spline_Enabled     ),// 0x08000000,               // Used For Flight Paths
-        STR(Waterwalking       ),// 0x10000000,               // Prevent Unit From Falling Through Water
-        STR(Safe_Fall          ),// 0x20000000,               // Active Rogue Safe Fall Spell (Passive)
-        STR(Hover              ),// 0x40000000
-        STR(Unknown13          ),// 0x80000000
+        STR(Walk               ), // 0x00000100,               // Walking
+        STR(Ontransport        ), // 0x00000200,
+        STR(Levitation         ), // 0x00000400,
+        STR(Root               ), // 0x00000800,
+        STR(Falling            ), // 0x00001000,
+        STR(Fallingfar         ), // 0x00002000,
+        STR(Pendingstop        ), // 0x00004000,
+        STR(PendingSTRafestop  ), // 0x00008000,
+        STR(Pendingforward     ), // 0x00010000,
+        STR(Pendingbackward    ), // 0x00020000,
+        STR(PendingSTRafeleft  ), // 0x00040000,
+        STR(PendingSTRaferight ), // 0x00080000,
+        STR(Pendingroot        ), // 0x00100000,
+        STR(Swimming           ), // 0x00200000,               // Appears With Fly Flag Also
+        STR(Ascending          ), // 0x00400000,               // Swim Up Also
+        STR(Descending         ), // 0x00800000,               // Swim Down Also
+        STR(Can_Fly            ), // 0x01000000,               // Can Fly In 3.3?
+        STR(Flying             ), // 0x02000000,               // Actual Flying Mode
+        STR(Spline_Elevation   ), // 0x04000000,               // Used For Flight Paths
+        STR(Spline_Enabled     ), // 0x08000000,               // Used For Flight Paths
+        STR(Waterwalking       ), // 0x10000000,               // Prevent Unit From Falling Through Water
+        STR(Safe_Fall          ), // 0x20000000,               // Active Rogue Safe Fall Spell (Passive)
+        STR(Hover              ), // 0x40000000
+        STR(Unknown13          ), // 0x80000000
         STR(Unk1               ),
         STR(Unk2               ),
         STR(Unk3               ),
@@ -156,38 +156,38 @@ namespace Movement
 
     char const* g_SplineFlag_names[32] =
     {
-        STR(AnimBit1     ),// 0x00000001,
-        STR(AnimBit2     ),// 0x00000002,
-        STR(AnimBit3     ),// 0x00000004,
-        STR(AnimBit4     ),// 0x00000008,
-        STR(AnimBit5     ),// 0x00000010,
-        STR(AnimBit6     ),// 0x00000020,
-        STR(AnimBit7     ),// 0x00000040,
-        STR(AnimBit8     ),// 0x00000080,
-        STR(Done         ),// 0x00000100,
-        STR(Falling      ),// 0x00000200,           // Not Compartible With Trajectory Movement
-        STR(No_Spline    ),// 0x00000400,
-        STR(Trajectory   ),// 0x00000800,           // Not Compartible With Fall Movement
-        STR(Walkmode     ),// 0x00001000,
-        STR(Flying       ),// 0x00002000,           // Smooth Movement(Catmullrom Interpolation Mode), Flying Animation
-        STR(Knockback    ),// 0x00004000,           // Model Orientation Fixed
-        STR(Final_Point  ),// 0x00008000,
-        STR(Final_Target ),// 0x00010000,
-        STR(Final_Angle  ),// 0x00020000,
-        STR(Catmullrom   ),// 0x00040000,           // Used Catmullrom Interpolation Mode
-        STR(Cyclic       ),// 0x00080000,           // Movement By Cycled Spline
-        STR(Enter_Cycle  ),// 0x00100000,           // Everytime Appears With Cyclic Flag In Monster Move Packet
-        STR(Animation    ),// 0x00200000,           // Animationid (0...3), Uint32 Time, Not Compartible With Trajectory And Fall Movement
-        STR(Unknown4     ),// 0x00400000,           // Disables Movement By Path
-        STR(Unknown5     ),// 0x00800000,
-        STR(Unknown6     ),// 0x01000000,
-        STR(Unknown7     ),// 0x02000000,
-        STR(Unknown8     ),// 0x04000000,
-        STR(OrientationInversed ),// 0x08000000,           // Appears With Runmode Flag, Nodes ),// 1, Handles Orientation
-        STR(Unknown10    ),// 0x10000000,
-        STR(Unknown11    ),// 0x20000000,
-        STR(Unknown12    ),// 0x40000000,
-        STR(Unknown13    ),// 0x80000000,
+        STR(AnimBit1     ), // 0x00000001,
+        STR(AnimBit2     ), // 0x00000002,
+        STR(AnimBit3     ), // 0x00000004,
+        STR(AnimBit4     ), // 0x00000008,
+        STR(AnimBit5     ), // 0x00000010,
+        STR(AnimBit6     ), // 0x00000020,
+        STR(AnimBit7     ), // 0x00000040,
+        STR(AnimBit8     ), // 0x00000080,
+        STR(Done         ), // 0x00000100,
+        STR(Falling      ), // 0x00000200,           // Not Compartible With Trajectory Movement
+        STR(No_Spline    ), // 0x00000400,
+        STR(Trajectory   ), // 0x00000800,           // Not Compartible With Fall Movement
+        STR(Walkmode     ), // 0x00001000,
+        STR(Flying       ), // 0x00002000,           // Smooth Movement(Catmullrom Interpolation Mode), Flying Animation
+        STR(Knockback    ), // 0x00004000,           // Model Orientation Fixed
+        STR(Final_Point  ), // 0x00008000,
+        STR(Final_Target ), // 0x00010000,
+        STR(Final_Angle  ), // 0x00020000,
+        STR(Catmullrom   ), // 0x00040000,           // Used Catmullrom Interpolation Mode
+        STR(Cyclic       ), // 0x00080000,           // Movement By Cycled Spline
+        STR(Enter_Cycle  ), // 0x00100000,           // Everytime Appears With Cyclic Flag In Monster Move Packet
+        STR(Animation    ), // 0x00200000,           // Animationid (0...3), Uint32 Time, Not Compartible With Trajectory And Fall Movement
+        STR(Unknown4     ), // 0x00400000,           // Disables Movement By Path
+        STR(Unknown5     ), // 0x00800000,
+        STR(Unknown6     ), // 0x01000000,
+        STR(Unknown7     ), // 0x02000000,
+        STR(Unknown8     ), // 0x04000000,
+        STR(OrientationInversed ), // 0x08000000,           // Appears With Runmode Flag, Nodes ), // 1, Handles Orientation
+        STR(Unknown10    ), // 0x10000000,
+        STR(Unknown11    ), // 0x20000000,
+        STR(Unknown12    ), // 0x40000000,
+        STR(Unknown13    ), // 0x80000000,
     };
 
     template<class Flags, int N>

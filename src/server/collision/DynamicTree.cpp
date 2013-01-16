@@ -227,7 +227,7 @@ bool DynamicMapTree::getObjectHitPos(const uint32 phasemask, const Vector3& star
 
 bool DynamicMapTree::isInLineOfSight(float x1, float y1, float z1, float x2, float y2, float z2, uint32 phasemask) const
 {
-    Vector3 v1(x1,y1,z1), v2(x2,y2,z2);
+    Vector3 v1(x1, y1, z1), v2(x2, y2, z2);
 
     float maxDist = (v2 - v1).magnitude();
 
@@ -243,8 +243,8 @@ bool DynamicMapTree::isInLineOfSight(float x1, float y1, float z1, float x2, flo
 
 float DynamicMapTree::getHeight(float x, float y, float z, float maxSearchDist, uint32 phasemask) const
 {
-    Vector3 v(x,y,z);
-    Ray r(v, Vector3(0,0,-1));
+    Vector3 v(x, y, z);
+    Ray r(v, Vector3(0, 0, -1));
     DynamicTreeIntersectionCallback callback(phasemask);
     impl.intersectZAllignedRay(r, callback, maxSearchDist);
 

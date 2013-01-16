@@ -70,6 +70,7 @@ class boss_jeklik : public CreatureScript //jeklik
 
             void Reset()
             {
+                _Reset();
                 Charge_Timer = 20000;
                 SonicBurst_Timer = 8000;
                 Screech_Timer = 13000;
@@ -270,7 +271,7 @@ class mob_batrider : public CreatureScript
                 {
                     if (instance)
                     {
-                        if (instance->GetData(DATA_JEKLIK) == DONE)
+                        if (instance->GetBossState(DATA_JEKLIK) == DONE)
                         {
                             me->setDeathState(JUST_DIED);
                             me->RemoveCorpse();

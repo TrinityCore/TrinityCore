@@ -476,7 +476,7 @@ void Map::ScriptsProcess()
                 // Source or target must be Creature.
                 if (Creature* cSource = _GetScriptCreatureSourceOrTarget(source, target, step.script))
                 {
-                    Unit * unit = (Unit*)cSource;
+                    Unit* unit = (Unit*)cSource;
                     if (step.script->MoveTo.TravelTime != 0)
                     {
                         float speed = unit->GetDistance(step.script->MoveTo.DestX, step.script->MoveTo.DestY, step.script->MoveTo.DestZ) / ((float)step.script->MoveTo.TravelTime * 0.001f);

@@ -101,8 +101,8 @@ enum SvalaPhase
 
 static const float spectatorWP[2][3] =
 {
-    {296.95f,-312.76f,86.36f},
-    {297.69f,-275.81f,86.36f}
+    {296.95f, -312.76f, 86.36f},
+    {297.69f, -275.81f, 86.36f}
 };
 
 static Position ArthasPos = { 295.81f, -366.16f, 92.57f, 1.58f };
@@ -517,7 +517,7 @@ public:
             if (motionType == POINT_MOTION_TYPE)
             {
                 if (pointId == 1)
-                    me->GetMotionMaster()->MovePoint(2,spectatorWP[1][0],spectatorWP[1][1],spectatorWP[1][2]);
+                    me->GetMotionMaster()->MovePoint(2, spectatorWP[1][0], spectatorWP[1][1], spectatorWP[1][2]);
                 else if (pointId == 2)
                     me->DespawnOrUnsummon(1000);
             }

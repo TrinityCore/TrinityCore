@@ -20,21 +20,23 @@
 
 uint32 const EncounterCount = 13;
 
+#define ZGScriptName "instance_zulgurub"
+
 enum DataTypes
 {
     DATA_JEKLIK             = 0,  // Main boss
     DATA_VENOXIS            = 1,  // Main boss
     DATA_MARLI              = 2,  // Main boss
     DATA_ARLOKK             = 3,  // Main boss
-    DATA_HAKKAR             = 4,  // Main boss
-    DATA_MANDOKIR           = 5,  // Optional boss
-    DATA_JINDO              = 6,  // Optional boss
-    DATA_GAHZRANKA          = 7,  // Optional boss
-    DATA_EDGE_OF_MADNESS    = 8,  // Optional Event Edge of Madness - one of: Gri'lek, Renataki, Hazza'rah, or Wushoolay
-    DATA_THEKAL             = 9,  // ??
-    DATA_LORKHAN            = 10, // ??
-    DATA_ZATH               = 11, // ??
-    DATA_OHGAN              = 12  // ??
+    DATA_THEKAL             = 4,  // Main boss
+    DATA_HAKKAR             = 5,  // End boss
+    DATA_MANDOKIR           = 6,  // Optional boss
+    DATA_JINDO              = 7,  // Optional boss
+    DATA_GAHZRANKA          = 8,  // Optional boss
+    DATA_EDGE_OF_MADNESS    = 9,  // Optional Event Edge of Madness - one of: Gri'lek, Renataki, Hazza'rah, or Wushoolay
+    DATA_LORKHAN            = 10, // Zealot Lor'Khan add to High priest Thekal!
+    DATA_ZATH               = 11, // Zealot Zath add to High priest Thekal!
+    DATA_OHGAN              = 12  // Bloodlord Mandokir's raptor mount
 };
 
 enum CreatureIds
@@ -43,7 +45,24 @@ enum CreatureIds
     NPC_ZEALOT_ZATH         = 11348,
     NPC_HIGH_PRIEST_THEKAL  = 14509,
     NPC_JINDO_THE_HEXXER    = 11380,
-    NPC_NIGHTMARE_ILLUSION  = 15163
+    NPC_NIGHTMARE_ILLUSION  = 15163,
+    NPC_ZULIAN_PROWLER      = 15101,
+    NPC_VILEBRANCH_SPEAKER  = 11391,
+    NPC_SHADE_OF_JINDO      = 14986,
+    NPC_SACRIFICED_TROLL    = 14826,
+    NPC_OHGAN               = 14988,
+    NPC_CHAINED_SPIRT       = 15117,
+    NPC_MANDOKIR            = 11382
 };
+
+template<class AI>
+CreatureAI* GetZulGurubAI(Creature* creature)
+{
+    if (InstanceMap* instance = creature->GetMap()->ToInstanceMap())
+        if (instance->GetInstanceScript())
+            if (instance->GetScriptId() == sObjectMgr->GetScriptId(ZGScriptName))
+                return new AI(creature);
+    return NULL;
+}
 
 #endif

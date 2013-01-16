@@ -3703,6 +3703,8 @@ void SpellMgr::LoadDbcDataCorrections()
             case 29307: // Infected Wounds (Zombie Chow)
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
                 break;
+            case 24314: // Threatening Gaze
+                spellInfo->AuraInterruptFlags |= AURA_INTERRUPT_FLAG_CAST | AURA_INTERRUPT_FLAG_MOVE | AURA_INTERRUPT_FLAG_JUMP;
             default:
                 break;
         }

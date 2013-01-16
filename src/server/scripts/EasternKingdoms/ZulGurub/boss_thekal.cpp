@@ -89,6 +89,7 @@ class boss_thekal : public CreatureScript
 
             void Reset()
             {
+                _Reset();
                 Enraged = false;
                 WasDead = false;
             }
@@ -112,7 +113,7 @@ class boss_thekal : public CreatureScript
             void JustReachedHome()
             {
                 if (instance)
-                    instance->SetData(DATA_THEKAL, NOT_STARTED);
+                    instance->SetBossState(DATA_THEKAL, NOT_STARTED);
             }
 
             void UpdateAI(uint32 const diff)
@@ -166,7 +167,7 @@ class boss_thekal : public CreatureScript
                             {
                                 if (instance)
                                 {
-                                    if (instance->GetData(DATA_LORKHAN) == SPECIAL)
+                                    if (instance->GetBossState(DATA_LORKHAN) == SPECIAL)
                                     {
                                         //Resurrect LorKhan
                                         if (Unit* pLorKhan = Unit::GetUnit(*me, instance->GetData64(DATA_LORKHAN)))
@@ -179,7 +180,7 @@ class boss_thekal : public CreatureScript
                                         }
                                     }
 
-                                    if (instance->GetData(DATA_ZATH) == SPECIAL)
+                                    if (instance->GetBossState(DATA_ZATH) == SPECIAL)
                                     {
                                         //Resurrect Zath
                                         if (Unit* pZath = Unit::GetUnit(*me, instance->GetData64(DATA_ZATH)))
@@ -188,7 +189,7 @@ class boss_thekal : public CreatureScript
                                             pZath->setFaction(14);
                                             pZath->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                                             pZath->SetFullHealth();
-                                            instance->SetData(DATA_ZATH, DONE);
+                                            instance->SetBossState(DATA_ZATH, DONE);
                                         }
                                     }
                                 }
@@ -240,7 +241,7 @@ class boss_thekal : public CreatureScript
                         me->SetStandState(UNIT_STAND_STATE_SLEEP);
                         me->AttackStop();
                         if (instance)
-                            instance->SetData(DATA_THEKAL, SPECIAL);
+                            instance->SetBossState(DATA_THEKAL, SPECIAL);
                         WasDead=true;
                     }
                 }
@@ -287,7 +288,7 @@ class mob_zealot_lorkhan : public CreatureScript
                 FakeDeath = false;
 
                 if (instance)
-                    instance->SetData(DATA_LORKHAN, NOT_STARTED);
+                    instance->SetBossState(DATA_LORKHAN, NOT_STARTED);
 
                 me->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
@@ -355,7 +356,7 @@ class mob_zealot_lorkhan : public CreatureScript
                 {
                     if (instance)
                     {
-                        if (instance->GetData(DATA_THEKAL) == SPECIAL)
+                        if (instance->GetBossState(DATA_THEKAL) == SPECIAL)
                         {
                             //Resurrect Thekal
                             if (Unit* pThekal = Unit::GetUnit(*me, instance->GetData64(DATA_THEKAL)))
@@ -367,7 +368,7 @@ class mob_zealot_lorkhan : public CreatureScript
                             }
                         }
 
-                        if (instance->GetData(DATA_ZATH) == SPECIAL)
+                        if (instance->GetBossState(DATA_ZATH) == SPECIAL)
                         {
                             //Resurrect Zath
                             if (Unit* pZath = Unit::GetUnit(*me, instance->GetData64(DATA_ZATH)))
@@ -394,7 +395,7 @@ class mob_zealot_lorkhan : public CreatureScript
                     me->AttackStop();
 
                     if (instance)
-                        instance->SetData(DATA_LORKHAN, SPECIAL);
+                        instance->SetBossState(DATA_LORKHAN, SPECIAL);
 
                     FakeDeath = true;
                 }
@@ -449,7 +450,7 @@ class mob_zealot_zath : public CreatureScript
                 FakeDeath = false;
 
                 if (instance)
-                    instance->SetData(DATA_ZATH, NOT_STARTED);
+                    instance->SetBossState(DATA_ZATH, NOT_STARTED);
 
                 me->SetStandState(UNIT_STAND_STATE_STAND);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
@@ -508,7 +509,7 @@ class mob_zealot_zath : public CreatureScript
                 {
                     if (instance)
                     {
-                        if (instance->GetData(DATA_LORKHAN) == SPECIAL)
+                        if (instance->GetBossState(DATA_LORKHAN) == SPECIAL)
                         {
                             //Resurrect LorKhan
                             if (Unit* pLorKhan = Unit::GetUnit(*me, instance->GetData64(DATA_LORKHAN)))
@@ -520,7 +521,7 @@ class mob_zealot_zath : public CreatureScript
                             }
                         }
 
-                        if (instance->GetData(DATA_THEKAL) == SPECIAL)
+                        if (instance->GetBossState(DATA_THEKAL) == SPECIAL)
                         {
                             //Resurrect Thekal
                             if (Unit* pThekal = Unit::GetUnit(*me, instance->GetData64(DATA_THEKAL)))
@@ -547,7 +548,7 @@ class mob_zealot_zath : public CreatureScript
                     me->AttackStop();
 
                     if (instance)
-                        instance->SetData(DATA_ZATH, SPECIAL);
+                        instance->SetBossState(DATA_ZATH, SPECIAL);
 
                     FakeDeath = true;
                 }
