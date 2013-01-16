@@ -79,11 +79,7 @@ class boss_arlokk : public CreatureScript
 
         struct boss_arlokkAI : public BossAI
         {
-            boss_arlokkAI(Creature* creature) : BossAI(creature, DATA_ARLOKK) {}
-
-            uint32 summonCount;
-            // Unit* markedTarget;
-            uint64 markedTargetGUID;
+            boss_arlokkAI(Creature* creature) : BossAI(creature, DATA_ARLOKK) { }
 
             void Reset()
             {
@@ -113,13 +109,15 @@ class boss_arlokk : public CreatureScript
 
             void JustReachedHome()
             {
-                if (instance)
-                    instance->SetData(DATA_ARLOKK, NOT_STARTED);
+                instance->SetBossState(DATA_ARLOKK, NOT_STARTED);
                 me->DespawnOrUnsummon();
             }
 
             void DoSummonPhanters()
             {
+                if (summonCount > 30)
+                    return;
+
                 if (markedTargetGUID)
                     Talk(SAY_FEAST_PANTHER, markedTargetGUID);
                 me->SummonCreature(NPC_ZULIAN_PROWLER, PosSummonProwlers[0], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
@@ -152,7 +150,8 @@ class boss_arlokk : public CreatureScript
                             events.ScheduleEvent(EVENT_SHADOW_WORD_PAIN, 15000, 0, PHASE_ONE);
                             break;
                         case EVENT_MARK:
-                            DoCast(SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true), SPELL_MARK);
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                                DoCast(target, SPELL_MARK);
                             events.ScheduleEvent(EVENT_MARK, 15000, 0, PHASE_ONE);
                             break;
                         case EVENT_CLEAVE:
@@ -164,8 +163,7 @@ class boss_arlokk : public CreatureScript
                             events.ScheduleEvent(EVENT_GOUGE, urand(17000, 27000), 0, PHASE_TWO);
                             break;
                         case EVENT_SUMMON:
-                            if (summonCount <= 30)
-                                DoSummonPhanters();
+                            DoSummonPhanters();
                             events.ScheduleEvent(EVENT_SUMMON, 5000);
                             break;
                         case EVENT_VANISH:
@@ -176,21 +174,21 @@ class boss_arlokk : public CreatureScript
                             events.ScheduleEvent(EVENT_VISIBLE, 6000);
                             break;
                         case EVENT_VISIBLE:
-                            {
-                                me->SetDisplayId(MODEL_ID_PANTHER);
-                                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                                const CreatureTemplate* cinfo = me->GetCreatureTemplate();
-                                me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, (cinfo->mindmg +((cinfo->mindmg/100) * 35)));
-                                me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, (cinfo->maxdmg +((cinfo->maxdmg/100) * 35)));
-                                me->UpdateDamagePhysical(BASE_ATTACK);
-                                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                                    AttackStart(target);
-                                events.ScheduleEvent(EVENT_VANISH, 39000);
-                                events.ScheduleEvent(EVENT_CLEAVE, 0, PHASE_TWO);
-                                events.ScheduleEvent(EVENT_GOUGE, 14000, 0, PHASE_TWO);
-                                events.SetPhase(PHASE_TWO);
-                                break;
-                            }
+                        {
+                            me->SetDisplayId(MODEL_ID_PANTHER);
+                            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                            const CreatureTemplate* cinfo = me->GetCreatureTemplate();
+                            me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, (cinfo->mindmg +((cinfo->mindmg/100) * 35)));
+                            me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, (cinfo->maxdmg +((cinfo->maxdmg/100) * 35)));
+                            me->UpdateDamagePhysical(BASE_ATTACK);
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                                AttackStart(target);
+                            events.ScheduleEvent(EVENT_VANISH, 39000);
+                            events.ScheduleEvent(EVENT_CLEAVE, 0, PHASE_TWO);
+                            events.ScheduleEvent(EVENT_GOUGE, 14000, 0, PHASE_TWO);
+                            events.SetPhase(PHASE_TWO);
+                            break;
+                        }
                         default:
                             break;
                     }
@@ -198,11 +196,15 @@ class boss_arlokk : public CreatureScript
 
                 DoMeleeAttackIfReady();
             }
+
+        private:
+            uint32 summonCount;
+            uint64 markedTargetGUID;
         };
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new boss_arlokkAI(creature);
+            return GetZulGurubAI<boss_arlokkAI>(creature);
         }
 };
 
@@ -214,7 +216,7 @@ class go_gong_of_bethekk : public GameObjectScript
         {
             if (InstanceScript* instance = go->GetInstanceScript())
             {
-                if (instance->GetData(DATA_ARLOKK) == DONE || instance->GetBossState(DATA_ARLOKK) == IN_PROGRESS)
+                if (instance->GetBossState(DATA_ARLOKK) == DONE || instance->GetBossState(DATA_ARLOKK) == IN_PROGRESS)
                     return true;
                 instance->SetBossState(DATA_ARLOKK, IN_PROGRESS);
                 return true;
