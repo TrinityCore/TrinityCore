@@ -1342,7 +1342,7 @@ void WorldSession::HandleComplainOpcode(WorldPacket& recvData)
             recvData >> unk1;                              // probably language
             recvData >> unk2;                              // message type?
             recvData >> unk3;                              // probably channel id
-            recvData >> unk4;                              // unk random value
+            recvData >> unk4;                              // time
             recvData >> description;                       // spam description string (messagetype, channel name, player name, message)
             break;
     }
