@@ -134,8 +134,6 @@ extern int main(int argc, char **argv)
     if (!StartDB())
         return 1;
 
-    sLog->SetRealmID(0);                                               // ensure we've set realm to 0 (authserver realmid)
-
     // Get the list of realms for the server
     sRealmList->Initialize(ConfigMgr::GetIntDefault("RealmsStateUpdateDelay", 20));
     if (sRealmList->size() == 0)
@@ -272,7 +270,7 @@ bool StartDB()
     }
 
     sLog->outInfo(LOG_FILTER_AUTHSERVER, "Started auth database connection pool.");
-    sLog->EnableDBAppenders();
+    sLog->SetRealmId(0); // Enables DB appenders when realm is set.
     return true;
 }
 

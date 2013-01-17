@@ -39,7 +39,7 @@ AppenderFile::~AppenderFile()
     }
 }
 
-void AppenderFile::_write(LogMessage& message)
+void AppenderFile::_write(LogMessage const& message)
 {
     if (dynamicName)
     {
@@ -70,5 +70,6 @@ FILE* AppenderFile::OpenFile(std::string const &filename, std::string const &mod
         newName.append(LogMessage::getTimeStr(time(NULL)));
         rename(filename.c_str(), newName.c_str()); // no error handling... if we couldn't make a backup, just ignore
     }
+
     return fopen((logDir + filename).c_str(), mode.c_str());
 }
