@@ -21759,7 +21759,7 @@ void Player::LeaveBattleground(bool teleportToEntryPoint)
     }
 }
 
-bool Player::CanJoinToBattleground() const
+bool Player::CanJoinToBattleground(Battleground const* /*bg*/) const
 {
     // check Deserter debuff
     if (HasAura(26013))
