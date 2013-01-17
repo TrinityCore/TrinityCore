@@ -27,75 +27,85 @@ EndScriptData */
 #include "ScriptedCreature.h"
 #include "zulgurub.h"
 
-#define SPELL_MANABURN         26046
-#define SPELL_SLEEP            24664
+enum Spells
+{
+    SPELL_MANABURN              = 26046,
+    SPELL_SLEEP                 = 24664
+};
+
+enum Events
+{
+    EVENT_MANABURN              = 0,
+    EVENT_SLEEP                 = 1,
+    EVENT_ILLUSIONS             = 2
+};
 
 class boss_hazzarah : public CreatureScript
 {
-    public:
+    public: boss_hazzarah() : CreatureScript("boss_hazzarah") {}
 
-        boss_hazzarah()
-            : CreatureScript("boss_hazzarah")
+        struct boss_hazzarahAI : public BossAI
         {
-        }
-
-        struct boss_hazzarahAI : public ScriptedAI
-        {
-            boss_hazzarahAI(Creature* creature) : ScriptedAI(creature) {}
-
-            uint32 ManaBurn_Timer;
-            uint32 Sleep_Timer;
-            uint32 Illusions_Timer;
+            boss_hazzarahAI(Creature* creature) : BossAI(creature, DATA_EDGE_OF_MADNESS) {}
 
             void Reset()
             {
-                ManaBurn_Timer = urand(4000, 10000);
-                Sleep_Timer = urand(10000, 18000);
-                Illusions_Timer = urand(10000, 18000);
+                _Reset();
+            }
+
+            void JustDied(Unit* /*killer*/)
+            {
+                _JustDied();
             }
 
             void EnterCombat(Unit* /*who*/)
             {
+                _EnterCombat();
+                events.ScheduleEvent(EVENT_MANABURN, urand(4000, 10000));
+                events.ScheduleEvent(EVENT_SLEEP, urand(10000, 18000));
+                events.ScheduleEvent(EVENT_ILLUSIONS, urand(10000, 18000));
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 const diff)
             {
                 if (!UpdateVictim())
                     return;
 
-                //ManaBurn_Timer
-                if (ManaBurn_Timer <= diff)
-                {
-                    DoCast(me->getVictim(), SPELL_MANABURN);
-                    ManaBurn_Timer = urand(8000, 16000);
-                } else ManaBurn_Timer -= diff;
+                events.Update(diff);
 
-                //Sleep_Timer
-                if (Sleep_Timer <= diff)
-                {
-                    DoCast(me->getVictim(), SPELL_SLEEP);
-                    Sleep_Timer = urand(12000, 20000);
-                } else Sleep_Timer -= diff;
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
 
-                //Illusions_Timer
-                if (Illusions_Timer <= diff)
+                while (uint32 eventId = events.ExecuteEvent())
                 {
-                    //We will summon 3 illusions that will spawn on a random gamer and attack this gamer
-                    //We will just use one model for the beginning
-                    Unit* target = NULL;
-                    for (uint8 i = 0; i < 3; ++i)
+                    switch (eventId)
                     {
-                        target = SelectTarget(SELECT_TARGET_RANDOM, 0);
-                        if (!target)
-                            return;
-
-                        Creature* Illusion = me->SummonCreature(15163, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 30000);
-                        if (Illusion)
-                            Illusion->AI()->AttackStart(target);
+                        case EVENT_MANABURN:
+                            DoCastVictim(SPELL_MANABURN, true);
+                            events.ScheduleEvent(EVENT_MANABURN, urand(8000, 16000));
+                            break;
+                        case EVENT_SLEEP:
+                            DoCastVictim(SPELL_SLEEP, true);
+                            events.ScheduleEvent(EVENT_SLEEP, urand(12000, 20000));
+                            break;
+                        case EVENT_ILLUSIONS:
+                            // We will summon 3 illusions that will spawn on a random gamer and attack this gamer
+                            // We will just use one model for the beginning
+                            for (uint8 i = 0; i < 3; ++i)
+                            {
+                                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                                {
+                                    Creature* Illusion = me->SummonCreature(NPC_NIGHTMARE_ILLUSION, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 30000);
+                                    if (Illusion)
+                                        Illusion->AI()->AttackStart(target);
+                                }
+                            }
+                            events.ScheduleEvent(EVENT_ILLUSIONS, urand(15000, 25000));
+                            break;
+                        default:
+                            break;
                     }
-
-                    Illusions_Timer = urand(15000, 25000);
-                } else Illusions_Timer -= diff;
+                }
 
                 DoMeleeAttackIfReady();
             }

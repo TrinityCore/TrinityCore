@@ -60,8 +60,11 @@ class instance_ruby_sanctum : public InstanceMapScript
             void OnPlayerEnter(Player* /*player*/)
             {
                 if (!GetData64(DATA_HALION_CONTROLLER) && GetBossState(DATA_HALION) != DONE && GetBossState(DATA_GENERAL_ZARITHRIAN) == DONE)
+                {
+                    instance->LoadGrid(HalionControllerSpawnPos.GetPositionX(), HalionControllerSpawnPos.GetPositionY());
                     if (Creature* halionController = instance->SummonCreature(NPC_HALION_CONTROLLER, HalionControllerSpawnPos))
                         halionController->AI()->DoAction(ACTION_INTRO_HALION);
+                }
             }
 
             void OnCreatureCreate(Creature* creature)
@@ -164,6 +167,20 @@ class instance_ruby_sanctum : public InstanceMapScript
                 }
             }
 
+            void OnUnitDeath(Unit* unit)
+            {
+                Creature* creature = unit->ToCreature();
+                if (!creature)
+                    return;
+
+                if (creature->GetEntry() == NPC_GENERAL_ZARITHRIAN && GetBossState(DATA_HALION) != DONE)
+                {
+                    instance->LoadGrid(HalionControllerSpawnPos.GetPositionX(), HalionControllerSpawnPos.GetPositionY());
+                    if (Creature* halionController = instance->SummonCreature(NPC_HALION_CONTROLLER, HalionControllerSpawnPos))
+                        halionController->AI()->DoAction(ACTION_INTRO_HALION);
+                }
+            }
+
             uint64 GetData64(uint32 type) const
             {
                 switch (type)
@@ -238,11 +255,6 @@ class instance_ruby_sanctum : public InstanceMapScript
                     {
                         if (GetBossState(DATA_SAVIANA_RAGEFIRE) == DONE && GetBossState(DATA_BALTHARUS_THE_WARBORN) == DONE)
                             HandleGameObject(FlameWallsGUID, state != IN_PROGRESS);
-
-                        // Not called at instance loading, no big deal.
-                        if (state == DONE && GetBossState(DATA_HALION) != DONE)
-                            if (Creature* halionController = instance->SummonCreature(NPC_HALION_CONTROLLER, HalionControllerSpawnPos))
-                                halionController->AI()->DoAction(ACTION_INTRO_HALION);
                         break;
                     }
                     case DATA_HALION:

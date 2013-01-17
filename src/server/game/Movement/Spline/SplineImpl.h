@@ -81,7 +81,7 @@ template<typename length_type> void Spline<length_type>::initLengths()
     index_type i = index_lo;
     length_type length = 0;
     lengths.resize(index_hi+1);
-    while(i < index_hi )
+    while (i < index_hi)
     {
         length += SegLength(i);
         lengths[++i] = length;

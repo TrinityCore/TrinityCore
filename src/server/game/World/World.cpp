@@ -1828,7 +1828,9 @@ void World::SetInitialWorldSettings()
     uint32 startupDuration = GetMSTimeDiffToNow(startupBegin);
 
     sLog->outInfo(LOG_FILTER_WORLDSERVER, "World initialized in %u minutes %u seconds", (startupDuration / 60000), ((startupDuration % 60000) / 1000));
-    sLog->EnableDBAppenders();
+
+    if (uint32 realmId = ConfigMgr::GetIntDefault("RealmID", 0)) // 0 reserved for auth
+        sLog->SetRealmId(realmId);
 }
 
 void World::DetectDBCLang()
@@ -2949,7 +2951,7 @@ void World::ResetMonthlyQuests()
 void World::ResetEventSeasonalQuests(uint16 event_id)
 {
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_QUEST_STATUS_SEASONAL);
-    stmt->setUInt16(0,event_id);
+    stmt->setUInt16(0, event_id);
     CharacterDatabase.Execute(stmt);
 
     for (SessionMap::const_iterator itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)

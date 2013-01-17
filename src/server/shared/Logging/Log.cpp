@@ -31,7 +31,6 @@
 
 Log::Log() : worker(NULL)
 {
-    SetRealmID(0);
     m_logsTimestamp = "_" + GetTimestampStr();
     LoadFromConfig();
 }
@@ -82,7 +81,7 @@ void Log::CreateAppenderFromConfig(const char* name)
     if (!name || *name == '\0')
         return;
 
-    // Format=type,level,flags,optional1,optional2
+    // Format=type, level, flags, optional1, optional2
     // if type = File. optional1 = file and option2 = mode
     // if type = Console. optional1 = Color
     std::string options = "Appender.";
@@ -154,7 +153,7 @@ void Log::CreateAppenderFromConfig(const char* name)
         case APPENDER_DB:
         {
             uint8 id = NextAppenderId();
-            appenders[id] = new AppenderDB(id, name, level, realm);
+            appenders[id] = new AppenderDB(id, name, level);
             break;
         }
         default:
@@ -265,13 +264,6 @@ void Log::ReadLoggersFromConfig()
         loggers[LOG_FILTER_GENERAL].Create("root", LOG_FILTER_GENERAL, LOG_LEVEL_DISABLED);
 }
 
-void Log::EnableDBAppenders()
-{
-    for (AppenderMap::iterator it = appenders.begin(); it != appenders.end(); ++it)
-        if (it->second && it->second->getType() == APPENDER_DB)
-            ((AppenderDB *)it->second)->setEnable(true);
-}
-
 void Log::vlog(LogFilterType filter, LogLevel level, char const* str, va_list argptr)
 {
     char text[MAX_QUERY_LEN];
@@ -281,12 +273,16 @@ void Log::vlog(LogFilterType filter, LogLevel level, char const* str, va_list ar
 
 void Log::write(LogMessage* msg)
 {
+    if (loggers.empty())
+        return;
+
+    msg->text.append("\n");
+    Logger* logger = GetLoggerByType(msg->type);
+
     if (worker)
-    {
-        msg->text.append("\n");
-        Logger* logger = GetLoggerByType(msg->type);
         worker->enqueue(new LogOperation(logger, msg));
-    }
+    else
+        logger->write(*msg);
 }
 
 std::string Log::GetTimestampStr()
@@ -463,9 +459,11 @@ void Log::outCommand(uint32 account, const char * str, ...)
     write(msg);
 }
 
-void Log::SetRealmID(uint32 id)
+void Log::SetRealmId(uint32 id)
 {
-    realm = id;
+    for (AppenderMap::iterator it = appenders.begin(); it != appenders.end(); ++it)
+        if (it->second && it->second->getType() == APPENDER_DB)
+            ((AppenderDB *)it->second)->setRealmId(id);
 }
 
 void Log::Close()
@@ -484,7 +482,10 @@ void Log::Close()
 void Log::LoadFromConfig()
 {
     Close();
-    worker = new LogWorker();
+
+    if (ConfigMgr::GetBoolDefault("Log.Async.Enable", false))
+        worker = new LogWorker();
+
     AppenderId = 0;
     m_logsDir = ConfigMgr::GetStringDefault("LogsDir", "");
     if (!m_logsDir.empty())

@@ -40,16 +40,11 @@ enum Misc
 
 class boss_renataki : public CreatureScript
 {
-    public:
+    public: boss_renataki() : CreatureScript("boss_renataki") {}
 
-        boss_renataki()
-            : CreatureScript("boss_renataki")
+        struct boss_renatakiAI : public BossAI
         {
-        }
-
-        struct boss_renatakiAI : public ScriptedAI
-        {
-            boss_renatakiAI(Creature* creature) : ScriptedAI(creature) {}
+            boss_renatakiAI(Creature* creature) : BossAI(creature, DATA_EDGE_OF_MADNESS) {}
 
             uint32 Invisible_Timer;
             uint32 Ambush_Timer;
@@ -62,6 +57,7 @@ class boss_renataki : public CreatureScript
 
             void Reset()
             {
+                _Reset();
                 Invisible_Timer = urand(8000, 18000);
                 Ambush_Timer = 3000;
                 Visible_Timer = 4000;
@@ -72,8 +68,14 @@ class boss_renataki : public CreatureScript
                 Ambushed = false;
             }
 
+            void JustDied(Unit* /*killer*/)
+            {
+                _JustDied();
+            }
+
             void EnterCombat(Unit* /*who*/)
             {
+                _EnterCombat();
             }
 
             void UpdateAI(const uint32 diff)

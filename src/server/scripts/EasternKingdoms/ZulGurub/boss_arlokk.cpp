@@ -27,257 +27,198 @@ EndScriptData */
 #include "ScriptedCreature.h"
 #include "zulgurub.h"
 
-enum eYells
+enum Says
 {
     SAY_AGGRO                   = 0,
     SAY_FEAST_PANTHER           = 1,
-    SAY_DEATH                   = 2,
+    SAY_DEATH                   = 2
 };
 
-enum eSpells
+enum Spells
 {
-    SPELL_SHADOWWORDPAIN        = 23952,
+    SPELL_SHADOW_WORD_PAIN      = 23952,
     SPELL_GOUGE                 = 24698,
     SPELL_MARK                  = 24210,
-    SPELL_CLEAVE                = 26350,                    //Perhaps not right. Not a red aura...
-    SPELL_PANTHER_TRANSFORM     = 24190,
+    SPELL_CLEAVE                = 26350, // Perhaps not right. Not a red aura...
+    SPELL_PANTHER_TRANSFORM     = 24190
+};
 
+enum Events
+{
+    EVENT_SHADOW_WORD_PAIN      = 0,
+    EVENT_GOUGE                 = 1,
+    EVENT_MARK                  = 2,
+    EVENT_CLEAVE                = 3,
+    EVENT_VANISH                = 4,
+    EVENT_VISIBLE               = 5,
+    EVENT_SUMMON                = 6
+};
+
+enum Phases
+{
+    PHASE_ONE                 = 1,
+    PHASE_TWO                 = 2
+};
+
+enum ModelIds
+{
     MODEL_ID_NORMAL             = 15218,
     MODEL_ID_PANTHER            = 15215,
-    MODEL_ID_BLANK              = 11686,
+    MODEL_ID_BLANK              = 11686
+};
 
-    NPC_ZULIAN_PROWLER          = 15101
+Position const PosSummonProwlers[2] =
+{
+    { -11532.7998f, -1649.6734f, 41.4800f, 0.0f },
+    { -11532.9970f, -1606.4840f, 41.2979f, 0.0f }
 };
 
 class boss_arlokk : public CreatureScript
 {
-    public:
+    public: boss_arlokk() : CreatureScript("boss_arlokk") {}
 
-        boss_arlokk()
-            : CreatureScript("boss_arlokk")
+        struct boss_arlokkAI : public BossAI
         {
-        }
-
-        struct boss_arlokkAI : public ScriptedAI
-        {
-            boss_arlokkAI(Creature* creature) : ScriptedAI(creature)
-            {
-                instance = creature->GetInstanceScript();
-            }
-
-            InstanceScript* instance;
-
-            uint32 m_uiShadowWordPain_Timer;
-            uint32 m_uiGouge_Timer;
-            uint32 m_uiMark_Timer;
-            uint32 m_uiCleave_Timer;
-            uint32 m_uiVanish_Timer;
-            uint32 m_uiVisible_Timer;
-
-            uint32 m_uiSummon_Timer;
-            uint32 m_uiSummonCount;
-
-            Unit* m_pMarkedTarget;
-            uint64 MarkedTargetGUID;
-
-            bool m_bIsPhaseTwo;
-            bool m_bIsVanished;
+            boss_arlokkAI(Creature* creature) : BossAI(creature, DATA_ARLOKK) { }
 
             void Reset()
             {
-                m_uiShadowWordPain_Timer = 8000;
-                m_uiGouge_Timer = 14000;
-                m_uiMark_Timer = 35000;
-                m_uiCleave_Timer = 4000;
-                m_uiVanish_Timer = 60000;
-                m_uiVisible_Timer = 6000;
+                summonCount = 0;
+                markedTargetGUID = 0;
+                me->SetDisplayId(MODEL_ID_NORMAL);
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            }
 
-                m_uiSummon_Timer = 5000;
-                m_uiSummonCount = 0;
-
-                m_bIsPhaseTwo = false;
-                m_bIsVanished = false;
-
-                MarkedTargetGUID = 0;
-
+            void JustDied(Unit* /*killer*/)
+            {
+                _JustDied();
+                Talk(SAY_DEATH);
                 me->SetDisplayId(MODEL_ID_NORMAL);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             }
 
             void EnterCombat(Unit* /*who*/)
             {
+                _EnterCombat();
+                events.ScheduleEvent(EVENT_SHADOW_WORD_PAIN, 8000, 0, PHASE_ONE);
+                events.ScheduleEvent(EVENT_MARK, 35000, 0, PHASE_ONE);
+                events.ScheduleEvent(EVENT_SUMMON, 5000);
+                events.ScheduleEvent(EVENT_VANISH, 60000);
                 Talk(SAY_AGGRO);
             }
 
             void JustReachedHome()
             {
-                if (instance)
-                    instance->SetData(DATA_ARLOKK, NOT_STARTED);
-
-                //we should be summoned, so despawn
+                instance->SetBossState(DATA_ARLOKK, NOT_STARTED);
                 me->DespawnOrUnsummon();
-            }
-
-            void JustDied(Unit* /*killer*/)
-            {
-                Talk(SAY_DEATH);
-
-                me->SetDisplayId(MODEL_ID_NORMAL);
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-
-                if (instance)
-                    instance->SetData(DATA_ARLOKK, DONE);
             }
 
             void DoSummonPhanters()
             {
-                if (MarkedTargetGUID)
-                    Talk(SAY_FEAST_PANTHER, MarkedTargetGUID);
+                if (summonCount > 30)
+                    return;
 
-                me->SummonCreature(NPC_ZULIAN_PROWLER, -11532.7998f, -1649.6734f, 41.4800f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
-                me->SummonCreature(NPC_ZULIAN_PROWLER, -11532.9970f, -1606.4840f, 41.2979f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
+                if (markedTargetGUID)
+                    Talk(SAY_FEAST_PANTHER, markedTargetGUID);
+                me->SummonCreature(NPC_ZULIAN_PROWLER, PosSummonProwlers[0], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
+                me->SummonCreature(NPC_ZULIAN_PROWLER, PosSummonProwlers[1], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
             }
 
             void JustSummoned(Creature* summoned)
             {
-                if (Unit* pMarkedTarget = Unit::GetUnit(*me, MarkedTargetGUID))
-                    summoned->AI()->AttackStart(pMarkedTarget);
-
-                ++m_uiSummonCount;
+                if (Unit* markedTarget = Unit::GetUnit(*me, markedTargetGUID))
+                    summoned->AI()->AttackStart(markedTarget);
+                ++summonCount;
             }
 
-            void UpdateAI(const uint32 uiDiff)
+            void UpdateAI(uint32 const diff)
             {
                 if (!UpdateVictim())
                     return;
 
-                if (!m_bIsPhaseTwo)
+                events.Update(diff);
+
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
+                while (uint32 eventId = events.ExecuteEvent())
                 {
-                    if (m_uiShadowWordPain_Timer <= uiDiff)
+                    switch (eventId)
                     {
-                        DoCast(me->getVictim(), SPELL_SHADOWWORDPAIN);
-                        m_uiShadowWordPain_Timer = 15000;
-                    }
-                    else
-                        m_uiShadowWordPain_Timer -= uiDiff;
-
-                    if (m_uiMark_Timer <= uiDiff)
-                    {
-                        Unit* pMarkedTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
-
-                        if (pMarkedTarget)
+                        case EVENT_SHADOW_WORD_PAIN:
+                            DoCastVictim(SPELL_SHADOW_WORD_PAIN, true);
+                            events.ScheduleEvent(EVENT_SHADOW_WORD_PAIN, 15000, 0, PHASE_ONE);
+                            break;
+                        case EVENT_MARK:
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                                DoCast(target, SPELL_MARK);
+                            events.ScheduleEvent(EVENT_MARK, 15000, 0, PHASE_ONE);
+                            break;
+                        case EVENT_CLEAVE:
+                            DoCastVictim(SPELL_SHADOW_WORD_PAIN, true);
+                            events.ScheduleEvent(EVENT_CLEAVE, 16000, 0, PHASE_TWO);
+                            break;
+                        case EVENT_GOUGE:
+                            DoCastVictim(SPELL_SHADOW_WORD_PAIN, true);
+                            events.ScheduleEvent(EVENT_GOUGE, urand(17000, 27000), 0, PHASE_TWO);
+                            break;
+                        case EVENT_SUMMON:
+                            DoSummonPhanters();
+                            events.ScheduleEvent(EVENT_SUMMON, 5000);
+                            break;
+                        case EVENT_VANISH:
+                            me->SetDisplayId(MODEL_ID_BLANK);
+                            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                            me->AttackStop();
+                            DoResetThreat();
+                            events.ScheduleEvent(EVENT_VISIBLE, 6000);
+                            break;
+                        case EVENT_VISIBLE:
                         {
-                            DoCast(pMarkedTarget, SPELL_MARK);
-                            MarkedTargetGUID = pMarkedTarget->GetGUID();
+                            me->SetDisplayId(MODEL_ID_PANTHER);
+                            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                            const CreatureTemplate* cinfo = me->GetCreatureTemplate();
+                            me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, (cinfo->mindmg +((cinfo->mindmg/100) * 35)));
+                            me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, (cinfo->maxdmg +((cinfo->maxdmg/100) * 35)));
+                            me->UpdateDamagePhysical(BASE_ATTACK);
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                                AttackStart(target);
+                            events.ScheduleEvent(EVENT_VANISH, 39000);
+                            events.ScheduleEvent(EVENT_CLEAVE, 0, PHASE_TWO);
+                            events.ScheduleEvent(EVENT_GOUGE, 14000, 0, PHASE_TWO);
+                            events.SetPhase(PHASE_TWO);
+                            break;
                         }
-                        else
-                            sLog->outError(LOG_FILTER_TSCR, "boss_arlokk could not accuire pMarkedTarget.");
-
-                        m_uiMark_Timer = 15000;
+                        default:
+                            break;
                     }
-                    else
-                        m_uiMark_Timer -= uiDiff;
-                }
-                else
-                {
-                    //Cleave_Timer
-                    if (m_uiCleave_Timer <= uiDiff)
-                    {
-                        DoCast(me->getVictim(), SPELL_CLEAVE);
-                        m_uiCleave_Timer = 16000;
-                    }
-                    else
-                        m_uiCleave_Timer -= uiDiff;
-
-                    //Gouge_Timer
-                    if (m_uiGouge_Timer <= uiDiff)
-                    {
-                        DoCast(me->getVictim(), SPELL_GOUGE);
-
-                        DoModifyThreatPercent(me->getVictim(), -80);
-
-                        m_uiGouge_Timer = 17000+rand()%10000;
-                    }
-                    else
-                        m_uiGouge_Timer -= uiDiff;
                 }
 
-                if (m_uiSummonCount <= 30)
-                {
-                    if (m_uiSummon_Timer <= uiDiff)
-                    {
-                        DoSummonPhanters();
-                        m_uiSummon_Timer = 5000;
-                    }
-                    else
-                        m_uiSummon_Timer -= uiDiff;
-                }
-
-                if (m_uiVanish_Timer <= uiDiff)
-                {
-                    //Invisble Model
-                    me->SetDisplayId(MODEL_ID_BLANK);
-                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-
-                    me->AttackStop();
-                    DoResetThreat();
-
-                    m_bIsVanished = true;
-
-                    m_uiVanish_Timer = 45000;
-                    m_uiVisible_Timer = 6000;
-                }
-                else
-                    m_uiVanish_Timer -= uiDiff;
-
-                if (m_bIsVanished)
-                {
-                    if (m_uiVisible_Timer <= uiDiff)
-                    {
-                        //The Panther Model
-                        me->SetDisplayId(MODEL_ID_PANTHER);
-                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-
-                        const CreatureTemplate* cinfo = me->GetCreatureTemplate();
-                        me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, (cinfo->mindmg +((cinfo->mindmg/100) * 35)));
-                        me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, (cinfo->maxdmg +((cinfo->maxdmg/100) * 35)));
-                        me->UpdateDamagePhysical(BASE_ATTACK);
-
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                            AttackStart(target);
-
-                        m_bIsPhaseTwo = true;
-                        m_bIsVanished = false;
-                    }
-                    else
-                        m_uiVisible_Timer -= uiDiff;
-                }
-                else
-                    DoMeleeAttackIfReady();
+                DoMeleeAttackIfReady();
             }
+
+        private:
+            uint32 summonCount;
+            uint64 markedTargetGUID;
         };
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new boss_arlokkAI(creature);
+            return GetZulGurubAI<boss_arlokkAI>(creature);
         }
 };
 
 class go_gong_of_bethekk : public GameObjectScript
 {
-    public:
-        go_gong_of_bethekk() : GameObjectScript("go_gong_of_bethekk")
-        {
-        }
+    public: go_gong_of_bethekk() : GameObjectScript("go_gong_of_bethekk") {}
 
         bool OnGossipHello(Player* /*player*/, GameObject* go)
         {
             if (InstanceScript* instance = go->GetInstanceScript())
             {
-                if (instance->GetData(DATA_ARLOKK) == DONE || instance->GetData(DATA_ARLOKK) == IN_PROGRESS)
+                if (instance->GetBossState(DATA_ARLOKK) == DONE || instance->GetBossState(DATA_ARLOKK) == IN_PROGRESS)
                     return true;
-
-                instance->SetData(DATA_ARLOKK, IN_PROGRESS);
+                instance->SetBossState(DATA_ARLOKK, IN_PROGRESS);
                 return true;
             }
 

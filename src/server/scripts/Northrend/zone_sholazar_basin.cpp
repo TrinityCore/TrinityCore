@@ -540,13 +540,13 @@ public:
                 Player* player = Player::GetPlayer(*me, playerGUID);
                 Creature* orphan = Creature::GetCreature(*me, orphanGUID);
 
-                if(!orphan || !player)
+                if (!orphan || !player)
                 {
                     Reset();
                     return;
                 }
 
-                switch(phase)
+                switch (phase)
                 {
                     case 1:
                         orphan->GetMotionMaster()->MovePoint(0, me->GetPositionX() + cos(me->GetOrientation()) * 5, me->GetPositionY() + sin(me->GetOrientation()) * 5, me->GetPositionZ());
@@ -1033,6 +1033,102 @@ public:
     }
 };
 
+/*######
+## Quest: Reconnaissance Flight (12671)
+######*/
+enum ReconnaissanceFlight
+{
+    NPC_PLANE       = 28710, // Vic's Flying Machine
+    NPC_PILOT       = 28646,
+
+    VIC_SAY_0       = 0,
+    VIC_SAY_1       = 1,
+    VIC_SAY_2       = 2,
+    VIC_SAY_3       = 3,
+    VIC_SAY_4       = 4,
+    VIC_SAY_5       = 5,
+    VIC_SAY_6       = 6,
+    PLANE_EMOTE     = 0,
+
+    AURA_ENGINE     = 52255, // Engine on Fire
+
+    SPELL_LAND      = 52226, // Land Flying Machine
+    SPELL_CREDIT    = 53328 // Land Flying Machine Credit
+};
+
+class npc_vics_flying_machine : public CreatureScript
+{
+public:
+    npc_vics_flying_machine() : CreatureScript("npc_vics_flying_machine") { }
+
+    struct npc_vics_flying_machineAI : public VehicleAI
+    {
+        npc_vics_flying_machineAI(Creature* creature) : VehicleAI(creature) {}
+
+        void PassengerBoarded(Unit* passenger, int8 /*seatId*/, bool apply)
+        {
+            if (apply && passenger->GetTypeId() == TYPEID_PLAYER)
+                me->GetMotionMaster()->MovePath(NPC_PLANE, false);
+        }
+
+        void MovementInform(uint32 type, uint32 id)
+        {
+            if (type != WAYPOINT_MOTION_TYPE)
+                return;
+
+            if (Creature* pilot = GetClosestCreatureWithEntry(me, NPC_PILOT, 10))
+                switch (id)
+                {
+                    case 5:
+                        pilot->AI()->Talk(VIC_SAY_0);
+                        break;
+                    case 11:
+                        pilot->AI()->Talk(VIC_SAY_1);
+                        break;
+                    case 12:
+                        pilot->AI()->Talk(VIC_SAY_2);
+                        break;
+                    case 14:
+                        pilot->AI()->Talk(VIC_SAY_3);
+                        break;
+                    case 15:
+                        pilot->AI()->Talk(VIC_SAY_4);
+                        break;
+                    case 17:
+                        pilot->AI()->Talk(VIC_SAY_5);
+                        break;
+                    case 21:
+                        pilot->AI()->Talk(VIC_SAY_6);
+                        break;
+                    case 25:
+                        me->AI()->Talk(PLANE_EMOTE);
+                        me->AI()->DoCast(AURA_ENGINE);
+                        break;
+                }
+        }
+
+        void SpellHit(Unit* /*caster*/, SpellInfo const* spell)
+        {
+            if (spell->Id == SPELL_LAND)
+            {
+                Unit* passenger = me->GetVehicleKit()->GetPassenger(1); // player should be on seat 1
+                if (passenger && passenger->GetTypeId() == TYPEID_PLAYER)
+                {
+                    passenger->CastSpell(passenger, SPELL_CREDIT, true);
+                    passenger->ExitVehicle();
+                }
+            }
+        }
+
+        void UpdateAI(const uint32 /*diff*/) {}
+    };
+
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new npc_vics_flying_machineAI(creature);
+    }
+};
+
 void AddSC_sholazar_basin()
 {
     new npc_injured_rainspeaker_oracle();
@@ -1045,4 +1141,5 @@ void AddSC_sholazar_basin()
     new spell_q12620_the_lifewarden_wrath();
     new spell_q12589_shoot_rjr();
     new npc_haiphoon();
+    new npc_vics_flying_machine();
 }

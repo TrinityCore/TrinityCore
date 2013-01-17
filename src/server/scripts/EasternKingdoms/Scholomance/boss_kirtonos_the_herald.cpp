@@ -103,8 +103,7 @@ class boss_kirtonos_the_herald : public CreatureScript
                     brazier->ResetDoorOrButton();
                     brazier->SetGoState(GO_STATE_READY);
                 }
-                if (instance)
-                    instance->SetData(DATA_KIRTONOS, DONE);
+                _JustDied();
             }
 
             void EnterEvadeMode()
@@ -153,7 +152,7 @@ class boss_kirtonos_the_herald : public CreatureScript
                         switch (_introEvent)
                         {
                             case INTRO_1:
-                                me->GetMotionMaster()->MovePath(KIRTONOS_PATH,false);
+                                me->GetMotionMaster()->MovePath(KIRTONOS_PATH, false);
                                 _introEvent = 0;
                                 break;
                             case INTRO_2:

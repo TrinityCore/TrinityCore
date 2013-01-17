@@ -45,19 +45,18 @@ class Log
         bool ShouldLog(LogFilterType type, LogLevel level) const;
         bool SetLogLevel(std::string const& name, char const* level, bool isLogger = true);
 
-        void outTrace(LogFilterType f, char const* str, ...) ATTR_PRINTF(3,4);
-        void outDebug(LogFilterType f, char const* str, ...) ATTR_PRINTF(3,4);
-        void outInfo(LogFilterType f, char const* str, ...) ATTR_PRINTF(3,4);
-        void outWarn(LogFilterType f, char const* str, ...) ATTR_PRINTF(3,4);
-        void outError(LogFilterType f, char const* str, ...) ATTR_PRINTF(3,4);
-        void outFatal(LogFilterType f, char const* str, ...) ATTR_PRINTF(3,4);
+        void outTrace(LogFilterType f, char const* str, ...) ATTR_PRINTF(3, 4);
+        void outDebug(LogFilterType f, char const* str, ...) ATTR_PRINTF(3, 4);
+        void outInfo(LogFilterType f, char const* str, ...) ATTR_PRINTF(3, 4);
+        void outWarn(LogFilterType f, char const* str, ...) ATTR_PRINTF(3, 4);
+        void outError(LogFilterType f, char const* str, ...) ATTR_PRINTF(3, 4);
+        void outFatal(LogFilterType f, char const* str, ...) ATTR_PRINTF(3, 4);
 
-        void EnableDBAppenders();
         void outCommand(uint32 account, const char * str, ...) ATTR_PRINTF(3, 4);
         void outCharDump(char const* str, uint32 account_id, uint32 guid, char const* name);
         static std::string GetTimestampStr();
 
-        void SetRealmID(uint32 id);
+        void SetRealmId(uint32 id);
 
     private:
         void vlog(LogFilterType f, LogLevel level, char const* str, va_list argptr);
@@ -78,7 +77,6 @@ class Log
         std::string m_logsDir;
         std::string m_logsTimestamp;
 
-        uint32 realm;
         LogWorker* worker;
 };
 

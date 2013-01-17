@@ -129,7 +129,7 @@ void EffectMovementGenerator::Finalize(Unit &unit)
     // Need restore previous movement since we have no proper states system
     //if (unit.isAlive() && !unit.HasUnitState(UNIT_STATE_CONFUSED|UNIT_STATE_FLEEING))
     //{
-    //    if (Unit * victim = unit.getVictim())
+    //    if (Unit* victim = unit.getVictim())
     //        unit.GetMotionMaster()->MoveChase(victim);
     //    else
     //        unit.GetMotionMaster()->Initialize();

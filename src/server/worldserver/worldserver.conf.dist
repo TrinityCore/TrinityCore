@@ -2873,6 +2873,13 @@ Logger.Opcodes=41,6,Console Server
 
 Loggers=Root Chat DBErrors GM RA Warden Character Load WorldServer Opcodes
 
+#    Log.Async.Enable
+#        Description: Enables asyncronous message logging.
+#        Default:     0 - (Disabled)
+#                     1 - (Enabled)
+
+Log.Async.Enable = 0
+
 ###################################################################################################################
 # PVP RANK / TITLE SYSTEM
 #
