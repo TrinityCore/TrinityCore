@@ -21,6 +21,7 @@
 
 #include "Define.h"
 #include <string>
+#include <ace/Singleton.h>
 
 enum AccountOpResult
 {
@@ -34,27 +35,34 @@ enum AccountOpResult
 
 #define MAX_ACCOUNT_STR 16
 
-namespace AccountMgr
+class AccountMgr
 {
-    AccountOpResult CreateAccount(std::string username, std::string password);
-    AccountOpResult DeleteAccount(uint32 accountId);
-    AccountOpResult ChangeUsername(uint32 accountId, std::string newUsername, std::string newPassword);
-    AccountOpResult ChangePassword(uint32 accountId, std::string newPassword);
-    bool CheckPassword(uint32 accountId, std::string password);
+    friend class ACE_Singleton<AccountMgr, ACE_Null_Mutex>;
 
-    uint32 GetId(std::string const& username);
-    uint32 GetSecurity(uint32 accountId);
-    uint32 GetSecurity(uint32 accountId, int32 realmId);
-    bool GetName(uint32 accountId, std::string& name);
-    uint32 GetCharactersCount(uint32 accountId);
-    std::string CalculateShaPassHash(std::string const& name, std::string const& password);
+    private:
+        AccountMgr();
 
-    bool normalizeString(std::string& utf8String);
-    bool IsPlayerAccount(uint32 gmlevel);
-    bool IsModeratorAccount(uint32 gmlevel);
-    bool IsGMAccount(uint32 gmlevel);
-    bool IsAdminAccount(uint32 gmlevel);
-    bool IsConsoleAccount(uint32 gmlevel);
-}
+    public:
+        static AccountOpResult CreateAccount(std::string username, std::string password);
+        static AccountOpResult DeleteAccount(uint32 accountId);
+        static AccountOpResult ChangeUsername(uint32 accountId, std::string newUsername, std::string newPassword);
+        static AccountOpResult ChangePassword(uint32 accountId, std::string newPassword);
+        static bool CheckPassword(uint32 accountId, std::string password);
 
+        static uint32 GetId(std::string const& username);
+        static uint32 GetSecurity(uint32 accountId);
+        static uint32 GetSecurity(uint32 accountId, int32 realmId);
+        static bool GetName(uint32 accountId, std::string& name);
+        static uint32 GetCharactersCount(uint32 accountId);
+
+        static std::string CalculateShaPassHash(std::string const& name, std::string const& password);
+        static bool normalizeString(std::string& utf8String);
+        static bool IsPlayerAccount(uint32 gmlevel);
+        static bool IsModeratorAccount(uint32 gmlevel);
+        static bool IsGMAccount(uint32 gmlevel);
+        static bool IsAdminAccount(uint32 gmlevel);
+        static bool IsConsoleAccount(uint32 gmlevel);
+};
+
+#define sAccountMgr ACE_Singleton<AccountMgr, ACE_Null_Mutex>::instance()
 #endif
