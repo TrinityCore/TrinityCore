@@ -24,10 +24,11 @@
 #include "SHA1.h"
 #include "WorldSession.h"
 
-namespace AccountMgr
+AccountMgr::AccountMgr()
 {
+}
 
-AccountOpResult CreateAccount(std::string username, std::string password)
+AccountOpResult AccountMgr::CreateAccount(std::string username, std::string password)
 {
     if (utf8length(username) > MAX_ACCOUNT_STR)
         return AOR_NAME_TOO_LONG;                           // username's too long
@@ -52,7 +53,7 @@ AccountOpResult CreateAccount(std::string username, std::string password)
     return AOR_OK;                                          // everything's fine
 }
 
-AccountOpResult DeleteAccount(uint32 accountId)
+AccountOpResult AccountMgr::DeleteAccount(uint32 accountId)
 {
     // Check if accounts exists
     PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_BY_ID);
@@ -124,7 +125,7 @@ AccountOpResult DeleteAccount(uint32 accountId)
     return AOR_OK;
 }
 
-AccountOpResult ChangeUsername(uint32 accountId, std::string newUsername, std::string newPassword)
+AccountOpResult AccountMgr::ChangeUsername(uint32 accountId, std::string newUsername, std::string newPassword)
 {
     // Check if accounts exists
     PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_BY_ID);
@@ -154,7 +155,7 @@ AccountOpResult ChangeUsername(uint32 accountId, std::string newUsername, std::s
     return AOR_OK;
 }
 
-AccountOpResult ChangePassword(uint32 accountId, std::string newPassword)
+AccountOpResult AccountMgr::ChangePassword(uint32 accountId, std::string newPassword)
 {
     std::string username;
 
@@ -177,7 +178,7 @@ AccountOpResult ChangePassword(uint32 accountId, std::string newPassword)
     return AOR_OK;
 }
 
-uint32 GetId(std::string const& username)
+uint32 AccountMgr::GetId(std::string const& username)
 {
     PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_GET_ACCOUNT_ID_BY_USERNAME);
     stmt->setString(0, username);
@@ -186,7 +187,7 @@ uint32 GetId(std::string const& username)
     return (result) ? (*result)[0].GetUInt32() : 0;
 }
 
-uint32 GetSecurity(uint32 accountId)
+uint32 AccountMgr::GetSecurity(uint32 accountId)
 {
     PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_GET_ACCOUNT_ACCESS_GMLEVEL);
     stmt->setUInt32(0, accountId);
@@ -195,7 +196,7 @@ uint32 GetSecurity(uint32 accountId)
     return (result) ? (*result)[0].GetUInt8() : uint32(SEC_PLAYER);
 }
 
-uint32 GetSecurity(uint32 accountId, int32 realmId)
+uint32 AccountMgr::GetSecurity(uint32 accountId, int32 realmId)
 {
     PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_GET_GMLEVEL_BY_REALMID);
     stmt->setUInt32(0, accountId);
@@ -205,7 +206,7 @@ uint32 GetSecurity(uint32 accountId, int32 realmId)
     return (result) ? (*result)[0].GetUInt8() : uint32(SEC_PLAYER);
 }
 
-bool GetName(uint32 accountId, std::string& name)
+bool AccountMgr::GetName(uint32 accountId, std::string& name)
 {
     PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_GET_USERNAME_BY_ID);
     stmt->setUInt32(0, accountId);
@@ -220,7 +221,7 @@ bool GetName(uint32 accountId, std::string& name)
     return false;
 }
 
-bool CheckPassword(uint32 accountId, std::string password)
+bool AccountMgr::CheckPassword(uint32 accountId, std::string password)
 {
     std::string username;
 
@@ -238,7 +239,7 @@ bool CheckPassword(uint32 accountId, std::string password)
     return (result) ? true : false;
 }
 
-uint32 GetCharactersCount(uint32 accountId)
+uint32 AccountMgr::GetCharactersCount(uint32 accountId)
 {
     // check character count
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_SUM_CHARS);
@@ -248,7 +249,7 @@ uint32 GetCharactersCount(uint32 accountId)
     return (result) ? (*result)[0].GetUInt64() : 0;
 }
 
-bool normalizeString(std::string& utf8String)
+bool AccountMgr::normalizeString(std::string& utf8String)
 {
     wchar_t buffer[MAX_ACCOUNT_STR+1];
 
@@ -266,7 +267,7 @@ bool normalizeString(std::string& utf8String)
     return WStrToUtf8(buffer, maxLength, utf8String);
 }
 
-std::string CalculateShaPassHash(std::string const& name, std::string const& password)
+std::string AccountMgr::CalculateShaPassHash(std::string const& name, std::string const& password)
 {
     SHA1Hash sha;
     sha.Initialize();
@@ -278,29 +279,27 @@ std::string CalculateShaPassHash(std::string const& name, std::string const& pas
     return ByteArrayToHexStr(sha.GetDigest(), sha.GetLength());
 }
 
-bool IsPlayerAccount(uint32 gmlevel)
+bool AccountMgr::IsPlayerAccount(uint32 gmlevel)
 {
     return gmlevel == SEC_PLAYER;
 }
 
-bool IsModeratorAccount(uint32 gmlevel)
+bool AccountMgr::IsModeratorAccount(uint32 gmlevel)
 {
     return gmlevel >= SEC_MODERATOR && gmlevel <= SEC_CONSOLE;
 }
 
-bool IsGMAccount(uint32 gmlevel)
+bool AccountMgr::IsGMAccount(uint32 gmlevel)
 {
     return gmlevel >= SEC_GAMEMASTER && gmlevel <= SEC_CONSOLE;
 }
 
-bool IsAdminAccount(uint32 gmlevel)
+bool AccountMgr::IsAdminAccount(uint32 gmlevel)
 {
     return gmlevel >= SEC_ADMINISTRATOR && gmlevel <= SEC_CONSOLE;
 }
 
-bool IsConsoleAccount(uint32 gmlevel)
+bool AccountMgr::IsConsoleAccount(uint32 gmlevel)
 {
     return gmlevel == SEC_CONSOLE;
 }
-
-} // Namespace AccountMgr
