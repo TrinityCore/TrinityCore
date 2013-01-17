@@ -1149,11 +1149,11 @@ void Battleground::AddPlayer(Player* player)
     SendPacketToTeam(team, &data, player, false);
 
     // BG Status packet
-    WorldPacket status;
-    BattlegroundQueueTypeId bgQueueTypeId = sBattlegroundMgr->BGQueueTypeId(m_TypeID, GetArenaType());
-    uint32 queueSlot = player->GetBattlegroundQueueIndex(bgQueueTypeId);
-    sBattlegroundMgr->BuildBattlegroundStatusPacket(&status, this, queueSlot, STATUS_IN_PROGRESS, 0, GetStartTime(), GetArenaType(), team);
-    player->GetSession()->SendPacket(&status);
+    //WorldPacket status;
+    //BattlegroundQueueTypeId bgQueueTypeId = sBattlegroundMgr->BGQueueTypeId(m_TypeID, GetArenaType());
+    //uint32 queueSlot = player->GetBattlegroundQueueIndex(bgQueueTypeId);
+    //sBattlegroundMgr->BuildBattlegroundStatusPacket(&status, this, queueSlot, STATUS_IN_PROGRESS, 0, GetStartTime(), GetArenaType(), team);
+    //player->GetSession()->SendPacket(&status);
 
     player->RemoveAurasByType(SPELL_AURA_MOUNTED);
 

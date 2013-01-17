@@ -2219,7 +2219,7 @@ class Player : public Unit, public GridObject<Player>
         WorldLocation const& GetBattlegroundEntryPoint() const { return m_bgData.joinPos; }
         void SetBattlegroundEntryPoint();
 
-        void SetBGTeam(uint32 team) { m_bgData.bgTeam = team; }
+        void SetBGTeam(uint32 team);
         uint32 GetBGTeam() const { return m_bgData.bgTeam ? m_bgData.bgTeam : GetTeam(); }
 
         void LeaveBattleground(bool teleportToEntryPoint = true);

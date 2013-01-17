@@ -28,28 +28,6 @@
 
 enum WarlockSpells
 {
-<<<<<<< HEAD
-    WARLOCK_DEMONIC_EMPOWERMENT_SUCCUBUS    = 54435,
-    WARLOCK_DEMONIC_EMPOWERMENT_VOIDWALKER  = 54443,
-    WARLOCK_DEMONIC_EMPOWERMENT_FELGUARD    = 54508,
-    WARLOCK_DEMONIC_EMPOWERMENT_FELHUNTER   = 54509,
-    WARLOCK_DEMONIC_EMPOWERMENT_IMP         = 54444,
-    WARLOCK_IMPROVED_HEALTHSTONE_R1         = 18692,
-    WARLOCK_IMPROVED_HEALTHSTONE_R2         = 18693,
-    WARLOCK_DEMONIC_CIRCLE_SUMMON           = 48018,
-    WARLOCK_DEMONIC_CIRCLE_TELEPORT         = 48020,
-    WARLOCK_DEMONIC_CIRCLE_ALLOW_CAST       = 62388,
-    WARLOCK_HAUNT                           = 48181,
-    WARLOCK_HAUNT_HEAL                      = 48210,
-    WARLOCK_UNSTABLE_AFFLICTION_DISPEL      = 31117,
-    WARLOCK_CURSE_OF_DOOM_EFFECT            = 18662,
-    WARLOCK_IMPROVED_HEALTH_FUNNEL_R1       = 18703,
-    WARLOCK_IMPROVED_HEALTH_FUNNEL_R2       = 18704,
-    WARLOCK_IMPROVED_HEALTH_FUNNEL_BUFF_R1  = 60955,
-    WARLOCK_GLYPH_OF_SUCCUBUS               = 56250,
-    WARLOCK_IMPROVED_HEALTH_FUNNEL_BUFF_R2  = 60956,
-    PRIEST_SHADOW_WORD_DEATH                = 32409,
-=======
     SPELL_WARLOCK_CURSE_OF_DOOM_EFFECT              = 18662,
     SPELL_WARLOCK_DEMONIC_CIRCLE_SUMMON             = 48018,
     SPELL_WARLOCK_DEMONIC_CIRCLE_TELEPORT           = 48020,
@@ -70,8 +48,9 @@ enum WarlockSpells
     SPELL_WARLOCK_LIFE_TAP_ENERGIZE                 = 31818,
     SPELL_WARLOCK_LIFE_TAP_ENERGIZE_2               = 32553,
     SPELL_WARLOCK_SOULSHATTER                       = 32835,
+    WARLOCK_GLYPH_OF_SUCCUBUS                       = 56250,
+    PRIEST_SHADOW_WORD_DEATH                        = 32409,
     SPELL_WARLOCK_UNSTABLE_AFFLICTION_DISPEL        = 31117
->>>>>>> e6a07076c3b275c60598abd08e21444313e7a0da
 };
 
 enum WarlockSpellIcons
@@ -751,94 +730,6 @@ class spell_warl_unstable_affliction : public SpellScriptLoader
         }
 };
 
-<<<<<<< HEAD
-class spell_warl_curse_of_doom : public SpellScriptLoader
-{
-    public:
-        spell_warl_curse_of_doom() : SpellScriptLoader("spell_warl_curse_of_doom") { }
-
-        class spell_warl_curse_of_doom_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_warl_curse_of_doom_AuraScript);
-
-            bool Validate(SpellInfo const* /*spell*/)
-            {
-                if (!sSpellMgr->GetSpellInfo(WARLOCK_CURSE_OF_DOOM_EFFECT))
-                    return false;
-                return true;
-            }
-
-            bool Load()
-            {
-                return GetCaster() && GetCaster()->GetTypeId() == TYPEID_PLAYER;
-            }
-
-            void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
-            {
-                if (!GetCaster())
-                    return;
-
-                AuraRemoveMode removeMode = GetTargetApplication()->GetRemoveMode();
-                if (removeMode != AURA_REMOVE_BY_DEATH || !IsExpired())
-                    return;
-
-                if (GetCaster()->ToPlayer()->isHonorOrXPTarget(GetTarget()))
-                    GetCaster()->CastSpell(GetTarget(), WARLOCK_CURSE_OF_DOOM_EFFECT, true, NULL, aurEff);
-            }
-
-            void Register()
-            {
-                 AfterEffectRemove += AuraEffectRemoveFn(spell_warl_curse_of_doom_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_warl_curse_of_doom_AuraScript();
-        }
-};
-
-class spell_warl_health_funnel : public SpellScriptLoader
-{
-public:
-    spell_warl_health_funnel() : SpellScriptLoader("spell_warl_health_funnel") { }
-
-    class spell_warl_health_funnel_AuraScript : public AuraScript
-    {
-        PrepareAuraScript(spell_warl_health_funnel_AuraScript);
-
-        void ApplyEffect(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-        {
-            Unit* caster = GetCaster();
-            if (!caster)
-                return;
-
-            Unit* target = GetTarget();
-            if (caster->HasAura(WARLOCK_IMPROVED_HEALTH_FUNNEL_R2))
-                target->CastSpell(target, WARLOCK_IMPROVED_HEALTH_FUNNEL_BUFF_R2, true);
-            else if (caster->HasAura(WARLOCK_IMPROVED_HEALTH_FUNNEL_R1))
-                target->CastSpell(target, WARLOCK_IMPROVED_HEALTH_FUNNEL_BUFF_R1, true);
-        }
-
-        void RemoveEffect(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-        {
-            Unit* target = GetTarget();
-            target->RemoveAurasDueToSpell(WARLOCK_IMPROVED_HEALTH_FUNNEL_BUFF_R1);
-            target->RemoveAurasDueToSpell(WARLOCK_IMPROVED_HEALTH_FUNNEL_BUFF_R2);
-        }
-
-        void Register()
-        {
-            OnEffectRemove += AuraEffectRemoveFn(spell_warl_health_funnel_AuraScript::RemoveEffect, EFFECT_0, SPELL_AURA_PERIODIC_HEAL, AURA_EFFECT_HANDLE_REAL);
-            OnEffectApply += AuraEffectApplyFn(spell_warl_health_funnel_AuraScript::ApplyEffect, EFFECT_0, SPELL_AURA_PERIODIC_HEAL, AURA_EFFECT_HANDLE_REAL);
-        }
-    };
-
-    AuraScript* GetAuraScript() const
-    {
-        return new spell_warl_health_funnel_AuraScript();
-    }
-};
 class spell_warl_seduction : public SpellScriptLoader
 {
     public:
@@ -873,8 +764,6 @@ class spell_warl_seduction : public SpellScriptLoader
             return new spell_warl_seduction_SpellScript();
         }
 };
-=======
->>>>>>> e6a07076c3b275c60598abd08e21444313e7a0da
 void AddSC_warlock_spell_scripts()
 {
     new spell_warl_banish();
@@ -891,10 +780,5 @@ void AddSC_warlock_spell_scripts()
     new spell_warl_seed_of_corruption();
     new spell_warl_soulshatter();
     new spell_warl_unstable_affliction();
-<<<<<<< HEAD
-    new spell_warl_curse_of_doom();
-    new spell_warl_health_funnel();
     new spell_warl_seduction();
-=======
->>>>>>> e6a07076c3b275c60598abd08e21444313e7a0da
 }
