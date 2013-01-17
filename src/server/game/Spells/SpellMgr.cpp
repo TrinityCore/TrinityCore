@@ -3633,6 +3633,8 @@ void SpellMgr::LoadDbcDataCorrections()
             case 49345: // Call Emerald Drake
                 spellInfo->Effect[1] = 0;
                 break;
+            case 24314: // Threatening Gaze
+                spellInfo->AuraInterruptFlags |= AURA_INTERRUPT_FLAG_CAST | AURA_INTERRUPT_FLAG_MOVE | AURA_INTERRUPT_FLAG_JUMP;
             default:
                 break;
         }

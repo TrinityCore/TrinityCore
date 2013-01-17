@@ -51,7 +51,7 @@ class AppenderConsole: public Appender
     private:
         void SetColor(bool stdout_stream, ColorTypes color);
         void ResetColor(bool stdout_stream);
-        void _write(LogMessage& message);
+        void _write(LogMessage const& message);
         bool _colored;
         ColorTypes _colors[MaxLogLevels];
 };
