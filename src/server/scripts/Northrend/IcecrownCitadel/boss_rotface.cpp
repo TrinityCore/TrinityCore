@@ -585,11 +585,30 @@ class spell_rotface_large_ooze_combine : public SpellScriptLoader
                 if (Aura* unstable = GetCaster()->GetAura(SPELL_UNSTABLE_OOZE))
                 {
                     if (Aura* targetAura = GetHitCreature()->GetAura(SPELL_UNSTABLE_OOZE))
+                    {
                         unstable->ModStackAmount(targetAura->GetStackAmount());
+
+                        // explode!
+                        if (unstable->GetStackAmount() >= 5)
+                        {
+                            GetCaster()->RemoveAurasDueToSpell(SPELL_LARGE_OOZE_BUFF_COMBINE);
+                            GetCaster()->RemoveAurasDueToSpell(SPELL_LARGE_OOZE_COMBINE);
+                            if (InstanceScript* instance = GetCaster()->GetInstanceScript())
+                                if (Creature* rotface = Unit::GetCreature(*GetCaster(), instance->GetData64(DATA_ROTFACE)))
+                                    if (rotface->isAlive())
+                                    {
+                                        rotface->AI()->Talk(EMOTE_UNSTABLE_EXPLOSION);
+                                        rotface->AI()->Talk(SAY_UNSTABLE_EXPLOSION);
+                                    }
+
+                            if (Creature* cre = GetCaster()->ToCreature())
+                                cre->AI()->DoAction(EVENT_STICKY_OOZE);
+                            GetCaster()->CastSpell(GetCaster(), SPELL_UNSTABLE_OOZE_EXPLOSION, false, NULL, NULL, GetCaster()->GetGUID());
+                            if (InstanceScript* instance = GetCaster()->GetInstanceScript())
+                                instance->SetData(DATA_OOZE_DANCE_ACHIEVEMENT, uint32(false));
+                    }
                     else
                         unstable->ModStackAmount(1);
-
-                    // no idea why, but this does not trigger explosion on retail (only small+large do)
                 }
 
                 // just for safety
