@@ -606,6 +606,7 @@ class spell_rotface_large_ooze_combine : public SpellScriptLoader
                             GetCaster()->CastSpell(GetCaster(), SPELL_UNSTABLE_OOZE_EXPLOSION, false, NULL, NULL, GetCaster()->GetGUID());
                             if (InstanceScript* instance = GetCaster()->GetInstanceScript())
                                 instance->SetData(DATA_OOZE_DANCE_ACHIEVEMENT, uint32(false));
+                        }
                     }
                     else
                         unstable->ModStackAmount(1);
