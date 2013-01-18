@@ -364,16 +364,6 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                         damage = (m_caster->getLevel() - 60) * 4 + 60;
                         break;
                     }
-                    // Blade Warding (Damage)
-                    case 64442:
-                    {
-                        if (Aura* aur = m_caster->GetAura(64440))
-                        {
-                            if (float multiple = aur->GetStackAmount())
-                                damage = urand(multiple * 600, multiple * 800);
-                        }
-                        break;
-                    }
                 }
                 break;
             }
