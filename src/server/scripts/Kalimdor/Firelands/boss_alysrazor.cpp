@@ -18,6 +18,7 @@
 #include "ObjectMgr.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "PassiveAI.h"
 #include "SpellScript.h"
 #include "MoveSplineInit.h"
 #include "Cell.h"
