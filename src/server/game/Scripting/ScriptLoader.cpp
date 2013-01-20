@@ -40,6 +40,8 @@ void AddSC_Mod_Multikill(); // by Codels
 void AddSC_Mod_CharacterHistory(); // by Codels
 // Mr.Maniek
 void AddSC_npc_maniek();
+// NPC MMR Master
+void AddSC_npc_mmr_reset();
 
 // spells
 void AddSC_deathknight_spell_scripts();
@@ -1348,5 +1350,7 @@ void AddCustomScripts()
     AddSC_Mod_CharacterHistory(); // by Codels
     // Mr.Maniek
     AddSC_npc_maniek();
+    // NPC MMR Master
+    AddSC_npc_mmr_reset();
 #endif
 }

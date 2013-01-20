@@ -21,6 +21,7 @@ set(scripts_STAT_SRCS
   Custom/mod_MultiKill.cpp
   Custom/mod_CharacterHistory.cpp
   Custom/npc_maniek.cpp
+  Custom/npc_mmr_reset.cpp
 )
 
 message("  -> Prepared: Custom")
