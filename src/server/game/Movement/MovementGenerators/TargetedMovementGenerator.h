@@ -110,7 +110,7 @@ class FollowMovementGenerator : public TargetedMovementGeneratorMedium<T, Follow
         bool _lostTarget(T*) const { return false; }
         void _reachTarget(T*) {}
     private:
-        void _updateSpeed(T* u);
+        void _updateSpeed(T* owner);
 };
 
 #endif
