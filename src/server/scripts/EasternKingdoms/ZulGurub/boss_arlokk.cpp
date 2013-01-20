@@ -26,6 +26,7 @@ EndScriptData */
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "SpellInfo.h"
 #include "zulgurub.h"
 
 enum Says
@@ -37,16 +38,16 @@ enum Says
 
 enum Spells
 {
-    SPELL_SHADOW_WORD_PAIN      = 24212, // corrected
-    SPELL_GOUGE                 = 12540, // corrected
-    SPELL_MARK_OF_ARLOKK        = 24210, // This is correct triggers 24211 Added to Spell_dbc
-    SPELL_RAVAGE                = 24213, // corrected
+    SPELL_SHADOW_WORD_PAIN      = 24212, // Corrected
+    SPELL_GOUGE                 = 12540, // Corrected
+    SPELL_MARK_OF_ARLOKK        = 24210, // triggered spell 24211 Added to spell_dbc
+    SPELL_RAVAGE                = 24213, // Corrected
     SPELL_CLEAVE                = 25174, // Searching for right spell
     SPELL_PANTHER_TRANSFORM     = 24190, // Transform to panther now used
     SPELL_SUMMON_PROWLER        = 24246, // Added to Spell_dbc
     SPELL_VANISH_VISUAL         = 24222, // Added
     SPELL_VANISH                = 24223, // Added
-    SPELL_SUPER_INVIS           = 24235  // Added
+    SPELL_SUPER_INVIS           = 24235  // Added to Spell_dbc
 };
 
 enum Events
@@ -105,7 +106,7 @@ class boss_arlokk : public CreatureScript
                     if (GameObject* gate = me->GetMap()->GetGameObject(instance->GetData64(GO_FORCEFIELD)))
                         gate->SetGoState(GO_STATE_READY);
                     me->SetWalk(false);
-                    me->GetMotionMaster()->MovePoint(0, PosMoveOnSpawn[0].m_positionX,PosMoveOnSpawn[0].m_positionY,PosMoveOnSpawn[0].m_positionZ);
+                    me->GetMotionMaster()->MovePoint(0, PosMoveOnSpawn[0]);
                 }
             }
 
@@ -171,7 +172,7 @@ class boss_arlokk : public CreatureScript
                 me->DespawnOrUnsummon(4000);
             }
 
-            void SetData(uint32 uiId, uint32 uiValue)
+            void SetData(uint32 uiId, uint32 /*uiValue*/)
             {
                 if (uiId == 1)
                     --summonCountA;
@@ -317,8 +318,8 @@ class boss_arlokk : public CreatureScript
 enum ZulianProwlerSpells
 {
     SPELL_SNEAK_RANK_1_1         = 22766,
-    SPELL_SNEAK_RANK_1_2         = 7939,
-    SPELL_MARK_OF_ARLOKK_TRIGGER = 24211
+    SPELL_SNEAK_RANK_1_2         = 7939,  // Added to Spell_dbc
+    SPELL_MARK_OF_ARLOKK_TRIGGER = 24211  // Added to Spell_dbc
 };
 
 enum ZulianProwlerEvents
@@ -348,7 +349,6 @@ class npc_zulian_prowler : public CreatureScript
 
                 DoCast(me, SPELL_SNEAK_RANK_1_1);
                 DoCast(me, SPELL_SNEAK_RANK_1_2);
-                // me->SetReactState(REACT_PASSIVE);
 
                 if (instance)
                     if (Unit* arlokk = me->GetUnit(*me, instance->GetData64(NPC_ARLOKK)))
@@ -438,7 +438,6 @@ class go_gong_of_bethekk : public GameObjectScript
                 go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
                 go->SendCustomAnim(0);
                 go->SummonCreature(NPC_ARLOKK, PosSummonArlokk[0], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 600000);
-                instance->SetBossState(DATA_ARLOKK, IN_PROGRESS);
             }
             return true;
         }
