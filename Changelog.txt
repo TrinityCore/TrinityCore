@@ -11,6 +11,7 @@
 #                                                                                          #
 ############################################################################################
 
+[113] --> Add NPC MMR Master (Final version).
 [112] --> Add NPC MMR Master (Beta).
 [111] --> Fix LoS Totems (Test!).
 [110] --> Fix Arena frames (Test!).
