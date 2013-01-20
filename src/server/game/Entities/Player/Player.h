@@ -2222,7 +2222,7 @@ class Player : public Unit, public GridObject<Player>
         void SetBGTeam(uint32 team)
         {
             m_bgData.bgTeam = team;
-            SetByteValue(PLAYER_BYTES_3, 3, uint8(team == ALLIANCE ? TEAM_ALLIANCE : TEAM_HORDE));
+            SetByteValue(PLAYER_BYTES_3, 3, uint8(team == ALLIANCE ? 1 : 0));
         }
         uint32 GetBGTeam() const { return m_bgData.bgTeam ? m_bgData.bgTeam : GetTeam(); }
 
