@@ -449,8 +449,6 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
                         }
                     }
 
-    float DoneActualBenefit = 0.0f;
-
     // custom amount calculations go here
     switch (GetAuraType())
     {
