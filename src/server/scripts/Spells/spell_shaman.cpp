@@ -38,6 +38,7 @@ enum ShamanSpells
     SPELL_SHAMAN_FIRE_NOVA_TRIGGERED_R1         = 8349,
     SPELL_SHAMAN_GLYPH_OF_HEALING_STREAM_TOTEM  = 55456,
     SPELL_SHAMAN_GLYPH_OF_MANA_TIDE             = 55441,
+    SPELL_SHAMAN_GLYPH_OF_THUNDERSTORM          = 62132,
     SPELL_SHAMAN_LAVA_FLOWS_R1                  = 51480,
     SPELL_SHAMAN_LAVA_FLOWS_TRIGGERED_R1        = 64694,
     SPELL_SHAMAN_MANA_SPRING_TOTEM_ENERGIZE     = 52032,
@@ -743,6 +744,35 @@ class spell_sha_sentry_totem : public SpellScriptLoader
         }
 };
 
+// -51490 - Thunderstorm
+class spell_sha_thunderstorm : public SpellScriptLoader
+{
+    public:
+        spell_sha_thunderstorm() : SpellScriptLoader("spell_sha_thunderstorm") { }
+
+        class spell_sha_thunderstorm_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_sha_thunderstorm_SpellScript);
+
+            void HandleKnockBack(SpellEffIndex effIndex)
+            {
+                // Glyph of Thunderstorm
+                if (GetCaster()->HasAura(SPELL_SHAMAN_GLYPH_OF_THUNDERSTORM))
+                    PreventHitDefaultEffect(effIndex);
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_sha_thunderstorm_SpellScript::HandleKnockBack, EFFECT_2, SPELL_EFFECT_KNOCK_BACK);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_sha_thunderstorm_SpellScript();
+        }
+};
+
 void AddSC_shaman_spell_scripts()
 {
     new spell_sha_ancestral_awakening_proc();
@@ -760,4 +790,5 @@ void AddSC_shaman_spell_scripts()
     new spell_sha_mana_spring_totem();
     new spell_sha_mana_tide_totem();
     new spell_sha_sentry_totem();
+    new spell_sha_thunderstorm();
 }
