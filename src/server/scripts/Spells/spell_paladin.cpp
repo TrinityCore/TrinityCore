@@ -51,6 +51,13 @@ enum PaladinSpells
 
     SPELL_PALADIN_HAND_OF_SACRIFICE              = 6940,
     SPELL_PALADIN_DIVINE_SACRIFICE               = 64205,
+
+    SPELL_PALADIN_GLYPH_OF_SALVATION             = 63225,
+
+    SPELL_PALADIN_RIGHTEOUS_DEFENSE_TAUNT        = 31790,
+
+    SPELL_GENERIC_ARENA_DAMPENING                = 74410,
+    SPELL_GENERIC_BATTLEGROUND_DAMPENING         = 74411
 };
 
 // 31850 - Ardent Defender
@@ -490,6 +497,39 @@ class spell_pal_hand_of_sacrifice : public SpellScriptLoader
         }
 };
 
+// 1038 - Hand of Salvation
+class spell_pal_hand_of_salvation : public SpellScriptLoader
+{
+    public:
+        spell_pal_hand_of_salvation() : SpellScriptLoader("spell_pal_hand_of_salvation") { }
+
+        class spell_pal_hand_of_salvation_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_pal_hand_of_salvation_AuraScript);
+
+            void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    // Glyph of Salvation
+                    if (caster->GetGUID() == GetUnitOwner()->GetGUID())
+                        if (AuraEffect const* aurEff = caster->GetAuraEffect(SPELL_PALADIN_GLYPH_OF_SALVATION, EFFECT_0))
+                            amount -= aurEff->GetAmount();
+                }
+            }
+
+            void Register()
+            {
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_pal_hand_of_salvation_AuraScript::CalculateAmount, EFFECT_1, SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_pal_hand_of_salvation_AuraScript();
+        }
+};
+
 // -20473 - Holy Shock
 class spell_pal_holy_shock : public SpellScriptLoader
 {
@@ -656,6 +696,13 @@ class spell_pal_righteous_defense : public SpellScriptLoader
         {
             PrepareSpellScript(spell_pal_righteous_defense_SpellScript);
 
+            bool Validate(SpellInfo const* /*spellInfo*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_PALADIN_RIGHTEOUS_DEFENSE_TAUNT))
+                    return false;
+                return true;
+            }
+
             SpellCastResult CheckCast()
             {
                 Unit* caster = GetCaster();
@@ -673,15 +720,77 @@ class spell_pal_righteous_defense : public SpellScriptLoader
                 return SPELL_CAST_OK;
             }
 
+            void HandleTriggerSpellLaunch(SpellEffIndex effIndex)
+            {
+                PreventHitDefaultEffect(effIndex);
+            }
+
+            void HandleTriggerSpellHit(SpellEffIndex effIndex)
+            {
+                PreventHitDefaultEffect(effIndex);
+                if (Unit* target = GetHitUnit())
+                    GetCaster()->CastSpell(target, SPELL_PALADIN_RIGHTEOUS_DEFENSE_TAUNT, true);
+            }
+
             void Register()
             {
                 OnCheckCast += SpellCheckCastFn(spell_pal_righteous_defense_SpellScript::CheckCast);
+                //! WORKAROUND
+                //! target select will be executed in hitphase of effect 0
+                //! so we must handle trigger spell also in hit phase (default execution in launch phase)
+                //! see issue #3718
+                OnEffectLaunchTarget += SpellEffectFn(spell_pal_righteous_defense_SpellScript::HandleTriggerSpellLaunch, EFFECT_1, SPELL_EFFECT_TRIGGER_SPELL);
+                OnEffectHitTarget += SpellEffectFn(spell_pal_righteous_defense_SpellScript::HandleTriggerSpellHit, EFFECT_1, SPELL_EFFECT_TRIGGER_SPELL);
             }
         };
 
         SpellScript* GetSpellScript() const
         {
             return new spell_pal_righteous_defense_SpellScript();
+        }
+};
+
+// 58597 - Sacred Shield
+class spell_pal_sacred_shield : public SpellScriptLoader
+{
+    public:
+        spell_pal_sacred_shield() : SpellScriptLoader("spell_pal_sacred_shield") { }
+
+        class spell_pal_sacred_shield_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_pal_sacred_shield_AuraScript);
+
+            void CalculateAmount(AuraEffect const* aurEff, int32& amount, bool& /*canBeRecalculated*/)
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    // +75.00% from sp bonus
+                    float bonus = CalculatePct(caster->SpellBaseHealingBonusDone(GetSpellInfo()->GetSchoolMask()), 75.0f);
+
+                    // Divine Guardian is only applied at the spell healing bonus because it was already applied to the base value in CalculateSpellDamage
+                    bonus = caster->ApplyEffectModifiers(GetSpellInfo(), aurEff->GetEffIndex(), bonus);
+                    bonus *= caster->CalculateLevelPenalty(GetSpellInfo());
+
+                    amount += int32(bonus);
+
+                    // Arena - Dampening
+                    if (AuraEffect const* dampening = caster->GetAuraEffect(SPELL_GENERIC_ARENA_DAMPENING, EFFECT_0))
+                        AddPct(amount, dampening->GetAmount());
+                    // Battleground - Dampening
+                    else if (AuraEffect const* dampening = caster->GetAuraEffect(SPELL_GENERIC_BATTLEGROUND_DAMPENING, EFFECT_0))
+                        AddPct(amount, dampening->GetAmount());
+                }
+            }
+
+            void Register()
+            {
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_pal_sacred_shield_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_pal_sacred_shield_AuraScript();
         }
 };
 
@@ -696,8 +805,10 @@ void AddSC_paladin_spell_scripts()
     new spell_pal_exorcism_and_holy_wrath_damage();
     new spell_pal_guarded_by_the_light();
     new spell_pal_hand_of_sacrifice();
+    new spell_pal_hand_of_salvation();
     new spell_pal_holy_shock();
     new spell_pal_judgement_of_command();
     new spell_pal_lay_on_hands();
     new spell_pal_righteous_defense();
+    new spell_pal_sacred_shield();
 }
