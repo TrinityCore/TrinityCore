@@ -226,6 +226,158 @@ class spell_gen_cannibalize : public SpellScriptLoader
         }
 };
 
+// 63845 - Create Lance
+enum CreateLanceSpells
+{
+    SPELL_CREATE_LANCE_ALLIANCE = 63914,
+    SPELL_CREATE_LANCE_HORDE    = 63919
+};
+
+class spell_gen_create_lance : public SpellScriptLoader
+{
+    public:
+        spell_gen_create_lance() : SpellScriptLoader("spell_gen_create_lance") { }
+
+        class spell_gen_create_lance_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_gen_create_lance_SpellScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_CREATE_LANCE_ALLIANCE) || !sSpellMgr->GetSpellInfo(SPELL_CREATE_LANCE_HORDE))
+                    return false;
+                return true;
+            }
+
+            void HandleScript(SpellEffIndex effIndex)
+            {
+                PreventHitDefaultEffect(effIndex);
+
+                if (Player* target = GetHitPlayer())
+                {
+                    if (target->GetTeam() == ALLIANCE)
+                        GetCaster()->CastSpell(target, SPELL_CREATE_LANCE_ALLIANCE, true);
+                    else
+                        GetCaster()->CastSpell(target, SPELL_CREATE_LANCE_HORDE, true);
+                }
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_gen_create_lance_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_gen_create_lance_SpellScript();
+        }
+};
+
+// 28702 - Netherbloom
+enum Netherbloom
+{
+    SPELL_NETHERBLOOM_POLLEN_1 = 28703
+};
+
+class spell_gen_netherbloom : public SpellScriptLoader
+{
+    public:
+        spell_gen_netherbloom() : SpellScriptLoader("spell_gen_netherbloom") { }
+
+        class spell_gen_netherbloom_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_gen_netherbloom_SpellScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/)
+            {
+                for (uint8 i = 0; i < 5; ++i)
+                    if (!sSpellMgr->GetSpellInfo(SPELL_NETHERBLOOM_POLLEN_1 + i))
+                        return false;
+                return true;
+            }
+
+            void HandleScript(SpellEffIndex effIndex)
+            {
+                PreventHitDefaultEffect(effIndex);
+
+                if (Unit* target = GetHitUnit())
+                {
+                    // 25% chance of casting a random buff
+                    if (roll_chance_i(75))
+                        return;
+
+                    // triggered spells are 28703 to 28707
+                    // Note: some sources say, that there was the possibility of
+                    //       receiving a debuff. However, this seems to be removed by a patch.
+
+                    // don't overwrite an existing aura
+                    for (uint8 i = 0; i < 5; ++i)
+                        if (target->HasAura(SPELL_NETHERBLOOM_POLLEN_1 + i))
+                            return;
+
+                    target->CastSpell(target, SPELL_NETHERBLOOM_POLLEN_1 + urand(0, 4), true);
+                }
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_gen_netherbloom_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_gen_netherbloom_SpellScript();
+        }
+};
+
+// 28720 - Nightmare Vine
+enum NightmareVine
+{
+    SPELL_NIGHTMARE_POLLEN  = 28721
+};
+
+class spell_gen_nightmare_vine : public SpellScriptLoader
+{
+    public:
+        spell_gen_nightmare_vine() : SpellScriptLoader("spell_gen_nightmare_vine") { }
+
+        class spell_gen_nightmare_vine_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_gen_nightmare_vine_SpellScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_NIGHTMARE_POLLEN))
+                    return false;
+                return true;
+            }
+
+            void HandleScript(SpellEffIndex effIndex)
+            {
+                PreventHitDefaultEffect(effIndex);
+
+                if (Unit* target = GetHitUnit())
+                {
+                    // 25% chance of casting Nightmare Pollen
+                    if (roll_chance_i(25))
+                        target->CastSpell(target, SPELL_NIGHTMARE_POLLEN, true);
+                }
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_gen_nightmare_vine_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_gen_nightmare_vine_SpellScript();
+        }
+};
+
 // 45472 Parachute
 enum ParachuteSpells
 {
@@ -3195,6 +3347,9 @@ void AddSC_generic_spell_scripts()
     new spell_gen_av_drekthar_presence();
     new spell_gen_burn_brutallus();
     new spell_gen_cannibalize();
+    new spell_gen_create_lance();
+    new spell_gen_netherbloom();
+    new spell_gen_nightmare_vine();
     new spell_gen_parachute();
     new spell_gen_pet_summoned();
     new spell_gen_remove_flight_auras();
