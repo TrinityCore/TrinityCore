@@ -883,12 +883,6 @@ void Spell::EffectTriggerSpell(SpellEffIndex effIndex)
                     m_caster->CastSpell(unitTarget, spell->Id, true);
                 return;
             }
-            // Righteous Defense
-            case 31980:
-            {
-                m_caster->CastSpell(unitTarget, 31790, true);
-                return;
-            }
             // Cloak of Shadows
             case 35729:
             {
@@ -1139,32 +1133,8 @@ void Spell::EffectTeleportUnits(SpellEffIndex /*effIndex*/)
         return;
 
     // Pre effects
-    uint8 uiMaxSafeLevel = 0;
     switch (m_spellInfo->Id)
     {
-        case 48129:  // Scroll of Recall
-            uiMaxSafeLevel = 40;
-        case 60320:  // Scroll of Recall II
-            if (!uiMaxSafeLevel)
-                uiMaxSafeLevel = 70;
-        case 60321:  // Scroll of Recal III
-            if (!uiMaxSafeLevel)
-                uiMaxSafeLevel = 80;
-
-            if (unitTarget->getLevel() > uiMaxSafeLevel)
-            {
-                unitTarget->AddAura(60444, unitTarget); //Apply Lost! Aura
-
-                // ALLIANCE from 60323 to 60330 - HORDE from 60328 to 60335
-                uint32 spellId = 60323;
-                if (m_caster->ToPlayer()->GetTeam() == HORDE)
-                    spellId += 5;
-
-                spellId += urand(0, 7);
-                m_caster->CastSpell(m_caster, spellId, true);
-                return;
-            }
-            break;
         case 66550: // teleports outside (Isle of Conquest)
             if (Player* target = unitTarget->ToPlayer())
             {
@@ -1188,7 +1158,7 @@ void Spell::EffectTeleportUnits(SpellEffIndex /*effIndex*/)
     // If not exist data for dest location - return
     if (!m_targets.HasDst())
     {
-        sLog->outError(LOG_FILTER_SPELLS_AURAS, "Spell::EffectTeleportUnits - does not have destination for spell ID %u\n", m_spellInfo->Id);
+        sLog->outError(LOG_FILTER_SPELLS_AURAS, "Spell::EffectTeleportUnits - does not have destination for spellId %u.", m_spellInfo->Id);
         return;
     }
 
@@ -1583,10 +1553,6 @@ void Spell::EffectHealPct(SpellEffIndex /*effIndex*/)
 
     // Skip if m_originalCaster not available
     if (!m_originalCaster)
-        return;
-
-    // Rune Tap - Party
-    if (m_spellInfo->Id == 59754 && unitTarget == m_caster)
         return;
 
     uint32 heal = m_originalCaster->SpellHealingBonusDone(unitTarget, m_spellInfo, unitTarget->CountPctFromMaxHealth(damage), HEAL);
@@ -3732,23 +3698,6 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
                         return;
                     unitTarget->RemoveAurasDueToSpell(m_spellInfo->Effects[effIndex].CalcValue());
                     break;
-                // PX-238 Winter Wondervolt TRAP
-                case 26275:
-                {
-                    uint32 spells[4] = { 26272, 26157, 26273, 26274 };
-
-                    // check presence
-                    for (uint8 j = 0; j < 4; ++j)
-                        if (unitTarget->HasAuraEffect(spells[j], 0))
-                            return;
-
-                    // select spell
-                    uint32 iTmpSpellId = spells[urand(0, 3)];
-
-                    // cast
-                    unitTarget->CastSpell(unitTarget, iTmpSpellId, true);
-                    return;
-                }
                 // Bending Shinbone
                 case 8856:
                 {
@@ -3792,14 +3741,6 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
 
                     // Shadow Flame
                     m_caster->CastSpell(unitTarget, 22682, true);
-                    return;
-                }
-                // Piccolo of the Flaming Fire
-                case 17512:
-                {
-                    if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
-                        return;
-                    unitTarget->HandleEmoteCommand(EMOTE_STATE_DANCE);
                     return;
                 }
                 // Decimate
@@ -3943,17 +3884,6 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
                     sprintf(buf, "%s causually tosses %s [Worn Troll Dice]. One %u and one %u.", m_caster->GetName().c_str(), gender, urand(1, 6), urand(1, 6));
                     m_caster->MonsterTextEmote(buf, 0);
                     break;
-                }
-                // Vigilance
-                case 50725:
-                {
-                    if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
-                        return;
-
-                    // Remove Taunt cooldown
-                    unitTarget->ToPlayer()->RemoveSpellCooldown(355, true);
-
-                    return;
                 }
                 // Death Knight Initiate Visual
                 case 51519:
@@ -4111,17 +4041,6 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
                         else
                             unitTarget->CastSpell(unitTarget, 58997, true);
                     }
-                    return;
-                }
-                case 63845: // Create Lance
-                {
-                    if (m_caster->GetTypeId() != TYPEID_PLAYER)
-                        return;
-
-                    if (m_caster->ToPlayer()->GetTeam() == ALLIANCE)
-                        m_caster->CastSpell(m_caster, 63914, true);
-                    else
-                        m_caster->CastSpell(m_caster, 63919, true);
                     return;
                 }
                 case 59317:                                 // Teleporting
@@ -4317,46 +4236,6 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
                 return;
             }
         }
-        case SPELLFAMILY_POTION:
-        {
-            switch (m_spellInfo->Id)
-            {
-                // Netherbloom
-                case 28702:
-                {
-                    if (!unitTarget)
-                        return;
-                    // 25% chance of casting a random buff
-                    if (roll_chance_i(75))
-                        return;
-
-                    // triggered spells are 28703 to 28707
-                    // Note: some sources say, that there was the possibility of
-                    //       receiving a debuff. However, this seems to be removed by a patch.
-                    const uint32 spellid = 28703;
-
-                    // don't overwrite an existing aura
-                    for (uint8 i = 0; i < 5; ++i)
-                        if (unitTarget->HasAura(spellid + i))
-                            return;
-                    unitTarget->CastSpell(unitTarget, spellid+urand(0, 4), true);
-                    break;
-                }
-
-                // Nightmare Vine
-                case 28720:
-                {
-                    if (!unitTarget)
-                        return;
-                    // 25% chance of casting Nightmare Pollen
-                    if (roll_chance_i(75))
-                        return;
-                    unitTarget->CastSpell(unitTarget, 28721, true);
-                    break;
-                }
-            }
-            break;
-        }
         case SPELLFAMILY_DEATHKNIGHT:
         {
             // Pestilence
@@ -4374,19 +4253,6 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
                     if (m_targets.GetUnitTarget()->GetAura(55095))
                         m_caster->CastSpell(unitTarget, 55095, true);
                 }
-            }
-            break;
-        }
-        case SPELLFAMILY_WARRIOR:
-        {
-            // Shattering Throw
-            if (m_spellInfo->SpellFamilyFlags[1] & 0x00400000)
-            {
-                if (!unitTarget)
-                    return;
-                // remove shields, will still display immune to damage part
-                unitTarget->RemoveAurasWithMechanic(1<<MECHANIC_IMMUNE_SHIELD, AURA_REMOVE_BY_ENEMY_SPELL);
-                return;
             }
             break;
         }
@@ -4868,44 +4734,11 @@ void Spell::EffectResurrect(SpellEffIndex effIndex)
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
         return;
 
-    if (!unitTarget)
-        return;
-    if (unitTarget->GetTypeId() != TYPEID_PLAYER)
+    if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
         return;
 
-    if (unitTarget->isAlive())
+    if (unitTarget->isAlive() || !unitTarget->IsInWorld())
         return;
-    if (!unitTarget->IsInWorld())
-        return;
-
-    switch (m_spellInfo->Id)
-    {
-        // Defibrillate (Goblin Jumper Cables) have 33% chance on success
-        case 8342:
-            if (roll_chance_i(67))
-            {
-                m_caster->CastSpell(m_caster, 8338, true, m_CastItem);
-                return;
-            }
-            break;
-        // Defibrillate (Goblin Jumper Cables XL) have 50% chance on success
-        case 22999:
-            if (roll_chance_i(50))
-            {
-                m_caster->CastSpell(m_caster, 23055, true, m_CastItem);
-                return;
-            }
-            break;
-        // Defibrillate (Gnomish Army Knife) have 67% chance on success_list
-        case 54732:
-            if (roll_chance_i(33))
-            {
-                return;
-            }
-            break;
-        default:
-            break;
-    }
 
     Player* target = unitTarget->ToPlayer();
 
@@ -5151,25 +4984,9 @@ void Spell::EffectKnockBack(SpellEffIndex effIndex)
         if (creatureTarget->isWorldBoss() || creatureTarget->IsDungeonBoss())
             return;
 
-    // Spells with SPELL_EFFECT_KNOCK_BACK(like Thunderstorm) can't knoback target if target has ROOT/STUN
+    // Spells with SPELL_EFFECT_KNOCK_BACK (like Thunderstorm) can't knockback target if target has ROOT/STUN
     if (unitTarget->HasUnitState(UNIT_STATE_ROOT | UNIT_STATE_STUNNED))
         return;
-
-    // Typhoon
-    if (m_spellInfo->SpellFamilyName == SPELLFAMILY_DRUID && m_spellInfo->SpellFamilyFlags[1] & 0x01000000)
-    {
-        // Glyph of Typhoon
-        if (m_caster->HasAura(62135))
-            return;
-    }
-
-    // Thunderstorm
-    if (m_spellInfo->SpellFamilyName == SPELLFAMILY_SHAMAN && m_spellInfo->SpellFamilyFlags[1] & 0x00002000)
-    {
-        // Glyph of Thunderstorm
-        if (m_caster->HasAura(62132))
-            return;
-    }
 
     // Instantly interrupt non melee spells being casted
     if (unitTarget->IsNonMeleeSpellCasted(true))
