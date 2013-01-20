@@ -28,6 +28,10 @@
 
 enum MageSpells
 {
+    SPELL_MAGE_SLOW                              = 31589,
+    SPELL_MAGE_NETHER_VORTEX_R1                  = 86181,
+    SPELL_MAGE_NETHER_VORTEX_R2                  = 86209,
+
     SPELL_MAGE_FLAMESTRIKE                       = 2120,
 
     SPELL_MAGE_CHILLED_R1                        = 12484,
@@ -75,6 +79,74 @@ enum MageIcons
     ICON_MAGE_INCANTER_S_ABSORPTION              = 2941,
     ICON_MAGE_IMPROVED_MANA_GEM                  = 1036
 };
+
+
+// 30451 - Arcane Blast
+/// Updated 4.3.4
+class spell_mage_arcane_blast : public SpellScriptLoader
+{
+   public:
+       spell_mage_arcane_blast() : SpellScriptLoader("spell_mage_arcane_blast") { }
+
+       class spell_mage_arcane_blast_SpellScript : public SpellScript
+       {
+           PrepareSpellScript(spell_mage_arcane_blast_SpellScript);
+
+           bool Validate(SpellInfo const* /*spellInfo*/)
+           {
+               if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_SLOW))
+                   return false;
+               if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_NETHER_VORTEX_R1))
+                   return false;
+               if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_NETHER_VORTEX_R2))
+                   return false;
+               return true;
+           }
+
+           void CastSlow(SpellEffIndex /*effIndex*/)
+           {
+               Unit* caster = GetCaster();
+               uint32 chance = 0;
+
+               if (caster->HasAura(SPELL_MAGE_NETHER_VORTEX_R1))
+                   chance = sSpellMgr->GetSpellInfo(SPELL_MAGE_NETHER_VORTEX_R1)->ProcChance;
+               else if (caster->HasAura(SPELL_MAGE_NETHER_VORTEX_R2))
+                   chance = sSpellMgr->GetSpellInfo(SPELL_MAGE_NETHER_VORTEX_R2)->ProcChance;
+               else
+                   return;
+
+               if (roll_chance_i(chance))
+               {
+                   Unit::AuraList& auras = caster->GetSingleCastAuras();
+                   bool alreadyApplied = false;
+
+                   for (Unit::AuraList::iterator itr = auras.begin(); itr != auras.end(); ++itr)
+                   {
+                       if ((*itr)->GetId() == SPELL_MAGE_SLOW)
+                       {
+                           alreadyApplied = true;
+                           break;
+                       }
+                   }
+
+                   // Apply if there were no Slow casted on any target or for refreshing the one on the current target
+                   if (GetHitUnit() && (!alreadyApplied || GetHitUnit()->HasAura(SPELL_MAGE_SLOW, caster->GetGUID())))
+                       caster->CastSpell(GetHitUnit(), SPELL_MAGE_SLOW, true);
+               }
+           }
+
+           void Register()
+           {
+               OnEffectHitTarget += SpellEffectFn(spell_mage_arcane_blast_SpellScript::CastSlow, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+           }
+       };
+
+       SpellScript* GetSpellScript() const
+       {
+           return new spell_mage_arcane_blast_SpellScript();
+       }
+};
+
 
 // 11113 - Blast Wave
 class spell_mage_blast_wave : public SpellScriptLoader
@@ -746,6 +818,7 @@ class spell_mage_water_elemental_freeze : public SpellScriptLoader
 
 void AddSC_mage_spell_scripts()
 {
+    new spell_mage_arcane_blast();
     new spell_mage_blast_wave();
     new spell_mage_blizzard();
     new spell_mage_cold_snap();
