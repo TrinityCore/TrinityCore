@@ -30,6 +30,7 @@
 enum PriestSpells
 {
     SPELL_PRIEST_EMPOWERED_RENEW                = 63544,
+    SPELL_PRIEST_GLYPHE_OF_LIGHTWELL            = 55673,
     SPELL_PRIEST_GUARDIAN_SPIRIT_HEAL           = 48153,
     SPELL_PRIEST_PENANCE_R1                     = 47540,
     SPELL_PRIEST_PENANCE_R1_DAMAGE              = 47758,
@@ -43,6 +44,7 @@ enum PriestSpells
 
 enum PriestSpellIcons
 {
+    PRIEST_ICON_ID_BORROWED_TIME                = 2899,
     PRIEST_ICON_ID_EMPOWERED_RENEW_TALENT       = 3021,
     PRIEST_ICON_ID_PAIN_AND_SUFFERING           = 2874,
 };
@@ -101,6 +103,38 @@ class spell_pri_guardian_spirit : public SpellScriptLoader
         AuraScript* GetAuraScript() const
         {
             return new spell_pri_guardian_spirit_AuraScript();
+        }
+};
+
+// -7001 - Lightwell Renew
+class spell_pri_lightwell_renew : public SpellScriptLoader
+{
+    public:
+        spell_pri_lightwell_renew() : SpellScriptLoader("spell_pri_lightwell_renew") { }
+
+        class spell_pri_lightwell_renew_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_pri_lightwell_renew_AuraScript);
+
+            void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    // Bonus from Glyph of Lightwell
+                    if (AuraEffect* modHealing = caster->GetAuraEffect(SPELL_PRIEST_GLYPHE_OF_LIGHTWELL, EFFECT_0))
+                        AddPct(amount, modHealing->GetAmount());
+                }
+            }
+
+            void Register()
+            {
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_pri_lightwell_renew_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_pri_lightwell_renew_AuraScript();
         }
 };
 
@@ -260,6 +294,82 @@ class spell_pri_penance : public SpellScriptLoader
         }
 };
 
+// -17 - Power Word: Shield
+class spell_pri_power_word_shield : public SpellScriptLoader
+{
+    public:
+        spell_pri_power_word_shield() : SpellScriptLoader("spell_pri_power_word_shield") { }
+
+        class spell_pri_power_word_shield_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_pri_power_word_shield_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_PRIEST_REFLECTIVE_SHIELD_TRIGGERED))
+                    return false;
+                if (!sSpellMgr->GetSpellInfo(SPELL_PRIEST_REFLECTIVE_SHIELD_R1))
+                    return false;
+                return true;
+            }
+
+            void CalculateAmount(AuraEffect const* aurEff, int32& amount, bool& canBeRecalculated)
+            {
+                canBeRecalculated = false;
+                if (Unit* caster = GetCaster())
+                {
+                    // +80.68% from sp bonus
+                    float bonus = 0.8068f;
+
+                    // Borrowed Time
+                    if (AuraEffect const* borrowedTime = caster->GetDummyAuraEffect(SPELLFAMILY_PRIEST, PRIEST_ICON_ID_BORROWED_TIME, EFFECT_1))
+                        bonus += CalculatePct(1.0f, borrowedTime->GetAmount());
+
+                    bonus *= caster->SpellBaseHealingBonusDone(GetSpellInfo()->GetSchoolMask());
+
+                    // Improved PW: Shield: its weird having a SPELLMOD_ALL_EFFECTS here but its blizzards doing :)
+                    // Improved PW: Shield is only applied at the spell healing bonus because it was already applied to the base value in CalculateSpellDamage
+                    bonus = caster->ApplyEffectModifiers(GetSpellInfo(), aurEff->GetEffIndex(), bonus);
+                    bonus *= caster->CalculateLevelPenalty(GetSpellInfo());
+
+                    amount += int32(bonus);
+
+                    // Twin Disciplines
+                    if (AuraEffect const* twinDisciplines = caster->GetAuraEffect(SPELL_AURA_ADD_PCT_MODIFIER, SPELLFAMILY_PRIEST, 0x400000, 0, 0, GetCasterGUID()))
+                        AddPct(amount, twinDisciplines->GetAmount());
+
+                    // Focused Power
+                    amount *= caster->GetTotalAuraMultiplier(SPELL_AURA_MOD_HEALING_DONE_PERCENT);
+                }
+            }
+
+            void ReflectDamage(AuraEffect* aurEff, DamageInfo& dmgInfo, uint32& absorbAmount)
+            {
+                Unit* target = GetTarget();
+                if (dmgInfo.GetAttacker() == target)
+                    return;
+
+                if (Unit* caster = GetCaster())
+                    if (AuraEffect* talentAurEff = caster->GetAuraEffectOfRankedSpell(SPELL_PRIEST_REFLECTIVE_SHIELD_R1, EFFECT_0))
+                    {
+                        int32 bp = CalculatePct(absorbAmount, talentAurEff->GetAmount());
+                        target->CastCustomSpell(dmgInfo.GetAttacker(), SPELL_PRIEST_REFLECTIVE_SHIELD_TRIGGERED, &bp, NULL, NULL, true, NULL, aurEff);
+                    }
+            }
+
+            void Register()
+            {
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_pri_power_word_shield_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
+                AfterEffectAbsorb += AuraEffectAbsorbFn(spell_pri_power_word_shield_AuraScript::ReflectDamage, EFFECT_0);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_pri_power_word_shield_AuraScript();
+        }
+};
+
 // 33110 - Prayer of Mending Heal
 class spell_pri_prayer_of_mending_heal : public SpellScriptLoader
 {
@@ -292,49 +402,6 @@ class spell_pri_prayer_of_mending_heal : public SpellScriptLoader
         SpellScript* GetSpellScript() const
         {
             return new spell_pri_prayer_of_mending_heal_SpellScript();
-        }
-};
-
-// -17 - Reflective Shield
-class spell_pri_reflective_shield_trigger : public SpellScriptLoader
-{
-    public:
-        spell_pri_reflective_shield_trigger() : SpellScriptLoader("spell_pri_reflective_shield_trigger") { }
-
-        class spell_pri_reflective_shield_trigger_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_pri_reflective_shield_trigger_AuraScript);
-
-            bool Validate(SpellInfo const* /*spellInfo*/)
-            {
-                if (!sSpellMgr->GetSpellInfo(SPELL_PRIEST_REFLECTIVE_SHIELD_TRIGGERED) || !sSpellMgr->GetSpellInfo(SPELL_PRIEST_REFLECTIVE_SHIELD_R1))
-                    return false;
-                return true;
-            }
-
-            void Trigger(AuraEffect* aurEff, DamageInfo & dmgInfo, uint32 & absorbAmount)
-            {
-                Unit* target = GetTarget();
-                if (dmgInfo.GetAttacker() == target)
-                    return;
-
-                if (GetCaster())
-                    if (AuraEffect* talentAurEff = target->GetAuraEffectOfRankedSpell(SPELL_PRIEST_REFLECTIVE_SHIELD_R1, EFFECT_0))
-                    {
-                        int32 bp = CalculatePct(absorbAmount, talentAurEff->GetAmount());
-                        target->CastCustomSpell(dmgInfo.GetAttacker(), SPELL_PRIEST_REFLECTIVE_SHIELD_TRIGGERED, &bp, NULL, NULL, true, NULL, aurEff);
-                    }
-            }
-
-            void Register()
-            {
-                 AfterEffectAbsorb += AuraEffectAbsorbFn(spell_pri_reflective_shield_trigger_AuraScript::Trigger, EFFECT_0);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_pri_reflective_shield_trigger_AuraScript();
         }
 };
 
@@ -458,12 +525,13 @@ class spell_pri_vampiric_touch : public SpellScriptLoader
 void AddSC_priest_spell_scripts()
 {
     new spell_pri_guardian_spirit();
+    new spell_pri_lightwell_renew();
     new spell_pri_mana_burn();
     new spell_pri_mind_sear();
     new spell_pri_pain_and_suffering_proc();
     new spell_pri_penance();
+    new spell_pri_power_word_shield();
     new spell_pri_prayer_of_mending_heal();
-    new spell_pri_reflective_shield_trigger();
     new spell_pri_renew();
     new spell_pri_shadow_word_death();
     new spell_pri_vampiric_touch();
