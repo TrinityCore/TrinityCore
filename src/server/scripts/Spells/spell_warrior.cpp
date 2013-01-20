@@ -41,6 +41,7 @@ enum WarriorSpells
     SPELL_WARRIOR_JUGGERNAUT_CRIT_BONUS_TALENT      = 64976,
     SPELL_WARRIOR_LAST_STAND_TRIGGERED              = 12976,
     SPELL_WARRIOR_SLAM                              = 50783,
+    SPELL_WARRIOR_TAUNT                             = 355,
     SPELL_WARRIOR_UNRELENTING_ASSAULT_RANK_1        = 46859,
     SPELL_WARRIOR_UNRELENTING_ASSAULT_RANK_2        = 46860,
     SPELL_WARRIOR_UNRELENTING_ASSAULT_TRIGGER_1     = 64849,
@@ -333,6 +334,34 @@ class spell_warr_improved_spell_reflection : public SpellScriptLoader
         }
 };
 
+// 5246 - Intimidating Shout
+class spell_warr_intimidating_shout : public SpellScriptLoader
+{
+    public:
+        spell_warr_intimidating_shout() : SpellScriptLoader("spell_warr_intimidating_shout") { }
+
+        class spell_warr_intimidating_shout_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_warr_intimidating_shout_SpellScript);
+
+            void FilterTargets(std::list<WorldObject*>& unitList)
+            {
+                unitList.remove(GetExplTargetWorldObject());
+            }
+
+            void Register()
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_warr_intimidating_shout_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_warr_intimidating_shout_SpellScript::FilterTargets, EFFECT_2, TARGET_UNIT_SRC_AREA_ENEMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_warr_intimidating_shout_SpellScript();
+        }
+};
+
 // 12975 - Last Stand
 class spell_warr_last_stand : public SpellScriptLoader
 {
@@ -406,6 +435,83 @@ class spell_warr_overpower : public SpellScriptLoader
         SpellScript* GetSpellScript() const
         {
             return new spell_warr_overpower_SpellScript();
+        }
+};
+
+// -772 - Rend
+class spell_warr_rend : public SpellScriptLoader
+{
+    public:
+        spell_warr_rend() : SpellScriptLoader("spell_warr_rend") { }
+
+        class spell_warr_rend_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_warr_rend_AuraScript);
+
+            void CalculateAmount(AuraEffect const* aurEff, int32& amount, bool& canBeRecalculated)
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    canBeRecalculated = false;
+
+                    // $0.2 * (($MWB + $mwb) / 2 + $AP / 14 * $MWS) bonus per tick
+                    float ap = caster->GetTotalAttackPowerValue(BASE_ATTACK);
+                    int32 mws = caster->GetAttackTime(BASE_ATTACK);
+                    float mwbMin = caster->GetWeaponDamageRange(BASE_ATTACK, MINDAMAGE);
+                    float mwbMax = caster->GetWeaponDamageRange(BASE_ATTACK, MAXDAMAGE);
+                    float mwb = ((mwbMin + mwbMax) / 2 + ap * mws / 14000) * 0.2f;
+                    amount += int32(caster->ApplyEffectModifiers(GetSpellInfo(), aurEff->GetEffIndex(), mwb));
+
+                    // "If used while your target is above 75% health, Rend does 35% more damage."
+                    // as for 3.1.3 only ranks above 9 (wrong tooltip?)
+                    if (GetSpellInfo()->GetRank() >= 9)
+                    {
+                        if (GetUnitOwner()->HasAuraState(AURA_STATE_HEALTH_ABOVE_75_PERCENT, GetSpellInfo(), caster))
+                            AddPct(amount, GetSpellInfo()->Effects[EFFECT_2].CalcValue(caster));
+                    }
+                }
+            }
+
+            void Register()
+            {
+                 DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_warr_rend_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_warr_rend_AuraScript();
+        }
+};
+
+// 64380, 65941 - Shattering Throw
+class spell_warr_shattering_throw : public SpellScriptLoader
+{
+    public:
+        spell_warr_shattering_throw() : SpellScriptLoader("spell_warr_shattering_throw") { }
+
+        class spell_warr_shattering_throw_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_warr_shattering_throw_SpellScript);
+
+            void HandleScript(SpellEffIndex effIndex)
+            {
+                PreventHitDefaultEffect(effIndex);
+
+                // remove shields, will still display immune to damage part
+                if (Unit* target = GetHitUnit())
+                    target->RemoveAurasWithMechanic(1 << MECHANIC_IMMUNE_SHIELD, AURA_REMOVE_BY_ENEMY_SPELL);
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_warr_shattering_throw_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_warr_shattering_throw_SpellScript();
         }
 };
 
@@ -493,6 +599,37 @@ class spell_warr_vigilance : public SpellScriptLoader
         }
 };
 
+// 50725 Vigilance
+class spell_warr_vigilance_trigger : public SpellScriptLoader
+{
+    public:
+        spell_warr_vigilance_trigger() : SpellScriptLoader("spell_warr_vigilance_trigger") { }
+
+        class spell_warr_vigilance_trigger_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_warr_vigilance_trigger_SpellScript);
+
+            void HandleScript(SpellEffIndex effIndex)
+            {
+                PreventHitDefaultEffect(effIndex);
+
+                // Remove Taunt cooldown
+                if (Player* target = GetHitPlayer())
+                    target->RemoveSpellCooldown(SPELL_WARRIOR_TAUNT, true);
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_warr_vigilance_trigger_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_warr_vigilance_trigger_SpellScript();
+        }
+};
+
 void AddSC_warrior_spell_scripts()
 {
     new spell_warr_bloodthirst();
@@ -502,8 +639,12 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_deep_wounds();
     new spell_warr_execute();
     new spell_warr_improved_spell_reflection();
+    new spell_warr_intimidating_shout();
     new spell_warr_last_stand();
     new spell_warr_overpower();
+    new spell_warr_rend();
+    new spell_warr_shattering_throw();
     new spell_warr_slam();
     new spell_warr_vigilance();
+    new spell_warr_vigilance_trigger();
 }
