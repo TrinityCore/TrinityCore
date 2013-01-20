@@ -30,6 +30,9 @@
 enum DruidSpells
 {
     SPELL_DRUID_ENRAGE_MOD_DAMAGE           = 51185,
+    SPELL_DRUID_GLYPH_OF_TYPHOON            = 62135,
+    SPELL_DRUID_IDOL_OF_FERAL_SHADOWS       = 34241,
+    SPELL_DRUID_IDOL_OF_WORSHIP             = 60774,
     SPELL_DRUID_INCREASED_MOONFIRE_DURATION = 38414,
     SPELL_DRUID_KING_OF_THE_JUNGLE          = 48492,
     SPELL_DRUID_LIFEBLOOM_ENERGIZE          = 64372,
@@ -39,6 +42,35 @@ enum DruidSpells
     SPELL_DRUID_SAVAGE_ROAR                 = 62071,
     SPELL_DRUID_TIGER_S_FURY_ENERGIZE       = 51178,
     SPELL_DRUID_ITEM_T8_BALANCE_RELIC       = 64950,
+};
+
+// -1850 - Dash
+class spell_dru_dash : public SpellScriptLoader
+{
+    public:
+        spell_dru_dash() : SpellScriptLoader("spell_dru_dash") { }
+
+        class spell_dru_dash_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dru_dash_AuraScript);
+
+            void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
+            {
+                // do not set speed if not in cat form
+                if (GetUnitOwner()->GetShapeshiftForm() != FORM_CAT)
+                    amount = 0;
+            }
+
+            void Register()
+            {
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dru_dash_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_MOD_INCREASE_SPEED);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_dru_dash_AuraScript();
+        }
 };
 
 // -5229 - Enrage
@@ -118,6 +150,69 @@ class spell_dru_glyph_of_starfire : public SpellScriptLoader
         SpellScript* GetSpellScript() const
         {
             return new spell_dru_glyph_of_starfire_SpellScript();
+        }
+};
+
+// 34246 - Idol of the Emerald Queen
+// 60779 - Idol of Lush Moss
+class spell_dru_idol_lifebloom : public SpellScriptLoader
+{
+    public:
+        spell_dru_idol_lifebloom() : SpellScriptLoader("spell_dru_idol_lifebloom") { }
+
+        class spell_dru_idol_lifebloom_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dru_idol_lifebloom_AuraScript);
+
+            void HandleEffectCalcSpellMod(AuraEffect const* aurEff, SpellModifier*& spellMod)
+            {
+                if (!spellMod)
+                {
+                    spellMod = new SpellModifier(GetAura());
+                    spellMod->op = SPELLMOD_DOT;
+                    spellMod->type = SPELLMOD_FLAT;
+                    spellMod->spellId = GetId();
+                    spellMod->mask = GetSpellInfo()->Effects[aurEff->GetEffIndex()].SpellClassMask;
+                }
+                spellMod->value = aurEff->GetAmount() / 7;
+            }
+
+            void Register()
+            {
+                DoEffectCalcSpellMod += AuraEffectCalcSpellModFn(spell_dru_idol_lifebloom_AuraScript::HandleEffectCalcSpellMod, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_dru_idol_lifebloom_AuraScript();
+        }
+};
+
+// 29166 - Innervate
+class spell_dru_innervate : public SpellScriptLoader
+{
+    public:
+        spell_dru_innervate() : SpellScriptLoader("spell_dru_innervate") { }
+
+        class spell_dru_innervate_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dru_innervate_AuraScript);
+
+            void CalculateAmount(AuraEffect const* aurEff, int32& amount, bool& /*canBeRecalculated*/)
+            {
+                amount = CalculatePct(int32(GetUnitOwner()->GetCreatePowers(POWER_MANA) / aurEff->GetTotalTicks()), amount);
+            }
+
+            void Register()
+            {
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dru_innervate_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_PERIODIC_ENERGIZE);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_dru_innervate_AuraScript();
         }
 };
 
@@ -276,6 +371,33 @@ class spell_dru_moonkin_form_passive : public SpellScriptLoader
         }
 };
 
+// 48391 - Owlkin Frenzy
+class spell_dru_owlkin_frenzy : public SpellScriptLoader
+{
+    public:
+        spell_dru_owlkin_frenzy() : SpellScriptLoader("spell_dru_owlkin_frenzy") { }
+
+        class spell_dru_owlkin_frenzy_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dru_owlkin_frenzy_AuraScript);
+
+            void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
+            {
+                amount = CalculatePct(GetUnitOwner()->GetCreatePowers(POWER_MANA), amount);
+            }
+
+            void Register()
+            {
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dru_owlkin_frenzy_AuraScript::CalculateAmount, EFFECT_2, SPELL_AURA_PERIODIC_ENERGIZE);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_dru_owlkin_frenzy_AuraScript();
+        }
+};
+
 // -16972 - Predatory Strikes
 class spell_dru_predatory_strikes : public SpellScriptLoader
 {
@@ -346,6 +468,54 @@ class spell_dru_primal_tenacity : public SpellScriptLoader
         AuraScript* GetAuraScript() const
         {
             return new spell_dru_primal_tenacity_AuraScript();
+        }
+};
+
+// -1079 - Rip
+class spell_dru_rip : public SpellScriptLoader
+{
+    public:
+        spell_dru_rip() : SpellScriptLoader("spell_dru_rip") { }
+
+        class spell_dru_rip_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dru_rip_AuraScript);
+
+            bool Load()
+            {
+                Unit* caster = GetCaster();
+                return caster && caster->GetTypeId() == TYPEID_PLAYER;
+            }
+
+            void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& canBeRecalculated)
+            {
+                canBeRecalculated = false;
+
+                if (Unit* caster = GetCaster())
+                {
+                    // 0.01 * $AP * cp
+                    uint8 cp = caster->ToPlayer()->GetComboPoints();
+
+                    // Idol of Feral Shadows. Can't be handled as SpellMod due its dependency from CPs
+                    if (AuraEffect const* idol = caster->GetAuraEffect(SPELL_DRUID_IDOL_OF_FERAL_SHADOWS, EFFECT_0))
+                        amount += cp * idol->GetAmount();
+                    // Idol of Worship. Can't be handled as SpellMod due its dependency from CPs
+                    else if (AuraEffect const* idol = caster->GetAuraEffect(SPELL_DRUID_IDOL_OF_WORSHIP, EFFECT_0))
+                        amount += cp * idol->GetAmount();
+
+                    amount += int32(CalculatePct(caster->GetTotalAttackPowerValue(BASE_ATTACK), cp));
+                }
+            }
+
+            void Register()
+            {
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dru_rip_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_dru_rip_AuraScript();
         }
 };
 
@@ -658,6 +828,35 @@ class spell_dru_tiger_s_fury : public SpellScriptLoader
         }
 };
 
+// -61391 - Typhoon
+class spell_dru_typhoon : public SpellScriptLoader
+{
+    public:
+        spell_dru_typhoon() : SpellScriptLoader("spell_dru_typhoon") { }
+
+        class spell_dru_typhoon_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_dru_typhoon_SpellScript);
+
+            void HandleKnockBack(SpellEffIndex effIndex)
+            {
+                // Glyph of Typhoon
+                if (GetCaster()->HasAura(SPELL_DRUID_GLYPH_OF_TYPHOON))
+                    PreventHitDefaultEffect(effIndex);
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_dru_typhoon_SpellScript::HandleKnockBack, EFFECT_0, SPELL_EFFECT_KNOCK_BACK);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_dru_typhoon_SpellScript();
+        }
+};
+
 // 70691 - Item T10 Restoration 4P Bonus
 class spell_dru_t10_restoration_4p_bonus : public SpellScriptLoader
 {
@@ -715,13 +914,18 @@ class spell_dru_t10_restoration_4p_bonus : public SpellScriptLoader
 
 void AddSC_druid_spell_scripts()
 {
+    new spell_dru_dash();
     new spell_dru_enrage();
     new spell_dru_glyph_of_starfire();
+    new spell_dru_idol_lifebloom();
+    new spell_dru_innervate();
     new spell_dru_insect_swarm();
     new spell_dru_lifebloom();
     new spell_dru_moonkin_form_passive();
+    new spell_dru_owlkin_frenzy();
     new spell_dru_predatory_strikes();
     new spell_dru_primal_tenacity();
+    new spell_dru_rip();
     new spell_dru_savage_defense();
     new spell_dru_savage_roar();
     new spell_dru_starfall_aoe();
@@ -729,5 +933,6 @@ void AddSC_druid_spell_scripts()
     new spell_dru_survival_instincts();
     new spell_dru_swift_flight_passive();
     new spell_dru_tiger_s_fury();
+    new spell_dru_typhoon();
     new spell_dru_t10_restoration_4p_bonus();
 }
