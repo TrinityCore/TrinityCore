@@ -276,7 +276,7 @@ template<>
 void FollowMovementGenerator<Creature>::_updateSpeed(Creature& owner)
 {
     // pet only sync speed with owner
-    /// Make sure we are not in the process of a map change
+    /// Make sure we are not in the process of a map change (IsInWorld)
     if (!owner.isPet() || !owner.IsInWorld() || !i_target.isValid() || i_target->GetGUID() != owner.GetOwnerGUID())
         return;
 
