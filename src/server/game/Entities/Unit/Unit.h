@@ -965,6 +965,28 @@ struct SpellPeriodicAuraLogInfo
 
 uint32 createProcExtendMask(SpellNonMeleeDamage* damageInfo, SpellMissInfo missCondition);
 
+struct RedirectThreatInfo
+{
+    RedirectThreatInfo() : _targetGUID(0), _threatPct(0) { }
+    uint64 _targetGUID;
+    uint32 _threatPct;
+
+    uint64 GetTargetGUID() { return _targetGUID; }
+    uint32 GetThreatPct() { return _threatPct; }
+
+    void Set(uint64 guid, uint32 pct)
+    {
+        _targetGUID = guid;
+        _threatPct = pct;
+    }
+
+    void ModifyThreatPct(int32 amount)
+    {
+        amount += _threatPct;
+        _threatPct = uint32(std::max(0, amount));
+    }
+};
+
 #define MAX_DECLINED_NAME_CASES 5
 
 struct DeclinedName
@@ -2153,13 +2175,12 @@ class Unit : public WorldObject
         uint32 GetModelForForm(ShapeshiftForm form) const;
         uint32 GetModelForTotem(PlayerTotemType totemType);
 
-        void SetReducedThreatPercent(uint32 pct, uint64 guid)
-        {
-            m_reducedThreatPercent = pct;
-            m_misdirectionTargetGUID = guid;
-        }
-        uint32 GetReducedThreatPercent() { return m_reducedThreatPercent; }
-        Unit* GetMisdirectionTarget() { return m_misdirectionTargetGUID ? GetUnit(*this, m_misdirectionTargetGUID) : NULL; }
+        // Redirect Threat
+        void SetRedirectThreat(uint64 guid, uint32 pct) { _redirectThreadInfo.Set(guid, pct); }
+        void ResetRedirectThreat() { SetRedirectThreat(0, 0); }
+        void ModifyRedirectThreat(int32 amount) { _redirectThreadInfo.ModifyThreatPct(amount); }
+        uint32 GetRedirectThreatPercent() { return _redirectThreadInfo.GetThreatPct(); }
+        Unit* GetRedirectThreatTarget() { return _redirectThreadInfo.GetTargetGUID() ? GetUnit(*this, _redirectThreadInfo.GetTargetGUID()) : NULL; }
 
         bool IsAIEnabled, NeedChangeAI;
         bool CreateVehicleKit(uint32 id, uint32 creatureEntry);
@@ -2305,10 +2326,6 @@ class Unit : public WorldObject
     private:
         bool IsTriggeredAtSpellProcEvent(Unit* victim, Aura* aura, SpellInfo const* procSpell, uint32 procFlag, uint32 procExtra, WeaponAttackType attType, bool isVictim, bool active, SpellProcEventEntry const* & spellProcEvent);
         bool HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggeredByAura, SpellInfo const* procSpell, uint32 procFlag, uint32 procEx, uint32 cooldown);
-        bool HandleHasteAuraProc(Unit* victim, uint32 damage, AuraEffect* triggeredByAura, SpellInfo const* procSpell, uint32 procFlag, uint32 procEx, uint32 cooldown);
-        bool HandleSpellCritChanceAuraProc(Unit* victim, uint32 damage, AuraEffect* triggredByAura, SpellInfo const* procSpell, uint32 procFlag, uint32 procEx, uint32 cooldown);
-        bool HandleObsModEnergyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggeredByAura, SpellInfo const* procSpell, uint32 procFlag, uint32 procEx, uint32 cooldown);
-        bool HandleModDamagePctTakenAuraProc(Unit* victim, uint32 damage, AuraEffect* triggeredByAura, SpellInfo const* procSpell, uint32 procFlag, uint32 procEx, uint32 cooldown);
         bool HandleAuraProc(Unit* victim, uint32 damage, Aura* triggeredByAura, SpellInfo const* procSpell, uint32 procFlag, uint32 procEx, uint32 cooldown, bool * handled);
         bool HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* triggeredByAura, SpellInfo const* procSpell, uint32 procFlag, uint32 procEx, uint32 cooldown);
         bool HandleOverrideClassScriptAuraProc(Unit* victim, uint32 damage, AuraEffect* triggeredByAura, SpellInfo const* procSpell, uint32 cooldown);
@@ -2341,8 +2358,7 @@ class Unit : public WorldObject
 
         ComboPointHolderSet m_ComboPointHolders;
 
-        uint32 m_reducedThreatPercent;
-        uint64 m_misdirectionTargetGUID;
+        RedirectThreatInfo _redirectThreadInfo;
 
         bool m_cleanupDone; // lock made to not add stuff after cleanup before delete
         bool m_duringRemoveFromWorld; // lock made to not add stuff after begining removing from world
