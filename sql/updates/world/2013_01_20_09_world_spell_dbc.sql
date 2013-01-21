@@ -10,7 +10,7 @@ INSERT INTO `spell_dbc` (`Id`,`SchoolMask`,`Dispel`,`Mechanic`,`Attributes`,`Att
 UPDATE `creature_template` SET `AIName` = '', `ScriptName`='npc_zulian_prowler' WHERE `entry`=15101;
 
 -- Remove SmartAI
-DELETE FROM smart_scripts WHERE entryorguid = 15101;
+DELETE FROM `smart_scripts` WHERE `entryorguid`=15101;
 
 -- Add condition for Mark of Arlokk
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceEntry`=24211;
