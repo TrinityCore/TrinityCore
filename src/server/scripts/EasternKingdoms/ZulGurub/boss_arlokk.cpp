@@ -333,7 +333,7 @@ enum ZulianProwlerEvents
 
 Position const PosProwlerCenter[1] =
 {
-    { -11556.7f, -1631.344f, 41.2994f }
+    { -11556.7f, -1631.344f, 41.2994f, 0.0f }
 };
 
 class npc_zulian_prowler : public CreatureScript
