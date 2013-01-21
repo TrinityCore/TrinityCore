@@ -39,11 +39,11 @@ public:
         {
             SetBossNumber(MAX_ENCOUNTERS);
             LoadDoorData(doorData);
-            ArgalothGUID = 0;
-            OccutharGUID = 0;
-            AlizabalGUID = 0;
-            ArgalothDoor = 0;
-            OccutharDoor = 0;
+            _argalothGUID = 0;
+            _occutharGUID = 0;
+            _alizabalGUID = 0;
+            _argalothDoor = 0;
+            _occutharDoor = 0;
         }
 
         void Initialize()
@@ -55,13 +55,13 @@ public:
             switch(creature->GetEntry())
             {
                 case BOSS_ARGALOTH:
-                    ArgalothGUID = creature->GetGUID();
+                    _argalothGUID = creature->GetGUID();
                     break;
                 case BOSS_OCCUTHAR:
-                    OccutharGUID = creature->GetGUID();
+                    _occutharGUID = creature->GetGUID();
                     break;
                 case BOSS_ALIZABAL:
-                    AlizabalGUID = creature->GetGUID();
+                    _alizabalGUID = creature->GetGUID();
                     break;
             }
         }
@@ -71,11 +71,11 @@ public:
             switch(go->GetEntry())
             {
                 case GO_ARGALOTH_DOOR:
-                    ArgalothDoor = go->GetGUID();
+                    _argalothDoor = go->GetGUID();
                     AddDoor(go, true);
                     break;
                 case GO_OCCUTHAR_DOOR:
-                    OccutharDoor = go->GetGUID();
+                    _occutharDoor = go->GetGUID();
                     AddDoor(go, true);
                     break;
             }
@@ -86,11 +86,11 @@ public:
             switch (data)
             {
                 case DATA_ARGALOTH:
-                    return ArgalothGUID;
+                    return _argalothGUID;
                 case DATA_OCCUTHAR:
-                    return OccutharGUID;
+                    return _occutharGUID;
                 case DATA_ALIZABAL:
-                    return AlizabalGUID;
+                    return _alizabalGUID;
                 default:
                     break;
             }
@@ -154,11 +154,11 @@ public:
         }
 
     private:
-        uint64 ArgalothGUID;
-        uint64 OccutharGUID;
-        uint64 AlizabalGUID;
-        uint64 ArgalothDoor;
-        uint64 OccutharDoor;
+        uint64 _argalothGUID;
+        uint64 _occutharGUID;
+        uint64 _alizabalGUID;
+        uint64 _argalothDoor;
+        uint64 _occutharDoor;
     };
 };
 
