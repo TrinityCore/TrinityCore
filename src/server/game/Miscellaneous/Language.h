@@ -742,7 +742,7 @@ enum TrinityStrings
     LANG_COMMAND_CREATURESTORAGE_NOTFOUND  = 818,
 
     LANG_CHANNEL_CITY                   = 819,
-    
+
     LANG_NPCINFO_GOSSIP                 = 820,
     LANG_NPCINFO_QUESTGIVER             = 821,
     LANG_NPCINFO_TRAINER_CLASS          = 822,
@@ -766,7 +766,7 @@ enum TrinityStrings
     LANG_NPCINFO_SPELLCLICK             = 840,
     LANG_NPCINFO_MAILBOX                = 841,
     LANG_NPCINFO_PLAYER_VEHICLE         = 842,
-    
+
     // Room for in-game strings           843-999 not used
 
     // Level 4 (CLI only commands)
