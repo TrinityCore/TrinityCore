@@ -12869,7 +12869,8 @@ void Unit::UpdateSpeed(UnitMoveType mtype, bool forced)
         AddPct(speed, slow);
         if (float minSpeedMod = (float)GetMaxPositiveAuraModifier(SPELL_AURA_MOD_MINIMUM_SPEED))
         {
-            float min_speed = minSpeedMod / 100.0f;
+            float baseSpeed = (GetTypeId() == TYPEID_UNIT ? ToCreature()->GetCreatureTemplate()->speed_walk : 1.0f);
+            float min_speed = (minSpeedMod / 100.0f) * baseSpeed;
             if (speed < min_speed)
                 speed = min_speed;
         }
