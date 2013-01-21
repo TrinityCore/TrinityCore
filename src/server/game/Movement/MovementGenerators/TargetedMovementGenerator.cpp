@@ -103,7 +103,6 @@ void TargetedMovementGeneratorMedium<T, D>::_setTargetLocation(T &owner)
             return;
     */
 
-
     D::_addUnitStateMove(owner);
     i_targetReached = false;
     i_recalculateTravel = false;
@@ -111,6 +110,11 @@ void TargetedMovementGeneratorMedium<T, D>::_setTargetLocation(T &owner)
     Movement::MoveSplineInit init(owner);
     init.MoveTo(x, y, z);
     init.SetWalk(((D*)this)->EnableWalking());
+    // Using the same condition for facing target as the one that is used for SetInFront on movement end
+    // - applies to ChaseMovementGenerator mostly
+    if (i_angle == 0.f)
+        init.SetFacing(i_target.getTarget());
+
     init.Launch();
 }
 
@@ -269,15 +273,16 @@ void FollowMovementGenerator<Player>::_updateSpeed(Player &/*u*/)
 }
 
 template<>
-void FollowMovementGenerator<Creature>::_updateSpeed(Creature &u)
+void FollowMovementGenerator<Creature>::_updateSpeed(Creature& owner)
 {
     // pet only sync speed with owner
-    if (!((Creature&)u).isPet() || !i_target.isValid() || i_target->GetGUID() != u.GetOwnerGUID())
+    /// Make sure we are not in the process of a map change (IsInWorld)
+    if (!owner.isPet() || !owner.IsInWorld() || !i_target.isValid() || i_target->GetGUID() != owner.GetOwnerGUID())
         return;
 
-    u.UpdateSpeed(MOVE_RUN, true);
-    u.UpdateSpeed(MOVE_WALK, true);
-    u.UpdateSpeed(MOVE_SWIM, true);
+    owner.UpdateSpeed(MOVE_RUN, true);
+    owner.UpdateSpeed(MOVE_WALK, true);
+    owner.UpdateSpeed(MOVE_SWIM, true);
 }
 
 template<>

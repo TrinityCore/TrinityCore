@@ -71,7 +71,7 @@ int RASocket::send(const std::string& line)
     ssize_t n = peer().send(line.c_str(), line.length());
 #endif // MSG_NOSIGNAL
 
-    return n == line.length() ? 0 : -1;
+    return n == ssize_t(line.length()) ? 0 : -1;
 }
 
 int RASocket::recv_line(ACE_Message_Block& buffer)

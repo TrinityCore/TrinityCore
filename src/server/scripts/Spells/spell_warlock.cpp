@@ -649,6 +649,43 @@ class spell_warl_seed_of_corruption : public SpellScriptLoader
         }
 };
 
+// -7235 - Shadow Ward
+class spell_warl_shadow_ward : public SpellScriptLoader
+{
+    public:
+        spell_warl_shadow_ward() : SpellScriptLoader("spell_warl_shadow_ward") { }
+
+        class spell_warl_shadow_ward_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_warl_shadow_ward_AuraScript);
+
+            void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& canBeRecalculated)
+            {
+                canBeRecalculated = false;
+                if (Unit* caster = GetCaster())
+                {
+                    // +80.68% from sp bonus
+                    float bonus = 0.8068f;
+
+                    bonus *= caster->SpellBaseHealingBonusDone(GetSpellInfo()->GetSchoolMask());
+                    bonus *= caster->CalculateLevelPenalty(GetSpellInfo());
+
+                    amount += int32(bonus);
+                }
+            }
+
+            void Register()
+            {
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_warl_shadow_ward_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_warl_shadow_ward_AuraScript();
+        }
+};
+
 // 29858 - Soulshatter
 class spell_warl_soulshatter : public SpellScriptLoader
 {
@@ -742,6 +779,7 @@ void AddSC_warlock_spell_scripts()
     new spell_warl_life_tap();
     new spell_warl_ritual_of_doom_effect();
     new spell_warl_seed_of_corruption();
+    new spell_warl_shadow_ward();
     new spell_warl_soulshatter();
     new spell_warl_unstable_affliction();
 }
