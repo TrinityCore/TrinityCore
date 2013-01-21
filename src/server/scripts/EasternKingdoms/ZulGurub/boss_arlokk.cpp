@@ -377,7 +377,7 @@ class npc_zulian_prowler : public CreatureScript
             {
                 if (_instance)
                 {
-                    if (Unit* arlokk = me->GetUnit(*me, instance->GetData64(NPC_ARLOKK)))
+                    if (Unit* arlokk = me->GetUnit(*me, _instance->GetData64(NPC_ARLOKK)))
                     {
                         if (arlokk->isAlive())
                             arlokk->GetAI()->SetData(_sideData, 0);
