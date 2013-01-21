@@ -132,7 +132,7 @@ public:
             return false;
         }
 
-        Player const* GetPlayerInMap() const
+        Player* GetPlayerInMap()
         {
             Map::PlayerList const& players = instance->GetPlayers();
 
