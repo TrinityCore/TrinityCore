@@ -52,17 +52,12 @@ enum PaladinSpells
     SPELL_PALADIN_HAND_OF_SACRIFICE              = 6940,
     SPELL_PALADIN_DIVINE_SACRIFICE               = 64205,
 
-<<<<<<< HEAD
-    SPELL_RIGHTEOUS_DEFENCE                      = 31789,
-    SPELL_RIGHTEOUS_DEFENCE_EFFECT_1             = 31790,
-=======
     SPELL_PALADIN_GLYPH_OF_SALVATION             = 63225,
 
     SPELL_PALADIN_RIGHTEOUS_DEFENSE_TAUNT        = 31790,
 
     SPELL_GENERIC_ARENA_DAMPENING                = 74410,
     SPELL_GENERIC_BATTLEGROUND_DAMPENING         = 74411
->>>>>>> tc/master
 };
 
 // 31850 - Ardent Defender
@@ -701,9 +696,6 @@ class spell_pal_righteous_defense : public SpellScriptLoader
         {
             PrepareSpellScript(spell_pal_righteous_defense_SpellScript);
 
-<<<<<<< HEAD
-            bool Validate(SpellInfo const* /*spellEntry*/)
-=======
             bool Validate(SpellInfo const* /*spellInfo*/)
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_PALADIN_RIGHTEOUS_DEFENSE_TAUNT))
@@ -712,18 +704,20 @@ class spell_pal_righteous_defense : public SpellScriptLoader
             }
 
             SpellCastResult CheckCast()
->>>>>>> tc/master
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_RIGHTEOUS_DEFENCE))
-                    return false;
-                return true;
-            }
+                Unit* caster = GetCaster();
+                if (caster->GetTypeId() != TYPEID_PLAYER)
+                    return SPELL_FAILED_DONT_REPORT;
 
-            void HandleSpellEffectTriggerSpell(SpellEffIndex /*effIndex*/)
-            {
-                if (Unit* caster = GetCaster())
-                    if (Unit* targetUnit = GetHitUnit())
-                        caster->CastSpell(targetUnit, SPELL_RIGHTEOUS_DEFENCE_EFFECT_1, true);
+                if (Unit* target = GetExplTargetUnit())
+                {
+                    if (!target->IsFriendlyTo(caster) || target->getAttackers().empty())
+                        return SPELL_FAILED_BAD_TARGETS;
+                }
+                else
+                    return SPELL_FAILED_BAD_TARGETS;
+
+                return SPELL_CAST_OK;
             }
 
             void HandleTriggerSpellLaunch(SpellEffIndex effIndex)
@@ -740,9 +734,6 @@ class spell_pal_righteous_defense : public SpellScriptLoader
 
             void Register()
             {
-<<<<<<< HEAD
-                OnEffectHitTarget += SpellEffectFn(spell_pal_righteous_defense_SpellScript::HandleSpellEffectTriggerSpell, EFFECT_1, SPELL_EFFECT_TRIGGER_SPELL);
-=======
                 OnCheckCast += SpellCheckCastFn(spell_pal_righteous_defense_SpellScript::CheckCast);
                 //! WORKAROUND
                 //! target select will be executed in hitphase of effect 0
@@ -750,7 +741,6 @@ class spell_pal_righteous_defense : public SpellScriptLoader
                 //! see issue #3718
                 OnEffectLaunchTarget += SpellEffectFn(spell_pal_righteous_defense_SpellScript::HandleTriggerSpellLaunch, EFFECT_1, SPELL_EFFECT_TRIGGER_SPELL);
                 OnEffectHitTarget += SpellEffectFn(spell_pal_righteous_defense_SpellScript::HandleTriggerSpellHit, EFFECT_1, SPELL_EFFECT_TRIGGER_SPELL);
->>>>>>> tc/master
             }
         };
 
