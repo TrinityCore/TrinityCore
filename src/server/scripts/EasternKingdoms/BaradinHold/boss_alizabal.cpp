@@ -64,8 +64,8 @@ class at_alizabal_intro : public AreaTriggerScript
         bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/)
         {
             if (InstanceScript* instance = player->GetInstanceScript())
-                if (Creature* Alizabal = ObjectAccessor::GetCreature(*player, instance->GetData64(DATA_ALIZABAL)))
-                    Alizabal->AI()->DoAction(ACTION_INTRO);
+                if (Creature* alizabal = ObjectAccessor::GetCreature(*player, instance->GetData64(DATA_ALIZABAL)))
+                    alizabal->AI()->DoAction(ACTION_INTRO);
             return true;
         }
 };
@@ -79,13 +79,11 @@ class boss_alizabal : public CreatureScript
         {
             boss_alizabalAI(Creature* creature) : BossAI(creature, DATA_ALIZABAL)
             {
-                instance = creature->GetInstanceScript();
                 Intro = false;
                 Hate = false;
                 Skewer = false;
             }
 
-            InstanceScript* instance;
             bool Intro;
             bool Hate;
             bool Skewer;
@@ -97,7 +95,7 @@ class boss_alizabal : public CreatureScript
                 Skewer = false;
             }
 
-            void EnterCombat(Unit* who)
+            void EnterCombat(Unit* /*who*/)
             {
                 _EnterCombat();
                 Talk(SAY_AGGRO);
@@ -105,14 +103,14 @@ class boss_alizabal : public CreatureScript
                 events.ScheduleEvent(EVENT_RANDOM_CAST, 10000);
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*killer*/)
             {
                 _JustDied();
                 Talk(SAY_DEATH);
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
             }
 
-            void KilledUnit(Unit * who)
+            void KilledUnit(Unit* who)
             {
                 if (who->GetTypeId() == TYPEID_PLAYER)
                     Talk(SAY_SLAY);
