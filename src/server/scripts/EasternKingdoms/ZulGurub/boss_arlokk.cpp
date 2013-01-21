@@ -83,7 +83,7 @@ enum Misc
 
 Position const PosMoveOnSpawn[1] =
 {
-    { -11561.9f, -1627.868f, 41.29941f }
+    { -11561.9f, -1627.868f, 41.29941f, 0.0f }
 };
 
 class boss_arlokk : public CreatureScript
@@ -101,9 +101,9 @@ class boss_arlokk : public CreatureScript
                 me->RemoveAllAuras();
                 me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 0, uint32(WEAPON_DAGGER));
                 me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1, uint32(WEAPON_DAGGER));
-                if (_instance)
+                if (instance)
                 {
-                    if (GameObject* gate = me->GetMap()->GetGameObject(_instance->GetData64(GO_FORCEFIELD)))
+                    if (GameObject* gate = me->GetMap()->GetGameObject(instance->GetData64(GO_FORCEFIELD)))
                         gate->SetGoState(GO_STATE_READY);
                     me->SetWalk(false);
                     me->GetMotionMaster()->MovePoint(0, PosMoveOnSpawn[0]);
@@ -114,11 +114,11 @@ class boss_arlokk : public CreatureScript
             {
                 Talk(SAY_DEATH);
                 me->RemoveAllAuras();
-                if (_instance)
+                if (instance)
                 {
-                    if (GameObject* gate = me->GetMap()->GetGameObject(_instance->GetData64(GO_FORCEFIELD)))
+                    if (GameObject* gate = me->GetMap()->GetGameObject(instance->GetData64(GO_FORCEFIELD)))
                         gate->SetGoState(GO_STATE_ACTIVE);
-                    _instance->SetBossState(DATA_ARLOKK, DONE);
+                    instance->SetBossState(DATA_ARLOKK, DONE);
                 }
             }
 
@@ -127,7 +127,7 @@ class boss_arlokk : public CreatureScript
                 _EnterCombat();
                 _events.ScheduleEvent(EVENT_SHADOW_WORD_PAIN, urand(7000, 9000), 0, PHASE_ONE);
                 _events.ScheduleEvent(EVENT_GOUGE, urand(12000, 15000), 0, PHASE_ONE);
-                if (_instance)
+                if (instance)
                     _events.ScheduleEvent(EVENT_SUMMON_PROWLERS, 6000, 0, PHASE_ALL);
                 _events.ScheduleEvent(EVENT_MARK_OF_ARLOKK, urand(9000, 11000), 0, PHASE_ALL);
                 _events.ScheduleEvent(EVENT_TRANSFORM, urand(15000, 20000), 0, PHASE_ONE);
@@ -161,13 +161,13 @@ class boss_arlokk : public CreatureScript
 
             void EnterEvadeMode()
             {
-                if (_instance)
+                if (instance)
                 {
-                    if (GameObject* object = me->GetMap()->GetGameObject(_instance->GetData64(GO_FORCEFIELD)))
+                    if (GameObject* object = me->GetMap()->GetGameObject(instance->GetData64(GO_FORCEFIELD)))
                         object->SetGoState(GO_STATE_ACTIVE);
-                    if (GameObject* object = me->GetMap()->GetGameObject(_instance->GetData64(GO_GONG_OF_BETHEKK)))
+                    if (GameObject* object = me->GetMap()->GetGameObject(instance->GetData64(GO_GONG_OF_BETHEKK)))
                         object->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
-                    _instance->SetBossState(DATA_ARLOKK, NOT_STARTED);
+                    instance->SetBossState(DATA_ARLOKK, NOT_STARTED);
                 }
                 me->DespawnOrUnsummon(4000);
             }
@@ -254,7 +254,7 @@ class boss_arlokk : public CreatureScript
                         case EVENT_VANISH:
                             DoCast(me, SPELL_SUPER_INVIS);
                             me->SetWalk(false);
-                            if (_instance)
+                            if (instance)
                                 me->GetMotionMaster()->MovePoint(0, frand(-11551.0f, -11508.0f), frand(-1638.0f, -1617.0f), me->GetPositionZ());
                             _events.ScheduleEvent(EVENT_VANISH_2, 9000, 0, PHASE_ONE);
                             break;
