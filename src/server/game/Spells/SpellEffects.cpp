@@ -5791,7 +5791,7 @@ void Spell::EffectRedirectThreat(SpellEffIndex /*effIndex*/)
         return;
 
     if (unitTarget)
-        m_caster->SetReducedThreatPercent((uint32)damage, unitTarget->GetGUID());
+        m_caster->SetRedirectThreat(unitTarget->GetGUID(), uint32(damage));
 }
 
 void Spell::EffectGameObjectDamage(SpellEffIndex /*effIndex*/)

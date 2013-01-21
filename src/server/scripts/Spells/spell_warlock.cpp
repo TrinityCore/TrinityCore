@@ -37,6 +37,8 @@ enum WarlockSpells
     SPELL_WARLOCK_DEMONIC_EMPOWERMENT_FELGUARD      = 54508,
     SPELL_WARLOCK_DEMONIC_EMPOWERMENT_FELHUNTER     = 54509,
     SPELL_WARLOCK_DEMONIC_EMPOWERMENT_IMP           = 54444,
+    SPELL_WARLOCK_FEL_SYNERGY_HEAL                  = 54181,
+    SPELL_WARLOCK_GLYPHE_OF_SIPHON_LIFE             = 63106,
     SPELL_WARLOCK_IMPROVED_HEALTHSTONE_R1           = 18692,
     SPELL_WARLOCK_IMPROVED_HEALTHSTONE_R2           = 18693,
     SPELL_WARLOCK_IMPROVED_HEALTH_FUNNEL_R1         = 18703,
@@ -48,6 +50,7 @@ enum WarlockSpells
     SPELL_WARLOCK_LIFE_TAP_ENERGIZE                 = 31818,
     SPELL_WARLOCK_LIFE_TAP_ENERGIZE_2               = 32553,
     SPELL_WARLOCK_SOULSHATTER                       = 32835,
+    SPELL_WARLOCK_SIPHON_LIFE_HEAL                  = 63106,
     SPELL_WARLOCK_UNSTABLE_AFFLICTION_DISPEL        = 31117
 };
 
@@ -418,6 +421,49 @@ class spell_warl_everlasting_affliction : public SpellScriptLoader
         }
 };
 
+// -47230 - Fel Synergy
+class spell_warl_fel_synergy : public SpellScriptLoader
+{
+    public:
+        spell_warl_fel_synergy() : SpellScriptLoader("spell_warl_fel_synergy") { }
+
+        class spell_warl_fel_synergy_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_warl_fel_synergy_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_WARLOCK_FEL_SYNERGY_HEAL))
+                    return false;
+                return true;
+            }
+
+            bool CheckProc(ProcEventInfo& eventInfo)
+            {
+                return GetTarget()->GetGuardianPet() && eventInfo.GetDamageInfo()->GetDamage();
+            }
+
+            void OnProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+
+                int32 heal = CalculatePct(int32(eventInfo.GetDamageInfo()->GetDamage()), aurEff->GetAmount());
+                GetTarget()->CastCustomSpell(SPELL_WARLOCK_FEL_SYNERGY_HEAL, SPELLVALUE_BASE_POINT0, heal, (Unit*)NULL, true, NULL, aurEff); // TARGET_UNIT_PET
+            }
+
+            void Register()
+            {
+                DoCheckProc += AuraCheckProcFn(spell_warl_fel_synergy_AuraScript::CheckProc);
+                OnEffectProc += AuraEffectProcFn(spell_warl_fel_synergy_AuraScript::OnProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_warl_fel_synergy_AuraScript();
+        }
+};
+
 // -48181 - Haunt
 class spell_warl_haunt : public SpellScriptLoader
 {
@@ -686,6 +732,55 @@ class spell_warl_shadow_ward : public SpellScriptLoader
         }
 };
 
+// 63108 - Siphon Life
+class spell_warl_siphon_life : public SpellScriptLoader
+{
+    public:
+        spell_warl_siphon_life() : SpellScriptLoader("spell_warl_siphon_life") { }
+
+        class spell_warl_siphon_life_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_warl_siphon_life_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_WARLOCK_SIPHON_LIFE_HEAL))
+                    return false;
+                if (!sSpellMgr->GetSpellInfo(SPELL_WARLOCK_GLYPHE_OF_SIPHON_LIFE))
+                    return false;
+                return true;
+            }
+
+            bool CheckProc(ProcEventInfo& eventInfo)
+            {
+                return eventInfo.GetDamageInfo()->GetDamage();
+            }
+
+            void OnProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+
+                int32 amount = int32(CalculatePct(eventInfo.GetDamageInfo()->GetDamage(), aurEff->GetAmount()));
+                // Glyph of Siphon Life
+                if (AuraEffect const* glyphe = GetTarget()->GetAuraEffect(SPELL_WARLOCK_GLYPHE_OF_SIPHON_LIFE, EFFECT_0))
+                    AddPct(amount, glyphe->GetAmount());
+
+                GetTarget()->CastCustomSpell(SPELL_WARLOCK_SIPHON_LIFE_HEAL, SPELLVALUE_BASE_POINT0, amount, GetTarget(), true, NULL, aurEff);
+            }
+
+            void Register()
+            {
+                DoCheckProc += AuraCheckProcFn(spell_warl_siphon_life_AuraScript::CheckProc);
+                OnEffectProc += AuraEffectProcFn(spell_warl_siphon_life_AuraScript::OnProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_warl_siphon_life_AuraScript();
+        }
+};
+
 // 29858 - Soulshatter
 class spell_warl_soulshatter : public SpellScriptLoader
 {
@@ -774,12 +869,14 @@ void AddSC_warlock_spell_scripts()
     new spell_warl_demonic_circle_teleport();
     new spell_warl_demonic_empowerment();
     new spell_warl_everlasting_affliction();
+    new spell_warl_fel_synergy();
     new spell_warl_haunt();
     new spell_warl_health_funnel();
     new spell_warl_life_tap();
     new spell_warl_ritual_of_doom_effect();
     new spell_warl_seed_of_corruption();
     new spell_warl_shadow_ward();
+    new spell_warl_siphon_life();
     new spell_warl_soulshatter();
     new spell_warl_unstable_affliction();
 }
