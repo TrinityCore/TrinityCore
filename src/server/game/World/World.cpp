@@ -1118,6 +1118,15 @@ void World::LoadConfigSettings(bool reload)
     if (dataPath.at(dataPath.length()-1) != '/' && dataPath.at(dataPath.length()-1) != '\\')
         dataPath.push_back('/');
 
+#if PLATFORM == PLATFORM_UNIX || PLATFORM == PLATFORM_APPLE
+    if (dataPath[0] == '~')
+    {
+        const char* home = getenv("HOME");
+        if (home)
+            dataPath.replace(0, 1, home);
+    }
+#endif
+
     if (reload)
     {
         if (dataPath != m_dataPath)
