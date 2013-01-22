@@ -7,11 +7,15 @@
 #include "G3D/Matrix4.h"
 #include "DetourNavMesh.h"
 
-#include "Common.h"
+#include "Define.h"
 #include "Constants.h"
+
+#include <ace/Stack_Trace.h>
 
 struct WorldModelDefinition;
 class DoodadInstance;
+
+#define ASSERT(assertion) { if (!(assertion)) { ACE_Stack_Trace st; fprintf(stderr, "\n%s:%i in %s ASSERTION FAILED:\n  %s\n", __FILE__, __LINE__, __FUNCTION__, #assertion, st.c_str()); *((volatile int*)NULL) = 0; } }
 
 struct Vector3
 {
