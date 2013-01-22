@@ -295,7 +295,6 @@ namespace MMAP
                     printf("TerrainBuilder::loadMap: Failed to read some data expected 1, read 0\n");
             }
 
-            // FIXME: "the address of ‘liquid_type’ will always evaluate as ‘true’"
             if (liquid_map)
             {
                 int count = meshData.liquidVerts.size() / 3;
@@ -369,7 +368,7 @@ namespace MMAP
         float* tverts = meshData.solidVerts.getCArray();
         int* ttris = ttriangles.getCArray();
 
-        if (ltriangles.size() + ttriangles.size() == 0)
+        if ((ltriangles.size() + ttriangles.size()) == 0)
             return false;
 
         // make a copy of liquid vertices
