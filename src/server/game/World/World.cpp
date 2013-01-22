@@ -21,6 +21,7 @@
 */
 
 #include "Common.h"
+#include "Memory.h"
 #include "DatabaseEnv.h"
 #include "Config.h"
 #include "SystemConfig.h"
@@ -54,6 +55,7 @@
 #include "TemporarySummon.h"
 #include "WaypointMovementGenerator.h"
 #include "VMapFactory.h"
+#include "MMapFactory.h"
 #include "GameEventMgr.h"
 #include "PoolMgr.h"
 #include "GridNotifiersImpl.h"
@@ -135,6 +137,7 @@ World::~World()
         delete command;
 
     VMAP::VMapFactory::clear();
+    MMAP::MMapFactory::clear();
 
     //TODO free addSessQueue
 }
@@ -1129,22 +1132,23 @@ void World::LoadConfigSettings(bool reload)
         sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Using DataDir %s", m_dataPath.c_str());
     }
 
+    m_bool_configs[CONFIG_ENABLE_MMAPS] = ConfigMgr::GetBoolDefault("mmap.enablePathFinding", false);
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "WORLD: MMap data directory is: %smmaps", m_dataPath.c_str());
+
     m_bool_configs[CONFIG_VMAP_INDOOR_CHECK] = ConfigMgr::GetBoolDefault("vmap.enableIndoorCheck", 0);
     bool enableIndoor = ConfigMgr::GetBoolDefault("vmap.enableIndoorCheck", true);
     bool enableLOS = ConfigMgr::GetBoolDefault("vmap.enableLOS", true);
     bool enableHeight = ConfigMgr::GetBoolDefault("vmap.enableHeight", true);
-    bool enablePetLOS = ConfigMgr::GetBoolDefault("vmap.petLOS", true);
 
     if (!enableHeight)
         sLog->outError(LOG_FILTER_SERVER_LOADING, "VMap height checking disabled! Creatures movements and other various things WILL be broken! Expect no support.");
 
     VMAP::VMapFactory::createOrGetVMapManager()->setEnableLineOfSightCalc(enableLOS);
     VMAP::VMapFactory::createOrGetVMapManager()->setEnableHeightCalc(enableHeight);
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "VMap support included. LineOfSight: %i, getHeight: %i, indoorCheck: %i PetLOS: %i", enableLOS, enableHeight, enableIndoor, enablePetLOS);
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "VMap support included. LineOfSight: %i, getHeight: %i, indoorCheck: %i", enableLOS, enableHeight, enableIndoor);
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "VMap data directory is: %svmaps", m_dataPath.c_str());
 
     m_int_configs[CONFIG_MAX_WHO] = ConfigMgr::GetIntDefault("MaxWhoListReturns", 49);
-    m_bool_configs[CONFIG_PET_LOS] = ConfigMgr::GetBoolDefault("vmap.petLOS", true);
     m_bool_configs[CONFIG_START_ALL_SPELLS] = ConfigMgr::GetBoolDefault("PlayerStart.AllSpells", false);
     if (m_bool_configs[CONFIG_START_ALL_SPELLS])
         sLog->outWarn(LOG_FILTER_SERVER_LOADING, "PlayerStart.AllSpells enabled - may not function as intended!");
@@ -1235,6 +1239,9 @@ void World::SetInitialWorldSettings()
 
     ///- Initialize the random number generator
     srand((unsigned int)time(NULL));
+
+    ///- Initialize detour memory management
+    dtAllocSetCustom(dtCustomAlloc, dtCustomFree);
 
     ///- Initialize config settings
     LoadConfigSettings();

@@ -269,6 +269,14 @@ PlayerSave.Stats.MinLevel = 0
 PlayerSave.Stats.SaveOnlyOnLogout = 1
 
 #
+#    mmap.enablePathFinding
+#        Description: Enable/Disable pathfinding using mmaps - experimental
+#        Default:     0 - (Disabled)
+#                     1 - (Enabled)
+
+mmap.enablePathFinding = 0
+
+#
 #    vmap.enableLOS
 #    vmap.enableHeight
 #        Description: VMmap support for line of sight and height calculation.
@@ -278,14 +286,6 @@ PlayerSave.Stats.SaveOnlyOnLogout = 1
 
 vmap.enableLOS    = 1
 vmap.enableHeight = 1
-
-#
-#    vmap.petLOS
-#        Description: Check line of sight for pets, to avoid them attacking through walls.
-#        Default:     1 - (Enabled, each pet attack will be checked for line of sight)
-#                     0 - (Disabled, somewhat less CPU usage)
-
-vmap.petLOS = 1
 
 #
 #    vmap.enableIndoorCheck

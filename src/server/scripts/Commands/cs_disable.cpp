@@ -48,6 +48,7 @@ public:
             { "achievement_criteria",   SEC_ADMINISTRATOR,      true,   &HandleRemoveDisableAchievementCriteriaCommand, "", NULL },
             { "outdoorpvp",             SEC_ADMINISTRATOR,      true,   &HandleRemoveDisableOutdoorPvPCommand,          "", NULL },
             { "vmap",                   SEC_ADMINISTRATOR,      true,   &HandleRemoveDisableVmapCommand,                "", NULL },
+            { "mmap",                   SEC_ADMINISTRATOR,      true,   &HandleRemoveDisableMMapCommand,                "", NULL },
             { NULL,                     0,                      false,  NULL,                                           "", NULL }
         };
         static ChatCommand addDisableCommandTable[] =
@@ -59,6 +60,7 @@ public:
             { "achievement_criteria",   SEC_ADMINISTRATOR,      true,   &HandleAddDisableAchievementCriteriaCommand,    "", NULL },
             { "outdoorpvp",             SEC_ADMINISTRATOR,      true,   &HandleAddDisableOutdoorPvPCommand,             "", NULL },
             { "vmap",                   SEC_ADMINISTRATOR,      true,   &HandleAddDisableVmapCommand,                   "", NULL },
+            { "mmap",                   SEC_ADMINISTRATOR,      true,   &HandleAddDisableMMapCommand,                   "", NULL },
             { NULL,                     0,                      false,  NULL,                                           "", NULL }
         };
         static ChatCommand disableCommandTable[] =
@@ -172,6 +174,17 @@ public:
                 disableTypeStr = "vmap";
                 break;
             }
+            case DISABLE_TYPE_MMAP:
+            {
+                if (!sMapStore.LookupEntry(entry))
+                {
+                    handler->PSendSysMessage(LANG_COMMAND_NOMAPFOUND);
+                    handler->SetSentErrorMessage(true);
+                    return false;
+                }
+                disableTypeStr = "mmap";
+                break;
+            }
             default:
                 break;
         }
@@ -256,6 +269,14 @@ public:
         return HandleAddDisables(handler, args, DISABLE_TYPE_VMAP);
     }
 
+    static bool HandleAddDisableMMapCommand(ChatHandler* handler, char const* args)
+    {
+        if (!*args)
+            return false;
+
+        return HandleAddDisables(handler, args, DISABLE_TYPE_MMAP);
+    }
+
     static bool HandleRemoveDisables(ChatHandler* handler, char const* args, uint8 disableType)
     {
         char* entryStr = strtok((char*)args, " ");
@@ -288,6 +309,9 @@ public:
                 break;
             case DISABLE_TYPE_VMAP:
                 disableTypeStr = "vmap";
+                break;
+            case DISABLE_TYPE_MMAP:
+                disableTypeStr = "mmap";
                 break;
         }
 
@@ -366,6 +390,14 @@ public:
             return false;
 
         return HandleRemoveDisables(handler, args, DISABLE_TYPE_VMAP);
+    }
+
+    static bool HandleRemoveDisableMMapCommand(ChatHandler* handler, char const* args)
+    {
+        if (!*args)
+            return false;
+
+        return HandleRemoveDisables(handler, args, DISABLE_TYPE_MMAP);
     }
 };
 
