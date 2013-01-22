@@ -20,16 +20,11 @@
 #define _MMAP_TERRAIN_BUILDER_H
 
 #include "PathCommon.h"
-#include "Map.h"
-#include "SharedDefines.h"
-
 #include "WorldModel.h"
 
 #include "G3D/Array.h"
 #include "G3D/Vector3.h"
 #include "G3D/Matrix3.h"
-
-using namespace Trinity;
 
 namespace MMAP
 {
@@ -93,10 +88,10 @@ namespace MMAP
             bool usesLiquids() { return !m_skipLiquid; }
 
             // vert and triangle methods
-            static void transform(vector<G3D::Vector3> &original, vector<G3D::Vector3> &transformed,
+            static void transform(std::vector<G3D::Vector3> &original, std::vector<G3D::Vector3> &transformed,
                 float scale, G3D::Matrix3 &rotation, G3D::Vector3 &position);
-            static void copyVertices(vector<G3D::Vector3> &source, G3D::Array<float> &dest);
-            static void copyIndices(vector<VMAP::MeshTriangle> &source, G3D::Array<int> &dest, int offest, bool flip);
+            static void copyVertices(std::vector<G3D::Vector3> &source, G3D::Array<float> &dest);
+            static void copyIndices(std::vector<VMAP::MeshTriangle> &source, G3D::Array<int> &dest, int offest, bool flip);
             static void copyIndices(G3D::Array<int> &src, G3D::Array<int> &dest, int offset);
             static void cleanVertices(G3D::Array<float> &verts, G3D::Array<int> &tris);
         private:
