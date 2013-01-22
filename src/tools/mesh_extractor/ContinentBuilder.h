@@ -2,7 +2,7 @@
 #define CONT_BUILDER_H
 #include <string>
 #include "WDT.h"
-#include "Common.h"
+#include "Define.h"
 
 class ContinentBuilder
 {
@@ -22,7 +22,7 @@ private:
     WDT* TileMap;
     uint32 MapId;
     uint32 NumberOfThreads;
-    int tileXMin; 
+    int tileXMin;
     int tileYMin;
     int tileXMax;
     int tileYMax;

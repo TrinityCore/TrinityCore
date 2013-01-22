@@ -1,6 +1,6 @@
 #include <cstdio>
 #include "DBC.h"
-#include "Common.h"
+#include "Define.h"
 
 DBC::DBC( FILE* stream ) : StringBlock(NULL), StringBlockSize(0), IsFaulty(true)
 {
