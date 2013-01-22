@@ -2760,10 +2760,25 @@ void AuraEffect::HandleAuraMounted(AuraApplication const* aurApp, uint8 mode, bo
         return;
 
     Unit* target = aurApp->GetTarget();
+    Player* player = target->ToPlayer();
 
     if (apply)
     {
         uint32 creatureEntry = GetMiscValue();
+
+		//Fix Running Wild Worgen
+		if (aurApp->GetBase()->GetId() == 87840)
+ 	 	
+        {
+ 	 	
+            target->Mount(player->getGender() == GENDER_FEMALE ? 29423 : 29422, 0, GetMiscValue());
+ 	 	
+            target->Mount(player->getGender() == GENDER_MALE ? 29422 : 29423, 0, GetMiscValue());
+ 	 	
+            return;
+ 	 	
+        }
+ 	 	
 
         // Festive Holiday Mount
         if (target->HasAura(62061))
@@ -5121,6 +5136,31 @@ void AuraEffect::HandleAuraDummy(AuraApplication const* aurApp, uint8 mode, bool
                             target->PlayDirectSound(14972, target->ToPlayer());
                     }
                     break;
+
+				case 87840: //Runing wild
+ 	 	
+                    if (target->GetTypeId() == TYPEID_PLAYER && target->HasAura(87840))
+ 	 	
+                    {
+ 	 	
+                        if (target->getLevel() >= 20 && target->getLevel() < 40)
+ 	 	
+                            target->ToPlayer()->SetSpeed(MOVE_RUN, 1.6f, true);
+ 	 	
+                        else if (target->getLevel() >= 40)
+ 	 	
+                            target->ToPlayer()->SetSpeed(MOVE_RUN, 2.0f, true);
+ 	 	
+                    }
+ 	 	
+                    else target->ToPlayer()->SetSpeed(MOVE_RUN, 1.0f, true);
+ 	 	
+                        target->ToPlayer()->SetFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_WORGEN_TRANSFORM3);
+ 	 	
+                        target->GetAuraEffectsByType(SPELL_AURA_MOUNTED).front()->GetMiscValue();
+ 	 	
+                    break;	
+
                 case 62061: // Festive Holiday Mount
                     if (target->HasAuraType(SPELL_AURA_MOUNTED))
                     {
