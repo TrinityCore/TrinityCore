@@ -66,6 +66,7 @@ class npc_mmr_reset : public CreatureScript
                 ArenaTeamMember *member = team->GetMember(player->GetGUID());
                 member->MatchMakerRating = value;
                 member->ModifyMatchmakerRating(value - (int)member->MatchMakerRating, slot);
+                team->SaveToDB();
                 team->DelMember(player->GetGUID(), true);
                 team->SaveToDB();
                 return true;
