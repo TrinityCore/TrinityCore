@@ -39,8 +39,8 @@ class TargetedMovementGeneratorMedium : public MovementGeneratorMedium< T, D >, 
 {
     protected:
         TargetedMovementGeneratorMedium(Unit* target, float offset, float angle) :
-            TargetedMovementGeneratorBase(target), i_recheckDistance(0), i_path(NULL),
-            i_offset(offset), i_angle(angle),
+            TargetedMovementGeneratorBase(target), i_path(NULL),
+            i_recheckDistance(0), i_offset(offset), i_angle(angle),
             i_recalculateTravel(false), i_targetReached(false)
         {
         }
@@ -55,12 +55,12 @@ class TargetedMovementGeneratorMedium : public MovementGeneratorMedium< T, D >, 
     protected:
         void _setTargetLocation(T* owner, bool updateDestination);
 
+        PathGenerator* i_path;
         TimeTrackerSmall i_recheckDistance;
         float i_offset;
         float i_angle;
         bool i_recalculateTravel : 1;
         bool i_targetReached : 1;
-        PathGenerator* i_path;
 };
 
 template<class T>

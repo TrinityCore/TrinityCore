@@ -296,7 +296,7 @@ namespace MMAP
             }
 
             // FIXME: "the address of ‘liquid_type’ will always evaluate as ‘true’"
-            if (liquid_type && liquid_map)
+            if (liquid_map)
             {
                 int count = meshData.liquidVerts.size() / 3;
                 float xoffset = (float(tileX)-32)*GRID_SIZE;
@@ -393,7 +393,7 @@ namespace MMAP
                 // FIXME: "warning: the address of ‘liquid_type’ will always evaluate as ‘true’"
 
                 // if there is no liquid, don't use liquid
-                if (!liquid_type || !meshData.liquidVerts.size() || !ltriangles.size())
+                if (!meshData.liquidVerts.size() || !ltriangles.size())
                     useLiquid = false;
                 else
                 {

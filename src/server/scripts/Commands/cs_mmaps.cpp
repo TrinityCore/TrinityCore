@@ -98,7 +98,7 @@ public:
         PointsArray pointPath = path.GetPath();
         handler->PSendSysMessage("%s's path to %s:", target->GetName().c_str(), player->GetName().c_str());
         handler->PSendSysMessage("Building: %s", useStraightPath ? "StraightPath" : "SmoothPath");
-        handler->PSendSysMessage("Result: %s - Length: %i - Type: %u", (result ? "true" : "false"), pointPath.size(), path.GetPathType());
+        handler->PSendSysMessage("Result: %s - Length: "SIZEFMTD" - Type: %u", (result ? "true" : "false"), pointPath.size(), path.GetPathType());
 
         Vector3 start = path.GetStartPosition();
         Vector3 end = path.GetEndPosition();
@@ -264,7 +264,7 @@ public:
 
         if (!creatureList.empty())
         {
-            handler->PSendSysMessage("Found %i Creatures.", creatureList.size());
+            handler->PSendSysMessage("Found "SIZEFTMD" Creatures.", creatureList.size());
 
             uint32 paths = 0;
             uint32 uStartTime = getMSTime();
