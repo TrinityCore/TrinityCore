@@ -1086,6 +1086,16 @@ void AuraEffect::UpdatePeriodic(Unit* caster)
                         case 49472: // Drink Coffee
                         case 57073:
                         case 61830:
+                        case 69176:
+                        case 72623:
+                        case 80166:
+                        case 80167:
+                        case 87958:
+                        case 87959:
+                        case 92736:
+                        case 92797:
+                        case 92800:
+                        case 92803:
                             if (!caster || caster->GetTypeId() != TYPEID_PLAYER)
                                 return;
                             // Get SPELL_AURA_MOD_POWER_REGEN aura from spell
