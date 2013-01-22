@@ -126,52 +126,7 @@ public:
     }
 };
 
-/*######
-## npc_hira_snowdawn
-######*/
-
-enum eHiraSnowdawn
-{
-    SPELL_COLD_WEATHER_FLYING                   = 54197
-};
-
-#define GOSSIP_TEXT_TRAIN_HIRA "I seek training to ride a steed."
-
-class npc_hira_snowdawn : public CreatureScript
-{
-public:
-    npc_hira_snowdawn() : CreatureScript("npc_hira_snowdawn") { }
-
-    bool OnGossipHello(Player* player, Creature* creature)
-    {
-        if (!creature->isVendor() || !creature->isTrainer())
-            return false;
-
-        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, GOSSIP_TEXT_TRAIN_HIRA, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRAIN);
-
-        if (player->getLevel() >= 80 && player->HasSpell(SPELL_COLD_WEATHER_FLYING))
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
-
-        player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-
-        return true;
-    }
-
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
-    {
-        player->PlayerTalkClass->ClearMenus();
-        if (action == GOSSIP_ACTION_TRAIN)
-            player->GetSession()->SendTrainerList(creature->GetGUID());
-
-        if (action == GOSSIP_ACTION_TRADE)
-            player->GetSession()->SendListInventory(creature->GetGUID());
-
-        return true;
-    }
-};
-
 void AddSC_dalaran()
 {
     new npc_mageguard_dalaran;
-    new npc_hira_snowdawn;
 }
