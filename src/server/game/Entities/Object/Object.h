@@ -20,7 +20,7 @@
 #define _OBJECT_H
 
 #include "Common.h"
-#include "UpdateFields.h"
+#include "UpdateMask.h"
 #include "UpdateData.h"
 #include "GridReference.h"
 #include "ObjectDefines.h"
@@ -107,7 +107,6 @@ class ByteBuffer;
 class WorldSession;
 class Creature;
 class Player;
-class UpdateMask;
 class InstanceScript;
 class GameObject;
 class TempSummon;
@@ -348,7 +347,7 @@ class Object
             float  *m_floatValues;
         };
 
-        bool* _changedFields;
+        UpdateMask _changesMask;
 
         uint16 m_valuesCount;
 
