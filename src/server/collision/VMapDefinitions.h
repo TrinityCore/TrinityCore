@@ -31,4 +31,16 @@ namespace VMAP
     // defined in TileAssembler.cpp currently...
     bool readChunk(FILE* rf, char *dest, const char *compare, uint32 len);
 }
+
+// Set of helper macros for extractors (VMAP and MMAP)
+#ifndef NO_CORE_FUNCS
+#define VMAP_ERROR_LOG(FILTER, ...) sLog->outError(FILTER, __VA_ARGS__)
+#define VMAP_DEBUG_LOG(FILTER, ...) sLog->outDebug(FILTER, __VA_ARGS__)
+#define VMAP_INFO_LOG(FILTER, ...) sLog->outInfo(FILTER, __VA_ARGS__)
+#else
+#define VMAP_ERROR_LOG(FILTER, ...) printf(__VA_ARGS__)
+#define VMAP_DEBUG_LOG(FILTER, ...) printf(__VA_ARGS__)
+#define VMAP_INFO_LOG(FILTER, ...) printf(__VA_ARGS__)
+#endif
+
 #endif
