@@ -24,8 +24,8 @@ public:
     std::set<uint32> AvailableLocales;
     std::map<uint32, MPQArchive*> LocaleFiles;
 
-    static char* Files[];
-    static char* Languages[];
+    static char const* Files[];
+    static char const* Languages[];
 protected:
     void InitializeDBC();
 private:
