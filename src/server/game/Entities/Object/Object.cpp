@@ -75,7 +75,6 @@ Object::Object() : m_PackGUID(sizeof(uint64)+1)
     m_objectType        = TYPEMASK_OBJECT;
 
     m_uint32Values      = NULL;
-    _changedFields      = NULL;
     m_valuesCount       = 0;
     _fieldNotifyFlags   = UF_FLAG_DYNAMIC;
 
@@ -119,8 +118,6 @@ Object::~Object()
     }
 
     delete [] m_uint32Values;
-    delete [] _changedFields;
-
 }
 
 void Object::_InitValues()
@@ -128,8 +125,7 @@ void Object::_InitValues()
     m_uint32Values = new uint32[m_valuesCount];
     memset(m_uint32Values, 0, m_valuesCount*sizeof(uint32));
 
-    _changedFields = new bool[m_valuesCount];
-    memset(_changedFields, 0, m_valuesCount*sizeof(bool));
+    _changesMask.SetCount(m_valuesCount);
 
     m_objectUpdated = false;
 }
@@ -757,7 +753,7 @@ void Object::_BuildValuesUpdate(uint8 updatetype, ByteBuffer * data, UpdateMask*
 
 void Object::ClearUpdateMask(bool remove)
 {
-    memset(_changedFields, 0, m_valuesCount*sizeof(bool));
+    _changesMask.Clear();
 
     if (m_objectUpdated)
     {
@@ -854,13 +850,12 @@ void Object::_LoadIntoDataField(std::string const& data, uint32 startOffset, uin
     for (uint32 index = 0; index < count; ++index)
     {
         m_uint32Values[startOffset + index] = atol(tokens[index]);
-        _changedFields[startOffset + index] = true;
+        _changesMask.SetBit(startOffset + index);
     }
 }
 
 void Object::_SetUpdateBits(UpdateMask* updateMask, Player* target) const
 {
-    bool* indexes = _changedFields;
     uint32* flags = NULL;
     bool isSelf = target == this;
     bool isOwner = false;
@@ -870,8 +865,8 @@ void Object::_SetUpdateBits(UpdateMask* updateMask, Player* target) const
 
     GetUpdateFieldData(target, flags, isOwner, isItemOwner, hasSpecialInfo, isPartyMember);
 
-    for (uint16 index = 0; index < m_valuesCount; ++index, ++indexes)
-        if (_fieldNotifyFlags & flags[index] || (flags[index] & UF_FLAG_SPECIAL_INFO && hasSpecialInfo) || (*indexes && IsUpdateFieldVisible(flags[index], isSelf, isOwner, isItemOwner, isPartyMember)))
+    for (uint16 index = 0; index < m_valuesCount; ++index)
+        if (_fieldNotifyFlags & flags[index] || (flags[index] & UF_FLAG_SPECIAL_INFO && hasSpecialInfo) || (_changesMask.GetBit(index) && IsUpdateFieldVisible(flags[index], isSelf, isOwner, isItemOwner, isPartyMember)))
             updateMask->SetBit(index);
 }
 
@@ -899,7 +894,7 @@ void Object::SetInt32Value(uint16 index, int32 value)
     if (m_int32Values[index] != value)
     {
         m_int32Values[index] = value;
-        _changedFields[index] = true;
+        _changesMask.SetBit(index);
 
         if (m_inWorld && !m_objectUpdated)
         {
@@ -916,7 +911,7 @@ void Object::SetUInt32Value(uint16 index, uint32 value)
     if (m_uint32Values[index] != value)
     {
         m_uint32Values[index] = value;
-        _changedFields[index] = true;
+        _changesMask.SetBit(index);
 
         if (m_inWorld && !m_objectUpdated)
         {
@@ -931,7 +926,7 @@ void Object::UpdateUInt32Value(uint16 index, uint32 value)
     ASSERT(index < m_valuesCount || PrintIndexError(index, true));
 
     m_uint32Values[index] = value;
-    _changedFields[index] = true;
+    _changesMask.SetBit(index);
 }
 
 void Object::SetUInt64Value(uint16 index, uint64 value)
@@ -941,8 +936,8 @@ void Object::SetUInt64Value(uint16 index, uint64 value)
     {
         m_uint32Values[index] = PAIR64_LOPART(value);
         m_uint32Values[index + 1] = PAIR64_HIPART(value);
-        _changedFields[index] = true;
-        _changedFields[index + 1] = true;
+        _changesMask.SetBit(index);
+        _changesMask.SetBit(index + 1);
 
         if (m_inWorld && !m_objectUpdated)
         {
@@ -959,8 +954,8 @@ bool Object::AddUInt64Value(uint16 index, uint64 value)
     {
         m_uint32Values[index] = PAIR64_LOPART(value);
         m_uint32Values[index + 1] = PAIR64_HIPART(value);
-        _changedFields[index] = true;
-        _changedFields[index + 1] = true;
+        _changesMask.SetBit(index);
+        _changesMask.SetBit(index + 1);
 
         if (m_inWorld && !m_objectUpdated)
         {
@@ -981,8 +976,8 @@ bool Object::RemoveUInt64Value(uint16 index, uint64 value)
     {
         m_uint32Values[index] = 0;
         m_uint32Values[index + 1] = 0;
-        _changedFields[index] = true;
-        _changedFields[index + 1] = true;
+        _changesMask.SetBit(index);
+        _changesMask.SetBit(index + 1);
 
         if (m_inWorld && !m_objectUpdated)
         {
@@ -1003,7 +998,7 @@ void Object::SetFloatValue(uint16 index, float value)
     if (m_floatValues[index] != value)
     {
         m_floatValues[index] = value;
-        _changedFields[index] = true;
+        _changesMask.SetBit(index);
 
         if (m_inWorld && !m_objectUpdated)
         {
@@ -1027,7 +1022,7 @@ void Object::SetByteValue(uint16 index, uint8 offset, uint8 value)
     {
         m_uint32Values[index] &= ~uint32(uint32(0xFF) << (offset * 8));
         m_uint32Values[index] |= uint32(uint32(value) << (offset * 8));
-        _changedFields[index] = true;
+        _changesMask.SetBit(index);
 
         if (m_inWorld && !m_objectUpdated)
         {
@@ -1051,7 +1046,7 @@ void Object::SetUInt16Value(uint16 index, uint8 offset, uint16 value)
     {
         m_uint32Values[index] &= ~uint32(uint32(0xFFFF) << (offset * 16));
         m_uint32Values[index] |= uint32(uint32(value) << (offset * 16));
-        _changedFields[index] = true;
+        _changesMask.SetBit(index);
 
         if (m_inWorld && !m_objectUpdated)
         {
@@ -1118,7 +1113,7 @@ void Object::SetFlag(uint16 index, uint32 newFlag)
     if (oldval != newval)
     {
         m_uint32Values[index] = newval;
-        _changedFields[index] = true;
+        _changesMask.SetBit(index);
 
         if (m_inWorld && !m_objectUpdated)
         {
@@ -1139,7 +1134,7 @@ void Object::RemoveFlag(uint16 index, uint32 oldFlag)
     if (oldval != newval)
     {
         m_uint32Values[index] = newval;
-        _changedFields[index] = true;
+        _changesMask.SetBit(index);
 
         if (m_inWorld && !m_objectUpdated)
         {
@@ -1162,7 +1157,7 @@ void Object::SetByteFlag(uint16 index, uint8 offset, uint8 newFlag)
     if (!(uint8(m_uint32Values[index] >> (offset * 8)) & newFlag))
     {
         m_uint32Values[index] |= uint32(uint32(newFlag) << (offset * 8));
-        _changedFields[index] = true;
+        _changesMask.SetBit(index);
 
         if (m_inWorld && !m_objectUpdated)
         {
@@ -1185,7 +1180,7 @@ void Object::RemoveByteFlag(uint16 index, uint8 offset, uint8 oldFlag)
     if (uint8(m_uint32Values[index] >> (offset * 8)) & oldFlag)
     {
         m_uint32Values[index] &= ~uint32(uint32(oldFlag) << (offset * 8));
-        _changedFields[index] = true;
+        _changesMask.SetBit(index);
 
         if (m_inWorld && !m_objectUpdated)
         {
@@ -1968,7 +1963,7 @@ void WorldObject::SendPlaySound(uint32 Sound, bool OnlySelf)
 
 void Object::ForceValuesUpdateAtIndex(uint32 i)
 {
-    _changedFields[i] = true;
+    _changesMask.SetBit(i);
     if (m_inWorld && !m_objectUpdated)
     {
         sObjectAccessor->AddUpdateObject(this);
