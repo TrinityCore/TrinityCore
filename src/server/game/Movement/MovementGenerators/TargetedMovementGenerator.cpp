@@ -93,7 +93,7 @@ void TargetedMovementGeneratorMedium<T,D>::_setTargetLocation(T* owner, bool upd
 
     // allow pets to use shortcut if no path found when following their master
     bool forceDest = (owner->GetTypeId() == TYPEID_UNIT && owner->ToCreature()->isPet()
-                        && owner->HasUnitState(UNIT_STATE_FOLLOW));
+        && owner->HasUnitState(UNIT_STATE_FOLLOW));
 
     bool result = i_path->CalculatePath(x, y, z, forceDest);
     if (!result || (i_path->GetPathType() & PATHFIND_NOPATH))
@@ -110,11 +110,12 @@ void TargetedMovementGeneratorMedium<T,D>::_setTargetLocation(T* owner, bool upd
 
     Movement::MoveSplineInit init(owner);
     init.MovebyPath(i_path->GetPath());
-    if (forceDest && updateDestination)
-        init.SetFacing(i_target.getTarget()->GetOrientation());
-    else
-        init.SetFacing(i_target.getTarget());
     init.SetWalk(((D*)this)->EnableWalking());
+    // Using the same condition for facing target as the one that is used for SetInFront on movement end
+    // - applies to ChaseMovementGenerator mostly
+    if (i_angle == 0.f)
+        init.SetFacing(i_target.getTarget());
+
     init.Launch();
 }
 
@@ -244,21 +245,22 @@ bool FollowMovementGenerator<Player>::EnableWalking() const
 }
 
 template<>
-void FollowMovementGenerator<Player>::_updateSpeed(Player* /*u*/)
+void FollowMovementGenerator<Player>::_updateSpeed(Player* /*owner*/)
 {
     // nothing to do for Player
 }
 
 template<>
-void FollowMovementGenerator<Creature>::_updateSpeed(Creature* u)
+void FollowMovementGenerator<Creature>::_updateSpeed(Creature* owner)
 {
     // pet only sync speed with owner
-    if (!u->isPet() || !i_target.isValid() || i_target->GetGUID() != u->GetOwnerGUID())
+    /// Make sure we are not in the process of a map change (IsInWorld)
+    if (!owner->isPet() || !owner->IsInWorld() || !i_target.isValid() || i_target->GetGUID() != owner->GetOwnerGUID())
         return;
 
-    u->UpdateSpeed(MOVE_RUN,true);
-    u->UpdateSpeed(MOVE_WALK,true);
-    u->UpdateSpeed(MOVE_SWIM,true);
+    owner->UpdateSpeed(MOVE_RUN, true);
+    owner->UpdateSpeed(MOVE_WALK, true);
+    owner->UpdateSpeed(MOVE_SWIM, true);
 }
 
 template<>

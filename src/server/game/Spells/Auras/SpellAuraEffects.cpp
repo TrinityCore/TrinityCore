@@ -449,8 +449,6 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
                         }
                     }
 
-    float DoneActualBenefit = 0.0f;
-
     // custom amount calculations go here
     switch (GetAuraType())
     {
@@ -483,112 +481,8 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
             }
             break;
         case SPELL_AURA_SCHOOL_ABSORB:
-            m_canBeRecalculated = false;
-            if (!caster)
-                break;
-            switch (GetSpellInfo()->SpellFamilyName)
-            {
-                case SPELLFAMILY_MAGE:
-                    // Ice Barrier
-                    if (GetSpellInfo()->SpellFamilyFlags[1] & 0x1 && GetSpellInfo()->SpellFamilyFlags[2] & 0x8)
-                    {
-                        // +80.68% from sp bonus
-                        DoneActualBenefit += caster->SpellBaseDamageBonusDone(m_spellInfo->GetSchoolMask()) * 0.8068f;
-                        // Glyph of Ice Barrier: its weird having a SPELLMOD_ALL_EFFECTS here but its blizzards doing :)
-                        // Glyph of Ice Barrier is only applied at the spell damage bonus because it was already applied to the base value in CalculateSpellDamage
-                        DoneActualBenefit = caster->ApplyEffectModifiers(GetSpellInfo(), m_effIndex, DoneActualBenefit);
-                    }
-                    // Fire Ward
-                    else if (GetSpellInfo()->SpellFamilyFlags[0] & 0x8 && GetSpellInfo()->SpellFamilyFlags[2] & 0x8)
-                    {
-                        // +80.68% from sp bonus
-                        DoneActualBenefit += caster->SpellBaseDamageBonusDone(m_spellInfo->GetSchoolMask()) * 0.8068f;
-                    }
-                    // Frost Ward
-                    else if (GetSpellInfo()->SpellFamilyFlags[0] & 0x100 && GetSpellInfo()->SpellFamilyFlags[2] & 0x8)
-                    {
-                        // +80.68% from sp bonus
-                        DoneActualBenefit += caster->SpellBaseDamageBonusDone(m_spellInfo->GetSchoolMask()) * 0.8068f;
-                    }
-                    break;
-                case SPELLFAMILY_WARLOCK:
-                    // Shadow Ward
-                    if (m_spellInfo->SpellFamilyFlags[2] & 0x40)
-                    {
-                        // +80.68% from sp bonus
-                        DoneActualBenefit += caster->SpellBaseDamageBonusDone(m_spellInfo->GetSchoolMask()) * 0.8068f;
-                    }
-                    break;
-                case SPELLFAMILY_PRIEST:
-                    // Power Word: Shield
-                    if (GetSpellInfo()->SpellFamilyFlags[0] & 0x1 && GetSpellInfo()->SpellFamilyFlags[2] & 0x400)
-                    {
-                        // +80.68% from sp bonus
-                        float bonus = 0.8068f;
-
-                        // Borrowed Time
-                        if (AuraEffect const* pAurEff = caster->GetDummyAuraEffect(SPELLFAMILY_PRIEST, 2899, 1))
-                            bonus += CalculatePct(1.0f, pAurEff->GetAmount());
-
-                        DoneActualBenefit += caster->SpellBaseHealingBonusDone(m_spellInfo->GetSchoolMask()) * bonus;
-                        // Improved PW: Shield: its weird having a SPELLMOD_ALL_EFFECTS here but its blizzards doing :)
-                        // Improved PW: Shield is only applied at the spell healing bonus because it was already applied to the base value in CalculateSpellDamage
-                        DoneActualBenefit = caster->ApplyEffectModifiers(GetSpellInfo(), m_effIndex, DoneActualBenefit);
-                        DoneActualBenefit *= caster->CalculateLevelPenalty(GetSpellInfo());
-
-                        amount += int32(DoneActualBenefit);
-
-                        // Twin Disciplines
-                        if (AuraEffect const* pAurEff = caster->GetAuraEffect(SPELL_AURA_ADD_PCT_MODIFIER, SPELLFAMILY_PRIEST, 0x400000, 0, 0, caster->GetGUID()))
-                            AddPct(amount, pAurEff->GetAmount());
-
-                        // Focused Power
-                        // Reuse variable, not sure if this code below can be moved before Twin Disciplines
-                        DoneActualBenefit = float(amount);
-                        DoneActualBenefit *= caster->GetTotalAuraMultiplier(SPELL_AURA_MOD_HEALING_DONE_PERCENT);
-                        amount = int32(DoneActualBenefit);
-
-                        return amount;
-                    }
-                    break;
-                case SPELLFAMILY_PALADIN:
-                    // Sacred Shield
-                    if (m_spellInfo->SpellFamilyFlags[1] & 0x80000)
-                    {
-                        //+75.00% from sp bonus
-                        float bonus = 0.75f;
-
-                        DoneActualBenefit += caster->SpellBaseHealingBonusDone(m_spellInfo->GetSchoolMask()) * bonus;
-                        // Divine Guardian is only applied at the spell healing bonus because it was already applied to the base value in CalculateSpellDamage
-                        DoneActualBenefit = caster->ApplyEffectModifiers(GetSpellInfo(), m_effIndex, DoneActualBenefit);
-                        DoneActualBenefit *= caster->CalculateLevelPenalty(GetSpellInfo());
-
-                        amount += (int32)DoneActualBenefit;
-
-                        // Arena - Dampening
-                        AuraEffect const* pAurEff = caster->GetAuraEffect(74410, 0);
-                        if (!pAurEff)
-                            pAurEff = caster->GetAuraEffect(74411, 0);  // Battleground - Dampening
-                        if (pAurEff)
-                            AddPct(amount, pAurEff->GetAmount());
-
-                        return amount;
-                    }
-                    break;
-                default:
-                    break;
-            }
-            break;
         case SPELL_AURA_MANA_SHIELD:
             m_canBeRecalculated = false;
-            if (!caster)
-                break;
-            // Mana Shield
-            if (GetSpellInfo()->SpellFamilyName == SPELLFAMILY_MAGE && GetSpellInfo()->SpellFamilyFlags[0] & 0x8000 && m_spellInfo->SpellFamilyFlags[2] & 0x8)
-            {
-                // +80.53% from +spd bonus
-                DoneActualBenefit += caster->SpellBaseDamageBonusDone(m_spellInfo->GetSchoolMask()) * 0.8053f;
-            }
             break;
         case SPELL_AURA_DUMMY:
             if (!caster)
@@ -600,160 +494,8 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
                 amount = GetBase()->GetUnitOwner()->SpellHealingBonusTaken(caster, GetSpellInfo(), amount, SPELL_DIRECT_DAMAGE);
             }
             break;
-        case SPELL_AURA_PERIODIC_DAMAGE:
-            if (!caster)
-                break;
-            // Rupture
-            if (GetSpellInfo()->SpellFamilyName == SPELLFAMILY_ROGUE && m_spellInfo->SpellFamilyFlags[0] & 0x100000)
-            {
-                m_canBeRecalculated = false;
-                if (caster->GetTypeId() != TYPEID_PLAYER)
-                    break;
-                //1 point : ${($m1+$b1*1+0.015*$AP)*4} damage over 8 secs
-                //2 points: ${($m1+$b1*2+0.024*$AP)*5} damage over 10 secs
-                //3 points: ${($m1+$b1*3+0.03*$AP)*6} damage over 12 secs
-                //4 points: ${($m1+$b1*4+0.03428571*$AP)*7} damage over 14 secs
-                //5 points: ${($m1+$b1*5+0.0375*$AP)*8} damage over 16 secs
-                float AP_per_combo[6] = {0.0f, 0.015f, 0.024f, 0.03f, 0.03428571f, 0.0375f};
-                uint8 cp = caster->ToPlayer()->GetComboPoints();
-                if (cp > 5) cp = 5;
-                amount += int32(caster->GetTotalAttackPowerValue(BASE_ATTACK) * AP_per_combo[cp]);
-            }
-            // Rip
-            else if (GetSpellInfo()->SpellFamilyName == SPELLFAMILY_DRUID && m_spellInfo->SpellFamilyFlags[0] & 0x00800000 && GetAuraType() == SPELL_AURA_PERIODIC_DAMAGE)
-            {
-                m_canBeRecalculated = false;
-                // 0.01*$AP*cp
-                if (caster->GetTypeId() != TYPEID_PLAYER)
-                    break;
-
-                uint8 cp = caster->ToPlayer()->GetComboPoints();
-
-                // Idol of Feral Shadows. Cant be handled as SpellMod in SpellAura:Dummy due its dependency from CPs
-                if (AuraEffect const* aurEff = caster->GetAuraEffect(34241, EFFECT_0))
-                    amount += cp * aurEff->GetAmount();
-                // Idol of Worship. Cant be handled as SpellMod in SpellAura:Dummy due its dependency from CPs
-                else if (AuraEffect const* aurEff = caster->GetAuraEffect(60774, EFFECT_0))
-                    amount += cp * aurEff->GetAmount();
-
-                amount += uint32(CalculatePct(caster->GetTotalAttackPowerValue(BASE_ATTACK), cp));
-            }
-            // Rend
-            else if (GetSpellInfo()->SpellFamilyName == SPELLFAMILY_WARRIOR && GetSpellInfo()->SpellFamilyFlags[0] & 0x20)
-            {
-                m_canBeRecalculated = false;
-                // $0.2 * (($MWB + $mwb) / 2 + $AP / 14 * $MWS) bonus per tick
-                float ap = caster->GetTotalAttackPowerValue(BASE_ATTACK);
-                int32 mws = caster->GetAttackTime(BASE_ATTACK);
-                float mwb_min = caster->GetWeaponDamageRange(BASE_ATTACK, MINDAMAGE);
-                float mwb_max = caster->GetWeaponDamageRange(BASE_ATTACK, MAXDAMAGE);
-                float mwb = ((mwb_min + mwb_max) / 2 + ap * mws / 14000) * 0.2f;
-                amount += int32(caster->ApplyEffectModifiers(m_spellInfo, m_effIndex, mwb));
-                // "If used while your target is above 75% health, Rend does 35% more damage."
-                // as for 3.1.3 only ranks above 9 (wrong tooltip?)
-                if (m_spellInfo->GetRank() >= 9)
-                {
-                    if (GetBase()->GetUnitOwner()->HasAuraState(AURA_STATE_HEALTH_ABOVE_75_PERCENT, m_spellInfo, caster))
-                        AddPct(amount, m_spellInfo->Effects[EFFECT_2].CalcValue(caster));
-                }
-            }
-            break;
-        case SPELL_AURA_PERIODIC_ENERGIZE:
-            switch (m_spellInfo->Id)
-            {
-                case 29166: // Innervate
-                    ApplyPct(amount, float(GetBase()->GetUnitOwner()->GetCreatePowers(POWER_MANA)) / GetTotalTicks());
-                    break;
-                case 48391: // Owlkin Frenzy
-                    ApplyPct(amount, GetBase()->GetUnitOwner()->GetCreatePowers(POWER_MANA));
-                    break;
-                default:
-                    break;
-            }
-            break;
-        case SPELL_AURA_PERIODIC_HEAL:
-            if (!caster)
-                break;
-            // Lightwell Renew
-            if (GetSpellInfo()->SpellFamilyName == SPELLFAMILY_PRIEST && m_spellInfo->SpellFamilyFlags[2] & 0x4000)
-            {
-                if (caster->GetTypeId() == TYPEID_PLAYER)
-                // Bonus from Glyph of Lightwell
-                if (AuraEffect* modHealing = caster->GetAuraEffect(55673, 0))
-                    AddPct(amount, modHealing->GetAmount());
-            }
-            break;
-        case SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN:
-            if (!caster)
-                break;
-            // Icebound Fortitude
-            if (GetSpellInfo()->SpellFamilyName == SPELLFAMILY_DEATHKNIGHT && m_spellInfo->SpellFamilyFlags[0] & 0x00100000)
-            {
-                if (caster->GetTypeId() == TYPEID_PLAYER)
-                {
-                    int32 value = (-1 * amount) - 10;
-                    uint32 defva = uint32(caster->ToPlayer()->GetSkillValue(SKILL_DEFENSE) + caster->ToPlayer()->GetRatingBonusValue(CR_DEFENSE_SKILL));
-
-                    if (defva > 400)
-                        value += int32((defva - 400) * 0.15);
-
-                    // Glyph of Icebound Fortitude
-                    if (AuraEffect const* aurEff = caster->GetAuraEffect(58625, 0))
-                    {
-                        int32 valMax = aurEff->GetAmount();
-                        if (value < valMax)
-                            value = valMax;
-                    }
-                    amount = -value;
-                }
-            }
-            // Hand of Salvation
-            else if (GetSpellInfo()->SpellFamilyName == SPELLFAMILY_PALADIN && GetSpellInfo()->SpellFamilyFlags[0] & 0x00000100)
-            {
-                //Glyph of Salvation
-                if (caster->GetGUID() == GetBase()->GetUnitOwner()->GetGUID())
-                    if (AuraEffect const* aurEff = caster->GetAuraEffect(63225, 0))
-                        amount = -aurEff->GetAmount();
-            }
-            break;
-        case SPELL_AURA_MOD_THREAT:
-        {
-            uint8 level_diff = 0;
-            float multiplier = 0.0f;
-            switch (GetId())
-            {
-                // Arcane Shroud
-                case 26400:
-                    level_diff = GetBase()->GetUnitOwner()->getLevel() - 60;
-                    multiplier = 2;
-                    break;
-                // The Eye of Diminution
-                case 28862:
-                    level_diff = GetBase()->GetUnitOwner()->getLevel() - 60;
-                    multiplier = 1;
-                    break;
-            }
-            if (level_diff > 0)
-                amount += int32(multiplier * level_diff);
-            break;
-        }
-        case SPELL_AURA_MOD_INCREASE_HEALTH:
-            // Vampiric Blood
-            if (GetId() == 55233)
-                amount = GetBase()->GetUnitOwner()->CountPctFromMaxHealth(amount);
-            break;
-        case SPELL_AURA_MOD_INCREASE_SPEED:
-            // Dash - do not set speed if not in cat form
-            if (GetSpellInfo()->SpellFamilyName == SPELLFAMILY_DRUID && GetSpellInfo()->SpellFamilyFlags[2] & 0x00000008)
-                amount = GetBase()->GetUnitOwner()->GetShapeshiftForm() == FORM_CAT ? amount : 0;
-            break;
         default:
             break;
-    }
-    if (DoneActualBenefit != 0.0f)
-    {
-        DoneActualBenefit *= caster->CalculateLevelPenalty(GetSpellInfo());
-        amount += (int32)DoneActualBenefit;
     }
 
     GetBase()->CallScriptEffectCalcAmountHandlers(const_cast<AuraEffect const*>(this), amount, m_canBeRecalculated);
@@ -848,32 +590,6 @@ void AuraEffect::CalculateSpellMod()
 {
     switch (GetAuraType())
     {
-        case SPELL_AURA_DUMMY:
-            switch (GetSpellInfo()->SpellFamilyName)
-            {
-                case SPELLFAMILY_DRUID:
-                    switch (GetId())
-                    {
-                        case 34246:                                 // Idol of the Emerald Queen
-                        case 60779:                                 // Idol of Lush Moss
-                        {
-                            if (!m_spellmod)
-                            {
-                                m_spellmod = new SpellModifier(GetBase());
-                                m_spellmod->op = SPELLMOD_DOT;
-                                m_spellmod->type = SPELLMOD_FLAT;
-                                m_spellmod->spellId = GetId();
-                                m_spellmod->mask[1] = 0x0010;
-                            }
-                            m_spellmod->value = GetAmount()/7;
-                        }
-                        break;
-                    }
-                    break;
-                default:
-                    break;
-            }
-            break;
         case SPELL_AURA_ADD_FLAT_MODIFIER:
         case SPELL_AURA_ADD_PCT_MODIFIER:
             if (!m_spellmod)
@@ -882,7 +598,7 @@ void AuraEffect::CalculateSpellMod()
                 m_spellmod->op = SpellModOp(GetMiscValue());
                 ASSERT(m_spellmod->op < MAX_SPELLMOD);
 
-                m_spellmod->type = SpellModType(GetAuraType());    // SpellModType value == spell aura types
+                m_spellmod->type = SpellModType(GetAuraType()); // SpellModType value == spell aura types
                 m_spellmod->spellId = GetId();
                 m_spellmod->mask = GetSpellInfo()->Effects[GetEffIndex()].SpellClassMask;
                 m_spellmod->charges = GetBase()->GetCharges();

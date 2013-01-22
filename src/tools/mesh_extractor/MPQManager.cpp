@@ -2,8 +2,7 @@
 #include "MPQ.h"
 #include "DBC.h"
 #include "Utils.h"
-
-#include "ace/Synch.h"
+#include <ace/Guard_T.h>
 
 char* MPQManager::Files[] = {
     "common.MPQ",
