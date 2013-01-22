@@ -4,7 +4,7 @@
 #include "Utils.h"
 #include <ace/Guard_T.h>
 
-char* MPQManager::Files[] = {
+char const* MPQManager::Files[] = {
     "common.MPQ",
     "common-2.MPQ",
     "expansion.MPQ",
