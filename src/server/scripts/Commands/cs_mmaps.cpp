@@ -264,7 +264,7 @@ public:
 
         if (!creatureList.empty())
         {
-            handler->PSendSysMessage("Found "SIZEFTMD" Creatures.", creatureList.size());
+            handler->PSendSysMessage("Found "SIZEFMTD" Creatures.", creatureList.size());
 
             uint32 paths = 0;
             uint32 uStartTime = getMSTime();
