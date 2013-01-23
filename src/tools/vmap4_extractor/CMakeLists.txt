@@ -15,7 +15,7 @@ file(GLOB_RECURSE sources *.cpp *.h)
 add_definitions("-DIOMAP_DEBUG")
 
 # build setup currently only supports libmpq 0.4.x
-if( NOT WIN32 )
+if( NOT MSVC )
   add_definitions("-Wall")
   add_definitions("-ggdb")
   add_definitions("-O3")
