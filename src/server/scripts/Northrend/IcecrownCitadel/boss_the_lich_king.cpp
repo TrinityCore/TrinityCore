@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -262,6 +262,8 @@ enum Events
     EVENT_TELEPORT                  = 61,
     EVENT_MOVE_TO_LICH_KING         = 62,
     EVENT_DESPAWN_SELF              = 63,
+    // Spirit Bombs explosion delay
+    EVENT_SPELL_EXPLOSION           = 64, 
 };
 
 enum EventGroups
@@ -636,7 +638,7 @@ class boss_the_lich_king : public CreatureScript
                 }
             }
 
-            uint32 GetData(uint32 type) const
+            uint32 GetData(uint32 type)
             {
                 switch (type)
                 {
@@ -1015,7 +1017,6 @@ class boss_the_lich_king : public CreatureScript
                         case EVENT_HARVEST_SOULS:
                             Talk(SAY_LK_HARVEST_SOUL);
                             DoCastAOE(SPELL_HARVEST_SOULS);
-                            events.ScheduleEvent(EVENT_HARVEST_SOULS, urand(100000, 110000), 0, PHASE_THREE);
                             events.SetPhase(PHASE_FROSTMOURNE); // will stop running UpdateVictim (no evading)
                             me->SetReactState(REACT_PASSIVE);
                             me->AttackStop();
@@ -1524,6 +1525,12 @@ class npc_valkyr_shadowguard : public CreatureScript
                 switch (id)
                 {
                     case POINT_DROP_PLAYER:
+                        me->GetPosition(&_current);
+                        if (_current.GetPositionX() != _dropPoint.GetPositionX() || _current.GetPositionY() != _dropPoint.GetPositionY())
+                        {
+                            _events.ScheduleEvent(EVENT_MOVE_TO_DROP_POS, 0);
+                            break;
+                        }
                         DoCastAOE(SPELL_EJECT_ALL_PASSENGERS);
                         me->DespawnOrUnsummon(1000);
                         break;
@@ -1599,6 +1606,7 @@ class npc_valkyr_shadowguard : public CreatureScript
         private:
             EventMap _events;
             Position _dropPoint;
+            Position _current;
             uint64 _grabbedPlayer;
             InstanceScript* _instance;
         };
@@ -1946,27 +1954,43 @@ class npc_spirit_bomb : public CreatureScript
                 destZ = 1055.0f;    // approximation, gets more precise later
                 me->UpdateGroundPositionZ(destX, destY, destZ);
                 me->GetMotionMaster()->MovePoint(POINT_GROUND, destX, destY, destZ);
+                me->SetSpeed(MOVE_FLIGHT, 0.4f, true);
             }
 
             void MovementInform(uint32 type, uint32 point)
             {
                 if (type != POINT_MOTION_TYPE || point != POINT_GROUND)
                     return;
-
-                me->RemoveAllAuras();
-                DoCastAOE(SPELL_EXPLOSION);
-                me->DespawnOrUnsummon(1000);
+                _events.ScheduleEvent(EVENT_SPELL_EXPLOSION, 3000);
+                
             }
 
             void AttackStart(Unit* /*victim*/)
             {
             }
 
-            void UpdateAI(uint32 const /*diff*/)
+            void UpdateAI(uint32 const diff)
             {
                 UpdateVictim();
                 // no melee attacks
+				_events.Update(diff);
+
+                while (uint32 eventId = _events.ExecuteEvent())
+                {
+				switch (eventId)
+                    {
+                        case EVENT_SPELL_EXPLOSION:
+                            me->RemoveAllAuras();
+				            DoCastAOE(SPELL_EXPLOSION);
+                            me->DespawnOrUnsummon(1000);
+                            break;
+                        default:
+                            break;
+                    }
+				}
             }
+	    private:
+            EventMap _events;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -2487,13 +2511,14 @@ class spell_the_lich_king_summon_into_air : public SpellScriptLoader
 
             void ModDestHeight(SpellEffIndex effIndex)
             {
-                static Position const offset = {0.0f, 0.0f, 15.0f, 0.0f};
+                static Position const offset = {0.0f, 0.0f, 5.0f, 0.0f};
                 WorldLocation* dest = const_cast<WorldLocation*>(GetExplTargetDest());
                 dest->RelocateOffset(offset);
                 GetHitDest()->RelocateOffset(offset);
                 // spirit bombs get higher
                 if (GetSpellInfo()->Effects[effIndex].MiscValue == NPC_SPIRIT_BOMB)
                 {
+                    static Position const offset = {0.0f, 0.0f, 25.0f, 0.0f};
                     dest->RelocateOffset(offset);
                     GetHitDest()->RelocateOffset(offset);
                 }
