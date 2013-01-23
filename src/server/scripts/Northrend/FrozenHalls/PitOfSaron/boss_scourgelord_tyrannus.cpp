@@ -94,7 +94,7 @@ enum Phases
     PHASE_NONE      = 0,
     PHASE_INTRO     = 1,
     PHASE_COMBAT    = 2,
-    PHASE_OUTRO     = 3,
+    PHASE_OUTRO     = 3
 };
 
 enum Actions
@@ -168,7 +168,7 @@ class boss_tyrannus : public CreatureScript
                 if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
                     return;
 
-                if (victim && me->Attack(victim, true) && !(events.GetPhaseMask() & (1 << PHASE_INTRO)))
+                if (victim && me->Attack(victim, true) && !events.IsInPhase(PHASE_INTRO))
                     me->GetMotionMaster()->MoveChase(victim);
             }
 
@@ -217,7 +217,7 @@ class boss_tyrannus : public CreatureScript
 
             void UpdateAI(const uint32 diff)
             {
-                if (!UpdateVictim() && !(events.GetPhaseMask() & (1 << PHASE_INTRO)))
+                if (!UpdateVictim() && !events.IsInPhase(PHASE_INTRO))
                     return;
 
                 events.Update(diff);
@@ -337,7 +337,7 @@ class boss_rimefang : public CreatureScript
 
             void UpdateAI(const uint32 diff)
             {
-                if (!UpdateVictim() && !(_events.GetPhaseMask() & (1 << PHASE_COMBAT)))
+                if (!UpdateVictim() && !_events.IsInPhase(PHASE_COMBAT))
                     return;
 
                 _events.Update(diff);
