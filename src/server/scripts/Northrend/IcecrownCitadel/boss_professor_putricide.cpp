@@ -145,10 +145,7 @@ enum Phases
     PHASE_ROTFACE       = 2,
     PHASE_COMBAT_1      = 4,
     PHASE_COMBAT_2      = 5,
-    PHASE_COMBAT_3      = 6,
-
-    PHASE_MASK_COMBAT   = (1 << PHASE_COMBAT_1) | (1 << PHASE_COMBAT_2) | (1 << PHASE_COMBAT_3),
-    PHASE_MASK_NOT_SELF = (1 << PHASE_FESTERGUT) | (1 << PHASE_ROTFACE)
+    PHASE_COMBAT_3      = 6
 };
 
 enum Points
@@ -233,7 +230,7 @@ class boss_professor_putricide : public CreatureScript
 
             void Reset()
             {
-                if (!(events.GetPhaseMask() & PHASE_MASK_NOT_SELF))
+                if (!(events.IsInPhase(PHASE_ROTFACE) || events.IsInPhase(PHASE_FESTERGUT)))
                     instance->SetBossState(DATA_PROFESSOR_PUTRICIDE, NOT_STARTED);
                 instance->SetData(DATA_NAUSEA_ACHIEVEMENT, uint32(true));
 
@@ -252,7 +249,7 @@ class boss_professor_putricide : public CreatureScript
 
             void EnterCombat(Unit* who)
             {
-                if (events.GetPhaseMask() & PHASE_MASK_NOT_SELF)
+                if (events.IsInPhase(PHASE_ROTFACE) || events.IsInPhase(PHASE_FESTERGUT))
                     return;
 
                 if (!instance->CheckRequiredBosses(DATA_PROFESSOR_PUTRICIDE, who->ToPlayer()))
@@ -282,7 +279,7 @@ class boss_professor_putricide : public CreatureScript
             {
                 _JustReachedHome();
                 me->SetWalk(false);
-                if (events.GetPhaseMask() & PHASE_MASK_COMBAT)
+                if (events.IsInPhase(PHASE_COMBAT_1) || events.IsInPhase(PHASE_COMBAT_2) || events.IsInPhase(PHASE_COMBAT_3))
                     instance->SetBossState(DATA_PROFESSOR_PUTRICIDE, FAIL);
             }
 
@@ -568,7 +565,7 @@ class boss_professor_putricide : public CreatureScript
 
             void UpdateAI(uint32 const diff)
             {
-                if ((!(events.GetPhaseMask() & PHASE_MASK_NOT_SELF) && !UpdateVictim()) || !CheckInRoom())
+                if ((!(events.IsInPhase(PHASE_ROTFACE) || events.IsInPhase(PHASE_FESTERGUT)) && !UpdateVictim()) || !CheckInRoom())
                     return;
 
                 events.Update(diff);

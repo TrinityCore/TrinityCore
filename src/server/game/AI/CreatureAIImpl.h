@@ -336,10 +336,24 @@ class EventMap
         // Sets event phase, must be in range 1 - 8
         void SetPhase(uint32 phase)
         {
-            if (phase && phase < 8)
-                _phase = (1 << (phase + 24));
+            if (phase && phase <= 8)
+                _phase = (1 << (phase + 23));
             else if (!phase)
                 _phase = 0;
+        }
+
+        // Activates event phase, must be in range 1 - 8
+        void AddPhase(uint32 phase)
+        {
+            if (phase && phase <= 8)
+                _phase |= (1 << (phase + 23));
+        }
+
+        // Deactivates event phase, must be in range 1 - 8
+        void RemovePhase(uint32 phase)
+        {
+            if (phase && phase <= 8)
+                _phase &= ~(1 << (phase + 23));
         }
 
         // Creates new event entry in map with given id, time, group if given (1 - 8) and phase if given (1 - 8)
@@ -348,9 +362,9 @@ class EventMap
         {
             time += _time;
             if (groupId && groupId < 9)
-                eventId |= (1 << (groupId + 16));
+                eventId |= (1 << (groupId + 15));
             if (phase && phase < 8)
-                eventId |= (1 << (phase + 24));
+                eventId |= (1 << (phase + 23));
             StorageType::const_iterator itr = _eventMap.find(time);
             while (itr != _eventMap.end())
             {
@@ -443,8 +457,12 @@ class EventMap
         // Delay all events having the specified Group
         void DelayEvents(uint32 delay, uint32 groupId)
         {
+            if (!groupId || groupId > 8)
+                return;
+
             uint32 nextTime = _time + delay;
-            uint32 groupMask = (1 << (groupId + 16));
+            uint32 groupMask = (1 << (groupId + 15));
+
             for (StorageType::iterator itr = _eventMap.begin(); itr != _eventMap.end() && itr->first < nextTime;)
             {
                 if (itr->second & groupMask)
@@ -476,7 +494,10 @@ class EventMap
         // Cancel events belonging to specified group
         void CancelEventGroup(uint32 groupId)
         {
-            uint32 groupMask = (1 << (groupId + 16));
+            if (!groupId || groupId > 8)
+                return;
+
+            uint32 groupMask = (1 << (groupId + 15));
 
             for (StorageType::iterator itr = _eventMap.begin(); itr != _eventMap.end();)
             {
@@ -499,6 +520,12 @@ class EventMap
                     return itr->first;
 
             return 0;
+        }
+
+        // Returns wether the eventmap is in the given phase or not.
+        bool IsInPhase(uint32 phase)
+        {
+            return phase <= 8 && (!phase || _phase & (1 << phase + 23));
         }
 
     private:
