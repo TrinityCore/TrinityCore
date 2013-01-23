@@ -18,11 +18,12 @@
 #include "AppenderFile.h"
 #include "Common.h"
 
-AppenderFile::AppenderFile(uint8 id, std::string const& name, LogLevel level, const char* _filename, const char* _logDir, const char* _mode, AppenderFlags _flags)
+AppenderFile::AppenderFile(uint8 id, std::string const& name, LogLevel level, const char* _filename, const char* _logDir, const char* _mode, AppenderFlags _flags, uint64 fileSize)
     : Appender(id, name, APPENDER_FILE, level, _flags)
     , filename(_filename)
     , logDir(_logDir)
     , mode(_mode)
+    , _fileSize(fileSize)
 {
     dynamicName = std::string::npos != filename.find("%s");
     backup = _flags & APPENDER_FLAGS_MAKE_FILE_BACKUP;
@@ -46,12 +47,25 @@ void AppenderFile::_write(LogMessage const& message)
         char namebuf[TRINITY_PATH_MAX];
         snprintf(namebuf, TRINITY_PATH_MAX, filename.c_str(), message.param1.c_str());
         logfile = OpenFile(namebuf, mode, backup);
+        _fileSize = ftell(logfile);
     }
 
     if (logfile)
     {
+        if (!dynamicName && _fileSize + message.Size() > _maxFileSize)
+        {
+            /** @ We assume all log files have a .log extension.
+             If file "gol.log" is at its max capacity, this will spawn a new file, "gol_.log". If that one reaches capacity, it'll spawn "gol__.log", etc.
+            */
+            filename.replace(filename.end() - 3, filename.end(), "_.log");
+            logfile = OpenFile(filename.c_str(), mode, backup);
+            _write(message);
+            return;
+        }
+
         fprintf(logfile, "%s%s", message.prefix.c_str(), message.text.c_str());
         fflush(logfile);
+        _fileSize += message.Size();
 
         if (dynamicName)
         {
@@ -71,5 +85,7 @@ FILE* AppenderFile::OpenFile(std::string const &filename, std::string const &mod
         rename(filename.c_str(), newName.c_str()); // no error handling... if we couldn't make a backup, just ignore
     }
 
-    return fopen((logDir + filename).c_str(), mode.c_str());
+    FILE* ret = fopen((logDir + filename).c_str(), mode.c_str());
+    _fileSize = ftell(ret);
+    return ret;
 }
