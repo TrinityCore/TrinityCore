@@ -23,7 +23,7 @@
 class AppenderFile: public Appender
 {
     public:
-        AppenderFile(uint8 _id, std::string const& _name, LogLevel level, const char* filename, const char* logDir, const char* mode, AppenderFlags flags);
+        AppenderFile(uint8 _id, std::string const& _name, LogLevel level, const char* filename, const char* logDir, const char* mode, AppenderFlags flags, uint64 maxSize);
         ~AppenderFile();
         FILE* OpenFile(std::string const& _name, std::string const& _mode, bool _backup);
 
@@ -35,6 +35,8 @@ class AppenderFile: public Appender
         std::string mode;
         bool dynamicName;
         bool backup;
+        uint64 _maxFileSize;
+        uint64 _fileSize;
 };
 
 #endif
