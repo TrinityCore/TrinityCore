@@ -218,7 +218,7 @@ void Utils::SaveToDisk( FILE* stream, std::string path )
     if (fread(data, 1, size, stream) != 1)
     {
         printf("SaveToDisk: Error reading from Stream while trying to save file %s to disck.\n", path.c_str());
-        return;        
+        return;
     }
     // And write it in the file
     fwrite(data, 1, size, disk);
@@ -274,7 +274,7 @@ void MapChunkHeader::Read(FILE* stream)
     count += fread(&SizeMCLQ, sizeof(uint32), 1, stream);
     Position = Vector3::Read(stream);
     count += fread(&OffsetMCCV, sizeof(uint32), 1, stream);
-    
+
     if (count != 27)
          printf("MapChunkHeader::Read: Failed to read some data expected 27, read %d\n", count);
 }
@@ -295,7 +295,7 @@ void MHDR::Read(FILE* stream)
     count += fread(&OffsetMFBO, sizeof(uint32), 1, stream);
     count += fread(&OffsetMH2O, sizeof(uint32), 1, stream);
     count += fread(&OffsetMTFX, sizeof(uint32), 1, stream);
-    
+
     if (count != 12)
          printf("MHDR::Read: Failed to read some data expected 12, read %d\n", count);
 }
@@ -357,7 +357,7 @@ void ModelHeader::Read(FILE* stream)
     count += fread(&OffsetBoundingVertices, sizeof(uint32), 1, stream);
     count += fread(&CountBoundingNormals, sizeof(uint32), 1, stream);
     count += fread(&OffsetBoundingNormals, sizeof(uint32), 1, stream);
-    
+
     if (count != 51)
          printf("ModelHeader::Read: Failed to read some data expected 51, read %d\n", count);
 
@@ -380,7 +380,7 @@ WorldModelHeader WorldModelHeader::Read(FILE* stream)
     ret.BoundingBox[0] = Vector3::Read(stream);
     ret.BoundingBox[1] = Vector3::Read(stream);
     count += fread(&ret.LiquidTypeRelated, sizeof(uint32), 1, stream);
-    
+
     if (count != 10)
          printf("WorldModelHeader::Read: Failed to read some data expected 10, read %d\n", count);
 
@@ -400,7 +400,7 @@ DoodadInstance DoodadInstance::Read(FILE* stream)
     count += fread(&ret.QuatZ, sizeof(float), 1, stream);
     count += fread(&ret.Scale, sizeof(float), 1, stream);
     count += fread(&ret.LightColor, sizeof(uint32), 1, stream);
-    
+
     if (count != 7)
          printf("DoodadInstance::Read: Failed to read some data expected 7, read %d\n", count);
 
