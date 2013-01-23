@@ -38,9 +38,9 @@ namespace VMAP
 #define VMAP_DEBUG_LOG(FILTER, ...) sLog->outDebug(FILTER, __VA_ARGS__)
 #define VMAP_INFO_LOG(FILTER, ...) sLog->outInfo(FILTER, __VA_ARGS__)
 #else
-#define VMAP_ERROR_LOG(FILTER, ...) printf(__VA_ARGS__)
-#define VMAP_DEBUG_LOG(FILTER, ...) printf(__VA_ARGS__)
-#define VMAP_INFO_LOG(FILTER, ...) printf(__VA_ARGS__)
+#define VMAP_ERROR_LOG(FILTER, ...) (void)sizeof(FILTER)
+#define VMAP_DEBUG_LOG(FILTER, ...) (void)sizeof(FILTER)
+#define VMAP_INFO_LOG(FILTER, ...)  (void)sizeof(FILTER)
 #endif
 
 #endif
