@@ -792,7 +792,7 @@ void WorldSession::HandleRequestRatedBgInfo(WorldPacket & recvData)
     uint8 unk;
     recvData >> unk;
 
-    sLog->outDebug(LOG_FILTER_BATTLEGROUND, "WorldSession::HandleRequestRatedBgInfo: get unk = %u", unk);
+    sLog->outDebug(LOG_FILTER_BATTLEGROUND, "WorldSession::HandleRequestRatedBgInfo: unk = %u", unk);
 
     /// @Todo: perfome research in this case
     /// The unk fields are related to arenas
@@ -852,7 +852,7 @@ void WorldSession::HandleRequestRatedBgStats(WorldPacket& /*recvData*/)
     data << uint8(3);   // unk
     data << uint32(0);  // unk
     data << uint32(0);  // unk
-    data << _player->GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_META_BG, true);
+    data << _player->GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_META_RBG, true);
     data << uint32(0);  // unk
     data << uint32(0);  // unk
     data << _player->GetCurrency(CURRENCY_TYPE_CONQUEST_POINTS, true);

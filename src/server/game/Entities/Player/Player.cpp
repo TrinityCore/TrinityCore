@@ -7342,9 +7342,9 @@ void Player::SendPvpRewards() const
     packet << GetCurrencyOnWeek(CURRENCY_TYPE_CONQUEST_POINTS, true);
     packet << GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_META_ARENA, true);
     packet << GetCurrencyOnWeek(CURRENCY_TYPE_CONQUEST_META_ARENA, true);
-    packet << GetCurrencyOnWeek(CURRENCY_TYPE_CONQUEST_META_BG, true);
+    packet << GetCurrencyOnWeek(CURRENCY_TYPE_CONQUEST_META_RBG, true);
     packet << GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_POINTS, true);
-    packet << GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_META_BG, true);
+    packet << GetCurrencyWeekCap(CURRENCY_TYPE_CONQUEST_META_RBG, true);
     GetSession()->SendPacket(&packet);
 }
 
@@ -7559,7 +7559,7 @@ uint32 Player::_GetCurrencyWeekCap(const CurrencyTypesEntry* currency) const
         case CURRENCY_TYPE_CONQUEST_META_ARENA:
             // should add precision mod = 100
             return Trinity::Currency::ConquestRatingCalculator(_maxPersonalArenaRate) * CURRENCY_PRECISION;
-        case CURRENCY_TYPE_CONQUEST_META_BG:
+        case CURRENCY_TYPE_CONQUEST_META_RBG:
             // should add precision mod = 100
             return Trinity::Currency::BgConquestRatingCalculator(GetRBGPersonalRating()) * CURRENCY_PRECISION;
     }
