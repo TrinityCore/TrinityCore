@@ -31,6 +31,7 @@ enum DeathKnightSpells
     SPELL_DK_ANTI_MAGIC_SHELL_TALENT            = 51052,
     SPELL_DK_BLACK_ICE_R1                       = 49140,
     SPELL_DK_BLOOD_BOIL_TRIGGERED               = 65658,
+    SPELL_DK_BLOOD_GORGED_HEAL                  = 50454,
     SPELL_DK_CORPSE_EXPLOSION_TRIGGERED         = 43999,
     SPELL_DK_CORPSE_EXPLOSION_VISUAL            = 51270,
     SPELL_DK_DEATH_COIL_DAMAGE                  = 47632,
@@ -249,6 +250,58 @@ class spell_dk_blood_boil : public SpellScriptLoader
         SpellScript* GetSpellScript() const
         {
             return new spell_dk_blood_boil_SpellScript();
+        }
+};
+
+// 50453 - Bloodworms Health Leech
+class spell_dk_blood_gorged : public SpellScriptLoader
+{
+    public:
+        spell_dk_blood_gorged() : SpellScriptLoader("spell_dk_blood_gorged") { }
+
+        class spell_dk_blood_gorged_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dk_blood_gorged_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_DK_BLOOD_GORGED_HEAL))
+                    return false;
+                return true;
+            }
+
+            bool Load()
+            {
+                _procTarget = NULL;
+                return true;
+            }
+
+            bool CheckProc(ProcEventInfo& /*eventInfo*/)
+            {
+                _procTarget = GetTarget()->GetOwner();
+                return _procTarget;
+            }
+
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+                int32 bp = int32(eventInfo.GetDamageInfo()->GetDamage() * 1.5f);
+                GetTarget()->CastCustomSpell(SPELL_DK_BLOOD_GORGED_HEAL, SPELLVALUE_BASE_POINT0, bp, _procTarget, true, NULL, aurEff);
+            }
+
+            void Register()
+            {
+                DoCheckProc += AuraCheckProcFn(spell_dk_blood_gorged_AuraScript::CheckProc);
+                OnEffectProc += AuraEffectProcFn(spell_dk_blood_gorged_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+
+        private:
+            Unit* _procTarget;
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_dk_blood_gorged_AuraScript();
         }
 };
 
@@ -958,6 +1011,7 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_anti_magic_shell_self();
     new spell_dk_anti_magic_zone();
     new spell_dk_blood_boil();
+    new spell_dk_blood_gorged();
     new spell_dk_corpse_explosion();
     new spell_dk_death_coil();
     new spell_dk_death_gate();

@@ -484,16 +484,6 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
         case SPELL_AURA_MANA_SHIELD:
             m_canBeRecalculated = false;
             break;
-        case SPELL_AURA_DUMMY:
-            if (!caster)
-                break;
-            // Earth Shield
-            if (GetSpellInfo()->SpellFamilyName == SPELLFAMILY_SHAMAN && m_spellInfo->SpellFamilyFlags[1] & 0x400)
-            {
-                amount = caster->SpellHealingBonusDone(GetBase()->GetUnitOwner(), GetSpellInfo(), amount, SPELL_DIRECT_DAMAGE);
-                amount = GetBase()->GetUnitOwner()->SpellHealingBonusTaken(caster, GetSpellInfo(), amount, SPELL_DIRECT_DAMAGE);
-            }
-            break;
         default:
             break;
     }
@@ -4694,10 +4684,6 @@ void AuraEffect::HandleAuraDummy(AuraApplication const* aurApp, uint8 mode, bool
                     if (Aura* newAura = target->AddAura(71564, target))
                         newAura->SetStackAmount(newAura->GetSpellInfo()->StackAmount);
                         break;
-                case 59628: // Tricks of the Trade
-                    if (caster && caster->GetMisdirectionTarget())
-                        target->SetReducedThreatPercent(100, caster->GetMisdirectionTarget()->GetGUID());
-                    break;
             }
         }
         // AT REMOVE
@@ -4793,20 +4779,6 @@ void AuraEffect::HandleAuraDummy(AuraApplication const* aurApp, uint8 mode, bool
                     if (GetId() == 61777)
                         target->CastSpell(target, GetAmount(), true);
                     break;
-                case SPELLFAMILY_ROGUE:
-                    //  Tricks of the trade
-                    switch (GetId())
-                    {
-                        case 59628: //Tricks of the trade buff on rogue (6sec duration)
-                            target->SetReducedThreatPercent(0, 0);
-                            break;
-                        case 57934: //Tricks of the trade buff on rogue (30sec duration)
-                            if (aurApp->GetRemoveMode() == AURA_REMOVE_BY_EXPIRE || !caster->GetMisdirectionTarget())
-                                target->SetReducedThreatPercent(0, 0);
-                            else
-                                target->SetReducedThreatPercent(0, caster->GetMisdirectionTarget()->GetGUID());
-                            break;
-                    }
                 default:
                     break;
             }
