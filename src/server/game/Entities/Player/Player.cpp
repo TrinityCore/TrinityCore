@@ -11491,7 +11491,7 @@ InventoryResult Player::CanEquipItem(uint8 slot, uint16 &dest, Item* pItem, bool
             // should ignore the item we are trying to swap, and not the
             // destination item. CanEquipUniqueItem should ignore destination
             // item only when we are swapping weapon from bag
-            uint8 ignore;
+            uint8 ignore = uint8(NULL_SLOT);
             switch (eslot)
             {
                 case EQUIPMENT_SLOT_MAINHAND:
@@ -11513,7 +11513,8 @@ InventoryResult Player::CanEquipItem(uint8 slot, uint16 &dest, Item* pItem, bool
                     ignore = EQUIPMENT_SLOT_TRINKET1;
                     break;
             }
-            if (pItem != GetItemByPos(INVENTORY_SLOT_BAG_0, ignore))
+
+            if (ignore == uint8(NULL_SLOT) || pItem != GetItemByPos(INVENTORY_SLOT_BAG_0, ignore))
                 ignore = eslot;
 
             InventoryResult res2 = CanEquipUniqueItem(pItem, swap ? ignore : uint8(NULL_SLOT));
