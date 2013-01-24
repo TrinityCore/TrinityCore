@@ -211,7 +211,7 @@ void CharacterDatabaseConnection::DoPrepareStatements()
 
     PrepareStatement(CHAR_INS_GUILD_MEMBER_WITHDRAW,
                      "INSERT INTO guild_member_withdraw (guid, tab0, tab1, tab2, tab3, tab4, tab5, tab6, tab7, money) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) "
-                     "ON DUPLICATE KEY UPDATE tab0 = VALUES (tab0), tab1 = VALUES (tab1), tab2 = VALUES (tab2), tab3 = VALUES (tab3), tab4 = VALUES (tab4), tab5 = VALUES (tab5), tab6 = VALUES (tab6), tab7 = VALUES (tab7)", CONNECTION_ASYNC);
+                     "ON DUPLICATE KEY UPDATE tab0 = VALUES (tab0), tab1 = VALUES (tab1), tab2 = VALUES (tab2), tab3 = VALUES (tab3), tab4 = VALUES (tab4), tab5 = VALUES (tab5), tab6 = VALUES (tab6), tab7 = VALUES (tab7), money = VALUES (money)", CONNECTION_ASYNC);
     PrepareStatement(CHAR_DEL_GUILD_MEMBER_WITHDRAW, "TRUNCATE guild_member_withdraw", CONNECTION_ASYNC);
 
     // 0: uint32, 1: uint32, 2: uint32
