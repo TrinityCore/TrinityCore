@@ -20,7 +20,7 @@ public:
     void Read(FILE* stream)
     {
         int count = 0;
-        
+
         count += fread(&MmidIndex, sizeof(uint32), 1, stream);
         count += fread(&UniqueId, sizeof(uint32), 1, stream);
         Position = Vector3::Read(stream);

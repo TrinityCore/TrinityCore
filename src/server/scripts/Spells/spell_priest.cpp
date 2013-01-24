@@ -29,24 +29,115 @@
 
 enum PriestSpells
 {
-    SPELL_PRIEST_EMPOWERED_RENEW                = 63544,
-    SPELL_PRIEST_GLYPHE_OF_LIGHTWELL            = 55673,
-    SPELL_PRIEST_GUARDIAN_SPIRIT_HEAL           = 48153,
-    SPELL_PRIEST_PENANCE_R1                     = 47540,
-    SPELL_PRIEST_PENANCE_R1_DAMAGE              = 47758,
-    SPELL_PRIEST_PENANCE_R1_HEAL                = 47757,
-    SPELL_PRIEST_REFLECTIVE_SHIELD_TRIGGERED    = 33619,
-    SPELL_PRIEST_REFLECTIVE_SHIELD_R1           = 33201,
-    SPELL_PRIEST_SHADOW_WORD_DEATH              = 32409,
-    SPELL_PRIEST_T9_HEALING_2P                  = 67201,
-    SPELL_PRIEST_VAMPIRIC_TOUCH_DISPEL          = 64085,
+    SPELL_PRIEST_DIVINE_AEGIS                       = 47753,
+    SPELL_PRIEST_EMPOWERED_RENEW                    = 63544,
+    SPELL_PRIEST_GLYPHE_OF_LIGHTWELL                = 55673,
+    SPELL_PRIEST_GLYPHE_OF_PRAYER_OF_HEALING_HEAL   = 56161,
+    SPELL_PRIEST_GUARDIAN_SPIRIT_HEAL               = 48153,
+    SPELL_PRIEST_MANA_LEECH_PROC                    = 34650,
+    SPELL_PRIEST_PENANCE_R1                         = 47540,
+    SPELL_PRIEST_PENANCE_R1_DAMAGE                  = 47758,
+    SPELL_PRIEST_PENANCE_R1_HEAL                    = 47757,
+    SPELL_PRIEST_REFLECTIVE_SHIELD_TRIGGERED        = 33619,
+    SPELL_PRIEST_REFLECTIVE_SHIELD_R1               = 33201,
+    SPELL_PRIEST_SHADOW_WORD_DEATH                  = 32409,
+    SPELL_PRIEST_T9_HEALING_2P                      = 67201,
+    SPELL_PRIEST_VAMPIRIC_TOUCH_DISPEL              = 64085,
 };
 
 enum PriestSpellIcons
 {
-    PRIEST_ICON_ID_BORROWED_TIME                = 2899,
-    PRIEST_ICON_ID_EMPOWERED_RENEW_TALENT       = 3021,
-    PRIEST_ICON_ID_PAIN_AND_SUFFERING           = 2874,
+    PRIEST_ICON_ID_BORROWED_TIME                    = 2899,
+    PRIEST_ICON_ID_EMPOWERED_RENEW_TALENT           = 3021,
+    PRIEST_ICON_ID_PAIN_AND_SUFFERING               = 2874,
+};
+
+// -47509 - Divine Aegis
+class spell_pri_divine_aegis : public SpellScriptLoader
+{
+    public:
+        spell_pri_divine_aegis() : SpellScriptLoader("spell_pri_divine_aegis") { }
+
+        class spell_pri_divine_aegis_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_pri_divine_aegis_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_PRIEST_DIVINE_AEGIS))
+                    return false;
+                return true;
+            }
+
+            bool CheckProc(ProcEventInfo& eventInfo)
+            {
+                return eventInfo.GetProcTarget();
+            }
+
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+
+                int32 absorb = CalculatePct(int32(eventInfo.GetHealInfo()->GetHeal()), aurEff->GetAmount());
+
+                // Multiple effects stack, so let's try to find this aura.
+                if (AuraEffect const* aegis = eventInfo.GetProcTarget()->GetAuraEffect(SPELL_PRIEST_DIVINE_AEGIS, EFFECT_0))
+                    absorb += aegis->GetAmount();
+
+                absorb = std::min(absorb, eventInfo.GetProcTarget()->getLevel() * 125);
+
+                GetTarget()->CastCustomSpell(SPELL_PRIEST_DIVINE_AEGIS, SPELLVALUE_BASE_POINT0, absorb, eventInfo.GetProcTarget(), true, NULL, aurEff);
+            }
+
+            void Register()
+            {
+                DoCheckProc += AuraCheckProcFn(spell_pri_divine_aegis_AuraScript::CheckProc);
+                OnEffectProc += AuraEffectProcFn(spell_pri_divine_aegis_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_pri_divine_aegis_AuraScript();
+        }
+};
+
+// 55680 - Glyph of Prayer of Healing
+class spell_pri_glyph_of_prayer_of_healing : public SpellScriptLoader
+{
+    public:
+        spell_pri_glyph_of_prayer_of_healing() : SpellScriptLoader("spell_pri_glyph_of_prayer_of_healing") { }
+
+        class spell_pri_glyph_of_prayer_of_healing_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_pri_glyph_of_prayer_of_healing_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_PRIEST_GLYPHE_OF_PRAYER_OF_HEALING_HEAL))
+                    return false;
+                return true;
+            }
+
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+
+                SpellInfo const* triggeredSpellInfo = sSpellMgr->GetSpellInfo(SPELL_PRIEST_GLYPHE_OF_PRAYER_OF_HEALING_HEAL);
+                int32 heal = int32(CalculatePct(int32(eventInfo.GetHealInfo()->GetHeal()), aurEff->GetAmount()) / triggeredSpellInfo->GetMaxTicks());
+                GetTarget()->CastCustomSpell(SPELL_PRIEST_GLYPHE_OF_PRAYER_OF_HEALING_HEAL, SPELLVALUE_BASE_POINT0, heal, eventInfo.GetProcTarget(), true, NULL, aurEff);
+            }
+
+            void Register()
+            {
+                OnEffectProc += AuraEffectProcFn(spell_pri_glyph_of_prayer_of_healing_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_pri_glyph_of_prayer_of_healing_AuraScript();
+        }
 };
 
 // -47788 - Guardian Spirit
@@ -163,6 +254,57 @@ class spell_pri_mana_burn : public SpellScriptLoader
         SpellScript* GetSpellScript() const
         {
             return new spell_pri_mana_burn_SpellScript;
+        }
+};
+
+// 28305 - Mana Leech (Passive) (Priest Pet Aura)
+class spell_pri_mana_leech : public SpellScriptLoader
+{
+    public:
+        spell_pri_mana_leech() : SpellScriptLoader("spell_pri_mana_leech") { }
+
+        class spell_pri_mana_leech_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_pri_mana_leech_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_PRIEST_MANA_LEECH_PROC))
+                    return false;
+                return true;
+            }
+
+            bool Load()
+            {
+                _procTarget = NULL;
+                return true;
+            }
+
+            bool CheckProc(ProcEventInfo& /*eventInfo*/)
+            {
+                _procTarget = GetTarget()->GetOwner();
+                return _procTarget;
+            }
+
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
+            {
+                PreventDefaultAction();
+                GetTarget()->CastSpell(_procTarget, SPELL_PRIEST_MANA_LEECH_PROC, true, NULL, aurEff);
+            }
+
+            void Register()
+            {
+                DoCheckProc += AuraCheckProcFn(spell_pri_mana_leech_AuraScript::CheckProc);
+                OnEffectProc += AuraEffectProcFn(spell_pri_mana_leech_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+
+        private:
+            Unit* _procTarget;
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_pri_mana_leech_AuraScript();
         }
 };
 
@@ -524,9 +666,12 @@ class spell_pri_vampiric_touch : public SpellScriptLoader
 
 void AddSC_priest_spell_scripts()
 {
+    new spell_pri_divine_aegis();
+    new spell_pri_glyph_of_prayer_of_healing();
     new spell_pri_guardian_spirit();
     new spell_pri_lightwell_renew();
     new spell_pri_mana_burn();
+    new spell_pri_mana_leech();
     new spell_pri_mind_sear();
     new spell_pri_pain_and_suffering_proc();
     new spell_pri_penance();

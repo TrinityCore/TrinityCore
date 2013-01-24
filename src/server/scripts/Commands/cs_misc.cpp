@@ -46,6 +46,7 @@ public:
             { "leader",         SEC_ADMINISTRATOR,          false,  &HandleGroupLeaderCommand,          "", NULL },
             { "disband",        SEC_ADMINISTRATOR,          false,  &HandleGroupDisbandCommand,         "", NULL },
             { "remove",         SEC_ADMINISTRATOR,          false,  &HandleGroupRemoveCommand,          "", NULL },
+            { "join",           SEC_ADMINISTRATOR,          false,  &HandleGroupJoinCommand,            "", NULL },
             { NULL,             0,                          false,  NULL,                               "", NULL }
         };
         static ChatCommand petCommandTable[] =
@@ -2721,6 +2722,61 @@ public:
         if (handler->GetPlayerGroupAndGUIDByName(nameStr, player, group, guid, true))
             if (group)
                 group->RemoveMember(guid);
+
+        return true;
+    }
+
+    static bool HandleGroupJoinCommand(ChatHandler* handler, char const* args)
+    {
+        if (!*args)
+            return false;
+
+        Player* playerSource = NULL;
+        Player* playerTarget = NULL;
+        Group* groupSource = NULL;
+        Group* groupTarget = NULL;
+        uint64 guidSource = 0;
+        uint64 guidTarget = 0;
+        char* nameplgrStr = strtok((char*)args, " ");
+        char* nameplStr = strtok(NULL, " ");
+
+        if (handler->GetPlayerGroupAndGUIDByName(nameplgrStr, playerSource, groupSource, guidSource, true))
+        {
+            if (groupSource)
+            {
+                if (handler->GetPlayerGroupAndGUIDByName(nameplStr, playerTarget, groupTarget, guidTarget, true))
+                {
+                    if (!groupTarget && playerTarget->GetGroup() != groupSource)
+                    {
+                        if (!groupSource->IsFull())
+                        {
+                            groupSource->AddMember(playerTarget);
+                            groupSource->BroadcastGroupUpdate();
+                            handler->PSendSysMessage(LANG_GROUP_PLAYER_JOINED, playerTarget->GetName().c_str(), playerSource->GetName().c_str());
+                            return true;
+                        }
+                        else
+                        {
+                            // group is full
+                            handler->PSendSysMessage(LANG_GROUP_FULL);
+                            return true;
+                        }
+                    }
+                    else
+                    {
+                        // group is full or target player already in a group
+                        handler->PSendSysMessage(LANG_GROUP_ALREADY_IN_GROUP, playerTarget->GetName().c_str());
+                        return true;
+                    }
+                }
+            }
+            else
+            {
+                // specified source player is not in a group
+                handler->PSendSysMessage(LANG_GROUP_NOT_IN_GROUP, playerSource->GetName().c_str());
+                return true;
+            }
+        }
 
         return true;
     }
