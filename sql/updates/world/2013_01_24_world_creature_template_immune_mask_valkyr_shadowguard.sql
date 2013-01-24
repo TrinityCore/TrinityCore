@@ -1,0 +1,1 @@
+UPDATE `world`.`creature_template` SET `mechanic_immune_mask` = `mechanic_immune_mask` | 4 WHERE `entry` IN(36609, 39120, 39121, 39122);

@@ -887,8 +887,18 @@ class boss_prince_valanar_icc : public CreatureScript
                         float x, y, z;
                         summon->GetPosition(x, y, z);
                         float ground_Z = summon->GetMap()->GetHeight(summon->GetPhaseMask(), x, y, z, true, 500.0f);
+                        if (IsHeroic())
+                        {
+                        summon->SetSpeed(MOVE_FLIGHT, 0.5f, true); // by Sqru
+                        summon->GetMotionMaster()->MovePoint(POINT_KINETIC_BOMB_IMPACT, x, y, ground_Z);
+                        summon->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);   
+                        }
+                        else
+                        {
+                        summon->SetSpeed(MOVE_FLIGHT, 0.2f, true); // by Sqru
                         summon->GetMotionMaster()->MovePoint(POINT_KINETIC_BOMB_IMPACT, x, y, ground_Z);
                         summon->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                        }
                         break;
                     }
                     case NPC_SHOCK_VORTEX:
@@ -1243,9 +1253,15 @@ class npc_kinetic_bomb : public CreatureScript
                 else if (action == ACTION_KINETIC_BOMB_JUMP)
                 {
                     if (!me->HasAura(SPELL_KINETIC_BOMB_KNOCKBACK))
-                        me->GetMotionMaster()->MoveCharge(_x, _y, me->GetPositionZ() + 100.0f, me->GetSpeed(MOVE_RUN), 0);
-                    _events.RescheduleEvent(EVENT_CONTINUE_FALLING, 3000);
+                    {
+                        if (IsHeroic())
+                            me->SetSpeed(MOVE_FLIGHT,0.5f);
+                        else
+                            me->SetSpeed(MOVE_FLIGHT,0.2f);
+                    }
+                    me->GetMotionMaster()->MoveCharge(_x, _y, me->GetPositionZ() + 5.0f, me->GetSpeed(MOVE_FLIGHT), 0);
                 }
+                _events.RescheduleEvent(EVENT_CONTINUE_FALLING, 0);
             }
 
             void UpdateAI(uint32 const diff)
@@ -1261,7 +1277,16 @@ class npc_kinetic_bomb : public CreatureScript
                             me->DespawnOrUnsummon(5000);
                             break;
                         case EVENT_CONTINUE_FALLING:
-                            me->GetMotionMaster()->MoveCharge(_x, _y, _groundZ, me->GetSpeed(MOVE_WALK), POINT_KINETIC_BOMB_IMPACT);
+                            if (IsHeroic())
+                            {
+                                me->SetSpeed(MOVE_FLIGHT, 0.5f, true);
+                                me->GetMotionMaster()->MovePoint(POINT_KINETIC_BOMB_IMPACT, _x, _y, _groundZ);
+                            }
+                            else
+                            {
+                                me->SetSpeed(MOVE_FLIGHT, 0.2f, true);
+                                me->GetMotionMaster()->MovePoint(POINT_KINETIC_BOMB_IMPACT, _x, _y, _groundZ);
+                            }
                             break;
                         default:
                             break;
