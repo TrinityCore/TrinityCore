@@ -28,6 +28,7 @@ class AppenderFile: public Appender
         FILE* OpenFile(std::string const& _name, std::string const& _mode, bool _backup);
 
     private:
+        void CloseFile();
         void _write(LogMessage const& message);
         FILE* logfile;
         std::string filename;
@@ -35,8 +36,8 @@ class AppenderFile: public Appender
         std::string mode;
         bool dynamicName;
         bool backup;
-        uint64 _maxFileSize;
-        uint64 _fileSize;
+        uint64 maxFileSize;
+        uint64 fileSize;
 };
 
 #endif
