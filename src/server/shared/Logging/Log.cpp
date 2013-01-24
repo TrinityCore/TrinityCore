@@ -89,8 +89,9 @@ void Log::CreateAppenderFromConfig(const char* name)
     options = ConfigMgr::GetStringDefault(options.c_str(), "");
     Tokenizer tokens(options, ',');
     Tokenizer::const_iterator iter = tokens.begin();
+    uint8 size = tokens.size();
 
-    if (tokens.size() < 2)
+    if (size < 2)
     {
         fprintf(stderr, "Log::CreateAppenderFromConfig: Wrong configuration for appender %s. Config line: %s\n", name, options.c_str());
         return;
@@ -98,16 +99,15 @@ void Log::CreateAppenderFromConfig(const char* name)
 
     AppenderFlags flags = APPENDER_FLAGS_NONE;
     AppenderType type = AppenderType(atoi(*iter));
-    ++iter;
-    LogLevel level = LogLevel(atoi(*iter));
+    LogLevel level = LogLevel(atoi(*(++iter)));
     if (level > LOG_LEVEL_FATAL)
     {
         fprintf(stderr, "Log::CreateAppenderFromConfig: Wrong Log Level %d for appender %s\n", level, name);
         return;
     }
 
-    if (++iter != tokens.end())
-        flags = AppenderFlags(atoi(*iter));
+    if (size > 2)
+        flags = AppenderFlags(atoi(*(++iter)));
 
     switch (type)
     {
@@ -115,7 +115,7 @@ void Log::CreateAppenderFromConfig(const char* name)
         {
             AppenderConsole* appender = new AppenderConsole(NextAppenderId(), name, level, flags);
             appenders[appender->getId()] = appender;
-            if (++iter != tokens.end())
+            if (iter != tokens.end())
                 appender->InitColors(*iter);
             //fprintf(stdout, "Log::CreateAppenderFromConfig: Created Appender %s (%u), Type CONSOLE, Mask %u\n", appender->getName().c_str(), appender->getId(), appender->getLogLevel()); // DEBUG - RemoveMe
             break;
@@ -125,16 +125,16 @@ void Log::CreateAppenderFromConfig(const char* name)
             std::string filename;
             std::string mode = "a";
 
-            if (++iter == tokens.end())
+            if (size < 4)
             {
                 fprintf(stderr, "Log::CreateAppenderFromConfig: Missing file name for appender %s\n", name);
                 return;
             }
 
-            filename = *iter;
+            filename = *(++iter);
 
-            if (++iter != tokens.end())
-                mode = *iter;
+            if (size > 4)
+                mode = *(++iter);
 
             if (flags & APPENDER_FLAGS_USE_TIMESTAMP)
             {
@@ -146,11 +146,8 @@ void Log::CreateAppenderFromConfig(const char* name)
             }
 
             uint64 maxFileSize = 0;
-            if ( (iter != tokens.end()) && (++iter != tokens.end()) )
-            {
-                char const* c = *iter;
-                maxFileSize = atoi(c);
-            }
+            if (size > 5)
+                maxFileSize = atoi(*(++iter));
 
             uint8 id = NextAppenderId();
             appenders[id] = new AppenderFile(id, name, level, filename.c_str(), m_logsDir.c_str(), mode.c_str(), flags, maxFileSize);
