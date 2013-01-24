@@ -166,38 +166,23 @@ namespace MMAP
     void MapBuilder::buildAllMaps(int threads)
     {
         std::vector<BuilderThread*> _threads;
-
-        for (int i = 0; i < threads; ++i)
-            _threads.push_back(new BuilderThread(this));
+                
+        BuilderThreadPool* pool = new BuilderThreadPool();
 
         for (TileList::iterator it = m_tiles.begin(); it != m_tiles.end(); ++it)
         {
             uint32 mapID = it->first;
             if (!shouldSkipMap(mapID))
             {
-                if (threads > 1)
-                {
-                    bool next = false;
-                    while (!next)
-                    {
-                        for (std::vector<BuilderThread*>::iterator _th = _threads.begin(); _th != _threads.end(); ++_th)
-                        {
-                            if ((*_th)->Free)
-                            {
-                                (*_th)->SetMapId(mapID);
-                                (*_th)->activate();
-                                next = true;
-                                break;
-                            }
-                        }
-                        // Wait for 20 seconds
-                        ACE_OS::sleep(ACE_Time_Value (0, 20000));
-                    }
-                }
+                if (threads > 0)
+                    pool->Enqueue(new BuildAMapPlz(mapID)); 
                 else
                     buildMap(mapID);
             }
         }
+
+       for (int i = 0; i < threads; ++i)
+            _threads.push_back(new BuilderThread(this, pool->Queue()));
 
         // Free memory
         for (std::vector<BuilderThread*>::iterator _th = _threads.begin(); _th != _threads.end(); ++_th)
@@ -205,6 +190,8 @@ namespace MMAP
             (*_th)->wait();
             delete *_th;
         }
+
+        delete pool;
     }
 
     /**************************************************************************/
