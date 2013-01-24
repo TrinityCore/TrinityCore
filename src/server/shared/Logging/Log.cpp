@@ -146,7 +146,7 @@ void Log::CreateAppenderFromConfig(const char* name)
             }
 
             uint64 maxFileSize = 0;
-            if (++iter != tokens.end())
+            if ( (iter != tokens.end()) && (++iter != tokens.end()) )
             {
                 char const* c = *iter;
                 maxFileSize = atoi(c);
