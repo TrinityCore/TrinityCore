@@ -263,41 +263,6 @@ class spell_pal_blessing_of_sanctuary : public SpellScriptLoader
         }
 };
 
-// 58597 Sacred shield add cooldown
-class spell_pal_sacred_shield : public SpellScriptLoader
-{
-public:
-    spell_pal_sacred_shield() : SpellScriptLoader("spell_pal_sacred_shield") { }
-
-    class spell_pal_sacred_shield_AuraScript : public AuraScript
-    {
-        PrepareAuraScript(spell_pal_sacred_shield_AuraScript)
-        bool Validate(SpellEntry const* /*entry*/)
-        {
-            if (!sSpellStore.LookupEntry(PALADIN_SPELL_SACRED_SHIELD_EFFECT))
-                return false;
-            return true;
-        }
-
-        void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-        {
-            if (Unit* caster = GetCaster())
-                if (caster->ToPlayer())
-                    caster->ToPlayer()->AddSpellCooldown(PALADIN_SPELL_SACRED_SHIELD_EFFECT, 0, time(NULL) + 6);
-        }
-
-        void Register()
-        {
-            AfterEffectRemove += AuraEffectRemoveFn(spell_pal_sacred_shield_AuraScript::HandleEffectRemove, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
-        }
-    };
-
-    AuraScript *GetAuraScript() const
-    {
-        return new spell_pal_sacred_shield_AuraScript();
-    }
-};
-
 // 64205 - Divine Sacrifice
 class spell_pal_divine_sacrifice : public SpellScriptLoader
 {
