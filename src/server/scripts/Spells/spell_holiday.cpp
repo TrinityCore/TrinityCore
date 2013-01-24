@@ -303,27 +303,10 @@ class spell_winter_veil_mistletoe : public SpellScriptLoader
 
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
-                Unit* caster = GetCaster();
-
                 if (Player* target = GetHitPlayer())
                 {
-                    uint32 spellId = 0;
-                    switch (urand(0, 2))
-                    {
-                        case 0:
-                            spellId = SPELL_CREATE_MISTLETOE;
-                            break;
-                        case 1:
-                            spellId = SPELL_CREATE_HOLLY;
-                            break;
-                        case 2:
-                            spellId = SPELL_CREATE_SNOWFLAKES;
-                            break;
-                        default:
-                            return;
-                    }
-
-                    caster->CastSpell(target, spellId, true);
+                    uint32 spellId = RAND(SPELL_CREATE_HOLLY, SPELL_CREATE_MISTLETOE, SPELL_CREATE_SNOWFLAKES);
+                    GetCaster()->CastSpell(target, spellId, true);
                 }
             }
 
@@ -339,6 +322,71 @@ class spell_winter_veil_mistletoe : public SpellScriptLoader
         }
 };
 
+// 26275 - PX-238 Winter Wondervolt TRAP
+enum PX238WinterWondervolt
+{
+    SPELL_PX_238_WINTER_WONDERVOLT_TRANSFORM_1  = 26157,
+    SPELL_PX_238_WINTER_WONDERVOLT_TRANSFORM_2  = 26272,
+    SPELL_PX_238_WINTER_WONDERVOLT_TRANSFORM_3  = 26273,
+    SPELL_PX_238_WINTER_WONDERVOLT_TRANSFORM_4  = 26274
+};
+
+class spell_winter_veil_px_238_winter_wondervolt : public SpellScriptLoader
+{
+    public:
+        spell_winter_veil_px_238_winter_wondervolt() : SpellScriptLoader("spell_winter_veil_px_238_winter_wondervolt") { }
+
+        class spell_winter_veil_px_238_winter_wondervolt_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_winter_veil_px_238_winter_wondervolt_SpellScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_PX_238_WINTER_WONDERVOLT_TRANSFORM_1) ||
+                    !sSpellMgr->GetSpellInfo(SPELL_PX_238_WINTER_WONDERVOLT_TRANSFORM_2) ||
+                    !sSpellMgr->GetSpellInfo(SPELL_PX_238_WINTER_WONDERVOLT_TRANSFORM_3) ||
+                    !sSpellMgr->GetSpellInfo(SPELL_PX_238_WINTER_WONDERVOLT_TRANSFORM_4))
+                    return false;
+                return true;
+            }
+
+            void HandleScript(SpellEffIndex effIndex)
+            {
+                PreventHitDefaultEffect(effIndex);
+
+                uint32 const spells[4] =
+                {
+                    SPELL_PX_238_WINTER_WONDERVOLT_TRANSFORM_1,
+                    SPELL_PX_238_WINTER_WONDERVOLT_TRANSFORM_2,
+                    SPELL_PX_238_WINTER_WONDERVOLT_TRANSFORM_3,
+                    SPELL_PX_238_WINTER_WONDERVOLT_TRANSFORM_4
+                };
+
+                if (Unit* target = GetHitUnit())
+                {
+                    for (uint8 i = 0; i < 4; ++i)
+                        if (target->HasAura(spells[i]))
+                            return;
+
+                    GetCaster()->CastSpell(target, spells[urand(0, 3)], true);
+                }
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_winter_veil_px_238_winter_wondervolt_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+
+        private:
+
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_winter_veil_px_238_winter_wondervolt_SpellScript();
+        }
+};
+
 void AddSC_holiday_spell_scripts()
 {
     // Love is in the Air
@@ -349,4 +397,5 @@ void AddSC_holiday_spell_scripts()
     new spell_hallow_end_tricky_treat();
     // Winter Veil
     new spell_winter_veil_mistletoe();
+    new spell_winter_veil_px_238_winter_wondervolt();
 }

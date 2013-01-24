@@ -31,12 +31,14 @@ enum DeathKnightSpells
     SPELL_DK_ANTI_MAGIC_SHELL_TALENT            = 51052,
     SPELL_DK_BLACK_ICE_R1                       = 49140,
     SPELL_DK_BLOOD_BOIL_TRIGGERED               = 65658,
+    SPELL_DK_BLOOD_GORGED_HEAL                  = 50454,
     SPELL_DK_CORPSE_EXPLOSION_TRIGGERED         = 43999,
     SPELL_DK_CORPSE_EXPLOSION_VISUAL            = 51270,
     SPELL_DK_DEATH_COIL_DAMAGE                  = 47632,
     SPELL_DK_DEATH_COIL_HEAL                    = 47633,
     SPELL_DK_DEATH_STRIKE_HEAL                  = 45470,
     SPELL_DK_GHOUL_EXPLODE                      = 47496,
+    SPELL_DK_GLYPH_OF_ICEBOUND_FORTITUDE        = 58625,
     SPELL_DK_RUNIC_POWER_ENERGIZE               = 49088,
     SPELL_DK_SCOURGE_STRIKE_TRIGGERED           = 70890,
     SPELL_DK_WILL_OF_THE_NECROPOLIS_TALENT_R1   = 49189,
@@ -248,6 +250,58 @@ class spell_dk_blood_boil : public SpellScriptLoader
         SpellScript* GetSpellScript() const
         {
             return new spell_dk_blood_boil_SpellScript();
+        }
+};
+
+// 50453 - Bloodworms Health Leech
+class spell_dk_blood_gorged : public SpellScriptLoader
+{
+    public:
+        spell_dk_blood_gorged() : SpellScriptLoader("spell_dk_blood_gorged") { }
+
+        class spell_dk_blood_gorged_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dk_blood_gorged_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_DK_BLOOD_GORGED_HEAL))
+                    return false;
+                return true;
+            }
+
+            bool Load()
+            {
+                _procTarget = NULL;
+                return true;
+            }
+
+            bool CheckProc(ProcEventInfo& /*eventInfo*/)
+            {
+                _procTarget = GetTarget()->GetOwner();
+                return _procTarget;
+            }
+
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+                int32 bp = int32(eventInfo.GetDamageInfo()->GetDamage() * 1.5f);
+                GetTarget()->CastCustomSpell(SPELL_DK_BLOOD_GORGED_HEAL, SPELLVALUE_BASE_POINT0, bp, _procTarget, true, NULL, aurEff);
+            }
+
+            void Register()
+            {
+                DoCheckProc += AuraCheckProcFn(spell_dk_blood_gorged_AuraScript::CheckProc);
+                OnEffectProc += AuraEffectProcFn(spell_dk_blood_gorged_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+
+        private:
+            Unit* _procTarget;
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_dk_blood_gorged_AuraScript();
         }
 };
 
@@ -584,6 +638,55 @@ class spell_dk_ghoul_explode : public SpellScriptLoader
         }
 };
 
+// 48792 - Icebound Fortitude
+class spell_dk_icebound_fortitude : public SpellScriptLoader
+{
+    public:
+        spell_dk_icebound_fortitude() : SpellScriptLoader("spell_dk_icebound_fortitude") { }
+
+        class spell_dk_icebound_fortitude_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dk_icebound_fortitude_AuraScript);
+
+            bool Load()
+            {
+                Unit* caster = GetCaster();
+                return caster && caster->GetTypeId() == TYPEID_PLAYER;
+            }
+
+            void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    int32 value = amount;
+                    uint32 defValue = uint32(caster->ToPlayer()->GetSkillValue(SKILL_DEFENSE) + caster->ToPlayer()->GetRatingBonusValue(CR_DEFENSE_SKILL));
+
+                    if (defValue > 400)
+                        value -= int32((defValue - 400) * 0.15);
+
+                    // Glyph of Icebound Fortitude
+                    if (AuraEffect const* aurEff = caster->GetAuraEffect(SPELL_DK_GLYPH_OF_ICEBOUND_FORTITUDE, EFFECT_0))
+                    {
+                        int32 valMax = -aurEff->GetAmount();
+                        if (value > valMax)
+                            value = valMax;
+                    }
+                    amount = value;
+                }
+            }
+
+            void Register()
+            {
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dk_icebound_fortitude_AuraScript::CalculateAmount, EFFECT_2, SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_dk_icebound_fortitude_AuraScript();
+        }
+};
+
 // 50365, 50371 - Improved Blood Presence
 class spell_dk_improved_blood_presence : public SpellScriptLoader
 {
@@ -674,6 +777,33 @@ class spell_dk_improved_unholy_presence : public SpellScriptLoader
         AuraScript* GetAuraScript() const
         {
             return new spell_dk_improved_unholy_presence_AuraScript();
+        }
+};
+
+// 59754 Rune Tap - Party
+class spell_dk_rune_tap_party : public SpellScriptLoader
+{
+    public:
+        spell_dk_rune_tap_party() : SpellScriptLoader("spell_dk_rune_tap_party") { }
+
+        class spell_dk_rune_tap_party_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_dk_rune_tap_party_SpellScript);
+
+            void CheckTargets(std::list<WorldObject*>& targets)
+            {
+                targets.remove(GetCaster());
+            }
+
+            void Register()
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_dk_rune_tap_party_SpellScript::CheckTargets, EFFECT_0, TARGET_UNIT_CASTER_AREA_PARTY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_dk_rune_tap_party_SpellScript();
         }
 };
 
@@ -784,6 +914,33 @@ class spell_dk_spell_deflection : public SpellScriptLoader
         }
 };
 
+// 55233 - Vampiric Blood
+class spell_dk_vampiric_blood : public SpellScriptLoader
+{
+    public:
+        spell_dk_vampiric_blood() : SpellScriptLoader("spell_dk_vampiric_blood") { }
+
+        class spell_dk_vampiric_blood_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dk_vampiric_blood_AuraScript);
+
+            void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
+            {
+                amount = GetUnitOwner()->CountPctFromMaxHealth(amount);
+            }
+
+            void Register()
+            {
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dk_vampiric_blood_AuraScript::CalculateAmount, EFFECT_1, SPELL_AURA_MOD_INCREASE_HEALTH);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_dk_vampiric_blood_AuraScript();
+        }
+};
+
 // 52284 - Will of the Necropolis
 class spell_dk_will_of_the_necropolis : public SpellScriptLoader
 {
@@ -854,6 +1011,7 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_anti_magic_shell_self();
     new spell_dk_anti_magic_zone();
     new spell_dk_blood_boil();
+    new spell_dk_blood_gorged();
     new spell_dk_corpse_explosion();
     new spell_dk_death_coil();
     new spell_dk_death_gate();
@@ -861,9 +1019,12 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_death_pact();
     new spell_dk_death_strike();
     new spell_dk_ghoul_explode();
+    new spell_dk_icebound_fortitude();
     new spell_dk_improved_blood_presence();
     new spell_dk_improved_unholy_presence();
+    new spell_dk_rune_tap_party();
     new spell_dk_scourge_strike();
     new spell_dk_spell_deflection();
+    new spell_dk_vampiric_blood();
     new spell_dk_will_of_the_necropolis();
 }
