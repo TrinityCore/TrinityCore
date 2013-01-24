@@ -31,6 +31,9 @@
 #include "QueryHolder.h"
 #include "AdhocStatement.h"
 
+#define MIN_MYSQL_SERVER_VERSION 51000u
+#define MIN_MYSQL_CLIENT_VERSION 51000u
+
 class PingOperation : public SQLOperation
 {
     //! Operation for idle delaythreads
@@ -53,6 +56,9 @@ class DatabaseWorkerPool
             _connections.resize(IDX_SIZE);
 
             WPFatal (mysql_thread_safe(), "Used MySQL library isn't thread-safe.");
+            WPFatal (mysql_get_server_version() >= MIN_MYSQL_SERVER_VERSION &&
+                mysql_get_client_version() >= MIN_MYSQL_CLIENT_VERSION,
+                "TrinityCore does not support MySQL versions below 5.1");
         }
 
         ~DatabaseWorkerPool()
