@@ -115,8 +115,8 @@ void Log::CreateAppenderFromConfig(const char* name)
         {
             AppenderConsole* appender = new AppenderConsole(NextAppenderId(), name, level, flags);
             appenders[appender->getId()] = appender;
-            if (iter != tokens.end())
-                appender->InitColors(*iter);
+            if (size > 3)
+                appender->InitColors(*(++iter));
             //fprintf(stdout, "Log::CreateAppenderFromConfig: Created Appender %s (%u), Type CONSOLE, Mask %u\n", appender->getName().c_str(), appender->getId(), appender->getLogLevel()); // DEBUG - RemoveMe
             break;
         }
