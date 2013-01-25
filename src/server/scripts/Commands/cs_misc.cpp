@@ -34,7 +34,7 @@
 #include "Player.h"
 #include "Pet.h"
 #include "LFG.h"
-#include "GroupMGR.h"
+#include "GroupMgr.h"
 
 class misc_commandscript : public CommandScript
 {
