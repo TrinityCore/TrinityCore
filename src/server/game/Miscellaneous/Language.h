@@ -851,7 +851,9 @@ enum TrinityStrings
     LANG_GROUP_PLAYER_JOINED            = 1146,
     LANG_GROUP_NOT_IN_GROUP             = 1147,
     LANG_GROUP_FULL                     = 1148,
-    // Room for more level 3              1149-1199 not used
+    LANG_GROUP_TYPE                     = 1149,
+    LANG_GROUP_PLAYER_NAME_GUID         = 1150,
+    // Room for more level 3              1151-1199 not used
 
     // Debug commands
     LANG_CINEMATIC_NOT_EXIST            = 1200,
