@@ -125,11 +125,11 @@ namespace MMAP
             // build performance - not really used for now
             rcContext* m_rcContext;
     };
-        
-    class BuildAMapPlz : public ACE_Method_Request
+
+    class MapBuildRequest : public ACE_Method_Request
     {
         public:
-            BuildAMapPlz(uint32 mapId) : _mapId(mapId) {}
+            MapBuildRequest(uint32 mapId) : _mapId(mapId) {}
 
             virtual int call()
             {
@@ -141,7 +141,7 @@ namespace MMAP
             uint32 _mapId;
     };
 
-    class BuilderThread : public ACE_Task<ACE_MT_SYNCH>
+    class BuilderThread : public ACE_Task_Base
     {
     private:
         MapBuilder* _builder;
@@ -149,19 +149,21 @@ namespace MMAP
 
     public:
         BuilderThread(MapBuilder* builder, ACE_Activation_Queue* queue) : _builder(builder), _queue(queue) { activate(); }
-        
+
         int svc()
         {
-            BuildAMapPlz* request = NULL;
-            while (request = (BuildAMapPlz*)_queue->dequeue())
+            /// @ Set a timeout for dequeue attempts (only used when the queue is empty) as it will never get populated after thread starts
+            ACE_Time_Value timeout(5);
+            ACE_Method_Request* request = NULL;
+            while ((request = _queue->dequeue(&timeout)) != NULL)
             {
                 _builder->buildMap(request->call());
                 delete request;
                 request = NULL;
             }
+
             return 0;
         }
-
     };
 
     class BuilderThreadPool
@@ -170,7 +172,7 @@ namespace MMAP
             BuilderThreadPool() : _queue(new ACE_Activation_Queue()) {}
             ~BuilderThreadPool() { _queue->queue()->close(); delete _queue; }
 
-            void Enqueue(BuildAMapPlz* request)
+            void Enqueue(MapBuildRequest* request)
             {
                 _queue->enqueue(request);
             }
