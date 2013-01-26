@@ -2652,6 +2652,14 @@ PlayerDump.DisallowPaths = 1
 PlayerDump.DisallowOverwrite = 1
 
 #
+#     UI.ShowQuestLevelsInDialogs
+#        Description: Show quest levels next to quest titles in UI dialogs
+#        Example: [13] Westfall Stew
+#        Default: 0 (do not show)
+
+UI.ShowQuestLevelsInDialogs = 0
+
+#
 ###################################################################################################
 
 ###################################################################################################
