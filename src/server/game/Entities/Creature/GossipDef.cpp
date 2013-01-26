@@ -720,7 +720,7 @@ void PlayerMenu::SendQuestGiverRequestItems(Quest const* quest, uint64 npcGUID, 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUESTGIVER_REQUEST_ITEMS NPCGuid=%u, questid=%u", GUID_LOPART(npcGUID), quest->GetQuestId());
 }
 
-static void PlayerMenu::AddQuestLevelToTitle(std::string &title, int32 level)
+void PlayerMenu::AddQuestLevelToTitle(std::string &title, int32 level)
 {
     // Adds the quest level to the front of the quest title
     // example: [13] Westfall Stew
