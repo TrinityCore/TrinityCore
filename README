@@ -44,3 +44,13 @@ the doc directory.
 SQL files to create the database can be found in the sql directory. Files
 to update your database from an older revision/version can be found in the
 sql/updates directory.
+
+TrinityCore Requirements
+Platform: Linux, Windows or Mac
+Processor with SSE2 support
+ACE ≥ 5.8.3
+MySQL ≥ 5.1.0
+CMake ≥ 2.8.0
+OpenSSL ≥ 0.9.8o
+GCC ≥ 4.3 (Linux only)
+MS Visual Studio ≥ 9 (2008) (Windows only)
