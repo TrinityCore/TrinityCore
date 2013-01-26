@@ -296,9 +296,9 @@ class spell_sha_earth_shield : public SpellScriptLoader
 
                     // Glyph of Earth Shield
                     //! WORKAROUND
-                    //! this glyphe is a proc
-                    if (AuraEffect* glyphe = caster->GetAuraEffect(SPELL_SHAMAN_GLYPH_OF_EARTH_SHIELD, EFFECT_0))
-                        AddPct(amount, glyphe->GetAmount());
+                    //! this glyph is a proc
+                    if (AuraEffect* glyph = caster->GetAuraEffect(SPELL_SHAMAN_GLYPH_OF_EARTH_SHIELD, EFFECT_0))
+                        AddPct(amount, glyph->GetAmount());
                 }
             }
 
