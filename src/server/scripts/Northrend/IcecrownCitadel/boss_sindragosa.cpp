@@ -1307,7 +1307,24 @@ class spell_sindragosa_icy_grip : public SpellScriptLoader
             void HandleScript(SpellEffIndex effIndex)
             {
                 PreventHitDefaultEffect(effIndex);
-                GetHitUnit()->CastSpell(GetCaster(), SPELL_ICY_GRIP_JUMP, true);
+                
+                Unit* unit = GetHitUnit();
+                Unit* caster = GetCaster();
+
+                if (unit && caster)
+                {
+                    if (caster->GetTypeId() == TYPEID_UNIT && unit->GetTypeId() == TYPEID_PLAYER && caster->getVictim())
+                    {
+                        if (caster->getVictim()->GetGUID() != unit->GetGUID()) // exclude tank
+                        {
+                            float x, y, z;
+                            caster->GetPosition(x, y, z);
+                            float speedZ = 10.0f;
+                            float speedXY = unit->GetExactDist2d(x, y);
+                            unit->GetMotionMaster()->MoveJump(x, y, z, speedXY, speedZ);
+                        }
+                    }
+                }
             }
 
             void Register()
