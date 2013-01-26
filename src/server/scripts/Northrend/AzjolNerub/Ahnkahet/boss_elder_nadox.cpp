@@ -35,7 +35,7 @@ enum Spells
     H_SPELL_BROOD_RAGE          = 59465,
     SPELL_ENRAGE                = 26662, // Enraged if too far away from home
     SPELL_SUMMON_SWARMERS       = 56119, // 2x 30178  -- 2x every 10secs
-    SPELL_SUMMON_SWARM_GUARD    = 56120, // 1x 30176  -- every 25%
+    SPELL_SUMMON_SWARM_GUARD    = 56120, // 1x 30176  -- at 50%
     // Spells Adds
     SPELL_SPRINT                = 56354,
     SPELL_GUARDIAN_AURA         = 56151
@@ -69,8 +69,8 @@ class boss_elder_nadox : public CreatureScript
                 instance = creature->GetInstanceScript();
             }
 
+            bool HasSpawnedGuardian;
             bool GuardianDied;
-            uint8 AmountHealthModifier;
             InstanceScript* instance;
             SummonList summons;
             EventMap events;
@@ -80,7 +80,7 @@ class boss_elder_nadox : public CreatureScript
                 events.Reset();
                 summons.DespawnAll();
 
-                AmountHealthModifier = 1;
+                HasSpawnedGuardian = false;
                 GuardianDied = false;
 
                 if (instance)
@@ -176,11 +176,11 @@ class boss_elder_nadox : public CreatureScript
                     }
                 }
 
-                if (me->HealthBelowPct(100 - AmountHealthModifier * 25))
+                if (!HasSpawnedGuardian && me->HealthBelowPct(50))
                 {
                     Talk(EMOTE_HATCHES, me->GetGUID());
                     DoCast(me, SPELL_SUMMON_SWARM_GUARD);
-                    ++AmountHealthModifier;
+                    HasSpawnedGuardian = true;
                 }
 
                 DoMeleeAttackIfReady();
