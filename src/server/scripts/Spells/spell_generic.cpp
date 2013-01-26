@@ -3163,6 +3163,160 @@ class spell_gen_replenishment : public SpellScriptLoader
         }
 };
 
+enum RunningWildMountIds
+{
+    RUNNING_WILD_MODEL_MALE     = 29422,
+    RUNNING_WILD_MODEL_FEMALE   = 29423,
+    SPELL_ALTERED_FORM          = 97709,
+};
+
+class spell_gen_running_wild : public SpellScriptLoader
+{
+    public:
+        spell_gen_running_wild() : SpellScriptLoader("spell_gen_running_wild") { }
+
+        class spell_gen_running_wild_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_gen_running_wild_AuraScript);
+
+            bool Validate(SpellInfo const* /*spell*/)
+            {
+                if (!sCreatureDisplayInfoStore.LookupEntry(RUNNING_WILD_MODEL_MALE))
+                    return false;
+                if (!sCreatureDisplayInfoStore.LookupEntry(RUNNING_WILD_MODEL_FEMALE))
+                    return false;
+                return true;
+            }
+
+            void HandleMount(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* target = GetTarget();
+                PreventDefaultAction();
+
+                target->Mount(target->getGender() == GENDER_FEMALE ? RUNNING_WILD_MODEL_FEMALE : RUNNING_WILD_MODEL_MALE, 0, 0);
+
+                // cast speed aura
+                if (MountCapabilityEntry const* mountCapability = sMountCapabilityStore.LookupEntry(aurEff->GetAmount()))
+                    target->CastSpell(target, mountCapability->SpeedModSpell, TRIGGERED_FULL_MASK);
+            }
+
+            void Register()
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_gen_running_wild_AuraScript::HandleMount, EFFECT_1, SPELL_AURA_MOUNTED, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        class spell_gen_running_wild_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_gen_running_wild_SpellScript);
+
+            bool Validate(SpellInfo const* /*spell*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_ALTERED_FORM))
+                    return false;
+                return true;
+            }
+
+            bool Load()
+            {
+                // Definitely not a good thing, but currently the only way to do something at cast start
+                // Should be replaced as soon as possible with a new hook: BeforeCastStart
+                GetCaster()->CastSpell(GetCaster(), SPELL_ALTERED_FORM, TRIGGERED_FULL_MASK);
+                return false;
+            }
+
+            void Register()
+            {
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_gen_running_wild_AuraScript();
+        }
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_gen_running_wild_SpellScript();
+        }
+};
+
+class spell_gen_two_forms : public SpellScriptLoader
+{
+    public:
+        spell_gen_two_forms() : SpellScriptLoader("spell_gen_two_forms") { }
+
+        class spell_gen_two_forms_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_gen_two_forms_SpellScript);
+
+            SpellCastResult CheckCast()
+            {
+                if (GetCaster()->isInCombat())
+                {
+                    SetCustomCastResultMessage(SPELL_CUSTOM_ERROR_CANT_TRANSFORM);
+                    return SPELL_FAILED_CUSTOM_ERROR;
+                }
+
+                // Player cannot transform to human form if he is forced to be worgen for some reason (Darkflight)
+                if (GetCaster()->GetAuraEffectsByType(SPELL_AURA_WORGEN_ALTERED_FORM).size() > 1)
+                {
+                    SetCustomCastResultMessage(SPELL_CUSTOM_ERROR_CANT_TRANSFORM);
+                    return SPELL_FAILED_CUSTOM_ERROR;
+                }
+
+                return SPELL_CAST_OK;
+            }
+
+            void HandleTransform(SpellEffIndex effIndex)
+            {
+                Unit* target = GetHitUnit();
+                PreventHitDefaultEffect(effIndex);
+                if (target->HasAuraType(SPELL_AURA_WORGEN_ALTERED_FORM))
+                    target->RemoveAurasByType(SPELL_AURA_WORGEN_ALTERED_FORM);
+                else    // Basepoints 1 for this aura control whether to trigger transform transition animation or not.
+                    target->CastCustomSpell(SPELL_ALTERED_FORM, SPELLVALUE_BASE_POINT0, 1, target, TRIGGERED_FULL_MASK);
+            }
+
+            void Register()
+            {
+                OnCheckCast += SpellCheckCastFn(spell_gen_two_forms_SpellScript::CheckCast);
+                OnEffectHitTarget += SpellEffectFn(spell_gen_two_forms_SpellScript::HandleTransform, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_gen_two_forms_SpellScript();
+        }
+};
+
+class spell_gen_darkflight : public SpellScriptLoader
+{
+    public:
+        spell_gen_darkflight() : SpellScriptLoader("spell_gen_darkflight") { }
+
+        class spell_gen_darkflight_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_gen_darkflight_SpellScript);
+
+            void TriggerTransform()
+            {
+                GetCaster()->CastSpell(GetCaster(), SPELL_ALTERED_FORM, TRIGGERED_FULL_MASK);
+            }
+
+            void Register()
+            {
+                AfterCast += SpellCastFn(spell_gen_darkflight_SpellScript::TriggerTransform);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_gen_darkflight_SpellScript();
+        }
+};
+
 void AddSC_generic_spell_scripts()
 {
     new spell_gen_absorb0_hitlimit1();
@@ -3243,4 +3397,7 @@ void AddSC_generic_spell_scripts()
     new spell_gen_increase_stats_buff("spell_mage_arcane_brilliance");
     new spell_gen_increase_stats_buff("spell_mage_dalaran_brilliance");
     new spell_gen_replenishment();
+    new spell_gen_running_wild();
+    new spell_gen_two_forms();
+    new spell_gen_darkflight();
 }
