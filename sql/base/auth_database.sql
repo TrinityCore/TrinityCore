@@ -193,6 +193,8 @@ CREATE TABLE `realmlist` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(32) NOT NULL DEFAULT '',
   `address` varchar(255) NOT NULL DEFAULT '127.0.0.1',
+  `localAddress` varchar(255) NOT NULL DEFAULT '127.0.0.1',
+  `localSubnetMask` varchar(255) NOT NULL DEFAULT '255.255.255.0',
   `port` smallint(5) unsigned NOT NULL DEFAULT '8085',
   `icon` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `flag` tinyint(3) unsigned NOT NULL DEFAULT '2',
