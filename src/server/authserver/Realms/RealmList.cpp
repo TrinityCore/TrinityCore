@@ -31,12 +31,12 @@ void RealmList::Initialize(uint32 updateInterval)
     UpdateRealms(true);
 }
 
-void RealmList::UpdateRealm(uint32 ID, const std::string& name, ACE_INET_Addr const& address, uint8 icon, RealmFlags flag, uint8 timezone, AccountTypes allowedSecurityLevel, float popu, uint32 build)
+void RealmList::UpdateRealm(uint32 id, const std::string& name, ACE_INET_Addr const& address, ACE_INET_Addr const& localAddr, ACE_INET_Addr const& localSubmask, uint8 icon, RealmFlags flag, uint8 timezone, AccountTypes allowedSecurityLevel, float popu, uint32 build)
 {
     // Create new if not exist or update existed
     Realm& realm = m_realms[name];
 
-    realm.m_ID = ID;
+    realm.m_ID = id;
     realm.name = name;
     realm.icon = icon;
     realm.flag = flag;
@@ -45,7 +45,9 @@ void RealmList::UpdateRealm(uint32 ID, const std::string& name, ACE_INET_Addr co
     realm.populationLevel = popu;
 
     // Append port to IP address.
-    address.addr_to_string(realm.address, ACE_MAX_FULLY_QUALIFIED_NAME_LEN + 16);
+    realm.ExternalAddress = address;
+    realm.LocalAddress = localAddr;
+    realm.LocalSubnetMask = localSubmask;
     realm.gamebuild = build;
 }
 
@@ -77,23 +79,27 @@ void RealmList::UpdateRealms(bool init)
         do
         {
             Field* fields = result->Fetch();
-            uint32 realmId             = fields[0].GetUInt32();
-            std::string name           = fields[1].GetString();
-            std::string address        = fields[2].GetString();
-            uint16 port                = fields[3].GetUInt16();
-            uint8 icon                 = fields[4].GetUInt8();
-            RealmFlags flag            = RealmFlags(fields[5].GetUInt8());
-            uint8 timezone             = fields[6].GetUInt8();
-            uint8 allowedSecurityLevel = fields[7].GetUInt8();
-            float pop                  = fields[8].GetFloat();
-            uint32 build               = fields[9].GetUInt32();
+            uint32 realmId              = fields[0].GetUInt32();
+            std::string name            = fields[1].GetString();
+            std::string externalAddress = fields[2].GetString();
+            std::string localAddress    = fields[3].GetString();
+            std::string localSubmask    = fields[4].GetString();
+            uint16 port                 = fields[5].GetUInt16();
+            uint8 icon                  = fields[6].GetUInt8();
+            RealmFlags flag             = RealmFlags(fields[7].GetUInt8());
+            uint8 timezone              = fields[8].GetUInt8();
+            uint8 allowedSecurityLevel  = fields[9].GetUInt8();
+            float pop                   = fields[10].GetFloat();
+            uint32 build                = fields[11].GetUInt32();
 
-            ACE_INET_Addr addr(port, address.c_str(), AF_INET);
+            ACE_INET_Addr externalAddr(port, externalAddress.c_str(), AF_INET);
+            ACE_INET_Addr localAddr(port, localAddress.c_str(), AF_INET);
+            ACE_INET_Addr submask(0, localSubmask.c_str(), AF_INET);
 
-            UpdateRealm(realmId, name, addr, icon, flag, timezone, (allowedSecurityLevel <= SEC_ADMINISTRATOR ? AccountTypes(allowedSecurityLevel) : SEC_ADMINISTRATOR), pop, build);
+            UpdateRealm(realmId, name, externalAddr, localAddr, submask, icon, flag, timezone, (allowedSecurityLevel <= SEC_ADMINISTRATOR ? AccountTypes(allowedSecurityLevel) : SEC_ADMINISTRATOR), pop, build);
 
             if (init)
-                sLog->outInfo(LOG_FILTER_AUTHSERVER, "Added realm \"%s\" at %s.", name.c_str(), m_realms[name].address);
+                sLog->outInfo(LOG_FILTER_AUTHSERVER, "Added realm \"%s\" at %s:%u.", name.c_str(), m_realms[name].ExternalAddress.get_host_addr(), port);
         }
         while (result->NextRow());
     }
