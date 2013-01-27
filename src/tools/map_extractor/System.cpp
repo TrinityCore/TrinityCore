@@ -222,7 +222,7 @@ uint32 ReadMapDBC()
         map_ids[x].id = dbc.getRecord(x).getUInt(0);
         strcpy(map_ids[x].name, dbc.getRecord(x).getString(1));
     }
-    printf("Done! (%zu maps loaded)\n", map_count);
+    printf("Done! (%u maps loaded)\n", (uint32)map_count);
     return map_count;
 }
 
@@ -247,7 +247,7 @@ void ReadAreaTableDBC()
 
     maxAreaId = dbc.getMaxId();
 
-    printf("Done! (%zu areas loaded)\n", area_count);
+    printf("Done! (%u areas loaded)\n", (uint32)area_count);
 }
 
 void ReadLiquidTypeTableDBC()
@@ -268,7 +268,7 @@ void ReadLiquidTypeTableDBC()
     for(uint32 x = 0; x < liqTypeCount; ++x)
         LiqType[dbc.getRecord(x).getUInt(0)] = dbc.getRecord(x).getUInt(3);
 
-    printf("Done! (%zu LiqTypes loaded)\n", liqTypeCount);
+    printf("Done! (%u LiqTypes loaded)\n", (uint32)liqTypeCount);
 }
 
 //

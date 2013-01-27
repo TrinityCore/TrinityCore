@@ -9,9 +9,7 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-file(GLOB_RECURSE sources *.cpp *.h)
-
-add_definitions(-DNO_CORE_FUNCS)
+file(GLOB_RECURSE meshExtract_Sources *.cpp *.h)
 
 set(include_Base
   ${CMAKE_BINARY_DIR}
@@ -33,9 +31,7 @@ endif()
 
 include_directories(${include_Base})
 
-add_executable(MeshExtractor
-  ${sources}
-)
+add_executable(MeshExtractor ${meshExtract_Sources})
 
 target_link_libraries(MeshExtractor
   g3dlib

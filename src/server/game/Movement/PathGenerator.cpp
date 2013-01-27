@@ -30,7 +30,7 @@
 PathGenerator::PathGenerator(const Unit* owner) :
     _polyLength(0), _type(PATHFIND_BLANK),
     _useStraightPath(false), _forceDestination(false), _pointPathLimit(MAX_POINT_PATH_LENGTH),
-    _sourceUnit(owner), _navMesh(NULL), _navMeshQuery(NULL), _endPosition(Vector3::zero())
+    _endPosition(Vector3::zero()), _sourceUnit(owner), _navMesh(NULL), _navMeshQuery(NULL)
 {
     sLog->outDebug(LOG_FILTER_MAPS, "++ PathGenerator::PathGenerator for %u \n", _sourceUnit->GetGUIDLow());
 

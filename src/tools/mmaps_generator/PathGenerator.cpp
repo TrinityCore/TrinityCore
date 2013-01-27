@@ -18,13 +18,12 @@
 
 #include "PathCommon.h"
 #include "MapBuilder.h"
-#include "Timer.h"
 
 using namespace MMAP;
 
 bool checkDirectories(bool debugOutput)
 {
-    vector<string> dirFiles;
+    std::vector<std::string> dirFiles;
 
     if (getDirContents(dirFiles, "maps") == LISTFILE_DIRECTORY_NOT_FOUND || dirFiles.empty())
     {
@@ -293,5 +292,5 @@ int main(int argc, char** argv)
 
     if (!silent)
         printf("Finished. MMAPS were built in %u ms!\n", GetMSTimeDiffToNow(start));
-    return 1;
+    return 0;
 }

@@ -4,7 +4,7 @@
 #include "Utils.h"
 #include <ace/Guard_T.h>
 
-char* MPQManager::Files[] = {
+char const* MPQManager::Files[] = {
     "common.MPQ",
     "common-2.MPQ",
     "expansion.MPQ",
@@ -14,7 +14,7 @@ char* MPQManager::Files[] = {
     "patch-3.MPQ"
 };
 
-char* MPQManager::Languages[] = { "enGB", "enUS", "deDE", "esES", "frFR", "koKR", "zhCN", "zhTW", "enCN", "enTW", "esMX", "ruRU" };
+char const* MPQManager::Languages[] = { "enGB", "enUS", "deDE", "esES", "frFR", "koKR", "zhCN", "zhTW", "enCN", "enTW", "esMX", "ruRU" };
 
 void MPQManager::Initialize()
 {

@@ -33,12 +33,15 @@
 enum HunterSpells
 {
     SPELL_HUNTER_ASPECT_OF_THE_BEAST_PET            = 61669,
+    SPELL_HUNTER_ASPECT_OF_THE_VIPER_ENERGIZE       = 34075,
     SPELL_HUNTER_BESTIAL_WRATH                      = 19574,
     SPELL_HUNTER_CHIMERA_SHOT_SERPENT               = 53353,
     SPELL_HUNTER_CHIMERA_SHOT_VIPER                 = 53358,
     SPELL_HUNTER_CHIMERA_SHOT_SCORPID               = 53359,
+    SPELL_HUNTER_GLYPH_OF_ASPECT_OF_THE_VIPER       = 56851,
     SPELL_HUNTER_INVIGORATION_TRIGGERED             = 53398,
     SPELL_HUNTER_MASTERS_CALL_TRIGGERED             = 62305,
+    SPELL_HUNTER_MISDIRECTION_PROC                  = 35079,
     SPELL_HUNTER_PET_LAST_STAND_TRIGGERED           = 53479,
     SPELL_HUNTER_PET_HEART_OF_THE_PHOENIX           = 55709,
     SPELL_HUNTER_PET_HEART_OF_THE_PHOENIX_TRIGGERED = 54114,
@@ -96,6 +99,50 @@ class spell_hun_aspect_of_the_beast : public SpellScriptLoader
         AuraScript* GetAuraScript() const
         {
             return new spell_hun_aspect_of_the_beast_AuraScript();
+        }
+};
+
+// 34074 - Aspect of the Viper
+class spell_hun_ascpect_of_the_viper : public SpellScriptLoader
+{
+    public:
+        spell_hun_ascpect_of_the_viper() : SpellScriptLoader("spell_hun_ascpect_of_the_viper") { }
+
+        class spell_hun_ascpect_of_the_viper_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_hun_ascpect_of_the_viper_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_HUNTER_ASPECT_OF_THE_VIPER_ENERGIZE))
+                    return false;
+                if (!sSpellMgr->GetSpellInfo(SPELL_HUNTER_GLYPH_OF_ASPECT_OF_THE_VIPER))
+                    return false;
+                return true;
+            }
+
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
+            {
+                PreventDefaultAction();
+
+                uint32 maxMana = GetTarget()->GetMaxPower(POWER_MANA);
+                int32 mana = CalculatePct(maxMana, GetTarget()->GetAttackTime(RANGED_ATTACK) / 1000.0f);
+
+                if (AuraEffect const* glyph = GetTarget()->GetAuraEffect(SPELL_HUNTER_GLYPH_OF_ASPECT_OF_THE_VIPER, EFFECT_0))
+                    AddPct(mana, glyph->GetAmount());
+
+                GetTarget()->CastCustomSpell(SPELL_HUNTER_ASPECT_OF_THE_VIPER_ENERGIZE, SPELLVALUE_BASE_POINT0, mana, GetTarget(), true, NULL, aurEff);
+            }
+
+            void Register()
+            {
+                OnEffectProc += AuraEffectProcFn(spell_hun_ascpect_of_the_viper_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_OBS_MOD_POWER);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_hun_ascpect_of_the_viper_AuraScript();
         }
 };
 
@@ -358,16 +405,35 @@ class spell_hun_misdirection : public SpellScriptLoader
         {
             PrepareAuraScript(spell_hun_misdirection_AuraScript);
 
+            bool Validate(SpellInfo const* /*spellInfo*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_HUNTER_MISDIRECTION_PROC))
+                    return false;
+                return true;
+            }
+
             void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                if (Unit* caster = GetCaster())
-                    if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_DEFAULT)
-                        caster->SetReducedThreatPercent(0, 0);
+                if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_DEFAULT)
+                    GetTarget()->ResetRedirectThreat();
+            }
+
+            bool CheckProc(ProcEventInfo& /*eventInfo*/)
+            {
+                return GetTarget()->GetRedirectThreatTarget();
+            }
+
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
+            {
+                PreventDefaultAction();
+                GetTarget()->CastSpell(GetTarget(), SPELL_HUNTER_MISDIRECTION_PROC, true, NULL, aurEff);
             }
 
             void Register()
             {
                 AfterEffectRemove += AuraEffectRemoveFn(spell_hun_misdirection_AuraScript::OnRemove, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                DoCheckProc += AuraCheckProcFn(spell_hun_misdirection_AuraScript::CheckProc);
+                OnEffectProc += AuraEffectProcFn(spell_hun_misdirection_AuraScript::HandleProc, EFFECT_1, SPELL_AURA_DUMMY);
             }
         };
 
@@ -377,7 +443,7 @@ class spell_hun_misdirection : public SpellScriptLoader
         }
 };
 
-// 35079 - Misdirection proc
+// 35079 - Misdirection (Proc)
 class spell_hun_misdirection_proc : public SpellScriptLoader
 {
     public:
@@ -389,8 +455,7 @@ class spell_hun_misdirection_proc : public SpellScriptLoader
 
             void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                if (GetCaster())
-                    GetCaster()->SetReducedThreatPercent(0, 0);
+                GetTarget()->ResetRedirectThreat();
             }
 
             void Register()
@@ -740,6 +805,7 @@ class spell_hun_target_only_pet_and_owner : public SpellScriptLoader
 void AddSC_hunter_spell_scripts()
 {
     new spell_hun_aspect_of_the_beast();
+    new spell_hun_ascpect_of_the_viper();
     new spell_hun_chimera_shot();
     new spell_hun_disengage();
     new spell_hun_invigoration();
