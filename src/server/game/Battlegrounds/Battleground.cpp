@@ -1126,33 +1126,32 @@ void Battleground::StartBattleground()
 
 void Battleground::AddPlayer(Player* player)
 {
-   /* // remove afk from player
+   
+   // remove afk from player
     if (player->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_AFK))
         player->ToggleAFK();
-
-    // score struct must be created in inherited class
-
-    uint64 guid = player->GetGUID();
-    uint32 team = player->GetBGTeam();
-
-   */
-	
-	// Try to Crossfraction BG temp
-    // remove afk from player
-    if (player->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_AFK))
-        player->ToggleAFK();
-
-    // score struct must be created in inherited class
-
-	uint32 hCount = GetPlayersCountByTeam(HORDE);
-	uint32 aCount = GetPlayersCountByTeam(ALLIANCE);
-	uint32 team;
-
-    uint64 guid = player->GetGUID();
-	if(aCount > hCount)
-		team = HORDE;
+		
+    if (sWorld->getBoolConfig(CONFIG_BG_CROSSFRACTION) == 0)
+	{
+		// score struct must be created in inherited class 
+		// No Crossfraction (Close in Config)
+		uint64 guid = player->GetGUID();
+		uint32 team = player->GetBGTeam();
+    }
 	else
-		team = ALLIANCE;
+	{
+		// score struct must be created in inherited class
+		//Crossfraction BGs -> Config Enable
+		uint32 hCount = GetPlayersCountByTeam(HORDE);
+		uint32 aCount = GetPlayersCountByTeam(ALLIANCE);
+		uint32 team;
+	
+		uint64 guid = player->GetGUID();
+		if(aCount > hCount)
+			team = HORDE;
+		else
+			team = ALLIANCE;
+	}
 		
     BattlegroundPlayer bp;
     bp.OfflineRemoveTime = 0;
