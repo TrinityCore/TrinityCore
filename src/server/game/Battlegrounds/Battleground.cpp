@@ -1154,7 +1154,7 @@ void Battleground::AddPlayer(Player* player)
     else
     {	
 		guid = player->GetGUID();
-		if (!isArena());
+		if (isArena());
 			team = player->GetTeam();
 		else
 		    team = player->GetBGTeam();
