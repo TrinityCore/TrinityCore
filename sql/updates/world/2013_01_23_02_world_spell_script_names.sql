@@ -19,7 +19,7 @@ DELETE FROM `spell_script_names` WHERE `spell_id` IN (
 -29074, -- spell_mage_master_of_elements
 -9799,  -- spell_pal_eye_for_an_eye
 20154,  -- spell_pal_seal_of_righteousness
-21084   -- spell_pal_seal_of_righteousness
+21084,   -- spell_pal_seal_of_righteousness
 -47509, -- spell_pri_divine_aegis
 55680,  -- spell_pri_glyph_of_prayer_of_healing
 28305,  -- spell_pri_mana_leech

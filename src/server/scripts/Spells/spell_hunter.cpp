@@ -38,7 +38,7 @@ enum HunterSpells
     SPELL_HUNTER_CHIMERA_SHOT_SERPENT               = 53353,
     SPELL_HUNTER_CHIMERA_SHOT_VIPER                 = 53358,
     SPELL_HUNTER_CHIMERA_SHOT_SCORPID               = 53359,
-    SPELL_HUNTER_GLYPHE_OF_ASPECT_OF_THE_VIPER      = 56851,
+    SPELL_HUNTER_GLYPH_OF_ASPECT_OF_THE_VIPER       = 56851,
     SPELL_HUNTER_INVIGORATION_TRIGGERED             = 53398,
     SPELL_HUNTER_MASTERS_CALL_TRIGGERED             = 62305,
     SPELL_HUNTER_MISDIRECTION_PROC                  = 35079,
@@ -116,7 +116,7 @@ class spell_hun_ascpect_of_the_viper : public SpellScriptLoader
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_HUNTER_ASPECT_OF_THE_VIPER_ENERGIZE))
                     return false;
-                if (!sSpellMgr->GetSpellInfo(SPELL_HUNTER_GLYPHE_OF_ASPECT_OF_THE_VIPER))
+                if (!sSpellMgr->GetSpellInfo(SPELL_HUNTER_GLYPH_OF_ASPECT_OF_THE_VIPER))
                     return false;
                 return true;
             }
@@ -128,8 +128,8 @@ class spell_hun_ascpect_of_the_viper : public SpellScriptLoader
                 uint32 maxMana = GetTarget()->GetMaxPower(POWER_MANA);
                 int32 mana = CalculatePct(maxMana, GetTarget()->GetAttackTime(RANGED_ATTACK) / 1000.0f);
 
-                if (AuraEffect const* glyphe = GetTarget()->GetAuraEffect(SPELL_HUNTER_GLYPHE_OF_ASPECT_OF_THE_VIPER, EFFECT_0))
-                    AddPct(mana, glyphe->GetAmount());
+                if (AuraEffect const* glyph = GetTarget()->GetAuraEffect(SPELL_HUNTER_GLYPH_OF_ASPECT_OF_THE_VIPER, EFFECT_0))
+                    AddPct(mana, glyph->GetAmount());
 
                 GetTarget()->CastCustomSpell(SPELL_HUNTER_ASPECT_OF_THE_VIPER_ENERGIZE, SPELLVALUE_BASE_POINT0, mana, GetTarget(), true, NULL, aurEff);
             }

@@ -38,7 +38,7 @@ enum WarlockSpells
     SPELL_WARLOCK_DEMONIC_EMPOWERMENT_FELHUNTER     = 54509,
     SPELL_WARLOCK_DEMONIC_EMPOWERMENT_IMP           = 54444,
     SPELL_WARLOCK_FEL_SYNERGY_HEAL                  = 54181,
-    SPELL_WARLOCK_GLYPHE_OF_SIPHON_LIFE             = 63106,
+    SPELL_WARLOCK_GLYPH_OF_SIPHON_LIFE              = 63106,
     SPELL_WARLOCK_IMPROVED_HEALTHSTONE_R1           = 18692,
     SPELL_WARLOCK_IMPROVED_HEALTHSTONE_R2           = 18693,
     SPELL_WARLOCK_IMPROVED_HEALTH_FUNNEL_R1         = 18703,
@@ -746,7 +746,7 @@ class spell_warl_siphon_life : public SpellScriptLoader
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_WARLOCK_SIPHON_LIFE_HEAL))
                     return false;
-                if (!sSpellMgr->GetSpellInfo(SPELL_WARLOCK_GLYPHE_OF_SIPHON_LIFE))
+                if (!sSpellMgr->GetSpellInfo(SPELL_WARLOCK_GLYPH_OF_SIPHON_LIFE))
                     return false;
                 return true;
             }
@@ -762,8 +762,8 @@ class spell_warl_siphon_life : public SpellScriptLoader
 
                 int32 amount = int32(CalculatePct(eventInfo.GetDamageInfo()->GetDamage(), aurEff->GetAmount()));
                 // Glyph of Siphon Life
-                if (AuraEffect const* glyphe = GetTarget()->GetAuraEffect(SPELL_WARLOCK_GLYPHE_OF_SIPHON_LIFE, EFFECT_0))
-                    AddPct(amount, glyphe->GetAmount());
+                if (AuraEffect const* glyph = GetTarget()->GetAuraEffect(SPELL_WARLOCK_GLYPH_OF_SIPHON_LIFE, EFFECT_0))
+                    AddPct(amount, glyph->GetAmount());
 
                 GetTarget()->CastCustomSpell(SPELL_WARLOCK_SIPHON_LIFE_HEAL, SPELLVALUE_BASE_POINT0, amount, GetTarget(), true, NULL, aurEff);
             }

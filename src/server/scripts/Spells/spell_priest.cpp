@@ -31,8 +31,8 @@ enum PriestSpells
 {
     SPELL_PRIEST_DIVINE_AEGIS                       = 47753,
     SPELL_PRIEST_EMPOWERED_RENEW                    = 63544,
-    SPELL_PRIEST_GLYPHE_OF_LIGHTWELL                = 55673,
-    SPELL_PRIEST_GLYPHE_OF_PRAYER_OF_HEALING_HEAL   = 56161,
+    SPELL_PRIEST_GLYPH_OF_LIGHTWELL                 = 55673,
+    SPELL_PRIEST_GLYPH_OF_PRAYER_OF_HEALING_HEAL    = 56161,
     SPELL_PRIEST_GUARDIAN_SPIRIT_HEAL               = 48153,
     SPELL_PRIEST_MANA_LEECH_PROC                    = 34650,
     SPELL_PRIEST_PENANCE_R1                         = 47540,
@@ -114,7 +114,7 @@ class spell_pri_glyph_of_prayer_of_healing : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellInfo*/)
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_PRIEST_GLYPHE_OF_PRAYER_OF_HEALING_HEAL))
+                if (!sSpellMgr->GetSpellInfo(SPELL_PRIEST_GLYPH_OF_PRAYER_OF_HEALING_HEAL))
                     return false;
                 return true;
             }
@@ -123,9 +123,9 @@ class spell_pri_glyph_of_prayer_of_healing : public SpellScriptLoader
             {
                 PreventDefaultAction();
 
-                SpellInfo const* triggeredSpellInfo = sSpellMgr->GetSpellInfo(SPELL_PRIEST_GLYPHE_OF_PRAYER_OF_HEALING_HEAL);
+                SpellInfo const* triggeredSpellInfo = sSpellMgr->GetSpellInfo(SPELL_PRIEST_GLYPH_OF_PRAYER_OF_HEALING_HEAL);
                 int32 heal = int32(CalculatePct(int32(eventInfo.GetHealInfo()->GetHeal()), aurEff->GetAmount()) / triggeredSpellInfo->GetMaxTicks());
-                GetTarget()->CastCustomSpell(SPELL_PRIEST_GLYPHE_OF_PRAYER_OF_HEALING_HEAL, SPELLVALUE_BASE_POINT0, heal, eventInfo.GetProcTarget(), true, NULL, aurEff);
+                GetTarget()->CastCustomSpell(SPELL_PRIEST_GLYPH_OF_PRAYER_OF_HEALING_HEAL, SPELLVALUE_BASE_POINT0, heal, eventInfo.GetProcTarget(), true, NULL, aurEff);
             }
 
             void Register()
@@ -212,7 +212,7 @@ class spell_pri_lightwell_renew : public SpellScriptLoader
                 if (Unit* caster = GetCaster())
                 {
                     // Bonus from Glyph of Lightwell
-                    if (AuraEffect* modHealing = caster->GetAuraEffect(SPELL_PRIEST_GLYPHE_OF_LIGHTWELL, EFFECT_0))
+                    if (AuraEffect* modHealing = caster->GetAuraEffect(SPELL_PRIEST_GLYPH_OF_LIGHTWELL, EFFECT_0))
                         AddPct(amount, modHealing->GetAmount());
                 }
             }
