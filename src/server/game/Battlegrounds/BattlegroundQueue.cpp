@@ -26,6 +26,7 @@
 #include "Language.h"
 #include "ObjectMgr.h"
 #include "Player.h"
+#include "World.h"
 
 /*********************************************************/
 /***            BATTLEGROUND QUEUE SYSTEM              ***/
@@ -649,13 +650,13 @@ bool BattlegroundQueue::CheckNormalMatch(Battleground* bg_template, Battleground
     }
 	
     // allow 1v0 if debug bg
-    if (sBattleGroundMgr.isTesting() && bg_template->isBattleGround() &&
-       (m_SelectionPools[BG_TEAM_ALLIANCE].GetPlayerCount() || m_SelectionPools[BG_TEAM_HORDE].GetPlayerCount()))
+    if (sBattlegroundMgr->isTesting() && bg_template->isBattleground() &&
+       (m_SelectionPools[TEAM_ALLIANCE].GetPlayerCount() || m_SelectionPools[TEAM_HORDE].GetPlayerCount()))
         return true;
 
     // If there are enough players to fill 2 teams with minplayerperteam count.
-    if (sWorld.getBoolConfig(CONFIG_BG_CROSSFRACTION) == 1 && bg_template->isBattleground() && 
-        m_SelectionPools[BG_TEAM_ALLIANCE].GetPlayerCount() + m_SelectionPools[BG_TEAM_HORDE].GetPlayerCount() >= minPlayers * 2)
+    if (sWorld->getBoolConfig(CONFIG_BG_CROSSFRACTION) == 1 && bg_template->isBattleground() && 
+        m_SelectionPools[TEAM_ALLIANCE].GetPlayerCount() + m_SelectionPools[TEAM_HORDE].GetPlayerCount() >= minPlayers * 2)
         return true;
 	
 

@@ -393,10 +393,10 @@ class Battleground
         BattlegroundMap* GetBgMap() const { ASSERT(m_Map); return m_Map; }
         BattlegroundMap* FindBgMap() const { return m_Map; }
 
-        void SetTeamStartLoc(uint32 team, float X, float Y, float Z, float O);
-        void GetTeamStartLoc(uint32 team, float &X, float &Y, float &Z, float &O) const
+        void SetTeamStartLoc(uint32 TeamID, float X, float Y, float Z, float O);
+        void GetTeamStartLoc(uint32 TeamID, float &X, float &Y, float &Z, float &O) const
         {
-            TeamId idx = GetTeamIndexByTeamId(team);
+            TeamId idx = GetTeamIndexByTeamId(TeamID);
             X = m_TeamStartLocX[idx];
             Y = m_TeamStartLocY[idx];
             Z = m_TeamStartLocZ[idx];
@@ -424,7 +424,7 @@ class Battleground
         void RewardReputationToTeam(uint32 faction_id, uint32 Reputation, uint32 TeamID);
         void UpdateWorldState(uint32 Field, uint32 Value);
         void UpdateWorldStateForPlayer(uint32 Field, uint32 Value, Player* Source);
-        void EndBattleground(uint32 winner, uint32 team);
+        void EndBattleground(uint32 winner);
         void BlockMovement(Player* player);
 
         void SendWarningToAll(int32 entry, ...);
@@ -492,7 +492,7 @@ class Battleground
 
         void AddOrSetPlayerToCorrectBgGroup(Player* player, uint32 team);
 
-        virtual void RemovePlayerAtLeave(uint64 guid, bool Transport, bool SendPacket, uint32 team);
+        virtual void RemovePlayerAtLeave(uint64 guid, bool Transport, bool SendPacket);
                                                             // can be extended in in BG subclass
 
         void HandleTriggerBuff(uint64 go_guid);
@@ -543,7 +543,7 @@ class Battleground
         Player* _GetPlayer(uint64 guid, bool offlineRemove, const char* context) const;
         Player* _GetPlayer(BattlegroundPlayerMap::iterator itr, const char* context);
         Player* _GetPlayer(BattlegroundPlayerMap::const_iterator itr, const char* context) const;
-        Player* _GetPlayerForTeam(uint32 teamId, BattlegroundPlayerMap::const_iterator itr, const char* context, uint32 team) const;
+        Player* _GetPlayerForTeam(uint32 teamId, BattlegroundPlayerMap::const_iterator itr, const char* context) const;
 
         void _ProcessOfflineQueue();
         void _ProcessRessurect(uint32 diff);

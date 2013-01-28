@@ -1947,14 +1947,14 @@ void Battleground::HandleAreaTrigger(Player* player, uint32 trigger)
                    trigger, player->GetMapId(), player->GetPositionX(), player->GetPositionY(), player->GetPositionZ());
 }
 
-void BattleGroundMgr::HandleCrossfactionSendToBattle(Player* player, Battleground* bg, uint32 InstanceID, BattlegroundTypeId bgTypeId)
+void BattlegroundMgr::HandleCrossfactionSendToBattle(Player* player, Battleground* bg, uint32 InstanceID, BattlegroundTypeId bgTypeId)
 {
     if (!player || !bg)
         return;
 
     if (sWorld->getBoolConfig(CONFIG_BG_CROSSFRACTION) == 1)
     {
-        Team GrpTeam = TEAM_NONE;
+      /*  Team GrpTeam = TEAM_NONE;
         if (Group *pGroup = player->GetGroup())
         {
             for (GroupReference* itr = pGroup->GetFirstMember(); itr != NULL; itr = itr->next())
@@ -1973,29 +1973,17 @@ void BattleGroundMgr::HandleCrossfactionSendToBattle(Player* player, Battlegroun
         if (GrpTeam != TEAM_NONE && bg->GetPlayersCountByTeam(GrpTeam) < bg->GetMaxPlayersPerTeam())
             player->SetBGTeam(GrpTeam);
         else
-        {
+        {*/
             if (bg->GetPlayersCountByTeam(HORDE) < bg->GetMaxPlayersPerTeam() && bg->GetPlayersCountByTeam(HORDE) < bg->GetPlayersCountByTeam(ALLIANCE))
                 player->SetBGTeam(HORDE);
             else if (bg->GetPlayersCountByTeam(ALLIANCE) < bg->GetMaxPlayersPerTeam() && bg->GetPlayersCountByTeam(ALLIANCE) < bg->GetPlayersCountByTeam(HORDE))
                 player->SetBGTeam(ALLIANCE);
-        }
+        //}
         if (player->GetBGTeam() == HORDE)
             player->setFaction(2); // orc, and generic for horde
         else if (player->GetBGTeam() == ALLIANCE)
             player->setFaction(1); // dwarf/gnome, and generic for alliance
     }
-
+   uint32 TeamID = player->GetBGTeam();
     bg->UpdatePlayersCountByTeam(player->GetBGTeam(), false); // Add here instead of in AddPlayer, because AddPlayer is not made until loading screen is finished. Which can cause unbalance in the system.
-}
-
-void BattleGround::MorphCrossfactionPlayer(Player* player, bool action)
-{
-    if (!player || !player->IsInWorld())
-        return;
-
-    else if (!action)
-    {
-        player->setFactionForRace(player->getRace());
-        player->InitDisplayIds();
-    }
 }
