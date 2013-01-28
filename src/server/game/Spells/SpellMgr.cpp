@@ -3630,6 +3630,9 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 5420: // Tree of Life (Passive)
                 spellInfo->Stances = 1 << (FORM_TREE - 1);
                 break;
+            case 88819: // Daybreak (proc)
+                spellInfo->ProcCharges = 1;
+                break;
             default:
                 break;
         }
