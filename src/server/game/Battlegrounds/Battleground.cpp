@@ -1952,7 +1952,7 @@ void BattleGroundMgr::HandleCrossfactionSendToBattle(Player* player, Battlegroun
     if (!player || !bg)
         return;
 
-    if (sWorld->getBoolConfig(CONFIG_BG_CROSSFRACTION))
+    if (sWorld->getBoolConfig(CONFIG_BG_CROSSFRACTION) == 1)
     {
         Team GrpTeam = TEAM_NONE;
         if (Group *pGroup = player->GetGroup())
