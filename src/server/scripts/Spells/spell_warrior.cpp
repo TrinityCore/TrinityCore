@@ -31,7 +31,6 @@ enum WarriorSpells
     SPELL_WARRIOR_BLOODTHIRST                       = 23885,
     SPELL_WARRIOR_BLOODTHIRST_DAMAGE                = 23881,
     SPELL_WARRIOR_CHARGE                            = 34846,
-    SPELL_WARRIOR_DAMAGE_SHIELD_DAMAGE              = 59653,
     SPELL_WARRIOR_DEEP_WOUNDS_RANK_1                = 12162,
     SPELL_WARRIOR_DEEP_WOUNDS_RANK_2                = 12850,
     SPELL_WARRIOR_DEEP_WOUNDS_RANK_3                = 12868,
@@ -43,7 +42,6 @@ enum WarriorSpells
     SPELL_WARRIOR_JUGGERNAUT_CRIT_BONUS_TALENT      = 64976,
     SPELL_WARRIOR_LAST_STAND_TRIGGERED              = 12976,
     SPELL_WARRIOR_SLAM                              = 50782,
-    SPELL_WARRIOR_SLAM                              = 50783,
     SPELL_WARRIOR_SWEEPING_STRIKES_EXTRA_ATTACK     = 26654,
     SPELL_WARRIOR_TAUNT                             = 355,
     SPELL_WARRIOR_UNRELENTING_ASSAULT_RANK_1        = 46859,
@@ -198,44 +196,6 @@ class spell_warr_concussion_blow : public SpellScriptLoader
         SpellScript* GetSpellScript() const
         {
             return new spell_warr_concussion_blow_SpellScript();
-        }
-};
-
-// -58872 - Damage Shield
-class spell_warr_damage_shield : public SpellScriptLoader
-{
-    public:
-        spell_warr_damage_shield() : SpellScriptLoader("spell_warr_damage_shield") { }
-
-        class spell_warr_damage_shield_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_warr_damage_shield_AuraScript);
-
-            bool Validate(SpellInfo const* /*spellInfo*/)
-            {
-                if (!sSpellMgr->GetSpellInfo(SPELL_WARRIOR_DAMAGE_SHIELD_DAMAGE))
-                    return false;
-                return true;
-            }
-
-            void OnProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
-            {
-                PreventDefaultAction();
-
-                // % of amount blocked
-                int32 damage = CalculatePct(int32(GetTarget()->GetShieldBlockValue()), aurEff->GetAmount());
-                GetTarget()->CastCustomSpell(SPELL_WARRIOR_DAMAGE_SHIELD_DAMAGE, SPELLVALUE_BASE_POINT0, damage, eventInfo.GetProcTarget(), true, NULL, aurEff);
-            }
-
-            void Register()
-            {
-                OnEffectProc += AuraEffectProcFn(spell_warr_damage_shield_AuraScript::OnProc, EFFECT_0, SPELL_AURA_DUMMY);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_warr_damage_shield_AuraScript();
         }
 };
 
@@ -770,7 +730,6 @@ void AddSC_warrior_spell_scripts()
     new spell_warr_bloodthirst_heal();
     new spell_warr_charge();
     new spell_warr_concussion_blow();
-    new spell_warr_damage_shield();
     new spell_warr_deep_wounds();
     new spell_warr_execute();
     new spell_warr_improved_spell_reflection();

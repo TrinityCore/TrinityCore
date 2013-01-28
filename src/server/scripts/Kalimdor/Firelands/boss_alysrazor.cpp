@@ -298,7 +298,7 @@ class npc_blazing_monstrosity : public CreatureScript
                 passenger->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
 
                 // Hack to relocate vehicle on vehicle so exiting players are not moved under map
-                Movement::MoveSplineInit init(*passenger);
+                Movement::MoveSplineInit init(passenger);
                 init.DisableTransportPathTransformations();
                 init.MoveTo(0.6654003f, 0.0f, 1.9815f);
                 init.SetFacing(0.0f);

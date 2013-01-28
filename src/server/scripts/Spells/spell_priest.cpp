@@ -54,8 +54,9 @@ enum PriestSpells
 
 enum PriestSpellIcons
 {
+    PRIEST_ICON_ID_BORROWED_TIME                    = 2899,
     PRIEST_ICON_ID_EMPOWERED_RENEW_TALENT           = 3021,
-    PRIEST_ICON_ID_PAIN_AND_SUFFERING               = 2874
+    PRIEST_ICON_ID_PAIN_AND_SUFFERING               = 2874,
 };
 
 // -47509 - Divine Aegis
