@@ -1154,11 +1154,12 @@ void Battleground::AddPlayer(Player* player)
     else
     {	
 		guid = player->GetGUID();
-		if (isArena());
+		
+		if (isArena())
 			team = player->GetTeam();
 		else
-		    team = player->GetBGTeam();
-    }
+		       team = player->GetBGTeam();
+    }  
 	
     BattlegroundPlayer bp;
     bp.OfflineRemoveTime = 0;

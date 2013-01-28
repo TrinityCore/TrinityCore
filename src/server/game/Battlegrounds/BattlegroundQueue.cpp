@@ -634,34 +634,25 @@ bool BattlegroundQueue::CheckPremadeMatch(BattlegroundBracketId bracket_id, uint
 // this method tries to create battleground or arena with MinPlayersPerTeam against MinPlayersPerTeam
 bool BattlegroundQueue::CheckNormalMatch(Battleground* bg_template, BattlegroundBracketId bracket_id, uint32 minPlayers, uint32 maxPlayers)
 {
-    if (sWorld->getBoolConfig(CONFIG_BG_CROSSFRACTION) == 1)
+
+  GroupsQueueType::const_iterator itr_team[BG_TEAMS_COUNT];
+  	for (uint32 i = 0; i < BG_TEAMS_COUNT; i++)
 	{
-	    GroupsQueueType::const_iterator itr_team[BG_TEAMS_COUNT];
-		for (uint32 i = 0; i < BG_TEAMS_COUNT; i++)
+		itr_team[i] = m_QueuedGroups[bracket_id][BG_QUEUE_NORMAL_ALLIANCE + i].begin();
+		for (; itr_team[i] != m_QueuedGroups[bracket_id][BG_QUEUE_NORMAL_ALLIANCE + i].end(); ++(itr_team[i]))
 		{
-			itr_team[i] = m_QueuedGroups[bracket_id][BG_QUEUE_NORMAL_ALLIANCE + i].begin();
-			for (; itr_team[i] != m_QueuedGroups[bracket_id][BG_QUEUE_NORMAL_ALLIANCE + i].end(); ++(itr_team[i]))
+			if (!(*(itr_team[i]))->IsInvitedToBGInstanceGUID)
 			{
-				if (!(*(itr_team[i]))->IsInvitedToBGInstanceGUID)
+			    if (sWorld->getBoolConfig(CONFIG_BG_CROSSFRACTION) == 1)
 				{
-	              if (m_SelectionPools[TEAM_ALLIANCE].GetPlayerCount() + m_SelectionPools[TEAM_HORDE].GetPlayerCount() >= minPlayers)
+				    m_SelectionPools[i].AddGroup(*(itr_team[i]), maxPlayers);
+					if (m_SelectionPools[TEAM_ALLIANCE].GetPlayerCount() + m_SelectionPools[TEAM_HORDE].GetPlayerCount() >= minPlayers)
 						break;
 				}
-			}
-		}
-	}
-	else
-	{
-		GroupsQueueType::const_iterator itr_team[BG_TEAMS_COUNT];
-		for (uint32 i = 0; i < BG_TEAMS_COUNT; i++)
-		{
-			itr_team[i] = m_QueuedGroups[bracket_id][BG_QUEUE_NORMAL_ALLIANCE + i].begin();
-			for (; itr_team[i] != m_QueuedGroups[bracket_id][BG_QUEUE_NORMAL_ALLIANCE + i].end(); ++(itr_team[i]))
-			{
-				if (!(*(itr_team[i]))->IsInvitedToBGInstanceGUID)
+				else
 				{
-                m_SelectionPools[i].AddGroup(*(itr_team[i]), maxPlayers);
-						if (m_SelectionPools[i].GetPlayerCount() >= minPlayers)
+				    m_SelectionPools[i].AddGroup(*(itr_team[i]), maxPlayers);
+					if (m_SelectionPools[i].GetPlayerCount() >= minPlayers)
 						break;
 				}
 			}
@@ -695,7 +686,7 @@ bool BattlegroundQueue::CheckNormalMatch(Battleground* bg_template, Battleground
                     break;
         }
         // do not allow to start bg with more than 2 players more on 1 faction
-	 if (sWorld->getBoolConfig(CONFIG_BG_CROSSFRACTION) == 1)
+	   if (sWorld->getBoolConfig(CONFIG_BG_CROSSFRACTION) == 1)
 	   {
 			if (abs((int32)(m_SelectionPools[TEAM_HORDE].GetPlayerCount() - m_SelectionPools[TEAM_ALLIANCE].GetPlayerCount())) > 5) 
 				return false;
