@@ -1128,30 +1128,35 @@ void Battleground::AddPlayer(Player* player)
     // remove afk from player
     if (player->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_AFK))
         player->ToggleAFK();
+  uint32 team;
+  uint64 guid; 
+  
+   // score struct must be created in inherited class
+   if (sWorld->getBoolConfig(CONFIG_BG_CROSSFRACTION) == 1 && !isArena())
+   {
+		uint32 hCount = GetPlayersCountByTeam(HORDE);	
+		uint32 aCount = GetPlayersCountByTeam(ALLIANCE);
+		guid = player->GetGUID();
 
-    // score struct must be created in inherited class
-
-  uint32 team;	
-  uint32 hCount = GetPlayersCountByTeam(HORDE);	
-  uint32 aCount = GetPlayersCountByTeam(ALLIANCE);
-  uint64 guid = player->GetGUID();
-
-  if (aCount >= hCount)
-  {
-   	 team = HORDE;
-   	 player->SetBGTeam(HORDE);
-        player->setFaction(2);
-  }
-  else
-  {
-	  team = ALLIANCE;
-      	  player->SetBGTeam(ALLIANCE);
-         player->setFaction(1);
-  }
-
-  /*  uint64 guid = player->GetGUID();
-    uint32 team = player->GetBGTeam();*/
-
+		if (aCount >= hCount)
+		{
+			team = HORDE;
+			player->SetBGTeam(HORDE);
+			player->setFaction(2);
+		}
+		else
+		{
+			team = ALLIANCE;
+			player->SetBGTeam(ALLIANCE);
+			player->setFaction(1);
+		}
+    }
+    else
+    {	
+		guid = player->GetGUID();
+		team = player->GetBGTeam();
+    }
+	
     BattlegroundPlayer bp;
     bp.OfflineRemoveTime = 0;
     bp.Team = team;
@@ -1968,38 +1973,18 @@ void BattlegroundMgr::HandleCrossfactionSendToBattle(Player* player, Battlegroun
     if (!player || !bg)
         return;
 
-   // if (sWorld->getBoolConfig(CONFIG_BG_CROSSFRACTION) == 1)
-   // {
-      /*  Team GrpTeam = TEAM_NONE;
-        if (Group *pGroup = player->GetGroup())
-        {
-            for (GroupReference* itr = pGroup->GetFirstMember(); itr != NULL; itr = itr->next())
-            {
-                Player* pGroupGuy = itr->getSource();
-                if (!pGroupGuy)
-                    continue;
-
-                if (pGroupGuy->GetBattleground() && pGroupGuy->GetBattleground()->GetInstanceID() == InstanceID && pGroupGuy->GetBattleground()->GetTypeID() == bgTypeId)
-                {
-                    GrpTeam = pGroupGuy->GetBGTeam();
-                    break;
-                }
-            }
-        }
-        if (GrpTeam != TEAM_NONE && bg->GetPlayersCountByTeam(GrpTeam) < bg->GetMaxPlayersPerTeam())
-            player->SetBGTeam(GrpTeam);
-        else
-        {*/
+    if (sWorld->getBoolConfig(CONFIG_BG_CROSSFRACTION) == 1)
+    {
             if (bg->GetPlayersCountByTeam(HORDE) < bg->GetMaxPlayersPerTeam() && bg->GetPlayersCountByTeam(HORDE) <= bg->GetPlayersCountByTeam(ALLIANCE))
                 player->SetBGTeam(HORDE);
             else if (bg->GetPlayersCountByTeam(ALLIANCE) < bg->GetMaxPlayersPerTeam())
                 player->SetBGTeam(ALLIANCE);
-        //}
+				
         if (player->GetBGTeam() == HORDE)
             player->setFaction(2); // orc, and generic for horde
         else if (player->GetBGTeam() == ALLIANCE)
             player->setFaction(1); // dwarf/gnome, and generic for alliance
-    //}
+    }
      uint32 TeamID = player->GetBGTeam();
     bg->UpdatePlayersCountByTeam(player->GetBGTeam(), false); // Add here instead of in AddPlayer, because AddPlayer is not made until loading screen is finished. Which can cause unbalance in the system.
 }
