@@ -11,6 +11,7 @@
 #                                                                                          #
 ############################################################################################
 
+[116] --> Revert '[gc354] remove IoC from rbg list'.
 [115] --> Delete [MOD] CharacterHistory.
 [114] --> Fix Val'kyr Shadowguard speed.
 [113] --> Add NPC MMR Master (Final version).

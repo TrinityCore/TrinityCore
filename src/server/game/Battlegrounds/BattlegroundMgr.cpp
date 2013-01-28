@@ -1137,10 +1137,6 @@ BattlegroundTypeId BattlegroundMgr::GetRandomBG(BattlegroundTypeId bgTypeId)
     {
         uint32 selectedWeight = 0;
 
-        // remove IoC from possible random BGs
-        if (bgTypeId == BATTLEGROUND_RB)
-            weight--;
-
         // Select a random value
         selectedWeight = urand(0, weight - 1);
         // Select the correct bg (if we have in DB A(10), B(20), C(10), D(15) --> [0---A---9|10---B---29|30---C---39|40---D---54])
