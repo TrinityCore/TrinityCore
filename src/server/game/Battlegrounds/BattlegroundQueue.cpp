@@ -634,20 +634,39 @@ bool BattlegroundQueue::CheckPremadeMatch(BattlegroundBracketId bracket_id, uint
 // this method tries to create battleground or arena with MinPlayersPerTeam against MinPlayersPerTeam
 bool BattlegroundQueue::CheckNormalMatch(Battleground* bg_template, BattlegroundBracketId bracket_id, uint32 minPlayers, uint32 maxPlayers)
 {
-    GroupsQueueType::const_iterator itr_team[BG_TEAMS_COUNT];
-    for (uint32 i = 0; i < BG_TEAMS_COUNT; i++)
-    {
-        itr_team[i] = m_QueuedGroups[bracket_id][BG_QUEUE_NORMAL_ALLIANCE + i].begin();
-        for (; itr_team[i] != m_QueuedGroups[bracket_id][BG_QUEUE_NORMAL_ALLIANCE + i].end(); ++(itr_team[i]))
-        {
-            if (!(*(itr_team[i]))->IsInvitedToBGInstanceGUID)
-            {
+    if (sWorld->getBoolConfig(CONFIG_BG_CROSSFRACTION) == 1)
+	{
+	    GroupsQueueType::const_iterator itr_team[BG_TEAMS_COUNT];
+		for (uint32 i = 0; i < BG_TEAMS_COUNT; i++)
+		{
+			itr_team[i] = m_QueuedGroups[bracket_id][BG_QUEUE_NORMAL_ALLIANCE + i].begin();
+			for (; itr_team[i] != m_QueuedGroups[bracket_id][BG_QUEUE_NORMAL_ALLIANCE + i].end(); ++(itr_team[i]))
+			{
+				if (!(*(itr_team[i]))->IsInvitedToBGInstanceGUID)
+				{
+	              if (m_SelectionPools[TEAM_ALLIANCE].GetPlayerCount() + m_SelectionPools[TEAM_HORDE].GetPlayerCount() >= minPlayers)
+						break;
+				}
+			}
+		}
+	}
+	else
+	{
+		GroupsQueueType::const_iterator itr_team[BG_TEAMS_COUNT];
+		for (uint32 i = 0; i < BG_TEAMS_COUNT; i++)
+		{
+			itr_team[i] = m_QueuedGroups[bracket_id][BG_QUEUE_NORMAL_ALLIANCE + i].begin();
+			for (; itr_team[i] != m_QueuedGroups[bracket_id][BG_QUEUE_NORMAL_ALLIANCE + i].end(); ++(itr_team[i]))
+			{
+				if (!(*(itr_team[i]))->IsInvitedToBGInstanceGUID)
+				{
                 m_SelectionPools[i].AddGroup(*(itr_team[i]), maxPlayers);
-                if (m_SelectionPools[i].GetPlayerCount() >= minPlayers)
-                    break;
-            }
-        }
-    }
+						if (m_SelectionPools[i].GetPlayerCount() >= minPlayers)
+						break;
+				}
+			}
+		}
+	}
 	
     // allow 1v0 if debug bg
     if (sBattlegroundMgr->isTesting() && bg_template->isBattleground() &&
@@ -676,8 +695,17 @@ bool BattlegroundQueue::CheckNormalMatch(Battleground* bg_template, Battleground
                     break;
         }
         // do not allow to start bg with more than 2 players more on 1 faction
-        if (abs((int32)(m_SelectionPools[TEAM_HORDE].GetPlayerCount() - m_SelectionPools[TEAM_ALLIANCE].GetPlayerCount())) > 2)
-            return false;
+	 if (sWorld->getBoolConfig(CONFIG_BG_CROSSFRACTION) == 1)
+	   {
+			if (abs((int32)(m_SelectionPools[TEAM_HORDE].GetPlayerCount() - m_SelectionPools[TEAM_ALLIANCE].GetPlayerCount())) > 5) 
+				return false;
+	   }
+	   else
+	   {
+	   			if (abs((int32)(m_SelectionPools[TEAM_HORDE].GetPlayerCount() - m_SelectionPools[TEAM_ALLIANCE].GetPlayerCount())) > 1) 
+				return false;
+	   }
+	   
     }
     if (sWorld->getBoolConfig(CONFIG_BG_CROSSFRACTION) == 0)
 	{
