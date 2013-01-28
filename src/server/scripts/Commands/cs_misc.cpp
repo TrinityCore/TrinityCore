@@ -33,6 +33,8 @@
 #include "ace/INET_Addr.h"
 #include "Player.h"
 #include "Pet.h"
+#include "LFG.h"
+#include "GroupMgr.h"
 
 class misc_commandscript : public CommandScript
 {
@@ -47,6 +49,7 @@ public:
             { "disband",        SEC_ADMINISTRATOR,          false,  &HandleGroupDisbandCommand,         "", NULL },
             { "remove",         SEC_ADMINISTRATOR,          false,  &HandleGroupRemoveCommand,          "", NULL },
             { "join",           SEC_ADMINISTRATOR,          false,  &HandleGroupJoinCommand,            "", NULL },
+            { "list",           SEC_ADMINISTRATOR,          false,  &HandleGroupListCommand,            "", NULL },
             { NULL,             0,                          false,  NULL,                               "", NULL }
         };
         static ChatCommand petCommandTable[] =
@@ -1731,6 +1734,29 @@ public:
         else
            handler->PSendSysMessage(LANG_PINFO_MAP_OFFLINE, map->name[locale], areaName.c_str());
 
+        stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GUILD_MEMBER_EXTENDED);
+        stmt->setUInt32(0, GUID_LOPART(targetGuid));
+
+        result = CharacterDatabase.Query(stmt);
+        if (result)
+        {
+            uint32 guildId           = 0;
+            std::string guildName   = "";
+            std::string guildRank   = "";
+            std::string note        = "";
+            std::string officeNote  = "";
+
+            Field* fields      = result->Fetch();
+            guildId            = fields[0].GetUInt32();
+            guildName          = fields[1].GetString();
+            //rankId           = fields[2].GetUInt8();
+            guildRank          = fields[3].GetString();
+            note               = fields[4].GetString();
+            officeNote         = fields[5].GetString();
+
+            handler->PSendSysMessage(LANG_PINFO_GUILD_INFO, guildName.c_str(), guildId, guildRank.c_str(), note.c_str(), officeNote.c_str());
+        }
+
         return true;
     }
 
@@ -2776,6 +2802,78 @@ public:
                 handler->PSendSysMessage(LANG_GROUP_NOT_IN_GROUP, playerSource->GetName().c_str());
                 return true;
             }
+        }
+
+        return true;
+    }
+
+    static bool HandleGroupListCommand(ChatHandler* handler, char const* args)
+    {
+        Player* playerTarget;
+        uint64 guidTarget;
+        std::string nameTarget;
+
+        uint32 parseGUID = MAKE_NEW_GUID(atol((char*)args), 0, HIGHGUID_PLAYER);
+
+        if (sObjectMgr->GetPlayerNameByGUID(parseGUID, nameTarget))
+        {
+            playerTarget = sObjectMgr->GetPlayerByLowGUID(parseGUID);
+            guidTarget = parseGUID;
+        }
+        else if (!handler->extractPlayerTarget((char*)args, &playerTarget, &guidTarget, &nameTarget))
+            return false;
+
+        Group* groupTarget = NULL;
+        if (playerTarget)
+            groupTarget = playerTarget->GetGroup();
+
+        if (!groupTarget)
+        {
+            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GROUP_MEMBER);
+            stmt->setUInt32(0, guidTarget);
+            PreparedQueryResult resultGroup = CharacterDatabase.Query(stmt);
+            if (resultGroup)
+                groupTarget = sGroupMgr->GetGroupByDbStoreId((*resultGroup)[0].GetUInt32());
+        }
+
+        if (groupTarget)
+        {
+            handler->PSendSysMessage(LANG_GROUP_TYPE, (groupTarget->isRaidGroup() ? "raid" : "party"));
+            Group::MemberSlotList const& members = groupTarget->GetMemberSlots();
+            Group::MemberSlotList::const_iterator itr;
+            for (itr = members.begin(); itr != members.end(); ++itr)
+            {
+                std::ostringstream flags, roles;
+                if ((*itr).flags & MEMBER_FLAG_ASSISTANT)
+                    flags << "Assistant ";
+                if ((*itr).flags & MEMBER_FLAG_MAINTANK)
+                    flags << "MainTank ";
+                if ((*itr).flags & MEMBER_FLAG_MAINASSIST)
+                    flags << "MainAssist ";
+
+                if ((*itr).roles & PLAYER_ROLE_LEADER)
+                    roles << "Leader ";
+                if ((*itr).roles & PLAYER_ROLE_TANK)
+                    roles << "Tank ";
+                if ((*itr).roles & PLAYER_ROLE_HEALER)
+                    roles << "Healer ";
+                if ((*itr).roles & PLAYER_ROLE_DAMAGE)
+                    roles << "Damage ";
+
+                Player* p = ObjectAccessor::FindPlayer((*itr).guid);
+                const char* onlineState = (p && p->IsInWorld()) ? "online" : "offline";
+
+                std::string flagsStr = (flags.str().empty()) ? "None" : flags.str();
+                std::string rolesStr = (roles.str().empty()) ? "None" : roles.str();
+
+                handler->PSendSysMessage(LANG_GROUP_PLAYER_NAME_GUID, (*itr).name.c_str(), onlineState, GUID_LOPART((*itr).guid), flagsStr.c_str(), rolesStr.c_str());
+            }
+            return true;
+        }
+        else
+        {
+            handler->PSendSysMessage(LANG_GROUP_NOT_IN_GROUP, nameTarget.c_str());
+            return true;
         }
 
         return true;

@@ -661,6 +661,7 @@ class npc_karynaku : public CreatureScript
 
 /*####
 # npc_overlord_morghor
+# this whole script is wrong and needs a rewrite.even the illidan npc used is the wrong one.npc id 23467 may be the correct one
 ####*/
 enum eOverlordData
 {
@@ -766,7 +767,7 @@ public:
             Player* player = Unit::GetPlayer(*me, PlayerGUID);
             Creature* Illi = Creature::GetCreature(*me, IllidanGUID);
 
-            if (!player || !Illi)
+            if (!player)
             {
                 EnterEvadeMode();
                 return 0;
@@ -794,14 +795,21 @@ public:
                     return 2000;
                     break;
                 case 5:
-                    Illi->SetVisible(true);
-                    Illi->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                    if (Illi)
+                    {
+                        Illi->SetVisible(true);
+                        Illi->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                        Illi->SetDisplayId(21526);
+                    }
                     return 350;
                     break;
                 case 6:
-                    Illi->CastSpell(Illi, SPELL_ONE, true);
-                    Illi->SetTarget(me->GetGUID());
-                    me->SetTarget(IllidanGUID);
+                    if (Illi)
+                    {
+                        Illi->CastSpell(Illi, SPELL_ONE, true);
+                        Illi->SetTarget(me->GetGUID());
+                        me->SetTarget(IllidanGUID);
+                    }
                     return 2000;
                     break;
                 case 7:
@@ -810,10 +818,15 @@ public:
                     break;
                 case 8:
                     me->SetUInt32Value(UNIT_FIELD_BYTES_1, 8);
-                    return 9000;
+                    return 2500;
+                    break;
+                case 9:
+                    // missing text "Lord Illidan, this is the Dragonmaw that I, and others, have told you about. He will lead us to victory!"
+                    return 5000;
                     break;
                 case 10:
-                    Illi->AI()->Talk(LORD_ILLIDAN_SAY_1);
+                    if (Illi)
+                        Illi->AI()->Talk(LORD_ILLIDAN_SAY_1);
                     return 5000;
                     break;
                 case 11:
@@ -821,42 +834,53 @@ public:
                     return 6000;
                     break;
                 case 12:
-                    Illi->AI()->Talk(LORD_ILLIDAN_SAY_2);
+                    if (Illi)
+                        Illi->AI()->Talk(LORD_ILLIDAN_SAY_2);
                     return 5500;
                     break;
                 case 13:
-                    Illi->AI()->Talk(LORD_ILLIDAN_SAY_3);
+                    if (Illi)
+                        Illi->AI()->Talk(LORD_ILLIDAN_SAY_3);
                     return 4000;
                     break;
                 case 14:
-                    Illi->SetTarget(PlayerGUID);
+                    if (Illi)
+                        Illi->SetTarget(PlayerGUID);
                     return 1500;
                     break;
                 case 15:
-                    Illi->AI()->Talk(LORD_ILLIDAN_SAY_4);
+                    if (Illi)
+                        Illi->AI()->Talk(LORD_ILLIDAN_SAY_4);
                     return 1500;
                     break;
                 case 16:
-                    Illi->CastSpell(player, SPELL_TWO, true);
+                    if (Illi)
+                        Illi->CastSpell(player, SPELL_TWO, true);
                     player->RemoveAurasDueToSpell(SPELL_THREE);
                     player->RemoveAurasDueToSpell(SPELL_FOUR);
                     return 5000;
                     break;
                 case 17:
-                    Illi->AI()->Talk(LORD_ILLIDAN_SAY_5);
+                    if (Illi)
+                        Illi->AI()->Talk(LORD_ILLIDAN_SAY_5);
                     return 5000;
                     break;
                 case 18:
-                    Illi->AI()->Talk(LORD_ILLIDAN_SAY_6);
+                    if (Illi)
+                        Illi->AI()->Talk(LORD_ILLIDAN_SAY_6);
                     return 5000;
                     break;
                 case 19:
-                    Illi->AI()->Talk(LORD_ILLIDAN_SAY_7);
+                    if (Illi)
+                        Illi->AI()->Talk(LORD_ILLIDAN_SAY_7);
                     return 5000;
                     break;
                 case 20:
-                    Illi->HandleEmoteCommand(EMOTE_ONESHOT_LIFTOFF);
-                    Illi->SetDisableGravity(true);
+                    if (Illi)
+                    {
+                        Illi->HandleEmoteCommand(EMOTE_ONESHOT_LIFTOFF);
+                        Illi->SetDisableGravity(true);
+                    }
                     return 500;
                     break;
                 case 21:
@@ -864,8 +888,11 @@ public:
                     return 500;
                     break;
                 case 22:
-                    Illi->SetVisible(false);
-                    Illi->setDeathState(JUST_DIED);
+                    if (Illi)
+                    {
+                        Illi->SetVisible(false);
+                        Illi->setDeathState(JUST_DIED);
+                    }
                     return 1000;
                     break;
                 case 23:
@@ -886,7 +913,7 @@ public:
                     break;
                 case 27:
                     {
-                        Unit* Yarzill = me->FindNearestCreature(C_YARZILL, 50);
+                        Unit* Yarzill = me->FindNearestCreature(C_YARZILL, 50.0f);
                         if (Yarzill)
                             Yarzill->SetTarget(PlayerGUID);
                         return 500;
@@ -921,9 +948,11 @@ public:
                     }
                     break;
                 case 32:
-                    me->GetMotionMaster()->MovePoint(0, -5085.77f, 577.231f, 86.6719f); return 5000;
+                    me->GetMotionMaster()->MovePoint(0, -5085.77f, 577.231f, 86.6719f);
+                    return 5000;
                     break;
                 case 33:
+                    me->SetTarget(0);
                     Reset();
                     return 100;
                     break;
@@ -940,7 +969,7 @@ public:
 
             if (ConversationTimer <= diff)
             {
-                if (Event && IllidanGUID && PlayerGUID)
+                if (Event && PlayerGUID)
                     ConversationTimer = NextStep(++Step);
             } else ConversationTimer -= diff;
         }

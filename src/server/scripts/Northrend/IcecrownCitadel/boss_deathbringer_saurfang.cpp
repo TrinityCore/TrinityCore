@@ -415,7 +415,7 @@ class boss_deathbringer_saurfang : public CreatureScript
                 }
             }
 
-            void SpellHit(Unit* caster, SpellInfo const* spell)
+            void SpellHit(Unit* /*caster*/, SpellInfo const* spell)
             {
                 if (spell->Id == SPELL_BLOOD_LINK_POWER)
                     if (Aura* bloodPower = me->GetAura(SPELL_BLOOD_POWER))
