@@ -326,7 +326,7 @@ void ReadLiquidTypeTableDBC()
         LiqType[dbc.getRecord(x).getUInt(0)] = dbc.getRecord(x).getUInt(3);
 
     SFileCloseFile(dbcFile);
-    printf("Done! (%u LiqTypes loaded)\n", liqTypeCount);
+    printf("Done! (%u LiqTypes loaded)\n", (uint32)liqTypeCount);
 }
 
 //
@@ -335,7 +335,7 @@ void ReadLiquidTypeTableDBC()
 
 // Map file format data
 static char const* MAP_MAGIC         = "MAPS";
-static char const* MAP_VERSION_MAGIC = "v1.2";
+static char const* MAP_VERSION_MAGIC = "v1.3";
 static char const* MAP_AREA_MAGIC    = "AREA";
 static char const* MAP_HEIGHT_MAGIC  = "MHGT";
 static char const* MAP_LIQUID_MAGIC  = "MLIQ";
@@ -351,6 +351,8 @@ struct map_fileheader
     uint32 heightMapSize;
     uint32 liquidMapOffset;
     uint32 liquidMapSize;
+    uint32 holesOffset;
+    uint32 holesSize;
 };
 
 #define MAP_AREA_NO_AREA      0x0001
@@ -884,9 +886,38 @@ bool ConvertADT(char *filename, char *filename2, int /*cell_y*/, int /*cell_x*/,
             map.liquidMapSize += sizeof(float)*liquidHeader.width*liquidHeader.height;
     }
 
+    // map hole info
+    uint16 holes[ADT_CELLS_PER_GRID][ADT_CELLS_PER_GRID];
+
+    if (map.liquidMapOffset)
+        map.holesOffset = map.liquidMapOffset + map.liquidMapSize;
+    else
+        map.holesOffset = map.heightMapOffset + map.heightMapSize;
+
+    memset(holes, 0, sizeof(holes));
+    bool hasHoles = false;
+
+    for (int i = 0; i < ADT_CELLS_PER_GRID; ++i)
+    {
+        for (int j = 0; j < ADT_CELLS_PER_GRID; ++j)
+        {
+            adt_MCNK * cell = cells->getMCNK(i,j);
+            if (!cell)
+                continue;
+            holes[i][j] = cell->holes;
+            if (!hasHoles && cell->holes != 0)
+                hasHoles = true;
+        }
+    }
+
+    if (hasHoles)
+        map.holesSize = sizeof(holes);
+    else
+        map.holesSize = 0;
+
     // Ok all data prepared - store it
-    FILE *output=fopen(filename2, "wb");
-    if(!output)
+    FILE* output = fopen(filename2, "wb");
+    if (!output)
     {
         printf("Can't create the output file '%s'\n", filename2);
         return false;
@@ -934,6 +965,11 @@ bool ConvertADT(char *filename, char *filename2, int /*cell_y*/, int /*cell_x*/,
                 fwrite(&liquid_height[y + liquidHeader.offsetY][liquidHeader.offsetX], sizeof(float), liquidHeader.width, output);
         }
     }
+
+    // store hole data
+    if (hasHoles)
+        fwrite(holes, map.holesSize, 1, output);
+
     fclose(output);
 
     return true;

@@ -270,6 +270,14 @@ PlayerSave.Stats.MinLevel = 0
 PlayerSave.Stats.SaveOnlyOnLogout = 1
 
 #
+#    mmap.enablePathFinding
+#        Description: Enable/Disable pathfinding using mmaps - experimental
+#        Default:     0 - (Disabled)
+#                     1 - (Enabled)
+
+mmap.enablePathFinding = 0
+
+#
 #    vmap.enableLOS
 #    vmap.enableHeight
 #        Description: VMmap support for line of sight and height calculation.
@@ -279,14 +287,6 @@ PlayerSave.Stats.SaveOnlyOnLogout = 1
 
 vmap.enableLOS    = 1
 vmap.enableHeight = 1
-
-#
-#    vmap.petLOS
-#        Description: Check line of sight for pets, to avoid them attacking through walls.
-#        Default:     1 - (Enabled, each pet attack will be checked for line of sight)
-#                     0 - (Disabled, somewhat less CPU usage)
-
-vmap.petLOS = 1
 
 #
 #    vmap.enableIndoorCheck
@@ -2620,6 +2620,14 @@ PlayerDump.DisallowPaths = 1
 PlayerDump.DisallowOverwrite = 1
 
 #
+#     UI.ShowQuestLevelsInDialogs
+#        Description: Show quest levels next to quest titles in UI dialogs
+#        Example: [13] Westfall Stew
+#        Default: 0 (do not show)
+
+UI.ShowQuestLevelsInDialogs = 0
+
+#
 ###################################################################################################
 
 ###################################################################################################
@@ -2629,7 +2637,7 @@ PlayerDump.DisallowOverwrite = 1
 #  Appender config values: Given a appender "name"
 #    Appender.name
 #        Description: Defines 'where to log'
-#        Format:      Type,LogLevel,Flags,optional1,optional2
+#        Format:      Type,LogLevel,Flags,optional1,optional2,optional3
 #
 #                     Type
 #                         0 - (None)
@@ -2680,6 +2688,13 @@ PlayerDump.DisallowOverwrite = 1
 #                          a - (Append)
 #                          w - (Overwrite)
 #
+#                     MaxFileSize: Maximum file size of the log file before creating a new log file
+#                     (read as optional3 if Type = File)
+#                         Size is measured in bytes expressed in a 64-bit unsigned integer.
+#                         Maximum value is 4294967295 (4 gb). Leave blank for no limit.
+#                         NOTE: Does not work with dynamic filenames.
+#                         Example:  536870912 (512 mb)
+#                          
 
 Appender.Console=1,3,0
 Appender.Server=2,2,0,Server.log,w

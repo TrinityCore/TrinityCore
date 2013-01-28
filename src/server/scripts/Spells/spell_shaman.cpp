@@ -34,9 +34,14 @@ enum ShamanSpells
     SPELL_MAGE_TEMPORAL_DISPLACEMENT            = 80354,
     SPELL_SHAMAN_ANCESTRAL_AWAKENING_PROC       = 52752,
     SPELL_SHAMAN_BIND_SIGHT                     = 6277,
+    SPELL_SHAMAN_EARTH_SHIELD_HEAL              = 379,
     SPELL_SHAMAN_EXHAUSTION                     = 57723,
     SPELL_SHAMAN_FIRE_NOVA_TRIGGERED_R1         = 8349,
     SPELL_SHAMAN_FLAME_SHOCK                    = 8050,
+    SPELL_SHAMAN_GLYPH_OF_EARTH_SHIELD          = 63279,
+    SPELL_SHAMAN_GLYPH_OF_HEALING_STREAM_TOTEM  = 55456,
+    SPELL_SHAMAN_GLYPH_OF_MANA_TIDE             = 55441,
+    SPELL_SHAMAN_GLYPH_OF_THUNDERSTORM          = 62132,
     SPELL_SHAMAN_LAVA_FLOWS_R1                  = 51480,
     SPELL_SHAMAN_LAVA_FLOWS_TRIGGERED_R1        = 65264,
     SPELL_SHAMAN_SATED                          = 57724,
@@ -190,6 +195,68 @@ class spell_sha_chain_heal : public SpellScriptLoader
         SpellScript* GetSpellScript() const
         {
             return new spell_sha_chain_heal_SpellScript();
+        }
+};
+
+// -974 - Earth Shield
+class spell_sha_earth_shield : public SpellScriptLoader
+{
+    public:
+        spell_sha_earth_shield() : SpellScriptLoader("spell_sha_earth_shield") { }
+
+        class spell_sha_earth_shield_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_sha_earth_shield_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_SHAMAN_EARTH_SHIELD_HEAL))
+                    return false;
+                if (!sSpellMgr->GetSpellInfo(SPELL_SHAMAN_GLYPH_OF_EARTH_SHIELD))
+                    return false;
+                return true;
+            }
+
+            void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool & /*canBeRecalculated*/)
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    amount = caster->SpellHealingBonusDone(GetUnitOwner(), GetSpellInfo(), amount, HEAL);
+                    amount = GetUnitOwner()->SpellHealingBonusTaken(caster, GetSpellInfo(), amount, HEAL);
+
+                    // Glyph of Earth Shield
+                    //! WORKAROUND
+                    //! this glyph is a proc
+                    if (AuraEffect* glyph = caster->GetAuraEffect(SPELL_SHAMAN_GLYPH_OF_EARTH_SHIELD, EFFECT_0))
+                        AddPct(amount, glyph->GetAmount());
+                }
+            }
+
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
+            {
+                PreventDefaultAction();
+
+                //! HACK due to currenct proc system implementation
+                if (Player* player = GetTarget()->ToPlayer())
+                    if (player->HasSpellCooldown(SPELL_SHAMAN_EARTH_SHIELD_HEAL))
+                        return;
+
+                GetTarget()->CastCustomSpell(SPELL_SHAMAN_EARTH_SHIELD_HEAL, SPELLVALUE_BASE_POINT0, aurEff->GetAmount(), GetTarget(), true, NULL, aurEff, GetCasterGUID());
+
+                if (Player* player = GetTarget()->ToPlayer())
+                    player->AddSpellCooldown(SPELL_SHAMAN_EARTH_SHIELD_HEAL, 0, time(NULL) + 3);
+            }
+
+            void Register()
+            {
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_sha_earth_shield_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_DUMMY);
+                OnEffectProc += AuraEffectProcFn(spell_sha_earth_shield_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_sha_earth_shield_AuraScript();
         }
 };
 
@@ -549,11 +616,41 @@ class spell_sha_mana_tide_totem : public SpellScriptLoader
         }
 };
 
+// -51490 - Thunderstorm
+class spell_sha_thunderstorm : public SpellScriptLoader
+{
+    public:
+        spell_sha_thunderstorm() : SpellScriptLoader("spell_sha_thunderstorm") { }
+
+        class spell_sha_thunderstorm_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_sha_thunderstorm_SpellScript);
+
+            void HandleKnockBack(SpellEffIndex effIndex)
+            {
+                // Glyph of Thunderstorm
+                if (GetCaster()->HasAura(SPELL_SHAMAN_GLYPH_OF_THUNDERSTORM))
+                    PreventHitDefaultEffect(effIndex);
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_sha_thunderstorm_SpellScript::HandleKnockBack, EFFECT_2, SPELL_EFFECT_KNOCK_BACK);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_sha_thunderstorm_SpellScript();
+        }
+};
+
 void AddSC_shaman_spell_scripts()
 {
     new spell_sha_ancestral_awakening_proc();
     new spell_sha_bloodlust();
     new spell_sha_chain_heal();
+    new spell_sha_earth_shield();
     new spell_sha_earthbind_totem();
     new spell_sha_earthen_power();
     new spell_sha_fire_nova();
@@ -562,4 +659,5 @@ void AddSC_shaman_spell_scripts()
     new spell_sha_heroism();
     new spell_sha_lava_lash();
     new spell_sha_mana_tide_totem();
+    new spell_sha_thunderstorm();
 }

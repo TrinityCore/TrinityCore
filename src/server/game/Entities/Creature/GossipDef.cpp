@@ -142,6 +142,9 @@ void PlayerMenu::SendGossipMenu(uint32 titleTextId, uint64 objectGUID) const
 
     data << uint32(_questMenu.GetMenuItemCount());      // max count 0x20
 
+    // Store this instead of checking the Singleton every loop iteration
+    bool questLevelInTitle = sWorld->getBoolConfig(CONFIG_UI_QUESTLEVELS_IN_DIALOGS);
+
     for (uint8 i = 0; i < _questMenu.GetMenuItemCount(); ++i)
     {
         QuestMenuItem const& item = _questMenu.GetItem(i);
@@ -159,6 +162,9 @@ void PlayerMenu::SendGossipMenu(uint32 titleTextId, uint64 objectGUID) const
         if (locale >= 0)
             if (QuestLocale const* localeData = sObjectMgr->GetQuestLocale(questID))
                 ObjectMgr::GetLocaleString(localeData->Title, locale, title);
+
+        if (questLevelInTitle)
+            AddQuestLevelToTitle(title, quest->GetQuestLevel());
 
         data << title;                                  // max 0x200
     }
@@ -252,6 +258,10 @@ void PlayerMenu::SendQuestGiverQuestList(QEmote eEmote, const std::string& Title
     size_t count_pos = data.wpos();
     data << uint8 (_questMenu.GetMenuItemCount());
     uint32 count = 0;
+
+    // Store this instead of checking the Singleton every loop iteration
+    bool questLevelInTitle = sWorld->getBoolConfig(CONFIG_UI_QUESTLEVELS_IN_DIALOGS);
+
     for (; count < _questMenu.GetMenuItemCount(); ++count)
     {
         QuestMenuItem const& qmi = _questMenu.GetItem(count);
@@ -266,6 +276,9 @@ void PlayerMenu::SendQuestGiverQuestList(QEmote eEmote, const std::string& Title
             if (locale >= 0)
                 if (QuestLocale const* localeData = sObjectMgr->GetQuestLocale(questID))
                     ObjectMgr::GetLocaleString(localeData->Title, locale, title);
+
+            if (questLevelInTitle)
+                AddQuestLevelToTitle(title, quest->GetQuestLevel());
 
             data << uint32(questID);
             data << uint32(qmi.QuestIcon);
@@ -317,6 +330,9 @@ void PlayerMenu::SendQuestGiverQuestDetails(Quest const* quest, uint64 npcGUID, 
             ObjectMgr::GetLocaleString(localeData->QuestTurnTargetName, locale, questTurnTargetName);
         }
     }
+
+    if (sWorld->getBoolConfig(CONFIG_UI_QUESTLEVELS_IN_DIALOGS))
+        AddQuestLevelToTitle(questTitle, quest->GetQuestLevel());
 
     WorldPacket data(SMSG_QUESTGIVER_QUEST_DETAILS, 100);   // guess size
     data << uint64(npcGUID);
@@ -467,6 +483,9 @@ void PlayerMenu::SendQuestQueryResponse(Quest const* quest) const
     data << float(quest->GetPointY());
     data << uint32(quest->GetPointOpt());
 
+    if (sWorld->getBoolConfig(CONFIG_UI_QUESTLEVELS_IN_DIALOGS))
+        AddQuestLevelToTitle(questTitle, quest->GetQuestLevel());
+
     data << questTitle;
     data << questObjectives;
     data << questDetails;
@@ -542,6 +561,9 @@ void PlayerMenu::SendQuestGiverOfferReward(Quest const* quest, uint64 npcGUID, b
         }
     }
 
+    if (sWorld->getBoolConfig(CONFIG_UI_QUESTLEVELS_IN_DIALOGS))
+        AddQuestLevelToTitle(questTitle, quest->GetQuestLevel());
+
     WorldPacket data(SMSG_QUESTGIVER_OFFER_REWARD, 50);     // guess size
     data << uint64(npcGUID);
     data << uint32(quest->GetQuestId());
@@ -604,6 +626,9 @@ void PlayerMenu::SendQuestGiverRequestItems(Quest const* quest, uint64 npcGUID, 
         return;
     }
 
+    if (sWorld->getBoolConfig(CONFIG_UI_QUESTLEVELS_IN_DIALOGS))
+        AddQuestLevelToTitle(questTitle, quest->GetQuestLevel());
+
     WorldPacket data(SMSG_QUESTGIVER_REQUEST_ITEMS, 50);    // guess size
     data << uint64(npcGUID);
     data << uint32(quest->GetQuestId());
@@ -663,4 +688,14 @@ void PlayerMenu::SendQuestGiverRequestItems(Quest const* quest, uint64 npcGUID, 
 
     _session->SendPacket(&data);
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUESTGIVER_REQUEST_ITEMS NPCGuid=%u, questid=%u", GUID_LOPART(npcGUID), quest->GetQuestId());
+}
+
+void PlayerMenu::AddQuestLevelToTitle(std::string &title, int32 level)
+{
+    // Adds the quest level to the front of the quest title
+    // example: [13] Westfall Stew
+
+    std::stringstream questTitlePretty;
+    questTitlePretty << "[" << level << "] " << title;
+    title = questTitlePretty.str();
 }
