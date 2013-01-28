@@ -60,23 +60,22 @@ namespace Movement
 
     int32 MoveSplineInit::Launch()
     {
-        MoveSpline& move_spline = *unit.movespline;
+        MoveSpline& move_spline = *unit->movespline;
 
-        Location real_position(unit.GetPositionX(), unit.GetPositionY(), unit.GetPositionZMinusOffset(), unit.GetOrientation());
+        Location real_position(unit->GetPositionX(), unit->GetPositionY(), unit->GetPositionZMinusOffset(), unit->GetOrientation());
         // Elevators also use MOVEMENTFLAG_ONTRANSPORT but we do not keep track of their position changes
-        if (unit->HasUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT) && unit.GetTransGUID())
+        if (unit->GetTransGUID())
         {
-            transport = true;
-            real_position.x = unit.GetTransOffsetX();
-            real_position.y = unit.GetTransOffsetY();
-            real_position.z = unit.GetTransOffsetZ();
-            real_position.orientation = unit.GetTransOffsetO();
+            real_position.x = unit->GetTransOffsetX();
+            real_position.y = unit->GetTransOffsetY();
+            real_position.z = unit->GetTransOffsetZ();
+            real_position.orientation = unit->GetTransOffsetO();
         }
 
         // there is a big chance that current position is unknown if current state is not finalized, need compute it
-        // this also allows CalculatePath spline position and update map position in much greater intervals
+        // this also allows calculate spline position and update map position in much greater intervals
         // Don't compute for transport movement if the unit is in a motion between two transports
-        if (!move_spline.Finalized() && move_spline.onTransport == (unit.GetTransGUID() != 0))
+        if (!move_spline.Finalized() && move_spline.onTransport == (unit->GetTransGUID() != 0))
             real_position = move_spline.ComputePosition();
 
         // should i do the things that user should do? - no.
@@ -86,7 +85,7 @@ namespace Movement
         // correct first vertex
         args.path[0] = real_position;
         args.initialOrientation = real_position.orientation;
-        move_spline.onTransport = (unit.GetTransGUID() != 0);
+        move_spline.onTransport = (unit->GetTransGUID() != 0);
 
         uint32 moveFlags = unit->m_movementInfo.GetMovementFlags();
         if (args.flags.walkmode)
@@ -105,27 +104,27 @@ namespace Movement
         if (moveFlags & MOVEMENTFLAG_ROOT)
             moveFlags &= ~MOVEMENTFLAG_MASK_MOVING;
 
-        unit.m_movementInfo.SetMovementFlags(moveFlags);
+        unit->m_movementInfo.SetMovementFlags(moveFlags);
         move_spline.Initialize(args);
 
         WorldPacket data(SMSG_MONSTER_MOVE, 64);
         data.append(unit->GetPackGUID());
-        if (unit.GetTransGUID())
+        if (unit->GetTransGUID())
         {
             data.SetOpcode(SMSG_MONSTER_MOVE_TRANSPORT);
-            data.appendPackGUID(unit.GetTransGUID());
-            data << int8(unit.GetTransSeat());
+            data.appendPackGUID(unit->GetTransGUID());
+            data << int8(unit->GetTransSeat());
         }
 
         PacketBuilder::WriteMonsterMove(move_spline, data);
-        unit->SendMessageToSet(&data,true);
-
+        unit->SendMessageToSet(&data, true);
+        
         return move_spline.Duration();
     }
 
     void MoveSplineInit::Stop()
     {
-        MoveSpline& move_spline = *unit.movespline;
+        MoveSpline& move_spline = *unit->movespline;
 
         // No need to stop if we are not moving
         if (move_spline.Finalized())
@@ -133,30 +132,30 @@ namespace Movement
 
         Location loc = move_spline.ComputePosition();
         args.flags = MoveSplineFlag::Done;
-        unit.m_movementInfo.RemoveMovementFlag(MOVEMENTFLAG_FORWARD);
+        unit->m_movementInfo.RemoveMovementFlag(MOVEMENTFLAG_FORWARD);
         move_spline.Initialize(args);
 
         WorldPacket data(SMSG_MONSTER_MOVE, 64);
-        data.append(unit.GetPackGUID());
-        if (unit.GetTransGUID())
+        data.append(unit->GetPackGUID());
+        if (unit->GetTransGUID())
         {
             data.SetOpcode(SMSG_MONSTER_MOVE_TRANSPORT);
-            data.appendPackGUID(unit.GetTransGUID());
-            data << int8(unit.GetTransSeat());
+            data.appendPackGUID(unit->GetTransGUID());
+            data << int8(unit->GetTransSeat());
         }
 
         PacketBuilder::WriteStopMovement(loc, args.splineId, data);
-        unit.SendMessageToSet(&data, true);
+        unit->SendMessageToSet(&data, true);
     }
 
-    MoveSplineInit::MoveSplineInit(Unit& m) : unit(m)
+    MoveSplineInit::MoveSplineInit(Unit* m) : unit(m)
     {
         args.splineId = splineIdGen.NewId();
         // Elevators also use MOVEMENTFLAG_ONTRANSPORT but we do not keep track of their position changes
-        args.TransformForTransport = unit.HasUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT) && unit->GetTransGUID();
+        args.TransformForTransport = unit->GetTransGUID();
         // mix existing state into new
-        args.flags.walkmode = unit.m_movementInfo.HasMovementFlag(MOVEMENTFLAG_WALKING);
-        args.flags.flying = unit.m_movementInfo.HasMovementFlag(MOVEMENTFLAG_CAN_FLY | MOVEMENTFLAG_DISABLE_GRAVITY);
+        args.flags.walkmode = unit->m_movementInfo.HasMovementFlag(MOVEMENTFLAG_WALKING);
+        args.flags.flying = unit->m_movementInfo.HasMovementFlag(MovementFlags(MOVEMENTFLAG_CAN_FLY | MOVEMENTFLAG_DISABLE_GRAVITY));
         args.flags.smoothGroundPath = true; // enabled by default, CatmullRom mode or client config "pathSmoothing" will disable this
     }
 
@@ -202,7 +201,7 @@ namespace Movement
     void MoveSplineInit::SetFall()
     {
         args.flags.EnableFalling();
-        args.flags.fallingSlow = unit.HasUnitMovementFlag(MOVEMENTFLAG_FALLING_SLOW);
+        args.flags.fallingSlow = unit->HasUnitMovementFlag(MOVEMENTFLAG_FALLING_SLOW);
     }
 
     Vector3 TransportPathTransform::operator()(Vector3 input)

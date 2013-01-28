@@ -973,7 +973,7 @@ void Battleground::EndBattleground(uint32 winner)
         player->GetSession()->SendPacket(&pvpLogData);
 
         WorldPacket data;
-        sBattlegroundMgr->BuildBattlegroundStatusPacket(&data, this, player, player->GetBattlegroundQueueIndex(bgQueueTypeId), STATUS_IN_PROGRESS, TIME_TO_AUTOREMOVE, player->GetBattlegroundQueueJoinTime(GetTypeID()), GetElapsedTime(), GetArenaType());
+        sBattlegroundMgr->BuildBattlegroundStatusPacket(&data, this, player, player->GetBattlegroundQueueIndex(bgQueueTypeId), STATUS_IN_PROGRESS, player->GetBattlegroundQueueJoinTime(GetTypeID()), GetElapsedTime(), GetArenaType());
         player->GetSession()->SendPacket(&data);
 
         player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_BATTLEGROUND, 1);
@@ -1204,9 +1204,13 @@ void Battleground::AddPlayer(Player* player)
     sBattlegroundMgr->BuildPlayerJoinedBattlegroundPacket(&data, player->GetGUID());
     SendPacketToTeam(team, &data, player, false);
 
+    // BG Status packet
+    BattlegroundQueueTypeId bgQueueTypeId = sBattlegroundMgr->BGQueueTypeId(m_TypeID, GetArenaType());
+    uint32 queueSlot = player->GetBattlegroundQueueIndex(bgQueueTypeId);
 
     sBattlegroundMgr->BuildBattlegroundStatusPacket(&data, this, player, queueSlot, STATUS_IN_PROGRESS, player->GetBattlegroundQueueJoinTime(m_TypeID), GetElapsedTime(), GetArenaType());
     player->GetSession()->SendPacket(&data);
+
     player->RemoveAurasByType(SPELL_AURA_MOUNTED);
 
     // add arena specific auras

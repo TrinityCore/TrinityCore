@@ -29,28 +29,29 @@
 enum WarlockSpells
 {
     SPELL_WARLOCK_BANE_OF_DOOM_EFFECT               = 18662,
+    SPELL_WARLOCK_CURSE_OF_DOOM_EFFECT              = 18662,
+    SPELL_WARLOCK_DEMONIC_CIRCLE_ALLOW_CAST         = 62388,
     SPELL_WARLOCK_DEMONIC_CIRCLE_SUMMON             = 48018,
     SPELL_WARLOCK_DEMONIC_CIRCLE_TELEPORT           = 48020,
-    SPELL_WARLOCK_DEMONIC_CIRCLE_ALLOW_CAST         = 62388,
-    SPELL_WARLOCK_DEMONIC_EMPOWERMENT_SUCCUBUS      = 54435,
-    SPELL_WARLOCK_DEMONIC_EMPOWERMENT_VOIDWALKER    = 54443,
     SPELL_WARLOCK_DEMONIC_EMPOWERMENT_FELGUARD      = 54508,
     SPELL_WARLOCK_DEMONIC_EMPOWERMENT_FELHUNTER     = 54509,
     SPELL_WARLOCK_DEMONIC_EMPOWERMENT_IMP           = 54444,
+    SPELL_WARLOCK_DEMONIC_EMPOWERMENT_SUCCUBUS      = 54435,
+    SPELL_WARLOCK_DEMONIC_EMPOWERMENT_VOIDWALKER    = 54443,
     SPELL_WARLOCK_FEL_SYNERGY_HEAL                  = 54181,
     SPELL_WARLOCK_GLYPH_OF_SIPHON_LIFE              = 63106,
-    SPELL_WARLOCK_IMPROVED_HEALTHSTONE_R1           = 18692,
-    SPELL_WARLOCK_IMPROVED_HEALTHSTONE_R2           = 18693,
-    SPELL_WARLOCK_IMPROVED_HEALTH_FUNNEL_R1         = 18703,
-    SPELL_WARLOCK_IMPROVED_HEALTH_FUNNEL_R2         = 18704,
-    SPELL_WARLOCK_IMPROVED_HEALTH_FUNNEL_BUFF_R1    = 60955,
-    SPELL_WARLOCK_IMPROVED_HEALTH_FUNNEL_BUFF_R2    = 60956,
     SPELL_WARLOCK_HAUNT                             = 48181,
     SPELL_WARLOCK_HAUNT_HEAL                        = 48210,
+    SPELL_WARLOCK_IMPROVED_HEALTHSTONE_R1           = 18692,
+    SPELL_WARLOCK_IMPROVED_HEALTHSTONE_R2           = 18693,
+    SPELL_WARLOCK_IMPROVED_HEALTH_FUNNEL_BUFF_R1    = 60955,
+    SPELL_WARLOCK_IMPROVED_HEALTH_FUNNEL_BUFF_R2    = 60956,
+    SPELL_WARLOCK_IMPROVED_HEALTH_FUNNEL_R1         = 18703,
+    SPELL_WARLOCK_IMPROVED_HEALTH_FUNNEL_R2         = 18704,
     SPELL_WARLOCK_LIFE_TAP_ENERGIZE                 = 31818,
     SPELL_WARLOCK_LIFE_TAP_ENERGIZE_2               = 32553,
-    SPELL_WARLOCK_SOULSHATTER                       = 32835,
     SPELL_WARLOCK_SIPHON_LIFE_HEAL                  = 63106,
+    SPELL_WARLOCK_SOULSHATTER                       = 32835,
     SPELL_WARLOCK_UNSTABLE_AFFLICTION_DISPEL        = 31117
 };
 
@@ -647,6 +648,34 @@ class spell_warl_life_tap : public SpellScriptLoader
         }
 };
 
+// 18541 - Ritual of Doom Effect
+class spell_warl_ritual_of_doom_effect : public SpellScriptLoader
+{
+    public:
+        spell_warl_ritual_of_doom_effect() : SpellScriptLoader("spell_warl_ritual_of_doom_effect") { }
+
+        class spell_warl_ritual_of_doom_effect_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_warl_ritual_of_doom_effect_SpellScript);
+
+            void HandleDummy(SpellEffIndex /*effIndex*/)
+            {
+                Unit* caster = GetCaster();
+                caster->CastSpell(caster, GetEffectValue(), true);
+            }
+
+            void Register()
+            {
+                OnEffectHit += SpellEffectFn(spell_warl_ritual_of_doom_effect_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_warl_ritual_of_doom_effect_SpellScript();
+        }
+};
+
 // 27285 - Seed of Corruption
 /// Updated 4.3.4
 class spell_warl_seed_of_corruption : public SpellScriptLoader
@@ -846,7 +875,6 @@ void AddSC_warlock_spell_scripts()
     new spell_warl_bane_of_doom();
     new spell_warl_banish();
     new spell_warl_create_healthstone();
-    new spell_warl_curse_of_doom();
     new spell_warl_demonic_circle_summon();
     new spell_warl_demonic_circle_teleport();
     new spell_warl_demonic_empowerment();
