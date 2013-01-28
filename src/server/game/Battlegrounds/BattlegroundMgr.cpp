@@ -891,6 +891,27 @@ Battleground* BattlegroundMgr::CreateNewBattleground(BattlegroundTypeId original
     bg->SetRandom(isRandom);
     bg->SetGuid(MAKE_NEW_GUID(bgTypeId, 0, HIGHGUID_BATTLEGROUND));
 
+    // Set up correct min/max player counts for scoreboards
+    if (bg->isArena())
+    {
+        uint32 maxPlayersPerTeam = 0;
+        switch (arenaType)
+        {
+            case ARENA_TYPE_2v2:
+                maxPlayersPerTeam = 2;
+                break;
+            case ARENA_TYPE_3v3:
+                maxPlayersPerTeam = 3;
+                break;
+            case ARENA_TYPE_5v5:
+                maxPlayersPerTeam = 5;
+                break;
+        }
+
+        bg->SetMaxPlayersPerTeam(maxPlayersPerTeam);
+        bg->SetMaxPlayers(maxPlayersPerTeam * 2);
+    }
+
     return bg;
 }
 
@@ -957,8 +978,8 @@ bool BattlegroundMgr::CreateBattleground(CreateBattlegroundData& data)
     bg->SetArenaorBGType(data.IsArena);
     bg->SetMinPlayersPerTeam(data.MinPlayersPerTeam);
     bg->SetMaxPlayersPerTeam(data.MaxPlayersPerTeam);
-    bg->SetMinPlayers(data.MinPlayersPerTeam* 2);
-    bg->SetMaxPlayers(data.MaxPlayersPerTeam* 2);
+    bg->SetMinPlayers(data.MinPlayersPerTeam * 2);
+    bg->SetMaxPlayers(data.MaxPlayersPerTeam * 2);
     bg->SetName(data.BattlegroundName);
     bg->SetTeamStartLoc(ALLIANCE, data.Team1StartLocX, data.Team1StartLocY, data.Team1StartLocZ, data.Team1StartLocO);
     bg->SetTeamStartLoc(HORDE,    data.Team2StartLocX, data.Team2StartLocY, data.Team2StartLocZ, data.Team2StartLocO);

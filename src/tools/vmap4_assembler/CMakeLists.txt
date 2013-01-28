@@ -20,7 +20,6 @@ include_directories(
   ${ZLIB_INCLUDE_DIR}
 )
 
-add_definitions(-DNO_CORE_FUNCS)
 add_executable(vmap4assembler VMapAssembler.cpp)
 add_dependencies(vmap4assembler storm)
 

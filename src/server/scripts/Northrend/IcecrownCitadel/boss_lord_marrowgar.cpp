@@ -53,7 +53,7 @@ enum Spells
     SPELL_COLDFLAME_SUMMON      = 69147,
 };
 
-uint32 const boneSpikeSummonId[3] = {69062, 72669, 72670};
+uint32 const BoneSpikeSummonId[3] = {69062, 72669, 72670};
 
 enum Events
 {
@@ -514,6 +514,20 @@ class spell_marrowgar_bone_spike_graveyard : public SpellScriptLoader
         {
             PrepareSpellScript(spell_marrowgar_bone_spike_graveyard_SpellScript);
 
+            bool Validate(SpellInfo const* /*spell*/)
+            {
+                for (uint32 i = 0; i < 3; ++i)
+                    if (!sSpellMgr->GetSpellInfo(BoneSpikeSummonId[i]))
+                        return false;
+
+                return true;
+            }
+
+            bool Load()
+            {
+                return GetCaster()->GetTypeId() == TYPEID_UNIT && GetCaster()->IsAIEnabled;
+            }
+
             SpellCastResult CheckCast()
             {
                 return GetCaster()->GetAI()->SelectTarget(SELECT_TARGET_TOPAGGRO, 1, 0.0f, true, -SPELL_IMPALED) ? SPELL_CAST_OK : SPELL_FAILED_NO_VALID_TARGETS;
@@ -535,7 +549,7 @@ class spell_marrowgar_bone_spike_graveyard : public SpellScriptLoader
                             break;
 
                         didHit = true;
-                        target->CastCustomSpell(boneSpikeSummonId[i], SPELLVALUE_BASE_POINT0, 0, target, true);
+                        target->CastCustomSpell(BoneSpikeSummonId[i], SPELLVALUE_BASE_POINT0, 0, target, true);
                     }
 
                     if (didHit)

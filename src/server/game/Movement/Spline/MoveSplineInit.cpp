@@ -58,14 +58,15 @@ namespace Movement
         return MOVE_RUN;
     }
 
-    void MoveSplineInit::Launch()
+    int32 MoveSplineInit::Launch()
     {
         MoveSpline& move_spline = *unit.movespline;
 
         Location real_position(unit.GetPositionX(), unit.GetPositionY(), unit.GetPositionZMinusOffset(), unit.GetOrientation());
         // Elevators also use MOVEMENTFLAG_ONTRANSPORT but we do not keep track of their position changes
-        if (unit.GetTransGUID())
+        if (unit->HasUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT) && unit.GetTransGUID())
         {
+            transport = true;
             real_position.x = unit.GetTransOffsetX();
             real_position.y = unit.GetTransOffsetY();
             real_position.z = unit.GetTransOffsetZ();
@@ -73,21 +74,21 @@ namespace Movement
         }
 
         // there is a big chance that current position is unknown if current state is not finalized, need compute it
-        // this also allows calculate spline position and update map position in much greater intervals
+        // this also allows CalculatePath spline position and update map position in much greater intervals
         // Don't compute for transport movement if the unit is in a motion between two transports
         if (!move_spline.Finalized() && move_spline.onTransport == (unit.GetTransGUID() != 0))
             real_position = move_spline.ComputePosition();
 
         // should i do the things that user should do? - no.
         if (args.path.empty())
-            return;
+            return 0;
 
         // correct first vertex
         args.path[0] = real_position;
         args.initialOrientation = real_position.orientation;
         move_spline.onTransport = (unit.GetTransGUID() != 0);
 
-        uint32 moveFlags = unit.m_movementInfo.GetMovementFlags();
+        uint32 moveFlags = unit->m_movementInfo.GetMovementFlags();
         if (args.flags.walkmode)
             moveFlags |= MOVEMENTFLAG_WALKING;
         else
@@ -96,10 +97,10 @@ namespace Movement
         moveFlags |= MOVEMENTFLAG_FORWARD;
 
         if (!args.HasVelocity)
-            args.velocity = unit.GetSpeed(SelectSpeedType(moveFlags));
+            args.velocity = unit->GetSpeed(SelectSpeedType(moveFlags));
 
-        if (!args.Validate(&unit))
-            return;
+        if (!args.Validate(unit))
+            return 0;
 
         if (moveFlags & MOVEMENTFLAG_ROOT)
             moveFlags &= ~MOVEMENTFLAG_MASK_MOVING;
@@ -108,7 +109,7 @@ namespace Movement
         move_spline.Initialize(args);
 
         WorldPacket data(SMSG_MONSTER_MOVE, 64);
-        data.append(unit.GetPackGUID());
+        data.append(unit->GetPackGUID());
         if (unit.GetTransGUID())
         {
             data.SetOpcode(SMSG_MONSTER_MOVE_TRANSPORT);
@@ -117,7 +118,9 @@ namespace Movement
         }
 
         PacketBuilder::WriteMonsterMove(move_spline, data);
-        unit.SendMessageToSet(&data, true);
+        unit->SendMessageToSet(&data,true);
+
+        return move_spline.Duration();
     }
 
     void MoveSplineInit::Stop()
@@ -150,10 +153,10 @@ namespace Movement
     {
         args.splineId = splineIdGen.NewId();
         // Elevators also use MOVEMENTFLAG_ONTRANSPORT but we do not keep track of their position changes
-        args.TransformForTransport = unit.GetTransGUID();
+        args.TransformForTransport = unit.HasUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT) && unit->GetTransGUID();
         // mix existing state into new
         args.flags.walkmode = unit.m_movementInfo.HasMovementFlag(MOVEMENTFLAG_WALKING);
-        args.flags.flying = unit.m_movementInfo.HasMovementFlag(MovementFlags(MOVEMENTFLAG_CAN_FLY | MOVEMENTFLAG_DISABLE_GRAVITY));
+        args.flags.flying = unit.m_movementInfo.HasMovementFlag(MOVEMENTFLAG_CAN_FLY | MOVEMENTFLAG_DISABLE_GRAVITY);
         args.flags.smoothGroundPath = true; // enabled by default, CatmullRom mode or client config "pathSmoothing" will disable this
     }
 
@@ -167,9 +170,9 @@ namespace Movement
     {
         if (args.TransformForTransport)
         {
-            if (Unit* vehicle = unit.GetVehicleBase())
+            if (Unit* vehicle = unit->GetVehicleBase())
                 angle -= vehicle->GetOrientation();
-            else if (Transport* transport = unit.GetTransport())
+            else if (Transport* transport = unit->GetTransport())
                 angle -= transport->GetOrientation();
         }
 
@@ -177,8 +180,19 @@ namespace Movement
         args.flags.EnableFacingAngle();
     }
 
-    void MoveSplineInit::MoveTo(Vector3 const& dest)
+    void MoveSplineInit::MoveTo(const Vector3& dest, bool generatePath, bool forceDestination)
     {
+        if (generatePath)
+        {
+            PathGenerator path(unit);
+            bool result = path.CalculatePath(dest.x, dest.y, dest.z, forceDestination);
+            if (result && path.GetPathType() & ~PATHFIND_NOPATH)
+            {
+                MovebyPath(path.GetPath());
+                return;
+            }
+        }
+
         args.path_Idx_offset = 0;
         args.path.resize(2);
         TransportPathTransform transform(unit, args.TransformForTransport);
@@ -195,7 +209,7 @@ namespace Movement
     {
         if (_transformForTransport)
         {
-            if (TransportBase* transport = _owner.GetDirectTransport())
+            if (TransportBase* transport = _owner->GetDirectTransport())
             {
                 float unused = 0.0f; // need reference
                 transport->CalculatePassengerOffset(input.x, input.y, input.z, unused);
