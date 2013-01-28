@@ -276,8 +276,6 @@ class Battleground
     public:
         Battleground();
         virtual ~Battleground();
-		
-		virtual void MorphCrossfactionPlayer(Player* player, bool action);
 
         void Update(uint32 diff);
 

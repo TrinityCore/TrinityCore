@@ -979,7 +979,6 @@ void Battleground::RemovePlayerAtLeave(uint64 guid, bool Transport, bool SendPac
     // should remove spirit of redemption
     if (player)
     {
-	     MorphCrossfactionPlayer(player, false);
         if (player->HasAuraType(SPELL_AURA_SPIRIT_OF_REDEMPTION))
             player->RemoveAurasByType(SPELL_AURA_MOD_SHAPESHIFT);
 
@@ -1126,15 +1125,32 @@ void Battleground::StartBattleground()
 
 void Battleground::AddPlayer(Player* player)
 {
-    MorphCrossfactionPlayer(player, true);
     // remove afk from player
     if (player->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_AFK))
         player->ToggleAFK();
 
     // score struct must be created in inherited class
 
-    uint64 guid = player->GetGUID();
-    uint32 team = player->GetBGTeam();
+  uint32 team;	
+  uint32 hCount = GetPlayersCountByTeam(HORDE);	
+  uint32 aCount = GetPlayersCountByTeam(ALLIANCE);
+  uint64 guid = player->GetGUID();
+
+  if (aCount >= hCount)
+  {
+   	 team = HORDE;
+   	 player->SetBGTeam(HORDE);
+        player->setFaction(2);
+  }
+  else
+  {
+	  team = ALLIANCE;
+      	  player->SetBGTeam(ALLIANCE);
+         player->setFaction(1);
+  }
+
+  /*  uint64 guid = player->GetGUID();
+    uint32 team = player->GetBGTeam();*/
 
     BattlegroundPlayer bp;
     bp.OfflineRemoveTime = 0;
@@ -1952,8 +1968,8 @@ void BattlegroundMgr::HandleCrossfactionSendToBattle(Player* player, Battlegroun
     if (!player || !bg)
         return;
 
-    if (sWorld->getBoolConfig(CONFIG_BG_CROSSFRACTION) == 1)
-    {
+   // if (sWorld->getBoolConfig(CONFIG_BG_CROSSFRACTION) == 1)
+   // {
       /*  Team GrpTeam = TEAM_NONE;
         if (Group *pGroup = player->GetGroup())
         {
@@ -1974,16 +1990,16 @@ void BattlegroundMgr::HandleCrossfactionSendToBattle(Player* player, Battlegroun
             player->SetBGTeam(GrpTeam);
         else
         {*/
-            if (bg->GetPlayersCountByTeam(HORDE) < bg->GetMaxPlayersPerTeam() && bg->GetPlayersCountByTeam(HORDE) < bg->GetPlayersCountByTeam(ALLIANCE))
+            if (bg->GetPlayersCountByTeam(HORDE) < bg->GetMaxPlayersPerTeam() && bg->GetPlayersCountByTeam(HORDE) <= bg->GetPlayersCountByTeam(ALLIANCE))
                 player->SetBGTeam(HORDE);
-            else if (bg->GetPlayersCountByTeam(ALLIANCE) < bg->GetMaxPlayersPerTeam() && bg->GetPlayersCountByTeam(ALLIANCE) < bg->GetPlayersCountByTeam(HORDE))
+            else if (bg->GetPlayersCountByTeam(ALLIANCE) < bg->GetMaxPlayersPerTeam())
                 player->SetBGTeam(ALLIANCE);
         //}
         if (player->GetBGTeam() == HORDE)
             player->setFaction(2); // orc, and generic for horde
         else if (player->GetBGTeam() == ALLIANCE)
             player->setFaction(1); // dwarf/gnome, and generic for alliance
-    }
-   uint32 TeamID = player->GetBGTeam();
+    //}
+     uint32 TeamID = player->GetBGTeam();
     bg->UpdatePlayersCountByTeam(player->GetBGTeam(), false); // Add here instead of in AddPlayer, because AddPlayer is not made until loading screen is finished. Which can cause unbalance in the system.
 }
