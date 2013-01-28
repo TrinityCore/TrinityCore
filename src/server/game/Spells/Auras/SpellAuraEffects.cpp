@@ -538,12 +538,6 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
         case SPELL_AURA_SCHOOL_ABSORB:
         case SPELL_AURA_MANA_SHIELD:
             m_canBeRecalculated = false;
-            case 57669: // Replenishment (0.2% from max)
-                amount = CalculatePct(GetBase()->GetUnitOwner()->GetMaxPower(POWER_MANA), amount);
-                break;
-            case 61782: // Infinite Replenishment
-                amount = GetBase()->GetUnitOwner()->GetMaxPower(POWER_MANA) * 0.0025f;
-                break;
             break;
         case SPELL_AURA_MOUNTED:
             if (MountCapabilityEntry const* mountCapability = GetBase()->GetUnitOwner()->GetMountCapability(uint32(GetMiscValueB())))
