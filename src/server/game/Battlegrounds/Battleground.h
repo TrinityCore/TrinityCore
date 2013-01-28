@@ -155,8 +155,10 @@ enum BattlegroundStatus
 
 struct BattlegroundPlayer
 {
-    time_t  OfflineRemoveTime;                              // for tracking and removing offline players from queue after 5 minutes
-    uint32  Team;                                           // Player's team
+    time_t  OfflineRemoveTime;   	// for tracking and removing offline players from queue after 5 minutes
+    uint32 hCount;
+    uint32 aCount;
+    uint32 Team;                                   // Player's team
 };
 
 struct BattlegroundObjectInfo
@@ -274,6 +276,8 @@ class Battleground
     public:
         Battleground();
         virtual ~Battleground();
+		
+		virtual void MorphCrossfactionPlayer(Player* player, bool action);
 
         void Update(uint32 diff);
 
@@ -389,10 +393,10 @@ class Battleground
         BattlegroundMap* GetBgMap() const { ASSERT(m_Map); return m_Map; }
         BattlegroundMap* FindBgMap() const { return m_Map; }
 
-        void SetTeamStartLoc(uint32 TeamID, float X, float Y, float Z, float O);
-        void GetTeamStartLoc(uint32 TeamID, float &X, float &Y, float &Z, float &O) const
+        void SetTeamStartLoc(uint32 team, float X, float Y, float Z, float O);
+        void GetTeamStartLoc(uint32 team, float &X, float &Y, float &Z, float &O) const
         {
-            TeamId idx = GetTeamIndexByTeamId(TeamID);
+            TeamId idx = GetTeamIndexByTeamId(team);
             X = m_TeamStartLocX[idx];
             Y = m_TeamStartLocY[idx];
             Z = m_TeamStartLocZ[idx];
@@ -420,7 +424,7 @@ class Battleground
         void RewardReputationToTeam(uint32 faction_id, uint32 Reputation, uint32 TeamID);
         void UpdateWorldState(uint32 Field, uint32 Value);
         void UpdateWorldStateForPlayer(uint32 Field, uint32 Value, Player* Source);
-        void EndBattleground(uint32 winner);
+        void EndBattleground(uint32 winner, uint32 team);
         void BlockMovement(Player* player);
 
         void SendWarningToAll(int32 entry, ...);
@@ -488,7 +492,7 @@ class Battleground
 
         void AddOrSetPlayerToCorrectBgGroup(Player* player, uint32 team);
 
-        virtual void RemovePlayerAtLeave(uint64 guid, bool Transport, bool SendPacket);
+        virtual void RemovePlayerAtLeave(uint64 guid, bool Transport, bool SendPacket, uint32 team);
                                                             // can be extended in in BG subclass
 
         void HandleTriggerBuff(uint64 go_guid);
@@ -539,7 +543,7 @@ class Battleground
         Player* _GetPlayer(uint64 guid, bool offlineRemove, const char* context) const;
         Player* _GetPlayer(BattlegroundPlayerMap::iterator itr, const char* context);
         Player* _GetPlayer(BattlegroundPlayerMap::const_iterator itr, const char* context) const;
-        Player* _GetPlayerForTeam(uint32 teamId, BattlegroundPlayerMap::const_iterator itr, const char* context) const;
+        Player* _GetPlayerForTeam(uint32 teamId, BattlegroundPlayerMap::const_iterator itr, const char* context, uint32 team) const;
 
         void _ProcessOfflineQueue();
         void _ProcessRessurect(uint32 diff);

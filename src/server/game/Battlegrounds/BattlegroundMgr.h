@@ -100,6 +100,7 @@ class BattlegroundMgr
         void DeleteAllBattlegrounds();
 
         void SendToBattleground(Player* player, uint32 InstanceID, BattlegroundTypeId bgTypeId);
+		virtual void HandleCrossfactionSendToBattle(Player* player, Battleground* bg, uint32 InstanceID, BattlegroundTypeId bgTypeId);
 
         /* Battleground queues */
         BattlegroundQueue& GetBattlegroundQueue(BattlegroundQueueTypeId bgQueueTypeId) { return m_BattlegroundQueues[bgQueueTypeId]; }

@@ -21,7 +21,7 @@
 #include "ArenaTeamMgr.h"
 #include "World.h"
 #include "WorldPacket.h"
-
+#include "Battleground.h"
 #include "ArenaTeam.h"
 #include "BattlegroundMgr.h"
 #include "BattlegroundAV.h"
@@ -45,6 +45,7 @@
 #include "Formulas.h"
 #include "DisableMgr.h"
 #include "Opcodes.h"
+#include "Player.h"
 
 /*********************************************************/
 /***            BATTLEGROUND MANAGER                   ***/
@@ -282,7 +283,8 @@ void BattlegroundMgr::BuildPvpLogDataPacket(WorldPacket* data, Battleground* bg)
             Player* player = ObjectAccessor::FindPlayer(itr2->first);
             uint32 team = bg->GetPlayerTeam(itr2->first);
             if (!team && player)
-                team = player->GetBGTeam();
+                 team = player->GetBGTeam();
+				 
             *data << uint8(team == ALLIANCE ? 1 : 0); // green or yellow
         }
         *data << uint32(itr2->second->DamageDone);              // damage done
@@ -888,12 +890,15 @@ void BattlegroundMgr::SendToBattleground(Player* player, uint32 instanceId, Batt
 {
     if (Battleground* bg = GetBattleground(instanceId, bgTypeId))
     {
+
+	    HandleCrossfactionSendToBattle(player, bg, InstanceID, bgTypeId);
+		
         float x, y, z, O;
         uint32 mapid = bg->GetMapId();
         uint32 team = player->GetBGTeam();
-        if (team == 0)
-            team = player->GetTeam();
-
+		if (team == 0)
+          team = player->GetBGTeam();
+      
         bg->GetTeamStartLoc(team, x, y, z, O);
         sLog->outDebug(LOG_FILTER_BATTLEGROUND, "BattlegroundMgr::SendToBattleground: Sending %s to map %u, X %f, Y %f, Z %f, O %f (bgType %u)", player->GetName().c_str(), mapid, x, y, z, O, bgTypeId);
         player->TeleportTo(mapid, x, y, z, O);

@@ -619,7 +619,7 @@ inline Player* Battleground::_GetPlayerForTeam(uint32 teamId, BattlegroundPlayer
     {
         uint32 team = itr->second.Team;
         if (!team)
-            team = player->GetTeam();
+            team = player->GetBGTeam();
         if (team != teamId)
             player = NULL;
     }
@@ -979,6 +979,7 @@ void Battleground::RemovePlayerAtLeave(uint64 guid, bool Transport, bool SendPac
     // should remove spirit of redemption
     if (player)
     {
+	     MorphCrossfactionPlayer(player, false);
         if (player->HasAuraType(SPELL_AURA_SPIRIT_OF_REDEMPTION))
             player->RemoveAurasByType(SPELL_AURA_MOD_SHAPESHIFT);
 
@@ -999,7 +1000,7 @@ void Battleground::RemovePlayerAtLeave(uint64 guid, bool Transport, bool SendPac
         {
             player->ClearAfkReports();
 
-            if (!team) team = player->GetTeam();
+            if (!team) team = player->GetBGTeam();
 
             // if arena, remove the specific arena auras
             if (isArena())
@@ -1088,7 +1089,6 @@ void Battleground::Reset()
     SetStartTime(0);
     SetEndTime(0);
     SetLastResurrectTime(0);
-
     m_Events = 0;
 
     if (m_InvitedAlliance > 0 || m_InvitedHorde > 0)
@@ -1126,33 +1126,16 @@ void Battleground::StartBattleground()
 
 void Battleground::AddPlayer(Player* player)
 {
-   
-   // remove afk from player
+    MorphCrossfactionPlayer(player, true);
+    // remove afk from player
     if (player->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_AFK))
         player->ToggleAFK();
-		
-    if (sWorld->getBoolConfig(CONFIG_BG_CROSSFRACTION) == 0)
-	{
-		// score struct must be created in inherited class 
-		// No Crossfraction (Close in Config)
-		uint64 guid = player->GetGUID();
-		uint32 team = player->GetBGTeam();
-    }
-	else
-	{
-		// score struct must be created in inherited class
-		//Crossfraction BGs -> Config Enable
-		uint32 hCount = GetPlayersCountByTeam(HORDE);
-		uint32 aCount = GetPlayersCountByTeam(ALLIANCE);
-		uint32 team;
-	
-		uint64 guid = player->GetGUID();
-		if(aCount > hCount)
-			team = HORDE;
-		else
-			team = ALLIANCE;
-	}
-		
+
+    // score struct must be created in inherited class
+
+    uint64 guid = player->GetGUID();
+    uint32 team = player->GetBGTeam();
+
     BattlegroundPlayer bp;
     bp.OfflineRemoveTime = 0;
     bp.Team = team;
@@ -1290,7 +1273,6 @@ void Battleground::EventPlayerLoggedOut(Player* player)
                 EndBattleground(GetOtherTeam(player->GetBGTeam()));
     }
 }
-
 
 // This method should be called only once ... it adds pointer to queue
 void Battleground::AddToBGFreeSlotQueue()
@@ -1810,7 +1792,7 @@ void Battleground::HandleKillPlayer(Player* victim, Player* killer)
             if (!creditedPlayer || creditedPlayer == killer)
                 continue;
 
-            if (creditedPlayer->GetTeam() == killer->GetTeam() && creditedPlayer->IsAtGroupRewardDistance(victim))
+            if (creditedPlayer->GetBGTeam() == killer->GetBGTeam() && creditedPlayer->IsAtGroupRewardDistance(victim))
                 UpdatePlayerScore(creditedPlayer, SCORE_HONORABLE_KILLS, 1);
         }
     }
@@ -1928,7 +1910,7 @@ void Battleground::SetBgRaid(uint32 TeamID, Group* bg_raid)
 
 WorldSafeLocsEntry const* Battleground::GetClosestGraveYard(Player* player)
 {
-    return sObjectMgr->GetClosestGraveYard(player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetMapId(), player->GetTeam());
+    return sObjectMgr->GetClosestGraveYard(player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetMapId(), player->GetBGTeam());
 }
 
 void Battleground::StartTimedAchievement(AchievementCriteriaTimedTypes type, uint32 entry)
@@ -1963,4 +1945,57 @@ void Battleground::HandleAreaTrigger(Player* player, uint32 trigger)
 {
     sLog->outDebug(LOG_FILTER_BATTLEGROUND, "Unhandled AreaTrigger %u in Battleground %u. Player coords (x: %f, y: %f, z: %f)",
                    trigger, player->GetMapId(), player->GetPositionX(), player->GetPositionY(), player->GetPositionZ());
+}
+
+void BattleGroundMgr::HandleCrossfactionSendToBattle(Player* player, Battleground* bg, uint32 InstanceID, BattlegroundTypeId bgTypeId)
+{
+    if (!player || !bg)
+        return;
+
+    if (sWorld->getBoolConfig(CONFIG_BG_CROSSFRACTION))
+    {
+        Team GrpTeam = TEAM_NONE;
+        if (Group *pGroup = player->GetGroup())
+        {
+            for (GroupReference* itr = pGroup->GetFirstMember(); itr != NULL; itr = itr->next())
+            {
+                Player* pGroupGuy = itr->getSource();
+                if (!pGroupGuy)
+                    continue;
+
+                if (pGroupGuy->GetBattleground() && pGroupGuy->GetBattleground()->GetInstanceID() == InstanceID && pGroupGuy->GetBattleground()->GetTypeID() == bgTypeId)
+                {
+                    GrpTeam = pGroupGuy->GetBGTeam();
+                    break;
+                }
+            }
+        }
+        if (GrpTeam != TEAM_NONE && bg->GetPlayersCountByTeam(GrpTeam) < bg->GetMaxPlayersPerTeam())
+            player->SetBGTeam(GrpTeam);
+        else
+        {
+            if (bg->GetPlayersCountByTeam(HORDE) < bg->GetMaxPlayersPerTeam() && bg->GetPlayersCountByTeam(HORDE) < bg->GetPlayersCountByTeam(ALLIANCE))
+                player->SetBGTeam(HORDE);
+            else if (bg->GetPlayersCountByTeam(ALLIANCE) < bg->GetMaxPlayersPerTeam() && bg->GetPlayersCountByTeam(ALLIANCE) < bg->GetPlayersCountByTeam(HORDE))
+                player->SetBGTeam(ALLIANCE);
+        }
+        if (player->GetBGTeam() == HORDE)
+            player->setFaction(2); // orc, and generic for horde
+        else if (player->GetBGTeam() == ALLIANCE)
+            player->setFaction(1); // dwarf/gnome, and generic for alliance
+    }
+
+    bg->UpdatePlayersCountByTeam(player->GetBGTeam(), false); // Add here instead of in AddPlayer, because AddPlayer is not made until loading screen is finished. Which can cause unbalance in the system.
+}
+
+void BattleGround::MorphCrossfactionPlayer(Player* player, bool action)
+{
+    if (!player || !player->IsInWorld())
+        return;
+
+    else if (!action)
+    {
+        player->setFactionForRace(player->getRace());
+        player->InitDisplayIds();
+    }
 }
