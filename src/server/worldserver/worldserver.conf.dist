@@ -3096,41 +3096,5 @@ MultiKill.BattleGround.Only = 0
 MultiKill.Log = 0
 MultiKill.Time.Between = 15
 
-###################################################################################################################
-# CHARACTER HISTORY
-#
-#    CharacterHistory.Enable
-#        Description: Logging history (create / delete / login / logout) characters to database
-#        Default:     0 = Disable
-#                     1 = Enable
-#
-#     CharacterHistory.Login
-#        Description: Enables logging login characters
-#        Default:     0 - (Disabled)
-#                     1 - (Enabled)
-#
-#     CharacterHistory.Logout
-#        Description: Enables logging logout characters
-#        Default:     0 - (Disabled)
-#                     1 - (Enabled)
-#
-#     CharacterHistory.Create
-#        Description: Enables logging create characters
-#        Default:     0 - (Disabled)
-#                     1 - (Enabled)
-#
-#     CharacterHistory.Delete
-#        Description: Enables logging delete characters
-#        Default:     0 - (Disabled)
-#                     1 - (Enabled)
-#
-###################################################################################################################
-
-CharacterHistory.Enable = 0
-CharacterHistory.Login = 0
-CharacterHistory.Logout = 0
-CharacterHistory.Create = 0
-CharacterHistory.Delete = 0
-
 #
 ###################################################################################################################

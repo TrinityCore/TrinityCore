@@ -19,7 +19,6 @@ set(scripts_STAT_SRCS
   Custom/npc_arena_team_top.cpp
   Custom/npc_crypt_run.cpp
   Custom/mod_MultiKill.cpp
-  Custom/mod_CharacterHistory.cpp
   Custom/npc_maniek.cpp
   Custom/npc_mmr_reset.cpp
 )

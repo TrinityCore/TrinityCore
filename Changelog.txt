@@ -11,6 +11,7 @@
 #                                                                                          #
 ############################################################################################
 
+[115] --> Delete [MOD] CharacterHistory.
 [114] --> Fix Val'kyr Shadowguard speed.
 [113] --> Add NPC MMR Master (Final version).
 [112] --> Add NPC MMR Master (Beta).
