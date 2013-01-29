@@ -25,7 +25,7 @@ else()
 endif()
 
 # Set build-directive (used in core to tell which buildtype we used)
-add_definitions(-D_BUILD_DIRECTIVE="$(ConfigurationName)")
+add_definitions(-D_BUILD_DIRECTIVE=\\"$(ConfigurationName)\\")
 
 # multithreaded compiling on VS
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
