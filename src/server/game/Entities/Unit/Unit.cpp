@@ -5955,6 +5955,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                     break;
                 }
             }
+            break;
         }
         case SPELLFAMILY_PALADIN:
         {
