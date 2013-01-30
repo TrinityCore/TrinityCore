@@ -466,7 +466,6 @@ void Vehicle::RelocatePassengers()
             float px, py, pz, po;
             passenger->m_movementInfo.t_pos.GetPosition(px, py, pz, po);
             CalculatePassengerPosition(px, py, pz, po);
-
             passenger->UpdatePosition(px, py, pz, po);
         }
     }

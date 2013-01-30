@@ -55,7 +55,7 @@ void PacketLog::LogPacket(WorldPacket const& packet, Direction direction)
     data << uint8(direction);
 
     for (uint32 i = 0; i < packet.size(); i++)
-        data << const_cast<WorldPacket&>(packet)[i];
+        data << packet[i];
 
     fwrite(data.contents(), 1, data.size(), _file);
     fflush(_file);

@@ -554,7 +554,7 @@ class spell_paralyze_pinnacle : public SpellScriptLoader
 
             void FilterTargets(std::list<WorldObject*>& unitList)
             {
-                unitList.remove_if (RitualTargetCheck(GetCaster()));
+                unitList.remove_if(RitualTargetCheck(GetCaster()));
             }
 
             void Register()

@@ -15,7 +15,9 @@
 * with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include"baradin_hold.h"
+#include "baradin_hold.h"
+#include "InstanceScript.h"
+#include "ScriptMgr.h"
 
 DoorData const doorData[] =
 {
@@ -94,7 +96,8 @@ public:
                 default:
                     break;
             }
-            return NULL;
+
+            return 0;
         }
 
         void OnGameObjectRemove(GameObject* go)

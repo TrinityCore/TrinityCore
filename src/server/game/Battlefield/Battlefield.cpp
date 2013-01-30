@@ -819,7 +819,7 @@ Creature* Battlefield::SpawnCreature(uint32 entry, Position pos, TeamId team)
 Creature* Battlefield::SpawnCreature(uint32 entry, float x, float y, float z, float o, TeamId team)
 {
     //Get map object
-    Map* map = const_cast<Map*>(sMapMgr->CreateBaseMap(m_MapId));
+    Map* map = sMapMgr->CreateBaseMap(m_MapId);
     if (!map)
     {
         sLog->outError(LOG_FILTER_BATTLEFIELD, "Battlefield::SpawnCreature: Can't create creature entry: %u map not found", entry);
@@ -857,7 +857,7 @@ Creature* Battlefield::SpawnCreature(uint32 entry, float x, float y, float z, fl
 GameObject* Battlefield::SpawnGameObject(uint32 entry, float x, float y, float z, float o)
 {
     // Get map object
-    Map* map = const_cast<Map*>(sMapMgr->CreateBaseMap(571)); // *vomits*
+    Map* map = sMapMgr->CreateBaseMap(571); // *vomits*
     if (!map)
         return 0;
 
