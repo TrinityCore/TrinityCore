@@ -229,8 +229,7 @@ void Player::UpdateArmor()
 float Player::GetHealthBonusFromStamina()
 {
     float stamina = GetStat(STAT_STAMINA);
-
-    float baseStam = stamina < 20 ? stamina : 20;
+    float baseStam = std::min(20.0f, stamina);
     float moreStam = stamina - baseStam;
 
     return baseStam + (moreStam*10.0f);
@@ -240,10 +239,10 @@ float Player::GetManaBonusFromIntellect()
 {
     float intellect = GetStat(STAT_INTELLECT);
 
-    float baseInt = intellect < 20 ? intellect : 20;
+    float baseInt = std::min(20.0f, intellect);
     float moreInt = intellect - baseInt;
 
-    return baseInt + (moreInt*15.0f);
+    return baseInt + (moreInt * 15.0f);
 }
 
 void Player::UpdateMaxHealth()
