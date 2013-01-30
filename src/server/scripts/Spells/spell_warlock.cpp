@@ -25,6 +25,7 @@
 #include "ScriptMgr.h"
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"
+#include "SpellAuras.h"
 
 enum WarlockSpells
 {
@@ -38,10 +39,16 @@ enum WarlockSpells
     SPELL_WARLOCK_DEMONIC_EMPOWERMENT_IMP           = 54444,
     SPELL_WARLOCK_DEMONIC_EMPOWERMENT_SUCCUBUS      = 54435,
     SPELL_WARLOCK_DEMONIC_EMPOWERMENT_VOIDWALKER    = 54443,
+    SPELL_WARLOCK_DEMON_SOUL_IMP                    = 79459,
+    SPELL_WARLOCK_DEMON_SOUL_FELHUNTER              = 79460,
+    SPELL_WARLOCK_DEMON_SOUL_FELGUARD               = 79452,
+    SPELL_WARLOCK_DEMON_SOUL_SUCCUBUS               = 79453,
+    SPELL_WARLOCK_DEMON_SOUL_VOIDWALKER             = 79454,
     SPELL_WARLOCK_FEL_SYNERGY_HEAL                  = 54181,
     SPELL_WARLOCK_GLYPH_OF_SIPHON_LIFE              = 63106,
     SPELL_WARLOCK_HAUNT                             = 48181,
     SPELL_WARLOCK_HAUNT_HEAL                        = 48210,
+    SPELL_WARLOCK_IMMOLATE                          = 348,
     SPELL_WARLOCK_IMPROVED_HEALTHSTONE_R1           = 18692,
     SPELL_WARLOCK_IMPROVED_HEALTHSTONE_R2           = 18693,
     SPELL_WARLOCK_IMPROVED_HEALTH_FUNNEL_BUFF_R1    = 60955,
@@ -52,6 +59,7 @@ enum WarlockSpells
     SPELL_WARLOCK_LIFE_TAP_ENERGIZE_2               = 32553,
     SPELL_WARLOCK_SIPHON_LIFE_HEAL                  = 63106,
     SPELL_WARLOCK_SOULSHATTER                       = 32835,
+    SPELL_WARLOCK_UNSTABLE_AFFLICTION               = 30108,
     SPELL_WARLOCK_UNSTABLE_AFFLICTION_DISPEL        = 31117
 };
 
@@ -113,6 +121,41 @@ class spell_warl_banish : public SpellScriptLoader
         SpellScript* GetSpellScript() const
         {
             return new spell_warl_banish_SpellScript();
+        }
+};
+
+// 17962 - Conflagrate - Updated to 4.3.4
+class spell_warl_conflagrate : public SpellScriptLoader
+{
+    public:
+        spell_warl_conflagrate() : SpellScriptLoader("spell_warl_conflagrate") { }
+
+        class spell_warl_conflagrate_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_warl_conflagrate_SpellScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_WARLOCK_IMMOLATE))
+                    return false;
+                return true;
+            }
+
+            void HandleHit(SpellEffIndex /*effIndex*/)
+            {
+                if (AuraEffect const* aurEff = GetHitUnit()->GetAuraEffect(SPELL_WARLOCK_IMMOLATE, EFFECT_2, GetCaster()->GetGUID()))
+                    SetHitDamage(CalculatePct(aurEff->GetAmount(), GetSpellInfo()->Effects[EFFECT_1].CalcValue(GetCaster())));
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_warl_conflagrate_SpellScript::HandleHit, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_warl_conflagrate_SpellScript();
         }
 };
 
@@ -336,6 +379,73 @@ class spell_warl_demonic_circle_teleport : public SpellScriptLoader
         }
 };
 
+// 77801 - Demon Soul - Updated to 4.3.4
+class spell_warl_demon_soul : public SpellScriptLoader
+{
+    public:
+        spell_warl_demon_soul() : SpellScriptLoader("spell_warl_demon_soul") { }
+
+        class spell_warl_demon_soul_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_warl_demon_soul_SpellScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_WARLOCK_DEMON_SOUL_IMP))
+                    return false;
+                if (!sSpellMgr->GetSpellInfo(SPELL_WARLOCK_DEMON_SOUL_FELHUNTER))
+                    return false;
+                if (!sSpellMgr->GetSpellInfo(SPELL_WARLOCK_DEMON_SOUL_FELGUARD))
+                    return false;
+                if (!sSpellMgr->GetSpellInfo(SPELL_WARLOCK_DEMON_SOUL_SUCCUBUS))
+                    return false;
+                if (!sSpellMgr->GetSpellInfo(SPELL_WARLOCK_DEMON_SOUL_VOIDWALKER))
+                    return false;
+                return true;
+            }
+
+            void OnHitTarget(SpellEffIndex /*effIndex*/)
+            {
+                Unit* caster = GetCaster();
+                if (Creature* targetCreature = GetHitCreature())
+                {
+                    if (targetCreature->isPet())
+                    {
+                        CreatureTemplate const* ci = sObjectMgr->GetCreatureTemplate(targetCreature->GetEntry());
+                        switch (ci->family)
+                        {
+                            case CREATURE_FAMILY_SUCCUBUS:
+                                caster->CastSpell(caster, SPELL_WARLOCK_DEMON_SOUL_SUCCUBUS);
+                                break;
+                            case CREATURE_FAMILY_VOIDWALKER:
+                                caster->CastSpell(caster, SPELL_WARLOCK_DEMON_SOUL_VOIDWALKER);
+                                break;
+                            case CREATURE_FAMILY_FELGUARD:
+                                caster->CastSpell(caster, SPELL_WARLOCK_DEMON_SOUL_FELGUARD);
+                                break;
+                            case CREATURE_FAMILY_FELHUNTER:
+                                caster->CastSpell(caster, SPELL_WARLOCK_DEMON_SOUL_FELHUNTER);
+                                break;
+                            case CREATURE_FAMILY_IMP:
+                                caster->CastSpell(caster, SPELL_WARLOCK_DEMON_SOUL_IMP);
+                                break;
+                        }
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_warl_demon_soul_SpellScript::OnHitTarget, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_warl_demon_soul_SpellScript;
+        }
+};
+
 // 47193 - Demonic Empowerment
 /// Updated 4.3.4
 class spell_warl_demonic_empowerment : public SpellScriptLoader
@@ -427,6 +537,43 @@ class spell_warl_everlasting_affliction : public SpellScriptLoader
         SpellScript* GetSpellScript() const
         {
             return new spell_warl_everlasting_affliction_SpellScript();
+        }
+};
+
+// 77799 - Fel Flame - Updated to 4.3.4
+class spell_warl_fel_flame : public SpellScriptLoader
+{
+    public:
+        spell_warl_fel_flame() : SpellScriptLoader("spell_warl_fel_flame") { }
+
+        class spell_warl_fel_flame_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_warl_fel_flame_SpellScript);
+
+            void OnHitTarget(SpellEffIndex /*effIndex*/)
+            {
+                Unit* caster = GetCaster();
+                Unit* target = GetHitUnit();
+                Aura* aura = target->GetAura(SPELL_WARLOCK_UNSTABLE_AFFLICTION, caster->GetGUID());
+                if (!aura)
+                    aura = target->GetAura(SPELL_WARLOCK_IMMOLATE, caster->GetGUID());
+
+                if (!aura)
+                    return;
+
+                int32 newDuration = aura->GetDuration() + GetSpellInfo()->Effects[EFFECT_1].CalcValue() * 1000;
+                aura->SetDuration(std::min(newDuration, aura->GetMaxDuration()));
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_warl_fel_flame_SpellScript::OnHitTarget, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_warl_fel_flame_SpellScript;
         }
 };
 
@@ -874,11 +1021,14 @@ void AddSC_warlock_spell_scripts()
 {
     new spell_warl_bane_of_doom();
     new spell_warl_banish();
+    new spell_warl_conflagrate();
     new spell_warl_create_healthstone();
     new spell_warl_demonic_circle_summon();
     new spell_warl_demonic_circle_teleport();
     new spell_warl_demonic_empowerment();
+    new spell_warl_demon_soul();
     new spell_warl_everlasting_affliction();
+    new spell_warl_fel_flame();
     new spell_warl_fel_synergy();
     new spell_warl_haunt();
     new spell_warl_health_funnel();
