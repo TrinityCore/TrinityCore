@@ -37,7 +37,7 @@ class BIHWrap
 
         MDLCallback(RayCallback& callback, const T* const* objects_array, uint32 objects_size ) : objects(objects_array), _callback(callback), objects_size(objects_size) {}
 
-        bool operator() (const Ray& ray, uint32 Idx, float& MaxDist, bool /*stopAtFirst*/)
+        bool operator() (const G3D::Ray& ray, uint32 Idx, float& MaxDist, bool /*stopAtFirst*/)
         {
             if (Idx >= objects_size)
                 return false;
@@ -46,7 +46,7 @@ class BIHWrap
             return false;
         }
 
-        void operator() (const Vector3& p, uint32 Idx)
+        void operator() (const G3D::Vector3& p, uint32 Idx)
         {
             if (Idx >= objects_size)
                 return false;
@@ -98,7 +98,7 @@ public:
     }
 
     template<typename RayCallback>
-    void intersectRay(const Ray& ray, RayCallback& intersectCallback, float& maxDist)
+    void intersectRay(const G3D::Ray& ray, RayCallback& intersectCallback, float& maxDist)
     {
         balance();
         MDLCallback<RayCallback> temp_cb(intersectCallback, m_objects.getCArray(), m_objects.size());
@@ -106,7 +106,7 @@ public:
     }
 
     template<typename IsectCallback>
-    void intersectPoint(const Vector3& point, IsectCallback& intersectCallback)
+    void intersectPoint(const G3D::Vector3& point, IsectCallback& intersectCallback)
     {
         balance();
         MDLCallback<IsectCallback> callback(intersectCallback, m_objects.getCArray(), m_objects.size());

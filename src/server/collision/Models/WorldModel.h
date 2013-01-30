@@ -47,11 +47,11 @@ namespace VMAP
     class WmoLiquid
     {
         public:
-            WmoLiquid(uint32 width, uint32 height, const Vector3 &corner, uint32 type);
+            WmoLiquid(uint32 width, uint32 height, const G3D::Vector3 &corner, uint32 type);
             WmoLiquid(const WmoLiquid &other);
             ~WmoLiquid();
             WmoLiquid& operator=(const WmoLiquid &other);
-            bool GetLiquidHeight(const Vector3 &pos, float &liqHeight) const;
+            bool GetLiquidHeight(const G3D::Vector3 &pos, float &liqHeight) const;
             uint32 GetType() const { return iType; }
             float *GetHeightStorage() { return iHeight; }
             uint8 *GetFlagsStorage() { return iFlags; }
@@ -60,14 +60,14 @@ namespace VMAP
             static bool readFromFile(FILE* rf, WmoLiquid* &liquid);
         private:
             WmoLiquid(): iHeight(0), iFlags(0) {};
-            uint32 iTilesX;  //!< number of tiles in x direction, each
+            uint32 iTilesX;       //!< number of tiles in x direction, each
             uint32 iTilesY;
-            Vector3 iCorner; //!< the lower corner
-            uint32 iType;    //!< liquid type
-            float *iHeight;  //!< (tilesX + 1)*(tilesY + 1) height values
-            uint8 *iFlags;   //!< info if liquid tile is used
+            G3D::Vector3 iCorner; //!< the lower corner
+            uint32 iType;         //!< liquid type
+            float *iHeight;       //!< (tilesX + 1)*(tilesY + 1) height values
+            uint8 *iFlags;        //!< info if liquid tile is used
         public:
-            void getPosInfo(uint32 &tilesX, uint32 &tilesY, Vector3 &corner) const;
+            void getPosInfo(uint32 &tilesX, uint32 &tilesY, G3D::Vector3 &corner) const;
     };
 
     /*! holding additional info for WMO group files */
@@ -76,16 +76,16 @@ namespace VMAP
         public:
             GroupModel(): iLiquid(0) {}
             GroupModel(const GroupModel &other);
-            GroupModel(uint32 mogpFlags, uint32 groupWMOID, const AABox &bound):
+            GroupModel(uint32 mogpFlags, uint32 groupWMOID, const G3D::AABox &bound):
                         iBound(bound), iMogpFlags(mogpFlags), iGroupWMOID(groupWMOID), iLiquid(0) {}
             ~GroupModel() { delete iLiquid; }
 
             //! pass mesh data to object and create BIH. Passed vectors get get swapped with old geometry!
-            void setMeshData(std::vector<Vector3> &vert, std::vector<MeshTriangle> &tri);
+            void setMeshData(std::vector<G3D::Vector3> &vert, std::vector<MeshTriangle> &tri);
             void setLiquidData(WmoLiquid*& liquid) { iLiquid = liquid; liquid = NULL; }
             bool IntersectRay(const G3D::Ray &ray, float &distance, bool stopAtFirstHit) const;
-            bool IsInsideObject(const Vector3 &pos, const Vector3 &down, float &z_dist) const;
-            bool GetLiquidLevel(const Vector3 &pos, float &liqHeight) const;
+            bool IsInsideObject(const G3D::Vector3 &pos, const G3D::Vector3 &down, float &z_dist) const;
+            bool GetLiquidLevel(const G3D::Vector3 &pos, float &liqHeight) const;
             uint32 GetLiquidType() const;
             bool writeToFile(FILE* wf);
             bool readFromFile(FILE* rf);
@@ -96,12 +96,12 @@ namespace VMAP
             G3D::AABox iBound;
             uint32 iMogpFlags;// 0x8 outdor; 0x2000 indoor
             uint32 iGroupWMOID;
-            std::vector<Vector3> vertices;
+            std::vector<G3D::Vector3> vertices;
             std::vector<MeshTriangle> triangles;
             BIH meshTree;
             WmoLiquid* iLiquid;
         public:
-            void getMeshData(std::vector<Vector3> &vertices, std::vector<MeshTriangle> &triangles, WmoLiquid* &liquid);
+            void getMeshData(std::vector<G3D::Vector3> &vertices, std::vector<MeshTriangle> &triangles, WmoLiquid* &liquid);
     };
     /*! Holds a model (converted M2 or WMO) in its original coordinate space */
     class WorldModel
