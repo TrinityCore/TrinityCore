@@ -1431,9 +1431,9 @@ class Player : public Unit, public GridObject<Player>
         /// send conquest currency points and their cap week/arena
         void SendPvpRewards() const;
         /// return count of currency witch has plr
-        uint32 GetCurrency(uint32 id, bool precision) const;
+        uint32 GetCurrency(uint32 id, bool usePrecision) const;
         /// return count of currency gaind on current week
-        uint32 GetCurrencyOnWeek(uint32 id, bool precision) const;
+        uint32 GetCurrencyOnWeek(uint32 id, bool usePrecision) const;
         /// return week cap by currency id
         uint32 GetCurrencyWeekCap(uint32 id, bool usePrecision) const;
         /// return presence related currency
@@ -2049,7 +2049,7 @@ class Player : public Unit, public GridObject<Player>
         uint32 GetArenaPersonalRating(uint8 slot) const { return GetUInt32Value(PLAYER_FIELD_ARENA_TEAM_INFO_1_1 + (slot * ARENA_TEAM_END) + ARENA_TEAM_PERSONAL_RATING); }
         void SetArenaTeamIdInvited(uint32 ArenaTeamId) { m_ArenaTeamIdInvited = ArenaTeamId; }
         uint32 GetArenaTeamIdInvited() { return m_ArenaTeamIdInvited; }
-        uint32 GetRBGPersonalRating() const;
+        uint32 GetRBGPersonalRating() const { return 0; }
 
         Difficulty GetDifficulty(bool isRaid) const { return isRaid ? m_raidDifficulty : m_dungeonDifficulty; }
         Difficulty GetDungeonDifficulty() const { return m_dungeonDifficulty; }
@@ -2887,20 +2887,23 @@ class Player : public Unit, public GridObject<Player>
         PlayerCurrenciesMap _currencyStorage;
 
         /**
-          * @name   _GetCurrencyWeekCap
+          * @name   GetCurrencyWeekCap
           * @brief  return week cap for selected currency
 
-          * @param  currency CurrencyTypesEntry witch should get week cap
+          * @param  CurrencyTypesEntry for which to retrieve weekly cap
         */
-        uint32 _GetCurrencyWeekCap(const CurrencyTypesEntry* currency) const;
+        uint32 GetCurrencyWeekCap(CurrencyTypesEntry const* currency) const;
 
         /*
-         * @name   _GetCurrencyTotalCap
+         * @name   GetCurrencyTotalCap
          * @brief  return total cap for selected currency
 
-         * @param  currency CurrencyTypesEntry witch should get week cap
+         * @param  CurrencyTypesEntry for which to retrieve total cap
          */
-        uint32 _GetCurrencyTotalCap(const CurrencyTypesEntry* currency) const;
+        uint32 GetCurrencyTotalCap(CurrencyTypesEntry const* currency) const;
+
+        /// Updates weekly conquest point cap (dynamic cap)
+        void UpdateConquestCurrencyCap(uint32 currency);
 
         VoidStorageItem* _voidStorageItems[VOID_STORAGE_MAX_SLOT];
 
@@ -3104,7 +3107,6 @@ class Player : public Unit, public GridObject<Player>
 
         uint32 _activeCheats;
         uint32 _maxPersonalArenaRate;
-        uint32 _ConquestCurrencyTotalWeekCap;
 
         PhaseMgr phaseMgr;
 };
