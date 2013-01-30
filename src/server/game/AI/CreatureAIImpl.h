@@ -525,7 +525,7 @@ class EventMap
         // Returns wether the eventmap is in the given phase or not.
         bool IsInPhase(uint32 phase)
         {
-            return phase <= 8 && (!phase || _phase & (1 << phase + 23));
+            return phase <= 8 && (!phase || _phase & (1 << (phase + 23)));
         }
 
     private:
