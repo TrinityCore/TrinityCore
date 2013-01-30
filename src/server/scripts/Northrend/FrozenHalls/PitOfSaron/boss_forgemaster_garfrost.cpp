@@ -52,11 +52,7 @@ enum Phases
 {
     PHASE_ONE           = 1,
     PHASE_TWO           = 2,
-    PHASE_THREE         = 3,
-
-    PHASE_ONE_MASK      = 1 << PHASE_ONE,
-    PHASE_TWO_MASK      = 1 << PHASE_TWO,
-    PHASE_THREE_MASK    = 1 << PHASE_THREE,
+    PHASE_THREE         = 3
 };
 
 enum MiscData
@@ -136,7 +132,7 @@ enum Events
 
             void DamageTaken(Unit* /*attacker*/, uint32& /*uiDamage*/)
             {
-                if (events.GetPhaseMask() & PHASE_ONE_MASK && !HealthAbovePct(66))
+                if (events.IsInPhase(PHASE_ONE) && !HealthAbovePct(66))
                 {
                     events.SetPhase(PHASE_TWO);
                     Talk(SAY_PHASE2);
@@ -146,7 +142,7 @@ enum Events
                     return;
                 }
 
-                if (events.GetPhaseMask() & PHASE_TWO_MASK && !HealthAbovePct(33))
+                if (events.IsInPhase(PHASE_TWO) && !HealthAbovePct(33))
                 {
                     events.SetPhase(PHASE_THREE);
                     Talk(SAY_PHASE3);
@@ -162,12 +158,12 @@ enum Events
                 if (type != EFFECT_MOTION_TYPE || id != POINT_FORGE)
                     return;
 
-                if (events.GetPhaseMask() & PHASE_TWO_MASK)
+                if (events.IsInPhase(PHASE_TWO))
                 {
                     DoCast(me, SPELL_FORGE_BLADE);
                     SetEquipmentSlots(false, EQUIP_ID_SWORD);
                 }
-                if (events.GetPhaseMask() & PHASE_THREE_MASK)
+                if (events.IsInPhase(PHASE_THREE))
                 {
                     me->RemoveAurasDueToSpell(SPELL_FORGE_BLADE_HELPER);
                     DoCast(me, SPELL_FORGE_MACE);
@@ -226,15 +222,15 @@ enum Events
                             break;
                         case EVENT_JUMP:
                             me->AttackStop();
-                            if (events.GetPhaseMask() & PHASE_TWO_MASK)
+                            if (events.IsInPhase(PHASE_TWO))
                                 me->GetMotionMaster()->MoveJump(northForgePos.GetPositionX(), northForgePos.GetPositionY(), northForgePos.GetPositionZ(), 25.0f, 15.0f);
-                            else if (events.GetPhaseMask() & PHASE_THREE_MASK)
+                            else if (events.IsInPhase(PHASE_THREE))
                                 me->GetMotionMaster()->MoveJump(southForgePos.GetPositionX(), southForgePos.GetPositionY(), southForgePos.GetPositionZ(), 25.0f, 15.0f);
                             break;
                         case EVENT_RESUME_ATTACK:
-                            if (events.GetPhaseMask() & PHASE_TWO_MASK)
+                            if (events.IsInPhase(PHASE_THREE))
                                 events.ScheduleEvent(EVENT_CHILLING_WAVE, 5000, 0, PHASE_TWO);
-                            else if (events.GetPhaseMask() & PHASE_THREE_MASK)
+                            else if (events.IsInPhase(PHASE_THREE))
                                 events.ScheduleEvent(EVENT_DEEP_FREEZE, 10000, 0, PHASE_THREE);
                             AttackStart(me->getVictim());
                             break;

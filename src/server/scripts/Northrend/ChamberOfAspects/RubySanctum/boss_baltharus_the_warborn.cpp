@@ -61,9 +61,7 @@ enum Phases
 {
     PHASE_ALL       = 0,
     PHASE_INTRO     = 1,
-    PHASE_COMBAT    = 2,
-
-    PHASE_INTRO_MASK    = 1 << PHASE_INTRO,
+    PHASE_COMBAT    = 2
 };
 
 class boss_baltharus_the_warborn : public CreatureScript
@@ -166,15 +164,16 @@ class boss_baltharus_the_warborn : public CreatureScript
 
             void UpdateAI(uint32 const diff)
             {
-                if (!UpdateVictim() && !(events.GetPhaseMask() & PHASE_INTRO_MASK))
+                bool introPhase = events.IsInPhase(PHASE_INTRO);
+                if (!UpdateVictim() && !introPhase)
                     return;
 
-                if (!(events.GetPhaseMask() & PHASE_INTRO_MASK))
+                if (!introPhase)
                     me->SetHealth(instance->GetData(DATA_BALTHARUS_SHARED_HEALTH));
 
                 events.Update(diff);
 
-                if (me->HasUnitState(UNIT_STATE_CASTING) && !(events.GetPhaseMask() & PHASE_INTRO_MASK))
+                if (me->HasUnitState(UNIT_STATE_CASTING) && !introPhase)
                     return;
 
                 while (uint32 eventId = events.ExecuteEvent())
