@@ -146,10 +146,7 @@ enum Phases
 {
     PHASE_MOBILE            = 1,
     PHASE_STATIONARY        = 2,
-    PHASE_SUBMERGED         = 3,
-
-    PHASE_MASK_MOBILE       = 1 << PHASE_MOBILE,
-    PHASE_MASK_STATIONARY   = 1 << PHASE_STATIONARY
+    PHASE_SUBMERGED         = 3
 };
 
 class boss_gormok : public CreatureScript
@@ -624,9 +621,9 @@ struct boss_jormungarAI : public BossAI
                     return;
             }
         }
-        if (events.GetPhaseMask() & PHASE_MASK_MOBILE)
+        if (events.IsInPhase(PHASE_MOBILE))
             DoMeleeAttackIfReady();
-        if (events.GetPhaseMask() & PHASE_MASK_STATIONARY)
+        if (events.IsInPhase(PHASE_STATIONARY))
             DoSpellAttackIfReady(SpitSpell);
     }
 

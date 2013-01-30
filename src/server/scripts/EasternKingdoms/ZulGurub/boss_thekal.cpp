@@ -232,7 +232,7 @@ class boss_thekal : public CreatureScript
                     if (me->IsFullHealth() && WasDead)
                         WasDead = false;
 
-                    if ((events.GetPhaseMask() == PHASE_ONE) && !WasDead && !HealthAbovePct(5))
+                    if ((events.IsInPhase(PHASE_ONE)) && !WasDead && !HealthAbovePct(5))
                     {
                         me->RemoveAurasByType(SPELL_AURA_PERIODIC_DAMAGE_PERCENT);
                         me->RemoveAurasByType(SPELL_AURA_PERIODIC_DAMAGE);
