@@ -624,6 +624,7 @@ inline Player* Battleground::_GetPlayerForTeam(uint32 teamId, BattlegroundPlayer
             player = NULL;
     }
     return player;
+ uint32 TeamID = player->GetBGTeam();
 }
 
 void Battleground::SetTeamStartLoc(uint32 TeamID, float X, float Y, float Z, float O)
@@ -913,6 +914,7 @@ void Battleground::EndBattleground(uint32 winner)
 
         player->ResetAllPowers();
         player->CombatStopWithPets(true);
+		player->setFactionForRace(getRace());
 
         BlockMovement(player);
 
@@ -1154,13 +1156,10 @@ void Battleground::AddPlayer(Player* player)
     else
     {	
 		guid = player->GetGUID();
-		
-		if (isArena())
-			team = player->GetTeam();
-		else
-		       team = player->GetBGTeam();
+	    team = player->GetBGTeam();
     }  
 	
+	uint32 TeamID = player->GetBGTeam();
     BattlegroundPlayer bp;
     bp.OfflineRemoveTime = 0;
     bp.Team = team;
@@ -1182,14 +1181,14 @@ void Battleground::AddPlayer(Player* player)
         player->RemoveArenaEnchantments(TEMP_ENCHANTMENT_SLOT);
         if (team == ALLIANCE)                                // gold
         {
-            if (player->GetTeam() == HORDE)
+            if (player->GetBGTeam() == HORDE)
                 player->CastSpell(player, SPELL_HORDE_GOLD_FLAG, true);
             else
                 player->CastSpell(player, SPELL_ALLIANCE_GOLD_FLAG, true);
         }
         else                                                // green
         {
-            if (player->GetTeam() == HORDE)
+            if (player->GetBGTeam() == HORDE)
                 player->CastSpell(player, SPELL_HORDE_GREEN_FLAG, true);
             else
                 player->CastSpell(player, SPELL_ALLIANCE_GREEN_FLAG, true);
@@ -1225,6 +1224,7 @@ void Battleground::AddPlayer(Player* player)
     // setup BG group membership
     PlayerAddedToBGCheckIfBGIsRunning(player);
     AddOrSetPlayerToCorrectBgGroup(player, team);
+
 }
 
 // this method adds player to his team's bg group, or sets his correct group if player is already in bg group
@@ -1977,18 +1977,17 @@ void BattlegroundMgr::HandleCrossfactionSendToBattle(Player* player, Battlegroun
     if (!player || !bg)
         return;
 
-    if (sWorld->getBoolConfig(CONFIG_BG_CROSSFRACTION) == 1)
+    if (sWorld->getBoolConfig(CONFIG_BG_CROSSFRACTION) == 1 && bg->isArena())
     {
             if (bg->GetPlayersCountByTeam(HORDE) < bg->GetMaxPlayersPerTeam() && bg->GetPlayersCountByTeam(HORDE) <= bg->GetPlayersCountByTeam(ALLIANCE))
                 player->SetBGTeam(HORDE);
             else if (bg->GetPlayersCountByTeam(ALLIANCE) < bg->GetMaxPlayersPerTeam())
                 player->SetBGTeam(ALLIANCE);
-				
+
         if (player->GetBGTeam() == HORDE)
             player->setFaction(2); // orc, and generic for horde
         else if (player->GetBGTeam() == ALLIANCE)
             player->setFaction(1); // dwarf/gnome, and generic for alliance
     }
-     uint32 TeamID = player->GetBGTeam();
     bg->UpdatePlayersCountByTeam(player->GetBGTeam(), false); // Add here instead of in AddPlayer, because AddPlayer is not made until loading screen is finished. Which can cause unbalance in the system.
 }
