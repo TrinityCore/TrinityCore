@@ -279,20 +279,10 @@ enum Phases
     PHASE_THREE                 = 4,
     PHASE_TRANSITION            = 5,
     PHASE_FROSTMOURNE           = 6,    // only set on heroic mode when all players are sent into frostmourne
-    PHASE_OUTRO                 = 7,
-
-    PHASE_MASK_INTRO            = 1 << PHASE_INTRO,
-    PHASE_MASK_ONE              = 1 << PHASE_ONE,
-    PHASE_MASK_TWO              = 1 << PHASE_TWO,
-    PHASE_MASK_THREE            = 1 << PHASE_THREE,
-    PHASE_MASK_TRANSITION       = 1 << PHASE_TRANSITION,
-    PHASE_MASK_NO_CAST_CHECK    = (1 << PHASE_TRANSITION) | (1 << PHASE_FROSTMOURNE) | (1 << PHASE_OUTRO),
-    PHASE_MASK_FROSTMOURNE      = 1 << PHASE_FROSTMOURNE,
-    PHASE_MASK_OUTRO            = 1 << PHASE_OUTRO,
-    PHASE_MASK_NO_VICTIM        = (1 << PHASE_INTRO) | (1 << PHASE_OUTRO) | (1 << PHASE_FROSTMOURNE),
+    PHASE_OUTRO                 = 7
 };
 
-#define PHASE_TWO_THREE  (events.GetPhaseMask() & PHASE_MASK_TWO ? PHASE_TWO : PHASE_THREE)
+#define PHASE_TWO_THREE  (events.IsInPhase(PHASE_TWO) ? PHASE_TWO : PHASE_THREE)
 
 Position const CenterPosition     = {503.6282f, -2124.655f, 840.8569f, 0.0f};
 Position const TirionIntro        = {489.2970f, -2124.840f, 840.8569f, 0.0f};
@@ -570,7 +560,7 @@ class boss_the_lich_king : public CreatureScript
 
             void KilledUnit(Unit* victim)
             {
-                if (victim->GetTypeId() == TYPEID_PLAYER && !me->IsInEvadeMode() && !(events.GetPhaseMask() & PHASE_MASK_OUTRO))
+                if (victim->GetTypeId() == TYPEID_PLAYER && !me->IsInEvadeMode() && !events.IsInPhase(PHASE_OUTRO))
                     Talk(SAY_LK_KILL);
             }
 
@@ -650,7 +640,7 @@ class boss_the_lich_king : public CreatureScript
 
             void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/)
             {
-                if (events.GetPhaseMask() & PHASE_MASK_ONE && !HealthAbovePct(70))
+                if (events.IsInPhase(PHASE_ONE) && !HealthAbovePct(70))
                 {
                     events.SetPhase(PHASE_TRANSITION);
                     me->SetReactState(REACT_PASSIVE);
@@ -659,7 +649,7 @@ class boss_the_lich_king : public CreatureScript
                     return;
                 }
 
-                if (events.GetPhaseMask() & PHASE_MASK_TWO && !HealthAbovePct(40))
+                if (events.IsInPhase(PHASE_TWO) && !HealthAbovePct(40))
                 {
                     events.SetPhase(PHASE_TRANSITION);
                     me->SetReactState(REACT_PASSIVE);
@@ -668,7 +658,7 @@ class boss_the_lich_king : public CreatureScript
                     return;
                 }
 
-                if (events.GetPhaseMask() & PHASE_MASK_THREE && !HealthAbovePct(10))
+                if (events.IsInPhase(PHASE_THREE) && !HealthAbovePct(10))
                 {
                     me->SetReactState(REACT_PASSIVE);
                     me->AttackStop();
@@ -739,7 +729,7 @@ class boss_the_lich_king : public CreatureScript
                         summon->SetReactState(REACT_PASSIVE);
                         summon->SetSpeed(MOVE_FLIGHT, 0.5f);
                         summon->GetMotionMaster()->MoveRandom(10.0f);
-                        if (!(events.GetPhaseMask() & PHASE_MASK_FROSTMOURNE))
+                        if (!events.IsInPhase(PHASE_FROSTMOURNE))
                             summon->m_Events.AddEvent(new VileSpiritActivateEvent(summon), summon->m_Events.CalculateTime(15000));
                         return;
                     }
@@ -854,14 +844,14 @@ class boss_the_lich_king : public CreatureScript
             void UpdateAI(uint32 const diff)
             {
                 // check phase first to prevent updating victim and entering evade mode when not wanted
-                if (!(events.GetPhaseMask() & PHASE_MASK_NO_VICTIM))
+                if (!(events.IsInPhase(PHASE_OUTRO) || events.IsInPhase(PHASE_INTRO) || events.IsInPhase(PHASE_FROSTMOURNE)))
                     if (!UpdateVictim())
                         return;
 
                 events.Update(diff);
 
                 // during Remorseless Winter phases The Lich King is channeling a spell, but we must continue casting other spells
-                if (me->HasUnitState(UNIT_STATE_CASTING) && !(events.GetPhaseMask() & PHASE_MASK_NO_CAST_CHECK))
+                if ((me->HasUnitState(UNIT_STATE_CASTING) && !events.IsInPhase(PHASE_TRANSITION)) || events.IsInPhase(PHASE_OUTRO) || events.IsInPhase(PHASE_FROSTMOURNE))
                     return;
 
                 while (uint32 eventId = events.ExecuteEvent())
@@ -917,7 +907,7 @@ class boss_the_lich_king : public CreatureScript
                             break;
                         case EVENT_INFEST:
                             DoCast(me, SPELL_INFEST);
-                            events.ScheduleEvent(EVENT_INFEST, urand(21000, 24000), 0, (events.GetPhaseMask() & PHASE_MASK_ONE) ? PHASE_ONE : PHASE_TWO);
+                            events.ScheduleEvent(EVENT_INFEST, urand(21000, 24000), 0, events.IsInPhase(PHASE_ONE) ? PHASE_ONE : PHASE_TWO);
                             break;
                         case EVENT_NECROTIC_PLAGUE:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, NecroticPlagueTargetCheck(me, NECROTIC_PLAGUE_LK, NECROTIC_PLAGUE_PLR)))
@@ -986,7 +976,7 @@ class boss_the_lich_king : public CreatureScript
                             break;
                         case EVENT_START_ATTACK:
                             me->SetReactState(REACT_AGGRESSIVE);
-                            if (events.GetPhaseMask() & PHASE_MASK_FROSTMOURNE)
+                            if (events.IsInPhase(PHASE_FROSTMOURNE))
                                 events.SetPhase(PHASE_THREE);
                             break;
                         case EVENT_VILE_SPIRITS:
@@ -1234,7 +1224,7 @@ class npc_tirion_fordring_tft : public CreatureScript
 
             void UpdateAI(uint32 const diff)
             {
-                if (!UpdateVictim() && !(_events.GetPhaseMask() & (PHASE_MASK_INTRO | PHASE_MASK_OUTRO)))
+                if (!UpdateVictim() && !(_events.IsInPhase(PHASE_OUTRO) || _events.IsInPhase(PHASE_INTRO)))
                     return;
 
                 _events.Update(diff);

@@ -185,9 +185,7 @@ enum Phases
 {
     PHASE_INTRO_A       = 1,
     PHASE_INTRO_H       = 2,
-    PHASE_COMBAT        = 3,
-
-    PHASE_INTRO_MASK    = (1 << PHASE_INTRO_A) | (1 << PHASE_INTRO_H),
+    PHASE_COMBAT        = 3
 };
 
 enum Actions
@@ -424,7 +422,7 @@ class boss_deathbringer_saurfang : public CreatureScript
 
             void UpdateAI(uint32 const diff)
             {
-                if (!UpdateVictim() && !(events.GetPhaseMask() & PHASE_INTRO_MASK))
+                if (!UpdateVictim() && (!events.IsInPhase(PHASE_INTRO_A) || events.IsInPhase(PHASE_INTRO_H)))
                     return;
 
                 events.Update(diff);
@@ -612,7 +610,7 @@ class npc_high_overlord_saurfang_icc : public CreatureScript
                     case ACTION_START_EVENT:
                     {
                         // Prevent crashes
-                        if (_events.GetPhaseMask() & PHASE_INTRO_MASK)
+                        if (_events.IsInPhase(PHASE_INTRO_A) || _events.IsInPhase(PHASE_INTRO_H))
                             return;
 
                         GetCreatureListWithEntryInGrid(_guardList, me, NPC_SE_KOR_KRON_REAVER, 20.0f);
@@ -821,7 +819,7 @@ class npc_muradin_bronzebeard_icc : public CreatureScript
                     case ACTION_START_EVENT:
                     {
                         // Prevent crashes
-                        if (_events.GetPhaseMask() & PHASE_INTRO_MASK)
+                        if (_events.IsInPhase(PHASE_INTRO_A) || _events.IsInPhase(PHASE_INTRO_H))
                             return;
 
                         _events.SetPhase(PHASE_INTRO_A);
