@@ -357,8 +357,6 @@ public:
                     uiEncounter[3] = data;
                     if(data == IN_PROGRESS)
                     {
-                        OpenDoor(uiRunDoor);
-
                         if(instance->IsHeroic())
                             DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_NOT_RETREATING_EVENT);
                     }
@@ -367,7 +365,7 @@ public:
                         for(uint8 i = 0; i<4; i++)
                             OpenDoor(uiWallID[i]);
 
-                        CloseDoor(uiRunDoor);
+                        OpenDoor(uiRunDoor);
 
                         if(Creature* pLichKing = instance->GetCreature(uiLichKing))
                             pLichKing->DespawnOrUnsummon(10000);
