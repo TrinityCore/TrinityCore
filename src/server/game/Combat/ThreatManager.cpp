@@ -430,7 +430,6 @@ void ThreatManager::doAddThreat(Unit* victim, float threat)
     }
 
     _addThreat(victim, threat);
-
 }
 
 void ThreatManager::_addThreat(Unit* victim, float threat)

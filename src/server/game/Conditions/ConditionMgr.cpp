@@ -794,7 +794,7 @@ void ConditionMgr::LoadConditions(bool isReload)
 
     if (!result)
     {
-        sLog->outError(LOG_FILTER_SQL, ">> Loaded 0 conditions. DB table `conditions` is empty!");
+        sLog->outError(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 conditions. DB table `conditions` is empty!");
         return;
     }
 

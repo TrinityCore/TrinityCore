@@ -556,7 +556,7 @@ void WorldSession::SendLfgBootProposalUpdate(LfgPlayerBoot const& boot)
         GetPlayerInfo().c_str(), uint8(boot.inProgress), uint8(playerVote != LFG_ANSWER_PENDING),
         uint8(playerVote == LFG_ANSWER_AGREE), GUID_LOPART(boot.victim), votesNum, agreeNum,
         secsleft, LFG_GROUP_KICK_VOTES_NEEDED, boot.reason.c_str());
-    WorldPacket data(SMSG_LFG_BOOT_PROPOSAL_UPDATE, 1 + 1 + 1 + 8 + 4 + 4 + 4 + 4 + boot.reason.length());
+    WorldPacket data(SMSG_LFG_BOOT_PROPOSAL_UPDATE, 1 + 1 + 1 + 1 + 8 + 4 + 4 + 4 + 4 + boot.reason.length());
     data << uint8(boot.inProgress);                        // Vote in progress
     data << uint8(playerVote != LFG_ANSWER_PENDING);       // Did Vote
     data << uint8(playerVote == LFG_ANSWER_AGREE);         // Agree

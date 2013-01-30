@@ -86,8 +86,8 @@ public:
         return true;
     }
 protected:
-    InstanceScript* _instance;
     Unit* _owner;
+    InstanceScript* _instance;
 };
 
 class boss_earthrager_ptah : public CreatureScript
@@ -262,8 +262,8 @@ public:
         }
 
     protected:
-        bool _hasDispersed;
         uint8 _summonDeaths;
+        bool _hasDispersed;
     };
 
     CreatureAI* GetAI(Creature* creature) const

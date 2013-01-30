@@ -1770,14 +1770,14 @@ float Aura::CalcProcChance(SpellProcEntry const& procEntry, ProcEventInfo& event
 
 void Aura::TriggerProcOnEvent(AuraApplication* aurApp, ProcEventInfo& eventInfo)
 {
-    CallScriptProcHandlers(const_cast<AuraApplication const*>(aurApp), eventInfo);
+    CallScriptProcHandlers(aurApp, eventInfo);
 
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
         if (aurApp->HasEffect(i))
             // OnEffectProc / AfterEffectProc hooks handled in AuraEffect::HandleProc()
             GetEffect(i)->HandleProc(aurApp, eventInfo);
 
-    CallScriptAfterProcHandlers(const_cast<AuraApplication const*>(aurApp), eventInfo);
+    CallScriptAfterProcHandlers(aurApp, eventInfo);
 
     // Remove aura if we've used last charge to proc
     if (IsUsingCharges() && !GetCharges())

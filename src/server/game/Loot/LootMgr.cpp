@@ -1210,14 +1210,10 @@ void LootTemplate::LootGroup::Verify(LootStore const& lootstore, uint32 id, uint
 {
     float chance = RawTotalChance();
     if (chance > 101.0f)                                    // TODO: replace with 100% when DBs will be ready
-    {
         sLog->outError(LOG_FILTER_SQL, "Table '%s' entry %u group %d has total chance > 100%% (%f)", lootstore.GetName(), id, group_id, chance);
-    }
 
     if (chance >= 100.0f && !EqualChanced.empty())
-    {
         sLog->outError(LOG_FILTER_SQL, "Table '%s' entry %u group %d has items with chance=0%% but group total chance >= 100%% (%f)", lootstore.GetName(), id, group_id, chance);
-    }
 }
 
 void LootTemplate::LootGroup::CheckLootRefs(LootTemplateMap const& /*store*/, LootIdSet* ref_set) const

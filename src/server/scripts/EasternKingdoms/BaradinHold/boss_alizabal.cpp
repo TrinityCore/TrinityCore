@@ -16,6 +16,11 @@
  */
 
 #include "baradin_hold.h"
+#include "InstanceScript.h"
+#include "ScriptMgr.h"
+#include "Player.h"
+#include "ObjectAccessor.h"
+#include "ScriptedCreature.h"
 
 enum Texts
 {
@@ -137,7 +142,7 @@ class boss_alizabal : public CreatureScript
                 }
             }
 
-            void MovementInform(uint32 type, uint32 pointId)
+            void MovementInform(uint32 /*type*/, uint32 pointId)
             {
                 switch (pointId)
                 {

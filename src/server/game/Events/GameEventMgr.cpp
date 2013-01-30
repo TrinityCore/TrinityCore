@@ -211,7 +211,6 @@ void GameEventMgr::LoadFromDB()
         {
             mGameEvent.clear();
             sLog->outError(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 game events. DB table `game_event` is empty.");
-
             return;
         }
 
