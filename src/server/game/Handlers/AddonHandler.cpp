@@ -30,7 +30,7 @@ AddonHandler::~AddonHandler()
 {
 }
 
-bool AddonHandler::BuildAddonPacket(WorldPacket* Source, WorldPacket* Target)
+bool AddonHandler::BuildAddonPacket(WorldPacket* source, WorldPacket* target)
 {
     ByteBuffer AddOnPacked;
     uLongf AddonRealSize;
@@ -38,10 +38,10 @@ bool AddonHandler::BuildAddonPacket(WorldPacket* Source, WorldPacket* Target)
     uint32 TempValue;
 
     // broken addon packet, can't be received from real client
-    if (Source->rpos() + 4 > Source->size())
+    if (source->rpos() + 4 > source->size())
         return false;
 
-    *Source >> TempValue;                                   // get real size of the packed structure
+    *source >> TempValue;                                   // get real size of the packed structure
 
     // empty addon packet, nothing process, can't be received from real client
     if (!TempValue)
@@ -49,13 +49,13 @@ bool AddonHandler::BuildAddonPacket(WorldPacket* Source, WorldPacket* Target)
 
     AddonRealSize = TempValue;                              // temp value because ZLIB only excepts uLongf
 
-    CurrentPosition = Source->rpos();                       // get the position of the pointer in the structure
+    CurrentPosition = source->rpos();                       // get the position of the pointer in the structure
 
     AddOnPacked.resize(AddonRealSize);                      // resize target for zlib action
 
-    if (!uncompress(const_cast<uint8*>(AddOnPacked.contents()), &AddonRealSize, const_cast<uint8*>((*Source).contents() + CurrentPosition), (*Source).size() - CurrentPosition)!= Z_OK)
+    if (!uncompress(AddOnPacked.contents(), &AddonRealSize, source->contents() + CurrentPosition, source->size() - CurrentPosition)!= Z_OK)
     {
-        Target->Initialize(SMSG_ADDON_INFO);
+        target->Initialize(SMSG_ADDON_INFO);
 
         uint32 addonsCount;
         AddOnPacked >> addonsCount;                         // addons count?
@@ -81,14 +81,14 @@ bool AddonHandler::BuildAddonPacket(WorldPacket* Source, WorldPacket* Target)
             sLog->outDebug(LOG_FILTER_NETWORKIO, "ADDON: Name: %s, Enabled: 0x%x, CRC: 0x%x, Unknown2: 0x%x", addonName.c_str(), enabled, crc, unk2);
 
             uint8 state = (enabled ? 2 : 1);
-            *Target << uint8(state);
+            *target << uint8(state);
 
             uint8 unk1 = (enabled ? 1 : 0);
-            *Target << uint8(unk1);
+            *target << uint8(unk1);
             if (unk1)
             {
                 uint8 unk = (crc != 0x4c1c776d);           // If addon is Standard addon CRC
-                *Target << uint8(unk);
+                *target << uint8(unk);
                 if (unk)
                 {
                     unsigned char tdata[256] =
@@ -110,18 +110,18 @@ bool AddonHandler::BuildAddonPacket(WorldPacket* Source, WorldPacket* Target)
                         0xC3, 0xFB, 0x1B, 0x8C, 0x29, 0xEF, 0x8E, 0xE5, 0x34, 0xCB, 0xD1, 0x2A, 0xCE, 0x79, 0xC3, 0x9A,
                         0x0D, 0x36, 0xEA, 0x01, 0xE0, 0xAA, 0x91, 0x20, 0x54, 0xF0, 0x72, 0xD8, 0x1E, 0xC7, 0x89, 0xD2
                     };
-                    Target->append(tdata, sizeof(tdata));
+                    target->append(tdata, sizeof(tdata));
                 }
 
-                *Target << uint32(0);
+                *target << uint32(0);
             }
 
             uint8 unk3 = (enabled ? 0 : 1);
-            *Target << uint8(unk3);
+            *target << uint8(unk3);
             if (unk3)
             {
                 // String, 256 (null terminated?)
-                *Target << uint8(0);
+                *target << uint8(0);
             }
         }
 
@@ -129,7 +129,7 @@ bool AddonHandler::BuildAddonPacket(WorldPacket* Source, WorldPacket* Target)
         AddOnPacked >> unk4;
 
         uint32 count = 0;
-        *Target << uint32(count);
+        *target << uint32(count);
 
         if (AddOnPacked.rpos() != AddOnPacked.size())
             sLog->outDebug(LOG_FILTER_NETWORKIO, "packet under read!");

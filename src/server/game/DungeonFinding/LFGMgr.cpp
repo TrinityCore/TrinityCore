@@ -282,7 +282,7 @@ void LFGMgr::LoadLFGDungeons(bool reload /* = false */)
 
     if (!result)
     {
-        sLog->outError(LOG_FILTER_SQL, ">> Loaded 0 lfg entrance positions. DB table `lfg_entrances` is empty!");
+        sLog->outError(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 lfg entrance positions. DB table `lfg_entrances` is empty!");
         return;
     }
 
