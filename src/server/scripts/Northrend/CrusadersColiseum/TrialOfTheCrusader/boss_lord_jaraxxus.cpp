@@ -69,7 +69,6 @@ enum BossSpells
     SPELL_FEL_INFERNO                   = 67047,
     SPELL_FEL_STREAK                    = 66494,
     SPELL_LORD_HITTIN                   = 66326,   // special effect preventing more specific spells be cast on the same player within 10 seconds
-    SPELL_MISTRESS_KISS_DEBUFF          = 66334,
     SPELL_MISTRESS_KISS_DAMAGE_SILENCE  = 66359
 };
 
@@ -533,6 +532,21 @@ class spell_mistress_kiss : public SpellScriptLoader
         }
 };
 
+class MistressKissTargetSelector
+{
+    public:
+        MistressKissTargetSelector() { }
+
+        bool operator()(WorldObject* unit) const
+        {
+            if (unit->GetTypeId() == TYPEID_PLAYER)
+                if (unit->ToPlayer()->getPowerType() == POWER_MANA)
+                    return false;
+
+            return true;
+        }
+};
+
 class spell_mistress_kiss_area : public SpellScriptLoader
 {
     public:
@@ -542,44 +556,27 @@ class spell_mistress_kiss_area : public SpellScriptLoader
         {
             PrepareSpellScript(spell_mistress_kiss_area_SpellScript)
 
-            bool Load()
+            void FilterTargets(std::list<WorldObject*>& targets)
             {
-                if (GetCaster())
-                    if (sSpellMgr->GetSpellIdForDifficulty(SPELL_MISTRESS_KISS_DEBUFF, GetCaster()))
-                        return true;
-                return false;
+                // get a list of players with mana
+                targets.remove_if(MistressKissTargetSelector());
+                if (targets.empty())
+                    return;
+
+                WorldObject* target = Trinity::Containers::SelectRandomContainerElement(targets);
+                targets.clear();
+                targets.push_back(target);
             }
 
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
-                Unit* caster = GetCaster();
-                Unit* target = GetHitUnit();
-                if (caster && target)
-                    caster->CastSpell(target, SPELL_MISTRESS_KISS_DEBUFF, true);
-            }
-
-            void FilterTargets(std::list<WorldObject*>& targets)
-            {
-                // get a list of players with mana
-                std::list<WorldObject*> _targets;
-                for (std::list<WorldObject*>::iterator itr = targets.begin(); itr != targets.end(); ++itr)
-                    if ((*itr)->ToUnit()->getPowerType() == POWER_MANA)
-                        _targets.push_back(*itr);
-
-                // pick a random target and kiss him
-                if (WorldObject* _target = Trinity::Containers::SelectRandomContainerElement(_targets))
-                {
-                    // correctly fill "targets" for the visual effect
-                    targets.clear();
-                    targets.push_back(_target);
-                    if (Unit* caster = GetCaster())
-                        caster->CastSpell(_target->ToUnit(), SPELL_MISTRESS_KISS_DEBUFF, true);
-                }
+                GetCaster()->CastSpell(GetHitUnit(), uint32(GetEffectValue()), true);
             }
 
             void Register()
             {
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_mistress_kiss_area_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnEffectHitTarget += SpellEffectFn(spell_mistress_kiss_area_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
