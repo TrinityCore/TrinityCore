@@ -20,12 +20,12 @@
 
 AppenderFile::AppenderFile(uint8 id, std::string const& name, LogLevel level, const char* _filename, const char* _logDir, const char* _mode, AppenderFlags _flags, uint64 fileSize):
     Appender(id, name, APPENDER_FILE, level, _flags),
+    logfile(NULL),
     filename(_filename),
     logDir(_logDir),
     mode(_mode),
     maxFileSize(fileSize),
-    fileSize(0),
-    logfile(NULL)
+    fileSize(0)
 {
     dynamicName = std::string::npos != filename.find("%s");
     backup = _flags & APPENDER_FLAGS_MAKE_FILE_BACKUP;
