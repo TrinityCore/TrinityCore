@@ -145,6 +145,7 @@ enum Spells
     SPELL_RESTORE_SOUL                  = 72595,
     SPELL_RESTORE_SOULS                 = 73650,    // Heroic
     SPELL_DARK_HUNGER                   = 69383,    // Passive proc healing
+    SPELL_DARK_HUNGER_HEAL              = 69384,
     SPELL_DESTROY_SOUL                  = 74086,    // Used when Terenas Menethil dies
     SPELL_SOUL_RIP                      = 69397,    // Deals increasing damage
     SPELL_SOUL_RIP_DAMAGE               = 69398,
@@ -3008,6 +3009,41 @@ class spell_the_lich_king_restore_soul : public SpellScriptLoader
         }
 };
 
+class spell_the_lich_king_dark_hunger : public SpellScriptLoader
+{
+    public:
+        spell_the_lich_king_dark_hunger() : SpellScriptLoader("spell_the_lich_king_dark_hunger") { }
+
+        class spell_the_lich_king_dark_hunger_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_the_lich_king_dark_hunger_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_DARK_HUNGER_HEAL))
+                    return false;
+                return true;
+            }
+
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+                int32 heal = int32(eventInfo.GetDamageInfo()->GetDamage() / 2);
+                GetTarget()->CastCustomSpell(SPELL_DARK_HUNGER_HEAL, SPELLVALUE_BASE_POINT0, heal, GetTarget(), true, NULL, aurEff);
+            }
+
+            void Register()
+            {
+                OnEffectProc += AuraEffectProcFn(spell_the_lich_king_dark_hunger_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_the_lich_king_dark_hunger_AuraScript();
+        }
+};
+
 class spell_the_lich_king_in_frostmourne_room : public SpellScriptLoader
 {
     public:
@@ -3253,6 +3289,7 @@ void AddSC_boss_the_lich_king()
     new spell_the_lich_king_lights_favor();
     new spell_the_lich_king_soul_rip();
     new spell_the_lich_king_restore_soul();
+    new spell_the_lich_king_dark_hunger();
     new spell_the_lich_king_in_frostmourne_room();
     new spell_the_lich_king_summon_spirit_bomb();
     new spell_the_lich_king_trigger_vile_spirit();

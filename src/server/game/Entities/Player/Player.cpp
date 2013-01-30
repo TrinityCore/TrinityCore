@@ -10732,7 +10732,7 @@ InventoryResult Player::CanStoreItem(uint8 bag, uint8 slot, ItemPosCountVec &des
     {
         if (no_space_count)
             *no_space_count = count;
-        return swap ? EQUIP_ERR_ITEMS_CANT_BE_SWAPPED :EQUIP_ERR_ITEM_NOT_FOUND;
+        return swap ? EQUIP_ERR_ITEMS_CANT_BE_SWAPPED : EQUIP_ERR_ITEM_NOT_FOUND;
     }
 
     if (pItem)
@@ -11487,8 +11487,37 @@ InventoryResult Player::CanEquipItem(uint8 slot, uint16 &dest, Item* pItem, bool
             if (!swap && GetItemByPos(INVENTORY_SLOT_BAG_0, eslot))
                 return EQUIP_ERR_NO_EQUIPMENT_SLOT_AVAILABLE;
 
-            // if swap ignore item (equipped also)
-            InventoryResult res2 = CanEquipUniqueItem(pItem, swap ? eslot : uint8(NULL_SLOT));
+            // if we are swapping 2 equiped items, CanEquipUniqueItem check
+            // should ignore the item we are trying to swap, and not the
+            // destination item. CanEquipUniqueItem should ignore destination
+            // item only when we are swapping weapon from bag
+            uint8 ignore = uint8(NULL_SLOT);
+            switch (eslot)
+            {
+                case EQUIPMENT_SLOT_MAINHAND:
+                    ignore = EQUIPMENT_SLOT_OFFHAND;
+                    break;
+                case EQUIPMENT_SLOT_OFFHAND:
+                    ignore = EQUIPMENT_SLOT_MAINHAND;
+                    break;
+                case EQUIPMENT_SLOT_FINGER1:
+                    ignore = EQUIPMENT_SLOT_FINGER2;
+                    break;
+                case EQUIPMENT_SLOT_FINGER2:
+                    ignore = EQUIPMENT_SLOT_FINGER1;
+                    break;
+                case EQUIPMENT_SLOT_TRINKET1:
+                    ignore = EQUIPMENT_SLOT_TRINKET2;
+                    break;
+                case EQUIPMENT_SLOT_TRINKET2:
+                    ignore = EQUIPMENT_SLOT_TRINKET1;
+                    break;
+            }
+
+            if (ignore == uint8(NULL_SLOT) || pItem != GetItemByPos(INVENTORY_SLOT_BAG_0, ignore))
+                ignore = eslot;
+
+            InventoryResult res2 = CanEquipUniqueItem(pItem, swap ? ignore : uint8(NULL_SLOT));
             if (res2 != EQUIP_ERR_OK)
                 return res2;
 
@@ -14262,7 +14291,7 @@ void Player::PrepareGossipMenu(WorldObject* source, uint32 menuId /*= 0*/, bool 
                     VendorItemData const* vendorItems = creature->GetVendorItems();
                     if (!vendorItems || vendorItems->Empty())
                     {
-                        sLog->outError(LOG_FILTER_SQL, "Creature %u (Entry: %u) have UNIT_NPC_FLAG_VENDOR but have empty trading item list.", creature->GetGUIDLow(), creature->GetEntry());
+                        sLog->outError(LOG_FILTER_SQL, "Creature (GUID: %u, Entry: %u) have UNIT_NPC_FLAG_VENDOR but have empty trading item list.", creature->GetGUIDLow(), creature->GetEntry());
                         canTalk = false;
                     }
                     break;
@@ -21731,7 +21760,7 @@ void Player::LeaveBattleground(bool teleportToEntryPoint)
     }
 }
 
-bool Player::CanJoinToBattleground() const
+bool Player::CanJoinToBattleground(Battleground const* /*bg*/) const
 {
     // check Deserter debuff
     if (HasAura(26013))

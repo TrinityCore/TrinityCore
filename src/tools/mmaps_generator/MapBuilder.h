@@ -30,6 +30,8 @@
 #include "DetourNavMesh.h"
 
 #include <ace/Task.h>
+#include <ace/Activation_Queue.h>
+#include <ace/Method_Request.h>
 
 using namespace VMAP;
 
@@ -124,26 +126,61 @@ namespace MMAP
             rcContext* m_rcContext;
     };
 
-    class BuilderThread : public ACE_Task<ACE_MT_SYNCH>
+    class MapBuildRequest : public ACE_Method_Request
+    {
+        public:
+            MapBuildRequest(uint32 mapId) : _mapId(mapId) {}
+
+            virtual int call()
+            {
+                /// @ Actually a creative way of unabstracting the class and returning a member variable
+                return (int)_mapId;
+            }
+
+        private:
+            uint32 _mapId;
+    };
+
+    class BuilderThread : public ACE_Task_Base
     {
     private:
         MapBuilder* _builder;
-        uint32 _mapId;
-    public:
-        BuilderThread(MapBuilder* builder) : _builder(builder), Free(true) {}
+        ACE_Activation_Queue* _queue;
 
-        void SetMapId(uint32 mapId) { _mapId = mapId; }
+    public:
+        BuilderThread(MapBuilder* builder, ACE_Activation_Queue* queue) : _builder(builder), _queue(queue) { activate(); }
 
         int svc()
         {
-            Free = false;
-            if (_builder)
-                _builder->buildMap(_mapId);
-            Free = true;
+            /// @ Set a timeout for dequeue attempts (only used when the queue is empty) as it will never get populated after thread starts
+            ACE_Time_Value timeout(5);
+            ACE_Method_Request* request = NULL;
+            while ((request = _queue->dequeue(&timeout)) != NULL)
+            {
+                _builder->buildMap(request->call());
+                delete request;
+                request = NULL;
+            }
+
             return 0;
         }
+    };
 
-        bool Free;
+    class BuilderThreadPool
+    {
+        public:
+            BuilderThreadPool() : _queue(new ACE_Activation_Queue()) {}
+            ~BuilderThreadPool() { _queue->queue()->close(); delete _queue; }
+
+            void Enqueue(MapBuildRequest* request)
+            {
+                _queue->enqueue(request);
+            }
+
+            ACE_Activation_Queue* Queue() { return _queue; }
+
+        private:
+            ACE_Activation_Queue* _queue;
     };
 }
 

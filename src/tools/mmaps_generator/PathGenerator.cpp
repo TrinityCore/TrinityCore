@@ -292,5 +292,5 @@ int main(int argc, char** argv)
 
     if (!silent)
         printf("Finished. MMAPS were built in %u ms!\n", GetMSTimeDiffToNow(start));
-    return 1;
+    return 0;
 }

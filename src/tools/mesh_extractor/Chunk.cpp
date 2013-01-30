@@ -17,7 +17,7 @@ int32 Chunk::FindSubChunkOffset(std::string name)
             matched = 0;
         else
             ++matched;
-            
+
         if (matched == 4)
             return ftell(stream) - 4;
     }

@@ -680,9 +680,9 @@ uint32 Transport::AddNPCPassenger(uint32 tguid, uint32 entry, float x, float y, 
 
 void Transport::UpdatePosition(MovementInfo* mi)
 {
-    float transport_o = mi->pos.m_orientation - mi->t_pos.m_orientation;
-    float transport_x = mi->pos.m_positionX - (mi->t_pos.m_positionX * std::cos(transport_o) - mi->t_pos.m_positionY* std::sin(transport_o));
-    float transport_y = mi->pos.m_positionY - (mi->t_pos.m_positionY * std::cos(transport_o) + mi->t_pos.m_positionX* std::sin(transport_o));
+    float transport_o = mi->pos.GetOrientation() - mi->t_pos.GetOrientation();
+    float transport_x = mi->pos.m_positionX - (mi->t_pos.m_positionX * std::cos(transport_o) - mi->t_pos.m_positionY * std::sin(transport_o));
+    float transport_y = mi->pos.m_positionY - (mi->t_pos.m_positionY * std::cos(transport_o) + mi->t_pos.m_positionX * std::sin(transport_o));
     float transport_z = mi->pos.m_positionZ - mi->t_pos.m_positionZ;
 
     Relocate(transport_x, transport_y, transport_z, transport_o);

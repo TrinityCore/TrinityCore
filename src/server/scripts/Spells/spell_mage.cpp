@@ -28,11 +28,15 @@
 
 enum MageSpells
 {
+    SPELL_MAGE_BURNOUT                           = 29077,
     SPELL_MAGE_COLD_SNAP                         = 11958,
+    SPELL_MAGE_FOCUS_MAGIC_PROC                  = 54648,
     SPELL_MAGE_FROST_WARDING_R1                  = 11189,
     SPELL_MAGE_FROST_WARDING_TRIGGERED           = 57776,
     SPELL_MAGE_INCANTERS_ABSORBTION_R1           = 44394,
     SPELL_MAGE_INCANTERS_ABSORBTION_TRIGGERED    = 44413,
+    SPELL_MAGE_IGNITE                            = 12654,
+    SPELL_MAGE_MASTER_OF_ELEMENTS_ENERGIZE       = 29077,
     SPELL_MAGE_SQUIRREL_FORM                     = 32813,
     SPELL_MAGE_GIRAFFE_FORM                      = 32816,
     SPELL_MAGE_SERPENT_FORM                      = 32817,
@@ -102,6 +106,51 @@ class spell_mage_blast_wave : public SpellScriptLoader
         SpellScript* GetSpellScript() const
         {
             return new spell_mage_blast_wave_SpellScript();
+        }
+};
+
+// -44449 - Burnout
+class spell_mage_burnout : public SpellScriptLoader
+{
+    public:
+        spell_mage_burnout() : SpellScriptLoader("spell_mage_burnout") { }
+
+        class spell_mage_burnout_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_mage_burnout_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_BURNOUT))
+                    return false;
+                return true;
+            }
+
+            bool CheckProc(ProcEventInfo& eventInfo)
+            {
+                return eventInfo.GetDamageInfo()->GetSpellInfo(); // eventInfo.GetSpellInfo()
+            }
+
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+
+                int32 mana = int32(eventInfo.GetDamageInfo()->GetSpellInfo()->CalcPowerCost(GetTarget(), eventInfo.GetDamageInfo()->GetSchoolMask()));
+                mana = CalculatePct(mana, aurEff->GetAmount());
+
+                GetTarget()->CastCustomSpell(SPELL_MAGE_BURNOUT, SPELLVALUE_BASE_POINT0, mana, GetTarget(), true, NULL, aurEff);
+            }
+
+            void Register()
+            {
+                DoCheckProc += AuraCheckProcFn(spell_mage_burnout_AuraScript::CheckProc);
+                OnEffectProc += AuraEffectProcFn(spell_mage_burnout_AuraScript::HandleProc, EFFECT_1, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_mage_burnout_AuraScript();
         }
 };
 
@@ -219,6 +268,57 @@ class spell_mage_fire_frost_ward : public SpellScriptLoader
         }
 };
 
+// 54646 - Focus Magic
+class spell_mage_focus_magic : public SpellScriptLoader
+{
+    public:
+        spell_mage_focus_magic() : SpellScriptLoader("spell_mage_focus_magic") { }
+
+        class spell_mage_focus_magic_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_mage_focus_magic_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_FOCUS_MAGIC_PROC))
+                    return false;
+                return true;
+            }
+
+            bool Load()
+            {
+                _procTarget = NULL;
+                return true;
+            }
+
+            bool CheckProc(ProcEventInfo& /*eventInfo*/)
+            {
+                _procTarget = GetCaster();
+                return _procTarget && _procTarget->isAlive();
+            }
+
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
+            {
+                PreventDefaultAction();
+                GetTarget()->CastSpell(_procTarget, SPELL_MAGE_FOCUS_MAGIC_PROC, true, NULL, aurEff);
+            }
+
+            void Register()
+            {
+                DoCheckProc += AuraCheckProcFn(spell_mage_focus_magic_AuraScript::CheckProc);
+                OnEffectProc += AuraEffectProcFn(spell_mage_focus_magic_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_MOD_SPELL_CRIT_CHANCE);
+            }
+
+        private:
+            Unit* _procTarget;
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_mage_focus_magic_AuraScript();
+        }
+};
+
 // -11426 - Ice Barrier
 class spell_mage_ice_barrier : public SpellScriptLoader
 {
@@ -259,6 +359,53 @@ class spell_mage_ice_barrier : public SpellScriptLoader
         AuraScript* GetAuraScript() const
         {
             return new spell_mage_ice_barrier_AuraScript();
+        }
+};
+
+// -11119 - Ignite
+class spell_mage_ignite : public SpellScriptLoader
+{
+    public:
+        spell_mage_ignite() : SpellScriptLoader("spell_mage_ignite") { }
+
+        class spell_mage_ignite_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_mage_ignite_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_IGNITE))
+                    return false;
+                return true;
+            }
+
+            bool CheckProc(ProcEventInfo& eventInfo)
+            {
+                return eventInfo.GetProcTarget();
+            }
+
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+
+                SpellInfo const* igniteDot = sSpellMgr->GetSpellInfo(SPELL_MAGE_IGNITE);
+                int32 pct = 8 * GetSpellInfo()->GetRank();
+
+                int32 amount = int32(CalculatePct(eventInfo.GetDamageInfo()->GetDamage(), pct) / igniteDot->GetMaxTicks());
+                amount += eventInfo.GetProcTarget()->GetRemainingPeriodicAmount(eventInfo.GetActor()->GetGUID(), SPELL_MAGE_IGNITE, SPELL_AURA_PERIODIC_DAMAGE);
+                GetTarget()->CastCustomSpell(SPELL_MAGE_IGNITE, SPELLVALUE_BASE_POINT0, amount, eventInfo.GetProcTarget(), true, NULL, aurEff);
+            }
+
+            void Register()
+            {
+                DoCheckProc += AuraCheckProcFn(spell_mage_ignite_AuraScript::CheckProc);
+                OnEffectProc += AuraEffectProcFn(spell_mage_ignite_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_mage_ignite_AuraScript();
         }
 };
 
@@ -336,6 +483,52 @@ class spell_mage_mana_shield : public SpellScriptLoader
         AuraScript* GetAuraScript() const
         {
             return new spell_mage_mana_shield_AuraScript();
+        }
+};
+
+// -29074 - Master of Elements
+class spell_mage_master_of_elements : public SpellScriptLoader
+{
+    public:
+        spell_mage_master_of_elements() : SpellScriptLoader("spell_mage_master_of_elements") { }
+
+        class spell_mage_master_of_elements_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_mage_master_of_elements_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_MASTER_OF_ELEMENTS_ENERGIZE))
+                    return false;
+                return true;
+            }
+
+            bool CheckProc(ProcEventInfo& eventInfo)
+            {
+                return eventInfo.GetDamageInfo()->GetSpellInfo(); // eventInfo.GetSpellInfo()
+            }
+
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+
+                int32 mana = int32(eventInfo.GetDamageInfo()->GetSpellInfo()->CalcPowerCost(GetTarget(), eventInfo.GetDamageInfo()->GetSchoolMask()));
+                mana = CalculatePct(mana, aurEff->GetAmount());
+
+                if (mana > 0)
+                    GetTarget()->CastCustomSpell(SPELL_MAGE_MASTER_OF_ELEMENTS_ENERGIZE, SPELLVALUE_BASE_POINT0, mana, GetTarget(), true, NULL, aurEff);
+            }
+
+            void Register()
+            {
+                DoCheckProc += AuraCheckProcFn(spell_mage_master_of_elements_AuraScript::CheckProc);
+                OnEffectProc += AuraEffectProcFn(spell_mage_master_of_elements_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_mage_master_of_elements_AuraScript();
         }
 };
 
@@ -437,11 +630,15 @@ class spell_mage_summon_water_elemental : public SpellScriptLoader
 void AddSC_mage_spell_scripts()
 {
     new spell_mage_blast_wave();
+    new spell_mage_burnout();
     new spell_mage_cold_snap();
     new spell_mage_fire_frost_ward();
+    new spell_mage_focus_magic();
     new spell_mage_ice_barrier();
+    new spell_mage_ignite();
     new spell_mage_living_bomb();
     new spell_mage_mana_shield();
+    new spell_mage_master_of_elements();
     new spell_mage_polymorph_cast_visual();
     new spell_mage_summon_water_elemental();
 }

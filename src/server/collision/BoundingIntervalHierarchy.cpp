@@ -18,6 +18,12 @@
 
 #include "BoundingIntervalHierarchy.h"
 
+#if defined __APPLE__
+  #define isnan std::isnan
+#elif defined _MSC_VER
+  #define isnan _isnan
+#endif
+
 void BIH::buildHierarchy(std::vector<uint32> &tempTree, buildData &dat, BuildStats &stats)
 {
     // create space for the first node
@@ -51,7 +57,7 @@ void BIH::subdivide(int left, int right, std::vector<uint32> &tempTree, buildDat
         prevAxis = axis;
         prevSplit = split;
         // perform quick consistency checks
-        Vector3 d( gridBox.hi - gridBox.lo );
+        G3D::Vector3 d( gridBox.hi - gridBox.lo );
         if (d.x < 0 || d.y < 0 || d.z < 0)
             throw std::logic_error("negative node extents");
         for (int i = 0; i < 3; i++)
@@ -255,11 +261,11 @@ bool BIH::writeToFile(FILE* wf) const
 bool BIH::readFromFile(FILE* rf)
 {
     uint32 treeSize;
-    Vector3 lo, hi;
+    G3D::Vector3 lo, hi;
     uint32 check=0, count=0;
     check += fread(&lo, sizeof(float), 3, rf);
     check += fread(&hi, sizeof(float), 3, rf);
-    bounds = AABox(lo, hi);
+    bounds = G3D::AABox(lo, hi);
     check += fread(&treeSize, sizeof(uint32), 1, rf);
     tree.resize(treeSize);
     check += fread(&tree[0], sizeof(uint32), treeSize, rf);

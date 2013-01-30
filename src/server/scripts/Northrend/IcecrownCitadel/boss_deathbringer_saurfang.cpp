@@ -415,6 +415,13 @@ class boss_deathbringer_saurfang : public CreatureScript
                 }
             }
 
+            void SpellHit(Unit* /*caster*/, SpellInfo const* spell)
+            {
+                if (spell->Id == SPELL_BLOOD_LINK_POWER)
+                    if (Aura* bloodPower = me->GetAura(SPELL_BLOOD_POWER))
+                        bloodPower->RecalculateAmountOfEffects();
+            }
+
             void UpdateAI(uint32 const diff)
             {
                 if (!UpdateVictim() && !(events.GetPhaseMask() & PHASE_INTRO_MASK))
@@ -1004,8 +1011,6 @@ class spell_deathbringer_blood_link : public SpellScriptLoader
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
                 GetHitUnit()->CastCustomSpell(SPELL_BLOOD_LINK_POWER, SPELLVALUE_BASE_POINT0, GetEffectValue(), GetHitUnit(), true);
-                if (Aura* bloodPower = GetHitUnit()->GetAura(SPELL_BLOOD_POWER))
-                    bloodPower->RecalculateAmountOfEffects();
                 PreventHitDefaultEffect(EFFECT_0);
             }
 
@@ -1092,13 +1097,6 @@ class spell_deathbringer_blood_power : public SpellScriptLoader
             {
                 DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_deathbringer_blood_power_AuraScript::RecalculateHook, EFFECT_0, SPELL_AURA_MOD_SCALE);
                 DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_deathbringer_blood_power_AuraScript::RecalculateHook, EFFECT_1, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE);
-            }
-
-            bool Load()
-            {
-                if (GetUnitOwner()->getPowerType() != POWER_ENERGY)
-                    return false;
-                return true;
             }
         };
 

@@ -101,7 +101,7 @@ void ContinentBuilder::Build(bool debug)
     }
 
     CalculateTileBounds();
-    
+
     dtNavMeshParams params;
     params.maxPolys = 1 << STATIC_POLY_BITS;
     params.maxTiles = TileMap->TileTable.size();
