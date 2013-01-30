@@ -154,9 +154,7 @@ enum Phases
 {
     // Anub'arak
     PHASE_MELEE                 = 1,
-    PHASE_SUBMERGED             = 2,
-
-    PHASE_MASK_MELEE            = 1 << PHASE_MELEE
+    PHASE_SUBMERGED             = 2
 };
 
 class boss_anubarak_trial : public CreatureScript
@@ -403,7 +401,7 @@ class boss_anubarak_trial : public CreatureScript
 
                 }
 
-                if (HealthBelowPct(30) && events.GetPhaseMask() & PHASE_MASK_MELEE && !_reachedPhase3)
+                if (HealthBelowPct(30) && events.IsInPhase(PHASE_MELEE) && !_reachedPhase3)
                 {
                     _reachedPhase3 = true;
                     DoCastAOE(SPELL_LEECHING_SWARM);
@@ -411,7 +409,7 @@ class boss_anubarak_trial : public CreatureScript
                     Talk(SAY_LEECHING_SWARM);
                 }
 
-                if (events.GetPhaseMask() & PHASE_MASK_MELEE)
+                if (events.IsInPhase(PHASE_MELEE))
                     DoMeleeAttackIfReady();
             }
 
