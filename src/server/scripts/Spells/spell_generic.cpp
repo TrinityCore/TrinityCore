@@ -3518,6 +3518,52 @@ class spell_gen_replenishment : public SpellScriptLoader
         }
 };
 
+enum BladeWaring
+{
+    SPELL_BLADE_WARDING_PROC    = 64440,
+    SPELL_BLADE_WARDING_DAMAGE  = 64442,
+};
+
+class spell_gen_blade_warding : public SpellScriptLoader
+{
+    public:
+        spell_gen_blade_warding() : SpellScriptLoader("spell_gen_blade_warding") { }
+
+        class spell_gen_blade_warding_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_gen_blade_warding_SpellScript);
+
+            bool Validate(SpellInfo const* /*spell*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_BLADE_WARDING_DAMAGE) || !sSpellMgr->GetSpellInfo(SPELL_BLADE_WARDING_DAMAGE))
+                    return false;
+                return true;
+            }
+
+            void HandleDamageCalc(SpellEffIndex /*effIndex*/)
+            {
+                uint32 damage;
+
+                if (Unit* caster = GetCaster())
+                {
+                    if (float multiplier = caster->GetAura(SPELL_BLADE_WARDING_PROC)->GetStackAmount())
+                        damage = urand(multiplier * 600, multiplier * 800);
+                }
+                SetHitDamage(damage);
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_gen_blade_warding_SpellScript::HandleDamageCalc, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_gen_blade_warding_SpellScript();
+        }
+};
+
 void AddSC_generic_spell_scripts()
 {
     new spell_gen_absorb0_hitlimit1();
@@ -3597,4 +3643,5 @@ void AddSC_generic_spell_scripts()
     new spell_gen_bonked();
     new spell_gen_gift_of_naaru();
     new spell_gen_replenishment();
+    new spell_gen_blade_warding();
 }

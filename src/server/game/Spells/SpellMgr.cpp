@@ -2910,6 +2910,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 72444: // Mark of the Fallen Champion (Deathbringer Saurfang)
             case 72445: // Mark of the Fallen Champion (Deathbringer Saurfang)
             case 72446: // Mark of the Fallen Champion (Deathbringer Saurfang)
+            case 64442: // Blade Warding (Damage)
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_IGNORE_ARMOR;
                 break;
             case 64422: // Sonic Screech (Auriaya)
@@ -3319,6 +3320,9 @@ void SpellMgr::LoadDbcDataCorrections()
                 break;
             case 34471: // The Beast Within
                 spellInfo->AttributesEx5 |= SPELL_ATTR5_USABLE_WHILE_CONFUSED | SPELL_ATTR5_USABLE_WHILE_FEARED | SPELL_ATTR5_USABLE_WHILE_STUNNED;
+                break;
+            case 64440: // Blade Warding
+                spellInfo->EffectTriggerSpell[EFFECT_1] = 64442;
                 break;
             // ULDUAR SPELLS
             //
