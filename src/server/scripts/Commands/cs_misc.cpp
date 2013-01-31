@@ -1740,19 +1740,13 @@ public:
         result = CharacterDatabase.Query(stmt);
         if (result)
         {
-            uint32 guildId           = 0;
-            std::string guildName   = "";
-            std::string guildRank   = "";
-            std::string note        = "";
-            std::string officeNote  = "";
+            Field* fields = result->Fetch();
 
-            Field* fields      = result->Fetch();
-            guildId            = fields[0].GetUInt32();
-            guildName          = fields[1].GetString();
-            //rankId           = fields[2].GetUInt8();
-            guildRank          = fields[3].GetString();
-            note               = fields[4].GetString();
-            officeNote         = fields[5].GetString();
+            uint32 guildId = fields[0].GetUInt32();
+            std::string guildName = fields[1].GetString();
+            std::string guildRank = fields[2].GetString();
+            std::string note = fields[3].GetString();
+            std::string officeNote = fields[4].GetString();
 
             handler->PSendSysMessage(LANG_PINFO_GUILD_INFO, guildName.c_str(), guildId, guildRank.c_str(), note.c_str(), officeNote.c_str());
         }
