@@ -40,6 +40,8 @@ void AddSC_Mod_Multikill(); // by Codels
 void AddSC_npc_maniek();
 // NPC MMR Master
 void AddSC_npc_mmr_reset();
+// NPC Astranaar SHOP
+void AddSC_npc_shop();
 
 // spells
 void AddSC_deathknight_spell_scripts();
@@ -1348,5 +1350,7 @@ void AddCustomScripts()
     AddSC_npc_maniek();
     // NPC MMR Master
     AddSC_npc_mmr_reset();
+    // NPC Astranaar SHOP
+    AddSC_npc_shop();
 #endif
 }

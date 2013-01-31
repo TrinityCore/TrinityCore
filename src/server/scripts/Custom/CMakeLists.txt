@@ -21,6 +21,7 @@ set(scripts_STAT_SRCS
   Custom/mod_MultiKill.cpp
   Custom/npc_maniek.cpp
   Custom/npc_mmr_reset.cpp
+  Custom/npc_shop.cpp
 )
 
 message("  -> Prepared: Custom")
