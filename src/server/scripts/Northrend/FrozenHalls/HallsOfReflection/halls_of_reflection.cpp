@@ -1651,6 +1651,7 @@ public:
             me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
             me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
             m_uipWallTargetGUID = 0;
+            me->SetHealth(me->GetMaxHealth() * 0.05);
 
             if(me->GetEntry() == NPC_JAINA_OUTRO)
             {

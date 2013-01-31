@@ -92,6 +92,8 @@ public:
            WipedGroup = false;
            walkSpeed = 0.8f;
            uiWall = 0;
+           if (pInstance->GetData(DATA_FROSWORN_EVENT) == DONE)
+               me->SetHealth(me->GetMaxHealth() * 0.80);
        }
 
        void JustDied(Unit* /*killer*/) { }
