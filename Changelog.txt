@@ -11,6 +11,7 @@
 #                                                                                          #
 ############################################################################################
 
+[117] --> Fix Night Elf: Shadowmeld.
 [116] --> Revert '[gc354] remove IoC from rbg list'.
 [115] --> Delete [MOD] CharacterHistory.
 [114] --> Fix Val'kyr Shadowguard speed.
