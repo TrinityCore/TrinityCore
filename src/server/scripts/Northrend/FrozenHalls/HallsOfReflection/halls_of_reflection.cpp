@@ -2048,6 +2048,7 @@ public:
                 case 13:
                     me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_STAND);
                     m_pInstance->SetData(DATA_LICHKING_EVENT, DONE);
+                    m_pInstance->DoCastSpellOnPlayers(SPELL_ACHIEV_CHECK);
                     if(Creature* pCaptain = me->GetCreature(*me, uiCaptain))
                         pCaptain->AI()->Talk(SAY_JAINA_FINAL_1);
                     me->SummonGameObject(me->GetEntry() == NPC_JAINA_OUTRO ? GO_STAIRS_SKYBREAKER : GO_STAIRS_ORGRIM_HAMMER, 5247.45f, 1627.72f, 784.302f, 5.88208f, 0, 0, 0.199211f, -0.979957f, 1*DAY);
