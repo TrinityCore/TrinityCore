@@ -2858,8 +2858,6 @@ void World::ResetMonthlyQuests()
         if (itr->second->GetPlayer())
             itr->second->GetPlayer()->ResetMonthlyQuestStatus();
 
-    time_t mostRecentQuestTime = 0;
-
     // generate time
     time_t curTime = time(NULL);
     tm localTm = *localtime(&curTime);
@@ -2889,11 +2887,8 @@ void World::ResetMonthlyQuests()
     // last reset time before current moment
     time_t resetTime = (curTime < nextMonthResetTime) ? nextMonthResetTime - MONTH : nextMonthResetTime;
 
-    // need reset (if we have quest time before last reset time (not processed by some reason)
-    if (mostRecentQuestTime && mostRecentQuestTime <= resetTime)
-        m_NextMonthlyQuestReset = mostRecentQuestTime;
-    else // plan next reset time
-        m_NextMonthlyQuestReset = (curTime >= nextMonthResetTime) ? nextMonthResetTime + MONTH : nextMonthResetTime;
+    // plan next reset time
+    m_NextMonthlyQuestReset = (curTime >= nextMonthResetTime) ? nextMonthResetTime + MONTH : nextMonthResetTime;
 
     sWorld->setWorldState(WS_MONTHLY_QUEST_RESET_TIME, uint64(m_NextMonthlyQuestReset));
 }
