@@ -526,7 +526,7 @@ void PathGenerator::BuildPointPath(const float *startPoint, const float *endPoin
        //Dalaran Sewer
        if (_sourceUnit->GetMapId() == 617)
         {
-            if (startEndDist < 2500.0f && startPoint[2] >= 1330.033223f && startPoint[1] >= 9.000000f)      // Canal 1#
+            if (startEndDist < 2500.0f && startPoint[2] >= 1325.033223f && startPoint[1] >= 9.000000f)      // Canal 1#
             {
               //  Path X,y,z
 				Clear();
