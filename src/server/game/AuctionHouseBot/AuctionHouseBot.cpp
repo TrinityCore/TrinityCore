@@ -1419,10 +1419,15 @@ bool AuctionBotSeller::getItemsToSell(SellerConfiguration& config, ItemsToSellAr
 // Set items price. All important value are passed by address.
 void AuctionBotSeller::SetPricesOfItem(ItemTemplate const* itemProto, SellerConfiguration& config, uint32& buyp, uint32& bidp, uint32 stackcnt, ItemQualities itemQuality)
 {
-    double temp_buyp = buyp * stackcnt *
-        (itemQuality < MAX_AUCTION_QUALITY ? config.GetPriceRatioPerQuality(AuctionQuality(itemQuality)) : 0.01) ;
-
+    double temp_buyp = buyp * stackcnt * (itemQuality < MAX_AUCTION_QUALITY ? config.GetPriceRatioPerQuality(AuctionQuality(itemQuality)) : 0.01);
     double randrange = temp_buyp * 0.4;
+
+    if (randrange < 0)
+    {
+        sLog->outInfo(LOG_FILTER_AHBOT, "AHBot: Error on item %d wrong price %d %d %lf %lf", itemProto->ItemId, buyp, stackcnt, temp_buyp, randrange);
+        randrange *= -1; // Hackish, temp solution until proper fix
+    }
+
     buyp = (urand(temp_buyp - randrange, temp_buyp + randrange) / 100) + 1;
     double urandrange = buyp * 40;
     double temp_bidp = buyp * 50;
