@@ -570,12 +570,17 @@ void WorldSession::HandleMailTakeMoney(WorldPacket& recvData)
         return;
     }
 
-    player->SendMailResult(mailId, MAIL_MONEY_TAKEN, MAIL_OK);
+    if (!player->ModifyMoney(m->money, false))
+    {
+        player->SendMailResult(mailId, MAIL_MONEY_TAKEN, MAIL_ERR_EQUIP_ERROR, EQUIP_ERR_TOO_MUCH_GOLD);
+        return;
+    }
 
-    player->ModifyMoney(money);
     m->money = 0;
     m->state = MAIL_STATE_CHANGED;
     player->m_mailsUpdated = true;
+
+    player->SendMailResult(mailId, MAIL_MONEY_TAKEN, MAIL_OK);
 
     // save money and mail to prevent cheating
     SQLTransaction trans = CharacterDatabase.BeginTransaction();

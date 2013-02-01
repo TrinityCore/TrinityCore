@@ -22456,26 +22456,28 @@ void Player::InitPrimaryProfessions()
     SetFreePrimaryProfessions(sWorld->getIntConfig(CONFIG_MAX_PRIMARY_TRADE_SKILL));
 }
 
-void Player::ModifyMoney(int64 d)
+bool Player::ModifyMoney(int64 amount, bool sendError /*= true*/)
 {
-    sScriptMgr->OnPlayerMoneyChanged(this, d);
+    if (!amount)
+        return true;
 
-    if (d < 0)
-        SetMoney (GetMoney() > uint64(-d) ? GetMoney() + d : 0);
+    sScriptMgr->OnPlayerMoneyChanged(this, amount);
+
+    if (amount < 0)
+        SetMoney (GetMoney() > uint64(-amount) ? GetMoney() + amount : 0);
     else
     {
-        uint64 newAmount = 0;
-        if (GetMoney() < uint64(MAX_MONEY_AMOUNT - d))
-            newAmount = GetMoney() + d;
+        if (GetMoney() < uint64(MAX_MONEY_AMOUNT - amount))
+            SetMoney(GetMoney() + amount);
         else
         {
-            // "At Gold Limit"
-            newAmount = MAX_MONEY_AMOUNT;
-            if (d)
+            if (sendError)
                 SendEquipError(EQUIP_ERR_TOO_MUCH_GOLD, NULL, NULL);
+            return false;
         }
-        SetMoney(newAmount);
     }
+
+    return true;
 }
 
 Unit* Player::GetSelectedUnit() const

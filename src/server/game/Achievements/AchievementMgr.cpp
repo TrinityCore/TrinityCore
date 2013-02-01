@@ -3151,14 +3151,14 @@ void AchievementGlobalMgr::LoadAchievementCriteriaData()
         }
 
         uint32 dataType = fields[1].GetUInt8();
-        const char* scriptName = fields[4].GetCString();
+        std::string scriptName = fields[4].GetString();
         uint32 scriptId = 0;
-        if (strcmp(scriptName, "")) // not empty
+        if (scriptName.length()) // not empty
         {
             if (dataType != ACHIEVEMENT_CRITERIA_DATA_TYPE_SCRIPT)
                 sLog->outError(LOG_FILTER_SQL, "Table `achievement_criteria_data` has ScriptName set for non-scripted data type (Entry: %u, type %u), useless data.", criteria_id, dataType);
             else
-                scriptId = sObjectMgr->GetScriptId(scriptName);
+                scriptId = sObjectMgr->GetScriptId(scriptName.c_str());
         }
 
         AchievementCriteriaData data(dataType, fields[2].GetUInt32(), fields[3].GetUInt32(), scriptId);

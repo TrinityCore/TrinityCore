@@ -1048,9 +1048,12 @@ public:
                 ChatHandler(target->GetSession()).PSendSysMessage(LANG_YOURS_MONEY_GIVEN, handler->GetNameLink().c_str(), uint32(moneyToAdd));
 
             if (moneyToAdd >= MAX_MONEY_AMOUNT)
-                target->SetMoney(MAX_MONEY_AMOUNT);
-            else
-                target->ModifyMoney(moneyToAdd);
+                moneyToAdd = MAX_MONEY_AMOUNT;
+
+            if (targetMoney >= uint64(MAX_MONEY_AMOUNT) - moneyToAdd)
+                moneyToAdd -= targetMoney;
+
+            target->ModifyMoney(moneyToAdd);
         }
 
         sLog->outDebug(LOG_FILTER_GENERAL, handler->GetTrinityString(LANG_NEW_MONEY), uint32(targetMoney), int32(moneyToAdd), uint32(target->GetMoney()));
