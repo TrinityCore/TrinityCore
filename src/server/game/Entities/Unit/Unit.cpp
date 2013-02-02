@@ -15296,15 +15296,32 @@ void Unit::SetControlled(bool apply, UnitState state)
     {
         switch (state)
         {
-            case UNIT_STATE_STUNNED: if (HasAuraType(SPELL_AURA_MOD_STUN))    return;
-                                    else    SetStunned(false);    break;
-            case UNIT_STATE_ROOT:    if (HasAuraType(SPELL_AURA_MOD_ROOT) || GetVehicle())    return;
-                                    else    SetRooted(false);     break;
-            case UNIT_STATE_CONFUSED:if (HasAuraType(SPELL_AURA_MOD_CONFUSE)) return;
-                                    else    SetConfused(false);   break;
-            case UNIT_STATE_FLEEING: if (HasAuraType(SPELL_AURA_MOD_FEAR))    return;
-                                    else    SetFeared(false);     break;
-            default: return;
+            case UNIT_STATE_STUNNED:
+                if (HasAuraType(SPELL_AURA_MOD_STUN))
+                    return;
+                else
+                    SetStunned(false);
+                break;
+            case UNIT_STATE_ROOT:
+                if (HasAuraType(SPELL_AURA_MOD_ROOT) || GetVehicle())
+                    return;
+                else
+                    SetRooted(false);
+                break;
+            case UNIT_STATE_CONFUSED:
+                if (HasAuraType(SPELL_AURA_MOD_CONFUSE))
+                    return;
+                else
+                    SetConfused(false);
+                break;
+            case UNIT_STATE_FLEEING:
+                if (HasAuraType(SPELL_AURA_MOD_FEAR))
+                    return;
+                else
+                    SetFeared(false);
+                break;
+            default:
+                return;
         }
 
         ClearUnitState(state);
