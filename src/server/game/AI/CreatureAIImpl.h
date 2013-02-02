@@ -313,110 +313,177 @@ const T& RAND(const T& v1, const T& v2, const T& v3, const T& v4, const T& v5, c
 
 class EventMap
 {
-    typedef std::map<uint32, uint32> StorageType;
+    /**
+    * Internal storage type. 
+    * Key: Time as uint32 when the event should occur.
+    * Value: The event data as uint32. 
+    * 
+    * Structure of event data:
+    * - Bit  0 - 15: Event Id.
+    * - Bit 16 - 23: Group
+    * - Bit 24 - 31: Phase
+    * - Pattern: 0xPPGGEEEE
+    */
+    typedef std::multimap<uint32, uint32> EventStore;
 
     public:
         EventMap() : _time(0), _phase(0) {}
 
-        // Returns current timer value, does not represent real dates/times
-        uint32 GetTimer() const { return _time; }
-
-        // Removes all events and clears phase
+        /**
+        * @name Reset
+        * @brief Removes all scheduled events and resets time and phase.
+        */
         void Reset()
         {
-            _eventMap.clear(); _time = 0; _phase = 0;
+            _eventMap.clear();
+            _time = 0;
+            _phase = 0;
         }
 
-        void Update(uint32 time) { _time += time; }
-
-        uint32 GetPhaseMask() const { return (_phase >> 24) & 0xFF; }
-
-        bool Empty() const { return _eventMap.empty(); }
-
-        // Sets event phase, must be in range 1 - 8
-        void SetPhase(uint32 phase)
+        /**
+         * @name Update
+         * @brief Updates the timer of the event map.
+         * @param time Value to be added to time.
+         */
+        void Update(uint32 time)
         {
-            if (phase && phase <= 8)
-                _phase = (1 << (phase + 23));
-            else if (!phase)
+            _time += time;
+        }
+
+        /**
+        * @name GetTimer
+        * @return Current timer value.
+        */
+        uint32 GetTimer() const
+        {
+            return _time;
+        }
+
+        /**
+        * @name GetPhaseMask
+        * @return Active phases as mask.
+        */
+        uint8 GetPhaseMask() const
+        {
+            return _phase;
+        }
+
+        /**
+        * @name Empty
+        * @return True, if there are no events scheduled.
+        */
+        bool Empty() const
+        {
+            return _eventMap.empty();
+        }
+
+        /**
+        * @name SetPhase
+        * @brief Sets the phase of the map (absolute).
+        * @param phase Phase which should be set. Values: 1 - 8. 0 resets phase.
+        */
+        void SetPhase(uint8 phase)
+        {
+            if (!phase)
                 _phase = 0;
+            else if (phase <= 8)
+                _phase = (1 << (phase - 1));
         }
 
-        // Activates event phase, must be in range 1 - 8
-        void AddPhase(uint32 phase)
+        /**
+        * @name AddPhase
+        * @brief Activates the given phase (bitwise).
+        * @param phase Phase which should be activated. Values: 1 - 8
+        */
+        void AddPhase(uint8 phase)
         {
             if (phase && phase <= 8)
-                _phase |= (1 << (phase + 23));
+                _phase |= (1 << (phase - 1));
         }
 
-        // Deactivates event phase, must be in range 1 - 8
-        void RemovePhase(uint32 phase)
+        /**
+        * @name RemovePhase
+        * @brief Deactivates the given phase (bitwise).
+        * @param phase Phase which should be deactivated. Values: 1 - 8.
+        */
+        void RemovePhase(uint8 phase)
         {
             if (phase && phase <= 8)
-                _phase &= ~(1 << (phase + 23));
+                _phase &= ~(1 << (phase - 1));
         }
 
-        // Creates new event entry in map with given id, time, group if given (1 - 8) and phase if given (1 - 8)
-        // 0 for group/phase means it belongs to no group or runs in all phases
-        void ScheduleEvent(uint32 eventId, uint32 time, uint32 groupId = 0, uint32 phase = 0)
+        /**
+        * @name ScheduleEvent
+        * @brief Creates new event entry in map.
+        * @param eventId The id of the new event.
+        * @param time The time in milliseconds until the event occurs.
+        * @param group The group which the event is associated to. Has to be between 1 and 8. 0 means it has no group.
+        * @param phase The phase in which the event can occur. Has to be between 1 and 8. 0 means it can occur in all phases.
+        */
+        void ScheduleEvent(uint32 eventId, uint32 time, uint32 group = 0, uint8 phase = 0)
         {
-            time += _time;
-            if (groupId && groupId < 9)
-                eventId |= (1 << (groupId + 15));
-            if (phase && phase < 8)
+            if (group && group <= 8)
+                eventId |= (1 << (group + 15));
+
+            if (phase && phase <= 8)
                 eventId |= (1 << (phase + 23));
-            StorageType::const_iterator itr = _eventMap.find(time);
-            while (itr != _eventMap.end())
-            {
-                ++time;
-                itr = _eventMap.find(time);
-            }
 
-            _eventMap.insert(StorageType::value_type(time, eventId));
+            _eventMap.insert(EventStore::value_type(_time + time, eventId));
         }
 
-        // Removes event with specified id and creates new entry for it
-        void RescheduleEvent(uint32 eventId, uint32 time, uint32 groupId = 0, uint32 phase = 0)
+        /**
+        * @name RescheduleEvent
+        * @brief Cancels the given event and reschedules it.
+        * @param eventId The id of the event.
+        * @param time The time in milliseconds until the event occurs.
+        * @param group The group which the event is associated to. Has to be between 1 and 8. 0 means it has no group.
+        * @param phase The phase in which the event can occur. Has to be between 1 and 8. 0 means it can occur in all phases.
+        */
+        void RescheduleEvent(uint32 eventId, uint32 time, uint32 group = 0, uint8 phase = 0)
         {
             CancelEvent(eventId);
-            ScheduleEvent(eventId, time, groupId, phase);
+            ScheduleEvent(eventId, time, group, phase);
         }
 
-        // Reschedules closest event
+        /**
+        * @name RepeatEvent
+        * @brief Cancels the closest event and reschedules it.
+        * @param time Time until the event occurs.
+        */
         void RepeatEvent(uint32 time)
         {
-            if (_eventMap.empty())
+            if (Empty())
                 return;
-
+            
             uint32 eventId = _eventMap.begin()->second;
             _eventMap.erase(_eventMap.begin());
-            time += _time;
-            StorageType::const_iterator itr = _eventMap.find(time);
-            while (itr != _eventMap.end())
-            {
-                ++time;
-                itr = _eventMap.find(time);
-            }
-
-            _eventMap.insert(StorageType::value_type(time, eventId));
+            ScheduleEvent(eventId, time);
         }
 
-        // Removes first event
+        /**
+        * @name PopEvent
+        * @brief Remove the first event in the map.
+        */
         void PopEvent()
         {
-            if (!_eventMap.empty())
+            if (!Empty())
                 _eventMap.erase(_eventMap.begin());
         }
 
-        // Gets next event id to execute and removes it from map
+        /**
+        * @name ExecuteEvent
+        * @brief Returns the next event to execute and removes it from map.
+        * @return Id of the event to execute.
+        */
         uint32 ExecuteEvent()
         {
-            while (!_eventMap.empty())
+            while (!Empty())
             {
-                StorageType::iterator itr = _eventMap.begin();
+                EventStore::iterator itr = _eventMap.begin();
+                
                 if (itr->first > _time)
                     return 0;
-                else if (_phase && (itr->second & 0xFF000000) && !(itr->second & _phase))
+                else if (_phase && (itr->second & 0xFF000000) && !((itr->second >> 24) & _phase))
                     _eventMap.erase(itr);
                 else
                 {
@@ -425,114 +492,176 @@ class EventMap
                     return eventId;
                 }
             }
+            
             return 0;
         }
 
-        // Gets next event id to execute
+        /**
+        * @name GetEvent
+        * @brief Returns the next event to execute.
+        * @return Id of the event to execute.
+        */
         uint32 GetEvent()
         {
-            while (!_eventMap.empty())
+            while (!Empty())
             {
-                StorageType::iterator itr = _eventMap.begin();
+                EventStore::iterator itr = _eventMap.begin();
+                
                 if (itr->first > _time)
                     return 0;
-                else if (_phase && (itr->second & 0xFF000000) && !(itr->second & _phase))
+                else if (_phase && (itr->second & 0xFF000000) && !(itr->second & (_phase << 24)))
                     _eventMap.erase(itr);
                 else
                     return (itr->second & 0x0000FFFF);
             }
-
+            
             return 0;
         }
 
-        // Delay all events
+        /**
+        * @name DelayEvents
+        * @brief Delays all events in the map. If delay is greater than or equal internal timer, delay will be 0.
+        * @param delay Amount of delay.
+        */
         void DelayEvents(uint32 delay)
         {
-            if (delay < _time)
-                _time -= delay;
-            else
-                _time = 0;
+            _time = delay < _time ? _time - delay : 0;
         }
 
-        // Delay all events having the specified Group
-        void DelayEvents(uint32 delay, uint32 groupId)
+        /**
+        * @name DelayEvents
+        * @brief Delay all events of the same group.
+        * @param delay Amount of delay.
+        * @param group Group of the events.
+        */
+        void DelayEvents(uint32 delay, uint32 group)
         {
-            if (!groupId || groupId > 8)
+            if (!group || group > 8 || Empty())
                 return;
+            
+            EventStore delayed;
 
-            uint32 nextTime = _time + delay;
-            uint32 groupMask = (1 << (groupId + 15));
-
-            for (StorageType::iterator itr = _eventMap.begin(); itr != _eventMap.end() && itr->first < nextTime;)
+            for (EventStore::iterator itr = _eventMap.begin(); itr != _eventMap.end();)
             {
-                if (itr->second & groupMask)
+                if (itr->second & (1 << (group + 15)))
                 {
-                    ScheduleEvent(itr->second, itr->first - _time + delay);
-                    _eventMap.erase(itr);
-                    itr = _eventMap.begin();
+                    delayed.insert(EventStore::value_type(itr->first + delay, itr->second));
+                    _eventMap.erase(itr++);
                 }
                 else
                     ++itr;
             }
+            
+            _eventMap.insert(delayed.begin(), delayed.end());
         }
 
-        // Cancel events with specified id
+        /**
+        * @name CancelEvent
+        * @brief Cancels all events of the specified id.
+        * @param eventId Event id to cancel.
+        */
         void CancelEvent(uint32 eventId)
         {
-            for (StorageType::iterator itr = _eventMap.begin(); itr != _eventMap.end();)
-            {
-                if (eventId == (itr->second & 0x0000FFFF))
-                {
-                    _eventMap.erase(itr);
-                    itr = _eventMap.begin();
-                }
-                else
-                    ++itr;
-            }
-        }
-
-        // Cancel events belonging to specified group
-        void CancelEventGroup(uint32 groupId)
-        {
-            if (!groupId || groupId > 8)
+            if (Empty())
                 return;
 
-            uint32 groupMask = (1 << (groupId + 15));
-
-            for (StorageType::iterator itr = _eventMap.begin(); itr != _eventMap.end();)
+            for (EventStore::iterator itr = _eventMap.begin(); itr != _eventMap.end();)
             {
-                if (itr->second & groupMask)
-                {
-                    _eventMap.erase(itr);
-                    itr = _eventMap.begin();
-                }
+                if (eventId == (itr->second & 0x0000FFFF))
+                    _eventMap.erase(itr++);
                 else
                     ++itr;
             }
         }
 
-        // Returns time of next event to execute
-        // To get how much time remains substract _time
+        /**
+        * @name CancelEventGroup
+        * @brief Cancel events belonging to specified group.
+        * @param group Group to cancel.
+        */ 
+        void CancelEventGroup(uint32 group)
+        {
+            if (!group || group > 8 || Empty())
+                return;
+
+            for (EventStore::iterator itr = _eventMap.begin(); itr != _eventMap.end();)
+            {
+                if (itr->second & (1 << (group + 15)))
+                    _eventMap.erase(itr++);
+                else
+                    ++itr;
+            }
+        }
+
+        /**
+        * @name GetNextEventTime
+        * @brief Returns closest occurence of specified event.
+        * @param eventId Wanted event id.
+        * @return Time of found event.
+        */
         uint32 GetNextEventTime(uint32 eventId) const
         {
-            for (StorageType::const_iterator itr = _eventMap.begin(); itr != _eventMap.end(); ++itr)
+            if (Empty())
+                return 0;
+
+            for (EventStore::const_iterator itr = _eventMap.begin(); itr != _eventMap.end(); ++itr)
                 if (eventId == (itr->second & 0x0000FFFF))
                     return itr->first;
 
             return 0;
         }
-
-        // Returns wether the eventmap is in the given phase or not.
-        bool IsInPhase(uint32 phase)
+    
+        /**
+         * @name GetNextEventTime
+         * @return Time of next event.
+         */
+        uint32 GetNextEventTime() const
         {
-            return phase <= 8 && (!phase || _phase & (1 << (phase + 23)));
+            return Empty() ? 0 : _eventMap.begin()->first;
+        }
+
+        /**
+        * @name IsInPhase
+        * @brief Returns wether event map is in specified phase or not.
+        * @param phase Wanted phase.
+        * @return True, if phase of event map contains specified phase.
+        */
+        bool IsInPhase(uint8 phase)
+        {
+            return phase <= 8 && (!phase || _phase & (1 << (phase - 1)));
         }
 
     private:
+        /**
+        * @name _time
+        * @brief Internal timer.
+        *
+        * This does not represent the real date/time value. 
+        * It's more like a stop watch: It can run, it can be stopped, 
+        * it can be resetted and so on. Events occur when this timer
+        * has reached their time value. It's value is changed in the
+        * Update method.
+        */
         uint32 _time;
-        uint32 _phase;
-
-        StorageType _eventMap;
+    
+        /**
+        * @name _phase
+        * @brief Phase mask of the event map.
+        *
+        * Contains the phases the event map is in. Multiple
+        * phases from 1 to 8 can be set with SetPhase or
+        * AddPhase. RemovePhase deactives a phase.
+        */
+        uint8 _phase;
+    
+        /**
+        * @name _eventMap
+        * @brief Internal event storage map. Contains the scheduled events.
+        *
+        * See typedef at the beginning of the class for more
+        * details.
+        */
+        EventStore _eventMap;
 };
 
 enum AITarget
