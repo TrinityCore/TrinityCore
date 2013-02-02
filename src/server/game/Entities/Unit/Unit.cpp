@@ -2337,7 +2337,7 @@ SpellMissInfo Unit::MeleeSpellHitResult(Unit* victim, SpellInfo const* spell)
         }
         else // Only deterrence as of 3.3.5
         {
-            if (spell->AttributesCu & SPELL_ATTR0_CU_REQ_CASTER_BEHIND_TARGET)
+            if (spell->AttributesCu & SPELL_ATTR0_CU_REQ_CASTER_BEHIND_TARGET || spell->Id == 19263)
                 canParry = false;
         }
     }
