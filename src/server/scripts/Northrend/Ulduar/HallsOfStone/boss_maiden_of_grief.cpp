@@ -117,9 +117,7 @@ public:
             {
                 if (PartingSorrowTimer <= diff)
                 {
-                    Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0);
-
-                    if (target)
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                         DoCast(target, SPELL_PARTING_SORROW);
 
                     PartingSorrowTimer = urand(30000, 40000);

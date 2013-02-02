@@ -1898,7 +1898,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 break;
 
             for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); ++itr)
-                if (IsCreature(*itr))
+                if (Creature* creature = (*itr)->ToCreature())
                 {
                     (*itr)->ToCreature()->GetMotionMaster()->Clear();
                     (*itr)->ToCreature()->GetMotionMaster()->MoveJump(e.target.x, e.target.y, e.target.z, (float)e.action.jump.speedxy, (float)e.action.jump.speedz);
