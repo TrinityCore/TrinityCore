@@ -637,9 +637,9 @@ class EventMap
         * @brief Internal timer.
         *
         * This does not represent the real date/time value. 
-        * It's more like a stop watch: It can run, it can be stopped, 
+        * It's more like a stopwatch: It can run, it can be stopped,
         * it can be resetted and so on. Events occur when this timer
-        * has reached their time value. It's value is changed in the
+        * has reached their time value. Its value is changed in the
         * Update method.
         */
         uint32 _time;
