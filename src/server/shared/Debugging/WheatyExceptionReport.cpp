@@ -202,7 +202,9 @@ BOOL WheatyExceptionReport::_GetWindowsVersion(TCHAR* szVersion, DWORD cntMax)
                 if (osvi.wProductType == VER_NT_WORKSTATION)
             #endif                                          // WINVER < 0x0500
                 {
-                    if (osvi.dwMinorVersion == 1)
+                    if (osvi.dwMinorVersion == 2)
+                        _tcsncat(szVersion, _T("Windows 8 "), cntMax);
+                    else if (osvi.dwMinorVersion == 1)
                         _tcsncat(szVersion, _T("Windows 7 "), cntMax);
                     else
                         _tcsncat(szVersion, _T("Windows Vista "), cntMax);
