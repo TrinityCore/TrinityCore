@@ -38,11 +38,11 @@ set(scripts_STAT_SRCS
   Kalimdor/CavernsOfTime/BattleForMountHyjal/hyjal.h
   Kalimdor/CavernsOfTime/BattleForMountHyjal/boss_azgalor.cpp
   Kalimdor/CavernsOfTime/BattleForMountHyjal/boss_anetheron.cpp
-  Kalimdor/CavernsOfTime/CullingOfStratholme/boss_infinite.cpp
-  Kalimdor/CavernsOfTime/CullingOfStratholme/boss_salramm.cpp
+  Kalimdor/CavernsOfTime/CullingOfStratholme/boss_infinite_corruptor.cpp
+  Kalimdor/CavernsOfTime/CullingOfStratholme/boss_salramm_the_fleshcrafter.cpp
   Kalimdor/CavernsOfTime/CullingOfStratholme/boss_meathook.cpp
   Kalimdor/CavernsOfTime/CullingOfStratholme/boss_mal_ganis.cpp
-  Kalimdor/CavernsOfTime/CullingOfStratholme/boss_epoch.cpp
+  Kalimdor/CavernsOfTime/CullingOfStratholme/boss_chrono_lord_epoch.cpp
   Kalimdor/CavernsOfTime/CullingOfStratholme/culling_of_stratholme.cpp
   Kalimdor/CavernsOfTime/CullingOfStratholme/instance_culling_of_stratholme.cpp
   Kalimdor/CavernsOfTime/CullingOfStratholme/culling_of_stratholme.h
