@@ -108,6 +108,14 @@ void ScriptedAI::AttackStartNoMove(Unit* who)
         DoStartNoMovement(who);
 }
 
+void ScriptedAI::AttackStart(Unit* who)
+{
+    if (IsCombatMovementAllowed())
+        CreatureAI::AttackStart(who);
+    else
+        AttackStartNoMove(who);
+}
+
 void ScriptedAI::UpdateAI(uint32 const /*diff*/)
 {
     //Check if we have a current target

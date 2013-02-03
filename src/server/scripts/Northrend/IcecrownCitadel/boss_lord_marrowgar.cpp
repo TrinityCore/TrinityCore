@@ -298,7 +298,7 @@ class boss_lord_marrowgar : public CreatureScript
                     case DATA_SPIKE_IMMUNE + 1:
                     case DATA_SPIKE_IMMUNE + 2:
                     {
-                        int32 index = type - DATA_SPIKE_IMMUNE;
+                        uint32 index = uint32(type - DATA_SPIKE_IMMUNE);
                         if (index < _boneSpikeImmune.size())
                             return _boneSpikeImmune[index];
 

@@ -957,7 +957,7 @@ namespace MMAP
         if (count != 1)
             return false;
 
-        if (header.mmapMagic != MMAP_MAGIC || header.dtVersion != DT_NAVMESH_VERSION)
+        if (header.mmapMagic != MMAP_MAGIC || header.dtVersion != uint32(DT_NAVMESH_VERSION))
             return false;
 
         if (header.mmapVersion != MMAP_VERSION)

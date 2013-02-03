@@ -351,7 +351,6 @@ LootItem::LootItem(LootStoreItem const& li)
 
     needs_quest = li.needs_quest;
 
-    count       = urand(li.mincountOrRef, li.maxcount);     // constructor called for mincountOrRef > 0 only
     randomSuffix = GenerateEnchSuffixFactor(itemid);
     randomPropertyId = Item::GenerateItemRandomPropertyId(itemid);
     is_looted = 0;
@@ -400,26 +399,30 @@ void LootItem::AddAllowedLooter(const Player* player)
 //
 
 // Inserts the item into the loot (called by LootTemplate processors)
-void Loot::AddItem(LootStoreItem const & item)
+void Loot::AddItem(LootStoreItem const& item)
 {
-    if (item.needs_quest)                                   // Quest drop
+    ItemTemplate const* proto = sObjectMgr->GetItemTemplate(item.itemid);
+    if (!proto)
+        return;
+
+    uint32 count = urand(item.mincountOrRef, item.maxcount);
+    uint32 stacks = count / proto->GetMaxStackSize() + (count % proto->GetMaxStackSize() ? 1 : 0);
+
+    std::vector<LootItem>& lootItems = item.needs_quest ? quest_items : items;
+    uint32 limit = item.needs_quest ? MAX_NR_QUEST_ITEMS : MAX_NR_LOOT_ITEMS;
+
+    for (uint32 i = 0; i < stacks && lootItems.size() < limit; ++i)
     {
-        if (quest_items.size() < MAX_NR_QUEST_ITEMS)
-            quest_items.push_back(LootItem(item));
-    }
-    else if (items.size() < MAX_NR_LOOT_ITEMS)              // Non-quest drop
-    {
-        items.push_back(LootItem(item));
+        LootItem generatedLoot(item);
+        generatedLoot.count = std::min(count, proto->GetMaxStackSize());
+        lootItems.push_back(generatedLoot);
+        count -= proto->GetMaxStackSize();
 
         // non-conditional one-player only items are counted here,
         // free for all items are counted in FillFFALoot(),
         // non-ffa conditionals are counted in FillNonQuestNonFFAConditionalLoot()
-        if (item.conditions.empty())
-        {
-            ItemTemplate const* proto = sObjectMgr->GetItemTemplate(item.itemid);
-            if (!proto || (proto->Flags & ITEM_PROTO_FLAG_PARTY_LOOT) == 0)
-                ++unlootedCount;
-        }
+        if (!item.needs_quest && item.conditions.empty() && !(proto->Flags & ITEM_PROTO_FLAG_PARTY_LOOT))
+            ++unlootedCount;
     }
 }
 
