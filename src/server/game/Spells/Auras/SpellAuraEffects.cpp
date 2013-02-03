@@ -5082,10 +5082,6 @@ void AuraEffect::HandleAuraEmpathy(AuraApplication const* aurApp, uint8 mode, bo
         return;
 
     Unit* target = aurApp->GetTarget();
-
-    if (target->GetTypeId() != TYPEID_UNIT)
-        return;
-
     if (!apply)
     {
         // do not remove unit flag if there are more than this auraEffect of that kind on unit on unit
@@ -5093,8 +5089,7 @@ void AuraEffect::HandleAuraEmpathy(AuraApplication const* aurApp, uint8 mode, bo
             return;
     }
 
-    CreatureTemplate const* ci = sObjectMgr->GetCreatureTemplate(target->GetEntry());
-    if (ci && ci->type == CREATURE_TYPE_BEAST)
+    if (target->GetCreatureType() == CREATURE_TYPE_BEAST)
         target->ApplyModUInt32Value(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_SPECIALINFO, apply);
 }
 
