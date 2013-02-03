@@ -19,19 +19,18 @@
 #ifndef TRINITY_REACTORAI_H
 #define TRINITY_REACTORAI_H
 
-#include "CreatureAI.h"
+#include "CombatAI.h"
 
 class Unit;
 
-class ReactorAI : public CreatureAI
+class ReactorAI : public AggressorAI
 {
     public:
 
-        explicit ReactorAI(Creature* c) : CreatureAI(c) {}
+        explicit ReactorAI(Creature* c) : AggressorAI(c) {}
 
-        void MoveInLineOfSight(Unit*);
+        void MoveInLineOfSight(Unit*) {};
 
-        void UpdateAI(const uint32);
         static int Permissible(const Creature*);
 };
 #endif
