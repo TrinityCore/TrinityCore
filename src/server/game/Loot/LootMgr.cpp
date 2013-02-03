@@ -1285,7 +1285,7 @@ void LootTemplate::Process(Loot& loot, bool rate, uint16 lootMode, uint8 groupId
         if (item->lootmode &~ lootMode)                         // Do not add if mode mismatch
             continue;
 
-        if (!i->Roll(rate))
+        if (!item->Roll(rate))
             continue;                                           // Bad luck for the entry
 
         if (item->mincountOrRef < 0)                            // References processing
