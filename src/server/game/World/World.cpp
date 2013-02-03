@@ -2993,9 +2993,6 @@ void World::ResetMonthlyQuests()
 
     time_t nextMonthResetTime = mktime(&localTm);
 
-    // last reset time before current moment
-    time_t resetTime = (curTime < nextMonthResetTime) ? nextMonthResetTime - MONTH : nextMonthResetTime;
-
     // plan next reset time
     m_NextMonthlyQuestReset = (curTime >= nextMonthResetTime) ? nextMonthResetTime + MONTH : nextMonthResetTime;
 
