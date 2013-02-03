@@ -656,7 +656,7 @@ bool BattlegroundQueue::CheckNormalMatch(Battleground* bg_template, Battleground
         return true;
 
     // If there are enough players to fill 2 teams with minplayerperteam count.
-    if (sWorld->getBoolConfig(CONFIG_BG_CROSSFRACTION) == 1 && bg_template->isBattleground() && 
+    if (/*sWorld->getBoolConfig(CONFIG_BG_CROSSFRACTION) == 1 && */bg_template->isBattleground() && 
         m_SelectionPools[TEAM_ALLIANCE].GetPlayerCount() + m_SelectionPools[TEAM_HORDE].GetPlayerCount() >= minPlayers * 2)
         return true;
 	
@@ -677,21 +677,25 @@ bool BattlegroundQueue::CheckNormalMatch(Battleground* bg_template, Battleground
                     break;
         }
         // do not allow to start bg with more than 2 players more on 1 faction
-	   if (sWorld->getBoolConfig(CONFIG_BG_CROSSFRACTION) == 0)
+	   if (/*sWorld->getBoolConfig(CONFIG_BG_CROSSFRACTION) == 1 && */bg_template->isBattleground())
 	   {
-	   			if (abs((int32)(m_SelectionPools[TEAM_HORDE].GetPlayerCount() - m_SelectionPools[TEAM_ALLIANCE].GetPlayerCount())) > 1) 
+	   			if (abs((int32)(m_SelectionPools[TEAM_HORDE].GetPlayerCount() + m_SelectionPools[TEAM_ALLIANCE].GetPlayerCount())) < 1) 
 				return false;
 	   }
-	   
+	   else
+	   {
+	   	   	if (abs((int32)(m_SelectionPools[TEAM_HORDE].GetPlayerCount() - m_SelectionPools[TEAM_ALLIANCE].GetPlayerCount())) > 1) 
+		    return false;
+        }	   
     }
-    if (sWorld->getBoolConfig(CONFIG_BG_CROSSFRACTION) == 0)
+  /*  if (sWorld->getBoolConfig(CONFIG_BG_CROSSFRACTION) == 0)
 	{
 		//allow 1v0 if debug bg
 		if (sBattlegroundMgr->isTesting() && bg_template->isBattleground() && (m_SelectionPools[TEAM_ALLIANCE].GetPlayerCount() || m_SelectionPools[TEAM_HORDE].GetPlayerCount()))
 			return true;
 		//return true if there are enough players in selection pools - enable to work .debug bg command correctly
 		return m_SelectionPools[TEAM_ALLIANCE].GetPlayerCount() >= minPlayers && m_SelectionPools[TEAM_HORDE].GetPlayerCount() >= minPlayers;
-	}
+	} */
 }
 
 // this method will check if we can invite players to same faction skirmish match

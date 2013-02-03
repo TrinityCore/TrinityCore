@@ -1134,7 +1134,7 @@ void Battleground::AddPlayer(Player* player)
   uint64 guid; 
   
    // score struct must be created in inherited class
-   if (sWorld->getBoolConfig(CONFIG_BG_CROSSFRACTION) == 1 && !isArena())
+   if (/*sWorld->getBoolConfig(CONFIG_BG_CROSSFRACTION) == 1 && */!isArena())
    {
 		uint32 hCount = GetPlayersCountByTeam(HORDE);	
 		uint32 aCount = GetPlayersCountByTeam(ALLIANCE);
@@ -1977,7 +1977,7 @@ void BattlegroundMgr::HandleCrossfactionSendToBattle(Player* player, Battlegroun
     if (!player || !bg)
         return;
 
-    if (sWorld->getBoolConfig(CONFIG_BG_CROSSFRACTION) == 1 && bg->isArena())
+    if (/*sWorld->getBoolConfig(CONFIG_BG_CROSSFRACTION) == 1 && */bg->isArena())
     {
             if (bg->GetPlayersCountByTeam(HORDE) < bg->GetMaxPlayersPerTeam() && bg->GetPlayersCountByTeam(HORDE) <= bg->GetPlayersCountByTeam(ALLIANCE))
                 player->SetBGTeam(HORDE);
