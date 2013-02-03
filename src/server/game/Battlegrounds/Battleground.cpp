@@ -914,7 +914,7 @@ void Battleground::EndBattleground(uint32 winner)
 
         player->ResetAllPowers();
         player->CombatStopWithPets(true);
-		player->setFactionForRace(getRace());
+		player->setFactionForRace(player->getRace());
 
         BlockMovement(player);
 
@@ -1159,7 +1159,6 @@ void Battleground::AddPlayer(Player* player)
 	    team = player->GetBGTeam();
     }  
 	
-	uint32 TeamID = player->GetBGTeam();
     BattlegroundPlayer bp;
     bp.OfflineRemoveTime = 0;
     bp.Team = team;

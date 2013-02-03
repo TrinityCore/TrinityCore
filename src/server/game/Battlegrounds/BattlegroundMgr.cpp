@@ -281,9 +281,9 @@ void BattlegroundMgr::BuildPvpLogDataPacket(WorldPacket* data, Battleground* bg)
         else
         {
             Player* player = ObjectAccessor::FindPlayer(itr2->first);
-            uint32 team = bg->GetPlayerTeam(itr2->first);
-            if (!team && player)
-                 team = player->GetBGTeam();
+           // uint32 team = bg->GetPlayerTeam(itr2->first);
+         //   if (!team && player)
+               uint32 team = player->GetBGTeam();
 				 
             *data << uint8(team == ALLIANCE ? 1 : 0); // green or yellow
         }
@@ -675,8 +675,8 @@ bool BattlegroundMgr::CreateBattleground(CreateBattlegroundData& data)
     bg->SetMinPlayers(data.MinPlayersPerTeam * 2);
     bg->SetMaxPlayers(data.MaxPlayersPerTeam * 2);
     bg->SetName(data.BattlegroundName);
-    bg->SetTeamStartLoc(ALLIANCE, data.Team1StartLocX, data.Team1StartLocY, data.Team1StartLocZ, data.Team1StartLocO);
-    bg->SetTeamStartLoc(HORDE,    data.Team2StartLocX, data.Team2StartLocY, data.Team2StartLocZ, data.Team2StartLocO);
+	bg->SetTeamStartLoc(ALLIANCE, data.Team1StartLocX, data.Team1StartLocY, data.Team1StartLocZ, data.Team1StartLocO);
+	bg->SetTeamStartLoc(HORDE,    data.Team2StartLocX, data.Team2StartLocY, data.Team2StartLocZ, data.Team2StartLocO);
     bg->SetStartMaxDist(data.StartMaxDist);
     bg->SetLevelRange(data.LevelMin, data.LevelMax);
     bg->SetScriptId(data.scriptId);
@@ -936,10 +936,8 @@ void BattlegroundMgr::SendToBattleground(Player* player, uint32 instanceId, Batt
         float x, y, z, O;
         uint32 mapid = bg->GetMapId();
         uint32 team = player->GetBGTeam();
-		if (team == 0)
-          team = player->GetBGTeam();
       
-        bg->GetTeamStartLoc(team, x, y, z, O);
+        bg->GetTeamStartLoc(player->GetBGTeam(), x, y, z, O);
         sLog->outDebug(LOG_FILTER_BATTLEGROUND, "BattlegroundMgr::SendToBattleground: Sending %s to map %u, X %f, Y %f, Z %f, O %f (bgType %u)", player->GetName().c_str(), mapid, x, y, z, O, bgTypeId);
         player->TeleportTo(mapid, x, y, z, O);
     }
