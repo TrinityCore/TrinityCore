@@ -146,7 +146,7 @@ namespace Movement
         //data.append<float>(&mov.m_float_values[SpeedWalk], SpeedMaxCount);
         //if (mov.SplineEnabled())
         {
-            MoveSplineFlag splineFlags = move_spline.splineflags;
+            MoveSplineFlag const& splineFlags = move_spline.splineflags;
 
             data << splineFlags.raw();
 
