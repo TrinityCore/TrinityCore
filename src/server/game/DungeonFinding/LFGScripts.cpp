@@ -102,7 +102,7 @@ void LFGPlayerScript::OnMapChanged(Player* player)
         if (sLFGMgr->selectedRandomLfgDungeon(player->GetGUID()))
             player->CastSpell(player, LFG_SPELL_LUCK_OF_THE_DRAW, true);
     }
-    else // if (player->HasAura(lfg:LFG_SPELL_LUCK_OF_THE_DRAW))
+    else
         player->RemoveAurasDueToSpell(LFG_SPELL_LUCK_OF_THE_DRAW);
 }
 
