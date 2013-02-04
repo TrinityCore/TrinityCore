@@ -314,10 +314,10 @@ const T& RAND(const T& v1, const T& v2, const T& v3, const T& v4, const T& v5, c
 class EventMap
 {
     /**
-    * Internal storage type. 
+    * Internal storage type.
     * Key: Time as uint32 when the event should occur.
-    * Value: The event data as uint32. 
-    * 
+    * Value: The event data as uint32.
+    *
     * Structure of event data:
     * - Bit  0 - 15: Event Id.
     * - Bit 16 - 23: Group
@@ -454,7 +454,7 @@ class EventMap
         {
             if (Empty())
                 return;
-            
+
             uint32 eventId = _eventMap.begin()->second;
             _eventMap.erase(_eventMap.begin());
             ScheduleEvent(eventId, time);
@@ -480,7 +480,7 @@ class EventMap
             while (!Empty())
             {
                 EventStore::iterator itr = _eventMap.begin();
-                
+
                 if (itr->first > _time)
                     return 0;
                 else if (_phase && (itr->second & 0xFF000000) && !((itr->second >> 24) & _phase))
@@ -492,7 +492,7 @@ class EventMap
                     return eventId;
                 }
             }
-            
+
             return 0;
         }
 
@@ -506,7 +506,7 @@ class EventMap
             while (!Empty())
             {
                 EventStore::iterator itr = _eventMap.begin();
-                
+
                 if (itr->first > _time)
                     return 0;
                 else if (_phase && (itr->second & 0xFF000000) && !(itr->second & (_phase << 24)))
@@ -514,7 +514,7 @@ class EventMap
                 else
                     return (itr->second & 0x0000FFFF);
             }
-            
+
             return 0;
         }
 
@@ -538,7 +538,7 @@ class EventMap
         {
             if (!group || group > 8 || Empty())
                 return;
-            
+
             EventStore delayed;
 
             for (EventStore::iterator itr = _eventMap.begin(); itr != _eventMap.end();)
@@ -551,7 +551,7 @@ class EventMap
                 else
                     ++itr;
             }
-            
+
             _eventMap.insert(delayed.begin(), delayed.end());
         }
 
@@ -578,7 +578,7 @@ class EventMap
         * @name CancelEventGroup
         * @brief Cancel events belonging to specified group.
         * @param group Group to cancel.
-        */ 
+        */
         void CancelEventGroup(uint32 group)
         {
             if (!group || group > 8 || Empty())
@@ -610,7 +610,7 @@ class EventMap
 
             return 0;
         }
-    
+
         /**
          * @name GetNextEventTime
          * @return Time of next event.
@@ -636,14 +636,14 @@ class EventMap
         * @name _time
         * @brief Internal timer.
         *
-        * This does not represent the real date/time value. 
+        * This does not represent the real date/time value.
         * It's more like a stopwatch: It can run, it can be stopped,
         * it can be resetted and so on. Events occur when this timer
         * has reached their time value. Its value is changed in the
         * Update method.
         */
         uint32 _time;
-    
+
         /**
         * @name _phase
         * @brief Phase mask of the event map.
@@ -653,7 +653,7 @@ class EventMap
         * AddPhase. RemovePhase deactives a phase.
         */
         uint8 _phase;
-    
+
         /**
         * @name _eventMap
         * @brief Internal event storage map. Contains the scheduled events.

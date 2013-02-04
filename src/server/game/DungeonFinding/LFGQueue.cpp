@@ -27,6 +27,9 @@
 #include "World.h"
 #include "GroupMgr.h"
 
+namespace lfg
+{
+
 /**
    Given a list of guids returns the concatenation using | as delimiter
 
@@ -431,7 +434,7 @@ LfgCompatibility LFGQueue::CheckCompatibility(LfgGuidList check)
         {
             std::ostringstream o;
             for (LfgRolesMap::const_iterator it = debugRoles.begin(); it != debugRoles.end(); ++it)
-                o << ", " << it->first << ": " << sLFGMgr->GetRolesString(it->second);
+                o << ", " << it->first << ": " << GetRolesString(it->second);
 
             sLog->outDebug(LOG_FILTER_LFG, "LFGQueue::CheckCompatibility: (%s) Roles not compatible%s", strGuids.c_str(), o.str().c_str());
             SetCompatibles(strGuids, LFG_INCOMPATIBLES_NO_ROLES);
@@ -441,12 +444,12 @@ LfgCompatibility LFGQueue::CheckCompatibility(LfgGuidList check)
         LfgGuidList::iterator itguid = check.begin();
         proposalDungeons = QueueDataStore[*itguid].dungeons;
         std::ostringstream o;
-        o << ", " << *itguid << ": (" << sLFGMgr->ConcatenateDungeons(proposalDungeons) << ")";
+        o << ", " << *itguid << ": (" << ConcatenateDungeons(proposalDungeons) << ")";
         for (++itguid; itguid != check.end(); ++itguid)
         {
             LfgDungeonSet temporal;
             LfgDungeonSet &dungeons = QueueDataStore[*itguid].dungeons;
-            o << ", " << *itguid << ": (" << sLFGMgr->ConcatenateDungeons(dungeons) << ")";
+            o << ", " << *itguid << ": (" << ConcatenateDungeons(dungeons) << ")";
             std::set_intersection(proposalDungeons.begin(), proposalDungeons.end(), dungeons.begin(), dungeons.end(), std::inserter(temporal, temporal.begin()));
             proposalDungeons = temporal;
         }
@@ -671,3 +674,5 @@ void LFGQueue::UpdateBestCompatibleInQueue(LfgQueueDataContainer::iterator itrQu
             --queueData.dps;
     }
 }
+
+} // namespace lfg

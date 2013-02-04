@@ -1549,6 +1549,8 @@ public:
 
         std::string userName    = handler->GetTrinityString(LANG_ERROR);
         std::string eMail       = handler->GetTrinityString(LANG_ERROR);
+        std::string muteReason  = "";
+        std::string muteBy      = "";
         std::string lastIp      = handler->GetTrinityString(LANG_ERROR);
         uint32 security         = 0;
         std::string lastLogin   = handler->GetTrinityString(LANG_ERROR);
@@ -1565,6 +1567,8 @@ public:
             security      = fields[1].GetUInt8();
             eMail         = fields[2].GetString();
             muteTime      = fields[5].GetUInt64();
+            muteReason    = fields[6].GetString();
+            muteBy        = fields[7].GetString();
 
             if (eMail.empty())
                 eMail = "-";
@@ -1626,7 +1630,7 @@ public:
         }
 
         if (muteTime > 0)
-            handler->PSendSysMessage(LANG_PINFO_MUTE, secsToTimeString(muteTime - time(NULL), true).c_str());
+            handler->PSendSysMessage(LANG_PINFO_MUTE, secsToTimeString(muteTime - time(NULL), true).c_str(), muteBy.c_str(), muteReason.c_str());
 
         if (banTime >= 0)
             handler->PSendSysMessage(LANG_PINFO_BAN, banTime > 0 ? secsToTimeString(banTime - time(NULL), true).c_str() : "permanently", bannedby.c_str(), banreason.c_str());
@@ -1824,6 +1828,11 @@ public:
             return false;
 
         PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_MUTE_TIME);
+        std::string muteBy = "";
+        if (handler->GetSession())
+            muteBy = handler->GetSession()->GetPlayerName();
+        else
+            muteBy = "Console";
 
         if (target)
         {
@@ -1831,7 +1840,7 @@ public:
             int64 muteTime = time(NULL) + notSpeakTime * MINUTE;
             target->GetSession()->m_muteTime = muteTime;
             stmt->setInt64(0, muteTime);
-            ChatHandler(target->GetSession()).PSendSysMessage(LANG_YOUR_CHAT_DISABLED, notSpeakTime, muteReasonStr.c_str());
+            ChatHandler(target->GetSession()).PSendSysMessage(LANG_YOUR_CHAT_DISABLED, notSpeakTime, muteBy.c_str(), muteReasonStr.c_str());
         }
         else
         {
@@ -1840,7 +1849,9 @@ public:
             stmt->setInt64(0, muteTime);
         }
 
-        stmt->setUInt32(1, accountId);
+        stmt->setString(1, muteReasonStr.c_str());
+        stmt->setString(2, muteBy.c_str());
+        stmt->setUInt32(3, accountId);
         LoginDatabase.Execute(stmt);
         std::string nameLink = handler->playerLink(targetName);
 
@@ -1883,7 +1894,9 @@ public:
 
         PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_MUTE_TIME);
         stmt->setInt64(0, 0);
-        stmt->setUInt32(1, accountId);
+        stmt->setString(1, "");
+        stmt->setString(2, "");
+        stmt->setUInt32(3, accountId);
         LoginDatabase.Execute(stmt);
 
         if (target)
@@ -2832,41 +2845,40 @@ public:
         {
             handler->PSendSysMessage(LANG_GROUP_TYPE, (groupTarget->isRaidGroup() ? "raid" : "party"));
             Group::MemberSlotList const& members = groupTarget->GetMemberSlots();
-            Group::MemberSlotList::const_iterator itr;
-            for (itr = members.begin(); itr != members.end(); ++itr)
+            for (Group::MemberSlotList::const_iterator itr = members.begin(); itr != members.end(); ++itr)
             {
-                std::ostringstream flags, roles;
-                if ((*itr).flags & MEMBER_FLAG_ASSISTANT)
-                    flags << "Assistant ";
-                if ((*itr).flags & MEMBER_FLAG_MAINTANK)
-                    flags << "MainTank ";
-                if ((*itr).flags & MEMBER_FLAG_MAINASSIST)
-                    flags << "MainAssist ";
+                Group::MemberSlot const& slot = *itr;
 
-                if ((*itr).roles & PLAYER_ROLE_LEADER)
-                    roles << "Leader ";
-                if ((*itr).roles & PLAYER_ROLE_TANK)
-                    roles << "Tank ";
-                if ((*itr).roles & PLAYER_ROLE_HEALER)
-                    roles << "Healer ";
-                if ((*itr).roles & PLAYER_ROLE_DAMAGE)
-                    roles << "Damage ";
+                std::string flags;
+                if (slot.flags & MEMBER_FLAG_ASSISTANT)
+                    flags = "Assistant";
+
+                if (slot.flags & MEMBER_FLAG_MAINTANK)
+                {
+                    if (!flags.empty())
+                        flags.append(", ");
+                    flags.append("MainTank");
+                }
+
+                if (slot.flags & MEMBER_FLAG_MAINASSIST)
+                {
+                    if (!flags.empty())
+                        flags.append(", ");
+                    flags.append("MainAssist");
+                }
+
+                if (flags.empty())
+                    flags = "None";
 
                 Player* p = ObjectAccessor::FindPlayer((*itr).guid);
                 const char* onlineState = (p && p->IsInWorld()) ? "online" : "offline";
 
-                std::string flagsStr = (flags.str().empty()) ? "None" : flags.str();
-                std::string rolesStr = (roles.str().empty()) ? "None" : roles.str();
-
-                handler->PSendSysMessage(LANG_GROUP_PLAYER_NAME_GUID, (*itr).name.c_str(), onlineState, GUID_LOPART((*itr).guid), flagsStr.c_str(), rolesStr.c_str());
+                handler->PSendSysMessage(LANG_GROUP_PLAYER_NAME_GUID, slot.name.c_str(), onlineState,
+                    GUID_LOPART(slot.guid), flags.c_str(), lfg::GetRolesString(slot.roles).c_str());
             }
-            return true;
         }
         else
-        {
             handler->PSendSysMessage(LANG_GROUP_NOT_IN_GROUP, nameTarget.c_str());
-            return true;
-        }
 
         return true;
     }
