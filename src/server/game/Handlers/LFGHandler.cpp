@@ -167,18 +167,9 @@ void WorldSession::HandleLfgPlayerLockInfoRequestOpcode(WorldPacket& /*recvData*
         GetPlayerInfo().c_str());
 
     // Get Random dungeons that can be done at a certain level and expansion
-    lfg::LfgDungeonSet randomDungeons;
     uint8 level = GetPlayer()->getLevel();
-    uint8 expansion = GetPlayer()->GetSession()->Expansion();
-
-    lfg::LFGDungeonContainer& LfgDungeons = sLFGMgr->GetLFGDungeonMap();
-    for (lfg::LFGDungeonContainer::const_iterator itr = LfgDungeons.begin(); itr != LfgDungeons.end(); ++itr)
-    {
-        lfg::LFGDungeonData const& dungeon = itr->second;
-        if ((dungeon.type == lfg::LFG_TYPE_RANDOM || (dungeon.seasonal && sLFGMgr->IsSeasonActive(dungeon.id)))
-            && dungeon.expansion <= expansion && dungeon.minlevel <= level && level <= dungeon.maxlevel)
-            randomDungeons.insert(dungeon.Entry());
-    }
+    lfg::LfgDungeonSet const& randomDungeons =
+        sLFGMgr->GetRandomAndSeasonalDungeons(level, GetPlayer()->GetSession()->Expansion());
 
     // Get player locked Dungeons
     lfg::LfgLockMap const& lock = sLFGMgr->GetLockedDungeons(guid);
@@ -421,13 +412,8 @@ void WorldSession::SendLfgRoleCheckUpdate(lfg::LfgRoleCheck const& roleCheck)
     data << uint8(roleCheck.state == lfg::LFG_ROLECHECK_INITIALITING);
     data << uint8(dungeons.size());                        // Number of dungeons
     if (!dungeons.empty())
-    {
         for (lfg::LfgDungeonSet::iterator it = dungeons.begin(); it != dungeons.end(); ++it)
-        {
-            lfg::LFGDungeonData const* dungeon = sLFGMgr->GetLFGDungeon(*it);
-            data << uint32(dungeon ? dungeon->Entry() : 0); // Dungeon
-        }
-    }
+            data << uint32(sLFGMgr->GetLFGDungeonEntry(*it)); // Dungeon
 
     data << uint8(roleCheck.roles.size());                 // Players in group
     if (!roleCheck.roles.empty())
@@ -585,8 +571,7 @@ void WorldSession::SendLfgUpdateProposal(lfg::LfgProposal const& proposal)
             dungeonEntry = (*playerDungeons.begin());
     }
 
-    if (lfg::LFGDungeonData const* dungeon = sLFGMgr->GetLFGDungeon(dungeonEntry))
-        dungeonEntry = dungeon->Entry();
+    dungeonEntry = sLFGMgr->GetLFGDungeonEntry(dungeonEntry);
 
     WorldPacket data(SMSG_LFG_PROPOSAL_UPDATE, 4 + 1 + 4 + 4 + 1 + 1 + proposal.players.size() * (4 + 1 + 1 + 1 + 1 +1));
     data << uint32(dungeonEntry);                          // Dungeon
