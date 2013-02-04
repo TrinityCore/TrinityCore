@@ -23465,7 +23465,13 @@ bool Player::isUsingLfg()
 
 bool Player::inRandomLfgDungeon()
 {
-    return sLFGMgr->inRandomLfgDungeon(GetGUID());
+    if (sLFGMgr->selectedRandomLfgDungeon(GetGUID()))
+    {
+        Map const* map = GetMap();
+        return sLFGMgr->inLfgDungeonMap(GetGUID(), map->GetId(), map->GetDifficulty());
+    }
+
+    return false;
 }
 
 void Player::SetBattlegroundOrBattlefieldRaid(Group* group, int8 subgroup)
