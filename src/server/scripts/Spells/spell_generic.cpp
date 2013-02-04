@@ -1715,10 +1715,29 @@ class spell_gen_luck_of_the_draw : public SpellScriptLoader
         class spell_gen_luck_of_the_draw_AuraScript : public AuraScript
         {
             PrepareAuraScript(spell_gen_luck_of_the_draw_AuraScript);
+            Map const* map;
+            Difficulty difficulty;
 
             bool Load()
             {
-                return GetUnitOwner()->GetTypeId() == TYPEID_PLAYER;
+                Player* owner = GetUnitOwner()->ToPlayer();
+                if (!owner)
+                    return false;
+
+                Group* group = owner->GetGroup();
+                if (!group || group->isLFGGroup())
+                    return false;
+
+                if (!sLFGMgr->inRandomLfgDungeon(owner->GetGUID()))
+                    return false;
+
+                map = owner->GetMap();
+                difficulty = owner->GetMap()->GetDifficulty();
+                
+                if (!sLFGMgr->inLfgDungeonMap(owner->GetGUID(), map->GetId(), difficulty))
+                    return false;
+
+                return true;
             }
 
             // cheap hax to make it have update calls
@@ -1730,30 +1749,9 @@ class spell_gen_luck_of_the_draw : public SpellScriptLoader
 
             void Update(AuraEffect* /*effect*/)
             {
-                if (Player* owner = GetUnitOwner()->ToPlayer())
-                {
-                    const LfgDungeonSet dungeons = sLFGMgr->GetSelectedDungeons(owner->GetGUID());
-                    LfgDungeonSet::const_iterator itr = dungeons.begin();
-
-                    if (itr == dungeons.end())
-                    {
-                        Remove(AURA_REMOVE_BY_DEFAULT);
-                        return;
-                    }
-
-
-                    LFGDungeonData const* randomDungeon = sLFGMgr->GetLFGDungeon(*itr);
-                    if (Group* group = owner->GetGroup())
-                        if (Map const* map = owner->GetMap())
-                            if (group->isLFGGroup())
-                                if (uint32 dungeonId = sLFGMgr->GetDungeon(group->GetGUID(), true))
-                                    if (LFGDungeonData const* dungeon = sLFGMgr->GetLFGDungeon(dungeonId))
-                                        if (uint32(dungeon->map) == map->GetId() && dungeon->difficulty == map->GetDifficulty())
-                                            if (randomDungeon && randomDungeon->type == LFG_TYPE_RANDOM)
-                                                return; // in correct dungeon
-
+                Map const* currentMap = GetUnitOwner()->ToPlayer()->GetMap();
+                if (currentMap != map || currentMap->GetDifficulty() != difficulty)
                     Remove(AURA_REMOVE_BY_DEFAULT);
-                }
             }
 
             void Register()
