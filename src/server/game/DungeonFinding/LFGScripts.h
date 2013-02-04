@@ -39,6 +39,7 @@ class LFGPlayerScript : public PlayerScript
         void OnLogout(Player* player);
         void OnLogin(Player* player);
         void OnBindToInstance(Player* player, Difficulty difficulty, uint32 mapId, bool permanent);
+        void OnMapChanged(Player* player);
 };
 
 class LFGGroupScript : public GroupScript
