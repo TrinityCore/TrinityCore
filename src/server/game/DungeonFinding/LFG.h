@@ -20,6 +20,9 @@
 
 #include "Common.h"
 
+namespace lfg
+{
+
 enum LFGEnum
 {
     LFG_TANKS_NEEDED                             = 1,
@@ -98,5 +101,11 @@ typedef std::set<uint64> LfgGuidSet;
 typedef std::list<uint64> LfgGuidList;
 typedef std::map<uint64, uint8> LfgRolesMap;
 typedef std::map<uint64, uint64> LfgGroupsMap;
+
+std::string ConcatenateDungeons(LfgDungeonSet const& dungeons);
+std::string GetRolesString(uint8 roles);
+std::string GetStateString(LfgState state);
+
+} // namespace lfg
 
 #endif

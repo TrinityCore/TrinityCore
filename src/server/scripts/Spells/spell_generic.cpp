@@ -1652,68 +1652,6 @@ class spell_gen_oracle_wolvar_reputation : public SpellScriptLoader
         }
 };
 
-class spell_gen_luck_of_the_draw : public SpellScriptLoader
-{
-    public:
-        spell_gen_luck_of_the_draw() : SpellScriptLoader("spell_gen_luck_of_the_draw") { }
-
-        class spell_gen_luck_of_the_draw_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_gen_luck_of_the_draw_AuraScript);
-
-            bool Load()
-            {
-                return GetUnitOwner()->GetTypeId() == TYPEID_PLAYER;
-            }
-
-            // cheap hax to make it have update calls
-            void CalcPeriodic(AuraEffect const* /*effect*/, bool& isPeriodic, int32& amplitude)
-            {
-                isPeriodic = true;
-                amplitude = 5 * IN_MILLISECONDS;
-            }
-
-            void Update(AuraEffect* /*effect*/)
-            {
-                if (Player* owner = GetUnitOwner()->ToPlayer())
-                {
-                    const LfgDungeonSet dungeons = sLFGMgr->GetSelectedDungeons(owner->GetGUID());
-                    LfgDungeonSet::const_iterator itr = dungeons.begin();
-
-                    if (itr == dungeons.end())
-                    {
-                        Remove(AURA_REMOVE_BY_DEFAULT);
-                        return;
-                    }
-
-
-                    LFGDungeonData const* randomDungeon = sLFGMgr->GetLFGDungeon(*itr);
-                    if (Group* group = owner->GetGroup())
-                        if (Map const* map = owner->GetMap())
-                            if (group->isLFGGroup())
-                                if (uint32 dungeonId = sLFGMgr->GetDungeon(group->GetGUID(), true))
-                                    if (LFGDungeonData const* dungeon = sLFGMgr->GetLFGDungeon(dungeonId))
-                                        if (uint32(dungeon->map) == map->GetId() && dungeon->difficulty == map->GetDifficulty())
-                                            if (randomDungeon && randomDungeon->type == LFG_TYPE_RANDOM)
-                                                return; // in correct dungeon
-
-                    Remove(AURA_REMOVE_BY_DEFAULT);
-                }
-            }
-
-            void Register()
-            {
-                DoEffectCalcPeriodic += AuraEffectCalcPeriodicFn(spell_gen_luck_of_the_draw_AuraScript::CalcPeriodic, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE);
-                OnEffectUpdatePeriodic += AuraEffectUpdatePeriodicFn(spell_gen_luck_of_the_draw_AuraScript::Update, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_gen_luck_of_the_draw_AuraScript();
-        }
-};
-
 enum DummyTrigger
 {
     SPELL_PERSISTANT_SHIELD_TRIGGERED       = 26470,
@@ -3681,7 +3619,6 @@ void AddSC_generic_spell_scripts()
     new spell_gen_launch();
     new spell_gen_vehicle_scaling();
     new spell_gen_oracle_wolvar_reputation();
-    new spell_gen_luck_of_the_draw();
     new spell_gen_dummy_trigger();
     new spell_gen_spirit_healer_res();
     new spell_gen_gadgetzan_transporter_backfire();
