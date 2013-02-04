@@ -381,6 +381,9 @@ class LFGMgr
         void SetupGroupMember(uint64 guid, uint64 gguid);
         uint64 GetGroup(uint64 guid);
 
+        bool inRandomLfgDungeon(uint64 guid);
+        bool inLfgDungeonMap(uint64 guid, uint32 map, Difficulty difficulty);
+
     private:
         uint8 GetTeam(uint64 guid);
         void RestoreState(uint64 guid, char const* debugMsg);

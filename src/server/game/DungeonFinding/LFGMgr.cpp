@@ -2039,3 +2039,29 @@ void LFGMgr::SetupGroupMember(uint64 guid, uint64 gguid)
     SetGroup(guid, gguid);
     AddPlayerToGroup(gguid, guid);
 }
+
+bool LFGMgr::inRandomLfgDungeon(uint64 guid)
+{
+    if (GetState(guid) != LFG_STATE_NONE)
+    {
+        LfgDungeonSet const& dungeons = GetSelectedDungeons(guid);
+        if (!dungeons.empty())
+        {
+             LFGDungeonData const* dungeon = GetLFGDungeon(*dungeons.begin());
+             if (dungeon && (dungeon->type == LFG_TYPE_RANDOM || dungeon->seasonal))
+                 return true;
+        }
+    }
+
+    return false;
+}
+
+bool LFGMgr::inLfgDungeonMap(uint64 guid, uint32 map, Difficulty difficulty)
+{
+    if (uint32 dungeonId = GetDungeon(guid, true))
+        if (LFGDungeonData const* dungeon = GetLFGDungeon(dungeonId))
+            if (uint32(dungeon->map) == map && dungeon->difficulty == difficulty)
+                return true;
+
+    return false;
+}
