@@ -7446,7 +7446,7 @@ void Player::UpdateZone(uint32 newZone, uint32 newArea)
     if (Group* group = GetGroup())
     {
         SetGroupUpdateFlag(GROUP_UPDATE_FULL);
-        if (GetSession() && group->isLFGGroup() && sLFGMgr->IsTeleported(GetGUID()))
+        if (GetSession() && group->isLFGGroup() && sLFGMgr->hasPendingTeleport(GetGUID()))
         {
             for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
             {

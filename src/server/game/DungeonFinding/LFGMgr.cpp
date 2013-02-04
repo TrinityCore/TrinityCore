@@ -127,7 +127,7 @@ void LFGMgr::LoadRewards()
         uint32 firstQuestId = fields[2].GetUInt32();
         uint32 otherQuestId = fields[3].GetUInt32();
 
-        if (!GetLFGDungeon(dungeonId))
+        if (!GetLFGDungeonEntry(dungeonId))
         {
             sLog->outError(LOG_FILTER_SQL, "Dungeon %u specified in table `lfg_dungeon_rewards` does not exist!", dungeonId);
             continue;
@@ -166,11 +166,6 @@ LFGDungeonData const* LFGMgr::GetLFGDungeon(uint32 id)
         return &(itr->second);
 
     return NULL;
-}
-
-LFGDungeonContainer & LFGMgr::GetLFGDungeonMap()
-{
-    return LfgDungeonStore;
 }
 
 void LFGMgr::LoadLFGDungeons(bool reload /* = false */)
@@ -1595,7 +1590,7 @@ const std::string& LFGMgr::GetComment(uint64 guid)
     return PlayersStore[guid].GetComment();
 }
 
-bool LFGMgr::IsTeleported(uint64 pguid)
+bool LFGMgr::hasPendingTeleport(uint64 pguid)
 {
     if (std::find(teleportStore.begin(), teleportStore.end(), pguid) != teleportStore.end())
     {
@@ -1987,6 +1982,28 @@ bool LFGMgr::inLfgDungeonMap(uint64 guid, uint32 map, Difficulty difficulty)
                 return true;
 
     return false;
+}
+
+uint32 LFGMgr::GetLFGDungeonEntry(uint32 id)
+{
+    if (id)
+        if (LFGDungeonData const* dungeon = GetLFGDungeon(id))
+            return dungeon->Entry();
+
+    return 0;
+}
+
+LfgDungeonSet LFGMgr::GetRandomAndSeasonalDungeons(uint8 level, uint8 expansion)
+{
+    LfgDungeonSet randomDungeons;
+    for (lfg::LFGDungeonContainer::const_iterator itr = LfgDungeonStore.begin(); itr != LfgDungeonStore.end(); ++itr)
+    {
+        lfg::LFGDungeonData const& dungeon = itr->second;
+        if ((dungeon.type == lfg::LFG_TYPE_RANDOM || (dungeon.seasonal && sLFGMgr->IsSeasonActive(dungeon.id)))
+            && dungeon.expansion <= expansion && dungeon.minlevel <= level && level <= dungeon.maxlevel)
+            randomDungeons.insert(dungeon.Entry());
+    }
+    return randomDungeons;
 }
 
 } // namespace lfg
