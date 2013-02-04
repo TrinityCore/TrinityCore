@@ -343,7 +343,7 @@ class LFGMgr
         uint32 GetOptions(); // cs_lfg
         /// Sets new lfg options
         void SetOptions(uint32 options);
-        /// Checks if given lfg option is enabled 
+        /// Checks if given lfg option is enabled
         bool isOptionEnabled(uint32 option);
         /// Clears queue - Only for internal testing
         void Clean();
