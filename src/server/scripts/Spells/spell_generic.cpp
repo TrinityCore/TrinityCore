@@ -1725,7 +1725,7 @@ class spell_gen_luck_of_the_draw : public SpellScriptLoader
                     return false;
 
                 Group* group = owner->GetGroup();
-                if (!group || group->isLFGGroup())
+                if (!group || !group->isLFGGroup())
                     return false;
 
                 if (!sLFGMgr->selectedRandomLfgDungeon(owner->GetGUID()))
