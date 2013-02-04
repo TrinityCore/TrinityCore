@@ -1408,11 +1408,11 @@ public:
         return new alliance_riflemanAI(creature);
     }
 
-    struct alliance_riflemanAI : public Scripted_NoMovementAI
+    struct alliance_riflemanAI : public ScriptedAI
     {
-        alliance_riflemanAI(Creature* creature) : Scripted_NoMovementAI(creature)
+        alliance_riflemanAI(Creature* creature) : ScriptedAI(creature)
         {
-            Reset();
+            SetCombatMovement(false);
         }
 
         uint32 ExplodeTimer;

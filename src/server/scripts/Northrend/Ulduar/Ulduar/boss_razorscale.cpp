@@ -739,10 +739,11 @@ class npc_mole_machine_trigger : public CreatureScript
     public:
         npc_mole_machine_trigger() : CreatureScript("npc_mole_machine_trigger") { }
 
-        struct npc_mole_machine_triggerAI : public Scripted_NoMovementAI
+        struct npc_mole_machine_triggerAI : public ScriptedAI
         {
-            npc_mole_machine_triggerAI(Creature* creature) : Scripted_NoMovementAI(creature)
+            npc_mole_machine_triggerAI(Creature* creature) : ScriptedAI(creature)
             {
+                SetCombatMovement(false);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_PACIFIED);
             }
 
@@ -818,10 +819,11 @@ class npc_devouring_flame : public CreatureScript
     public:
         npc_devouring_flame() : CreatureScript("npc_devouring_flame") { }
 
-        struct npc_devouring_flameAI : public Scripted_NoMovementAI
+        struct npc_devouring_flameAI : public ScriptedAI
         {
-            npc_devouring_flameAI(Creature* creature) : Scripted_NoMovementAI(creature)
+            npc_devouring_flameAI(Creature* creature) : ScriptedAI(creature)
             {
+                SetCombatMovement(false);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_PACIFIED);
             }
 

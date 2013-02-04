@@ -175,10 +175,11 @@ class npc_tiger_matriarch_credit : public CreatureScript
     public:
         npc_tiger_matriarch_credit() : CreatureScript("npc_tiger_matriarch_credit") { }
 
-        struct npc_tiger_matriarch_creditAI : public Scripted_NoMovementAI
+        struct npc_tiger_matriarch_creditAI : public ScriptedAI
         {
-           npc_tiger_matriarch_creditAI(Creature* creature) : Scripted_NoMovementAI(creature)
+           npc_tiger_matriarch_creditAI(Creature* creature) : ScriptedAI(creature)
            {
+               SetCombatMovement(false);
                events.ScheduleEvent(EVENT_CHECK_SUMMON_AURA, 2000);
            }
 

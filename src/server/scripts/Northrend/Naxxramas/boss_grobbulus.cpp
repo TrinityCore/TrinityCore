@@ -125,11 +125,11 @@ public:
         return new npc_grobbulus_poison_cloudAI(creature);
     }
 
-    struct npc_grobbulus_poison_cloudAI : public Scripted_NoMovementAI
+    struct npc_grobbulus_poison_cloudAI : public ScriptedAI
     {
-        npc_grobbulus_poison_cloudAI(Creature* creature) : Scripted_NoMovementAI(creature)
+        npc_grobbulus_poison_cloudAI(Creature* creature) : ScriptedAI(creature)
         {
-            Reset();
+            SetCombatMovement(false);
         }
 
         uint32 Cloud_Timer;
