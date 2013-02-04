@@ -26,6 +26,9 @@
 class Player;
 class Group;
 
+namespace lfg
+{
+
 class LFGPlayerScript : public PlayerScript
 {
     public:
@@ -50,3 +53,5 @@ class LFGGroupScript : public GroupScript
         void OnChangeLeader(Group* group, uint64 newLeaderGuid, uint64 oldLeaderGuid);
         void OnInviteMember(Group* group, uint64 guid);
 };
+
+} // namespace lfg

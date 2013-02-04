@@ -20,6 +20,9 @@
 
 #include "LFG.h"
 
+namespace lfg
+{
+
 enum LfgGroupEnum
 {
     LFG_GROUP_MAX_KICKS                           = 3,
@@ -74,5 +77,7 @@ class LfgGroupData
         // Vote Kick
         uint8 m_KicksLeft;                                 ///< Number of kicks left
 };
+
+} // namespace lfg
 
 #endif

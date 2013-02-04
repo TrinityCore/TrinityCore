@@ -33,7 +33,7 @@
 #include "ace/INET_Addr.h"
 #include "Player.h"
 #include "Pet.h"
-#include "LFGMgr.h"
+#include "LFG.h"
 #include "GroupMgr.h"
 
 class misc_commandscript : public CommandScript
@@ -2863,7 +2863,7 @@ public:
                 const char* onlineState = (p && p->IsInWorld()) ? "online" : "offline";
 
                 handler->PSendSysMessage(LANG_GROUP_PLAYER_NAME_GUID, slot.name.c_str(), onlineState,
-                    GUID_LOPART(slot.guid), flags.c_str(), LFGMgr::GetRolesString(slot.roles).c_str());
+                    GUID_LOPART(slot.guid), flags.c_str(), lfg::GetRolesString(slot.roles).c_str());
             }
         }
         else

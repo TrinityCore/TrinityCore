@@ -30,6 +30,9 @@ class Group;
 class Player;
 class Quest;
 
+namespace lfg
+{
+
 enum LfgOptions
 {
     LFG_OPTION_ENABLE_DUNGEON_FINDER             = 0x01,
@@ -371,9 +374,6 @@ class LFGMgr
         bool IsSeasonActive(uint32 dungeonId);
 
         std::string DumpQueueInfo(bool full = false);
-        static std::string ConcatenateDungeons(LfgDungeonSet const& dungeons);
-        static std::string GetRolesString(uint8 roles);
-        static std::string GetStateString(LfgState state);
 
         void LoadLFGDungeons(bool reload = false);
         LFGDungeonData const* GetLFGDungeon(uint32 id);
@@ -429,5 +429,7 @@ class LFGMgr
         LfgGuidList teleportStore;                         ///< Players being teleported
 };
 
-#define sLFGMgr ACE_Singleton<LFGMgr, ACE_Null_Mutex>::instance()
+} // namespace lfg
+
+#define sLFGMgr ACE_Singleton<lfg::LFGMgr, ACE_Null_Mutex>::instance()
 #endif
