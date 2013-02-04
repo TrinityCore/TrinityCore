@@ -1,12 +1,12 @@
-DROP TABLE IF EXISTS `game_graveyard_orientation`;
-CREATE TABLE IF NOT EXISTS `game_graveyard_orientation` (
+DROP TABLE IF EXISTS `graveyard_orientation`;
+CREATE TABLE IF NOT EXISTS `graveyard_orientation` (
   `Id` int(10) unsigned NOT NULL DEFAULT '0',
   `Orientation` float NOT NULL DEFAULT '0',
   PRIMARY KEY (`Id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='Orientations used by graveyards';
 
 
-INSERT INTO `game_graveyard_orientation` (`Id`, `Orientation`) VALUES
+INSERT INTO `graveyard_orientation` (`Id`, `Orientation`) VALUES
 (1, 0),
 (2, 0.898845),
 (3, 3.84632),
