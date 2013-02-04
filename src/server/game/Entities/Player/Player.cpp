@@ -7444,17 +7444,7 @@ void Player::UpdateZone(uint32 newZone, uint32 newArea)
 
     // group update
     if (Group* group = GetGroup())
-    {
         SetGroupUpdateFlag(GROUP_UPDATE_FULL);
-        if (GetSession() && group->isLFGGroup() && sLFGMgr->hasPendingTeleport(GetGUID()))
-        {
-            for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
-            {
-                if (Player* member = itr->getSource())
-                    GetSession()->SendNameQueryOpcode(member->GetGUID());
-            }
-        }
-    }
 
     m_zoneUpdateId    = newZone;
     m_zoneUpdateTimer = ZONE_UPDATE_INTERVAL;
@@ -11913,19 +11903,12 @@ InventoryResult Player::CanUseItem(ItemTemplate const* proto) const
 
 InventoryResult Player::CanRollForItemInLFG(ItemTemplate const* proto, WorldObject const* lootedObject) const
 {
-    lfg::LfgDungeonSet const& dungeons = sLFGMgr->GetSelectedDungeons(GetGUID());
-    if (dungeons.empty())
-        return EQUIP_ERR_OK;    // not using LFG
-
     if (!GetGroup() || !GetGroup()->isLFGGroup())
         return EQUIP_ERR_OK;    // not in LFG group
 
     // check if looted object is inside the lfg dungeon
-    bool lootedObjectInDungeon = false;
     Map const* map = lootedObject->GetMap();
-    lootedObjectInDungeon = sLFGMgr->inLfgDungeonMap(GetGroup()->GetGUID(), map->GetId(), map->GetDifficulty());
-
-    if (!lootedObjectInDungeon)
+    if (!sLFGMgr->inLfgDungeonMap(GetGroup()->GetGUID(), map->GetId(), map->GetDifficulty()))
         return EQUIP_ERR_OK;
 
     if (!proto)
