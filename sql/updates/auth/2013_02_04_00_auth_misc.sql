@@ -1,13 +1,16 @@
+-- Delete bad data from the DB before adding foreign keys
+DELETE FROM `account_access` WHERE `id` NOT IN (SELECT `id` FROM `account`);
+
 -- Need them first in case of re-execute due to foreign keys
 DROP TABLE IF EXISTS `rbac_account_permissions`;
 DROP TABLE IF EXISTS `rbac_account_roles`;
 DROP TABLE IF EXISTS `rbac_account_groups`;
 DROP TABLE IF EXISTS `rbac_role_permissions`;
 DROP TABLE IF EXISTS `rbac_group_roles`;
+DROP TABLE IF EXISTS `rbac_security_level_groups`;
 DROP TABLE IF EXISTS `rbac_permissions`;
 DROP TABLE IF EXISTS `rbac_roles`;
 DROP TABLE IF EXISTS `rbac_groups`;
-DROP TABLE IF EXISTS `rbac_security_level_groups`;
 
 CREATE TABLE IF NOT EXISTS `rbac_groups` (
   `id` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Group id',
