@@ -2486,7 +2486,7 @@ bool InstanceMap::AddPlayerToMap(Player* player)
             }
 
             if (group && group->isLFGGroup())
-                player->CastSpell(player, LFG_SPELL_LUCK_OF_THE_DRAW, true);
+                player->CastSpell(player, lfg::LFG_SPELL_LUCK_OF_THE_DRAW, true);
         }
 
         // for normal instances cancel the reset schedule when the
