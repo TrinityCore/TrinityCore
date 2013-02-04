@@ -21,6 +21,7 @@
 */
 
 #include "WorldSocket.h"                                    // must be first to make ACE happy with ACE includes in it
+#include "Config.h"
 #include "Common.h"
 #include "DatabaseEnv.h"
 #include "Log.h"
@@ -115,7 +116,8 @@ WorldSession::WorldSession(uint32 id, WorldSocket* sock, AccountTypes sec, uint8
     m_TutorialsChanged(false),
     recruiterId(recruiter),
     isRecruiter(isARecruiter),
-    timeLastWhoCommand(0)
+    timeLastWhoCommand(0),
+    _RBACData(NULL)
 {
     if (sock)
     {
@@ -143,8 +145,8 @@ WorldSession::~WorldSession()
         m_Socket = NULL;
     }
 
-    if (_warden)
-        delete _warden;
+    delete _warden;
+    delete _RBACData;
 
     ///- empty incoming packet queue
     WorldPacket* packet = NULL;
@@ -1199,4 +1201,25 @@ void WorldSession::InitWarden(BigNumber* k, std::string const& os)
         // _warden = new WardenMac();
         // _warden->Init(this, k);
     }
+}
+
+void WorldSession::LoadPermissions()
+{
+    uint32 id = GetAccountId();
+    std::string name;
+    int32 realmId = ConfigMgr::GetIntDefault("RealmID", 0);
+    AccountMgr::GetName(id, name);
+
+    _RBACData = new RBACData(id, name, realmId);
+    _RBACData->LoadFromDB();
+}
+
+RBACData* WorldSession::GetRBACData()
+{
+    return _RBACData;
+}
+
+bool WorldSession::HasPermission(uint32 permission)
+{
+    return _RBACData->HasPermission(permission);
 }

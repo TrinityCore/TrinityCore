@@ -814,18 +814,6 @@ RecruitAFriend.MaxLevel = 60
 RecruitAFriend.MaxDifference = 4
 
 #
-#    InstantLogout
-#        Description: Required security level for instantly logging out everywhere.
-#                     Does not work while in combat, dueling or falling.
-#        Default:     1  - (Enabled, Mods/GMs/Admins)
-#                     0  - (Enabled, Everyone)
-#                     2  - (Enabled, GMs/Admins)
-#                     3  - (Enabled, Admins)
-#                     4  - (Disabled)
-
-InstantLogout = 1
-
-#
 #    DisableWaterBreath
 #        Description: Required security level for water breathing.
 #        Default:     4  - (Disabled)
@@ -1566,14 +1554,6 @@ ChatLevelReq.Whisper = 1
 #        Default:     1
 
 ChatLevelReq.Say = 1
-
-#
-#    AllowPlayerCommands
-#        Description: Allow players to use commands.
-#        Default:     1 - (Enabled)
-#                     0 - (Disabled)
-
-AllowPlayerCommands = 1
 
 #
 #    PreserveCustomChannels
