@@ -1960,7 +1960,7 @@ void LFGMgr::SetupGroupMember(uint64 guid, uint64 gguid)
     AddPlayerToGroup(gguid, guid);
 }
 
-bool LFGMgr::inRandomLfgDungeon(uint64 guid)
+bool LFGMgr::selectedRandomLfgDungeon(uint64 guid)
 {
     if (GetState(guid) != LFG_STATE_NONE)
     {
@@ -1978,6 +1978,9 @@ bool LFGMgr::inRandomLfgDungeon(uint64 guid)
 
 bool LFGMgr::inLfgDungeonMap(uint64 guid, uint32 map, Difficulty difficulty)
 {
+    if (!IS_GROUP_GUID(guid))
+        guid = GetGroup(guid);
+
     if (uint32 dungeonId = GetDungeon(guid, true))
         if (LFGDungeonData const* dungeon = GetLFGDungeon(dungeonId))
             if (uint32(dungeon->map) == map && dungeon->difficulty == difficulty)
