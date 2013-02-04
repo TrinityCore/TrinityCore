@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 5.5.22, for Win64 (x86)
+-- MySQL dump 10.13  Distrib 5.6.9-rc, for Win64 (x86_64)
 --
 -- Host: localhost    Database: auth
 -- ------------------------------------------------------
--- Server version	5.5.22
+-- Server version	5.6.9-rc
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -38,8 +38,8 @@ CREATE TABLE `account` (
   `online` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `expansion` tinyint(3) unsigned NOT NULL DEFAULT '2',
   `mutetime` bigint(20) NOT NULL DEFAULT '0',
-  `mutereason` VARCHAR(255) NOT NULL DEFAULT '',
-  `muteby` VARCHAR(50) NOT NULL DEFAULT '',
+  `mutereason` varchar(255) NOT NULL DEFAULT '',
+  `muteby` varchar(50) NOT NULL DEFAULT '',
   `locale` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `os` varchar(3) NOT NULL DEFAULT '',
   `recruiter` int(10) unsigned NOT NULL DEFAULT '0',
@@ -160,6 +160,241 @@ LOCK TABLES `logs` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `rbac_account_groups`
+--
+
+DROP TABLE IF EXISTS `rbac_account_groups`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `rbac_account_groups` (
+  `accountId` int(10) unsigned NOT NULL COMMENT 'Account id',
+  `groupId` int(10) unsigned NOT NULL COMMENT 'Group id',
+  `realmId` int(11) NOT NULL DEFAULT '-1' COMMENT 'Realm Id, -1 means all',
+  PRIMARY KEY (`accountId`,`groupId`,`realmId`),
+  KEY `fk__rbac_account_groups__rbac_groups` (`groupId`),
+  CONSTRAINT `fk__rbac_account_groups__account` FOREIGN KEY (`accountId`) REFERENCES `account` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk__rbac_account_groups__rbac_groups` FOREIGN KEY (`groupId`) REFERENCES `rbac_groups` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Account-Group relation';
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `rbac_account_groups`
+--
+
+LOCK TABLES `rbac_account_groups` WRITE;
+/*!40000 ALTER TABLE `rbac_account_groups` DISABLE KEYS */;
+/*!40000 ALTER TABLE `rbac_account_groups` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `rbac_account_permissions`
+--
+
+DROP TABLE IF EXISTS `rbac_account_permissions`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `rbac_account_permissions` (
+  `accountId` int(10) unsigned NOT NULL COMMENT 'Account id',
+  `permissionId` int(10) unsigned NOT NULL COMMENT 'Permission id',
+  `granted` tinyint(1) NOT NULL DEFAULT '1' COMMENT 'Granted = 1, Denied = 0',
+  `realmId` int(11) NOT NULL DEFAULT '-1' COMMENT 'Realm Id, -1 means all',
+  PRIMARY KEY (`accountId`,`permissionId`,`realmId`),
+  KEY `fk__rbac_account_roles__rbac_permissions` (`permissionId`),
+  CONSTRAINT `fk__rbac_account_permissions__account` FOREIGN KEY (`accountId`) REFERENCES `account` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk__rbac_account_roles__rbac_permissions` FOREIGN KEY (`permissionId`) REFERENCES `rbac_permissions` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Account-Permission relation';
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `rbac_account_permissions`
+--
+
+LOCK TABLES `rbac_account_permissions` WRITE;
+/*!40000 ALTER TABLE `rbac_account_permissions` DISABLE KEYS */;
+/*!40000 ALTER TABLE `rbac_account_permissions` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `rbac_account_roles`
+--
+
+DROP TABLE IF EXISTS `rbac_account_roles`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `rbac_account_roles` (
+  `accountId` int(10) unsigned NOT NULL COMMENT 'Account id',
+  `roleId` int(10) unsigned NOT NULL COMMENT 'Role id',
+  `granted` tinyint(1) NOT NULL DEFAULT '1' COMMENT 'Granted = 1, Denied = 0',
+  `realmId` int(11) NOT NULL DEFAULT '-1' COMMENT 'Realm Id, -1 means all',
+  PRIMARY KEY (`accountId`,`roleId`,`realmId`),
+  KEY `fk__rbac_account_roles__rbac_roles` (`roleId`),
+  CONSTRAINT `fk__rbac_account_roles__account` FOREIGN KEY (`accountId`) REFERENCES `account` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk__rbac_account_roles__rbac_roles` FOREIGN KEY (`roleId`) REFERENCES `rbac_roles` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Account-Role relation';
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `rbac_account_roles`
+--
+
+LOCK TABLES `rbac_account_roles` WRITE;
+/*!40000 ALTER TABLE `rbac_account_roles` DISABLE KEYS */;
+/*!40000 ALTER TABLE `rbac_account_roles` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `rbac_group_roles`
+--
+
+DROP TABLE IF EXISTS `rbac_group_roles`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `rbac_group_roles` (
+  `groupId` int(10) unsigned NOT NULL COMMENT 'group id',
+  `roleId` int(10) unsigned NOT NULL COMMENT 'Role id',
+  PRIMARY KEY (`groupId`,`roleId`),
+  KEY `fk__rbac_group_roles__rbac_roles` (`roleId`),
+  CONSTRAINT `fk__rbac_group_roles__rbac_roles` FOREIGN KEY (`roleId`) REFERENCES `rbac_roles` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk__rbac_group_roles__rbac_groups` FOREIGN KEY (`groupId`) REFERENCES `rbac_groups` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Group Role relation';
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `rbac_group_roles`
+--
+
+LOCK TABLES `rbac_group_roles` WRITE;
+/*!40000 ALTER TABLE `rbac_group_roles` DISABLE KEYS */;
+INSERT INTO `rbac_group_roles` VALUES (1,1),(2,2),(3,3),(4,4),(2,5),(1,6),(1,7);
+/*!40000 ALTER TABLE `rbac_group_roles` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `rbac_groups`
+--
+
+DROP TABLE IF EXISTS `rbac_groups`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `rbac_groups` (
+  `id` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Group id',
+  `name` varchar(50) NOT NULL COMMENT 'Group name',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Group List';
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `rbac_groups`
+--
+
+LOCK TABLES `rbac_groups` WRITE;
+/*!40000 ALTER TABLE `rbac_groups` DISABLE KEYS */;
+INSERT INTO `rbac_groups` VALUES (1,'Player'),(2,'Moderator'),(3,'GameMaster'),(4,'Administrator');
+/*!40000 ALTER TABLE `rbac_groups` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `rbac_permissions`
+--
+
+DROP TABLE IF EXISTS `rbac_permissions`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `rbac_permissions` (
+  `id` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Permission id',
+  `name` varchar(100) NOT NULL COMMENT 'Permission name',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Permission List';
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `rbac_permissions`
+--
+
+LOCK TABLES `rbac_permissions` WRITE;
+/*!40000 ALTER TABLE `rbac_permissions` DISABLE KEYS */;
+INSERT INTO `rbac_permissions` VALUES (1,'Instant logout'),(2,'Skip Queue'),(3,'Join Normal Battleground'),(4,'Join Random Battleground'),(5,'Join Arenas'),(6,'Join Dungeon Finder'),(7,'Player Commands (Temporal till commands moved to rbac)'),(8,'Moderator Commands (Temporal till commands moved to rbac)'),(9,'GameMaster Commands (Temporal till commands moved to rbac)'),(10,'Administrator Commands (Temporal till commands moved to rbac)');
+/*!40000 ALTER TABLE `rbac_permissions` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `rbac_role_permissions`
+--
+
+DROP TABLE IF EXISTS `rbac_role_permissions`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `rbac_role_permissions` (
+  `roleId` int(10) unsigned NOT NULL COMMENT 'Role id',
+  `permissionId` int(10) unsigned NOT NULL COMMENT 'Permission id',
+  PRIMARY KEY (`roleId`,`permissionId`),
+  KEY `fk__role_permissions__rbac_permissions` (`permissionId`),
+  CONSTRAINT `fk__role_permissions__rbac_roles` FOREIGN KEY (`roleId`) REFERENCES `rbac_roles` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk__role_permissions__rbac_permissions` FOREIGN KEY (`permissionId`) REFERENCES `rbac_permissions` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Role Permission relation';
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `rbac_role_permissions`
+--
+
+LOCK TABLES `rbac_role_permissions` WRITE;
+/*!40000 ALTER TABLE `rbac_role_permissions` DISABLE KEYS */;
+INSERT INTO `rbac_role_permissions` VALUES (5,1),(5,2),(6,3),(6,4),(6,5),(7,6),(1,7),(2,8),(3,9),(4,10);
+/*!40000 ALTER TABLE `rbac_role_permissions` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `rbac_roles`
+--
+
+DROP TABLE IF EXISTS `rbac_roles`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `rbac_roles` (
+  `id` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Role id',
+  `name` varchar(50) NOT NULL COMMENT 'Role name',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Roles List';
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `rbac_roles`
+--
+
+LOCK TABLES `rbac_roles` WRITE;
+/*!40000 ALTER TABLE `rbac_roles` DISABLE KEYS */;
+INSERT INTO `rbac_roles` VALUES (1,'Player Commands'),(2,'Moderator Commands'),(3,'GameMaster Commands'),(4,'Administrator Commands'),(5,'Quick Login/Logout'),(6,'Use Battleground/Arenas'),(7,'Use Dungeon Finder');
+/*!40000 ALTER TABLE `rbac_roles` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `rbac_security_level_groups`
+--
+
+DROP TABLE IF EXISTS `rbac_security_level_groups`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `rbac_security_level_groups` (
+  `secId` int(10) unsigned NOT NULL COMMENT 'Security Level id',
+  `groupId` int(10) unsigned NOT NULL COMMENT 'group id',
+  PRIMARY KEY (`secId`,`groupId`),
+  KEY `fk__rbac_security_level_groups__rbac_groups` (`groupId`),
+  CONSTRAINT `fk__rbac_security_level_groups__rbac_groups` FOREIGN KEY (`groupId`) REFERENCES `rbac_groups` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Default groups to assign when an account is set gm level';
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `rbac_security_level_groups`
+--
+
+LOCK TABLES `rbac_security_level_groups` WRITE;
+/*!40000 ALTER TABLE `rbac_security_level_groups` DISABLE KEYS */;
+INSERT INTO `rbac_security_level_groups` VALUES (0,1),(1,1),(2,1),(3,1),(1,2),(2,2),(3,2),(2,3),(3,3),(3,4);
+/*!40000 ALTER TABLE `rbac_security_level_groups` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `realmcharacters`
 --
 
@@ -254,4 +489,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2012-03-28 18:26:06
+-- Dump completed on 2013-02-04 16:07:23
