@@ -16,6 +16,8 @@
  */
 
 #include "RBAC.h"
+#include "AccountMgr.h"
+#include "DatabaseEnv.h"
 
 RBACCommandResult RBACData::AddGroup(uint32 groupId, int32 realmId /* = 0 */)
 {
