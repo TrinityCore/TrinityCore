@@ -973,11 +973,13 @@ class npc_meteor_strike_initial : public CreatureScript
     public:
         npc_meteor_strike_initial() : CreatureScript("npc_meteor_strike_initial") { }
 
-        struct npc_meteor_strike_initialAI : public Scripted_NoMovementAI
+        struct npc_meteor_strike_initialAI : public ScriptedAI
         {
-            npc_meteor_strike_initialAI(Creature* creature) : Scripted_NoMovementAI(creature),
+            npc_meteor_strike_initialAI(Creature* creature) : ScriptedAI(creature),
                 _instance(creature->GetInstanceScript())
-            { }
+            { 
+                SetCombatMovement(false);
+            }
 
             void DoAction(int32 const action)
             {
@@ -1045,13 +1047,15 @@ class npc_meteor_strike : public CreatureScript
     public:
         npc_meteor_strike() : CreatureScript("npc_meteor_strike") { }
 
-        struct npc_meteor_strikeAI : public Scripted_NoMovementAI
+        struct npc_meteor_strikeAI : public ScriptedAI
         {
-            npc_meteor_strikeAI(Creature* creature) : Scripted_NoMovementAI(creature),
+            npc_meteor_strikeAI(Creature* creature) : ScriptedAI(creature),
                 _instance(creature->GetInstanceScript())
             {
                 _range = 5.0f;
                 _spawnCount = 0;
+
+                SetCombatMovement(false);
             }
 
             void DoAction(int32 const action)
@@ -1114,11 +1118,13 @@ class npc_combustion_consumption : public CreatureScript
     public:
         npc_combustion_consumption() : CreatureScript("npc_combustion_consumption") { }
 
-        struct npc_combustion_consumptionAI : public Scripted_NoMovementAI
+        struct npc_combustion_consumptionAI : public ScriptedAI
         {
-            npc_combustion_consumptionAI(Creature* creature) : Scripted_NoMovementAI(creature),
+            npc_combustion_consumptionAI(Creature* creature) : ScriptedAI(creature),
                    _instance(creature->GetInstanceScript()), _summonerGuid(0)
             {
+                SetCombatMovement(false);
+
                 switch (me->GetEntry())
                 {
                     case NPC_COMBUSTION:

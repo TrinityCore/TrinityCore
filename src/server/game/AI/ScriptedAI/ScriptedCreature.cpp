@@ -104,7 +104,7 @@ void ScriptedAI::AttackStartNoMove(Unit* who)
     if (!who)
         return;
 
-    if (me->Attack(who, false))
+    if (me->Attack(who, true))
         DoStartNoMovement(who);
 }
 
@@ -445,15 +445,6 @@ bool ScriptedAI::EnterEvadeIfOutOfCombatArea(uint32 const diff)
 
     EnterEvadeMode();
     return true;
-}
-
-void Scripted_NoMovementAI::AttackStart(Unit* target)
-{
-    if (!target)
-        return;
-
-    if (me->Attack(target, true))
-        DoStartNoMovement(target);
 }
 
 // BossAI - for instanced bosses

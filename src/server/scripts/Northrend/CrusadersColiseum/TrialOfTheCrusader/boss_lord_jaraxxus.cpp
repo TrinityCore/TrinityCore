@@ -223,10 +223,11 @@ class mob_legion_flame : public CreatureScript
     public:
         mob_legion_flame() : CreatureScript("mob_legion_flame") { }
 
-        struct mob_legion_flameAI : public Scripted_NoMovementAI
+        struct mob_legion_flameAI : public ScriptedAI
         {
-            mob_legion_flameAI(Creature* creature) : Scripted_NoMovementAI(creature)
+            mob_legion_flameAI(Creature* creature) : ScriptedAI(creature)
             {
+                SetCombatMovement(false);
                 _instance = creature->GetInstanceScript();
             }
 
@@ -258,10 +259,11 @@ class mob_infernal_volcano : public CreatureScript
     public:
         mob_infernal_volcano() : CreatureScript("mob_infernal_volcano") { }
 
-        struct mob_infernal_volcanoAI : public Scripted_NoMovementAI
+        struct mob_infernal_volcanoAI : public ScriptedAI
         {
-            mob_infernal_volcanoAI(Creature* creature) : Scripted_NoMovementAI(creature), _summons(me)
+            mob_infernal_volcanoAI(Creature* creature) : ScriptedAI(creature), _summons(me)
             {
+                SetCombatMovement(false);
             }
 
             void Reset()

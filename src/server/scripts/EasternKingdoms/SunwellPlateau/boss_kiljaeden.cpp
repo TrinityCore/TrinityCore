@@ -392,11 +392,13 @@ public:
         return new mob_kiljaeden_controllerAI (creature);
     }
 
-    struct mob_kiljaeden_controllerAI : public Scripted_NoMovementAI
+    struct mob_kiljaeden_controllerAI : public ScriptedAI
     {
-        mob_kiljaeden_controllerAI(Creature* creature) : Scripted_NoMovementAI(creature), summons(me)
+        mob_kiljaeden_controllerAI(Creature* creature) : ScriptedAI(creature), summons(me)
         {
             instance = creature->GetInstanceScript();
+
+            SetCombatMovement(false);
         }
 
         InstanceScript* instance;
@@ -492,11 +494,13 @@ public:
         return new boss_kiljaedenAI (creature);
     }
 
-    struct boss_kiljaedenAI : public Scripted_NoMovementAI
+    struct boss_kiljaedenAI : public ScriptedAI
     {
-        boss_kiljaedenAI(Creature* creature) : Scripted_NoMovementAI(creature), summons(me)
+        boss_kiljaedenAI(Creature* creature) : ScriptedAI(creature), summons(me)
         {
             instance = creature->GetInstanceScript();
+
+            SetCombatMovement(false);
         }
 
         InstanceScript* instance;
@@ -520,7 +524,7 @@ public:
 
         void InitializeAI()
         {
-            Scripted_NoMovementAI::InitializeAI();
+            // Scripted_NoMovementAI::InitializeAI();
         }
 
         void Reset()
@@ -615,7 +619,8 @@ public:
 
         void EnterEvadeMode()
         {
-            Scripted_NoMovementAI::EnterEvadeMode();
+            ScriptedAI::EnterEvadeMode();
+
             summons.DespawnAll();
 
             // Reset the controller
@@ -999,9 +1004,12 @@ public:
         return new mob_felfire_portalAI (creature);
     }
 
-    struct mob_felfire_portalAI : public Scripted_NoMovementAI
+    struct mob_felfire_portalAI : public ScriptedAI
     {
-        mob_felfire_portalAI(Creature* creature) : Scripted_NoMovementAI(creature) {}
+        mob_felfire_portalAI(Creature* creature) : ScriptedAI(creature)
+        {
+            SetCombatMovement(false);
+        }
 
         uint32 uiSpawnFiendTimer;
 
@@ -1100,9 +1108,12 @@ public:
         return new mob_armageddonAI (creature);
     }
 
-    struct mob_armageddonAI : public Scripted_NoMovementAI
+    struct mob_armageddonAI : public ScriptedAI
     {
-        mob_armageddonAI(Creature* creature) : Scripted_NoMovementAI(creature) {}
+        mob_armageddonAI(Creature* creature) : ScriptedAI(creature)
+        {
+            SetCombatMovement(false);
+        }
 
         uint8 spell;
         uint32 uiTimer;

@@ -424,11 +424,13 @@ class npc_bone_spike : public CreatureScript
     public:
         npc_bone_spike() : CreatureScript("npc_bone_spike") { }
 
-        struct npc_bone_spikeAI : public Scripted_NoMovementAI
+        struct npc_bone_spikeAI : public ScriptedAI
         {
-            npc_bone_spikeAI(Creature* creature) : Scripted_NoMovementAI(creature), _hasTrappedUnit(false)
+            npc_bone_spikeAI(Creature* creature) : ScriptedAI(creature), _hasTrappedUnit(false)
             {
                 ASSERT(creature->GetVehicleKit());
+
+                SetCombatMovement(false);
             }
 
             void JustDied(Unit* /*killer*/)
