@@ -1085,7 +1085,6 @@ void LFGMgr::UpdateProposal(uint32 proposalId, uint64 guid, bool accept)
                 break;
         }
 
-        teleportStore.push_back(pguid);
         SetState(pguid, LFG_STATE_DUNGEON);
     }
 
@@ -1320,10 +1319,7 @@ void LFGMgr::TeleportPlayer(Player* player, bool out, bool fromOpcode /*= false*
         sLog->outDebug(LOG_FILTER_LFG, "TeleportPlayer: Player %s is being teleported out. Current Map %u - Expected Map %u",
             player->GetName().c_str(), player->GetMapId(), uint32(dungeon->map));
         if (player->GetMapId() == uint32(dungeon->map))
-        {
-            player->RemoveAurasDueToSpell(LFG_SPELL_LUCK_OF_THE_DRAW);
             player->TeleportToBGEntryPoint();
-        }
 
         return;
     }
@@ -1595,16 +1591,6 @@ const std::string& LFGMgr::GetComment(uint64 guid)
 {
     sLog->outTrace(LOG_FILTER_LFG, "LFGMgr::GetComment: [" UI64FMTD "] = %s", guid, PlayersStore[guid].GetComment().c_str());
     return PlayersStore[guid].GetComment();
-}
-
-bool LFGMgr::hasPendingTeleport(uint64 pguid)
-{
-    if (std::find(teleportStore.begin(), teleportStore.end(), pguid) != teleportStore.end())
-    {
-        teleportStore.remove(pguid);
-        return true;
-    }
-    return false;
 }
 
 LfgDungeonSet const& LFGMgr::GetSelectedDungeons(uint64 guid)

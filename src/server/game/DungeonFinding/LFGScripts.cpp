@@ -88,6 +88,24 @@ void LFGPlayerScript::OnBindToInstance(Player* player, Difficulty difficulty, ui
         sLFGMgr->InitializeLockedDungeons(player);
 }
 
+void LFGPlayerScript::OnMapChanged(Player* player)
+{
+    Map const* map = player->GetMap();
+
+    if (sLFGMgr->inLfgDungeonMap(player->GetGUID(), map->GetId(), map->GetDifficulty()))
+    {
+        Group* group = player->GetGroup();
+        for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
+            if (Player* member = itr->getSource())
+                player->GetSession()->SendNameQueryOpcode(member->GetGUID());
+
+        if (sLFGMgr->selectedRandomLfgDungeon(player->GetGUID()))
+            player->CastSpell(player, LFG_SPELL_LUCK_OF_THE_DRAW, true);
+    }
+    else // if (player->HasAura(lfg:LFG_SPELL_LUCK_OF_THE_DRAW))
+        player->RemoveAurasDueToSpell(LFG_SPELL_LUCK_OF_THE_DRAW);
+}
+
 LFGGroupScript::LFGGroupScript() : GroupScript("LFGGroupScript")
 {
 }
