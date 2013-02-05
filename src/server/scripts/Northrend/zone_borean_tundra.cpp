@@ -2207,9 +2207,9 @@ class npc_warmage_coldarra : public CreatureScript
 public:
     npc_warmage_coldarra() : CreatureScript("npc_warmage_coldarra") { }
 
-    struct npc_warmage_coldarraAI : public Scripted_NoMovementAI
+    struct npc_warmage_coldarraAI : public ScriptedAI
     {
-        npc_warmage_coldarraAI(Creature* creature) : Scripted_NoMovementAI(creature){}
+        npc_warmage_coldarraAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint32 m_uiTimer;                 //Timer until recast
 
