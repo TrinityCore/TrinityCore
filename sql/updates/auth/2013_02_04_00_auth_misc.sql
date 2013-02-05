@@ -1,3 +1,6 @@
+-- Explicitly set the account-table to use INNODB-engine (to allow foreign keys and transactions)
+ALTER TABLE account ENGINE=InnoDB;
+
 -- Delete bad data from the DB before adding foreign keys
 DELETE FROM `account_access` WHERE `id` NOT IN (SELECT `id` FROM `account`);
 
