@@ -268,6 +268,7 @@ ObjectMgr::~ObjectMgr()
         itr->second.Clear();
 
     _cacheTrainerSpellStore.clear();
+    _graveyardOrientations.clear();
 
     for (DungeonEncounterContainer::iterator itr =_dungeonEncounterStore.begin(); itr != _dungeonEncounterStore.end(); ++itr)
         for (DungeonEncounterList::iterator encounterItr = itr->second.begin(); encounterItr != itr->second.end(); ++encounterItr)
@@ -286,6 +287,34 @@ void ObjectMgr::AddLocaleString(std::string const& s, LocaleConstant locale, Str
 
         data[locale] = s;
     }
+}
+
+void ObjectMgr::LoadGraveyardOrientations()
+{
+    uint32 oldMSTime = getMSTime();
+    
+    _graveyardOrientations.clear();
+    
+    QueryResult result = WorldDatabase.Query("SELECT id, orientation FROM graveyard_orientation");
+    
+    if (!result)
+        return;
+        
+    do
+    {
+        Field* fields = result->Fetch();
+        
+        uint32 id = fields[0].GetUInt32();
+        if (!sWorldSafeLocsStore.LookupEntry(id))
+        {
+            sLog->outError(LOG_FILTER_SERVER_LOADING, "Graveyard %u referenced in graveyard_orientation doesn't exist.", id);
+            continue;
+        }
+        _graveyardOrientations[id] = fields[1].GetFloat();
+        
+    } while (result->NextRow());
+    
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %lu graveyard orientations in %u ms", (unsigned long)_graveyardOrientations.size(), GetMSTimeDiffToNow(oldMSTime));
 }
 
 void ObjectMgr::LoadCreatureLocales()
