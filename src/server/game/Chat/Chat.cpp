@@ -137,9 +137,10 @@ bool ChatHandler::isAvailable(ChatCommand const& cmd) const
             permission = RBAC_PERM_MODERATOR_COMMANDS;
             break;
         case SEC_PLAYER:
-        default:
             permission = RBAC_PERM_PLAYER_COMMANDS;
             break;
+        default: // Allow custom security levels for commands
+            return m_session->GetSecurity() >= AccountTypes(cmd.SecurityLevel)
     }
 
     return m_session->HasPermission(permission);
