@@ -1406,7 +1406,7 @@ class mob_kael_flamestrike : public CreatureScript
         }
         struct mob_kael_flamestrikeAI : public ScriptedAI
         {
-            mob_kael_flamestrikeAI(Creature* creature) : ScriptedAI(creature) 
+            mob_kael_flamestrikeAI(Creature* creature) : ScriptedAI(creature)
             {
                 SetCombatMovement(false);
             }
