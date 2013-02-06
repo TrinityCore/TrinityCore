@@ -56,7 +56,7 @@ enum PaladinSpells
     SPELL_PALADIN_DIVINE_SACRIFICE               = 64205,
 
     SPELL_PALADIN_DIVINE_PURPOSE_PROC            = 90174,
-    
+
     SPELL_PALADIN_GLYPH_OF_SALVATION             = 63225,
 
     SPELL_PALADIN_RIGHTEOUS_DEFENSE_TAUNT        = 31790,
@@ -874,7 +874,7 @@ class spell_pal_templar_s_verdict : public SpellScriptLoader
             }
 
             void ChangeDamage(SpellEffIndex /*effIndex*/)
-            {                
+            {
                 Unit* caster = GetCaster();
                 int32 damage = GetHitDamage();
 

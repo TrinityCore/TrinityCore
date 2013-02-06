@@ -1,4 +1,4 @@
-/* 
+/*
 * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -79,7 +79,7 @@ class boss_alizabal : public CreatureScript
 {
     public:
         boss_alizabal() : CreatureScript("boss_alizabal") { }
-            
+
         struct boss_alizabalAI : public BossAI
         {
             boss_alizabalAI(Creature* creature) : BossAI(creature, DATA_ALIZABAL)
@@ -253,7 +253,7 @@ class boss_alizabal : public CreatureScript
                             break;
                     }
                 }
-                    
+
                 DoMeleeAttackIfReady();
             }
         };

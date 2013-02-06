@@ -1548,7 +1548,7 @@ void World::SetInitialWorldSettings()
     sObjectMgr->LoadGraveyardZones();
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Graveyard Orientations...");
-	 sObjectMgr->LoadGraveyardOrientations();
+    sObjectMgr->LoadGraveyardOrientations();
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading spell pet auras...");
     sSpellMgr->LoadSpellPetAuras();

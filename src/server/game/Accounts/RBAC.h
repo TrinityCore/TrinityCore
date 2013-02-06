@@ -161,10 +161,10 @@ class RBACData: public RBACObject
          * @name HasPermission
          * @brief Checks if certain action is allowed
          *
-         * Checks if certain action can be performed. 
+         * Checks if certain action can be performed.
          *
          * @return grant or deny action
-         * 
+         *
          * Example Usage:
          * @code
          * bool Player::CanJoinArena(Battleground* bg)
@@ -175,7 +175,7 @@ class RBACData: public RBACObject
          */
         bool HasPermission(uint32 permission) { return _globalPerms.test(permission); }
 
-        // Functions enabled to be used by command system        
+        // Functions enabled to be used by command system
         /// Returns all the granted permissions (after computation)
         RBACPermissionContainer const& GetPermissions() const { return _globalPerms; }
         /// Returns all the granted permissions
@@ -197,12 +197,12 @@ class RBACData: public RBACObject
          * No save to db action will be performed.
          *
          * Fails if group Id does not exists or group already present
-         * 
+         *
          * @param groupId group to be added
          * @param realmId realm affected
          *
          * @return Success or failure (with reason) to add the group
-         * 
+         *
          * Example Usage:
          * @code
          * // previously defined "RBACData* rbac" with proper initialization
@@ -222,12 +222,12 @@ class RBACData: public RBACObject
          * "all realms (-1)" in addition to the realm specified
          *
          * Fails if group not present
-         * 
+         *
          * @param groupId group to be removed
          * @param realmId realm affected
          *
          * @return Success or failure (with reason) to remove the group
-         * 
+         *
          * Example Usage:
          * // previously defined "RBACData* rbac" with proper initialization
          * uint32 groupId = 2;
@@ -245,12 +245,12 @@ class RBACData: public RBACObject
          * No save to db action will be performed.
          *
          * Fails if role Id does not exists or role already granted or denied
-         * 
+         *
          * @param roleId role to be granted
          * @param realmId realm affected
          *
          * @return Success or failure (with reason) to grant the role
-         * 
+         *
          * Example Usage:
          * // previously defined "RBACData* rbac" with proper initialization
          * uint32 roleId = 2;
@@ -268,12 +268,12 @@ class RBACData: public RBACObject
          * No save to db action will be performed.
          *
          * Fails if role Id does not exists or role already granted or denied
-         * 
+         *
          * @param roleId role to be denied
          * @param realmId realm affected
          *
          * @return Success or failure (with reason) to deny the role
-         * 
+         *
          * Example Usage:
          * // previously defined "RBACData* rbac" with proper initialization
          * uint32 roleId = 2;
@@ -292,12 +292,12 @@ class RBACData: public RBACObject
          * "all realms (-1)" in addition to the realm specified
          *
          * Fails if role not present
-         * 
+         *
          * @param roleId role to be removed
          * @param realmId realm affected
          *
          * @return Success or failure (with reason) to remove the role
-         * 
+         *
          * Example Usage:
          * // previously defined "RBACData* rbac" with proper initialization
          * uint32 roleId = 2;
@@ -315,12 +315,12 @@ class RBACData: public RBACObject
          * No save to db action will be performed.
          *
          * Fails if permission Id does not exists or permission already granted or denied
-         * 
+         *
          * @param permissionId permission to be granted
          * @param realmId realm affected
          *
          * @return Success or failure (with reason) to grant the permission
-         * 
+         *
          * Example Usage:
          * // previously defined "RBACData* rbac" with proper initialization
          * uint32 permissionId = 2;
@@ -338,12 +338,12 @@ class RBACData: public RBACObject
          * No save to db action will be performed.
          *
          * Fails if permission Id does not exists or permission already granted or denied
-         * 
+         *
          * @param permissionId permission to be denied
          * @param realmId realm affected
          *
          * @return Success or failure (with reason) to deny the permission
-         * 
+         *
          * Example Usage:
          * // previously defined "RBACData* rbac" with proper initialization
          * uint32 permissionId = 2;
@@ -362,12 +362,12 @@ class RBACData: public RBACObject
          * "all realms (-1)" in addition to the realm specified
          *
          * Fails if permission not present
-         * 
+         *
          * @param permissionId permission to be removed
          * @param realmId realm affected
          *
          * @return Success or failure (with reason) to remove the permission
-         * 
+         *
          * Example Usage:
          * // previously defined "RBACData* rbac" with proper initialization
          * uint32 permissionId = 2;
