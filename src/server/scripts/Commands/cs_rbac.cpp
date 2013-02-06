@@ -674,7 +674,7 @@ public:
                 handler->SetSentErrorMessage(true);
                 return false;
             }
-            
+
             handler->PSendSysMessage("%s", handler->GetTrinityString(LANG_RBAC_LIST_GROUPS_HEADER));
             handler->PSendSysMessage(LANG_RBAC_LIST_ELEMENT, group->GetId(), group->GetName().c_str());
             handler->PSendSysMessage("%s", handler->GetTrinityString(LANG_RBAC_LIST_ROLES_HEADER));
@@ -719,7 +719,7 @@ public:
                 handler->SetSentErrorMessage(true);
                 return false;
             }
-            
+
             handler->PSendSysMessage("%s", handler->GetTrinityString(LANG_RBAC_LIST_ROLES_HEADER));
             handler->PSendSysMessage(LANG_RBAC_LIST_ELEMENT, role->GetId(), role->GetName().c_str());
             handler->PSendSysMessage("%s", handler->GetTrinityString(LANG_RBAC_LIST_PERMISSIONS_HEADER));
@@ -765,7 +765,7 @@ public:
                 handler->SetSentErrorMessage(true);
                 return false;
             }
-            
+
             handler->PSendSysMessage("%s", handler->GetTrinityString(LANG_RBAC_LIST_PERMISSIONS_HEADER));
             handler->PSendSysMessage(LANG_RBAC_LIST_ELEMENT, permission->GetId(), permission->GetName().c_str());
         }

@@ -2674,7 +2674,7 @@ UI.ShowQuestLevelsInDialogs = 0
 #                         Maximum value is 4294967295 (4 gb). Leave blank for no limit.
 #                         NOTE: Does not work with dynamic filenames.
 #                         Example:  536870912 (512 mb)
-#                          
+#
 
 Appender.Console=1,3,0
 Appender.Server=2,2,0,Server.log,w

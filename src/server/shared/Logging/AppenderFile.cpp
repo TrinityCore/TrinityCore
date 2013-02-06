@@ -48,7 +48,7 @@ void AppenderFile::_write(LogMessage const& message)
         snprintf(namebuf, TRINITY_PATH_MAX, filename.c_str(), message.param1.c_str());
         logfile = OpenFile(namebuf, mode, backup || exceedMaxSize);
     }
-	else if (exceedMaxSize)
+    else if (exceedMaxSize)
         logfile = OpenFile(filename, "w", true);
 
     if (!logfile)
