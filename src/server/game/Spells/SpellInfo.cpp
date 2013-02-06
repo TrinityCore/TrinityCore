@@ -3279,10 +3279,10 @@ int32 SpellInfo::CalcPowerCost(WorldObject const* caster, SpellSchoolMask school
                 return 0;
         }
     }
-    SpellSchools school = GetFirstSchoolInMask(schoolMask);
-    // Flat mod from caster auras by spell school
-    AuraEffectList const& auras = unitCaster->GetAuraEffectsByType(SPELL_AURA_MOD_POWER_COST_SCHOOL);
-    for (AuraEffectList::const_iterator i = auras.begin(); i != auras.end(); ++i)
+
+    // Flat mod from caster auras by spell school and power type
+    Unit::AuraEffectList const& auras = unitCaster->GetAuraEffectsByType(SPELL_AURA_MOD_POWER_COST_SCHOOL);
+    for (Unit::AuraEffectList::const_iterator i = auras.begin(); i != auras.end(); ++i)
     {
         if (!((*i)->GetMiscValue() & schoolMask))
             continue;
@@ -3317,9 +3317,9 @@ int32 SpellInfo::CalcPowerCost(WorldObject const* caster, SpellSchoolMask school
         }
     }
 
-    // PCT mod from user auras by school
-    AuraEffectList const& aurasPct = unitCaster->GetAuraEffectsByType(SPELL_AURA_MOD_POWER_COST_SCHOOL_PCT);
-    for (AuraEffectList::const_iterator i = aurasPct.begin(); i != aurasPct.end(); ++i)
+    // PCT mod from user auras by spell school and power type
+    Unit::AuraEffectList const& aurasPct = unitCaster->GetAuraEffectsByType(SPELL_AURA_MOD_POWER_COST_SCHOOL_PCT);
+    for (Unit::AuraEffectList::const_iterator i = aurasPct.begin(); i != aurasPct.end(); ++i)
     {
         if (!((*i)->GetMiscValue() & schoolMask))
             continue;
