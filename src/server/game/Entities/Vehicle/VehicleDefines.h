@@ -79,7 +79,7 @@ class TransportBase
 {
     public:
         virtual ~TransportBase() { }
-    
+
         /// This method transforms supplied transport offsets into global coordinates
         virtual void CalculatePassengerPosition(float& x, float& y, float& z, float& o) = 0;
 

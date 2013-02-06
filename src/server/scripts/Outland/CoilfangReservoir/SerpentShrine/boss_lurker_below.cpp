@@ -153,7 +153,7 @@ public:
             Summons.DespawnAll();
         }
 
-        void EnterCombat(Unit* who)
+        void EnterCombat(Unit* /*who*/)
         {
             if (instance)
                 instance->SetData(DATA_THELURKERBELOWEVENT, IN_PROGRESS);

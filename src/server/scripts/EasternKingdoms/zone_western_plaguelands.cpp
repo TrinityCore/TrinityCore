@@ -256,7 +256,7 @@ public:
 
     struct npc_andorhal_towerAI : public ScriptedAI
     {
-        npc_andorhal_towerAI(Creature* creature) : ScriptedAI(creature) 
+        npc_andorhal_towerAI(Creature* creature) : ScriptedAI(creature)
         {
             SetCombatMovement(false);
         }
