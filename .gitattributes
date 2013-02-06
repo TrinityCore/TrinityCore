@@ -2,6 +2,7 @@
 *.sln        eol=crlf
 *.vcproj     eol=crlf
 *.vcxproj*   eol=crlf
+*.sql        eol=crlf
 
 # Whitespace rules
 # strict (no trailing, no tabs)
