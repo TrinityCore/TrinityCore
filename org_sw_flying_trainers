@@ -1,0 +1,25 @@
+DELETE FROM `world`.`creature_template` WHERE 'entry'=43769;
+insert into `world`.`creature_template` (`entry`, `modelid1`, `name`, `subname`, `IconName`, `minlevel`, `maxlevel`, `faction_A`, `faction_H`, `npcflag`, `baseattacktime`, `rangeattacktime`, `unit_class`, `unit_flags`, `unit_flags2`, `trainer_type`, `trainer_race`, `type`) values ('43769', '33507', 'Bralla Cloudwing', 'Flying Trainer', 'Trainer', '50', '50', '12', '12', '16', '2000', '2000', '1', '768', '2048', '1', '1', '7')
+
+DELETE FROM `world`.`creature_template` WHERE 'entry'=44919;
+insert into `world`.`creature_template` (`entry`, `modelid1`, `name`, `subname`, `IconName`, `minlevel`, `maxlevel`, `faction_A`, `faction_H`, `npcflag`, `baseattacktime`, `rangeattacktime`, `unit_class`, `unit_flags`, `unit_flags2`, `trainer_type`, `trainer_race`, `type`) values ('44919', '33507', 'Maztha', 'Flying Trainer', 'Trainer', '50', '50', '29', '29', '16', '2000', '2000', '1', '768', '2048', '1', '2', '7')
+
+
+DELETE FROM `npc_trainer` WHERE `entry`=43769;
+INSERT INTO `npc_trainer` (`entry`, `spell`, `spellcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (43769, 33388, 38000, 762, 0, 20);
+INSERT INTO `npc_trainer` (`entry`, `spell`, `spellcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (43769, 33391, 475000, 762, 75, 40);
+INSERT INTO `npc_trainer` (`entry`, `spell`, `spellcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (43769, 34090, 2375000, 762, 150, 60);
+INSERT INTO `npc_trainer` (`entry`, `spell`, `spellcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (43769, 54197, 4750000, 762, 225, 68);
+INSERT INTO `npc_trainer` (`entry`, `spell`, `spellcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (43769,90267, 2375000, 762, 225, 60);
+INSERT INTO `npc_trainer` (`entry`, `spell`, `spellcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (43769,34091, 47500000, 762, 225, 70);
+INSERT INTO `npc_trainer` (`entry`, `spell`, `spellcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (43769,90265, 47500000, 762, 300, 80);
+
+
+DELETE FROM `npc_trainer` WHERE `entry`=44919;
+INSERT INTO `npc_trainer` (`entry`, `spell`, `spellcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (44919, 33388, 38000, 762, 0, 20);
+INSERT INTO `npc_trainer` (`entry`, `spell`, `spellcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (44919, 33391, 475000, 762, 75, 40);
+INSERT INTO `npc_trainer` (`entry`, `spell`, `spellcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (44919, 34090, 2375000, 762, 150, 60);
+INSERT INTO `npc_trainer` (`entry`, `spell`, `spellcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (44919, 54197, 4750000, 762, 225, 68);
+INSERT INTO `npc_trainer` (`entry`, `spell`, `spellcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (44919,90267, 2375000, 762, 225, 60);
+INSERT INTO `npc_trainer` (`entry`, `spell`, `spellcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (44919,34091, 47500000, 762, 225, 70);
+INSERT INTO `npc_trainer` (`entry`, `spell`, `spellcost`, `reqskill`, `reqskillvalue`, `reqlevel`) VALUES (44919,90265, 47500000, 762, 300, 80);
