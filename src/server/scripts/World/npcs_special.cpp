@@ -1981,10 +1981,11 @@ class npc_training_dummy : public CreatureScript
 public:
     npc_training_dummy() : CreatureScript("npc_training_dummy") { }
 
-    struct npc_training_dummyAI : Scripted_NoMovementAI
+    struct npc_training_dummyAI : ScriptedAI
     {
-        npc_training_dummyAI(Creature* creature) : Scripted_NoMovementAI(creature)
+        npc_training_dummyAI(Creature* creature) : ScriptedAI(creature)
         {
+            SetCombatMovement(false);
             entry = creature->GetEntry();
         }
 
@@ -2013,12 +2014,6 @@ public:
         {
             resetTimer = 5000;
             damage = 0;
-        }
-
-        void EnterCombat(Unit* /*who*/)
-        {
-            if (entry != NPC_ADVANCED_TARGET_DUMMY && entry != NPC_TARGET_DUMMY)
-                return;
         }
 
         void UpdateAI(uint32 const diff)

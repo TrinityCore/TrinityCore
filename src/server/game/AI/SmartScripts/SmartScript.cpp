@@ -1893,12 +1893,19 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
         }
         case SMART_ACTION_JUMP_TO_POS:
         {
-            if (!me)
+            ObjectList* targets = GetTargets(e, unit);
+            if (!targets)
                 break;
 
-            me->GetMotionMaster()->Clear();
-            me->GetMotionMaster()->MoveJump(e.target.x, e.target.y, e.target.z, (float)e.action.jump.speedxy, (float)e.action.jump.speedz);
+            for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); ++itr)
+                if (Creature* creature = (*itr)->ToCreature())
+                {
+                    creature->GetMotionMaster()->Clear();
+                    creature->GetMotionMaster()->MoveJump(e.target.x, e.target.y, e.target.z, (float)e.action.jump.speedxy, (float)e.action.jump.speedz);
+                }
             // TODO: Resume path when reached jump location
+
+            delete targets;
             break;
         }
         case SMART_ACTION_GO_SET_LOOT_STATE:
@@ -1977,23 +1984,48 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
         }
         case SMART_ACTION_SET_HOME_POS:
         {
-            if (!me)
+            ObjectList* targets = GetTargets(e, unit);
+            if (!targets)
                 break;
 
-            if (e.GetTargetType() == SMART_TARGET_SELF)
-                me->SetHomePosition(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation());
-            else if (e.GetTargetType() == SMART_TARGET_POSITION)
-                me->SetHomePosition(e.target.x, e.target.y, e.target.z, e.target.o);
-            else
-                sLog->outError(LOG_FILTER_SQL, "SmartScript: Action target for SMART_ACTION_SET_HOME_POS is not using SMART_TARGET_SELF or SMART_TARGET_POSITION, skipping");
+            for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); ++itr)
+                if (IsCreature(*itr))
+                {
+                    if (e.GetTargetType() == SMART_TARGET_SELF)
+                        (*itr)->ToCreature()->SetHomePosition(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation());
+                    else if (e.GetTargetType() == SMART_TARGET_POSITION)
+                        (*itr)->ToCreature()->SetHomePosition(e.target.x, e.target.y, e.target.z, e.target.o);
+                    else
+                        sLog->outError(LOG_FILTER_SQL, "SmartScript: Action target for SMART_ACTION_SET_HOME_POS is not using SMART_TARGET_SELF or SMART_TARGET_POSITION, skipping");
+                }
 
-           break;
+            delete targets;
+            break;
         }
         case SMART_ACTION_SET_HEALTH_REGEN:
         {
-            if (!me || me->GetTypeId() != TYPEID_UNIT)
+            ObjectList* targets = GetTargets(e, unit);
+            if (!targets)
                 break;
-            me->setRegeneratingHealth(e.action.setHealthRegen.regenHealth ? true : false);
+
+            for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); ++itr)
+                if (IsCreature(*itr))
+                    (*itr)->ToCreature()->setRegeneratingHealth(e.action.setHealthRegen.regenHealth ? true : false);
+
+            delete targets;
+            break;
+        }
+        case SMART_ACTION_SET_ROOT:
+        {
+            ObjectList* targets = GetTargets(e, unit);
+            if (!targets)
+                break;
+
+            for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); ++itr)
+                if (IsCreature(*itr))
+                    (*itr)->ToCreature()->SetControlled(e.action.setRoot.root ? true : false, UNIT_STATE_ROOT);
+
+            delete targets;
             break;
         }
         default:

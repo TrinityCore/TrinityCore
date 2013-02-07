@@ -128,8 +128,6 @@ void EffectMovementGenerator::Finalize(Unit* unit)
     if (unit->GetTypeId() != TYPEID_UNIT)
         return;
 
-    if (unit->ToCreature()->AI())
-        unit->ToCreature()->AI()->MovementInform(EFFECT_MOTION_TYPE, m_Id);
     // Need restore previous movement since we have no proper states system
     if (unit->isAlive() && !unit->HasUnitState(UNIT_STATE_CONFUSED | UNIT_STATE_FLEEING))
     {
@@ -138,4 +136,7 @@ void EffectMovementGenerator::Finalize(Unit* unit)
         else
             unit->GetMotionMaster()->Initialize();
     }
+
+    if (unit->ToCreature()->AI())
+        unit->ToCreature()->AI()->MovementInform(EFFECT_MOTION_TYPE, m_Id);
 }

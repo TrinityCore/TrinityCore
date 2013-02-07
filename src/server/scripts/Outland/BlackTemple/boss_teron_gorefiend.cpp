@@ -468,8 +468,7 @@ public:
 
             if (CrushingShadowsTimer <= diff)
             {
-                Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0);
-                if (target && target->isAlive())
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                     DoCast(target, SPELL_CRUSHING_SHADOWS);
                 CrushingShadowsTimer = urand(10, 26) * 1000;
             } else CrushingShadowsTimer -= diff;

@@ -4895,7 +4895,7 @@ void Player::DeleteFromDB(uint64 playerguid, uint32 accountId, bool updateRealmC
             stmt->setUInt32(0, guid);
             trans->Append(stmt);
 
-            stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_INSTANCE);
+            stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_INSTANCE_BY_OWNER);
             stmt->setUInt32(0, guid);
             trans->Append(stmt);
 
@@ -7455,18 +7455,8 @@ void Player::UpdateZone(uint32 newZone, uint32 newArea)
     }
 
     // group update
-    if (Group* group = GetGroup())
-    {
+    if (GetGroup())
         SetGroupUpdateFlag(GROUP_UPDATE_FULL);
-        if (GetSession() && group->isLFGGroup() && sLFGMgr->IsTeleported(GetGUID()))
-        {
-            for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
-            {
-                if (Player* member = itr->getSource())
-                    GetSession()->SendNameQueryOpcode(member->GetGUID());
-            }
-        }
-    }
 
     m_zoneUpdateId    = newZone;
     m_zoneUpdateTimer = ZONE_UPDATE_INTERVAL;
@@ -11925,22 +11915,12 @@ InventoryResult Player::CanUseItem(ItemTemplate const* proto) const
 
 InventoryResult Player::CanRollForItemInLFG(ItemTemplate const* proto, WorldObject const* lootedObject) const
 {
-    LfgDungeonSet const& dungeons = sLFGMgr->GetSelectedDungeons(GetGUID());
-    if (dungeons.empty())
-        return EQUIP_ERR_OK;    // not using LFG
-
     if (!GetGroup() || !GetGroup()->isLFGGroup())
         return EQUIP_ERR_OK;    // not in LFG group
 
     // check if looted object is inside the lfg dungeon
-    bool lootedObjectInDungeon = false;
     Map const* map = lootedObject->GetMap();
-    if (uint32 dungeonId = sLFGMgr->GetDungeon(GetGroup()->GetGUID(), true))
-        if (LFGDungeonData const* dungeon = sLFGMgr->GetLFGDungeon(dungeonId))
-            if (uint32(dungeon->map) == map->GetId() && dungeon->difficulty == map->GetDifficulty())
-                lootedObjectInDungeon = true;
-
-    if (!lootedObjectInDungeon)
+    if (!sLFGMgr->inLfgDungeonMap(GetGroup()->GetGUID(), map->GetId(), map->GetDifficulty()))
         return EQUIP_ERR_OK;
 
     if (!proto)
@@ -21866,10 +21846,19 @@ void Player::LeaveBattleground(bool teleportToEntryPoint)
     }
 }
 
-bool Player::CanJoinToBattleground(Battleground const* /*bg*/) const
+bool Player::CanJoinToBattleground(Battleground const* bg) const
 {
     // check Deserter debuff
     if (HasAura(26013))
+        return false;
+
+    if (bg->isArena() && !GetSession()->HasPermission(RBAC_PERM_JOIN_ARENAS))
+        return false;
+
+    if (bg->IsRandom() && !GetSession()->HasPermission(RBAC_PERM_JOIN_RANDOM_BG))
+        return false;
+
+    if (!GetSession()->HasPermission(RBAC_PERM_JOIN_NORMAL_BG))
         return false;
 
     return true;
@@ -22155,26 +22144,28 @@ void Player::InitPrimaryProfessions()
     SetFreePrimaryProfessions(sWorld->getIntConfig(CONFIG_MAX_PRIMARY_TRADE_SKILL));
 }
 
-void Player::ModifyMoney(int32 d)
+bool Player::ModifyMoney(int32 amount, bool sendError /*= true*/)
 {
-    sScriptMgr->OnPlayerMoneyChanged(this, d);
+    if (!amount)
+        return true;
 
-    if (d < 0)
-        SetMoney (GetMoney() > uint32(-d) ? GetMoney() + d : 0);
+    sScriptMgr->OnPlayerMoneyChanged(this, amount);
+
+    if (amount < 0)
+        SetMoney (GetMoney() > uint32(-amount) ? GetMoney() + amount : 0);
     else
     {
-        uint32 newAmount = 0;
-        if (GetMoney() < uint32(MAX_MONEY_AMOUNT - d))
-            newAmount = GetMoney() + d;
+        if (GetMoney() < uint32(MAX_MONEY_AMOUNT - amount))
+            SetMoney(GetMoney() + amount);
         else
         {
-            // "At Gold Limit"
-            newAmount = MAX_MONEY_AMOUNT;
-            if (d)
+            if (sendError)
                 SendEquipError(EQUIP_ERR_TOO_MUCH_GOLD, NULL, NULL);
+            return false;
         }
-        SetMoney (newAmount);
     }
+
+    return true;
 }
 
 Unit* Player::GetSelectedUnit() const
@@ -23535,14 +23526,14 @@ PartyResult Player::CanUninviteFromGroup() const
         if (!sLFGMgr->GetKicksLeft(gguid))
             return ERR_PARTY_LFG_BOOT_LIMIT;
 
-        LfgState state = sLFGMgr->GetState(gguid);
-        if (state == LFG_STATE_BOOT)
+        lfg::LfgState state = sLFGMgr->GetState(gguid);
+        if (state == lfg::LFG_STATE_BOOT)
             return ERR_PARTY_LFG_BOOT_IN_PROGRESS;
 
-        if (grp->GetMembersCount() <= LFG_GROUP_KICK_VOTES_NEEDED)
+        if (grp->GetMembersCount() <= lfg::LFG_GROUP_KICK_VOTES_NEEDED)
             return ERR_PARTY_LFG_BOOT_TOO_FEW_PLAYERS;
 
-        if (state == LFG_STATE_FINISHED_DUNGEON)
+        if (state == lfg::LFG_STATE_FINISHED_DUNGEON)
             return ERR_PARTY_LFG_BOOT_DUNGEON_COMPLETE;
 
         if (grp->isRollLootActive())
@@ -23572,21 +23563,17 @@ PartyResult Player::CanUninviteFromGroup() const
 
 bool Player::isUsingLfg()
 {
-    return sLFGMgr->GetState(GetGUID()) != LFG_STATE_NONE;
+    return sLFGMgr->GetState(GetGUID()) != lfg::LFG_STATE_NONE;
 }
 
 bool Player::inRandomLfgDungeon()
 {
-    if (isUsingLfg())
+    if (sLFGMgr->selectedRandomLfgDungeon(GetGUID()))
     {
-        const LfgDungeonSet& dungeons = sLFGMgr->GetSelectedDungeons(GetGUID());
-        if (!dungeons.empty())
-        {
-             LFGDungeonData const* dungeon = sLFGMgr->GetLFGDungeon(*dungeons.begin());
-             if (dungeon && (dungeon->type == LFG_TYPE_RANDOM || dungeon->seasonal))
-                 return true;
-        }
+        Map const* map = GetMap();
+        return sLFGMgr->inLfgDungeonMap(GetGUID(), map->GetId(), map->GetDifficulty());
     }
+
     return false;
 }
 
