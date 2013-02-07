@@ -1,6 +1,6 @@
 #ifndef CHUNK_H
 #define CHUNK_H
-#include "Common.h"
+#include "Define.h"
 #include <string>
 class ChunkedData;
 

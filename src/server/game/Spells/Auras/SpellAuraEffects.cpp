@@ -484,21 +484,11 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
         case SPELL_AURA_MANA_SHIELD:
             m_canBeRecalculated = false;
             break;
-        case SPELL_AURA_DUMMY:
-            if (!caster)
-                break;
-            // Earth Shield
-            if (GetSpellInfo()->SpellFamilyName == SPELLFAMILY_SHAMAN && m_spellInfo->SpellFamilyFlags[1] & 0x400)
-            {
-                amount = caster->SpellHealingBonusDone(GetBase()->GetUnitOwner(), GetSpellInfo(), amount, SPELL_DIRECT_DAMAGE);
-                amount = GetBase()->GetUnitOwner()->SpellHealingBonusTaken(caster, GetSpellInfo(), amount, SPELL_DIRECT_DAMAGE);
-            }
-            break;
         default:
             break;
     }
 
-    GetBase()->CallScriptEffectCalcAmountHandlers(const_cast<AuraEffect const*>(this), amount, m_canBeRecalculated);
+    GetBase()->CallScriptEffectCalcAmountHandlers(this, amount, m_canBeRecalculated);
     amount *= GetBase()->GetStackAmount();
     return amount;
 }
@@ -532,7 +522,7 @@ void AuraEffect::CalculatePeriodic(Unit* caster, bool create, bool load)
             break;
     }
 
-    GetBase()->CallScriptEffectCalcPeriodicHandlers(const_cast<AuraEffect const*>(this), m_isPeriodic, m_amplitude);
+    GetBase()->CallScriptEffectCalcPeriodicHandlers(this, m_isPeriodic, m_amplitude);
 
     if (!m_isPeriodic)
         return;
@@ -608,7 +598,7 @@ void AuraEffect::CalculateSpellMod()
         default:
             break;
     }
-    GetBase()->CallScriptEffectCalcSpellModHandlers(const_cast<AuraEffect const*>(this), m_spellmod);
+    GetBase()->CallScriptEffectCalcSpellModHandlers(this, m_spellmod);
 }
 
 void AuraEffect::ChangeAmount(int32 newAmount, bool mark, bool onStackOrReapply)
@@ -667,15 +657,15 @@ void AuraEffect::HandleEffect(AuraApplication * aurApp, uint8 mode, bool apply)
     // call scripts helping/replacing effect handlers
     bool prevented = false;
     if (apply)
-        prevented = GetBase()->CallScriptEffectApplyHandlers(const_cast<AuraEffect const*>(this), const_cast<AuraApplication const*>(aurApp), (AuraEffectHandleModes)mode);
+        prevented = GetBase()->CallScriptEffectApplyHandlers(this, aurApp, (AuraEffectHandleModes)mode);
     else
-        prevented = GetBase()->CallScriptEffectRemoveHandlers(const_cast<AuraEffect const*>(this), const_cast<AuraApplication const*>(aurApp), (AuraEffectHandleModes)mode);
+        prevented = GetBase()->CallScriptEffectRemoveHandlers(this, aurApp, (AuraEffectHandleModes)mode);
 
     // check if script events have removed the aura or if default effect prevention was requested
     if ((apply && aurApp->GetRemoveMode()) || prevented)
         return;
 
-    (*this.*AuraEffectHandler [GetAuraType()])(const_cast<AuraApplication const*>(aurApp), mode, apply);
+    (*this.*AuraEffectHandler[GetAuraType()])(aurApp, mode, apply);
 
     // check if script events have removed the aura or if default effect prevention was requested
     if (apply && aurApp->GetRemoveMode())
@@ -683,9 +673,9 @@ void AuraEffect::HandleEffect(AuraApplication * aurApp, uint8 mode, bool apply)
 
     // call scripts triggering additional events after apply/remove
     if (apply)
-        GetBase()->CallScriptAfterEffectApplyHandlers(const_cast<AuraEffect const*>(this), const_cast<AuraApplication const*>(aurApp), (AuraEffectHandleModes)mode);
+        GetBase()->CallScriptAfterEffectApplyHandlers(this, aurApp, (AuraEffectHandleModes)mode);
     else
-        GetBase()->CallScriptAfterEffectRemoveHandlers(const_cast<AuraEffect const*>(this), const_cast<AuraApplication const*>(aurApp), (AuraEffectHandleModes)mode);
+        GetBase()->CallScriptAfterEffectRemoveHandlers(this, aurApp, (AuraEffectHandleModes)mode);
 }
 
 void AuraEffect::HandleEffect(Unit* target, uint8 mode, bool apply)
@@ -990,7 +980,7 @@ void AuraEffect::PeriodicTick(AuraApplication * aurApp, Unit* caster) const
 
 void AuraEffect::HandleProc(AuraApplication* aurApp, ProcEventInfo& eventInfo)
 {
-    bool prevented = GetBase()->CallScriptEffectProcHandlers(const_cast<AuraEffect const*>(this), const_cast<AuraApplication const*>(aurApp), eventInfo);
+    bool prevented = GetBase()->CallScriptEffectProcHandlers(this, aurApp, eventInfo);
     if (prevented)
         return;
 
@@ -1015,7 +1005,7 @@ void AuraEffect::HandleProc(AuraApplication* aurApp, ProcEventInfo& eventInfo)
             break;
     }
 
-    GetBase()->CallScriptAfterEffectProcHandlers(const_cast<AuraEffect const*>(this), const_cast<AuraApplication const*>(aurApp), eventInfo);
+    GetBase()->CallScriptAfterEffectProcHandlers(this, aurApp, eventInfo);
 }
 
 void AuraEffect::CleanupTriggeredSpells(Unit* target)
@@ -2398,7 +2388,10 @@ void AuraEffect::HandleAuraTrackCreatures(AuraApplication const* aurApp, uint8 m
     if (target->GetTypeId() != TYPEID_PLAYER)
         return;
 
-    target->SetUInt32Value(PLAYER_TRACK_CREATURES, (apply) ? ((uint32)1)<<(GetMiscValue()-1) : 0);
+    if (apply)
+        target->SetFlag(PLAYER_TRACK_CREATURES, uint32(1) << (GetMiscValue() - 1));
+    else
+        target->RemoveFlag(PLAYER_TRACK_CREATURES, uint32(1) << (GetMiscValue() - 1));
 }
 
 void AuraEffect::HandleAuraTrackResources(AuraApplication const* aurApp, uint8 mode, bool apply) const
@@ -2411,7 +2404,10 @@ void AuraEffect::HandleAuraTrackResources(AuraApplication const* aurApp, uint8 m
     if (target->GetTypeId() != TYPEID_PLAYER)
         return;
 
-    target->SetUInt32Value(PLAYER_TRACK_RESOURCES, (apply) ? ((uint32)1)<<(GetMiscValue()-1): 0);
+    if (apply)
+        target->SetFlag(PLAYER_TRACK_RESOURCES, uint32(1) << (GetMiscValue() - 1));
+    else
+        target->RemoveFlag(PLAYER_TRACK_RESOURCES, uint32(1) << (GetMiscValue() - 1));
 }
 
 void AuraEffect::HandleAuraTrackStealthed(AuraApplication const* aurApp, uint8 mode, bool apply) const
@@ -3358,22 +3354,19 @@ void AuraEffect::HandleAuraModEffectImmunity(AuraApplication const* aurApp, uint
 
     Unit* target = aurApp->GetTarget();
 
-   target->ApplySpellImmune(GetId(), IMMUNITY_EFFECT, GetMiscValue(), apply);
+    target->ApplySpellImmune(GetId(), IMMUNITY_EFFECT, GetMiscValue(), apply);
 
     // when removing flag aura, handle flag drop
-    if (!apply && target->GetTypeId() == TYPEID_PLAYER
-        && (GetSpellInfo()->AuraInterruptFlags & AURA_INTERRUPT_FLAG_IMMUNE_OR_LOST_SELECTION))
+    Player* player = target->ToPlayer();
+    if (!apply && player && (GetSpellInfo()->AuraInterruptFlags & AURA_INTERRUPT_FLAG_IMMUNE_OR_LOST_SELECTION))
     {
-        if (target->GetTypeId() == TYPEID_PLAYER)
+        if (player->InBattleground())
         {
-            if (target->ToPlayer()->InBattleground())
-            {
-                if (Battleground* bg = target->ToPlayer()->GetBattleground())
-                    bg->EventPlayerDroppedFlag(target->ToPlayer());
-            }
-            else
-                sOutdoorPvPMgr->HandleDropFlag((Player*)target, GetSpellInfo()->Id);
+            if (Battleground* bg = player->GetBattleground())
+                bg->EventPlayerDroppedFlag(player);
         }
+        else
+            sOutdoorPvPMgr->HandleDropFlag(player, GetSpellInfo()->Id);
     }
 }
 
@@ -4742,10 +4735,6 @@ void AuraEffect::HandleAuraDummy(AuraApplication const* aurApp, uint8 mode, bool
                     if (Aura* newAura = target->AddAura(71564, target))
                         newAura->SetStackAmount(newAura->GetSpellInfo()->StackAmount);
                         break;
-                case 59628: // Tricks of the Trade
-                    if (caster && caster->GetMisdirectionTarget())
-                        target->SetReducedThreatPercent(100, caster->GetMisdirectionTarget()->GetGUID());
-                    break;
             }
         }
         // AT REMOVE
@@ -4841,20 +4830,6 @@ void AuraEffect::HandleAuraDummy(AuraApplication const* aurApp, uint8 mode, bool
                     if (GetId() == 61777)
                         target->CastSpell(target, GetAmount(), true);
                     break;
-                case SPELLFAMILY_ROGUE:
-                    //  Tricks of the trade
-                    switch (GetId())
-                    {
-                        case 59628: //Tricks of the trade buff on rogue (6sec duration)
-                            target->SetReducedThreatPercent(0, 0);
-                            break;
-                        case 57934: //Tricks of the trade buff on rogue (30sec duration)
-                            if (aurApp->GetRemoveMode() == AURA_REMOVE_BY_EXPIRE || !caster->GetMisdirectionTarget())
-                                target->SetReducedThreatPercent(0, 0);
-                            else
-                                target->SetReducedThreatPercent(0, caster->GetMisdirectionTarget()->GetGUID());
-                            break;
-                    }
                 default:
                     break;
             }
@@ -5147,10 +5122,6 @@ void AuraEffect::HandleAuraEmpathy(AuraApplication const* aurApp, uint8 mode, bo
         return;
 
     Unit* target = aurApp->GetTarget();
-
-    if (target->GetTypeId() != TYPEID_UNIT)
-        return;
-
     if (!apply)
     {
         // do not remove unit flag if there are more than this auraEffect of that kind on unit on unit
@@ -5158,8 +5129,7 @@ void AuraEffect::HandleAuraEmpathy(AuraApplication const* aurApp, uint8 mode, bo
             return;
     }
 
-    CreatureTemplate const* ci = sObjectMgr->GetCreatureTemplate(target->GetEntry());
-    if (ci && ci->type == CREATURE_TYPE_BEAST)
+    if (target->GetCreatureType() == CREATURE_TYPE_BEAST)
         target->ApplyModUInt32Value(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_SPECIALINFO, apply);
 }
 

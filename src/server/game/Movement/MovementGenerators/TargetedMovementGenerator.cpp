@@ -107,10 +107,6 @@ void TargetedMovementGeneratorMedium<T,D>::_setTargetLocation(T* owner, bool upd
 
     Movement::MoveSplineInit init(owner);
     init.MovebyPath(i_path->GetPath());
-    if (forceDest && updateDestination)
-        init.SetFacing(i_target.getTarget()->GetOrientation());
-    else
-        init.SetFacing(i_target.getTarget());
     init.SetWalk(((D*)this)->EnableWalking());
     // Using the same condition for facing target as the one that is used for SetInFront on movement end
     // - applies to ChaseMovementGenerator mostly

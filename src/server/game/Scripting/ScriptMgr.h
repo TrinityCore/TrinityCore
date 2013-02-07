@@ -760,6 +760,9 @@ class PlayerScript : public UnitScript
 
         // Called when player ...
         virtual void OnPlayerFirstKillBattleground(Player* /*player*/, Battleground* /*bg*/) { }
+
+        // Called when a player changes to a new map (after moving to new map)
+        virtual void OnMapChanged(Player* /*player*/) { }
 };
 
 class GuildScript : public ScriptObject

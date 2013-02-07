@@ -1189,8 +1189,7 @@ void ObjectMgr::LoadLinkedRespawn()
 
     if (!result)
     {
-        sLog->outError(LOG_FILTER_SQL, ">> Loaded 0 linked respawns. DB table `linked_respawn` is empty.");
-
+        sLog->outError(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 linked respawns. DB table `linked_respawn` is empty.");
         return;
     }
 
@@ -1420,8 +1419,7 @@ void ObjectMgr::LoadCreatures()
 
     if (!result)
     {
-        sLog->outError(LOG_FILTER_SQL, ">> Loaded 0 creatures. DB table `creature` is empty.");
-
+        sLog->outError(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 creatures. DB table `creature` is empty.");
         return;
     }
 
@@ -1729,7 +1727,7 @@ void ObjectMgr::LoadGameobjects()
 
     if (!result)
     {
-        sLog->outError(LOG_FILTER_SQL, ">> Loaded 0 gameobjects. DB table `gameobject` is empty.");
+        sLog->outError(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 gameobjects. DB table `gameobject` is empty.");
         return;
     }
 
@@ -2780,8 +2778,7 @@ void ObjectMgr::LoadVehicleTemplateAccessories()
 
     if (!result)
     {
-        sLog->outError(LOG_FILTER_SQL, ">> Loaded 0 vehicle template accessories. DB table `vehicle_template_accessory` is empty.");
-
+        sLog->outError(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 vehicle template accessories. DB table `vehicle_template_accessory` is empty.");
         return;
     }
 
@@ -2875,8 +2872,7 @@ void ObjectMgr::LoadPetLevelInfo()
 
     if (!result)
     {
-        sLog->outError(LOG_FILTER_SQL, ">> Loaded 0 level pet stats definitions. DB table `pet_levelstats` is empty.");
-
+        sLog->outError(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 level pet stats definitions. DB table `pet_levelstats` is empty.");
         return;
     }
 
@@ -3014,8 +3010,7 @@ void ObjectMgr::LoadPlayerInfo()
 
         if (!result)
         {
-
-            sLog->outError(LOG_FILTER_SQL, ">> Loaded 0 player create definitions. DB table `playercreateinfo` is empty.");
+            sLog->outError(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 player create definitions. DB table `playercreateinfo` is empty.");
             exit(1);
         }
         else
@@ -3172,8 +3167,7 @@ void ObjectMgr::LoadPlayerInfo()
 
         if (!result)
         {
-            sLog->outError(LOG_FILTER_SQL, ">> Loaded 0 player create spells. DB table `%s` is empty.", sWorld->getBoolConfig(CONFIG_START_ALL_SPELLS) ? "playercreateinfo_spell_custom" : "playercreateinfo_spell");
-
+            sLog->outError(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 player create spells. DB table `%s` is empty.", sWorld->getBoolConfig(CONFIG_START_ALL_SPELLS) ? "playercreateinfo_spell_custom" : "playercreateinfo_spell");
         }
         else
         {
@@ -3234,8 +3228,7 @@ void ObjectMgr::LoadPlayerInfo()
 
         if (!result)
         {
-            sLog->outError(LOG_FILTER_SQL, ">> Loaded 0 player create actions. DB table `playercreateinfo_action` is empty.");
-
+            sLog->outError(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 player create actions. DB table `playercreateinfo_action` is empty.");
         }
         else
         {
@@ -3280,7 +3273,7 @@ void ObjectMgr::LoadPlayerInfo()
 
         if (!result)
         {
-            sLog->outError(LOG_FILTER_SQL, ">> Loaded 0 level health/mana definitions. DB table `game_event_condition` is empty.");
+            sLog->outError(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 level health/mana definitions. DB table `game_event_condition` is empty.");
             exit(1);
         }
 
@@ -3362,8 +3355,7 @@ void ObjectMgr::LoadPlayerInfo()
 
         if (!result)
         {
-            sLog->outError(LOG_FILTER_SQL, ">> Loaded 0 level stats definitions. DB table `player_levelstats` is empty.");
-
+            sLog->outError(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 level stats definitions. DB table `player_levelstats` is empty.");
             exit(1);
         }
 
@@ -3475,8 +3467,7 @@ void ObjectMgr::LoadPlayerInfo()
 
         if (!result)
         {
-            sLog->outError(LOG_FILTER_SQL, ">> Loaded 0 xp for level definitions. DB table `player_xp_for_level` is empty.");
-
+            sLog->outError(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 xp for level definitions. DB table `player_xp_for_level` is empty.");
             exit(1);
         }
 
@@ -3673,7 +3664,7 @@ void ObjectMgr::LoadQuests()
         " FROM quest_template");
     if (!result)
     {
-        sLog->outError(LOG_FILTER_SQL, ">> Loaded 0 quests definitions. DB table `quest_template` is empty.");
+        sLog->outError(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 quests definitions. DB table `quest_template` is empty.");
         return;
     }
 
@@ -4756,7 +4747,7 @@ void ObjectMgr::LoadWaypointScripts()
     for (ScriptMapMap::const_iterator itr = sWaypointScripts.begin(); itr != sWaypointScripts.end(); ++itr)
         actionSet.insert(itr->first);
 
-    PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WOLRD_SEL_WAYPOINT_DATA_ACTION);
+    PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_WAYPOINT_DATA_ACTION);
     PreparedQueryResult result = WorldDatabase.Query(stmt);
 
     if (result)
@@ -5025,8 +5016,7 @@ void ObjectMgr::LoadInstanceEncounters()
     QueryResult result = WorldDatabase.Query("SELECT entry, creditType, creditEntry, lastEncounterDungeon FROM instance_encounters");
     if (!result)
     {
-        sLog->outError(LOG_FILTER_SQL, ">> Loaded 0 instance encounters, table is empty!");
-
+        sLog->outError(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 instance encounters, table is empty!");
         return;
     }
 
@@ -5046,7 +5036,7 @@ void ObjectMgr::LoadInstanceEncounters()
             continue;
         }
 
-        if (lastEncounterDungeon && !sLFGMgr->GetLFGDungeon(lastEncounterDungeon))
+        if (lastEncounterDungeon && !sLFGMgr->GetLFGDungeonEntry(lastEncounterDungeon))
         {
             sLog->outError(LOG_FILTER_SQL, "Table `instance_encounters` has an encounter %u (%s) marked as final for invalid dungeon id %u, skipped!", entry, dungeonEncounter->encounterName[0], lastEncounterDungeon);
             continue;
@@ -6479,8 +6469,7 @@ void ObjectMgr::LoadExplorationBaseXP()
 
     if (!result)
     {
-        sLog->outError(LOG_FILTER_SQL, ">> Loaded 0 BaseXP definitions. DB table `exploration_basexp` is empty.");
-
+        sLog->outError(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 BaseXP definitions. DB table `exploration_basexp` is empty.");
         return;
     }
 
@@ -6627,7 +6616,7 @@ void ObjectMgr::LoadReputationRewardRate()
     QueryResult result = WorldDatabase.Query("SELECT faction, quest_rate, quest_daily_rate, quest_weekly_rate, quest_monthly_rate, creature_rate, spell_rate FROM reputation_reward_rate");
     if (!result)
     {
-        sLog->outError(LOG_FILTER_SQL, ">> Loaded `reputation_reward_rate`, table is empty!");
+        sLog->outError(LOG_FILTER_SERVER_LOADING, ">> Loaded `reputation_reward_rate`, table is empty!");
         return;
     }
 
@@ -6715,8 +6704,7 @@ void ObjectMgr::LoadReputationOnKill()
 
     if (!result)
     {
-        sLog->outError(LOG_FILTER_SQL, ">> Loaded 0 creature award reputation definitions. DB table `creature_onkill_reputation` is empty.");
-
+        sLog->outError(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 creature award reputation definitions. DB table `creature_onkill_reputation` is empty.");
         return;
     }
 
@@ -6894,8 +6882,7 @@ void ObjectMgr::LoadPointsOfInterest()
 
     if (!result)
     {
-        sLog->outError(LOG_FILTER_SQL, ">> Loaded 0 Points of Interest definitions. DB table `points_of_interest` is empty.");
-
+        sLog->outError(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 Points of Interest definitions. DB table `points_of_interest` is empty.");
         return;
     }
 
@@ -6940,8 +6927,7 @@ void ObjectMgr::LoadQuestPOI()
 
     if (!result)
     {
-        sLog->outError(LOG_FILTER_SQL, ">> Loaded 0 quest POI definitions. DB table `quest_poi` is empty.");
-
+        sLog->outError(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 quest POI definitions. DB table `quest_poi` is empty.");
         return;
     }
 
@@ -7008,8 +6994,7 @@ void ObjectMgr::LoadNPCSpellClickSpells()
 
     if (!result)
     {
-        sLog->outError(LOG_FILTER_SQL, ">> Loaded 0 spellclick spells. DB table `npc_spellclick_spells` is empty.");
-
+        sLog->outError(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 spellclick spells. DB table `npc_spellclick_spells` is empty.");
         return;
     }
 
@@ -7111,7 +7096,7 @@ void ObjectMgr::LoadQuestRelationsHelper(QuestRelations& map, std::string const&
 
     if (!result)
     {
-        sLog->outError(LOG_FILTER_SQL, ">> Loaded 0 quest relations from `%s`, table is empty.", table.c_str());
+        sLog->outError(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 quest relations from `%s`, table is empty.", table.c_str());
         return;
     }
 
@@ -7486,7 +7471,7 @@ bool ObjectMgr::LoadTrinityStrings(const char* table, int32 min_value, int32 max
     if (!result)
     {
         if (min_value == MIN_TRINITY_STRING_ID)              // error only in case internal strings
-            sLog->outError(LOG_FILTER_SQL, ">> Loaded 0 trinity strings. DB table `%s` is empty. Cannot continue.", table);
+            sLog->outError(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 trinity strings. DB table `%s` is empty. Cannot continue.", table);
         else
             sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 string templates. DB table `%s` is empty.", table);
 
@@ -7562,8 +7547,7 @@ void ObjectMgr::LoadFishingBaseSkillLevel()
 
     if (!result)
     {
-        sLog->outError(LOG_FILTER_SQL, ">> Loaded 0 areas for fishing base skill level. DB table `skill_fishing_base_level` is empty.");
-
+        sLog->outError(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 areas for fishing base skill level. DB table `skill_fishing_base_level` is empty.");
         return;
     }
 
@@ -7691,8 +7675,7 @@ void ObjectMgr::LoadGameTele()
 
     if (!result)
     {
-        sLog->outError(LOG_FILTER_SQL, ">> Loaded 0 GameTeleports. DB table `game_tele` is empty!");
-
+        sLog->outError(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 GameTeleports. DB table `game_tele` is empty!");
         return;
     }
 
@@ -7831,8 +7814,7 @@ void ObjectMgr::LoadMailLevelRewards()
 
     if (!result)
     {
-        sLog->outError(LOG_FILTER_SQL, ">> Loaded 0 level dependent mail rewards. DB table `mail_level_reward` is empty.");
-
+        sLog->outError(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 level dependent mail rewards. DB table `mail_level_reward` is empty.");
         return;
     }
 
@@ -8098,8 +8080,7 @@ void ObjectMgr::LoadGossipMenu()
 
     if (!result)
     {
-        sLog->outError(LOG_FILTER_SQL, ">> Loaded 0  gossip_menu entries. DB table `gossip_menu` is empty!");
-
+        sLog->outError(LOG_FILTER_SERVER_LOADING, ">> Loaded 0  gossip_menu entries. DB table `gossip_menu` is empty!");
         return;
     }
 
@@ -8144,8 +8125,7 @@ void ObjectMgr::LoadGossipMenuItems()
 
     if (!result)
     {
-        sLog->outError(LOG_FILTER_SQL, ">> Loaded 0 gossip_menu_option entries. DB table `gossip_menu_option` is empty!");
-
+        sLog->outError(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 gossip_menu_option entries. DB table `gossip_menu_option` is empty!");
         return;
     }
 
@@ -8352,8 +8332,7 @@ void ObjectMgr::LoadScriptNames()
 
     if (!result)
     {
-
-        sLog->outError(LOG_FILTER_SQL, ">> Loaded empty set of Script Names!");
+        sLog->outError(LOG_FILTER_SERVER_LOADING, ">> Loaded empty set of Script Names!");
         return;
     }
 
@@ -8529,8 +8508,7 @@ void ObjectMgr::LoadFactionChangeAchievements()
 
     if (!result)
     {
-        sLog->outError(LOG_FILTER_SQL, ">> Loaded 0 faction change achievement pairs. DB table `player_factionchange_achievement` is empty.");
-
+        sLog->outError(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 faction change achievement pairs. DB table `player_factionchange_achievement` is empty.");
         return;
     }
 
@@ -8600,8 +8578,7 @@ void ObjectMgr::LoadFactionChangeSpells()
 
     if (!result)
     {
-        sLog->outError(LOG_FILTER_SQL, ">> Loaded 0 faction change spell pairs. DB table `player_factionchange_spells` is empty.");
-
+        sLog->outError(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 faction change spell pairs. DB table `player_factionchange_spells` is empty.");
         return;
     }
 

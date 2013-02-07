@@ -3,7 +3,7 @@
 #include "Chunk.h"
 #include "Cache.h"
 #include "Model.h"
-#include "Common.h"
+#include "Define.h"
 #include "G3D/Matrix4.h"
 #include <cstdio>
 

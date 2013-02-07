@@ -37,6 +37,8 @@ enum DruidSpells
     SPELL_DRUID_KING_OF_THE_JUNGLE          = 48492,
     SPELL_DRUID_LIFEBLOOM_ENERGIZE          = 64372,
     SPELL_DRUID_LIFEBLOOM_FINAL_HEAL        = 33778,
+    SPELL_DRUID_LIVING_SEED_HEAL            = 48503,
+    SPELL_DRUID_LIVING_SEED_PROC            = 48504,
     SPELL_DRUID_NATURES_SPLENDOR            = 57865,
     SPELL_DRUID_SURVIVAL_INSTINCTS          = 50322,
     SPELL_DRUID_SAVAGE_ROAR                 = 62071,
@@ -324,6 +326,77 @@ class spell_dru_lifebloom : public SpellScriptLoader
         AuraScript* GetAuraScript() const
         {
             return new spell_dru_lifebloom_AuraScript();
+        }
+};
+
+// -48496 - Living Seed
+class spell_dru_living_seed : public SpellScriptLoader
+{
+    public:
+        spell_dru_living_seed() : SpellScriptLoader("spell_dru_living_seed") { }
+
+        class spell_dru_living_seed_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dru_living_seed_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_DRUID_LIVING_SEED_PROC))
+                    return false;
+                return true;
+            }
+
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+                int32 amount = CalculatePct(eventInfo.GetHealInfo()->GetHeal(), aurEff->GetAmount());
+                GetTarget()->CastCustomSpell(SPELL_DRUID_LIVING_SEED_PROC, SPELLVALUE_BASE_POINT0, amount, eventInfo.GetProcTarget(), true, NULL, aurEff);
+            }
+
+            void Register()
+            {
+                OnEffectProc += AuraEffectProcFn(spell_dru_living_seed_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_dru_living_seed_AuraScript();
+        }
+};
+
+// 48504 - Living Seed (Proc)
+class spell_dru_living_seed_proc : public SpellScriptLoader
+{
+    public:
+        spell_dru_living_seed_proc() : SpellScriptLoader("spell_dru_living_seed_proc") { }
+
+        class spell_dru_living_seed_proc_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dru_living_seed_proc_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_DRUID_LIVING_SEED_HEAL))
+                    return false;
+                return true;
+            }
+
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
+            {
+                PreventDefaultAction();
+                GetTarget()->CastCustomSpell(SPELL_DRUID_LIVING_SEED_HEAL, SPELLVALUE_BASE_POINT0, aurEff->GetAmount(), GetTarget(), true, NULL, aurEff);
+            }
+
+            void Register()
+            {
+                OnEffectProc += AuraEffectProcFn(spell_dru_living_seed_proc_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_dru_living_seed_proc_AuraScript();
         }
 };
 
@@ -921,6 +994,8 @@ void AddSC_druid_spell_scripts()
     new spell_dru_innervate();
     new spell_dru_insect_swarm();
     new spell_dru_lifebloom();
+    new spell_dru_living_seed();
+    new spell_dru_living_seed_proc();
     new spell_dru_moonkin_form_passive();
     new spell_dru_owlkin_frenzy();
     new spell_dru_predatory_strikes();

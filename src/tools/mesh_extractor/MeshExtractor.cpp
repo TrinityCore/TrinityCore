@@ -12,11 +12,6 @@
 
 #include <set>
 
-#include "Common.h"
-#include "LoginDatabase.h"
-#include "Util.h"
-LoginDatabaseWorkerPool LoginDatabase;
-
 MPQManager* MPQHandler;
 CacheClass* Cache;
 
@@ -64,7 +59,7 @@ void ExtractDBCs()
             path += std::string(MPQManager::Languages[*itr]) + "/";
             Utils::CreateDir(path);
         }
-        
+
         std::string component = "component.wow-" + std::string(MPQManager::Languages[*itr]) + ".txt";
         // Extract the component file
         Utils::SaveToDisk(MPQHandler->GetFile(component), path + component);
@@ -104,7 +99,7 @@ void ExtractGameobjectModels()
         {
             fileName = Utils::FixModelPath(fileName);
             Model model(path);
-            
+
             if (model.IsBad)
                 continue;
 
@@ -151,7 +146,7 @@ void ExtractGameobjectModels()
                 fwrite(indices, sizeof(uint16), numTris, output);
             }
 
-            
+
             fwrite("VERT", 4, 1, output);
             wsize = sizeof(int) + sizeof(float) * 3 * numVerts;
             fwrite(&wsize, sizeof(int), 1, output);
@@ -170,7 +165,7 @@ void ExtractGameobjectModels()
 
                 fwrite(vertices, sizeof(float), numVerts * 3, output);
             }
-            
+
             fclose(output);
             delete[] indices;
             delete[] vertices;
@@ -254,11 +249,14 @@ bool HandleArgs(int argc, char** argv, uint32& threads, std::set<uint32>& mapLis
             param = argv[++i];
             if (!param)
                 return false;
-            std::string maps = std::string(param);
-            Tokenizer tokens(maps, ',');
 
-            for (Tokenizer::const_iterator itr = tokens.begin(); itr != tokens.end(); ++itr)
-                mapList.insert(atoi(*itr));
+            char* copy = strdup(param);
+            char* token = strtok(copy, ",");
+            while (token)
+            {
+                mapList.insert(atoi(token));
+                token = strtok(NULL, ",");
+            }
 
             printf("Extracting only provided list of maps (%u).\n", uint32(mapList.size()));
         }
@@ -337,7 +335,7 @@ int main(int argc, char* argv[])
     uint32 threads = 4, extractFlags = 0;
     std::set<uint32> mapIds;
     bool debug = false;
-    
+
     if (!HandleArgs(argc, argv, threads, mapIds, debug, extractFlags))
     {
         PrintUsage();
@@ -425,6 +423,6 @@ int main(int argc, char* argv[])
 
         printf("Found!");
     }
-   
+
     return 0;
 }

@@ -10,7 +10,7 @@
 #include "RecastAlloc.h"
 #include "DetourNavMeshBuilder.h"
 
-#include "ace/Synch.h"
+#include <ace/Synch.h>
 
 TileBuilder::TileBuilder(ContinentBuilder* _cBuilder, std::string world, int x, int y, uint32 mapId) :
     World(world), X(x), Y(y), MapId(mapId), _Geometry(NULL), DataSize(0), cBuilder(_cBuilder)
@@ -118,7 +118,7 @@ uint8* TileBuilder::Build(bool dbg, dtNavMeshParams& navMeshParams)
             fprintf(debug, "f %i %i %i\n", _Geometry->Triangles[i].V0 + 1, _Geometry->Triangles[i].V1 + 1, _Geometry->Triangles[i].V2 + 1);
         fclose(debug);
     }
-    
+
     uint32 numVerts = _Geometry->Vertices.size();
     uint32 numTris = _Geometry->Triangles.size();
     float* vertices;
@@ -128,13 +128,13 @@ uint8* TileBuilder::Build(bool dbg, dtNavMeshParams& navMeshParams)
     _Geometry->Vertices.clear();
     _Geometry->Triangles.clear();
 
-    
+
     rcVcopy(Config.bmin, cBuilder->bmin);
     rcVcopy(Config.bmax, cBuilder->bmax);
-    
+
     // this sets the dimensions of the heightfield - should maybe happen before border padding
     rcCalcGridSize(Config.bmin, Config.bmax, Config.cs, &Config.width, &Config.height);
-    
+
     // Initialize per tile config.
     rcConfig tileCfg = Config;
     tileCfg.width = Config.tileSize + Config.borderSize * 2;
@@ -154,8 +154,8 @@ uint8* TileBuilder::Build(bool dbg, dtNavMeshParams& navMeshParams)
             tileCfg.bmin[2] = Config.bmin[2] + float(y * Config.tileSize - Config.borderSize) * Config.cs;
             tileCfg.bmax[0] = Config.bmin[0] + float((x + 1) * Config.tileSize + Config.borderSize) * Config.cs;
             tileCfg.bmax[2] = Config.bmin[2] + float((y + 1) * Config.tileSize + Config.borderSize) * Config.cs;
-            
-            
+
+
             rcHeightfield* hf = rcAllocHeightfield();
             rcCreateHeightfield(Context, *hf, tileCfg.width, tileCfg.height, tileCfg.bmin, tileCfg.bmax, tileCfg.cs, tileCfg.ch);
             rcClearUnwalkableTriangles(Context, tileCfg.walkableSlopeAngle, vertices, numVerts, triangles, numTris, areas);
@@ -198,7 +198,7 @@ uint8* TileBuilder::Build(bool dbg, dtNavMeshParams& navMeshParams)
             // Free memory
             rcFreeCompactHeightfield(chf);
             rcFreeContourSet(cset);
-            
+
             pmmerge[nmerge] = pmesh;
             dmmerge[nmerge] = dmesh;
             ++nmerge;
@@ -207,15 +207,15 @@ uint8* TileBuilder::Build(bool dbg, dtNavMeshParams& navMeshParams)
 
     rcPolyMesh* pmesh = rcAllocPolyMesh();
     rcMergePolyMeshes(Context, pmmerge, nmerge, *pmesh);
-    
+
     rcPolyMeshDetail* dmesh = rcAllocPolyMeshDetail();
     rcMergePolyMeshDetails(Context, dmmerge, nmerge, *dmesh);
-    
+
     delete[] pmmerge;
     delete[] dmmerge;
-    
+
     printf("[%02i,%02i] Meshes merged!\n", X, Y);
-    
+
     // Remove padding from the polymesh data. (Remove this odditity)
     for (int i = 0; i < pmesh->nverts; ++i)
     {
@@ -262,10 +262,10 @@ uint8* TileBuilder::Build(bool dbg, dtNavMeshParams& navMeshParams)
 
     rcVcopy(params.bmin, cBuilder->bmin);
     rcVcopy(params.bmax, cBuilder->bmax);
-        
+
     // Offmesh-connection settings
     params.offMeshConCount = 0; // none for now
-    
+
     params.tileSize = Constants::VertexPerMap;
 
     if (!params.polyCount || !params.polys || Constants::TilesPerMap * Constants::TilesPerMap == params.polyCount)
@@ -281,7 +281,7 @@ uint8* TileBuilder::Build(bool dbg, dtNavMeshParams& navMeshParams)
         delete vertices;
         return NULL;
     }
-    
+
     int navDataSize;
     uint8* navData;
     printf("[%02i,%02i] Creating the navmesh with %i vertices, %i polys, %i triangles!\n", X, Y, pmesh->nverts, pmesh->npolys, dmesh->ntris);

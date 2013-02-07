@@ -837,7 +837,7 @@ int WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
     {
         mutetime = time(NULL) + llabs(mutetime);
 
-        PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_MUTE_TIME);
+        PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_MUTE_TIME_LOGIN);
 
         stmt->setInt64(0, mutetime);
         stmt->setUInt32(1, id);
@@ -953,6 +953,7 @@ int WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
     m_Session->LoadGlobalAccountData();
     m_Session->LoadTutorialsData();
     m_Session->ReadAddonsInfo(recvPacket);
+    m_Session->LoadPermissions();
 
     // Initialize Warden system only if it is enabled by config
     if (sWorld->getBoolConfig(CONFIG_WARDEN_ENABLED))

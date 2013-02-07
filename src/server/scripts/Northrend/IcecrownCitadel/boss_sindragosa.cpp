@@ -576,11 +576,12 @@ class npc_ice_tomb : public CreatureScript
     public:
         npc_ice_tomb() : CreatureScript("npc_ice_tomb") { }
 
-        struct npc_ice_tombAI : public Scripted_NoMovementAI
+        struct npc_ice_tombAI : public ScriptedAI
         {
-            npc_ice_tombAI(Creature* creature) : Scripted_NoMovementAI(creature)
+            npc_ice_tombAI(Creature* creature) : ScriptedAI(creature)
             {
                 _trappedPlayerGUID = 0;
+                SetCombatMovement(false);
             }
 
             void Reset()

@@ -528,11 +528,12 @@ class mob_xt002_heart : public CreatureScript
     public:
         mob_xt002_heart() : CreatureScript("mob_xt002_heart") {}
 
-        struct mob_xt002_heartAI : public Scripted_NoMovementAI
+        struct mob_xt002_heartAI : public ScriptedAI
         {
-            mob_xt002_heartAI(Creature* creature) : Scripted_NoMovementAI(creature)
+            mob_xt002_heartAI(Creature* creature) : ScriptedAI(creature),
+                _instance(creature->GetInstanceScript())
             {
-                _instance = creature->GetInstanceScript();
+                SetCombatMovement(false);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE);
                 me->SetReactState(REACT_PASSIVE);
                 me->SetVisible(false);

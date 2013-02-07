@@ -106,7 +106,7 @@ public:
         if (!accountName || !password)
             return false;
 
-        AccountOpResult result = AccountMgr::CreateAccount(std::string(accountName), std::string(password));
+        AccountOpResult result = sAccountMgr->CreateAccount(std::string(accountName), std::string(password));
         switch (result)
         {
             case AOR_OK:
@@ -503,36 +503,8 @@ public:
             return false;
         }
 
-        // If gmRealmID is -1, delete all values for the account id, else, insert values for the specific realmID
-        PreparedStatement* stmt;
-
-        if (gmRealmID == -1)
-        {
-            stmt = LoginDatabase.GetPreparedStatement(LOGIN_DEL_ACCOUNT_ACCESS);
-
-            stmt->setUInt32(0, targetAccountId);
-        }
-        else
-        {
-            stmt = LoginDatabase.GetPreparedStatement(LOGIN_DEL_ACCOUNT_ACCESS_BY_REALM);
-
-            stmt->setUInt32(0, targetAccountId);
-            stmt->setUInt32(1, realmID);
-        }
-
-        LoginDatabase.Execute(stmt);
-
-        if (gm != 0)
-        {
-            stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_ACCOUNT_ACCESS);
-
-            stmt->setUInt32(0, targetAccountId);
-            stmt->setUInt8(1, uint8(gm));
-            stmt->setInt32(2, gmRealmID);
-
-            LoginDatabase.Execute(stmt);
-        }
-
+        RBACData* rbac = isAccountNameGiven ? NULL : handler->getSelectedPlayer()->GetSession()->GetRBACData();
+        sAccountMgr->UpdateAccountAccess(rbac, targetAccountId, uint8(gm), gmRealmID);
 
         handler->PSendSysMessage(LANG_YOU_CHANGE_SECURITY, targetAccountName.c_str(), gm);
         return true;

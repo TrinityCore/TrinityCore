@@ -612,7 +612,7 @@ SpellValue const* SpellScript::GetSpellValue()
 bool AuraScript::_Validate(SpellInfo const* entry)
 {
     for (std::list<CheckAreaTargetHandler>::iterator itr = DoCheckAreaTarget.begin(); itr != DoCheckAreaTarget.end();  ++itr)
-        if (!entry->HasAreaAuraEffect())
+        if (!entry->HasAreaAuraEffect() && !entry->HasEffect(SPELL_EFFECT_PERSISTENT_AREA_AURA))
             sLog->outError(LOG_FILTER_TSCR, "Spell `%u` of script `%s` does not have area aura effect - handler bound to hook `DoCheckAreaTarget` of AuraScript won't be executed", entry->Id, m_scriptName->c_str());
 
     for (std::list<AuraDispelHandler>::iterator itr = OnDispel.begin(); itr != OnDispel.end();  ++itr)

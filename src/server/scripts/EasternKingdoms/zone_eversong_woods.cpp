@@ -551,9 +551,12 @@ public:
         return new npc_infused_crystalAI (creature);
     }
 
-    struct npc_infused_crystalAI : public Scripted_NoMovementAI
+    struct npc_infused_crystalAI : public ScriptedAI
     {
-        npc_infused_crystalAI(Creature* creature) : Scripted_NoMovementAI(creature) {}
+        npc_infused_crystalAI(Creature* creature) : ScriptedAI(creature)
+        {
+            SetCombatMovement(false);
+        }
 
         uint32 EndTimer;
         uint32 WaveTimer;

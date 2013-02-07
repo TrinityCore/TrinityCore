@@ -24,6 +24,60 @@
 #include "VMapManager2.h"
 #include "MapTree.h"
 #include "ModelInstance.h"
+#include <vector>
+
+// ******************************************
+// Map file format defines
+// ******************************************
+struct map_fileheader
+{
+    uint32 mapMagic;
+    uint32 versionMagic;
+    uint32 buildMagic;
+    uint32 areaMapOffset;
+    uint32 areaMapSize;
+    uint32 heightMapOffset;
+    uint32 heightMapSize;
+    uint32 liquidMapOffset;
+    uint32 liquidMapSize;
+    uint32 holesOffset;
+    uint32 holesSize;
+};
+
+#define MAP_HEIGHT_NO_HEIGHT  0x0001
+#define MAP_HEIGHT_AS_INT16   0x0002
+#define MAP_HEIGHT_AS_INT8    0x0004
+
+struct map_heightHeader
+{
+    uint32 fourcc;
+    uint32 flags;
+    float  gridHeight;
+    float  gridMaxHeight;
+};
+
+#define MAP_LIQUID_NO_TYPE    0x0001
+#define MAP_LIQUID_NO_HEIGHT  0x0002
+
+struct map_liquidHeader
+{
+    uint32 fourcc;
+    uint16 flags;
+    uint16 liquidType;
+    uint8  offsetX;
+    uint8  offsetY;
+    uint8  width;
+    uint8  height;
+    float  liquidLevel;
+};
+
+#define MAP_LIQUID_TYPE_NO_WATER    0x00
+#define MAP_LIQUID_TYPE_WATER       0x01
+#define MAP_LIQUID_TYPE_OCEAN       0x02
+#define MAP_LIQUID_TYPE_MAGMA       0x04
+#define MAP_LIQUID_TYPE_SLIME       0x08
+#define MAP_LIQUID_TYPE_DARK_WATER  0x10
+#define MAP_LIQUID_TYPE_WMO_WATER   0x20
 
 namespace MMAP
 {
@@ -139,7 +193,7 @@ namespace MMAP
                 count += fread(v8, sizeof(uint8), V8_SIZE_SQ, mapFile);
                 if (count != expected)
                     printf("TerrainBuilder::loadMap: Failed to read some data expected %d, read %d\n", expected, count);
-                    
+
                 heightMultiplier = (hheader.gridMaxHeight - hheader.gridHeight) / 255;
 
                 for (int i = 0; i < V9_SIZE_SQ; ++i)
@@ -241,8 +295,7 @@ namespace MMAP
                     printf("TerrainBuilder::loadMap: Failed to read some data expected 1, read 0\n");
             }
 
-            // FIXME: "the address of ‘liquid_type’ will always evaluate as ‘true’"
-            if (liquid_type && liquid_map)
+            if (liquid_map)
             {
                 int count = meshData.liquidVerts.size() / 3;
                 float xoffset = (float(tileX)-32)*GRID_SIZE;
@@ -315,7 +368,7 @@ namespace MMAP
         float* tverts = meshData.solidVerts.getCArray();
         int* ttris = ttriangles.getCArray();
 
-        if (ltriangles.size() + ttriangles.size() == 0)
+        if ((ltriangles.size() + ttriangles.size()) == 0)
             return false;
 
         // make a copy of liquid vertices
@@ -339,7 +392,7 @@ namespace MMAP
                 // FIXME: "warning: the address of ‘liquid_type’ will always evaluate as ‘true’"
 
                 // if there is no liquid, don't use liquid
-                if (!liquid_type || !meshData.liquidVerts.size() || !ltriangles.size())
+                if (!meshData.liquidVerts.size() || !ltriangles.size())
                     useLiquid = false;
                 else
                 {
@@ -612,27 +665,27 @@ namespace MMAP
                 // now we have a model to add to the meshdata
                 retval = true;
 
-                vector<GroupModel> groupModels;
+                std::vector<GroupModel> groupModels;
                 worldModel->getGroupModels(groupModels);
 
                 // all M2s need to have triangle indices reversed
-                bool isM2 = instance.name.find(".m2") != instance.name.npos || instance.name.find(".M2") != instance.name.npos;
+                bool isM2 = instance.name.find(".m2") != std::string::npos || instance.name.find(".M2") != std::string::npos;
 
                 // transform data
                 float scale = instance.iScale;
                 G3D::Matrix3 rotation = G3D::Matrix3::fromEulerAnglesXYZ(G3D::pi()*instance.iRot.z/-180.f, G3D::pi()*instance.iRot.x/-180.f, G3D::pi()*instance.iRot.y/-180.f);
-                Vector3 position = instance.iPos;
+                G3D::Vector3 position = instance.iPos;
                 position.x -= 32*GRID_SIZE;
                 position.y -= 32*GRID_SIZE;
 
-                for (vector<GroupModel>::iterator it = groupModels.begin(); it != groupModels.end(); ++it)
+                for (std::vector<GroupModel>::iterator it = groupModels.begin(); it != groupModels.end(); ++it)
                 {
-                    vector<Vector3> tempVertices;
-                    vector<Vector3> transformedVertices;
-                    vector<MeshTriangle> tempTriangles;
+                    std::vector<G3D::Vector3> tempVertices;
+                    std::vector<G3D::Vector3> transformedVertices;
+                    std::vector<MeshTriangle> tempTriangles;
                     WmoLiquid* liquid = NULL;
 
-                    (*it).getMeshData(tempVertices, tempTriangles, liquid);
+                    it->getMeshData(tempVertices, tempTriangles, liquid);
 
                     // first handle collision mesh
                     transform(tempVertices, transformedVertices, scale, rotation, position);
@@ -645,10 +698,10 @@ namespace MMAP
                     // now handle liquid data
                     if (liquid)
                     {
-                        vector<Vector3> liqVerts;
-                        vector<int> liqTris;
+                        std::vector<G3D::Vector3> liqVerts;
+                        std::vector<int> liqTris;
                         uint32 tilesX, tilesY, vertsX, vertsY;
-                        Vector3 corner;
+                        G3D::Vector3 corner;
                         liquid->getPosInfo(tilesX, tilesY, corner);
                         vertsX = tilesX + 1;
                         vertsY = tilesY + 1;
@@ -677,11 +730,11 @@ namespace MMAP
                         // tile   = x*tilesY+y
                         // flag   = y*tilesY+x
 
-                        Vector3 vert;
+                        G3D::Vector3 vert;
                         for (uint32 x = 0; x < vertsX; ++x)
                             for (uint32 y = 0; y < vertsY; ++y)
                             {
-                                vert = Vector3(corner.x + x * GRID_PART_SIZE, corner.y + y * GRID_PART_SIZE, data[y*vertsX + x]);
+                                vert = G3D::Vector3(corner.x + x * GRID_PART_SIZE, corner.y + y * GRID_PART_SIZE, data[y*vertsX + x]);
                                 vert = vert * rotation * scale + position;
                                 vert.x *= -1.f;
                                 vert.y *= -1.f;
@@ -732,12 +785,12 @@ namespace MMAP
     }
 
     /**************************************************************************/
-    void TerrainBuilder::transform(vector<Vector3> &source, vector<Vector3> &transformedVertices, float scale, G3D::Matrix3 &rotation, Vector3 &position)
+    void TerrainBuilder::transform(std::vector<G3D::Vector3> &source, std::vector<G3D::Vector3> &transformedVertices, float scale, G3D::Matrix3 &rotation, G3D::Vector3 &position)
     {
-        for (vector<Vector3>::iterator it = source.begin(); it != source.end(); ++it)
+        for (std::vector<G3D::Vector3>::iterator it = source.begin(); it != source.end(); ++it)
         {
             // apply tranform, then mirror along the horizontal axes
-            Vector3 v((*it) * rotation * scale + position);
+            G3D::Vector3 v((*it) * rotation * scale + position);
             v.x *= -1.f;
             v.y *= -1.f;
             transformedVertices.push_back(v);
@@ -745,9 +798,9 @@ namespace MMAP
     }
 
     /**************************************************************************/
-    void TerrainBuilder::copyVertices(vector<Vector3> &source, G3D::Array<float> &dest)
+    void TerrainBuilder::copyVertices(std::vector<G3D::Vector3> &source, G3D::Array<float> &dest)
     {
-        for (vector<Vector3>::iterator it = source.begin(); it != source.end(); ++it)
+        for (std::vector<G3D::Vector3>::iterator it = source.begin(); it != source.end(); ++it)
         {
             dest.push_back((*it).y);
             dest.push_back((*it).z);
@@ -756,11 +809,11 @@ namespace MMAP
     }
 
     /**************************************************************************/
-    void TerrainBuilder::copyIndices(vector<MeshTriangle> &source, G3D::Array<int> &dest, int offset, bool flip)
+    void TerrainBuilder::copyIndices(std::vector<MeshTriangle> &source, G3D::Array<int> &dest, int offset, bool flip)
     {
         if (flip)
         {
-            for (vector<MeshTriangle>::iterator it = source.begin(); it != source.end(); ++it)
+            for (std::vector<MeshTriangle>::iterator it = source.begin(); it != source.end(); ++it)
             {
                 dest.push_back((*it).idx2+offset);
                 dest.push_back((*it).idx1+offset);
@@ -769,7 +822,7 @@ namespace MMAP
         }
         else
         {
-            for (vector<MeshTriangle>::iterator it = source.begin(); it != source.end(); ++it)
+            for (std::vector<MeshTriangle>::iterator it = source.begin(); it != source.end(); ++it)
             {
                 dest.push_back((*it).idx0+offset);
                 dest.push_back((*it).idx1+offset);
@@ -789,7 +842,7 @@ namespace MMAP
     /**************************************************************************/
     void TerrainBuilder::cleanVertices(G3D::Array<float> &verts, G3D::Array<int> &tris)
     {
-        map<int, int> vertMap;
+        std::map<int, int> vertMap;
 
         int* t = tris.getCArray();
         float* v = verts.getCArray();
@@ -819,7 +872,7 @@ namespace MMAP
         // update triangles to use new indices
         for (int i = 0; i < tris.size(); ++i)
         {
-            map<int, int>::iterator it;
+            std::map<int, int>::iterator it;
             if ((it = vertMap.find(t[i])) == vertMap.end())
                 continue;
 

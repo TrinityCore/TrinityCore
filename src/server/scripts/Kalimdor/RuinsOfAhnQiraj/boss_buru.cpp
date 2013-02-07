@@ -197,11 +197,12 @@ class npc_buru_egg : public CreatureScript
     public:
         npc_buru_egg() : CreatureScript("npc_buru_egg") { }
 
-        struct npc_buru_eggAI : public Scripted_NoMovementAI
+        struct npc_buru_eggAI : public ScriptedAI
         {
-            npc_buru_eggAI(Creature* creature) : Scripted_NoMovementAI(creature)
+            npc_buru_eggAI(Creature* creature) : ScriptedAI(creature)
             {
                 _instance = me->GetInstanceScript();
+                SetCombatMovement(false);
             }
 
             void EnterCombat(Unit* attacker)

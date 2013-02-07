@@ -26,7 +26,6 @@
 #include "GridStates.h"
 #include "Group.h"
 #include "InstanceScript.h"
-#include "LFGMgr.h"
 #include "MapInstanced.h"
 #include "MapManager.h"
 #include "ObjectAccessor.h"
@@ -1929,10 +1928,10 @@ bool Map::isInLineOfSight(float x1, float y1, float z1, float x2, float y2, floa
 
 bool Map::getObjectHitPos(uint32 phasemask, float x1, float y1, float z1, float x2, float y2, float z2, float& rx, float& ry, float& rz, float modifyDist)
 {
-    Vector3 startPos = Vector3(x1, y1, z1);
-    Vector3 dstPos = Vector3(x2, y2, z2);
+    G3D::Vector3 startPos(x1, y1, z1);
+    G3D::Vector3 dstPos(x2, y2, z2);
 
-    Vector3 resultPos;
+    G3D::Vector3 resultPos;
     bool result = _dynamicTree.getObjectHitPos(phasemask, startPos, dstPos, resultPos, modifyDist);
 
     rx = resultPos.x;
@@ -2493,13 +2492,6 @@ bool InstanceMap::AddPlayerToMap(Player* player)
                         ASSERT(playerBind->save == mapSave);
                 }
             }
-
-            if (group && group->isLFGGroup())
-                if (uint32 dungeonId = sLFGMgr->GetDungeon(group->GetGUID(), true))
-                    if (LFGDungeonData const* dungeon = sLFGMgr->GetLFGDungeon(dungeonId))
-                        if (LFGDungeonData const* randomDungeon = sLFGMgr->GetLFGDungeon(*(sLFGMgr->GetSelectedDungeons(player->GetGUID()).begin())))
-                            if (uint32(dungeon->map) == GetId() && dungeon->difficulty == GetDifficulty() && randomDungeon->type == LFG_TYPE_RANDOM)
-                                player->CastSpell(player, LFG_SPELL_LUCK_OF_THE_DRAW, true);
         }
 
         // for normal instances cancel the reset schedule when the

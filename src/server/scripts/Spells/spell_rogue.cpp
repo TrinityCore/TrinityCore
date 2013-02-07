@@ -28,10 +28,68 @@
 
 enum RogueSpells
 {
+    SPELL_ROGUE_BLADE_FLURRY_EXTRA_ATTACK        = 22482,
     SPELL_ROGUE_CHEAT_DEATH_COOLDOWN             = 31231,
     SPELL_ROGUE_GLYPH_OF_PREPARATION             = 56819,
     SPELL_ROGUE_PREY_ON_THE_WEAK                 = 58670,
     SPELL_ROGUE_SHIV_TRIGGERED                   = 5940,
+    SPELL_ROGUE_TRICKS_OF_THE_TRADE_DMG_BOOST    = 57933,
+    SPELL_ROGUE_TRICKS_OF_THE_TRADE_PROC         = 59628,
+};
+
+// 13877, 33735, (check 51211, 65956) - Blade Flurry
+class spell_rog_blade_flurry : public SpellScriptLoader
+{
+    public:
+        spell_rog_blade_flurry() : SpellScriptLoader("spell_rog_blade_flurry") { }
+
+        class spell_rog_blade_flurry_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_rog_blade_flurry_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_ROGUE_BLADE_FLURRY_EXTRA_ATTACK))
+                    return false;
+                return true;
+            }
+
+            bool Load()
+            {
+                _procTarget = NULL;
+                return true;
+            }
+
+            bool CheckProc(ProcEventInfo& eventInfo)
+            {
+                _procTarget = eventInfo.GetActor()->SelectNearbyTarget(eventInfo.GetProcTarget());
+                return _procTarget;
+            }
+
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+                if (eventInfo.GetDamageInfo())
+                {
+                    int32 damage = eventInfo.GetDamageInfo()->GetDamage();
+                    GetTarget()->CastCustomSpell(SPELL_ROGUE_BLADE_FLURRY_EXTRA_ATTACK, SPELLVALUE_BASE_POINT0, damage, _procTarget, true, NULL, aurEff);
+                }
+            }
+
+            void Register()
+            {
+                DoCheckProc += AuraCheckProcFn(spell_rog_blade_flurry_AuraScript::CheckProc);
+                OnEffectProc += AuraEffectProcFn(spell_rog_blade_flurry_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_MOD_MELEE_HASTE);
+            }
+
+        private:
+            Unit* _procTarget;
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_rog_blade_flurry_AuraScript();
+        }
 };
 
 // -31228 - Cheat Death
@@ -440,8 +498,100 @@ class spell_rog_shiv : public SpellScriptLoader
         }
 };
 
+// 57934 - Tricks of the Trade
+class spell_rog_tricks_of_the_trade : public SpellScriptLoader
+{
+    public:
+        spell_rog_tricks_of_the_trade() : SpellScriptLoader("spell_rog_tricks_of_the_trade") { }
+
+        class spell_rog_tricks_of_the_trade_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_rog_tricks_of_the_trade_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_ROGUE_TRICKS_OF_THE_TRADE_DMG_BOOST))
+                    return false;
+                if (!sSpellMgr->GetSpellInfo(SPELL_ROGUE_TRICKS_OF_THE_TRADE_PROC))
+                    return false;
+                return true;
+            }
+
+            bool Load()
+            {
+                _redirectTarget = NULL;
+                return true;
+            }
+
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_DEFAULT)
+                    GetTarget()->ResetRedirectThreat();
+            }
+
+            bool CheckProc(ProcEventInfo& /*eventInfo*/)
+            {
+                _redirectTarget = GetTarget()->GetRedirectThreatTarget();
+                return _redirectTarget;
+            }
+
+            void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
+            {
+                PreventDefaultAction();
+
+                Unit* target = GetTarget();
+                target->CastSpell(_redirectTarget, SPELL_ROGUE_TRICKS_OF_THE_TRADE_DMG_BOOST, true);
+                target->CastSpell(target, SPELL_ROGUE_TRICKS_OF_THE_TRADE_PROC, true);
+                Remove(AURA_REMOVE_BY_DEFAULT); // maybe handle by proc charges
+            }
+
+            void Register()
+            {
+                AfterEffectRemove += AuraEffectRemoveFn(spell_rog_tricks_of_the_trade_AuraScript::OnRemove, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+                DoCheckProc += AuraCheckProcFn(spell_rog_tricks_of_the_trade_AuraScript::CheckProc);
+                OnEffectProc += AuraEffectProcFn(spell_rog_tricks_of_the_trade_AuraScript::HandleProc, EFFECT_1, SPELL_AURA_DUMMY);
+            }
+
+        private:
+            Unit* _redirectTarget;
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_rog_tricks_of_the_trade_AuraScript();
+        }
+};
+
+// 59628 - Tricks of the Trade (Proc)
+class spell_rog_tricks_of_the_trade_proc : public SpellScriptLoader
+{
+    public:
+        spell_rog_tricks_of_the_trade_proc() : SpellScriptLoader("spell_rog_tricks_of_the_trade_proc") { }
+
+        class spell_rog_tricks_of_the_trade_proc_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_rog_tricks_of_the_trade_proc_AuraScript);
+
+            void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                GetTarget()->ResetRedirectThreat();
+            }
+
+            void Register()
+            {
+                AfterEffectRemove += AuraEffectRemoveFn(spell_rog_tricks_of_the_trade_proc_AuraScript::HandleRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_rog_tricks_of_the_trade_proc_AuraScript();
+        }
+};
+
 void AddSC_rogue_spell_scripts()
 {
+    new spell_rog_blade_flurry();
     new spell_rog_cheat_death();
     new spell_rog_deadly_poison();
     new spell_rog_nerves_of_steel();
@@ -449,4 +599,6 @@ void AddSC_rogue_spell_scripts()
     new spell_rog_prey_on_the_weak();
     new spell_rog_rupture();
     new spell_rog_shiv();
+    new spell_rog_tricks_of_the_trade();
+    new spell_rog_tricks_of_the_trade_proc();
 }

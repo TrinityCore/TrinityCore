@@ -20,7 +20,7 @@
 #define _OBJECT_H
 
 #include "Common.h"
-#include "UpdateFields.h"
+#include "UpdateMask.h"
 #include "UpdateData.h"
 #include "GridReference.h"
 #include "ObjectDefines.h"
@@ -107,7 +107,6 @@ class ByteBuffer;
 class WorldSession;
 class Creature;
 class Player;
-class UpdateMask;
 class InstanceScript;
 class GameObject;
 class TempSummon;
@@ -327,9 +326,7 @@ class Object
         std::string _ConcatFields(uint16 startIndex, uint16 size) const;
         void _LoadIntoDataField(std::string const& data, uint32 startOffset, uint32 count);
 
-        void GetUpdateFieldData(Player const* target, uint32*& flags, bool& isOwner, bool& isItemOwner, bool& hasSpecialInfo, bool& isPartyMember) const;
-
-        bool IsUpdateFieldVisible(uint32 flags, bool isSelf, bool isOwner, bool isItemOwner, bool isPartyMember) const;
+        uint32 GetUpdateFieldData(Player const* target, uint32*& flags) const;
 
         void _SetUpdateBits(UpdateMask* updateMask, Player* target) const;
         void _SetCreateBits(UpdateMask* updateMask, Player* target) const;
@@ -348,7 +345,7 @@ class Object
             float  *m_floatValues;
         };
 
-        bool* _changedFields;
+        UpdateMask _changesMask;
 
         uint16 m_valuesCount;
 
