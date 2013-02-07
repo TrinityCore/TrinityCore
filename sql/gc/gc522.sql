@@ -3,6 +3,10 @@
 DELETE FROM `spell_script_names` WHERE `spell_id` IN (66059, 67155, 67156, 67157, 66048, 67203, 67204, 67205);
 -- END OF CLEANUP
 
+-- Areatrigger script by Warpten
+DELETE FROM `areatrigger_scripts` WHERE `entry`=4956;
+INSERT INTO `areatrigger_scripts` VALUES (4956, 'at_azure_dragons_sanctuary');
+
 -- hand of sacrifice scriptname
 DELETE FROM `spell_script_names` WHERE `spell_id`=6940;
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
