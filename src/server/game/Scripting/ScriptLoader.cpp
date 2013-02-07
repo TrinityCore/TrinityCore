@@ -98,6 +98,7 @@ void AddSC_titles_commandscript();
 void AddSC_wp_commandscript();
 void AddSC_rates_commandscript();
 void AddSC_character_commandscript();
+void AddSC_mmaps_commandscript();
 
 #ifdef SCRIPTS
 //world
@@ -740,6 +741,7 @@ void AddCommandScripts()
     AddSC_wp_commandscript();
     AddSC_rates_commandscript();
     AddSC_character_commandscript();
+    AddSC_mmaps_commandscript();
 }
 
 void AddWorldScripts()

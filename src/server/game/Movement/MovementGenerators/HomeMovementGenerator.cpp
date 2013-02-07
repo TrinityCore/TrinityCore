@@ -23,49 +23,50 @@
 #include "MoveSplineInit.h"
 #include "MoveSpline.h"
 
-void HomeMovementGenerator<Creature>::DoInitialize(Creature & owner)
+void HomeMovementGenerator<Creature>::DoInitialize(Creature* owner)
 {
     _setTargetLocation(owner);
 }
 
-void HomeMovementGenerator<Creature>::DoReset(Creature &)
+void HomeMovementGenerator<Creature>::DoFinalize(Creature* owner)
+{
+    if (arrived)
+    {
+        owner->ClearUnitState(UNIT_STATE_EVADE);
+        owner->SetWalk(true);
+        owner->LoadCreaturesAddon(true);
+        owner->AI()->JustReachedHome();
+    }
+}
+
+void HomeMovementGenerator<Creature>::DoReset(Creature*)
 {
 }
 
-void HomeMovementGenerator<Creature>::_setTargetLocation(Creature & owner)
+void HomeMovementGenerator<Creature>::_setTargetLocation(Creature* owner)
 {
-    if (owner.HasUnitState(UNIT_STATE_ROOT | UNIT_STATE_STUNNED | UNIT_STATE_DISTRACTED))
+    if (owner->HasUnitState(UNIT_STATE_ROOT | UNIT_STATE_STUNNED | UNIT_STATE_DISTRACTED))
         return;
 
     Movement::MoveSplineInit init(owner);
     float x, y, z, o;
     // at apply we can select more nice return points base at current movegen
-    //if (owner.GetMotionMaster()->empty() || !owner.GetMotionMaster()->top()->GetResetPosition(owner, x, y, z))
-    //{
-    owner.GetHomePosition(x, y, z, o);
-    init.SetFacing(o);
-    //}
+    if (owner->GetMotionMaster()->empty() || !owner->GetMotionMaster()->top()->GetResetPosition(owner, x, y, z))
+    {
+        owner->GetHomePosition(x, y, z, o);
+        init.SetFacing(o);
+    }
     init.MoveTo(x, y, z);
     init.SetWalk(false);
     init.Launch();
 
     arrived = false;
-    owner.ClearUnitState(uint32(UNIT_STATE_ALL_STATE & ~UNIT_STATE_EVADE));
+
+    owner->ClearUnitState(uint32(UNIT_STATE_ALL_STATE & ~UNIT_STATE_EVADE));
 }
 
-bool HomeMovementGenerator<Creature>::DoUpdate(Creature &owner, const uint32 /*time_diff*/)
+bool HomeMovementGenerator<Creature>::DoUpdate(Creature* owner, const uint32 /*time_diff*/)
 {
-    arrived = owner.movespline->Finalized();
+    arrived = owner->movespline->Finalized();
     return !arrived;
-}
-
-void HomeMovementGenerator<Creature>::DoFinalize(Creature& owner)
-{
-    if (arrived)
-    {
-        owner.ClearUnitState(UNIT_STATE_EVADE);
-        owner.SetWalk(true);
-        owner.LoadCreaturesAddon(true);
-        owner.AI()->JustReachedHome();
-    }
 }
