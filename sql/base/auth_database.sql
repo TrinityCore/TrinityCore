@@ -26,7 +26,7 @@ CREATE TABLE `account` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT 'Identifier',
   `username` varchar(32) NOT NULL DEFAULT '',
   `sha_pass_hash` varchar(40) NOT NULL DEFAULT '',
-  `sessionkey` varchar(80) NOT NULL DEFAULT '',
+  `sessionkey` varchar(80) NOT NULL DEFAULT '' COMMENT 'Temporary storage of session key used to pass data from authserver to worldserver',
   `v` varchar(64) NOT NULL DEFAULT '',
   `s` varchar(64) NOT NULL DEFAULT '',
   `email` varchar(254) NOT NULL DEFAULT '',
