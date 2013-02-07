@@ -210,6 +210,12 @@ enum AchievementData
     DATA_ORBIT_ACHIEVEMENTS = 3 // Hardmode only
 };
 
+enum Achievements
+{
+    TAKE_OUT_THOSE_TURRETS_10    = 2909,
+    TAKE_OUT_THOSE_TURRETS_25    = 2910,
+};
+
 enum Actions
 {
     ACTION_ACTIVATE_HARD_MODE        = 5,
@@ -463,6 +469,8 @@ class boss_flame_leviathan : public CreatureScript
                 // Set DynFlags 12
                 // Set NPCFlags 0
                 Talk(SAY_DEATH);
+                // Add Achievements Take Out Those Turrets
+                instance->DoCompleteAchievement(RAID_MODE(TAKE_OUT_THOSE_TURRETS_10,TAKE_OUT_THOSE_TURRETS_25));
                 // TODO: These chests should be somewhere around...
                 // Check if changing the loot-mode as shown below works as considered
                 if (GameObject* go = me->FindNearestGameObject(RAID_MODE(GO_LEVIATHAN_CHEST_10, GO_LEVIATHAN_CHEST_25), 250.0f))
@@ -1255,9 +1263,12 @@ class npc_thorims_hammer : public CreatureScript
     public:
         npc_thorims_hammer() : CreatureScript("npc_thorims_hammer") {}
 
-        struct npc_thorims_hammerAI : public Scripted_NoMovementAI
+        struct npc_thorims_hammerAI : public ScriptedAI
         {
-            npc_thorims_hammerAI(Creature* creature) : Scripted_NoMovementAI(creature) {}
+            npc_thorims_hammerAI(Creature* creature) : ScriptedAI(creature)
+            {
+                SetCombatMovement(false);
+            }
 
             void Reset()
             {
@@ -1496,9 +1507,12 @@ class npc_freyas_ward : public CreatureScript
     public:
         npc_freyas_ward() : CreatureScript("npc_freyas_ward") {}
 
-        struct npc_freyas_wardAI : public Scripted_NoMovementAI
+        struct npc_freyas_wardAI : public ScriptedAI
         {
-            npc_freyas_wardAI(Creature* creature) : Scripted_NoMovementAI(creature) {}
+            npc_freyas_wardAI(Creature* creature) : ScriptedAI(creature)
+            {
+                SetCombatMovement(false);
+            }
 
             void InitializeAI()
             {

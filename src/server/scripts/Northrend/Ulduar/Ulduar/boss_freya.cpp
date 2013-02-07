@@ -1778,9 +1778,16 @@ class npc_eonars_gift : public CreatureScript
             npc_eonars_giftAI(Creature* creature) : ScriptedAI(creature)
             {
                 SetCombatMovement(false);
+            }
 
-                lifeBindersGiftTimer = 12000;
+            void Reset()
+            {
+                _lifeBindersGiftTimer = 12*IN_MILLISECONDS;
                 _cast = false;
+            }
+
+            void IsSummonedBy(Unit* /* summoner */)
+            {
                 DoCast(me, SPELL_GROW);
                 DoCast(me, SPELL_PHEROMONES, true);
                 DoCast(me, SPELL_EONAR_VISUAL, true);
@@ -1831,8 +1838,11 @@ class npc_nature_bomb : public CreatureScript
             npc_nature_bombAI(Creature* creature) : ScriptedAI(creature)
             {
                 SetCombatMovement(false);
+            }
 
-                bombTimer = urand(8000, 10000);
+            void Reset()
+            {
+                _bombTimer = urand(8*IN_MILLISECONDS, 10*IN_MILLISECONDS);
                 DoCast(SPELL_OBJECT_BOMB);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                 me->SetDisplayId(me->GetCreatureTemplate()->Modelid2);
@@ -1877,13 +1887,15 @@ class npc_unstable_sun_beam : public CreatureScript
             npc_unstable_sun_beamAI(Creature* creature) : ScriptedAI(creature)
             {
                 SetCombatMovement(false);
+            }
 
-                despawnTimer = urand(7000, 12000);
-                instance = me->GetInstanceScript();
+            void Reset()
+            {
                 me->SetReactState(REACT_PASSIVE);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                 DoCast(me, SPELL_PHOTOSYNTHESIS);
                 DoCast(me, SPELL_UNSTABLE_SUN_BEAM_PERIODIC);
+                _despawnTimer = urand(7*IN_MILLISECONDS, 12*IN_MILLISECONDS);
                 me->SetDisplayId(me->GetCreatureTemplate()->Modelid2);
             }
 

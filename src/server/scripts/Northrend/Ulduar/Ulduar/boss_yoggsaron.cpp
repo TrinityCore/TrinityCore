@@ -2062,10 +2062,12 @@ class npc_yogg_saron_tentacle : public CreatureScript
     public:
         npc_yogg_saron_tentacle() : CreatureScript("npc_yogg_saron_tentacle") {}
 
-        struct npc_yogg_saron_tentacleAI : public Scripted_NoMovementAI
+        struct npc_yogg_saron_tentacleAI : public ScriptedAI
         {
-            npc_yogg_saron_tentacleAI(Creature *c) : Scripted_NoMovementAI(c)
+            npc_yogg_saron_tentacleAI(Creature *c) : ScriptedAI(c)
             {
+                SetCombatMovement(false);
+
                 _instance = c->GetInstanceScript();
                 SetTentacleType(c->GetEntry());
                 _once = false;
@@ -2245,9 +2247,12 @@ class npc_descend_into_madness : public CreatureScript
             return true;
         };
 
-        struct npc_descend_into_madnessAI : public Scripted_NoMovementAI
+        struct npc_descend_into_madnessAI : public ScriptedAI
         {
-            npc_descend_into_madnessAI(Creature *c) : Scripted_NoMovementAI(c) {}
+            npc_descend_into_madnessAI(Creature *c) : ScriptedAI(c)
+            {
+                SetCombatMovement(false);
+            }
 
             BrainEventPhase bPhase;
 
@@ -2289,10 +2294,12 @@ class boss_brain_of_yogg_saron : public CreatureScript
     public:
         boss_brain_of_yogg_saron() : CreatureScript("boss_brain_of_yogg_saron") {}
 
-        struct boss_brain_of_yogg_saronAI : public Scripted_NoMovementAI
+        struct boss_brain_of_yogg_saronAI : public ScriptedAI
         {
-            boss_brain_of_yogg_saronAI(Creature *c) : Scripted_NoMovementAI(c)
+            boss_brain_of_yogg_saronAI(Creature *c) : ScriptedAI(c)
             {
+                SetCombatMovement(false);
+
                 _instance = c->GetInstanceScript();
                 me->SetReactState(REACT_PASSIVE);
                 me->setFaction(FACTION_HOSTILE);
@@ -2374,10 +2381,12 @@ class boss_yogg_saron : public CreatureScript
     public:
         boss_yogg_saron() : CreatureScript("boss_yogg_saron") {}    
 
-        struct boss_yogg_saronAI : public Scripted_NoMovementAI
+        struct boss_yogg_saronAI : public ScriptedAI
         {
-            boss_yogg_saronAI(Creature *c) : Scripted_NoMovementAI(c)
+            boss_yogg_saronAI(Creature *c) : ScriptedAI(c)
             {
+                SetCombatMovement(false);
+
                 _instance = c->GetInstanceScript();
                 me->SetReactState(REACT_PASSIVE);
                 me->SetUnitMovementFlags(MOVEMENTFLAG_DISABLE_GRAVITY | MOVEMENTFLAG_SWIMMING);
@@ -2617,10 +2626,12 @@ class npc_influence_tentacle : public CreatureScript
     public:
         npc_influence_tentacle() : CreatureScript("npc_influence_tentacle") {}
 
-        struct npc_influence_tentacleAI : public Scripted_NoMovementAI
+        struct npc_influence_tentacleAI : public ScriptedAI
         {
-            npc_influence_tentacleAI(Creature *c) : Scripted_NoMovementAI(c)
+            npc_influence_tentacleAI(Creature *c) : ScriptedAI(c)
             {
+                SetCombatMovement(false);
+
                 me->SetReactState(REACT_DEFENSIVE);
             }
 
@@ -2759,10 +2770,12 @@ class npc_support_keeper : public CreatureScript
     public:
         npc_support_keeper() : CreatureScript("npc_support_keeper") {}
 
-        struct npc_support_keeperAI : public Scripted_NoMovementAI
+        struct npc_support_keeperAI : public ScriptedAI
         {
-            npc_support_keeperAI(Creature *c) : Scripted_NoMovementAI(c) , _summons(me)
+            npc_support_keeperAI(Creature *c) : ScriptedAI(c), _summons(me)
             {
+                SetCombatMovement(false);
+
                 _instance = c->GetInstanceScript();
             }
 
@@ -2908,10 +2921,12 @@ class npc_sanity_well : public CreatureScript
     public:
         npc_sanity_well() : CreatureScript("npc_sanity_well") {}
 
-        struct npc_sanity_wellAI : public Scripted_NoMovementAI
+        struct npc_sanity_wellAI : public ScriptedAI
         {
-            npc_sanity_wellAI(Creature *c) : Scripted_NoMovementAI(c)
+            npc_sanity_wellAI(Creature *c) : ScriptedAI(c)
             {
+                SetCombatMovement(false);
+
                 _instance = c->GetInstanceScript();
             }
 
@@ -2972,10 +2987,12 @@ class npc_laughting_skull : public CreatureScript
     public:
         npc_laughting_skull() : CreatureScript("npc_laughting_skull") {}
 
-        struct npc_laughting_skullAI : public Scripted_NoMovementAI
+        struct npc_laughting_skullAI : public ScriptedAI
         {
-            npc_laughting_skullAI(Creature *c) : Scripted_NoMovementAI(c)
+            npc_laughting_skullAI(Creature *c) : ScriptedAI(c)
             {
+                SetCombatMovement(false);
+
                 instance = c->GetInstanceScript();
             }
 
@@ -3022,10 +3039,12 @@ class npc_death_orb : public CreatureScript
     public:
         npc_death_orb() : CreatureScript("npc_death_orb") {}
 
-        struct npc_death_orbAI : public Scripted_NoMovementAI
+        struct npc_death_orbAI : public ScriptedAI
         {
-            npc_death_orbAI(Creature *c) : Scripted_NoMovementAI(c) , _summons(me)
+            npc_death_orbAI(Creature *c) : ScriptedAI(c), _summons(me)
             {
+                SetCombatMovement(false);
+
                 _instance = c->GetInstanceScript();
                 me->SetReactState(REACT_PASSIVE);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
@@ -3573,10 +3592,12 @@ class npc_keeper_help : public CreatureScript
             return true;
         }
 
-        struct npc_keeper_helpAI : public Scripted_NoMovementAI
+        struct npc_keeper_helpAI : public ScriptedAI
         {
-            npc_keeper_helpAI(Creature *c) : Scripted_NoMovementAI(c)
+            npc_keeper_helpAI(Creature *c) : ScriptedAI(c)
             {
+                SetCombatMovement(false);
+
                 instance = c->GetInstanceScript();
                 me->setFaction(FACTION_FRIENDLY);
             }

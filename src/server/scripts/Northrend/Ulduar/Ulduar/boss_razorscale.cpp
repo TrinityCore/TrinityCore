@@ -843,9 +843,10 @@ class npc_mole_machine_trigger : public CreatureScript
 
         struct npc_mole_machine_triggerAI : public ScriptedAI
         {
-            npc_mole_machine_triggerAI(Creature* creature) : ScriptedAI(creature)
+            npc_mole_machine_triggerAI(Creature* creature) : ScriptedAI(creature), _summons(me)
             {
                 SetCombatMovement(false);
+
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_PACIFIED);
                 me->SetVisible(false);
             }           

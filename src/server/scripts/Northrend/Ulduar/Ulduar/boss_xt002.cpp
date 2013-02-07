@@ -838,10 +838,12 @@ class mob_void_zone : public CreatureScript
     public:
         mob_void_zone() : CreatureScript("mob_void_zone") {}
 
-        struct mob_void_zoneAI : public Scripted_NoMovementAI
+        struct mob_void_zoneAI : public ScriptedAI
         {
-            mob_void_zoneAI(Creature* creature) : Scripted_NoMovementAI(creature)
+            mob_void_zoneAI(Creature* creature) : ScriptedAI(creature)
             {
+                SetCombatMovement(false);
+
                 me->SetReactState(REACT_PASSIVE);
             }
 

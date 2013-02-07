@@ -978,10 +978,11 @@ class npc_algalon_asteroid_target : public CreatureScript
     public:
         npc_algalon_asteroid_target() : CreatureScript("npc_algalon_asteroid_target") { }
 
-        struct npc_algalon_asteroid_targetAI : public Scripted_NoMovementAI
+        struct npc_algalon_asteroid_targetAI : public ScriptedAI
         {
-            npc_algalon_asteroid_targetAI(Creature* creature) : Scripted_NoMovementAI(creature)
+            npc_algalon_asteroid_targetAI(Creature* creature) : ScriptedAI(creature)
             {
+                SetCombatMovement(false);
             }
 
             void Reset()

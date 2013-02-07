@@ -1156,9 +1156,12 @@ class npc_proximity_mine : public CreatureScript
     public:
         npc_proximity_mine() : CreatureScript("npc_proximity_mine") {}
 
-        struct npc_proximity_mineAI : public Scripted_NoMovementAI
+        struct npc_proximity_mineAI : public ScriptedAI
         {
-            npc_proximity_mineAI(Creature* creature) : Scripted_NoMovementAI(creature) {}
+            npc_proximity_mineAI(Creature* creature) : ScriptedAI(creature)
+            {
+                SetCombatMovement(false);
+            }
 
             void InitializeAI()
             {
@@ -1256,9 +1259,12 @@ class boss_vx_001 : public CreatureScript
     public:
         boss_vx_001() : CreatureScript("boss_vx_001") {}
 
-        struct boss_vx_001AI : public Scripted_NoMovementAI
+        struct boss_vx_001AI : public ScriptedAI
         {
-            boss_vx_001AI(Creature* creature) : Scripted_NoMovementAI(creature) {}
+            boss_vx_001AI(Creature* creature) : ScriptedAI(creature)
+            {
+                 SetCombatMovement(false);
+            }
 
             void InitializeAI()
             {
@@ -1596,9 +1602,12 @@ class npc_rocket_strike : public CreatureScript
     public:
         npc_rocket_strike() : CreatureScript("npc_rocket_strike") {}
 
-        struct npc_rocket_strikeAI : public Scripted_NoMovementAI
+        struct npc_rocket_strikeAI : public ScriptedAI
         {
-            npc_rocket_strikeAI(Creature* creature) : Scripted_NoMovementAI(creature) {}
+            npc_rocket_strikeAI(Creature* creature) : ScriptedAI(creature)
+            {
+                SetCombatMovement(false);
+            }
 
             void InitializeAI()
             {
@@ -1933,10 +1942,12 @@ class npc_magnetic_core : public CreatureScript
     public:
         npc_magnetic_core() : CreatureScript("npc_magnetic_core") {}
 
-        struct npc_magnetic_coreAI : public Scripted_NoMovementAI
+        struct npc_magnetic_coreAI : public ScriptedAI
         {
-            npc_magnetic_coreAI(Creature* creature) : Scripted_NoMovementAI(creature)
+            npc_magnetic_coreAI(Creature* creature) : ScriptedAI(creature)
             {
+                SetCombatMovement(false);
+
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_PACIFIED);
                 me->DespawnOrUnsummon(21*IN_MILLISECONDS);
                 if (Creature* AerialUnit = me->FindNearestCreature(NPC_AERIAL_COMMAND_UNIT, 100.0f, true))
@@ -2300,9 +2311,12 @@ class npc_frost_bomb : public CreatureScript
     public:
         npc_frost_bomb() : CreatureScript("npc_frost_bomb") {}
 
-        struct npc_frost_bombAI : public Scripted_NoMovementAI
+        struct npc_frost_bombAI : public ScriptedAI
         {
-            npc_frost_bombAI(Creature* creature) : Scripted_NoMovementAI(creature) {}
+            npc_frost_bombAI(Creature* creature) : ScriptedAI(creature)
+            {
+                SetCombatMovement(false);
+            }
 
             void InitializeAI()
             {
