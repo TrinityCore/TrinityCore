@@ -657,7 +657,7 @@ bool BattlegroundQueue::CheckNormalMatch(Battleground* bg_template, Battleground
 
     // If there are enough players to fill 2 teams with minplayerperteam count.
     if (/*sWorld->getBoolConfig(CONFIG_BG_CROSSFRACTION) == 1 && */bg_template->isBattleground() && 
-        m_SelectionPools[TEAM_ALLIANCE].GetPlayerCount() + m_SelectionPools[TEAM_HORDE].GetPlayerCount() >= minPlayers * 2)
+        m_SelectionPools[TEAM_ALLIANCE].GetPlayerCount() + m_SelectionPools[TEAM_HORDE].GetPlayerCount() >= (minPlayers * 2))
         return true;
 	
 
@@ -679,7 +679,7 @@ bool BattlegroundQueue::CheckNormalMatch(Battleground* bg_template, Battleground
         // do not allow to start bg with more than 2 players more on 1 faction
 	   if (/*sWorld->getBoolConfig(CONFIG_BG_CROSSFRACTION) == 1 && */bg_template->isBattleground())
 	   {
-	   			if (abs((int32)(m_SelectionPools[TEAM_HORDE].GetPlayerCount() + m_SelectionPools[TEAM_ALLIANCE].GetPlayerCount())) < 1) 
+	   			if (abs((int32)(m_SelectionPools[TEAM_HORDE].GetPlayerCount() + m_SelectionPools[TEAM_ALLIANCE].GetPlayerCount())) < 2) 
 				return false;
 	   }
 	   else

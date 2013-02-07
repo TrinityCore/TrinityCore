@@ -527,6 +527,7 @@ inline void Battleground::_ProcessJoin(uint32 diff)
                     player->GetSession()->SendPacket(&status);
 
                     player->RemoveAurasDueToSpell(SPELL_ARENA_PREPARATION);
+					player->SetCommandStatusOff(CHEAT_CASTTIME);
                     player->ResetAllPowers();
                     if (!player->isGameMaster())
                     {
@@ -557,6 +558,7 @@ inline void Battleground::_ProcessJoin(uint32 diff)
             for (BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
                 if (Player* player = ObjectAccessor::FindPlayer(itr->first))
                 {
+					player->SetCommandStatusOff(CHEAT_CASTTIME);
                     player->RemoveAurasDueToSpell(SPELL_PREPARATION);
                     player->ResetAllPowers();
                 }
@@ -1199,6 +1201,7 @@ void Battleground::AddPlayer(Player* player)
         if (GetStatus() == STATUS_WAIT_JOIN)                 // not started yet
         {
             player->CastSpell(player, SPELL_ARENA_PREPARATION, true);
+			player->SetCommandStatusOn(CHEAT_CASTTIME);
             player->ResetAllPowers();
         }
     }
@@ -1206,6 +1209,7 @@ void Battleground::AddPlayer(Player* player)
     {
         if (GetStatus() == STATUS_WAIT_JOIN)                 // not started yet
             player->CastSpell(player, SPELL_PREPARATION, true);   // reduces all mana cost of spells.
+		    player->SetCommandStatusOn(CHEAT_CASTTIME);
     }
 
     player->ResetAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE, ACHIEVEMENT_CRITERIA_CONDITION_BG_MAP, GetMapId(), true);

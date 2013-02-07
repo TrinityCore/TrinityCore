@@ -365,7 +365,7 @@ class boss_sindragosa : public CreatureScript
                 {
                     events.CancelEvent(EVENT_AIR_PHASE);
                     events.ScheduleEvent(EVENT_THIRD_PHASE_CHECK, 1000);
-					events.ScheduleEvent(EVENT_FROST_BOMB, 2000); // Phase 3 cast Frost bomb on 1 player
+                    me->CastCustomSpell(SPELL_ICE_TOMB_TARGET, SPELLVALUE_MAX_TARGETS, RAID_MODE<int32>(1, 1, 1, 1), NULL);
                     _isThirdPhase = true;
                 }
             }

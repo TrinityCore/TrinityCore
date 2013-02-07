@@ -871,6 +871,9 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
         else
             scale = cFamily->minScale + float(getLevel() - cFamily->minScaleLevel) / cFamily->maxScaleLevel * (cFamily->maxScale - cFamily->minScale);
 
+		if (cFamily->entry == 17447)
+           scale *= 2.0f;
+		   
         SetObjectScale(scale);
     }
 
