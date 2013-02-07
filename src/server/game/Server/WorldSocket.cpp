@@ -750,7 +750,6 @@ int WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
     uint32 clientBuild;
     uint32 unk2, unk3, unk5, unk6, unk7;
     uint64 unk4;
-    BigNumber v, s, g, N;
     WorldPacket packet, SendAddonPacked;
     BigNumber k;
 
@@ -779,6 +778,8 @@ int WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
                 clientSeed);
 
     // Get the account information from the realmd database
+    //         0           1        2       3          4         5       6          7   8
+    // SELECT id, sessionkey, last_ip, locked, expansion, mutetime, locale, recruiter, os FROM account WHERE username = ?
     PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_INFO_BY_NAME);
 
     stmt->setString(0, account);
@@ -795,26 +796,10 @@ int WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
 
     Field* fields = result->Fetch();
 
-    uint8 expansion = fields[6].GetUInt8();
+    uint8 expansion = fields[4].GetUInt8();
     uint32 world_expansion = sWorld->getIntConfig(CONFIG_EXPANSION);
     if (expansion > world_expansion)
         expansion = world_expansion;
-
-    N.SetHexStr ("894B645E89E1535BBDAD5B8B290650530801B18EBFBF5E8FAB3C82872A3E9BB7");
-    g.SetDword (7);
-
-    v.SetHexStr(fields[4].GetCString());
-    s.SetHexStr (fields[5].GetCString());
-
-    const char* sStr = s.AsHexStr();                       // Must be freed by OPENSSL_free()
-    const char* vStr = v.AsHexStr();                       // Must be freed by OPENSSL_free()
-
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WorldSocket::HandleAuthSession: (s, v) check s: %s v: %s",
-        sStr,
-        vStr);
-
-    OPENSSL_free((void*)sStr);
-    OPENSSL_free((void*)vStr);
 
     ///- Re-check ip locking (same check as in realmd).
     if (fields[3].GetUInt8() == 1) // if ip is locked
@@ -831,7 +816,7 @@ int WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
 
     k.SetHexStr(fields[1].GetCString());
 
-    int64 mutetime = fields[7].GetInt64();
+    int64 mutetime = fields[5].GetInt64();
     //! Negative mutetime indicates amount of seconds to be muted effective on next login - which is now.
     if (mutetime < 0)
     {
@@ -845,12 +830,12 @@ int WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
         LoginDatabase.Execute(stmt);
     }
 
-    locale = LocaleConstant (fields[8].GetUInt8());
+    locale = LocaleConstant (fields[6].GetUInt8());
     if (locale >= TOTAL_LOCALES)
         locale = LOCALE_enUS;
 
-    uint32 recruiter = fields[9].GetUInt32();
-    std::string os = fields[10].GetString();
+    uint32 recruiter = fields[7].GetUInt32();
+    std::string os = fields[8].GetString();
 
     // Must be done before WorldSession is created
     if (sWorld->getBoolConfig(CONFIG_WARDEN_ENABLED) && os != "Win" && os != "OSX")
@@ -947,6 +932,12 @@ int WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
 
     // NOTE ATM the socket is single-threaded, have this in mind ...
     ACE_NEW_RETURN(m_Session, WorldSession(id, this, AccountTypes(security), expansion, mutetime, locale, recruiter, isRecruiter), -1);
+
+    stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_CLEAR_SESSIONKEY);
+
+    stmt->setUInt32(0, id);
+
+    LoginDatabase.Execute(stmt);
 
     m_Crypt.Init(&k);
 
