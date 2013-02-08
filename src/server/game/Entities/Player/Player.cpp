@@ -21188,6 +21188,14 @@ bool Player::BuyItemFromVendorSlot(uint64 vendorguid, uint32 vendorslot, uint32 
         }
     }
 
+     if (GetMaxPersonalArenaRatingRequirement(2) < crItem->rating)
+     {
+	 // Rating Script by Saqirmdev
+	 sLog->outError(LOG_FILTER_PLAYER, "You need rating: %u", crItem->rating);
+        SendEquipError(EQUIP_ERR_CANT_EQUIP_RANK, NULL, NULL);
+        return false;
+     }
+
     if (pProto->RequiredReputationFaction && (uint32(GetReputationRank(pProto->RequiredReputationFaction)) < pProto->RequiredReputationRank))
     {
         SendBuyError(BUY_ERR_REPUTATION_REQUIRE, creature, item, 0);
@@ -21197,7 +21205,6 @@ bool Player::BuyItemFromVendorSlot(uint64 vendorguid, uint32 vendorslot, uint32 
     if (crItem->ExtendedCost)
     {
         ItemExtendedCostEntry const* iece = sItemExtendedCostStore.LookupEntry(crItem->ExtendedCost);
-		uint32 rating;
         if (!iece && crItem->ExtendedCost < 5001)
         {
             sLog->outError(LOG_FILTER_PLAYER, "Item %u have wrong ExtendedCost field value %u", pProto->ItemId, crItem->ExtendedCost);
@@ -21236,18 +21243,6 @@ bool Player::BuyItemFromVendorSlot(uint64 vendorguid, uint32 vendorslot, uint32 
             return false;
         }
     }
-
-    if (crItem->rating != 0)
-	{
-       if (GetMaxPersonalArenaRatingRequirement(2) < crItem->rating)
-	   {
-		    // Rating Script by Saqirmdev
-		    sLog->outError(LOG_FILTER_PLAYER, "You need rating: %u", crItem->rating);
-            SendEquipError(EQUIP_ERR_CANT_EQUIP_RANK, NULL, NULL);
-            return false;
-	   }
-	}
-
 
     uint32 price = 0;
     if (crItem->IsGoldRequired(pProto) && pProto->BuyPrice > 0) //Assume price cannot be negative (do not know why it is int32)
