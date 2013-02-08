@@ -1,1 +1,0 @@
-UPDATE `creature_template` SET InhabitType = 7 WHERE entry IN ( 27656, 27638, 28726 );

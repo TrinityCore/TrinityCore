@@ -21198,99 +21198,11 @@ bool Player::BuyItemFromVendorSlot(uint64 vendorguid, uint32 vendorslot, uint32 
     {
         ItemExtendedCostEntry const* iece = sItemExtendedCostStore.LookupEntry(crItem->ExtendedCost);
 		uint32 rating;
-        if (!iece && iece->Entry < 5001)
+        if (!iece && crItem->ExtendedCost < 5001)
         {
             sLog->outError(LOG_FILTER_PLAYER, "Item %u have wrong ExtendedCost field value %u", pProto->ItemId, crItem->ExtendedCost);
             return false;
         }
-
-		//Custom Extend Costs
-		/*
-        ExtendCost = 5001 : 1400Rating
-		ExtendCost = 5002 : 1630Rating
-		ExtendCost = 5003 : 1800Rating
-		ExtendCost = 5004 : 1950Rating
-		ExtendCost = 5005 : 2050Rating
-		ExtendCost = 5006 : 2300Rating
-		ExtendCost = 5007 : 2550Rating
-		*/
-        if (iece->Entry == 5001)
-		{
-		    rating = 1400;
-			if (GetMaxPersonalArenaRatingRequirement() < rating)
-			{
-				// probably not the proper equip err
-				SendEquipError(EQUIP_ERR_CANT_EQUIP_RANK, NULL, NULL);
-				return false;
-			}
-		}
-
-        if (iece->Entry == 5002)
-		{
-		    rating = 1630;
-			if (GetMaxPersonalArenaRatingRequirement() < rating)
-			{
-				// probably not the proper equip err
-				SendEquipError(EQUIP_ERR_CANT_EQUIP_RANK, NULL, NULL);
-				return false;
-			}
-		}
-
-	    if (iece->Entry == 5003)
-		{
-		    rating = 1800;
-			if (GetMaxPersonalArenaRatingRequirement() < rating)
-			{
-				// probably not the proper equip err
-				SendEquipError(EQUIP_ERR_CANT_EQUIP_RANK, NULL, NULL);
-				return false;
-			}
-		}
-
-		if (iece->Entry == 5004)
-		{
-		    rating = 1950;
-			if (GetMaxPersonalArenaRatingRequirement() < rating)
-			{
-				// probably not the proper equip err
-				SendEquipError(EQUIP_ERR_CANT_EQUIP_RANK, NULL, NULL);
-				return false;
-			}
-		}
-
-		if (iece->Entry == 5005)
-		{
-		    rating = 2050;
-			if (GetMaxPersonalArenaRatingRequirement() < rating)
-			{
-				// probably not the proper equip err
-				SendEquipError(EQUIP_ERR_CANT_EQUIP_RANK, NULL, NULL);
-				return false;
-			}
-		}
-
-		if (iece->Entry == 5006)
-		{
-		    rating = 2300;
-			if (GetMaxPersonalArenaRatingRequirement() < rating)
-			{
-				// probably not the proper equip err
-				SendEquipError(EQUIP_ERR_CANT_EQUIP_RANK, NULL, NULL);
-				return false;
-			}
-		}
-
-		if (iece->Entry == 5007)
-		{
-		    rating = 2550;
-			if (GetMaxPersonalArenaRatingRequirement() < rating)
-			{
-				// probably not the proper equip err
-				SendEquipError(EQUIP_ERR_CANT_EQUIP_RANK, NULL, NULL);
-				return false;
-			}
-		}
-		// Custom Extend Costs
 
         // honor points price
         if (GetHonorPoints() < (iece->reqhonorpoints * count))
@@ -21324,6 +21236,18 @@ bool Player::BuyItemFromVendorSlot(uint64 vendorguid, uint32 vendorslot, uint32 
             return false;
         }
     }
+
+    if (crItem->rating != 0)
+	{
+       if (GetMaxPersonalArenaRatingRequirement(2) < crItem->rating)
+	   {
+		    // Rating Script by Saqirmdev
+		    sLog->outError(LOG_FILTER_PLAYER, "You need rating: %u", crItem->rating);
+            SendEquipError(EQUIP_ERR_CANT_EQUIP_RANK, NULL, NULL);
+            return false;
+	   }
+	}
+
 
     uint32 price = 0;
     if (crItem->IsGoldRequired(pProto) && pProto->BuyPrice > 0) //Assume price cannot be negative (do not know why it is int32)
