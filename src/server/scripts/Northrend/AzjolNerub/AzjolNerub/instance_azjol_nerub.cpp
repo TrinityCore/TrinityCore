@@ -213,5 +213,5 @@ public:
 
 void AddSC_instance_azjol_nerub()
 {
-   new instance_azjol_nerub;
+   new instance_azjol_nerub();
 }
