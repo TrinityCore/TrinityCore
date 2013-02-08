@@ -11,6 +11,7 @@
 #                                                                                          #
 ############################################################################################
 
+[120] --> Fix Gargoyle haste (TEST).
 [119] --> Fix Culling Of Stratholme.
 [118] --> Add Astranaar SHOP.
 [117] --> Fix Night Elf: Shadowmeld.

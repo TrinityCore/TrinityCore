@@ -1081,13 +1081,22 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
                         SetCreateMana(28 + 10*petlevel);
                         SetCreateHealth(28 + 30*petlevel);
                     }
+
+                    if (Player *owner = m_owner->ToPlayer()) // get 100% of owning player's physical (melee) haste
+                    {
+                        float bonus = owner->GetRatingBonusValue(CR_HASTE_MELEE);
+                        bonus += owner->GetTotalAuraModifier(SPELL_AURA_MOD_MELEE_HASTE) + owner->GetTotalAuraModifier(SPELL_AURA_MOD_MELEE_RANGED_HASTE);
+                        ApplyCastTimePercentMod(bonus, true);
+                        SetCreateHealth(uint32(owner->GetMaxHealth()*0.8)); // hp must be 0.8x of DK hp
+                    }
+
                     // convert DK melee haste into the gargoyles spell haste, should it be like that? /tibbi
-                    float ownerHaste = ((Player*)m_owner)->GetRatingBonusValue(CR_HASTE_MELEE);
-                    ApplyPercentModFloatValue(UNIT_MOD_CAST_SPEED, ownerHaste, false);
+                    //float ownerHaste = ((Player*)m_owner)->GetRatingBonusValue(CR_HASTE_MELEE);
+                    //ApplyPercentModFloatValue(UNIT_MOD_CAST_SPEED, ownerHaste, false);
 
                     // also make gargoyle benefit from haste auras, like unholy presence
-                    int meleeHaste = ((Player*)m_owner)->GetTotalAuraModifier(SPELL_AURA_MOD_MELEE_HASTE);
-                    ApplyCastTimePercentMod(meleeHaste, true);
+                    //int meleeHaste = ((Player*)m_owner)->GetTotalAuraModifier(SPELL_AURA_MOD_MELEE_HASTE);
+                    //ApplyCastTimePercentMod(meleeHaste, true);
 
                     SetBonusDamage(int32(m_owner->GetTotalAttackPowerValue(BASE_ATTACK) * 0.33f));
                     SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, float(petlevel - (petlevel / 4)));
