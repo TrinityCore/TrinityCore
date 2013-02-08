@@ -21,20 +21,21 @@
 
 enum Yells
 {
-    SAY_AGGRO                                     = 0,
-    SAY_SLAY                                      = 1,
-    SAY_DEATH                                     = 2,
-    SAY_IMPENDING_DESPAIR                         = 3,
-    SAY_DEFILING_HORROR                           = 4,
+    SAY_AGGRO                           = 0,
+    SAY_SLAY                            = 1,
+    SAY_IMPENDING_DESPAIR               = 2,
+    SAY_DEFILING_HORROR                 = 3,
+    SAY_DEATH                           = 4,
 };
 
 enum Spells
 {
-    SPELL_QUIVERING_STRIKE                        = 72422,
-    SPELL_IMPENDING_DESPAIR                       = 72426,
-    SPELL_DEFILING_HORROR                         = 72435,
-    SPELL_HOPELESSNESS                            = 72395,
-    H_SPELL_HOPELESSNESS                          = 72390, // TODO: not in dbc. Add in DB.
+    SPELL_QUIVERING_STRIKE              = 72422,
+    SPELL_IMPENDING_DESPAIR             = 72426,
+    SPELL_DEFILING_HORROR               = 72435,
+    H_SPELL_DEFILING_HORROR             = 72452,
+    SPELL_HOPELESSNESS                  = 72395,
+    H_SPELL_HOPELESSNESS                = 72390, // TODO: not in dbc. Add in DB.
 };
 
 enum Events
@@ -70,7 +71,27 @@ public:
             if (instance)
                 instance->SetData(DATA_FALRIC_EVENT, NOT_STARTED);
         }
+        
+        void DoDefilingHorror()
+        {
+            std::list<Unit*> targetList;
+            SelectTargetList(targetList, 5, SELECT_TARGET_RANDOM, 100.0f, true);
 
+            if (targetList.empty())
+                return;
+
+            for (std::list<Unit*>::const_iterator i = targetList.begin(); i != targetList.end(); ++i)
+            {
+                if ((*i))
+                   if (me->IsValidAttackTarget((*i)))
+                       me->AddAura(DUNGEON_MODE(SPELL_DEFILING_HORROR, H_SPELL_DEFILING_HORROR), (*i));
+            }
+        }
+
+        void JustReachedHome()
+        {
+            instance->SetData(DATA_WAVE_STATE, FAIL);
+        }
         void EnterCombat(Unit* /*who*/)
         {
             Talk(SAY_AGGRO);
@@ -79,7 +100,7 @@ public:
 
             events.ScheduleEvent(EVENT_QUIVERING_STRIKE, 23000);
             events.ScheduleEvent(EVENT_IMPENDING_DESPAIR, 9000);
-            events.ScheduleEvent(EVENT_DEFILING_HORROR, urand(25000, 45000)); // TODO adjust timer.
+            events.ScheduleEvent(EVENT_DEFILING_HORROR, urand(20000, 30000)); // TODO adjust timer.
         }
 
         void JustDied(Unit* /*killer*/)
@@ -121,8 +142,9 @@ public:
                     events.ScheduleEvent(EVENT_IMPENDING_DESPAIR, 13000);
                     break;
                 case EVENT_DEFILING_HORROR:
-                    DoCast(SPELL_DEFILING_HORROR);
-                    events.ScheduleEvent(EVENT_DEFILING_HORROR, urand(25000, 45000)); // TODO adjust timer.
+                    DoDefilingHorror();
+                    Talk(SAY_DEFILING_HORROR);
+                    events.ScheduleEvent(EVENT_DEFILING_HORROR, urand(20000, 35000)); // TODO adjust timer.
                     break;
             }
 
@@ -143,4 +165,3 @@ public:
 void AddSC_boss_falric()
 {
     new boss_falric();
-}
