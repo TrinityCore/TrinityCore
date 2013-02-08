@@ -8005,7 +8005,7 @@ void ObjectMgr::LoadVendors()
 
     std::set<uint32> skip_vendors;
 
-    QueryResult result = WorldDatabase.Query("SELECT entry, item, maxcount, incrtime, ExtendedCost FROM npc_vendor ORDER BY entry, slot ASC");
+    QueryResult result = WorldDatabase.Query("SELECT entry, item, maxcount, incrtime, ExtendedCost, rating FROM npc_vendor ORDER BY entry, slot ASC");
     if (!result)
     {
 
@@ -8148,7 +8148,7 @@ void ObjectMgr::LoadGossipMenuItems()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u gossip_menu_option entries in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
-void ObjectMgr::AddVendorItem(uint32 entry, uint32 item, int32 maxcount, uint32 incrtime, uint32 extendedCost, bool persist /*= true*/)
+void ObjectMgr::AddVendorItem(uint32 entry, uint32 item, int32 maxcount, uint32 incrtime, uint32 extendedCost, uint32 rating bool persist /*= true*/)
 {
     VendorItemData& vList = _cacheVendorItemStore[entry];
     vList.AddItem(item, maxcount, incrtime, extendedCost, rating);
