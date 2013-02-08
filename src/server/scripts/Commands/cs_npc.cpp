@@ -252,6 +252,11 @@ public:
             return false;
         }
 
+		char* fextrating = strtok(NULL, " ");                    //add incrtime, default: 0
+        uint32 rating = 0;
+        if (rating)
+            rating = atol(fextrating);
+
         uint32 vendor_entry = vendor ? vendor->GetEntry() : 0;
 
         if (!sObjectMgr->IsVendorItemValid(vendor_entry, itemId, maxcount, incrtime, extendedcost, handler->GetSession()->GetPlayer()))
@@ -260,11 +265,11 @@ public:
             return false;
         }
 
-        sObjectMgr->AddVendorItem(vendor_entry, itemId, maxcount, incrtime, extendedcost);
+        sObjectMgr->AddVendorItem(vendor_entry, itemId, maxcount, incrtime, extendedcost, rating);
 
         ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(itemId);
 
-        handler->PSendSysMessage(LANG_ITEM_ADDED_TO_LIST, itemId, itemTemplate->Name1.c_str(), maxcount, incrtime, extendedcost);
+        handler->PSendSysMessage(LANG_ITEM_ADDED_TO_LIST, itemId, itemTemplate->Name1.c_str(), maxcount, incrtime, extendedcost, rating);
         return true;
     }
 
