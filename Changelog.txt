@@ -11,6 +11,7 @@
 #                                                                                          #
 ############################################################################################
 
+[121] --> Fix Halion immunities and damage.
 [120] --> Fix Gargoyle haste (TEST).
 [119] --> Fix Culling Of Stratholme.
 [118] --> Add Astranaar SHOP.
