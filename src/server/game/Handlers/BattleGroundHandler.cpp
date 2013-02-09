@@ -525,7 +525,7 @@ void WorldSession::HandleBattlefieldLeaveOpcode(WorldPacket& recvData)
     // not allow leave battleground in combat
     if (_player->isInCombat())
         if (Battleground* bg = _player->GetBattleground())
-            if (bg->GetStatus() != STATUS_WAIT_LEAVE)
+            if (bg->GetStatus() != STATUS_WAIT_LEAVE && !bg->isArena())
                 return;
 
     _player->LeaveBattleground();

@@ -482,45 +482,50 @@ void PathGenerator::BuildPointPath(const float *startPoint, const float *endPoin
         if (_sourceUnit->GetMapId() == 562)
         {
              //Your Position & Target Position
-            if (startEndDist < 2500.0f && endPoint[1] >= 11.000000f && endPoint[2] >= 6230.973223f && endPoint[2] <= 6226.393223f && endPoint[0] >= 247.267917f && endPoint[0] <= 252.778940f)      // southeast pillar
+            if (startEndDist < 2500.0f && endPoint[1] >= 10.000000f && endPoint[2] <= 6231.153223f && endPoint[2] >= 6226.440430f && endPoint[0] >= 247.060000f && endPoint[0] <= 252.418940f)      // southeast pillar
             {
               //  Path X,y,z 1# END
-				Clear();
+		   Clear();
                 _pathPoints.resize(4);
+                _pathPoints.resize(5);
                 _pathPoints[0] = GetStartPosition();
-                _pathPoints[1] = Vector3(6234.506836f, 256.696106f, 11.400018f);
-                _pathPoints[2] = Vector3(6231.472656f, 252.849335f, 11.400018f);
-                _pathPoints[3] = GetEndPosition();
+                _pathPoints[1] = Vector3(6236.519836f, 252.820106f, 11.300018f);
+                _pathPoints[2] = Vector3(6234.519836f, 252.820106f, 11.300018f);
+                _pathPoints[3] = Vector3(6231.052656f, 252.304335f, 11.300018f);
+                _pathPoints[4] = GetEndPosition();
             }
-            else if (startEndDist < 2500.0f && endPoint[1] >= 11.000000f && endPoint[2] >= 6246.385660f && endPoint[2] <= 6251.201660f && endPoint[0] >= 271.397917f && endPoint[0] <= 276.558794f) // northwest pillar
+            else if (startEndDist < 2500.0f && startPoint[1] >= 10.000000f && startPoint[2] <= 6231.153223f && startPoint[2] >= 6226.440430f && startPoint[0] >= 247.060000f && startPoint[0] <= 252.418940f)       // southeast pillar
             {
-                //  Path X,y,z 2# END
-				Clear();
-                _pathPoints.resize(4);
+              //  Path X,y,z 1# Start 6236.812988
+		   Clear();
+                _pathPoints.resize(5);
                 _pathPoints[0] = GetStartPosition();
-                _pathPoints[1] = Vector3(6242.146484f, 267.531030f, 11.400000f);
-                _pathPoints[2] = Vector3(6246.985352f, 271.076599f, 11.400000f);
-                _pathPoints[3] = GetEndPosition();
+                _pathPoints[1] = Vector3(6231.052656f, 252.304335f, 11.300018f);
+                _pathPoints[2] = Vector3(6234.519836f, 252.820106f, 11.300018f);
+                _pathPoints[2] = Vector3(6236.519836f, 252.820106f, 11.300018f);
+                _pathPoints[4] = GetEndPosition();
             }
-            else if (startEndDist < 2500.0f && startPoint[1] >= 11.000000f && startPoint[2] >= 6230.973223f && startPoint[2] <= 6226.393223f && startPoint[0] >= 247.267917f && startPoint[0] <= 252.778940f)       // southeast pillar
-            {
-              //  Path X,y,z 1# Start
-				Clear();
-                _pathPoints.resize(4);
-                _pathPoints[0] = GetStartPosition();
-                _pathPoints[1] = Vector3(6231.472656f, 252.849335f, 11.400018f);
-                _pathPoints[2] = Vector3(6234.506836f, 256.696106f, 11.400018f);
-                _pathPoints[3] = GetEndPosition();
-            }
-            else if (startEndDist < 2500.0f && startPoint[1] >= 11.000000f && startPoint[2] >= 6246.385660f && startPoint[2] <= 6251.201660f && startPoint[0] >= 271.397917f && startPoint[0] <= 276.558794f) // northwest pillar
+		    else if (startEndDist < 3000.0f && startPoint[1] >= 10.000000f && startPoint[2] >= 6246.385660f && startPoint[2] <= 6251.611660f && startPoint[0] >= 271.557917f && startPoint[0] <= 276.558794f) // northwest pillar
             {
                 //  Path X,y,z 2# Start
 				Clear();
-                _pathPoints.resize(4);
+                _pathPoints.resize(5);
                 _pathPoints[0] = GetStartPosition();
-                _pathPoints[1] = Vector3(6246.985352f, 271.076599f, 11.400000f);
-                _pathPoints[2] = Vector3(6242.146484f, 267.531030f, 11.400000f);
-                _pathPoints[3] = GetEndPosition();
+                _pathPoints[1] = Vector3(6246.324219f, 271.570000f, 11.300000f);
+                _pathPoints[2] = Vector3(6242.942484f, 267.210030f, 11.280000f);
+			    _pathPoints[3] = Vector3(6241.539484f, 265.441030f, 11.280000f);
+                _pathPoints[4] = GetEndPosition();
+            }
+			 else if (startEndDist < 3000.0f && endPoint[1] >= 10.000000f && endPoint[2] >= 6246.385660f && endPoint[2] <= 6251.611660f && endPoint[0] >= 271.557917f && endPoint[0] <= 276.558794f) // northwest pillar
+            {
+                //  Path X,y,z 2# END
+				Clear();
+                _pathPoints.resize(5);
+                _pathPoints[0] = GetStartPosition();
+				_pathPoints[1] = Vector3(6241.539484f, 265.441030f, 11.280000f);
+                _pathPoints[2] = Vector3(6242.942484f, 267.210030f, 11.280000f);
+                _pathPoints[3] = Vector3(6246.324219f, 271.570000f, 11.300000f);
+                _pathPoints[4] = GetEndPosition();
             }
       }
        //Dalaran Sewer
