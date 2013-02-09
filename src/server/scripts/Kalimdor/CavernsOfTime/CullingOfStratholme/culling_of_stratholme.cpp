@@ -103,7 +103,7 @@ enum Says
 
     //Drakonian
     SAY_PHASE302                                = 0,
-    SAY_PHASE305                                = 1,
+    SAY_PHASE305                                = 1
 };
 
 enum NPCs
@@ -136,7 +136,7 @@ enum NPCs
     NPC_AGITATED_STRATHOLME_CITIZEN            = 31126,
     NPC_AGITATED_STRATHOLME_RESIDENT           = 31127,
 
-    NPC_INVISIBLE_STALKER                      = 29100,
+    NPC_INVISIBLE_STALKER                      = 29100
 };
 
 enum Spells
@@ -146,7 +146,7 @@ enum Spells
     SPELL_EXORCISM_N                           = 52445,
     SPELL_EXORCISM_H                           = 58822,
     SPELL_HOLY_LIGHT                           = 52444,
-    SPELL_ARCANE_DISRUPTION                    = 49590,
+    SPELL_ARCANE_DISRUPTION                    = 49590
 };
 
 enum GossipMenuArthas
@@ -261,7 +261,7 @@ float RiftAndSpawnsLocations[ENCOUNTER_CHRONO_SPAWNS][5]=
     {NPC_EPOCH, 2451.809326f, 1112.901245f, 149.220459f, 3.363617f}
 };
 
-#define GOSSIP_ITEM_ARTHAS_0 "I'm ready to start Culling of Stratholme." // *This is a portion of where: "The beginning of the script is wrong"
+#define GOSSIP_ITEM_ARTHAS_0 "I'm ready to start Culling of Stratholme."
 #define GOSSIP_ITEM_ARTHAS_1 "Yes, my Prince. We're ready."
 #define GOSSIP_ITEM_ARTHAS_2 "We're only doing what is best for Loarderon your Highness."
 #define GOSSIP_ITEM_ARTHAS_3 "I'm ready."
@@ -324,7 +324,9 @@ public:
         {
             switch (ai->gossipStep)
             {
-                case 0: // *This one is a workaround since the very beggining of the script is wrong, see above
+                // This one is a workaround since the very beggining of the script is wrong.
+                // Arthas should be spawned via players interacting with Chromie(27915)
+                case 0:
                 {
                     QuestStatus status = player->GetQuestStatus(13149);
                     if (status != QUEST_STATUS_COMPLETE && status != QUEST_STATUS_REWARDED)
@@ -437,7 +439,8 @@ public:
 
         void EnterCombat(Unit* /*who*/)
         {
-            // *This is a portion of where: "The beginning of the script is wrong"
+            // This is a workaround. Should only use this after the group
+            // completes wave 10/10
             if (!me->HasAura(SPELL_ARTHAS_AURA))
             DoCast(me, SPELL_ARTHAS_AURA);
 
@@ -446,7 +449,7 @@ public:
 
         void JustDied(Unit* /*killer*/)
         {
-            // *This is a portion of where: "The beginning of the script is wrong"
+            // This is a workaround. The instances events determine where I respawn.
             if (instance)
                 instance->SetData(DATA_ARTHAS_EVENT, FAIL);
         }
