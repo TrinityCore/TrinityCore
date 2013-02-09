@@ -1,4 +1,7 @@
 #include "ScriptPCH.h"
+#include "Player.h"
+#include "Battleground.h"
+#include "BattlegroundMgr.h"
 
 class FastArenaCrystal : public GameObjectScript
 {
@@ -13,7 +16,7 @@ class FastArenaCrystal : public GameObjectScript
         {
             if (Battleground *bg = player->GetBattleground())
                 if (bg->isArena())
-                    ChatHandler(player).PSendSysMessage("Players clicked: %u", bg->ClickFastStart(player, go));
+                    return true;
 
             return false;
         }

@@ -3,6 +3,8 @@
 #include "ScriptPCH.h"
 #include "BattlegroundMgr.h"
 #include "DisableMgr.h"
+#include "WorldSession.h"
+#include "World.h"
 
 class challenge_commands : public CommandScript
 {
@@ -73,17 +75,13 @@ public:
 
     static bool HandleChallengePlayersCommand(ChatHandler* handler, const char* args)
     {
-        std::string sargs = args;
-        Tokens playersTokens(sargs, ' ');
-        if (playersTokens.size() != 2)
-        {
-            handler->PSendSysMessage("Neend 2 args!");
-            handler->SetSentErrorMessage(true);
-            return false;
-        }
+        std::string sargs = strtok((char*)args, " ");
+	 char* pTokens = strtok(NULL, " ");
+	 Player* player1;
+        Player* player2;
 
-        Player *player1 = sObjectMgr->GetPlayer(playersTokens[0]);
-        Player *player2 = sObjectMgr->GetPlayer(playersTokens[1]);
+        player1 = sObjectMgr->GetPlayerByLowGUID(pTokens[0]);
+        player2 = sObjectMgr->GetPlayerByLowGUID(pTokens[1]);
 
         if (!player1 || !player2)
         {
@@ -126,25 +124,22 @@ private:
        if (player->InBattleground())
             return NULL;
 
-        uint8 arenatype = ARENA_TYPE_2v2;
+        uint8 arenaType = ARENA_TYPE_2v2;
         uint32 matchmakerRating = 0;
 
         //check existance
         Battleground* bg = sBattlegroundMgr->GetBattlegroundTemplate(BATTLEGROUND_AA);
         if (!bg)
         {
-            sLog->outError("Battleground: template bg (all arenas) not found");
+            sLog->outError(LOG_FILTER_BATTLEGROUND, "Battleground: template bg (all arenas) not found");
             return NULL;
         }
 
-        if (sDisableMgr->IsDisabledFor(DISABLE_TYPE_BATTLEGROUND, BATTLEGROUND_AA, NULL))
-        {
-            ChatHandler(player).PSendSysMessage(LANG_ARENA_DISABLED);
-            return NULL;
-        }
+        if (DisableMgr::IsDisabledFor(DISABLE_TYPE_BATTLEGROUND, BATTLEGROUND_AA, NULL)) 
+               return NULL;
 
         BattlegroundTypeId bgTypeId = bg->GetTypeID();
-        BattlegroundQueueTypeId bgQueueTypeId = BattlegroundMgr::BGQueueTypeId(bgTypeId, arenatype);
+        BattlegroundQueueTypeId bgQueueTypeId = BattlegroundMgr::BGQueueTypeId(bgTypeId, arenaType);
         PvPDifficultyEntry const* bracketEntry = GetBattlegroundBracketByLevel(bg->GetMapId(), player->getLevel());
         if (!bracketEntry)
             return NULL;
@@ -161,21 +156,21 @@ private:
 
         WorldPacket data;
         // send status packet (in queue)
-        sBattlegroundMgr->BuildBattlegroundStatusPacket(&data, bg, queueSlot, STATUS_WAIT_QUEUE, 0, 0, arenatype);
+        sBattlegroundMgr->BuildBattlegroundStatusPacket(&data, bg, queueSlot, STATUS_WAIT_QUEUE, 0, 0, arenaType, 0);
         player->GetSession()->SendPacket(&data);
-        sLog->outDebug(LOG_FILTER_BATTLEGROUND, "Battleground: player joined queue for arena, skirmish, bg queue type %u bg type %u: GUID %u, NAME %s", bgQueueTypeId, bgTypeId, player->GetGUIDLow(), player->GetName());
+        sLog->outError(LOG_FILTER_BATTLEGROUND, "Battleground: player joined queue for arena, skirmish, bg queue type %u, NAME %s", bgQueueTypeId, player->GetName());
 
-        sBattlegroundMgr->ScheduleQueueUpdate(matchmakerRating, arenatype, bgQueueTypeId, bgTypeId, bracketEntry->GetBracketId());
+        sBattlegroundMgr->ScheduleQueueUpdate(matchmakerRating, arenaType, bgQueueTypeId, bgTypeId, bracketEntry->GetBracketId());
 
         GroupQueueInfo* ginfo            = new GroupQueueInfo;
         ginfo->BgTypeId                  = bgTypeId;
-        ginfo->ArenaType                 = arenatype;
+        ginfo->ArenaType                 = arenaType;
         ginfo->ArenaTeamId               = 0;
         ginfo->IsRated                   = 0;
         ginfo->IsInvitedToBGInstanceGUID = 0;
         ginfo->JoinTime                  = getMSTime();
         ginfo->RemoveInviteTime          = 0;
-        ginfo->Team                      = player->GetTeam();
+        ginfo->Team                      = player->GetBGTeam();
         ginfo->ArenaTeamRating           = 0;
         ginfo->ArenaMatchmakerRating     = 0;
         ginfo->OpponentsTeamRating       = 0;
@@ -190,7 +185,7 @@ private:
 
         if (!arena)
         {
-            arena = sBattlegroundMgr->CreateNewBattleground(bgTypeId, bracketEntry, arenatype, true);
+            arena = sBattlegroundMgr->CreateNewBattleground(bgTypeId, bracketEntry, arenaType, true);
             arena->SetRated(false);
             arena->SetChallenge(true);
 
@@ -209,7 +204,7 @@ private:
             InviteGroupToBG(ginfo, arena, HORDE);
             arena->StartBattleground();
             if (!sBattlegroundMgr->HasBattleground(arena))
-                sBattlegroundMgr->AddBattleground(ginfo->IsInvitedToBGInstanceGUID, bgTypeId, arena);
+                sBattlegroundMgr->AddBattleground(/*ginfo->IsInvitedToBGInstanceGUID, bgTypeId, */arena);
         }
 
         return arena;
@@ -259,7 +254,7 @@ private:
                 sLog->outDebug(LOG_FILTER_BATTLEGROUND, "Battleground: invited player %s (%u) to BG instance %u queueindex %u bgtype %u, I can't help it if they don't press the enter battle button.", player->GetName(), player->GetGUIDLow(), bg->GetInstanceID(), queueSlot, bg->GetTypeID());
 
                 // send status packet
-                sBattlegroundMgr->BuildBattlegroundStatusPacket(&data, bg, queueSlot, STATUS_WAIT_JOIN, INVITE_ACCEPT_WAIT_TIME, 0, ginfo->ArenaType);
+                sBattlegroundMgr->BuildBattlegroundStatusPacket(&data, bg, queueSlot, STATUS_WAIT_JOIN, INVITE_ACCEPT_WAIT_TIME, 0, ginfo->ArenaType, 0);
                 player->GetSession()->SendPacket(&data);
             }
             return true;
