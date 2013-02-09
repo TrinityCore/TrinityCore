@@ -132,15 +132,11 @@ namespace FactorySelector
         const GameObjectAICreator* ai_factory = NULL;
         GameObjectAIRegistry& ai_registry(*GameObjectAIRepository::instance());
 
+        // scriptname in db
         if (GameObjectAI* scriptedAI = sScriptMgr->GetGameObjectAI(go))
             return scriptedAI;
 
         ai_factory = ai_registry.GetRegistryItem(go->GetAIName());
-
-        // scriptname in db
-        if (!ai_factory)
-            if (GameObjectAI* scriptedAI = sScriptMgr->GetGameObjectAI(go))
-                return scriptedAI;
 
         //future goAI types go here
 

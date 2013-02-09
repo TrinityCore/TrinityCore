@@ -424,7 +424,7 @@ public:
 
 void AddSC_boss_taldaram()
 {
-    new boss_taldaram;
-    new mob_taldaram_flamesphere;
-    new prince_taldaram_sphere;
+    new boss_taldaram();
+    new mob_taldaram_flamesphere();
+    new prince_taldaram_sphere();
 }
