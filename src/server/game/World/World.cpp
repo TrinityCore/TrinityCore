@@ -2082,10 +2082,15 @@ void World::Update(uint32 diff)
     // update the instance reset times
     sInstanceSaveMgr->Update();
 
+	sChallengeMgr->LoadOptions();
+	 sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loading challenge options...")
+
     // And last, but not least handle the issued cli commands
     ProcessCliCommands();
 
     sScriptMgr->OnWorldUpdate(diff);
+
+    sChallengeMgr->Update(diff);
 }
 
 void World::ForceGameEventUpdate()

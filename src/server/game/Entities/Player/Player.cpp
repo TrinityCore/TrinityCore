@@ -864,8 +864,16 @@ Player::Player(WorldSession* session): Unit(true)
         m_powerFraction[i] = 0;
 
     isDebugAreaTriggers = false;
-	    
-    challengeData = NULL;
+
+	
+    challengeData = new ChallengeData;
+    challengeData->bg            = NULL;
+    challengeData->ginfo         = NULL;
+    challengeData->options       = sChallengeMgr->GetChallengeOption(GetGUID());
+    challengeData->challengeType = 0;
+    challengeData->challengeTo   = 0;
+    challengeData->challenger    = 0;
+	
 
     m_WeeklyQuestChanged = false;
 
@@ -878,6 +886,13 @@ Player::Player(WorldSession* session): Unit(true)
     _activeCheats = CHEAT_NONE;
     m_achievementMgr = new AchievementMgr(this);
     m_reputationMgr = new ReputationMgr(this);
+
+	
+    CleanChallengeData();
+    delete challengeData
+ 
+    _LoadEquipmentSets(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADEQUIPMENTSETS));
+    
 }
 
 Player::~Player()
@@ -17394,6 +17409,8 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
 
     _LoadEquipmentSets(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_EQUIPMENT_SETS));
 
+	challengeData->options = sChallengeMgr->GetChallengeOption(GetGUID());
+
     return true;
 }
 
@@ -17414,6 +17431,12 @@ bool Player::isAllowedToLoot(const Creature* creature)
         return this == creature->GetLootRecipient();
     else if (thisGroup != creature->GetLootRecipientGroup())
         return false;
+
+    if (challengeData->options->changed)
+    {
+        CharacterDatabase.PExecute("REPLACE INTO challenge_options(`guid`, `mode`, `enable`) VALUES(%llu, %u, %u)", GetGUID(), challengeData->options->mode, challengeData->options->enable);
+        challengeData->options->changed = false;
+    }
 
     switch (thisGroup->GetLootMethod())
     {
@@ -17443,6 +17466,20 @@ bool Player::isAllowedToLoot(const Creature* creature)
 
     return false;
 }
+
+void Player::CleanChallengeData()
+{
+    if (challengeData->ginfo)
+    {
+        delete challengeData->ginfo;
+        challengeData->ginfo = NULL;
+    }
+
+   challengeData->bg = NULL;
+   challengeData->challenger    = 0;
+   challengeData->challengeTo   = 0;
+   challengeData->challengeType = 0;
+} 
 
 void Player::_LoadActions(PreparedQueryResult result)
 {

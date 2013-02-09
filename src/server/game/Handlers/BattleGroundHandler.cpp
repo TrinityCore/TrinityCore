@@ -369,7 +369,7 @@ void WorldSession::HandleBattleFieldPortOpcode(WorldPacket &recvData)
     BattlegroundQueue& bgQueue = sBattlegroundMgr->GetBattlegroundQueue(bgQueueTypeId);
     //we must use temporary variable, because GroupQueueInfo pointer can be deleted in BattlegroundQueue::RemovePlayer() function
     GroupQueueInfo ginfo;
-    if (GetPlayer()->challengeData)
+    if (GetPlayer()->challengeData->ginfo)
         ginfo = *GetPlayer()->challengeData->ginfo;
     else if (!bgQueue.GetPlayerGroupInfoData(_player->GetGUID(), &ginfo))
     {
@@ -385,7 +385,7 @@ void WorldSession::HandleBattleFieldPortOpcode(WorldPacket &recvData)
         return;
     }
 
-	Battleground* bg = (GetPlayer()->challengeData) ? GetPlayer()->challengeData->bg : sBattlegroundMgr->GetBattleground(ginfo.IsInvitedToBGInstanceGUID, bgTypeId);
+    Battleground* bg = (GetPlayer()->challengeData->bg) ? GetPlayer()->challengeData->bg : sBattlegroundMgr->GetBattleground(ginfo.IsInvitedToBGInstanceGUID, bgTypeId);
     if (!bg)
     {
         if (action)
@@ -505,12 +505,8 @@ void WorldSession::HandleBattleFieldPortOpcode(WorldPacket &recvData)
         sLog->outDebug(LOG_FILTER_BATTLEGROUND, "Battleground: player %s (%u) left queue for bgtype %u, queue type %u.", _player->GetName().c_str(), _player->GetGUIDLow(), bg->GetTypeID(), bgQueueTypeId);
     }
 
-    if (_player->challengeData)
-    {
-        delete _player->challengeData->removeEvent;
-        delete _player->challengeData;
-        _player->challengeData = NULL;
-    }
+    if (_player->challengeData->bg)
+        _player->CleanChallengeData();
 }
 
 void WorldSession::HandleBattlefieldLeaveOpcode(WorldPacket& recvData)

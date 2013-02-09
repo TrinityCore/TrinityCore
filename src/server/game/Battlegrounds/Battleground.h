@@ -534,8 +534,8 @@ class Battleground
         virtual uint32 GetPrematureWinner();
 
         uint8 ClickFastStart(Player *player, GameObject *go);
-        void SetChallenge(bool state) { isChallenge = state; }
-        bool IsChallenge() { return isChallenge; }
+        void Set1vs1(bool state) { is1vs1 = state; }
+        bool Is1vs1() { return is1vs1; }
         void DespawnCrystals();
 
     protected:
@@ -603,7 +603,7 @@ class Battleground
         
         std::set<uint64> m_playersWantsFastStart;
         std::set<GameObject*> m_crystals;
-        bool isChallenge;
+        bool is1vs1;
 
         /* Pre- and post-update hooks */
 

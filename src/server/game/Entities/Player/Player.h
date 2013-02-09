@@ -114,6 +114,10 @@ struct ChallengeData {
     GroupQueueInfo *ginfo;
     Battleground   *bg;
     BGQueueRemoveEvent *removeEvent;
+	ChallengeOption *options;
+    uint64 challenger;
+    uint64 challengeTo;
+    uint8 challengeType;
 };
 
 // Spell modifier (used for modify other spells)
@@ -1827,6 +1831,8 @@ class Player : public Unit, public GridObject<Player>
         static uint8 GetRankFromDB(uint64 guid);
         int GetGuildIdInvited() { return m_GuildIdInvited; }
         static void RemovePetitionsAndSigns(uint64 guid, uint32 type);
+
+        void CleanChallengeData();
 
         // Arena Team
         void SetInArenaTeam(uint32 ArenaTeamId, uint8 slot, uint8 type)

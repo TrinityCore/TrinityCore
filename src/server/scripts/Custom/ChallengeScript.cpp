@@ -5,6 +5,8 @@
 #include "DisableMgr.h"
 #include "WorldSession.h"
 #include "World.h"
+#include "Group.h"
+
 
 class challenge_commands : public CommandScript
 {
@@ -15,11 +17,27 @@ public:
     {
         static ChatCommand challengeCommandTable[] =
         {
-            { "players",        SEC_MODERATOR,      false, &HandleChallengePlayersCommand,      "", NULL },
+     		{ "players",        SEC_MODERATOR,      false, &HandleChallengeCreate1x1Command,    "", NULL },
+            { "2x2",            SEC_MODERATOR,      false, &HandleChallengeCreate2x2Command,    "", NULL },
+            { "3x3",            SEC_MODERATOR,      false, &HandleChallengeCreate3x3Command,    "", NULL },
+            { "5x5",            SEC_MODERATOR,      false, &HandleChallengeCreate5x5Command,    "", NULL },
             { "",               SEC_PLAYER,         false, &HandleChallengeCommand,             "", NULL },
             { NULL,             0,                  false, NULL,                                "", NULL }
         };
 
+        static ChatCommand challengeCommandTable[] =
+        {
+            { "create",         SEC_MODERATOR,      false, NULL,                                "", challengeCreateCommandTable },
+            { "accept",         SEC_PLAYER,         false, &HandleChallengeAcceptCommand,       "", NULL },
+            { "mode",           SEC_PLAYER,         false, &HandleChallengeModeCommand,         "", NULL },
+            { "1x1",            SEC_PLAYER,         false, &HandleChallenge1x1Command,          "", NULL },
+            { "2x2",            SEC_PLAYER,         false, &HandleChallenge2x2Command,          "", NULL },
+            { "3x3",            SEC_PLAYER,         false, &HandleChallenge3x3Command,          "", NULL },
+            { "5x5",            SEC_PLAYER,         false, &HandleChallenge5x5Command,          "", NULL },
+            { "on",             SEC_PLAYER,         false, &HandleChallengeOnCommand,           "", NULL },
+            { "off",            SEC_PLAYER,         false, &HandleChallengeOffCommand,          "", NULL },
+            { NULL,             0,                  false, NULL,                                "", NULL }
+        };
 
         static ChatCommand commandTable[] =
         {
@@ -29,10 +47,121 @@ public:
         return commandTable;
     }
 
-    static bool HandleChallengeCommand(ChatHandler* handler, const char* args)
+    static bool HandleChallengeModeCommand(ChatHandler* handler, const char* args)
+    {
+        if (!args)
+        {
+            handler->PSendSysMessage("Wrong arg!");
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        ChallengeOption *option = handler->GetSession()->GetPlayer()->challengeData->options;
+
+        switch (args[0])
+        {
+            case '1':
+                if (option->mode != 1)
+                {
+                    option->mode   = 1;
+                    option->changed = true;
+                }
+                break;
+            case '0':
+                if (option->mode != 0)
+                {
+                    option->mode   = 0;
+                    option->changed = true;
+                }
+                break;
+            default:
+                handler->PSendSysMessage("Wrong arg!");
+                handler->SetSentErrorMessage(true);
+                return false;
+        }
+
+        handler->PSendSysMessage("Mode changed.");
+        return true;
+    }
+
+    static bool HandleChallengeOnCommand(ChatHandler* handler, const char* /*args*/)
+    {
+        ChallengeOption *option = handler->GetSession()->GetPlayer()->challengeData->options;
+        if (!option->enable)
+        {
+            option->enable = true;
+            option->changed = true;
+        }
+
+        handler->PSendSysMessage("Challenge enabled.");
+        return true;
+    }
+
+    static bool HandleChallengeOffCommand(ChatHandler* handler, const char* /*args*/)
+    {
+        ChallengeOption *option = handler->GetSession()->GetPlayer()->challengeData->options;
+        if (option->enable)
+        {
+            option->enable = false;
+            option->changed = true;
+        }
+
+        handler->PSendSysMessage("Challenge disabled.");
+        return true;
+    }
+
+    static bool HandleChallengeAcceptCommand(ChatHandler* handler, const char* /*args*/)
+    {
+        uint64 challengerGuid = handler->GetSession()->GetPlayer()->challengeData->challenger;
+        if (!challengerGuid)
+        {
+            handler->PSendSysMessage("You haven`t challenger.");
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        Player *challenger = ObjectAccessor::FindPlayer(challengerGuid);
+        if (!challenger)
+        {
+            handler->PSendSysMessage("Cant find challenger. Offline?");
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        if (!sChallengeMgr->InviteGroupsToArena(handler->GetSession()->GetPlayer(), challenger, (ArenaChallengeType)handler->GetSession()->GetPlayer()->challengeData->challengeType))
+        {
+            handler->PSendSysMessage("Oops! Cant join to queue.");
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        return true;
+    }
+
+    static bool HandleChallenge1x1Command(ChatHandler* handler, const char* args)
+    {
+        return ChallengeForBracket(handler, args, ARENA_CHALLENGE_TYPE_1v1);
+    }
+
+    static bool HandleChallenge2x2Command(ChatHandler* handler, const char* args)
+    {
+        return ChallengeForBracket(handler, args, ARENA_CHALLENGE_TYPE_2v2);
+    }
+
+    static bool HandleChallenge3x3Command(ChatHandler* handler, const char* args)
+    {
+        return ChallengeForBracket(handler, args, ARENA_CHALLENGE_TYPE_3v3);
+    }
+
+    static bool HandleChallenge5x5Command(ChatHandler* handler, const char* args)
+    {
+        return ChallengeForBracket(handler, args, ARENA_CHALLENGE_TYPE_5v5);
+    }
+
+    static bool ChallengeForBracket(ChatHandler* handler, const char* args, uint8 type)
     {
         Player *target = NULL;
-        Battleground *arena = NULL;
+        Player *player = handler->GetSession()->GetPlayer();
 
         if (!handler->extractPlayerTarget((char*)args, &target))
         {
@@ -41,44 +170,71 @@ public:
             return false;
         }
 
-        if (target == handler->GetSession()->GetPlayer())
+        if (!target->challengeData->options->enable)
         {
-            handler->PSendSysMessage("You must select player.");
+			handler->PSendSysMessage("Player turn off this option.");
             handler->SetSentErrorMessage(true);
             return false;
         }
 
-        if (!(arena = JoinPlayer(target, arena)))
+        if ((!player->GetGroup() || player->GetGroup()->GetMembersCount() != type ||
+            !target->GetGroup() || target->GetGroup()->GetMembersCount() != type) && type != ARENA_CHALLENGE_TYPE_1v1 )
         {
-            handler->PSendSysMessage("Cant join Challenge");
+            handler->PSendSysMessage("Problem with players count.");
             handler->SetSentErrorMessage(true);
             return false;
         }
 
-        if (!JoinPlayer(handler->GetSession()->GetPlayer(), arena))
+        if (target->challengeData->options->mode)
         {
-            if (target->challengeData)
+            if (!sChallengeMgr->MakeChallengeOffer(handler->GetSession()->GetPlayer(), target, (ArenaChallengeType)type))
             {
-                target->challengeData->removeEvent->Execute(0, 0);
-                delete (target->challengeData->removeEvent);
-                delete target->challengeData;
-                target->challengeData = NULL;
+                handler->PSendSysMessage("Oops! Cant join to queue.");
+                handler->SetSentErrorMessage(true);
+                return false;
             }
 
-            handler->PSendSysMessage("Cant join Challenge.");
-            handler->SetSentErrorMessage(true);
-            return false;
+            handler->PSendSysMessage("You have challenged %s. Wait for 20s while he make decision.", target->GetName());
+        }
+        else
+        {
+            if (!sChallengeMgr->InviteGroupsToArena(handler->GetSession()->GetPlayer(), target, (ArenaChallengeType)type))
+            {
+                handler->PSendSysMessage("Oops! Cant join to queue.");
+                handler->SetSentErrorMessage(true);
+                return false;
+            }
         }
 
         return true;
     }
 
-    static bool HandleChallengePlayersCommand(ChatHandler* handler, const char* args)
+    static bool HandleChallengeCreate1x1Command(ChatHandler* handler, const char* args)
+    {
+        return ChallengeCreateForBracket(handler, args, ARENA_CHALLENGE_TYPE_1v1);
+    }
+
+    static bool HandleChallengeCreate2x2Command(ChatHandler* handler, const char* args)
+    {
+        return ChallengeCreateForBracket(handler, args, ARENA_CHALLENGE_TYPE_2v2);
+    }
+
+    static bool HandleChallengeCreate3x3Command(ChatHandler* handler, const char* args)
+    {
+        return ChallengeCreateForBracket(handler, args, ARENA_CHALLENGE_TYPE_3v3);
+    }
+
+    static bool HandleChallengeCreate5x5Command(ChatHandler* handler, const char* args)
+    {
+        return ChallengeCreateForBracket(handler, args, ARENA_CHALLENGE_TYPE_5v5);
+    }
+
+    static bool ChallengeCreateForBracket(ChatHandler* handler, const char* args, uint8 type)
     {
         std::string sargs = strtok((char*)args, " ");
 	 char* pTokens = strtok(NULL, " ");
 	 Player* player1;
-        Player* player2;
+     Player* player2;
 
         player1 = sObjectMgr->GetPlayerByLowGUID(pTokens[0]);
         player2 = sObjectMgr->GetPlayerByLowGUID(pTokens[1]);
@@ -90,26 +246,17 @@ public:
             return false;
         }
 
-        Battleground *arena = NULL;
-
-        if (!(arena = JoinPlayer(player1, arena)))
+        if ((!player1->GetGroup() || player1->GetGroup()->GetMembersCount() != type ||
+            !player2->GetGroup() || player2->GetGroup()->GetMembersCount() != type) && type != ARENA_CHALLENGE_TYPE_1v1)
         {
-            handler->PSendSysMessage("Cant join Challenge.");
+            handler->PSendSysMessage("Problem with players count.");
             handler->SetSentErrorMessage(true);
             return false;
         }
 
-        if (!JoinPlayer(player2, arena))
+       if (!sChallengeMgr->InviteGroupsToArena(player1, player2, (ArenaChallengeType)type))
         {
-            if (player1->challengeData)
-            {
-                player1->challengeData->removeEvent->Execute(0, 0);
-                delete (player1->challengeData->removeEvent);
-                delete player1->challengeData;
-                player1->challengeData = NULL;
-            }
-
-            handler->PSendSysMessage("Cant join Challenge.");
+            handler->PSendSysMessage("Oops! Cant join to queue.");
             handler->SetSentErrorMessage(true);
             return false;
         }
@@ -117,153 +264,6 @@ public:
         return true;
     }
 
-private:
-    static Battleground* JoinPlayer(Player *player, Battleground *arena)
-    {
-        // ignore if we already in BG or BG queue
-       if (player->InBattleground())
-            return NULL;
-
-        uint8 arenaType = ARENA_TYPE_2v2;
-        uint32 matchmakerRating = 0;
-
-        //check existance
-        Battleground* bg = sBattlegroundMgr->GetBattlegroundTemplate(BATTLEGROUND_AA);
-        if (!bg)
-        {
-            sLog->outError(LOG_FILTER_BATTLEGROUND, "Battleground: template bg (all arenas) not found");
-            return NULL;
-        }
-
-        if (DisableMgr::IsDisabledFor(DISABLE_TYPE_BATTLEGROUND, BATTLEGROUND_AA, NULL)) 
-               return NULL;
-
-        BattlegroundTypeId bgTypeId = bg->GetTypeID();
-        BattlegroundQueueTypeId bgQueueTypeId = BattlegroundMgr::BGQueueTypeId(bgTypeId, arenaType);
-        PvPDifficultyEntry const* bracketEntry = GetBattlegroundBracketByLevel(bg->GetMapId(), player->getLevel());
-        if (!bracketEntry)
-            return NULL;
-
-        // check if already in queue
-        if (player->GetBattlegroundQueueIndex(bgQueueTypeId) < PLAYER_MAX_BATTLEGROUND_QUEUES)
-            //player is already in this queue
-            return NULL;
-        // check if has free queue slots
-        if (!player->HasFreeBattlegroundQueueId())
-            return NULL;
-
-        uint32 queueSlot = player->AddBattlegroundQueueId(bgQueueTypeId);
-
-        WorldPacket data;
-        // send status packet (in queue)
-        sBattlegroundMgr->BuildBattlegroundStatusPacket(&data, bg, queueSlot, STATUS_WAIT_QUEUE, 0, 0, arenaType, 0);
-        player->GetSession()->SendPacket(&data);
-        sLog->outError(LOG_FILTER_BATTLEGROUND, "Battleground: player joined queue for arena, skirmish, bg queue type %u, NAME %s", bgQueueTypeId, player->GetName());
-
-        sBattlegroundMgr->ScheduleQueueUpdate(matchmakerRating, arenaType, bgQueueTypeId, bgTypeId, bracketEntry->GetBracketId());
-
-        GroupQueueInfo* ginfo            = new GroupQueueInfo;
-        ginfo->BgTypeId                  = bgTypeId;
-        ginfo->ArenaType                 = arenaType;
-        ginfo->ArenaTeamId               = 0;
-        ginfo->IsRated                   = 0;
-        ginfo->IsInvitedToBGInstanceGUID = 0;
-        ginfo->JoinTime                  = getMSTime();
-        ginfo->RemoveInviteTime          = 0;
-        ginfo->Team                      = player->GetBGTeam();
-        ginfo->ArenaTeamRating           = 0;
-        ginfo->ArenaMatchmakerRating     = 0;
-        ginfo->OpponentsTeamRating       = 0;
-        ginfo->OpponentsMatchmakerRating = 0;
-        ginfo->Players.clear();
-
-        PlayerQueueInfo* info = new PlayerQueueInfo;
-        info->GroupInfo = ginfo;
-        info->LastOnlineTime = getMSTime();
-
-        ginfo->Players[player->GetGUID()]  = info;
-
-        if (!arena)
-        {
-            arena = sBattlegroundMgr->CreateNewBattleground(bgTypeId, bracketEntry, arenaType, true);
-            arena->SetRated(false);
-            arena->SetChallenge(true);
-
-            player->challengeData = new ChallengeData;
-            player->challengeData->bg = arena;
-            player->challengeData->ginfo = ginfo;
-
-            InviteGroupToBG(ginfo, arena, ALLIANCE);
-        }
-        else
-        {
-            player->challengeData = new ChallengeData;
-            player->challengeData->bg = arena;
-            player->challengeData->ginfo = ginfo;
-
-            InviteGroupToBG(ginfo, arena, HORDE);
-            arena->StartBattleground();
-            if (!sBattlegroundMgr->HasBattleground(arena))
-                sBattlegroundMgr->AddBattleground(/*ginfo->IsInvitedToBGInstanceGUID, bgTypeId, */arena);
-        }
-
-        return arena;
-    }
-
-    static bool InviteGroupToBG(GroupQueueInfo* ginfo, Battleground* bg, uint32 side)
-    {
-        // set side if needed
-        if (side)
-            ginfo->Team = side;
-
-        if (!ginfo->IsInvitedToBGInstanceGUID)
-        {
-            // not yet invited
-            // set invitation
-            ginfo->IsInvitedToBGInstanceGUID = bg->GetInstanceID();
-            BattlegroundTypeId bgTypeId = bg->GetTypeID();
-            BattlegroundQueueTypeId bgQueueTypeId = BattlegroundMgr::BGQueueTypeId(bgTypeId, bg->GetArenaType());
-
-            // set ArenaTeamId for rated matches
-            if (bg->isArena() && bg->isRated())
-                bg->SetArenaTeamIdForTeam(ginfo->Team, ginfo->ArenaTeamId);
-
-            ginfo->RemoveInviteTime = getMSTime() + INVITE_ACCEPT_WAIT_TIME;
-
-            // loop through the players
-            for (std::map<uint64, PlayerQueueInfo*>::iterator itr = ginfo->Players.begin(); itr != ginfo->Players.end(); ++itr)
-            {
-                // get the player
-                Player* player = ObjectAccessor::FindPlayer(itr->first);
-                // if offline, skip him, this should not happen - player is removed from queue when he logs out
-                if (!player)
-                    continue;
-
-                // set invited player counters
-                bg->IncreaseInvitedCount(ginfo->Team);
-
-                player->SetInviteForBattlegroundQueueType(bgQueueTypeId, ginfo->IsInvitedToBGInstanceGUID);
-
-                BGQueueRemoveEvent* removeEvent = new BGQueueRemoveEvent(player->GetGUID(), ginfo->IsInvitedToBGInstanceGUID, bgTypeId, bgQueueTypeId, ginfo->RemoveInviteTime);
-                player->challengeData->removeEvent = removeEvent;
-
-                WorldPacket data;
-
-                uint32 queueSlot = player->GetBattlegroundQueueIndex(bgQueueTypeId);
-
-                sLog->outDebug(LOG_FILTER_BATTLEGROUND, "Battleground: invited player %s (%u) to BG instance %u queueindex %u bgtype %u, I can't help it if they don't press the enter battle button.", player->GetName(), player->GetGUIDLow(), bg->GetInstanceID(), queueSlot, bg->GetTypeID());
-
-                // send status packet
-                sBattlegroundMgr->BuildBattlegroundStatusPacket(&data, bg, queueSlot, STATUS_WAIT_JOIN, INVITE_ACCEPT_WAIT_TIME, 0, ginfo->ArenaType, 0);
-                player->GetSession()->SendPacket(&data);
-            }
-            return true;
-        }
-
-        return false;
-    }
-
-};
 
 void AddSC_challenge_script()
 {

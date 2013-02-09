@@ -391,8 +391,8 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvData)
         {
             case 617: underMapValueZ = 3.0f; break; // Dalaran Sewers
             case 618: underMapValueZ = 28.0f; break; // Ring of Valor
-            case 562: underMapValueZ = -34.0f; break; // Blade Edge Arena
-            case 559: underMapValueZ = -24.0f; break; // Nagrand arena
+            case 562: underMapValueZ = -10.0f; break; // Blade Edge Arena
+            case 559: underMapValueZ = -18.0f; break; // Nagrand arena
             case 572: underMapValueZ = 28.0f; break; // Lordearon
             case 571: underMapValueZ = -400.0f; break; // Northrend
 
