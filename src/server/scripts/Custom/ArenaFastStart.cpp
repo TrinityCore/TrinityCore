@@ -2,6 +2,7 @@
 #include "Player.h"
 #include "Battleground.h"
 #include "BattlegroundMgr.h"
+#include <sstream>
 
 class FastArenaCrystal : public GameObjectScript
 {
@@ -16,7 +17,12 @@ class FastArenaCrystal : public GameObjectScript
         {
             if (Battleground *bg = player->GetBattleground())
                 if (bg->isArena())
-                    return true;
+				{
+			        std::string msg ("Players clicked: ", bg->ClickFastStart(player, go));
+				    go->MonsterWhisper(msg.c_str(), player->GetGUID());
+				    return true;
+				}
+                    
 
             return false;
         }
