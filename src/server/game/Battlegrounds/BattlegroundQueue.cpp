@@ -143,7 +143,7 @@ GroupQueueInfo* BattlegroundQueue::AddGroup(Player* leader, Group* grp, Battlegr
     ginfo->IsInvitedToBGInstanceGUID = 0;
     ginfo->JoinTime                  = getMSTime();
     ginfo->RemoveInviteTime          = 0;
-    ginfo->Team                      = leader->GetBGTeam();
+    ginfo->Team                      = leader->GetTeam();
     ginfo->ArenaTeamRating           = ArenaRating;
     ginfo->ArenaMatchmakerRating     = MatchmakerRating;
     ginfo->OpponentsTeamRating       = 0;
@@ -656,17 +656,17 @@ bool BattlegroundQueue::CheckNormalMatch(Battleground* bg_template, Battleground
         return true;
 
     // If there are enough players to fill 2 teams with minplayerperteam count.
-    if (/*sWorld->getBoolConfig(CONFIG_BG_CROSSFRACTION) == 1 && */bg_template->isBattleground() && 
+    if (sWorld->getBoolConfig(CONFIG_BG_CROSSFRACTION) == 1 && bg_template->isBattleground() && 
         m_SelectionPools[TEAM_ALLIANCE].GetPlayerCount() + m_SelectionPools[TEAM_HORDE].GetPlayerCount() > (minPlayers * 2))
-        return true;
+        return true; 
 	
 
     //try to invite same number of players - this cycle may cause longer wait time even if there are enough players in queue, but we want ballanced bg
     uint32 j = TEAM_ALLIANCE;
-    if (m_SelectionPools[TEAM_HORDE].GetPlayerCount() + m_SelectionPools[TEAM_ALLIANCE].GetPlayerCount() < 2)
+     if (m_SelectionPools[TEAM_HORDE].GetPlayerCount() + m_SelectionPools[TEAM_ALLIANCE].GetPlayerCount() > 2)
         j = TEAM_HORDE;
     if (sWorld->getIntConfig(CONFIG_BATTLEGROUND_INVITATION_TYPE) != 0
-        && m_SelectionPools[TEAM_HORDE].GetPlayerCount() + m_SelectionPools[TEAM_ALLIANCE].GetPlayerCount() >= minPlayers)
+        && m_SelectionPools[TEAM_HORDE].GetPlayerCount() >= minPlayers && m_SelectionPools[TEAM_ALLIANCE].GetPlayerCount() >= minPlayers)
     {
         //we will try to invite more groups to team with less players indexed by j
         ++(itr_team[j]);                                         //this will not cause a crash, because for cycle above reached break;
@@ -688,14 +688,14 @@ bool BattlegroundQueue::CheckNormalMatch(Battleground* bg_template, Battleground
 		    return false;
         }	   
     }
-  /*  if (sWorld->getBoolConfig(CONFIG_BG_CROSSFRACTION) == 0)
+    if (sWorld->getBoolConfig(CONFIG_BG_CROSSFRACTION) == 0)
 	{
 		//allow 1v0 if debug bg
 		if (sBattlegroundMgr->isTesting() && bg_template->isBattleground() && (m_SelectionPools[TEAM_ALLIANCE].GetPlayerCount() || m_SelectionPools[TEAM_HORDE].GetPlayerCount()))
 			return true;
 		//return true if there are enough players in selection pools - enable to work .debug bg command correctly
 		return m_SelectionPools[TEAM_ALLIANCE].GetPlayerCount() >= minPlayers && m_SelectionPools[TEAM_HORDE].GetPlayerCount() >= minPlayers;
-	} */
+	} 
 }
 
 // this method will check if we can invite players to same faction skirmish match

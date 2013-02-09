@@ -835,8 +835,8 @@ void GameEventMgr::LoadFromDB()
                     newEntry.entry = data->id;
 
                 // check validity with event's npcflag
-             /*   if (!sObjectMgr->IsVendorItemValid(newEntry.entry, newEntry.item, newEntry.maxcount, newEntry.incrtime, newEntry.ExtendedCost, newEntry.rating NULL, NULL, event_npc_flag))
-                    continue;*/
+             //   if (!sObjectMgr->IsVendorItemValid(newEntry.entry, newEntry.item, newEntry.maxcount, newEntry.incrtime, newEntry.ExtendedCost, newEntry.rating NULL, NULL, event_npc_flag))
+		       continue;
 
                 vendors.push_back(newEntry);
 

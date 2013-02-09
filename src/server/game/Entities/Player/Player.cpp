@@ -21191,7 +21191,7 @@ bool Player::BuyItemFromVendorSlot(uint64 vendorguid, uint32 vendorslot, uint32 
      if (GetMaxPersonalArenaRatingRequirement(2) < crItem->rating)
      {
 	 // Rating Script by Saqirmdev
-	 sLog->outError(LOG_FILTER_PLAYER, "You need rating: %u", crItem->rating);
+         ChatHandler(GetSession()).PSendSysMessage("You need Rating: %u", crItem->rating);
         SendEquipError(EQUIP_ERR_CANT_EQUIP_RANK, NULL, NULL);
         return false;
      }
