@@ -26,35 +26,35 @@
 class UpdateMask
 {
     public:
+        /// Type representing how client reads update mask
+        typedef uint32 ClientUpdateMaskType;
+
+        enum UpdateMaskCount
+        {
+            CLIENT_UPDATE_MASK_BITS = sizeof(ClientUpdateMaskType) * 8,
+        };
+
         UpdateMask() : _fieldCount(0), _blockCount(0), _bits(NULL) { }
 
-        ~UpdateMask()
+        UpdateMask(UpdateMask const& right)
         {
-            delete[] _bits;
+            SetCount(right.GetCount());
+            memcpy(_bits, right._bits, sizeof(uint8) * _blockCount * 32);
         }
 
-        void SetBit(uint32 index)
-        {
-            _bits[index] = 1;
-        }
+        ~UpdateMask() { delete[] _bits; }
 
-        void UnsetBit(uint32 index)
-        {
-            _bits[index] = 0;
-        }
-
-        bool GetBit(uint32 index) const
-        {
-            return _bits[index];
-        }
+        void SetBit(uint32 index) { _bits[index] = 1; }
+        void UnsetBit(uint32 index) { _bits[index] = 0; }
+        bool GetBit(uint32 index) const { return _bits[index] != 0; }
 
         void AppendToPacket(ByteBuffer* data)
         {
             for (uint32 i = 0; i < GetBlockCount(); ++i)
             {
-                uint32 maskPart = 0;
-                for (uint32 j = 0; j < 32; ++j)
-                    if (_bits[32 * i + j])
+                ClientUpdateMaskType maskPart = 0;
+                for (uint32 j = 0; j < CLIENT_UPDATE_MASK_BITS; ++j)
+                    if (_bits[CLIENT_UPDATE_MASK_BITS * i + j])
                         maskPart |= 1 << j;
 
                 *data << maskPart;
@@ -69,16 +69,51 @@ class UpdateMask
             delete[] _bits;
 
             _fieldCount = valuesCount;
-            _blockCount = (valuesCount + 31) / 32;
+            _blockCount = (valuesCount + CLIENT_UPDATE_MASK_BITS - 1) / CLIENT_UPDATE_MASK_BITS;
 
-            _bits = new uint8[_blockCount * 32];
-            memset(_bits, 0, sizeof(uint8) * _blockCount * 32);
+            _bits = new uint8[_blockCount * CLIENT_UPDATE_MASK_BITS];
+            memset(_bits, 0, sizeof(uint8) * _blockCount * CLIENT_UPDATE_MASK_BITS);
         }
 
         void Clear()
         {
             if (_bits)
-                memset(_bits, 0, sizeof(uint8) * _blockCount * 32);
+                memset(_bits, 0, sizeof(uint8) * _blockCount * CLIENT_UPDATE_MASK_BITS);
+        }
+
+        UpdateMask& operator=(UpdateMask const& right)
+        {
+            if (this == &right)
+                return *this;
+
+            SetCount(right.GetCount());
+            memcpy(_bits, right._bits, sizeof(uint8) * _blockCount * CLIENT_UPDATE_MASK_BITS);
+            return *this;
+        }
+
+        UpdateMask& operator&=(UpdateMask const& right)
+        {
+            ASSERT(right.GetCount() <= GetCount());
+            for (uint32 i = 0; i < _fieldCount; ++i)
+                _bits[i] &= right._bits[i];
+
+            return *this;
+        }
+
+        UpdateMask& operator|=(UpdateMask const& right)
+        {
+            ASSERT(right.GetCount() <= GetCount());
+            for (uint32 i = 0; i < _fieldCount; ++i)
+                _bits[i] |= right._bits[i];
+
+            return *this;
+        }
+
+        UpdateMask operator|(UpdateMask const& right)
+        {
+            UpdateMask ret(*this);
+            ret |= right;
+            return ret;
         }
 
     private:
@@ -86,5 +121,6 @@ class UpdateMask
         uint32 _blockCount;
         uint8* _bits;
 };
+
 #endif
 

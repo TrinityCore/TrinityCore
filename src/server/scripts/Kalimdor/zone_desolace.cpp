@@ -39,7 +39,6 @@ EndContentData */
 
 enum DyingKodo
 {
-    // signed for 9999
     SAY_SMEED_HOME                  = 0,
 
     QUEST_KODO                      = 5561,
@@ -51,7 +50,7 @@ enum DyingKodo
     NPC_TAMED_KODO                  = 11627,
 
     SPELL_KODO_KOMBO_ITEM           = 18153,
-    SPELL_KODO_KOMBO_PLAYER_BUFF    = 18172,                //spells here have unclear function, but using them at least for visual parts and checks
+    SPELL_KODO_KOMBO_PLAYER_BUFF    = 18172,
     SPELL_KODO_KOMBO_DESPAWN_BUFF   = 18377,
     SPELL_KODO_KOMBO_GOSSIP         = 18362
 
@@ -66,110 +65,55 @@ public:
     {
         if (player->HasAura(SPELL_KODO_KOMBO_PLAYER_BUFF) && creature->HasAura(SPELL_KODO_KOMBO_DESPAWN_BUFF))
         {
-            //the expected quest objective
-            player->TalkedToCreature(creature->GetEntry(), creature->GetGUID());
-
+            player->TalkedToCreature(creature->GetEntry(), 0);
             player->RemoveAurasDueToSpell(SPELL_KODO_KOMBO_PLAYER_BUFF);
-            creature->GetMotionMaster()->MoveIdle();
         }
 
         player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
         return true;
     }
 
-    bool EffectDummyCreature(Unit* pCaster, uint32 spellId, uint32 effIndex, Creature* creatureTarget)
+    struct npc_aged_dying_ancient_kodoAI : public ScriptedAI
     {
-        //always check spellid and effectindex
-        if (spellId == SPELL_KODO_KOMBO_ITEM && effIndex == 0)
+        npc_aged_dying_ancient_kodoAI(Creature* creature) : ScriptedAI(creature) {}
+
+        void MoveInLineOfSight(Unit* who)
         {
-            //no effect if player/creature already have aura from spells
-            if (pCaster->HasAura(SPELL_KODO_KOMBO_PLAYER_BUFF) || creatureTarget->HasAura(SPELL_KODO_KOMBO_DESPAWN_BUFF))
-                return true;
-
-            if (creatureTarget->GetEntry() == NPC_AGED_KODO ||
-                creatureTarget->GetEntry() == NPC_DYING_KODO ||
-                creatureTarget->GetEntry() == NPC_ANCIENT_KODO)
+            if (who->GetEntry() == NPC_SMEED && me->IsWithinDistInMap(who, 10.0f) && !me->HasAura(SPELL_KODO_KOMBO_GOSSIP))
             {
-                pCaster->CastSpell(pCaster, SPELL_KODO_KOMBO_PLAYER_BUFF, true);
-
-                creatureTarget->UpdateEntry(NPC_TAMED_KODO);
-                creatureTarget->CastSpell(creatureTarget, SPELL_KODO_KOMBO_DESPAWN_BUFF, false);
-
-                if (creatureTarget->GetMotionMaster()->GetCurrentMovementGeneratorType() == WAYPOINT_MOTION_TYPE)
-                    creatureTarget->GetMotionMaster()->MoveIdle();
-
-                creatureTarget->GetMotionMaster()->MoveFollow(pCaster, PET_FOLLOW_DIST,  creatureTarget->GetFollowAngle());
+                me->GetMotionMaster()->Clear();
+                DoCast(me, SPELL_KODO_KOMBO_GOSSIP, true);
+                if (Creature* smeed = who->ToCreature())
+                    smeed->AI()->Talk(SAY_SMEED_HOME);
             }
-
-            //always return true when we are handling this spell and effect
-            return true;
         }
-        return false;
-    }
 
+        void SpellHit(Unit* caster, SpellInfo const* spell)
+        {
+            if (spell->Id == SPELL_KODO_KOMBO_ITEM)
+            {
+                if (!(caster->HasAura(SPELL_KODO_KOMBO_PLAYER_BUFF) || me->HasAura(SPELL_KODO_KOMBO_DESPAWN_BUFF))
+                    && (me->GetEntry() == NPC_AGED_KODO || me->GetEntry() == NPC_DYING_KODO || me->GetEntry() == NPC_ANCIENT_KODO))
+                {
+                    caster->CastSpell(caster, SPELL_KODO_KOMBO_PLAYER_BUFF, true);
+                    DoCast(me, SPELL_KODO_KOMBO_DESPAWN_BUFF, true);
+
+                    me->UpdateEntry(NPC_TAMED_KODO);
+                    me->GetMotionMaster()->MoveFollow(caster, PET_FOLLOW_DIST, me->GetFollowAngle());
+                }
+            }
+            else if (spell->Id == SPELL_KODO_KOMBO_GOSSIP)
+            {
+                me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                me->DespawnOrUnsummon(60000);
+            }
+        }
+    };
+    
     CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_aged_dying_ancient_kodoAI(creature);
     }
-
-    struct npc_aged_dying_ancient_kodoAI : public ScriptedAI
-    {
-        npc_aged_dying_ancient_kodoAI(Creature* creature) : ScriptedAI(creature) { Reset(); }
-
-        uint32 DespawnTimer;
-
-        void Reset()
-        {
-            DespawnTimer = 0;
-        }
-
-        void MoveInLineOfSight(Unit* who)
-        {
-            if (who->GetEntry() == NPC_SMEED)
-            {
-                if (me->HasFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP))
-                    return;
-
-                if (me->IsWithinDistInMap(who, 10.0f))
-                {
-                    if (Creature* talker = who->ToCreature())
-                        talker->AI()->Talk(SAY_SMEED_HOME);
-
-                    //spell have no implemented effect (dummy), so useful to notify spellHit
-                    DoCast(me, SPELL_KODO_KOMBO_GOSSIP, true);
-                }
-            }
-        }
-
-        void SpellHit(Unit* /*pCaster*/, SpellInfo const* pSpell)
-        {
-            if (pSpell->Id == SPELL_KODO_KOMBO_GOSSIP)
-            {
-                me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-                DespawnTimer = 60000;
-            }
-        }
-
-        void UpdateAI(const uint32 diff)
-        {
-            //timer should always be == 0 unless we already updated entry of creature. Then not expect this updated to ever be in combat.
-            if (DespawnTimer && DespawnTimer <= diff)
-            {
-                if (!me->getVictim() && me->isAlive())
-                {
-                    Reset();
-                    me->setDeathState(JUST_DIED);
-                    me->Respawn();
-                    return;
-                }
-            } else DespawnTimer -= diff;
-
-            if (!UpdateVictim())
-                return;
-
-            DoMeleeAttackIfReady();
-        }
-    };
 
 };
 

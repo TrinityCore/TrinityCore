@@ -779,7 +779,7 @@ void Object::BuildFieldsUpdate(Player* player, UpdateDataMapType& data_map) cons
 
 uint32 Object::GetUpdateFieldData(Player const* target, uint32*& flags) const
 {
-    uint32 visibleFlag = UF_FLAG_PUBLIC | UF_FLAG_DYNAMIC;
+    uint32 visibleFlag = UF_FLAG_PUBLIC;
 
     if (target == this)
         visibleFlag |= UF_FLAG_PRIVATE;
