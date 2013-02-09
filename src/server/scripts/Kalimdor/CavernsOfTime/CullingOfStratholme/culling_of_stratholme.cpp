@@ -311,7 +311,7 @@ public:
                 break;
         }
         player->CLOSE_GOSSIP_MENU();
-        ai->SetDespawnAtFar(true);
+        ai->SetDespawnAtFar(false);
         creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
         return true;
     }
@@ -627,19 +627,19 @@ public:
                 {
                     switch (step)
                     {
-                        //After reset
+                        // This is a workaround. Chromie(27915) should be the one spawning Jaina
                         case 0:
                         {
-                            Unit* jaina = GetClosestCreatureWithEntry(me, NPC_JAINA, 50.0f);
+                            Unit* jaina = GetClosestCreatureWithEntry(me, NPC_JAINA, 100.0f);
                             if (!jaina)
-                                jaina = me->SummonCreature(NPC_JAINA, 1895.48f, 1292.66f, 143.706f, 0.023475f, TEMPSUMMON_DEAD_DESPAWN, 180000);
+                                jaina = me->SummonCreature(NPC_JAINA, 1874.487f, 13505.505f, 146.3130f, 5.81827f, TEMPSUMMON_DEAD_DESPAWN, 180000);
                             if (jaina)
                                 jainaGUID = jaina->GetGUID();
                             bStepping = false;
                             JumpToNextStep(0);
                             break;
                         }
-                        //After waypoint 0
+                        // This is a workaround. Chromie(27915) should be the one spawning Uther
                         case 1:
                             me->SetWalk(false);
                             if (Unit* uther = me->SummonCreature(NPC_UTHER, 1794.357f, 1272.183f, 140.558f, 1.37f, TEMPSUMMON_DEAD_DESPAWN, 180000))
@@ -647,8 +647,8 @@ public:
                                 utherGUID = uther->GetGUID();
                                 uther->SetWalk(false);
                                 uther->GetMotionMaster()->MovePoint(0, 1897.018f, 1287.487f, 143.481f);
-                                uther->SetTarget(me->GetGUID());
-                                me->SetTarget(utherGUID);
+                                me->SetFacingToObject(uther);
+                                uther->SetFacingToObject(me);
                             }
                             JumpToNextStep(17000);
                             break;
@@ -673,7 +673,7 @@ public:
                         //After waypoint 1
                         case 5:
                             if (Creature* jaina = Unit::GetCreature(*me, jainaGUID))
-                                jaina->SetTarget(me->GetGUID());
+                                jaina->SetFacingToObject(me);
                             Talk(SAY_PHASE104);
                             JumpToNextStep(10000);
                             break;
@@ -738,7 +738,7 @@ public:
                         case 18:
                             if (Creature* jaina = Unit::GetCreature(*me, jainaGUID))
                             {
-                                me->SetTarget(jainaGUID);
+                                me->SetFacingToObject(jaina);
                                 jaina->SetWalk(true);
                                 jaina->GetMotionMaster()->MovePoint(0, 1794.357f, 1272.183f, 140.558f);
                             }
@@ -1280,9 +1280,9 @@ class npc_crate_helper : public CreatureScript
                     {
                         if (GameObject* crateHighlighter = me->FindNearestGameObject(GO_CRATE_HIGHLIGHTER, 5.0f))
                         {
-                            crate->Delete();
                             crateHighlighter->Delete();
                             crate->SummonGameObject(GO_PLAGUED_CRATE, crate->GetPositionX(), crate->GetPositionY(), crate->GetPositionZ(), crate->GetOrientation(), 0.0f, 0.0f, 0.0f, 0.0f, DAY);
+                            crate->Delete();
                         }
                     }
                 }
