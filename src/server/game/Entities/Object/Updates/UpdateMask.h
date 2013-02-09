@@ -21,106 +21,70 @@
 
 #include "UpdateFields.h"
 #include "Errors.h"
+#include "ByteBuffer.h"
 
 class UpdateMask
 {
     public:
-        UpdateMask() : mCount(0), mBlocks(0), mUpdateMask(0) { }
-        UpdateMask(UpdateMask const& mask) : mUpdateMask(0) { *this = mask; }
+        UpdateMask() : _fieldCount(0), _blockCount(0), _bits(NULL) { }
 
         ~UpdateMask()
         {
-            delete[] mUpdateMask;
+            delete[] _bits;
         }
 
         void SetBit(uint32 index)
         {
-            ((uint8*)mUpdateMask)[index >> 3] |= 1 << (index & 0x7);
+            _bits[index] = 1;
         }
 
         void UnsetBit(uint32 index)
         {
-            ((uint8*)mUpdateMask)[index >> 3] &= (0xff ^ (1 <<  (index & 0x7)));
+            _bits[index] = 0;
         }
 
         bool GetBit(uint32 index) const
         {
-            return (((uint8*)mUpdateMask)[index >> 3] & (1 << (index & 0x7))) != 0;
+            return _bits[index];
         }
 
-        uint32 GetBlockCount() const { return mBlocks; }
-        uint32 GetLength() const { return mBlocks << 2; }
-        uint32 GetCount() const { return mCount; }
-        uint8* GetMask() { return (uint8*)mUpdateMask; }
-
-        void SetCount (uint32 valuesCount)
+        void AppendToPacket(ByteBuffer* data)
         {
-            delete [] mUpdateMask;
+            for (uint32 i = 0; i < GetBlockCount(); ++i)
+            {
+                uint32 maskPart = 0;
+                for (uint32 j = 0; j < 32; ++j)
+                    if (_bits[32 * i + j])
+                        maskPart |= 1 << j;
 
-            mCount = valuesCount;
-            mBlocks = (valuesCount + 31) / 32;
+                *data << maskPart;
+            }
+        }
 
-            mUpdateMask = new uint32[mBlocks];
-            memset(mUpdateMask, 0, mBlocks << 2);
+        uint32 GetBlockCount() const { return _blockCount; }
+        uint32 GetCount() const { return _fieldCount; }
+
+        void SetCount(uint32 valuesCount)
+        {
+            delete[] _bits;
+
+            _fieldCount = valuesCount;
+            _blockCount = (valuesCount + 31) / 32;
+
+            _bits = new uint8[_blockCount * 32];
+            memset(_bits, 0, sizeof(uint8) * _blockCount * 32);
         }
 
         void Clear()
         {
-            if (mUpdateMask)
-                memset(mUpdateMask, 0, mBlocks << 2);
-        }
-
-        UpdateMask& operator=(UpdateMask const& mask)
-        {
-            if (this == &mask)
-                return *this;
-
-            SetCount(mask.mCount);
-            memcpy(mUpdateMask, mask.mUpdateMask, mBlocks << 2);
-
-            return *this;
-        }
-
-        void operator&=(UpdateMask const& mask)
-        {
-            ASSERT(mask.mCount <= mCount);
-            for (uint32 i = 0; i < mBlocks; ++i)
-                mUpdateMask[i] &= mask.mUpdateMask[i];
-        }
-
-        void operator|=(UpdateMask const& mask)
-        {
-            ASSERT(mask.mCount <= mCount);
-            for (uint32 i = 0; i < mBlocks; ++i)
-                mUpdateMask[i] |= mask.mUpdateMask[i];
-        }
-
-        UpdateMask operator&(UpdateMask const& mask) const
-        {
-            ASSERT(mask.mCount <= mCount);
-
-            UpdateMask newmask;
-            newmask = *this;
-            newmask &= mask;
-
-            return newmask;
-        }
-
-        UpdateMask operator|(UpdateMask const& mask) const
-        {
-            ASSERT(mask.mCount <= mCount);
-
-            UpdateMask newmask;
-            newmask = *this;
-            newmask |= mask;
-
-            return newmask;
+            if (_bits)
+                memset(_bits, 0, sizeof(uint8) * _blockCount * 32);
         }
 
     private:
-        uint32 mCount;
-        uint32 mBlocks;
-        uint32 *mUpdateMask;
+        uint32 _fieldCount;
+        uint32 _blockCount;
+        uint8* _bits;
 };
 #endif
 
