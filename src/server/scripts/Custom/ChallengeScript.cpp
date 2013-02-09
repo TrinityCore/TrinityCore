@@ -15,13 +15,12 @@ public:
 
     ChatCommand* GetCommands() const
     {
-        static ChatCommand challengeCommandTable[] =
+        static ChatCommand challengeCreateCommandTable[] =
         {
      		{ "players",        SEC_MODERATOR,      false, &HandleChallengeCreate1x1Command,    "", NULL },
             { "2x2",            SEC_MODERATOR,      false, &HandleChallengeCreate2x2Command,    "", NULL },
             { "3x3",            SEC_MODERATOR,      false, &HandleChallengeCreate3x3Command,    "", NULL },
             { "5x5",            SEC_MODERATOR,      false, &HandleChallengeCreate5x5Command,    "", NULL },
-            { "",               SEC_PLAYER,         false, &HandleChallengeCommand,             "", NULL },
             { NULL,             0,                  false, NULL,                                "", NULL }
         };
 
@@ -263,6 +262,7 @@ public:
 
         return true;
     }
+ };
 
 
 void AddSC_challenge_script()

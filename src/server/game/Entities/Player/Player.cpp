@@ -879,19 +879,11 @@ Player::Player(WorldSession* session): Unit(true)
 
     m_SeasonalQuestChanged = false;
 
-
-
     SetPendingBind(0, 0);
 
     _activeCheats = CHEAT_NONE;
     m_achievementMgr = new AchievementMgr(this);
     m_reputationMgr = new ReputationMgr(this);
-
-	
-    CleanChallengeData();
-    delete challengeData
- 
-    _LoadEquipmentSets(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADEQUIPMENTSETS));
     
 }
 
@@ -1538,16 +1530,6 @@ void Player::Update(uint32 p_time)
 {
     if (!IsInWorld())
         return;
-
-        
-    if (challengeData)
-        if (getMSTimeDiff(challengeData->ginfo->JoinTime, getMSTime()) > 36000)
-        {
-            challengeData->removeEvent->Execute(0, 0);
-            delete (challengeData->removeEvent);
-            delete challengeData;
-            challengeData = NULL;
-        }
 
     // undelivered mail
     if (m_nextMailDelivereTime && m_nextMailDelivereTime <= time(NULL))
@@ -17406,6 +17388,9 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
     _LoadDeclinedNames(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_DECLINED_NAMES));
 
     m_achievementMgr->CheckAllAchievementCriteria();
+
+    CleanChallengeData();
+    delete challengeData
 
     _LoadEquipmentSets(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_EQUIPMENT_SETS));
 

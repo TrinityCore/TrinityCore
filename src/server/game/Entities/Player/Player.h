@@ -37,6 +37,7 @@ struct Mail;
 struct GroupQueueInfo;
 struct TrainerSpell;
 struct VendorItem;
+struct ChallengeOption;
 
 class AchievementMgr;
 class ReputationMgr;
@@ -52,7 +53,6 @@ class PlayerMenu;
 class PlayerSocial;
 class SpellCastTargets;
 class UpdateMask;
-class BGQueueRemoveEvent;
 
 typedef std::deque<Mail*> PlayerMails;
 
@@ -113,8 +113,7 @@ struct PlayerTalent
 struct ChallengeData {
     GroupQueueInfo *ginfo;
     Battleground   *bg;
-    BGQueueRemoveEvent *removeEvent;
-	ChallengeOption *options;
+    ChallengeOption *options;
     uint64 challenger;
     uint64 challengeTo;
     uint8 challengeType;

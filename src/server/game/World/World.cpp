@@ -2083,7 +2083,7 @@ void World::Update(uint32 diff)
     sInstanceSaveMgr->Update();
 
 	sChallengeMgr->LoadOptions();
-	 sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loading challenge options...")
+	sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loading challenge options...");
 
     // And last, but not least handle the issued cli commands
     ProcessCliCommands();
