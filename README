@@ -1,16 +1,33 @@
-MMaps branch is Fixed and can be USED!!
 Fork me!
 Patch: 3.3.5a
 Emulator: TrinityCore
 
+We are using Mmaps with custom Implentements:
+============================================
+-Transmogrification
+-Arena Crystal
+-Utility Commands
+-Gurubashi EventScript
+-npc Supporter
+-Teleporter (C++)
+-Challenge CommandScript
+-CC delay
+-InstantCast (Arena/Bg  start) 
+-SpellFixes 
+-Duel Script..
+-Custom Arena Rating Cost Script
+-Crossfraction BGs
+============================================
+Future: Arena Spectator, Duel Script (Improvements), Phase Duel Script, Isle of Quel Dalas Script (FFa Arena), UtilityCommand (add mmr), 
+
 Developers:
 =====================================
-  *Dessus, Saqirmdev, Phailure
+  *@Dessus, @Saqirmdev, @Phailure
 =====================================
 
 Thanks: 
 =====================================
-  *Saqirmdev, Dessus, Phailure,
+  *@Saqirmdev, @Dessus, @Phailure, @L30m4nc3r
 =====================================
 
 

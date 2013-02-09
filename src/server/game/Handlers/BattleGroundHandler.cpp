@@ -470,9 +470,11 @@ void WorldSession::HandleBattleFieldPortOpcode(WorldPacket &recvData)
         // set the destination team
         _player->SetBGTeam(ginfo.Team);
 
-        // bg->HandleBeforeTeleportToBattleground(_player);
-            (_player->challengeData) ? sBattlegroundMgr->SendToBattleground(_player, _player->challengeData->bg) :
-                                       sBattlegroundMgr->SendToBattleground(_player, ginfo.IsInvitedToBGInstanceGUID, bgTypeId);
+        // bg->HandleBeforeTeleportToBattleground(_player)	
+            sBattlegroundMgr->SendToBattleground(_player, ginfo.IsInvitedToBGInstanceGUID, bgTypeId);
+           /* if (_player->challengeData)
+            	   sBattlegroundMgr->SendToBattleground(_player, _player->challengeData->bg);*/
+
         // add only in HandleMoveWorldPortAck()
         // bg->AddPlayer(_player, team);
         sLog->outDebug(LOG_FILTER_BATTLEGROUND, "Battleground: player %s (%u) joined battle for bg %u, bgtype %u, queue type %u.", _player->GetName().c_str(), _player->GetGUIDLow(), bg->GetInstanceID(), bg->GetTypeID(), bgQueueTypeId);
