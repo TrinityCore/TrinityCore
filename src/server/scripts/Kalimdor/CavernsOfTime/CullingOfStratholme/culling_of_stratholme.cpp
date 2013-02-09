@@ -324,8 +324,8 @@ public:
         {
             switch (ai->gossipStep)
             {
-                // This one is a workaround since the very beggining of the script is wrong.
-                // Arthas should be spawned via players interacting with Chromie(27915)
+                // This one is a workaround since the very beggining of the script is wrong
+                // Arthas, Uther (and his knights) and Jaina should be spawned via players interacting with Chromie(27915)
                 case 0:
                 {
                     QuestStatus status = player->GetQuestStatus(13149);
