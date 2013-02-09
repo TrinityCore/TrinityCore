@@ -5,6 +5,3 @@ INSERT INTO `areatrigger_teleport` (`id`, `target_map`, `target_position_x`, `ta
 
 -- Grain Crate Helper
 UPDATE `creature_template` SET `ScriptName`="npc_grain_crate_helper_cos" WHERE `entry`=27827 LIMIT 1;
-
--- Arthas' Initial Spawn location
-UPDATE `creature` SET `position_x`=1988.2232, `position_y`=1287.3298, `position_z`=145.47531, `orientation`=3.14159, `spawntimesecs`=30 WHERE `id`=26499;

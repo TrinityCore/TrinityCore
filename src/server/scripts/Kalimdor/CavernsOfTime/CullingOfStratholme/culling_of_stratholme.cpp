@@ -647,8 +647,8 @@ public:
                                 utherGUID = uther->GetGUID();
                                 uther->SetWalk(false);
                                 uther->GetMotionMaster()->MovePoint(0, 1897.018f, 1287.487f, 143.481f);
-                                me->SetFacingToObject(uther);
-                                uther->SetFacingToObject(me);
+                                me->SetTarget(utherGUID);
+                                uther->SetTarget(me->GetGUID());
                             }
                             JumpToNextStep(17000);
                             break;
@@ -673,7 +673,7 @@ public:
                         //After waypoint 1
                         case 5:
                             if (Creature* jaina = Unit::GetCreature(*me, jainaGUID))
-                                jaina->SetFacingToObject(me);
+                                jaina->SetTarget(me->GetGUID);
                             Talk(SAY_PHASE104);
                             JumpToNextStep(10000);
                             break;
@@ -738,7 +738,7 @@ public:
                         case 18:
                             if (Creature* jaina = Unit::GetCreature(*me, jainaGUID))
                             {
-                                me->SetFacingToObject(jaina);
+                                me->SetTarget(jaina->GetGUID());
                                 jaina->SetWalk(true);
                                 jaina->GetMotionMaster()->MovePoint(0, 1794.357f, 1272.183f, 140.558f);
                             }
