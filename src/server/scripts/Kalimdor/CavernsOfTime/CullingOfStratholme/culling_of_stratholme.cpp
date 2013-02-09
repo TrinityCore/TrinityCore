@@ -111,24 +111,32 @@ enum NPCs
     NPC_INFINITE_ADVERSARY                     = 27742,
     NPC_INFINITE_HUNTER                        = 27743,
     NPC_INFINITE_AGENT                         = 27744,
-    NPC_TIME_RIFT                              = 28409,
-    NPC_ZOMBIE                                 = 27737,
-    NPC_GHOUL                                  = 28249,
-    NPC_NECROMANCER                            = 28200,
-    NPC_STALKER                                = 28199,
-    NPC_FIEND                                  = 27734,
-    NPC_GOLEM                                  = 28201,
-    NPC_EGHOUL                                 = 27729,
-    NPC_CONSTRUCT                              = 27736,
+    NPC_TIME_RIFT                              = 28409, // Used for Infinite Agents, Hunters and Adversarys
+    NPC_TIME_RIFT_LARGE                        = 28439, // Used for Chrono-Lord Epoch ONLY
+    NPC_RISEN_ZOMBIE                           = 27737, // Achievement Criteria for Zombiefest!
 
-    NPC_INVIS_TARGET                           = 20562,
+    NPC_DEVOURING_GHOUL                        = 28249,
+    NPC_ENRAGING_GHOUL                         = 27729,
 
-    NPC_KNIGHT_ESCORT                          = 27745,
-    NPC_PRIEST_ESCORT                          = 27747,
-    NPC_CITY_MAN                               = 28167,
-    NPC_CITY_MAN2                              = 28169,
-    NPC_CITY_MAN3                              = 31126,
-    NPC_CITY_MAN4                              = 31127,
+    NPC_ACOLYTE                                = 27731,
+    NPC_DARK_NECROMANCER                       = 28200,
+    NPC_MASTER_NECROMANCER                     = 27732,
+
+    NPC_TOMB_STALKER                           = 28199,
+    NPC_CRYPT_FIEND                            = 27734,
+
+    NPC_BILE_GOLEM                             = 28201,
+    NPC_PATCHWORK_CONSTRUCT                    = 27736, 
+
+    NPC_LORDAERON_FOOTMAN                      = 27745,
+    NPC_HIGH_ELF_MAGE_PRIEST                   = 27747,
+
+    NPC_STRATHOLME_CITIZEN                     = 28167,
+    NPC_STRATHOLME_RESIDENT                    = 28169,
+    NPC_AGITATED_STRATHOLME_CITIZEN            = 31126,
+    NPC_AGITATED_STRATHOLME_RESIDENT           = 31127,
+
+    NPC_INVISIBLE_STALKER                      = 29100,
 };
 
 enum Spells
@@ -150,73 +158,83 @@ enum GossipMenuArthas
    GOSSIP_MENU_ARTHAS_5                        = 100005
 };
 
+
+
 enum EncounterData
 {
-    ENCOUNTER_WAVES_NUMBER                      = 8,
-    ENCOUNTER_WAVES_MAX_SPAWNS                  = 5,
-    ENCOUNTER_DRACONIAN_NUMBER                  = 4,
-    ENCOUNTER_CHRONO_SPAWNS                     = 19
+    ENCOUNTER_WAVES_NUMBER                     = 8,
+    ENCOUNTER_WAVES_MAX_SPAWNS                 = 6,
+    ENCOUNTER_INFINITE_DRAGON_NUMBER           = 4,
+    ENCOUNTER_CHRONO_SPAWNS                    = 19
 };
 
-// Locations for necromancers and add to spawn
-float WavesLocations[ENCOUNTER_WAVES_NUMBER][ENCOUNTER_WAVES_MAX_SPAWNS][5]=
+
+float const WavesLocations[ENCOUNTER_WAVES_NUMBER][ENCOUNTER_WAVES_MAX_SPAWNS][5] =
 {
-    {
-        {NPC_ZOMBIE, 2164.698975f, 1255.392944f, 135.040878f, 0.490202f},
-        {NPC_ZOMBIE, 2183.501465f, 1263.079102f, 134.859055f, 3.169981f},
-        {NPC_GHOUL, 2177.512939f, 1247.313843f, 135.846695f, 1.696574f},
-        {NPC_GHOUL, 2171.991943f, 1246.615845f, 135.745026f, 1.696574f},
+    {   // Wave 1/10
+        {NPC_ENRAGING_GHOUL, 2164.698975f, 1255.392944f, 135.040878f, 0.490202f},
+        {NPC_DEVOURING_GHOUL, 2183.501465f, 1263.079102f, 134.859055f, 3.169981f},
+        {NPC_DEVOURING_GHOUL, 2177.512939f, 1247.313843f, 135.846695f, 1.696574f},
+        {0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0},
         {0, 0, 0, 0, 0}
     },
-    {
-        {NPC_GHOUL, 2254.434326f, 1163.427612f, 138.055038f, 2.077358f},
-        {NPC_GHOUL, 2254.703613f, 1158.867798f, 138.212234f, 2.345532f},
-        {NPC_GHOUL, 2257.615723f, 1162.310913f, 138.091202f, 2.077358f},
-        {NPC_NECROMANCER, 2258.258057f, 1157.250732f, 138.272873f, 2.387766f},
+    {   // Wave 2/10
+        {NPC_DARK_NECROMANCER, 2258.258057f, 1157.250732f, 138.272873f, 2.387766f},
+        {NPC_ENRAGING_GHOUL, 2254.703613f, 1158.867798f, 138.212234f, 2.345532f},
+        {NPC_DEVOURING_GHOUL, 2257.615723f, 1162.310913f, 138.091202f, 2.077358f},
+        {0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0},
         {0, 0, 0, 0, 0}
     },
-    {
-        {NPC_STALKER, 2348.120117f, 1202.302490f, 130.491104f, 4.698538f},
-        {NPC_GHOUL, 2352.863525f, 1207.819092f, 130.424271f, 4.949865f},
-        {NPC_GHOUL, 2343.593750f, 1207.915039f, 130.781311f, 4.321547f},
-        {NPC_NECROMANCER, 2348.257324f, 1212.202515f, 130.670135f, 4.450352f},
+    {   // Wave 3/10
+        {NPC_CRYPT_FIEND, 2348.120117f, 1202.302490f, 130.491104f, 4.698538f},
+        {NPC_DEVOURING_GHOUL, 2352.863525f, 1207.819092f, 130.424271f, 4.949865f},
+        {NPC_ENRAGING_GHOUL, 2343.593750f, 1207.915039f, 130.781311f, 4.321547f},
+        {NPC_DARK_NECROMANCER, 2348.257324f, 1212.202515f, 130.670135f, 4.450352f},
+        {0, 0, 0, 0, 0},
         {0, 0, 0, 0, 0}
     },
-    {
-        {NPC_STALKER, 2139.825195f, 1356.277100f, 132.199615f, 5.820131f},
-        {NPC_GHOUL, 2137.073486f, 1362.464844f, 132.271637f, 5.820131f},
-        {NPC_GHOUL, 2134.075684f, 1354.148071f, 131.885864f, 5.820131f},
-        {NPC_NECROMANCER, 2133.302246f, 1358.907837f, 132.037689f, 5.820131f},
+    {   // Wave 4/10
+        {NPC_TOMB_STALKER, 2139.825195f, 1356.277100f, 132.199615f, 5.820131f},
+        {NPC_DARK_NECROMANCER, 2137.073486f, 1362.464844f, 132.271637f, 5.820131f},
+        {NPC_ACOLYTE, 2134.075684f, 1354.148071f, 131.885864f, 5.820131f},
+        {NPC_ACOLYTE, 2133.302246f, 1358.907837f, 132.037689f, 5.820131f},
+        {NPC_ACOLYTE, 2132.002246f, 1357.807837f, 132.037689f, 5.820131f},
+        {NPC_ACOLYTE, 2131.300046f, 1350.007837f, 132.037689f, 5.820131f}
+    },
+    {   // Wave 6/10
+        {NPC_MASTER_NECROMANCER, 2264.013428f, 1174.055908f, 138.093094f, 2.860481f},
+        {NPC_ENRAGING_GHOUL, 2264.207764f, 1170.892700f, 138.034973f, 2.860481f},
+        {NPC_TOMB_STALKER, 2269.215576f, 1170.109253f, 137.742691f, 2.860481f},
+        {NPC_CRYPT_FIEND, 2273.106689f, 1176.101074f, 137.880508f, 2.860481f},
+        {0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0}
+    },  // Wave 5/10: Meathook
+    {   // Wave 7/10
+        {NPC_PATCHWORK_CONSTRUCT, 2349.701660f, 1188.436646f, 130.428864f, 3.908642f},
+        {NPC_DEVOURING_GHOUL, 2349.909180f, 1194.582642f, 130.417816f, 3.577001f},
+        {NPC_ENRAGING_GHOUL, 2354.662598f, 1185.692017f, 130.552032f, 3.577001f},
+        {NPC_ENRAGING_GHOUL, 2354.716797f, 1191.614380f, 130.539810f, 3.577001f},
+        {0, 0, 0, 0, 0},
         {0, 0, 0, 0, 0}
     },
-    {
-        {NPC_NECROMANCER, 2264.013428f, 1174.055908f, 138.093094f, 2.860481f},
-        {NPC_GHOUL, 2264.207764f, 1170.892700f, 138.034973f, 2.860481f},
-        {NPC_GHOUL, 2266.948975f, 1176.898926f, 137.976929f, 2.860481f},
-        {NPC_STALKER, 2269.215576f, 1170.109253f, 137.742691f, 2.860481f},
-        {NPC_FIEND, 2273.106689f, 1176.101074f, 137.880508f, 2.860481f}
-    },
-    {
-        {NPC_GOLEM, 2349.701660f, 1188.436646f, 130.428864f, 3.908642f},
-        {NPC_GHOUL, 2349.909180f, 1194.582642f, 130.417816f, 3.577001f},
-        {NPC_EGHOUL, 2354.662598f, 1185.692017f, 130.552032f, 3.577001f},
-        {NPC_EGHOUL, 2354.716797f, 1191.614380f, 130.539810f, 3.577001f},
+    {   // Wave 8/10
+        {NPC_PATCHWORK_CONSTRUCT, 2145.212891f, 1355.288086f, 132.288773f, 6.004838f},
+        {NPC_DARK_NECROMANCER, 2137.078613f, 1357.612671f, 132.173340f, 6.004838f},
+        {NPC_ENRAGING_GHOUL, 2139.402100f, 1352.541626f, 132.127518f, 5.812850f},
+        {NPC_DEVOURING_GHOUL, 2142.408447f, 1360.760620f, 132.321564f, 5.812850f},
+        {0, 0, 0, 0, 0},
         {0, 0, 0, 0, 0}
     },
-    {
-        {NPC_CONSTRUCT, 2145.212891f, 1355.288086f, 132.288773f, 6.004838f},
-        {NPC_NECROMANCER, 2137.078613f, 1357.612671f, 132.173340f, 6.004838f},
-        {NPC_EGHOUL, 2139.402100f, 1352.541626f, 132.127518f, 5.812850f},
-        {NPC_EGHOUL, 2142.408447f, 1360.760620f, 132.321564f, 5.812850f},
+    {   // Wave 9/10
+        {NPC_ENRAGING_GHOUL, 2172.686279f, 1259.618164f, 134.391754f, 1.865499f},
+        {NPC_TOMB_STALKER, 2177.649170f, 1256.061157f, 135.096512f, 1.849572f},
+        {NPC_BILE_GOLEM, 2170.782959f, 1253.594849f, 134.973022f, 1.849572f},
+        {NPC_DARK_NECROMANCER, 2175.595703f, 1249.041992f, 135.603531f, 1.849572f},
+        {0, 0, 0, 0, 0},
         {0, 0, 0, 0, 0}
-    },
-    {
-        {NPC_GHOUL, 2172.686279f, 1259.618164f, 134.391754f, 1.865499f},
-        {NPC_FIEND, 2177.649170f, 1256.061157f, 135.096512f, 1.849572f},
-        {NPC_CONSTRUCT, 2170.782959f, 1253.594849f, 134.973022f, 1.849572f},
-        {NPC_NECROMANCER, 2175.595703f, 1249.041992f, 135.603531f, 1.849572f},
-        {0, 0, 0, 0, 0}
-    }
+    }   // Wave 10/10: Salramm the Fleshcrafter
 };
 
 // Locations for rifts to spawn and draconians to go
@@ -243,7 +261,7 @@ float RiftAndSpawnsLocations[ENCOUNTER_CHRONO_SPAWNS][5]=
     {NPC_EPOCH, 2451.809326f, 1112.901245f, 149.220459f, 3.363617f}
 };
 
-#define GOSSIP_ITEM_ARTHAS_0 "I'm ready to start Culling of Stratholme."
+#define GOSSIP_ITEM_ARTHAS_0 "I'm ready to start Culling of Stratholme." // *This is a portion of where: "The beginning of the script is wrong"
 #define GOSSIP_ITEM_ARTHAS_1 "Yes, my Prince. We're ready."
 #define GOSSIP_ITEM_ARTHAS_2 "We're only doing what is best for Loarderon your Highness."
 #define GOSSIP_ITEM_ARTHAS_3 "I'm ready."
@@ -306,7 +324,7 @@ public:
         {
             switch (ai->gossipStep)
             {
-                case 0: //This one is a workaround since the very beggining of the script is wrong.
+                case 0: // *This one is a workaround since the very beggining of the script is wrong, see above
                 {
                     QuestStatus status = player->GetQuestStatus(13149);
                     if (status != QUEST_STATUS_COMPLETE && status != QUEST_STATUS_REWARDED)
@@ -369,7 +387,7 @@ public:
         uint64 jainaGUID;
         uint64 citymenGUID[2];
         uint64 waveGUID[ENCOUNTER_WAVES_MAX_SPAWNS];
-        uint64 infiniteDraconianGUID[ENCOUNTER_DRACONIAN_NUMBER];
+        uint64 infiniteDraconianGUID[ENCOUNTER_INFINITE_DRAGON_NUMBER];
         uint64 stalkerGUID;
 
         uint64 bossGUID;
@@ -390,7 +408,7 @@ public:
             for (uint8 i = 0; i < ENCOUNTER_WAVES_MAX_SPAWNS; ++i)
                 waveGUID[i] = 0;
 
-            for (uint8 i = 0; i < ENCOUNTER_DRACONIAN_NUMBER; ++i)
+            for (uint8 i = 0; i < ENCOUNTER_INFINITE_DRAGON_NUMBER; ++i)
                 infiniteDraconianGUID[i] = 0;
 
             stalkerGUID = 0;
@@ -419,11 +437,16 @@ public:
 
         void EnterCombat(Unit* /*who*/)
         {
+            // *This is a portion of where: "The beginning of the script is wrong"
+            if (!me->HasAura(SPELL_ARTHAS_AURA))
             DoCast(me, SPELL_ARTHAS_AURA);
+
+            return;
         }
 
         void JustDied(Unit* /*killer*/)
         {
+            // *This is a portion of where: "The beginning of the script is wrong"
             if (instance)
                 instance->SetData(DATA_ARTHAS_EVENT, FAIL);
         }
@@ -489,9 +512,9 @@ public:
                     bStepping = true;
                     break;
                 case 7:
-                    if (Unit* cityman0 = me->SummonCreature(NPC_CITY_MAN, 2091.977f, 1275.021f, 140.757f, 0.558f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 60000))
+                    if (Unit* cityman0 = me->SummonCreature(NPC_STRATHOLME_CITIZEN, 2091.977f, 1275.021f, 140.757f, 0.558f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 60000))
                         citymenGUID[0] = cityman0->GetGUID();
-                    if (Unit* cityman1 = me->SummonCreature(NPC_CITY_MAN2, 2093.514f, 1275.842f, 140.408f, 3.801f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 60000))
+                    if (Unit* cityman1 = me->SummonCreature(NPC_STRATHOLME_RESIDENT, 2093.514f, 1275.842f, 140.408f, 3.801f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 60000))
                         citymenGUID[1] = cityman1->GetGUID();
                     break;
                 case 8:
@@ -502,14 +525,14 @@ public:
                 case 12:
                     SetRun(true);
                     Talk(SAY_PHASE210);
-                    if (Unit* disguised0 = me->SummonCreature(NPC_CITY_MAN3, 2398.14f, 1207.81f, 134.04f, 5.155249f, TEMPSUMMON_DEAD_DESPAWN, 180000))
+                    if (Unit* disguised0 = me->SummonCreature(NPC_AGITATED_STRATHOLME_CITIZEN, 2398.14f, 1207.81f, 134.04f, 5.155249f, TEMPSUMMON_DEAD_DESPAWN, 180000))
                     {
                         infiniteDraconianGUID[0] = disguised0->GetGUID();
-                        if (Unit* disguised1 = me->SummonCreature(NPC_CITY_MAN4, 2403.22f, 1205.54f, 134.04f, 3.311264f, TEMPSUMMON_DEAD_DESPAWN, 180000))
+                        if (Unit* disguised1 = me->SummonCreature(NPC_AGITATED_STRATHOLME_RESIDENT, 2403.22f, 1205.54f, 134.04f, 3.311264f, TEMPSUMMON_DEAD_DESPAWN, 180000))
                         {
                             infiniteDraconianGUID[1] = disguised1->GetGUID();
 
-                            if (Unit* disguised2 = me->SummonCreature(NPC_CITY_MAN, 2400.82f, 1201.69f, 134.01f, 1.534082f, TEMPSUMMON_DEAD_DESPAWN, 180000))
+                            if (Unit* disguised2 = me->SummonCreature(NPC_STRATHOLME_CITIZEN, 2400.82f, 1201.69f, 134.01f, 1.534082f, TEMPSUMMON_DEAD_DESPAWN, 180000))
                             {
                                 infiniteDraconianGUID[2] = disguised2->GetGUID();
                                 disguised0->SetTarget(infiniteDraconianGUID[1]);
@@ -755,7 +778,7 @@ public:
                             break;
                         //After Gossip 1 (waypoint 8)
                         case 24:
-                            if (Unit* pStalker = me->SummonCreature(NPC_INVIS_TARGET, 2026.469f, 1287.088f, 143.596f, 1.37f, TEMPSUMMON_TIMED_DESPAWN, 14000))
+                            if (Unit* pStalker = me->SummonCreature(NPC_INVISIBLE_STALKER, 2026.469f, 1287.088f, 143.596f, 1.37f, TEMPSUMMON_TIMED_DESPAWN, 14000))
                             {
                                 stalkerGUID = pStalker->GetGUID();
                                 me->SetTarget(stalkerGUID);
@@ -824,7 +847,7 @@ public:
                             JumpToNextStep(1000);
                             break;
                         case 34:
-                            if (Unit* pStalker = me->SummonCreature(NPC_INVIS_TARGET, 2081.447f, 1287.770f, 141.3241f, 1.37f, TEMPSUMMON_TIMED_DESPAWN, 10000))
+                            if (Unit* pStalker = me->SummonCreature(NPC_INVISIBLE_STALKER, 2081.447f, 1287.770f, 141.3241f, 1.37f, TEMPSUMMON_TIMED_DESPAWN, 10000))
                             {
                                 stalkerGUID = pStalker->GetGUID();
                                 me->SetTarget(stalkerGUID);
@@ -833,7 +856,7 @@ public:
                             JumpToNextStep(3000);
                             break;
                         case 35:
-                            if (Unit* pStalkerM = me->SummonCreature(NPC_INVIS_TARGET, 2117.349f, 1288.624f, 136.271f, 1.37f, TEMPSUMMON_TIMED_DESPAWN, 60000))
+                            if (Unit* pStalkerM = me->SummonCreature(NPC_INVISIBLE_STALKER, 2117.349f, 1288.624f, 136.271f, 1.37f, TEMPSUMMON_TIMED_DESPAWN, 60000))
                             {
                                 stalkerGUID = pStalkerM->GetGUID();
                                 me->SetTarget(stalkerGUID);
@@ -856,11 +879,11 @@ public:
                         case 37:
                             if (Creature* malganis = Unit::GetCreature(*me, malganisGUID))
                             {
-                                Creature* pZombie = GetClosestCreatureWithEntry(malganis, NPC_CITY_MAN, 100.0f);
+                                Creature* pZombie = GetClosestCreatureWithEntry(malganis, NPC_STRATHOLME_CITIZEN, 100.0f);
                                 if (!pZombie)
-                                    pZombie = GetClosestCreatureWithEntry(malganis, NPC_CITY_MAN2, 100.0f);
+                                    pZombie = GetClosestCreatureWithEntry(malganis, NPC_STRATHOLME_RESIDENT, 100.0f);
                                 if (pZombie)
-                                    pZombie->UpdateEntry(NPC_ZOMBIE, 0);
+                                    pZombie->UpdateEntry(NPC_RISEN_ZOMBIE, 0);
                                 else //There's no one else to transform
                                     step++;
                             }
@@ -880,7 +903,7 @@ public:
                             JumpToNextStep(7000);
                             break;
                         case 40:
-                            if (Unit* pStalker = me->SummonCreature(NPC_INVIS_TARGET, 2081.447f, 1287.770f, 141.3241f, 1.37f, TEMPSUMMON_TIMED_DESPAWN, 10000))
+                            if (Unit* pStalker = me->SummonCreature(NPC_INVISIBLE_STALKER, 2081.447f, 1287.770f, 141.3241f, 1.37f, TEMPSUMMON_TIMED_DESPAWN, 10000))
                             {
                                 stalkerGUID = pStalker->GetGUID();
                                 me->SetTarget(stalkerGUID);
@@ -1058,7 +1081,7 @@ public:
                         case 75:
                         case 77:
                             //Make cratures attackable
-                            for (uint32 i = 0; i< ENCOUNTER_DRACONIAN_NUMBER; ++i)
+                            for (uint32 i = 0; i< ENCOUNTER_INFINITE_DRAGON_NUMBER; ++i)
                                 if (Creature* temp = Unit::GetCreature(*me, infiniteDraconianGUID[i]))
                                 {
                                     temp->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
@@ -1224,7 +1247,7 @@ public:
                 exorcismTimer = 7300;
             } else exorcismTimer -= diff;
 
-            if (HealthBelowPct(40))
+            if (HealthBelowPct(80))
                 DoCast(me, SPELL_HOLY_LIGHT);
         }
     };
@@ -1234,7 +1257,7 @@ public:
 class npc_crate_helper : public CreatureScript
 {
     public:
-        npc_crate_helper() : CreatureScript("npc_create_helper_cot") { }
+        npc_crate_helper() : CreatureScript("npc_grain_crate_helper_cos") { }
 
         struct npc_crate_helperAI : public NullCreatureAI
         {
@@ -1252,8 +1275,12 @@ class npc_crate_helper : public CreatureScript
                         instance->SetData(DATA_CRATE_COUNT, instance->GetData(DATA_CRATE_COUNT) + 1);
                     if (GameObject* crate = me->FindNearestGameObject(GO_SUSPICIOUS_CRATE, 5.0f))
                     {
-                        crate->SummonGameObject(GO_PLAGUED_CRATE, crate->GetPositionX(), crate->GetPositionY(), crate->GetPositionZ(), crate->GetOrientation(), 0.0f, 0.0f, 0.0f, 0.0f, DAY);
-                        crate->Delete();
+                        if (GameObject* crateHighlighter = me->FindNearestGameObject(GO_CRATE_HIGHLIGHTER, 5.0f))
+                        {
+                            crate->Delete();
+                            crateHighlighter->Delete();
+                            crate->SummonGameObject(GO_PLAGUED_CRATE, crate->GetPositionX(), crate->GetPositionY(), crate->GetPositionZ(), crate->GetOrientation(), 0.0f, 0.0f, 0.0f, 0.0f, DAY);
+                        }
                     }
                 }
             }
