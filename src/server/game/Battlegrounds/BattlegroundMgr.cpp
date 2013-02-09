@@ -945,6 +945,20 @@ void BattlegroundMgr::SendToBattleground(Player* player, uint32 instanceId, Batt
         sLog->outError(LOG_FILTER_BATTLEGROUND, "BattlegroundMgr::SendToBattleground: Instance %u (bgType %u) not found while trying to teleport player %s", instanceId, bgTypeId, player->GetName().c_str());
 }
 
+void BattlegroundMgr::SendToBattleground(Player *player, Battleground *bg)
+{
+    if (bg)
+    {
+        uint32 mapid = bg->GetMapId();
+        float x, y, z, O;
+        uint32 team = player->GetBGTeam();
+        bg->GetTeamStartLoc(team, x, y, z, O);
+
+        sLog->outDetail("BATTLEGROUND: Sending %s to map %u, X %f, Y %f, Z %f, O %f", player->GetName(), mapid, x, y, z, O);
+        player->TeleportTo(mapid, x, y, z, O);
+    }
+}
+
 void BattlegroundMgr::SendAreaSpiritHealerQueryOpcode(Player* player, Battleground* bg, uint64 guid)
 {
     WorldPacket data(SMSG_AREA_SPIRIT_HEALER_TIME, 12);
@@ -954,6 +968,29 @@ void BattlegroundMgr::SendAreaSpiritHealerQueryOpcode(Player* player, Battlegrou
     data << guid << time_;
     player->GetSession()->SendPacket(&data);
 }
+
+bool BattlegroundMgr::HasBattleground(Battleground *_bg)
+{
+    BattlegroundSet::iterator itr, next;
+    for (uint32 i = BATTLEGROUND_TYPE_NONE; i < MAX_BATTLEGROUND_TYPE_ID; ++i)
+    {
+        itr = m_Battlegrounds[i].begin();
+        // skip updating battleground template
+        if (itr != m_Battlegrounds[i].end())
+            ++itr;
+        for (; itr != m_Battlegrounds[i].end(); itr = next)
+        {
+            next = itr;
+            ++next;
+            Battleground* bg = itr->second;
+            if (bg == _bg)
+                return true;
+        }
+    }
+
+    return false;
+}
+
 
 bool BattlegroundMgr::IsArenaType(BattlegroundTypeId bgTypeId)
 {

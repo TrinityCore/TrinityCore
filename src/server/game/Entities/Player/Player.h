@@ -34,6 +34,7 @@
 
 struct CreatureTemplate;
 struct Mail;
+struct GroupQueueInfo;
 struct TrainerSpell;
 struct VendorItem;
 
@@ -51,6 +52,7 @@ class PlayerMenu;
 class PlayerSocial;
 class SpellCastTargets;
 class UpdateMask;
+class BGQueueRemoveEvent;
 
 typedef std::deque<Mail*> PlayerMails;
 
@@ -106,6 +108,12 @@ struct PlayerTalent
 {
     PlayerSpellState state : 8;
     uint8 spec             : 8;
+};
+
+struct ChallengeData {
+    GroupQueueInfo *ginfo;
+    Battleground   *bg;
+    BGQueueRemoveEvent *removeEvent;
 };
 
 // Spell modifier (used for modify other spells)
@@ -2534,6 +2542,7 @@ class Player : public Unit, public GridObject<Player>
                 return modelData->CollisionHeight;
             }
         }
+        ChallengeData *challengeData;
 
     protected:
         // Gamemaster whisper whitelist

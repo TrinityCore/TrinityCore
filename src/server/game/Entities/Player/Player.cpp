@@ -864,6 +864,8 @@ Player::Player(WorldSession* session): Unit(true)
         m_powerFraction[i] = 0;
 
     isDebugAreaTriggers = false;
+	    
+    challengeData = NULL;
 
     m_WeeklyQuestChanged = false;
 
@@ -1521,6 +1523,16 @@ void Player::Update(uint32 p_time)
 {
     if (!IsInWorld())
         return;
+
+        
+    if (challengeData)
+        if (getMSTimeDiff(challengeData->ginfo->JoinTime, getMSTime()) > 36000)
+        {
+            challengeData->removeEvent->Execute(0, 0);
+            delete (challengeData->removeEvent);
+            delete challengeData;
+            challengeData = NULL;
+        }
 
     // undelivered mail
     if (m_nextMailDelivereTime && m_nextMailDelivereTime <= time(NULL))
