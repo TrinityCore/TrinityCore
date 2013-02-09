@@ -187,6 +187,14 @@ AccountOpResult AccountMgr::ChangePassword(uint32 accountId, std::string newPass
 
     LoginDatabase.Execute(stmt);
 
+    stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_VS);
+
+    stmt->setString(0, "");
+    stmt->setString(1, "");
+    stmt->setString(2, username);
+
+    LoginDatabase.Execute(stmt);
+
     return AOR_OK;
 }
 
