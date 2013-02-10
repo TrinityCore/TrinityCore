@@ -11,6 +11,7 @@
 #                                                                                          #
 ############################################################################################
 
+[128] --> Restore original scripts Sunwell Plateau.
 [127] --> Fix Death and Decay.
 [126] --> Fix Masters Call (53271).
 [125] --> Fix Blood Tap (TEST).
