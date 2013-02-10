@@ -117,7 +117,7 @@ public:
 
         //handler->SendSysMessage(_FULLVERSION);
         handler->PSendSysMessage("Core: GaryMoveOut 3.3.5a");
-        handler->PSendSysMessage("Rev: XX.11.2012");
+        handler->PSendSysMessage("Rev: 10.02.2013");
         handler->PSendSysMessage(LANG_CONNECTED_PLAYERS, playersNum, maxPlayersNum);
         handler->PSendSysMessage(LANG_CONNECTED_USERS, activeClientsNum, maxActiveClientsNum, queuedClientsNum, maxQueuedClientsNum);
         handler->PSendSysMessage(LANG_UPTIME, uptime.c_str());
