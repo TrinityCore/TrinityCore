@@ -24,6 +24,7 @@
 #define __WORLDSESSION_H
 
 #include "Common.h"
+#include "AccountMgr.h"
 #include "SharedDefines.h"
 #include "AddonMgr.h"
 #include "DatabaseEnv.h"
@@ -49,15 +50,18 @@ struct AreaTableEntry;
 struct AuctionEntry;
 struct DeclinedName;
 struct ItemTemplate;
+struct MovementInfo;
+
+namespace lfg
+{
 struct LfgJoinResultData;
-struct LfgLockStatus;
 struct LfgPlayerBoot;
 struct LfgProposal;
 struct LfgQueueStatusData;
 struct LfgPlayerRewardData;
 struct LfgRoleCheck;
 struct LfgUpdateData;
-struct MovementInfo;
+}
 
 enum AccountDataType
 {
@@ -217,6 +221,10 @@ class WorldSession
 
         void SendAuthResponse(uint8 code, bool queued, uint32 queuePos = 0);
         void SendClientCacheVersion(uint32 version);
+
+        RBACData* GetRBACData();
+        bool HasPermission(uint32 permissionId);
+        void LoadPermissions();
 
         AccountTypes GetSecurity() const { return _security; }
         uint32 GetAccountId() const { return _accountId; }
@@ -811,16 +819,16 @@ class WorldSession
         void HandleLfrLeaveOpcode(WorldPacket& recvData);
         void HandleLfgGetStatus(WorldPacket& recvData);
 
-        void SendLfgUpdatePlayer(LfgUpdateData const& updateData);
-        void SendLfgUpdateParty(LfgUpdateData const& updateData);
+        void SendLfgUpdatePlayer(lfg::LfgUpdateData const& updateData);
+        void SendLfgUpdateParty(lfg::LfgUpdateData const& updateData);
         void SendLfgRoleChosen(uint64 guid, uint8 roles);
-        void SendLfgRoleCheckUpdate(LfgRoleCheck const& pRoleCheck);
+        void SendLfgRoleCheckUpdate(lfg::LfgRoleCheck const& pRoleCheck);
         void SendLfgLfrList(bool update);
-        void SendLfgJoinResult(LfgJoinResultData const& joinData);
-        void SendLfgQueueStatus(LfgQueueStatusData const& queueData);
-        void SendLfgPlayerReward(LfgPlayerRewardData const& lfgPlayerRewardData);
-        void SendLfgBootProposalUpdate(LfgPlayerBoot const& boot);
-        void SendLfgUpdateProposal(LfgProposal const& proposal);
+        void SendLfgJoinResult(lfg::LfgJoinResultData const& joinData);
+        void SendLfgQueueStatus(lfg::LfgQueueStatusData const& queueData);
+        void SendLfgPlayerReward(lfg::LfgPlayerRewardData const& lfgPlayerRewardData);
+        void SendLfgBootProposalUpdate(lfg::LfgPlayerBoot const& boot);
+        void SendLfgUpdateProposal(lfg::LfgProposal const& proposal);
         void SendLfgDisabled();
         void SendLfgOfferContinue(uint32 dungeonEntry);
         void SendLfgTeleportError(uint8 err);
@@ -1009,6 +1017,7 @@ class WorldSession
         ACE_Based::LockedQueue<WorldPacket*, ACE_Thread_Mutex> _recvQueue;
         time_t timeLastWhoCommand;
         z_stream_s* _compressionStream;
+        RBACData* _RBACData;
 };
 #endif
 /// @}

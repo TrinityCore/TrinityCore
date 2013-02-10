@@ -234,9 +234,9 @@ class mob_frozen_orb_stalker : public CreatureScript
     public:
         mob_frozen_orb_stalker() : CreatureScript("mob_frozen_orb_stalker") { }
 
-        struct mob_frozen_orb_stalkerAI : public Scripted_NoMovementAI
+        struct mob_frozen_orb_stalkerAI : public ScriptedAI
         {
-            mob_frozen_orb_stalkerAI(Creature* creature) : Scripted_NoMovementAI(creature)
+            mob_frozen_orb_stalkerAI(Creature* creature) : ScriptedAI(creature)
             {
                 creature->SetVisible(false);
                 creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE|UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_DISABLE_MOVE);
@@ -244,6 +244,8 @@ class mob_frozen_orb_stalker : public CreatureScript
 
                 instance = creature->GetInstanceScript();
                 spawned = false;
+
+                SetCombatMovement(false);
             }
 
             void UpdateAI(const uint32 /*diff*/)

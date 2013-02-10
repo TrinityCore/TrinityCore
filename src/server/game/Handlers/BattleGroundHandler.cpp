@@ -154,7 +154,7 @@ void WorldSession::HandleBattlemasterJoinOpcode(WorldPacket& recvData)
         }
 
         // check Deserter debuff
-        if (!_player->CanJoinToBattleground())
+        if (!_player->CanJoinToBattleground(bg))
         {
             WorldPacket data;
             sBattlegroundMgr->BuildStatusFailedPacket(&data, bg, _player, 0, ERR_GROUP_JOIN_BATTLEGROUND_DESERTERS);
@@ -498,7 +498,7 @@ void WorldSession::HandleBattleFieldPortOpcode(WorldPacket &recvData)
     if (action == 1 && ginfo.ArenaType == 0)
     {
         //if player is trying to enter battleground (not arena!) and he has deserter debuff, we must just remove him from queue
-        if (!_player->CanJoinToBattleground())
+        if (!_player->CanJoinToBattleground(bg))
         {
             //send bg command result to show nice message
             WorldPacket data2;
@@ -540,6 +540,7 @@ void WorldSession::HandleBattleFieldPortOpcode(WorldPacket &recvData)
 
         sBattlegroundMgr->BuildBattlegroundStatusPacket(&data, bg, _player, queueSlot, STATUS_IN_PROGRESS, _player->GetBattlegroundQueueJoinTime(bgTypeId), bg->GetElapsedTime(), bg->GetArenaType());
         _player->GetSession()->SendPacket(&data);
+
         // remove battleground queue status from BGmgr
         bgQueue.RemovePlayer(_player->GetGUID(), false);
         // this is still needed here if battleground "jumping" shouldn't add deserter debuff
@@ -551,6 +552,7 @@ void WorldSession::HandleBattleFieldPortOpcode(WorldPacket &recvData)
         _player->SetBattlegroundId(bg->GetInstanceID(), bgTypeId);
         // set the destination team
         _player->SetBGTeam(ginfo.Team);
+
         // bg->HandleBeforeTeleportToBattleground(_player);
         sBattlegroundMgr->SendToBattleground(_player, ginfo.IsInvitedToBGInstanceGUID, bgTypeId);
         // add only in HandleMoveWorldPortAck()

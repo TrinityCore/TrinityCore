@@ -31,6 +31,7 @@ enum PaladinSpells
 {
     SPELL_PALADIN_DIVINE_PLEA                    = 54428,
     SPELL_PALADIN_BLESSING_OF_SANCTUARY_BUFF     = 67480,
+    SPELL_PALADIN_BLESSING_OF_SANCTUARY_ENERGIZE = 57319,
 
     SPELL_PALADIN_HOLY_SHOCK_R1                  = 20473,
     SPELL_PALADIN_HOLY_SHOCK_R1_DAMAGE           = 25912,
@@ -45,12 +46,25 @@ enum PaladinSpells
     SPELL_PALADIN_DIVINE_STORM_DUMMY             = 54171,
     SPELL_PALADIN_DIVINE_STORM_HEAL              = 54172,
 
+    SPELL_PALADIN_EYE_FOR_AN_EYE_DAMAGE          = 25997,
+
     SPELL_PALADIN_FORBEARANCE                    = 25771,
     SPELL_PALADIN_AVENGING_WRATH_MARKER          = 61987,
     SPELL_PALADIN_IMMUNE_SHIELD_MARKER           = 61988,
 
     SPELL_PALADIN_HAND_OF_SACRIFICE              = 6940,
-    SPELL_PALADIN_DIVINE_SACRIFICE               = 64205
+    SPELL_PALADIN_DIVINE_SACRIFICE               = 64205,
+
+    SPELL_PALADIN_DIVINE_PURPOSE_PROC            = 90174,
+
+    SPELL_PALADIN_GLYPH_OF_SALVATION             = 63225,
+
+    SPELL_PALADIN_RIGHTEOUS_DEFENSE_TAUNT        = 31790,
+
+    SPELL_PALADIN_SEAL_OF_RIGHTEOUSNESS          = 25742,
+
+    SPELL_GENERIC_ARENA_DAMPENING                = 74410,
+    SPELL_GENERIC_BATTLEGROUND_DAMPENING         = 74411
 };
 
 // 31850 - Ardent Defender
@@ -185,8 +199,8 @@ class spell_pal_blessing_of_faith : public SpellScriptLoader
         }
 };
 
-// 20911 Blessing of Sanctuary
-// 25899 Greater Blessing of Sanctuary
+// 20911 - Blessing of Sanctuary
+// 25899 - Greater Blessing of Sanctuary
 class spell_pal_blessing_of_sanctuary : public SpellScriptLoader
 {
     public:
@@ -199,6 +213,8 @@ class spell_pal_blessing_of_sanctuary : public SpellScriptLoader
             bool Validate(SpellInfo const* /*spellInfo*/)
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_PALADIN_BLESSING_OF_SANCTUARY_BUFF))
+                    return false;
+                if (!sSpellMgr->GetSpellInfo(SPELL_PALADIN_BLESSING_OF_SANCTUARY_ENERGIZE))
                     return false;
                 return true;
             }
@@ -216,10 +232,23 @@ class spell_pal_blessing_of_sanctuary : public SpellScriptLoader
                 target->RemoveAura(SPELL_PALADIN_BLESSING_OF_SANCTUARY_BUFF, GetCasterGUID());
             }
 
+            bool CheckProc(ProcEventInfo& /*eventInfo*/)
+            {
+                return GetTarget()->getPowerType() == POWER_MANA;
+            }
+
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
+            {
+                PreventDefaultAction();
+                GetTarget()->CastSpell(GetTarget(), SPELL_PALADIN_BLESSING_OF_SANCTUARY_ENERGIZE, true, NULL, aurEff);
+            }
+
             void Register()
             {
                 AfterEffectApply += AuraEffectApplyFn(spell_pal_blessing_of_sanctuary_AuraScript::HandleEffectApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
                 AfterEffectRemove += AuraEffectRemoveFn(spell_pal_blessing_of_sanctuary_AuraScript::HandleEffectRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+                DoCheckProc += AuraCheckProcFn(spell_pal_blessing_of_sanctuary_AuraScript::CheckProc);
+                OnEffectProc += AuraEffectProcFn(spell_pal_blessing_of_sanctuary_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
             }
         };
 
@@ -410,6 +439,43 @@ class spell_pal_exorcism_and_holy_wrath_damage : public SpellScriptLoader
         }
 };
 
+// -9799 - Eye for an Eye
+class spell_pal_eye_for_an_eye : public SpellScriptLoader
+{
+    public:
+        spell_pal_eye_for_an_eye() : SpellScriptLoader("spell_pal_eye_for_an_eye") { }
+
+        class spell_pal_eye_for_an_eye_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_pal_eye_for_an_eye_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_PALADIN_EYE_FOR_AN_EYE_DAMAGE))
+                    return false;
+                return true;
+            }
+
+            void OnProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+                // return damage % to attacker but < 50% own total health
+                int32 damage = int32(std::min(CalculatePct(eventInfo.GetDamageInfo()->GetDamage(), aurEff->GetAmount()), GetTarget()->GetMaxHealth() / 2));
+                GetTarget()->CastCustomSpell(SPELL_PALADIN_EYE_FOR_AN_EYE_DAMAGE, SPELLVALUE_BASE_POINT0, damage, eventInfo.GetProcTarget(), true, NULL, aurEff);
+            }
+
+            void Register()
+            {
+                OnEffectProc += AuraEffectProcFn(spell_pal_eye_for_an_eye_AuraScript::OnProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_pal_eye_for_an_eye_AuraScript();
+        }
+};
+
 // 63521 - Guarded by The Light
 class spell_pal_guarded_by_the_light : public SpellScriptLoader
 {
@@ -487,6 +553,39 @@ class spell_pal_hand_of_sacrifice : public SpellScriptLoader
         AuraScript* GetAuraScript() const
         {
             return new spell_pal_hand_of_sacrifice_AuraScript();
+        }
+};
+
+// 1038 - Hand of Salvation
+class spell_pal_hand_of_salvation : public SpellScriptLoader
+{
+    public:
+        spell_pal_hand_of_salvation() : SpellScriptLoader("spell_pal_hand_of_salvation") { }
+
+        class spell_pal_hand_of_salvation_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_pal_hand_of_salvation_AuraScript);
+
+            void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& /*canBeRecalculated*/)
+            {
+                if (Unit* caster = GetCaster())
+                {
+                    // Glyph of Salvation
+                    if (caster->GetGUID() == GetUnitOwner()->GetGUID())
+                        if (AuraEffect const* aurEff = caster->GetAuraEffect(SPELL_PALADIN_GLYPH_OF_SALVATION, EFFECT_0))
+                            amount -= aurEff->GetAmount();
+                }
+            }
+
+            void Register()
+            {
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_pal_hand_of_salvation_AuraScript::CalculateAmount, EFFECT_1, SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_pal_hand_of_salvation_AuraScript();
         }
 };
 
@@ -656,6 +755,13 @@ class spell_pal_righteous_defense : public SpellScriptLoader
         {
             PrepareSpellScript(spell_pal_righteous_defense_SpellScript);
 
+            bool Validate(SpellInfo const* /*spellInfo*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_PALADIN_RIGHTEOUS_DEFENSE_TAUNT))
+                    return false;
+                return true;
+            }
+
             SpellCastResult CheckCast()
             {
                 Unit* caster = GetCaster();
@@ -673,9 +779,27 @@ class spell_pal_righteous_defense : public SpellScriptLoader
                 return SPELL_CAST_OK;
             }
 
+            void HandleTriggerSpellLaunch(SpellEffIndex effIndex)
+            {
+                PreventHitDefaultEffect(effIndex);
+            }
+
+            void HandleTriggerSpellHit(SpellEffIndex effIndex)
+            {
+                PreventHitDefaultEffect(effIndex);
+                if (Unit* target = GetHitUnit())
+                    GetCaster()->CastSpell(target, SPELL_PALADIN_RIGHTEOUS_DEFENSE_TAUNT, true);
+            }
+
             void Register()
             {
                 OnCheckCast += SpellCheckCastFn(spell_pal_righteous_defense_SpellScript::CheckCast);
+                //! WORKAROUND
+                //! target select will be executed in hitphase of effect 0
+                //! so we must handle trigger spell also in hit phase (default execution in launch phase)
+                //! see issue #3718
+                OnEffectLaunchTarget += SpellEffectFn(spell_pal_righteous_defense_SpellScript::HandleTriggerSpellLaunch, EFFECT_1, SPELL_EFFECT_TRIGGER_SPELL);
+                OnEffectHitTarget += SpellEffectFn(spell_pal_righteous_defense_SpellScript::HandleTriggerSpellHit, EFFECT_1, SPELL_EFFECT_TRIGGER_SPELL);
             }
         };
 
@@ -719,18 +843,139 @@ class spell_pal_sacred_shield : public SpellScriptLoader
         }
 };
 
+// 85256 - Templar's Verdict
+/// Updated 4.3.4
+class spell_pal_templar_s_verdict : public SpellScriptLoader
+{
+    public:
+        spell_pal_templar_s_verdict() : SpellScriptLoader("spell_pal_templar_s_verdict") { }
+
+        class spell_pal_templar_s_verdict_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_pal_templar_s_verdict_SpellScript);
+
+            bool Validate (SpellInfo const* /*spellEntry*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_PALADIN_DIVINE_PURPOSE_PROC))
+                    return false;
+
+                return true;
+            }
+
+            bool Load()
+            {
+                if (GetCaster()->GetTypeId() != TYPEID_PLAYER)
+                    return false;
+
+                if (GetCaster()->ToPlayer()->getClass() != CLASS_PALADIN)
+                    return false;
+
+                return true;
+            }
+
+            void ChangeDamage(SpellEffIndex /*effIndex*/)
+            {
+                Unit* caster = GetCaster();
+                int32 damage = GetHitDamage();
+
+                if (caster->HasAura(SPELL_PALADIN_DIVINE_PURPOSE_PROC))
+                    damage *= 7.5;  // 7.5*30% = 225%
+                else
+                {
+                    switch (caster->GetPower(POWER_HOLY_POWER))
+                    {
+                        case 0: // 1 Holy Power
+                            damage = damage;
+                            break;
+                        case 1: // 2 Holy Power
+                            damage *= 3;    // 3*30 = 90%
+                            break;
+                        case 2: // 3 Holy Power
+                            damage *= 7.5;  // 7.5*30% = 225%
+                            break;
+                    }
+                }
+
+                SetHitDamage(damage);
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_pal_templar_s_verdict_SpellScript::ChangeDamage, EFFECT_0, SPELL_EFFECT_WEAPON_PERCENT_DAMAGE);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_pal_templar_s_verdict_SpellScript();
+        }
+};
+
+// 20154, 21084 - Seal of Righteousness - melee proc dummy (addition ${$MWS*(0.022*$AP+0.044*$SPH)} damage)
+class spell_pal_seal_of_righteousness : public SpellScriptLoader
+{
+    public:
+        spell_pal_seal_of_righteousness() : SpellScriptLoader("spell_pal_seal_of_righteousness") { }
+
+        class spell_pal_seal_of_righteousness_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_pal_seal_of_righteousness_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_PALADIN_SEAL_OF_RIGHTEOUSNESS))
+                    return false;
+                return true;
+            }
+
+            bool CheckProc(ProcEventInfo& eventInfo)
+            {
+                return eventInfo.GetProcTarget();
+            }
+
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+
+                float ap = GetTarget()->GetTotalAttackPowerValue(BASE_ATTACK);
+                int32 holy = GetTarget()->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_HOLY);
+                holy += eventInfo.GetProcTarget()->SpellBaseDamageBonusTaken(SPELL_SCHOOL_MASK_HOLY);
+                int32 bp = int32((ap * 0.022f + 0.044f * holy) * GetTarget()->GetAttackTime(BASE_ATTACK) / 1000);
+                GetTarget()->CastCustomSpell(SPELL_PALADIN_SEAL_OF_RIGHTEOUSNESS, SPELLVALUE_BASE_POINT0, bp, eventInfo.GetProcTarget(), true, NULL, aurEff);
+            }
+
+            void Register()
+            {
+                DoCheckProc += AuraCheckProcFn(spell_pal_seal_of_righteousness_AuraScript::CheckProc);
+                OnEffectProc += AuraEffectProcFn(spell_pal_seal_of_righteousness_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_pal_seal_of_righteousness_AuraScript();
+        }
+};
+
+
 void AddSC_paladin_spell_scripts()
 {
     //new spell_pal_ardent_defender();
     new spell_pal_blessing_of_faith();
     new spell_pal_blessing_of_sanctuary();
     new spell_pal_divine_sacrifice();
+    new spell_pal_divine_storm();
+    new spell_pal_divine_storm_dummy();
     new spell_pal_exorcism_and_holy_wrath_damage();
+    new spell_pal_eye_for_an_eye();
     new spell_pal_guarded_by_the_light();
     new spell_pal_hand_of_sacrifice();
+    new spell_pal_hand_of_salvation();
     new spell_pal_holy_shock();
     new spell_pal_judgement_of_command();
     new spell_pal_lay_on_hands();
     new spell_pal_righteous_defense();
     new spell_pal_sacred_shield();
+    new spell_pal_templar_s_verdict();
+    new spell_pal_seal_of_righteousness();
 }

@@ -531,53 +531,8 @@ enum PlayerFlags
     PLAYER_FLAGS_UNK31                  = 0x80000000
 };
 
-// used for PLAYER__FIELD_KNOWN_TITLES field (uint64), (1<<bit_index) without (-1)
-// can't use enum for uint64 values
-#define PLAYER_TITLE_DISABLED              UI64LIT(0x0000000000000000)
-#define PLAYER_TITLE_NONE                  UI64LIT(0x0000000000000001)
-#define PLAYER_TITLE_PRIVATE               UI64LIT(0x0000000000000002) // 1
-#define PLAYER_TITLE_CORPORAL              UI64LIT(0x0000000000000004) // 2
-#define PLAYER_TITLE_SERGEANT_A            UI64LIT(0x0000000000000008) // 3
-#define PLAYER_TITLE_MASTER_SERGEANT       UI64LIT(0x0000000000000010) // 4
-#define PLAYER_TITLE_SERGEANT_MAJOR        UI64LIT(0x0000000000000020) // 5
-#define PLAYER_TITLE_KNIGHT                UI64LIT(0x0000000000000040) // 6
-#define PLAYER_TITLE_KNIGHT_LIEUTENANT     UI64LIT(0x0000000000000080) // 7
-#define PLAYER_TITLE_KNIGHT_CAPTAIN        UI64LIT(0x0000000000000100) // 8
-#define PLAYER_TITLE_KNIGHT_CHAMPION       UI64LIT(0x0000000000000200) // 9
-#define PLAYER_TITLE_LIEUTENANT_COMMANDER  UI64LIT(0x0000000000000400) // 10
-#define PLAYER_TITLE_COMMANDER             UI64LIT(0x0000000000000800) // 11
-#define PLAYER_TITLE_MARSHAL               UI64LIT(0x0000000000001000) // 12
-#define PLAYER_TITLE_FIELD_MARSHAL         UI64LIT(0x0000000000002000) // 13
-#define PLAYER_TITLE_GRAND_MARSHAL         UI64LIT(0x0000000000004000) // 14
-#define PLAYER_TITLE_SCOUT                 UI64LIT(0x0000000000008000) // 15
-#define PLAYER_TITLE_GRUNT                 UI64LIT(0x0000000000010000) // 16
-#define PLAYER_TITLE_SERGEANT_H            UI64LIT(0x0000000000020000) // 17
-#define PLAYER_TITLE_SENIOR_SERGEANT       UI64LIT(0x0000000000040000) // 18
-#define PLAYER_TITLE_FIRST_SERGEANT        UI64LIT(0x0000000000080000) // 19
-#define PLAYER_TITLE_STONE_GUARD           UI64LIT(0x0000000000100000) // 20
-#define PLAYER_TITLE_BLOOD_GUARD           UI64LIT(0x0000000000200000) // 21
-#define PLAYER_TITLE_LEGIONNAIRE           UI64LIT(0x0000000000400000) // 22
-#define PLAYER_TITLE_CENTURION             UI64LIT(0x0000000000800000) // 23
-#define PLAYER_TITLE_CHAMPION              UI64LIT(0x0000000001000000) // 24
-#define PLAYER_TITLE_LIEUTENANT_GENERAL    UI64LIT(0x0000000002000000) // 25
-#define PLAYER_TITLE_GENERAL               UI64LIT(0x0000000004000000) // 26
-#define PLAYER_TITLE_WARLORD               UI64LIT(0x0000000008000000) // 27
-#define PLAYER_TITLE_HIGH_WARLORD          UI64LIT(0x0000000010000000) // 28
-#define PLAYER_TITLE_GLADIATOR             UI64LIT(0x0000000020000000) // 29
-#define PLAYER_TITLE_DUELIST               UI64LIT(0x0000000040000000) // 30
-#define PLAYER_TITLE_RIVAL                 UI64LIT(0x0000000080000000) // 31
-#define PLAYER_TITLE_CHALLENGER            UI64LIT(0x0000000100000000) // 32
-#define PLAYER_TITLE_SCARAB_LORD           UI64LIT(0x0000000200000000) // 33
-#define PLAYER_TITLE_CONQUEROR             UI64LIT(0x0000000400000000) // 34
-#define PLAYER_TITLE_JUSTICAR              UI64LIT(0x0000000800000000) // 35
-#define PLAYER_TITLE_CHAMPION_OF_THE_NAARU UI64LIT(0x0000001000000000) // 36
-#define PLAYER_TITLE_MERCILESS_GLADIATOR   UI64LIT(0x0000002000000000) // 37
-#define PLAYER_TITLE_OF_THE_SHATTERED_SUN  UI64LIT(0x0000004000000000) // 38
-#define PLAYER_TITLE_HAND_OF_ADAL          UI64LIT(0x0000008000000000) // 39
-#define PLAYER_TITLE_VENGEFUL_GLADIATOR    UI64LIT(0x0000010000000000) // 40
-
-#define KNOWN_TITLES_SIZE   3
-#define MAX_TITLE_INDEX     (KNOWN_TITLES_SIZE*64)          // 3 uint64 fields
+#define KNOWN_TITLES_SIZE   4
+#define MAX_TITLE_INDEX     (KNOWN_TITLES_SIZE * 64)        // 4 uint64 fields
 
 // used in PLAYER_FIELD_BYTES values
 enum PlayerFieldByteFlags
@@ -1476,9 +1431,9 @@ class Player : public Unit, public GridObject<Player>
         /// send conquest currency points and their cap week/arena
         void SendPvpRewards() const;
         /// return count of currency witch has plr
-        uint32 GetCurrency(uint32 id, bool precision) const;
+        uint32 GetCurrency(uint32 id, bool usePrecision) const;
         /// return count of currency gaind on current week
-        uint32 GetCurrencyOnWeek(uint32 id, bool precision) const;
+        uint32 GetCurrencyOnWeek(uint32 id, bool usePrecision) const;
         /// return week cap by currency id
         uint32 GetCurrencyWeekCap(uint32 id, bool usePrecision) const;
         /// return presence related currency
@@ -1776,7 +1731,7 @@ class Player : public Unit, public GridObject<Player>
         void setWeaponChangeTimer(uint32 time) {m_weaponChangeTimer = time;}
 
         uint64 GetMoney() const { return GetUInt64Value(PLAYER_FIELD_COINAGE); }
-        void ModifyMoney(int64 d);
+        bool ModifyMoney(int64 amount, bool sendError = true);
         bool HasEnoughMoney(uint64 amount) const { return GetMoney() >= amount; }
         bool HasEnoughMoney(int64 amount) const
         {
@@ -2094,7 +2049,7 @@ class Player : public Unit, public GridObject<Player>
         uint32 GetArenaPersonalRating(uint8 slot) const { return GetUInt32Value(PLAYER_FIELD_ARENA_TEAM_INFO_1_1 + (slot * ARENA_TEAM_END) + ARENA_TEAM_PERSONAL_RATING); }
         void SetArenaTeamIdInvited(uint32 ArenaTeamId) { m_ArenaTeamIdInvited = ArenaTeamId; }
         uint32 GetArenaTeamIdInvited() { return m_ArenaTeamIdInvited; }
-        uint32 GetRBGPersonalRating() const;
+        uint32 GetRBGPersonalRating() const { return 0; }
 
         Difficulty GetDifficulty(bool isRaid) const { return isRaid ? m_raidDifficulty : m_dungeonDifficulty; }
         Difficulty GetDungeonDifficulty() const { return m_dungeonDifficulty; }
@@ -2469,11 +2424,15 @@ class Player : public Unit, public GridObject<Player>
         WorldLocation const& GetBattlegroundEntryPoint() const { return m_bgData.joinPos; }
         void SetBattlegroundEntryPoint();
 
-        void SetBGTeam(uint32 team) { m_bgData.bgTeam = team; }
+        void SetBGTeam(uint32 team)
+        {
+            m_bgData.bgTeam = team;
+            SetByteValue(PLAYER_BYTES_3, 3, uint8(team == ALLIANCE ? 1 : 0));
+        }
         uint32 GetBGTeam() const { return m_bgData.bgTeam ? m_bgData.bgTeam : GetTeam(); }
 
         void LeaveBattleground(bool teleportToEntryPoint = true);
-        bool CanJoinToBattleground() const;
+        bool CanJoinToBattleground(Battleground const* bg) const;
         bool CanReportAfkDueToLimit();
         void ReportedAfkBy(Player* reporter);
         void ClearAfkReports() { m_bgData.bgAfkReporter.clear(); }
@@ -2928,20 +2887,23 @@ class Player : public Unit, public GridObject<Player>
         PlayerCurrenciesMap _currencyStorage;
 
         /**
-          * @name   _GetCurrencyWeekCap
+          * @name   GetCurrencyWeekCap
           * @brief  return week cap for selected currency
 
-          * @param  currency CurrencyTypesEntry witch should get week cap
+          * @param  CurrencyTypesEntry for which to retrieve weekly cap
         */
-        uint32 _GetCurrencyWeekCap(const CurrencyTypesEntry* currency) const;
+        uint32 GetCurrencyWeekCap(CurrencyTypesEntry const* currency) const;
 
         /*
-         * @name   _GetCurrencyTotalCap
+         * @name   GetCurrencyTotalCap
          * @brief  return total cap for selected currency
 
-         * @param  currency CurrencyTypesEntry witch should get week cap
+         * @param  CurrencyTypesEntry for which to retrieve total cap
          */
-        uint32 _GetCurrencyTotalCap(const CurrencyTypesEntry* currency) const;
+        uint32 GetCurrencyTotalCap(CurrencyTypesEntry const* currency) const;
+
+        /// Updates weekly conquest point cap (dynamic cap)
+        void UpdateConquestCurrencyCap(uint32 currency);
 
         VoidStorageItem* _voidStorageItems[VOID_STORAGE_MAX_SLOT];
 
@@ -3145,7 +3107,6 @@ class Player : public Unit, public GridObject<Player>
 
         uint32 _activeCheats;
         uint32 _maxPersonalArenaRate;
-        uint32 _ConquestCurrencyTotalWeekCap;
 
         PhaseMgr phaseMgr;
 };

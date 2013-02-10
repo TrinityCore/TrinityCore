@@ -386,7 +386,7 @@ bool SpellEffectInfo::IsAura() const
 
 bool SpellEffectInfo::IsAura(AuraType aura) const
 {
-    return IsAura() && AuraType(ApplyAuraName) == uint32(aura);
+    return IsAura() && ApplyAuraName == uint32(aura);
 }
 
 bool SpellEffectInfo::IsTargetingArea() const
@@ -1007,7 +1007,7 @@ bool SpellInfo::IsLootCrafting() const
     return (Effects[0].Effect == SPELL_EFFECT_CREATE_RANDOM_ITEM ||
         // different random cards from Inscription (121==Virtuoso Inking Set category) r without explicit item
         (Effects[0].Effect == SPELL_EFFECT_CREATE_ITEM_2 &&
-        (TotemCategory[0] != 0 || Effects[0].ItemType == 0)));
+        ((TotemCategory[0] != 0 || (Totem[0] != 0 && SpellIconID == 1)) || Effects[0].ItemType == 0)));
 }
 
 bool SpellInfo::IsQuestTame() const
@@ -2095,6 +2095,9 @@ SpellSpecificType SpellInfo::GetSpellSpecific() const
                 case SPELL_AURA_AOE_CHARM:
                     return SPELL_SPECIFIC_CHARM;
                 case SPELL_AURA_TRACK_CREATURES:
+                    /// @workaround For non-stacking tracking spells (We need generic solution)
+                    if (Id == 30645) // Gas Cloud Tracking
+                        return SPELL_SPECIFIC_NORMAL;
                 case SPELL_AURA_TRACK_RESOURCES:
                 case SPELL_AURA_TRACK_STEALTHED:
                     return SPELL_SPECIFIC_TRACKER;
@@ -2244,9 +2247,17 @@ int32 SpellInfo::CalcPowerCost(Unit const* caster, SpellSchoolMask schoolMask) c
                 return 0;
         }
     }
-    SpellSchools school = GetFirstSchoolInMask(schoolMask);
-    // Flat mod from caster auras by spell school
-    powerCost += caster->GetInt32Value(UNIT_FIELD_POWER_COST_MODIFIER + school);
+
+    // Flat mod from caster auras by spell school and power type
+    Unit::AuraEffectList const& auras = caster->GetAuraEffectsByType(SPELL_AURA_MOD_POWER_COST_SCHOOL);
+    for (Unit::AuraEffectList::const_iterator i = auras.begin(); i != auras.end(); ++i)
+    {
+        if (!((*i)->GetMiscValue() & schoolMask))
+            continue;
+        if (!((*i)->GetMiscValueB() & (1 << PowerType)))
+            continue;
+        powerCost += (*i)->GetAmount();
+    }
     // Shiv - costs 20 + weaponSpeed*10 energy (apply only to non-triggered spell with energy cost)
     if (AttributesEx4 & SPELL_ATTR4_SPELL_VS_EXTEND_COST)
         powerCost += caster->GetAttackTime(OFF_ATTACK) / 100;
@@ -2257,8 +2268,16 @@ int32 SpellInfo::CalcPowerCost(Unit const* caster, SpellSchoolMask schoolMask) c
     if (Attributes & SPELL_ATTR0_LEVEL_DAMAGE_CALCULATION)
         powerCost = int32(powerCost / (1.117f * SpellLevel / caster->getLevel() -0.1327f));
 
-    // PCT mod from user auras by school
-    powerCost = int32(powerCost * (1.0f + caster->GetFloatValue(UNIT_FIELD_POWER_COST_MULTIPLIER + school)));
+    // PCT mod from user auras by spell school and power type
+    Unit::AuraEffectList const& aurasPct = caster->GetAuraEffectsByType(SPELL_AURA_MOD_POWER_COST_SCHOOL_PCT);
+    for (Unit::AuraEffectList::const_iterator i = aurasPct.begin(); i != aurasPct.end(); ++i)
+    {
+        if (!((*i)->GetMiscValue() & schoolMask))
+            continue;
+        if (!((*i)->GetMiscValueB() & (1 << PowerType)))
+            continue;
+        powerCost += CalculatePct(powerCost, (*i)->GetAmount());
+    }
     if (powerCost < 0)
         powerCost = 0;
     return powerCost;

@@ -86,7 +86,40 @@ enum TrinityStrings
     LANG_CONNECTED_PLAYERS              = 60,
     LANG_ACCOUNT_ADDON                  = 61,
     LANG_IMPROPER_VALUE                 = 62,
-    // Room for more level 0              63-99 not used
+    LANG_RBAC_WRONG_PARAMETER_ID        = 63,
+    LANG_RBAC_WRONG_PARAMETER_REALM     = 64,
+    LANG_RBAC_GROUP_IN_LIST             = 65,
+    LANG_RBAC_GROUP_NOT_IN_LIST         = 66,
+    LANG_RBAC_GROUP_ADDED               = 67,
+    LANG_RBAC_GROUP_REMOVED             = 68,
+    LANG_RBAC_GROUP_LIST_HEADER         = 69,
+    LANG_RBAC_LIST_EMPTY                = 70,
+    LANG_RBAC_LIST_ELEMENT              = 71,
+    LANG_RBAC_ROLE_GRANTED_IN_LIST      = 72,
+    LANG_RBAC_ROLE_GRANTED_IN_DENIED_LIST = 73,
+    LANG_RBAC_ROLE_GRANTED              = 74,
+    LANG_RBAC_ROLE_DENIED_IN_LIST       = 75,
+    LANG_RBAC_ROLE_DENIED_IN_GRANTED_LIST = 76,
+    LANG_RBAC_ROLE_DENIED               = 77,
+    LANG_RBAC_ROLE_REVOKED              = 78,
+    LANG_RBAC_ROLE_REVOKED_NOT_IN_LIST  = 79,
+    LANG_RBAC_ROLE_LIST_HEADER_GRANTED  = 80,
+    LANG_RBAC_ROLE_LIST_HEADER_DENIED   = 81,
+    LANG_RBAC_PERM_GRANTED_IN_LIST      = 82,
+    LANG_RBAC_PERM_GRANTED_IN_DENIED_LIST = 83,
+    LANG_RBAC_PERM_GRANTED              = 84,
+    LANG_RBAC_PERM_DENIED_IN_LIST       = 85,
+    LANG_RBAC_PERM_DENIED_IN_GRANTED_LIST = 86,
+    LANG_RBAC_PERM_DENIED               = 87,
+    LANG_RBAC_PERM_REVOKED              = 88,
+    LANG_RBAC_PERM_REVOKED_NOT_IN_LIST  = 89,
+    LANG_RBAC_PERM_LIST_HEADER_GRANTED  = 90,
+    LANG_RBAC_PERM_LIST_HEADER_DENIED   = 91,
+    LANG_RBAC_PERM_LIST_GLOBAL          = 92,
+    LANG_RBAC_LIST_GROUPS_HEADER        = 93,
+    LANG_RBAC_LIST_ROLES_HEADER         = 94,
+    LANG_RBAC_LIST_PERMISSIONS_HEADER   = 95,
+    // Room for more level 0            96-99 not used
 
     // level 1 chat
     LANG_GLOBAL_NOTIFY                  = 100,
@@ -530,6 +563,7 @@ enum TrinityStrings
     LANG_PINFO_BAN                      = 453,
     LANG_PINFO_MAP_ONLINE               = 714,
     LANG_PINFO_MAP_OFFLINE              = 716,
+    LANG_PINFO_GUILD_INFO               = 749,
 
     LANG_YOU_SET_EXPLORE_ALL            = 551,
     LANG_YOU_SET_EXPLORE_NOTHING        = 552,
@@ -750,7 +784,32 @@ enum TrinityStrings
     LANG_COMMAND_CREATURESTORAGE_NOTFOUND  = 818,
 
     LANG_CHANNEL_CITY                   = 819,
-    // Room for in-game strings           820-999 not used
+
+    LANG_NPCINFO_GOSSIP                 = 820,
+    LANG_NPCINFO_QUESTGIVER             = 821,
+    LANG_NPCINFO_TRAINER_CLASS          = 822,
+    LANG_NPCINFO_TRAINER_PROFESSION     = 823,
+    LANG_NPCINFO_VENDOR_AMMO            = 824,
+    LANG_NPCINFO_VENDOR_FOOD            = 825,
+    LANG_NPCINFO_VENDOR_POISON          = 826,
+    LANG_NPCINFO_VENDOR_REAGENT         = 827,
+    LANG_NPCINFO_REPAIR                 = 828,
+    LANG_NPCINFO_FLIGHTMASTER           = 829,
+    LANG_NPCINFO_SPIRITHEALER           = 830,
+    LANG_NPCINFO_SPIRITGUIDE            = 831,
+    LANG_NPCINFO_INNKEEPER              = 832,
+    LANG_NPCINFO_BANKER                 = 833,
+    LANG_NPCINFO_PETITIONER             = 834,
+    LANG_NPCINFO_TABARDDESIGNER         = 835,
+    LANG_NPCINFO_BATTLEMASTER           = 836,
+    LANG_NPCINFO_AUCTIONEER             = 837,
+    LANG_NPCINFO_STABLEMASTER           = 838,
+    LANG_NPCINFO_GUILD_BANKER           = 839,
+    LANG_NPCINFO_SPELLCLICK             = 840,
+    LANG_NPCINFO_MAILBOX                = 841,
+    LANG_NPCINFO_PLAYER_VEHICLE         = 842,
+
+    // Room for in-game strings           843-999 not used
 
     // Level 4 (CLI only commands)
     LANG_COMMAND_EXIT                   = 1000,
@@ -830,7 +889,13 @@ enum TrinityStrings
     LANG_MOVEGENS_EFFECT                = 1142,
     LANG_MOVEFLAGS_GET                  = 1143,
     LANG_MOVEFLAGS_SET                  = 1144,
-    // Room for more level 3              1144-1199 not used
+    LANG_GROUP_ALREADY_IN_GROUP         = 1145,
+    LANG_GROUP_PLAYER_JOINED            = 1146,
+    LANG_GROUP_NOT_IN_GROUP             = 1147,
+    LANG_GROUP_FULL                     = 1148,
+    LANG_GROUP_TYPE                     = 1149,
+    LANG_GROUP_PLAYER_NAME_GUID         = 1150,
+    // Room for more level 3              1151-1199 not used
 
     // Debug commands
     LANG_CINEMATIC_NOT_EXIST            = 1200,

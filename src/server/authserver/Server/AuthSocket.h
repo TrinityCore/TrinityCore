@@ -23,6 +23,9 @@
 #include "BigNumber.h"
 #include "RealmSocket.h"
 
+class ACE_INET_Addr;
+struct Realm;
+
 // Handle login commands
 class AuthSocket: public RealmSocket::Session
 {
@@ -35,6 +38,8 @@ public:
     virtual void OnRead(void);
     virtual void OnAccept(void);
     virtual void OnClose(void);
+
+    static ACE_INET_Addr const& GetAddressForClient(Realm const& realm, ACE_INET_Addr const& clientAddr);
 
     bool _HandleLogonChallenge();
     bool _HandleLogonProof();

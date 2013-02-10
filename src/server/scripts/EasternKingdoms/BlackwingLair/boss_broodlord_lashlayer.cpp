@@ -101,10 +101,13 @@ public:
 
             if (KnockBack_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_KNOCKBACK);
-                //Drop 50% aggro
-                if (DoGetThreat(me->getVictim()))
-                    DoModifyThreatPercent(me->getVictim(), -50);
+                if (Unit* target = me->getVictim())
+                {
+                    DoCast(target, SPELL_KNOCKBACK);
+                    // Drop 50% aggro
+                    if (DoGetThreat(target))
+                        DoModifyThreatPercent(target, -50);
+                }
 
                 KnockBack_Timer = urand(15000, 30000);
             } else KnockBack_Timer -= diff;

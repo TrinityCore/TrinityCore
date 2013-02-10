@@ -459,11 +459,13 @@ public:
         return new npc_ritual_channelerAI(creature);
     }
 
-    struct npc_ritual_channelerAI : public Scripted_NoMovementAI
+    struct npc_ritual_channelerAI : public ScriptedAI
     {
-        npc_ritual_channelerAI(Creature* creature) :Scripted_NoMovementAI(creature)
+        npc_ritual_channelerAI(Creature* creature) :ScriptedAI(creature)
         {
             instance = creature->GetInstanceScript();
+
+            SetCombatMovement(false);
         }
 
         InstanceScript* instance;
@@ -554,7 +556,7 @@ class spell_paralyze_pinnacle : public SpellScriptLoader
 
             void FilterTargets(std::list<WorldObject*>& unitList)
             {
-                unitList.remove_if (RitualTargetCheck(GetCaster()));
+                unitList.remove_if(RitualTargetCheck(GetCaster()));
             }
 
             void Register()

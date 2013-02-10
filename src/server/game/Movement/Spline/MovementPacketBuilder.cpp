@@ -192,7 +192,7 @@ namespace Movement
     {
         if (!moveSpline.Finalized())
         {
-            MoveSplineFlag splineFlags = moveSpline.splineflags;
+            MoveSplineFlag const& splineFlags = moveSpline.splineflags;
 
             if ((splineFlags & MoveSplineFlag::Parabolic) && moveSpline.effect_start_time < moveSpline.Duration())
                 data << moveSpline.vertical_acceleration;   // added in 3.1

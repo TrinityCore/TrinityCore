@@ -123,6 +123,12 @@ struct LogMessage
     std::string prefix;
     std::string param1;
     time_t mtime;
+
+    ///@ Returns size of the log message content in bytes
+    uint32 Size() const
+    {
+        return prefix.size() + text.size();
+    }
 };
 
 class Appender

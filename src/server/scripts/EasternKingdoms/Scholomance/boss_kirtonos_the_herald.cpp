@@ -66,8 +66,8 @@ enum eMisc
 
 Position const PosMove[2] =
 {
-    { 299.4884f, 92.76137f, 105.6335f },
-    { 314.8673f, 90.30210f, 101.6459f }
+    { 299.4884f, 92.76137f, 105.6335f, 0.0f },
+    { 314.8673f, 90.30210f, 101.6459f, 0.0f }
 };
 
 class boss_kirtonos_the_herald : public CreatureScript
