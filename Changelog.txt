@@ -11,6 +11,7 @@
 #                                                                                          #
 ############################################################################################
 
+[122] --> SOTA: Fix battleground demolisher's faction.
 [121] --> Fix Halion immunities and damage.
 [120] --> Fix Gargoyle haste (TEST).
 [119] --> Fix Culling Of Stratholme.
