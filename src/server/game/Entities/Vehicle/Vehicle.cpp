@@ -381,7 +381,7 @@ bool Vehicle::AddPassenger(Unit* unit, int8 seatId)
         unit->SendClearTarget();                            // SMSG_BREAK_TARGET
         unit->SetControlled(true, UNIT_STATE_ROOT);         // SMSG_FORCE_ROOT - In some cases we send SMSG_SPLINE_MOVE_ROOT here (for creatures)
                                                             // also adds MOVEMENTFLAG_ROOT
-        Movement::MoveSplineInit init(*unit);
+        Movement::MoveSplineInit init(unit);
         init.DisableTransportPathTransformations();
         init.MoveTo(veSeat->m_attachmentOffsetX, veSeat->m_attachmentOffsetY, veSeat->m_attachmentOffsetZ);
         init.SetFacing(0.0f);
@@ -466,7 +466,6 @@ void Vehicle::RelocatePassengers()
             float px, py, pz, po;
             passenger->m_movementInfo.t_pos.GetPosition(px, py, pz, po);
             CalculatePassengerPosition(px, py, pz, po);
-
             passenger->UpdatePosition(px, py, pz, po);
         }
     }

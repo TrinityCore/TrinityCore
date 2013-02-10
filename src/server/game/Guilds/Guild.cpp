@@ -2035,16 +2035,20 @@ bool Guild::HandleMemberWithdrawMoney(WorldSession* session, uint64 amount, bool
     sScriptMgr->OnGuildMemberWitdrawMoney(this, player, amount, repair);
 
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    // Add money to player (if required)
+    if (!repair)
+    {
+        if (!player->ModifyMoney(amount))
+            return false;
+
+        player->SaveGoldToDB(trans);
+    }
+
     // Update remaining money amount
     member->UpdateBankWithdrawValue(trans, GUILD_BANK_MAX_TABS, amount);
     // Remove money from bank
     _ModifyBankMoney(trans, amount, false);
-    // Add money to player (if required)
-    if (!repair)
-    {
-        player->ModifyMoney((int64)amount);
-        player->SaveGoldToDB(trans);
-    }
+
     // Log guild bank event
     _LogBankEvent(trans, repair ? GUILD_BANK_LOG_REPAIR_MONEY : GUILD_BANK_LOG_WITHDRAW_MONEY, uint8(0), player->GetGUIDLow(), amount);
     CharacterDatabase.CommitTransaction(trans);
@@ -2520,7 +2524,7 @@ void Guild::BroadcastAddonToGuild(WorldSession* session, bool officerOnly, std::
     if (session && session->GetPlayer() && _HasRankRight(session->GetPlayer(), officerOnly ? GR_RIGHT_OFFCHATSPEAK : GR_RIGHT_GCHATSPEAK))
     {
         WorldPacket data;
-        ChatHandler::FillMessageData(&data, session, officerOnly ? CHAT_MSG_OFFICER : CHAT_MSG_GUILD, CHAT_MSG_ADDON, NULL, 0, msg.c_str(), NULL, prefix.c_str());
+        ChatHandler::FillMessageData(&data, session, officerOnly ? CHAT_MSG_OFFICER : CHAT_MSG_GUILD, uint32(CHAT_MSG_ADDON), NULL, 0, msg.c_str(), NULL, prefix.c_str());
         for (Members::const_iterator itr = m_members.begin(); itr != m_members.end(); ++itr)
             if (Player* player = itr->second->FindPlayer())
                 if (player->GetSession() && _HasRankRight(player, officerOnly ? GR_RIGHT_OFFCHATLISTEN : GR_RIGHT_GCHATLISTEN) &&

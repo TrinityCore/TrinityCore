@@ -182,9 +182,9 @@ class mob_amanitar_mushrooms : public CreatureScript
 public:
     mob_amanitar_mushrooms() : CreatureScript("mob_amanitar_mushrooms") { }
 
-    struct mob_amanitar_mushroomsAI : public Scripted_NoMovementAI
+    struct mob_amanitar_mushroomsAI : public ScriptedAI
     {
-        mob_amanitar_mushroomsAI(Creature* creature) : Scripted_NoMovementAI(creature) {}
+        mob_amanitar_mushroomsAI(Creature* creature) : ScriptedAI(creature) {}
 
         EventMap events;
 

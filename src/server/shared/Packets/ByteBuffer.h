@@ -523,6 +523,8 @@ class ByteBuffer
             return *this;
         }
 
+        uint8 * contents() { return &_storage[0]; }
+
         const uint8 *contents() const { return &_storage[0]; }
 
         size_t size() const { return _storage.size(); }

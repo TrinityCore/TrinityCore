@@ -162,16 +162,17 @@ bool Battlefield::Update(uint32 diff)
         // Kick players who chose not to accept invitation to the battle
         if (m_uiKickDontAcceptTimer <= diff)
         {
+            time_t now = time(NULL);
             for (int team = 0; team < 2; team++)
                 for (PlayerTimerMap::iterator itr = m_InvitedPlayers[team].begin(); itr != m_InvitedPlayers[team].end(); ++itr)
-                    if ((*itr).second <= time(NULL))
-                        KickPlayerFromBattlefield((*itr).first);
+                    if (itr->second <= now)
+                        KickPlayerFromBattlefield(itr->first);
 
             InvitePlayersInZoneToWar();
             for (int team = 0; team < 2; team++)
                 for (PlayerTimerMap::iterator itr = m_PlayersWillBeKick[team].begin(); itr != m_PlayersWillBeKick[team].end(); ++itr)
-                    if ((*itr).second <= time(NULL))
-                        KickPlayerFromBattlefield((*itr).first);
+                    if (itr->second <= now)
+                        KickPlayerFromBattlefield(itr->first);
 
             m_uiKickDontAcceptTimer = 1000;
         }
@@ -819,7 +820,7 @@ Creature* Battlefield::SpawnCreature(uint32 entry, Position pos, TeamId team)
 Creature* Battlefield::SpawnCreature(uint32 entry, float x, float y, float z, float o, TeamId team)
 {
     //Get map object
-    Map* map = const_cast<Map*>(sMapMgr->CreateBaseMap(m_MapId));
+    Map* map = sMapMgr->CreateBaseMap(m_MapId);
     if (!map)
     {
         sLog->outError(LOG_FILTER_BATTLEFIELD, "Battlefield::SpawnCreature: Can't create creature entry: %u map not found", entry);
@@ -857,7 +858,7 @@ Creature* Battlefield::SpawnCreature(uint32 entry, float x, float y, float z, fl
 GameObject* Battlefield::SpawnGameObject(uint32 entry, float x, float y, float z, float o)
 {
     // Get map object
-    Map* map = const_cast<Map*>(sMapMgr->CreateBaseMap(571)); // *vomits*
+    Map* map = sMapMgr->CreateBaseMap(571); // *vomits*
     if (!map)
         return 0;
 

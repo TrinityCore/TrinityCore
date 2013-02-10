@@ -19,7 +19,7 @@
 #define FIRELANDS_H_
 
 #include "Map.h"
-#include "Creature.h"
+#include "CreatureAI.h"
 
 #define FirelandsScriptName "instance_firelands"
 

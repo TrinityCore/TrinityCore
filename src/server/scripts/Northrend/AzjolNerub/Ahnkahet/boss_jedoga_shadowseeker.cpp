@@ -523,15 +523,17 @@ class npc_jedogas_aufseher_trigger : public CreatureScript
 public:
     npc_jedogas_aufseher_trigger() : CreatureScript("npc_jedogas_aufseher_trigger") { }
 
-    struct npc_jedogas_aufseher_triggerAI : public Scripted_NoMovementAI
+    struct npc_jedogas_aufseher_triggerAI : public ScriptedAI
     {
-        npc_jedogas_aufseher_triggerAI(Creature* creature) : Scripted_NoMovementAI(creature)
+        npc_jedogas_aufseher_triggerAI(Creature* creature) : ScriptedAI(creature)
         {
             instance    = creature->GetInstanceScript();
             bRemoved    = false;
             bRemoved2   = false;
             bCasted     = false;
             bCasted2    = false;
+
+            SetCombatMovement(false);
         }
 
         InstanceScript* instance;

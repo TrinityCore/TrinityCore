@@ -268,6 +268,7 @@ ObjectMgr::~ObjectMgr()
         itr->second.Clear();
 
     _cacheTrainerSpellStore.clear();
+    _graveyardOrientations.clear();
 
     for (DungeonEncounterContainer::iterator itr =_dungeonEncounterStore.begin(); itr != _dungeonEncounterStore.end(); ++itr)
         for (DungeonEncounterList::iterator encounterItr = itr->second.begin(); encounterItr != itr->second.end(); ++encounterItr)
@@ -286,6 +287,34 @@ void ObjectMgr::AddLocaleString(std::string const& s, LocaleConstant locale, Str
 
         data[locale] = s;
     }
+}
+
+void ObjectMgr::LoadGraveyardOrientations()
+{
+    uint32 oldMSTime = getMSTime();
+
+    _graveyardOrientations.clear();
+
+    QueryResult result = WorldDatabase.Query("SELECT id, orientation FROM graveyard_orientation");
+
+    if (!result)
+        return;
+
+    do
+    {
+        Field* fields = result->Fetch();
+
+        uint32 id = fields[0].GetUInt32();
+        if (!sWorldSafeLocsStore.LookupEntry(id))
+        {
+            sLog->outError(LOG_FILTER_SERVER_LOADING, "Graveyard %u referenced in graveyard_orientation doesn't exist.", id);
+            continue;
+        }
+        _graveyardOrientations[id] = fields[1].GetFloat();
+
+    } while (result->NextRow());
+
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %lu graveyard orientations in %u ms", (unsigned long)_graveyardOrientations.size(), GetMSTimeDiffToNow(oldMSTime));
 }
 
 void ObjectMgr::LoadCreatureLocales()
@@ -390,15 +419,15 @@ void ObjectMgr::LoadCreatureTemplates()
                                              "modelid4, name, subname, IconName, gossip_menu_id, minlevel, maxlevel, exp, exp_unk, faction_A, faction_H, npcflag, speed_walk, "
     //                                             22     23     24     25     26       27           28             29              30               31            32          33          34
                                              "speed_run, scale, rank, mindmg, maxdmg, dmgschool, attackpower, dmg_multiplier, baseattacktime, rangeattacktime, unit_class, unit_flags, unit_flags2, "
-    //                                             35         36         37             38             39             40          41           42              43           44
-                                             "dynamicflags, family, trainer_type, trainer_spell, trainer_class, trainer_race, minrangedmg, maxrangedmg, rangedattackpower, type, "
-    //                                            45           46        47         48            49          50          51           52           53           54         55
+    //                                             35         36         37             38             39          40           41              42          43
+                                             "dynamicflags, family, trainer_type, trainer_class, trainer_race, minrangedmg, maxrangedmg, rangedattackpower, type, "
+    //                                            44           45        46         47            48          49          50           51           52           53         54
                                              "type_flags, type_flags2, lootid, pickpocketloot, skinloot, resistance1, resistance2, resistance3, resistance4, resistance5, resistance6, "
-    //                                          56      57      58      59      60      61      62      63       64               65       66       67       68         69
+    //                                          55      56      59      60      61      62      63      64       65               66       67       68       69         70
                                              "spell1, spell2, spell3, spell4, spell5, spell6, spell7, spell8, PetSpellDataId, VehicleId, mingold, maxgold, AIName, MovementType, "
-    //                                             70          71         72         73            74            75          76           77          78          79           80          81
+    //                                             71          72         73         74            75            76          77           78          79          80           81          82
                                              "InhabitType, HoverHeight, Health_mod, Mana_mod, Mana_mod_extra, Armor_mod, RacialLeader, questItem1, questItem2, questItem3, questItem4, questItem5, "
-    //                                            82           83            84         85               86                  87          88
+    //                                            83           84            85         86               87                  88          89
                                              " questItem6, movementId, RegenHealth, equipment_id, mechanic_immune_mask, flags_extra, ScriptName "
                                              "FROM creature_template;");
 
@@ -459,48 +488,47 @@ void ObjectMgr::LoadCreatureTemplates()
         creatureTemplate.dynamicflags      = fields[35].GetUInt32();
         creatureTemplate.family            = uint32(fields[36].GetUInt8());
         creatureTemplate.trainer_type      = uint32(fields[37].GetUInt8());
-        creatureTemplate.trainer_spell     = fields[38].GetUInt32();
-        creatureTemplate.trainer_class     = uint32(fields[39].GetUInt8());
-        creatureTemplate.trainer_race      = uint32(fields[40].GetUInt8());
-        creatureTemplate.minrangedmg       = fields[41].GetFloat();
-        creatureTemplate.maxrangedmg       = fields[42].GetFloat();
-        creatureTemplate.rangedattackpower = uint32(fields[43].GetUInt16());
-        creatureTemplate.type              = uint32(fields[44].GetUInt8());
-        creatureTemplate.type_flags        = fields[45].GetUInt32();
-        creatureTemplate.type_flags2       = fields[46].GetUInt32();
-        creatureTemplate.lootid            = fields[47].GetUInt32();
-        creatureTemplate.pickpocketLootId  = fields[48].GetUInt32();
-        creatureTemplate.SkinLootId        = fields[49].GetUInt32();
+        creatureTemplate.trainer_class     = uint32(fields[38].GetUInt8());
+        creatureTemplate.trainer_race      = uint32(fields[39].GetUInt8());
+        creatureTemplate.minrangedmg       = fields[40].GetFloat();
+        creatureTemplate.maxrangedmg       = fields[41].GetFloat();
+        creatureTemplate.rangedattackpower = uint32(fields[42].GetUInt16());
+        creatureTemplate.type              = uint32(fields[43].GetUInt8());
+        creatureTemplate.type_flags        = fields[44].GetUInt32();
+        creatureTemplate.type_flags2       = fields[45].GetUInt32();
+        creatureTemplate.lootid            = fields[46].GetUInt32();
+        creatureTemplate.pickpocketLootId  = fields[47].GetUInt32();
+        creatureTemplate.SkinLootId        = fields[48].GetUInt32();
 
         for (uint8 i = SPELL_SCHOOL_HOLY; i < MAX_SPELL_SCHOOL; ++i)
-            creatureTemplate.resistance[i] = fields[50 + i - 1].GetInt16();
+            creatureTemplate.resistance[i] = fields[49 + i - 1].GetInt16();
 
         for (uint8 i = 0; i < CREATURE_MAX_SPELLS; ++i)
-            creatureTemplate.spells[i] = fields[56 + i].GetUInt32();
+            creatureTemplate.spells[i] = fields[55 + i].GetUInt32();
 
-        creatureTemplate.PetSpellDataId = fields[64].GetUInt32();
-        creatureTemplate.VehicleId      = fields[65].GetUInt32();
-        creatureTemplate.mingold        = fields[66].GetUInt32();
-        creatureTemplate.maxgold        = fields[67].GetUInt32();
-        creatureTemplate.AIName         = fields[68].GetString();
-        creatureTemplate.MovementType   = uint32(fields[69].GetUInt8());
-        creatureTemplate.InhabitType    = uint32(fields[70].GetUInt8());
-        creatureTemplate.HoverHeight    = fields[71].GetFloat();
-        creatureTemplate.ModHealth      = fields[72].GetFloat();
-        creatureTemplate.ModMana        = fields[73].GetFloat();
-        creatureTemplate.ModManaExtra   = fields[74].GetFloat();
-        creatureTemplate.ModArmor       = fields[75].GetFloat();
-        creatureTemplate.RacialLeader   = fields[76].GetBool();
+        creatureTemplate.PetSpellDataId = fields[63].GetUInt32();
+        creatureTemplate.VehicleId      = fields[64].GetUInt32();
+        creatureTemplate.mingold        = fields[65].GetUInt32();
+        creatureTemplate.maxgold        = fields[66].GetUInt32();
+        creatureTemplate.AIName         = fields[67].GetString();
+        creatureTemplate.MovementType   = uint32(fields[68].GetUInt8());
+        creatureTemplate.InhabitType    = uint32(fields[69].GetUInt8());
+        creatureTemplate.HoverHeight    = fields[70].GetFloat();
+        creatureTemplate.ModHealth      = fields[71].GetFloat();
+        creatureTemplate.ModMana        = fields[72].GetFloat();
+        creatureTemplate.ModManaExtra   = fields[73].GetFloat();
+        creatureTemplate.ModArmor       = fields[74].GetFloat();
+        creatureTemplate.RacialLeader   = fields[75].GetBool();
 
         for (uint8 i = 0; i < MAX_CREATURE_QUEST_ITEMS; ++i)
-            creatureTemplate.questItems[i] = fields[77 + i].GetUInt32();
+            creatureTemplate.questItems[i] = fields[76 + i].GetUInt32();
 
-        creatureTemplate.movementId         = fields[83].GetUInt32();
-        creatureTemplate.RegenHealth        = fields[84].GetBool();
-        creatureTemplate.equipmentId        = fields[85].GetUInt32();
-        creatureTemplate.MechanicImmuneMask = fields[86].GetUInt32();
-        creatureTemplate.flags_extra        = fields[87].GetUInt32();
-        creatureTemplate.ScriptID           = GetScriptId(fields[88].GetCString());
+        creatureTemplate.movementId         = fields[82].GetUInt32();
+        creatureTemplate.RegenHealth        = fields[83].GetBool();
+        creatureTemplate.equipmentId        = fields[84].GetUInt32();
+        creatureTemplate.MechanicImmuneMask = fields[85].GetUInt32();
+        creatureTemplate.flags_extra        = fields[86].GetUInt32();
+        creatureTemplate.ScriptID           = GetScriptId(fields[87].GetCString());
 
         ++count;
     }
@@ -659,12 +687,6 @@ void ObjectMgr::CheckCreatureTemplate(CreatureTemplate const* cInfo)
         if (cInfo->trainer_type != difficultyInfo->trainer_type)
         {
             sLog->outError(LOG_FILTER_SQL, "Creature (Entry: %u) has different `trainer_type` in difficulty %u mode (Entry: %u).", cInfo->Entry, diff + 1, cInfo->DifficultyEntry[diff]);
-            continue;
-        }
-
-        if (cInfo->trainer_spell != difficultyInfo->trainer_spell)
-        {
-            sLog->outError(LOG_FILTER_SQL, "Creature (Entry: %u) has different `trainer_spell` in difficulty %u mode (Entry: %u).", cInfo->Entry, diff + 1, cInfo->DifficultyEntry[diff]);
             continue;
         }
 
@@ -1193,7 +1215,6 @@ void ObjectMgr::LoadLinkedRespawn()
     if (!result)
     {
         sLog->outError(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 linked respawns. DB table `linked_respawn` is empty.");
-
         return;
     }
 
@@ -1424,7 +1445,6 @@ void ObjectMgr::LoadCreatures()
     if (!result)
     {
         sLog->outError(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 creatures. DB table `creature` is empty.");
-
         return;
     }
 
@@ -1732,7 +1752,7 @@ void ObjectMgr::LoadGameobjects()
 
     if (!result)
     {
-        sLog->outError(LOG_FILTER_SQL, ">> Loaded 0 gameobjects. DB table `gameobject` is empty.");
+        sLog->outError(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 gameobjects. DB table `gameobject` is empty.");
         return;
     }
 
@@ -2633,7 +2653,6 @@ void ObjectMgr::LoadVehicleTemplateAccessories()
     if (!result)
     {
         sLog->outError(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 vehicle template accessories. DB table `vehicle_template_accessory` is empty.");
-
         return;
     }
 
@@ -2728,7 +2747,6 @@ void ObjectMgr::LoadPetLevelInfo()
     if (!result)
     {
         sLog->outError(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 level pet stats definitions. DB table `pet_levelstats` is empty.");
-
         return;
     }
 
@@ -2866,7 +2884,6 @@ void ObjectMgr::LoadPlayerInfo()
 
         if (!result)
         {
-
             sLog->outError(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 player create definitions. DB table `playercreateinfo` is empty.");
             exit(1);
         }
@@ -3025,7 +3042,6 @@ void ObjectMgr::LoadPlayerInfo()
         if (!result)
         {
             sLog->outError(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 player create spells. DB table `%s` is empty.", sWorld->getBoolConfig(CONFIG_START_ALL_SPELLS) ? "playercreateinfo_spell_custom" : "playercreateinfo_spell");
-
         }
         else
         {
@@ -3087,7 +3103,6 @@ void ObjectMgr::LoadPlayerInfo()
         if (!result)
         {
             sLog->outError(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 player create actions. DB table `playercreateinfo_action` is empty.");
-
         }
         else
         {
@@ -3133,7 +3148,6 @@ void ObjectMgr::LoadPlayerInfo()
         if (!result)
         {
             sLog->outError(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 level stats definitions. DB table `player_levelstats` is empty.");
-
             exit(1);
         }
 
@@ -3246,7 +3260,6 @@ void ObjectMgr::LoadPlayerInfo()
         if (!result)
         {
             sLog->outError(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 xp for level definitions. DB table `player_xp_for_level` is empty.");
-
             exit(1);
         }
 
@@ -4672,7 +4685,7 @@ void ObjectMgr::LoadWaypointScripts()
     for (ScriptMapMap::const_iterator itr = sWaypointScripts.begin(); itr != sWaypointScripts.end(); ++itr)
         actionSet.insert(itr->first);
 
-    PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WOLRD_SEL_WAYPOINT_DATA_ACTION);
+    PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_WAYPOINT_DATA_ACTION);
     PreparedQueryResult result = WorldDatabase.Query(stmt);
 
     if (result)
@@ -4942,7 +4955,6 @@ void ObjectMgr::LoadInstanceEncounters()
     if (!result)
     {
         sLog->outError(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 instance encounters, table is empty!");
-
         return;
     }
 
@@ -4962,7 +4974,7 @@ void ObjectMgr::LoadInstanceEncounters()
             continue;
         }
 
-        if (lastEncounterDungeon && !sLFGMgr->GetLFGDungeon(lastEncounterDungeon))
+        if (lastEncounterDungeon && !sLFGMgr->GetLFGDungeonEntry(lastEncounterDungeon))
         {
             sLog->outError(LOG_FILTER_SQL, "Table `instance_encounters` has an encounter %u (%s) marked as final for invalid dungeon id %u, skipped!", entry, dungeonEncounter->encounterName, lastEncounterDungeon);
             continue;
@@ -6403,7 +6415,6 @@ void ObjectMgr::LoadExplorationBaseXP()
     if (!result)
     {
         sLog->outError(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 BaseXP definitions. DB table `exploration_basexp` is empty.");
-
         return;
     }
 
@@ -6558,7 +6569,7 @@ void ObjectMgr::LoadReputationRewardRate()
     QueryResult result = WorldDatabase.Query("SELECT faction, quest_rate, quest_daily_rate, quest_weekly_rate, quest_monthly_rate, creature_rate, spell_rate FROM reputation_reward_rate");
     if (!result)
     {
-        sLog->outError(LOG_FILTER_SQL, ">> Loaded `reputation_reward_rate`, table is empty!");
+        sLog->outError(LOG_FILTER_SERVER_LOADING, ">> Loaded `reputation_reward_rate`, table is empty!");
         return;
     }
 
@@ -6647,7 +6658,6 @@ void ObjectMgr::LoadReputationOnKill()
     if (!result)
     {
         sLog->outError(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 creature award reputation definitions. DB table `creature_onkill_reputation` is empty.");
-
         return;
     }
 
@@ -6835,7 +6845,6 @@ void ObjectMgr::LoadPointsOfInterest()
     if (!result)
     {
         sLog->outError(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 Points of Interest definitions. DB table `points_of_interest` is empty.");
-
         return;
     }
 
@@ -6881,7 +6890,6 @@ void ObjectMgr::LoadQuestPOI()
     if (!result)
     {
         sLog->outError(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 quest POI definitions. DB table `quest_poi` is empty.");
-
         return;
     }
 
@@ -6949,7 +6957,6 @@ void ObjectMgr::LoadNPCSpellClickSpells()
     if (!result)
     {
         sLog->outError(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 spellclick spells. DB table `npc_spellclick_spells` is empty.");
-
         return;
     }
 
@@ -7426,7 +7433,7 @@ bool ObjectMgr::LoadTrinityStrings(const char* table, int32 min_value, int32 max
     if (!result)
     {
         if (min_value == MIN_TRINITY_STRING_ID)              // error only in case internal strings
-            sLog->outError(LOG_FILTER_SERVER_LOADING, ">>  Loaded 0 trinity strings. DB table `%s` is empty. Cannot continue.", table);
+            sLog->outError(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 trinity strings. DB table `%s` is empty. Cannot continue.", table);
         else
             sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 string templates. DB table `%s` is empty.", table);
 
@@ -7503,7 +7510,6 @@ void ObjectMgr::LoadFishingBaseSkillLevel()
     if (!result)
     {
         sLog->outError(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 areas for fishing base skill level. DB table `skill_fishing_base_level` is empty.");
-
         return;
     }
 
@@ -7629,8 +7635,7 @@ void ObjectMgr::LoadGameTele()
 
     if (!result)
     {
-        sLog->outError(LOG_FILTER_SERVER_LOADING, ">>  Loaded 0 GameTeleports. DB table `game_tele` is empty!");
-
+        sLog->outError(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 GameTeleports. DB table `game_tele` is empty!");
         return;
     }
 
@@ -7769,8 +7774,7 @@ void ObjectMgr::LoadMailLevelRewards()
 
     if (!result)
     {
-        sLog->outError(LOG_FILTER_SERVER_LOADING, ">>  Loaded 0 level dependent mail rewards. DB table `mail_level_reward` is empty.");
-
+        sLog->outError(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 level dependent mail rewards. DB table `mail_level_reward` is empty.");
         return;
     }
 
@@ -8040,7 +8044,6 @@ void ObjectMgr::LoadGossipMenu()
     if (!result)
     {
         sLog->outError(LOG_FILTER_SERVER_LOADING, ">> Loaded 0  gossip_menu entries. DB table `gossip_menu` is empty!");
-
         return;
     }
 
@@ -8086,7 +8089,6 @@ void ObjectMgr::LoadGossipMenuItems()
     if (!result)
     {
         sLog->outError(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 gossip_menu_option entries. DB table `gossip_menu_option` is empty!");
-
         return;
     }
 
@@ -8299,8 +8301,7 @@ void ObjectMgr::LoadScriptNames()
 
     if (!result)
     {
-
-        sLog->outError(LOG_FILTER_SQL, ">> Loaded empty set of Script Names!");
+        sLog->outError(LOG_FILTER_SERVER_LOADING, ">> Loaded empty set of Script Names!");
         return;
     }
 
@@ -8477,7 +8478,6 @@ void ObjectMgr::LoadFactionChangeAchievements()
     if (!result)
     {
         sLog->outError(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 faction change achievement pairs. DB table `player_factionchange_achievement` is empty.");
-
         return;
     }
 
@@ -8548,7 +8548,6 @@ void ObjectMgr::LoadFactionChangeSpells()
     if (!result)
     {
         sLog->outError(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 faction change spell pairs. DB table `player_factionchange_spells` is empty.");
-
         return;
     }
 

@@ -925,15 +925,7 @@ bool Creature::isCanTrainingOf(Player* player, bool msg) const
             }
             break;
         case TRAINER_TYPE_TRADESKILLS:
-            if (GetCreatureTemplate()->trainer_spell && !player->HasSpell(GetCreatureTemplate()->trainer_spell))
-            {
-                if (msg)
-                {
-                    player->PlayerTalkClass->ClearMenus();
-                    player->PlayerTalkClass->SendGossipMenu(11031, GetGUID());
-                }
-                return false;
-            }
+            // There's no Blacksmith specialization on Cataclysm, conditions are not required for tradeskills
             break;
         default:
             return false;                                   // checked and error output at creature_template loading

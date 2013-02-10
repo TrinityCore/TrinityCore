@@ -1388,17 +1388,6 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
     // mods at aura apply or remove
     switch (GetSpellInfo()->SpellFamilyName)
     {
-        case SPELLFAMILY_GENERIC:
-            switch (GetId())
-            {
-                case 50720: // Vigilance
-                    if (apply)
-                        target->CastSpell(caster, 59665, true, 0, 0, caster->GetGUID());
-                    else
-                        target->SetReducedThreatPercent(0, 0);
-                    break;
-            }
-            break;
         case SPELLFAMILY_DRUID:
             // Enrage
             if ((GetSpellInfo()->SpellFamilyFlags[0] & 0x80000) && GetSpellInfo()->SpellIconID == 961)
@@ -1781,14 +1770,14 @@ float Aura::CalcProcChance(SpellProcEntry const& procEntry, ProcEventInfo& event
 
 void Aura::TriggerProcOnEvent(AuraApplication* aurApp, ProcEventInfo& eventInfo)
 {
-    CallScriptProcHandlers(const_cast<AuraApplication const*>(aurApp), eventInfo);
+    CallScriptProcHandlers(aurApp, eventInfo);
 
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
         if (aurApp->HasEffect(i))
             // OnEffectProc / AfterEffectProc hooks handled in AuraEffect::HandleProc()
             GetEffect(i)->HandleProc(aurApp, eventInfo);
 
-    CallScriptAfterProcHandlers(const_cast<AuraApplication const*>(aurApp), eventInfo);
+    CallScriptAfterProcHandlers(aurApp, eventInfo);
 
     // Remove aura if we've used last charge to proc
     if (IsUsingCharges() && !GetCharges())

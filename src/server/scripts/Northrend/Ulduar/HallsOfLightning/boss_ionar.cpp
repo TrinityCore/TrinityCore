@@ -198,8 +198,7 @@ public:
 
                 summoned->CastSpell(summoned, DUNGEON_MODE(SPELL_SPARK_VISUAL_TRIGGER, H_SPELL_SPARK_VISUAL_TRIGGER), true);
 
-                Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0);
-                if (target)
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                 {
                     summoned->SetInCombatWith(target);
                     summoned->GetMotionMaster()->Clear();

@@ -19,6 +19,7 @@
 #ifndef TRINITY_SHAREDDEFINES_H
 #define TRINITY_SHAREDDEFINES_H
 
+#include "DetourNavMesh.h"
 #include "Define.h"
 #include <cassert>
 
@@ -34,7 +35,6 @@ enum SpellEffIndex
 // used in script definitions
 #define EFFECT_FIRST_FOUND 254
 #define EFFECT_ALL 255
-
 
 // loot modes for creatures and gameobjects, bitmask!
 enum LootModes
@@ -2834,7 +2834,7 @@ enum CreatureTypeFlags2
     CREATURE_TYPEFLAGS_2_UNK5           = 0x00000010,
     CREATURE_TYPEFLAGS_2_UNK6           = 0x00000020,
     CREATURE_TYPEFLAGS_2_UNK7           = 0x00000040,
-    CREATURE_TYPEFLAGS_2_UNK8           = 0x00000080,
+    CREATURE_TYPEFLAGS_2_UNK8           = 0x00000080
 };
 
 enum CreatureEliteType
@@ -2884,7 +2884,7 @@ enum HolidayIds
     HOLIDAY_RATED_BG_25_VS_25        = 443,
     HOLIDAY_ANNIVERSARY_7_YEARS      = 467,
     HOLIDAY_DARKMOON_FAIRE_TEROKKAR  = 479,
-    HOLIDAY_ANNIVERSARY_8_YEARS      = 484,
+    HOLIDAY_ANNIVERSARY_8_YEARS      = 484
 };
 
 // values based at QuestInfo.dbc
@@ -3149,7 +3149,7 @@ enum SkillType
     SKILL_PET_SHALE_SPIDER         = 817,
     SKILL_PET_BEETLE               = 818,
     SKILL_ALL_GUILD_PERKS          = 821,
-    SKILL_PET_HYDRA                = 824,
+    SKILL_PET_HYDRA                = 824
 };
 
 #define MAX_SKILL_TYPE               825
@@ -3324,7 +3324,7 @@ enum ChatMsg
     CHAT_MSG_ACHIEVEMENT            = 0x30,
     CHAT_MSG_GUILD_ACHIEVEMENT      = 0x31,
     CHAT_MSG_ARENA_POINTS           = 0x32,
-    CHAT_MSG_PARTY_LEADER           = 0x33,
+    CHAT_MSG_PARTY_LEADER           = 0x33
 };
 
 #define MAX_CHAT_MSG_TYPE 0x34
@@ -3342,14 +3342,14 @@ enum ChatLinkColors
 // Values from ItemPetFood (power of (value-1) used for compare with CreatureFamilyEntry.petDietMask
 enum PetDiet
 {
-    PET_DIET_MEAT       = 1,
-    PET_DIET_FISH       = 2,
-    PET_DIET_CHEESE     = 3,
-    PET_DIET_BREAD      = 4,
-    PET_DIET_FUNGAS     = 5,
-    PET_DIET_FRUIT      = 6,
-    PET_DIET_RAW_MEAT   = 7,
-    PET_DIET_RAW_FISH   = 8
+    PET_DIET_MEAT     = 1,
+    PET_DIET_FISH     = 2,
+    PET_DIET_CHEESE   = 3,
+    PET_DIET_BREAD    = 4,
+    PET_DIET_FUNGAS   = 5,
+    PET_DIET_FRUIT    = 6,
+    PET_DIET_RAW_MEAT = 7,
+    PET_DIET_RAW_FISH = 8
 };
 
 #define MAX_PET_DIET 9
@@ -3872,6 +3872,35 @@ enum PartyResult
     ERR_PARTY_LFG_BOOT_DUNGEON_COMPLETE = 28,
     ERR_PARTY_LFG_BOOT_LOOT_ROLLS       = 29,
     ERR_PARTY_LFG_TELEPORT_IN_COMBAT    = 30
+};
+
+const uint32 MMAP_MAGIC = 0x4d4d4150; // 'MMAP'
+#define MMAP_VERSION 3
+
+struct MmapTileHeader
+{
+    uint32 mmapMagic;
+    uint32 dtVersion;
+    uint32 mmapVersion;
+    uint32 size;
+    bool usesLiquids : 1;
+
+    MmapTileHeader() : mmapMagic(MMAP_MAGIC), dtVersion(DT_NAVMESH_VERSION),
+        mmapVersion(MMAP_VERSION), size(0), usesLiquids(true) {}
+};
+
+enum NavTerrain
+{
+    NAV_EMPTY   = 0x00,
+    NAV_GROUND  = 0x01,
+    NAV_MAGMA   = 0x02,
+    NAV_SLIME   = 0x04,
+    NAV_WATER   = 0x08,
+    NAV_UNUSED1 = 0x10,
+    NAV_UNUSED2 = 0x20,
+    NAV_UNUSED3 = 0x40,
+    NAV_UNUSED4 = 0x80
+    // we only have 8 bits
 };
 
 #endif
