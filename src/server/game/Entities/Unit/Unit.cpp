@@ -7549,11 +7549,17 @@ bool Unit::HandleAuraProc(Unit* victim, uint32 damage, Aura* triggeredByAura, Sp
         }
         case SPELLFAMILY_DEATHKNIGHT:
         {
-            // Blood of the North
-            // Reaping
-            // Death Rune Mastery
-            if (dummySpell->SpellIconID == 3041 || (dummySpell->SpellIconID == 22 && dummySpell->Id != 62459) || dummySpell->SpellIconID == 2622)
+            switch (dummySpell->Id)
             {
+                case 49208 /* Reaping */:
+                case 56834 /* Reaping */:
+                case 56835 /* Reaping */:
+                case 49467 /* Death Rune Mastery */:
+                case 50033 /* Death Rune Mastery */:
+                case 50034 /* Death Rune Mastery */:
+                case 54637 /* Blood of the North */:
+                case 54638 /* Blood of the North */:
+                case 54639 /* Blood of the North */:
                 *handled = true;
                 // Convert recently used Blood Rune to Death Rune
                 if (Player* player = ToPlayer())
@@ -7566,7 +7572,7 @@ bool Unit::HandleAuraProc(Unit* victim, uint32 damage, Aura* triggeredByAura, Sp
                     if (rune == RUNE_DEATH)
                         return false;
                     AuraEffect* aurEff = triggeredByAura->GetEffect(EFFECT_0);
-                    if (!aurEff)
+                    if (!aurEff || aurEff->GetAuraType() != SPELL_AURA_PERIODIC_DUMMY)
                         return false;
 
                     // Reset amplitude - set death rune remove timer to 30s
@@ -7602,10 +7608,6 @@ bool Unit::HandleAuraProc(Unit* victim, uint32 damage, Aura* triggeredByAura, Sp
                     return true;
                 }
                 return false;
-            }
-
-            switch (dummySpell->Id)
-            {
                 // Bone Shield cooldown
                 case 49222:
                 {
@@ -7625,6 +7627,13 @@ bool Unit::HandleAuraProc(Unit* victim, uint32 damage, Aura* triggeredByAura, Sp
                     if (procSpell && procSpell->Dispel == DISPEL_DISEASE)
                         return false;
                     return true;
+                case 53386 /* Cinderglacier */:
+                    *handled = true;
+                    if (procSpell)
+                        if (procSpell->SchoolMask
+                                & (SPELL_SCHOOL_MASK_FROST | SPELL_SCHOOL_MASK_SHADOW))
+                            return true;
+                    return false;
             }
             break;
         }
@@ -13805,6 +13814,7 @@ bool InitTriggerAuraData()
     isTriggerAura[SPELL_AURA_MOD_POWER_COST_SCHOOL] = true;
     isTriggerAura[SPELL_AURA_REFLECT_SPELLS_SCHOOL] = true;
     isTriggerAura[SPELL_AURA_MECHANIC_IMMUNITY] = true;
+    isTriggerAura[SPELL_AURA_MOD_DAMAGE_PERCENT_DONE] = true;
     isTriggerAura[SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN] = true;
     isTriggerAura[SPELL_AURA_SPELL_MAGNET] = true;
     isTriggerAura[SPELL_AURA_MOD_ATTACK_POWER] = true;

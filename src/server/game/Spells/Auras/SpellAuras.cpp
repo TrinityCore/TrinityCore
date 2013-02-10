@@ -1517,20 +1517,27 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                     target->RemoveAura(61988);
                 break;
             case SPELLFAMILY_DEATHKNIGHT:
-                // Blood of the North
-                // Reaping
-                // Death Rune Mastery
-                if (GetSpellInfo()->SpellIconID == 3041 || GetSpellInfo()->SpellIconID == 22 || GetSpellInfo()->SpellIconID == 2622)
+                switch (GetId())
                 {
-                    if (!GetEffect(0) || GetEffect(0)->GetAuraType() != SPELL_AURA_PERIODIC_DUMMY)
-                        break;
-                    if (target->GetTypeId() != TYPEID_PLAYER)
-                        break;
-                    if (target->ToPlayer()->getClass() != CLASS_DEATH_KNIGHT)
-                        break;
+                    case 49208 /* Reaping */:
+                    case 56834 /* Reaping */:
+                    case 56835 /* Reaping */:
+                    case 49467 /* Death Rune Mastery */:
+                    case 50033 /* Death Rune Mastery */:
+                    case 50034 /* Death Rune Mastery */:
+                    case 54637 /* Blood of the North */:
+                    case 54638 /* Blood of the North */:
+                    case 54639 /* Blood of the North */:
+                        if (!GetEffect(0) || GetEffect(0)->GetAuraType() != SPELL_AURA_PERIODIC_DUMMY)
+                            break;
+                        if (target->GetTypeId() != TYPEID_PLAYER)
+                            break;
+                        if (target->ToPlayer()->getClass() != CLASS_DEATH_KNIGHT)
+                            break;
 
-                     // aura removed - remove death runes
+                    // aura removed - remove death runes
                     target->ToPlayer()->RemoveRunesByAuraEffect(GetEffect(0));
+                    break;
                 }
                 break;
             case SPELLFAMILY_HUNTER:
