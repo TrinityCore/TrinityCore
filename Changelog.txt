@@ -11,11 +11,11 @@
 #                                                                                          #
 ############################################################################################
 
+[130] --> Revert 'Misc fixes (TEST)...'.
 [129] --> Revert 'Fix Blood Tap (TEST).'.
 [128] --> Restore original scripts Sunwell Plateau.
 [127] --> Fix Death and Decay.
 [126] --> Fix Masters Call (53271).
-[125] --> Fix Blood Tap (TEST).
 [125] --> Fix Blood Tap (TEST).
 [124] --> Misc fixes (TEST):
            - Fixed cinderglacier charge removal.

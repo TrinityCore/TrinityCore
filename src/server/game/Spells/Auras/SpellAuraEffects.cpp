@@ -5558,27 +5558,8 @@ void AuraEffect::HandlePeriodicDummyAuraTick(Unit* target, Unit* caster) const
             switch (GetId())
             {
                 case 49016: // Hysteria
-                    {
-                        uint32 damage = uint32(target->CountPctFromMaxHealth(1));
-                        target->DealDamage(target, damage, NULL, NODAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
-                    }
-                    break;
-                case 49208 /* Reaping */:
-                case 56834 /* Reaping */:
-                case 56835 /* Reaping */:
-                case 49467 /* Death Rune Mastery */:
-                case 50033 /* Death Rune Mastery */:
-                case 50034 /* Death Rune Mastery */:
-                case 54637 /* Blood of the North */:
-                case 54638 /* Blood of the North */:
-                case 54639 /* Blood of the North */:
-                    if (target->GetTypeId() != TYPEID_PLAYER)
-                        break;
-                    if (target->ToPlayer()->getClass() != CLASS_DEATH_KNIGHT)
-                        break;
-
-                    // timer expired - remove death runes
-                    target->ToPlayer()->RemoveRunesByAuraEffect(this);
+                    uint32 damage = uint32(target->CountPctFromMaxHealth(1));
+                    target->DealDamage(target, damage, NULL, NODAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
                     break;
             }
             // Death and Decay
@@ -5587,6 +5568,19 @@ void AuraEffect::HandlePeriodicDummyAuraTick(Unit* target, Unit* caster) const
                 if (caster)
                     target->CastCustomSpell(target, 52212, &m_amount, NULL, NULL, true, 0, this, caster->GetGUID());
                 break;
+            }
+            // Blood of the North
+            // Reaping
+            // Death Rune Mastery
+            if (GetSpellInfo()->SpellIconID == 3041 || GetSpellInfo()->SpellIconID == 22 || GetSpellInfo()->SpellIconID == 2622)
+            {
+                if (target->GetTypeId() != TYPEID_PLAYER)
+                    return;
+                if (target->ToPlayer()->getClass() != CLASS_DEATH_KNIGHT)
+                    return;
+
+                 // timer expired - remove death runes
+                target->ToPlayer()->RemoveRunesByAuraEffect(this);
             }
             break;
         default:
