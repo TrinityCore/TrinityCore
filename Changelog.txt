@@ -11,6 +11,7 @@
 #                                                                                          #
 ############################################################################################
 
+[126] --> Fix Masters Call (53271).
 [125] --> Fix Blood Tap (TEST).
 [124] --> Misc fixes (TEST):
            - Fixed cinderglacier charge removal.
