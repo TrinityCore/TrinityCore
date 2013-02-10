@@ -38,6 +38,7 @@ struct GroupQueueInfo;
 struct TrainerSpell;
 struct VendorItem;
 struct ChallengeOption;
+struct challengeData;
 
 class AchievementMgr;
 class ReputationMgr;

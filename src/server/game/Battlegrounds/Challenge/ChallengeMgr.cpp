@@ -4,6 +4,7 @@
 #include "DisableMgr.h"
 #include "Chat.h"
 #include "Group.h"
+#include "Player.h"
  
 void ChallengeMgr::LoadOptions()
 {
@@ -12,8 +13,7 @@ void ChallengeMgr::LoadOptions()
     QueryResult result = CharacterDatabase.Query("SELECT `guid`, `mode`, `enable` FROM `challenge_options`");
     if (!result)
     {
-        sLog->outString(">> Loaded 0 options. Table `challenge_options` is empty!");
-        sLog->outString();
+        sLog->outInfo(LOG_FILTER_BATTLEGROUND, ">> Loaded 0 options. Table `challenge_options` is empty!");
         return;
     }
  
@@ -30,8 +30,7 @@ void ChallengeMgr::LoadOptions()
     }
     while (result->NextRow());
  
-    sLog->outString(">> Loaded %u options. In %u ms.", m_options.size(), GetMSTimeDiffToNow(oldMSTime));
-    sLog->outString();
+    sLog->outInfo(LOG_FILTER_BATTLEGROUND, ">> Loaded %u options. In %u ms.", m_options.size(), GetMSTimeDiffToNow(oldMSTime));
 }
  
 void ChallengeMgr::Update(uint32 diff)
@@ -41,19 +40,19 @@ void ChallengeMgr::Update(uint32 diff)
  
 bool ChallengeMgr::InviteGroupsToArena(Player *leader1, Player *leader2, ArenaChallengeType type)
 {
-    uint8 arenatype = (type == ARENA_CHALLENGE_TYPE_1v1) ? ARENA_CHALLENGE_TYPE_2v2 : type;
+    uint8 arenaType = (type == ARENA_CHALLENGE_TYPE_1v1) ? ARENA_CHALLENGE_TYPE_2v2 : type;
     uint32 matchmakerRating = 0;
  
     //check existance
     Battleground* bg = sBattlegroundMgr->GetBattlegroundTemplate(BATTLEGROUND_AA);
     if (!bg)
     {
-        sLog->outError("Battleground: template bg (all arenas) not found");
+        sLog->outError(LOG_FILTER_BATTLEGROUND, "Battleground: template bg (all arenas) not found");
         return false;
     }
  
     BattlegroundTypeId bgTypeId = bg->GetTypeID();
-    BattlegroundQueueTypeId bgQueueTypeId = BattlegroundMgr::BGQueueTypeId(bgTypeId, arenatype);
+    BattlegroundQueueTypeId bgQueueTypeId = BattlegroundMgr::BGQueueTypeId(bgTypeId, arenaType);
     PvPDifficultyEntry const* bracketEntry = GetBattlegroundBracketByLevel(bg->GetMapId(), 80);
     if (!bracketEntry)
         return false;
@@ -61,13 +60,13 @@ bool ChallengeMgr::InviteGroupsToArena(Player *leader1, Player *leader2, ArenaCh
     GroupQueueInfo *group1, *group2;
     if (type == ARENA_CHALLENGE_TYPE_1v1)
     {
-        group1 = CreateGroupQueueInfo(leader1, bgTypeId, arenatype);
-        group2 = CreateGroupQueueInfo(leader2, bgTypeId, arenatype);
+        group1 = CreateGroupQueueInfo(leader1, bgTypeId, arenaType);
+        group2 = CreateGroupQueueInfo(leader2, bgTypeId, arenaType);
     }
     else
     {
-        group1 = CreateGroupQueueInfo(leader1->GetGroup(), bgTypeId, arenatype);
-        group2 = CreateGroupQueueInfo(leader2->GetGroup(), bgTypeId, arenatype);
+        group1 = CreateGroupQueueInfo(leader1->GetGroup(), bgTypeId, arenaType);
+        group2 = CreateGroupQueueInfo(leader2->GetGroup(), bgTypeId, arenaType);
     }
  
     if (!group1 || !group2)
@@ -93,9 +92,9 @@ bool ChallengeMgr::InviteGroupsToArena(Player *leader1, Player *leader2, ArenaCh
             return false;
     }
  
-    sBattlegroundMgr->ScheduleQueueUpdate(matchmakerRating, arenatype, bgQueueTypeId, bgTypeId, bracketEntry->GetBracketId());
+    sBattlegroundMgr->ScheduleQueueUpdate(matchmakerRating, arenaType, bgQueueTypeId, bgTypeId, bracketEntry->GetBracketId());
  
-    Battleground *arena = sBattlegroundMgr->CreateNewBattleground(bgTypeId, bracketEntry, arenatype, true);
+    Battleground *arena = sBattlegroundMgr->CreateNewBattleground(bgTypeId, bracketEntry, arenaType, true);
     arena->SetRated(false);
   	
     if (type == ARENA_CHALLENGE_TYPE_1v1)
@@ -111,11 +110,11 @@ bool ChallengeMgr::InviteGroupsToArena(Player *leader1, Player *leader2, ArenaCh
  
         WorldPacket data;
         // send status packet (in queue)
-        sBattlegroundMgr->BuildBattlegroundStatusPacket(&data, bg, queueSlot, STATUS_WAIT_QUEUE, 0, 0, arenatype);
+        sBattlegroundMgr->BuildBattlegroundStatusPacket(&data, bg, queueSlot, STATUS_WAIT_QUEUE, 0, 0, arenaType, 0);
         player->GetSession()->SendPacket(&data);
  
         player->challengeData->bg = arena;
-        player->challengeData->ginfo = CreateGroupQueueInfo(player, bgTypeId, arenatype);
+        player->challengeData->ginfo = CreateGroupQueueInfo(player, bgTypeId, arenaType);
         player->challengeData->ginfo->IsInvitedToBGInstanceGUID = arena->GetInstanceID();
         player->challengeData->ginfo->Team = ALLIANCE;
     }
@@ -130,11 +129,11 @@ bool ChallengeMgr::InviteGroupsToArena(Player *leader1, Player *leader2, ArenaCh
  
         WorldPacket data;
         // send status packet (in queue)
-        sBattlegroundMgr->BuildBattlegroundStatusPacket(&data, bg, queueSlot, STATUS_WAIT_QUEUE, 0, 0, arenatype);
+        sBattlegroundMgr->BuildBattlegroundStatusPacket(&data, bg, queueSlot, STATUS_WAIT_QUEUE, 0, 0, arenaType, 0);
         player->GetSession()->SendPacket(&data);
  
         player->challengeData->bg = arena;
-        player->challengeData->ginfo = CreateGroupQueueInfo(player, bgTypeId, arenatype);
+        player->challengeData->ginfo = CreateGroupQueueInfo(player, bgTypeId, arenaType);
         player->challengeData->ginfo->IsInvitedToBGInstanceGUID = arena->GetInstanceID();
         player->challengeData->ginfo->Team = HORDE;
     }
@@ -145,7 +144,7 @@ bool ChallengeMgr::InviteGroupsToArena(Player *leader1, Player *leader2, ArenaCh
     arena->StartBattleground();
  
     if (!sBattlegroundMgr->HasBattleground(arena))
-        sBattlegroundMgr->AddBattleground(group1->IsInvitedToBGInstanceGUID, bgTypeId, arena);
+        sBattlegroundMgr->AddBattleground(/*group1->IsInvitedToBGInstanceGUID, bgTypeId, */arena);
  
     return true;
 }
@@ -159,11 +158,8 @@ bool ChallengeMgr::CanInvitePlayer(Player *player, BattlegroundQueueTypeId bgQue
     if (player->InBattleground())
         return false;
  
-    if (sDisableMgr->IsDisabledFor(DISABLE_TYPE_BATTLEGROUND, BATTLEGROUND_AA, NULL))
-    {
-        ChatHandler(player).PSendSysMessage(LANG_ARENA_DISABLED);
+    if (DisableMgr::IsDisabledFor(DISABLE_TYPE_BATTLEGROUND, BATTLEGROUND_AA, NULL))
         return false;
-    }
  
     // check if already in queue
     if (player->GetBattlegroundQueueIndex(bgQueueTypeId) < PLAYER_MAX_BATTLEGROUND_QUEUES)
@@ -221,7 +217,7 @@ bool ChallengeMgr::InviteGroupToArena(GroupQueueInfo *ginfo, Battleground *bg, u
             sLog->outDebug(LOG_FILTER_BATTLEGROUND, "Battleground: invited player %s (%u) to BG instance %u queueindex %u bgtype %u, I can't help it if they don't press the enter battle button.", player->GetName(), player->GetGUIDLow(), bg->GetInstanceID(), queueSlot, bg->GetTypeID());
  
             // send status packet
-            sBattlegroundMgr->BuildBattlegroundStatusPacket(&data, bg, queueSlot, STATUS_WAIT_JOIN, INVITE_ACCEPT_WAIT_TIME, 0, ginfo->ArenaType);
+            sBattlegroundMgr->BuildBattlegroundStatusPacket(&data, bg, queueSlot, STATUS_WAIT_JOIN, INVITE_ACCEPT_WAIT_TIME, 0, ginfo->ArenaType, 0);
             player->GetSession()->SendPacket(&data);
         }
         return true;
@@ -230,7 +226,7 @@ bool ChallengeMgr::InviteGroupToArena(GroupQueueInfo *ginfo, Battleground *bg, u
     return false;
 }
  
-GroupQueueInfo* ChallengeMgr::CreateGroupQueueInfo(Group *group, BattlegroundTypeId bgTypeId, uint8 arenatype)
+GroupQueueInfo* ChallengeMgr::CreateGroupQueueInfo(Group *group, BattlegroundTypeId bgTypeId, uint8 arenaType)
 {
     Player *leader = ObjectAccessor::FindPlayer(group->GetLeaderGUID());
     if (!leader)
@@ -238,7 +234,7 @@ GroupQueueInfo* ChallengeMgr::CreateGroupQueueInfo(Group *group, BattlegroundTyp
  
     GroupQueueInfo* ginfo            = new GroupQueueInfo;
     ginfo->BgTypeId                  = bgTypeId;
-    ginfo->ArenaType                 = arenatype;
+    ginfo->ArenaType                 = arenaType;
     ginfo->ArenaTeamId               = 0;
     ginfo->IsRated                   = 0;
     ginfo->IsInvitedToBGInstanceGUID = 0;
@@ -262,11 +258,11 @@ GroupQueueInfo* ChallengeMgr::CreateGroupQueueInfo(Group *group, BattlegroundTyp
     return ginfo;
 }
  
-GroupQueueInfo* ChallengeMgr::CreateGroupQueueInfo(Player *player, BattlegroundTypeId bgTypeId, uint8 arenatype)
+GroupQueueInfo* ChallengeMgr::CreateGroupQueueInfo(Player *player, BattlegroundTypeId bgTypeId, uint8 arenaType)
 {
     GroupQueueInfo* ginfo            = new GroupQueueInfo;
     ginfo->BgTypeId                  = bgTypeId;
-    ginfo->ArenaType                 = arenatype;
+    ginfo->ArenaType                 = arenaType;
     ginfo->ArenaTeamId               = 0;
     ginfo->IsRated                   = 0;
     ginfo->IsInvitedToBGInstanceGUID = 0;
@@ -305,27 +301,27 @@ ChallengeOption* ChallengeMgr::GetChallengeOption(uint64 playerGuid)
     return itr->second;
 }
  
-bool ChallengeMgr::MakeChallengeOffer(Player *challenger, Player *challengeTo, ArenaChallengeType type)
+bool ChallengeMgr::MakeChallengeOffer(Player *challenger, Player *challengeTo, ArenaChallengeType type, ChatHandler* handler)
 {
     if (challenger->challengeData->challengeTo || challenger->challengeData->challenger)
-    {
-        ChatHandler(challenger).PSendSysMessage("Someone must make decision.");
+	{
+		handler->PSendSysMessage("Someone must make decision.");
         return false;
-    }
+	}
  
     if (challengeTo->challengeData->challengeTo || challengeTo->challengeData->challenger)
-    {
-        ChatHandler(challenger).PSendSysMessage("He is already in queue.");
+	{
         return false;
-    }
- 
+		handler->PSendSysMessage("He is already in queue.");
+	}
+    
     challenger->challengeData->challengeTo    = challengeTo->GetGUID();
     challenger->challengeData->challengeType  = type;
  
     challengeTo->challengeData->challenger    = challenger->GetGUID();
     challengeTo->challengeData->challengeType = type;
  
-    ChatHandler(challengeTo).PSendSysMessage("Player %s, has challenged you in %ux%u. To accept offer, write .challenge accept.",
+    handler->PSendSysMessage("Player %s, has challenged you in %ux%u. To accept offer, write .challenge accept.",
                                              challenger->GetName(), type, type);
  
     ChallengeWaitingAcceptEvent *waitEvent = new ChallengeWaitingAcceptEvent(challengeTo->GetGUID());
@@ -336,19 +332,13 @@ bool ChallengeMgr::MakeChallengeOffer(Player *challenger, Player *challengeTo, A
  
 bool ChallengeWaitingAcceptEvent::Execute(uint64 /*e_time*/, uint32 /*p_time*/)
 {
-    sLog->outString("LOL");
     Player *player = ObjectAccessor::FindPlayer(m_PlayerGuid);
     if (!player)
         return true;
  
-    ChatHandler(player).PSendSysMessage("Offer for challenge was canceled!");
- 
     if (Player *challenger = ObjectAccessor::FindPlayer(player->challengeData->challenger))
-    {
         challenger->challengeData->challengeTo = 0;
-        ChatHandler(challenger).PSendSysMessage("Offer for challenge was canceled!");
-    }
- 
+
     player->challengeData->challenger = 0;
     return true;
 }

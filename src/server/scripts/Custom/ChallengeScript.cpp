@@ -17,10 +17,9 @@ public:
     {
         static ChatCommand challengeCreateCommandTable[] =
         {
-     		{ "players",        SEC_MODERATOR,      false, &HandleChallengeCreate1x1Command,    "", NULL },
-            { "2x2",            SEC_MODERATOR,      false, &HandleChallengeCreate2x2Command,    "", NULL },
-            { "3x3",            SEC_MODERATOR,      false, &HandleChallengeCreate3x3Command,    "", NULL },
-            { "5x5",            SEC_MODERATOR,      false, &HandleChallengeCreate5x5Command,    "", NULL },
+     		{ "player",         SEC_MODERATOR,      false, &HandleChallengeCreate1x1Command,    "", NULL },
+            { "2v2",            SEC_MODERATOR,      false, &HandleChallengeCreate2x2Command,    "", NULL },
+            { "3v3",            SEC_MODERATOR,      false, &HandleChallengeCreate3x3Command,    "", NULL },
             { NULL,             0,                  false, NULL,                                "", NULL }
         };
 
@@ -29,10 +28,9 @@ public:
             { "create",         SEC_MODERATOR,      false, NULL,                                "", challengeCreateCommandTable },
             { "accept",         SEC_PLAYER,         false, &HandleChallengeAcceptCommand,       "", NULL },
             { "mode",           SEC_PLAYER,         false, &HandleChallengeModeCommand,         "", NULL },
-            { "1x1",            SEC_PLAYER,         false, &HandleChallenge1x1Command,          "", NULL },
-            { "2x2",            SEC_PLAYER,         false, &HandleChallenge2x2Command,          "", NULL },
-            { "3x3",            SEC_PLAYER,         false, &HandleChallenge3x3Command,          "", NULL },
-            { "5x5",            SEC_PLAYER,         false, &HandleChallenge5x5Command,          "", NULL },
+            { "player",         SEC_PLAYER,         false, &HandleChallenge1x1Command,          "", NULL },
+            { "2v2",            SEC_PLAYER,         false, &HandleChallenge2x2Command,          "", NULL },
+            { "3v3",            SEC_PLAYER,         false, &HandleChallenge3x3Command,          "", NULL },
             { "on",             SEC_PLAYER,         false, &HandleChallengeOnCommand,           "", NULL },
             { "off",            SEC_PLAYER,         false, &HandleChallengeOffCommand,          "", NULL },
             { NULL,             0,                  false, NULL,                                "", NULL }
@@ -146,15 +144,10 @@ public:
     {
         return ChallengeForBracket(handler, args, ARENA_CHALLENGE_TYPE_2v2);
     }
-
+	
     static bool HandleChallenge3x3Command(ChatHandler* handler, const char* args)
     {
         return ChallengeForBracket(handler, args, ARENA_CHALLENGE_TYPE_3v3);
-    }
-
-    static bool HandleChallenge5x5Command(ChatHandler* handler, const char* args)
-    {
-        return ChallengeForBracket(handler, args, ARENA_CHALLENGE_TYPE_5v5);
     }
 
     static bool ChallengeForBracket(ChatHandler* handler, const char* args, uint8 type)
@@ -186,7 +179,7 @@ public:
 
         if (target->challengeData->options->mode)
         {
-            if (!sChallengeMgr->MakeChallengeOffer(handler->GetSession()->GetPlayer(), target, (ArenaChallengeType)type))
+            if (!sChallengeMgr->MakeChallengeOffer(handler->GetSession()->GetPlayer(), target, (ArenaChallengeType)type, handler))
             {
                 handler->PSendSysMessage("Oops! Cant join to queue.");
                 handler->SetSentErrorMessage(true);
@@ -217,15 +210,10 @@ public:
     {
         return ChallengeCreateForBracket(handler, args, ARENA_CHALLENGE_TYPE_2v2);
     }
-
+	
     static bool HandleChallengeCreate3x3Command(ChatHandler* handler, const char* args)
     {
         return ChallengeCreateForBracket(handler, args, ARENA_CHALLENGE_TYPE_3v3);
-    }
-
-    static bool HandleChallengeCreate5x5Command(ChatHandler* handler, const char* args)
-    {
-        return ChallengeCreateForBracket(handler, args, ARENA_CHALLENGE_TYPE_5v5);
     }
 
     static bool ChallengeCreateForBracket(ChatHandler* handler, const char* args, uint8 type)

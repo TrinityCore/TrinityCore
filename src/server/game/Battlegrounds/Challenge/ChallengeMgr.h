@@ -2,6 +2,8 @@
 #define __CHALLENGEMGR_H
  
 #include "BattlegroundMgr.h"
+#include "Player.h"
+#include "Chat.h"
 #include <ace/Singleton.h>
  
 // not used for now
@@ -46,7 +48,7 @@ class ChallengeMgr {
         bool InviteGroupsToArena(Player *leader1, Player *leader2, ArenaChallengeType type);
         bool CanInvitePlayer(Player *player, BattlegroundQueueTypeId bgQueueTypeId);
  
-        bool MakeChallengeOffer(Player *challenger, Player *challengeTo, ArenaChallengeType type);
+        bool MakeChallengeOffer(Player *challenger, Player *challengeTo, ArenaChallengeType type, ChatHandler* handler);
  
         GroupQueueInfo* CreateGroupQueueInfo(Player *player, BattlegroundTypeId bgTypeId, uint8 arenatype);
         GroupQueueInfo* CreateGroupQueueInfo(Group *group, BattlegroundTypeId bgTypeId, uint8 arenatype);

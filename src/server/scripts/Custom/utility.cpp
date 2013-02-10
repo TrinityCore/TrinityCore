@@ -3,6 +3,9 @@
 #include "MapManager.h"
 #include "Chat.h"
 #include "Group.h"
+#include "Player.h"
+#include "DatabaseEnv.h"
+#include "ObjectAccessor.h"
 
 //This script is made by Blex and was orginally posted on www.ac-web.org
 //This script was created after being inspired by Arena-Tournament's player commands. www.arena-tournament.com
@@ -16,11 +19,11 @@ public:
     {
         static ChatCommand utilityCommandTable[] =
         {
-            { "changerace",            SEC_PLAYER,  false, &HandleChangeRaceCommand,             "", NULL },
+            { "changerace",             SEC_PLAYER,  false, &HandleChangeRaceCommand,           "", NULL },
 			{ "changefaction",			SEC_PLAYER,  false, &HandleChangeFactionCommand,		"", NULL },
-			{ "maxskills",			SEC_PLAYER,  false, &HandleMaxSkillsCommand,		"", NULL },
-			{ "customize",			SEC_PLAYER,  false, &HandleCustomizeCommand,		"", NULL },
-            { NULL,             0,                  false, NULL,                              "", NULL }
+			{ "maxskills",			    SEC_PLAYER,  false, &HandleMaxSkillsCommand,	    	"", NULL },
+			{ "customize",			    SEC_PLAYER,  false, &HandleCustomizeCommand,	       	"", NULL },
+            { NULL,             0,                   false, NULL,                               "", NULL }
         };
         static ChatCommand commandTable[] =
         {

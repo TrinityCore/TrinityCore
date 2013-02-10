@@ -16,7 +16,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
  
- 
+
+#include "../../Battlegrounds/Challenge/ChallengeMgr.h"
 #include "../../../scripts/Custom/Transmogrification.h"
 #include "Player.h"
 #include "AccountMgr.h"
@@ -17390,9 +17391,9 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
     m_achievementMgr->CheckAllAchievementCriteria();
 
     CleanChallengeData();
-    delete challengeData
+    delete challengeData;
 
-    _LoadEquipmentSets(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_EQUIPMENT_SETS));
+      _LoadEquipmentSets(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_EQUIPMENT_SETS));
 
 	challengeData->options = sChallengeMgr->GetChallengeOption(GetGUID());
 
