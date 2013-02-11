@@ -80,8 +80,12 @@ class boss_grilek : public CreatureScript // grilek
                     {
                         case EVENT_AVATAR:
                             DoCast(me, SPELL_AVATAR);
-                            if (DoGetThreat(me->getVictim()))
-                                DoModifyThreatPercent(me->getVictim(), -50);
+                            if (Unit* victim = me->getVictim())
+                            {
+                                if (DoGetThreat(victim))
+                                    DoModifyThreatPercent(victim, -50);
+                            }
+
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
                                 AttackStart(target);
                             events.ScheduleEvent(EVENT_AVATAR, urand(25000, 35000));

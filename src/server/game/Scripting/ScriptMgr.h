@@ -753,6 +753,9 @@ class PlayerScript : public UnitScript
 
         // Called when a player switches to a new zone
         virtual void OnUpdateZone(Player* /*player*/, uint32 /*newZone*/, uint32 /*newArea*/) { }
+
+        // Called when a player changes to a new map (after moving to new map)
+        virtual void OnMapChanged(Player* /*player*/) { }
 };
 
 class GuildScript : public ScriptObject

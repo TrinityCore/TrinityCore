@@ -213,10 +213,11 @@ public:
         return new boss_muruAI (creature);
     }
 
-    struct boss_muruAI : public Scripted_NoMovementAI
+    struct boss_muruAI : public ScriptedAI
     {
-        boss_muruAI(Creature* creature) : Scripted_NoMovementAI(creature), Summons(me)
+        boss_muruAI(Creature* creature) : ScriptedAI(creature), Summons(creature)
         {
+            SetCombatMovement(false);
             instance = creature->GetInstanceScript();
         }
 
@@ -377,10 +378,11 @@ public:
         return new npc_muru_portalAI (creature);
     }
 
-    struct npc_muru_portalAI : public Scripted_NoMovementAI
+    struct npc_muru_portalAI : public ScriptedAI
     {
-        npc_muru_portalAI(Creature* creature) : Scripted_NoMovementAI(creature), Summons(me)
+        npc_muru_portalAI(Creature* creature) : ScriptedAI(creature), Summons(creature)
         {
+            SetCombatMovement(false);
             instance = creature->GetInstanceScript();
         }
 

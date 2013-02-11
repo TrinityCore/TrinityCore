@@ -20,6 +20,9 @@
 
 #include "LFG.h"
 
+namespace lfg
+{
+
 /**
     Stores all lfg data needed about the player.
 */
@@ -67,5 +70,7 @@ class LfgPlayerData
         std::string m_Comment;                             ///< Player comment used when joined LFG
         LfgDungeonSet m_SelectedDungeons;                  ///< Selected Dungeons when joined LFG
 };
+
+} // namespace lfg
 
 #endif

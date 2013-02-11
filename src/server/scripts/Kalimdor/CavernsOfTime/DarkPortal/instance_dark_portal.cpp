@@ -122,7 +122,7 @@ public:
 
         bool IsEncounterInProgress() const
         {
-            if (const_cast<instance_dark_portal_InstanceMapScript*>(this)->GetData(TYPE_MEDIVH) == IN_PROGRESS)
+            if (GetData(TYPE_MEDIVH) == IN_PROGRESS)
                 return true;
 
             return false;

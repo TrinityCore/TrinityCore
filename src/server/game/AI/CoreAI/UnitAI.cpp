@@ -103,8 +103,7 @@ void UnitAI::DoAddAuraToAllHostilePlayers(uint32 spellid)
                 if (unit->GetTypeId() == TYPEID_PLAYER)
                     me->AddAura(spellid, unit);
         }
-    }else
-        return;
+    }
 }
 
 void UnitAI::DoCastToAllHostilePlayers(uint32 spellid, bool triggered)
@@ -118,8 +117,7 @@ void UnitAI::DoCastToAllHostilePlayers(uint32 spellid, bool triggered)
                 if (unit->GetTypeId() == TYPEID_PLAYER)
                     me->CastSpell(unit, spellid, triggered);
         }
-    }else
-        return;
+    }
 }
 
 void UnitAI::DoCast(uint32 spellId)
@@ -240,7 +238,10 @@ void UnitAI::FillAISpellInfo()
 }
 
 //Enable PlayerAI when charmed
-void PlayerAI::OnCharmed(bool apply) { me->IsAIEnabled = apply; }
+void PlayerAI::OnCharmed(bool apply)
+{
+    me->IsAIEnabled = apply;
+}
 
 void SimpleCharmedAI::UpdateAI(const uint32 /*diff*/)
 {

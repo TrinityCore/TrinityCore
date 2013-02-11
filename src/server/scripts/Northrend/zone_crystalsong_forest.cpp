@@ -49,9 +49,12 @@ class npc_warmage_violetstand : public CreatureScript
 public:
     npc_warmage_violetstand() : CreatureScript("npc_warmage_violetstand") { }
 
-    struct npc_warmage_violetstandAI : public Scripted_NoMovementAI
+    struct npc_warmage_violetstandAI : public ScriptedAI
     {
-        npc_warmage_violetstandAI(Creature* creature) : Scripted_NoMovementAI(creature){}
+        npc_warmage_violetstandAI(Creature* creature) : ScriptedAI(creature)
+        {
+            SetCombatMovement(false);
+        }
 
         uint64 uiTargetGUID;
 

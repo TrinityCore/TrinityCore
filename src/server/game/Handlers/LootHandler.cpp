@@ -99,7 +99,7 @@ void WorldSession::HandleAutostoreLootItemOpcode(WorldPacket& recvData)
         player->GetSession()->DoLootRelease(lguid);
 }
 
-void WorldSession::HandleLootMoneyOpcode(WorldPacket & /*recvData*/)
+void WorldSession::HandleLootMoneyOpcode(WorldPacket& /*recvData*/)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_LOOT_MONEY");
 
@@ -188,7 +188,7 @@ void WorldSession::HandleLootMoneyOpcode(WorldPacket & /*recvData*/)
 
                 WorldPacket data(SMSG_LOOT_MONEY_NOTIFY, 4 + 1);
                 data << uint32(goldPerPlayer);
-                data << uint8(playersNear.size() > 1 ? 0 : 1);     // Controls the text displayed in chat. 0 is "Your share is..." and 1 is "You loot..."
+                data << uint8(playersNear.size() <= 1); // Controls the text displayed in chat. 0 is "Your share is..." and 1 is "You loot..."
                 (*i)->GetSession()->SendPacket(&data);
             }
         }

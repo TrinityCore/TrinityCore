@@ -268,7 +268,7 @@ void World::AddSession_(WorldSession* s)
     if (decrease_session)
         --Sessions;
 
-    if (pLimit > 0 && Sessions >= pLimit && AccountMgr::IsPlayerAccount(s->GetSecurity()) && !HasRecentlyDisconnected(s))
+    if (pLimit > 0 && Sessions >= pLimit && !s->HasPermission(RBAC_PERM_SKIP_QUEUE) && !HasRecentlyDisconnected(s))
     {
         AddQueuedPlayer(s);
         UpdateMaxSessionCounters();
@@ -586,7 +586,6 @@ void World::LoadConfigSettings(bool reload)
     m_int_configs[CONFIG_TICKET_LEVEL_REQ] = ConfigMgr::GetIntDefault("LevelReq.Ticket", 1);
     m_int_configs[CONFIG_AUCTION_LEVEL_REQ] = ConfigMgr::GetIntDefault("LevelReq.Auction", 1);
     m_int_configs[CONFIG_MAIL_LEVEL_REQ] = ConfigMgr::GetIntDefault("LevelReq.Mail", 1);
-    m_bool_configs[CONFIG_ALLOW_PLAYER_COMMANDS] = ConfigMgr::GetBoolDefault("AllowPlayerCommands", 1);
     m_bool_configs[CONFIG_PRESERVE_CUSTOM_CHANNELS] = ConfigMgr::GetBoolDefault("PreserveCustomChannels", false);
     m_int_configs[CONFIG_PRESERVE_CUSTOM_CHANNEL_DURATION] = ConfigMgr::GetIntDefault("PreserveCustomChannelDuration", 14);
     m_bool_configs[CONFIG_GRID_UNLOAD] = ConfigMgr::GetBoolDefault("GridUnload", true);
@@ -1075,8 +1074,6 @@ void World::LoadConfigSettings(bool reload)
             sLog->outError(LOG_FILTER_SERVER_LOADING, "ClientCacheVersion can't be negative %d, ignored.", clientCacheId);
     }
 
-    m_int_configs[CONFIG_INSTANT_LOGOUT] = ConfigMgr::GetIntDefault("InstantLogout", SEC_MODERATOR);
-
     m_int_configs[CONFIG_GUILD_EVENT_LOG_COUNT] = ConfigMgr::GetIntDefault("Guild.EventLogRecordsCount", GUILD_EVENTLOG_MAX_RECORDS);
     if (m_int_configs[CONFIG_GUILD_EVENT_LOG_COUNT] > GUILD_EVENTLOG_MAX_RECORDS)
         m_int_configs[CONFIG_GUILD_EVENT_LOG_COUNT] = GUILD_EVENTLOG_MAX_RECORDS;
@@ -1377,6 +1374,8 @@ void World::SetInitialWorldSettings()
     sObjectMgr->SetDBCLocaleIndex(GetDefaultDbcLocale());        // Get once for all the locale index of DBC language (console/broadcasts)
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Localization strings loaded in %u ms", GetMSTimeDiffToNow(oldMSTime));
 
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Account Roles and Permissions...");
+    sAccountMgr->LoadRBAC();
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Page Texts...");
     sObjectMgr->LoadPageTexts();
@@ -2889,8 +2888,6 @@ void World::ResetMonthlyQuests()
         if (itr->second->GetPlayer())
             itr->second->GetPlayer()->ResetMonthlyQuestStatus();
 
-    time_t mostRecentQuestTime = 0;
-
     // generate time
     time_t curTime = time(NULL);
     tm localTm = *localtime(&curTime);
@@ -2917,14 +2914,8 @@ void World::ResetMonthlyQuests()
 
     time_t nextMonthResetTime = mktime(&localTm);
 
-    // last reset time before current moment
-    time_t resetTime = (curTime < nextMonthResetTime) ? nextMonthResetTime - MONTH : nextMonthResetTime;
-
-    // need reset (if we have quest time before last reset time (not processed by some reason)
-    if (mostRecentQuestTime && mostRecentQuestTime <= resetTime)
-        m_NextMonthlyQuestReset = mostRecentQuestTime;
-    else // plan next reset time
-        m_NextMonthlyQuestReset = (curTime >= nextMonthResetTime) ? nextMonthResetTime + MONTH : nextMonthResetTime;
+    // plan next reset time
+    m_NextMonthlyQuestReset = (curTime >= nextMonthResetTime) ? nextMonthResetTime + MONTH : nextMonthResetTime;
 
     sWorld->setWorldState(WS_MONTHLY_QUEST_RESET_TIME, uint64(m_NextMonthlyQuestReset));
 }

@@ -1404,9 +1404,12 @@ class mob_kael_flamestrike : public CreatureScript
             : CreatureScript("mob_kael_flamestrike")
         {
         }
-        struct mob_kael_flamestrikeAI : public Scripted_NoMovementAI
+        struct mob_kael_flamestrikeAI : public ScriptedAI
         {
-            mob_kael_flamestrikeAI(Creature* creature) : Scripted_NoMovementAI(creature) {}
+            mob_kael_flamestrikeAI(Creature* creature) : ScriptedAI(creature)
+            {
+                SetCombatMovement(false);
+            }
 
             uint32 Timer;
             bool Casting;
