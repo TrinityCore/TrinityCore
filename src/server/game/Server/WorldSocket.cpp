@@ -372,9 +372,9 @@ int WorldSocket::handle_output_queue (GuardType& g)
     const size_t send_len = mblk->length();
 
 #ifdef MSG_NOSIGNAL
-    ssize_t n = peer().send (mblk->rd_ptr(), send_len, MSG_NOSIGNAL);
+    ssize_t n = peer().send(mblk->rd_ptr(), send_len, MSG_NOSIGNAL);
 #else
-    ssize_t n = peer().send (mblk->rd_ptr(), send_len);
+    ssize_t n = peer().send(mblk->rd_ptr(), send_len);
 #endif // MSG_NOSIGNAL
 
     if (n == 0)
