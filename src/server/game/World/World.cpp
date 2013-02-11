@@ -1695,6 +1695,9 @@ void World::SetInitialWorldSettings()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Calendar data...");
     sCalendarMgr->LoadFromDB();
 
+//    sChallengeMgr->LoadOptions();
+//    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Vendors...");
+
     ///- Initialize game time and timers
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Initialize game time and timers");
     m_gameTime = time(NULL);
@@ -2082,15 +2085,11 @@ void World::Update(uint32 diff)
     // update the instance reset times
     sInstanceSaveMgr->Update();
 
-	sChallengeMgr->LoadOptions();
-	sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loading challenge options...");
-
     // And last, but not least handle the issued cli commands
     ProcessCliCommands();
 
     sScriptMgr->OnWorldUpdate(diff);
 
-    sChallengeMgr->Update(diff);
 }
 
 void World::ForceGameEventUpdate()

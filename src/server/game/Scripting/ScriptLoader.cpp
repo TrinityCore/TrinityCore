@@ -30,7 +30,7 @@ void AddSC_npc_teleport();
 void AddSC_npc_supporter();
 void AddSC_guru_event();
 void AddSC_NPC_Transmogrify();
-void AddSC_challenge_script();
+//void AddSC_challenge_script();
 void AddSC_fast_arena_start();
  
 
@@ -1313,7 +1313,7 @@ void AddCustomScripts()
     AddSC_npc_supporter();
     AddSC_guru_event();
     AddSC_NPC_Transmogrify();
-    AddSC_challenge_script();
+    //AddSC_challenge_script();
     AddSC_fast_arena_start();
 
 #endif

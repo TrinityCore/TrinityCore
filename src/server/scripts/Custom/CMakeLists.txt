@@ -16,7 +16,6 @@ set(scripts_STAT_SRCS
   Custom/guru_event.cpp
   Custom/Transmogrification.h
   Custom/Transmogrification.cpp
-  Custom/ChallengeScript.cpp
   Custom/ArenaFastStart.cpp
 )
 

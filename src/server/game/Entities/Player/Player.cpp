@@ -17,7 +17,7 @@
  */
  
 
-#include "../../Battlegrounds/Challenge/ChallengeMgr.h"
+//#include "../../Battlegrounds/Challenge/ChallengeMgr.h"
 #include "../../../scripts/Custom/Transmogrification.h"
 #include "Player.h"
 #include "AccountMgr.h"
@@ -867,13 +867,12 @@ Player::Player(WorldSession* session): Unit(true)
     isDebugAreaTriggers = false;
 
 	
-    challengeData = new ChallengeData;
+   /* challengeData = new ChallengeData;
     challengeData->bg            = NULL;
     challengeData->ginfo         = NULL;
-    challengeData->options       = sChallengeMgr->GetChallengeOption(GetGUID());
     challengeData->challengeType = 0;
     challengeData->challengeTo   = 0;
-    challengeData->challenger    = 0;
+    challengeData->challenger    = 0;*/
 	
 
     m_WeeklyQuestChanged = false;
@@ -17390,12 +17389,10 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
 
     m_achievementMgr->CheckAllAchievementCriteria();
 
-    CleanChallengeData();
-    delete challengeData;
+    /*CleanChallengeData();
+    delete challengeData;*/
 
       _LoadEquipmentSets(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_EQUIPMENT_SETS));
-
-	challengeData->options = sChallengeMgr->GetChallengeOption(GetGUID());
 
     return true;
 }
@@ -17418,11 +17415,11 @@ bool Player::isAllowedToLoot(const Creature* creature)
     else if (thisGroup != creature->GetLootRecipientGroup())
         return false;
 
-    if (challengeData->options->changed)
+   /* if (challengeData->options->changed)
     {
         CharacterDatabase.PExecute("REPLACE INTO challenge_options(`guid`, `mode`, `enable`) VALUES(%llu, %u, %u)", GetGUID(), challengeData->options->mode, challengeData->options->enable);
         challengeData->options->changed = false;
-    }
+    }*/
 
     switch (thisGroup->GetLootMethod())
     {
@@ -17453,7 +17450,7 @@ bool Player::isAllowedToLoot(const Creature* creature)
     return false;
 }
 
-void Player::CleanChallengeData()
+/*void Player::CleanChallengeData()
 {
     if (challengeData->ginfo)
     {
@@ -17465,7 +17462,7 @@ void Player::CleanChallengeData()
    challengeData->challenger    = 0;
    challengeData->challengeTo   = 0;
    challengeData->challengeType = 0;
-} 
+} */
 
 void Player::_LoadActions(PreparedQueryResult result)
 {

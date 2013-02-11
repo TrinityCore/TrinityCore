@@ -46,7 +46,6 @@
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
-#include "../Battlegrounds/Challenge/ChallengeMgr.h"
 
 
 class LoginQueryHolder : public SQLQueryHolder
@@ -640,7 +639,6 @@ void WorldSession::HandleCharCreateCallback(PreparedQueryResult result, Characte
                 newChar.setCinematic(1);                          // not show intro
 
             newChar.SetAtLoginFlag(AT_LOGIN_FIRST);               // First login
-	     newChar.challengeData->options = sChallengeMgr->GetChallengeOption(newChar.GetGUID());
 
             // Player created, save it now
             newChar.SaveToDB(true);

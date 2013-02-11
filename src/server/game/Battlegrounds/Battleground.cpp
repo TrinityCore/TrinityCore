@@ -205,7 +205,8 @@ Battleground::Battleground()
     StartMessageIds[BG_STARTING_EVENT_THIRD]  = LANG_BG_WS_START_HALF_MINUTE;
     StartMessageIds[BG_STARTING_EVENT_FOURTH] = LANG_BG_WS_HAS_BEGUN;
 
-	 is1vs1 = false;
+    //is1vs1 = false;
+
 }
 
 Battleground::~Battleground()
@@ -1989,13 +1990,16 @@ uint8 Battleground::ClickFastStart(Player *player, GameObject *go)
             break;
     }
 
-    if (Is1vs1())
-        playersNeeded = 2;
+  /*  if (Is1vs1())
+        playersNeeded = 2; */
 
     if (m_playersWantsFastStart.size() == playersNeeded)
     {
         DespawnCrystals();
-        SetStartDelayTime(BG_START_DELAY_15S);
+		if (GetStartDelayTime() > BG_START_DELAY_15S)
+            SetStartDelayTime(BG_START_DELAY_15S);
+		else
+		  DespawnCrystals();
     }
 
     return m_playersWantsFastStart.size();
