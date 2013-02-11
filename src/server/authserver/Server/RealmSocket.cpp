@@ -138,7 +138,11 @@ ssize_t RealmSocket::noblk_send(ACE_Message_Block &message_block)
         return -1;
 
     // Try to send the message directly.
+#ifdef MSG_NOSIGNAL
     ssize_t n = peer().send(message_block.rd_ptr(), len, MSG_NOSIGNAL);
+#else
+    ssize_t n = peer().send(message_block.rd_ptr(), len);
+#endif // MSG_NOSIGNAL
 
     if (n < 0)
     {
