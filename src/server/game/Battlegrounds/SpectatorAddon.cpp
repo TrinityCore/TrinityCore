@@ -16,6 +16,8 @@
  */
 
 #include "Player.h"
+#include "Item.h"
+#include "SpellInfo.h"
 
 SpectatorAddonMsg::SpectatorAddonMsg()
 {
@@ -39,6 +41,7 @@ SpectatorAddonMsg::SpectatorAddonMsg()
 bool SpectatorAddonMsg::CanSandAura(uint32 auraID)
 {
     const SpellInfo *spell = sSpellMgr->GetSpellInfo(auraID);
+
     if (!spell)
         return false;
 
@@ -70,7 +73,7 @@ std::string SpectatorAddonMsg::GetMsgData()
 
     if (!isFilledIn(SPECTATOR_PREFIX_PLAYER))
     {
-        sLog->outString("SPECTATOR ADDON: player is not filled in.");
+        sLog->outInfo(LOG_FILTER_BATTLEGROUND, "SPECTATOR ADDON: player is not filled in.");
         return addonData;
     }
 

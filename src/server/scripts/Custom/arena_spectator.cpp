@@ -27,13 +27,15 @@ EndScriptData */
 #include "Chat.h"
 #include "ArenaTeamMgr.h"
 #include "BattlegroundMgr.h"
+#include "WorldSession.h"
+#include "Player.h"
 
 class arena_spectator_commands : public CommandScript
 {
     public:
         arena_spectator_commands() : CommandScript("arena_spectator_commands") { }
 
-        static bool HandleSpectateCommand(ChatHandler* handler, const char *args)
+        static bool HandleSpectateCommand(ChatHandler* handler, char const* args)
         {
             Player* target;
             uint64 target_guid;
@@ -44,21 +46,21 @@ class arena_spectator_commands : public CommandScript
             Player* player = handler->GetSession()->GetPlayer();
             if (target == player || target_guid == player->GetGUID())
             {
-                handler->SendSysMessage(LANG_CANT_TELEPORT_SELF);
+                handler->PSendSysMessage("Can´t Spectate self.");
                 handler->SetSentErrorMessage(true);
                 return false;
             }
 
             if (player->isInCombat())
             {
-                handler->SendSysMessage(LANG_YOU_IN_COMBAT);
+                handler->PSendSysMessage("You are in Combat.");
                 handler->SetSentErrorMessage(true);
                 return false;
             }
 
             if (!target)
             {
-                handler->SendSysMessage(LANG_PLAYER_NOT_EXIST_OR_OFFLINE);
+                handler->PSendSysMessage("Target Is not Exist.");
                 handler->SetSentErrorMessage(true);
                 return false;
             }
@@ -321,8 +323,8 @@ class arena_spectator_commands : public CommandScript
 
 enum NpcSpectatorAtions {
     // will be used for scrolling
-    NPC_SPECTATOR_ACTION_LIST_GAMES         = 1000,
-    NPC_SPECTATOR_ACTION_LIST_TOP_GAMES     = 2000,
+    NPC_SPECTATOR_ACTION_LIST_GAMES         = 1450,
+    NPC_SPECTATOR_ACTION_LIST_TOP_GAMES     = 2100,
 
     // NPC_SPECTATOR_ACTION_SELECTED_PLAYER + player.Guid()
     NPC_SPECTATOR_ACTION_SELECTED_PLAYER    = 3000
@@ -338,8 +340,8 @@ class npc_arena_spectator : public CreatureScript
 
         bool OnGossipHello(Player* pPlayer, Creature* pCreature)
         {
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "View games with high rating...", GOSSIP_SENDER_MAIN, NPC_SPECTATOR_ACTION_LIST_TOP_GAMES);
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "View games with low rating...", GOSSIP_SENDER_MAIN, NPC_SPECTATOR_ACTION_LIST_GAMES);
+			pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Games: 2100+mmr", GOSSIP_SENDER_MAIN, NPC_SPECTATOR_ACTION_LIST_TOP_GAMES);
+			pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Games: 1450+mmr", GOSSIP_SENDER_MAIN, NPC_SPECTATOR_ACTION_LIST_GAMES);
             pPlayer->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, pCreature->GetGUID());
             return true;
         }
@@ -359,11 +361,15 @@ class npc_arena_spectator : public CreatureScript
             }
             else
             {
+                
                 uint64 guid = action - NPC_SPECTATOR_ACTION_SELECTED_PLAYER;
                 if (Player* target = ObjectAccessor::FindPlayer(guid))
                 {
-                    ChatHandler handler(player);
-                    arena_spectator_commands::HandleSpectateCommand(&handler, target->GetName());
+                    ChatHandler handler(player->GetSession());
+                    std::string str = target->GetName();
+                    char* pTarget;
+                    std::strcpy (pTarget, str.c_str());
+                    arena_spectator_commands::HandleSpectateCommand(&handler, pTarget);
                 }
             }
             return true;
@@ -379,7 +385,7 @@ class npc_arena_spectator : public CreatureScript
                 case CLASS_HUNTER:          sClass = "Hunt ";           break;
                 case CLASS_ROGUE:           sClass = "Rogue ";          break;
                 case CLASS_PRIEST:          sClass = "Priest ";         break;
-                case CLASS_DEATH_KNIGHT:    sClass = "DK ";             break;
+                case CLASS_DEATH_KNIGHT:    sClass = "D.K. ";             break;
                 case CLASS_SHAMAN:          sClass = "Shama ";          break;
                 case CLASS_MAGE:            sClass = "Mage ";           break;
                 case CLASS_WARLOCK:         sClass = "Warlock ";        break;
@@ -431,8 +437,8 @@ class npc_arena_spectator : public CreatureScript
                 if (!sBattlegroundMgr->IsArenaType((BattlegroundTypeId)i))
                     continue;
 
-                BattlegroundSet bgs = sBattlegroundMgr->GetBattlegroundsByType((BattlegroundTypeId)i);
-                for (BattlegroundSet::iterator itr = bgs.begin(); itr != bgs.end(); ++itr)
+                BattlegroundContainer bgs = sBattlegroundMgr->GetBattlegroundsByType((BattlegroundTypeId)i);
+                for (BattlegroundContainer::iterator itr = bgs.begin(); itr != bgs.end(); ++itr)
                 {
                     Battleground* arena = itr->second;
 
@@ -470,10 +476,10 @@ class npc_arena_spectator : public CreatureScript
             }
 
             if (page > 0)
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_DOT, "Prev...", GOSSIP_SENDER_MAIN, NPC_SPECTATOR_ACTION_LIST_GAMES + page - 1);
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_DOT, "Prev..", GOSSIP_SENDER_MAIN, NPC_SPECTATOR_ACTION_LIST_GAMES + page - 1);
 
             if (haveNextPage)
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_DOT, "Next...", GOSSIP_SENDER_MAIN, NPC_SPECTATOR_ACTION_LIST_GAMES + page + 1);
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_DOT, "Next..", GOSSIP_SENDER_MAIN, NPC_SPECTATOR_ACTION_LIST_GAMES + page + 1);
         }
 };
 

@@ -1,4 +1,4 @@
-#include "ChallengeMgr.h"
+/*#include "ChallengeMgr.h"
 #include "DatabaseEnv.h"
 #include "ObjectAccessor.h"
 #include "DisableMgr.h"
@@ -144,7 +144,7 @@ bool ChallengeMgr::InviteGroupsToArena(Player *leader1, Player *leader2, ArenaCh
     arena->StartBattleground();
  
     if (!sBattlegroundMgr->HasBattleground(arena))
-        sBattlegroundMgr->AddBattleground(/*group1->IsInvitedToBGInstanceGUID, bgTypeId, */arena);
+        sBattlegroundMgr->AddBattleground(/*group1->IsInvitedToBGInstanceGUID, bgTypeId, *//*arena);
  
     return true;
 }
@@ -330,7 +330,7 @@ bool ChallengeMgr::MakeChallengeOffer(Player *challenger, Player *challengeTo, A
     return true;
 }
  
-bool ChallengeWaitingAcceptEvent::Execute(uint64 /*e_time*/, uint32 /*p_time*/)
+bool ChallengeWaitingAcceptEvent::Execute(uint64 /*e_time*//*, uint32 *//*p_time*//*)
 {
     Player *player = ObjectAccessor::FindPlayer(m_PlayerGuid);
     if (!player)
@@ -343,6 +343,6 @@ bool ChallengeWaitingAcceptEvent::Execute(uint64 /*e_time*/, uint32 /*p_time*/)
     return true;
 }
  
-void ChallengeWaitingAcceptEvent::Abort(uint64 /*e_time*/)
+void ChallengeWaitingAcceptEvent::Abort(uint64 /*e_time*//*)
 {
-}
+}*/

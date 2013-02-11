@@ -1315,6 +1315,7 @@ void AddCustomScripts()
     AddSC_NPC_Transmogrify();
     //AddSC_challenge_script();
     AddSC_fast_arena_start();
+    AddSC_arena_spectator_script();
 
 #endif
 }

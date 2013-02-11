@@ -1,4 +1,4 @@
-#ifndef __CHALLENGEMGR_H
+/*#ifndef __CHALLENGEMGR_H
 #define __CHALLENGEMGR_H
  
 #include "BattlegroundMgr.h"

@@ -1987,7 +1987,7 @@ uint8 Battleground::ClickFastStart(Player *player, GameObject *go)
         return 0;
 
     std::set<uint64>::iterator pIt = m_playersWantsFastStart.find(player->GetGUID());
-    if (pIt != m_playersWantsFastStart.end() || GetStartDelayTime() < BG_START_DELAY_15S || m_playersWantsFastStart->isSpectator())
+    if (pIt != m_playersWantsFastStart.end() || GetStartDelayTime() < BG_START_DELAY_15S || player->isSpectator())
         return m_playersWantsFastStart.size();
 
     m_playersWantsFastStart.insert(player->GetGUID());
@@ -2066,9 +2066,9 @@ void BattlegroundMgr::HandleCrossfactionSendToBattle(Player* player, Battlegroun
                 player->SetBGTeam(ALLIANCE);
 
         if (player->GetBGTeam() == HORDE)
-            player->setFaction(2); // orc, and generic for horde
+            player->setFaction(2); // Horde Faction
         else if (player->GetBGTeam() == ALLIANCE)
-            player->setFaction(1); // dwarf/gnome, and generic for alliance
+            player->setFaction(1); // Alliance Faction
     }
     bg->UpdatePlayersCountByTeam(player->GetBGTeam(), false); // Add here instead of in AddPlayer, because AddPlayer is not made until loading screen is finished. Which can cause unbalance in the system.
 }

@@ -22,6 +22,7 @@
 #include "DBCStores.h"
 #include "GroupReference.h"
 #include "MapReference.h"
+#include "Battleground.h"
 
 #include "Item.h"
 #include "PetDefines.h"
