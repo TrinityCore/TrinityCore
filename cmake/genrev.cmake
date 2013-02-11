@@ -8,92 +8,59 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-include(${CMAKE_SOURCE_DIR}/cmake/macros/EnsureVersion.cmake)
-
-# User has manually chosen to ignore the git-tests, so we create an arbitrary string for the revisionhash/date as well
-if(DISABLEGITCHECK)
+# User has manually chosen to ignore the git-tests, so throw them a warning.
+# This is done EACH compile so they can be alerted about the consequences.
+if(WITHOUT_GIT)
   message(STATUS "
-  By choosing the DISABLEGITCHECK option, you waive all rights for support, and accept
+  By choosing the WITHOUT_GIT option, you waive all rights for support, and accept
   that any or all requests for assistance by you to core developers will be rejected.
-
   You, as user, take full responsibility for issues, problems etc that might arise
   from using the core, as we we can not properly detect what codebase you're using.
-
   We remind you that you need to use the repository and a proper version of git for
   the revision/hash to work, and thus get our support if the need arises.
   ")
-
-  # Set an arbitrary date and hash, so we can match on that
-  set(rev_date "0000-00-00 00:00:00 +0000")
-  set(rev_hash "TC-COPY-WITH-NO-GIT-SUPPORT")
+  set(rev_date "1970-01-01 00:00:00 +0000")
+  set(rev_hash "Archived")
 else()
-  set(_REQUIRED_GIT_VERSION "1.7")
-  find_program(GIT_EXEC
-    NAMES
-      git git.cmd
-    HINTS
-      ENV PATH
-    DOC "Full path to git commandline client"
-  )
-  MARK_AS_ADVANCED(GIT_EXEC)
-
-  if(NOT GIT_EXEC)
-    message(FATAL_ERROR "
-  Git was NOT FOUND on your system - did you forget to install a recent version, or setting the path to it?
-  Observe that for revision hash/date to work you need at least version ${_REQUIRED_GIT_VERSION}")
-  else()
-    execute_process(
-      COMMAND "${GIT_EXEC}" --version
-      WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
-      OUTPUT_VARIABLE _GIT_VERSION
-      ERROR_QUIET
-    )
-
-    # make sure we're using minimum the required version of git, so the "dirty-testing" will work properly
-    ensure_version( "${_REQUIRED_GIT_VERSION}" "${_GIT_VERSION}" _GIT_VERSION_OK)
-
-    # throw an error if we don't have a recent enough version of git...
-    if(NOT _GIT_VERSION_OK)
-      message(FATAL_ERROR "
-  Git was found but is OUTDATED - did you forget to install a recent version, or setting the path to it?
-  Observe that for revision hash/date to work you need at least version ${_REQUIRED_GIT_VERSION}")
-    endif()
+  # Workaround for funny MSVC behaviour - this segment only run during compile
+  if(NOT BUILDDIR)
+    set(BUILDDIR ${CMAKE_BINARY_DIR})
+    set(_GIT_EXEC ${GIT_EXECUTABLE})
   endif()
 
-  if(_GIT_VERSION_OK)
+  if(_GIT_EXEC)
+    # Create a revision-string that we can use
     execute_process(
-      COMMAND "${GIT_EXEC}" describe --match init --dirty=+ --abbrev=12
+      COMMAND "${_GIT_EXEC}" describe --match init --dirty=+ --abbrev=12
       WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
       OUTPUT_VARIABLE rev_info
       OUTPUT_STRIP_TRAILING_WHITESPACE
       ERROR_QUIET
     )
+
+  # And grab the commits timestamp
     execute_process(
-      COMMAND "${GIT_EXEC}" show -s --format=%ci
+      COMMAND "${_GIT_EXEC}" show -s --format=%ci
       WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
       OUTPUT_VARIABLE rev_date
       OUTPUT_STRIP_TRAILING_WHITESPACE
       ERROR_QUIET
     )
   endif()
-
-  # Last minute check - ensure that we have a proper revision
-  # If everything above fails (means the user has erased the git revision control directory or removed the origin/HEAD tag)
-  if(NOT rev_info)
-    # No valid ways available to find/set the revision/hash, so let's force some defaults
-    message(STATUS "WARNING - Missing repository tags - you may need to pull tags with git fetch -t")
-    message(STATUS "WARNING - Continuing anyway - note that the versionstring will be set to 0000-00-00 00:00:00 (Archived)")
-    set(rev_date "0000-00-00 00:00:00 +0000")
-    set(rev_hash "Archived")
-  else()
-    # Extract information required to build a proper versionstring
-    string(REGEX REPLACE init-|[0-9]+-g "" rev_hash ${rev_info})
-  endif()
 endif()
 
-# Its not set during initial run
-if(NOT BUILDDIR)
-  set(BUILDDIR ${CMAKE_BINARY_DIR})
+# Last minute check - ensure that we have a proper revision
+# If everything above fails (means the user has erased the git revision control directory or removed the origin/HEAD tag)
+
+if(NOT rev_info)
+  # No valid ways available to find/set the revision/hash, so let's force some defaults
+  message(STATUS "WARNING - Missing repository tags - you may need to pull tags with git fetch -t")
+  message(STATUS "WARNING - Continuing anyway - note that the versionstring will be set to 0000-00-00 00:00:00 (Archived)")
+  set(rev_date "1970-01-01 00:00:00 +0000")
+  set(rev_hash "Archived")
+else()
+  # Extract information required to build a proper versionstring
+  string(REGEX REPLACE init-|[0-9]+-g "" rev_hash ${rev_info})
 endif()
 
 # Create the actual revision.h file from the above params
