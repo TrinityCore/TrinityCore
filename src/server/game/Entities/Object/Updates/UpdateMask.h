@@ -21,106 +21,106 @@
 
 #include "UpdateFields.h"
 #include "Errors.h"
+#include "ByteBuffer.h"
 
 class UpdateMask
 {
     public:
-        UpdateMask() : mCount(0), mBlocks(0), mUpdateMask(0) { }
-        UpdateMask(UpdateMask const& mask) : mUpdateMask(0) { *this = mask; }
+        /// Type representing how client reads update mask
+        typedef uint32 ClientUpdateMaskType;
 
-        ~UpdateMask()
+        enum UpdateMaskCount
         {
-            delete[] mUpdateMask;
+            CLIENT_UPDATE_MASK_BITS = sizeof(ClientUpdateMaskType) * 8,
+        };
+
+        UpdateMask() : _fieldCount(0), _blockCount(0), _bits(NULL) { }
+
+        UpdateMask(UpdateMask const& right)
+        {
+            SetCount(right.GetCount());
+            memcpy(_bits, right._bits, sizeof(uint8) * _blockCount * 32);
         }
 
-        void SetBit(uint32 index)
+        ~UpdateMask() { delete[] _bits; }
+
+        void SetBit(uint32 index) { _bits[index] = 1; }
+        void UnsetBit(uint32 index) { _bits[index] = 0; }
+        bool GetBit(uint32 index) const { return _bits[index] != 0; }
+
+        void AppendToPacket(ByteBuffer* data)
         {
-            ((uint8*)mUpdateMask)[index >> 3] |= 1 << (index & 0x7);
+            for (uint32 i = 0; i < GetBlockCount(); ++i)
+            {
+                ClientUpdateMaskType maskPart = 0;
+                for (uint32 j = 0; j < CLIENT_UPDATE_MASK_BITS; ++j)
+                    if (_bits[CLIENT_UPDATE_MASK_BITS * i + j])
+                        maskPart |= 1 << j;
+
+                *data << maskPart;
+            }
         }
 
-        void UnsetBit(uint32 index)
+        uint32 GetBlockCount() const { return _blockCount; }
+        uint32 GetCount() const { return _fieldCount; }
+
+        void SetCount(uint32 valuesCount)
         {
-            ((uint8*)mUpdateMask)[index >> 3] &= (0xff ^ (1 <<  (index & 0x7)));
-        }
+            delete[] _bits;
 
-        bool GetBit(uint32 index) const
-        {
-            return (((uint8*)mUpdateMask)[index >> 3] & (1 << (index & 0x7))) != 0;
-        }
+            _fieldCount = valuesCount;
+            _blockCount = (valuesCount + CLIENT_UPDATE_MASK_BITS - 1) / CLIENT_UPDATE_MASK_BITS;
 
-        uint32 GetBlockCount() const { return mBlocks; }
-        uint32 GetLength() const { return mBlocks << 2; }
-        uint32 GetCount() const { return mCount; }
-        uint8* GetMask() { return (uint8*)mUpdateMask; }
-
-        void SetCount (uint32 valuesCount)
-        {
-            delete [] mUpdateMask;
-
-            mCount = valuesCount;
-            mBlocks = (valuesCount + 31) / 32;
-
-            mUpdateMask = new uint32[mBlocks];
-            memset(mUpdateMask, 0, mBlocks << 2);
+            _bits = new uint8[_blockCount * CLIENT_UPDATE_MASK_BITS];
+            memset(_bits, 0, sizeof(uint8) * _blockCount * CLIENT_UPDATE_MASK_BITS);
         }
 
         void Clear()
         {
-            if (mUpdateMask)
-                memset(mUpdateMask, 0, mBlocks << 2);
+            if (_bits)
+                memset(_bits, 0, sizeof(uint8) * _blockCount * CLIENT_UPDATE_MASK_BITS);
         }
 
-        UpdateMask& operator=(UpdateMask const& mask)
+        UpdateMask& operator=(UpdateMask const& right)
         {
-            if (this == &mask)
+            if (this == &right)
                 return *this;
 
-            SetCount(mask.mCount);
-            memcpy(mUpdateMask, mask.mUpdateMask, mBlocks << 2);
+            SetCount(right.GetCount());
+            memcpy(_bits, right._bits, sizeof(uint8) * _blockCount * CLIENT_UPDATE_MASK_BITS);
+            return *this;
+        }
+
+        UpdateMask& operator&=(UpdateMask const& right)
+        {
+            ASSERT(right.GetCount() <= GetCount());
+            for (uint32 i = 0; i < _fieldCount; ++i)
+                _bits[i] &= right._bits[i];
 
             return *this;
         }
 
-        void operator&=(UpdateMask const& mask)
+        UpdateMask& operator|=(UpdateMask const& right)
         {
-            ASSERT(mask.mCount <= mCount);
-            for (uint32 i = 0; i < mBlocks; ++i)
-                mUpdateMask[i] &= mask.mUpdateMask[i];
+            ASSERT(right.GetCount() <= GetCount());
+            for (uint32 i = 0; i < _fieldCount; ++i)
+                _bits[i] |= right._bits[i];
+
+            return *this;
         }
 
-        void operator|=(UpdateMask const& mask)
+        UpdateMask operator|(UpdateMask const& right)
         {
-            ASSERT(mask.mCount <= mCount);
-            for (uint32 i = 0; i < mBlocks; ++i)
-                mUpdateMask[i] |= mask.mUpdateMask[i];
-        }
-
-        UpdateMask operator&(UpdateMask const& mask) const
-        {
-            ASSERT(mask.mCount <= mCount);
-
-            UpdateMask newmask;
-            newmask = *this;
-            newmask &= mask;
-
-            return newmask;
-        }
-
-        UpdateMask operator|(UpdateMask const& mask) const
-        {
-            ASSERT(mask.mCount <= mCount);
-
-            UpdateMask newmask;
-            newmask = *this;
-            newmask |= mask;
-
-            return newmask;
+            UpdateMask ret(*this);
+            ret |= right;
+            return ret;
         }
 
     private:
-        uint32 mCount;
-        uint32 mBlocks;
-        uint32 *mUpdateMask;
+        uint32 _fieldCount;
+        uint32 _blockCount;
+        uint8* _bits;
 };
+
 #endif
 

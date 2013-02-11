@@ -78,33 +78,33 @@ int ns1__executeCommand(soap* soap, char* command, char** result)
     // security check
     if (!soap->userid || !soap->passwd)
     {
-        sLog->outDebug(LOG_FILTER_SOAP, "Client didn't provide login information");
+        sLog->outInfo(LOG_FILTER_SOAP, "Client didn't provide login information");
         return 401;
     }
 
     uint32 accountId = AccountMgr::GetId(soap->userid);
     if (!accountId)
     {
-        sLog->outDebug(LOG_FILTER_SOAP, "Client used invalid username '%s'", soap->userid);
+        sLog->outInfo(LOG_FILTER_SOAP, "Client used invalid username '%s'", soap->userid);
         return 401;
     }
 
     if (!AccountMgr::CheckPassword(accountId, soap->passwd))
     {
-        sLog->outDebug(LOG_FILTER_SOAP, "Invalid password for account '%s'", soap->userid);
+        sLog->outInfo(LOG_FILTER_SOAP, "Invalid password for account '%s'", soap->userid);
         return 401;
     }
 
     if (AccountMgr::GetSecurity(accountId) < SEC_ADMINISTRATOR)
     {
-        sLog->outDebug(LOG_FILTER_SOAP, "%s's gmlevel is too low", soap->userid);
+        sLog->outInfo(LOG_FILTER_SOAP, "%s's gmlevel is too low", soap->userid);
         return 403;
     }
 
     if (!command || !*command)
-        return soap_sender_fault(soap, "Command mustn't be empty", "The supplied command was an empty string");
+        return soap_sender_fault(soap, "Command can not be empty", "The supplied command was an empty string");
 
-    sLog->outDebug(LOG_FILTER_SOAP, "Got command '%s'", command);
+    sLog->outInfo(LOG_FILTER_SOAP, "Received command '%s'", command);
     SOAPCommand connection;
 
     // commands are executed in the world thread. We have to wait for them to be completed

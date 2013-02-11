@@ -323,5 +323,5 @@ public:
 
 void AddSC_boss_volazj()
 {
-    new boss_volazj;
+    new boss_volazj();
 }

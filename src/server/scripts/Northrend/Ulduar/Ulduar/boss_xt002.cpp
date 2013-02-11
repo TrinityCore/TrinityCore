@@ -451,11 +451,12 @@ class mob_xt002_heart : public CreatureScript
     public:
         mob_xt002_heart() : CreatureScript("mob_xt002_heart") { }
 
-        struct mob_xt002_heartAI : public Scripted_NoMovementAI
+        struct mob_xt002_heartAI : public ScriptedAI
         {
-            mob_xt002_heartAI(Creature* creature) : Scripted_NoMovementAI(creature),
+            mob_xt002_heartAI(Creature* creature) : ScriptedAI(creature),
                 _instance(creature->GetInstanceScript())
             {
+                SetCombatMovement(false);
             }
 
             void UpdateAI(uint32 const /*diff*/) { }

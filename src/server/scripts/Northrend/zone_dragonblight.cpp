@@ -175,9 +175,9 @@ public:
         return new  npc_warsong_battle_standardAI(_Creature);
     }
 
-    struct npc_warsong_battle_standardAI : public Scripted_NoMovementAI
+    struct npc_warsong_battle_standardAI : public ScriptedAI
     {
-        npc_warsong_battle_standardAI(Creature *c) : Scripted_NoMovementAI(c) 
+        npc_warsong_battle_standardAI(Creature *c) : ScriptedAI(c) 
         {
             part = 1;
             part_Timer = 5000;
@@ -271,9 +271,9 @@ public:
     }
 
 
-    struct npc_wintergarde_mine_bombAI : public Scripted_NoMovementAI
+    struct npc_wintergarde_mine_bombAI : public ScriptedAI
     {
-        npc_wintergarde_mine_bombAI(Creature *c) : Scripted_NoMovementAI(c) 
+        npc_wintergarde_mine_bombAI(Creature *c) : ScriptedAI(c) 
         {
             Explote_Timer = 13000;
         }

@@ -207,7 +207,7 @@ AuthSocket::AuthSocket(RealmSocket& socket) : pPatch(NULL), socket_(socket)
 // Close patch file descriptor before leaving
 AuthSocket::~AuthSocket(void) {}
 
-// Accept the connection and set the s random value for SRP6
+// Accept the connection
 void AuthSocket::OnAccept(void)
 {
     sLog->outDebug(LOG_FILTER_AUTHSERVER, "'%s:%d' Accepting connection", socket().getRemoteAddress().c_str(), socket().getRemotePort());
