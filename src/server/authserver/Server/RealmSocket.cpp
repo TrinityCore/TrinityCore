@@ -23,10 +23,6 @@
 #include "RealmSocket.h"
 #include "Log.h"
 
-#ifndef MSG_NOSIGNAL
-#define MSG_NOSIGNAL 0
-#endif
-
 RealmSocket::Session::Session(void) {}
 
 RealmSocket::Session::~Session(void) { }
