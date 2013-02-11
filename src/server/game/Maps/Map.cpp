@@ -2755,7 +2755,14 @@ bool BattlegroundMap::AddPlayerToMap(Player* player)
 
 void BattlegroundMap::RemovePlayerFromMap(Player* player, bool remove)
 {
-// GET MAP SAQ
+
+    if (player && player->isSpectator() && !player->isSpectateCanceled())
+    {
+        if (GetBG())
+            GetBG()->RemoveSpectator(player->GetGUID());
+        player->SetSpectate(false);
+    }
+
     sLog->outInfo(LOG_FILTER_MAPS, "MAP: Removing player '%s' from bg '%u' of map '%s' before relocating to another map", player->GetName().c_str(), GetInstanceId(), GetMapName());
     Map::RemovePlayerFromMap(player, remove);
           

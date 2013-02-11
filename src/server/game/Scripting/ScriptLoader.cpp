@@ -30,9 +30,9 @@ void AddSC_npc_teleport();
 void AddSC_npc_supporter();
 void AddSC_guru_event();
 void AddSC_NPC_Transmogrify();
-//void AddSC_challenge_script();
+void AddSC_arena_spectator_script();
 void AddSC_fast_arena_start();
- 
+//void AddSC_challenge_script();
 
 // spells
 void AddSC_deathknight_spell_scripts();
