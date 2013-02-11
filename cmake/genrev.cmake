@@ -12,17 +12,23 @@ include(${CMAKE_SOURCE_DIR}/cmake/macros/EnsureVersion.cmake)
 
 set(_REQUIRED_GIT_VERSION "1.7")
 
-find_program(_GIT_EXEC
+find_program(GIT_EXEC
   NAMES
     git git.cmd
   HINTS
     ENV PATH
-  DOC "git installation path"
+  DOC "Full path to git commandline client"
 )
+MARK_AS_ADVANCED(GIT_EXEC)
 
-if(_GIT_EXEC)
+if(NOT GIT_EXEC)
+  message(FATAL_ERROR "
+      Git was NOT FOUND on your system - did you forget to install a recent version, or setting the path to it?
+      Observe that for revision hash/date to work you need at least version ${_REQUIRED_GIT_VERSION}
+  ")
+else()
   execute_process(
-    COMMAND "${_GIT_EXEC}" --version
+    COMMAND "${GIT_EXEC}" --version
     WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
     OUTPUT_VARIABLE _GIT_VERSION
     ERROR_QUIET
@@ -30,27 +36,31 @@ if(_GIT_EXEC)
 
   # make sure we're using minimum the required version of git, so the "dirty-testing" will work properly
   ensure_version( "${_REQUIRED_GIT_VERSION}" "${_GIT_VERSION}" _GIT_VERSION_OK)
+
+  # throw an error if we don't have a recent enough version of git...
+  if(NOT _GIT_VERSION_OK)
+    message(FATAL_ERROR "
+      Git was found but is OUTDATED - did you forget to install a recent version, or setting the path to it?
+      Observe that for revision hash/date to work you need at least version ${_REQUIRED_GIT_VERSION}
+    ")
+  endif()
 endif()
 
 if(_GIT_VERSION_OK)
   execute_process(
-    COMMAND "${_GIT_EXEC}" describe --match init --dirty=+ --abbrev=12
+    COMMAND "${GIT_EXEC}" describe --match init --dirty=+ --abbrev=12
     WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
     OUTPUT_VARIABLE rev_info
     OUTPUT_STRIP_TRAILING_WHITESPACE
     ERROR_QUIET
   )
   execute_process(
-    COMMAND "${_GIT_EXEC}" show -s --format=%ci
+    COMMAND "${GIT_EXEC}" show -s --format=%ci
     WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
     OUTPUT_VARIABLE rev_date
     OUTPUT_STRIP_TRAILING_WHITESPACE
     ERROR_QUIET
   )
-else()
-  message("")
-  message(STATUS "WARNING - Missing or outdated git - did you forget to install a recent version?")
-  message(STATUS "WARNING - Observe that for revision hash/date to work you need at least version ${_REQUIRED_GIT_VERSION}")
 endif()
 
 # Last minute check - ensure that we have a proper revision
