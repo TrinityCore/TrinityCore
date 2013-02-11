@@ -61,7 +61,7 @@ if( UNIX )
   find_package(BZip2)
 endif()
 
-if( NOT WITHOUT_GIT )
+if(NOT WITHOUT_GIT)
   find_package(Git)
 endif()
 
