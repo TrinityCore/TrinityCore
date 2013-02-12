@@ -23,7 +23,6 @@
 #include "DBCEnums.h"
 #include "Battleground.h"
 #include "BattlegroundQueue.h"
-//#include "./Challenge/ChallengeMgr.h"
 #include <ace/Singleton.h>
 
 typedef std::map<uint32, Battleground*> BattlegroundContainer;

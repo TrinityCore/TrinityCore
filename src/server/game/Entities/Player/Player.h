@@ -38,8 +38,6 @@ struct Mail;
 struct GroupQueueInfo;
 struct TrainerSpell;
 struct VendorItem;
-//struct ChallengeOption;
-//struct challengeData;
 
 class AchievementMgr;
 class ReputationMgr;
@@ -111,15 +109,6 @@ struct PlayerTalent
     PlayerSpellState state : 8;
     uint8 spec             : 8;
 };
-
-/*struct ChallengeData {
-    GroupQueueInfo *ginfo;
-    Battleground   *bg;
-    ChallengeOption *options;
-    uint64 challenger;
-    uint64 challengeTo;
-    uint8 challengeType;
-};*/
 
 // Spell modifier (used for modify other spells)
 struct SpellModifier
@@ -1841,8 +1830,6 @@ class Player : public Unit, public GridObject<Player>
         int GetGuildIdInvited() { return m_GuildIdInvited; }
         static void RemovePetitionsAndSigns(uint64 guid, uint32 type);
 
-        //void CleanChallengeData();
-
         // Arena Team
         void SetInArenaTeam(uint32 ArenaTeamId, uint8 slot, uint8 type)
         {
@@ -2557,7 +2544,6 @@ class Player : public Unit, public GridObject<Player>
                 return modelData->CollisionHeight;
             }
         }
-       // ChallengeData *challengeData;
 
     protected:
         // Gamemaster whisper whitelist

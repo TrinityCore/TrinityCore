@@ -17,7 +17,6 @@
  */
  
 
-//#include "../../Battlegrounds/Challenge/ChallengeMgr.h"
 #include "../../../scripts/Custom/Transmogrification.h"
 #include "Player.h"
 #include "AccountMgr.h"
@@ -864,16 +863,7 @@ Player::Player(WorldSession* session): Unit(true)
     for (uint8 i = 0; i < MAX_POWERS; ++i)
         m_powerFraction[i] = 0;
 
-    isDebugAreaTriggers = false;
-
-	
-   /* challengeData = new ChallengeData;
-    challengeData->bg            = NULL;
-    challengeData->ginfo         = NULL;
-    challengeData->challengeType = 0;
-    challengeData->challengeTo   = 0;
-    challengeData->challenger    = 0;*/
-	
+    isDebugAreaTriggers = false;	
 
     m_WeeklyQuestChanged = false;
 
@@ -17508,9 +17498,6 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
 
     m_achievementMgr->CheckAllAchievementCriteria();
 
-    /*CleanChallengeData();
-    delete challengeData;*/
-
       _LoadEquipmentSets(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_EQUIPMENT_SETS));
 
     return true;
@@ -17533,12 +17520,6 @@ bool Player::isAllowedToLoot(const Creature* creature)
         return this == creature->GetLootRecipient();
     else if (thisGroup != creature->GetLootRecipientGroup())
         return false;
-
-   /* if (challengeData->options->changed)
-    {
-        CharacterDatabase.PExecute("REPLACE INTO challenge_options(`guid`, `mode`, `enable`) VALUES(%llu, %u, %u)", GetGUID(), challengeData->options->mode, challengeData->options->enable);
-        challengeData->options->changed = false;
-    }*/
 
     switch (thisGroup->GetLootMethod())
     {
@@ -17568,20 +17549,6 @@ bool Player::isAllowedToLoot(const Creature* creature)
 
     return false;
 }
-
-/*void Player::CleanChallengeData()
-{
-    if (challengeData->ginfo)
-    {
-        delete challengeData->ginfo;
-        challengeData->ginfo = NULL;
-    }
-
-   challengeData->bg = NULL;
-   challengeData->challenger    = 0;
-   challengeData->challengeTo   = 0;
-   challengeData->challengeType = 0;
-} */
 
 void Player::_LoadActions(PreparedQueryResult result)
 {

@@ -205,7 +205,6 @@ Battleground::Battleground()
     StartMessageIds[BG_STARTING_EVENT_THIRD]  = LANG_BG_WS_START_HALF_MINUTE;
     StartMessageIds[BG_STARTING_EVENT_FOURTH] = LANG_BG_WS_HAS_BEGUN;
 
-    //is1vs1 = false;
 
 }
 
