@@ -336,7 +336,12 @@ int RASocket::subnegotiate()
 
     //! Just send back end of subnegotiation packet
     uint8 const reply[2] = {0xFF, 0xF0};
+
+#ifdef MSG_NOSIGNAL
+    return int(peer().send(reply, 2, MSG_NOSIGNAL));
+#else
     return int(peer().send(reply, 2));
+#endif // MSG_NOSIGNAL
 }
 
 int RASocket::svc(void)
