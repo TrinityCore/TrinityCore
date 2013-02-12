@@ -323,8 +323,8 @@ class arena_spectator_commands : public CommandScript
 
 enum NpcSpectatorAtions {
     // will be used for scrolling
-    NPC_SPECTATOR_ACTION_LIST_GAMES         = 1450,
-    NPC_SPECTATOR_ACTION_LIST_TOP_GAMES     = 2100,
+    NPC_SPECTATOR_ACTION_LIST_GAMES         = 1000,
+    NPC_SPECTATOR_ACTION_LIST_TOP_GAMES     = 2000,
 
     // NPC_SPECTATOR_ACTION_SELECTED_PLAYER + player.Guid()
     NPC_SPECTATOR_ACTION_SELECTED_PLAYER    = 3000
@@ -341,7 +341,7 @@ class npc_arena_spectator : public CreatureScript
         bool OnGossipHello(Player* pPlayer, Creature* pCreature)
         {
 			pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Games: 2100+mmr", GOSSIP_SENDER_MAIN, NPC_SPECTATOR_ACTION_LIST_TOP_GAMES);
-			pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Games: 1450+mmr", GOSSIP_SENDER_MAIN, NPC_SPECTATOR_ACTION_LIST_GAMES);
+			pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Games: 1000+mmr", GOSSIP_SENDER_MAIN, NPC_SPECTATOR_ACTION_LIST_GAMES);
             pPlayer->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, pCreature->GetGUID());
             return true;
         }
@@ -432,7 +432,7 @@ class npc_arena_spectator : public CreatureScript
             uint16 highGames  = 0;
             uint16 lowGames   = 0;
             bool haveNextPage = false;
-            for (uint8 i = BATTLEGROUND_NA; i <= BATTLEGROUND_RV; ++i)
+            for (uint8 i = BATTLEGROUND_NA; i <= BATTLEGROUND_RL; ++i)
             {
                 if (!sBattlegroundMgr->IsArenaType((BattlegroundTypeId)i))
                     continue;

@@ -369,9 +369,7 @@ void WorldSession::HandleBattleFieldPortOpcode(WorldPacket &recvData)
     BattlegroundQueue& bgQueue = sBattlegroundMgr->GetBattlegroundQueue(bgQueueTypeId);
     //we must use temporary variable, because GroupQueueInfo pointer can be deleted in BattlegroundQueue::RemovePlayer() function
     GroupQueueInfo ginfo;
-//    if (GetPlayer()->challengeData)
-/*        ginfo = *GetPlayer()->challengeData->ginfo;
-    else */if (!bgQueue.GetPlayerGroupInfoData(_player->GetGUID(), &ginfo))
+    if (!bgQueue.GetPlayerGroupInfoData(_player->GetGUID(), &ginfo))
     {
         sLog->outDebug(LOG_FILTER_BATTLEGROUND, "CMSG_BATTLEFIELD_PORT %s ArenaType: %u, Unk: %u, BgType: %u, Action: %u. Player not in queue (No player Group Info)!",
             GetPlayerInfo().c_str(), type, unk2, bgTypeId_, action);
@@ -470,11 +468,8 @@ void WorldSession::HandleBattleFieldPortOpcode(WorldPacket &recvData)
         // set the destination team
         _player->SetBGTeam(ginfo.Team);
 
-        // bg->HandleBeforeTeleportToBattleground(_player)	
-            sBattlegroundMgr->SendToBattleground(_player, ginfo.IsInvitedToBGInstanceGUID, bgTypeId);
-           /* if (_player->challengeData)
-            	   sBattlegroundMgr->SendToBattleground(_player, _player->challengeData->bg);*/
-
+        // bg->HandleBeforeTeleportToBattleground(_player);
+        sBattlegroundMgr->SendToBattleground(_player, ginfo.IsInvitedToBGInstanceGUID, bgTypeId);
         // add only in HandleMoveWorldPortAck()
         // bg->AddPlayer(_player, team);
         sLog->outDebug(LOG_FILTER_BATTLEGROUND, "Battleground: player %s (%u) joined battle for bg %u, bgtype %u, queue type %u.", _player->GetName().c_str(), _player->GetGUIDLow(), bg->GetInstanceID(), bg->GetTypeID(), bgQueueTypeId);
@@ -504,13 +499,6 @@ void WorldSession::HandleBattleFieldPortOpcode(WorldPacket &recvData)
         SendPacket(&data);
         sLog->outDebug(LOG_FILTER_BATTLEGROUND, "Battleground: player %s (%u) left queue for bgtype %u, queue type %u.", _player->GetName().c_str(), _player->GetGUIDLow(), bg->GetTypeID(), bgQueueTypeId);
     }
-
-//    if (_player->challengeData)
-//    {
-//        delete _player->challengeData->removeEvent;
-//        delete _player->challengeData;
-//        _player->challengeData = NULL;
-//    }
 }
 
 void WorldSession::HandleBattlefieldLeaveOpcode(WorldPacket& recvData)
@@ -525,7 +513,7 @@ void WorldSession::HandleBattlefieldLeaveOpcode(WorldPacket& recvData)
     // not allow leave battleground in combat
     if (_player->isInCombat())
         if (Battleground* bg = _player->GetBattleground())
-            if (bg->GetStatus() != STATUS_WAIT_LEAVE && !bg->isArena())
+            if (bg->GetStatus() != STATUS_WAIT_LEAVE)
                 return;
 
     _player->LeaveBattleground();
