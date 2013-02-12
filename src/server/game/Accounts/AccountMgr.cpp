@@ -56,7 +56,7 @@ AccountOpResult AccountMgr::CreateAccount(std::string username, std::string pass
     RBACData* rbac = new RBACData(GetId(username), username, -1);
     // No need to Load From DB, as it's new data
 
-    RBACGroupContainer const& groupsToAdd = _defaultGroups[1]; // 0: Default sec level
+    RBACGroupContainer const& groupsToAdd = _defaultGroups[0]; // 0: Default sec level
     for (RBACGroupContainer::const_iterator it = groupsToAdd.begin(); it != groupsToAdd.end(); ++it)
         rbac->AddGroup(*it, -1);
 
