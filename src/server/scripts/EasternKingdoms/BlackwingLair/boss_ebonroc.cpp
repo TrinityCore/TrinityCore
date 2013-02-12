@@ -27,9 +27,10 @@ EndScriptData */
 #include "ScriptedCreature.h"
 
 #define SPELL_SHADOWFLAME           22539
-#define SPELL_WINGBUFFET            18500
+#define SPELL_WINGBUFFET            23339
 #define SPELL_SHADOWOFEBONROC       23340
-#define SPELL_HEAL                  41386                   //Thea Heal spell of his Shadow
+#define SPELL_HEAL                  41386                   //The Heal spell of his Shadow
+#define SPELL_THRASH                3391
 
 class boss_ebonroc : public CreatureScript
 {
@@ -49,6 +50,7 @@ public:
         uint32 WingBuffet_Timer;
         uint32 ShadowOfEbonroc_Timer;
         uint32 Heal_Timer;
+        uint32 Thrash_Timer;
 
         void Reset()
         {
@@ -56,6 +58,7 @@ public:
             WingBuffet_Timer = 30000;
             ShadowOfEbonroc_Timer = 45000;
             Heal_Timer = 1000;
+            Thrash_Timer = 10000;
         }
 
         void EnterCombat(Unit* /*who*/)
@@ -74,6 +77,13 @@ public:
                 DoCast(me->getVictim(), SPELL_SHADOWFLAME);
                 ShadowFlame_Timer = urand(12000, 15000);
             } else ShadowFlame_Timer -= diff;
+
+            //Thrash Timer
+            if (Thrash_Timer <= diff)
+            {
+                DoCast(me->getVictim(), SPELL_THRASH);
+                Thrash_Timer = urand(10000, 15000);
+            } else Thrash_Timer -= diff;
 
             //Wing Buffet Timer
             if (WingBuffet_Timer <= diff)
