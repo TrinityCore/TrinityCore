@@ -13,11 +13,12 @@
 
 if(NOT BUILDDIR)
   # Workaround for funny MSVC behaviour - this segment only run during compile
+  set(NO_GIT ${WITHOUT_GIT})
   set(GIT_EXEC ${GIT_EXECUTABLE})
   set(BUILDDIR ${CMAKE_BINARY_DIR})
 endif()
 
-if(WITHOUT_GIT)
+if(NO_GIT)
   set(rev_date "1970-01-01 00:00:00 +0000")
   set(rev_hash "Archived")
 else()
