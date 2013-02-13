@@ -21,17 +21,12 @@
 #include "VMapManager2.h"
 #include "VMapDefinitions.h"
 #include "Log.h"
+#include "Errors.h"
 
 #include <string>
 #include <sstream>
 #include <iomanip>
 #include <limits>
-
-#ifndef NO_CORE_FUNCS
-    #include "Errors.h"
-#else
-    #define ASSERT(x)
-#endif
 
 using G3D::Vector3;
 
@@ -277,7 +272,7 @@ namespace VMAP
 
     bool StaticMapTree::InitMap(const std::string &fname, VMapManager2* vm)
     {
-        sLog->outDebug(LOG_FILTER_MAPS, "StaticMapTree::InitMap() : initializing StaticMapTree '%s'", fname.c_str());
+        VMAP_DEBUG_LOG(LOG_FILTER_MAPS, "StaticMapTree::InitMap() : initializing StaticMapTree '%s'", fname.c_str());
         bool success = true;
         std::string fullname = iBasePath + fname;
         FILE* rf = fopen(fullname.c_str(), "rb");
@@ -310,7 +305,7 @@ namespace VMAP
             if (!iIsTiled && ModelSpawn::readFromFile(rf, spawn))
             {
                 WorldModel* model = vm->acquireModelInstance(iBasePath, spawn.name);
-                sLog->outDebug(LOG_FILTER_MAPS, "StaticMapTree::InitMap() : loading %s", spawn.name.c_str());
+                VMAP_DEBUG_LOG(LOG_FILTER_MAPS, "StaticMapTree::InitMap() : loading %s", spawn.name.c_str());
                 if (model)
                 {
                     // assume that global model always is the first and only tree value (could be improved...)
@@ -320,7 +315,7 @@ namespace VMAP
                 else
                 {
                     success = false;
-                    sLog->outError(LOG_FILTER_GENERAL, "StaticMapTree::InitMap() : could not acquire WorldModel pointer for '%s'", spawn.name.c_str());
+                    VMAP_ERROR_LOG(LOG_FILTER_GENERAL, "StaticMapTree::InitMap() : could not acquire WorldModel pointer for '%s'", spawn.name.c_str());
                 }
             }
 
@@ -356,7 +351,7 @@ namespace VMAP
         }
         if (!iTreeValues)
         {
-            sLog->outError(LOG_FILTER_GENERAL, "StaticMapTree::LoadMapTile() : tree has not been initialized [%u, %u]", tileX, tileY);
+            VMAP_ERROR_LOG(LOG_FILTER_GENERAL, "StaticMapTree::LoadMapTile() : tree has not been initialized [%u, %u]", tileX, tileY);
             return false;
         }
         bool result = true;
@@ -382,7 +377,7 @@ namespace VMAP
                     // acquire model instance
                     WorldModel* model = vm->acquireModelInstance(iBasePath, spawn.name);
                     if (!model)
-                        sLog->outError(LOG_FILTER_GENERAL, "StaticMapTree::LoadMapTile() : could not acquire WorldModel pointer [%u, %u]", tileX, tileY);
+                        VMAP_ERROR_LOG(LOG_FILTER_GENERAL, "StaticMapTree::LoadMapTile() : could not acquire WorldModel pointer [%u, %u]", tileX, tileY);
 
                     // update tree
                     uint32 referencedVal;
@@ -432,7 +427,7 @@ namespace VMAP
         loadedTileMap::iterator tile = iLoadedTiles.find(tileID);
         if (tile == iLoadedTiles.end())
         {
-            sLog->outError(LOG_FILTER_GENERAL, "StaticMapTree::UnloadMapTile() : trying to unload non-loaded tile - Map:%u X:%u Y:%u", iMapID, tileX, tileY);
+            VMAP_ERROR_LOG(LOG_FILTER_GENERAL, "StaticMapTree::UnloadMapTile() : trying to unload non-loaded tile - Map:%u X:%u Y:%u", iMapID, tileX, tileY);
             return;
         }
         if (tile->second) // file associated with tile
@@ -466,7 +461,7 @@ namespace VMAP
                         else
                         {
                             if (!iLoadedSpawns.count(referencedNode))
-                            sLog->outError(LOG_FILTER_GENERAL, "StaticMapTree::UnloadMapTile() : trying to unload non-referenced model '%s' (ID:%u)", spawn.name.c_str(), spawn.ID);
+                            VMAP_ERROR_LOG(LOG_FILTER_GENERAL, "StaticMapTree::UnloadMapTile() : trying to unload non-referenced model '%s' (ID:%u)", spawn.name.c_str(), spawn.ID);
                             else if (--iLoadedSpawns[referencedNode] == 0)
                             {
                                 iTreeValues[referencedNode].setUnloaded();
@@ -480,5 +475,4 @@ namespace VMAP
         }
         iLoadedTiles.erase(tile);
     }
-
 }

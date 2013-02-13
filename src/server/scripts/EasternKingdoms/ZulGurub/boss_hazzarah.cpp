@@ -121,4 +121,3 @@ void AddSC_boss_hazzarah()
 {
     new boss_hazzarah();
 }
-

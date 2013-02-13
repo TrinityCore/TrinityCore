@@ -20,6 +20,9 @@
 
 #include "LFG.h"
 
+namespace lfg
+{
+
 enum LfgCompatibility
 {
     LFG_COMPATIBILITY_PENDING,
@@ -139,5 +142,7 @@ class LFGQueue
         LfgGuidList currentQueueStore;                     ///< Ordered list. Used to find groups
         LfgGuidList newToQueueStore;                       ///< New groups to add to queue
 };
+
+} // namespace lfg
 
 #endif

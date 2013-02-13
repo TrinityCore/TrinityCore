@@ -73,6 +73,97 @@ class spell_gen_absorb0_hitlimit1 : public SpellScriptLoader
         }
 };
 
+// 28764 - Adaptive Warding (Frostfire Regalia Set)
+enum AdaptiveWarding
+{
+    SPELL_GEN_ADAPTIVE_WARDING_FIRE     = 28765,
+    SPELL_GEN_ADAPTIVE_WARDING_NATURE   = 28768,
+    SPELL_GEN_ADAPTIVE_WARDING_FROST    = 28766,
+    SPELL_GEN_ADAPTIVE_WARDING_SHADOW   = 28769,
+    SPELL_GEN_ADAPTIVE_WARDING_ARCANE   = 28770
+};
+
+class spell_gen_adaptive_warding : public SpellScriptLoader
+{
+    public:
+        spell_gen_adaptive_warding() : SpellScriptLoader("spell_gen_adaptive_warding") { }
+
+        class spell_gen_adaptive_warding_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_gen_adaptive_warding_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_GEN_ADAPTIVE_WARDING_FIRE) ||
+                    !sSpellMgr->GetSpellInfo(SPELL_GEN_ADAPTIVE_WARDING_NATURE) ||
+                    !sSpellMgr->GetSpellInfo(SPELL_GEN_ADAPTIVE_WARDING_FROST) ||
+                    !sSpellMgr->GetSpellInfo(SPELL_GEN_ADAPTIVE_WARDING_SHADOW) ||
+                    !sSpellMgr->GetSpellInfo(SPELL_GEN_ADAPTIVE_WARDING_ARCANE))
+                    return false;
+                return true;
+            }
+
+            bool CheckProc(ProcEventInfo& eventInfo)
+            {
+                if (eventInfo.GetDamageInfo()->GetSpellInfo()) // eventInfo.GetSpellInfo()
+                    return false;
+
+                // find Mage Armor
+                if (!GetTarget()->GetAuraEffect(SPELL_AURA_MOD_MANA_REGEN_INTERRUPT, SPELLFAMILY_MAGE, 0x10000000, 0x0, 0x0))
+                    return false;
+
+                switch (GetFirstSchoolInMask(eventInfo.GetSchoolMask()))
+                {
+                    case SPELL_SCHOOL_NORMAL:
+                    case SPELL_SCHOOL_HOLY:
+                        return false;
+                    default:
+                        break;
+                }
+                return true;
+            }
+
+            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+
+                uint32 spellId = 0;
+                switch (GetFirstSchoolInMask(eventInfo.GetSchoolMask()))
+                {
+                    case SPELL_SCHOOL_FIRE:
+                        spellId = SPELL_GEN_ADAPTIVE_WARDING_FIRE;
+                        break;
+                    case SPELL_SCHOOL_NATURE:
+                        spellId = SPELL_GEN_ADAPTIVE_WARDING_NATURE;
+                        break;
+                    case SPELL_SCHOOL_FROST:
+                        spellId = SPELL_GEN_ADAPTIVE_WARDING_FROST;
+                        break;
+                    case SPELL_SCHOOL_SHADOW:
+                        spellId = SPELL_GEN_ADAPTIVE_WARDING_SHADOW;
+                        break;
+                    case SPELL_SCHOOL_ARCANE:
+                        spellId = SPELL_GEN_ADAPTIVE_WARDING_ARCANE;
+                        break;
+                    default:
+                        return;
+                }
+                GetTarget()->CastSpell(GetTarget(), spellId, true, NULL, aurEff);
+            }
+
+            void Register()
+            {
+                DoCheckProc += AuraCheckProcFn(spell_gen_adaptive_warding_AuraScript::CheckProc);
+                OnEffectProc += AuraEffectProcFn(spell_gen_adaptive_warding_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_gen_adaptive_warding_AuraScript();
+        }
+};
+
 // 41337 Aura of Anger
 class spell_gen_aura_of_anger : public SpellScriptLoader
 {
@@ -224,6 +315,245 @@ class spell_gen_cannibalize : public SpellScriptLoader
         SpellScript* GetSpellScript() const
         {
             return new spell_gen_cannibalize_SpellScript();
+        }
+};
+
+// 63845 - Create Lance
+enum CreateLanceSpells
+{
+    SPELL_CREATE_LANCE_ALLIANCE = 63914,
+    SPELL_CREATE_LANCE_HORDE    = 63919
+};
+
+class spell_gen_create_lance : public SpellScriptLoader
+{
+    public:
+        spell_gen_create_lance() : SpellScriptLoader("spell_gen_create_lance") { }
+
+        class spell_gen_create_lance_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_gen_create_lance_SpellScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_CREATE_LANCE_ALLIANCE) || !sSpellMgr->GetSpellInfo(SPELL_CREATE_LANCE_HORDE))
+                    return false;
+                return true;
+            }
+
+            void HandleScript(SpellEffIndex effIndex)
+            {
+                PreventHitDefaultEffect(effIndex);
+
+                if (Player* target = GetHitPlayer())
+                {
+                    if (target->GetTeam() == ALLIANCE)
+                        GetCaster()->CastSpell(target, SPELL_CREATE_LANCE_ALLIANCE, true);
+                    else
+                        GetCaster()->CastSpell(target, SPELL_CREATE_LANCE_HORDE, true);
+                }
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_gen_create_lance_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_gen_create_lance_SpellScript();
+        }
+};
+
+// 28702 - Netherbloom
+enum Netherbloom
+{
+    SPELL_NETHERBLOOM_POLLEN_1 = 28703
+};
+
+class spell_gen_netherbloom : public SpellScriptLoader
+{
+    public:
+        spell_gen_netherbloom() : SpellScriptLoader("spell_gen_netherbloom") { }
+
+        class spell_gen_netherbloom_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_gen_netherbloom_SpellScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/)
+            {
+                for (uint8 i = 0; i < 5; ++i)
+                    if (!sSpellMgr->GetSpellInfo(SPELL_NETHERBLOOM_POLLEN_1 + i))
+                        return false;
+                return true;
+            }
+
+            void HandleScript(SpellEffIndex effIndex)
+            {
+                PreventHitDefaultEffect(effIndex);
+
+                if (Unit* target = GetHitUnit())
+                {
+                    // 25% chance of casting a random buff
+                    if (roll_chance_i(75))
+                        return;
+
+                    // triggered spells are 28703 to 28707
+                    // Note: some sources say, that there was the possibility of
+                    //       receiving a debuff. However, this seems to be removed by a patch.
+
+                    // don't overwrite an existing aura
+                    for (uint8 i = 0; i < 5; ++i)
+                        if (target->HasAura(SPELL_NETHERBLOOM_POLLEN_1 + i))
+                            return;
+
+                    target->CastSpell(target, SPELL_NETHERBLOOM_POLLEN_1 + urand(0, 4), true);
+                }
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_gen_netherbloom_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_gen_netherbloom_SpellScript();
+        }
+};
+
+// 28720 - Nightmare Vine
+enum NightmareVine
+{
+    SPELL_NIGHTMARE_POLLEN  = 28721
+};
+
+class spell_gen_nightmare_vine : public SpellScriptLoader
+{
+    public:
+        spell_gen_nightmare_vine() : SpellScriptLoader("spell_gen_nightmare_vine") { }
+
+        class spell_gen_nightmare_vine_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_gen_nightmare_vine_SpellScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_NIGHTMARE_POLLEN))
+                    return false;
+                return true;
+            }
+
+            void HandleScript(SpellEffIndex effIndex)
+            {
+                PreventHitDefaultEffect(effIndex);
+
+                if (Unit* target = GetHitUnit())
+                {
+                    // 25% chance of casting Nightmare Pollen
+                    if (roll_chance_i(25))
+                        target->CastSpell(target, SPELL_NIGHTMARE_POLLEN, true);
+                }
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_gen_nightmare_vine_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_gen_nightmare_vine_SpellScript();
+        }
+};
+
+// 27539 - Obsidian Armor
+enum ObsidianArmor
+{
+    SPELL_GEN_OBSIDIAN_ARMOR_HOLY       = 27536,
+    SPELL_GEN_OBSIDIAN_ARMOR_FIRE       = 27533,
+    SPELL_GEN_OBSIDIAN_ARMOR_NATURE     = 27538,
+    SPELL_GEN_OBSIDIAN_ARMOR_FROST      = 27534,
+    SPELL_GEN_OBSIDIAN_ARMOR_SHADOW     = 27535,
+    SPELL_GEN_OBSIDIAN_ARMOR_ARCANE     = 27540
+};
+
+class spell_gen_obsidian_armor : public SpellScriptLoader
+{
+    public:
+        spell_gen_obsidian_armor() : SpellScriptLoader("spell_gen_obsidian_armor") { }
+
+        class spell_gen_obsidian_armor_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_gen_obsidian_armor_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_GEN_OBSIDIAN_ARMOR_HOLY) ||
+                    !sSpellMgr->GetSpellInfo(SPELL_GEN_OBSIDIAN_ARMOR_FIRE) ||
+                    !sSpellMgr->GetSpellInfo(SPELL_GEN_OBSIDIAN_ARMOR_NATURE) ||
+                    !sSpellMgr->GetSpellInfo(SPELL_GEN_OBSIDIAN_ARMOR_FROST) ||
+                    !sSpellMgr->GetSpellInfo(SPELL_GEN_OBSIDIAN_ARMOR_SHADOW) ||
+                    !sSpellMgr->GetSpellInfo(SPELL_GEN_OBSIDIAN_ARMOR_ARCANE))
+                    return false;
+                return true;
+            }
+
+            bool CheckProc(ProcEventInfo& eventInfo)
+            {
+                if (eventInfo.GetDamageInfo()->GetSpellInfo()) // eventInfo.GetSpellInfo()
+                    return false;
+
+                if (GetFirstSchoolInMask(eventInfo.GetSchoolMask()) == SPELL_SCHOOL_NORMAL)
+                    return false;
+
+                return true;
+            }
+
+            void OnProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
+            {
+                PreventDefaultAction();
+
+                uint32 spellId = 0;
+                switch (GetFirstSchoolInMask(eventInfo.GetSchoolMask()))
+                {
+                    case SPELL_SCHOOL_HOLY:
+                        spellId = SPELL_GEN_OBSIDIAN_ARMOR_HOLY;
+                        break;
+                    case SPELL_SCHOOL_FIRE:
+                        spellId = SPELL_GEN_OBSIDIAN_ARMOR_FIRE;
+                        break;
+                    case SPELL_SCHOOL_NATURE:
+                        spellId = SPELL_GEN_OBSIDIAN_ARMOR_NATURE;
+                        break;
+                    case SPELL_SCHOOL_FROST:
+                        spellId = SPELL_GEN_OBSIDIAN_ARMOR_FROST;
+                        break;
+                    case SPELL_SCHOOL_SHADOW:
+                        spellId = SPELL_GEN_OBSIDIAN_ARMOR_SHADOW;
+                        break;
+                    case SPELL_SCHOOL_ARCANE:
+                        spellId = SPELL_GEN_OBSIDIAN_ARMOR_ARCANE;
+                        break;
+                    default:
+                        return;
+                }
+                GetTarget()->CastSpell(GetTarget(), spellId, true, NULL, aurEff);
+            }
+
+            void Register()
+            {
+                DoCheckProc += AuraCheckProcFn(spell_gen_obsidian_armor_AuraScript::CheckProc);
+                OnEffectProc += AuraEffectProcFn(spell_gen_obsidian_armor_AuraScript::OnProc, EFFECT_0, SPELL_AURA_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_gen_obsidian_armor_AuraScript();
         }
 };
 
@@ -1381,68 +1711,6 @@ class spell_gen_damage_reduction_aura : public SpellScriptLoader
         AuraScript* GetAuraScript() const
         {
             return new spell_gen_damage_reduction_AuraScript();
-        }
-};
-
-class spell_gen_luck_of_the_draw : public SpellScriptLoader
-{
-    public:
-        spell_gen_luck_of_the_draw() : SpellScriptLoader("spell_gen_luck_of_the_draw") { }
-
-        class spell_gen_luck_of_the_draw_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_gen_luck_of_the_draw_AuraScript);
-
-            bool Load()
-            {
-                return GetUnitOwner()->GetTypeId() == TYPEID_PLAYER;
-            }
-
-            // cheap hax to make it have update calls
-            void CalcPeriodic(AuraEffect const* /*effect*/, bool& isPeriodic, int32& amplitude)
-            {
-                isPeriodic = true;
-                amplitude = 5 * IN_MILLISECONDS;
-            }
-
-            void Update(AuraEffect* /*effect*/)
-            {
-                if (Player* owner = GetUnitOwner()->ToPlayer())
-                {
-                    const LfgDungeonSet dungeons = sLFGMgr->GetSelectedDungeons(owner->GetGUID());
-                    LfgDungeonSet::const_iterator itr = dungeons.begin();
-
-                    if (itr == dungeons.end())
-                    {
-                        Remove(AURA_REMOVE_BY_DEFAULT);
-                        return;
-                    }
-
-
-                    LFGDungeonData const* randomDungeon = sLFGMgr->GetLFGDungeon(*itr);
-                    if (Group* group = owner->GetGroup())
-                        if (Map const* map = owner->GetMap())
-                            if (group->isLFGGroup())
-                                if (uint32 dungeonId = sLFGMgr->GetDungeon(group->GetGUID(), true))
-                                    if (LFGDungeonData const* dungeon = sLFGMgr->GetLFGDungeon(dungeonId))
-                                        if (uint32(dungeon->map) == map->GetId() && dungeon->difficulty == map->GetDifficulty())
-                                            if (randomDungeon && randomDungeon->type == LFG_TYPE_RANDOM)
-                                                return; // in correct dungeon
-
-                    Remove(AURA_REMOVE_BY_DEFAULT);
-                }
-            }
-
-            void Register()
-            {
-                DoEffectCalcPeriodic += AuraEffectCalcPeriodicFn(spell_gen_luck_of_the_draw_AuraScript::CalcPeriodic, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE);
-                OnEffectUpdatePeriodic += AuraEffectUpdatePeriodicFn(spell_gen_luck_of_the_draw_AuraScript::Update, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_gen_luck_of_the_draw_AuraScript();
         }
 };
 
@@ -3592,13 +3860,75 @@ class spell_gen_replenishment : public SpellScriptLoader
         }
 };
 
+enum ServiceUniform
+{
+    SPELL_SERVICE_UNIFORM       = 71450,
+
+    MODEL_GOBLIN_MALE           = 31002,
+    MODEL_GOBLIN_FEMALE         = 31003,
+};
+
+class spell_gen_aura_service_uniform : public SpellScriptLoader
+{
+    public:
+        spell_gen_aura_service_uniform() : SpellScriptLoader("spell_gen_aura_service_uniform") { }
+
+        class spell_gen_aura_service_uniform_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_gen_aura_service_uniform_AuraScript);
+
+            bool Validate(SpellInfo const* /*spell*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_SERVICE_UNIFORM))
+                    return false;
+                return true;
+            }
+
+            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                // Apply model goblin
+                Unit* target = GetTarget();
+                if (target->GetTypeId() == TYPEID_PLAYER)
+                {
+                    if (target->getGender() == GENDER_MALE)
+                        target->SetDisplayId(MODEL_GOBLIN_MALE);
+                    else
+                        target->SetDisplayId(MODEL_GOBLIN_FEMALE);
+                }
+            }
+
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* target = GetTarget();
+                if (target->GetTypeId() == TYPEID_PLAYER)
+                    target->RestoreDisplayId();
+            }
+
+            void Register()
+            {
+                AfterEffectApply += AuraEffectRemoveFn(spell_gen_aura_service_uniform_AuraScript::OnApply, EFFECT_0, SPELL_AURA_TRANSFORM, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove += AuraEffectRemoveFn(spell_gen_aura_service_uniform_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_TRANSFORM, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_gen_aura_service_uniform_AuraScript();
+        }
+};
+
 void AddSC_generic_spell_scripts()
 {
     new spell_gen_absorb0_hitlimit1();
+    new spell_gen_adaptive_warding();
     new spell_gen_aura_of_anger();
     new spell_gen_av_drekthar_presence();
     new spell_gen_burn_brutallus();
     new spell_gen_cannibalize();
+    new spell_gen_create_lance();
+    new spell_gen_netherbloom();
+    new spell_gen_nightmare_vine();
+    new spell_gen_obsidian_armor();
     new spell_gen_parachute();
     new spell_gen_pet_summoned();
     new spell_gen_remove_flight_auras();
@@ -3622,7 +3952,6 @@ void AddSC_generic_spell_scripts()
     new spell_gen_vehicle_scaling();
     new spell_gen_oracle_wolvar_reputation();
     new spell_gen_damage_reduction_aura();
-    new spell_gen_luck_of_the_draw();
     new spell_gen_dummy_trigger();
     new spell_gen_spirit_healer_res();
     new spell_gen_gadgetzan_transporter_backfire();
@@ -3685,4 +4014,5 @@ void AddSC_generic_spell_scripts()
     new spell_pilgrims_bounty_buff_food("spell_gen_pumpkin_pie", SPELL_WELL_FED_SPIRIT_TRIGGER);
     new spell_pilgrims_bounty_buff_food("spell_gen_candied_sweet_potato", SPELL_WELL_FED_HASTE_TRIGGER);
     new spell_gen_replenishment();
+    new spell_gen_aura_service_uniform();
 }

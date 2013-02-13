@@ -55,9 +55,9 @@ class npc_mageguard_dalaran : public CreatureScript
 public:
     npc_mageguard_dalaran() : CreatureScript("npc_mageguard_dalaran") { }
 
-    struct npc_mageguard_dalaranAI : public Scripted_NoMovementAI
+    struct npc_mageguard_dalaranAI : public ScriptedAI
     {
-        npc_mageguard_dalaranAI(Creature* creature) : Scripted_NoMovementAI(creature)
+        npc_mageguard_dalaranAI(Creature* creature) : ScriptedAI(creature)
         {
             creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             creature->ApplySpellImmune(0, IMMUNITY_DAMAGE, SPELL_SCHOOL_NORMAL, true);

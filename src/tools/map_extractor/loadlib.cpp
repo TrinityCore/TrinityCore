@@ -6,6 +6,8 @@
 
 class MPQFile;
 
+u_map_fcc MverMagic = { {'R','E','V','M'} };
+
 FileLoader::FileLoader()
 {
     data = 0;
@@ -49,7 +51,7 @@ bool FileLoader::prepareLoadedData()
 {
     // Check version
     version = (file_MVER *) data;
-    if (version->fcc != 'MVER')
+    if (version->fcc != MverMagic.fcc)
         return false;
     if (version->ver != FILE_FORMAT_VERSION)
         return false;

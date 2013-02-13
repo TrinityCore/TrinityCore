@@ -112,4 +112,3 @@ void AddSC_boss_gahzranka()
 {
     new boss_gahzranka();
 }
-
