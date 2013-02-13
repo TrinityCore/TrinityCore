@@ -55,7 +55,7 @@ enum PathType
 class PathGenerator
 {
     public:
-        PathGenerator(Unit const* owner);
+        explicit PathGenerator(Unit const* owner);
         ~PathGenerator();
 
         // Calculate the path from owner to given destination
@@ -71,7 +71,7 @@ class PathGenerator
         Vector3 const& GetEndPosition()        const { return _endPosition; }
         Vector3 const& GetActualEndPosition()  const { return _actualEndPosition; }
 
-        PointsArray& GetPath() { return _pathPoints; }
+        PointsArray const& GetPath() const { return _pathPoints; }
         PathType GetPathType() const { return _type; }
 
     private:
