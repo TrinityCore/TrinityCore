@@ -32,6 +32,7 @@
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
+#include "InstanceSaveMgr.h"
 
 class Aura;
 
@@ -380,6 +381,32 @@ void WorldSession::HandleGroupSetLeaderOpcode(WorldPacket& recvData)
 
     if (!group->IsLeader(GetPlayer()->GetGUID()) || player->GetGroup() != group)
         return;
+
+    //FIX INSTANCE COOLDOWN EXPLOIT
+    Group::MemberSlotList members = group->GetMemberSlots();
+    Player* plr = NULL;
+    bool ch = false;
+
+    for (Group::member_citerator itr = members.begin(); itr != members.end(); ++itr)
+    {
+        plr = sObjectMgr->GetPlayerByLowGUID(itr->guid);
+        for (int i = 0; i < MAX_DIFFICULTY; ++i)
+        {
+            for (Player::BoundInstancesMap::iterator it = player->m_boundInstances[i].begin(); it != player->m_boundInstances[i].end(); ++it)
+            {
+                if (plr && it->first == plr->GetMapId() && plr->GetGUID() != player->GetGUID())
+                {
+                    group->BindToInstance(it->second.save, false);
+                    ch = true;
+                    break;
+                }
+            }
+            if (ch)
+                break;
+        }
+        if (ch)
+            break;
+    }
 
     // Everything's fine, accepted.
     group->ChangeLeader(guid);

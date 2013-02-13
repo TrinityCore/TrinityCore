@@ -11,6 +11,7 @@
 #                                                                                          #
 ############################################################################################
 
+[131] --> Fix Instance Cooldown Exploit.
 [130] --> Revert 'Misc fixes (TEST)...'.
 [129] --> Revert 'Fix Blood Tap (TEST).'.
 [128] --> Restore original scripts Sunwell Plateau.
