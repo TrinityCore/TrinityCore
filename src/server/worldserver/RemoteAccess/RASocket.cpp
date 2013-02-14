@@ -59,7 +59,6 @@ int RASocket::handle_close(ACE_HANDLE, ACE_Reactor_Mask)
     sLog->outInfo(LOG_FILTER_REMOTECOMMAND, "Closing connection");
     peer().close_reader();
     wait();
-    destroy();
     return 0;
 }
 
@@ -412,10 +411,12 @@ void RASocket::commandFinished(void* callbackArg, bool /*success*/)
 
     // the message is 0 size control message to tell that command output is finished
     // hence we don't put timeout, because it shouldn't increase queue size and shouldn't block
-    if (socket->putq(mb) == -1)
-    {
+    if (socket->peer().get_handle() == ACE_INVALID_HANDLE // this can happen if this code is triggered when handle_close has already called peer().close_writer()
+        || socket->putq(mb->duplicate()) == -1)
         // getting here is bad, command can't be marked as complete
         sLog->outDebug(LOG_FILTER_REMOTECOMMAND, "Failed to enqueue command end message. Error is %s", ACE_OS::strerror(errno));
-        mb->release();
-    }
+
+    mb->release();
+    socket->destroy();  // deletes the object
+    socket = NULL;
 }
