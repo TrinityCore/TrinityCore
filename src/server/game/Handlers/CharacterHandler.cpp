@@ -225,6 +225,8 @@ void WorldSession::HandleCharEnum(PreparedQueryResult result)
             if (Player::BuildEnumData(result, &data))
             {
                 _allowedCharsToLogin.insert(guidlow);
+                if (!sWorld->HasCharacterNameData(guidlow)) // This can happen if characters are inserted into the database manually. Core hasn't loaded name data yet.
+                    sWorld->AddCharacterNameData(guidlow, (*result)[1].GetString(), (*result)[4].GetUInt8(), (*result)[2].GetUInt8(), (*result)[3].GetUInt8(), (*result)[7].GetUInt8());
                 ++num;
             }
         }
@@ -1624,6 +1626,14 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
 
     // get the players old (at this moment current) race
     CharacterNameData const* nameData = sWorld->GetCharacterNameData(lowGuid);
+    if (!nameData)
+    {
+        WorldPacket data(SMSG_CHAR_FACTION_CHANGE, 1);
+        data << uint8(CHAR_CREATE_ERROR);
+        SendPacket(&data);
+        return;
+    }
+
     uint8 oldRace = nameData->m_race;
     uint8 playerClass = nameData->m_class;
     uint8 level = nameData->m_level;

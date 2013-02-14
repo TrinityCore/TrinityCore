@@ -734,6 +734,7 @@ class World
         void UpdateCharacterNameData(uint32 guid, std::string const& name, uint8 gender = GENDER_NONE, uint8 race = RACE_NONE);
         void UpdateCharacterNameDataLevel(uint32 guid, uint8 level);
         void DeleteCharaceterNameData(uint32 guid) { _characterNameDataMap.erase(guid); }
+        bool HasCharacterNameData(uint32 guid) { return _characterNameDataMap.find(guid) != _characterNameDataMap.end(); }
 
         uint32 GetCleaningFlags() const { return m_CleaningFlags; }
         void   SetCleaningFlags(uint32 flags) { m_CleaningFlags = flags; }
