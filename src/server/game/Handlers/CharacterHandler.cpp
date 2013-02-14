@@ -1392,6 +1392,7 @@ void WorldSession::HandleCharCustomize(WorldPacket& recvData)
             GetAccountId(), GetRemoteAddress().c_str(), GUID_LOPART(guid));
         recvData.rfinish();
         KickPlayer();
+        return;
     }
 
     recvData >> newName;
@@ -1634,6 +1635,7 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
             GetAccountId(), GetRemoteAddress().c_str(), GUID_LOPART(guid));
         recvData.rfinish();
         KickPlayer();
+        return;
     }
 
     recvData >> newname;
