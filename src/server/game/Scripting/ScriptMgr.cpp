@@ -489,14 +489,14 @@ void ScriptMgr::OnGroupRateCalculation(float& rate, uint32 count, bool isRaid)
 }
 
 #define SCR_MAP_BGN(M, V, I, E, C, T) \
-    if (V->GetEntry()->T()) \
+    if (V->GetEntry() && V->GetEntry()->T()) \
     { \
         FOR_SCRIPTS(M, I, E) \
         { \
             MapEntry const* C = I->second->GetEntry(); \
             if (!C) \
                 continue; \
-            if (entry->MapID == V->GetId()) \
+            if (C->MapID == V->GetId()) \
             {
 
 #define SCR_MAP_END \
