@@ -5220,14 +5220,14 @@ SpellCastResult Spell::CheckCast(bool strict)
                     target->GetFirstCollisionPosition(pos, CONTACT_DISTANCE, target->GetRelativeAngle(m_caster));
                 
 	            if (m_preGeneratedPath.GetPathType() & PATHFIND_DEBUG || target->GetPositionZ() > 9.000000f && m_caster->GetPositionZ() > 9.000000f && m_caster->GetMapId() == 562)
-                   	m_preGeneratedPath.SetPathLengthLimit(m_spellInfo->GetMaxRange(true) * 50.0f);
-		        else
-                  	 m_preGeneratedPath.SetPathLengthLimit(m_spellInfo->GetMaxRange(true) * 2.0f);
+                   	 m_preGeneratedPath.SetPathLengthLimit(100.0f);
+		     else
+                  	 m_preGeneratedPath.SetPathLengthLimit(m_spellInfo->GetMaxRange(true) * 1.75f);
 
-                bool result = m_preGeneratedPath.CalculatePath(pos.m_positionX, pos.m_positionY, pos.m_positionZ + target->GetObjectSize());
+                bool result = m_preGeneratedPath.CalculatePath(pos.m_positionX, pos.m_positionY, pos.m_positionZ + target->GetObjectSize() + 1.0f);
                 if (m_preGeneratedPath.GetPathType() & PATHFIND_SHORT)
                     return SPELL_FAILED_NOPATH;
-                else if (!result)
+                else if (!result || m_preGeneratedPath.GetPathType() & PATHFIND_NOPATH)
                     return SPELL_FAILED_NOPATH;
                 }
                 break;

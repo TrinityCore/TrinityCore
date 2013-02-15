@@ -46,7 +46,7 @@ void TargetedMovementGeneratorMedium<T,D>::_setTargetLocation(T* owner, bool upd
         if (!i_offset)
         {
             float dist_min; //Min Contact Dist
-            dist_min = i_target->GetCombatReach() - (i_target->GetObjectSize() + 1.5f);   // Get min Dist
+            dist_min = i_target->GetCombatReach() - (i_target->GetObjectSize() + 2.5f);   // Get min Dist
 
             if (dist_min == 0) 
                dist_min = 0.5f;
