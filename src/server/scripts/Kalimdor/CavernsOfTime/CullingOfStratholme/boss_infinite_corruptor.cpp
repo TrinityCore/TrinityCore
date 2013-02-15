@@ -54,14 +54,14 @@ public:
         void Reset()
         {
             if (instance)
-                instance->SetData(DATA_INFINITE_EVENT, NOT_STARTED);
+                instance->SetData(DATA_INFINITE_CORRUPTOR_EVENT, NOT_STARTED);
         }
 
         void EnterCombat(Unit* /*who*/)
         {
             Talk(SAY_AGGRO);
             if (instance)
-                instance->SetData(DATA_INFINITE_EVENT, IN_PROGRESS);
+                instance->SetData(DATA_INFINITE_CORRUPTOR_EVENT, IN_PROGRESS);
         }
 
         void UpdateAI(uint32 const /*diff*/)
@@ -77,7 +77,7 @@ public:
         {
             Talk(SAY_DEATH);
             if (instance)
-                instance->SetData(DATA_INFINITE_EVENT, DONE);
+                instance->SetData(DATA_INFINITE_CORRUPTOR_EVENT, DONE);
         }
     };
 

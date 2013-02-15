@@ -15,78 +15,72 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DEF_CULLING_OF_STRATHOLME_H
-#define DEF_CULLING_OF_STRATHOLME_H
+#ifndef _CULLING_OF_STRATHOLME_H_
+#define _CULLING_OF_STRATHOLME_H_
 
 enum Data
 {
+    DATA_CHROMIE_EVENT,
+    DATA_CRATE_COUNT,
+    DATA_INITIAL_RP_EVENT,
     DATA_MEATHOOK_EVENT,
     DATA_SALRAMM_EVENT,
     DATA_EPOCH_EVENT,
     DATA_MAL_GANIS_EVENT,
-    DATA_INFINITE_EVENT,
-    //DATA_CHROMIE_START_EVENT,
-    //DATA_CHROMIE_MIDDLE_EVENT,
+    DATA_INFINITE_CORRUPTOR_EVENT,
     DATA_ARTHAS_EVENT,
-    DATA_CRATE_COUNT
 };
 
 enum Data64
 {
     DATA_ARTHAS,
-    //DATA_CHROMIE_START,
-    //DATA_CHROMIE_MIDDLE,
     DATA_MEATHOOK,
-    DATA_SALRAMM,
-    DATA_EPOCH,
+    DATA_SALRAMM_THE_FLESHCRAFTER,
+    DATA_CHRONO_LORD_EPOCH,
     DATA_MAL_GANIS,
-    DATA_INFINITE,
-    DATA_SHKAF_GATE,
-    DATA_MAL_GANIS_GATE_1,
-    DATA_MAL_GANIS_GATE_2,
+    DATA_INFINITE_CORRUPTOR,
+    DATA_BOOKSHELF,
+    DATA_MAL_GANIS_INNER_GATE,
+    DATA_MAL_GANIS_OUTER_GATE,
     DATA_EXIT_GATE,
     DATA_MAL_GANIS_CHEST
 };
 
 enum Creatures
 {
-    NPC_MEATHOOK        = 26529,
-    NPC_SALRAMM         = 26530,
-    NPC_EPOCH           = 26532,
-    NPC_MAL_GANIS       = 26533,
-    NPC_INFINITE        = 32273,
-    NPC_ARTHAS          = 26499,
-    NPC_JAINA           = 26497,
-    NPC_UTHER           = 26528,
-    
-    /*KROGONOS 434 | 12:02 @ 2/14/2013*/
-    NPC_CHROMIE_START   = 26527,
-    NPC_CHROMIE_MIDDLE  = 27915,
-    /*KROGONOS 434 | 12:02 @ 2/14/2013*/
-    
-    NPC_GENERIC_BUNNY   = 28960
+    NPC_MEATHOOK                   = 26529,
+    NPC_SALRAMM_THE_FLESHCRAFTER   = 26530,
+    NPC_CHRONO_LORD_EPOCH          = 26532,
+    NPC_MAL_GANIS                  = 26533,
+    NPC_INFINITE_CORRUPTOR         = 32273,
+    NPC_ARTHAS                     = 26499,
+    NPC_JAINA                      = 26497,
+    NPC_UTHER                      = 26528,
+    NPC_CHROMIE_START              = 26527,
+    NPC_CHROMIE_MIDDLE             = 27915,
+    NPC_TOTALLY_GENERIC_BUNNY      = 28960
 };
 
 enum GameObjects
 {
-    GO_SHKAF_GATE        = 188686,
-    GO_MALGANIS_GATE_1   = 187711,
-    GO_MALGANIS_GATE_2   = 187723,
-    GO_EXIT_GATE         = 191788,
-    GO_MALGANIS_CHEST_N  = 190663,
-    GO_MALGANIS_CHEST_H  = 193597,
-    GO_CRATE_HIGHLIGHTER = 190117,
-    GO_SUSPICIOUS_CRATE  = 190094,
-    GO_PLAGUED_CRATE     = 190095
+    GO_BOOKSHELF_GATE              = 188686,
+    GO_MAL_GANIS_INNER_GATE        = 187711,
+    GO_MAL_GANIS_OUTER_GATE        = 187723,
+    GO_EXIT_GATE                   = 191788,
+    GO_MALGANIS_CHEST_N            = 190663,
+    GO_MALGANIS_CHEST_H            = 193597,
+    GO_CRATE_HIGHLIGHTER           = 190117,
+    GO_SUSPICIOUS_CRATE            = 190094,
+    GO_PLAGUED_CRATE               = 190095
 };
 
 enum WorldStatesCoS
 {
-    WORLDSTATE_SHOW_CRATES          = 3479,
-    WORLDSTATE_CRATES_REVEALED      = 3480,
-    WORLDSTATE_WAVE_COUNT           = 3504,
-    WORLDSTATE_TIME_GUARDIAN        = 3931,
-    WORLDSTATE_TIME_GUARDIAN_SHOW   = 3932
+    WORLDSTATE_SHOW_CRATES         = 3479,
+    WORLDSTATE_CRATES_REVEALED     = 3480,
+    WORLDSTATE_WAVE_COUNT          = 3504,
+    WORLDSTATE_TIME_GUARDIAN       = 3931,
+    WORLDSTATE_TIME_GUARDIAN_SHOW  = 3932
 };
 
 enum CrateSpells
@@ -96,9 +90,9 @@ enum CrateSpells
 
 enum Achievements
 {
-    ACHIEVE_THE_CULLING_OF_STRATHOLME = 479,  //(Reg Version)Kill Meathook, Salramm the Fleshcrafter, Chrono-Lord Epoch and Mal'Ganis
-    ACHIEVE_THE_CULLING_OF_STRATHOLME = 1817, //(Heroic Only)Kill the Infinite Corruptor
-    ACHIEVE_ZOMBIEFEST                = 1872  //(Heroic Only)Kill 100 Risen Zombies in 60 seconds
-}
+    ACHIEVEMENT_THE_CULLING_OF_STRATHOLME = 479,  //(Reg Version)Kill Meathook, Salramm the Fleshcrafter, Chrono-Lord Epoch and Mal'Ganis
+    ACHIEVEMENT_CULLING_OF_STRATHOLME     = 1817, //(Heroic Only)Kill the Infinite Corruptor
+    ACHIEVEMENT_ZOMBIEFEST                = 1872  //(Heroic Only)Kill 100 Risen Zombies in 60 seconds
+};
 
 #endif
