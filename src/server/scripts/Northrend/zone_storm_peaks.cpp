@@ -356,33 +356,13 @@ public:
 
 enum FreedProtoDrake
 {
+    NPC_DRAKE                           = 29709,
     AREA_VALLEY_OF_ANCIENT_WINTERS      = 4437,
     TEXT_EMOTE                          = 0,
     SPELL_KILL_CREDIT_PRISONER          = 55144,
     SPELL_SUMMON_LIBERATED              = 55073,
     SPELL_KILL_CREDIT_DRAKE             = 55143
 };
-
-const Position FreedDrakeWaypoints[16] =
-{
-    {7294.96f, -2418.733f, 823.869f, 0.0f},
-    {7315.984f, -2331.46f, 826.3972f, 0.0f},
-    {7271.826f, -2271.479f, 833.5917f, 0.0f},
-    {7186.253f, -2218.475f, 847.5632f, 0.0f},
-    {7113.195f, -2164.288f, 850.2301f, 0.0f},
-    {7078.018f, -2063.106f, 854.7581f, 0.0f},
-    {7073.221f, -1983.382f, 861.9246f, 0.0f},
-    {7061.455f, -1885.899f, 865.119f, 0.0f},
-    {7033.32f, -1826.775f, 876.2578f, 0.0f},
-    {6999.902f, -1784.012f, 897.4521f, 0.0f},
-    {6954.913f, -1747.043f, 897.4521f, 0.0f},
-    {6933.856f, -1720.698f, 882.2022f, 0.0f},
-    {6932.729f, -1687.306f, 866.1189f, 0.0f},
-    {6952.458f, -1663.802f, 849.8133f, 0.0f},
-    {7002.819f, -1651.681f, 831.397f, 0.0f},
-    {7026.531f, -1649.239f, 828.8406f, 0.0f}
-};
-
 
 class npc_freed_protodrake : public CreatureScript
 {
@@ -394,29 +374,20 @@ public:
         npc_freed_protodrakeAI(Creature* creature) : VehicleAI(creature) {}
 
         bool autoMove;
-        bool wpReached;
         uint16 CheckTimer;
-        uint16 countWP;
 
         void Reset()
         {
             autoMove = false;
-            wpReached = false;
             CheckTimer = 5000;
-            countWP = 0;
         }
 
         void MovementInform(uint32 type, uint32 id)
         {
-            if (type != POINT_MOTION_TYPE)
+            if (type != WAYPOINT_MOTION_TYPE)
                 return;
 
-            if (id < 15)
-            {
-                ++countWP;
-                wpReached = true;
-            }
-            else
+            if (id == 15)
             // drake reached village
             {
                 // get player that rides drake (from seat 0)
@@ -448,19 +419,17 @@ public:
                     CheckTimer = 5000;
                     if (me->GetAreaId() == AREA_VALLEY_OF_ANCIENT_WINTERS)
                     {
-                        Talk(TEXT_EMOTE, me->GetVehicleKit()->GetPassenger(0)->GetGUID());
-                        autoMove = true;
-                        wpReached = true;
+                        if (Vehicle* vehicle = me->GetVehicleKit())
+                            if (Unit* passenger = vehicle->GetPassenger(0))
+                            {
+                                Talk(TEXT_EMOTE, passenger->GetGUID());
+                                me->GetMotionMaster()->MovePath(NPC_DRAKE, false);
+                                autoMove = true;
+                            }
                     }
                 }
                 else
                     CheckTimer -= diff;
-            }
-
-            if (wpReached && autoMove)
-            {
-                wpReached = false;
-                me->GetMotionMaster()->MovePoint(countWP, FreedDrakeWaypoints[countWP]);
             }
         }
     };
