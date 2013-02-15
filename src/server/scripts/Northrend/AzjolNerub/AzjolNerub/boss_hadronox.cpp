@@ -198,5 +198,5 @@ public:
 
 void AddSC_boss_hadronox()
 {
-    new boss_hadronox;
+    new boss_hadronox();
 }

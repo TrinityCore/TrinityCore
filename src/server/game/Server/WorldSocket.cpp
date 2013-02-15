@@ -372,9 +372,9 @@ int WorldSocket::handle_output_queue (GuardType& g)
     const size_t send_len = mblk->length();
 
 #ifdef MSG_NOSIGNAL
-    ssize_t n = peer().send (mblk->rd_ptr(), send_len, MSG_NOSIGNAL);
+    ssize_t n = peer().send(mblk->rd_ptr(), send_len, MSG_NOSIGNAL);
 #else
-    ssize_t n = peer().send (mblk->rd_ptr(), send_len);
+    ssize_t n = peer().send(mblk->rd_ptr(), send_len);
 #endif // MSG_NOSIGNAL
 
     if (n == 0)
@@ -932,12 +932,6 @@ int WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
 
     // NOTE ATM the socket is single-threaded, have this in mind ...
     ACE_NEW_RETURN(m_Session, WorldSession(id, this, AccountTypes(security), expansion, mutetime, locale, recruiter, isRecruiter), -1);
-
-    stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_CLEAR_SESSIONKEY);
-
-    stmt->setUInt32(0, id);
-
-    LoginDatabase.Execute(stmt);
 
     m_Crypt.Init(&k);
 

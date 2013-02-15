@@ -289,6 +289,10 @@ bool Creature::InitEntry(uint32 Entry, uint32 /*team*/, const CreatureData* data
             --diff;
     }
 
+    // Initialize loot duplicate count depending on raid difficulty
+    if (GetMap()->Is25ManRaid())
+        loot.maxDuplicates = 3;
+
     SetEntry(Entry);                                        // normal entry always
     m_creatureInfo = cinfo;                                 // map mode related always
 
