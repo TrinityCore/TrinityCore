@@ -35,15 +35,12 @@
 
 enum Texts
 {
-    SAY_CRATES_COMPLETED    = 0
+    SAY_CRATES_COMPLETED    = 0,
 };
 
-enum CrateSpells
-{
-    SPELL_CRATES_CREDIT     = 58109
-};
-
-Position const ChromieSummonPos = {1813.298f, 1283.578f, 142.3258f, 3.878161f};
+/*KROGONOS 434 | 12:21 @ 2/14/2013*/// Place in the culling_of_stratholme.cpp file totally_generic_bunny should handle this
+//Position const ChromieMiddleSummonPos = {1813.298f, 1283.578f, 142.3258f, 3.878161f};
+/*KROGONOS 434 | 12:21 @ 2/14/2013*/
 
 class instance_culling_of_stratholme : public InstanceMapScript
 {
@@ -59,7 +56,10 @@ class instance_culling_of_stratholme : public InstanceMapScript
         {
             instance_culling_of_stratholme_InstanceMapScript(Map* map) : InstanceScript(map)
             {
-                _arthasGUID = 0;
+                /*KROGONOS 434 | 12:14 @ 2/14/2013*/
+                //_arthasGUID = 0;
+                /*KROGONOS 434 | 12:14 @ 2/14/2013*/
+                
                 _meathookGUID = 0;
                 _salrammGUID = 0;
                 _epochGUID = 0;
@@ -86,20 +86,26 @@ class instance_culling_of_stratholme : public InstanceMapScript
 
             void FillInitialWorldStates(WorldPacket& data)
             {
-                data << uint32(WORLDSTATE_SHOW_CRATES) << uint32(1); // This is a work around. Chromie(26527) should be doing this
+                /*KROGONOS 434 | 12:03 @ 2/14/2013*///Set to 1 in DoUpdateWorldState in a gossipmenuselect for chromie_start
+                data << uint32(WORLDSTATE_SHOW_CRATES) << uint32(0);
+                /*KROGONOS 434 | 12:03 @ 2/14/2013*/
+                
                 data << uint32(WORLDSTATE_CRATES_REVEALED) << uint32(_crateCount);
                 data << uint32(WORLDSTATE_WAVE_COUNT) << uint32(0);
-                data << uint32(WORLDSTATE_TIME_GUARDIAN) << uint32(25);
                 data << uint32(WORLDSTATE_TIME_GUARDIAN_SHOW) << uint32(0);
+                data << uint32(WORLDSTATE_TIME_GUARDIAN) << uint32(25);
             }
 
             void OnCreatureCreate(Creature* creature)
             {
                 switch (creature->GetEntry())
                 {
-                    case NPC_ARTHAS:
+                    /*KROGONOS 434 | 11:45 @ 2/14/2013*/
+                    /*case NPC_ARTHAS:
                         _arthasGUID = creature->GetGUID();
-                        break;
+                        break;*/
+                    /*KROGONOS 434 | 11:45 @ 2/14/2013*/
+                    
                     case NPC_MEATHOOK:
                         _meathookGUID = creature->GetGUID();
                         break;
@@ -189,12 +195,16 @@ class instance_culling_of_stratholme : public InstanceMapScript
                             if (Creature* bunny = instance->GetCreature(_genericBunnyGUID))
                                 bunny->CastSpell(bunny, SPELL_CRATES_CREDIT, true);
 
+                            /*KROGONOS 434 | 12:18 @ 2/14/2013*/
                             // Summon Chromie and global whisper
-                            if (Creature* chromie = instance->SummonCreature(NPC_CHROMIE_2, ChromieSummonPos))
+                            /*if (Creature* chromie = instance->SummonCreature(NPC_CHROMIE_MIDDLE, ChromieMiddleSummonPos))
                                 if (!instance->GetPlayers().isEmpty())
                                     if (Player* player = instance->GetPlayers().getFirst()->getSource())
-                                        sCreatureTextMgr->SendChat(chromie, SAY_CRATES_COMPLETED, player->GetGUID(), CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_MAP);
+                                        sCreatureTextMgr->SendChat(chromie, SAY_CRATES_COMPLETED, player->GetGUID(), CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_MAP);*/
+                            /*KROGONOS 434 | 12:18 @ 2/14/2013*/
+                            
                         }
+                        // in this case we're syncing the worldstate with DATA_CRATE_COUNT (I think)
                         DoUpdateWorldState(WORLDSTATE_CRATES_REVEALED, _crateCount);
                         break;
                 }
@@ -227,8 +237,11 @@ class instance_culling_of_stratholme : public InstanceMapScript
             {
                 switch (identifier)
                 {
-                    case DATA_ARTHAS:
-                        return _arthasGUID;
+                    /*KROGONOS 434 | 12:13 @ 2/14/2013*/
+                    /*case DATA_ARTHAS:
+                        return _arthasGUID;*/
+                    /*KROGONOS 434 | 12:13 @ 2/14/2013*/
+                    
                     case DATA_MEATHOOK:
                         return _meathookGUID;
                     case DATA_SALRAMM:
@@ -301,7 +314,10 @@ class instance_culling_of_stratholme : public InstanceMapScript
             }
 
         private:
-            uint64 _arthasGUID;
+            /*KROGONOS 434 | 11:49 @ 2/14/2013*/
+            //uint64 _arthasGUID;
+            /*KROGONOS 434 | 11:49 @ 2/14/2013*/
+            
             uint64 _meathookGUID;
             uint64 _salrammGUID;
             uint64 _epochGUID;

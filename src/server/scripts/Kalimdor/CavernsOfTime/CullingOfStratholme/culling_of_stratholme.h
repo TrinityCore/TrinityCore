@@ -25,6 +25,8 @@ enum Data
     DATA_EPOCH_EVENT,
     DATA_MAL_GANIS_EVENT,
     DATA_INFINITE_EVENT,
+    //DATA_CHROMIE_START_EVENT,
+    //DATA_CHROMIE_MIDDLE_EVENT,
     DATA_ARTHAS_EVENT,
     DATA_CRATE_COUNT
 };
@@ -32,6 +34,8 @@ enum Data
 enum Data64
 {
     DATA_ARTHAS,
+    //DATA_CHROMIE_START,
+    //DATA_CHROMIE_MIDDLE,
     DATA_MEATHOOK,
     DATA_SALRAMM,
     DATA_EPOCH,
@@ -54,19 +58,24 @@ enum Creatures
     NPC_ARTHAS          = 26499,
     NPC_JAINA           = 26497,
     NPC_UTHER           = 26528,
-    NPC_CHROMIE_2       = 27915,
+    
+    /*KROGONOS 434 | 12:02 @ 2/14/2013*/
+    NPC_CHROMIE_START   = 26527,
+    NPC_CHROMIE_MIDDLE  = 27915,
+    /*KROGONOS 434 | 12:02 @ 2/14/2013*/
+    
     NPC_GENERIC_BUNNY   = 28960
 };
 
 enum GameObjects
 {
-    GO_CRATE_HIGHLIGHTER = 190117,
     GO_SHKAF_GATE        = 188686,
     GO_MALGANIS_GATE_1   = 187711,
     GO_MALGANIS_GATE_2   = 187723,
     GO_EXIT_GATE         = 191788,
     GO_MALGANIS_CHEST_N  = 190663,
     GO_MALGANIS_CHEST_H  = 193597,
+    GO_CRATE_HIGHLIGHTER = 190117,
     GO_SUSPICIOUS_CRATE  = 190094,
     GO_PLAGUED_CRATE     = 190095
 };
@@ -79,4 +88,17 @@ enum WorldStatesCoS
     WORLDSTATE_TIME_GUARDIAN        = 3931,
     WORLDSTATE_TIME_GUARDIAN_SHOW   = 3932
 };
+
+enum CrateSpells
+{
+    SPELL_CRATES_CREDIT     = 58109
+};
+
+enum Achievements
+{
+    ACHIEVE_THE_CULLING_OF_STRATHOLME = 479,  //(Reg Version)Kill Meathook, Salramm the Fleshcrafter, Chrono-Lord Epoch and Mal'Ganis
+    ACHIEVE_THE_CULLING_OF_STRATHOLME = 1817, //(Heroic Only)Kill the Infinite Corruptor
+    ACHIEVE_ZOMBIEFEST                = 1872  //(Heroic Only)Kill 100 Risen Zombies in 60 seconds
+}
+
 #endif
