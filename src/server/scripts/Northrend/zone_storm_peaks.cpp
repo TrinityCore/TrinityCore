@@ -357,11 +357,17 @@ public:
 enum FreedProtoDrake
 {
     NPC_DRAKE                           = 29709,
+
     AREA_VALLEY_OF_ANCIENT_WINTERS      = 4437,
+
     TEXT_EMOTE                          = 0,
+
     SPELL_KILL_CREDIT_PRISONER          = 55144,
     SPELL_SUMMON_LIBERATED              = 55073,
-    SPELL_KILL_CREDIT_DRAKE             = 55143
+    SPELL_KILL_CREDIT_DRAKE             = 55143,
+
+    EVENT_CHECK_AREA                    = 1,
+    EVENT_REACHED_HOME                  = 2,
 };
 
 class npc_freed_protodrake : public CreatureScript
@@ -373,13 +379,11 @@ public:
     {
         npc_freed_protodrakeAI(Creature* creature) : VehicleAI(creature) {}
 
-        bool autoMove;
-        uint16 CheckTimer;
+        EventMap events;
 
         void Reset()
         {
-            autoMove = false;
-            CheckTimer = 5000;
+            events.ScheduleEvent(EVENT_CHECK_AREA, 5000);
         }
 
         void MovementInform(uint32 type, uint32 id)
@@ -389,34 +393,16 @@ public:
 
             if (id == 15)
             // drake reached village
-            {
-                // get player that rides drake (from seat 0)
-                Unit* player = me->GetVehicleKit()->GetPassenger(0);
-                if (player && player->GetTypeId() == TYPEID_PLAYER)
-                {
-                    // for each prisoner on drake, give credit
-                    for (uint8 i = 1; i < 4; ++i)
-                        if (Unit* prisoner = me->GetVehicleKit()->GetPassenger(i))
-                        {
-                            if (prisoner->GetTypeId() != TYPEID_UNIT)
-                                return;
-                            prisoner->CastSpell(player, SPELL_KILL_CREDIT_PRISONER, true);
-                            prisoner->CastSpell(prisoner, SPELL_SUMMON_LIBERATED, true);
-                            prisoner->ExitVehicle();
-                        }
-                    me->CastSpell(me, SPELL_KILL_CREDIT_DRAKE, true);
-                    player->ExitVehicle();
-                }
-            }
+            events.ScheduleEvent(EVENT_REACHED_HOME, 2000);
         }
 
         void UpdateAI(const uint32 diff)
         {
-            if (!autoMove)
+            events.Update(diff);
+
+            switch (events.ExecuteEvent())
             {
-                if (CheckTimer < diff)
-                {
-                    CheckTimer = 5000;
+                case EVENT_CHECK_AREA:
                     if (me->GetAreaId() == AREA_VALLEY_OF_ANCIENT_WINTERS)
                     {
                         if (Vehicle* vehicle = me->GetVehicleKit())
@@ -424,12 +410,29 @@ public:
                             {
                                 Talk(TEXT_EMOTE, passenger->GetGUID());
                                 me->GetMotionMaster()->MovePath(NPC_DRAKE, false);
-                                autoMove = true;
                             }
                     }
-                }
-                else
-                    CheckTimer -= diff;
+                    else
+                        events.ScheduleEvent(EVENT_CHECK_AREA, 5000);
+                    break;
+                case EVENT_REACHED_HOME:
+                    Unit* player = me->GetVehicleKit()->GetPassenger(0);
+                    if (player && player->GetTypeId() == TYPEID_PLAYER)
+                    {
+                        // for each prisoner on drake, give credit
+                        for (uint8 i = 1; i < 4; ++i)
+                            if (Unit* prisoner = me->GetVehicleKit()->GetPassenger(i))
+                            {
+                                if (prisoner->GetTypeId() != TYPEID_UNIT)
+                                    return;
+                                prisoner->CastSpell(player, SPELL_KILL_CREDIT_PRISONER, true);
+                                prisoner->CastSpell(prisoner, SPELL_SUMMON_LIBERATED, true);
+                                prisoner->ExitVehicle();
+                            }
+                        me->CastSpell(me, SPELL_KILL_CREDIT_DRAKE, true);
+                        player->ExitVehicle();
+                    }
+                    break;
             }
         }
     };
