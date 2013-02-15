@@ -25484,7 +25484,7 @@ bool Player::AddItem(uint32 itemId, uint32 count)
     ItemPosCountVec dest;
     InventoryResult msg = CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, itemId, count, &noSpaceForCount);
     if (msg != EQUIP_ERR_OK)
-        count = noSpaceForCount;
+        count -= noSpaceForCount;
 
     if (count == 0 || dest.empty())
     {
