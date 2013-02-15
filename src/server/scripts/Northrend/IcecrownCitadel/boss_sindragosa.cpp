@@ -220,10 +220,10 @@ class boss_sindragosa : public CreatureScript
                 events.ScheduleEvent(EVENT_FROST_BREATH, urand(8000, 12000), EVENT_GROUP_LAND_PHASE);
                 events.ScheduleEvent(EVENT_UNCHAINED_MAGIC, urand(9000, 14000), EVENT_GROUP_LAND_PHASE);
                 events.ScheduleEvent(EVENT_ICY_GRIP, 33500, EVENT_GROUP_LAND_PHASE);
-                events.ScheduleEvent(EVENT_AIR_PHASE, 50000);
                 _mysticBuffetStack = 0;
                 _isInAirPhase = false;
                 _isThirdPhase = false;
+                _airPhaseTriggered = false;
 
                 if (!_summoned)
                 {
@@ -361,7 +361,12 @@ class boss_sindragosa : public CreatureScript
 
             void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/)
             {
-                if (!_isThirdPhase && !HealthAbovePct(35))
+                if (!_airPhaseTriggered && !HealthAbovePct(85))
+                {
+                    _airPhaseTriggered = true;
+                    events.ScheduleEvent(EVENT_AIR_PHASE, 1000);
+                }
+                else if (!_isThirdPhase && !HealthAbovePct(35))
                 {
                     events.CancelEvent(EVENT_AIR_PHASE);
                     events.ScheduleEvent(EVENT_THIRD_PHASE_CHECK, 1000);
@@ -563,6 +568,7 @@ class boss_sindragosa : public CreatureScript
             bool _isInAirPhase;
             bool _isThirdPhase;
             bool _summoned;
+            bool _airPhaseTriggered;
         };
 
         CreatureAI* GetAI(Creature* creature) const
