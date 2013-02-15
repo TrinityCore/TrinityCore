@@ -50,6 +50,7 @@ enum PathType
     PATHFIND_NOPATH         = 0x08,   // no valid path at all or error in generating one
     PATHFIND_NOT_USING_PATH = 0x10,   // used when we are either flying/swiming or on map w/o mmaps
     PATHFIND_SHORT          = 0x20,   // path is longer or equal to its limited path length
+	PATHFIND_DEBUG          = 0x40,   // path is longer or equal to its limited path length
 };
 
 class PathGenerator

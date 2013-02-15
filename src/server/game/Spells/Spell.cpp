@@ -55,6 +55,7 @@
 #include "SpellInfo.h"
 #include "Battlefield.h"
 #include "BattlefieldMgr.h"
+#include "PathGenerator.h"
 
 extern pEffect SpellEffects[TOTAL_SPELL_EFFECTS];
 
@@ -5220,8 +5221,12 @@ SpellCastResult Spell::CheckCast(bool strict)
                 Position pos;
                 target->GetContactPoint(m_caster, pos.m_positionX, pos.m_positionY, pos.m_positionZ);
                 target->GetFirstCollisionPosition(pos, CONTACT_DISTANCE, target->GetRelativeAngle(m_caster));
+                
+	            if (m_preGeneratedPath.GetPathType() & PATHFIND_DEBUG || target->GetPositionZ() > 9.000000f && m_caster->GetPositionZ() > 9.000000f && m_caster->GetMapId() == 562)
+                   	m_preGeneratedPath.SetPathLengthLimit(m_spellInfo->GetMaxRange(true) * 50.0f);
+		        else
+                  	 m_preGeneratedPath.SetPathLengthLimit(m_spellInfo->GetMaxRange(true) * 2.0f);
 
-                m_preGeneratedPath.SetPathLengthLimit(m_spellInfo->GetMaxRange(true) * 2.0f);
                 bool result = m_preGeneratedPath.CalculatePath(pos.m_positionX, pos.m_positionY, pos.m_positionZ + target->GetObjectSize());
                 if (m_preGeneratedPath.GetPathType() & PATHFIND_SHORT)
                     return SPELL_FAILED_NOPATH;

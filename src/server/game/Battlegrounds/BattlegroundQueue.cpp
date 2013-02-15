@@ -26,7 +26,6 @@
 #include "Language.h"
 #include "ObjectMgr.h"
 #include "Player.h"
-#include "World.h"
 
 /*********************************************************/
 /***            BATTLEGROUND QUEUE SYSTEM              ***/
@@ -408,9 +407,6 @@ void BattlegroundQueue::RemovePlayer(uint64 guid, bool decreaseInvitedCount)
 //returns true when player pl_guid is in queue and is invited to bgInstanceGuid
 bool BattlegroundQueue::IsPlayerInvited(uint64 pl_guid, const uint32 bgInstanceGuid, const uint32 removeTime)
 {
-	    if (Player *player = ObjectAccessor::FindPlayer(pl_guid))
-        return true;
-
     QueuedPlayersMap::const_iterator qItr = m_QueuedPlayers.find(pl_guid);
     return (qItr != m_QueuedPlayers.end()
         && qItr->second.GroupInfo->IsInvitedToBGInstanceGUID == bgInstanceGuid
@@ -637,39 +633,26 @@ bool BattlegroundQueue::CheckPremadeMatch(BattlegroundBracketId bracket_id, uint
 // this method tries to create battleground or arena with MinPlayersPerTeam against MinPlayersPerTeam
 bool BattlegroundQueue::CheckNormalMatch(Battleground* bg_template, BattlegroundBracketId bracket_id, uint32 minPlayers, uint32 maxPlayers)
 {
-
-  GroupsQueueType::const_iterator itr_team[BG_TEAMS_COUNT];
-  	for (uint32 i = 0; i < BG_TEAMS_COUNT; i++)
-	{
-		itr_team[i] = m_QueuedGroups[bracket_id][BG_QUEUE_NORMAL_ALLIANCE + i].begin();
-		for (; itr_team[i] != m_QueuedGroups[bracket_id][BG_QUEUE_NORMAL_ALLIANCE + i].end(); ++(itr_team[i]))
-		{
-			if (!(*(itr_team[i]))->IsInvitedToBGInstanceGUID)
-			{
-				    m_SelectionPools[i].AddGroup(*(itr_team[i]), maxPlayers);
-					if (m_SelectionPools[i].GetPlayerCount() >= minPlayers)
-						break;
-			}
-		}
-	}
-	
-    // allow 1v0 if debug bg
-    if (sBattlegroundMgr->isTesting() && bg_template->isBattleground() &&
-       (m_SelectionPools[TEAM_ALLIANCE].GetPlayerCount() || m_SelectionPools[TEAM_HORDE].GetPlayerCount()))
-        return true;
-
-    // If there are enough players to fill 2 teams with minplayerperteam count.
-    if (sWorld->getBoolConfig(CONFIG_BG_CROSSFRACTION) == 1 && bg_template->isBattleground() && 
-        m_SelectionPools[TEAM_ALLIANCE].GetPlayerCount() + m_SelectionPools[TEAM_HORDE].GetPlayerCount() > (minPlayers * 2))
-        return true; 
-	
-
+    GroupsQueueType::const_iterator itr_team[BG_TEAMS_COUNT];
+    for (uint32 i = 0; i < BG_TEAMS_COUNT; i++)
+    {
+        itr_team[i] = m_QueuedGroups[bracket_id][BG_QUEUE_NORMAL_ALLIANCE + i].begin();
+        for (; itr_team[i] != m_QueuedGroups[bracket_id][BG_QUEUE_NORMAL_ALLIANCE + i].end(); ++(itr_team[i]))
+        {
+            if (!(*(itr_team[i]))->IsInvitedToBGInstanceGUID)
+            {
+                m_SelectionPools[i].AddGroup(*(itr_team[i]), maxPlayers);
+                if (m_SelectionPools[i].GetPlayerCount() >= minPlayers)
+                    break;
+            }
+        }
+    }
     //try to invite same number of players - this cycle may cause longer wait time even if there are enough players in queue, but we want ballanced bg
     uint32 j = TEAM_ALLIANCE;
-     if (m_SelectionPools[TEAM_HORDE].GetPlayerCount() + m_SelectionPools[TEAM_ALLIANCE].GetPlayerCount() > 2)
+    if (m_SelectionPools[TEAM_HORDE].GetPlayerCount() > m_SelectionPools[TEAM_ALLIANCE].GetPlayerCount())
         j = TEAM_HORDE;
     if (sWorld->getIntConfig(CONFIG_BATTLEGROUND_INVITATION_TYPE) != 0
-        && m_SelectionPools[TEAM_HORDE].GetPlayerCount() >= minPlayers && m_SelectionPools[TEAM_ALLIANCE].GetPlayerCount() >= minPlayers)
+        && m_SelectionPools[TEAM_HORDE].GetPlayerCount() >= (minPlayers * 2) || m_SelectionPools[TEAM_ALLIANCE].GetPlayerCount() >= (minPlayers * 2))
     {
         //we will try to invite more groups to team with less players indexed by j
         ++(itr_team[j]);                                         //this will not cause a crash, because for cycle above reached break;
@@ -680,25 +663,14 @@ bool BattlegroundQueue::CheckNormalMatch(Battleground* bg_template, Battleground
                     break;
         }
         // do not allow to start bg with more than 2 players more on 1 faction
-	   if (/*sWorld->getBoolConfig(CONFIG_BG_CROSSFRACTION) == 1 && */bg_template->isBattleground())
-	   {
-	   			if (abs((int32)(m_SelectionPools[TEAM_HORDE].GetPlayerCount() + m_SelectionPools[TEAM_ALLIANCE].GetPlayerCount())) < 2) 
-				return false;
-	   }
-	   else
-	   {
-	   	   	if (abs((int32)(m_SelectionPools[TEAM_HORDE].GetPlayerCount() - m_SelectionPools[TEAM_ALLIANCE].GetPlayerCount())) > 1) 
-		    return false;
-        }	   
+        if (abs((int32)(m_SelectionPools[TEAM_HORDE].GetPlayerCount() + m_SelectionPools[TEAM_ALLIANCE].GetPlayerCount())) < 2)
+            return false;
     }
-    if (sWorld->getBoolConfig(CONFIG_BG_CROSSFRACTION) == 0)
-	{
-		//allow 1v0 if debug bg
-		if (sBattlegroundMgr->isTesting() && bg_template->isBattleground() && (m_SelectionPools[TEAM_ALLIANCE].GetPlayerCount() || m_SelectionPools[TEAM_HORDE].GetPlayerCount()))
-			return true;
-		//return true if there are enough players in selection pools - enable to work .debug bg command correctly
-		return m_SelectionPools[TEAM_ALLIANCE].GetPlayerCount() >= minPlayers && m_SelectionPools[TEAM_HORDE].GetPlayerCount() >= minPlayers;
-	} 
+    //allow 1v0 if debug bg
+    if (sBattlegroundMgr->isTesting() && bg_template->isBattleground() && (m_SelectionPools[TEAM_ALLIANCE].GetPlayerCount() || m_SelectionPools[TEAM_HORDE].GetPlayerCount()))
+        return true;
+    //return true if there are enough players in selection pools - enable to work .debug bg command correctly
+    return m_SelectionPools[TEAM_ALLIANCE].GetPlayerCount() >= minPlayers && m_SelectionPools[TEAM_HORDE].GetPlayerCount() >= minPlayers;
 }
 
 // this method will check if we can invite players to same faction skirmish match

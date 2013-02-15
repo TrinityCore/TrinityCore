@@ -2009,8 +2009,8 @@ uint8 Battleground::ClickFastStart(Player *player, GameObject *go)
             break;
     }
 
-  /*  if (Is1vs1())
-        playersNeeded = 2; */
+    if (sBattlegroundMgr->isTesting() && isArena())
+       playersNeeded = 2;
 
     if (m_playersWantsFastStart.size() == playersNeeded)
     {
