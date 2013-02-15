@@ -7662,6 +7662,9 @@ uint32 Player::GetZoneIdFromDB(uint64 guid)
         float posy = fields[2].GetFloat();
         float posz = fields[3].GetFloat();
 
+        if (!sMapStore.LookupEntry(map))
+            return 0;
+
         zone = sMapMgr->GetZoneId(map, posx, posy, posz);
 
         if (zone > 0)
