@@ -109,7 +109,7 @@ public:
                         // Drop 50% of threat
                         if (DoGetThreat(target))
                             DoModifyThreatPercent(target, -50);
-                        events.ScheduleEvent(EVENT_BLAST_WAVE, 12000);
+                        events.ScheduleEvent(EVENT_KNOCK_BACK, 30000);
                         break;
                     default:
                         break;
