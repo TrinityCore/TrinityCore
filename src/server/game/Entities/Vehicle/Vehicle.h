@@ -96,7 +96,7 @@ class Vehicle : public TransportBase
         Unit* _me;
         VehicleEntry const* _vehicleInfo;
         GuidSet vehiclePlayers;
-        
+
         uint32 _creatureEntry;         // Can be different than me->GetBase()->GetEntry() in case of players
         Status _status;
         Position m_lastShootPos;

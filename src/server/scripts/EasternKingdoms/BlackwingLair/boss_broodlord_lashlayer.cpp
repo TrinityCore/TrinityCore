@@ -118,7 +118,7 @@ public:
 
             if (EnterEvadeIfOutOfCombatArea(diff))
                 Talk(SAY_LEASH);
-            
+
             DoMeleeAttackIfReady();
         }
     };
