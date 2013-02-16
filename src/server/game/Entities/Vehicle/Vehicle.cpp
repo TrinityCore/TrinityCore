@@ -340,7 +340,7 @@ bool Vehicle::AddPassenger(Unit* unit, int8 seatId)
     SeatMap::iterator seat;
     sLog->outDebug(LOG_FILTER_VEHICLES, "Unit %s scheduling enter vehicle entry %u id %u dbguid %u seat %d", 
         unit->GetName().c_str(), _me->GetEntry(), _vehicleInfo->m_ID, _me->GetGUIDLow(), seatId);
-    VehicleJoinEvent* e = new VehicleJoinEvent(this, unit, seat);
+    VehicleJoinEvent* e = new VehicleJoinEvent(this, unit);
     unit->m_Events.AddEvent(e, unit->m_Events.CalculateTime(0));
     _pendingJoinEvents.push_back(e);
 
@@ -355,6 +355,8 @@ bool Vehicle::AddPassenger(Unit* unit, int8 seatId)
             CancelJoinEvent(e);
             return false;
         }
+
+        e->Seat = seat;
     }
     else
     {
@@ -365,6 +367,7 @@ bool Vehicle::AddPassenger(Unit* unit, int8 seatId)
             return false;
         }
 
+        e->Seat = seat;
         if (seat->second.Passenger)
         {
             if (Unit* passenger = ObjectAccessor::GetUnit(*GetBase(), seat->second.Passenger))
