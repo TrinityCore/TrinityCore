@@ -339,7 +339,7 @@ bool Vehicle::AddPassenger(Unit* unit, int8 seatId)
     // asynchronously, so it can be cancelled easily in case the vehicle is uninstalled meanwhile.
     SeatMap::iterator seat;
     sLog->outDebug(LOG_FILTER_VEHICLES, "Unit %s scheduling enter vehicle entry %u id %u dbguid %u seat %d", 
-        unit->GetName().c_str(), _me->GetEntry(), _vehicleInfo->m_ID, _me->GetGUIDLow(), (int32)seat->first);
+        unit->GetName().c_str(), _me->GetEntry(), _vehicleInfo->m_ID, _me->GetGUIDLow(), seatId);
     VehicleJoinEvent* e = new VehicleJoinEvent(this, unit, seat);
     unit->m_Events.AddEvent(e, unit->m_Events.CalculateTime(0));
     _pendingJoinEvents.push_back(e);
