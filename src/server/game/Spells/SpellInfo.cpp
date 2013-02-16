@@ -2005,7 +2005,11 @@ uint32 SpellInfo::CalcCastTime(Unit* caster, Spell* spell) const
            if (castTime > 10 && caster && caster->GetTypeId() == TYPEID_PLAYER)
                 if (Battleground *bg = caster->ToPlayer()->GetBattleground())
                     if (bg->isArena() && bg->GetStartDelayTime() > 7500)
-                        return 10;
+                        return 100;
+
+           if (caster && caster->GetTypeId() == TYPEID_PLAYER && caster->GetAreaId() == 3317)
+                 if (castTime == 5000 || castTime == 4000)
+                        return 100;
 
     if (Attributes & SPELL_ATTR0_REQ_AMMO && (!IsAutoRepeatRangedSpell()))
         castTime += 500;

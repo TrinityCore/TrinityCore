@@ -49,7 +49,7 @@ void TargetedMovementGeneratorMedium<T,D>::_setTargetLocation(T* owner, bool upd
             dist_min = i_target->GetCombatReach() - (i_target->GetObjectSize() + 2.5f);   // Get min Dist
 
             if (dist_min == 0) 
-               dist_min = 0.5f;
+               dist_min = 0.2f;
             // to nearest contact position
             i_target->GetContactPoint(owner, x, y, z, dist_min);
         }
@@ -64,12 +64,12 @@ void TargetedMovementGeneratorMedium<T,D>::_setTargetLocation(T* owner, bool upd
             // Only applies when i_target is pet's owner otherwise pets and mobs end up
             //   doing a "dance" while fighting
             if (owner->isPet() && i_target->GetTypeId() == TYPEID_PLAYER)
-                dist = i_target->GetCombatReach() - (i_target->GetObjectSize() + 1.5f);
+                dist = i_target->GetCombatReach() - (i_target->GetObjectSize() + 2.5f);
             else
-                dist = i_offset - 0.5f;
+                dist = owner->GetCombatReach() + i_offset + 1.5f;
 
            if (dist == 0)
-              dist = 0.5f;
+              dist = 0.2f;
 
             if (i_target->IsWithinDistInMap(owner, dist))
                 i_target->GetContactPoint(owner, x, y, z, dist);
