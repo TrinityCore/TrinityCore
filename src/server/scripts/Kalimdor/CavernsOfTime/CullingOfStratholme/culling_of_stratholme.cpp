@@ -75,14 +75,14 @@ enum Says
     SAY_PHASE503                                = 37,
     SAY_PHASE504                                = 38,
 
-    //Malganis
+    //Mal'Ganis
     SAY_PHASE206                                = 0,
     SAY_PHASE207                                = 1,
 
-    //Epoch
+    //Chrono-Lord Epoch
     SAY_PHASE314                                = 0,
 
-    //Uther
+    //Uther The Lightbringer
     SAY_PHASE102                                = 0,
     SAY_PHASE105                                = 1,
     SAY_PHASE107                                = 2,
@@ -90,19 +90,19 @@ enum Says
     SAY_PHASE111                                = 4,
     SAY_PHASE115                                = 5,
 
-    //Jaina
+    //Lady Jaina Proudmoore
     SAY_PHASE113                                = 0,
     SAY_PHASE117                                = 1,
 
-    //Cityman
+    //Cityman?
     SAY_PHASE202                                = 0,
 
-    //Crazyman
+    //Crazyman?
     SAY_PHASE204                                = 0,
 
     //Drakonian
     SAY_PHASE302                                = 0,
-    SAY_PHASE305                                = 1,
+    SAY_PHASE305                                = 1
 };
 
 enum NPCs
@@ -135,7 +135,7 @@ enum NPCs
     NPC_AGITATED_STRATHOLME_CITIZEN            = 31126,
     NPC_AGITATED_STRATHOLME_RESIDENT           = 31127,
 
-    NPC_INVISIBLE_STALKER                      = 29100,
+    NPC_INVISIBLE_STALKER                      = 29100
 };
 
 enum EncounterData
@@ -215,7 +215,7 @@ float const WavesLocations[ENCOUNTER_WAVES_NUMBER][ENCOUNTER_WAVES_MAX_SPAWNS][5
 };
 
 // Locations for rifts to spawn and draconians to go
-float RiftAndSpawnsLocations[ENCOUNTER_CHRONO_SPAWNS][5]=
+float const RiftAndSpawnsLocations[ENCOUNTER_CHRONO_SPAWNS][5]=
 {
     {NPC_TIME_RIFT, 2431.790039f, 1190.670044f, 148.076004f, 0.187923f},
     {NPC_INFINITE_ADVERSARY, 2433.857910f, 1185.612061f, 148.075974f, 4.566168f},
@@ -238,28 +238,37 @@ float RiftAndSpawnsLocations[ENCOUNTER_CHRONO_SPAWNS][5]=
     {NPC_CHRONO_LORD_EPOCH, 2451.809326f, 1112.901245f, 149.220459f, 3.363617f}
 };
 
-// These are the menus of the gossip its self.
 enum GossipMenuChromieStart
 {
-   GOSSIP_MENU_CHROMIE_START_1      = 100001, // Welcome, adventurer. Youve come just in the nick of time.
-   GOSSIP_MENU_CHROMIE_START_2      = 100002, // The infinite Dragonflight is attempting to alter the destiny of Prince Arthas Menethil. ... (Too much to include)
-   GOSSIP_MENU_CHROMIE_START_3      = 100003, // Arthas gave the order to cull stratholme, killing every single human within its walls.
-   GOSSIP_MENU_CHROMIE_START_4      = 100004, // The infinites are attempting something unusually subtle for then. They are trying to hide the evidence that will lead to Arthas deciding to cull Stratholme. ... (Too much to include)
-   GOSSIP_MENU_CHROMIE_START_COND_1 = 100005, // Thats right, I have seen you before! How could I forget? I can teleport you to Stratholme now, if you wish.
-   GOSSIP_MENU_CHROMIE_START_5      = 100006  ///[RESEARCH ME]What are you doing back here blalhalblah
+   GOSSIP_MENU_CHROMIE_START_JUST_IN_THE_NICK_OF_TIME      = 12939, //[1A]Welcome, adventurer. You've come just in the nick of time.
+   GOSSIP_MENU_CHROMIE_START_ATTEMPTING_TO_ALTER_DESTINY   = 12949, //[2A]The infinite Dragonflight is attempting to alter the destiny of Prince Arthas Menethil.
+   GOSSIP_MENU_CHROMIE_START_ARTHAS_GAVE_THE_ORDER_TO_CULL = 12950, //[3A]Arthas gave the order to cull stratholme, killing every single human within its walls.
+   GOSSIP_MENU_CHROMIE_START_SOMETHING_UNUSUALLY_SUBTLE    = 12952, //[4A]The infinites are attempting something unusually subtle for theM. They are trying to hide the evidence that will lead to Arthas deciding to cull Stratholme.
+   GOSSIP_MENU_CHROMIE_START_FIND_HIDDEN_PLAUGED_CRATES    = 13471, //[1C]Go find those hidden plagued grain crates and use your Arcane Disruptor on them! Arthas will then have the evidence he needs to begin the culling of Stratholme.
+   GOSSIP_MENU_CHROMIE_START_YOU_SHOULD_BE_WITH_ARTHAS_GO  = 13472, //[2C]What are you doing here? Arthas is at the entrance to Stratholme right now and you should be with him! Go!
+   GOSSIP_MENU_CHROMIE_START_GET_BACK_TO_STRATHOLME        = 13470, //[3D]What are you doing all the way back here? You need to get back to Stratholme immediately! Shall I teleport you to stratholme?                                              
+   
+   GOSSIP_MENU_CHROMIE_START_I_HAVE_SEEN_YOU_BEFORE        = 13473  //[1D]Thats right, I have seen you before! How could I forget? I can teleport you to Stratholme now, if you wish.
 };
 
-// Used when a player can select "Yes, Please!", this will teleport said player to King's Squire.
-// 2071.8159f, 1287.34216f, 141.6825f, 0.021476f
+#define GOSSIP_MENU_OPTION_CHROMIE_START_1A "Why have I been sent back to this particular place and time?"
+#define GOSSIP_MENU_OPTION_CHROMIE_START_2A "What was this decision?"
+#define GOSSIP_MENU_OPTION_CHROMIE_START_3A "So how does the Infinite Dragonflight plan to interfere?"
+#define GOSSIP_MENU_OPTION_CHROMIE_START_1B "Chromie, you and I both know what's going to happen in this time stream. We've seen this all before.$B$BCan you just skip us ahead to all the real action?"
+#define GOSSIP_MENU_OPTION_CHROMIE_START_1C "Yes, Please!"
 
-// These are options for the players to select
-#define GOSSIP_ITEM_CHROMIE_START_1 "Why have I been sent back to this particular place and time?"
-#define GOSSIP_ITEM_CHROMIE_START_2 "What was this decision?"
-#define GOSSIP_ITEM_CHROMIE_START_3 "So how does the infinite Dragonflight plan to interfere?"
-#define GOSSIP_ITEM_CHROMIE_START_1_COND "Chromie, you and I both know what's going to happen in this time stream. We've seen this all before.$B$BCan you just skip us ahead to all the real action?"
-//#define GOSSIP_ITEM_CHROMIE_START_4 "Yes, Please!" // This is in the database. // Teleport clicker to xyzo
+enum InstanceQuests
+{
+    QUEST_DISPELLING_ILLUSIONS = 13149,
+    QUEST_A_ROYAL_ESCORT       = 13151
+};
 
-class npc_chromie_start: public CreatureScript
+enum InstanceItems
+{
+    ITEM_ARCANE_DISRUPTOR = 37888
+};
+
+class npc_chromie_start : public CreatureScript
 {
     public:
         npc_chromie_start() : CreatureScript("npc_chromie_start_cos") { }
@@ -269,12 +278,24 @@ class npc_chromie_start: public CreatureScript
             npc_chromie_startAI(Creature* creature) : ScriptedAI(creature)
             {
                 instance = creature->GetInstanceScript();
-                _isCrateProgressViewable = false;
+            }
+
+            CreatureAI* GetAI(Creature* creature) const
+            {
+                return new npc_chromie_startAI(creature);
             }
 
             InstanceScript* instance;
 
-            bool OnGossipSelect(Player* player, Creature* creature, uint32 sender, uint32 action)
+            bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest)
+            {
+                if (instance->GetData(DATA_CRATE_EVENT) == NOT_STARTED && quest->GetQuestId() == QUEST_DISPELLING_ILLUSIONS && !player->HasItemCount(ITEM_ARCANE_DISRUPTOR))
+                    player->AddItem(ITEM_ARCANE_DISRUPTOR, 1);
+
+                return true;
+            }
+
+            bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
             {
                 player->PlayerTalkClass->ClearMenus();
                 npc_chromie_startAI* ai = CAST_AI(npc_chromie_start::npc_chromie_startAI, creature->AI());
@@ -285,29 +306,41 @@ class npc_chromie_start: public CreatureScript
                 switch(action)
                 {
                     case GOSSIP_ACTION_INFO_DEF+1:
-                        player->SEND_GOSSIP_MENU(GOSSIP_MENU_CHROMIE_START_2, creature->GetGUID());
-                        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_CHROMIE_START_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
+                        player->SEND_GOSSIP_MENU(GOSSIP_MENU_CHROMIE_START_ATTEMPTING_TO_ALTER_DESTINY, creature->GetGUID());
+                        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_MENU_OPTION_CHROMIE_START_2A, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
                         break;
                     case GOSSIP_ACTION_INFO_DEF+2:
-                        player->SEND_GOSSIP_MENU(GOSSIP_MENU_CHROMIE_START_3, creature->GetGUID());
-                        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_CHROMIE_START_3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+3);
+                        player->SEND_GOSSIP_MENU(GOSSIP_MENU_CHROMIE_START_ARTHAS_GAVE_THE_ORDER_TO_CULL, creature->GetGUID());
+                        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_MENU_OPTION_CHROMIE_START_3A, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+3);
                         break;
                     case GOSSIP_ACTION_INFO_DEF+3:
-                        player->SEND_GOSSIP_MENU(GOSSIP_MENU_CHROMIE_START_4, creature->GetGUID());
-                        _isCrateProgressViewable = true;
-                        /*give player ArcaneDisruptor*/
-                        instance->SetData(DATA_CHROMIE_EVENT, IN_PROGRESS);
+                        player->SEND_GOSSIP_MENU(GOSSIP_MENU_CHROMIE_START_SOMETHING_UNUSUALLY_SUBTLE, creature->GetGUID());
+                        if (instance->GetData(DATA_CRATE_EVENT) == NOT_STARTED)
+                        {
+                            player->AddItem(ITEM_ARCANE_DISRUPTOR, 1);
+                            instance->SetData(DATA_CRATE_EVENT, IN_PROGRESS);
+                        }
                         break;
-                    case GOSSIP_ACTION_INFO_DEF+4:
-                        instance->SetData(DATA_CHROMIE_EVENT, DONE);
+                    case GOSSIP_ACTION_INFO_DEF+4: /// @todo: 
+                        instance->SetData(DATA_CRATE_EVENT, DONE);
                         instance->SetData(DATA_INITIAL_RP_EVENT, DONE);
                         instance->SetData(DATA_MEATHOOK_EVENT, IN_PROGRESS);
-                        //how to make arthas and his minions spawn at King's Squire...?
+                        break;
+                    case GOSSIP_ACTION_INFO_DEF+5:
+                        player->SEND_GOSSIP_MENU(GOSSIP_MENU_CHROMIE_START_I_HAVE_SEEN_YOU_BEFORE, creature->GetGUID());
+                        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_MENU_OPTION_CHROMIE_START_1C, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+7);
+                    case GOSSIP_ACTION_INFO_DEF+6:
+                    case GOSSIP_ACTION_INFO_DEF+7:
+                        player->PlayerTalkClass->SendCloseGossip;
+                        DoTeleportPlayer(player, 2071.8159f, 1287.34216f, 141.6825f, 0.021476f);
+                        break;
+                    default:
                         break;
                 }
+
+                return true;
             }
 
-            //todo quest
             bool OnGossipHello(Player* player, Creature* creature)
             {
                 npc_chromie_startAI* ai = CAST_AI(npc_chromie_start::npc_chromie_startAI, creature->AI());
@@ -315,52 +348,43 @@ class npc_chromie_start: public CreatureScript
                 if (!ai)
                     return false;
 
-                // Only show if the crate count isn't active and initial RP event hasn't finished
-                if (!_isCrateProgressViewable && instance->GetData(DATA_INITIAL_RP_EVENT) != DONE)
+                if (instance->GetData(DATA_CRATE_EVENT) == NOT_STARTED)
                 {
-                    player->SEND_GOSSIP_MENU(GOSSIP_MENU_CHROMIE_START_1, creature->GetGUID());
-                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_CHROMIE_START_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+                    player->SEND_GOSSIP_MENU(GOSSIP_MENU_CHROMIE_START_JUST_IN_THE_NICK_OF_TIME, creature->GetGUID());
+                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_MENU_OPTION_CHROMIE_START_1A, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
 
-                    //Only viewable to the players that have completed all bosses in instance
                     if (player->HasAchieved(ACHIEVEMENT_THE_CULLING_OF_STRATHOLME))
-                        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_CHROMIE_START_1_COND, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+4);
+                        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_MENU_OPTION_CHROMIE_START_1B, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+5);
                 }
-                // Only show if the initial RP event has completed
-                if (instance->GetData(DATA_INITIAL_RP_EVENT) == DONE)
+                if (instance->GetData(DATA_CRATE_EVENT) == IN_PROGRESS)
+                    player->SEND_GOSSIP_MENU(GOSSIP_MENU_CHROMIE_START_FIND_HIDDEN_PLAUGED_CRATES, creature->GetGUID());
+                if (instance->GetData(DATA_MEATHOOK_EVENT) == NOT_STARTED && instance->GetData(DATA_CRATE_EVENT) == DONE)
                 {
-                    player->SEND_GOSSIP_MENU(GOSSIP_MENU_CHROMIE_START_5, creature->GetGUID());
+                    player->SEND_GOSSIP_MENU(GOSSIP_MENU_CHROMIE_START_GET_BACK_TO_STRATHOLME, creature->GetGUID());
+                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_MENU_OPTION_CHROMIE_START_1C, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+6);
                 }
 
-                return false;
+                return true;
             }
-
-        private:
-            bool _isCrateProgressViewable;
         };
-
-        CreatureAI* GetAI(Creature* creature) const
-        {
-            return new npc_chromie_startAI(creature);
-        }
 };
 
-enum Spells
+enum ArthasSpells
 {
-    SPELL_FEAR                                 = 39176,
-    SPELL_ARTHAS_AURA                          = 52442,
-    SPELL_EXORCISM_N                           = 52445,
-    SPELL_EXORCISM_H                           = 58822,
-    SPELL_HOLY_LIGHT                           = 52444,
-    SPELL_ARCANE_DISRUPTION                    = 49590,
+    SPELL_FEAR               = 39176,
+    SPELL_ARTHAS_AURA        = 52442,
+    SPELL_EXORCISM_N         = 52445,
+    SPELL_EXORCISM_H         = 58822,
+    SPELL_HOLY_LIGHT         = 52444
 };
 
 enum GossipMenuArthas
 {
-   GOSSIP_MENU_ARTHAS_1                        = 100001,
-   GOSSIP_MENU_ARTHAS_2                        = 100002,
-   GOSSIP_MENU_ARTHAS_3                        = 100003,
-   GOSSIP_MENU_ARTHAS_4                        = 100004,
-   GOSSIP_MENU_ARTHAS_5                        = 100005
+   GOSSIP_MENU_ARTHAS_1      = 100001,
+   GOSSIP_MENU_ARTHAS_2      = 100002,
+   GOSSIP_MENU_ARTHAS_3      = 100003,
+   GOSSIP_MENU_ARTHAS_4      = 100004,
+   GOSSIP_MENU_ARTHAS_5      = 100005
 };
 
 #define GOSSIP_ITEM_ARTHAS_1 "Yes, my Prince. We're ready."
@@ -403,6 +427,8 @@ public:
             case GOSSIP_ACTION_INFO_DEF+5:
                 ai->bStepping = true;
                 ai->step = 85;
+                break;
+            default:
                 break;
         }
         player->CLOSE_GOSSIP_MENU();
@@ -464,11 +490,11 @@ public:
 
         bool bStepping;
         uint32 step;
-        uint32 phaseTimer;
-        uint32 gossipStep;
+        uint16 phaseTimer;
         uint32 playerFaction;
         uint32 bossEvent;
-        uint32 wave;// move to instance
+        uint8 gossipStep;
+        uint8 wave;
 
         uint64 citymenGUID[2];
         uint64 waveGUID[ENCOUNTER_WAVES_MAX_SPAWNS];
@@ -513,7 +539,7 @@ public:
 
         void EnterCombat(Unit* /*who*/)
         {
-            //Check encounter progress & Arthas' auras
+            if (instance->GetData(DATA_SALRAMM_EVENT) == DONE && !me->HasAura(SPELL_ARTHAS_AURA))
             DoCast(me, SPELL_ARTHAS_AURA);
         }
 
@@ -819,7 +845,7 @@ public:
                             break;
                         //After waypoint 3
                         case 22:
-                            Talk(SAY_PHASE118);
+                            Talk(SAY_PHASE118); //Take position here, and I will lead a small force inside Stratholme to begin the culling. We must contain and purge the infected for the sake of all of Lordaeron!
                             //me->SetTarget(jainaGUID);
                             JumpToNextStep(10000);
                             break;
@@ -882,10 +908,6 @@ public:
                         //After waypoint 10
                         case 30:
                             //Emote should be replaced with spellcast 50773
-                            /*KROGONOS 434 | 11:34 @ 2/14/2013
-                            me->HandleEmoteCommand(37);
-                            KROGONOS 434 | 11:34 @ 2/14/2013*/
-
                             JumpToNextStep(1000);
                             break;
                         case 31:
@@ -903,10 +925,6 @@ public:
                             break;
                         //After waypoint 11
                         case 32:
-                            /*KROGONOS 434 | 11:34 @ 2/14/2013
-                            me->HandleEmoteCommand(37);
-                            KROGONOS 434 | 11:34 @ 2/14/2013*/
-
                             JumpToNextStep(1000);
                             break;
                         case 33:
@@ -981,7 +999,6 @@ public:
                             bossEvent = DATA_MEATHOOK_EVENT;
                             if (instance)
                             {
-                                instance->SetData(DATA_INITIAL_RP_EVENT, DONE);
                                 instance->SetData(DATA_ARTHAS_EVENT, IN_PROGRESS);
                             }
 
@@ -1339,6 +1356,11 @@ public:
         }
     };
 
+};
+
+enum CrateSpells
+{
+    SPELL_ARCANE_DISRUPTION  = 49590
 };
 
 // This needs to be criticized (a little more)

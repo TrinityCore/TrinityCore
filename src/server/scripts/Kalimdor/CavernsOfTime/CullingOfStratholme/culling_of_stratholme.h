@@ -20,7 +20,7 @@
 
 enum Data
 {
-    DATA_CHROMIE_EVENT,
+    DATA_CRATE_EVENT,
     DATA_CRATE_COUNT,
     DATA_INITIAL_RP_EVENT,
     DATA_MEATHOOK_EVENT,
@@ -28,7 +28,7 @@ enum Data
     DATA_EPOCH_EVENT,
     DATA_MAL_GANIS_EVENT,
     DATA_INFINITE_CORRUPTOR_EVENT,
-    DATA_ARTHAS_EVENT,
+    DATA_ARTHAS_EVENT
 };
 
 enum Data64
@@ -83,14 +83,9 @@ enum WorldStatesCoS
     WORLDSTATE_TIME_GUARDIAN_SHOW  = 3932
 };
 
-enum CrateSpells
-{
-    SPELL_CRATES_CREDIT     = 58109
-};
-
 enum Achievements
 {
-    ACHIEVEMENT_THE_CULLING_OF_STRATHOLME = 479,  //(Reg Version)Kill Meathook, Salramm the Fleshcrafter, Chrono-Lord Epoch and Mal'Ganis
+    ACHIEVEMENT_THE_CULLING_OF_STRATHOLME =  479, //(Reg Version)Kill Meathook, Salramm the Fleshcrafter, Chrono-Lord Epoch and Mal'Ganis
     ACHIEVEMENT_CULLING_OF_STRATHOLME     = 1817, //(Heroic Only)Kill the Infinite Corruptor
     ACHIEVEMENT_ZOMBIEFEST                = 1872  //(Heroic Only)Kill 100 Risen Zombies in 60 seconds
 };

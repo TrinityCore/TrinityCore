@@ -23,8 +23,6 @@
 #include "TemporarySummon.h"
 #include "SpellInfo.h"
 
-#define MAX_EVENTS 7
-
 /* Culling of Stratholme encounters:
 0 - Meathook
 1 - Salramm the Fleshcrafter
@@ -33,9 +31,19 @@
 4 - Infinite Corruptor (Heroic only)
 */
 
+enum MaxEvents
+{
+    MAX_EVENTS = 7
+};
+
 enum Texts
 {
-    SAY_CRATES_COMPLETED    = 0,
+    SAY_CRATES_COMPLETED    = 0
+};
+
+enum CrateSpells
+{
+    SPELL_CRATES_CREDIT     = 58109
 };
 
 Position const ChromieMiddleSummonPos = {1813.298f, 1283.578f, 142.3258f, 3.878161f};
@@ -67,7 +75,7 @@ class instance_culling_of_stratholme : public InstanceMapScript
                 _totallyGenericBunnyGUID = 0;
                 memset(&_encounterState[0], 0, sizeof(uint32) * MAX_EVENTS);
                 _crateCount = 0;
-                //_waveCount = 1;
+                //_wave = 1;
             }
 
             bool IsEncounterInProgress() const
@@ -140,48 +148,28 @@ class instance_culling_of_stratholme : public InstanceMapScript
                 }
             }
 
-            //[DWF]If problems arise, check here first
             void SetData(uint32 type, uint32 data)
             {
                 switch (type)
                 {
-                    case DATA_CHROMIE_EVENT:
+                    case DATA_CRATE_EVENT:
                         _encounterState[0] = data;
-
-                        switch (_encounterState[0])
-                        {
-                            case IN_PROGRESS:
-                                //Show crates
-                                DoUpdateWorldState(WORLDSTATE_SHOW_CRATES, 1);
-                                break;
-                        }
+                        if (_encounterState[0] == IN_PROGRESS)
+                            DoUpdateWorldState(WORLDSTATE_SHOW_CRATES, 1);
                         break;
                    case DATA_CRATE_COUNT:
                         _crateCount = data;
-                        //All crates dispelled?
                         if (_crateCount == 5)
                         {
                             if (Creature* bunny = instance->GetCreature(_totallyGenericBunnyGUID))
                                 bunny->CastSpell(bunny, SPELL_CRATES_CREDIT, true);
                         }
-                        // todo: check instance status before hand
-                        if (Creature* chromie = instance->SummonCreature(NPC_CHROMIE_MIDDLE, ChromieMiddleSummonPos))
--                                if (!instance->GetPlayers().isEmpty())
--                                    if (Player* player = instance->GetPlayers().getFirst()->getSource())
--                                        sCreatureTextMgr->SendChat(chromie, SAY_CRATES_COMPLETED, player->GetGUID(), CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_MAP);
-                        //Otherwise show how many we've got so far
                         DoUpdateWorldState(WORLDSTATE_CRATES_REVEALED, _crateCount);
                         break;
                     case DATA_INITIAL_RP_EVENT:
                        _encounterState[1] = data;
-                       
-                       switch (_encounterState[1])
-                       {
-                           case IN_PROGRESS:
-                               //Hide crates
-                               DoUpdateWorldState(WORLDSTATE_SHOW_CRATES, 0);
-                               break;
-                       }
+                       if (_encounterState[1] == IN_PROGRESS)
+                           DoUpdateWorldState(WORLDSTATE_SHOW_CRATES, 0);
                         break;
                     case DATA_MEATHOOK_EVENT:
                         _encounterState[2] = data;
@@ -223,7 +211,7 @@ class instance_culling_of_stratholme : public InstanceMapScript
             {
                 switch (type)
                 {
-                    case DATA_CHROMIE_EVENT:
+                    case DATA_CRATE_EVENT:
                         return _encounterState[0];
                     case DATA_INITIAL_RP_EVENT:
                         return _encounterState[1];
@@ -239,6 +227,8 @@ class instance_culling_of_stratholme : public InstanceMapScript
                         return _encounterState[6];
                     case DATA_CRATE_COUNT:
                         return _crateCount;
+                    default:
+                        break;
                 }
                 return 0;
             }
@@ -267,6 +257,8 @@ class instance_culling_of_stratholme : public InstanceMapScript
                         return _exitGateGUID;
                     case DATA_MAL_GANIS_CHEST:
                         return _malGanisChestGUID;
+                    default:
+                        break;
                 }
                 return 0;
             }

@@ -25485,7 +25485,7 @@ bool Player::AddItem(uint32 itemId, uint32 count)
 
     if (count == 0 || dest.empty())
     {
-        // -- TODO: Send to mailbox if no space
+        /// @todo: Send item to mailbox if there's no space available
         ChatHandler(GetSession()).PSendSysMessage("You don't have any space in your bags.");
         return false;
     }
