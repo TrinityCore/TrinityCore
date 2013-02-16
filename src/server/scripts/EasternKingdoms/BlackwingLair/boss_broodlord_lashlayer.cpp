@@ -121,6 +121,9 @@ public:
 
             DoMeleeAttackIfReady();
         }
+
+        private:
+            EventMap events; /// @todo: change BWL to instance script and bosses to BossAI
     };
 };
 
