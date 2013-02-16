@@ -105,10 +105,13 @@ public:
                         events.ScheduleEvent(EVENT_BLAST_WAVE, 12000);
                         break;
                     case EVENT_KNOCK_BACK:
-                        DoCastVictim(SPELL_BLAST_WAVE);
-                        // Drop 50% of threat
-                        if (DoGetThreat(target))
-                            DoModifyThreatPercent(target, -50);
+                        if (Unit* target = me->getVictim())
+                        {
+                            DoCast(target, SPELL_BLAST_WAVE);
+                            // Drop 50% of threat
+                            if (DoGetThreat(target))
+                                DoModifyThreatPercent(target, -50);
+                        }
                         events.ScheduleEvent(EVENT_KNOCK_BACK, 30000);
                         break;
                     default:
