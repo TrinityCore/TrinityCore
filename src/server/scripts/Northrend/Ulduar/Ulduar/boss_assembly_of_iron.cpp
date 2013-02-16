@@ -771,9 +771,9 @@ class mob_rune_of_power : public CreatureScript
     public:
         mob_rune_of_power() : CreatureScript("mob_rune_of_power") {}
 
-        struct mob_rune_of_powerAI : public Scripted_NoMovementAI
+        struct mob_rune_of_powerAI : public ScriptedAI
         {
-            mob_rune_of_powerAI(Creature* creature) : Scripted_NoMovementAI(creature)
+            mob_rune_of_powerAI(Creature* creature) : ScriptedAI(creature)
             {
                 me->SetInCombatWithZone();
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);

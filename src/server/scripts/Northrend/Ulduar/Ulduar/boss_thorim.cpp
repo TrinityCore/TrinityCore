@@ -1393,9 +1393,9 @@ class npc_runic_smash : public CreatureScript
     public:
         npc_runic_smash() : CreatureScript("npc_runic_smash") {}
 
-        struct npc_runic_smashAI : public Scripted_NoMovementAI
+        struct npc_runic_smashAI : public ScriptedAI
         {
-            npc_runic_smashAI(Creature* creature) : Scripted_NoMovementAI(creature)
+            npc_runic_smashAI(Creature* creature) : ScriptedAI(creature)
             {
                 me->SetReactState(REACT_PASSIVE);
                 me->SetDisplayId(me->GetCreatureTemplate()->Modelid2);

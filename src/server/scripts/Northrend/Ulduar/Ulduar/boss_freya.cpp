@@ -298,9 +298,9 @@ class npc_iron_roots : public CreatureScript
     public:
         npc_iron_roots() : CreatureScript("npc_iron_roots") {}
 
-        struct npc_iron_rootsAI : public Scripted_NoMovementAI
+        struct npc_iron_rootsAI : public ScriptedAI
         {
-            npc_iron_rootsAI(Creature* creature) : Scripted_NoMovementAI(creature) {}
+            npc_iron_rootsAI(Creature* creature) : ScriptedAI(creature) {}
 
             void InitializeAI()
             {
@@ -1690,9 +1690,9 @@ class npc_sun_beam : public CreatureScript
     public:
         npc_sun_beam() : CreatureScript("npc_sun_beam") {}
 
-        struct npc_sun_beamAI : public Scripted_NoMovementAI
+        struct npc_sun_beamAI : public ScriptedAI
         {
-            npc_sun_beamAI(Creature* creature) : Scripted_NoMovementAI(creature) {}
+            npc_sun_beamAI(Creature* creature) : ScriptedAI(creature) {}
 
             void InitializeAI()
             {
@@ -1722,9 +1722,9 @@ class npc_healthy_spore : public CreatureScript
     public:
         npc_healthy_spore() : CreatureScript("npc_healthy_spore") {}
 
-        struct npc_healthy_sporeAI : public Scripted_NoMovementAI
+        struct npc_healthy_sporeAI : public ScriptedAI
         {
-            npc_healthy_sporeAI(Creature* creature) : Scripted_NoMovementAI(creature)
+            npc_healthy_sporeAI(Creature* creature) : ScriptedAI(creature)
             {
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC);
             }
@@ -1773,9 +1773,9 @@ class npc_eonars_gift : public CreatureScript
     public:
         npc_eonars_gift() : CreatureScript("npc_eonars_gift") {}
 
-        struct npc_eonars_giftAI : public Scripted_NoMovementAI
+        struct npc_eonars_giftAI : public ScriptedAI
         {
-            npc_eonars_giftAI(Creature* creature) : Scripted_NoMovementAI(creature) {}
+            npc_eonars_giftAI(Creature* creature) : ScriptedAI(creature) {}
 
             void Reset()
             {
@@ -1830,9 +1830,9 @@ class npc_nature_bomb : public CreatureScript
     public:
         npc_nature_bomb() : CreatureScript("npc_nature_bomb") {}
 
-        struct npc_nature_bombAI : public Scripted_NoMovementAI
+        struct npc_nature_bombAI : public ScriptedAI
         {
-            npc_nature_bombAI(Creature* creature) : Scripted_NoMovementAI(creature) {}
+            npc_nature_bombAI(Creature* creature) : ScriptedAI(creature) {}
 
             void Reset()
             {
@@ -1876,9 +1876,9 @@ class npc_unstable_sun_beam : public CreatureScript
     public:
         npc_unstable_sun_beam() : CreatureScript("npc_unstable_sun_beam") {}
 
-        struct npc_unstable_sun_beamAI : public Scripted_NoMovementAI
+        struct npc_unstable_sun_beamAI : public ScriptedAI
         {
-            npc_unstable_sun_beamAI(Creature* creature) : Scripted_NoMovementAI(creature) {}
+            npc_unstable_sun_beamAI(Creature* creature) : ScriptedAI(creature) {}
 
             void Reset()
             {

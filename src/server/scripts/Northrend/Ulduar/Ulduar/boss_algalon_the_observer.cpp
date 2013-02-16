@@ -344,7 +344,7 @@ class boss_algalon_the_observer : public CreatureScript
                         DoCast(me, SPELL_RIDE_THE_LIGHTNING, true);
                         me->GetMotionMaster()->MovePoint(POINT_ALGALON_LAND, AlgalonLandPos);
                         me->SetHomePosition(AlgalonLandPos);
-                        Movement::MoveSplineInit init(*me);
+                        Movement::MoveSplineInit init(me);
                         init.MoveTo(AlgalonLandPos.GetPositionX(), AlgalonLandPos.GetPositionY(), AlgalonLandPos.GetPositionZ());
                         init.SetOrientationFixed(true);
                         init.Launch();
@@ -978,9 +978,9 @@ class npc_algalon_asteroid_target : public CreatureScript
     public:
         npc_algalon_asteroid_target() : CreatureScript("npc_algalon_asteroid_target") { }
 
-        struct npc_algalon_asteroid_targetAI : public Scripted_NoMovementAI
+        struct npc_algalon_asteroid_targetAI : public ScriptedAI
         {
-            npc_algalon_asteroid_targetAI(Creature* creature) : Scripted_NoMovementAI(creature)
+            npc_algalon_asteroid_targetAI(Creature* creature) : ScriptedAI(creature)
             {
             }
 
