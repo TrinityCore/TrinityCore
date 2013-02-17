@@ -1,4 +1,4 @@
-sec/*
+/*
  * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
@@ -895,7 +895,7 @@ void BattlegroundMgr::SendToBattleground(Player* player, uint32 instanceId, Batt
         float x, y, z, O;
         uint32 mapid = bg->GetMapId();
 
-		if (!bg->isArena())
+		if (!bg->isArena()) //tu chybal pointer bg-> 
 		{
 			if (player->GetBGTeam() == ALLIANCE)
 				bg->GetTeamStartLoc(ALLIANCE, x, y, z, O);
@@ -904,7 +904,7 @@ void BattlegroundMgr::SendToBattleground(Player* player, uint32 instanceId, Batt
 				bg->GetTeamStartLoc(HORDE, x, y, z, O);
 		}
 		else
-           bg->GetTeamStartLoc(team, x, y, z, O);
+            bg->GetTeamStartLoc(team, x, y, z, O);
 
         sLog->outDebug(LOG_FILTER_BATTLEGROUND, "BattlegroundMgr::SendToBattleground: Sending %s to map %u, X %f, Y %f, Z %f, O %f (bgType %u)", player->GetName().c_str(), mapid, x, y, z, O, bgTypeId);
         player->TeleportTo(mapid, x, y, z, O);
@@ -917,7 +917,7 @@ void BattlegroundMgr::SendAreaSpiritHealerQueryOpcode(Player* player, Battlegrou
 {
     WorldPacket data(SMSG_AREA_SPIRIT_HEALER_TIME, 12);
     uint32 time_ = 30000 - bg->GetLastResurrectTime();      // resurrect every 30 seconds
-    if (time_ == uint32(-1))
+    if (time_ == uint32(-1)) 
         time_ = 0;
     data << guid << time_;
     player->GetSession()->SendPacket(&data);

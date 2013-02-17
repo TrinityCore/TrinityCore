@@ -649,10 +649,10 @@ bool BattlegroundQueue::CheckNormalMatch(Battleground* bg_template, Battleground
     }
     //try to invite same number of players - this cycle may cause longer wait time even if there are enough players in queue, but we want ballanced bg
     uint32 j = TEAM_ALLIANCE;
-    if (m_SelectionPools[TEAM_HORDE].GetPlayerCount() + m_SelectionPools[TEAM_ALLIANCE].GetPlayerCount() > 1)
+    if (m_SelectionPools[TEAM_HORDE].GetPlayerCount() > m_SelectionPools[TEAM_ALLIANCE].GetPlayerCount())
         j = TEAM_HORDE;
     if (sWorld->getIntConfig(CONFIG_BATTLEGROUND_INVITATION_TYPE) != 0
-        && m_SelectionPools[TEAM_ALLIANCE].GetPlayerCount() >= minPlayers || m_SelectionPools[TEAM_HORDE].GetPlayerCount() >= minPlayers)
+        && m_SelectionPools[TEAM_HORDE].GetPlayerCount() >= minPlayers)
     {
         //we will try to invite more groups to team with less players indexed by j
         ++(itr_team[j]);                                         //this will not cause a crash, because for cycle above reached break;
