@@ -11388,8 +11388,6 @@ void Unit::Mount(uint32 mount, uint32 VehicleId, uint32 creatureEntry)
         {
             if (CreateVehicleKit(VehicleId, creatureEntry))
             {
-                GetVehicleKit()->Reset();
-
                 // Send others that we now have a vehicle
                 WorldPacket data(SMSG_PLAYER_VEHICLE_DATA, GetPackGUID().size()+4);
                 data.appendPackGUID(GetGUID());
@@ -15458,7 +15456,10 @@ bool Unit::SetCharmedBy(Unit* charmer, CharmType type, AuraApplication const* au
 
     // dismount players when charmed
     if (GetTypeId() == TYPEID_PLAYER)
-        Dismount();
+        RemoveAurasByType(SPELL_AURA_MOUNTED);
+
+    if (charmer->GetTypeId() == TYPEID_PLAYER)
+        charmer->RemoveAurasByType(SPELL_AURA_MOUNTED);
 
     ASSERT(type != CHARM_TYPE_POSSESS || charmer->GetTypeId() == TYPEID_PLAYER);
     ASSERT((type == CHARM_TYPE_VEHICLE) == IsVehicle());
@@ -16581,26 +16582,9 @@ void Unit::_EnterVehicle(Vehicle* vehicle, int8 seatId, AuraApplication const* a
     {
         if (vehicle->GetBase()->GetTypeId() == TYPEID_PLAYER && player->isInCombat())
             return;
-
-        InterruptNonMeleeSpells(false);
-        player->StopCastingCharm();
-        player->StopCastingBindSight();
-        Dismount();
-        RemoveAurasByType(SPELL_AURA_MOUNTED);
-
-        // drop flag at invisible in bg
-        if (Battleground* bg = player->GetBattleground())
-            bg->EventPlayerDroppedFlag(player);
-
-        WorldPacket data(SMSG_ON_CANCEL_EXPECTED_RIDE_VEHICLE_AURA, 0);
-        player->GetSession()->SendPacket(&data);
-
-        player->UnsummonPetTemporaryIfAny();
     }
 
     ASSERT(!m_vehicle);
-
-
     (void)vehicle->AddPassenger(this, seatId);
 }
 
@@ -16609,15 +16593,17 @@ void Unit::ChangeSeat(int8 seatId, bool next)
     if (!m_vehicle)
         return;
 
-    if (seatId < 0)
-    {
-        seatId = m_vehicle->GetNextEmptySeat(GetTransSeat(), next);
-        if (seatId < 0)
-            return;
-    }
-    else if (seatId == GetTransSeat() || !m_vehicle->HasEmptySeat(seatId))
+    // Don't change if current and new seat are identical
+    if (seatId == GetTransSeat())
         return;
 
+    SeatMap::const_iterator seat = (seatId < 0 ? m_vehicle->GetNextEmptySeat(GetTransSeat(), next) : m_vehicle->Seats.find(seatId));
+    // The second part of the check will only return true if seatId >= 0. @Vehicle::GetNextEmptySeat makes sure of that.
+    if (seat == m_vehicle->Seats.end() || seat->second.Passenger)
+        return;
+    
+    // Todo: the functions below could be consolidated and refactored to take
+    // SeatMap::const_iterator as parameter, to save redundant map lookups.
     m_vehicle->RemovePassenger(this);
     if (!m_vehicle->AddPassenger(this, seatId))
         ASSERT(false);
@@ -16644,6 +16630,9 @@ void Unit::ExitVehicle(Position const* /*exitPosition*/)
 
 void Unit::_ExitVehicle(Position const* exitPosition)
 {
+    /// It's possible m_vehicle is NULL, when this function is called indirectly from @VehicleJoinEvent::Abort.
+    /// In that case it was not possible to add the passenger to the vehicle. The vehicle aura has already been removed
+    /// from the target in the aforementioned function and we don't need to do anything else at this point.
     if (!m_vehicle)
         return;
 
