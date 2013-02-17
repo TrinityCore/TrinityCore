@@ -16601,7 +16601,7 @@ void Unit::ChangeSeat(int8 seatId, bool next)
     // The second part of the check will only return true if seatId >= 0. @Vehicle::GetNextEmptySeat makes sure of that.
     if (seat == m_vehicle->Seats.end() || seat->second.Passenger)
         return;
-    
+
     // Todo: the functions below could be consolidated and refactored to take
     // SeatMap::const_iterator as parameter, to save redundant map lookups.
     m_vehicle->RemovePassenger(this);
