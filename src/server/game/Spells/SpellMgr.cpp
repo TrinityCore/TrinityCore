@@ -3371,6 +3371,17 @@ void SpellMgr::LoadDbcDataCorrections()
             case 64596: // Cosmic Smash (Algalon the Observer)
                 spellInfo->rangeIndex = 6;  // 100yd
                 break;
+            case 64014: // Expedition Base Camp Teleport
+            case 64024: // Conservatory Teleport
+            case 64025: // Halls of Invention Teleport
+            case 64028: // Colossal Forge Teleport
+            case 64029: // Shattered Walkway Teleport
+            case 64030: // Antechamber Teleport
+            case 64031: // Scrapyard Teleport
+            case 64032: // Formation Grounds Teleport
+            case 65042: // Prison of Yogg-Saron Teleport
+                spellInfo->EffectImplicitTargetA[0] = TARGET_DEST_DB;
+                break;
             // ENDOF ULDUAR SPELLS
             //
             // TRIAL OF THE CRUSADER SPELLS

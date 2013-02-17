@@ -908,6 +908,10 @@ bool Aura::CanBeSaved() const
     if (HasEffectType(SPELL_AURA_OPEN_STABLE))
         return false;
 
+    // Can't save vehicle auras, it requires both caster & target to be in world
+    if (HasEffectType(SPELL_AURA_CONTROL_VEHICLE))
+        return false;
+
     // Incanter's Absorbtion - considering the minimal duration and problems with aura stacking
     // we skip saving this aura
     // Also for some reason other auras put as MultiSlot crash core on keeping them after restart,
