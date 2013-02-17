@@ -1,4 +1,4 @@
-/*
+sec/*
  * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
@@ -890,30 +890,21 @@ void BattlegroundMgr::SendToBattleground(Player* player, uint32 instanceId, Batt
 {
     if (Battleground* bg = GetBattleground(instanceId, bgTypeId))
 	{
-		if (/*sWorld->getBoolConfig(CONFIG_BG_CROSSFRACTION) == 1 && */!isArena())
-	    {
-			uint32 hCount = GetPlayersCountByTeam(HORDE);	
-			uint32 aCount = GetPlayersCountByTeam(ALLIANCE);
-
-			if (aCount >= hCount)
-				player->SetBGTeam(HORDE);
-			else
-				player->SetBGTeam(ALLIANCE);
-	   }
-	   else
-	    team = player->GetBGTeam();
+	    uint32 team = player->GetBGTeam();
 		
         float x, y, z, O;
         uint32 mapid = bg->GetMapId();
 
 		if (!bg->isArena())
 		{
-			if (player->GetBGTeam(ALLIANCE)
+			if (player->GetBGTeam(ALLIANCE))
 				bg->GetTeamStartLoc(ALLIANCE, x, y, z, O);
 
-			if (player->GetBGTeam(HORDE)
+			if (player->GetBGTeam(HORDE))
 				bg->GetTeamStartLoc(HORDE, x, y, z, O);
 		}
+		else
+           bg->GetTeamStartLoc(team, x, y, z, O);
 
         sLog->outDebug(LOG_FILTER_BATTLEGROUND, "BattlegroundMgr::SendToBattleground: Sending %s to map %u, X %f, Y %f, Z %f, O %f (bgType %u)", player->GetName().c_str(), mapid, x, y, z, O, bgTypeId);
         player->TeleportTo(mapid, x, y, z, O);
