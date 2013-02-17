@@ -84,7 +84,9 @@ enum Spells
     SPELL_CONCUSSIVE_SHOCK      = 71337,
 
     // Frost Infusion
-    SPELL_FROST_INFUSION_CREDIT = 72289
+    SPELL_FROST_INFUSION_CREDIT = 72289,
+    SPELL_FROST_IMBUED_BLADE    = 72290,
+    SPELL_FROST_INFUSION        = 72292,
 };
 
 enum Events
@@ -147,11 +149,7 @@ enum MovementPoints
 
 enum Shadowmourne
 {
-    QUEST_FROST_INFUSION        = 24757,
-    ITEM_SHADOW_S_EDGE          = 49888,
-
-    SPELL_FROST_INFUSION        = 72292,
-    SPELL_FROST_IMBUED_BLADE    = 72290,
+    QUEST_FROST_INFUSION        = 24757
 };
 
 Position const RimefangFlyPos      = {4413.309f, 2456.421f, 233.3795f, 2.890186f};
@@ -390,47 +388,10 @@ class boss_sindragosa : public CreatureScript
             void SpellHitTarget(Unit* target, SpellInfo const* spell)
             {
                 if (uint32 spellId = sSpellMgr->GetSpellIdForDifficulty(70127, me))
-                {
                     if (spellId == spell->Id)
-                    {
                         if (Aura const* mysticBuffet = target->GetAura(spell->Id))
                             _mysticBuffetStack = std::max<uint8>(_mysticBuffetStack, mysticBuffet->GetStackAmount());
 
-                        return;
-                    }
-                }
-
-                // Frost Infusion
-                if (Player* player = target->ToPlayer())
-                {
-                    if (uint32 spellId = sSpellMgr->GetSpellIdForDifficulty(_isThirdPhase ? SPELL_FROST_BREATH_P2 : SPELL_FROST_BREATH_P1, me))
-                    {
-                        if (spellId == spell->Id)
-                        {
-                            Item* shadowsEdge = player->GetWeaponForAttack(BASE_ATTACK, true);
-                            if (player->GetQuestStatus(QUEST_FROST_INFUSION) == QUEST_STATUS_INCOMPLETE && shadowsEdge)
-                            {
-                                if (!player->HasAura(SPELL_FROST_IMBUED_BLADE) && shadowsEdge->GetEntry() == ITEM_SHADOW_S_EDGE)
-                                {
-                                    if (Aura* infusion = player->GetAura(SPELL_FROST_INFUSION))
-                                    {
-                                        if (infusion->GetStackAmount() == 3)
-                                        {
-                                            player->CastSpell(player, SPELL_FROST_IMBUED_BLADE, true);
-                                            player->RemoveAura(infusion);
-                                        }
-                                        else
-                                            player->CastSpell(player, SPELL_FROST_INFUSION, true);
-                                    }
-                                    else
-                                        player->CastSpell(player, SPELL_FROST_INFUSION, true);
-                                }
-                            }
-
-                            return;
-                        }
-                    }
-                }
             }
 
             void UpdateAI(uint32 const diff)
@@ -1155,6 +1116,50 @@ class spell_sindragosa_unchained_magic : public SpellScriptLoader
         }
 };
 
+class spell_sindragosa_frost_breath : public SpellScriptLoader
+{
+    public:
+        spell_sindragosa_frost_breath() : SpellScriptLoader("spell_sindragosa_frost_breath") { }
+
+        class spell_sindragosa_frost_breath_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_sindragosa_frost_breath_SpellScript);
+
+            void HandleInfusion()
+            {
+                Player* target = GetHitPlayer();
+                if (!target)
+                    return;
+
+                if (target->GetQuestStatus(QUEST_FROST_INFUSION) != QUEST_STATUS_INCOMPLETE)
+                    return;
+
+                // Check if player has Shadow's Edge equipped and not ready for infusion
+                if (!target->HasAura(SPELL_UNSATED_CRAVING) || target->HasAura(SPELL_FROST_IMBUED_BLADE))
+                    return;
+
+                Aura* infusion = target->GetAura(SPELL_FROST_INFUSION, target->GetGUID());
+                if (infusion && infusion->GetStackAmount() >= 3)
+                {
+                    target->RemoveAura(infusion);
+                    target->CastSpell(target, SPELL_FROST_IMBUED_BLADE, TRIGGERED_FULL_MASK);
+                }
+                else
+                    target->CastSpell(target, SPELL_FROST_INFUSION, TRIGGERED_FULL_MASK);
+            }
+
+            void Register()
+            {
+                AfterHit += SpellHitFn(spell_sindragosa_frost_breath_SpellScript::HandleInfusion);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_sindragosa_frost_breath_SpellScript();
+        }
+};
+
 class spell_sindragosa_instability : public SpellScriptLoader
 {
     public:
@@ -1577,6 +1582,7 @@ void AddSC_boss_sindragosa()
     new npc_sindragosa_trash();
     new spell_sindragosa_s_fury();
     new spell_sindragosa_unchained_magic();
+    new spell_sindragosa_frost_breath();
     new spell_sindragosa_instability();
     new spell_sindragosa_frost_beacon();
     new spell_sindragosa_ice_tomb();
