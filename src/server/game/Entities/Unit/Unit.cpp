@@ -3149,7 +3149,7 @@ Aura* Unit::_TryStackingOrRefreshingExistingAura(SpellInfo const* newAura, uint8
     ASSERT(casterGUID || caster);
 
     // Check if these can stack anyway
-    if (!casterGUID && (newAura->IsChanneled() || newAura->AttributesEx3 & SPELL_ATTR3_STACK_FOR_DIFF_CASTERS))
+    if (!casterGUID && !newAura->IsStackableOnOneSlotWithDifferentCasters())
         casterGUID = caster->GetGUID();
 
     // passive and Incanter's Absorption and auras with different type can stack with themselves any number of times
