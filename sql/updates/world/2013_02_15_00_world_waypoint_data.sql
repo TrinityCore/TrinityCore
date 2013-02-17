@@ -1,4 +1,4 @@
-﻿SET @NPC_DRAKE  := 29709;
+SET @NPC_DRAKE  := 29709;
 
 DELETE FROM `waypoint_data` WHERE `id`=@NPC_DRAKE;
 INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`,`orientation`,`delay`,`move_flag`,`action`,`action_chance`,`wpguid`) VALUES
