@@ -652,7 +652,7 @@ bool BattlegroundQueue::CheckNormalMatch(Battleground* bg_template, Battleground
     if (m_SelectionPools[TEAM_HORDE].GetPlayerCount() + m_SelectionPools[TEAM_ALLIANCE].GetPlayerCount() > 1)
         j = TEAM_HORDE;
     if (sWorld->getIntConfig(CONFIG_BATTLEGROUND_INVITATION_TYPE) != 0
-        && ((m_SelectionPools[TEAM_HORDE].GetPlayerCount() + m_SelectionPools[TEAM_ALLIANCE].GetPlayerCount()) >= minPlayers) || m_SelectionPools[TEAM_ALLIANCE].GetPlayerCount() >= minPlayers || m_SelectionPools[TEAM_HORDE].GetPlayerCount() >= minPlayers)
+        && m_SelectionPools[TEAM_ALLIANCE].GetPlayerCount() >= minPlayers || m_SelectionPools[TEAM_HORDE].GetPlayerCount() >= minPlayers)
     {
         //we will try to invite more groups to team with less players indexed by j
         ++(itr_team[j]);                                         //this will not cause a crash, because for cycle above reached break;
