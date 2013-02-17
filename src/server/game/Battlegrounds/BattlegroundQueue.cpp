@@ -664,7 +664,9 @@ bool BattlegroundQueue::CheckNormalMatch(Battleground* bg_template, Battleground
         }
         // do not allow to start bg with more than 2 players more on 1 faction
         if (abs((int32)(m_SelectionPools[TEAM_HORDE].GetPlayerCount() + m_SelectionPools[TEAM_ALLIANCE].GetPlayerCount())) > 3)
-            return false;
+            return true;
+		else
+			return false;
     }
     //allow 1v0 if debug bg
     if (sBattlegroundMgr->isTesting() && bg_template->isBattleground() && (m_SelectionPools[TEAM_ALLIANCE].GetPlayerCount() || m_SelectionPools[TEAM_HORDE].GetPlayerCount()))
