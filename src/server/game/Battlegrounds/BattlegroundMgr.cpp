@@ -897,10 +897,10 @@ void BattlegroundMgr::SendToBattleground(Player* player, uint32 instanceId, Batt
 
 		if (!bg->isArena())
 		{
-			if (player->GetBGTeam(ALLIANCE))
+			if (player->GetBGTeam() == ALLIANCE)
 				bg->GetTeamStartLoc(ALLIANCE, x, y, z, O);
 
-			if (player->GetBGTeam(HORDE))
+			if (player->GetBGTeam() == HORDE)
 				bg->GetTeamStartLoc(HORDE, x, y, z, O);
 		}
 		else
