@@ -3149,7 +3149,7 @@ Aura* Unit::_TryStackingOrRefreshingExistingAura(SpellInfo const* newAura, uint8
     ASSERT(casterGUID || caster);
 
     // Check if these can stack anyway
-    if (!casterGUID && !newAura->IsStackableOnOneSlotWithDifferentCasters())
+    if (!casterGUID && (newAura->IsChanneled() || newAura->AttributesEx3 & SPELL_ATTR3_STACK_FOR_DIFF_CASTERS))
         casterGUID = caster->GetGUID();
 
     // passive and Incanter's Absorption and auras with different type can stack with themselves any number of times
@@ -16599,13 +16599,9 @@ void Unit::_EnterVehicle(Vehicle* vehicle, int8 seatId, AuraApplication const* a
     }
 
     ASSERT(!m_vehicle);
-    m_vehicle = vehicle;
 
-    if (!m_vehicle->AddPassenger(this, seatId))
-    {
-        m_vehicle = NULL;
-        return;
-    }
+
+    (void)vehicle->AddPassenger(this, seatId);
 }
 
 void Unit::ChangeSeat(int8 seatId, bool next)

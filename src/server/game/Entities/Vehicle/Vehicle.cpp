@@ -535,6 +535,7 @@ void Vehicle::CancelJoinEvent(VehicleJoinEvent* e)
 bool VehicleJoinEvent::Execute(uint64, uint32)
 {
     ASSERT(Passenger->GetVehicle() == Target);
+    Passenger->m_vehicle = Target;
 
     Seat->second.Passenger = Passenger->GetGUID();
     if (Seat->second.SeatInfo->CanEnterOrExit())
@@ -598,5 +599,7 @@ bool VehicleJoinEvent::Execute(uint64, uint32)
 
 void VehicleJoinEvent::Abort(uint64)
 {
-    Passenger->m_vehicle = NULL;
+    sLog->outDebug(LOG_FILTER_VEHICLES, "Passenger GuidLow: %u, Entry: %u, board on vehicle GuidLow: %u, Entry: %u SeatId: %i cancelled",
+        Passenger->GetGUIDLow(), Passenger->GetEntry(), Target->GetBase()->GetGUIDLow(), Target->GetBase()->GetEntry(), (int32)Seat->first);
+    // Passenger->m_vehicle = NULL;
 }
