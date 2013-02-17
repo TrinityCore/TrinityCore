@@ -628,7 +628,6 @@ inline Player* Battleground::_GetPlayerForTeam(uint32 teamId, BattlegroundPlayer
             player = NULL;
     }
     return player;
- uint32 TeamID = player->GetBGTeam();
 }
 
 void Battleground::SetTeamStartLoc(uint32 TeamID, float X, float Y, float Z, float O)
@@ -1149,6 +1148,7 @@ void Battleground::AddPlayer(Player* player)
 			team = HORDE;
 			player->SetBGTeam(HORDE);
 			player->setFaction(2);
+
 		}
 		else
 		{
