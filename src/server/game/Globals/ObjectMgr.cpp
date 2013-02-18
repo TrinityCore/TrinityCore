@@ -404,8 +404,8 @@ void ObjectMgr::LoadCreatureTemplates()
                                              "spell2, spell3, spell4, spell5, spell6, spell7, spell8, PetSpellDataId, VehicleId, mingold, maxgold, AIName, MovementType, "
     //                                             68          69         70         71          72           73          74          75          76          77          78
                                              "InhabitType, HoverHeight, Health_mod, Mana_mod, Armor_mod, RacialLeader, questItem1, questItem2, questItem3, questItem4, questItem5, "
-    //                                            79           80           81               82                83           84
-                                             " questItem6, movementId, RegenHealth, equipment_id, mechanic_immune_mask, flags_extra, ScriptName "
+    //                                            79           80           81             82                83           84
+                                             " questItem6, movementId, RegenHealth, mechanic_immune_mask, flags_extra, ScriptName "
                                              "FROM creature_template;");
 
     if (!result)
@@ -500,10 +500,9 @@ void ObjectMgr::LoadCreatureTemplates()
 
         creatureTemplate.movementId         = fields[80].GetUInt32();
         creatureTemplate.RegenHealth        = fields[81].GetBool();
-        creatureTemplate.equipmentId        = fields[82].GetUInt32();
-        creatureTemplate.MechanicImmuneMask = fields[83].GetUInt32();
-        creatureTemplate.flags_extra        = fields[84].GetUInt32();
-        creatureTemplate.ScriptID           = GetScriptId(fields[85].GetCString());
+        creatureTemplate.MechanicImmuneMask = fields[82].GetUInt32();
+        creatureTemplate.flags_extra        = fields[83].GetUInt32();
+        creatureTemplate.ScriptID           = GetScriptId(fields[84].GetCString());
 
         ++count;
     }
@@ -858,15 +857,6 @@ void ObjectMgr::CheckCreatureTemplate(CreatureTemplate const* cInfo)
         const_cast<CreatureTemplate*>(cInfo)->MovementType = IDLE_MOTION_TYPE;
     }
 
-    if (cInfo->equipmentId > 0)                          // 0 no equipment
-    {
-        if (!GetEquipmentInfo(cInfo->equipmentId))
-        {
-            sLog->outError(LOG_FILTER_SQL, "Table `creature_template` lists creature (Entry: %u) with `equipment_id` %u not found in table `creature_equip_template`, set to no equipment.", cInfo->Entry, cInfo->equipmentId);
-            const_cast<CreatureTemplate*>(cInfo)->equipmentId = 0;
-        }
-    }
-
     /// if not set custom creature scale then load scale from CreatureDisplayInfo.dbc
     if (cInfo->scale <= 0.0f)
     {
@@ -986,11 +976,28 @@ CreatureAddon const* ObjectMgr::GetCreatureTemplateAddon(uint32 entry)
     return NULL;
 }
 
-EquipmentInfo const* ObjectMgr::GetEquipmentInfo(uint32 entry)
+EquipmentInfo const* ObjectMgr::GetEquipmentInfo(uint32 entry, int8& id)
 {
     EquipmentInfoContainer::const_iterator itr = _equipmentInfoStore.find(entry);
-    if (itr != _equipmentInfoStore.end())
-        return &(itr->second);
+    if (itr == _equipmentInfoStore.end())
+        return NULL;
+
+    if (itr->second.empty())
+        return NULL;
+
+    if (id == -1) // select a random element
+    {
+        EquipmentInfoContainerInternal::const_iterator ritr = itr->second.begin();
+        std::advance(ritr, urand(0u, itr->second.size()));
+        id = std::distance(itr->second.begin(), ritr) + 1;
+        return &ritr->second;
+    }
+    else
+    {
+        EquipmentInfoContainerInternal::const_iterator itr2 = itr->second.find(id);
+        if (itr2 != itr->second.end())
+            return &itr2->second;
+    }
 
     return NULL;
 }
@@ -999,7 +1006,8 @@ void ObjectMgr::LoadEquipmentTemplates()
 {
     uint32 oldMSTime = getMSTime();
 
-    QueryResult result = WorldDatabase.Query("SELECT entry, itemEntry1, itemEntry2, itemEntry3 FROM creature_equip_template");
+    //                                                 0     1       2           3           4
+    QueryResult result = WorldDatabase.Query("SELECT entry, id, itemEntry1, itemEntry2, itemEntry3 FROM creature_equip_template");
 
     if (!result)
     {
@@ -1012,13 +1020,21 @@ void ObjectMgr::LoadEquipmentTemplates()
     {
         Field* fields = result->Fetch();
 
-        uint16 entry = fields[0].GetUInt16();
+        uint32 entry = fields[0].GetUInt32();
 
-        EquipmentInfo& equipmentInfo = _equipmentInfoStore[entry];
+        if (!sObjectMgr->GetCreatureTemplate(entry))
+        {
+            sLog->outError(LOG_FILTER_SQL, "Creature template (Entry: %u) does not exist but has a record in `creature_equip_template`", entry);
+            continue;
+        }
 
-        equipmentInfo.ItemEntry[0] = fields[1].GetUInt32();
-        equipmentInfo.ItemEntry[1] = fields[2].GetUInt32();
-        equipmentInfo.ItemEntry[2] = fields[3].GetUInt32();
+        uint8 id = fields[1].GetUInt8();
+
+        EquipmentInfo& equipmentInfo = _equipmentInfoStore[entry][id];
+
+        equipmentInfo.ItemEntry[0] = fields[2].GetUInt32();
+        equipmentInfo.ItemEntry[1] = fields[3].GetUInt32();
+        equipmentInfo.ItemEntry[2] = fields[4].GetUInt32();
 
         for (uint8 i = 0; i < MAX_EQUIPMENT_ITEMS; ++i)
         {
@@ -1029,8 +1045,8 @@ void ObjectMgr::LoadEquipmentTemplates()
 
             if (!dbcItem)
             {
-                sLog->outError(LOG_FILTER_SQL, "Unknown item (entry=%u) in creature_equip_template.itemEntry%u for entry = %u, forced to 0.",
-                    equipmentInfo.ItemEntry[i], i+1, entry);
+                sLog->outError(LOG_FILTER_SQL, "Unknown item (entry=%u) in creature_equip_template.itemEntry%u for entry = %u and id=%u, forced to 0.",
+                    equipmentInfo.ItemEntry[i], i+1, entry, id);
                 equipmentInfo.ItemEntry[i] = 0;
                 continue;
             }
@@ -1045,8 +1061,8 @@ void ObjectMgr::LoadEquipmentTemplates()
                 dbcItem->InventoryType != INVTYPE_THROWN &&
                 dbcItem->InventoryType != INVTYPE_RANGEDRIGHT)
             {
-                sLog->outError(LOG_FILTER_SQL, "Item (entry=%u) in creature_equip_template.itemEntry%u for entry = %u is not equipable in a hand, forced to 0.",
-                    equipmentInfo.ItemEntry[i], i+1, entry);
+                sLog->outError(LOG_FILTER_SQL, "Item (entry=%u) in creature_equip_template.itemEntry%u for entry = %u and id = %u is not equipable in a hand, forced to 0.",
+                    equipmentInfo.ItemEntry[i], i+1, entry, id);
                 equipmentInfo.ItemEntry[i] = 0;
             }
         }
@@ -1493,13 +1509,13 @@ void ObjectMgr::LoadCreatures()
         if (!ok)
             continue;
 
-        // -1 no equipment, 0 use default
-        if (data.equipmentId > 0)
+        // -1 random, 0 no equipment, 1 is default (may or may not have equipment)
+        if (data.equipmentId != 0)
         {
-            if (!GetEquipmentInfo(data.equipmentId))
+            if (!GetEquipmentInfo(data.id, data.equipmentId) && data.equipmentId != 1)
             {
                 sLog->outError(LOG_FILTER_SQL, "Table `creature` have creature (Entry: %u) with equipment_id %u not found in table `creature_equip_template`, set to no equipment.", data.id, data.equipmentId);
-                data.equipmentId = -1;
+                data.equipmentId = 1;
             }
         }
 
@@ -1673,7 +1689,7 @@ uint32 ObjectMgr::AddCreData(uint32 entry, uint32 /*team*/, uint32 mapId, float 
     data.id = entry;
     data.mapid = mapId;
     data.displayid = 0;
-    data.equipmentId = cInfo->equipmentId;
+    data.equipmentId = 1;
     data.posX = x;
     data.posY = y;
     data.posZ = z;
