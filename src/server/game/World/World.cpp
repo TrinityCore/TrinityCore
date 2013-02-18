@@ -1405,11 +1405,11 @@ void World::SetInitialWorldSettings()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Creature Model Based Info Data...");
     sObjectMgr->LoadCreatureModelInfo();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Equipment templates...");
-    sObjectMgr->LoadEquipmentTemplates();
-
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Creature templates...");
     sObjectMgr->LoadCreatureTemplates();
+
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Equipment templates...");           // must be after LoadCreatureTemplates
+    sObjectMgr->LoadEquipmentTemplates();
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Creature template addons...");
     sObjectMgr->LoadCreatureTemplateAddons();
