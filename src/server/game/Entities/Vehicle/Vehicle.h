@@ -46,7 +46,7 @@ class Vehicle : public TransportBase
 
         bool HasEmptySeat(int8 seatId) const;
         Unit* GetPassenger(int8 seatId) const;
-        int8 GetNextEmptySeat(int8 seatId, bool next) const;
+        SeatMap::const_iterator GetNextEmptySeat(int8 seatId, bool next) const;
         uint8 GetAvailableSeatCount() const;
 
         bool AddPassenger(Unit* passenger, int8 seatId = -1);
@@ -54,7 +54,6 @@ class Vehicle : public TransportBase
         void RemovePassenger(Unit* passenger);
         void RelocatePassengers();
         void RemoveAllPassengers();
-        void RemovePendingPassengers();
         void Dismiss();
         void TeleportVehicle(float x, float y, float z, float ang);
         bool IsVehicleInUse() { return Seats.begin() != Seats.end(); }
@@ -62,13 +61,13 @@ class Vehicle : public TransportBase
         void SetLastShootPos(Position const& pos) { m_lastShootPos.Relocate(pos); }
         Position GetLastShootPos() { return m_lastShootPos; }
 
-        SeatMap Seats;
+        SeatMap Seats;  ///< The collection of all seats on the vehicle. Including vacant ones.
 
         VehicleSeatEntry const* GetSeatForPassenger(Unit* passenger);
 
     protected:
         friend class VehicleJoinEvent;
-        uint32 UsableSeatNum;         // Number of seats that match VehicleSeatEntry::UsableByPlayer, used for proper display flags
+        uint32 UsableSeatNum;         ///< Number of seats that match VehicleSeatEntry::UsableByPlayer, used for proper display flags
 
     protected:
         friend bool Unit::CreateVehicleKit(uint32 id, uint32 creatureEntry);
@@ -93,15 +92,14 @@ class Vehicle : public TransportBase
         /// This method transforms supplied global coordinates into local offsets
         void CalculatePassengerOffset(float& x, float& y, float& z, float& o);
 
-        Unit* _me;
-        VehicleEntry const* _vehicleInfo;
+        Unit* _me;  ///< The underlying unit with the vehicle kit. Can be player or creature.
+        VehicleEntry const* _vehicleInfo;   ///< DBC data for vehicle
         GuidSet vehiclePlayers;
 
-        uint32 _creatureEntry;         // Can be different than me->GetBase()->GetEntry() in case of players
-        Status _status;
+        uint32 _creatureEntry;         ///< Can be different than the entry of _me in case of players
+        Status _status;     ///< Internal variable for sanity checks
         Position m_lastShootPos;
-
-        std::deque<VehicleJoinEvent*> _pendingJoinEvents;
+        std::deque<VehicleJoinEvent*> _pendingJoinEvents;   ///< Collection of delayed join events for prospective passengers
         void CancelJoinEvent(VehicleJoinEvent* e);
 };
 

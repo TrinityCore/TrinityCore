@@ -221,6 +221,9 @@ bool Weather::UpdateWeather()
     char const* wthstr;
     switch (state)
     {
+        case WEATHER_STATE_FOG:
+            wthstr = "fog";
+            break;
         case WEATHER_STATE_LIGHT_RAIN:
             wthstr = "light rain";
             break;

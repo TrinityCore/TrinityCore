@@ -135,7 +135,7 @@ class RBACGroup: public RBACObject
         RBACRoleContainer _roles;                          ///> Set of Roles
 };
 
-/*
+/**
  * @name RBACData
  * @brief Contains all needed information about the acccount
  *
