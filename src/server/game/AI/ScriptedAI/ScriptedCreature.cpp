@@ -370,9 +370,7 @@ void ScriptedAI::SetEquipmentSlots(bool loadDefault, int32 mainHand /*= EQUIP_NO
 {
     if (loadDefault)
     {
-        if (CreatureTemplate const* creatureInfo = sObjectMgr->GetCreatureTemplate(me->GetEntry()))
-            me->LoadEquipment(creatureInfo->equipmentId, true);
-
+        me->LoadEquipment(me->GetOriginalEquipmentId(), true);
         return;
     }
 
