@@ -56,7 +56,7 @@ AccountOpResult AccountMgr::CreateAccount(std::string username, std::string pass
     RBACData* rbac = new RBACData(GetId(username), username, -1);
     // No need to Load From DB, as it's new data
 
-    RBACGroupContainer const& groupsToAdd = _defaultGroups[0]; // 0: Default sec level
+    RBACGroupContainer const& groupsToAdd = _defaultSecGroups[0]; // 0: Default sec level
     for (RBACGroupContainer::const_iterator it = groupsToAdd.begin(); it != groupsToAdd.end(); ++it)
         rbac->AddGroup(*it, -1);
 
@@ -426,13 +426,23 @@ void AccountMgr::LoadRBAC()
         uint8 secId = field[0].GetUInt8();
 
         if (lastSecId != secId)
-            groups = &_defaultGroups[secId];
+            groups = &_defaultSecGroups[secId];
 
         groups->insert(field[1].GetUInt32());
     }
     while (result->NextRow());
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u permission definitions, %u role definitions and %u group definitions in %u ms", count1, count2, count3, GetMSTimeDiffToNow(oldMSTime));
+
+    // Load default groups to be added to any RBAC Object.
+    std::string defaultGroups = ConfigMgr::GetStringDefault("RBAC.DefaultGroups", "");
+    Tokenizer tokens(defaultGroups, ',');
+    for (Tokenizer::const_iterator itr = tokens.begin(); itr != tokens.end(); ++itr)
+        if (uint32 groupId = atoi(*itr))
+        {
+            sLog->outError(LOG_FILTER_LFG, "Adding default group %u", groupId);
+            _defaultGroups.insert(groupId);
+        }
 }
 
 void AccountMgr::UpdateAccountAccess(RBACData* rbac, uint32 accountId, uint8 securityLevel, int32 realmId)
@@ -459,7 +469,7 @@ void AccountMgr::UpdateAccountAccess(RBACData* rbac, uint32 accountId, uint8 sec
             uint8 secLevel = field[0].GetUInt8();
             int32 realmId = field[1].GetUInt32();
 
-            RBACGroupContainer const& groupsToRemove = _defaultGroups[secLevel];
+            RBACGroupContainer const& groupsToRemove = _defaultSecGroups[secLevel];
             for (RBACGroupContainer::const_iterator it = groupsToRemove.begin(); it != groupsToRemove.end(); ++it)
                 rbac->RemoveGroup(*it, realmId);
         }
@@ -467,7 +477,7 @@ void AccountMgr::UpdateAccountAccess(RBACData* rbac, uint32 accountId, uint8 sec
     }
 
     // Add new groups depending on the new security Level
-    RBACGroupContainer const& groupsToAdd = _defaultGroups[securityLevel];
+    RBACGroupContainer const& groupsToAdd = _defaultSecGroups[securityLevel];
     for (RBACGroupContainer::const_iterator it = groupsToAdd.begin(); it != groupsToAdd.end(); ++it)
         rbac->AddGroup(*it, realmId);
 

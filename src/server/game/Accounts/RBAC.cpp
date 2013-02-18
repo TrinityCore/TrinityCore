@@ -296,6 +296,11 @@ void RBACData::LoadFromDB()
         while (result->NextRow());
     }
 
+    // Add default groups
+    RBACGroupContainer const& groups = sAccountMgr->GetRBACDefaultGroups();
+    for (RBACGroupContainer::const_iterator itr = groups.begin(); itr != groups.end(); ++itr)
+        AddGroup(*itr);
+
     // Force calculation of permissions, it wasn't performed at load time
     // while adding groups, roles and permissions
     CalculateNewPermissions();
