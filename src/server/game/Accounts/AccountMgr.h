@@ -77,12 +77,14 @@ class AccountMgr
         RBACGroupsContainer const& GetRBACGroupList() const { return _groups; }
         RBACRolesContainer const& GetRBACRoleList() const { return _roles; }
         RBACPermissionsContainer const& GetRBACPermissionList() const { return _permissions; }
+        RBACGroupContainer const& GetRBACDefaultGroups() const { return _defaultGroups; }
 
     private:
         RBACPermissionsContainer _permissions;
         RBACRolesContainer _roles;
         RBACGroupsContainer _groups;
-        RBACDefaultSecurityGroupContainer _defaultGroups;
+        RBACDefaultSecurityGroupContainer _defaultSecGroups;
+        RBACGroupContainer _defaultGroups;
 };
 
 #define sAccountMgr ACE_Singleton<AccountMgr, ACE_Null_Mutex>::instance()
