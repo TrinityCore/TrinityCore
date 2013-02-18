@@ -107,12 +107,15 @@ class VehicleJoinEvent : public BasicEvent
 {
     friend class Vehicle;
     protected:
-        VehicleJoinEvent(Vehicle* v, Unit* u) : Target(v), Passenger(u), Seat(Target->Seats.end()) {}
+        VehicleJoinEvent(Vehicle* v, Unit* u) : Target(v), Passenger(u), Seat(Target->Seats.end()), _executedAbort(false) {}
         bool Execute(uint64, uint32);
         void Abort(uint64);
 
         Vehicle* Target;
         Unit* Passenger;
         SeatMap::iterator Seat;
+
+    private:
+        bool _executedAbort;
 };
 #endif
