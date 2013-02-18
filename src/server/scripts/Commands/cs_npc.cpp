@@ -218,6 +218,8 @@ public:
         if (!*args)
             return false;
 
+	uint32 rating = 0;
+
         char* pitem  = handler->extractKeyFromLink((char*)args, "Hitem");
         if (!pitem)
         {
@@ -250,7 +252,7 @@ public:
             handler->SendSysMessage(LANG_SELECT_CREATURE);
             handler->SetSentErrorMessage(true);
             return false;
-        }
+		}
 
         uint32 vendor_entry = vendor ? vendor->GetEntry() : 0;
 
@@ -260,7 +262,7 @@ public:
             return false;
         }
 		
-		rating = 0;
+
 
         sObjectMgr->AddVendorItem(vendor_entry, itemId, maxcount, incrtime, extendedcost, rating);
 
