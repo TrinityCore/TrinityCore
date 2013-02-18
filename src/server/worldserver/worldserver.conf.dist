@@ -1054,7 +1054,7 @@ Event.Announce = 0
 
 #
 #    BeepAtStart
-#        Description: Beep when the world server finished starting (Unix/Linux systems).
+#        Description: Beep when the world server finished starting.
 #        Default:     1 - (Enabled)
 #                     0 - (Disabled)
 
