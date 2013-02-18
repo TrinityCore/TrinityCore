@@ -252,11 +252,6 @@ public:
             return false;
         }
 
-		char* fextrating = strtok(NULL, " ");                    //add incrtime, default: 0
-        uint32 rating = 0;
-        if (rating)
-            rating = atol(fextrating);
-
         uint32 vendor_entry = vendor ? vendor->GetEntry() : 0;
 
         if (!sObjectMgr->IsVendorItemValid(vendor_entry, itemId, maxcount, incrtime, extendedcost, rating, handler->GetSession()->GetPlayer()))
@@ -264,6 +259,8 @@ public:
             handler->SetSentErrorMessage(true);
             return false;
         }
+		
+		rating = 0;
 
         sObjectMgr->AddVendorItem(vendor_entry, itemId, maxcount, incrtime, extendedcost, rating);
 

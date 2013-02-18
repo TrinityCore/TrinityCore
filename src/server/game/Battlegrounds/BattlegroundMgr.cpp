@@ -889,8 +889,20 @@ void BattlegroundMgr::BuildBattlegroundListPacket(WorldPacket* data, uint64 guid
 void BattlegroundMgr::SendToBattleground(Player* player, uint32 instanceId, BattlegroundTypeId bgTypeId)
 {
     if (Battleground* bg = GetBattleground(instanceId, bgTypeId))
-	{
-	    uint32 team = player->GetBGTeam();
+	{   
+		uint32 team;
+		if (/*sWorld->getBoolConfig(CONFIG_BG_CROSSFRACTION) == 1 && */!bg->isArena())
+        {
+			uint32 hCount = bg->GetPlayersCountByTeam(HORDE);	
+			uint32 aCount = bg->GetPlayersCountByTeam(ALLIANCE);
+	
+			if (aCount >= hCount)
+				team = HORDE;
+			else
+				team = ALLIANCE;
+    }
+    else
+	    team = player->GetBGTeam();
 		
         float x, y, z, O;
         uint32 mapid = bg->GetMapId();
