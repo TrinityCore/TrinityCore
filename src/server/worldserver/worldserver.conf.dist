@@ -1120,6 +1120,14 @@ DBC.EnforceItemAttributes = 1
 AccountInstancesPerHour = 5
 
 #
+#   RBAC.DefaultGroups
+#        Description: Comma separated list of groups to be added to any account
+#                     Check auth.rbac_groups for correct ids
+#         Default:    "" (No group)
+
+RBAC.DefaultGroups = ""
+
+#
 ###################################################################################################
 
 ###################################################################################################
