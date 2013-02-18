@@ -185,7 +185,7 @@ public:
                 ++_summonDeaths;
                 if (_summonDeaths == 11) // All summons died
                 {
-                    SendWeather(WEATHER_STATE_UNK, 0.0f);
+                    SendWeather(WEATHER_STATE_FOG, 0.0f);
                     me->RemoveAurasDueToSpell(SPELL_PTAH_EXPLOSION);
                     events.SetPhase(PHASE_NORMAL);
                     events.ScheduleEvent(EVENT_RAGING_SMASH, urand(7000, 12000), 0, PHASE_NORMAL);
