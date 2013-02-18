@@ -450,8 +450,8 @@ void GameEventMgr::LoadFromDB()
     {
         uint32 oldMSTime = getMSTime();
 
-        //                                                       0                     1                              2                               3
-        QueryResult result = WorldDatabase.Query("SELECT creature.guid, game_event_model_equip.eventEntry, game_event_model_equip.modelid, game_event_model_equip.equipment_id "
+        //                                                       0           1                       2                                 3                                     4
+        QueryResult result = WorldDatabase.Query("SELECT creature.guid, creature.id, game_event_model_equip.eventEntry, game_event_model_equip.modelid, game_event_model_equip.equipment_id "
                                                  "FROM creature JOIN game_event_model_equip ON creature.guid=game_event_model_equip.guid");
 
         if (!result)
@@ -466,7 +466,8 @@ void GameEventMgr::LoadFromDB()
                 Field* fields = result->Fetch();
 
                 uint32 guid     = fields[0].GetUInt32();
-                uint16 event_id = fields[1].GetUInt8();
+                uint32 entry    = fields[1].GetUInt32();
+                uint16 event_id = fields[2].GetUInt8();
 
                 if (event_id >= mGameEventModelEquip.size())
                 {
@@ -476,17 +477,18 @@ void GameEventMgr::LoadFromDB()
 
                 ModelEquipList& equiplist = mGameEventModelEquip[event_id];
                 ModelEquip newModelEquipSet;
-                newModelEquipSet.modelid = fields[2].GetUInt32();
-                newModelEquipSet.equipment_id = fields[3].GetUInt32();
+                newModelEquipSet.modelid = fields[3].GetUInt32();
+                newModelEquipSet.equipment_id = fields[4].GetUInt8();
                 newModelEquipSet.equipement_id_prev = 0;
                 newModelEquipSet.modelid_prev = 0;
 
                 if (newModelEquipSet.equipment_id > 0)
                 {
-                    if (!sObjectMgr->GetEquipmentInfo(newModelEquipSet.equipment_id))
+                    int8 equipId = static_cast<int8>(newModelEquipSet.equipment_id);
+                    if (!sObjectMgr->GetEquipmentInfo(entry, equipId))
                     {
-                        sLog->outError(LOG_FILTER_SQL, "Table `game_event_model_equip` have creature (Guid: %u) with equipment_id %u not found in table `creature_equip_template`, set to no equipment.",
-                                         guid, newModelEquipSet.equipment_id);
+                        sLog->outError(LOG_FILTER_SQL, "Table `game_event_model_equip` have creature (Guid: %u, entry: %u) with equipment_id %u not found in table `creature_equip_template`, set to no equipment.",
+                                         guid, entry, newModelEquipSet.equipment_id);
                         continue;
                     }
                 }
@@ -1103,14 +1105,8 @@ void GameEventMgr::UnApplyEvent(uint16 event_id)
 
 void GameEventMgr::ApplyNewEvent(uint16 event_id)
 {
-    switch (sWorld->getIntConfig(CONFIG_EVENT_ANNOUNCE))
-    {
-        case 0:                                             // disable
-            break;
-        case 1:                                             // announce events
-            sWorld->SendWorldText(LANG_EVENTMESSAGE, mGameEvent[event_id].description.c_str());
-            break;
-    }
+    if (sWorld->getBoolConfig(CONFIG_EVENT_ANNOUNCE))
+        sWorld->SendWorldText(LANG_EVENTMESSAGE, mGameEvent[event_id].description.c_str());
 
     sLog->outInfo(LOG_FILTER_GAMEEVENTS, "GameEvent %u \"%s\" started.", event_id, mGameEvent[event_id].description.c_str());
 
@@ -1332,7 +1328,7 @@ void GameEventMgr::ChangeEquipOrModel(int16 event_id, bool activate)
                 itr->second.equipement_id_prev = creature->GetCurrentEquipmentId();
                 itr->second.modelid_prev = creature->GetDisplayId();
                 creature->LoadEquipment(itr->second.equipment_id, true);
-                if (itr->second.modelid >0 && itr->second.modelid_prev != itr->second.modelid)
+                if (itr->second.modelid > 0 && itr->second.modelid_prev != itr->second.modelid)
                 {
                     CreatureModelInfo const* minfo = sObjectMgr->GetCreatureModelInfo(itr->second.modelid);
                     if (minfo)
@@ -1347,7 +1343,7 @@ void GameEventMgr::ChangeEquipOrModel(int16 event_id, bool activate)
             else
             {
                 creature->LoadEquipment(itr->second.equipement_id_prev, true);
-                if (itr->second.modelid_prev >0 && itr->second.modelid_prev != itr->second.modelid)
+                if (itr->second.modelid_prev > 0 && itr->second.modelid_prev != itr->second.modelid)
                 {
                     CreatureModelInfo const* minfo = sObjectMgr->GetCreatureModelInfo(itr->second.modelid_prev);
                     if (minfo)
@@ -1370,7 +1366,7 @@ void GameEventMgr::ChangeEquipOrModel(int16 event_id, bool activate)
                 sObjectMgr->GetCreatureModelRandomGender(&displayID);
 
                 if (data2->equipmentId == 0)
-                    itr->second.equipement_id_prev = cinfo->equipmentId;
+                    itr->second.equipement_id_prev = 1;
                 else if (data2->equipmentId != -1)
                     itr->second.equipement_id_prev = data->equipmentId;
                 itr->second.modelid_prev = displayID;

@@ -1459,15 +1459,16 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 if (Creature* npc = (*itr)->ToCreature())
                 {
                     uint32 slot[3];
-                    if (e.action.equip.entry)
+                    int8 equipId = (int8)e.action.equip.entry;
+                    if (equipId)
                     {
-                        EquipmentInfo const* einfo = sObjectMgr->GetEquipmentInfo(e.action.equip.entry);
+                        EquipmentInfo const* einfo = sObjectMgr->GetEquipmentInfo(npc->GetEntry(), equipId);
                         if (!einfo)
                         {
-                            sLog->outError(LOG_FILTER_SQL, "SmartScript: SMART_ACTION_EQUIP uses non-existent equipment info entry %u", e.action.equip.entry);
+                            sLog->outError(LOG_FILTER_SQL, "SmartScript: SMART_ACTION_EQUIP uses non-existent equipment info id %u for creature %u", equipId, npc->GetEntry());
                             return;
                         }
-                        npc->SetCurrentEquipmentId(e.action.equip.entry);
+                        npc->SetCurrentEquipmentId(equipId);
                         slot[0] = einfo->ItemEntry[0];
                         slot[1] = einfo->ItemEntry[1];
                         slot[2] = einfo->ItemEntry[2];
@@ -1478,11 +1479,11 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                         slot[1] = e.action.equip.slot2;
                         slot[2] = e.action.equip.slot3;
                     }
-                    if (!e.action.equip.mask || e.action.equip.mask & 1)
+                    if (!e.action.equip.mask || (e.action.equip.mask & 1))
                         npc->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 0, slot[0]);
-                    if (!e.action.equip.mask || e.action.equip.mask & 2)
+                    if (!e.action.equip.mask || (e.action.equip.mask & 2))
                         npc->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1, slot[1]);
-                    if (!e.action.equip.mask || e.action.equip.mask & 4)
+                    if (!e.action.equip.mask || (e.action.equip.mask & 4))
                         npc->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 2, slot[2]);
                 }
             }
@@ -2024,6 +2025,45 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); ++itr)
                 if (IsCreature(*itr))
                     (*itr)->ToCreature()->SetControlled(e.action.setRoot.root ? true : false, UNIT_STATE_ROOT);
+
+            delete targets;
+            break;
+        }
+        case SMART_ACTION_SET_GO_FLAG:
+        {
+            ObjectList* targets = GetTargets(e, unit);
+            if (!targets)
+                break;
+
+            for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); ++itr)
+                if (IsGameObject(*itr))
+                    (*itr)->ToGameObject()->SetUInt32Value(GAMEOBJECT_FLAGS, e.action.goFlag.flag);
+
+            delete targets;
+            break;
+        }
+        case SMART_ACTION_ADD_GO_FLAG:
+        {
+            ObjectList* targets = GetTargets(e, unit);
+            if (!targets)
+                break;
+
+            for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); ++itr)
+                if (IsGameObject(*itr))
+                    (*itr)->ToGameObject()->SetFlag(GAMEOBJECT_FLAGS, e.action.goFlag.flag);
+
+            delete targets;
+            break;
+        }
+        case SMART_ACTION_REMOVE_GO_FLAG:
+        {
+            ObjectList* targets = GetTargets(e, unit);
+            if (!targets)
+                break;
+
+            for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); ++itr)
+                if (IsGameObject(*itr))
+                    (*itr)->ToGameObject()->RemoveFlag(GAMEOBJECT_FLAGS, e.action.goFlag.flag);
 
             delete targets;
             break;

@@ -332,6 +332,7 @@ class UnitAI;
 class Totem;
 class Transport;
 class Vehicle;
+class VehicleJoinEvent;
 class TransportBase;
 class SpellCastTargets;
 
@@ -2170,6 +2171,7 @@ class Unit : public WorldObject
         uint32 GetRedirectThreatPercent() { return _redirectThreadInfo.GetThreatPct(); }
         Unit* GetRedirectThreatTarget() { return _redirectThreadInfo.GetTargetGUID() ? GetUnit(*this, _redirectThreadInfo.GetTargetGUID()) : NULL; }
 
+        friend class VehicleJoinEvent;
         bool IsAIEnabled, NeedChangeAI;
         bool CreateVehicleKit(uint32 id, uint32 creatureEntry);
         void RemoveVehicleKit();
