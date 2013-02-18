@@ -14,15 +14,14 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
-#include "culling_of_stratholme.h"
 #include "ScriptedEscortAI.h"
 #include "PassiveAI.h"
 #include "Player.h"
 #include "SpellInfo.h"
+#include "culling_of_stratholme.h"
 
 enum Says
 {
@@ -76,14 +75,14 @@ enum Says
     SAY_PHASE503                                = 37,
     SAY_PHASE504                                = 38,
 
-    //Malganis
+    //Mal'Ganis
     SAY_PHASE206                                = 0,
     SAY_PHASE207                                = 1,
 
-    //Epoch
+    //Chrono-Lord Epoch
     SAY_PHASE314                                = 0,
 
-    //Uther
+    //Uther The Lightbringer
     SAY_PHASE102                                = 0,
     SAY_PHASE105                                = 1,
     SAY_PHASE107                                = 2,
@@ -91,19 +90,19 @@ enum Says
     SAY_PHASE111                                = 4,
     SAY_PHASE115                                = 5,
 
-    //Jaina
+    //Lady Jaina Proudmoore
     SAY_PHASE113                                = 0,
     SAY_PHASE117                                = 1,
 
-    //Cityman
+    //Cityman?
     SAY_PHASE202                                = 0,
 
-    //Crazyman
+    //Crazyman?
     SAY_PHASE204                                = 0,
 
     //Drakonian
     SAY_PHASE302                                = 0,
-    SAY_PHASE305                                = 1,
+    SAY_PHASE305                                = 1
 };
 
 enum NPCs
@@ -111,116 +110,112 @@ enum NPCs
     NPC_INFINITE_ADVERSARY                     = 27742,
     NPC_INFINITE_HUNTER                        = 27743,
     NPC_INFINITE_AGENT                         = 27744,
-    NPC_TIME_RIFT                              = 28409,
-    NPC_ZOMBIE                                 = 27737,
-    NPC_GHOUL                                  = 28249,
-    NPC_NECROMANCER                            = 28200,
-    NPC_STALKER                                = 28199,
-    NPC_FIEND                                  = 27734,
-    NPC_GOLEM                                  = 28201,
-    NPC_EGHOUL                                 = 27729,
-    NPC_CONSTRUCT                              = 27736,
+    NPC_TIME_RIFT                              = 28409, // Used for Infinite Agents, Hunters and Adversarys
+    NPC_TIME_RIFT_LARGE                        = 28439, // Used for Chrono-Lord Epoch ONLY
+    NPC_RISEN_ZOMBIE                           = 27737, // Achievement Criteria for Zombiefest!
 
-    NPC_INVIS_TARGET                           = 20562,
+    NPC_DEVOURING_GHOUL                        = 28249,
+    NPC_ENRAGING_GHOUL                         = 27729,
 
-    NPC_KNIGHT_ESCORT                          = 27745,
-    NPC_PRIEST_ESCORT                          = 27747,
-    NPC_CITY_MAN                               = 28167,
-    NPC_CITY_MAN2                              = 28169,
-    NPC_CITY_MAN3                              = 31126,
-    NPC_CITY_MAN4                              = 31127,
-};
+    NPC_ACOLYTE                                = 27731,
+    NPC_DARK_NECROMANCER                       = 28200,
+    NPC_MASTER_NECROMANCER                     = 27732,
 
-enum Spells
-{
-    SPELL_FEAR                                 = 39176,
-    SPELL_ARTHAS_AURA                          = 52442,
-    SPELL_EXORCISM_N                           = 52445,
-    SPELL_EXORCISM_H                           = 58822,
-    SPELL_HOLY_LIGHT                           = 52444,
-    SPELL_ARCANE_DISRUPTION                    = 49590,
-};
+    NPC_TOMB_STALKER                           = 28199,
+    NPC_CRYPT_FIEND                            = 27734,
 
-enum GossipMenuArthas
-{
-   GOSSIP_MENU_ARTHAS_1                        = 100001,
-   GOSSIP_MENU_ARTHAS_2                        = 100002,
-   GOSSIP_MENU_ARTHAS_3                        = 100003,
-   GOSSIP_MENU_ARTHAS_4                        = 100004,
-   GOSSIP_MENU_ARTHAS_5                        = 100005
+    NPC_BILE_GOLEM                             = 28201,
+    NPC_PATCHWORK_CONSTRUCT                    = 27736,
+
+    NPC_LORDAERON_FOOTMAN                      = 27745,
+    NPC_HIGH_ELF_MAGE_PRIEST                   = 27747,
+
+    NPC_STRATHOLME_CITIZEN                     = 28167,
+    NPC_STRATHOLME_RESIDENT                    = 28169,
+    NPC_AGITATED_STRATHOLME_CITIZEN            = 31126,
+    NPC_AGITATED_STRATHOLME_RESIDENT           = 31127,
+
+    NPC_INVISIBLE_STALKER                      = 29100
 };
 
 enum EncounterData
 {
-    ENCOUNTER_WAVES_NUMBER                      = 8,
-    ENCOUNTER_WAVES_MAX_SPAWNS                  = 5,
-    ENCOUNTER_DRACONIAN_NUMBER                  = 4,
-    ENCOUNTER_CHRONO_SPAWNS                     = 19
+    ENCOUNTER_WAVES_NUMBER                     = 8,
+    ENCOUNTER_WAVES_MAX_SPAWNS                 = 6,
+    ENCOUNTER_INFINITE_DRAGON_NUMBER           = 4,
+    ENCOUNTER_CHRONO_SPAWNS                    = 19
 };
 
-// Locations for necromancers and add to spawn
-float WavesLocations[ENCOUNTER_WAVES_NUMBER][ENCOUNTER_WAVES_MAX_SPAWNS][5]=
+float const WavesLocations[ENCOUNTER_WAVES_NUMBER][ENCOUNTER_WAVES_MAX_SPAWNS][5] =
 {
-    {
-        {NPC_ZOMBIE, 2164.698975f, 1255.392944f, 135.040878f, 0.490202f},
-        {NPC_ZOMBIE, 2183.501465f, 1263.079102f, 134.859055f, 3.169981f},
-        {NPC_GHOUL, 2177.512939f, 1247.313843f, 135.846695f, 1.696574f},
-        {NPC_GHOUL, 2171.991943f, 1246.615845f, 135.745026f, 1.696574f},
+    {   // Wave 1/10
+        {NPC_ENRAGING_GHOUL, 2164.698975f, 1255.392944f, 135.040878f, 0.490202f},
+        {NPC_DEVOURING_GHOUL, 2183.501465f, 1263.079102f, 134.859055f, 3.169981f},
+        {NPC_DEVOURING_GHOUL, 2177.512939f, 1247.313843f, 135.846695f, 1.696574f},
+        {0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0},
         {0, 0, 0, 0, 0}
     },
-    {
-        {NPC_GHOUL, 2254.434326f, 1163.427612f, 138.055038f, 2.077358f},
-        {NPC_GHOUL, 2254.703613f, 1158.867798f, 138.212234f, 2.345532f},
-        {NPC_GHOUL, 2257.615723f, 1162.310913f, 138.091202f, 2.077358f},
-        {NPC_NECROMANCER, 2258.258057f, 1157.250732f, 138.272873f, 2.387766f},
+    {   // Wave 2/10
+        {NPC_DARK_NECROMANCER, 2258.258057f, 1157.250732f, 138.272873f, 2.387766f},
+        {NPC_ENRAGING_GHOUL, 2254.703613f, 1158.867798f, 138.212234f, 2.345532f},
+        {NPC_DEVOURING_GHOUL, 2257.615723f, 1162.310913f, 138.091202f, 2.077358f},
+        {0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0},
         {0, 0, 0, 0, 0}
     },
-    {
-        {NPC_STALKER, 2348.120117f, 1202.302490f, 130.491104f, 4.698538f},
-        {NPC_GHOUL, 2352.863525f, 1207.819092f, 130.424271f, 4.949865f},
-        {NPC_GHOUL, 2343.593750f, 1207.915039f, 130.781311f, 4.321547f},
-        {NPC_NECROMANCER, 2348.257324f, 1212.202515f, 130.670135f, 4.450352f},
+    {   // Wave 3/10
+        {NPC_CRYPT_FIEND, 2348.120117f, 1202.302490f, 130.491104f, 4.698538f},
+        {NPC_DEVOURING_GHOUL, 2352.863525f, 1207.819092f, 130.424271f, 4.949865f},
+        {NPC_ENRAGING_GHOUL, 2343.593750f, 1207.915039f, 130.781311f, 4.321547f},
+        {NPC_DARK_NECROMANCER, 2348.257324f, 1212.202515f, 130.670135f, 4.450352f},
+        {0, 0, 0, 0, 0},
         {0, 0, 0, 0, 0}
     },
-    {
-        {NPC_STALKER, 2139.825195f, 1356.277100f, 132.199615f, 5.820131f},
-        {NPC_GHOUL, 2137.073486f, 1362.464844f, 132.271637f, 5.820131f},
-        {NPC_GHOUL, 2134.075684f, 1354.148071f, 131.885864f, 5.820131f},
-        {NPC_NECROMANCER, 2133.302246f, 1358.907837f, 132.037689f, 5.820131f},
+    {   // Wave 4/10
+        {NPC_TOMB_STALKER, 2139.825195f, 1356.277100f, 132.199615f, 5.820131f},
+        {NPC_DARK_NECROMANCER, 2137.073486f, 1362.464844f, 132.271637f, 5.820131f},
+        {NPC_ACOLYTE, 2134.075684f, 1354.148071f, 131.885864f, 5.820131f},
+        {NPC_ACOLYTE, 2133.302246f, 1358.907837f, 132.037689f, 5.820131f},
+        {NPC_ACOLYTE, 2132.002246f, 1357.807837f, 132.037689f, 5.820131f},
+        {NPC_ACOLYTE, 2131.300046f, 1350.007837f, 132.037689f, 5.820131f}
+    },
+    {   // Wave 6/10
+        {NPC_MASTER_NECROMANCER, 2264.013428f, 1174.055908f, 138.093094f, 2.860481f},
+        {NPC_ENRAGING_GHOUL, 2264.207764f, 1170.892700f, 138.034973f, 2.860481f},
+        {NPC_TOMB_STALKER, 2269.215576f, 1170.109253f, 137.742691f, 2.860481f},
+        {NPC_CRYPT_FIEND, 2273.106689f, 1176.101074f, 137.880508f, 2.860481f},
+        {0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0}
+    },  // Wave 5/10: Meathook
+    {   // Wave 7/10
+        {NPC_PATCHWORK_CONSTRUCT, 2349.701660f, 1188.436646f, 130.428864f, 3.908642f},
+        {NPC_DEVOURING_GHOUL, 2349.909180f, 1194.582642f, 130.417816f, 3.577001f},
+        {NPC_ENRAGING_GHOUL, 2354.662598f, 1185.692017f, 130.552032f, 3.577001f},
+        {NPC_ENRAGING_GHOUL, 2354.716797f, 1191.614380f, 130.539810f, 3.577001f},
+        {0, 0, 0, 0, 0},
         {0, 0, 0, 0, 0}
     },
-    {
-        {NPC_NECROMANCER, 2264.013428f, 1174.055908f, 138.093094f, 2.860481f},
-        {NPC_GHOUL, 2264.207764f, 1170.892700f, 138.034973f, 2.860481f},
-        {NPC_GHOUL, 2266.948975f, 1176.898926f, 137.976929f, 2.860481f},
-        {NPC_STALKER, 2269.215576f, 1170.109253f, 137.742691f, 2.860481f},
-        {NPC_FIEND, 2273.106689f, 1176.101074f, 137.880508f, 2.860481f}
-    },
-    {
-        {NPC_GOLEM, 2349.701660f, 1188.436646f, 130.428864f, 3.908642f},
-        {NPC_GHOUL, 2349.909180f, 1194.582642f, 130.417816f, 3.577001f},
-        {NPC_EGHOUL, 2354.662598f, 1185.692017f, 130.552032f, 3.577001f},
-        {NPC_EGHOUL, 2354.716797f, 1191.614380f, 130.539810f, 3.577001f},
+    {   // Wave 8/10
+        {NPC_PATCHWORK_CONSTRUCT, 2145.212891f, 1355.288086f, 132.288773f, 6.004838f},
+        {NPC_DARK_NECROMANCER, 2137.078613f, 1357.612671f, 132.173340f, 6.004838f},
+        {NPC_ENRAGING_GHOUL, 2139.402100f, 1352.541626f, 132.127518f, 5.812850f},
+        {NPC_DEVOURING_GHOUL, 2142.408447f, 1360.760620f, 132.321564f, 5.812850f},
+        {0, 0, 0, 0, 0},
         {0, 0, 0, 0, 0}
     },
-    {
-        {NPC_CONSTRUCT, 2145.212891f, 1355.288086f, 132.288773f, 6.004838f},
-        {NPC_NECROMANCER, 2137.078613f, 1357.612671f, 132.173340f, 6.004838f},
-        {NPC_EGHOUL, 2139.402100f, 1352.541626f, 132.127518f, 5.812850f},
-        {NPC_EGHOUL, 2142.408447f, 1360.760620f, 132.321564f, 5.812850f},
+    {   // Wave 9/10
+        {NPC_ENRAGING_GHOUL, 2172.686279f, 1259.618164f, 134.391754f, 1.865499f},
+        {NPC_TOMB_STALKER, 2177.649170f, 1256.061157f, 135.096512f, 1.849572f},
+        {NPC_BILE_GOLEM, 2170.782959f, 1253.594849f, 134.973022f, 1.849572f},
+        {NPC_DARK_NECROMANCER, 2175.595703f, 1249.041992f, 135.603531f, 1.849572f},
+        {0, 0, 0, 0, 0},
         {0, 0, 0, 0, 0}
-    },
-    {
-        {NPC_GHOUL, 2172.686279f, 1259.618164f, 134.391754f, 1.865499f},
-        {NPC_FIEND, 2177.649170f, 1256.061157f, 135.096512f, 1.849572f},
-        {NPC_CONSTRUCT, 2170.782959f, 1253.594849f, 134.973022f, 1.849572f},
-        {NPC_NECROMANCER, 2175.595703f, 1249.041992f, 135.603531f, 1.849572f},
-        {0, 0, 0, 0, 0}
-    }
+    }   // Wave 10/10: Salramm the Fleshcrafter
 };
 
 // Locations for rifts to spawn and draconians to go
-float RiftAndSpawnsLocations[ENCOUNTER_CHRONO_SPAWNS][5]=
+float const RiftAndSpawnsLocations[ENCOUNTER_CHRONO_SPAWNS][5]=
 {
     {NPC_TIME_RIFT, 2431.790039f, 1190.670044f, 148.076004f, 0.187923f},
     {NPC_INFINITE_ADVERSARY, 2433.857910f, 1185.612061f, 148.075974f, 4.566168f},
@@ -240,10 +235,158 @@ float RiftAndSpawnsLocations[ENCOUNTER_CHRONO_SPAWNS][5]=
     {NPC_INFINITE_ADVERSARY, 2438.190674f, 1118.368164f, 148.076172f, 3.139232f},
     {NPC_INFINITE_AGENT, 2435.861328f, 1113.402954f, 148.169327f, 2.390271f},
     {NPC_TIME_RIFT, 2463.131592f, 1115.391724f, 152.473129f, 3.409651f},
-    {NPC_EPOCH, 2451.809326f, 1112.901245f, 149.220459f, 3.363617f}
+    {NPC_CHRONO_LORD_EPOCH, 2451.809326f, 1112.901245f, 149.220459f, 3.363617f}
 };
 
-#define GOSSIP_ITEM_ARTHAS_0 "I'm ready to start Culling of Stratholme."
+enum GossipMenuChromieStart
+{
+   GOSSIP_MENU_CHROMIE_START_JUST_IN_THE_NICK_OF_TIME      = 12939, //[1A]Welcome, adventurer. You've come just in the nick of time.
+   GOSSIP_MENU_CHROMIE_START_ATTEMPTING_TO_ALTER_DESTINY   = 12949, //[2A]The infinite Dragonflight is attempting to alter the destiny of Prince Arthas Menethil.
+   GOSSIP_MENU_CHROMIE_START_ARTHAS_GAVE_THE_ORDER_TO_CULL = 12950, //[3A]Arthas gave the order to cull stratholme, killing every single human within its walls.
+   GOSSIP_MENU_CHROMIE_START_SOMETHING_UNUSUALLY_SUBTLE    = 12952, //[4A]The infinites are attempting something unusually subtle for theM. They are trying to hide the evidence that will lead to Arthas deciding to cull Stratholme.
+   GOSSIP_MENU_CHROMIE_START_FIND_HIDDEN_PLAUGED_CRATES    = 13471, //[1C]Go find those hidden plagued grain crates and use your Arcane Disruptor on them! Arthas will then have the evidence he needs to begin the culling of Stratholme.
+   GOSSIP_MENU_CHROMIE_START_YOU_SHOULD_BE_WITH_ARTHAS_GO  = 13472, //[2C]What are you doing here? Arthas is at the entrance to Stratholme right now and you should be with him! Go!
+   GOSSIP_MENU_CHROMIE_START_GET_BACK_TO_STRATHOLME        = 13470, //[3D]What are you doing all the way back here? You need to get back to Stratholme immediately! Shall I teleport you to stratholme?                                              
+   
+   GOSSIP_MENU_CHROMIE_START_I_HAVE_SEEN_YOU_BEFORE        = 13473  //[1D]Thats right, I have seen you before! How could I forget? I can teleport you to Stratholme now, if you wish.
+};
+
+#define GOSSIP_MENU_OPTION_CHROMIE_START_1A "Why have I been sent back to this particular place and time?"
+#define GOSSIP_MENU_OPTION_CHROMIE_START_2A "What was this decision?"
+#define GOSSIP_MENU_OPTION_CHROMIE_START_3A "So how does the Infinite Dragonflight plan to interfere?"
+#define GOSSIP_MENU_OPTION_CHROMIE_START_1B "Chromie, you and I both know what's going to happen in this time stream. We've seen this all before.$B$BCan you just skip us ahead to all the real action?"
+#define GOSSIP_MENU_OPTION_CHROMIE_START_1C "Yes, Please!"
+
+enum InstanceQuests
+{
+    QUEST_DISPELLING_ILLUSIONS = 13149,
+    QUEST_A_ROYAL_ESCORT       = 13151
+};
+
+enum InstanceItems
+{
+    ITEM_ARCANE_DISRUPTOR = 37888
+};
+
+class npc_chromie_start : public CreatureScript
+{
+    public:
+        npc_chromie_start() : CreatureScript("npc_chromie_start_cos") { }
+
+        struct npc_chromie_startAI : public ScriptedAI
+        {
+            npc_chromie_startAI(Creature* creature) : ScriptedAI(creature)
+            {
+                instance = creature->GetInstanceScript();
+            }
+
+            CreatureAI* GetAI(Creature* creature) const
+            {
+                return new npc_chromie_startAI(creature);
+            }
+
+            InstanceScript* instance;
+
+            bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest)
+            {
+                if (instance->GetData(DATA_CRATE_EVENT) == NOT_STARTED && quest->GetQuestId() == QUEST_DISPELLING_ILLUSIONS && !player->HasItemCount(ITEM_ARCANE_DISRUPTOR))
+                    player->AddItem(ITEM_ARCANE_DISRUPTOR, 1);
+
+                return true;
+            }
+
+            bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
+            {
+                player->PlayerTalkClass->ClearMenus();
+                npc_chromie_startAI* ai = CAST_AI(npc_chromie_start::npc_chromie_startAI, creature->AI());
+
+                if (!ai)
+                    return false;
+
+                switch(action)
+                {
+                    case GOSSIP_ACTION_INFO_DEF+1:
+                        player->SEND_GOSSIP_MENU(GOSSIP_MENU_CHROMIE_START_ATTEMPTING_TO_ALTER_DESTINY, creature->GetGUID());
+                        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_MENU_OPTION_CHROMIE_START_2A, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
+                        break;
+                    case GOSSIP_ACTION_INFO_DEF+2:
+                        player->SEND_GOSSIP_MENU(GOSSIP_MENU_CHROMIE_START_ARTHAS_GAVE_THE_ORDER_TO_CULL, creature->GetGUID());
+                        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_MENU_OPTION_CHROMIE_START_3A, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+3);
+                        break;
+                    case GOSSIP_ACTION_INFO_DEF+3:
+                        player->SEND_GOSSIP_MENU(GOSSIP_MENU_CHROMIE_START_SOMETHING_UNUSUALLY_SUBTLE, creature->GetGUID());
+                        if (instance->GetData(DATA_CRATE_EVENT) == NOT_STARTED)
+                        {
+                            player->AddItem(ITEM_ARCANE_DISRUPTOR, 1);
+                            instance->SetData(DATA_CRATE_EVENT, IN_PROGRESS);
+                        }
+                        break;
+                    case GOSSIP_ACTION_INFO_DEF+4: /// @todo: 
+                        instance->SetData(DATA_CRATE_EVENT, DONE);
+                        instance->SetData(DATA_INITIAL_RP_EVENT, DONE);
+                        instance->SetData(DATA_MEATHOOK_EVENT, IN_PROGRESS);
+                        break;
+                    case GOSSIP_ACTION_INFO_DEF+5:
+                        player->SEND_GOSSIP_MENU(GOSSIP_MENU_CHROMIE_START_I_HAVE_SEEN_YOU_BEFORE, creature->GetGUID());
+                        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_MENU_OPTION_CHROMIE_START_1C, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+7);
+                    case GOSSIP_ACTION_INFO_DEF+6:
+                    case GOSSIP_ACTION_INFO_DEF+7:
+                        player->PlayerTalkClass->SendCloseGossip;
+                        DoTeleportPlayer(player, 2071.8159f, 1287.34216f, 141.6825f, 0.021476f);
+                        break;
+                    default:
+                        break;
+                }
+
+                return true;
+            }
+
+            bool OnGossipHello(Player* player, Creature* creature)
+            {
+                npc_chromie_startAI* ai = CAST_AI(npc_chromie_start::npc_chromie_startAI, creature->AI());
+
+                if (!ai)
+                    return false;
+
+                if (instance->GetData(DATA_CRATE_EVENT) == NOT_STARTED)
+                {
+                    player->SEND_GOSSIP_MENU(GOSSIP_MENU_CHROMIE_START_JUST_IN_THE_NICK_OF_TIME, creature->GetGUID());
+                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_MENU_OPTION_CHROMIE_START_1A, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+
+                    if (player->HasAchieved(ACHIEVEMENT_THE_CULLING_OF_STRATHOLME))
+                        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_MENU_OPTION_CHROMIE_START_1B, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+5);
+                }
+                if (instance->GetData(DATA_CRATE_EVENT) == IN_PROGRESS)
+                    player->SEND_GOSSIP_MENU(GOSSIP_MENU_CHROMIE_START_FIND_HIDDEN_PLAUGED_CRATES, creature->GetGUID());
+                if (instance->GetData(DATA_MEATHOOK_EVENT) == NOT_STARTED && instance->GetData(DATA_CRATE_EVENT) == DONE)
+                {
+                    player->SEND_GOSSIP_MENU(GOSSIP_MENU_CHROMIE_START_GET_BACK_TO_STRATHOLME, creature->GetGUID());
+                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_MENU_OPTION_CHROMIE_START_1C, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+6);
+                }
+
+                return true;
+            }
+        };
+};
+
+enum ArthasSpells
+{
+    SPELL_FEAR               = 39176,
+    SPELL_ARTHAS_AURA        = 52442,
+    SPELL_EXORCISM_N         = 52445,
+    SPELL_EXORCISM_H         = 58822,
+    SPELL_HOLY_LIGHT         = 52444
+};
+
+enum GossipMenuArthas
+{
+   GOSSIP_MENU_ARTHAS_1      = 100001,
+   GOSSIP_MENU_ARTHAS_2      = 100002,
+   GOSSIP_MENU_ARTHAS_3      = 100003,
+   GOSSIP_MENU_ARTHAS_4      = 100004,
+   GOSSIP_MENU_ARTHAS_5      = 100005
+};
+
 #define GOSSIP_ITEM_ARTHAS_1 "Yes, my Prince. We're ready."
 #define GOSSIP_ITEM_ARTHAS_2 "We're only doing what is best for Loarderon your Highness."
 #define GOSSIP_ITEM_ARTHAS_3 "I'm ready."
@@ -265,12 +408,6 @@ public:
 
         switch (action)
         {
-            case GOSSIP_ACTION_INFO_DEF:
-                ai->Start(true, true, player->GetGUID(), 0, false, false);
-                ai->SetDespawnAtEnd(false);
-                ai->bStepping = false;
-                ai->step = 1;
-                break;
             case GOSSIP_ACTION_INFO_DEF+1:
                 ai->bStepping = true;
                 ai->step = 24;
@@ -291,9 +428,11 @@ public:
                 ai->bStepping = true;
                 ai->step = 85;
                 break;
+            default:
+                break;
         }
         player->CLOSE_GOSSIP_MENU();
-        ai->SetDespawnAtFar(true);
+        ai->SetDespawnAtFar(false);
         creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
         return true;
     }
@@ -306,15 +445,6 @@ public:
         {
             switch (ai->gossipStep)
             {
-                case 0: //This one is a workaround since the very beggining of the script is wrong.
-                {
-                    QuestStatus status = player->GetQuestStatus(13149);
-                    if (status != QUEST_STATUS_COMPLETE && status != QUEST_STATUS_REWARDED)
-                        return false;
-                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_ARTHAS_0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
-                    player->SEND_GOSSIP_MENU(907, creature->GetGUID());
-                    break;
-                }
                 case 1:
                     player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_ARTHAS_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
                     player->SEND_GOSSIP_MENU(GOSSIP_MENU_ARTHAS_1, creature->GetGUID());
@@ -331,7 +461,8 @@ public:
                     player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_ARTHAS_4, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+4);
                     player->SEND_GOSSIP_MENU(GOSSIP_MENU_ARTHAS_4, creature->GetGUID());
                     break;
-                case 5:
+                //case 5: Resting in the avenue of flame, sends only a gossip menu hello "Gather your senses quickly, we must press on."(13177)
+                case 5:// will be 6
                     player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_ARTHAS_5, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+5);
                     player->SEND_GOSSIP_MENU(GOSSIP_MENU_ARTHAS_5, creature->GetGUID());
                     break;
@@ -359,38 +490,34 @@ public:
 
         bool bStepping;
         uint32 step;
-        uint32 phaseTimer;
-        uint32 gossipStep;
+        uint16 phaseTimer;
         uint32 playerFaction;
         uint32 bossEvent;
-        uint32 wave;
+        uint8 gossipStep;
+        uint8 wave;
 
-        uint64 utherGUID;
-        uint64 jainaGUID;
         uint64 citymenGUID[2];
         uint64 waveGUID[ENCOUNTER_WAVES_MAX_SPAWNS];
-        uint64 infiniteDraconianGUID[ENCOUNTER_DRACONIAN_NUMBER];
-        uint64 stalkerGUID;
+        uint64 infiniteDraconianGUID[ENCOUNTER_INFINITE_DRAGON_NUMBER];
 
+        uint64 stalkerGUID;
         uint64 bossGUID;
         uint64 epochGUID;
         uint64 malganisGUID;
         uint64 infiniteGUID;
 
         uint32 exorcismTimer;
+        uint32 holyLightTimer;
 
         void Reset()
         {
-            utherGUID = 0;
-            jainaGUID = 0;
-
             for (uint8 i = 0; i < 2; ++i)
                 citymenGUID[i] = 0;
 
             for (uint8 i = 0; i < ENCOUNTER_WAVES_MAX_SPAWNS; ++i)
                 waveGUID[i] = 0;
 
-            for (uint8 i = 0; i < ENCOUNTER_DRACONIAN_NUMBER; ++i)
+            for (uint8 i = 0; i < ENCOUNTER_INFINITE_DRAGON_NUMBER; ++i)
                 infiniteDraconianGUID[i] = 0;
 
             stalkerGUID = 0;
@@ -399,19 +526,12 @@ public:
             malganisGUID = 0;
             infiniteGUID = 0;
 
-            if (instance) {
+            if (instance)
+            {
                 instance->SetData(DATA_ARTHAS_EVENT, NOT_STARTED);
-                switch (instance->GetData(DATA_ARTHAS_EVENT))
-                {
-                    case NOT_STARTED:
-                        bStepping = true;
-                        step = 0;
-                        me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-                        bossEvent = DATA_MEATHOOK_EVENT;
-                        gossipStep = 0;
-                        break;
-                }
+
                 phaseTimer = 1000;
+                holyLightTimer = 15000;
                 exorcismTimer = 7300;
                 wave = 0;
             }
@@ -419,34 +539,38 @@ public:
 
         void EnterCombat(Unit* /*who*/)
         {
+            if (instance->GetData(DATA_SALRAMM_EVENT) == DONE && !me->HasAura(SPELL_ARTHAS_AURA))
             DoCast(me, SPELL_ARTHAS_AURA);
         }
 
-        void JustDied(Unit* /*killer*/)
-        {
-            if (instance)
-                instance->SetData(DATA_ARTHAS_EVENT, FAIL);
-        }
+        /*KROGONOS 434 | 11:58 @ 2/14/2013
+         Arthas never dies.
+         Remove auras, Set invincibility hp level @ 1, have arthas fall over, make invisible after 3 sec, set instance data arthas event fail
+         start foux respawn timer 30 sec when group first exits combat after arthas dies, teleport to spawn location based
+         on current instance data and also set gossip menu based on that as well, timer hits 0 reappear.*/
 
+        // This needs to be heavily criticized
         void SpawnTimeRift(uint32 timeRiftID, uint64* guidVector)
         {
             me->SummonCreature((uint32)RiftAndSpawnsLocations[timeRiftID][0], RiftAndSpawnsLocations[timeRiftID][1], RiftAndSpawnsLocations[timeRiftID][2], RiftAndSpawnsLocations[timeRiftID][3], RiftAndSpawnsLocations[timeRiftID][4], TEMPSUMMON_TIMED_DESPAWN, 11000);
 
             for (uint32 i = timeRiftID+1; i < ENCOUNTER_CHRONO_SPAWNS; ++i)
             {
-                if ((uint32)RiftAndSpawnsLocations[i][0] == NPC_TIME_RIFT) break;
+                if ((uint32)RiftAndSpawnsLocations[i][0] == NPC_TIME_RIFT)
+                    break;
                 if (Creature* temp = me->SummonCreature((uint32)RiftAndSpawnsLocations[i][0], RiftAndSpawnsLocations[timeRiftID][1], RiftAndSpawnsLocations[timeRiftID][2], RiftAndSpawnsLocations[timeRiftID][3], RiftAndSpawnsLocations[timeRiftID][4], TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 900000))
                 {
                     guidVector[i-timeRiftID-1] = temp->GetGUID();
                     temp->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
                     temp->SetReactState(REACT_PASSIVE);
                     temp->GetMotionMaster()->MovePoint(0, RiftAndSpawnsLocations[i][1], RiftAndSpawnsLocations[i][2], RiftAndSpawnsLocations[i][3]);
-                    if ((uint32)RiftAndSpawnsLocations[i][0] == NPC_EPOCH)
+                    if ((uint32)RiftAndSpawnsLocations[i][0] == NPC_CHRONO_LORD_EPOCH)
                         epochGUID = temp->GetGUID();
                 }
             }
         }
 
+        // This needs to be heavily criticized
         void SpawnWaveGroup(uint32 waveID, uint64* guidVector)
         {
             for (uint32 i = 0; i < ENCOUNTER_WAVES_MAX_SPAWNS; ++i)
@@ -470,6 +594,7 @@ public:
             ++step;
         }
 
+        // This needs to be heavily criticized
         void WaypointReached(uint32 waypointId)
         {
             switch (waypointId)
@@ -489,9 +614,9 @@ public:
                     bStepping = true;
                     break;
                 case 7:
-                    if (Unit* cityman0 = me->SummonCreature(NPC_CITY_MAN, 2091.977f, 1275.021f, 140.757f, 0.558f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 60000))
+                    if (Unit* cityman0 = me->SummonCreature(NPC_STRATHOLME_CITIZEN, 2091.977f, 1275.021f, 140.757f, 0.558f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 60000))
                         citymenGUID[0] = cityman0->GetGUID();
-                    if (Unit* cityman1 = me->SummonCreature(NPC_CITY_MAN2, 2093.514f, 1275.842f, 140.408f, 3.801f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 60000))
+                    if (Unit* cityman1 = me->SummonCreature(NPC_STRATHOLME_RESIDENT, 2093.514f, 1275.842f, 140.408f, 3.801f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 60000))
                         citymenGUID[1] = cityman1->GetGUID();
                     break;
                 case 8:
@@ -502,14 +627,14 @@ public:
                 case 12:
                     SetRun(true);
                     Talk(SAY_PHASE210);
-                    if (Unit* disguised0 = me->SummonCreature(NPC_CITY_MAN3, 2398.14f, 1207.81f, 134.04f, 5.155249f, TEMPSUMMON_DEAD_DESPAWN, 180000))
+                    if (Unit* disguised0 = me->SummonCreature(NPC_AGITATED_STRATHOLME_CITIZEN, 2398.14f, 1207.81f, 134.04f, 5.155249f, TEMPSUMMON_DEAD_DESPAWN, 180000))
                     {
                         infiniteDraconianGUID[0] = disguised0->GetGUID();
-                        if (Unit* disguised1 = me->SummonCreature(NPC_CITY_MAN4, 2403.22f, 1205.54f, 134.04f, 3.311264f, TEMPSUMMON_DEAD_DESPAWN, 180000))
+                        if (Unit* disguised1 = me->SummonCreature(NPC_AGITATED_STRATHOLME_RESIDENT, 2403.22f, 1205.54f, 134.04f, 3.311264f, TEMPSUMMON_DEAD_DESPAWN, 180000))
                         {
                             infiniteDraconianGUID[1] = disguised1->GetGUID();
 
-                            if (Unit* disguised2 = me->SummonCreature(NPC_CITY_MAN, 2400.82f, 1201.69f, 134.01f, 1.534082f, TEMPSUMMON_DEAD_DESPAWN, 180000))
+                            if (Unit* disguised2 = me->SummonCreature(NPC_STRATHOLME_CITIZEN, 2400.82f, 1201.69f, 134.01f, 1.534082f, TEMPSUMMON_DEAD_DESPAWN, 180000))
                             {
                                 infiniteDraconianGUID[2] = disguised2->GetGUID();
                                 disguised0->SetTarget(infiniteDraconianGUID[1]);
@@ -560,12 +685,11 @@ public:
                     break;
                 case 36:
                     if (instance)
-                        if (GameObject* pGate = instance->instance->GetGameObject(instance->GetData64(DATA_SHKAF_GATE)))
+                        if (GameObject* pGate = instance->instance->GetGameObject(instance->GetData64(DATA_BOOKSHELF)))
                             pGate->SetGoState(GO_STATE_ACTIVE);
                     break;
                 case 45:
                     SetRun(true);
-                    SetDespawnAtFar(false);
                     gossipStep = 4;
                     me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                     SetHoldState(true);
@@ -589,6 +713,8 @@ public:
              }
         }
 
+        // This needs to be heavily criticized
+        // Change *almost* all SetTargets to facings (Blizzlike)
         void UpdateAI(const uint32 diff)
         {
             npc_escortAI::UpdateAI(diff);
@@ -603,38 +729,22 @@ public:
                     {
                         //After reset
                         case 0:
-                        {
-                            Unit* jaina = GetClosestCreatureWithEntry(me, NPC_JAINA, 50.0f);
-                            if (!jaina)
-                                jaina = me->SummonCreature(NPC_JAINA, 1895.48f, 1292.66f, 143.706f, 0.023475f, TEMPSUMMON_DEAD_DESPAWN, 180000);
-                            if (jaina)
-                                jainaGUID = jaina->GetGUID();
-                            bStepping = false;
-                            JumpToNextStep(0);
-                            break;
-                        }
+                          {
+                              bStepping = false;
+                              JumpToNextStep(0);
+                              break;
+                          }
                         //After waypoint 0
                         case 1:
                             me->SetWalk(false);
-                            if (Unit* uther = me->SummonCreature(NPC_UTHER, 1794.357f, 1272.183f, 140.558f, 1.37f, TEMPSUMMON_DEAD_DESPAWN, 180000))
-                            {
-                                utherGUID = uther->GetGUID();
-                                uther->SetWalk(false);
-                                uther->GetMotionMaster()->MovePoint(0, 1897.018f, 1287.487f, 143.481f);
-                                uther->SetTarget(me->GetGUID());
-                                me->SetTarget(utherGUID);
-                            }
                             JumpToNextStep(17000);
-                            break;
                         case 2:
                             Talk(SAY_PHASE101);
                             JumpToNextStep(2000);
                             break;
                         case 3:
-                            if (Creature* uther = Unit::GetCreature(*me, utherGUID))
-                            {
-                                uther->AI()->Talk(SAY_PHASE102);
-                            }
+                            /*if (Creature* uther = Unit::GetCreature(*me, utherGUID))
+                                uther->AI()->Talk(SAY_PHASE102);*/
                             JumpToNextStep(8000);
                             break;
                         case 4:
@@ -646,14 +756,14 @@ public:
                             break;
                         //After waypoint 1
                         case 5:
-                            if (Creature* jaina = Unit::GetCreature(*me, jainaGUID))
-                                jaina->SetTarget(me->GetGUID());
+                            /*if (Creature* jaina = Unit::GetCreature(*me, jainaGUID))
+                                jaina->SetTarget(me->GetGUID());*/
                             Talk(SAY_PHASE104);
                             JumpToNextStep(10000);
                             break;
                         case 6:
-                            if (Creature* uther = Unit::GetCreature(*me, utherGUID))
-                                uther->AI()->Talk(SAY_PHASE105);
+                            /*if (Creature* uther = Unit::GetCreature(*me, utherGUID))
+                                uther->AI()->Talk(SAY_PHASE105);*/
                             JumpToNextStep(1000);
                             break;
                         case 7:
@@ -661,8 +771,8 @@ public:
                             JumpToNextStep(4000);
                             break;
                         case 8:
-                            if (Creature* uther = Unit::GetCreature(*me, utherGUID))
-                                 uther->AI()->Talk(SAY_PHASE107);
+                            /*if (Creature* uther = Unit::GetCreature(*me, utherGUID))
+                                 uther->AI()->Talk(SAY_PHASE107);*/
                             JumpToNextStep(6000);
                             break;
                         case 9:
@@ -670,8 +780,8 @@ public:
                             JumpToNextStep(4000);
                             break;
                         case 10:
-                            if (Creature* uther = Unit::GetCreature(*me, utherGUID))
-                                 uther->AI()->Talk(SAY_PHASE109);
+                            /*if (Creature* uther = Unit::GetCreature(*me, utherGUID))
+                                 uther->AI()->Talk(SAY_PHASE109);*/
                             JumpToNextStep(8000);
                             break;
                         case 11:
@@ -679,8 +789,8 @@ public:
                             JumpToNextStep(4000);
                             break;
                         case 12:
-                            if (Creature* uther = Unit::GetCreature(*me, utherGUID))
-                                 uther->AI()->Talk(SAY_PHASE111);
+                            /*if (Creature* uther = Unit::GetCreature(*me, utherGUID))
+                                 uther->AI()->Talk(SAY_PHASE111);*/
                             JumpToNextStep(4000);
                             break;
                         case 13:
@@ -688,8 +798,8 @@ public:
                             JumpToNextStep(11000);
                             break;
                         case 14:
-                            if (Creature* jaina = Unit::GetCreature(*me, jainaGUID))
-                                 jaina->AI()->Talk(SAY_PHASE113);
+                            /*if (Creature* jaina = Unit::GetCreature(*me, jainaGUID))
+                                 jaina->AI()->Talk(SAY_PHASE113);*/
                             JumpToNextStep(3000);
                             break;
                         case 15:
@@ -697,25 +807,25 @@ public:
                             JumpToNextStep(9000);
                             break;
                         case 16:
-                            if (Creature* uther = Unit::GetCreature(*me, utherGUID))
-                                uther->AI()->Talk(SAY_PHASE115);
+                            /*if (Creature* uther = Unit::GetCreature(*me, utherGUID))
+                                uther->AI()->Talk(SAY_PHASE115);*/
                             JumpToNextStep(4000);
                             break;
                         case 17:
-                            if (Creature* uther = Unit::GetCreature(*me, utherGUID))
+                            /*if (Creature* uther = Unit::GetCreature(*me, utherGUID))
                             {
-                                uther->SetWalk(true);
+                                uther->SetWalk(true);//Fix
                                 uther->GetMotionMaster()->MovePoint(0, 1794.357f, 1272.183f, 140.558f);
-                            }
+                            }*/
                             JumpToNextStep(1000);
                             break;
                         case 18:
-                            if (Creature* jaina = Unit::GetCreature(*me, jainaGUID))
+                            /*if (Creature* jaina = Unit::GetCreature(*me, jainaGUID))
                             {
-                                me->SetTarget(jainaGUID);
-                                jaina->SetWalk(true);
+                                me->SetTarget(jainaGUID);//Fix
+                                jaina->SetWalk(true);//Fix
                                 jaina->GetMotionMaster()->MovePoint(0, 1794.357f, 1272.183f, 140.558f);
-                            }
+                            }*/
                             JumpToNextStep(1000);
                             break;
                         case 19:
@@ -723,8 +833,8 @@ public:
                             JumpToNextStep(1000);
                             break;
                         case 20:
-                            if (Creature* jaina = Unit::GetCreature(*me, jainaGUID))
-                                jaina->AI()->Talk(SAY_PHASE117);
+                            /*if (Creature* jaina = Unit::GetCreature(*me, jainaGUID))
+                                jaina->AI()->Talk(SAY_PHASE117);*/
                             JumpToNextStep(3000);
                             break;
                         case 21:
@@ -735,8 +845,8 @@ public:
                             break;
                         //After waypoint 3
                         case 22:
-                            Talk(SAY_PHASE118);
-                            me->SetTarget(jainaGUID);
+                            Talk(SAY_PHASE118); //Take position here, and I will lead a small force inside Stratholme to begin the culling. We must contain and purge the infected for the sake of all of Lordaeron!
+                            //me->SetTarget(jainaGUID);
                             JumpToNextStep(10000);
                             break;
                         case 23:
@@ -744,18 +854,18 @@ public:
                             bStepping = false;
                             SetRun(true);
 
-                            if (Creature* jaina = Unit::GetCreature(*me, jainaGUID))
+                            /*if (Creature* jaina = Unit::GetCreature(*me, jainaGUID))
                                 jaina->DisappearAndDie();
 
                             if (Creature* uther = Unit::GetCreature(*me, utherGUID))
-                                uther->DisappearAndDie();
+                                uther->DisappearAndDie();*/
 
                             me->SetTarget(0);
                             JumpToNextStep(0);
                             break;
                         //After Gossip 1 (waypoint 8)
                         case 24:
-                            if (Unit* pStalker = me->SummonCreature(NPC_INVIS_TARGET, 2026.469f, 1287.088f, 143.596f, 1.37f, TEMPSUMMON_TIMED_DESPAWN, 14000))
+                            if (Unit* pStalker = me->SummonCreature(NPC_INVISIBLE_STALKER, 2026.469f, 1287.088f, 143.596f, 1.37f, TEMPSUMMON_TIMED_DESPAWN, 14000))
                             {
                                 stalkerGUID = pStalker->GetGUID();
                                 me->SetTarget(stalkerGUID);
@@ -797,7 +907,7 @@ public:
                             break;
                         //After waypoint 10
                         case 30:
-                            me->HandleEmoteCommand(37);
+                            //Emote should be replaced with spellcast 50773
                             JumpToNextStep(1000);
                             break;
                         case 31:
@@ -815,7 +925,6 @@ public:
                             break;
                         //After waypoint 11
                         case 32:
-                            me->HandleEmoteCommand(37);
                             JumpToNextStep(1000);
                             break;
                         case 33:
@@ -824,7 +933,7 @@ public:
                             JumpToNextStep(1000);
                             break;
                         case 34:
-                            if (Unit* pStalker = me->SummonCreature(NPC_INVIS_TARGET, 2081.447f, 1287.770f, 141.3241f, 1.37f, TEMPSUMMON_TIMED_DESPAWN, 10000))
+                            if (Unit* pStalker = me->SummonCreature(NPC_INVISIBLE_STALKER, 2081.447f, 1287.770f, 141.3241f, 1.37f, TEMPSUMMON_TIMED_DESPAWN, 10000))
                             {
                                 stalkerGUID = pStalker->GetGUID();
                                 me->SetTarget(stalkerGUID);
@@ -833,7 +942,7 @@ public:
                             JumpToNextStep(3000);
                             break;
                         case 35:
-                            if (Unit* pStalkerM = me->SummonCreature(NPC_INVIS_TARGET, 2117.349f, 1288.624f, 136.271f, 1.37f, TEMPSUMMON_TIMED_DESPAWN, 60000))
+                            if (Unit* pStalkerM = me->SummonCreature(NPC_INVISIBLE_STALKER, 2117.349f, 1288.624f, 136.271f, 1.37f, TEMPSUMMON_TIMED_DESPAWN, 60000))
                             {
                                 stalkerGUID = pStalkerM->GetGUID();
                                 me->SetTarget(stalkerGUID);
@@ -856,11 +965,11 @@ public:
                         case 37:
                             if (Creature* malganis = Unit::GetCreature(*me, malganisGUID))
                             {
-                                Creature* pZombie = GetClosestCreatureWithEntry(malganis, NPC_CITY_MAN, 100.0f);
+                                Creature* pZombie = GetClosestCreatureWithEntry(malganis, NPC_STRATHOLME_CITIZEN, 100.0f);
                                 if (!pZombie)
-                                    pZombie = GetClosestCreatureWithEntry(malganis, NPC_CITY_MAN2, 100.0f);
+                                    pZombie = GetClosestCreatureWithEntry(malganis, NPC_STRATHOLME_RESIDENT, 100.0f);
                                 if (pZombie)
-                                    pZombie->UpdateEntry(NPC_ZOMBIE, 0);
+                                    pZombie->UpdateEntry(NPC_RISEN_ZOMBIE, 0);
                                 else //There's no one else to transform
                                     step++;
                             }
@@ -880,7 +989,7 @@ public:
                             JumpToNextStep(7000);
                             break;
                         case 40:
-                            if (Unit* pStalker = me->SummonCreature(NPC_INVIS_TARGET, 2081.447f, 1287.770f, 141.3241f, 1.37f, TEMPSUMMON_TIMED_DESPAWN, 10000))
+                            if (Unit* pStalker = me->SummonCreature(NPC_INVISIBLE_STALKER, 2081.447f, 1287.770f, 141.3241f, 1.37f, TEMPSUMMON_TIMED_DESPAWN, 10000))
                             {
                                 stalkerGUID = pStalker->GetGUID();
                                 me->SetTarget(stalkerGUID);
@@ -889,7 +998,9 @@ public:
 
                             bossEvent = DATA_MEATHOOK_EVENT;
                             if (instance)
+                            {
                                 instance->SetData(DATA_ARTHAS_EVENT, IN_PROGRESS);
+                            }
 
                             me->SetReactState(REACT_DEFENSIVE);
                             SetDespawnAtFar(false);
@@ -948,7 +1059,7 @@ public:
                                 if (bossEvent == DATA_MEATHOOK_EVENT)
                                     uiBossID = NPC_MEATHOOK;
                                 else if (bossEvent == DATA_SALRAMM_EVENT)
-                                    uiBossID = NPC_SALRAMM;
+                                    uiBossID = NPC_SALRAMM_THE_FLESHCRAFTER;
 
                                 if (Unit* pBoss = me->SummonCreature(uiBossID, 2232.19f, 1331.933f, 126.662f, 3.15f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 900000))
                                 {
@@ -959,6 +1070,7 @@ public:
                             }
                             JumpToNextStep(30000);
                             break;
+                        // Take a close look at these two cases
                         case 50: //Wait Boss death
                         case 60:
                             if (instance)
@@ -1005,6 +1117,7 @@ public:
                             break;
                         //After waypoint 23
                         case 64:
+                            // What emote is this?
                             me->HandleEmoteCommand(54);
                             JumpToNextStep(1000);
                             break;
@@ -1058,7 +1171,7 @@ public:
                         case 75:
                         case 77:
                             //Make cratures attackable
-                            for (uint32 i = 0; i< ENCOUNTER_DRACONIAN_NUMBER; ++i)
+                            for (uint32 i = 0; i< ENCOUNTER_INFINITE_DRAGON_NUMBER; ++i)
                                 if (Creature* temp = Unit::GetCreature(*me, infiniteDraconianGUID[i]))
                                 {
                                     temp->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
@@ -1127,6 +1240,7 @@ public:
                                 }
                             JumpToNextStep(1000);
                             break;
+                        // Take a close look at this case
                         case 83:
                             if (instance)
                             {
@@ -1159,7 +1273,7 @@ public:
                                 malganis->SetReactState(REACT_PASSIVE);
                             }
                             if (instance)
-                                if (GameObject* pGate = instance->instance->GetGameObject(instance->GetData64(DATA_MAL_GANIS_GATE_1)))
+                                if (GameObject* pGate = instance->instance->GetGameObject(instance->GetData64(DATA_MAL_GANIS_INNER_GATE)))
                                     pGate->SetGoState(GO_STATE_ACTIVE);
                             SetHoldState(false);
                             bStepping = false;
@@ -1179,6 +1293,7 @@ public:
                             }
                             JumpToNextStep(1000);
                             break;
+                        // Take a close look at this case
                         case 88:
                             if (instance)
                             {
@@ -1200,66 +1315,90 @@ public:
                             Talk(SAY_PHASE503);
                             JumpToNextStep(7000);
                             break;
+                        // Take a close look at this case
                         case 90:
                             if (instance)
                             {
                                 instance->SetData(DATA_ARTHAS_EVENT, DONE); //Rewards: Achiev & Chest ;D
-                                me->SetTarget(instance->GetData64(DATA_MAL_GANIS_GATE_2)); //Look behind
+                                me->SetTarget(instance->GetData64(DATA_MAL_GANIS_OUTER_GATE)); //Look behind
                             }
                             Talk(SAY_PHASE504);
                             bStepping = false;
                             break;
                     }
-                } else phaseTimer -= diff;
+                }
+                else
+                    phaseTimer -= diff;
             }
 
-            //Battling skills
+            // This needs to be heavily criticized
+            // Incase timers in IsInCombat if statement.
             if (!me->getVictim())
                 return;
 
             if (exorcismTimer < diff)
             {
+                //arthas should get his last target
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                     DoCast(target, SPELL_EXORCISM_N);
                 exorcismTimer = 7300;
-            } else exorcismTimer -= diff;
+            }
+            else
+                exorcismTimer -= diff;
 
-            if (HealthBelowPct(40))
+            if (holyLightTimer < diff && HealthBelowPct(80))
+            {
                 DoCast(me, SPELL_HOLY_LIGHT);
+                holyLightTimer = 15000;
+            }
+            else
+                holyLightTimer -= diff;
         }
     };
 
 };
 
+enum CrateSpells
+{
+    SPELL_ARCANE_DISRUPTION  = 49590
+};
+
+// This needs to be criticized (a little more)
 class npc_crate_helper : public CreatureScript
 {
     public:
-        npc_crate_helper() : CreatureScript("npc_create_helper_cot") { }
+        npc_crate_helper() : CreatureScript("npc_create_helper_cos") { }
 
         struct npc_crate_helperAI : public NullCreatureAI
         {
             npc_crate_helperAI(Creature* creature) : NullCreatureAI(creature)
             {
-                _marked = false;
+                instance = creature->GetInstanceScript();
+                _isRevealed = false;
             }
+
+            InstanceScript* instance;
 
             void SpellHit(Unit* /*caster*/, SpellInfo const* spell)
             {
-                if (spell->Id == SPELL_ARCANE_DISRUPTION && !_marked)
+                if (spell->Id == SPELL_ARCANE_DISRUPTION && !_isRevealed)
                 {
-                    _marked = true;
-                    if (InstanceScript* instance = me->GetInstanceScript())
-                        instance->SetData(DATA_CRATE_COUNT, instance->GetData(DATA_CRATE_COUNT) + 1);
+                    _isRevealed = true;
                     if (GameObject* crate = me->FindNearestGameObject(GO_SUSPICIOUS_CRATE, 5.0f))
                     {
-                        crate->SummonGameObject(GO_PLAGUED_CRATE, crate->GetPositionX(), crate->GetPositionY(), crate->GetPositionZ(), crate->GetOrientation(), 0.0f, 0.0f, 0.0f, 0.0f, DAY);
-                        crate->Delete();
+                        if (GameObject* crateHighlighter = me->FindNearestGameObject(GO_CRATE_HIGHLIGHTER, 5.0f))
+                        {
+                            crate->SummonGameObject(GO_PLAGUED_CRATE, crate->GetPositionX(), crate->GetPositionY(), crate->GetPositionZ(), crate->GetOrientation(), 0.0f, 0.0f, 0.0f, 0.0f, DAY);
+                            crateHighlighter->Delete();
+                            crate->Delete();
+                        }
                     }
                 }
+                instance->SetData(DATA_CRATE_COUNT, instance->GetData(DATA_CRATE_COUNT) + 1);
             }
 
         private:
-            bool _marked;
+            bool _isRevealed;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -1270,6 +1409,7 @@ class npc_crate_helper : public CreatureScript
 
 void AddSC_culling_of_stratholme()
 {
+    new npc_chromie_start();
     new npc_arthas();
     new npc_crate_helper();
 }

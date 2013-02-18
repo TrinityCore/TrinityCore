@@ -23,8 +23,6 @@
 #include "TemporarySummon.h"
 #include "SpellInfo.h"
 
-#define MAX_ENCOUNTER 5
-
 /* Culling of Stratholme encounters:
 0 - Meathook
 1 - Salramm the Fleshcrafter
@@ -33,12 +31,22 @@
 4 - Infinite Corruptor (Heroic only)
 */
 
-enum Texts
+enum MaxEvents
 {
-    SAY_CRATES_COMPLETED    = 0,
+    MAX_EVENTS = 7
 };
 
-Position const ChromieSummonPos = {1813.298f, 1283.578f, 142.3258f, 3.878161f};
+enum Texts
+{
+    SAY_CRATES_COMPLETED    = 0
+};
+
+enum CrateSpells
+{
+    SPELL_CRATES_CREDIT     = 58109
+};
+
+Position const ChromieMiddleSummonPos = {1813.298f, 1283.578f, 142.3258f, 3.878161f};
 
 class instance_culling_of_stratholme : public InstanceMapScript
 {
@@ -54,25 +62,25 @@ class instance_culling_of_stratholme : public InstanceMapScript
         {
             instance_culling_of_stratholme_InstanceMapScript(Map* map) : InstanceScript(map)
             {
-                _arthasGUID = 0;
                 _meathookGUID = 0;
-                _salrammGUID = 0;
-                _epochGUID = 0;
+                _salrammTheFleshcrafterGUID = 0;
+                _chronoLordEpochGUID = 0;
                 _malGanisGUID = 0;
-                _infiniteGUID = 0;
-                _shkafGateGUID = 0;
-                _malGanisGate1GUID = 0;
-                _malGanisGate2GUID = 0;
+                _infiniteCorruptorGUID = 0;
+                _bookshelfGateGUID = 0;
+                _malGanisInnerGateGUID = 0;
+                _malGanisOuterGateGUID = 0;
                 _exitGateGUID = 0;
                 _malGanisChestGUID = 0;
-                _genericBunnyGUID = 0;
-                memset(&_encounterState[0], 0, sizeof(uint32) * MAX_ENCOUNTER);
+                _totallyGenericBunnyGUID = 0;
+                memset(&_encounterState[0], 0, sizeof(uint32) * MAX_EVENTS);
                 _crateCount = 0;
+                //_wave = 1;
             }
 
             bool IsEncounterInProgress() const
             {
-                for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
+                for (uint8 i = 0; i < MAX_EVENTS; ++i)
                     if (_encounterState[i] == IN_PROGRESS)
                         return true;
 
@@ -81,37 +89,34 @@ class instance_culling_of_stratholme : public InstanceMapScript
 
             void FillInitialWorldStates(WorldPacket& data)
             {
-                data << uint32(WORLDSTATE_SHOW_CRATES) << uint32(1);
+                data << uint32(WORLDSTATE_SHOW_CRATES) << uint32(0);
                 data << uint32(WORLDSTATE_CRATES_REVEALED) << uint32(_crateCount);
                 data << uint32(WORLDSTATE_WAVE_COUNT) << uint32(0);
-                data << uint32(WORLDSTATE_TIME_GUARDIAN) << uint32(25);
                 data << uint32(WORLDSTATE_TIME_GUARDIAN_SHOW) << uint32(0);
+                data << uint32(WORLDSTATE_TIME_GUARDIAN) << uint32(25);
             }
 
             void OnCreatureCreate(Creature* creature)
             {
                 switch (creature->GetEntry())
                 {
-                    case NPC_ARTHAS:
-                        _arthasGUID = creature->GetGUID();
-                        break;
                     case NPC_MEATHOOK:
                         _meathookGUID = creature->GetGUID();
                         break;
-                    case NPC_SALRAMM:
-                        _salrammGUID = creature->GetGUID();
+                    case NPC_SALRAMM_THE_FLESHCRAFTER:
+                        _salrammTheFleshcrafterGUID = creature->GetGUID();
                         break;
-                    case NPC_EPOCH:
-                        _epochGUID = creature->GetGUID();
+                    case NPC_CHRONO_LORD_EPOCH:
+                        _chronoLordEpochGUID = creature->GetGUID();
                         break;
                     case NPC_MAL_GANIS:
                         _malGanisGUID = creature->GetGUID();
                         break;
-                    case NPC_INFINITE:
-                        _infiniteGUID = creature->GetGUID();
+                    case NPC_INFINITE_CORRUPTOR:
+                        _infiniteCorruptorGUID = creature->GetGUID();
                         break;
-                    case NPC_GENERIC_BUNNY:
-                        _genericBunnyGUID = creature->GetGUID();
+                    case NPC_TOTALLY_GENERIC_BUNNY:
+                        _totallyGenericBunnyGUID = creature->GetGUID();
                         break;
                 }
             }
@@ -120,24 +125,24 @@ class instance_culling_of_stratholme : public InstanceMapScript
             {
                 switch (go->GetEntry())
                 {
-                    case GO_SHKAF_GATE:
-                        _shkafGateGUID = go->GetGUID();
+                    case GO_BOOKSHELF_GATE:
+                        _bookshelfGateGUID = go->GetGUID();
                         break;
-                    case GO_MALGANIS_GATE_1:
-                        _malGanisGate1GUID = go->GetGUID();
+                    case GO_MAL_GANIS_INNER_GATE:
+                        _malGanisInnerGateGUID = go->GetGUID();
                         break;
-                    case GO_MALGANIS_GATE_2:
-                        _malGanisGate2GUID = go->GetGUID();
+                    case GO_MAL_GANIS_OUTER_GATE:
+                        _malGanisOuterGateGUID = go->GetGUID();
                         break;
                     case GO_EXIT_GATE:
                         _exitGateGUID = go->GetGUID();
-                        if (_encounterState[3] == DONE)
+                        if (_encounterState[5] == DONE)
                             HandleGameObject(_exitGateGUID, true);
                         break;
                     case GO_MALGANIS_CHEST_N:
                     case GO_MALGANIS_CHEST_H:
                         _malGanisChestGUID = go->GetGUID();
-                        if (_encounterState[3] == DONE)
+                        if (_encounterState[5] == DONE)
                             go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_INTERACT_COND);
                         break;
                 }
@@ -147,25 +152,44 @@ class instance_culling_of_stratholme : public InstanceMapScript
             {
                 switch (type)
                 {
-                    case DATA_MEATHOOK_EVENT:
+                    case DATA_CRATE_EVENT:
                         _encounterState[0] = data;
+                        if (_encounterState[0] == IN_PROGRESS)
+                            DoUpdateWorldState(WORLDSTATE_SHOW_CRATES, 1);
                         break;
-                    case DATA_SALRAMM_EVENT:
-                        _encounterState[1] = data;
+                   case DATA_CRATE_COUNT:
+                        _crateCount = data;
+                        if (_crateCount == 5)
+                        {
+                            if (Creature* bunny = instance->GetCreature(_totallyGenericBunnyGUID))
+                                bunny->CastSpell(bunny, SPELL_CRATES_CREDIT, true);
+                        }
+                        DoUpdateWorldState(WORLDSTATE_CRATES_REVEALED, _crateCount);
                         break;
-                    case DATA_EPOCH_EVENT:
+                    case DATA_INITIAL_RP_EVENT:
+                       _encounterState[1] = data;
+                       if (_encounterState[1] == IN_PROGRESS)
+                           DoUpdateWorldState(WORLDSTATE_SHOW_CRATES, 0);
+                        break;
+                    case DATA_MEATHOOK_EVENT:
                         _encounterState[2] = data;
                         break;
-                    case DATA_MAL_GANIS_EVENT:
+                    case DATA_SALRAMM_EVENT:
                         _encounterState[3] = data;
+                        break;
+                    case DATA_EPOCH_EVENT:
+                        _encounterState[4] = data;
+                        break;
+                    case DATA_MAL_GANIS_EVENT:
+                        _encounterState[5] = data;
 
-                        switch (_encounterState[3])
+                        switch (_encounterState[5])
                         {
                             case NOT_STARTED:
-                                HandleGameObject(_malGanisGate2GUID, true);
+                                HandleGameObject(_malGanisOuterGateGUID, true);
                                 break;
                             case IN_PROGRESS:
-                                HandleGameObject(_malGanisGate2GUID, false);
+                                HandleGameObject(_malGanisOuterGateGUID, false);
                                 break;
                             case DONE:
                                 HandleGameObject(_exitGateGUID, true);
@@ -174,23 +198,8 @@ class instance_culling_of_stratholme : public InstanceMapScript
                                 break;
                         }
                         break;
-                    case DATA_INFINITE_EVENT:
-                        _encounterState[4] = data;
-                        break;
-                    case DATA_CRATE_COUNT:
-                        _crateCount = data;
-                        if (_crateCount == 5)
-                        {
-                            if (Creature* bunny = instance->GetCreature(_genericBunnyGUID))
-                                bunny->CastSpell(bunny, SPELL_CRATES_CREDIT, true);
-
-                            // Summon Chromie and global whisper
-                            if (Creature* chromie = instance->SummonCreature(NPC_CHROMIE_2, ChromieSummonPos))
-                                if (!instance->GetPlayers().isEmpty())
-                                    if (Player* player = instance->GetPlayers().getFirst()->getSource())
-                                        sCreatureTextMgr->SendChat(chromie, SAY_CRATES_COMPLETED, player->GetGUID(), CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_MAP);
-                        }
-                        DoUpdateWorldState(WORLDSTATE_CRATES_REVEALED, _crateCount);
+                    case DATA_INFINITE_CORRUPTOR_EVENT:
+                        _encounterState[6] = data;
                         break;
                 }
 
@@ -202,18 +211,24 @@ class instance_culling_of_stratholme : public InstanceMapScript
             {
                 switch (type)
                 {
-                    case DATA_MEATHOOK_EVENT:
+                    case DATA_CRATE_EVENT:
                         return _encounterState[0];
-                    case DATA_SALRAMM_EVENT:
+                    case DATA_INITIAL_RP_EVENT:
                         return _encounterState[1];
-                    case DATA_EPOCH_EVENT:
+                    case DATA_MEATHOOK_EVENT:
                         return _encounterState[2];
-                    case DATA_MAL_GANIS_EVENT:
+                    case DATA_SALRAMM_EVENT:
                         return _encounterState[3];
-                    case DATA_INFINITE_EVENT:
+                    case DATA_EPOCH_EVENT:
                         return _encounterState[4];
+                    case DATA_MAL_GANIS_EVENT:
+                        return _encounterState[5];
+                    case DATA_INFINITE_CORRUPTOR_EVENT:
+                        return _encounterState[6];
                     case DATA_CRATE_COUNT:
                         return _crateCount;
+                    default:
+                        break;
                 }
                 return 0;
             }
@@ -222,28 +237,28 @@ class instance_culling_of_stratholme : public InstanceMapScript
             {
                 switch (identifier)
                 {
-                    case DATA_ARTHAS:
-                        return _arthasGUID;
                     case DATA_MEATHOOK:
                         return _meathookGUID;
-                    case DATA_SALRAMM:
-                        return _salrammGUID;
-                    case DATA_EPOCH:
-                        return _epochGUID;
+                    case DATA_SALRAMM_THE_FLESHCRAFTER:
+                        return _salrammTheFleshcrafterGUID;
+                    case DATA_CHRONO_LORD_EPOCH:
+                        return _chronoLordEpochGUID;
                     case DATA_MAL_GANIS:
                         return _malGanisGUID;
-                    case DATA_INFINITE:
-                        return _infiniteGUID;
-                    case DATA_SHKAF_GATE:
-                        return _shkafGateGUID;
-                    case DATA_MAL_GANIS_GATE_1:
-                        return _malGanisGate1GUID;
-                    case DATA_MAL_GANIS_GATE_2:
-                        return _malGanisGate2GUID;
+                    case DATA_INFINITE_CORRUPTOR:
+                        return _infiniteCorruptorGUID;
+                    case DATA_BOOKSHELF:
+                        return _bookshelfGateGUID;
+                    case DATA_MAL_GANIS_INNER_GATE:
+                        return _malGanisInnerGateGUID;
+                    case DATA_MAL_GANIS_OUTER_GATE:
+                        return _malGanisOuterGateGUID;
                     case DATA_EXIT_GATE:
                         return _exitGateGUID;
                     case DATA_MAL_GANIS_CHEST:
                         return _malGanisChestGUID;
+                    default:
+                        break;
                 }
                 return 0;
             }
@@ -254,7 +269,8 @@ class instance_culling_of_stratholme : public InstanceMapScript
 
                 std::ostringstream saveStream;
                 saveStream << "C S " << _encounterState[0] << ' ' << _encounterState[1] << ' '
-                    << _encounterState[2] << ' ' << _encounterState[3] << ' ' << _encounterState[4];
+                    << _encounterState[2] << ' ' << _encounterState[3] << ' ' << _encounterState[4] ' '
+                    << _encounterState[5] << ' ' << _encounterState[6];
 
                 OUT_SAVE_INST_DATA_COMPLETE;
                 return saveStream.str();
@@ -271,10 +287,10 @@ class instance_culling_of_stratholme : public InstanceMapScript
                 OUT_LOAD_INST_DATA(in);
 
                 char dataHead1, dataHead2;
-                uint16 data0, data1, data2, data3, data4;
+                uint16 data0, data1, data2, data3, data4, data5, data6;
 
                 std::istringstream loadStream(in);
-                loadStream >> dataHead1 >> dataHead2 >> data0 >> data1 >> data2 >> data3 >> data4;
+                loadStream >> dataHead1 >> dataHead2 >> data0 >> data1 >> data2 >> data3 >> data4 >> data5 >> data6;
 
                 if (dataHead1 == 'C' && dataHead2 == 'S')
                 {
@@ -283,8 +299,10 @@ class instance_culling_of_stratholme : public InstanceMapScript
                     _encounterState[2] = data2;
                     _encounterState[3] = data3;
                     _encounterState[4] = data4;
+                    _encounterState[5] = data5;
+                    _encounterState[6] = data6;
 
-                    for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
+                    for (uint8 i = 0; i < MAX_EVENTS; ++i)
                         if (_encounterState[i] == IN_PROGRESS)
                             _encounterState[i] = NOT_STARTED;
 
@@ -296,19 +314,18 @@ class instance_culling_of_stratholme : public InstanceMapScript
             }
 
         private:
-            uint64 _arthasGUID;
             uint64 _meathookGUID;
-            uint64 _salrammGUID;
-            uint64 _epochGUID;
+            uint64 _salrammTheFleshcrafterGUID;
+            uint64 _chronoLordEpochGUID;
             uint64 _malGanisGUID;
-            uint64 _infiniteGUID;
-            uint64 _shkafGateGUID;
-            uint64 _malGanisGate1GUID;
-            uint64 _malGanisGate2GUID;
+            uint64 _infiniteCorruptorGUID;
+            uint64 _bookshelfGateGUID;
+            uint64 _malGanisInnerGateGUID;
+            uint64 _malGanisOuterGateGUID;
             uint64 _exitGateGUID;
             uint64 _malGanisChestGUID;
-            uint64 _genericBunnyGUID;
-            uint32 _encounterState[MAX_ENCOUNTER];
+            uint64 _totallyGenericBunnyGUID;
+            uint32 _encounterState[MAX_EVENTS];
             uint32 _crateCount;
         };
 };
