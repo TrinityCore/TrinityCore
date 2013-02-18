@@ -1102,14 +1102,8 @@ void GameEventMgr::UnApplyEvent(uint16 event_id)
 
 void GameEventMgr::ApplyNewEvent(uint16 event_id)
 {
-    switch (sWorld->getIntConfig(CONFIG_EVENT_ANNOUNCE))
-    {
-        case 0:                                             // disable
-            break;
-        case 1:                                             // announce events
-            sWorld->SendWorldText(LANG_EVENTMESSAGE, mGameEvent[event_id].description.c_str());
-            break;
-    }
+    if (sWorld->getBoolConfig(CONFIG_EVENT_ANNOUNCE))
+        sWorld->SendWorldText(LANG_EVENTMESSAGE, mGameEvent[event_id].description.c_str());
 
     sLog->outInfo(LOG_FILTER_GAMEEVENTS, "GameEvent %u \"%s\" started.", event_id, mGameEvent[event_id].description.c_str());
 
@@ -1331,7 +1325,7 @@ void GameEventMgr::ChangeEquipOrModel(int16 event_id, bool activate)
                 itr->second.equipement_id_prev = creature->GetCurrentEquipmentId();
                 itr->second.modelid_prev = creature->GetDisplayId();
                 creature->LoadEquipment(itr->second.equipment_id, true);
-                if (itr->second.modelid >0 && itr->second.modelid_prev != itr->second.modelid)
+                if (itr->second.modelid > 0 && itr->second.modelid_prev != itr->second.modelid)
                 {
                     CreatureModelInfo const* minfo = sObjectMgr->GetCreatureModelInfo(itr->second.modelid);
                     if (minfo)
@@ -1346,7 +1340,7 @@ void GameEventMgr::ChangeEquipOrModel(int16 event_id, bool activate)
             else
             {
                 creature->LoadEquipment(itr->second.equipement_id_prev, true);
-                if (itr->second.modelid_prev >0 && itr->second.modelid_prev != itr->second.modelid)
+                if (itr->second.modelid_prev > 0 && itr->second.modelid_prev != itr->second.modelid)
                 {
                     CreatureModelInfo const* minfo = sObjectMgr->GetCreatureModelInfo(itr->second.modelid_prev);
                     if (minfo)
