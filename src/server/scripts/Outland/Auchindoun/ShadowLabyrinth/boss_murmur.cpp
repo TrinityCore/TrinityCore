@@ -111,7 +111,7 @@ public:
                 me->DealDamage(target, (target->GetHealth()*90)/100, NULL, SPELL_DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NATURE, spell);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             //Return since we have no target or casting
             if (!UpdateVictim() || me->IsNonMeleeSpellCasted(false))

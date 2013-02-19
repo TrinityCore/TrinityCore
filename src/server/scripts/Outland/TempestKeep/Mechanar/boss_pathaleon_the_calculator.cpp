@@ -106,7 +106,7 @@ class boss_pathaleon_the_calculator : public CreatureScript
                 }
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;
@@ -189,7 +189,7 @@ class mob_nether_wraith : public CreatureScript
 
             void EnterCombat(Unit* /*who*/) {}
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;

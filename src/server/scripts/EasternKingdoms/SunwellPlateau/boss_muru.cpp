@@ -172,7 +172,7 @@ public:
                 instance->SetData(DATA_MURU_EVENT, DONE);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (!UpdateVictim())
                 return;
@@ -286,7 +286,7 @@ public:
             Summons.Summon(summoned);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (!UpdateVictim())
                 return;
@@ -434,7 +434,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (!SummonSentinel)
             {
@@ -484,7 +484,7 @@ public:
                     me->DisappearAndDie();
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (!UpdateVictim())
                 return;
@@ -546,7 +546,7 @@ public:
                 me->SummonCreature(CREATURE_VOID_SPAWN, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), float(rand()%6), TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 180000);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (!UpdateVictim())
                 return;
@@ -602,7 +602,7 @@ public:
             DoCastAOE(SPELL_BLACKHOLE_SPAWN, true);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (SpellTimer <= diff)
             {

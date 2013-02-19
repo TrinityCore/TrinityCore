@@ -89,7 +89,7 @@ public:
 
         void MoveInLineOfSight(Unit* /*who*/) {}
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (instance && instance->GetData(DATA_REMOVE_NPC) == 1)
             {

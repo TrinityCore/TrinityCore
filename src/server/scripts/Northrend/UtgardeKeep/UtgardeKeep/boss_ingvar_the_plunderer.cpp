@@ -204,7 +204,7 @@ public:
             Talk(bIsUndead ? YELL_KILL_1 : YELL_KILL_2);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (!UpdateVictim() && !events.IsInPhase(PHASE_EVENT))
                 return;
@@ -358,7 +358,7 @@ public:
         void AttackStart(Unit* /*who*/) {}
         void MoveInLineOfSight(Unit* /*who*/) {}
         void EnterCombat(Unit* /*who*/) {}
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (uiResurectTimer)
             {

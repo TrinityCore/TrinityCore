@@ -31,7 +31,7 @@ int ReactorAI::Permissible(const Creature* creature)
     return PERMIT_BASE_NO;
 }
 
-void ReactorAI::UpdateAI(uint32 const /*diff*/)
+void ReactorAI::UpdateAI(uint32 /*diff*/)
 {
     if (!UpdateVictim())
         return;

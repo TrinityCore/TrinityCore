@@ -330,7 +330,7 @@ void SmartAI::UpdatePath(const uint32 diff)
     }
 }
 
-void SmartAI::UpdateAI(const uint32 diff)
+void SmartAI::UpdateAI(uint32 diff)
 {
     GetScript()->OnUpdate(diff);
     UpdatePath(diff);
@@ -698,7 +698,7 @@ void SmartAI::OnCharmed(bool apply)
     GetScript()->ProcessEventsFor(SMART_EVENT_CHARMED, NULL, 0, 0, apply);
 }
 
-void SmartAI::DoAction(const int32 param)
+void SmartAI::DoAction(int32 param)
 {
     GetScript()->ProcessEventsFor(SMART_EVENT_ACTION_DONE, NULL, param);
 }

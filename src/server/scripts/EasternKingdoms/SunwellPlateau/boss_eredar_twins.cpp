@@ -217,7 +217,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (!SisterDeath)
             {
@@ -542,7 +542,7 @@ public:
             return 10000;
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (IntroStepCounter < 9)
             {
@@ -707,7 +707,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (!me->HasAura(SPELL_IMAGE_VISUAL))
                 DoCast(me, SPELL_IMAGE_VISUAL);

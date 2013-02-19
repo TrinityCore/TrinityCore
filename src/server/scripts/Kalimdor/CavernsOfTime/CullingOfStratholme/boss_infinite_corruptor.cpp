@@ -64,7 +64,7 @@ public:
                 instance->SetData(DATA_INFINITE_EVENT, IN_PROGRESS);
         }
 
-        void UpdateAI(uint32 const /*diff*/)
+        void UpdateAI(uint32 /*diff*/)
         {
             //Return since we have no target
             if (!UpdateVictim())

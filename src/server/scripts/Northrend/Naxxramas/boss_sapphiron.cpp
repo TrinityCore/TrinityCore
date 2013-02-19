@@ -159,7 +159,7 @@ class boss_sapphiron : public CreatureScript
                     events.ScheduleEvent(EVENT_LIFTOFF, 0);
             }
 
-            void DoAction(int32 const param)
+            void DoAction(int32 param)
             {
                 if (param == DATA_SAPPHIRON_BIRTH)
                 {
@@ -217,7 +217,7 @@ class boss_sapphiron : public CreatureScript
                 return 0;
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!_phase)
                     return;

@@ -55,7 +55,7 @@ public:
                 IsSelfRooted = true;
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             //Always decrease our global cooldown first
             if (GlobalCooldown > diff)
@@ -186,7 +186,7 @@ public:
         uint32 timer, interval;
         const SpellInfo* spell;
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (timer <= diff)
             {
