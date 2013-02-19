@@ -40,7 +40,7 @@ class GameObjectAI
         virtual void Reset() { }
 
         // Pass parameters between AI
-        virtual void DoAction(const int32 /*param = 0 */) {}
+        virtual void DoAction(int32 /*param = 0 */) {}
         virtual void SetGUID(uint64 /*guid*/, int32 /*id = 0 */) {}
         virtual uint64 GetGUID(int32 /*id = 0 */) const { return 0; }
 

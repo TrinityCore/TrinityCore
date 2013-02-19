@@ -124,7 +124,7 @@ class npc_torek : public CreatureScript
                 summoned->AI()->AttackStart(me);
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 npc_escortAI::UpdateAI(diff);
 
@@ -242,7 +242,7 @@ class npc_ruul_snowhoof : public CreatureScript
                 summoned->AI()->AttackStart(me);
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 npc_escortAI::UpdateAI(diff);
             }
@@ -411,7 +411,7 @@ class npc_muglash : public CreatureScript
                 }
             }
 
-            void UpdateAI(const uint32 uiDiff)
+            void UpdateAI(uint32 uiDiff)
             {
                 npc_escortAI::UpdateAI(uiDiff);
 

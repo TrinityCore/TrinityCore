@@ -72,7 +72,7 @@ class boss_instructor_malicia : public CreatureScript
                 events.ScheduleEvent(EVENT_HEALINGTOUCH, 45000);
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;

@@ -240,7 +240,7 @@ class boss_akilzon : public CreatureScript
                 StormSequenceTimer = 1000;
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;
@@ -421,7 +421,7 @@ class mob_akilzon_eagle : public CreatureScript
                 }
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 if (EagleSwoop_Timer <= diff)
                     EagleSwoop_Timer = 0;

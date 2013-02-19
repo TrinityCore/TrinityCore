@@ -213,7 +213,7 @@ class boss_halazzi : public CreatureScript
                 Phase = NextPhase;
             }
 
-             void UpdateAI(const uint32 diff)
+             void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;
@@ -384,7 +384,7 @@ class mob_halazzi_lynx : public CreatureScript
 
             void EnterCombat(Unit* /*who*/) {/*DoZoneInCombat();*/}
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;

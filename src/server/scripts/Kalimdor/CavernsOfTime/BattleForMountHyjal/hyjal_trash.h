@@ -27,7 +27,7 @@ struct hyjal_trashAI : public npc_escortAI
 {
     hyjal_trashAI(Creature* creature);
 
-    void UpdateAI(const uint32 diff);
+    void UpdateAI(uint32 diff);
 
     void JustDied(Unit* /*killer*/);
 

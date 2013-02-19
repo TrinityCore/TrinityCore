@@ -168,7 +168,7 @@ public:
             Talk(SAY_DEATH);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (!instance)
                 return;
@@ -342,7 +342,7 @@ public:
             } else DoSummonAtRift(entry);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (!instance)
                 return;

@@ -226,7 +226,7 @@ class boss_blood_queen_lana_thel : public CreatureScript
                 instance->DoRemoveAurasDueToSpellOnPlayers(PRESENCE_OF_THE_DARKFALLEN);
             }
 
-            void DoAction(int32 const action)
+            void DoAction(int32 action)
             {
                 if (action != ACTION_KILL_MINCHAR)
                     return;
@@ -334,7 +334,7 @@ class boss_blood_queen_lana_thel : public CreatureScript
                 }
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim() || !CheckInRoom())
                     return;
@@ -481,7 +481,7 @@ class boss_blood_queen_lana_thel : public CreatureScript
 
                 for (std::list<HostileReference*>::const_iterator itr = threatlist.begin(); itr != threatlist.end(); ++itr)
                     if (Unit* refTarget = (*itr)->getTarget())
-                        if (refTarget != me->getVictim() && refTarget->GetTypeId() == TYPEID_PLAYER && (includeOfftank ? true : (refTarget != _offtank)))
+                        if (refTarget != me->getVictim() && refTarget->GetTypeId() == TYPEID_PLAYER && (includeOfftank || (refTarget != _offtank)))
                             tempTargets.push_back(refTarget->ToPlayer());
 
                 if (tempTargets.empty())

@@ -274,7 +274,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 uiDiff)
+        void UpdateAI(uint32 uiDiff)
         {
             npc_escortAI::UpdateAI(uiDiff);
             if (!me->getVictim())
@@ -445,7 +445,7 @@ public:
           ReleasedFromCage = false;
       }
 
-      void UpdateAI(uint32 const diff)
+      void UpdateAI(uint32 diff)
       {
           if (ReleasedFromCage)
           {
@@ -628,7 +628,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (!UpdateVictim())
                 return;

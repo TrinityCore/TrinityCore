@@ -118,7 +118,7 @@ class boss_omor_the_unscarred : public CreatureScript
                 Talk(SAY_DIE);
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;

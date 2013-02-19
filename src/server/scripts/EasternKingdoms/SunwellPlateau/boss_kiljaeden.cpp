@@ -335,7 +335,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 /*diff*/)
+        void UpdateAI(uint32 /*diff*/)
         {
         }
 
@@ -454,7 +454,7 @@ public:
             summons.Summon(summoned);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (uiRandomSayTimer < diff)
             {
@@ -666,7 +666,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (!UpdateVictim() || Phase < PHASE_NORMAL)
                 return;
@@ -951,7 +951,7 @@ public:
                 ++(CAST_AI(mob_kiljaeden_controller::mob_kiljaeden_controllerAI, pControl->AI())->deceiverDeathCount);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (!me->isInCombat())
                 DoCast(me, SPELL_SHADOW_CHANNELING);
@@ -1025,7 +1025,7 @@ public:
             summoned->SetLevel(me->getLevel());
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (!UpdateVictim())
                 return;
@@ -1071,7 +1071,7 @@ public:
                 DoCast(me, SPELL_FELFIRE_FISSION, true);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (!UpdateVictim())
                 return;
@@ -1124,7 +1124,7 @@ public:
             uiTimer = 0;
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (uiTimer <= diff)
             {
@@ -1193,7 +1193,7 @@ public:
             bClockwise = urand(0, 1);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (bPointReached)
             {
@@ -1267,7 +1267,7 @@ public:
             victimClass = 0;
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (!UpdateVictim())
                 return;

@@ -59,7 +59,7 @@ class boss_illucia_barov : public CreatureScript
                 events.ScheduleEvent(EVENT_FEAR, 30000);
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;

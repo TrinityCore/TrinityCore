@@ -122,7 +122,7 @@ public:
                 DoSpawnCreature(ENTRY_STREAMRIGGER_MECHANIC, 7, -5, 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 240000);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (!UpdateVictim())
                 return;
@@ -223,7 +223,7 @@ public:
 
         void EnterCombat(Unit* /*who*/) { }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (Repair_Timer <= diff)
             {

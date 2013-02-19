@@ -412,7 +412,7 @@ public:
             }
         }
 
-       void UpdateAI(const uint32 uiDiff)
+       void UpdateAI(uint32 uiDiff)
         {
             ScriptedAI::UpdateAI(uiDiff);
 
