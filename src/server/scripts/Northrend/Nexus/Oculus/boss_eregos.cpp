@@ -141,7 +141,7 @@ public:
             return 0;
         }
 
-        void DoAction(const int32 action)
+        void DoAction(int32 action)
         {
             if (action != ACTION_SET_NORMAL_EVENTS)
                 return;
@@ -194,7 +194,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             //Return since we have no target
             if (!UpdateVictim())

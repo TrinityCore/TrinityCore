@@ -112,7 +112,7 @@ public:
                 DoStartNoMovement(target);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (!UpdateVictim() || _bubbled)
                 return;
@@ -141,7 +141,7 @@ public:
             }
         }
 
-        void DoAction(int32 const action)
+        void DoAction(int32 action)
         {
             if (action == ACTION_CRYSTAL_HANDLER_DIED)
                 CrystalHandlerDied();
@@ -279,7 +279,7 @@ public:
             _temp = 0;
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (_spell)
             {

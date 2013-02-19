@@ -61,7 +61,7 @@ class boss_doctor_theolen_krastinov : public CreatureScript
                 events.ScheduleEvent(EVENT_FRENZY, 1000);
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;

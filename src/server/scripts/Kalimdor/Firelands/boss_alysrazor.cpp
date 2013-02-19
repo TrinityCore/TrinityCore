@@ -204,7 +204,7 @@ class npc_harbinger_of_flame : public CreatureScript
                 ScriptedAI::MoveInLineOfSight(unit);
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!me->isInCombat())
                     if (!me->GetCurrentSpell(CURRENT_CHANNELED_SPELL))
@@ -315,7 +315,7 @@ class npc_blazing_monstrosity : public CreatureScript
                 _summons.Despawn(summon);
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;
@@ -426,7 +426,7 @@ class npc_egg_pile : public CreatureScript
                 AlysrazorTrashEvaded(me);
             }
 
-            void DoAction(int32 const action)
+            void DoAction(int32 action)
             {
                 if (action != NPC_BLAZING_MONSTROSITY_LEFT &&
                     action != NPC_BLAZING_MONSTROSITY_RIGHT)
@@ -441,7 +441,7 @@ class npc_egg_pile : public CreatureScript
                 _events.ScheduleEvent(EVENT_SUMMON_SMOULDERING_HATCHLING, 1);
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;

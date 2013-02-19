@@ -1013,7 +1013,7 @@ EquipmentInfo const* ObjectMgr::GetEquipmentInfo(uint32 entry, int8& id)
     if (id == -1) // select a random element
     {
         EquipmentInfoContainerInternal::const_iterator ritr = itr->second.begin();
-        std::advance(ritr, urand(0u, itr->second.size()));
+        std::advance(ritr, urand(0u, itr->second.size() - 1));
         id = std::distance(itr->second.begin(), ritr) + 1;
         return &ritr->second;
     }

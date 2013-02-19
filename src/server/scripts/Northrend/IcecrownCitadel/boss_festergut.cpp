@@ -162,7 +162,7 @@ class boss_festergut : public CreatureScript
                     target->RemoveAurasDueToSpell(INOCULATED_HELPER);
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim() || !CheckInRoom())
                     return;
@@ -298,7 +298,7 @@ class npc_stinky_icc : public CreatureScript
                 DoCast(me, SPELL_PLAGUE_STENCH);
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;

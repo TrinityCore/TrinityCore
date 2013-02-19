@@ -99,7 +99,7 @@ class boss_mechano_lord_capacitus : public CreatureScript
                 Talk(YELL_DEATH);
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;

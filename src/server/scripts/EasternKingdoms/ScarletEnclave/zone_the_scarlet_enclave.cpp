@@ -69,7 +69,7 @@ public:
             me->SetPosition(x, y, z, 0.0f);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (FlyBackTimer <= diff)
             {

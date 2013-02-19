@@ -59,7 +59,7 @@ class boss_the_ravenian : public CreatureScript
                 events.ScheduleEvent(EVENT_KNOCKAWAY, 32000);
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;

@@ -100,7 +100,7 @@ public:
             Talk(AGGRO_YELL_AQUE, who->GetGUID());
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (isFriendly)
             {
@@ -266,7 +266,7 @@ public:
         void EnterCombat(Unit* /*who*/) {}
         void Reset() {}
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             npc_escortAI::UpdateAI(diff);
         }
@@ -502,7 +502,7 @@ public:
                 SetFollowComplete();
         }
 
-        void UpdateFollowerAI(const uint32 Diff)
+        void UpdateFollowerAI(uint32 Diff)
         {
             if (!UpdateVictim())
             {

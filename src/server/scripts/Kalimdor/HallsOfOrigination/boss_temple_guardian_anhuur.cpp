@@ -151,7 +151,7 @@ public:
             }
         }
 
-        void DoAction(int32 const action)
+        void DoAction(int32 action)
         {
             if (action == ACTION_DISABLE_BEACON)
             {
@@ -192,7 +192,7 @@ public:
             instance->SetBossState(DATA_TEMPLE_GUARDIAN_ANHUUR, FAIL);
         }
 
-        void UpdateAI(uint32 const diff)
+        void UpdateAI(uint32 diff)
         {
             if (!UpdateVictim() || !CheckInRoom() || me->GetCurrentSpell(CURRENT_CHANNELED_SPELL) || _phase == PHASE_SHIELDED)
                 return;

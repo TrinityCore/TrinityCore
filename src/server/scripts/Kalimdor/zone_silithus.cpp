@@ -791,7 +791,7 @@ public:
             }
             ++AnimationCount;
         }
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (AnimationTimer)
             {
@@ -843,7 +843,7 @@ public:
         void EnterCombat(Unit* /*who*/) {}
         void JustDied(Unit* /*slayer*/);
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (!Timers)
             {
@@ -1045,7 +1045,7 @@ public:
                 Announced = false;
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (!PlayerGUID || !EventStarted)
                 return;

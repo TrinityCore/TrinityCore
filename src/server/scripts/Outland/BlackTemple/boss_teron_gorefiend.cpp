@@ -86,7 +86,7 @@ public:
             me->RemoveCorpse();
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (CheckTeronTimer <= diff)
             {
@@ -188,7 +188,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (CheckPlayerTimer <= diff)
             {
@@ -378,7 +378,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (Intro && !Done)
             {
