@@ -8560,6 +8560,41 @@ void ObjectMgr::LoadFactionChangeItems()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u faction change item pairs in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
+void ObjectMgr::LoadFactionChangeQuests()
+{
+    uint32 oldMSTime = getMSTime();
+
+    QueryResult result = WorldDatabase.Query("SELECT alliance_id, horde_id FROM player_factionchange_quests");
+
+    if (!result)
+    {
+        sLog->outError(LOG_FILTER_SQL, ">> Loaded 0 faction change quest pairs. DB table `player_factionchange_quests` is empty.");
+        return;
+    }
+
+    uint32 count = 0;
+
+    do
+    {
+        Field* fields = result->Fetch();
+
+        uint32 alliance = fields[0].GetUInt32();
+        uint32 horde = fields[1].GetUInt32();
+
+        if (!sObjectMgr->GetQuestTemplate(alliance))
+            sLog->outError(LOG_FILTER_SQL, "Quest %u referenced in `player_factionchange_quests` does not exist, pair skipped!", alliance);
+        else if (!sObjectMgr->GetQuestTemplate(horde))
+            sLog->outError(LOG_FILTER_SQL, "Quest %u referenced in `player_factionchange_quests` does not exist, pair skipped!", horde);
+        else
+            FactionChange_Quests[alliance] = horde;
+
+        ++count;
+    }
+    while (result->NextRow());
+
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u faction change quest pairs in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+}
+
 void ObjectMgr::LoadFactionChangeSpells()
 {
     uint32 oldMSTime = getMSTime();

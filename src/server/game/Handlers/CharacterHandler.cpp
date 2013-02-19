@@ -1885,11 +1885,6 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
                 trans->Append(stmt);
             }
 
-            // Delete all current quests
-            stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_QUESTSTATUS);
-            stmt->setUInt32(0, GUID_LOPART(guid));
-            trans->Append(stmt);
-
             // Delete record of the faction old completed quests
             {
                 std::ostringstream quests;
@@ -2009,6 +2004,38 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
                 stmt->setUInt32(2, guid);
                 trans->Append(stmt);
             }
+
+            // Quest conversion
+            std::ostringstream convert;
+            for (std::map<uint32, uint32>::const_iterator it = sObjectMgr->FactionChange_Quests.begin(); it != sObjectMgr->FactionChange_Quests.end(); ++it)
+            {
+                uint32 quest = (team == TEAM_ALLIANCE ? it->second : it->first);
+                uint32 quest_replacement = (team == TEAM_ALLIANCE ? it->first : it->second);
+
+                PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHAR_QUESTSTATUS);
+                stmt->setUInt32(0, lowGuid);
+                stmt->setUInt32(1, quest_replacement);
+                PreparedQueryResult result = CharacterDatabase.Query(stmt);
+                if (quest_replacement && !result)
+                {
+                    stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHAR_QUEST_FACTION_CHANGE);
+                    stmt->setUInt32(0, quest_replacement);
+                    stmt->setUInt32(1, quest);
+                    stmt->setUInt32(2, lowGuid);
+                    trans->Append(stmt);
+
+                    if (convert.str().empty())
+                        convert << quest_replacement;
+                    else
+                        convert << ', ' << quest_replacement;
+                }
+            }
+
+            // Delete all current quests that were not meant to be converted
+            stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_QUESTSTATUS);
+            stmt->setUInt32(0, lowGuid);
+            stmt->setString(1, convert.str());
+            trans->Append(stmt);
 
             // Spell conversion
             for (std::map<uint32, uint32>::const_iterator it = sObjectMgr->FactionChange_Spells.begin(); it != sObjectMgr->FactionChange_Spells.end(); ++it)
