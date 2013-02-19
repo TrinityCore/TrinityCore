@@ -33,6 +33,7 @@
 RASocket::RASocket()
 {
     _minLevel = uint8(ConfigMgr::GetIntDefault("RA.MinLevel", 3));
+    _commandExecuting = false;
 }
 
 RASocket::~RASocket()
@@ -59,6 +60,12 @@ int RASocket::handle_close(ACE_HANDLE, ACE_Reactor_Mask)
     sLog->outInfo(LOG_FILTER_REMOTECOMMAND, "Closing connection");
     peer().close_reader();
     wait();
+    // While the above wait() will wait for the ::svc() to finish, it will not wait for the async event
+    // RASocket::commandfinished to be completed. Calling destroy() before the latter function ends
+    // will lead to using a freed pointer -> crash.
+    while (_commandExecuting.value())
+        ACE_OS::sleep(1);
+
     destroy();
     return 0;
 }
@@ -150,6 +157,7 @@ int RASocket::process_command(const std::string& command)
         return -1;
     }
 
+    _commandExecuting = true;
     CliCommandHolder* cmd = new CliCommandHolder(this, command.c_str(), &RASocket::zprint, &RASocket::commandFinished);
     sWorld->QueueCliCommand(cmd);
 
@@ -412,10 +420,11 @@ void RASocket::commandFinished(void* callbackArg, bool /*success*/)
 
     // the message is 0 size control message to tell that command output is finished
     // hence we don't put timeout, because it shouldn't increase queue size and shouldn't block
-    if (socket->putq(mb) == -1)
-    {
+    if (socket->putq(mb->duplicate()) == -1)
         // getting here is bad, command can't be marked as complete
         sLog->outDebug(LOG_FILTER_REMOTECOMMAND, "Failed to enqueue command end message. Error is %s", ACE_OS::strerror(errno));
-        mb->release();
-    }
+
+    mb->release();
+
+    socket->_commandExecuting = false;
 }

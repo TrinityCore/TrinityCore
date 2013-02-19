@@ -52,16 +52,27 @@ LootStore LootTemplates_Reference("reference_loot_template",         "reference 
 LootStore LootTemplates_Skinning("skinning_loot_template",           "creature skinning id",            true);
 LootStore LootTemplates_Spell("spell_loot_template",                 "spell id (random item creating)", false);
 
-struct NotMatchingLootMode : public std::unary_function<LootStoreItem*, bool>
+// Selects invalid loot items to be removed from group possible entries (before rolling)
+struct LootGroupInvalidSelector : public std::unary_function<LootStoreItem*, bool>
 {
-    explicit NotMatchingLootMode(uint16 lootMode) : _lootMode(lootMode) { }
+    explicit LootGroupInvalidSelector(Loot const& loot, uint16 lootMode) : _loot(loot), _lootMode(lootMode) { }
 
     bool operator()(LootStoreItem* item) const
     {
-        return !(item->lootmode & _lootMode);
+        if (!(item->lootmode & _lootMode))
+            return true;
+
+        uint8 foundDuplicates = 0;
+        for (std::vector<LootItem>::const_iterator itr = _loot.items.begin(); itr != _loot.items.end(); ++itr)
+            if (itr->itemid == item->itemid)
+                if (++foundDuplicates == _loot.maxDuplicates)
+                    return true;
+
+        return false;
     }
 
 private:
+    Loot const& _loot;
     uint16 _lootMode;
 };
 
@@ -89,7 +100,7 @@ class LootTemplate::LootGroup                               // A set of loot def
         LootStoreItemList ExplicitlyChanced;                // Entries with chances defined in DB
         LootStoreItemList EqualChanced;                     // Zero chances - every entry takes the same chance
 
-        LootStoreItem const* Roll(uint16 lootMode) const;   // Rolls an item from the group, returns NULL if all miss their chances
+        LootStoreItem const* Roll(Loot& loot, uint16 lootMode) const;   // Rolls an item from the group, returns NULL if all miss their chances
 
         // This class must never be copied - storing pointers
         LootGroup(LootGroup const&);
@@ -1076,10 +1087,10 @@ void LootTemplate::LootGroup::AddEntry(LootStoreItem* item)
 }
 
 // Rolls an item from the group, returns NULL if all miss their chances
-LootStoreItem const* LootTemplate::LootGroup::Roll(uint16 lootMode) const
+LootStoreItem const* LootTemplate::LootGroup::Roll(Loot& loot, uint16 lootMode) const
 {
     LootStoreItemList possibleLoot = ExplicitlyChanced;
-    possibleLoot.remove_if(NotMatchingLootMode(lootMode));
+    possibleLoot.remove_if(LootGroupInvalidSelector(loot, lootMode));
 
     if (!possibleLoot.empty())                             // First explicitly chanced entries are checked
     {
@@ -1098,7 +1109,7 @@ LootStoreItem const* LootTemplate::LootGroup::Roll(uint16 lootMode) const
     }
 
     possibleLoot = EqualChanced;
-    possibleLoot.remove_if(NotMatchingLootMode(lootMode));
+    possibleLoot.remove_if(LootGroupInvalidSelector(loot, lootMode));
     if (!possibleLoot.empty())                              // If nothing selected yet - an item is taken from equal-chanced part
         return Trinity::Containers::SelectRandomContainerElement(possibleLoot);
 
@@ -1145,7 +1156,7 @@ void LootTemplate::LootGroup::CopyConditions(ConditionList /*conditions*/)
 // Rolls an item from the group (if any takes its chance) and adds the item to the loot
 void LootTemplate::LootGroup::Process(Loot& loot, uint16 lootMode) const
 {
-    if (LootStoreItem const* item = Roll(lootMode))
+    if (LootStoreItem const* item = Roll(loot, lootMode))
         loot.AddItem(*item);
 }
 
@@ -1285,7 +1296,7 @@ void LootTemplate::Process(Loot& loot, bool rate, uint16 lootMode, uint8 groupId
     for (LootStoreItemList::const_iterator i = Entries.begin(); i != Entries.end(); ++i)
     {
         LootStoreItem* item = *i;
-        if (item->lootmode &~ lootMode)                         // Do not add if mode mismatch
+        if (!(item->lootmode & lootMode))                       // Do not add if mode mismatch
             continue;
 
         if (!item->Roll(rate))
@@ -1294,7 +1305,6 @@ void LootTemplate::Process(Loot& loot, bool rate, uint16 lootMode, uint8 groupId
         if (item->mincountOrRef < 0)                            // References processing
         {
             LootTemplate const* Referenced = LootTemplates_Reference.GetLootFor(-item->mincountOrRef);
-
             if (!Referenced)
                 continue;                                       // Error message already printed at loading stage
 
