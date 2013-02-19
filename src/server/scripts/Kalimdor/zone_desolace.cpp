@@ -109,7 +109,7 @@ public:
             }
         }
     };
-    
+
     CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_aged_dying_ancient_kodoAI(creature);

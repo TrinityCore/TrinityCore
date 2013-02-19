@@ -2249,10 +2249,7 @@ class npc_descend_into_madness : public CreatureScript
 
         struct npc_descend_into_madnessAI : public ScriptedAI
         {
-            npc_descend_into_madnessAI(Creature *c) : ScriptedAI(c)
-            {
-                SetCombatMovement(false);
-            }
+            npc_descend_into_madnessAI(Creature *c) : ScriptedAI(c) {}
 
             BrainEventPhase bPhase;
 
@@ -2772,7 +2769,7 @@ class npc_support_keeper : public CreatureScript
 
         struct npc_support_keeperAI : public ScriptedAI
         {
-            npc_support_keeperAI(Creature *c) : ScriptedAI(c), _summons(me)
+            npc_support_keeperAI(Creature *c) : ScriptedAI(c) , _summons(me)
             {
                 SetCombatMovement(false);
 
@@ -3041,7 +3038,7 @@ class npc_death_orb : public CreatureScript
 
         struct npc_death_orbAI : public ScriptedAI
         {
-            npc_death_orbAI(Creature *c) : ScriptedAI(c), _summons(me)
+            npc_death_orbAI(Creature *c) : ScriptedAI(c) , _summons(me)
             {
                 SetCombatMovement(false);
 

@@ -1158,10 +1158,7 @@ class npc_proximity_mine : public CreatureScript
 
         struct npc_proximity_mineAI : public ScriptedAI
         {
-            npc_proximity_mineAI(Creature* creature) : ScriptedAI(creature)
-            {
-                SetCombatMovement(false);
-            }
+            npc_proximity_mineAI(Creature* creature) : ScriptedAI(creature) {}
 
             void InitializeAI()
             {
@@ -1261,10 +1258,7 @@ class boss_vx_001 : public CreatureScript
 
         struct boss_vx_001AI : public ScriptedAI
         {
-            boss_vx_001AI(Creature* creature) : ScriptedAI(creature)
-            {
-                 SetCombatMovement(false);
-            }
+            boss_vx_001AI(Creature* creature) : ScriptedAI(creature) {}
 
             void InitializeAI()
             {
@@ -1604,10 +1598,7 @@ class npc_rocket_strike : public CreatureScript
 
         struct npc_rocket_strikeAI : public ScriptedAI
         {
-            npc_rocket_strikeAI(Creature* creature) : ScriptedAI(creature)
-            {
-                SetCombatMovement(false);
-            }
+            npc_rocket_strikeAI(Creature* creature) : ScriptedAI(creature) {}
 
             void InitializeAI()
             {
@@ -2313,10 +2304,7 @@ class npc_frost_bomb : public CreatureScript
 
         struct npc_frost_bombAI : public ScriptedAI
         {
-            npc_frost_bombAI(Creature* creature) : ScriptedAI(creature)
-            {
-                SetCombatMovement(false);
-            }
+            npc_frost_bombAI(Creature* creature) : ScriptedAI(creature) {}
 
             void InitializeAI()
             {
