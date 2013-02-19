@@ -95,7 +95,7 @@ class boss_buru : public CreatureScript
                 _phase = PHASE_EGG;
             }
 
-            void DoAction(int32 const action)
+            void DoAction(int32 action)
             {
                 if (action == ACTION_EXPLODE)
                     if (_phase == PHASE_EGG)
@@ -133,7 +133,7 @@ class boss_buru : public CreatureScript
                 events.ScheduleEvent(EVENT_RESPAWN_EGG, 100000);
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;

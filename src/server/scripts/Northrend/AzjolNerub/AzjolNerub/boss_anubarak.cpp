@@ -168,7 +168,7 @@ public:
                 instance->SetData(DATA_ANUBARAK_EVENT, IN_PROGRESS);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (!UpdateVictim())
                 return;

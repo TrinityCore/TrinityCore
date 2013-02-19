@@ -167,7 +167,7 @@ public:
                 intenseColdList.push_back(guid);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (!UpdateVictim())
                 return;

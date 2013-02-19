@@ -111,7 +111,7 @@ class SmartAI : public CreatureAI
         void HealReceived(Unit* doneBy, uint32& addhealth);
 
         // Called at World update tick
-        void UpdateAI(const uint32 diff);
+        void UpdateAI(uint32 diff);
 
         // Called at text emote receive from player
         void ReceiveEmote(Player* player, uint32 textEmote);
@@ -147,7 +147,7 @@ class SmartAI : public CreatureAI
         bool CanAIAttack(const Unit* who) const;
 
         // Used in scripts to share variables
-        void DoAction(const int32 param = 0);
+        void DoAction(int32 param = 0);
 
         // Used in scripts to share variables
         uint32 GetData(uint32 id = 0) const;

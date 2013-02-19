@@ -547,7 +547,7 @@ public:
             (*itr)->CastSpell(target, SPELL_LAVA_STRIKE, true);
         }
 
-        void UpdateAI(const uint32 uiDiff)
+        void UpdateAI(uint32 uiDiff)
         {
             //Return since we have no target
             if (!UpdateVictim())
@@ -954,7 +954,7 @@ struct dummy_dragonAI : public ScriptedAI
         }
     }
 
-    void UpdateAI(const uint32 uiDiff)
+    void UpdateAI(uint32 uiDiff)
     {
         if (m_bCanMoveFree && m_uiMoveNextTimer)
         {
@@ -1017,7 +1017,7 @@ public:
             Talk(SAY_TENEBRON_SLAY);
         }
 
-        void UpdateAI(const uint32 uiDiff)
+        void UpdateAI(uint32 uiDiff)
         {
             //if no target, update dummy and return
             if (!UpdateVictim())
@@ -1112,7 +1112,7 @@ public:
             Talk(SAY_SHADRON_SLAY);
         }
 
-        void UpdateAI(const uint32 uiDiff)
+        void UpdateAI(uint32 uiDiff)
         {
             //if no target, update dummy and return
             if (!UpdateVictim())
@@ -1210,7 +1210,7 @@ public:
             Talk(SAY_VESPERON_SLAY);
         }
 
-        void UpdateAI(const uint32 uiDiff)
+        void UpdateAI(uint32 uiDiff)
         {
             //if no target, update dummy and return
             if (!UpdateVictim())
@@ -1352,7 +1352,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 uiDiff)
+        void UpdateAI(uint32 uiDiff)
         {
             if (uiDespawnTimer < uiDiff)
             {
@@ -1447,7 +1447,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 uiDiff)
+        void UpdateAI(uint32 uiDiff)
         {
             if (uiDespawnTimer < uiDiff)
             {
@@ -1519,7 +1519,7 @@ public:
             who->SetInCombatWithZone();
         }
 
-        void UpdateAI(const uint32 uiDiff)
+        void UpdateAI(uint32 uiDiff)
         {
             if (m_uiHatchEggTimer <= uiDiff)
             {
@@ -1573,7 +1573,7 @@ public:
             entry = 0;
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (Tsunami_Timer <= diff)
             {
@@ -1621,7 +1621,7 @@ public:
             VoidBlast_Timer = 5000;
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (VoidBlast_Timer <= diff)
             {
@@ -1668,7 +1668,7 @@ public:
             m_uiFadeArmorTimer = 1000;
         }
 
-        void UpdateAI(const uint32 uiDiff)
+        void UpdateAI(uint32 uiDiff)
         {
             //Return since we have no target
             if (!UpdateVictim())

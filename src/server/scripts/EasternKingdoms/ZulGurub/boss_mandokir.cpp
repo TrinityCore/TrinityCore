@@ -182,7 +182,7 @@ class boss_mandokir : public CreatureScript
                 }
             }
 
-            void DoAction(int32 const action)
+            void DoAction(int32 action)
             {
                 switch (action)
                 {
@@ -230,7 +230,7 @@ class boss_mandokir : public CreatureScript
                 _reviveGUID = guid;
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;
@@ -341,7 +341,7 @@ class npc_ohgan : public CreatureScript
                 }
             }
 
-            void UpdateAI(uint32 const /*diff*/)
+            void UpdateAI(uint32 /*diff*/)
             {
                 if (!UpdateVictim())
                     return;
@@ -383,7 +383,7 @@ class npc_chained_spirit : public CreatureScript
                 _revivePlayerGUID = guid;
             }
 
-            void DoAction(int32 const action)
+            void DoAction(int32 action)
             {
                 if (action == ACTION_REVIVE)
                 {
@@ -425,7 +425,7 @@ class npc_chained_spirit : public CreatureScript
                 me->DespawnOrUnsummon();
             }
 
-            void UpdateAI(uint32 const /*diff*/) { }
+            void UpdateAI(uint32 /*diff*/) { }
 
         private:
             InstanceScript* _instance;

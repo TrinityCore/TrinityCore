@@ -71,7 +71,7 @@ class boss_kilnara : public CreatureScript
                     Talk(SAY_PLAYER_KILL);
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;

@@ -140,7 +140,7 @@ public:
             Talk(SAY_KILL);
         }
 
-        void DoAction(int32 const action)
+        void DoAction(int32 action)
         {
             if (action == ACTION_MAGUS_DEAD)
             {
@@ -213,7 +213,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             //Return since we have no target
             if (!UpdateVictim())

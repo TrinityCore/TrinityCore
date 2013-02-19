@@ -342,7 +342,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 uiDiff)
+        void UpdateAI(uint32 uiDiff)
         {
             ScriptedAI::UpdateAI(uiDiff);
 
@@ -481,7 +481,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (instance && instance->GetData(DATA_MAIN_EVENT_PHASE) != IN_PROGRESS)
                 me->CastStop();
@@ -578,7 +578,7 @@ public:
 
         void MoveInLineOfSight(Unit* /*who*/) {}
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (!instance) //Massive usage of instance, global check
                 return;
@@ -724,7 +724,7 @@ struct violet_hold_trashAI : public npc_escortAI
         }
     }
 
-    void UpdateAI(const uint32)
+    void UpdateAI(uint32)
     {
         if (instance && instance->GetData(DATA_MAIN_EVENT_PHASE) != IN_PROGRESS)
             me->CastStop();
@@ -832,7 +832,7 @@ public:
             uiSunderArmorTimer = 4000;
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             violet_hold_trashAI::UpdateAI(diff);
             npc_escortAI::UpdateAI(diff);
@@ -910,7 +910,7 @@ public:
             uiFrostboltTimer = 4000;
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             violet_hold_trashAI::UpdateAI(diff);
             npc_escortAI::UpdateAI(diff);
@@ -984,7 +984,7 @@ public:
             uiSpellLockTimer = 5000;
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             violet_hold_trashAI::UpdateAI(diff);
             npc_escortAI::UpdateAI(diff);
@@ -1044,7 +1044,7 @@ public:
             uiMagicReflectionTimer = 8000;
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             violet_hold_trashAI::UpdateAI(diff);
             npc_escortAI::UpdateAI(diff);
@@ -1097,7 +1097,7 @@ public:
             TacticalBlinkCasted =false;
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             violet_hold_trashAI::UpdateAI(diff);
             npc_escortAI::UpdateAI(diff);
@@ -1159,7 +1159,7 @@ public:
             uiConeOfColdTimer = 4000;
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             violet_hold_trashAI::UpdateAI(diff);
             npc_escortAI::UpdateAI(diff);
@@ -1239,7 +1239,7 @@ public:
             uiWhirlwindTimer = 8000;
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             violet_hold_trashAI::UpdateAI(diff);
             npc_escortAI::UpdateAI(diff);
@@ -1293,7 +1293,7 @@ public:
             uiManaDetonationTimer = 5000;
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             violet_hold_trashAI::UpdateAI(diff);
             npc_escortAI::UpdateAI(diff);

@@ -56,7 +56,7 @@ class boss_grilek : public CreatureScript
             {
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;

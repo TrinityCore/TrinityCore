@@ -187,7 +187,7 @@ public:
             instance->SetBossState(DATA_ANRAPHET, FAIL);
         }
 
-        void DoAction(int32 const action)
+        void DoAction(int32 action)
         {
             if (action == ACTION_ANRAPHET_INTRO)
                 events.ScheduleEvent(EVENT_ANRAPHET_APPEAR, 6000, 0, PHASE_INTRO);
@@ -205,7 +205,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 const diff)
+        void UpdateAI(uint32 diff)
         {
             if ((events.GetPhaseMask() & PHASE_MASK_COMBAT) && (!UpdateVictim() || !CheckInRoom()))
                 return;
@@ -346,7 +346,7 @@ class npc_brann_bronzebeard_anraphet : public CreatureScript
                 }
             }
 
-            void DoAction(int32 const action)
+            void DoAction(int32 action)
             {
                 switch (action)
                 {
@@ -369,7 +369,7 @@ class npc_brann_bronzebeard_anraphet : public CreatureScript
                 }
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 diff)
             {
                 events.Update(diff);
 
