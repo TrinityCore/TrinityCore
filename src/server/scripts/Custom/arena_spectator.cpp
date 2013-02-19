@@ -394,11 +394,11 @@ class npc_arena_spectator : public CreatureScript
             return sClass;
         }
 
-        std::string GetGamesStringData(Battleground *arena, uint16 mmr)
+        std::string GetGamesStringData(Battleground* team, uint16 mmr)
         {
             std::string teamsMember[BG_TEAMS_COUNT];
             uint32 firstTeamId = 0;
-            for (Battleground::BattlegroundPlayerMap::const_iterator itr = arena->GetPlayers().begin(); itr != arena->GetPlayers().end(); ++itr)
+            for (Battleground::BattlegroundPlayerMap::const_iterator itr = team->GetPlayers().begin(); itr != team->GetPlayers().end(); ++itr)
                 if (Player* player = ObjectAccessor::FindPlayer(itr->first))
                 {
                     if (player->isSpectator())
@@ -411,23 +411,23 @@ class npc_arena_spectator : public CreatureScript
                     teamsMember[firstTeamId == team] += GetClassNameById(player->getClass());
                 }
 
-            std::string data = teamsMember[0] + " - ";
+            std::string data = teamsMember[0] + "(";
             std::stringstream ss;
             ss << mmr;
             data += ss.str();
-            data += " - " + teamsMember[1];
+            data += ") - " + teamsMember[1];
             return data;
         }
 
-        uint64 GetFirstPlayerGuid(Battleground *arena)
+        uint64 GetFirstPlayerGuid(Battleground* team)
         {
-            for (Battleground::BattlegroundPlayerMap::const_iterator itr = arena->GetPlayers().begin(); itr != arena->GetPlayers().end(); ++itr)
+            for (Battleground::BattlegroundPlayerMap::const_iterator itr = team->GetPlayers().begin(); itr != team->GetPlayers().end(); ++itr)
                 if (Player* player = ObjectAccessor::FindPlayer(itr->first))
                     return itr->first;
             return 0;
         }
 
-        void ShowPage(Player *player, uint16 page, bool isTop)
+        void ShowPage(Player* player, uint16 page, bool isTop)
         {
             uint16 highGames  = 0;
             uint16 lowGames   = 0;
@@ -437,8 +437,8 @@ class npc_arena_spectator : public CreatureScript
                 if (!sBattlegroundMgr->IsArenaType((BattlegroundTypeId)i))
                     continue;
 
-                BattlegroundContainer bgs = sBattlegroundMgr->GetBattlegroundsByType((BattlegroundTypeId)i);
-                for (BattlegroundContainer::iterator itr = bgs.begin(); itr != bgs.end(); ++itr)
+                BattlegroundContainer const* arenas = sBattlegroundMgr->GetBattlegroundsByType((BattlegroundTypeId)i);
+                for (BattlegroundContainer::iterator itr = arenas.begin(); itr != arenas.end(); ++itr)
                 {
                     Battleground* arena = itr->second;
 

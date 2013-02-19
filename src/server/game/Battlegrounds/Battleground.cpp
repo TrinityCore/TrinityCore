@@ -1999,13 +1999,13 @@ uint8 Battleground::ClickFastStart(Player *player, GameObject *go)
     switch(GetArenaType())
     {
         case ARENA_TYPE_2v2:
-            playersNeeded = 3;
-            break;
-        case ARENA_TYPE_3v3:
             playersNeeded = 4;
             break;
-        case ARENA_TYPE_5v5:
+        case ARENA_TYPE_3v3:
             playersNeeded = 6;
+            break;
+        case ARENA_TYPE_5v5:
+            playersNeeded = 10;
             break;
     }
 
