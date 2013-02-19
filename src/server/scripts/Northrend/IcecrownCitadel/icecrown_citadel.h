@@ -56,6 +56,7 @@ enum SharedSpells
     SPELL_FROSTMOURNE_TELEPORT_VISUAL   = 73078,
 
     // Shadowmourne questline
+    SPELL_UNSATED_CRAVING               = 71168,
     SPELL_SHADOWS_FATE                  = 71169
 };
 

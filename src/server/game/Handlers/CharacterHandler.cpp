@@ -215,7 +215,7 @@ void WorldSession::HandleCharEnum(PreparedQueryResult result)
 
     data << num;
 
-    _allowedCharsToLogin.clear();
+    _legitCharacters.clear();
     if (result)
     {
         do
@@ -224,7 +224,9 @@ void WorldSession::HandleCharEnum(PreparedQueryResult result)
             sLog->outInfo(LOG_FILTER_NETWORKIO, "Loading char guid %u from account %u.", guidlow, GetAccountId());
             if (Player::BuildEnumData(result, &data))
             {
-                _allowedCharsToLogin.insert(guidlow);
+                _legitCharacters.insert(guidlow);
+                if (!sWorld->HasCharacterNameData(guidlow)) // This can happen if characters are inserted into the database manually. Core hasn't loaded name data yet.
+                    sWorld->AddCharacterNameData(guidlow, (*result)[1].GetString(), (*result)[4].GetUInt8(), (*result)[2].GetUInt8(), (*result)[3].GetUInt8(), (*result)[7].GetUInt8());
                 ++num;
             }
         }
@@ -725,7 +727,7 @@ void WorldSession::HandleCharDeleteOpcode(WorldPacket& recvData)
     std::string IP_str = GetRemoteAddress();
     sLog->outInfo(LOG_FILTER_CHARACTER, "Account: %d, IP: %s deleted character: %s, GUID: %u, Level: %u", accountId, IP_str.c_str(), name.c_str(), GUID_LOPART(guid), level);
     sScriptMgr->OnPlayerDelete(guid);
-    sWorld->DeleteCharaceterNameData(GUID_LOPART(guid));
+    sWorld->DeleteCharacterNameData(GUID_LOPART(guid));
 
     if (sLog->ShouldLog(LOG_FILTER_PLAYER_DUMP, LOG_LEVEL_INFO)) // optimize GetPlayerDump call
     {
@@ -757,7 +759,7 @@ void WorldSession::HandlePlayerLoginOpcode(WorldPacket& recvData)
 
     recvData >> playerGuid;
 
-    if (!CharCanLogin(GUID_LOPART(playerGuid)))
+    if (!IsLegitCharacterForAccount(GUID_LOPART(playerGuid)))
     {
         sLog->outError(LOG_FILTER_NETWORKIO, "Account (%u) can't login with that character (%u).", GetAccountId(), GUID_LOPART(playerGuid));
         KickPlayer();
@@ -1384,6 +1386,15 @@ void WorldSession::HandleCharCustomize(WorldPacket& recvData)
     std::string newName;
 
     recvData >> guid;
+    if (!IsLegitCharacterForAccount(GUID_LOPART(guid)))
+    {
+        sLog->outError(LOG_FILTER_NETWORKIO, "Account %u, IP: %s tried to customise character %u, but it does not belong to their account!",
+            GetAccountId(), GetRemoteAddress().c_str(), GUID_LOPART(guid));
+        recvData.rfinish();
+        KickPlayer();
+        return;
+    }
+
     recvData >> newName;
 
     uint8 gender, skin, face, hairStyle, hairColor, facialHair;
@@ -1392,7 +1403,7 @@ void WorldSession::HandleCharCustomize(WorldPacket& recvData)
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_AT_LOGIN);
 
     stmt->setUInt32(0, GUID_LOPART(guid));
-
+    // TODO: Make async with callback
     PreparedQueryResult result = CharacterDatabase.Query(stmt);
 
     if (!result)
@@ -1617,6 +1628,16 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
     std::string newname;
     uint8 gender, skin, face, hairStyle, hairColor, facialHair, race;
     recvData >> guid;
+
+    if (!IsLegitCharacterForAccount(GUID_LOPART(guid)))
+    {
+        sLog->outError(LOG_FILTER_NETWORKIO, "Account %u, IP: %s tried to factionchange character %u, but it does not belong to their account!",
+            GetAccountId(), GetRemoteAddress().c_str(), GUID_LOPART(guid));
+        recvData.rfinish();
+        KickPlayer();
+        return;
+    }
+
     recvData >> newname;
     recvData >> gender >> skin >> hairColor >> hairStyle >> facialHair >> face >> race;
 
@@ -1624,6 +1645,14 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
 
     // get the players old (at this moment current) race
     CharacterNameData const* nameData = sWorld->GetCharacterNameData(lowGuid);
+    if (!nameData)
+    {
+        WorldPacket data(SMSG_CHAR_FACTION_CHANGE, 1);
+        data << uint8(CHAR_CREATE_ERROR);
+        SendPacket(&data);
+        return;
+    }
+
     uint8 oldRace = nameData->m_race;
     uint8 playerClass = nameData->m_class;
     uint8 level = nameData->m_level;

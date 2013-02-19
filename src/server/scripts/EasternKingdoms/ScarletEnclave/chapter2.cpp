@@ -237,7 +237,7 @@ public:
                 case 2:
                     me->SetStandState(UNIT_STAND_STATE_STAND);
                     DoCast(me, SPELL_KOLTIRA_TRANSFORM);
-                    me->LoadEquipment(me->GetEquipmentId());
+                    me->LoadEquipment();
                     break;
                 case 3:
                     SetEscortPaused(true);

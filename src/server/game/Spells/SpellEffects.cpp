@@ -4034,7 +4034,7 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
 
                     unitTarget->CastSpell(unitTarget, iTmpSpellId, true);
                     Creature* npc = unitTarget->ToCreature();
-                    npc->LoadEquipment(npc->GetEquipmentId());
+                    npc->LoadEquipment();
                     return;
                 }
                 // Emblazon Runeblade
@@ -5050,7 +5050,8 @@ void Spell::EffectCharge(SpellEffIndex /*effIndex*/)
 
     if (effectHandleMode == SPELL_EFFECT_HANDLE_LAUNCH_TARGET)
     {
-        if (m_preGeneratedPath.GetPathType() & PATHFIND_NOPATH)
+        // Spell is not using explicit target - no generated path
+        if (m_preGeneratedPath.GetPathType() == PATHFIND_BLANK)
         {
             Position pos;
             unitTarget->GetContactPoint(m_caster, pos.m_positionX, pos.m_positionY, pos.m_positionZ);

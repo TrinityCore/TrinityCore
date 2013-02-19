@@ -102,10 +102,8 @@ public:
         npc_unworthy_initiateAI(Creature* creature) : ScriptedAI(creature)
         {
             me->SetReactState(REACT_PASSIVE);
-            if (!me->GetEquipmentId())
-                if (const CreatureTemplate* info = sObjectMgr->GetCreatureTemplate(28406))
-                    if (info->equipmentId)
-                        const_cast<CreatureTemplate*>(me->GetCreatureTemplate())->equipmentId = info->equipmentId;
+            if (!me->GetCurrentEquipmentId())
+                me->SetCurrentEquipmentId(me->GetOriginalEquipmentId());
         }
 
         uint64 playerGUID;

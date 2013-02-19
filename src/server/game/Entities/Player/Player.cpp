@@ -7448,6 +7448,9 @@ uint32 Player::GetZoneIdFromDB(uint64 guid)
         float posy = fields[2].GetFloat();
         float posz = fields[3].GetFloat();
 
+        if (!sMapStore.LookupEntry(map))
+            return 0;
+
         zone = sMapMgr->GetZoneId(map, posx, posy, posz);
 
         if (zone > 0)
@@ -25619,7 +25622,7 @@ bool Player::AddItem(uint32 itemId, uint32 count)
     ItemPosCountVec dest;
     InventoryResult msg = CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, itemId, count, &noSpaceForCount);
     if (msg != EQUIP_ERR_OK)
-        count = noSpaceForCount;
+        count -= noSpaceForCount;
 
     if (count == 0 || dest.empty())
     {
