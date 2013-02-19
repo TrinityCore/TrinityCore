@@ -1,0 +1,2 @@
+-- Change $B$$B at end of details text to $B$B
+UPDATE `quest_template` SET `Details`='Brave traveler, the centaurs have increased their attacks in this area. Freewind Post must know about this renewed harassment immediately! Seek Cliffwatcher Longhorn at Freewind Post to the southeast and give him this urgent message.$b$bBe warned, avoid the Grimtotem Clan nearby... they have been acting strange toward us lately.$B$B' WHERE `Id`=4542;

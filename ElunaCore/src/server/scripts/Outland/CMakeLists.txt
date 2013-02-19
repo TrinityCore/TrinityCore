@@ -1,0 +1,113 @@
+# Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
+#
+# This file is free software; as a special exception the author gives
+# unlimited permission to copy and/or distribute it, with or without
+# modifications, as long as this notice is preserved.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
+# implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+set(scripts_STAT_SRCS
+  ${scripts_STAT_SRCS}
+  Outland/zone_nagrand.cpp
+  Outland/HellfireCitadel/MagtheridonsLair/magtheridons_lair.h
+  Outland/HellfireCitadel/MagtheridonsLair/instance_magtheridons_lair.cpp
+  Outland/HellfireCitadel/MagtheridonsLair/boss_magtheridon.cpp
+  Outland/HellfireCitadel/HellfireRamparts/instance_hellfire_ramparts.cpp
+  Outland/HellfireCitadel/HellfireRamparts/boss_omor_the_unscarred.cpp
+  Outland/HellfireCitadel/HellfireRamparts/boss_watchkeeper_gargolmar.cpp
+  Outland/HellfireCitadel/HellfireRamparts/boss_vazruden_the_herald.cpp
+  Outland/HellfireCitadel/HellfireRamparts/hellfire_ramparts.h
+  Outland/HellfireCitadel/BloodFurnace/boss_the_maker.cpp
+  Outland/HellfireCitadel/BloodFurnace/boss_kelidan_the_breaker.cpp
+  Outland/HellfireCitadel/BloodFurnace/blood_furnace.h
+  Outland/HellfireCitadel/BloodFurnace/instance_blood_furnace.cpp
+  Outland/HellfireCitadel/BloodFurnace/boss_broggok.cpp
+  Outland/HellfireCitadel/ShatteredHalls/shattered_halls.h
+  Outland/HellfireCitadel/ShatteredHalls/boss_warchief_kargath_bladefist.cpp
+  Outland/HellfireCitadel/ShatteredHalls/boss_nethekurse.cpp
+  Outland/HellfireCitadel/ShatteredHalls/instance_shattered_halls.cpp
+  Outland/HellfireCitadel/ShatteredHalls/boss_warbringer_omrogg.cpp
+  Outland/CoilfangReservoir/SteamVault/boss_mekgineer_steamrigger.cpp
+  Outland/CoilfangReservoir/SteamVault/instance_steam_vault.cpp
+  Outland/CoilfangReservoir/SteamVault/boss_hydromancer_thespia.cpp
+  Outland/CoilfangReservoir/SteamVault/boss_warlord_kalithresh.cpp
+  Outland/CoilfangReservoir/SteamVault/steam_vault.h
+  Outland/CoilfangReservoir/SerpentShrine/boss_hydross_the_unstable.cpp
+  Outland/CoilfangReservoir/SerpentShrine/boss_fathomlord_karathress.cpp
+  Outland/CoilfangReservoir/SerpentShrine/instance_serpent_shrine.cpp
+  Outland/CoilfangReservoir/SerpentShrine/serpent_shrine.h
+  Outland/CoilfangReservoir/SerpentShrine/boss_lady_vashj.cpp
+  Outland/CoilfangReservoir/SerpentShrine/boss_leotheras_the_blind.cpp
+  Outland/CoilfangReservoir/SerpentShrine/boss_lurker_below.cpp
+  Outland/CoilfangReservoir/SerpentShrine/boss_morogrim_tidewalker.cpp
+  Outland/CoilfangReservoir/underbog/boss_hungarfen.cpp
+  Outland/CoilfangReservoir/underbog/boss_the_black_stalker.cpp
+  Outland/zone_shattrath_city.cpp
+  Outland/TempestKeep/Mechanar/boss_mechano_lord_capacitus.cpp
+  Outland/TempestKeep/Mechanar/boss_pathaleon_the_calculator.cpp
+  Outland/TempestKeep/Mechanar/boss_nethermancer_sepethrea.cpp
+  Outland/TempestKeep/Mechanar/mechanar.h
+  Outland/TempestKeep/Mechanar/boss_gatewatcher_gyrokill.cpp
+  Outland/TempestKeep/Mechanar/instance_mechanar.cpp
+  Outland/TempestKeep/Mechanar/boss_gatewatcher_ironhand.cpp
+  Outland/TempestKeep/Eye/the_eye.h
+  Outland/TempestKeep/Eye/instance_the_eye.cpp
+  Outland/TempestKeep/Eye/boss_void_reaver.cpp
+  Outland/TempestKeep/Eye/boss_astromancer.cpp
+  Outland/TempestKeep/Eye/boss_alar.cpp
+  Outland/TempestKeep/Eye/boss_kaelthas.cpp
+  Outland/TempestKeep/Eye/the_eye.cpp
+  Outland/TempestKeep/botanica/the_botanica.h
+  Outland/TempestKeep/botanica/instance_the_botanica.cpp
+  Outland/TempestKeep/botanica/boss_commander_sarannis.cpp
+  Outland/TempestKeep/botanica/boss_thorngrin_the_tender.cpp
+  Outland/TempestKeep/botanica/boss_high_botanist_freywinn.cpp
+  Outland/TempestKeep/botanica/boss_warp_splinter.cpp
+  Outland/TempestKeep/botanica/boss_laj.cpp
+  Outland/TempestKeep/arcatraz/boss_harbinger_skyriss.cpp
+  Outland/TempestKeep/arcatraz/instance_arcatraz.cpp
+  Outland/TempestKeep/arcatraz/arcatraz.h
+  Outland/TempestKeep/arcatraz/arcatraz.cpp
+  Outland/Auchindoun/AuchenaiCrypts/boss_shirrak_the_dead_watcher.cpp
+  Outland/Auchindoun/AuchenaiCrypts/boss_exarch_maladaar.cpp
+  Outland/Auchindoun/ManaTombs/boss_pandemonius.cpp
+  Outland/Auchindoun/ManaTombs/boss_nexusprince_shaffar.cpp
+  Outland/Auchindoun/SethekkHalls/boss_tailonking_ikiss.cpp
+  Outland/Auchindoun/SethekkHalls/boss_darkweaver_syth.cpp
+  Outland/Auchindoun/SethekkHalls/instance_sethekk_halls.cpp
+  Outland/Auchindoun/SethekkHalls/sethekk_halls.h
+  Outland/Auchindoun/ShadowLabyrinth/boss_murmur.cpp
+  Outland/Auchindoun/ShadowLabyrinth/boss_ambassador_hellmaw.cpp
+  Outland/Auchindoun/ShadowLabyrinth/boss_blackheart_the_inciter.cpp
+  Outland/Auchindoun/ShadowLabyrinth/instance_shadow_labyrinth.cpp
+  Outland/Auchindoun/ShadowLabyrinth/shadow_labyrinth.h
+  Outland/Auchindoun/ShadowLabyrinth/boss_grandmaster_vorpil.cpp
+  Outland/boss_doomwalker.cpp
+  Outland/zone_terokkar_forest.cpp
+  Outland/zone_hellfire_peninsula.cpp
+  Outland/boss_doomlord_kazzak.cpp
+  Outland/BlackTemple/boss_teron_gorefiend.cpp
+  Outland/BlackTemple/black_temple.h
+  Outland/BlackTemple/illidari_council.cpp
+  Outland/BlackTemple/boss_shade_of_akama.cpp
+  Outland/BlackTemple/boss_supremus.cpp
+  Outland/BlackTemple/black_temple.cpp
+  Outland/BlackTemple/boss_mother_shahraz.cpp
+  Outland/BlackTemple/instance_black_temple.cpp
+  Outland/BlackTemple/boss_reliquary_of_souls.cpp
+  Outland/BlackTemple/boss_warlord_najentus.cpp
+  Outland/BlackTemple/boss_bloodboil.cpp
+  Outland/BlackTemple/boss_illidan.cpp
+  Outland/zone_shadowmoon_valley.cpp
+  Outland/zone_blades_edge_mountains.cpp
+  Outland/GruulsLair/boss_high_king_maulgar.cpp
+  Outland/GruulsLair/boss_gruul.cpp
+  Outland/GruulsLair/gruuls_lair.h
+  Outland/GruulsLair/instance_gruuls_lair.cpp
+  Outland/zone_netherstorm.cpp
+  Outland/zone_zangarmarsh.cpp
+)
+
+message("  -> Prepared: Outland")

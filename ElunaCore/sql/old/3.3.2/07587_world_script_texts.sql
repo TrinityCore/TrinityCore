@@ -1,0 +1,74 @@
+-- set Halls of Stone text entry to correct range
+-- Maiden of Grief
+UPDATE `script_texts` SET `entry`=-1599000 WHERE `npc_entry`=27975 and `entry`=-1603000;
+UPDATE `script_texts` SET `entry`=-1599001 WHERE `npc_entry`=27975 and `entry`=-1603001;
+UPDATE `script_texts` SET `entry`=-1599002 WHERE `npc_entry`=27975 and `entry`=-1603002;
+UPDATE `script_texts` SET `entry`=-1599003 WHERE `npc_entry`=27975 and `entry`=-1603003;
+UPDATE `script_texts` SET `entry`=-1599004 WHERE `npc_entry`=27975 and `entry`=-1603004;
+UPDATE `script_texts` SET `entry`=-1599005 WHERE `npc_entry`=27975 and `entry`=-1603005;
+UPDATE `script_texts` SET `entry`=-1599006 WHERE `npc_entry`=27975 and `entry`=-1603006;
+-- Krystallus
+UPDATE `script_texts` SET `entry`=-1599007 WHERE `npc_entry`=27977 and `entry`=-1603007;
+UPDATE `script_texts` SET `entry`=-1599008 WHERE `npc_entry`=27977 and `entry`=-1603008;
+UPDATE `script_texts` SET `entry`=-1599009 WHERE `npc_entry`=27977 and `entry`=-1603009;
+UPDATE `script_texts` SET `entry`=-1599010 WHERE `npc_entry`=27977 and `entry`=-1603010;
+-- Sjonnir
+UPDATE `script_texts` SET `entry`=-1599011,`sound`=14180 WHERE `npc_entry`=27978 and `entry`=-1603011;
+UPDATE `script_texts` SET `entry`=-1599012,`sound`=14182 WHERE `npc_entry`=27978 and `entry`=-1603012;
+UPDATE `script_texts` SET `entry`=-1599013,`sound`=14183 WHERE `npc_entry`=27978 and `entry`=-1603013;
+UPDATE `script_texts` SET `entry`=-1599015,`sound`=14184 WHERE `npc_entry`=27978 and `entry`=-1603015;
+
+-- Brann and Tribunal Event
+UPDATE `script_texts` SET `entry`=-1599016 WHERE `npc_entry`=28070 and `entry`=-1603016;
+UPDATE `script_texts` SET `entry`=-1599017 WHERE `npc_entry`=28070 and `entry`=-1603017;
+UPDATE `script_texts` SET `entry`=-1599018 WHERE `npc_entry`=28070 and `entry`=-1603018;
+UPDATE `script_texts` SET `entry`=-1599019 WHERE `npc_entry`=28070 and `entry`=-1603019;
+UPDATE `script_texts` SET `entry`=-1599020 WHERE `npc_entry`=28070 and `entry`=-1603020;
+UPDATE `script_texts` SET `entry`=-1599021 WHERE `npc_entry`=28070 and `entry`=-1603021;
+UPDATE `script_texts` SET `entry`=-1599022 WHERE `npc_entry`=28070 and `entry`=-1603022;
+UPDATE `script_texts` SET `entry`=-1599023 WHERE `npc_entry`=28070 and `entry`=-1603023;
+UPDATE `script_texts` SET `entry`=-1599024 WHERE `npc_entry`=28070 and `entry`=-1603024;
+UPDATE `script_texts` SET `entry`=-1599025 WHERE `npc_entry`=28070 and `entry`=-1603025;
+UPDATE `script_texts` SET `entry`=-1599026 WHERE `npc_entry`=28070 and `entry`=-1603026;
+UPDATE `script_texts` SET `entry`=-1599027 WHERE `npc_entry`=28070 and `entry`=-1603027;
+UPDATE `script_texts` SET `entry`=-1599028 WHERE `npc_entry`=28070 and `entry`=-1603028;
+UPDATE `script_texts` SET `entry`=-1599029 WHERE `npc_entry`=28070 and `entry`=-1603029;
+UPDATE `script_texts` SET `entry`=-1599030 WHERE `npc_entry`=28070 and `entry`=-1603030;
+UPDATE `script_texts` SET `entry`=-1599031 WHERE `npc_entry`=28070 and `entry`=-1603031;
+UPDATE `script_texts` SET `entry`=-1599032 WHERE `npc_entry`=28070 and `entry`=-1603032;
+UPDATE `script_texts` SET `entry`=-1599033 WHERE `npc_entry`=28070 and `entry`=-1603033;
+UPDATE `script_texts` SET `entry`=-1599034 WHERE `npc_entry`=28070 and `entry`=-1603034;
+UPDATE `script_texts` SET `entry`=-1599035 WHERE `npc_entry`=28070 and `entry`=-1603035;
+UPDATE `script_texts` SET `entry`=-1599036 WHERE `npc_entry`=28070 and `entry`=-1603036;
+UPDATE `script_texts` SET `entry`=-1599037 WHERE `npc_entry`=28070 and `entry`=-1603037;
+UPDATE `script_texts` SET `entry`=-1599038 WHERE `npc_entry`=28070 and `entry`=-1603038;
+UPDATE `script_texts` SET `entry`=-1599039 WHERE `npc_entry`=28070 and `entry`=-1603039;
+UPDATE `script_texts` SET `entry`=-1599040 WHERE `npc_entry`=28070 and `entry`=-1603040;
+UPDATE `script_texts` SET `entry`=-1599041 WHERE `npc_entry`=28070 and `entry`=-1603041;
+UPDATE `script_texts` SET `entry`=-1599042 WHERE `npc_entry`=28070 and `entry`=-1603042;
+UPDATE `script_texts` SET `entry`=-1599043 WHERE `npc_entry`=28070 and `entry`=-1603043;
+UPDATE `script_texts` SET `entry`=-1599044 WHERE `npc_entry`=28070 and `entry`=-1603044;
+UPDATE `script_texts` SET `entry`=-1599045 WHERE `npc_entry`=28070 and `entry`=-1603045;
+UPDATE `script_texts` SET `entry`=-1599046 WHERE `npc_entry`=28070 and `entry`=-1603046;
+UPDATE `script_texts` SET `entry`=-1599047 WHERE `npc_entry`=28070 and `entry`=-1603047;
+UPDATE `script_texts` SET `entry`=-1599048 WHERE `npc_entry`=28070 and `entry`=-1603048;
+UPDATE `script_texts` SET `entry`=-1599049 WHERE `npc_entry`=28070 and `entry`=-1603049;
+UPDATE `script_texts` SET `entry`=-1599050 WHERE `npc_entry`=28070 and `entry`=-1603050;
+UPDATE `script_texts` SET `entry`=-1599051 WHERE `npc_entry`=28070 and `entry`=-1603051;
+UPDATE `script_texts` SET `entry`=-1599052 WHERE `npc_entry`=28070 and `entry`=-1603052;
+UPDATE `script_texts` SET `entry`=-1599053 WHERE `npc_entry`=28070 and `entry`=-1603053;
+UPDATE `script_texts` SET `entry`=-1599054 WHERE `npc_entry`=28070 and `entry`=-1603054;
+UPDATE `script_texts` SET `entry`=-1599055 WHERE `npc_entry`=28070 and `entry`=-1603055;
+UPDATE `script_texts` SET `entry`=-1599056 WHERE `npc_entry`=28070 and `entry`=-1603056;
+UPDATE `script_texts` SET `entry`=-1599057 WHERE `npc_entry`=28070 and `entry`=-1603057;
+UPDATE `script_texts` SET `entry`=-1599058 WHERE `npc_entry`=28070 and `entry`=-1603058;
+UPDATE `script_texts` SET `entry`=-1599059 WHERE `npc_entry`=28070 and `entry`=-1603059;
+UPDATE `script_texts` SET `entry`=-1599060 WHERE `npc_entry`=28070 and `entry`=-1603060;
+UPDATE `script_texts` SET `entry`=-1599061 WHERE `npc_entry`=28070 and `entry`=-1603061;
+UPDATE `script_texts` SET `entry`=-1599062 WHERE `npc_entry`=28070 and `entry`=-1603062;
+UPDATE `script_texts` SET `entry`=-1599063 WHERE `npc_entry`=28070 and `entry`=-1603063;
+UPDATE `script_texts` SET `entry`=-1599064 WHERE `npc_entry`=28070 and `entry`=-1603064;
+UPDATE `script_texts` SET `entry`=-1599065 WHERE `npc_entry`=28070 and `entry`=-1603065;
+UPDATE `script_texts` SET `entry`=-1599066 WHERE `npc_entry`=28070 and `entry`=-1603066;
+UPDATE `script_texts` SET `entry`=-1599067 WHERE `npc_entry`=28070 and `entry`=-1603067;
+UPDATE `script_texts` SET `entry`=-1599068 WHERE `npc_entry`=28070 and `entry`=-1603068;

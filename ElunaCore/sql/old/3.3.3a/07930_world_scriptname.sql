@@ -1,0 +1,1 @@
+UPDATE `creature_template` SET `ScriptName`= 'npc_alorah_and_grimmin' WHERE `entry` IN (36101,36102);

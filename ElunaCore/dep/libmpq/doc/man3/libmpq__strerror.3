@@ -1,0 +1,45 @@
+.\" Copyright (c) 2010 Georg Lukas <georg@op-co.de>
+.\"
+.\" This is free documentation; you can redistribute it and/or
+.\" modify it under the terms of the GNU General Public License as
+.\" published by the Free Software Foundation; either version 2 of
+.\" the License, or (at your option) any later version.
+.\"
+.\" The GNU General Public License's references to "object code"
+.\" and "executables" are to be interpreted as the output of any
+.\" document formatting or typesetting system, including
+.\" intermediate and printed output.
+.\"
+.\" This manual is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\" GNU General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU General Public
+.\" License along with this manual; if not, write to the Free
+.\" Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111,
+.\" USA.
+.TH libmpq 3 2010-07-18 "The MoPaQ archive library"
+.SH NAME
+libmpq__strerror \- return string describing libmpq error number
+.SH SYNOPSIS
+.nf
+.B
+#include <mpq.h>
+.sp
+.BI "const char *libmpq__strerror(int32_t returncode);"
+.fi
+.SH DESCRIPTION
+.PP
+Call \fBlibmpq__strerror\fP() to get a string message for the return code of one of the other libmpq functions.
+.SH RETURN VALUE
+The function returns a string pointer to non-writable memory or NULL if \fBreturncode\fP is not a return code of a libmpq function.
+.SH SEE ALSO
+.BR libmpq (3), strerror (3)
+.SH AUTHOR
+Check documentation.
+.TP
+libmpq is (c) 2003-2008
+.B Maik Broemme <mbroemme@plusserver.de>
+.PP
+The above e-mail address can be used to send bug reports, feedbacks or library enhancements.

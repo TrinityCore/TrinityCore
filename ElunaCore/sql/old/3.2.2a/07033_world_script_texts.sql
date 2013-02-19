@@ -1,0 +1,33 @@
+DELETE FROM `script_texts` WHERE `npc_entry` IN (7998,7361);
+DELETE FROM `script_texts` WHERE `entry` IN (-1090001,-1090002,-1090003,-1090004,-1090005,-1090006,-1090007,-1090008,-1090009,-1090010,-1090011,-1090012,-1090013,-1090014,-1090015,-1090016,-1090017,-1090018,-1090019,-1090020,-1090021,-1090022,-1090023,-1090024,-1090025,-1090026,-1090027,-1090028);
+INSERT INTO `script_texts` (`npc_entry`,`entry`,`content_default`,`content_loc1`,`content_loc2`,`content_loc3`,`content_loc4`,`content_loc5`,`content_loc6`,`content_loc7`,`content_loc8`,`sound`,`type`,`language`,`emote`,`comment`) VALUES
+   (7998,-1090000,'With your help, I can evaluate these tunnels.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,''),
+   (7998,-1090001,'Let''s see if we can find out where these Troggs are coming from... and put a stop to the invasion!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,''),
+   (7998,-1090002,'Such devastation... what horrible mess...',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,''),
+   (7998,-1090003,'It''s quiet here...',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,''),
+   (7998,-1090004,'...too quiet.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,''),
+   (7998,-1090005,'Look! Over there at the tunnel wall!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,''),
+   (7998,-1090006,'Trogg incrusion! Defend me while i blast the hole closed!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,''),
+   (7998,-1090007,'The charges are set. Get back before they blow!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,''),
+   (7998,-1090008,'Incoming blast in 10 seconds!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,1,0,0,''),
+   (7998,-1090009,'Incoming blast in 5 seconds. Clear the tunnel!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,1,0,0,''),
+   (7998,-1090010,'FIRE IN THE HOLE',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,1,0,0,''),
+   (7998,-1090011,'Well done! Without your help I would have never been able to thwart that wave of troggs.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,''),
+   (7998,-1090012,'Did you hear something?',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,''),
+   (7998,-1090013,'I heard something over there.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,''),
+   (7998,-1090014,'More troggs! Ward them off as I prepare the explosives!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,''),
+   (7998,-1090015,'The final charge is set. Stand back!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,1,0,0,''),
+   (7998,-1090016,'The final charge is set. Stand back!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,''),
+   (7998,-1090017,'Incoming blast in 10 seconds!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,1,0,0,''),
+   (7998,-1090018,'Incoming blast in 5 seconds. Clear the tunnel!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,1,0,0,''),
+   (7998,-1090019,'I don''t think one charge is going to cut it. Keep fending them off!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,''),
+   (7998,-1090020,'FIRE IN THE HOLE',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,1,0,0,''),
+   (7998,-1090021,'Well done! Without your help I would have never been able to thwart that wave of troggs.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,''),
+   (7998,-1090022,'Did you hear something?',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,''),
+   (7998,-1090023,'I heard something over there.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,''),
+   (7998,-1090024,'More troggs! Ward them off as I prepare the explosives!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,''),
+   (7998,-1090025,'The final charge is set. Stand back!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,''),
+   (7998,-1090026,'10 seconds to blast! Stand back!!!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,1,0,0,''),
+   (7998,-1090027,'5 seconds until detonation!!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,1,0,0,''),
+   (7361,-1090028,'We come from below! You can never stop us!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,1,0,0,'');
+

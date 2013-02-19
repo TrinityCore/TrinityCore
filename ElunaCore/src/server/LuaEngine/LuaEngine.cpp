@@ -1,0 +1,294 @@
+/*
+    FOEREAPER TOMMY ENGINE, YEAH!
+*/
+#pragma warning (disable:4006)
+#pragma warning (disable:4150) // Disabling Player class warnings
+#include "LuaEngine.h"
+#include "Chat.h"
+#include "LuaFunctions.h"
+
+Eluna * Eluna::LuaEngine = NULL; // give it a value
+ElunaScript * Eluna::Script = NULL;
+
+void Eluna::Init()
+{
+	if (LuaEngine != NULL)
+		return;
+
+	LuaEngine = new Eluna;
+	Script = new ElunaScript("Eluna");
+	get()->StartEluna();
+}
+
+template<typename T> const char* GetTName() { return "UNK"; }
+template<> const char* GetTName<Player>() { return "Player"; }
+template<> const char* GetTName<Group>() { return "Group"; }
+template<> const char* GetTName<Guild>() { return "Guild"; }
+//template<> const char* GetTName<Creature>() { return "Creature"; }
+template<> const char* GetTName<Log>() { return "Log"; }
+
+//template<typename T> ElunaRegister<T> * GetMethodTable();
+
+void Eluna::StartEluna()
+{
+	m_luaState = luaL_newstate();
+	sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Eluna Nova Lua Engine loaded.");
+
+	InitTables();
+
+	LoadedScripts m_loadedScripts;
+	LoadDirectory("scripts", &m_loadedScripts);
+	luaL_openlibs(m_luaState);
+	//Register Globals Here
+	RegisterGlobals(m_luaState);
+	//Register Templates Here
+	ElunaTemplate<Player>::Register(m_luaState);
+
+    uint32 cnt_uncomp = 0;
+    char filename[200];
+    for(std::set<std::string>::iterator itr = m_loadedScripts.luaFiles.begin(); itr !=  m_loadedScripts.luaFiles.end(); itr++)
+    {
+        strcpy(filename, itr->c_str());
+        if(luaL_loadfile(m_luaState, filename) != 0)
+        {
+            sLog->outError(LOG_FILTER_SERVER_LOADING, "Eluna Nova::Error loading `%s`.", itr->c_str());
+                        report(m_luaState);
+        }
+        else
+        {
+            int err = lua_pcall(m_luaState, 0, 0, 0);
+            if(err != 0 && err == LUA_ERRRUN)
+            {
+                 sLog->outError(LOG_FILTER_SERVER_LOADING, "Eluna Nova::Error loading `%s`.", itr->c_str());
+                 report(m_luaState);
+            }
+        }
+        cnt_uncomp++;
+    }
+	sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Eluna Nova::Loaded %u Lua scripts", cnt_uncomp);
+}
+
+/* Register Other Hooks (Events) */
+static int RegisterPlayerEvent(lua_State * L);
+static int RegisterGossipEvent(lua_State * L);
+
+void Eluna::RegisterGlobals(lua_State * L)
+{
+	// GETGLOBALS REQUIRES  & IN FRONT :: EXAMPLE  &GetVersion
+	lua_register(L, "RegisterServerHook", RegisterPlayerEvent);
+	lua_register(L, "RegisterGossipEvent", RegisterGossipEvent);
+	lua_register(L, "GetLuaEngine", &LuaGlobalFunctions::GetLuaEngine);
+	lua_register(L, "GetCoreVersion", &LuaGlobalFunctions::GetCoreVersion);
+}
+
+void Eluna::LoadDirectory(char* Dirname, LoadedScripts* lscr)
+{
+    #ifdef WIN32
+        HANDLE hFile;
+        WIN32_FIND_DATA FindData;
+        memset(&FindData, 0, sizeof(FindData));
+        char SearchName[MAX_PATH];
+        
+        strcpy(SearchName, Dirname);
+        strcat(SearchName, "\\*.*");
+        
+        hFile = FindFirstFile(SearchName, &FindData);
+
+                // break if we don't find dir
+                if(hFile == NULL)
+                {
+						sLog->outError(LOG_FILTER_SERVER_LOADING, "Eluna Nova::No `scripts` directory found!");
+                        return;
+                }
+
+        FindNextFile(hFile, &FindData);
+        while( FindNextFile(hFile, &FindData) )
+        {
+            if(FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+            {
+                strcpy(SearchName,Dirname);
+                strcat(SearchName, "\\");
+                strcat(SearchName, FindData.cFileName);
+                LoadDirectory(SearchName, lscr);
+            }
+            else
+            {
+                std::string fname = Dirname;
+                fname += "\\";
+                fname += FindData.cFileName;
+                size_t len = strlen(fname.c_str());
+                int i = 0;
+                char ext[MAX_PATH];
+                while(len > 0)
+                {
+                    ext[i++] = fname[--len];
+                    if(fname[len] == '.')
+                        break;
+                }
+                ext[i++] = '\0';
+                if(!_stricmp(ext,"aul."))
+                    lscr->luaFiles.insert(fname);
+            
+            }
+        }
+        FindClose(hFile);
+    #endif
+}
+
+void Eluna::report(lua_State* L)
+{
+    const char* msg = lua_tostring(L, -1);
+    while(msg)
+    {
+        lua_pop(L, -1);
+        printf("\t%s\n",msg);
+        msg = lua_tostring(L, -1);
+    }
+}
+
+/* Pushes */
+void Eluna::PushPlayer(lua_State * L, Player * player)
+{ 
+    if(player != NULL)
+        ElunaTemplate<Player>::push(L, player);
+    else
+        lua_pushnil(L);
+}
+
+void Eluna::PushCreature(lua_State * L, Creature* creature)
+{ 
+    if(creature != NULL)
+       ElunaTemplate<Creature>::push(L, creature);
+    else
+       lua_pushnil(L);
+}
+
+void Eluna::PushLong(lua_State * L, uint64 l)
+{
+    lua_pushinteger(L, l); 
+}
+
+void Eluna::PushInteger(lua_State * L, uint32 n)
+{
+    lua_pushinteger(L, n);
+}
+
+void Eluna::PushString(lua_State * L, const char* str)
+{
+    lua_pushstring(L, str);
+}
+
+void Eluna::PushGroup(lua_State * L, Group* group)
+{
+    if(group != NULL)
+       ElunaTemplate<Group>::push(L, group);
+    else
+       lua_pushnil(L);
+}
+
+void Eluna::PushGuild(lua_State * L, Guild* pGuild)
+{
+    if(pGuild != NULL)
+       ElunaTemplate<Guild>::push(L, pGuild);
+    else
+       lua_pushnil(L);
+}
+
+/*
+void Eluna::PushUnit(lua_State* L, Unit* pUnit)
+{
+        if(pUnit != NULL)
+        {
+                if(dynamic_cast<Player*>(pUnit) != NULL) {
+                        Eluna::get()->PushPlayer(L, dynamic_cast<Player*>(pUnit));
+                } else if (dynamic_cast<Creature*>(pUnit) != NULL) {
+                        Eluna::get()->PushCreature(L, dynamic_cast<Creature*>(pUnit));
+                } else {
+                        lua_pushnil(L);
+                }
+        }
+}*/
+
+// RegisterPlayerEvent(ev, func)
+static int RegisterPlayerEvent(lua_State* L)
+{
+        uint16 functionRef;
+        lua_settop(L, 2);
+        uint32 ev = luaL_checkint(L, 1);
+        const char* typeName = luaL_typename(L, 2);
+
+        if (ev == 0 || typeName == NULL) return 0;
+
+        if(!strcmp(typeName, "function"))
+                functionRef = (uint16)lua_ref(L, true);
+
+        if(functionRef > 0)
+                Eluna::get()->Register(REGTYPE_PLAYER, 0, ev, functionRef);
+        return 0;
+}
+
+//RegisterGossipEvent(ev, func)
+static int RegisterGossipEvent(lua_State* L)
+{
+        uint16 functionRef;
+        lua_settop(L, 2);
+        uint32 ev = luaL_checkint(L, 1);
+        const char* typeName = luaL_typename(L, 2);
+
+        if (ev == 0 || typeName == NULL) return 0;
+
+        if(!strcmp(typeName, "function"))
+                functionRef = (uint16)lua_ref(L, true);
+
+        if(functionRef > 0)
+                Eluna::get()->Register(REGTYPE_GOSSIP, 0, ev, functionRef);
+        return 0;
+}
+
+// RegisterCreatureEvent(entry, ev, func)
+/*
+static int RegisterCreatureEvent(lua_State* L)
+{
+        uint16 functionRef;
+        lua_settop(L, 3);
+        uint32 entry = luaL_checkint(L, 1);
+        uint32 evt  =luaL_checkint(L, 2);
+        const char* typeName = luaL_typename(L, 3);
+        if(evt == 0 || typeName == NULL)
+                return 0;
+
+        if(!strcmp(typeName, "function"))
+                functionRef = (uint16)lua_ref(L, true);
+
+        if(functionRef > 0)
+                Eluna::get()->Register(REGTYPE_CREATURE, entry, evt, functionRef);
+        return 0;
+}*/
+
+
+void Eluna::Register(uint8 regtype, uint32 id, uint32 evt, uint16 functionRef)
+{
+    switch(regtype)
+    {
+        case REGTYPE_PLAYER:
+          if(evt < PLAYER_EVENT_COUNT)
+          {
+               m_playerEventBindings.at(evt).push_back(functionRef);
+          }
+          break;
+
+        case REGTYPE_GOSSIP:
+            if(evt < GOSSIP_EVENT_COUNT)
+            {
+                m_gossipEventBindings.at(evt).push_back(functionRef);
+            }
+            break;
+				/*
+        case REGTYPE_CREATURE:
+                if(evt < CREATURE_EVENT_COUNT)
+                {
+                        getCreatureScript()->RegisterCreatureScript(id, evt, functionRef);
+                }
+                break;*/
+    }
+}
