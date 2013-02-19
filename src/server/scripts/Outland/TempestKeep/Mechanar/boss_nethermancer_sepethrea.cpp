@@ -91,7 +91,7 @@ class boss_nethermancer_sepethrea : public CreatureScript
                 Talk(SAY_DEATH);
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;
@@ -177,7 +177,7 @@ class mob_ragin_flames : public CreatureScript
                 {
                 }
 
-                void UpdateAI(const uint32 diff)
+                void UpdateAI(uint32 diff)
                 {
                     //Check_Timer
                     if (Check_Timer <= diff)

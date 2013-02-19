@@ -203,7 +203,7 @@ public:
             return target;
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (!UpdateVictim())
                 return;
@@ -293,12 +293,12 @@ public:
 
         void MoveInLineOfSight(Unit* /*who*/) {}
 
-        void DoAction(const int32 /*info*/)
+        void DoAction(int32 /*info*/)
         {
             me->RemoveAura(SPELL_VOLCANIC_ERUPTION);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (wait <= diff)//wait 3secs before casting
             {

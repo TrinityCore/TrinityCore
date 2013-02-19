@@ -113,7 +113,7 @@ struct emerald_dragonAI : public WorldBossAI
     }
 
     // Execute and reschedule base events shared between all Emerald Dragons
-    void ExecuteEvent(uint32 const eventId)
+    void ExecuteEvent(uint32 eventId)
     {
         switch (eventId)
         {
@@ -137,7 +137,7 @@ struct emerald_dragonAI : public WorldBossAI
         }
     }
 
-    void UpdateAI(uint32 const diff)
+    void UpdateAI(uint32 diff)
     {
         if (!UpdateVictim())
             return;
@@ -177,7 +177,7 @@ class npc_dream_fog : public CreatureScript
                 _roamTimer = 0;
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;
@@ -275,7 +275,7 @@ class boss_ysondre : public CreatureScript
                 }
             }
 
-            void ExecuteEvent(uint32 const eventId)
+            void ExecuteEvent(uint32 eventId)
             {
                 switch (eventId)
                 {
@@ -370,7 +370,7 @@ class boss_lethon : public CreatureScript
                 }
             }
 
-            void ExecuteEvent(uint32 const eventId)
+            void ExecuteEvent(uint32 eventId)
             {
                 switch (eventId)
                 {
@@ -490,7 +490,7 @@ class boss_emeriss : public CreatureScript
                 }
             }
 
-            void ExecuteEvent(uint32 const eventId)
+            void ExecuteEvent(uint32 eventId)
             {
                 switch (eventId)
                 {
@@ -604,7 +604,7 @@ class boss_taerar : public CreatureScript
                 }
             }
 
-            void ExecuteEvent(uint32 const eventId)
+            void ExecuteEvent(uint32 eventId)
             {
                 switch (eventId)
                 {
@@ -622,7 +622,7 @@ class boss_taerar : public CreatureScript
                 }
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!me->isInCombat())
                     return;

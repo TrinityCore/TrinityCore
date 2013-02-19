@@ -278,7 +278,7 @@ public:
 
         void EnterCombat(Unit* /*who*/) {}
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (IsFriend)
             {
@@ -397,7 +397,7 @@ public:
 
         void KilledUnit(Unit* /*victim*/) { }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (EventInProgress) {
                 Player* pWarrior = NULL;

@@ -187,7 +187,7 @@ public:
             ScriptedAI::MoveInLineOfSight(who);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (AggroTimer)
             {
@@ -263,7 +263,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (!UpdateVictim())
                 return;
@@ -373,7 +373,7 @@ public:
             Talk(SAY_STRAWMAN_SLAY);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (AggroTimer)
             {
@@ -478,7 +478,7 @@ public:
             Talk(SAY_TINHEAD_SLAY);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (AggroTimer)
             {
@@ -585,7 +585,7 @@ public:
             Talk(SAY_ROAR_SLAY);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (AggroTimer)
             {
@@ -682,7 +682,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (!UpdateVictim())
                 return;
@@ -735,7 +735,7 @@ public:
         {
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (!me->HasAura(SPELL_KNOCKBACK))
                 DoCast(me, SPELL_KNOCKBACK, true);
@@ -871,7 +871,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (!UpdateVictim())
                 return;
@@ -1121,7 +1121,7 @@ public:
            Talk(SAY_JULIANNE_SLAY);
         }
 
-        void UpdateAI(const uint32 diff);
+        void UpdateAI(uint32 diff);
     };
 };
 
@@ -1276,7 +1276,7 @@ public:
             Talk(SAY_ROMULO_SLAY);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (!UpdateVictim() || IsFakingDeath)
                 return;
@@ -1331,7 +1331,7 @@ public:
     };
 };
 
-void boss_julianne::boss_julianneAI::UpdateAI(const uint32 diff)
+void boss_julianne::boss_julianneAI::UpdateAI(uint32 diff)
 {
     if (EntryYellTimer)
     {

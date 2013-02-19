@@ -387,7 +387,7 @@ class boss_freya : public CreatureScript
                 return 0;
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;
@@ -722,7 +722,7 @@ class boss_elder_brightleaf : public CreatureScript
                     Talk(SAY_ELDER_AGGRO);
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim() || me->HasAura(SPELL_DRAINED_OF_POWER))
                     return;
@@ -765,7 +765,7 @@ class boss_elder_brightleaf : public CreatureScript
                 DoMeleeAttackIfReady();
             }
 
-            void DoAction(int32 const action)
+            void DoAction(int32 action)
             {
                 switch (action)
                 {
@@ -856,7 +856,7 @@ class boss_elder_stonebark : public CreatureScript
                 }
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim() || me->HasAura(SPELL_DRAINED_OF_POWER))
                     return;
@@ -892,7 +892,7 @@ class boss_elder_stonebark : public CreatureScript
                 DoMeleeAttackIfReady();
             }
 
-            void DoAction(int32 const action)
+            void DoAction(int32 action)
             {
                 switch (action)
                 {
@@ -970,7 +970,7 @@ class boss_elder_ironbranch : public CreatureScript
                     Talk(SAY_ELDER_AGGRO);
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim() || me->HasAura(SPELL_DRAINED_OF_POWER))
                     return;
@@ -1006,7 +1006,7 @@ class boss_elder_ironbranch : public CreatureScript
                 DoMeleeAttackIfReady();
             }
 
-            void DoAction(int32 const action)
+            void DoAction(int32 action)
             {
                 switch (action)
                 {
@@ -1051,7 +1051,7 @@ class npc_detonating_lasher : public CreatureScript
                 changeTargetTimer = 7500;
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;
@@ -1110,7 +1110,7 @@ class npc_ancient_water_spirit : public CreatureScript
                 tidalWaveTimer = 10000;
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;
@@ -1171,7 +1171,7 @@ class npc_storm_lasher : public CreatureScript
                 stormboltTimer = 5000;
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;
@@ -1232,7 +1232,7 @@ class npc_snaplasher : public CreatureScript
                     waveCount = CAST_AI(boss_freya::boss_freyaAI, Freya->AI())->trioWaveCount;
             }
 
-            void UpdateAI(uint32 const /*diff*/)
+            void UpdateAI(uint32 /*diff*/)
             {
                 if (!UpdateVictim())
                     return;
@@ -1297,7 +1297,7 @@ class npc_ancient_conservator : public CreatureScript
                 DoCast(who, SPELL_CONSERVATOR_GRIP, true);
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;
@@ -1374,7 +1374,7 @@ class npc_healthy_spore : public CreatureScript
                 lifeTimer = urand(22000, 30000);
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 diff)
             {
                 if (lifeTimer <= diff)
                 {
@@ -1413,7 +1413,7 @@ class npc_eonars_gift : public CreatureScript
                 DoCast(me, SPELL_EONAR_VISUAL, true);
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 diff)
             {
                 if (lifeBindersGiftTimer <= diff)
                 {
@@ -1451,7 +1451,7 @@ class npc_nature_bomb : public CreatureScript
                 DoCast(SPELL_OBJECT_BOMB);
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 diff)
             {
                 if (bombTimer <= diff)
                 {
@@ -1496,7 +1496,7 @@ class npc_unstable_sun_beam : public CreatureScript
                 me->SetReactState(REACT_PASSIVE);
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 diff)
             {
                 if (despawnTimer <= diff)
                 {

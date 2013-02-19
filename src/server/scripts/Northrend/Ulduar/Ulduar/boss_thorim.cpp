@@ -78,7 +78,7 @@ class boss_thorim : public CreatureScript
                 _EnterCombat();
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;

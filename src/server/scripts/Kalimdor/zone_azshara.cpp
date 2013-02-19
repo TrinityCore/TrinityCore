@@ -78,7 +78,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             // we mustn't remove the Creature in the same round in which we cast the summon spell, otherwise there will be no summons
             if (spellhit && morphtimer >= 5000)
@@ -332,7 +332,7 @@ public:
             Reached = false;
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (MustDie)
             {
@@ -485,7 +485,7 @@ public:
             WeMustDieTimer = 1000;
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (WeMustDie)
             {

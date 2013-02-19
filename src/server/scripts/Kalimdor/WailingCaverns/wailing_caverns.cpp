@@ -208,7 +208,7 @@ public:
              summoned->AI()->AttackStart(me);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (currentEvent != TYPE_NARALEX_PART3)
                 npc_escortAI::UpdateAI(diff);

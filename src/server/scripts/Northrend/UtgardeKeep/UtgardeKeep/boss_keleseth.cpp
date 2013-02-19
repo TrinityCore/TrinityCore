@@ -94,7 +94,7 @@ public:
             instance = creature->GetInstanceScript();
         }
 
-        void UpdateAI(const uint32 /*diff*/) {}
+        void UpdateAI(uint32 /*diff*/) {}
 
         void JustDied(Unit* /*killer*/)
         {
@@ -193,7 +193,7 @@ public:
             return 0;
         }
 
-        void UpdateAI(uint32 const diff)
+        void UpdateAI(uint32 diff)
         {
             if (!UpdateVictim())
                 return;
@@ -288,7 +288,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (!UpdateVictim())
                 return;

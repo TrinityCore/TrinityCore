@@ -152,7 +152,7 @@ class boss_harbinger_skyriss : public CreatureScript
                     DoCast(me, SPELL_33_ILLUSION);
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!Intro)
                 {

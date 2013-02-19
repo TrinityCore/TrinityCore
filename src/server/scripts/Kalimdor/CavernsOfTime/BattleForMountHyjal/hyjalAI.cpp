@@ -708,7 +708,7 @@ void hyjalAI::DeSpawnVeins()
     }
 }
 
-void hyjalAI::UpdateAI(const uint32 diff)
+void hyjalAI::UpdateAI(uint32 diff)
 {
     if (IsDummy)
     {

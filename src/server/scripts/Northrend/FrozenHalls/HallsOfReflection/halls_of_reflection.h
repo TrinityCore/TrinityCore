@@ -102,7 +102,7 @@ struct boss_horAI : ScriptedAI
             uiDamage = 0;
     }
 
-    void DoAction(const int32 actionID)
+    void DoAction(int32 actionID)
     {
         switch (actionID)
         {

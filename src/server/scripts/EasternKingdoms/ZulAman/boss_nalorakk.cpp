@@ -343,7 +343,7 @@ class boss_nalorakk : public CreatureScript
                 }
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 if (waitTimer && inMove)
                 {

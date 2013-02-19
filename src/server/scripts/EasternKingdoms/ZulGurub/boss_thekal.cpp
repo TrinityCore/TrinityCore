@@ -116,7 +116,7 @@ class boss_thekal : public CreatureScript
                     instance->SetBossState(DATA_THEKAL, NOT_STARTED);
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;
@@ -298,7 +298,7 @@ class mob_zealot_lorkhan : public CreatureScript
             {
             }
 
-            void UpdateAI (const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;
@@ -460,7 +460,7 @@ class mob_zealot_zath : public CreatureScript
             {
             }
 
-            void UpdateAI (const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;
