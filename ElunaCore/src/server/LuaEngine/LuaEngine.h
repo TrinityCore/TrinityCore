@@ -105,12 +105,12 @@ struct ElunaRegister
 
 struct CreatureBind
 {
-    int m_entry;
-    uint16 m_functionReferences[CREATURE_EVENT_COUNT];
+    int _entry;
+    uint16 _functionReferences[CREATURE_EVENT_COUNT];
 
     CreatureBind(int entry) 
 	{
-        m_entry = entry;
+        _entry = entry;
     }
 };
 
@@ -121,17 +121,17 @@ class Eluna
 {
      friend class ElunaScript;
      friend class ScriptMgr;
-     static Eluna * LuaEngine;
-     static ElunaScript * Script;
+     static Eluna* LuaEngine;
+     static ElunaScript* Script;
 
 	public:
-		static Eluna * get() { return LuaEngine; }
-		static ElunaScript * getScript() { return Script; }
+		static Eluna* get() { return LuaEngine; }
+		static ElunaScript* getScript() { return Script; }
 
 		typedef map<int, std::vector<uint16>> ElunaBindingMap;
-		ElunaBindingMap m_playerEventBindings;
-		ElunaBindingMap m_gossipEventBindings;
-		//vector<CreatureBind*> m_creatureEventBindings;
+		ElunaBindingMap _playerEventBindings;
+		ElunaBindingMap _gossipEventBindings;
+		//vector<CreatureBind*> _creatureEventBindings;
 
 		//static CreatureAI* GetLuaCreatureAI(Creature * creature);
 
@@ -140,59 +140,59 @@ class Eluna
 			for (int i = 0; i < PLAYER_EVENT_COUNT; i++)
 			{
 				vector<uint16> _vector;
-				get()->m_playerEventBindings.insert(pair<int, vector<uint16>>(i, _vector));
+				get()->_playerEventBindings.insert(pair<int, vector<uint16>>(i, _vector));
 			}
 
 			for (int i = 0; i < GOSSIP_EVENT_COUNT; i++)
 			{
 				vector<uint16> _vector;
-				get()->m_gossipEventBindings.insert(pair<int, vector<uint16>>(i, _vector));
+				get()->_gossipEventBindings.insert(pair<int, vector<uint16>>(i, _vector));
 			}
 		}
 
 		~Eluna()
 		{
-			m_gossipEventBindings.clear();
-			m_playerEventBindings.clear();
-			//m_creatureEventBindings.clear();
+			_gossipEventBindings.clear();
+			_playerEventBindings.clear();
+			//_creatureEventBindings.clear();
 			//delete Script;
 		}
 
-		lua_State * m_luaState;
+		lua_State* _luaState;
 
 		void StartEluna();
 		void Register(uint8 reg, uint32 id, uint32 evt, uint16 fuc);
 
-		static void report(lua_State *);
+		static void report(lua_State*);
 
 
         void BeginCall(uint16 fReference)
         {
-                lua_settop(m_luaState, 0); //stack should be empty
-				lua_rawgeti(m_luaState, LUA_REGISTRYINDEX, (fReference));
+                lua_settop(_luaState, 0); //stack should be empty
+				lua_rawgeti(_luaState, LUA_REGISTRYINDEX, (fReference));
         }
 
         bool ExecuteCall(uint8 params, uint8 res)
         {
                 bool ret = true;
-                int top = lua_gettop(m_luaState); 
-                if(strcmp(luaL_typename(m_luaState,top-params), "function") )
+                int top = lua_gettop(_luaState); 
+                if(strcmp(luaL_typename(_luaState,top-params), "function") )
                 {
                         ret = false;
                         if(params > 0)
                         {
                                 for(int i = top; i >= (top-params); i--)
                                 {
-                                        if(!lua_isnone(m_luaState, i) )
-                                                lua_remove(m_luaState, i);
+                                        if(!lua_isnone(_luaState, i) )
+                                                lua_remove(_luaState, i);
                                 }
                         }
                 }
                 else
                 {
-                        if(lua_pcall(m_luaState,params,res,0) )
+                        if(lua_pcall(_luaState,params,res,0) )
                         {
-                                report(m_luaState);
+                                report(_luaState);
                                 ret = false;
                         }
                 }
@@ -203,27 +203,27 @@ class Eluna
         {
                 for(int i = res; i > 0; i--)
                 {
-                        if(!lua_isnone(m_luaState,res))
-                                lua_remove(m_luaState,res);
+                        if(!lua_isnone(_luaState,res))
+                                lua_remove(_luaState,res);
                 }
         }
 		static void Init();
-		void RegisterGlobals(lua_State * L);
-		void LoadDirectory(char * directory, LoadedScripts * scr);
+		void RegisterGlobals(lua_State* L);
+		void LoadDirectory(char* directory, LoadedScripts* scr);
 		// Push
-		void PushPlayer(lua_State * L, Player * player);
-		void PushCreature(lua_State * L, Creature*);
-        void PushLong(lua_State * L, uint64);
+		void PushPlayer(lua_State* L, Player* player);
+		void PushCreature(lua_State* L, Creature*);
+        void PushLong(lua_State* L, uint64);
         void PushInteger(lua_State*, uint32);
         void PushString(lua_State*, const char*);
         void PushGroup(lua_State*, Group*);
         void PushGuild(lua_State*, Guild*);
-		void PushUnit(lua_State*, Unit * unit);
+		void PushUnit(lua_State*, Unit* unit);
 		// Checks
         Player * CHECK_PLAYER(lua_State* L, int narg)
         {
             if(L == NULL) 
-				return ElunaTemplate<Player>::check(m_luaState, narg);
+				return ElunaTemplate<Player>::check(_luaState, narg);
             else 
 				return ElunaTemplate<Player>::check(L, narg);
         }
@@ -231,7 +231,7 @@ class Eluna
         Unit * CHECK_UNIT(lua_State* L, int narg)
         {
             if(L == NULL) 
-				return ElunaTemplate<Unit>::check(m_luaState, narg);
+				return ElunaTemplate<Unit>::check(_luaState, narg);
             else 
 				return ElunaTemplate<Unit>::check(L, narg);
         }
@@ -240,26 +240,26 @@ class Eluna
 			static class LuaCreature : CreatureScript
 			{
 				struct LuaCreatureAI;
-				static LuaCreature * singleton;
-				vector<LuaCreatureAI*> m_scriptsToClearOnShutdown;
+				static LuaCreature* singleton;
+				vector<LuaCreatureAI*> _scriptsToClearOnShutdown;
 
 				public:
 					bool IsDatabaseBound() const { return false; }
 
 					LuaCreature() : CreatureScript("lua_creature")
 					{
-						m_scriptsToClearOnShutdown = *(new vector<LuaCreatureAI*>());
+						_scriptsToClearOnShutdown = *(new vector<LuaCreatureAI*>());
 						singleton = this;
 					}
 
-					static LuaCreature * GetSingleton() { return singleton; }
+					static LuaCreature* GetSingleton() { return singleton; }
 					~LuaCreature() { }
 
-					CreatureBind * GetCreatureBindingForId(int id)
+					CreatureBind* GetCreatureBindingForId(int id)
 					{
-						for (vector<CreatureBind*>::iterator itr = Eluna::get()->m_creatureEventBindings.begin();
-							itr != Eluna::get()->m_creatureEventBindings.end(); itr++)
-							if ((*itr)->m_entry == id)
+						for (vector<CreatureBind*>::iterator itr = Eluna::get()->_creatureEventBindings.begin();
+							itr != Eluna::get()->_creatureEventBindings.end(); itr++)
+							if ((*itr)->_entry == id)
 								return (*itr);
 
 						return NULL;
@@ -274,13 +274,13 @@ class Eluna
 						}
 
 						if (GetCreatureBindingForId(Id) == NULL)
-							Eluna::get()->m_creatureEventBindings.push_back(new CreatureBind(Id));
+							Eluna::get()->_creatureEventBindings.push_back(new CreatureBind(Id));
 
 						sLog->outInfo(LOG_FILTER_GENERAL, "Eluna Nova::Pushing event Template isn't nil!");
 
-						GetCreatureBindingForId(Id)->m_functionReferences[_event] = _ref;
+						GetCreatureBindingForId(Id)->_functionReferences[_event] = _ref;
 
-						CreatureTemplate * creatureTemplate = const_cast<CreatureTemplate*>(sObjectMgr->GetCreatureTemplate(Id));
+						CreatureTemplate* creatureTemplate = const_cast<CreatureTemplate*>(sObjectMgr->GetCreatureTemplate(Id));
 						creatureTemplate->ScriptID = sObjectMgr->GetScriptId("luacreature");
 
 						sLog->outInfo(LOG_FILTER_GENERAL, "Eluna Nova::Created creature script for %d. (ScriptID = %d)", Id, creatureTemplate->ScriptID);
@@ -289,9 +289,9 @@ class Eluna
 
 					static struct LuaCreatureAI : ScriptedAI
 					{
-						CreatureBind * creatureBinding;
+						CreatureBind* creatureBinding;
 
-						LuaCreatureAI(Creature * creature) : ScriptedAI(creature)
+						LuaCreatureAI(Creature* creature) : ScriptedAI(creature)
 						{
 							creatureBinding = LuaCreature::GetSingleton()->GetCreatureBindingForId(creature->GetEntry());
 						}
@@ -299,31 +299,31 @@ class Eluna
 						~LuaCreatureAI() { }
 					};
 
-					CreatureAI * GetAI(Creature * creature)
+					CreatureAI* GetAI(Creature* creature)
 					{
-						CreatureBind * binding = GetCreatureBindingForId(creature->GetEntry());
+						CreatureBind* binding = GetCreatureBindingForId(creature->GetEntry());
 						if (binding == NULL)
 							return NULL;
 
-						if (!GetCreatureScript()->m_scriptsToClearOnShutdown.empty())
-							for(vector<LuaCreatureAI*>::iterator itr = Eluna::GetCreatureScript()->m_scriptsToClearOnShutdown.begin(); itr != Eluna::GetCreatureScript()->m_scriptsToClearOnShutdown.end(); itr++)
-								if(((*itr) != NULL) && (*itr)->creatureBinding->m_entry == creature->GetEntry())
+						if (!GetCreatureScript()->_scriptsToClearOnShutdown.empty())
+							for(vector<LuaCreatureAI*>::iterator itr = Eluna::GetCreatureScript()->_scriptsToClearOnShutdown.begin(); itr != Eluna::GetCreatureScript()->_scriptsToClearOnShutdown.end(); itr++)
+								if(((*itr) != NULL) && (*itr)->creatureBinding->_entry == creature->GetEntry())
 									return (*itr);
 
-						LuaCreatureAI * luaCreature = new LuaCreatureAI(creature);
-						GetCreatureScript()->m_scriptsToClearOnShutdown.push_back(luaCreature);
+						LuaCreatureAI* luaCreature = new LuaCreatureAI(creature);
+						GetCreatureScript()->_scriptsToClearOnShutdown.push_back(luaCreature);
 						return luaCreature;
 					}
 			};
-		    static LuaCreature * GetCreatureScript() { return Eluna::LuaCreature::GetSingleton(); }*/
+		    static LuaCreature* GetCreatureScript() { return Eluna::LuaCreature::GetSingleton(); }*/
 
 	protected:
 		template<typename T>
 		class ElunaTemplate
 		{
 			public:
-                typedef int (*m_funcptr)(lua_State* L, T* ptr);
-                typedef struct { const char* name; m_funcptr mfunc; } ElunaRegister;
+                typedef int (*_funcptr)(lua_State* L, T* ptr);
+                typedef struct { const char* name; _funcptr mfunc; } ElunaRegister;
 
                 static void Register(lua_State* L)
                 {
@@ -527,72 +527,72 @@ class ElunaScript : public ScriptObject
             delete this;
         }
 
-		void OnChat(uint32 eventId, Player * player, uint32 type, uint32 lang, string& msg)
+		void OnChat(uint32 eventId, Player* player, uint32 type, uint32 lang, string& msg)
 		{
-			for (vector<uint16>::iterator itr = Eluna::get()->m_playerEventBindings.at(PLAYER_EVENT_ON_CHAT).begin(); 
-				itr != Eluna::get()->m_playerEventBindings.at(PLAYER_EVENT_ON_CHAT).end(); itr++)
+			for (vector<uint16>::iterator itr = Eluna::get()->_playerEventBindings.at(PLAYER_EVENT_ON_CHAT).begin(); 
+				itr != Eluna::get()->_playerEventBindings.at(PLAYER_EVENT_ON_CHAT).end(); itr++)
 			{
 				Eluna::get()->BeginCall((*itr));
-				Eluna::get()->PushInteger(Eluna::get()->m_luaState, eventId);
-				Eluna::get()->PushUnit(Eluna::get()->m_luaState, player);
-				Eluna::get()->PushInteger(Eluna::get()->m_luaState, type);
-				Eluna::get()->PushInteger(Eluna::get()->m_luaState, lang);
-				Eluna::get()->PushString(Eluna::get()->m_luaState, msg.c_str());
+				Eluna::get()->PushInteger(Eluna::get()->_luaState, eventId);
+				Eluna::get()->PushUnit(Eluna::get()->_luaState, player);
+				Eluna::get()->PushInteger(Eluna::get()->_luaState, type);
+				Eluna::get()->PushInteger(Eluna::get()->_luaState, lang);
+				Eluna::get()->PushString(Eluna::get()->_luaState, msg.c_str());
 				Eluna::get()->ExecuteCall(5, 0);
 			}
 		}
 
-		void OnChat(uint32 eventId, Player * player, uint32 type, uint32 lang, string& msg, Player * receiver)
+		void OnChat(uint32 eventId, Player* player, uint32 type, uint32 lang, string& msg, Player* receiver)
 		{
-			for (vector<uint16>::iterator itr = Eluna::get()->m_playerEventBindings.at(PLAYER_EVENT_ON_CHAT).begin(); 
-				itr != Eluna::get()->m_playerEventBindings.at(PLAYER_EVENT_ON_CHAT).end(); itr++)
+			for (vector<uint16>::iterator itr = Eluna::get()->_playerEventBindings.at(PLAYER_EVENT_ON_CHAT).begin(); 
+				itr != Eluna::get()->_playerEventBindings.at(PLAYER_EVENT_ON_CHAT).end(); itr++)
 			{
 				Eluna::get()->BeginCall((*itr));
-				Eluna::get()->PushInteger(Eluna::get()->m_luaState, eventId);
-				Eluna::get()->PushUnit(Eluna::get()->m_luaState, player);
-				Eluna::get()->PushInteger(Eluna::get()->m_luaState, type);
-				Eluna::get()->PushInteger(Eluna::get()->m_luaState, lang);
-				Eluna::get()->PushString(Eluna::get()->m_luaState, msg.c_str());
-				Eluna::get()->PushUnit(Eluna::get()->m_luaState, receiver);
+				Eluna::get()->PushInteger(Eluna::get()->_luaState, eventId);
+				Eluna::get()->PushUnit(Eluna::get()->_luaState, player);
+				Eluna::get()->PushInteger(Eluna::get()->_luaState, type);
+				Eluna::get()->PushInteger(Eluna::get()->_luaState, lang);
+				Eluna::get()->PushString(Eluna::get()->_luaState, msg.c_str());
+				Eluna::get()->PushUnit(Eluna::get()->_luaState, receiver);
 				Eluna::get()->ExecuteCall(6, 0);
 			}
 		}
 
-		void OnPvPKill(uint32 eventId, Player * killer, Player * victim)
+		void OnPvPKill(uint32 eventId, Player* killer, Player* victim)
 		{
-			for (vector<uint16>::iterator itr = Eluna::get()->m_playerEventBindings.at(PLAYER_EVENT_ON_KILL_PLAYER).begin();
-				itr != Eluna::get()->m_playerEventBindings.at(PLAYER_EVENT_ON_KILL_PLAYER).end(); itr++)
+			for (vector<uint16>::iterator itr = Eluna::get()->_playerEventBindings.at(PLAYER_EVENT_ON_KILL_PLAYER).begin();
+				itr != Eluna::get()->_playerEventBindings.at(PLAYER_EVENT_ON_KILL_PLAYER).end(); itr++)
 			{
 				Eluna::get()->BeginCall((*itr));
-				Eluna::get()->PushInteger(Eluna::get()->m_luaState, eventId);
-				Eluna::get()->PushUnit(Eluna::get()->m_luaState, killer);
-				Eluna::get()->PushUnit(Eluna::get()->m_luaState, victim);
+				Eluna::get()->PushInteger(Eluna::get()->_luaState, eventId);
+				Eluna::get()->PushUnit(Eluna::get()->_luaState, killer);
+				Eluna::get()->PushUnit(Eluna::get()->_luaState, victim);
 				Eluna::get()->ExecuteCall(3, 0);
 			}
 		}
 
-		void OnPlayerLevelChanged(uint32 eventId, Player * player, uint8 oldLevel)
+		void OnPlayerLevelChanged(uint32 eventId, Player* player, uint8 oldLevel)
 		{
-			for (vector<uint16>::iterator itr = Eluna::get()->m_playerEventBindings.at(PLAYER_EVENT_LEVEL_CHANGE).begin();
-				itr != Eluna::get()->m_playerEventBindings.at(PLAYER_EVENT_LEVEL_CHANGE).end(); itr++)
+			for (vector<uint16>::iterator itr = Eluna::get()->_playerEventBindings.at(PLAYER_EVENT_LEVEL_CHANGE).begin();
+				itr != Eluna::get()->_playerEventBindings.at(PLAYER_EVENT_LEVEL_CHANGE).end(); itr++)
 			{
 				Eluna::get()->BeginCall((*itr));
-				Eluna::get()->PushInteger(Eluna::get()->m_luaState, eventId);
-				Eluna::get()->PushUnit(Eluna::get()->m_luaState, player);
-				Eluna::get()->PushInteger(Eluna::get()->m_luaState, oldLevel);
+				Eluna::get()->PushInteger(Eluna::get()->_luaState, eventId);
+				Eluna::get()->PushUnit(Eluna::get()->_luaState, player);
+				Eluna::get()->PushInteger(Eluna::get()->_luaState, oldLevel);
 				Eluna::get()->ExecuteCall(3, 0);
 			}
 		}
 
-		void OnPlayerTalentsChanged(uint32 eventId, Player * player, uint32 points)
+		void OnPlayerTalentsChanged(uint32 eventId, Player* player, uint32 points)
 		{
-			for (vector<uint16>::iterator itr = Eluna::get()->m_playerEventBindings.at(PLAYER_EVENT_ON_TALENTS_CHANGE).begin();
-				itr != Eluna::get()->m_playerEventBindings.at(PLAYER_EVENT_ON_TALENTS_CHANGE).end(); itr++)
+			for (vector<uint16>::iterator itr = Eluna::get()->_playerEventBindings.at(PLAYER_EVENT_ON_TALENTS_CHANGE).begin();
+				itr != Eluna::get()->_playerEventBindings.at(PLAYER_EVENT_ON_TALENTS_CHANGE).end(); itr++)
 			{
 				Eluna::get()->BeginCall((*itr));
-				Eluna::get()->PushInteger(Eluna::get()->m_luaState, eventId);
-				Eluna::get()->PushUnit(Eluna::get()->m_luaState, player);
-				Eluna::get()->PushInteger(Eluna::get()->m_luaState, points);
+				Eluna::get()->PushInteger(Eluna::get()->_luaState, eventId);
+				Eluna::get()->PushUnit(Eluna::get()->_luaState, player);
+				Eluna::get()->PushInteger(Eluna::get()->_luaState, points);
 				Eluna::get()->ExecuteCall(3, 0);
 			}
 		}

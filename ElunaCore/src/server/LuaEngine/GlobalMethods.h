@@ -12,13 +12,13 @@ extern "C"
 
 namespace LuaGlobalFunctions
 {
-	static int GetLuaEngine(lua_State * L)
+	static int GetLuaEngine(lua_State* L)
 	{
 		lua_pushstring(L, "Eluna Nova 0.1");
 		return 1;
 	}
 
-	static int GetCoreVersion(lua_State * L)
+	static int GetCoreVersion(lua_State* L)
 	{
 		lua_pushstring(L, _FULLVERSION);
 		return 1;

@@ -7,8 +7,8 @@
 #include "LuaFunctions.h"
 #include "Creature.h"
 
-Eluna * Eluna::LuaEngine = NULL; // give it a value
-ElunaScript * Eluna::Script = NULL;
+Eluna* Eluna::LuaEngine = NULL; // give it a value
+ElunaScript* Eluna::Script = NULL;
 
 void Eluna::Init()
 {
@@ -29,37 +29,37 @@ template<> const char* GetTName<Log>() { return "Log"; }
 
 void Eluna::StartEluna()
 {
-	m_luaState = luaL_newstate();
+	_luaState = luaL_newstate();
 	sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Eluna Nova Lua Engine loaded.");
 
 	InitTables();
 
-	LoadedScripts m_loadedScripts;
-	LoadDirectory("scripts", &m_loadedScripts);
-	luaL_openlibs(m_luaState);
+	LoadedScripts _loadedScripts;
+	LoadDirectory("scripts", &_loadedScripts);
+	luaL_openlibs(_luaState);
 	//Register Globals Here
-	RegisterGlobals(m_luaState);
+	RegisterGlobals(_luaState);
 	//Register Templates Here
-	//ElunaTemplate<Creature>::Register(m_luaState);
-	ElunaTemplate<Player>::Register(m_luaState);
+	//ElunaTemplate<Creature>::Register(_luaState);
+	ElunaTemplate<Player>::Register(_luaState);
 
     uint32 cnt_uncomp = 0;
     char filename[200];
-    for(std::set<std::string>::iterator itr = m_loadedScripts.luaFiles.begin(); itr !=  m_loadedScripts.luaFiles.end(); itr++)
+    for(std::set<std::string>::iterator itr = _loadedScripts.luaFiles.begin(); itr !=  _loadedScripts.luaFiles.end(); itr++)
     {
         strcpy(filename, itr->c_str());
-        if(luaL_loadfile(m_luaState, filename) != 0)
+        if(luaL_loadfile(_luaState, filename) != 0)
         {
             sLog->outError(LOG_FILTER_SERVER_LOADING, "Eluna Nova::Error loading `%s`.", itr->c_str());
-                        report(m_luaState);
+                        report(_luaState);
         }
         else
         {
-            int err = lua_pcall(m_luaState, 0, 0, 0);
+            int err = lua_pcall(_luaState, 0, 0, 0);
             if(err != 0 && err == LUA_ERRRUN)
             {
                  sLog->outError(LOG_FILTER_SERVER_LOADING, "Eluna Nova::Error loading `%s`.", itr->c_str());
-                 report(m_luaState);
+                 report(_luaState);
             }
         }
         cnt_uncomp++;
@@ -68,11 +68,11 @@ void Eluna::StartEluna()
 }
 
 /* Register Other Hooks (Events) */
-static int RegisterPlayerEvent(lua_State * L);
-static int RegisterGossipEvent(lua_State * L);
+static int RegisterPlayerEvent(lua_State* L);
+static int RegisterGossipEvent(lua_State* L);
 static int RegisterCreatureEvent(lua_State* L);
 
-void Eluna::RegisterGlobals(lua_State * L)
+void Eluna::RegisterGlobals(lua_State* L)
 {
 	// GETGLOBALS REQUIRES  & IN FRONT :: EXAMPLE  &GetVersion
 	lua_register(L, "RegisterServerHook", RegisterPlayerEvent);
@@ -148,7 +148,7 @@ void Eluna::report(lua_State* L)
 }
 
 /* Pushes */
-void Eluna::PushPlayer(lua_State * L, Player * player)
+void Eluna::PushPlayer(lua_State* L, Player* player)
 { 
     if(player != NULL)
         ElunaTemplate<Player>::push(L, player);
@@ -156,7 +156,7 @@ void Eluna::PushPlayer(lua_State * L, Player * player)
         lua_pushnil(L);
 }
 
-void Eluna::PushCreature(lua_State * L, Creature* creature)
+void Eluna::PushCreature(lua_State* L, Creature* creature)
 { 
     if(creature != NULL)
        ElunaTemplate<Creature>::push(L, creature);
@@ -164,22 +164,22 @@ void Eluna::PushCreature(lua_State * L, Creature* creature)
        lua_pushnil(L);
 }
 
-void Eluna::PushLong(lua_State * L, uint64 l)
+void Eluna::PushLong(lua_State* L, uint64 l)
 {
     lua_pushinteger(L, l); 
 }
 
-void Eluna::PushInteger(lua_State * L, uint32 n)
+void Eluna::PushInteger(lua_State* L, uint32 n)
 {
     lua_pushinteger(L, n);
 }
 
-void Eluna::PushString(lua_State * L, const char* str)
+void Eluna::PushString(lua_State* L, const char* str)
 {
     lua_pushstring(L, str);
 }
 
-void Eluna::PushGroup(lua_State * L, Group* group)
+void Eluna::PushGroup(lua_State* L, Group* group)
 {
     if(group != NULL)
        ElunaTemplate<Group>::push(L, group);
@@ -187,7 +187,7 @@ void Eluna::PushGroup(lua_State * L, Group* group)
        lua_pushnil(L);
 }
 
-void Eluna::PushGuild(lua_State * L, Guild* pGuild)
+void Eluna::PushGuild(lua_State* L, Guild* pGuild)
 {
     if(pGuild != NULL)
        ElunaTemplate<Guild>::push(L, pGuild);
@@ -195,7 +195,7 @@ void Eluna::PushGuild(lua_State * L, Guild* pGuild)
        lua_pushnil(L);
 }
 
-void Eluna::PushUnit(lua_State* L, Unit * unit)
+void Eluna::PushUnit(lua_State* L, Unit* unit)
 {
     if(unit != NULL)
     {
@@ -209,7 +209,7 @@ void Eluna::PushUnit(lua_State* L, Unit * unit)
 }
 
 /*
-CreatureAI * Eluna::GetLuaCreatureAI(Creature * creature)
+CreatureAI* Eluna::GetLuaCreatureAI(Creature* creature)
 {
 	if (GetCreatureScript()->GetCreatureBindingForId(creature->GetEntry()) != NULL)
 	{
@@ -281,14 +281,14 @@ void Eluna::Register(uint8 regtype, uint32 id, uint32 evt, uint16 functionRef)
         case REGTYPE_PLAYER:
           if(evt < PLAYER_EVENT_COUNT)
           {
-               m_playerEventBindings.at(evt).push_back(functionRef);
+               _playerEventBindings.at(evt).push_back(functionRef);
           }
           break;
 
         case REGTYPE_GOSSIP:
             if(evt < GOSSIP_EVENT_COUNT)
             {
-                m_gossipEventBindings.at(evt).push_back(functionRef);
+                _gossipEventBindings.at(evt).push_back(functionRef);
             }
             break;
 

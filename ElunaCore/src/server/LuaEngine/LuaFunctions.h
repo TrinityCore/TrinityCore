@@ -22,6 +22,6 @@ ElunaRegister<Player> PlayerMethods[] =
 	{ NULL, NULL },
 };
 
-template<typename T> ElunaRegister<T> * GetMethodTable() { return NULL; }
-template <> ElunaRegister<Player> * GetMethodTable<Player>() { return PlayerMethods; }
+template<typename T> ElunaRegister<T>* GetMethodTable() { return NULL; }
+template <> ElunaRegister<Player>* GetMethodTable<Player>() { return PlayerMethods; }
 #endif

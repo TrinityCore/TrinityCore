@@ -5,7 +5,7 @@
 class LuaPlayer
 {
 	public:
-		static int Teleport(lua_State * L, Player * player)
+		static int Teleport(lua_State* L, Player* player)
 		{
 			if (player == NULL || !player->IsInWorld())
 			{
@@ -22,7 +22,7 @@ class LuaPlayer
 			return 0;
 		}
 
-		static int AddItem(lua_State * L, Player * player)
+		static int AddItem(lua_State* L, Player* player)
 		{
 			if (player == NULL || !player->IsInWorld())
 			{
@@ -36,7 +36,7 @@ class LuaPlayer
 			return 0;
 		}
 
-		static int RemoveItem(lua_State * L, Player * player)
+		static int RemoveItem(lua_State* L, Player* player)
 		{
 			if (player == NULL || !player->IsInWorld())
 			{
@@ -59,7 +59,7 @@ class LuaPlayer
 			return 0;
 		}
 
-		static int GetName(lua_State * L, Player * player)
+		static int GetName(lua_State* L, Player* player)
 		{
 			if (player == NULL || !player->IsInWorld())
 			{
@@ -71,7 +71,7 @@ class LuaPlayer
 			return 1;
 		}
 
-		static int GetX(lua_State * L, Player * player)
+		static int GetX(lua_State* L, Player* player)
 		{
 			if (player == NULL || !player->IsInWorld())
 			{
@@ -83,7 +83,7 @@ class LuaPlayer
 			return 1;
 		}
 
-		static int GetY(lua_State * L, Player * player)
+		static int GetY(lua_State* L, Player* player)
 		{			
 			if (player == NULL || !player->IsInWorld())
 			{
@@ -95,7 +95,7 @@ class LuaPlayer
 			return 1;
 		}
 
-		static int GetZ(lua_State * L, Player * player)
+		static int GetZ(lua_State* L, Player* player)
 		{			
 			if (player == NULL || !player->IsInWorld())
 			{
@@ -107,7 +107,7 @@ class LuaPlayer
 			return 1;
 		}
 
-		static int GetO(lua_State * L, Player * player)
+		static int GetO(lua_State* L, Player* player)
 		{			
 			if (player == NULL || !player->IsInWorld())
 			{
@@ -119,7 +119,7 @@ class LuaPlayer
 			return 1;
 		}
 
-		static int GetLocation(lua_State * L, Player * player)
+		static int GetLocation(lua_State* L, Player* player)
 		{			
 			if (player == NULL || !player->IsInWorld())
 			{
@@ -134,7 +134,7 @@ class LuaPlayer
 			return 4;
 		}
 
-		static int GetZoneID(lua_State * L, Player * player)
+		static int GetZoneID(lua_State* L, Player* player)
 		{			
 			if (player == NULL || !player->IsInWorld())
 			{
@@ -146,7 +146,7 @@ class LuaPlayer
 			return 1;
 		}
 
-		static int GetGUID(lua_State * L, Player * player)
+		static int GetGUID(lua_State* L, Player* player)
 		{			
 			if (player == NULL || !player->IsInWorld())
 			{
@@ -158,7 +158,7 @@ class LuaPlayer
 			return 1;
 		}
 
-		static int GetByteValue(lua_State * L, Player * player)
+		static int GetByteValue(lua_State* L, Player* player)
 		{			
 			if (player == NULL || !player->IsInWorld())
 			{
@@ -172,7 +172,7 @@ class LuaPlayer
 			return 1;
 		}
 
-		static int HasQuest(lua_State * L, Player * player)
+		static int HasQuest(lua_State* L, Player* player)
 		{			
 			if (player == NULL || !player->IsInWorld())
 			{
@@ -185,7 +185,7 @@ class LuaPlayer
 			return 1;
 		}
 
-		static int IsAlive(lua_State * L, Player * player)
+		static int IsAlive(lua_State* L, Player* player)
 		{			
 			if (player == NULL || !player->IsInWorld())
 			{
@@ -197,7 +197,7 @@ class LuaPlayer
 			return 1;
 		}
 
-		static int IsInWorld(lua_State * L, Player * player)
+		static int IsInWorld(lua_State* L, Player* player)
 		{			
 			if (player == NULL || !player->IsInWorld())
 			{
@@ -209,7 +209,7 @@ class LuaPlayer
 			return 1;
 		}
 
-		static int IsPvPFlagged(lua_State * L, Player * player)
+		static int IsPvPFlagged(lua_State* L, Player* player)
 		{			
 			if (player == NULL || !player->IsInWorld())
 			{

@@ -5,17 +5,17 @@
 
 class ElunaScript : public ScriptObject
 {
-        static ElunaScript* m_singleton;
-        void setSingleton(ElunaScript* e) { m_singleton = e; }
+        static ElunaScript* _singleton;
+        void setSingleton(ElunaScript* e) { _singleton = e; }
 
 public:
         static ElunaScript* getSingleton()
         {
-                return m_singleton;
+                return _singleton;
         }
         static bool hasSingleton()
         {
-                return m_singleton != NULL;
+                return _singleton != NULL;
         }
 
         static void initialize()
