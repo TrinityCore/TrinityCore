@@ -24,9 +24,9 @@ using namespace std;
 
 extern "C" 
 {
-		#include "../../dep/lualib/lua.h"
-        #include "../../dep/lualib/lualib.h"
-        #include "../../dep/lualib/lauxlib.h"
+		#include "lua.h"
+        #include "lualib.h"
+        #include "lauxlib.h"
 };
 
 class LuaPlayer;
