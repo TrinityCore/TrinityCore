@@ -552,8 +552,8 @@ class Creature : public Unit, public GridObject<Creature>, public MapCreature
         void UpdateAttackPowerAndDamage(bool ranged = false);
         void UpdateDamagePhysical(WeaponAttackType attType);
 
-        uint8 GetOriginalEquipmentId() const { return m_originalEquipmentId; }
-        uint32 GetCurrentEquipmentId() { return m_equipmentId; }
+        int8 GetOriginalEquipmentId() const { return m_originalEquipmentId; }
+        uint8 GetCurrentEquipmentId() { return m_equipmentId; }
         void SetCurrentEquipmentId(uint8 id) { m_equipmentId = id; }
 
         float GetSpellDamageMod(int32 Rank);
@@ -751,7 +751,7 @@ class Creature : public Unit, public GridObject<Creature>, public MapCreature
         MovementGeneratorType m_defaultMovementType;
         uint32 m_DBTableGuid;                               ///< For new or temporary creatures is 0 for saved it is lowguid
         uint8 m_equipmentId;
-        uint8 m_originalEquipmentId;
+        int8 m_originalEquipmentId; // can be -1
 
         bool m_AlreadyCallAssistance;
         bool m_AlreadySearchedAssistance;

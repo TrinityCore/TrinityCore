@@ -258,7 +258,7 @@ class WorldSession
             return (_logoutTime > 0 && currTime >= _logoutTime + 20);
         }
 
-        void LogoutPlayer(bool Save);
+        void LogoutPlayer(bool save);
         void KickPlayer();
 
         void QueuePacket(WorldPacket* new_packet);
