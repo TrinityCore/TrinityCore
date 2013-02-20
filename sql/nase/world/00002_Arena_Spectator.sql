@@ -11,4 +11,4 @@ INSERT INTO `command` (`name`, `security`, `help`) VALUES ('spectate player', 0,
 DELETE FROM `command` WHERE `name` = 'spectate reset';  
 INSERT INTO `command` (`name`, `security`, `help`) VALUES ('spectate reset', 0, 'Syntax: .spectate reset\nSend addon data.');
 
-UPDATE `gameobject_template` SET `flags` = 36 WHERE entry IN (185918, 185917, 183970, 183971, 183972, 183973, 183977, 183979, 183978, 183980);
+UPDATE `gameobject_template` SET `flags` = 36 WHERE entry IN (185918, 185917, 183970, 183971, 183972, 183973, 183977, 183979, 183978, 183980, 192642, 192643);

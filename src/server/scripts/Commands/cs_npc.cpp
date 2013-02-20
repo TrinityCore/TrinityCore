@@ -212,13 +212,11 @@ public:
         return true;
     }
 
-    //add item in vendorlist
+   //add item in vendorlist
     static bool HandleNpcAddVendorItemCommand(ChatHandler* handler, char const* args)
     {
         if (!*args)
             return false;
-
-	uint32 rating = 0;
 
         char* pitem  = handler->extractKeyFromLink((char*)args, "Hitem");
         if (!pitem)
@@ -252,25 +250,25 @@ public:
             handler->SendSysMessage(LANG_SELECT_CREATURE);
             handler->SetSentErrorMessage(true);
             return false;
-		}
+        }
 
         uint32 vendor_entry = vendor ? vendor->GetEntry() : 0;
+        uint32 rating = 0;
 
-        if (!sObjectMgr->IsVendorItemValid(vendor_entry, itemId, maxcount, incrtime, extendedcost, rating, handler->GetSession()->GetPlayer()))
+        if (!sObjectMgr->IsVendorItemValid(vendor_entry, itemId, maxcount, incrtime, extendedcost, handler->GetSession()->GetPlayer(), rating))
         {
             handler->SetSentErrorMessage(true);
             return false;
         }
-		
 
-
-        sObjectMgr->AddVendorItem(vendor_entry, itemId, maxcount, incrtime, extendedcost, rating);
+        sObjectMgr->AddVendorItem(vendor_entry, itemId, maxcount, incrtime, extendedcost);
 
         ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(itemId);
 
-        handler->PSendSysMessage(LANG_ITEM_ADDED_TO_LIST, itemId, itemTemplate->Name1.c_str(), maxcount, incrtime, extendedcost, rating);
+        handler->PSendSysMessage(LANG_ITEM_ADDED_TO_LIST, itemId, itemTemplate->Name1.c_str(), maxcount, incrtime, extendedcost);
         return true;
     }
+
 
     //add move for creature
     static bool HandleNpcAddMoveCommand(ChatHandler* handler, char const* args)
