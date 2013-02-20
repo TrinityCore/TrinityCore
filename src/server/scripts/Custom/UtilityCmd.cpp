@@ -3,6 +3,7 @@
 #include "MapManager.h"
 #include "Chat.h"
 #include "Group.h"
+#include "ArenaTeam.cpp"
 
 //This script is made by Blex and was orginally posted on www.ac-web.org
 //This script was created after being inspired by Arena-Tournament's player commands. www.arena-tournament.com
@@ -20,6 +21,7 @@ public:
 			{ "changefaction",			SEC_PLAYER,  false, &HandleChangeFactionCommand,		"", NULL },
 			{ "maxskills",			    SEC_PLAYER,  false, &HandleMaxSkillsCommand,	    	"", NULL },
 			{ "customize",			    SEC_PLAYER,  false, &HandleCustomizeCommand,	       	"", NULL },
+			{ "mmr",			        SEC_PLAYER,  false, &HandleMmrCommand,	             	"", NULL },
             { NULL,             0,                   false, NULL,                               "", NULL }
         };
         static ChatCommand commandTable[] =
@@ -63,6 +65,19 @@ public:
         Player* me = handler->GetSession()->GetPlayer();
 		me->SetAtLoginFlag(AT_LOGIN_CUSTOMIZE);
 		handler->PSendSysMessage("Relog to customize your character.");
+        return true;
+    }
+
+     static bool HandleMmrCommand(ChatHandler* handler, const char* args)
+    {
+
+        Player* me = handler->GetSession()->GetPlayer();
+        uint32 mmr;
+        if (me->GetAverageMMR() < 1000)
+			mmr = 1500;
+		else
+			mmr = me->GetAverageMMR();
+		handler->PSendSysMessage("Your Mmr is: %u.", mmr);
         return true;
     }
 };

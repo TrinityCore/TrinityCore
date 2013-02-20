@@ -8178,7 +8178,7 @@ void ObjectMgr::AddVendorItem(uint32 entry, uint32 item, int32 maxcount, uint32 
         stmt->setUInt8(2, maxcount);
         stmt->setUInt32(3, incrtime);
         stmt->setUInt32(4, extendedCost);
-	 stmt->setUInt32(5, rating);
+	    stmt->setUInt32(5, rating);
 
         WorldDatabase.Execute(stmt);
     }
@@ -8233,8 +8233,18 @@ bool ObjectMgr::IsVendorItemValid(uint32 vendor_entry, uint32 item_id, int32 max
         return false;
     }
 
+    if (rating && (rating > 3100 || rating < 0))
+    {
+          if (player)
+              ChatHandler(player->GetSession()).SendSysMessage(LANG_COMMAND_VENDORSELECTION);
+          else
+              sLog->outError(LOG_FILTER_SQL, "Wrong Rating Cost %u", rating);
+         return false;
+    }
+
     if (!sObjectMgr->GetItemTemplate(item_id))
     {
+
         if (player)
             ChatHandler(player->GetSession()).PSendSysMessage(LANG_ITEM_NOT_FOUND, item_id);
         else

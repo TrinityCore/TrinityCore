@@ -10,14 +10,14 @@
 
 set(scripts_STAT_SRCS
   ${scripts_STAT_SRCS}
-  Custom/vendor.cpp
-  Custom/utility.cpp
-  Custom/npc_supporter.cpp
-  Custom/guru_event.cpp
+  Custom/VendorScript.cpp
+  Custom/UtilityCmd.cpp
+  Custom/Supporter.cpp
+  Custom/GurubashiEvent.cpp
   Custom/Transmogrification.h
   Custom/Transmogrification.cpp
   Custom/ArenaFastStart.cpp
-  Custom/arena_spectator.cpp
+  Custom/ArenaSpectate.cpp
 )
 
 message("  -> Prepared: Custom")
