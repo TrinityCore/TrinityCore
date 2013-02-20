@@ -13,6 +13,7 @@ set(scripts_STAT_SRCS
   Custom/VendorScript.cpp
   Custom/UtilityCmd.cpp
   Custom/Supporter.cpp
+  Custom/Teleporter.cpp
   Custom/GurubashiEvent.cpp
   Custom/Transmogrification.h
   Custom/Transmogrification.cpp

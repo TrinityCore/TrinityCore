@@ -32,7 +32,7 @@ public:
         return commandTable;
     }
 
-		static bool HandleChangeRaceCommand(ChatHandler* handler, const char* args)
+    static bool HandleChangeRaceCommand(ChatHandler* handler, const char* args)
     {
 
         Player* me = handler->GetSession()->GetPlayer();
@@ -41,7 +41,7 @@ public:
         return true;
     }
 
-		static bool HandleChangeFactionCommand(ChatHandler* handler, const char* args)
+    static bool HandleChangeFactionCommand(ChatHandler* handler, const char* args)
     {
 
         Player* me = handler->GetSession()->GetPlayer();
@@ -50,7 +50,7 @@ public:
         return true;
     }
 
-		static bool HandleMaxSkillsCommand(ChatHandler* handler, const char* args)
+    static bool HandleMaxSkillsCommand(ChatHandler* handler, const char* args)
     {
 
         Player* me = handler->GetSession()->GetPlayer();
@@ -69,16 +69,22 @@ public:
     }
 
      static bool HandleMmrCommand(ChatHandler* handler, const char* args)
-    {
-
-        Player* me = handler->GetSession()->GetPlayer();
-        uint32 mmr;
-        if (me->GetAverageMMR() < 1000)
-			mmr = 1500;
+     {
+     Player* player = handler->GetSession()->GetPlayer();
+  
+     uint16* mmr = new uint16[3];
+     {
+    	 for (int x = 0; x < 3; x++)
+    	 {
+		if(ArenaTeam *getmmr = sArenaTeamMgr->GetArenaTeamById(player->GetArenaTeamId(x)))
+			mmr[x] = getmmr->GetMember(player->GetGUID())->MatchMakerRating;
 		else
-			mmr = me->GetAverageMMR();
-		handler->PSendSysMessage("Your Mmr is: %u.", mmr);
-        return true;
+			mmr[x] = 1500;
+    	 }
+   	 return mmr;
+     }
+	handler->PSendSysMessage("Your Mmr is: %u.", mmr);
+       return true;
     }
 };
 
@@ -86,3 +92,4 @@ void AddSC_utility_commandscript()
 {
     new utility_commandscript();
 }
+
