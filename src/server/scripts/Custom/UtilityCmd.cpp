@@ -21,7 +21,6 @@ public:
 			{ "changefaction",			SEC_PLAYER,  false, &HandleChangeFactionCommand,		"", NULL },
 			{ "maxskills",			    SEC_PLAYER,  false, &HandleMaxSkillsCommand,	    	"", NULL },
 			{ "customize",			    SEC_PLAYER,  false, &HandleCustomizeCommand,	       	"", NULL },
-			{ "mmr",			        SEC_PLAYER,  false, &HandleMmrCommand,	             	"", NULL },
             { NULL,             0,                   false, NULL,                               "", NULL }
         };
         static ChatCommand commandTable[] =
@@ -66,25 +65,6 @@ public:
 		me->SetAtLoginFlag(AT_LOGIN_CUSTOMIZE);
 		handler->PSendSysMessage("Relog to customize your character.");
         return true;
-    }
-
-     static bool HandleMmrCommand(ChatHandler* handler, const char* args)
-     {
-     Player* player = handler->GetSession()->GetPlayer();
-  
-     uint16* mmr = new uint16[3];
-     {
-    	 for (int x = 0; x < 3; x++)
-    	 {
-		if(ArenaTeam *getmmr = sArenaTeamMgr->GetArenaTeamById(player->GetArenaTeamId(x)))
-			mmr[x] = getmmr->GetMember(player->GetGUID())->MatchMakerRating;
-		else
-			mmr[x] = 1500;
-    	 }
-   	 return mmr;
-     }
-	handler->PSendSysMessage("Your Mmr is: %u.", mmr);
-       return true;
     }
 };
 
