@@ -61,7 +61,7 @@ class boss_gehennas : public CreatureScript
                 events.ScheduleEvent(EVENT_SHADOW_BOLT, 6000);
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;

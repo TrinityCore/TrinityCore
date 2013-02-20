@@ -146,7 +146,7 @@ public:
             return near_f > 0 && near_f < 4 ? near_f : 0;
         }
 
-        void UpdateAI(uint32 const /* diff */)
+        void UpdateAI(uint32 /* diff */)
         {
             if (fm_Type == 0)
                 fm_Type = GetForgeMasterType();
@@ -291,7 +291,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 const diff)
+        void UpdateAI(uint32 diff)
         {
             if (!UpdateVictim())
                 return;

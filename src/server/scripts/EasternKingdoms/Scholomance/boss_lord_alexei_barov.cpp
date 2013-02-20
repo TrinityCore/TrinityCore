@@ -59,7 +59,7 @@ class boss_lord_alexei_barov : public CreatureScript
                 events.ScheduleEvent(EVENT_VEILOFSHADOW, 15000);
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;

@@ -90,7 +90,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (speechCounter)
             {
@@ -237,7 +237,7 @@ public:
                 case 2:
                     me->SetStandState(UNIT_STAND_STATE_STAND);
                     DoCast(me, SPELL_KOLTIRA_TRANSFORM);
-                    me->LoadEquipment(me->GetEquipmentId());
+                    me->LoadEquipment();
                     break;
                 case 3:
                     SetEscortPaused(true);
@@ -275,7 +275,7 @@ public:
                 me->SummonCreature(NPC_CRIMSON_ACOLYTE, 1642.329f, -6045.818f, 127.583f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
         }
 
-        void UpdateAI(const uint32 uiDiff)
+        void UpdateAI(uint32 uiDiff)
         {
             npc_escortAI::UpdateAI(uiDiff);
 
@@ -403,7 +403,7 @@ public:
                 uiStage = 2;
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (uiStage && !me->isInCombat())
             {
@@ -486,7 +486,7 @@ public:
             DoCast(who, SPELL_VALROTH_SMITE);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (uiRenew_timer <= diff)
             {
@@ -676,7 +676,7 @@ public:
                 PlayerGUID = who->GetGUID();
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (PlayerGUID && !me->getVictim() && me->isAlive())
             {

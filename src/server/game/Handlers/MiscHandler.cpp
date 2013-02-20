@@ -1587,8 +1587,7 @@ void WorldSession::HandleCancelMountAuraOpcode(WorldPacket& /*recvData*/)
         return;
     }
 
-    _player->Dismount();
-    _player->RemoveAurasByType(SPELL_AURA_MOUNTED);
+    _player->RemoveAurasByType(SPELL_AURA_MOUNTED); // Calls Dismount()
 }
 
 void WorldSession::HandleMoveSetCanFlyAckOpcode(WorldPacket& recvData)

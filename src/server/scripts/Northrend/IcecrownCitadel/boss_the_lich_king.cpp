@@ -583,7 +583,7 @@ class boss_the_lich_king : public CreatureScript
                     Talk(SAY_LK_KILL);
             }
 
-            void DoAction(int32 const action)
+            void DoAction(int32 action)
             {
                 switch (action)
                 {
@@ -860,7 +860,7 @@ class boss_the_lich_king : public CreatureScript
                 }
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 diff)
             {
                 // check phase first to prevent updating victim and entering evade mode when not wanted
                 if (!(events.IsInPhase(PHASE_OUTRO) || events.IsInPhase(PHASE_INTRO) || events.IsInPhase(PHASE_FROSTMOURNE)))
@@ -1194,7 +1194,7 @@ class npc_tirion_fordring_tft : public CreatureScript
                 }
             }
 
-            void DoAction(int32 const action)
+            void DoAction(int32 action)
             {
                 switch (action)
                 {
@@ -1241,7 +1241,7 @@ class npc_tirion_fordring_tft : public CreatureScript
                 me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim() && !(_events.IsInPhase(PHASE_OUTRO) || _events.IsInPhase(PHASE_INTRO)))
                     return;
@@ -1335,7 +1335,7 @@ class npc_shambling_horror_icc : public CreatureScript
                 }
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;
@@ -1415,7 +1415,7 @@ class npc_raging_spirit : public CreatureScript
                     summon->SetTempSummonType(TEMPSUMMON_CORPSE_DESPAWN);
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;
@@ -1550,7 +1550,7 @@ class npc_valkyr_shadowguard : public CreatureScript
                 _grabbedPlayer = guid;
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;
@@ -1625,7 +1625,7 @@ class npc_strangulate_vehicle : public CreatureScript
                     lichKing->AI()->JustSummoned(me);
             }
 
-            void DoAction(int32 const action)
+            void DoAction(int32 action)
             {
                 if (action != ACTION_TELEPORT_BACK)
                     return;
@@ -1643,7 +1643,7 @@ class npc_strangulate_vehicle : public CreatureScript
                     lichKing->AI()->SummonedCreatureDespawn(me);
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 diff)
             {
                 UpdateVictim();
 
@@ -1724,7 +1724,7 @@ class npc_terenas_menethil : public CreatureScript
                 return target->GetEntry() != NPC_THE_LICH_KING;
             }
 
-            void DoAction(int32 const action)
+            void DoAction(int32 action)
             {
                 switch (action)
                 {
@@ -1793,7 +1793,7 @@ class npc_terenas_menethil : public CreatureScript
                 _events.ScheduleEvent(EVENT_OUTRO_TERENAS_TALK_2, 14000, 0, PHASE_OUTRO);
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 diff)
             {
                 UpdateVictim();
 
@@ -1885,7 +1885,7 @@ class npc_spirit_warden : public CreatureScript
                     terenas->AI()->DoAction(ACTION_TELEPORT_BACK);
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;
@@ -1953,7 +1953,7 @@ class npc_spirit_bomb : public CreatureScript
             {
             }
 
-            void UpdateAI(uint32 const /*diff*/)
+            void UpdateAI(uint32 /*diff*/)
             {
                 UpdateVictim();
                 // no melee attacks
@@ -1988,7 +1988,7 @@ class npc_broken_frostmourne : public CreatureScript
                 _events.ScheduleEvent(EVENT_OUTRO_KNOCK_BACK, 3000, 0, PHASE_OUTRO);
             }
 
-            void DoAction(int32 const action)
+            void DoAction(int32 action)
             {
                 if (action == ACTION_SUMMON_TERENAS)
                     _events.ScheduleEvent(EVENT_OUTRO_SUMMON_TERENAS, 6000, 0, PHASE_OUTRO);
@@ -1998,7 +1998,7 @@ class npc_broken_frostmourne : public CreatureScript
             {
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 diff)
             {
                 UpdateVictim();
 

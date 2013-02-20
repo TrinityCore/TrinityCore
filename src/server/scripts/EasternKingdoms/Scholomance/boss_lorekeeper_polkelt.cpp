@@ -59,7 +59,7 @@ class boss_lorekeeper_polkelt : public CreatureScript
                 events.ScheduleEvent(EVENT_NOXIOUSCATALYST, 35000);
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;

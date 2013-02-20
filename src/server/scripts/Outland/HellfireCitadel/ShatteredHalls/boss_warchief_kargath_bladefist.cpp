@@ -194,7 +194,7 @@ class boss_warchief_kargath_bladefist : public CreatureScript
                 me->SummonCreature(MOB_SHATTERED_ASSASSIN, AssassExit[0], AssassExit[1]-8, AssassExit[2], 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 //Return since we have no target
                 if (!UpdateVictim())

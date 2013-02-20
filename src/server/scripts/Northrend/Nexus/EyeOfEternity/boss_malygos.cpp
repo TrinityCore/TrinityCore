@@ -501,7 +501,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 const diff)
+        void UpdateAI(uint32 diff)
         {
             if (!UpdateVictim())
                 return;
@@ -771,7 +771,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 const /*diff*/)
+        void UpdateAI(uint32 /*diff*/)
         {
             // When duration of oppened riff visual ends,
             // closed one should be cast
@@ -841,7 +841,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 const /*diff*/)
+        void UpdateAI(uint32 /*diff*/)
         {
             if (!_instance)
                 return;
@@ -941,7 +941,7 @@ public:
             // we dont evade
         }
 
-        void DoAction(int32 const action)
+        void DoAction(int32 action)
         {
             if (me->GetEntry() != NPC_HOVER_DISK_CASTER)
                 return;
@@ -1010,7 +1010,7 @@ public:
             DoCast(me, SPELL_ARCANE_OVERLOAD, false);
         }
 
-        void UpdateAI(uint32 const /*diff*/)
+        void UpdateAI(uint32 /*diff*/)
         {
             // we dont do melee damage!
         }
@@ -1066,7 +1066,7 @@ public:
             _events.ScheduleEvent(EVENT_YELL_1, 0);
         }
 
-        void UpdateAI(uint32 const /*diff*/)
+        void UpdateAI(uint32 /*diff*/)
         {
             while (uint32 eventId = _events.ExecuteEvent())
             {

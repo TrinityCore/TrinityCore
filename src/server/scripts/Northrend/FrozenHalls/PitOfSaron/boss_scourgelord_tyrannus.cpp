@@ -201,7 +201,7 @@ class boss_tyrannus : public CreatureScript
                     rimefang->AI()->DoAction(ACTION_END_COMBAT);
             }
 
-            void DoAction(const int32 actionId)
+            void DoAction(int32 actionId)
             {
                 if (actionId == ACTION_START_INTRO)
                 {
@@ -215,7 +215,7 @@ class boss_tyrannus : public CreatureScript
                 }
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim() && !events.IsInPhase(PHASE_INTRO))
                     return;
@@ -313,7 +313,7 @@ class boss_rimefang : public CreatureScript
                 _vehicle->InstallAllAccessories(false);
             }
 
-            void DoAction(const int32 actionId)
+            void DoAction(int32 actionId)
             {
                 if (actionId == ACTION_START_RIMEFANG)
                 {
@@ -335,7 +335,7 @@ class boss_rimefang : public CreatureScript
                 }
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim() && !_events.IsInPhase(PHASE_COMBAT))
                     return;
@@ -409,7 +409,7 @@ class player_overlord_brandAI : public PlayerAI
             me->CastCustomSpell(SPELL_OVERLORD_BRAND_HEAL, SPELLVALUE_BASE_POINT0, int32(addHealth*5.5f), tyrannus, true, NULL, NULL, tyrannus->GetGUID());
         }
 
-        void UpdateAI(const uint32 /*diff*/) { }
+        void UpdateAI(uint32 /*diff*/) { }
 
     private:
         Creature* tyrannus;

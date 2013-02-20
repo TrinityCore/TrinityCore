@@ -308,7 +308,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 uiDiff)
+        void UpdateAI(uint32 uiDiff)
         {
             if (uiPhase)
             {
@@ -448,7 +448,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 /*diff*/)
+        void UpdateAI(uint32 /*diff*/)
         {
             if (!UpdateVictim())
                 return;
@@ -524,7 +524,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 uiDiff)
+        void UpdateAI(uint32 uiDiff)
         {
             if (uiPhase)
             {

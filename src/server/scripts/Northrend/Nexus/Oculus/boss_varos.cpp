@@ -96,7 +96,7 @@ public:
             return coreEnergizeOrientation;
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             //Return since we have no target
             if (!UpdateVictim())
@@ -187,7 +187,7 @@ class npc_azure_ring_captain : public CreatureScript
                 }
             }
 
-            void UpdateAI(const uint32 /*diff*/)
+            void UpdateAI(uint32 /*diff*/)
             {
                 if (!UpdateVictim())
                     return;
@@ -207,7 +207,7 @@ class npc_azure_ring_captain : public CreatureScript
                     DoCast(target, SPELL_ICE_BEAM);
             }
 
-            void DoAction(const int32 action)
+            void DoAction(int32 action)
             {
                 switch (action)
                 {

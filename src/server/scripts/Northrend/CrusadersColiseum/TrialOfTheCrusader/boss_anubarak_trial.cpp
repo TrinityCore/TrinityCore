@@ -284,7 +284,7 @@ class boss_anubarak_trial : public CreatureScript
                         _sphereGUID[i] = summoned->GetGUID();
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;
@@ -451,7 +451,7 @@ class mob_swarm_scarab : public CreatureScript
                         Anubarak->AI()->JustSummoned(me);
             }
 
-            void DoAction(const int32 actionId)
+            void DoAction(int32 actionId)
             {
                 switch (actionId)
                 {
@@ -469,7 +469,7 @@ class mob_swarm_scarab : public CreatureScript
                 DoCast(killer, RAID_MODE(SPELL_TRAITOR_KING_10, SPELL_TRAITOR_KING_25));
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 if (_instance && _instance->GetBossState(BOSS_ANUBARAK) != IN_PROGRESS)
                     me->DisappearAndDie();
@@ -525,7 +525,7 @@ class mob_nerubian_burrower : public CreatureScript
                         Anubarak->AI()->JustSummoned(me);
             }
 
-            void DoAction(const int32 actionId)
+            void DoAction(int32 actionId)
             {
                 switch (actionId)
                 {
@@ -539,7 +539,7 @@ class mob_nerubian_burrower : public CreatureScript
                 }
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 if (_instance && _instance->GetBossState(BOSS_ANUBARAK) != IN_PROGRESS)
                     me->DisappearAndDie();
@@ -700,7 +700,7 @@ class mob_anubarak_spike : public CreatureScript
                 uiDamage = 0;
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                 {

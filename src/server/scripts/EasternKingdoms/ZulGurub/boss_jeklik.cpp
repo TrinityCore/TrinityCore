@@ -97,7 +97,7 @@ class boss_jeklik : public CreatureScript //jeklik
                 DoCast(me, SPELL_BAT_FORM);
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;
@@ -249,7 +249,7 @@ class mob_batrider : public CreatureScript
 
             void EnterCombat(Unit* /*who*/) {}
 
-            void UpdateAI (const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;

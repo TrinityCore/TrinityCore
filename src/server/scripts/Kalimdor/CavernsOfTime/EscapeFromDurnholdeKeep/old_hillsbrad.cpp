@@ -536,7 +536,7 @@ public:
             Talk(SAY_TH_RANDOM_DIE);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             npc_escortAI::UpdateAI(diff);
 
@@ -642,7 +642,7 @@ public:
         void Reset() {}
         void EnterCombat(Unit* /*who*/) {}
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             npc_escortAI::UpdateAI(diff);
         }
