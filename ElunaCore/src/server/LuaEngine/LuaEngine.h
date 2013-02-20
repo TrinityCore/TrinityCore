@@ -35,6 +35,7 @@ extern "C"
 class LuaPlayer;
 class ElunaTemplate;
 class ElunaScript;
+class LuaCreature;
 
 struct LoadedScripts
 {
@@ -105,13 +106,7 @@ struct ElunaRegister
 
 struct CreatureBind
 {
-    int _entry;
     uint16 _functionReferences[CREATURE_EVENT_COUNT];
-
-    CreatureBind(int entry) 
-	{
-        _entry = entry;
-    }
 };
 
 template<typename T> ElunaRegister<T>* GetMethodTable();
@@ -128,11 +123,13 @@ class Eluna
 		static Eluna* get() { return LuaEngine; }
 		static ElunaScript* getScript() { return Script; }
 
-		typedef map<int, std::vector<uint16>> ElunaBindingMap;
+		typedef map<int, vector<uint16>> ElunaBindingMap;
+		typedef hash_map<uint32, CreatureBind> ElunaCreatureBindingMap;
 		ElunaBindingMap _playerEventBindings;
 		ElunaBindingMap _gossipEventBindings;
-		//vector<CreatureBind*> _creatureEventBindings;
+		ElunaCreatureBindingMap _creatureEventBindings;
 
+		multimap<uint32, LuaCreature*> _luaCreatureScripts;
 		//static CreatureAI* GetLuaCreatureAI(Creature * creature);
 
 		static void InitTables()
@@ -154,7 +151,7 @@ class Eluna
 		{
 			_gossipEventBindings.clear();
 			_playerEventBindings.clear();
-			//_creatureEventBindings.clear();
+			_creatureEventBindings.clear();
 			//delete Script;
 		}
 
@@ -235,87 +232,12 @@ class Eluna
             else 
 				return ElunaTemplate<Unit>::check(L, narg);
         }
-		/*
-		public:
-			static class LuaCreature : CreatureScript
-			{
-				struct LuaCreatureAI;
-				static LuaCreature* singleton;
-				vector<LuaCreatureAI*> _scriptsToClearOnShutdown;
 
-				public:
-					bool IsDatabaseBound() const { return false; }
-
-					LuaCreature() : CreatureScript("lua_creature")
-					{
-						_scriptsToClearOnShutdown = *(new vector<LuaCreatureAI*>());
-						singleton = this;
-					}
-
-					static LuaCreature* GetSingleton() { return singleton; }
-					~LuaCreature() { }
-
-					CreatureBind* GetCreatureBindingForId(int id)
-					{
-						for (vector<CreatureBind*>::iterator itr = Eluna::get()->_creatureEventBindings.begin();
-							itr != Eluna::get()->_creatureEventBindings.end(); itr++)
-							if ((*itr)->_entry == id)
-								return (*itr);
-
-						return NULL;
-					}
-
-					bool RegisterCreatureScript(int Id, int _event, uint16 _ref)
-					{
-						if (sObjectMgr->GetCreatureTemplate(Id) == NULL)
-						{
-							sLog->outError(LOG_FILTER_GENERAL, "Eluna Nova::Couldn't find a creature with the entry of %d", Id);
-							return false;
-						}
-
-						if (GetCreatureBindingForId(Id) == NULL)
-							Eluna::get()->_creatureEventBindings.push_back(new CreatureBind(Id));
-
-						sLog->outInfo(LOG_FILTER_GENERAL, "Eluna Nova::Pushing event Template isn't nil!");
-
-						GetCreatureBindingForId(Id)->_functionReferences[_event] = _ref;
-
-						CreatureTemplate* creatureTemplate = const_cast<CreatureTemplate*>(sObjectMgr->GetCreatureTemplate(Id));
-						creatureTemplate->ScriptID = sObjectMgr->GetScriptId("luacreature");
-
-						sLog->outInfo(LOG_FILTER_GENERAL, "Eluna Nova::Created creature script for %d. (ScriptID = %d)", Id, creatureTemplate->ScriptID);
-						return true;
-					}
-
-					static struct LuaCreatureAI : ScriptedAI
-					{
-						CreatureBind* creatureBinding;
-
-						LuaCreatureAI(Creature* creature) : ScriptedAI(creature)
-						{
-							creatureBinding = LuaCreature::GetSingleton()->GetCreatureBindingForId(creature->GetEntry());
-						}
-
-						~LuaCreatureAI() { }
-					};
-
-					CreatureAI* GetAI(Creature* creature)
-					{
-						CreatureBind* binding = GetCreatureBindingForId(creature->GetEntry());
-						if (binding == NULL)
-							return NULL;
-
-						if (!GetCreatureScript()->_scriptsToClearOnShutdown.empty())
-							for(vector<LuaCreatureAI*>::iterator itr = Eluna::GetCreatureScript()->_scriptsToClearOnShutdown.begin(); itr != Eluna::GetCreatureScript()->_scriptsToClearOnShutdown.end(); itr++)
-								if(((*itr) != NULL) && (*itr)->creatureBinding->_entry == creature->GetEntry())
-									return (*itr);
-
-						LuaCreatureAI* luaCreature = new LuaCreatureAI(creature);
-						GetCreatureScript()->_scriptsToClearOnShutdown.push_back(luaCreature);
-						return luaCreature;
-					}
-			};
-		    static LuaCreature* GetCreatureScript() { return Eluna::LuaCreature::GetSingleton(); }*/
+		CreatureBind* GetCreatureBinding(uint32 Id)
+		{
+			ElunaCreatureBindingMap::iterator itr = _creatureEventBindings.find(Id);
+			return (itr == _creatureEventBindings.end()) ? NULL : &itr->second;
+		}
 
 	protected:
 		template<typename T>
