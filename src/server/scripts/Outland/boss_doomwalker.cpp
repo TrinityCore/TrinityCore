@@ -97,7 +97,7 @@ class boss_doomwalker : public CreatureScript
                         who->CastSpell(who, SPELL_AURA_DEATH, 1);
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;

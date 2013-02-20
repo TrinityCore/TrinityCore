@@ -93,7 +93,7 @@ public:
             summons.Summon(summon);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (!UpdateVictimWithGaze() || !CheckInRoom())
                 return;

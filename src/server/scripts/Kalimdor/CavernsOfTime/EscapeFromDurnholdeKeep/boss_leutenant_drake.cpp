@@ -150,7 +150,7 @@ public:
             Talk(SAY_DEATH);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             //TODO: make this work
             if (CanPatrol && wpId == 0)

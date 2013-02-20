@@ -64,7 +64,7 @@ class boss_grilek : public CreatureScript // grilek
                 events.ScheduleEvent(EVENT_GROUND_TREMOR, urand(15000, 25000));
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;

@@ -109,7 +109,7 @@ public:
             Talk(SAY_KILL);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (!UpdateVictim())
                 return;
@@ -219,7 +219,7 @@ public:
             return type == DATA_COUNT ? _count : 0;
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (_despawntimer <= diff)
             {

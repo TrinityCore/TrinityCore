@@ -413,7 +413,7 @@ class boss_professor_putricide : public CreatureScript
                 }
             }
 
-            void DoAction(int32 const action)
+            void DoAction(int32 action)
             {
                 switch (action)
                 {
@@ -567,7 +567,7 @@ class boss_professor_putricide : public CreatureScript
                     _experimentState = bool(data);
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 diff)
             {
                 if ((!(events.IsInPhase(PHASE_ROTFACE) || events.IsInPhase(PHASE_FESTERGUT)) && !UpdateVictim()) || !CheckInRoom())
                     return;
@@ -746,7 +746,7 @@ class npc_putricide_oozeAI : public ScriptedAI
                 _newTargetSelectTimer = 1000;
         }
 
-        void UpdateAI(uint32 const diff)
+        void UpdateAI(uint32 diff)
         {
             if (!UpdateVictim() && !_newTargetSelectTimer)
                 return;

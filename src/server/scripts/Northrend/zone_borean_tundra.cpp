@@ -92,7 +92,7 @@ public:
 
         void EnterCombat(Unit* /*who*/){}
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (!phase)
                 return;
@@ -489,7 +489,7 @@ public:
             DoCast(me, SPELL_DROP_CRATE, true);
         }
 
-        void UpdateAI(const uint32 /*diff*/)
+        void UpdateAI(uint32 /*diff*/)
         {
             if (setCrateNumber)
             {
@@ -629,7 +629,7 @@ public:
                 go_caribou->SetGoState(GO_STATE_READY);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (phaseTimer <= diff)
             {
@@ -754,7 +754,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (IntroPhase)
             {
@@ -920,7 +920,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 /*diff*/)
+        void UpdateAI(uint32 /*diff*/)
         {
             if (WithRedDragonBlood && HarpoonerGUID && !me->HasAura(SPELL_RED_DRAGONBLOOD))
             {
@@ -1070,7 +1070,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 uiDiff)
+        void UpdateAI(uint32 uiDiff)
         {
             npc_escortAI::UpdateAI(uiDiff);
 
@@ -1413,7 +1413,7 @@ public:
                     CAST_AI(npc_thassarian::npc_thassarianAI, CAST_CRE(summoner)->AI())->talbotInPosition = true;
         }
 
-        void UpdateAI(const uint32 uiDiff)
+        void UpdateAI(uint32 uiDiff)
         {
             if (bCheck)
             {
@@ -1535,7 +1535,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 uiDiff)
+        void UpdateAI(uint32 uiDiff)
         {
             ScriptedAI::UpdateAI(uiDiff);
 
@@ -1675,7 +1675,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 /*uiDiff*/)
+        void UpdateAI(uint32 /*uiDiff*/)
         {
             if (!UpdateVictim())
                 return;
@@ -1727,7 +1727,7 @@ public:
             rebuff = 0;
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             UpdateVictim();
 
@@ -2043,7 +2043,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (bStarted)
             {
@@ -2058,7 +2058,7 @@ public:
             }
         }
 
-        void DoAction(const int32 param)
+        void DoAction(int32 param)
         {
             if (param == 1)
                 bStarted = true;
@@ -2158,7 +2158,7 @@ public:
             uiExplosionTimer = urand(5000, 10000);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (uiExplosionTimer < diff)
             {
@@ -2213,7 +2213,7 @@ public:
             uiTimer = urand(13000, 18000);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (uiTimer <= diff)
             {
@@ -2275,7 +2275,7 @@ public:
 
         void AttackStart(Unit* /*who*/) {}
 
-        void UpdateAI(const uint32 uiDiff)
+        void UpdateAI(uint32 uiDiff)
         {
             if (m_uiTimer <= uiDiff)
             {
@@ -2411,7 +2411,7 @@ public:
             me->RestoreFaction();
         }
 
-        void DoAction(const int32 /*iParam*/)
+        void DoAction(int32 /*iParam*/)
         {
             me->StopMoving();
             me->SetUInt32Value(UNIT_NPC_FLAGS, 0);
@@ -2436,7 +2436,7 @@ public:
                 me->AI()->AttackStart(player);
         }
 
-        void UpdateAI(const uint32 uiDiff)
+        void UpdateAI(uint32 uiDiff)
         {
             if (uiEventTimer && uiEventTimer <= uiDiff)
             {

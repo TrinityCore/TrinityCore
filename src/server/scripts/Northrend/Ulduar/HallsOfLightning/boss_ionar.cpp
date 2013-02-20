@@ -213,7 +213,7 @@ public:
                 lSparkList.Despawn(summoned);
         }
 
-        void UpdateAI(const uint32 uiDiff)
+        void UpdateAI(uint32 uiDiff)
         {
             //Return since we have no target
             if (!UpdateVictim())
@@ -335,7 +335,7 @@ public:
             uiDamage = 0;
         }
 
-        void UpdateAI(const uint32 uiDiff)
+        void UpdateAI(uint32 uiDiff)
         {
             // Despawn if the encounter is not running
             if (instance && instance->GetData(TYPE_IONAR) != IN_PROGRESS)

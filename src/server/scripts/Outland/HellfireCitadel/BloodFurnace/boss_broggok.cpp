@@ -84,7 +84,7 @@ class boss_broggok : public CreatureScript
                 summoned->CastSpell(summoned, SPELL_POISON, false, 0, 0, me->GetGUID());
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;
@@ -127,7 +127,7 @@ class boss_broggok : public CreatureScript
                 }
             }
 
-            void DoAction(int32 const action)
+            void DoAction(int32 action)
             {
                 switch (action)
                 {

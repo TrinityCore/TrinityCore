@@ -136,7 +136,7 @@ class example_escort : public CreatureScript
                     Talk(SAY_DEATH_3);
             }
 
-            void UpdateAI(const uint32 uiDiff)
+            void UpdateAI(uint32 uiDiff)
             {
                 //Must update npc_escortAI
                 npc_escortAI::UpdateAI(uiDiff);
