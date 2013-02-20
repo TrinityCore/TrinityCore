@@ -212,7 +212,7 @@ class boss_alar : public CreatureScript
                 }
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!me->isInCombat()) // sometimes isincombat but !incombat, faction bug?
                     return;
@@ -515,7 +515,7 @@ class mob_ember_of_alar : public CreatureScript
                 }
             }
 
-            void UpdateAI(const uint32 /*diff*/)
+            void UpdateAI(uint32 /*diff*/)
             {
                 if (!UpdateVictim())
                     return;
@@ -553,7 +553,7 @@ class mob_flame_patch_alar : public CreatureScript
             void EnterCombat(Unit* /*who*/) {}
             void AttackStart(Unit* /*who*/) {}
             void MoveInLineOfSight(Unit* /*who*/) {}
-            void UpdateAI(const uint32 /*diff*/) {}
+            void UpdateAI(uint32 /*diff*/) {}
         };
 
         CreatureAI* GetAI(Creature* creature) const

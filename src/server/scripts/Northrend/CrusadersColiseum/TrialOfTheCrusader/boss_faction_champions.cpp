@@ -710,7 +710,7 @@ struct boss_faction_championsAI : public BossAI
         }
     }
 
-    void UpdateAI(const uint32 diff)
+    void UpdateAI(uint32 diff)
     {
         _events.Update(diff);
 
@@ -773,7 +773,7 @@ class mob_toc_druid : public CreatureScript
                 SetEquipmentSlots(false, 51799, EQUIP_NO_CHANGE, EQUIP_NO_CHANGE);
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;
@@ -865,7 +865,7 @@ class mob_toc_shaman : public CreatureScript
                 SetEquipmentSlots(false, 49992, EQUIP_NO_CHANGE, EQUIP_NO_CHANGE);
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;
@@ -959,7 +959,7 @@ class mob_toc_paladin : public CreatureScript
                 SetEquipmentSlots(false, 50771, 47079, EQUIP_NO_CHANGE);
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;
@@ -1062,7 +1062,7 @@ class mob_toc_priest : public CreatureScript
                 SetEquipmentSlots(false, 49992, EQUIP_NO_CHANGE, EQUIP_NO_CHANGE);
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;
@@ -1152,7 +1152,7 @@ class mob_toc_shadow_priest : public CreatureScript
                 DoCast(me, SPELL_SHADOWFORM);
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;
@@ -1251,7 +1251,7 @@ class mob_toc_warlock : public CreatureScript
                 DoCast(SPELL_SUMMON_FELHUNTER);
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;
@@ -1337,7 +1337,7 @@ class mob_toc_mage : public CreatureScript
                 SetEquipmentSlots(false, 47524, EQUIP_NO_CHANGE, EQUIP_NO_CHANGE);
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;
@@ -1437,7 +1437,7 @@ class mob_toc_hunter : public CreatureScript
                 DoCast(SPELL_CALL_PET);
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;
@@ -1534,7 +1534,7 @@ class mob_toc_boomkin : public CreatureScript
                 SetEquipmentSlots(false, 50966, EQUIP_NO_CHANGE, EQUIP_NO_CHANGE);
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;
@@ -1629,7 +1629,7 @@ class mob_toc_warrior : public CreatureScript
                 SetEquipmentSlots(false, 47427, 46964, EQUIP_NO_CHANGE);
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;
@@ -1728,7 +1728,7 @@ class mob_toc_dk : public CreatureScript
                 SetEquipmentSlots(false, 47518, 51021, EQUIP_NO_CHANGE);
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;
@@ -1827,7 +1827,7 @@ class mob_toc_rogue : public CreatureScript
                 me->SetMaxPower(POWER_ENERGY, 100);
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;
@@ -1967,7 +1967,7 @@ class mob_toc_enh_shaman : public CreatureScript
                 summons.DespawnAll();
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;
@@ -2062,7 +2062,7 @@ class mob_toc_retro_paladin : public CreatureScript
                 DoCast(SPELL_SEAL_OF_COMMAND);
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;
@@ -2155,7 +2155,7 @@ class mob_toc_pet_warlock : public CreatureScript
                 events.ScheduleEvent(EVENT_SPELL_LOCK, urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS));
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;
@@ -2206,7 +2206,7 @@ class mob_toc_pet_hunter : public CreatureScript
                 _clawTimer = urand(5*IN_MILLISECONDS, 10*IN_MILLISECONDS);
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;

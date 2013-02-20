@@ -241,7 +241,7 @@ class boss_xt002 : public CreatureScript
                 instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_MUST_DECONSTRUCT_FASTER);
             }
 
-            void DoAction(const int32 action)
+            void DoAction(int32 action)
             {
                 switch (action)
                 {
@@ -269,7 +269,7 @@ class boss_xt002 : public CreatureScript
                     ExposeHeart();
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim() || !CheckInRoom())
                     return;
@@ -459,7 +459,7 @@ class mob_xt002_heart : public CreatureScript
                 SetCombatMovement(false);
             }
 
-            void UpdateAI(uint32 const /*diff*/) { }
+            void UpdateAI(uint32 /*diff*/) { }
 
             void JustDied(Unit* /*killer*/)
             {
@@ -513,7 +513,7 @@ class mob_scrapbot : public CreatureScript
                     me->GetMotionMaster()->MoveFollow(pXT002, 0.0f, 0.0f);
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 if (_rangeCheckTimer <= diff)
                 {
@@ -574,7 +574,7 @@ class mob_pummeller : public CreatureScript
                 }
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;
@@ -704,7 +704,7 @@ class mob_boombot : public CreatureScript
                 }
             }
 
-            void UpdateAI(uint32 const /*diff*/)
+            void UpdateAI(uint32 /*diff*/)
             {
                 if (!UpdateVictim())
                     return;
@@ -746,7 +746,7 @@ class mob_life_spark : public CreatureScript
                 _shockTimer = 0; // first one is immediate.
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;

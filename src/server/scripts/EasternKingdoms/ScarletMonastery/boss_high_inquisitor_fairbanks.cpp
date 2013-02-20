@@ -77,7 +77,7 @@ public:
             me->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (!UpdateVictim())
                 return;

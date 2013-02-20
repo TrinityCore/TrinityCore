@@ -112,7 +112,7 @@ public:
             Talk(SAY_ONDEATH);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (IsEvent)
             {
@@ -234,7 +234,7 @@ public:
         {
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (CheckTimer <= diff)
             {

@@ -315,7 +315,7 @@ class boss_janalai : public CreatureScript
                 }
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 if (isFlameBreathing)
                 {
@@ -468,7 +468,7 @@ class mob_janalai_firebomb : public CreatureScript
 
             void MoveInLineOfSight(Unit* /*who*/) {}
 
-            void UpdateAI(const uint32 /*diff*/) {}
+            void UpdateAI(uint32 /*diff*/) {}
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -560,7 +560,7 @@ class mob_janalai_hatcher : public CreatureScript
                     WaitTimer = 1;
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!instance || !(instance->GetData(DATA_JANALAIEVENT) == IN_PROGRESS))
                 {
@@ -641,7 +641,7 @@ class mob_janalai_hatchling : public CreatureScript
 
             void EnterCombat(Unit* /*who*/) {/*DoZoneInCombat();*/}
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!instance || !(instance->GetData(DATA_JANALAIEVENT) == IN_PROGRESS))
                 {
@@ -684,7 +684,7 @@ public:
 
         void Reset() {}
 
-        void UpdateAI(uint32 const /*diff*/) {}
+        void UpdateAI(uint32 /*diff*/) {}
 
         void SpellHit(Unit* /*caster*/, const SpellInfo* spell)
         {

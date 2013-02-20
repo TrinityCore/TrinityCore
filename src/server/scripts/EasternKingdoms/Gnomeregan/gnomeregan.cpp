@@ -572,7 +572,7 @@ public:
                 CAST_CRE(summon)->AI()->SetData(2, 1);
         }
 
-        void UpdateAI(const uint32 /*diff*/)
+        void UpdateAI(uint32 /*diff*/)
         {
             if (!UpdateVictim())
                 return;

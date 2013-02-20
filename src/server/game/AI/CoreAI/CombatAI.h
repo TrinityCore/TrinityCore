@@ -30,7 +30,7 @@ class AggressorAI : public CreatureAI
     public:
         explicit AggressorAI(Creature* c) : CreatureAI(c) {}
 
-        void UpdateAI(const uint32);
+        void UpdateAI(uint32);
         static int Permissible(const Creature*);
 };
 
@@ -45,7 +45,7 @@ class CombatAI : public CreatureAI
         void Reset();
         void EnterCombat(Unit* who);
         void JustDied(Unit* killer);
-        void UpdateAI(const uint32 diff);
+        void UpdateAI(uint32 diff);
         void SpellInterrupted(uint32 spellId, uint32 unTimeMs);
         static int Permissible(const Creature*);
     protected:
@@ -59,7 +59,7 @@ class CasterAI : public CombatAI
         explicit CasterAI(Creature* c) : CombatAI(c) { m_attackDist = MELEE_RANGE; }
         void InitializeAI();
         void AttackStart(Unit* victim) { AttackStartCaster(victim, m_attackDist); }
-        void UpdateAI(const uint32 diff);
+        void UpdateAI(uint32 diff);
         void EnterCombat(Unit* /*who*/);
     private:
         float m_attackDist;
@@ -70,7 +70,7 @@ struct ArcherAI : public CreatureAI
     public:
         explicit ArcherAI(Creature* c);
         void AttackStart(Unit* who);
-        void UpdateAI(const uint32 diff);
+        void UpdateAI(uint32 diff);
 
         static int Permissible(const Creature*);
     protected:
@@ -83,7 +83,7 @@ struct TurretAI : public CreatureAI
         explicit TurretAI(Creature* c);
         bool CanAIAttack(const Unit* who) const;
         void AttackStart(Unit* who);
-        void UpdateAI(const uint32 diff);
+        void UpdateAI(uint32 diff);
 
         static int Permissible(const Creature*);
     protected:
@@ -97,7 +97,7 @@ struct VehicleAI : public CreatureAI
     public:
         explicit VehicleAI(Creature* c);
 
-        void UpdateAI(const uint32 diff);
+        void UpdateAI(uint32 diff);
         static int Permissible(const Creature*);
         void Reset();
         void MoveInLineOfSight(Unit*) {}
