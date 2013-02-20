@@ -3,7 +3,7 @@
 #include "MapManager.h"
 #include "Chat.h"
 #include "Group.h"
-#include "ArenaTeam.cpp"
+#include "ArenaTeam.h"
 
 //This script is made by Blex and was orginally posted on www.ac-web.org
 //This script was created after being inspired by Arena-Tournament's player commands. www.arena-tournament.com
