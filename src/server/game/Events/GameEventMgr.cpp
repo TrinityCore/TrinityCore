@@ -1366,7 +1366,7 @@ void GameEventMgr::ChangeEquipOrModel(int16 event_id, bool activate)
                 sObjectMgr->GetCreatureModelRandomGender(&displayID);
 
                 if (data2->equipmentId == 0)
-                    itr->second.equipement_id_prev = 1;
+                    itr->second.equipement_id_prev = 0; ///@todo: verify this line
                 else if (data2->equipmentId != -1)
                     itr->second.equipement_id_prev = data->equipmentId;
                 itr->second.modelid_prev = displayID;
