@@ -84,7 +84,7 @@ class LuaPlayer
 		}
 
 		static int GetY(lua_State * L, Player * player)
-		{
+		{			
 			if (player == NULL || !player->IsInWorld())
 			{
 				lua_pushnil(L);
@@ -96,7 +96,7 @@ class LuaPlayer
 		}
 
 		static int GetZ(lua_State * L, Player * player)
-		{
+		{			
 			if (player == NULL || !player->IsInWorld())
 			{
 				lua_pushnil(L);
@@ -108,7 +108,7 @@ class LuaPlayer
 		}
 
 		static int GetO(lua_State * L, Player * player)
-		{
+		{			
 			if (player == NULL || !player->IsInWorld())
 			{
 				lua_pushnil(L);
@@ -120,7 +120,7 @@ class LuaPlayer
 		}
 
 		static int GetLocation(lua_State * L, Player * player)
-		{
+		{			
 			if (player == NULL || !player->IsInWorld())
 			{
 				lua_pushnil(L);
@@ -135,7 +135,7 @@ class LuaPlayer
 		}
 
 		static int GetZoneID(lua_State * L, Player * player)
-		{
+		{			
 			if (player == NULL || !player->IsInWorld())
 			{
 				lua_pushnil(L);
@@ -147,7 +147,7 @@ class LuaPlayer
 		}
 
 		static int GetGUID(lua_State * L, Player * player)
-		{
+		{			
 			if (player == NULL || !player->IsInWorld())
 			{
 				lua_pushnil(L);
@@ -159,7 +159,7 @@ class LuaPlayer
 		}
 
 		static int GetByteValue(lua_State * L, Player * player)
-		{
+		{			
 			if (player == NULL || !player->IsInWorld())
 			{
 				lua_pushnil(L);
@@ -173,7 +173,7 @@ class LuaPlayer
 		}
 
 		static int HasQuest(lua_State * L, Player * player)
-		{
+		{			
 			if (player == NULL || !player->IsInWorld())
 			{
 				lua_pushnil(L);
@@ -186,7 +186,7 @@ class LuaPlayer
 		}
 
 		static int IsAlive(lua_State * L, Player * player)
-		{
+		{			
 			if (player == NULL || !player->IsInWorld())
 			{
 				lua_pushnil(L);
@@ -198,7 +198,7 @@ class LuaPlayer
 		}
 
 		static int IsInWorld(lua_State * L, Player * player)
-		{
+		{			
 			if (player == NULL || !player->IsInWorld())
 			{
 				lua_pushnil(L);
@@ -210,7 +210,14 @@ class LuaPlayer
 		}
 
 		static int IsPvPFlagged(lua_State * L, Player * player)
-		{
+		{			
+			if (player == NULL || !player->IsInWorld())
+			{
+				lua_pushnil(L);
+				return 1;
+			}
+
+			lua_pushboolean(L, player->IsPvP());
 			return 1;
 		}
 };

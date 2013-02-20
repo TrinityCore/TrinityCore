@@ -2,10 +2,10 @@
     FOEREAPER TOMMY ENGINE, YEAH!
 */
 #pragma warning (disable:4006)
-#pragma warning (disable:4150) // Disabling Player class warnings
 #include "LuaEngine.h"
 #include "Chat.h"
 #include "LuaFunctions.h"
+#include "Creature.h"
 
 Eluna * Eluna::LuaEngine = NULL; // give it a value
 ElunaScript * Eluna::Script = NULL;
@@ -24,10 +24,8 @@ template<typename T> const char* GetTName() { return "UNK"; }
 template<> const char* GetTName<Player>() { return "Player"; }
 template<> const char* GetTName<Group>() { return "Group"; }
 template<> const char* GetTName<Guild>() { return "Guild"; }
-//template<> const char* GetTName<Creature>() { return "Creature"; }
+template<> const char* GetTName<Creature>() { return "Creature"; }
 template<> const char* GetTName<Log>() { return "Log"; }
-
-//template<typename T> ElunaRegister<T> * GetMethodTable();
 
 void Eluna::StartEluna()
 {
@@ -42,6 +40,7 @@ void Eluna::StartEluna()
 	//Register Globals Here
 	RegisterGlobals(m_luaState);
 	//Register Templates Here
+	//ElunaTemplate<Creature>::Register(m_luaState);
 	ElunaTemplate<Player>::Register(m_luaState);
 
     uint32 cnt_uncomp = 0;
@@ -71,12 +70,14 @@ void Eluna::StartEluna()
 /* Register Other Hooks (Events) */
 static int RegisterPlayerEvent(lua_State * L);
 static int RegisterGossipEvent(lua_State * L);
+static int RegisterCreatureEvent(lua_State* L);
 
 void Eluna::RegisterGlobals(lua_State * L)
 {
 	// GETGLOBALS REQUIRES  & IN FRONT :: EXAMPLE  &GetVersion
 	lua_register(L, "RegisterServerHook", RegisterPlayerEvent);
 	lua_register(L, "RegisterGossipEvent", RegisterGossipEvent);
+	lua_register(L, "RegisterCreatureEvent", RegisterCreatureEvent);
 	lua_register(L, "GetLuaEngine", &LuaGlobalFunctions::GetLuaEngine);
 	lua_register(L, "GetCoreVersion", &LuaGlobalFunctions::GetCoreVersion);
 }
@@ -194,19 +195,27 @@ void Eluna::PushGuild(lua_State * L, Guild* pGuild)
        lua_pushnil(L);
 }
 
-/*
-void Eluna::PushUnit(lua_State* L, Unit* pUnit)
+void Eluna::PushUnit(lua_State* L, Unit * unit)
 {
-        if(pUnit != NULL)
-        {
-                if(dynamic_cast<Player*>(pUnit) != NULL) {
-                        Eluna::get()->PushPlayer(L, dynamic_cast<Player*>(pUnit));
-                } else if (dynamic_cast<Creature*>(pUnit) != NULL) {
-                        Eluna::get()->PushCreature(L, dynamic_cast<Creature*>(pUnit));
-                } else {
-                        lua_pushnil(L);
-                }
-        }
+    if(unit != NULL)
+    {
+        if(dynamic_cast<Player*>(unit) != NULL && unit->GetTypeId() == TYPEID_PLAYER)
+            Eluna::get()->PushPlayer(L, dynamic_cast<Player*>(unit));
+        else if (dynamic_cast<Creature*>(unit) != NULL && unit->GetTypeId() == TYPEID_UNIT) 
+            Eluna::get()->PushCreature(L, dynamic_cast<Creature*>(unit));
+		else
+			lua_pushnil(L);
+    }
+}
+
+/*
+CreatureAI * Eluna::GetLuaCreatureAI(Creature * creature)
+{
+	if (GetCreatureScript()->GetCreatureBindingForId(creature->GetEntry()) != NULL)
+	{
+		return GetCreatureScript()->GetAI(creature);
+	}
+	return NULL;
 }*/
 
 // RegisterPlayerEvent(ev, func)
@@ -246,7 +255,6 @@ static int RegisterGossipEvent(lua_State* L)
 }
 
 // RegisterCreatureEvent(entry, ev, func)
-/*
 static int RegisterCreatureEvent(lua_State* L)
 {
         uint16 functionRef;
@@ -263,7 +271,7 @@ static int RegisterCreatureEvent(lua_State* L)
         if(functionRef > 0)
                 Eluna::get()->Register(REGTYPE_CREATURE, entry, evt, functionRef);
         return 0;
-}*/
+}
 
 
 void Eluna::Register(uint8 regtype, uint32 id, uint32 evt, uint16 functionRef)
@@ -283,12 +291,12 @@ void Eluna::Register(uint8 regtype, uint32 id, uint32 evt, uint16 functionRef)
                 m_gossipEventBindings.at(evt).push_back(functionRef);
             }
             break;
-				/*
+
         case REGTYPE_CREATURE:
-                if(evt < CREATURE_EVENT_COUNT)
-                {
-                        getCreatureScript()->RegisterCreatureScript(id, evt, functionRef);
-                }
-                break;*/
+             if(evt < CREATURE_EVENT_COUNT)
+             {
+                //GetCreatureScript()->RegisterCreatureScript(id, evt, functionRef);
+             }
+             break;
     }
 }

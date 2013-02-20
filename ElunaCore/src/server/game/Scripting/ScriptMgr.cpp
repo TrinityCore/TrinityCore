@@ -778,6 +778,11 @@ CreatureAI* ScriptMgr::GetCreatureAI(Creature* creature)
 {
     ASSERT(creature);
 
+	/*
+	if (Eluna::GetCreatureScript()->GetCreatureBindingForId(creature->GetEntry()) != NULL)
+		if (Eluna::get()->GetLuaCreatureAI(creature) != NULL)
+			return Eluna::get()->GetLuaCreatureAI(creature);*/
+
     GET_SCRIPT_RET(CreatureScript, creature->GetScriptId(), tmpscript, NULL);
     return tmpscript->GetAI(creature);
 }
