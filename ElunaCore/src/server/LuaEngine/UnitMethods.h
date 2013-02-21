@@ -1,18 +1,14 @@
 #ifndef UNITMETHODS_H
 #define UNITMETHODS_H
-#include "Player.h"
-#include "GuildMgr.h"
-#include "Group.h"
+#include "ScriptPCH.h"
 
 #define TO_PLAYER()      Player* player;     if(!unit || !unit->IsInWorld() || !(player = unit->ToPlayer()))     { return 0; }
 #define TO_CREATURE()    Creature* creature; if(!unit || !unit->IsInWorld() || !(creature = unit->ToCreature())) { return 0; }
 #define TO_UNIT()                            if(!unit || !unit->IsInWorld() || !unit->ToUnit())                  { return 0; }
-#define TO_GAMEOBJECT()  GameObject* go;     if(!unit || !unit->IsInWorld() || !(go = unit->ToGameObject()))     { return 0; }
 
 #define TO_PLAYER_BOOL()      Player* player;     if(!unit || !unit->IsInWorld() || !(player = unit->ToPlayer()))     { lua_pushboolean(L, false); return 1; }
 #define TO_CREATURE_BOOL()    Creature* creature; if(!unit || !unit->IsInWorld() || !(creature = unit->ToCreature())) { lua_pushboolean(L, false); return 1; }
 #define TO_UNIT_BOOL()                            if(!unit || !unit->IsInWorld() || !unit->ToUnit())                  { lua_pushboolean(L, false); return 1; }
-#define TO_GAMEOBJECT_BOOL()  GameObject* go;     if(!unit || !unit->IsInWorld() || !(go = unit->ToGameObject()))     { lua_pushboolean(L, false); return 1; }
 
 class LuaUnit
 {
@@ -21,169 +17,178 @@ public:
     // Get Methods
 
     //GetCoinage()
+    static int GetSelection(lua_State* L, Unit* unit)
+    {
+        TO_PLAYER();
+
+        Eluna::get()->PushUnit(L, player->GetSelectedUnit());
+        return 1;
+    }
+
+    //GetCoinage()
     static int GetCoinage(lua_State* L, Unit* unit)
     {
-        TO_PLAYER()
+        TO_PLAYER();
 
-            lua_pushnumber(L, player->GetMoney());
+        lua_pushnumber(L, player->GetMoney());
         return 1;
     }
 
     // GetDisplayID()
     static int GetDisplayID(lua_State* L, Unit* unit)
     {
-        TO_PLAYER()
+        TO_UNIT();
 
-            lua_pushnumber(L, player->GetDisplayId());
+        lua_pushnumber(L, unit->GetDisplayId());
         return 1;
     }
 
     // GetName()
     static int GetName(lua_State* L, Unit* unit)
     {
-        TO_PLAYER()
+        TO_UNIT();
 
-            lua_pushstring(L, player->GetName().c_str());
+        lua_pushstring(L, unit->GetName().c_str());
         return 1;
     }
 
     // GetLevel()
     static int GetLevel(lua_State* L, Unit* unit)
     {
-        TO_PLAYER()
+        TO_UNIT();
 
-            lua_pushinteger(L, player->getLevel());
+        lua_pushinteger(L, unit->getLevel());
         return 1;
     }
 
     // GetHealth()
     static int GetHealth(lua_State* L, Unit* unit)
     {
-        TO_PLAYER()
+        TO_UNIT();
 
-            lua_pushnumber(L, player->GetHealth());
+        lua_pushnumber(L, unit->GetHealth());
         return 1;
     }
 
     // GetGuildId()
     static int GetGuildID(lua_State* L, Unit* unit)
     {
-        TO_PLAYER()
+        TO_PLAYER();
 
-            if(player->GetGuildId() == NULL || player->GetGuildId() == 0)
-            {
-                lua_pushnil(L);
-                return 1;
-            }
-
-            lua_pushnumber(L, player->GetGuildId());
+        if(player->GetGuildId() == NULL || player->GetGuildId() == 0)
+        {
+            lua_pushnil(L);
             return 1;
+        }
+
+        lua_pushnumber(L, player->GetGuildId());
+        return 1;
     }
 
     // GetX()
     static int GetX(lua_State* L, Unit* unit)
     {
-        TO_PLAYER()
+        TO_UNIT();
 
-            lua_pushnumber(L, player->GetPositionX());
+        lua_pushnumber(L, unit->GetPositionX());
         return 1;
     }
 
     // GetY()
     static int GetY(lua_State* L, Unit* unit)
     {			
-        TO_PLAYER()
+        TO_UNIT();
 
-            lua_pushnumber(L, player->GetPositionY());
+        lua_pushnumber(L, unit->GetPositionY());
         return 1;
     }
 
     // GetZ()
     static int GetZ(lua_State* L, Unit* unit)
     {			
-        TO_PLAYER()
+        TO_UNIT();
 
-            lua_pushnumber(L, player->GetPositionZ());
+        lua_pushnumber(L, unit->GetPositionZ());
         return 1;
     }
 
     // GetO()
     static int GetO(lua_State* L, Unit* unit)
     {			
-        TO_PLAYER()
+        TO_UNIT();
 
-            lua_pushnumber(L, player->GetOrientation());
+        lua_pushnumber(L, unit->GetOrientation());
         return 1;
     }
 
     // GetLocation()
     static int GetLocation(lua_State* L, Unit* unit)
     {			
-        TO_PLAYER()
+        TO_UNIT();
 
-            lua_pushnumber(L, player->GetPositionX());
-        lua_pushnumber(L, player->GetPositionY());
-        lua_pushnumber(L, player->GetPositionZ());
-        lua_pushnumber(L, player->GetOrientation());
+        lua_pushnumber(L, unit->GetPositionX());
+        lua_pushnumber(L, unit->GetPositionY());
+        lua_pushnumber(L, unit->GetPositionZ());
+        lua_pushnumber(L, unit->GetOrientation());
         return 4;
     }
 
     // GetZoneID()
     static int GetZoneID(lua_State* L, Unit* unit)
     {			
-        TO_PLAYER()
+        TO_UNIT();
 
-            lua_pushnumber(L, player->GetZoneId());
+        lua_pushnumber(L, unit->GetZoneId());
         return 1;
     }
 
     // GetAreaID()
     static int GetAreaID(lua_State* L, Unit* unit)
     {
-        TO_PLAYER()
+        TO_UNIT();
 
-            lua_pushnumber(L, player->GetAreaId());
+        lua_pushnumber(L, unit->GetAreaId());
         return 1;
     }
 
     // GetTeam()
     static int GetTeam(lua_State* L, Unit* unit)
     {
-        TO_PLAYER()
+        TO_PLAYER();
 
-            lua_pushnumber(L, player->GetTeamId());
+        lua_pushnumber(L, player->GetTeamId());
         return 1;
     }
 
     // GetGUID()
     static int GetGUID(lua_State* L, Unit* unit)
     {			
-        TO_PLAYER()
+        TO_UNIT();
 
-            lua_pushnumber(L, player->GetGUID());
+        lua_pushnumber(L, unit->GetGUID());
         return 1;
     }
 
     // GetByteValue(index, offset)
     static int GetByteValue(lua_State* L, Unit* unit)
     {			
-        TO_PLAYER()
+        TO_UNIT();
 
-            uint32 index = luaL_checkint(L, 1);
+        uint32 index = luaL_checkint(L, 1);
         uint32 offset = luaL_checkint(L, 2);
-        lua_pushinteger(L, player->GetByteValue(index, offset));
+        lua_pushinteger(L, unit->GetByteValue(index, offset));
         return 1;
     }
 
     // GetPower([powertype])
     static int GetPower(lua_State* L, Unit* unit)
     {
-        TO_PLAYER()
-            int type = luaL_optint(L, 1, -1);
+        TO_UNIT();
+        int type = luaL_optint(L, 1, -1);
         if(type == -1)
         {
             // We didn't specify a type, so get the default type for our class
-            switch(player->getClass())
+            switch(unit->getClass())
             {
             case 1: { type = POWER_RAGE; break; }
             case 4: { type = POWER_ENERGY; break; }
@@ -204,19 +209,19 @@ public:
             return 0;
         }
 
-        lua_pushnumber(L, player->GetPower((Powers) type));
+        lua_pushnumber(L, unit->GetPower((Powers) type));
         return 1;
     }
 
     // GetMaxPower([index])
     static int GetMaxPower(lua_State* L, Unit* unit)
     {
-        TO_PLAYER()
-            int type = luaL_optint(L, 1, -1);
+        TO_UNIT();
+        int type = luaL_optint(L, 1, -1);
         if(type == -1)
         {
             // We didn't specify a type, so get the default type for our class
-            switch(player->getClass())
+            switch(unit->getClass())
             {
             case 1: { type = POWER_RAGE; break; }
             case 4: { type = POWER_ENERGY; break; }
@@ -237,34 +242,34 @@ public:
             return 0;
         }
 
-        lua_pushnumber(L, player->GetMaxPower((Powers) type));
+        lua_pushnumber(L, unit->GetMaxPower((Powers) type));
         return 1;
     }
 
     // GetMaxHealth()
     static int GetMaxHealth(lua_State* L, Unit* unit)
     {
-        TO_PLAYER()
+        TO_UNIT();
 
-            lua_pushnumber(L, player->GetMaxHealth());
+        lua_pushnumber(L, unit->GetMaxHealth());
         return 1;
     }
 
     // GetHealthPct()
     static int GetHealthPct(lua_State* L, Unit* unit)
     {
-        TO_PLAYER()
+        TO_UNIT();
 
-            lua_pushnumber(L, player->GetHealthPct());
+        lua_pushnumber(L, unit->GetHealthPct());
         return 1;
     }
 
     // GetPowerPct()
     static int GetPowerPct(lua_State* L, Unit* unit)
     {
-        TO_PLAYER()
+        TO_UNIT();
 
-            float percent = (player->GetPower(player->getPowerType())  / player->GetMaxPower(player->getPowerType())) * 100;
+        float percent = (unit->GetPower(unit->getPowerType())  / unit->GetMaxPower(unit->getPowerType())) * 100;
         lua_pushnumber(L, percent);
         return 1;
     }
@@ -272,28 +277,28 @@ public:
     // GetRace()
     static int GetRace(lua_State* L, Unit* unit)
     {
-        TO_PLAYER()
+        TO_UNIT();
 
-            lua_pushnumber(L, player->getRace());
+        lua_pushnumber(L, unit->getRace());
         return 1;
     }
 
     // GetClass() - returns numerical index of class
     static int GetClass(lua_State* L, Unit* unit)
     {
-        TO_PLAYER()
+        TO_UNIT();
 
-            lua_pushnumber(L, player->getClass());
+        lua_pushnumber(L, unit->getClass());
         return 1;
     }
 
     // GetClassAsString()
     static int GetClassAsString(lua_State* L, Unit* unit)
     {
-        TO_PLAYER()
+        TO_UNIT();
 
-            const char* str = NULL;
-        switch(player->getClass())
+        const char* str = NULL;
+        switch(unit->getClass())
         {
         case 1: { str = "Warrior"; break; }
         case 2: { str = "Paladin"; break; }
@@ -315,9 +320,9 @@ public:
     // GetItemCount(id)
     static int GetItemCount(lua_State* L, Unit* unit)
     {
-        TO_PLAYER()
+        TO_PLAYER();
 
-            int id = luaL_checknumber(L, 1);
+        int id = luaL_checknumber(L, 1);
         bool checkinBank = luaL_optnumber(L, 2, 0); // if 1, check in bank, otherwise don't
         lua_pushnumber(L, player->GetItemCount(id, checkinBank)); 
         return 1;
@@ -326,9 +331,14 @@ public:
     // GetUnitType()
     static int GetUnitType(lua_State* L, Unit* unit)
     {
-TO_PLAYER()
+        TO_UNIT();
 
-        lua_pushstring(L, "Player");
+        if(unit->ToPlayer())
+            lua_pushstring(L, "Player");
+        else if(unit->ToCreature())
+            lua_pushstring(L, "Player");
+        else
+            lua_pushstring(L, "Unknown");
         return 1;
     }
 
@@ -338,11 +348,11 @@ TO_PLAYER()
     // SetLevel(level)
     static int SetLevel(lua_State* L, Unit* unit)
     {
-        TO_PLAYER()
+        TO_UNIT();
 
-            int amt = luaL_checknumber(L, 1);
-        if((player->getLevel() + amt > 80) || amt < 1) // in case user supplies negative number
-            player->SetLevel(amt);
+        int amt = luaL_checknumber(L, 1);
+        if((unit->getLevel() + amt > 80) || amt < 1) // in case user supplies negative number
+            unit->SetLevel(amt);
         else
             luaL_error(L, "Got out of range value for :SetLevel(level).");
 
@@ -353,29 +363,29 @@ TO_PLAYER()
     // SetHealth(amount)
     static int SetHealth(lua_State* L, Unit* unit)
     {
-        TO_PLAYER()
+        TO_UNIT();
 
-            int amt = luaL_checknumber(L, 1);
-        player->SetHealth(amt);
+        int amt = luaL_checknumber(L, 1);
+        unit->SetHealth(amt);
         return 0;
     }
 
     // SetMaxHealth(amount)
     static int SetMaxHealth(lua_State* L, Unit* unit)
     {
-        TO_PLAYER()
+        TO_UNIT();
 
-            int amt = luaL_checknumber(L, 1);
-        player->SetMaxHealth(amt);
+        int amt = luaL_checknumber(L, 1);
+        unit->SetMaxHealth(amt);
         return 0;
     }
 
     // SetPower(powerType, amount)
     static int SetPower(lua_State* L, Unit* unit)
     {
-        TO_PLAYER()
+        TO_UNIT();
 
-            int type = luaL_checknumber(L, 1);
+        int type = luaL_checknumber(L, 1);
         if(type > POWER_RUNIC_POWER) 
         {
             luaL_error(L, "Bad argument #1 to SetPower - Out of bounds.");
@@ -387,16 +397,16 @@ TO_PLAYER()
         switch(type)
         {
         case POWER_MANA:
-            player->SetPower(POWER_MANA, amt);
+            unit->SetPower(POWER_MANA, amt);
             break;
         case POWER_RAGE:
-            player->SetPower(POWER_RAGE, amt);
+            unit->SetPower(POWER_RAGE, amt);
             break;
         case POWER_ENERGY:
-            player->SetPower(POWER_ENERGY, amt);
+            unit->SetPower(POWER_ENERGY, amt);
             break;
         case POWER_RUNIC_POWER:
-            player->SetPower(POWER_RUNIC_POWER, amt);
+            unit->SetPower(POWER_RUNIC_POWER, amt);
             break;
             // should add a "default" clause that breaks here
         }
@@ -406,9 +416,9 @@ TO_PLAYER()
     // SetMaxPower(Type, amt)
     static int SetMaxPower(lua_State* L, Unit* unit)
     {
-        TO_PLAYER()
+        TO_UNIT();
 
-            int type = luaL_checknumber(L, 1);
+        int type = luaL_checknumber(L, 1);
         if(type > POWER_RUNIC_POWER)
         {
             luaL_error(L, "Bad argument #1 to SetMaxPower - Out of bounds.");
@@ -419,16 +429,16 @@ TO_PLAYER()
         switch(type)
         {
         case POWER_MANA:
-            player->SetMaxPower(POWER_MANA, amt);
+            unit->SetMaxPower(POWER_MANA, amt);
             break;
         case POWER_RAGE:
-            player->SetMaxPower(POWER_RAGE, amt);
+            unit->SetMaxPower(POWER_RAGE, amt);
             break;
         case POWER_ENERGY:
-            player->SetMaxPower(POWER_ENERGY, amt);
+            unit->SetMaxPower(POWER_ENERGY, amt);
             break;
         case POWER_RUNIC_POWER:
-            player->SetMaxPower(POWER_RUNIC_POWER, amt);
+            unit->SetMaxPower(POWER_RUNIC_POWER, amt);
             break;
         }
         return 0;
@@ -437,19 +447,19 @@ TO_PLAYER()
     // SetDisplayID(id)
     static int SetDisplayID(lua_State* L, Unit* unit)
     {
-        TO_PLAYER()
+        TO_UNIT();
 
-            int model = luaL_checknumber(L, 1);
-        player->SetDisplayId(model);
+        int model = luaL_checknumber(L, 1);
+        unit->SetDisplayId(model);
         return 0;
     }
 
     // SetCoinage(amount)
     static int SetCoinage(lua_State* L, Unit* unit)
     {
-        TO_PLAYER()
+        TO_PLAYER();
 
-            int amt = luaL_checknumber(L, 1);
+        int amt = luaL_checknumber(L, 1);
         player->SetMoney(amt);
         return 0;
     }
@@ -457,9 +467,9 @@ TO_PLAYER()
     // SetKnownTitle(id)
     static int SetKnownTitle(lua_State* L, Unit* unit)
     {
-        TO_PLAYER()
+        TO_PLAYER();
 
-            int id = luaL_checknumber(L, 1);
+        int id = luaL_checknumber(L, 1);
         CharTitlesEntry const* t = sCharTitlesStore.LookupEntry(id);
         if(t != NULL)
             player->SetTitle(t, false);
@@ -469,9 +479,9 @@ TO_PLAYER()
     // UnsetKnownTitle(id)
     static int UnsetKnownTitle(lua_State* L, Unit* unit)
     {
-        TO_PLAYER()
+        TO_PLAYER();
 
-            int id = luaL_checknumber(L, 1);
+        int id = luaL_checknumber(L, 1);
         CharTitlesEntry const* t = sCharTitlesStore.LookupEntry(id);
         if(t != NULL)
             player->SetTitle(t, true);
@@ -484,98 +494,98 @@ TO_PLAYER()
     // IsInGroup()
     static int IsInGroup(lua_State* L, Unit* unit)
     {
-        TO_PLAYER()
+        TO_PLAYER();
 
-            lua_pushboolean(L, (player->GetGroup() != NULL));
+        lua_pushboolean(L, (player->GetGroup() != NULL));
         return 1;
     }
 
     // IsInGuild()
     static int IsInGuild(lua_State* L, Unit* unit)
     {
-        TO_PLAYER()
-            lua_pushboolean(L, (player->GetGuildId() != 0));
+        TO_PLAYER();
+        lua_pushboolean(L, (player->GetGuildId() != 0));
         return 1;
     }
 
     // IsGM()
     static int IsGM(lua_State* L, Unit* unit)
     {
-        TO_PLAYER()
+        TO_PLAYER();
 
-            lua_pushboolean(L, player->isGameMaster());
+        lua_pushboolean(L, player->isGameMaster());
         return 1;
     }
 
     // IsAlive()
     static int IsAlive(lua_State* L, Unit* unit)
     {			
-        TO_PLAYER()
+        TO_UNIT();
 
-            lua_pushboolean(L, player->isAlive());
+        lua_pushboolean(L, unit->isAlive());
         return 1;
     }
 
     // IsInWorld()
     static int IsInWorld(lua_State* L, Unit* unit)
     {			
-        TO_PLAYER()
+        TO_UNIT();
 
-            lua_pushboolean(L, player->IsInWorld());
+        lua_pushboolean(L, unit->IsInWorld());
         return 1;
     }
 
     // IsPvPFlagged()
     static int IsPvPFlagged(lua_State* L, Unit* unit)
     {			
-        TO_PLAYER()
+        TO_UNIT();
 
-            lua_pushboolean(L, player->IsPvP());
+        lua_pushboolean(L, unit->IsPvP());
         return 1;
     }
 
     // HasQuest(id)
     static int HasQuest(lua_State* L, Unit* unit)
     {			
-        TO_PLAYER()
+        TO_UNIT();
 
-            int questId = luaL_checknumber(L, 1);
-        lua_pushnumber(L, player->hasQuest(questId));
+        int questId = luaL_checknumber(L, 1);
+        lua_pushnumber(L, unit->hasQuest(questId));
         return 1;
     }
 
     // IsHorde()
     static int IsHorde(lua_State* L, Unit* unit)
     {
-        TO_PLAYER_BOOL()
+        TO_PLAYER_BOOL();
 
-            lua_pushboolean(L, (player->GetTeam() == HORDE));
+        lua_pushboolean(L, (player->GetTeam() == HORDE));
         return 1;
     }
 
     // IsAlliance()
     static int IsAlliance(lua_State* L, Unit* unit)
     {
-        TO_PLAYER_BOOL()
-            lua_pushboolean(L, (player->GetTeam() == ALLIANCE));
+        TO_PLAYER_BOOL();
+        lua_pushboolean(L, (player->GetTeam() == ALLIANCE));
         return 1;
     }
 
     // IsInCombat();
     static int IsInCombat(lua_State* L, Unit* unit)
     {
-        TO_PLAYER()
+        TO_UNIT();
 
-            lua_pushboolean(L, player->isInCombat());
+        lua_pushboolean(L, unit->isInCombat());
         return 1;
     }
 
     // HasTitle(id)
     static int HasTitle(lua_State* L, Unit* unit)
     {
-        TO_PLAYER()
+        TO_PLAYER();
 
-            int id = luaL_checknumber(L, 1);
+        int id = luaL_checknumber(L, 1);
         lua_pushboolean(L, player->HasTitle(id));
         return 1;
     }
@@ -583,10 +593,10 @@ TO_PLAYER()
     // HasSpell(id)
     static int HasSpell(lua_State* L, Unit* unit)
     {
-        TO_PLAYER()
+        TO_UNIT();
 
-            int id = luaL_checknumber(L, 1);
-        lua_pushboolean(L, player->HasSpell(id));
+        int id = luaL_checknumber(L, 1);
+        lua_pushboolean(L, unit->HasSpell(id));
         return 1;
     }
 
@@ -596,9 +606,9 @@ TO_PLAYER()
     // Teleport(mapid, x, y, z, o)
     static int Teleport(lua_State* L, Unit* unit)
     {
-        TO_PLAYER()
+        TO_PLAYER();
 
-            uint32 mapId = luaL_checknumber(L, 1);
+        uint32 mapId = luaL_checknumber(L, 1);
         float X = luaL_checknumber(L, 2);
         float Y = luaL_checknumber(L, 3);
         float Z = luaL_checknumber(L, 4);
@@ -610,9 +620,9 @@ TO_PLAYER()
     // AddItem(entry, amount)
     static int AddItem(lua_State* L, Unit* unit)
     {
-        TO_PLAYER()
+        TO_PLAYER();
 
-            int itemId = luaL_checknumber(L, 1);
+        int itemId = luaL_checknumber(L, 1);
         int itemCount = luaL_checknumber(L, 2);
         player->AddItem(itemId, itemCount);
         return 0;
@@ -621,9 +631,9 @@ TO_PLAYER()
     // RemoveItem(entry, amount)
     static int RemoveItem(lua_State* L, Unit* unit)
     {
-        TO_PLAYER()
+        TO_PLAYER();
 
-            int itemId = luaL_checknumber(L, 1);
+        int itemId = luaL_checknumber(L, 1);
         int itemCount = luaL_checknumber(L, 2);
 
         int cnt = player->GetItemCount(itemId);
@@ -641,9 +651,9 @@ TO_PLAYER()
     // SendBroadcastMessage(msg)
     static int SendBroadcastMessage(lua_State* L, Unit* unit)
     {
-        TO_PLAYER()
+        TO_PLAYER();
 
-            const char* message = luaL_checkstring(L, 1);
+        const char* message = luaL_checkstring(L, 1);
         if(std::string(message).length() > 0)
         {
             sWorld->SendServerMessage(SERVER_MSG_STRING, message, player);
@@ -654,9 +664,9 @@ TO_PLAYER()
     // GiveCoinage(amount)
     static int GiveCoinage(lua_State* L, Unit* unit)
     {
-        TO_PLAYER()
+        TO_PLAYER();
 
-            int amt = luaL_checknumber(L, 1);
+        int amt = luaL_checknumber(L, 1);
         if(player->GetMoney() + amt >= 2147483646) // prevent going over gold cap (which resets to 0)
         {
             player->SetMoney(2147483646);
@@ -670,9 +680,9 @@ TO_PLAYER()
     // RemoveCoinage(amount)
     static int RemoveCoinage(lua_State* L, Unit* unit)
     {
-        TO_PLAYER()
+        TO_PLAYER();
 
-            int amt = luaL_checknumber(L, 1);
+        int amt = luaL_checknumber(L, 1);
         if((player->GetMoney() == 0) || (player->GetMoney() - amt < 0)) // removing coinage from a player with 0 coinage makes us hit the gold cap
         {
             player->SetMoney(0);
@@ -686,9 +696,9 @@ TO_PLAYER()
     // LearnSpell(id)
     static int LearnSpell(lua_State* L, Unit* unit)
     {
-        TO_PLAYER()
+        TO_PLAYER();
 
-            int id = luaL_checknumber(L, 1);
+        int id = luaL_checknumber(L, 1);
         player->learnSpell(id,  false);
         return 0;
     }
@@ -696,9 +706,44 @@ TO_PLAYER()
     // DeMorph()
     static int DeMorph(lua_State* L, Unit* unit)
     {
-        TO_PLAYER()
+        TO_UNIT();
 
-            player->RestoreDisplayId();
+        unit->DeMorph();
+        return 0;
+    }
+
+    // GossipMenuAddItem(icon, msg, Intid, code, accept_decline_message, money)
+    static int GossipMenuAddItem(lua_State* L, Unit* unit)
+    {
+        TO_PLAYER();
+
+        int _icon = luaL_checknumber(L, 1);
+        const char* msg = luaL_checkstring(L, 2);
+        int _intid = luaL_checknumber(L, 3);
+        bool _code = luaL_optint(L, 4, false);
+        const char* _promptMsg = luaL_optstring(L, 5, "");
+        int _money = luaL_optint(L, 6, 0);
+
+        player->PlayerTalkClass->GetGossipMenu().AddMenuItem(-1, _icon, msg, GOSSIP_SENDER_MAIN, _intid, _promptMsg, _money, _code);
+        return 0;
+    }
+
+    // GossipComplete()
+    static int GossipComplete(lua_State* L, Unit* unit)
+    {
+        TO_PLAYER();
+
+        player->PlayerTalkClass->SendCloseGossip();
+        return 0;
+    }
+
+    // GossipSendMenu(npc_text, unit)
+    static int GossipSendMenu(lua_State* L, Unit* unit)
+    {
+        TO_PLAYER();
+
+        int _npcText = luaL_checknumber(L, 1);
+        player->PlayerTalkClass->SendGossipMenu(_npcText, player->GetGUID());
         return 0;
     }
 };

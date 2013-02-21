@@ -3,9 +3,9 @@
 */
 #pragma warning (disable:4006)
 #include "LuaEngine.h"
-#include "Chat.h"
+#include "GlobalMethods.h"
+#include "UnitMethods.h"
 #include "LuaFunctions.h"
-#include "Creature.h"
 
 Eluna* Eluna::LuaEngine = NULL; // give it a value
 ElunaScript* Eluna::Script = NULL;
@@ -95,7 +95,7 @@ void Eluna::LoadDirectory(char* Dirname, LoadedScripts* lscr)
         hFile = FindFirstFile(SearchName, &FindData);
 
                 // break if we don't find dir
-                if(hFile == NULL)
+                if(!hFile)
                 {
 						sLog->outError(LOG_FILTER_SERVER_LOADING, "Eluna Nova::No `scripts` directory found!");
                         return;
@@ -149,7 +149,7 @@ void Eluna::report(lua_State* L)
 /* Pushes */
 void Eluna::PushPlayer(lua_State* L, Player* player)
 { 
-    if(player != NULL)
+    if(player)
         ElunaTemplate<Player>::push(L, player);
     else
         lua_pushnil(L);
@@ -157,7 +157,7 @@ void Eluna::PushPlayer(lua_State* L, Player* player)
 
 void Eluna::PushCreature(lua_State* L, Creature* creature)
 { 
-    if(creature != NULL)
+    if(creature)
        ElunaTemplate<Creature>::push(L, creature);
     else
        lua_pushnil(L);
@@ -180,7 +180,7 @@ void Eluna::PushString(lua_State* L, const char* str)
 
 void Eluna::PushGroup(lua_State* L, Group* group)
 {
-    if(group != NULL)
+    if(group)
        ElunaTemplate<Group>::push(L, group);
     else
        lua_pushnil(L);
@@ -188,7 +188,7 @@ void Eluna::PushGroup(lua_State* L, Group* group)
 
 void Eluna::PushGuild(lua_State* L, Guild* pGuild)
 {
-    if(pGuild != NULL)
+    if(pGuild)
        ElunaTemplate<Guild>::push(L, pGuild);
     else
        lua_pushnil(L);
@@ -196,7 +196,7 @@ void Eluna::PushGuild(lua_State* L, Guild* pGuild)
 
 void Eluna::PushUnit(lua_State* L, Unit* unit)
 {
-    if(unit != NULL)
+    if(unit)
        ElunaTemplate<Unit>::push(L, unit);
     else
        lua_pushnil(L);
@@ -204,8 +204,8 @@ void Eluna::PushUnit(lua_State* L, Unit* unit)
 /*
 CreatureAI* Eluna::GetLuaCreatureAI(Creature* creature)
 {
-	if (!Eluna::get()->GetCreatureScript()->GetCreatureBindingForId(creature->GetEntry()))
-		return Eluna::get()->GetCreatureScript()->GetAI(creature);
+	if (GetCreatureScript()->GetCreatureBindingForId(creature->GetEntry()))
+		return GetCreatureScript()->GetAI(creature);
 	return NULL;
 }*/
 
@@ -217,7 +217,7 @@ static int RegisterPlayerEvent(lua_State* L)
         uint32 ev = luaL_checkint(L, 1);
         const char* typeName = luaL_typename(L, 2);
 
-        if (ev == 0 || typeName == NULL) return 0;
+        if (ev == 0 || !typeName) return 0;
 
         if(!strcmp(typeName, "function"))
                 functionRef = (uint16)lua_ref(L, true);
@@ -235,7 +235,7 @@ static int RegisterGossipEvent(lua_State* L)
         uint32 ev = luaL_checkint(L, 1);
         const char* typeName = luaL_typename(L, 2);
 
-        if (ev == 0 || typeName == NULL) return 0;
+        if (ev == 0 || !typeName) return 0;
 
         if(!strcmp(typeName, "function"))
                 functionRef = (uint16)lua_ref(L, true);
@@ -253,7 +253,7 @@ static int RegisterCreatureEvent(lua_State* L)
     uint32 entry = luaL_checkint(L, 1);
     uint32 evt  =luaL_checkint(L, 2);
     const char* typeName = luaL_typename(L, 3);
-    if(evt == 0 || typeName == NULL)
+    if(evt == 0 || !typeName)
         return 0;
 
     if (!strcmp(typeName, "function"))
@@ -270,10 +270,10 @@ void Eluna::Register(uint8 regtype, uint32 id, uint32 evt, uint16 functionRef)
     switch(regtype)
     {
         case REGTYPE_PLAYER:
-          if(evt < PLAYER_EVENT_COUNT)
-          {
+            if(evt < PLAYER_EVENT_COUNT)
+            {
                _playerEventBindings.at(evt).push_back(functionRef);
-          }
+            }
           break;
 
         case REGTYPE_GOSSIP:
