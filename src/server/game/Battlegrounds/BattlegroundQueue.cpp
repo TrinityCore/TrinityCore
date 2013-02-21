@@ -142,7 +142,7 @@ GroupQueueInfo* BattlegroundQueue::AddGroup(Player* leader, Group* grp, Battlegr
     ginfo->IsInvitedToBGInstanceGUID = 0;
     ginfo->JoinTime                  = getMSTime();
     ginfo->RemoveInviteTime          = 0;
-    ginfo->Team                      = leader->GetBGTeam();
+    ginfo->Team                      = leader->GetTeam();
     ginfo->ArenaTeamRating           = ArenaRating;
     ginfo->ArenaMatchmakerRating     = MatchmakerRating;
     ginfo->OpponentsTeamRating       = 0;
@@ -652,7 +652,7 @@ bool BattlegroundQueue::CheckNormalMatch(Battleground* bg_template, Battleground
     if (m_SelectionPools[TEAM_HORDE].GetPlayerCount() < m_SelectionPools[TEAM_ALLIANCE].GetPlayerCount())
         j = TEAM_HORDE;
     if (sWorld->getIntConfig(CONFIG_BATTLEGROUND_INVITATION_TYPE) != 0
-        && m_SelectionPools[TEAM_HORDE].GetPlayerCount() >= 1 || m_SelectionPools[TEAM_ALLIANCE].GetPlayerCount() >= 1)
+        && m_SelectionPools[TEAM_HORDE].GetPlayerCount() >= minPlayers && m_SelectionPools[TEAM_ALLIANCE].GetPlayerCount() >= minPlayers)
     {
         //we will try to invite more groups to team with less players indexed by j
         ++(itr_team[j]);                                         //this will not cause a crash, because for cycle above reached break;
@@ -663,10 +663,8 @@ bool BattlegroundQueue::CheckNormalMatch(Battleground* bg_template, Battleground
                     break;
         }
         // do not allow to start bg with more than 2 players more on 1 faction
-        if (abs((int32)(m_SelectionPools[TEAM_HORDE].GetPlayerCount() + m_SelectionPools[TEAM_ALLIANCE].GetPlayerCount())) > 3)
-            return true;
-		else
-			return false;
+        if (abs((int32)(m_SelectionPools[TEAM_HORDE].GetPlayerCount() - m_SelectionPools[TEAM_ALLIANCE].GetPlayerCount())) > 2)
+            return false;
     }
     //allow 1v0 if debug bg
     if (sBattlegroundMgr->isTesting() && bg_template->isBattleground() && (m_SelectionPools[TEAM_ALLIANCE].GetPlayerCount() || m_SelectionPools[TEAM_HORDE].GetPlayerCount()))

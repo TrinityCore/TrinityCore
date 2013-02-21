@@ -852,7 +852,6 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
             he->duel->opponent->CombatStopWithPets(true);
             he->CombatStopWithPets(true);
 
-            he->CastSpell(he, 43978, true);                  // beg
             he->CastSpell(he, 7267, true);                  // beg
             he->DuelComplete(DUEL_WON);
         }
@@ -2522,6 +2521,9 @@ SpellMissInfo Unit::MagicSpellHitResult(Unit* victim, SpellInfo const* spell)
             modHitChance -= int32(victim->ToPlayer()->GetRatingBonusValue(CR_HIT_TAKEN_SPELL));
     }
 
+	
+
+
     int32 HitChance = modHitChance * 100;
     // Increase hit chance from attacker SPELL_AURA_MOD_SPELL_HIT_CHANCE and attacker ratings
     HitChance += int32(m_modSpellHitChance * 100.0f);
@@ -2531,12 +2533,13 @@ SpellMissInfo Unit::MagicSpellHitResult(Unit* victim, SpellInfo const* spell)
     else if (HitChance > 10000)
         HitChance = 10000;
 
-    int32 tmp = 10000 - HitChance;
+	int32 tmp = 10000 - HitChance;
+       int32 rand;
+ 
+	    rand = irand(0, 10000);
 
-    int32 rand = irand(0, 10000);
-
-    if (rand < tmp)
-        return SPELL_MISS_MISS;
+  	if (rand < tmp && (!victim->GetTypeId() == TYPEID_PLAYER && modHitChance < 152))
+      return SPELL_MISS_MISS;
 
     // Spells with SPELL_ATTR3_IGNORE_HIT_RESULT will additionally fully ignore
     // resist and deflect chances

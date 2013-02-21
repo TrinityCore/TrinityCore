@@ -2849,7 +2849,7 @@ void Player::SetSpectate(bool on)
         uint32 morphs[8] = {25900, 18718, 29348, 22235, 30414, 736, 20582, 28213};
         SetDisplayId(morphs[urand(0, 7)]);
 
-        m_serverSideVisibility.SetValue(SERVERSIDE_VISIBILITY_GM, SEC_ADMINISTRATOR);
+        //m_serverSideVisibility.SetValue(SERVERSIDE_VISIBILITY_GM, SEC_ADMINISTRATOR); You can see rogue in Stealth (BUG?)
     }
     else
     {
@@ -2936,7 +2936,8 @@ void Player::SetGameMaster(bool on)
         CombatStopWithPets();
 
         SetPhaseMask(uint32(PHASEMASK_ANYWHERE), false);    // see and visible in all phases
-        m_serverSideVisibilityDetect.SetValue(SERVERSIDE_VISIBILITY_GM, GetSession()->GetSecurity());
+		 if (!isSpectator())
+            m_serverSideVisibilityDetect.SetValue(SERVERSIDE_VISIBILITY_GM, GetSession()->GetSecurity());
     }
     else
     {

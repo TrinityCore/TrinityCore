@@ -269,10 +269,10 @@ void Battleground::Update(uint32 diff)
             break;
         case STATUS_IN_PROGRESS:
             _ProcessOfflineQueue();
-            // after 47 minutes without one team losing, the arena closes with no winner and no rating change
+            // after 30 minutes without one team losing, the arena closes with no winner and no rating change
             if (isArena())
             {
-                if (GetStartTime() >= 47*MINUTE*IN_MILLISECONDS)
+                if (GetStartTime() >= 30*MINUTE*IN_MILLISECONDS)
                 {
                     UpdateArenaWorldState();
                     CheckArenaAfterTimerConditions();
@@ -1015,7 +1015,7 @@ void Battleground::RemovePlayerAtLeave(uint64 guid, bool Transport, bool SendPac
                 player->RemovePet(NULL, PET_SAVE_NOT_IN_SLOT);
                 player->ResummonPetTemporaryUnSummonedIfAny();
 
-                if (isRated() && GetStatus() == STATUS_IN_PROGRESS)
+                if (isRated())
                 {
                     //left a rated match while the encounter was in progress, consider as loser
                     ArenaTeam* winnerArenaTeam = sArenaTeamMgr->GetArenaTeamById(GetArenaTeamIdForTeam(GetOtherTeam(team)));
