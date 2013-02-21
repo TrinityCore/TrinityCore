@@ -8,6 +8,7 @@
 #include "GroupMethods.h"
 #include "GuildMethods.h"
 #include "LuaFunctions.h"
+#include "LuaCreatureAI.h"
 
 Eluna* Eluna::LuaEngine = NULL; // give it a value
 ElunaScript* Eluna::Script = NULL;
@@ -215,13 +216,13 @@ void Eluna::PushUnit(lua_State* L, Unit* unit)
     else
        lua_pushnil(L);
 }
-/*
+
 CreatureAI* Eluna::GetLuaCreatureAI(Creature* creature)
 {
 	if (GetCreatureScript()->GetCreatureBindingForId(creature->GetEntry()))
 		return GetCreatureScript()->GetAI(creature);
 	return NULL;
-}*/
+}
 
 // RegisterPlayerEvent(ev, func)
 static int RegisterPlayerEvent(lua_State* L)
@@ -296,5 +297,10 @@ void Eluna::Register(uint8 regtype, uint32 id, uint32 evt, uint16 functionRef)
                 _gossipEventBindings.at(evt).push_back(functionRef);
             }
             break;
+
+		case REGTYPE_CREATURE:
+			if (evt < CREATURE_EVENT_COUNT)
+				GetCreatureScript()->RegisterCreatureScript(id, evt, functionRef);
+			break;
     }
 }

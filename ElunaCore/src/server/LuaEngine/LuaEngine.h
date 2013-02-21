@@ -13,7 +13,6 @@
 #include <set>
 #include <hash_map>
 #include <map>
-#include "LuaCreatureAI.h"
 #include "Chat.h"
 #include "ScriptPCH.h"
 #include "ScriptMgr.h"
@@ -134,7 +133,7 @@ class Eluna
 		ElunaBindingMap _gossipEventBindings;
 		
 		vector<CreatureBind*> _creatureEventBindings;
-		static CreatureAI* GetLuaCreatureAI(Creature * creature);
+		static CreatureAI* GetLuaCreatureAI(Creature* creature);
 
 		static void InitTables()
 		{
@@ -433,8 +432,8 @@ class Eluna
 			{
 				private:
 					struct LuaCreatureAI;
-					static LuaCreatureScript* singleton;
 					vector<LuaCreatureAI*> _scriptsToClear;
+					static LuaCreatureScript* singleton;
 
 				public:
 					bool IsDatabaseBound() const { return false; }
@@ -442,11 +441,16 @@ class Eluna
 					LuaCreatureScript() : CreatureScript("luacreature")
 					{
 						_scriptsToClear = *(new vector<LuaCreatureAI*>());
-						singleton = this;
+						//singleton = this;
 					}
 
-					static LuaCreatureScript* GetSingleton() { return singleton; }
 					~LuaCreatureScript() { }
+
+					static LuaCreatureScript* GetSingleton() 
+					{ 
+						static LuaCreatureScript* singleton; // Wrong
+						return singleton; 
+					}
 
 					CreatureBind* GetCreatureBindingForId(int id)
 					{
@@ -489,13 +493,13 @@ class Eluna
 						if (!bind)
 							return NULL;
 
-						if (!Eluna::GetCreatureScript()->_scriptsToClear.empty())
-							for (vector<LuaCreatureAI*>::iterator itr = Eluna::GetCreatureScript()->_scriptsToClear.begin(); itr != Eluna::GetCreatureScript()->_scriptsToClear.end(); ++itr)
+						if (!GetCreatureScript()->_scriptsToClear.empty())
+							for (vector<LuaCreatureAI*>::iterator itr = GetCreatureScript()->_scriptsToClear.begin(); itr != GetCreatureScript()->_scriptsToClear.end(); ++itr)
 								if ((!(*itr)) && (*itr)->binding->entry == creature->GetEntry())
 									return (*itr);
 
 						LuaCreatureAI* luaCreatureAI = new LuaCreatureAI(creature);
-						Eluna::GetCreatureScript()->_scriptsToClear.push_back(luaCreatureAI);
+						GetCreatureScript()->_scriptsToClear.push_back(luaCreatureAI);
 						return luaCreatureAI;
 					}
 
@@ -503,7 +507,7 @@ class Eluna
 
 			static LuaCreatureScript* GetCreatureScript()
 			{
-				return Eluna::LuaCreatureScript::GetSingleton();
+				return LuaCreatureScript::GetSingleton();
 			}
 };
 
