@@ -215,6 +215,7 @@ class Eluna
 		void PushCreature(lua_State* L, Creature*);
         void PushLong(lua_State* L, uint64);
         void PushInteger(lua_State*, uint32);
+        void PushBoolean(lua_State*, bool b);
         void PushString(lua_State*, const char*);
         void PushGroup(lua_State*, Group*);
         void PushGuild(lua_State*, Guild*);

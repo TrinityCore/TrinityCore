@@ -173,6 +173,14 @@ void Eluna::PushInteger(lua_State* L, uint32 n)
     lua_pushinteger(L, n);
 }
 
+void Eluna::PushBoolean(lua_State* L, bool b)
+{
+    if(b)
+        lua_pushboolean(L, 1);
+    else
+        lua_pushboolean(L, 0);
+}
+
 void Eluna::PushString(lua_State* L, const char* str)
 {
     lua_pushstring(L, str);

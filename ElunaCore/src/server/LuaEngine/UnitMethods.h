@@ -16,7 +16,7 @@ public:
 
     // Get Methods
 
-    //GetCoinage()
+    //GetSelection()
     static int GetSelection(lua_State* L, Unit* unit)
     {
         TO_PLAYER();
