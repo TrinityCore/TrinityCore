@@ -170,8 +170,8 @@ public:
     {			
         TO_UNIT();
 
-        uint32 index = luaL_checkint(L, 1);
-        uint32 offset = luaL_checkint(L, 2);
+        uint32 index = luaL_checkunsigned(L, 1);
+        uint32 offset = luaL_checkunsigned(L, 2);
         Eluna::get()->PushUnsigned(L, unit->GetByteValue(index, offset));
         return 1;
     }
@@ -210,7 +210,7 @@ public:
         } 
 		else if (type >= POWER_ALL) 
 		{
-            luaL_error(L, "Bad argument #1 to :GetPower(index) - specified out of range index.");
+            luaL_error(L, "Bad argument #1 to :GetPower(index) - specified out of range index (%i)", type);
             return 0;
         }
 
@@ -283,7 +283,7 @@ public:
     {
         TO_UNIT();
 
-        float percent = (unit->GetPower(unit->getPowerType())  / unit->GetMaxPower(unit->getPowerType())) * 100;
+        float percent = (unit->GetPower(unit->getPowerType()) / unit->GetMaxPower(unit->getPowerType())) * 100;
         Eluna::get()->PushFloat(L, percent);
         return 1;
     }
