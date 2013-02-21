@@ -5,6 +5,8 @@
 #include "LuaEngine.h"
 #include "GlobalMethods.h"
 #include "UnitMethods.h"
+#include "GroupMethods.h"
+#include "GuildMethods.h"
 #include "LuaFunctions.h"
 
 Eluna* Eluna::LuaEngine = NULL; // give it a value
@@ -24,7 +26,6 @@ template<typename T> const char* GetTName() { return "UNK"; }
 template<> const char* GetTName<Unit>() { return "Unit"; }
 template<> const char* GetTName<Group>() { return "Group"; }
 template<> const char* GetTName<Guild>() { return "Guild"; }
-template<> const char* GetTName<Creature>() { return "Creature"; }
 template<> const char* GetTName<Log>() { return "Log"; }
 
 void Eluna::StartEluna()
@@ -40,8 +41,9 @@ void Eluna::StartEluna()
 	//Register Globals Here
 	RegisterGlobals(_luaState);
 	//Register Templates Here
-	ElunaTemplate<Creature>::Register(_luaState);
 	ElunaTemplate<Unit>::Register(_luaState);
+	ElunaTemplate<Group>::Register(_luaState);
+	ElunaTemplate<Guild>::Register(_luaState);
 
     uint32 cnt_uncomp = 0;
     char filename[200];
@@ -147,30 +149,19 @@ void Eluna::report(lua_State* L)
 }
 
 /* Pushes */
-void Eluna::PushPlayer(lua_State* L, Player* player)
-{ 
-    if(player)
-        ElunaTemplate<Player>::push(L, player);
-    else
-        lua_pushnil(L);
-}
-
-void Eluna::PushCreature(lua_State* L, Creature* creature)
-{ 
-    if(creature)
-       ElunaTemplate<Creature>::push(L, creature);
-    else
-       lua_pushnil(L);
-}
-
 void Eluna::PushLong(lua_State* L, uint64 l)
 {
     lua_pushinteger(L, l); 
 }
 
-void Eluna::PushInteger(lua_State* L, uint32 n)
+void Eluna::PushInteger(lua_State* L, int n)
 {
     lua_pushinteger(L, n);
+}
+
+void Eluna::PushUnsigned(lua_State* L, uint32 n)
+{
+    lua_pushunsigned(L, n);
 }
 
 void Eluna::PushBoolean(lua_State* L, bool b)

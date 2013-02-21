@@ -211,11 +211,10 @@ class Eluna
 		void RegisterGlobals(lua_State* L);
 		void LoadDirectory(char* directory, LoadedScripts* scr);
 		// Push
-		void PushPlayer(lua_State* L, Player* player);
-		void PushCreature(lua_State* L, Creature*);
-        void PushLong(lua_State* L, uint64);
-        void PushInteger(lua_State*, uint32);
-        void PushBoolean(lua_State*, bool b);
+        void PushLong(lua_State* L, uint64); // works as intended?
+        void PushInteger(lua_State*, int);
+        void PushUnsigned(lua_State*, uint32);
+        void PushBoolean(lua_State*, bool);
         void PushString(lua_State*, const char*);
         void PushGroup(lua_State*, Group*);
         void PushGuild(lua_State*, Guild*);

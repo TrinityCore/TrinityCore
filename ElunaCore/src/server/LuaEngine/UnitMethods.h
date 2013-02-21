@@ -1,14 +1,15 @@
-#ifndef UNITMETHODS_H
-#define UNITMETHODS_H
 #include "ScriptPCH.h"
 
-#define TO_PLAYER()      Player* player;     if(!unit || !unit->IsInWorld() || !(player = unit->ToPlayer()))     { return 0; }
-#define TO_CREATURE()    Creature* creature; if(!unit || !unit->IsInWorld() || !(creature = unit->ToCreature())) { return 0; }
-#define TO_UNIT()                            if(!unit || !unit->IsInWorld() || !unit->ToUnit())                  { return 0; }
+#ifndef UNITMETHODS_H
+#define UNITMETHODS_H
 
-#define TO_PLAYER_BOOL()      Player* player;     if(!unit || !unit->IsInWorld() || !(player = unit->ToPlayer()))     { lua_pushboolean(L, false); return 1; }
-#define TO_CREATURE_BOOL()    Creature* creature; if(!unit || !unit->IsInWorld() || !(creature = unit->ToCreature())) { lua_pushboolean(L, false); return 1; }
-#define TO_UNIT_BOOL()                            if(!unit || !unit->IsInWorld() || !unit->ToUnit())                  { lua_pushboolean(L, false); return 1; }
+#define TO_PLAYER()      Player* player;     if(!unit || !unit->IsInWorld() || !(player = unit->ToPlayer()))     { return 0; } else (void)0
+#define TO_CREATURE()    Creature* creature; if(!unit || !unit->IsInWorld() || !(creature = unit->ToCreature())) { return 0; } else (void)0
+#define TO_UNIT()                            if(!unit || !unit->IsInWorld() || !unit->ToUnit())                  { return 0; } else (void)0
+
+#define TO_PLAYER_BOOL()      Player* player;     if(!unit || !unit->IsInWorld() || !(player = unit->ToPlayer()))     { lua_pushboolean(L, false); return 1; } else (void)0
+#define TO_CREATURE_BOOL()    Creature* creature; if(!unit || !unit->IsInWorld() || !(creature = unit->ToCreature())) { lua_pushboolean(L, false); return 1; } else (void)0
+#define TO_UNIT_BOOL()                            if(!unit || !unit->IsInWorld() || !unit->ToUnit())                  { lua_pushboolean(L, false); return 1; } else (void)0
 
 class LuaUnit
 {
@@ -165,7 +166,7 @@ public:
     {			
         TO_UNIT();
 
-        lua_pushnumber(L, unit->GetGUID());
+        Eluna::get()->PushUnsigned(L, GUID_LOPART(unit->GetGUID()));
         return 1;
     }
 
@@ -339,6 +340,23 @@ public:
             lua_pushstring(L, "Player");
         else
             lua_pushstring(L, "Unknown");
+        return 1;
+    }
+
+    // GetGuild()
+    static int GetGuild(lua_State* L, Unit* unit)
+    {
+        TO_PLAYER();
+        
+        Eluna::get()->PushGuild(L, player->GetGuild());
+    }
+
+    // GetGroup()
+    static int GetGroup(lua_State* L, Unit* unit)
+    {
+        TO_PLAYER();
+
+        Eluna::get()->PushGroup(L, player->GetGroup());
         return 1;
     }
 

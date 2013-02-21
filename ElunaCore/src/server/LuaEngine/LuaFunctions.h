@@ -6,11 +6,13 @@ ElunaRegister<Unit> UnitMethods[] =
     // Player Methods
 
     // Getters
-    {"GetSelection", &LuaUnit::GetSelection},                           // :GetSelection()
+    {"GetSelection", &LuaUnit::GetSelection},                     // :GetSelection()
     {"GetGuildID", &LuaUnit::GetGuildID},                         // :GetGuildID() - nil on no guild.
     {"GetCoinage", &LuaUnit::GetCoinage},                         // :GetCoinage()
     {"GetTeam", &LuaUnit::GetTeam},                               // :GetTeam() - returns the player's team. 0 for ally, 1 for whored
     {"GetItemCount", &LuaUnit::GetItemCount},                     // :GetItemCount(item_id)
+    {"GetGroup", &LuaUnit::GetGroup},                             // :GetGroup()
+    {"GetGuild", &LuaUnit::GetGuild},                             // :GetGuild()
 
     // Setters
     {"SetCoinage", &LuaUnit::SetCoinage},                         // :SetCoinage(amount) - sets plr's coinage to this.
@@ -87,6 +89,41 @@ ElunaRegister<Unit> UnitMethods[] =
     { NULL, NULL },
 };
 
+ElunaRegister<Group> GroupMethods[] = {
+	// Getters
+	{"GetMembers", &LuaGroup::GetMembers},							// :GetMembers() - returns a table containing the *names* of the players in this group.
+	{"GetLeader", &LuaGroup::GetLeaderGUID},
+	{"GetLeader", &LuaGroup::GetLeader},
+	{"GetUnitType", &LuaGroup::GetUnitType},
+	{"GetGUID", &LuaGroup::GetGUID},
+
+	// Setters
+	{"SetLeader", &LuaGroup::ChangeLeader},							// :SetLeader(Player) - Sets the player as the new leader.
+
+	// Boolean
+	{"IsLeader", &LuaGroup::IsLeader},								// :IsLeader("name"/Player)
+	//{"HasRole", &LuaGroup::HasRole},								// :HasRole("name"/Player, "role") - "tank" / "healer" / "dps"
+
+	// Other
+
+	{NULL, NULL}
+};
+
+ElunaRegister<Guild> GuildMethods[] = {
+	// Getters
+	{"GetMembers", &LuaGuild::GetMembers},							// :GetMembers() - returns a table containing the players in this guild.
+	{"GetUnitType", &LuaGuild::GetUnitType},
+	{"GetLeaderGUID", &LuaGuild::GetLeaderGUID},
+	// Setters
+
+	// Boolean
+	
+	// Other
+	{NULL, NULL}
+};
+
 template<typename T> ElunaRegister<T>* GetMethodTable() { return NULL; }
-template <> ElunaRegister<Unit>* GetMethodTable<Unit>() { return UnitMethods; }
+template<> ElunaRegister<Unit>* GetMethodTable<Unit>() { return UnitMethods; }
+template<> ElunaRegister<Group>* GetMethodTable<Group>() { return GroupMethods; }
+template<> ElunaRegister<Guild>* GetMethodTable<Guild>() { return GuildMethods; }
 #endif
