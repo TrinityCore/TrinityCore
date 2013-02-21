@@ -17,14 +17,7 @@ file(GLOB sources_localdir *.cpp *.h)
 
 set(LuaEngine_STAT_SRCS
   ${LuaEngine_STAT_SRCS}
-  LuaEngine.cpp
-  LuaEngine.h
-  WorldMethods.h
-  LuaFunctions.h
-  LuaScript.h
-  LuaCreatureAI.h
-  GlobalMethods.h
-  PlayerMethods.h
+  ${sources_localdir}
 )
 
 include_directories(

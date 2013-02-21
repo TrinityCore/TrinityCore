@@ -212,7 +212,6 @@ add_library(game STATIC
 
 add_dependencies(game revision.h)
 add_dependencies(game lua)
-add_dependencies(game LuaEngine)
 
 target_link_libraries(game
  lua
