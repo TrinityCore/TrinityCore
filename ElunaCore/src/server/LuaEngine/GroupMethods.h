@@ -15,7 +15,7 @@ public:
         
 		lua_newtable(L);
 		int tbl = lua_gettop(L);
-		int i = 0;
+		uint32 i = 0;
         
         for (GroupReference* itr = group->GetFirstMember(); itr; itr = itr->next())
         {
@@ -24,8 +24,8 @@ public:
             if (!member || !member->GetSession())
                 continue;
 
-            i++;
-            lua_pushnumber(L, i);
+            ++i;
+            Eluna::get()->PushUnsigned(L, i);
             Eluna::get()->PushUnit(L, member);
             lua_settable(L, tbl);
         }
@@ -39,7 +39,7 @@ public:
         if(!group)
             return 0;
         
-        Eluna::get()->PushUnsigned(L, GUID_LOPART(group->GetLeaderGUID()));
+        Eluna::get()->PushGUID(L, group->GetLeaderGUID());
         return 1;
     }
 
@@ -66,14 +66,17 @@ public:
         if(!group)
             return 0;
 
-        Eluna::get()->PushUnsigned(L, GUID_LOPART(group->GetGUID()));
+        Eluna::get()->PushGUID(L, group->GetGUID());
         return 1;
     }
 
     static int ChangeLeader(lua_State* L, Group* group)
     {
         if(!group)
-            return 0;
+        {
+            Eluna::get()->PushBoolean(L, false);
+            return 1;
+        }
 
         Player* leader = Eluna::get()->CHECK_PLAYER(L, 1);
         if(leader)
@@ -90,7 +93,10 @@ public:
     static int IsLeader(lua_State* L, Group* group)
     {
         if(!group)
-            return 0;
+        {
+            Eluna::get()->PushBoolean(L, false);
+            return 1;
+        }
         
         Player* player = Eluna::get()->CHECK_PLAYER(L, 1);
         if(player)
