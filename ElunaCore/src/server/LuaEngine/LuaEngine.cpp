@@ -12,7 +12,7 @@ ElunaScript* Eluna::Script = NULL;
 
 void Eluna::Init()
 {
-	if (LuaEngine != NULL)
+	if (LuaEngine)
 		return;
 
 	LuaEngine = new Eluna;
@@ -37,11 +37,6 @@ void Eluna::StartEluna()
 	LoadedScripts _loadedScripts;
 	LoadDirectory("scripts", &_loadedScripts);
 	luaL_openlibs(_luaState);
-
-	for (ElunaCreatureBindingMap::iterator itr = _creatureEventBindings.begin(); itr != _creatureEventBindings.end(); ++itr)
-	{
-		_luaCreatureScripts.insert(make_pair(itr->first, (LuaCreature*)NULL));
-	}
 	//Register Globals Here
 	RegisterGlobals(_luaState);
 	//Register Templates Here
@@ -212,15 +207,12 @@ void Eluna::PushUnit(lua_State* L, Unit* unit)
     }
 }
 
-/*
 CreatureAI* Eluna::GetLuaCreatureAI(Creature* creature)
 {
-	if (GetCreatureScript()->GetCreatureBindingForId(creature->GetEntry()) != NULL)
-	{
-		return GetCreatureScript()->GetAI(creature);
-	}
+	if (!Eluna::get()->GetCreatureScript()->GetCreatureBindingForId(creature->GetEntry()))
+		return Eluna::get()->GetCreatureScript()->GetAI(creature);
 	return NULL;
-}*/
+}
 
 // RegisterPlayerEvent(ev, func)
 static int RegisterPlayerEvent(lua_State* L)
@@ -295,67 +287,5 @@ void Eluna::Register(uint8 regtype, uint32 id, uint32 evt, uint16 functionRef)
                 _gossipEventBindings.at(evt).push_back(functionRef);
             }
             break;
-
-        case REGTYPE_CREATURE:
-             if(id && evt && evt < CREATURE_EVENT_COUNT)
-             {
-				 CreatureBind * bind = GetCreatureBinding(id);
-				 if (bind == NULL)
-				 {
-					 CreatureBind _bind;
-					 memset(&_bind, 0, sizeof(CreatureBind));
-					 _bind._functionReferences[evt] = functionRef;
-					 _creatureEventBindings.insert(make_pair(id, _bind));
-				 }
-				 else
-				 {
-					 if (bind->_functionReferences[evt] > 0)
-						 luaL_unref(_luaState, LUA_REGISTRYINDEX, bind->_functionReferences[evt]);
-					 bind->_functionReferences[evt] = functionRef;
-				 }
-             }
-             break;
     }
-}
-
-class LuaCreature : public ScriptedAI
-{
-	public:
-		LuaCreature(Creature* creature) : ScriptedAI(creature), binding(NULL) 
-		{
-			binding = Eluna::get()->GetCreatureBinding(creature->GetEntry());
-		}
-
-		~LuaCreature() { }
-
-		inline void SetUnit(Creature* _creature) { me = _creature; }
-
-		void EnterCombat(Unit* target)
-		{
-			Eluna::get()->BeginCall(binding->_functionReferences[CREATURE_EVENT_ON_COMBAT]);
-			Eluna::get()->PushUnit(Eluna::get()->_luaState, me);
-			Eluna::get()->PushInteger(Eluna::get()->_luaState, CREATURE_EVENT_ON_COMBAT);
-			Eluna::get()->PushUnit(Eluna::get()->_luaState, target);
-			Eluna::get()->ExecuteCall(3, 0);
-		}
-		CreatureBind* binding;
-};
-
-ScriptedAI* CreateLuaCreature(Creature* creature)
-{
-	LuaCreature* script = NULL;
-	if (creature != NULL)
-	{
-		uint32 id = creature->GetEntry();
-		CreatureBind* binding = Eluna::get()->GetCreatureBinding(id);
-		if (binding != NULL)
-		{
-			typedef multimap<uint32, LuaCreature*> _map;
-			_map & luaMap = Eluna::get()->_luaCreatureScripts;
-			script = new LuaCreature(creature);
-			luaMap.insert(make_pair(id, script));
-			script->binding = binding;
-		}
-	}
-	return script;
 }
