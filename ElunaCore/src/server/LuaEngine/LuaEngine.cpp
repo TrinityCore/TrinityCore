@@ -149,19 +149,34 @@ void Eluna::report(lua_State* L)
 }
 
 /* Pushes */
-void Eluna::PushLong(lua_State* L, uint64 l)
+void Eluna::PushGUID(lua_State* L, uint64 g)
 {
-    lua_pushinteger(L, l); 
+    lua_pushunsigned(L, GUID_LOPART(g)); 
 }
 
-void Eluna::PushInteger(lua_State* L, int n)
+//void Eluna::PushLong(lua_State* L, uint64 l)
+//{
+//    lua_pushinteger(L, l); 
+//}
+
+void Eluna::PushInteger(lua_State* L, int i)
 {
-    lua_pushinteger(L, n);
+    lua_pushinteger(L, i);
 }
 
-void Eluna::PushUnsigned(lua_State* L, uint32 n)
+void Eluna::PushUnsigned(lua_State* L, uint32 u)
 {
-    lua_pushunsigned(L, n);
+    lua_pushunsigned(L, u);
+}
+
+void Eluna::PushFloat(lua_State* L, float f)
+{
+    lua_pushnumber(L, f);
+}
+
+void Eluna::PushDouble(lua_State* L, double d)
+{
+    lua_pushnumber(L, d);
 }
 
 void Eluna::PushBoolean(lua_State* L, bool b)

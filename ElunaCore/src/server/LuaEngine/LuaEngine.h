@@ -211,10 +211,13 @@ class Eluna
 		void RegisterGlobals(lua_State* L);
 		void LoadDirectory(char* directory, LoadedScripts* scr);
 		// Push
-        void PushLong(lua_State* L, uint64); // works as intended?
+        void PushGUID(lua_State*, uint64); // Gets GUIDLow (uint32)
+        //void PushLong(lua_State*, uint64); // works as intended?
         void PushInteger(lua_State*, int);
         void PushUnsigned(lua_State*, uint32);
         void PushBoolean(lua_State*, bool);
+        void PushFloat(lua_State*, float);
+        void PushDouble(lua_State*, double);
         void PushString(lua_State*, const char*);
         void PushGroup(lua_State*, Group*);
         void PushGuild(lua_State*, Guild*);
@@ -529,10 +532,10 @@ class ElunaScript : public ScriptObject
 				itr != Eluna::get()->_playerEventBindings.at(eventId).end(); itr++)
 			{
 				Eluna::get()->BeginCall((*itr));
-				Eluna::get()->PushInteger(Eluna::get()->_luaState, eventId);
+				Eluna::get()->PushUnsigned(Eluna::get()->_luaState, eventId);
 				Eluna::get()->PushUnit(Eluna::get()->_luaState, player);
-				Eluna::get()->PushInteger(Eluna::get()->_luaState, type);
-				Eluna::get()->PushInteger(Eluna::get()->_luaState, lang);
+				Eluna::get()->PushUnsigned(Eluna::get()->_luaState, type);
+				Eluna::get()->PushUnsigned(Eluna::get()->_luaState, lang);
 				Eluna::get()->PushString(Eluna::get()->_luaState, msg.c_str());
 				Eluna::get()->ExecuteCall(5, 0);
 			}
@@ -544,10 +547,10 @@ class ElunaScript : public ScriptObject
 				itr != Eluna::get()->_playerEventBindings.at(eventId).end(); itr++)
 			{
 				Eluna::get()->BeginCall((*itr));
-				Eluna::get()->PushInteger(Eluna::get()->_luaState, eventId);
+				Eluna::get()->PushUnsigned(Eluna::get()->_luaState, eventId);
 				Eluna::get()->PushUnit(Eluna::get()->_luaState, player);
-				Eluna::get()->PushInteger(Eluna::get()->_luaState, type);
-				Eluna::get()->PushInteger(Eluna::get()->_luaState, lang);
+				Eluna::get()->PushUnsigned(Eluna::get()->_luaState, type);
+				Eluna::get()->PushUnsigned(Eluna::get()->_luaState, lang);
 				Eluna::get()->PushString(Eluna::get()->_luaState, msg.c_str());
 				Eluna::get()->PushUnit(Eluna::get()->_luaState, receiver);
 				Eluna::get()->ExecuteCall(6, 0);
@@ -560,7 +563,7 @@ class ElunaScript : public ScriptObject
 				itr != Eluna::get()->_playerEventBindings.at(eventId).end(); itr++)
 			{
 				Eluna::get()->BeginCall((*itr));
-				Eluna::get()->PushInteger(Eluna::get()->_luaState, eventId);
+				Eluna::get()->PushUnsigned(Eluna::get()->_luaState, eventId);
 				Eluna::get()->PushUnit(Eluna::get()->_luaState, killer);
 				Eluna::get()->PushUnit(Eluna::get()->_luaState, victim);
 				Eluna::get()->ExecuteCall(3, 0);
@@ -573,9 +576,9 @@ class ElunaScript : public ScriptObject
 				itr != Eluna::get()->_playerEventBindings.at(eventId).end(); itr++)
 			{
 				Eluna::get()->BeginCall((*itr));
-				Eluna::get()->PushInteger(Eluna::get()->_luaState, eventId);
+				Eluna::get()->PushUnsigned(Eluna::get()->_luaState, eventId);
 				Eluna::get()->PushUnit(Eluna::get()->_luaState, player);
-				Eluna::get()->PushInteger(Eluna::get()->_luaState, oldLevel);
+				Eluna::get()->PushUnsigned(Eluna::get()->_luaState, oldLevel);
 				Eluna::get()->ExecuteCall(3, 0);
 			}
 		}
@@ -586,9 +589,9 @@ class ElunaScript : public ScriptObject
 				itr != Eluna::get()->_playerEventBindings.at(eventId).end(); itr++)
 			{
 				Eluna::get()->BeginCall((*itr));
-				Eluna::get()->PushInteger(Eluna::get()->_luaState, eventId);
+				Eluna::get()->PushUnsigned(Eluna::get()->_luaState, eventId);
 				Eluna::get()->PushUnit(Eluna::get()->_luaState, player);
-				Eluna::get()->PushInteger(Eluna::get()->_luaState, points);
+				Eluna::get()->PushUnsigned(Eluna::get()->_luaState, points);
 				Eluna::get()->ExecuteCall(3, 0);
 			}
 		}
@@ -599,7 +602,7 @@ class ElunaScript : public ScriptObject
                 itr != Eluna::get()->_playerEventBindings.at(eventId).end(); itr++)
             {
                 Eluna::get()->BeginCall((*itr));
-                Eluna::get()->PushInteger(Eluna::get()->_luaState, eventId);
+                Eluna::get()->PushUnsigned(Eluna::get()->_luaState, eventId);
                 Eluna::get()->PushUnit(Eluna::get()->_luaState, player);
                 Eluna::get()->PushUnit(Eluna::get()->_luaState, creature);
                 Eluna::get()->ExecuteCall(3, 0);
@@ -612,7 +615,7 @@ class ElunaScript : public ScriptObject
                 itr != Eluna::get()->_playerEventBindings.at(eventId).end(); itr++)
             {
                 Eluna::get()->BeginCall((*itr));
-                Eluna::get()->PushInteger(Eluna::get()->_luaState, eventId);
+                Eluna::get()->PushUnsigned(Eluna::get()->_luaState, eventId);
                 Eluna::get()->PushUnit(Eluna::get()->_luaState, creature);
                 Eluna::get()->PushUnit(Eluna::get()->_luaState, player);
                 Eluna::get()->ExecuteCall(3, 0);
@@ -625,7 +628,7 @@ class ElunaScript : public ScriptObject
                 itr != Eluna::get()->_playerEventBindings.at(eventId).end(); itr++)
             {
                 Eluna::get()->BeginCall((*itr));
-                Eluna::get()->PushInteger(Eluna::get()->_luaState, eventId);
+                Eluna::get()->PushUnsigned(Eluna::get()->_luaState, eventId);
                 Eluna::get()->PushUnit(Eluna::get()->_luaState, player);
                 Eluna::get()->PushBoolean(Eluna::get()->_luaState, noCost);
                 Eluna::get()->ExecuteCall(3, 0);
@@ -638,9 +641,9 @@ class ElunaScript : public ScriptObject
                 itr != Eluna::get()->_playerEventBindings.at(eventId).end(); itr++)
             {
                 Eluna::get()->BeginCall((*itr));
-                Eluna::get()->PushInteger(Eluna::get()->_luaState, eventId);
+                Eluna::get()->PushUnsigned(Eluna::get()->_luaState, eventId);
                 Eluna::get()->PushUnit(Eluna::get()->_luaState, player);
-                Eluna::get()->PushInteger(Eluna::get()->_luaState, amount);
+                Eluna::get()->PushUnsigned(Eluna::get()->_luaState, amount);
                 Eluna::get()->ExecuteCall(3, 0);
             }
         }
@@ -651,9 +654,9 @@ class ElunaScript : public ScriptObject
                 itr != Eluna::get()->_playerEventBindings.at(eventId).end(); itr++)
             {
                 Eluna::get()->BeginCall((*itr));
-                Eluna::get()->PushInteger(Eluna::get()->_luaState, eventId);
+                Eluna::get()->PushUnsigned(Eluna::get()->_luaState, eventId);
                 Eluna::get()->PushUnit(Eluna::get()->_luaState, player);
-                Eluna::get()->PushInteger(Eluna::get()->_luaState, amount);
+                Eluna::get()->PushUnsigned(Eluna::get()->_luaState, amount);
                 Eluna::get()->PushUnit(Eluna::get()->_luaState, victim);
                 Eluna::get()->ExecuteCall(4, 0);
             }
@@ -665,10 +668,10 @@ class ElunaScript : public ScriptObject
                 itr != Eluna::get()->_playerEventBindings.at(eventId).end(); itr++)
             {
                 Eluna::get()->BeginCall((*itr));
-                Eluna::get()->PushInteger(Eluna::get()->_luaState, eventId);
+                Eluna::get()->PushUnsigned(Eluna::get()->_luaState, eventId);
                 Eluna::get()->PushUnit(Eluna::get()->_luaState, player);
-                Eluna::get()->PushInteger(Eluna::get()->_luaState, factionID);
-                Eluna::get()->PushInteger(Eluna::get()->_luaState, standing);
+                Eluna::get()->PushUnsigned(Eluna::get()->_luaState, factionID);
+                Eluna::get()->PushUnsigned(Eluna::get()->_luaState, standing);
                 Eluna::get()->PushBoolean(Eluna::get()->_luaState, incremental);
                 Eluna::get()->ExecuteCall(5, 0);
             }
@@ -680,7 +683,7 @@ class ElunaScript : public ScriptObject
                 itr != Eluna::get()->_playerEventBindings.at(eventId).end(); itr++)
             {
                 Eluna::get()->BeginCall((*itr));
-                Eluna::get()->PushInteger(Eluna::get()->_luaState, eventId);
+                Eluna::get()->PushUnsigned(Eluna::get()->_luaState, eventId);
                 Eluna::get()->PushUnit(Eluna::get()->_luaState, target);
                 Eluna::get()->PushUnit(Eluna::get()->_luaState, challenger);
                 Eluna::get()->ExecuteCall(3, 0);
@@ -693,7 +696,7 @@ class ElunaScript : public ScriptObject
                 itr != Eluna::get()->_playerEventBindings.at(eventId).end(); itr++)
             {
                 Eluna::get()->BeginCall((*itr));
-                Eluna::get()->PushInteger(Eluna::get()->_luaState, eventId);
+                Eluna::get()->PushUnsigned(Eluna::get()->_luaState, eventId);
                 Eluna::get()->PushUnit(Eluna::get()->_luaState, player1);
                 Eluna::get()->PushUnit(Eluna::get()->_luaState, player2);
                 Eluna::get()->ExecuteCall(3, 0);
@@ -706,7 +709,7 @@ class ElunaScript : public ScriptObject
                 itr != Eluna::get()->_playerEventBindings.at(eventId).end(); itr++)
             {
                 Eluna::get()->BeginCall((*itr));
-                Eluna::get()->PushInteger(Eluna::get()->_luaState, eventId);
+                Eluna::get()->PushUnsigned(Eluna::get()->_luaState, eventId);
                 Eluna::get()->PushUnit(Eluna::get()->_luaState, winner);
                 Eluna::get()->PushUnit(Eluna::get()->_luaState, loser);
                 Eluna::get()->PushInteger(Eluna::get()->_luaState, type);
@@ -720,9 +723,9 @@ class ElunaScript : public ScriptObject
                 itr != Eluna::get()->_playerEventBindings.at(eventId).end(); itr++)
             {
                 Eluna::get()->BeginCall((*itr));
-                Eluna::get()->PushInteger(Eluna::get()->_luaState, eventId);
+                Eluna::get()->PushUnsigned(Eluna::get()->_luaState, eventId);
                 Eluna::get()->PushUnit(Eluna::get()->_luaState, player);
-                Eluna::get()->PushInteger(Eluna::get()->_luaState, emote);
+                Eluna::get()->PushUnsigned(Eluna::get()->_luaState, emote);
                 Eluna::get()->ExecuteCall(3, 0);
             }
         }
@@ -733,7 +736,7 @@ class ElunaScript : public ScriptObject
                 itr != Eluna::get()->_playerEventBindings.at(eventId).end(); itr++)
             {
                 Eluna::get()->BeginCall((*itr));
-                Eluna::get()->PushInteger(Eluna::get()->_luaState, eventId);
+                Eluna::get()->PushUnsigned(Eluna::get()->_luaState, eventId);
                 Eluna::get()->PushUnit(Eluna::get()->_luaState, player);
                 Eluna::get()->ExecuteCall(2, 0);
             }
@@ -745,7 +748,7 @@ class ElunaScript : public ScriptObject
                 itr != Eluna::get()->_playerEventBindings.at(eventId).end(); itr++)
             {
                 Eluna::get()->BeginCall((*itr));
-                Eluna::get()->PushInteger(Eluna::get()->_luaState, eventId);
+                Eluna::get()->PushUnsigned(Eluna::get()->_luaState, eventId);
                 Eluna::get()->PushUnit(Eluna::get()->_luaState, player);
                 Eluna::get()->ExecuteCall(2, 0);
             }
@@ -757,7 +760,7 @@ class ElunaScript : public ScriptObject
                 itr != Eluna::get()->_playerEventBindings.at(eventId).end(); itr++)
             {
                 Eluna::get()->BeginCall((*itr));
-                Eluna::get()->PushInteger(Eluna::get()->_luaState, eventId);
+                Eluna::get()->PushUnsigned(Eluna::get()->_luaState, eventId);
                 Eluna::get()->PushUnit(Eluna::get()->_luaState, player);
                 Eluna::get()->ExecuteCall(2, 0);
             }
@@ -769,7 +772,7 @@ class ElunaScript : public ScriptObject
                 itr != Eluna::get()->_playerEventBindings.at(eventId).end(); itr++)
             {
                 Eluna::get()->BeginCall((*itr));
-                Eluna::get()->PushInteger(Eluna::get()->_luaState, eventId);
+                Eluna::get()->PushUnsigned(Eluna::get()->_luaState, eventId);
                 Eluna::get()->PushUnit(Eluna::get()->_luaState, player);
                 Eluna::get()->ExecuteCall(2, 0);
             }
@@ -781,10 +784,10 @@ class ElunaScript : public ScriptObject
                 itr != Eluna::get()->_playerEventBindings.at(eventId).end(); itr++)
             {
                 Eluna::get()->BeginCall((*itr));
-                Eluna::get()->PushInteger(Eluna::get()->_luaState, eventId);
+                Eluna::get()->PushUnsigned(Eluna::get()->_luaState, eventId);
                 Eluna::get()->PushUnit(Eluna::get()->_luaState, player);
                 Eluna::get()->PushInteger(Eluna::get()->_luaState, difficulty);
-                Eluna::get()->PushInteger(Eluna::get()->_luaState, mapid);
+                Eluna::get()->PushUnsigned(Eluna::get()->_luaState, mapid);
                 Eluna::get()->PushBoolean(Eluna::get()->_luaState, permanent);
                 Eluna::get()->ExecuteCall(5, 0);
             }
@@ -796,10 +799,10 @@ class ElunaScript : public ScriptObject
                 itr != Eluna::get()->_playerEventBindings.at(eventId).end(); itr++)
             {
                 Eluna::get()->BeginCall((*itr));
-                Eluna::get()->PushInteger(Eluna::get()->_luaState, eventId);
+                Eluna::get()->PushUnsigned(Eluna::get()->_luaState, eventId);
                 Eluna::get()->PushUnit(Eluna::get()->_luaState, player);
-                Eluna::get()->PushInteger(Eluna::get()->_luaState, newZone);
-                Eluna::get()->PushInteger(Eluna::get()->_luaState, newArea);
+                Eluna::get()->PushUnsigned(Eluna::get()->_luaState, newZone);
+                Eluna::get()->PushUnsigned(Eluna::get()->_luaState, newArea);
                 Eluna::get()->ExecuteCall(4, 0);
             }
         }
@@ -812,7 +815,7 @@ class ElunaScript : public ScriptObject
 			{
                 player->PlayerTalkClass->ClearMenus();
 				Eluna::get()->BeginCall((*itr));
-				Eluna::get()->PushInteger(Eluna::get()->_luaState, eventId);
+				Eluna::get()->PushUnsigned(Eluna::get()->_luaState, eventId);
 				Eluna::get()->PushUnit(Eluna::get()->_luaState, player);
 				Eluna::get()->PushUnit(Eluna::get()->_luaState, creature);
 				Eluna::get()->ExecuteCall(3, 0);
@@ -830,11 +833,11 @@ class ElunaScript : public ScriptObject
 			{
                 // player->PlayerTalkClass->ClearMenus();
 				Eluna::get()->BeginCall((*itr));
-				Eluna::get()->PushInteger(Eluna::get()->_luaState, eventId);
+				Eluna::get()->PushUnsigned(Eluna::get()->_luaState, eventId);
 				Eluna::get()->PushUnit(Eluna::get()->_luaState, player);
 				Eluna::get()->PushUnit(Eluna::get()->_luaState, creature);
-				Eluna::get()->PushInteger(Eluna::get()->_luaState, sender);
-				Eluna::get()->PushInteger(Eluna::get()->_luaState, actions);
+				Eluna::get()->PushUnsigned(Eluna::get()->_luaState, sender);
+				Eluna::get()->PushUnsigned(Eluna::get()->_luaState, actions);
 				Eluna::get()->ExecuteCall(5, 0);
                 if(!HadScript)
                     HadScript = true;
@@ -850,11 +853,11 @@ class ElunaScript : public ScriptObject
 			{
                 // player->PlayerTalkClass->ClearMenus();
 				Eluna::get()->BeginCall((*itr));
-				Eluna::get()->PushInteger(Eluna::get()->_luaState, eventId);
+				Eluna::get()->PushUnsigned(Eluna::get()->_luaState, eventId);
 				Eluna::get()->PushUnit(Eluna::get()->_luaState, player);
 				Eluna::get()->PushUnit(Eluna::get()->_luaState, creature);
-				Eluna::get()->PushInteger(Eluna::get()->_luaState, sender);
-				Eluna::get()->PushInteger(Eluna::get()->_luaState, actions);
+				Eluna::get()->PushUnsigned(Eluna::get()->_luaState, sender);
+                Eluna::get()->PushUnsigned(Eluna::get()->_luaState, actions);
 				Eluna::get()->PushString(Eluna::get()->_luaState, code);
 				Eluna::get()->ExecuteCall(6, 0);
                 if(!HadScript)
