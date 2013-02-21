@@ -719,10 +719,10 @@ public:
         int _icon = luaL_checknumber(L, 1);
         const char* msg = luaL_checkstring(L, 2);
         int _sender = luaL_checknumber(L, 3);
-        int _intid = luaL_checknumber(L, 3);
-        bool _code = luaL_optint(L, 4, false);
-        const char* _promptMsg = luaL_optstring(L, 5, "");
-        int _money = luaL_optint(L, 6, 0);
+        int _intid = luaL_checknumber(L, 4);
+        bool _code = luaL_optint(L, 5, false);
+        const char* _promptMsg = luaL_optstring(L, 6, "");
+        int _money = luaL_optint(L, 7, 0);
 
         player->ADD_GOSSIP_ITEM_EXTENDED(_icon, msg, _sender, _intid, _promptMsg, _money, _code);
         return 0;

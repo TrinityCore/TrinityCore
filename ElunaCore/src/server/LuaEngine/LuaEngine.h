@@ -595,6 +595,7 @@ class ElunaScript : public ScriptObject
 
 		bool OnGossipHello(uint32 eventId, Player* player, Creature* creature)
 		{
+            bool HadScript = false;
 			for (vector<uint16>::iterator itr = Eluna::get()->_gossipEventBindings.at(eventId).begin();
 				itr != Eluna::get()->_gossipEventBindings.at(eventId).end(); itr++)
 			{
@@ -604,16 +605,19 @@ class ElunaScript : public ScriptObject
 				Eluna::get()->PushUnit(Eluna::get()->_luaState, player);
 				Eluna::get()->PushUnit(Eluna::get()->_luaState, creature);
 				Eluna::get()->ExecuteCall(3, 0);
+                if(!HadScript)
+                    HadScript = true;
 			}
-			return true;
+			return HadScript;
 		}
 
 		bool OnGossipSelect(uint32 eventId, Player* player, Creature* creature, uint32 sender, uint32 actions)
 		{
+            bool HadScript = false;
 			for (vector<uint16>::iterator itr = Eluna::get()->_gossipEventBindings.at(eventId).begin();
 				itr != Eluna::get()->_gossipEventBindings.at(eventId).end(); itr++)
 			{
-                player->PlayerTalkClass->ClearMenus();
+                // player->PlayerTalkClass->ClearMenus();
 				Eluna::get()->BeginCall((*itr));
 				Eluna::get()->PushInteger(Eluna::get()->_luaState, eventId);
 				Eluna::get()->PushUnit(Eluna::get()->_luaState, player);
@@ -621,16 +625,19 @@ class ElunaScript : public ScriptObject
 				Eluna::get()->PushInteger(Eluna::get()->_luaState, sender);
 				Eluna::get()->PushInteger(Eluna::get()->_luaState, actions);
 				Eluna::get()->ExecuteCall(5, 0);
+                if(!HadScript)
+                    HadScript = true;
 			}
-			return true;
+			return HadScript;
 		}
 
 		bool OnGossipSelectCode(uint32 eventId, Player* player, Creature* creature, uint32 sender, uint32 actions, const char* code)
 		{
+            bool HadScript = false;
 			for (vector<uint16>::iterator itr = Eluna::get()->_gossipEventBindings.at(eventId).begin();
 				itr != Eluna::get()->_gossipEventBindings.at(eventId).end(); itr++)
 			{
-                player->PlayerTalkClass->ClearMenus();
+                // player->PlayerTalkClass->ClearMenus();
 				Eluna::get()->BeginCall((*itr));
 				Eluna::get()->PushInteger(Eluna::get()->_luaState, eventId);
 				Eluna::get()->PushUnit(Eluna::get()->_luaState, player);
@@ -639,8 +646,10 @@ class ElunaScript : public ScriptObject
 				Eluna::get()->PushInteger(Eluna::get()->_luaState, actions);
 				Eluna::get()->PushString(Eluna::get()->_luaState, code);
 				Eluna::get()->ExecuteCall(6, 0);
+                if(!HadScript)
+                    HadScript = true;
 			}
-			return true;
+			return HadScript;
 		}
 };
 #endif
