@@ -3,20 +3,18 @@
 #ifndef UNITMETHODS_H
 #define UNITMETHODS_H
 
-#define TO_PLAYER()      Player* player;     if(!unit || !unit->IsInWorld() || !(player = unit->ToPlayer()))     { return 0; } else (void)0
-#define TO_CREATURE()    Creature* creature; if(!unit || !unit->IsInWorld() || !(creature = unit->ToCreature())) { return 0; } else (void)0
-#define TO_UNIT()                            if(!unit || !unit->IsInWorld() || !unit->ToUnit())                  { return 0; } else (void)0
+#define TO_PLAYER()  Player* player; if(!unit || !unit->IsInWorld() || !(player = unit->ToPlayer()))     { return 0; } else (void)0
+#define TO_CREATURE()  Creature* creature; if(!unit || !unit->IsInWorld() || !(creature = unit->ToCreature())) { return 0; } else (void)0
+#define TO_UNIT()  if(!unit || !unit->IsInWorld() || !unit->ToUnit())  { return 0; } else (void)0
 
-#define TO_PLAYER_BOOL()      Player* player;     if(!unit || !unit->IsInWorld() || !(player = unit->ToPlayer()))     { lua_pushboolean(L, false); return 1; } else (void)0
-#define TO_CREATURE_BOOL()    Creature* creature; if(!unit || !unit->IsInWorld() || !(creature = unit->ToCreature())) { lua_pushboolean(L, false); return 1; } else (void)0
-#define TO_UNIT_BOOL()                            if(!unit || !unit->IsInWorld() || !unit->ToUnit())                  { lua_pushboolean(L, false); return 1; } else (void)0
+#define TO_PLAYER_BOOL()  Player* player;  if(!unit || !unit->IsInWorld() || !(player = unit->ToPlayer()))     { lua_pushboolean(L, false); return 1; } else (void)0
+#define TO_CREATURE_BOOL()  Creature* creature; if(!unit || !unit->IsInWorld() || !(creature = unit->ToCreature())) { lua_pushboolean(L, false); return 1; } else (void)0
+#define TO_UNIT_BOOL() if(!unit || !unit->IsInWorld() || !unit->ToUnit()) { lua_pushboolean(L, false); return 1; } else (void)0
 
 class LuaUnit
 {
 public:
-
     // Get Methods
-
     //GetSelection()
     static int GetSelection(lua_State* L, Unit* unit)
     {
@@ -76,7 +74,7 @@ public:
     {
         TO_PLAYER();
 
-        if(player->GetGuildId() == NULL || player->GetGuildId() == 0)
+        if(!player->GetGuildId()|| player->GetGuildId() == 0)
         {
             lua_pushnil(L);
             return 1;
@@ -191,21 +189,30 @@ public:
             // We didn't specify a type, so get the default type for our class
             switch(unit->getClass())
             {
-            case 1: { type = POWER_RAGE; break; }
-            case 4: { type = POWER_ENERGY; break; }
-            case 6: { type = POWER_RUNIC_POWER; break; }
-            case 2:
-            case 3:
-            case 5:
-            case 7:
-            case 8:
-            case 9:
-            case 11:
-                { type = POWER_MANA; break; }
-            default:
-                type = POWER_MANA;
+				case 1: 
+					type = POWER_RAGE; 
+					break;
+				case 4: 
+					type = POWER_ENERGY; 
+					break;
+				case 6: 
+					type = POWER_RUNIC_POWER; 
+					break;
+				case 2:
+				case 3:
+				case 5:
+				case 7:
+				case 8:
+				case 9:
+				case 11:
+					type = POWER_MANA; 
+					break;
+				default:
+					type = POWER_MANA;
             }
-        } else if (type >= POWER_ALL) {
+        } 
+		else if (type >= POWER_ALL) 
+		{
             luaL_error(L, "Bad argument #1 to :GetPower(index) - specified out of range index.");
             return 0;
         }
@@ -224,21 +231,30 @@ public:
             // We didn't specify a type, so get the default type for our class
             switch(unit->getClass())
             {
-            case 1: { type = POWER_RAGE; break; }
-            case 4: { type = POWER_ENERGY; break; }
-            case 6: { type = POWER_RUNIC_POWER; break; }
-            case 2:
-            case 3:
-            case 5:
-            case 7:
-            case 8:
-            case 9:
-            case 11:
-                { type = POWER_MANA; break; }
-            default:
-                type = POWER_MANA;
+				case 1: 
+					type = POWER_RAGE; 
+					break;
+				case 4: 
+					type = POWER_ENERGY; 
+					break;
+				case 6: 
+					type = POWER_RUNIC_POWER; 
+					break;
+				case 2:
+				case 3:
+				case 5:
+				case 7:
+				case 8:
+				case 9:
+				case 11:
+					type = POWER_MANA; 
+					break;
+				default:
+					type = POWER_MANA;
             }
-        } else if (type >= POWER_ALL) {
+        } 
+		else if (type >= POWER_ALL) 
+		{
             luaL_error(L, "Bad argument #1 to :GetMaxPower(index) - specified out of range index.");
             return 0;
         }
@@ -301,17 +317,39 @@ public:
         const char* str = NULL;
         switch(unit->getClass())
         {
-        case 1: { str = "Warrior"; break; }
-        case 2: { str = "Paladin"; break; }
-        case 3: { str = "Hunter"; break; }
-        case 4:	{ str = "Rogue"; break; }
-        case 5:	{ str = "Priest"; break; }
-        case 6:	{ str = "DeathKnight"; break; }
-        case 7:	{ str = "Shaman"; break; }
-        case 8:	{ str = "Mage"; break; }
-        case 9:	{ str = "Warlock"; break; }
-        case 11:{ str = "Druid"; break; }
-        default:{ str = "NULL"; break; }
+			case 1: 
+				str = "Warrior"; 
+				break;
+			case 2: 
+				str = "Paladin"; 
+				break;
+			case 3: 
+				str = "Hunter"; 
+				break;
+			case 4:	
+				str = "Rogue"; 
+				break;
+			case 5:	
+				str = "Priest"; 
+				break;
+			case 6:	
+				str = "DeathKnight"; 
+				break;
+			case 7:	
+				str = "Shaman"; 
+				break;
+			case 8:	
+				str = "Mage"; 
+				break;
+			case 9:	
+				str = "Warlock"; 
+				break;
+			case 11:
+				str = "Druid"; 
+				break;
+			default:
+				str = "NULL"; 
+				break;
         }
 
         lua_pushstring(L, str);
@@ -349,6 +387,7 @@ public:
         TO_PLAYER();
         
         Eluna::get()->PushGuild(L, player->GetGuild());
+		return 1;
     }
 
     // GetGroup()
@@ -359,10 +398,7 @@ public:
         Eluna::get()->PushGroup(L, player->GetGroup());
         return 1;
     }
-
-
     // Set Methods
-
     // SetLevel(level)
     static int SetLevel(lua_State* L, Unit* unit)
     {
@@ -413,19 +449,19 @@ public:
 
         switch(type)
         {
-        case POWER_MANA:
-            unit->SetPower(POWER_MANA, amt);
-            break;
-        case POWER_RAGE:
-            unit->SetPower(POWER_RAGE, amt);
-            break;
-        case POWER_ENERGY:
-            unit->SetPower(POWER_ENERGY, amt);
-            break;
-        case POWER_RUNIC_POWER:
-            unit->SetPower(POWER_RUNIC_POWER, amt);
-            break;
-            // should add a "default" clause that breaks here
+			case POWER_MANA:
+				unit->SetPower(POWER_MANA, amt);
+				break;
+			case POWER_RAGE:
+				unit->SetPower(POWER_RAGE, amt);
+				break;
+			case POWER_ENERGY:
+				unit->SetPower(POWER_ENERGY, amt);
+				break;
+			case POWER_RUNIC_POWER:
+				unit->SetPower(POWER_RUNIC_POWER, amt);
+				break;
+				// should add a "default" clause that breaks here
         }
         return 0;
     }
