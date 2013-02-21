@@ -598,6 +598,7 @@ class ElunaScript : public ScriptObject
 			for (vector<uint16>::iterator itr = Eluna::get()->_gossipEventBindings.at(eventId).begin();
 				itr != Eluna::get()->_gossipEventBindings.at(eventId).end(); itr++)
 			{
+                player->PlayerTalkClass->ClearMenus();
 				Eluna::get()->BeginCall((*itr));
 				Eluna::get()->PushInteger(Eluna::get()->_luaState, eventId);
 				Eluna::get()->PushUnit(Eluna::get()->_luaState, player);
@@ -612,6 +613,7 @@ class ElunaScript : public ScriptObject
 			for (vector<uint16>::iterator itr = Eluna::get()->_gossipEventBindings.at(eventId).begin();
 				itr != Eluna::get()->_gossipEventBindings.at(eventId).end(); itr++)
 			{
+                player->PlayerTalkClass->ClearMenus();
 				Eluna::get()->BeginCall((*itr));
 				Eluna::get()->PushInteger(Eluna::get()->_luaState, eventId);
 				Eluna::get()->PushUnit(Eluna::get()->_luaState, player);
@@ -628,6 +630,7 @@ class ElunaScript : public ScriptObject
 			for (vector<uint16>::iterator itr = Eluna::get()->_gossipEventBindings.at(eventId).begin();
 				itr != Eluna::get()->_gossipEventBindings.at(eventId).end(); itr++)
 			{
+                player->PlayerTalkClass->ClearMenus();
 				Eluna::get()->BeginCall((*itr));
 				Eluna::get()->PushInteger(Eluna::get()->_luaState, eventId);
 				Eluna::get()->PushUnit(Eluna::get()->_luaState, player);

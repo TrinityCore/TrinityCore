@@ -350,12 +350,11 @@ public:
     {
         TO_UNIT();
 
-        int amt = luaL_checknumber(L, 1);
-        if((unit->getLevel() + amt > 80) || amt < 1) // in case user supplies negative number
-            unit->SetLevel(amt);
+        int newLevel = luaL_checknumber(L, 1);
+        if(newLevel >= 1 || newLevel <= 255)
+            unit->SetLevel(newLevel);
         else
             luaL_error(L, "Got out of range value for :SetLevel(level).");
-
 
         return 0;
     }
@@ -719,12 +718,13 @@ public:
 
         int _icon = luaL_checknumber(L, 1);
         const char* msg = luaL_checkstring(L, 2);
+        int _sender = luaL_checknumber(L, 3);
         int _intid = luaL_checknumber(L, 3);
         bool _code = luaL_optint(L, 4, false);
         const char* _promptMsg = luaL_optstring(L, 5, "");
         int _money = luaL_optint(L, 6, 0);
 
-        player->PlayerTalkClass->GetGossipMenu().AddMenuItem(-1, _icon, msg, GOSSIP_SENDER_MAIN, _intid, _promptMsg, _money, _code);
+        player->ADD_GOSSIP_ITEM_EXTENDED(_icon, msg, _sender, _intid, _promptMsg, _money, _code);
         return 0;
     }
 
@@ -733,7 +733,7 @@ public:
     {
         TO_PLAYER();
 
-        player->PlayerTalkClass->SendCloseGossip();
+        player->CLOSE_GOSSIP_MENU();
         return 0;
     }
 
@@ -741,9 +741,10 @@ public:
     static int GossipSendMenu(lua_State* L, Unit* unit)
     {
         TO_PLAYER();
-
+        
         int _npcText = luaL_checknumber(L, 1);
-        player->PlayerTalkClass->SendGossipMenu(_npcText, player->GetGUID());
+        Unit* sender = Eluna::get()->CHECK_UNIT(L, 2);
+        player->SEND_GOSSIP_MENU(_npcText, sender->GetGUID());
         return 0;
     }
 };
