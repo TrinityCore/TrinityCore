@@ -15,7 +15,7 @@ class LuaPlayer
 		//GetCoinage()
 		static int GetCoinage(lua_State* L, Player* player)
 		{
-			if (player == NULL || !player->IsInWorld())
+			if (!player || !player->IsInWorld())
 			{
 				lua_pushnil(L);
 				return 1;
@@ -28,7 +28,7 @@ class LuaPlayer
 		// GetDisplayID()
 		static int GetDisplayID(lua_State* L, Player* player)
 		{
-			if (player == NULL || !player->IsInWorld())
+			if (!player || !player->IsInWorld())
 			{
 				lua_pushnil(L);
 				return 1;
@@ -41,7 +41,7 @@ class LuaPlayer
 		// GetName()
 		static int GetName(lua_State* L, Player* player)
 		{
-			if (player == NULL || !player->IsInWorld())
+			if (!player || !player->IsInWorld())
 			{
 				lua_pushnil(L);
 				return 1;
@@ -54,7 +54,7 @@ class LuaPlayer
 		// GetLevel()
 		static int GetLevel(lua_State* L, Player* player)
 		{
-			if (player == NULL || !player->IsInWorld())
+			if (!player || !player->IsInWorld())
 			{
 				lua_pushnil(L);
 				return 1;
@@ -67,7 +67,7 @@ class LuaPlayer
 		// GetHealth()
 		static int GetHealth(lua_State* L, Player* player)
 		{
-			if (player == NULL || !player->IsInWorld())
+			if (!player || !player->IsInWorld())
 			{
 				lua_pushnil(L);
 				return 1;
@@ -80,13 +80,13 @@ class LuaPlayer
 		// GetGuildId()
 		static int GetGuildID(lua_State* L, Player* player)
 		{
-			if (player == NULL || !player->IsInWorld())
+			if (!player || !player->IsInWorld())
 			{
 				lua_pushnil(L);
 				return 1;
 			}
 
-			if(player->GetGuildId() == NULL || player->GetGuildId() == 0)
+			if(!player->GetGuildId() || player->GetGuildId() == 0)
 			{
 				lua_pushnil(L);
 				return 1;
@@ -99,7 +99,7 @@ class LuaPlayer
 		// GetX()
 		static int GetX(lua_State* L, Player* player)
 		{
-			if (player == NULL || !player->IsInWorld())
+			if (!player || !player->IsInWorld())
 			{
 				lua_pushnil(L);
 				return 1;
@@ -112,7 +112,7 @@ class LuaPlayer
 		// GetY()
 		static int GetY(lua_State* L, Player* player)
 		{			
-			if (player == NULL || !player->IsInWorld())
+			if (!player || !player->IsInWorld())
 			{
 				lua_pushnil(L);
 				return 1;
@@ -125,7 +125,7 @@ class LuaPlayer
 		// GetZ()
 		static int GetZ(lua_State* L, Player* player)
 		{			
-			if (player == NULL || !player->IsInWorld())
+			if (!player || !player->IsInWorld())
 			{
 				lua_pushnil(L);
 				return 1;
@@ -138,7 +138,7 @@ class LuaPlayer
 		// GetO()
 		static int GetO(lua_State* L, Player* player)
 		{			
-			if (player == NULL || !player->IsInWorld())
+			if (!player || !player->IsInWorld())
 			{
 				lua_pushnil(L);
 				return 1;
@@ -151,7 +151,7 @@ class LuaPlayer
 		// GetLocation()
 		static int GetLocation(lua_State* L, Player* player)
 		{			
-			if (player == NULL || !player->IsInWorld())
+			if (!player || !player->IsInWorld())
 			{
 				lua_pushnil(L);
 				return 1;
@@ -167,7 +167,7 @@ class LuaPlayer
 		// GetZoneID()
 		static int GetZoneID(lua_State* L, Player* player)
 		{			
-			if (player == NULL || !player->IsInWorld())
+			if (!player || !player->IsInWorld())
 			{
 				lua_pushnil(L);
 				return 1;
@@ -180,7 +180,7 @@ class LuaPlayer
 		// GetAreaID()
 		static int GetAreaID(lua_State* L, Player* player)
 		{
-			if (player == NULL || !player->IsInWorld())
+			if (!player || !player->IsInWorld())
 			{
 				lua_pushnil(L);
 				return 1;
@@ -193,7 +193,7 @@ class LuaPlayer
 		// GetTeam()
 		static int GetTeam(lua_State* L, Player* player)
 		{
-			if (player == NULL || !player->IsInWorld())
+			if (!player || !player->IsInWorld())
 			{
 				lua_pushnil(L);
 				return 1;
@@ -206,7 +206,7 @@ class LuaPlayer
 		// GetGUID()
 		static int GetGUID(lua_State* L, Player* player)
 		{			
-			if (player == NULL || !player->IsInWorld())
+			if (!player || !player->IsInWorld())
 			{
 				lua_pushnil(L);
 				return 1;
@@ -219,7 +219,7 @@ class LuaPlayer
 		// GetByteValue(index, offset)
 		static int GetByteValue(lua_State* L, Player* player)
 		{			
-			if (player == NULL || !player->IsInWorld())
+			if (!player || !player->IsInWorld())
 			{
 				lua_pushnil(L);
 				return 1;
@@ -234,32 +234,42 @@ class LuaPlayer
 		// GetPower([powertype])
 		static int GetPower(lua_State* L, Player* player)
 		{
-			if (player == NULL || !player->IsInWorld())
+			if (!player || !player->IsInWorld())
 			{
 				lua_pushnil(L);
 				return 1;
 			}
+
 			int type = luaL_optint(L, 1, -1);
 			if(type == -1)
 			{
 				// We didn't specify a type, so get the default type for our class
 				switch(player->getClass())
 				{
-				case 1: { type = POWER_RAGE; break; }
-				case 4: { type = POWER_ENERGY; break; }
-				case 6: { type = POWER_RUNIC_POWER; break; }
-				case 2:
-				case 3:
-				case 5:
-				case 7:
-				case 8:
-				case 9:
-				case 11:
-					{ type = POWER_MANA; break; }
-				default:
-					type = POWER_MANA;
+					case 1: 
+						type = POWER_RAGE; 
+						break;
+					case 4: 
+						type = POWER_ENERGY; 
+						break;
+					case 6: 
+						type = POWER_RUNIC_POWER; 
+						break;
+					case 2:
+					case 3:
+					case 5:
+					case 7:
+					case 8:
+					case 9:
+					case 11:
+						type = POWER_MANA; 
+						break;
+					default:
+						type = POWER_MANA;
 				}
-			} else if (type >= POWER_ALL) {
+			} 
+			else if (type >= POWER_ALL)
+			{
 				luaL_error(L, "Bad argument #1 to :GetPower(index) - specified out of range index.");
 				return 0;
 			}
@@ -271,20 +281,27 @@ class LuaPlayer
 		// GetMaxPower([index])
 		static int GetMaxPower(lua_State* L, Player* player)
 		{
-			if (player == NULL || !player->IsInWorld())
+			if (!player || !player->IsInWorld())
 			{
 				lua_pushnil(L);
 				return 1;
 			}
+
 			int type = luaL_optint(L, 1, -1);
 			if(type == -1)
 			{
 				// We didn't specify a type, so get the default type for our class
 				switch(player->getClass())
 				{
-				case 1: { type = POWER_RAGE; break; }
-				case 4: { type = POWER_ENERGY; break; }
-				case 6: { type = POWER_RUNIC_POWER; break; }
+				case 1: 
+					type = POWER_RAGE; 
+					break;
+				case 4: 
+					type = POWER_ENERGY; 
+					break;
+				case 6: 
+					type = POWER_RUNIC_POWER; 
+					break;
 				case 2:
 				case 3:
 				case 5:
@@ -292,11 +309,14 @@ class LuaPlayer
 				case 8:
 				case 9:
 				case 11:
-					{ type = POWER_MANA; break; }
+					type = POWER_MANA; 
+					break;
 				default:
 					type = POWER_MANA;
 				}
-			} else if (type >= POWER_ALL) {
+			} 
+			else if (type >= POWER_ALL) 
+			{
 				luaL_error(L, "Bad argument #1 to :GetMaxPower(index) - specified out of range index.");
 				return 0;
 			}
@@ -308,8 +328,11 @@ class LuaPlayer
 		// GetMaxHealth()
 		static int GetMaxHealth(lua_State* L, Player* player)
 		{
-			if (player == NULL || !player->IsInWorld())
-				return 0;
+			if (!player || !player->IsInWorld())
+			{
+				lua_pushnil(L);
+				return 1;
+			}
 
 			lua_pushnumber(L, player->GetMaxHealth());
 			return 1;
@@ -318,8 +341,11 @@ class LuaPlayer
 		// GetHealthPct()
 		static int GetHealthPct(lua_State* L, Player* player)
 		{
-			if (player == NULL || !player->IsInWorld())
-				return 0;
+			if (!player || !player->IsInWorld())
+			{
+				lua_pushnil(L);
+				return 1;
+			}
 
 			lua_pushnumber(L, player->GetHealthPct());
 			return 1;
@@ -328,8 +354,11 @@ class LuaPlayer
 		// GetPowerPct()
 		static int GetPowerPct(lua_State* L, Player* player)
 		{
-			if (player == NULL || !player->IsInWorld())
-				return 0;
+			if (!player || !player->IsInWorld())
+			{
+				lua_pushnil(L);
+				return 1;
+			}
 
 			float percent = (player->GetPower(player->getPowerType())  / player->GetMaxPower(player->getPowerType())) * 100;
 			lua_pushnumber(L, percent);
@@ -339,8 +368,11 @@ class LuaPlayer
 		// GetRace()
 		static int GetRace(lua_State* L, Player* player)
 		{
-			if (player == NULL || !player->IsInWorld())
-				return 0;
+			if (!player || !player->IsInWorld())
+			{
+				lua_pushnil(L);
+				return 1;
+			}
 
 			lua_pushnumber(L, player->getRace());
 			return 1;
@@ -349,8 +381,11 @@ class LuaPlayer
 		// GetClass() - returns numerical index of class
 		static int GetClass(lua_State* L, Player* player)
 		{
-			if (player == NULL || !player->IsInWorld())
-				return 0;
+			if (!player || !player->IsInWorld())
+			{
+				lua_pushnil(L);
+				return 1;
+			}
 
 			lua_pushnumber(L, player->getClass());
 			return 1;
@@ -359,7 +394,7 @@ class LuaPlayer
 		// GetClassAsString()
 		static int GetClassAsString(lua_State* L, Player* player)
 		{
-			if (player == NULL || !player->IsInWorld())
+			if (!player || !player->IsInWorld())
 			{
 				lua_pushnil(L);
 				return 1;
@@ -368,17 +403,39 @@ class LuaPlayer
 			const char* str = NULL;
 			switch(player->getClass())
 			{
-				case 1: { str = "Warrior"; break; }
-				case 2: { str = "Paladin"; break; }
-				case 3: { str = "Hunter"; break; }
-				case 4:	{ str = "Rogue"; break; }
-				case 5:	{ str = "Priest"; break; }
-				case 6:	{ str = "DeathKnight"; break; }
-				case 7:	{ str = "Shaman"; break; }
-				case 8:	{ str = "Mage"; break; }
-				case 9:	{ str = "Warlock"; break; }
-				case 11:{ str = "Druid"; break; }
-				default:{ str = "NULL"; break; }
+				case 1: 
+					str = "Warrior"; 
+					break;
+				case 2: 
+					str = "Paladin"; 
+					break;
+				case 3: 
+					str = "Hunter"; 
+					break;
+				case 4:	
+					str = "Rogue"; 
+					break;
+				case 5:	
+					str = "Priest"; 
+					break;
+				case 6:	
+					str = "DeathKnight";
+					break;
+				case 7:	
+					str = "Shaman"; 
+					break;
+				case 8:	
+					str = "Mage"; 
+					break;
+				case 9:	
+					str = "Warlock"; 
+					break;
+				case 11:
+					str = "Druid"; 
+					break;
+				default:
+					str = "NULL"; 
+					break;
 			}
 
 			lua_pushstring(L, str);
@@ -388,7 +445,7 @@ class LuaPlayer
 		// GetItemCount(id)
 		static int GetItemCount(lua_State* L, Player* player)
 		{
-			if (player == NULL || !player->IsInWorld())
+			if (!player || !player->IsInWorld())
 			{
 				lua_pushnil(L);
 				return 1;
@@ -403,7 +460,7 @@ class LuaPlayer
 		// GetUnitType()
 		static int GetUnitType(lua_State* L, Player* player)
 		{
-			if (player == NULL || !player->IsInWorld()) 
+			if (!player || !player->IsInWorld())
 			{
 				lua_pushnil(L);
 				return 1;
@@ -419,8 +476,11 @@ class LuaPlayer
 		// SetLevel(level)
 		static int SetLevel(lua_State* L, Player* player)
 		{
-			if (player == NULL || !player->IsInWorld())
+			if (!player || !player->IsInWorld())
+			{
+				lua_pushnil(L);
 				return 0;
+			}
 	
 			int amt = luaL_checknumber(L, 1);
 			if((player->getLevel() + amt > 80) || amt < 1) // in case user supplies negative number
@@ -435,8 +495,11 @@ class LuaPlayer
 		// SetHealth(amount)
 		static int SetHealth(lua_State* L, Player* player)
 		{
-			if (player == NULL || !player->IsInWorld())
+			if (!player || !player->IsInWorld())
+			{
+				lua_pushnil(L);
 				return 0;
+			}
 	
 			int amt = luaL_checknumber(L, 1);
 			player->SetHealth(amt);
@@ -446,8 +509,11 @@ class LuaPlayer
 		// SetMaxHealth(amount)
 		static int SetMaxHealth(lua_State* L, Player* player)
 		{
-			if (player == NULL || !player->IsInWorld())
+			if (!player || !player->IsInWorld())
+			{
+				lua_pushnil(L);
 				return 0;
+			}
 	
 			int amt = luaL_checknumber(L, 1);
 			player->SetMaxHealth(amt);
@@ -457,8 +523,11 @@ class LuaPlayer
 		// SetPower(powerType, amount)
 		static int SetPower(lua_State* L, Player* player)
 		{
-			if (player == NULL || !player->IsInWorld())
+			if (!player || !player->IsInWorld())
+			{
+				lua_pushnil(L);
 				return 0;
+			}
 	
 			int type = luaL_checknumber(L, 1);
 			if(type > POWER_RUNIC_POWER) 
@@ -471,19 +540,19 @@ class LuaPlayer
 
 			switch(type)
 			{
-			case POWER_MANA:
-				player->SetPower(POWER_MANA, amt);
-				break;
-			case POWER_RAGE:
-				player->SetPower(POWER_RAGE, amt);
-				break;
-			case POWER_ENERGY:
-				player->SetPower(POWER_ENERGY, amt);
-				break;
-			case POWER_RUNIC_POWER:
-				player->SetPower(POWER_RUNIC_POWER, amt);
-				break;
-			// should add a "default" clause that breaks here
+				case POWER_MANA:
+					player->SetPower(POWER_MANA, amt);
+					break;
+				case POWER_RAGE:
+					player->SetPower(POWER_RAGE, amt);
+					break;
+				case POWER_ENERGY:
+					player->SetPower(POWER_ENERGY, amt);
+					break;
+				case POWER_RUNIC_POWER:
+					player->SetPower(POWER_RUNIC_POWER, amt);
+					break;
+				// should add a "default" clause that breaks here
 			}
 			return 0;
 		}
@@ -491,8 +560,11 @@ class LuaPlayer
 		// SetMaxPower(Type, amt)
 		static int SetMaxPower(lua_State* L, Player* player)
 		{
-			if (player == NULL || !player->IsInWorld())
+			if (!player || !player->IsInWorld())
+			{
+				lua_pushnil(L);
 				return 0;
+			}
 	
 			int type = luaL_checknumber(L, 1);
 			if(type > POWER_RUNIC_POWER)
@@ -504,18 +576,18 @@ class LuaPlayer
 			int amt = luaL_checknumber(L, 2);
 					switch(type)
 			{
-			case POWER_MANA:
-				player->SetMaxPower(POWER_MANA, amt);
-				break;
-			case POWER_RAGE:
-				player->SetMaxPower(POWER_RAGE, amt);
-				break;
-			case POWER_ENERGY:
-				player->SetMaxPower(POWER_ENERGY, amt);
-				break;
-			case POWER_RUNIC_POWER:
-				player->SetMaxPower(POWER_RUNIC_POWER, amt);
-				break;
+				case POWER_MANA:
+					player->SetMaxPower(POWER_MANA, amt);
+					break;
+				case POWER_RAGE:
+					player->SetMaxPower(POWER_RAGE, amt);
+					break;
+				case POWER_ENERGY:
+					player->SetMaxPower(POWER_ENERGY, amt);
+					break;
+				case POWER_RUNIC_POWER:
+					player->SetMaxPower(POWER_RUNIC_POWER, amt);
+					break;
 			}
 			return 0;
 		}
@@ -523,8 +595,11 @@ class LuaPlayer
 		// SetDisplayID(id)
 		static int SetDisplayID(lua_State* L, Player* player)
 		{
-			if (player == NULL || !player->IsInWorld())
+			if (!player || !player->IsInWorld())
+			{
+				lua_pushnil(L);
 				return 0;
+			}
 	
 			int model = luaL_checknumber(L, 1);
 			player->SetDisplayId(model);
@@ -534,8 +609,11 @@ class LuaPlayer
 		// SetCoinage(amount)
 		static int SetCoinage(lua_State* L, Player* player)
 		{
-			if (player == NULL || !player->IsInWorld())
+			if (!player || !player->IsInWorld())
+			{
+				lua_pushnil(L);
 				return 0;
+			}
 	
 			int amt = luaL_checknumber(L, 1);
 			player->SetMoney(amt);
@@ -545,26 +623,32 @@ class LuaPlayer
 		// SetKnownTitle(id)
 		static int SetKnownTitle(lua_State* L, Player* player)
 		{
-			if (player == NULL || !player->IsInWorld())
+			if (!player || !player->IsInWorld())
+			{
+				lua_pushnil(L);
 				return 0;
+			}
 	
 			int id = luaL_checknumber(L, 1);
-			CharTitlesEntry const* t = sCharTitlesStore.LookupEntry(id);
-			if(t != NULL)
-				player->SetTitle(t, false);
+			CharTitlesEntry const* titlesEntry = sCharTitlesStore.LookupEntry(id);
+			if(titlesEntry)
+				player->SetTitle(titlesEntry, false);
 			return 0;
 		}
 
 		// UnsetKnownTitle(id)
 		static int UnsetKnownTitle(lua_State* L, Player* player)
 		{
-			if (player == NULL || !player->IsInWorld())
+			if (!player || !player->IsInWorld())
+			{
+				lua_pushnil(L);
 				return 0;
+			}
 	
 			int id = luaL_checknumber(L, 1);
-			CharTitlesEntry const* t = sCharTitlesStore.LookupEntry(id);
-			if(t != NULL)
-				player->SetTitle(t, true);
+			CharTitlesEntry const* titlesEntry = sCharTitlesStore.LookupEntry(id);
+			if(titlesEntry)
+				player->SetTitle(titlesEntry, true);
 			return 0;
 		}
 
@@ -574,7 +658,7 @@ class LuaPlayer
 		// IsInGroup()
 		static int IsInGroup(lua_State* L, Player* player)
 		{
-			if (player == NULL || !player->IsInWorld())
+			if (!player || !player->IsInWorld())
 			{
 				lua_pushnil(L);
 				return 1;
@@ -587,11 +671,12 @@ class LuaPlayer
 		// IsInGuild()
 		static int IsInGuild(lua_State* L, Player* player)
 		{
-			if (player == NULL || !player->IsInWorld())
+			if (!player || !player->IsInWorld())
 			{
 				lua_pushnil(L);
 				return 1;
 			}
+
 			lua_pushboolean(L, (player->GetGuildId() != 0));
 			return 1;
 		}
@@ -599,7 +684,7 @@ class LuaPlayer
 		// IsGM()
 		static int IsGM(lua_State* L, Player* player)
 		{
-			if (player == NULL || !player->IsInWorld())
+			if (!player || !player->IsInWorld())
 			{
 				lua_pushnil(L);
 				return 1;
@@ -612,7 +697,7 @@ class LuaPlayer
 		// IsAlive()
 		static int IsAlive(lua_State* L, Player* player)
 		{			
-			if (player == NULL || !player->IsInWorld())
+			if (!player || !player->IsInWorld())
 			{
 				lua_pushnil(L);
 				return 1;
@@ -625,7 +710,7 @@ class LuaPlayer
 		// IsInWorld()
 		static int IsInWorld(lua_State* L, Player* player)
 		{			
-			if (player == NULL || !player->IsInWorld())
+			if (!player || !player->IsInWorld())
 			{
 				lua_pushnil(L);
 				return 1;
@@ -638,7 +723,7 @@ class LuaPlayer
 		// IsPvPFlagged()
 		static int IsPvPFlagged(lua_State* L, Player* player)
 		{			
-			if (player == NULL || !player->IsInWorld())
+			if (!player || !player->IsInWorld())
 			{
 				lua_pushnil(L);
 				return 1;
@@ -651,7 +736,7 @@ class LuaPlayer
 		// HasQuest(id)
 		static int HasQuest(lua_State* L, Player* player)
 		{			
-			if (player == NULL || !player->IsInWorld())
+			if (!player || !player->IsInWorld())
 			{
 				lua_pushnil(L);
 				return 1;
@@ -665,9 +750,9 @@ class LuaPlayer
 		// IsHorde()
 		static int IsHorde(lua_State* L, Player* player)
 		{
-			if (player == NULL || !player->IsInWorld())
+			if (!player || !player->IsInWorld())
 			{
-				lua_pushboolean(L, false);
+				lua_pushnil(L);
 				return 1;
 			}
 
@@ -678,11 +763,12 @@ class LuaPlayer
 		// IsAlliance()
 		static int IsAlliance(lua_State* L, Player* player)
 		{
-			if (player == NULL || !player->IsInWorld())
+			if (!player || !player->IsInWorld())
 			{
-				lua_pushboolean(L, false);
+				lua_pushnil(L);
 				return 1;
 			}
+
 			lua_pushboolean(L, (player->GetTeam() == ALLIANCE));
 			return 1;
 		}
@@ -690,7 +776,7 @@ class LuaPlayer
 		// IsInCombat();
 		static int IsInCombat(lua_State* L, Player* player)
 		{
-			if (player == NULL || !player->IsInWorld())
+			if (!player || !player->IsInWorld())
 			{
 				lua_pushnil(L);
 				return 1;
@@ -703,7 +789,7 @@ class LuaPlayer
 		// HasTitle(id)
 		static int HasTitle(lua_State* L, Player* player)
 		{
-			if (player == NULL || !player->IsInWorld())
+			if (!player || !player->IsInWorld())
 			{
 				lua_pushnil(L);
 				return 1;
@@ -717,7 +803,7 @@ class LuaPlayer
 		// HasSpell(id)
 		static int HasSpell(lua_State* L, Player* player)
 		{
-			if (player == NULL || !player->IsInWorld())
+			if (!player || !player->IsInWorld())
 			{
 				lua_pushnil(L);
 				return 1;
@@ -727,15 +813,15 @@ class LuaPlayer
 			lua_pushboolean(L, player->HasSpell(id));
 			return 1;
 		}
-
-
-			// Other Methods
-		
+		/* Other Methods */
 		// Teleport(mapid, x, y, z, o)
 		static int Teleport(lua_State* L, Player* player)
 		{
-			if (player == NULL || !player->IsInWorld())
+			if (!player || !player->IsInWorld())
+			{
+				lua_pushnil(L);
 				return 0;
+			}
 
 			uint32 mapId = luaL_checknumber(L, 1);
 			float X = luaL_checknumber(L, 2);
@@ -749,8 +835,11 @@ class LuaPlayer
 		// AddItem(entry, amount)
 		static int AddItem(lua_State* L, Player* player)
 		{
-			if (player == NULL || !player->IsInWorld())
+			if (!player || !player->IsInWorld())
+			{
+				lua_pushnil(L);
 				return 0;
+			}
 
 			int itemId = luaL_checknumber(L, 1);
 			int itemCount = luaL_checknumber(L, 2);
@@ -761,8 +850,11 @@ class LuaPlayer
 		// RemoveItem(entry, amount)
 		static int RemoveItem(lua_State* L, Player* player)
 		{
-			if (player == NULL || !player->IsInWorld())
+			if (!player || !player->IsInWorld())
+			{
+				lua_pushnil(L);
 				return 0;
+			}
 
 			int itemId = luaL_checknumber(L, 1);
 			int itemCount = luaL_checknumber(L, 2);
@@ -782,8 +874,11 @@ class LuaPlayer
 		// SendBroadcastMessage(msg)
 		static int SendBroadcastMessage(lua_State* L, Player* player)
 		{
-			if (player == NULL || !player->IsInWorld())
+			if (!player || !player->IsInWorld())
+			{
+				lua_pushnil(L);
 				return 0;
+			}
 
 			const char* message = luaL_checkstring(L, 1);
 			if(std::string(message).length() > 0)
@@ -796,8 +891,11 @@ class LuaPlayer
 		// GiveCoinage(amount)
 		static int GiveCoinage(lua_State* L, Player* player)
 		{
-			if (player == NULL || !player->IsInWorld())
+			if (!player || !player->IsInWorld())
+			{
+				lua_pushnil(L);
 				return 0;
+			}
 	
 			int amt = luaL_checknumber(L, 1);
 			if(player->GetMoney() + amt >= 2147483646) // prevent going over gold cap (which resets to 0)
@@ -813,8 +911,11 @@ class LuaPlayer
 		// RemoveCoinage(amount)
 		static int RemoveCoinage(lua_State* L, Player* player)
 		{
-			if (player == NULL || !player->IsInWorld())
+			if (!player || !player->IsInWorld())
+			{
+				lua_pushnil(L);
 				return 0;
+			}
 	
 			int amt = luaL_checknumber(L, 1);
 			if((player->GetMoney() == 0) || (player->GetMoney() - amt < 0)) // removing coinage from a player with 0 coinage makes us hit the gold cap
@@ -830,8 +931,11 @@ class LuaPlayer
 		// LearnSpell(id)
 		static int LearnSpell(lua_State* L, Player* player)
 		{
-			if (player == NULL || !player->IsInWorld())
+			if (!player || !player->IsInWorld())
+			{
+				lua_pushnil(L);
 				return 0;
+			}
 	
 			int id = luaL_checknumber(L, 1);
 			player->learnSpell(id,  false);
@@ -841,8 +945,11 @@ class LuaPlayer
 		// DeMorph()
 		static int DeMorph(lua_State* L, Player* player)
 		{
-			if (player == NULL || !player->IsInWorld())
+			if (!player || !player->IsInWorld())
+			{
+				lua_pushnil(L);
 				return 0;
+			}
 	
 			player->RestoreDisplayId();
 			return 0;

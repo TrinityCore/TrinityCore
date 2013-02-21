@@ -224,7 +224,7 @@ class Eluna
 		// Checks
         Player * CHECK_PLAYER(lua_State* L, int narg)
         {
-            if(L == NULL) 
+            if(!L) 
 				return ElunaTemplate<Player>::check(_luaState, narg);
             else 
 				return ElunaTemplate<Player>::check(L, narg);
@@ -232,7 +232,7 @@ class Eluna
 
         Unit * CHECK_UNIT(lua_State* L, int narg)
         {
-            if(L == NULL) 
+            if(!L) 
 				return ElunaTemplate<Unit>::check(_luaState, narg);
             else 
 				return ElunaTemplate<Unit>::check(L, narg);
@@ -277,7 +277,7 @@ class Eluna
                         
 
                     // fill method table.
-                    if(GetMethodTable<T>() == NULL) 
+                    if(!GetMethodTable<T>()) 
                     {
                             lua_pop(L, 2);
                             return;
@@ -307,7 +307,7 @@ class Eluna
                     int idxMt = lua_gettop(L);
                     T** ptrHold = (T**)lua_newuserdata(L, sizeof(T**));
                     int ud = lua_gettop(L);
-                    if(ptrHold != NULL)
+                    if(ptrHold)
                     {
                             *ptrHold = obj;
                             lua_pushvalue(L, idxMt);
@@ -337,7 +337,7 @@ class Eluna
                 static T* check(lua_State* L, int narg)
                 {
                     T** ptrHold = static_cast<T**>(lua_touserdata(L, narg));
-                    if(ptrHold == NULL)
+                    if(!ptrHold)
                             return NULL;
                     return *ptrHold;
                 }
@@ -354,7 +354,8 @@ class Eluna
                 static int gcT(lua_State* L)
                 {
                     T* obj = check(L, 1);
-                    if(obj == NULL) return 0;
+                    if(!obj) 
+						return 0;
                     lua_getfield(L, LUA_REGISTRYINDEX, "DO NO TRASH");
                     if(lua_istable(L, -1))
                     {
