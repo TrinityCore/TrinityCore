@@ -286,7 +286,10 @@ void Log::write(LogMessage* msg)
     if (worker)
         worker->enqueue(new LogOperation(logger, msg));
     else
+    {
         logger->write(*msg);
+        delete msg;
+    }
 }
 
 std::string Log::GetTimestampStr()
