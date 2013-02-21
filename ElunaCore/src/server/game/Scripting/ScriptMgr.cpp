@@ -1145,11 +1145,13 @@ void ScriptMgr::OnPVPKill(Player* killer, Player* killed)
 void ScriptMgr::OnCreatureKill(Player* killer, Creature* killed)
 {
     FOREACH_SCRIPT(PlayerScript)->OnCreatureKill(killer, killed);
+    Eluna::getScript()->OnCreatureKill(PLAYER_EVENT_ON_KILL_CREATURE, killer, killed);
 }
 
 void ScriptMgr::OnPlayerKilledByCreature(Creature* killer, Player* killed)
 {
     FOREACH_SCRIPT(PlayerScript)->OnPlayerKilledByCreature(killer, killed);
+    Eluna::getScript()->OnPlayerKilledByCreature(PLAYER_EVENT_ON_KILLED_BY_CREATURE, killer, killed);
 }
 
 void ScriptMgr::OnPlayerLevelChanged(Player* player, uint8 oldLevel)
@@ -1167,36 +1169,43 @@ void ScriptMgr::OnPlayerFreeTalentPointsChanged(Player* player, uint32 points)
 void ScriptMgr::OnPlayerTalentsReset(Player* player, bool noCost)
 {
     FOREACH_SCRIPT(PlayerScript)->OnTalentsReset(player, noCost);
+    Eluna::getScript()->OnPlayerTalentsReset(PLAYER_EVENT_ON_TALENTS_RESET, player, noCost);
 }
 
 void ScriptMgr::OnPlayerMoneyChanged(Player* player, int32& amount)
 {
     FOREACH_SCRIPT(PlayerScript)->OnMoneyChanged(player, amount);
+    Eluna::getScript()->OnPlayerMoneyChanged(PLAYER_EVENT_ON_MONEY_CHANGE, player, amount);
 }
 
 void ScriptMgr::OnGivePlayerXP(Player* player, uint32& amount, Unit* victim)
 {
     FOREACH_SCRIPT(PlayerScript)->OnGiveXP(player, amount, victim);
+    Eluna::getScript()->OnGivePlayerXP(PLAYER_EVENT_ON_GIVE_XP, player, amount, victim);
 }
 
 void ScriptMgr::OnPlayerReputationChange(Player* player, uint32 factionID, int32& standing, bool incremental)
 {
     FOREACH_SCRIPT(PlayerScript)->OnReputationChange(player, factionID, standing, incremental);
+    Eluna::getScript()->OnPlayerReputationChange(PLAYER_EVENT_ON_REPUTATION_CHANGE, player, factionID, standing, incremental);
 }
 
 void ScriptMgr::OnPlayerDuelRequest(Player* target, Player* challenger)
 {
     FOREACH_SCRIPT(PlayerScript)->OnDuelRequest(target, challenger);
+    Eluna::getScript()->OnPlayerDuelRequest(PLAYER_EVENT_ON_DUEL_REQUEST, target, challenger);
 }
 
 void ScriptMgr::OnPlayerDuelStart(Player* player1, Player* player2)
 {
     FOREACH_SCRIPT(PlayerScript)->OnDuelStart(player1, player2);
+    Eluna::getScript()->OnPlayerDuelStart(PLAYER_EVENT_ON_DUEL_START, player1, player2);
 }
 
 void ScriptMgr::OnPlayerDuelEnd(Player* winner, Player* loser, DuelCompleteType type)
 {
     FOREACH_SCRIPT(PlayerScript)->OnDuelEnd(winner, loser, type);
+    Eluna::getScript()->OnPlayerDuelEnd(PLAYER_EVENT_ON_DUEL_END, winner, loser, type);
 }
 
 void ScriptMgr::OnPlayerChat(Player* player, uint32 type, uint32 lang, std::string& msg)
@@ -1229,6 +1238,7 @@ void ScriptMgr::OnPlayerChat(Player* player, uint32 type, uint32 lang, std::stri
 void ScriptMgr::OnPlayerEmote(Player* player, uint32 emote)
 {
     FOREACH_SCRIPT(PlayerScript)->OnEmote(player, emote);
+    Eluna::getScript()->OnPlayerEmote(PLAYER_EVENT_ON_EMOTE, player, emote);
 }
 
 void ScriptMgr::OnPlayerTextEmote(Player* player, uint32 textEmote, uint32 emoteNum, uint64 guid)
@@ -1244,16 +1254,19 @@ void ScriptMgr::OnPlayerSpellCast(Player* player, Spell* spell, bool skipCheck)
 void ScriptMgr::OnPlayerLogin(Player* player)
 {
     FOREACH_SCRIPT(PlayerScript)->OnLogin(player);
+    Eluna::getScript()->OnPlayerLogin(PLAYER_EVENT_ON_LOGIN, player);
 }
 
 void ScriptMgr::OnPlayerLogout(Player* player)
 {
     FOREACH_SCRIPT(PlayerScript)->OnLogout(player);
+    Eluna::getScript()->OnPlayerLogout(PLAYER_EVENT_ON_LOGOUT, player);
 }
 
 void ScriptMgr::OnPlayerCreate(Player* player)
 {
     FOREACH_SCRIPT(PlayerScript)->OnCreate(player);
+    Eluna::getScript()->OnPlayerCreate(PLAYER_EVENT_ON_CHARACTER_CREATE, player);
 }
 
 void ScriptMgr::OnPlayerDelete(uint64 guid)
@@ -1264,16 +1277,19 @@ void ScriptMgr::OnPlayerDelete(uint64 guid)
 void ScriptMgr::OnPlayerSave(Player* player)
 {
     FOREACH_SCRIPT(PlayerScript)->OnSave(player);
+    Eluna::getScript()->OnPlayerSave(PLAYER_EVENT_ON_SAVE, player);
 }
 
 void ScriptMgr::OnPlayerBindToInstance(Player* player, Difficulty difficulty, uint32 mapid, bool permanent)
 {
     FOREACH_SCRIPT(PlayerScript)->OnBindToInstance(player, difficulty, mapid, permanent);
+    Eluna::getScript()->OnPlayerBindToInstance(PLAYER_EVENT_ON_BIND_TO_INSTANCE, player, difficulty, mapid, permanent);
 }
 
 void ScriptMgr::OnPlayerUpdateZone(Player* player, uint32 newZone, uint32 newArea)
 {
     FOREACH_SCRIPT(PlayerScript)->OnUpdateZone(player, newZone, newArea);
+    Eluna::getScript()->OnPlayerUpdateZone(PLAYER_EVENT_ON_UPDATE_ZONE, player, newZone, newArea);
 }
 
 // Guild

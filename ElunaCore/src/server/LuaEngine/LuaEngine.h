@@ -526,8 +526,8 @@ class ElunaScript : public ScriptObject
 
 		void OnChat(uint32 eventId, Player* player, uint32 type, uint32 lang, string& msg)
 		{
-			for (vector<uint16>::iterator itr = Eluna::get()->_playerEventBindings.at(PLAYER_EVENT_ON_CHAT).begin(); 
-				itr != Eluna::get()->_playerEventBindings.at(PLAYER_EVENT_ON_CHAT).end(); itr++)
+			for (vector<uint16>::iterator itr = Eluna::get()->_playerEventBindings.at(eventId).begin(); 
+				itr != Eluna::get()->_playerEventBindings.at(eventId).end(); itr++)
 			{
 				Eluna::get()->BeginCall((*itr));
 				Eluna::get()->PushInteger(Eluna::get()->_luaState, eventId);
@@ -541,8 +541,8 @@ class ElunaScript : public ScriptObject
 
 		void OnChat(uint32 eventId, Player* player, uint32 type, uint32 lang, string& msg, Player* receiver)
 		{
-			for (vector<uint16>::iterator itr = Eluna::get()->_playerEventBindings.at(PLAYER_EVENT_ON_CHAT).begin(); 
-				itr != Eluna::get()->_playerEventBindings.at(PLAYER_EVENT_ON_CHAT).end(); itr++)
+			for (vector<uint16>::iterator itr = Eluna::get()->_playerEventBindings.at(eventId).begin(); 
+				itr != Eluna::get()->_playerEventBindings.at(eventId).end(); itr++)
 			{
 				Eluna::get()->BeginCall((*itr));
 				Eluna::get()->PushInteger(Eluna::get()->_luaState, eventId);
@@ -557,8 +557,8 @@ class ElunaScript : public ScriptObject
 
 		void OnPvPKill(uint32 eventId, Player* killer, Player* victim)
 		{
-			for (vector<uint16>::iterator itr = Eluna::get()->_playerEventBindings.at(PLAYER_EVENT_ON_KILL_PLAYER).begin();
-				itr != Eluna::get()->_playerEventBindings.at(PLAYER_EVENT_ON_KILL_PLAYER).end(); itr++)
+			for (vector<uint16>::iterator itr = Eluna::get()->_playerEventBindings.at(eventId).begin();
+				itr != Eluna::get()->_playerEventBindings.at(eventId).end(); itr++)
 			{
 				Eluna::get()->BeginCall((*itr));
 				Eluna::get()->PushInteger(Eluna::get()->_luaState, eventId);
@@ -570,8 +570,8 @@ class ElunaScript : public ScriptObject
 
 		void OnPlayerLevelChanged(uint32 eventId, Player* player, uint8 oldLevel)
 		{
-			for (vector<uint16>::iterator itr = Eluna::get()->_playerEventBindings.at(PLAYER_EVENT_LEVEL_CHANGE).begin();
-				itr != Eluna::get()->_playerEventBindings.at(PLAYER_EVENT_LEVEL_CHANGE).end(); itr++)
+			for (vector<uint16>::iterator itr = Eluna::get()->_playerEventBindings.at(eventId).begin();
+				itr != Eluna::get()->_playerEventBindings.at(eventId).end(); itr++)
 			{
 				Eluna::get()->BeginCall((*itr));
 				Eluna::get()->PushInteger(Eluna::get()->_luaState, eventId);
@@ -583,8 +583,8 @@ class ElunaScript : public ScriptObject
 
 		void OnPlayerTalentsChanged(uint32 eventId, Player* player, uint32 points)
 		{
-			for (vector<uint16>::iterator itr = Eluna::get()->_playerEventBindings.at(PLAYER_EVENT_ON_TALENTS_CHANGE).begin();
-				itr != Eluna::get()->_playerEventBindings.at(PLAYER_EVENT_ON_TALENTS_CHANGE).end(); itr++)
+			for (vector<uint16>::iterator itr = Eluna::get()->_playerEventBindings.at(eventId).begin();
+				itr != Eluna::get()->_playerEventBindings.at(eventId).end(); itr++)
 			{
 				Eluna::get()->BeginCall((*itr));
 				Eluna::get()->PushInteger(Eluna::get()->_luaState, eventId);
@@ -593,6 +593,217 @@ class ElunaScript : public ScriptObject
 				Eluna::get()->ExecuteCall(3, 0);
 			}
 		}
+
+        void OnCreatureKill(uint32 eventId, Player* player, Creature* creature)
+        {
+            for (vector<uint16>::iterator itr = Eluna::get()->_playerEventBindings.at(eventId).begin();
+                itr != Eluna::get()->_playerEventBindings.at(eventId).end(); itr++)
+            {
+                Eluna::get()->BeginCall((*itr));
+                Eluna::get()->PushInteger(Eluna::get()->_luaState, eventId);
+                Eluna::get()->PushUnit(Eluna::get()->_luaState, player);
+                Eluna::get()->PushUnit(Eluna::get()->_luaState, creature);
+                Eluna::get()->ExecuteCall(3, 0);
+            }
+        }
+
+        void OnPlayerKilledByCreature(uint32 eventId, Creature* creature, Player* player)
+        {
+            for (vector<uint16>::iterator itr = Eluna::get()->_playerEventBindings.at(eventId).begin();
+                itr != Eluna::get()->_playerEventBindings.at(eventId).end(); itr++)
+            {
+                Eluna::get()->BeginCall((*itr));
+                Eluna::get()->PushInteger(Eluna::get()->_luaState, eventId);
+                Eluna::get()->PushUnit(Eluna::get()->_luaState, creature);
+                Eluna::get()->PushUnit(Eluna::get()->_luaState, player);
+                Eluna::get()->ExecuteCall(3, 0);
+            }
+        }
+
+        void OnPlayerTalentsReset(uint32 eventId, Player* player, bool noCost)
+        {
+            for (vector<uint16>::iterator itr = Eluna::get()->_playerEventBindings.at(eventId).begin();
+                itr != Eluna::get()->_playerEventBindings.at(eventId).end(); itr++)
+            {
+                Eluna::get()->BeginCall((*itr));
+                Eluna::get()->PushInteger(Eluna::get()->_luaState, eventId);
+                Eluna::get()->PushUnit(Eluna::get()->_luaState, player);
+                Eluna::get()->PushBoolean(Eluna::get()->_luaState, noCost);
+                Eluna::get()->ExecuteCall(3, 0);
+            }
+        }
+
+        void OnPlayerMoneyChanged(uint32 eventId, Player* player, int32& amount)
+        {
+            for (vector<uint16>::iterator itr = Eluna::get()->_playerEventBindings.at(eventId).begin();
+                itr != Eluna::get()->_playerEventBindings.at(eventId).end(); itr++)
+            {
+                Eluna::get()->BeginCall((*itr));
+                Eluna::get()->PushInteger(Eluna::get()->_luaState, eventId);
+                Eluna::get()->PushUnit(Eluna::get()->_luaState, player);
+                Eluna::get()->PushInteger(Eluna::get()->_luaState, amount);
+                Eluna::get()->ExecuteCall(3, 0);
+            }
+        }
+
+        void OnGivePlayerXP(uint32 eventId, Player* player, uint32& amount, Unit* victim)
+        {
+            for (vector<uint16>::iterator itr = Eluna::get()->_playerEventBindings.at(eventId).begin();
+                itr != Eluna::get()->_playerEventBindings.at(eventId).end(); itr++)
+            {
+                Eluna::get()->BeginCall((*itr));
+                Eluna::get()->PushInteger(Eluna::get()->_luaState, eventId);
+                Eluna::get()->PushUnit(Eluna::get()->_luaState, player);
+                Eluna::get()->PushInteger(Eluna::get()->_luaState, amount);
+                Eluna::get()->PushUnit(Eluna::get()->_luaState, victim);
+                Eluna::get()->ExecuteCall(4, 0);
+            }
+        }
+
+        void OnPlayerReputationChange(uint32 eventId, Player* player, uint32 factionID, int32& standing, bool incremental)
+        {
+            for (vector<uint16>::iterator itr = Eluna::get()->_playerEventBindings.at(eventId).begin();
+                itr != Eluna::get()->_playerEventBindings.at(eventId).end(); itr++)
+            {
+                Eluna::get()->BeginCall((*itr));
+                Eluna::get()->PushInteger(Eluna::get()->_luaState, eventId);
+                Eluna::get()->PushUnit(Eluna::get()->_luaState, player);
+                Eluna::get()->PushInteger(Eluna::get()->_luaState, factionID);
+                Eluna::get()->PushInteger(Eluna::get()->_luaState, standing);
+                Eluna::get()->PushBoolean(Eluna::get()->_luaState, incremental);
+                Eluna::get()->ExecuteCall(5, 0);
+            }
+        }
+
+        void OnPlayerDuelRequest(uint32 eventId, Player* target, Player* challenger)
+        {
+            for (vector<uint16>::iterator itr = Eluna::get()->_playerEventBindings.at(eventId).begin();
+                itr != Eluna::get()->_playerEventBindings.at(eventId).end(); itr++)
+            {
+                Eluna::get()->BeginCall((*itr));
+                Eluna::get()->PushInteger(Eluna::get()->_luaState, eventId);
+                Eluna::get()->PushUnit(Eluna::get()->_luaState, target);
+                Eluna::get()->PushUnit(Eluna::get()->_luaState, challenger);
+                Eluna::get()->ExecuteCall(3, 0);
+            }
+        }
+
+        void OnPlayerDuelStart(uint32 eventId, Player* player1, Player* player2)
+        {
+            for (vector<uint16>::iterator itr = Eluna::get()->_playerEventBindings.at(eventId).begin();
+                itr != Eluna::get()->_playerEventBindings.at(eventId).end(); itr++)
+            {
+                Eluna::get()->BeginCall((*itr));
+                Eluna::get()->PushInteger(Eluna::get()->_luaState, eventId);
+                Eluna::get()->PushUnit(Eluna::get()->_luaState, player1);
+                Eluna::get()->PushUnit(Eluna::get()->_luaState, player2);
+                Eluna::get()->ExecuteCall(3, 0);
+            }
+        }
+
+        void OnPlayerDuelEnd(uint32 eventId, Player* winner, Player* loser, DuelCompleteType type)
+        {
+            for (vector<uint16>::iterator itr = Eluna::get()->_playerEventBindings.at(eventId).begin();
+                itr != Eluna::get()->_playerEventBindings.at(eventId).end(); itr++)
+            {
+                Eluna::get()->BeginCall((*itr));
+                Eluna::get()->PushInteger(Eluna::get()->_luaState, eventId);
+                Eluna::get()->PushUnit(Eluna::get()->_luaState, winner);
+                Eluna::get()->PushUnit(Eluna::get()->_luaState, loser);
+                Eluna::get()->PushInteger(Eluna::get()->_luaState, type);
+                Eluna::get()->ExecuteCall(4, 0);
+            }
+        }
+
+        void OnPlayerEmote(uint32 eventId, Player* player, uint32 emote)
+        {
+            for (vector<uint16>::iterator itr = Eluna::get()->_playerEventBindings.at(eventId).begin();
+                itr != Eluna::get()->_playerEventBindings.at(eventId).end(); itr++)
+            {
+                Eluna::get()->BeginCall((*itr));
+                Eluna::get()->PushInteger(Eluna::get()->_luaState, eventId);
+                Eluna::get()->PushUnit(Eluna::get()->_luaState, player);
+                Eluna::get()->PushInteger(Eluna::get()->_luaState, emote);
+                Eluna::get()->ExecuteCall(3, 0);
+            }
+        }
+
+        void OnPlayerLogin(uint32 eventId, Player* player)
+        {
+            for (vector<uint16>::iterator itr = Eluna::get()->_playerEventBindings.at(eventId).begin();
+                itr != Eluna::get()->_playerEventBindings.at(eventId).end(); itr++)
+            {
+                Eluna::get()->BeginCall((*itr));
+                Eluna::get()->PushInteger(Eluna::get()->_luaState, eventId);
+                Eluna::get()->PushUnit(Eluna::get()->_luaState, player);
+                Eluna::get()->ExecuteCall(2, 0);
+            }
+        }
+
+        void OnPlayerLogout(uint32 eventId, Player* player)
+        {
+            for (vector<uint16>::iterator itr = Eluna::get()->_playerEventBindings.at(eventId).begin();
+                itr != Eluna::get()->_playerEventBindings.at(eventId).end(); itr++)
+            {
+                Eluna::get()->BeginCall((*itr));
+                Eluna::get()->PushInteger(Eluna::get()->_luaState, eventId);
+                Eluna::get()->PushUnit(Eluna::get()->_luaState, player);
+                Eluna::get()->ExecuteCall(2, 0);
+            }
+        }
+
+        void OnPlayerCreate(uint32 eventId, Player* player)
+        {
+            for (vector<uint16>::iterator itr = Eluna::get()->_playerEventBindings.at(eventId).begin();
+                itr != Eluna::get()->_playerEventBindings.at(eventId).end(); itr++)
+            {
+                Eluna::get()->BeginCall((*itr));
+                Eluna::get()->PushInteger(Eluna::get()->_luaState, eventId);
+                Eluna::get()->PushUnit(Eluna::get()->_luaState, player);
+                Eluna::get()->ExecuteCall(2, 0);
+            }
+        }
+
+        void OnPlayerSave(uint32 eventId, Player* player)
+        {
+            for (vector<uint16>::iterator itr = Eluna::get()->_playerEventBindings.at(eventId).begin();
+                itr != Eluna::get()->_playerEventBindings.at(eventId).end(); itr++)
+            {
+                Eluna::get()->BeginCall((*itr));
+                Eluna::get()->PushInteger(Eluna::get()->_luaState, eventId);
+                Eluna::get()->PushUnit(Eluna::get()->_luaState, player);
+                Eluna::get()->ExecuteCall(2, 0);
+            }
+        }
+
+        void OnPlayerBindToInstance(uint32 eventId, Player* player, Difficulty difficulty, uint32 mapid, bool permanent)
+        {
+            for (vector<uint16>::iterator itr = Eluna::get()->_playerEventBindings.at(eventId).begin();
+                itr != Eluna::get()->_playerEventBindings.at(eventId).end(); itr++)
+            {
+                Eluna::get()->BeginCall((*itr));
+                Eluna::get()->PushInteger(Eluna::get()->_luaState, eventId);
+                Eluna::get()->PushUnit(Eluna::get()->_luaState, player);
+                Eluna::get()->PushInteger(Eluna::get()->_luaState, difficulty);
+                Eluna::get()->PushInteger(Eluna::get()->_luaState, mapid);
+                Eluna::get()->PushBoolean(Eluna::get()->_luaState, permanent);
+                Eluna::get()->ExecuteCall(5, 0);
+            }
+        }
+
+        void OnPlayerUpdateZone(uint32 eventId, Player* player, uint32 newZone, uint32 newArea)
+        {
+            for (vector<uint16>::iterator itr = Eluna::get()->_playerEventBindings.at(eventId).begin();
+                itr != Eluna::get()->_playerEventBindings.at(eventId).end(); itr++)
+            {
+                Eluna::get()->BeginCall((*itr));
+                Eluna::get()->PushInteger(Eluna::get()->_luaState, eventId);
+                Eluna::get()->PushUnit(Eluna::get()->_luaState, player);
+                Eluna::get()->PushInteger(Eluna::get()->_luaState, newZone);
+                Eluna::get()->PushInteger(Eluna::get()->_luaState, newArea);
+                Eluna::get()->ExecuteCall(4, 0);
+            }
+        }
 
 		bool OnGossipHello(uint32 eventId, Player* player, Creature* creature)
 		{
