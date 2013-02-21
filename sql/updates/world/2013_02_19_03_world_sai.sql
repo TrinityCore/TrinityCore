@@ -1,3 +1,4 @@
+-- creature_ai_scripts table doesnt exist in TDB_full_434.04_2013_02_14
 -- Fix quest: Gather the Orbs http://www.wowhead.com/quest=10859
 -- ID indexes
 -- Almost all is based on Untaught script, just corrected some stuff with sniff
