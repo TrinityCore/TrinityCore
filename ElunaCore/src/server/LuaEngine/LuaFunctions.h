@@ -56,8 +56,12 @@ ElunaRegister<Player> PlayerMethods[] =
 	{"HasTitle", &LuaPlayer::HasTitle},								// :HasTitle(id)
 	{"HasSpell", &LuaPlayer::HasSpell},								// :HasSpell(id)
 
-	// Other
+	// Gossip
+	{"GossipMenuAddItem", &LuaPlayer::GossipMenuAddItem },         // :GossipMenuAddItem(icon, msg, Intid, code, accept_decline_message, money)
+	{"GossipComplete", &LuaPlayer::GossipComplete },               // :GossipComplete()
+	{"GossipSendMenu", &LuaPlayer::GossipSendMenu },               // :GossipSendMenu(npc_text, unit)
 
+	// Other
 	{"SendBroadcastMessage", &LuaPlayer::SendBroadcastMessage},		// :SendBroadcastMessage(message)
 	{"GiveCoinage", &LuaPlayer::GiveCoinage},						// :GiveCoinage(amount) - MODIFIES (does not set) coinage count.
 	{"RemoveCoinage", &LuaPlayer::RemoveCoinage},					// :RemoveCoinage(amount) - Removes amount of coinage from plr.

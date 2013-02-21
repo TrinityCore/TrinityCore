@@ -3,6 +3,8 @@
 #include "Player.h"
 #include "GuildMgr.h"
 #include "Group.h"
+#include "GossipDef.h"
+#include "ScriptedGossip.h"
 
 class LuaPlayer
 {
@@ -843,6 +845,53 @@ class LuaPlayer
 				return 0;
 	
 			player->RestoreDisplayId();
+			return 0;
+		}
+
+		// GossipMenuAddItem(icon, msg, Intid, code, accept_decline_message, money)
+		static int GossipMenuAddItem(lua_State* L, Player* player)
+		{
+			if (!player || !player->IsInWorld())
+			{
+				lua_pushnil(L);
+				return 0;
+			}
+
+			int _icon = luaL_checknumber(L, 1);
+			const char* msg = luaL_checkstring(L, 2);
+			int _intid = luaL_checknumber(L, 3);
+			bool _code = luaL_optint(L, 4, false);
+			const char* _promptMsg = luaL_optstring(L, 5, "");
+			int _money = luaL_optint(L, 6, 0);
+
+			player->PlayerTalkClass->GetGossipMenu().AddMenuItem(-1, _icon, msg, GOSSIP_SENDER_MAIN, _intid, _promptMsg, _money, _code);
+			return 0;
+		}
+
+		// GossipComplete()
+		static int GossipComplete(lua_State* L, Player* player)
+		{
+			if (!player || !player->IsInWorld())
+			{
+				lua_pushnil(L);
+				return 0;
+			}
+
+			player->PlayerTalkClass->SendCloseGossip();
+			return 0;
+		}
+
+		// GossipSendMenu(npc_text, unit)
+		static int GossipSendMenu(lua_State* L, Player* player)
+		{
+			if (!player || !player->IsInWorld())
+			{
+				lua_pushnil(L);
+				return 0;
+			}
+
+			int _npcText = luaL_checknumber(L, 1);
+			player->PlayerTalkClass->SendGossipMenu(_npcText, player->GetGUID());
 			return 0;
 		}
 };

@@ -3,9 +3,7 @@
 */
 #pragma warning (disable:4006)
 #include "LuaEngine.h"
-#include "Chat.h"
 #include "LuaFunctions.h"
-#include "Creature.h"
 
 Eluna* Eluna::LuaEngine = NULL; // give it a value
 ElunaScript* Eluna::Script = NULL;
@@ -209,8 +207,8 @@ void Eluna::PushUnit(lua_State* L, Unit* unit)
 /*
 CreatureAI* Eluna::GetLuaCreatureAI(Creature* creature)
 {
-	if (!Eluna::get()->GetCreatureScript()->GetCreatureBindingForId(creature->GetEntry()))
-		return Eluna::get()->GetCreatureScript()->GetAI(creature);
+	if (GetCreatureScript()->GetCreatureBindingForId(creature->GetEntry()))
+		return GetCreatureScript()->GetAI(creature);
 	return NULL;
 }*/
 

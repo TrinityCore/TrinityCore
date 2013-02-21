@@ -11,11 +11,15 @@ class LuaCreatureAI : public CreatureScript
 		LuaCreatureAI() : CreatureScript("LuaCreature") { }
 		~LuaCreatureAI() { }
 
-		CreatureAI * GetLuaCreatureAI(Creature * creature) const { return new LuaScriptedAI(creature); }
+		CreatureAI* GetLuaCreatureAI(Creature * creature) const { return new LuaScriptedAI(creature); }
 
 		struct LuaScriptedAI : public ScriptedAI
 		{
 			LuaScriptedAI(Creature * creature) : ScriptedAI(creature) { }
+
+			void EnterCombat(Unit * target)
+			{
+			}
 		};
 };
 #endif
