@@ -152,11 +152,6 @@ void Eluna::report(lua_State* L)
 }
 
 /* Pushes */
-void Eluna::PushNil(lua_State* L)
-{
-    lua_pushnil(L);
-}
-
 void Eluna::PushGUID(lua_State* L, uint64 g)
 {
     lua_pushunsigned(L, GUID_LOPART(g)); 
@@ -286,7 +281,6 @@ static int RegisterCreatureEvent(lua_State* L)
     return 0;
 }
 
-
 void Eluna::Register(uint8 regtype, uint32 id, uint32 evt, uint16 functionRef)
 {
     switch(regtype)
@@ -310,4 +304,34 @@ void Eluna::Register(uint8 regtype, uint32 id, uint32 evt, uint16 functionRef)
 				GetCreatureScript()->RegisterCreatureScript(id, evt, functionRef);
 			break;
     }
+}
+
+void Eluna::Restart()
+{
+	sLog->outInfo(LOG_FILTER_GENERAL, "Eluna Nova::Restarting Engine");
+	for (ElunaBindingMap::iterator itr = get()->_playerEventBindings.begin(); itr != get()->_playerEventBindings.end(); ++itr)
+	{
+		for (vector<uint16>::iterator _itr = itr->second.begin(); _itr != itr->second.end(); ++_itr)
+			luaL_unref(get()->_luaState, LUA_REGISTRYINDEX, (*_itr));
+		itr->second.clear();
+	}
+
+	for (ElunaBindingMap::iterator itr = get()->_gossipEventBindings.begin(); itr != get()->_gossipEventBindings.end(); ++itr)
+	{
+		for (vector<uint16>::iterator _itr = itr->second.begin(); _itr != itr->second.end(); ++_itr)
+			luaL_unref(get()->_luaState, LUA_REGISTRYINDEX, (*_itr));
+		itr->second.clear();
+	}
+
+	for (vector<CreatureBind*>::iterator itr = get()->_creatureEventBindings.begin(); itr != get()->_creatureEventBindings.end(); ++itr)
+	{
+		for (int i = 0; i < CREATURE_EVENT_COUNT; i++)
+			luaL_unref(get()->_luaState, LUA_REGISTRYINDEX, (*itr)->_functionReferences[i]);
+		delete (*itr);
+	}
+	get()->_creatureEventBindings.clear();
+
+	lua_close(get()->_luaState); // Closing
+
+	get()->StartEluna(); // Restarting
 }

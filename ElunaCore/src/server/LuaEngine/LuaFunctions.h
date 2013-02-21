@@ -66,6 +66,7 @@ ElunaRegister<Unit> UnitMethods[] =
     {"GetClass", &LuaUnit::GetClass},                               // :GetClass()
     {"GetClassAsString", &LuaUnit::GetClassAsString},               // :GetClassAsString()
     {"GetUnitType", &LuaUnit::GetUnitType},                         // :GetUnitType() - Returns object type, IE: Player
+	{"GetGearLevel", &LuaUnit::GetGearLevel},                       // :GetGearLevel() -- Returns the player's average gear level
 
     // Setters
     {"SetLevel", &LuaUnit::SetLevel},                               // :SetLevel(amount)

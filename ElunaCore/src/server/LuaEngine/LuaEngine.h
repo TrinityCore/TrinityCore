@@ -155,7 +155,6 @@ class Eluna
 			_gossipEventBindings.clear();
 			_playerEventBindings.clear();
 			_creatureEventBindings.clear();
-			//delete Script;
 		}
 
 		lua_State* _luaState;
@@ -207,10 +206,10 @@ class Eluna
                 }
         }
 		static void Init();
+		static void Restart();
 		void RegisterGlobals(lua_State* L);
 		void LoadDirectory(char* directory, LoadedScripts* scr);
 		// Push
-        void PushNil(lua_State*);
         void PushGUID(lua_State*, uint64); // Gets GUIDLow (uint32)
         //void PushLong(lua_State*, uint64); // works as intended?
         void PushInteger(lua_State*, int);
@@ -449,7 +448,7 @@ class Eluna
 
 					static LuaCreatureScript* GetSingleton() 
 					{ 
-						static LuaCreatureScript* singleton; // Wrong
+						static LuaCreatureScript* singleton;
 						return singleton; 
 					}
 

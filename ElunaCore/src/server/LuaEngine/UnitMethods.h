@@ -396,6 +396,15 @@ public:
         return 1;
     }
 
+	// GetGearLevel()
+	static int GetGearLevel(lua_State* L, Unit* unit)
+	{
+		TO_PLAYER();
+
+		Eluna::get()->PushInteger(L, player->GetAverageItemLevel());
+		return 1;
+	}
+
     // Set Methods
 
     // SetLevel(level)
