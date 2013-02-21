@@ -210,6 +210,7 @@ class Eluna
 		void RegisterGlobals(lua_State* L);
 		void LoadDirectory(char* directory, LoadedScripts* scr);
 		// Push
+        void PushNil(lua_State*);
         void PushGUID(lua_State*, uint64); // Gets GUIDLow (uint32)
         //void PushLong(lua_State*, uint64); // works as intended?
         void PushInteger(lua_State*, int);

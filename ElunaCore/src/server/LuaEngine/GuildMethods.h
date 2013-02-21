@@ -26,8 +26,8 @@ public:
         {
 			if(itr->second->GetGuildId() == pGuild->GetId())
 			{
-				i++;
-				lua_pushnumber(L, i);
+				++i;
+                Eluna::get()->PushUnsigned(L, i);
                 Eluna::get()->PushUnit(L, itr->second);
 				lua_settable(L, tbl);
 			}

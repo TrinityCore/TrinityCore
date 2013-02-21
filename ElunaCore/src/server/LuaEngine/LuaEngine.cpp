@@ -150,6 +150,11 @@ void Eluna::report(lua_State* L)
 }
 
 /* Pushes */
+void Eluna::PushNil(lua_State* L)
+{
+    lua_pushnil(L);
+}
+
 void Eluna::PushGUID(lua_State* L, uint64 g)
 {
     lua_pushunsigned(L, GUID_LOPART(g)); 
