@@ -220,7 +220,7 @@ CreatureAI* Eluna::GetLuaCreatureAI(Creature* creature)
 // RegisterPlayerEvent(ev, func)
 static int RegisterPlayerEvent(lua_State* L)
 {
-        uint16 functionRef;
+        uint16 functionRef = 0;
         lua_settop(L, 2);
         uint32 ev = luaL_checkint(L, 1);
         const char* typeName = luaL_typename(L, 2);
@@ -238,7 +238,7 @@ static int RegisterPlayerEvent(lua_State* L)
 //RegisterGossipEvent(ev, func)
 static int RegisterGossipEvent(lua_State* L)
 {
-        uint16 functionRef;
+        uint16 functionRef = 0;
         lua_settop(L, 2);
         uint32 ev = luaL_checkint(L, 1);
         const char* typeName = luaL_typename(L, 2);
@@ -256,7 +256,7 @@ static int RegisterGossipEvent(lua_State* L)
 // RegisterCreatureEvent(entry, ev, func)
 static int RegisterCreatureEvent(lua_State* L)
 {
-    uint16 functionRef;
+    uint16 functionRef = 0;
     lua_settop(L, 3);
     uint32 entry = luaL_checkint(L, 1);
     uint32 evt  =luaL_checkint(L, 2);
