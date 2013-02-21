@@ -401,7 +401,7 @@ public:
 	{
 		TO_PLAYER();
 
-		Eluna::get()->PushInteger(L, player->GetAverageItemLevel());
+		Eluna::get()->PushFloat(L, player->GetAverageItemLevel());
 		return 1;
 	}
 
@@ -414,7 +414,6 @@ public:
 
         uint32 newLevel = luaL_checkunsigned(L, 1);
         unit->SetLevel(newLevel);
-
         return 0;
     }
 
