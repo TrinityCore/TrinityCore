@@ -91,8 +91,8 @@ ElunaRegister<Unit> UnitMethods[] =
 
 ElunaRegister<Group> GroupMethods[] = {
 	// Getters
-	{"GetMembers", &LuaGroup::GetMembers},							// :GetMembers() - returns a table containing the *names* of the players in this group.
-	{"GetLeader", &LuaGroup::GetLeaderGUID},
+	{"GetMembers", &LuaGroup::GetMembers},							// :GetMembers() - returns a table the players in this group. (Online?)
+	{"GetLeaderGUID", &LuaGroup::GetLeaderGUID},
 	{"GetLeader", &LuaGroup::GetLeader},
 	{"GetUnitType", &LuaGroup::GetUnitType},
 	{"GetGUID", &LuaGroup::GetGUID},
@@ -111,7 +111,7 @@ ElunaRegister<Group> GroupMethods[] = {
 
 ElunaRegister<Guild> GuildMethods[] = {
 	// Getters
-	{"GetMembers", &LuaGuild::GetMembers},							// :GetMembers() - returns a table containing the players in this guild.
+	{"GetMembers", &LuaGuild::GetMembers},							// :GetMembers() - returns a table containing the players in this guild. (Online?)
 	{"GetUnitType", &LuaGuild::GetUnitType},
 	{"GetLeaderGUID", &LuaGuild::GetLeaderGUID},
 	// Setters

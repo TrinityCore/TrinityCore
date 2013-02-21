@@ -51,7 +51,7 @@ public:
         if(!pGuild)
             return 0;
         
-        Eluna::get()->PushUnsigned(L, GUID_LOPART(pGuild->GetLeaderGUID()));
+        Eluna::get()->PushGUID(L, pGuild->GetLeaderGUID());
         return 1;
     }
 };

@@ -23,5 +23,17 @@ namespace LuaGlobalFunctions
 		lua_pushstring(L, _FULLVERSION);
 		return 1;
 	}
+    
+    static int GetPlayerByGUID(lua_State* L)
+    {
+        uint32 guidLow = luaL_checkunsigned(L, 1);
+        sObjectAccessor->FindPlayerByName(MAKE_NEW_GUID(guidLow, 0, HIGHGUID_PLAYER));
+    }
+
+    static int GetPlayerByName(lua_State* L)
+    {
+        const char* message = luaL_checkstring(L, 1);
+        sObjectAccessor->FindPlayerByName(message);
+    }
 }
 #endif
