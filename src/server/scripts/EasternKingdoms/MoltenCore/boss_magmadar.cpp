@@ -73,7 +73,7 @@ class boss_magmadar : public CreatureScript
                 events.ScheduleEvent(EVENT_LAVA_BOMB, 12000);
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;

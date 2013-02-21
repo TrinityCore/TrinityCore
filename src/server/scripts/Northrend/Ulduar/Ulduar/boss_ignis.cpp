@@ -245,7 +245,7 @@ class boss_ignis : public CreatureScript
                     Talk(SAY_SLAY);
             }
 
-            void DoAction(const int32 action)
+            void DoAction(int32 action)
             {
                 switch (action)
                 {
@@ -259,7 +259,7 @@ class boss_ignis : public CreatureScript
                 }
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;
@@ -410,7 +410,7 @@ class npc_iron_construct : public CreatureScript
                 }
             }
 
-            void UpdateAI(const uint32 /*uiDiff*/)
+            void UpdateAI(uint32 /*uiDiff*/)
             {
                 if (!UpdateVictim())
                     return;
@@ -483,7 +483,7 @@ class npc_scorch_ground : public CreatureScript
                 _heatTimer = 0;
             }
 
-            void UpdateAI(const uint32 uiDiff)
+            void UpdateAI(uint32 uiDiff)
             {
                 if (_heat)
                 {

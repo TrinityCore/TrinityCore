@@ -248,7 +248,7 @@ public:
             SummonList.push_back(summon->GetGUID());
         }
 
-        void UpdateAI(const uint32 uiDiff)
+        void UpdateAI(uint32 uiDiff)
         {
             if (Phase == IDLE)
                 return;
@@ -582,7 +582,7 @@ public:
             uiAttackTimer = 3500;
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (!UpdateVictim())
                 return;
@@ -725,7 +725,7 @@ public:
               }
         }
 
-        void UpdateAI(const uint32 uiDiff)
+        void UpdateAI(uint32 uiDiff)
         {
             npc_escortAI::UpdateAI(uiDiff);
 

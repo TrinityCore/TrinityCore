@@ -136,7 +136,7 @@ class boss_general_vezax : public CreatureScript
                 events.ScheduleEvent(EVENT_BERSERK, 10*MINUTE*IN_MILLISECONDS);
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;
@@ -262,7 +262,7 @@ class boss_general_vezax : public CreatureScript
                 return 0;
             }
 
-            void DoAction(int32 const action)
+            void DoAction(int32 action)
             {
                 switch (action)
                 {   
@@ -338,7 +338,7 @@ class boss_saronite_animus : public CreatureScript
                 _profoundTimer = 3*IN_MILLISECONDS;
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;
@@ -391,7 +391,7 @@ class npc_saronite_vapors : public CreatureScript
                 _randomMoveTimer = urand(3*IN_MILLISECONDS, 4.5*IN_MILLISECONDS);
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 diff)
             {
                 if (_instance && _instance->GetBossState(BOSS_VEZAX) != IN_PROGRESS)
                     me->DisappearAndDie();

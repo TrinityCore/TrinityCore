@@ -158,7 +158,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             //Return since we have no target
             if (!UpdateVictim())
@@ -252,7 +252,7 @@ public:
             Talk(SAY_SLAY);
         }
 
-        void DoAction(int32 const action)
+        void DoAction(int32 action)
         {
             if (action == ACTION_OOZE_DEAD)
                 ++abuseTheOoze;
@@ -302,7 +302,7 @@ public:
                         pSummon->AI()->AttackStart(pTarget);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (uiMergeTimer <= diff)
             {

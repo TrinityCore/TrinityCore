@@ -527,7 +527,7 @@ class boss_flame_leviathan : public CreatureScript
                 if (id == DATA_UNBROKEN) _unbroken = static_cast<bool>(data);
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim() || !CheckInRoom())
                     return;
@@ -653,7 +653,7 @@ class boss_flame_leviathan : public CreatureScript
                 }
             }
 
-            void DoAction(int32 const action)
+            void DoAction(int32 action)
             {
                 // Stripped numeric dependency
                 if (action == ACTION_TOWER_OF_FLAMES_DESTROYED || action == ACTION_TOWER_OF_FROST_DESTROYED || action == ACTION_TOWER_OF_LIFE_DESTROYED || action == ACTION_TOWER_OF_STORM_DESTROYED) // Tower destruction, debuff leviathan loot and reduce active tower count
@@ -1022,7 +1022,7 @@ class npc_flame_leviathan_safety_container : public CreatureScript
                 me->SetPosition(x, y, z, 0);
             }
 
-            void UpdateAI(uint32 const /*diff*/) {}
+            void UpdateAI(uint32 /*diff*/) {}
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -1087,7 +1087,7 @@ class npc_mechanolift : public CreatureScript
 
             // Looks a little bit curious, so I'll explain:
             // We are a lift, that tries to transport containers. As there isn't any other (yet known) way to handle this, it's done using a passenger <-> vehicle relation.
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 if (_moveTimer <= diff)
                 {
@@ -1197,7 +1197,7 @@ class npc_pool_of_tar : public CreatureScript
                     me->CastSpell(me, SPELL_BLAZE, true);
             }
 
-            void UpdateAI(uint32 const /*diff*/) {}
+            void UpdateAI(uint32 /*diff*/) {}
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -1231,7 +1231,7 @@ class npc_colossus : public CreatureScript
                     _instance->SetData(DATA_COLOSSUS, _instance->GetData(DATA_COLOSSUS) + 1);
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 /*diff*/)
             {
                 if (!UpdateVictim())
                     return;
@@ -1290,7 +1290,7 @@ class npc_thorims_hammer : public CreatureScript
                 }
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 /*diff*/)
             {
                 if (!me->HasAura(AURA_DUMMY_BLUE))
                     me->CastSpell(me, AURA_DUMMY_BLUE, true);
@@ -1364,7 +1364,7 @@ class npc_mimirons_inferno : public CreatureScript
 
             void WaypointReached(uint32 /*pointId*/) {}
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 diff)
             {
                 npc_escortAI::UpdateAI(diff);
 
@@ -1420,7 +1420,7 @@ class npc_hodirs_fury : public CreatureScript
                 me->SetDisplayId(me->GetCreatureTemplate()->Modelid2);
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 /*diff*/)
             {
                 if (!me->HasAura(AURA_DUMMY_GREEN))
                     me->CastSpell(me, AURA_DUMMY_GREEN, true);
@@ -1524,7 +1524,7 @@ class npc_freyas_ward : public CreatureScript
                 me->SetDisplayId(me->GetCreatureTemplate()->Modelid2);
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 diff)
             {
                 if (_summonTimer <= diff)
                 {
@@ -1579,7 +1579,7 @@ class npc_freya_ward_of_life : public CreatureScript
                 me->GetMotionMaster()->MoveRandom(100);
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;
@@ -1669,7 +1669,7 @@ class npc_lorekeeper : public CreatureScript
         {
             npc_lorekeeperAI(Creature* creature) : ScriptedAI(creature) {}
 
-            void DoAction(int32 const action)
+            void DoAction(int32 action)
             {
                 // Start encounter
                 if (action == ACTION_SPAWN_VEHICLES)

@@ -270,7 +270,7 @@ class boss_eadric : public CreatureScript
                         DoCast(caster, SPELL_EADRIC_ACHIEVEMENT);
         }
 
-        void UpdateAI(const uint32 uiDiff)
+        void UpdateAI(uint32 uiDiff)
         {
             if (bDone && uiResetTimer <= uiDiff)
             {
@@ -445,7 +445,7 @@ class boss_paletress : public CreatureScript
 
         }
 
-        void UpdateAI(const uint32 uiDiff)
+        void UpdateAI(uint32 uiDiff)
         {
             if (bDone && uiResetTimer <= uiDiff)
             {
@@ -604,7 +604,7 @@ class npc_memory : public CreatureScript
             uiWakingNightmare = 7000;
         }
 
-        void UpdateAI(const uint32 uiDiff)
+        void UpdateAI(uint32 uiDiff)
         {
             if (!UpdateVictim())
                 return;
@@ -814,7 +814,7 @@ class npc_argent_soldier : public CreatureScript
             uiWaypoint = uiType;
         }
 
-        void UpdateAI(const uint32 uiDiff)
+        void UpdateAI(uint32 uiDiff)
         {
             npc_escortAI::UpdateAI(uiDiff);
 

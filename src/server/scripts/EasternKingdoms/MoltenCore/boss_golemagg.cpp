@@ -84,7 +84,7 @@ class boss_golemagg : public CreatureScript
                 events.ScheduleEvent(EVENT_EARTHQUAKE, 3000);
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;
@@ -155,7 +155,7 @@ class mob_core_rager : public CreatureScript
                 }
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;

@@ -547,7 +547,7 @@ class boss_warrior_toc5 : public CreatureScript
     		
         }
 
-        void UpdateAI(const uint32 uiDiff)
+        void UpdateAI(uint32 uiDiff)
         {
             if (!bDone && GrandChampionsOutVehicle(me))
             {
@@ -722,7 +722,7 @@ class boss_mage_toc5 : public CreatureScript
 		    hasBeenInCombat = true;
         }
 
-        void UpdateAI(const uint32 uiDiff)
+        void UpdateAI(uint32 uiDiff)
         {
             if (!bDone && GrandChampionsOutVehicle(me))
             {
@@ -887,7 +887,7 @@ class boss_shaman_toc5 : public CreatureScript
             bHome = false;
         }
 
-        void UpdateAI(const uint32 uiDiff)
+        void UpdateAI(uint32 uiDiff)
         {
             if (!bDone && GrandChampionsOutVehicle(me))
             {
@@ -1090,7 +1090,7 @@ class boss_hunter_toc5 : public CreatureScript
 		    hasBeenInCombat = true;
         }
 
-        void UpdateAI(const uint32 uiDiff)
+        void UpdateAI(uint32 uiDiff)
         {
             if (!bDone && GrandChampionsOutVehicle(me))
             {
@@ -1304,7 +1304,7 @@ class boss_rouge_toc5 : public CreatureScript
 		    hasBeenInCombat = true;
         }
 
-        void UpdateAI(const uint32 uiDiff)
+        void UpdateAI(uint32 uiDiff)
         {
             if (!bDone && GrandChampionsOutVehicle(me))
             {

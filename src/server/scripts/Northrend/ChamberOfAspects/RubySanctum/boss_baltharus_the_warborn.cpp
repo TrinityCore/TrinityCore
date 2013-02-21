@@ -85,7 +85,7 @@ class boss_baltharus_the_warborn : public CreatureScript
                 instance->SetData(DATA_BALTHARUS_SHARED_HEALTH, me->GetMaxHealth());
             }
 
-            void DoAction(int32 const action)
+            void DoAction(int32 action)
             {
                 switch (action)
                 {
@@ -162,7 +162,7 @@ class boss_baltharus_the_warborn : public CreatureScript
                     instance->SetData(DATA_BALTHARUS_SHARED_HEALTH, me->GetHealth() - damage);
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 diff)
             {
                 bool introPhase = events.IsInPhase(PHASE_INTRO);
                 if (!UpdateVictim() && !introPhase)
@@ -257,7 +257,7 @@ class npc_baltharus_the_warborn_clone : public CreatureScript
                         killer->Kill(baltharus);
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;
