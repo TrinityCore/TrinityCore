@@ -24,7 +24,7 @@ set(LuaEngine_STAT_SRCS
   LuaScript.h
   LuaCreatureAI.h
   GlobalMethods.h
-  PlayerMethods.h
+  UnitMethods.h
 )
 
 include_directories(

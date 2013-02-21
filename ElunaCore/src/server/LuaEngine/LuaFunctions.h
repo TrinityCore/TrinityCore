@@ -1,74 +1,74 @@
 #ifndef FUNCTION_TABLES_H
 #define FUNCTION_TABLES_H
 
-ElunaRegister<Player> PlayerMethods[] =
+ElunaRegister<Unit> UnitMethods[] =
 {
 	// Getters
-	{"GetByteValue", &LuaPlayer::GetByteValue},						// :GetByteValue(index, offset)
-	{"GetName", &LuaPlayer::GetName},								// :GetName()
-	{"GetLevel", &LuaPlayer::GetLevel},								// :GetLevel()
-	{"GetHealth", &LuaPlayer::GetHealth},							// :GetHealth()
-	{"GetGuildID", &LuaPlayer::GetGuildID},							// :GetGuildID() - nil on no guild.
-	{"GetCoinage", &LuaPlayer::GetCoinage},							// :GetCoinage()
-	{"GetDisplayID", &LuaPlayer::GetDisplayID},						// :GetDisplayID()
-	{"GetGUID", &LuaPlayer::GetGUID},								// :GetGUID()
-	{"GetX", &LuaPlayer::GetX},										// :GetX()
-	{"GetY", &LuaPlayer::GetY},										// :GetY()
-	{"GetZ", &LuaPlayer::GetZ},										// :GetZ()
-	{"GetO", &LuaPlayer::GetO},										// :GetO()
-	{"GetLocation", &LuaPlayer::GetLocation},						// :GetLocation() - returns X, Y, Z and O co-ords (in that order)
-	{"GetAreaID", &LuaPlayer::GetAreaID},							// :GetAreaID()
-	{"GetZoneID", &LuaPlayer::GetZoneID},							// :GetZoneID()
-	{"GetTeam", &LuaPlayer::GetTeam},								// :GetTeam() - returns the player's team. 0 for ally, 1 for whored
-	{"GetPower", &LuaPlayer::GetPower},								// :GetPower(index) - returns power at index. Index can be omitted.
-	{"GetMaxPower", &LuaPlayer::GetMaxPower},						// :GetMaxPower(index) - returns power at index. Index can be omitted.
-	{"GetMaxHealth", &LuaPlayer::GetMaxHealth},						// :GetMaxHealth()
-	{"GetHealthPct", &LuaPlayer::GetHealthPct},						// :GetHealthPct()
-	{"GetPowerPct", &LuaPlayer::GetPowerPct},						// :GetPowerPct(power_id)
-	{"GetRace", &LuaPlayer::GetRace},								// :GetRace()
-	{"GetClass", &LuaPlayer::GetClass},								// :GetClass()
-	{"GetClassAsString", &LuaPlayer::GetClassAsString},				// :GetClassAsString()
-	{"GetItemCount", &LuaPlayer::GetItemCount},						// :GetItemCount(item_id)
-	{"GetUnitType", &LuaPlayer::GetUnitType},						// :GetUnitType() - Returns object type, IE: Player
+	{"GetByteValue", &LuaUnit::GetByteValue},						// :GetByteValue(index, offset)
+	{"GetName", &LuaUnit::GetName},								// :GetName()
+	{"GetLevel", &LuaUnit::GetLevel},								// :GetLevel()
+	{"GetHealth", &LuaUnit::GetHealth},							// :GetHealth()
+	{"GetGuildID", &LuaUnit::GetGuildID},							// :GetGuildID() - nil on no guild.
+	{"GetCoinage", &LuaUnit::GetCoinage},							// :GetCoinage()
+	{"GetDisplayID", &LuaUnit::GetDisplayID},						// :GetDisplayID()
+	{"GetGUID", &LuaUnit::GetGUID},								// :GetGUID()
+	{"GetX", &LuaUnit::GetX},										// :GetX()
+	{"GetY", &LuaUnit::GetY},										// :GetY()
+	{"GetZ", &LuaUnit::GetZ},										// :GetZ()
+	{"GetO", &LuaUnit::GetO},										// :GetO()
+	{"GetLocation", &LuaUnit::GetLocation},						// :GetLocation() - returns X, Y, Z and O co-ords (in that order)
+	{"GetAreaID", &LuaUnit::GetAreaID},							// :GetAreaID()
+	{"GetZoneID", &LuaUnit::GetZoneID},							// :GetZoneID()
+	{"GetTeam", &LuaUnit::GetTeam},								// :GetTeam() - returns the player's team. 0 for ally, 1 for whored
+	{"GetPower", &LuaUnit::GetPower},								// :GetPower(index) - returns power at index. Index can be omitted.
+	{"GetMaxPower", &LuaUnit::GetMaxPower},						// :GetMaxPower(index) - returns power at index. Index can be omitted.
+	{"GetMaxHealth", &LuaUnit::GetMaxHealth},						// :GetMaxHealth()
+	{"GetHealthPct", &LuaUnit::GetHealthPct},						// :GetHealthPct()
+	{"GetPowerPct", &LuaUnit::GetPowerPct},						// :GetPowerPct(power_id)
+	{"GetRace", &LuaUnit::GetRace},								// :GetRace()
+	{"GetClass", &LuaUnit::GetClass},								// :GetClass()
+	{"GetClassAsString", &LuaUnit::GetClassAsString},				// :GetClassAsString()
+	{"GetItemCount", &LuaUnit::GetItemCount},						// :GetItemCount(item_id)
+	{"GetUnitType", &LuaUnit::GetUnitType},						// :GetUnitType() - Returns object type, IE: Player
 
 	// Setters
-	{"SetLevel", &LuaPlayer::SetLevel},								// :SetLevel(amount)
-	{"SetHealth", &LuaPlayer::SetHealth},							// :SetHealth(amount)
-	{"SetMaxHealth", &LuaPlayer::SetMaxHealth},						// :SetMaxHealth(amount)
-	{"SetPower", &LuaPlayer::SetPower},								// :SetPower(index, amount)
-	{"SetMaxPower", &LuaPlayer::SetMaxPower},						// :SetMaxPower(index, amount)
-	{"SetDisplayID", &LuaPlayer::SetDisplayID},						// :SetDisplayID(id)
-	{"SetCoinage", &LuaPlayer::SetCoinage},							// :SetCoinage(amount) - sets plr's coinage to this.
-	{"SetKnownTitle", &LuaPlayer::SetKnownTitle},					// :SetKnownTitle(id)
-	{"UnsetKnownTitle", &LuaPlayer::UnsetKnownTitle},				// :UnsetKnownTitle(id)
+	{"SetLevel", &LuaUnit::SetLevel},								// :SetLevel(amount)
+	{"SetHealth", &LuaUnit::SetHealth},							// :SetHealth(amount)
+	{"SetMaxHealth", &LuaUnit::SetMaxHealth},						// :SetMaxHealth(amount)
+	{"SetPower", &LuaUnit::SetPower},								// :SetPower(index, amount)
+	{"SetMaxPower", &LuaUnit::SetMaxPower},						// :SetMaxPower(index, amount)
+	{"SetDisplayID", &LuaUnit::SetDisplayID},						// :SetDisplayID(id)
+	{"SetCoinage", &LuaUnit::SetCoinage},							// :SetCoinage(amount) - sets plr's coinage to this.
+	{"SetKnownTitle", &LuaUnit::SetKnownTitle},					// :SetKnownTitle(id)
+	{"UnsetKnownTitle", &LuaUnit::UnsetKnownTitle},				// :UnsetKnownTitle(id)
 
 	// Boolean
-	{"IsAlive", &LuaPlayer::IsAlive},								// :IsAlive()
-	{"IsInWorld", &LuaPlayer::IsInWorld},							// :IsInWorld()
-	{"IsPvPFlagged", &LuaPlayer::IsPvPFlagged},						// :IsPvPFlagged()
-	{"HasQuest", &LuaPlayer::HasQuest},								// :HasQuest(id)
-	{"IsInGroup", &LuaPlayer::IsInGroup},							// :IsInGroup()
-	{"IsInGuild", &LuaPlayer::IsInGuild},							// :IsInGuild()
-	{"IsGM", &LuaPlayer::IsGM},										// :IsGM()
-	{"IsAlliance", &LuaPlayer::IsAlliance},							// :IsAlliance()
-	{"IsHorde", &LuaPlayer::IsHorde},								// :IsHorde()
-	{"IsInCombat", &LuaPlayer::IsInCombat},							// :IsHorde()
-	{"HasTitle", &LuaPlayer::HasTitle},								// :HasTitle(id)
-	{"HasSpell", &LuaPlayer::HasSpell},								// :HasSpell(id)
+	{"IsAlive", &LuaUnit::IsAlive},								// :IsAlive()
+	{"IsInWorld", &LuaUnit::IsInWorld},							// :IsInWorld()
+	{"IsPvPFlagged", &LuaUnit::IsPvPFlagged},						// :IsPvPFlagged()
+	{"HasQuest", &LuaUnit::HasQuest},								// :HasQuest(id)
+	{"IsInGroup", &LuaUnit::IsInGroup},							// :IsInGroup()
+	{"IsInGuild", &LuaUnit::IsInGuild},							// :IsInGuild()
+	{"IsGM", &LuaUnit::IsGM},										// :IsGM()
+	{"IsAlliance", &LuaUnit::IsAlliance},							// :IsAlliance()
+	{"IsHorde", &LuaUnit::IsHorde},								// :IsHorde()
+	{"IsInCombat", &LuaUnit::IsInCombat},							// :IsHorde()
+	{"HasTitle", &LuaUnit::HasTitle},								// :HasTitle(id)
+	{"HasSpell", &LuaUnit::HasSpell},								// :HasSpell(id)
 
 	// Other
 
-	{"SendBroadcastMessage", &LuaPlayer::SendBroadcastMessage},		// :SendBroadcastMessage(message)
-	{"GiveCoinage", &LuaPlayer::GiveCoinage},						// :GiveCoinage(amount) - MODIFIES (does not set) coinage count.
-	{"RemoveCoinage", &LuaPlayer::RemoveCoinage},					// :RemoveCoinage(amount) - Removes amount of coinage from plr.
-	{"LearnSpell", &LuaPlayer::LearnSpell},							// :LearnSpell(id) - learns the given spell.
-	{"Teleport", &LuaPlayer::Teleport},								// :Teleport(Map, X, Y, Z, O) - Teleports player to specified co-ordinates.
-	{"AddItem", &LuaPlayer::AddItem},								// :AddItem(id, amount) - Adds amount of item to player.
-	{"RemoveItem", &LuaPlayer::RemoveItem},							// :RemoveItem(id, amount) - Removes amount of item to player.
-	{"DeMorph", &LuaPlayer::DeMorph},								// :DeMorph() - Sets display back to native.
+	{"SendBroadcastMessage", &LuaUnit::SendBroadcastMessage},		// :SendBroadcastMessage(message)
+	{"GiveCoinage", &LuaUnit::GiveCoinage},						// :GiveCoinage(amount) - MODIFIES (does not set) coinage count.
+	{"RemoveCoinage", &LuaUnit::RemoveCoinage},					// :RemoveCoinage(amount) - Removes amount of coinage from plr.
+	{"LearnSpell", &LuaUnit::LearnSpell},							// :LearnSpell(id) - learns the given spell.
+	{"Teleport", &LuaUnit::Teleport},								// :Teleport(Map, X, Y, Z, O) - Teleports player to specified co-ordinates.
+	{"AddItem", &LuaUnit::AddItem},								// :AddItem(id, amount) - Adds amount of item to player.
+	{"RemoveItem", &LuaUnit::RemoveItem},							// :RemoveItem(id, amount) - Removes amount of item to player.
+	{"DeMorph", &LuaUnit::DeMorph},								// :DeMorph() - Sets display back to native.
 	{ NULL, NULL },
 };
 
 template<typename T> ElunaRegister<T>* GetMethodTable() { return NULL; }
-template <> ElunaRegister<Player>* GetMethodTable<Player>() { return PlayerMethods; }
+template <> ElunaRegister<Unit>* GetMethodTable<Unit>() { return UnitMethods; }
 #endif

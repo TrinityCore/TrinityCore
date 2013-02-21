@@ -21,7 +21,7 @@ void Eluna::Init()
 }
 
 template<typename T> const char* GetTName() { return "UNK"; }
-template<> const char* GetTName<Player>() { return "Player"; }
+template<> const char* GetTName<Unit>() { return "Unit"; }
 template<> const char* GetTName<Group>() { return "Group"; }
 template<> const char* GetTName<Guild>() { return "Guild"; }
 template<> const char* GetTName<Creature>() { return "Creature"; }
@@ -41,7 +41,7 @@ void Eluna::StartEluna()
 	RegisterGlobals(_luaState);
 	//Register Templates Here
 	ElunaTemplate<Creature>::Register(_luaState);
-	ElunaTemplate<Player>::Register(_luaState);
+	ElunaTemplate<Unit>::Register(_luaState);
 
     uint32 cnt_uncomp = 0;
     char filename[200];
@@ -197,14 +197,9 @@ void Eluna::PushGuild(lua_State* L, Guild* pGuild)
 void Eluna::PushUnit(lua_State* L, Unit* unit)
 {
     if(unit != NULL)
-    {
-        if(unit->ToPlayer() != NULL && unit->GetTypeId() == TYPEID_PLAYER)
-            Eluna::get()->PushPlayer(L, unit->ToPlayer());
-        else if (unit->ToCreature() != NULL && unit->GetTypeId() == TYPEID_UNIT) 
-            Eluna::get()->PushCreature(L, unit->ToCreature());
-		else
-			lua_pushnil(L);
-    }
+       ElunaTemplate<Unit>::push(L, unit);
+    else
+       lua_pushnil(L);
 }
 /*
 CreatureAI* Eluna::GetLuaCreatureAI(Creature* creature)

@@ -1,5 +1,5 @@
-#ifndef PLAYERMETHODS_H
-#define PLAYERMETHODS_H
+#ifndef UNITMETHODS_H
+#define UNITMETHODS_H
 #include "Player.h"
 #include "GuildMgr.h"
 #include "Group.h"
@@ -14,7 +14,7 @@
 #define TO_UNIT_BOOL()                            if(!unit || !unit->IsInWorld() || !unit->ToUnit())                  { lua_pushboolean(L, false); return 1; }
 #define TO_GAMEOBJECT_BOOL()  GameObject* go;     if(!unit || !unit->IsInWorld() || !(go = unit->ToGameObject()))     { lua_pushboolean(L, false); return 1; }
 
-class LuaPlayer
+class LuaUnit
 {
 public:
 

@@ -14,7 +14,7 @@
 #include <hash_map>
 #include <map>
 #include "GlobalMethods.h"
-#include "PlayerMethods.h"
+#include "UnitMethods.h"
 #include "LuaCreatureAI.h"
 #include "ScriptPCH.h"
 #include "ScriptMgr.h"
@@ -32,7 +32,7 @@ extern "C"
         #include "lauxlib.h"
 };
 
-class LuaPlayer;
+class LuaUnit;
 class ElunaTemplate;
 class ElunaScript;
 class LuaCreatureScript;
