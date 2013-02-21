@@ -206,13 +206,13 @@ void Eluna::PushUnit(lua_State* L, Unit* unit)
 			lua_pushnil(L);
     }
 }
-
+/*
 CreatureAI* Eluna::GetLuaCreatureAI(Creature* creature)
 {
 	if (!Eluna::get()->GetCreatureScript()->GetCreatureBindingForId(creature->GetEntry()))
 		return Eluna::get()->GetCreatureScript()->GetAI(creature);
 	return NULL;
-}
+}*/
 
 // RegisterPlayerEvent(ev, func)
 static int RegisterPlayerEvent(lua_State* L)
