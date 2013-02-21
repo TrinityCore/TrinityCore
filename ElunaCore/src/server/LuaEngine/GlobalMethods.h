@@ -27,14 +27,14 @@ namespace LuaGlobalFunctions
     static int GetPlayerByGUID(lua_State* L)
     {
         uint32 guidLow = luaL_checkunsigned(L, 1);
-        Eluna::get()->PushUnit(sObjectAccessor->FindPlayerByName(MAKE_NEW_GUID(guidLow, 0, HIGHGUID_PLAYER)));
+        Eluna::get()->PushUnit(L, sObjectAccessor->FindPlayer(MAKE_NEW_GUID(guidLow, 0, HIGHGUID_PLAYER)));
         return 1;
     }
 
     static int GetPlayerByName(lua_State* L)
     {
         const char* message = luaL_checkstring(L, 1);
-        Eluna::get()->PushUnit(sObjectAccessor->FindPlayerByName(message));
+        Eluna::get()->PushUnit(L, sObjectAccessor->FindPlayerByName(message));
         return 1;
     }
 }
