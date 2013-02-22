@@ -80,34 +80,36 @@ enum PlayerEvents
 
 enum CreatureEvents
 {
+    //ARC
     CREATURE_EVENT_ON_ENTER_COMBAT                  = 1,    // Implemented
-    CREATURE_EVENT_ON_LEAVE_COMBAT                  = 2,    // Not Implemented
+    CREATURE_EVENT_ON_LEAVE_COMBAT                  = 2,    // Implemented
     CREATURE_EVENT_ON_TARGET_DIED                   = 3,    // Implemented
     CREATURE_EVENT_ON_DIED                          = 4,    // Implemented
-    CREATURE_EVENT_ON_TARGET_PARRIED                = 5,    // Not Implemented
-    CREATURE_EVENT_ON_TARGET_DODGED                 = 6,    // Not Implemented
-    CREATURE_EVENT_ON_TARGET_BLOCKED                = 7,    // Not Implemented
-    CREATURE_EVENT_ON_TARGET_CRIT_HIT               = 8,    // Not Implemented
-    CREATURE_EVENT_ON_PARRY                         = 9,    // Not Implemented
-    CREATURE_EVENT_ON_DODGED                        = 10,   // Not Implemented
-    CREATURE_EVENT_ON_BLOCKED                       = 11,   // Not Implemented
-    CREATURE_EVENT_ON_CRIT_HIT                      = 12,   // Not Implemented
-    CREATURE_EVENT_ON_HIT                           = 13,   // Not Implemented
-    CREATURE_EVENT_ON_ASSIST_TARGET_DIED            = 14,   // Not Implemented
-    CREATURE_EVENT_ON_FEAR                          = 15,   // Not Implemented
-    CREATURE_EVENT_ON_FLEE                          = 16,   // Not Implemented
-    CREATURE_EVENT_ON_CALL_FOR_HELP                 = 17,   // Not Implemented
-    CREATURE_EVENT_ON_LOAD                          = 18,   // Not Implemented
+    //CREATURE_EVENT_ON_TARGET_PARRIED                = 5,    // Not Implemented
+    //CREATURE_EVENT_ON_TARGET_DODGED                 = 6,    // Not Implemented
+    //CREATURE_EVENT_ON_TARGET_BLOCKED                = 7,    // Not Implemented
+    //CREATURE_EVENT_ON_TARGET_CRIT_HIT               = 8,    // Not Implemented
+    //CREATURE_EVENT_ON_PARRY                         = 9,    // Not Implemented
+    //CREATURE_EVENT_ON_DODGED                        = 10,   // Not Implemented
+    //CREATURE_EVENT_ON_BLOCKED                       = 11,   // Not Implemented
+    //CREATURE_EVENT_ON_CRIT_HIT                      = 12,   // Not Implemented
+    //CREATURE_EVENT_ON_HIT                           = 13,   // Not Implemented
+    //CREATURE_EVENT_ON_ASSIST_TARGET_DIED            = 14,   // Not Implemented
+    //CREATURE_EVENT_ON_FEAR                          = 15,   // Not Implemented
+    //CREATURE_EVENT_ON_FLEE                          = 16,   // Not Implemented
+    //CREATURE_EVENT_ON_CALL_FOR_HELP                 = 17,   // Not Implemented
+    CREATURE_EVENT_ON_SPAWN                         = 18,   // Implemented
     CREATURE_EVENT_ON_REACH_WP                      = 19,   // Implemented
-    CREATURE_EVENT_ON_LOOT_TAKEN                    = 20,   // Not Implemented
+    //CREATURE_EVENT_ON_LOOT_TAKEN                    = 20,   // Not Implemented
     CREATURE_EVENT_ON_AIUPDATE                      = 21,   // Implemented
-    CREATURE_EVENT_ON_EMOTE                         = 22,   // Not Implemented
+    CREATURE_EVENT_ON_RECEIVE_EMOTE                 = 22,   // Implemented
     CREATURE_EVENT_ON_DAMAGE_TAKEN                  = 23,   // Implemented
-    CREATURE_EVENT_ON_ENTER_VEHICLE                 = 24,   // Not Implemented
-    CREATURE_EVENT_ON_EXIT_VEHICLE                  = 25,   // Not Implemented
-    CREATURE_EVENT_ON_FIRST_PASSENGER_ENTERED       = 26,   // Not Implemented
-    CREATURE_EVENT_ON_VEHICLE_FULL                  = 27,   // Not Implemented
-    CREATURE_EVENT_ON_LAST_PASSENGER_LEFT           = 28,   // Not Implemented
+    //CREATURE_EVENT_ON_ENTER_VEHICLE                 = 24,   // Not Implemented
+    //CREATURE_EVENT_ON_EXIT_VEHICLE                  = 25,   // Not Implemented
+    //CREATURE_EVENT_ON_FIRST_PASSENGER_ENTERED       = 26,   // Not Implemented
+    //CREATURE_EVENT_ON_VEHICLE_FULL                  = 27,   // Not Implemented
+    //CREATURE_EVENT_ON_LAST_PASSENGER_LEFT           = 28,   // Not Implemented
+    //TC
     CREATURE_EVENT_ON_JUST_SUMMONED_CREATURE        = 29,   // Implemented
     CREATURE_EVENT_ON_SUMMONED_CREATURE_DESPAWN     = 30,   // Implemented
     CREATURE_EVENT_ON_HIT_BY_SPELL                  = 31,   // Implemented
@@ -115,6 +117,20 @@ enum CreatureEvents
     CREATURE_EVENT_ON_POSSESS                       = 33,   // Implemented
     CREATURE_EVENT_ON_PRE_COMBAT                    = 34,   // Implemented
     CREATURE_EVENT_ON_RESET                         = 35,   // Implemented
+    CREATURE_EVENT_ON_CAN_RESPAWN                   = 36,   // Implemented
+    CREATURE_EVENT_ON_SUMMONED                      = 37,   // Implemented
+    CREATURE_EVENT_ON_SUMMONED_CREATURE_DIED        = 38,   // Implemented
+    CREATURE_EVENT_ON_ATTACKED_AT                   = 39,   // Implemented
+    CREATURE_EVENT_ON_CHARMED                       = 40,   // Implemented
+    CREATURE_EVENT_ON_REACH_HOME                    = 41,   // Implemented
+
+    CREATURE_EVENT_ON_OWNER_ATTACKED_AT             = 43,   // Implemented
+    CREATURE_EVENT_ON_CORPSE_REMOVED                = 44,   // Implemented
+    CREATURE_EVENT_ON_CANT_REACH_TARGET             = 45,   // Implemented
+    CREATURE_EVENT_ON_PASSANGER_BOARDED             = 46,   // Implemented
+    CREATURE_EVENT_ON_SPELL_CLICK                   = 47,   // Implemented
+    CREATURE_EVENT_ON_MOVE_IN_LOS                   = 48,   // Implemented
+    CREATURE_EVENT_ON_VISIBLE_MOVE_IN_LOS           = 49,   // Implemented
     CREATURE_EVENT_COUNT
 };
 
@@ -511,6 +527,7 @@ class Eluna
 						~LuaCreatureAI() { }
 						CreatureBind* binding;
                         
+                        //Called for reaction at enter to combat if not in combat yet (enemy can be NULL)
                         //Called at creature aggro either by MoveInLOS or Attack Start
                         void EnterCombat(Unit* target)
                         {
@@ -533,7 +550,7 @@ class Eluna
                         }
 
                         //Called at World update tick
-                        virtual void UpdateAI(uint32 const diff)
+                        void UpdateAI(uint32 const diff)
                         {
                             Eluna::get()->BeginCall(Eluna::LuaCreatureScript::GetCreatureBindingForId(me->GetEntry())->_functionReferences[CREATURE_EVENT_ON_AIUPDATE]);
                             Eluna::get()->PushInteger(Eluna::get()->_luaState, CREATURE_EVENT_ON_AIUPDATE);
@@ -644,73 +661,187 @@ class Eluna
                             Eluna::get()->ExecuteCall(3, 0);
                         }
 
-                        //// Called in Creature::Update when deathstate = DEAD. Inherited classes may maniuplate the ability to respawn based on scripted events.
-                        //virtual bool CanRespawn() { return true; }
+                        // Called in Creature::Update when deathstate = DEAD. Inherited classes may maniuplate the ability to respawn based on scripted events.
+                        bool CanRespawn()
+                        {
+                            bool result = true;
+                            Eluna::get()->BeginCall(Eluna::LuaCreatureScript::GetCreatureBindingForId(me->GetEntry())->_functionReferences[CREATURE_EVENT_ON_CAN_RESPAWN]);
+                            Eluna::get()->PushInteger(Eluna::get()->_luaState, CREATURE_EVENT_ON_CAN_RESPAWN);
+                            Eluna::get()->PushUnit(Eluna::get()->_luaState, me);
+                            if(Eluna::get()->ExecuteCall(2, 1))
+                            {
+                                lua_State* L = Eluna::get()->_luaState;
+                                if(!lua_isnoneornil(L, 1) && !lua_toboolean(L, 1))
+                                    result = false;
+                                Eluna::get()->EndCall(1);
+                            }
+                            return result;
+                        }
 
-                        //// Called for reaction at stopping attack at no attackers or targets
-                        //virtual void EnterEvadeMode();
+                        // Called for reaction at stopping attack at no attackers or targets
+                        void EnterEvadeMode()
+                        {
+                            Eluna::get()->BeginCall(Eluna::LuaCreatureScript::GetCreatureBindingForId(me->GetEntry())->_functionReferences[CREATURE_EVENT_ON_LEAVE_COMBAT]);
+                            Eluna::get()->PushInteger(Eluna::get()->_luaState, CREATURE_EVENT_ON_LEAVE_COMBAT);
+                            Eluna::get()->PushUnit(Eluna::get()->_luaState, me);
+                            Eluna::get()->ExecuteCall(2, 0);
+                        }
 
-                        //// Called for reaction at enter to combat if not in combat yet (enemy can be NULL)
-                        //virtual void EnterCombat(Unit* /*victim*/) {}
+                        // Called when the creature is summoned successfully by other creature
+                        void IsSummonedBy(Unit* summoner)
+                        {
+                            Eluna::get()->BeginCall(Eluna::LuaCreatureScript::GetCreatureBindingForId(me->GetEntry())->_functionReferences[CREATURE_EVENT_ON_SUMMONED]);
+                            Eluna::get()->PushInteger(Eluna::get()->_luaState, CREATURE_EVENT_ON_SUMMONED);
+                            Eluna::get()->PushUnit(Eluna::get()->_luaState, me);
+                            Eluna::get()->PushUnit(Eluna::get()->_luaState, summoner);
+                            Eluna::get()->ExecuteCall(3, 0);
+                        }
 
-                        //// Called when the creature is killed
-                        //virtual void JustDied(Unit* /*killer*/) {}
+                        void SummonedCreatureDies(Creature* summon, Unit* killer)
+                        {
+                            Eluna::get()->BeginCall(Eluna::LuaCreatureScript::GetCreatureBindingForId(me->GetEntry())->_functionReferences[CREATURE_EVENT_ON_SUMMONED_CREATURE_DIED]);
+                            Eluna::get()->PushInteger(Eluna::get()->_luaState, CREATURE_EVENT_ON_SUMMONED_CREATURE_DIED);
+                            Eluna::get()->PushUnit(Eluna::get()->_luaState, me);
+                            Eluna::get()->PushUnit(Eluna::get()->_luaState, summon);
+                            Eluna::get()->PushUnit(Eluna::get()->_luaState, killer);
+                            Eluna::get()->ExecuteCall(4, 0);
+                        }
 
-                        //// Called when the creature kills a unit
-                        //virtual void KilledUnit(Unit* /*victim*/) {}
+                        // Called when the creature is target of hostile action: swing, hostile spell landed, fear/etc)
+                        void AttackedBy(Unit* attacker)
+                        {
+                            Eluna::get()->BeginCall(Eluna::LuaCreatureScript::GetCreatureBindingForId(me->GetEntry())->_functionReferences[CREATURE_EVENT_ON_ATTACKED_AT]);
+                            Eluna::get()->PushInteger(Eluna::get()->_luaState, CREATURE_EVENT_ON_ATTACKED_AT);
+                            Eluna::get()->PushUnit(Eluna::get()->_luaState, me);
+                            Eluna::get()->PushUnit(Eluna::get()->_luaState, attacker);
+                            Eluna::get()->ExecuteCall(3, 0);
+                        }
 
-                        //// Called when the creature summon successfully other creature
-                        //virtual void JustSummoned(Creature* /*summon*/) {}
-                        //virtual void IsSummonedBy(Unit* /*summoner*/) {}
+                        // Called when creature is spawned or respawned (for reseting variables)
+                        void JustRespawned()
+                        {
+                            Eluna::get()->BeginCall(Eluna::LuaCreatureScript::GetCreatureBindingForId(me->GetEntry())->_functionReferences[CREATURE_EVENT_ON_SPAWN]);
+                            Eluna::get()->PushInteger(Eluna::get()->_luaState, CREATURE_EVENT_ON_SPAWN);
+                            Eluna::get()->PushUnit(Eluna::get()->_luaState, me);
+                            Eluna::get()->ExecuteCall(2, 0);
+                            // Reset();
+                        }
 
-                        //virtual void SummonedCreatureDespawn(Creature* /*summon*/) {}
-                        //virtual void SummonedCreatureDies(Creature* /*summon*/, Unit* /*killer*/) {}
+                        void OnCharmed(bool apply)
+                        {
+                            Eluna::get()->BeginCall(Eluna::LuaCreatureScript::GetCreatureBindingForId(me->GetEntry())->_functionReferences[CREATURE_EVENT_ON_CHARMED]);
+                            Eluna::get()->PushInteger(Eluna::get()->_luaState, CREATURE_EVENT_ON_CHARMED);
+                            Eluna::get()->PushUnit(Eluna::get()->_luaState, me);
+                            Eluna::get()->PushBoolean(Eluna::get()->_luaState, apply);
+                            Eluna::get()->ExecuteCall(3, 0);
+                        }
 
-                        //// Called when hit by a spell
-                        //virtual void SpellHit(Unit* /*caster*/, SpellInfo const* /*spell*/) {}
+                        // Called at reaching home after evade
+                        void JustReachedHome()
+                        {
+                            Eluna::get()->BeginCall(Eluna::LuaCreatureScript::GetCreatureBindingForId(me->GetEntry())->_functionReferences[CREATURE_EVENT_ON_REACH_HOME]);
+                            Eluna::get()->PushInteger(Eluna::get()->_luaState, CREATURE_EVENT_ON_REACH_HOME);
+                            Eluna::get()->PushUnit(Eluna::get()->_luaState, me);
+                            Eluna::get()->ExecuteCall(2, 0);
+                        }
 
-                        //// Called when spell hits a target
-                        //virtual void SpellHitTarget(Unit* /*target*/, SpellInfo const* /*spell*/) {}
+                        // Called at text emote receive from player
+                        void ReceiveEmote(Player* player, uint32 emoteId)
+                        {
+                            Eluna::get()->BeginCall(Eluna::LuaCreatureScript::GetCreatureBindingForId(me->GetEntry())->_functionReferences[CREATURE_EVENT_ON_RECEIVE_EMOTE]);
+                            Eluna::get()->PushInteger(Eluna::get()->_luaState, CREATURE_EVENT_ON_RECEIVE_EMOTE);
+                            Eluna::get()->PushUnit(Eluna::get()->_luaState, me);
+                            Eluna::get()->PushUnit(Eluna::get()->_luaState, player);
+                            Eluna::get()->PushUnsigned(Eluna::get()->_luaState, emoteId);
+                            Eluna::get()->ExecuteCall(4, 0);
+                        }
 
-                        //// Called when the creature is target of hostile action: swing, hostile spell landed, fear/etc)
-                        //virtual void AttackedBy(Unit* /*attacker*/) {}
+                        // Called when owner takes damage
+                        void OwnerAttackedBy(Unit* attacker)
+                        {
+                            Eluna::get()->BeginCall(Eluna::LuaCreatureScript::GetCreatureBindingForId(me->GetEntry())->_functionReferences[CREATURE_EVENT_ON_OWNER_ATTACKED_AT]);
+                            Eluna::get()->PushInteger(Eluna::get()->_luaState, CREATURE_EVENT_ON_OWNER_ATTACKED_AT);
+                            Eluna::get()->PushUnit(Eluna::get()->_luaState, me);
+                            Eluna::get()->PushUnit(Eluna::get()->_luaState, attacker);
+                            Eluna::get()->ExecuteCall(3, 0);
+                        }
 
-                        //// Called when creature is spawned or respawned (for reseting variables)
-                        //virtual void JustRespawned() { Reset(); }
+                        // Called when owner attacks something
+                        void OwnerAttacked(Unit* target)
+                        {
+                            Eluna::get()->BeginCall(Eluna::LuaCreatureScript::GetCreatureBindingForId(me->GetEntry())->_functionReferences[CREATURE_EVENT_ON_OWNER_ATTACKED_AT]);
+                            Eluna::get()->PushInteger(Eluna::get()->_luaState, CREATURE_EVENT_ON_OWNER_ATTACKED_AT);
+                            Eluna::get()->PushUnit(Eluna::get()->_luaState, me);
+                            Eluna::get()->PushUnit(Eluna::get()->_luaState, target);
+                            Eluna::get()->ExecuteCall(3, 0);
+                        }
 
-                        //// Called at waypoint reached or point movement finished
-                        //virtual void MovementInform(uint32 /*type*/, uint32 /*id*/) {}
+                        // called when the corpse of this creature gets removed
+                        void CorpseRemoved(uint32& respawnDelay)
+                        {
+                            Eluna::get()->BeginCall(Eluna::LuaCreatureScript::GetCreatureBindingForId(me->GetEntry())->_functionReferences[CREATURE_EVENT_ON_CORPSE_REMOVED]);
+                            Eluna::get()->PushInteger(Eluna::get()->_luaState, CREATURE_EVENT_ON_CORPSE_REMOVED);
+                            Eluna::get()->PushUnit(Eluna::get()->_luaState, me);
+                            Eluna::get()->PushUnsigned(Eluna::get()->_luaState, respawnDelay);
+                            Eluna::get()->ExecuteCall(3, 0);
+                        }
 
-                        //void OnCharmed(bool apply);
+                        // Called when victim entered water and creature can not enter water
+                        bool canReachByRangeAttack(Unit* target)
+                        {
+                            bool result = false;
+                            Eluna::get()->BeginCall(Eluna::LuaCreatureScript::GetCreatureBindingForId(me->GetEntry())->_functionReferences[CREATURE_EVENT_ON_CANT_REACH_TARGET]);
+                            Eluna::get()->PushInteger(Eluna::get()->_luaState, CREATURE_EVENT_ON_CANT_REACH_TARGET);
+                            Eluna::get()->PushUnit(Eluna::get()->_luaState, me);
+                            Eluna::get()->PushUnit(Eluna::get()->_luaState, target);
+                            if(Eluna::get()->ExecuteCall(3, 1))
+                            {
+                                lua_State* L = Eluna::get()->_luaState;
+                                if(!lua_isnoneornil(L, 1) && lua_toboolean(L, 1))
+                                    result = true;
+                                Eluna::get()->EndCall(1);
+                            }
+                            return result;
+                        }
 
-                        //// Called at reaching home after evade
-                        //virtual void JustReachedHome() {}
+                        void PassengerBoarded(Unit* passenger, int8 seatId, bool apply)
+                        {
+                            Eluna::get()->BeginCall(Eluna::LuaCreatureScript::GetCreatureBindingForId(me->GetEntry())->_functionReferences[CREATURE_EVENT_ON_PASSANGER_BOARDED]);
+                            Eluna::get()->PushInteger(Eluna::get()->_luaState, CREATURE_EVENT_ON_PASSANGER_BOARDED);
+                            Eluna::get()->PushUnit(Eluna::get()->_luaState, me);
+                            Eluna::get()->PushUnit(Eluna::get()->_luaState, passenger);
+                            Eluna::get()->PushInteger(Eluna::get()->_luaState, seatId);
+                            Eluna::get()->PushBoolean(Eluna::get()->_luaState, apply);
+                            Eluna::get()->ExecuteCall(5, 0);
+                        }
 
-                        //void DoZoneInCombat(Creature* creature = NULL, float maxRangeToNearestTarget = 50.0f);
+                        void OnSpellClick(Unit* clicker)
+                        {
+                            Eluna::get()->BeginCall(Eluna::LuaCreatureScript::GetCreatureBindingForId(me->GetEntry())->_functionReferences[CREATURE_EVENT_ON_SPELL_CLICK]);
+                            Eluna::get()->PushInteger(Eluna::get()->_luaState, CREATURE_EVENT_ON_SPELL_CLICK);
+                            Eluna::get()->PushUnit(Eluna::get()->_luaState, me);
+                            Eluna::get()->PushUnit(Eluna::get()->_luaState, clicker);
+                            Eluna::get()->ExecuteCall(3, 0);
+                        }
 
-                        //// Called at text emote receive from player
-                        //virtual void ReceiveEmote(Player* /*player*/, uint32 /*emoteId*/) {}
+                        void MoveInLineOfSight(Unit* who)
+                        {
+                            Eluna::get()->BeginCall(Eluna::LuaCreatureScript::GetCreatureBindingForId(me->GetEntry())->_functionReferences[CREATURE_EVENT_ON_MOVE_IN_LOS]);
+                            Eluna::get()->PushInteger(Eluna::get()->_luaState, CREATURE_EVENT_ON_MOVE_IN_LOS);
+                            Eluna::get()->PushUnit(Eluna::get()->_luaState, me);
+                            Eluna::get()->PushUnit(Eluna::get()->_luaState, who);
+                            Eluna::get()->ExecuteCall(3, 0);
+                        }
 
-                        //// Called when owner takes damage
-                        //virtual void OwnerAttackedBy(Unit* /*attacker*/) {}
-
-                        //// Called when owner attacks something
-                        //virtual void OwnerAttacked(Unit* /*target*/) {}
-
-                        //// called when the corpse of this creature gets removed
-                        //virtual void CorpseRemoved(uint32& /*respawnDelay*/) {}
-
-                        //// Called when victim entered water and creature can not enter water
-                        ////virtual bool canReachByRangeAttack(Unit*) { return false; }
-
-                        //virtual void PassengerBoarded(Unit* /*passenger*/, int8 /*seatId*/, bool /*apply*/) {}
-
-                        //virtual void OnSpellClick(Unit* /*clicker*/) { }
-
-                        //virtual void MoveInLineOfSight(Unit* /*who*/);
-
-                        //// Called if IsVisible(Unit* who) is true at each who move, reaction at visibility zone enter
-                        //void MoveInLineOfSight_Safe(Unit* who);
+                        // Called if IsVisible(Unit* who) is true at each who move, reaction at visibility zone enter
+                        void MoveInLineOfSight_Safe(Unit* who)
+                        {
+                            Eluna::get()->BeginCall(Eluna::LuaCreatureScript::GetCreatureBindingForId(me->GetEntry())->_functionReferences[CREATURE_EVENT_ON_MOVE_IN_LOS]);
+                            Eluna::get()->PushInteger(Eluna::get()->_luaState, CREATURE_EVENT_ON_VISIBLE_MOVE_IN_LOS);
+                            Eluna::get()->PushUnit(Eluna::get()->_luaState, me);
+                            Eluna::get()->PushUnit(Eluna::get()->_luaState, who);
+                            Eluna::get()->ExecuteCall(3, 0);
+                        }
 					};
 
 					CreatureAI* GetAI(Creature* creature)
