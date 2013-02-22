@@ -385,6 +385,8 @@ class Spell
         SpellCastResult CheckCast(bool strict);
         SpellCastResult CheckPetCast(Unit* target);
 
+        static uint32 GetCCDelay(SpellInfo const* _spell);
+
         // handlers
         void handle_immediate();
         uint64 handle_delayed(uint64 t_offset);
@@ -482,6 +484,8 @@ class Spell
         void CleanupTargetList();
 
         void SetSpellValue(SpellValueMod mod, int32 value);
+
+        void SetMagnetingAura(Aura* aura) { m_magnetingAura = aura; }
     protected:
         bool HasGlobalCooldown() const;
         void TriggerGlobalCooldown();
@@ -539,7 +543,8 @@ class Spell
         SpellEffectHandleMode effectHandleMode;
         // used in effects handlers
         Aura* m_spellAura;
-
+        // pointer to magneting aura if spell is redirected
+        Aura* m_magnetingAura;
         // this is set in Spell Hit, but used in Apply Aura handler
         DiminishingLevels m_diminishLevel;
         DiminishingGroup m_diminishGroup;
@@ -550,6 +555,7 @@ class Spell
         // Damage and healing in effects need just calculate
         int32 m_damage;           // Damge   in effects count here
         int32 m_healing;          // Healing in effects count here
+        int32 m_true_damage;      // Needed by some spells
 
         // ******************************************
         // Spell trigger system

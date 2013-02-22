@@ -700,6 +700,34 @@ class spell_dru_savage_roar : public SpellScriptLoader
         }
 };
 
+// 50334 Berserk
+class spell_dru_berserk : public SpellScriptLoader
+{
+public:
+    spell_dru_berserk() : SpellScriptLoader("spell_dru_berserk") {}
+
+    class spell_dru_berserk_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_dru_berserk_AuraScript);
+        void HandleEffectApply(AuraEffect const * /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        {
+            if (Unit* target = GetTarget())
+                if (target->GetTypeId() == TYPEID_PLAYER)
+                    target->ToPlayer()->RemoveSpellCategoryCooldown(971, true);
+        }
+
+        void Register()
+        {
+            OnEffectApply += AuraEffectApplyFn(spell_dru_berserk_AuraScript::HandleEffectApply, EFFECT_2, SPELL_AURA_MECHANIC_IMMUNITY, AURA_EFFECT_HANDLE_REAL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_dru_berserk_AuraScript();
+    }
+};
+
 // -50294 - Starfall (AOE)
 class spell_dru_starfall_aoe : public SpellScriptLoader
 {
@@ -1002,6 +1030,7 @@ void AddSC_druid_spell_scripts()
     new spell_dru_primal_tenacity();
     new spell_dru_rip();
     new spell_dru_savage_defense();
+    new spell_dru_berserk();
     new spell_dru_savage_roar();
     new spell_dru_starfall_aoe();
     new spell_dru_starfall_dummy();

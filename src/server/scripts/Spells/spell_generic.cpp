@@ -1043,6 +1043,63 @@ class spell_gen_dungeon_credit : public SpellScriptLoader
         }
 };
 
+enum ModelPerQuestProgress
+
+{
+    // PROG_0_4   = native,
+    PROG_5_9   = 29809,
+    PROG_10_14 = 29275,
+    PROG_15_20 = 29276,
+};
+
+// 66926 Venomhide Raptor Spawn Check
+class spell_gen_venomhide_check : public SpellScriptLoader
+{
+public:
+    spell_gen_venomhide_check() : SpellScriptLoader("spell_gen_venomhide_check") { }
+
+    class spell_gen_venomhide_check_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_gen_venomhide_check_AuraScript)
+        
+        void HandleEffectApply(AuraEffect const * /*aurEff*/, AuraEffectHandleModes /*mode*/)
+
+        {
+            Unit* target = GetTarget();
+            if (!target)
+                return;
+
+            Unit* owner = target->GetCharmerOrOwner();
+            if (!owner || owner->GetTypeId() != TYPEID_PLAYER)
+                return;
+
+            // get queststatus
+            QuestStatusMap::const_iterator itr = owner->ToPlayer()->getQuestStatusMap().find(13906);
+            if (itr->second.Status != QUEST_STATUS_INCOMPLETE)
+                return;
+
+            switch(uint8(itr->second.ItemCount[1]/5))
+            {
+            case 1: target->SetDisplayId(PROG_5_9);   break;
+            case 2: target->SetDisplayId(PROG_10_14); break;
+            case 3: 
+            case 4: target->SetDisplayId(PROG_15_20); break;
+            default: return;
+            }
+        }
+
+        void Register()
+        {
+            OnEffectApply += AuraEffectApplyFn(spell_gen_venomhide_check_AuraScript::HandleEffectApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_gen_venomhide_check_AuraScript();
+    }
+};
+
 class spell_gen_profession_research : public SpellScriptLoader
 {
     public:
@@ -1091,6 +1148,45 @@ class spell_gen_profession_research : public SpellScriptLoader
         {
             return new spell_gen_profession_research_SpellScript();
         }
+};
+
+// 67039 Argent Squire/Gruntling - Mounting Check - Aura
+class spell_gen_mounting_check : public SpellScriptLoader
+{
+public:
+    spell_gen_mounting_check() : SpellScriptLoader("spell_gen_mounting_check") { }
+
+    class spell_gen_mounting_check_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_gen_mounting_check_AuraScript)
+
+    public:
+        spell_gen_mounting_check_AuraScript() { }
+
+        void HandleEffectPeriodic(AuraEffect const * /*aurEff*/)
+        {
+            if (Unit* caster = GetCaster())
+            {
+                if (caster->GetOwner())
+                {
+                    if (caster->GetOwner()->IsMounted())
+                        caster->Mount(29736);
+                    else if (caster->IsMounted())
+                        caster->Dismount();
+                }
+            }
+        }
+
+        void Register()
+        {
+            OnEffectPeriodic += AuraEffectPeriodicFn(spell_gen_mounting_check_AuraScript::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_gen_mounting_check_AuraScript();
+    }
 };
 
 class spell_generic_clone : public SpellScriptLoader
@@ -1409,6 +1505,75 @@ class spell_gen_lifeblood : public SpellScriptLoader
         AuraScript* GetAuraScript() const
         {
             return new spell_gen_lifeblood_AuraScript();
+        }
+};
+
+enum RibbonPoleData
+{
+    SPELL_HAS_FULL_MIDSUMMER_SET        = 58933,
+    SPELL_BURNING_HOT_POLE_DANCE        = 58934,
+    SPELL_RIBBON_DANCE                  = 29175,
+    GO_RIBBON_POLE                      = 181605,
+};
+
+class spell_gen_ribbon_pole_dancer_check : public SpellScriptLoader
+{
+    public:
+        spell_gen_ribbon_pole_dancer_check() : SpellScriptLoader("spell_gen_ribbon_pole_dancer_check") { }
+
+        class spell_gen_ribbon_pole_dancer_check_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_gen_ribbon_pole_dancer_check_AuraScript);
+
+            bool Validate(SpellEntry const* /*spell*/)
+            {
+                if (!sSpellStore.LookupEntry(SPELL_HAS_FULL_MIDSUMMER_SET))
+                    return false;
+                if (!sSpellStore.LookupEntry(SPELL_BURNING_HOT_POLE_DANCE))
+                    return false;
+                if (!sSpellStore.LookupEntry(SPELL_RIBBON_DANCE))
+                    return false;
+                return true;
+            }
+
+            void PeriodicTick(AuraEffect const* /*aurEff*/)
+            {
+                Unit* target = GetTarget();
+
+                if (!target)
+                    return;
+
+                // check if aura needs to be removed
+                if (!target->FindNearestGameObject(GO_RIBBON_POLE, 20.0f) || !target->HasUnitState(UNIT_STATE_CASTING))
+                {
+                    target->InterruptNonMeleeSpells(false);
+                    target->RemoveAurasDueToSpell(GetId());
+                    return;
+                }
+
+                // set xp buff duration
+                if (Aura* aur = target->GetAura(SPELL_RIBBON_DANCE))
+                {
+                    aur->SetMaxDuration(aur->GetMaxDuration() >= 3600000 ? 3600000 : aur->GetMaxDuration() + 180000);
+                    aur->RefreshDuration();
+
+                    // reward achievement criteria
+                    if (aur->GetMaxDuration() == 3600000 && target->HasAura(SPELL_HAS_FULL_MIDSUMMER_SET))
+                        target->CastSpell(target, SPELL_BURNING_HOT_POLE_DANCE, true);
+                }
+                else
+                    target->AddAura(SPELL_RIBBON_DANCE, target);
+            }
+
+            void Register()
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_gen_ribbon_pole_dancer_check_AuraScript::PeriodicTick, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_gen_ribbon_pole_dancer_check_AuraScript();
         }
 };
 
@@ -3535,13 +3700,16 @@ void AddSC_generic_spell_scripts()
     new spell_gen_parachute_ic();
     new spell_gen_gunship_portal();
     new spell_gen_dungeon_credit();
+    new spell_gen_venomhide_check();
     new spell_gen_profession_research();
+    new spell_gen_mounting_check();
     new spell_generic_clone();
     new spell_generic_clone_weapon();
     new spell_gen_clone_weapon_aura();
     new spell_gen_seaforium_blast();
     new spell_gen_turkey_marker();
     new spell_gen_lifeblood();
+    new spell_gen_ribbon_pole_dancer_check();
     new spell_gen_magic_rooster();
     new spell_gen_allow_cast_from_item_only();
     new spell_gen_launch();

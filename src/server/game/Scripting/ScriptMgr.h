@@ -69,7 +69,6 @@ struct OutdoorPvPData;
 
 #define VISIBLE_RANGE       166.0f                          //MAX visible range (size of grid)
 
-
 /*
     TODO: Add more script type classes.
 

@@ -10,6 +10,11 @@ build*/
 .DS_Store
 CMakeLists.txt.user
 *.bak
+branch_*
+merge_*
+push_*
+update_*
+commit
 *.patch
 *.diff
 *.REMOTE.*

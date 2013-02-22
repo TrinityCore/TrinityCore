@@ -16,12 +16,14 @@ set(scripts_STAT_SRCS
   OutdoorPvP/OutdoorPvPZM.cpp
   OutdoorPvP/OutdoorPvPNA.cpp
   OutdoorPvP/OutdoorPvPHP.cpp
+  OutdoorPvP/OutdoorPvPGH.cpp
   OutdoorPvP/OutdoorPvPTF.h
   OutdoorPvP/OutdoorPvPEP.h
   OutdoorPvP/OutdoorPvPEP.cpp
   OutdoorPvP/OutdoorPvPHP.h
   OutdoorPvP/OutdoorPvPZM.h
   OutdoorPvP/OutdoorPvPNA.h
+  OutdoorPvP/OutdoorPvPGH.h
 )
 
 message("  -> Prepared: Outdoor PVP Zones")

@@ -1585,6 +1585,14 @@ PreserveCustomChannels = 1
 PreserveCustomChannelDuration = 14
 
 #
+# Channel.CityOnlyFlag
+# Description: Management for channels with flag CHANNEL_DBC_FLAG_CITY_ONLY.
+# Default: 1 - (Enabled, Channels with flag CHANNEL_DBC_FLAG_CITY_ONLY will be activated in the cities only (blizzlike))
+# 0 - (Disabled, Channels with flag CHANNEL_DBC_FLAG_CITY_ONLY will connected at any place)
+
+Channel.CityOnlyFlag = 1
+
+#
 ###################################################################################################
 
 ###################################################################################################
@@ -2575,6 +2583,23 @@ Guild.AllowMultipleGuildMaster = 0
 ShowKickInWorld = 0
 
 #
+#     ShowMuteInWorld
+#        Description: Determines whether a message is broadcasted to the entire server when a
+#                     player gets mute
+#        Default:     0 - (Disabled)
+#                     1 - (Enabled)
+
+ShowMuteInWorld = 0
+
+#     ShowBanInWorld
+#        Description: Determines whether a message is broadcasted to the entire server when a
+#                     player gets ban
+#        Default:     0 - (Disabled)
+#                     1 - (Enabled)
+
+ShowBanInWorld = 0
+
+#
 #     RecordUpdateTimeDiffInterval
 #        Description: Time (in milliseconds) update time diff is written to the log file.
 #                     Update diff can be used as a performance indicator. Diff < 300: good
@@ -2640,6 +2665,28 @@ PlayerDump.DisallowPaths = 1
 PlayerDump.DisallowOverwrite = 1
 
 #
+#   DuelResetCooldown
+#	Reseting spell cooldowns and restore health and mana with end duel
+#	Default: 0 - Disable
+#		 1 - Enable
+#
+
+DuelResetCooldown = 0
+
+#   PlayersAccessToGMIsland
+#       Prevent access for players to gm island
+#	Default: 0 - Disable
+#		 1 - Enable
+
+PreventPlayersAccessToGMIsland = 0
+
+#    Armory.Enable
+#        Description: Activates the WowArmory.
+#        Default:     0 - (Disable)
+#                     1 - (Enable)
+
+Armory.Enable = 1
+
 #     UI.ShowQuestLevelsInDialogs
 #        Description: Show quest levels next to quest titles in UI dialogs
 #        Example: [13] Westfall Stew
@@ -2648,6 +2695,40 @@ PlayerDump.DisallowOverwrite = 1
 UI.ShowQuestLevelsInDialogs = 0
 
 #
+
+#     Anticheat.Enable
+#        Description: Enables or disables the Anticheat System functionality
+#        Default:     1 - (Enabled)
+#                     0 - (Disabled)
+
+Anticheat.Enable = 1
+
+#     Anticheat.ReportsForIngameWarnings
+#        Description: How many reports the player must have to notify to GameMasters ingame when he generates a new report.
+#        Default:     70
+
+Anticheat.ReportsForIngameWarnings = 70
+
+#     Anticheat.DetectionsEnabled
+#        Description: It represents which detections are enabled.
+#
+#        SPEED_HACK_DETECTION            = 1
+#        FLY_HACK_DETECTION              = 2
+#        WALK_WATER_HACK_DETECTION       = 4
+#        JUMP_HACK_DETECTION             = 8
+#        TELEPORT_PLANE_HACK_DETECTION   = 16
+#        CLIMB_HACK_DETECTION            = 32
+#
+#        Default:     31
+
+Anticheat.DetectionsEnabled = 31
+
+#     Anticheat.MaxReportsForDailyReport
+#        Description: How many reports must the player have to make a report that it is in DB for a day (not only during the player's session).
+#        Default:     70
+
+Anticheat.MaxReportsForDailyReport = 70
+
 ###################################################################################################
 
 ###################################################################################################

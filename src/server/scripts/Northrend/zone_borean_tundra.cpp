@@ -294,6 +294,59 @@ public:
 };
 
 /*######
+## vehicle_wyrmrest_skytalon
+######*/
+
+class vehicle_wyrmrest_skytalon : public CreatureScript
+{
+public:
+    vehicle_wyrmrest_skytalon() : CreatureScript("vehicle_wyrmrest_skytalon") { }
+
+    struct vehicle_wyrmrest_skytalonAI : public VehicleAI
+    {
+        vehicle_wyrmrest_skytalonAI(Creature *c) : VehicleAI(c) { }
+
+        uint32 check_Timer;
+        bool isInUse;
+
+        void Reset()
+        {
+            check_Timer = 6000;
+        }
+
+        void OnCharmed(bool apply)
+        {
+            isInUse = apply;
+
+            if(!apply)
+                check_Timer = 30000;
+        }
+
+        void UpdateAI(const uint32 diff)
+        {
+            if(!me->IsVehicle())
+                return;
+
+            if(!isInUse)
+            {
+                if(check_Timer < diff)
+                {
+                    me->DealDamage(me,me->GetHealth());
+                    check_Timer = 6000;
+                }else check_Timer -= diff;
+            }
+        }
+
+    };
+
+    CreatureAI* GetAI(Creature *_Creature) const
+    {
+        return new  vehicle_wyrmrest_skytalonAI(_Creature);
+    }
+
+};
+
+/*######
 ## npc_iruk
 ######*/
 
@@ -1337,18 +1390,18 @@ public:
 
         bool bCheck;
 
-        uint32 shadowBoltTimer;
-        uint32 deflectionTimer;
-        uint32 soulBlastTimer;
+        uint32 uiShadowBoltTimer;
+        uint32 uiDeflectionTimer;
+        uint32 uiSoulBlastTimer;
 
         void Reset()
         {
             leryssaGUID         = 0;
             arlosGUID           = 0;
             bCheck              = false;
-            shadowBoltTimer   = urand(5000, 12000);
-            deflectionTimer   = urand(20000, 25000);
-            soulBlastTimer    = urand (12000, 18000);
+            uiShadowBoltTimer   = urand(5000, 12000);
+            uiDeflectionTimer   = urand(20000, 25000);
+            uiSoulBlastTimer    = urand(12000, 18000);
         }
         void MovementInform(uint32 uiType, uint32 /*uiId*/)
         {
@@ -1374,25 +1427,25 @@ public:
             if (!UpdateVictim())
                 return;
 
-            if (me->GetAreaId() == 4125)
+            if (me->GetAreaId() == 4128)
             {
-                if (shadowBoltTimer <= uiDiff)
+                if (uiShadowBoltTimer <= uiDiff)
                 {
                     DoCast(me->getVictim(), SPELL_SHADOW_BOLT);
-                    shadowBoltTimer = urand(5000, 12000);
-                } else shadowBoltTimer -= uiDiff;
+                    uiShadowBoltTimer = urand(5000, 12000);
+                } else uiShadowBoltTimer -= uiDiff;
 
-                if (deflectionTimer <= uiDiff)
+                if (uiDeflectionTimer <= uiDiff)
                 {
                     DoCast(me->getVictim(), SPELL_DEFLECTION);
-                    deflectionTimer = urand(20000, 25000);
-                } else deflectionTimer -= uiDiff;
+                    uiDeflectionTimer = urand(20000, 25000);
+                } else uiDeflectionTimer -= uiDiff;
 
-                if (soulBlastTimer <= uiDiff)
+                if (uiSoulBlastTimer <= uiDiff)
                 {
                     DoCast(me->getVictim(), SPELL_SOUL_BLAST);
-                    soulBlastTimer  = urand (12000, 18000);
-                } else soulBlastTimer -= uiDiff;
+                    uiSoulBlastTimer  = urand (12000, 18000);
+                } else uiSoulBlastTimer -= uiDiff;
             }
 
             DoMeleeAttackIfReady();
@@ -2506,12 +2559,67 @@ public:
 
 };
 
+/*######
+## Fizzcrank Recon Pilot - quest fix 11795 and 11887
+######*/
+
+#define GOSSIP_ITEM_PILOT_1  "Search the body for the pilot's insignia."
+#define GOSSIP_ITEM_PILOT_2  "Search the body for the pilot's emergency toolkit."
+
+enum eReconPilot
+{
+    QUEST_EMERGENCY_PROTOCOL_C            = 11795,
+    QUEST_EMERGENCY_SUPPLIES              = 11887,
+    SPELL_SUMMON_INSIGNIA                 = 46166,
+    SPELL_GIVE_EMERGENCY_KIT              = 46362,
+    GOSSIP_TEXT_PILOT                     = 12489
+};
+
+class npc_recon_pilot : public CreatureScript
+{
+public:
+    npc_recon_pilot() : CreatureScript("npc_recon_pilot") { }
+
+    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
+    {
+        if (pPlayer->GetQuestStatus(QUEST_EMERGENCY_PROTOCOL_C) == QUEST_STATUS_INCOMPLETE)
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_PILOT_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+
+        if (pPlayer->GetQuestStatus(QUEST_EMERGENCY_SUPPLIES) == QUEST_STATUS_INCOMPLETE)
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_PILOT_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
+
+        pPlayer->PlayerTalkClass->SendGossipMenu(GOSSIP_TEXT_PILOT, pCreature->GetGUID());
+        return true;
+    }
+
+    bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
+    {
+        pPlayer->PlayerTalkClass->ClearMenus();
+
+        switch (uiAction)
+        {
+            case GOSSIP_ACTION_INFO_DEF+1:
+                pCreature->CastSpell(pPlayer, SPELL_SUMMON_INSIGNIA, true);
+                break;
+            case GOSSIP_ACTION_INFO_DEF+2:
+                pCreature->CastSpell(pPlayer, SPELL_GIVE_EMERGENCY_KIT, true);
+                break;
+        }
+
+        pPlayer->CLOSE_GOSSIP_MENU();
+        pCreature->DespawnOrUnsummon();
+
+        return true;
+    }
+};
+
 void AddSC_borean_tundra()
 {
     new npc_sinkhole_kill_credit();
     new npc_khunok_the_behemoth();
     new npc_keristrasza();
     new npc_corastrasza();
+    new vehicle_wyrmrest_skytalon();
     new npc_iruk();
     new mob_nerubar_victim();
     new npc_jenny();
@@ -2534,4 +2642,5 @@ void AddSC_borean_tundra()
     new npc_valiance_keep_cannoneer();
     new npc_warmage_coldarra();
     new npc_hidden_cultist();
+    new npc_recon_pilot();
 }

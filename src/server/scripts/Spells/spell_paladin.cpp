@@ -33,6 +33,10 @@ enum PaladinSpells
     SPELL_PALADIN_BLESSING_OF_SANCTUARY_BUFF     = 67480,
     SPELL_PALADIN_BLESSING_OF_SANCTUARY_ENERGIZE = 57319,
 
+    PALADIN_SPELL_SACRED_SHIELD_EFFECT           = 58597,
+
+    PALADIN_SPELL_BLESSING_OF_SANCTUARY_HELPER   = 20912,
+
     SPELL_PALADIN_HOLY_SHOCK_R1                  = 20473,
     SPELL_PALADIN_HOLY_SHOCK_R1_DAMAGE           = 25912,
     SPELL_PALADIN_HOLY_SHOCK_R1_HEALING          = 25914,
@@ -41,6 +45,9 @@ enum PaladinSpells
     SPELL_PALADIN_BLESSING_OF_LOWER_CITY_PALADIN = 37879,
     SPELL_PALADIN_BLESSING_OF_LOWER_CITY_PRIEST  = 37880,
     SPELL_PALADIN_BLESSING_OF_LOWER_CITY_SHAMAN  = 37881,
+
+    PALADIN_SPELL_RIGHTEOUS_DEFENCE              = 31789,
+    PALADIN_SPELL_RIGHTEOUS_DEFENCE_EFFECT_1     = 31790,
 
     SPELL_PALADIN_DIVINE_STORM                   = 53385,
     SPELL_PALADIN_DIVINE_STORM_DUMMY             = 54171,
@@ -908,6 +915,7 @@ void AddSC_paladin_spell_scripts()
     new spell_pal_exorcism_and_holy_wrath_damage();
     new spell_pal_eye_for_an_eye();
     new spell_pal_guarded_by_the_light();
+    new spell_pal_sacred_shield();
     new spell_pal_hand_of_sacrifice();
     new spell_pal_hand_of_salvation();
     new spell_pal_holy_shock();

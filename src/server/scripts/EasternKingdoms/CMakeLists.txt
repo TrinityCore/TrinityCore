@@ -54,6 +54,8 @@ set(scripts_STAT_SRCS
   EasternKingdoms/Gnomeregan/instance_gnomeregan.cpp
   EasternKingdoms/Gnomeregan/gnomeregan.cpp
   EasternKingdoms/Gnomeregan/gnomeregan.h
+  EasternKingdoms/OperationGnomeregan/operation_gnomeregan.cpp
+  EasternKingdoms/OperationGnomeregan/operation_gnomeregan.h
   EasternKingdoms/zone_redridge_mountains.cpp
   EasternKingdoms/BlackrockDepths/boss_high_interrogator_gerstahn.cpp
   EasternKingdoms/BlackrockDepths/boss_gorosh_the_dervish.cpp
@@ -68,6 +70,7 @@ set(scripts_STAT_SRCS
   EasternKingdoms/BlackrockDepths/blackrock_depths.h
   EasternKingdoms/BlackrockDepths/boss_emperor_dagran_thaurissan.cpp
   EasternKingdoms/BlackrockDepths/boss_magmus.cpp
+  EasternKingdoms/BlackrockDepths/boss_coren_direbrew.cpp
   EasternKingdoms/zone_ironforge.cpp
   EasternKingdoms/ScarletEnclave/chapter2.cpp
   EasternKingdoms/ScarletEnclave/chapter5.cpp

@@ -187,11 +187,11 @@ public:
                         break;
                     case 1:
                         Talk(SAY_WARRIOR);
-                        DoCast(me, SPELL_WARRIOR);
+                        //DoCast(me, SPELL_WARRIOR);
                         break;
                     case 2:
                         Talk(SAY_DRUID);
-                        DoCast(me, SPELL_DRUID);
+                        //DoCast(me, SPELL_DRUID);
                         break;
                     case 3:
                         Talk(SAY_PRIEST);

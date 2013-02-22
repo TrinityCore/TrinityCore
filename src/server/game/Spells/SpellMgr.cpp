@@ -3039,6 +3039,12 @@ void SpellMgr::LoadDbcDataCorrections()
                 // because of bug in dbc
                 spellInfo->procChance = 0;
                 break;
+            case 32182: // Heroism
+                spellInfo->excludeCasterAuraSpell = 57723; // Exhaustion
+                break;
+            case 2825:  // Bloodlust
+                spellInfo->excludeCasterAuraSpell = 57724; // Sated
+                break;
             case 20335: // Heart of the Crusader
             case 20336:
             case 20337:
@@ -3050,6 +3056,18 @@ void SpellMgr::LoadDbcDataCorrections()
                 // Target entry seems to be wrong for this spell :/
                 spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_CASTER_AREA_PARTY;
                 spellInfo->EffectRadiusIndex[0] = EFFECT_RADIUS_10_YARDS_2;
+                break;
+            case 71189: // Dreamwalker's Rage
+                spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_CASTER;
+                spellInfo->EffectImplicitTargetB[0] = TARGET_UNIT_SRC_AREA_ENEMY;
+                spellInfo->EffectRadiusIndex[0] = 12;
+                break;
+            case 70127: // Mystic Buffet
+            case 72528:
+            case 72529:
+            case 72530:
+                spellInfo->EffectImplicitTargetA[1] = TARGET_SRC_CASTER;
+                spellInfo->EffectImplicitTargetB[1] = TARGET_UNIT_SRC_AREA_ENEMY;
                 break;
             case 44978: // Wild Magic
             case 45001:
@@ -3137,12 +3155,19 @@ void SpellMgr::LoadDbcDataCorrections()
             case 44401: // Missile Barrage
                 spellInfo->procCharges = 1;
                 break;
+            case 53257: // Cobra Strikes
+                spellInfo->procCharges = 2;
+                spellInfo->StackAmount = 0;
+                break;
             case 44544: // Fingers of Frost
                 spellInfo->EffectSpellClassMask[0] = flag96(685904631, 1151048, 0);
                 break;
             case 74396: // Fingers of Frost visual buff
                 spellInfo->procCharges = 2;
                 spellInfo->StackAmount = 0;
+                break;
+            case 24259: // Spell Lock silence (temporary hack)
+                spellInfo->speed = 80;
                 break;
             case 28200: // Ascendance (Talisman of Ascendance trinket)
                 spellInfo->procCharges = 6;
@@ -3195,6 +3220,13 @@ void SpellMgr::LoadDbcDataCorrections()
             case 30421: // Nether Portal - Perseverence
                 spellInfo->EffectBasePoints[2] += 30000;
                 break;
+            // some dummy spell only has dest, should push caster in this case
+            case 62324: // Throw Passenger
+                spellInfo->Targets |= TARGET_FLAG_UNIT_ALLY;
+                break;
+            case 66665: // Burning Breath
+                spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_TARGET_ENEMY;
+                break;
             case 16834: // Natural shapeshifter
             case 16835:
                 spellInfo->DurationIndex = 21;
@@ -3224,12 +3256,31 @@ void SpellMgr::LoadDbcDataCorrections()
                 spellInfo->EffectImplicitTargetB[0] = TARGET_UNIT_SRC_AREA_ALLY;
                 spellInfo->EffectImplicitTargetB[1] = TARGET_UNIT_SRC_AREA_ALLY;
                 break;
+            case 12051: // Evocation - now we can interrupt this
+                spellInfo->InterruptFlags |= SPELL_INTERRUPT_FLAG_INTERRUPT;
+                break;
+            case 42650: // Army of the Dead - now we can interrupt this
+                spellInfo->InterruptFlags = SPELL_INTERRUPT_FLAG_INTERRUPT;
+                break;
             case 57994: // Wind Shear - improper data for EFFECT_1 in 3.3.5 DBC, but is correct in 4.x
                 spellInfo->Effect[EFFECT_1] = SPELL_EFFECT_MODIFY_THREAT_PERCENT;
                 spellInfo->EffectBasePoints[EFFECT_1] = -6; // -5%
                 break;
+            case 20224: // Seals of the Pure (Rank 1)
+            case 20225: // Seals of the Pure (Rank 2)
+            case 20330: // Seals of the Pure (Rank 3)
+            case 20331: // Seals of the Pure (Rank 4)
+            case 20332: // Seals of the Pure (Rank 5)
+                spellInfo->EffectSpellClassMask[EFFECT_0][1] = 0x20400800;
+                break;
             case 63675: // Improved Devouring Plague
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_DONE_BONUS;
+                break;
+            case 33206: // Pain Suppression
+                spellInfo->AttributesEx5 &= ~SPELL_ATTR5_USABLE_WHILE_STUNNED;
+                break;
+            case 56278: // Read Pronouncement, missing EffectApplyAuraName
+                spellInfo->Effect[0] = SPELL_EFFECT_DUMMY;
                 break;
             case 8145: // Tremor Totem (instant pulse)
             case 6474: // Earthbind Totem (instant pulse)
@@ -3310,6 +3361,9 @@ void SpellMgr::LoadDbcDataCorrections()
             case 61719: // Easter Lay Noblegarden Egg Aura - Interrupt flags copied from aura which this aura is linked with
                 spellInfo->AuraInterruptFlags = AURA_INTERRUPT_FLAG_HITBYSPELL | AURA_INTERRUPT_FLAG_TAKE_DAMAGE;
                 break;
+            case 49206: // Summon Gargoyle
+                spellInfo->DurationIndex = 587;
+                break;
             case 70650: // Death Knight T10 Tank 2P Bonus
                 spellInfo->EffectApplyAuraName[0] = SPELL_AURA_ADD_PCT_MODIFIER;
                 break;
@@ -3327,6 +3381,28 @@ void SpellMgr::LoadDbcDataCorrections()
                 break;
             case 63342: // Focused Eyebeam Summon Trigger (Kologarn)
                 spellInfo->MaxAffectedTargets = 1;
+                break;
+            case 64145: // Diminish Power
+            case 63882: // Death Ray Warning Visual
+            case 63886: // Death Ray Damage Visual
+                spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
+                break;
+            case 64172: // Titanic Storm
+                spellInfo->excludeTargetAuraSpell = 65294; // Empowered
+                break;
+            case 63830: // Malady of the Mind
+            case 63881: // Malady of the Mind proc
+            case 63795: // Psychosis
+                spellInfo->EffectImplicitTargetB[0] = TARGET_UNIT_TARGET_ANY;
+                spellInfo->EffectImplicitTargetB[1] = TARGET_UNIT_TARGET_ANY;
+                spellInfo->EffectImplicitTargetB[2] = TARGET_UNIT_TARGET_ANY;
+                break;
+            case 63802: // Brain Link
+                spellInfo->MaxAffectedTargets = 2;
+                spellInfo->EffectRadiusIndex[0] = 12; // 100 yard
+                break;
+            case 63050: // Sanity
+                spellInfo->AttributesEx3 |= SPELL_ATTR3_DEATH_PERSISTENT;
                 break;
             case 62716: // Growth of Nature (Freya)
             case 65584: // Growth of Nature (Freya)
@@ -3515,6 +3591,24 @@ void SpellMgr::LoadDbcDataCorrections()
             case 69846: // Frost Bomb
                 spellInfo->speed = 0.0f;    // This spell's summon happens instantly
                 break;
+            case 68282: // Charge (ToC mount)
+                spellInfo->Effect[0] = SPELL_EFFECT_SCHOOL_DAMAGE;
+                spellInfo->Effect[1] = SPELL_EFFECT_CHARGE;
+                spellInfo->EffectImplicitTargetA[1] = TARGET_UNIT_TARGET_ENEMY;
+                spellInfo->EffectBasePoints[0] = 20*1000;
+            break;
+            case 51590: // Toss Ice Boulder
+                spellInfo->MaxAffectedTargets = 1;
+                break;
+            case 74412: // Emergency Recall [Final]
+                for (int8 i = 0; i < 3; ++i)
+                    spellInfo->EffectImplicitTargetB[i] = TARGET_UNIT_TARGET_ANY;
+                break;
+            case 75536: // Explosion (prevent error message in console)
+            case 75545: // Explosion (prevent error message in console)
+            case 75553: // Emergency Recall [Camera trigger]
+                spellInfo->EffectImplicitTargetB[0] = TARGET_UNIT_TARGET_ANY;
+                break;
             case 71614: // Ice Lock
                 spellInfo->Mechanic = MECHANIC_STUN;
                 break;
@@ -3652,6 +3746,16 @@ void SpellMgr::LoadDbcDataCorrections()
 
         switch (spellInfo->SpellFamilyName)
         {
+            case SPELLFAMILY_PRIEST:
+                // Twin Disciplines should affect at Prayer of Mending
+                if (spellInfo->SpellIconID == 2292)
+                    spellInfo->EffectSpellClassMask[0] = flag96(0, 622642, 2581594112);
+                // Spiritual Healing should affect at Prayer of Mending
+                else if (spellInfo->SpellIconID == 46)
+                    spellInfo->EffectSpellClassMask[0][1] |= 0x20;
+                // Divine Providence should affect at Prayer of Mending
+                else if (spellInfo->SpellIconID == 2845 && spellInfo->Id != 64844)
+                    spellInfo->EffectSpellClassMask[0][1] |= 0x20;
             case SPELLFAMILY_PALADIN:
                 // Seals of the Pure should affect Seal of Righteousness
                 if (spellInfo->SpellIconID == 25 && spellInfo->Attributes & SPELL_ATTR0_PASSIVE)

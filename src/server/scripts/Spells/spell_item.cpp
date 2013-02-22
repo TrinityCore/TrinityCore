@@ -2501,7 +2501,6 @@ void AddSC_item_spell_scripts()
     new spell_item_the_eye_of_diminution();
     new spell_item_underbelly_elixir();
     new spell_item_red_rider_air_rifle();
-
     new spell_item_create_heart_candy();
     new spell_item_book_of_glyph_mastery();
     new spell_item_gift_of_the_harvester();

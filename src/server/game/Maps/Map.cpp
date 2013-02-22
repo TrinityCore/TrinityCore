@@ -699,15 +699,17 @@ void Map::RemoveFromMap(T *obj, bool remove)
     obj->UpdateObjectVisibility(true);
     obj->RemoveFromGrid();
 
-    obj->ResetMap();
-
     if (remove)
     {
         // if option set then object already saved at this moment
         if (!sWorld->getBoolConfig(CONFIG_SAVE_RESPAWN_TIME_IMMEDIATELY))
             obj->SaveRespawnTime();
-        DeleteFromWorld(obj);
     }
+
+    obj->ResetMap();
+
+    if (remove)
+        DeleteFromWorld(obj);
 }
 
 void Map::PlayerRelocation(Player* player, float x, float y, float z, float orientation)
@@ -2328,7 +2330,7 @@ bool InstanceMap::CanEnter(Player* player)
     if (player->GetMapRef().getTarget() == this)
     {
         sLog->outError(LOG_FILTER_MAPS, "InstanceMap::CanEnter - player %s(%u) already in map %d, %d, %d!", player->GetName().c_str(), player->GetGUIDLow(), GetId(), GetInstanceId(), GetSpawnMode());
-        ASSERT(false);
+        //ASSERT(false);
         return false;
     }
 

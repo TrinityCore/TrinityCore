@@ -52,6 +52,7 @@
 #include "DisableMgr.h"
 #include "SpellScript.h"
 #include "InstanceScript.h"
+#include "InstanceSaveMgr.h" 
 #include "SpellInfo.h"
 #include "Battlefield.h"
 #include "BattlefieldMgr.h"
@@ -565,6 +566,7 @@ m_caster((info->AttributesEx6 & SPELL_ATTR6_CAST_BY_CHARMER && caster->GetCharme
     m_preCastSpell = 0;
     m_triggeredByAuraSpell  = NULL;
     m_spellAura = NULL;
+    m_magnetingAura = NULL;
 
     //Auto Shot & Shoot (wand)
     m_autoRepeat = m_spellInfo->IsAutoRepeatRangedSpell();
@@ -573,6 +575,7 @@ m_caster((info->AttributesEx6 & SPELL_ATTR6_CAST_BY_CHARMER && caster->GetCharme
     m_powerCost = 0;                                        // setup to correct value in Spell::prepare, must not be used before.
     m_casttime = 0;                                         // setup to correct value in Spell::prepare, must not be used before.
     m_timer = 0;                                            // will set to castime in prepare
+    m_true_damage = 0;
 
     m_channelTargetEffectMask = 0;
 
@@ -2187,7 +2190,11 @@ void Spell::AddUnitTarget(Unit* target, uint32 effectMask, bool checkIfValid /*=
             m_delayMoment = targetInfo.timeDelay;
     }
     else
-        targetInfo.timeDelay = 0LL;
+    {
+        targetInfo.timeDelay = GetCCDelay(m_spellInfo);
+        if (m_delayMoment == 0 || m_delayMoment > targetInfo.timeDelay)
+            m_delayMoment = targetInfo.timeDelay;
+    }
 
     // If target reflect spell back to caster
     if (targetInfo.missCondition == SPELL_MISS_REFLECT)
@@ -3123,7 +3130,7 @@ void Spell::cancel()
         default:
             break;
     }
-
+    
     SetReferencedFromCurrent(false);
     if (m_selfContainer && *m_selfContainer == this)
         *m_selfContainer = NULL;
@@ -3289,7 +3296,7 @@ void Spell::cast(bool skipCheck)
     SendSpellGo();
 
     // Okay, everything is prepared. Now we need to distinguish between immediate and evented delayed spells
-    if ((m_spellInfo->Speed > 0.0f && !m_spellInfo->IsChanneled()) || m_spellInfo->Id == 14157)
+    if (((m_spellInfo->Speed > 0.0f || GetCCDelay(m_spellInfo) > 0) && !m_spellInfo->IsChanneled()) || m_spellInfo->Id == 14157)
     {
         // Remove used for cast item if need (it can be already NULL after TakeReagents call
         // in case delayed spell remove item at cast delay start
@@ -5315,6 +5322,13 @@ SpellCastResult Spell::CheckCast(bool strict)
                     return SPELL_FAILED_ALREADY_HAVE_CHARM;
                 break;
             }
+            case SPELL_EFFECT_TRANS_DOOR:
+            {
+                // Ritual of Summoning shouldn't be used in Battlegrounds or Arenas
+                if (m_spellInfo->Id == 698 && m_caster->GetTypeId() == TYPEID_PLAYER && m_caster->ToPlayer()->InBattleground())
+                    return SPELL_FAILED_NOT_HERE;
+                break;
+            }
             case SPELL_EFFECT_SUMMON_PLAYER:
             {
                 if (m_caster->GetTypeId() != TYPEID_PLAYER)
@@ -5582,6 +5596,53 @@ SpellCastResult Spell::CheckPetCast(Unit* target)
             return SPELL_FAILED_NOT_READY;
 
     return CheckCast(true);
+}
+
+uint32 Spell::GetCCDelay(SpellInfo const* _spell)
+{
+    // CCD for spell with auras
+    AuraType auraWithCCD[] = {
+        SPELL_AURA_MOD_STUN,
+        SPELL_AURA_MOD_CONFUSE,
+        SPELL_AURA_MOD_FEAR,
+        SPELL_AURA_MOD_SILENCE,
+        SPELL_AURA_MOD_DISARM,
+        SPELL_AURA_MOD_POSSESS
+    };
+    uint8 CCDArraySize = 6;
+
+    const uint32 delayForInstantSpells = 200;
+
+    switch(_spell->SpellFamilyName)
+    {
+        case SPELLFAMILY_HUNTER:
+            // Traps
+            if (_spell->SpellFamilyFlags[0] & 0x8 ||      // Frozen trap
+                _spell->Id == 57879 ||                    // Snake Trap
+                _spell->SpellFamilyFlags[2] & 0x00024000) // Explosive and Immolation Trap
+                return 0;
+
+            // Entrapment
+            if (_spell->SpellIconID == 20)
+                return 0;
+            break;
+        case SPELLFAMILY_DEATHKNIGHT:
+            // Death Grip
+            if (_spell->Id == 49576)
+                return delayForInstantSpells;
+            break;
+        case SPELLFAMILY_ROGUE:
+            // Blind
+            if (_spell->Id == 2094)
+                return delayForInstantSpells;
+            break;
+    }
+
+    for (uint8 i = 0; i < CCDArraySize; ++i)
+        if (_spell->HasAura(auraWithCCD[i]))
+            return delayForInstantSpells;
+
+    return 0;
 }
 
 SpellCastResult Spell::CheckCasterAuras() const

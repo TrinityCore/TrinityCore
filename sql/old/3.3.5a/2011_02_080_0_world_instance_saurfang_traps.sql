@@ -1,7 +1,7 @@
 UPDATE `creature_template` SET `minlevel`=80,`maxlevel`=80,`faction_A`=14,`faction_H`=14,`unit_flags`=0x02000000,`flags_extra`=128,`InhabitType`=7 WHERE `entry`=37744;
 UPDATE `creature_template` SET `RegenHealth`=0 WHERE `entry` IN (36980,38320,38321,38322); -- Ice Tomb health regen
 
-SET @GUID := 137731;
+SET @GUID := 208800;
 DELETE FROM `creature` WHERE `id`=37744;
 INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`DeathState`,`MovementType`,`npcflag`,`unit_flags`,`dynamicflags`) VALUES
 (@GUID+00,37744,631,15,1,0,0,4135.74658,2781.60156,353.163574,4.729,120,0,0,1,0,0,0,0,0,0),

@@ -16,7 +16,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Unit.h"
+#include "AnticheatMgr.h"
 #include "Common.h"
 #include "Battlefield.h"
 #include "BattlefieldMgr.h"
@@ -55,6 +55,7 @@
 #include "Totem.h"
 #include "Transport.h"
 #include "UpdateFieldFlags.h"
+#include "Unit.h"
 #include "Util.h"
 #include "Vehicle.h"
 #include "World.h"
@@ -292,7 +293,6 @@ void GlobalCooldownMgr::CancelGlobalCooldown(SpellInfo const* spellInfo)
 }
 
 ////////////////////////////////////////////////////////////
-// Methods of class Unit
 Unit::~Unit()
 {
     // set current spells as deletable
@@ -684,10 +684,19 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
         Player* killer = ToPlayer();
 
         // in bg, count dmg if victim is also a player
-        if (victim->GetTypeId() == TYPEID_PLAYER)
-            if (Battleground* bg = killer->GetBattleground())
-                bg->UpdatePlayerScore(killer, SCORE_DAMAGE_DONE, damage);
 
+        if (victim->GetTypeId() == TYPEID_PLAYER)
+        {
+            if (Battleground* bg = killer->GetBattleground())
+            {
+                bg->UpdatePlayerScore(killer, SCORE_DAMAGE_DONE, damage);
+                /** World of Warcraft Armory **/
+                if (sWorld->getBoolConfig(CONFIG_ARMORY_ENABLE))
+                    if (Battleground *bgV = ((Player*)victim)->GetBattleground())
+                        bgV->UpdatePlayerScore(((Player*)victim), SCORE_DAMAGE_TAKEN, damage);
+                /** World of Warcraft Armory **/
+            }
+        }
         killer->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_DAMAGE_DONE, damage, 0, victim);
         killer->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_HIT_DEALT, damage);
     }
@@ -1596,6 +1605,10 @@ void Unit::CalcAbsorbResist(Unit* victim, SpellSchoolMask schoolMask, DamageEffe
             if ((*j)->GetMiscValue() & schoolMask)
                 AddPct(damageResisted, -(*j)->GetAmount());
 
+        // Chaos Bolt should not be resisted
+        if (spellInfo && spellInfo->SpellIconID == 3178)
+            damageResisted = 0;
+
         dmgInfo.ResistDamage(uint32(damageResisted));
     }
 
@@ -2145,11 +2158,21 @@ uint32 Unit::CalculateDamage(WeaponAttackType attType, bool normalized, bool add
         }
     }
 
+    if (GetTypeId() == TYPEID_PLAYER)
+    {
+        min_damage /= GetFloatValue(PLAYER_FIELD_MOD_DAMAGE_DONE_PCT);
+        max_damage /= GetFloatValue(PLAYER_FIELD_MOD_DAMAGE_DONE_PCT);
+    }
+
     if (min_damage > max_damage)
         std::swap(min_damage, max_damage);
 
     if (max_damage == 0.0f)
         max_damage = 5.0f;
+
+    // Rounding
+    min_damage += 0.5f;
+    max_damage += 0.5f;
 
     return urand((uint32)min_damage, (uint32)max_damage);
 }
@@ -2500,7 +2523,18 @@ SpellMissInfo Unit::MagicSpellHitResult(Unit* victim, SpellInfo const* spell)
             }
         }
 
-        if (bNegativeAura)
+        // Direct Damage spells should not be fully resisted
+        bool bDirectDamage = false;
+        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+        {
+            if (spell->Effects[i].Effect == SPELL_EFFECT_SCHOOL_DAMAGE || spell->Effects[i].Effect == SPELL_EFFECT_HEALTH_LEECH)
+            {
+                bDirectDamage = true;
+                break;
+            }
+        }
+
+        if (bNegativeAura && !bDirectDamage)
         {
             tmp += victim->GetMaxPositiveAuraModifierByMiscValue(SPELL_AURA_MOD_DEBUFF_RESISTANCE, int32(spell->Dispel)) * 100;
             tmp += victim->GetMaxNegativeAuraModifierByMiscValue(SPELL_AURA_MOD_DEBUFF_RESISTANCE, int32(spell->Dispel)) * 100;
@@ -5009,6 +5043,23 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
         {
             switch (dummySpell->Id)
             {
+                // Grim Reprisal
+                case 63305:
+                {
+                    // return 60% damage to the attacker
+                    basepoints0 = int32(CalculatePctU(damage, 60));
+                    triggered_spell_id = 64039;
+                    break;
+                }
+                //Wrecking Crew
+                case 46867:
+                {
+                    if (!procSpell)
+                        return false;
+
+                    triggered_spell_id = 57518;
+                    break;
+                }
                 // Unstable Power
                 case 24658:
                 {
@@ -5040,6 +5091,20 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                 case 21063:
                     triggered_spell_id = 21064;
                     break;
+		//Item - Icecrown 25 Normal Caster Weapon Proc
+		case 71845:
+                {
+                    triggered_spell_id = 71843;
+                    target = this;
+                    break;
+                }
+		//Item - Icecrown 25 Heroic Caster Weapon Proc
+		case 71846:
+                {
+                    triggered_spell_id = 71844;
+                    target = this;
+                    break;
+                }
                 // Vampiric Aura (boss spell)
                 case 38196:
                 {
@@ -5384,6 +5449,13 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                         return false;
 
                     instance->DoCastSpellOnPlayers(65037);  // Achievement criteria marker
+                    break;
+                }
+                // Meteor Fists
+                case 66725:
+                {
+                    target = getVictim();
+                    triggered_spell_id = 66765;
                     break;
                 }
             }
@@ -5797,7 +5869,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                     // Dispel Magic shares spellfamilyflag with abolish disease
                     if (procSpell->SpellIconID != 74)
                         return false;
-                    if (!target || !target->IsFriendlyTo(this))
+                    if (!target || !target->IsFriendlyTo(this) || target->GetTypeId() != TYPEID_PLAYER)
                         return false;
 
                     basepoints0 = int32(target->CountPctFromMaxHealth(triggerAmount));
@@ -6510,6 +6582,14 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                     target = victim;
                     break;
                 }
+                case 199997: // Divine Storm Helper (SERVERSIDE)
+                {
+                    if (victim == this)
+                        return false;
+
+                    triggeredByAura->SetAmount(triggeredByAura->GetAmount() + damage);
+                    return true;
+                }
                 // Item - Icecrown 25 Normal Dagger Proc
                 case 71880:
                 {
@@ -7080,6 +7160,9 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
             // Mark of Blood
             if (dummySpell->Id == 49005)
             {
+                if (!target || target->GetTypeId() != TYPEID_PLAYER)
+                    return false;
+
                 // TODO: need more info (cooldowns/PPM)
                 triggered_spell_id = 61607;
                 break;
@@ -7910,6 +7993,20 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
 
                         RemoveAurasDueToSpell(stack_spell_id);
                         target = victim;
+                        break;
+                    }
+                    //Item - Icecrown 25 Normal Healer Weapon Proc
+		    case 71865:
+                    {
+                        trigger_spell_id = 71864;
+                        target = this;
+                        break;
+                    }
+		    //Item - Icecrown 25 Heroic Healer Weapon Proc
+		    case 71868:
+                    {
+                        trigger_spell_id = 71866;
+                        target = this;
                         break;
                     }
                     default:
@@ -9489,7 +9586,11 @@ int32 Unit::DealHeal(Unit* victim, uint32 addhealth)
     if (Player* player = victim->ToPlayer())
     {
         player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_TOTAL_HEALING_RECEIVED, gain);
-        player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_HEALING_RECEIVED, addhealth);
+        player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_HEALING_RECEIVED, addhealth);        /** World of Warcraft Armory **/
+        if (sWorld->getBoolConfig(CONFIG_ARMORY_ENABLE))
+            if (Battleground *bgV = victim->ToPlayer()->GetBattleground())
+                bgV->UpdatePlayerScore((Player*)victim, SCORE_HEALING_TAKEN, gain);
+        /** World of Warcraft Armory **/
     }
 
     return gain;
@@ -10493,6 +10594,16 @@ uint32 Unit::SpellCriticalDamageBonus(SpellInfo const* spellProto, uint32 damage
         case SPELL_DAMAGE_CLASS_MELEE:                      // for melee based spells is 100%
         case SPELL_DAMAGE_CLASS_RANGED:
             // TODO: write here full calculation for melee/ranged spells
+
+            // all these spells should have only 50% bonus damage on crit like a magic spells
+            // there is no generic rule
+            if (spellProto->Id == 55078 || spellProto->Id == 61840 ||
+                (spellProto->SpellFamilyName == SPELLFAMILY_HUNTER && spellProto->SpellFamilyFlags[0] & 0x4000))
+            {
+                crit_bonus += damage / 2;
+                break;
+            }
+
             crit_bonus += damage;
             break;
         default:
@@ -11981,6 +12092,9 @@ void Unit::SetVisible(bool x)
 
 void Unit::UpdateSpeed(UnitMoveType mtype, bool forced)
 {
+    //if (this->ToPlayer())
+    //    sAnticheatMgr->DisableAnticheatDetection(this->ToPlayer());
+
     int32 main_speed_mod  = 0;
     float stack_bonus     = 1.0f;
     float non_stack_bonus = 1.0f;
@@ -12596,7 +12710,7 @@ int32 Unit::ModSpellDuration(SpellInfo const* spellProto, Unit const* target, in
     // don't mod permanent auras duration
     if (duration < 0)
         return duration;
-
+        
     // cut duration only of negative effects
     if (!positive)
     {
@@ -15143,7 +15257,13 @@ void Unit::Kill(Unit* victim, bool durabilityLoss)
                 if (instanceMap->IsRaidOrHeroicDungeon())
                 {
                     if (creature->GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_INSTANCE_BIND)
+                    {
                         ((InstanceMap*)instanceMap)->PermBindAllPlayers(creditedPlayer);
+                        /** World of Warcraft Armory **/
+                        if (sWorld->getBoolConfig(CONFIG_ARMORY_ENABLE))
+                            creditedPlayer->CreateWowarmoryFeed(3, creature->GetCreatureTemplate()->Entry, 0, 0);
+                        /** World of Warcraft Armory **/
+                    }
                 }
                 else
                 {
@@ -16106,6 +16226,9 @@ void Unit::UpdateObjectVisibility(bool forced)
 
 void Unit::KnockbackFrom(float x, float y, float speedXY, float speedZ)
 {
+    //if (this->ToPlayer())
+    //    sAnticheatMgr->DisableAnticheatDetection(this->ToPlayer());
+
     Player* player = NULL;
     if (GetTypeId() == TYPEID_PLAYER)
         player = (Player*)this;
@@ -17007,7 +17130,7 @@ uint32 Unit::GetRemainingPeriodicAmount(uint64 caster, uint32 spellId, AuraType 
     {
         if ((*i)->GetCasterGUID() != caster || (*i)->GetId() != spellId || (*i)->GetEffIndex() != effectIndex || !(*i)->GetTotalTicks())
             continue;
-        amount += uint32(((*i)->GetAmount() * std::max<int32>((*i)->GetTotalTicks() - int32((*i)->GetTickNumber()), 0)) / (*i)->GetTotalTicks());
+        amount += uint32(((*i)->GetAmount() * std::max<int32>(int32((*i)->GetTotalTicks() - (*i)->GetTickNumber()), 0)) / (*i)->GetTotalTicks());
         break;
     }
 
