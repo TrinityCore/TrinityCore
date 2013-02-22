@@ -94,7 +94,12 @@ void Eluna::RegisterGlobals(lua_State* L)
 	lua_register(L, "GetGameTime", &LuaGlobalFunctions::GetGameTime);
 	lua_register(L, "SendWorldMessage", &LuaGlobalFunctions::SendWorldMessage);
 	lua_register(L, "GetPlayersInWorld", &LuaGlobalFunctions::GetPlayersInWorld);
+	lua_register(L, "GetPlayersInMap", &LuaGlobalFunctions::GetPlayersInMap);
 	lua_register(L, "WorldDBQuery", &LuaGlobalFunctions::WorldDBQuery);
+	lua_register(L, "GetGuildByName", &LuaGlobalFunctions::GetGuildByName);
+	lua_register(L, "GetGuildByLeaderGUID", &LuaGlobalFunctions::GetGuildByLeaderGUID);
+	lua_register(L, "GetPlayerCount", &LuaGlobalFunctions::GetPlayerCount);
+	lua_register(L, "CreateLuaEvent", &LuaGlobalFunctions::CreateLuaEvent);
 }
 
 void Eluna::LoadDirectory(char* Dirname, LoadedScripts* lscr)

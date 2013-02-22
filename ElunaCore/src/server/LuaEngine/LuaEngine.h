@@ -196,11 +196,17 @@ class Eluna
 			}*/
 		}
 
+        Eluna()
+        {
+            _luaEventMgr = new luaEventMgr();
+        }
+
 		~Eluna()
 		{
 			_gossipEventBindings.clear();
 			_playerEventBindings.clear();
 			_creatureEventBindings.clear();
+            delete _luaEventMgr;
 		}
 
 		lua_State* _luaState;
@@ -252,7 +258,7 @@ class Eluna
             }
         }
 		static void Init();
-		void Restart();
+		static void Restart();
 		void RegisterGlobals(lua_State* L);
 		void LoadDirectory(char* directory, LoadedScripts* scr);
 		// Push
@@ -898,6 +904,91 @@ class Eluna
 			{
 				return LuaCreatureScript::GetSingleton();
 			}
+
+        public:
+            static class luaEventMgr : public WorldScript
+            {
+            public:
+                luaEventMgr() : WorldScript("luaEventMgr")
+                {
+                }
+
+                struct eventData
+                {
+                    uint16 funcRef; uint32 delay; uint32 calls;
+                    eventData(uint16 _funcRef, uint32 _delay, uint32 _calls) :
+                    funcRef(_funcRef), delay(_delay), calls(_calls) {}
+                };
+                typedef std::multimap<uint32, eventData> EventStore;
+
+                void OnUpdate(uint32 diff)
+                {
+                    Update(diff);
+                    ExecuteEvents();
+                }
+
+                void Update(uint32 time)
+                {
+                    _time += time;
+                }
+                bool Empty() const
+                {
+                    return _eventMap.empty();
+                }
+                void CreateLuaEvent(uint16 funcRef, uint32 delay, uint32 calls)
+                {
+                    _eventMap.insert(EventStore::value_type(_time + delay, eventData(funcRef, delay, calls)));
+                }
+                void CancelEvent(uint32 eventId)
+                {
+                    if (Empty())
+                        return;
+
+                    for (EventStore::iterator itr = _eventMap.begin(); itr != _eventMap.end();)
+                    {
+                        if (eventId == (itr->second.funcRef & 0x0000FFFF))
+                            _eventMap.erase(itr++);
+                        else
+                            ++itr;
+                    }
+                }
+                void ExecuteEvents()
+                {
+                    if (Empty())
+                        return;
+                    for (EventStore::iterator itr = _eventMap.begin(); itr != _eventMap.end();)
+                    {
+                        if (itr->first > _time)
+                        {
+                            ++itr;
+                            continue;
+                        }
+                        
+                        // function(eventID, delay, nthcall) - Call is always 0 for infinite and wont reach 0 for others
+                        // if you register a timed event with 3 times, the call arg will be 3 the first time (3,2,1)
+                        printf("Called\n");
+				        Eluna::get()->BeginCall(itr->second.funcRef);
+				        Eluna::get()->PushUnsigned(Eluna::get()->_luaState, itr->second.funcRef);
+                        Eluna::get()->PushUnsigned(Eluna::get()->_luaState, itr->second.delay);
+                        Eluna::get()->PushUnsigned(Eluna::get()->_luaState, itr->second.calls);
+				        Eluna::get()->ExecuteCall(3, 0);
+                                                printf("End\n");
+
+                        if(itr->second.calls != 1)
+                        {
+                            if(itr->second.calls > 1)
+                                itr->second.calls = itr->second.calls-1;
+                            _eventMap.insert(EventStore::value_type(_time + itr->second.delay, itr->second));
+                        }
+                        _eventMap.erase(itr++);
+                    }
+                }
+
+            private:
+                EventStore _eventMap;
+                uint32 _time;
+            };
+            luaEventMgr* _luaEventMgr;
 };
 
 #define sLuaCreatureScript ACE_Singleton<LuaCreatureScript, ACE_Null_Mutex>::instance()

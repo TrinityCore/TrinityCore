@@ -3,6 +3,8 @@
 
 #include "SystemConfig.h"
 #include "World.h"
+#include "MapManager.h"
+#include "GuildMgr.h"
 
 extern "C" 
 {
@@ -86,6 +88,42 @@ namespace LuaGlobalFunctions
         return 1;
     }
 
+    static int GetPlayersInMap(lua_State* L)
+    {
+        uint32 mapID = luaL_checkunsigned(L, 1);
+        uint32 instanceID = luaL_optunsigned(L, 2, 0);
+        int team = luaL_optint(L, 3, 0);
+
+		lua_newtable(L);
+		int tbl = lua_gettop(L);
+		uint32 i = 0;
+
+        Map* map = sMapMgr->FindMap(mapID, instanceID);
+        if(!map)
+        {
+		    lua_settop(L, tbl);
+            return 1;
+        }
+
+        Map::PlayerList const& players = map->GetPlayers();
+        for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+        {
+            Player* player = itr->getSource();
+            if(!player)
+                continue;
+            if (player->GetSession() && (!team || player->GetTeam() == (team == 1 ? ALLIANCE : HORDE)))
+            {
+                ++i;
+                Eluna::get()->PushUnsigned(L, i);
+                Eluna::get()->PushUnit(L, player);
+                lua_settable(L, tbl);
+            }
+        }
+
+        lua_settop(L, tbl);
+        return 1;
+    }
+
 	static int WorldDBQuery(lua_State* L)
 	{
 		const char* query = luaL_checkstring(L, 1);
@@ -97,6 +135,44 @@ namespace LuaGlobalFunctions
 		lua_settop(L, 0);
         // Cant figure out how to pass the result and succesfully get things from it later (atm just fixed it so it compiles, but doesnt work)
 		Eluna::get()->PushQueryResult(L, &result);
+		return 1;
+	}
+
+	static int GetGuildByName(lua_State* L)
+	{
+        const char* name = luaL_checkstring(L, 1);
+        Eluna::get()->PushGuild(L, sGuildMgr->GetGuildByName(name));
+		return 1;
+	}
+
+	static int GetGuildByLeaderGUID(lua_State* L)
+	{
+        uint32 guidLow = luaL_checkunsigned(L, 1);
+        Eluna::get()->PushGuild(L, sGuildMgr->GetGuildByLeader(MAKE_NEW_GUID(guidLow, 0, HIGHGUID_PLAYER)));
+		return 1;
+	}
+
+	static int GetPlayerCount(lua_State* L)
+	{
+        Eluna::get()->PushUnsigned(L, sWorld->GetPlayerCount());
+		return 1;
+	}
+
+	static int CreateLuaEvent(lua_State* L)
+	{
+        const char* typeName = luaL_typename(L, 1);
+        uint32 delay = luaL_checkunsigned(L, 2);
+        uint32 repeats = luaL_checkunsigned(L, 3);
+        if(!typeName)
+            return 0;
+        if(!strcmp(luaL_typename(L, 1), "function") || delay > 0)
+        {
+            int functionRef = lua_ref(L, true);
+            Eluna::get()->_luaEventMgr->CreateLuaEvent(functionRef, delay, repeats);
+            Eluna::get()->PushInteger(L, functionRef);
+        }
+        else
+            return 0;
 		return 1;
 	}
 }
