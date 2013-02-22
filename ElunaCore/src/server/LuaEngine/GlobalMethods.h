@@ -2,6 +2,7 @@
 #define __GLOBAL_METHODS_ELUNA
 
 #include "SystemConfig.h"
+#include "World.h"
 
 extern "C" 
 {
@@ -35,6 +36,12 @@ namespace LuaGlobalFunctions
     {
         const char* message = luaL_checkstring(L, 1);
         Eluna::get()->PushUnit(L, sObjectAccessor->FindPlayerByName(message));
+        return 1;
+    }
+
+    static int GetGameTime(lua_State* L)
+    {
+        Eluna::get()->PushUnsigned(L, sWorld->GetGameTime());
         return 1;
     }
 }

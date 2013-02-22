@@ -84,6 +84,7 @@ void Eluna::RegisterGlobals(lua_State* L)
 	lua_register(L, "GetCoreVersion", &LuaGlobalFunctions::GetCoreVersion);
 	lua_register(L, "GetPlayerByGUID", &LuaGlobalFunctions::GetPlayerByGUID);
 	lua_register(L, "GetPlayerByName", &LuaGlobalFunctions::GetPlayerByName);
+	lua_register(L, "GetGameTime", &LuaGlobalFunctions::GetGameTime);
 }
 
 void Eluna::LoadDirectory(char* Dirname, LoadedScripts* lscr)
