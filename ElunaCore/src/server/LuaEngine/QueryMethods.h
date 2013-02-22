@@ -9,22 +9,29 @@ public:
 
     // QueryResult methods
 
-	//static int GetColumn(lua_State* L, QueryResult* result)
-	//{
- //       if (!result)
- //           return 0;
+	static int GetColumn(lua_State* L, QueryResult* result)
+	{
+        if (!result)
+            return 0;
 
- //       uint32 index = luaL_checkunsigned(L, 1);
- //       
- //       if (index >= result->get()->GetFieldCount())
-	//	{
- //           luaL_error(L, "Bad argument #1 for GetColumn - index (%u) bigger then max column count (%u)", index, result->get()->GetFieldCount());
- //           return 0;
- //       }
-
- //       Eluna::get()->PushQueryField(L, &result->get()->Fetch()[index]);
-	//	return 1;
-	//}
+        uint32 index = luaL_checkunsigned(L, 1);
+		uint32 fields = result->get()->GetFieldCount();
+        
+        if (index >= fields)
+		{
+            luaL_error(L, "Bad argument #1 for GetColumn - index (%u) bigger then max column count (%u)", index, result->get()->GetFieldCount());
+            return 0;
+        }
+		else
+		{
+			Field* field =  result->get()->Fetch();
+			if (field == NULL)
+				lua_pushnil(L);
+			else
+				Eluna::get()->PushQueryField(L, field);
+		}
+		return 1;
+	}
 
 	static int NextRow(lua_State* L, QueryResult* result)
 	{
@@ -164,6 +171,7 @@ public:
             Eluna::get()->PushString(L, result->get()->Fetch()[col].GetCString());
         return 1;
 	}
+
 	static int GetString(lua_State* L, QueryResult* result)
 	{
         uint32 col = luaL_checkunsigned(L, 1);

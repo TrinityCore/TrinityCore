@@ -30,6 +30,7 @@ template<> const char* GetTName<Group>() { return "Group"; }
 template<> const char* GetTName<Guild>() { return "Guild"; }
 template<> const char* GetTName<Log>() { return "Log"; }
 template<> const char* GetTName<QueryResult>() { return "QueryResult"; }
+template<> const char* GetTName<Field>() { return "Field"; }
 
 void Eluna::StartEluna()
 {
@@ -48,6 +49,7 @@ void Eluna::StartEluna()
 	ElunaTemplate<Group>::Register(_luaState);
 	ElunaTemplate<Guild>::Register(_luaState);
 	ElunaTemplate<QueryResult>::Register(_luaState);
+	ElunaTemplate<Field>::Register(_luaState);
 
     uint32 cnt_uncomp = 0;
     char filename[200];
@@ -248,6 +250,17 @@ void Eluna::PushQueryResult(lua_State* L, QueryResult* result)
         lua_pushnil(L);
 }
 
+void Eluna::PushQueryField(lua_State* L, Field* field)
+{
+	if (!L) 
+	{
+		L = _luaState;
+		ElunaTemplate<Field>::push(L, field);
+	}
+	else
+		lua_pushnil(L);
+}
+
 CreatureAI* Eluna::GetLuaCreatureAI(Creature* creature)
 {
 	if (sLuaCreatureScript->GetCreatureBindingForId(creature->GetEntry()))
@@ -278,9 +291,10 @@ static int RegisterPlayerEvent(lua_State* L)
 static int RegisterGossipEvent(lua_State* L)
 {
         uint16 functionRef = 0;
-        lua_settop(L, 2);
-        uint32 ev = luaL_checkint(L, 1);
-        const char* typeName = luaL_typename(L, 2);
+        lua_settop(L, 3);
+		uint32 entry = luaL_checkint(L, 1);
+        uint32 ev = luaL_checkint(L, 2);
+        const char* typeName = luaL_typename(L, 3);
 
         if (ev == 0 || !typeName) 
 			return 0;
@@ -289,7 +303,7 @@ static int RegisterGossipEvent(lua_State* L)
             functionRef = (uint16)lua_ref(L, true);
 
         if(functionRef > 0)
-            Eluna::get()->Register(REGTYPE_GOSSIP, 0, ev, functionRef);
+            Eluna::get()->Register(REGTYPE_GOSSIP, entry, ev, functionRef);
         return 0;
 }
 
@@ -323,7 +337,7 @@ void Eluna::Register(uint8 regtype, uint32 id, uint32 evt, uint16 functionRef)
 
         case REGTYPE_GOSSIP:
             if(evt < GOSSIP_EVENT_COUNT)
-				_gossipEventBindings.at(evt).push_back(functionRef);
+				sLuaCreatureScript->RegisterGossipScript(id, evt, functionRef);
             break;
 
 		case REGTYPE_CREATURE:
@@ -342,12 +356,18 @@ void Eluna::Restart()
 			luaL_unref(get()->_luaState, LUA_REGISTRYINDEX, (*_itr));
 		itr->second.clear();
 	}
-
+	/*
 	for (ElunaBindingMap::iterator itr = get()->_gossipEventBindings.begin(); itr != get()->_gossipEventBindings.end(); ++itr)
 	{
 		for (vector<uint16>::iterator _itr = itr->second.begin(); _itr != itr->second.end(); ++_itr)
 			luaL_unref(get()->_luaState, LUA_REGISTRYINDEX, (*_itr));
 		itr->second.clear();
+	}*/
+	for (vector<CreatureBind*>::iterator itr = get()->_gossipEventBindings.begin(); itr != get()->_gossipEventBindings.end(); ++itr)
+	{
+		for (int i = 0; i < GOSSIP_EVENT_COUNT; i++)
+			luaL_unref(get()->_luaState, LUA_REGISTRYINDEX, (*itr)->_gossipReferences[i]);
+		delete (*itr);
 	}
 	get()->_gossipEventBindings.clear();
 
