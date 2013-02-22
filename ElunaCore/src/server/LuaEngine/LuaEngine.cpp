@@ -30,6 +30,7 @@ template<> const char* GetTName<Group>() { return "Group"; }
 template<> const char* GetTName<Guild>() { return "Guild"; }
 template<> const char* GetTName<Log>() { return "Log"; }
 template<> const char* GetTName<QueryResult>() { return "QueryResult"; }
+template<> const char* GetTName<Field>() { return "Field"; }
 
 void Eluna::StartEluna()
 {
@@ -48,6 +49,7 @@ void Eluna::StartEluna()
 	ElunaTemplate<Group>::Register(_luaState);
 	ElunaTemplate<Guild>::Register(_luaState);
 	ElunaTemplate<QueryResult>::Register(_luaState);
+	ElunaTemplate<Field>::Register(_luaState);
 
     uint32 cnt_uncomp = 0;
     char filename[200];
@@ -244,6 +246,17 @@ void Eluna::PushQueryResult(lua_State* L, QueryResult* result)
         ElunaTemplate<QueryResult>::push(L, result);
     else
         lua_pushnil(L);
+}
+
+void Eluna::PushQueryField(lua_State* L, Field* field)
+{
+	if (!L) 
+	{
+		L = _luaState;
+		ElunaTemplate<Field>::push(L, field);
+	}
+	else
+		lua_pushnil(L);
 }
 
 CreatureAI* Eluna::GetLuaCreatureAI(Creature* creature)

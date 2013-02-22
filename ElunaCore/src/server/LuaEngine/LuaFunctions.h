@@ -137,7 +137,7 @@ ElunaRegister<Guild> GuildMethods[] =
 
 ElunaRegister<QueryResult> QueryMethods[] =  // Not working yet
 {
-	//{"GetColumn", &LuaQuery::GetColumn},
+	{"GetColumn", &LuaQuery::GetColumn},
 	{"NextRow", &LuaQuery::NextRow},
 	{"GetColumnCount", &LuaQuery::GetColumnCount},
 	{"GetRowCount", &LuaQuery::GetRowCount},
