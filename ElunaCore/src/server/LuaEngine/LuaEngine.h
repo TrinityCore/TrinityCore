@@ -264,7 +264,8 @@ class Eluna
         void PushString(lua_State*, const char*);
         void PushGroup(lua_State*, Group*);
         void PushGuild(lua_State*, Guild*);
-		void PushUnit(lua_State*, Unit* unit);
+		void PushUnit(lua_State*, Unit*);
+		void PushQueryResult(lua_State*, QueryResult*);
 		// Checks
         Player * CHECK_PLAYER(lua_State* L, int narg)
         {
@@ -280,6 +281,14 @@ class Eluna
 				return ElunaTemplate<Unit>::check(_luaState, narg);
             else 
 				return ElunaTemplate<Unit>::check(L, narg);
+        }
+
+        Creature * CHECK_CREATURE(lua_State* L, int narg)
+        {
+            if(!L)
+				return ElunaTemplate<Creature>::check(_luaState, narg);
+            else 
+				return ElunaTemplate<Creature>::check(L, narg);
         }
 
 	protected:
