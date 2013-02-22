@@ -13,11 +13,15 @@ ElunaRegister<Unit> UnitMethods[] =
     {"GetItemCount", &LuaUnit::GetItemCount},                     // :GetItemCount(item_id)
     {"GetGroup", &LuaUnit::GetGroup},                             // :GetGroup()
     {"GetGuild", &LuaUnit::GetGuild},                             // :GetGuild()
+	{"GetGearLevel", &LuaUnit::GetGearLevel},                     // :GetGearLevel() -- Returns the player's average gear level
 
     // Setters
     {"SetCoinage", &LuaUnit::SetCoinage},                         // :SetCoinage(amount) - sets plr's coinage to this.
     {"SetKnownTitle", &LuaUnit::SetKnownTitle},                   // :SetKnownTitle(id)
     {"UnsetKnownTitle", &LuaUnit::UnsetKnownTitle},               // :UnsetKnownTitle(id)
+	{"AdvanceSkillsToMax", &LuaUnit::AdvanceSkillsToMax},         // :AdvanceSkillsToMax() -- Advances all currently known skills to the currently known max level
+	{"AdvanceSkill", &LuaUnit::AdvanceSkill},                     // AdvanceSkill(skill_id, step) -- Advances skill by ID and the amount(step)
+	{"AdvanceAllSkills", &LuaUnit::AdvanceAllSkills},             // AdvanceAllSkills(value) -- Advances all current skills to your input(value)
 
     // Boolean
     {"IsInGroup", &LuaUnit::IsInGroup},                           // :IsInGroup()
@@ -31,6 +35,8 @@ ElunaRegister<Unit> UnitMethods[] =
     {"GossipMenuAddItem", &LuaUnit::GossipMenuAddItem },                // :GossipMenuAddItem(icon, msg, Intid, code, accept_decline_message, money)
     {"GossipComplete", &LuaUnit::GossipComplete },                      // :GossipComplete()
     {"GossipSendMenu", &LuaUnit::GossipSendMenu },                      // :GossipSendMenu(npc_text, unit)
+
+	// Update
 
     // Other
     {"SendBroadcastMessage", &LuaUnit::SendBroadcastMessage},     // :SendBroadcastMessage(message)
@@ -66,7 +72,6 @@ ElunaRegister<Unit> UnitMethods[] =
     {"GetClass", &LuaUnit::GetClass},                               // :GetClass()
     {"GetClassAsString", &LuaUnit::GetClassAsString},               // :GetClassAsString()
     {"GetUnitType", &LuaUnit::GetUnitType},                         // :GetUnitType() - Returns object type, IE: Player
-	{"GetGearLevel", &LuaUnit::GetGearLevel},                       // :GetGearLevel() -- Returns the player's average gear level
 
     // Setters
     {"SetLevel", &LuaUnit::SetLevel},                               // :SetLevel(amount)
@@ -90,7 +95,8 @@ ElunaRegister<Unit> UnitMethods[] =
     { NULL, NULL },
 };
 
-ElunaRegister<Group> GroupMethods[] = {
+ElunaRegister<Group> GroupMethods[] = 
+{
 	// Getters
 	{"GetMembers", &LuaGroup::GetMembers},							// :GetMembers() - returns a table the players in this group. (Online?)
 	{"GetLeaderGUID", &LuaGroup::GetLeaderGUID},
@@ -110,7 +116,8 @@ ElunaRegister<Group> GroupMethods[] = {
 	{NULL, NULL}
 };
 
-ElunaRegister<Guild> GuildMethods[] = {
+ElunaRegister<Guild> GuildMethods[] = 
+{
 	// Getters
 	{"GetMembers", &LuaGuild::GetMembers},							// :GetMembers() - returns a table containing the players in this guild. (Online?)
 	{"GetUnitType", &LuaGuild::GetUnitType},

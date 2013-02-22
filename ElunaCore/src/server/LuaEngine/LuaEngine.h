@@ -430,7 +430,7 @@ class Eluna
 		public:
 			static class LuaCreatureScript : CreatureScript
 			{
-				private:
+				public:
 					struct LuaCreatureAI;
 					vector<LuaCreatureAI*> _scriptsToClear;
 					static LuaCreatureScript* singleton;
@@ -452,7 +452,7 @@ class Eluna
 						return singleton; 
 					}
 
-					CreatureBind* GetCreatureBindingForId(int id)
+					static CreatureBind* GetCreatureBindingForId(int id)
 					{
 						for (vector<CreatureBind*>::iterator itr = Eluna::get()->_creatureEventBindings.begin(); itr != Eluna::get()->_creatureEventBindings.end(); ++itr)
 							if ((*itr)->entry == id)
@@ -477,14 +477,26 @@ class Eluna
 						return true;
 					}
 
-					static struct LuaCreatureAI : public ScriptedAI
+					static struct LuaCreatureAI : ScriptedAI
 					{
 						LuaCreatureAI(Creature* creature) : ScriptedAI(creature)
 						{
-							binding = LuaCreatureScript::GetSingleton()->GetCreatureBindingForId(creature->GetEntry());
+							binding = GetCreatureBindingForId(creature->GetEntry());
 						}
 						~LuaCreatureAI() { }
 						CreatureBind* binding;
+
+						void EnterCombat(Unit* target)
+						{
+							if (!target || !target->IsInWorld())
+								return;
+
+							Eluna::get()->BeginCall(Eluna::LuaCreatureScript::GetCreatureBindingForId(me->GetEntry())->_functionReferences[CREATURE_EVENT_ON_COMBAT]);
+							Eluna::get()->PushInteger(Eluna::get()->_luaState, CREATURE_EVENT_ON_COMBAT);
+							Eluna::get()->PushUnit(Eluna::get()->_luaState, me);
+							Eluna::get()->PushUnit(Eluna::get()->_luaState, target);
+							Eluna::get()->ExecuteCall(3, 0);
+						}
 					};
 
 					CreatureAI* GetAI(Creature* creature)
@@ -493,16 +505,15 @@ class Eluna
 						if (!bind)
 							return NULL;
 
-						if (!GetCreatureScript()->_scriptsToClear.empty())
-							for (vector<LuaCreatureAI*>::iterator itr = GetCreatureScript()->_scriptsToClear.begin(); itr != GetCreatureScript()->_scriptsToClear.end(); ++itr)
+						if (!_scriptsToClear.empty())
+							for (vector<LuaCreatureAI*>::iterator itr = _scriptsToClear.begin(); itr != _scriptsToClear.end(); ++itr)
 								if ((!(*itr)) && (*itr)->binding->entry == creature->GetEntry())
 									return (*itr);
 
 						LuaCreatureAI* luaCreatureAI = new LuaCreatureAI(creature);
-						GetCreatureScript()->_scriptsToClear.push_back(luaCreatureAI);
+						_scriptsToClear.push_back(luaCreatureAI);
 						return luaCreatureAI;
 					}
-
 			};
 
 			static LuaCreatureScript* GetCreatureScript()
@@ -510,6 +521,8 @@ class Eluna
 				return LuaCreatureScript::GetSingleton();
 			}
 };
+
+#define sLuaCreatureScript ACE_Singleton<LuaCreatureScript, ACE_Null_Mutex>::instance()
 
 class ElunaScript : public ScriptObject
 {

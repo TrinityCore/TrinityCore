@@ -11,6 +11,7 @@
 #define TO_CREATURE_BOOL()  Creature* creature; if(!unit || !unit->IsInWorld() || !(creature = unit->ToCreature())) { Eluna::get()->PushBoolean(L, false); return 1; } else (void)0;
 #define TO_UNIT_BOOL() if(!unit || !unit->IsInWorld() || !unit->ToUnit()) { Eluna::get()->PushBoolean(L, false); return 1; } else (void)0;
 
+
 class LuaUnit
 {
 public:
@@ -539,6 +540,51 @@ public:
         return 0;
     }
 
+	// AdvanceSkillsToMax()
+	static int AdvanceSkillsToMax(lua_State* L, Unit* unit)
+	{
+		TO_PLAYER();
+
+		player->UpdateSkillsToMaxSkillsForLevel();
+		return 0;
+	}
+
+	// AdvanceAllSkills(value)
+	static int AdvanceAllSkills(lua_State* L, Unit * unit)
+	{
+		TO_PLAYER();
+
+		uint32 skillsArray[] = { SKILL_BOWS, SKILL_CROSSBOWS, SKILL_DAGGERS, SKILL_DEFENSE, SKILL_UNARMED, SKILL_GUNS, SKILL_AXES, SKILL_MACES, SKILL_SWORDS, SKILL_POLEARMS,
+			SKILL_STAVES, SKILL_2H_AXES, SKILL_2H_MACES, SKILL_2H_SWORDS, SKILL_WANDS, SKILL_SHIELD, SKILL_FISHING, SKILL_MINING, SKILL_ENCHANTING, SKILL_BLACKSMITHING,
+			SKILL_ALCHEMY, SKILL_HERBALISM, SKILL_ENGINEERING, SKILL_JEWELCRAFTING, SKILL_LEATHERWORKING, SKILL_LOCKPICKING, SKILL_INSCRIPTION, SKILL_SKINNING, SKILL_TAILORING };
+		uint32 step = luaL_checkunsigned(L, 1);
+
+		if(!step)
+			return 0;
+
+		for (int i = 0; i < sizeof(skillsArray); ++i)
+		{
+			if (player->HasSkill(skillsArray[i]))
+				player->UpdateSkill(skillsArray[i], step);
+		}
+		return 0;
+	}
+
+	// AdvanceSkill(skill_id, step)
+	static int AdvanceSkill(lua_State* L, Unit* unit)
+	{
+		TO_PLAYER();
+
+		uint32 _skillId = luaL_checkunsigned(L, 1);
+	    uint32 _step = luaL_checkunsigned(L, 2);
+		if (_skillId && _step)
+		{
+			if (player->HasSkill(_skillId))
+				player->UpdateSkill(_skillId, _step);
+		}
+		return 0;
+	}
+
 
     // Boolean Methods
 
@@ -652,7 +698,6 @@ public:
         Eluna::get()->PushBoolean(L, unit->HasSpell(id));
         return 1;
     }
-
 
     // Other Methods
 
