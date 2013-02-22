@@ -406,6 +406,15 @@ public:
 		return 1;
 	}
 
+	// GetEntry()
+	static int GetEntry(lua_State* L, Unit* unit)
+	{
+		TO_UNIT();
+
+		Eluna::get()->PushUnsigned(L, unit->GetEntry());
+		return 1;
+	}
+
     // Set Methods
 
     // SetLevel(level)
@@ -744,12 +753,57 @@ public:
         TO_PLAYER();
 
         const char* message = luaL_checkstring(L, 1);
-        if(std::string(message).length() > 0)
-        {
-            ChatHandler(player->GetSession()).PSendSysMessage(message);
-        }
+        if(string(message).length() > 0)
+            ChatHandler(player->GetSession()).SendSysMessage(message);
         return 0;
     }
+
+	// SendAreaTriggerMessage(msg)
+	static int SendAreaTriggerMessage(lua_State* L, Unit* unit)
+	{
+		TO_PLAYER();
+
+		const char* msg = luaL_checkstring(L, 1);
+		if (string(msg).length() > 0)
+			player->GetSession()->SendAreaTriggerMessage(msg);
+		return 0;
+	}
+
+	// SendUnitWhisper(msg, receiver, bossWhisper)
+	static int SendUnitWhisper(lua_State* L, Unit* unit)
+	{
+		TO_UNIT();
+
+		const char* msg = luaL_checkstring(L, 1);
+		Unit* receiver = Eluna::get()->CHECK_UNIT(L, 2);
+		if (string(msg).length() > 0)
+			unit->MonsterWhisper(msg, receiver->GetGUID(), false);
+		return 0;
+	}
+
+	// SendUnitSay(msg, language)
+	static int SendUnitSay(lua_State* L, Unit* unit)
+	{
+		TO_UNIT();
+
+		const char* msg = luaL_checkstring(L, 1);
+		uint32 language = luaL_checknumber(L, 2);
+		if (string(msg).length() > 0)
+			unit->MonsterSay(msg, language, unit->GetGUID());
+		return 0;
+	}
+
+	// SendUnitYell(msg, language)
+	static int SendUnitYell(lua_State* L, Unit* unit)
+	{
+		TO_UNIT();
+
+		const char* msg = luaL_checkstring(L, 1);
+		uint32 language = luaL_checknumber(L, 2);
+		if (string(msg).length() > 0)
+			unit->MonsterYell(msg, language, unit->GetGUID());
+		return 0;
+	}
 
     // GiveCoinage(amount)
     static int GiveCoinage(lua_State* L, Unit* unit)

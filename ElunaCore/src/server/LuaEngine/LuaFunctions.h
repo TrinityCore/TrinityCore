@@ -40,6 +40,7 @@ ElunaRegister<Unit> UnitMethods[] =
 
     // Other
     {"SendBroadcastMessage", &LuaUnit::SendBroadcastMessage},     // :SendBroadcastMessage(message)
+	{"SendAreaTriggerMessage", &LuaUnit::SendAreaTriggerMessage}, // :SendAreaTriggerMessage(message) -- Sends a message in the middle of your screen
     {"GiveCoinage", &LuaUnit::GiveCoinage},                       // :GiveCoinage(amount) - MODIFIES (does not set) coinage count.
     {"RemoveCoinage", &LuaUnit::RemoveCoinage},                   // :RemoveCoinage(amount) - Removes amount of coinage from plr.
     {"LearnSpell", &LuaUnit::LearnSpell},                         // :LearnSpell(id) - learns the given spell.
@@ -72,6 +73,7 @@ ElunaRegister<Unit> UnitMethods[] =
     {"GetClass", &LuaUnit::GetClass},                               // :GetClass()
     {"GetClassAsString", &LuaUnit::GetClassAsString},               // :GetClassAsString()
     {"GetUnitType", &LuaUnit::GetUnitType},                         // :GetUnitType() - Returns object type, IE: Player
+	{"GetEntry", &LuaUnit::GetEntry},                               // :GetEntry() - Returns the creatures entryId
 
     // Setters
     {"SetLevel", &LuaUnit::SetLevel},                               // :SetLevel(amount)
@@ -91,6 +93,9 @@ ElunaRegister<Unit> UnitMethods[] =
 
     // Other
     {"DeMorph", &LuaUnit::DeMorph},                                 // :DeMorph() - Sets display back to native.
+	{"SendUnitWhisper", &LuaUnit::SendUnitWhisper},                 // :SendUnitWhisper(msg, unit) -- Sends a whisper to the receiver
+	{"SendUnitSay", &LuaUnit::SendUnitSay},                         // :SendUnitSay(msg, language) -- Sends a "Say" message with the specified language (all languages: 0)
+	{"SendUnitYell", &LuaUnit::SendUnitYell},                       // :SendUnitYell(msg, language) -- Sends a "Yell" message with the specified language (all languages: 0)
 
     { NULL, NULL },
 };
