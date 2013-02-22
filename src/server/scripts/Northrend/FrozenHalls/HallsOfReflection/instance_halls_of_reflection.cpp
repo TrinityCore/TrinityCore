@@ -116,15 +116,15 @@ public:
         uint64 uiFalric;
         uint64 uiMarwyn;
         uint64 uiLichKingEvent;
-		uint64 uiLichKing;
+        uint64 uiLichKing;
         uint64 uiJainaPart1;
         uint64 uiSylvanasPart1;
-		uint64 uiLider;
+        uint64 uiLider;
 
         uint64 uiFrostmourne;
         uint64 uiFrostmourneAltar;
         uint64 uiArthasDoor;
-		uint64 uiFrostswornDoor;
+        uint64 uiFrostswornDoor;
         uint64 uiFrontDoor;
 
         uint32 uiEncounter[MAX_ENCOUNTER];
@@ -140,11 +140,11 @@ public:
 
             uiFalric = 0;
             uiMarwyn = 0;
-            uiLichKingEvent = 0;			
+            uiLichKingEvent = 0;            
             uiJainaPart1 = 0;
             uiSylvanasPart1 = 0;
-			uiLichKing = 0;
-			uiLider =0;
+            uiLichKing = 0;
+            uiLider =0;
 
             uiFrostmourne = 0;
             uiArthasDoor = 0;
@@ -185,36 +185,36 @@ public:
                 case NPC_MARWYN:
                     uiMarwyn = creature->GetGUID();
                     break;
-				case NPC_FROSTSWORN_GENERAL:
+                case NPC_FROSTSWORN_GENERAL:
                     creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                     break;
                 case NPC_LICH_KING_EVENT:
                     uiLichKingEvent = creature->GetGUID();
                     break;
                 case NPC_JAINA_PART1:
-					if (uiTeamInInstance == HORDE)
-					creature->UpdateEntry(NPC_SYLVANAS_PART1, HORDE);
-					else
+                    if (uiTeamInInstance == HORDE)
+                    creature->UpdateEntry(NPC_SYLVANAS_PART1, HORDE);
+                    else
                     uiJainaPart1 = creature->GetGUID();
                     break;
                 case NPC_SYLVANAS_PART1:
-					if (uiTeamInInstance == ALLIANCE)
-					{
-						uiJainaPart1 = creature->GetGUID();
-						creature->UpdateEntry(NPC_JAINA_PART1, ALLIANCE);
-					}
-					else
+                    if (uiTeamInInstance == ALLIANCE)
+                    {
+                        uiJainaPart1 = creature->GetGUID();
+                        creature->UpdateEntry(NPC_JAINA_PART1, ALLIANCE);
+                    }
+                    else
                     uiSylvanasPart1 = creature->GetGUID();
                     break;
-				case NPC_JAINA_PART2: 
-					if (uiTeamInInstance == HORDE)
+                case NPC_JAINA_PART2: 
+                    if (uiTeamInInstance == HORDE)
                     creature->UpdateEntry(NPC_SYLVANAS_PART2, HORDE);
                     uiLider = creature->GetGUID();
                     break;
-				case NPC_SYLVANAS_PART2:                    
-					uiLider = creature->GetGUID();
+                case NPC_SYLVANAS_PART2:                    
+                    uiLider = creature->GetGUID();
                     break;
-				case NPC_LICH_KING_BOSS:                    
+                case NPC_LICH_KING_BOSS:                    
                     uiLichKing = creature->GetGUID();
                     break;
                     
@@ -241,7 +241,7 @@ public:
                     go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_INTERACT_COND);
                     OpenDoor(uiFrontDoor);
                     break;
-				case GO_FROSTWORN_DOOR:
+                case GO_FROSTWORN_DOOR:
                     uiFrostswornDoor = go->GetGUID();
                     go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_INTERACT_COND);
 
@@ -262,7 +262,7 @@ public:
             if (type == DATA_WAVE_COUNT && data == SPECIAL)
             {
                 bIntroDone = true;
-				CloseDoor(uiFrontDoor);
+                CloseDoor(uiFrontDoor);
                 events.ScheduleEvent(EVENT_NEXT_WAVE, 9000);
                 return;
             }
@@ -285,16 +285,16 @@ public:
                         OpenDoor(uiFrontDoor);
                     }
                     break;
-				case DATA_FROSWORN_EVENT:
-					uiEncounter[2] = data;
-					if (data == DONE)
-					{     
-						OpenDoor(uiArthasDoor);
+                case DATA_FROSTSWORN_EVENT:
+                    uiEncounter[2] = data;
+                    if (data == DONE)
+                    {     
+                        OpenDoor(uiArthasDoor);
                         instance->SummonCreature(NPC_LICH_KING_BOSS, OutroSpawns[0]);
                         instance->SummonCreature(NPC_JAINA_PART2, OutroSpawns[1]);
                     }
 
-					break;
+                    break;
                 case DATA_LICHKING_EVENT:
                     
                     break;
@@ -326,8 +326,8 @@ public:
                 case DATA_MARWYN:               return uiMarwyn;
                 case DATA_LICHKING:             return uiLichKingEvent;
                 case DATA_FROSTMOURNE:          return uiFrostmourne;
-				case DATA_ARTHAS_DOOR:			return uiArthasDoor;
-				case DATA_FROSTSWORN_DOOR:		return uiFrostswornDoor;
+                case DATA_ARTHAS_DOOR:            return uiArthasDoor;
+                case DATA_FROSTSWORN_DOOR:        return uiFrostswornDoor;
             }
 
             return 0;
@@ -338,7 +338,7 @@ public:
             OUT_SAVE_INST_DATA;
 
             std::ostringstream saveStream;
-            saveStream << "H R 1 " << uiEncounter[0] << ' ' << uiEncounter[1] << ' ' << uiEncounter[2];
+            saveStream << "H R 1 " << uiEncounter[0] << " " << uiEncounter[1] << " " << uiEncounter[2];
 
             OUT_SAVE_INST_DATA_COMPLETE;
             return saveStream.str();
@@ -424,7 +424,7 @@ public:
             DoUpdateWorldState(WORLD_STATE_HOR, 0);
             DoUpdateWorldState(WORLD_STATE_HOR_WAVE_COUNT, uiWaveCount);
             OpenDoor(uiFrontDoor);
-		    CloseDoor(uiArthasDoor);
+            CloseDoor(uiArthasDoor);
 
 
             // TODO
