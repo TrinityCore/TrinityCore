@@ -221,8 +221,8 @@ void Eluna::PushUnit(lua_State* L, Unit* unit)
 
 CreatureAI* Eluna::GetLuaCreatureAI(Creature* creature)
 {
-	if (GetCreatureScript()->GetCreatureBindingForId(creature->GetEntry()))
-		return GetCreatureScript()->GetAI(creature);
+	if (sLuaCreatureScript->GetCreatureBindingForId(creature->GetEntry()))
+		return sLuaCreatureScript->GetAI(creature);
 	return NULL;
 }
 
@@ -287,21 +287,17 @@ void Eluna::Register(uint8 regtype, uint32 id, uint32 evt, uint16 functionRef)
     {
         case REGTYPE_PLAYER:
             if(evt < PLAYER_EVENT_COUNT)
-            {
                _playerEventBindings.at(evt).push_back(functionRef);
-            }
           break;
 
         case REGTYPE_GOSSIP:
             if(evt < GOSSIP_EVENT_COUNT)
-            {
                 _gossipEventBindings.at(evt).push_back(functionRef);
-            }
             break;
 
 		case REGTYPE_CREATURE:
 			if (evt < CREATURE_EVENT_COUNT)
-				GetCreatureScript()->RegisterCreatureScript(id, evt, functionRef);
+				sLuaCreatureScript->RegisterCreatureScript(id, evt, functionRef);
 			break;
     }
 }
