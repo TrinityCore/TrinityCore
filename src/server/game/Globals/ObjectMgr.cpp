@@ -7995,14 +7995,14 @@ int ObjectMgr::LoadReferenceVendor(int32 vendor, int32 item, std::set<uint32> *s
             int32  maxcount     = fields[1].GetUInt8();
             uint32 incrtime     = fields[2].GetUInt32();
             uint32 ExtendedCost = fields[3].GetUInt32();
-	     uint32 rating;
+	        uint32 rating;
 
             if (!IsVendorItemValid(vendor, item_id, maxcount, incrtime, ExtendedCost, rating, NULL, skip_vendors))
                 continue;
 
             VendorItemData& vList = _cacheVendorItemStore[vendor];
 
-            vList.AddItem(item_id, maxcount, incrtime, ExtendedCost, rating);
+            vList.AddItem(item_id, maxcount, incrtime, ExtendedCost, NULL);
             ++count;
         }
     } while (result->NextRow());
@@ -8046,7 +8046,7 @@ void ObjectMgr::LoadVendors()
             uint32 maxcount     = fields[2].GetUInt8();
             uint32 incrtime     = fields[3].GetUInt32();
             uint32 ExtendedCost = fields[4].GetUInt32();
-	     uint32 rating       = fields[5].GetUInt32();
+	        uint32 rating       = fields[5].GetUInt32();
 
             if (!IsVendorItemValid(entry, item_id, maxcount, incrtime, ExtendedCost, rating, NULL, &skip_vendors))
                 continue;
@@ -8167,7 +8167,7 @@ void ObjectMgr::LoadGossipMenuItems()
 void ObjectMgr::AddVendorItem(uint32 entry, uint32 item, int32 maxcount, uint32 incrtime, uint32 extendedCost, uint32 rating, bool persist /*= true*/)
 {
     VendorItemData& vList = _cacheVendorItemStore[entry];
-    vList.AddItem(item, maxcount, incrtime, extendedCost, rating);
+    vList.AddItem(item, maxcount, incrtime, extendedCost, NULL);
 
     if (persist)
     {

@@ -2832,6 +2832,7 @@ void Player::SetSpectate(bool on)
         spectatorFlag = true;
 
         m_ExtraFlags |= PLAYER_EXTRA_GM_ON;
+		player->SetGMVisible(true);
         setFaction(35);
 
         if (Pet* pet = GetPet())
@@ -2884,6 +2885,7 @@ void Player::SetSpectate(bool on)
         spectateCanceled = false;
         spectatorFlag = false;
         RestoreDisplayId();
+		 player->SetGMVisible(false);
         UpdateSpeed(MOVE_RUN, true);
     }
     UpdateObjectVisibility();

@@ -1266,7 +1266,7 @@ public:
             return false;
         }
 
-        Item* item = playerTarget->StoreNewItem(dest, itemId, true, Item::GenerateItemRandomPropertyId(itemId));
+			Item* item = playerTarget->StoreNewItem(dest, itemId, true, Item::GenerateItemRandomPropertyId(itemId));
 
         // remove binding (let GM give it to another player later)
         if (player == playerTarget)
@@ -1279,6 +1279,7 @@ public:
             player->SendNewItem(item, count, false, true);
             if (player != playerTarget)
                 playerTarget->SendNewItem(item, count, true, false);
+			sWorld->SendGMText("Player %u Add item: %i count: %c to player: %t", player, item, count, playerTarget);
         }
 
         if (noSpaceForCount > 0)
