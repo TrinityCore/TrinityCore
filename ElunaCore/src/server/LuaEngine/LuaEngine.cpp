@@ -295,7 +295,7 @@ void Eluna::Register(uint8 regtype, uint32 id, uint32 evt, uint16 functionRef)
 
         case REGTYPE_GOSSIP:
             if(evt < GOSSIP_EVENT_COUNT)
-				_playerEventBindings.at(evt).push_back(functionRef);
+				_gossipEventBindings.at(evt).push_back(functionRef);
             break;
 
 		case REGTYPE_CREATURE:
