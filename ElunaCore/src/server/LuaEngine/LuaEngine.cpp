@@ -7,6 +7,7 @@
 #include "UnitMethods.h"
 #include "GroupMethods.h"
 #include "GuildMethods.h"
+#include "QueryMethods.h"
 #include "LuaFunctions.h"
 #include "LuaCreatureAI.h"
 
@@ -28,6 +29,7 @@ template<> const char* GetTName<Unit>() { return "Unit"; }
 template<> const char* GetTName<Group>() { return "Group"; }
 template<> const char* GetTName<Guild>() { return "Guild"; }
 template<> const char* GetTName<Log>() { return "Log"; }
+template<> const char* GetTName<QueryResult>() { return "QueryResult"; }
 
 void Eluna::StartEluna()
 {
@@ -45,6 +47,7 @@ void Eluna::StartEluna()
 	ElunaTemplate<Unit>::Register(_luaState);
 	ElunaTemplate<Group>::Register(_luaState);
 	ElunaTemplate<Guild>::Register(_luaState);
+	ElunaTemplate<QueryResult>::Register(_luaState);
 
     uint32 cnt_uncomp = 0;
     char filename[200];
@@ -85,6 +88,9 @@ void Eluna::RegisterGlobals(lua_State* L)
 	lua_register(L, "GetPlayerByGUID", &LuaGlobalFunctions::GetPlayerByGUID);
 	lua_register(L, "GetPlayerByName", &LuaGlobalFunctions::GetPlayerByName);
 	lua_register(L, "GetGameTime", &LuaGlobalFunctions::GetGameTime);
+	lua_register(L, "SendWorldMessage", &LuaGlobalFunctions::SendWorldMessage);
+	lua_register(L, "GetPlayersInWorld", &LuaGlobalFunctions::GetPlayersInWorld);
+	lua_register(L, "WorldDBQuery", &LuaGlobalFunctions::WorldDBQuery);
 }
 
 void Eluna::LoadDirectory(char* Dirname, LoadedScripts* lscr)
@@ -155,36 +161,43 @@ void Eluna::report(lua_State* L)
 /* Pushes */
 void Eluna::PushGUID(lua_State* L, uint64 g)
 {
+    if(!L) L = _luaState;
     lua_pushunsigned(L, GUID_LOPART(g)); 
 }
 
 //void Eluna::PushLong(lua_State* L, uint64 l)
 //{
+//    if(!L) L = _luaState;
 //    lua_pushinteger(L, l); 
 //}
 
 void Eluna::PushInteger(lua_State* L, int i)
 {
+    if(!L) L = _luaState;
     lua_pushinteger(L, i);
 }
 
 void Eluna::PushUnsigned(lua_State* L, uint32 u)
 {
+    if(!L) L = _luaState;
     lua_pushunsigned(L, u);
 }
 
 void Eluna::PushFloat(lua_State* L, float f)
 {
+    if(!L) L = _luaState;
     lua_pushnumber(L, f);
 }
 
 void Eluna::PushDouble(lua_State* L, double d)
 {
+    if(!L) L = _luaState;
     lua_pushnumber(L, d);
 }
 
 void Eluna::PushBoolean(lua_State* L, bool b)
 {
+    if(!L) L = _luaState;
     if(b)
         lua_pushboolean(L, 1);
     else
@@ -193,31 +206,44 @@ void Eluna::PushBoolean(lua_State* L, bool b)
 
 void Eluna::PushString(lua_State* L, const char* str)
 {
+    if(!L) L = _luaState;
     lua_pushstring(L, str);
 }
 
 void Eluna::PushGroup(lua_State* L, Group* group)
 {
+    if(!L) L = _luaState;
     if(group)
-       ElunaTemplate<Group>::push(L, group);
+        ElunaTemplate<Group>::push(L, group);
     else
-       lua_pushnil(L);
+        lua_pushnil(L);
 }
 
 void Eluna::PushGuild(lua_State* L, Guild* pGuild)
 {
+    if(!L) L = _luaState;
     if(pGuild)
-       ElunaTemplate<Guild>::push(L, pGuild);
+        ElunaTemplate<Guild>::push(L, pGuild);
     else
-       lua_pushnil(L);
+        lua_pushnil(L);
 }
 
 void Eluna::PushUnit(lua_State* L, Unit* unit)
 {
+    if(!L) L = _luaState;
     if(unit)
-       ElunaTemplate<Unit>::push(L, unit);
+        ElunaTemplate<Unit>::push(L, unit);
     else
-       lua_pushnil(L);
+        lua_pushnil(L);
+}
+
+void Eluna::PushQueryResult(lua_State* L, QueryResult* result)
+{
+    if(!L) L = _luaState;
+    if(result)
+        ElunaTemplate<QueryResult>::push(L, result);
+    else
+        lua_pushnil(L);
 }
 
 CreatureAI* Eluna::GetLuaCreatureAI(Creature* creature)

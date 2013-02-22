@@ -110,27 +110,26 @@ enum CreatureEvents
     //CREATURE_EVENT_ON_VEHICLE_FULL                  = 27,   // Not Implemented
     //CREATURE_EVENT_ON_LAST_PASSENGER_LEFT           = 28,   // Not Implemented
     //TC
-    CREATURE_EVENT_ON_JUST_SUMMONED_CREATURE        = 29,   // Implemented
-    CREATURE_EVENT_ON_SUMMONED_CREATURE_DESPAWN     = 30,   // Implemented
-    CREATURE_EVENT_ON_HIT_BY_SPELL                  = 31,   // Implemented
-    CREATURE_EVENT_ON_SPELL_HIT_TARGET              = 32,   // Implemented
-    CREATURE_EVENT_ON_POSSESS                       = 33,   // Implemented
-    CREATURE_EVENT_ON_PRE_COMBAT                    = 34,   // Implemented
-    CREATURE_EVENT_ON_RESET                         = 35,   // Implemented
-    CREATURE_EVENT_ON_CAN_RESPAWN                   = 36,   // Implemented
-    CREATURE_EVENT_ON_SUMMONED                      = 37,   // Implemented
-    CREATURE_EVENT_ON_SUMMONED_CREATURE_DIED        = 38,   // Implemented
-    CREATURE_EVENT_ON_ATTACKED_AT                   = 39,   // Implemented
-    CREATURE_EVENT_ON_CHARMED                       = 40,   // Implemented
-    CREATURE_EVENT_ON_REACH_HOME                    = 41,   // Implemented
-
-    CREATURE_EVENT_ON_OWNER_ATTACKED_AT             = 43,   // Implemented
+    CREATURE_EVENT_ON_PRE_COMBAT                    = 29,   // Implemented
+    CREATURE_EVENT_ON_ATTACKED_AT                   = 30,   // Implemented
+    CREATURE_EVENT_ON_OWNER_ATTACKED_AT             = 31,   // Implemented
+    CREATURE_EVENT_ON_HIT_BY_SPELL                  = 32,   // Implemented
+    CREATURE_EVENT_ON_SPELL_HIT_TARGET              = 33,   // Implemented
+    CREATURE_EVENT_ON_SPELL_CLICK                   = 34,   // Implemented
+    CREATURE_EVENT_ON_CHARMED                       = 35,   // Implemented
+    CREATURE_EVENT_ON_POSSESS                       = 36,   // Implemented
+    CREATURE_EVENT_ON_JUST_SUMMONED_CREATURE        = 37,   // Implemented
+    CREATURE_EVENT_ON_SUMMONED_CREATURE_DESPAWN     = 38,   // Implemented
+    CREATURE_EVENT_ON_SUMMONED_CREATURE_DIED        = 39,   // Implemented
+    CREATURE_EVENT_ON_SUMMONED                      = 40,   // Implemented
+    CREATURE_EVENT_ON_RESET                         = 41,   // Implemented
+    CREATURE_EVENT_ON_REACH_HOME                    = 42,   // Implemented
+    CREATURE_EVENT_ON_CAN_RESPAWN                   = 43,   // Implemented
     CREATURE_EVENT_ON_CORPSE_REMOVED                = 44,   // Implemented
-    CREATURE_EVENT_ON_CANT_REACH_TARGET             = 45,   // Implemented
-    CREATURE_EVENT_ON_PASSANGER_BOARDED             = 46,   // Implemented
-    CREATURE_EVENT_ON_SPELL_CLICK                   = 47,   // Implemented
-    CREATURE_EVENT_ON_MOVE_IN_LOS                   = 48,   // Implemented
-    CREATURE_EVENT_ON_VISIBLE_MOVE_IN_LOS           = 49,   // Implemented
+    CREATURE_EVENT_ON_MOVE_IN_LOS                   = 45,   // Implemented
+    CREATURE_EVENT_ON_VISIBLE_MOVE_IN_LOS           = 46,   // Implemented
+    CREATURE_EVENT_ON_CANT_REACH_TARGET             = 47,   // Implemented
+    CREATURE_EVENT_ON_PASSANGER_BOARDED             = 48,   // Implemented
     CREATURE_EVENT_COUNT
 };
 
@@ -267,7 +266,8 @@ class Eluna
         void PushString(lua_State*, const char*);
         void PushGroup(lua_State*, Group*);
         void PushGuild(lua_State*, Guild*);
-		void PushUnit(lua_State*, Unit* unit);
+		void PushUnit(lua_State*, Unit*);
+		void PushQueryResult(lua_State*, QueryResult*);
 		// Checks
         Player * CHECK_PLAYER(lua_State* L, int narg)
         {
@@ -283,6 +283,14 @@ class Eluna
 				return ElunaTemplate<Unit>::check(_luaState, narg);
             else 
 				return ElunaTemplate<Unit>::check(L, narg);
+        }
+
+        Creature * CHECK_CREATURE(lua_State* L, int narg)
+        {
+            if(!L)
+				return ElunaTemplate<Creature>::check(_luaState, narg);
+            else 
+				return ElunaTemplate<Creature>::check(L, narg);
         }
 
 	protected:

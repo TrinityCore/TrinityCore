@@ -135,8 +135,44 @@ ElunaRegister<Guild> GuildMethods[] =
 	{NULL, NULL}
 };
 
+ElunaRegister<QueryResult> QueryMethods[] =  // Not working yet
+{
+	//{"GetColumn", &LuaQuery::GetColumn},
+	{"NextRow", &LuaQuery::NextRow},
+	{"GetColumnCount", &LuaQuery::GetColumnCount},
+	{"GetRowCount", &LuaQuery::GetRowCount},
+    
+    //TC
+	{"GetBool", &LuaQuery::GetBool},
+	{"GetUInt8", &LuaQuery::GetUInt8},
+	{"GetUInt16", &LuaQuery::GetUInt16},
+	{"GetUInt32", &LuaQuery::GetUInt32},
+	//{"GetUInt64", &LuaQuery::GetUInt64},
+	{"GetInt8", &LuaQuery::GetInt8},
+	{"GetInt16", &LuaQuery::GetInt16},
+	{"GetInt32", &LuaQuery::GetInt32},
+	//{"GetInt64", &LuaQuery::GetInt64},
+	{"GetFloat", &LuaQuery::GetFloat},
+	{"GetDouble", &LuaQuery::GetDouble},
+	{"GetCString", &LuaQuery::GetCString},
+	{"GetString", &LuaQuery::GetString},
+	{"IsNull", &LuaQuery::IsNull},
+    //ARC
+	//{"GetByte", &LuaQuery::GetByte},
+	//{"GetUByte", &LuaQuery::GetUByte},
+	//{"GetShort", &LuaQuery::GetShort},
+	//{"GetUShort", &LuaQuery::GetUShort},
+	//{"GetLong", &LuaQuery::GetLong},
+	//{"GetULong", &LuaQuery::GetULong},
+	//{"GetString", &LuaQuery::GetString},
+	//{"GetGUID", &LuaQuery::GetGUID},
+	//{"GetFloat", &LuaQuery::GetFloat},
+	{NULL, NULL}
+};
+
 template<typename T> ElunaRegister<T>* GetMethodTable() { return NULL; }
 template<> ElunaRegister<Unit>* GetMethodTable<Unit>() { return UnitMethods; }
 template<> ElunaRegister<Group>* GetMethodTable<Group>() { return GroupMethods; }
 template<> ElunaRegister<Guild>* GetMethodTable<Guild>() { return GuildMethods; }
+template<> ElunaRegister<QueryResult>* GetMethodTable<QueryResult>() { return QueryMethods; }
 #endif

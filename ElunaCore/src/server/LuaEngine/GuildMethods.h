@@ -16,7 +16,7 @@ public:
 
 		lua_newtable(L);
 		int tbl = lua_gettop(L);
-		int i = 0;
+		uint32 i = 0;
 
 		// Note that the following is very hacky, I don't like it and it SHOULD be changed ASAP.
 
