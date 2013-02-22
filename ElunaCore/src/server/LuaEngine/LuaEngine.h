@@ -497,11 +497,7 @@ class Eluna
 							return false;
 						}
 
-						if (!GetCreatureBindingForId(id))
-							Eluna::get()->_creatureEventBindings.push_back(new CreatureBind(id));
-						else
-							sLog->outError(LOG_FILTER_GENERAL, "Eluna Nova::Binding already set for (ID: %d)!", id);
-
+						Eluna::get()->_creatureEventBindings.push_back(new CreatureBind(id));
 						GetCreatureBindingForId(id)->_functionReferences[_event] = functionRef;
 						return true;
 					}

@@ -235,13 +235,14 @@ static int RegisterPlayerEvent(lua_State* L)
         uint32 ev = luaL_checkint(L, 1);
         const char* typeName = luaL_typename(L, 2);
 
-        if (ev == 0 || !typeName) return 0;
+        if (ev == 0 || !typeName) 
+			return 0;
 
         if(!strcmp(typeName, "function"))
-                functionRef = (uint16)lua_ref(L, true);
+            functionRef = (uint16)lua_ref(L, true);
 
         if(functionRef > 0)
-                Eluna::get()->Register(REGTYPE_PLAYER, 0, ev, functionRef);
+            Eluna::get()->Register(REGTYPE_PLAYER, 0, ev, functionRef);
         return 0;
 }
 
@@ -253,13 +254,14 @@ static int RegisterGossipEvent(lua_State* L)
         uint32 ev = luaL_checkint(L, 1);
         const char* typeName = luaL_typename(L, 2);
 
-        if (ev == 0 || !typeName) return 0;
+        if (ev == 0 || !typeName) 
+			return 0;
 
         if(!strcmp(typeName, "function"))
-                functionRef = (uint16)lua_ref(L, true);
+            functionRef = (uint16)lua_ref(L, true);
 
         if(functionRef > 0)
-                Eluna::get()->Register(REGTYPE_GOSSIP, 0, ev, functionRef);
+            Eluna::get()->Register(REGTYPE_GOSSIP, 0, ev, functionRef);
         return 0;
 }
 
@@ -293,7 +295,7 @@ void Eluna::Register(uint8 regtype, uint32 id, uint32 evt, uint16 functionRef)
 
         case REGTYPE_GOSSIP:
             if(evt < GOSSIP_EVENT_COUNT)
-                _gossipEventBindings.at(evt).push_back(functionRef);
+				_playerEventBindings.at(evt).push_back(functionRef);
             break;
 
 		case REGTYPE_CREATURE:
@@ -319,6 +321,7 @@ void Eluna::Restart()
 			luaL_unref(get()->_luaState, LUA_REGISTRYINDEX, (*_itr));
 		itr->second.clear();
 	}
+	get()->_gossipEventBindings.clear();
 
 	for (vector<CreatureBind*>::iterator itr = get()->_creatureEventBindings.begin(); itr != get()->_creatureEventBindings.end(); ++itr)
 	{

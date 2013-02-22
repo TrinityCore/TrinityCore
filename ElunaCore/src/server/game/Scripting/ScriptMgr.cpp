@@ -694,7 +694,7 @@ bool ScriptMgr::OnGossipHello(Player* player, Creature* creature)
 {
     ASSERT(player);
     ASSERT(creature);
-    
+
 	if(Eluna::getScript()->OnGossipHello(GOSSIP_EVENT_ON_HELLO, player, creature))
         return true;
     GET_SCRIPT_RET(CreatureScript, creature->GetScriptId(), tmpscript, false);
