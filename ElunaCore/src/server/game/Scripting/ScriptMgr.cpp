@@ -695,8 +695,9 @@ bool ScriptMgr::OnGossipHello(Player* player, Creature* creature)
     ASSERT(player);
     ASSERT(creature);
 
-	if(Eluna::getScript()->OnGossipHello(GOSSIP_EVENT_ON_HELLO, player, creature))
-        return true;
+	if (Eluna::LuaCreatureScript::GetCreatureGossipBindingForId(creature->GetEntry()))
+		if(Eluna::getScript()->OnGossipHello(GOSSIP_EVENT_ON_HELLO, player, creature))
+			return true;
     GET_SCRIPT_RET(CreatureScript, creature->GetScriptId(), tmpscript, false);
     player->PlayerTalkClass->ClearMenus();
     return tmpscript->OnGossipHello(player, creature);
@@ -707,8 +708,9 @@ bool ScriptMgr::OnGossipSelect(Player* player, Creature* creature, uint32 sender
     ASSERT(player);
     ASSERT(creature);
     
-	if (Eluna::getScript()->OnGossipSelect(GOSSIP_EVENT_ON_SELECT, player, creature, sender, action))
-        return true;
+	if (Eluna::LuaCreatureScript::GetCreatureGossipBindingForId(creature->GetEntry()))
+		if (Eluna::getScript()->OnGossipSelect(GOSSIP_EVENT_ON_SELECT, player, creature, sender, action))
+			return true;
     GET_SCRIPT_RET(CreatureScript, creature->GetScriptId(), tmpscript, false);
     return tmpscript->OnGossipSelect(player, creature, sender, action);
 }
@@ -719,8 +721,9 @@ bool ScriptMgr::OnGossipSelectCode(Player* player, Creature* creature, uint32 se
     ASSERT(creature);
     ASSERT(code);
     
-	if(Eluna::getScript()->OnGossipSelectCode(GOSSIP_EVENT_ON_SELECT, player, creature, sender, action, code))
-        return true;
+	if (Eluna::LuaCreatureScript::GetCreatureGossipBindingForId(creature->GetEntry()))
+		if(Eluna::getScript()->OnGossipSelectCode(GOSSIP_EVENT_ON_SELECT, player, creature, sender, action, code))
+			 return true;
     GET_SCRIPT_RET(CreatureScript, creature->GetScriptId(), tmpscript, false);
     return tmpscript->OnGossipSelectCode(player, creature, sender, action, code);
 }

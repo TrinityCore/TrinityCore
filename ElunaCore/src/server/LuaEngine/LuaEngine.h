@@ -152,6 +152,7 @@ struct CreatureBind
 {
 	int entry;
     uint16 _functionReferences[CREATURE_EVENT_COUNT];
+	uint16 _gossipReferences[GOSSIP_EVENT_COUNT];
 
 	CreatureBind(int _entry)
 	{
@@ -175,9 +176,10 @@ class Eluna
 
 		typedef map<int, vector<uint16>> ElunaBindingMap;
 		ElunaBindingMap _playerEventBindings;
-		ElunaBindingMap _gossipEventBindings;
+		//ElunaBindingMap _gossipEventBindings;
 		
 		vector<CreatureBind*> _creatureEventBindings;
+		vector<CreatureBind*> _gossipEventBindings;
 		static CreatureAI* GetLuaCreatureAI(Creature* creature);
 
 		static void InitTables()
@@ -187,12 +189,12 @@ class Eluna
 				vector<uint16> _vector;
 				get()->_playerEventBindings.insert(pair<int, vector<uint16>>(i, _vector));
 			}
-
+			/*
 			for (int i = 0; i < GOSSIP_EVENT_COUNT; i++)
 			{
 				vector<uint16> _vector;
 				get()->_gossipEventBindings.insert(pair<int, vector<uint16>>(i, _vector));
-			}
+			}*/
 		}
 
 		~Eluna()
@@ -211,44 +213,44 @@ class Eluna
 
         void BeginCall(uint16 fReference)
         {
-                lua_settop(_luaState, 0); //stack should be empty
-				lua_rawgeti(_luaState, LUA_REGISTRYINDEX, (fReference));
+            lua_settop(_luaState, 0); //stack should be empty
+			lua_rawgeti(_luaState, LUA_REGISTRYINDEX, (fReference));
         }
 
         bool ExecuteCall(uint8 params, uint8 res)
         {
-                bool ret = true;
-                int top = lua_gettop(_luaState); 
-                if(strcmp(luaL_typename(_luaState,top-params), "function") )
+            bool ret = true;
+            int top = lua_gettop(_luaState); 
+            if(strcmp(luaL_typename(_luaState,top-params), "function") )
+            {
+                ret = false;
+                if(params > 0)
                 {
-                        ret = false;
-                        if(params > 0)
-                        {
-                                for(int i = top; i >= (top-params); i--)
-                                {
-                                        if(!lua_isnone(_luaState, i) )
-                                                lua_remove(_luaState, i);
-                                }
-                        }
+                    for(int i = top; i >= (top-params); i--)
+                    {
+                        if(!lua_isnone(_luaState, i) )
+                            lua_remove(_luaState, i);
+                    }
                 }
-                else
+            }
+            else
+            {
+                if(lua_pcall(_luaState,params,res,0) )
                 {
-                        if(lua_pcall(_luaState,params,res,0) )
-                        {
-                                report(_luaState);
-                                ret = false;
-                        }
+                    report(_luaState);
+                    ret = false;
                 }
-                return ret;
+            }
+            return ret;
         }
 
         void EndCall(uint8 res) 
         {
-                for(int i = res; i > 0; i--)
-                {
-                        if(!lua_isnone(_luaState,res))
-                                lua_remove(_luaState,res);
-                }
+            for(int i = res; i > 0; i--)
+            {
+                if(!lua_isnone(_luaState,res))
+                    lua_remove(_luaState,res);
+            }
         }
 		static void Init();
 		static void Restart();
@@ -490,6 +492,7 @@ class Eluna
 					}
 
 					~LuaCreatureScript() { }
+					//CreatureBind* gossipBinding;
 
 					static LuaCreatureScript* GetSingleton() 
 					{ 
@@ -505,6 +508,14 @@ class Eluna
 						return NULL;
 					}
 
+					static CreatureBind* GetCreatureGossipBindingForId(int id)
+					{
+						for (vector<CreatureBind*>::iterator itr = Eluna::get()->_gossipEventBindings.begin(); itr != Eluna::get()->_gossipEventBindings.end(); ++itr)
+							if ((*itr)->entry == id)
+								return (*itr);
+						return NULL;
+					}
+
 					bool RegisterCreatureScript(int id, int _event, uint16 functionRef)
 					{
 						if (!sObjectMgr->GetCreatureTemplate(id))
@@ -515,6 +526,41 @@ class Eluna
 
 						Eluna::get()->_creatureEventBindings.push_back(new CreatureBind(id));
 						GetCreatureBindingForId(id)->_functionReferences[_event] = functionRef;
+						return true;
+					}
+
+					bool RegisterGossipScript(int id, int _event, uint16 functionRef)
+					{
+						if (!sObjectMgr->GetCreatureTemplate(id))
+						{
+							sLog->outError(LOG_FILTER_GENERAL, "Eluna Nova::Couldn't find a creature with (ID: %d)!", id);
+							return false;
+						}
+
+						Eluna::get()->_gossipEventBindings.push_back(new CreatureBind(id));
+						GetCreatureGossipBindingForId(id)->_gossipReferences[_event] = functionRef;
+						return true;
+					}
+
+					bool OnGossipHello(Player * player, Creature * creature)
+					{
+						Eluna::get()->BeginCall(GetCreatureGossipBindingForId(creature->GetEntry())->_gossipReferences[GOSSIP_EVENT_ON_HELLO]);
+						Eluna::get()->PushInteger(Eluna::get()->_luaState, GOSSIP_EVENT_ON_HELLO);
+						Eluna::get()->PushUnit(Eluna::get()->_luaState, player);
+						Eluna::get()->PushUnit(Eluna::get()->_luaState, creature);
+						Eluna::get()->ExecuteCall(3, 0);
+						return true;
+					}
+
+					bool OnGossipSelect(Player * player, Creature * creature, uint32 sender, uint32 actions)
+					{
+						Eluna::get()->BeginCall(GetCreatureGossipBindingForId(creature->GetEntry())->_gossipReferences[GOSSIP_EVENT_ON_SELECT]);
+						Eluna::get()->PushInteger(Eluna::get()->_luaState, GOSSIP_EVENT_ON_SELECT);
+						Eluna::get()->PushUnit(Eluna::get()->_luaState, player);
+						Eluna::get()->PushUnit(Eluna::get()->_luaState, creature);
+						Eluna::get()->PushUnsigned(Eluna::get()->_luaState, sender);
+						Eluna::get()->PushUnsigned(Eluna::get()->_luaState, actions);
+						Eluna::get()->ExecuteCall(5, 0);
 						return true;
 					}
 
@@ -1172,11 +1218,11 @@ class ElunaScript : public ScriptObject
 		bool OnGossipHello(uint32 eventId, Player* player, Creature* creature)
 		{
             bool HadScript = false;
-			for (vector<uint16>::iterator itr = Eluna::get()->_gossipEventBindings.at(eventId).begin();
-				itr != Eluna::get()->_gossipEventBindings.at(eventId).end(); itr++)
+			for (vector<CreatureBind*>::iterator itr = Eluna::get()->_gossipEventBindings.begin();
+				itr != Eluna::get()->_gossipEventBindings.end(); itr++)
 			{
                 player->PlayerTalkClass->ClearMenus();
-				Eluna::get()->BeginCall((*itr));
+				Eluna::get()->BeginCall((*itr)->_gossipReferences[eventId]);
 				Eluna::get()->PushUnsigned(Eluna::get()->_luaState, eventId);
 				Eluna::get()->PushUnit(Eluna::get()->_luaState, player);
 				Eluna::get()->PushUnit(Eluna::get()->_luaState, creature);
@@ -1190,11 +1236,11 @@ class ElunaScript : public ScriptObject
 		bool OnGossipSelect(uint32 eventId, Player* player, Creature* creature, uint32 sender, uint32 actions)
 		{
             bool HadScript = false;
-			for (vector<uint16>::iterator itr = Eluna::get()->_gossipEventBindings.at(eventId).begin();
-				itr != Eluna::get()->_gossipEventBindings.at(eventId).end(); itr++)
+			for (vector<CreatureBind*>::iterator itr = Eluna::get()->_gossipEventBindings.begin();
+				itr != Eluna::get()->_gossipEventBindings.end(); itr++)
 			{
                 // player->PlayerTalkClass->ClearMenus();
-				Eluna::get()->BeginCall((*itr));
+				Eluna::get()->BeginCall((*itr)->_gossipReferences[eventId]);
 				Eluna::get()->PushUnsigned(Eluna::get()->_luaState, eventId);
 				Eluna::get()->PushUnit(Eluna::get()->_luaState, player);
 				Eluna::get()->PushUnit(Eluna::get()->_luaState, creature);
@@ -1210,11 +1256,11 @@ class ElunaScript : public ScriptObject
 		bool OnGossipSelectCode(uint32 eventId, Player* player, Creature* creature, uint32 sender, uint32 actions, const char* code)
 		{
             bool HadScript = false;
-			for (vector<uint16>::iterator itr = Eluna::get()->_gossipEventBindings.at(eventId).begin();
-				itr != Eluna::get()->_gossipEventBindings.at(eventId).end(); itr++)
+			for (vector<CreatureBind*>::iterator itr = Eluna::get()->_gossipEventBindings.begin();
+				itr != Eluna::get()->_gossipEventBindings.end(); itr++)
 			{
                 // player->PlayerTalkClass->ClearMenus();
-				Eluna::get()->BeginCall((*itr));
+				Eluna::get()->BeginCall((*itr)->_gossipReferences[eventId]);
 				Eluna::get()->PushUnsigned(Eluna::get()->_luaState, eventId);
 				Eluna::get()->PushUnit(Eluna::get()->_luaState, player);
 				Eluna::get()->PushUnit(Eluna::get()->_luaState, creature);
