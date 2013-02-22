@@ -84,7 +84,9 @@ void Eluna::RegisterGlobals(lua_State* L)
 	lua_register(L, "RegisterGossipEvent", RegisterGossipEvent);
 	lua_register(L, "RegisterCreatureEvent", RegisterCreatureEvent);
 	lua_register(L, "GetLuaEngine", &LuaGlobalFunctions::GetLuaEngine);
+	lua_register(L, "GetLUAEngine", &LuaGlobalFunctions::GetLuaEngine);
 	lua_register(L, "GetCoreVersion", &LuaGlobalFunctions::GetCoreVersion);
+	lua_register(L, "ReloadEluna", &LuaGlobalFunctions::ReloadEluna);
 	lua_register(L, "GetPlayerByGUID", &LuaGlobalFunctions::GetPlayerByGUID);
 	lua_register(L, "GetPlayerByName", &LuaGlobalFunctions::GetPlayerByName);
 	lua_register(L, "GetGameTime", &LuaGlobalFunctions::GetGameTime);

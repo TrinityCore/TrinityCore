@@ -24,6 +24,12 @@ namespace LuaGlobalFunctions
 		lua_pushstring(L, _FULLVERSION);
 		return 1;
 	}
+
+	static int ReloadEluna(lua_State* L)
+	{
+		Eluna::get()->Restart();
+		return 0;
+	}
     
     static int GetPlayerByGUID(lua_State* L)
     {

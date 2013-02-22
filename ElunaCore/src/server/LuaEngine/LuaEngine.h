@@ -250,7 +250,7 @@ class Eluna
                 }
         }
 		static void Init();
-		static void Restart();
+		void Restart();
 		void RegisterGlobals(lua_State* L);
 		void LoadDirectory(char* directory, LoadedScripts* scr);
 		// Push
