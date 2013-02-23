@@ -11,6 +11,7 @@
 #                                                                                          #
 ############################################################################################
 
+[134] --> Fix Lich King.
 [133] --> Fix loot Freya and Trial of Champion.
 [132] --> Fix Sindragosa.
 [131] --> Fix Instance Cooldown Exploit.

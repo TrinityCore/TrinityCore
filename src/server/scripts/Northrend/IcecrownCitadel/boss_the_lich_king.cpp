@@ -662,6 +662,7 @@ class boss_the_lich_king : public CreatureScript
                 if (events.IsInPhase(PHASE_ONE) && !HealthAbovePct(70))
                 {
                     events.SetPhase(PHASE_TRANSITION);
+                    SetImmuneToTaunt(true);
                     me->SetReactState(REACT_PASSIVE);
                     me->AttackStop();
                     me->GetMotionMaster()->MovePoint(POINT_CENTER_1, CenterPosition);
@@ -671,6 +672,7 @@ class boss_the_lich_king : public CreatureScript
                 if (events.IsInPhase(PHASE_TWO) && !HealthAbovePct(40))
                 {
                     events.SetPhase(PHASE_TRANSITION);
+                    SetImmuneToTaunt(true);
                     me->SetReactState(REACT_PASSIVE);
                     me->AttackStop();
                     me->GetMotionMaster()->MovePoint(POINT_CENTER_2, CenterPosition);
@@ -818,6 +820,7 @@ class boss_the_lich_king : public CreatureScript
                         me->SetFacingTo(0.0f);
                         Talk(SAY_LK_REMORSELESS_WINTER);
                         SendMusicToPlayers(MUSIC_SPECIAL);
+                        SetImmuneToTaunt(false);
                         DoCast(me, SPELL_REMORSELESS_WINTER_1);
                         events.DelayEvents(62500, EVENT_GROUP_BERSERK); // delay berserk timer, its not ticking during phase transitions
                         events.ScheduleEvent(EVENT_QUAKE, 62500, 0, PHASE_TRANSITION);
@@ -833,6 +836,7 @@ class boss_the_lich_king : public CreatureScript
                         me->SetFacingTo(0.0f);
                         Talk(SAY_LK_REMORSELESS_WINTER);
                         SendMusicToPlayers(MUSIC_SPECIAL);
+                        SetImmuneToTaunt(false);
                         DoCast(me, SPELL_REMORSELESS_WINTER_2);
                         summons.DespawnEntry(NPC_VALKYR_SHADOWGUARD);
                         events.DelayEvents(62500, EVENT_GROUP_BERSERK); // delay berserk timer, its not ticking during phase transitions
@@ -1112,6 +1116,21 @@ class boss_the_lich_king : public CreatureScript
             }
 
         private:
+
+            void SetImmuneToTaunt(bool apply)	
+            {	
+                me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_ATTACK_ME, apply);	
+                me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_THREAT, apply);	
+                me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, apply);	
+
+                // Following might not be necessay, but just in case...	
+                me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TOTAL_THREAT, apply);	
+                me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_CRITICAL_THREAT, apply);	
+                me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_THREAT_ALL, apply);	
+                me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_MODIFY_THREAT_PERCENT, apply);	
+                me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_REDIRECT_THREAT, apply);	
+            }	
+
             void SendMusicToPlayers(uint32 musicId) const
             {
                 WorldPacket data(SMSG_PLAY_MUSIC, 4);
@@ -1324,7 +1343,7 @@ class npc_shambling_horror_icc : public CreatureScript
             {
                 _events.Reset();
                 _events.ScheduleEvent(EVENT_SHOCKWAVE, urand(20000, 25000));
-                _events.ScheduleEvent(EVENT_ENRAGE, urand(21000, 24000));
+                _events.ScheduleEvent(EVENT_ENRAGE, urand(11000, 14000));
             }
 
             void DamageTaken(Unit* /*attacker*/, uint32& damage)
@@ -1356,7 +1375,7 @@ class npc_shambling_horror_icc : public CreatureScript
                             break;
                         case EVENT_ENRAGE:
                             DoCast(me, SPELL_ENRAGE);
-                            _events.ScheduleEvent(EVENT_ENRAGE, urand(40000, 45000));
+                            _events.ScheduleEvent(EVENT_ENRAGE, urand(20000, 25000));
                             break;
                         default:
                             break;
@@ -1941,10 +1960,14 @@ class npc_spirit_bomb : public CreatureScript
 
             void IsSummonedBy(Unit* /*summoner*/)
             {
-                float destX, destY, destZ;
-                me->GetPosition(destX, destY);
+                float destX, destY, destZ, Z;
+                me->GetPosition(destX, destY, Z);
+                me->NearTeleportTo(destX, destY, Z+30.0f, me->GetOrientation());
+                me->Relocate(destX, destY, Z+30.0f);
+                me->SendMovementFlagUpdate();
                 destZ = 1055.0f;    // approximation, gets more precise later
                 me->UpdateGroundPositionZ(destX, destY, destZ);
+                me->SetSpeed(MOVE_FLIGHT, 0.5f, true);
                 me->GetMotionMaster()->MovePoint(POINT_GROUND, destX, destY, destZ);
             }
 
@@ -2451,7 +2474,7 @@ class spell_the_lich_king_defile : public SpellScriptLoader
 
             void CorrectRange(std::list<WorldObject*>& targets)
             {
-                targets.remove_if(ExactDistanceCheck(GetCaster(), 5.0f * GetCaster()->GetFloatValue(OBJECT_FIELD_SCALE_X)));
+                targets.remove_if(ExactDistanceCheck(GetCaster(), 10.0f * GetCaster()->GetFloatValue(OBJECT_FIELD_SCALE_X)));
             }
 
             void ChangeDamageAndGrow()
