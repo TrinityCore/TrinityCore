@@ -704,6 +704,7 @@ void Vehicle::CalculatePassengerOffset(float& x, float& y, float& z, float& o)
 
 void Vehicle::CancelJoinEvent(VehicleJoinEvent* e)
 {
+    ASSERT(_pendingJoinEvents.back() == e);
     e->to_Abort = true;
     _pendingJoinEvents.pop_back();
 }
@@ -734,6 +735,31 @@ void Vehicle::RemovePendingEvent(VehicleJoinEvent* e)
 }
 
 /**
+ * @fn void Vehicle::RemovePendingEventsForSeat(uint8 seatId)
+ *
+ * @brief Removes any pending events for given seatId. Executed when a @VehicleJoinEvent::Execute is called
+ *
+ * @author Machiavelli
+ * @date 23-2-2013
+ *
+ * @param seatId Identifier for the seat.
+ */
+
+void Vehicle::RemovePendingEventsForSeat(int8 seatId)
+{
+    for (std::deque<VehicleJoinEvent*>::iterator itr = _pendingJoinEvents.begin(); itr != _pendingJoinEvents.end();)
+    {
+        if ((*itr)->Seat->first == seatId)
+        {
+            (*itr)->to_Abort = true;
+            _pendingJoinEvents.erase(itr++);
+        }
+        else
+            ++itr;
+    }
+}
+
+/**
  * @fn bool VehicleJoinEvent::Execute(uint64, uint32)
  *
  * @brief Actually adds the passenger @Passenger to vehicle @Target.
@@ -752,6 +778,8 @@ bool VehicleJoinEvent::Execute(uint64, uint32)
 {
     ASSERT(Passenger->IsInWorld());
     ASSERT(Target->GetBase()->IsInWorld());
+
+    Target->RemovePendingEventsForSeat(Seat->first);
 
     Passenger->m_vehicle = Target;
     Seat->second.Passenger = Passenger->GetGUID();
