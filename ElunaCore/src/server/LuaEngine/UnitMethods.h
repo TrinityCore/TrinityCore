@@ -77,7 +77,7 @@ public:
 
         if(!player->GetGuildId())
             return 0;
-        
+
         Eluna::get()->PushUnsigned(L, player->GetGuildId());
         return 1;
     }
@@ -187,30 +187,30 @@ public:
             // We didn't specify a type, so get the default type for our class
             switch(unit->getClass())
             {
-				case 1: 
-					type = POWER_RAGE; 
-					break;
-				case 4: 
-					type = POWER_ENERGY; 
-					break;
-				case 6: 
-					type = POWER_RUNIC_POWER; 
-					break;
-				case 2:
-				case 3:
-				case 5:
-				case 7:
-				case 8:
-				case 9:
-				case 11:
-					type = POWER_MANA; 
-					break;
-				default:
-					type = POWER_MANA;
+            case 1: 
+                type = POWER_RAGE; 
+                break;
+            case 4: 
+                type = POWER_ENERGY; 
+                break;
+            case 6: 
+                type = POWER_RUNIC_POWER; 
+                break;
+            case 2:
+            case 3:
+            case 5:
+            case 7:
+            case 8:
+            case 9:
+            case 11:
+                type = POWER_MANA; 
+                break;
+            default:
+                type = POWER_MANA;
             }
         } 
-		else if (type >= POWER_ALL) 
-		{
+        else if (type >= POWER_ALL) 
+        {
             luaL_error(L, "Bad argument #1 to :GetPower(index) - specified out of range index (%i)", type);
             return 0;
         }
@@ -229,30 +229,30 @@ public:
             // We didn't specify a type, so get the default type for our class
             switch(unit->getClass())
             {
-				case 1: 
-					type = POWER_RAGE; 
-					break;
-				case 4: 
-					type = POWER_ENERGY; 
-					break;
-				case 6: 
-					type = POWER_RUNIC_POWER; 
-					break;
-				case 2:
-				case 3:
-				case 5:
-				case 7:
-				case 8:
-				case 9:
-				case 11:
-					type = POWER_MANA; 
-					break;
-				default:
-					type = POWER_MANA;
+            case 1: 
+                type = POWER_RAGE; 
+                break;
+            case 4: 
+                type = POWER_ENERGY; 
+                break;
+            case 6: 
+                type = POWER_RUNIC_POWER; 
+                break;
+            case 2:
+            case 3:
+            case 5:
+            case 7:
+            case 8:
+            case 9:
+            case 11:
+                type = POWER_MANA; 
+                break;
+            default:
+                type = POWER_MANA;
             }
         } 
-		else if (type >= POWER_ALL) 
-		{
+        else if (type >= POWER_ALL) 
+        {
             luaL_error(L, "Bad argument #1 to :GetMaxPower(index) - specified out of range index.");
             return 0;
         }
@@ -315,39 +315,39 @@ public:
         const char* str = NULL;
         switch(unit->getClass())
         {
-			case 1: 
-				str = "Warrior"; 
-				break;
-			case 2: 
-				str = "Paladin"; 
-				break;
-			case 3: 
-				str = "Hunter"; 
-				break;
-			case 4:	
-				str = "Rogue"; 
-				break;
-			case 5:	
-				str = "Priest"; 
-				break;
-			case 6:	
-				str = "DeathKnight"; 
-				break;
-			case 7:	
-				str = "Shaman"; 
-				break;
-			case 8:	
-				str = "Mage"; 
-				break;
-			case 9:	
-				str = "Warlock"; 
-				break;
-			case 11:
-				str = "Druid"; 
-				break;
-			default:
-				str = "NULL"; 
-				break;
+        case 1: 
+            str = "Warrior"; 
+            break;
+        case 2: 
+            str = "Paladin"; 
+            break;
+        case 3: 
+            str = "Hunter"; 
+            break;
+        case 4:	
+            str = "Rogue"; 
+            break;
+        case 5:	
+            str = "Priest"; 
+            break;
+        case 6:	
+            str = "DeathKnight"; 
+            break;
+        case 7:	
+            str = "Shaman"; 
+            break;
+        case 8:	
+            str = "Mage"; 
+            break;
+        case 9:	
+            str = "Warlock"; 
+            break;
+        case 11:
+            str = "Druid"; 
+            break;
+        default:
+            str = "NULL"; 
+            break;
         }
 
         Eluna::get()->PushString(L, str);
@@ -383,9 +383,9 @@ public:
     static int GetGuild(lua_State* L, Unit* unit)
     {
         TO_PLAYER();
-        
+
         Eluna::get()->PushGuild(L, player->GetGuild());
-		return 1;
+        return 1;
     }
 
     // GetGroup()
@@ -397,23 +397,23 @@ public:
         return 1;
     }
 
-	// GetGearLevel()
-	static int GetGearLevel(lua_State* L, Unit* unit)
-	{
-		TO_PLAYER();
+    // GetGearLevel()
+    static int GetGearLevel(lua_State* L, Unit* unit)
+    {
+        TO_PLAYER();
 
-		Eluna::get()->PushFloat(L, player->GetAverageItemLevel());
-		return 1;
-	}
+        Eluna::get()->PushFloat(L, player->GetAverageItemLevel());
+        return 1;
+    }
 
-	// GetEntry()
-	static int GetEntry(lua_State* L, Unit* unit)
-	{
-		TO_UNIT();
+    // GetEntry()
+    static int GetEntry(lua_State* L, Unit* unit)
+    {
+        TO_UNIT();
 
-		Eluna::get()->PushUnsigned(L, unit->GetEntry());
-		return 1;
-	}
+        Eluna::get()->PushUnsigned(L, unit->GetEntry());
+        return 1;
+    }
 
     // Set Methods
 
@@ -549,50 +549,50 @@ public:
         return 0;
     }
 
-	// AdvanceSkillsToMax()
-	static int AdvanceSkillsToMax(lua_State* L, Unit* unit)
-	{
-		TO_PLAYER();
+    // AdvanceSkillsToMax()
+    static int AdvanceSkillsToMax(lua_State* L, Unit* unit)
+    {
+        TO_PLAYER();
 
-		player->UpdateSkillsToMaxSkillsForLevel();
-		return 0;
-	}
+        player->UpdateSkillsToMaxSkillsForLevel();
+        return 0;
+    }
 
-	// AdvanceAllSkills(value)
-	static int AdvanceAllSkills(lua_State* L, Unit * unit)
-	{
-		TO_PLAYER();
+    // AdvanceAllSkills(value)
+    static int AdvanceAllSkills(lua_State* L, Unit * unit)
+    {
+        TO_PLAYER();
 
-		uint32 skillsArray[] = { SKILL_BOWS, SKILL_CROSSBOWS, SKILL_DAGGERS, SKILL_DEFENSE, SKILL_UNARMED, SKILL_GUNS, SKILL_AXES, SKILL_MACES, SKILL_SWORDS, SKILL_POLEARMS,
-			SKILL_STAVES, SKILL_2H_AXES, SKILL_2H_MACES, SKILL_2H_SWORDS, SKILL_WANDS, SKILL_SHIELD, SKILL_FISHING, SKILL_MINING, SKILL_ENCHANTING, SKILL_BLACKSMITHING,
-			SKILL_ALCHEMY, SKILL_HERBALISM, SKILL_ENGINEERING, SKILL_JEWELCRAFTING, SKILL_LEATHERWORKING, SKILL_LOCKPICKING, SKILL_INSCRIPTION, SKILL_SKINNING, SKILL_TAILORING };
-		uint32 step = luaL_checkunsigned(L, 1);
+        uint32 skillsArray[] = { SKILL_BOWS, SKILL_CROSSBOWS, SKILL_DAGGERS, SKILL_DEFENSE, SKILL_UNARMED, SKILL_GUNS, SKILL_AXES, SKILL_MACES, SKILL_SWORDS, SKILL_POLEARMS,
+            SKILL_STAVES, SKILL_2H_AXES, SKILL_2H_MACES, SKILL_2H_SWORDS, SKILL_WANDS, SKILL_SHIELD, SKILL_FISHING, SKILL_MINING, SKILL_ENCHANTING, SKILL_BLACKSMITHING,
+            SKILL_ALCHEMY, SKILL_HERBALISM, SKILL_ENGINEERING, SKILL_JEWELCRAFTING, SKILL_LEATHERWORKING, SKILL_LOCKPICKING, SKILL_INSCRIPTION, SKILL_SKINNING, SKILL_TAILORING };
+        uint32 step = luaL_checkunsigned(L, 1);
 
-		if(!step)
-			return 0;
+        if(!step)
+            return 0;
 
-		for (int i = 0; i < sizeof(skillsArray); ++i)
-		{
-			if (player->HasSkill(skillsArray[i]))
-				player->UpdateSkill(skillsArray[i], step);
-		}
-		return 0;
-	}
+        for (int i = 0; i < sizeof(skillsArray); ++i)
+        {
+            if (player->HasSkill(skillsArray[i]))
+                player->UpdateSkill(skillsArray[i], step);
+        }
+        return 0;
+    }
 
-	// AdvanceSkill(skill_id, step)
-	static int AdvanceSkill(lua_State* L, Unit* unit)
-	{
-		TO_PLAYER();
+    // AdvanceSkill(skill_id, step)
+    static int AdvanceSkill(lua_State* L, Unit* unit)
+    {
+        TO_PLAYER();
 
-		uint32 _skillId = luaL_checkunsigned(L, 1);
-	    uint32 _step = luaL_checkunsigned(L, 2);
-		if (_skillId && _step)
-		{
-			if (player->HasSkill(_skillId))
-				player->UpdateSkill(_skillId, _step);
-		}
-		return 0;
-	}
+        uint32 _skillId = luaL_checkunsigned(L, 1);
+        uint32 _step = luaL_checkunsigned(L, 2);
+        if (_skillId && _step)
+        {
+            if (player->HasSkill(_skillId))
+                player->UpdateSkill(_skillId, _step);
+        }
+        return 0;
+    }
 
 
     // Boolean Methods
@@ -758,52 +758,52 @@ public:
         return 0;
     }
 
-	// SendAreaTriggerMessage(msg)
-	static int SendAreaTriggerMessage(lua_State* L, Unit* unit)
-	{
-		TO_PLAYER();
+    // SendAreaTriggerMessage(msg)
+    static int SendAreaTriggerMessage(lua_State* L, Unit* unit)
+    {
+        TO_PLAYER();
 
-		const char* msg = luaL_checkstring(L, 1);
-		if (string(msg).length() > 0)
-			player->GetSession()->SendAreaTriggerMessage(msg);
-		return 0;
-	}
+        const char* msg = luaL_checkstring(L, 1);
+        if (string(msg).length() > 0)
+            player->GetSession()->SendAreaTriggerMessage(msg);
+        return 0;
+    }
 
-	// SendUnitWhisper(msg, receiver, bossWhisper)
-	static int SendUnitWhisper(lua_State* L, Unit* unit)
-	{
-		TO_UNIT();
+    // SendUnitWhisper(msg, receiver, bossWhisper)
+    static int SendUnitWhisper(lua_State* L, Unit* unit)
+    {
+        TO_UNIT();
 
-		const char* msg = luaL_checkstring(L, 1);
-		Unit* receiver = Eluna::get()->CHECK_UNIT(L, 2);
-		if (string(msg).length() > 0)
-			unit->MonsterWhisper(msg, receiver->GetGUID(), false);
-		return 0;
-	}
+        const char* msg = luaL_checkstring(L, 1);
+        Unit* receiver = Eluna::get()->CHECK_UNIT(L, 2);
+        if (string(msg).length() > 0)
+            unit->MonsterWhisper(msg, receiver->GetGUID(), false);
+        return 0;
+    }
 
-	// SendUnitSay(msg, language)
-	static int SendUnitSay(lua_State* L, Unit* unit)
-	{
-		TO_UNIT();
+    // SendUnitSay(msg, language)
+    static int SendUnitSay(lua_State* L, Unit* unit)
+    {
+        TO_UNIT();
 
-		const char* msg = luaL_checkstring(L, 1);
-		uint32 language = luaL_checknumber(L, 2);
-		if (string(msg).length() > 0)
-			unit->MonsterSay(msg, language, unit->GetGUID());
-		return 0;
-	}
+        const char* msg = luaL_checkstring(L, 1);
+        uint32 language = luaL_checknumber(L, 2);
+        if (string(msg).length() > 0)
+            unit->MonsterSay(msg, language, unit->GetGUID());
+        return 0;
+    }
 
-	// SendUnitYell(msg, language)
-	static int SendUnitYell(lua_State* L, Unit* unit)
-	{
-		TO_UNIT();
+    // SendUnitYell(msg, language)
+    static int SendUnitYell(lua_State* L, Unit* unit)
+    {
+        TO_UNIT();
 
-		const char* msg = luaL_checkstring(L, 1);
-		uint32 language = luaL_checknumber(L, 2);
-		if (string(msg).length() > 0)
-			unit->MonsterYell(msg, language, unit->GetGUID());
-		return 0;
-	}
+        const char* msg = luaL_checkstring(L, 1);
+        uint32 language = luaL_checknumber(L, 2);
+        if (string(msg).length() > 0)
+            unit->MonsterYell(msg, language, unit->GetGUID());
+        return 0;
+    }
 
     // GiveCoinage(amount)
     static int GiveCoinage(lua_State* L, Unit* unit)
@@ -879,7 +879,7 @@ public:
     static int GossipSendMenu(lua_State* L, Unit* unit)
     {
         TO_PLAYER();
-        
+
         int _npcText = luaL_checknumber(L, 1);
         Unit* sender = Eluna::get()->CHECK_UNIT(L, 2);
         player->SEND_GOSSIP_MENU(_npcText, sender->GetGUID());

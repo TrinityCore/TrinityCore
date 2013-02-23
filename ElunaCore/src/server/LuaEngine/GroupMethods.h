@@ -12,11 +12,11 @@ public:
     {
         if(!group)
             return 0;
-        
-		lua_newtable(L);
-		int tbl = lua_gettop(L);
-		uint32 i = 0;
-        
+
+        lua_newtable(L);
+        int tbl = lua_gettop(L);
+        uint32 i = 0;
+
         for (GroupReference* itr = group->GetFirstMember(); itr; itr = itr->next())
         {
             Player* member = itr->getSource();
@@ -30,7 +30,7 @@ public:
             lua_settable(L, tbl);
         }
 
-		lua_settop(L, tbl); // push table to top of stack
+        lua_settop(L, tbl); // push table to top of stack
         return 1;
     }
 
@@ -38,7 +38,7 @@ public:
     {
         if(!group)
             return 0;
-        
+
         Eluna::get()->PushGUID(L, group->GetLeaderGUID());
         return 1;
     }
@@ -47,19 +47,19 @@ public:
     {
         if(!group)
             return 0;
-        
+
         Eluna::get()->PushUnit(L, sObjectAccessor->FindPlayer(group->GetLeaderGUID()));
         return 1;
     }
 
-	static int GetUnitType(lua_State* L, Group* group)
-	{
-		if(!group)
-			return 0;
+    static int GetUnitType(lua_State* L, Group* group)
+    {
+        if(!group)
+            return 0;
 
-		Eluna::get()->PushString(L, "Group");
-		return 1;
-	}
+        Eluna::get()->PushString(L, "Group");
+        return 1;
+    }
 
     static int GetGUID(lua_State* L, Group* group)
     {
@@ -86,7 +86,7 @@ public:
         }
         else
             Eluna::get()->PushBoolean(L, false);
-            
+
         return 1;
     }
 
@@ -97,7 +97,7 @@ public:
             Eluna::get()->PushBoolean(L, false);
             return 1;
         }
-        
+
         Player* player = Eluna::get()->CHECK_PLAYER(L, 1);
         if(player)
             Eluna::get()->PushBoolean(L, (player->GetGUID() == group->GetLeaderGUID()));

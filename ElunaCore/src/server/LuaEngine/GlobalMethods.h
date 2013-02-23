@@ -8,31 +8,31 @@
 
 extern "C" 
 {
-		#include "lua.h"
-        #include "lualib.h"
-        #include "lauxlib.h"
+#include "lua.h"
+#include "lualib.h"
+#include "lauxlib.h"
 };
 
 namespace LuaGlobalFunctions
 {
-	static int GetLuaEngine(lua_State* L)
-	{
-		lua_pushstring(L, "Eluna Nova 0.1");
-		return 1;
-	}
+    static int GetLuaEngine(lua_State* L)
+    {
+        lua_pushstring(L, "Eluna Nova 0.1");
+        return 1;
+    }
 
-	static int GetCoreVersion(lua_State* L)
-	{
-		lua_pushstring(L, _FULLVERSION);
-		return 1;
-	}
+    static int GetCoreVersion(lua_State* L)
+    {
+        lua_pushstring(L, _FULLVERSION);
+        return 1;
+    }
 
-	static int ReloadEluna(lua_State* L)
-	{
-		Eluna::get()->Restart();
-		return 0;
-	}
-    
+    static int ReloadEluna(lua_State* L)
+    {
+        Eluna::get()->Restart();
+        return 0;
+    }
+
     static int GetPlayerByGUID(lua_State* L)
     {
         uint32 guidLow = luaL_checkunsigned(L, 1);
@@ -65,10 +65,10 @@ namespace LuaGlobalFunctions
         int team = luaL_optint(L, 1, 0);
         bool onlyGM = luaL_optint(L, 2, false);
 
-		lua_newtable(L);
-		int tbl = lua_gettop(L);
-		uint32 i = 0;
-        
+        lua_newtable(L);
+        int tbl = lua_gettop(L);
+        uint32 i = 0;
+
         SessionMap const& sessions = sWorld->GetAllSessions();
         for (SessionMap::const_iterator it = sessions.begin(); it != sessions.end(); ++it)
         {
@@ -79,12 +79,12 @@ namespace LuaGlobalFunctions
                     ++i;
                     Eluna::get()->PushUnsigned(L, i);
                     Eluna::get()->PushUnit(L, player);
-				    lua_settable(L, tbl);
+                    lua_settable(L, tbl);
                 }
             }
         }
 
-		lua_settop(L, tbl); // push table to top of stack
+        lua_settop(L, tbl); // push table to top of stack
         return 1;
     }
 
@@ -94,14 +94,14 @@ namespace LuaGlobalFunctions
         uint32 instanceID = luaL_optunsigned(L, 2, 0);
         int team = luaL_optint(L, 3, 0);
 
-		lua_newtable(L);
-		int tbl = lua_gettop(L);
-		uint32 i = 0;
+        lua_newtable(L);
+        int tbl = lua_gettop(L);
+        uint32 i = 0;
 
         Map* map = sMapMgr->FindMap(mapID, instanceID);
         if(!map)
         {
-		    lua_settop(L, tbl);
+            lua_settop(L, tbl);
             return 1;
         }
 
@@ -124,42 +124,42 @@ namespace LuaGlobalFunctions
         return 1;
     }
 
-	static int WorldDBQuery(lua_State* L)
-	{
-		const char* query = luaL_checkstring(L, 1);
-		if(!query)
+    static int WorldDBQuery(lua_State* L)
+    {
+        const char* query = luaL_checkstring(L, 1);
+        if(!query)
             return 0;
-		QueryResult result = WorldDatabase.Query(query);
+        QueryResult result = WorldDatabase.Query(query);
         if(!result)
             return 0;
-		lua_settop(L, 0);
+        lua_settop(L, 0);
         // Cant figure out how to pass the result and succesfully get things from it later (atm just fixed it so it compiles, but doesnt work)
-		Eluna::get()->PushQueryResult(L, &result);
-		return 1;
-	}
+        Eluna::get()->PushQueryResult(L, &result);
+        return 1;
+    }
 
-	static int GetGuildByName(lua_State* L)
-	{
+    static int GetGuildByName(lua_State* L)
+    {
         const char* name = luaL_checkstring(L, 1);
         Eluna::get()->PushGuild(L, sGuildMgr->GetGuildByName(name));
-		return 1;
-	}
+        return 1;
+    }
 
-	static int GetGuildByLeaderGUID(lua_State* L)
-	{
+    static int GetGuildByLeaderGUID(lua_State* L)
+    {
         uint32 guidLow = luaL_checkunsigned(L, 1);
         Eluna::get()->PushGuild(L, sGuildMgr->GetGuildByLeader(MAKE_NEW_GUID(guidLow, 0, HIGHGUID_PLAYER)));
-		return 1;
-	}
+        return 1;
+    }
 
-	static int GetPlayerCount(lua_State* L)
-	{
+    static int GetPlayerCount(lua_State* L)
+    {
         Eluna::get()->PushUnsigned(L, sWorld->GetPlayerCount());
-		return 1;
-	}
+        return 1;
+    }
 
-	static int CreateLuaEvent(lua_State* L)
-	{
+    static int CreateLuaEvent(lua_State* L)
+    {
         const char* typeName = luaL_typename(L, 1);
         uint32 delay = luaL_checkunsigned(L, 2);
         uint32 repeats = luaL_checkunsigned(L, 3);
@@ -173,7 +173,7 @@ namespace LuaGlobalFunctions
         }
         else
             return 0;
-		return 1;
-	}
+        return 1;
+    }
 }
 #endif
