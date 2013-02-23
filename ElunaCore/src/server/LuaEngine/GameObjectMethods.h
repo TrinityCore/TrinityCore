@@ -7,14 +7,14 @@ class LuaGameObject
 {
 public:
 
-	// Gossip Methods
+    // Gossip Methods
     // GossipMenuAddItem(icon, msg, Intid, code, accept_decline_message, money)
     static int GossipMenuAddItem(lua_State* L, GameObject* go)
     {
-		if (!go || !go->IsInWorld())
-			return 0;
+        if (!go || !go->IsInWorld())
+            return 0;
 
-		Player* receiver = Eluna::get()->CHECK_PLAYER(L, 1);
+        Player* receiver = Eluna::get()->CHECK_PLAYER(L, 1);
         int _icon = luaL_checknumber(L, 2);
         const char* msg = luaL_checkstring(L, 3);
         int _intid = luaL_checknumber(L, 4);
@@ -28,10 +28,10 @@ public:
     // GossipComplete()
     static int GossipComplete(lua_State* L, GameObject* go)
     {
-		if (!go || !go->IsInWorld())
-			return 0;
+        if (!go || !go->IsInWorld())
+            return 0;
 
-		Player* receiver = Eluna::get()->CHECK_PLAYER(L, 1);
+        Player* receiver = Eluna::get()->CHECK_PLAYER(L, 1);
         receiver->CLOSE_GOSSIP_MENU();
         return 0;
     }
@@ -39,8 +39,8 @@ public:
     // GossipSendMenu(npc_text, unit)
     static int GossipSendMenu(lua_State* L, GameObject* go)
     {
-		if (!go || !go->IsInWorld())
-			return 0;
+        if (!go || !go->IsInWorld())
+            return 0;
 
         int _npcText = luaL_checknumber(L, 1);
         Player* receiver = Eluna::get()->CHECK_PLAYER(L, 2);
