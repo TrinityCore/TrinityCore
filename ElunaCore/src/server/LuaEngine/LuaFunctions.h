@@ -126,10 +126,6 @@ ElunaRegister<Unit> UnitMethods[] =
 
 ElunaRegister<GameObject> GameObjectMethods[] =
 {
-    // Gossip                                                           
-    {"GossipMenuAddItem", &LuaGameObject::GossipMenuAddItem },          // :GossipMenuAddItem(plr, icon, msg, Intid, code, accept_decline_message, money)
-    {"GossipComplete", &LuaGameObject::GossipComplete },                // :GossipComplete(plr)
-    {"GossipSendMenu", &LuaGameObject::GossipSendMenu },                // :GossipSendMenu(npc_text, plr)
     { NULL, NULL }
 };
 
