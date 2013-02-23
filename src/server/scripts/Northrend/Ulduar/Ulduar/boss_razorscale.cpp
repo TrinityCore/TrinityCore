@@ -460,7 +460,7 @@ class boss_razorscale : public CreatureScript
                 return 0;
             }
 
-            void UpdateAI(uint32 Diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;
@@ -961,7 +961,7 @@ class npc_darkrune_watcher : public CreatureScript
                 _events.ScheduleEvent(EVENT_LIGHTNING_BOLT, urand(1*IN_MILLISECONDS, 3*IN_MILLISECONDS));
             }
 
-            void UpdateAI(uint32 Diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                 {
@@ -1030,7 +1030,7 @@ class npc_darkrune_guardian : public CreatureScript
                     _killedByBreath = value;
             }
 
-            void UpdateAI(uint32 Diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                 {
@@ -1077,7 +1077,7 @@ class npc_darkrune_sentinel : public CreatureScript
                 _events.ScheduleEvent(EVENT_BATTLE_SHOUT, urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS));
             }
 
-            void UpdateAI(uint32 Diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                 {
