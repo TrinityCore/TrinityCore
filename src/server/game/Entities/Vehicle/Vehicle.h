@@ -96,7 +96,7 @@ class Vehicle : public TransportBase
 
         void CancelJoinEvent(VehicleJoinEvent* e);
         void RemovePendingEvent(VehicleJoinEvent* e);
-        void RemovePendingEventsForSeat(uint8 seatId);
+        void RemovePendingEventsForSeat(int8 seatId);
 
     private:
         Unit* _me;                                          ///< The underlying unit with the vehicle kit. Can be player or creature.
