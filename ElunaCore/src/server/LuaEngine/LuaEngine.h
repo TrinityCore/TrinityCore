@@ -45,24 +45,25 @@ struct LoadedScripts
 
 enum REGISTER_TYPE
 {
-    REGTYPE_PLAYER = 1,
-    REGTYPE_GOSSIP = 2,
-    REGTYPE_CREATURE = 3,
-    REGTYPE_GAMEOBJECT = 4,
-    REGTYPE_GAMEOBJECT_GOSSIP = 5,
-    REGTYPE_LOG = 5,
+    REGTYPE_SERVER,
+    REGTYPE_GOSSIP,
+    REGTYPE_CREATURE,
+    REGTYPE_GAMEOBJECT,
+    REGTYPE_GAMEOBJECT_GOSSIP,
+    REGTYPE_LOG,
     REGTYPE_COUNT
 };
 
-enum PlayerEvents
+enum ServerEvents
 {
+    // Player
     PLAYER_EVENT_ON_CHARACTER_CREATE		= 1,        // Implemented
     PLAYER_EVENT_ON_KILL_PLAYER             = 2,        // Implemented
     PLAYER_EVENT_ON_LOGIN                   = 4,        // Implemented
     PLAYER_EVENT_ON_LOGOUT                  = 13,       // Implemented
-    PLAYER_EVENT_ON_CHAT                    = 16,       // Implemented - Group, guild etc chats not implemented
-    PLAYER_EVENT_LEVEL_CHANGE	            = 27,       // Implemented
-    PLAYER_EVENT_ON_CHARACTER_DELETE		= 33,       // Not Implemented
+    PLAYER_EVENT_ON_CHAT                    = 16,       // Implemented
+    PLAYER_EVENT_ON_LEVEL_CHANGE	        = 27,       // Implemented
+    PLAYER_EVENT_ON_CHARACTER_DELETE		= 33,       // Implemented
     PLAYER_EVENT_ON_TALENTS_CHANGE          = 34,       // Implemented
     PLAYER_EVENT_ON_TALENTS_RESET           = 35,       // Implemented
     PLAYER_EVENT_ON_MONEY_CHANGE            = 36,       // Implemented
@@ -79,7 +80,69 @@ enum PlayerEvents
     PLAYER_EVENT_ON_UPDATE_ZONE				= 47,       // Implemented
     PLAYER_EVENT_ON_KILL_CREATURE           = 48,       // Implemented
     PLAYER_EVENT_ON_KILLED_BY_CREATURE      = 49,       // Implemented
-    PLAYER_EVENT_COUNT
+    PLAYER_EVENT_ON_MAP_CHANGE              = 50,       // Not Implemented
+    
+    // Guild
+    GUILD_EVENT_ON_ADD_MEMBER               = 51,       // Not Implemented
+    GUILD_EVENT_ON_REMOVE_MEMBER            = 52,       // Not Implemented
+    GUILD_EVENT_ON_MOTD_CHANGE              = 53,       // Not Implemented
+    GUILD_EVENT_ON_INFO_CHANGE              = 54,       // Not Implemented
+    GUILD_EVENT_ON_CREATE                   = 55,       // Not Implemented
+    GUILD_EVENT_ON_DISBAND                  = 56,       // Not Implemented
+    GUILD_EVENT_ON_MONEY_WITHDRAW           = 57,       // Not Implemented
+    GUILD_EVENT_ON_MONEY_DEPOSIT            = 58,       // Not Implemented
+    GUILD_EVENT_ON_ITEM_MOVE                = 59,       // Not Implemented
+    GUILD_EVENT_ON_EVENT                    = 60,       // Not Implemented
+    GUILD_EVENT_ON_BANK_EVENT               = 61,       // Not Implemented
+    
+    // Server
+    SERVER_EVENT_ON_NETWORK_START           = 62,       // Not Implemented
+    SERVER_EVENT_ON_NETWORK_STOP            = 63,       // Not Implemented
+    SERVER_EVENT_ON_SOCKET_OPEN             = 64,       // Not Implemented
+    SERVER_EVENT_ON_SOCKET_CLOSE            = 65,       // Not Implemented
+    SERVER_EVENT_ON_PACKET_RECEIVE          = 66,       // Not Implemented
+    SERVER_EVENT_ON_PACKET_RECEIVE_UNKNOWN  = 67,       // Not Implemented
+    SERVER_EVENT_ON_PACKET_SEND             = 68,       // Not Implemented
+
+    // World
+    WORLD_EVENT_ON_OPEN_STATE_CHANGE        = 69,       // Not Implemented
+    WORLD_EVENT_ON_CONFIG_LOAD              = 70,       // Not Implemented
+    WORLD_EVENT_ON_MOTD_CHANGE              = 71,       // Not Implemented
+    WORLD_EVENT_ON_SHUTDOWN_INIT            = 72,       // Not Implemented
+    WORLD_EVENT_ON_SHUTDOWN_CANCEL          = 73,       // Not Implemented
+    WORLD_EVENT_ON_UPDATE                   = 74,       // Not Implemented
+    WORLD_EVENT_ON_STARTUP                  = 75,       // Not Implemented
+    WORLD_EVENT_ON_SHUTDOWN                 = 76,       // Not Implemented
+
+    // Map
+    MAP_EVENT_ON_CREATE                     = 77,       // Not Implemented
+    MAP_EVENT_ON_DESTROY                    = 78,       // Not Implemented
+    MAP_EVENT_ON_LOAD                       = 79,       // Not Implemented
+    MAP_EVENT_ON_UNLOAD                     = 80,       // Not Implemented
+    MAP_EVENT_ON_PLAYER_ENTER               = 81,       // Not Implemented
+    MAP_EVENT_ON_PLAYER_LEAVE               = 82,       // Not Implemented
+    MAP_EVENT_ON_UPDATE                     = 83,       // Not Implemented
+    
+    // Area trigger
+    TRIGGER_EVENT_ON_TRIGGER                = 84,       // Not Implemented
+
+    // Weather
+    WEATHER_EVENT_ON_CHANGE                 = 85,       // Not Implemented
+
+    // Auction house
+    AUCTION_EVENT_ON_ADD                    = 86,       // Not Implemented
+    AUCTION_EVENT_ON_REMOVE                 = 87,       // Not Implemented
+    AUCTION_EVENT_ON_SUCCESFUL              = 88,       // Not Implemented
+    AUCTION_EVENT_ON_EXPIRE                 = 89,       // Not Implemented
+
+    // Group
+    GROUP_EVENT_ON_MEMBER_ADD               = 90,       // Not Implemented
+    GROUP_EVENT_ON_MEMBER_INVITE            = 91,       // Not Implemented
+    GROUP_EVENT_ON_MEMBER_REMOVE            = 92,       // Not Implemented
+    GROUP_EVENT_ON_LEADER_CHANGE            = 93,       // Not Implemented
+    GROUP_EVENT_ON_DISBAND                  = 94,       // Not Implemented
+
+    SERVER_EVENT_COUNT
 };
 
 enum CreatureEvents
@@ -134,6 +197,12 @@ enum CreatureEvents
     CREATURE_EVENT_ON_VISIBLE_MOVE_IN_LOS           = 46,   // Implemented
     CREATURE_EVENT_ON_CANT_REACH_TARGET             = 47,   // Implemented
     CREATURE_EVENT_ON_PASSANGER_BOARDED             = 48,   // Implemented
+    CREATURE_EVENT_ON_DUMMY_EFFECT                  = 49,   // Not Implemented
+    CREATURE_EVENT_ON_QUEST_ACCEPT                  = 50,   // Not Implemented
+    CREATURE_EVENT_ON_QUEST_SELECT                  = 51,   // Not Implemented
+    CREATURE_EVENT_ON_QUEST_COMPLETE                = 52,   // Not Implemented
+    CREATURE_EVENT_ON_QUEST_REWARD                  = 53,   // Not Implemented
+    CREATURE_EVENT_ON_DIALOG_STATUS                 = 54,   // Not Implemented
     CREATURE_EVENT_COUNT
 };
 
@@ -144,6 +213,14 @@ enum GameObjectEvents
     GAMEOBJECT_EVENT_DOACTION                      = 3,    // Not Implemented
     GAMEOBJECT_EVENT_ON_SET_GUID                   = 4,    // Not Implemented
     GAMEOBJECT_EVENT_ON_GET_GUID                   = 5,    // Not Implemented
+    GAMEOBJECT_EVENT_ON_DUMMY_EFFECT               = 6,    // Not Implemented
+    GAMEOBJECT_EVENT_ON_QUEST_ACCEPT               = 7,    // Not Implemented
+    GAMEOBJECT_EVENT_ON_QUEST_REWARD               = 8,    // Not Implemented
+    GAMEOBJECT_EVENT_ON_DIALOG_STATUS              = 9,    // Not Implemented
+    GAMEOBJECT_EVENT_ON_DESTROYED                  = 10,   // Not Implemented
+    GAMEOBJECT_EVENT_ON_DAMAGED                    = 11,   // Not Implemented
+    GAMEOBJECT_EVENT_ON_LOOT_STATE_CHANGE          = 12,   // Not Implemented
+    GAMEOBJECT_EVENT_ON_GO_STATE_CHANGED           = 13,   // Not Implemented
     GAMEOBJECT_EVENT_COUNT
 };
 
@@ -200,7 +277,7 @@ public:
     static ElunaScript* getScript() { return Script; }
 
     typedef map<int, vector<uint16>> ElunaBindingMap;
-    ElunaBindingMap _playerEventBindings;
+    ElunaBindingMap _serverEventBindings;
 
     vector<CreatureBind*> _creatureEventBindings;
     vector<CreatureBind*> _gossipEventBindings;
@@ -213,10 +290,10 @@ public:
 
     static void InitTables()
     {
-        for (int i = 0; i < PLAYER_EVENT_COUNT; i++)
+        for (int i = 0; i < SERVER_EVENT_COUNT; i++)
         {
             vector<uint16> _vector;
-            get()->_playerEventBindings.insert(pair<int, vector<uint16>>(i, _vector));
+            get()->_serverEventBindings.insert(pair<int, vector<uint16>>(i, _vector));
         }
     }
 
@@ -227,9 +304,11 @@ public:
 
     ~Eluna()
     {
+        _serverEventBindings.clear();
         _gossipEventBindings.clear();
-        _playerEventBindings.clear();
         _creatureEventBindings.clear();
+        _gameObjectAIEventBindings.clear();
+        _gameObjectGossipBindings.clear();
         delete _luaEventMgr;
     }
 
@@ -1125,8 +1204,8 @@ public:
 
     void OnChat(uint32 eventId, Player* player, uint32 type, uint32 lang, string& msg)
     {
-        for (vector<uint16>::iterator itr = Eluna::get()->_playerEventBindings.at(eventId).begin();
-            itr != Eluna::get()->_playerEventBindings.at(eventId).end(); itr++)
+        for (vector<uint16>::iterator itr = Eluna::get()->_serverEventBindings.at(eventId).begin();
+            itr != Eluna::get()->_serverEventBindings.at(eventId).end(); itr++)
         {
             Eluna::get()->BeginCall((*itr));
             Eluna::get()->PushUnsigned(Eluna::get()->_luaState, eventId);
@@ -1140,8 +1219,8 @@ public:
 
     void OnChat(uint32 eventId, Player* player, uint32 type, uint32 lang, string& msg, Player* receiver)
     {
-        for (vector<uint16>::iterator itr = Eluna::get()->_playerEventBindings.at(eventId).begin();
-            itr != Eluna::get()->_playerEventBindings.at(eventId).end(); itr++)
+        for (vector<uint16>::iterator itr = Eluna::get()->_serverEventBindings.at(eventId).begin();
+            itr != Eluna::get()->_serverEventBindings.at(eventId).end(); itr++)
         {
             Eluna::get()->BeginCall((*itr));
             Eluna::get()->PushUnsigned(Eluna::get()->_luaState, eventId);
@@ -1156,8 +1235,8 @@ public:
 
     void OnChat(uint32 eventId, Player* player, uint32 type, uint32 lang, string& msg, Group* group)
     {
-        for (vector<uint16>::iterator itr = Eluna::get()->_playerEventBindings.at(eventId).begin();
-            itr != Eluna::get()->_playerEventBindings.at(eventId).end(); itr++)
+        for (vector<uint16>::iterator itr = Eluna::get()->_serverEventBindings.at(eventId).begin();
+            itr != Eluna::get()->_serverEventBindings.at(eventId).end(); itr++)
         {
             Eluna::get()->BeginCall((*itr));
             Eluna::get()->PushUnsigned(Eluna::get()->_luaState, eventId);
@@ -1172,8 +1251,8 @@ public:
 
     void OnChat(uint32 eventId, Player* player, uint32 type, uint32 lang, string& msg, Guild* guild)
     {
-        for (vector<uint16>::iterator itr = Eluna::get()->_playerEventBindings.at(eventId).begin();
-            itr != Eluna::get()->_playerEventBindings.at(eventId).end(); itr++)
+        for (vector<uint16>::iterator itr = Eluna::get()->_serverEventBindings.at(eventId).begin();
+            itr != Eluna::get()->_serverEventBindings.at(eventId).end(); itr++)
         {
             Eluna::get()->BeginCall((*itr));
             Eluna::get()->PushUnsigned(Eluna::get()->_luaState, eventId);
@@ -1188,8 +1267,8 @@ public:
 
     void OnChat(uint32 eventId, Player* player, uint32 type, uint32 lang, string& msg, Channel* channel)
     {
-        for (vector<uint16>::iterator itr = Eluna::get()->_playerEventBindings.at(eventId).begin();
-            itr != Eluna::get()->_playerEventBindings.at(eventId).end(); itr++)
+        for (vector<uint16>::iterator itr = Eluna::get()->_serverEventBindings.at(eventId).begin();
+            itr != Eluna::get()->_serverEventBindings.at(eventId).end(); itr++)
         {
             Eluna::get()->BeginCall((*itr));
             Eluna::get()->PushUnsigned(Eluna::get()->_luaState, eventId);
@@ -1204,8 +1283,8 @@ public:
 
     void OnPvPKill(uint32 eventId, Player* killer, Player* victim)
     {
-        for (vector<uint16>::iterator itr = Eluna::get()->_playerEventBindings.at(eventId).begin();
-            itr != Eluna::get()->_playerEventBindings.at(eventId).end(); itr++)
+        for (vector<uint16>::iterator itr = Eluna::get()->_serverEventBindings.at(eventId).begin();
+            itr != Eluna::get()->_serverEventBindings.at(eventId).end(); itr++)
         {
             Eluna::get()->BeginCall((*itr));
             Eluna::get()->PushUnsigned(Eluna::get()->_luaState, eventId);
@@ -1217,8 +1296,8 @@ public:
 
     void OnPlayerLevelChanged(uint32 eventId, Player* player, uint8 oldLevel)
     {
-        for (vector<uint16>::iterator itr = Eluna::get()->_playerEventBindings.at(eventId).begin();
-            itr != Eluna::get()->_playerEventBindings.at(eventId).end(); itr++)
+        for (vector<uint16>::iterator itr = Eluna::get()->_serverEventBindings.at(eventId).begin();
+            itr != Eluna::get()->_serverEventBindings.at(eventId).end(); itr++)
         {
             Eluna::get()->BeginCall((*itr));
             Eluna::get()->PushUnsigned(Eluna::get()->_luaState, eventId);
@@ -1230,8 +1309,8 @@ public:
 
     void OnPlayerTalentsChanged(uint32 eventId, Player* player, uint32 points)
     {
-        for (vector<uint16>::iterator itr = Eluna::get()->_playerEventBindings.at(eventId).begin();
-            itr != Eluna::get()->_playerEventBindings.at(eventId).end(); itr++)
+        for (vector<uint16>::iterator itr = Eluna::get()->_serverEventBindings.at(eventId).begin();
+            itr != Eluna::get()->_serverEventBindings.at(eventId).end(); itr++)
         {
             Eluna::get()->BeginCall((*itr));
             Eluna::get()->PushUnsigned(Eluna::get()->_luaState, eventId);
@@ -1243,8 +1322,8 @@ public:
 
     void OnCreatureKill(uint32 eventId, Player* player, Creature* creature)
     {
-        for (vector<uint16>::iterator itr = Eluna::get()->_playerEventBindings.at(eventId).begin();
-            itr != Eluna::get()->_playerEventBindings.at(eventId).end(); itr++)
+        for (vector<uint16>::iterator itr = Eluna::get()->_serverEventBindings.at(eventId).begin();
+            itr != Eluna::get()->_serverEventBindings.at(eventId).end(); itr++)
         {
             Eluna::get()->BeginCall((*itr));
             Eluna::get()->PushUnsigned(Eluna::get()->_luaState, eventId);
@@ -1256,8 +1335,8 @@ public:
 
     void OnPlayerKilledByCreature(uint32 eventId, Creature* creature, Player* player)
     {
-        for (vector<uint16>::iterator itr = Eluna::get()->_playerEventBindings.at(eventId).begin();
-            itr != Eluna::get()->_playerEventBindings.at(eventId).end(); itr++)
+        for (vector<uint16>::iterator itr = Eluna::get()->_serverEventBindings.at(eventId).begin();
+            itr != Eluna::get()->_serverEventBindings.at(eventId).end(); itr++)
         {
             Eluna::get()->BeginCall((*itr));
             Eluna::get()->PushUnsigned(Eluna::get()->_luaState, eventId);
@@ -1269,8 +1348,8 @@ public:
 
     void OnPlayerTalentsReset(uint32 eventId, Player* player, bool noCost)
     {
-        for (vector<uint16>::iterator itr = Eluna::get()->_playerEventBindings.at(eventId).begin();
-            itr != Eluna::get()->_playerEventBindings.at(eventId).end(); itr++)
+        for (vector<uint16>::iterator itr = Eluna::get()->_serverEventBindings.at(eventId).begin();
+            itr != Eluna::get()->_serverEventBindings.at(eventId).end(); itr++)
         {
             Eluna::get()->BeginCall((*itr));
             Eluna::get()->PushUnsigned(Eluna::get()->_luaState, eventId);
@@ -1282,8 +1361,8 @@ public:
 
     void OnPlayerMoneyChanged(uint32 eventId, Player* player, int32& amount)
     {
-        for (vector<uint16>::iterator itr = Eluna::get()->_playerEventBindings.at(eventId).begin();
-            itr != Eluna::get()->_playerEventBindings.at(eventId).end(); itr++)
+        for (vector<uint16>::iterator itr = Eluna::get()->_serverEventBindings.at(eventId).begin();
+            itr != Eluna::get()->_serverEventBindings.at(eventId).end(); itr++)
         {
             Eluna::get()->BeginCall((*itr));
             Eluna::get()->PushUnsigned(Eluna::get()->_luaState, eventId);
@@ -1295,8 +1374,8 @@ public:
 
     void OnGivePlayerXP(uint32 eventId, Player* player, uint32& amount, Unit* victim)
     {
-        for (vector<uint16>::iterator itr = Eluna::get()->_playerEventBindings.at(eventId).begin();
-            itr != Eluna::get()->_playerEventBindings.at(eventId).end(); itr++)
+        for (vector<uint16>::iterator itr = Eluna::get()->_serverEventBindings.at(eventId).begin();
+            itr != Eluna::get()->_serverEventBindings.at(eventId).end(); itr++)
         {
             Eluna::get()->BeginCall((*itr));
             Eluna::get()->PushUnsigned(Eluna::get()->_luaState, eventId);
@@ -1309,8 +1388,8 @@ public:
 
     void OnPlayerReputationChange(uint32 eventId, Player* player, uint32 factionID, int32& standing, bool incremental)
     {
-        for (vector<uint16>::iterator itr = Eluna::get()->_playerEventBindings.at(eventId).begin();
-            itr != Eluna::get()->_playerEventBindings.at(eventId).end(); itr++)
+        for (vector<uint16>::iterator itr = Eluna::get()->_serverEventBindings.at(eventId).begin();
+            itr != Eluna::get()->_serverEventBindings.at(eventId).end(); itr++)
         {
             Eluna::get()->BeginCall((*itr));
             Eluna::get()->PushUnsigned(Eluna::get()->_luaState, eventId);
@@ -1324,8 +1403,8 @@ public:
 
     void OnPlayerDuelRequest(uint32 eventId, Player* target, Player* challenger)
     {
-        for (vector<uint16>::iterator itr = Eluna::get()->_playerEventBindings.at(eventId).begin();
-            itr != Eluna::get()->_playerEventBindings.at(eventId).end(); itr++)
+        for (vector<uint16>::iterator itr = Eluna::get()->_serverEventBindings.at(eventId).begin();
+            itr != Eluna::get()->_serverEventBindings.at(eventId).end(); itr++)
         {
             Eluna::get()->BeginCall((*itr));
             Eluna::get()->PushUnsigned(Eluna::get()->_luaState, eventId);
@@ -1337,8 +1416,8 @@ public:
 
     void OnPlayerDuelStart(uint32 eventId, Player* player1, Player* player2)
     {
-        for (vector<uint16>::iterator itr = Eluna::get()->_playerEventBindings.at(eventId).begin();
-            itr != Eluna::get()->_playerEventBindings.at(eventId).end(); itr++)
+        for (vector<uint16>::iterator itr = Eluna::get()->_serverEventBindings.at(eventId).begin();
+            itr != Eluna::get()->_serverEventBindings.at(eventId).end(); itr++)
         {
             Eluna::get()->BeginCall((*itr));
             Eluna::get()->PushUnsigned(Eluna::get()->_luaState, eventId);
@@ -1350,8 +1429,8 @@ public:
 
     void OnPlayerDuelEnd(uint32 eventId, Player* winner, Player* loser, DuelCompleteType type)
     {
-        for (vector<uint16>::iterator itr = Eluna::get()->_playerEventBindings.at(eventId).begin();
-            itr != Eluna::get()->_playerEventBindings.at(eventId).end(); itr++)
+        for (vector<uint16>::iterator itr = Eluna::get()->_serverEventBindings.at(eventId).begin();
+            itr != Eluna::get()->_serverEventBindings.at(eventId).end(); itr++)
         {
             Eluna::get()->BeginCall((*itr));
             Eluna::get()->PushUnsigned(Eluna::get()->_luaState, eventId);
@@ -1364,8 +1443,8 @@ public:
 
     void OnPlayerEmote(uint32 eventId, Player* player, uint32 emote)
     {
-        for (vector<uint16>::iterator itr = Eluna::get()->_playerEventBindings.at(eventId).begin();
-            itr != Eluna::get()->_playerEventBindings.at(eventId).end(); itr++)
+        for (vector<uint16>::iterator itr = Eluna::get()->_serverEventBindings.at(eventId).begin();
+            itr != Eluna::get()->_serverEventBindings.at(eventId).end(); itr++)
         {
             Eluna::get()->BeginCall((*itr));
             Eluna::get()->PushUnsigned(Eluna::get()->_luaState, eventId);
@@ -1377,8 +1456,8 @@ public:
 
     void OnPlayerLogin(uint32 eventId, Player* player)
     {
-        for (vector<uint16>::iterator itr = Eluna::get()->_playerEventBindings.at(eventId).begin();
-            itr != Eluna::get()->_playerEventBindings.at(eventId).end(); itr++)
+        for (vector<uint16>::iterator itr = Eluna::get()->_serverEventBindings.at(eventId).begin();
+            itr != Eluna::get()->_serverEventBindings.at(eventId).end(); itr++)
         {
             Eluna::get()->BeginCall((*itr));
             Eluna::get()->PushUnsigned(Eluna::get()->_luaState, eventId);
@@ -1389,8 +1468,8 @@ public:
 
     void OnPlayerLogout(uint32 eventId, Player* player)
     {
-        for (vector<uint16>::iterator itr = Eluna::get()->_playerEventBindings.at(eventId).begin();
-            itr != Eluna::get()->_playerEventBindings.at(eventId).end(); itr++)
+        for (vector<uint16>::iterator itr = Eluna::get()->_serverEventBindings.at(eventId).begin();
+            itr != Eluna::get()->_serverEventBindings.at(eventId).end(); itr++)
         {
             Eluna::get()->BeginCall((*itr));
             Eluna::get()->PushUnsigned(Eluna::get()->_luaState, eventId);
@@ -1401,8 +1480,8 @@ public:
 
     void OnPlayerCreate(uint32 eventId, Player* player)
     {
-        for (vector<uint16>::iterator itr = Eluna::get()->_playerEventBindings.at(eventId).begin();
-            itr != Eluna::get()->_playerEventBindings.at(eventId).end(); itr++)
+        for (vector<uint16>::iterator itr = Eluna::get()->_serverEventBindings.at(eventId).begin();
+            itr != Eluna::get()->_serverEventBindings.at(eventId).end(); itr++)
         {
             Eluna::get()->BeginCall((*itr));
             Eluna::get()->PushUnsigned(Eluna::get()->_luaState, eventId);
@@ -1413,8 +1492,8 @@ public:
 
     void OnPlayerSave(uint32 eventId, Player* player)
     {
-        for (vector<uint16>::iterator itr = Eluna::get()->_playerEventBindings.at(eventId).begin();
-            itr != Eluna::get()->_playerEventBindings.at(eventId).end(); itr++)
+        for (vector<uint16>::iterator itr = Eluna::get()->_serverEventBindings.at(eventId).begin();
+            itr != Eluna::get()->_serverEventBindings.at(eventId).end(); itr++)
         {
             Eluna::get()->BeginCall((*itr));
             Eluna::get()->PushUnsigned(Eluna::get()->_luaState, eventId);
@@ -1425,8 +1504,8 @@ public:
 
     void OnPlayerBindToInstance(uint32 eventId, Player* player, Difficulty difficulty, uint32 mapid, bool permanent)
     {
-        for (vector<uint16>::iterator itr = Eluna::get()->_playerEventBindings.at(eventId).begin();
-            itr != Eluna::get()->_playerEventBindings.at(eventId).end(); itr++)
+        for (vector<uint16>::iterator itr = Eluna::get()->_serverEventBindings.at(eventId).begin();
+            itr != Eluna::get()->_serverEventBindings.at(eventId).end(); itr++)
         {
             Eluna::get()->BeginCall((*itr));
             Eluna::get()->PushUnsigned(Eluna::get()->_luaState, eventId);
@@ -1440,8 +1519,8 @@ public:
 
     void OnPlayerUpdateZone(uint32 eventId, Player* player, uint32 newZone, uint32 newArea)
     {
-        for (vector<uint16>::iterator itr = Eluna::get()->_playerEventBindings.at(eventId).begin();
-            itr != Eluna::get()->_playerEventBindings.at(eventId).end(); itr++)
+        for (vector<uint16>::iterator itr = Eluna::get()->_serverEventBindings.at(eventId).begin();
+            itr != Eluna::get()->_serverEventBindings.at(eventId).end(); itr++)
         {
             Eluna::get()->BeginCall((*itr));
             Eluna::get()->PushUnsigned(Eluna::get()->_luaState, eventId);
@@ -1449,6 +1528,18 @@ public:
             Eluna::get()->PushUnsigned(Eluna::get()->_luaState, newZone);
             Eluna::get()->PushUnsigned(Eluna::get()->_luaState, newArea);
             Eluna::get()->ExecuteCall(4, 0);
+        }
+    }
+
+    void OnPlayerDelete(uint32 eventId, uint64 guid)
+    {
+        for (vector<uint16>::iterator itr = Eluna::get()->_serverEventBindings.at(eventId).begin();
+            itr != Eluna::get()->_serverEventBindings.at(eventId).end(); itr++)
+        {
+            Eluna::get()->BeginCall((*itr));
+            Eluna::get()->PushUnsigned(Eluna::get()->_luaState, eventId);
+            Eluna::get()->PushGUID(Eluna::get()->_luaState, guid);
+            Eluna::get()->ExecuteCall(2, 0);
         }
     }
 

@@ -1175,7 +1175,7 @@ void ScriptMgr::OnPlayerKilledByCreature(Creature* killer, Player* killed)
 void ScriptMgr::OnPlayerLevelChanged(Player* player, uint8 oldLevel)
 {
     FOREACH_SCRIPT(PlayerScript)->OnLevelChanged(player, oldLevel);
-	Eluna::getScript()->OnPlayerLevelChanged(PLAYER_EVENT_LEVEL_CHANGE, player, oldLevel);
+	Eluna::getScript()->OnPlayerLevelChanged(PLAYER_EVENT_ON_LEVEL_CHANGE, player, oldLevel);
 }
 
 void ScriptMgr::OnPlayerFreeTalentPointsChanged(Player* player, uint32 points)
@@ -1293,6 +1293,7 @@ void ScriptMgr::OnPlayerCreate(Player* player)
 void ScriptMgr::OnPlayerDelete(uint64 guid)
 {
     FOREACH_SCRIPT(PlayerScript)->OnDelete(guid);
+    Eluna::getScript()->OnPlayerDelete(PLAYER_EVENT_ON_CHARACTER_DELETE, guid);
 }
 
 void ScriptMgr::OnPlayerSave(Player* player)

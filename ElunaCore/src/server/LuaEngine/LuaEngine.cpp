@@ -324,7 +324,7 @@ static int RegisterServerHook(lua_State* L)
         functionRef = (uint16)lua_ref(L, true);
 
     if(functionRef > 0)
-        Eluna::get()->Register(REGTYPE_PLAYER, 0, ev, functionRef);
+        Eluna::get()->Register(REGTYPE_SERVER, 0, ev, functionRef);
     return 0;
 }
 
@@ -409,9 +409,9 @@ void Eluna::Register(uint8 regtype, uint32 id, uint32 evt, uint16 functionRef)
 {
     switch(regtype)
     {
-    case REGTYPE_PLAYER:
-        if(evt < PLAYER_EVENT_COUNT)
-            _playerEventBindings.at(evt).push_back(functionRef);
+    case REGTYPE_SERVER:
+        if(evt < SERVER_EVENT_COUNT)
+            _serverEventBindings.at(evt).push_back(functionRef);
         break;
 
     case REGTYPE_GOSSIP:
@@ -439,7 +439,7 @@ void Eluna::Register(uint8 regtype, uint32 id, uint32 evt, uint16 functionRef)
 void Eluna::Restart()
 {
     sLog->outInfo(LOG_FILTER_GENERAL, "Eluna Nova::Restarting Engine");
-    for (ElunaBindingMap::iterator itr = get()->_playerEventBindings.begin(); itr != get()->_playerEventBindings.end(); ++itr)
+    for (ElunaBindingMap::iterator itr = get()->_serverEventBindings.begin(); itr != get()->_serverEventBindings.end(); ++itr)
     {
         for (vector<uint16>::iterator _itr = itr->second.begin(); _itr != itr->second.end(); ++_itr)
             luaL_unref(get()->_luaState, LUA_REGISTRYINDEX, (*_itr));
