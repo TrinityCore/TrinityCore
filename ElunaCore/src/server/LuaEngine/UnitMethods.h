@@ -850,17 +850,79 @@ public:
         return 0;
     }
 
+    // CastSpell(spellID) - self
+    static int CastSpell(lua_State* L, Unit* unit)
+    {
+        TO_UNIT();
+        
+        uint32 spell = luaL_checkunsigned(L, 1);
+
+        unit->CastSpell(unit, spell, true);
+        return 0;
+    }
+
+    // CastSpellOnTarget(spellID, unit) - See if can be gameobject target
+    static int CastSpellOnTarget(lua_State* L, Unit* unit)
+    {
+        TO_UNIT();
+        
+        uint32 spell = luaL_checkunsigned(L, 1);
+        Unit* target = Eluna::get()->CHECK_UNIT(L, 2);
+
+        if(target)
+            unit->CastSpell(target, spell, true);
+        return 0;
+    }
+
+    // CastSpellAoF(x, y, z, id) - to coords
+    static int CastSpellAoF(lua_State* L, Unit* unit)
+    {
+        TO_UNIT();
+        
+        float _x = luaL_checknumber(L, 1);
+        float _y = luaL_checknumber(L, 2);
+        float _z = luaL_checknumber(L, 3);
+        uint32 spell = luaL_checkunsigned(L, 4);
+
+        unit->CastSpell(_x, _y, _z, spell, true);
+        return 0;
+    }
+
+    // FullCastSpell() - self
+    static int FullCastSpell(lua_State* L, Unit* unit)
+    {
+        TO_UNIT();
+        
+        uint32 spell = luaL_checkunsigned(L, 1);
+
+        unit->CastSpell(unit, spell, false);
+        return 0;
+    }
+
+    // FullCastSpellOnTarget(unit) - See if can be gameobject target
+    static int FullCastSpellOnTarget(lua_State* L, Unit* unit)
+    {
+        TO_UNIT();
+        
+        uint32 spell = luaL_checkunsigned(L, 1);
+        Unit* target = Eluna::get()->CHECK_UNIT(L, 2);
+
+        if(target)
+            unit->CastSpell(target, spell, false);
+        return 0;
+    }
+
     // GossipMenuAddItem(icon, msg, Intid, code, accept_decline_message, money)
     static int GossipMenuAddItem(lua_State* L, Unit* unit)
     {
         TO_PLAYER();
 
-        int _icon = luaL_checknumber(L, 1);
+        uint32 _icon = luaL_checkunsigned(L, 1);
         const char* msg = luaL_checkstring(L, 2);
-        int _intid = luaL_checknumber(L, 3);
+        uint32 _intid = luaL_checkunsigned(L, 3);
         bool _code = luaL_optint(L, 4, false);
         const char* _promptMsg = luaL_optstring(L, 5, "");
-        int _money = luaL_optint(L, 6, 0);
+        uint32 _money = luaL_optunsigned(L, 6, 0);
 
         player->ADD_GOSSIP_ITEM_EXTENDED(_icon, msg, GOSSIP_SENDER_MAIN, _intid, _promptMsg, _money, _code);
         return 0;
@@ -880,7 +942,7 @@ public:
     {
         TO_PLAYER();
 
-        int _npcText = luaL_checknumber(L, 1);
+        uint32 _npcText = luaL_checkunsigned(L, 1);
         Unit* sender = Eluna::get()->CHECK_UNIT(L, 2);
         player->SEND_GOSSIP_MENU(_npcText, sender->GetGUID());
         return 0;

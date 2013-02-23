@@ -72,6 +72,7 @@ enum PlayerEvents
     PLAYER_EVENT_ON_DUEL_START              = 40,       // Implemented
     PLAYER_EVENT_ON_DUEL_END                = 41,       // Implemented
     PLAYER_EVENT_ON_EMOTE                   = 42,       // Implemented
+    PLAYER_EVENT_ON_TEXT_EMOTE              = 43,       // Not Implemented
     PLAYER_EVENT_ON_SPELL_CAST              = 44,       // Not Implemented
     PLAYER_EVENT_ON_SAVE					= 45,       // Implemented
     PLAYER_EVENT_ON_BIND_TO_INSTANCE        = 46,       // Implemented

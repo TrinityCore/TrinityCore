@@ -9,7 +9,7 @@ ElunaRegister<Unit> UnitMethods[] =
     {"GetSelection", &LuaUnit::GetSelection},                     // :GetSelection()
     {"GetGuildID", &LuaUnit::GetGuildID},                         // :GetGuildID() - nil on no guild.
     {"GetCoinage", &LuaUnit::GetCoinage},                         // :GetCoinage()
-    {"GetTeam", &LuaUnit::GetTeam},                               // :GetTeam() - returns the player's team. 0 for ally, 1 for whored
+    {"GetTeam", &LuaUnit::GetTeam},                               // :GetTeam() - returns the player's team. 0 for ally, 1 for horde
     {"GetItemCount", &LuaUnit::GetItemCount},                     // :GetItemCount(item_id)
     {"GetGroup", &LuaUnit::GetGroup},                             // :GetGroup()
     {"GetGuild", &LuaUnit::GetGuild},                             // :GetGuild()
@@ -30,6 +30,8 @@ ElunaRegister<Unit> UnitMethods[] =
     {"IsAlliance", &LuaUnit::IsAlliance},                         // :IsAlliance()
     {"IsHorde", &LuaUnit::IsHorde},                               // :IsHorde()
     {"HasTitle", &LuaUnit::HasTitle},                             // :HasTitle(id)
+    {"Teleport", &LuaUnit::Teleport},                             // :Teleport(Map, X, Y, Z, O) - Teleports player to specified co-ordinates. Returns true if success and false if not.
+    {"AddItem", &LuaUnit::AddItem},                               // :AddItem(id, amount) - Adds amount of item to player. Returns true if success and false if not.
 
     // Gossip                                                           
     {"GossipMenuAddItem", &LuaUnit::GossipMenuAddItem },                // :GossipMenuAddItem(icon, msg, Intid, code, accept_decline_message, money)
@@ -44,8 +46,6 @@ ElunaRegister<Unit> UnitMethods[] =
     {"GiveCoinage", &LuaUnit::GiveCoinage},                       // :GiveCoinage(amount) - MODIFIES (does not set) coinage count.
     {"RemoveCoinage", &LuaUnit::RemoveCoinage},                   // :RemoveCoinage(amount) - Removes amount of coinage from plr.
     {"LearnSpell", &LuaUnit::LearnSpell},                         // :LearnSpell(id) - learns the given spell.
-    {"Teleport", &LuaUnit::Teleport},                             // :Teleport(Map, X, Y, Z, O) - Teleports player to specified co-ordinates.
-    {"AddItem", &LuaUnit::AddItem},                               // :AddItem(id, amount) - Adds amount of item to player.
     {"RemoveItem", &LuaUnit::RemoveItem},                         // :RemoveItem(id, amount) - Removes amount of item to player.
 
     // Unit Methods
@@ -96,6 +96,11 @@ ElunaRegister<Unit> UnitMethods[] =
     {"SendUnitWhisper", &LuaUnit::SendUnitWhisper},                 // :SendUnitWhisper(msg, unit) -- Sends a whisper to the receiver
     {"SendUnitSay", &LuaUnit::SendUnitSay},                         // :SendUnitSay(msg, language) -- Sends a "Say" message with the specified language (all languages: 0)
     {"SendUnitYell", &LuaUnit::SendUnitYell},                       // :SendUnitYell(msg, language) -- Sends a "Yell" message with the specified language (all languages: 0)
+    {"CastSpell", &LuaUnit::CastSpell},                             // :CastSpell(spellID) - Casts the spell on self, no manacost or cast time
+    {"CastSpellOnTarget", &LuaUnit::CastSpellOnTarget},             // :CastSpellOnTarget(spellID, unit) - Casts the spell on target, no manacost or cast time
+    {"CastSpellAoF", &LuaUnit::CastSpellAoF},                       // :CastSpellAoF(x, y, z, SpellID) - Casts the spell on coordinates, no manacost or cast time
+    {"FullCastSpell", &LuaUnit::FullCastSpell},                     // :FullCastSpell(spellID) - Casts the spell on self
+    {"FullCastSpellOnTarget", &LuaUnit::FullCastSpellOnTarget},     // :FullCastSpellOnTarget(spellID, unit) - Casts the spell on target
 
     { NULL, NULL },
 };

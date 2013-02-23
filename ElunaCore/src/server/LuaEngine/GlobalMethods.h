@@ -62,7 +62,7 @@ namespace LuaGlobalFunctions
 
     static int GetPlayersInWorld(lua_State* L)
     {
-        int team = luaL_optint(L, 1, 0);
+        uint32 team = luaL_optunsigned(L, 1, TEAM_NEUTRAL);
         bool onlyGM = luaL_optint(L, 2, false);
 
         lua_newtable(L);
@@ -74,7 +74,7 @@ namespace LuaGlobalFunctions
         {
             if (Player* player = it->second->GetPlayer())
             {
-                if (player->GetSession() && ((!team || player->GetTeam() == (team == 1 ? ALLIANCE : HORDE)) && (!onlyGM || player->isGameMaster())))
+                if (player->GetSession() && ((team >= TEAM_NEUTRAL || player->GetTeamId() == team) && (!onlyGM || player->isGameMaster())))
                 {
                     ++i;
                     Eluna::get()->PushUnsigned(L, i);
@@ -92,7 +92,7 @@ namespace LuaGlobalFunctions
     {
         uint32 mapID = luaL_checkunsigned(L, 1);
         uint32 instanceID = luaL_optunsigned(L, 2, 0);
-        int team = luaL_optint(L, 3, 0);
+        uint32 team = luaL_optunsigned(L, 3, TEAM_NEUTRAL);
 
         lua_newtable(L);
         int tbl = lua_gettop(L);
@@ -111,7 +111,7 @@ namespace LuaGlobalFunctions
             Player* player = itr->getSource();
             if(!player)
                 continue;
-            if (player->GetSession() && (!team || player->GetTeam() == (team == 1 ? ALLIANCE : HORDE)))
+            if (player->GetSession() && (team >= TEAM_NEUTRAL || player->GetTeamId() == team))
             {
                 ++i;
                 Eluna::get()->PushUnsigned(L, i);

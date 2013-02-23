@@ -99,6 +99,10 @@ public:
         }
 
         Player* player = Eluna::get()->CHECK_PLAYER(L, 1);
+        if(!player)
+            if(const char* name = luaL_checkstring(L, 1))
+                player = sObjectAccessor->FindPlayerByName("name");
+
         if(player)
             Eluna::get()->PushBoolean(L, (player->GetGUID() == group->GetLeaderGUID()));
         else
