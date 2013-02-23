@@ -57,9 +57,9 @@ void WorldSession::HandleCalendarGetCalendar(WorldPacket& /*recvData*/)
 
     WorldPacket data(SMSG_CALENDAR_SEND_CALENDAR, 1000); // Average size if no instance
 
-    std::vector<CalendarInvite*> invites = sCalendarMgr->GetPlayerInvites(guid);
+    CalendarInviteStore invites = sCalendarMgr->GetPlayerInvites(guid);
     data << uint32(invites.size());
-    for (std::vector<CalendarInvite*>::const_iterator itr = invites.begin(); itr != invites.end(); ++itr)
+    for (CalendarInviteStore::const_iterator itr = invites.begin(); itr != invites.end(); ++itr)
     {
         data << uint64((*itr)->GetEventId());
         data << uint64((*itr)->GetInviteId());
@@ -351,9 +351,9 @@ void WorldSession::HandleCalendarCopyEvent(WorldPacket& recvData)
         newEvent->SetEventTime(time_t(time));
         sCalendarMgr->AddEvent(newEvent, CALENDAR_SENDTYPE_COPY);
 
-        std::vector<CalendarInvite*> invites = sCalendarMgr->GetEventInvites(eventId);
+        CalendarInviteStore invites = sCalendarMgr->GetEventInvites(eventId);
 
-        for (std::vector<CalendarInvite*>::const_iterator itr = invites.begin(); itr != invites.end(); ++itr)
+        for (CalendarInviteStore::const_iterator itr = invites.begin(); itr != invites.end(); ++itr)
             sCalendarMgr->AddInvite(newEvent, new CalendarInvite(**itr, sCalendarMgr->GetFreeInviteId(), newEvent->GetEventId()));
 
         // should we change owner when somebody makes a copy of event owned by another person?
