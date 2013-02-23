@@ -52,6 +52,7 @@ ElunaRegister<Unit> UnitMethods[] =
     {"RemoveCoinage", &LuaUnit::RemoveCoinage},                   // :RemoveCoinage(amount) - Removes amount of coinage from plr.
     {"LearnSpell", &LuaUnit::LearnSpell},                         // :LearnSpell(id) - learns the given spell.
     {"RemoveItem", &LuaUnit::RemoveItem},                         // :RemoveItem(id, amount) - Removes amount of item to player.
+	{"ResurrectPlayer", &LuaUnit::ResurrectPlayer},               // :ResurrectPlayer(percent, sickness(bool)) - Resurrects the player at percentage, player gets resurrection sickness if sickness set to true.
 
 
     // Creature methods
