@@ -7,6 +7,7 @@ ElunaRegister<Unit> UnitMethods[] =
 
     // Getters
     {"GetSelection", &LuaUnit::GetSelection},                     // :GetSelection()
+	{"GetGMRank", &LuaUnit::GetSecurity},                         // :GetSecurity() -- undocumented
     {"GetGuildID", &LuaUnit::GetGuildID},                         // :GetGuildID() - nil on no guild.
     {"GetCoinage", &LuaUnit::GetCoinage},                         // :GetCoinage()
     {"GetTeam", &LuaUnit::GetTeam},                               // :GetTeam() - returns the player's team. 0 for ally, 1 for horde
@@ -66,9 +67,11 @@ ElunaRegister<Unit> UnitMethods[] =
     {"GetZoneID", &LuaUnit::GetZoneID},                             // :GetZoneID()
     {"GetPower", &LuaUnit::GetPower},                               // :GetPower(index) - returns power at index. Index can be omitted.
     {"GetMaxPower", &LuaUnit::GetMaxPower},                         // :GetMaxPower(index) - returns power at index. Index can be omitted.
+	{"GetPowerType", &LuaUnit::GetPowerType},                       // :GetPowerType() - Returns the power type.
     {"GetMaxHealth", &LuaUnit::GetMaxHealth},                       // :GetMaxHealth()
     {"GetHealthPct", &LuaUnit::GetHealthPct},                       // :GetHealthPct()
     {"GetPowerPct", &LuaUnit::GetPowerPct},                         // :GetPowerPct(power_id)
+	{"GetGender", &LuaUnit::GetGender},                             // :GetGender() - returns the gender where male = 0 female = 1
     {"GetRace", &LuaUnit::GetRace},                                 // :GetRace()
     {"GetClass", &LuaUnit::GetClass},                               // :GetClass()
     {"GetClassAsString", &LuaUnit::GetClassAsString},               // :GetClassAsString()
@@ -82,6 +85,10 @@ ElunaRegister<Unit> UnitMethods[] =
     {"SetPower", &LuaUnit::SetPower},                               // :SetPower(index, amount)
     {"SetMaxPower", &LuaUnit::SetMaxPower},                         // :SetMaxPower(index, amount)
     {"SetDisplayID", &LuaUnit::SetDisplayID},                       // :SetDisplayID(id)
+	{"SetFacing", &LuaUnit::SetFacing},                             // :SetFacing(o) -- Sets the Unit facing to arg -- undocumented
+	{"SetDeathState", &LuaUnit::SetDeathState},                     // :SetDeathState(value) -- 0 = alive 1 = just died 2 = corpse 3 = dead -- undocumented
+	{"SetBindPoint", &LuaUnit::SetBindPoint},                       // :SetBindPoint(x, y, z, map, areaid) -- sets home for hearthstone -- undocumented
+	{"SetBindPointAtPlayerLoc", &LuaUnit::SetBindPointAtPlayerLoc}, // :SetBindPointAtPlayerLoc() -- Set's home for hearthstone at player's location -- undocumented
 
     // Boolean
     {"IsAlive", &LuaUnit::IsAlive},                                 // :IsAlive()
