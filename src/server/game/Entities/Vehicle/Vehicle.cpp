@@ -436,10 +436,6 @@ bool Vehicle::AddPassenger(Unit* unit, int8 seatId)
     // exits the vehicle will dismiss. That's why the actual adding the passenger to the vehicle is scheduled
     // asynchronously, so it can be cancelled easily in case the vehicle is uninstalled meanwhile.
     SeatMap::iterator seat;
-    VehicleJoinEvent* e = new VehicleJoinEvent(this, unit);
-    unit->m_Events.AddEvent(e, unit->m_Events.CalculateTime(0));
-    _pendingJoinEvents.push_back(e);
-
     if (seatId < 0) // no specific seat requirement
     {
         for (seat = Seats.begin(); seat != Seats.end(); ++seat)
@@ -447,23 +443,22 @@ bool Vehicle::AddPassenger(Unit* unit, int8 seatId)
                 break;
 
         if (seat == Seats.end()) // no available seat
-        {
-            CancelJoinEvent(e);
             return false;
-        }
 
-        e->Seat = seat;
+        VehicleJoinEvent* e = new VehicleJoinEvent(this, unit, seat);
+        _pendingJoinEvents.push_back(e);
+        unit->m_Events.AddEvent(e, unit->m_Events.CalculateTime(0));
     }
     else
     {
         seat = Seats.find(seatId);
         if (seat == Seats.end())
-        {
-            CancelJoinEvent(e);
             return false;
-        }
 
-        e->Seat = seat;
+        VehicleJoinEvent* e = new VehicleJoinEvent(this, unit, seat);
+        _pendingJoinEvents.push_back(e);
+        unit->m_Events.AddEvent(e, unit->m_Events.CalculateTime(0));
+
         if (seat->second.Passenger)
         {
             Unit* passenger = ObjectAccessor::GetUnit(*GetBase(), seat->second.Passenger);
@@ -688,25 +683,6 @@ void Vehicle::CalculatePassengerOffset(float& x, float& y, float& z, float& o)
 }
 
 /**
- * @fn void Vehicle::CancelJoinEvent(VehicleJoinEvent* e)
- *
- * @brief Aborts delayed @VehicleJoinEvent objects.
- *        Implies that the related unit will not be boarding the vehicle after all.
- *
- * @author Machiavelli
- * @date 17-2-2013
- *
- * @param [in,out] e The VehicleJoinEvent* to process.
- */
-
-void Vehicle::CancelJoinEvent(VehicleJoinEvent* e)
-{
-    ASSERT(_pendingJoinEvents.back() == e);
-    e->to_Abort = true;
-    _pendingJoinEvents.pop_back();
-}
-
-/**
  * @fn void Vehicle::RemovePendingEvent(VehicleJoinEvent* e)
  *
  * @brief Removes @VehicleJoinEvent objects from pending join event store.
@@ -721,7 +697,7 @@ void Vehicle::CancelJoinEvent(VehicleJoinEvent* e)
 
 void Vehicle::RemovePendingEvent(VehicleJoinEvent* e)
 {
-    for (std::deque<VehicleJoinEvent*>::iterator itr = _pendingJoinEvents.begin(); itr != _pendingJoinEvents.end(); ++itr)
+    for (PendingJoinEventContainer::iterator itr = _pendingJoinEvents.begin(); itr != _pendingJoinEvents.end(); ++itr)
     {
         if (*itr == e)
         {
@@ -744,7 +720,7 @@ void Vehicle::RemovePendingEvent(VehicleJoinEvent* e)
 
 void Vehicle::RemovePendingEventsForSeat(int8 seatId)
 {
-    for (std::deque<VehicleJoinEvent*>::iterator itr = _pendingJoinEvents.begin(); itr != _pendingJoinEvents.end();)
+    for (PendingJoinEventContainer::iterator itr = _pendingJoinEvents.begin(); itr != _pendingJoinEvents.end();)
     {
         if ((*itr)->Seat->first == seatId)
         {

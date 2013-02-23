@@ -23,7 +23,7 @@
 #include "Object.h"
 #include "VehicleDefines.h"
 #include "Unit.h"
-#include <deque>
+#include <list>
 
 struct VehicleEntry;
 class Unit;
@@ -63,11 +63,7 @@ class Vehicle : public TransportBase
         void RelocatePassengers();
         void RemoveAllPassengers();
         void Dismiss();
-        void TeleportVehicle(float x, float y, float z, float ang);
         bool IsVehicleInUse() { return Seats.begin() != Seats.end(); }
-
-        void SetLastShootPos(Position const& pos) { m_lastShootPos.Relocate(pos); }
-        Position GetLastShootPos() { return m_lastShootPos; }
 
         SeatMap Seats;                                      ///< The collection of all seats on the vehicle. Including vacant ones.
 
@@ -94,7 +90,6 @@ class Vehicle : public TransportBase
         /// This method transforms supplied global coordinates into local offsets
         void CalculatePassengerOffset(float& x, float& y, float& z, float& o);
 
-        void CancelJoinEvent(VehicleJoinEvent* e);
         void RemovePendingEvent(VehicleJoinEvent* e);
         void RemovePendingEventsForSeat(int8 seatId);
 
@@ -105,15 +100,16 @@ class Vehicle : public TransportBase
 
         uint32 _creatureEntry;                              ///< Can be different than the entry of _me in case of players
         Status _status;                                     ///< Internal variable for sanity checks
-        Position m_lastShootPos;
-        std::deque<VehicleJoinEvent*> _pendingJoinEvents;   ///< Collection of delayed join events for prospective passengers
+
+        typedef std::list<VehicleJoinEvent*> PendingJoinEventContainer;
+        PendingJoinEventContainer _pendingJoinEvents;       ///< Collection of delayed join events for prospective passengers
 };
 
 class VehicleJoinEvent : public BasicEvent
 {
     friend class Vehicle;
     protected:
-        VehicleJoinEvent(Vehicle* v, Unit* u) : Target(v), Passenger(u), Seat(Target->Seats.end()) {}
+        VehicleJoinEvent(Vehicle* v, Unit* u, SeatMap::iterator seat) : Target(v), Passenger(u), Seat(seat) {}
         ~VehicleJoinEvent() { Target->RemovePendingEvent(this); }
         bool Execute(uint64, uint32);
         void Abort(uint64);
