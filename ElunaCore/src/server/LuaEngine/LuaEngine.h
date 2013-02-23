@@ -405,6 +405,14 @@ public:
             return ElunaTemplate<Creature>::check(L, narg);
     }
 
+	GameObject* CHECK_OBJECT(lua_State* L, int narg)
+	{
+		if (!L)
+			return ElunaTemplate<GameObject>::check(_luaState, narg);
+		else
+			return ElunaTemplate<GameObject>::check(L, narg);
+	}
+
 protected:
     template<typename T>
     class ElunaTemplate
@@ -1062,7 +1070,7 @@ public:
             }
 
             Eluna::get()->_gameObjectGossipBindings.push_back(new GameObjectBind(id));
-            GetGameObjectGossipBindingForId(id)->_functionReferences[_event] = functionRef;
+            GetGameObjectGossipBindingForId(id)->_gossipReferences[_event] = functionRef;
             return true;
         }
 
@@ -1108,6 +1116,7 @@ public:
             eventData(uint16 _funcRef, uint32 _delay, uint32 _calls) :
             funcRef(_funcRef), delay(_delay), calls(_calls) {}
         };
+
         typedef std::multimap<uint32, eventData> EventStore;
 
         void OnUpdate(uint32 diff)
@@ -1120,14 +1129,17 @@ public:
         {
             _time += time;
         }
+
         bool Empty() const
         {
             return _eventMap.empty();
         }
+
         void CreateLuaEvent(uint16 funcRef, uint32 delay, uint32 calls)
         {
             _eventMap.insert(EventStore::value_type(_time + delay, eventData(funcRef, delay, calls)));
         }
+
         void CancelEvent(uint32 eventId)
         {
             if (Empty())
@@ -1141,6 +1153,7 @@ public:
                     ++itr;
             }
         }
+
         void ExecuteEvents()
         {
             if (Empty())
