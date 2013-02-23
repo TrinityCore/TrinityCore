@@ -236,3 +236,10 @@ UPDATE creature_template SET dmg_multiplier = 100 WHERE entry IN (39864, 40143);
 UPDATE creature_template SET dmg_multiplier = 100 WHERE entry IN (39944, 40144); -- 10 hc
 UPDATE creature_template SET dmg_multiplier = 170 WHERE entry IN (39945, 40145); -- 25 hc
 
+-- Fix loot Trial of Champion
+UPDATE `gameobject_template` SET `flags` = '0' WHERE `gameobject_template`.`entry` = 195709;
+UPDATE `gameobject_template` SET `flags` = '0' WHERE `gameobject_template`.`entry` = 195710;
+UPDATE `gameobject_template` SET `flags` = '0' WHERE `gameobject_template`.`entry` = 195374;
+UPDATE `gameobject_template` SET `flags` = '0' WHERE `gameobject_template`.`entry` = 195375;
+UPDATE `gameobject_template` SET `flags` = '0' WHERE `gameobject_template`.`entry` = 195323;
+UPDATE `gameobject_template` SET `flags` = '0' WHERE `gameobject_template`.`entry` = 195324;
