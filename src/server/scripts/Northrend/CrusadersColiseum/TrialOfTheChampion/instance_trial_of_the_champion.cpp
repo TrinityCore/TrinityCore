@@ -232,10 +232,6 @@ public:
                     break;
                 case GO_CHAMPIONS_LOOT:
                 case GO_CHAMPIONS_LOOT_H:
-                case GO_EADRIC_LOOT:
-                case GO_EADRIC_LOOT_H:
-                case GO_PALETRESS_LOOT:
-                case GO_PALETRESS_LOOT_H:
                     uiChampionLootGUID = go->GetGUID();
                     break;
             }
