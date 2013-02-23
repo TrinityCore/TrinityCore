@@ -25,6 +25,8 @@ ElunaRegister<Unit> UnitMethods[] =
     {"AdvanceSkillsToMax", &LuaUnit::AdvanceSkillsToMax},         // :AdvanceSkillsToMax() -- Advances all currently known skills to the currently known max level
     {"AdvanceSkill", &LuaUnit::AdvanceSkill},                     // AdvanceSkill(skill_id, step) -- Advances skill by ID and the amount(step)
     {"AdvanceAllSkills", &LuaUnit::AdvanceAllSkills},             // AdvanceAllSkills(value) -- Advances all current skills to your input(value)
+	{"SetBindPoint", &LuaUnit::SetBindPoint},                       // :SetBindPoint(x, y, z, map, areaid) -- sets home for hearthstone
+	{"SetBindPointAtPlayerLoc", &LuaUnit::SetBindPointAtPlayerLoc}, // :SetBindPointAtPlayerLoc() -- Set's home for hearthstone at player's location
 
     // Boolean
     {"IsInGroup", &LuaUnit::IsInGroup},                           // :IsInGroup()
@@ -99,8 +101,6 @@ ElunaRegister<Unit> UnitMethods[] =
     {"SetDisplayID", &LuaUnit::SetDisplayID},                       // :SetDisplayID(id)
 	{"SetFacing", &LuaUnit::SetFacing},                             // :SetFacing(o) -- Sets the Unit facing to arg
 	{"SetDeathState", &LuaUnit::SetDeathState},                     // :SetDeathState(value) -- 0 = alive 1 = just died 2 = corpse 3 = dead
-	{"SetBindPoint", &LuaUnit::SetBindPoint},                       // :SetBindPoint(x, y, z, map, areaid) -- sets home for hearthstone
-	{"SetBindPointAtPlayerLoc", &LuaUnit::SetBindPointAtPlayerLoc}, // :SetBindPointAtPlayerLoc() -- Set's home for hearthstone at player's location
 
     // Boolean
     {"IsAlive", &LuaUnit::IsAlive},                                 // :IsAlive()
