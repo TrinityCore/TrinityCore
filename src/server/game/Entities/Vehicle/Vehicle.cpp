@@ -742,16 +742,17 @@ void Vehicle::RemovePendingEvent(VehicleJoinEvent* e)
  * @param seatId Identifier for the seat.
  */
 
-void Vehicle::RemovePendingEventsForSeat(uint8 seatId)
+void Vehicle::RemovePendingEventsForSeat(int8 seatId)
 {
     for (std::deque<VehicleJoinEvent*>::iterator itr = _pendingJoinEvents.begin(); itr != _pendingJoinEvents.end();)
     {
-        std::deque<VehicleJoinEvent*>::iterator cur = itr++;
-        if (uint8((*itr)->Seat->first) == seatId)
+        if ((*itr)->Seat->first == seatId)
         {
             (*itr)->to_Abort = true;
-            _pendingJoinEvents.erase(cur);
+            _pendingJoinEvents.erase(itr++);
         }
+        else
+            ++itr;
     }
 }
 
@@ -775,7 +776,7 @@ bool VehicleJoinEvent::Execute(uint64, uint32)
     ASSERT(Passenger->IsInWorld());
     ASSERT(Target->GetBase()->IsInWorld());
 
-    Target->RemovePendingEventsForSeat(uint8(Seat->first));
+    Target->RemovePendingEventsForSeat(Seat->first);
 
     Passenger->m_vehicle = Target;
     Seat->second.Passenger = Passenger->GetGUID();
