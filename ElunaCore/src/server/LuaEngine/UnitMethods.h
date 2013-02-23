@@ -928,6 +928,18 @@ public:
         return 0;
     }
 
+	// ResurrectPlayer(percent, sickness(bool))
+    static int ResurrectPlayer(lua_State* L, Unit* unit)
+    {
+        TO_PLAYER();
+
+		float percent = luaL_checknumber(L, 1);
+		bool sickness = luaL_optint(L, 2, false);
+
+        player->ResurrectPlayer(percent, sickness);
+        return 0;
+    }
+
     // CastSpell(spellID) - self
     static int CastSpell(lua_State* L, Unit* unit)
     {
