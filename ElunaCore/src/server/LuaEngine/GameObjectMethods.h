@@ -6,6 +6,16 @@
 class LuaGameObject
 {
 public:
+    
+    // Getters
+    static int GetUnitType(lua_State* L, GameObject* go)
+    {
+        if(!go || !go->IsInWorld())
+            return 0;
+
+        Eluna::get()->PushString(L, "GameObject");
+        return 1;
+    }
 
     // Gossip Methods
     // GossipMenuAddItem(icon, msg, Intid, code, accept_decline_message, money)

@@ -568,6 +568,7 @@ public:
     static int SetCoinage(lua_State* L, Unit* unit)
     {
         TO_PLAYER();
+
         uint32 amt = luaL_checkunsigned(L, 1);
         player->SetMoney(amt);
         return 0;

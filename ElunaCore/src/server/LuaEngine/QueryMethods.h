@@ -8,6 +8,16 @@ class LuaQuery
 public:
 
     // QueryResult methods
+
+    static int GetUnitType(lua_State* L, QueryResult* result)
+    {
+        if(!result)
+            return 0;
+
+        Eluna::get()->PushString(L, "QueryResult");
+        return 1;
+    }
+
 	/*
 	static int GetColumn(lua_State* L, QueryResult* result)
 	{

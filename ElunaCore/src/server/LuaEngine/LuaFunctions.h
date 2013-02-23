@@ -86,7 +86,7 @@ ElunaRegister<Unit> UnitMethods[] =
     {"GetRace", &LuaUnit::GetRace},                                 // :GetRace()
     {"GetClass", &LuaUnit::GetClass},                               // :GetClass()
     {"GetClassAsString", &LuaUnit::GetClassAsString},               // :GetClassAsString()
-    {"GetUnitType", &LuaUnit::GetUnitType},                         // :GetUnitType() - Returns object type, IE: Player
+    {"GetUnitType", &LuaUnit::GetUnitType},                         // :GetUnitType() - Returns object type, IE: Player, Creature
     {"GetEntry", &LuaUnit::GetEntry},                               // :GetEntry() - Returns the unit's entryId
     {"GetAura", &LuaUnit::GetAura},                                 // :GetAura(spellID) - returns aura object UNDOCUMENTED
 
@@ -126,6 +126,9 @@ ElunaRegister<Unit> UnitMethods[] =
 
 ElunaRegister<GameObject> GameObjectMethods[] =
 {
+    // Getters
+    {"GetUnitType", &LuaGameObject::GetUnitType},                             // :GetUnitType() - Returns object type, IE: Player, Creature UNDOCUMENTED
+
     // Gossip                                                           
     {"GossipMenuAddItem", &LuaGameObject::GossipMenuAddItem },          // :GossipMenuAddItem(plr, icon, msg, Intid, code, accept_decline_message, money)
     {"GossipComplete", &LuaGameObject::GossipComplete },                // :GossipComplete(plr)
@@ -170,6 +173,8 @@ ElunaRegister<Guild> GuildMethods[] =
 
 ElunaRegister<QueryResult> QueryMethods[] =  // Not working yet
 {
+    {"GetUnitType", &LuaQuery::GetUnitType},                             // :GetUnitType() - Returns object type, IE: Player, Creature UNDOCUMENTED
+
     //{"GetColumn", &LuaQuery::GetColumn},
     {"NextRow", &LuaQuery::NextRow},
     {"GetColumnCount", &LuaQuery::GetColumnCount},
@@ -205,6 +210,16 @@ ElunaRegister<QueryResult> QueryMethods[] =  // Not working yet
 
 ElunaRegister<Aura> AuraMethods[] = 
 {
+    // Getters
+    {"GetUnitType", &LuaAura::GetUnitType},                             // :GetUnitType() - Returns object type, IE: Player, Creature UNDOCUMENTED
+
+    {NULL, NULL}
+};
+
+ElunaRegister<Channel> ChannelMethods[] = 
+{
+    // Getters
+    {"GetUnitType", &LuaChannel::GetUnitType},                             // :GetUnitType() - Returns object type, IE: Player, Creature UNDOCUMENTED
 
     {NULL, NULL}
 };
@@ -216,4 +231,5 @@ template<> ElunaRegister<Group>* GetMethodTable<Group>() { return GroupMethods; 
 template<> ElunaRegister<Guild>* GetMethodTable<Guild>() { return GuildMethods; }
 template<> ElunaRegister<QueryResult>* GetMethodTable<QueryResult>() { return QueryMethods; }
 template<> ElunaRegister<Aura>* GetMethodTable<Aura>() { return AuraMethods; }
+template<> ElunaRegister<Channel>* GetMethodTable<Channel>() { return ChannelMethods; }
 #endif

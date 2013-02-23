@@ -10,6 +10,7 @@ FOEREAPER TOMMY ENGINE, YEAH!
 #include "GameObjectMethods.h"
 #include "QueryMethods.h"
 #include "AuraMethods.h"
+#include "ChannelMethods.h"
 #include "LuaFunctions.h"
 #include "LuaCreatureAI.h"
 #include "LuaGameObjectAI.h"
@@ -35,6 +36,7 @@ template<> const char* GetTName<Guild>() { return "Guild"; }
 template<> const char* GetTName<Log>() { return "Log"; }
 template<> const char* GetTName<QueryResult>() { return "QueryResult"; }
 template<> const char* GetTName<Aura>() { return "Aura"; }
+template<> const char* GetTName<Channel>() { return "Channel"; }
 
 void Eluna::StartEluna()
 {
@@ -55,6 +57,7 @@ void Eluna::StartEluna()
     ElunaTemplate<Guild>::Register(_luaState);
     ElunaTemplate<QueryResult>::Register(_luaState);
     ElunaTemplate<Aura>::Register(_luaState);
+    ElunaTemplate<Channel>::Register(_luaState);
 
     uint32 cnt_uncomp = 0;
     char filename[200];
@@ -279,6 +282,15 @@ void Eluna::PushAura(lua_State* L, Aura* aura)
     if (!L) L = _luaState;
     if (aura)
         ElunaTemplate<Aura>::push(L, aura);
+    else
+        lua_pushnil(L);
+}
+
+void Eluna::PushChannel(lua_State* L, Channel* channel)
+{
+    if(!L) L = _luaState;
+    if(channel)
+        ElunaTemplate<Channel>::push(L, channel);
     else
         lua_pushnil(L);
 }
