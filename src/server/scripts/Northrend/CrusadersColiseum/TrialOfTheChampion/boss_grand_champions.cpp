@@ -386,7 +386,7 @@ class generic_vehicleAI_toc5 : public CreatureScript
                 DoCast(me,SPELL_SHIELD,true);
         }
 
-        void UpdateAI(const uint32 uiDiff)
+        void UpdateAI(uint32 uiDiff)
         {
             // Try to keep players clean of defend aura
             if (combatEntered)

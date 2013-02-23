@@ -1195,7 +1195,7 @@ class npc_proximity_mine : public CreatureScript
                         }
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 if (_boomTimer <= diff)
                 {
@@ -2110,7 +2110,7 @@ class npc_mimiron_bomb_bot : public CreatureScript
                 DoCast(me, SPELL_BOOM_BOT, true);
             }
 
-            void UpdateAI(const uint32 /*diff*/)
+            void UpdateAI(uint32 /*diff*/)
             {
                 if (!UpdateVictim())
                     return;

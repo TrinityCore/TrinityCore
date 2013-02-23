@@ -2303,7 +2303,7 @@ class npc_korkron_primalist: public CreatureScript
                 }
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!instance)
                     return;
@@ -2426,7 +2426,7 @@ class npc_korkron_defender: public CreatureScript
                 }
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!instance)
                     return;
@@ -2541,7 +2541,7 @@ class npc_skybreaker_vindicator: public CreatureScript
                 }
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!instance)
                     return;
@@ -2650,7 +2650,7 @@ class npc_skybreaker_protector: public CreatureScript
                 }
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!instance)
                     return;
@@ -2776,7 +2776,7 @@ class npc_icc_spire_frostwyrm: public CreatureScript
                 }
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;

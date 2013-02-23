@@ -919,7 +919,7 @@ public:
             me->SetSpeed(MOVE_FLIGHT, 0.7f, true);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (uiCheckTimer <= diff)
             {
@@ -969,7 +969,7 @@ public:
             uiCheckTimer = 1*IN_MILLISECONDS;
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (uiCheckTimer <= diff)
             {
@@ -1022,7 +1022,7 @@ public:
 			}
 		}
 
-		void UpdateAI(const uint32 diff)
+		void UpdateAI(uint32 diff)
         {
 			Unit* target = me->SelectNearestPlayer(150.0f);
 			AttackStart(target);
@@ -1081,8 +1081,7 @@ public:
 
 		}
 
-
-		void UpdateAI(const uint32 diff)
+		void UpdateAI(uint32 diff)
         {
 			Unit* target = me->SelectNearestPlayer(150.0f);
 			AttackStart(target);
@@ -1147,7 +1146,7 @@ public:
 			events.ScheduleEvent(EVENT_GROUND_SMASH, 8000);
 		}
 
-		void UpdateAI(const uint32 diff)
+		void UpdateAI(uint32 diff)
         {
 			Unit* target = me->SelectNearestPlayer(150.0f);
 			AttackStart(target);

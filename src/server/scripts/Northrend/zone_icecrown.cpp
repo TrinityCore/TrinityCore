@@ -321,7 +321,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 uiDiff)
+        void UpdateAI(uint32 uiDiff)
         {
             if (!UpdateVictim())
                 return;
@@ -668,7 +668,7 @@ public:
 
         }
 
-        uint32 GetData(uint32 type)
+        uint32 GetData(uint32 type) const
         {
             if (type == DATA_TYPE)
                 return GetCustomType();
@@ -919,7 +919,7 @@ public:
 
         }
 
-        void UpdateAI(const uint32 uiDiff)
+        void UpdateAI(uint32 uiDiff)
         {
             if (!UpdateVictim())
                 return;
@@ -1367,7 +1367,7 @@ public:
 
 		void JustDied(Unit* Player /*victim*/){}
 
-		void UpdateAI(const uint32 /*diff*/){}
+		void UpdateAI(uint32 /*diff*/){}
     };
 
     CreatureAI* GetAI(Creature* creature) const
@@ -1455,7 +1455,7 @@ public:
             }
         }
         
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             events.Update(diff);
 

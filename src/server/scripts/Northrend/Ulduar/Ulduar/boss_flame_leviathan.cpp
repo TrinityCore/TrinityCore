@@ -973,7 +973,7 @@ class npc_flame_leviathan_overload_device : public CreatureScript
                 me->setActive(true);
             }
 
-            void DoAction(const int32 param)
+            void DoAction(int32 param)
             {
                 if (param == EVENT_SPELLCLICK)
                 {

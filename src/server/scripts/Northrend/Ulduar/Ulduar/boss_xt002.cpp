@@ -851,7 +851,7 @@ class mob_void_zone : public CreatureScript
                 _consumptionTimer = 3*IN_MILLISECONDS;
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 if (_consumptionTimer <= diff)
                 {

@@ -122,7 +122,7 @@ class mob_titanium_thunderer : public CreatureScript
                 DoCast(me, SPELL_FREEZE);*/
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;
@@ -236,7 +236,7 @@ class mob_titanium_siegebreaker : public CreatureScript
                 DoCast(killer, DUNGEON_MODE(SPELL_FRIGHTENING_SHOUT_10, SPELL_FRIGHTENING_SHOUT_15));
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;

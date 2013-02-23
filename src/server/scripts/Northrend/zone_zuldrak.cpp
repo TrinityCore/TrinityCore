@@ -1453,7 +1453,7 @@ public:
             DoCast(who, SPELL_IMPALE);
         }
 
-        void UpdateAI(const uint32 uiDiff)
+        void UpdateAI(uint32 uiDiff)
         {
             if (!UpdateVictim())
                 return;

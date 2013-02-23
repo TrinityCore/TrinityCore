@@ -822,7 +822,7 @@ public:
                 Talk(SAY_TRASH_DEATH);
         }
 
-        void DoAction(const int32 actionId)
+        void DoAction(int32 actionId)
         {
             switch (actionId)
             {
@@ -924,7 +924,7 @@ public:
             instance->SetData(DATA_WAVE_STATE, FAIL);
         }
 
-        void DoAction(const int32 actionId)
+        void DoAction(int32 actionId)
         {
             switch (actionId)
             {
@@ -1059,7 +1059,7 @@ public:
             instance->SetData(DATA_WAVE_STATE, FAIL);
         }
         
-        void DoAction(const int32 actionId)
+        void DoAction(int32 actionId)
         {
             switch (actionId)
             {
@@ -1166,7 +1166,7 @@ public:
             instance->SetData(DATA_WAVE_STATE, FAIL);
         }
 
-        void DoAction(const int32 actionId)
+        void DoAction(int32 actionId)
         {
             switch (actionId)
             {
@@ -1265,7 +1265,7 @@ public:
             instance->SetData(DATA_WAVE_STATE, FAIL);
         }
         
-        void DoAction(const int32 actionId)
+        void DoAction(int32 actionId)
         {
             switch (actionId)
             {
@@ -1426,7 +1426,7 @@ public:
             instance->SetData(DATA_FROSWORN_EVENT, IN_PROGRESS);
         }
 
-        void UpdateAI(const uint32 uiDiff)
+        void UpdateAI(uint32 uiDiff)
         {
             if(!UpdateVictim())
                 return;
@@ -1508,7 +1508,7 @@ public:
             DoCastAOE(SPELL_SPIRIT_BURST, true);
         }
 
-        void UpdateAI(const uint32 uiDiff)
+        void UpdateAI(uint32 uiDiff)
         {
             if(!UpdateVictim())
                 return;

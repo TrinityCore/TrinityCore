@@ -1611,7 +1611,7 @@ class boss_sara : public CreatureScript
                 }
             }
 
-            void DoAction(const int32 action)
+            void DoAction(int32 action)
             {
                 switch (action)
                 {
@@ -1751,7 +1751,7 @@ class boss_sara : public CreatureScript
                 return EventNpcSpeaching[speachindex+part].next_speech;
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 if (_phase == PHASE_NONE)
                     return;
@@ -1932,7 +1932,7 @@ class npc_ominous_cloud : public CreatureScript
 
             void AttackStart(Unit* /*attacker*/) {}
 
-            void DoAction(const int32 action)
+            void DoAction(int32 action)
             {
                 switch(action)
                 {
@@ -1958,7 +1958,7 @@ class npc_ominous_cloud : public CreatureScript
                 }
             }
 
-            void UpdateAI(const uint32 /*diff*/)
+            void UpdateAI(uint32 /*diff*/)
             {
                 if (!me->HasAura(SPELL_SUMMON_GUARDIAN) && _spawned && !_dying)
                 {
@@ -2026,7 +2026,7 @@ class npc_guardian_of_yogg_saron : public CreatureScript
                     me->AI()->AttackStart(target);
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                 {
@@ -2142,7 +2142,7 @@ class npc_yogg_saron_tentacle : public CreatureScript
                 }
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 if (_instance && _instance->GetBossState(BOSS_YOGGSARON) != IN_PROGRESS)
                 {
@@ -2253,7 +2253,7 @@ class npc_descend_into_madness : public CreatureScript
 
             BrainEventPhase bPhase;
 
-            void DoAction(const int32 action)
+            void DoAction(int32 action)
             {
                 me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                 switch(action)
@@ -2406,7 +2406,7 @@ class boss_yogg_saron : public CreatureScript
                 Talk(SAY_DEATH);
             }
 
-            void DoAction(const int32 action)
+            void DoAction(int32 action)
             {
                 switch (action)
                 {
@@ -2505,7 +2505,7 @@ class boss_yogg_saron : public CreatureScript
                     me->AddLootMode(LOOT_MODE_HARD_MODE_4);
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 if ((_instance && _instance->GetBossState(BOSS_YOGGSARON) != IN_PROGRESS) || _phase == PHASE_NONE )
                     return;
@@ -2710,7 +2710,7 @@ class npc_immortal_guardian : public CreatureScript
                     damage = me->GetHealth()-1;
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 if (_instance && _instance->GetBossState(BOSS_YOGGSARON) != IN_PROGRESS)
                 {
@@ -2833,7 +2833,7 @@ class npc_support_keeper : public CreatureScript
                 cell.Visit(pair, visitor, *(me->GetMap()), *me, SIZE_OF_GRIDS);
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 if (_instance && _instance->GetBossState(BOSS_YOGGSARON) != IN_PROGRESS)
                     me->DespawnOrUnsummon();
@@ -2938,7 +2938,7 @@ class npc_sanity_well : public CreatureScript
 
             void AttackStart(Unit* /*who*/) {}
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 if (_instance && _instance->GetBossState(BOSS_YOGGSARON) != IN_PROGRESS)
                 {
@@ -3094,7 +3094,7 @@ class npc_death_orb : public CreatureScript
 
             void AttackStart(Unit* /*who*/) {}
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 if (_reathRayEffektTimer <= diff)
                 {
@@ -3142,7 +3142,7 @@ class npc_death_ray : public CreatureScript
                 me->SetDisplayId(me->GetCreatureTemplate()->Modelid1);
             }
 
-            void DoAction(const int32 action)
+            void DoAction(int32 action)
             {
                 if (action == ACTION_DEATH_RAY_MOVE)
                     _movingDisabled = false;
@@ -3601,7 +3601,7 @@ class npc_keeper_help : public CreatureScript
 
             void AttackStart(Unit* /*who*/) {} // Should be overwritten, but has no effect
 
-            void UpdateAI(const uint32 /*diff*/)
+            void UpdateAI(uint32 /*diff*/)
             {
                 if (instance)
                     me->SetVisible( (instance->GetBossState(Entry_2_ID(me->GetEntry())) == DONE) && (instance->GetBossState(BOSS_YOGGSARON) != IN_PROGRESS) );
