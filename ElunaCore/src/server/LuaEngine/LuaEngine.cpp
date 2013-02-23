@@ -7,9 +7,11 @@
 #include "UnitMethods.h"
 #include "GroupMethods.h"
 #include "GuildMethods.h"
+#include "GameObjectMethods.h"
 #include "QueryMethods.h"
 #include "LuaFunctions.h"
 #include "LuaCreatureAI.h"
+#include "LuaGameObjectAI.h"
 
 Eluna* Eluna::LuaEngine = NULL; // give it a value
 ElunaScript* Eluna::Script = NULL;
@@ -26,11 +28,11 @@ void Eluna::Init()
 
 template<typename T> const char* GetTName() { return "UNK"; }
 template<> const char* GetTName<Unit>() { return "Unit"; }
+template<> const char* GetTName<GameObject>() { return "GameObject"; }
 template<> const char* GetTName<Group>() { return "Group"; }
 template<> const char* GetTName<Guild>() { return "Guild"; }
 template<> const char* GetTName<Log>() { return "Log"; }
 template<> const char* GetTName<QueryResult>() { return "QueryResult"; }
-template<> const char* GetTName<Field>() { return "Field"; }
 
 void Eluna::StartEluna()
 {
@@ -46,10 +48,10 @@ void Eluna::StartEluna()
 	RegisterGlobals(_luaState);
 	//Register Templates Here
 	ElunaTemplate<Unit>::Register(_luaState);
+	ElunaTemplate<GameObject>::Register(_luaState);
 	ElunaTemplate<Group>::Register(_luaState);
 	ElunaTemplate<Guild>::Register(_luaState);
 	ElunaTemplate<QueryResult>::Register(_luaState);
-	ElunaTemplate<Field>::Register(_luaState);
 
     uint32 cnt_uncomp = 0;
     char filename[200];
@@ -76,15 +78,19 @@ void Eluna::StartEluna()
 }
 
 /* Register Other Hooks (Events) */
-static int RegisterPlayerEvent(lua_State* L);
+static int RegisterServerHook(lua_State* L);
 static int RegisterGossipEvent(lua_State* L);
 static int RegisterCreatureEvent(lua_State* L);
+static int RegisterGameObjectEvent(lua_State* L);
+static int RegisterGameObjectGossipEvent(lua_State* L);
 
 void Eluna::RegisterGlobals(lua_State* L)
 {
-	lua_register(L, "RegisterServerHook", RegisterPlayerEvent);
+	lua_register(L, "RegisterServerHook", RegisterServerHook);
 	lua_register(L, "RegisterGossipEvent", RegisterGossipEvent);
 	lua_register(L, "RegisterCreatureEvent", RegisterCreatureEvent);
+	lua_register(L, "RegisterGameObjectEvent", RegisterGameObjectEvent);
+	lua_register(L, "RegisterGameObjectGossipEvent", RegisterGameObjectGossipEvent);
 	lua_register(L, "GetLuaEngine", &LuaGlobalFunctions::GetLuaEngine);
 	lua_register(L, "GetLUAEngine", &LuaGlobalFunctions::GetLuaEngine);
 	lua_register(L, "GetCoreVersion", &LuaGlobalFunctions::GetCoreVersion);
@@ -115,12 +121,12 @@ void Eluna::LoadDirectory(char* Dirname, LoadedScripts* lscr)
         
         hFile = FindFirstFile(SearchName, &FindData);
 
-                // break if we don't find dir
-                if(!hFile)
-                {
-						sLog->outError(LOG_FILTER_SERVER_LOADING, "Eluna Nova::No `scripts` directory found!");
-                        return;
-                }
+        // break if we don't find dir
+        if(!hFile)
+        {
+			sLog->outError(LOG_FILTER_SERVER_LOADING, "Eluna Nova::No `scripts` directory found!");
+            return;
+        }
 
         FindNextFile(hFile, &FindData);
         while( FindNextFile(hFile, &FindData) )
@@ -149,7 +155,6 @@ void Eluna::LoadDirectory(char* Dirname, LoadedScripts* lscr)
                 ext[i++] = '\0';
                 if(!_stricmp(ext,"aul."))
                     lscr->luaFiles.insert(fname);
-            
             }
         }
         FindClose(hFile);
@@ -255,13 +260,11 @@ void Eluna::PushQueryResult(lua_State* L, QueryResult* result)
         lua_pushnil(L);
 }
 
-void Eluna::PushQueryField(lua_State* L, Field* field)
+void Eluna::PushGO(lua_State* L, GameObject* _go)
 {
-	if (!L) 
-	{
-		L = _luaState;
-		ElunaTemplate<Field>::push(L, field);
-	}
+	if (!L) L = _luaState;
+	if (_go)
+		ElunaTemplate<GameObject>::push(L, _go);
 	else
 		lua_pushnil(L);
 }
@@ -273,8 +276,15 @@ CreatureAI* Eluna::GetLuaCreatureAI(Creature* creature)
 	return NULL;
 }
 
-// RegisterPlayerEvent(ev, func)
-static int RegisterPlayerEvent(lua_State* L)
+GameObjectAI* Eluna::GetLuaGameObjectAI(GameObject* gameObject)
+{
+	if (sLuaGameObjectScript->GetGameObjectAIBindingForId(gameObject->GetEntry()))
+		return sLuaGameObjectScript->GetAI(gameObject);
+	return NULL;
+}
+
+// RegisterServerHook(ev, func)
+static int RegisterServerHook(lua_State* L)
 {
         uint16 functionRef = 0;
         lua_settop(L, 2);
@@ -295,21 +305,40 @@ static int RegisterPlayerEvent(lua_State* L)
 //RegisterGossipEvent(ev, func)
 static int RegisterGossipEvent(lua_State* L)
 {
-        uint16 functionRef = 0;
-        lua_settop(L, 3);
-		uint32 entry = luaL_checkint(L, 1);
-        uint32 ev = luaL_checkint(L, 2);
-        const char* typeName = luaL_typename(L, 3);
+    uint16 functionRef = 0;
+    lua_settop(L, 3);
+	uint32 entry = luaL_checkint(L, 1);
+    uint32 ev = luaL_checkint(L, 2);
+    const char* typeName = luaL_typename(L, 3);
 
-        if (ev == 0 || !typeName) 
-			return 0;
+    if (ev == 0 || !typeName) 
+		return 0;
 
-        if(!strcmp(typeName, "function"))
-            functionRef = (uint16)lua_ref(L, true);
+    if(!strcmp(typeName, "function"))
+        functionRef = (uint16)lua_ref(L, true);
 
-        if(functionRef > 0)
-            Eluna::get()->Register(REGTYPE_GOSSIP, entry, ev, functionRef);
-        return 0;
+    if(functionRef > 0)
+        Eluna::get()->Register(REGTYPE_GOSSIP, entry, ev, functionRef);
+    return 0;
+}
+
+static int RegisterGameObjectGossipEvent(lua_State* L)
+{
+    uint16 functionRef = 0;
+    lua_settop(L, 3);
+	uint32 entry = luaL_checkint(L, 1);
+    uint32 ev = luaL_checkint(L, 2);
+    const char* typeName = luaL_typename(L, 3);
+
+    if (ev == 0 || !typeName) 
+		return 0;
+
+    if(!strcmp(typeName, "function"))
+        functionRef = (uint16)lua_ref(L, true);
+
+    if(functionRef > 0)
+        Eluna::get()->Register(REGTYPE_GAMEOBJECT_GOSSIP, entry, ev, functionRef);
+    return 0;
 }
 
 // RegisterCreatureEvent(entry, ev, func)
@@ -318,7 +347,7 @@ static int RegisterCreatureEvent(lua_State* L)
     uint16 functionRef = 0;
     lua_settop(L, 3);
     uint32 entry = luaL_checkint(L, 1);
-    uint32 evt  =luaL_checkint(L, 2);
+    uint32 evt = luaL_checkint(L, 2);
     const char* typeName = luaL_typename(L, 3);
     if(evt == 0 || !typeName)
         return 0;
@@ -328,6 +357,25 @@ static int RegisterCreatureEvent(lua_State* L)
 
     if (functionRef > 0)
         Eluna::get()->Register(REGTYPE_CREATURE, entry, evt, functionRef);
+    return 0;
+}
+
+// RegisterGameObjectEvent(entry, event, func)
+static int RegisterGameObjectEvent(lua_State* L)
+{
+    uint16 functionRef = 0;
+    lua_settop(L, 3);
+    uint32 entry = luaL_checkint(L, 1);
+    uint32 evt = luaL_checkint(L, 2);
+    const char* typeName = luaL_typename(L, 3);
+    if(evt == 0 || !typeName)
+        return 0;
+
+    if (!strcmp(typeName, "function"))
+        functionRef = (uint16)lua_ref(L, true);
+
+    if (functionRef > 0)
+        Eluna::get()->Register(REGTYPE_GAMEOBJECT, entry, evt, functionRef);
     return 0;
 }
 
@@ -348,6 +396,16 @@ void Eluna::Register(uint8 regtype, uint32 id, uint32 evt, uint16 functionRef)
 		case REGTYPE_CREATURE:
 			if (evt < CREATURE_EVENT_COUNT)
 				sLuaCreatureScript->RegisterCreatureScript(id, evt, functionRef);
+			break;
+
+		case REGTYPE_GAMEOBJECT:
+			if (evt < GAMEOBJECT_EVENT_COUNT)
+				sLuaGameObjectScript->RegisterGameObjectScript(id, evt, functionRef);
+			break;
+
+		case REGTYPE_GAMEOBJECT_GOSSIP:
+			if (evt < GOSSIP_EVENT_COUNT)
+				sLuaGameObjectScript->RegisterGameObjectGossipScript(id, evt, functionRef);
 			break;
     }
 }

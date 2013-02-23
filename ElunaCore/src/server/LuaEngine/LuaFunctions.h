@@ -100,6 +100,15 @@ ElunaRegister<Unit> UnitMethods[] =
     { NULL, NULL },
 };
 
+ElunaRegister<GameObject> GameObjectMethods[] =
+{
+    // Gossip                                                           
+    {"GossipMenuAddItem", &LuaGameObject::GossipMenuAddItem },          // :GossipMenuAddItem(plr, icon, msg, Intid, code, accept_decline_message, money)
+    {"GossipComplete", &LuaGameObject::GossipComplete },                // :GossipComplete(plr)
+    {"GossipSendMenu", &LuaGameObject::GossipSendMenu },                // :GossipSendMenu(npc_text, plr)
+	{ NULL, NULL }
+};
+
 ElunaRegister<Group> GroupMethods[] = 
 {
 	// Getters
@@ -137,7 +146,7 @@ ElunaRegister<Guild> GuildMethods[] =
 
 ElunaRegister<QueryResult> QueryMethods[] =  // Not working yet
 {
-	{"GetColumn", &LuaQuery::GetColumn},
+	//{"GetColumn", &LuaQuery::GetColumn},
 	{"NextRow", &LuaQuery::NextRow},
 	{"GetColumnCount", &LuaQuery::GetColumnCount},
 	{"GetRowCount", &LuaQuery::GetRowCount},
@@ -172,6 +181,7 @@ ElunaRegister<QueryResult> QueryMethods[] =  // Not working yet
 
 template<typename T> ElunaRegister<T>* GetMethodTable() { return NULL; }
 template<> ElunaRegister<Unit>* GetMethodTable<Unit>() { return UnitMethods; }
+template<> ElunaRegister<GameObject>* GetMethodTable<GameObject>() { return GameObjectMethods; }
 template<> ElunaRegister<Group>* GetMethodTable<Group>() { return GroupMethods; }
 template<> ElunaRegister<Guild>* GetMethodTable<Guild>() { return GuildMethods; }
 template<> ElunaRegister<QueryResult>* GetMethodTable<QueryResult>() { return QueryMethods; }

@@ -20,6 +20,7 @@
 #include "Common.h"
 #include "Unit.h"
 #include "Creature.h"
+#include "GameObjectAI.h"
 
 using namespace std;
 
@@ -35,6 +36,7 @@ extern "C"
 
 class ElunaTemplate;
 class LuaCreatureScript;
+class LuaGameObjectScript;
 
 struct LoadedScripts
 {
@@ -46,7 +48,9 @@ enum REGISTER_TYPE
     REGTYPE_PLAYER = 1,
     REGTYPE_GOSSIP = 2,
     REGTYPE_CREATURE = 3,
-	REGTYPE_LOG = 4,
+	REGTYPE_GAMEOBJECT = 4,
+	REGTYPE_GAMEOBJECT_GOSSIP = 5,
+	REGTYPE_LOG = 5,
     REGTYPE_COUNT
 };
 
@@ -133,6 +137,16 @@ enum CreatureEvents
     CREATURE_EVENT_COUNT
 };
 
+enum GameObjectEvents
+{
+	GAMEOBJECT_EVENT_ON_AIUPDATE                   = 1,    // Not Implemented
+	GAMEOBJECT_EVENT_ON_RESET                      = 2,    // Not Implemented
+	GAMEOBJECT_EVENT_DOACTION                      = 3,    // Not Implemented
+	GAMEOBJECT_EVENT_ON_SET_GUID                   = 4,    // Not Implemented
+	GAMEOBJECT_EVENT_ON_GET_GUID                   = 5,    // Not Implemented
+	GAMEOBJECT_EVENT_COUNT
+};
+
 enum GossipEvents
 {
     GOSSIP_EVENT_ON_HELLO = 1,
@@ -153,7 +167,19 @@ struct CreatureBind
     uint16 _functionReferences[CREATURE_EVENT_COUNT];
 	uint32 _gossipReferences[GOSSIP_EVENT_COUNT];
 
-	CreatureBind(int _entry)
+	CreatureBind(uint32 _entry)
+	{
+		entry = _entry;
+	}
+};
+
+struct GameObjectBind
+{
+	uint32 entry;
+	uint16 _functionReferences[GAMEOBJECT_EVENT_COUNT];
+	uint32 _gossipReferences[GOSSIP_EVENT_COUNT];
+
+	GameObjectBind(uint32 _entry)
 	{
 		entry = _entry;
 	}
@@ -175,11 +201,15 @@ class Eluna
 
 		typedef map<int, vector<uint16>> ElunaBindingMap;
 		ElunaBindingMap _playerEventBindings;
-		//ElunaBindingMap _gossipEventBindings;
 		
 		vector<CreatureBind*> _creatureEventBindings;
 		vector<CreatureBind*> _gossipEventBindings;
+
+		vector<GameObjectBind*> _gameObjectAIEventBindings;
+		vector<GameObjectBind*> _gameObjectGossipBindings;
+
 		static CreatureAI* GetLuaCreatureAI(Creature* creature);
+		static GameObjectAI* GetLuaGameObjectAI(GameObject* gameObject);
 
 		static void InitTables()
 		{
@@ -188,12 +218,6 @@ class Eluna
 				vector<uint16> _vector;
 				get()->_playerEventBindings.insert(pair<int, vector<uint16>>(i, _vector));
 			}
-			/*
-			for (int i = 0; i < GOSSIP_EVENT_COUNT; i++)
-			{
-				vector<uint16> _vector;
-				get()->_gossipEventBindings.insert(pair<int, vector<uint16>>(i, _vector));
-			}*/
 		}
 
         Eluna()
@@ -273,8 +297,8 @@ class Eluna
         void PushGroup(lua_State*, Group*);
         void PushGuild(lua_State*, Guild*);
 		void PushUnit(lua_State*, Unit*);
+		void PushGO(lua_State*, GameObject*);
 		void PushQueryResult(lua_State*, QueryResult*);
-		void PushQueryField(lua_State*, Field*);
 		// Checks
         Player * CHECK_PLAYER(lua_State* L, int narg)
         {
@@ -503,11 +527,9 @@ class Eluna
 					LuaCreatureScript() : CreatureScript("luacreature")
 					{
 						_scriptsToClear = *(new vector<LuaCreatureAI*>());
-						//singleton = this;
 					}
 
 					~LuaCreatureScript() { }
-					//CreatureBind* gossipBinding;
 
 					static LuaCreatureScript* GetSingleton() 
 					{ 
@@ -905,6 +927,92 @@ class Eluna
 				return LuaCreatureScript::GetSingleton();
 			}
 
+		public:
+			static class LuaGameObjectScript : GameObjectScript
+			{
+				public:
+					struct LuaGameObjectAI;
+					vector<LuaGameObjectAI*> _scriptsToClear;
+				public:
+					bool IsDatabaseBound() const { return false; }
+
+					LuaGameObjectScript() : GameObjectScript("LuaGameObjectScript")
+					{
+						_scriptsToClear = *(new vector<LuaGameObjectAI*>());
+					}
+
+					~LuaGameObjectScript() { }
+
+					static GameObjectBind* GetGameObjectAIBindingForId(uint32 entry)
+					{
+						for(vector<GameObjectBind*>::iterator itr = Eluna::get()->_gameObjectAIEventBindings.begin(); itr != Eluna::get()->_gameObjectAIEventBindings.end(); ++itr)
+							if ((*itr)->entry == entry)
+								return (*itr);
+						return NULL;
+					}
+
+					static GameObjectBind* GetGameObjectGossipBindingForId(uint32 entry)
+					{
+						for(vector<GameObjectBind*>::iterator itr = Eluna::get()->_gameObjectGossipBindings.begin(); itr != Eluna::get()->_gameObjectGossipBindings.end(); ++itr)
+							if ((*itr)->entry == entry)
+								return (*itr);
+						return NULL;
+					}
+
+					bool RegisterGameObjectScript(uint32 id, uint32 _event, uint16 functionRef)
+					{
+						if (!sObjectMgr->GetGameObjectTemplate(id))
+						{
+							sLog->outError(LOG_FILTER_GENERAL, "Eluna Nova::Couldn't find a gameobject with (ID: %d)!", id);
+					        return false;
+						}
+
+						Eluna::get()->_gameObjectAIEventBindings.push_back(new GameObjectBind(id));
+						GetGameObjectAIBindingForId(id)->_functionReferences[_event] = functionRef;
+						return true;
+					}
+
+					bool RegisterGameObjectGossipScript(uint32 id, uint32 _event, uint16 functionRef)
+					{
+						if (!sObjectMgr->GetGameObjectTemplate(id))
+						{
+							sLog->outError(LOG_FILTER_GENERAL, "Eluna Nova::Couldn't find a gameobject with (ID: %d)!", id);
+					        return false;
+						}
+
+						Eluna::get()->_gameObjectGossipBindings.push_back(new GameObjectBind(id));
+						GetGameObjectGossipBindingForId(id)->_functionReferences[_event] = functionRef;
+						return true;
+					}
+
+					static struct LuaGameObjectAI : GameObjectAI
+					{
+						LuaGameObjectAI(GameObject* _go) : GameObjectAI(_go)
+						{
+							goBinding = LuaGameObjectScript::GetGameObjectAIBindingForId(_go->GetEntry());
+						}
+
+						~LuaGameObjectAI() { }
+						GameObjectBind * goBinding;
+					};
+
+					GameObjectAI* GetAI(GameObject* gameObject)
+					{
+						GameObjectBind* bind = GetGameObjectAIBindingForId(gameObject->GetEntry());
+						if (!bind)
+							return NULL;
+
+						if (!_scriptsToClear.empty())
+							for (vector<LuaGameObjectAI*>::iterator itr = _scriptsToClear.begin(); itr != _scriptsToClear.end(); ++itr)
+								if ((!(*itr)) && (*itr)->goBinding->entry == gameObject->GetEntry())
+									return (*itr);
+
+						LuaGameObjectAI* luaGameObjectAI = new LuaGameObjectAI(gameObject);
+						_scriptsToClear.push_back(luaGameObjectAI);
+						return luaGameObjectAI;
+					}
+			};
+
         public:
             static class luaEventMgr : public WorldScript
             {
@@ -992,6 +1100,7 @@ class Eluna
 };
 
 #define sLuaCreatureScript ACE_Singleton<LuaCreatureScript, ACE_Null_Mutex>::instance()
+#define sLuaGameObjectScript ACE_Singleton<LuaGameObjectScript, ACE_Null_Mutex>::instance()
 
 class ElunaScript : public ScriptObject
 {
@@ -1296,7 +1405,7 @@ class ElunaScript : public ScriptObject
 		bool OnGossipHello(uint32 eventId, Player* player, Creature* creature)
 		{
             bool HadScript = false;
-            player->PlayerTalkClass->ClearMenus();
+			player->PlayerTalkClass->ClearMenus();
 			Eluna::get()->BeginCall(Eluna::LuaCreatureScript::GetCreatureGossipBindingForId(creature->GetEntry())->_gossipReferences[eventId]);
 			Eluna::get()->PushUnsigned(Eluna::get()->_luaState, eventId);
 			Eluna::get()->PushUnit(Eluna::get()->_luaState, player);
@@ -1310,7 +1419,7 @@ class ElunaScript : public ScriptObject
 		bool OnGossipSelect(uint32 eventId, Player* player, Creature* creature, uint32 sender, uint32 actions)
 		{
             bool HadScript = false;
-            // player->PlayerTalkClass->ClearMenus();
+            player->PlayerTalkClass->ClearMenus();
 			Eluna::get()->BeginCall(Eluna::LuaCreatureScript::GetCreatureGossipBindingForId(creature->GetEntry())->_gossipReferences[eventId]);
 			Eluna::get()->PushUnsigned(Eluna::get()->_luaState, eventId);
 			Eluna::get()->PushUnit(Eluna::get()->_luaState, player);
@@ -1326,11 +1435,59 @@ class ElunaScript : public ScriptObject
 		bool OnGossipSelectCode(uint32 eventId, Player* player, Creature* creature, uint32 sender, uint32 actions, const char* code)
 		{
             bool HadScript = false;
-            // player->PlayerTalkClass->ClearMenus();
+            //player->PlayerTalkClass->ClearMenus();
 			Eluna::get()->BeginCall(Eluna::LuaCreatureScript::GetCreatureGossipBindingForId(creature->GetEntry())->_gossipReferences[eventId]);
 			Eluna::get()->PushUnsigned(Eluna::get()->_luaState, eventId);
 			Eluna::get()->PushUnit(Eluna::get()->_luaState, player);
 			Eluna::get()->PushUnit(Eluna::get()->_luaState, creature);
+			Eluna::get()->PushUnsigned(Eluna::get()->_luaState, sender);
+            Eluna::get()->PushUnsigned(Eluna::get()->_luaState, actions);
+			Eluna::get()->PushString(Eluna::get()->_luaState, code);
+			Eluna::get()->ExecuteCall(6, 0);
+            if(!HadScript)
+                HadScript = true;
+			return HadScript;
+		}
+
+		/* GameObject Gossip */
+		bool OnGossipHello(uint32 eventId, Player* player, GameObject* gameObject)
+		{
+            bool HadScript = false;
+			player->PlayerTalkClass->ClearMenus();
+			Eluna::get()->BeginCall(Eluna::LuaGameObjectScript::GetGameObjectGossipBindingForId(gameObject->GetEntry())->_gossipReferences[eventId]);
+			Eluna::get()->PushUnsigned(Eluna::get()->_luaState, eventId);
+			Eluna::get()->PushUnit(Eluna::get()->_luaState, player);
+			Eluna::get()->PushGO(Eluna::get()->_luaState, gameObject);
+			Eluna::get()->ExecuteCall(3, 0);
+            if(!HadScript)
+                HadScript = true;
+			return HadScript;
+		}
+
+		bool OnGossipSelect(uint32 eventId, Player* player, GameObject* gameObject, uint32 sender, uint32 actions)
+		{
+            bool HadScript = false;
+            player->PlayerTalkClass->ClearMenus();
+			Eluna::get()->BeginCall(Eluna::LuaGameObjectScript::GetGameObjectGossipBindingForId(gameObject->GetEntry())->_gossipReferences[eventId]);
+			Eluna::get()->PushUnsigned(Eluna::get()->_luaState, eventId);
+			Eluna::get()->PushUnit(Eluna::get()->_luaState, player);
+			Eluna::get()->PushGO(Eluna::get()->_luaState, gameObject);
+			Eluna::get()->PushUnsigned(Eluna::get()->_luaState, sender);
+			Eluna::get()->PushUnsigned(Eluna::get()->_luaState, actions);
+			Eluna::get()->ExecuteCall(5, 0);
+            if(!HadScript)
+                HadScript = true;
+			return HadScript;
+		}
+
+		bool OnGossipSelectCode(uint32 eventId, Player* player, GameObject* gameObject, uint32 sender, uint32 actions, const char* code)
+		{
+            bool HadScript = false;
+            //player->PlayerTalkClass->ClearMenus();
+			Eluna::get()->BeginCall(Eluna::LuaGameObjectScript::GetGameObjectGossipBindingForId(gameObject->GetEntry())->_gossipReferences[eventId]);
+			Eluna::get()->PushUnsigned(Eluna::get()->_luaState, eventId);
+			Eluna::get()->PushUnit(Eluna::get()->_luaState, player);
+			Eluna::get()->PushGO(Eluna::get()->_luaState, gameObject);
 			Eluna::get()->PushUnsigned(Eluna::get()->_luaState, sender);
             Eluna::get()->PushUnsigned(Eluna::get()->_luaState, actions);
 			Eluna::get()->PushString(Eluna::get()->_luaState, code);

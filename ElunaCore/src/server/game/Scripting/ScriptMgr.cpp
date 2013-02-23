@@ -799,6 +799,10 @@ GameObjectAI* ScriptMgr::GetGameObjectAI(GameObject* gameobject)
 {
     ASSERT(gameobject);
 
+	if (Eluna::LuaGameObjectScript::GetGameObjectAIBindingForId(gameobject->GetEntry()))
+		if (Eluna::GetLuaGameObjectAI(gameobject))
+			return Eluna::GetLuaGameObjectAI(gameobject);
+
     GET_SCRIPT_RET(GameObjectScript, gameobject->GetScriptId(), tmpscript, NULL);
     return tmpscript->GetAI(gameobject);
 }
@@ -816,6 +820,10 @@ bool ScriptMgr::OnGossipHello(Player* player, GameObject* go)
     ASSERT(player);
     ASSERT(go);
 
+	if (Eluna::LuaGameObjectScript::GetGameObjectGossipBindingForId(go->GetEntry()))
+		if (Eluna::getScript()->OnGossipHello(GOSSIP_EVENT_ON_HELLO, player, go))
+			return true;
+
     GET_SCRIPT_RET(GameObjectScript, go->GetScriptId(), tmpscript, false);
     player->PlayerTalkClass->ClearMenus();
     return tmpscript->OnGossipHello(player, go);
@@ -826,6 +834,10 @@ bool ScriptMgr::OnGossipSelect(Player* player, GameObject* go, uint32 sender, ui
     ASSERT(player);
     ASSERT(go);
 
+	if (Eluna::LuaGameObjectScript::GetGameObjectGossipBindingForId(go->GetEntry()))
+		if (Eluna::getScript()->OnGossipSelect(GOSSIP_EVENT_ON_SELECT, player, go, sender, action))
+			return true;
+
     GET_SCRIPT_RET(GameObjectScript, go->GetScriptId(), tmpscript, false);
     return tmpscript->OnGossipSelect(player, go, sender, action);
 }
@@ -835,6 +847,10 @@ bool ScriptMgr::OnGossipSelectCode(Player* player, GameObject* go, uint32 sender
     ASSERT(player);
     ASSERT(go);
     ASSERT(code);
+
+	if (Eluna::LuaGameObjectScript::GetGameObjectGossipBindingForId(go->GetEntry()))
+		if (Eluna::getScript()->OnGossipSelectCode(GOSSIP_EVENT_ON_SELECT, player, go, sender, action, code))
+			return true;
 
     GET_SCRIPT_RET(GameObjectScript, go->GetScriptId(), tmpscript, false);
     return tmpscript->OnGossipSelectCode(player, go, sender, action, code);

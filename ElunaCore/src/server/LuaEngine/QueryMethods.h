@@ -8,7 +8,7 @@ class LuaQuery
 public:
 
     // QueryResult methods
-
+	/*
 	static int GetColumn(lua_State* L, QueryResult* result)
 	{
         if (!result)
@@ -24,14 +24,14 @@ public:
         }
 		else
 		{
-			Field* field =  result->get()->Fetch();
+			Field* field =  &result->get()->Fetch()[index];
 			if (field == NULL)
 				lua_pushnil(L);
 			else
 				Eluna::get()->PushQueryField(L, field);
 		}
 		return 1;
-	}
+	}*/
 
 	static int NextRow(lua_State* L, QueryResult* result)
 	{
@@ -77,6 +77,7 @@ public:
             Eluna::get()->PushBoolean(L, result->get()->Fetch()[col].IsNull());
         return 1;
 	}
+
 	static int GetBool(lua_State* L, QueryResult* result)
 	{
         uint32 col = luaL_checkunsigned(L, 1);
@@ -96,6 +97,7 @@ public:
             Eluna::get()->PushUnsigned(L, result->get()->Fetch()[col].GetUInt8());
         return 1;
 	}
+
 	static int GetUInt16(lua_State* L, QueryResult* result)
 	{
         uint32 col = luaL_checkunsigned(L, 1);
@@ -105,6 +107,7 @@ public:
             Eluna::get()->PushUnsigned(L, result->get()->Fetch()[col].GetUInt16());
         return 1;
 	}
+
 	static int GetUInt32(lua_State* L, QueryResult* result)
 	{
         uint32 col = luaL_checkunsigned(L, 1);
@@ -124,6 +127,7 @@ public:
             Eluna::get()->PushInteger(L, result->get()->Fetch()[col].GetInt8());
         return 1;
 	}
+
 	static int GetInt16(lua_State* L, QueryResult* result)
 	{
         uint32 col = luaL_checkunsigned(L, 1);
@@ -133,6 +137,7 @@ public:
             Eluna::get()->PushInteger(L, result->get()->Fetch()[col].GetInt16());
         return 1;
 	}
+
 	static int GetInt32(lua_State* L, QueryResult* result)
 	{
         uint32 col = luaL_checkunsigned(L, 1);
@@ -152,6 +157,7 @@ public:
             Eluna::get()->PushFloat(L, result->get()->Fetch()[col].GetFloat());
         return 1;
 	}
+
 	static int GetDouble(lua_State* L, QueryResult* result)
 	{
         uint32 col = luaL_checkunsigned(L, 1);
