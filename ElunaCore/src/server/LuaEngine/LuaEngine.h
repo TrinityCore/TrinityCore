@@ -56,29 +56,28 @@ enum REGISTER_TYPE
 
 enum PlayerEvents
 {
-    PLAYER_EVENT_ON_CHARACTER_CREATE		= 1,
-    PLAYER_EVENT_ON_KILL_PLAYER             = 2,
-    PLAYER_EVENT_ON_LOGIN                   = 4,
-    PLAYER_EVENT_ON_LOGOUT                  = 13,
-    PLAYER_EVENT_ON_CHAT                    = 16,
-    PLAYER_EVENT_LEVEL_CHANGE	            = 27,
-    PLAYER_EVENT_ON_CHARACTER_DELETE		= 33,
-    PLAYER_EVENT_ON_TALENTS_CHANGE          = 34,
-    PLAYER_EVENT_ON_TALENTS_RESET           = 35,
-    PLAYER_EVENT_ON_MONEY_CHANGE            = 36,
-    PLAYER_EVENT_ON_GIVE_XP                 = 37,
-    PLAYER_EVENT_ON_REPUTATION_CHANGE       = 38,
-    PLAYER_EVENT_ON_DUEL_REQUEST            = 39,
-    PLAYER_EVENT_ON_DUEL_START              = 40,
-    PLAYER_EVENT_ON_DUEL_END                = 41,
-    PLAYER_EVENT_ON_EMOTE                   = 42,
-    PLAYER_EVENT_ON_TEXT_EMOTE              = 43,
-    PLAYER_EVENT_ON_SPELL_CAST              = 44,
-    PLAYER_EVENT_ON_SAVE					= 45,
-    PLAYER_EVENT_ON_BIND_TO_INSTANCE        = 46,
-    PLAYER_EVENT_ON_UPDATE_ZONE				= 47,
-    PLAYER_EVENT_ON_KILL_CREATURE           = 48,
-    PLAYER_EVENT_ON_KILLED_BY_CREATURE      = 49,
+    PLAYER_EVENT_ON_CHARACTER_CREATE		= 1,        // Implemented
+    PLAYER_EVENT_ON_KILL_PLAYER             = 2,        // Implemented
+    PLAYER_EVENT_ON_LOGIN                   = 4,        // Implemented
+    PLAYER_EVENT_ON_LOGOUT                  = 13,       // Implemented
+    PLAYER_EVENT_ON_CHAT                    = 16,       // Implemented - Group, guild etc chats not implemented
+    PLAYER_EVENT_LEVEL_CHANGE	            = 27,       // Implemented
+    PLAYER_EVENT_ON_CHARACTER_DELETE		= 33,       // Not Implemented
+    PLAYER_EVENT_ON_TALENTS_CHANGE          = 34,       // Implemented
+    PLAYER_EVENT_ON_TALENTS_RESET           = 35,       // Implemented
+    PLAYER_EVENT_ON_MONEY_CHANGE            = 36,       // Implemented
+    PLAYER_EVENT_ON_GIVE_XP                 = 37,       // Implemented
+    PLAYER_EVENT_ON_REPUTATION_CHANGE       = 38,       // Implemented
+    PLAYER_EVENT_ON_DUEL_REQUEST            = 39,       // Implemented
+    PLAYER_EVENT_ON_DUEL_START              = 40,       // Implemented
+    PLAYER_EVENT_ON_DUEL_END                = 41,       // Implemented
+    PLAYER_EVENT_ON_EMOTE                   = 42,       // Implemented
+    PLAYER_EVENT_ON_SPELL_CAST              = 44,       // Not Implemented
+    PLAYER_EVENT_ON_SAVE					= 45,       // Implemented
+    PLAYER_EVENT_ON_BIND_TO_INSTANCE        = 46,       // Implemented
+    PLAYER_EVENT_ON_UPDATE_ZONE				= 47,       // Implemented
+    PLAYER_EVENT_ON_KILL_CREATURE           = 48,       // Implemented
+    PLAYER_EVENT_ON_KILLED_BY_CREATURE      = 49,       // Implemented
     PLAYER_EVENT_COUNT
 };
 

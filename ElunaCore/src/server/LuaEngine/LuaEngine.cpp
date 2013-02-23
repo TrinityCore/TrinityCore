@@ -91,6 +91,7 @@ void Eluna::RegisterGlobals(lua_State* L)
     lua_register(L, "RegisterCreatureEvent", RegisterCreatureEvent);
     lua_register(L, "RegisterGameObjectEvent", RegisterGameObjectEvent);
     lua_register(L, "RegisterGameObjectGossipEvent", RegisterGameObjectGossipEvent);
+
     lua_register(L, "GetLuaEngine", &LuaGlobalFunctions::GetLuaEngine);
     lua_register(L, "GetLUAEngine", &LuaGlobalFunctions::GetLuaEngine);
     lua_register(L, "GetCoreVersion", &LuaGlobalFunctions::GetCoreVersion);
