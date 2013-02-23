@@ -1,16 +1,17 @@
 #include "ScriptPCH.h"
+#include "AccountMgr.h"
 
 #ifndef UNITMETHODS_H
 #define UNITMETHODS_H
 
 #define TO_PLAYER()  Player* player; if(!unit || !unit->IsInWorld() || !(player = unit->ToPlayer()))     { return 0; } else (void)0;
-#define TO_CREATURE()  Creature* creature; if(!unit || !unit->IsInWorld() || !(creature = unit->ToCreature())) { return 0; } else (void)0;
+#define TO_CREATURE()  Creature* creature; if(!unit || !unit->IsInWorld() || !(creature = unit->ToCreature()) || unit->isTotem() || unit->isPet()) { return 0; } else (void)0;
 #define TO_UNIT()  if(!unit || !unit->IsInWorld() || !unit->ToUnit())  { return 0; } else (void)0;
 
-#define TO_PLAYER_BOOL()  Player* player;  if(!unit || !unit->IsInWorld() || !(player = unit->ToPlayer()))     { Eluna::get()->PushBoolean(L, false); return 1; } else (void)0;
-#define TO_CREATURE_BOOL()  Creature* creature; if(!unit || !unit->IsInWorld() || !(creature = unit->ToCreature())) { Eluna::get()->PushBoolean(L, false); return 1; } else (void)0;
-#define TO_UNIT_BOOL() if(!unit || !unit->IsInWorld() || !unit->ToUnit()) { Eluna::get()->PushBoolean(L, false); return 1; } else (void)0;
 
+#define TO_PLAYER_BOOL()  Player* player;  if(!unit || !unit->IsInWorld() || !(player = unit->ToPlayer()))     { Eluna::get()->PushBoolean(L, false); return 1; } else (void)0;
+#define TO_CREATURE_BOOL()  Creature* creature; if(!unit || !unit->IsInWorld() || !(creature = unit->ToCreature()) || unit->isTotem() || unit->isPet()) { Eluna::get()->PushBoolean(L, false); return 1; } else (void)0;
+#define TO_UNIT_BOOL() if(!unit || !unit->IsInWorld() || !unit->ToUnit()) { Eluna::get()->PushBoolean(L, false); return 1; } else (void)0;
 
 class LuaUnit
 {
@@ -937,16 +938,17 @@ public:
         return 0;
     }
 
-    // CastSpellOnTarget(spellID, unit) - See if can be gameobject target
+    // CastSpellOnTarget(spellID, unit, triggered) - See if can be gameobject target
     static int CastSpellOnTarget(lua_State* L, Unit* unit)
     {
         TO_UNIT();
         
         uint32 spell = luaL_checkunsigned(L, 1);
         Unit* target = Eluna::get()->CHECK_UNIT(L, 2);
+        bool triggered = luaL_optint(L, 3, true);
 
         if(target)
-            unit->CastSpell(target, spell, true);
+            unit->CastSpell(target, spell, triggered);
         return 0;
     }
 
@@ -964,7 +966,7 @@ public:
         return 0;
     }
 
-    // FullCastSpell() - self
+    // FullCastSpell(spellID) - self
     static int FullCastSpell(lua_State* L, Unit* unit)
     {
         TO_UNIT();
@@ -975,7 +977,7 @@ public:
         return 0;
     }
 
-    // FullCastSpellOnTarget(unit) - See if can be gameobject target
+    // FullCastSpellOnTarget(spellID, unit) - See if can be gameobject target
     static int FullCastSpellOnTarget(lua_State* L, Unit* unit)
     {
         TO_UNIT();
@@ -986,6 +988,82 @@ public:
         if(target)
             unit->CastSpell(target, spell, false);
         return 0;
+    }
+
+    // GetAccountId()
+    static int GetAccountId(lua_State* L, Unit* unit)
+    {
+        TO_PLAYER();
+        
+        Eluna::get()->PushUnsigned(L, player->GetSession()->GetAccountId());
+        return 1;
+    }
+
+    // GetAccountName()
+    static int GetAccountName(lua_State* L, Unit* unit)
+    {
+        TO_PLAYER();
+
+        std::string accName;
+        if(sAccountMgr->GetName(player->GetSession()->GetAccountId(), accName))
+            Eluna::get()->PushString(L, accName.c_str());
+        else
+            return 0;
+        return 1;
+    }
+
+    // GetAITargets()
+    static int GetAITargets(lua_State* L, Unit* unit)
+    {
+        TO_CREATURE();
+        
+        lua_newtable(L);
+        int tbl = lua_gettop(L);
+        uint32 i = 0;
+
+        ThreatContainer::StorageType const &threatList = creature->getThreatManager().getThreatList();
+        ThreatContainer::StorageType::const_iterator itr;
+        for (itr = threatList.begin(); itr != threatList.end(); ++itr)
+        {
+            Unit* target = (*itr)->getTarget();
+            if (!target)
+                continue;
+            ++i;
+            Eluna::get()->PushUnsigned(L, i);
+            Eluna::get()->PushUnit(L, target);
+            lua_settable(L, tbl);
+        }
+
+        lua_settop(L, tbl);
+        return 1;
+    }
+
+    // GetAITargetsCount()
+    static int GetAITargetsCount(lua_State* L, Unit* unit)
+    {
+        TO_CREATURE();
+
+        Eluna::get()->PushUnsigned(L, creature->getThreatManager().getThreatList().size());
+        return 1;
+    }
+
+    // GetAura(spellID)
+    static int GetAura(lua_State* L, Unit* unit)
+    {
+        TO_UNIT();
+        
+        uint32 spellID = luaL_checkunsigned(L, 1);
+        Eluna::get()->PushAura(L, unit->GetAura(spellID));
+        return 1;
+    }
+
+    // GetMapId()
+    static int GetMapId(lua_State* L, Unit* unit)
+    {
+        TO_UNIT();
+        
+        Eluna::get()->PushUnsigned(L, unit->GetMapId());
+        return 1;
     }
 
     // GossipMenuAddItem(icon, msg, Intid, code, accept_decline_message, money)

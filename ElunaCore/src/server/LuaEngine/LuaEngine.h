@@ -299,6 +299,7 @@ public:
     void PushUnit(lua_State*, Unit*);
     void PushGO(lua_State*, GameObject*);
     void PushQueryResult(lua_State*, QueryResult*);
+    void PushAura(lua_State*, Aura*);
     // Checks
     Player * CHECK_PLAYER(lua_State* L, int narg)
     {

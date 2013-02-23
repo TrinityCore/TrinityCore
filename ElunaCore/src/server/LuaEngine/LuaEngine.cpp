@@ -9,6 +9,7 @@ FOEREAPER TOMMY ENGINE, YEAH!
 #include "GuildMethods.h"
 #include "GameObjectMethods.h"
 #include "QueryMethods.h"
+#include "AuraMethods.h"
 #include "LuaFunctions.h"
 #include "LuaCreatureAI.h"
 #include "LuaGameObjectAI.h"
@@ -33,6 +34,7 @@ template<> const char* GetTName<Group>() { return "Group"; }
 template<> const char* GetTName<Guild>() { return "Guild"; }
 template<> const char* GetTName<Log>() { return "Log"; }
 template<> const char* GetTName<QueryResult>() { return "QueryResult"; }
+template<> const char* GetTName<Aura>() { return "Aura"; }
 
 void Eluna::StartEluna()
 {
@@ -52,6 +54,7 @@ void Eluna::StartEluna()
     ElunaTemplate<Group>::Register(_luaState);
     ElunaTemplate<Guild>::Register(_luaState);
     ElunaTemplate<QueryResult>::Register(_luaState);
+    ElunaTemplate<Aura>::Register(_luaState);
 
     uint32 cnt_uncomp = 0;
     char filename[200];
@@ -107,6 +110,7 @@ void Eluna::RegisterGlobals(lua_State* L)
     lua_register(L, "GetGuildByLeaderGUID", &LuaGlobalFunctions::GetGuildByLeaderGUID);
     lua_register(L, "GetPlayerCount", &LuaGlobalFunctions::GetPlayerCount);
     lua_register(L, "CreateLuaEvent", &LuaGlobalFunctions::CreateLuaEvent);
+    lua_register(L, "PerformIngameSpawn", &LuaGlobalFunctions::PerformIngameSpawn);             // Not Documented
 }
 
 void Eluna::LoadDirectory(char* Dirname, LoadedScripts* lscr)
@@ -266,6 +270,15 @@ void Eluna::PushGO(lua_State* L, GameObject* _go)
     if (!L) L = _luaState;
     if (_go)
         ElunaTemplate<GameObject>::push(L, _go);
+    else
+        lua_pushnil(L);
+}
+
+void Eluna::PushAura(lua_State* L, Aura* aura)
+{
+    if (!L) L = _luaState;
+    if (aura)
+        ElunaTemplate<Aura>::push(L, aura);
     else
         lua_pushnil(L);
 }
