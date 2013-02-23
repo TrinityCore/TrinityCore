@@ -14,6 +14,8 @@ ElunaRegister<Unit> UnitMethods[] =
     {"GetGroup", &LuaUnit::GetGroup},                             // :GetGroup()
     {"GetGuild", &LuaUnit::GetGuild},                             // :GetGuild()
     {"GetGearLevel", &LuaUnit::GetGearLevel},                     // :GetGearLevel() -- Returns the player's average gear level
+    {"GetAccountId", &LuaUnit::GetAccountId},                     // UNDOCUMENTED
+    {"GetAccountName", &LuaUnit::GetAccountName},                 // UNDOCUMENTED
 
     // Setters
     {"SetCoinage", &LuaUnit::SetCoinage},                         // :SetCoinage(amount) - sets plr's coinage to this.
@@ -48,6 +50,14 @@ ElunaRegister<Unit> UnitMethods[] =
     {"LearnSpell", &LuaUnit::LearnSpell},                         // :LearnSpell(id) - learns the given spell.
     {"RemoveItem", &LuaUnit::RemoveItem},                         // :RemoveItem(id, amount) - Removes amount of item to player.
 
+
+    // Creature methods
+
+    // Getters
+    {"GetAITargets", &LuaUnit::GetAITargets},                       // :GetAITargets() - Get units in threat list UNDOCUMENTED
+    {"GetAITargetsCount", &LuaUnit::GetAITargetsCount},             // :GetAITargetsCount() - Get threat list size UNDOCUMENTED
+
+
     // Unit Methods
 
     // Getters
@@ -57,6 +67,7 @@ ElunaRegister<Unit> UnitMethods[] =
     {"GetHealth", &LuaUnit::GetHealth},                             // :GetHealth()
     {"GetDisplayID", &LuaUnit::GetDisplayID},                       // :GetDisplayID()
     {"GetGUID", &LuaUnit::GetGUID},                                 // :GetGUID()
+    {"GetMapId", &LuaUnit::GetMapId},                               // :GetMapId() UNDOCUMENTED
     {"GetX", &LuaUnit::GetX},                                       // :GetX()
     {"GetY", &LuaUnit::GetY},                                       // :GetY()
     {"GetZ", &LuaUnit::GetZ},                                       // :GetZ()
@@ -73,7 +84,8 @@ ElunaRegister<Unit> UnitMethods[] =
     {"GetClass", &LuaUnit::GetClass},                               // :GetClass()
     {"GetClassAsString", &LuaUnit::GetClassAsString},               // :GetClassAsString()
     {"GetUnitType", &LuaUnit::GetUnitType},                         // :GetUnitType() - Returns object type, IE: Player
-    {"GetEntry", &LuaUnit::GetEntry},                               // :GetEntry() - Returns the creatures entryId
+    {"GetEntry", &LuaUnit::GetEntry},                               // :GetEntry() - Returns the unit's entryId
+    {"GetAura", &LuaUnit::GetAura},                                 // :GetAura(spellID) - returns aura object UNDOCUMENTED
 
     // Setters
     {"SetLevel", &LuaUnit::SetLevel},                               // :SetLevel(amount)
@@ -98,7 +110,7 @@ ElunaRegister<Unit> UnitMethods[] =
     {"SendUnitYell", &LuaUnit::SendUnitYell},                       // :SendUnitYell(msg, language) -- Sends a "Yell" message with the specified language (all languages: 0)
     {"CastSpell", &LuaUnit::CastSpell},                             // :CastSpell(spellID) - Casts the spell on self, no manacost or cast time
     {"CastSpellOnTarget", &LuaUnit::CastSpellOnTarget},             // :CastSpellOnTarget(spellID, unit) - Casts the spell on target, no manacost or cast time
-    {"CastSpellAoF", &LuaUnit::CastSpellAoF},                       // :CastSpellAoF(x, y, z, SpellID) - Casts the spell on coordinates, no manacost or cast time
+    {"CastSpellAoF", &LuaUnit::CastSpellAoF},                       // :CastSpellAoF(x, y, z, SpellID, triggered) - Casts the spell on coordinates, if triggered is false has manacost and cast time
     {"FullCastSpell", &LuaUnit::FullCastSpell},                     // :FullCastSpell(spellID) - Casts the spell on self
     {"FullCastSpellOnTarget", &LuaUnit::FullCastSpellOnTarget},     // :FullCastSpellOnTarget(spellID, unit) - Casts the spell on target
 
@@ -184,10 +196,17 @@ ElunaRegister<QueryResult> QueryMethods[] =  // Not working yet
     {NULL, NULL}
 };
 
+ElunaRegister<Aura> AuraMethods[] = 
+{
+
+    {NULL, NULL}
+};
+
 template<typename T> ElunaRegister<T>* GetMethodTable() { return NULL; }
 template<> ElunaRegister<Unit>* GetMethodTable<Unit>() { return UnitMethods; }
 template<> ElunaRegister<GameObject>* GetMethodTable<GameObject>() { return GameObjectMethods; }
 template<> ElunaRegister<Group>* GetMethodTable<Group>() { return GroupMethods; }
 template<> ElunaRegister<Guild>* GetMethodTable<Guild>() { return GuildMethods; }
 template<> ElunaRegister<QueryResult>* GetMethodTable<QueryResult>() { return QueryMethods; }
+template<> ElunaRegister<Aura>* GetMethodTable<Aura>() { return AuraMethods; }
 #endif
