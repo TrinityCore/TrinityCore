@@ -41,7 +41,7 @@ public:
     {
 		if (!go || !go->IsInWorld())
 			return 0;
-        
+
         int _npcText = luaL_checknumber(L, 1);
         Player* receiver = Eluna::get()->CHECK_PLAYER(L, 2);
         receiver->SEND_GOSSIP_MENU(_npcText, go->GetGUID());

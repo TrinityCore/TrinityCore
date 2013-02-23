@@ -27,7 +27,7 @@ using namespace std;
 #define lua_ref(L, lock) ((lock) ? luaL_ref(L, LUA_REGISTRYINDEX) : \
     (lua_pushstring(L, "unlocked references are obsolete"), lua_error(L), 0))
 
-extern "C" 
+extern "C"
 {
 #include "lua.h"
 #include "lualib.h"
@@ -155,10 +155,10 @@ enum GossipEvents
 };
 
 template<class T>
-struct ElunaRegister 
-{ 
-    const char* name; 
-    int(*mfunc)(lua_State*, T*); 
+struct ElunaRegister
+{
+    const char* name;
+    int(*mfunc)(lua_State*, T*);
 };
 
 struct CreatureBind
@@ -249,7 +249,7 @@ public:
     bool ExecuteCall(uint8 params, uint8 res)
     {
         bool ret = true;
-        int top = lua_gettop(_luaState); 
+        int top = lua_gettop(_luaState);
         if(strcmp(luaL_typename(_luaState,top-params), "function") )
         {
             ret = false;
@@ -273,7 +273,7 @@ public:
         return ret;
     }
 
-    void EndCall(uint8 res) 
+    void EndCall(uint8 res)
     {
         for(int i = res; i > 0; i--)
         {
@@ -302,17 +302,17 @@ public:
     // Checks
     Player * CHECK_PLAYER(lua_State* L, int narg)
     {
-        if(!L) 
+        if(!L)
             return ElunaTemplate<Player>::check(_luaState, narg);
-        else 
+        else
             return ElunaTemplate<Player>::check(L, narg);
     }
 
     Unit * CHECK_UNIT(lua_State* L, int narg)
     {
-        if(!L) 
+        if(!L)
             return ElunaTemplate<Unit>::check(_luaState, narg);
-        else 
+        else
             return ElunaTemplate<Unit>::check(L, narg);
     }
 
@@ -320,7 +320,7 @@ public:
     {
         if(!L)
             return ElunaTemplate<Creature>::check(_luaState, narg);
-        else 
+        else
             return ElunaTemplate<Creature>::check(L, narg);
     }
 
@@ -363,7 +363,7 @@ protected:
 
 
             // fill method table.
-            if(!GetMethodTable<T>()) 
+            if(!GetMethodTable<T>())
             {
                 lua_pop(L, 2);
                 return;
@@ -430,7 +430,7 @@ protected:
 
     private:
         static int thunk(lua_State* L)
-        {    
+        {
             T* obj = check(L, 1); // get self
             lua_remove(L, 1); // remove self
             ElunaRegister* l = static_cast<ElunaRegister*>(lua_touserdata(L, lua_upvalueindex(1)));
@@ -440,7 +440,7 @@ protected:
         static int gcT(lua_State* L)
         {
             T* obj = check(L, 1);
-            if(!obj) 
+            if(!obj)
                 return 0;
             lua_getfield(L, LUA_REGISTRYINDEX, "DO NO TRASH");
             if(lua_istable(L, -1))
@@ -531,10 +531,10 @@ public:
 
         ~LuaCreatureScript() { }
 
-        static LuaCreatureScript* GetSingleton() 
-        { 
+        static LuaCreatureScript* GetSingleton()
+        {
             static LuaCreatureScript* singleton;
-            return singleton; 
+            return singleton;
         }
 
         static CreatureBind* GetCreatureBindingForId(uint32 id)
@@ -1105,7 +1105,7 @@ public:
 class ElunaScript : public ScriptObject
 {
 public:
-    static ElunaScript* get() 
+    static ElunaScript* get()
     {
         return Eluna::Script;
     }
@@ -1123,7 +1123,7 @@ public:
 
     void OnChat(uint32 eventId, Player* player, uint32 type, uint32 lang, string& msg)
     {
-        for (vector<uint16>::iterator itr = Eluna::get()->_playerEventBindings.at(eventId).begin(); 
+        for (vector<uint16>::iterator itr = Eluna::get()->_playerEventBindings.at(eventId).begin();
             itr != Eluna::get()->_playerEventBindings.at(eventId).end(); itr++)
         {
             Eluna::get()->BeginCall((*itr));
@@ -1138,7 +1138,7 @@ public:
 
     void OnChat(uint32 eventId, Player* player, uint32 type, uint32 lang, string& msg, Player* receiver)
     {
-        for (vector<uint16>::iterator itr = Eluna::get()->_playerEventBindings.at(eventId).begin(); 
+        for (vector<uint16>::iterator itr = Eluna::get()->_playerEventBindings.at(eventId).begin();
             itr != Eluna::get()->_playerEventBindings.at(eventId).end(); itr++)
         {
             Eluna::get()->BeginCall((*itr));

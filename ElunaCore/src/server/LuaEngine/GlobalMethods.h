@@ -6,7 +6,7 @@
 #include "MapManager.h"
 #include "GuildMgr.h"
 
-extern "C" 
+extern "C"
 {
 #include "lua.h"
 #include "lualib.h"

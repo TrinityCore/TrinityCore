@@ -176,13 +176,13 @@ void Eluna::report(lua_State* L)
 void Eluna::PushGUID(lua_State* L, uint64 g)
 {
     if(!L) L = _luaState;
-    lua_pushunsigned(L, GUID_LOPART(g)); 
+    lua_pushunsigned(L, GUID_LOPART(g));
 }
 
 //void Eluna::PushLong(lua_State* L, uint64 l)
 //{
 //    if(!L) L = _luaState;
-//    lua_pushinteger(L, l); 
+//    lua_pushinteger(L, l);
 //}
 
 void Eluna::PushInteger(lua_State* L, int i)
@@ -291,7 +291,7 @@ static int RegisterServerHook(lua_State* L)
     uint32 ev = luaL_checkint(L, 1);
     const char* typeName = luaL_typename(L, 2);
 
-    if (ev == 0 || !typeName) 
+    if (ev == 0 || !typeName)
         return 0;
 
     if(!strcmp(typeName, "function"))
@@ -311,7 +311,7 @@ static int RegisterGossipEvent(lua_State* L)
     uint32 ev = luaL_checkint(L, 2);
     const char* typeName = luaL_typename(L, 3);
 
-    if (ev == 0 || !typeName) 
+    if (ev == 0 || !typeName)
         return 0;
 
     if(!strcmp(typeName, "function"))
@@ -330,7 +330,7 @@ static int RegisterGameObjectGossipEvent(lua_State* L)
     uint32 ev = luaL_checkint(L, 2);
     const char* typeName = luaL_typename(L, 3);
 
-    if (ev == 0 || !typeName) 
+    if (ev == 0 || !typeName)
         return 0;
 
     if(!strcmp(typeName, "function"))

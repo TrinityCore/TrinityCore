@@ -16,7 +16,7 @@ public:
 
         uint32 index = luaL_checkunsigned(L, 1);
 		uint32 fields = result->get()->GetFieldCount();
-        
+
         if (index >= fields)
 		{
             luaL_error(L, "Bad argument #1 for GetColumn - index (%u) bigger then max column count (%u)", index, result->get()->GetFieldCount());
@@ -117,7 +117,7 @@ public:
             Eluna::get()->PushUnsigned(L, result->get()->Fetch()[col].GetUInt32());
         return 1;
 	}
-    
+
 	static int GetInt8(lua_State* L, QueryResult* result)
 	{
         uint32 col = luaL_checkunsigned(L, 1);
@@ -147,7 +147,7 @@ public:
             Eluna::get()->PushInteger(L, result->get()->Fetch()[col].GetInt32());
         return 1;
 	}
-    
+
 	static int GetFloat(lua_State* L, QueryResult* result)
 	{
         uint32 col = luaL_checkunsigned(L, 1);
@@ -167,7 +167,7 @@ public:
             Eluna::get()->PushDouble(L, result->get()->Fetch()[col].GetDouble());
         return 1;
 	}
-    
+
 	static int GetCString(lua_State* L, QueryResult* result)
 	{
         uint32 col = luaL_checkunsigned(L, 1);

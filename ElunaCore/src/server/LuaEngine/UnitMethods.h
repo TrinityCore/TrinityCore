@@ -93,7 +93,7 @@ public:
 
     // GetY()
     static int GetY(lua_State* L, Unit* unit)
-    {			
+    {
         TO_UNIT();
 
         Eluna::get()->PushFloat(L, unit->GetPositionY());
@@ -102,7 +102,7 @@ public:
 
     // GetZ()
     static int GetZ(lua_State* L, Unit* unit)
-    {			
+    {
         TO_UNIT();
 
         Eluna::get()->PushFloat(L, unit->GetPositionZ());
@@ -111,7 +111,7 @@ public:
 
     // GetO()
     static int GetO(lua_State* L, Unit* unit)
-    {			
+    {
         TO_UNIT();
 
         Eluna::get()->PushFloat(L, unit->GetOrientation());
@@ -120,7 +120,7 @@ public:
 
     // GetLocation()
     static int GetLocation(lua_State* L, Unit* unit)
-    {			
+    {
         TO_UNIT();
 
         Eluna::get()->PushFloat(L, unit->GetPositionX());
@@ -132,7 +132,7 @@ public:
 
     // GetZoneID()
     static int GetZoneID(lua_State* L, Unit* unit)
-    {			
+    {
         TO_UNIT();
 
         Eluna::get()->PushUnsigned(L, unit->GetZoneId());
@@ -159,7 +159,7 @@ public:
 
     // GetGUID()
     static int GetGUID(lua_State* L, Unit* unit)
-    {			
+    {
         TO_UNIT();
 
         Eluna::get()->PushGUID(L, unit->GetGUID());
@@ -168,7 +168,7 @@ public:
 
     // GetByteValue(index, offset)
     static int GetByteValue(lua_State* L, Unit* unit)
-    {			
+    {
         TO_UNIT();
 
         uint32 index = luaL_checkunsigned(L, 1);
@@ -187,14 +187,14 @@ public:
             // We didn't specify a type, so get the default type for our class
             switch(unit->getClass())
             {
-            case 1: 
-                type = POWER_RAGE; 
+            case 1:
+                type = POWER_RAGE;
                 break;
-            case 4: 
-                type = POWER_ENERGY; 
+            case 4:
+                type = POWER_ENERGY;
                 break;
-            case 6: 
-                type = POWER_RUNIC_POWER; 
+            case 6:
+                type = POWER_RUNIC_POWER;
                 break;
             case 2:
             case 3:
@@ -203,13 +203,13 @@ public:
             case 8:
             case 9:
             case 11:
-                type = POWER_MANA; 
+                type = POWER_MANA;
                 break;
             default:
                 type = POWER_MANA;
             }
-        } 
-        else if (type >= POWER_ALL) 
+        }
+        else if (type >= POWER_ALL)
         {
             luaL_error(L, "Bad argument #1 to :GetPower(index) - specified out of range index (%i)", type);
             return 0;
@@ -229,14 +229,14 @@ public:
             // We didn't specify a type, so get the default type for our class
             switch(unit->getClass())
             {
-            case 1: 
-                type = POWER_RAGE; 
+            case 1:
+                type = POWER_RAGE;
                 break;
-            case 4: 
-                type = POWER_ENERGY; 
+            case 4:
+                type = POWER_ENERGY;
                 break;
-            case 6: 
-                type = POWER_RUNIC_POWER; 
+            case 6:
+                type = POWER_RUNIC_POWER;
                 break;
             case 2:
             case 3:
@@ -245,13 +245,13 @@ public:
             case 8:
             case 9:
             case 11:
-                type = POWER_MANA; 
+                type = POWER_MANA;
                 break;
             default:
                 type = POWER_MANA;
             }
-        } 
-        else if (type >= POWER_ALL) 
+        }
+        else if (type >= POWER_ALL)
         {
             luaL_error(L, "Bad argument #1 to :GetMaxPower(index) - specified out of range index.");
             return 0;
@@ -315,38 +315,38 @@ public:
         const char* str = NULL;
         switch(unit->getClass())
         {
-        case 1: 
-            str = "Warrior"; 
+        case 1:
+            str = "Warrior";
             break;
-        case 2: 
-            str = "Paladin"; 
+        case 2:
+            str = "Paladin";
             break;
-        case 3: 
-            str = "Hunter"; 
+        case 3:
+            str = "Hunter";
             break;
-        case 4:	
-            str = "Rogue"; 
+        case 4:
+            str = "Rogue";
             break;
-        case 5:	
-            str = "Priest"; 
+        case 5:
+            str = "Priest";
             break;
-        case 6:	
-            str = "DeathKnight"; 
+        case 6:
+            str = "DeathKnight";
             break;
-        case 7:	
-            str = "Shaman"; 
+        case 7:
+            str = "Shaman";
             break;
-        case 8:	
-            str = "Mage"; 
+        case 8:
+            str = "Mage";
             break;
-        case 9:	
-            str = "Warlock"; 
+        case 9:
+            str = "Warlock";
             break;
         case 11:
-            str = "Druid"; 
+            str = "Druid";
             break;
         default:
-            str = "NULL"; 
+            str = "NULL";
             break;
         }
 
@@ -361,7 +361,7 @@ public:
 
         int id = luaL_checknumber(L, 1);
         bool checkinBank = luaL_optnumber(L, 2, 0); // if 1, check in bank, otherwise don't
-        Eluna::get()->PushUnsigned(L, player->GetItemCount(id, checkinBank)); 
+        Eluna::get()->PushUnsigned(L, player->GetItemCount(id, checkinBank));
         return 1;
     }
 
@@ -626,7 +626,7 @@ public:
 
     // IsAlive()
     static int IsAlive(lua_State* L, Unit* unit)
-    {			
+    {
         TO_UNIT_BOOL();
 
         Eluna::get()->PushBoolean(L, unit->isAlive());
@@ -635,7 +635,7 @@ public:
 
     // IsInWorld()
     static int IsInWorld(lua_State* L, Unit* unit)
-    {			
+    {
         TO_UNIT_BOOL();
 
         Eluna::get()->PushBoolean(L, unit->IsInWorld());
@@ -644,7 +644,7 @@ public:
 
     // IsPvPFlagged()
     static int IsPvPFlagged(lua_State* L, Unit* unit)
-    {			
+    {
         TO_UNIT_BOOL();
 
         Eluna::get()->PushBoolean(L, unit->IsPvP());
@@ -653,7 +653,7 @@ public:
 
     // HasQuest(id)
     static int HasQuest(lua_State* L, Unit* unit)
-    {			
+    {
         TO_UNIT_BOOL();
 
         uint32 questId = luaL_checkunsigned(L, 1);
