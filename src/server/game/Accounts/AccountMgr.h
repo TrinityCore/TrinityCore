@@ -45,6 +45,7 @@ class AccountMgr
 
     private:
         AccountMgr();
+        ~AccountMgr();
 
     public:
         AccountOpResult CreateAccount(std::string username, std::string password);
