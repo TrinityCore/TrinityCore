@@ -7,7 +7,7 @@ ElunaRegister<Unit> UnitMethods[] =
 
     // Getters
     {"GetSelection", &LuaUnit::GetSelection},                     // :GetSelection()
-	{"GetGMRank", &LuaUnit::GetSecurity},                         // :GetSecurity() -- undocumented
+	{"GetGMRank", &LuaUnit::GetSecurity},                         // :GetSecurity()
     {"GetGuildID", &LuaUnit::GetGuildID},                         // :GetGuildID() - nil on no guild.
     {"GetCoinage", &LuaUnit::GetCoinage},                         // :GetCoinage()
     {"GetTeam", &LuaUnit::GetTeam},                               // :GetTeam() - returns the player's team. 0 for ally, 1 for horde
@@ -15,8 +15,8 @@ ElunaRegister<Unit> UnitMethods[] =
     {"GetGroup", &LuaUnit::GetGroup},                             // :GetGroup()
     {"GetGuild", &LuaUnit::GetGuild},                             // :GetGuild()
     {"GetGearLevel", &LuaUnit::GetGearLevel},                     // :GetGearLevel() -- Returns the player's average gear level
-    {"GetAccountId", &LuaUnit::GetAccountId},                     // UNDOCUMENTED
-    {"GetAccountName", &LuaUnit::GetAccountName},                 // UNDOCUMENTED
+    {"GetAccountId", &LuaUnit::GetAccountId},                     // :GetAccountId()
+    {"GetAccountName", &LuaUnit::GetAccountName},                 // :GetAccountName()
 
     // Setters
     {"SetCoinage", &LuaUnit::SetCoinage},                         // :SetCoinage(amount) - sets plr's coinage to this.
@@ -55,8 +55,8 @@ ElunaRegister<Unit> UnitMethods[] =
     // Creature methods
 
     // Getters
-    {"GetAITargets", &LuaUnit::GetAITargets},                       // :GetAITargets() - Get units in threat list UNDOCUMENTED
-    {"GetAITargetsCount", &LuaUnit::GetAITargetsCount},             // :GetAITargetsCount() - Get threat list size UNDOCUMENTED
+    {"GetAITargets", &LuaUnit::GetAITargets},                       // :GetAITargets() - Get units in threat list
+    {"GetAITargetsCount", &LuaUnit::GetAITargetsCount},             // :GetAITargetsCount() - Get threat list size
 
 
     // Unit Methods
@@ -68,7 +68,7 @@ ElunaRegister<Unit> UnitMethods[] =
     {"GetHealth", &LuaUnit::GetHealth},                             // :GetHealth()
     {"GetDisplayID", &LuaUnit::GetDisplayID},                       // :GetDisplayID()
     {"GetGUID", &LuaUnit::GetGUID},                                 // :GetGUID()
-    {"GetMapId", &LuaUnit::GetMapId},                               // :GetMapId() UNDOCUMENTED
+    {"GetMapId", &LuaUnit::GetMapId},                               // :GetMapId()
     {"GetX", &LuaUnit::GetX},                                       // :GetX()
     {"GetY", &LuaUnit::GetY},                                       // :GetY()
     {"GetZ", &LuaUnit::GetZ},                                       // :GetZ()
@@ -88,7 +88,7 @@ ElunaRegister<Unit> UnitMethods[] =
     {"GetClassAsString", &LuaUnit::GetClassAsString},               // :GetClassAsString()
     {"GetUnitType", &LuaUnit::GetUnitType},                         // :GetUnitType() - Returns object type, IE: Player
     {"GetEntry", &LuaUnit::GetEntry},                               // :GetEntry() - Returns the unit's entryId
-    {"GetAura", &LuaUnit::GetAura},                                 // :GetAura(spellID) - returns aura object UNDOCUMENTED
+    {"GetAura", &LuaUnit::GetAura},                                 // :GetAura(spellID) - returns aura object
 
     // Setters
     {"SetLevel", &LuaUnit::SetLevel},                               // :SetLevel(amount)
@@ -97,10 +97,10 @@ ElunaRegister<Unit> UnitMethods[] =
     {"SetPower", &LuaUnit::SetPower},                               // :SetPower(index, amount)
     {"SetMaxPower", &LuaUnit::SetMaxPower},                         // :SetMaxPower(index, amount)
     {"SetDisplayID", &LuaUnit::SetDisplayID},                       // :SetDisplayID(id)
-	{"SetFacing", &LuaUnit::SetFacing},                             // :SetFacing(o) -- Sets the Unit facing to arg -- undocumented
-	{"SetDeathState", &LuaUnit::SetDeathState},                     // :SetDeathState(value) -- 0 = alive 1 = just died 2 = corpse 3 = dead -- undocumented
-	{"SetBindPoint", &LuaUnit::SetBindPoint},                       // :SetBindPoint(x, y, z, map, areaid) -- sets home for hearthstone -- undocumented
-	{"SetBindPointAtPlayerLoc", &LuaUnit::SetBindPointAtPlayerLoc}, // :SetBindPointAtPlayerLoc() -- Set's home for hearthstone at player's location -- undocumented
+	{"SetFacing", &LuaUnit::SetFacing},                             // :SetFacing(o) -- Sets the Unit facing to arg
+	{"SetDeathState", &LuaUnit::SetDeathState},                     // :SetDeathState(value) -- 0 = alive 1 = just died 2 = corpse 3 = dead
+	{"SetBindPoint", &LuaUnit::SetBindPoint},                       // :SetBindPoint(x, y, z, map, areaid) -- sets home for hearthstone
+	{"SetBindPointAtPlayerLoc", &LuaUnit::SetBindPointAtPlayerLoc}, // :SetBindPointAtPlayerLoc() -- Set's home for hearthstone at player's location
 
     // Boolean
     {"IsAlive", &LuaUnit::IsAlive},                                 // :IsAlive()
