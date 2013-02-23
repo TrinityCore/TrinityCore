@@ -744,12 +744,13 @@ void Vehicle::RemovePendingEvent(VehicleJoinEvent* e)
 
 void Vehicle::RemovePendingEventsForSeat(uint8 seatId)
 {
-    for (std::deque<VehicleJoinEvent*>::iterator itr = _pendingJoinEvents.begin(); itr != _pendingJoinEvents.end(); ++itr)
+    for (std::deque<VehicleJoinEvent*>::iterator itr = _pendingJoinEvents.begin(); itr != _pendingJoinEvents.end();)
     {
+        std::deque<VehicleJoinEvent*>::iterator cur = itr++;
         if (uint8((*itr)->Seat->first) == seatId)
         {
             (*itr)->to_Abort = true;
-            _pendingJoinEvents.erase(itr);
+            _pendingJoinEvents.erase(cur);
         }
     }
 }
