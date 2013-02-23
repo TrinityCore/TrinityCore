@@ -1099,13 +1099,8 @@ public:
 
         uint32 _npcText = luaL_checkunsigned(L, 1);
         Unit* sender = Eluna::get()->CHECK_UNIT(L, 2);
-		if (sender->GetTypeId() != TYPEID_UNIT)
-		{
-			GameObject* _go = Eluna::get()->CHECK_OBJECT(L, 2);
-			player->SEND_GOSSIP_MENU(_npcText, _go->GetGUID());
-		}
-        else
-			player->SEND_GOSSIP_MENU(_npcText, sender->GetGUID());
+
+        player->SEND_GOSSIP_MENU(_npcText, sender->GetGUID());
         return 0;
     }
 };
