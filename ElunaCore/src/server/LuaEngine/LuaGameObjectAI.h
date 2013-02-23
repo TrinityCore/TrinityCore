@@ -6,15 +6,15 @@
 
 class LuaGameObjectAI : public GameObjectScript
 {
-	public:
-		LuaGameObjectAI() : GameObjectScript("LuaGameObject") { }
-		~LuaGameObjectAI() { }
+public:
+    LuaGameObjectAI() : GameObjectScript("LuaGameObject") { }
+    ~LuaGameObjectAI() { }
 
-		GameObjectAI* GetLuaGameObjectAI(GameObject* go) const { return new LuaGameObjectScriptedAI(go); }
+    GameObjectAI* GetLuaGameObjectAI(GameObject* go) const { return new LuaGameObjectScriptedAI(go); }
 
-		struct LuaGameObjectScriptedAI : public GameObjectAI
-		{
-			LuaGameObjectScriptedAI(GameObject* _go) : GameObjectAI(_go) { }
-		};
+    struct LuaGameObjectScriptedAI : public GameObjectAI
+    {
+        LuaGameObjectScriptedAI(GameObject* _go) : GameObjectAI(_go) { }
+    };
 };
 #endif
