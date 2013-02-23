@@ -668,7 +668,7 @@ public:
 
         }
 
-        uint32 GetData(uint32 type) const
+        uint32 GetData(uint32 type)
         {
             if (type == DATA_TYPE)
                 return GetCustomType();
