@@ -436,6 +436,9 @@ bool Vehicle::AddPassenger(Unit* unit, int8 seatId)
     // exits the vehicle will dismiss. That's why the actual adding the passenger to the vehicle is scheduled
     // asynchronously, so it can be cancelled easily in case the vehicle is uninstalled meanwhile.
     SeatMap::iterator seat;
+    VehicleJoinEvent* e = new VehicleJoinEvent(this, unit);
+    unit->m_Events.AddEvent(e, unit->m_Events.CalculateTime(0));
+
     if (seatId < 0) // no specific seat requirement
     {
         for (seat = Seats.begin(); seat != Seats.end(); ++seat)
@@ -443,22 +446,25 @@ bool Vehicle::AddPassenger(Unit* unit, int8 seatId)
                 break;
 
         if (seat == Seats.end()) // no available seat
+        {
+            e->to_Abort = true;
             return false;
+        }
 
-        VehicleJoinEvent* e = new VehicleJoinEvent(this, unit, seat);
+        e->Seat = seat;
         _pendingJoinEvents.push_back(e);
-        unit->m_Events.AddEvent(e, unit->m_Events.CalculateTime(0));
     }
     else
     {
         seat = Seats.find(seatId);
         if (seat == Seats.end())
+        {
+            e->to_Abort = true;
             return false;
+        }
 
-        VehicleJoinEvent* e = new VehicleJoinEvent(this, unit, seat);
+        e->Seat = seat;
         _pendingJoinEvents.push_back(e);
-        unit->m_Events.AddEvent(e, unit->m_Events.CalculateTime(0));
-
         if (seat->second.Passenger)
         {
             Unit* passenger = ObjectAccessor::GetUnit(*GetBase(), seat->second.Passenger);
@@ -480,7 +486,7 @@ bool Vehicle::AddPassenger(Unit* unit, int8 seatId)
  * @author Machiavelli
  * @date 17-2-2013
  *
- * @param [in,out] unit The passenger to remove..
+ * @param [in,out] unit The passenger to remove.
  */
 
 void Vehicle::RemovePassenger(Unit* unit)

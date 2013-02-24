@@ -13451,7 +13451,7 @@ void Unit::StopMoving()
         return;
 
     Movement::MoveSplineInit init(this);
-    init.MoveTo(GetPositionX(), GetPositionY(), GetPositionZMinusOffset());
+    init.MoveTo(GetPositionX(), GetPositionY(), GetPositionZMinusOffset(), false);
     init.SetFacing(GetOrientation());
     init.Launch();
 }
@@ -16066,7 +16066,12 @@ void Unit::ChangeSeat(int8 seatId, bool next)
     // Todo: the functions below could be consolidated and refactored to take
     // SeatMap::const_iterator as parameter, to save redundant map lookups.
     m_vehicle->RemovePassenger(this);
-    if (!m_vehicle->AddPassenger(this, seatId))
+
+    // Set m_vehicle to NULL before adding passenger as adding new passengers is handled asynchronously
+    // and someone may call ExitVehicle again before passenger is added to new seat
+    Vehicle* veh = m_vehicle;
+    m_vehicle = NULL;
+    if (!veh->AddPassenger(this, seatId))
         ASSERT(false);
 }
 
@@ -17140,7 +17145,7 @@ void Unit::SetInFront(Unit const* target)
 void Unit::SetFacingTo(float ori)
 {
     Movement::MoveSplineInit init(this);
-    init.MoveTo(GetPositionX(), GetPositionY(), GetPositionZMinusOffset());
+    init.MoveTo(GetPositionX(), GetPositionY(), GetPositionZMinusOffset(), false);
     init.SetFacing(ori);
     init.Launch();
 }
