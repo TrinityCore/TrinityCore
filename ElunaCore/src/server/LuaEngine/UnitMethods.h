@@ -28,14 +28,14 @@ public:
         return 1;
     }
 
-	//GetSecurity
-	static int GetSecurity(lua_State* L, Unit* unit)
-	{
-		TO_PLAYER();
+    //GetSecurity
+    static int GetSecurity(lua_State* L, Unit* unit)
+    {
+        TO_PLAYER();
 
-		Eluna::get()->PushInteger(L, player->GetSession()->GetSecurity());
-		return 1;
-	}
+        Eluna::get()->PushInteger(L, player->GetSession()->GetSecurity());
+        return 1;
+    }
 
     //GetCoinage()
     static int GetCoinage(lua_State* L, Unit* unit)
@@ -142,8 +142,8 @@ public:
         return 4;
     }
 
-    // GetZoneID()
-    static int GetZoneID(lua_State* L, Unit* unit)
+    // GetZoneId()
+    static int GetZoneId(lua_State* L, Unit* unit)
     {
         TO_UNIT();
 
@@ -151,8 +151,8 @@ public:
         return 1;
     }
 
-    // GetAreaID()
-    static int GetAreaID(lua_State* L, Unit* unit)
+    // GetAreaId()
+    static int GetAreaId(lua_State* L, Unit* unit)
     {
         TO_UNIT();
 
@@ -275,14 +275,14 @@ public:
         return 1;
     }
 
-	//GetPowerType()
-	static int GetPowerType(lua_State* L, Unit* unit)
-	{
-		TO_UNIT();
+    //GetPowerType()
+    static int GetPowerType(lua_State* L, Unit* unit)
+    {
+        TO_UNIT();
 
-		Eluna::get()->PushInteger(L, unit->getPowerType());
-		return 1;
-	}
+        Eluna::get()->PushInteger(L, unit->getPowerType());
+        return 1;
+    }
 
     // GetMaxHealth()
     static int GetMaxHealth(lua_State* L, Unit* unit)
@@ -312,13 +312,13 @@ public:
         return 1;
     }
 
-	// GetGender()
-	static int GetGender(lua_State* L, Unit* unit)
-	{
-		TO_UNIT();
-		Eluna::get()->PushUnsigned(L, unit->getGender());
-		return 1;
-	}
+    // GetGender()
+    static int GetGender(lua_State* L, Unit* unit)
+    {
+        TO_UNIT();
+        Eluna::get()->PushUnsigned(L, unit->getGender());
+        return 1;
+    }
 
     // GetRace()
     static int GetRace(lua_State* L, Unit* unit)
@@ -391,7 +391,7 @@ public:
         TO_PLAYER();
 
         int id = luaL_checknumber(L, 1);
-		bool checkinBank = lua_toboolean(L, 2);
+        bool checkinBank = lua_toboolean(L, 2);
         Eluna::get()->PushUnsigned(L, player->GetItemCount(id, checkinBank));
         return 1;
     }
@@ -546,25 +546,25 @@ public:
         return 0;
     }
 
-	// SetFacing(o)
-	static int SetFacing(lua_State* L, Unit* unit)
-	{
-		TO_UNIT();
+    // SetFacing(o)
+    static int SetFacing(lua_State* L, Unit* unit)
+    {
+        TO_UNIT();
 
-		float o = luaL_checknumber(L, 1);
-		unit->SetFacingTo(o);
-		return 0;
-	}
+        float o = luaL_checknumber(L, 1);
+        unit->SetFacingTo(o);
+        return 0;
+    }
 
-	//SetDeathState(value)
-	static int SetDeathState(lua_State* L, Unit* unit)
-	{
-		TO_UNIT();
+    //SetDeathState(value)
+    static int SetDeathState(lua_State* L, Unit* unit)
+    {
+        TO_UNIT();
 
-		uint8 ds = luaL_checkunsigned(L, 1);
-		unit->setDeathState((DeathState)ds);
-		return 0;
-	}
+        uint8 ds = luaL_checkunsigned(L, 1);
+        unit->setDeathState((DeathState)ds);
+        return 0;
+    }
 
     // SetCoinage(amount)
     static int SetCoinage(lua_State* L, Unit* unit)
@@ -576,34 +576,34 @@ public:
         return 0;
     }
 
-	//SetBindPoint(x, y, z, mapid, areaid)
-	static int SetBindPoint(lua_State * L, Unit* unit)
-	{
-		TO_PLAYER();
+    //SetBindPoint(x, y, z, mapid, areaid)
+    static int SetBindPoint(lua_State * L, Unit* unit)
+    {
+        TO_PLAYER();
 
-		float x = luaL_checknumber(L, 1);
-		float y = luaL_checknumber(L, 2);
-		float z = luaL_checknumber(L, 3);
-		uint32 mapId = luaL_checkunsigned(L, 4);
-		uint32 areaId = luaL_checkunsigned(L, 5);
+        float x = luaL_checknumber(L, 1);
+        float y = luaL_checknumber(L, 2);
+        float z = luaL_checknumber(L, 3);
+        uint32 mapId = luaL_checkunsigned(L, 4);
+        uint32 areaId = luaL_checkunsigned(L, 5);
 
-		WorldLocation loc(mapId, x, y, z);
-		player->SetHomebind(loc, areaId);
-		return 0;
-	}
+        WorldLocation loc(mapId, x, y, z);
+        player->SetHomebind(loc, areaId);
+        return 0;
+    }
 
-	//SetBindPointAtPlayerLoc()
-	static int SetBindPointAtPlayerLoc(lua_State* L, Unit* unit)
-	{
-		TO_PLAYER();
+    //SetBindPointAtPlayerLoc()
+    static int SetBindPointAtPlayerLoc(lua_State* L, Unit* unit)
+    {
+        TO_PLAYER();
 
-		WorldLocation loc;
-		player->GetPosition(&loc);
-		loc.m_mapId = player->GetMapId();
+        WorldLocation loc;
+        player->GetPosition(&loc);
+        loc.m_mapId = player->GetMapId();
 
-		player->SetHomebind(loc, player->GetAreaId());
-		return 0;
-	}
+        player->SetHomebind(loc, player->GetAreaId());
+        return 0;
+    }
 
     // SetKnownTitle(id)
     static int SetKnownTitle(lua_State* L, Unit* unit)
@@ -896,62 +896,62 @@ public:
         return 0;
     }
 
-	// SendPacketToPlayer(packet)
-	static int SendPacketToPlayer(lua_State* L, Unit* unit)
-	{
-		TO_PLAYER();
-		
-		WorldPacket* data = Eluna::get()->CHECK_PACKET(L, 1);
-		if (data)
-			player->GetSession()->SendPacket(data);
-		return 0;
-	}
+    // SendPacketToPlayer(packet)
+    static int SendPacketToPlayer(lua_State* L, Unit* unit)
+    {
+        TO_PLAYER();
+        
+        WorldPacket* data = Eluna::get()->CHECK_PACKET(L, 1);
+        if (data)
+            player->GetSession()->SendPacket(data);
+        return 0;
+    }
 
-	// SendPacket(packet)
-	static int SendPacket(lua_State* L, Unit* unit)
-	{
-		TO_PLAYER();
+    // SendPacket(packet)
+    static int SendPacket(lua_State* L, Unit* unit)
+    {
+        TO_PLAYER();
 
-		WorldPacket* data = Eluna::get()->CHECK_PACKET(L, 1);
-		if (data)
-			player->SendMessageToSet(data, false);
-		return 0;
-	}
+        WorldPacket* data = Eluna::get()->CHECK_PACKET(L, 1);
+        if (data)
+            player->SendMessageToSet(data, false);
+        return 0;
+    }
 
-	// SendPacketToGroup(packet, sendToPlayersInBattleground)
-	static int SendPacketToGroup(lua_State* L, Unit* unit)
-	{
-		TO_PLAYER();
+    // SendPacketToGroup(packet, sendToPlayersInBattleground)
+    static int SendPacketToGroup(lua_State* L, Unit* unit)
+    {
+        TO_PLAYER();
 
-		WorldPacket* data = Eluna::get()->CHECK_PACKET(L, 1);
-		bool ignorePlayersInBg = lua_toboolean(L, 2);
-		if (data && player->GetGroup())
-			player->GetGroup()->BroadcastPacket(data, ignorePlayersInBg, -1, player->GetGUID());
-		return 0;
-	}
+        WorldPacket* data = Eluna::get()->CHECK_PACKET(L, 1);
+        bool ignorePlayersInBg = lua_toboolean(L, 2);
+        if (data && player->GetGroup())
+            player->GetGroup()->BroadcastPacket(data, ignorePlayersInBg, -1, player->GetGUID());
+        return 0;
+    }
 
-	// SendPacketToGuild(packet)
-	static int SendPacketToGuild(lua_State* L, Unit* unit)
-	{
-		TO_PLAYER();
+    // SendPacketToGuild(packet)
+    static int SendPacketToGuild(lua_State* L, Unit* unit)
+    {
+        TO_PLAYER();
 
-		WorldPacket* data = Eluna::get()->CHECK_PACKET(L, 1);
-		if (data && player->GetGuild())
-			player->GetGuild()->BroadcastPacket(data);
-		return 0;
-	}
+        WorldPacket* data = Eluna::get()->CHECK_PACKET(L, 1);
+        if (data && player->GetGuild())
+            player->GetGuild()->BroadcastPacket(data);
+        return 0;
+    }
 
-	// SendPacketToRankedInGuild(packet, rankId)
-	static int SendPacketToRankedInGuild(lua_State* L, Unit* unit)
-	{
-		TO_PLAYER();
+    // SendPacketToRankedInGuild(packet, rankId)
+    static int SendPacketToRankedInGuild(lua_State* L, Unit* unit)
+    {
+        TO_PLAYER();
 
-		WorldPacket* data = Eluna::get()->CHECK_PACKET(L, 1);
-		uint8 ranked = luaL_checkunsigned(L, 2);
-		if (data && player->GetGuild())
-			player->GetGuild()->BroadcastPacketToRank(data, ranked);
-		return 0;
-	}
+        WorldPacket* data = Eluna::get()->CHECK_PACKET(L, 1);
+        uint8 ranked = luaL_checkunsigned(L, 2);
+        if (data && player->GetGuild())
+            player->GetGuild()->BroadcastPacketToRank(data, ranked);
+        return 0;
+    }
 
     // GiveCoinage(amount)
     static int GiveCoinage(lua_State* L, Unit* unit)
@@ -998,13 +998,13 @@ public:
         return 0;
     }
 
-	// ResurrectPlayer(percent, sickness(bool))
+    // ResurrectPlayer(percent, sickness(bool))
     static int ResurrectPlayer(lua_State* L, Unit* unit)
     {
         TO_PLAYER();
 
-		float percent = luaL_checknumber(L, 1);
-		bool sickness = lua_toboolean(L, 2);
+        float percent = luaL_checknumber(L, 1);
+        bool sickness = lua_toboolean(L, 2);
 
         player->ResurrectPlayer(percent, sickness);
         return 0;
@@ -1188,25 +1188,25 @@ public:
     }
 
     // PlaySoundToPlayer(soundId)
-	static int PlaySoundToPlayer(lua_State* L, Unit* unit)
-	{
-		TO_PLAYER();
+    static int PlaySoundToPlayer(lua_State* L, Unit* unit)
+    {
+        TO_PLAYER();
 
-		uint32 soundId = luaL_checkunsigned(L, 1);
-		SoundEntriesEntry const* soundEntry = sSoundEntriesStore.LookupEntry(soundId);
-		if (!soundEntry)
-			return 0;
+        uint32 soundId = luaL_checkunsigned(L, 1);
+        SoundEntriesEntry const* soundEntry = sSoundEntriesStore.LookupEntry(soundId);
+        if (!soundEntry)
+            return 0;
 
-		player->PlayDirectSound(soundId, player);
-		return 0;
-	}
+        player->PlayDirectSound(soundId, player);
+        return 0;
+    }
 
     // PlayDirectSound(soundId,  player)
-	static int PlayDirectSound(lua_State* L, Unit* unit)
-	{
-		TO_UNIT();
+    static int PlayDirectSound(lua_State* L, Unit* unit)
+    {
+        TO_UNIT();
 
-		uint32 soundId = luaL_checkunsigned(L, 1);
+        uint32 soundId = luaL_checkunsigned(L, 1);
         Player* player = Eluna::get()->CHECK_PLAYER(L, 2);
 
         if (!sSoundEntriesStore.LookupEntry(soundId))
@@ -1216,15 +1216,15 @@ public:
             unit->PlayDirectSound(soundId, player);
         else
             unit->PlayDirectSound(soundId);
-		return 0;
-	}
+        return 0;
+    }
 
     // PlayDistanceSound(soundId,  player)
-	static int PlayDistanceSound(lua_State* L, Unit* unit)
-	{
-		TO_UNIT();
-
-		uint32 soundId = luaL_checkunsigned(L, 1);
+    static int PlayDistanceSound(lua_State* L, Unit* unit)
+    {
+        TO_UNIT();
+        
+        uint32 soundId = luaL_checkunsigned(L, 1);
         Player* player = Eluna::get()->CHECK_PLAYER(L, 2);
 
         if (!sSoundEntriesStore.LookupEntry(soundId))
@@ -1234,19 +1234,19 @@ public:
             unit->PlayDistanceSound(soundId, player);
         else
             unit->PlayDistanceSound(soundId);
-		return 0;
-	}
+        return 0;
+    }
 
     // Kill([target, durabilityLoss])
-	static int Kill(lua_State* L, Unit* unit)
-	{
-		TO_UNIT();
+    static int Kill(lua_State* L, Unit* unit)
+    {
+        TO_UNIT();
         
         Unit* target = Eluna::get()->CHECK_UNIT(L, 1);
         bool durLoss = luaL_optint(L, 2, true);
         
         unit->Kill((target ? target : unit), durLoss);
-		return 0;
-	}
+        return 0;
+    }
 };
 #endif
