@@ -1,5 +1,6 @@
 #include "ScriptPCH.h"
 #include "AccountMgr.h"
+#include "Group.h"
 
 #ifndef UNITMETHODS_H
 #define UNITMETHODS_H
@@ -883,6 +884,63 @@ public:
         return 0;
     }
 
+	// SendPacketToPlayer(packet)
+	static int SendPacketToPlayer(lua_State* L, Unit* unit)
+	{
+		TO_PLAYER();
+		
+		WorldPacket* data = Eluna::get()->CHECK_PACKET(L, 1);
+		if (data)
+			player->GetSession()->SendPacket(data);
+		return 0;
+	}
+
+	// SendPacket(packet)
+	static int SendPacket(lua_State* L, Unit* unit)
+	{
+		TO_PLAYER();
+
+		WorldPacket* data = Eluna::get()->CHECK_PACKET(L, 1);
+		if (data)
+			player->SendMessageToSet(data, false);
+		return 0;
+	}
+
+	// SendPacketToGroup(packet, sendToPlayersInBattleground)
+	static int SendPacketToGroup(lua_State* L, Unit* unit)
+	{
+		TO_PLAYER();
+
+		WorldPacket* data = Eluna::get()->CHECK_PACKET(L, 1);
+		bool ignorePlayersInBg = lua_toboolean(L, 2);
+		if (data && player->GetGroup())
+			player->GetGroup()->BroadcastPacket(data, ignorePlayersInBg, -1, player->GetGUID());
+		return 0;
+	}
+
+	// SendPacketToGuild(packet)
+	static int SendPacketToGuild(lua_State* L, Unit* unit)
+	{
+		TO_PLAYER();
+
+		WorldPacket* data = Eluna::get()->CHECK_PACKET(L, 1);
+		if (data && player->GetGuild())
+			player->GetGuild()->BroadcastPacket(data);
+		return 0;
+	}
+
+	// SendPacketToRankedInGuild(packet, rankId)
+	static int SendPacketToRankedInGuild(lua_State* L, Unit* unit)
+	{
+		TO_PLAYER();
+
+		WorldPacket* data = Eluna::get()->CHECK_PACKET(L, 1);
+		uint8 ranked = luaL_checkunsigned(L, 2);
+		if (data && player->GetGuild())
+			player->GetGuild()->BroadcastPacketToRank(data, ranked);
+		return 0;
+	}
+
     // GiveCoinage(amount)
     static int GiveCoinage(lua_State* L, Unit* unit)
     {
@@ -1120,5 +1178,24 @@ public:
 			player->SEND_GOSSIP_MENU(_npcText, sender->GetGUID());
         return 0;
     }
+
+    // PlaySoundToPlayer(soundId)
+	static int PlaySoundToPlayer(lua_State* L, Unit* unit)
+	{
+		TO_PLAYER();
+
+		uint32 soundId = luaL_checkunsigned(L, 1);
+		SoundEntriesEntry const* soundEntry = sSoundEntriesStore.LookupEntry(soundId);
+		if (!soundEntry)
+		{
+			lua_pushnil(L);
+			return 0;
+		}
+		WorldPacket data;
+		data.Initialize(SMSG_PLAY_OBJECT_SOUND);
+		data << uint32(soundId) << player->GetGUID();
+		player->GetSession()->SendPacket(&data);
+		return 0;
+	}
 };
 #endif
