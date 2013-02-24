@@ -126,7 +126,7 @@ public:
                 player->FailQuest(QUEST_CHASING_AME);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             npc_escortAI::UpdateAI(diff);
             if (!UpdateVictim())
@@ -261,7 +261,7 @@ public:
             SetFollowPaused(false);
         }
 
-        void UpdateFollowerAI(const uint32 Diff)
+        void UpdateFollowerAI(uint32 Diff)
         {
             if (!UpdateVictim())
             {

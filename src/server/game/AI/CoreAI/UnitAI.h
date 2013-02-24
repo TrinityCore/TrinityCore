@@ -125,7 +125,7 @@ class UnitAI
 
         virtual bool CanAIAttack(Unit const* /*target*/) const { return true; }
         virtual void AttackStart(Unit* /*target*/);
-        virtual void UpdateAI(uint32 const diff) = 0;
+        virtual void UpdateAI(uint32 diff) = 0;
 
         virtual void InitializeAI() { if (!me->isDead()) Reset(); }
 
@@ -135,7 +135,7 @@ class UnitAI
         virtual void OnCharmed(bool apply) = 0;
 
         // Pass parameters between AI
-        virtual void DoAction(int32 const /*param*/) {}
+        virtual void DoAction(int32 /*param*/) {}
         virtual uint32 GetData(uint32 /*id = 0*/) const { return 0; }
         virtual void SetData(uint32 /*id*/, uint32 /*value*/) {}
         virtual void SetGUID(uint64 /*guid*/, int32 /*id*/ = 0) {}
@@ -278,7 +278,7 @@ class PlayerAI : public UnitAI
 class SimpleCharmedAI : public PlayerAI
 {
     public:
-        void UpdateAI(uint32 const diff);
+        void UpdateAI(uint32 diff);
         SimpleCharmedAI(Player* player): PlayerAI(player) {}
 };
 

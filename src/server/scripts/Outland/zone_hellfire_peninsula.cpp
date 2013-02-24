@@ -86,7 +86,7 @@ public:
             Talk(SAY_SUMMON);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (Faction_Timer)
             {
@@ -487,7 +487,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 uiDiff)
+        void UpdateAI(uint32 uiDiff)
         {
             if (uiCheckTimer <= uiDiff)
             {

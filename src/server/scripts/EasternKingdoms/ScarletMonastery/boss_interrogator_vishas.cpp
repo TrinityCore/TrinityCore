@@ -89,7 +89,7 @@ public:
                 vorrel->AI()->Talk(SAY_TRIGGER_VORREL);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (!UpdateVictim())
                 return;

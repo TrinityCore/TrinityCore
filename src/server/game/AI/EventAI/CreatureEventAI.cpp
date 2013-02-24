@@ -1012,7 +1012,7 @@ void CreatureEventAI::SpellHit(Unit* unit, const SpellInfo* spell)
                     ProcessEvent(*i, unit);
 }
 
-void CreatureEventAI::UpdateAI(const uint32 diff)
+void CreatureEventAI::UpdateAI(uint32 diff)
 {
     //Check if we are in combat (also updates calls threat update code)
     bool Combat = UpdateVictim();

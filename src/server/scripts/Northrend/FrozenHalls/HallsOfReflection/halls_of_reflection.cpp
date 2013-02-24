@@ -419,7 +419,7 @@ public:
             me->SetVisible(true);
         }
 
-        void DoAction(const int32 actionId)
+        void DoAction(int32 actionId)
         {
             switch (actionId)
             {
@@ -432,7 +432,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             events.Update(diff);
             switch (events.ExecuteEvent())
@@ -895,7 +895,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (!UpdateVictim() && !(events.GetPhaseMask() & PHASE_INTRO_MASK))
                 return;
@@ -1012,7 +1012,7 @@ public:
             events.ScheduleEvent(EVENT_HALLUCINATION, 40000, 0, PHASE_ONE);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (!UpdateVictim() && !(events.GetPhaseMask() & PHASE_INTRO_MASK))
                 return;
@@ -1146,7 +1146,7 @@ public:
             events.ScheduleEvent(EVENT_KIDNEY_SHOT, 24000, 0, PHASE_ONE);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (!UpdateVictim() && !(events.GetPhaseMask() & PHASE_INTRO_MASK))
                 return;
@@ -1252,7 +1252,7 @@ public:
             events.ScheduleEvent(EVENT_TORTURED_ENRAGE, 15000, 0, PHASE_ONE);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (!UpdateVictim() && !(events.GetPhaseMask() & PHASE_INTRO_MASK))
                 return;
@@ -1352,7 +1352,7 @@ public:
             events.ScheduleEvent(EVENT_ICE_SHOT, 15000, 0, PHASE_ONE);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (!UpdateVictim() && !(events.GetPhaseMask() & PHASE_INTRO_MASK))
                 return;

@@ -191,7 +191,7 @@ class boss_mandokir : public CreatureScript
                 }
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 diff)
             {
                 events.Update(diff);
 
@@ -311,7 +311,7 @@ class mob_ohgan : public CreatureScript
                 instance->SetBossState(DATA_OHGAN, DONE);
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 // Return since we have no target
                 if (!UpdateVictim())
@@ -364,7 +364,7 @@ class mob_vilebranch_speaker : public CreatureScript
                 instance->SetBossState(DATA_MANDOKIR, SPECIAL);
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 // Return since we have no target
                 if (!UpdateVictim())

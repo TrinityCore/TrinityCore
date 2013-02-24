@@ -248,7 +248,7 @@ class npc_wyrmrest_defender : public CreatureScript
                 RenewRecoveryChecker = 0;
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 diff)
             {
                 // Check system for Health Warning should happen first time whenever get under 30%,
                 // after it should be able to happen only after recovery of last renew is fully done (20 sec),

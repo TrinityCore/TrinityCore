@@ -186,7 +186,7 @@ class boss_lord_marrowgar : public CreatureScript
                 }
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim() || !CheckInRoom())
                     return;
@@ -319,7 +319,7 @@ class boss_lord_marrowgar : public CreatureScript
                 }
             }
 
-            void DoAction(int32 const action)
+            void DoAction(int32 action)
             {
                 if (action != ACTION_CLEAR_SPIKE_IMMUNITIES)
                     return;
@@ -392,7 +392,7 @@ class npc_coldflame : public CreatureScript
                 _events.ScheduleEvent(EVENT_COLDFLAME_TRIGGER, 1*IN_MILLISECONDS);
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 diff)
             {
                 _events.Update(diff);
 
@@ -471,7 +471,7 @@ class npc_bone_spike : public CreatureScript
                 passenger->ClearUnitState(UNIT_STATE_ONVEHICLE);
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!_hasTrappedUnit)
                     return;

@@ -228,7 +228,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (!UpdateVictim())
                 return;
@@ -354,7 +354,7 @@ struct boss_moroes_guestAI : public ScriptedAI
         return me;
     }
 
-    void UpdateAI(const uint32 /*diff*/)
+    void UpdateAI(uint32 /*diff*/)
     {
         if (instance && !instance->GetData(TYPE_MOROES))
             EnterEvadeMode();
@@ -421,7 +421,7 @@ public:
             boss_moroes_guestAI::Reset();
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (!UpdateVictim())
                 return;
@@ -482,7 +482,7 @@ public:
             boss_moroes_guestAI::Reset();
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (!UpdateVictim())
                 return;
@@ -543,7 +543,7 @@ public:
             boss_moroes_guestAI::Reset();
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (!UpdateVictim())
                 return;
@@ -613,7 +613,7 @@ public:
             boss_moroes_guestAI::Reset();
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (!UpdateVictim())
                 return;
@@ -683,7 +683,7 @@ public:
             boss_moroes_guestAI::Reset();
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (!UpdateVictim())
                 return;
@@ -741,7 +741,7 @@ public:
             boss_moroes_guestAI::Reset();
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (!UpdateVictim())
                 return;

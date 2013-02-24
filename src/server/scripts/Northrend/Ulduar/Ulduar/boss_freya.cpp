@@ -542,7 +542,7 @@ class boss_freya : public CreatureScript
                 return 0;
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;
@@ -952,7 +952,7 @@ class boss_elder_brightleaf : public CreatureScript
                     Talk(SAY_BRIGHTLEAF_AGGRO);
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim() || me->HasAura(SPELL_DRAINED_OF_POWER))
                     return;
@@ -1002,7 +1002,7 @@ class boss_elder_brightleaf : public CreatureScript
                 DoMeleeAttackIfReady();
             }
 
-            void DoAction(int32 const action)
+            void DoAction(int32 action)
             {
                 switch (action)
                 {
@@ -1097,7 +1097,7 @@ class boss_elder_stonebark : public CreatureScript
                 }
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim() || me->HasAura(SPELL_DRAINED_OF_POWER))
                     return;
@@ -1135,7 +1135,7 @@ class boss_elder_stonebark : public CreatureScript
                 DoMeleeAttackIfReady();
             }
 
-            void DoAction(int32 const action)
+            void DoAction(int32 action)
             {
                 switch (action)
                 {
@@ -1216,7 +1216,7 @@ class boss_elder_ironbranch : public CreatureScript
                     Talk(SAY_IRONBRANCH_AGGRO);
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim() || me->HasAura(SPELL_DRAINED_OF_POWER))
                     return;
@@ -1254,7 +1254,7 @@ class boss_elder_ironbranch : public CreatureScript
                 DoMeleeAttackIfReady();
             }
 
-            void DoAction(int32 const action)
+            void DoAction(int32 action)
             {
                 switch (action)
                 {
@@ -1320,7 +1320,7 @@ class npc_detonating_lasher : public CreatureScript
                 }
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 diff)
             {
                 if (_instance && _instance->GetBossState(BOSS_FREYA) != IN_PROGRESS)
                     me->DespawnOrUnsummon();
@@ -1406,7 +1406,7 @@ class npc_ancient_water_spirit : public CreatureScript
                 }
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 diff)
             {
                 if (_instance && _instance->GetBossState(BOSS_FREYA) != IN_PROGRESS)
                     me->DespawnOrUnsummon();
@@ -1482,7 +1482,7 @@ class npc_storm_lasher : public CreatureScript
                 }
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 diff)
             {
                 if (_instance && _instance->GetBossState(BOSS_FREYA) != IN_PROGRESS)
                     me->DespawnOrUnsummon();
@@ -1564,7 +1564,7 @@ class npc_snaplasher : public CreatureScript
                 }
             }
 
-            void UpdateAI(uint32 const /*diff*/)
+            void UpdateAI(uint32 /*diff*/)
             {
                 if (_instance && _instance->GetBossState(BOSS_FREYA) != IN_PROGRESS)
                     me->DespawnOrUnsummon();
@@ -1639,7 +1639,7 @@ class npc_ancient_conservator : public CreatureScript
                 DoCast(who, SPELL_CONSERVATOR_GRIP);
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 diff)
             {
                 if (_instance && _instance->GetBossState(BOSS_FREYA) != IN_PROGRESS)
                     me->DespawnOrUnsummon();
@@ -1738,7 +1738,7 @@ class npc_healthy_spore : public CreatureScript
                 _lifeTimer = urand(22*IN_MILLISECONDS, 30*IN_MILLISECONDS);
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 diff)
             {
                 if (InstanceScript* inst = me->GetInstanceScript())
                 {
@@ -1790,7 +1790,7 @@ class npc_eonars_gift : public CreatureScript
                 DoCast(me, SPELL_EONAR_VISUAL, true);
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 diff)
             {
                 if (InstanceScript* inst = me->GetInstanceScript())
                 {
@@ -1842,7 +1842,7 @@ class npc_nature_bomb : public CreatureScript
                 me->SetDisplayId(me->GetCreatureTemplate()->Modelid2);
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 diff)
             {
                 if (GameObject* go = me->FindNearestGameObject(GAMEOBJECT_NATURE_BOMB, 5.0f))
                     go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
@@ -1907,7 +1907,7 @@ class npc_unstable_sun_beam : public CreatureScript
                         }
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 diff)
             {
                 if (_despawnTimer <= diff)
                 {

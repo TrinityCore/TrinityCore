@@ -408,14 +408,14 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
 }
 
 /// %Log the player out
-void WorldSession::LogoutPlayer(bool Save)
+void WorldSession::LogoutPlayer(bool save)
 {
     // finish pending transfers before starting the logout
     while (_player && _player->IsBeingTeleportedFar())
         HandleMoveWorldportAckOpcode();
 
     m_playerLogout = true;
-    m_playerSave = Save;
+    m_playerSave = save;
 
     if (_player)
     {
@@ -429,39 +429,6 @@ void WorldSession::LogoutPlayer(bool Save)
             _player->getHostileRefManager().deleteReferences();
             _player->BuildPlayerRepop();
             _player->RepopAtGraveyard();
-        }
-        else if (!_player->getAttackers().empty())
-        {
-            // build set of player who attack _player or who have pet attacking of _player
-            std::set<Player*> aset;
-            for (Unit::AttackerSet::const_iterator itr = _player->getAttackers().begin(); itr != _player->getAttackers().end(); ++itr)
-            {
-                Unit* owner = (*itr)->GetOwner();           // including player controlled case
-                if (owner && owner->GetTypeId() == TYPEID_PLAYER)
-                    aset.insert(owner->ToPlayer());
-                else if ((*itr)->GetTypeId() == TYPEID_PLAYER)
-                    aset.insert((Player*)(*itr));
-            }
-
-            // CombatStop() method is removing all attackers from the AttackerSet
-            // That is why it must be AFTER building current set of attackers
-            _player->CombatStop();
-            _player->getHostileRefManager().setOnlineOfflineState(false);
-            _player->RemoveAllAurasOnDeath();
-            _player->SetPvPDeath(!aset.empty());
-            _player->KillPlayer();
-            _player->BuildPlayerRepop();
-            _player->RepopAtGraveyard();
-
-            // give honor to all attackers from set like group case
-            for (std::set<Player*>::const_iterator itr = aset.begin(); itr != aset.end(); ++itr)
-                (*itr)->RewardHonor(_player, aset.size());
-
-            // give bg rewards and update counters like kill by first from attackers
-            // this can't be called for all attackers.
-            if (!aset.empty())
-                if (Battleground* bg = _player->GetBattleground())
-                    bg->HandleKillPlayer(_player, *aset.begin());
         }
         else if (_player->HasAuraType(SPELL_AURA_SPIRIT_OF_REDEMPTION))
         {
@@ -511,7 +478,7 @@ void WorldSession::LogoutPlayer(bool Save)
 
         ///- empty buyback items and save the player in the database
         // some save parts only correctly work in case player present in map/player_lists (pets, etc)
-        if (Save)
+        if (save)
         {
             uint32 eslot;
             for (int j = BUYBACK_SLOT_START; j < BUYBACK_SLOT_END; ++j)

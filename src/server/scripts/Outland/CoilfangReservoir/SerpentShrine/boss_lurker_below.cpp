@@ -177,7 +177,7 @@ public:
                 me->SetReactState(REACT_AGGRESSIVE);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (!CanStartEvent) // boss is invisible, don't attack
             {
@@ -393,7 +393,7 @@ public:
                 AttackStart(who);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (MultiShotTimer <= diff)
             {

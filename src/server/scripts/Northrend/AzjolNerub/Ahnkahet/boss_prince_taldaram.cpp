@@ -123,7 +123,7 @@ public:
             Talk(SAY_AGGRO);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (!UpdateVictim())
                 return;
@@ -372,7 +372,7 @@ public:
             DoCast(me, SPELL_FLAME_SPHERE_DEATH_EFFECT);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (uiDespawnTimer <= diff)
                 me->DisappearAndDie();

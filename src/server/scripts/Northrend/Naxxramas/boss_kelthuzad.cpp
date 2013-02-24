@@ -383,7 +383,7 @@ public:
             KTTriggerGUID = instance ? instance->GetData64(DATA_KELTHUZAD_TRIGGER) : 0;
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (!UpdateVictim())
                 return;
@@ -736,7 +736,7 @@ class npc_kelthuzad_abomination : public CreatureScript
                 _events.ScheduleEvent(EVENT_FRENZY, urand(25000, 30000));
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;

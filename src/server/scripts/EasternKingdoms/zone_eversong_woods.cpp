@@ -166,7 +166,7 @@ public:
 
         void EnterCombat(Unit* /*who*/) {}
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (questPhase == 1)
             {
@@ -315,7 +315,7 @@ public:
 
         void EnterCombat(Unit* /*who*/) {}
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             // Quest accepted but object not activated, object despawned (if in sync 1 minute!)
             if (questPhase == 1)
@@ -496,7 +496,7 @@ public:
                     player->FailQuest(QUEST_UNEXPECTED_RESULT);
         }
 
-        void UpdateAI(const uint32 /*diff*/)
+        void UpdateAI(uint32 /*diff*/)
         {
             if (KillCount >= 3 && PlayerGUID)
                 if (Player* player = Unit::GetPlayer(*me, PlayerGUID))
@@ -599,7 +599,7 @@ public:
                     CAST_PLR(player)->FailQuest(QUEST_POWERING_OUR_DEFENSES);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (EndTimer < diff && Progress)
             {
