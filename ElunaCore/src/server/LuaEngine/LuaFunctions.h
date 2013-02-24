@@ -251,7 +251,20 @@ ElunaRegister<QueryResult> QueryMethods[] =  // Not working yet
 ElunaRegister<Aura> AuraMethods[] = 
 {
     // Getters
-    {"GetUnitType", &LuaAura::GetUnitType},                         // :GetUnitType() - Returns object type, IE: Player, Creature UNDOCUMENTED
+    {"GetUnitType", &LuaAura::GetUnitType},                         // :GetUnitType() - Returns object type, IE: Aura, Creature UNDOCUMENTED
+    {"GetCaster", &LuaAura::GetCaster},                             // :GetCaster() - Returns caster as object. UNDOCUMENTED
+    {"GetCasterGUID", &LuaAura::GetCasterGUID},                     // :GetCasterGUID() - Returns caster as GUID. UNDOCUMENTED
+    {"GetCasterLevel", &LuaAura::GetCasterLevel},                   // :GetCasterLevel() - Returns casters level. UNDOCUMENTED
+    {"GetDuration", &LuaAura::GetDuration},                         // :GetDuration() - Returns remaining duration. UNDOCUMENTED
+    {"GetMaxDuration", &LuaAura::GetMaxDuration},                   // :GetMaxDuration() - Returns maximum duration. UNDOCUMENTED
+    {"GetCharges", &LuaAura::GetCharges},                           // :GetCharges() - Returns remaining charges. UNDOCUMENTED
+    {"GetAuraId", &LuaAura::GetAuraId},                             // :GetAuraId() - Returns aura ID. UNDOCUMENTED
+    {"GetStackAmount", &LuaAura::GetStackAmount},                   // :GetStackAmount() - Returns current stack amount. UNDOCUMENTED
+
+    // Setters
+    {"SetDuration", &LuaAura::SetDuration},                         // :SetDuration(duration) - Sets remaining duration. UNDOCUMENTED
+    {"SetMaxDuration", &LuaAura::SetMaxDuration},                   // :SetMaxDuration(duration) - Sets maximum duration. UNDOCUMENTED
+    {"SetStackAmount", &LuaAura::SetStackAmount},                   // :SetStackAmount(amount) - Sets current stack amount. UNDOCUMENTED
 
     {NULL, NULL},
 };
@@ -259,7 +272,7 @@ ElunaRegister<Aura> AuraMethods[] =
 ElunaRegister<Channel> ChannelMethods[] = 
 {
     // Getters
-    {"GetUnitType", &LuaChannel::GetUnitType},                      // :GetUnitType() - Returns object type, IE: Player, Creature UNDOCUMENTED
+    {"GetUnitType", &LuaChannel::GetUnitType},                      // :GetUnitType() - Returns object type, IE: Channel, Creature UNDOCUMENTED
 
     {NULL, NULL},
 };
@@ -267,7 +280,7 @@ ElunaRegister<Channel> ChannelMethods[] =
 ElunaRegister<Item> ItemMethods[] = 
 {
     // Getters
-    {"GetUnitType", &LuaItem::GetUnitType},                         // :GetUnitType() - Returns object type, IE: Player, Creature UNDOCUMENTED
+    {"GetUnitType", &LuaItem::GetUnitType},                         // :GetUnitType() - Returns object type, IE: Item, Creature UNDOCUMENTED
     {"GetGUID", &LuaItem::GetGUID},                                 // :GetGUID() - Returns object guid UNDOCUMENTED
 
     {NULL, NULL},
