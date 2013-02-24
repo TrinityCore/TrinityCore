@@ -117,7 +117,7 @@ public:
             return 0;
 
 		WorldPacket* data = Eluna::get()->CHECK_PACKET(L, 1);
-		bool ignorePlayersInBg = lua_toboolean(L, 2);
+		bool ignorePlayersInBg = luaL_checkbool(L, 2);
 		uint32 ignore = luaL_optunsigned(L, 3, 0);
 
 		if (data)

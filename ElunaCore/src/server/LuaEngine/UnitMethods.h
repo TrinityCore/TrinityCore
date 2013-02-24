@@ -391,7 +391,7 @@ public:
         TO_PLAYER();
 
         int id = luaL_checknumber(L, 1);
-        bool checkinBank = lua_toboolean(L, 2);
+        bool checkinBank = luaL_checkbool(L, 2);
         Eluna::get()->PushUnsigned(L, player->GetItemCount(id, checkinBank));
         return 1;
     }
@@ -924,7 +924,7 @@ public:
         TO_PLAYER();
 
         WorldPacket* data = Eluna::get()->CHECK_PACKET(L, 1);
-        bool ignorePlayersInBg = lua_toboolean(L, 2);
+        bool ignorePlayersInBg = luaL_checkbool(L, 2);
         if (data && player->GetGroup())
             player->GetGroup()->BroadcastPacket(data, ignorePlayersInBg, -1, player->GetGUID());
         return 0;
@@ -1004,7 +1004,7 @@ public:
         TO_PLAYER();
 
         float percent = luaL_checknumber(L, 1);
-        bool sickness = lua_toboolean(L, 2);
+        bool sickness = luaL_checkbool(L, 2);
 
         player->ResurrectPlayer(percent, sickness);
         return 0;
@@ -1028,7 +1028,7 @@ public:
         
         uint32 spell = luaL_checkunsigned(L, 1);
         Unit* target = Eluna::get()->CHECK_UNIT(L, 2);
-        bool triggered = luaL_optint(L, 3, true);
+        bool triggered = luaL_optbool(L, 3, true);
 
         if(target)
             unit->CastSpell(target, spell, triggered);
@@ -1157,7 +1157,7 @@ public:
         uint32 _icon = luaL_checkunsigned(L, 1);
         const char* msg = luaL_checkstring(L, 2);
         uint32 _intid = luaL_checkunsigned(L, 3);
-        bool _code = luaL_optint(L, 4, false);
+        bool _code = luaL_optbool(L, 4, false);
         const char* _promptMsg = luaL_optstring(L, 5, "");
         uint32 _money = luaL_optunsigned(L, 6, 0);
 
@@ -1243,7 +1243,7 @@ public:
         TO_UNIT();
         
         Unit* target = Eluna::get()->CHECK_UNIT(L, 1);
-        bool durLoss = luaL_optint(L, 2, true);
+        bool durLoss = luaL_optbool(L, 2, true);
         
         unit->Kill((target ? target : unit), durLoss);
         return 0;

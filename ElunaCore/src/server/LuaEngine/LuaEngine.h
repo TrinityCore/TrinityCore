@@ -836,7 +836,7 @@ public:
                 if(Eluna::get()->ExecuteCall(2, 1))
                 {
                     lua_State* L = Eluna::get()->_luaState;
-                    if(!lua_isnoneornil(L, 1) && !lua_toboolean(L, 1))
+                    if(!lua_isnoneornil(L, 1) && !luaL_checkbool(L, 1))
                         result = false;
                     Eluna::get()->EndCall(1);
                 }
@@ -972,7 +972,7 @@ public:
                 if(Eluna::get()->ExecuteCall(3, 1))
                 {
                     lua_State* L = Eluna::get()->_luaState;
-                    if(!lua_isnoneornil(L, 1) && lua_toboolean(L, 1))
+                    if(!lua_isnoneornil(L, 1) && luaL_checkbool(L, 1))
                         result = true;
                     Eluna::get()->EndCall(1);
                 }
@@ -1707,7 +1707,7 @@ public:
         if(Eluna::get()->ExecuteCall(5, 1))
         {
             lua_State* L = Eluna::get()->_luaState;
-            if(!lua_isnoneornil(L, 1) && !lua_toboolean(L, 1))
+            if(!lua_isnoneornil(L, 1) && !luaL_checkbool(L, 1))
                 result = false;
             Eluna::get()->EndCall(1);
         }
@@ -1727,7 +1727,7 @@ public:
         if(Eluna::get()->ExecuteCall(4, 1))
         {
             lua_State* L = Eluna::get()->_luaState;
-            if(!lua_isnoneornil(L, 1) && !lua_toboolean(L, 1))
+            if(!lua_isnoneornil(L, 1) && !luaL_checkbool(L, 1))
                 result = false;
             Eluna::get()->EndCall(1);
         }
@@ -1747,7 +1747,7 @@ public:
         if(Eluna::get()->ExecuteCall(5, 1))
         {
             lua_State* L = Eluna::get()->_luaState;
-            if(!lua_isnoneornil(L, 1) && !lua_toboolean(L, 1))
+            if(!lua_isnoneornil(L, 1) && !luaL_checkbool(L, 1))
                 result = false;
             Eluna::get()->EndCall(1);
         }

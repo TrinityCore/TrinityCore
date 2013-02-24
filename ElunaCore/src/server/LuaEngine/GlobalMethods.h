@@ -73,7 +73,7 @@ namespace LuaGlobalFunctions
     static int GetPlayersInWorld(lua_State* L)
     {
         uint32 team = luaL_optunsigned(L, 1, TEAM_NEUTRAL);
-        bool onlyGM = luaL_optint(L, 2, false);
+        bool onlyGM = luaL_optbool(L, 2, false);
 
         lua_newtable(L);
         int tbl = lua_gettop(L);
@@ -200,7 +200,7 @@ namespace LuaGlobalFunctions
         float y = luaL_checknumber(L, 5);
         float z = luaL_checknumber(L, 6);
         float o = luaL_checknumber(L, 7);
-        bool save = luaL_optint(L, 8, false);
+        bool save = luaL_optbool(L, 8, false);
         uint32 durorresptime = luaL_optunsigned(L, 9, 0);
         uint32 phase = luaL_optunsigned(L, 10, PHASEMASK_NORMAL);
 
