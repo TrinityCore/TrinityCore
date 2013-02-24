@@ -396,7 +396,7 @@ static int RegisterCreatureEvent(lua_State* L)
     if (!strcmp(typeName, "function"))
         functionRef = (uint16)lua_ref(L, true);
 
-    if (functionRef > 0)
+	if (functionRef > 0)
         Eluna::get()->Register(REGTYPE_CREATURE, entry, ev, functionRef);
     return 0;
 }
