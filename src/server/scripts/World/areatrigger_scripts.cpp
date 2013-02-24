@@ -425,6 +425,69 @@ class AreaTrigger_at_area_52_entrance : public AreaTriggerScript
         std::map<uint32, time_t> _triggerTimes;
 };
 
+/*######
+ ## at_frostgrips_hollow
+ ######*/
+
+enum FrostgripsHollow
+{
+    QUEST_THE_LONESOME_WATCHER      = 12877,
+    
+    NPC_STORMFORGED_MONITOR         = 29862,
+    NPC_STORMFORGED_ERADICTOR       = 29861,
+    
+    TYPE_WAYPOINT                   = 0,
+    DATA_START                      = 0
+};
+
+Position const stormforgedMonitorPosition = {6963.95f, 45.65f, 818.71f, 4.948f};
+Position const stormforgedEradictorPosition = {6983.18f, 7.15f, 806.33f, 2.228f};
+
+class AreaTrigger_at_frostgrips_hollow : public AreaTriggerScript
+{
+public:
+    AreaTrigger_at_frostgrips_hollow() : AreaTriggerScript("at_frostgrips_hollow")
+    {
+        stormforgedMonitorGUID = 0;
+        stormforgedEradictorGUID = 0;
+    }
+
+    bool OnTrigger(Player* player, AreaTriggerEntry const* /* trigger */)
+    {
+        if (player->GetQuestStatus(QUEST_THE_LONESOME_WATCHER) != QUEST_STATUS_INCOMPLETE)
+            return false;
+
+        Creature* stormforgedMonitor = Creature::GetCreature(*player, stormforgedMonitorGUID);
+        if (stormforgedMonitor)
+            return false;
+        
+        Creature* stormforgedEradictor = Creature::GetCreature(*player, stormforgedEradictorGUID);
+        if (stormforgedEradictor)
+            return false;
+        
+        if ((stormforgedMonitor = player->SummonCreature(NPC_STORMFORGED_MONITOR, stormforgedMonitorPosition, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000)))
+        {
+            stormforgedMonitorGUID = stormforgedMonitor->GetGUID();
+            stormforgedMonitor->SetWalk(false);
+            /// The npc would search an alternative way to get to the last waypoint without this unit state.
+            stormforgedMonitor->AddUnitState(UNIT_STATE_IGNORE_PATHFINDING);
+            stormforgedMonitor->GetMotionMaster()->MovePath(NPC_STORMFORGED_MONITOR * 100, false);
+        }
+
+        if ((stormforgedEradictor = player->SummonCreature(NPC_STORMFORGED_ERADICTOR, stormforgedEradictorPosition, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000)))
+        {
+            stormforgedEradictorGUID = stormforgedEradictor->GetGUID();
+            stormforgedEradictor->GetMotionMaster()->MovePath(NPC_STORMFORGED_ERADICTOR * 100, false);
+        }
+        
+        return true;
+    }
+
+private:
+    uint64 stormforgedMonitorGUID;
+    uint64 stormforgedEradictorGUID;
+};
+
 void AddSC_areatrigger_scripts()
 {
     new AreaTrigger_at_coilfang_waterfall();
@@ -436,4 +499,5 @@ void AddSC_areatrigger_scripts()
     new AreaTrigger_at_nats_landing();
     new AreaTrigger_at_brewfest();
     new AreaTrigger_at_area_52_entrance();
+    new AreaTrigger_at_frostgrips_hollow();
 }
