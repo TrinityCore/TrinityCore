@@ -1768,7 +1768,7 @@ bool WorldObject::canSeeOrDetect(WorldObject const* obj, bool ignoreStealth, boo
         bool corpseCheck = false;
         if (Player const* thisPlayer = ToPlayer())
         {
-            if (thisPlayer->isDead() && thisPlayer->GetHealth() > 0 && // Cheap way to check for ghost state
+            if (thisPlayer->isDead() && thisPlayer->GetHealth() > 0 &&// Cheap way to check for ghost state
                 !(obj->m_serverSideVisibility.GetValue(SERVERSIDE_VISIBILITY_GHOST) & m_serverSideVisibility.GetValue(SERVERSIDE_VISIBILITY_GHOST) & GHOST_VISIBILITY_GHOST))
             {
                 if (Corpse* corpse = thisPlayer->GetCorpse())
@@ -1933,7 +1933,7 @@ bool WorldObject::CanDetectStealthOf(WorldObject const* obj) const
         if (visibilityRange > MAX_PLAYER_STEALTH_DETECT_RANGE)
             visibilityRange = MAX_PLAYER_STEALTH_DETECT_RANGE;
 
-        if (distance > visibilityRange)
+        if (distance > visibilityRange/* && !isSpectator()*/)
             return false;
     }
 

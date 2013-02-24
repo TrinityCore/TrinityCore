@@ -2832,7 +2832,6 @@ void Player::SetSpectate(bool on)
         spectatorFlag = true;
 
         m_ExtraFlags |= PLAYER_EXTRA_GM_ON;
-		player->SetGMVisible(true);
         setFaction(35);
 
         if (Pet* pet = GetPet())
@@ -2850,7 +2849,7 @@ void Player::SetSpectate(bool on)
         uint32 morphs[8] = {25900, 18718, 29348, 22235, 30414, 736, 20582, 28213};
         SetDisplayId(morphs[urand(0, 7)]);
 
-        //m_serverSideVisibility.SetValue(SERVERSIDE_VISIBILITY_GM, SEC_ADMINISTRATOR); You can see rogue in Stealth (BUG?)
+        m_serverSideVisibility.SetValue(SERVERSIDE_VISIBILITY_GM, SEC_ADMINISTRATOR); 
     }
     else
     {
@@ -2885,7 +2884,6 @@ void Player::SetSpectate(bool on)
         spectateCanceled = false;
         spectatorFlag = false;
         RestoreDisplayId();
-		 player->SetGMVisible(false);
         UpdateSpeed(MOVE_RUN, true);
     }
     UpdateObjectVisibility();
@@ -22005,6 +22003,9 @@ bool Player::IsVisibleGloballyFor(Player const* u) const
     // non faction visibility non-breakable for non-GMs
     if (!IsVisible())
         return false;
+
+    if (isSpectator());
+      return false;
 
     // non-gm stealth/invisibility not hide from global player lists
     return true;

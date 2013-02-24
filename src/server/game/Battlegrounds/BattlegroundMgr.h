@@ -149,11 +149,11 @@ class BattlegroundMgr
         uint32 CreateClientVisibleInstanceId(BattlegroundTypeId bgTypeId, BattlegroundBracketId bracket_id);
         BattlegroundTypeId GetRandomBG(BattlegroundTypeId id);
 
-        typedef std::map<BattlegroundTypeId, BattlegroundData> BattlegroundDataContainer;
         BattlegroundDataContainer bgDataStore;
         BattlegroundContainer m_Battlegrounds[MAX_BATTLEGROUND_TYPE_ID];
 
         BattlegroundQueue m_BattlegroundQueues[MAX_BATTLEGROUND_QUEUE_TYPES];
+		typedef std::map<BattlegroundTypeId, BattlegroundData> BattlegroundDataContainer;
 
         typedef std::map<BattlegroundTypeId, uint8> BattlegroundSelectionWeightMap; // TypeId and its selectionWeight
         BattlegroundSelectionWeightMap m_ArenaSelectionWeights;

@@ -1279,7 +1279,6 @@ public:
             player->SendNewItem(item, count, false, true);
             if (player != playerTarget)
                 playerTarget->SendNewItem(item, count, true, false);
-			sWorld->SendGMText("Player %u Add item: %i count: %c to player: %t", player, item, count, playerTarget);
         }
 
         if (noSpaceForCount > 0)

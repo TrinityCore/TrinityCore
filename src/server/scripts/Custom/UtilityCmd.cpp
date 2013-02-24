@@ -22,7 +22,7 @@ public:
 			{ "changefaction",			SEC_PLAYER,  false, &HandleChangeFactionCommand,		"", NULL },
 			{ "maxskills",			    SEC_PLAYER,  false, &HandleMaxSkillsCommand,	    	"", NULL },
 			{ "customize",			    SEC_PLAYER,  false, &HandleCustomizeCommand,	       	"", NULL },
-			{ "mmr",			        SEC_PLAYER,  false, &HandleMmrCommand,      	       	"", NULL },
+			{ "mmr",			        SEC_PLAYER,  false, &HandleMMRCommand,      	       	"", NULL },
             { NULL,             0,                   false, NULL,                               "", NULL }
         };
         static ChatCommand commandTable[] =
@@ -69,21 +69,21 @@ public:
         return true;
     }
 
-	    static bool HandleMmrCommand(ChatHandler* handler, const char* args)
-        {
+	 static bool HandleMMRCommand(ChatHandler* handler, const char* args)
+     {
         Player* player = handler->GetSession()->GetPlayer();
-  
+
+        // 2s MMR check
         uint16 mmr;
         {
 			if(ArenaTeam *getmmr = sArenaTeamMgr->GetArenaTeamById(player->GetArenaTeamId(2)))
 			     mmr = getmmr->GetMember(player->GetGUID())->MatchMakerRating;
-		    else
+		      else if (mmr < 1000)
 			     mmr = 1500;
-        return mmr;
         }
-        handler->PSendSysMessage("Your Mmr is: %u.", mmr);
-        return true;
-       }
+	    handler->PSendSysMessage("Your 2s Mmr is: %u.", mmr);
+		return true;
+      }
 };
 
 void AddSC_utility_commandscript()
