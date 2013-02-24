@@ -25,6 +25,7 @@
 #include "Creature.h"
 #include "DynamicObject.h"
 #include "GameObject.h"
+#include "TemporarySummon.h"
 #include "Corpse.h"
 #include "QuestDef.h"
 #include "ItemPrototype.h"
@@ -416,9 +417,29 @@ struct TrinityStringLocale
     StringVector Content;
 };
 
+/// Key for storing temp summon data in TempSummonDataContainer
+struct TempSummonGroupKey
+{
+    TempSummonGroupKey(uint32 summonerEntry, SummonerType summonerType, uint8 group)
+        : _summonerEntry(summonerEntry), _summonerType(summonerType), _summonGroup(group)
+    {
+    }
+   
+    bool operator<(TempSummonGroupKey const& rhs) const
+    {
+        return memcmp(this, &rhs, sizeof(TempSummonGroupKey)) < 0;
+    }
+
+private:
+    uint32 _summonerEntry;      ///< Summoner's entry
+    SummonerType _summonerType; ///< Summoner's type, see SummonerType for available types
+    uint8 _summonGroup;         ///< Summon's group id
+};
+
 typedef std::map<uint64, uint64> LinkedRespawnContainer;
 typedef UNORDERED_MAP<uint32, CreatureData> CreatureDataContainer;
 typedef UNORDERED_MAP<uint32, GameObjectData> GameObjectDataContainer;
+typedef std::map<TempSummonGroupKey, std::vector<TempSummonData> > TempSummonDataContainer;
 typedef UNORDERED_MAP<uint32, CreatureLocale> CreatureLocaleContainer;
 typedef UNORDERED_MAP<uint32, GameObjectLocale> GameObjectLocaleContainer;
 typedef UNORDERED_MAP<uint32, ItemLocale> ItemLocaleContainer;
@@ -876,6 +897,7 @@ class ObjectMgr
         void LoadCreatureTemplates();
         void LoadCreatureTemplateAddons();
         void CheckCreatureTemplate(CreatureTemplate const* cInfo);
+        void LoadTempSummons();
         void LoadCreatures();
         void LoadLinkedRespawn();
         bool SetCreatureLinkedRespawn(uint32 guid, uint32 linkedGuid);
@@ -979,6 +1001,24 @@ class ObjectMgr
         CellObjectGuids const& GetCellObjectGuids(uint16 mapid, uint8 spawnMode, uint32 cell_id)
         {
             return _mapObjectGuidsStore[MAKE_PAIR32(mapid, spawnMode)][cell_id];
+        }
+
+        /**
+         * Gets temp summon data for all creatures of specified group.
+         *
+         * @param summonerId   Summoner's entry.
+         * @param summonerType Summoner's type, see SummonerType for available types.
+         * @param group        Id of required group.
+         *
+         * @return null if group was not found, otherwise reference to the creature group data
+         */
+        std::vector<TempSummonData> const* GetSummonGroup(uint32 summonerId, SummonerType summonerType, uint8 group) const
+        {
+            TempSummonDataContainer::const_iterator itr = _tempSummonDataStore.find(TempSummonGroupKey(summonerId, summonerType, group));
+            if (itr != _tempSummonDataStore.end())
+                return &itr->second;
+                   
+            return NULL;
         }
 
         CreatureData const* GetCreatureData(uint32 guid) const
@@ -1294,6 +1334,8 @@ class ObjectMgr
         GameObjectDataContainer _gameObjectDataStore;
         GameObjectLocaleContainer _gameObjectLocaleStore;
         GameObjectTemplateContainer _gameObjectTemplateStore;
+        /// Stores temp summon data grouped by summoner's entry, summoner's type and group id
+        TempSummonDataContainer _tempSummonDataStore;
 
         ItemTemplateContainer _itemTemplateStore;
         ItemLocaleContainer _itemLocaleStore;
