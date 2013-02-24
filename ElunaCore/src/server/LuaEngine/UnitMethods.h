@@ -384,13 +384,13 @@ public:
         return 1;
     }
 
-    // GetItemCount(id)
+    // GetItemCount(id[, checkbank])
     static int GetItemCount(lua_State* L, Unit* unit)
     {
         TO_PLAYER();
 
         int id = luaL_checknumber(L, 1);
-        bool checkinBank = luaL_optnumber(L, 2, 0); // if 1, check in bank, otherwise don't
+		bool checkinBank = lua_toboolean(L, 2);
         Eluna::get()->PushUnsigned(L, player->GetItemCount(id, checkinBank));
         return 1;
     }
@@ -848,6 +848,17 @@ public:
         return 0;
     }
 
+    // SendNotification(msg)
+    static int SendNotification(lua_State* L, Unit* unit)
+    {
+        TO_PLAYER();
+
+        const char* msg = luaL_checkstring(L, 1);
+        if (string(msg).length() > 0)
+            player->GetSession()->SendNotification(msg);
+        return 0;
+    }
+
     // SendUnitWhisper(msg, receiver, bossWhisper)
     static int SendUnitWhisper(lua_State* L, Unit* unit)
     {
@@ -992,7 +1003,7 @@ public:
         TO_PLAYER();
 
 		float percent = luaL_checknumber(L, 1);
-		bool sickness = luaL_optint(L, 2, false);
+		bool sickness = lua_toboolean(L, 2);
 
         player->ResurrectPlayer(percent, sickness);
         return 0;

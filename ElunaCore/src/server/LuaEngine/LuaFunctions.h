@@ -47,7 +47,8 @@ ElunaRegister<Unit> UnitMethods[] =
 
     // Other
     {"SendBroadcastMessage", &LuaUnit::SendBroadcastMessage},     // :SendBroadcastMessage(message)
-    {"SendAreaTriggerMessage", &LuaUnit::SendAreaTriggerMessage}, // :SendAreaTriggerMessage(message) -- Sends a message in the middle of your screen
+    {"SendAreaTriggerMessage", &LuaUnit::SendAreaTriggerMessage}, // :SendAreaTriggerMessage(message) -- Sends a yellow message in the middle of your screen
+    {"SendNotification", &LuaUnit::SendNotification},             // :SendNotification(message) -- Sends a red message in the middle of your screen UNDOCUMENTED
 	{"SendPacketToPlayer", &LuaUnit::SendPacketToPlayer},         // :SendPacketToPlayer(packet) - Sends a specified packet to the player (NOT DOCUMENTED)
 	{"SendPacket", &LuaUnit::SendPacket},		                  // :SendPacket(packet) -- Sends a specified packet (NOT DOCUMENTED)
 	{"SendPacketToGroup", &LuaUnit::SendPacketToGroup},           // :SendPacketToGroup(packet, sendToPlayersInBattleground) - Sends a specified packet to the group with the choice (true/false) to send it to players in a battleground (NOT DOCUMENTED)
@@ -135,6 +136,9 @@ ElunaRegister<Unit> UnitMethods[] =
 
 ElunaRegister<GameObject> GameObjectMethods[] =
 {
+    // Getters
+    {"GetUnitType", &LuaGameObject::GetUnitType},                   // :GetUnitType() - Returns unit type Ex. GameObject UNDOCUMENTED
+
     { NULL, NULL }
 };
 
