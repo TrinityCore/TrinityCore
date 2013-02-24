@@ -114,6 +114,11 @@ void Eluna::RegisterGlobals(lua_State* L)
     lua_register(L, "GetPlayersInWorld", &LuaGlobalFunctions::GetPlayersInWorld);
     lua_register(L, "GetPlayersInMap", &LuaGlobalFunctions::GetPlayersInMap);
     lua_register(L, "WorldDBQuery", &LuaGlobalFunctions::WorldDBQuery);
+    lua_register(L, "WorldDBExecute", &LuaGlobalFunctions::WorldDBExecute);
+    lua_register(L, "CharDBQuery", &LuaGlobalFunctions::CharDBQuery);
+    lua_register(L, "CharDBExecute", &LuaGlobalFunctions::CharDBExecute);
+    lua_register(L, "AuthDBQuery", &LuaGlobalFunctions::AuthDBQuery);
+    lua_register(L, "AuthDBExecute", &LuaGlobalFunctions::AuthDBExecute);
     lua_register(L, "GetGuildByName", &LuaGlobalFunctions::GetGuildByName);
     lua_register(L, "GetGuildByLeaderGUID", &LuaGlobalFunctions::GetGuildByLeaderGUID);
     lua_register(L, "GetPlayerCount", &LuaGlobalFunctions::GetPlayerCount);

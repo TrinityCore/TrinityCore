@@ -132,19 +132,82 @@ namespace LuaGlobalFunctions
         return 1;
     }
     
-    // WorldDBQuery("sql") - Executes SQL to world database and returns the query result or nil
+    // WorldDBQuery("sql") - Executes SQL to world database and returns the query result or nil (instant)
     static int WorldDBQuery(lua_State* L)
     {
         const char* query = luaL_checkstring(L, 1);
         if(!query)
             return 0;
+
         QueryResult result = WorldDatabase.Query(query);
         if(!result)
             return 0;
-        lua_settop(L, 0);
-        // Cant figure out how to pass the result and succesfully get things from it later (atm just fixed it so it compiles, but doesnt work)
-        Eluna::get()->PushQueryResult(L, &result);
+
+        Eluna::get()->PushQueryResult(L, new QueryResult(result));
         return 1;
+    }
+
+    // WorldDBExecute("sql") - Executes SQL to world database (not instant)
+    static int WorldDBExecute(lua_State* L)
+    {
+        const char* query = luaL_checkstring(L, 1);
+        if(!query)
+            return 0;
+
+        WorldDatabase.Execute(query);
+        return 0;
+    }
+    
+    // CharDBQuery("sql") - Executes SQL to characters database and returns the query result or nil (instant)
+    static int CharDBQuery(lua_State* L)
+    {
+        const char* query = luaL_checkstring(L, 1);
+        if(!query)
+            return 0;
+
+        QueryResult result = CharacterDatabase.Query(query);
+        if(!result)
+            return 0;
+
+        Eluna::get()->PushQueryResult(L, new QueryResult(result));
+        return 1;
+    }
+
+    // CharDBExecute("sql") - Executes SQL to characters database (not instant)
+    static int CharDBExecute(lua_State* L)
+    {
+        const char* query = luaL_checkstring(L, 1);
+        if(!query)
+            return 0;
+
+        CharacterDatabase.Execute(query);
+        return 0;
+    }
+    
+    // AuthDBQuery("sql") - Executes SQL to auth database and returns the query result or nil (instant)
+    static int AuthDBQuery(lua_State* L)
+    {
+        const char* query = luaL_checkstring(L, 1);
+        if(!query)
+            return 0;
+
+        QueryResult result = LoginDatabase.Query(query);
+        if(!result)
+            return 0;
+
+        Eluna::get()->PushQueryResult(L, new QueryResult(result));
+        return 1;
+    }
+
+    // AuthDBExecute("sql") - Executes SQL to auth database (not instant)
+    static int AuthDBExecute(lua_State* L)
+    {
+        const char* query = luaL_checkstring(L, 1);
+        if(!query)
+            return 0;
+
+        LoginDatabase.Execute(query);
+        return 0;
     }
     
     // GetGuildByName("name") - Gets guild object
