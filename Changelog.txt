@@ -11,6 +11,7 @@
 #                                                                                          #
 ############################################################################################
 
+[141] --> Small correction arena logs.
 [140] --> Hack-Fix Rune Strike. (By Juliean)
 [139] --> Fix loot Halls of Reflection.
 [138] --> Fix Blood Prince Council and Lord Marrowgar (Original script TC).

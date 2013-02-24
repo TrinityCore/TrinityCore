@@ -868,10 +868,10 @@ void Battleground::EndBattleground(uint32 winner)
 
                 if (sWorld->getBoolConfig(CONFIG_CUSTOM_ARENA_LOGS))
                 {
-                    CharacterDatabase.PExecute("INSERT INTO `arena_logs` (`team1`,`team1_members`,`team1_rating_change`,`team2`,`team2_members`,`team2_rating_change`,`winner`,`timestamp`) VALUES ('%u','%s','%i','%u','%s','%i','%u','%u')",
+                    CharacterDatabase.PExecute("INSERT INTO `arena_logs` (`team1`,`team1_members`,`team1_rating_change`,`team2`,`team2_members`,`team2_rating_change`,`winner`) VALUES ('%u','%s','%i','%u','%s','%i','%u')",
                                             winnerArenaTeam->GetId(), winnerIds.c_str(), winnerChange,
                                             loserArenaTeam->GetId(), loserIds.c_str(), loserChange,
-                                            winnerArenaTeam->GetId(), time(NULL) );
+                                            winnerArenaTeam->GetId());
                 }
             }
             // Deduct 16 points from each teams arena-rating if there are no winners after 45+2 minutes

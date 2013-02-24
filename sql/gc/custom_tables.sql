@@ -8,8 +8,8 @@ CREATE TABLE `arena_logs` (
   `team2_members` varchar(60) CHARACTER SET latin1 NOT NULL DEFAULT '',
   `team2_rating_change` int(11) NOT NULL DEFAULT '0',
   `winner` int(10) unsigned NOT NULL DEFAULT '0',
-  `timestamp` int(10) unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`team1`,`team2`,`timestamp`)
+  `HistoryTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`team1`,`team2`,`HistoryTime`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- token_rewards
