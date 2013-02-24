@@ -243,3 +243,17 @@ UPDATE `gameobject_template` SET `flags` = '0' WHERE `gameobject_template`.`entr
 UPDATE `gameobject_template` SET `flags` = '0' WHERE `gameobject_template`.`entry` = 195375;
 UPDATE `gameobject_template` SET `flags` = '0' WHERE `gameobject_template`.`entry` = 195323;
 UPDATE `gameobject_template` SET `flags` = '0' WHERE `gameobject_template`.`entry` = 195324;
+
+-- Fix loot Trial of Crusader
+UPDATE `gameobject_template` SET `flags` = '0' WHERE `gameobject_template`.`entry` = 195631;
+UPDATE `gameobject_template` SET `flags` = '0' WHERE `gameobject_template`.`entry` = 195632;
+UPDATE `gameobject_template` SET `flags` = '0' WHERE `gameobject_template`.`entry` = 195633;
+UPDATE `gameobject_template` SET `flags` = '0' WHERE `gameobject_template`.`entry` = 195635;
+UPDATE `gameobject_template` SET `flags` = '0' WHERE `gameobject_template`.`entry` = 195668;
+UPDATE `gameobject_template` SET `flags` = '0' WHERE `gameobject_template`.`entry` = 195667;
+UPDATE `gameobject_template` SET `flags` = '0' WHERE `gameobject_template`.`entry` = 195666;
+UPDATE `gameobject_template` SET `flags` = '0' WHERE `gameobject_template`.`entry` = 195665;
+UPDATE `gameobject_template` SET `flags` = '0' WHERE `gameobject_template`.`entry` = 195672;
+UPDATE `gameobject_template` SET `flags` = '0' WHERE `gameobject_template`.`entry` = 195671;
+UPDATE `gameobject_template` SET `flags` = '0' WHERE `gameobject_template`.`entry` = 195670;
+UPDATE `gameobject_template` SET `flags` = '0' WHERE `gameobject_template`.`entry` = 195669;
