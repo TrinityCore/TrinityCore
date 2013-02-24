@@ -257,3 +257,9 @@ UPDATE `gameobject_template` SET `flags` = '0' WHERE `gameobject_template`.`entr
 UPDATE `gameobject_template` SET `flags` = '0' WHERE `gameobject_template`.`entry` = 195671;
 UPDATE `gameobject_template` SET `flags` = '0' WHERE `gameobject_template`.`entry` = 195670;
 UPDATE `gameobject_template` SET `flags` = '0' WHERE `gameobject_template`.`entry` = 195669;
+
+-- Fix loot Halls of Reflection
+UPDATE `gameobject_template` SET `flags` = '0' WHERE `gameobject_template`.`entry` = 202212;
+UPDATE `gameobject_template` SET `flags` = '0' WHERE `gameobject_template`.`entry` = 201710;
+UPDATE `gameobject_template` SET `flags` = '0' WHERE `gameobject_template`.`entry` = 202337;
+UPDATE `gameobject_template` SET `flags` = '0' WHERE `gameobject_template`.`entry` = 202336;

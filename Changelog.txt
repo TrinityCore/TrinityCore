@@ -11,6 +11,7 @@
 #                                                                                          #
 ############################################################################################
 
+[139] --> Fix loot Halls of Reflection.
 [138] --> Fix Blood Prince Council and Lord Marrowgar (Original script TC).
 [137] --> Fix Lady Deathwhisper (Original script TC).
 [136] --> SQL/Misc: Database reguid, cleanup files. (By Elron103)
