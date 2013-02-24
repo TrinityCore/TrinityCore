@@ -149,7 +149,7 @@ public:
     bool OnGossipHello(Player* player, Creature* creature)
     {
         if (InstanceScript* instance = player->GetInstanceScript())
-            if (instance->GetBossState(BOSS_CHOMAGGUS) != DONE || instance->GetBossState(BOSS_NEFARIAN) == DONE)
+            if (instance->GetBossState(BOSS_CHROMAGGUS) != DONE || instance->GetBossState(BOSS_NEFARIAN) == DONE)
                 return false;
 
         player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
@@ -406,7 +406,7 @@ public:
                         events.ScheduleEvent(EVENT_TAILLASH, 10*IN_MILLISECONDS);
                         break;
                     case EVENT_CLASSCALL:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
                             switch (target->getClass())
                         {
                             case CLASS_MAGE:
@@ -444,6 +444,8 @@ public:
                             case CLASS_ROGUE:
                                 Talk(SAY_ROGUE);
                                 DoCast(me, SPELL_ROGUE);
+                                break;
+                            default:
                                 break;
                         }
                         events.ScheduleEvent(EVENT_CLASSCALL, urand(30, 35)*IN_MILLISECONDS);

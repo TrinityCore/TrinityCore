@@ -154,7 +154,7 @@ public:
                     break;
                 case 181125: // Door
                     NefarianDoorGUID = go->GetGUID();
-                    HandleGameObject(0, GetBossState(BOSS_CHOMAGGUS) == DONE, go);
+                    HandleGameObject(0, GetBossState(BOSS_CHROMAGGUS) == DONE, go);
                     break;
             }
         }
@@ -193,7 +193,7 @@ public:
                 case BOSS_FLAMEGOR:
                     HandleGameObject(ChrommagusDoorGUID, GetBossState(BOSS_FIREMAW) == DONE && GetBossState(BOSS_EBONROC) == DONE && GetBossState(BOSS_FLAMEGOR) == DONE);
                     break;
-                case BOSS_CHOMAGGUS:
+                case BOSS_CHROMAGGUS:
                     HandleGameObject(NefarianDoorGUID, state == DONE);
                     break;
                 case BOSS_NEFARIAN:

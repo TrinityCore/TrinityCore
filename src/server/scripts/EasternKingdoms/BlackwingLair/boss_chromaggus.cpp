@@ -70,7 +70,7 @@ public:
 
     struct boss_chromaggusAI : public BossAI
     {
-        boss_chromaggusAI(Creature* creature) : BossAI(creature, BOSS_CHOMAGGUS)
+        boss_chromaggusAI(Creature* creature) : BossAI(creature, BOSS_CHROMAGGUS)
         {
             // Select the 2 breaths that we are going to use until despawned
             // 5 possiblities for the first breath, 4 for the second, 20 total possiblites

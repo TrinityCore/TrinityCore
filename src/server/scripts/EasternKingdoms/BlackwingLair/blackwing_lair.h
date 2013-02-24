@@ -26,7 +26,7 @@ enum BWLEncounter
     BOSS_FIREMAW        = 3,
     BOSS_EBONROC        = 4,
     BOSS_FLAMEGOR       = 5,
-    BOSS_CHOMAGGUS      = 6,
+    BOSS_CHROMAGGUS     = 6,
     BOSS_NEFARIAN       = 7,
     MAX_ENCOUNTER
 };
