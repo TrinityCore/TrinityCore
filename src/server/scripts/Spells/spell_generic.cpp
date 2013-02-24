@@ -3190,8 +3190,7 @@ class spell_gen_replenishment : public SpellScriptLoader
 
 enum BladeWaring
 {
-    SPELL_BLADE_WARDING_PROC    = 64440,
-    SPELL_BLADE_WARDING_DAMAGE  = 64442,
+    SPELL_BLADE_WARDING_PROC    = 64440
 };
 
 class spell_gen_blade_warding : public SpellScriptLoader
@@ -3205,19 +3204,19 @@ class spell_gen_blade_warding : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spell*/)
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_BLADE_WARDING_DAMAGE) || !sSpellMgr->GetSpellInfo(SPELL_BLADE_WARDING_DAMAGE))
+                if (!sSpellMgr->GetSpellInfo(SPELL_BLADE_WARDING_PROC))
                     return false;
                 return true;
             }
 
-            void HandleDamageCalc(SpellEffIndex /*effIndex*/)
+            void HandleDamageCalc(SpellEffIndex effIndex)
             {
                 uint32 damage;
 
                 if (Unit* caster = GetCaster())
                 {
-                    if (float multiplier = caster->GetAura(SPELL_BLADE_WARDING_PROC)->GetStackAmount())
-                        damage = urand(multiplier * 600, multiplier * 800);
+                    if (Aura* aura = caster->GetAura(SPELL_BLADE_WARDING_PROC))
+                        damage = GetSpellInfo()->Effects[effIndex].CalcValue(GetCaster(), NULL, NULL, float(aura->GetStackAmount()));
                 }
                 SetHitDamage(damage);
             }

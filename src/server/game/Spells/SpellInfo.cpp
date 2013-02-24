@@ -402,11 +402,11 @@ bool SpellEffectInfo::IsUnitOwnedAuraEffect() const
     return IsAreaAuraEffect() || Effect == SPELL_EFFECT_APPLY_AURA;
 }
 
-int32 SpellEffectInfo::CalcValue(Unit const* caster, int32 const* bp, Unit const* /*target*/) const
+int32 SpellEffectInfo::CalcValue(Unit const* caster, int32 const* bp, Unit const* /*target*/, float valueMultiplier) const
 {
     float basePointsPerLevel = RealPointsPerLevel;
-    int32 basePoints = bp ? *bp : BasePoints;
-    int32 randomPoints = int32(DieSides);
+    int32 basePoints = bp ? *bp : BasePoints * valueMultiplier;
+    int32 randomPoints = int32(DieSides);    
 
     // base amount modification based on spell lvl vs caster lvl
     if (caster)
@@ -424,12 +424,12 @@ int32 SpellEffectInfo::CalcValue(Unit const* caster, int32 const* bp, Unit const
     switch (randomPoints)
     {
         case 0: break;
-        case 1: basePoints += 1; break;                     // range 1..1
+        case 1: basePoints += valueMultiplier; break;       // range 1..1 depends on valueMultiplier
         default:
             // range can have positive (1..rand) and negative (rand..1) values, so order its for irand
             int32 randvalue = (randomPoints >= 1)
-                ? irand(1, randomPoints)
-                : irand(randomPoints, 1);
+                ? irand(valueMultiplier, randomPoints * valueMultiplier)
+                : irand(randomPoints * valueMultiplier, valueMultiplier);
 
             basePoints += randvalue;
             break;
