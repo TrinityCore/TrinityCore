@@ -1197,10 +1197,7 @@ public:
 		if (!soundEntry)
 			return 0;
 
-		WorldPacket data;
-		data.Initialize(SMSG_PLAY_OBJECT_SOUND);
-		data << uint32(soundId) << player->GetGUID();
-		player->GetSession()->SendPacket(&data);
+		player->PlayDirectSound(soundId, player);
 		return 0;
 	}
 
@@ -1217,6 +1214,8 @@ public:
 
         if(player)
             unit->PlayDirectSound(soundId, player);
+        else
+            unit->PlayDirectSound(soundId);
 		return 0;
 	}
 
@@ -1233,6 +1232,8 @@ public:
 
         if(player)
             unit->PlayDistanceSound(soundId, player);
+        else
+            unit->PlayDistanceSound(soundId);
 		return 0;
 	}
 
