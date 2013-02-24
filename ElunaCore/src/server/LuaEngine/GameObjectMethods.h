@@ -145,8 +145,8 @@ public:
         return 1;
     }
 
-    // SummonCreature() uint32 spell = luaL_checkunsigned(L, 1);
-    /*static int SummonCreature(lua_State* L, GameObject* go)
+    // SummonCreature(entry, x, y, z, o, despawntime)
+    static int SummonCreature(lua_State* L, GameObject* go)
     {
         if(!go || !go->IsInWorld())
             return 0;
@@ -155,10 +155,17 @@ public:
         float x = luaL_checknumber(L, 2);
         float y = luaL_checknumber(L, 3);
         float z = luaL_checknumber(L, 4);
+        float o = luaL_checknumber(L, 5);
+        uint32 despawn = luaL_optunsigned(L, 6, 0);
 
-        Eluna::get()->PushUnsigned(L, go->SummonCreature(entry, x, y, z, 0.0f, TEMPSUMMON_ANUAL_DESPAWN, despawntime)); // NO clue what the last 3 args should be. Rochet/Tommy?
-        return 0;
-    }*/
+        TempSummonType summontype;
+        if(despawn)
+            summontype = TEMPSUMMON_TIMED_OR_DEAD_DESPAWN;
+        else
+            summontype = TEMPSUMMON_MANUAL_DESPAWN;
+        Eluna::get()->PushUnit(L, go->SummonCreature(entry, x, y, z, o, summontype, despawn));
+        return 1;
+    }
 
     // GetDisplayId()
     static int GetDisplayId(lua_State* L, GameObject* go)

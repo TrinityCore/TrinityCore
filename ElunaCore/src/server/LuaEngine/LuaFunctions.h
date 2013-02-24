@@ -167,7 +167,7 @@ ElunaRegister<GameObject> GameObjectMethods[] =
     // Other
     {"CastSpellOnTarget", &LuaGameObject::CastSpellOnTarget},       // :CastSpellOnTarget(target, spellId) - Casts the spell on target, no manacost or cast time - UNDOCUMENTED
     {"Move", &LuaGameObject::Move},                                 // :Move(x, y, z, o) - Moves the GO to coordinates - UNDOCUMENTED
-    //{"SummonCreature", &LuaGameObject::SummonCreature},           // :SummonCreature(?) - UNDOCUMENTED Tommy or Rochet, check this one please. - UNDOCUMENTED
+    {"SummonCreature", &LuaGameObject::SummonCreature},           // :SummonCreature(entry, x, y, z, o, despawntime) Summons a temporary creature. 0 for infinitely, otherwise despawns after despawntime (ms) - UNDOCUMENTED
 
     { NULL, NULL },
 };
