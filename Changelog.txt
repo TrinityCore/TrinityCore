@@ -11,6 +11,7 @@
 #                                                                                          #
 ############################################################################################
 
+[136] --> SQL/Misc: Database reguid, cleanup files. (By Elron103)
 [135] --> Fix loot Trial of Crusader.
 [134] --> Fix Lich King.
 [133] --> Fix loot Freya and Trial of Champion.
