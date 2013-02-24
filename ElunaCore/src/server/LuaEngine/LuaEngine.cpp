@@ -61,8 +61,8 @@ void Eluna::StartEluna()
     ElunaTemplate<QueryResult>::Register(_luaState);
     ElunaTemplate<Aura>::Register(_luaState);
     ElunaTemplate<Channel>::Register(_luaState);
-	ElunaTemplate<WorldPacket>::Register(_luaState);
-	ElunaTemplate<Item>::Register(_luaState);
+    ElunaTemplate<WorldPacket>::Register(_luaState);
+    ElunaTemplate<Item>::Register(_luaState);
 
     uint32 cnt_uncomp = 0;
     char filename[200];
@@ -401,7 +401,7 @@ static int RegisterCreatureEvent(lua_State* L)
     if (!strcmp(typeName, "function"))
         functionRef = (uint16)lua_ref(L, true);
 
-	if (functionRef > 0)
+    if (functionRef > 0)
         Eluna::get()->Register(REGTYPE_CREATURE, entry, ev, functionRef);
     return 0;
 }
@@ -501,18 +501,18 @@ void Eluna::Restart()
     }
     get()->_creatureEventBindings.clear();
 
-	for (vector<GameObjectBind*>::iterator itr = get()->_gameObjectAIEventBindings.begin(); itr != get()->_gameObjectAIEventBindings.end(); ++itr)
+    for (vector<GameObjectBind*>::iterator itr = get()->_gameObjectAIEventBindings.begin(); itr != get()->_gameObjectAIEventBindings.end(); ++itr)
     {
-		for (int i = 0; i < GAMEOBJECT_EVENT_COUNT; i++)
-			luaL_unref(get()->_luaState, LUA_REGISTRYINDEX, (*itr)->_functionReferences[i]);
+        for (int i = 0; i < GAMEOBJECT_EVENT_COUNT; i++)
+            luaL_unref(get()->_luaState, LUA_REGISTRYINDEX, (*itr)->_functionReferences[i]);
         delete (*itr);
     }
     get()->_gameObjectAIEventBindings.clear();
 
-	for (vector<GameObjectBind*>::iterator itr = get()->_gameObjectGossipBindings.begin(); itr != get()->_gameObjectGossipBindings.end(); ++itr)
+    for (vector<GameObjectBind*>::iterator itr = get()->_gameObjectGossipBindings.begin(); itr != get()->_gameObjectGossipBindings.end(); ++itr)
     {
-		for (int i = 0; i < GOSSIP_EVENT_COUNT; i++)
-			luaL_unref(get()->_luaState, LUA_REGISTRYINDEX, (*itr)->_gossipReferences[i]);
+        for (int i = 0; i < GOSSIP_EVENT_COUNT; i++)
+            luaL_unref(get()->_luaState, LUA_REGISTRYINDEX, (*itr)->_gossipReferences[i]);
         delete (*itr);
     }
     get()->_gameObjectGossipBindings.clear();

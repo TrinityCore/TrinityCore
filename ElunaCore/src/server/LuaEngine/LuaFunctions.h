@@ -130,7 +130,7 @@ ElunaRegister<Unit> UnitMethods[] =
     {"FullCastSpellOnTarget", &LuaUnit::FullCastSpellOnTarget},     // :FullCastSpellOnTarget(spellID, unit) - Casts the spell on target
     {"PlayDirectSound", &LuaUnit::PlayDirectSound},                 // :PlayDirectSound(soundId,  player) - Unit plays soundID to player, or everyone around if no player. UNDOCUMENTED
     {"PlayDistanceSound", &LuaUnit::PlayDistanceSound},             // :PlayDistanceSound(soundId,  player) - Unit plays soundID to player, or everyone around if no player. The sound fades the further you are UNDOCUMENTED
-	{"PlaySoundToSet", &LuaUnit::PlayDirectSound},                  // :PlayDirectSound(soundId,  player) - Unit plays soundID to player, or everyone around if no player. (ARC compability) UNDOCUMENTED
+    {"PlaySoundToSet", &LuaUnit::PlayDirectSound},                  // :PlayDirectSound(soundId,  player) - Unit plays soundID to player, or everyone around if no player. (ARC compability) UNDOCUMENTED
     {"Kill", &LuaUnit::Kill},                                       // :Kill(target, durabilityLoss) - Unit kills the target, if no target then kills the unit. Durabilityloss is true by default UNDOCUMENTED
 
     { NULL, NULL },
