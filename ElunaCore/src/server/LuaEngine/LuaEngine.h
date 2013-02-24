@@ -380,6 +380,7 @@ public:
     void PushQueryResult(lua_State*, QueryResult*);
     void PushAura(lua_State*, Aura*);
     void PushChannel(lua_State*, Channel*);
+    void PushItem(lua_State*, Item*);
     // Checks
     Player * CHECK_PLAYER(lua_State* L, int narg)
     {

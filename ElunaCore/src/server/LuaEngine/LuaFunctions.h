@@ -130,6 +130,7 @@ ElunaRegister<Unit> UnitMethods[] =
     {"FullCastSpellOnTarget", &LuaUnit::FullCastSpellOnTarget},     // :FullCastSpellOnTarget(spellID, unit) - Casts the spell on target
 	{"PlayDirectSound", &LuaUnit::PlayDirectSound},                 // :PlayDirectSound(soundId,  player) - Unit plays soundID to player UNDOCUMENTED
 	{"PlayDistanceSound", &LuaUnit::PlayDistanceSound},             // :PlayDistanceSound(soundId,  player) - Unit plays soundID to player UNDOCUMENTED
+	{"Kill", &LuaUnit::Kill},                                       // :Kill(target, durabilityLoss) - Unit kills the target, if no target then kills the unit. Durabilityloss is true by default UNDOCUMENTED
 
     { NULL, NULL },
 };
@@ -138,6 +139,7 @@ ElunaRegister<GameObject> GameObjectMethods[] =
 {
     // Getters
     {"GetUnitType", &LuaGameObject::GetUnitType},                   // :GetUnitType() - Returns unit type Ex. GameObject UNDOCUMENTED
+    {"GetGUID", &LuaGameObject::GetGUID},                           // :GetGUID() - returns object guid UNDOCUMENTED
 
     { NULL, NULL }
 };
@@ -234,6 +236,15 @@ ElunaRegister<Channel> ChannelMethods[] =
     {NULL, NULL}
 };
 
+ElunaRegister<Item> ItemMethods[] = 
+{
+    // Getters
+    {"GetUnitType", &LuaItem::GetUnitType},                             // :GetUnitType() - Returns object type, IE: Player, Creature UNDOCUMENTED
+    {"GetGUID", &LuaItem::GetGUID},                                     // :GetGUID() - Returns object guid UNDOCUMENTED
+
+    {NULL, NULL}
+};
+
 template<typename T> ElunaRegister<T>* GetMethodTable() { return NULL; }
 template<> ElunaRegister<Unit>* GetMethodTable<Unit>() { return UnitMethods; }
 template<> ElunaRegister<GameObject>* GetMethodTable<GameObject>() { return GameObjectMethods; }
@@ -242,4 +253,5 @@ template<> ElunaRegister<Guild>* GetMethodTable<Guild>() { return GuildMethods; 
 template<> ElunaRegister<QueryResult>* GetMethodTable<QueryResult>() { return QueryMethods; }
 template<> ElunaRegister<Aura>* GetMethodTable<Aura>() { return AuraMethods; }
 template<> ElunaRegister<Channel>* GetMethodTable<Channel>() { return ChannelMethods; }
+template<> ElunaRegister<Item>* GetMethodTable<Item>() { return ItemMethods; }
 #endif

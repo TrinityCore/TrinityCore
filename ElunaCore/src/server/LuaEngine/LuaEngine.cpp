@@ -11,6 +11,7 @@ FOEREAPER TOMMY ENGINE, YEAH!
 #include "QueryMethods.h"
 #include "AuraMethods.h"
 #include "ChannelMethods.h"
+#include "ItemMethods.h"
 #include "LuaFunctions.h"
 #include "LuaCreatureAI.h"
 #include "LuaGameObjectAI.h"
@@ -38,6 +39,7 @@ template<> const char* GetTName<QueryResult>() { return "QueryResult"; }
 template<> const char* GetTName<Aura>() { return "Aura"; }
 template<> const char* GetTName<Channel>() { return "Channel"; }
 template<> const char* GetTName<WorldPacket>() { return "WorldPacket"; }
+template<> const char* GetTName<Item>() { return "Item"; }
 
 void Eluna::StartEluna()
 {
@@ -60,6 +62,7 @@ void Eluna::StartEluna()
     ElunaTemplate<Aura>::Register(_luaState);
     ElunaTemplate<Channel>::Register(_luaState);
 	ElunaTemplate<WorldPacket>::Register(_luaState);
+	ElunaTemplate<Item>::Register(_luaState);
 
     uint32 cnt_uncomp = 0;
     char filename[200];
@@ -297,6 +300,15 @@ void Eluna::PushChannel(lua_State* L, Channel* channel)
         lua_pushnil(L);
 }
 
+void Eluna::PushItem(lua_State* L, Item* item)
+{
+    if(!L) L = _luaState;
+    if(item)
+        ElunaTemplate<Item>::push(L, item);
+    else
+        lua_pushnil(L);
+}
+
 CreatureAI* Eluna::GetLuaCreatureAI(Creature* creature)
 {
     if (sLuaCreatureScript->GetCreatureBindingForId(creature->GetEntry()))
@@ -316,7 +328,7 @@ static int RegisterServerHook(lua_State* L)
 {
     uint16 functionRef = 0;
     lua_settop(L, 2);
-    uint32 ev = luaL_checkint(L, 1);
+    uint32 ev = luaL_checkunsigned(L, 1);
     const char* typeName = luaL_typename(L, 2);
 
     if (ev == 0 || !typeName)
@@ -336,7 +348,7 @@ static int RegisterGossipEvent(lua_State* L)
     uint16 functionRef = 0;
     lua_settop(L, 3);
     uint32 entry = luaL_checkint(L, 1);
-    uint32 ev = luaL_checkint(L, 2);
+    uint32 ev = luaL_checkunsigned(L, 2);
     const char* typeName = luaL_typename(L, 3);
 
     if (ev == 0 || !typeName)
@@ -356,7 +368,7 @@ static int RegisterGameObjectGossipEvent(lua_State* L)
     uint16 functionRef = 0;
     lua_settop(L, 3);
     uint32 entry = luaL_checkint(L, 1);
-    uint32 ev = luaL_checkint(L, 2);
+    uint32 ev = luaL_checkunsigned(L, 2);
     const char* typeName = luaL_typename(L, 3);
 
     if (ev == 0 || !typeName)
@@ -376,16 +388,16 @@ static int RegisterCreatureEvent(lua_State* L)
     uint16 functionRef = 0;
     lua_settop(L, 3);
     uint32 entry = luaL_checkint(L, 1);
-    uint32 evt = luaL_checkint(L, 2);
+    uint32 ev = luaL_checkunsigned(L, 2);
     const char* typeName = luaL_typename(L, 3);
-    if(evt == 0 || !typeName)
+    if(ev == 0 || !typeName)
         return 0;
 
     if (!strcmp(typeName, "function"))
         functionRef = (uint16)lua_ref(L, true);
 
     if (functionRef > 0)
-        Eluna::get()->Register(REGTYPE_CREATURE, entry, evt, functionRef);
+        Eluna::get()->Register(REGTYPE_CREATURE, entry, ev, functionRef);
     return 0;
 }
 
@@ -395,16 +407,16 @@ static int RegisterGameObjectEvent(lua_State* L)
     uint16 functionRef = 0;
     lua_settop(L, 3);
     uint32 entry = luaL_checkint(L, 1);
-    uint32 evt = luaL_checkint(L, 2);
+    uint32 ev = luaL_checkunsigned(L, 2);
     const char* typeName = luaL_typename(L, 3);
-    if(evt == 0 || !typeName)
+    if(ev == 0 || !typeName)
         return 0;
 
     if (!strcmp(typeName, "function"))
         functionRef = (uint16)lua_ref(L, true);
 
     if (functionRef > 0)
-        Eluna::get()->Register(REGTYPE_GAMEOBJECT, entry, evt, functionRef);
+        Eluna::get()->Register(REGTYPE_GAMEOBJECT, entry, ev, functionRef);
     return 0;
 }
 
@@ -414,29 +426,48 @@ void Eluna::Register(uint8 regtype, uint32 id, uint32 evt, uint16 functionRef)
     {
     case REGTYPE_SERVER:
         if(evt < SERVER_EVENT_COUNT)
+        {
             _serverEventBindings.at(evt).push_back(functionRef);
+            return;
+        }
         break;
 
     case REGTYPE_GOSSIP:
         if(evt < GOSSIP_EVENT_COUNT)
+        {
             sLuaCreatureScript->RegisterGossipScript(id, evt, functionRef);
+            return;
+        }
         break;
 
     case REGTYPE_CREATURE:
         if (evt < CREATURE_EVENT_COUNT)
+        {
             sLuaCreatureScript->RegisterCreatureScript(id, evt, functionRef);
+            return;
+        }
         break;
 
     case REGTYPE_GAMEOBJECT:
         if (evt < GAMEOBJECT_EVENT_COUNT)
+        {
             sLuaGameObjectScript->RegisterGameObjectScript(id, evt, functionRef);
+            return;
+        }
         break;
 
     case REGTYPE_GAMEOBJECT_GOSSIP:
         if (evt < GOSSIP_EVENT_COUNT)
+        {
             sLuaGameObjectScript->RegisterGameObjectGossipScript(id, evt, functionRef);
+            return;
+        }
         break;
+    default:
+        sLog->outError(LOG_FILTER_GENERAL, "Unknown register type (regtype %u, id %u, event %u)", regtype, id, evt);
+        return;
     }
+    sLog->outError(LOG_FILTER_GENERAL, "Unknown event type (regtype %u, id %u, event %u)", regtype, id, evt);
 }
 
 void Eluna::Restart()

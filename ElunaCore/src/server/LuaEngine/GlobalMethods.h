@@ -1,3 +1,4 @@
+#include "ScriptPCH.h"
 #ifndef __GLOBAL_METHODS_ELUNA
 #define __GLOBAL_METHODS_ELUNA
 
@@ -5,6 +6,7 @@
 #include "World.h"
 #include "MapManager.h"
 #include "GuildMgr.h"
+#include "ObjectAccessor.h"
 
 extern "C"
 {
@@ -36,7 +38,7 @@ namespace LuaGlobalFunctions
         return 0;
     }
     
-    // GetPlayerByGUID(playerguid) - Gets player object by his guid
+    // GetPlayerByGUID(guid) - Gets Player object by its guid
     static int GetPlayerByGUID(lua_State* L)
     {
         uint32 guidLow = luaL_checkunsigned(L, 1);

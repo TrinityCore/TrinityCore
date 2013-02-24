@@ -1,6 +1,7 @@
 #include "ScriptPCH.h"
 #include "AccountMgr.h"
 #include "Group.h"
+#include "Guild.h"
 
 #ifndef UNITMETHODS_H
 #define UNITMETHODS_H
@@ -866,7 +867,7 @@ public:
 
         const char* msg = luaL_checkstring(L, 1);
         Unit* receiver = Eluna::get()->CHECK_UNIT(L, 2);
-        if (string(msg).length() > 0)
+        if (receiver && string(msg).length() > 0)
             unit->MonsterWhisper(msg, receiver->GetGUID(), false);
         return 0;
     }
@@ -1181,7 +1182,8 @@ public:
         uint32 _npcText = luaL_checkunsigned(L, 1);
         Unit* sender = Eluna::get()->CHECK_UNIT(L, 2);
 
-        player->SEND_GOSSIP_MENU(_npcText, sender->GetGUID());
+        if(sender)
+            player->SEND_GOSSIP_MENU(_npcText, sender->GetGUID());
         return 0;
     }
 
@@ -1213,7 +1215,8 @@ public:
         if (!sSoundEntriesStore.LookupEntry(soundId))
             return 0;
 
-        unit->PlayDirectSound(soundId, player);
+        if(player)
+            unit->PlayDirectSound(soundId, player);
 		return 0;
 	}
 
@@ -1228,7 +1231,20 @@ public:
         if (!sSoundEntriesStore.LookupEntry(soundId))
             return 0;
 
-        unit->PlayDistanceSound(soundId, player);
+        if(player)
+            unit->PlayDistanceSound(soundId, player);
+		return 0;
+	}
+
+    // Kill([target, durabilityLoss])
+	static int Kill(lua_State* L, Unit* unit)
+	{
+		TO_UNIT();
+        
+        Unit* target = Eluna::get()->CHECK_UNIT(L, 1);
+        bool durLoss = luaL_optint(L, 2, true);
+        
+        unit->Kill((target ? target : unit), durLoss);
 		return 0;
 	}
 };
