@@ -617,7 +617,6 @@ public:
     public:
         struct LuaCreatureAI;
         vector<LuaCreatureAI*> _scriptsToClear;
-        static LuaCreatureScript* singleton;
 
     public:
         bool IsDatabaseBound() const { return false; }
@@ -628,12 +627,6 @@ public:
         }
 
         ~LuaCreatureScript() { }
-
-        static LuaCreatureScript* GetSingleton()
-        {
-            static LuaCreatureScript* singleton;
-            return singleton;
-        }
 
         static CreatureBind* GetCreatureBindingForId(uint32 id)
         {
@@ -695,6 +688,7 @@ public:
                 Eluna::get()->PushUnit(Eluna::get()->_luaState, me);
                 Eluna::get()->PushUnit(Eluna::get()->_luaState, target);
                 Eluna::get()->ExecuteCall(3, 0);
+				ScriptedAI::EnterCombat(target);
             }
 
             // Called at any Damage from any attacker (before damage apply)
@@ -706,6 +700,7 @@ public:
                 Eluna::get()->PushUnit(Eluna::get()->_luaState, attacker);
                 Eluna::get()->PushUnsigned(Eluna::get()->_luaState, damage);
                 Eluna::get()->ExecuteCall(4, 0);
+				ScriptedAI::DamageTaken(attacker, damage);
             }
 
             //Called at World update tick
@@ -716,6 +711,7 @@ public:
                 Eluna::get()->PushUnit(Eluna::get()->_luaState, me);
                 Eluna::get()->PushUnsigned(Eluna::get()->_luaState, diff);
                 Eluna::get()->ExecuteCall(3, 0);
+				ScriptedAI::UpdateAI(diff);
             }
 
             //Called at creature death
@@ -726,6 +722,7 @@ public:
                 Eluna::get()->PushUnit(Eluna::get()->_luaState, me);
                 Eluna::get()->PushUnit(Eluna::get()->_luaState, killer);
                 Eluna::get()->ExecuteCall(3, 0);
+				ScriptedAI::JustDied(killer);
             }
 
             //Called at creature killing another unit
@@ -736,6 +733,7 @@ public:
                 Eluna::get()->PushUnit(Eluna::get()->_luaState, me);
                 Eluna::get()->PushUnit(Eluna::get()->_luaState, victim);
                 Eluna::get()->ExecuteCall(3, 0);
+				ScriptedAI::KilledUnit(victim);
             }
 
             // Called when the creature summon successfully other creature
@@ -746,6 +744,7 @@ public:
                 Eluna::get()->PushUnit(Eluna::get()->_luaState, me);
                 Eluna::get()->PushUnit(Eluna::get()->_luaState, summon);
                 Eluna::get()->ExecuteCall(3, 0);
+				ScriptedAI::JustSummoned(summon);
             }
 
             // Called when a summoned creature is despawned
@@ -756,6 +755,7 @@ public:
                 Eluna::get()->PushUnit(Eluna::get()->_luaState, me);
                 Eluna::get()->PushUnit(Eluna::get()->_luaState, summon);
                 Eluna::get()->ExecuteCall(3, 0);
+				ScriptedAI::SummonedCreatureDespawn(summon);
             }
 
             // Called when hit by a spell
@@ -767,6 +767,7 @@ public:
                 Eluna::get()->PushUnit(Eluna::get()->_luaState, caster);
                 Eluna::get()->PushUnsigned(Eluna::get()->_luaState, spell->Id); // Pass spell object?
                 Eluna::get()->ExecuteCall(4, 0);
+				ScriptedAI::SpellHit(caster, spell);
             }
 
             // Called when spell hits a target
@@ -778,6 +779,7 @@ public:
                 Eluna::get()->PushUnit(Eluna::get()->_luaState, target);
                 Eluna::get()->PushUnsigned(Eluna::get()->_luaState, spell->Id); // Pass spell object?
                 Eluna::get()->ExecuteCall(4, 0);
+				ScriptedAI::SpellHitTarget(target, spell);
             }
 
             //Called at waypoint reached or PointMovement end
@@ -789,6 +791,7 @@ public:
                 Eluna::get()->PushUnsigned(Eluna::get()->_luaState, type);
                 Eluna::get()->PushUnsigned(Eluna::get()->_luaState, id);
                 Eluna::get()->ExecuteCall(4, 0);
+				ScriptedAI::MovementInform(type, id);
             }
 
             // Called when AI is temporarily replaced or put back when possess is applied or removed
@@ -799,6 +802,7 @@ public:
                 Eluna::get()->PushUnit(Eluna::get()->_luaState, me);
                 Eluna::get()->PushBoolean(Eluna::get()->_luaState, apply);
                 Eluna::get()->ExecuteCall(3, 0);
+				ScriptedAI::OnPossess(apply);
             }
 
             //Called at creature reset either by death or evade
@@ -808,6 +812,7 @@ public:
                 Eluna::get()->PushInteger(Eluna::get()->_luaState, CREATURE_EVENT_ON_RESET);
                 Eluna::get()->PushUnit(Eluna::get()->_luaState, me);
                 Eluna::get()->ExecuteCall(2, 0);
+				ScriptedAI::Reset();
             }
 
             // Called before EnterCombat even before the creature is in combat.
@@ -818,6 +823,7 @@ public:
                 Eluna::get()->PushUnit(Eluna::get()->_luaState, me);
                 Eluna::get()->PushUnit(Eluna::get()->_luaState, target);
                 Eluna::get()->ExecuteCall(3, 0);
+				ScriptedAI::AttackStart(target);
             }
 
             // Called in Creature::Update when deathstate = DEAD. Inherited classes may maniuplate the ability to respawn based on scripted events.
@@ -834,6 +840,7 @@ public:
                         result = false;
                     Eluna::get()->EndCall(1);
                 }
+				ScriptedAI::CanRespawn();
                 return result;
             }
 
@@ -844,6 +851,7 @@ public:
                 Eluna::get()->PushInteger(Eluna::get()->_luaState, CREATURE_EVENT_ON_LEAVE_COMBAT);
                 Eluna::get()->PushUnit(Eluna::get()->_luaState, me);
                 Eluna::get()->ExecuteCall(2, 0);
+				ScriptedAI::EnterEvadeMode();
             }
 
             // Called when the creature is summoned successfully by other creature
@@ -854,6 +862,7 @@ public:
                 Eluna::get()->PushUnit(Eluna::get()->_luaState, me);
                 Eluna::get()->PushUnit(Eluna::get()->_luaState, summoner);
                 Eluna::get()->ExecuteCall(3, 0);
+				ScriptedAI::IsSummonedBy(summoner);
             }
 
             void SummonedCreatureDies(Creature* summon, Unit* killer)
@@ -864,6 +873,7 @@ public:
                 Eluna::get()->PushUnit(Eluna::get()->_luaState, summon);
                 Eluna::get()->PushUnit(Eluna::get()->_luaState, killer);
                 Eluna::get()->ExecuteCall(4, 0);
+				ScriptedAI::SummonedCreatureDies(summon, killer);
             }
 
             // Called when the creature is target of hostile action: swing, hostile spell landed, fear/etc)
@@ -874,6 +884,7 @@ public:
                 Eluna::get()->PushUnit(Eluna::get()->_luaState, me);
                 Eluna::get()->PushUnit(Eluna::get()->_luaState, attacker);
                 Eluna::get()->ExecuteCall(3, 0);
+				ScriptedAI::AttackedBy(attacker);
             }
 
             // Called when creature is spawned or respawned (for reseting variables)
@@ -883,7 +894,7 @@ public:
                 Eluna::get()->PushInteger(Eluna::get()->_luaState, CREATURE_EVENT_ON_SPAWN);
                 Eluna::get()->PushUnit(Eluna::get()->_luaState, me);
                 Eluna::get()->ExecuteCall(2, 0);
-                // Reset();
+				ScriptedAI::JustRespawned();
             }
 
             void OnCharmed(bool apply)
@@ -893,6 +904,7 @@ public:
                 Eluna::get()->PushUnit(Eluna::get()->_luaState, me);
                 Eluna::get()->PushBoolean(Eluna::get()->_luaState, apply);
                 Eluna::get()->ExecuteCall(3, 0);
+				ScriptedAI::OnCharmed(apply);
             }
 
             // Called at reaching home after evade
@@ -902,6 +914,7 @@ public:
                 Eluna::get()->PushInteger(Eluna::get()->_luaState, CREATURE_EVENT_ON_REACH_HOME);
                 Eluna::get()->PushUnit(Eluna::get()->_luaState, me);
                 Eluna::get()->ExecuteCall(2, 0);
+				ScriptedAI::JustReachedHome();
             }
 
             // Called at text emote receive from player
@@ -913,6 +926,7 @@ public:
                 Eluna::get()->PushUnit(Eluna::get()->_luaState, player);
                 Eluna::get()->PushUnsigned(Eluna::get()->_luaState, emoteId);
                 Eluna::get()->ExecuteCall(4, 0);
+				ScriptedAI::ReceiveEmote(player, emoteId);
             }
 
             // Called when owner takes damage
@@ -933,6 +947,7 @@ public:
                 Eluna::get()->PushUnit(Eluna::get()->_luaState, me);
                 Eluna::get()->PushUnit(Eluna::get()->_luaState, target);
                 Eluna::get()->ExecuteCall(3, 0);
+				ScriptedAI::OwnerAttacked(target);
             }
 
             // called when the corpse of this creature gets removed
@@ -943,6 +958,7 @@ public:
                 Eluna::get()->PushUnit(Eluna::get()->_luaState, me);
                 Eluna::get()->PushUnsigned(Eluna::get()->_luaState, respawnDelay);
                 Eluna::get()->ExecuteCall(3, 0);
+				ScriptedAI::CorpseRemoved(respawnDelay);
             }
 
             // Called when victim entered water and creature can not enter water
@@ -972,6 +988,7 @@ public:
                 Eluna::get()->PushInteger(Eluna::get()->_luaState, seatId);
                 Eluna::get()->PushBoolean(Eluna::get()->_luaState, apply);
                 Eluna::get()->ExecuteCall(5, 0);
+				ScriptedAI::PassengerBoarded(passenger, seatId, apply);
             }
 
             void OnSpellClick(Unit* clicker)
@@ -981,6 +998,7 @@ public:
                 Eluna::get()->PushUnit(Eluna::get()->_luaState, me);
                 Eluna::get()->PushUnit(Eluna::get()->_luaState, clicker);
                 Eluna::get()->ExecuteCall(3, 0);
+				ScriptedAI::OnSpellClick(clicker);
             }
 
             void MoveInLineOfSight(Unit* who)
@@ -990,6 +1008,7 @@ public:
                 Eluna::get()->PushUnit(Eluna::get()->_luaState, me);
                 Eluna::get()->PushUnit(Eluna::get()->_luaState, who);
                 Eluna::get()->ExecuteCall(3, 0);
+				ScriptedAI::MoveInLineOfSight(who);
             }
 
             // Called if IsVisible(Unit* who) is true at each who move, reaction at visibility zone enter
@@ -1000,6 +1019,7 @@ public:
                 Eluna::get()->PushUnit(Eluna::get()->_luaState, me);
                 Eluna::get()->PushUnit(Eluna::get()->_luaState, who);
                 Eluna::get()->ExecuteCall(3, 0);
+				ScriptedAI::MoveInLineOfSight_Safe(who);
             }
         };
 
@@ -1019,11 +1039,6 @@ public:
             return luaCreatureAI;
         }
     };
-
-    static LuaCreatureScript* GetCreatureScript()
-    {
-        return LuaCreatureScript::GetSingleton();
-    }
 
 public:
     static class LuaGameObjectScript : GameObjectScript
