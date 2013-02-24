@@ -1256,7 +1256,7 @@ void World::LoadConfigSettings(bool reload)
     //Allow Two Side Interaction Chat
     m_int_configs[CONFIG_ALLOW_TWO_SIDE_INTERACTION_CHAT_AREA] = ConfigMgr::GetIntDefault("AllowTwoSide.Interaction.Chat.Area", -1);
 
-    // call ScriptMgr if we're reloading the configuration
+    // Wintergrasp battlefield
     m_bool_configs[CONFIG_WINTERGRASP_ENABLE] = ConfigMgr::GetBoolDefault("Wintergrasp.Enable", false);
     m_int_configs[CONFIG_WINTERGRASP_PLR_MAX] = ConfigMgr::GetIntDefault("Wintergrasp.PlayerMax", 100);
     m_int_configs[CONFIG_WINTERGRASP_PLR_MIN] = ConfigMgr::GetIntDefault("Wintergrasp.PlayerMin", 0);
@@ -1275,6 +1275,7 @@ void World::LoadConfigSettings(bool reload)
     // crypt run token reward
     m_int_configs[CONFIG_CRYPT_RUN_REWARDS] = ConfigMgr::GetIntDefault("CryptRun.Reward", 10);
 
+    // call ScriptMgr if we're reloading the configuration
     if (reload)
         sScriptMgr->OnConfigLoad(reload);
 }
