@@ -127,6 +127,8 @@ ElunaRegister<Unit> UnitMethods[] =
     {"CastSpellAoF", &LuaUnit::CastSpellAoF},                       // :CastSpellAoF(x, y, z, SpellID, triggered) - Casts the spell on coordinates, if triggered is false has manacost and cast time
     {"FullCastSpell", &LuaUnit::FullCastSpell},                     // :FullCastSpell(spellID) - Casts the spell on self
     {"FullCastSpellOnTarget", &LuaUnit::FullCastSpellOnTarget},     // :FullCastSpellOnTarget(spellID, unit) - Casts the spell on target
+	{"PlayDirectSound", &LuaUnit::PlayDirectSound},                 // :PlayDirectSound(soundId,  player) - Unit plays soundID to player UNDOCUMENTED
+	{"PlayDistanceSound", &LuaUnit::PlayDistanceSound},             // :PlayDistanceSound(soundId,  player) - Unit plays soundID to player UNDOCUMENTED
 
     { NULL, NULL },
 };
@@ -153,6 +155,7 @@ ElunaRegister<Group> GroupMethods[] =
     //{"HasRole", &LuaGroup::HasRole},								// :HasRole("name"/Player, "role") - "tank" / "healer" / "dps"
 
     // Other
+    {"SendPacket", &LuaGroup::SendPacket},                          // :SendPacket(packet, sendToPlayersInBattleground[, ignoreguid]) - Sends a specified packet to the group with the choice (true/false) to send it to players in a battleground. Optionally ignores given player guid. UNDOCUMENTED
 
     {NULL, NULL}
 };
@@ -168,6 +171,9 @@ ElunaRegister<Guild> GuildMethods[] =
     // Boolean
 
     // Other
+    {"SendPacket", &LuaGuild::SendPacket},                          // :SendPacket(packet) - sends packet to guild. UNDOCUMENTED
+    {"SendPacketToRanked", &LuaGuild::SendPacketToRanked},          // :SendPacketToRanked(packet, rankId) - sends packet to guild, specifying a rankId will only send the packet to your ranked members. UNDOCUMENTED
+
     {NULL, NULL}
 };
 

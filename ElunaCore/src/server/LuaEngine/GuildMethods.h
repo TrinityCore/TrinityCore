@@ -54,5 +54,32 @@ public:
         Eluna::get()->PushGUID(L, pGuild->GetLeaderGUID());
         return 1;
     }
+
+	// SendPacketToGuild(packet)
+	static int SendPacket(lua_State* L, Guild* pGuild)
+	{
+        if(!pGuild)
+            return 0;
+
+		WorldPacket* data = Eluna::get()->CHECK_PACKET(L, 1);
+
+		if (data)
+			pGuild->BroadcastPacket(data);
+		return 0;
+	}
+
+	// SendPacketToRankedInGuild(packet, rankId)
+	static int SendPacketToRanked(lua_State* L, Guild* pGuild)
+	{
+        if(!pGuild)
+            return 0;
+
+		WorldPacket* data = Eluna::get()->CHECK_PACKET(L, 1);
+		uint8 ranked = luaL_checkunsigned(L, 2);
+
+		if (data)
+			pGuild->BroadcastPacketToRank(data, ranked);
+		return 0;
+	}
 };
 #endif

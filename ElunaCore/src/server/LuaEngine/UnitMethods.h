@@ -6,12 +6,12 @@
 #define UNITMETHODS_H
 
 #define TO_PLAYER()  Player* player; if(!unit || !unit->IsInWorld() || !(player = unit->ToPlayer()))     { return 0; } else (void)0;
-#define TO_CREATURE()  Creature* creature; if(!unit || !unit->IsInWorld() || !(creature = unit->ToCreature()) || unit->isTotem() || unit->isPet()) { return 0; } else (void)0;
+#define TO_CREATURE()  Creature* creature; if(!unit || !unit->IsInWorld() || !(creature = unit->ToCreature())) { return 0; } else (void)0;
 #define TO_UNIT()  if(!unit || !unit->IsInWorld() || !unit->ToUnit())  { return 0; } else (void)0;
 
 
 #define TO_PLAYER_BOOL()  Player* player;  if(!unit || !unit->IsInWorld() || !(player = unit->ToPlayer()))     { Eluna::get()->PushBoolean(L, false); return 1; } else (void)0;
-#define TO_CREATURE_BOOL()  Creature* creature; if(!unit || !unit->IsInWorld() || !(creature = unit->ToCreature()) || unit->isTotem() || unit->isPet()) { Eluna::get()->PushBoolean(L, false); return 1; } else (void)0;
+#define TO_CREATURE_BOOL()  Creature* creature; if(!unit || !unit->IsInWorld() || !(creature = unit->ToCreature())) { Eluna::get()->PushBoolean(L, false); return 1; } else (void)0;
 #define TO_UNIT_BOOL() if(!unit || !unit->IsInWorld() || !unit->ToUnit()) { Eluna::get()->PushBoolean(L, false); return 1; } else (void)0;
 
 class LuaUnit
@@ -1182,14 +1182,42 @@ public:
 		uint32 soundId = luaL_checkunsigned(L, 1);
 		SoundEntriesEntry const* soundEntry = sSoundEntriesStore.LookupEntry(soundId);
 		if (!soundEntry)
-		{
-			lua_pushnil(L);
 			return 0;
-		}
+
 		WorldPacket data;
 		data.Initialize(SMSG_PLAY_OBJECT_SOUND);
 		data << uint32(soundId) << player->GetGUID();
 		player->GetSession()->SendPacket(&data);
+		return 0;
+	}
+
+    // PlayDirectSound(soundId,  player)
+	static int PlayDirectSound(lua_State* L, Unit* unit)
+	{
+		TO_UNIT();
+
+		uint32 soundId = luaL_checkunsigned(L, 1);
+        Player* player = Eluna::get()->CHECK_PLAYER(L, 2);
+
+        if (!sSoundEntriesStore.LookupEntry(soundId))
+            return 0;
+
+        unit->PlayDirectSound(soundId, player);
+		return 0;
+	}
+
+    // PlayDistanceSound(soundId,  player)
+	static int PlayDistanceSound(lua_State* L, Unit* unit)
+	{
+		TO_UNIT();
+
+		uint32 soundId = luaL_checkunsigned(L, 1);
+        Player* player = Eluna::get()->CHECK_PLAYER(L, 2);
+
+        if (!sSoundEntriesStore.LookupEntry(soundId))
+            return 0;
+
+        unit->PlayDistanceSound(soundId, player);
 		return 0;
 	}
 };
