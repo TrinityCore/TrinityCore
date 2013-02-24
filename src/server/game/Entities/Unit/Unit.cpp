@@ -13995,6 +13995,9 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
         SpellInfo const* spellInfo = i->aura->GetSpellInfo();
         uint32 Id = i->aura->GetId();
 
+        if (Id == 56817 && procSpell != NULL && procSpell->Id != 56815) // Hack-Fix Rune Strike
+            continue;
+
         AuraApplication* aurApp = i->aura->GetApplicationOfTarget(GetGUID());
 
         bool prepare = i->aura->CallScriptPrepareProcHandlers(aurApp, eventInfo);
