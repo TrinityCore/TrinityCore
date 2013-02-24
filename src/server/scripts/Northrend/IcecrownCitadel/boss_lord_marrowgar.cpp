@@ -142,8 +142,8 @@ class boss_lord_marrowgar : public CreatureScript
                 me->SetSpeed(MOVE_RUN, _baseSpeed, true);
                 me->RemoveAurasDueToSpell(SPELL_BONE_STORM);
                 me->RemoveAurasDueToSpell(SPELL_BERSERK);
-                events.ScheduleEvent(EVENT_ENABLE_BONE_SLICE, 10000);
-                events.ScheduleEvent(EVENT_BONE_SPIKE_GRAVEYARD, 15000, EVENT_GROUP_SPECIAL);
+                events.ScheduleEvent(EVENT_ENABLE_BONE_SLICE, 10*IN_MILLISECONDS);
+                events.ScheduleEvent(EVENT_BONE_SPIKE_GRAVEYARD, urand(10*IN_MILLISECONDS, 15*IN_MILLISECONDS), EVENT_GROUP_SPECIAL);
                 events.ScheduleEvent(EVENT_COLDFLAME, 5000, EVENT_GROUP_SPECIAL);
                 events.ScheduleEvent(EVENT_WARN_BONE_STORM, urand(45*IN_MILLISECONDS, 50*IN_MILLISECONDS));
                 events.ScheduleEvent(EVENT_ENRAGE, 10*MINUTE*IN_MILLISECONDS);
@@ -248,7 +248,7 @@ class boss_lord_marrowgar : public CreatureScript
                             events.CancelEvent(EVENT_BONE_STORM_MOVE);
                             events.ScheduleEvent(EVENT_ENABLE_BONE_SLICE, 10*IN_MILLISECONDS);
                             if (!IsHeroic())
-                                events.RescheduleEvent(EVENT_BONE_SPIKE_GRAVEYARD, 15000, EVENT_GROUP_SPECIAL);
+                                events.RescheduleEvent(EVENT_BONE_SPIKE_GRAVEYARD, urand(15*IN_MILLISECONDS, 20*IN_MILLISECONDS), EVENT_GROUP_SPECIAL);
                             break;
                         case EVENT_ENABLE_BONE_SLICE:
                             _boneSlice = true;
@@ -389,7 +389,7 @@ class npc_coldflame : public CreatureScript
 
                 me->NearTeleportTo(pos.GetPositionX(), pos.GetPositionY(), me->GetPositionZ(), me->GetOrientation());
                 DoCast(SPELL_COLDFLAME_SUMMON);
-                _events.ScheduleEvent(EVENT_COLDFLAME_TRIGGER, 500);
+                _events.ScheduleEvent(EVENT_COLDFLAME_TRIGGER, 1*IN_MILLISECONDS);
             }
 
             void UpdateAI(uint32 diff)
@@ -402,7 +402,7 @@ class npc_coldflame : public CreatureScript
                     me->GetNearPosition(newPos, 5.0f, 0.0f);
                     me->NearTeleportTo(newPos.GetPositionX(), newPos.GetPositionY(), me->GetPositionZ(), me->GetOrientation());
                     DoCast(SPELL_COLDFLAME_SUMMON);
-                    _events.ScheduleEvent(EVENT_COLDFLAME_TRIGGER, 500);
+                    _events.ScheduleEvent(EVENT_COLDFLAME_TRIGGER, 1*IN_MILLISECONDS);
                 }
             }
 
