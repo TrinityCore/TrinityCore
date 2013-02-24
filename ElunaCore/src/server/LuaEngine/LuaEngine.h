@@ -413,6 +413,14 @@ public:
 			return ElunaTemplate<GameObject>::check(L, narg);
 	}
 
+	WorldPacket* CHECK_PACKET(lua_State* L, int narg)
+	{
+		if (!L)
+			return ElunaTemplate<WorldPacket>::check(_luaState, narg);
+		else
+			return ElunaTemplate<WorldPacket>::check(L, narg);
+	}
+
 protected:
     template<typename T>
     class ElunaTemplate
@@ -1082,7 +1090,43 @@ public:
             }
 
             ~LuaGameObjectAI() { }
-            GameObjectBind * goBinding;
+			GameObjectBind * goBinding;
+
+			void UpdateAI(uint32 diff)
+			{
+				Eluna::get()->BeginCall(GetGameObjectAIBindingForId(go->GetEntry())->_functionReferences[GAMEOBJECT_EVENT_ON_AIUPDATE]);
+				Eluna::get()->PushInteger(Eluna::get()->_luaState, GAMEOBJECT_EVENT_ON_AIUPDATE);
+				Eluna::get()->PushGO(Eluna::get()->_luaState, go);
+				Eluna::get()->PushUnsigned(Eluna::get()->_luaState, diff);
+				Eluna::get()->ExecuteCall(3, 0);
+			}
+
+			void Reset()
+			{
+				Eluna::get()->BeginCall(GetGameObjectAIBindingForId(go->GetEntry())->_functionReferences[GAMEOBJECT_EVENT_ON_RESET]);
+				Eluna::get()->PushInteger(Eluna::get()->_luaState, GAMEOBJECT_EVENT_ON_RESET);
+				Eluna::get()->PushGO(Eluna::get()->_luaState, go);
+				Eluna::get()->ExecuteCall(2, 0);
+			}
+
+			void DoAction(const int32 param)
+			{
+				Eluna::get()->BeginCall(GetGameObjectAIBindingForId(go->GetEntry())->_functionReferences[GAMEOBJECT_EVENT_DOACTION]);
+				Eluna::get()->PushInteger(Eluna::get()->_luaState, GAMEOBJECT_EVENT_DOACTION);
+				Eluna::get()->PushGO(Eluna::get()->_luaState, go);
+				Eluna::get()->PushUnsigned(Eluna::get()->_luaState, param);
+				Eluna::get()->ExecuteCall(3, 0);
+			}
+
+			void SetGUID(uint64 guid, int32 id)
+			{
+				Eluna::get()->BeginCall(GetGameObjectAIBindingForId(go->GetEntry())->_functionReferences[GAMEOBJECT_EVENT_ON_SET_GUID]);
+				Eluna::get()->PushInteger(Eluna::get()->_luaState, GAMEOBJECT_EVENT_ON_SET_GUID);
+				Eluna::get()->PushGO(Eluna::get()->_luaState, go);
+				Eluna::get()->PushGUID(Eluna::get()->_luaState, guid);
+				Eluna::get()->PushUnsigned(Eluna::get()->_luaState, id);
+				Eluna::get()->ExecuteCall(4, 0);
+			}
         };
 
         GameObjectAI* GetAI(GameObject* gameObject)

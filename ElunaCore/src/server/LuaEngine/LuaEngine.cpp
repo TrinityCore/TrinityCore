@@ -37,6 +37,7 @@ template<> const char* GetTName<Log>() { return "Log"; }
 template<> const char* GetTName<QueryResult>() { return "QueryResult"; }
 template<> const char* GetTName<Aura>() { return "Aura"; }
 template<> const char* GetTName<Channel>() { return "Channel"; }
+template<> const char* GetTName<WorldPacket>() { return "WorldPacket"; }
 
 void Eluna::StartEluna()
 {
@@ -58,6 +59,7 @@ void Eluna::StartEluna()
     ElunaTemplate<QueryResult>::Register(_luaState);
     ElunaTemplate<Aura>::Register(_luaState);
     ElunaTemplate<Channel>::Register(_luaState);
+	ElunaTemplate<WorldPacket>::Register(_luaState);
 
     uint32 cnt_uncomp = 0;
     char filename[200];
