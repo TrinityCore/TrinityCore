@@ -95,7 +95,7 @@ public:
             phase = PHASE_NORMAL;
         }
 
-        void DoAction(const int32 actionId)
+        void DoAction(int32 actionId)
         {
             switch (actionId)
             {
@@ -109,7 +109,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (phase == PHASE_INTRO)
             {
@@ -221,7 +221,7 @@ public:
             phase = PHASE_NORMAL;
         }
 
-        void DoAction(const int32 actionId)
+        void DoAction(int32 actionId)
         {
             switch (actionId)
             {
@@ -235,7 +235,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (phase == PHASE_INTRO)
             {

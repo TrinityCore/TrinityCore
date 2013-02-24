@@ -86,7 +86,7 @@ class boss_jindo : public CreatureScript
                 Talk(SAY_AGGRO);
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;
@@ -212,7 +212,7 @@ class mob_healing_ward : public CreatureScript
             {
             }
 
-            void UpdateAI (const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 //Heal_Timer
                 if (Heal_Timer <= diff)
@@ -260,7 +260,7 @@ class mob_shade_of_jindo : public CreatureScript
 
             void EnterCombat(Unit* /*who*/){}
 
-            void UpdateAI (const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
 
                 //ShadowShock_Timer

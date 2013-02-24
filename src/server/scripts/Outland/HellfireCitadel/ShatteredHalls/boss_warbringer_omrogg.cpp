@@ -130,7 +130,7 @@ class mob_omrogg_heads : public CreatureScript
                 DeathYell = true;
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!DeathYell)
                     return;
@@ -312,7 +312,7 @@ class boss_warbringer_omrogg : public CreatureScript
                     instance->SetData(TYPE_OMROGG, DONE);
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 if (Delay_Timer <= diff)
                 {

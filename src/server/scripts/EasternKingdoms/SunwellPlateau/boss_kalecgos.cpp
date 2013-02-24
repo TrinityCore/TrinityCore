@@ -182,7 +182,7 @@ public:
             ScriptedAI::EnterEvadeMode();
         }
 
-        void DoAction(const int32 param)
+        void DoAction(int32 param)
         {
             switch (param)
             {
@@ -197,7 +197,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (TalkTimer)
             {
@@ -485,7 +485,7 @@ public:
                 damage *= 3;
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (!me->HasAura(AURA_SPECTRAL_INVISIBILITY))
                 me->CastSpell(me, AURA_SPECTRAL_INVISIBILITY, true);
@@ -691,7 +691,7 @@ public:
             }
         }
 
-        void DoAction(const int32 param)
+        void DoAction(int32 param)
         {
             switch (param)
             {
@@ -706,7 +706,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (!me->HasAura(AURA_SPECTRAL_INVISIBILITY))
                 me->CastSpell(me, AURA_SPECTRAL_INVISIBILITY, true);

@@ -988,7 +988,7 @@ EquipmentInfo const* ObjectMgr::GetEquipmentInfo(uint32 entry, int8& id)
     if (id == -1) // select a random element
     {
         EquipmentInfoContainerInternal::const_iterator ritr = itr->second.begin();
-        std::advance(ritr, urand(0u, itr->second.size()));
+        std::advance(ritr, urand(0u, itr->second.size() - 1));
         id = std::distance(itr->second.begin(), ritr) + 1;
         return &ritr->second;
     }
@@ -1467,7 +1467,7 @@ void ObjectMgr::LoadCreatures()
         data.id             = entry;
         data.mapid          = fields[2].GetUInt16();
         data.displayid      = fields[3].GetUInt32();
-        data.equipmentId    = fields[4].GetInt32();
+        data.equipmentId    = fields[4].GetInt8();
         data.posX           = fields[5].GetFloat();
         data.posY           = fields[6].GetFloat();
         data.posZ           = fields[7].GetFloat();
@@ -1509,13 +1509,13 @@ void ObjectMgr::LoadCreatures()
         if (!ok)
             continue;
 
-        // -1 random, 0 no equipment, 1 is default (may or may not have equipment)
+        // -1 random, 0 no equipment,
         if (data.equipmentId != 0)
         {
-            if (!GetEquipmentInfo(data.id, data.equipmentId) && data.equipmentId != 1)
+            if (!GetEquipmentInfo(data.id, data.equipmentId))
             {
                 sLog->outError(LOG_FILTER_SQL, "Table `creature` have creature (Entry: %u) with equipment_id %u not found in table `creature_equip_template`, set to no equipment.", data.id, data.equipmentId);
-                data.equipmentId = 1;
+                data.equipmentId = 0;
             }
         }
 
@@ -1689,7 +1689,7 @@ uint32 ObjectMgr::AddCreData(uint32 entry, uint32 /*team*/, uint32 mapId, float 
     data.id = entry;
     data.mapid = mapId;
     data.displayid = 0;
-    data.equipmentId = 1;
+    data.equipmentId = 0;
     data.posX = x;
     data.posY = y;
     data.posZ = z;

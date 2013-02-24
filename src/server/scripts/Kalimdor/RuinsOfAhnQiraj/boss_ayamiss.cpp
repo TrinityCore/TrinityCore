@@ -144,7 +144,7 @@ class boss_ayamiss : public CreatureScript
                 me->GetMotionMaster()->MovePoint(POINT_AIR, AyamissAirPos);
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;
@@ -272,7 +272,7 @@ class npc_hive_zara_larva : public CreatureScript
                 ScriptedAI::AttackStart(victim);
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 diff)
             {
                 if (_instance->GetBossState(DATA_AYAMISS) == IN_PROGRESS)
                     return;

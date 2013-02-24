@@ -94,7 +94,7 @@ class boss_majordomo : public CreatureScript
                 events.ScheduleEvent(EVENT_TELEPORT, 20000);
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 if (instance && instance->GetBossState(BOSS_MAJORDOMO_EXECUTUS) != DONE)
                 {
@@ -174,7 +174,7 @@ class boss_majordomo : public CreatureScript
                 }
             }
 
-            void DoAction(const int32 action)
+            void DoAction(int32 action)
             {
                 if (action == ACTION_START_RAGNAROS)
                 {

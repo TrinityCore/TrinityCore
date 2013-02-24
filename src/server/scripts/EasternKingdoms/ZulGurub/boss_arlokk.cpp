@@ -180,7 +180,7 @@ class boss_arlokk : public CreatureScript
                     --_summonCountB;
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;
@@ -386,7 +386,7 @@ class npc_zulian_prowler : public CreatureScript
                 me->DespawnOrUnsummon(4000);
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 if (UpdateVictim())
                 {

@@ -74,7 +74,7 @@ public:
                  instance->SetData(TYPE_BARONESS, IN_PROGRESS);
          }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (!UpdateVictim())
                 return;

@@ -326,7 +326,7 @@ public:
             events.ScheduleEvent(EVENT_BERSERK, 15*100*1000);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (nextWP && movementStarted && !movementCompleted && !nextMovementStarted)
             {

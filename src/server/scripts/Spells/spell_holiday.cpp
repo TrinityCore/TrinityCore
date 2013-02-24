@@ -368,7 +368,7 @@ class spell_winter_veil_px_238_winter_wondervolt : public SpellScriptLoader
                         if (target->HasAura(spells[i]))
                             return;
 
-                    GetCaster()->CastSpell(target, spells[urand(0, 3)], true);
+                    target->CastSpell(target, spells[urand(0, 3)], true);
                 }
             }
 

@@ -233,7 +233,7 @@ public:
                 DoCast(me, SPELL_SHIELD, true);
         }
 
-        void UpdateAI(const uint32 uiDiff)
+        void UpdateAI(uint32 uiDiff)
         {
             npc_escortAI::UpdateAI(uiDiff);
 
@@ -360,7 +360,7 @@ public:
             bHome = false;
         }
 
-        void UpdateAI(const uint32 uiDiff)
+        void UpdateAI(uint32 uiDiff)
         {
             if (!bDone && GrandChampionsOutVehicle(me))
             {
@@ -494,7 +494,7 @@ public:
             bHome = false;
         }
 
-        void UpdateAI(const uint32 uiDiff)
+        void UpdateAI(uint32 uiDiff)
         {
             if (!bDone && GrandChampionsOutVehicle(me))
             {
@@ -639,7 +639,7 @@ public:
             bHome = false;
         }
 
-        void UpdateAI(const uint32 uiDiff)
+        void UpdateAI(uint32 uiDiff)
         {
             if (!bDone && GrandChampionsOutVehicle(me))
             {
@@ -785,7 +785,7 @@ public:
             bHome = false;
         }
 
-        void UpdateAI(const uint32 uiDiff)
+        void UpdateAI(uint32 uiDiff)
         {
             if (!bDone && GrandChampionsOutVehicle(me))
             {
@@ -933,7 +933,7 @@ public:
             bHome = false;
         }
 
-        void UpdateAI(const uint32 uiDiff)
+        void UpdateAI(uint32 uiDiff)
         {
             if (!bDone && GrandChampionsOutVehicle(me))
             {
