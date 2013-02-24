@@ -179,6 +179,86 @@ public:
         Eluna::get()->PushFloat(L, go->GetObjectSize());
         return 1;
     }
+
+    // IsInWorld()
+    static int IsInWorld(lua_State* L, GameObject* go)
+    {
+        if(!go)
+            Eluna::get()->PushBoolean(L, false);
+        else
+            Eluna::get()->PushBoolean(L, go->IsInWorld());
+        return 1;
+    }
+
+    // HasQuest(questId)
+    static int HasQuest(lua_State* L, GameObject* go)
+    {
+        if(!go || !go->IsInWorld())
+            Eluna::get()->PushBoolean(L, false);
+        else
+        {
+            uint32 questId = luaL_checkunsigned(L, 1);
+            Eluna::get()->PushBoolean(L, go->hasQuest(questId));
+        }
+        return 1;
+    }
+
+    // IsTransport()
+    static int IsTransport(lua_State* L, GameObject* go)
+    {
+        if(!go || !go->IsInWorld())
+            Eluna::get()->PushBoolean(L, false);
+        else
+            Eluna::get()->PushBoolean(L, go->IsTransport());
+        return 1;
+    }
+
+    // IsDestructible()
+    static int IsDestructible(lua_State* L, GameObject* go)
+    {
+        if(!go || !go->IsInWorld())
+            Eluna::get()->PushBoolean(L, false);
+        else
+            Eluna::get()->PushBoolean(L, go->IsDestructibleBuilding());
+        return 1;
+    }
+
+    // IsActive()
+    static int IsActive(lua_State* L, GameObject* go)
+    {
+        if(!go || !go->IsInWorld())
+            Eluna::get()->PushBoolean(L, false);
+        else
+            Eluna::get()->PushBoolean(L, go->isActiveObject());
+        return 1;
+    }
+
+    // Move(x, y, z, o)
+    static int Move(lua_State* L, GameObject* go)
+    {
+        if(!go || !go->IsInWorld())
+            return 0;
+
+        float X = luaL_checknumber(L, 1);
+        float Y = luaL_checknumber(L, 2);
+        float Z = luaL_checknumber(L, 3);
+        float O = luaL_checknumber(L, 4);
+
+        go->Relocate(X, Y, Z, O);
+        return 0;
+    }
+
+    // SetScale(scale)
+    static int SetScale(lua_State* L, GameObject* go)
+    {
+        if(!go || !go->IsInWorld())
+            return 0;
+
+        float scale = luaL_checknumber(L, 1);
+
+        go->SetObjectScale(scale);
+        return 0;
+    }
 };
 
 #endif

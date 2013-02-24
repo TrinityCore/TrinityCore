@@ -154,11 +154,18 @@ ElunaRegister<GameObject> GameObjectMethods[] =
     {"GetZoneId", &LuaGameObject::GetZoneId},                       // :GetZoneId() - UNDOCUMENTED
 
     // Setters
+    {"SetScale", &LuaGameObject::SetScale},                         // :SetScale(scale) - UNDOCUMENTED
 
     // Boolean
-
+    {"IsInWorld", &LuaGameObject::IsInWorld},                       // :IsInWorld() - UNDOCUMENTED
+    {"IsTransport", &LuaGameObject::IsTransport},                   // :IsTransport() - UNDOCUMENTED
+    {"IsDestructible", &LuaGameObject::IsDestructible},             // :IsDestructible() - UNDOCUMENTED
+    {"IsActive", &LuaGameObject::IsActive},                         // :IsActive() - UNDOCUMENTED
+    {"HasQuest", &LuaGameObject::HasQuest},                         // :HasQuest(questId) - UNDOCUMENTED
+    
     // Other
     {"CastSpellOnTarget", &LuaGameObject::CastSpellOnTarget},       // :CastSpellOnTarget(target, spellId) - Casts the spell on target, no manacost or cast time - UNDOCUMENTED
+    {"Move", &LuaGameObject::Move},                                 // :Move(x, y, z, o) - Moves the GO to coordinates - UNDOCUMENTED
     //{"SummonCreature", &LuaGameObject::SummonCreature},           // :SummonCreature(?) - UNDOCUMENTED Tommy or Rochet, check this one please. - UNDOCUMENTED
 
     { NULL, NULL },
