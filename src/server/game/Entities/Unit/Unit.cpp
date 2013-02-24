@@ -2478,7 +2478,6 @@ SpellMissInfo Unit::MeleeSpellHitResult(Unit* victim, SpellInfo const* spell)
 
     return SPELL_MISS_NONE;
 }
-
 // TODO need use unit spell resistances in calculations
 SpellMissInfo Unit::MagicSpellHitResult(Unit* victim, SpellInfo const* spell)
 {
@@ -2522,9 +2521,6 @@ SpellMissInfo Unit::MagicSpellHitResult(Unit* victim, SpellInfo const* spell)
             modHitChance -= int32(victim->ToPlayer()->GetRatingBonusValue(CR_HIT_TAKEN_SPELL));
     }
 
-	
-
-
     int32 HitChance = modHitChance * 100;
     // Increase hit chance from attacker SPELL_AURA_MOD_SPELL_HIT_CHANCE and attacker ratings
     HitChance += int32(m_modSpellHitChance * 100.0f);
@@ -2534,13 +2530,12 @@ SpellMissInfo Unit::MagicSpellHitResult(Unit* victim, SpellInfo const* spell)
     else if (HitChance > 10000)
         HitChance = 10000;
 
-	int32 tmp = 10000 - HitChance;
-       int32 rand;
- 
-	    rand = irand(0, 10000);
+    int32 tmp = 10000 - HitChance;
 
-  	if (rand < tmp && (!victim->GetTypeId() == TYPEID_PLAYER && modHitChance < 152))
-      return SPELL_MISS_MISS;
+    int32 rand = irand(0, 10000);
+
+    if (rand < tmp)
+        return SPELL_MISS_MISS;
 
     // Spells with SPELL_ATTR3_IGNORE_HIT_RESULT will additionally fully ignore
     // resist and deflect chances
@@ -2549,7 +2544,7 @@ SpellMissInfo Unit::MagicSpellHitResult(Unit* victim, SpellInfo const* spell)
 
     // Chance resist mechanic (select max value from every mechanic spell effect)
     int32 resist_chance = victim->GetMechanicResistChance(spell) * 100;
-    resist_chance;
+    tmp += resist_chance;
 
     // Chance resist debuff
     if (!spell->IsPositive())
@@ -2566,15 +2561,13 @@ SpellMissInfo Unit::MagicSpellHitResult(Unit* victim, SpellInfo const* spell)
 
         if (bNegativeAura)
         {
-            resist_chance += victim->GetMaxPositiveAuraModifierByMiscValue(SPELL_AURA_MOD_DEBUFF_RESISTANCE, int32(spell->Dispel) * 100);
-            resist_chance += victim->GetMaxNegativeAuraModifierByMiscValue(SPELL_AURA_MOD_DEBUFF_RESISTANCE, int32(spell->Dispel) * 100);
+            tmp += victim->GetMaxPositiveAuraModifierByMiscValue(SPELL_AURA_MOD_DEBUFF_RESISTANCE, int32(spell->Dispel)) * 100;
+            tmp += victim->GetMaxNegativeAuraModifierByMiscValue(SPELL_AURA_MOD_DEBUFF_RESISTANCE, int32(spell->Dispel)) * 100;
         }
     }
 
-	resist_chance -= GetSpellPenetrationItemMod() * 100;
-  
    // Roll chance
-    if (rand < resist_chance)
+    if (rand < tmp)
         return SPELL_MISS_RESIST;
 
     // cast by caster in front of victim
@@ -14792,7 +14785,9 @@ Pet* Unit::CreateTamedPetFrom(Creature* creatureTarget, uint32 spell_id)
         return NULL;
     }
 
-    uint8 level = creatureTarget->getLevel() + 5 < getLevel() ? (getLevel() - 5) : creatureTarget->getLevel();
+  //  uint8 level = creatureTarget->getLevel() + 5 < getLevel() ? (getLevel() - 5) : creatureTarget->getLevel();
+
+      uint8 level = 80; // For Instant Rates
 
     InitTamedPet(pet, level, spell_id);
 

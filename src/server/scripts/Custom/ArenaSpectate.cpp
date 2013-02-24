@@ -65,6 +65,13 @@ class arena_spectator_commands : public CommandScript
                 return false;
             }
 
+			if (player->HasAura(32728) || player->HasAura(32727)) // Check Arena Preparation thx XXXsupr
+            {
+                handler->PSendSysMessage("Cant do that. Arena didn`t started.");
+                handler->SetSentErrorMessage(true);
+                return false;
+            }
+
             if (player->GetPet())
             {
                 handler->PSendSysMessage("You must hide your pet.");

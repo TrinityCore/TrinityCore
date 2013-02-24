@@ -1,4 +1,4 @@
-/*
+a /*
  * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
@@ -22004,7 +22004,7 @@ bool Player::IsVisibleGloballyFor(Player const* u) const
     if (!IsVisible())
         return false;
 
-    if (isSpectator());
+    if (isSpectator())
       return false;
 
     // non-gm stealth/invisibility not hide from global player lists
