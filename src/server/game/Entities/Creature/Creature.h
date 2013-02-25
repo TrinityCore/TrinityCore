@@ -484,13 +484,13 @@ class Creature : public Unit, public GridObject<Creature>, public MapCreature
             SetReactState(REACT_DEFENSIVE);*/;
         }
 
-        /// @todo Rename this to proper functions
+        /// @todo Rename these properly
         bool isCanTrainingOf(Player* player, bool msg) const;
         bool isCanInteractWithBattleMaster(Player* player, bool msg) const;
         bool isCanTrainingAndResetTalentsOf(Player* player) const;
         bool canCreatureAttack(Unit const* victim, bool force = true) const;
-        bool IsImmunedToSpell(SpellInfo const* spellInfo);                           // redefine Unit::IsImmunedToSpell
-        bool IsImmunedToSpellEffect(SpellInfo const* spellInfo, uint32 index) const; // redefine Unit::IsImmunedToSpellEffect
+        bool IsImmunedToSpell(SpellInfo const* spellInfo);                           //override Unit::IsImmunedToSpell
+        bool IsImmunedToSpellEffect(SpellInfo const* spellInfo, uint32 index) const; //override Unit::IsImmunedToSpellEffect
         bool isElite() const
         {
             if (isPet())
