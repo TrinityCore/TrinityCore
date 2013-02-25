@@ -607,6 +607,7 @@ void Channel::Say(uint64 guid, std::string const& what, uint32 lang)
     if (Player* player = ObjectAccessor::FindPlayer(guid))
         chatTag = player->GetChatTag();
 
+    // TODO: Add proper RBAC check
     if (sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_CHANNEL))
         lang = LANG_UNIVERSAL;
 
@@ -669,7 +670,9 @@ void Channel::Invite(Player const* player, std::string const& newname)
         return;
     }
 
-    if (newp->GetTeam() != player->GetTeam() && !sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_CHANNEL))
+    if (newp->GetTeam() != player->GetTeam() && (!sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_CHANNEL) ||
+        !player->GetSession()->HasPermission(RBAC_PERM_TWO_SIDE_INTERACTION_CHANNEL) ||
+        !newp->GetSession()->HasPermission(RBAC_PERM_TWO_SIDE_INTERACTION_CHANNEL)))
     {
         WorldPacket data;
         MakeInviteWrongFaction(&data);
