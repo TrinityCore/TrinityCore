@@ -1235,7 +1235,6 @@ public:
                 Eluna::get()->PushUnsigned(Eluna::get()->_luaState, itr->second.calls);
                 Eluna::get()->ExecuteCall(3, 0);
                 printf("End\n");
-
                 if(itr->second.calls != 1)
                 {
                     if(itr->second.calls > 1)
