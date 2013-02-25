@@ -66,6 +66,7 @@ enum RBACPermissions
     RBAC_PERM_SKIP_CHECK_CHAT_SPAM                    = 22,
     RBAC_PERM_SKIP_CHECK_OVERSPEED_PING               = 23,
     RBAC_PERM_TWO_SIDE_INTERACTION_CHAT               = 25,
+    RBAC_PERM_TWO_SIDE_INTERACTION_CHANNEL            = 26,
     RBAC_PERM_TWO_SIDE_INTERACTION_MAIL               = 27,
     RBAC_PERM_COMMANDS_SAVE_WITHOUT_DELAY             = 30,
     RBAC_PERM_COMMANDS_USE_UNSTUCK_WITH_ARGS          = 31,
@@ -80,6 +81,8 @@ enum RBACPermissions
     RBAC_PERM_OPCODE_WORLD_TELEPORT                   = 42,
     RBAC_PERM_OPCODE_WHOIS                            = 43,
     RBAC_PERM_RECEIVE_GLOBAL_GM_TEXTMESSAGE           = 44,
+    RBAC_PERM_SILENTLY_JOIN_CHANNEL                   = 45,
+    RBAC_PERM_CHANGE_CHANNEL_NOT_MODERATOR            = 46,
     RBAC_PERM_CHECK_FOR_LOWER_SECURITY                = 47,
     RBAC_PERM_MAX
 };
