@@ -233,7 +233,7 @@ namespace LuaGlobalFunctions
         return 1;
     }
     
-    // CreateLuaEvent(function, delay, calls) - Creates a timed event. Calls set to 0 will call inf returns eventID
+    // CreateLuaEvent(function, delay, calls) - Creates a timed event. Calls set to 0 will call inf returns eventID.
     static int CreateLuaEvent(lua_State* L)
     {
         uint32 delay = luaL_checkunsigned(L, 2);
@@ -242,7 +242,7 @@ namespace LuaGlobalFunctions
         {
             lua_settop(L, 1);
             int functionRef = lua_ref(L, true);
-            Eluna::get()->_luaEventMgr->CreateLuaEvent(functionRef, delay, repeats);
+            sLuaWorldScript->LuaEventCreate(functionRef, delay, repeats);
             Eluna::get()->PushInteger(L, functionRef);
         }
         else
@@ -250,18 +250,18 @@ namespace LuaGlobalFunctions
         return 1;
     }
     
-    // DestroyLuaEvent(eventID) - removes all lua events with eventid
-    static int DestroyLuaEvent(lua_State* L)
+    // DestroyLuaEventByID(eventID) - removes all global lua events with eventid
+    static int DestroyLuaEventByID(lua_State* L)
     {
-        int32 functionRef = luaL_checkinteger(L, 1);
-        Eluna::get()->_luaEventMgr->CancelEvent(functionRef);
+        int functionRef = luaL_checkinteger(L, 1);
+        sLuaWorldScript->LuaEventCancel(functionRef);
         return 0;
     }
     
-    // DestroyAllLuaEvents() - removes all lua events
-    static int DestroyAllLuaEvents(lua_State* L)
+    // DestroyLuaEvents() - removes all global lua events
+    static int DestroyLuaEvents(lua_State* L)
     {
-        Eluna::get()->_luaEventMgr->Reset();
+        sLuaWorldScript->LuaEventsReset();
         return 0;
     }
 

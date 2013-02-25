@@ -266,6 +266,59 @@ public:
         go->SetObjectScale(scale);
         return 0;
     }
+
+    // RegisterEvent(function, delay, calls)
+    static int RegisterEvent(lua_State* L, GameObject* go)
+    {
+        if(!go || !go->IsInWorld())
+            return 0;
+
+        uint32 delay = luaL_checkunsigned(L, 2);
+        uint32 repeats = luaL_checkunsigned(L, 3);
+        Eluna::LuaGameObjectScript::LuaGameObjectAI* luaAI = sLuaGameObjectScript->GetLuaAI(go);
+        if(!luaAI)
+        {
+            luaL_error(L, "GameObject has no registered gameobject events, please register one before using RegisterEvent");
+            return 0;
+        }
+        if(!strcmp(luaL_typename(L, 1), "function") || delay > 0)
+        {
+            lua_settop(L, 1);
+            int functionRef = lua_ref(L, true);
+            luaAI->LuaEventCreate(functionRef, delay, repeats);
+            Eluna::get()->PushInteger(L, functionRef);
+        }
+        else
+            return 0;
+        return 1;
+
+    }
+
+    // RemoveEventByID(eventID)
+    static int RemoveEventByID(lua_State* L, GameObject* go)
+    {
+        if(!go || !go->IsInWorld())
+            return 0;
+
+        int eventID = luaL_checkinteger(L, 1);
+        Eluna::LuaGameObjectScript::LuaGameObjectAI* luaAI = sLuaGameObjectScript->GetLuaAI(go);
+
+        if(luaAI)
+            luaAI->LuaEventCancel(eventID);
+        return 0;
+    }
+
+    // RemoveEvents()
+    static int RemoveEvents(lua_State* L, GameObject* go)
+    {
+        if(!go || !go->IsInWorld())
+            return 0;
+
+        Eluna::LuaGameObjectScript::LuaGameObjectAI* luaAI = sLuaGameObjectScript->GetLuaAI(go);
+        if(luaAI)
+            luaAI->LuaEventsReset();
+        return 0;
+    }
 };
 
 #endif

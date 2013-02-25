@@ -35,8 +35,8 @@ extern "C"
 };
 
 class ElunaTemplate;
-class LuaCreatureScript;
-class LuaGameObjectScript;
+//class LuaCreatureScript;
+//class LuaGameObjectScript;
 
 struct LoadedScripts
 {
@@ -299,7 +299,6 @@ public:
 
     Eluna()
     {
-        _luaEventMgr = new luaEventMgr();
     }
 
     ~Eluna()
@@ -309,7 +308,8 @@ public:
         _creatureEventBindings.clear();
         _gameObjectAIEventBindings.clear();
         _gameObjectGossipBindings.clear();
-        delete _luaEventMgr;
+        luaEventMap::LuaEventsResetAll(); // Unregisters and stops all timed events
+        // Need to reset global, creature and gob events
     }
 
     lua_State* _luaState;
@@ -610,6 +610,123 @@ protected:
             return 1;
         }
     };
+
+public:
+    static class luaEventMap
+    {
+    public:
+        luaEventMap() { }
+        ~luaEventMap() { LuaEventsReset(); }
+
+        struct eventData
+        {
+            int funcRef; uint32 delay; uint32 calls;
+            eventData(int _funcRef, uint32 _delay, uint32 _calls) :
+            funcRef(_funcRef), delay(_delay), calls(_calls) {}
+        };
+
+        typedef std::multimap<uint32, eventData> EventStore; // Not to use multimap? Can same function ref ID be used multiple times?
+
+        virtual void OnLuaEvent(int funcRef, uint32 delay, uint32 calls) { }
+
+        static void LuaEventsResetAll(); // Unregisters and stops all timed events
+
+        void LuaEventsReset()
+        {
+            for (EventStore::iterator itr = _eventMap.begin(); itr != _eventMap.end();)
+            {
+                luaL_unref(get()->_luaState, LUA_REGISTRYINDEX, itr->second.funcRef);
+                ++itr;
+            }
+            _eventMap.clear();
+            _time = 0;
+        }
+
+        void LuaEventsUpdate(uint32 time)
+        {
+            _time += time;
+        }
+
+        bool LuaEventsEmpty() const
+        {
+            return _eventMap.empty();
+        }
+
+        void LuaEventCreate(int funcRef, uint32 delay, uint32 calls)
+        {
+            _eventMap.insert(EventStore::value_type(_time + delay, eventData(funcRef, delay, calls)));
+        }
+
+        void LuaEventCancel(uint32 funcRef)
+        {
+            if (LuaEventsEmpty())
+                return;
+
+            for (EventStore::iterator itr = _eventMap.begin(); itr != _eventMap.end();)
+            {
+                if (funcRef == itr->second.funcRef)
+                {
+                    luaL_unref(get()->_luaState, LUA_REGISTRYINDEX, itr->second.funcRef);
+                    _eventMap.erase(itr++);
+                }
+                else
+                    ++itr;
+            }
+        }
+
+        void LuaEventsExecute()
+        {
+            if (LuaEventsEmpty())
+                return;
+
+            for (EventStore::iterator itr = _eventMap.begin(); itr != _eventMap.end();)
+            {
+                if (itr->first > _time)
+                {
+                    ++itr;
+                    continue;
+                }
+
+                OnLuaEvent(itr->second.funcRef, itr->second.delay, itr->second.calls);
+
+                if(itr->second.calls != 1)
+                {
+                    if(itr->second.calls > 1)
+                        itr->second.calls = itr->second.calls-1;
+                    _eventMap.insert(EventStore::value_type(_time + itr->second.delay, itr->second));
+                }
+                _eventMap.erase(itr++);
+            }
+        }
+
+    private:
+        EventStore _eventMap;
+        uint32 _time;
+    };
+
+    public:
+        static class LuaWorldScript : public WorldScript, public luaEventMap
+        {
+        public:
+            LuaWorldScript() : WorldScript("LuaWorldScript"), luaEventMap() {}
+
+            void OnUpdate(uint32 diff)
+            {
+                LuaEventsUpdate(diff);
+                LuaEventsExecute();
+            }
+
+            // executed when a  timed event fires
+            void OnLuaEvent(int funcRef, uint32 delay, uint32 calls)
+            {
+                Eluna::get()->BeginCall(funcRef);
+                Eluna::get()->PushUnsigned(Eluna::get()->_luaState, funcRef);
+                Eluna::get()->PushUnsigned(Eluna::get()->_luaState, delay);
+                Eluna::get()->PushUnsigned(Eluna::get()->_luaState, calls);
+                Eluna::get()->ExecuteCall(3, 0);
+            }
+        };
+
 public:
     static class LuaCreatureScript : CreatureScript
     {
@@ -669,14 +786,38 @@ public:
             return true;
         }
 
-        static struct LuaCreatureAI : ScriptedAI
+        static struct LuaCreatureAI : ScriptedAI, public luaEventMap
         {
-            LuaCreatureAI(Creature* creature) : ScriptedAI(creature)
+            LuaCreatureAI(Creature* creature) : ScriptedAI(creature), luaEventMap()
             {
                 binding = GetCreatureBindingForId(creature->GetEntry());
             }
             ~LuaCreatureAI() { }
             CreatureBind* binding;
+
+            //Called at World update tick
+            void UpdateAI(uint32 const diff)
+            {
+                LuaEventsUpdate(diff);
+                LuaEventsExecute();
+                Eluna::get()->BeginCall(Eluna::LuaCreatureScript::GetCreatureBindingForId(me->GetEntry())->_functionReferences[CREATURE_EVENT_ON_AIUPDATE]);
+                Eluna::get()->PushInteger(Eluna::get()->_luaState, CREATURE_EVENT_ON_AIUPDATE);
+                Eluna::get()->PushUnit(Eluna::get()->_luaState, me);
+                Eluna::get()->PushUnsigned(Eluna::get()->_luaState, diff);
+                Eluna::get()->ExecuteCall(3, 0);
+                ScriptedAI::UpdateAI(diff);
+            }
+
+            // executed when a  timed event fires
+            void OnLuaEvent(int funcRef, uint32 delay, uint32 calls)
+            {
+                Eluna::get()->BeginCall(funcRef);
+                Eluna::get()->PushUnsigned(Eluna::get()->_luaState, funcRef);
+                Eluna::get()->PushUnsigned(Eluna::get()->_luaState, delay);
+                Eluna::get()->PushUnsigned(Eluna::get()->_luaState, calls);
+                Eluna::get()->PushUnit(Eluna::get()->_luaState, me);
+                Eluna::get()->ExecuteCall(4, 0);
+            }
 
             //Called for reaction at enter to combat if not in combat yet (enemy can be NULL)
             //Called at creature aggro either by MoveInLOS or Attack Start
@@ -700,17 +841,6 @@ public:
                 Eluna::get()->PushUnsigned(Eluna::get()->_luaState, damage);
                 Eluna::get()->ExecuteCall(4, 0);
                 ScriptedAI::DamageTaken(attacker, damage);
-            }
-
-            //Called at World update tick
-            void UpdateAI(uint32 const diff)
-            {
-                Eluna::get()->BeginCall(Eluna::LuaCreatureScript::GetCreatureBindingForId(me->GetEntry())->_functionReferences[CREATURE_EVENT_ON_AIUPDATE]);
-                Eluna::get()->PushInteger(Eluna::get()->_luaState, CREATURE_EVENT_ON_AIUPDATE);
-                Eluna::get()->PushUnit(Eluna::get()->_luaState, me);
-                Eluna::get()->PushUnsigned(Eluna::get()->_luaState, diff);
-                Eluna::get()->ExecuteCall(3, 0);
-                ScriptedAI::UpdateAI(diff);
             }
 
             //Called at creature death
@@ -1022,7 +1152,7 @@ public:
             }
         };
 
-        CreatureAI* GetAI(Creature* creature)
+        LuaCreatureAI* GetLuaAI(Creature* creature)
         {
             CreatureBind* bind = GetCreatureBindingForId(creature->GetEntry());
             if (!bind)
@@ -1030,12 +1160,17 @@ public:
 
             if (!_scriptsToClear.empty())
                 for (vector<LuaCreatureAI*>::iterator itr = _scriptsToClear.begin(); itr != _scriptsToClear.end(); ++itr)
-                    if ((!(*itr)) && (*itr)->binding->entry == creature->GetEntry())
+                    if ((*itr) && (*itr)->binding->entry == creature->GetEntry())
                         return (*itr);
 
             LuaCreatureAI* luaCreatureAI = new LuaCreatureAI(creature);
             _scriptsToClear.push_back(luaCreatureAI);
             return luaCreatureAI;
+        }
+
+        CreatureAI* GetAI(Creature* creature)
+        {
+            return GetLuaAI(creature);
         }
     };
 
@@ -1097,9 +1232,9 @@ public:
             return true;
         }
 
-        static struct LuaGameObjectAI : GameObjectAI
+        static struct LuaGameObjectAI : GameObjectAI, public luaEventMap
         {
-            LuaGameObjectAI(GameObject* _go) : GameObjectAI(_go)
+            LuaGameObjectAI(GameObject* _go) : GameObjectAI(_go), luaEventMap()
             {
                 goBinding = LuaGameObjectScript::GetGameObjectAIBindingForId(_go->GetEntry());
             }
@@ -1109,11 +1244,24 @@ public:
 
             void UpdateAI(uint32 diff)
             {
+                LuaEventsUpdate(diff);
+                LuaEventsExecute();
                 Eluna::get()->BeginCall(GetGameObjectAIBindingForId(go->GetEntry())->_functionReferences[GAMEOBJECT_EVENT_ON_AIUPDATE]);
                 Eluna::get()->PushInteger(Eluna::get()->_luaState, GAMEOBJECT_EVENT_ON_AIUPDATE);
                 Eluna::get()->PushGO(Eluna::get()->_luaState, go);
                 Eluna::get()->PushUnsigned(Eluna::get()->_luaState, diff);
                 Eluna::get()->ExecuteCall(3, 0);
+            }
+
+            // executed when a  timed event fires
+            void OnLuaEvent(int funcRef, uint32 delay, uint32 calls)
+            {
+                Eluna::get()->BeginCall(funcRef);
+                Eluna::get()->PushUnsigned(Eluna::get()->_luaState, funcRef);
+                Eluna::get()->PushUnsigned(Eluna::get()->_luaState, delay);
+                Eluna::get()->PushUnsigned(Eluna::get()->_luaState, calls);
+                Eluna::get()->PushGO(Eluna::get()->_luaState, go);
+                Eluna::get()->ExecuteCall(4, 0);
             }
 
             void Reset()
@@ -1144,7 +1292,7 @@ public:
             }
         };
 
-        GameObjectAI* GetAI(GameObject* gameObject)
+        LuaGameObjectAI* GetLuaAI(GameObject* gameObject)
         {
             GameObjectBind* bind = GetGameObjectAIBindingForId(gameObject->GetEntry());
             if (!bind)
@@ -1152,111 +1300,24 @@ public:
 
             if (!_scriptsToClear.empty())
                 for (vector<LuaGameObjectAI*>::iterator itr = _scriptsToClear.begin(); itr != _scriptsToClear.end(); ++itr)
-                    if ((!(*itr)) && (*itr)->goBinding->entry == gameObject->GetEntry())
+                    if ((*itr) && (*itr)->goBinding->entry == gameObject->GetEntry())
                         return (*itr);
 
             LuaGameObjectAI* luaGameObjectAI = new LuaGameObjectAI(gameObject);
             _scriptsToClear.push_back(luaGameObjectAI);
             return luaGameObjectAI;
         }
+
+        GameObjectAI* GetAI(GameObject* gameObject)
+        {
+            return GetLuaAI(gameObject);
+        }
     };
-
-public:
-    static class luaEventMgr : public WorldScript
-    {
-    public:
-        luaEventMgr() : WorldScript("luaEventMgr")
-        {
-        }
-
-        struct eventData
-        {
-            uint16 funcRef; uint32 delay; uint32 calls;
-            eventData(uint16 _funcRef, uint32 _delay, uint32 _calls) :
-            funcRef(_funcRef), delay(_delay), calls(_calls) {}
-        };
-
-        typedef std::multimap<uint32, eventData> EventStore;
-
-        void Reset()
-        {
-            _eventMap.clear();
-            _time = 0;
-        }
-
-        void OnUpdate(uint32 diff)
-        {
-            Update(diff);
-            ExecuteEvents();
-        }
-
-        void Update(uint32 time)
-        {
-            _time += time;
-        }
-
-        bool Empty() const
-        {
-            return _eventMap.empty();
-        }
-
-        void CreateLuaEvent(uint16 funcRef, uint32 delay, uint32 calls)
-        {
-            _eventMap.insert(EventStore::value_type(_time + delay, eventData(funcRef, delay, calls)));
-        }
-
-        void CancelEvent(uint32 funcRef)
-        {
-            if (Empty())
-                return;
-
-            for (EventStore::iterator itr = _eventMap.begin(); itr != _eventMap.end();)
-            {
-                if (funcRef == itr->second.funcRef)
-                    _eventMap.erase(itr++);
-                else
-                    ++itr;
-            }
-        }
-
-        void ExecuteEvents()
-        {
-            if (Empty())
-                return;
-            for (EventStore::iterator itr = _eventMap.begin(); itr != _eventMap.end();)
-            {
-                if (itr->first > _time)
-                {
-                    ++itr;
-                    continue;
-                }
-
-                // function(eventID, delay, nthcall) - Call is always 0 for infinite and wont reach 0 for others
-                // if you register a timed event with 3 times, the call arg will be 3 the first time (3,2,1)
-                Eluna::get()->BeginCall(itr->second.funcRef);
-                Eluna::get()->PushUnsigned(Eluna::get()->_luaState, itr->second.delay);
-                Eluna::get()->PushUnsigned(Eluna::get()->_luaState, itr->second.calls);
-                Eluna::get()->ExecuteCall(2, 0);
-
-                if(itr->second.calls != 1)
-                {
-                    if(itr->second.calls > 1)
-                        itr->second.calls = itr->second.calls-1;
-                    _eventMap.insert(EventStore::value_type(_time + itr->second.delay, itr->second));
-                }
-                _eventMap.erase(itr++);
-            }
-        }
-
-    private:
-        EventStore _eventMap;
-        uint32 _time;
-    };
-    luaEventMgr* _luaEventMgr;
 };
 
-#define sLuaCreatureScript ACE_Singleton<LuaCreatureScript, ACE_Null_Mutex>::instance()
-#define sLuaGameObjectScript ACE_Singleton<LuaGameObjectScript, ACE_Null_Mutex>::instance()
+#define sLuaCreatureScript ACE_Singleton<Eluna::LuaCreatureScript, ACE_Null_Mutex>::instance()
+#define sLuaGameObjectScript ACE_Singleton<Eluna::LuaGameObjectScript, ACE_Null_Mutex>::instance()
+#define sLuaWorldScript ACE_Singleton<Eluna::LuaWorldScript, ACE_Null_Mutex>::instance()
 
 class ElunaScript : public ScriptObject
 {

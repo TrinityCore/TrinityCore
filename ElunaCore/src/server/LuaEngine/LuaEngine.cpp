@@ -113,18 +113,18 @@ void Eluna::RegisterGlobals(lua_State* L)
     lua_register(L, "SendWorldMessage", &LuaGlobalFunctions::SendWorldMessage);
     lua_register(L, "GetPlayersInWorld", &LuaGlobalFunctions::GetPlayersInWorld);
     lua_register(L, "GetPlayersInMap", &LuaGlobalFunctions::GetPlayersInMap);
-    lua_register(L, "WorldDBQuery", &LuaGlobalFunctions::WorldDBQuery);
-    lua_register(L, "WorldDBExecute", &LuaGlobalFunctions::WorldDBExecute);
-    lua_register(L, "CharDBQuery", &LuaGlobalFunctions::CharDBQuery);
-    lua_register(L, "CharDBExecute", &LuaGlobalFunctions::CharDBExecute);
-    lua_register(L, "AuthDBQuery", &LuaGlobalFunctions::AuthDBQuery);
-    lua_register(L, "AuthDBExecute", &LuaGlobalFunctions::AuthDBExecute);
+    lua_register(L, "WorldDBQuery", &LuaGlobalFunctions::WorldDBQuery);             // Not Documented
+    lua_register(L, "WorldDBExecute", &LuaGlobalFunctions::WorldDBExecute);             // Not Documented
+    lua_register(L, "CharDBQuery", &LuaGlobalFunctions::CharDBQuery);             // Not Documented
+    lua_register(L, "CharDBExecute", &LuaGlobalFunctions::CharDBExecute);             // Not Documented
+    lua_register(L, "AuthDBQuery", &LuaGlobalFunctions::AuthDBQuery);             // Not Documented
+    lua_register(L, "AuthDBExecute", &LuaGlobalFunctions::AuthDBExecute);             // Not Documented
     lua_register(L, "GetGuildByName", &LuaGlobalFunctions::GetGuildByName);
     lua_register(L, "GetGuildByLeaderGUID", &LuaGlobalFunctions::GetGuildByLeaderGUID);
     lua_register(L, "GetPlayerCount", &LuaGlobalFunctions::GetPlayerCount);
-    lua_register(L, "CreateLuaEvent", &LuaGlobalFunctions::CreateLuaEvent);
-    lua_register(L, "DestroyLuaEvent", &LuaGlobalFunctions::DestroyLuaEvent);
-    lua_register(L, "DestroyAllLuaEvents", &LuaGlobalFunctions::DestroyAllLuaEvents);
+    lua_register(L, "CreateLuaEvent", &LuaGlobalFunctions::CreateLuaEvent);             // Not Documented
+    lua_register(L, "DestroyLuaEventByID", &LuaGlobalFunctions::DestroyLuaEventByID);             // Not Documented
+    lua_register(L, "DestroyLuaEvents", &LuaGlobalFunctions::DestroyLuaEvents);             // Not Documented
     lua_register(L, "PerformIngameSpawn", &LuaGlobalFunctions::PerformIngameSpawn);             // Not Documented
 }
 
@@ -330,6 +330,23 @@ GameObjectAI* Eluna::GetLuaGameObjectAI(GameObject* gameObject)
     return NULL;
 }
 
+// Unregisters and stops all timed events
+void Eluna::luaEventMap::LuaEventsResetAll()
+{
+    // Creature events reset
+    if (!sLuaCreatureScript->_scriptsToClear.empty())
+        for (vector<Eluna::LuaCreatureScript::LuaCreatureAI*>::iterator itr = sLuaCreatureScript->_scriptsToClear.begin(); itr != sLuaCreatureScript->_scriptsToClear.end(); ++itr)
+            if (*itr)
+                (*itr)->LuaEventsReset();
+    // GameObject events reset
+    if (!sLuaGameObjectScript->_scriptsToClear.empty())
+        for (vector<Eluna::LuaGameObjectScript::LuaGameObjectAI*>::iterator itr = sLuaGameObjectScript->_scriptsToClear.begin(); itr != sLuaGameObjectScript->_scriptsToClear.end(); ++itr)
+            if (*itr)
+                (*itr)->LuaEventsReset();
+    // Global events reset
+    sLuaWorldScript->LuaEventsReset();
+}
+
 // RegisterServerHook(ev, func)
 static int RegisterServerHook(lua_State* L)
 {
@@ -480,6 +497,9 @@ void Eluna::Register(uint8 regtype, uint32 id, uint32 evt, uint16 functionRef)
 void Eluna::Restart()
 {
     sLog->outInfo(LOG_FILTER_GENERAL, "Eluna Nova::Restarting Engine");
+
+    Eluna::luaEventMap::LuaEventsResetAll(); // Unregisters and stops all timed events
+
     for (ElunaBindingMap::iterator itr = get()->_serverEventBindings.begin(); itr != get()->_serverEventBindings.end(); ++itr)
     {
         for (vector<uint16>::iterator _itr = itr->second.begin(); _itr != itr->second.end(); ++_itr)

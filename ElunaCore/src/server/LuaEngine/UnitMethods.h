@@ -1237,7 +1237,7 @@ public:
         return 0;
     }
 
-    // Kill([target, durabilityLoss])
+    // Kill([target, durabilityLoss]) - Creates a timed event. Calls set to 0 will call inf returns eventID.
     static int Kill(lua_State* L, Unit* unit)
     {
         TO_UNIT();
@@ -1246,6 +1246,56 @@ public:
         bool durLoss = luaL_optbool(L, 2, true);
         
         unit->Kill((target ? target : unit), durLoss);
+        return 0;
+    }
+
+    // RegisterEvent(function, delay, calls)
+    static int RegisterEvent(lua_State* L, Unit* unit)
+    {
+        TO_CREATURE();
+
+        uint32 delay = luaL_checkunsigned(L, 2);
+        uint32 repeats = luaL_checkunsigned(L, 3);
+        Eluna::LuaCreatureScript::LuaCreatureAI* luaAI = sLuaCreatureScript->GetLuaAI(creature);
+        if(!luaAI)
+        {
+            luaL_error(L, "Creature has no registered creature events, please register one before using RegisterEvent");
+            return 0;
+        }
+        if(!strcmp(luaL_typename(L, 1), "function") || delay > 0)
+        {
+            lua_settop(L, 1);
+            int functionRef = lua_ref(L, true);
+            luaAI->LuaEventCreate(functionRef, delay, repeats);
+            Eluna::get()->PushInteger(L, functionRef);
+        }
+        else
+            return 0;
+        return 1;
+
+    }
+
+    // RemoveEventByID(eventID)
+    static int RemoveEventByID(lua_State* L, Unit* unit)
+    {
+        TO_CREATURE();
+
+        int eventID = luaL_checkinteger(L, 1);
+        Eluna::LuaCreatureScript::LuaCreatureAI* luaAI = sLuaCreatureScript->GetLuaAI(creature);
+
+        if(luaAI)
+            luaAI->LuaEventCancel(eventID);
+        return 0;
+    }
+
+    // RemoveEvents()
+    static int RemoveEvents(lua_State* L, Unit* unit)
+    {
+        TO_CREATURE();
+
+        Eluna::LuaCreatureScript::LuaCreatureAI* luaAI = sLuaCreatureScript->GetLuaAI(creature);
+        if(luaAI)
+            luaAI->LuaEventsReset();
         return 0;
     }
 };
