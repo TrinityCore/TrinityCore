@@ -544,3 +544,16 @@ RBACPermission const* AccountMgr::GetRBACPermission(uint32 permission) const
 
     return NULL;
 }
+
+bool AccountMgr::HasPermission(uint32 accountId, uint32 permission, uint32 realmId)
+{
+    if (!accountId)
+        return false;
+
+    RBACData* rbac = new RBACData(accountId, "", realmId);
+    rbac->LoadFromDB();
+    bool hasPermission = rbac->HasPermission(permission);
+    delete rbac;
+
+    return hasPermission;
+}

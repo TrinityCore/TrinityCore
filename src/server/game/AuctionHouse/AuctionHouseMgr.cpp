@@ -93,46 +93,45 @@ void AuctionHouseMgr::SendAuctionWonMail(AuctionEntry* auction, SQLTransaction& 
     if (!pItem)
         return;
 
-    uint32 bidder_accId = 0;
-    uint64 bidder_guid = MAKE_NEW_GUID(auction->bidder, 0, HIGHGUID_PLAYER);
-    Player* bidder = ObjectAccessor::FindPlayer(bidder_guid);
+    uint32 bidderAccId = 0;
+    uint64 bidderGuid = MAKE_NEW_GUID(auction->bidder, 0, HIGHGUID_PLAYER);
+    Player* bidder = ObjectAccessor::FindPlayer(bidderGuid);
     // data for gm.log
     if (sWorld->getBoolConfig(CONFIG_GM_LOG_TRADE))
     {
-        uint32 bidder_security = 0;
-        std::string bidder_name;
+        std::string bidderName;
+        bool logGmTrade = false;
+
         if (bidder)
         {
-            bidder_accId = bidder->GetSession()->GetAccountId();
-            bidder_security = bidder->GetSession()->GetSecurity();
-            bidder_name = bidder->GetName();
+            bidderAccId = bidder->GetSession()->GetAccountId();
+            bidderName = bidder->GetName();
+            logGmTrade = !AccountMgr::IsPlayerAccount(bidder->GetSession()->GetAccountId());
         }
         else
         {
-            bidder_accId = sObjectMgr->GetPlayerAccountIdByGUID(bidder_guid);
-            bidder_security = AccountMgr::GetSecurity(bidder_accId, realmID);
+            bidderAccId = sObjectMgr->GetPlayerAccountIdByGUID(bidderGuid);
+            logGmTrade = !AccountMgr::IsPlayerAccount(AccountMgr::GetSecurity(bidderAccId, realmID));
 
-            if (!AccountMgr::IsPlayerAccount(bidder_security)) // not do redundant DB requests
-            {
-                if (!sObjectMgr->GetPlayerNameByGUID(bidder_guid, bidder_name))
-                    bidder_name = sObjectMgr->GetTrinityStringForDBCLocale(LANG_UNKNOWN);
-            }
+            if (logGmTrade && !sObjectMgr->GetPlayerNameByGUID(bidderGuid, bidderName))
+                bidderName = sObjectMgr->GetTrinityStringForDBCLocale(LANG_UNKNOWN);
         }
-        if (!AccountMgr::IsPlayerAccount(bidder_security))
+
+        if (logGmTrade)
         {
-            std::string owner_name;
-            if (!sObjectMgr->GetPlayerNameByGUID(auction->owner, owner_name))
-                owner_name = sObjectMgr->GetTrinityStringForDBCLocale(LANG_UNKNOWN);
+            std::string ownerName;
+            if (!sObjectMgr->GetPlayerNameByGUID(auction->owner, ownerName))
+                ownerName = sObjectMgr->GetTrinityStringForDBCLocale(LANG_UNKNOWN);
 
-            uint32 owner_accid = sObjectMgr->GetPlayerAccountIdByGUID(auction->owner);
+            uint32 ownerAccId = sObjectMgr->GetPlayerAccountIdByGUID(auction->owner);
 
-            sLog->outCommand(bidder_accId, "GM %s (Account: %u) won item in auction: %s (Entry: %u Count: %u) and pay money: %u. Original owner %s (Account: %u)",
-                bidder_name.c_str(), bidder_accId, pItem->GetTemplate()->Name1.c_str(), pItem->GetEntry(), pItem->GetCount(), auction->bid, owner_name.c_str(), owner_accid);
+            sLog->outCommand(bidderAccId, "GM %s (Account: %u) won item in auction: %s (Entry: %u Count: %u) and pay money: %u. Original owner %s (Account: %u)",
+                bidderName.c_str(), bidderAccId, pItem->GetTemplate()->Name1.c_str(), pItem->GetEntry(), pItem->GetCount(), auction->bid, ownerName.c_str(), ownerAccId);
         }
     }
 
     // receiver exist
-    if (bidder || bidder_accId)
+    if (bidder || bidderAccId)
     {
         // set owner to bidder (to prevent delete item with sender char deleting)
         // owner in `data` will set at mail receive and item extracting
@@ -143,7 +142,7 @@ void AuctionHouseMgr::SendAuctionWonMail(AuctionEntry* auction, SQLTransaction& 
 
         if (bidder)
         {
-            bidder->GetSession()->SendAuctionBidderNotification(auction->GetHouseId(), auction->Id, bidder_guid, 0, 0, auction->itemEntry);
+            bidder->GetSession()->SendAuctionBidderNotification(auction->GetHouseId(), auction->Id, bidderGuid, 0, 0, auction->itemEntry);
             // FIXME: for offline player need also
             bidder->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WON_AUCTIONS, 1);
         }
