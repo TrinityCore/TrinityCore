@@ -76,7 +76,7 @@ public:
         // 2s MMR check
         uint16 mmr;
         {
-			if(ArenaTeam *getmmr = sArenaTeamMgr->GetArenaTeamById(player->GetArenaTeamId(2)))
+			if(ArenaTeam *getmmr = sArenaTeamMgr->GetArenaTeamById(player->GetArenaTeamId(0)))
 			     mmr = getmmr->GetMember(player->GetGUID())->MatchMakerRating;
 		      else if (mmr < 1000)
 			     mmr = 1500;

@@ -21312,7 +21312,7 @@ bool Player::BuyItemFromVendorSlot(uint64 vendorguid, uint32 vendorslot, uint32 
         }
     }
 
-     if (GetMaxPersonalArenaRatingRequirement(2) < crItem->rating)
+     if (GetMaxPersonalArenaRatingRequirement(0) < crItem->rating)
      {
 	    // Rating Script by Saqirmdev
         ChatHandler(GetSession()).PSendSysMessage("You need Rating: %u", crItem->rating);
