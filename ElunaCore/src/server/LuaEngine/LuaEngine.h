@@ -1178,6 +1178,12 @@ public:
 
         typedef std::multimap<uint32, eventData> EventStore;
 
+        void Reset()
+        {
+            _eventMap.clear();
+            _time = 0;
+        }
+
         void OnUpdate(uint32 diff)
         {
             Update(diff);
@@ -1199,14 +1205,14 @@ public:
             _eventMap.insert(EventStore::value_type(_time + delay, eventData(funcRef, delay, calls)));
         }
 
-        void CancelEvent(uint32 eventId)
+        void CancelEvent(uint32 funcRef)
         {
             if (Empty())
                 return;
 
             for (EventStore::iterator itr = _eventMap.begin(); itr != _eventMap.end();)
             {
-                if (eventId == (itr->second.funcRef & 0x0000FFFF))
+                if (funcRef == itr->second.funcRef)
                     _eventMap.erase(itr++);
                 else
                     ++itr;
@@ -1227,13 +1233,11 @@ public:
 
                 // function(eventID, delay, nthcall) - Call is always 0 for infinite and wont reach 0 for others
                 // if you register a timed event with 3 times, the call arg will be 3 the first time (3,2,1)
-                printf("Called\n");
                 Eluna::get()->BeginCall(itr->second.funcRef);
-                Eluna::get()->PushUnsigned(Eluna::get()->_luaState, itr->second.funcRef);
                 Eluna::get()->PushUnsigned(Eluna::get()->_luaState, itr->second.delay);
                 Eluna::get()->PushUnsigned(Eluna::get()->_luaState, itr->second.calls);
-                Eluna::get()->ExecuteCall(3, 0);
-                printf("End\n");
+                Eluna::get()->ExecuteCall(2, 0);
+
                 if(itr->second.calls != 1)
                 {
                     if(itr->second.calls > 1)

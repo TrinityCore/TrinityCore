@@ -233,16 +233,14 @@ namespace LuaGlobalFunctions
         return 1;
     }
     
-    // CreateLuaEvent(function, delay, calls) - Creates a timed event. Calls set to 0 will call inf
+    // CreateLuaEvent(function, delay, calls) - Creates a timed event. Calls set to 0 will call inf returns eventID
     static int CreateLuaEvent(lua_State* L)
     {
-        const char* typeName = luaL_typename(L, 1);
         uint32 delay = luaL_checkunsigned(L, 2);
         uint32 repeats = luaL_checkunsigned(L, 3);
-        if(!typeName)
-            return 0;
         if(!strcmp(luaL_typename(L, 1), "function") || delay > 0)
         {
+            lua_settop(L, 1);
             int functionRef = lua_ref(L, true);
             Eluna::get()->_luaEventMgr->CreateLuaEvent(functionRef, delay, repeats);
             Eluna::get()->PushInteger(L, functionRef);
@@ -250,6 +248,21 @@ namespace LuaGlobalFunctions
         else
             return 0;
         return 1;
+    }
+    
+    // DestroyLuaEvent(eventID) - removes all lua events with eventid
+    static int DestroyLuaEvent(lua_State* L)
+    {
+        int32 functionRef = luaL_checkinteger(L, 1);
+        Eluna::get()->_luaEventMgr->CancelEvent(functionRef);
+        return 0;
+    }
+    
+    // DestroyAllLuaEvents() - removes all lua events
+    static int DestroyAllLuaEvents(lua_State* L)
+    {
+        Eluna::get()->_luaEventMgr->Reset();
+        return 0;
     }
 
     // PerformIngameSpawn(spawntype, entry, mapid, x, y, z, o[, save, DurOrResptime, phase])

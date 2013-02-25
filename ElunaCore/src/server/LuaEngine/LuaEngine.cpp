@@ -123,6 +123,8 @@ void Eluna::RegisterGlobals(lua_State* L)
     lua_register(L, "GetGuildByLeaderGUID", &LuaGlobalFunctions::GetGuildByLeaderGUID);
     lua_register(L, "GetPlayerCount", &LuaGlobalFunctions::GetPlayerCount);
     lua_register(L, "CreateLuaEvent", &LuaGlobalFunctions::CreateLuaEvent);
+    lua_register(L, "DestroyLuaEvent", &LuaGlobalFunctions::DestroyLuaEvent);
+    lua_register(L, "DestroyAllLuaEvents", &LuaGlobalFunctions::DestroyAllLuaEvents);
     lua_register(L, "PerformIngameSpawn", &LuaGlobalFunctions::PerformIngameSpawn);             // Not Documented
 }
 
