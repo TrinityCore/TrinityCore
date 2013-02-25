@@ -11,6 +11,7 @@
 #                                                                                          #
 ############################################################################################
 
+[142] --> Revert 'Fix Gargoyle haste (TEST).'
 [141] --> Small correction arena logs.
 [140] --> Hack-Fix Rune Strike. (By Juliean)
 [139] --> Fix loot Halls of Reflection.
