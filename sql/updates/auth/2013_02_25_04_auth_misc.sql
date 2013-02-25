@@ -1,7 +1,7 @@
 -- Add new permissions
 DELETE FROM `rbac_permissions` WHERE `id` IN (34, 37);
 INSERT INTO `rbac_permissions` (`id`, `name`) VALUES
-(34, 'Check if shoul appear in list using .gm ingame command'),
+(34, 'Check if should appear in list using .gm ingame command'),
 (37, 'Use staff badge in chat');
 
 -- Add new role
