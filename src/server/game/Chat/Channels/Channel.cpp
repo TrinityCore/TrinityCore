@@ -363,7 +363,7 @@ void Channel::UnBan(Player const* player, std::string const& badname)
         return;
     }
 
-    if (!playersStore[good].IsModerator() && !AccountMgr::IsGMAccount(sec))
+    if (!playersStore[good].IsModerator() && !player->GetSession()->HasPermission(RBAC_PERM_CHANGE_CHANNEL_NOT_MODERATOR))
     {
         WorldPacket data;
         MakeNotModerator(&data);
