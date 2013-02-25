@@ -424,7 +424,7 @@ struct TempSummonGroupKey
         : _summonerEntry(summonerEntry), _summonerType(summonerType), _summonGroup(group)
     {
     }
-   
+
     bool operator<(TempSummonGroupKey const& rhs) const
     {
         return memcmp(this, &rhs, sizeof(TempSummonGroupKey)) < 0;
@@ -1020,7 +1020,7 @@ class ObjectMgr
             TempSummonDataContainer::const_iterator itr = _tempSummonDataStore.find(TempSummonGroupKey(summonerId, summonerType, group));
             if (itr != _tempSummonDataStore.end())
                 return &itr->second;
-                   
+
             return NULL;
         }
 
