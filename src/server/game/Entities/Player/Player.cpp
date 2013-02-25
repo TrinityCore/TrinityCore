@@ -668,7 +668,7 @@ Player::Player(WorldSession* session): Unit(true)
     //m_pad = 0;
 
     // players always accept
-    if (AccountMgr::IsPlayerAccount(GetSession()->GetSecurity()))
+    if (!GetSession()->HasPermission(RBAC_PERM_CAN_FILTER_WHISPERS))
         SetAcceptWhispers(true);
 
     m_curSelection = 0;
