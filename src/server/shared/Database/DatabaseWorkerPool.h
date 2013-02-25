@@ -222,7 +222,7 @@ class DatabaseWorkerPool
 
         //! Directly executes an SQL query in string format that will block the calling thread until finished.
         //! Returns reference counted auto pointer, no need for manual memory management in upper level code.
-        QueryResult Query(const char* sql, MySQLConnection* conn = NULL)
+        QueryResult Query(const char* sql, T* conn = NULL)
         {
             if (!conn)
                 conn = GetFreeConnection();
@@ -241,7 +241,7 @@ class DatabaseWorkerPool
 
         //! Directly executes an SQL query in string format -with variable args- that will block the calling thread until finished.
         //! Returns reference counted auto pointer, no need for manual memory management in upper level code.
-        QueryResult PQuery(const char* sql, MySQLConnection* conn, ...)
+        QueryResult PQuery(const char* sql, T* conn, ...)
         {
             if (!sql)
                 return QueryResult(NULL);
@@ -380,7 +380,7 @@ class DatabaseWorkerPool
         //! were appended to the transaction will be respected during execution.
         void DirectCommitTransaction(SQLTransaction& transaction)
         {
-            MySQLConnection* con = GetFreeConnection();
+            T* con = GetFreeConnection();
             if (con->ExecuteTransaction(transaction))
             {
                 con->Unlock();      // OK, operation succesful
@@ -490,17 +490,17 @@ class DatabaseWorkerPool
         {
             uint8 i = 0;
             size_t num_cons = _connectionCount[IDX_SYNCH];
+            T* t = NULL;
             //! Block forever until a connection is free
             for (;;)
             {
-                T* t = _connections[IDX_SYNCH][++i % num_cons];
+                t = _connections[IDX_SYNCH][++i % num_cons];
                 //! Must be matched with t->Unlock() or you will get deadlocks
                 if (t->LockIfReady())
-                    return t;
+                    break;
             }
 
-            //! This will be called when Celine Dion learns to sing
-            return NULL;
+            return t;
         }
 
         char const* GetDatabaseName() const

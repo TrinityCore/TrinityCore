@@ -352,7 +352,6 @@ void Channel::KickOrBan(Player const* player, std::string const& badname, bool b
 
 void Channel::UnBan(Player const* player, std::string const& badname)
 {
-    uint32 sec = player->GetSession()->GetSecurity();
     uint64 good = player->GetGUID();
 
     if (!IsOn(good))
