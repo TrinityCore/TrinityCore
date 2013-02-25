@@ -152,7 +152,7 @@ void WorldSession::HandleSendMail(WorldPacket& recvData)
         }
 
         receiverAccountId = sObjectMgr->GetPlayerAccountIdByGUID(receiverGuid);
-        canReceiveMailFromOtherFaction = AccountMgr::HasPermission(receiverAccountId, RBAC_PERM_TWO_SIDE_INTERACTION_MAIL, realmID);        
+        canReceiveMailFromOtherFaction = AccountMgr::HasPermission(receiverAccountId, RBAC_PERM_TWO_SIDE_INTERACTION_MAIL, realmID);
     }
 
     // do not allow to have more than 100 mails in mailbox.. mails count is in opcode uint8!!! - so max can be 255..
