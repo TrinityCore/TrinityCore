@@ -170,7 +170,7 @@ void WorldSession::moveItems(Item* myItems[], Item* hisItems[])
             {
                 // logging
                 sLog->outDebug(LOG_FILTER_NETWORKIO, "player storing: %u", hisItems[i]->GetGUIDLow());
-                if (HasPermission(RBAC_PERM_LOG_GM_TRADE)  && sWorld->getBoolConfig(CONFIG_GM_LOG_TRADE))
+                if (HasPermission(RBAC_PERM_LOG_GM_TRADE) && sWorld->getBoolConfig(CONFIG_GM_LOG_TRADE))
                 {
                     sLog->outCommand(trader->GetSession()->GetAccountId(), "GM %s (Account: %u) trade: %s (Entry: %d Count: %u) to player: %s (Account: %u)",
                         trader->GetName().c_str(), trader->GetSession()->GetAccountId(),
