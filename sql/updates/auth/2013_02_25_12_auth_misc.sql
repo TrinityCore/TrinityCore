@@ -1,8 +1,8 @@
 -- Add new permissions
-DELETE FROM `rbac_permissions` WHERE `id` IN (26, 46, 46);
+DELETE FROM `rbac_permissions` WHERE `id` IN (26, 45, 46);
 INSERT INTO `rbac_permissions` (`id`, `name`) VALUES
 (26, 'Allow channel chat between factions'),
-(46, 'Join channels without announce'),
+(45, 'Join channels without announce'),
 (46, 'Change channel settings without being channel moderator');
 
 -- Add new role
@@ -16,8 +16,8 @@ INSERT INTO `rbac_roles` (`id`, `name`) VALUES
 DELETE FROM `rbac_role_permissions` WHERE `roleId` IN (30, 31, 32);
 INSERT INTO `rbac_role_permissions` (`roleId`, `permissionId`) VALUES
 (30, 26),
-(31, 46),
-(32, 4645);
+(31, 45),
+(32, 46);
 
 -- Add it to all GM+ groups
 DELETE FROM `rbac_role_permissions` WHERE `roleId` IN (30, 31, 32);
