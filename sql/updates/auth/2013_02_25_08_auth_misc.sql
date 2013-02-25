@@ -1,10 +1,10 @@
 -- Add new permission
 DELETE FROM `rbac_permissions` WHERE `id` = 27;
-INSERT INTO `rbac_permissions` (`id`, `name`) VALUES (27, 'Send mail to other faction');
+INSERT INTO `rbac_permissions` (`id`, `name`) VALUES (27, 'Two side mail interaction');
 
 -- Add new role
 DELETE FROM `rbac_roles` WHERE `id` = 19;
-INSERT INTO `rbac_roles` (`id`, `name`) VALUES (19, 'Send mail to other faction');
+INSERT INTO `rbac_roles` (`id`, `name`) VALUES (19, 'Two side mail interaction');
 
 -- Add the permission to the role
 DELETE FROM `rbac_role_permissions` WHERE `roleId` = 19;
