@@ -431,6 +431,7 @@ uint32 Condition::GetSearcherTypeMaskForCondition()
                 default:
                     break;
             }
+            break;
         case CONDITION_TYPE_MASK:
             if (ConditionValue1 & TYPEMASK_UNIT)
                 mask |= GRID_MAP_TYPE_MASK_CREATURE | GRID_MAP_TYPE_MASK_PLAYER;
