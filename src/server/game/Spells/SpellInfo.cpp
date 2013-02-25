@@ -1174,10 +1174,8 @@ bool SpellInfo::IsSingleTarget() const
 
 bool SpellInfo::IsSingleTargetWith(SpellInfo const* spellInfo) const
 {
-    // TODO - need better check
-    // Equal icon and spellfamily
-    if (SpellFamilyName == spellInfo->SpellFamilyName &&
-        SpellIconID == spellInfo->SpellIconID)
+    // Same spell?
+    if (IsRankOf(spellInfo))
         return true;
 
     SpellSpecificType spec = GetSpellSpecific();
