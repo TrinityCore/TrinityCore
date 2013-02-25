@@ -175,7 +175,7 @@ bool ChatHandler::HasLowerSecurityAccount(WorldSession* target, uint32 target_ac
         return false;
 
     // ignore only for non-players for non strong checks (when allow apply command at least to same sec level)
-    if (!AccountMgr::IsPlayerAccount(m_session->GetSecurity()) && !strong && !sWorld->getBoolConfig(CONFIG_GM_LOWER_SECURITY))
+    if (m_session->HasPermission(RBAC_PERM_CHECK_FOR_LOWER_SECURITY) && !strong && !sWorld->getBoolConfig(CONFIG_GM_LOWER_SECURITY))
         return false;
 
     if (target)
@@ -361,6 +361,7 @@ bool ChatHandler::ExecuteCommandInTable(ChatCommand* table, const char* text, co
         // table[i].Name == "" is special case: send original command to handler
         if ((table[i].Handler)(this, table[i].Name[0] != '\0' ? text : oldtext))
         {
+            // FIXME: When Command system is moved to RBAC this check must be changed
             if (!AccountMgr::IsPlayerAccount(table[i].SecurityLevel))
             {
                 // chat case
@@ -476,7 +477,7 @@ bool ChatHandler::ParseCommands(char const* text)
 
     if (!ExecuteCommandInTable(getCommandTable(), text, fullcmd))
     {
-        if (m_session && AccountMgr::IsPlayerAccount(m_session->GetSecurity()))
+        if (m_session && !m_session->HasPermission(RBAC_PERM_COMMANDS_NOTIFY_COMMAND_NOT_FOUND_ERROR))
             return false;
 
         SendSysMessage(LANG_NO_CMD);

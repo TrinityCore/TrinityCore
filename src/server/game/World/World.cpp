@@ -1257,7 +1257,7 @@ void World::LoadConfigSettings(bool reload)
     m_bool_configs[CONFIG_PDUMP_NO_OVERWRITE] = ConfigMgr::GetBoolDefault("PlayerDump.DisallowOverwrite", true);
     m_bool_configs[CONFIG_UI_QUESTLEVELS_IN_DIALOGS] = ConfigMgr::GetBoolDefault("UI.ShowQuestLevelsInDialogs", false);
 
-    // call ScriptMgr if we're reloading the configuration
+    // Wintergrasp battlefield
     m_bool_configs[CONFIG_WINTERGRASP_ENABLE] = ConfigMgr::GetBoolDefault("Wintergrasp.Enable", false);
     m_int_configs[CONFIG_WINTERGRASP_PLR_MAX] = ConfigMgr::GetIntDefault("Wintergrasp.PlayerMax", 100);
     m_int_configs[CONFIG_WINTERGRASP_PLR_MIN] = ConfigMgr::GetIntDefault("Wintergrasp.PlayerMin", 0);
@@ -1266,6 +1266,7 @@ void World::LoadConfigSettings(bool reload)
     m_int_configs[CONFIG_WINTERGRASP_NOBATTLETIME] = ConfigMgr::GetIntDefault("Wintergrasp.NoBattleTimer", 150);
     m_int_configs[CONFIG_WINTERGRASP_RESTART_AFTER_CRASH] = ConfigMgr::GetIntDefault("Wintergrasp.CrashRestartTimer", 10);
 
+    // call ScriptMgr if we're reloading the configuration
     if (reload)
         sScriptMgr->OnConfigLoad(reload);
 }
@@ -1471,6 +1472,9 @@ void World::SetInitialWorldSettings()
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Creature Data...");
     sObjectMgr->LoadCreatures();
+
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Temporary Summon Data...");
+    sObjectMgr->LoadTempSummons();                               // must be after LoadCreatureTemplates() and LoadGameObjectTemplates()
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading pet levelup spells...");
     sSpellMgr->LoadPetLevelupSpellMap();
@@ -2181,18 +2185,21 @@ void World::SendGlobalMessage(WorldPacket* packet, WorldSession* self, uint32 te
 /// Send a packet to all GMs (except self if mentioned)
 void World::SendGlobalGMMessage(WorldPacket* packet, WorldSession* self, uint32 team)
 {
-    SessionMap::iterator itr;
-    for (itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
+    for (SessionMap::const_iterator itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
     {
-        if (itr->second &&
-            itr->second->GetPlayer() &&
-            itr->second->GetPlayer()->IsInWorld() &&
-            itr->second != self &&
-            !AccountMgr::IsPlayerAccount(itr->second->GetSecurity()) &&
-            (team == 0 || itr->second->GetPlayer()->GetTeam() == team))
-        {
-            itr->second->SendPacket(packet);
-        }
+        // check if session and can receive global GM Messages and its not self
+        WorldSession* session = itr->second;
+        if (!session || session == self || !session->HasPermission(RBAC_PERM_RECEIVE_GLOBAL_GM_TEXTMESSAGE))
+            continue;
+
+        // Player should be in world
+        Player* player = session->GetPlayer();
+        if (!player || !player->IsInWorld())
+            continue;
+
+        // Send only to same team, if team is given
+        if (!team || player->GetTeam() == team)
+            session->SendPacket(packet);
     }
 }
 
@@ -2280,15 +2287,19 @@ void World::SendGMText(int32 string_id, ...)
 
     Trinity::WorldWorldTextBuilder wt_builder(string_id, &ap);
     Trinity::LocalizedPacketListDo<Trinity::WorldWorldTextBuilder> wt_do(wt_builder);
-    for (SessionMap::iterator itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
+    for (SessionMap::const_iterator itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
     {
-        if (!itr->second || !itr->second->GetPlayer() || !itr->second->GetPlayer()->IsInWorld())
+        // Session should have permissions to receive global gm messages
+        WorldSession* session = itr->second;
+        if (!session || !session->HasPermission(RBAC_PERM_RECEIVE_GLOBAL_GM_TEXTMESSAGE))
             continue;
 
-        if (AccountMgr::IsPlayerAccount(itr->second->GetSecurity()))
+        // Player should be in world
+        Player* player = session->GetPlayer();
+        if (!player || !player->IsInWorld())
             continue;
 
-        wt_do(itr->second->GetPlayer());
+        wt_do(player);
     }
 
     va_end(ap);

@@ -24,7 +24,6 @@
 #define __WORLDSESSION_H
 
 #include "Common.h"
-#include "AccountMgr.h"
 #include "SharedDefines.h"
 #include "AddonMgr.h"
 #include "DatabaseEnv.h"
@@ -41,6 +40,7 @@ class LoginQueryHolder;
 class Object;
 class Player;
 class Quest;
+class RBACData;
 class SpellCastTargets;
 class Unit;
 class Warden;

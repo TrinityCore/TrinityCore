@@ -22,7 +22,7 @@ Comment: All role based access control related commands (including account relat
 Category: commandscripts
 EndScriptData */
 
-#include "RBAC.h"
+#include "AccountMgr.h"
 #include "Config.h"
 #include "Chat.h"
 #include "Language.h"
@@ -188,7 +188,7 @@ public:
 
         if (!rdata)
         {
-            data->rbac = new RBACData(accountId, accountName, ConfigMgr::GetIntDefault("RealmID", 0));
+            data->rbac = new RBACData(accountId, accountName, realmID);
             data->rbac->LoadFromDB();
             data->needDelete = true;
         }
