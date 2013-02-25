@@ -67,6 +67,8 @@ enum RBACPermissions
     RBAC_PERM_COMMANDS_APPEAR_IN_GM_LIST          = 34,
     RBAC_PERM_CHAT_USE_STAFF_BADGE                = 37,
     RBAC_PERM_RESURRECT_WITH_FULL_HPS             = 38,
+    RBAC_PERM_OPCODE_WORLD_TELEPORT               = 42,
+    RBAC_PERM_OPCODE_WHOIS                        = 43,
     RBAC_PERM_RECEIVE_GLOBAL_GM_TEXTMESSAGE       = 44,
     RBAC_PERM_MAX
 };
