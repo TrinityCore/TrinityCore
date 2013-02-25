@@ -110,20 +110,20 @@ public:
         return 1;
     }
 
-	// SendPacket(packet, sendToPlayersInBattleground[, ignoreguid])
-	static int SendPacket(lua_State* L, Group* group)
-	{
+    // SendPacket(packet, sendToPlayersInBattleground[, ignoreguid])
+    static int SendPacket(lua_State* L, Group* group)
+    {
         if(!group)
             return 0;
 
-		WorldPacket* data = Eluna::get()->CHECK_PACKET(L, 1);
-		bool ignorePlayersInBg = luaL_checkbool(L, 2);
-		uint32 ignore = luaL_optunsigned(L, 3, 0);
+        WorldPacket* data = Eluna::get()->CHECK_PACKET(L, 1);
+        bool ignorePlayersInBg = luaL_checkbool(L, 2);
+        uint32 ignore = luaL_optunsigned(L, 3, 0);
 
-		if (data)
-			group->BroadcastPacket(data, ignorePlayersInBg, -1, (ignore ? MAKE_NEW_GUID(ignore, 0, HIGHGUID_PLAYER) : 0));
-		return 0;
-	}
+        if (data)
+            group->BroadcastPacket(data, ignorePlayersInBg, -1, (ignore ? MAKE_NEW_GUID(ignore, 0, HIGHGUID_PLAYER) : 0));
+        return 0;
+    }
 
 };
 #endif

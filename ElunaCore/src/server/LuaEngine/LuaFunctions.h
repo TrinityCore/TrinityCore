@@ -130,7 +130,7 @@ ElunaRegister<Unit> UnitMethods[] =
     {"FullCastSpellOnTarget", &LuaUnit::FullCastSpellOnTarget},     // :FullCastSpellOnTarget(spellID, unit) - Casts the spell on target
     {"PlayDirectSound", &LuaUnit::PlayDirectSound},                 // :PlayDirectSound(soundId,  player) - Unit plays soundID to player, or everyone around if no player. UNDOCUMENTED
     {"PlayDistanceSound", &LuaUnit::PlayDistanceSound},             // :PlayDistanceSound(soundId,  player) - Unit plays soundID to player, or everyone around if no player. The sound fades the further you are UNDOCUMENTED
-	{"PlaySoundToSet", &LuaUnit::PlayDirectSound},                  // :PlayDirectSound(soundId,  player) - Unit plays soundID to player, or everyone around if no player. (ARC compability) UNDOCUMENTED
+    {"PlaySoundToSet", &LuaUnit::PlayDirectSound},                  // :PlayDirectSound(soundId,  player) - Unit plays soundID to player, or everyone around if no player. (ARC compability) UNDOCUMENTED
     {"Kill", &LuaUnit::Kill},                                       // :Kill(target, durabilityLoss) - Unit kills the target, if no target then kills the unit. Durabilityloss is true by default UNDOCUMENTED
 
     { NULL, NULL },
@@ -167,7 +167,7 @@ ElunaRegister<GameObject> GameObjectMethods[] =
     // Other
     {"CastSpellOnTarget", &LuaGameObject::CastSpellOnTarget},       // :CastSpellOnTarget(target, spellId) - Casts the spell on target, no manacost or cast time - UNDOCUMENTED
     {"Move", &LuaGameObject::Move},                                 // :Move(x, y, z, o) - Moves the GO to coordinates - UNDOCUMENTED
-    {"SummonCreature", &LuaGameObject::SummonCreature},           // :SummonCreature(entry, x, y, z, o, despawntime) Summons a temporary creature. 0 for infinitely, otherwise despawns after despawntime (ms) - UNDOCUMENTED
+    {"SummonCreature", &LuaGameObject::SummonCreature},             // :SummonCreature(entry, x, y, z, o, despawntime) Summons a temporary creature. 0 for infinitely, otherwise despawns after despawntime (ms) - UNDOCUMENTED
 
     { NULL, NULL },
 };
@@ -211,40 +211,27 @@ ElunaRegister<Guild> GuildMethods[] =
     {NULL, NULL},
 };
 
-ElunaRegister<QueryResult> QueryMethods[] =  // Not working yet
+ElunaRegister<QueryResult> QueryMethods[] =  // UNDOCUMENTED
 {
-    {"GetUnitType", &LuaQuery::GetUnitType},                        // :GetUnitType() - Returns object type, IE: Player, Creature UNDOCUMENTED
+    {"GetUnitType", &LuaQuery::GetUnitType},                        // :GetUnitType() - Returns object type, IE: QueryResult
 
-    //{"GetColumn", &LuaQuery::GetColumn},
-    {"NextRow", &LuaQuery::NextRow},
-    {"GetColumnCount", &LuaQuery::GetColumnCount},
-    {"GetRowCount", &LuaQuery::GetRowCount},
+    {"NextRow", &LuaQuery::NextRow},                                // :NextRow() - Advances to next rown in the query. Returns true if there is a next row, otherwise false.
+    {"GetColumnCount", &LuaQuery::GetColumnCount},                  // :GetColumnCount() - Gets the column count of the query
+    {"GetRowCount", &LuaQuery::GetRowCount},                        // :GetRowCount() - Gets the row count of the query
 
-    //TC
-    {"GetBool", &LuaQuery::GetBool},
-    {"GetUInt8", &LuaQuery::GetUInt8},
-    {"GetUInt16", &LuaQuery::GetUInt16},
-    {"GetUInt32", &LuaQuery::GetUInt32},
+    {"GetBool", &LuaQuery::GetBool},                                // :GetBool(column) -- returns a bool from a number column (for example tinyint)
+    {"GetUInt8", &LuaQuery::GetUInt8},                              // :GetInt8(column) -- returns the value of an unsigned tinyint column
+    {"GetUInt16", &LuaQuery::GetUInt16},                            // :GetInt16(column) -- returns the value of a unsigned smallint column
+    {"GetUInt32", &LuaQuery::GetUInt32},                            // :GetInt32(column) -- returns the value of an unsigned int or mediumint column
     //{"GetUInt64", &LuaQuery::GetUInt64},
-    {"GetInt8", &LuaQuery::GetInt8},
-    {"GetInt16", &LuaQuery::GetInt16},
-    {"GetInt32", &LuaQuery::GetInt32},
+    {"GetInt8", &LuaQuery::GetInt8},                                // :GetInt8(column) -- returns the value of an tinyint column
+    {"GetInt16", &LuaQuery::GetInt16},                              // :GetInt16(column) -- returns the value of a smallint column
+    {"GetInt32", &LuaQuery::GetInt32},                              // :GetInt32(column) -- returns the value of an int or mediumint column
     //{"GetInt64", &LuaQuery::GetInt64},
-    {"GetFloat", &LuaQuery::GetFloat},
-    {"GetDouble", &LuaQuery::GetDouble},
-    {"GetCString", &LuaQuery::GetCString},
-    {"GetString", &LuaQuery::GetString},
-    {"IsNull", &LuaQuery::IsNull},
-    //ARC
-    //{"GetByte", &LuaQuery::GetByte},
-    //{"GetUByte", &LuaQuery::GetUByte},
-    //{"GetShort", &LuaQuery::GetShort},
-    //{"GetUShort", &LuaQuery::GetUShort},
-    //{"GetLong", &LuaQuery::GetLong},
-    //{"GetULong", &LuaQuery::GetULong},
-    //{"GetString", &LuaQuery::GetString},
-    //{"GetGUID", &LuaQuery::GetGUID},
-    //{"GetFloat", &LuaQuery::GetFloat},
+    {"GetFloat", &LuaQuery::GetFloat},                              // :GetFloat(column) -- returns the value of a float column
+    {"GetDouble", &LuaQuery::GetDouble},                            // :GetDouble(column) -- returns the value of a double column
+    {"GetString", &LuaQuery::GetString},                            // :GetString(column) -- returns the value of a string column
+    {"IsNull", &LuaQuery::IsNull},                                  // :IsNull(column) -- returns true if the column is null
 
     {NULL, NULL},
 };
