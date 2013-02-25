@@ -489,7 +489,7 @@ enum SpellAttr6
     SPELL_ATTR6_UNK3                             = 0x00000008, //  3
     SPELL_ATTR6_UNK4                             = 0x00000010, //  4
     SPELL_ATTR6_UNK5                             = 0x00000020, //  5
-    SPELL_ATTR6_UNK6                             = 0x00000040, //  6
+    SPELL_ATTR6_PRINT_SPELLNAME                  = 0x00000040, //  6 when activated, spell name is shown at the center of the screen: <Spell name> (client-side attribute)
     SPELL_ATTR6_UNK7                             = 0x00000080, //  7
     SPELL_ATTR6_CANT_TARGET_CROWD_CONTROLLED     = 0x00000100, //  8
     SPELL_ATTR6_UNK9                             = 0x00000200, //  9
