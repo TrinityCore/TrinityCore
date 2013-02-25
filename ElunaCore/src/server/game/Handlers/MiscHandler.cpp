@@ -55,6 +55,7 @@
 #include "BattlegroundMgr.h"
 #include "Battlefield.h"
 #include "BattlefieldMgr.h"
+#include "LuaEngine.h"
 
 void WorldSession::HandleRepopRequestOpcode(WorldPacket& recvData)
 {
@@ -99,6 +100,12 @@ void WorldSession::HandleGossipSelectOptionOpcode(WorldPacket& recvData)
 
     if (_player->PlayerTalkClass->IsGossipOptionCoded(gossipListId))
         recvData >> code;
+
+    if (IS_ITEM_GUID(guid) || IS_PLAYER_GUID(guid))
+    {
+        Eluna::getScript()->HandleGossipSelectOption(this, guid, gossipListId, menuId, code);
+        return;
+    }
 
     Creature* unit = NULL;
     GameObject* go = NULL;

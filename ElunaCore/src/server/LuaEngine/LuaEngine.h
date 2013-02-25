@@ -50,6 +50,8 @@ enum REGISTER_TYPE
     REGTYPE_CREATURE,
     REGTYPE_GAMEOBJECT,
     REGTYPE_GAMEOBJECT_GOSSIP,
+    REGTYPE_ITEM_GOSSIP,
+    REGTYPE_PLAYER_GOSSIP,
     REGTYPE_LOG,
     REGTYPE_COUNT
 };
@@ -77,7 +79,7 @@ enum ServerEvents
     PLAYER_EVENT_ON_SPELL_CAST              = 44,       // Not Implemented
     PLAYER_EVENT_ON_SAVE                    = 45,       // Implemented
     PLAYER_EVENT_ON_BIND_TO_INSTANCE        = 46,       // Implemented
-    PLAYER_EVENT_ON_UPDATE_ZONE             = 47,    // Implemented
+    PLAYER_EVENT_ON_UPDATE_ZONE             = 47,       // Implemented
     PLAYER_EVENT_ON_KILL_CREATURE           = 48,       // Implemented
     PLAYER_EVENT_ON_KILLED_BY_CREATURE      = 49,       // Implemented
     PLAYER_EVENT_ON_MAP_CHANGE              = 50,       // Not Implemented
@@ -224,6 +226,11 @@ enum GameObjectEvents
     GAMEOBJECT_EVENT_COUNT
 };
 
+enum ItemEvents
+{
+    ITEM_EVENT_COUNT = 1 //placeholder
+};
+
 enum GossipEvents
 {
     GOSSIP_EVENT_ON_HELLO = 1,
@@ -262,6 +269,29 @@ struct GameObjectBind
     }
 };
 
+struct ItemBind
+{
+    uint32 entry;
+    uint16 _functionReferences[ITEM_EVENT_COUNT];
+    uint32 _gossipReferences[GOSSIP_EVENT_COUNT];
+
+    ItemBind(uint32 _entry)
+    {
+        entry = _entry;
+    }
+};
+
+struct PlayerBind
+{
+    uint32 menu_id;
+    uint32 _gossipReferences[GOSSIP_EVENT_COUNT];
+
+    PlayerBind(uint32 _menu_id)
+    {
+        menu_id = _menu_id;
+    }
+};
+
 template<typename T> ElunaRegister<T>* GetMethodTable();
 template<typename T> const char* GetTName();
 
@@ -284,6 +314,10 @@ public:
 
     vector<GameObjectBind*> _gameObjectAIEventBindings;
     vector<GameObjectBind*> _gameObjectGossipBindings;
+    
+    vector<ItemBind*> _itemGossipBindings;
+
+    vector<PlayerBind*> _playerGossipBindings;
 
     static CreatureAI* GetLuaCreatureAI(Creature* creature);
     static GameObjectAI* GetLuaGameObjectAI(GameObject* gameObject);
@@ -308,6 +342,8 @@ public:
         _creatureEventBindings.clear();
         _gameObjectAIEventBindings.clear();
         _gameObjectGossipBindings.clear();
+        _itemGossipBindings.clear();
+        _playerGossipBindings.clear();
         luaEventMap::LuaEventsResetAll(); // Unregisters and stops all timed events
         // Need to reset global, creature and gob events
     }
@@ -1336,6 +1372,86 @@ public:
     ~ElunaScript()
     {
         delete this;
+    }
+
+    /* Item & player Gossip */
+    bool OnGossipHello(uint32 eventId, Player* player, Item* item)
+    {
+        for(vector<ItemBind*>::iterator itr = Eluna::get()->_itemGossipBindings.begin(); itr != Eluna::get()->_itemGossipBindings.end(); ++itr)
+        {
+            if ((*itr)->entry == item->GetEntry())
+            {
+                player->PlayerTalkClass->ClearMenus();
+                Eluna::get()->BeginCall((*itr)->_gossipReferences[eventId]);
+                Eluna::get()->PushUnsigned(Eluna::get()->_luaState, eventId);
+                Eluna::get()->PushUnit(Eluna::get()->_luaState, player);
+                Eluna::get()->PushItem(Eluna::get()->_luaState, item);
+                Eluna::get()->ExecuteCall(3, 0);
+            }
+        }
+        return true;
+    }
+
+    void HandleGossipSelectOption(WorldSession* session, uint64 guid, uint32 gossipListId, uint32 menuId, std::string code)
+    {
+        if(!session)
+            return;
+
+        Player* player = session->GetPlayer();
+        if(!player || !player->IsInWorld() || !player->isAlive() || player->GetCharmerGUID())
+            return;
+        
+        if (player->HasUnitState(UNIT_STATE_DIED))
+            player->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
+        player->PlayerTalkClass->ClearMenus();
+
+        if(IS_ITEM_GUID(guid))
+        {
+            Item* item = player->GetItemByGuid(guid);
+            if(!item)
+                return;
+
+            for(vector<ItemBind*>::iterator itr = Eluna::get()->_itemGossipBindings.begin(); itr != Eluna::get()->_itemGossipBindings.end(); ++itr)
+            {
+                if ((*itr)->entry == item->GetEntry())
+                {
+                    Eluna::get()->BeginCall((*itr)->_gossipReferences[GOSSIP_EVENT_ON_SELECT]);
+                    Eluna::get()->PushUnsigned(Eluna::get()->_luaState, GOSSIP_EVENT_ON_SELECT);
+                    Eluna::get()->PushUnit(Eluna::get()->_luaState, player);
+                    Eluna::get()->PushItem(Eluna::get()->_luaState, item);
+                    Eluna::get()->PushUnsigned(Eluna::get()->_luaState, player->PlayerTalkClass->GetGossipOptionSender(gossipListId));
+                    Eluna::get()->PushUnsigned(Eluna::get()->_luaState, player->PlayerTalkClass->GetGossipOptionAction(gossipListId));
+                    if(code.empty())
+                        lua_pushnil(Eluna::get()->_luaState);
+                    else
+                        Eluna::get()->PushString(Eluna::get()->_luaState, code.c_str());
+                    Eluna::get()->ExecuteCall(6, 0);
+                }
+            }
+        }
+        else if(IS_PLAYER_GUID(guid))
+        {
+            if(player->GetGUID() != guid)
+                return;
+            
+            for(vector<PlayerBind*>::iterator itr = Eluna::get()->_playerGossipBindings.begin(); itr != Eluna::get()->_playerGossipBindings.end(); ++itr)
+            {
+                if ((*itr)->menu_id == menuId)
+                {
+                    Eluna::get()->BeginCall((*itr)->_gossipReferences[GOSSIP_EVENT_ON_SELECT]);
+                    Eluna::get()->PushUnsigned(Eluna::get()->_luaState, GOSSIP_EVENT_ON_SELECT);
+                    Eluna::get()->PushUnit(Eluna::get()->_luaState, player); // receiver
+                    Eluna::get()->PushUnit(Eluna::get()->_luaState, player); // sender, just not to mess up the amount of args.
+                    Eluna::get()->PushUnsigned(Eluna::get()->_luaState, player->PlayerTalkClass->GetGossipOptionSender(gossipListId));
+                    Eluna::get()->PushUnsigned(Eluna::get()->_luaState, player->PlayerTalkClass->GetGossipOptionAction(gossipListId));
+                    if(code.empty())
+                        lua_pushnil(Eluna::get()->_luaState);
+                    else
+                        Eluna::get()->PushString(Eluna::get()->_luaState, code.c_str());
+                    Eluna::get()->ExecuteCall(6, 0);
+                }
+            }
+        }
     }
 
     void OnChat(uint32 eventId, Player* player, uint32 type, uint32 lang, string& msg)

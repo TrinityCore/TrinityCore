@@ -1183,7 +1183,15 @@ public:
         Unit* sender = Eluna::get()->CHECK_UNIT(L, 2);
 
         if(sender)
+        {
+            if(sender->ToPlayer())
+            {
+                uint32 menu_id = luaL_checkunsigned(L, 3);
+                player->PlayerTalkClass->GetGossipMenu().SetMenuId(menu_id);
+                printf("WasPlayer\n");
+            }
             player->SEND_GOSSIP_MENU(_npcText, sender->GetGUID());
+        }
         return 0;
     }
 

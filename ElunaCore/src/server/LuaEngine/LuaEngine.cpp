@@ -94,6 +94,8 @@ static int RegisterGossipEvent(lua_State* L);
 static int RegisterCreatureEvent(lua_State* L);
 static int RegisterGameObjectEvent(lua_State* L);
 static int RegisterGameObjectGossipEvent(lua_State* L);
+static int RegisterItemGossipEvent(lua_State* L);
+static int RegisterPlayerGossipEvent(lua_State* L);
 
 void Eluna::RegisterGlobals(lua_State* L)
 {
@@ -102,6 +104,8 @@ void Eluna::RegisterGlobals(lua_State* L)
     lua_register(L, "RegisterCreatureEvent", RegisterCreatureEvent);
     lua_register(L, "RegisterGameObjectEvent", RegisterGameObjectEvent);
     lua_register(L, "RegisterGameObjectGossipEvent", RegisterGameObjectGossipEvent);
+    lua_register(L, "RegisterItemGossipEvent", RegisterItemGossipEvent);
+    lua_register(L, "RegisterPlayerGossipEvent", RegisterPlayerGossipEvent);
 
     lua_register(L, "GetLuaEngine", &LuaGlobalFunctions::GetLuaEngine);
     lua_register(L, "GetLUAEngine", &LuaGlobalFunctions::GetLuaEngine);
@@ -407,6 +411,46 @@ static int RegisterGameObjectGossipEvent(lua_State* L)
     return 0;
 }
 
+// RegisterItemGossipEvent(entry, event, function)
+static int RegisterItemGossipEvent(lua_State* L)
+{
+    uint16 functionRef = 0;
+    lua_settop(L, 3);
+    uint32 entry = luaL_checkint(L, 1);
+    uint32 ev = luaL_checkunsigned(L, 2);
+    const char* typeName = luaL_typename(L, 3);
+
+    if (ev == 0 || !typeName)
+        return 0;
+
+    if(!strcmp(typeName, "function"))
+        functionRef = (uint16)lua_ref(L, true);
+
+    if(functionRef > 0)
+        Eluna::get()->Register(REGTYPE_ITEM_GOSSIP, entry, ev, functionRef);
+    return 0;
+}
+
+// RegisterPlayerGossipEvent(entry, event, function)
+static int RegisterPlayerGossipEvent(lua_State* L)
+{
+    uint16 functionRef = 0;
+    lua_settop(L, 3);
+    uint32 menu_id = luaL_checkint(L, 1);
+    uint32 ev = luaL_checkunsigned(L, 2);
+    const char* typeName = luaL_typename(L, 3);
+
+    if (ev == 0 || !typeName)
+        return 0;
+
+    if(!strcmp(typeName, "function"))
+        functionRef = (uint16)lua_ref(L, true);
+
+    if(functionRef > 0)
+        Eluna::get()->Register(REGTYPE_PLAYER_GOSSIP, menu_id, ev, functionRef);
+    return 0;
+}
+
 // RegisterCreatureEvent(entry, ev, func)
 static int RegisterCreatureEvent(lua_State* L)
 {
@@ -488,6 +532,33 @@ void Eluna::Register(uint8 regtype, uint32 id, uint32 evt, uint16 functionRef)
             return;
         }
         break;
+
+    case REGTYPE_ITEM_GOSSIP:
+        if (evt < GOSSIP_EVENT_COUNT)
+        {
+            if (!sObjectMgr->GetItemTemplate(id))
+            {
+                sLog->outError(LOG_FILTER_GENERAL, "Eluna Nova::Couldn't find a item with (ID: %d)!", id);
+                return;
+            }
+
+            ItemBind* bind = new ItemBind(id);
+            Eluna::get()->_itemGossipBindings.push_back(bind);
+            bind->_gossipReferences[evt] = functionRef;
+            return;
+        }
+        break;
+
+    case REGTYPE_PLAYER_GOSSIP:
+        if (evt < GOSSIP_EVENT_COUNT)
+        {
+            PlayerBind* bind = new PlayerBind(id);
+            Eluna::get()->_playerGossipBindings.push_back(new PlayerBind(id));
+            bind->_gossipReferences[evt] = functionRef;
+            // return;
+        }
+        break;
+
     default:
         sLog->outError(LOG_FILTER_GENERAL, "Unknown register type (regtype %u, id %u, event %u)", regtype, id, evt);
         return;
@@ -539,6 +610,22 @@ void Eluna::Restart()
         delete (*itr);
     }
     get()->_gameObjectGossipBindings.clear();
+
+    for (vector<ItemBind*>::iterator itr = get()->_itemGossipBindings.begin(); itr != get()->_itemGossipBindings.end(); ++itr)
+    {
+        for (int i = 0; i < GOSSIP_EVENT_COUNT; i++)
+            luaL_unref(get()->_luaState, LUA_REGISTRYINDEX, (*itr)->_gossipReferences[i]);
+        delete (*itr);
+    }
+    get()->_itemGossipBindings.clear();
+
+    for (vector<PlayerBind*>::iterator itr = get()->_playerGossipBindings.begin(); itr != get()->_playerGossipBindings.end(); ++itr)
+    {
+        for (int i = 0; i < GOSSIP_EVENT_COUNT; i++)
+            luaL_unref(get()->_luaState, LUA_REGISTRYINDEX, (*itr)->_gossipReferences[i]);
+        delete (*itr);
+    }
+    get()->_playerGossipBindings.clear();
 
     lua_close(get()->_luaState); // Closing
 
