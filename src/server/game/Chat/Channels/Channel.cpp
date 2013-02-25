@@ -552,7 +552,9 @@ void Channel::List(Player const* player)
 
         // PLAYER can't see MODERATOR, GAME MASTER, ADMINISTRATOR characters
         // MODERATOR, GAME MASTER, ADMINISTRATOR can see all
-        if (member && (!AccountMgr::IsPlayerAccount(player->GetSession()->GetSecurity()) || member->GetSession()->GetSecurity() <= AccountTypes(gmLevelInWhoList)) &&
+        if (member &&
+            (player->GetSession()->HasPermission(RBAC_PERM_WHO_SEE_ALL_SEC_LEVELS) ||
+             member->GetSession()->GetSecurity() <= AccountTypes(gmLevelInWhoList)) &&
             member->IsVisibleGloballyFor(player))
         {
             data << uint64(i->first);

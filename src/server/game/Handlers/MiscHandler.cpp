@@ -241,7 +241,7 @@ void WorldSession::HandleWhoOpcode(WorldPacket& recvData)
         level_max = STRONG_MAX_LEVEL;
 
     uint32 team = _player->GetTeam();
-    uint32 security = GetSecurity();
+
     bool allowTwoSideWhoList = sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_WHO_LIST);
     uint32 gmLevelInWhoList  = sWorld->getIntConfig(CONFIG_GM_LEVEL_IN_WHO_LIST);
     uint32 displaycount = 0;
@@ -254,42 +254,40 @@ void WorldSession::HandleWhoOpcode(WorldPacket& recvData)
     HashMapHolder<Player>::MapType const& m = sObjectAccessor->GetPlayers();
     for (HashMapHolder<Player>::MapType::const_iterator itr = m.begin(); itr != m.end(); ++itr)
     {
-        if (AccountMgr::IsPlayerAccount(security))
-        {
-            // player can see member of other team only if CONFIG_ALLOW_TWO_SIDE_WHO_LIST
-            if (itr->second->GetTeam() != team && !allowTwoSideWhoList)
-                continue;
+        Player* target = itr->second;
+        // player can see member of other team only if CONFIG_ALLOW_TWO_SIDE_WHO_LIST
+        if (target->GetTeam() != team && !allowTwoSideWhoList && !HasPermission(RBAC_PERM_TWO_SIDE_WHO_LIST))
+            continue;
 
-            // player can see MODERATOR, GAME MASTER, ADMINISTRATOR only if CONFIG_GM_IN_WHO_LIST
-            if ((itr->second->GetSession()->GetSecurity() > AccountTypes(gmLevelInWhoList)))
-                continue;
-        }
+        // player can see MODERATOR, GAME MASTER, ADMINISTRATOR only if CONFIG_GM_IN_WHO_LIST
+        if (!HasPermission(RBAC_PERM_WHO_SEE_ALL_SEC_LEVELS) && target->GetSession()->GetSecurity() > AccountTypes(gmLevelInWhoList))
+            continue;
 
-        //do not process players which are not in world
-        if (!(itr->second->IsInWorld()))
+        // do not process players which are not in world
+        if (!target->IsInWorld())
             continue;
 
         // check if target is globally visible for player
-        if (!(itr->second->IsVisibleGloballyFor(_player)))
+        if (!target->IsVisibleGloballyFor(_player))
             continue;
 
         // check if target's level is in level range
-        uint8 lvl = itr->second->getLevel();
+        uint8 lvl = target->getLevel();
         if (lvl < level_min || lvl > level_max)
             continue;
 
         // check if class matches classmask
-        uint32 class_ = itr->second->getClass();
+        uint8 class_ = target->getClass();
         if (!(classmask & (1 << class_)))
             continue;
 
         // check if race matches racemask
-        uint32 race = itr->second->getRace();
+        uint32 race = target->getRace();
         if (!(racemask & (1 << race)))
             continue;
 
-        uint32 pzoneid = itr->second->GetZoneId();
-        uint8 gender = itr->second->getGender();
+        uint32 pzoneid = target->GetZoneId();
+        uint8 gender = target->getGender();
 
         bool z_show = true;
         for (uint32 i = 0; i < zones_count; ++i)
@@ -305,7 +303,7 @@ void WorldSession::HandleWhoOpcode(WorldPacket& recvData)
         if (!z_show)
             continue;
 
-        std::string pname = itr->second->GetName();
+        std::string pname = target->GetName();
         std::wstring wpname;
         if (!Utf8toWStr(pname, wpname))
             continue;
@@ -314,7 +312,7 @@ void WorldSession::HandleWhoOpcode(WorldPacket& recvData)
         if (!(wplayer_name.empty() || wpname.find(wplayer_name) != std::wstring::npos))
             continue;
 
-        std::string gname = sGuildMgr->GetGuildNameById(itr->second->GetGuildId());
+        std::string gname = sGuildMgr->GetGuildNameById(target->GetGuildId());
         std::wstring wgname;
         if (!Utf8toWStr(gname, wgname))
             continue;
@@ -324,7 +322,7 @@ void WorldSession::HandleWhoOpcode(WorldPacket& recvData)
             continue;
 
         std::string aname;
-        if (AreaTableEntry const* areaEntry = GetAreaEntryByAreaID(itr->second->GetZoneId()))
+        if (AreaTableEntry const* areaEntry = GetAreaEntryByAreaID(pzoneid))
             aname = areaEntry->area_name[GetSessionDbcLocale()];
 
         bool s_show = true;
@@ -575,13 +573,14 @@ void WorldSession::HandleAddFriendOpcodeCallBack(PreparedQueryResult result, std
         team = Player::TeamForRace(fields[1].GetUInt8());
         friendAccountId = fields[2].GetUInt32();
 
-        if (!AccountMgr::IsPlayerAccount(GetSecurity()) || sWorld->getBoolConfig(CONFIG_ALLOW_GM_FRIEND) || AccountMgr::IsPlayerAccount(AccountMgr::GetSecurity(friendAccountId, realmID)))
+        if (HasPermission(RBAC_PERM_ALLOW_GM_FRIEND) || sWorld->getBoolConfig(CONFIG_ALLOW_GM_FRIEND) ||
+            AccountMgr::IsPlayerAccount(AccountMgr::GetSecurity(friendAccountId, realmID)))
         {
             if (friendGuid)
             {
                 if (friendGuid == GetPlayer()->GetGUID())
                     friendResult = FRIEND_SELF;
-                else if (GetPlayer()->GetTeam() != team && !sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_ADD_FRIEND) && AccountMgr::IsPlayerAccount(GetSecurity()))
+                else if (GetPlayer()->GetTeam() != team && !sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_ADD_FRIEND) && !HasPermission(RBAC_PERM_TWO_SIDE_ADD_FRIEND))
                     friendResult = FRIEND_ENEMY;
                 else if (GetPlayer()->GetSocial()->HasFriend(GUID_LOPART(friendGuid)))
                     friendResult = FRIEND_ALREADY;
