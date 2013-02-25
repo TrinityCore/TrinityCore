@@ -24,6 +24,7 @@
 #include "Config.h"
 #include "Common.h"
 #include "DatabaseEnv.h"
+#include "AccountMgr.h"
 #include "Log.h"
 #include "Opcodes.h"
 #include "WorldPacket.h"

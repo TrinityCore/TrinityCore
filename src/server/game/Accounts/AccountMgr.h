@@ -67,6 +67,7 @@ class AccountMgr
         static bool IsGMAccount(uint32 gmlevel);
         static bool IsAdminAccount(uint32 gmlevel);
         static bool IsConsoleAccount(uint32 gmlevel);
+        static bool HasPermission(uint32 accountId, uint32 permission, uint32 realmId);
 
         void UpdateAccountAccess(RBACData* rbac, uint32 accountId, uint8 securityLevel, int32 realmId);
 
