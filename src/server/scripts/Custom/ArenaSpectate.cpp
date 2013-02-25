@@ -65,7 +65,7 @@ class arena_spectator_commands : public CommandScript
                 return false;
             }
 
-			if (player->HasAura(32728) || player->HasAura(32727)) // Check Arena Preparation thx XXXsupr
+			if (target && (target->HasAura(32728) || target->HasAura(32727))) // Check Arena Preparation thx XXsupr
             {
                 handler->PSendSysMessage("Cant do that. Arena didn`t started.");
                 handler->SetSentErrorMessage(true);
