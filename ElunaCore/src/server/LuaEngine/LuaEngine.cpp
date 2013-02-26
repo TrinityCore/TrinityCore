@@ -246,12 +246,6 @@ void Eluna::PushGUID(lua_State* L, uint64 g)
     lua_pushunsigned(L, GUID_LOPART(g));
 }
 
-//void Eluna::PushLong(lua_State* L, uint64 l)
-//{
-//    if(!L) L = _luaState;
-//    lua_pushinteger(L, l);
-//}
-
 void Eluna::PushInteger(lua_State* L, int i)
 {
     if(!L) L = _luaState;
