@@ -867,8 +867,8 @@ bool ScriptMgr::OnQuestAccept(Player* player, GameObject* go, Quest const* quest
     ASSERT(go);
     ASSERT(quest);
 
-	if (Eluna::getScript()->OnQuestAccept(GAMEOBJECT_EVENT_ON_QUEST_ACCEPT, player, go, quest))
-		return true;
+	//if (Eluna::getScript()->OnQuestAccept(GAMEOBJECT_EVENT_ON_QUEST_ACCEPT, player, go, quest))
+		//return true;
 
     GET_SCRIPT_RET(GameObjectScript, go->GetScriptId(), tmpscript, false);
     player->PlayerTalkClass->ClearMenus();
