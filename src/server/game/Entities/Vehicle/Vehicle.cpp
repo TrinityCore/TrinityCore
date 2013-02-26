@@ -788,9 +788,8 @@ bool VehicleJoinEvent::Execute(uint64, uint32)
         if (Battleground* bg = player->GetBattleground())
             bg->EventPlayerDroppedFlag(player);
 
-        player->StopCastingCharm();
-        player->StopCastingBindSight();
-        player->SendOnCancelExpectedVehicleRideAura();
+        WorldPacket data(SMSG_ON_CANCEL_EXPECTED_RIDE_VEHICLE_AURA, 0);
+        player->GetSession()->SendPacket(&data);
         player->UnsummonPetTemporaryIfAny();
     }
 

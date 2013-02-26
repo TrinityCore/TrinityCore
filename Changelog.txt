@@ -11,6 +11,7 @@
 #                                                                                          #
 ############################################################################################
 
+[143] --> Fix crash StopCastingCharm (TEST #9293). 
 [142] --> Revert 'Fix Gargoyle haste (TEST).'
 [141] --> Small correction arena logs.
 [140] --> Hack-Fix Rune Strike. (By Juliean)
