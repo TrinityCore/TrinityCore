@@ -512,7 +512,7 @@ INSERT INTO `rbac_role_permissions` VALUES
 (23, 21),
 (24, 22),
 (17, 23),
-(34, 24);
+(34, 24),
 (28, 25),
 (30, 26),
 (19, 27),
@@ -593,7 +593,7 @@ INSERT INTO `rbac_roles` VALUES
 (31, 'Join channels without announce'),
 (32, 'Change channel settings without being channel moderator'),
 (33, 'Skip character creation checks'),
-(34, 'Two side faction characters on the same account')
+(34, 'Two side faction characters on the same account'),
 (35, 'See two side who list'),
 (36, 'Add friends of other faction'),
 (37, 'See all security levels with who command'),
