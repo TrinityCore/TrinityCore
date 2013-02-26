@@ -50,6 +50,8 @@ enum REGISTER_TYPE
     REGTYPE_CREATURE,
     REGTYPE_GAMEOBJECT,
     REGTYPE_GAMEOBJECT_GOSSIP,
+    REGTYPE_ITEM_GOSSIP,
+    REGTYPE_PLAYER_GOSSIP,
     REGTYPE_LOG,
     REGTYPE_COUNT
 };
@@ -77,11 +79,11 @@ enum ServerEvents
     PLAYER_EVENT_ON_SPELL_CAST              = 44,       // Not Implemented
     PLAYER_EVENT_ON_SAVE                    = 45,       // Implemented
     PLAYER_EVENT_ON_BIND_TO_INSTANCE        = 46,       // Implemented
-    PLAYER_EVENT_ON_UPDATE_ZONE             = 47,    // Implemented
+    PLAYER_EVENT_ON_UPDATE_ZONE             = 47,       // Implemented
     PLAYER_EVENT_ON_KILL_CREATURE           = 48,       // Implemented
     PLAYER_EVENT_ON_KILLED_BY_CREATURE      = 49,       // Implemented
     PLAYER_EVENT_ON_MAP_CHANGE              = 50,       // Not Implemented
-    
+
     // Guild
     GUILD_EVENT_ON_ADD_MEMBER               = 51,       // Not Implemented
     GUILD_EVENT_ON_REMOVE_MEMBER            = 52,       // Not Implemented
@@ -94,7 +96,7 @@ enum ServerEvents
     GUILD_EVENT_ON_ITEM_MOVE                = 59,       // Not Implemented
     GUILD_EVENT_ON_EVENT                    = 60,       // Not Implemented
     GUILD_EVENT_ON_BANK_EVENT               = 61,       // Not Implemented
-    
+
     // Server
     SERVER_EVENT_ON_NETWORK_START           = 62,       // Not Implemented
     SERVER_EVENT_ON_NETWORK_STOP            = 63,       // Not Implemented
@@ -122,7 +124,7 @@ enum ServerEvents
     MAP_EVENT_ON_PLAYER_ENTER               = 81,       // Not Implemented
     MAP_EVENT_ON_PLAYER_LEAVE               = 82,       // Not Implemented
     MAP_EVENT_ON_UPDATE                     = 83,       // Not Implemented
-    
+
     // Area trigger
     TRIGGER_EVENT_ON_TRIGGER                = 84,       // Not Implemented
 
@@ -195,14 +197,13 @@ enum CreatureEvents
     CREATURE_EVENT_ON_CORPSE_REMOVED                = 44,   // Implemented
     CREATURE_EVENT_ON_MOVE_IN_LOS                   = 45,   // Implemented
     CREATURE_EVENT_ON_VISIBLE_MOVE_IN_LOS           = 46,   // Implemented
-    CREATURE_EVENT_ON_CANT_REACH_TARGET             = 47,   // Implemented
-    CREATURE_EVENT_ON_PASSANGER_BOARDED             = 48,   // Implemented
-    CREATURE_EVENT_ON_DUMMY_EFFECT                  = 49,   // Not Implemented
-    CREATURE_EVENT_ON_QUEST_ACCEPT                  = 50,   // Not Implemented
-    CREATURE_EVENT_ON_QUEST_SELECT                  = 51,   // Not Implemented
-    CREATURE_EVENT_ON_QUEST_COMPLETE                = 52,   // Not Implemented
-    CREATURE_EVENT_ON_QUEST_REWARD                  = 53,   // Not Implemented
-    CREATURE_EVENT_ON_DIALOG_STATUS                 = 54,   // Not Implemented
+    CREATURE_EVENT_ON_PASSANGER_BOARDED             = 47,   // Implemented
+    CREATURE_EVENT_ON_DUMMY_EFFECT                  = 48,   // Not Implemented
+    CREATURE_EVENT_ON_QUEST_ACCEPT                  = 49,   // Not Implemented
+    CREATURE_EVENT_ON_QUEST_SELECT                  = 50,   // Not Implemented
+    CREATURE_EVENT_ON_QUEST_COMPLETE                = 51,   // Not Implemented
+    CREATURE_EVENT_ON_QUEST_REWARD                  = 52,   // Not Implemented
+    CREATURE_EVENT_ON_DIALOG_STATUS                 = 53,   // Not Implemented
     CREATURE_EVENT_COUNT
 };
 
@@ -222,6 +223,11 @@ enum GameObjectEvents
     GAMEOBJECT_EVENT_ON_LOOT_STATE_CHANGE           = 12,   // Not Implemented
     GAMEOBJECT_EVENT_ON_GO_STATE_CHANGED            = 13,   // Not Implemented
     GAMEOBJECT_EVENT_COUNT
+};
+
+enum ItemEvents
+{
+    ITEM_EVENT_COUNT = 1 //placeholder
 };
 
 enum GossipEvents
@@ -262,6 +268,29 @@ struct GameObjectBind
     }
 };
 
+struct ItemBind
+{
+    uint32 entry;
+    uint16 _functionReferences[ITEM_EVENT_COUNT];
+    uint32 _gossipReferences[GOSSIP_EVENT_COUNT];
+
+    ItemBind(uint32 _entry)
+    {
+        entry = _entry;
+    }
+};
+
+struct PlayerBind
+{
+    uint32 menu_id;
+    uint32 _gossipReferences[GOSSIP_EVENT_COUNT];
+
+    PlayerBind(uint32 _menu_id)
+    {
+        menu_id = _menu_id;
+    }
+};
+
 template<typename T> ElunaRegister<T>* GetMethodTable();
 template<typename T> const char* GetTName();
 
@@ -280,10 +309,9 @@ public:
     ElunaBindingMap _serverEventBindings;
 
     vector<CreatureBind*> _creatureEventBindings;
-    vector<CreatureBind*> _gossipEventBindings;
-
-    vector<GameObjectBind*> _gameObjectAIEventBindings;
-    vector<GameObjectBind*> _gameObjectGossipBindings;
+    vector<GameObjectBind*> _gameObjectEventBindings;
+    vector<ItemBind*> _itemEventBindings;
+    vector<PlayerBind*> _playerGossipBindings;
 
     static CreatureAI* GetLuaCreatureAI(Creature* creature);
     static GameObjectAI* GetLuaGameObjectAI(GameObject* gameObject);
@@ -304,10 +332,10 @@ public:
     ~Eluna()
     {
         _serverEventBindings.clear();
-        _gossipEventBindings.clear();
         _creatureEventBindings.clear();
-        _gameObjectAIEventBindings.clear();
-        _gameObjectGossipBindings.clear();
+        _gameObjectEventBindings.clear();
+        _itemEventBindings.clear();
+        _playerGossipBindings.clear();
         luaEventMap::LuaEventsResetAll(); // Unregisters and stops all timed events
         // Need to reset global, creature and gob events
     }
@@ -704,28 +732,28 @@ public:
         uint32 _time;
     };
 
+public:
+    static class LuaWorldScript : public WorldScript, public luaEventMap
+    {
     public:
-        static class LuaWorldScript : public WorldScript, public luaEventMap
+        LuaWorldScript() : WorldScript("LuaWorldScript"), luaEventMap() {}
+
+        void OnUpdate(uint32 diff)
         {
-        public:
-            LuaWorldScript() : WorldScript("LuaWorldScript"), luaEventMap() {}
+            LuaEventsUpdate(diff);
+            LuaEventsExecute();
+        }
 
-            void OnUpdate(uint32 diff)
-            {
-                LuaEventsUpdate(diff);
-                LuaEventsExecute();
-            }
-
-            // executed when a  timed event fires
-            void OnLuaEvent(int funcRef, uint32 delay, uint32 calls)
-            {
-                Eluna::get()->BeginCall(funcRef);
-                Eluna::get()->PushUnsigned(Eluna::get()->_luaState, funcRef);
-                Eluna::get()->PushUnsigned(Eluna::get()->_luaState, delay);
-                Eluna::get()->PushUnsigned(Eluna::get()->_luaState, calls);
-                Eluna::get()->ExecuteCall(3, 0);
-            }
-        };
+        // executed when a  timed event fires
+        void OnLuaEvent(int funcRef, uint32 delay, uint32 calls)
+        {
+            Eluna::get()->BeginCall(funcRef);
+            Eluna::get()->PushUnsigned(Eluna::get()->_luaState, funcRef);
+            Eluna::get()->PushUnsigned(Eluna::get()->_luaState, delay);
+            Eluna::get()->PushUnsigned(Eluna::get()->_luaState, calls);
+            Eluna::get()->ExecuteCall(3, 0);
+        }
+    };
 
 public:
     static class LuaCreatureScript : CreatureScript
@@ -752,14 +780,6 @@ public:
             return NULL;
         }
 
-        static CreatureBind* GetCreatureGossipBindingForId(uint32 id)
-        {
-            for (vector<CreatureBind*>::iterator itr = Eluna::get()->_gossipEventBindings.begin(); itr != Eluna::get()->_gossipEventBindings.end(); ++itr)
-                if ((*itr)->entry == id)
-                    return (*itr);
-            return NULL;
-        }
-
         bool RegisterCreatureScript(uint32 id, uint32 _event, uint16 functionRef)
         {
             if (!sObjectMgr->GetCreatureTemplate(id))
@@ -768,8 +788,10 @@ public:
                 return false;
             }
 
-            Eluna::get()->_creatureEventBindings.push_back(new CreatureBind(id));
-            GetCreatureBindingForId(id)->_functionReferences[_event] = functionRef;
+            CreatureBind* bind = GetCreatureBindingForId(id);
+            if(!bind)
+                Eluna::get()->_creatureEventBindings.push_back(bind = new CreatureBind(id));
+            bind->_functionReferences[_event] = functionRef;
             return true;
         }
 
@@ -781,8 +803,10 @@ public:
                 return false;
             }
 
-            Eluna::get()->_gossipEventBindings.push_back(new CreatureBind(id));
-            GetCreatureGossipBindingForId(id)->_gossipReferences[_event] = functionRef;
+            CreatureBind* bind = GetCreatureBindingForId(id);
+            if(!bind)
+                Eluna::get()->_creatureEventBindings.push_back(bind = new CreatureBind(id));
+            bind->_gossipReferences[_event] = functionRef;
             return true;
         }
 
@@ -798,9 +822,12 @@ public:
             //Called at World update tick
             void UpdateAI(uint32 const diff)
             {
+                CreatureBind* bind = Eluna::LuaCreatureScript::GetCreatureBindingForId(me->GetEntry());
+                if(!bind)
+                    return;
                 LuaEventsUpdate(diff);
                 LuaEventsExecute();
-                Eluna::get()->BeginCall(Eluna::LuaCreatureScript::GetCreatureBindingForId(me->GetEntry())->_functionReferences[CREATURE_EVENT_ON_AIUPDATE]);
+                Eluna::get()->BeginCall(bind->_functionReferences[CREATURE_EVENT_ON_AIUPDATE]);
                 Eluna::get()->PushInteger(Eluna::get()->_luaState, CREATURE_EVENT_ON_AIUPDATE);
                 Eluna::get()->PushUnit(Eluna::get()->_luaState, me);
                 Eluna::get()->PushUnsigned(Eluna::get()->_luaState, diff);
@@ -823,7 +850,10 @@ public:
             //Called at creature aggro either by MoveInLOS or Attack Start
             void EnterCombat(Unit* target)
             {
-                Eluna::get()->BeginCall(Eluna::LuaCreatureScript::GetCreatureBindingForId(me->GetEntry())->_functionReferences[CREATURE_EVENT_ON_ENTER_COMBAT]);
+                CreatureBind* bind = Eluna::LuaCreatureScript::GetCreatureBindingForId(me->GetEntry());
+                if(!bind)
+                    return;
+                Eluna::get()->BeginCall(bind->_functionReferences[CREATURE_EVENT_ON_ENTER_COMBAT]);
                 Eluna::get()->PushInteger(Eluna::get()->_luaState, CREATURE_EVENT_ON_ENTER_COMBAT);
                 Eluna::get()->PushUnit(Eluna::get()->_luaState, me);
                 Eluna::get()->PushUnit(Eluna::get()->_luaState, target);
@@ -834,7 +864,10 @@ public:
             // Called at any Damage from any attacker (before damage apply)
             void DamageTaken(Unit* attacker, uint32& damage)
             {
-                Eluna::get()->BeginCall(Eluna::LuaCreatureScript::GetCreatureBindingForId(me->GetEntry())->_functionReferences[CREATURE_EVENT_ON_DAMAGE_TAKEN]);
+                CreatureBind* bind = Eluna::LuaCreatureScript::GetCreatureBindingForId(me->GetEntry());
+                if(!bind)
+                    return;
+                Eluna::get()->BeginCall(bind->_functionReferences[CREATURE_EVENT_ON_DAMAGE_TAKEN]);
                 Eluna::get()->PushInteger(Eluna::get()->_luaState, CREATURE_EVENT_ON_DAMAGE_TAKEN);
                 Eluna::get()->PushUnit(Eluna::get()->_luaState, me);
                 Eluna::get()->PushUnit(Eluna::get()->_luaState, attacker);
@@ -846,7 +879,10 @@ public:
             //Called at creature death
             void JustDied(Unit* killer)
             {
-                Eluna::get()->BeginCall(Eluna::LuaCreatureScript::GetCreatureBindingForId(me->GetEntry())->_functionReferences[CREATURE_EVENT_ON_DIED]);
+                CreatureBind* bind = Eluna::LuaCreatureScript::GetCreatureBindingForId(me->GetEntry());
+                if(!bind)
+                    return;
+                Eluna::get()->BeginCall(bind->_functionReferences[CREATURE_EVENT_ON_DIED]);
                 Eluna::get()->PushInteger(Eluna::get()->_luaState, CREATURE_EVENT_ON_DIED);
                 Eluna::get()->PushUnit(Eluna::get()->_luaState, me);
                 Eluna::get()->PushUnit(Eluna::get()->_luaState, killer);
@@ -857,7 +893,10 @@ public:
             //Called at creature killing another unit
             void KilledUnit(Unit* victim)
             {
-                Eluna::get()->BeginCall(Eluna::LuaCreatureScript::GetCreatureBindingForId(me->GetEntry())->_functionReferences[CREATURE_EVENT_ON_TARGET_DIED]);
+                CreatureBind* bind = Eluna::LuaCreatureScript::GetCreatureBindingForId(me->GetEntry());
+                if(!bind)
+                    return;
+                Eluna::get()->BeginCall(bind->_functionReferences[CREATURE_EVENT_ON_TARGET_DIED]);
                 Eluna::get()->PushInteger(Eluna::get()->_luaState, CREATURE_EVENT_ON_TARGET_DIED);
                 Eluna::get()->PushUnit(Eluna::get()->_luaState, me);
                 Eluna::get()->PushUnit(Eluna::get()->_luaState, victim);
@@ -868,7 +907,10 @@ public:
             // Called when the creature summon successfully other creature
             void JustSummoned(Creature* summon)
             {
-                Eluna::get()->BeginCall(Eluna::LuaCreatureScript::GetCreatureBindingForId(me->GetEntry())->_functionReferences[CREATURE_EVENT_ON_JUST_SUMMONED_CREATURE]);
+                CreatureBind* bind = Eluna::LuaCreatureScript::GetCreatureBindingForId(me->GetEntry());
+                if(!bind)
+                    return;
+                Eluna::get()->BeginCall(bind->_functionReferences[CREATURE_EVENT_ON_JUST_SUMMONED_CREATURE]);
                 Eluna::get()->PushInteger(Eluna::get()->_luaState, CREATURE_EVENT_ON_JUST_SUMMONED_CREATURE);
                 Eluna::get()->PushUnit(Eluna::get()->_luaState, me);
                 Eluna::get()->PushUnit(Eluna::get()->_luaState, summon);
@@ -879,7 +921,10 @@ public:
             // Called when a summoned creature is despawned
             void SummonedCreatureDespawn(Creature* summon)
             {
-                Eluna::get()->BeginCall(Eluna::LuaCreatureScript::GetCreatureBindingForId(me->GetEntry())->_functionReferences[CREATURE_EVENT_ON_SUMMONED_CREATURE_DESPAWN]);
+                CreatureBind* bind = Eluna::LuaCreatureScript::GetCreatureBindingForId(me->GetEntry());
+                if(!bind)
+                    return;
+                Eluna::get()->BeginCall(bind->_functionReferences[CREATURE_EVENT_ON_SUMMONED_CREATURE_DESPAWN]);
                 Eluna::get()->PushInteger(Eluna::get()->_luaState, CREATURE_EVENT_ON_SUMMONED_CREATURE_DESPAWN);
                 Eluna::get()->PushUnit(Eluna::get()->_luaState, me);
                 Eluna::get()->PushUnit(Eluna::get()->_luaState, summon);
@@ -890,7 +935,10 @@ public:
             // Called when hit by a spell
             void SpellHit(Unit* caster, SpellInfo const* spell)
             {
-                Eluna::get()->BeginCall(Eluna::LuaCreatureScript::GetCreatureBindingForId(me->GetEntry())->_functionReferences[CREATURE_EVENT_ON_HIT_BY_SPELL]);
+                CreatureBind* bind = Eluna::LuaCreatureScript::GetCreatureBindingForId(me->GetEntry());
+                if(!bind)
+                    return;
+                Eluna::get()->BeginCall(bind->_functionReferences[CREATURE_EVENT_ON_HIT_BY_SPELL]);
                 Eluna::get()->PushInteger(Eluna::get()->_luaState, CREATURE_EVENT_ON_HIT_BY_SPELL);
                 Eluna::get()->PushUnit(Eluna::get()->_luaState, me);
                 Eluna::get()->PushUnit(Eluna::get()->_luaState, caster);
@@ -902,7 +950,10 @@ public:
             // Called when spell hits a target
             void SpellHitTarget(Unit* target, SpellInfo const* spell)
             {
-                Eluna::get()->BeginCall(Eluna::LuaCreatureScript::GetCreatureBindingForId(me->GetEntry())->_functionReferences[CREATURE_EVENT_ON_SPELL_HIT_TARGET]);
+                CreatureBind* bind = Eluna::LuaCreatureScript::GetCreatureBindingForId(me->GetEntry());
+                if(!bind)
+                    return;
+                Eluna::get()->BeginCall(bind->_functionReferences[CREATURE_EVENT_ON_SPELL_HIT_TARGET]);
                 Eluna::get()->PushInteger(Eluna::get()->_luaState, CREATURE_EVENT_ON_SPELL_HIT_TARGET);
                 Eluna::get()->PushUnit(Eluna::get()->_luaState, me);
                 Eluna::get()->PushUnit(Eluna::get()->_luaState, target);
@@ -914,7 +965,10 @@ public:
             //Called at waypoint reached or PointMovement end
             void MovementInform(uint32 type, uint32 id)
             {
-                Eluna::get()->BeginCall(Eluna::LuaCreatureScript::GetCreatureBindingForId(me->GetEntry())->_functionReferences[CREATURE_EVENT_ON_REACH_WP]);
+                CreatureBind* bind = Eluna::LuaCreatureScript::GetCreatureBindingForId(me->GetEntry());
+                if(!bind)
+                    return;
+                Eluna::get()->BeginCall(bind->_functionReferences[CREATURE_EVENT_ON_REACH_WP]);
                 Eluna::get()->PushInteger(Eluna::get()->_luaState, CREATURE_EVENT_ON_REACH_WP);
                 Eluna::get()->PushUnit(Eluna::get()->_luaState, me);
                 Eluna::get()->PushUnsigned(Eluna::get()->_luaState, type);
@@ -926,7 +980,10 @@ public:
             // Called when AI is temporarily replaced or put back when possess is applied or removed
             void OnPossess(bool apply)
             {
-                Eluna::get()->BeginCall(Eluna::LuaCreatureScript::GetCreatureBindingForId(me->GetEntry())->_functionReferences[CREATURE_EVENT_ON_POSSESS]);
+                CreatureBind* bind = Eluna::LuaCreatureScript::GetCreatureBindingForId(me->GetEntry());
+                if(!bind)
+                    return;
+                Eluna::get()->BeginCall(bind->_functionReferences[CREATURE_EVENT_ON_POSSESS]);
                 Eluna::get()->PushInteger(Eluna::get()->_luaState, CREATURE_EVENT_ON_POSSESS);
                 Eluna::get()->PushUnit(Eluna::get()->_luaState, me);
                 Eluna::get()->PushBoolean(Eluna::get()->_luaState, apply);
@@ -937,7 +994,10 @@ public:
             //Called at creature reset either by death or evade
             void Reset()
             {
-                Eluna::get()->BeginCall(Eluna::LuaCreatureScript::GetCreatureBindingForId(me->GetEntry())->_functionReferences[CREATURE_EVENT_ON_RESET]);
+                CreatureBind* bind = Eluna::LuaCreatureScript::GetCreatureBindingForId(me->GetEntry());
+                if(!bind)
+                    return;
+                Eluna::get()->BeginCall(bind->_functionReferences[CREATURE_EVENT_ON_RESET]);
                 Eluna::get()->PushInteger(Eluna::get()->_luaState, CREATURE_EVENT_ON_RESET);
                 Eluna::get()->PushUnit(Eluna::get()->_luaState, me);
                 Eluna::get()->ExecuteCall(2, 0);
@@ -947,7 +1007,10 @@ public:
             // Called before EnterCombat even before the creature is in combat.
             void AttackStart(Unit* target)
             {
-                Eluna::get()->BeginCall(Eluna::LuaCreatureScript::GetCreatureBindingForId(me->GetEntry())->_functionReferences[CREATURE_EVENT_ON_PRE_COMBAT]);
+                CreatureBind* bind = Eluna::LuaCreatureScript::GetCreatureBindingForId(me->GetEntry());
+                if(!bind)
+                    return;
+                Eluna::get()->BeginCall(bind->_functionReferences[CREATURE_EVENT_ON_PRE_COMBAT]);
                 Eluna::get()->PushInteger(Eluna::get()->_luaState, CREATURE_EVENT_ON_PRE_COMBAT);
                 Eluna::get()->PushUnit(Eluna::get()->_luaState, me);
                 Eluna::get()->PushUnit(Eluna::get()->_luaState, target);
@@ -958,8 +1021,11 @@ public:
             // Called in Creature::Update when deathstate = DEAD. Inherited classes may maniuplate the ability to respawn based on scripted events.
             bool CanRespawn()
             {
+                CreatureBind* bind = Eluna::LuaCreatureScript::GetCreatureBindingForId(me->GetEntry());
+                if(!bind)
+                    return true;
                 bool result = true;
-                Eluna::get()->BeginCall(Eluna::LuaCreatureScript::GetCreatureBindingForId(me->GetEntry())->_functionReferences[CREATURE_EVENT_ON_CAN_RESPAWN]);
+                Eluna::get()->BeginCall(bind->_functionReferences[CREATURE_EVENT_ON_CAN_RESPAWN]);
                 Eluna::get()->PushInteger(Eluna::get()->_luaState, CREATURE_EVENT_ON_CAN_RESPAWN);
                 Eluna::get()->PushUnit(Eluna::get()->_luaState, me);
                 if(Eluna::get()->ExecuteCall(2, 1))
@@ -976,7 +1042,10 @@ public:
             // Called for reaction at stopping attack at no attackers or targets
             void EnterEvadeMode()
             {
-                Eluna::get()->BeginCall(Eluna::LuaCreatureScript::GetCreatureBindingForId(me->GetEntry())->_functionReferences[CREATURE_EVENT_ON_LEAVE_COMBAT]);
+                CreatureBind* bind = Eluna::LuaCreatureScript::GetCreatureBindingForId(me->GetEntry());
+                if(!bind)
+                    return;
+                Eluna::get()->BeginCall(bind->_functionReferences[CREATURE_EVENT_ON_LEAVE_COMBAT]);
                 Eluna::get()->PushInteger(Eluna::get()->_luaState, CREATURE_EVENT_ON_LEAVE_COMBAT);
                 Eluna::get()->PushUnit(Eluna::get()->_luaState, me);
                 Eluna::get()->ExecuteCall(2, 0);
@@ -986,7 +1055,10 @@ public:
             // Called when the creature is summoned successfully by other creature
             void IsSummonedBy(Unit* summoner)
             {
-                Eluna::get()->BeginCall(Eluna::LuaCreatureScript::GetCreatureBindingForId(me->GetEntry())->_functionReferences[CREATURE_EVENT_ON_SUMMONED]);
+                CreatureBind* bind = Eluna::LuaCreatureScript::GetCreatureBindingForId(me->GetEntry());
+                if(!bind)
+                    return;
+                Eluna::get()->BeginCall(bind->_functionReferences[CREATURE_EVENT_ON_SUMMONED]);
                 Eluna::get()->PushInteger(Eluna::get()->_luaState, CREATURE_EVENT_ON_SUMMONED);
                 Eluna::get()->PushUnit(Eluna::get()->_luaState, me);
                 Eluna::get()->PushUnit(Eluna::get()->_luaState, summoner);
@@ -996,7 +1068,10 @@ public:
 
             void SummonedCreatureDies(Creature* summon, Unit* killer)
             {
-                Eluna::get()->BeginCall(Eluna::LuaCreatureScript::GetCreatureBindingForId(me->GetEntry())->_functionReferences[CREATURE_EVENT_ON_SUMMONED_CREATURE_DIED]);
+                CreatureBind* bind = Eluna::LuaCreatureScript::GetCreatureBindingForId(me->GetEntry());
+                if(!bind)
+                    return;
+                Eluna::get()->BeginCall(bind->_functionReferences[CREATURE_EVENT_ON_SUMMONED_CREATURE_DIED]);
                 Eluna::get()->PushInteger(Eluna::get()->_luaState, CREATURE_EVENT_ON_SUMMONED_CREATURE_DIED);
                 Eluna::get()->PushUnit(Eluna::get()->_luaState, me);
                 Eluna::get()->PushUnit(Eluna::get()->_luaState, summon);
@@ -1008,7 +1083,10 @@ public:
             // Called when the creature is target of hostile action: swing, hostile spell landed, fear/etc)
             void AttackedBy(Unit* attacker)
             {
-                Eluna::get()->BeginCall(Eluna::LuaCreatureScript::GetCreatureBindingForId(me->GetEntry())->_functionReferences[CREATURE_EVENT_ON_ATTACKED_AT]);
+                CreatureBind* bind = Eluna::LuaCreatureScript::GetCreatureBindingForId(me->GetEntry());
+                if(!bind)
+                    return;
+                Eluna::get()->BeginCall(bind->_functionReferences[CREATURE_EVENT_ON_ATTACKED_AT]);
                 Eluna::get()->PushInteger(Eluna::get()->_luaState, CREATURE_EVENT_ON_ATTACKED_AT);
                 Eluna::get()->PushUnit(Eluna::get()->_luaState, me);
                 Eluna::get()->PushUnit(Eluna::get()->_luaState, attacker);
@@ -1019,7 +1097,10 @@ public:
             // Called when creature is spawned or respawned (for reseting variables)
             void JustRespawned()
             {
-                Eluna::get()->BeginCall(Eluna::LuaCreatureScript::GetCreatureBindingForId(me->GetEntry())->_functionReferences[CREATURE_EVENT_ON_SPAWN]);
+                CreatureBind* bind = Eluna::LuaCreatureScript::GetCreatureBindingForId(me->GetEntry());
+                if(!bind)
+                    return;
+                Eluna::get()->BeginCall(bind->_functionReferences[CREATURE_EVENT_ON_SPAWN]);
                 Eluna::get()->PushInteger(Eluna::get()->_luaState, CREATURE_EVENT_ON_SPAWN);
                 Eluna::get()->PushUnit(Eluna::get()->_luaState, me);
                 Eluna::get()->ExecuteCall(2, 0);
@@ -1028,7 +1109,10 @@ public:
 
             void OnCharmed(bool apply)
             {
-                Eluna::get()->BeginCall(Eluna::LuaCreatureScript::GetCreatureBindingForId(me->GetEntry())->_functionReferences[CREATURE_EVENT_ON_CHARMED]);
+                CreatureBind* bind = Eluna::LuaCreatureScript::GetCreatureBindingForId(me->GetEntry());
+                if(!bind)
+                    return;
+                Eluna::get()->BeginCall(bind->_functionReferences[CREATURE_EVENT_ON_CHARMED]);
                 Eluna::get()->PushInteger(Eluna::get()->_luaState, CREATURE_EVENT_ON_CHARMED);
                 Eluna::get()->PushUnit(Eluna::get()->_luaState, me);
                 Eluna::get()->PushBoolean(Eluna::get()->_luaState, apply);
@@ -1039,7 +1123,10 @@ public:
             // Called at reaching home after evade
             void JustReachedHome()
             {
-                Eluna::get()->BeginCall(Eluna::LuaCreatureScript::GetCreatureBindingForId(me->GetEntry())->_functionReferences[CREATURE_EVENT_ON_REACH_HOME]);
+                CreatureBind* bind = Eluna::LuaCreatureScript::GetCreatureBindingForId(me->GetEntry());
+                if(!bind)
+                    return;
+                Eluna::get()->BeginCall(bind->_functionReferences[CREATURE_EVENT_ON_REACH_HOME]);
                 Eluna::get()->PushInteger(Eluna::get()->_luaState, CREATURE_EVENT_ON_REACH_HOME);
                 Eluna::get()->PushUnit(Eluna::get()->_luaState, me);
                 Eluna::get()->ExecuteCall(2, 0);
@@ -1049,7 +1136,10 @@ public:
             // Called at text emote receive from player
             void ReceiveEmote(Player* player, uint32 emoteId)
             {
-                Eluna::get()->BeginCall(Eluna::LuaCreatureScript::GetCreatureBindingForId(me->GetEntry())->_functionReferences[CREATURE_EVENT_ON_RECEIVE_EMOTE]);
+                CreatureBind* bind = Eluna::LuaCreatureScript::GetCreatureBindingForId(me->GetEntry());
+                if(!bind)
+                    return;
+                Eluna::get()->BeginCall(bind->_functionReferences[CREATURE_EVENT_ON_RECEIVE_EMOTE]);
                 Eluna::get()->PushInteger(Eluna::get()->_luaState, CREATURE_EVENT_ON_RECEIVE_EMOTE);
                 Eluna::get()->PushUnit(Eluna::get()->_luaState, me);
                 Eluna::get()->PushUnit(Eluna::get()->_luaState, player);
@@ -1061,7 +1151,10 @@ public:
             // Called when owner takes damage
             void OwnerAttackedBy(Unit* attacker)
             {
-                Eluna::get()->BeginCall(Eluna::LuaCreatureScript::GetCreatureBindingForId(me->GetEntry())->_functionReferences[CREATURE_EVENT_ON_OWNER_ATTACKED_AT]);
+                CreatureBind* bind = Eluna::LuaCreatureScript::GetCreatureBindingForId(me->GetEntry());
+                if(!bind)
+                    return;
+                Eluna::get()->BeginCall(bind->_functionReferences[CREATURE_EVENT_ON_OWNER_ATTACKED_AT]);
                 Eluna::get()->PushInteger(Eluna::get()->_luaState, CREATURE_EVENT_ON_OWNER_ATTACKED_AT);
                 Eluna::get()->PushUnit(Eluna::get()->_luaState, me);
                 Eluna::get()->PushUnit(Eluna::get()->_luaState, attacker);
@@ -1071,7 +1164,10 @@ public:
             // Called when owner attacks something
             void OwnerAttacked(Unit* target)
             {
-                Eluna::get()->BeginCall(Eluna::LuaCreatureScript::GetCreatureBindingForId(me->GetEntry())->_functionReferences[CREATURE_EVENT_ON_OWNER_ATTACKED_AT]);
+                CreatureBind* bind = Eluna::LuaCreatureScript::GetCreatureBindingForId(me->GetEntry());
+                if(!bind)
+                    return;
+                Eluna::get()->BeginCall(bind->_functionReferences[CREATURE_EVENT_ON_OWNER_ATTACKED_AT]);
                 Eluna::get()->PushInteger(Eluna::get()->_luaState, CREATURE_EVENT_ON_OWNER_ATTACKED_AT);
                 Eluna::get()->PushUnit(Eluna::get()->_luaState, me);
                 Eluna::get()->PushUnit(Eluna::get()->_luaState, target);
@@ -1082,7 +1178,10 @@ public:
             // called when the corpse of this creature gets removed
             void CorpseRemoved(uint32& respawnDelay)
             {
-                Eluna::get()->BeginCall(Eluna::LuaCreatureScript::GetCreatureBindingForId(me->GetEntry())->_functionReferences[CREATURE_EVENT_ON_CORPSE_REMOVED]);
+                CreatureBind* bind = Eluna::LuaCreatureScript::GetCreatureBindingForId(me->GetEntry());
+                if(!bind)
+                    return;
+                Eluna::get()->BeginCall(bind->_functionReferences[CREATURE_EVENT_ON_CORPSE_REMOVED]);
                 Eluna::get()->PushInteger(Eluna::get()->_luaState, CREATURE_EVENT_ON_CORPSE_REMOVED);
                 Eluna::get()->PushUnit(Eluna::get()->_luaState, me);
                 Eluna::get()->PushUnsigned(Eluna::get()->_luaState, respawnDelay);
@@ -1090,27 +1189,12 @@ public:
                 ScriptedAI::CorpseRemoved(respawnDelay);
             }
 
-            // Called when victim entered water and creature can not enter water
-            bool canReachByRangeAttack(Unit* target)
-            {
-                bool result = false;
-                Eluna::get()->BeginCall(Eluna::LuaCreatureScript::GetCreatureBindingForId(me->GetEntry())->_functionReferences[CREATURE_EVENT_ON_CANT_REACH_TARGET]);
-                Eluna::get()->PushInteger(Eluna::get()->_luaState, CREATURE_EVENT_ON_CANT_REACH_TARGET);
-                Eluna::get()->PushUnit(Eluna::get()->_luaState, me);
-                Eluna::get()->PushUnit(Eluna::get()->_luaState, target);
-                if(Eluna::get()->ExecuteCall(3, 1))
-                {
-                    lua_State* L = Eluna::get()->_luaState;
-                    if(!lua_isnoneornil(L, 1) && luaL_checkbool(L, 1))
-                        result = true;
-                    Eluna::get()->EndCall(1);
-                }
-                return result;
-            }
-
             void PassengerBoarded(Unit* passenger, int8 seatId, bool apply)
             {
-                Eluna::get()->BeginCall(Eluna::LuaCreatureScript::GetCreatureBindingForId(me->GetEntry())->_functionReferences[CREATURE_EVENT_ON_PASSANGER_BOARDED]);
+                CreatureBind* bind = Eluna::LuaCreatureScript::GetCreatureBindingForId(me->GetEntry());
+                if(!bind)
+                    return;
+                Eluna::get()->BeginCall(bind->_functionReferences[CREATURE_EVENT_ON_PASSANGER_BOARDED]);
                 Eluna::get()->PushInteger(Eluna::get()->_luaState, CREATURE_EVENT_ON_PASSANGER_BOARDED);
                 Eluna::get()->PushUnit(Eluna::get()->_luaState, me);
                 Eluna::get()->PushUnit(Eluna::get()->_luaState, passenger);
@@ -1122,7 +1206,10 @@ public:
 
             void OnSpellClick(Unit* clicker)
             {
-                Eluna::get()->BeginCall(Eluna::LuaCreatureScript::GetCreatureBindingForId(me->GetEntry())->_functionReferences[CREATURE_EVENT_ON_SPELL_CLICK]);
+                CreatureBind* bind = Eluna::LuaCreatureScript::GetCreatureBindingForId(me->GetEntry());
+                if(!bind)
+                    return;
+                Eluna::get()->BeginCall(bind->_functionReferences[CREATURE_EVENT_ON_SPELL_CLICK]);
                 Eluna::get()->PushInteger(Eluna::get()->_luaState, CREATURE_EVENT_ON_SPELL_CLICK);
                 Eluna::get()->PushUnit(Eluna::get()->_luaState, me);
                 Eluna::get()->PushUnit(Eluna::get()->_luaState, clicker);
@@ -1132,7 +1219,10 @@ public:
 
             void MoveInLineOfSight(Unit* who)
             {
-                Eluna::get()->BeginCall(Eluna::LuaCreatureScript::GetCreatureBindingForId(me->GetEntry())->_functionReferences[CREATURE_EVENT_ON_MOVE_IN_LOS]);
+                CreatureBind* bind = Eluna::LuaCreatureScript::GetCreatureBindingForId(me->GetEntry());
+                if(!bind)
+                    return;
+                Eluna::get()->BeginCall(bind->_functionReferences[CREATURE_EVENT_ON_MOVE_IN_LOS]);
                 Eluna::get()->PushInteger(Eluna::get()->_luaState, CREATURE_EVENT_ON_MOVE_IN_LOS);
                 Eluna::get()->PushUnit(Eluna::get()->_luaState, me);
                 Eluna::get()->PushUnit(Eluna::get()->_luaState, who);
@@ -1143,7 +1233,10 @@ public:
             // Called if IsVisible(Unit* who) is true at each who move, reaction at visibility zone enter
             void MoveInLineOfSight_Safe(Unit* who)
             {
-                Eluna::get()->BeginCall(Eluna::LuaCreatureScript::GetCreatureBindingForId(me->GetEntry())->_functionReferences[CREATURE_EVENT_ON_MOVE_IN_LOS]);
+                CreatureBind* bind = Eluna::LuaCreatureScript::GetCreatureBindingForId(me->GetEntry());
+                if(!bind)
+                    return;
+                Eluna::get()->BeginCall(bind->_functionReferences[CREATURE_EVENT_ON_MOVE_IN_LOS]);
                 Eluna::get()->PushInteger(Eluna::get()->_luaState, CREATURE_EVENT_ON_VISIBLE_MOVE_IN_LOS);
                 Eluna::get()->PushUnit(Eluna::get()->_luaState, me);
                 Eluna::get()->PushUnit(Eluna::get()->_luaState, who);
@@ -1152,7 +1245,7 @@ public:
             }
         };
 
-        LuaCreatureAI* GetLuaAI(Creature* creature)
+        LuaCreatureAI* GetAI(Creature* creature)
         {
             CreatureBind* bind = GetCreatureBindingForId(creature->GetEntry());
             if (!bind)
@@ -1166,11 +1259,6 @@ public:
             LuaCreatureAI* luaCreatureAI = new LuaCreatureAI(creature);
             _scriptsToClear.push_back(luaCreatureAI);
             return luaCreatureAI;
-        }
-
-        CreatureAI* GetAI(Creature* creature)
-        {
-            return GetLuaAI(creature);
         }
     };
 
@@ -1190,17 +1278,9 @@ public:
 
         ~LuaGameObjectScript() { }
 
-        static GameObjectBind* GetGameObjectAIBindingForId(uint32 entry)
+        static GameObjectBind* GetGameObjectBindingForId(uint32 entry)
         {
-            for(vector<GameObjectBind*>::iterator itr = Eluna::get()->_gameObjectAIEventBindings.begin(); itr != Eluna::get()->_gameObjectAIEventBindings.end(); ++itr)
-                if ((*itr)->entry == entry)
-                    return (*itr);
-            return NULL;
-        }
-
-        static GameObjectBind* GetGameObjectGossipBindingForId(uint32 entry)
-        {
-            for(vector<GameObjectBind*>::iterator itr = Eluna::get()->_gameObjectGossipBindings.begin(); itr != Eluna::get()->_gameObjectGossipBindings.end(); ++itr)
+            for(vector<GameObjectBind*>::iterator itr = Eluna::get()->_gameObjectEventBindings.begin(); itr != Eluna::get()->_gameObjectEventBindings.end(); ++itr)
                 if ((*itr)->entry == entry)
                     return (*itr);
             return NULL;
@@ -1214,8 +1294,10 @@ public:
                 return false;
             }
 
-            Eluna::get()->_gameObjectAIEventBindings.push_back(new GameObjectBind(id));
-            GetGameObjectAIBindingForId(id)->_functionReferences[_event] = functionRef;
+            GameObjectBind* bind = GetGameObjectBindingForId(id);
+            if(!bind)
+                Eluna::get()->_gameObjectEventBindings.push_back(bind = new GameObjectBind(id));
+            bind->_functionReferences[_event] = functionRef;
             return true;
         }
 
@@ -1227,8 +1309,10 @@ public:
                 return false;
             }
 
-            Eluna::get()->_gameObjectGossipBindings.push_back(new GameObjectBind(id));
-            GetGameObjectGossipBindingForId(id)->_gossipReferences[_event] = functionRef;
+            GameObjectBind* bind = GetGameObjectBindingForId(id);
+            if(!bind)
+                Eluna::get()->_gameObjectEventBindings.push_back(bind = new GameObjectBind(id));
+            bind->_gossipReferences[_event] = functionRef;
             return true;
         }
 
@@ -1236,7 +1320,7 @@ public:
         {
             LuaGameObjectAI(GameObject* _go) : GameObjectAI(_go), luaEventMap()
             {
-                goBinding = LuaGameObjectScript::GetGameObjectAIBindingForId(_go->GetEntry());
+                goBinding = LuaGameObjectScript::GetGameObjectBindingForId(_go->GetEntry());
             }
 
             ~LuaGameObjectAI() { }
@@ -1244,9 +1328,12 @@ public:
 
             void UpdateAI(uint32 diff)
             {
+                GameObjectBind* bind = GetGameObjectBindingForId(go->GetEntry());
+                if(!bind)
+                    return;
                 LuaEventsUpdate(diff);
                 LuaEventsExecute();
-                Eluna::get()->BeginCall(GetGameObjectAIBindingForId(go->GetEntry())->_functionReferences[GAMEOBJECT_EVENT_ON_AIUPDATE]);
+                Eluna::get()->BeginCall(bind->_functionReferences[GAMEOBJECT_EVENT_ON_AIUPDATE]);
                 Eluna::get()->PushInteger(Eluna::get()->_luaState, GAMEOBJECT_EVENT_ON_AIUPDATE);
                 Eluna::get()->PushGO(Eluna::get()->_luaState, go);
                 Eluna::get()->PushUnsigned(Eluna::get()->_luaState, diff);
@@ -1266,7 +1353,10 @@ public:
 
             void Reset()
             {
-                Eluna::get()->BeginCall(GetGameObjectAIBindingForId(go->GetEntry())->_functionReferences[GAMEOBJECT_EVENT_ON_RESET]);
+                GameObjectBind* bind = GetGameObjectBindingForId(go->GetEntry());
+                if(!bind)
+                    return;
+                Eluna::get()->BeginCall(bind->_functionReferences[GAMEOBJECT_EVENT_ON_RESET]);
                 Eluna::get()->PushInteger(Eluna::get()->_luaState, GAMEOBJECT_EVENT_ON_RESET);
                 Eluna::get()->PushGO(Eluna::get()->_luaState, go);
                 Eluna::get()->ExecuteCall(2, 0);
@@ -1274,7 +1364,10 @@ public:
 
             void DoAction(const int32 param)
             {
-                Eluna::get()->BeginCall(GetGameObjectAIBindingForId(go->GetEntry())->_functionReferences[GAMEOBJECT_EVENT_DOACTION]);
+                GameObjectBind* bind = GetGameObjectBindingForId(go->GetEntry());
+                if(!bind)
+                    return;
+                Eluna::get()->BeginCall(bind->_functionReferences[GAMEOBJECT_EVENT_DOACTION]);
                 Eluna::get()->PushInteger(Eluna::get()->_luaState, GAMEOBJECT_EVENT_DOACTION);
                 Eluna::get()->PushGO(Eluna::get()->_luaState, go);
                 Eluna::get()->PushUnsigned(Eluna::get()->_luaState, param);
@@ -1283,7 +1376,10 @@ public:
 
             void SetGUID(uint64 guid, int32 id)
             {
-                Eluna::get()->BeginCall(GetGameObjectAIBindingForId(go->GetEntry())->_functionReferences[GAMEOBJECT_EVENT_ON_SET_GUID]);
+                GameObjectBind* bind = GetGameObjectBindingForId(go->GetEntry());
+                if(!bind)
+                    return;
+                Eluna::get()->BeginCall(bind->_functionReferences[GAMEOBJECT_EVENT_ON_SET_GUID]);
                 Eluna::get()->PushInteger(Eluna::get()->_luaState, GAMEOBJECT_EVENT_ON_SET_GUID);
                 Eluna::get()->PushGO(Eluna::get()->_luaState, go);
                 Eluna::get()->PushGUID(Eluna::get()->_luaState, guid);
@@ -1292,9 +1388,9 @@ public:
             }
         };
 
-        LuaGameObjectAI* GetLuaAI(GameObject* gameObject)
+        LuaGameObjectAI* GetAI(GameObject* gameObject)
         {
-            GameObjectBind* bind = GetGameObjectAIBindingForId(gameObject->GetEntry());
+            GameObjectBind* bind = GetGameObjectBindingForId(gameObject->GetEntry());
             if (!bind)
                 return NULL;
 
@@ -1306,11 +1402,6 @@ public:
             LuaGameObjectAI* luaGameObjectAI = new LuaGameObjectAI(gameObject);
             _scriptsToClear.push_back(luaGameObjectAI);
             return luaGameObjectAI;
-        }
-
-        GameObjectAI* GetAI(GameObject* gameObject)
-        {
-            return GetLuaAI(gameObject);
         }
     };
 };
@@ -1338,6 +1429,83 @@ public:
         delete this;
     }
 
+    /* Item & player Gossip */
+    bool OnGossipHello(uint32 eventId, Player* player, Item* item)
+    {
+        for(vector<ItemBind*>::iterator itr = Eluna::get()->_itemEventBindings.begin(); itr != Eluna::get()->_itemEventBindings.end(); ++itr)
+        {
+            if ((*itr)->entry == item->GetEntry())
+            {
+                player->PlayerTalkClass->ClearMenus();
+                Eluna::get()->BeginCall((*itr)->_gossipReferences[eventId]);
+                Eluna::get()->PushUnsigned(Eluna::get()->_luaState, eventId);
+                Eluna::get()->PushUnit(Eluna::get()->_luaState, player);
+                Eluna::get()->PushItem(Eluna::get()->_luaState, item);
+                Eluna::get()->ExecuteCall(3, 0);
+            }
+        }
+        return true;
+    }
+
+    void HandleGossipSelectOption(Player* player, uint64 guid, uint32 sender, uint32 action, std::string code, uint32 menuId)
+    {
+        if(!player || !player->IsInWorld() || !player->isAlive() || player->GetCharmerGUID())
+            return;
+
+        if (player->HasUnitState(UNIT_STATE_DIED))
+            player->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
+        player->PlayerTalkClass->ClearMenus();
+
+        if(IS_ITEM_GUID(guid))
+        {
+            Item* item = player->GetItemByGuid(guid);
+            if(!item)
+                return;
+
+            for(vector<ItemBind*>::iterator itr = Eluna::get()->_itemEventBindings.begin(); itr != Eluna::get()->_itemEventBindings.end(); ++itr)
+            {
+                if ((*itr)->entry == item->GetEntry())
+                {
+                    Eluna::get()->BeginCall((*itr)->_gossipReferences[GOSSIP_EVENT_ON_SELECT]);
+                    Eluna::get()->PushUnsigned(Eluna::get()->_luaState, GOSSIP_EVENT_ON_SELECT);
+                    Eluna::get()->PushUnit(Eluna::get()->_luaState, player);
+                    Eluna::get()->PushItem(Eluna::get()->_luaState, item);
+                    Eluna::get()->PushUnsigned(Eluna::get()->_luaState, sender);
+                    Eluna::get()->PushUnsigned(Eluna::get()->_luaState, action);
+                    if(code.empty())
+                        lua_pushnil(Eluna::get()->_luaState);
+                    else
+                        Eluna::get()->PushString(Eluna::get()->_luaState, code.c_str());
+                    Eluna::get()->ExecuteCall(6, 0);
+                }
+            }
+        }
+        else if(IS_PLAYER_GUID(guid))
+        {
+            if(player->GetGUID() != guid)
+                return;
+
+            for(vector<PlayerBind*>::iterator itr = Eluna::get()->_playerGossipBindings.begin(); itr != Eluna::get()->_playerGossipBindings.end(); ++itr)
+            {
+                if ((*itr)->menu_id == menuId)
+                {
+                    Eluna::get()->BeginCall((*itr)->_gossipReferences[GOSSIP_EVENT_ON_SELECT]);
+                    Eluna::get()->PushUnsigned(Eluna::get()->_luaState, GOSSIP_EVENT_ON_SELECT);
+                    Eluna::get()->PushUnit(Eluna::get()->_luaState, player); // receiver
+                    Eluna::get()->PushUnit(Eluna::get()->_luaState, player); // sender, just not to mess up the amount of args.
+                    Eluna::get()->PushUnsigned(Eluna::get()->_luaState, sender);
+                    Eluna::get()->PushUnsigned(Eluna::get()->_luaState, action);
+                    if(code.empty())
+                        lua_pushnil(Eluna::get()->_luaState);
+                    else
+                        Eluna::get()->PushString(Eluna::get()->_luaState, code.c_str());
+                    Eluna::get()->PushUnsigned(Eluna::get()->_luaState, menuId);
+                    Eluna::get()->ExecuteCall(6, 0);
+                }
+            }
+        }
+    }
+
     void OnChat(uint32 eventId, Player* player, uint32 type, uint32 lang, string& msg)
     {
         for (vector<uint16>::iterator itr = Eluna::get()->_serverEventBindings.at(eventId).begin();
@@ -1346,9 +1514,9 @@ public:
             Eluna::get()->BeginCall((*itr));
             Eluna::get()->PushUnsigned(Eluna::get()->_luaState, eventId);
             Eluna::get()->PushUnit(Eluna::get()->_luaState, player);
+            Eluna::get()->PushString(Eluna::get()->_luaState, msg.c_str());
             Eluna::get()->PushUnsigned(Eluna::get()->_luaState, type);
             Eluna::get()->PushUnsigned(Eluna::get()->_luaState, lang);
-            Eluna::get()->PushString(Eluna::get()->_luaState, msg.c_str());
             Eluna::get()->ExecuteCall(5, 0);
         }
     }
@@ -1361,9 +1529,9 @@ public:
             Eluna::get()->BeginCall((*itr));
             Eluna::get()->PushUnsigned(Eluna::get()->_luaState, eventId);
             Eluna::get()->PushUnit(Eluna::get()->_luaState, player);
+            Eluna::get()->PushString(Eluna::get()->_luaState, msg.c_str());
             Eluna::get()->PushUnsigned(Eluna::get()->_luaState, type);
             Eluna::get()->PushUnsigned(Eluna::get()->_luaState, lang);
-            Eluna::get()->PushString(Eluna::get()->_luaState, msg.c_str());
             Eluna::get()->PushUnit(Eluna::get()->_luaState, receiver);
             Eluna::get()->ExecuteCall(6, 0);
         }
@@ -1377,9 +1545,9 @@ public:
             Eluna::get()->BeginCall((*itr));
             Eluna::get()->PushUnsigned(Eluna::get()->_luaState, eventId);
             Eluna::get()->PushUnit(Eluna::get()->_luaState, player);
+            Eluna::get()->PushString(Eluna::get()->_luaState, msg.c_str());
             Eluna::get()->PushUnsigned(Eluna::get()->_luaState, type);
             Eluna::get()->PushUnsigned(Eluna::get()->_luaState, lang);
-            Eluna::get()->PushString(Eluna::get()->_luaState, msg.c_str());
             Eluna::get()->PushGroup(Eluna::get()->_luaState, group);
             Eluna::get()->ExecuteCall(6, 0);
         }
@@ -1393,9 +1561,9 @@ public:
             Eluna::get()->BeginCall((*itr));
             Eluna::get()->PushUnsigned(Eluna::get()->_luaState, eventId);
             Eluna::get()->PushUnit(Eluna::get()->_luaState, player);
+            Eluna::get()->PushString(Eluna::get()->_luaState, msg.c_str());
             Eluna::get()->PushUnsigned(Eluna::get()->_luaState, type);
             Eluna::get()->PushUnsigned(Eluna::get()->_luaState, lang);
-            Eluna::get()->PushString(Eluna::get()->_luaState, msg.c_str());
             Eluna::get()->PushGuild(Eluna::get()->_luaState, guild);
             Eluna::get()->ExecuteCall(6, 0);
         }
@@ -1409,9 +1577,9 @@ public:
             Eluna::get()->BeginCall((*itr));
             Eluna::get()->PushUnsigned(Eluna::get()->_luaState, eventId);
             Eluna::get()->PushUnit(Eluna::get()->_luaState, player);
+            Eluna::get()->PushString(Eluna::get()->_luaState, msg.c_str());
             Eluna::get()->PushUnsigned(Eluna::get()->_luaState, type);
             Eluna::get()->PushUnsigned(Eluna::get()->_luaState, lang);
-            Eluna::get()->PushString(Eluna::get()->_luaState, msg.c_str());
             Eluna::get()->PushChannel(Eluna::get()->_luaState, channel);
             Eluna::get()->ExecuteCall(6, 0);
         }
@@ -1681,8 +1849,11 @@ public:
 
     bool OnGossipHello(uint32 eventId, Player* player, Creature* creature)
     {
+        CreatureBind* bind = Eluna::LuaCreatureScript::GetCreatureBindingForId(creature->GetEntry());
+        if(!bind)
+            return false;
         player->PlayerTalkClass->ClearMenus();
-        Eluna::get()->BeginCall(Eluna::LuaCreatureScript::GetCreatureGossipBindingForId(creature->GetEntry())->_gossipReferences[eventId]);
+        Eluna::get()->BeginCall(bind->_gossipReferences[eventId]);
         Eluna::get()->PushUnsigned(Eluna::get()->_luaState, eventId);
         Eluna::get()->PushUnit(Eluna::get()->_luaState, player);
         Eluna::get()->PushUnit(Eluna::get()->_luaState, creature);
@@ -1692,8 +1863,11 @@ public:
 
     bool OnGossipSelect(uint32 eventId, Player* player, Creature* creature, uint32 sender, uint32 actions)
     {
+        CreatureBind* bind = Eluna::LuaCreatureScript::GetCreatureBindingForId(creature->GetEntry());
+        if(!bind)
+            return false;
         player->PlayerTalkClass->ClearMenus();
-        Eluna::get()->BeginCall(Eluna::LuaCreatureScript::GetCreatureGossipBindingForId(creature->GetEntry())->_gossipReferences[eventId]);
+        Eluna::get()->BeginCall(bind->_gossipReferences[eventId]);
         Eluna::get()->PushUnsigned(Eluna::get()->_luaState, eventId);
         Eluna::get()->PushUnit(Eluna::get()->_luaState, player);
         Eluna::get()->PushUnit(Eluna::get()->_luaState, creature);
@@ -1705,8 +1879,11 @@ public:
 
     bool OnGossipSelectCode(uint32 eventId, Player* player, Creature* creature, uint32 sender, uint32 actions, const char* code)
     {
+        CreatureBind* bind = Eluna::LuaCreatureScript::GetCreatureBindingForId(creature->GetEntry());
+        if(!bind)
+            return false;
         player->PlayerTalkClass->ClearMenus();
-        Eluna::get()->BeginCall(Eluna::LuaCreatureScript::GetCreatureGossipBindingForId(creature->GetEntry())->_gossipReferences[eventId]);
+        Eluna::get()->BeginCall(bind->_gossipReferences[eventId]);
         Eluna::get()->PushUnsigned(Eluna::get()->_luaState, eventId);
         Eluna::get()->PushUnit(Eluna::get()->_luaState, player);
         Eluna::get()->PushUnit(Eluna::get()->_luaState, creature);
@@ -1720,8 +1897,11 @@ public:
     /* GameObject Gossip */
     bool OnGossipHello(uint32 eventId, Player* player, GameObject* gameObject)
     {
+        GameObjectBind* bind = Eluna::LuaGameObjectScript::GetGameObjectBindingForId(gameObject->GetEntry());
+        if(!bind)
+            return false;
         player->PlayerTalkClass->ClearMenus();
-        Eluna::get()->BeginCall(Eluna::LuaGameObjectScript::GetGameObjectGossipBindingForId(gameObject->GetEntry())->_gossipReferences[eventId]);
+        Eluna::get()->BeginCall(bind->_gossipReferences[eventId]);
         Eluna::get()->PushUnsigned(Eluna::get()->_luaState, eventId);
         Eluna::get()->PushUnit(Eluna::get()->_luaState, player);
         Eluna::get()->PushGO(Eluna::get()->_luaState, gameObject);
@@ -1731,8 +1911,11 @@ public:
 
     bool OnGossipSelect(uint32 eventId, Player* player, GameObject* gameObject, uint32 sender, uint32 actions)
     {
+        GameObjectBind* bind = Eluna::LuaGameObjectScript::GetGameObjectBindingForId(gameObject->GetEntry());
+        if(!bind)
+            return false;
         player->PlayerTalkClass->ClearMenus();
-        Eluna::get()->BeginCall(Eluna::LuaGameObjectScript::GetGameObjectGossipBindingForId(gameObject->GetEntry())->_gossipReferences[eventId]);
+        Eluna::get()->BeginCall(bind->_gossipReferences[eventId]);
         Eluna::get()->PushUnsigned(Eluna::get()->_luaState, eventId);
         Eluna::get()->PushUnit(Eluna::get()->_luaState, player);
         Eluna::get()->PushGO(Eluna::get()->_luaState, gameObject);
@@ -1744,8 +1927,11 @@ public:
 
     bool OnGossipSelectCode(uint32 eventId, Player* player, GameObject* gameObject, uint32 sender, uint32 actions, const char* code)
     {
+        GameObjectBind* bind = Eluna::LuaGameObjectScript::GetGameObjectBindingForId(gameObject->GetEntry());
+        if(!bind)
+            return false;
         player->PlayerTalkClass->ClearMenus();
-        Eluna::get()->BeginCall(Eluna::LuaGameObjectScript::GetGameObjectGossipBindingForId(gameObject->GetEntry())->_gossipReferences[eventId]);
+        Eluna::get()->BeginCall(bind->_gossipReferences[eventId]);
         Eluna::get()->PushUnsigned(Eluna::get()->_luaState, eventId);
         Eluna::get()->PushUnit(Eluna::get()->_luaState, player);
         Eluna::get()->PushGO(Eluna::get()->_luaState, gameObject);
@@ -1759,119 +1945,119 @@ public:
     // Called when a dummy spell effect is triggered on the gameobject.
     bool OnDummyEffect(uint32 eventId, Unit* caster, uint32 spellId, SpellEffIndex effIndex, GameObject* go)
     {
-        bool result = true;
-        Eluna::get()->BeginCall(Eluna::LuaGameObjectScript::GetGameObjectAIBindingForId(go->GetEntry())->_functionReferences[eventId]);
-        Eluna::get()->PushInteger(Eluna::get()->_luaState, eventId);
-        Eluna::get()->PushUnit(Eluna::get()->_luaState, caster);
-        Eluna::get()->PushUnsigned(Eluna::get()->_luaState, spellId);
-        Eluna::get()->PushInteger(Eluna::get()->_luaState, effIndex);
-        Eluna::get()->PushGO(Eluna::get()->_luaState, go);
-        if(Eluna::get()->ExecuteCall(5, 1))
-        {
-            lua_State* L = Eluna::get()->_luaState;
-            if(!lua_isnoneornil(L, 1) && !luaL_checkbool(L, 1))
-                result = false;
-            Eluna::get()->EndCall(1);
-        }
-        return result;
+    bool result = true;
+    Eluna::get()->BeginCall(Eluna::LuaGameObjectScript::GetGameObjectBindingForId(go->GetEntry())->_functionReferences[eventId]);
+    Eluna::get()->PushInteger(Eluna::get()->_luaState, eventId);
+    Eluna::get()->PushUnit(Eluna::get()->_luaState, caster);
+    Eluna::get()->PushUnsigned(Eluna::get()->_luaState, spellId);
+    Eluna::get()->PushInteger(Eluna::get()->_luaState, effIndex);
+    Eluna::get()->PushGO(Eluna::get()->_luaState, go);
+    if(Eluna::get()->ExecuteCall(5, 1))
+    {
+    lua_State* L = Eluna::get()->_luaState;
+    if(!lua_isnoneornil(L, 1) && !luaL_checkbool(L, 1))
+    result = false;
+    Eluna::get()->EndCall(1);
+    }
+    return result;
     }
 
     // Called when a player accepts a quest from the gameobject.
     bool OnQuestAccept(uint32 eventId, Player* player, GameObject* go, Quest const* quest)
     {
-        bool result = true;
-        Eluna::get()->BeginCall(Eluna::LuaGameObjectScript::GetGameObjectAIBindingForId(go->GetEntry())->_functionReferences[eventId]);
-        Eluna::get()->PushInteger(Eluna::get()->_luaState, eventId);
-        Eluna::get()->PushUnit(Eluna::get()->_luaState, player);
-        Eluna::get()->PushGO(Eluna::get()->_luaState, go);
-        Eluna::get()->PushUnsigned(Eluna::get()->_luaState, quest->GetQuestId());
+    bool result = true;
+    Eluna::get()->BeginCall(Eluna::LuaGameObjectScript::GetGameObjectBindingForId(go->GetEntry())->_functionReferences[eventId]);
+    Eluna::get()->PushInteger(Eluna::get()->_luaState, eventId);
+    Eluna::get()->PushUnit(Eluna::get()->_luaState, player);
+    Eluna::get()->PushGO(Eluna::get()->_luaState, go);
+    Eluna::get()->PushUnsigned(Eluna::get()->_luaState, quest->GetQuestId());
 
-        if(Eluna::get()->ExecuteCall(4, 1))
-        {
-            lua_State* L = Eluna::get()->_luaState;
-            if(!lua_isnoneornil(L, 1) && !luaL_checkbool(L, 1))
-                result = false;
-            Eluna::get()->EndCall(1);
-        }
-        return result;
+    if(Eluna::get()->ExecuteCall(4, 1))
+    {
+    lua_State* L = Eluna::get()->_luaState;
+    if(!lua_isnoneornil(L, 1) && !luaL_checkbool(L, 1))
+    result = false;
+    Eluna::get()->EndCall(1);
+    }
+    return result;
     }
 
     // Called when a player selects a quest reward.
     bool OnQuestReward(uint32 eventId, Player* player, GameObject* go, Quest const* quest, uint32 opt)
     {
-        bool result = true;
-        Eluna::get()->BeginCall(Eluna::LuaGameObjectScript::GetGameObjectAIBindingForId(go->GetEntry())->_functionReferences[eventId]);
-        Eluna::get()->PushInteger(Eluna::get()->_luaState, eventId);
-        Eluna::get()->PushUnit(Eluna::get()->_luaState, player);
-        Eluna::get()->PushGO(Eluna::get()->_luaState, go);
-        Eluna::get()->PushUnsigned(Eluna::get()->_luaState, quest->GetQuestId());
-        Eluna::get()->PushUnsigned(Eluna::get()->_luaState, opt);
-        if(Eluna::get()->ExecuteCall(5, 1))
-        {
-            lua_State* L = Eluna::get()->_luaState;
-            if(!lua_isnoneornil(L, 1) && !luaL_checkbool(L, 1))
-                result = false;
-            Eluna::get()->EndCall(1);
-        }
-        return result;
+    bool result = true;
+    Eluna::get()->BeginCall(Eluna::LuaGameObjectScript::GetGameObjectBindingForId(go->GetEntry())->_functionReferences[eventId]);
+    Eluna::get()->PushInteger(Eluna::get()->_luaState, eventId);
+    Eluna::get()->PushUnit(Eluna::get()->_luaState, player);
+    Eluna::get()->PushGO(Eluna::get()->_luaState, go);
+    Eluna::get()->PushUnsigned(Eluna::get()->_luaState, quest->GetQuestId());
+    Eluna::get()->PushUnsigned(Eluna::get()->_luaState, opt);
+    if(Eluna::get()->ExecuteCall(5, 1))
+    {
+    lua_State* L = Eluna::get()->_luaState;
+    if(!lua_isnoneornil(L, 1) && !luaL_checkbool(L, 1))
+    result = false;
+    Eluna::get()->EndCall(1);
+    }
+    return result;
     }
 
     uint32 GetDialogStatus(uint32 eventId, Player* player, GameObject* go)
     {
-        uint32 result = 100;
-        Eluna::get()->BeginCall(Eluna::LuaGameObjectScript::GetGameObjectAIBindingForId(go->GetEntry())->_functionReferences[eventId]);
-        Eluna::get()->PushInteger(Eluna::get()->_luaState, eventId);
-        Eluna::get()->PushUnit(Eluna::get()->_luaState, player);
-        Eluna::get()->PushGO(Eluna::get()->_luaState, go);
-        if(Eluna::get()->ExecuteCall(3, 1))
-        {
-            lua_State* L = Eluna::get()->_luaState;
-            if(!lua_isnoneornil(L, 1) && lua_isnumber(L, 1))
-                result = luaL_checkunsigned(L, 1);
-            Eluna::get()->EndCall(1);
-        }
-        return result;
+    uint32 result = 100;
+    Eluna::get()->BeginCall(Eluna::LuaGameObjectScript::GetGameObjectBindingForId(go->GetEntry())->_functionReferences[eventId]);
+    Eluna::get()->PushInteger(Eluna::get()->_luaState, eventId);
+    Eluna::get()->PushUnit(Eluna::get()->_luaState, player);
+    Eluna::get()->PushGO(Eluna::get()->_luaState, go);
+    if(Eluna::get()->ExecuteCall(3, 1))
+    {
+    lua_State* L = Eluna::get()->_luaState;
+    if(!lua_isnoneornil(L, 1) && lua_isnumber(L, 1))
+    result = luaL_checkunsigned(L, 1);
+    Eluna::get()->EndCall(1);
+    }
+    return result;
     }
 
     // Called when the game object is destroyed (destructible buildings only).
     void OnDestroyed(uint32 eventId, GameObject* go, Player* player)
     {
-        Eluna::get()->BeginCall(Eluna::LuaGameObjectScript::GetGameObjectAIBindingForId(go->GetEntry())->_functionReferences[eventId]);
-        Eluna::get()->PushInteger(Eluna::get()->_luaState, eventId);
-        Eluna::get()->PushGO(Eluna::get()->_luaState, go);
-        Eluna::get()->PushUnit(Eluna::get()->_luaState, player);
-        Eluna::get()->ExecuteCall(3, 0);
+    Eluna::get()->BeginCall(Eluna::LuaGameObjectScript::GetGameObjectBindingForId(go->GetEntry())->_functionReferences[eventId]);
+    Eluna::get()->PushInteger(Eluna::get()->_luaState, eventId);
+    Eluna::get()->PushGO(Eluna::get()->_luaState, go);
+    Eluna::get()->PushUnit(Eluna::get()->_luaState, player);
+    Eluna::get()->ExecuteCall(3, 0);
     }
 
     // Called when the game object is damaged (destructible buildings only).
     void OnFirstDamaged(uint32 eventId, GameObject* go, Player* player)
     {
-        Eluna::get()->BeginCall(Eluna::LuaGameObjectScript::GetGameObjectAIBindingForId(go->GetEntry())->_functionReferences[eventId]);
-        Eluna::get()->PushInteger(Eluna::get()->_luaState, eventId);
-        Eluna::get()->PushGO(Eluna::get()->_luaState, go);
-        Eluna::get()->PushUnit(Eluna::get()->_luaState, player);
-        Eluna::get()->ExecuteCall(3, 0);
+    Eluna::get()->BeginCall(Eluna::LuaGameObjectScript::GetGameObjectBindingForId(go->GetEntry())->_functionReferences[eventId]);
+    Eluna::get()->PushInteger(Eluna::get()->_luaState, eventId);
+    Eluna::get()->PushGO(Eluna::get()->_luaState, go);
+    Eluna::get()->PushUnit(Eluna::get()->_luaState, player);
+    Eluna::get()->ExecuteCall(3, 0);
     }
 
     // Called when the game object loot state is changed.
     void OnLootStateChanged(uint32 eventId, GameObject* go, uint32 state, Unit* unit)
     {
-        Eluna::get()->BeginCall(Eluna::LuaGameObjectScript::GetGameObjectAIBindingForId(go->GetEntry())->_functionReferences[eventId]);
-        Eluna::get()->PushInteger(Eluna::get()->_luaState, eventId);
-        Eluna::get()->PushGO(Eluna::get()->_luaState, go);
-        Eluna::get()->PushUnsigned(Eluna::get()->_luaState, state);
-        Eluna::get()->PushUnit(Eluna::get()->_luaState, unit);
-        Eluna::get()->ExecuteCall(4, 0);
+    Eluna::get()->BeginCall(Eluna::LuaGameObjectScript::GetGameObjectBindingForId(go->GetEntry())->_functionReferences[eventId]);
+    Eluna::get()->PushInteger(Eluna::get()->_luaState, eventId);
+    Eluna::get()->PushGO(Eluna::get()->_luaState, go);
+    Eluna::get()->PushUnsigned(Eluna::get()->_luaState, state);
+    Eluna::get()->PushUnit(Eluna::get()->_luaState, unit);
+    Eluna::get()->ExecuteCall(4, 0);
     }
 
     // Called when the game object state is changed.
     void OnGameObjectStateChanged(uint32 eventId, GameObject* go, uint32 state)
     {
-        Eluna::get()->BeginCall(Eluna::LuaGameObjectScript::GetGameObjectAIBindingForId(go->GetEntry())->_functionReferences[eventId]);
-        Eluna::get()->PushInteger(Eluna::get()->_luaState, eventId);
-        Eluna::get()->PushGO(Eluna::get()->_luaState, go);
-        Eluna::get()->PushUnsigned(Eluna::get()->_luaState, state);
-        Eluna::get()->ExecuteCall(3, 0);
+    Eluna::get()->BeginCall(Eluna::LuaGameObjectScript::GetGameObjectBindingForId(go->GetEntry())->_functionReferences[eventId]);
+    Eluna::get()->PushInteger(Eluna::get()->_luaState, eventId);
+    Eluna::get()->PushGO(Eluna::get()->_luaState, go);
+    Eluna::get()->PushUnsigned(Eluna::get()->_luaState, state);
+    Eluna::get()->ExecuteCall(3, 0);
     }
 };
 #endif
