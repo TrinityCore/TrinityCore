@@ -700,7 +700,7 @@ bool ScriptMgr::OnGossipHello(Player* player, Creature* creature)
     ASSERT(player);
     ASSERT(creature);
 
-	if (Eluna::LuaCreatureScript::GetCreatureGossipBindingForId(creature->GetEntry()))
+	if (Eluna::LuaCreatureScript::GetCreatureBindingForId(creature->GetEntry()))
 		if(Eluna::getScript()->OnGossipHello(GOSSIP_EVENT_ON_HELLO, player, creature))
 			return true;
     GET_SCRIPT_RET(CreatureScript, creature->GetScriptId(), tmpscript, false);
@@ -713,7 +713,7 @@ bool ScriptMgr::OnGossipSelect(Player* player, Creature* creature, uint32 sender
     ASSERT(player);
     ASSERT(creature);
     
-	if (Eluna::LuaCreatureScript::GetCreatureGossipBindingForId(creature->GetEntry()))
+	if (Eluna::LuaCreatureScript::GetCreatureBindingForId(creature->GetEntry()))
 		if (Eluna::getScript()->OnGossipSelect(GOSSIP_EVENT_ON_SELECT, player, creature, sender, action))
 			return true;
     GET_SCRIPT_RET(CreatureScript, creature->GetScriptId(), tmpscript, false);
@@ -726,7 +726,7 @@ bool ScriptMgr::OnGossipSelectCode(Player* player, Creature* creature, uint32 se
     ASSERT(creature);
     ASSERT(code);
     
-	if (Eluna::LuaCreatureScript::GetCreatureGossipBindingForId(creature->GetEntry()))
+	if (Eluna::LuaCreatureScript::GetCreatureBindingForId(creature->GetEntry()))
 		if(Eluna::getScript()->OnGossipSelectCode(GOSSIP_EVENT_ON_SELECT, player, creature, sender, action, code))
 			 return true;
     GET_SCRIPT_RET(CreatureScript, creature->GetScriptId(), tmpscript, false);
@@ -804,7 +804,7 @@ GameObjectAI* ScriptMgr::GetGameObjectAI(GameObject* gameobject)
 {
     ASSERT(gameobject);
 
-	if (Eluna::LuaGameObjectScript::GetGameObjectAIBindingForId(gameobject->GetEntry()))
+	if (Eluna::LuaGameObjectScript::GetGameObjectBindingForId(gameobject->GetEntry()))
 		if (Eluna::GetLuaGameObjectAI(gameobject))
 			return Eluna::GetLuaGameObjectAI(gameobject);
 
@@ -825,7 +825,7 @@ bool ScriptMgr::OnGossipHello(Player* player, GameObject* go)
     ASSERT(player);
     ASSERT(go);
 
-	if (Eluna::LuaGameObjectScript::GetGameObjectGossipBindingForId(go->GetEntry()))
+	if (Eluna::LuaGameObjectScript::GetGameObjectBindingForId(go->GetEntry()))
 		if (Eluna::getScript()->OnGossipHello(GOSSIP_EVENT_ON_HELLO, player, go))
 			return true;
 
@@ -839,7 +839,7 @@ bool ScriptMgr::OnGossipSelect(Player* player, GameObject* go, uint32 sender, ui
     ASSERT(player);
     ASSERT(go);
 
-	if (Eluna::LuaGameObjectScript::GetGameObjectGossipBindingForId(go->GetEntry()))
+	if (Eluna::LuaGameObjectScript::GetGameObjectBindingForId(go->GetEntry()))
 		if (Eluna::getScript()->OnGossipSelect(GOSSIP_EVENT_ON_SELECT, player, go, sender, action))
 			return true;
 
@@ -853,7 +853,7 @@ bool ScriptMgr::OnGossipSelectCode(Player* player, GameObject* go, uint32 sender
     ASSERT(go);
     ASSERT(code);
 
-	if (Eluna::LuaGameObjectScript::GetGameObjectGossipBindingForId(go->GetEntry()))
+	if (Eluna::LuaGameObjectScript::GetGameObjectBindingForId(go->GetEntry()))
 		if (Eluna::getScript()->OnGossipSelectCode(GOSSIP_EVENT_ON_SELECT, player, go, sender, action, code))
 			return true;
 

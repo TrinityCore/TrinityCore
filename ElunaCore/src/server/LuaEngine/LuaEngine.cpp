@@ -330,7 +330,7 @@ CreatureAI* Eluna::GetLuaCreatureAI(Creature* creature)
 
 GameObjectAI* Eluna::GetLuaGameObjectAI(GameObject* gameObject)
 {
-    if (sLuaGameObjectScript->GetGameObjectAIBindingForId(gameObject->GetEntry()))
+    if (sLuaGameObjectScript->GetGameObjectBindingForId(gameObject->GetEntry()))
         return sLuaGameObjectScript->GetAI(gameObject);
     return NULL;
 }
@@ -431,7 +431,7 @@ static int RegisterItemGossipEvent(lua_State* L)
     return 0;
 }
 
-// RegisterPlayerGossipEvent(entry, event, function)
+// RegisterPlayerGossipEvent(menu_id, event, function)
 static int RegisterPlayerGossipEvent(lua_State* L)
 {
     uint16 functionRef = 0;
@@ -579,14 +579,6 @@ void Eluna::Restart()
         itr->second.clear();
     }
 
-    for (vector<CreatureBind*>::iterator itr = get()->_gossipEventBindings.begin(); itr != get()->_gossipEventBindings.end(); ++itr)
-    {
-        for (int i = 0; i < GOSSIP_EVENT_COUNT; i++)
-            luaL_unref(get()->_luaState, LUA_REGISTRYINDEX, (*itr)->_gossipReferences[i]);
-        delete (*itr);
-    }
-    get()->_gossipEventBindings.clear();
-
     for (vector<CreatureBind*>::iterator itr = get()->_creatureEventBindings.begin(); itr != get()->_creatureEventBindings.end(); ++itr)
     {
         for (int i = 0; i < CREATURE_EVENT_COUNT; i++)
@@ -595,21 +587,13 @@ void Eluna::Restart()
     }
     get()->_creatureEventBindings.clear();
 
-    for (vector<GameObjectBind*>::iterator itr = get()->_gameObjectAIEventBindings.begin(); itr != get()->_gameObjectAIEventBindings.end(); ++itr)
+    for (vector<GameObjectBind*>::iterator itr = get()->_gameObjectEventBindings.begin(); itr != get()->_gameObjectEventBindings.end(); ++itr)
     {
         for (int i = 0; i < GAMEOBJECT_EVENT_COUNT; i++)
             luaL_unref(get()->_luaState, LUA_REGISTRYINDEX, (*itr)->_functionReferences[i]);
         delete (*itr);
     }
-    get()->_gameObjectAIEventBindings.clear();
-
-    for (vector<GameObjectBind*>::iterator itr = get()->_gameObjectGossipBindings.begin(); itr != get()->_gameObjectGossipBindings.end(); ++itr)
-    {
-        for (int i = 0; i < GOSSIP_EVENT_COUNT; i++)
-            luaL_unref(get()->_luaState, LUA_REGISTRYINDEX, (*itr)->_gossipReferences[i]);
-        delete (*itr);
-    }
-    get()->_gameObjectGossipBindings.clear();
+    get()->_gameObjectEventBindings.clear();
 
     for (vector<ItemBind*>::iterator itr = get()->_itemGossipBindings.begin(); itr != get()->_itemGossipBindings.end(); ++itr)
     {
