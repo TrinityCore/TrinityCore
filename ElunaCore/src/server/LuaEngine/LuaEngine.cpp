@@ -553,7 +553,7 @@ void Eluna::Register(uint8 regtype, uint32 id, uint32 evt, uint16 functionRef)
         if (evt < GOSSIP_EVENT_COUNT)
         {
             PlayerBind* bind = new PlayerBind(id);
-            Eluna::get()->_playerGossipBindings.push_back(new PlayerBind(id));
+            Eluna::get()->_playerGossipBindings.push_back(bind);
             bind->_gossipReferences[evt] = functionRef;
             // return;
         }

@@ -791,7 +791,7 @@ public:
             
             CreatureBind* bind = GetCreatureBindingForId(id);
             if(!bind)
-                Eluna::get()->_creatureEventBindings.push_back(new CreatureBind(id));
+                Eluna::get()->_creatureEventBindings.push_back(bind = new CreatureBind(id));
             bind->_functionReferences[_event] = functionRef;
             return true;
         }
@@ -806,7 +806,7 @@ public:
 
             CreatureBind* bind = GetCreatureBindingForId(id);
             if(!bind)
-                Eluna::get()->_creatureEventBindings.push_back(new CreatureBind(id));
+                Eluna::get()->_creatureEventBindings.push_back(bind = new CreatureBind(id));
             bind->_gossipReferences[_event] = functionRef;
             return true;
         }
