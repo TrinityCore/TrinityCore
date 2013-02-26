@@ -1,5 +1,5 @@
 ALTER TABLE `rbac_roles` MODIFY COLUMN `name` varchar(100) NOT NULL COMMENT 'Role name';
-ALTER TABLE `rbac_roles` MODIFY COLUMN `name` varchar(100) NOT NULL COMMENT 'Group name';
+ALTER TABLE `rbac_groups` MODIFY COLUMN `name` varchar(100) NOT NULL COMMENT 'Group name';
 
 -- Add new permission
 DELETE FROM `rbac_permissions` WHERE `id` = 11;
