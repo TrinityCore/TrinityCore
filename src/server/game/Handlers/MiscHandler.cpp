@@ -1259,7 +1259,7 @@ void WorldSession::HandleWhoisOpcode(WorldPacket& recvData)
     std::string charname;
     recvData >> charname;
 
-    if (HasPermission(RBAC_PERM_OPCODE_WHOIS))
+    if (!HasPermission(RBAC_PERM_OPCODE_WHOIS))
     {
         SendNotification(LANG_YOU_NOT_HAVE_PERMISSION);
         return;
