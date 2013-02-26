@@ -82,7 +82,6 @@ enum ServerEvents
     PLAYER_EVENT_ON_KILL_CREATURE           = 48,       // Implemented
     PLAYER_EVENT_ON_KILLED_BY_CREATURE      = 49,       // Implemented
     PLAYER_EVENT_ON_MAP_CHANGE              = 50,       // Not Implemented
-	PLAYER_EVENT_ON_AREATRIGGER             = 95,       // Implemented
 
     // Guild
     GUILD_EVENT_ON_ADD_MEMBER               = 51,       // Not Implemented
@@ -209,17 +208,17 @@ enum CreatureEvents
 
 enum GameObjectEvents
 {
-    GAMEOBJECT_EVENT_ON_AIUPDATE                    = 1,    // Not Implemented
-    GAMEOBJECT_EVENT_ON_RESET                       = 2,    // Not Implemented
-    GAMEOBJECT_EVENT_DOACTION                       = 3,    // Not Implemented
+    GAMEOBJECT_EVENT_ON_AIUPDATE                    = 1,    // Implemented
+    GAMEOBJECT_EVENT_ON_RESET                       = 2,    // Implemented
+    GAMEOBJECT_EVENT_DOACTION                       = 3,    // Implemented
     GAMEOBJECT_EVENT_ON_SET_GUID                    = 4,    // Not Implemented
-    GAMEOBJECT_EVENT_ON_GET_GUID                    = 5,    // Not Implemented
+    GAMEOBJECT_EVENT_ON_GET_GUID                    = 5,    // Implemented
     GAMEOBJECT_EVENT_ON_DUMMY_EFFECT                = 6,    // Not Implemented
     GAMEOBJECT_EVENT_ON_QUEST_ACCEPT                = 7,    // Not Implemented
     GAMEOBJECT_EVENT_ON_QUEST_REWARD                = 8,    // Not Implemented
     GAMEOBJECT_EVENT_ON_DIALOG_STATUS               = 9,    // Not Implemented
-    GAMEOBJECT_EVENT_ON_DESTROYED                   = 10,   // Not Implemented
-    GAMEOBJECT_EVENT_ON_DAMAGED                     = 11,   // Not Implemented
+    GAMEOBJECT_EVENT_ON_DESTROYED                   = 10,   // Implemented
+    GAMEOBJECT_EVENT_ON_DAMAGED                     = 11,   // Implemented
     GAMEOBJECT_EVENT_ON_LOOT_STATE_CHANGE           = 12,   // Not Implemented
     GAMEOBJECT_EVENT_ON_GO_STATE_CHANGED            = 13,   // Not Implemented
     GAMEOBJECT_EVENT_COUNT
@@ -1847,27 +1846,6 @@ public:
         }
     }
 
-	bool OnTrigger(uint32 eventId, Player* player, AreaTriggerEntry const* trigger)
-	{
-		bool result = true;
-		for (vector<uint16>::iterator itr = Eluna::get()->_serverEventBindings.at(eventId).begin();
-			itr != Eluna::get()->_serverEventBindings.at(eventId).end(); ++itr)
-		{
-			Eluna::get()->BeginCall((*itr));
-			Eluna::get()->PushInteger(Eluna::get()->_luaState, eventId);
-			Eluna::get()->PushUnit(Eluna::get()->_luaState, player);
-			Eluna::get()->PushUnsigned(Eluna::get()->_luaState, trigger->id);
-			if(Eluna::get()->ExecuteCall(3, 1))
-			{
-				lua_State* L = Eluna::get()->_luaState;
-				if(!lua_isnoneornil(L, 1) && !luaL_checkbool(L, 1))
-				result = false;
-				Eluna::get()->EndCall(1);
-			}
-		}
-		return result;
-	}
-
     bool OnGossipHello(uint32 eventId, Player* player, Creature* creature)
     {
         CreatureBind* bind = Eluna::LuaCreatureScript::GetCreatureBindingForId(creature->GetEntry());
@@ -2021,6 +1999,24 @@ public:
 		}
 		return result;
     }
+	
+	bool OnQuestAccept(uint32 eventId, Player* player, Creature* creature, Quest const* quest)
+	{
+		bool result = true;
+		Eluna::get()->BeginCall(Eluna::LuaCreatureScript::GetCreatureBindingForId(creature->GetEntry())->_functionReferences[eventId]);
+		Eluna::get()->PushInteger(Eluna::get()->_luaState, eventId);
+		Eluna::get()->PushUnit(Eluna::get()->_luaState, player);
+		Eluna::get()->PushUnit(Eluna::get()->_luaState, creature);
+		Eluna::get()->PushUnsigned(Eluna::get()->_luaState, quest->GetQuestId());
+		if(Eluna::get()->ExecuteCall(4, 1))
+		{
+			lua_State* L = Eluna::get()->_luaState;
+			if(!lua_isnoneornil(L, 1) && !luaL_checkbool(L, 1))
+			result = false;
+			Eluna::get()->EndCall(1);
+		}
+		return result;
+	}
 
     uint32 GetDialogStatus(uint32 eventId, Player* player, GameObject* go)
     {

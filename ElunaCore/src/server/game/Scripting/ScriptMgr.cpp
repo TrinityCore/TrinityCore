@@ -739,6 +739,9 @@ bool ScriptMgr::OnQuestAccept(Player* player, Creature* creature, Quest const* q
     ASSERT(creature);
     ASSERT(quest);
 
+	//if (Eluna::getScript()->OnQuestAccept(CREATURE_EVENT_ON_QUEST_ACCEPT, player, creature, quest))
+		//return true;
+
     GET_SCRIPT_RET(CreatureScript, creature->GetScriptId(), tmpscript, false);
     player->PlayerTalkClass->ClearMenus();
     return tmpscript->OnQuestAccept(player, creature, quest);
@@ -961,8 +964,6 @@ bool ScriptMgr::OnAreaTrigger(Player* player, AreaTriggerEntry const* trigger)
     ASSERT(player);
     ASSERT(trigger);
 
-	if (Eluna::getScript()->OnTrigger(PLAYER_EVENT_ON_AREATRIGGER, player, trigger))
-		return true;
     GET_SCRIPT_RET(AreaTriggerScript, sObjectMgr->GetAreaTriggerScriptId(trigger->id), tmpscript, false);
     return tmpscript->OnTrigger(player, trigger);
 }
