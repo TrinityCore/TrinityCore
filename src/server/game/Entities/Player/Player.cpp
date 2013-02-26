@@ -15067,7 +15067,7 @@ void Player::CompleteQuest(uint32 quest_id)
 
         if (Quest const* qInfo = sObjectMgr->GetQuestTemplate(quest_id))
         {
-            if (qInfo->HasFlag(QUEST_FLAGS_AUTO_REWARDED))
+            if (qInfo->HasFlag(QUEST_FLAGS_TRACKING))
                 RewardQuest(qInfo, 0, this, false);
             else
                 SendQuestComplete(quest_id);
@@ -21361,7 +21361,7 @@ void Player::UpdatePvPState(bool onlyFFA)
     else                                                    // in friendly area
     {
         if (IsPvP() && !HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_IN_PVP) && pvpInfo.endTimer == 0)
-            pvpInfo.endTimer = time(0);                     // start toggle-off
+            pvpInfo.endTimer = time(NULL);                  // start toggle-off
     }
 }
 
