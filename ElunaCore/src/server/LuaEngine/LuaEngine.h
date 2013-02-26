@@ -311,7 +311,7 @@ public:
 
     vector<CreatureBind*> _creatureEventBindings;
     vector<GameObjectBind*> _gameObjectEventBindings;
-    vector<ItemBind*> _itemGossipBindings;
+    vector<ItemBind*> _itemEventBindings;
     vector<PlayerBind*> _playerGossipBindings;
 
     static CreatureAI* GetLuaCreatureAI(Creature* creature);
@@ -335,7 +335,7 @@ public:
         _serverEventBindings.clear();
         _creatureEventBindings.clear();
         _gameObjectEventBindings.clear();
-        _itemGossipBindings.clear();
+        _itemEventBindings.clear();
         _playerGossipBindings.clear();
         luaEventMap::LuaEventsResetAll(); // Unregisters and stops all timed events
         // Need to reset global, creature and gob events
@@ -1352,7 +1352,7 @@ public:
     /* Item & player Gossip */
     bool OnGossipHello(uint32 eventId, Player* player, Item* item)
     {
-        for(vector<ItemBind*>::iterator itr = Eluna::get()->_itemGossipBindings.begin(); itr != Eluna::get()->_itemGossipBindings.end(); ++itr)
+        for(vector<ItemBind*>::iterator itr = Eluna::get()->_itemEventBindings.begin(); itr != Eluna::get()->_itemEventBindings.end(); ++itr)
         {
             if ((*itr)->entry == item->GetEntry())
             {
@@ -1386,7 +1386,7 @@ public:
             if(!item)
                 return;
 
-            for(vector<ItemBind*>::iterator itr = Eluna::get()->_itemGossipBindings.begin(); itr != Eluna::get()->_itemGossipBindings.end(); ++itr)
+            for(vector<ItemBind*>::iterator itr = Eluna::get()->_itemEventBindings.begin(); itr != Eluna::get()->_itemEventBindings.end(); ++itr)
             {
                 if ((*itr)->entry == item->GetEntry())
                 {

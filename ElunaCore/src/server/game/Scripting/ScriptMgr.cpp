@@ -668,7 +668,7 @@ bool ScriptMgr::OnItemUse(Player* player, Item* item, SpellCastTargets const& ta
     ASSERT(player);
     ASSERT(item);
 
-    for(vector<ItemBind*>::iterator itr = Eluna::get()->_itemGossipBindings.begin(); itr != Eluna::get()->_itemGossipBindings.end(); ++itr)
+    for(vector<ItemBind*>::iterator itr = Eluna::get()->_itemEventBindings.begin(); itr != Eluna::get()->_itemEventBindings.end(); ++itr)
         if ((*itr)->entry == item->GetEntry())
 		    if (Eluna::getScript()->OnGossipHello(GOSSIP_EVENT_ON_HELLO, player, item))
 			    return true;

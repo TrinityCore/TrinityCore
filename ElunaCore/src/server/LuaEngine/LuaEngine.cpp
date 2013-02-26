@@ -543,7 +543,7 @@ void Eluna::Register(uint8 regtype, uint32 id, uint32 evt, uint16 functionRef)
             }
 
             ItemBind* bind = new ItemBind(id);
-            Eluna::get()->_itemGossipBindings.push_back(bind);
+            Eluna::get()->_itemEventBindings.push_back(bind);
             bind->_gossipReferences[evt] = functionRef;
             return;
         }
@@ -595,13 +595,13 @@ void Eluna::Restart()
     }
     get()->_gameObjectEventBindings.clear();
 
-    for (vector<ItemBind*>::iterator itr = get()->_itemGossipBindings.begin(); itr != get()->_itemGossipBindings.end(); ++itr)
+    for (vector<ItemBind*>::iterator itr = get()->_itemEventBindings.begin(); itr != get()->_itemEventBindings.end(); ++itr)
     {
         for (int i = 0; i < GOSSIP_EVENT_COUNT; i++)
             luaL_unref(get()->_luaState, LUA_REGISTRYINDEX, (*itr)->_gossipReferences[i]);
         delete (*itr);
     }
-    get()->_itemGossipBindings.clear();
+    get()->_itemEventBindings.clear();
 
     for (vector<PlayerBind*>::iterator itr = get()->_playerGossipBindings.begin(); itr != get()->_playerGossipBindings.end(); ++itr)
     {
