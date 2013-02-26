@@ -1189,5 +1189,8 @@ RBACData* WorldSession::GetRBACData()
 
 bool WorldSession::HasPermission(uint32 permission)
 {
+    if (!_RBACData)
+        LoadPermissions();
+
     return _RBACData->HasPermission(permission);
 }
