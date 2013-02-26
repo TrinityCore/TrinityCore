@@ -15,6 +15,10 @@ FOEREAPER TOMMY ENGINE, YEAH!
 #include "LuaCreatureAI.h"
 #include "LuaGameObjectAI.h"
 
+#if PLATFORM == PLATFORM_UNIX
+#include <dirent.h>
+#endif
+
 Eluna* Eluna::LuaEngine = NULL; // give it a value
 ElunaScript* Eluna::Script = NULL;
 
@@ -182,6 +186,45 @@ void Eluna::LoadDirectory(char* Dirname, LoadedScripts* lscr)
         }
     }
     FindClose(hFile);
+#else    
+    char* dir = strrchr(Dirname, '/');
+    if (strcmp(Dirname, "..") == 0 || strcmp(Dirname, ".") == 0)
+      return;
+    
+    if (dir && (strcmp(dir, "/..") == 0 || strcmp(dir, "/.") == 0 || strcmp(dir, "/.svn") == 0))
+      return;
+    
+    struct dirent** list;
+    int fileCount = scandir(Dirname, &list, 0, 0);
+    
+    if (fileCount <= 0 || !list)
+      return;
+    
+    struct stat attributes;
+    bool error;
+    while(fileCount--)
+    {
+        char _path[200];
+		sprintf(_path, "%s/%s", Dirname, list[fileCount]->d_name);
+		if (stat(_path, &attributes) == -1)
+		{
+			error = true;
+			sLog->outError(LOG_FILTER_SERVER_LOADING, "Eluna Nova::Error opening `%s`", _path);
+		}
+		else
+		  error = false;
+	
+		if (!error && S_ISDIR(attributes.st_mode))
+		  LoadDirectory((char*)_path, lscr);
+		else
+		{
+			char* ext = strrchr(list[fileCount]->d_name, '.');
+			if (ext && !strcmp(ext, ".lua"))
+			  lscr->luaFiles.insert(_path);
+		}
+		free(list[fileCount]);
+    }
+    free(list);
 #endif
 }
 
