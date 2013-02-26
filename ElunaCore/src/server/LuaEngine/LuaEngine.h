@@ -1367,12 +1367,8 @@ public:
         return true;
     }
 
-    void HandleGossipSelectOption(WorldSession* session, uint64 guid, uint32 gossipListId, uint32 menuId, std::string code)
+    void HandleGossipSelectOption(Player* player, uint64 guid, uint32 sender, uint32 action, std::string code, uint32 menuId)
     {
-        if(!session)
-            return;
-
-        Player* player = session->GetPlayer();
         if(!player || !player->IsInWorld() || !player->isAlive() || player->GetCharmerGUID())
             return;
         
@@ -1394,8 +1390,8 @@ public:
                     Eluna::get()->PushUnsigned(Eluna::get()->_luaState, GOSSIP_EVENT_ON_SELECT);
                     Eluna::get()->PushUnit(Eluna::get()->_luaState, player);
                     Eluna::get()->PushItem(Eluna::get()->_luaState, item);
-                    Eluna::get()->PushUnsigned(Eluna::get()->_luaState, player->PlayerTalkClass->GetGossipOptionSender(gossipListId));
-                    Eluna::get()->PushUnsigned(Eluna::get()->_luaState, player->PlayerTalkClass->GetGossipOptionAction(gossipListId));
+                    Eluna::get()->PushUnsigned(Eluna::get()->_luaState, sender);
+                    Eluna::get()->PushUnsigned(Eluna::get()->_luaState, action);
                     if(code.empty())
                         lua_pushnil(Eluna::get()->_luaState);
                     else
@@ -1417,12 +1413,13 @@ public:
                     Eluna::get()->PushUnsigned(Eluna::get()->_luaState, GOSSIP_EVENT_ON_SELECT);
                     Eluna::get()->PushUnit(Eluna::get()->_luaState, player); // receiver
                     Eluna::get()->PushUnit(Eluna::get()->_luaState, player); // sender, just not to mess up the amount of args.
-                    Eluna::get()->PushUnsigned(Eluna::get()->_luaState, player->PlayerTalkClass->GetGossipOptionSender(gossipListId));
-                    Eluna::get()->PushUnsigned(Eluna::get()->_luaState, player->PlayerTalkClass->GetGossipOptionAction(gossipListId));
+                    Eluna::get()->PushUnsigned(Eluna::get()->_luaState, sender);
+                    Eluna::get()->PushUnsigned(Eluna::get()->_luaState, action);
                     if(code.empty())
                         lua_pushnil(Eluna::get()->_luaState);
                     else
                         Eluna::get()->PushString(Eluna::get()->_luaState, code.c_str());
+                    Eluna::get()->PushUnsigned(Eluna::get()->_luaState, menuId);
                     Eluna::get()->ExecuteCall(6, 0);
                 }
             }

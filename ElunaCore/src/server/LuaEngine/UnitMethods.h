@@ -1156,12 +1156,13 @@ public:
 
         uint32 _icon = luaL_checkunsigned(L, 1);
         const char* msg = luaL_checkstring(L, 2);
-        uint32 _intid = luaL_checkunsigned(L, 3);
-        bool _code = luaL_optbool(L, 4, false);
-        const char* _promptMsg = luaL_optstring(L, 5, "");
-        uint32 _money = luaL_optunsigned(L, 6, 0);
+        uint32 _sender = luaL_checkunsigned(L, 3);
+        uint32 _intid = luaL_checkunsigned(L, 4);
+        bool _code = luaL_optbool(L, 5, false);
+        const char* _promptMsg = luaL_optstring(L, 6, "");
+        uint32 _money = luaL_optunsigned(L, 7, 0);
 
-        player->ADD_GOSSIP_ITEM_EXTENDED(_icon, msg, GOSSIP_SENDER_MAIN, _intid, _promptMsg, _money, _code);
+        player->ADD_GOSSIP_ITEM_EXTENDED(_icon, msg, _sender, _intid, _promptMsg, _money, _code);
         return 0;
     }
 
@@ -1188,10 +1189,18 @@ public:
             {
                 uint32 menu_id = luaL_checkunsigned(L, 3);
                 player->PlayerTalkClass->GetGossipMenu().SetMenuId(menu_id);
-                printf("WasPlayer\n");
             }
             player->SEND_GOSSIP_MENU(_npcText, sender->GetGUID());
         }
+        return 0;
+    }
+
+    // GossipClearMenu()
+    static int GossipClearMenu(lua_State* L, Unit* unit)
+    {
+        TO_PLAYER();
+
+        player->PlayerTalkClass->ClearMenus();
         return 0;
     }
 

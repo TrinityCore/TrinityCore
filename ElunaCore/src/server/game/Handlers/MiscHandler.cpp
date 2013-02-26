@@ -103,7 +103,7 @@ void WorldSession::HandleGossipSelectOptionOpcode(WorldPacket& recvData)
 
     if (IS_ITEM_GUID(guid) || IS_PLAYER_GUID(guid))
     {
-        Eluna::getScript()->HandleGossipSelectOption(this, guid, gossipListId, menuId, code);
+        Eluna::getScript()->HandleGossipSelectOption(GetPlayer(), guid, GetPlayer()->PlayerTalkClass->GetGossipOptionSender(gossipListId), GetPlayer()->PlayerTalkClass->GetGossipOptionAction(gossipListId), code, menuId);
         return;
     }
 

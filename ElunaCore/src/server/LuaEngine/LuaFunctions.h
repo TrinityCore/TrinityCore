@@ -42,6 +42,7 @@ ElunaRegister<Unit> UnitMethods[] =
     {"GossipMenuAddItem", &LuaUnit::GossipMenuAddItem },            // :GossipMenuAddItem(icon, msg, Intid, code, accept_decline_message, money)
     {"GossipComplete", &LuaUnit::GossipComplete },                  // :GossipComplete()
     {"GossipSendMenu", &LuaUnit::GossipSendMenu },                  // :GossipSendMenu(npc_text, unit)
+    {"GossipClearMenu", &LuaUnit::GossipClearMenu },                // :GossipClearMenu() -- Clears the gossip menu of options. Pretty much only useful with player gossip. Need to use before creating a new menu for the player Undocumented
 
     // Update
 
