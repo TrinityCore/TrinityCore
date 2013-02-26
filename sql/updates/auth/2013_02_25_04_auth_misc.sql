@@ -17,7 +17,7 @@ INSERT INTO `rbac_role_permissions` (`roleId`, `permissionId`) VALUES
 (15, 37);
 
 -- Add it to all GM+ groups
-DELETE FROM `rbac_role_permissions` WHERE `roleId` IN (14, 15);
+DELETE FROM `rbac_group_roles` WHERE `roleId` IN (14, 15);
 INSERT INTO `rbac_group_roles` (`groupId`, `roleId`) VALUES
 (2, 14),
 (3, 14),
