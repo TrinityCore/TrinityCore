@@ -68,6 +68,11 @@ ElunaRegister<Unit> UnitMethods[] =
     {"GetAITargets", &LuaUnit::GetAITargets},                       // :GetAITargets() - Get units in threat list
     {"GetAITargetsCount", &LuaUnit::GetAITargetsCount},             // :GetAITargetsCount() - Get threat list size
 
+    // Other
+    {"RegisterEvent", &LuaUnit::RegisterEvent},                     // :RegisterEvent(function, delay, calls) - UNDOCUMENTED
+    {"RemoveEventByID", &LuaUnit::RemoveEventByID},                 // :RemoveEventByID(eventID) - UNDOCUMENTED
+    {"RemoveEvents", &LuaUnit::RemoveEvents},                       // :RemoveEvents() - UNDOCUMENTED
+
 
     // Unit Methods
 
@@ -168,6 +173,9 @@ ElunaRegister<GameObject> GameObjectMethods[] =
     {"CastSpellOnTarget", &LuaGameObject::CastSpellOnTarget},       // :CastSpellOnTarget(target, spellId) - Casts the spell on target, no manacost or cast time - UNDOCUMENTED
     {"Move", &LuaGameObject::Move},                                 // :Move(x, y, z, o) - Moves the GO to coordinates - UNDOCUMENTED
     {"SummonCreature", &LuaGameObject::SummonCreature},             // :SummonCreature(entry, x, y, z, o, despawntime) Summons a temporary creature. 0 for infinitely, otherwise despawns after despawntime (ms) - UNDOCUMENTED
+    {"RegisterEvent", &LuaGameObject::RegisterEvent},               // :RegisterEvent(function, delay, calls) - UNDOCUMENTED
+    {"RemoveEventByID", &LuaGameObject::RemoveEventByID},           // :RemoveEventByID(eventID) - UNDOCUMENTED
+    {"RemoveEvents", &LuaGameObject::RemoveEvents},                 // :RemoveEvents() - UNDOCUMENTED
 
     { NULL, NULL },
 };
