@@ -1,7 +1,6 @@
 /*
 FOEREAPER TOMMY ENGINE, YEAH!
 */
-#pragma warning (disable:4006)
 #include "LuaEngine.h"
 #include "GlobalMethods.h"
 #include "UnitMethods.h"

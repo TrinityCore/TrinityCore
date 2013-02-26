@@ -1691,7 +1691,6 @@ public:
         return true;
     }
 
-    /*
     // Called when a dummy spell effect is triggered on the gameobject.
     bool OnDummyEffect(uint32 eventId, Unit* caster, uint32 spellId, SpellEffIndex effIndex, GameObject* go)
     {
@@ -1780,7 +1779,7 @@ public:
     }
 
     // Called when the game object is damaged (destructible buildings only).
-    void OnDamaged(uint32 eventId, GameObject* go, Player* player)
+    void OnFirstDamaged(uint32 eventId, GameObject* go, Player* player)
     {
         Eluna::get()->BeginCall(Eluna::LuaGameObjectScript::GetGameObjectAIBindingForId(go->GetEntry())->_functionReferences[eventId]);
         Eluna::get()->PushInteger(Eluna::get()->_luaState, eventId);
@@ -1809,6 +1808,5 @@ public:
         Eluna::get()->PushUnsigned(Eluna::get()->_luaState, state);
         Eluna::get()->ExecuteCall(3, 0);
     }
-    */
 };
 #endif
