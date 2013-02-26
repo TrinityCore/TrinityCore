@@ -23,7 +23,7 @@ INSERT INTO `rbac_role_permissions` (`roleId`, `permissionId`) VALUES
 (38, 40);
 
 -- Add it to all groups
-DELETE FROM `rbac_role_permissions` WHERE `roleId` IN (35, 36, 37, 38);
+DELETE FROM `rbac_group_roles` WHERE `roleId` IN (35, 36, 37, 38);
 INSERT INTO `rbac_group_roles` (`groupId`, `roleId`) VALUES
 (2, 35),
 (3, 35),

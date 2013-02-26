@@ -592,21 +592,6 @@ bool SpellMgr::IsSpellRequiringSpell(uint32 spellid, uint32 req_spellid) const
     return false;
 }
 
-const SpellsRequiringSpellMap SpellMgr::GetSpellsRequiringSpell()
-{
-    return this->mSpellsReqSpell;
-}
-
-uint32 SpellMgr::GetSpellRequired(uint32 spell_id) const
-{
-    SpellRequiredMap::const_iterator itr = mSpellReq.find(spell_id);
-
-    if (itr == mSpellReq.end())
-        return 0;
-
-    return itr->second;
-}
-
 SpellLearnSkillNode const* SpellMgr::GetSpellLearnSkill(uint32 spell_id) const
 {
     SpellLearnSkillMap::const_iterator itr = mSpellLearnSkills.find(spell_id);
@@ -777,7 +762,7 @@ SpellProcEventEntry const* SpellMgr::GetSpellProcEvent(uint32 spellId) const
     return NULL;
 }
 
-bool SpellMgr::IsSpellProcEventCanTriggeredBy(SpellProcEventEntry const* spellProcEvent, uint32 EventProcFlag, SpellInfo const* procSpell, uint32 procFlags, uint32 procExtra, bool active)
+bool SpellMgr::IsSpellProcEventCanTriggeredBy(SpellProcEventEntry const* spellProcEvent, uint32 EventProcFlag, SpellInfo const* procSpell, uint32 procFlags, uint32 procExtra, bool active) const
 {
     // No extra req need
     uint32 procEvent_procEx = PROC_EX_NONE;
@@ -914,7 +899,7 @@ SpellProcEntry const* SpellMgr::GetSpellProcEntry(uint32 spellId) const
     return NULL;
 }
 
-bool SpellMgr::CanSpellTriggerProcOnEvent(SpellProcEntry const& procEntry, ProcEventInfo& eventInfo)
+bool SpellMgr::CanSpellTriggerProcOnEvent(SpellProcEntry const& procEntry, ProcEventInfo& eventInfo) const
 {
     // proc type doesn't match
     if (!(eventInfo.GetTypeMask() & procEntry.typeMask))
@@ -1015,7 +1000,7 @@ SkillLineAbilityMapBounds SpellMgr::GetSkillLineAbilityMapBounds(uint32 spell_id
     return mSkillLineAbilityMap.equal_range(spell_id);
 }
 
-PetAura const* SpellMgr::GetPetAura(uint32 spell_id, uint8 eff)
+PetAura const* SpellMgr::GetPetAura(uint32 spell_id, uint8 eff) const
 {
     SpellPetAuraMap::const_iterator itr = mSpellPetAuraMap.find((spell_id<<8) + eff);
     if (itr != mSpellPetAuraMap.end())
