@@ -275,7 +275,7 @@ public:
 
         uint32 delay = luaL_checkunsigned(L, 2);
         uint32 repeats = luaL_checkunsigned(L, 3);
-        Eluna::LuaGameObjectScript::LuaGameObjectAI* luaAI = sLuaGameObjectScript->GetLuaAI(go);
+        Eluna::LuaGameObjectScript::LuaGameObjectAI* luaAI = sLuaGameObjectScript->GetAI(go);
         if(!luaAI)
         {
             luaL_error(L, "GameObject has no registered gameobject events, please register one before using RegisterEvent");
@@ -301,7 +301,7 @@ public:
             return 0;
 
         int eventID = luaL_checkinteger(L, 1);
-        Eluna::LuaGameObjectScript::LuaGameObjectAI* luaAI = sLuaGameObjectScript->GetLuaAI(go);
+        Eluna::LuaGameObjectScript::LuaGameObjectAI* luaAI = sLuaGameObjectScript->GetAI(go);
 
         if(luaAI)
             luaAI->LuaEventCancel(eventID);
@@ -314,7 +314,7 @@ public:
         if(!go || !go->IsInWorld())
             return 0;
 
-        Eluna::LuaGameObjectScript::LuaGameObjectAI* luaAI = sLuaGameObjectScript->GetLuaAI(go);
+        Eluna::LuaGameObjectScript::LuaGameObjectAI* luaAI = sLuaGameObjectScript->GetAI(go);
         if(luaAI)
             luaAI->LuaEventsReset();
         return 0;
