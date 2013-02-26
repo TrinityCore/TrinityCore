@@ -270,12 +270,13 @@ struct PlayerInfo
 
 struct PvPInfo
 {
-    PvPInfo() : inHostileArea(false), inNoPvPArea(false), inFFAPvPArea(false), endTimer(0) {}
+    PvPInfo() : IsHostile(false), IsInHostileArea(false), IsInNoPvPArea(false), IsInFFAPvPArea(false), EndTimer(0) {}
 
-    bool inHostileArea;
-    bool inNoPvPArea;
-    bool inFFAPvPArea;
-    time_t endTimer;
+    bool IsHostile;
+    bool IsInHostileArea;               ///> Marks if player is in an area which forces PvP flag
+    bool IsInNoPvPArea;                 ///> Marks if player is in a sanctuary or friendly capital city
+    bool IsInFFAPvPArea;                ///> Marks if player is in an FFAPvP area (such as Gurubashi Arena)
+    time_t EndTimer;                    ///> Time when player unflags himself for PvP (flag removed after 5 minutes)
 };
 
 struct DuelInfo
@@ -1499,6 +1500,8 @@ class Player : public Unit, public GridObject<Player>
 
         void AddTimedQuest(uint32 quest_id) { m_timedquests.insert(quest_id); }
         void RemoveTimedQuest(uint32 quest_id) { m_timedquests.erase(quest_id); }
+
+        bool HasPvPForcingQuest() const;
 
         /*********************************************************/
         /***                   LOAD SYSTEM                     ***/
