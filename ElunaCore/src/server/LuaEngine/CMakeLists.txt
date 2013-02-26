@@ -122,4 +122,14 @@ include_directories(
   ${MYSQL_INCLUDE_DIR}
 )
 
-add_library(LuaEngine STATIC ${LuaEngine_STAT_SRCS})
+add_library(LuaEngine STATIC 
+  ${LuaEngine_STAT_SRCS}
+  ${game_STAT_SRCS}
+  ${game_STAT_PCH_SRC}
+)
+
+target_link_libraries(LuaEngine
+  game
+)
+
+add_dependencies(LuaEngine game)

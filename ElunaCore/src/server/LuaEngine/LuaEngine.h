@@ -305,7 +305,7 @@ public:
     static Eluna* get() { return LuaEngine; }
     static ElunaScript* getScript() { return Script; }
 
-    typedef map<int, vector<uint16>> ElunaBindingMap;
+    typedef map<int, vector<uint16> > ElunaBindingMap;
     ElunaBindingMap _serverEventBindings;
 
     vector<CreatureBind*> _creatureEventBindings;
@@ -321,7 +321,7 @@ public:
         for (int i = 0; i < SERVER_EVENT_COUNT; i++)
         {
             vector<uint16> _vector;
-            get()->_serverEventBindings.insert(pair<int, vector<uint16>>(i, _vector));
+            get()->_serverEventBindings.insert(pair<int, vector<uint16> >(i, _vector));
         }
     }
 
@@ -640,7 +640,7 @@ protected:
     };
 
 public:
-    static class luaEventMap
+    class luaEventMap
     {
     public:
         luaEventMap() { }
@@ -733,7 +733,7 @@ public:
     };
 
 public:
-    static class LuaWorldScript : public WorldScript, public luaEventMap
+    class LuaWorldScript : public WorldScript, public luaEventMap
     {
     public:
         LuaWorldScript() : WorldScript("LuaWorldScript"), luaEventMap() {}
@@ -756,7 +756,7 @@ public:
     };
 
 public:
-    static class LuaCreatureScript : CreatureScript
+    class LuaCreatureScript : CreatureScript
     {
     public:
         struct LuaCreatureAI;
@@ -810,7 +810,7 @@ public:
             return true;
         }
 
-        static struct LuaCreatureAI : ScriptedAI, public luaEventMap
+        struct LuaCreatureAI : ScriptedAI, public luaEventMap
         {
             LuaCreatureAI(Creature* creature) : ScriptedAI(creature), luaEventMap()
             {
@@ -1263,7 +1263,7 @@ public:
     };
 
 public:
-    static class LuaGameObjectScript : GameObjectScript
+    class LuaGameObjectScript : GameObjectScript
     {
     public:
         struct LuaGameObjectAI;
@@ -1316,7 +1316,7 @@ public:
             return true;
         }
 
-        static struct LuaGameObjectAI : GameObjectAI, public luaEventMap
+        struct LuaGameObjectAI : GameObjectAI, public luaEventMap
         {
             LuaGameObjectAI(GameObject* _go) : GameObjectAI(_go), luaEventMap()
             {
