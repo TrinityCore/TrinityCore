@@ -429,6 +429,12 @@ void WorldSession::HandleQuestLogRemoveQuest(WorldPacket& recvData)
             {
                 if (quest->HasFlag(QUEST_TRINITY_FLAGS_TIMED))
                     _player->RemoveTimedQuest(questId);
+
+                if (quest->HasFlag(QUEST_FLAGS_FLAGS_PVP))
+                {
+                    _player->pvpInfo.IsHostile = _player->pvpInfo.IsInHostileArea || _player->HasPvPForcingQuest();
+                    _player->UpdatePvPState();
+                }
             }
 
             _player->TakeQuestSourceItem(questId, true); // remove quest src item from player
