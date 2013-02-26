@@ -207,15 +207,25 @@ ElunaRegister<Guild> GuildMethods[] =
 {
     // Getters
     {"GetMembers", &LuaGuild::GetMembers},                          // :GetMembers() - returns a table containing the players in this guild. (Online?)
-    {"GetUnitType", &LuaGuild::GetUnitType},
-    {"GetLeaderGUID", &LuaGuild::GetLeaderGUID},
+    {"GetUnitType", &LuaGuild::GetUnitType},                        // :GetUnitType() - Returns the unit type. Eg: Guild
+    {"GetLeaderGUID", &LuaGuild::GetLeaderGUID},                    // :GetLeaderGUID() - Returns the guild learder's guid
+    {"GetId", &LuaGuild::GetId},                                    // :GetId() - Gets the guild's ID UNDOCUMENTED
+    {"GetName", &LuaGuild::GetName},                                // :GetName() - Gets the guild name UNDOCUMENTED
+    {"GetMOTD", &LuaGuild::GetMOTD},                                // :GetMOTD() - Gets the guild MOTD string UNDOCUMENTED
+    {"GetInfo", &LuaGuild::GetInfo},                                // :GetInfo() - Gets the guild info string UNDOCUMENTED
+
     // Setters
+    {"SetBankTabText", &LuaGuild::SetBankTabText},                  // :SetBankTabText(tabId, text) - UNDOCUMENTED
+    {"SetMemberRank", &LuaGuild::ChangeMemberRank},                 // :SetMemberRank(player, newRank) - Sets the player rank in the guild to the new rank UNDOCUMENTED
 
     // Boolean
 
     // Other
     {"SendPacket", &LuaGuild::SendPacket},                          // :SendPacket(packet) - sends packet to guild. UNDOCUMENTED
     {"SendPacketToRanked", &LuaGuild::SendPacketToRanked},          // :SendPacketToRanked(packet, rankId) - sends packet to guild, specifying a rankId will only send the packet to your ranked members. UNDOCUMENTED
+    {"Disband", &LuaGuild::Disband},                                // :Disband() - Disbands the guild UNDOCUMENTED
+    {"AddMember", &LuaGuild::AddMember},                            // :AddMember(player, rank) - adds the player to the guild. Rank is optional UNDOCUMENTED
+    {"DeleteMember", &LuaGuild::DeleteMember},                      // :DeleteMember(player, disbanding, kicked) - Deletes the player from the guild. Disbanding and kicked are optional bools. UNDOCUMENTED
 
     {NULL, NULL},
 };
