@@ -898,7 +898,7 @@ void ScriptMgr::OnGameObjectDestroyed(GameObject* go, Player* player)
 {
     ASSERT(go);
 
-	if (Eluna::LuaGameObjectScript::GetGameObjectAIBindingForId(go->GetEntry()))
+	if (Eluna::LuaGameObjectScript::GetGameObjectBindingForId(go->GetEntry()))
 		Eluna::getScript()->OnDestroyed(GAMEOBJECT_EVENT_ON_DESTROYED, go, player);
 
     GET_SCRIPT(GameObjectScript, go->GetScriptId(), tmpscript);
@@ -909,7 +909,7 @@ void ScriptMgr::OnGameObjectDamaged(GameObject* go, Player* player)
 {
     ASSERT(go);
 
-	if (Eluna::LuaGameObjectScript::GetGameObjectAIBindingForId(go->GetEntry()))
+	if (Eluna::LuaGameObjectScript::GetGameObjectBindingForId(go->GetEntry()))
 		Eluna::getScript()->OnFirstDamaged(GAMEOBJECT_EVENT_ON_DAMAGED, go, player);
 
     GET_SCRIPT(GameObjectScript, go->GetScriptId(), tmpscript);
@@ -945,7 +945,7 @@ bool ScriptMgr::OnDummyEffect(Unit* caster, uint32 spellId, SpellEffIndex effInd
     ASSERT(caster);
     ASSERT(target);
 
-	if (Eluna::LuaGameObjectScript::GetGameObjectAIBindingForId(target->GetEntry()))
+	if (Eluna::LuaGameObjectScript::GetGameObjectBindingForId(target->GetEntry()))
 		if (Eluna::getScript()->OnDummyEffect(GAMEOBJECT_EVENT_ON_DUMMY_EFFECT, caster, spellId, effIndex, target))
 			return true;
 
