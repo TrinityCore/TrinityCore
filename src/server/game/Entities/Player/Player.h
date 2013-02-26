@@ -394,7 +394,7 @@ enum PlayerFlags
     PLAYER_FLAGS_UNK16             = 0x00010000,               // pre-3.0.3 PLAYER_FLAGS_SANCTUARY flag for player entered sanctuary
     PLAYER_FLAGS_TAXI_BENCHMARK    = 0x00020000,               // taxi benchmark mode (on/off) (2.0.1)
     PLAYER_FLAGS_PVP_TIMER         = 0x00040000,               // 3.0.2, pvp timer active (after you disable pvp manually)
-    PLAYER_FLAGS_UNK19             = 0x00080000,
+    PLAYER_FLAGS_UBER              = 0x00080000,
     PLAYER_FLAGS_UNK20             = 0x00100000,
     PLAYER_FLAGS_UNK21             = 0x00200000,
     PLAYER_FLAGS_COMMENTATOR2      = 0x00400000,
