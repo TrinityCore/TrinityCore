@@ -169,7 +169,7 @@ struct CreatureTemplate
 typedef UNORDERED_MAP<uint32, CreatureTemplate> CreatureTemplateContainer;
 
 // Represents max amount of expansions.
-// TODO: Add MAX_EXPANSION constant.
+/// @todo: Add MAX_EXPANSION constant.
 #define MAX_CREATURE_BASE_HP 3
 
 // GCC have alternative #pragma pack(N) syntax and old gcc version not support pack(push, N), also any gcc version not support it at some platform
