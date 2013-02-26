@@ -78,7 +78,6 @@ ElunaRegister<Unit> UnitMethods[] =
     // Unit Methods
 
     // Getters
-    {"GetByteValue", &LuaUnit::GetByteValue},                       // :GetByteValue(index, offset)
     {"GetName", &LuaUnit::GetName},                                 // :GetName()
     {"GetLevel", &LuaUnit::GetLevel},                               // :GetLevel()
     {"GetHealth", &LuaUnit::GetHealth},                             // :GetHealth()
@@ -105,6 +104,11 @@ ElunaRegister<Unit> UnitMethods[] =
     {"GetUnitType", &LuaUnit::GetUnitType},                         // :GetUnitType() - Returns object type, IE: Player, Creature
     {"GetEntry", &LuaUnit::GetEntry},                               // :GetEntry() - Returns the unit's entryId
     {"GetAura", &LuaUnit::GetAura},                                 // :GetAura(spellID) - returns aura object
+    {"GetInt32Value", &LuaUnit::GetInt32Value},                     // :GetInt32Value(index) - returns an int value from unit fields UNDOCUMENTED
+    {"GetUInt32Value", &LuaUnit::GetUInt32Value},                   // :GetUInt32Value(index) - returns an uint value from unit fields UNDOCUMENTED
+    {"GetFloatValue", &LuaUnit::GetFloatValue},                     // :GetFloatValue(index) - returns a float value from unit fields UNDOCUMENTED
+    {"GetByteValue", &LuaUnit::GetByteValue},                       // :GetByteValue(index, offset) - returns a byte value from unit fields UNDOCUMENTED
+    {"GetUInt16Value", &LuaUnit::GetUInt16Value},                   // :GetUInt16Value(index, offset) - returns a uint16 value from unit fields UNDOCUMENTED
 
     // Setters
     {"SetLevel", &LuaUnit::SetLevel},                               // :SetLevel(amount)
@@ -115,6 +119,13 @@ ElunaRegister<Unit> UnitMethods[] =
     {"SetDisplayID", &LuaUnit::SetDisplayID},                       // :SetDisplayID(id)
     {"SetFacing", &LuaUnit::SetFacing},                             // :SetFacing(o) -- Sets the Unit facing to arg
     {"SetDeathState", &LuaUnit::SetDeathState},                     // :SetDeathState(value) -- 0 = alive 1 = just died 2 = corpse 3 = dead
+    {"SetInt32Value", &LuaUnit::SetInt32Value},                     // :SetInt32Value(index, value) - Sets an int value for the unit UNDOCUMENTED
+    {"SetUInt32Value", &LuaUnit::SetUInt32Value},                   // :SetUInt32Value(index, value) - Sets an uint value for the unit UNDOCUMENTED
+    {"UpdateUInt32Value", &LuaUnit::UpdateUInt32Value},             // :UpdateUInt32Value(index, value) - Updates an uint value for the unit UNDOCUMENTED
+    {"SetFloatValue", &LuaUnit::SetFloatValue},                     // :SetFloatValue(index, value) - Sets a float value for the unit UNDOCUMENTED
+    {"SetByteValue", &LuaUnit::SetByteValue},                       // :SetByteValue(index, offset, value) - Sets a byte value for the unit UNDOCUMENTED
+    {"SetUInt16Value", &LuaUnit::SetUInt16Value},                   // :SetUInt16Value(index, offset, value) - Sets an uint16 value for the unit UNDOCUMENTED
+    {"SetInt16Value", &LuaUnit::SetInt16Value},                     // :SetInt16Value(index, offset, value) - Sets an int16 value for the unit UNDOCUMENTED
 
     // Boolean
     {"IsAlive", &LuaUnit::IsAlive},                                 // :IsAlive()
@@ -159,9 +170,21 @@ ElunaRegister<GameObject> GameObjectMethods[] =
     {"GetLocation", &LuaGameObject::GetLocation},                   // :GetLocation() - returns X, Y, Z and O co-ords (in that order) - UNDOCUMENTED
     {"GetAreaId", &LuaGameObject::GetAreaId},                       // :GetAreaId() - UNDOCUMENTED
     {"GetZoneId", &LuaGameObject::GetZoneId},                       // :GetZoneId() - UNDOCUMENTED
+    {"GetInt32Value", &LuaGameObject::GetInt32Value},               // :GetInt32Value(index) - returns an int value from object fields UNDOCUMENTED
+    {"GetUInt32Value", &LuaGameObject::GetUInt32Value},             // :GetUInt32Value(index) - returns an uint value from object fields UNDOCUMENTED
+    {"GetFloatValue", &LuaGameObject::GetFloatValue},               // :GetFloatValue(index) - returns a float value from object fields UNDOCUMENTED
+    {"GetByteValue", &LuaGameObject::GetByteValue},                 // :GetByteValue(index, offset) - returns a byte value from object fields UNDOCUMENTED
+    {"GetUInt16Value", &LuaGameObject::GetUInt16Value},             // :GetUInt16Value(index, offset) - returns a uint16 value from object fields UNDOCUMENTED
 
     // Setters
     {"SetScale", &LuaGameObject::SetScale},                         // :SetScale(scale) - UNDOCUMENTED
+    {"SetInt32Value", &LuaGameObject::SetInt32Value},               // :SetInt32Value(index, value) - Sets an int value for the object UNDOCUMENTED
+    {"SetUInt32Value", &LuaGameObject::SetUInt32Value},             // :SetUInt32Value(index, value) - Sets an uint value for the object UNDOCUMENTED
+    {"UpdateUInt32Value", &LuaGameObject::UpdateUInt32Value},       // :UpdateUInt32Value(index, value) - Updates an uint value for the object UNDOCUMENTED
+    {"SetFloatValue", &LuaGameObject::SetFloatValue},               // :SetFloatValue(index, value) - Sets a float value for the object UNDOCUMENTED
+    {"SetByteValue", &LuaGameObject::SetByteValue},                 // :SetByteValue(index, offset, value) - Sets a byte value for the object UNDOCUMENTED
+    {"SetUInt16Value", &LuaGameObject::SetUInt16Value},             // :SetUInt16Value(index, offset, value) - Sets an uint16 value for the object UNDOCUMENTED
+    {"SetInt16Value", &LuaGameObject::SetInt16Value},               // :SetInt16Value(index, offset, value) - Sets an int16 value for the object UNDOCUMENTED
 
     // Boolean
     {"IsInWorld", &LuaGameObject::IsInWorld},                       // :IsInWorld() - UNDOCUMENTED

@@ -319,6 +319,150 @@ public:
             luaAI->LuaEventsReset();
         return 0;
     }
+
+    static int GetInt32Value(lua_State* L, GameObject* go)
+    {
+        if(!go || !go->IsInWorld())
+            return 0;
+
+        uint16 index = luaL_checkunsigned(L, 1);
+
+        Eluna::get()->PushInteger(L, go->GetInt32Value(index));
+        return 1;
+    }
+
+    static int GetUInt32Value(lua_State* L, GameObject* go)
+    {
+        if(!go || !go->IsInWorld())
+            return 0;
+
+        uint16 index = luaL_checkunsigned(L, 1);
+
+        Eluna::get()->PushUnsigned(L, go->GetUInt32Value(index));
+        return 1;
+    }
+
+    static int GetFloatValue(lua_State* L, GameObject* go)
+    {
+        if(!go || !go->IsInWorld())
+            return 0;
+
+        uint16 index = luaL_checkunsigned(L, 1);
+
+        Eluna::get()->PushFloat(L, go->GetFloatValue(index));
+        return 1;
+    }
+
+    static int GetByteValue(lua_State* L, GameObject* go)
+    {
+        if(!go || !go->IsInWorld())
+            return 0;
+        
+        uint16 index = luaL_checkunsigned(L, 1);
+        uint8 offset = luaL_checkunsigned(L, 2);
+
+        Eluna::get()->PushUnsigned(L, go->GetByteValue(index, offset));
+        return 1;
+    }
+
+    static int GetUInt16Value(lua_State* L, GameObject* go)
+    {
+        if(!go || !go->IsInWorld())
+            return 0;
+        
+        uint16 index = luaL_checkunsigned(L, 1);
+        uint8 offset = luaL_checkunsigned(L, 2);
+
+        Eluna::get()->PushUnsigned(L, go->GetUInt16Value(index, offset));
+        return 1;
+    }
+
+    static int SetInt32Value(lua_State* L, GameObject* go)
+    {
+        if(!go || !go->IsInWorld())
+            return 0;
+        
+        uint16 index = luaL_checkunsigned(L, 1);
+        int32 value = luaL_checkinteger(L, 2);
+
+        go->SetInt32Value(index, value);
+        return 0;
+    }
+
+    static int SetUInt32Value(lua_State* L, GameObject* go)
+    {
+        if(!go || !go->IsInWorld())
+            return 0;
+        
+        uint16 index = luaL_checkunsigned(L, 1);
+        uint32 value = luaL_checkunsigned(L, 2);
+
+        go->SetUInt32Value(index, value);
+        return 0;
+    }
+
+    static int UpdateUInt32Value(lua_State* L, GameObject* go)
+    {
+        if(!go || !go->IsInWorld())
+            return 0;
+        
+        uint16 index = luaL_checkunsigned(L, 1);
+        uint32 value = luaL_checkunsigned(L, 2);
+
+        go->UpdateUInt32Value(index, value);
+        return 0;
+    }
+
+    static int SetFloatValue(lua_State* L, GameObject* go)
+    {
+        if(!go || !go->IsInWorld())
+            return 0;
+        
+        uint16 index = luaL_checkunsigned(L, 1);
+        float value = luaL_checknumber(L, 2);
+
+        go->SetFloatValue(index, value);
+        return 0;
+    }
+
+    static int SetByteValue(lua_State* L, GameObject* go)
+    {
+        if(!go || !go->IsInWorld())
+            return 0;
+        
+        uint16 index = luaL_checkunsigned(L, 1);
+        uint8 offset = luaL_checkunsigned(L, 2);
+        uint8 value = luaL_checkunsigned(L, 3);
+
+        go->SetByteValue(index, offset, value);
+        return 0;
+    }
+
+    static int SetUInt16Value(lua_State* L, GameObject* go)
+    {
+        if(!go || !go->IsInWorld())
+            return 0;
+        
+        uint16 index = luaL_checkunsigned(L, 1);
+        uint8 offset = luaL_checkunsigned(L, 2);
+        uint16 value = luaL_checkunsigned(L, 3);
+
+        go->SetUInt16Value(index, offset, value);
+        return 0;
+    }
+
+    static int SetInt16Value(lua_State* L, GameObject* go)
+    {
+        if(!go || !go->IsInWorld())
+            return 0;
+        
+        uint16 index = luaL_checkunsigned(L, 1);
+        uint8 offset = luaL_checkunsigned(L, 2);
+        int16 value = luaL_checkinteger(L, 3);
+
+        go->SetInt16Value(index, offset, value);
+        return 0;
+    }
 };
 
 #endif
