@@ -1434,9 +1434,9 @@ public:
             Eluna::get()->BeginCall((*itr));
             Eluna::get()->PushUnsigned(Eluna::get()->_luaState, eventId);
             Eluna::get()->PushUnit(Eluna::get()->_luaState, player);
+            Eluna::get()->PushString(Eluna::get()->_luaState, msg.c_str());
             Eluna::get()->PushUnsigned(Eluna::get()->_luaState, type);
             Eluna::get()->PushUnsigned(Eluna::get()->_luaState, lang);
-            Eluna::get()->PushString(Eluna::get()->_luaState, msg.c_str());
             Eluna::get()->ExecuteCall(5, 0);
         }
     }
@@ -1449,9 +1449,9 @@ public:
             Eluna::get()->BeginCall((*itr));
             Eluna::get()->PushUnsigned(Eluna::get()->_luaState, eventId);
             Eluna::get()->PushUnit(Eluna::get()->_luaState, player);
+            Eluna::get()->PushString(Eluna::get()->_luaState, msg.c_str());
             Eluna::get()->PushUnsigned(Eluna::get()->_luaState, type);
             Eluna::get()->PushUnsigned(Eluna::get()->_luaState, lang);
-            Eluna::get()->PushString(Eluna::get()->_luaState, msg.c_str());
             Eluna::get()->PushUnit(Eluna::get()->_luaState, receiver);
             Eluna::get()->ExecuteCall(6, 0);
         }
@@ -1465,9 +1465,9 @@ public:
             Eluna::get()->BeginCall((*itr));
             Eluna::get()->PushUnsigned(Eluna::get()->_luaState, eventId);
             Eluna::get()->PushUnit(Eluna::get()->_luaState, player);
+            Eluna::get()->PushString(Eluna::get()->_luaState, msg.c_str());
             Eluna::get()->PushUnsigned(Eluna::get()->_luaState, type);
             Eluna::get()->PushUnsigned(Eluna::get()->_luaState, lang);
-            Eluna::get()->PushString(Eluna::get()->_luaState, msg.c_str());
             Eluna::get()->PushGroup(Eluna::get()->_luaState, group);
             Eluna::get()->ExecuteCall(6, 0);
         }
@@ -1481,9 +1481,9 @@ public:
             Eluna::get()->BeginCall((*itr));
             Eluna::get()->PushUnsigned(Eluna::get()->_luaState, eventId);
             Eluna::get()->PushUnit(Eluna::get()->_luaState, player);
+            Eluna::get()->PushString(Eluna::get()->_luaState, msg.c_str());
             Eluna::get()->PushUnsigned(Eluna::get()->_luaState, type);
             Eluna::get()->PushUnsigned(Eluna::get()->_luaState, lang);
-            Eluna::get()->PushString(Eluna::get()->_luaState, msg.c_str());
             Eluna::get()->PushGuild(Eluna::get()->_luaState, guild);
             Eluna::get()->ExecuteCall(6, 0);
         }
@@ -1497,9 +1497,9 @@ public:
             Eluna::get()->BeginCall((*itr));
             Eluna::get()->PushUnsigned(Eluna::get()->_luaState, eventId);
             Eluna::get()->PushUnit(Eluna::get()->_luaState, player);
+            Eluna::get()->PushString(Eluna::get()->_luaState, msg.c_str());
             Eluna::get()->PushUnsigned(Eluna::get()->_luaState, type);
             Eluna::get()->PushUnsigned(Eluna::get()->_luaState, lang);
-            Eluna::get()->PushString(Eluna::get()->_luaState, msg.c_str());
             Eluna::get()->PushChannel(Eluna::get()->_luaState, channel);
             Eluna::get()->ExecuteCall(6, 0);
         }
