@@ -315,7 +315,7 @@ public:
         uint8 groupID = luaL_checkunsigned(L, 2);
 
         if(player)
-            group->ChangeMembersGroup(player, groupID);
+            group->ChangeMembersGroup(player->GetGUID(), groupID);
         return 0;
     }
 
