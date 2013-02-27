@@ -1,6 +1,6 @@
-diff -urN g3d-beta4/include/G3D/debugAssert.h g3d-mangos/include/G3D/debugAssert.h
---- g3d-beta4/include/G3D/debugAssert.h	2010-02-07 23:39:20.000000000 +0100
-+++ g3d-mangos/include/G3D/debugAssert.h	2010-08-26 21:36:32.000000000 +0200
+diff -urN a/dep/g3dlite/include/G3D/debugAssert.h b/dep/g3dlite/include/G3D/debugAssert.h
+--- a/dep/g3dlite/include/G3D/debugAssert.h	2010-02-07 23:39:20.000000000 +0100
++++ b/dep/g3dlite/include/G3D/debugAssert.h	2010-08-26 21:36:32.000000000 +0200
 @@ -39,10 +39,12 @@
  #ifdef G3D_LINUX
      // Needed so we can define a global display
@@ -30,9 +30,9 @@ diff -urN g3d-beta4/include/G3D/debugAssert.h g3d-mangos/include/G3D/debugAssert
  
  /**
   Pops up an assertion dialog or prints an assertion
-diff -urN g3d-beta4/include/G3D/g3dmath.h g3d-mangos/include/G3D/g3dmath.h
---- g3d-beta4/include/G3D/g3dmath.h	2010-02-07 23:39:20.000000000 +0100
-+++ g3d-mangos/include/G3D/g3dmath.h	2010-08-26 21:36:32.000000000 +0200
+diff -urN a/dep/g3dlite/include/G3D/g3dmath.h b/dep/g3dlite/include/G3D/g3dmath.h
+--- a/dep/g3dlite/include/G3D/g3dmath.h	2010-02-07 23:39:20.000000000 +0100
++++ b/dep/g3dlite/include/G3D/g3dmath.h	2010-08-26 21:36:32.000000000 +0200
 @@ -65,6 +65,8 @@
      return ::rand() / double(RAND_MAX);
  }
@@ -62,9 +62,9 @@ diff -urN g3d-beta4/include/G3D/g3dmath.h g3d-mangos/include/G3D/g3dmath.h
  #endif
  
  
-diff -urN g3d-beta4/include/G3D/platform.h g3d-mangos/include/G3D/platform.h
---- g3d-beta4/include/G3D/platform.h	2010-02-07 23:39:20.000000000 +0100
-+++ g3d-mangos/include/G3D/platform.h	2010-08-26 21:36:32.000000000 +0200
+diff -urN a/dep/g3dlite/include/G3D/platform.h b/dep/g3dlite/include/G3D/platform.h
+--- a/dep/g3dlite/include/G3D/platform.h	2010-02-07 23:39:20.000000000 +0100
++++ b/dep/g3dlite/include/G3D/platform.h	2010-08-26 21:36:32.000000000 +0200
 @@ -56,12 +57,15 @@
     // pi as a constant, which creates a conflict with G3D
  #define __FP__
@@ -97,9 +97,9 @@ diff -urN g3d-beta4/include/G3D/platform.h g3d-mangos/include/G3D/platform.h
  
  /** @def G3D_CHECK_PRINTF_METHOD_ARGS()
      Enables printf parameter validation on gcc. */
-diff -urN g3d-beta4/include/G3D/System.h g3d-mangos/include/G3D/System.h
---- g3d-beta4/include/G3D/System.h	2010-02-07 23:39:20.000000000 +0100
-+++ g3d-mangos/include/G3D/System.h	2010-08-26 21:36:32.000000000 +0200
+diff -urN a/dep/g3dlite/include/G3D/System.h b/dep/g3dlite/include/G3D/System.h
+--- a/dep/g3dlite/include/G3D/System.h	2010-02-07 23:39:20.000000000 +0100
++++ b/dep/g3dlite/include/G3D/System.h	2010-08-26 21:36:32.000000000 +0200
 @@ -375,10 +375,10 @@
       // count now contains the cycle count for the intervening operation.
       </PRE>
@@ -141,9 +141,9 @@ diff -urN g3d-beta4/include/G3D/System.h g3d-mangos/include/G3D/System.h
  
  } // namespace
  
-diff -urN g3d-beta4/source/BinaryInput.cpp g3d-mangos/source/BinaryInput.cpp
---- g3d-beta4/source/BinaryInput.cpp	2010-02-07 23:39:20.000000000 +0100
-+++ g3d-mangos/source/BinaryInput.cpp	2010-08-15 11:37:26.000000000 +0200
+diff -urN a/dep/g3dlite/source/BinaryInput.cpp b/dep/g3dlite/source/BinaryInput.cpp
+--- a/dep/g3dlite/source/BinaryInput.cpp	2010-02-07 23:39:20.000000000 +0100
++++ b/dep/g3dlite/source/BinaryInput.cpp	2010-08-15 11:37:26.000000000 +0200
 @@ -39,7 +39,9 @@
  #include "G3D/Log.h"
  #include "G3D/FileSystem.h"
@@ -171,9 +171,9 @@ diff -urN g3d-beta4/source/BinaryInput.cpp g3d-mangos/source/BinaryInput.cpp
  
      // Figure out how big the file is and verify that it exists.
      m_length = FileSystem::size(m_filename);
-diff -urN g3d-beta4/source/debugAssert.cpp g3d-mangos/source/debugAssert.cpp
---- g3d-beta4/source/debugAssert.cpp	2010-02-07 23:39:20.000000000 +0100
-+++ g3d-mangos/source/debugAssert.cpp	2010-08-15 11:37:26.000000000 +0200
+diff -urN a/dep/g3dlite/source/debugAssert.cpp b/dep/g3dlite/source/debugAssert.cpp
+--- a/dep/g3dlite/source/debugAssert.cpp	2010-02-07 23:39:20.000000000 +0100
++++ b/dep/g3dlite/source/debugAssert.cpp	2010-08-15 11:37:26.000000000 +0200
 @@ -37,9 +37,11 @@
  AssertionHook _failureHook = _handleErrorCheck_;
  
@@ -202,9 +202,9 @@ diff -urN g3d-beta4/source/debugAssert.cpp g3d-mangos/source/debugAssert.cpp
      #elif defined(G3D_OSX)
          // TODO: OS X
      #endif
-diff -urN g3d-beta4/source/FileSystem.cpp g3d-mangos/source/FileSystem.cpp
---- g3d-beta4/source/FileSystem.cpp	2010-02-07 23:39:20.000000000 +0100
-+++ g3d-mangos/source/FileSystem.cpp	2010-08-15 11:37:26.000000000 +0200
+diff -urN a/dep/g3dlite/source/FileSystem.cpp b/dep/g3dlite/source/FileSystem.cpp
+--- a/dep/g3dlite/source/FileSystem.cpp	2010-02-07 23:39:20.000000000 +0100
++++ b/dep/g3dlite/source/FileSystem.cpp	2010-08-15 11:37:26.000000000 +0200
 @@ -12,7 +12,9 @@
  #include "G3D/fileutils.h"
  #include <sys/stat.h>
@@ -252,9 +252,9 @@ diff -urN g3d-beta4/source/FileSystem.cpp g3d-mangos/source/FileSystem.cpp
      }
      
      return st.st_size;
-diff -urN g3d-beta4/source/fileutils.cpp g3d-mangos/source/fileutils.cpp
---- g3d-beta4/source/fileutils.cpp	2010-02-07 23:39:20.000000000 +0100
-+++ g3d-mangos/source/fileutils.cpp	2010-08-15 11:37:26.000000000 +0200
+diff -urN a/dep/g3dlite/source/fileutils.cpp b/dep/g3dlite/source/fileutils.cpp
+--- a/dep/g3dlite/source/fileutils.cpp	2010-02-07 23:39:20.000000000 +0100
++++ b/dep/g3dlite/source/fileutils.cpp	2010-08-15 11:37:26.000000000 +0200
 @@ -20,7 +20,9 @@
  
  #include <sys/stat.h>
@@ -368,9 +368,9 @@ diff -urN g3d-beta4/source/fileutils.cpp g3d-mangos/source/fileutils.cpp
  }
  
  
-diff -urN g3d-beta4/source/prompt.cpp g3d-mangos/source/prompt.cpp
---- g3d-beta4/source/prompt.cpp	2010-02-07 23:39:20.000000000 +0100
-+++ g3d-mangos/source/prompt.cpp	2010-08-15 11:37:26.000000000 +0200
+diff -urN a/dep/g3dlite/source/prompt.cpp b/dep/g3dlite/source/prompt.cpp
+--- a/dep/g3dlite/source/prompt.cpp	2010-02-07 23:39:20.000000000 +0100
++++ b/dep/g3dlite/source/prompt.cpp	2010-08-15 11:37:26.000000000 +0200
 @@ -21,6 +21,7 @@
  #    define _getch getchar
  #endif
@@ -433,9 +433,9 @@ diff -urN g3d-beta4/source/prompt.cpp g3d-mangos/source/prompt.cpp
      return textPrompt(windowTitle, prompt, choice, numChoices);
  }
  
-diff -urN g3d-beta4/source/RegistryUtil.cpp g3d-mangos/source/RegistryUtil.cpp
---- g3d-beta4/source/RegistryUtil.cpp	2010-02-07 23:39:20.000000000 +0100
-+++ g3d-mangos/source/RegistryUtil.cpp	2010-08-15 11:37:26.000000000 +0200
+diff -urN a/dep/g3dlite/source/RegistryUtil.cpp b/dep/g3dlite/source/RegistryUtil.cpp
+--- a/dep/g3dlite/source/RegistryUtil.cpp	2010-02-07 23:39:20.000000000 +0100
++++ b/dep/g3dlite/source/RegistryUtil.cpp	2010-08-15 11:37:26.000000000 +0200
 @@ -257,7 +257,7 @@
  
  
@@ -445,9 +445,9 @@ diff -urN g3d-beta4/source/RegistryUtil.cpp g3d-mangos/source/RegistryUtil.cpp
      debugAssert(str);
  
      if (str) {
-diff -urN g3d-beta4/source/System.cpp g3d-mangos/source/System.cpp
---- g3d-beta4/source/System.cpp	2010-02-07 23:39:20.000000000 +0100
-+++ g3d-mangos/source/System.cpp	2010-08-15 11:37:26.000000000 +0200
+diff -urN a/dep/g3dlite/source/System.cpp b/dep/g3dlite/source/System.cpp
+--- a/dep/g3dlite/source/System.cpp	2010-02-07 23:39:20.000000000 +0100
++++ b/dep/g3dlite/source/System.cpp	2010-08-15 11:37:26.000000000 +0200
 @@ -80,8 +80,9 @@
  #endif
  

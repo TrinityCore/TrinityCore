@@ -19,6 +19,7 @@
 #include "G3D/G3DGameUnits.h"
 #include "G3D/BinaryFormat.h"
 #include <string>
+#include <sys/socket.h>
 
 #ifdef G3D_OSX
 #   include <CoreServices/CoreServices.h>
