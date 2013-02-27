@@ -220,6 +220,7 @@ class WorldSession
         RBACData* GetRBACData();
         bool HasPermission(uint32 permissionId);
         void LoadPermissions();
+        void InvalidateRBACData(); // Used to force LoadPermissions at next HasPermission check
 
         AccountTypes GetSecurity() const { return _security; }
         uint32 GetAccountId() const { return _accountId; }

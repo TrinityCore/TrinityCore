@@ -1175,11 +1175,13 @@ void WorldSession::LoadPermissions()
 {
     uint32 id = GetAccountId();
     std::string name;
-    int32 realmId = ConfigMgr::GetIntDefault("RealmID", 0);
     AccountMgr::GetName(id, name);
 
-    _RBACData = new RBACData(id, name, realmId);
+    _RBACData = new RBACData(id, name, realmID);
     _RBACData->LoadFromDB();
+
+    sLog->outDebug(LOG_FILTER_RBAC, "WorldSession::LoadPermissions [AccountId: %u, Name: %s, realmId: %d]",
+                   id, name.c_str(), realmID);
 }
 
 RBACData* WorldSession::GetRBACData()
@@ -1192,5 +1194,17 @@ bool WorldSession::HasPermission(uint32 permission)
     if (!_RBACData)
         LoadPermissions();
 
-    return _RBACData->HasPermission(permission);
+    bool hasPermission = _RBACData->HasPermission(permission);
+    sLog->outDebug(LOG_FILTER_RBAC, "WorldSession::HasPermission [AccountId: %u, Name: %s, realmId: %d]",
+                   _RBACData->GetId(), _RBACData->GetName().c_str(), realmID);
+
+    return hasPermission;
+}
+
+void WorldSession::InvalidateRBACData()
+{
+    sLog->outDebug(LOG_FILTER_RBAC, "WorldSession::InvalidateRBACData [AccountId: %u, Name: %s, realmId: %d]",
+                   _RBACData->GetId(), _RBACData->GetName().c_str(), realmID);
+    delete _RBACData;
+    _RBACData = NULL;
 }

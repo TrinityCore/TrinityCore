@@ -3122,3 +3122,11 @@ CharacterNameData const* World::GetCharacterNameData(uint32 guid) const
     else
         return NULL;
 }
+
+void World::ReloadRBAC()
+{
+    sLog->outInfo(LOG_FILTER_RBAC, "World::ReloadRBAC()");
+    for (SessionMap::const_iterator itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
+        if (WorldSession* session = itr->second)
+            session->InvalidateRBACData();
+}
