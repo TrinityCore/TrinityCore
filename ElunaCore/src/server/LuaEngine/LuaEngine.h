@@ -1502,7 +1502,7 @@ public:
                     else
                         Eluna::get()->PushString(Eluna::get()->_luaState, code.c_str());
                     Eluna::get()->PushUnsigned(Eluna::get()->_luaState, menuId);
-                    Eluna::get()->ExecuteCall(6, 0);
+                    Eluna::get()->ExecuteCall(7, 0);
                 }
             }
         }
