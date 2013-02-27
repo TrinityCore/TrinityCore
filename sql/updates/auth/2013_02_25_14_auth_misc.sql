@@ -7,7 +7,7 @@ INSERT INTO `rbac_permissions` (`id`, `name`) VALUES
 (40, 'Allows to add a gm to friend list');
 
 -- Add new role
-DELETE FROM `rbac_roles` WHERE `id` IN (33, 34);
+DELETE FROM `rbac_roles` WHERE `id` IN (35, 36, 37, 38);
 INSERT INTO `rbac_roles` (`id`, `name`) VALUES
 (35, 'See two side who list'),
 (36, 'Add friends of other faction'),

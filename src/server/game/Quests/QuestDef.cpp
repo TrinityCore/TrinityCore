@@ -316,6 +316,14 @@ void Quest::BuildExtraQuestInfo(WorldPacket& data, Player* player) const
     data << uint32(GetRewardSkillPoints());
 }
 
+uint32 Quest::GetRewMoneyMaxLevel() const
+{
+    if (HasFlag(QUEST_FLAGS_NO_MONEY_FROM_XP))
+        return 0;
+
+    return RewardMoneyMaxLevel;
+}
+
 bool Quest::IsAutoAccept() const
 {
     return sWorld->getBoolConfig(CONFIG_QUEST_IGNORE_AUTO_ACCEPT) ? false : (Flags & QUEST_FLAGS_AUTO_ACCEPT);

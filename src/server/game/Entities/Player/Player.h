@@ -403,12 +403,13 @@ struct PlayerInfo
 
 struct PvPInfo
 {
-    PvPInfo() : inHostileArea(false), inNoPvPArea(false), inFFAPvPArea(false), endTimer(0) {}
+    PvPInfo() : IsHostile(false), IsInHostileArea(false), IsInNoPvPArea(false), IsInFFAPvPArea(false), EndTimer(0) {}
 
-    bool inHostileArea;
-    bool inNoPvPArea;
-    bool inFFAPvPArea;
-    time_t endTimer;
+    bool IsHostile;
+    bool IsInHostileArea;               ///> Marks if player is in an area which forces PvP flag
+    bool IsInNoPvPArea;                 ///> Marks if player is in a sanctuary or friendly capital city
+    bool IsInFFAPvPArea;                ///> Marks if player is in an FFAPvP area (such as Gurubashi Arena)
+    time_t EndTimer;                    ///> Time when player unflags himself for PvP (flag removed after 5 minutes)
 };
 
 struct DuelInfo
@@ -518,7 +519,7 @@ enum PlayerFlags
     PLAYER_FLAGS_UNK16                  = 0x00010000,       // pre-3.0.3 PLAYER_FLAGS_SANCTUARY flag for player entered sanctuary
     PLAYER_FLAGS_TAXI_BENCHMARK         = 0x00020000,       // taxi benchmark mode (on/off) (2.0.1)
     PLAYER_FLAGS_PVP_TIMER              = 0x00040000,       // 3.0.2, pvp timer active (after you disable pvp manually)
-    PLAYER_FLAGS_UNK19                  = 0x00080000,
+    PLAYER_FLAGS_UBER                  = 0x00080000,
     PLAYER_FLAGS_UNK20                  = 0x00100000,
     PLAYER_FLAGS_UNK21                  = 0x00200000,
     PLAYER_FLAGS_COMMENTATOR2           = 0x00400000,
@@ -1683,6 +1684,8 @@ class Player : public Unit, public GridObject<Player>
                     ++count;
             return count;
         }
+
+        bool HasPvPForcingQuest() const;
 
         /*********************************************************/
         /***                   LOAD SYSTEM                     ***/

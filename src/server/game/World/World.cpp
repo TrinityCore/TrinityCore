@@ -3245,3 +3245,11 @@ void World::UpdatePhaseDefinitions()
         if (itr->second && itr->second->GetPlayer() && itr->second->GetPlayer()->IsInWorld())
             itr->second->GetPlayer()->GetPhaseMgr().NotifyStoresReloaded();
 }
+
+void World::ReloadRBAC()
+{
+    sLog->outInfo(LOG_FILTER_RBAC, "World::ReloadRBAC()");
+    for (SessionMap::const_iterator itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
+        if (WorldSession* session = itr->second)
+            session->InvalidateRBACData();
+}
