@@ -290,11 +290,15 @@ ElunaRegister<Aura> AuraMethods[] =
     {"GetCharges", &LuaAura::GetCharges},                           // :GetCharges() - Returns remaining charges. UNDOCUMENTED
     {"GetAuraId", &LuaAura::GetAuraId},                             // :GetAuraId() - Returns aura ID. UNDOCUMENTED
     {"GetStackAmount", &LuaAura::GetStackAmount},                   // :GetStackAmount() - Returns current stack amount. UNDOCUMENTED
+    {"GetOwner", &LuaAura::GetOwner},                               // :GetOwner() - Gets the unit wearing the aura UNDOCUMENTED
 
     // Setters
     {"SetDuration", &LuaAura::SetDuration},                         // :SetDuration(duration) - Sets remaining duration. UNDOCUMENTED
     {"SetMaxDuration", &LuaAura::SetMaxDuration},                   // :SetMaxDuration(duration) - Sets maximum duration. UNDOCUMENTED
     {"SetStackAmount", &LuaAura::SetStackAmount},                   // :SetStackAmount(amount) - Sets current stack amount. UNDOCUMENTED
+
+    // Other
+    {"Remove", &LuaAura::Remove},                                   // :Remove() - Removes the aura. UNDOCUMENTED
 
     {NULL, NULL},
 };

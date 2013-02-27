@@ -128,5 +128,28 @@ public:
         aura->SetStackAmount(amount);
         return 0;
     }
+
+    // Remove()
+    static int Remove(lua_State* L, Aura* aura)
+    {
+        if(!aura)
+            return 0;
+
+        aura->Remove();
+        return 0;
+    }
+
+    // GetOwner()
+    static int GetOwner(lua_State* L, Aura* aura)
+    {
+        if(!aura)
+            return 0;
+
+        if(aura->GetType() != UNIT_AURA_TYPE)
+            return 0;
+
+        Eluna::get()->PushUnit(L, aura->GetUnitOwner());
+        return 1;
+    }
 };
 #endif
