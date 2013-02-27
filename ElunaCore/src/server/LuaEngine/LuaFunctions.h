@@ -219,16 +219,34 @@ ElunaRegister<Group> GroupMethods[] =
     {"GetLeader", &LuaGroup::GetLeader},
     {"GetUnitType", &LuaGroup::GetUnitType},
     {"GetGUID", &LuaGroup::GetGUID},
+    {"GetMemberGroup", &LuaGroup::GetMemberGroup},                  // :GetMemberGroup(player) - Returns the player's subgroup ID UNDOCUMENTED
+    {"GetMemberGUID", &LuaGroup::GetMemberGUID},                    // :GetMemberGUID("name") - Returns the member's GUID UNDOCUMENTED
+    {"GetMembersCount", &LuaGroup::GetMembersCount},                // :GetMembersCount() - Returns the member count of the group UNDOCUMENTED
 
     // Setters
     {"SetLeader", &LuaGroup::ChangeLeader},                         // :SetLeader(Player) - Sets the player as the new leader.
+    {"SetMembersGroup", &LuaGroup::ChangeMembersGroup},             // :ChangeMembersGroup(player, subGroup) - Changes the member's subgroup UNDOCUMENTED
 
     // Boolean
     {"IsLeader", &LuaGroup::IsLeader},                              // :IsLeader("name"/Player)
     //{"HasRole", &LuaGroup::HasRole},                              // :HasRole("name"/Player, "role") - "tank" / "healer" / "dps"
+    {"AddInvite", &LuaGroup::AddInvite},                            // :AddInvite(player) - Adds a an invite to player. Returns true if succesful UNDOCUMENTED
+    {"RemoveMember", &LuaGroup::RemoveMember},                      // :RemoveMember(player) - Removes player from group. Returns true on success UNDOCUMENTED
+    {"Disband", &LuaGroup::Disband},                                // :Disband() - Disbands the group. UNDOCUMENTED
+    {"IsFull", &LuaGroup::IsFull},                                  // :IsFull() - Returns true if the group is full UNDOCUMENTED
+    {"isLFGGroup", &LuaGroup::isLFGGroup},                          // :isLFGGroup() - Returns true if the group is an LFG group UNDOCUMENTED
+    {"isRaidGroup", &LuaGroup::isRaidGroup},                        // :isRaidGroup() - Returns true if the group is a raid group UNDOCUMENTED
+    {"isBGGroup", &LuaGroup::isBGGroup},                            // :isBGGroup() - Returns true if the group is a battleground group UNDOCUMENTED
+    {"isBFGroup", &LuaGroup::isBFGroup},                            // :isBFGroup() - Returns true if the group is a battlefield group UNDOCUMENTED
+    {"IsMember", &LuaGroup::IsMember},                              // :IsMember(player) - Returns true if the player is a member of the group UNDOCUMENTED
+    {"IsAssistant", &LuaGroup::IsAssistant},                        // :IsAssistant(player) - returns true if the player is an assistant in the group UNDOCUMENTED
+    {"SameSubGroup", &LuaGroup::SameSubGroup},                      // :SameSubGroup(player1, player2) - Returns true if the players are in the same subgroup in the group UNDOCUMENTED
+    {"HasFreeSlotSubGroup", &LuaGroup::HasFreeSlotSubGroup},        // :HasFreeSlotSubGroup(subGroup) - Returns true if the subgroupID has free slots UNDOCUMENTED
 
     // Other
     {"SendPacket", &LuaGroup::SendPacket},                          // :SendPacket(packet, sendToPlayersInBattleground[, ignoreguid]) - Sends a specified packet to the group with the choice (true/false) to send it to players in a battleground. Optionally ignores given player guid. UNDOCUMENTED
+    {"ConvertToLFG", &LuaGroup::ConvertToLFG},                      // :ConvertToLFG() - Converts the group to an LFG group UNDOCUMENTED
+    {"ConvertToRaid", &LuaGroup::ConvertToRaid},                    // :ConvertToRaid() - Converts the group to a raid group UNDOCUMENTED
 
     {NULL, NULL},
 };
