@@ -1841,8 +1841,11 @@ public:
 
     bool OnGossipHello(uint32 eventId, Player* player, Creature* creature)
     {
+        CreatureBind* bind = Eluna::LuaCreatureScript::GetCreatureGossipBindingForId(creature->GetEntry());
+        if(!bind)
+            return false;
         player->PlayerTalkClass->ClearMenus();
-        Eluna::get()->BeginCall(Eluna::LuaCreatureScript::GetCreatureGossipBindingForId(creature->GetEntry())->_gossipReferences[eventId]);
+        Eluna::get()->BeginCall(bind->_gossipReferences[eventId]);
         Eluna::get()->PushUnsigned(Eluna::get()->_luaState, eventId);
         Eluna::get()->PushUnit(Eluna::get()->_luaState, player);
         Eluna::get()->PushUnit(Eluna::get()->_luaState, creature);
@@ -1852,8 +1855,11 @@ public:
 
     bool OnGossipSelect(uint32 eventId, Player* player, Creature* creature, uint32 sender, uint32 actions)
     {
+        CreatureBind* bind = Eluna::LuaCreatureScript::GetCreatureGossipBindingForId(creature->GetEntry());
+        if(!bind)
+            return false;
         player->PlayerTalkClass->ClearMenus();
-        Eluna::get()->BeginCall(Eluna::LuaCreatureScript::GetCreatureGossipBindingForId(creature->GetEntry())->_gossipReferences[eventId]);
+        Eluna::get()->BeginCall(bind->_gossipReferences[eventId]);
         Eluna::get()->PushUnsigned(Eluna::get()->_luaState, eventId);
         Eluna::get()->PushUnit(Eluna::get()->_luaState, player);
         Eluna::get()->PushUnit(Eluna::get()->_luaState, creature);
@@ -1865,11 +1871,11 @@ public:
 
     bool OnGossipSelectCode(uint32 eventId, Player* player, Creature* creature, uint32 sender, uint32 actions, const char* code)
     {
-        CreatureBind* bind = Eluna::LuaCreatureScript::GetCreatureBindingForId(creature->GetEntry());
+        CreatureBind* bind = Eluna::LuaCreatureScript::GetCreatureGossipBindingForId(creature->GetEntry());
         if(!bind)
             return false;
         player->PlayerTalkClass->ClearMenus();
-        Eluna::get()->BeginCall(Eluna::LuaCreatureScript::GetCreatureGossipBindingForId(creature->GetEntry())->_gossipReferences[eventId]);
+        Eluna::get()->BeginCall(bind->_gossipReferences[eventId]);
         Eluna::get()->PushUnsigned(Eluna::get()->_luaState, eventId);
         Eluna::get()->PushUnit(Eluna::get()->_luaState, player);
         Eluna::get()->PushUnit(Eluna::get()->_luaState, creature);
@@ -1883,8 +1889,11 @@ public:
     /* GameObject Gossip */
     bool OnGossipHello(uint32 eventId, Player* player, GameObject* gameObject)
     {
+        GameObjectBind* bind = Eluna::LuaGameObjectScript::GetGameObjectGossipBindingForId(gameObject->GetEntry());
+        if(!bind)
+            return false;
         player->PlayerTalkClass->ClearMenus();
-        Eluna::get()->BeginCall(Eluna::LuaGameObjectScript::GetGameObjectGossipBindingForId(gameObject->GetEntry())->_gossipReferences[eventId]);
+        Eluna::get()->BeginCall(bind->_gossipReferences[eventId]);
         Eluna::get()->PushUnsigned(Eluna::get()->_luaState, eventId);
         Eluna::get()->PushUnit(Eluna::get()->_luaState, player);
         Eluna::get()->PushGO(Eluna::get()->_luaState, gameObject);
@@ -1894,8 +1903,11 @@ public:
 
     bool OnGossipSelect(uint32 eventId, Player* player, GameObject* gameObject, uint32 sender, uint32 actions)
     {
+        GameObjectBind* bind = Eluna::LuaGameObjectScript::GetGameObjectGossipBindingForId(gameObject->GetEntry());
+        if(!bind)
+            return false;
         player->PlayerTalkClass->ClearMenus();
-        Eluna::get()->BeginCall(Eluna::LuaGameObjectScript::GetGameObjectGossipBindingForId(gameObject->GetEntry())->_gossipReferences[eventId]);
+        Eluna::get()->BeginCall(bind->_gossipReferences[eventId]);
         Eluna::get()->PushUnsigned(Eluna::get()->_luaState, eventId);
         Eluna::get()->PushUnit(Eluna::get()->_luaState, player);
         Eluna::get()->PushGO(Eluna::get()->_luaState, gameObject);
@@ -1907,8 +1919,11 @@ public:
 
     bool OnGossipSelectCode(uint32 eventId, Player* player, GameObject* gameObject, uint32 sender, uint32 actions, const char* code)
     {
+        GameObjectBind* bind = Eluna::LuaGameObjectScript::GetGameObjectGossipBindingForId(gameObject->GetEntry());
+        if(!bind)
+            return false;
         player->PlayerTalkClass->ClearMenus();
-        Eluna::get()->BeginCall(Eluna::LuaGameObjectScript::GetGameObjectGossipBindingForId(gameObject->GetEntry())->_gossipReferences[eventId]);
+        Eluna::get()->BeginCall(bind->_gossipReferences[eventId]);
         Eluna::get()->PushUnsigned(Eluna::get()->_luaState, eventId);
         Eluna::get()->PushUnit(Eluna::get()->_luaState, player);
         Eluna::get()->PushGO(Eluna::get()->_luaState, gameObject);
@@ -1922,41 +1937,32 @@ public:
     // Called when a dummy spell effect is triggered on the gameobject.
     bool OnDummyEffect(uint32 eventId, Unit* caster, uint32 spellId, SpellEffIndex effIndex, GameObject* go)
     {
-        bool result = true;
-        Eluna::get()->BeginCall(Eluna::LuaGameObjectScript::GetGameObjectAIBindingForId(go->GetEntry())->_functionReferences[eventId]);
+        GameObjectBind* bind = Eluna::LuaGameObjectScript::GetGameObjectAIBindingForId(go->GetEntry());
+        if(!bind)
+            return false;
+        Eluna::get()->BeginCall(bind->_functionReferences[eventId]);
         Eluna::get()->PushInteger(Eluna::get()->_luaState, eventId);
         Eluna::get()->PushUnit(Eluna::get()->_luaState, caster);
         Eluna::get()->PushUnsigned(Eluna::get()->_luaState, spellId);
         Eluna::get()->PushInteger(Eluna::get()->_luaState, effIndex);
         Eluna::get()->PushGO(Eluna::get()->_luaState, go);
-        if(Eluna::get()->ExecuteCall(5, 1))
-        {
-            lua_State* L = Eluna::get()->_luaState;
-            if(!lua_isnoneornil(L, 1) && !luaL_checkbool(L, 1))
-                result = false;
-            Eluna::get()->EndCall(1);
-        }
-        return result;
+        Eluna::get()->ExecuteCall(5, 0);
+        return true;
     }
 
     // Called when a player accepts a quest from the gameobject.
     bool OnQuestAccept(uint32 eventId, Player* player, GameObject* go, Quest const* quest)
     {
-        bool result = true;
-        Eluna::get()->BeginCall(Eluna::LuaGameObjectScript::GetGameObjectAIBindingForId(go->GetEntry())->_functionReferences[eventId]);
+        GameObjectBind* bind = Eluna::LuaGameObjectScript::GetGameObjectAIBindingForId(go->GetEntry());
+        if(!bind)
+            return false;
+        Eluna::get()->BeginCall(bind->_functionReferences[eventId]);
         Eluna::get()->PushInteger(Eluna::get()->_luaState, eventId);
         Eluna::get()->PushUnit(Eluna::get()->_luaState, player);
         Eluna::get()->PushGO(Eluna::get()->_luaState, go);
         Eluna::get()->PushUnsigned(Eluna::get()->_luaState, quest->GetQuestId());
-
-        if(Eluna::get()->ExecuteCall(4, 1))
-        {
-            lua_State* L = Eluna::get()->_luaState;
-            if(!lua_isnoneornil(L, 1) && !luaL_checkbool(L, 1))
-                result = false;
-            Eluna::get()->EndCall(1);
-        }
-        return result;
+        Eluna::get()->ExecuteCall(4, 0);
+        return true;
     }
 
     // Called when a player selects a quest reward.
@@ -1981,20 +1987,16 @@ public:
 	
 	bool OnQuestAccept(uint32 eventId, Player* player, Creature* creature, Quest const* quest)
 	{
-		bool result = true;
-		Eluna::get()->BeginCall(Eluna::LuaCreatureScript::GetCreatureBindingForId(creature->GetEntry())->_functionReferences[eventId]);
+        CreatureBind* bind = Eluna::LuaCreatureScript::GetCreatureBindingForId(creature->GetEntry());
+        if(!bind)
+            return false;
+		Eluna::get()->BeginCall(bind->_functionReferences[eventId]);
 		Eluna::get()->PushInteger(Eluna::get()->_luaState, eventId);
 		Eluna::get()->PushUnit(Eluna::get()->_luaState, player);
 		Eluna::get()->PushUnit(Eluna::get()->_luaState, creature);
 		Eluna::get()->PushUnsigned(Eluna::get()->_luaState, quest->GetQuestId());
-		if(Eluna::get()->ExecuteCall(4, 1))
-		{
-			lua_State* L = Eluna::get()->_luaState;
-			if(!lua_isnoneornil(L, 1) && !luaL_checkbool(L, 1))
-			result = false;
-			Eluna::get()->EndCall(1);
-		}
-		return result;
+		Eluna::get()->ExecuteCall(4, 0);
+		return true;
 	}
 
     uint32 GetDialogStatus(uint32 eventId, Player* player, GameObject* go)
@@ -2015,23 +2017,31 @@ public:
     }
 
     // Called when the game object is destroyed (destructible buildings only).
-    void OnDestroyed(uint32 eventId, GameObject* go, Player* player)
+    bool OnDestroyed(uint32 eventId, GameObject* go, Player* player)
     {
-        Eluna::get()->BeginCall(Eluna::LuaGameObjectScript::GetGameObjectAIBindingForId(go->GetEntry())->_functionReferences[eventId]);
+        GameObjectBind* bind = Eluna::LuaGameObjectScript::GetGameObjectAIBindingForId(go->GetEntry());
+        if(!bind)
+            return false;
+        Eluna::get()->BeginCall(bind->_functionReferences[eventId]);
         Eluna::get()->PushInteger(Eluna::get()->_luaState, eventId);
         Eluna::get()->PushGO(Eluna::get()->_luaState, go);
         Eluna::get()->PushUnit(Eluna::get()->_luaState, player);
         Eluna::get()->ExecuteCall(3, 0);
+        return true;
     }
 
     // Called when the game object is damaged (destructible buildings only).
-    void OnFirstDamaged(uint32 eventId, GameObject* go, Player* player)
+    bool OnFirstDamaged(uint32 eventId, GameObject* go, Player* player)
     {
-        Eluna::get()->BeginCall(Eluna::LuaGameObjectScript::GetGameObjectAIBindingForId(go->GetEntry())->_functionReferences[eventId]);
+        GameObjectBind* bind = Eluna::LuaGameObjectScript::GetGameObjectAIBindingForId(go->GetEntry());
+        if(!bind)
+            return false;
+        Eluna::get()->BeginCall(bind->_functionReferences[eventId]);
         Eluna::get()->PushInteger(Eluna::get()->_luaState, eventId);
         Eluna::get()->PushGO(Eluna::get()->_luaState, go);
         Eluna::get()->PushUnit(Eluna::get()->_luaState, player);
         Eluna::get()->ExecuteCall(3, 0);
+        return true;
     }
 
     // Called when the game object loot state is changed.

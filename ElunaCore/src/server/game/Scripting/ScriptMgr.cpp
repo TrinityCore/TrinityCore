@@ -668,10 +668,8 @@ bool ScriptMgr::OnItemUse(Player* player, Item* item, SpellCastTargets const& ta
     ASSERT(player);
     ASSERT(item);
 
-    for(vector<ItemBind*>::iterator itr = Eluna::get()->_itemGossipBindings.begin(); itr != Eluna::get()->_itemGossipBindings.end(); ++itr)
-        if ((*itr)->entry == item->GetEntry())
-		    if (Eluna::getScript()->OnGossipHello(GOSSIP_EVENT_ON_HELLO, player, item))
-			    return true;
+	if (Eluna::getScript()->OnGossipHello(GOSSIP_EVENT_ON_HELLO, player, item))
+		return true;
 
     GET_SCRIPT_RET(ItemScript, item->GetScriptId(), tmpscript, false);
     return tmpscript->OnUse(player, item, targets);
@@ -700,9 +698,9 @@ bool ScriptMgr::OnGossipHello(Player* player, Creature* creature)
     ASSERT(player);
     ASSERT(creature);
 
-	if (Eluna::LuaCreatureScript::GetCreatureGossipBindingForId(creature->GetEntry()))
-		if(Eluna::getScript()->OnGossipHello(GOSSIP_EVENT_ON_HELLO, player, creature))
-			return true;
+	if(Eluna::getScript()->OnGossipHello(GOSSIP_EVENT_ON_HELLO, player, creature))
+		return true;
+
     GET_SCRIPT_RET(CreatureScript, creature->GetScriptId(), tmpscript, false);
     player->PlayerTalkClass->ClearMenus();
     return tmpscript->OnGossipHello(player, creature);
@@ -713,9 +711,9 @@ bool ScriptMgr::OnGossipSelect(Player* player, Creature* creature, uint32 sender
     ASSERT(player);
     ASSERT(creature);
     
-	if (Eluna::LuaCreatureScript::GetCreatureGossipBindingForId(creature->GetEntry()))
-		if (Eluna::getScript()->OnGossipSelect(GOSSIP_EVENT_ON_SELECT, player, creature, sender, action))
-			return true;
+	if (Eluna::getScript()->OnGossipSelect(GOSSIP_EVENT_ON_SELECT, player, creature, sender, action))
+		return true;
+
     GET_SCRIPT_RET(CreatureScript, creature->GetScriptId(), tmpscript, false);
     return tmpscript->OnGossipSelect(player, creature, sender, action);
 }
@@ -726,9 +724,9 @@ bool ScriptMgr::OnGossipSelectCode(Player* player, Creature* creature, uint32 se
     ASSERT(creature);
     ASSERT(code);
     
-	if (Eluna::LuaCreatureScript::GetCreatureGossipBindingForId(creature->GetEntry()))
-		if(Eluna::getScript()->OnGossipSelectCode(GOSSIP_EVENT_ON_SELECT, player, creature, sender, action, code))
-			 return true;
+	if(Eluna::getScript()->OnGossipSelectCode(GOSSIP_EVENT_ON_SELECT, player, creature, sender, action, code))
+			return true;
+
     GET_SCRIPT_RET(CreatureScript, creature->GetScriptId(), tmpscript, false);
     return tmpscript->OnGossipSelectCode(player, creature, sender, action, code);
 }
@@ -739,8 +737,8 @@ bool ScriptMgr::OnQuestAccept(Player* player, Creature* creature, Quest const* q
     ASSERT(creature);
     ASSERT(quest);
 
-	//if (Eluna::getScript()->OnQuestAccept(CREATURE_EVENT_ON_QUEST_ACCEPT, player, creature, quest))
-		//return true;
+	if (Eluna::getScript()->OnQuestAccept(CREATURE_EVENT_ON_QUEST_ACCEPT, player, creature, quest))
+		return true;
 
     GET_SCRIPT_RET(CreatureScript, creature->GetScriptId(), tmpscript, false);
     player->PlayerTalkClass->ClearMenus();
@@ -826,9 +824,8 @@ bool ScriptMgr::OnGossipHello(Player* player, GameObject* go)
     ASSERT(player);
     ASSERT(go);
 
-	if (Eluna::LuaGameObjectScript::GetGameObjectGossipBindingForId(go->GetEntry()))
-		if (Eluna::getScript()->OnGossipHello(GOSSIP_EVENT_ON_HELLO, player, go))
-			return true;
+	if (Eluna::getScript()->OnGossipHello(GOSSIP_EVENT_ON_HELLO, player, go))
+		return true;
 
     GET_SCRIPT_RET(GameObjectScript, go->GetScriptId(), tmpscript, false);
     player->PlayerTalkClass->ClearMenus();
@@ -840,9 +837,8 @@ bool ScriptMgr::OnGossipSelect(Player* player, GameObject* go, uint32 sender, ui
     ASSERT(player);
     ASSERT(go);
 
-	if (Eluna::LuaGameObjectScript::GetGameObjectGossipBindingForId(go->GetEntry()))
-		if (Eluna::getScript()->OnGossipSelect(GOSSIP_EVENT_ON_SELECT, player, go, sender, action))
-			return true;
+	if (Eluna::getScript()->OnGossipSelect(GOSSIP_EVENT_ON_SELECT, player, go, sender, action))
+		return true;
 
     GET_SCRIPT_RET(GameObjectScript, go->GetScriptId(), tmpscript, false);
     return tmpscript->OnGossipSelect(player, go, sender, action);
@@ -854,9 +850,8 @@ bool ScriptMgr::OnGossipSelectCode(Player* player, GameObject* go, uint32 sender
     ASSERT(go);
     ASSERT(code);
 
-	if (Eluna::LuaGameObjectScript::GetGameObjectGossipBindingForId(go->GetEntry()))
-		if (Eluna::getScript()->OnGossipSelectCode(GOSSIP_EVENT_ON_SELECT, player, go, sender, action, code))
-			return true;
+	if (Eluna::getScript()->OnGossipSelectCode(GOSSIP_EVENT_ON_SELECT, player, go, sender, action, code))
+		return true;
 
     GET_SCRIPT_RET(GameObjectScript, go->GetScriptId(), tmpscript, false);
     return tmpscript->OnGossipSelectCode(player, go, sender, action, code);
@@ -902,8 +897,7 @@ void ScriptMgr::OnGameObjectDestroyed(GameObject* go, Player* player)
 {
     ASSERT(go);
 
-	if (Eluna::LuaGameObjectScript::GetGameObjectAIBindingForId(go->GetEntry()))
-		Eluna::getScript()->OnDestroyed(GAMEOBJECT_EVENT_ON_DESTROYED, go, player);
+	Eluna::getScript()->OnDestroyed(GAMEOBJECT_EVENT_ON_DESTROYED, go, player);
 
     GET_SCRIPT(GameObjectScript, go->GetScriptId(), tmpscript);
     tmpscript->OnDestroyed(go, player);
@@ -913,8 +907,7 @@ void ScriptMgr::OnGameObjectDamaged(GameObject* go, Player* player)
 {
     ASSERT(go);
 
-	if (Eluna::LuaGameObjectScript::GetGameObjectAIBindingForId(go->GetEntry()))
-		Eluna::getScript()->OnFirstDamaged(GAMEOBJECT_EVENT_ON_DAMAGED, go, player);
+    Eluna::getScript()->OnFirstDamaged(GAMEOBJECT_EVENT_ON_DAMAGED, go, player);
 
     GET_SCRIPT(GameObjectScript, go->GetScriptId(), tmpscript);
     tmpscript->OnDamaged(go, player);
@@ -949,9 +942,8 @@ bool ScriptMgr::OnDummyEffect(Unit* caster, uint32 spellId, SpellEffIndex effInd
     ASSERT(caster);
     ASSERT(target);
 
-	if (Eluna::LuaGameObjectScript::GetGameObjectAIBindingForId(target->GetEntry()))
-		if (Eluna::getScript()->OnDummyEffect(GAMEOBJECT_EVENT_ON_DUMMY_EFFECT, caster, spellId, effIndex, target))
-			return true;
+	if (Eluna::getScript()->OnDummyEffect(GAMEOBJECT_EVENT_ON_DUMMY_EFFECT, caster, spellId, effIndex, target))
+		return true;
 
     GET_SCRIPT_RET(GameObjectScript, target->GetScriptId(), tmpscript, false);
     return tmpscript->OnDummyEffect(caster, spellId, effIndex, target);
