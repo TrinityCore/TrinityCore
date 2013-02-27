@@ -467,7 +467,7 @@ static int RegisterItemGossipEvent(lua_State* L)
     return 0;
 }
 
-// RegisterPlayerGossipEvent(menu_id, event, function)
+// RegisterPlayerGossipEvent(entry, event, function)
 static int RegisterPlayerGossipEvent(lua_State* L)
 {
     uint16 functionRef = 0;
