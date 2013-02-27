@@ -63,14 +63,14 @@ class Vehicle : public TransportBase
         void RelocatePassengers();
         void RemoveAllPassengers();
         void Dismiss();
-        bool IsVehicleInUse() { return Seats.begin() != Seats.end(); }
+        bool IsVehicleInUse() const;
 
         void SetLastShootPos(Position const& pos) { _lastShootPos.Relocate(pos); }
-        Position GetLastShootPos() { return _lastShootPos; }
+        Position const& GetLastShootPos() const { return _lastShootPos; }
 
         SeatMap Seats;                                      ///< The collection of all seats on the vehicle. Including vacant ones.
 
-        VehicleSeatEntry const* GetSeatForPassenger(Unit* passenger);
+        VehicleSeatEntry const* GetSeatForPassenger(Unit const* passenger);
 
     protected:
         friend class VehicleJoinEvent;
