@@ -561,9 +561,13 @@ void Eluna::Register(uint8 regtype, uint32 id, uint32 evt, uint16 functionRef)
                 sLog->outError(LOG_FILTER_GENERAL, "Eluna Nova::Couldn't find a item with (ID: %d)!", id);
                 return;
             }
-
-            ItemBind* bind = new ItemBind(id);
-            Eluna::get()->_itemGossipBindings.push_back(bind);
+            
+            ItemBind* bind = NULL;
+            for(vector<ItemBind*>::iterator itr = Eluna::get()->_itemGossipBindings.begin(); itr != Eluna::get()->_itemGossipBindings.end(); ++itr)
+                if ((*itr) && (*itr)->entry == id)
+                    bind = (*itr);
+            if(!bind)
+                Eluna::get()->_itemGossipBindings.push_back(bind = new ItemBind(id));
             bind->_gossipReferences[evt] = functionRef;
             return;
         }
@@ -572,8 +576,12 @@ void Eluna::Register(uint8 regtype, uint32 id, uint32 evt, uint16 functionRef)
     case REGTYPE_PLAYER_GOSSIP:
         if (evt < GOSSIP_EVENT_COUNT)
         {
-            PlayerBind* bind = new PlayerBind(id);
-            Eluna::get()->_playerGossipBindings.push_back(bind);
+            PlayerBind* bind = NULL;
+            for(vector<PlayerBind*>::iterator itr = Eluna::get()->_playerGossipBindings.begin(); itr != Eluna::get()->_playerGossipBindings.end(); ++itr)
+                if ((*itr) && (*itr)->menu_id == id)
+                    bind = (*itr);
+            if(!bind)
+                Eluna::get()->_playerGossipBindings.push_back(bind = new PlayerBind(id));
             bind->_gossipReferences[evt] = functionRef;
             return;
         }

@@ -799,8 +799,10 @@ public:
                 return false;
             }
 
-            Eluna::get()->_creatureEventBindings.push_back(new CreatureBind(id));
-            GetCreatureBindingForId(id)->_functionReferences[_event] = functionRef;
+            CreatureBind* bind = GetCreatureBindingForId(id);
+            if(!bind)
+                Eluna::get()->_creatureEventBindings.push_back(bind = new CreatureBind(id));
+            bind->_functionReferences[_event] = functionRef;
             return true;
         }
 
@@ -812,8 +814,10 @@ public:
                 return false;
             }
 
-            Eluna::get()->_gossipEventBindings.push_back(new CreatureBind(id));
-            GetCreatureGossipBindingForId(id)->_gossipReferences[_event] = functionRef;
+            CreatureBind* bind = GetCreatureGossipBindingForId(id);
+            if(!bind)
+                Eluna::get()->_gossipEventBindings.push_back(bind = new CreatureBind(id));
+            bind->_gossipReferences[_event] = functionRef;
             return true;
         }
 
@@ -821,10 +825,8 @@ public:
         {
             LuaCreatureAI(Creature* creature) : ScriptedAI(creature), luaEventMap()
             {
-                binding = GetCreatureBindingForId(creature->GetEntry());
             }
             ~LuaCreatureAI() { }
-            CreatureBind* binding;
 
             //Called at World update tick
             void UpdateAI(uint32 const diff)
@@ -1304,8 +1306,10 @@ public:
                 return false;
             }
 
-            Eluna::get()->_gameObjectAIEventBindings.push_back(new GameObjectBind(id));
-            GetGameObjectAIBindingForId(id)->_functionReferences[_event] = functionRef;
+            GameObjectBind* bind = GetGameObjectAIBindingForId(id);
+            if(!bind)
+                Eluna::get()->_gameObjectAIEventBindings.push_back(bind = new GameObjectBind(id));
+            bind->_functionReferences[_event] = functionRef;
             return true;
         }
 
@@ -1317,8 +1321,10 @@ public:
                 return false;
             }
 
-            Eluna::get()->_gameObjectGossipBindings.push_back(new GameObjectBind(id));
-            GetGameObjectGossipBindingForId(id)->_gossipReferences[_event] = functionRef;
+            GameObjectBind* bind = GetGameObjectGossipBindingForId(id);
+            if(!bind)
+                Eluna::get()->_gameObjectGossipBindings.push_back(bind = new GameObjectBind(id));
+            bind->_gossipReferences[_event] = functionRef;
             return true;
         }
 
@@ -1326,11 +1332,8 @@ public:
         {
             LuaGameObjectAI(GameObject* _go) : GameObjectAI(_go), luaEventMap()
             {
-                goBinding = LuaGameObjectScript::GetGameObjectAIBindingForId(_go->GetEntry());
             }
-
             ~LuaGameObjectAI() { }
-            GameObjectBind * goBinding;
 
             void UpdateAI(uint32 diff)
             {
