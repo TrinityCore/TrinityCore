@@ -1256,7 +1256,7 @@ public:
             }
         };
 
-        LuaCreatureAI* GetLuaAI(Creature* creature)
+        LuaCreatureAI* GetAI(Creature* creature)
         {
             CreatureBind* bind = GetCreatureBindingForId(creature->GetEntry());
             if (!bind)
@@ -1270,11 +1270,6 @@ public:
             LuaCreatureAI* luaCreatureAI = new LuaCreatureAI(creature);
             _scriptsToClear.push_back(luaCreatureAI);
             return luaCreatureAI;
-        }
-
-        CreatureAI* GetAI(Creature* creature)
-        {
-            return GetLuaAI(creature);
         }
     };
 
@@ -1396,7 +1391,7 @@ public:
             }
         };
 
-        LuaGameObjectAI* GetLuaAI(GameObject* gameObject)
+        LuaGameObjectAI* GetAI(GameObject* gameObject)
         {
             GameObjectBind* bind = GetGameObjectAIBindingForId(gameObject->GetEntry());
             if (!bind)
@@ -1410,11 +1405,6 @@ public:
             LuaGameObjectAI* luaGameObjectAI = new LuaGameObjectAI(gameObject);
             _scriptsToClear.push_back(luaGameObjectAI);
             return luaGameObjectAI;
-        }
-
-        GameObjectAI* GetAI(GameObject* gameObject)
-        {
-            return GetLuaAI(gameObject);
         }
     };
 };
