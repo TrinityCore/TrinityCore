@@ -2,6 +2,7 @@
 #include "AccountMgr.h"
 #include "Group.h"
 #include "Guild.h"
+#include "ArenaTeam.h"
 
 #ifndef UNITMETHODS_H
 #define UNITMETHODS_H
@@ -19,6 +20,24 @@ class LuaUnit
 {
 public:
     // Get Methods
+
+	//GetArenaPoints()
+	static int GetArenaPoints(lua_State* L, Unit* unit)
+	{
+		TO_PLAYER();
+
+		Eluna::get()->PushUnsigned(L, player->GetArenaPoints());
+		return 1;
+	}
+
+	//GetHonorPoints()
+	static int GetHonorPoints(lua_State* L, Unit* unit)
+	{
+		TO_PLAYER();
+
+		Eluna::get()->PushUnsigned(L, player->GetHonorPoints());
+		return 1;
+	}
     //GetSelection()
     static int GetSelection(lua_State* L, Unit* unit)
     {
@@ -59,7 +78,6 @@ public:
     static int GetName(lua_State* L, Unit* unit)
     {
         TO_UNIT();
-
         Eluna::get()->PushString(L, unit->GetName().c_str());
         return 1;
     }
@@ -150,6 +168,24 @@ public:
         Eluna::get()->PushUnsigned(L, unit->GetZoneId());
         return 1;
     }
+
+	//GetInstanceId()
+	static int GetInstanceId(lua_State* L, Unit* unit)
+	{
+		TO_UNIT();
+
+		Eluna::get()->PushUnsigned(L, unit->GetInstanceId());
+		return 1;
+	}
+
+	//GetPhaseMask()
+	static int GetPhaseMask(lua_State* L, Unit* unit)
+	{
+		TO_UNIT();
+
+		Eluna::get()->PushUnsigned(L, unit->GetPhaseMask());
+		return 1;
+	}
 
     // GetAreaId()
     static int GetAreaId(lua_State* L, Unit* unit)
@@ -447,6 +483,36 @@ public:
         return 0;
     }
 
+	//SetPhaseMask(Phase, update)
+	static int SetPhaseMask(lua_State* L, Unit* unit)
+	{
+		TO_UNIT();
+		uint32 phaseMask = luaL_checkunsigned(L, 1);
+		bool Update = luaL_optbool(L, 2, true);
+		unit->SetPhaseMask(phaseMask, Update);
+		return 0;
+	}
+
+	//SetArenaPoints(amount)
+	static int SetArenaPoints(lua_State* L, Unit* unit)
+	{
+		TO_PLAYER();
+
+		uint32 arenaP = luaL_checkunsigned(L, 1);
+		player->SetArenaPoints(arenaP);
+		return 0;
+	}
+
+	//SetHonorPoints(amount)
+	static int SetHonorPoints(lua_State* L, Unit* unit)
+	{
+		TO_PLAYER();
+
+		uint32 honorP = luaL_checkunsigned(L, 1);
+		player->SetHonorPoints(honorP);
+		return 0;
+	}
+
     // SetHealth(amount)
     static int SetHealth(lua_State* L, Unit* unit)
     {
@@ -701,6 +767,19 @@ public:
         Eluna::get()->PushBoolean(L, unit->isAlive());
         return 1;
     }
+
+	//IsInArenaTeam(type) type : 0 = 2v2, 1 = 3v3, 2 = 5v5
+	static int IsInArenaTeam(lua_State* L, Unit* unit)
+	{
+        TO_PLAYER_BOOL();
+
+        uint32 type = luaL_checkunsigned(L, 1);
+        if(type < MAX_ARENA_SLOT && player->GetArenaTeamId(type))
+            Eluna::get()->PushBoolean(L, true);
+        else
+            Eluna::get()->PushBoolean(L, false);
+        return 1;
+	}
 
     // IsInWorld()
     static int IsInWorld(lua_State* L, Unit* unit)

@@ -4,7 +4,6 @@
 ElunaRegister<Unit> UnitMethods[] =
 {
     // Player Methods
-
     // Getters
     {"GetSelection", &LuaUnit::GetSelection},                       // :GetSelection()
     {"GetGMRank", &LuaUnit::GetSecurity},                           // :GetSecurity()
@@ -17,6 +16,8 @@ ElunaRegister<Unit> UnitMethods[] =
     {"GetGearLevel", &LuaUnit::GetGearLevel},                       // :GetGearLevel() -- Returns the player's average gear level
     {"GetAccountId", &LuaUnit::GetAccountId},                       // :GetAccountId()
     {"GetAccountName", &LuaUnit::GetAccountName},                   // :GetAccountName()
+    {"GetArenaPoints", &LuaUnit::GetArenaPoints},                   // :GetArenaPoints() - UNDOCUMENTED
+    {"GetHonorPoints", &LuaUnit::GetHonorPoints},                   // :GetHonorPoints() - UNDOCUMENTED
 
     // Setters
     {"SetCoinage", &LuaUnit::SetCoinage},                           // :SetCoinage(amount) - sets plr's coinage to this.
@@ -27,6 +28,8 @@ ElunaRegister<Unit> UnitMethods[] =
     {"AdvanceAllSkills", &LuaUnit::AdvanceAllSkills},               // AdvanceAllSkills(value) -- Advances all current skills to your input(value)
     {"SetBindPoint", &LuaUnit::SetBindPoint},                       // :SetBindPoint(x, y, z, map, areaid) -- sets home for hearthstone
     {"SetBindPointAtPlayerLoc", &LuaUnit::SetBindPointAtPlayerLoc}, // :SetBindPointAtPlayerLoc() -- Set's home for hearthstone at player's location
+    {"SetArenaPoints", &LuaUnit::SetArenaPoints},                   // :SetArenaPoints(amount) - UNDOCUMENTED
+    {"SetHonorPoints", &LuaUnit::SetHonorPoints},                   // :SetHonorPoints(amount) - UNDOCUMENTED
 
     // Boolean
     {"IsInGroup", &LuaUnit::IsInGroup},                             // :IsInGroup()
@@ -37,6 +40,7 @@ ElunaRegister<Unit> UnitMethods[] =
     {"HasTitle", &LuaUnit::HasTitle},                               // :HasTitle(id)
     {"Teleport", &LuaUnit::Teleport},                               // :Teleport(Map, X, Y, Z, O) - Teleports player to specified co-ordinates. Returns true if success and false if not.
     {"AddItem", &LuaUnit::AddItem},                                 // :AddItem(id, amount) - Adds amount of item to player. Returns true if success and false if not.
+    {"IsInArenaTeam", &LuaUnit::IsInArenaTeam},                     // :IsInArenaTeam(type) -  type : 0 = 2v2, 1 = 3v3, 2 = 5v5 UNDOCUMENTED
 
     // Gossip                                                           
     {"GossipMenuAddItem", &LuaUnit::GossipMenuAddItem },            // :GossipMenuAddItem(icon, msg, Intid, code, accept_decline_message, money)
@@ -109,6 +113,8 @@ ElunaRegister<Unit> UnitMethods[] =
     {"GetFloatValue", &LuaUnit::GetFloatValue},                     // :GetFloatValue(index) - returns a float value from unit fields UNDOCUMENTED
     {"GetByteValue", &LuaUnit::GetByteValue},                       // :GetByteValue(index, offset) - returns a byte value from unit fields UNDOCUMENTED
     {"GetUInt16Value", &LuaUnit::GetUInt16Value},                   // :GetUInt16Value(index, offset) - returns a uint16 value from unit fields UNDOCUMENTED
+    {"GetInstanceId", &LuaUnit::GetInstanceId},                     // :GetInstanceId() - Gets the instance id of the unit UNDOCUMENTED
+    {"GetPhaseMask", &LuaUnit::GetPhaseMask},                       // :GetPhaseMask() - gets the phase mask ofthe unit UNDOCUMENTED
 
     // Setters
     {"SetLevel", &LuaUnit::SetLevel},                               // :SetLevel(amount)
@@ -126,6 +132,7 @@ ElunaRegister<Unit> UnitMethods[] =
     {"SetByteValue", &LuaUnit::SetByteValue},                       // :SetByteValue(index, offset, value) - Sets a byte value for the unit UNDOCUMENTED
     {"SetUInt16Value", &LuaUnit::SetUInt16Value},                   // :SetUInt16Value(index, offset, value) - Sets an uint16 value for the unit UNDOCUMENTED
     {"SetInt16Value", &LuaUnit::SetInt16Value},                     // :SetInt16Value(index, offset, value) - Sets an int16 value for the unit UNDOCUMENTED
+    {"SetPhaseMask", &LuaUnit::SetPhaseMask},                       // :SetPhaseMask(Phase) - Sets the phase of the unit UNDOCUMENTED
 
     // Boolean
     {"IsAlive", &LuaUnit::IsAlive},                                 // :IsAlive()
@@ -192,7 +199,7 @@ ElunaRegister<GameObject> GameObjectMethods[] =
     {"IsDestructible", &LuaGameObject::IsDestructible},             // :IsDestructible() - UNDOCUMENTED
     {"IsActive", &LuaGameObject::IsActive},                         // :IsActive() - UNDOCUMENTED
     {"HasQuest", &LuaGameObject::HasQuest},                         // :HasQuest(questId) - UNDOCUMENTED
-    
+
     // Other
     {"CastSpellOnTarget", &LuaGameObject::CastSpellOnTarget},       // :CastSpellOnTarget(target, spellId) - Casts the spell on target, no manacost or cast time - UNDOCUMENTED
     {"Move", &LuaGameObject::Move},                                 // :Move(x, y, z, o) - Moves the GO to coordinates - UNDOCUMENTED
@@ -277,7 +284,7 @@ ElunaRegister<QueryResult> QueryMethods[] =  // UNDOCUMENTED
 
     {NULL, NULL},
 };
-    
+
 ElunaRegister<Aura> AuraMethods[] = 
 {
     // Getters
