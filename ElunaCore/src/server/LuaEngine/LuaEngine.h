@@ -317,9 +317,6 @@ public:
 
     vector<PlayerBind*> _playerGossipBindings;
 
-    static CreatureAI* GetLuaCreatureAI(Creature* creature);
-    static GameObjectAI* GetLuaGameObjectAI(GameObject* gameObject);
-
     static void InitTables()
     {
         for (int i = 0; i < SERVER_EVENT_COUNT; i++)
@@ -771,7 +768,7 @@ public:
     public:
         bool IsDatabaseBound() const { return false; }
 
-        LuaCreatureScript() : CreatureScript("luacreature")
+        LuaCreatureScript() : CreatureScript("SmartLuaCreatureScript") // Smart suppressing error @startup
         {
             _scriptsToClear = *(new vector<LuaCreatureAI*>());
         }
@@ -1261,11 +1258,6 @@ public:
             if (!bind)
                 return NULL;
 
-            if (!_scriptsToClear.empty())
-                for (vector<LuaCreatureAI*>::iterator itr = _scriptsToClear.begin(); itr != _scriptsToClear.end(); ++itr)
-                    if ((*itr) && (*itr)->binding->entry == creature->GetEntry())
-                        return (*itr);
-
             LuaCreatureAI* luaCreatureAI = new LuaCreatureAI(creature);
             _scriptsToClear.push_back(luaCreatureAI);
             return luaCreatureAI;
@@ -1281,7 +1273,7 @@ public:
     public:
         bool IsDatabaseBound() const { return false; }
 
-        LuaGameObjectScript() : GameObjectScript("LuaGameObjectScript")
+        LuaGameObjectScript() : GameObjectScript("SmartLuaGameObjectScript") // Smart suppressing error @startup
         {
             _scriptsToClear = *(new vector<LuaGameObjectAI*>());
         }
@@ -1395,11 +1387,6 @@ public:
             GameObjectBind* bind = GetGameObjectAIBindingForId(gameObject->GetEntry());
             if (!bind)
                 return NULL;
-
-            if (!_scriptsToClear.empty())
-                for (vector<LuaGameObjectAI*>::iterator itr = _scriptsToClear.begin(); itr != _scriptsToClear.end(); ++itr)
-                    if ((*itr) && (*itr)->goBinding->entry == gameObject->GetEntry())
-                        return (*itr);
 
             LuaGameObjectAI* luaGameObjectAI = new LuaGameObjectAI(gameObject);
             _scriptsToClear.push_back(luaGameObjectAI);

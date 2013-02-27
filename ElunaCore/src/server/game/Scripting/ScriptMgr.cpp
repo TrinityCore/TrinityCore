@@ -795,10 +795,9 @@ CreatureAI* ScriptMgr::GetCreatureAI(Creature* creature)
 {
     ASSERT(creature);
 
-	if (Eluna::LuaCreatureScript::GetCreatureBindingForId(creature->GetEntry()))
-		if (Eluna::GetLuaCreatureAI(creature))
-			return Eluna::GetLuaCreatureAI(creature);
-	
+    if(CreatureAI* AI = sLuaCreatureScript->GetAI(creature))
+        return AI;
+
     GET_SCRIPT_RET(CreatureScript, creature->GetScriptId(), tmpscript, NULL);
     return tmpscript->GetAI(creature);
 }
@@ -807,9 +806,8 @@ GameObjectAI* ScriptMgr::GetGameObjectAI(GameObject* gameobject)
 {
     ASSERT(gameobject);
 
-	if (Eluna::LuaGameObjectScript::GetGameObjectAIBindingForId(gameobject->GetEntry()))
-		if (Eluna::GetLuaGameObjectAI(gameobject))
-			return Eluna::GetLuaGameObjectAI(gameobject);
+    if(GameObjectAI* AI = sLuaGameObjectScript->GetAI(gameobject))
+        return AI;
 
     GET_SCRIPT_RET(GameObjectScript, gameobject->GetScriptId(), tmpscript, NULL);
     return tmpscript->GetAI(gameobject);

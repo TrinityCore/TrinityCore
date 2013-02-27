@@ -12,8 +12,6 @@ FOEREAPER TOMMY ENGINE, YEAH!
 #include "ChannelMethods.h"
 #include "ItemMethods.h"
 #include "LuaFunctions.h"
-#include "LuaCreatureAI.h"
-#include "LuaGameObjectAI.h"
 
 #if PLATFORM == PLATFORM_UNIX
 #include <dirent.h>
@@ -355,20 +353,6 @@ void Eluna::PushItem(lua_State* L, Item* item)
         ElunaTemplate<Item>::push(L, item);
     else
         lua_pushnil(L);
-}
-
-CreatureAI* Eluna::GetLuaCreatureAI(Creature* creature)
-{
-    if (sLuaCreatureScript->GetCreatureBindingForId(creature->GetEntry()))
-        return sLuaCreatureScript->GetAI(creature);
-    return NULL;
-}
-
-GameObjectAI* Eluna::GetLuaGameObjectAI(GameObject* gameObject)
-{
-    if (sLuaGameObjectScript->GetGameObjectAIBindingForId(gameObject->GetEntry()))
-        return sLuaGameObjectScript->GetAI(gameObject);
-    return NULL;
 }
 
 // Unregisters and stops all timed events
