@@ -452,6 +452,14 @@ public:
             return ElunaTemplate<WorldPacket>::check(L, narg);
     }
 
+    WorldObject* CHECK_WORLDOBJECT(lua_State* L, int narg)
+    {
+        if (!L)
+            return ElunaTemplate<WorldObject>::check(_luaState, narg);
+        else
+            return ElunaTemplate<WorldObject>::check(L, narg);
+    }
+
 protected:
     template<typename T>
     class ElunaTemplate

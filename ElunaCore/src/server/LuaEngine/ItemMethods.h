@@ -451,5 +451,61 @@ public:
         return 0;
     }
 
+    static int SetEnchantment(lua_State* L, Item* item)
+    {
+        if(!item || !item->IsInWorld())
+        {
+            Eluna::get()->PushBoolean(L, false);
+            return 1;
+        }
+
+        Player* owner = item->GetOwner();
+        if(!owner)
+        {
+            Eluna::get()->PushBoolean(L, false);
+            return 1;
+        }
+
+        uint32 enchant = luaL_checkunsigned(L, 1);
+        if (!sSpellItemEnchantmentStore.LookupEntry(enchant))
+        {
+            Eluna::get()->PushBoolean(L, false);
+            return 1;
+        }
+
+        owner->ApplyEnchantment(item, PERM_ENCHANTMENT_SLOT, false);
+        item->SetEnchantment(PERM_ENCHANTMENT_SLOT, enchant, 0, 0);
+        owner->ApplyEnchantment(item, PERM_ENCHANTMENT_SLOT, true);
+        Eluna::get()->PushBoolean(L, true);
+        return 1;
+    }
+
+    static int ClearEnchantment(lua_State* L, Item* item)
+    {
+        if(!item || !item->IsInWorld())
+        {
+            Eluna::get()->PushBoolean(L, false);
+            return 1;
+        }
+
+        Player* owner = item->GetOwner();
+        if(!owner)
+        {
+            Eluna::get()->PushBoolean(L, false);
+            return 1;
+        }
+
+        if(!item->GetEnchantmentId(PERM_ENCHANTMENT_SLOT))
+        {
+            Eluna::get()->PushBoolean(L, false);
+            return 1;
+        }
+
+        owner->ApplyEnchantment(item, PERM_ENCHANTMENT_SLOT, false);
+        item->ClearEnchantment(PERM_ENCHANTMENT_SLOT);
+        Eluna::get()->PushBoolean(L, true);
+        return 1;
+    }
+
 };
 #endif
