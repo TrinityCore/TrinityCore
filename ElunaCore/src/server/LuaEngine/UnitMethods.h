@@ -1262,7 +1262,7 @@ public:
 
         uint32 delay = luaL_checkunsigned(L, 2);
         uint32 repeats = luaL_checkunsigned(L, 3);
-        Eluna::LuaCreatureScript::LuaCreatureAI* luaAI = sLuaCreatureScript->GetAI(creature);
+        Eluna::LuaCreatureScript::LuaCreatureAI* luaAI = sLuaCreatureScript->GetLuaAI(creature);
         if(!luaAI)
         {
             luaL_error(L, "Creature has no registered creature events, please register one before using RegisterEvent");
@@ -1287,7 +1287,7 @@ public:
         TO_CREATURE();
 
         int eventID = luaL_checkinteger(L, 1);
-        Eluna::LuaCreatureScript::LuaCreatureAI* luaAI = sLuaCreatureScript->GetAI(creature);
+        Eluna::LuaCreatureScript::LuaCreatureAI* luaAI = sLuaCreatureScript->GetLuaAI(creature);
 
         if(luaAI)
             luaAI->LuaEventCancel(eventID);
@@ -1299,7 +1299,7 @@ public:
     {
         TO_CREATURE();
 
-        Eluna::LuaCreatureScript::LuaCreatureAI* luaAI = sLuaCreatureScript->GetAI(creature);
+        Eluna::LuaCreatureScript::LuaCreatureAI* luaAI = sLuaCreatureScript->GetLuaAI(creature);
         if(luaAI)
             luaAI->LuaEventsReset();
         return 0;
