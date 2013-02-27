@@ -82,6 +82,7 @@ class AccountMgr
         RBACGroupContainer const& GetRBACDefaultGroups() const { return _defaultGroups; }
 
     private:
+        void ClearRBAC();
         RBACPermissionsContainer _permissions;
         RBACRolesContainer _roles;
         RBACGroupsContainer _groups;
