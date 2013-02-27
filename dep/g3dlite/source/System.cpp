@@ -888,7 +888,11 @@ void System::initTime() {
         
         if (localTimeVals) {
             // tm_gmtoff is already corrected for daylight savings.
+            #ifdef __CYGWIN__
+            local = local + _timezone;
+            #else
             local = local + localTimeVals->tm_gmtoff;
+            #endif
         }
         
         m_realWorldGetTickTime0 = local;
