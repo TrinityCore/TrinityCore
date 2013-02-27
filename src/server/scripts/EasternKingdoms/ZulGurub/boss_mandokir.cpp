@@ -94,17 +94,9 @@ enum Misc
     FACTION_NONE                = 1665
 };
 
-// ToDo: Need better respawn support
-Position const ChainedSpiritsSpawnPos[8] =
+enum SummonGroups
 {
-    { -12330.34f, -1878.406f, 127.3196f, 3.892084f   },
-    { -12351.94f, -1861.51f,  127.4807f, 4.677482f   },
-    { -12326.71f, -1904.328f, 127.4111f, 2.75762f    },
-    { -12347.41f, -1917.535f, 127.3196f, 1.553343f   },
-    { -12378.57f, -1861.222f, 127.5416f, 5.340707f   },
-    { -12397.79f, -1887.731f, 127.5453f, 0.03490658f },
-    { -12372.36f, -1918.844f, 127.343f,  1.151917f   },
-    { -12391.23f, -1905.273f, 127.3196f, 0.6108652f  }
+    SUMMON_GROUP_CHAINED_SPIRIT = 0
 };
 
 class boss_mandokir : public CreatureScript
@@ -123,9 +115,7 @@ class boss_mandokir : public CreatureScript
 
                 _Reset();
 
-                for (uint8 i = 0; i < 8; ++i)
-                    me->SummonCreature(NPC_CHAINED_SPIRIT, ChainedSpiritsSpawnPos[i]);
-
+                me->SummonCreatureGroup(SUMMON_GROUP_CHAINED_SPIRIT);
                 _ohganotSoFast = true;
                 _reanimateOhganCooldown = false;
                 _reviveGUID = 0;
