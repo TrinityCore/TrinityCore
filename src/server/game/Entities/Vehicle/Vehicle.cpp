@@ -576,6 +576,26 @@ void Vehicle::Dismiss()
 }
 
 /**
+ * @fn bool Vehicle::IsVehicleInUse() const
+ *
+ * @brief Returns information whether the vehicle is currently used by any unit
+ *
+ * @author Shauren
+ * @date 26-2-2013
+ *
+ * @return true if any passenger is boarded on vehicle, false otherwise.
+ */
+
+bool Vehicle::IsVehicleInUse() const
+{
+    for (SeatMap::const_iterator itr = Seats.begin(); itr != Seats.end(); ++itr)
+        if (itr->second.Passenger)
+            return true;
+
+    return false;
+}
+
+/**
  * @fn void Vehicle::InitMovementInfoForBase()
  *
  * @brief Sets correct MovementFlags2 based on VehicleFlags from DBC.
@@ -613,7 +633,7 @@ void Vehicle::InitMovementInfoForBase()
  * @return null if passenger not found on vehicle, else the DBC record for the seat.
  */
 
-VehicleSeatEntry const* Vehicle::GetSeatForPassenger(Unit* passenger)
+VehicleSeatEntry const* Vehicle::GetSeatForPassenger(Unit const* passenger)
 {
     SeatMap::iterator itr;
     for (itr = Seats.begin(); itr != Seats.end(); ++itr)
