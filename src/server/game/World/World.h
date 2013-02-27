@@ -761,6 +761,8 @@ class World
         void   ResetEventSeasonalQuests(uint16 event_id);
 
         void UpdatePhaseDefinitions();
+        void ReloadRBAC();
+
     protected:
         void _UpdateGameTime();
         // callback for UpdateRealmCharacters

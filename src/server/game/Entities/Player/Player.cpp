@@ -7705,17 +7705,17 @@ void Player::UpdateArea(uint32 newArea)
     phaseMgr.AddUpdateFlag(PHASE_UPDATE_FLAG_AREA_UPDATE);
 
     AreaTableEntry const* area = GetAreaEntryByAreaID(newArea);
-    pvpInfo.inFFAPvPArea = area && (area->flags & AREA_FLAG_ARENA);
+    pvpInfo.IsInFFAPvPArea = area && (area->flags & AREA_FLAG_ARENA);
     UpdatePvPState(true);
 
     UpdateAreaDependentAuras(newArea);
 
     // previously this was in UpdateZone (but after UpdateArea) so nothing will break
-    pvpInfo.inNoPvPArea = false;
+    pvpInfo.IsInNoPvPArea = false;
     if (area && area->IsSanctuary())    // in sanctuary
     {
         SetByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_SANCTUARY);
-        pvpInfo.inNoPvPArea = true;
+        pvpInfo.IsInNoPvPArea = true;
         CombatStopWithPets();
     }
     else
@@ -7774,29 +7774,32 @@ void Player::UpdateZone(uint32 newZone, uint32 newArea)
     switch (zone->team)
     {
         case AREATEAM_ALLY:
-            pvpInfo.inHostileArea = GetTeam() != ALLIANCE && (sWorld->IsPvPRealm() || zone->flags & AREA_FLAG_CAPITAL);
+            pvpInfo.IsInHostileArea = GetTeam() != ALLIANCE && (sWorld->IsPvPRealm() || zone->flags & AREA_FLAG_CAPITAL);
             break;
         case AREATEAM_HORDE:
-            pvpInfo.inHostileArea = GetTeam() != HORDE && (sWorld->IsPvPRealm() || zone->flags & AREA_FLAG_CAPITAL);
+            pvpInfo.IsInHostileArea = GetTeam() != HORDE && (sWorld->IsPvPRealm() || zone->flags & AREA_FLAG_CAPITAL);
             break;
         case AREATEAM_NONE:
             // overwrite for battlegrounds, maybe batter some zone flags but current known not 100% fit to this
-            pvpInfo.inHostileArea = sWorld->IsPvPRealm() || InBattleground() || zone->flags & AREA_FLAG_WINTERGRASP;
+            pvpInfo.IsInHostileArea = sWorld->IsPvPRealm() || InBattleground() || zone->flags & AREA_FLAG_WINTERGRASP;
             break;
         default:                                            // 6 in fact
-            pvpInfo.inHostileArea = false;
+            pvpInfo.IsInHostileArea = false;
             break;
     }
 
+    // Treat players having a quest flagging for PvP as always in hostile area
+    pvpInfo.IsHostile = pvpInfo.IsInHostileArea || HasPvPForcingQuest();
+
     if (zone->flags & AREA_FLAG_CAPITAL)                     // Is in a capital city
     {
-        if (!pvpInfo.inHostileArea || zone->IsSanctuary())
+        if (!pvpInfo.IsHostile || zone->IsSanctuary())
         {
             SetFlag(PLAYER_FLAGS, PLAYER_FLAGS_RESTING);
             SetRestType(REST_TYPE_IN_CITY);
             InnEnter(time(0), GetMapId(), 0, 0, 0);
         }
-        pvpInfo.inNoPvPArea = true;
+        pvpInfo.IsInNoPvPArea = true;
     }
     else
     {
@@ -15060,6 +15063,12 @@ void Player::AddQuest(Quest const* quest, Object* questGiver)
     else
         questStatusData.Timer = 0;
 
+    if (quest->HasFlag(QUEST_FLAGS_FLAGS_PVP))
+    {
+        pvpInfo.IsHostile = true;
+        UpdatePvPState();
+    }
+
     SetQuestSlot(log_slot, quest_id, qtime);
 
     m_QuestStatusSave[quest_id] = true;
@@ -15081,7 +15090,7 @@ void Player::CompleteQuest(uint32 quest_id)
 
         if (Quest const* qInfo = sObjectMgr->GetQuestTemplate(quest_id))
         {
-            if (qInfo->HasFlag(QUEST_FLAGS_AUTO_REWARDED))
+            if (qInfo->HasFlag(QUEST_FLAGS_TRACKING))
                 RewardQuest(qInfo, 0, this, false);
             else
                 SendQuestComplete(qInfo);
@@ -15255,6 +15264,12 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
         UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_QUESTS_IN_ZONE, quest->GetZoneOrSort());
     UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_QUEST_COUNT);
     UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_QUEST, quest->GetQuestId());
+
+    if (quest->HasFlag(QUEST_FLAGS_FLAGS_PVP))
+    {
+        pvpInfo.IsHostile = pvpInfo.IsInHostileArea || HasPvPForcingQuest();
+        UpdatePvPState();
+    }
 
     //lets remove flag for delayed teleports
     SetCanDelayTeleport(false);
@@ -16585,6 +16600,25 @@ void Player::SendQuestUpdateAddPlayer(Quest const* quest, uint16 old_count, uint
     uint16 log_slot = FindQuestSlot(quest->GetQuestId());
     if (log_slot < MAX_QUEST_LOG_SIZE)
         SetQuestSlotCounter(log_slot, QUEST_PVP_KILL_SLOT, GetQuestSlotCounter(log_slot, QUEST_PVP_KILL_SLOT) + add_count);
+}
+
+bool Player::HasPvPForcingQuest() const
+{
+    for (uint8 i = 0; i < MAX_QUEST_LOG_SIZE; ++i)
+    {
+        uint32 questId = GetQuestSlotQuestId(i);
+        if (questId == 0)
+            continue;
+
+        Quest const* quest = sObjectMgr->GetQuestTemplate(questId);
+        if (!quest)
+            continue;
+
+        if (quest->HasFlag(QUEST_FLAGS_FLAGS_PVP))
+            return true;
+    }
+
+    return false;
 }
 
 /*********************************************************/
@@ -20130,7 +20164,8 @@ void Player::UpdatePvPFlag(time_t currTime)
 {
     if (!IsPvP())
         return;
-    if (pvpInfo.endTimer == 0 || currTime < (pvpInfo.endTimer + 300) || pvpInfo.inHostileArea)
+
+    if (!pvpInfo.EndTimer || currTime < (pvpInfo.EndTimer + 300) || pvpInfo.IsHostile)
         return;
 
     UpdatePvP(false);
@@ -21745,8 +21780,8 @@ void Player::UpdatePvPState(bool onlyFFA)
 {
     // TODO: should we always synchronize UNIT_FIELD_BYTES_2, 1 of controller and controlled?
     // no, we shouldn't, those are checked for affecting player by client
-    if (!pvpInfo.inNoPvPArea && !isGameMaster()
-        && (pvpInfo.inFFAPvPArea || sWorld->IsFFAPvPRealm()))
+    if (!pvpInfo.IsInNoPvPArea && !isGameMaster()
+        && (pvpInfo.IsInFFAPvPArea || sWorld->IsFFAPvPRealm()))
     {
         if (!HasByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_FFA_PVP))
         {
@@ -21765,15 +21800,15 @@ void Player::UpdatePvPState(bool onlyFFA)
     if (onlyFFA)
         return;
 
-    if (pvpInfo.inHostileArea)                               // in hostile area
+    if (pvpInfo.IsHostile)                               // in hostile area
     {
-        if (!IsPvP() || pvpInfo.endTimer != 0)
+        if (!IsPvP() || pvpInfo.EndTimer)
             UpdatePvP(true, true);
     }
     else                                                    // in friendly area
     {
-        if (IsPvP() && !HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_IN_PVP) && pvpInfo.endTimer == 0)
-            pvpInfo.endTimer = time(0);                     // start toggle-off
+        if (IsPvP() && !HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_IN_PVP) && !pvpInfo.EndTimer)
+            pvpInfo.EndTimer = time(NULL);                  // start toggle-off
     }
 }
 
@@ -21782,11 +21817,11 @@ void Player::UpdatePvP(bool state, bool override)
     if (!state || override)
     {
         SetPvP(state);
-        pvpInfo.endTimer = 0;
+        pvpInfo.EndTimer = 0;
     }
     else
     {
-        pvpInfo.endTimer = time(NULL);
+        pvpInfo.EndTimer = time(NULL);
         SetPvP(state);
     }
 }

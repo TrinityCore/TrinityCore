@@ -146,9 +146,9 @@ class RBACRole: public RBACObject
         /// Gets the Permissions assigned to this role
         RBACPermissionContainer const& GetPermissions() const { return _perms; }
         /// Grants a Permission (Adds)
-        void GrantPermission(uint32 id) { _perms.set(id); }
+        void GrantPermission(uint32 id);
         /// Revokes a Permission (Removes)
-        void RevokePermission(uint32 id) { _perms.reset(id); }
+        void RevokePermission(uint32 id);
 
     private:
         RBACPermissionContainer _perms;                    ///> Set of permissions
@@ -164,9 +164,9 @@ class RBACGroup: public RBACObject
         /// Gets the Roles assigned to this group
         RBACRoleContainer const& GetRoles() const { return _roles; }
         /// Grants a Role (Adds)
-        void GrantRole(uint32 role) { _roles.insert(role); }
+        void GrantRole(uint32 role);
         /// Revokes a Role (Removes)
-        void RevokeRole(uint32 role) { _roles.erase(role); }
+        void RevokeRole(uint32 role);
 
     private:
         RBACRoleContainer _roles;                          ///> Set of Roles
