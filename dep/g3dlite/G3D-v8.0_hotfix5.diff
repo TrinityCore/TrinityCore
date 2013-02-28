@@ -2,11 +2,13 @@ diff --git a/dep/g3dlite/include/G3D/System.h b/dep/g3dlite/include/G3D/System.h
 index 1c0cf99..f160774 100644
 --- a/dep/g3dlite/include/G3D/System.h
 +++ b/dep/g3dlite/include/G3D/System.h
-@@ -19,6 +19,7 @@
+@@ -19,6 +19,9 @@
  #include "G3D/G3DGameUnits.h"
  #include "G3D/BinaryFormat.h"
  #include <string>
-+#include <sys/socket.h>
++#ifdef G3D_LINUX
++#   include <sys/socket.h>
++#endif
  
  #ifdef G3D_OSX
  #   include <CoreServices/CoreServices.h>
