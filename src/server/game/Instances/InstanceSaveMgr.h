@@ -101,8 +101,8 @@ class InstanceSave
     private:
         bool UnloadIfEmpty();
         /* the only reason the instSave-object links are kept is because
-           the object-instSave links need to be broken at reset time
-           TODO: maybe it's enough to just store the number of players/groups */
+           the object-instSave links need to be broken at reset time */
+           /// @todo: Check if maybe it's enough to just store the number of players/groups
         PlayerListType m_playerList;
         GroupListType m_groupList;
         time_t m_resetTime;
