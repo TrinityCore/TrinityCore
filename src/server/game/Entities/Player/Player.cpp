@@ -2071,7 +2071,6 @@ uint8 Player::GetChatTag() const
         tag |= CHAT_TAG_AFK;
     if (HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_DEVELOPER))
         tag |= CHAT_TAG_DEV;
-
     return tag;
 }
 
