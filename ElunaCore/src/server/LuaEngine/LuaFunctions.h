@@ -223,6 +223,97 @@ ElunaRegister<GameObject> GameObjectMethods[] =
     { NULL, NULL },
 };
 
+ElunaRegister<Item> ItemMethods[] = 
+{
+    // Getters
+    {"GetUnitType", &LuaItem::GetUnitType},                                 // :GetUnitType() - Returns object type, IE: Item, Creature UNDOCUMENTED
+    {"GetGUID", &LuaItem::GetGUID},                                         // :GetGUID() - Returns object guid UNDOCUMENTED
+    {"GetOwnerGUID", &LuaItem::GetOwnerGUID},                               // :GetOwnerGUID() - Returns the owner's guid UNDOCUMENTED
+    {"GetOwner", &LuaItem::GetOwner},                                       // :GetOwner() - Returns the owner object (player) UNDOCUMENTED
+    {"GetCount", &LuaItem::GetCount},                                       // :GetCount() - Returns item stack count UNDOCUMENTED
+    {"GetMaxStackCount", &LuaItem::GetMaxStackCount},                       // :GetMaxStackCount() - Returns item max stack count RUNDOCUMENTED
+    {"GetSlot", &LuaItem::GetSlot},                                         // :GetSlot() - returns the slot the item is in UNDOCUMENTED
+    {"GetBagSlot", &LuaItem::GetBagSlot},                                   // :GetBagSlot() - returns the bagslot the item is in UNDOCUMENTED
+    {"GetEntry", &LuaItem::GetEntry},                                       // :GetEntry() - returns the item entry UNDOCUMENTED
+    {"GetInt32Value", &LuaItem::GetInt32Value},                             // :GetInt32Value(index) - returns an int value from item fields UNDOCUMENTED
+    {"GetUInt32Value", &LuaItem::GetUInt32Value},                           // :GetUInt32Value(index) - returns an uint value from item fields UNDOCUMENTED
+    {"GetFloatValue", &LuaItem::GetFloatValue},                             // :GetFloatValue(index) - returns a float value from item fields UNDOCUMENTED
+    {"GetByteValue", &LuaItem::GetByteValue},                               // :GetByteValue(index, offset) - returns a byte value from item fields UNDOCUMENTED
+    {"GetUInt16Value", &LuaItem::GetUInt16Value},                           // :GetUInt16Value(index, offset) - returns a uint16 value from item fields UNDOCUMENTED
+
+    // Setters
+    {"SetOwner", &LuaItem::SetOwner},                                       // :SetOwner(player) - Sets the owner of the item UNDOCUMENTED
+    {"SetBinding", &LuaItem::SetBinding},                                   // :SetBinding(bound) - Sets the item binding to true or false UNDOCUMENTED
+    {"SetCount", &LuaItem::SetCount},                                       // :SetCount(count) - Sets the item count UNDOCUMENTED
+    {"SetInt32Value", &LuaItem::SetInt32Value},                             // :SetInt32Value(index, value) - Sets an int value for the item UNDOCUMENTED
+    {"SetUInt32Value", &LuaItem::SetUInt32Value},                           // :SetUInt32Value(index, value) - Sets an uint value for the item UNDOCUMENTED
+    {"UpdateUInt32Value", &LuaItem::UpdateUInt32Value},                     // :UpdateUInt32Value(index, value) - Updates an uint value for the item UNDOCUMENTED
+    {"SetFloatValue", &LuaItem::SetFloatValue},                             // :SetFloatValue(index, value) - Sets a float value for the item UNDOCUMENTED
+    {"SetByteValue", &LuaItem::SetByteValue},                               // :SetByteValue(index, offset, value) - Sets a byte value for the item UNDOCUMENTED
+    {"SetUInt16Value", &LuaItem::SetUInt16Value},                           // :SetUInt16Value(index, offset, value) - Sets an uint16 value for the item UNDOCUMENTED
+    {"SetInt16Value", &LuaItem::SetInt16Value},                             // :SetInt16Value(index, offset, value) - Sets an int16 value for the item UNDOCUMENTED
+
+    // Boolean
+    {"IsSoulBound", &LuaItem::IsSoulBound},                                 // :IsSoulBound() - Returns true if the item is soulbound UNDOCUMENTED
+    {"IsBoundAccountWide", &LuaItem::IsBoundAccountWide},                   // :IsBoundAccountWide() - Returns true if the item is account bound UNDOCUMENTED
+    {"IsBoundByEnchant", &LuaItem::IsBoundByEnchant},                       // :IsBoundByEnchant() - Returns true if the item is bound with an enchant UNDOCUMENTED
+    {"IsBindedNotWith", &LuaItem::IsBindedNotWith},                         // :IsBindedNotWith(player) - Returns true if the item is not bound with player UNDOCUMENTED
+    {"IsLocked", &LuaItem::IsBindedNotWith},                                // :IsLocked() - Returns true if the item is locked UNDOCUMENTED
+    {"IsBag", &LuaItem::IsBag},                                             // :IsBag() - Returns true if the item is a bag UNDOCUMENTED
+    {"IsCurrencyToken", &LuaItem::IsCurrencyToken},                         // :IsCurrencyToken() - Returns true if the item is a currency token UNDOCUMENTED
+    {"IsNotEmptyBag", &LuaItem::IsNotEmptyBag},                             // :IsNotEmptyBag() - Returns true if the item is not an empty bag UNDOCUMENTED
+    {"IsBroken", &LuaItem::IsBroken},                                       // :IsBroken() - Returns true if the item is broken UNDOCUMENTED
+    {"CanBeTraded", &LuaItem::CanBeTraded},                                 // :CanBeTraded() - Returns true if the item can be traded UNDOCUMENTED
+    {"IsInTrade", &LuaItem::IsInTrade},                                     // :IsInTrade() - Returns true if the item is in trade UNDOCUMENTED
+    {"IsInBag", &LuaItem::IsInBag},                                         // :IsInBag() - Returns true if the item is in a bag UNDOCUMENTED
+    {"IsEquipped", &LuaItem::IsEquipped},                                   // :IsEquipped() - Returns true if the item is equipped UNDOCUMENTED
+    {"hasQuest", &LuaItem::hasQuest},                                       // :hasQuest(questId) - Returns true if the item starts the quest UNDOCUMENTED
+    {"IsPotion", &LuaItem::IsPotion},                                       // :IsPotion() - Returns true if the item is a potion UNDOCUMENTED
+    {"IsWeaponVellum", &LuaItem::IsWeaponVellum},                           // :IsWeaponVellum() - Returns true if the item is a weapon vellum UNDOCUMENTED
+    {"IsArmorVellum", &LuaItem::IsArmorVellum},                             // :IsArmorVellum() - Returns true if the item is an armor vellum UNDOCUMENTED
+    {"IsConjuredConsumable", &LuaItem::IsConjuredConsumable},               // :IsConjuredConsumable() - Returns true if the item is a conjured consumable UNDOCUMENTED
+    {"IsRefundExpired", &LuaItem::IsRefundExpired},                         // :IsRefundExpired() - Returns true if the item's refund time has expired UNDOCUMENTED
+    {"SetEnchantment", &LuaItem::SetEnchantment},                           // :SetEnchantment(enchantid) - Sets a new enchantment for the item. Returns true on success. UNDOCUMENTED
+    {"ClearEnchantment", &LuaItem::ClearEnchantment},                       // :ClearEnchantment() - Removes the enchantment from the item if one exists. Returns true on success. UNDOCUMENTED
+
+    // Other
+
+    {NULL, NULL},
+};
+
+ElunaRegister<Aura> AuraMethods[] = 
+{
+    // Getters
+    {"GetUnitType", &LuaAura::GetUnitType},                         // :GetUnitType() - Returns object type, IE: Aura, Creature UNDOCUMENTED
+    {"GetCaster", &LuaAura::GetCaster},                             // :GetCaster() - Returns caster as object. UNDOCUMENTED
+    {"GetCasterGUID", &LuaAura::GetCasterGUID},                     // :GetCasterGUID() - Returns caster as GUID. UNDOCUMENTED
+    {"GetCasterLevel", &LuaAura::GetCasterLevel},                   // :GetCasterLevel() - Returns casters level. UNDOCUMENTED
+    {"GetDuration", &LuaAura::GetDuration},                         // :GetDuration() - Returns remaining duration. UNDOCUMENTED
+    {"GetMaxDuration", &LuaAura::GetMaxDuration},                   // :GetMaxDuration() - Returns maximum duration. UNDOCUMENTED
+    {"GetCharges", &LuaAura::GetCharges},                           // :GetCharges() - Returns remaining charges. UNDOCUMENTED
+    {"GetAuraId", &LuaAura::GetAuraId},                             // :GetAuraId() - Returns aura ID. UNDOCUMENTED
+    {"GetStackAmount", &LuaAura::GetStackAmount},                   // :GetStackAmount() - Returns current stack amount. UNDOCUMENTED
+    {"GetOwner", &LuaAura::GetOwner},                               // :GetOwner() - Gets the unit wearing the aura UNDOCUMENTED
+
+    // Setters
+    {"SetDuration", &LuaAura::SetDuration},                         // :SetDuration(duration) - Sets remaining duration. UNDOCUMENTED
+    {"SetMaxDuration", &LuaAura::SetMaxDuration},                   // :SetMaxDuration(duration) - Sets maximum duration. UNDOCUMENTED
+    {"SetStackAmount", &LuaAura::SetStackAmount},                   // :SetStackAmount(amount) - Sets current stack amount. UNDOCUMENTED
+
+    // Other
+    {"Remove", &LuaAura::Remove},                                   // :Remove() - Removes the aura. UNDOCUMENTED
+
+    {NULL, NULL},
+};
+
+ElunaRegister<Channel> ChannelMethods[] = 
+{
+    // Getters
+    {"GetUnitType", &LuaChannel::GetUnitType},                      // :GetUnitType() - Returns object type, IE: Channel, Creature UNDOCUMENTED
+
+    {NULL, NULL},
+};
+
 ElunaRegister<Group> GroupMethods[] = 
 {
     // Getters
@@ -315,93 +406,8 @@ ElunaRegister<QueryResult> QueryMethods[] =  // UNDOCUMENTED
     {NULL, NULL},
 };
 
-ElunaRegister<Aura> AuraMethods[] = 
+ElunaRegister<WorldPacket> PacketMethods[] =
 {
-    // Getters
-    {"GetUnitType", &LuaAura::GetUnitType},                         // :GetUnitType() - Returns object type, IE: Aura, Creature UNDOCUMENTED
-    {"GetCaster", &LuaAura::GetCaster},                             // :GetCaster() - Returns caster as object. UNDOCUMENTED
-    {"GetCasterGUID", &LuaAura::GetCasterGUID},                     // :GetCasterGUID() - Returns caster as GUID. UNDOCUMENTED
-    {"GetCasterLevel", &LuaAura::GetCasterLevel},                   // :GetCasterLevel() - Returns casters level. UNDOCUMENTED
-    {"GetDuration", &LuaAura::GetDuration},                         // :GetDuration() - Returns remaining duration. UNDOCUMENTED
-    {"GetMaxDuration", &LuaAura::GetMaxDuration},                   // :GetMaxDuration() - Returns maximum duration. UNDOCUMENTED
-    {"GetCharges", &LuaAura::GetCharges},                           // :GetCharges() - Returns remaining charges. UNDOCUMENTED
-    {"GetAuraId", &LuaAura::GetAuraId},                             // :GetAuraId() - Returns aura ID. UNDOCUMENTED
-    {"GetStackAmount", &LuaAura::GetStackAmount},                   // :GetStackAmount() - Returns current stack amount. UNDOCUMENTED
-    {"GetOwner", &LuaAura::GetOwner},                               // :GetOwner() - Gets the unit wearing the aura UNDOCUMENTED
-
-    // Setters
-    {"SetDuration", &LuaAura::SetDuration},                         // :SetDuration(duration) - Sets remaining duration. UNDOCUMENTED
-    {"SetMaxDuration", &LuaAura::SetMaxDuration},                   // :SetMaxDuration(duration) - Sets maximum duration. UNDOCUMENTED
-    {"SetStackAmount", &LuaAura::SetStackAmount},                   // :SetStackAmount(amount) - Sets current stack amount. UNDOCUMENTED
-
-    // Other
-    {"Remove", &LuaAura::Remove},                                   // :Remove() - Removes the aura. UNDOCUMENTED
-
-    {NULL, NULL},
-};
-
-ElunaRegister<Channel> ChannelMethods[] = 
-{
-    // Getters
-    {"GetUnitType", &LuaChannel::GetUnitType},                      // :GetUnitType() - Returns object type, IE: Channel, Creature UNDOCUMENTED
-
-    {NULL, NULL},
-};
-
-ElunaRegister<Item> ItemMethods[] = 
-{
-    // Getters
-    {"GetUnitType", &LuaItem::GetUnitType},                                 // :GetUnitType() - Returns object type, IE: Item, Creature UNDOCUMENTED
-    {"GetGUID", &LuaItem::GetGUID},                                         // :GetGUID() - Returns object guid UNDOCUMENTED
-    {"GetOwnerGUID", &LuaItem::GetOwnerGUID},                               // :GetOwnerGUID() - Returns the owner's guid UNDOCUMENTED
-    {"GetOwner", &LuaItem::GetOwner},                                       // :GetOwner() - Returns the owner object (player) UNDOCUMENTED
-    {"GetCount", &LuaItem::GetCount},                                       // :GetCount() - Returns item stack count UNDOCUMENTED
-    {"GetMaxStackCount", &LuaItem::GetMaxStackCount},                       // :GetMaxStackCount() - Returns item max stack count RUNDOCUMENTED
-    {"GetSlot", &LuaItem::GetSlot},                                         // :GetSlot() - returns the slot the item is in UNDOCUMENTED
-    {"GetBagSlot", &LuaItem::GetBagSlot},                                   // :GetBagSlot() - returns the bagslot the item is in UNDOCUMENTED
-    {"GetEntry", &LuaItem::GetEntry},                                       // :GetEntry() - returns the item entry UNDOCUMENTED
-    {"GetInt32Value", &LuaItem::GetInt32Value},                             // :GetInt32Value(index) - returns an int value from item fields UNDOCUMENTED
-    {"GetUInt32Value", &LuaItem::GetUInt32Value},                           // :GetUInt32Value(index) - returns an uint value from item fields UNDOCUMENTED
-    {"GetFloatValue", &LuaItem::GetFloatValue},                             // :GetFloatValue(index) - returns a float value from item fields UNDOCUMENTED
-    {"GetByteValue", &LuaItem::GetByteValue},                               // :GetByteValue(index, offset) - returns a byte value from item fields UNDOCUMENTED
-    {"GetUInt16Value", &LuaItem::GetUInt16Value},                           // :GetUInt16Value(index, offset) - returns a uint16 value from item fields UNDOCUMENTED
-
-    // Setters
-    {"SetOwner", &LuaItem::SetOwner},                                       // :SetOwner(player) - Sets the owner of the item UNDOCUMENTED
-    {"SetBinding", &LuaItem::SetBinding},                                   // :SetBinding(bound) - Sets the item binding to true or false UNDOCUMENTED
-    {"SetCount", &LuaItem::SetCount},                                       // :SetCount(count) - Sets the item count UNDOCUMENTED
-    {"SetInt32Value", &LuaItem::SetInt32Value},                             // :SetInt32Value(index, value) - Sets an int value for the item UNDOCUMENTED
-    {"SetUInt32Value", &LuaItem::SetUInt32Value},                           // :SetUInt32Value(index, value) - Sets an uint value for the item UNDOCUMENTED
-    {"UpdateUInt32Value", &LuaItem::UpdateUInt32Value},                     // :UpdateUInt32Value(index, value) - Updates an uint value for the item UNDOCUMENTED
-    {"SetFloatValue", &LuaItem::SetFloatValue},                             // :SetFloatValue(index, value) - Sets a float value for the item UNDOCUMENTED
-    {"SetByteValue", &LuaItem::SetByteValue},                               // :SetByteValue(index, offset, value) - Sets a byte value for the item UNDOCUMENTED
-    {"SetUInt16Value", &LuaItem::SetUInt16Value},                           // :SetUInt16Value(index, offset, value) - Sets an uint16 value for the item UNDOCUMENTED
-    {"SetInt16Value", &LuaItem::SetInt16Value},                             // :SetInt16Value(index, offset, value) - Sets an int16 value for the item UNDOCUMENTED
-
-    // Boolean
-    {"IsSoulBound", &LuaItem::IsSoulBound},                                 // :IsSoulBound() - Returns true if the item is soulbound UNDOCUMENTED
-    {"IsBoundAccountWide", &LuaItem::IsBoundAccountWide},                   // :IsBoundAccountWide() - Returns true if the item is account bound UNDOCUMENTED
-    {"IsBoundByEnchant", &LuaItem::IsBoundByEnchant},                       // :IsBoundByEnchant() - Returns true if the item is bound with an enchant UNDOCUMENTED
-    {"IsBindedNotWith", &LuaItem::IsBindedNotWith},                         // :IsBindedNotWith(player) - Returns true if the item is not bound with player UNDOCUMENTED
-    {"IsLocked", &LuaItem::IsBindedNotWith},                                // :IsLocked() - Returns true if the item is locked UNDOCUMENTED
-    {"IsBag", &LuaItem::IsBag},                                             // :IsBag() - Returns true if the item is a bag UNDOCUMENTED
-    {"IsCurrencyToken", &LuaItem::IsCurrencyToken},                         // :IsCurrencyToken() - Returns true if the item is a currency token UNDOCUMENTED
-    {"IsNotEmptyBag", &LuaItem::IsNotEmptyBag},                             // :IsNotEmptyBag() - Returns true if the item is not an empty bag UNDOCUMENTED
-    {"IsBroken", &LuaItem::IsBroken},                                       // :IsBroken() - Returns true if the item is broken UNDOCUMENTED
-    {"CanBeTraded", &LuaItem::CanBeTraded},                                 // :CanBeTraded() - Returns true if the item can be traded UNDOCUMENTED
-    {"IsInTrade", &LuaItem::IsInTrade},                                     // :IsInTrade() - Returns true if the item is in trade UNDOCUMENTED
-    {"IsInBag", &LuaItem::IsInBag},                                         // :IsInBag() - Returns true if the item is in a bag UNDOCUMENTED
-    {"IsEquipped", &LuaItem::IsEquipped},                                   // :IsEquipped() - Returns true if the item is equipped UNDOCUMENTED
-    {"hasQuest", &LuaItem::hasQuest},                                       // :hasQuest(questId) - Returns true if the item starts the quest UNDOCUMENTED
-    {"IsPotion", &LuaItem::IsPotion},                                       // :IsPotion() - Returns true if the item is a potion UNDOCUMENTED
-    {"IsWeaponVellum", &LuaItem::IsWeaponVellum},                           // :IsWeaponVellum() - Returns true if the item is a weapon vellum UNDOCUMENTED
-    {"IsArmorVellum", &LuaItem::IsArmorVellum},                             // :IsArmorVellum() - Returns true if the item is an armor vellum UNDOCUMENTED
-    {"IsConjuredConsumable", &LuaItem::IsConjuredConsumable},               // :IsConjuredConsumable() - Returns true if the item is a conjured consumable UNDOCUMENTED
-    {"IsRefundExpired", &LuaItem::IsRefundExpired},                         // :IsRefundExpired() - Returns true if the item's refund time has expired UNDOCUMENTED
-    {"SetEnchantment", &LuaItem::SetEnchantment},                           // :SetEnchantment(enchantid) - Sets a new enchantment for the item. Returns true on success. UNDOCUMENTED
-    {"ClearEnchantment", &LuaItem::ClearEnchantment},                       // :ClearEnchantment() - Removes the enchantment from the item if one exists. Returns true on success. UNDOCUMENTED
-
-    // Other
 
     {NULL, NULL},
 };
@@ -415,4 +421,5 @@ template<> ElunaRegister<QueryResult>* GetMethodTable<QueryResult>() { return Qu
 template<> ElunaRegister<Aura>* GetMethodTable<Aura>() { return AuraMethods; }
 template<> ElunaRegister<Channel>* GetMethodTable<Channel>() { return ChannelMethods; }
 template<> ElunaRegister<Item>* GetMethodTable<Item>() { return ItemMethods; }
+template<> ElunaRegister<WorldPacket>* GetMethodTable<WorldPacket>() { return PacketMethods; }
 #endif

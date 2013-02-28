@@ -58,90 +58,93 @@ enum REGISTER_TYPE
 enum ServerEvents
 {
     // Player
-    PLAYER_EVENT_ON_CHARACTER_CREATE        = 1,        // Implemented
-    PLAYER_EVENT_ON_KILL_PLAYER             = 2,        // Implemented
-    PLAYER_EVENT_ON_LOGIN                   = 4,        // Implemented
-    PLAYER_EVENT_ON_LOGOUT                  = 13,       // Implemented
-    PLAYER_EVENT_ON_CHAT                    = 16,       // Implemented
-    PLAYER_EVENT_ON_LEVEL_CHANGE            = 27,       // Implemented
-    PLAYER_EVENT_ON_CHARACTER_DELETE        = 33,       // Implemented
-    PLAYER_EVENT_ON_TALENTS_CHANGE          = 34,       // Implemented
-    PLAYER_EVENT_ON_TALENTS_RESET           = 35,       // Implemented
-    PLAYER_EVENT_ON_MONEY_CHANGE            = 36,       // Implemented
-    PLAYER_EVENT_ON_GIVE_XP                 = 37,       // Implemented
-    PLAYER_EVENT_ON_REPUTATION_CHANGE       = 38,       // Implemented
-    PLAYER_EVENT_ON_DUEL_REQUEST            = 39,       // Implemented
-    PLAYER_EVENT_ON_DUEL_START              = 40,       // Implemented
-    PLAYER_EVENT_ON_DUEL_END                = 41,       // Implemented
-    PLAYER_EVENT_ON_EMOTE                   = 42,       // Implemented
-    PLAYER_EVENT_ON_TEXT_EMOTE              = 43,       // Not Implemented
-    PLAYER_EVENT_ON_SPELL_CAST              = 44,       // Not Implemented
-    PLAYER_EVENT_ON_SAVE                    = 45,       // Implemented
-    PLAYER_EVENT_ON_BIND_TO_INSTANCE        = 46,       // Implemented
-    PLAYER_EVENT_ON_UPDATE_ZONE             = 47,       // Implemented
-    PLAYER_EVENT_ON_KILL_CREATURE           = 48,       // Implemented
-    PLAYER_EVENT_ON_KILLED_BY_CREATURE      = 49,       // Implemented
-    PLAYER_EVENT_ON_MAP_CHANGE              = 50,       // Not Implemented
+    PLAYER_EVENT_ON_CHARACTER_CREATE        =     1,           // Implemented
+    PLAYER_EVENT_ON_CHARACTER_DELETE        =     2,           // Implemented
+    PLAYER_EVENT_ON_LOGIN                   =     3,           // Implemented
+    PLAYER_EVENT_ON_LOGOUT                  =     4,           // Implemented
+    PLAYER_EVENT_ON_SPELL_CAST              =     5,           // Not Implemented
+    PLAYER_EVENT_ON_KILL_PLAYER             =     6,           // Implemented
+    PLAYER_EVENT_ON_KILL_CREATURE           =     7,           // Implemented
+    PLAYER_EVENT_ON_KILLED_BY_CREATURE      =     8,           // Implemented
+    PLAYER_EVENT_ON_DUEL_REQUEST            =     9,           // Implemented
+    PLAYER_EVENT_ON_DUEL_START              =     10,           // Implemented
+    PLAYER_EVENT_ON_DUEL_END                =     11,           // Implemented
+    PLAYER_EVENT_ON_GIVE_XP                 =     12,           // Implemented
+    PLAYER_EVENT_ON_LEVEL_CHANGE            =     13,           // Implemented -- The level is the old level
+    PLAYER_EVENT_ON_MONEY_CHANGE            =     14,           // Implemented
+    PLAYER_EVENT_ON_REPUTATION_CHANGE       =     15,           // Implemented
+    PLAYER_EVENT_ON_TALENTS_CHANGE          =     16,           // Implemented
+    PLAYER_EVENT_ON_TALENTS_RESET           =     17,           // Implemented
+    PLAYER_EVENT_ON_CHAT                    =     18,           // Implemented
+    PLAYER_EVENT_ON_EMOTE                   =     19,           // Implemented -- Not triggered on any known emote
+    PLAYER_EVENT_ON_TEXT_EMOTE              =     20,           // Implemented
+    PLAYER_EVENT_ON_SAVE                    =     21,           // Implemented
+    PLAYER_EVENT_ON_BIND_TO_INSTANCE        =     22,           // Implemented
+    PLAYER_EVENT_ON_UPDATE_ZONE             =     23,           // Implemented
+    PLAYER_EVENT_ON_MAP_CHANGE              =     24,           // Implemented
 
     // Guild
-    GUILD_EVENT_ON_ADD_MEMBER               = 51,       // Not Implemented
-    GUILD_EVENT_ON_REMOVE_MEMBER            = 52,       // Not Implemented
-    GUILD_EVENT_ON_MOTD_CHANGE              = 53,       // Not Implemented
-    GUILD_EVENT_ON_INFO_CHANGE              = 54,       // Not Implemented
-    GUILD_EVENT_ON_CREATE                   = 55,       // Not Implemented
-    GUILD_EVENT_ON_DISBAND                  = 56,       // Not Implemented
-    GUILD_EVENT_ON_MONEY_WITHDRAW           = 57,       // Not Implemented
-    GUILD_EVENT_ON_MONEY_DEPOSIT            = 58,       // Not Implemented
-    GUILD_EVENT_ON_ITEM_MOVE                = 59,       // Not Implemented
-    GUILD_EVENT_ON_EVENT                    = 60,       // Not Implemented
-    GUILD_EVENT_ON_BANK_EVENT               = 61,       // Not Implemented
+    GUILD_EVENT_ON_ADD_MEMBER               =     25,           // Implemented -- Commented out
+    GUILD_EVENT_ON_REMOVE_MEMBER            =     26,           // Implemented -- Commented out
+    GUILD_EVENT_ON_MOTD_CHANGE              =     27,           // Implemented -- Commented out
+    GUILD_EVENT_ON_INFO_CHANGE              =     28,           // Implemented -- Commented out
+    GUILD_EVENT_ON_CREATE                   =     29,           // Implemented -- Commented out
+    GUILD_EVENT_ON_DISBAND                  =     30,           // Implemented -- Commented out
+    GUILD_EVENT_ON_MONEY_WITHDRAW           =     31,           // Implemented -- Commented out
+    GUILD_EVENT_ON_MONEY_DEPOSIT            =     32,           // Implemented -- Commented out
+    GUILD_EVENT_ON_ITEM_MOVE                =     33,           // Implemented -- Commented out
+    GUILD_EVENT_ON_EVENT                    =     34,           // Implemented -- Commented out
+    GUILD_EVENT_ON_BANK_EVENT               =     35,           // Implemented -- Commented out
 
     // Server
-    SERVER_EVENT_ON_NETWORK_START           = 62,       // Not Implemented
-    SERVER_EVENT_ON_NETWORK_STOP            = 63,       // Not Implemented
-    SERVER_EVENT_ON_SOCKET_OPEN             = 64,       // Not Implemented
-    SERVER_EVENT_ON_SOCKET_CLOSE            = 65,       // Not Implemented
-    SERVER_EVENT_ON_PACKET_RECEIVE          = 66,       // Not Implemented
-    SERVER_EVENT_ON_PACKET_RECEIVE_UNKNOWN  = 67,       // Not Implemented
-    SERVER_EVENT_ON_PACKET_SEND             = 68,       // Not Implemented
+    SERVER_EVENT_ON_NETWORK_START           =     36,           // Not Implemented
+    SERVER_EVENT_ON_NETWORK_STOP            =     37,           // Not Implemented
+    SERVER_EVENT_ON_SOCKET_OPEN             =     38,           // Not Implemented
+    SERVER_EVENT_ON_SOCKET_CLOSE            =     39,           // Not Implemented
+    SERVER_EVENT_ON_PACKET_RECEIVE          =     40,           // Not Implemented
+    SERVER_EVENT_ON_PACKET_RECEIVE_UNKNOWN  =     41,           // Not Implemented
+    SERVER_EVENT_ON_PACKET_SEND             =     42,           // Not Implemented
 
     // World
-    WORLD_EVENT_ON_OPEN_STATE_CHANGE        = 69,       // Not Implemented
-    WORLD_EVENT_ON_CONFIG_LOAD              = 70,       // Not Implemented
-    WORLD_EVENT_ON_MOTD_CHANGE              = 71,       // Not Implemented
-    WORLD_EVENT_ON_SHUTDOWN_INIT            = 72,       // Not Implemented
-    WORLD_EVENT_ON_SHUTDOWN_CANCEL          = 73,       // Not Implemented
-    WORLD_EVENT_ON_UPDATE                   = 74,       // Not Implemented
-    WORLD_EVENT_ON_STARTUP                  = 75,       // Not Implemented
-    WORLD_EVENT_ON_SHUTDOWN                 = 76,       // Not Implemented
+    WORLD_EVENT_ON_OPEN_STATE_CHANGE        =     43,           // Implemented
+    WORLD_EVENT_ON_CONFIG_LOAD              =     44,           // Implemented
+    WORLD_EVENT_ON_MOTD_CHANGE              =     45,           // Implemented
+    WORLD_EVENT_ON_SHUTDOWN_INIT            =     46,           // Implemented
+    WORLD_EVENT_ON_SHUTDOWN_CANCEL          =     47,           // Implemented
+    WORLD_EVENT_ON_UPDATE                   =     48,           // Implemented
+    WORLD_EVENT_ON_STARTUP                  =     49,           // Implemented -- Actual server start
+    WORLD_EVENT_ON_SHUTDOWN                 =     50,           // Implemented
+
+    // Eluna
+    ELUNA_EVENT_ON_RESTART                  =     51,           // Implemented
 
     // Map
-    MAP_EVENT_ON_CREATE                     = 77,       // Not Implemented
-    MAP_EVENT_ON_DESTROY                    = 78,       // Not Implemented
-    MAP_EVENT_ON_LOAD                       = 79,       // Not Implemented
-    MAP_EVENT_ON_UNLOAD                     = 80,       // Not Implemented
-    MAP_EVENT_ON_PLAYER_ENTER               = 81,       // Not Implemented
-    MAP_EVENT_ON_PLAYER_LEAVE               = 82,       // Not Implemented
-    MAP_EVENT_ON_UPDATE                     = 83,       // Not Implemented
+    MAP_EVENT_ON_CREATE                     =     52,           // Not Implemented
+    MAP_EVENT_ON_DESTROY                    =     53,           // Not Implemented
+    MAP_EVENT_ON_LOAD                       =     54,           // Not Implemented
+    MAP_EVENT_ON_UNLOAD                     =     55,           // Not Implemented
+    MAP_EVENT_ON_PLAYER_ENTER               =     56,           // Not Implemented
+    MAP_EVENT_ON_PLAYER_LEAVE               =     57,           // Not Implemented
+    MAP_EVENT_ON_UPDATE                     =     58,           // Not Implemented
 
     // Area trigger
-    TRIGGER_EVENT_ON_TRIGGER                = 84,       // Not Implemented
+    TRIGGER_EVENT_ON_TRIGGER                =     59,           // Implemented
 
     // Weather
-    WEATHER_EVENT_ON_CHANGE                 = 85,       // Not Implemented
+    WEATHER_EVENT_ON_CHANGE                 =     60,           // Implemented - Add weather object?
 
     // Auction house
-    AUCTION_EVENT_ON_ADD                    = 86,       // Not Implemented
-    AUCTION_EVENT_ON_REMOVE                 = 87,       // Not Implemented
-    AUCTION_EVENT_ON_SUCCESFUL              = 88,       // Not Implemented
-    AUCTION_EVENT_ON_EXPIRE                 = 89,       // Not Implemented
+    AUCTION_EVENT_ON_ADD                    =     61,           // Not Implemented
+    AUCTION_EVENT_ON_REMOVE                 =     62,           // Not Implemented
+    AUCTION_EVENT_ON_SUCCESFUL              =     63,           // Not Implemented
+    AUCTION_EVENT_ON_EXPIRE                 =     64,           // Not Implemented
 
     // Group
-    GROUP_EVENT_ON_MEMBER_ADD               = 90,       // Not Implemented
-    GROUP_EVENT_ON_MEMBER_INVITE            = 91,       // Not Implemented
-    GROUP_EVENT_ON_MEMBER_REMOVE            = 92,       // Not Implemented
-    GROUP_EVENT_ON_LEADER_CHANGE            = 93,       // Not Implemented
-    GROUP_EVENT_ON_DISBAND                  = 94,       // Not Implemented
+    GROUP_EVENT_ON_MEMBER_ADD               =     65,           // Implemented
+    GROUP_EVENT_ON_MEMBER_INVITE            =     66,           // Implemented
+    GROUP_EVENT_ON_MEMBER_REMOVE            =     67,           // Implemented
+    GROUP_EVENT_ON_LEADER_CHANGE            =     68,           // Implemented
+    GROUP_EVENT_ON_DISBAND                  =     69,           // Implemented
 
     SERVER_EVENT_COUNT
 };
@@ -202,7 +205,7 @@ enum CreatureEvents
     CREATURE_EVENT_ON_QUEST_SELECT                  = 50,   // Implemented
     CREATURE_EVENT_ON_QUEST_COMPLETE                = 51,   // Implemented
     CREATURE_EVENT_ON_QUEST_REWARD                  = 52,   // Implemented
-    CREATURE_EVENT_ON_DIALOG_STATUS                 = 53,   // Implemented
+    CREATURE_EVENT_ON_DIALOG_STATUS                 = 53,   // Not Implemented
     CREATURE_EVENT_COUNT
 };
 
@@ -411,6 +414,7 @@ public:
     void PushAura(lua_State*, Aura*);
     void PushChannel(lua_State*, Channel*);
     void PushItem(lua_State*, Item*);
+    void PushPacket(lua_State*, WorldPacket*);
     // Checks
     Player * CHECK_PLAYER(lua_State* L, int narg)
     {
@@ -747,12 +751,21 @@ public:
     class LuaWorldScript : public WorldScript, public luaEventMap
     {
     public:
-        LuaWorldScript() : WorldScript("LuaWorldScript"), luaEventMap() {}
-
+        LuaWorldScript() : WorldScript("SmartLuaWorldScript"), luaEventMap() {}
+        
+        // Called on every world tick (don't execute too heavy code here).
         void OnUpdate(uint32 diff)
         {
             LuaEventsUpdate(diff);
             LuaEventsExecute();
+            for (vector<uint16>::iterator itr = Eluna::get()->_serverEventBindings.at(WORLD_EVENT_ON_UPDATE).begin();
+                itr != Eluna::get()->_serverEventBindings.at(WORLD_EVENT_ON_UPDATE).end(); itr++)
+            {
+                Eluna::get()->BeginCall((*itr));
+                Eluna::get()->PushUnsigned(Eluna::get()->_luaState, WORLD_EVENT_ON_UPDATE);
+                Eluna::get()->PushUnsigned(Eluna::get()->_luaState, diff);
+                Eluna::get()->ExecuteCall(2, 0);
+            }
         }
 
         // executed when a  timed event fires
@@ -763,6 +776,95 @@ public:
             Eluna::get()->PushUnsigned(Eluna::get()->_luaState, delay);
             Eluna::get()->PushUnsigned(Eluna::get()->_luaState, calls);
             Eluna::get()->ExecuteCall(3, 0);
+        }
+
+        // Called when the open/closed state of the world changes.
+        void OnOpenStateChange(bool open)
+        {
+            for (vector<uint16>::iterator itr = Eluna::get()->_serverEventBindings.at(WORLD_EVENT_ON_OPEN_STATE_CHANGE).begin();
+                itr != Eluna::get()->_serverEventBindings.at(WORLD_EVENT_ON_OPEN_STATE_CHANGE).end(); itr++)
+            {
+                Eluna::get()->BeginCall((*itr));
+                Eluna::get()->PushUnsigned(Eluna::get()->_luaState, WORLD_EVENT_ON_OPEN_STATE_CHANGE);
+                Eluna::get()->PushBoolean(Eluna::get()->_luaState, open);
+                Eluna::get()->ExecuteCall(2, 0);
+            }
+        }
+
+        // Called after the world configuration is (re)loaded.
+        void OnConfigLoad(bool reload)
+        {
+            for (vector<uint16>::iterator itr = Eluna::get()->_serverEventBindings.at(WORLD_EVENT_ON_CONFIG_LOAD).begin();
+                itr != Eluna::get()->_serverEventBindings.at(WORLD_EVENT_ON_CONFIG_LOAD).end(); itr++)
+            {
+                Eluna::get()->BeginCall((*itr));
+                Eluna::get()->PushUnsigned(Eluna::get()->_luaState, WORLD_EVENT_ON_CONFIG_LOAD);
+                Eluna::get()->PushBoolean(Eluna::get()->_luaState, reload);
+                Eluna::get()->ExecuteCall(2, 0);
+            }
+        }
+
+        // Called before the message of the day is changed.
+        void OnMotdChange(std::string& newMotd)
+        {
+            for (vector<uint16>::iterator itr = Eluna::get()->_serverEventBindings.at(WORLD_EVENT_ON_MOTD_CHANGE).begin();
+                itr != Eluna::get()->_serverEventBindings.at(WORLD_EVENT_ON_MOTD_CHANGE).end(); itr++)
+            {
+                Eluna::get()->BeginCall((*itr));
+                Eluna::get()->PushUnsigned(Eluna::get()->_luaState, WORLD_EVENT_ON_MOTD_CHANGE);
+                Eluna::get()->PushString(Eluna::get()->_luaState, newMotd.c_str());
+                Eluna::get()->ExecuteCall(2, 0);
+            }
+        }
+
+        // Called when a world shutdown is initiated.
+        void OnShutdownInitiate(ShutdownExitCode code, ShutdownMask mask)
+        {
+            for (vector<uint16>::iterator itr = Eluna::get()->_serverEventBindings.at(WORLD_EVENT_ON_SHUTDOWN_INIT).begin();
+                itr != Eluna::get()->_serverEventBindings.at(WORLD_EVENT_ON_SHUTDOWN_INIT).end(); itr++)
+            {
+                Eluna::get()->BeginCall((*itr));
+                Eluna::get()->PushUnsigned(Eluna::get()->_luaState, WORLD_EVENT_ON_SHUTDOWN_INIT);
+                Eluna::get()->PushInteger(Eluna::get()->_luaState, code);
+                Eluna::get()->PushInteger(Eluna::get()->_luaState, mask);
+                Eluna::get()->ExecuteCall(3, 0);
+            }
+        }
+
+        // Called when a world shutdown is cancelled.
+        void OnShutdownCancel()
+        {
+            for (vector<uint16>::iterator itr = Eluna::get()->_serverEventBindings.at(WORLD_EVENT_ON_SHUTDOWN_CANCEL).begin();
+                itr != Eluna::get()->_serverEventBindings.at(WORLD_EVENT_ON_SHUTDOWN_CANCEL).end(); itr++)
+            {
+                Eluna::get()->BeginCall((*itr));
+                Eluna::get()->PushUnsigned(Eluna::get()->_luaState, WORLD_EVENT_ON_SHUTDOWN_CANCEL);
+                Eluna::get()->ExecuteCall(1, 0);
+            }
+        }
+
+        // Called when the world is started.
+        void OnStartup()
+        {
+            for (vector<uint16>::iterator itr = Eluna::get()->_serverEventBindings.at(WORLD_EVENT_ON_STARTUP).begin();
+                itr != Eluna::get()->_serverEventBindings.at(WORLD_EVENT_ON_STARTUP).end(); itr++)
+            {
+                Eluna::get()->BeginCall((*itr));
+                Eluna::get()->PushUnsigned(Eluna::get()->_luaState, WORLD_EVENT_ON_STARTUP);
+                Eluna::get()->ExecuteCall(1, 0);
+            }
+        }
+
+        // Called when the world is actually shut down.
+        void OnShutdown()
+        {
+            for (vector<uint16>::iterator itr = Eluna::get()->_serverEventBindings.at(WORLD_EVENT_ON_SHUTDOWN).begin();
+                itr != Eluna::get()->_serverEventBindings.at(WORLD_EVENT_ON_SHUTDOWN).end(); itr++)
+            {
+                Eluna::get()->BeginCall((*itr));
+                Eluna::get()->PushUnsigned(Eluna::get()->_luaState, WORLD_EVENT_ON_SHUTDOWN);
+                Eluna::get()->ExecuteCall(1, 0);
+            }
         }
     };
 
@@ -1378,7 +1480,7 @@ public:
                 Eluna::get()->BeginCall(GetGameObjectAIBindingForId(go->GetEntry())->_functionReferences[GAMEOBJECT_EVENT_DOACTION]);
                 Eluna::get()->PushInteger(Eluna::get()->_luaState, GAMEOBJECT_EVENT_DOACTION);
                 Eluna::get()->PushGO(Eluna::get()->_luaState, go);
-                Eluna::get()->PushUnsigned(Eluna::get()->_luaState, param);
+                Eluna::get()->PushInteger(Eluna::get()->_luaState, param);
                 Eluna::get()->ExecuteCall(3, 0);
             }
 
@@ -1388,7 +1490,7 @@ public:
                 Eluna::get()->PushInteger(Eluna::get()->_luaState, GAMEOBJECT_EVENT_ON_SET_GUID);
                 Eluna::get()->PushGO(Eluna::get()->_luaState, go);
                 Eluna::get()->PushGUID(Eluna::get()->_luaState, guid);
-                Eluna::get()->PushUnsigned(Eluna::get()->_luaState, id);
+                Eluna::get()->PushInteger(Eluna::get()->_luaState, id);
                 Eluna::get()->ExecuteCall(4, 0);
             }
         };
@@ -1408,7 +1510,6 @@ public:
 
 #define sLuaCreatureScript ACE_Singleton<Eluna::LuaCreatureScript, ACE_Null_Mutex>::instance()
 #define sLuaGameObjectScript ACE_Singleton<Eluna::LuaGameObjectScript, ACE_Null_Mutex>::instance()
-#define sLuaWorldScript ACE_Singleton<Eluna::LuaWorldScript, ACE_Null_Mutex>::instance()
 
 class ElunaScript : public ScriptObject
 {
@@ -1671,7 +1772,7 @@ public:
             Eluna::get()->BeginCall((*itr));
             Eluna::get()->PushUnsigned(Eluna::get()->_luaState, eventId);
             Eluna::get()->PushUnit(Eluna::get()->_luaState, player);
-            Eluna::get()->PushUnsigned(Eluna::get()->_luaState, amount);
+            Eluna::get()->PushInteger(Eluna::get()->_luaState, amount);
             Eluna::get()->ExecuteCall(3, 0);
         }
     }
@@ -1699,7 +1800,7 @@ public:
             Eluna::get()->PushUnsigned(Eluna::get()->_luaState, eventId);
             Eluna::get()->PushUnit(Eluna::get()->_luaState, player);
             Eluna::get()->PushUnsigned(Eluna::get()->_luaState, factionID);
-            Eluna::get()->PushUnsigned(Eluna::get()->_luaState, standing);
+            Eluna::get()->PushInteger(Eluna::get()->_luaState, standing);
             Eluna::get()->PushBoolean(Eluna::get()->_luaState, incremental);
             Eluna::get()->ExecuteCall(5, 0);
         }
@@ -1755,6 +1856,21 @@ public:
             Eluna::get()->PushUnit(Eluna::get()->_luaState, player);
             Eluna::get()->PushUnsigned(Eluna::get()->_luaState, emote);
             Eluna::get()->ExecuteCall(3, 0);
+        }
+    }
+
+    void OnPlayerTextEmote(uint32 eventId, Player* player, uint32 textEmote, uint32 emoteNum, uint64 guid)
+    {
+        for (vector<uint16>::iterator itr = Eluna::get()->_serverEventBindings.at(eventId).begin();
+            itr != Eluna::get()->_serverEventBindings.at(eventId).end(); itr++)
+        {
+            Eluna::get()->BeginCall((*itr));
+            Eluna::get()->PushUnsigned(Eluna::get()->_luaState, eventId);
+            Eluna::get()->PushUnit(Eluna::get()->_luaState, player);
+            Eluna::get()->PushUnsigned(Eluna::get()->_luaState, textEmote);
+            Eluna::get()->PushUnsigned(Eluna::get()->_luaState, emoteNum);
+            Eluna::get()->PushGUID(Eluna::get()->_luaState, guid);
+            Eluna::get()->ExecuteCall(5, 0);
         }
     }
 
@@ -1818,6 +1934,18 @@ public:
             Eluna::get()->PushUnsigned(Eluna::get()->_luaState, mapid);
             Eluna::get()->PushBoolean(Eluna::get()->_luaState, permanent);
             Eluna::get()->ExecuteCall(5, 0);
+        }
+    }
+
+    void OnMapChanged(uint32 eventId, Player* player)
+    {
+        for (vector<uint16>::iterator itr = Eluna::get()->_serverEventBindings.at(eventId).begin();
+            itr != Eluna::get()->_serverEventBindings.at(eventId).end(); itr++)
+        {
+            Eluna::get()->BeginCall((*itr));
+            Eluna::get()->PushUnsigned(Eluna::get()->_luaState, eventId);
+            Eluna::get()->PushUnit(Eluna::get()->_luaState, player);
+            Eluna::get()->ExecuteCall(2, 0);
         }
     }
 
@@ -2163,6 +2291,278 @@ public:
         Eluna::get()->PushUnsigned(Eluna::get()->_luaState, state);
         Eluna::get()->ExecuteCall(3, 0);
 		return true;
+    }
+
+    void OnGuildAddMember(uint32 eventId, Guild* guild, Player* player, uint8& plRank)
+    {
+        for (vector<uint16>::iterator itr = Eluna::get()->_serverEventBindings.at(eventId).begin();
+            itr != Eluna::get()->_serverEventBindings.at(eventId).end(); itr++)
+        {
+            Eluna::get()->BeginCall((*itr));
+            Eluna::get()->PushUnsigned(Eluna::get()->_luaState, eventId);
+            Eluna::get()->PushGuild(Eluna::get()->_luaState, guild);
+            Eluna::get()->PushUnit(Eluna::get()->_luaState, player);
+            Eluna::get()->PushUnsigned(Eluna::get()->_luaState, plRank);
+            Eluna::get()->ExecuteCall(4, 0);
+        }
+    }
+
+    void OnGuildRemoveMember(uint32 eventId, Guild* guild, Player* player, bool isDisbanding, bool isKicked)
+    {
+        for (vector<uint16>::iterator itr = Eluna::get()->_serverEventBindings.at(eventId).begin();
+            itr != Eluna::get()->_serverEventBindings.at(eventId).end(); itr++)
+        {
+            Eluna::get()->BeginCall((*itr));
+            Eluna::get()->PushUnsigned(Eluna::get()->_luaState, eventId);
+            Eluna::get()->PushGuild(Eluna::get()->_luaState, guild);
+            Eluna::get()->PushUnit(Eluna::get()->_luaState, player);
+            Eluna::get()->PushBoolean(Eluna::get()->_luaState, isDisbanding);
+            Eluna::get()->PushBoolean(Eluna::get()->_luaState, isKicked);
+            Eluna::get()->ExecuteCall(5, 0);
+        }
+    }
+
+    void OnGuildMOTDChanged(uint32 eventId, Guild* guild, const std::string& newMotd)
+    {
+        for (vector<uint16>::iterator itr = Eluna::get()->_serverEventBindings.at(eventId).begin();
+            itr != Eluna::get()->_serverEventBindings.at(eventId).end(); itr++)
+        {
+            Eluna::get()->BeginCall((*itr));
+            Eluna::get()->PushUnsigned(Eluna::get()->_luaState, eventId);
+            Eluna::get()->PushGuild(Eluna::get()->_luaState, guild);
+            Eluna::get()->PushString(Eluna::get()->_luaState, newMotd.c_str());
+            Eluna::get()->ExecuteCall(3, 0);
+        }
+    }
+
+    void OnGuildInfoChanged(uint32 eventId, Guild* guild, const std::string& newInfo)
+    {
+        for (vector<uint16>::iterator itr = Eluna::get()->_serverEventBindings.at(eventId).begin();
+            itr != Eluna::get()->_serverEventBindings.at(eventId).end(); itr++)
+        {
+            Eluna::get()->BeginCall((*itr));
+            Eluna::get()->PushUnsigned(Eluna::get()->_luaState, eventId);
+            Eluna::get()->PushGuild(Eluna::get()->_luaState, guild);
+            Eluna::get()->PushString(Eluna::get()->_luaState, newInfo.c_str());
+            Eluna::get()->ExecuteCall(3, 0);
+        }
+    }
+
+    void OnGuildCreate(uint32 eventId, Guild* guild, Player* leader, const std::string& name)
+    {
+        for (vector<uint16>::iterator itr = Eluna::get()->_serverEventBindings.at(eventId).begin();
+            itr != Eluna::get()->_serverEventBindings.at(eventId).end(); itr++)
+        {
+            Eluna::get()->BeginCall((*itr));
+            Eluna::get()->PushUnsigned(Eluna::get()->_luaState, eventId);
+            Eluna::get()->PushGuild(Eluna::get()->_luaState, guild);
+            Eluna::get()->PushUnit(Eluna::get()->_luaState, leader);
+            Eluna::get()->PushString(Eluna::get()->_luaState, name.c_str());
+            Eluna::get()->ExecuteCall(4, 0);
+        }
+    }
+
+    void OnGuildDisband(uint32 eventId, Guild* guild)
+    {
+        for (vector<uint16>::iterator itr = Eluna::get()->_serverEventBindings.at(eventId).begin();
+            itr != Eluna::get()->_serverEventBindings.at(eventId).end(); itr++)
+        {
+            Eluna::get()->BeginCall((*itr));
+            Eluna::get()->PushUnsigned(Eluna::get()->_luaState, eventId);
+            Eluna::get()->PushGuild(Eluna::get()->_luaState, guild);
+            Eluna::get()->ExecuteCall(2, 0);
+        }
+    }
+
+    void OnGuildMemberWitdrawMoney(uint32 eventId, Guild* guild, Player* player, uint32 &amount, bool isRepair)
+    {
+        for (vector<uint16>::iterator itr = Eluna::get()->_serverEventBindings.at(eventId).begin();
+            itr != Eluna::get()->_serverEventBindings.at(eventId).end(); itr++)
+        {
+            Eluna::get()->BeginCall((*itr));
+            Eluna::get()->PushUnsigned(Eluna::get()->_luaState, eventId);
+            Eluna::get()->PushGuild(Eluna::get()->_luaState, guild);
+            Eluna::get()->PushUnit(Eluna::get()->_luaState, player);
+            Eluna::get()->PushUnsigned(Eluna::get()->_luaState, amount);
+            Eluna::get()->PushBoolean(Eluna::get()->_luaState, isRepair);
+            Eluna::get()->ExecuteCall(5, 0);
+        }
+    }
+
+    void OnGuildMemberDepositMoney(uint32 eventId, Guild* guild, Player* player, uint32 &amount)
+    {
+        for (vector<uint16>::iterator itr = Eluna::get()->_serverEventBindings.at(eventId).begin();
+            itr != Eluna::get()->_serverEventBindings.at(eventId).end(); itr++)
+        {
+            Eluna::get()->BeginCall((*itr));
+            Eluna::get()->PushUnsigned(Eluna::get()->_luaState, eventId);
+            Eluna::get()->PushGuild(Eluna::get()->_luaState, guild);
+            Eluna::get()->PushUnit(Eluna::get()->_luaState, player);
+            Eluna::get()->PushUnsigned(Eluna::get()->_luaState, amount);
+            Eluna::get()->ExecuteCall(4, 0);
+        }
+    }
+
+    void OnGuildItemMove(uint32 eventId, Guild* guild, Player* player, Item* pItem, bool isSrcBank, uint8 srcContainer, uint8 srcSlotId,
+            bool isDestBank, uint8 destContainer, uint8 destSlotId)
+    {
+        for (vector<uint16>::iterator itr = Eluna::get()->_serverEventBindings.at(eventId).begin();
+            itr != Eluna::get()->_serverEventBindings.at(eventId).end(); itr++)
+        {
+            Eluna::get()->BeginCall((*itr));
+            Eluna::get()->PushUnsigned(Eluna::get()->_luaState, eventId);
+            Eluna::get()->PushGuild(Eluna::get()->_luaState, guild);
+            Eluna::get()->PushUnit(Eluna::get()->_luaState, player);
+            Eluna::get()->PushItem(Eluna::get()->_luaState, pItem);
+            Eluna::get()->PushBoolean(Eluna::get()->_luaState, isSrcBank);
+            Eluna::get()->PushUnsigned(Eluna::get()->_luaState, srcContainer);
+            Eluna::get()->PushUnsigned(Eluna::get()->_luaState, srcSlotId);
+            Eluna::get()->PushBoolean(Eluna::get()->_luaState, isDestBank);
+            Eluna::get()->PushUnsigned(Eluna::get()->_luaState, destContainer);
+            Eluna::get()->PushUnsigned(Eluna::get()->_luaState, destSlotId);
+            Eluna::get()->ExecuteCall(10, 0);
+        }
+    }
+
+    void OnGuildEvent(uint32 eventId, Guild* guild, uint8 eventType, uint32 playerGuid1, uint32 playerGuid2, uint8 newRank)
+    {
+        for (vector<uint16>::iterator itr = Eluna::get()->_serverEventBindings.at(eventId).begin();
+            itr != Eluna::get()->_serverEventBindings.at(eventId).end(); itr++)
+        {
+            Eluna::get()->BeginCall((*itr));
+            Eluna::get()->PushUnsigned(Eluna::get()->_luaState, eventId);
+            Eluna::get()->PushGuild(Eluna::get()->_luaState, guild);
+            Eluna::get()->PushUnsigned(Eluna::get()->_luaState, eventType);
+            Eluna::get()->PushUnsigned(Eluna::get()->_luaState, playerGuid1);
+            Eluna::get()->PushUnsigned(Eluna::get()->_luaState, playerGuid2);
+            Eluna::get()->PushUnsigned(Eluna::get()->_luaState, newRank);
+            Eluna::get()->ExecuteCall(6, 0);
+        }
+    }
+
+    void OnGuildBankEvent(uint32 eventId, Guild* guild, uint8 eventType, uint8 tabId, uint32 playerGuid, uint32 itemOrMoney, uint16 itemStackCount, uint8 destTabId)
+    {
+        for (vector<uint16>::iterator itr = Eluna::get()->_serverEventBindings.at(eventId).begin();
+            itr != Eluna::get()->_serverEventBindings.at(eventId).end(); itr++)
+        {
+            Eluna::get()->BeginCall((*itr));
+            Eluna::get()->PushUnsigned(Eluna::get()->_luaState, eventId);
+            Eluna::get()->PushGuild(Eluna::get()->_luaState, guild);
+            Eluna::get()->PushUnsigned(Eluna::get()->_luaState, eventType);
+            Eluna::get()->PushUnsigned(Eluna::get()->_luaState, tabId);
+            Eluna::get()->PushUnsigned(Eluna::get()->_luaState, playerGuid);
+            Eluna::get()->PushUnsigned(Eluna::get()->_luaState, itemOrMoney);
+            Eluna::get()->PushUnsigned(Eluna::get()->_luaState, itemStackCount);
+            Eluna::get()->PushUnsigned(Eluna::get()->_luaState, destTabId);
+            Eluna::get()->ExecuteCall(8, 0);
+        }
+    }
+
+    void OnGroupAddMember(uint32 eventId, Group* group, uint64 guid)
+    {
+        for (vector<uint16>::iterator itr = Eluna::get()->_serverEventBindings.at(eventId).begin();
+            itr != Eluna::get()->_serverEventBindings.at(eventId).end(); itr++)
+        {
+            Eluna::get()->BeginCall((*itr));
+            Eluna::get()->PushUnsigned(Eluna::get()->_luaState, eventId);
+            Eluna::get()->PushGroup(Eluna::get()->_luaState, group);
+            Eluna::get()->PushGUID(Eluna::get()->_luaState, guid);
+            Eluna::get()->ExecuteCall(3, 0);
+        }
+    }
+
+    void OnGroupInviteMember(uint32 eventId, Group* group, uint64 guid)
+    {
+        for (vector<uint16>::iterator itr = Eluna::get()->_serverEventBindings.at(eventId).begin();
+            itr != Eluna::get()->_serverEventBindings.at(eventId).end(); itr++)
+        {
+            Eluna::get()->BeginCall((*itr));
+            Eluna::get()->PushUnsigned(Eluna::get()->_luaState, eventId);
+            Eluna::get()->PushGroup(Eluna::get()->_luaState, group);
+            Eluna::get()->PushGUID(Eluna::get()->_luaState, guid);
+            Eluna::get()->ExecuteCall(3, 0);
+        }
+    }
+
+    void OnGroupRemoveMember(uint32 eventId, Group* group, uint64 guid, RemoveMethod method, uint64 kicker, const char* reason)
+    {
+        for (vector<uint16>::iterator itr = Eluna::get()->_serverEventBindings.at(eventId).begin();
+            itr != Eluna::get()->_serverEventBindings.at(eventId).end(); itr++)
+        {
+            Eluna::get()->BeginCall((*itr));
+            Eluna::get()->PushUnsigned(Eluna::get()->_luaState, eventId);
+            Eluna::get()->PushGroup(Eluna::get()->_luaState, group);
+            Eluna::get()->PushGUID(Eluna::get()->_luaState, guid);
+            Eluna::get()->PushInteger(Eluna::get()->_luaState, method);
+            Eluna::get()->PushGUID(Eluna::get()->_luaState, kicker);
+            Eluna::get()->PushString(Eluna::get()->_luaState, reason);
+            Eluna::get()->ExecuteCall(6, 0);
+        }
+    }
+
+    void OnGroupChangeLeader(uint32 eventId, Group* group, uint64 newLeaderGuid, uint64 oldLeaderGuid)
+    {
+        for (vector<uint16>::iterator itr = Eluna::get()->_serverEventBindings.at(eventId).begin();
+            itr != Eluna::get()->_serverEventBindings.at(eventId).end(); itr++)
+        {
+            Eluna::get()->BeginCall((*itr));
+            Eluna::get()->PushUnsigned(Eluna::get()->_luaState, eventId);
+            Eluna::get()->PushGroup(Eluna::get()->_luaState, group);
+            Eluna::get()->PushGUID(Eluna::get()->_luaState, newLeaderGuid);
+            Eluna::get()->PushGUID(Eluna::get()->_luaState, oldLeaderGuid);
+            Eluna::get()->ExecuteCall(4, 0);
+        }
+    }
+
+    void OnGroupDisband(uint32 eventId, Group* group)
+    {
+        for (vector<uint16>::iterator itr = Eluna::get()->_serverEventBindings.at(eventId).begin();
+            itr != Eluna::get()->_serverEventBindings.at(eventId).end(); itr++)
+        {
+            Eluna::get()->BeginCall((*itr));
+            Eluna::get()->PushUnsigned(Eluna::get()->_luaState, eventId);
+            Eluna::get()->PushGroup(Eluna::get()->_luaState, group);
+            Eluna::get()->ExecuteCall(2, 0);
+        }
+    }
+
+    void OnWeatherChange(uint32 eventId, Weather* weather, WeatherState state, float grade)
+    {
+        for (vector<uint16>::iterator itr = Eluna::get()->_serverEventBindings.at(eventId).begin();
+            itr != Eluna::get()->_serverEventBindings.at(eventId).end(); itr++)
+        {
+            Eluna::get()->BeginCall((*itr));
+            Eluna::get()->PushUnsigned(Eluna::get()->_luaState, eventId);
+            Eluna::get()->PushUnsigned(Eluna::get()->_luaState, (weather->GetZone()));
+            Eluna::get()->PushInteger(Eluna::get()->_luaState, state);
+            Eluna::get()->PushFloat(Eluna::get()->_luaState, grade);
+            Eluna::get()->ExecuteCall(4, 0);
+        }
+    }
+
+    bool OnAreaTrigger(uint32 eventId, Player* player, AreaTriggerEntry const* trigger)
+    {
+        for (vector<uint16>::iterator itr = Eluna::get()->_serverEventBindings.at(eventId).begin();
+            itr != Eluna::get()->_serverEventBindings.at(eventId).end(); itr++)
+        {
+            Eluna::get()->BeginCall((*itr));
+            Eluna::get()->PushUnsigned(Eluna::get()->_luaState, eventId);
+            Eluna::get()->PushUnit(Eluna::get()->_luaState, player);
+            Eluna::get()->PushUnsigned(Eluna::get()->_luaState, trigger->id);
+            Eluna::get()->ExecuteCall(3, 0);
+        }
+        return false;
+    }
+
+    void OnElunaRestart(uint32 eventId)
+    {
+        for (vector<uint16>::iterator itr = Eluna::get()->_serverEventBindings.at(eventId).begin();
+            itr != Eluna::get()->_serverEventBindings.at(eventId).end(); itr++)
+        {
+            Eluna::get()->BeginCall((*itr));
+            Eluna::get()->PushUnsigned(Eluna::get()->_luaState, eventId);
+            Eluna::get()->ExecuteCall(1, 0);
+        }
     }
 };
 #endif

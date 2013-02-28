@@ -2,6 +2,8 @@
 FOEREAPER TOMMY ENGINE, YEAH!
 */
 #include "LuaEngine.h"
+Eluna::LuaWorldScript* sLuaWorldScript = NULL;
+
 #include "GlobalMethods.h"
 #include "UnitMethods.h"
 #include "GroupMethods.h"
@@ -27,6 +29,7 @@ void Eluna::Init()
 
     LuaEngine = new Eluna;
     Script = new ElunaScript("Eluna");
+    sLuaWorldScript = new LuaWorldScript;
     get()->StartEluna();
 }
 
@@ -355,6 +358,15 @@ void Eluna::PushItem(lua_State* L, Item* item)
         lua_pushnil(L);
 }
 
+void Eluna::PushPacket(lua_State* L, WorldPacket* packet)
+{
+    if(!L) L = _luaState;
+    if(packet)
+        ElunaTemplate<WorldPacket>::push(L, packet);
+    else
+        lua_pushnil(L);
+}
+
 // Unregisters and stops all timed events
 void Eluna::luaEventMap::LuaEventsResetAll()
 {
@@ -597,6 +609,8 @@ void Eluna::Register(uint8 regtype, uint32 id, uint32 evt, uint16 functionRef)
 void Eluna::Restart()
 {
     sLog->outInfo(LOG_FILTER_GENERAL, "Eluna Nova::Restarting Engine");
+
+    getScript()->OnElunaRestart(ELUNA_EVENT_ON_RESTART);
 
     Eluna::luaEventMap::LuaEventsResetAll(); // Unregisters and stops all timed events
 

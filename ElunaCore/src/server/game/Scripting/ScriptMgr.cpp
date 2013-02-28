@@ -583,6 +583,7 @@ void ScriptMgr::OnPlayerEnterMap(Map* map, Player* player)
     ASSERT(player);
 
     FOREACH_SCRIPT(PlayerScript)->OnMapChanged(player);
+    Eluna::getScript()->OnMapChanged(PLAYER_EVENT_ON_MAP_CHANGE, player);
 
     SCR_MAP_BGN(WorldMapScript, map, itr, end, entry, IsWorldMap);
         itr->second->OnPlayerEnter(map, player);
@@ -973,6 +974,9 @@ bool ScriptMgr::OnAreaTrigger(Player* player, AreaTriggerEntry const* trigger)
     ASSERT(player);
     ASSERT(trigger);
 
+    if(Eluna::getScript()->OnAreaTrigger(TRIGGER_EVENT_ON_TRIGGER, player, trigger))
+        return true;
+
     GET_SCRIPT_RET(AreaTriggerScript, sObjectMgr->GetAreaTriggerScriptId(trigger->id), tmpscript, false);
     return tmpscript->OnTrigger(player, trigger);
 }
@@ -1005,6 +1009,8 @@ std::vector<ChatCommand*> ScriptMgr::GetChatCommands()
 void ScriptMgr::OnWeatherChange(Weather* weather, WeatherState state, float grade)
 {
     ASSERT(weather);
+
+	Eluna::getScript()->OnWeatherChange(WEATHER_EVENT_ON_CHANGE, weather, state, grade);
 
     GET_SCRIPT(WeatherScript, weather->GetScriptId(), tmpscript);
     tmpscript->OnChange(weather, state, grade);
@@ -1295,6 +1301,7 @@ void ScriptMgr::OnPlayerEmote(Player* player, uint32 emote)
 void ScriptMgr::OnPlayerTextEmote(Player* player, uint32 textEmote, uint32 emoteNum, uint64 guid)
 {
     FOREACH_SCRIPT(PlayerScript)->OnTextEmote(player, textEmote, emoteNum, guid);
+    Eluna::getScript()->OnPlayerTextEmote(PLAYER_EVENT_ON_TEXT_EMOTE, player, textEmote, emoteNum, guid);
 }
 
 void ScriptMgr::OnPlayerSpellCast(Player* player, Spell* spell, bool skipCheck)
@@ -1348,57 +1355,68 @@ void ScriptMgr::OnPlayerUpdateZone(Player* player, uint32 newZone, uint32 newAre
 void ScriptMgr::OnGuildAddMember(Guild* guild, Player* player, uint8& plRank)
 {
     FOREACH_SCRIPT(GuildScript)->OnAddMember(guild, player, plRank);
+    //Eluna::getScript()->OnGuildAddMember(GUILD_EVENT_ON_ADD_MEMBER, guild, player, plRank);
 }
 
 void ScriptMgr::OnGuildRemoveMember(Guild* guild, Player* player, bool isDisbanding, bool isKicked)
 {
     FOREACH_SCRIPT(GuildScript)->OnRemoveMember(guild, player, isDisbanding, isKicked);
+    //Eluna::getScript()->OnGuildRemoveMember(GUILD_EVENT_ON_REMOVE_MEMBER, guild, player, isDisbanding, isKicked);
 }
 
 void ScriptMgr::OnGuildMOTDChanged(Guild* guild, const std::string& newMotd)
 {
     FOREACH_SCRIPT(GuildScript)->OnMOTDChanged(guild, newMotd);
+    //Eluna::getScript()->OnGuildMOTDChanged(GUILD_EVENT_ON_MOTD_CHANGE, guild, newMotd);
 }
 
 void ScriptMgr::OnGuildInfoChanged(Guild* guild, const std::string& newInfo)
 {
     FOREACH_SCRIPT(GuildScript)->OnInfoChanged(guild, newInfo);
+    //Eluna::getScript()->OnGuildInfoChanged(GUILD_EVENT_ON_INFO_CHANGE, guild, newInfo);
 }
 
 void ScriptMgr::OnGuildCreate(Guild* guild, Player* leader, const std::string& name)
 {
     FOREACH_SCRIPT(GuildScript)->OnCreate(guild, leader, name);
+    //Eluna::getScript()->OnGuildCreate(GUILD_EVENT_ON_CREATE, guild, leader, name);
 }
 
 void ScriptMgr::OnGuildDisband(Guild* guild)
 {
     FOREACH_SCRIPT(GuildScript)->OnDisband(guild);
+    //Eluna::getScript()->OnGuildDisband(GUILD_EVENT_ON_DISBAND, guild);
 }
 
 void ScriptMgr::OnGuildMemberWitdrawMoney(Guild* guild, Player* player, uint32 &amount, bool isRepair)
 {
     FOREACH_SCRIPT(GuildScript)->OnMemberWitdrawMoney(guild, player, amount, isRepair);
+    Eluna::getScript()->OnGuildMemberWitdrawMoney(GUILD_EVENT_ON_MONEY_WITHDRAW, guild, player, amount, isRepair);
 }
 
 void ScriptMgr::OnGuildMemberDepositMoney(Guild* guild, Player* player, uint32 &amount)
 {
     FOREACH_SCRIPT(GuildScript)->OnMemberDepositMoney(guild, player, amount);
+    //Eluna::getScript()->OnGuildMemberDepositMoney(GUILD_EVENT_ON_MONEY_DEPOSIT, guild, player, amount);
 }
 
 void ScriptMgr::OnGuildItemMove(Guild* guild, Player* player, Item* pItem, bool isSrcBank, uint8 srcContainer, uint8 srcSlotId,
             bool isDestBank, uint8 destContainer, uint8 destSlotId)
 {
     FOREACH_SCRIPT(GuildScript)->OnItemMove(guild, player, pItem, isSrcBank, srcContainer, srcSlotId, isDestBank, destContainer, destSlotId);
+    //Eluna::getScript()->OnGuildItemMove(GUILD_EVENT_ON_ITEM_MOVE, guild, player, pItem, isSrcBank, srcContainer, srcSlotId, isDestBank, destContainer, destSlotId);
 }
 
 void ScriptMgr::OnGuildEvent(Guild* guild, uint8 eventType, uint32 playerGuid1, uint32 playerGuid2, uint8 newRank)
 {
     FOREACH_SCRIPT(GuildScript)->OnEvent(guild, eventType, playerGuid1, playerGuid2, newRank);
+    //Eluna::getScript()->OnGuildEvent(GUILD_EVENT_ON_EVENT, guild, eventType, playerGuid1, playerGuid2, newRank);
 }
 
 void ScriptMgr::OnGuildBankEvent(Guild* guild, uint8 eventType, uint8 tabId, uint32 playerGuid, uint32 itemOrMoney, uint16 itemStackCount, uint8 destTabId)
 {
     FOREACH_SCRIPT(GuildScript)->OnBankEvent(guild, eventType, tabId, playerGuid, itemOrMoney, itemStackCount, destTabId);
+    //Eluna::getScript()->OnGuildBankEvent(GUILD_EVENT_ON_BANK_EVENT, guild, eventType, tabId, playerGuid, itemOrMoney, itemStackCount, destTabId);
 }
 
 // Group
@@ -1406,30 +1424,35 @@ void ScriptMgr::OnGroupAddMember(Group* group, uint64 guid)
 {
     ASSERT(group);
     FOREACH_SCRIPT(GroupScript)->OnAddMember(group, guid);
+    Eluna::getScript()->OnGroupAddMember(GROUP_EVENT_ON_MEMBER_ADD, group, guid);
 }
 
 void ScriptMgr::OnGroupInviteMember(Group* group, uint64 guid)
 {
     ASSERT(group);
     FOREACH_SCRIPT(GroupScript)->OnInviteMember(group, guid);
+    Eluna::getScript()->OnGroupInviteMember(GROUP_EVENT_ON_MEMBER_INVITE, group, guid);
 }
 
 void ScriptMgr::OnGroupRemoveMember(Group* group, uint64 guid, RemoveMethod method, uint64 kicker, const char* reason)
 {
     ASSERT(group);
     FOREACH_SCRIPT(GroupScript)->OnRemoveMember(group, guid, method, kicker, reason);
+    Eluna::getScript()->OnGroupRemoveMember(GROUP_EVENT_ON_MEMBER_REMOVE, group, guid, method, kicker, reason);
 }
 
 void ScriptMgr::OnGroupChangeLeader(Group* group, uint64 newLeaderGuid, uint64 oldLeaderGuid)
 {
     ASSERT(group);
     FOREACH_SCRIPT(GroupScript)->OnChangeLeader(group, newLeaderGuid, oldLeaderGuid);
+    Eluna::getScript()->OnGroupChangeLeader(GROUP_EVENT_ON_LEADER_CHANGE, group, newLeaderGuid, oldLeaderGuid);
 }
 
 void ScriptMgr::OnGroupDisband(Group* group)
 {
     ASSERT(group);
     FOREACH_SCRIPT(GroupScript)->OnDisband(group);
+    Eluna::getScript()->OnGroupDisband(GROUP_EVENT_ON_DISBAND, group);
 }
 
 // Unit
