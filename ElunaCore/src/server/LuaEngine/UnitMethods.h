@@ -3,6 +3,7 @@
 #include "Group.h"
 #include "Guild.h"
 #include "ArenaTeam.h"
+#include "Vehicle.h"
 
 #ifndef UNITMETHODS_H
 #define UNITMETHODS_H
@@ -1515,5 +1516,155 @@ public:
         unit->SetInt16Value(index, offset, value);
         return 0;
     }
+
+	/* Vehicle */
+
+	// IsOnVehicle()
+	static int IsOnVehicle(lua_State* L, Unit* unit)
+	{
+		TO_UNIT();
+
+		if ((unit->GetVehicle()) || (unit->ToPlayer() && unit->IsVehicle()))
+			lua_pushboolean(L, 1);
+		else
+			lua_pushboolean(L, 0);
+		return 1;
+	}
+
+	// DismissVehicle()
+	static int DismissVehicle(lua_State* L, Unit* unit)
+	{
+		TO_UNIT();
+
+		if (unit->GetVehicle())
+			unit->GetVehicle()->Dismiss();
+		return 0;
+	}
+
+	// AddVehiclePassenger(unit, seatId)
+	static int AddVehiclePassenger(lua_State* L, Unit* unit)
+	{
+		TO_UNIT();
+
+		Unit* passenger = Eluna::get()->CHECK_UNIT(L, 1);
+		int8 seatId = luaL_checkunsigned(L, 2);
+		Vehicle* _vehicle = unit->GetVehicle();
+
+		if (!_vehicle)
+			return 0;
+
+		_vehicle->AddPassenger(passenger, seatId);
+		return 0;
+	}
+
+	// EjectPassenger(unit) (GIVES LINKER ERROR)
+	/*
+	static int EjectPassenger(lua_State* L, Unit* unit) 
+	{
+		TO_UNIT();
+
+		Unit* passenger = Eluna::get()->CHECK_UNIT(L, 1);
+		Vehicle* _vehicle = unit->GetVehicle();
+		if (!_vehicle)
+			return 0;
+
+		_vehicle->EjectPassenger(passenger, unit);
+		return 0;
+	}*/
+
+	// RemovePassenger(unit)
+	static int RemovePassenger(lua_State* L, Unit* unit)
+	{
+		TO_UNIT();
+
+		Unit* passenger = Eluna::get()->CHECK_UNIT(L, 1);
+		Vehicle* _vehicle = unit->GetVehicle();
+		if (!_vehicle)
+			return 0;
+		
+		_vehicle->RemovePassenger(passenger);
+		return 0;
+	}
+
+	// RemoveAllPassengers()
+	static int RemoveAllPassengers(lua_State* L, Unit* unit)
+	{
+		TO_UNIT();
+
+		Unit* _unit = unit->GetVehicleBase();
+		if (!_unit)
+			return 0;
+
+		_unit->GetVehicle()->RemoveAllPassengers();
+		return 0;
+	}
+
+	// GetPassenger(seatId)
+	static int GetPassenger(lua_State* L, Unit* unit)
+	{
+		TO_UNIT();
+
+		int8 seatId = luaL_checkunsigned(L, 1);
+		Unit* _unit = unit->GetVehicleBase();
+		if (!_unit)
+			return 0;
+
+		Eluna::get()->PushUnit(L, _unit->GetVehicle()->GetPassenger(seatId));
+		return 1;
+	}
+
+	// GetNextEmptySeat(seatId)
+	static int GetNextEmptySeat(lua_State* L, Unit* unit)
+	{
+		TO_UNIT();
+
+		int8 seatId = luaL_checkunsigned(L, 1);
+		Unit* _unit = unit->GetVehicleBase();
+		if (!_unit)
+			return 0;
+
+		Eluna::get()->PushInteger(L, _unit->GetVehicle()->GetNextEmptySeat(seatId, true));
+		return 1;
+	}
+
+	// GetAvailableSeats()
+	static int GetAvailableSeats(lua_State* L, Unit* unit)
+	{
+		TO_UNIT();
+
+		Unit* _unit = unit->GetVehicleBase();
+		if (!_unit)
+			return 0;
+
+		Eluna::get()->PushUnsigned(L, _unit->GetVehicle()->GetAvailableSeatCount());
+		return 1;
+	}
+
+	// GetVehicleBase()
+	static int GetVehicleBase(lua_State* L, Unit* unit)
+	{
+		TO_UNIT();
+
+		Unit* _unit = unit->GetVehicleBase();
+		if (_unit)
+			Eluna::get()->PushUnit(L, _unit);
+		else
+			lua_pushnil(L);
+		return 1;
+	}
+
+	// HasEmptySeat(seatId)
+	static int HasEmptySeat(lua_State* L, Unit* unit)
+	{
+		TO_UNIT();
+
+		int8 seatId = luaL_checkunsigned(L, 1);
+		Unit* _unit = unit->GetVehicleBase();
+		if (!_unit)
+			return 0;
+
+		Eluna::get()->PushBoolean(L, _unit->GetVehicle()->HasEmptySeat(seatId));
+		return 1;
+	}
 };
 #endif

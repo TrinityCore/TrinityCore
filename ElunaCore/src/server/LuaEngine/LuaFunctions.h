@@ -41,8 +41,8 @@ ElunaRegister<Unit> UnitMethods[] =
     {"Teleport", &LuaUnit::Teleport},                               // :Teleport(Map, X, Y, Z, O) - Teleports player to specified co-ordinates. Returns true if success and false if not.
     {"AddItem", &LuaUnit::AddItem},                                 // :AddItem(id, amount) - Adds amount of item to player. Returns true if success and false if not.
     {"IsInArenaTeam", &LuaUnit::IsInArenaTeam},                     // :IsInArenaTeam(type) -  type : 0 = 2v2, 1 = 3v3, 2 = 5v5 UNDOCUMENTED
-
-    // Gossip                                                           
+    
+	// Gossip                                                           
     {"GossipMenuAddItem", &LuaUnit::GossipMenuAddItem },            // :GossipMenuAddItem(icon, msg, Intid, code, accept_decline_message, money)
     {"GossipComplete", &LuaUnit::GossipComplete },                  // :GossipComplete()
     {"GossipSendMenu", &LuaUnit::GossipSendMenu },                  // :GossipSendMenu(npc_text, unit)
@@ -157,6 +157,18 @@ ElunaRegister<Unit> UnitMethods[] =
     {"PlaySoundToSet", &LuaUnit::PlayDirectSound},                  // :PlayDirectSound(soundId,  player) - Unit plays soundID to player, or everyone around if no player. (ARC compability) UNDOCUMENTED
     {"Kill", &LuaUnit::Kill},                                       // :Kill(target, durabilityLoss) - Unit kills the target, if no target then kills the unit. Durabilityloss is true by default UNDOCUMENTED
 
+	/* Vehicle */
+	{"AddVehiclePassenger", &LuaUnit::AddVehiclePassenger},         // :AddVehiclePassenger(unit, seatId) - Adds a passenger to the vehicle by specifying a unit and seatId      UNDOCUMENTED (UNTESTED)
+	{"IsOnVehicle", &LuaUnit::IsOnVehicle},                         // :IsOnVehicle() - Checks if the (unit) is in a vehicle                UNDOCUMENTED (UNTESTED)
+	{"DismissVehicle", &LuaUnit::DismissVehicle},                   // :DismissVehicle() - Dismisses the (unit)'s vehicle (Unmounts)        UNDOCUMENTED (UNTESTED)
+	//{"EjectPassenger", &LuaUnit::EjectPassenger},                   // :EjectPassenger(unit) - Ejects a specified unit out of the vehicle   UNDOCUMENTED (UNTESTED)
+	{"RemovePassenger", &LuaUnit::RemovePassenger},                 // :RemovePassenger(unit) - Removes a specific unit from the vehicle    UNDOCUMENTED (UNTESTED)
+	{"RemoveAllPassengers", &LuaUnit::RemoveAllPassengers},         // :RemoveAllPassengers() - Removes all the passengers from the vehicle UNDOCUMENTED (UNTESTED)
+	{"GetPassenger", &LuaUnit::GetPassenger},                       // :GetPassenger(seatId) - Gets a passenger by their seatId             UNDOCUMENTED (UNTESTED)
+	{"GetNextEmptySeat", &LuaUnit::GetNextEmptySeat},               // :GetNextEmptySeat(seatId) - Gets(returns) the next empty seat        UNDOCUMENTED (UNTESTED)
+	{"GetAvailableSeats", &LuaUnit::GetAvailableSeats},             // :GetAvailableSeats() - Returns the available seats count             UNDOCUMENTED (UNTESTED)
+	{"GetVehicleBase", &LuaUnit::GetVehicleBase},                   // :GetVehicleBase() - Returns the unit/player's vehicle base           UNDOCUMENTED (UNTESTED)
+	{"HasEmptySeat", &LuaUnit::HasEmptySeat},                       // :HasEmptySeat(seatId) - Checks if the specified seatId is empty(nobody in it)     UNDOCUMENTED (UNTESTED)
     { NULL, NULL },
 };
 

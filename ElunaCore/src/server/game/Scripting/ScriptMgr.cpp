@@ -725,7 +725,7 @@ bool ScriptMgr::OnGossipSelectCode(Player* player, Creature* creature, uint32 se
     ASSERT(code);
     
 	if(Eluna::getScript()->OnGossipSelectCode(GOSSIP_EVENT_ON_SELECT, player, creature, sender, action, code))
-			return true;
+		return true;
 
     GET_SCRIPT_RET(CreatureScript, creature->GetScriptId(), tmpscript, false);
     return tmpscript->OnGossipSelectCode(player, creature, sender, action, code);
@@ -751,6 +751,9 @@ bool ScriptMgr::OnQuestSelect(Player* player, Creature* creature, Quest const* q
     ASSERT(creature);
     ASSERT(quest);
 
+	if (Eluna::getScript()->OnQuestSelect(CREATURE_EVENT_ON_QUEST_SELECT, player, creature, quest))
+		return true;
+
     GET_SCRIPT_RET(CreatureScript, creature->GetScriptId(), tmpscript, false);
     player->PlayerTalkClass->ClearMenus();
     return tmpscript->OnQuestSelect(player, creature, quest);
@@ -761,6 +764,9 @@ bool ScriptMgr::OnQuestComplete(Player* player, Creature* creature, Quest const*
     ASSERT(player);
     ASSERT(creature);
     ASSERT(quest);
+
+	if (Eluna::getScript()->OnQuestComplete(CREATURE_EVENT_ON_QUEST_COMPLETE, player, creature, quest))
+		return true;
 
     GET_SCRIPT_RET(CreatureScript, creature->GetScriptId(), tmpscript, false);
     player->PlayerTalkClass->ClearMenus();
@@ -773,6 +779,9 @@ bool ScriptMgr::OnQuestReward(Player* player, Creature* creature, Quest const* q
     ASSERT(creature);
     ASSERT(quest);
 
+	if (Eluna::getScript()->OnQuestReward(CREATURE_EVENT_ON_QUEST_REWARD, player, creature, quest, opt))
+		return true;
+
     GET_SCRIPT_RET(CreatureScript, creature->GetScriptId(), tmpscript, false);
     player->PlayerTalkClass->ClearMenus();
     return tmpscript->OnQuestReward(player, creature, quest, opt);
@@ -782,6 +791,8 @@ uint32 ScriptMgr::GetDialogStatus(Player* player, Creature* creature)
 {
     ASSERT(player);
     ASSERT(creature);
+
+	//Eluna::getScript()->GetDialogStatus(CREATURE_EVENT_ON_DIALOG_STATUS, player, creature);
 
     // TODO: 100 is a funny magic number to have hanging around here...
     GET_SCRIPT_RET(CreatureScript, creature->GetScriptId(), tmpscript, 100);
@@ -877,6 +888,9 @@ bool ScriptMgr::OnQuestReward(Player* player, GameObject* go, Quest const* quest
     ASSERT(go);
     ASSERT(quest);
 
+	if (Eluna::getScript()->OnQuestReward(GAMEOBJECT_EVENT_ON_QUEST_REWARD, player, go, quest, opt))
+		return true;
+
     GET_SCRIPT_RET(GameObjectScript, go->GetScriptId(), tmpscript, false);
     player->PlayerTalkClass->ClearMenus();
     return tmpscript->OnQuestReward(player, go, quest, opt);
@@ -887,6 +901,7 @@ uint32 ScriptMgr::GetDialogStatus(Player* player, GameObject* go)
     ASSERT(player);
     ASSERT(go);
 
+	//Eluna::getScript()->GetDialogStatus(GAMEOBJECT_EVENT_ON_DIALOG_STATUS, player, go);
     // TODO: 100 is a funny magic number to have hanging around here...
     GET_SCRIPT_RET(GameObjectScript, go->GetScriptId(), tmpscript, 100);
     player->PlayerTalkClass->ClearMenus();
@@ -917,6 +932,8 @@ void ScriptMgr::OnGameObjectLootStateChanged(GameObject* go, uint32 state, Unit*
 {
     ASSERT(go);
 
+	Eluna::getScript()->OnLootStateChanged(GAMEOBJECT_EVENT_ON_LOOT_STATE_CHANGE, go, state, unit);
+
     GET_SCRIPT(GameObjectScript, go->GetScriptId(), tmpscript);
     tmpscript->OnLootStateChanged(go, state, unit);
 }
@@ -924,6 +941,8 @@ void ScriptMgr::OnGameObjectLootStateChanged(GameObject* go, uint32 state, Unit*
 void ScriptMgr::OnGameObjectStateChanged(GameObject* go, uint32 state)
 {
     ASSERT(go);
+
+	Eluna::getScript()->OnGameObjectStateChanged(GAMEOBJECT_EVENT_ON_GO_STATE_CHANGED, go, state);
 
     GET_SCRIPT(GameObjectScript, go->GetScriptId(), tmpscript);
     tmpscript->OnGameObjectStateChanged(go, state);
