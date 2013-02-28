@@ -596,7 +596,7 @@ enum SpellAttr8
     SPELL_ATTR8_NOT_IN_BG_OR_ARENA               = 0x10000000, // 28 not allow to cast or deactivate currently active effect, not sure about Fast Track
     SPELL_ATTR8_MASTERY_SPECIALIZATION           = 0x20000000, // 29
     SPELL_ATTR8_UNK30                            = 0x40000000, // 30
-    SPELL_ATTR8_UNK31                            = 0x80000000  // 31
+    SPELL_ATTR8_ATTACK_IGNORE_IMMUNE_TO_PC_FLAG  = 0x80000000  // 31 Do not check UNIT_FLAG_IMMUNE_TO_PC in IsValidAttackTarget
 };
 
 enum SpellAttr9
