@@ -102,10 +102,8 @@ public:
         npc_unworthy_initiateAI(Creature* creature) : ScriptedAI(creature)
         {
             me->SetReactState(REACT_PASSIVE);
-            if (!me->GetEquipmentId())
-                if (const CreatureTemplate* info = sObjectMgr->GetCreatureTemplate(28406))
-                    if (info->equipmentId)
-                        const_cast<CreatureTemplate*>(me->GetCreatureTemplate())->equipmentId = info->equipmentId;
+            if (!me->GetCurrentEquipmentId())
+                me->SetCurrentEquipmentId(me->GetOriginalEquipmentId());
         }
 
         uint64 playerGUID;
@@ -168,7 +166,7 @@ public:
             Talk(SAY_EVENT_START);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             switch (phase)
             {
@@ -459,7 +457,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 uiDiff)
+        void UpdateAI(uint32 uiDiff)
         {
             if (!UpdateVictim())
             {
@@ -544,7 +542,7 @@ public:
             TargetGUID = 0;
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (!Intro || !TargetGUID)
                 return;
@@ -816,7 +814,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 /*diff*/)
+        void UpdateAI(uint32 /*diff*/)
         {
             if (!me->isInCombat())
             {
@@ -890,7 +888,7 @@ public:
             minerGUID = guid;
         }
 
-        void DoAction(const int32 /*param*/)
+        void DoAction(int32 /*param*/)
         {
             if (Creature* miner = Unit::GetCreature(*me, minerGUID))
             {
@@ -1024,7 +1022,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (IntroPhase)
             {

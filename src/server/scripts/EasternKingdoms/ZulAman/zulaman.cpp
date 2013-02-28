@@ -148,7 +148,7 @@ class npc_zulaman_hostage : public CreatureScript
                     player->SendLoot(me->GetGUID(), LOOT_CORPSE);
             }
 
-            void UpdateAI(const uint32 /*diff*/)
+            void UpdateAI(uint32 /*diff*/)
             {
                 if (IsLoot)
                     DoCast(me, 7, false);
@@ -314,14 +314,14 @@ class npc_harrison_jones : public CreatureScript
                     me->SetEntry(NPC_HARRISON_JONES_2);
                     me->SetDisplayId(MODEL_HARRISON_JONES_2);
                     me->SetTarget(0);
-                    me->SetByteValue(UNIT_FIELD_BYTES_1, 0,UNIT_STAND_STATE_DEAD);
+                    me->SetByteValue(UNIT_FIELD_BYTES_1, 0, UNIT_STAND_STATE_DEAD);
                     me->SetFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_DEAD);
                     if (instance)
                         instance->SetData(DATA_GONGEVENT, DONE);
                 }
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 diff)
             {
                 if (_gongEvent)
                 {

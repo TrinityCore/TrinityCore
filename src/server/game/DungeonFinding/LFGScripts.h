@@ -26,6 +26,9 @@
 class Player;
 class Group;
 
+namespace lfg
+{
+
 class LFGPlayerScript : public PlayerScript
 {
     public:
@@ -36,6 +39,7 @@ class LFGPlayerScript : public PlayerScript
         void OnLogout(Player* player);
         void OnLogin(Player* player);
         void OnBindToInstance(Player* player, Difficulty difficulty, uint32 mapId, bool permanent);
+        void OnMapChanged(Player* player);
 };
 
 class LFGGroupScript : public GroupScript
@@ -50,3 +54,5 @@ class LFGGroupScript : public GroupScript
         void OnChangeLeader(Group* group, uint64 newLeaderGuid, uint64 oldLeaderGuid);
         void OnInviteMember(Group* group, uint64 guid);
 };
+
+} // namespace lfg

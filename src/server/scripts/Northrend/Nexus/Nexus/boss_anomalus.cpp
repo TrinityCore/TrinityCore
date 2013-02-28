@@ -124,7 +124,7 @@ class boss_anomalus : public CreatureScript
                     chaosTheory = false;
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;
@@ -191,11 +191,12 @@ class mob_chaotic_rift : public CreatureScript
     public:
         mob_chaotic_rift() : CreatureScript("mob_chaotic_rift") { }
 
-        struct mob_chaotic_riftAI : public Scripted_NoMovementAI
+        struct mob_chaotic_riftAI : public ScriptedAI
         {
-            mob_chaotic_riftAI(Creature* creature) : Scripted_NoMovementAI(creature)
+            mob_chaotic_riftAI(Creature* creature) : ScriptedAI(creature)
             {
                 instance = me->GetInstanceScript();
+                SetCombatMovement(false);
             }
 
             InstanceScript* instance;
@@ -211,7 +212,7 @@ class mob_chaotic_rift : public CreatureScript
                 DoCast(me, SPELL_ARCANEFORM, false);
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;

@@ -431,6 +431,7 @@ uint32 Condition::GetSearcherTypeMaskForCondition()
                 default:
                     break;
             }
+            break;
         case CONDITION_TYPE_MASK:
             if (ConditionValue1 & TYPEMASK_UNIT)
                 mask |= GRID_MAP_TYPE_MASK_CREATURE | GRID_MAP_TYPE_MASK_PLAYER;
@@ -777,7 +778,7 @@ void ConditionMgr::LoadConditions(bool isReload)
 
     if (!result)
     {
-        sLog->outError(LOG_FILTER_SQL, ">> Loaded 0 conditions. DB table `conditions` is empty!");
+        sLog->outError(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 conditions. DB table `conditions` is empty!");
         return;
     }
 

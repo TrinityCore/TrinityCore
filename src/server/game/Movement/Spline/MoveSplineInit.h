@@ -20,6 +20,7 @@
 #define TRINITYSERVER_MOVESPLINEINIT_H
 
 #include "MoveSplineInitArgs.h"
+#include "PathGenerator.h"
 
 class Unit;
 
@@ -37,12 +38,12 @@ namespace Movement
     class TransportPathTransform
     {
     public:
-        TransportPathTransform(Unit& owner, bool transformForTransport)
+        TransportPathTransform(Unit* owner, bool transformForTransport)
             : _owner(owner), _transformForTransport(transformForTransport) { }
         Vector3 operator()(Vector3 input);
 
     private:
-        Unit& _owner;
+        Unit* _owner;
         bool _transformForTransport;
     };
 
@@ -52,11 +53,11 @@ namespace Movement
     {
     public:
 
-        explicit MoveSplineInit(Unit& m);
+        explicit MoveSplineInit(Unit* m);
 
         /*  Final pass of initialization that launches spline movement.
          */
-        void Launch();
+        int32 Launch();
 
         /* Adds movement by parabolic trajectory
          * @param amplitude  - the maximum height of parabola, value could be negative and positive
@@ -83,10 +84,10 @@ namespace Movement
          */
         void MovebyPath(const PointsArray& path, int32 pointId = 0);
 
-        /* Initializes simple A to B mition, A is current unit's position, B is destination
+        /* Initializes simple A to B motion, A is current unit's position, B is destination
          */
-        void MoveTo(const Vector3& destination);
-        void MoveTo(float x, float y, float z);
+        void MoveTo(const Vector3& destination, bool generatePath = true, bool forceDestination = false);
+        void MoveTo(float x, float y, float z, bool generatePath = true, bool forceDestination = false);
 
         /* Sets Id of fisrt point of the path. When N-th path point will be done ILisener will notify that pointId + N done
          * Needed for waypoint movement where path splitten into parts
@@ -137,7 +138,7 @@ namespace Movement
     protected:
 
         MoveSplineInitArgs args;
-        Unit&  unit;
+        Unit*  unit;
     };
 
     inline void MoveSplineInit::SetFly() { args.flags.EnableFlying(); }
@@ -158,9 +159,9 @@ namespace Movement
         std::transform(controls.begin(), controls.end(), args.path.begin(), TransportPathTransform(unit, args.TransformForTransport));
     }
 
-    inline void MoveSplineInit::MoveTo(float x, float y, float z)
+    inline void MoveSplineInit::MoveTo(float x, float y, float z, bool generatePath, bool forceDestination)
     {
-        MoveTo(G3D::Vector3(x, y, z));
+        MoveTo(G3D::Vector3(x, y, z), generatePath, forceDestination);
     }
 
     inline void MoveSplineInit::SetParabolic(float amplitude, float time_shift)

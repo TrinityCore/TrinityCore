@@ -96,8 +96,7 @@ void LoadWeatherData()
 
     if (!result)
     {
-        sLog->outError(LOG_FILTER_SQL, ">> Loaded 0 weather definitions. DB table `game_weather` is empty.");
-
+        sLog->outError(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 weather definitions. DB table `game_weather` is empty.");
         return;
     }
 
@@ -141,7 +140,6 @@ void LoadWeatherData()
     while (result->NextRow());
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u weather definitions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
-
 }
 
 void SendFineWeatherUpdateToPlayer(Player* player)

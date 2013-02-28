@@ -67,7 +67,8 @@ enum LogFilterType
     LOG_FILTER_BATTLEFIELD                       = 39,
     LOG_FILTER_SERVER_LOADING                    = 40,
     LOG_FILTER_OPCODES                           = 41,
-    LOG_FILTER_SOAP                              = 42
+    LOG_FILTER_SOAP                              = 42,
+    LOG_FILTER_RBAC                              = 43
 };
 
 const uint8 MaxLogFilter = 43;
@@ -123,6 +124,12 @@ struct LogMessage
     std::string prefix;
     std::string param1;
     time_t mtime;
+
+    ///@ Returns size of the log message content in bytes
+    uint32 Size() const
+    {
+        return prefix.size() + text.size();
+    }
 };
 
 class Appender
@@ -143,7 +150,7 @@ class Appender
         static const char* getLogFilterTypeString(LogFilterType type);
 
     private:
-        virtual void _write(LogMessage& /*message*/) = 0;
+        virtual void _write(LogMessage const& /*message*/) = 0;
 
         uint8 id;
         std::string name;

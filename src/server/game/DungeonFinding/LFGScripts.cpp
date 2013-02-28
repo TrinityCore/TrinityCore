@@ -29,6 +29,9 @@
 #include "ObjectAccessor.h"
 #include "WorldSession.h"
 
+namespace lfg
+{
+
 LFGPlayerScript::LFGPlayerScript() : PlayerScript("LFGPlayerScript")
 {
 }
@@ -83,6 +86,38 @@ void LFGPlayerScript::OnBindToInstance(Player* player, Difficulty difficulty, ui
     MapEntry const* mapEntry = sMapStore.LookupEntry(mapId);
     if (mapEntry->IsDungeon() && difficulty > DUNGEON_DIFFICULTY_NORMAL)
         sLFGMgr->InitializeLockedDungeons(player);
+}
+
+void LFGPlayerScript::OnMapChanged(Player* player)
+{
+    Map const* map = player->GetMap();
+
+    if (sLFGMgr->inLfgDungeonMap(player->GetGUID(), map->GetId(), map->GetDifficulty()))
+    {
+        Group* group = player->GetGroup();
+        // This function is also called when players log in
+        // if for some reason the LFG system recognises the player as being in a LFG dungeon,
+        // but the player was loaded without a valid group, we'll teleport to homebind to prevent
+        // crashes or other undefined behaviour
+        if (!group)
+        {
+            sLFGMgr->LeaveLfg(player->GetGUID());
+            player->RemoveAurasDueToSpell(LFG_SPELL_LUCK_OF_THE_DRAW);
+            player->TeleportTo(player->m_homebindMapId, player->m_homebindX, player->m_homebindY, player->m_homebindZ, 0.0f);
+            sLog->outError(LOG_FILTER_LFG, "LFGPlayerScript::OnMapChanged, Player %s (%u) is in LFG dungeon map but does not have a valid group! "
+                "Teleporting to homebind.", player->GetName().c_str(), player->GetGUIDLow());
+            return;
+        }
+
+        for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
+            if (Player* member = itr->getSource())
+                player->GetSession()->SendNameQueryOpcode(member->GetGUID());
+
+        if (sLFGMgr->selectedRandomLfgDungeon(player->GetGUID()))
+            player->CastSpell(player, LFG_SPELL_LUCK_OF_THE_DRAW, true);
+    }
+    else
+        player->RemoveAurasDueToSpell(LFG_SPELL_LUCK_OF_THE_DRAW);
 }
 
 LFGGroupScript::LFGGroupScript() : GroupScript("LFGGroupScript")
@@ -208,3 +243,5 @@ void LFGGroupScript::OnInviteMember(Group* group, uint64 guid)
     if (leader && !gguid)
         sLFGMgr->LeaveLfg(leader);
 }
+
+} // namespace lfg

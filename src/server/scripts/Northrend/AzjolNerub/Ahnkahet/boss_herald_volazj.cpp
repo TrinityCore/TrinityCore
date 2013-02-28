@@ -258,7 +258,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             //Return since we have no target
             if (!UpdateVictim())
@@ -322,5 +322,5 @@ public:
 
 void AddSC_boss_volazj()
 {
-    new boss_volazj;
+    new boss_volazj();
 }

@@ -254,9 +254,12 @@ public:
         return new npc_andorhal_towerAI (creature);
     }
 
-    struct npc_andorhal_towerAI : public Scripted_NoMovementAI
+    struct npc_andorhal_towerAI : public ScriptedAI
     {
-        npc_andorhal_towerAI(Creature* creature) : Scripted_NoMovementAI(creature) {}
+        npc_andorhal_towerAI(Creature* creature) : ScriptedAI(creature)
+        {
+            SetCombatMovement(false);
+        }
 
         void MoveInLineOfSight(Unit* who)
         {
@@ -395,7 +398,7 @@ public:
                 player->FailQuest(QUEST_TOMB_LIGHTBRINGER);
         }
 
-        void UpdateAI(const uint32 uiDiff)
+        void UpdateAI(uint32 uiDiff)
         {
             npc_escortAI::UpdateAI(uiDiff);
             DoMeleeAttackIfReady();

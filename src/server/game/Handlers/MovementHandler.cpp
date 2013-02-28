@@ -126,7 +126,7 @@ void WorldSession::HandleMoveWorldportAckOpcode()
         {
             // short preparations to continue flight
             FlightPathMovementGenerator* flight = (FlightPathMovementGenerator*)(GetPlayer()->GetMotionMaster()->top());
-            flight->Initialize(*GetPlayer());
+            flight->Initialize(GetPlayer());
             return;
         }
 
@@ -174,7 +174,7 @@ void WorldSession::HandleMoveWorldportAckOpcode()
     GetPlayer()->UpdateZone(newzone, newarea);
 
     // honorless target
-    if (GetPlayer()->pvpInfo.inHostileArea)
+    if (GetPlayer()->pvpInfo.IsHostile)
         GetPlayer()->CastSpell(GetPlayer(), 2479, true);
 
     // in friendly area
@@ -224,7 +224,7 @@ void WorldSession::HandleMoveTeleportAck(WorldPacket& recvData)
     if (old_zone != newzone)
     {
         // honorless target
-        if (plMover->pvpInfo.inHostileArea)
+        if (plMover->pvpInfo.IsHostile)
             plMover->CastSpell(plMover, 2479, true);
 
         // in friendly area

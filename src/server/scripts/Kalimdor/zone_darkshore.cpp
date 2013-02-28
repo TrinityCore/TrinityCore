@@ -143,7 +143,7 @@ public:
             SetFollowPaused(false);
         }
 
-        void UpdateFollowerAI(const uint32 Diff)
+        void UpdateFollowerAI(uint32 Diff)
         {
             if (!UpdateVictim())
             {

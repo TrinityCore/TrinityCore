@@ -20,9 +20,7 @@ include_directories(
   ${ZLIB_INCLUDE_DIR}
 )
 
-add_definitions(-DNO_CORE_FUNCS)
 add_executable(vmap4assembler VMapAssembler.cpp)
-add_dependencies(vmap4assembler mpq)
 
 if(CMAKE_SYSTEM_NAME MATCHES "Darwin")
   set_target_properties(vmap4assembler PROPERTIES LINK_FLAGS "-framework Carbon")

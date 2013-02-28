@@ -19,6 +19,7 @@
 #ifndef TRINITY_SHAREDDEFINES_H
 #define TRINITY_SHAREDDEFINES_H
 
+#include "DetourNavMesh.h"
 #include "Define.h"
 #include <cassert>
 
@@ -296,7 +297,7 @@ enum SpellAttr0
     SPELL_ATTR0_CASTABLE_WHILE_SITTING           = 0x08000000, // 27 castable while sitting
     SPELL_ATTR0_CANT_USED_IN_COMBAT              = 0x10000000, // 28 Cannot be used in combat
     SPELL_ATTR0_UNAFFECTED_BY_INVULNERABILITY    = 0x20000000, // 29 unaffected by invulnerability (hmm possible not...)
-    SPELL_ATTR0_BREAKABLE_BY_DAMAGE              = 0x40000000, // 30
+    SPELL_ATTR0_HEARTBEAT_RESIST_CHECK           = 0x40000000, // 30 random chance the effect will end TODO: implement core support
     SPELL_ATTR0_CANT_CANCEL                      = 0x80000000  // 31 positive aura can't be canceled
 };
 
@@ -473,8 +474,8 @@ enum SpellAttr5
     SPELL_ATTR5_UNK24                            = 0x01000000, // 24
     SPELL_ATTR5_UNK25                            = 0x02000000, // 25
     SPELL_ATTR5_UNK26                            = 0x04000000, // 26 aoe related - Boulder, Cannon, Corpse Explosion, Fire Nova, Flames, Frost Bomb, Living Bomb, Seed of Corruption, Starfall, Thunder Clap, Volley
-    SPELL_ATTR5_UNK27                            = 0x08000000, // 27
-    SPELL_ATTR5_UNK28                            = 0x10000000, // 28
+    SPELL_ATTR5_DONT_SHOW_AURA_IF_SELF_CAST      = 0x08000000, // 27 Auras with this attribute are not visible on units that are the caster
+    SPELL_ATTR5_DONT_SHOW_AURA_IF_NOT_SELF_CAST  = 0x10000000, // 28 Auras with this attribute are not visible on units that are not the caster
     SPELL_ATTR5_UNK29                            = 0x20000000, // 29
     SPELL_ATTR5_UNK30                            = 0x40000000, // 30
     SPELL_ATTR5_UNK31                            = 0x80000000  // 31 Forces all nearby enemies to focus attacks caster
@@ -485,10 +486,10 @@ enum SpellAttr6
     SPELL_ATTR6_DONT_DISPLAY_COOLDOWN            = 0x00000001, //  0 client doesn't display cooldown in tooltip for these spells
     SPELL_ATTR6_ONLY_IN_ARENA                    = 0x00000002, //  1 only usable in arena
     SPELL_ATTR6_IGNORE_CASTER_AURAS              = 0x00000004, //  2
-    SPELL_ATTR6_UNK3                             = 0x00000008, //  3
+    SPELL_ATTR6_ASSIST_IGNORE_IMMUNE_FLAG        = 0x00000008, //  3 skips checking UNIT_FLAG_IMMUNE_TO_PC and UNIT_FLAG_IMMUNE_TO_NPC flags on assist
     SPELL_ATTR6_UNK4                             = 0x00000010, //  4
     SPELL_ATTR6_UNK5                             = 0x00000020, //  5
-    SPELL_ATTR6_UNK6                             = 0x00000040, //  6
+    SPELL_ATTR6_USE_SPELL_CAST_EVENT             = 0x00000040, //  6 Auras with this attribute trigger SPELL_CAST combat log event instead of SPELL_AURA_START (clientside attribute)
     SPELL_ATTR6_UNK7                             = 0x00000080, //  7
     SPELL_ATTR6_CANT_TARGET_CROWD_CONTROLLED     = 0x00000100, //  8
     SPELL_ATTR6_UNK9                             = 0x00000200, //  9
@@ -502,7 +503,7 @@ enum SpellAttr6
     SPELL_ATTR6_UNK17                            = 0x00020000, // 17 Mount spell
     SPELL_ATTR6_CAST_BY_CHARMER                  = 0x00040000, // 18 client won't allow to cast these spells when unit is not possessed && charmer of caster will be original caster
     SPELL_ATTR6_UNK19                            = 0x00080000, // 19 only 47488, 50782
-    SPELL_ATTR6_UNK20                            = 0x00100000, // 20 only 58371, 62218
+    SPELL_ATTR6_ONLY_VISIBLE_TO_CASTER           = 0x00100000, // 20 Auras with this attribute are only visible to their caster (or pet's owner)
     SPELL_ATTR6_CLIENT_UI_TARGET_EFFECTS         = 0x00200000, // 21 it's only client-side attribute
     SPELL_ATTR6_UNK22                            = 0x00400000, // 22 only 72054
     SPELL_ATTR6_UNK23                            = 0x00800000, // 23
@@ -513,7 +514,7 @@ enum SpellAttr6
     SPELL_ATTR6_UNK28                            = 0x10000000, // 28 Death Grip
     SPELL_ATTR6_NO_DONE_PCT_DAMAGE_MODS          = 0x20000000, // 29 ignores done percent damage mods?
     SPELL_ATTR6_UNK30                            = 0x40000000, // 30
-    SPELL_ATTR6_UNK31                            = 0x80000000  // 31 some special cooldown calc? only 2894
+    SPELL_ATTR6_IGNORE_CATEGORY_COOLDOWN_MODS    = 0x80000000  // 31 Spells with this attribute skip applying modifiers to category cooldowns
 };
 
 enum SpellAttr7
@@ -546,7 +547,7 @@ enum SpellAttr7
     SPELL_ATTR7_UNK25                            = 0x02000000, // 25
     SPELL_ATTR7_UNK26                            = 0x04000000, // 26
     SPELL_ATTR7_UNK27                            = 0x08000000, // 27 Not set
-    SPELL_ATTR7_BENEFIT_FROM_SPELLMOD            = 0x10000000, // 28 Non-permanent, non-passive buffs that may benefit from spellmods
+    SPELL_ATTR7_CONSOLIDATED_RAID_BUFF           = 0x10000000, // 28 May be collapsed in raid buff frame (clientside attribute)
     SPELL_ATTR7_UNK29                            = 0x20000000, // 29 only 69028, 71237
     SPELL_ATTR7_UNK30                            = 0x40000000, // 30 Burning Determination, Divine Sacrifice, Earth Shield, Prayer of Mending
     SPELL_ATTR7_CLIENT_INDICATOR                 = 0x80000000
@@ -3156,124 +3157,129 @@ enum SummonType
 enum EventId
 {
     EVENT_CHARGE            = 1003,
-    EVENT_JUMP              = 1004
+    EVENT_JUMP              = 1004,
+
+    /// Special charge event which is used for charge spells that have explicit targets
+    /// and had a path already generated - using it in PointMovementGenerator will not
+    /// create a new spline and launch it
+    EVENT_CHARGE_PREPATH    = 1005
 };
 
 enum ResponseCodes
 {
-    RESPONSE_SUCCESS                                       = 0x00,
-    RESPONSE_FAILURE                                       = 0x01,
-    RESPONSE_CANCELLED                                     = 0x02,
-    RESPONSE_DISCONNECTED                                  = 0x03,
-    RESPONSE_FAILED_TO_CONNECT                             = 0x04,
-    RESPONSE_CONNECTED                                     = 0x05,
-    RESPONSE_VERSION_MISMATCH                              = 0x06,
+    RESPONSE_SUCCESS                                       = 0,
+    RESPONSE_FAILURE                                       = 1,
+    RESPONSE_CANCELLED                                     = 2,
+    RESPONSE_DISCONNECTED                                  = 3,
+    RESPONSE_FAILED_TO_CONNECT                             = 4,
+    RESPONSE_CONNECTED                                     = 5,
+    RESPONSE_VERSION_MISMATCH                              = 6,
 
-    CSTATUS_CONNECTING                                     = 0x07,
-    CSTATUS_NEGOTIATING_SECURITY                           = 0x08,
-    CSTATUS_NEGOTIATION_COMPLETE                           = 0x09,
-    CSTATUS_NEGOTIATION_FAILED                             = 0x0A,
-    CSTATUS_AUTHENTICATING                                 = 0x0B,
+    CSTATUS_CONNECTING                                     = 7,
+    CSTATUS_NEGOTIATING_SECURITY                           = 8,
+    CSTATUS_NEGOTIATION_COMPLETE                           = 9,
+    CSTATUS_NEGOTIATION_FAILED                             = 10,
+    CSTATUS_AUTHENTICATING                                 = 11,
 
-    AUTH_OK                                                = 0x0C,
-    AUTH_FAILED                                            = 0x0D,
-    AUTH_REJECT                                            = 0x0E,
-    AUTH_BAD_SERVER_PROOF                                  = 0x0F,
-    AUTH_UNAVAILABLE                                       = 0x10,
-    AUTH_SYSTEM_ERROR                                      = 0x11,
-    AUTH_BILLING_ERROR                                     = 0x12,
-    AUTH_BILLING_EXPIRED                                   = 0x13,
-    AUTH_VERSION_MISMATCH                                  = 0x14,
-    AUTH_UNKNOWN_ACCOUNT                                   = 0x15,
-    AUTH_INCORRECT_PASSWORD                                = 0x16,
-    AUTH_SESSION_EXPIRED                                   = 0x17,
-    AUTH_SERVER_SHUTTING_DOWN                              = 0x18,
-    AUTH_ALREADY_LOGGING_IN                                = 0x19,
-    AUTH_LOGIN_SERVER_NOT_FOUND                            = 0x1A,
-    AUTH_WAIT_QUEUE                                        = 0x1B,
-    AUTH_BANNED                                            = 0x1C,
-    AUTH_ALREADY_ONLINE                                    = 0x1D,
-    AUTH_NO_TIME                                           = 0x1E,
-    AUTH_DB_BUSY                                           = 0x1F,
-    AUTH_SUSPENDED                                         = 0x20,
-    AUTH_PARENTAL_CONTROL                                  = 0x21,
-    AUTH_LOCKED_ENFORCED                                   = 0x22,
+    AUTH_OK                                                = 12,
+    AUTH_FAILED                                            = 13,
+    AUTH_REJECT                                            = 14,
+    AUTH_BAD_SERVER_PROOF                                  = 15,
+    AUTH_UNAVAILABLE                                       = 16,
+    AUTH_SYSTEM_ERROR                                      = 17,
+    AUTH_BILLING_ERROR                                     = 18,
+    AUTH_BILLING_EXPIRED                                   = 19,
+    AUTH_VERSION_MISMATCH                                  = 20,
+    AUTH_UNKNOWN_ACCOUNT                                   = 21,
+    AUTH_INCORRECT_PASSWORD                                = 22,
+    AUTH_SESSION_EXPIRED                                   = 23,
+    AUTH_SERVER_SHUTTING_DOWN                              = 24,
+    AUTH_ALREADY_LOGGING_IN                                = 25,
+    AUTH_LOGIN_SERVER_NOT_FOUND                            = 26,
+    AUTH_WAIT_QUEUE                                        = 27,
+    AUTH_BANNED                                            = 28,
+    AUTH_ALREADY_ONLINE                                    = 29,
+    AUTH_NO_TIME                                           = 30,
+    AUTH_DB_BUSY                                           = 31,
+    AUTH_SUSPENDED                                         = 32,
+    AUTH_PARENTAL_CONTROL                                  = 33,
+    AUTH_LOCKED_ENFORCED                                   = 34,
 
-    REALM_LIST_IN_PROGRESS                                 = 0x23,
-    REALM_LIST_SUCCESS                                     = 0x24,
-    REALM_LIST_FAILED                                      = 0x25,
-    REALM_LIST_INVALID                                     = 0x26,
-    REALM_LIST_REALM_NOT_FOUND                             = 0x27,
+    REALM_LIST_IN_PROGRESS                                 = 35,
+    REALM_LIST_SUCCESS                                     = 36,
+    REALM_LIST_FAILED                                      = 37,
+    REALM_LIST_INVALID                                     = 38,
+    REALM_LIST_REALM_NOT_FOUND                             = 39,
 
-    ACCOUNT_CREATE_IN_PROGRESS                             = 0x28,
-    ACCOUNT_CREATE_SUCCESS                                 = 0x29,
-    ACCOUNT_CREATE_FAILED                                  = 0x2A,
+    ACCOUNT_CREATE_IN_PROGRESS                             = 40,
+    ACCOUNT_CREATE_SUCCESS                                 = 41,
+    ACCOUNT_CREATE_FAILED                                  = 42,
 
-    CHAR_LIST_RETRIEVING                                   = 0x2B,
-    CHAR_LIST_RETRIEVED                                    = 0x2C,
-    CHAR_LIST_FAILED                                       = 0x2D,
+    CHAR_LIST_RETRIEVING                                   = 43,
+    CHAR_LIST_RETRIEVED                                    = 44,
+    CHAR_LIST_FAILED                                       = 45,
 
-    CHAR_CREATE_IN_PROGRESS                                = 0x2E,
-    CHAR_CREATE_SUCCESS                                    = 0x2F,
-    CHAR_CREATE_ERROR                                      = 0x30,
-    CHAR_CREATE_FAILED                                     = 0x31,
-    CHAR_CREATE_NAME_IN_USE                                = 0x32,
-    CHAR_CREATE_DISABLED                                   = 0x33,
-    CHAR_CREATE_PVP_TEAMS_VIOLATION                        = 0x34,
-    CHAR_CREATE_SERVER_LIMIT                               = 0x35,
-    CHAR_CREATE_ACCOUNT_LIMIT                              = 0x36,
-    CHAR_CREATE_SERVER_QUEUE                               = 0x37,
-    CHAR_CREATE_ONLY_EXISTING                              = 0x38,
-    CHAR_CREATE_EXPANSION                                  = 0x39,
-    CHAR_CREATE_EXPANSION_CLASS                            = 0x3A,
-    CHAR_CREATE_LEVEL_REQUIREMENT                          = 0x3B,
-    CHAR_CREATE_UNIQUE_CLASS_LIMIT                         = 0x3C,
-    CHAR_CREATE_CHARACTER_IN_GUILD                         = 0x3D,
-    CHAR_CREATE_RESTRICTED_RACECLASS                       = 0x3E,
-    CHAR_CREATE_CHARACTER_CHOOSE_RACE                      = 0x3F,
-    CHAR_CREATE_CHARACTER_ARENA_LEADER                     = 0x40,
-    CHAR_CREATE_CHARACTER_DELETE_MAIL                      = 0x41,
-    CHAR_CREATE_CHARACTER_SWAP_FACTION                     = 0x42,
-    CHAR_CREATE_CHARACTER_RACE_ONLY                        = 0x43,
-    CHAR_CREATE_CHARACTER_GOLD_LIMIT                       = 0x44,
-    CHAR_CREATE_FORCE_LOGIN                                = 0x45,
+    CHAR_CREATE_IN_PROGRESS                                = 46,
+    CHAR_CREATE_SUCCESS                                    = 47,
+    CHAR_CREATE_ERROR                                      = 48,
+    CHAR_CREATE_FAILED                                     = 49,
+    CHAR_CREATE_NAME_IN_USE                                = 50,
+    CHAR_CREATE_DISABLED                                   = 51,
+    CHAR_CREATE_PVP_TEAMS_VIOLATION                        = 52,
+    CHAR_CREATE_SERVER_LIMIT                               = 53,
+    CHAR_CREATE_ACCOUNT_LIMIT                              = 54,
+    CHAR_CREATE_SERVER_QUEUE                               = 55,
+    CHAR_CREATE_ONLY_EXISTING                              = 56,
+    CHAR_CREATE_EXPANSION                                  = 57,
+    CHAR_CREATE_EXPANSION_CLASS                            = 58,
+    CHAR_CREATE_LEVEL_REQUIREMENT                          = 59,
+    CHAR_CREATE_UNIQUE_CLASS_LIMIT                         = 60,
+    CHAR_CREATE_CHARACTER_IN_GUILD                         = 61,
+    CHAR_CREATE_RESTRICTED_RACECLASS                       = 62,
+    CHAR_CREATE_CHARACTER_CHOOSE_RACE                      = 63,
+    CHAR_CREATE_CHARACTER_ARENA_LEADER                     = 64,
+    CHAR_CREATE_CHARACTER_DELETE_MAIL                      = 65,
+    CHAR_CREATE_CHARACTER_SWAP_FACTION                     = 66,
+    CHAR_CREATE_CHARACTER_RACE_ONLY                        = 67,
+    CHAR_CREATE_CHARACTER_GOLD_LIMIT                       = 68,
+    CHAR_CREATE_FORCE_LOGIN                                = 69,
 
-    CHAR_DELETE_IN_PROGRESS                                = 0x46,
-    CHAR_DELETE_SUCCESS                                    = 0x47,
-    CHAR_DELETE_FAILED                                     = 0x48,
-    CHAR_DELETE_FAILED_LOCKED_FOR_TRANSFER                 = 0x49,
-    CHAR_DELETE_FAILED_GUILD_LEADER                        = 0x4A,
-    CHAR_DELETE_FAILED_ARENA_CAPTAIN                       = 0x4B,
+    CHAR_DELETE_IN_PROGRESS                                = 70,
+    CHAR_DELETE_SUCCESS                                    = 71,
+    CHAR_DELETE_FAILED                                     = 72,
+    CHAR_DELETE_FAILED_LOCKED_FOR_TRANSFER                 = 73,
+    CHAR_DELETE_FAILED_GUILD_LEADER                        = 74,
+    CHAR_DELETE_FAILED_ARENA_CAPTAIN                       = 75,
 
-    CHAR_LOGIN_IN_PROGRESS                                 = 0x4C,
-    CHAR_LOGIN_SUCCESS                                     = 0x4D,
-    CHAR_LOGIN_NO_WORLD                                    = 0x4E,
-    CHAR_LOGIN_DUPLICATE_CHARACTER                         = 0x4F,
-    CHAR_LOGIN_NO_INSTANCES                                = 0x50,
-    CHAR_LOGIN_FAILED                                      = 0x51,
-    CHAR_LOGIN_DISABLED                                    = 0x52,
-    CHAR_LOGIN_NO_CHARACTER                                = 0x53,
-    CHAR_LOGIN_LOCKED_FOR_TRANSFER                         = 0x54,
-    CHAR_LOGIN_LOCKED_BY_BILLING                           = 0x55,
-    CHAR_LOGIN_LOCKED_BY_MOBILE_AH                         = 0x56,
+    CHAR_LOGIN_IN_PROGRESS                                 = 76,
+    CHAR_LOGIN_SUCCESS                                     = 77,
+    CHAR_LOGIN_NO_WORLD                                    = 78,
+    CHAR_LOGIN_DUPLICATE_CHARACTER                         = 79,
+    CHAR_LOGIN_NO_INSTANCES                                = 80,
+    CHAR_LOGIN_FAILED                                      = 81,
+    CHAR_LOGIN_DISABLED                                    = 82,
+    CHAR_LOGIN_NO_CHARACTER                                = 83,
+    CHAR_LOGIN_LOCKED_FOR_TRANSFER                         = 84,
+    CHAR_LOGIN_LOCKED_BY_BILLING                           = 85,
+    CHAR_LOGIN_LOCKED_BY_MOBILE_AH                         = 86,
 
-    CHAR_NAME_SUCCESS                                      = 0x57,
-    CHAR_NAME_FAILURE                                      = 0x58,
-    CHAR_NAME_NO_NAME                                      = 0x59,
-    CHAR_NAME_TOO_SHORT                                    = 0x5A,
-    CHAR_NAME_TOO_LONG                                     = 0x5B,
-    CHAR_NAME_INVALID_CHARACTER                            = 0x5C,
-    CHAR_NAME_MIXED_LANGUAGES                              = 0x5D,
-    CHAR_NAME_PROFANE                                      = 0x5E,
-    CHAR_NAME_RESERVED                                     = 0x5F,
-    CHAR_NAME_INVALID_APOSTROPHE                           = 0x60,
-    CHAR_NAME_MULTIPLE_APOSTROPHES                         = 0x61,
-    CHAR_NAME_THREE_CONSECUTIVE                            = 0x62,
-    CHAR_NAME_INVALID_SPACE                                = 0x63,
-    CHAR_NAME_CONSECUTIVE_SPACES                           = 0x64,
-    CHAR_NAME_RUSSIAN_CONSECUTIVE_SILENT_CHARACTERS        = 0x65,
-    CHAR_NAME_RUSSIAN_SILENT_CHARACTER_AT_BEGINNING_OR_END = 0x66,
-    CHAR_NAME_DECLENSION_DOESNT_MATCH_BASE_NAME            = 0x67
+    CHAR_NAME_SUCCESS                                      = 87,
+    CHAR_NAME_FAILURE                                      = 88,
+    CHAR_NAME_NO_NAME                                      = 89,
+    CHAR_NAME_TOO_SHORT                                    = 90,
+    CHAR_NAME_TOO_LONG                                     = 91,
+    CHAR_NAME_INVALID_CHARACTER                            = 92,
+    CHAR_NAME_MIXED_LANGUAGES                              = 93,
+    CHAR_NAME_PROFANE                                      = 94,
+    CHAR_NAME_RESERVED                                     = 95,
+    CHAR_NAME_INVALID_APOSTROPHE                           = 96,
+    CHAR_NAME_MULTIPLE_APOSTROPHES                         = 97,
+    CHAR_NAME_THREE_CONSECUTIVE                            = 98,
+    CHAR_NAME_INVALID_SPACE                                = 99,
+    CHAR_NAME_CONSECUTIVE_SPACES                           = 100,
+    CHAR_NAME_RUSSIAN_CONSECUTIVE_SILENT_CHARACTERS        = 101,
+    CHAR_NAME_RUSSIAN_SILENT_CHARACTER_AT_BEGINNING_OR_END = 102,
+    CHAR_NAME_DECLENSION_DOESNT_MATCH_BASE_NAME            = 103
 };
 
 /// Ban function modes
@@ -3531,6 +3537,35 @@ enum PartyResult
     ERR_PARTY_LFG_BOOT_DUNGEON_COMPLETE = 28,
     ERR_PARTY_LFG_BOOT_LOOT_ROLLS       = 29,
     ERR_PARTY_LFG_TELEPORT_IN_COMBAT    = 30
+};
+
+const uint32 MMAP_MAGIC = 0x4d4d4150; // 'MMAP'
+#define MMAP_VERSION 3
+
+struct MmapTileHeader
+{
+    uint32 mmapMagic;
+    uint32 dtVersion;
+    uint32 mmapVersion;
+    uint32 size;
+    bool usesLiquids : 1;
+
+    MmapTileHeader() : mmapMagic(MMAP_MAGIC), dtVersion(DT_NAVMESH_VERSION),
+        mmapVersion(MMAP_VERSION), size(0), usesLiquids(true) {}
+};
+
+enum NavTerrain
+{
+    NAV_EMPTY   = 0x00,
+    NAV_GROUND  = 0x01,
+    NAV_MAGMA   = 0x02,
+    NAV_SLIME   = 0x04,
+    NAV_WATER   = 0x08,
+    NAV_UNUSED1 = 0x10,
+    NAV_UNUSED2 = 0x20,
+    NAV_UNUSED3 = 0x40,
+    NAV_UNUSED4 = 0x80
+    // we only have 8 bits
 };
 
 #endif

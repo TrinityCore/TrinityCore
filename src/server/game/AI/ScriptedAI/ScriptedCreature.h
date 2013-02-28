@@ -90,7 +90,7 @@ struct ScriptedAI : public CreatureAI
     void DamageTaken(Unit* /*attacker*/, uint32& /*damage*/) {}
 
     //Called at World update tick
-    virtual void UpdateAI(uint32 const diff);
+    virtual void UpdateAI(uint32 diff);
 
     //Called at creature death
     void JustDied(Unit* /*killer*/) {}
@@ -135,6 +135,9 @@ struct ScriptedAI : public CreatureAI
 
     //Called at creature aggro either by MoveInLOS or Attack Start
     void EnterCombat(Unit* /*victim*/) {}
+
+    // Called before EnterCombat even before the creature is in combat.
+    void AttackStart(Unit* /*target*/);
 
     // *************
     //AI Helper Functions
@@ -191,7 +194,11 @@ struct ScriptedAI : public CreatureAI
 
     void SetEquipmentSlots(bool loadDefault, int32 mainHand = EQUIP_NO_CHANGE, int32 offHand = EQUIP_NO_CHANGE, int32 ranged = EQUIP_NO_CHANGE);
 
-    //Generally used to control if MoveChase() is to be used or not in AttackStart(). Some creatures does not chase victims
+    // Used to control if MoveChase() is to be used or not in AttackStart(). Some creatures does not chase victims
+    // NOTE: If you use SetCombatMovement while the creature is in combat, it will do NOTHING - This only affects AttackStart
+    //       You should make the necessary to make it happen so.
+    //       Remember that if you modified _isCombatMovementAllowed (e.g: using SetCombatMovement) it will not be reset at Reset().
+    //       It will keep the last value you set.
     void SetCombatMovement(bool allowMovement);
     bool IsCombatMovementAllowed() const { return _isCombatMovementAllowed; }
 
@@ -269,15 +276,6 @@ struct ScriptedAI : public CreatureAI
         bool _isHeroic;
 };
 
-struct Scripted_NoMovementAI : public ScriptedAI
-{
-    Scripted_NoMovementAI(Creature* creature) : ScriptedAI(creature) {}
-    virtual ~Scripted_NoMovementAI() {}
-
-    //Called at each attack of me by any victim
-    void AttackStart(Unit* target);
-};
-
 class BossAI : public ScriptedAI
 {
     public:
@@ -290,13 +288,13 @@ class BossAI : public ScriptedAI
         void JustSummoned(Creature* summon);
         void SummonedCreatureDespawn(Creature* summon);
 
-        virtual void UpdateAI(uint32 const diff);
+        virtual void UpdateAI(uint32 diff);
 
         // Hook used to execute events scheduled into EventMap without the need
         // to override UpdateAI
         // note: You must re-schedule the event within this method if the event
         // is supposed to run more than once
-        virtual void ExecuteEvent(uint32 const /*eventId*/) { }
+        virtual void ExecuteEvent(uint32 /*eventId*/) { }
 
         void Reset() { _Reset(); }
         void EnterCombat(Unit* /*who*/) { _EnterCombat(); }
@@ -338,13 +336,13 @@ class WorldBossAI : public ScriptedAI
         void JustSummoned(Creature* summon);
         void SummonedCreatureDespawn(Creature* summon);
 
-        virtual void UpdateAI(uint32 const diff);
+        virtual void UpdateAI(uint32 diff);
 
         // Hook used to execute events scheduled into EventMap without the need
         // to override UpdateAI
         // note: You must re-schedule the event within this method if the event
         // is supposed to run more than once
-        virtual void ExecuteEvent(uint32 const /*eventId*/) { }
+        virtual void ExecuteEvent(uint32 /*eventId*/) { }
 
         void Reset() { _Reset(); }
         void EnterCombat(Unit* /*who*/) { _EnterCombat(); }

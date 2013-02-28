@@ -77,7 +77,7 @@ class boss_sulfuron : public CreatureScript
                 events.ScheduleEvent(EVENT_FLAMESPEAR, 2000);
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;
@@ -162,7 +162,7 @@ class mob_flamewaker_priest : public CreatureScript
                 events.ScheduleEvent(EVENT_IMMOLATE, 8000);
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;

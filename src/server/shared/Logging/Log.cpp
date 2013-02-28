@@ -31,7 +31,6 @@
 
 Log::Log() : worker(NULL)
 {
-    SetRealmID(0);
     m_logsTimestamp = "_" + GetTimestampStr();
     LoadFromConfig();
 }
@@ -90,8 +89,9 @@ void Log::CreateAppenderFromConfig(const char* name)
     options = ConfigMgr::GetStringDefault(options.c_str(), "");
     Tokenizer tokens(options, ',');
     Tokenizer::const_iterator iter = tokens.begin();
+    uint8 size = tokens.size();
 
-    if (tokens.size() < 2)
+    if (size < 2)
     {
         fprintf(stderr, "Log::CreateAppenderFromConfig: Wrong configuration for appender %s. Config line: %s\n", name, options.c_str());
         return;
@@ -99,16 +99,15 @@ void Log::CreateAppenderFromConfig(const char* name)
 
     AppenderFlags flags = APPENDER_FLAGS_NONE;
     AppenderType type = AppenderType(atoi(*iter));
-    ++iter;
-    LogLevel level = LogLevel(atoi(*iter));
+    LogLevel level = LogLevel(atoi(*(++iter)));
     if (level > LOG_LEVEL_FATAL)
     {
         fprintf(stderr, "Log::CreateAppenderFromConfig: Wrong Log Level %d for appender %s\n", level, name);
         return;
     }
 
-    if (++iter != tokens.end())
-        flags = AppenderFlags(atoi(*iter));
+    if (size > 2)
+        flags = AppenderFlags(atoi(*(++iter)));
 
     switch (type)
     {
@@ -116,8 +115,8 @@ void Log::CreateAppenderFromConfig(const char* name)
         {
             AppenderConsole* appender = new AppenderConsole(NextAppenderId(), name, level, flags);
             appenders[appender->getId()] = appender;
-            if (++iter != tokens.end())
-                appender->InitColors(*iter);
+            if (size > 3)
+                appender->InitColors(*(++iter));
             //fprintf(stdout, "Log::CreateAppenderFromConfig: Created Appender %s (%u), Type CONSOLE, Mask %u\n", appender->getName().c_str(), appender->getId(), appender->getLogLevel()); // DEBUG - RemoveMe
             break;
         }
@@ -126,16 +125,16 @@ void Log::CreateAppenderFromConfig(const char* name)
             std::string filename;
             std::string mode = "a";
 
-            if (++iter == tokens.end())
+            if (size < 4)
             {
                 fprintf(stderr, "Log::CreateAppenderFromConfig: Missing file name for appender %s\n", name);
                 return;
             }
 
-            filename = *iter;
+            filename = *(++iter);
 
-            if (++iter != tokens.end())
-                mode = *iter;
+            if (size > 4)
+                mode = *(++iter);
 
             if (flags & APPENDER_FLAGS_USE_TIMESTAMP)
             {
@@ -146,15 +145,19 @@ void Log::CreateAppenderFromConfig(const char* name)
                     filename += m_logsTimestamp;
             }
 
+            uint64 maxFileSize = 0;
+            if (size > 5)
+                maxFileSize = atoi(*(++iter));
+
             uint8 id = NextAppenderId();
-            appenders[id] = new AppenderFile(id, name, level, filename.c_str(), m_logsDir.c_str(), mode.c_str(), flags);
+            appenders[id] = new AppenderFile(id, name, level, filename.c_str(), m_logsDir.c_str(), mode.c_str(), flags, maxFileSize);
             //fprintf(stdout, "Log::CreateAppenderFromConfig: Created Appender %s (%u), Type FILE, Mask %u, File %s, Mode %s\n", name, id, level, filename.c_str(), mode.c_str()); // DEBUG - RemoveMe
             break;
         }
         case APPENDER_DB:
         {
             uint8 id = NextAppenderId();
-            appenders[id] = new AppenderDB(id, name, level, realm);
+            appenders[id] = new AppenderDB(id, name, level);
             break;
         }
         default:
@@ -265,13 +268,6 @@ void Log::ReadLoggersFromConfig()
         loggers[LOG_FILTER_GENERAL].Create("root", LOG_FILTER_GENERAL, LOG_LEVEL_DISABLED);
 }
 
-void Log::EnableDBAppenders()
-{
-    for (AppenderMap::iterator it = appenders.begin(); it != appenders.end(); ++it)
-        if (it->second && it->second->getType() == APPENDER_DB)
-            ((AppenderDB *)it->second)->setEnable(true);
-}
-
 void Log::vlog(LogFilterType filter, LogLevel level, char const* str, va_list argptr)
 {
     char text[MAX_QUERY_LEN];
@@ -281,11 +277,18 @@ void Log::vlog(LogFilterType filter, LogLevel level, char const* str, va_list ar
 
 void Log::write(LogMessage* msg)
 {
+    if (loggers.empty())
+        return;
+
+    msg->text.append("\n");
+    Logger* logger = GetLoggerByType(msg->type);
+
     if (worker)
-    {
-        msg->text.append("\n");
-        Logger* logger = GetLoggerByType(msg->type);
         worker->enqueue(new LogOperation(logger, msg));
+    else
+    {
+        logger->write(*msg);
+        delete msg;
     }
 }
 
@@ -463,9 +466,11 @@ void Log::outCommand(uint32 account, const char * str, ...)
     write(msg);
 }
 
-void Log::SetRealmID(uint32 id)
+void Log::SetRealmId(uint32 id)
 {
-    realm = id;
+    for (AppenderMap::iterator it = appenders.begin(); it != appenders.end(); ++it)
+        if (it->second && it->second->getType() == APPENDER_DB)
+            ((AppenderDB *)it->second)->setRealmId(id);
 }
 
 void Log::Close()
@@ -484,7 +489,10 @@ void Log::Close()
 void Log::LoadFromConfig()
 {
     Close();
-    worker = new LogWorker();
+
+    if (ConfigMgr::GetBoolDefault("Log.Async.Enable", false))
+        worker = new LogWorker();
+
     AppenderId = 0;
     m_logsDir = ConfigMgr::GetStringDefault("LogsDir", "");
     if (!m_logsDir.empty())

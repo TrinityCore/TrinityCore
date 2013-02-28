@@ -90,7 +90,7 @@ class mob_warp_splinter_treant : public CreatureScript
 
             void MoveInLineOfSight(Unit* /*who*/) {}
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                 {
@@ -190,7 +190,7 @@ class boss_warp_splinter : public CreatureScript
                 Talk(SAY_SUMMON);
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;

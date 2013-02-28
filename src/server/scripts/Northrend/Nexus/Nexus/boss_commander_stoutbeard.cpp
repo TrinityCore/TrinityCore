@@ -53,7 +53,7 @@ public:
         void Reset() {}
         void AttackStart(Unit* /*who*/) {}
         void MoveInLineOfSight(Unit* /*who*/) {}
-        void UpdateAI(const uint32 /*diff*/)
+        void UpdateAI(uint32 /*diff*/)
         {
             //Return since we have no target
             if (!UpdateVictim())

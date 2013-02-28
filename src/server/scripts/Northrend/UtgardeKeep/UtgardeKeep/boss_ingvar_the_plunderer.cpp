@@ -154,7 +154,7 @@ public:
                 Talk(YELL_DEAD_1);
             }
 
-            if (events.GetPhaseMask() & (1 << PHASE_EVENT))
+            if (events.IsInPhase(PHASE_EVENT))
                 damage = 0;
         }
 
@@ -204,9 +204,9 @@ public:
             Talk(bIsUndead ? YELL_KILL_1 : YELL_KILL_2);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
-            if (!UpdateVictim() && !(events.GetPhaseMask() & (1 << PHASE_EVENT)))
+            if (!UpdateVictim() && !events.IsInPhase(PHASE_EVENT))
                 return;
 
             events.Update(diff);
@@ -358,7 +358,7 @@ public:
         void AttackStart(Unit* /*who*/) {}
         void MoveInLineOfSight(Unit* /*who*/) {}
         void EnterCombat(Unit* /*who*/) {}
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (uiResurectTimer)
             {

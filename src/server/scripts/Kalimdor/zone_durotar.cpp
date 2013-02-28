@@ -84,7 +84,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 Diff)
+        void UpdateAI(uint32 Diff)
         {
             if (work == true)
                 me->HandleEmoteCommand(EMOTE_ONESHOT_WORK_CHOPWOOD);
@@ -175,14 +175,15 @@ class npc_tiger_matriarch_credit : public CreatureScript
     public:
         npc_tiger_matriarch_credit() : CreatureScript("npc_tiger_matriarch_credit") { }
 
-        struct npc_tiger_matriarch_creditAI : public Scripted_NoMovementAI
+        struct npc_tiger_matriarch_creditAI : public ScriptedAI
         {
-           npc_tiger_matriarch_creditAI(Creature* creature) : Scripted_NoMovementAI(creature)
+           npc_tiger_matriarch_creditAI(Creature* creature) : ScriptedAI(creature)
            {
+               SetCombatMovement(false);
                events.ScheduleEvent(EVENT_CHECK_SUMMON_AURA, 2000);
            }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 diff)
             {
                 events.Update(diff);
 
@@ -294,7 +295,7 @@ class npc_tiger_matriarch : public CreatureScript
                 }
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;

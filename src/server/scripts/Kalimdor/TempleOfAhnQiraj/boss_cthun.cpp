@@ -156,13 +156,15 @@ public:
         return new eye_of_cthunAI (creature);
     }
 
-    struct eye_of_cthunAI : public Scripted_NoMovementAI
+    struct eye_of_cthunAI : public ScriptedAI
     {
-        eye_of_cthunAI(Creature* creature) : Scripted_NoMovementAI(creature)
+        eye_of_cthunAI(Creature* creature) : ScriptedAI(creature)
         {
             instance = creature->GetInstanceScript();
             if (!instance)
                 sLog->outError(LOG_FILTER_TSCR, "No Instance eye_of_cthunAI");
+
+            SetCombatMovement(false);
         }
 
         InstanceScript* instance;
@@ -228,7 +230,7 @@ public:
                         Spawned->AI()->AttackStart(target);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             //Check if we have a target
             if (!UpdateVictim())
@@ -460,9 +462,9 @@ public:
         return new cthunAI (creature);
     }
 
-    struct cthunAI : public Scripted_NoMovementAI
+    struct cthunAI : public ScriptedAI
     {
-        cthunAI(Creature* creature) : Scripted_NoMovementAI(creature)
+        cthunAI(Creature* creature) : ScriptedAI(creature)
         {
             SetCombatMovement(false);
 
@@ -579,7 +581,7 @@ public:
             return (*j);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             //Check if we have a target
             if (!UpdateVictim())
@@ -893,7 +895,7 @@ public:
             }
         }
 
-        void DoAction(const int32 param)
+        void DoAction(int32 param)
         {
             switch (param)
             {
@@ -916,15 +918,17 @@ public:
         return new eye_tentacleAI (creature);
     }
 
-    struct eye_tentacleAI : public Scripted_NoMovementAI
+    struct eye_tentacleAI : public ScriptedAI
     {
-        eye_tentacleAI(Creature* creature) : Scripted_NoMovementAI(creature)
+        eye_tentacleAI(Creature* creature) : ScriptedAI(creature)
         {
             if (Creature* pPortal = me->SummonCreature(MOB_SMALL_PORTAL, *me, TEMPSUMMON_CORPSE_DESPAWN))
             {
                 pPortal->SetReactState(REACT_PASSIVE);
                 Portal = pPortal->GetGUID();
             }
+
+            SetCombatMovement(false);
         }
 
         uint32 MindflayTimer;
@@ -951,7 +955,7 @@ public:
             DoZoneInCombat();
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             //Check if we have a target
             if (!UpdateVictim())
@@ -989,9 +993,9 @@ public:
         return new claw_tentacleAI (creature);
     }
 
-    struct claw_tentacleAI : public Scripted_NoMovementAI
+    struct claw_tentacleAI : public ScriptedAI
     {
-        claw_tentacleAI(Creature* creature) : Scripted_NoMovementAI(creature)
+        claw_tentacleAI(Creature* creature) : ScriptedAI(creature)
         {
             SetCombatMovement(false);
 
@@ -1026,7 +1030,7 @@ public:
             DoZoneInCombat();
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             //Check if we have a target
             if (!UpdateVictim())
@@ -1099,9 +1103,9 @@ public:
         return new giant_claw_tentacleAI (creature);
     }
 
-    struct giant_claw_tentacleAI : public Scripted_NoMovementAI
+    struct giant_claw_tentacleAI : public ScriptedAI
     {
-        giant_claw_tentacleAI(Creature* creature) : Scripted_NoMovementAI(creature)
+        giant_claw_tentacleAI(Creature* creature) : ScriptedAI(creature)
         {
             SetCombatMovement(false);
 
@@ -1138,7 +1142,7 @@ public:
             DoZoneInCombat();
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             //Check if we have a target
             if (!UpdateVictim())
@@ -1218,9 +1222,9 @@ public:
         return new giant_eye_tentacleAI (creature);
     }
 
-    struct giant_eye_tentacleAI : public Scripted_NoMovementAI
+    struct giant_eye_tentacleAI : public ScriptedAI
     {
-        giant_eye_tentacleAI(Creature* creature) : Scripted_NoMovementAI(creature)
+        giant_eye_tentacleAI(Creature* creature) : ScriptedAI(creature)
         {
             SetCombatMovement(false);
 
@@ -1251,7 +1255,7 @@ public:
             DoZoneInCombat();
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             //Check if we have a target
             if (!UpdateVictim())
@@ -1282,9 +1286,9 @@ public:
         return new flesh_tentacleAI (creature);
     }
 
-    struct flesh_tentacleAI : public Scripted_NoMovementAI
+    struct flesh_tentacleAI : public ScriptedAI
     {
-        flesh_tentacleAI(Creature* creature) : Scripted_NoMovementAI(creature)
+        flesh_tentacleAI(Creature* creature) : ScriptedAI(creature)
         {
             SetCombatMovement(false);
         }
