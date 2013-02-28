@@ -3609,6 +3609,30 @@ void SpellMgr::LoadDbcDataCorrections()
                 break;
             // ENDOF RUBY SANCTUM SPELLS
             //
+            // EYE OF ETERNITY SPELLS
+            // All spells below work even without these changes. The LOS attribute is due to problem
+            // from collision between maps & gos with active destroyed state.
+            case 57473: // Arcane Storm bonus explicit visual spell
+            case 57430: // Summon Static Field
+            case 56091: // Flame Spike (Wyrmrest Skytalon)
+            case 56092: // Engulf in Flames (Wyrmrest Skytalon)
+            case 57090: // Revivify (Wyrmrest Skytalon)
+            case 57143: // Life Burst (Wyrmrest Skytalon)
+                spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
+                break;
+            // ENDOF EYE OF ETERNITY SPELLS
+            //
+            // OCULUS SPELLS
+            // The spells below are here because their effect 1 is giving warning due to
+            // triggered spell not found in any dbc and is missing from encounter source* of data.
+            // Even judged as clientside these spells can't be guessed for* now.
+            case 49462: // Call Ruby Drake
+            case 49461: // Call Amber Drake
+            case 49345: // Call Emerald Drake
+                spellInfo->Effect[1] = 0;
+                break;
+            // ENDOF OCULUS SPELLS
+            //
             case 40055: // Introspection
             case 40165: // Introspection
             case 40166: // Introspection
@@ -3621,13 +3645,6 @@ void SpellMgr::LoadDbcDataCorrections()
             case 2378: // Minor Fortitude
                 spellInfo->manaCost = 0;
                 spellInfo->manaPerSecond = 0;
-                break;
-            // OCULUS SPELLS
-            // The spells below are here, because their effect 1 is giving warning, because the triggered spell is not found in dbc and is missing from encounter sniff.
-            case 49462: // Call Ruby Drake
-            case 49461: // Call Amber Drake
-            case 49345: // Call Emerald Drake
-                spellInfo->Effect[1] = 0;
                 break;
             case 24314: // Threatening Gaze
                 spellInfo->AuraInterruptFlags |= AURA_INTERRUPT_FLAG_CAST | AURA_INTERRUPT_FLAG_MOVE | AURA_INTERRUPT_FLAG_JUMP;
