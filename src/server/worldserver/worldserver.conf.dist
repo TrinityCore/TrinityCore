@@ -2789,6 +2789,7 @@ Appenders=Console Server GM DBErrors Char RA Warden Chat
 #                        40 - Server Loading
 #                        41 - Opcodes (just id and name sent / received)
 #                        42 - SOAP
+#                        43 - RBAC (Role Based Access Control)
 #
 #                     LogLevel
 #                         0 - (Disabled)
