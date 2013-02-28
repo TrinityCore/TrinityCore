@@ -483,15 +483,13 @@ class Creature : public Unit, public GridObject<Creature>, public MapCreature
             SetReactState(REACT_DEFENSIVE);*/;
         }
 
-        ///// TODO RENAME THIS!!!!!
+        /// @todo Rename these properly
         bool isCanTrainingOf(Player* player, bool msg) const;
         bool isCanInteractWithBattleMaster(Player* player, bool msg) const;
         bool isCanTrainingAndResetTalentsOf(Player* player) const;
         bool canCreatureAttack(Unit const* victim, bool force = true) const;
-        bool IsImmunedToSpell(SpellInfo const* spellInfo);
-                                                            // redefine Unit::IsImmunedToSpell
-        bool IsImmunedToSpellEffect(SpellInfo const* spellInfo, uint32 index) const;
-                                                            // redefine Unit::IsImmunedToSpellEffect
+        bool IsImmunedToSpell(SpellInfo const* spellInfo);                           //override Unit::IsImmunedToSpell
+        bool IsImmunedToSpellEffect(SpellInfo const* spellInfo, uint32 index) const; //override Unit::IsImmunedToSpellEffect
         bool isElite() const
         {
             if (isPet())
@@ -766,10 +764,10 @@ class Creature : public Unit, public GridObject<Creature>, public MapCreature
 
         bool DisableReputationGain;
 
-        CreatureTemplate const* m_creatureInfo;                 // in difficulty mode > 0 can different from sObjectMgr->GetCreatureTemplate(GetEntry())
+        CreatureTemplate const* m_creatureInfo;                 // Can differ from sObjectMgr->GetCreatureTemplate(GetEntry()) in difficulty mode > 0
         CreatureData const* m_creatureData;
 
-        uint16 m_LootMode;                                  // bitmask, default LOOT_MODE_DEFAULT, determines what loot will be lootable
+        uint16 m_LootMode;                                  // Bitmask (default: LOOT_MODE_DEFAULT) that determines what loot will be lootable
         uint32 guid_transport;
 
         bool IsInvisibleDueToDespawn() const;
