@@ -156,7 +156,7 @@ enum Spells
 enum Movements
 {
     POINT_NEAR_RANDOM_PORTAL_P_NONE         = 1,
-    POINT_LAND_P_ONE, 
+    POINT_LAND_P_ONE,
     POINT_VORTEX_P_ONE,
     POINT_LAND_AFTER_VORTEX_P_ONE,
     POINT_LIFT_IN_AIR_P_ONE,
@@ -286,7 +286,7 @@ Position const MalygosPositions[MAX_MALYGOS_POS] =
     { 754.393f, 1301.27f, 292.91f, 0.0f }, // Point vortex
     { 754.362f, 1301.61f, 266.17f, 0.0f }, // Land after vortex
     { 754.695f, 1301.66f, 316.65f, 0.0f }, // Point surge of Power phase II
-    { 755.681f, 1298.41f, 220.06f, 0.0f }  // Point idle phase III 
+    { 755.681f, 1298.41f, 220.06f, 0.0f }  // Point idle phase III
 };
 
 Position const AlexstraszaSpawnPos  = { 854.551f, 1225.31f, 300.901f, 0.0f }; // Alexstrasza's spawn position
@@ -372,10 +372,10 @@ public:
             me->SetSpeed(MOVE_FLIGHT, _flySpeed * 0.25f);
             if (_despawned)
                 DoAction(ACTION_HANDLE_RESPAWN);
-            
+
             SetPhase(PHASE_NOT_STARTED, true);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-            me->SetReactState(REACT_PASSIVE);                       
+            me->SetReactState(REACT_PASSIVE);
             if (instance)
                 instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
         }
@@ -383,7 +383,7 @@ public:
         uint32 GetData(uint32 data) const
         {
             switch (data)
-            {            
+            {
                 case DATA_SUMMON_DEATHS:
                     return _summonDeaths;
                 case DATA_PHASE:
@@ -415,7 +415,7 @@ public:
                         DoAction(ACTION_HANDLE_P_THREE_INTRO);
                     }
                 }
-            }                 
+            }
         }
 
         uint64 GetGUID(int32 data) const
@@ -624,7 +624,7 @@ public:
                 else if (_phase == PHASE_THREE)
                     summons.DespawnAll();
             }
-            
+
             if (instance)
                 instance->SetBossState(DATA_MALYGOS_EVENT, NOT_STARTED);
         }
@@ -633,7 +633,7 @@ public:
         {
             if (victim->GetTypeId() != TYPEID_PLAYER)
                 return;
-            
+
             if (!_killSpamFilter)
             {
                 switch (_phase)
@@ -667,7 +667,7 @@ public:
                 Talk(SAY_BUFF_SPARK);
             }
             else if (spell->Id == SPELL_MALYGOS_BERSERK)
-                sCreatureTextMgr->SendChat(me, EMOTE_HIT_BERSERKER_TIMER, 0, CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_MAP);        
+                sCreatureTextMgr->SendChat(me, EMOTE_HIT_BERSERKER_TIMER, 0, CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_MAP);
         }
 
         void MoveInLineOfSight(Unit* who)
@@ -679,7 +679,7 @@ public:
                 if (who->GetDistance(me) <= 2.5f)
                     who->CastSpell(me, SPELL_POWER_SPARK_MALYGOS, true);
         }
-       
+
         void MovementInform(uint32 type, uint32 id)
         {
             if (type != POINT_MOTION_TYPE && type != EFFECT_MOTION_TYPE)
@@ -928,7 +928,7 @@ public:
                     case EVENT_LIGHT_DIMENSION_CHANGE:
                         SendLightOverride(LIGHT_CHANGE_DIMENSIONS, 2*IN_MILLISECONDS);
                         break;
-                    case EVENT_MOVE_TO_P_THREE_POINT: 
+                    case EVENT_MOVE_TO_P_THREE_POINT:
                         Talk(SAY_START_P_THREE);
                         me->GetMotionMaster()->MovePoint(POINT_IDLE_P_THREE, MalygosPositions[4]);
                         break;
@@ -1002,7 +1002,7 @@ public:
             me->DespawnOrUnsummon(5*IN_MILLISECONDS);
         }
 
-    private:   
+    private:
         // Used to generate perfect cyclic movements (Enter Circle).
         void FillCirclePath(Position const& centerPos, float radius, float z, Movement::PointsArray& path, bool clockwise)
         {
@@ -1018,7 +1018,7 @@ public:
                 path.push_back(point);
             }
         }
-        
+
         // Function that will change lights of map for all players on map.
         void SendLightOverride(uint32 overrideId, uint32 fadeInTime) const
         {
@@ -1051,7 +1051,7 @@ public:
         Unit* _tempSurgeTarget; // These three are used for 10 man Surge of Power targeting.
         Vehicle* _drakeVehicle;
         Player* _playerSurgeTarget;
-        
+
         bool _killSpamFilter; // Prevent text spamming on killed player by helping implement a CD.
         bool _canAttack; // Used to control attacking (Move Chase not being applied after Stop Attack, only few times should act like this).
         bool _despawned; // Checks if boss pass through evade on reset.
@@ -1361,7 +1361,7 @@ public:
                 path.push_back(point);
             }
         }
-        
+
         InstanceScript* _instance;
     };
 
@@ -1680,7 +1680,7 @@ class spell_malygos_portal_beam : public SpellScriptLoader
                 if (Creature* target = GetTarget()->ToCreature())
                     target->CastSpell(target, SPELL_PORTAL_OPENED);
             }
-            
+
             void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Creature* target = GetTarget()->ToCreature())
@@ -2005,13 +2005,13 @@ class IsPlayerOnHoverDiskCheck
                     if (!passenger->GetVehicleBase())
                         return true;
             }
-           
+
             return false;
         }
 
         private:
             Unit* _source;
-            
+
             bool _isOnHoverDisk;
 };
 
@@ -2065,7 +2065,7 @@ class spell_malygos_destroy_platform_channel : public SpellScriptLoader
         class spell_malygos_destroy_platform_channel_AuraScript : public AuraScript
         {
             PrepareAuraScript(spell_malygos_destroy_platform_channel_AuraScript);
-            
+
             bool Load()
             {
                 return GetCaster()->GetTypeId() == TYPEID_UNIT;
@@ -2149,7 +2149,7 @@ class spell_alexstrasza_bunny_destroy_platform_event : public SpellScriptLoader
         class spell_alexstrasza_bunny_destroy_platform_event_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_alexstrasza_bunny_destroy_platform_event_SpellScript);
-     
+
             bool Load()
             {
                 return GetCaster()->GetTypeId() == TYPEID_UNIT;
@@ -2157,12 +2157,12 @@ class spell_alexstrasza_bunny_destroy_platform_event : public SpellScriptLoader
 
             void HandleSendEvent(SpellEffIndex /*effIndex*/)
             {
-                Creature* caster = GetCaster()->ToCreature();               
+                Creature* caster = GetCaster()->ToCreature();
                 if (InstanceScript* instance = caster->GetInstanceScript())
                     if (GameObject* platform = caster->GetMap()->GetGameObject(instance->GetData64(DATA_PLATFORM)))
                         platform->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_DESTROYED);
             }
-            
+
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
                 Creature* caster = GetCaster()->ToCreature();
@@ -2316,7 +2316,7 @@ class spell_malygos_surge_of_power_warning_selector_25 : public SpellScriptLoade
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_malygos_surge_of_power_warning_selector_25_SpellScript::SendThreeTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
                 AfterHit += SpellHitFn(spell_malygos_surge_of_power_warning_selector_25_SpellScript::ExecuteMainSpell);
             }
-        
+
             std::list<WorldObject*> _filteredSelectedTargets;
         };
 
@@ -2385,7 +2385,7 @@ class spell_alexstrasza_gift_beam : public SpellScriptLoader
         class spell_alexstrasza_gift_beam_AuraScript : public AuraScript
         {
             PrepareAuraScript(spell_alexstrasza_gift_beam_AuraScript);
-            
+
             bool Load()
             {
                 return GetCaster()->GetTypeId() == TYPEID_UNIT;

@@ -1189,7 +1189,7 @@ class Player : public Unit, public GridObject<Player>
         void RemovePet(Pet* pet, PetSaveMode mode, bool returnreagent = false);
         uint32 GetPhaseMaskForSpawn() const;                // used for proper set phase for DB at GM-mode creature/GO spawn
 
-        /// Handles said message in regular chat based on declared language and in config pre-defined Range. 
+        /// Handles said message in regular chat based on declared language and in config pre-defined Range.
         void Say(std::string const& text, const uint32 language);
         /// Handles yelled message in regular chat based on declared language and in config pre-defined Range.
         void Yell(std::string const& text, const uint32 language);

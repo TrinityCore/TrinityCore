@@ -56,7 +56,7 @@ public:
             if (type == DATA_MALYGOS_EVENT)
             {
                 if (state == FAIL)
-                {       
+                {
                     for (std::list<uint64>::const_iterator itr_trigger = portalTriggers.begin(); itr_trigger != portalTriggers.end(); ++itr_trigger)
                     {
                         if (Creature* trigger = instance->GetCreature(*itr_trigger))
@@ -155,7 +155,7 @@ public:
         void ProcessEvent(WorldObject* /*obj*/, uint32 eventId)
         {
             if (eventId == EVENT_FOCUSING_IRIS)
-            {   
+            {
                 if (Creature* alexstraszaBunny = instance->GetCreature(alexstraszaBunnyGUID))
                 {
                     alexstraszaBunny->CastSpell(alexstraszaBunny, SPELL_IRIS_OPENED);
