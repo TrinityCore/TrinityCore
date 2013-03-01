@@ -408,7 +408,35 @@ ElunaRegister<QueryResult> QueryMethods[] =  // UNDOCUMENTED
 
 ElunaRegister<WorldPacket> PacketMethods[] =
 {
+	{"CreatePacket", &LuaPacket::CreatePacket},                     // :CreatePacket(opcode, size)  -- Creates a packet with the according opcode and size specified      (UNDOCUMENTED)
+	
+	{"GetOpcode", &LuaPacket::GetOpcode},                           //  :GetOpcode() -- Returns an opcode                    (UNDOCUMENTED)
+	{"GetSize", &LuaPacket::GetSize},							    //  :GetSize() -- Returns the packet size				 (UNDOCUMENTED)
+	{"GetUnitType", &LuaPacket::GetOpcode},                         //  :GetUnitType() -- Returns the unit type: Packet      (UNDOCUMENTED)
 
+	{"SetOpcode", &LuaPacket::SetOpcode},                           //  :SetOpcode(opcode) -- Sets the opcode by specifying an opcode            (UNDOCUMENTED)
+
+	{"ReadByte", &LuaPacket::ReadByte},                             //  :ReadByte() -- Reads an int8 value                    (UNDOCUMENTED)
+	{"ReadUByte", &LuaPacket::ReadUByte},                           //  :ReadUByte() -- Reads a uint8 value                   (UNDOCUMENTED)             
+	{"ReadShort", &LuaPacket::ReadShort},                           //  :ReadShort() -- Reads an int16 value				  (UNDOCUMENTED)
+	{"ReadUShort", &LuaPacket::ReadUShort},                         //  :ReadUShort() -- Reads a uint16 value                 (UNDOCUMENTED)
+	{"ReadString", &LuaPacket::ReadString},                         //  :ReadString()  -- Reads a string value                (UNDOCUMENTED)
+	{"ReadFloat", &LuaPacket::ReadFloat},                           //  :ReadFloat()  -- Reads a float value                  (UNDOCUMENTED)
+	{"ReadDouble", &LuaPacket::ReadDouble},                         //  :ReadDouble() -- Reads a double value                 (UNDOCUMENTED)
+	{"ReadLong", &LuaPacket::ReadLong},                             //  :ReadLong() -- Reads an int32 value                   (UNDOCUMENTED)
+	{"ReadULong", &LuaPacket::ReadULong},                           //  :ReadULong() -- Reads a uint32 value                  (UNDOCUMENTED)
+	{"ReadGUID", &LuaPacket::ReadGUID},                             //  :ReadGUID() -- Reads a uint64 GUID value              (UNDOCUMENTED)
+
+	{"WriteByte", &LuaPacket::WriteByte},                           //  :WriteByte(val)  -- Writes an int8 byte value         (UNDOCUMENTED)
+	{"WriteUByte", &LuaPacket::WriteUByte},                         //  :WriteUByte(val) -- Writes a uint8 ubyte value        (UNDOCUMENTED)
+	{"WriteShort", &LuaPacket::WriteShort},                         //  :WriteShort(val) -- Writes an int16 short value       (UNDOCUMENTED)
+	{"WriteUShort", &LuaPacket::WriteUShort},                       //  :WriteUShort(val) -- Writes a uint16 ushort value     (UNDOCUMENTED)
+	{"WriteString", &LuaPacket::WriteString},                       //  :WriteString(val) -- Writes a string value            (UNDOCUMENTED)
+	{"WriteFloat", &LuaPacket::WriteFloat},                         //  :WriteFloat(val) -- Writes a float value              (UNDOCUMENTED)
+	{"WriteDouble", &LuaPacket::WriteDouble},                       //  :WriteDouble(val) -- Writes a double value            (UNDOCUMENTED)
+	{"WriteGUID", &LuaPacket::WriteGUID},                           //  :WriteGUID(val) -- Writes a uint64 guid value         (UNDOCUMENTED)
+	{"WriteLong", &LuaPacket::WriteLong},                           //  :WriteLong(val) -- Writes an int32 long value         (UNDOCUMENTED)
+	{"WriteULong", &LuaPacket::WriteULong},                         //  :WriteULong(val) -- Writes a uint32 ulong value       (UNDOCUMENTED)
     {NULL, NULL},
 };
 
