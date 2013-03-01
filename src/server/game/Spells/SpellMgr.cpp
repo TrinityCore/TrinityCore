@@ -3596,7 +3596,7 @@ void SpellMgr::LoadSpellInfoCorrections()
             // All spells below work even without these changes. The LOS attribute is due to problem
             // from collision between maps & gos with active destroyed state.
             case 57473: // Arcane Storm bonus explicit visual spell
-            case 57430: // Summon Static Field
+            case 57431: // Summon Static Field
             case 56091: // Flame Spike (Wyrmrest Skytalon)
             case 56092: // Engulf in Flames (Wyrmrest Skytalon)
             case 57090: // Revivify (Wyrmrest Skytalon)
