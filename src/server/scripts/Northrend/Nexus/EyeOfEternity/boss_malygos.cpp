@@ -439,12 +439,16 @@ public:
             {
                 case DATA_LAST_OVERLOAD_GUID:
                     _arcaneOverloadGUID = guid;
+                    break;
                 case DATA_FIRST_SURGE_TARGET_GUID:
                     _firstSelectedSurgeTargetGUID = guid;
+                    break;
                 case DATA_SECOND_SURGE_TARGET_GUID:
                     _secondSelectedSurgeTargetGUID = guid;
+                    break;
                 case DATA_THIRD_SURGE_TARGET_GUID:
                     _thirdSelectedSurgeTargetGUID = guid;
+                    break;
             }
         }
 
@@ -886,7 +890,8 @@ public:
                         }
                         break;
                     case EVENT_PATHING_AROUND_PLATFORM:
-                        DoAction(ACTION_CYCLIC_MOVEMENT);
+                        if (!_performingSurgeOfPower && !_performingDestroyPlatform)
+                            DoAction(ACTION_CYCLIC_MOVEMENT);
                         break;
                     case EVENT_MOVE_TO_POINT_SURGE_P_TWO:
                         if (!_performingDestroyPlatform)
