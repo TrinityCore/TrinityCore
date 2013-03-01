@@ -80,7 +80,10 @@ enum Events
     EVENT_NUKE_DUMMY                 = 3,
 
     // ======== SCIONS OF ETERNITY =========
-    EVENT_ARCANE_BARRAGE             = 1
+    EVENT_ARCANE_BARRAGE             = 1,
+
+    // ======== WYRMREST SKYTALON ==========
+    EVENT_CAST_RIDE_SPELL            = 1
 };
 
 enum Phases
@@ -374,7 +377,6 @@ public:
                 DoAction(ACTION_HANDLE_RESPAWN);
 
             SetPhase(PHASE_NOT_STARTED, true);
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             me->SetReactState(REACT_PASSIVE);
             if (instance)
                 instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
@@ -464,7 +466,7 @@ public:
                         pos.m_positionZ = alexstraszaBunny->GetPositionZ();
                         alexstraszaBunny->GetNearPoint2D(pos.m_positionX, pos.m_positionY, 30.0f, alexstraszaBunny->GetAngle(me));
                         me->GetMotionMaster()->MoveLand(POINT_LAND_P_ONE, pos);
-                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
                         me->SetReactState(REACT_AGGRESSIVE);
                         me->SetInCombatWithZone();
                         events.ScheduleEvent(EVENT_LAND_START_ENCOUNTER, 7*IN_MILLISECONDS, 1, PHASE_NOT_STARTED);
@@ -541,19 +543,19 @@ public:
                     events.ScheduleEvent(EVENT_START_FIRST_RANDOM_PORTAL, 2*IN_MILLISECONDS, 1, _phase);
                     break;
                 case PHASE_ONE:
-                    events.ScheduleEvent(EVENT_ARCANE_BREATH, urand(15, 20)*IN_MILLISECONDS, 0, _phase);
-                    events.ScheduleEvent(EVENT_ARCANE_STORM, 10*IN_MILLISECONDS, 0, _phase);
-                    events.ScheduleEvent(EVENT_VORTEX, urand(30, 40)*IN_MILLISECONDS, 0, _phase);
-                    events.ScheduleEvent(EVENT_POWER_SPARKS, urand(30, 35)*IN_MILLISECONDS, 0, _phase);
+                    events.ScheduleEvent(EVENT_ARCANE_BREATH, urand(8, 10)*IN_MILLISECONDS, 0, _phase);
+                    events.ScheduleEvent(EVENT_ARCANE_STORM, urand(3, 6)*IN_MILLISECONDS, 0, _phase);
+                    events.ScheduleEvent(EVENT_VORTEX, urand(30, 35)*IN_MILLISECONDS, 0, _phase);
+                    events.ScheduleEvent(EVENT_POWER_SPARKS, urand(20, 30)*IN_MILLISECONDS, 0, _phase);
                     break;
                 case PHASE_TWO:
                     events.ScheduleEvent(EVENT_MOVE_TO_POINT_SURGE_P_TWO, 60*IN_MILLISECONDS, 0, _phase);
                     me->AI()->DoAction(ACTION_LIFT_IN_AIR);
                     break;
                 case PHASE_THREE:
-                    events.ScheduleEvent(EVENT_ARCANE_PULSE, 13*IN_MILLISECONDS, 0, _phase);
-                    events.ScheduleEvent(EVENT_ARCANE_STORM, 20*IN_MILLISECONDS, 0, _phase);
-                    events.ScheduleEvent(EVENT_SURGE_OF_POWER_P_THREE, urand(7, 16)*IN_MILLISECONDS, 0, _phase);
+                    events.ScheduleEvent(EVENT_ARCANE_PULSE, 7*IN_MILLISECONDS, 0, _phase);
+                    events.ScheduleEvent(EVENT_ARCANE_STORM, 10*IN_MILLISECONDS, 0, _phase);
+                    events.ScheduleEvent(EVENT_SURGE_OF_POWER_P_THREE, urand(4, 6)*IN_MILLISECONDS, 0, _phase);
                     events.ScheduleEvent(EVENT_STATIC_FIELD, urand(20, 30)*IN_MILLISECONDS, 0, _phase);
                     break;
             }
@@ -608,6 +610,8 @@ public:
 
             // Set speed to normal value
             me->SetSpeed(MOVE_FLIGHT, _flySpeed);
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             me->RemoveAllAuras();
             me->CombatStop(); // Sometimes threat can remain, so it's a safety measure
 
@@ -943,7 +947,6 @@ public:
                         DoCast(me, SPELL_IMMUNE_CURSES);
                         _canAttack = true;
                         UpdateVictim();
-                        me->SetFacingToObject(me->getVictim());
                         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                         SetPhase(PHASE_THREE, true);
                         break;
@@ -1544,6 +1547,7 @@ public:
 
         void UpdateAI (uint32 /*diff*/)
         {
+
         }
 
         void DoAction(int32 /*action*/)
@@ -1568,8 +1572,8 @@ public:
         }
 
     private:
-        InstanceScript* _instance;
         Creature* _malygos;
+        InstanceScript* _instance;
     };
 
     CreatureAI* GetAI(Creature* creature) const
@@ -1592,16 +1596,29 @@ public:
 
         void IsSummonedBy(Unit* summoner)
         {
-            me->CastSpell(summoner, SPELL_RIDE_RED_DRAGON_TRIGGERED, true);
+            _summoner = NULL;
+            if ((_summoner = summoner->ToPlayer()))
+                _events.ScheduleEvent(EVENT_CAST_RIDE_SPELL, 2*IN_MILLISECONDS);
+        }
+
+        void UpdateAI(uint32 diff)
+        {
+            VehicleAI::UpdateAI(diff);
+            _events.Update(diff);
+
+            while (uint32 eventId = _events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                    case EVENT_CAST_RIDE_SPELL:
+                        me->CastSpell(_summoner, SPELL_RIDE_RED_DRAGON_TRIGGERED, true);
+                        break;
+                }
+            }
         }
 
         void PassengerBoarded(Unit* unit, int8 /*seat*/, bool apply)
         {
-            if (apply)
-            {
-                _playerController = NULL;
-                _playerController = unit->ToPlayer();
-            }
             if (!apply)
             {
                 me->DespawnOrUnsummon(2050);
@@ -1619,11 +1636,12 @@ public:
         void JustDied(Unit* /*killer*/)
         {
             // TO DOs: check script beginning for more info.
-            _playerController->Kill(_playerController, true);
+            _summoner->Kill(_summoner, true);
         }
 
     private:
-        Player* _playerController;
+        Player* _summoner;
+        EventMap _events;
     };
 
     CreatureAI* GetAI(Creature* creature) const
