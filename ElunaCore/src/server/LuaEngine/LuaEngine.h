@@ -721,7 +721,7 @@ public:
             _eventMap.insert(EventStore::value_type(_time + delay, eventData(funcRef, delay, calls)));
         }
 
-        void LuaEventCancel(uint32 funcRef)
+        void LuaEventCancel(int funcRef)
         {
             if (LuaEventsEmpty())
                 return;

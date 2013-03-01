@@ -258,10 +258,15 @@ namespace LuaGlobalFunctions
         return 0;
     }
     
-    // DestroyLuaEvents() - removes all global lua events
+    // DestroyLuaEvents(all_events) - removes all global lua events, if all_events is true, removes creature and gameobject events too
     static int DestroyLuaEvents(lua_State* L)
     {
-        sLuaWorldScript->LuaEventsReset();
+        bool all_Events = luaL_optbool(L, 1, false);
+
+        if(all_Events)
+            Eluna::LuaEventMap::LuaEventsResetAll();
+        else
+            sLuaWorldScript->LuaEventsReset();
         return 0;
     }
 
