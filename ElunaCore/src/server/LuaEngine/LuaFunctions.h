@@ -407,9 +407,7 @@ ElunaRegister<QueryResult> QueryMethods[] =  // UNDOCUMENTED
 };
 
 ElunaRegister<WorldPacket> PacketMethods[] =
-{
-	{"CreatePacket", &LuaPacket::CreatePacket},                     // :CreatePacket(opcode, size)  -- Creates a packet with the according opcode and size specified      (UNDOCUMENTED)
-	
+{	
 	{"GetOpcode", &LuaPacket::GetOpcode},                           //  :GetOpcode() -- Returns an opcode                    (UNDOCUMENTED)
 	{"GetSize", &LuaPacket::GetSize},							    //  :GetSize() -- Returns the packet size				 (UNDOCUMENTED)
 	{"GetUnitType", &LuaPacket::GetOpcode},                         //  :GetUnitType() -- Returns the unit type: Packet      (UNDOCUMENTED)
@@ -434,7 +432,7 @@ ElunaRegister<WorldPacket> PacketMethods[] =
 	{"WriteString", &LuaPacket::WriteString},                       //  :WriteString(val) -- Writes a string value            (UNDOCUMENTED)
 	{"WriteFloat", &LuaPacket::WriteFloat},                         //  :WriteFloat(val) -- Writes a float value              (UNDOCUMENTED)
 	{"WriteDouble", &LuaPacket::WriteDouble},                       //  :WriteDouble(val) -- Writes a double value            (UNDOCUMENTED)
-	{"WriteGUID", &LuaPacket::WriteGUID},                           //  :WriteGUID(val) -- Writes a uint64 guid value         (UNDOCUMENTED)
+	{"WriteGUID", &LuaPacket::WriteGUID},                           //  :WriteGUID(worldobject) -- Writes a uint64 guid value. WorldObject can be any unit: creature, gameobject, item.. (UNDOCUMENTED)
 	{"WriteLong", &LuaPacket::WriteLong},                           //  :WriteLong(val) -- Writes an int32 long value         (UNDOCUMENTED)
 	{"WriteULong", &LuaPacket::WriteULong},                         //  :WriteULong(val) -- Writes a uint32 ulong value       (UNDOCUMENTED)
     {NULL, NULL},

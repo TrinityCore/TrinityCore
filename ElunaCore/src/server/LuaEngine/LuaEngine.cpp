@@ -136,6 +136,7 @@ void Eluna::RegisterGlobals(lua_State* L)
     lua_register(L, "DestroyLuaEventByID", &LuaGlobalFunctions::DestroyLuaEventByID);             // Not Documented
     lua_register(L, "DestroyLuaEvents", &LuaGlobalFunctions::DestroyLuaEvents);             // Not Documented
     lua_register(L, "PerformIngameSpawn", &LuaGlobalFunctions::PerformIngameSpawn);             // Not Documented
+    lua_register(L, "CreatePacket", &LuaGlobalFunctions::CreatePacket);             // Not Documented
 }
 
 void Eluna::LoadDirectory(char* Dirname, LoadedScripts* lscr)

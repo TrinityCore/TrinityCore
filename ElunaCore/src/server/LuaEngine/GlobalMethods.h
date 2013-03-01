@@ -374,5 +374,22 @@ namespace LuaGlobalFunctions
 
         return 0;
     }
+
+	// CreatePacket(opcode, size)
+    static int CreatePacket(lua_State* L)
+	{
+		uint16 opcode = luaL_checkunsigned(L, 1);
+		size_t size = luaL_checkunsigned(L, 2);
+
+		if (opcode >= NUM_MSG_TYPES)
+			luaL_error(L, "Eluna Nova:: Opcode %d is greater than the max Opcode type (%d)!", opcode, NUM_MSG_TYPES);
+		else
+		{
+			WorldPacket* _packet = new WorldPacket(opcode, size);
+			Eluna::get()->PushPacket(L, _packet);
+		    return 1;
+		}
+        return 0;
+	}
 }
 #endif
