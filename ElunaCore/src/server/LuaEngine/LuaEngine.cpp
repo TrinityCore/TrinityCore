@@ -416,7 +416,7 @@ static int RegisterGossipEvent(lua_State* L)
         functionRef = lua_ref(L, true);
 
     if(functionRef > 0)
-        Eluna::get()->Register(REGTYPE_GOSSIP, entry, ev, functionRef);
+        Eluna::get()->Register(REGTYPE_CREATURE_GOSSIP, entry, ev, functionRef);
     return 0;
 }
 
@@ -530,18 +530,18 @@ void Eluna::Register(uint8 regtype, uint32 id, uint32 evt, int functionRef)
         }
         break;
 
-    case REGTYPE_GOSSIP:
-        if(evt < GOSSIP_EVENT_COUNT)
-        {
-            sLuaCreatureScript->RegisterGossipScript(id, evt, functionRef);
-            return;
-        }
-        break;
-
     case REGTYPE_CREATURE:
         if (evt < CREATURE_EVENT_COUNT)
         {
             sLuaCreatureScript->RegisterCreatureScript(id, evt, functionRef);
+            return;
+        }
+        break;
+
+    case REGTYPE_CREATURE_GOSSIP:
+        if(evt < GOSSIP_EVENT_COUNT)
+        {
+            sLuaCreatureScript->RegisterCreatureGossipScript(id, evt, functionRef);
             return;
         }
         break;

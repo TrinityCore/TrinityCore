@@ -45,10 +45,11 @@ struct LoadedScripts
 enum REGISTER_TYPE
 {
     REGTYPE_SERVER,
-    REGTYPE_GOSSIP,
     REGTYPE_CREATURE,
+    REGTYPE_CREATURE_GOSSIP,
     REGTYPE_GAMEOBJECT,
     REGTYPE_GAMEOBJECT_GOSSIP,
+    REGTYPE_ITEM,
     REGTYPE_ITEM_GOSSIP,
     REGTYPE_PLAYER_GOSSIP,
     REGTYPE_LOG,
@@ -230,7 +231,12 @@ enum GameObjectEvents
 
 enum ItemEvents
 {
-    ITEM_EVENT_COUNT = 1 //placeholder
+    ITEM_EVENT_ON_DUMMY_EFFECT                      = 1,    // Not implemented
+    ITEM_EVENT_ON_USE                               = 2,    // Not implemented
+    ITEM_EVENT_ON_QUEST_ACCEPT                      = 3,    // Not implemented
+    ITEM_EVENT_ON_EXPIRE                            = 4,    // Not implemented
+
+    ITEM_EVENT_COUNT
 };
 
 enum GossipEvents
@@ -912,7 +918,7 @@ public:
             return true;
         }
 
-        bool RegisterGossipScript(uint32 id, uint32 evt, int functionRef)
+        bool RegisterCreatureGossipScript(uint32 id, uint32 evt, int functionRef)
         {
             if (!sObjectMgr->GetCreatureTemplate(id))
             {
