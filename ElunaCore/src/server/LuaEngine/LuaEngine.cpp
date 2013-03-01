@@ -13,6 +13,7 @@ Eluna::LuaWorldScript* sLuaWorldScript = NULL;
 #include "AuraMethods.h"
 #include "ChannelMethods.h"
 #include "ItemMethods.h"
+#include "WorldPacketMethods.h"
 #include "LuaFunctions.h"
 
 #if PLATFORM == PLATFORM_UNIX
@@ -162,7 +163,7 @@ void Eluna::LoadDirectory(char* Dirname, LoadedScripts* lscr)
     {
         if(FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
         {
-            strcpy(SearchName,Dirname);
+            strcpy(SearchName, Dirname);
             strcat(SearchName, "\\");
             strcat(SearchName, FindData.cFileName);
             LoadDirectory(SearchName, lscr);
