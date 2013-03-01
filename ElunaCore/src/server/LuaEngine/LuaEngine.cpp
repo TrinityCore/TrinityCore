@@ -382,7 +382,7 @@ void Eluna::LuaEventMap::LuaEventsResetAll()
 // RegisterServerHook(ev, func)
 static int RegisterServerHook(lua_State* L)
 {
-    uint16 functionRef = 0;
+    int functionRef = 0;
     lua_settop(L, 2);
     uint32 ev = luaL_checkunsigned(L, 1);
     const char* typeName = luaL_typename(L, 2);
@@ -391,7 +391,7 @@ static int RegisterServerHook(lua_State* L)
         return 0;
 
     if(!strcmp(typeName, "function"))
-        functionRef = (uint16)lua_ref(L, true);
+        functionRef = lua_ref(L, true);
 
     if(functionRef > 0)
         Eluna::get()->Register(REGTYPE_SERVER, 0, ev, functionRef);
@@ -401,7 +401,7 @@ static int RegisterServerHook(lua_State* L)
 //RegisterGossipEvent(ev, func)
 static int RegisterGossipEvent(lua_State* L)
 {
-    uint16 functionRef = 0;
+    int functionRef = 0;
     lua_settop(L, 3);
     uint32 entry = luaL_checkint(L, 1);
     uint32 ev = luaL_checkunsigned(L, 2);
@@ -411,7 +411,7 @@ static int RegisterGossipEvent(lua_State* L)
         return 0;
 
     if(!strcmp(typeName, "function"))
-        functionRef = (uint16)lua_ref(L, true);
+        functionRef = lua_ref(L, true);
 
     if(functionRef > 0)
         Eluna::get()->Register(REGTYPE_GOSSIP, entry, ev, functionRef);
@@ -421,7 +421,7 @@ static int RegisterGossipEvent(lua_State* L)
 // RegisterGameObjectGossipEvent(entry, event, function)
 static int RegisterGameObjectGossipEvent(lua_State* L)
 {
-    uint16 functionRef = 0;
+    int functionRef = 0;
     lua_settop(L, 3);
     uint32 entry = luaL_checkint(L, 1);
     uint32 ev = luaL_checkunsigned(L, 2);
@@ -431,7 +431,7 @@ static int RegisterGameObjectGossipEvent(lua_State* L)
         return 0;
 
     if(!strcmp(typeName, "function"))
-        functionRef = (uint16)lua_ref(L, true);
+        functionRef = lua_ref(L, true);
 
     if(functionRef > 0)
         Eluna::get()->Register(REGTYPE_GAMEOBJECT_GOSSIP, entry, ev, functionRef);
@@ -441,7 +441,7 @@ static int RegisterGameObjectGossipEvent(lua_State* L)
 // RegisterItemGossipEvent(entry, event, function)
 static int RegisterItemGossipEvent(lua_State* L)
 {
-    uint16 functionRef = 0;
+    int functionRef = 0;
     lua_settop(L, 3);
     uint32 entry = luaL_checkint(L, 1);
     uint32 ev = luaL_checkunsigned(L, 2);
@@ -451,7 +451,7 @@ static int RegisterItemGossipEvent(lua_State* L)
         return 0;
 
     if(!strcmp(typeName, "function"))
-        functionRef = (uint16)lua_ref(L, true);
+        functionRef = lua_ref(L, true);
 
     if(functionRef > 0)
         Eluna::get()->Register(REGTYPE_ITEM_GOSSIP, entry, ev, functionRef);
@@ -461,7 +461,7 @@ static int RegisterItemGossipEvent(lua_State* L)
 // RegisterPlayerGossipEvent(entry, event, function)
 static int RegisterPlayerGossipEvent(lua_State* L)
 {
-    uint16 functionRef = 0;
+    int functionRef = 0;
     lua_settop(L, 3);
     uint32 menu_id = luaL_checkint(L, 1);
     uint32 ev = luaL_checkunsigned(L, 2);
@@ -471,7 +471,7 @@ static int RegisterPlayerGossipEvent(lua_State* L)
         return 0;
 
     if(!strcmp(typeName, "function"))
-        functionRef = (uint16)lua_ref(L, true);
+        functionRef = lua_ref(L, true);
 
     if(functionRef > 0)
         Eluna::get()->Register(REGTYPE_PLAYER_GOSSIP, menu_id, ev, functionRef);
@@ -481,7 +481,7 @@ static int RegisterPlayerGossipEvent(lua_State* L)
 // RegisterCreatureEvent(entry, ev, func)
 static int RegisterCreatureEvent(lua_State* L)
 {
-    uint16 functionRef = 0;
+    int functionRef = 0;
     lua_settop(L, 3);
     uint32 entry = luaL_checkint(L, 1);
     uint32 ev = luaL_checkunsigned(L, 2);
@@ -490,7 +490,7 @@ static int RegisterCreatureEvent(lua_State* L)
         return 0;
 
     if (!strcmp(typeName, "function"))
-        functionRef = (uint16)lua_ref(L, true);
+        functionRef = lua_ref(L, true);
 
     if (functionRef > 0)
         Eluna::get()->Register(REGTYPE_CREATURE, entry, ev, functionRef);
@@ -500,7 +500,7 @@ static int RegisterCreatureEvent(lua_State* L)
 // RegisterGameObjectEvent(entry, event, func)
 static int RegisterGameObjectEvent(lua_State* L)
 {
-    uint16 functionRef = 0;
+    int functionRef = 0;
     lua_settop(L, 3);
     uint32 entry = luaL_checkint(L, 1);
     uint32 ev = luaL_checkunsigned(L, 2);
@@ -509,14 +509,14 @@ static int RegisterGameObjectEvent(lua_State* L)
         return 0;
 
     if (!strcmp(typeName, "function"))
-        functionRef = (uint16)lua_ref(L, true);
+        functionRef = lua_ref(L, true);
 
     if (functionRef > 0)
         Eluna::get()->Register(REGTYPE_GAMEOBJECT, entry, ev, functionRef);
     return 0;
 }
 
-void Eluna::Register(uint8 regtype, uint32 id, uint32 evt, uint16 functionRef)
+void Eluna::Register(uint8 regtype, uint32 id, uint32 evt, int functionRef)
 {
     switch(regtype)
     {

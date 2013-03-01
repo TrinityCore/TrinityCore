@@ -362,11 +362,11 @@ public:
     lua_State* _luaState;
 
     void StartEluna();
-    void Register(uint8 reg, uint32 id, uint32 evt, uint16 fuc);
+    void Register(uint8 reg, uint32 id, uint32 evt, int func);
 
     static void report(lua_State*);
 
-    void BeginCall(uint16 fReference)
+    void BeginCall(int fReference)
     {
         lua_settop(_luaState, 0); //stack should be empty
         lua_rawgeti(_luaState, LUA_REGISTRYINDEX, (fReference));
@@ -900,7 +900,7 @@ public:
         {
         }
 
-        bool RegisterCreatureScript(uint32 id, uint32 evt, uint16 functionRef)
+        bool RegisterCreatureScript(uint32 id, uint32 evt, int functionRef)
         {
             if (!sObjectMgr->GetCreatureTemplate(id))
             {
@@ -912,7 +912,7 @@ public:
             return true;
         }
 
-        bool RegisterGossipScript(uint32 id, uint32 evt, uint16 functionRef)
+        bool RegisterGossipScript(uint32 id, uint32 evt, int functionRef)
         {
             if (!sObjectMgr->GetCreatureTemplate(id))
             {
@@ -1378,7 +1378,7 @@ public:
         {
         }
 
-        bool RegisterGameObjectScript(uint32 id, uint32 _event, uint16 functionRef)
+        bool RegisterGameObjectScript(uint32 id, uint32 _event, int functionRef)
         {
             if (!sObjectMgr->GetGameObjectTemplate(id))
             {
@@ -1390,7 +1390,7 @@ public:
             return true;
         }
 
-        bool RegisterGameObjectGossipScript(uint32 id, uint32 _event, uint16 functionRef)
+        bool RegisterGameObjectGossipScript(uint32 id, uint32 _event, int functionRef)
         {
             if (!sObjectMgr->GetGameObjectTemplate(id))
             {
