@@ -22,7 +22,7 @@ public:
 		if (!packet)
 			return 0;
 
-        Eluna::get()->PushInteger(L, packet->GetOpcode());
+        Eluna::get()->PushUnsigned(L, packet->GetOpcode());
 		return 1;
 	}
 
@@ -32,7 +32,7 @@ public:
 		if (!packet)
 			return 0;
         
-        Eluna::get()->PushInteger(L, packet->size());
+        Eluna::get()->PushUnsigned(L, packet->size());
 		return 1;
 	}
 
@@ -70,7 +70,7 @@ public:
 
 		uint8 byte;
 		(*packet) >> byte;
-		Eluna::get()->PushInteger(L, byte);
+		Eluna::get()->PushUnsigned(L, byte);
 		return 1;
 	}
 
@@ -94,7 +94,7 @@ public:
 
 		uint16 _ushort;
 		(*packet) >> _ushort;
-		Eluna::get()->PushInteger(L, _ushort);
+		Eluna::get()->PushUnsigned(L, _ushort);
 		return 1;
 	}
 
@@ -118,7 +118,7 @@ public:
 
 		uint32 _ulong;
 		(*packet) >> _ulong;
-		Eluna::get()->PushInteger(L, _ulong);
+		Eluna::get()->PushUnsigned(L, _ulong);
 		return 1;
 	}
 
