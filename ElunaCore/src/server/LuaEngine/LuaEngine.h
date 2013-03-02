@@ -248,7 +248,8 @@ public:
 
     struct ElunaBind
     {
-        void Clear() // unregisters all registered functions and clears all registered events from the bind maps (reset)
+        // unregisters all registered functions and clears all registered events from the bind maps (reset)
+        void Clear()
         {
             for (ElunaEntryMap::iterator itr = Bindings.begin(); itr != Bindings.end(); ++itr)
             {
@@ -259,7 +260,8 @@ public:
             Bindings.clear();
         }
 
-        void Insert(uint32 entryId, uint32 eventId, int funcRef) // Inserts a new registered event
+        // Inserts a new registered event
+        void Insert(uint32 entryId, uint32 eventId, int funcRef)
         {
             if (Bindings[entryId][eventId])
             {
@@ -270,7 +272,8 @@ public:
                 Bindings[entryId][eventId] = funcRef;
         }
 
-        int GetBind(uint32 entryId, uint32 eventId) // Gets the function ref of an entry for an event
+        // Gets the function ref of an entry for an event
+        int GetBind(uint32 entryId, uint32 eventId)
         {
             ElunaEntryMap::iterator itr = Bindings.find(entryId);
             if (itr == Bindings.end())
@@ -279,7 +282,8 @@ public:
             return itr->second[eventId];
         }
 
-        ElunaBindingMap* GetBindMap(uint32 entryId) // Gets the binding map containing all registered events with the function refs for the entry
+        // Gets the binding map containing all registered events with the function refs for the entry
+        ElunaBindingMap* GetBindMap(uint32 entryId) 
         {
             ElunaEntryMap::iterator itr = Bindings.find(entryId);
             if (itr == Bindings.end())
@@ -288,11 +292,11 @@ public:
             return &itr->second;
         }
 
-        ElunaEntryMap Bindings; // binding store Bindings[entryId][eventId] = funcRef;
+        ElunaEntryMap Bindings; // Binding store Bindings[entryId][eventId] = funcRef;
     };
 
+    // Binding stores
     map<int, vector<int> > ServerEventBindings;
-
     ElunaBind* CreatureEventBindings;
     ElunaBind* CreatureGossipBindings;
     ElunaBind* GameObjectEventBindings;
@@ -301,45 +305,42 @@ public:
     ElunaBind* ItemGossipBindings;
     ElunaBind* playerGossipBindings;
 
-    static void InitTables()
+    // Creates new binding stores
+    Eluna()
     {
         for (int i = 0; i < SERVER_EVENT_COUNT; ++i)
         {
             vector<int> _vector;
-            get()->ServerEventBindings.insert(pair<int, vector<int> >(i, _vector));
+            ServerEventBindings.insert(pair<int, vector<int> >(i, _vector));
         }
-        get()->CreatureEventBindings = new ElunaBind;
-        get()->CreatureGossipBindings = new ElunaBind;
-        get()->GameObjectEventBindings = new ElunaBind;
-        get()->GameObjectGossipBindings = new ElunaBind;
-        get()->ItemEventBindings = new ElunaBind;
-        get()->ItemGossipBindings = new ElunaBind;
-        get()->playerGossipBindings = new ElunaBind;
-    }
-
-    Eluna()
-    {
+        CreatureEventBindings = new ElunaBind;
+        CreatureGossipBindings = new ElunaBind;
+        GameObjectEventBindings = new ElunaBind;
+        GameObjectGossipBindings = new ElunaBind;
+        ItemEventBindings = new ElunaBind;
+        ItemGossipBindings = new ElunaBind;
+        playerGossipBindings = new ElunaBind;
     }
 
     ~Eluna()
     {
-        Eluna::LuaEventMap::LuaEventsResetAll(); // Unregisters and stops all timed events
+        LuaEventMap::LuaEventsResetAll(); // Unregisters and stops all timed events
 
-        for (map<int, vector<int> >::iterator itr = get()->ServerEventBindings.begin(); itr != get()->ServerEventBindings.end(); ++itr)
+        for (map<int, vector<int> >::iterator itr = ServerEventBindings.begin(); itr != ServerEventBindings.end(); ++itr)
         {
             for (vector<int>::iterator it = itr->second.begin(); it != itr->second.end(); ++it)
                 luaL_unref(get()->LuaState, LUA_REGISTRYINDEX, (*it));
             itr->second.clear();
         }
-        get()->ServerEventBindings.clear();
+        ServerEventBindings.clear();
 
-        get()->CreatureEventBindings->Clear();
-        get()->CreatureGossipBindings->Clear();
-        get()->GameObjectEventBindings->Clear();
-        get()->GameObjectGossipBindings->Clear();
-        get()->ItemEventBindings->Clear();
-        get()->ItemGossipBindings->Clear();
-        get()->playerGossipBindings->Clear();
+        CreatureEventBindings->Clear();
+        CreatureGossipBindings->Clear();
+        GameObjectEventBindings->Clear();
+        GameObjectGossipBindings->Clear();
+        ItemEventBindings->Clear();
+        ItemGossipBindings->Clear();
+        playerGossipBindings->Clear();
 
         lua_close(get()->LuaState); // Closing
     }

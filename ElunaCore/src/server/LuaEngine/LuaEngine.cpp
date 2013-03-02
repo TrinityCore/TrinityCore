@@ -45,8 +45,6 @@ void Eluna::StartEluna()
     LuaState = luaL_newstate();
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Eluna Nova Lua Engine loaded.");
 
-    InitTables();
-
     LoadedScripts loadedScripts;
     LoadDirectory("scripts", &loadedScripts);
     luaL_openlibs(LuaState);
@@ -134,6 +132,7 @@ void Eluna::RegisterGlobals(lua_State* L)
     lua_register(L, "CreatePacket", &LuaGlobalFunctions::CreatePacket);             // Not Documented
 }
 
+// Loads lua scripts from given directory
 void Eluna::LoadDirectory(char* Dirname, LoadedScripts* lscr)
 {
 #ifdef WIN32
@@ -238,6 +237,7 @@ void Eluna::report(lua_State* L)
 }
 
 /* Pushes */
+// Pushes a low part of a guid (low guid
 void Eluna::PushGUID(lua_State* L, uint64 g)
 {
     if (!L) L = LuaState;
@@ -524,6 +524,7 @@ static int RegisterGameObjectEvent(lua_State* L)
     return 0;
 }
 
+// Saves the function reference ID given to the register type's store for given entry under the given event
 void Eluna::Register(uint8 regtype, uint32 id, uint32 evt, int functionRef)
 {
     switch(regtype)
