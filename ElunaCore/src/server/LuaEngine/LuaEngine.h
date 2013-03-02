@@ -1,10 +1,3 @@
-/*
-FOEREAPER TOMMY ENGINE, YEAH!
-
-// Correct Paths (Incase the crap refreshes)
-..\LuaEngine\Release\LuaEngine.lib
-..\..\..\dep\lualib\Release\lua.lib
-*/
 #ifndef __ELUNA__H
 #define __ELUNA__H
 #include <sys/types.h>

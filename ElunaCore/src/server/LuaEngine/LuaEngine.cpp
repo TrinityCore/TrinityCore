@@ -1,9 +1,3 @@
-/*
-Contributors:
-Foereaper, Neglected, Rochet2, Subv
-Faded, Tommy
-*/
-
 #include "LuaEngine.h"
 Eluna::LuaWorldScript* sLuaWorldScript = NULL;
 #include "GlobalMethods.h"
