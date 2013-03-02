@@ -22,23 +22,23 @@ class LuaUnit
 public:
     // Get Methods
 
-	//GetArenaPoints()
-	static int GetArenaPoints(lua_State* L, Unit* unit)
-	{
-		TO_PLAYER();
+    //GetArenaPoints()
+    static int GetArenaPoints(lua_State* L, Unit* unit)
+    {
+        TO_PLAYER();
 
-		Eluna::get()->PushUnsigned(L, player->GetArenaPoints());
-		return 1;
-	}
+        Eluna::get()->PushUnsigned(L, player->GetArenaPoints());
+        return 1;
+    }
 
-	//GetHonorPoints()
-	static int GetHonorPoints(lua_State* L, Unit* unit)
-	{
-		TO_PLAYER();
+    //GetHonorPoints()
+    static int GetHonorPoints(lua_State* L, Unit* unit)
+    {
+        TO_PLAYER();
 
-		Eluna::get()->PushUnsigned(L, player->GetHonorPoints());
-		return 1;
-	}
+        Eluna::get()->PushUnsigned(L, player->GetHonorPoints());
+        return 1;
+    }
     //GetSelection()
     static int GetSelection(lua_State* L, Unit* unit)
     {
@@ -170,23 +170,23 @@ public:
         return 1;
     }
 
-	//GetInstanceId()
-	static int GetInstanceId(lua_State* L, Unit* unit)
-	{
-		TO_UNIT();
+    //GetInstanceId()
+    static int GetInstanceId(lua_State* L, Unit* unit)
+    {
+        TO_UNIT();
 
-		Eluna::get()->PushUnsigned(L, unit->GetInstanceId());
-		return 1;
-	}
+        Eluna::get()->PushUnsigned(L, unit->GetInstanceId());
+        return 1;
+    }
 
-	//GetPhaseMask()
-	static int GetPhaseMask(lua_State* L, Unit* unit)
-	{
-		TO_UNIT();
+    //GetPhaseMask()
+    static int GetPhaseMask(lua_State* L, Unit* unit)
+    {
+        TO_UNIT();
 
-		Eluna::get()->PushUnsigned(L, unit->GetPhaseMask());
-		return 1;
-	}
+        Eluna::get()->PushUnsigned(L, unit->GetPhaseMask());
+        return 1;
+    }
 
     // GetAreaId()
     static int GetAreaId(lua_State* L, Unit* unit)
@@ -484,35 +484,35 @@ public:
         return 0;
     }
 
-	//SetPhaseMask(Phase, update)
-	static int SetPhaseMask(lua_State* L, Unit* unit)
-	{
-		TO_UNIT();
-		uint32 phaseMask = luaL_checkunsigned(L, 1);
-		bool Update = luaL_optbool(L, 2, true);
-		unit->SetPhaseMask(phaseMask, Update);
-		return 0;
-	}
+    //SetPhaseMask(Phase, update)
+    static int SetPhaseMask(lua_State* L, Unit* unit)
+    {
+        TO_UNIT();
+        uint32 phaseMask = luaL_checkunsigned(L, 1);
+        bool Update = luaL_optbool(L, 2, true);
+        unit->SetPhaseMask(phaseMask, Update);
+        return 0;
+    }
 
-	//SetArenaPoints(amount)
-	static int SetArenaPoints(lua_State* L, Unit* unit)
-	{
-		TO_PLAYER();
+    //SetArenaPoints(amount)
+    static int SetArenaPoints(lua_State* L, Unit* unit)
+    {
+        TO_PLAYER();
 
-		uint32 arenaP = luaL_checkunsigned(L, 1);
-		player->SetArenaPoints(arenaP);
-		return 0;
-	}
+        uint32 arenaP = luaL_checkunsigned(L, 1);
+        player->SetArenaPoints(arenaP);
+        return 0;
+    }
 
-	//SetHonorPoints(amount)
-	static int SetHonorPoints(lua_State* L, Unit* unit)
-	{
-		TO_PLAYER();
+    //SetHonorPoints(amount)
+    static int SetHonorPoints(lua_State* L, Unit* unit)
+    {
+        TO_PLAYER();
 
-		uint32 honorP = luaL_checkunsigned(L, 1);
-		player->SetHonorPoints(honorP);
-		return 0;
-	}
+        uint32 honorP = luaL_checkunsigned(L, 1);
+        player->SetHonorPoints(honorP);
+        return 0;
+    }
 
     // SetHealth(amount)
     static int SetHealth(lua_State* L, Unit* unit)
@@ -769,9 +769,9 @@ public:
         return 1;
     }
 
-	//IsInArenaTeam(type) type : 0 = 2v2, 1 = 3v3, 2 = 5v5
-	static int IsInArenaTeam(lua_State* L, Unit* unit)
-	{
+    //IsInArenaTeam(type) type : 0 = 2v2, 1 = 3v3, 2 = 5v5
+    static int IsInArenaTeam(lua_State* L, Unit* unit)
+    {
         TO_PLAYER_BOOL();
 
         uint32 type = luaL_checkunsigned(L, 1);
@@ -780,7 +780,7 @@ public:
         else
             Eluna::get()->PushBoolean(L, false);
         return 1;
-	}
+    }
 
     // IsInWorld()
     static int IsInWorld(lua_State* L, Unit* unit)
@@ -969,7 +969,7 @@ public:
     static int SendPacketToPlayer(lua_State* L, Unit* unit)
     {
         TO_PLAYER();
-        
+
         WorldPacket* data = Eluna::get()->CHECK_PACKET(L, 1);
         if (data)
             player->GetSession()->SendPacket(data);
@@ -1083,7 +1083,7 @@ public:
     static int CastSpell(lua_State* L, Unit* unit)
     {
         TO_UNIT();
-        
+
         uint32 spell = luaL_checkunsigned(L, 1);
 
         unit->CastSpell(unit, spell, true);
@@ -1094,7 +1094,7 @@ public:
     static int CastSpellOnTarget(lua_State* L, Unit* unit)
     {
         TO_UNIT();
-        
+
         uint32 spell = luaL_checkunsigned(L, 1);
         Unit* target = Eluna::get()->CHECK_UNIT(L, 2);
         bool triggered = luaL_optbool(L, 3, true);
@@ -1108,7 +1108,7 @@ public:
     static int CastSpellAoF(lua_State* L, Unit* unit)
     {
         TO_UNIT();
-        
+
         float _x = luaL_checknumber(L, 1);
         float _y = luaL_checknumber(L, 2);
         float _z = luaL_checknumber(L, 3);
@@ -1122,7 +1122,7 @@ public:
     static int FullCastSpell(lua_State* L, Unit* unit)
     {
         TO_UNIT();
-        
+
         uint32 spell = luaL_checkunsigned(L, 1);
 
         unit->CastSpell(unit, spell, false);
@@ -1133,7 +1133,7 @@ public:
     static int FullCastSpellOnTarget(lua_State* L, Unit* unit)
     {
         TO_UNIT();
-        
+
         uint32 spell = luaL_checkunsigned(L, 1);
         Unit* target = Eluna::get()->CHECK_UNIT(L, 2);
 
@@ -1146,7 +1146,7 @@ public:
     static int GetAccountId(lua_State* L, Unit* unit)
     {
         TO_PLAYER();
-        
+
         Eluna::get()->PushUnsigned(L, player->GetSession()->GetAccountId());
         return 1;
     }
@@ -1168,7 +1168,7 @@ public:
     static int GetAITargets(lua_State* L, Unit* unit)
     {
         TO_CREATURE();
-        
+
         lua_newtable(L);
         int tbl = lua_gettop(L);
         uint32 i = 0;
@@ -1203,7 +1203,7 @@ public:
     static int GetAura(lua_State* L, Unit* unit)
     {
         TO_UNIT();
-        
+
         uint32 spellID = luaL_checkunsigned(L, 1);
         Eluna::get()->PushAura(L, unit->GetAura(spellID));
         return 1;
@@ -1213,7 +1213,7 @@ public:
     static int GetMapId(lua_State* L, Unit* unit)
     {
         TO_UNIT();
-        
+
         Eluna::get()->PushUnsigned(L, unit->GetMapId());
         return 1;
     }
@@ -1309,7 +1309,7 @@ public:
     static int PlayDistanceSound(lua_State* L, Unit* unit)
     {
         TO_UNIT();
-        
+
         uint32 soundId = luaL_checkunsigned(L, 1);
         Player* player = Eluna::get()->CHECK_PLAYER(L, 2);
 
@@ -1327,10 +1327,10 @@ public:
     static int Kill(lua_State* L, Unit* unit)
     {
         TO_UNIT();
-        
+
         Unit* target = Eluna::get()->CHECK_UNIT(L, 1);
         bool durLoss = luaL_optbool(L, 2, true);
-        
+
         unit->Kill((target ? target : unit), durLoss);
         return 0;
     }
@@ -1418,7 +1418,7 @@ public:
     static int GetByteValue(lua_State* L, Unit* unit)
     {
         TO_UNIT();
-        
+
         uint16 index = luaL_checkunsigned(L, 1);
         uint8 offset = luaL_checkunsigned(L, 2);
 
@@ -1429,7 +1429,7 @@ public:
     static int GetUInt16Value(lua_State* L, Unit* unit)
     {
         TO_UNIT();
-        
+
         uint16 index = luaL_checkunsigned(L, 1);
         uint8 offset = luaL_checkunsigned(L, 2);
 
@@ -1440,7 +1440,7 @@ public:
     static int SetInt32Value(lua_State* L, Unit* unit)
     {
         TO_UNIT();
-        
+
         uint16 index = luaL_checkunsigned(L, 1);
         int32 value = luaL_checkinteger(L, 2);
 
@@ -1451,7 +1451,7 @@ public:
     static int SetUInt32Value(lua_State* L, Unit* unit)
     {
         TO_UNIT();
-        
+
         uint16 index = luaL_checkunsigned(L, 1);
         uint32 value = luaL_checkunsigned(L, 2);
 
@@ -1462,7 +1462,7 @@ public:
     static int UpdateUInt32Value(lua_State* L, Unit* unit)
     {
         TO_UNIT();
-        
+
         uint16 index = luaL_checkunsigned(L, 1);
         uint32 value = luaL_checkunsigned(L, 2);
 
@@ -1473,7 +1473,7 @@ public:
     static int SetFloatValue(lua_State* L, Unit* unit)
     {
         TO_UNIT();
-        
+
         uint16 index = luaL_checkunsigned(L, 1);
         float value = luaL_checknumber(L, 2);
 
@@ -1484,7 +1484,7 @@ public:
     static int SetByteValue(lua_State* L, Unit* unit)
     {
         TO_UNIT();
-        
+
         uint16 index = luaL_checkunsigned(L, 1);
         uint8 offset = luaL_checkunsigned(L, 2);
         uint8 value = luaL_checkunsigned(L, 3);
@@ -1496,7 +1496,7 @@ public:
     static int SetUInt16Value(lua_State* L, Unit* unit)
     {
         TO_UNIT();
-        
+
         uint16 index = luaL_checkunsigned(L, 1);
         uint8 offset = luaL_checkunsigned(L, 2);
         uint16 value = luaL_checkunsigned(L, 3);
@@ -1508,7 +1508,7 @@ public:
     static int SetInt16Value(lua_State* L, Unit* unit)
     {
         TO_UNIT();
-        
+
         uint16 index = luaL_checkunsigned(L, 1);
         uint8 offset = luaL_checkunsigned(L, 2);
         int16 value = luaL_checkinteger(L, 3);
@@ -1517,154 +1517,154 @@ public:
         return 0;
     }
 
-	/* Vehicle */
+    /* Vehicle */
 
-	// IsOnVehicle()
-	static int IsOnVehicle(lua_State* L, Unit* unit)
-	{
-		TO_UNIT();
+    // IsOnVehicle()
+    static int IsOnVehicle(lua_State* L, Unit* unit)
+    {
+        TO_UNIT();
 
-		if ((unit->GetVehicle()) || (unit->ToPlayer() && unit->IsVehicle()))
-			lua_pushboolean(L, 1);
-		else
-			lua_pushboolean(L, 0);
-		return 1;
-	}
+        if ((unit->GetVehicle()) || (unit->ToPlayer() && unit->IsVehicle()))
+            lua_pushboolean(L, 1);
+        else
+            lua_pushboolean(L, 0);
+        return 1;
+    }
 
-	// DismissVehicle()
-	static int DismissVehicle(lua_State* L, Unit* unit)
-	{
-		TO_UNIT();
+    // DismissVehicle()
+    static int DismissVehicle(lua_State* L, Unit* unit)
+    {
+        TO_UNIT();
 
-		if (unit->GetVehicle())
-			unit->GetVehicle()->Dismiss();
-		return 0;
-	}
+        if (unit->GetVehicle())
+            unit->GetVehicle()->Dismiss();
+        return 0;
+    }
 
-	// AddVehiclePassenger(unit, seatId)
-	static int AddVehiclePassenger(lua_State* L, Unit* unit)
-	{
-		TO_UNIT();
+    // AddVehiclePassenger(unit, seatId)
+    static int AddVehiclePassenger(lua_State* L, Unit* unit)
+    {
+        TO_UNIT();
 
-		Unit* passenger = Eluna::get()->CHECK_UNIT(L, 1);
-		int8 seatId = luaL_checkunsigned(L, 2);
-		Vehicle* _vehicle = unit->GetVehicle();
+        Unit* passenger = Eluna::get()->CHECK_UNIT(L, 1);
+        int8 seatId = luaL_checkunsigned(L, 2);
+        Vehicle* _vehicle = unit->GetVehicle();
 
-		if (!_vehicle)
-			return 0;
+        if (!_vehicle)
+            return 0;
 
-		_vehicle->AddPassenger(passenger, seatId);
-		return 0;
-	}
+        _vehicle->AddPassenger(passenger, seatId);
+        return 0;
+    }
 
-	// EjectPassenger(unit) (GIVES LINKER ERROR)
-	/*
-	static int EjectPassenger(lua_State* L, Unit* unit) 
-	{
-		TO_UNIT();
+    // EjectPassenger(unit) (GIVES LINKER ERROR)
+    /*
+    static int EjectPassenger(lua_State* L, Unit* unit) 
+    {
+    TO_UNIT();
 
-		Unit* passenger = Eluna::get()->CHECK_UNIT(L, 1);
-		Vehicle* _vehicle = unit->GetVehicle();
-		if (!_vehicle)
-			return 0;
+    Unit* passenger = Eluna::get()->CHECK_UNIT(L, 1);
+    Vehicle* _vehicle = unit->GetVehicle();
+    if (!_vehicle)
+    return 0;
 
-		_vehicle->EjectPassenger(passenger, unit);
-		return 0;
-	}*/
+    _vehicle->EjectPassenger(passenger, unit);
+    return 0;
+    }*/
 
-	// RemovePassenger(unit)
-	static int RemovePassenger(lua_State* L, Unit* unit)
-	{
-		TO_UNIT();
+    // RemovePassenger(unit)
+    static int RemovePassenger(lua_State* L, Unit* unit)
+    {
+        TO_UNIT();
 
-		Unit* passenger = Eluna::get()->CHECK_UNIT(L, 1);
-		Vehicle* _vehicle = unit->GetVehicle();
-		if (!_vehicle)
-			return 0;
-		
-		_vehicle->RemovePassenger(passenger);
-		return 0;
-	}
+        Unit* passenger = Eluna::get()->CHECK_UNIT(L, 1);
+        Vehicle* _vehicle = unit->GetVehicle();
+        if (!_vehicle)
+            return 0;
 
-	// RemoveAllPassengers()
-	static int RemoveAllPassengers(lua_State* L, Unit* unit)
-	{
-		TO_UNIT();
+        _vehicle->RemovePassenger(passenger);
+        return 0;
+    }
 
-		Unit* _unit = unit->GetVehicleBase();
-		if (!_unit)
-			return 0;
+    // RemoveAllPassengers()
+    static int RemoveAllPassengers(lua_State* L, Unit* unit)
+    {
+        TO_UNIT();
 
-		_unit->GetVehicle()->RemoveAllPassengers();
-		return 0;
-	}
+        Unit* _unit = unit->GetVehicleBase();
+        if (!_unit)
+            return 0;
 
-	// GetPassenger(seatId)
-	static int GetPassenger(lua_State* L, Unit* unit)
-	{
-		TO_UNIT();
+        _unit->GetVehicle()->RemoveAllPassengers();
+        return 0;
+    }
 
-		int8 seatId = luaL_checkunsigned(L, 1);
-		Unit* _unit = unit->GetVehicleBase();
-		if (!_unit)
-			return 0;
+    // GetPassenger(seatId)
+    static int GetPassenger(lua_State* L, Unit* unit)
+    {
+        TO_UNIT();
 
-		Eluna::get()->PushUnit(L, _unit->GetVehicle()->GetPassenger(seatId));
-		return 1;
-	}
+        int8 seatId = luaL_checkunsigned(L, 1);
+        Unit* _unit = unit->GetVehicleBase();
+        if (!_unit)
+            return 0;
 
-	// GetNextEmptySeat(seatId)
-	static int GetNextEmptySeat(lua_State* L, Unit* unit)
-	{
-		TO_UNIT();
+        Eluna::get()->PushUnit(L, _unit->GetVehicle()->GetPassenger(seatId));
+        return 1;
+    }
 
-		int8 seatId = luaL_checkunsigned(L, 1);
-		Unit* _unit = unit->GetVehicleBase();
-		if (!_unit)
-			return 0;
+    // GetNextEmptySeat(seatId)
+    static int GetNextEmptySeat(lua_State* L, Unit* unit)
+    {
+        TO_UNIT();
 
-		Eluna::get()->PushInteger(L, _unit->GetVehicle()->GetNextEmptySeat(seatId, true));
-		return 1;
-	}
+        int8 seatId = luaL_checkunsigned(L, 1);
+        Unit* _unit = unit->GetVehicleBase();
+        if (!_unit)
+            return 0;
 
-	// GetAvailableSeats()
-	static int GetAvailableSeats(lua_State* L, Unit* unit)
-	{
-		TO_UNIT();
+        Eluna::get()->PushInteger(L, _unit->GetVehicle()->GetNextEmptySeat(seatId, true));
+        return 1;
+    }
 
-		Unit* _unit = unit->GetVehicleBase();
-		if (!_unit)
-			return 0;
+    // GetAvailableSeats()
+    static int GetAvailableSeats(lua_State* L, Unit* unit)
+    {
+        TO_UNIT();
 
-		Eluna::get()->PushUnsigned(L, _unit->GetVehicle()->GetAvailableSeatCount());
-		return 1;
-	}
+        Unit* _unit = unit->GetVehicleBase();
+        if (!_unit)
+            return 0;
 
-	// GetVehicleBase()
-	static int GetVehicleBase(lua_State* L, Unit* unit)
-	{
-		TO_UNIT();
+        Eluna::get()->PushUnsigned(L, _unit->GetVehicle()->GetAvailableSeatCount());
+        return 1;
+    }
 
-		Unit* _unit = unit->GetVehicleBase();
-		if (_unit)
-			Eluna::get()->PushUnit(L, _unit);
-		else
-			lua_pushnil(L);
-		return 1;
-	}
+    // GetVehicleBase()
+    static int GetVehicleBase(lua_State* L, Unit* unit)
+    {
+        TO_UNIT();
 
-	// HasEmptySeat(seatId)
-	static int HasEmptySeat(lua_State* L, Unit* unit)
-	{
-		TO_UNIT();
+        Unit* _unit = unit->GetVehicleBase();
+        if (_unit)
+            Eluna::get()->PushUnit(L, _unit);
+        else
+            lua_pushnil(L);
+        return 1;
+    }
 
-		int8 seatId = luaL_checkunsigned(L, 1);
-		Unit* _unit = unit->GetVehicleBase();
-		if (!_unit)
-			return 0;
+    // HasEmptySeat(seatId)
+    static int HasEmptySeat(lua_State* L, Unit* unit)
+    {
+        TO_UNIT();
 
-		Eluna::get()->PushBoolean(L, _unit->GetVehicle()->HasEmptySeat(seatId));
-		return 1;
-	}
+        int8 seatId = luaL_checkunsigned(L, 1);
+        Unit* _unit = unit->GetVehicleBase();
+        if (!_unit)
+            return 0;
+
+        Eluna::get()->PushBoolean(L, _unit->GetVehicle()->HasEmptySeat(seatId));
+        return 1;
+    }
 };
 #endif

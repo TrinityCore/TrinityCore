@@ -273,7 +273,7 @@ public:
     {
         if(!group)
             return 0;
-        
+
         const char* name = luaL_checkstring(L, 1);
         Eluna::get()->PushGUID(L, group->GetMemberGUID(name));
         return 1;

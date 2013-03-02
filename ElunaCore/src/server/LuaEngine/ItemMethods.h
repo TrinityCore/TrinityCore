@@ -180,7 +180,7 @@ public:
     {
         if(!item || !item->IsInWorld())
             return 0;
-        
+
         Eluna::get()->PushUnsigned(L, item->GetCount());
         return 1;
     }
@@ -189,7 +189,7 @@ public:
     {
         if(!item || !item->IsInWorld())
             return 0;
-        
+
         uint32 count = luaL_checkunsigned(L, 1);
 
         item->SetCount(count);
@@ -200,7 +200,7 @@ public:
     {
         if(!item || !item->IsInWorld())
             return 0;
-        
+
         Eluna::get()->PushUnsigned(L, item->GetMaxStackCount());
         return 1;
     }
@@ -209,7 +209,7 @@ public:
     {
         if(!item || !item->IsInWorld())
             return 0;
-        
+
         Eluna::get()->PushUnsigned(L, item->GetSlot());
         return 1;
     }
@@ -218,7 +218,7 @@ public:
     {
         if(!item || !item->IsInWorld())
             return 0;
-        
+
         Eluna::get()->PushUnsigned(L, item->GetBagSlot());
         return 1;
     }
@@ -344,7 +344,7 @@ public:
     {
         if(!item || !item->IsInWorld())
             return 0;
-        
+
         uint16 index = luaL_checkunsigned(L, 1);
         uint8 offset = luaL_checkunsigned(L, 2);
 
@@ -356,7 +356,7 @@ public:
     {
         if(!item || !item->IsInWorld())
             return 0;
-        
+
         uint16 index = luaL_checkunsigned(L, 1);
         uint8 offset = luaL_checkunsigned(L, 2);
 
@@ -368,7 +368,7 @@ public:
     {
         if(!item || !item->IsInWorld())
             return 0;
-        
+
         uint16 index = luaL_checkunsigned(L, 1);
         int32 value = luaL_checkinteger(L, 2);
 
@@ -380,7 +380,7 @@ public:
     {
         if(!item || !item->IsInWorld())
             return 0;
-        
+
         uint16 index = luaL_checkunsigned(L, 1);
         uint32 value = luaL_checkunsigned(L, 2);
 
@@ -392,7 +392,7 @@ public:
     {
         if(!item || !item->IsInWorld())
             return 0;
-        
+
         uint16 index = luaL_checkunsigned(L, 1);
         uint32 value = luaL_checkunsigned(L, 2);
 
@@ -404,7 +404,7 @@ public:
     {
         if(!item || !item->IsInWorld())
             return 0;
-        
+
         uint16 index = luaL_checkunsigned(L, 1);
         float value = luaL_checknumber(L, 2);
 
@@ -416,7 +416,7 @@ public:
     {
         if(!item || !item->IsInWorld())
             return 0;
-        
+
         uint16 index = luaL_checkunsigned(L, 1);
         uint8 offset = luaL_checkunsigned(L, 2);
         uint8 value = luaL_checkunsigned(L, 3);
@@ -429,7 +429,7 @@ public:
     {
         if(!item || !item->IsInWorld())
             return 0;
-        
+
         uint16 index = luaL_checkunsigned(L, 1);
         uint8 offset = luaL_checkunsigned(L, 2);
         uint16 value = luaL_checkunsigned(L, 3);
@@ -442,7 +442,7 @@ public:
     {
         if(!item || !item->IsInWorld())
             return 0;
-        
+
         uint16 index = luaL_checkunsigned(L, 1);
         uint8 offset = luaL_checkunsigned(L, 2);
         int16 value = luaL_checkinteger(L, 3);

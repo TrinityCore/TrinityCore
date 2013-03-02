@@ -23,21 +23,21 @@ namespace LuaGlobalFunctions
         Eluna::get()->PushString(L, "Eluna Nova 0.1"); // remove version?
         return 1;
     }
-    
+
     // ReloadEluna() - Gets core version as string
     static int GetCoreVersion(lua_State* L)
     {
         Eluna::get()->PushString(L, _FULLVERSION);
         return 1;
     }
-    
+
     // ReloadEluna() - Reloads eluna
     static int ReloadEluna(lua_State* L)
     {
         Eluna::get()->Restart();
         return 0;
     }
-    
+
     // GetPlayerByGUID(guid) - Gets Player object by its guid
     static int GetPlayerByGUID(lua_State* L)
     {
@@ -45,7 +45,7 @@ namespace LuaGlobalFunctions
         Eluna::get()->PushUnit(L, sObjectAccessor->FindPlayer(MAKE_NEW_GUID(guidLow, 0, HIGHGUID_PLAYER)));
         return 1;
     }
-    
+
     // GetPlayerByName("name") - Gets player object by name
     static int GetPlayerByName(lua_State* L)
     {
@@ -53,14 +53,14 @@ namespace LuaGlobalFunctions
         Eluna::get()->PushUnit(L, sObjectAccessor->FindPlayerByName(message));
         return 1;
     }
-    
+
     // GetGameTime() - Gets ingame time as seconds (server time?)
     static int GetGameTime(lua_State* L)
     {
         Eluna::get()->PushUnsigned(L, sWorld->GetGameTime());
         return 1;
     }
-    
+
     // SendWorldMessage("msg") - Sends a broadcast message to everyone
     static int SendWorldMessage(lua_State* L)
     {
@@ -68,7 +68,7 @@ namespace LuaGlobalFunctions
         sWorld->SendServerMessage(SERVER_MSG_STRING, message);
         return 0;
     }
-    
+
     // GetPlayersInWorld([team, onlyGM]) - Gets a table with players in world. Team can be 0 for ally, 1 for horde and 2 for both.
     static int GetPlayersInWorld(lua_State* L)
     {
@@ -97,7 +97,7 @@ namespace LuaGlobalFunctions
         lua_settop(L, tbl); // push table to top of stack
         return 1;
     }
-    
+
     // GetPlayersInMap(mapid[, instanceid, team]) - Gets a table with players in the map. Instanceid optional (0 for normal map). Team can be 0 for ally, 1 for horde and 2 for both
     static int GetPlayersInMap(lua_State* L)
     {
@@ -131,7 +131,7 @@ namespace LuaGlobalFunctions
         lua_settop(L, tbl);
         return 1;
     }
-    
+
     // WorldDBQuery("sql") - Executes SQL to world database and returns the query result or nil (instant)
     static int WorldDBQuery(lua_State* L)
     {
@@ -157,7 +157,7 @@ namespace LuaGlobalFunctions
         WorldDatabase.Execute(query);
         return 0;
     }
-    
+
     // CharDBQuery("sql") - Executes SQL to characters database and returns the query result or nil (instant)
     static int CharDBQuery(lua_State* L)
     {
@@ -183,7 +183,7 @@ namespace LuaGlobalFunctions
         CharacterDatabase.Execute(query);
         return 0;
     }
-    
+
     // AuthDBQuery("sql") - Executes SQL to auth database and returns the query result or nil (instant)
     static int AuthDBQuery(lua_State* L)
     {
@@ -209,7 +209,7 @@ namespace LuaGlobalFunctions
         LoginDatabase.Execute(query);
         return 0;
     }
-    
+
     // GetGuildByName("name") - Gets guild object
     static int GetGuildByName(lua_State* L)
     {
@@ -217,7 +217,7 @@ namespace LuaGlobalFunctions
         Eluna::get()->PushGuild(L, sGuildMgr->GetGuildByName(name));
         return 1;
     }
-    
+
     // GetGuildByLeaderGUID(leaderGUID) - Gets guild object
     static int GetGuildByLeaderGUID(lua_State* L)
     {
@@ -225,14 +225,14 @@ namespace LuaGlobalFunctions
         Eluna::get()->PushGuild(L, sGuildMgr->GetGuildByLeader(MAKE_NEW_GUID(guidLow, 0, HIGHGUID_PLAYER)));
         return 1;
     }
-    
+
     // GetPlayerCount() - Gets server player count
     static int GetPlayerCount(lua_State* L)
     {
         Eluna::get()->PushUnsigned(L, sWorld->GetPlayerCount());
         return 1;
     }
-    
+
     // CreateLuaEvent(function, delay, calls) - Creates a timed event. Calls set to 0 will call inf returns eventID.
     static int CreateLuaEvent(lua_State* L)
     {
@@ -249,7 +249,7 @@ namespace LuaGlobalFunctions
             return 0;
         return 1;
     }
-    
+
     // DestroyLuaEventByID(eventID) - removes all global lua events with eventid
     static int DestroyLuaEventByID(lua_State* L)
     {
@@ -257,7 +257,7 @@ namespace LuaGlobalFunctions
         sLuaWorldScript->LuaEventCancel(functionRef);
         return 0;
     }
-    
+
     // DestroyLuaEvents(all_events) - removes all global lua events, if all_events is true, removes creature and gameobject events too
     static int DestroyLuaEvents(lua_State* L)
     {
@@ -328,13 +328,13 @@ namespace LuaGlobalFunctions
                     creature->SetTempSummonType(TEMPSUMMON_TIMED_OR_DEAD_DESPAWN);
                 else
                     creature->SetTempSummonType(TEMPSUMMON_MANUAL_DESPAWN);
-                
+
                 Eluna::get()->PushUnit(L, creature);
             }
 
             return 1;
         }
-        
+
         if(spawntype == 2) // Spawn object
         {
 
@@ -380,21 +380,21 @@ namespace LuaGlobalFunctions
         return 0;
     }
 
-	// CreatePacket(opcode, size)
+    // CreatePacket(opcode, size)
     static int CreatePacket(lua_State* L)
-	{
-		uint16 opcode = luaL_checkunsigned(L, 1);
-		size_t size = luaL_checkunsigned(L, 2);
+    {
+        uint16 opcode = luaL_checkunsigned(L, 1);
+        size_t size = luaL_checkunsigned(L, 2);
 
-		if (opcode >= NUM_MSG_TYPES)
-			luaL_error(L, "Eluna Nova:: Opcode %d is greater than the max Opcode type (%d)!", opcode, NUM_MSG_TYPES);
-		else
-		{
-			WorldPacket* _packet = new WorldPacket(opcode, size);
-			Eluna::get()->PushPacket(L, _packet);
-		    return 1;
-		}
+        if (opcode >= NUM_MSG_TYPES)
+            luaL_error(L, "Eluna Nova:: Opcode %d is greater than the max Opcode type (%d)!", opcode, NUM_MSG_TYPES);
+        else
+        {
+            WorldPacket* _packet = new WorldPacket(opcode, size);
+            Eluna::get()->PushPacket(L, _packet);
+            return 1;
+        }
         return 0;
-	}
+    }
 }
 #endif

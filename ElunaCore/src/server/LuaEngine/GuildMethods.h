@@ -171,7 +171,7 @@ public:
     {
         if(!pGuild)
             return 0;
-        
+
         uint8 tabId = luaL_checkunsigned(L, 1);
         const char* text = luaL_checkstring(L, 2);
 

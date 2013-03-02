@@ -196,40 +196,40 @@ void Eluna::LoadDirectory(char* Dirname, LoadedScripts* lscr)
 #else    
     char* dir = strrchr(Dirname, '/');
     if (strcmp(Dirname, "..") == 0 || strcmp(Dirname, ".") == 0)
-      return;
-    
+        return;
+
     if (dir && (strcmp(dir, "/..") == 0 || strcmp(dir, "/.") == 0 || strcmp(dir, "/.svn") == 0))
-      return;
-    
+        return;
+
     struct dirent** list;
     int fileCount = scandir(Dirname, &list, 0, 0);
-    
+
     if (fileCount <= 0 || !list)
-      return;
-    
+        return;
+
     struct stat attributes;
     bool error;
     while(fileCount--)
     {
         char _path[200];
-		sprintf(_path, "%s/%s", Dirname, list[fileCount]->d_name);
-		if (stat(_path, &attributes) == -1)
-		{
-			error = true;
-			sLog->outError(LOG_FILTER_SERVER_LOADING, "Eluna Nova::Error opening `%s`", _path);
-		}
-		else
-		  error = false;
-	
-		if (!error && S_ISDIR(attributes.st_mode))
-		  LoadDirectory((char*)_path, lscr);
-		else
-		{
-			char* ext = strrchr(list[fileCount]->d_name, '.');
-			if (ext && !strcmp(ext, ".lua"))
-			  lscr->luaFiles.insert(_path);
-		}
-		free(list[fileCount]);
+        sprintf(_path, "%s/%s", Dirname, list[fileCount]->d_name);
+        if (stat(_path, &attributes) == -1)
+        {
+            error = true;
+            sLog->outError(LOG_FILTER_SERVER_LOADING, "Eluna Nova::Error opening `%s`", _path);
+        }
+        else
+            error = false;
+
+        if (!error && S_ISDIR(attributes.st_mode))
+            LoadDirectory((char*)_path, lscr);
+        else
+        {
+            char* ext = strrchr(list[fileCount]->d_name, '.');
+            if (ext && !strcmp(ext, ".lua"))
+                lscr->luaFiles.insert(_path);
+        }
+        free(list[fileCount]);
     }
     free(list);
 #endif
@@ -644,7 +644,7 @@ void Eluna::Restart()
         itr->second.clear();
     }
     get()->_serverEventBindings.clear();
-    
+
     get()->_creatureEventBindings->Clear();
     get()->_creatureGossipBindings->Clear();
     get()->_gameObjectEventBindings->Clear();

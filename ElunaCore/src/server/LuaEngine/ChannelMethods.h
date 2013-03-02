@@ -7,7 +7,7 @@
 class LuaChannel
 {
 public:
-    
+
     static int GetUnitType(lua_State* L, Channel* channel)
     {
         if(!channel)

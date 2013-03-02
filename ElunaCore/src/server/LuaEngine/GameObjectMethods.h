@@ -16,7 +16,7 @@ public:
         Eluna::get()->PushString(L, "GameObject");
         return 1;
     }
-    
+
     // GetGUID()
     static int GetGUID(lua_State* L, GameObject* go)
     {
@@ -357,7 +357,7 @@ public:
     {
         if(!go || !go->IsInWorld())
             return 0;
-        
+
         uint16 index = luaL_checkunsigned(L, 1);
         uint8 offset = luaL_checkunsigned(L, 2);
 
@@ -369,7 +369,7 @@ public:
     {
         if(!go || !go->IsInWorld())
             return 0;
-        
+
         uint16 index = luaL_checkunsigned(L, 1);
         uint8 offset = luaL_checkunsigned(L, 2);
 
@@ -381,7 +381,7 @@ public:
     {
         if(!go || !go->IsInWorld())
             return 0;
-        
+
         uint16 index = luaL_checkunsigned(L, 1);
         int32 value = luaL_checkinteger(L, 2);
 
@@ -393,7 +393,7 @@ public:
     {
         if(!go || !go->IsInWorld())
             return 0;
-        
+
         uint16 index = luaL_checkunsigned(L, 1);
         uint32 value = luaL_checkunsigned(L, 2);
 
@@ -405,7 +405,7 @@ public:
     {
         if(!go || !go->IsInWorld())
             return 0;
-        
+
         uint16 index = luaL_checkunsigned(L, 1);
         uint32 value = luaL_checkunsigned(L, 2);
 
@@ -417,7 +417,7 @@ public:
     {
         if(!go || !go->IsInWorld())
             return 0;
-        
+
         uint16 index = luaL_checkunsigned(L, 1);
         float value = luaL_checknumber(L, 2);
 
@@ -429,7 +429,7 @@ public:
     {
         if(!go || !go->IsInWorld())
             return 0;
-        
+
         uint16 index = luaL_checkunsigned(L, 1);
         uint8 offset = luaL_checkunsigned(L, 2);
         uint8 value = luaL_checkunsigned(L, 3);
@@ -442,7 +442,7 @@ public:
     {
         if(!go || !go->IsInWorld())
             return 0;
-        
+
         uint16 index = luaL_checkunsigned(L, 1);
         uint8 offset = luaL_checkunsigned(L, 2);
         uint16 value = luaL_checkunsigned(L, 3);
@@ -455,7 +455,7 @@ public:
     {
         if(!go || !go->IsInWorld())
             return 0;
-        
+
         uint16 index = luaL_checkunsigned(L, 1);
         uint8 offset = luaL_checkunsigned(L, 2);
         int16 value = luaL_checkinteger(L, 3);

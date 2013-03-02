@@ -41,8 +41,8 @@ ElunaRegister<Unit> UnitMethods[] =
     {"Teleport", &LuaUnit::Teleport},                               // :Teleport(Map, X, Y, Z, O) - Teleports player to specified co-ordinates. Returns true if success and false if not.
     {"AddItem", &LuaUnit::AddItem},                                 // :AddItem(id, amount) - Adds amount of item to player. Returns true if success and false if not.
     {"IsInArenaTeam", &LuaUnit::IsInArenaTeam},                     // :IsInArenaTeam(type) -  type : 0 = 2v2, 1 = 3v3, 2 = 5v5 UNDOCUMENTED
-    
-	// Gossip                                                           
+
+    // Gossip                                                           
     {"GossipMenuAddItem", &LuaUnit::GossipMenuAddItem },            // :GossipMenuAddItem(icon, msg, Intid, code, accept_decline_message, money)
     {"GossipComplete", &LuaUnit::GossipComplete },                  // :GossipComplete()
     {"GossipSendMenu", &LuaUnit::GossipSendMenu },                  // :GossipSendMenu(npc_text, unit)
@@ -157,18 +157,18 @@ ElunaRegister<Unit> UnitMethods[] =
     {"PlaySoundToSet", &LuaUnit::PlayDirectSound},                  // :PlayDirectSound(soundId,  player) - Unit plays soundID to player, or everyone around if no player. (ARC compability) UNDOCUMENTED
     {"Kill", &LuaUnit::Kill},                                       // :Kill(target, durabilityLoss) - Unit kills the target, if no target then kills the unit. Durabilityloss is true by default UNDOCUMENTED
 
-	/* Vehicle */
-	{"AddVehiclePassenger", &LuaUnit::AddVehiclePassenger},         // :AddVehiclePassenger(unit, seatId) - Adds a passenger to the vehicle by specifying a unit and seatId      UNDOCUMENTED (UNTESTED)
-	{"IsOnVehicle", &LuaUnit::IsOnVehicle},                         // :IsOnVehicle() - Checks if the (unit) is in a vehicle                UNDOCUMENTED (UNTESTED)
-	{"DismissVehicle", &LuaUnit::DismissVehicle},                   // :DismissVehicle() - Dismisses the (unit)'s vehicle (Unmounts)        UNDOCUMENTED (UNTESTED)
-	//{"EjectPassenger", &LuaUnit::EjectPassenger},                   // :EjectPassenger(unit) - Ejects a specified unit out of the vehicle   UNDOCUMENTED (UNTESTED)
-	{"RemovePassenger", &LuaUnit::RemovePassenger},                 // :RemovePassenger(unit) - Removes a specific unit from the vehicle    UNDOCUMENTED (UNTESTED)
-	{"RemoveAllPassengers", &LuaUnit::RemoveAllPassengers},         // :RemoveAllPassengers() - Removes all the passengers from the vehicle UNDOCUMENTED (UNTESTED)
-	{"GetPassenger", &LuaUnit::GetPassenger},                       // :GetPassenger(seatId) - Gets a passenger by their seatId             UNDOCUMENTED (UNTESTED)
-	{"GetNextEmptySeat", &LuaUnit::GetNextEmptySeat},               // :GetNextEmptySeat(seatId) - Gets(returns) the next empty seat        UNDOCUMENTED (UNTESTED)
-	{"GetAvailableSeats", &LuaUnit::GetAvailableSeats},             // :GetAvailableSeats() - Returns the available seats count             UNDOCUMENTED (UNTESTED)
-	{"GetVehicleBase", &LuaUnit::GetVehicleBase},                   // :GetVehicleBase() - Returns the unit/player's vehicle base           UNDOCUMENTED (UNTESTED)
-	{"HasEmptySeat", &LuaUnit::HasEmptySeat},                       // :HasEmptySeat(seatId) - Checks if the specified seatId is empty(nobody in it)     UNDOCUMENTED (UNTESTED)
+    /* Vehicle */
+    {"AddVehiclePassenger", &LuaUnit::AddVehiclePassenger},         // :AddVehiclePassenger(unit, seatId) - Adds a passenger to the vehicle by specifying a unit and seatId      UNDOCUMENTED (UNTESTED)
+    {"IsOnVehicle", &LuaUnit::IsOnVehicle},                         // :IsOnVehicle() - Checks if the (unit) is in a vehicle                UNDOCUMENTED (UNTESTED)
+    {"DismissVehicle", &LuaUnit::DismissVehicle},                   // :DismissVehicle() - Dismisses the (unit)'s vehicle (Unmounts)        UNDOCUMENTED (UNTESTED)
+    //{"EjectPassenger", &LuaUnit::EjectPassenger},                   // :EjectPassenger(unit) - Ejects a specified unit out of the vehicle   UNDOCUMENTED (UNTESTED)
+    {"RemovePassenger", &LuaUnit::RemovePassenger},                 // :RemovePassenger(unit) - Removes a specific unit from the vehicle    UNDOCUMENTED (UNTESTED)
+    {"RemoveAllPassengers", &LuaUnit::RemoveAllPassengers},         // :RemoveAllPassengers() - Removes all the passengers from the vehicle UNDOCUMENTED (UNTESTED)
+    {"GetPassenger", &LuaUnit::GetPassenger},                       // :GetPassenger(seatId) - Gets a passenger by their seatId             UNDOCUMENTED (UNTESTED)
+    {"GetNextEmptySeat", &LuaUnit::GetNextEmptySeat},               // :GetNextEmptySeat(seatId) - Gets(returns) the next empty seat        UNDOCUMENTED (UNTESTED)
+    {"GetAvailableSeats", &LuaUnit::GetAvailableSeats},             // :GetAvailableSeats() - Returns the available seats count             UNDOCUMENTED (UNTESTED)
+    {"GetVehicleBase", &LuaUnit::GetVehicleBase},                   // :GetVehicleBase() - Returns the unit/player's vehicle base           UNDOCUMENTED (UNTESTED)
+    {"HasEmptySeat", &LuaUnit::HasEmptySeat},                       // :HasEmptySeat(seatId) - Checks if the specified seatId is empty(nobody in it)     UNDOCUMENTED (UNTESTED)
     { NULL, NULL },
 };
 
@@ -407,34 +407,34 @@ ElunaRegister<QueryResult> QueryMethods[] =  // UNDOCUMENTED
 };
 
 ElunaRegister<WorldPacket> PacketMethods[] =
-{	
-	{"GetOpcode", &LuaPacket::GetOpcode},                           //  :GetOpcode() -- Returns an opcode                    (UNDOCUMENTED)
-	{"GetSize", &LuaPacket::GetSize},							    //  :GetSize() -- Returns the packet size				 (UNDOCUMENTED)
-	{"GetUnitType", &LuaPacket::GetOpcode},                         //  :GetUnitType() -- Returns the unit type: Packet      (UNDOCUMENTED)
+{    
+    {"GetOpcode", &LuaPacket::GetOpcode},                           //  :GetOpcode() -- Returns an opcode                    (UNDOCUMENTED)
+    {"GetSize", &LuaPacket::GetSize},                                //  :GetSize() -- Returns the packet size                 (UNDOCUMENTED)
+    {"GetUnitType", &LuaPacket::GetOpcode},                         //  :GetUnitType() -- Returns the unit type: Packet      (UNDOCUMENTED)
 
-	{"SetOpcode", &LuaPacket::SetOpcode},                           //  :SetOpcode(opcode) -- Sets the opcode by specifying an opcode            (UNDOCUMENTED)
+    {"SetOpcode", &LuaPacket::SetOpcode},                           //  :SetOpcode(opcode) -- Sets the opcode by specifying an opcode            (UNDOCUMENTED)
 
-	{"ReadByte", &LuaPacket::ReadByte},                             //  :ReadByte() -- Reads an int8 value                    (UNDOCUMENTED)
-	{"ReadUByte", &LuaPacket::ReadUByte},                           //  :ReadUByte() -- Reads a uint8 value                   (UNDOCUMENTED)             
-	{"ReadShort", &LuaPacket::ReadShort},                           //  :ReadShort() -- Reads an int16 value				  (UNDOCUMENTED)
-	{"ReadUShort", &LuaPacket::ReadUShort},                         //  :ReadUShort() -- Reads a uint16 value                 (UNDOCUMENTED)
-	{"ReadString", &LuaPacket::ReadString},                         //  :ReadString()  -- Reads a string value                (UNDOCUMENTED)
-	{"ReadFloat", &LuaPacket::ReadFloat},                           //  :ReadFloat()  -- Reads a float value                  (UNDOCUMENTED)
-	{"ReadDouble", &LuaPacket::ReadDouble},                         //  :ReadDouble() -- Reads a double value                 (UNDOCUMENTED)
-	{"ReadLong", &LuaPacket::ReadLong},                             //  :ReadLong() -- Reads an int32 value                   (UNDOCUMENTED)
-	{"ReadULong", &LuaPacket::ReadULong},                           //  :ReadULong() -- Reads a uint32 value                  (UNDOCUMENTED)
-	{"ReadGUID", &LuaPacket::ReadGUID},                             //  :ReadGUID() -- Reads a uint64 GUID value              (UNDOCUMENTED)
+    {"ReadByte", &LuaPacket::ReadByte},                             //  :ReadByte() -- Reads an int8 value                    (UNDOCUMENTED)
+    {"ReadUByte", &LuaPacket::ReadUByte},                           //  :ReadUByte() -- Reads a uint8 value                   (UNDOCUMENTED)             
+    {"ReadShort", &LuaPacket::ReadShort},                           //  :ReadShort() -- Reads an int16 value                  (UNDOCUMENTED)
+    {"ReadUShort", &LuaPacket::ReadUShort},                         //  :ReadUShort() -- Reads a uint16 value                 (UNDOCUMENTED)
+    {"ReadString", &LuaPacket::ReadString},                         //  :ReadString()  -- Reads a string value                (UNDOCUMENTED)
+    {"ReadFloat", &LuaPacket::ReadFloat},                           //  :ReadFloat()  -- Reads a float value                  (UNDOCUMENTED)
+    {"ReadDouble", &LuaPacket::ReadDouble},                         //  :ReadDouble() -- Reads a double value                 (UNDOCUMENTED)
+    {"ReadLong", &LuaPacket::ReadLong},                             //  :ReadLong() -- Reads an int32 value                   (UNDOCUMENTED)
+    {"ReadULong", &LuaPacket::ReadULong},                           //  :ReadULong() -- Reads a uint32 value                  (UNDOCUMENTED)
+    {"ReadGUID", &LuaPacket::ReadGUID},                             //  :ReadGUID() -- Reads a uint64 GUID value              (UNDOCUMENTED)
 
-	{"WriteByte", &LuaPacket::WriteByte},                           //  :WriteByte(val)  -- Writes an int8 byte value         (UNDOCUMENTED)
-	{"WriteUByte", &LuaPacket::WriteUByte},                         //  :WriteUByte(val) -- Writes a uint8 ubyte value        (UNDOCUMENTED)
-	{"WriteShort", &LuaPacket::WriteShort},                         //  :WriteShort(val) -- Writes an int16 short value       (UNDOCUMENTED)
-	{"WriteUShort", &LuaPacket::WriteUShort},                       //  :WriteUShort(val) -- Writes a uint16 ushort value     (UNDOCUMENTED)
-	{"WriteString", &LuaPacket::WriteString},                       //  :WriteString(val) -- Writes a string value            (UNDOCUMENTED)
-	{"WriteFloat", &LuaPacket::WriteFloat},                         //  :WriteFloat(val) -- Writes a float value              (UNDOCUMENTED)
-	{"WriteDouble", &LuaPacket::WriteDouble},                       //  :WriteDouble(val) -- Writes a double value            (UNDOCUMENTED)
-	{"WriteGUID", &LuaPacket::WriteGUID},                           //  :WriteGUID(worldobject) -- Writes a uint64 guid value. WorldObject can be any unit: creature, gameobject, item.. (UNDOCUMENTED)
-	{"WriteLong", &LuaPacket::WriteLong},                           //  :WriteLong(val) -- Writes an int32 long value         (UNDOCUMENTED)
-	{"WriteULong", &LuaPacket::WriteULong},                         //  :WriteULong(val) -- Writes a uint32 ulong value       (UNDOCUMENTED)
+    {"WriteByte", &LuaPacket::WriteByte},                           //  :WriteByte(val)  -- Writes an int8 byte value         (UNDOCUMENTED)
+    {"WriteUByte", &LuaPacket::WriteUByte},                         //  :WriteUByte(val) -- Writes a uint8 ubyte value        (UNDOCUMENTED)
+    {"WriteShort", &LuaPacket::WriteShort},                         //  :WriteShort(val) -- Writes an int16 short value       (UNDOCUMENTED)
+    {"WriteUShort", &LuaPacket::WriteUShort},                       //  :WriteUShort(val) -- Writes a uint16 ushort value     (UNDOCUMENTED)
+    {"WriteString", &LuaPacket::WriteString},                       //  :WriteString(val) -- Writes a string value            (UNDOCUMENTED)
+    {"WriteFloat", &LuaPacket::WriteFloat},                         //  :WriteFloat(val) -- Writes a float value              (UNDOCUMENTED)
+    {"WriteDouble", &LuaPacket::WriteDouble},                       //  :WriteDouble(val) -- Writes a double value            (UNDOCUMENTED)
+    {"WriteGUID", &LuaPacket::WriteGUID},                           //  :WriteGUID(worldobject) -- Writes a uint64 guid value. WorldObject can be any unit: creature, gameobject, item.. (UNDOCUMENTED)
+    {"WriteLong", &LuaPacket::WriteLong},                           //  :WriteLong(val) -- Writes an int32 long value         (UNDOCUMENTED)
+    {"WriteULong", &LuaPacket::WriteULong},                         //  :WriteULong(val) -- Writes a uint32 ulong value       (UNDOCUMENTED)
     {NULL, NULL},
 };
 
