@@ -310,11 +310,11 @@ void Eluna::PushUnit(lua_State* L, Unit* unit)
         lua_pushnil(L);
 }
 
-void Eluna::PushQueryResult(lua_State* L, QueryResult* Result)
+void Eluna::PushQueryResult(lua_State* L, QueryResult* result)
 {
     if (!L) L = LuaState;
-    if (Result)
-        ElunaTemplate<QueryResult>::push(L, Result);
+    if (result)
+        ElunaTemplate<QueryResult>::push(L, result);
     else
         lua_pushnil(L);
 }
