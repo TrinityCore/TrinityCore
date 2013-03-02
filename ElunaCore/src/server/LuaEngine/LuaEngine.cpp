@@ -101,6 +101,7 @@ static int RegisterCreatureGossipEvent(lua_State* L);
 static int RegisterCreatureEvent(lua_State* L);
 static int RegisterGameObjectEvent(lua_State* L);
 static int RegisterGameObjectGossipEvent(lua_State* L);
+static int RegisterItemEvent(lua_State* L);
 static int RegisterItemGossipEvent(lua_State* L);
 static int RegisterPlayerGossipEvent(lua_State* L);
 

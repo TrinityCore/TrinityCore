@@ -2131,21 +2131,6 @@ public:
         return 100;
     }
 
-    bool OnDummyEffect(uint32 eventId, Unit* caster, uint32 spellId, SpellEffIndex effIndex, Creature* target)
-    {
-        int bind = Eluna::get()->_creatureEventBindings->GetBind(target->GetEntry(), eventId);
-        if(!bind)
-            return false;
-        Eluna::get()->BeginCall(bind);
-        Eluna::get()->PushInteger(Eluna::get()->_luaState, eventId);
-        Eluna::get()->PushUnit(Eluna::get()->_luaState, caster);
-        Eluna::get()->PushUnsigned(Eluna::get()->_luaState, spellId);
-        Eluna::get()->PushInteger(Eluna::get()->_luaState, effIndex);
-        Eluna::get()->PushUnit(Eluna::get()->_luaState, target);
-        Eluna::get()->ExecuteCall(5, 0);
-        return true;
-    }
-
     /* GameObject Gossip */
     bool OnGossipHello(uint32 eventId, Player* player, GameObject* gameObject)
     {
