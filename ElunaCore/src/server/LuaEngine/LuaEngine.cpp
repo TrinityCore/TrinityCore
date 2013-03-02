@@ -62,7 +62,7 @@ void Eluna::StartEluna()
     ElunaTemplate<WorldPacket>::Register(LuaState);
     ElunaTemplate<Item>::Register(LuaState);
 
-    uint32 cnt_uncomp = 0;
+    uint32 count = 0;
     char filename[200];
     for (std::set<std::string>::iterator itr = loadedScripts.luaFiles.begin(); itr !=  loadedScripts.luaFiles.end(); ++itr)
     {
@@ -81,9 +81,9 @@ void Eluna::StartEluna()
                 report(LuaState);
             }
         }
-        cnt_uncomp++;
+        ++count;
     }
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Eluna Nova::Loaded %u Lua scripts", cnt_uncomp);
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Eluna Nova::Loaded %u Lua scripts", count);
 }
 
 /* Register Other Hooks (Events) */
