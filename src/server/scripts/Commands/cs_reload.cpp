@@ -430,10 +430,10 @@ public:
             Field* fields = result->Fetch();
 
             for (uint8 i = 0; i < MAX_DIFFICULTY - 1; ++i)
-                cInfo.DifficultyEntry[i] = fields[0 + i].GetUInt32();
+                cInfo->DifficultyEntry[i] = fields[0 + i].GetUInt32();
 
             for (uint8 i = 0; i < MAX_KILL_CREDIT; ++i)
-                cInfo.KillCredit[i] = fields[3 + i].GetUInt32();
+                cInfo->KillCredit[i] = fields[3 + i].GetUInt32();
 
             cInfo->Modelid1           = fields[5].GetUInt32();
             cInfo->Modelid2           = fields[6].GetUInt32();
@@ -483,7 +483,7 @@ public:
                 cInfo->resistance[i] = fields[48 + i -1].GetUInt16();
 
             for (uint8 i = 0; i < CREATURE_MAX_SPELLS; ++i)
-                cInfo.spells[i] = fields[54 + i].GetUInt32();
+                cInfo->spells[i] = fields[54 + i].GetUInt32();
 
             cInfo->PetSpellDataId     = fields[62].GetUInt32();
             cInfo->VehicleId          = fields[63].GetUInt32();
@@ -500,7 +500,7 @@ public:
             cInfo->RacialLeader       = fields[74].GetBool();
 
             for (uint8 i = 0; i < MAX_CREATURE_QUEST_ITEMS; ++i)
-                cInfo.questItems[i] = fields[75 + i].GetUInt32();
+                cInfo->questItems[i] = fields[75 + i].GetUInt32();
 
             cInfo->movementId         = fields[81].GetUInt32();
             cInfo->RegenHealth        = fields[82].GetBool();
