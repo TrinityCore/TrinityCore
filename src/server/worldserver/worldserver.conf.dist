@@ -1857,20 +1857,6 @@ Rate.Auction.Cut     = 1
 Rate.Honor = 1
 
 #
-#    Rate.Mining.Amount
-#        Description: Rate for minimum/maximum times a deposit can be used.
-#        Default:     1
-
-Rate.Mining.Amount = 1
-
-#
-#    Rate.Mining.Next
-#        Description: Mining rates.
-#        Default:     Chance to to mine a deposit again.
-
-Rate.Mining.Next = 1
-
-#
 #    Rate.Talent
 #        Description: Talent point rate.
 #        Default:     1
