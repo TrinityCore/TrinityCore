@@ -53,15 +53,15 @@ enum REGISTER_TYPE
 enum ServerEvents
 {
     // Player
-    PLAYER_EVENT_ON_CHARACTER_CREATE        =     1,           // Implemented
-    PLAYER_EVENT_ON_CHARACTER_DELETE        =     2,           // Implemented
-    PLAYER_EVENT_ON_LOGIN                   =     3,           // Implemented
-    PLAYER_EVENT_ON_LOGOUT                  =     4,           // Implemented
-    PLAYER_EVENT_ON_SPELL_CAST              =     5,           // Implemented
-    PLAYER_EVENT_ON_KILL_PLAYER             =     6,           // Implemented
-    PLAYER_EVENT_ON_KILL_CREATURE           =     7,           // Implemented
-    PLAYER_EVENT_ON_KILLED_BY_CREATURE      =     8,           // Implemented
-    PLAYER_EVENT_ON_DUEL_REQUEST            =     9,           // Implemented
+    PLAYER_EVENT_ON_CHARACTER_CREATE        =     1,            // Implemented
+    PLAYER_EVENT_ON_CHARACTER_DELETE        =     2,            // Implemented
+    PLAYER_EVENT_ON_LOGIN                   =     3,            // Implemented
+    PLAYER_EVENT_ON_LOGOUT                  =     4,            // Implemented
+    PLAYER_EVENT_ON_SPELL_CAST              =     5,            // Implemented
+    PLAYER_EVENT_ON_KILL_PLAYER             =     6,            // Implemented
+    PLAYER_EVENT_ON_KILL_CREATURE           =     7,            // Implemented
+    PLAYER_EVENT_ON_KILLED_BY_CREATURE      =     8,            // Implemented
+    PLAYER_EVENT_ON_DUEL_REQUEST            =     9,            // Implemented
     PLAYER_EVENT_ON_DUEL_START              =     10,           // Implemented
     PLAYER_EVENT_ON_DUEL_END                =     11,           // Implemented
     PLAYER_EVENT_ON_GIVE_XP                 =     12,           // Implemented
@@ -71,137 +71,120 @@ enum ServerEvents
     PLAYER_EVENT_ON_TALENTS_CHANGE          =     16,           // Implemented
     PLAYER_EVENT_ON_TALENTS_RESET           =     17,           // Implemented
     PLAYER_EVENT_ON_CHAT                    =     18,           // Implemented
-    PLAYER_EVENT_ON_EMOTE                   =     19,           // Implemented -- Not triggered on any known emote
-    PLAYER_EVENT_ON_TEXT_EMOTE              =     20,           // Implemented
-    PLAYER_EVENT_ON_SAVE                    =     21,           // Implemented
-    PLAYER_EVENT_ON_BIND_TO_INSTANCE        =     22,           // Implemented
-    PLAYER_EVENT_ON_UPDATE_ZONE             =     23,           // Implemented
-    PLAYER_EVENT_ON_MAP_CHANGE              =     24,           // Implemented
+    PLAYER_EVENT_ON_WHISPER                 =     19,           // Implemented
+    PLAYER_EVENT_ON_GROUP_CHAT              =     20,           // Implemented
+    PLAYER_EVENT_ON_GUILD_CHAT              =     21,           // Implemented
+    PLAYER_EVENT_ON_CHANNEL_CHAT            =     22,           // Implemented
+    PLAYER_EVENT_ON_EMOTE                   =     23,           // Implemented -- Not triggered on any known emote
+    PLAYER_EVENT_ON_TEXT_EMOTE              =     24,           // Implemented
+    PLAYER_EVENT_ON_SAVE                    =     25,           // Implemented
+    PLAYER_EVENT_ON_BIND_TO_INSTANCE        =     26,           // Implemented
+    PLAYER_EVENT_ON_UPDATE_ZONE             =     27,           // Implemented
+    PLAYER_EVENT_ON_MAP_CHANGE              =     28,           // Implemented
 
     // Guild
-    GUILD_EVENT_ON_ADD_MEMBER               =     25,           // Implemented -- Commented out
-    GUILD_EVENT_ON_REMOVE_MEMBER            =     26,           // Implemented -- Commented out
-    GUILD_EVENT_ON_MOTD_CHANGE              =     27,           // Implemented -- Commented out
-    GUILD_EVENT_ON_INFO_CHANGE              =     28,           // Implemented -- Commented out
-    GUILD_EVENT_ON_CREATE                   =     29,           // Implemented -- Commented out
-    GUILD_EVENT_ON_DISBAND                  =     30,           // Implemented -- Commented out
-    GUILD_EVENT_ON_MONEY_WITHDRAW           =     31,           // Implemented -- Commented out
-    GUILD_EVENT_ON_MONEY_DEPOSIT            =     32,           // Implemented -- Commented out
-    GUILD_EVENT_ON_ITEM_MOVE                =     33,           // Implemented -- Commented out
-    GUILD_EVENT_ON_EVENT                    =     34,           // Implemented -- Commented out
-    GUILD_EVENT_ON_BANK_EVENT               =     35,           // Implemented -- Commented out
+    GUILD_EVENT_ON_ADD_MEMBER               =     29,           // Implemented -- Commented out
+    GUILD_EVENT_ON_REMOVE_MEMBER            =     30,           // Implemented -- Commented out
+    GUILD_EVENT_ON_MOTD_CHANGE              =     31,           // Implemented -- Commented out
+    GUILD_EVENT_ON_INFO_CHANGE              =     32,           // Implemented -- Commented out
+    GUILD_EVENT_ON_CREATE                   =     33,           // Implemented -- Commented out
+    GUILD_EVENT_ON_DISBAND                  =     34,           // Implemented -- Commented out
+    GUILD_EVENT_ON_MONEY_WITHDRAW           =     35,           // Implemented -- Commented out
+    GUILD_EVENT_ON_MONEY_DEPOSIT            =     36,           // Implemented -- Commented out
+    GUILD_EVENT_ON_ITEM_MOVE                =     37,           // Implemented -- Commented out
+    GUILD_EVENT_ON_EVENT                    =     38,           // Implemented -- Commented out
+    GUILD_EVENT_ON_BANK_EVENT               =     39,           // Implemented -- Commented out
 
     // Server
-    SERVER_EVENT_ON_NETWORK_START           =     36,           // Not Implemented
-    SERVER_EVENT_ON_NETWORK_STOP            =     37,           // Not Implemented
-    SERVER_EVENT_ON_SOCKET_OPEN             =     38,           // Not Implemented
-    SERVER_EVENT_ON_SOCKET_CLOSE            =     39,           // Not Implemented
-    SERVER_EVENT_ON_PACKET_RECEIVE          =     40,           // Not Implemented
-    SERVER_EVENT_ON_PACKET_RECEIVE_UNKNOWN  =     41,           // Not Implemented
-    SERVER_EVENT_ON_PACKET_SEND             =     42,           // Not Implemented
+    SERVER_EVENT_ON_NETWORK_START           =     40,           // Not Implemented
+    SERVER_EVENT_ON_NETWORK_STOP            =     41,           // Not Implemented
+    SERVER_EVENT_ON_SOCKET_OPEN             =     42,           // Not Implemented
+    SERVER_EVENT_ON_SOCKET_CLOSE            =     43,           // Not Implemented
+    SERVER_EVENT_ON_PACKET_RECEIVE          =     44,           // Not Implemented
+    SERVER_EVENT_ON_PACKET_RECEIVE_UNKNOWN  =     45,           // Not Implemented
+    SERVER_EVENT_ON_PACKET_SEND             =     46,           // Not Implemented
 
     // World
-    WORLD_EVENT_ON_OPEN_STATE_CHANGE        =     43,           // Implemented
-    WORLD_EVENT_ON_CONFIG_LOAD              =     44,           // Implemented
-    WORLD_EVENT_ON_MOTD_CHANGE              =     45,           // Implemented
-    WORLD_EVENT_ON_SHUTDOWN_INIT            =     46,           // Implemented
-    WORLD_EVENT_ON_SHUTDOWN_CANCEL          =     47,           // Implemented
-    WORLD_EVENT_ON_UPDATE                   =     48,           // Implemented
-    WORLD_EVENT_ON_STARTUP                  =     49,           // Implemented -- Actual server start
-    WORLD_EVENT_ON_SHUTDOWN                 =     50,           // Implemented
+    WORLD_EVENT_ON_OPEN_STATE_CHANGE        =     47,           // Implemented
+    WORLD_EVENT_ON_CONFIG_LOAD              =     48,           // Implemented
+    WORLD_EVENT_ON_MOTD_CHANGE              =     49,           // Implemented
+    WORLD_EVENT_ON_SHUTDOWN_INIT            =     50,           // Implemented
+    WORLD_EVENT_ON_SHUTDOWN_CANCEL          =     51,           // Implemented
+    WORLD_EVENT_ON_UPDATE                   =     52,           // Implemented
+    WORLD_EVENT_ON_STARTUP                  =     53,           // Implemented -- Actual server start
+    WORLD_EVENT_ON_SHUTDOWN                 =     54,           // Implemented
 
     // Eluna
-    ELUNA_EVENT_ON_RESTART                  =     51,           // Implemented
+    ELUNA_EVENT_ON_RESTART                  =     55,           // Implemented
 
     // Map
-    MAP_EVENT_ON_CREATE                     =     52,           // Not Implemented
-    MAP_EVENT_ON_DESTROY                    =     53,           // Not Implemented
-    MAP_EVENT_ON_LOAD                       =     54,           // Not Implemented
-    MAP_EVENT_ON_UNLOAD                     =     55,           // Not Implemented
-    MAP_EVENT_ON_PLAYER_ENTER               =     56,           // Not Implemented
-    MAP_EVENT_ON_PLAYER_LEAVE               =     57,           // Not Implemented
-    MAP_EVENT_ON_UPDATE                     =     58,           // Not Implemented
+    MAP_EVENT_ON_CREATE                     =     56,           // Not Implemented
+    MAP_EVENT_ON_DESTROY                    =     57,           // Not Implemented
+    MAP_EVENT_ON_LOAD                       =     58,           // Not Implemented
+    MAP_EVENT_ON_UNLOAD                     =     59,           // Not Implemented
+    MAP_EVENT_ON_PLAYER_ENTER               =     60,           // Not Implemented
+    MAP_EVENT_ON_PLAYER_LEAVE               =     61,           // Not Implemented
+    MAP_EVENT_ON_UPDATE                     =     62,           // Not Implemented
 
     // Area trigger
-    TRIGGER_EVENT_ON_TRIGGER                =     59,           // Implemented
+    TRIGGER_EVENT_ON_TRIGGER                =     63,           // Implemented
 
     // Weather
-    WEATHER_EVENT_ON_CHANGE                 =     60,           // Implemented - Add weather object?
+    WEATHER_EVENT_ON_CHANGE                 =     64,           // Implemented - Add weather object?
 
     // Auction house
-    AUCTION_EVENT_ON_ADD                    =     61,           // Not Implemented
-    AUCTION_EVENT_ON_REMOVE                 =     62,           // Not Implemented
-    AUCTION_EVENT_ON_SUCCESFUL              =     63,           // Not Implemented
-    AUCTION_EVENT_ON_EXPIRE                 =     64,           // Not Implemented
+    AUCTION_EVENT_ON_ADD                    =     65,           // Not Implemented
+    AUCTION_EVENT_ON_REMOVE                 =     66,           // Not Implemented
+    AUCTION_EVENT_ON_SUCCESFUL              =     67,           // Not Implemented
+    AUCTION_EVENT_ON_EXPIRE                 =     68,           // Not Implemented
 
     // Group
-    GROUP_EVENT_ON_MEMBER_ADD               =     65,           // Implemented
-    GROUP_EVENT_ON_MEMBER_INVITE            =     66,           // Implemented
-    GROUP_EVENT_ON_MEMBER_REMOVE            =     67,           // Implemented
-    GROUP_EVENT_ON_LEADER_CHANGE            =     68,           // Implemented
-    GROUP_EVENT_ON_DISBAND                  =     69,           // Implemented
+    GROUP_EVENT_ON_MEMBER_ADD               =     69,           // Implemented
+    GROUP_EVENT_ON_MEMBER_INVITE            =     70,           // Implemented
+    GROUP_EVENT_ON_MEMBER_REMOVE            =     71,           // Implemented
+    GROUP_EVENT_ON_LEADER_CHANGE            =     72,           // Implemented
+    GROUP_EVENT_ON_DISBAND                  =     73,           // Implemented
 
     SERVER_EVENT_COUNT
 };
 
 enum CreatureEvents
 {
-    //ARC
-    CREATURE_EVENT_ON_ENTER_COMBAT                  = 1,    // Implemented
-    CREATURE_EVENT_ON_LEAVE_COMBAT                  = 2,    // Implemented
-    CREATURE_EVENT_ON_TARGET_DIED                   = 3,    // Implemented
-    CREATURE_EVENT_ON_DIED                          = 4,    // Implemented
-    //CREATURE_EVENT_ON_TARGET_PARRIED              = 5,    // Not Implemented
-    //CREATURE_EVENT_ON_TARGET_DODGED               = 6,    // Not Implemented
-    //CREATURE_EVENT_ON_TARGET_BLOCKED              = 7,    // Not Implemented
-    //CREATURE_EVENT_ON_TARGET_CRIT_HIT             = 8,    // Not Implemented
-    //CREATURE_EVENT_ON_PARRY                       = 9,    // Not Implemented
-    //CREATURE_EVENT_ON_DODGED                      = 10,   // Not Implemented
-    //CREATURE_EVENT_ON_BLOCKED                     = 11,   // Not Implemented
-    //CREATURE_EVENT_ON_CRIT_HIT                    = 12,   // Not Implemented
-    //CREATURE_EVENT_ON_HIT                         = 13,   // Not Implemented
-    //CREATURE_EVENT_ON_ASSIST_TARGET_DIED          = 14,   // Not Implemented
-    //CREATURE_EVENT_ON_FEAR                        = 15,   // Not Implemented
-    //CREATURE_EVENT_ON_FLEE                        = 16,   // Not Implemented
-    //CREATURE_EVENT_ON_CALL_FOR_HELP               = 17,   // Not Implemented
-    CREATURE_EVENT_ON_SPAWN                         = 18,   // Implemented
-    CREATURE_EVENT_ON_REACH_WP                      = 19,   // Implemented
-    //CREATURE_EVENT_ON_LOOT_TAKEN                  = 20,   // Not Implemented
-    CREATURE_EVENT_ON_AIUPDATE                      = 21,   // Implemented
-    CREATURE_EVENT_ON_RECEIVE_EMOTE                 = 22,   // Implemented
-    CREATURE_EVENT_ON_DAMAGE_TAKEN                  = 23,   // Implemented
-    //CREATURE_EVENT_ON_ENTER_VEHICLE               = 24,   // Not Implemented
-    //CREATURE_EVENT_ON_EXIT_VEHICLE                = 25,   // Not Implemented
-    //CREATURE_EVENT_ON_FIRST_PASSENGER_ENTERED     = 26,   // Not Implemented
-    //CREATURE_EVENT_ON_VEHICLE_FULL                = 27,   // Not Implemented
-    //CREATURE_EVENT_ON_LAST_PASSENGER_LEFT         = 28,   // Not Implemented
-    //TC
-    CREATURE_EVENT_ON_PRE_COMBAT                    = 29,   // Implemented
-    CREATURE_EVENT_ON_ATTACKED_AT                   = 30,   // Implemented
-    CREATURE_EVENT_ON_OWNER_ATTACKED                = 31,   // Implemented
-    CREATURE_EVENT_ON_OWNER_ATTACKED_AT             = 32,   // Implemented
-    CREATURE_EVENT_ON_HIT_BY_SPELL                  = 33,   // Implemented
-    CREATURE_EVENT_ON_SPELL_HIT_TARGET              = 34,   // Implemented
-    CREATURE_EVENT_ON_SPELL_CLICK                   = 35,   // Implemented
-    CREATURE_EVENT_ON_CHARMED                       = 36,   // Implemented
-    CREATURE_EVENT_ON_POSSESS                       = 37,   // Implemented
-    CREATURE_EVENT_ON_JUST_SUMMONED_CREATURE        = 38,   // Implemented
-    CREATURE_EVENT_ON_SUMMONED_CREATURE_DESPAWN     = 39,   // Implemented
-    CREATURE_EVENT_ON_SUMMONED_CREATURE_DIED        = 40,   // Implemented
-    CREATURE_EVENT_ON_SUMMONED                      = 41,   // Implemented
-    CREATURE_EVENT_ON_RESET                         = 42,   // Implemented
-    CREATURE_EVENT_ON_REACH_HOME                    = 43,   // Implemented
-    CREATURE_EVENT_ON_CAN_RESPAWN                   = 44,   // Implemented
-    CREATURE_EVENT_ON_CORPSE_REMOVED                = 45,   // Implemented
-    CREATURE_EVENT_ON_MOVE_IN_LOS                   = 46,   // Implemented
-    CREATURE_EVENT_ON_VISIBLE_MOVE_IN_LOS           = 47,   // Implemented
-    CREATURE_EVENT_ON_PASSANGER_BOARDED             = 48,   // Implemented
-    CREATURE_EVENT_ON_DUMMY_EFFECT                  = 49,   // Implemented
-    CREATURE_EVENT_ON_QUEST_ACCEPT                  = 50,   // Implemented
-    CREATURE_EVENT_ON_QUEST_SELECT                  = 51,   // Implemented
-    CREATURE_EVENT_ON_QUEST_COMPLETE                = 52,   // Implemented
-    CREATURE_EVENT_ON_QUEST_REWARD                  = 53,   // Implemented
-    CREATURE_EVENT_ON_DIALOG_STATUS                 = 54,   // Implemented
+    CREATURE_EVENT_ON_ENTER_COMBAT                    = 1,      //Implemented
+    CREATURE_EVENT_ON_LEAVE_COMBAT                    = 2,      //Implemented
+    CREATURE_EVENT_ON_TARGET_DIED                     = 3,      //Implemented
+    CREATURE_EVENT_ON_DIED                            = 4,      //Implemented
+    CREATURE_EVENT_ON_SPAWN                           = 5,      //Implemented
+    CREATURE_EVENT_ON_REACH_WP                        = 6,      //Implemented
+    CREATURE_EVENT_ON_AIUPDATE                        = 7,      //Implemented
+    CREATURE_EVENT_ON_RECEIVE_EMOTE                   = 8,      //Implemented
+    CREATURE_EVENT_ON_DAMAGE_TAKEN                    = 9,      //Implemented
+    CREATURE_EVENT_ON_PRE_COMBAT                      = 10,     //Implemented
+    CREATURE_EVENT_ON_ATTACKED_AT                     = 11,     //Implemented
+    CREATURE_EVENT_ON_OWNER_ATTACKED                  = 12,     //Implemented
+    CREATURE_EVENT_ON_OWNER_ATTACKED_AT               = 13,     //Implemented
+    CREATURE_EVENT_ON_HIT_BY_SPELL                    = 14,     //Implemented
+    CREATURE_EVENT_ON_SPELL_HIT_TARGET                = 15,     //Implemented
+    CREATURE_EVENT_ON_SPELL_CLICK                     = 16,     //Implemented
+    CREATURE_EVENT_ON_CHARMED                         = 17,     //Implemented
+    CREATURE_EVENT_ON_POSSESS                         = 18,     //Implemented
+    CREATURE_EVENT_ON_JUST_SUMMONED_CREATURE          = 19,     //Implemented
+    CREATURE_EVENT_ON_SUMMONED_CREATURE_DESPAWN       = 20,     //Implemented
+    CREATURE_EVENT_ON_SUMMONED_CREATURE_DIED          = 21,     //Implemented
+    CREATURE_EVENT_ON_SUMMONED                        = 22,     //Implemented
+    CREATURE_EVENT_ON_RESET                           = 23,     //Implemented
+    CREATURE_EVENT_ON_REACH_HOME                      = 24,     //Implemented
+    CREATURE_EVENT_ON_CAN_RESPAWN                     = 25,     //Implemented
+    CREATURE_EVENT_ON_CORPSE_REMOVED                  = 26,     //Implemented
+    CREATURE_EVENT_ON_MOVE_IN_LOS                     = 27,     //Implemented
+    CREATURE_EVENT_ON_VISIBLE_MOVE_IN_LOS             = 28,     //Implemented
+    CREATURE_EVENT_ON_PASSANGER_BOARDED               = 29,     //Implemented
+    CREATURE_EVENT_ON_DUMMY_EFFECT                    = 30,     //Implemented
+    CREATURE_EVENT_ON_QUEST_ACCEPT                    = 31,     //Implemented
+    CREATURE_EVENT_ON_QUEST_SELECT                    = 32,     //Implemented
+    CREATURE_EVENT_ON_QUEST_COMPLETE                  = 33,     //Implemented
+    CREATURE_EVENT_ON_QUEST_REWARD                    = 34,     //Implemented
+    CREATURE_EVENT_ON_DIALOG_STATUS                   = 35,     //Implemented
 
     CREATURE_EVENT_COUNT
 };
