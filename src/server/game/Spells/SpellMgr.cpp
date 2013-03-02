@@ -176,7 +176,7 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto,
             else if ((spellproto->SpellFamilyFlags[1] & 0x1000) && spellproto->SpellIconID == 1721)
                 return DIMINISHING_DISORIENT;
             // Freezing Arrow
-            else if (spellproto->SpellFamilyFlags[0] & 0x8)
+            else if (spellproto->SpellFamilyFlags[0] & 0x8 || spellproto->Id == 49886 || spellproto->Id == 60210)
                 return DIMINISHING_DISORIENT;
             break;
         }
@@ -219,7 +219,7 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto,
         return DIMINISHING_SILENCE;
     if (mechanic & (1 << MECHANIC_SLEEP))
         return DIMINISHING_SLEEP;
-    if (mechanic & ((1 << MECHANIC_SAPPED) | (1 << MECHANIC_POLYMORPH) | (1 << MECHANIC_SHACKLE)))
+    if (mechanic & ((1 << MECHANIC_SAPPED) | (1 << MECHANIC_POLYMORPH) | (1 << MECHANIC_SHACKLE)) || spellproto->Id == 49886)
         return DIMINISHING_DISORIENT;
     // Mechanic Knockout, except Blast Wave
     if (mechanic & (1 << MECHANIC_KNOCKOUT) && spellproto->SpellIconID != 292)
@@ -293,6 +293,9 @@ int32 GetDiminishingReturnsLimitDuration(DiminishingGroup group, SpellInfo const
             // Hunter's Mark
             if (spellproto->SpellFamilyFlags[0] & 0x400)
                 return 120 * IN_MILLISECONDS;
+            // Trigger for Freezing Arrow
+            if (spellproto->Id == 49886)
+                return 9 * IN_MILLISECONDS;
             break;
         }
         case SPELLFAMILY_PALADIN:

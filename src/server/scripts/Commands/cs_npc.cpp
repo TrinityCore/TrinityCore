@@ -252,15 +252,20 @@ public:
             return false;
         }
 
+		char* frating = strtok(NULL, " ");
+		uint32 rating = 0;                                    // Add rating, default: 0
+        if (frating)
+			rating = atol(frating);
+
         uint32 vendor_entry = vendor ? vendor->GetEntry() : 0;
 
-        if (!sObjectMgr->IsVendorItemValid(vendor_entry, itemId, maxcount, incrtime, extendedcost, NULL, handler->GetSession()->GetPlayer()))
+        if (!sObjectMgr->IsVendorItemValid(vendor_entry, itemId, maxcount, incrtime, extendedcost, rating, handler->GetSession()->GetPlayer()))
         {
             handler->SetSentErrorMessage(true);
             return false;
         }
 
-        sObjectMgr->AddVendorItem(vendor_entry, itemId, maxcount, incrtime, extendedcost, NULL);
+        sObjectMgr->AddVendorItem(vendor_entry, itemId, maxcount, incrtime, extendedcost, rating);
 
         ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(itemId);
 
