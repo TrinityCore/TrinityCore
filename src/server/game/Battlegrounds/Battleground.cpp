@@ -257,7 +257,7 @@ void Battleground::Update(uint32 diff)
             m_SetDeleteThis = true;
         return;
     }
-
+  
     switch (GetStatus())
     {
         case STATUS_WAIT_JOIN:
@@ -2057,7 +2057,7 @@ void BattlegroundMgr::HandleCrossfactionSendToBattle(Player* player, Battlegroun
     if (!player || !bg)
         return;
 
-    if (/*sWorld->getBoolConfig(CONFIG_BG_CROSSFRACTION) == 1 && */bg->isArena())
+    if (/*sWorld->getBoolConfig(CONFIG_BG_CROSSFRACTION) == 1 && */!bg->isArena())
     {
             if (bg->GetPlayersCountByTeam(HORDE) < bg->GetMaxPlayersPerTeam() && bg->GetPlayersCountByTeam(HORDE) <= bg->GetPlayersCountByTeam(ALLIANCE))
                 player->SetBGTeam(HORDE);
