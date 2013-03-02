@@ -111,6 +111,7 @@ void Eluna::RegisterGlobals(lua_State* L)
     lua_register(L, "RegisterCreatureGossipEvent", RegisterCreatureGossipEvent);
     lua_register(L, "RegisterGameObjectEvent", RegisterGameObjectEvent);
     lua_register(L, "RegisterGameObjectGossipEvent", RegisterGameObjectGossipEvent);
+    lua_register(L, "RegisterItemEvent", RegisterItemEvent);
     lua_register(L, "RegisterItemGossipEvent", RegisterItemGossipEvent);
     lua_register(L, "RegisterPlayerGossipEvent", RegisterPlayerGossipEvent);
 
@@ -442,6 +443,26 @@ static int RegisterGameObjectGossipEvent(lua_State* L)
     return 0;
 }
 
+// RegisterItemEvent(entry, event, function)
+static int RegisterItemEvent(lua_State* L)
+{
+    int functionRef = 0;
+    lua_settop(L, 3);
+    uint32 entry = luaL_checkint(L, 1);
+    uint32 ev = luaL_checkunsigned(L, 2);
+    const char* typeName = luaL_typename(L, 3);
+
+    if (ev == 0 || !typeName)
+        return 0;
+
+    if(!strcmp(typeName, "function"))
+        functionRef = lua_ref(L, true);
+
+    if(functionRef > 0)
+        Eluna::get()->Register(REGTYPE_ITEM, entry, ev, functionRef);
+    return 0;
+}
+
 // RegisterItemGossipEvent(entry, event, function)
 static int RegisterItemGossipEvent(lua_State* L)
 {
@@ -462,7 +483,7 @@ static int RegisterItemGossipEvent(lua_State* L)
     return 0;
 }
 
-// RegisterPlayerGossipEvent(entry, event, function)
+// RegisterPlayerGossipEvent(menu_id, event, function)
 static int RegisterPlayerGossipEvent(lua_State* L)
 {
     int functionRef = 0;
@@ -564,6 +585,20 @@ void Eluna::Register(uint8 regtype, uint32 id, uint32 evt, int functionRef)
         }
         break;
 
+    case REGTYPE_ITEM:
+        if (evt < ITEM_EVENT_COUNT)
+        {
+            if (!sObjectMgr->GetItemTemplate(id))
+            {
+                sLog->outError(LOG_FILTER_GENERAL, "Eluna Nova::Couldn't find a item with (ID: %d)!", id);
+                return;
+            }
+
+            get()->_itemEventBindings->Insert(id, evt, functionRef);
+            return;
+        }
+        break;
+
     case REGTYPE_ITEM_GOSSIP:
         if (evt < GOSSIP_EVENT_COUNT)
         {
@@ -609,12 +644,13 @@ void Eluna::Restart()
     }
     get()->_serverEventBindings.clear();
     
+    get()->_creatureEventBindings->Clear();
     get()->_creatureGossipBindings->Clear();
-    get()->_creatureAIEventBindings->Clear();
-    get()->_gameObjectAIEventBindings->Clear();
+    get()->_gameObjectEventBindings->Clear();
     get()->_gameObjectGossipBindings->Clear();
-    get()->_playerGossipBindings->Clear();
+    get()->_itemEventBindings->Clear();
     get()->_itemGossipBindings->Clear();
+    get()->_playerGossipBindings->Clear();
 
     lua_close(get()->_luaState); // Closing
 

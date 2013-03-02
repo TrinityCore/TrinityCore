@@ -649,6 +649,9 @@ bool ScriptMgr::OnDummyEffect(Unit* caster, uint32 spellId, SpellEffIndex effInd
     ASSERT(caster);
     ASSERT(target);
 
+	if (Eluna::getScript()->OnDummyEffect(ITEM_EVENT_ON_DUMMY_EFFECT, caster, spellId, effIndex, target))
+		return true;
+
     GET_SCRIPT_RET(ItemScript, target->GetScriptId(), tmpscript, false);
     return tmpscript->OnDummyEffect(caster, spellId, effIndex, target);
 }
@@ -658,6 +661,9 @@ bool ScriptMgr::OnQuestAccept(Player* player, Item* item, Quest const* quest)
     ASSERT(player);
     ASSERT(item);
     ASSERT(quest);
+
+	if (Eluna::getScript()->OnQuestAccept(ITEM_EVENT_ON_QUEST_ACCEPT, player, item, quest))
+		return true;
 
     GET_SCRIPT_RET(ItemScript, item->GetScriptId(), tmpscript, false);
     player->PlayerTalkClass->ClearMenus();
@@ -669,7 +675,7 @@ bool ScriptMgr::OnItemUse(Player* player, Item* item, SpellCastTargets const& ta
     ASSERT(player);
     ASSERT(item);
 
-	if (Eluna::getScript()->OnGossipHello(GOSSIP_EVENT_ON_HELLO, player, item))
+	if (Eluna::getScript()->OnItemUse(ITEM_EVENT_ON_USE, player, item, targets))
 		return true;
 
     GET_SCRIPT_RET(ItemScript, item->GetScriptId(), tmpscript, false);
@@ -681,6 +687,9 @@ bool ScriptMgr::OnItemExpire(Player* player, ItemTemplate const* proto)
     ASSERT(player);
     ASSERT(proto);
 
+	if (Eluna::getScript()->OnItemExpire(ITEM_EVENT_ON_EXPIRE, player, proto))
+		return true;
+
     GET_SCRIPT_RET(ItemScript, proto->ScriptId, tmpscript, false);
     return tmpscript->OnExpire(player, proto);
 }
@@ -689,6 +698,9 @@ bool ScriptMgr::OnDummyEffect(Unit* caster, uint32 spellId, SpellEffIndex effInd
 {
     ASSERT(caster);
     ASSERT(target);
+
+	if(Eluna::getScript()->OnDummyEffect(CREATURE_EVENT_ON_DUMMY_EFFECT, caster, spellId, effIndex, target))
+		return true;
 
     GET_SCRIPT_RET(CreatureScript, target->GetScriptId(), tmpscript, false);
     return tmpscript->OnDummyEffect(caster, spellId, effIndex, target);
@@ -1308,6 +1320,7 @@ void ScriptMgr::OnPlayerTextEmote(Player* player, uint32 textEmote, uint32 emote
 void ScriptMgr::OnPlayerSpellCast(Player* player, Spell* spell, bool skipCheck)
 {
     FOREACH_SCRIPT(PlayerScript)->OnSpellCast(player, spell, skipCheck);
+    Eluna::getScript()->OnPlayerSpellCast(PLAYER_EVENT_ON_SPELL_CAST, player, spell, skipCheck);
 }
 
 void ScriptMgr::OnPlayerLogin(Player* player)
@@ -1392,7 +1405,7 @@ void ScriptMgr::OnGuildDisband(Guild* guild)
 void ScriptMgr::OnGuildMemberWitdrawMoney(Guild* guild, Player* player, uint32 &amount, bool isRepair)
 {
     FOREACH_SCRIPT(GuildScript)->OnMemberWitdrawMoney(guild, player, amount, isRepair);
-    Eluna::getScript()->OnGuildMemberWitdrawMoney(GUILD_EVENT_ON_MONEY_WITHDRAW, guild, player, amount, isRepair);
+    //Eluna::getScript()->OnGuildMemberWitdrawMoney(GUILD_EVENT_ON_MONEY_WITHDRAW, guild, player, amount, isRepair);
 }
 
 void ScriptMgr::OnGuildMemberDepositMoney(Guild* guild, Player* player, uint32 &amount)
