@@ -1593,8 +1593,9 @@ public:
         return true;
     }
 
-    void OnChat(uint32 eventId, Player* player, uint32 type, uint32 lang, string& msg)
+    bool OnChat(uint32 eventId, Player* player, uint32 type, uint32 lang, string& msg)
     {
+        bool result = true;
         for (vector<int>::iterator itr = Eluna::get()->_serverEventBindings.at(eventId).begin();
             itr != Eluna::get()->_serverEventBindings.at(eventId).end(); itr++)
         {
@@ -1604,8 +1605,15 @@ public:
             Eluna::get()->PushString(Eluna::get()->_luaState, msg.c_str());
             Eluna::get()->PushUnsigned(Eluna::get()->_luaState, type);
             Eluna::get()->PushUnsigned(Eluna::get()->_luaState, lang);
-            Eluna::get()->ExecuteCall(5, 0);
+            if(Eluna::get()->ExecuteCall(5, 1))
+            {
+                lua_State* L = Eluna::get()->_luaState;
+                if(!lua_isnoneornil(L, 1) && !lua_toboolean(L, 1))
+                    result = false;
+                Eluna::get()->EndCall(1);
+            }
         }
+        return result;
     }
 
     void OnChat(uint32 eventId, Player* player, uint32 type, uint32 lang, string& msg, Player* receiver)
@@ -1624,8 +1632,9 @@ public:
         }
     }
 
-    void OnChat(uint32 eventId, Player* player, uint32 type, uint32 lang, string& msg, Group* group)
+    bool OnChat(uint32 eventId, Player* player, uint32 type, uint32 lang, string& msg, Group* group)
     {
+        bool result = true;
         for (vector<int>::iterator itr = Eluna::get()->_serverEventBindings.at(eventId).begin();
             itr != Eluna::get()->_serverEventBindings.at(eventId).end(); itr++)
         {
@@ -1636,12 +1645,20 @@ public:
             Eluna::get()->PushUnsigned(Eluna::get()->_luaState, type);
             Eluna::get()->PushUnsigned(Eluna::get()->_luaState, lang);
             Eluna::get()->PushGroup(Eluna::get()->_luaState, group);
-            Eluna::get()->ExecuteCall(6, 0);
+            if(Eluna::get()->ExecuteCall(6, 1))
+            {
+                lua_State* L = Eluna::get()->_luaState;
+                if(!lua_isnoneornil(L, 1) && !lua_toboolean(L, 1))
+                    result = false;
+                Eluna::get()->EndCall(1);
+            }
         }
+        return result;
     }
 
-    void OnChat(uint32 eventId, Player* player, uint32 type, uint32 lang, string& msg, Guild* guild)
+    bool OnChat(uint32 eventId, Player* player, uint32 type, uint32 lang, string& msg, Guild* guild)
     {
+        bool result = true;
         for (vector<int>::iterator itr = Eluna::get()->_serverEventBindings.at(eventId).begin();
             itr != Eluna::get()->_serverEventBindings.at(eventId).end(); itr++)
         {
@@ -1652,12 +1669,20 @@ public:
             Eluna::get()->PushUnsigned(Eluna::get()->_luaState, type);
             Eluna::get()->PushUnsigned(Eluna::get()->_luaState, lang);
             Eluna::get()->PushGuild(Eluna::get()->_luaState, guild);
-            Eluna::get()->ExecuteCall(6, 0);
+            if(Eluna::get()->ExecuteCall(6, 1))
+            {
+                lua_State* L = Eluna::get()->_luaState;
+                if(!lua_isnoneornil(L, 1) && !lua_toboolean(L, 1))
+                    result = false;
+                Eluna::get()->EndCall(1);
+            }
         }
+        return result;
     }
 
-    void OnChat(uint32 eventId, Player* player, uint32 type, uint32 lang, string& msg, Channel* channel)
+    bool OnChat(uint32 eventId, Player* player, uint32 type, uint32 lang, string& msg, Channel* channel)
     {
+        bool result = true;
         for (vector<int>::iterator itr = Eluna::get()->_serverEventBindings.at(eventId).begin();
             itr != Eluna::get()->_serverEventBindings.at(eventId).end(); itr++)
         {
@@ -1668,8 +1693,15 @@ public:
             Eluna::get()->PushUnsigned(Eluna::get()->_luaState, type);
             Eluna::get()->PushUnsigned(Eluna::get()->_luaState, lang);
             Eluna::get()->PushUnsigned(Eluna::get()->_luaState, channel->GetChannelId());
-            Eluna::get()->ExecuteCall(6, 0);
+            if(Eluna::get()->ExecuteCall(6, 1))
+            {
+                lua_State* L = Eluna::get()->_luaState;
+                if(!lua_isnoneornil(L, 1) && !lua_toboolean(L, 1))
+                    result = false;
+                Eluna::get()->EndCall(1);
+            }
         }
+        return result;
     }
 
     void OnPvPKill(uint32 eventId, Player* killer, Player* victim)
