@@ -306,14 +306,6 @@ ElunaRegister<Aura> AuraMethods[] =
     {NULL, NULL},
 };
 
-ElunaRegister<Channel> ChannelMethods[] = 
-{
-    // Getters
-    {"GetUnitType", &LuaChannel::GetUnitType},                      // :GetUnitType() - Returns object type, IE: Channel, Creature UNDOCUMENTED
-
-    {NULL, NULL},
-};
-
 ElunaRegister<Group> GroupMethods[] = 
 {
     // Getters
@@ -445,7 +437,6 @@ template<> ElunaRegister<Group>* GetMethodTable<Group>() { return GroupMethods; 
 template<> ElunaRegister<Guild>* GetMethodTable<Guild>() { return GuildMethods; }
 template<> ElunaRegister<QueryResult>* GetMethodTable<QueryResult>() { return QueryMethods; }
 template<> ElunaRegister<Aura>* GetMethodTable<Aura>() { return AuraMethods; }
-template<> ElunaRegister<Channel>* GetMethodTable<Channel>() { return ChannelMethods; }
 template<> ElunaRegister<Item>* GetMethodTable<Item>() { return ItemMethods; }
 template<> ElunaRegister<WorldPacket>* GetMethodTable<WorldPacket>() { return PacketMethods; }
 #endif

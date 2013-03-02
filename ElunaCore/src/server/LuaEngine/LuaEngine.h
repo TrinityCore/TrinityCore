@@ -14,6 +14,7 @@
 #include "Unit.h"
 #include "Creature.h"
 #include "GameObjectAI.h"
+#include "Channel.h"
 
 using namespace std;
 
@@ -426,7 +427,6 @@ public:
     void PushGO(lua_State*, GameObject*);
     void PushQueryResult(lua_State*, QueryResult*);
     void PushAura(lua_State*, Aura*);
-    void PushChannel(lua_State*, Channel*);
     void PushItem(lua_State*, Item*);
     void PushPacket(lua_State*, WorldPacket*);
     // Checks
@@ -1684,7 +1684,7 @@ public:
             Eluna::get()->PushString(Eluna::get()->_luaState, msg.c_str());
             Eluna::get()->PushUnsigned(Eluna::get()->_luaState, type);
             Eluna::get()->PushUnsigned(Eluna::get()->_luaState, lang);
-            Eluna::get()->PushChannel(Eluna::get()->_luaState, channel);
+            Eluna::get()->PushUnsigned(Eluna::get()->_luaState, channel->GetChannelId());
             Eluna::get()->ExecuteCall(6, 0);
         }
     }
