@@ -1,9 +1,11 @@
 /*
-FOEREAPER TOMMY ENGINE, YEAH!
+Contributors:
+Foereaper, Neglected, Rochet2, Subv
+Faded, Tommy
 */
+
 #include "LuaEngine.h"
 Eluna::LuaWorldScript* sLuaWorldScript = NULL;
-
 #include "GlobalMethods.h"
 #include "UnitMethods.h"
 #include "GroupMethods.h"
@@ -95,7 +97,7 @@ void Eluna::StartEluna()
 
 /* Register Other Hooks (Events) */
 static int RegisterServerHook(lua_State* L);
-static int RegisterGossipEvent(lua_State* L);
+static int RegisterCreatureGossipEvent(lua_State* L);
 static int RegisterCreatureEvent(lua_State* L);
 static int RegisterGameObjectEvent(lua_State* L);
 static int RegisterGameObjectGossipEvent(lua_State* L);
@@ -105,8 +107,8 @@ static int RegisterPlayerGossipEvent(lua_State* L);
 void Eluna::RegisterGlobals(lua_State* L)
 {
     lua_register(L, "RegisterServerHook", RegisterServerHook);
-    lua_register(L, "RegisterGossipEvent", RegisterGossipEvent);
     lua_register(L, "RegisterCreatureEvent", RegisterCreatureEvent);
+    lua_register(L, "RegisterCreatureGossipEvent", RegisterCreatureGossipEvent);
     lua_register(L, "RegisterGameObjectEvent", RegisterGameObjectEvent);
     lua_register(L, "RegisterGameObjectGossipEvent", RegisterGameObjectGossipEvent);
     lua_register(L, "RegisterItemGossipEvent", RegisterItemGossipEvent);
@@ -400,8 +402,8 @@ static int RegisterServerHook(lua_State* L)
     return 0;
 }
 
-//RegisterGossipEvent(ev, func)
-static int RegisterGossipEvent(lua_State* L)
+//RegisterCreatureGossipEvent(ev, func)
+static int RegisterCreatureGossipEvent(lua_State* L)
 {
     int functionRef = 0;
     lua_settop(L, 3);

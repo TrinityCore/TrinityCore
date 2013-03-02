@@ -52,7 +52,7 @@ enum REGISTER_TYPE
     REGTYPE_ITEM,
     REGTYPE_ITEM_GOSSIP,
     REGTYPE_PLAYER_GOSSIP,
-    REGTYPE_LOG,
+
     REGTYPE_COUNT
 };
 
@@ -207,7 +207,8 @@ enum CreatureEvents
     CREATURE_EVENT_ON_QUEST_SELECT                  = 51,   // Implemented
     CREATURE_EVENT_ON_QUEST_COMPLETE                = 52,   // Implemented
     CREATURE_EVENT_ON_QUEST_REWARD                  = 53,   // Implemented
-    CREATURE_EVENT_ON_DIALOG_STATUS                 = 54,   // Not Implemented
+    CREATURE_EVENT_ON_DIALOG_STATUS                 = 54,   // Implemented
+
     CREATURE_EVENT_COUNT
 };
 
@@ -215,17 +216,15 @@ enum GameObjectEvents
 {
     GAMEOBJECT_EVENT_ON_AIUPDATE                    = 1,    // Implemented
     GAMEOBJECT_EVENT_ON_RESET                       = 2,    // Implemented
-    GAMEOBJECT_EVENT_DOACTION                       = 3,    // Implemented
-    GAMEOBJECT_EVENT_ON_SET_GUID                    = 4,    // Not Implemented
-    GAMEOBJECT_EVENT_ON_GET_GUID                    = 5,    // Implemented
-    GAMEOBJECT_EVENT_ON_DUMMY_EFFECT                = 6,    // Not Implemented
-    GAMEOBJECT_EVENT_ON_QUEST_ACCEPT                = 7,    // Not Implemented
-    GAMEOBJECT_EVENT_ON_QUEST_REWARD                = 8,    // Not Implemented
-    GAMEOBJECT_EVENT_ON_DIALOG_STATUS               = 9,    // Not Implemented
-    GAMEOBJECT_EVENT_ON_DESTROYED                   = 10,   // Implemented
-    GAMEOBJECT_EVENT_ON_DAMAGED                     = 11,   // Implemented
-    GAMEOBJECT_EVENT_ON_LOOT_STATE_CHANGE           = 12,   // Not Implemented
-    GAMEOBJECT_EVENT_ON_GO_STATE_CHANGED            = 13,   // Not Implemented
+    GAMEOBJECT_EVENT_ON_DUMMY_EFFECT                = 3,    // Implemented
+    GAMEOBJECT_EVENT_ON_QUEST_ACCEPT                = 4,    // Implemented
+    GAMEOBJECT_EVENT_ON_QUEST_REWARD                = 5,    // Implemented
+    GAMEOBJECT_EVENT_ON_DIALOG_STATUS               = 6,    // Implemented
+    GAMEOBJECT_EVENT_ON_DESTROYED                   = 7,    // Implemented
+    GAMEOBJECT_EVENT_ON_DAMAGED                     = 8,    // Implemented
+    GAMEOBJECT_EVENT_ON_LOOT_STATE_CHANGE           = 9,    // Implemented
+    GAMEOBJECT_EVENT_ON_GO_STATE_CHANGED            = 10,   // Implemented
+
     GAMEOBJECT_EVENT_COUNT
 };
 
@@ -1449,31 +1448,6 @@ public:
                 Eluna::get()->PushInteger(Eluna::get()->_luaState, GAMEOBJECT_EVENT_ON_RESET);
                 Eluna::get()->PushGO(Eluna::get()->_luaState, go);
                 Eluna::get()->ExecuteCall(2, 0);
-            }
-
-            void DoAction(const int32 param)
-            {
-                int bind = Eluna::get()->_gameObjectAIEventBindings->GetBind(go->GetEntry(), GAMEOBJECT_EVENT_DOACTION);
-                if(!bind)
-                    return;
-                Eluna::get()->BeginCall(bind);
-                Eluna::get()->PushInteger(Eluna::get()->_luaState, GAMEOBJECT_EVENT_DOACTION);
-                Eluna::get()->PushGO(Eluna::get()->_luaState, go);
-                Eluna::get()->PushInteger(Eluna::get()->_luaState, param);
-                Eluna::get()->ExecuteCall(3, 0);
-            }
-
-            void SetGUID(uint64 guid, int32 id)
-            {
-                int bind = Eluna::get()->_gameObjectAIEventBindings->GetBind(go->GetEntry(), GAMEOBJECT_EVENT_ON_SET_GUID);
-                if(!bind)
-                    return;
-                Eluna::get()->BeginCall(bind);
-                Eluna::get()->PushInteger(Eluna::get()->_luaState, GAMEOBJECT_EVENT_ON_SET_GUID);
-                Eluna::get()->PushGO(Eluna::get()->_luaState, go);
-                Eluna::get()->PushGUID(Eluna::get()->_luaState, guid);
-                Eluna::get()->PushInteger(Eluna::get()->_luaState, id);
-                Eluna::get()->ExecuteCall(4, 0);
             }
         };
 

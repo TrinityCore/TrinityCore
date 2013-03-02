@@ -793,7 +793,7 @@ uint32 ScriptMgr::GetDialogStatus(Player* player, Creature* creature)
     ASSERT(player);
     ASSERT(creature);
 
-	//Eluna::getScript()->GetDialogStatus(CREATURE_EVENT_ON_DIALOG_STATUS, player, creature);
+	Eluna::getScript()->GetDialogStatus(CREATURE_EVENT_ON_DIALOG_STATUS, player, creature);
 
     // TODO: 100 is a funny magic number to have hanging around here...
     GET_SCRIPT_RET(CreatureScript, creature->GetScriptId(), tmpscript, 100);
@@ -902,7 +902,8 @@ uint32 ScriptMgr::GetDialogStatus(Player* player, GameObject* go)
     ASSERT(player);
     ASSERT(go);
 
-	//Eluna::getScript()->GetDialogStatus(GAMEOBJECT_EVENT_ON_DIALOG_STATUS, player, go);
+	Eluna::getScript()->GetDialogStatus(GAMEOBJECT_EVENT_ON_DIALOG_STATUS, player, go);
+
     // TODO: 100 is a funny magic number to have hanging around here...
     GET_SCRIPT_RET(GameObjectScript, go->GetScriptId(), tmpscript, 100);
     player->PlayerTalkClass->ClearMenus();
