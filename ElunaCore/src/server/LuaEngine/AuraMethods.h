@@ -9,7 +9,7 @@ public:
     // GetUnitType()
     static int GetUnitType(lua_State* L, Aura* aura)
     {
-        if(!aura)
+        if (!aura)
             return 0;
 
         Eluna::get()->PushString(L, "Aura");
@@ -19,7 +19,7 @@ public:
     // GetCaster()
     static int GetCaster(lua_State* L, Aura* aura)
     {
-        if(!aura)
+        if (!aura)
             return 0;
 
         Eluna::get()->PushUnit(L, aura->GetCaster());
@@ -29,7 +29,7 @@ public:
     // GetCasterGUID()
     static int GetCasterGUID(lua_State* L, Aura* aura)
     {
-        if(!aura)
+        if (!aura)
             return 0;
 
         Eluna::get()->PushGUID(L, aura->GetCasterGUID());
@@ -39,7 +39,7 @@ public:
     // GetCasterLevel()
     static int GetCasterLevel(lua_State* L, Aura* aura)
     {
-        if(!aura)
+        if (!aura)
             return 0;
 
         Eluna::get()->PushUnsigned(L, aura->GetCasterLevel());
@@ -49,7 +49,7 @@ public:
     // GetDuration()
     static int GetDuration(lua_State* L, Aura* aura)
     {
-        if(!aura)
+        if (!aura)
             return 0;
 
         Eluna::get()->PushInteger(L, aura->GetDuration());
@@ -59,7 +59,7 @@ public:
     // GetCharges()
     static int GetCharges(lua_State* L, Aura* aura)
     {
-        if(!aura)
+        if (!aura)
             return 0;
 
         Eluna::get()->PushUnsigned(L, aura->GetCharges());
@@ -69,7 +69,7 @@ public:
     // GetAuraId()
     static int GetAuraId(lua_State* L, Aura* aura)
     {
-        if(!aura)
+        if (!aura)
             return 0;
 
         Eluna::get()->PushUnsigned(L, aura->GetId());
@@ -79,7 +79,7 @@ public:
     // GetMaxDuration()
     static int GetMaxDuration(lua_State* L, Aura* aura)
     {
-        if(!aura)
+        if (!aura)
             return 0;
 
         Eluna::get()->PushInteger(L, aura->GetMaxDuration());
@@ -89,7 +89,7 @@ public:
     // GetStackAmount()
     static int GetStackAmount(lua_State* L, Aura* aura)
     {
-        if(!aura)
+        if (!aura)
             return 0;
 
         Eluna::get()->PushUnsigned(L, aura->GetStackAmount());
@@ -99,7 +99,7 @@ public:
     // SetDuration()
     static int SetDuration(lua_State* L, Aura* aura)
     {
-        if(!aura)
+        if (!aura)
             return 0;
 
         int duration = luaL_checkinteger(L, 1);
@@ -110,7 +110,7 @@ public:
     // SetMaxDuration()
     static int SetMaxDuration(lua_State* L, Aura* aura)
     {
-        if(!aura)
+        if (!aura)
             return 0;
 
         int duration = luaL_checkinteger(L, 1);
@@ -121,7 +121,7 @@ public:
     // SetStackAmount()
     static int SetStackAmount(lua_State* L, Aura* aura)
     {
-        if(!aura)
+        if (!aura)
             return 0;
 
         int amount = luaL_checkunsigned(L, 1);
@@ -132,7 +132,7 @@ public:
     // Remove()
     static int Remove(lua_State* L, Aura* aura)
     {
-        if(!aura)
+        if (!aura)
             return 0;
 
         aura->Remove();
@@ -142,10 +142,10 @@ public:
     // GetOwner()
     static int GetOwner(lua_State* L, Aura* aura)
     {
-        if(!aura)
+        if (!aura)
             return 0;
 
-        if(aura->GetType() != UNIT_AURA_TYPE)
+        if (aura->GetType() != UNIT_AURA_TYPE)
             return 0;
 
         Eluna::get()->PushUnit(L, aura->GetUnitOwner());

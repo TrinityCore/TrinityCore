@@ -20,7 +20,7 @@ public:
 
     static void initialize()
     {
-        if(!hasSingleton())
+        if (!hasSingleton())
             new ElunaScript("MasterScript");
     }
 

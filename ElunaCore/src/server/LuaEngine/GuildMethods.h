@@ -11,7 +11,7 @@ public:
 
     static int GetMembers(lua_State* L, Guild* pGuild)
     {
-        if(!pGuild)
+        if (!pGuild)
             return 0;
 
         lua_newtable(L);
@@ -24,7 +24,7 @@ public:
         HashMapHolder<Player>::MapType const& m = sObjectAccessor->GetPlayers();
         for (HashMapHolder<Player>::MapType::const_iterator itr = m.begin(); itr != m.end(); ++itr)
         {
-            if(itr->second->GetGuildId() == pGuild->GetId())
+            if (itr->second->GetGuildId() == pGuild->GetId())
             {
                 ++i;
                 Eluna::get()->PushUnsigned(L, i);
@@ -39,7 +39,7 @@ public:
 
     static int GetUnitType(lua_State* L, Guild* pGuild)
     {
-        if(!pGuild)
+        if (!pGuild)
             return 0;
 
         Eluna::get()->PushString(L, "Guild");
@@ -48,7 +48,7 @@ public:
 
     static int GetLeaderGUID(lua_State* L, Guild* pGuild)
     {
-        if(!pGuild)
+        if (!pGuild)
             return 0;
 
         Eluna::get()->PushGUID(L, pGuild->GetLeaderGUID());
@@ -58,7 +58,7 @@ public:
     // SendPacketToGuild(packet)
     static int SendPacket(lua_State* L, Guild* pGuild)
     {
-        if(!pGuild)
+        if (!pGuild)
             return 0;
 
         WorldPacket* data = Eluna::get()->CHECK_PACKET(L, 1);
@@ -71,7 +71,7 @@ public:
     // SendPacketToRankedInGuild(packet, rankId)
     static int SendPacketToRanked(lua_State* L, Guild* pGuild)
     {
-        if(!pGuild)
+        if (!pGuild)
             return 0;
 
         WorldPacket* data = Eluna::get()->CHECK_PACKET(L, 1);
@@ -84,7 +84,7 @@ public:
 
     static int Disband(lua_State* L, Guild* pGuild)
     {
-        if(!pGuild)
+        if (!pGuild)
             return 0;
 
         pGuild->Disband();
@@ -93,7 +93,7 @@ public:
 
     static int GetId(lua_State* L, Guild* pGuild)
     {
-        if(!pGuild)
+        if (!pGuild)
             return 0;
 
         Eluna::get()->PushUnsigned(L, pGuild->GetId());
@@ -102,7 +102,7 @@ public:
 
     static int GetName(lua_State* L, Guild* pGuild)
     {
-        if(!pGuild)
+        if (!pGuild)
             return 0;
 
         Eluna::get()->PushString(L, pGuild->GetName().c_str());
@@ -111,7 +111,7 @@ public:
 
     static int GetMOTD(lua_State* L, Guild* pGuild)
     {
-        if(!pGuild)
+        if (!pGuild)
             return 0;
 
         Eluna::get()->PushString(L, pGuild->GetMOTD().c_str());
@@ -120,7 +120,7 @@ public:
 
     static int GetInfo(lua_State* L, Guild* pGuild)
     {
-        if(!pGuild)
+        if (!pGuild)
             return 0;
 
         Eluna::get()->PushString(L, pGuild->GetInfo().c_str());
@@ -129,47 +129,47 @@ public:
 
     static int AddMember(lua_State* L, Guild* pGuild)
     {
-        if(!pGuild)
+        if (!pGuild)
             return 0;
 
         Player* player = Eluna::get()->CHECK_PLAYER(L, 1);
         uint8 rankId = luaL_optint(L, 2, GUILD_RANK_NONE);
 
-        if(player)
+        if (player)
             pGuild->AddMember(player->GetGUID(), rankId);
         return 0;
     }
 
     static int DeleteMember(lua_State* L, Guild* pGuild)
     {
-        if(!pGuild)
+        if (!pGuild)
             return 0;
 
         Player* player = Eluna::get()->CHECK_PLAYER(L, 1);
         bool isDisbanding = luaL_optbool(L, 2, false);
         bool isKicked = luaL_optbool(L, 3, false);
 
-        if(player)
+        if (player)
             pGuild->DeleteMember(player->GetGUID(), isDisbanding, isKicked);
         return 0;
     }
 
     static int ChangeMemberRank(lua_State* L, Guild* pGuild)
     {
-        if(!pGuild)
+        if (!pGuild)
             return 0;
 
         Player* player = Eluna::get()->CHECK_PLAYER(L, 1);
         uint8 newRank = luaL_checkunsigned(L, 2);
 
-        if(player)
+        if (player)
             pGuild->ChangeMemberRank(player->GetGUID(), newRank);
         return 0;
     }
 
     static int SetBankTabText(lua_State* L, Guild* pGuild)
     {
-        if(!pGuild)
+        if (!pGuild)
             return 0;
 
         uint8 tabId = luaL_checkunsigned(L, 1);

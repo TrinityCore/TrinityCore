@@ -177,7 +177,7 @@ public:
             return 0;
 
         WorldObject* obj = Eluna::get()->CHECK_WORLDOBJECT(L, 1);
-        if(!obj)
+        if (!obj)
             return 0;
 
         (*packet) << obj->GetGUID();

@@ -10,7 +10,7 @@ public:
     // GetUnitType()
     static int GetUnitType(lua_State* L, GameObject* go)
     {
-        if(!go || !go->IsInWorld())
+        if (!go || !go->IsInWorld())
             return 0;
 
         Eluna::get()->PushString(L, "GameObject");
@@ -20,7 +20,7 @@ public:
     // GetGUID()
     static int GetGUID(lua_State* L, GameObject* go)
     {
-        if(!go || !go->IsInWorld())
+        if (!go || !go->IsInWorld())
             return 0;
 
         Eluna::get()->PushGUID(L, go->GetGUID());
@@ -30,13 +30,13 @@ public:
     // CastSpellOnTarget(target, spellid)
     static int CastSpellOnTarget(lua_State* L, GameObject* go)
     {
-        if(!go || !go->IsInWorld())
+        if (!go || !go->IsInWorld())
             return 0;
 
         uint32 spell = luaL_checkunsigned(L, 1);
         Unit* target = Eluna::get()->CHECK_UNIT(L, 2);
 
-        if(target)
+        if (target)
             go->CastSpell(target, spell);
         return 0;
     }
@@ -44,7 +44,7 @@ public:
     // GetX()
     static int GetX(lua_State* L, GameObject* go)
     {
-        if(!go || !go->IsInWorld())
+        if (!go || !go->IsInWorld())
             return 0;
 
         Eluna::get()->PushFloat(L, go->GetPositionX());
@@ -54,7 +54,7 @@ public:
     // GetY()
     static int GetY(lua_State* L, GameObject* go)
     {
-        if(!go || !go->IsInWorld())
+        if (!go || !go->IsInWorld())
             return 0;
 
         Eluna::get()->PushFloat(L, go->GetPositionY());
@@ -64,7 +64,7 @@ public:
     // GetZ()
     static int GetZ(lua_State* L, GameObject* go)
     {
-        if(!go || !go->IsInWorld())
+        if (!go || !go->IsInWorld())
             return 0;
 
         Eluna::get()->PushFloat(L, go->GetPositionZ());
@@ -74,7 +74,7 @@ public:
     // GetO()
     static int GetO(lua_State* L, GameObject* go)
     {
-        if(!go || !go->IsInWorld())
+        if (!go || !go->IsInWorld())
             return 0;
 
         Eluna::get()->PushFloat(L, go->GetOrientation());
@@ -84,7 +84,7 @@ public:
     // GetLocation()
     static int GetLocation(lua_State* L, GameObject* go)
     {
-        if(!go || !go->IsInWorld())
+        if (!go || !go->IsInWorld())
             return 0;
 
         Eluna::get()->PushFloat(L, go->GetPositionX());
@@ -98,7 +98,7 @@ public:
     // GetMapId()
     static int GetMapId(lua_State* L, GameObject* go)
     {
-        if(!go || !go->IsInWorld())
+        if (!go || !go->IsInWorld())
             return 0;
 
         Eluna::get()->PushFloat(L, go->GetMapId());
@@ -108,7 +108,7 @@ public:
     // GetZoneId()
     static int GetZoneId(lua_State* L, GameObject* go)
     {
-        if(!go || !go->IsInWorld())
+        if (!go || !go->IsInWorld())
             return 0;
 
         Eluna::get()->PushFloat(L, go->GetZoneId());
@@ -118,7 +118,7 @@ public:
     // GetAreaId()
     static int GetAreaId(lua_State* L, GameObject* go)
     {
-        if(!go || !go->IsInWorld())
+        if (!go || !go->IsInWorld())
             return 0;
 
         Eluna::get()->PushFloat(L, go->GetAreaId());
@@ -128,7 +128,7 @@ public:
     // GetName()
     static int GetName(lua_State* L, GameObject* go)
     {
-        if(!go || !go->IsInWorld())
+        if (!go || !go->IsInWorld())
             return 0;
 
         Eluna::get()->PushString(L, go->GetName().c_str());
@@ -138,7 +138,7 @@ public:
     // GetEntry()
     static int GetEntry(lua_State* L, GameObject* go)
     {
-        if(!go || !go->IsInWorld())
+        if (!go || !go->IsInWorld())
             return 0;
 
         Eluna::get()->PushUnsigned(L, go->GetEntry());
@@ -148,7 +148,7 @@ public:
     // SummonCreature(entry, x, y, z, o, despawntime)
     static int SummonCreature(lua_State* L, GameObject* go)
     {
-        if(!go || !go->IsInWorld())
+        if (!go || !go->IsInWorld())
             return 0;
 
         uint32 entry = luaL_checkunsigned(L, 1);
@@ -159,7 +159,7 @@ public:
         uint32 despawn = luaL_optunsigned(L, 6, 0);
 
         TempSummonType summontype;
-        if(despawn)
+        if (despawn)
             summontype = TEMPSUMMON_TIMED_OR_DEAD_DESPAWN;
         else
             summontype = TEMPSUMMON_MANUAL_DESPAWN;
@@ -170,7 +170,7 @@ public:
     // GetDisplayId()
     static int GetDisplayId(lua_State* L, GameObject* go)
     {
-        if(!go || !go->IsInWorld())
+        if (!go || !go->IsInWorld())
             return 0;
 
         Eluna::get()->PushUnsigned(L, go->GetDisplayId());
@@ -180,7 +180,7 @@ public:
     // GetScale()
     static int GetScale(lua_State* L, GameObject* go)
     {
-        if(!go || !go->IsInWorld())
+        if (!go || !go->IsInWorld())
             return 0;
 
         Eluna::get()->PushFloat(L, go->GetObjectSize());
@@ -190,7 +190,7 @@ public:
     // IsInWorld()
     static int IsInWorld(lua_State* L, GameObject* go)
     {
-        if(!go)
+        if (!go)
             Eluna::get()->PushBoolean(L, false);
         else
             Eluna::get()->PushBoolean(L, go->IsInWorld());
@@ -200,7 +200,7 @@ public:
     // HasQuest(questId)
     static int HasQuest(lua_State* L, GameObject* go)
     {
-        if(!go || !go->IsInWorld())
+        if (!go || !go->IsInWorld())
             Eluna::get()->PushBoolean(L, false);
         else
         {
@@ -213,7 +213,7 @@ public:
     // IsTransport()
     static int IsTransport(lua_State* L, GameObject* go)
     {
-        if(!go || !go->IsInWorld())
+        if (!go || !go->IsInWorld())
             Eluna::get()->PushBoolean(L, false);
         else
             Eluna::get()->PushBoolean(L, go->IsTransport());
@@ -223,7 +223,7 @@ public:
     // IsDestructible()
     static int IsDestructible(lua_State* L, GameObject* go)
     {
-        if(!go || !go->IsInWorld())
+        if (!go || !go->IsInWorld())
             Eluna::get()->PushBoolean(L, false);
         else
             Eluna::get()->PushBoolean(L, go->IsDestructibleBuilding());
@@ -233,7 +233,7 @@ public:
     // IsActive()
     static int IsActive(lua_State* L, GameObject* go)
     {
-        if(!go || !go->IsInWorld())
+        if (!go || !go->IsInWorld())
             Eluna::get()->PushBoolean(L, false);
         else
             Eluna::get()->PushBoolean(L, go->isActiveObject());
@@ -243,7 +243,7 @@ public:
     // Move(x, y, z, o)
     static int Move(lua_State* L, GameObject* go)
     {
-        if(!go || !go->IsInWorld())
+        if (!go || !go->IsInWorld())
             return 0;
 
         float X = luaL_checknumber(L, 1);
@@ -258,7 +258,7 @@ public:
     // SetScale(scale)
     static int SetScale(lua_State* L, GameObject* go)
     {
-        if(!go || !go->IsInWorld())
+        if (!go || !go->IsInWorld())
             return 0;
 
         float scale = luaL_checknumber(L, 1);
@@ -270,18 +270,18 @@ public:
     // RegisterEvent(function, delay, calls)
     static int RegisterEvent(lua_State* L, GameObject* go)
     {
-        if(!go || !go->IsInWorld())
+        if (!go || !go->IsInWorld())
             return 0;
 
         uint32 delay = luaL_checkunsigned(L, 2);
         uint32 repeats = luaL_checkunsigned(L, 3);
         Eluna::LuaGameObjectScript::LuaGameObjectAI* luaAI = sLuaGameObjectScript->GetAI(go);
-        if(!luaAI)
+        if (!luaAI)
         {
             luaL_error(L, "GameObject has no registered gameobject events, please register one before using RegisterEvent");
             return 0;
         }
-        if(!strcmp(luaL_typename(L, 1), "function") || delay > 0)
+        if (!strcmp(luaL_typename(L, 1), "function") || delay > 0)
         {
             lua_settop(L, 1);
             int functionRef = lua_ref(L, true);
@@ -297,13 +297,13 @@ public:
     // RemoveEventByID(eventID)
     static int RemoveEventByID(lua_State* L, GameObject* go)
     {
-        if(!go || !go->IsInWorld())
+        if (!go || !go->IsInWorld())
             return 0;
 
         int eventID = luaL_checkinteger(L, 1);
         Eluna::LuaGameObjectScript::LuaGameObjectAI* luaAI = sLuaGameObjectScript->GetAI(go);
 
-        if(luaAI)
+        if (luaAI)
             luaAI->LuaEventCancel(eventID);
         return 0;
     }
@@ -311,18 +311,18 @@ public:
     // RemoveEvents()
     static int RemoveEvents(lua_State* L, GameObject* go)
     {
-        if(!go || !go->IsInWorld())
+        if (!go || !go->IsInWorld())
             return 0;
 
         Eluna::LuaGameObjectScript::LuaGameObjectAI* luaAI = sLuaGameObjectScript->GetAI(go);
-        if(luaAI)
+        if (luaAI)
             luaAI->LuaEventsReset();
         return 0;
     }
 
     static int GetInt32Value(lua_State* L, GameObject* go)
     {
-        if(!go || !go->IsInWorld())
+        if (!go || !go->IsInWorld())
             return 0;
 
         uint16 index = luaL_checkunsigned(L, 1);
@@ -333,7 +333,7 @@ public:
 
     static int GetUInt32Value(lua_State* L, GameObject* go)
     {
-        if(!go || !go->IsInWorld())
+        if (!go || !go->IsInWorld())
             return 0;
 
         uint16 index = luaL_checkunsigned(L, 1);
@@ -344,7 +344,7 @@ public:
 
     static int GetFloatValue(lua_State* L, GameObject* go)
     {
-        if(!go || !go->IsInWorld())
+        if (!go || !go->IsInWorld())
             return 0;
 
         uint16 index = luaL_checkunsigned(L, 1);
@@ -355,7 +355,7 @@ public:
 
     static int GetByteValue(lua_State* L, GameObject* go)
     {
-        if(!go || !go->IsInWorld())
+        if (!go || !go->IsInWorld())
             return 0;
 
         uint16 index = luaL_checkunsigned(L, 1);
@@ -367,7 +367,7 @@ public:
 
     static int GetUInt16Value(lua_State* L, GameObject* go)
     {
-        if(!go || !go->IsInWorld())
+        if (!go || !go->IsInWorld())
             return 0;
 
         uint16 index = luaL_checkunsigned(L, 1);
@@ -379,7 +379,7 @@ public:
 
     static int SetInt32Value(lua_State* L, GameObject* go)
     {
-        if(!go || !go->IsInWorld())
+        if (!go || !go->IsInWorld())
             return 0;
 
         uint16 index = luaL_checkunsigned(L, 1);
@@ -391,7 +391,7 @@ public:
 
     static int SetUInt32Value(lua_State* L, GameObject* go)
     {
-        if(!go || !go->IsInWorld())
+        if (!go || !go->IsInWorld())
             return 0;
 
         uint16 index = luaL_checkunsigned(L, 1);
@@ -403,7 +403,7 @@ public:
 
     static int UpdateUInt32Value(lua_State* L, GameObject* go)
     {
-        if(!go || !go->IsInWorld())
+        if (!go || !go->IsInWorld())
             return 0;
 
         uint16 index = luaL_checkunsigned(L, 1);
@@ -415,7 +415,7 @@ public:
 
     static int SetFloatValue(lua_State* L, GameObject* go)
     {
-        if(!go || !go->IsInWorld())
+        if (!go || !go->IsInWorld())
             return 0;
 
         uint16 index = luaL_checkunsigned(L, 1);
@@ -427,7 +427,7 @@ public:
 
     static int SetByteValue(lua_State* L, GameObject* go)
     {
-        if(!go || !go->IsInWorld())
+        if (!go || !go->IsInWorld())
             return 0;
 
         uint16 index = luaL_checkunsigned(L, 1);
@@ -440,7 +440,7 @@ public:
 
     static int SetUInt16Value(lua_State* L, GameObject* go)
     {
-        if(!go || !go->IsInWorld())
+        if (!go || !go->IsInWorld())
             return 0;
 
         uint16 index = luaL_checkunsigned(L, 1);
@@ -453,7 +453,7 @@ public:
 
     static int SetInt16Value(lua_State* L, GameObject* go)
     {
-        if(!go || !go->IsInWorld())
+        if (!go || !go->IsInWorld())
             return 0;
 
         uint16 index = luaL_checkunsigned(L, 1);

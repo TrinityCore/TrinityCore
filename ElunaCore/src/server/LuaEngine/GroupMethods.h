@@ -10,7 +10,7 @@ public:
 
     static int GetMembers(lua_State* L, Group* group)
     {
-        if(!group)
+        if (!group)
             return 0;
 
         lua_newtable(L);
@@ -36,7 +36,7 @@ public:
 
     static int GetLeaderGUID(lua_State* L, Group* group)
     {
-        if(!group)
+        if (!group)
             return 0;
 
         Eluna::get()->PushGUID(L, group->GetLeaderGUID());
@@ -45,7 +45,7 @@ public:
 
     static int GetLeader(lua_State* L, Group* group)
     {
-        if(!group)
+        if (!group)
             return 0;
 
         Eluna::get()->PushUnit(L, sObjectAccessor->FindPlayer(group->GetLeaderGUID()));
@@ -54,7 +54,7 @@ public:
 
     static int GetUnitType(lua_State* L, Group* group)
     {
-        if(!group)
+        if (!group)
             return 0;
 
         Eluna::get()->PushString(L, "Group");
@@ -63,7 +63,7 @@ public:
 
     static int GetGUID(lua_State* L, Group* group)
     {
-        if(!group)
+        if (!group)
             return 0;
 
         Eluna::get()->PushGUID(L, group->GetGUID());
@@ -72,14 +72,14 @@ public:
 
     static int ChangeLeader(lua_State* L, Group* group)
     {
-        if(!group)
+        if (!group)
         {
             Eluna::get()->PushBoolean(L, false);
             return 1;
         }
 
         Player* leader = Eluna::get()->CHECK_PLAYER(L, 1);
-        if(leader)
+        if (leader)
         {
             group->ChangeLeader(leader->GetGUID());
             Eluna::get()->PushBoolean(L, true);
@@ -92,18 +92,18 @@ public:
 
     static int IsLeader(lua_State* L, Group* group)
     {
-        if(!group)
+        if (!group)
         {
             Eluna::get()->PushBoolean(L, false);
             return 1;
         }
 
         Player* player = Eluna::get()->CHECK_PLAYER(L, 1);
-        if(!player)
-            if(const char* name = luaL_checkstring(L, 1))
+        if (!player)
+            if (const char* name = luaL_checkstring(L, 1))
                 player = sObjectAccessor->FindPlayerByName(name);
 
-        if(player)
+        if (player)
             Eluna::get()->PushBoolean(L, group->IsLeader(player->GetGUID()));
         else
             Eluna::get()->PushBoolean(L, false);
@@ -113,7 +113,7 @@ public:
     // SendPacket(packet, sendToPlayersInBattleground[, ignoreguid])
     static int SendPacket(lua_State* L, Group* group)
     {
-        if(!group)
+        if (!group)
             return 0;
 
         WorldPacket* data = Eluna::get()->CHECK_PACKET(L, 1);
@@ -127,14 +127,14 @@ public:
 
     static int AddInvite(lua_State* L, Group* group)
     {
-        if(!group)
+        if (!group)
         {
             Eluna::get()->PushBoolean(L, false);
             return 1;
         }
 
         Player* player = Eluna::get()->CHECK_PLAYER(L, 1);
-        if(player)
+        if (player)
             Eluna::get()->PushBoolean(L, group->AddInvite(player));
         else
             Eluna::get()->PushBoolean(L, false);
@@ -143,14 +143,14 @@ public:
 
     static int RemoveMember(lua_State* L, Group* group)
     {
-        if(!group)
+        if (!group)
         {
             Eluna::get()->PushBoolean(L, false);
             return 1;
         }
 
         Player* player = Eluna::get()->CHECK_PLAYER(L, 1);
-        if(player)
+        if (player)
             Eluna::get()->PushBoolean(L, group->RemoveMember(player->GetGUID()));
         else
             Eluna::get()->PushBoolean(L, false);
@@ -159,7 +159,7 @@ public:
 
     static int Disband(lua_State* L, Group* group)
     {
-        if(!group)
+        if (!group)
             return 0;
 
         group->Disband();
@@ -168,7 +168,7 @@ public:
 
     static int IsFull(lua_State* L, Group* group)
     {
-        if(!group)
+        if (!group)
             Eluna::get()->PushBoolean(L, false);
         else
             Eluna::get()->PushBoolean(L, group->IsFull());
@@ -177,7 +177,7 @@ public:
 
     static int isLFGGroup(lua_State* L, Group* group)
     {
-        if(!group)
+        if (!group)
             Eluna::get()->PushBoolean(L, false);
         else
             Eluna::get()->PushBoolean(L, group->isLFGGroup());
@@ -186,7 +186,7 @@ public:
 
     static int isRaidGroup(lua_State* L, Group* group)
     {
-        if(!group)
+        if (!group)
             Eluna::get()->PushBoolean(L, false);
         else
             Eluna::get()->PushBoolean(L, group->isRaidGroup());
@@ -195,7 +195,7 @@ public:
 
     static int isBGGroup(lua_State* L, Group* group)
     {
-        if(!group)
+        if (!group)
             Eluna::get()->PushBoolean(L, false);
         else
             Eluna::get()->PushBoolean(L, group->isBGGroup());
@@ -204,7 +204,7 @@ public:
 
     static int isBFGroup(lua_State* L, Group* group)
     {
-        if(!group)
+        if (!group)
             Eluna::get()->PushBoolean(L, false);
         else
             Eluna::get()->PushBoolean(L, group->isBFGroup());
@@ -213,12 +213,12 @@ public:
 
     static int IsMember(lua_State* L, Group* group)
     {
-        if(!group)
+        if (!group)
             Eluna::get()->PushBoolean(L, false);
         else
         {
             Player* player = Eluna::get()->CHECK_PLAYER(L, 1);
-            if(player)
+            if (player)
                 Eluna::get()->PushBoolean(L, group->IsMember(player->GetGUID()));
             else
                 Eluna::get()->PushBoolean(L, false);
@@ -228,12 +228,12 @@ public:
 
     static int IsAssistant(lua_State* L, Group* group)
     {
-        if(!group)
+        if (!group)
             Eluna::get()->PushBoolean(L, false);
         else
         {
             Player* player = Eluna::get()->CHECK_PLAYER(L, 1);
-            if(player)
+            if (player)
                 Eluna::get()->PushBoolean(L, group->IsAssistant(player->GetGUID()));
             else
                 Eluna::get()->PushBoolean(L, false);
@@ -243,13 +243,13 @@ public:
 
     static int SameSubGroup(lua_State* L, Group* group)
     {
-        if(!group)
+        if (!group)
             Eluna::get()->PushBoolean(L, false);
         else
         {
             Player* player1 = Eluna::get()->CHECK_PLAYER(L, 1);
             Player* player2 = Eluna::get()->CHECK_PLAYER(L, 2);
-            if(player1 && player2)
+            if (player1 && player2)
                 Eluna::get()->PushBoolean(L, group->SameSubGroup(player1, player2));
             else
                 Eluna::get()->PushBoolean(L, false);
@@ -259,7 +259,7 @@ public:
 
     static int HasFreeSlotSubGroup(lua_State* L, Group* group)
     {
-        if(!group)
+        if (!group)
             Eluna::get()->PushBoolean(L, false);
         else
         {
@@ -271,7 +271,7 @@ public:
 
     static int GetMemberGUID(lua_State* L, Group* group)
     {
-        if(!group)
+        if (!group)
             return 0;
 
         const char* name = luaL_checkstring(L, 1);
@@ -281,7 +281,7 @@ public:
 
     static int GetMembersCount(lua_State* L, Group* group)
     {
-        if(!group)
+        if (!group)
             return 0;
 
         Eluna::get()->PushUnsigned(L, group->GetMembersCount());
@@ -290,7 +290,7 @@ public:
 
     static int ConvertToLFG(lua_State* L, Group* group)
     {
-        if(!group)
+        if (!group)
             return 0;
 
         group->ConvertToLFG();
@@ -299,7 +299,7 @@ public:
 
     static int ConvertToRaid(lua_State* L, Group* group)
     {
-        if(!group)
+        if (!group)
             return 0;
 
         group->ConvertToRaid();
@@ -308,24 +308,24 @@ public:
 
     static int ChangeMembersGroup(lua_State* L, Group* group)
     {
-        if(!group)
+        if (!group)
             return 0;
 
         Player* player = Eluna::get()->CHECK_PLAYER(L, 1);
         uint8 groupID = luaL_checkunsigned(L, 2);
 
-        if(player)
+        if (player)
             group->ChangeMembersGroup(player->GetGUID(), groupID);
         return 0;
     }
 
     static int GetMemberGroup(lua_State* L, Group* group)
     {
-        if(!group)
+        if (!group)
             return 0;
 
         Player* player = Eluna::get()->CHECK_PLAYER(L, 1);
-        if(!player)
+        if (!player)
             return 0;
 
         Eluna::get()->PushUnsigned(L, group->GetMemberGroup(player->GetGUID()));

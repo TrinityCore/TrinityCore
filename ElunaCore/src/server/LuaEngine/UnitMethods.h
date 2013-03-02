@@ -8,14 +8,14 @@
 #ifndef UNITMETHODS_H
 #define UNITMETHODS_H
 
-#define TO_PLAYER()  Player* player; if(!unit || !unit->IsInWorld() || !(player = unit->ToPlayer()))     { return 0; } else (void)0;
-#define TO_CREATURE()  Creature* creature; if(!unit || !unit->IsInWorld() || !(creature = unit->ToCreature())) { return 0; } else (void)0;
-#define TO_UNIT()  if(!unit || !unit->IsInWorld() || !unit->ToUnit())  { return 0; } else (void)0;
+#define TO_PLAYER()  Player* player; if (!unit || !unit->IsInWorld() || !(player = unit->ToPlayer()))     { return 0; } else (void)0;
+#define TO_CREATURE()  Creature* creature; if (!unit || !unit->IsInWorld() || !(creature = unit->ToCreature())) { return 0; } else (void)0;
+#define TO_UNIT()  if (!unit || !unit->IsInWorld() || !unit->ToUnit())  { return 0; } else (void)0;
 
 
-#define TO_PLAYER_BOOL()  Player* player;  if(!unit || !unit->IsInWorld() || !(player = unit->ToPlayer()))     { Eluna::get()->PushBoolean(L, false); return 1; } else (void)0;
-#define TO_CREATURE_BOOL()  Creature* creature; if(!unit || !unit->IsInWorld() || !(creature = unit->ToCreature())) { Eluna::get()->PushBoolean(L, false); return 1; } else (void)0;
-#define TO_UNIT_BOOL() if(!unit || !unit->IsInWorld() || !unit->ToUnit()) { Eluna::get()->PushBoolean(L, false); return 1; } else (void)0;
+#define TO_PLAYER_BOOL()  Player* player;  if (!unit || !unit->IsInWorld() || !(player = unit->ToPlayer()))     { Eluna::get()->PushBoolean(L, false); return 1; } else (void)0;
+#define TO_CREATURE_BOOL()  Creature* creature; if (!unit || !unit->IsInWorld() || !(creature = unit->ToCreature())) { Eluna::get()->PushBoolean(L, false); return 1; } else (void)0;
+#define TO_UNIT_BOOL() if (!unit || !unit->IsInWorld() || !unit->ToUnit()) { Eluna::get()->PushBoolean(L, false); return 1; } else (void)0;
 
 class LuaUnit
 {
@@ -106,7 +106,7 @@ public:
     {
         TO_PLAYER();
 
-        if(!player->GetGuildId())
+        if (!player->GetGuildId())
             return 0;
 
         Eluna::get()->PushUnsigned(L, player->GetGuildId());
@@ -221,7 +221,7 @@ public:
         TO_UNIT();
 
         int type = luaL_optint(L, 1, -1);
-        if(type == -1)
+        if (type == -1)
         {
             // We didn't specify a type, so get the default type for our class
             switch(unit->getClass())
@@ -264,7 +264,7 @@ public:
         TO_UNIT();
 
         int type = luaL_optint(L, 1, -1);
-        if(type == -1)
+        if (type == -1)
         {
             // We didn't specify a type, so get the default type for our class
             switch(unit->getClass())
@@ -427,9 +427,9 @@ public:
     {
         TO_UNIT();
 
-        if(unit->ToPlayer())
+        if (unit->ToPlayer())
             Eluna::get()->PushString(L, "Player");
-        else if(unit->ToCreature())
+        else if (unit->ToCreature())
             Eluna::get()->PushString(L, "Creature");
         else
             Eluna::get()->PushString(L, "Unknown");
@@ -668,7 +668,7 @@ public:
 
         uint32 id = luaL_checkunsigned(L, 1);
         CharTitlesEntry const* t = sCharTitlesStore.LookupEntry(id);
-        if(t)
+        if (t)
             player->SetTitle(t, false);
         return 0;
     }
@@ -680,7 +680,7 @@ public:
 
         uint32 id = luaL_checkunsigned(L, 1);
         CharTitlesEntry const* t = sCharTitlesStore.LookupEntry(id);
-        if(t)
+        if (t)
             player->SetTitle(t, true);
         return 0;
     }
@@ -704,7 +704,7 @@ public:
             SKILL_ALCHEMY, SKILL_HERBALISM, SKILL_ENGINEERING, SKILL_JEWELCRAFTING, SKILL_LEATHERWORKING, SKILL_LOCKPICKING, SKILL_INSCRIPTION, SKILL_SKINNING, SKILL_TAILORING };
         uint32 step = luaL_checkunsigned(L, 1);
 
-        if(!step)
+        if (!step)
             return 0;
 
         for (int i = 0; i < sizeof(skillsArray); ++i)
@@ -775,7 +775,7 @@ public:
         TO_PLAYER_BOOL();
 
         uint32 type = luaL_checkunsigned(L, 1);
-        if(type < MAX_ARENA_SLOT && player->GetArenaTeamId(type))
+        if (type < MAX_ARENA_SLOT && player->GetArenaTeamId(type))
             Eluna::get()->PushBoolean(L, true);
         else
             Eluna::get()->PushBoolean(L, false);
@@ -902,7 +902,7 @@ public:
         TO_PLAYER();
 
         const char* message = luaL_checkstring(L, 1);
-        if(string(message).length() > 0)
+        if (string(message).length() > 0)
             ChatHandler(player->GetSession()).SendSysMessage(message);
         return 0;
     }
@@ -1028,7 +1028,7 @@ public:
         TO_PLAYER_BOOL();
 
         int amt = luaL_checkinteger(L, 1);
-        if(amt > 0)
+        if (amt > 0)
             Eluna::get()->PushBoolean(L, player->ModifyMoney(amt));
         else
             Eluna::get()->PushBoolean(L, false);
@@ -1041,7 +1041,7 @@ public:
         TO_PLAYER_BOOL();
 
         int amt = luaL_checkinteger(L, 1);
-        if(amt > 0)
+        if (amt > 0)
             Eluna::get()->PushBoolean(L, player->ModifyMoney(amt));
         else
             Eluna::get()->PushBoolean(L, false);
@@ -1099,7 +1099,7 @@ public:
         Unit* target = Eluna::get()->CHECK_UNIT(L, 2);
         bool triggered = luaL_optbool(L, 3, true);
 
-        if(target)
+        if (target)
             unit->CastSpell(target, spell, triggered);
         return 0;
     }
@@ -1137,7 +1137,7 @@ public:
         uint32 spell = luaL_checkunsigned(L, 1);
         Unit* target = Eluna::get()->CHECK_UNIT(L, 2);
 
-        if(target)
+        if (target)
             unit->CastSpell(target, spell, false);
         return 0;
     }
@@ -1157,7 +1157,7 @@ public:
         TO_PLAYER();
 
         std::string accName;
-        if(sAccountMgr->GetName(player->GetSession()->GetAccountId(), accName))
+        if (sAccountMgr->GetName(player->GetSession()->GetAccountId(), accName))
             Eluna::get()->PushString(L, accName.c_str());
         else
             return 0;
@@ -1252,9 +1252,9 @@ public:
         uint32 _npcText = luaL_checkunsigned(L, 1);
         Unit* sender = Eluna::get()->CHECK_UNIT(L, 2);
 
-        if(sender)
+        if (sender)
         {
-            if(sender->ToPlayer())
+            if (sender->ToPlayer())
             {
                 uint32 menu_id = luaL_checkunsigned(L, 3);
                 player->PlayerTalkClass->GetGossipMenu().SetMenuId(menu_id);
@@ -1298,7 +1298,7 @@ public:
         if (!sSoundEntriesStore.LookupEntry(soundId))
             return 0;
 
-        if(player)
+        if (player)
             unit->PlayDirectSound(soundId, player);
         else
             unit->PlayDirectSound(soundId);
@@ -1316,7 +1316,7 @@ public:
         if (!sSoundEntriesStore.LookupEntry(soundId))
             return 0;
 
-        if(player)
+        if (player)
             unit->PlayDistanceSound(soundId, player);
         else
             unit->PlayDistanceSound(soundId);
@@ -1343,12 +1343,12 @@ public:
         uint32 delay = luaL_checkunsigned(L, 2);
         uint32 repeats = luaL_checkunsigned(L, 3);
         Eluna::LuaCreatureScript::LuaCreatureAI* luaAI = sLuaCreatureScript->GetAI(creature);
-        if(!luaAI)
+        if (!luaAI)
         {
             luaL_error(L, "Creature has no registered creature events, please register one before using RegisterEvent");
             return 0;
         }
-        if(!strcmp(luaL_typename(L, 1), "function") || delay > 0)
+        if (!strcmp(luaL_typename(L, 1), "function") || delay > 0)
         {
             lua_settop(L, 1);
             int functionRef = lua_ref(L, true);
@@ -1369,7 +1369,7 @@ public:
         int eventID = luaL_checkinteger(L, 1);
         Eluna::LuaCreatureScript::LuaCreatureAI* luaAI = sLuaCreatureScript->GetAI(creature);
 
-        if(luaAI)
+        if (luaAI)
             luaAI->LuaEventCancel(eventID);
         return 0;
     }
@@ -1380,7 +1380,7 @@ public:
         TO_CREATURE();
 
         Eluna::LuaCreatureScript::LuaCreatureAI* luaAI = sLuaCreatureScript->GetAI(creature);
-        if(luaAI)
+        if (luaAI)
             luaAI->LuaEventsReset();
         return 0;
     }

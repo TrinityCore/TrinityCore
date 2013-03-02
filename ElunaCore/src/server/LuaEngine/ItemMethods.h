@@ -10,7 +10,7 @@ public:
 
     static int GetUnitType(lua_State* L, Item* item)
     {
-        if(!item || !item->IsInWorld())
+        if (!item || !item->IsInWorld())
             return 0;
 
         Eluna::get()->PushString(L, "Item");
@@ -19,7 +19,7 @@ public:
 
     static int GetGUID(lua_State* L, Item* item)
     {
-        if(!item || !item->IsInWorld())
+        if (!item || !item->IsInWorld())
             return 0;
 
         Eluna::get()->PushGUID(L, item->GetGUID());
@@ -28,7 +28,7 @@ public:
 
     static int GetOwnerGUID(lua_State* L, Item* item)
     {
-        if(!item || !item->IsInWorld())
+        if (!item || !item->IsInWorld())
             return 0;
 
         Eluna::get()->PushGUID(L, item->GetOwnerGUID());
@@ -37,7 +37,7 @@ public:
 
     static int GetOwner(lua_State* L, Item* item)
     {
-        if(!item || !item->IsInWorld())
+        if (!item || !item->IsInWorld())
             return 0;
 
         Eluna::get()->PushUnit(L, item->GetOwner());
@@ -46,19 +46,19 @@ public:
 
     static int SetOwner(lua_State* L, Item* item)
     {
-        if(!item || !item->IsInWorld())
+        if (!item || !item->IsInWorld())
             return 0;
 
         Player* player = Eluna::get()->CHECK_PLAYER(L, 1);
 
-        if(player)
+        if (player)
             item->SetOwnerGUID(player->GetGUID());
         return 0;
     }
 
     static int SetBinding(lua_State* L, Item* item)
     {
-        if(!item || !item->IsInWorld())
+        if (!item || !item->IsInWorld())
             return 0;
 
         bool soulbound = luaL_checkbool(L, 1);
@@ -69,7 +69,7 @@ public:
 
     static int IsSoulBound(lua_State* L, Item* item)
     {
-        if(!item || !item->IsInWorld())
+        if (!item || !item->IsInWorld())
             Eluna::get()->PushBoolean(L, false);
         else
             Eluna::get()->PushBoolean(L, item->IsSoulBound());
@@ -78,7 +78,7 @@ public:
 
     static int IsBoundAccountWide(lua_State* L, Item* item)
     {
-        if(!item || !item->IsInWorld())
+        if (!item || !item->IsInWorld())
             Eluna::get()->PushBoolean(L, false);
         else
             Eluna::get()->PushBoolean(L, item->IsBoundAccountWide());
@@ -87,7 +87,7 @@ public:
 
     static int IsBoundByEnchant(lua_State* L, Item* item)
     {
-        if(!item || !item->IsInWorld())
+        if (!item || !item->IsInWorld())
             Eluna::get()->PushBoolean(L, false);
         else
             Eluna::get()->PushBoolean(L, item->IsBoundByEnchant());
@@ -96,12 +96,12 @@ public:
 
     static int IsBindedNotWith(lua_State* L, Item* item)
     {
-        if(!item || !item->IsInWorld())
+        if (!item || !item->IsInWorld())
             Eluna::get()->PushBoolean(L, false);
         else
         {
             Player* player = Eluna::get()->CHECK_PLAYER(L, 1);
-            if(player)
+            if (player)
                 Eluna::get()->PushBoolean(L, item->IsBindedNotWith(player));
             else
                 Eluna::get()->PushBoolean(L, false);
@@ -111,7 +111,7 @@ public:
 
     static int IsLocked(lua_State* L, Item* item)
     {
-        if(!item || !item->IsInWorld())
+        if (!item || !item->IsInWorld())
             Eluna::get()->PushBoolean(L, false);
         else
             Eluna::get()->PushBoolean(L, item->IsLocked());
@@ -120,7 +120,7 @@ public:
 
     static int IsBag(lua_State* L, Item* item)
     {
-        if(!item || !item->IsInWorld())
+        if (!item || !item->IsInWorld())
             Eluna::get()->PushBoolean(L, false);
         else
             Eluna::get()->PushBoolean(L, item->IsBag());
@@ -129,7 +129,7 @@ public:
 
     static int IsCurrencyToken(lua_State* L, Item* item)
     {
-        if(!item || !item->IsInWorld())
+        if (!item || !item->IsInWorld())
             Eluna::get()->PushBoolean(L, false);
         else
             Eluna::get()->PushBoolean(L, item->IsCurrencyToken());
@@ -138,7 +138,7 @@ public:
 
     static int IsNotEmptyBag(lua_State* L, Item* item)
     {
-        if(!item || !item->IsInWorld())
+        if (!item || !item->IsInWorld())
             Eluna::get()->PushBoolean(L, false);
         else
             Eluna::get()->PushBoolean(L, item->IsNotEmptyBag());
@@ -147,7 +147,7 @@ public:
 
     static int IsBroken(lua_State* L, Item* item)
     {
-        if(!item || !item->IsInWorld())
+        if (!item || !item->IsInWorld())
             Eluna::get()->PushBoolean(L, false);
         else
             Eluna::get()->PushBoolean(L, item->IsBroken());
@@ -156,7 +156,7 @@ public:
 
     static int CanBeTraded(lua_State* L, Item* item)
     {
-        if(!item || !item->IsInWorld())
+        if (!item || !item->IsInWorld())
             Eluna::get()->PushBoolean(L, false);
         else
         {
@@ -169,7 +169,7 @@ public:
 
     static int IsInTrade(lua_State* L, Item* item)
     {
-        if(!item || !item->IsInWorld())
+        if (!item || !item->IsInWorld())
             Eluna::get()->PushBoolean(L, false);
         else
             Eluna::get()->PushBoolean(L, item->IsInTrade());
@@ -178,7 +178,7 @@ public:
 
     static int GetCount(lua_State* L, Item* item)
     {
-        if(!item || !item->IsInWorld())
+        if (!item || !item->IsInWorld())
             return 0;
 
         Eluna::get()->PushUnsigned(L, item->GetCount());
@@ -187,7 +187,7 @@ public:
 
     static int SetCount(lua_State* L, Item* item)
     {
-        if(!item || !item->IsInWorld())
+        if (!item || !item->IsInWorld())
             return 0;
 
         uint32 count = luaL_checkunsigned(L, 1);
@@ -198,7 +198,7 @@ public:
 
     static int GetMaxStackCount(lua_State* L, Item* item)
     {
-        if(!item || !item->IsInWorld())
+        if (!item || !item->IsInWorld())
             return 0;
 
         Eluna::get()->PushUnsigned(L, item->GetMaxStackCount());
@@ -207,7 +207,7 @@ public:
 
     static int GetSlot(lua_State* L, Item* item)
     {
-        if(!item || !item->IsInWorld())
+        if (!item || !item->IsInWorld())
             return 0;
 
         Eluna::get()->PushUnsigned(L, item->GetSlot());
@@ -216,7 +216,7 @@ public:
 
     static int GetBagSlot(lua_State* L, Item* item)
     {
-        if(!item || !item->IsInWorld())
+        if (!item || !item->IsInWorld())
             return 0;
 
         Eluna::get()->PushUnsigned(L, item->GetBagSlot());
@@ -225,7 +225,7 @@ public:
 
     static int IsInBag(lua_State* L, Item* item)
     {
-        if(!item || !item->IsInWorld())
+        if (!item || !item->IsInWorld())
             Eluna::get()->PushBoolean(L, false);
         else
             Eluna::get()->PushBoolean(L, item->IsInBag());
@@ -234,7 +234,7 @@ public:
 
     static int IsEquipped(lua_State* L, Item* item)
     {
-        if(!item || !item->IsInWorld())
+        if (!item || !item->IsInWorld())
             Eluna::get()->PushBoolean(L, false);
         else
             Eluna::get()->PushBoolean(L, item->IsEquipped());
@@ -243,7 +243,7 @@ public:
 
     static int hasQuest(lua_State* L, Item* item)
     {
-        if(!item || !item->IsInWorld())
+        if (!item || !item->IsInWorld())
             Eluna::get()->PushBoolean(L, false);
         else
         {
@@ -255,7 +255,7 @@ public:
 
     static int IsPotion(lua_State* L, Item* item)
     {
-        if(!item || !item->IsInWorld())
+        if (!item || !item->IsInWorld())
             Eluna::get()->PushBoolean(L, false);
         else
             Eluna::get()->PushBoolean(L, item->IsPotion());
@@ -264,7 +264,7 @@ public:
 
     static int IsWeaponVellum(lua_State* L, Item* item)
     {
-        if(!item || !item->IsInWorld())
+        if (!item || !item->IsInWorld())
             Eluna::get()->PushBoolean(L, false);
         else
             Eluna::get()->PushBoolean(L, item->IsWeaponVellum());
@@ -273,7 +273,7 @@ public:
 
     static int IsArmorVellum(lua_State* L, Item* item)
     {
-        if(!item || !item->IsInWorld())
+        if (!item || !item->IsInWorld())
             Eluna::get()->PushBoolean(L, false);
         else
             Eluna::get()->PushBoolean(L, item->IsArmorVellum());
@@ -282,7 +282,7 @@ public:
 
     static int IsConjuredConsumable(lua_State* L, Item* item)
     {
-        if(!item || !item->IsInWorld())
+        if (!item || !item->IsInWorld())
             Eluna::get()->PushBoolean(L, false);
         else
             Eluna::get()->PushBoolean(L, item->IsConjuredConsumable());
@@ -291,7 +291,7 @@ public:
 
     static int IsRefundExpired(lua_State* L, Item* item)
     {
-        if(!item || !item->IsInWorld())
+        if (!item || !item->IsInWorld())
             Eluna::get()->PushBoolean(L, false);
         else
             Eluna::get()->PushBoolean(L, item->IsRefundExpired());
@@ -300,7 +300,7 @@ public:
 
     static int GetEntry(lua_State* L, Item* item)
     {
-        if(!item || !item->IsInWorld())
+        if (!item || !item->IsInWorld())
             return 0;
 
         Eluna::get()->PushUnsigned(L, item->GetEntry());
@@ -309,7 +309,7 @@ public:
 
     static int GetInt32Value(lua_State* L, Item* item)
     {
-        if(!item || !item->IsInWorld())
+        if (!item || !item->IsInWorld())
             return 0;
 
         uint16 index = luaL_checkunsigned(L, 1);
@@ -320,7 +320,7 @@ public:
 
     static int GetUInt32Value(lua_State* L, Item* item)
     {
-        if(!item || !item->IsInWorld())
+        if (!item || !item->IsInWorld())
             return 0;
 
         uint16 index = luaL_checkunsigned(L, 1);
@@ -331,7 +331,7 @@ public:
 
     static int GetFloatValue(lua_State* L, Item* item)
     {
-        if(!item || !item->IsInWorld())
+        if (!item || !item->IsInWorld())
             return 0;
 
         uint16 index = luaL_checkunsigned(L, 1);
@@ -342,7 +342,7 @@ public:
 
     static int GetByteValue(lua_State* L, Item* item)
     {
-        if(!item || !item->IsInWorld())
+        if (!item || !item->IsInWorld())
             return 0;
 
         uint16 index = luaL_checkunsigned(L, 1);
@@ -354,7 +354,7 @@ public:
 
     static int GetUInt16Value(lua_State* L, Item* item)
     {
-        if(!item || !item->IsInWorld())
+        if (!item || !item->IsInWorld())
             return 0;
 
         uint16 index = luaL_checkunsigned(L, 1);
@@ -366,7 +366,7 @@ public:
 
     static int SetInt32Value(lua_State* L, Item* item)
     {
-        if(!item || !item->IsInWorld())
+        if (!item || !item->IsInWorld())
             return 0;
 
         uint16 index = luaL_checkunsigned(L, 1);
@@ -378,7 +378,7 @@ public:
 
     static int SetUInt32Value(lua_State* L, Item* item)
     {
-        if(!item || !item->IsInWorld())
+        if (!item || !item->IsInWorld())
             return 0;
 
         uint16 index = luaL_checkunsigned(L, 1);
@@ -390,7 +390,7 @@ public:
 
     static int UpdateUInt32Value(lua_State* L, Item* item)
     {
-        if(!item || !item->IsInWorld())
+        if (!item || !item->IsInWorld())
             return 0;
 
         uint16 index = luaL_checkunsigned(L, 1);
@@ -402,7 +402,7 @@ public:
 
     static int SetFloatValue(lua_State* L, Item* item)
     {
-        if(!item || !item->IsInWorld())
+        if (!item || !item->IsInWorld())
             return 0;
 
         uint16 index = luaL_checkunsigned(L, 1);
@@ -414,7 +414,7 @@ public:
 
     static int SetByteValue(lua_State* L, Item* item)
     {
-        if(!item || !item->IsInWorld())
+        if (!item || !item->IsInWorld())
             return 0;
 
         uint16 index = luaL_checkunsigned(L, 1);
@@ -427,7 +427,7 @@ public:
 
     static int SetUInt16Value(lua_State* L, Item* item)
     {
-        if(!item || !item->IsInWorld())
+        if (!item || !item->IsInWorld())
             return 0;
 
         uint16 index = luaL_checkunsigned(L, 1);
@@ -440,7 +440,7 @@ public:
 
     static int SetInt16Value(lua_State* L, Item* item)
     {
-        if(!item || !item->IsInWorld())
+        if (!item || !item->IsInWorld())
             return 0;
 
         uint16 index = luaL_checkunsigned(L, 1);
@@ -453,14 +453,14 @@ public:
 
     static int SetEnchantment(lua_State* L, Item* item)
     {
-        if(!item || !item->IsInWorld())
+        if (!item || !item->IsInWorld())
         {
             Eluna::get()->PushBoolean(L, false);
             return 1;
         }
 
         Player* owner = item->GetOwner();
-        if(!owner)
+        if (!owner)
         {
             Eluna::get()->PushBoolean(L, false);
             return 1;
@@ -482,20 +482,20 @@ public:
 
     static int ClearEnchantment(lua_State* L, Item* item)
     {
-        if(!item || !item->IsInWorld())
+        if (!item || !item->IsInWorld())
         {
             Eluna::get()->PushBoolean(L, false);
             return 1;
         }
 
         Player* owner = item->GetOwner();
-        if(!owner)
+        if (!owner)
         {
             Eluna::get()->PushBoolean(L, false);
             return 1;
         }
 
-        if(!item->GetEnchantmentId(PERM_ENCHANTMENT_SLOT))
+        if (!item->GetEnchantmentId(PERM_ENCHANTMENT_SLOT))
         {
             Eluna::get()->PushBoolean(L, false);
             return 1;

@@ -106,7 +106,7 @@ namespace LuaGlobalFunctions
         uint32 team = luaL_optunsigned(L, 3, TEAM_NEUTRAL);
 
         Map* map = sMapMgr->FindMap(mapID, instanceID);
-        if(!map)
+        if (!map)
             return 0;
 
         lua_newtable(L);
@@ -117,7 +117,7 @@ namespace LuaGlobalFunctions
         for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
         {
             Player* player = itr->getSource();
-            if(!player)
+            if (!player)
                 continue;
             if (player->GetSession() && (team >= TEAM_NEUTRAL || player->GetTeamId() == team))
             {
@@ -132,18 +132,18 @@ namespace LuaGlobalFunctions
         return 1;
     }
 
-    // WorldDBQuery("sql") - Executes SQL to world database and returns the query result or nil (instant)
+    // WorldDBQuery("sql") - Executes SQL to world database and returns the query Result or nil (instant)
     static int WorldDBQuery(lua_State* L)
     {
         const char* query = luaL_checkstring(L, 1);
-        if(!query)
+        if (!query)
             return 0;
 
-        QueryResult result = WorldDatabase.Query(query);
-        if(!result)
+        QueryResult Result = WorldDatabase.Query(query);
+        if (!Result)
             return 0;
 
-        Eluna::get()->PushQueryResult(L, new QueryResult(result));
+        Eluna::get()->PushQueryResult(L, new QueryResult(Result));
         return 1;
     }
 
@@ -151,25 +151,25 @@ namespace LuaGlobalFunctions
     static int WorldDBExecute(lua_State* L)
     {
         const char* query = luaL_checkstring(L, 1);
-        if(!query)
+        if (!query)
             return 0;
 
         WorldDatabase.Execute(query);
         return 0;
     }
 
-    // CharDBQuery("sql") - Executes SQL to characters database and returns the query result or nil (instant)
+    // CharDBQuery("sql") - Executes SQL to characters database and returns the query Result or nil (instant)
     static int CharDBQuery(lua_State* L)
     {
         const char* query = luaL_checkstring(L, 1);
-        if(!query)
+        if (!query)
             return 0;
 
-        QueryResult result = CharacterDatabase.Query(query);
-        if(!result)
+        QueryResult Result = CharacterDatabase.Query(query);
+        if (!Result)
             return 0;
 
-        Eluna::get()->PushQueryResult(L, new QueryResult(result));
+        Eluna::get()->PushQueryResult(L, new QueryResult(Result));
         return 1;
     }
 
@@ -177,25 +177,25 @@ namespace LuaGlobalFunctions
     static int CharDBExecute(lua_State* L)
     {
         const char* query = luaL_checkstring(L, 1);
-        if(!query)
+        if (!query)
             return 0;
 
         CharacterDatabase.Execute(query);
         return 0;
     }
 
-    // AuthDBQuery("sql") - Executes SQL to auth database and returns the query result or nil (instant)
+    // AuthDBQuery("sql") - Executes SQL to auth database and returns the query Result or nil (instant)
     static int AuthDBQuery(lua_State* L)
     {
         const char* query = luaL_checkstring(L, 1);
-        if(!query)
+        if (!query)
             return 0;
 
-        QueryResult result = LoginDatabase.Query(query);
-        if(!result)
+        QueryResult Result = LoginDatabase.Query(query);
+        if (!Result)
             return 0;
 
-        Eluna::get()->PushQueryResult(L, new QueryResult(result));
+        Eluna::get()->PushQueryResult(L, new QueryResult(Result));
         return 1;
     }
 
@@ -203,7 +203,7 @@ namespace LuaGlobalFunctions
     static int AuthDBExecute(lua_State* L)
     {
         const char* query = luaL_checkstring(L, 1);
-        if(!query)
+        if (!query)
             return 0;
 
         LoginDatabase.Execute(query);
@@ -238,7 +238,7 @@ namespace LuaGlobalFunctions
     {
         uint32 delay = luaL_checkunsigned(L, 2);
         uint32 repeats = luaL_checkunsigned(L, 3);
-        if(!strcmp(luaL_typename(L, 1), "function") || delay > 0)
+        if (!strcmp(luaL_typename(L, 1), "function") || delay > 0)
         {
             lua_settop(L, 1);
             int functionRef = lua_ref(L, true);
@@ -263,7 +263,7 @@ namespace LuaGlobalFunctions
     {
         bool all_Events = luaL_optbool(L, 1, false);
 
-        if(all_Events)
+        if (all_Events)
             Eluna::LuaEventMap::LuaEventsResetAll();
         else
             sLuaWorldScript->LuaEventsReset();
@@ -285,18 +285,18 @@ namespace LuaGlobalFunctions
         uint32 durorresptime = luaL_optunsigned(L, 9, 0);
         uint32 phase = luaL_optunsigned(L, 10, PHASEMASK_NORMAL);
 
-        if(!phase)
+        if (!phase)
             return 0;
 
         Map* map = sMapMgr->FindMap(mapID, 0);
-        if(!map)
+        if (!map)
             return 0;
 
         Position pos = {x,y,z,o};
 
-        if(spawntype == 1) // spawn creature
+        if (spawntype == 1) // spawn creature
         {
-            if(save)
+            if (save)
             {
                 Creature* creature = new Creature();
                 if (!creature->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_UNIT), map, phase, entry, 0, 0, x, y, z, o))
@@ -321,10 +321,10 @@ namespace LuaGlobalFunctions
             else
             {
                 TempSummon* creature = map->SummonCreature(entry, pos, NULL, durorresptime);
-                if(!creature)
+                if (!creature)
                     return 0;
 
-                if(durorresptime)
+                if (durorresptime)
                     creature->SetTempSummonType(TEMPSUMMON_TIMED_OR_DEAD_DESPAWN);
                 else
                     creature->SetTempSummonType(TEMPSUMMON_MANUAL_DESPAWN);
@@ -335,7 +335,7 @@ namespace LuaGlobalFunctions
             return 1;
         }
 
-        if(spawntype == 2) // Spawn object
+        if (spawntype == 2) // Spawn object
         {
 
             const GameObjectTemplate* objectInfo = sObjectMgr->GetGameObjectTemplate(entry);
@@ -357,7 +357,7 @@ namespace LuaGlobalFunctions
             if (durorresptime)
                 object->SetRespawnTime(durorresptime);
 
-            if(save)
+            if (save)
             {
                 // fill the gameobject data and save to the db
                 object->SaveToDB(map->GetId(), (1 << map->GetSpawnMode()), phase);
