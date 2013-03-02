@@ -626,7 +626,6 @@ void Eluna::Restart()
             luaL_unref(get()->LuaState, LUA_REGISTRYINDEX, (*it));
         itr->second.clear();
     }
-    get()->ServerEventBindings.clear();
 
     get()->CreatureEventBindings->Clear();
     get()->CreatureGossipBindings->Clear();
