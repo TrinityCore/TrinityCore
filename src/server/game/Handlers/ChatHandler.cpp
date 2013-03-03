@@ -252,7 +252,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
                 return;
             }
 
-            if(!Eluna::getScript()->OnChat(PLAYER_EVENT_ON_CHAT, sender, type, lang, std::string(msg)))
+            if(!Eluna::getScript()->OnChat(PLAYER_EVENT_ON_CHAT, sender, type, lang, msg))
                 return;
 
             if (type == CHAT_MSG_SAY)
