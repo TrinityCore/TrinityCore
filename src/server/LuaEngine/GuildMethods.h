@@ -1,7 +1,3 @@
-#include "ScriptPCH.h"
-#include "Guild.h"
-#include "GuildMgr.h"
-
 #ifndef GUILDMETHODS_H
 #define GUILDMETHODS_H
 

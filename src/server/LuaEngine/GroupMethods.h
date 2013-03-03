@@ -1,6 +1,3 @@
-#include "ScriptPCH.h"
-#include "Group.h"
-
 #ifndef GROUPMETHODS_H
 #define GROUPMETHODS_H
 

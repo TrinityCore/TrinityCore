@@ -1,10 +1,3 @@
-#include "ScriptPCH.h"
-#include "AccountMgr.h"
-#include "Group.h"
-#include "Guild.h"
-#include "ArenaTeam.h"
-#include "Vehicle.h"
-
 #ifndef UNITMETHODS_H
 #define UNITMETHODS_H
 

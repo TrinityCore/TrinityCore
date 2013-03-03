@@ -1,5 +1,3 @@
-#include "ScriptPCH.h"
-
 #ifndef AURAMETHODS_H
 #define AURAMETHODS_H
 

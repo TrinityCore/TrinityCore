@@ -1,19 +1,5 @@
-#include "ScriptPCH.h"
 #ifndef __GLOBAL_METHODS_ELUNA
 #define __GLOBAL_METHODS_ELUNA
-
-#include "SystemConfig.h"
-#include "World.h"
-#include "MapManager.h"
-#include "GuildMgr.h"
-#include "ObjectAccessor.h"
-
-extern "C"
-{
-#include "lua.h"
-#include "lualib.h"
-#include "lauxlib.h"
-};
 
 namespace LuaGlobalFunctions
 {

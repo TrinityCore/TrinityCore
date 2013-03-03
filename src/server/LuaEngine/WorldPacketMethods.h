@@ -1,5 +1,3 @@
-#include "WorldPacket.h"
-
 #ifndef WORLDPACKETMETHODS_H
 #define WORLDPACKETMETHODS_H
 

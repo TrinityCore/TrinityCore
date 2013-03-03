@@ -1,20 +1,22 @@
 #ifndef __ELUNA__H
 #define __ELUNA__H
-#include <sys/types.h>
-#include <sys/stat.h>
 #include <string>
-#include <set>
-#include <hash_map>
 #include <map>
 #include "Chat.h"
 #include "ScriptPCH.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
-#include "Common.h"
-#include "Unit.h"
 #include "Creature.h"
 #include "GameObjectAI.h"
 #include "Channel.h"
+#include "AccountMgr.h"
+#include "Group.h"
+#include "Guild.h"
+#include "GuildMgr.h"
+#include "ArenaTeam.h"
+#include "Vehicle.h"
+#include "SystemConfig.h"
+#include "MapManager.h"
 
 using namespace std;
 

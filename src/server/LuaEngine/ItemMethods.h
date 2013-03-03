@@ -1,6 +1,3 @@
-#include "ScriptPCH.h"
-#include "Item.h"
-
 #ifndef ITEMMETHODS_H
 #define ITEMMETHODS_H
 

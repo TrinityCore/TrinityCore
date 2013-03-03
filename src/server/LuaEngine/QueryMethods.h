@@ -1,5 +1,3 @@
-#include "ScriptPCH.h"
-
 #ifndef QUERYMETHODS_H
 #define QUERYMETHODS_H
 
