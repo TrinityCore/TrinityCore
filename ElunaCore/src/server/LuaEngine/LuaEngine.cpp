@@ -240,7 +240,7 @@ void Eluna::report(lua_State* L)
 }
 
 /* Pushes */
-// Pushes a low part of a guid (low guid
+// Pushes a low part of a guid (low guid)
 void Eluna::PushGUID(lua_State* L, uint64 g)
 {
     if (!L) L = LuaState;
