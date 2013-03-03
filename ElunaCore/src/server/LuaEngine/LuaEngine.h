@@ -18,9 +18,6 @@
 
 using namespace std;
 
-#define lua_ref(L, lock) ((lock) ? luaL_ref(L, LUA_REGISTRYINDEX) : \
-    (lua_pushstring(L, "unlocked references are obsolete"), lua_error(L), 0))
-
 extern "C"
 {
 #include "lua.h"
@@ -244,7 +241,11 @@ public:
     static ElunaScript* getScript() { return Script; }
 
     typedef map<int, int> ElunaBindingMap;
+#if PLATFORM == PLATFORM_WINDOWS
     typedef unordered_map<uint32, ElunaBindingMap> ElunaEntryMap;
+#else
+    typedef tr1::unordered_map<uint32, ElunaBindingMap> ElunaEntryMap;
+#endif
 
     struct ElunaBind
     {

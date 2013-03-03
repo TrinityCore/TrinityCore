@@ -367,7 +367,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
             }
 
             sScriptMgr->OnPlayerChat(GetPlayer(), type, lang, msg, group);
-            if(!Eluna::getScript()->OnChat(PLAYER_EVENT_ON_GROUP_CHAT, sender, type, lang, std::string(msg), group))
+            if(!Eluna::getScript()->OnChat(PLAYER_EVENT_ON_GROUP_CHAT, sender, type, lang, msg, group))
                 return;
 
             WorldPacket data;
@@ -386,7 +386,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
             }
 
             sScriptMgr->OnPlayerChat(GetPlayer(), type, lang, msg, group);
-            if(!Eluna::getScript()->OnChat(PLAYER_EVENT_ON_GROUP_CHAT, sender, type, lang, std::string(msg), group))
+            if(!Eluna::getScript()->OnChat(PLAYER_EVENT_ON_GROUP_CHAT, sender, type, lang, msg, group))
                 return;
 
             WorldPacket data;
@@ -400,7 +400,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
                 return;
 
             sScriptMgr->OnPlayerChat(GetPlayer(), type, lang, msg, group);
-            if(!Eluna::getScript()->OnChat(PLAYER_EVENT_ON_GROUP_CHAT, sender, type, lang, std::string(msg), group))
+            if(!Eluna::getScript()->OnChat(PLAYER_EVENT_ON_GROUP_CHAT, sender, type, lang, msg, group))
                 return;
 
             WorldPacket data;
@@ -416,7 +416,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
                 return;
 
             sScriptMgr->OnPlayerChat(GetPlayer(), type, lang, msg, group);
-            if(!Eluna::getScript()->OnChat(PLAYER_EVENT_ON_GROUP_CHAT, sender, type, lang, std::string(msg), group))
+            if(!Eluna::getScript()->OnChat(PLAYER_EVENT_ON_GROUP_CHAT, sender, type, lang, msg, group))
                 return;
 
             WorldPacket data;
@@ -431,7 +431,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
                 return;
 
             sScriptMgr->OnPlayerChat(GetPlayer(), type, lang, msg, group);
-            if(!Eluna::getScript()->OnChat(PLAYER_EVENT_ON_GROUP_CHAT, sender, type, lang, std::string(msg), group))
+            if(!Eluna::getScript()->OnChat(PLAYER_EVENT_ON_GROUP_CHAT, sender, type, lang, msg, group))
                 return;
 
             WorldPacket data;
@@ -454,7 +454,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
                 if (Channel* chn = cMgr->GetChannel(channel, _player))
                 {
                     sScriptMgr->OnPlayerChat(_player, type, lang, msg, chn);
-                    if(!Eluna::getScript()->OnChat(PLAYER_EVENT_ON_CHANNEL_CHAT, sender, type, lang, std::string(msg), chn))
+                    if(!Eluna::getScript()->OnChat(PLAYER_EVENT_ON_CHANNEL_CHAT, sender, type, lang, msg, chn))
                         return;
                     chn->Say(_player->GetGUID(), msg.c_str(), lang);
                 }
@@ -482,7 +482,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
                 }
 
                 sScriptMgr->OnPlayerChat(_player, type, lang, msg);
-                if(!Eluna::getScript()->OnChat(PLAYER_EVENT_ON_CHAT, sender, type, lang, std::string(msg)))
+                if(!Eluna::getScript()->OnChat(PLAYER_EVENT_ON_CHAT, sender, type, lang, msg))
                     return;
             }
             break;
@@ -507,7 +507,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
             }
 
             sScriptMgr->OnPlayerChat(_player, type, lang, msg);
-            if(!Eluna::getScript()->OnChat(PLAYER_EVENT_ON_CHAT, sender, type, lang, std::string(msg)))
+            if(!Eluna::getScript()->OnChat(PLAYER_EVENT_ON_CHAT, sender, type, lang, msg))
                 return;
             break;
         }
