@@ -295,11 +295,11 @@ void Eluna::PushGroup(lua_State* L, Group* group)
         lua_pushnil(L);
 }
 
-void Eluna::PushGuild(lua_State* L, Guild* pGuild)
+void Eluna::PushGuild(lua_State* L, Guild* guild)
 {
     if (!L) L = LuaState;
-    if (pGuild)
-        ElunaTemplate<Guild>::push(L, pGuild);
+    if (guild)
+        ElunaTemplate<Guild>::push(L, guild);
     else
         lua_pushnil(L);
 }
