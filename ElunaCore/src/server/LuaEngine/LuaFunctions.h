@@ -339,10 +339,10 @@ ElunaRegister<Group> GroupMethods[] =
     {"RemoveMember", &LuaGroup::RemoveMember},                      // :RemoveMember(player) - Removes player from group. Returns true on success UNDOCUMENTED
     {"Disband", &LuaGroup::Disband},                                // :Disband() - Disbands the group. UNDOCUMENTED
     {"IsFull", &LuaGroup::IsFull},                                  // :IsFull() - Returns true if the group is full UNDOCUMENTED
-    {"isLFGGroup", &LuaGroup::isLFGGroup},                          // :isLFGGroup() - Returns true if the group is an LFG group UNDOCUMENTED
-    {"isRaidGroup", &LuaGroup::isRaidGroup},                        // :isRaidGroup() - Returns true if the group is a raid group UNDOCUMENTED
-    {"isBGGroup", &LuaGroup::isBGGroup},                            // :isBGGroup() - Returns true if the group is a battleground group UNDOCUMENTED
-    {"isBFGroup", &LuaGroup::isBFGroup},                            // :isBFGroup() - Returns true if the group is a battlefield group UNDOCUMENTED
+    {"IsLFGGroup", &LuaGroup::isLFGGroup},                          // :IsLFGGroup() - Returns true if the group is an LFG group UNDOCUMENTED
+    {"IsRaidGroup", &LuaGroup::isRaidGroup},                        // :IsRaidGroup() - Returns true if the group is a raid group UNDOCUMENTED
+    {"IsBGGroup", &LuaGroup::isBGGroup},                            // :IsBGGroup() - Returns true if the group is a battleground group UNDOCUMENTED
+    {"IsBFGroup", &LuaGroup::isBFGroup},                            // :IsBFGroup() - Returns true if the group is a battlefield group UNDOCUMENTED
     {"IsMember", &LuaGroup::IsMember},                              // :IsMember(player) - Returns true if the player is a member of the group UNDOCUMENTED
     {"IsAssistant", &LuaGroup::IsAssistant},                        // :IsAssistant(player) - returns true if the player is an assistant in the group UNDOCUMENTED
     {"SameSubGroup", &LuaGroup::SameSubGroup},                      // :SameSubGroup(player1, player2) - Returns true if the players are in the same subgroup in the group UNDOCUMENTED
