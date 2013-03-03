@@ -617,10 +617,11 @@ void WorldSession::HandleCalendarComplain(WorldPacket& recvData)
     uint64 guid = _player->GetGUID();
     uint64 eventId;
     uint64 complainGUID;
+    uint64 inviteId;
 
-    recvData >> eventId >> complainGUID;
+    recvData >> complainGUID >> eventId >> inviteId;
     sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_CALENDAR_COMPLAIN [" UI64FMTD "] EventId ["
-        UI64FMTD "] guid [" UI64FMTD "]", guid, eventId, complainGUID);
+        UI64FMTD "] guid [" UI64FMTD "] InviteId [" UI64FMTD "]", guid, eventId, complainGUID, inviteId);
 
     // what to do with complains?
 }

@@ -708,9 +708,11 @@ void WorldSession::HandleBugOpcode(WorldPacket& recvData)
     uint32 suggestion, contentlen, typelen;
     std::string content, type;
 
-    recvData >> suggestion >> contentlen >> content;
+    recvData >> suggestion >> contentlen;
+    content = recvData.ReadString(contentlen);
 
-    recvData >> typelen >> type;
+    recvData >> typelen;
+    type = recvData.ReadString(typelen);
 
     if (suggestion == 0)
         sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_BUG [Bug Report]");
