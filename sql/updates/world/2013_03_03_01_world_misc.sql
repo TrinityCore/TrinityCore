@@ -1,7 +1,7 @@
 -- Issue 9311
 -- Add Missing Sunreaver Guardian Mage inside Sunreaver Tavern (Thx Aokromes) 
 SET @CGUID := 40267; -- Set by TDB Team
-DELETE FROM `creature` WHERE `guid` @CGUID;
+DELETE FROM `creature` WHERE `guid`=@CGUID;
 INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`MovementType`) VALUES
 (@CGUID,29255,571,1,1,5900.299,505.75,641.6531,4.171337,120,0,0);
 
