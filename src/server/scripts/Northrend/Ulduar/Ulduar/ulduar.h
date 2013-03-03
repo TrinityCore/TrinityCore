@@ -21,6 +21,8 @@
 #include "ObjectMgr.h"
 #define UlduarScriptName "instance_ulduar"
 
+extern Position const ObservationRingKeepersPos[4]; 
+extern Position const YSKeepersPos[4];
 extern Position const AlgalonLandPos;
 
 enum UlduarBosses
@@ -42,7 +44,7 @@ enum UlduarBosses
     BOSS_IRONBRANCH          = 12,
     BOSS_STONEBARK           = 13,
     BOSS_VEZAX               = 14,
-    BOSS_YOGGSARON           = 15,
+    BOSS_YOGG_SARON          = 15,
     BOSS_ALGALON             = 16,
 };
 
@@ -74,7 +76,7 @@ enum UlduarNPCs
     NPC_THORIM                              = 32865,
     NPC_FREYA                               = 32906,
     NPC_VEZAX                               = 33271,
-    NPC_YOGGSARON                           = 33288,
+    NPC_YOGG_SARON                          = 33288,
     NPC_ALGALON                             = 32871,
 
     // Mimiron
@@ -115,6 +117,39 @@ enum UlduarNPCs
     NPC_NATURES_BLADE                       = 33527,
     NPC_GUARDIAN_OF_LIFE                    = 33528,
 
+    // Yogg-Saron
+    NPC_SARA                                = 33134,
+    NPC_GUARDIAN_OF_YOGG_SARON              = 33136,
+    NPC_HODIR_OBSERVATION_RING              = 33213,
+    NPC_FREYA_OBSERVATION_RING              = 33241,
+    NPC_THORIM_OBSERVATION_RING             = 33242,
+    NPC_MIMIRON_OBSERVATION_RING            = 33244,
+    NPC_VOICE_OF_YOGG_SARON                 = 33280,
+    NPC_OMINOUS_CLOUD                       = 33292,
+    NPC_FREYA_YS                            = 33410,
+    NPC_HODIR_YS                            = 33411,
+    NPC_MIMIRON_YS                          = 33412,
+    NPC_THORIM_YS                           = 33413,
+    NPC_SUIT_OF_ARMOR                       = 33433,
+    NPC_KING_LLANE                          = 33437,
+    NPC_THE_LICH_KING                       = 33441,
+    NPC_IMMOLATED_CHAMPION                  = 33442,
+    NPC_YSERA                               = 33495,
+    NPC_NELTHARION                          = 33523,
+    NPC_MALYGOS                             = 33535,
+    NPC_DEATH_RAY                           = 33881,
+    NPC_DEATH_ORB                           = 33882,
+    NPC_BRAIN_OF_YOGG_SARON                 = 33890,
+    NPC_INFLUENCE_TENTACLE                  = 33943,
+    NPC_TURNED_CHAMPION                     = 33962,
+    NPC_CRUSHER_TENTACLE                    = 33966,
+    NPC_CONSTRICTOR_TENTACLE                = 33983,
+    NPC_CORRUPTOR_TENTACLE                  = 33985,
+    NPC_IMMORTAL_GUARDIAN                   = 33988,
+    NPC_SANITY_WELL                         = 33991,
+    NPC_DESCEND_INTO_MADNESS                = 34072,
+    NPC_MARKED_IMMORTAL_GUARDIAN            = 36064,
+    
     // Algalon the Observer
     NPC_BRANN_BRONZBEARD_ALG                = 34064,
     NPC_AZEROTH                             = 34246,
@@ -155,6 +190,12 @@ enum UlduarGameObjects
     GO_HODIR_ICE_DOOR                       = 194441,
     GO_ARCHIVUM_DOOR                        = 194556,
 
+    // Yogg-Saron
+    GO_YOGG_SARON_DOOR                      = 194773,
+    GO_BRAIN_ROOM_DOOR_1                    = 194635,
+    GO_BRAIN_ROOM_DOOR_2                    = 194636,
+    GO_BRAIN_ROOM_DOOR_3                    = 194637,
+
     // Algalon the Observer
     GO_CELESTIAL_PLANETARIUM_ACCESS_10      = 194628,
     GO_CELESTIAL_PLANETARIUM_ACCESS_25      = 194752,
@@ -169,12 +210,18 @@ enum UlduarGameObjects
     GO_GIFT_OF_THE_OBSERVER_25              = 194822,
 };
 
-enum LeviathanData
+enum EventIds
 {
     EVENT_TOWER_OF_STORM_DESTROYED      = 21031,
     EVENT_TOWER_OF_FROST_DESTROYED      = 21032,
     EVENT_TOWER_OF_FLAMES_DESTROYED     = 21033,
     EVENT_TOWER_OF_LIFE_DESTROYED       = 21030,
+    EVENT_ACTIVATE_SANITY_WELL          = 21432,
+    EVENT_HODIRS_PROTECTIVE_GAZE_PROC   = 21437,
+};
+
+enum LeviathanActions
+{
     ACTION_TOWER_OF_STORM_DESTROYED     = 1,
     ACTION_TOWER_OF_FROST_DESTROYED     = 2,
     ACTION_TOWER_OF_FLAMES_DESTROYED    = 3,
@@ -184,14 +231,30 @@ enum LeviathanData
 
 enum UlduarAchievementCriteriaIds
 {
-    CRITERIA_CON_SPEED_ATORY    = 21597,
-    CRITERIA_DISARMED           = 21687,
-    CRITERIA_HERALD_OF_TITANS   = 10678,
+    CRITERIA_CON_SPEED_ATORY                 = 21597,
+    CRITERIA_DISARMED                        = 21687,
+    CRITERIA_WAITS_DREAMING_STORMWIND_25     = 10321,
+    CRITERIA_WAITS_DREAMING_CHAMBER_25       = 10322,
+    CRITERIA_WAITS_DREAMING_ICECROWN_25      = 10323,
+    CRITERIA_WAITS_DREAMING_STORMWIND_10     = 10324,
+    CRITERIA_WAITS_DREAMING_CHAMBER_10       = 10325,
+    CRITERIA_WAITS_DREAMING_ICECROWN_10      = 10326,
+    CRITERIA_DRIVE_ME_CRAZY_10               = 10185,
+    CRITERIA_DRIVE_ME_CRAZY_25               = 10296,
+    CRITERIA_THREE_LIGHTS_IN_THE_DARKNESS_10 = 10410,
+    CRITERIA_THREE_LIGHTS_IN_THE_DARKNESS_25 = 10414,
+    CRITERIA_TWO_LIGHTS_IN_THE_DARKNESS_10   = 10388,
+    CRITERIA_TWO_LIGHTS_IN_THE_DARKNESS_25   = 10415,
+    CRITERIA_ONE_LIGHT_IN_THE_DARKNESS_10    = 10409,
+    CRITERIA_ONE_LIGHT_IN_THE_DARKNESS_25    = 10416,
+    CRITERIA_ALONE_IN_THE_DARKNESS_10        = 10412,
+    CRITERIA_ALONE_IN_THE_DARKNESS_25        = 10417,
+    CRITERIA_HERALD_OF_TITANS                = 10678,
 };
 
 enum UlduarData
 {
-    // Collosus (Leviathan)
+    // Colossus (Leviathan)
     DATA_COLOSSUS                = 20,
 
     // Razorscale
@@ -211,6 +274,18 @@ enum UlduarData
 
     // Hodir
     DATA_HODIR_RARE_CACHE,
+
+    // Yogg-Saron
+    DATA_VOICE_OF_YOGG_SARON,
+    DATA_SARA,
+    DATA_BRAIN_OF_YOGG_SARON,
+    DATA_FREYA_YS,
+    DATA_HODIR_YS,
+    DATA_THORIM_YS,
+    DATA_MIMIRON_YS,
+    DATA_ILLUSION,
+    DATA_DRIVE_ME_CRAZY,
+    DATA_KEEPERS_COUNT,
 
     // Algalon the Observer
     DATA_ALGALON_SUMMON_STATE,
@@ -243,6 +318,13 @@ enum UlduarEvents
     EVENT_DESPAWN_ALGALON       = 1,
     EVENT_UPDATE_ALGALON_TIMER  = 2,
     ACTION_INIT_ALGALON         = 6,
+};
+
+enum YoggSaronIllusions
+{
+    CHAMBER_ILLUSION            = 0,
+    ICECROWN_ILLUSION           = 1,
+    STORMWIND_ILLUSION          = 2,
 };
 
 template<class AI>
