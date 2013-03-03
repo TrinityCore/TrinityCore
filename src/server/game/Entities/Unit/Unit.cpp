@@ -17103,7 +17103,7 @@ bool CharmInfo::IsReturning()
     return _isReturning;
 }
 
-void Unit::SetInFront(Unit const* target)
+void Unit::SetInFront(WorldObject const* target)
 {
     if (!HasUnitState(UNIT_STATE_CANNOT_TURN))
         SetOrientation(GetAngle(target));
@@ -17245,16 +17245,19 @@ void Unit::SendMovementCanFlyChange()
     SendMessageToSet(&data, false);
 }
 
-void Unit::FocusTarget(Spell const* focusSpell, uint64 target)
+void Unit::FocusTarget(Spell const* focusSpell, WorldObject const* target)
 {
     // already focused
     if (_focusSpell)
         return;
 
     _focusSpell = focusSpell;
-    SetUInt64Value(UNIT_FIELD_TARGET, target);
+    SetUInt64Value(UNIT_FIELD_TARGET, target->GetGUID());
     if (focusSpell->GetSpellInfo()->AttributesEx5 & SPELL_ATTR5_DONT_TURN_DURING_CAST)
         AddUnitState(UNIT_STATE_ROTATING);
+
+    // Set serverside orientation if needed (needs to be after attribute check)
+    SetInFront(target);
 }
 
 void Unit::ReleaseFocus(Spell const* focusSpell)
