@@ -2061,7 +2061,7 @@ uint32 SpellInfo::CalcCastTime(Unit* caster, Spell* spell) const
                     if (bg->isArena() && bg->GetStartDelayTime() > 7500)
                         return 100;
 
-           if (caster && caster->GetTypeId() == TYPEID_PLAYER && caster->GetAreaId() == 3317)
+           if (caster && caster->GetTypeId() == TYPEID_PLAYER && caster->GetAreaId() == 1336)
                  if (castTime == 5000 || castTime == 4000)
                         return 100;
 

@@ -5304,18 +5304,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                     owner->CastSpell(owner, 58227, true, castItem, triggeredByAura);
                     return true;
                 }
-				case 49886: // Freezing Trap Trigger
-				case 49054: // Immolation Trap Trigger
-				case 45145: // Snake Trap Trigger
-				case 63487: // Frost Trap trigger
-				case 49065: // Explosive trap trigger
-				{
-				  Unit* owner = GetOwner();
-				  victim = getVictim();
-					if (target && owner && owner->IsFriendlyTo(victim))
-						return false;
-					return true;
-				}
                 // Divine purpose
                 case 31871:
                 case 31872:
@@ -7627,12 +7615,12 @@ bool Unit::HandleAuraProc(Unit* victim, uint32 damage, Aura* triggeredByAura, Sp
                     return true;
                 }
                 // Hungering Cold aura drop
-                case 51209:
+               /* case 51209:
                     *handled = true;
                     // Drop only in not disease case
                     if (procSpell && procSpell->Dispel == DISPEL_DISEASE)
                         return false;
-                    return true;
+                    return true;*/
             }
             break;
         }

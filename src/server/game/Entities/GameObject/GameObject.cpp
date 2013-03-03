@@ -461,13 +461,14 @@ void GameObject::Update(uint32 diff)
                     if (ok)
                     {
                         if (Player *tmpPlayer = ok->ToPlayer())
+						{
                             if (tmpPlayer->isSpectator())
                                 return;
-
-						if (Player *chckPlayer = ok->ToPlayer())
-							if (chckPlayer->IsFriendlyTo(ok))
-								return;
-
+                          
+                            if (Unit *owner = ok->GetOwner())
+								if (tmpPlayer->IsFriendlyTo(owner))
+								   return;
+						}
                         // some traps do not have spell but should be triggered
                         if (goInfo->trap.spellId)
                             CastSpell(ok, goInfo->trap.spellId);
