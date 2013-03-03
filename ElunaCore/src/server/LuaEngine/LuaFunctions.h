@@ -311,7 +311,10 @@ ElunaRegister<Spell> SpellMethods[] =
 	// Getters
 	{"GetCaster", &LuaSpell::GetCaster},                            // :GetCaster()  -- Returns the spell's caster (UNIT)           UNDOCUMENTED
 	{"GetCastTime", &LuaSpell::GetCastTime},                        // :GetCastTime() -- Returns the spell cast time                UNDOCUMENTED
-	{"GetId", &LuaSpell::GetId},                                    // :GetId() -- Returns the spell's ID
+	{"GetId", &LuaSpell::GetId},                                    // :GetId() -- Returns the spell's ID                           UNDOCUMENTED
+
+    // Other
+	{"Cancel", &LuaSpell::cancel},                                  // :Cancel() -- Cancels the spell casting                       UNDOCUMENTED
 
 	{NULL, NULL},
 };
