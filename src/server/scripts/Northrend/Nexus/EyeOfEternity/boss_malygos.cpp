@@ -130,6 +130,7 @@ enum Spells
     SPELL_ARCANE_SHOCK                       = 57058, // used by Nexus Lords
     SPELL_HASTE                              = 57060, // used by Nexus Lords
     SPELL_ARCANE_BARRAGE                     = 56397, // used by Scions of Eternity
+    SPELL_ARCANE_BARRAGE_DAMAGE              = 63934, // the actual damage - cast by affected player by script spell
 
     // Transition /II-III/
     SPELL_SUMMOM_RED_DRAGON_BUDYY            = 56070,
@@ -1478,7 +1479,7 @@ class npc_scion_of_eternity : public CreatureScript
             void IsSummonedBy(Unit* /*summoner*/)
             {
                 _events.SetPhase(PHASE_TWO);
-                _events.ScheduleEvent(EVENT_ARCANE_BARRAGE, urand(14, 17)*IN_MILLISECONDS, 0, PHASE_TWO);
+                _events.ScheduleEvent(EVENT_ARCANE_BARRAGE, urand(14, 24)*IN_MILLISECONDS, 0, PHASE_TWO);
             }
 
             void EnterCombat(Unit* /*who*/)
@@ -1503,7 +1504,7 @@ class npc_scion_of_eternity : public CreatureScript
                     {
                         case EVENT_ARCANE_BARRAGE:
                             DoCast(me, SPELL_ARCANE_BARRAGE);
-                            _events.ScheduleEvent(EVENT_ARCANE_BARRAGE, urand(4, 12)*IN_MILLISECONDS, 0, PHASE_TWO);
+                            _events.ScheduleEvent(EVENT_ARCANE_BARRAGE, urand(3, 12)*IN_MILLISECONDS, 0, PHASE_TWO);
                             break;
                     }
                 }
@@ -2009,10 +2010,10 @@ class spell_nexus_lord_align_disk_aggro : public SpellScriptLoader
         }
 };
 
-class IsPlayerOnHoverDiskCheck
+class IsPlayerOnHoverDisk
 {
     public:
-        IsPlayerOnHoverDiskCheck(Unit* source, bool isOnHoverDisk) : _source(source), _isOnHoverDisk(isOnHoverDisk) { }
+        IsPlayerOnHoverDisk(Unit* source, bool isOnHoverDisk) : _source(source), _isOnHoverDisk(isOnHoverDisk) { }
 
         bool operator()(WorldObject* unit)
         {
@@ -2038,6 +2039,24 @@ class IsPlayerOnHoverDiskCheck
             bool _isOnHoverDisk;
 };
 
+class CheckUnitAura
+{
+    public:
+        CheckUnitAura(Unit* source) : _source(source) { }
+
+        bool operator()(WorldObject* unit)
+        {
+            if (Unit* target = ObjectAccessor::GetUnit(*_source, unit->GetGUID()))
+                if (target->HasAura(SPELL_ARCANE_BARRAGE_DAMAGE))
+                    return true;
+
+            return false;
+        }
+
+    private:
+        Unit* _source;
+};
+
 class spell_scion_of_eternity_arcane_barrage : public SpellScriptLoader
 {
     public:
@@ -2061,14 +2080,30 @@ class spell_scion_of_eternity_arcane_barrage : public SpellScriptLoader
                 for (std::list<WorldObject*>::const_iterator itr = targets.begin(); itr != targets.end(); ++itr)
                     _playersWithoutDisk.push_back((*itr));
 
-                _playersWithoutDisk.remove_if(IsPlayerOnHoverDiskCheck(caster, false));
+                // Remove players not on Hover Disk from second list,
+                // if it's empty than we can have player on Hover disk as target.
+                _playersWithoutDisk.remove_if(IsPlayerOnHoverDisk(caster, false));
+                // Else if there are players on the ground we remove all from vehicles.
                 if (_playersWithoutDisk.empty())
-                    targets.remove_if(IsPlayerOnHoverDiskCheck(caster, true));
+                    targets.remove_if(IsPlayerOnHoverDisk(caster, true));
+                // Finally here we remove all targets that have been damaged by Arcane Barrage
+                // and have 2 seconds long aura still lasting. Used to give healers some time.
+                if (!targets.empty())
+                    targets.remove_if(CheckUnitAura(caster));
+            }
+
+            void TriggerDamageSpellFromPlayer()
+            {
+                Player* hitTarget = GetHitPlayer();
+                // There is some proc in this spell I have absolutely no idea of use, but just in case...
+                TriggerCastFlags triggerFlags = TriggerCastFlags(TRIGGERED_FULL_MASK & ~TRIGGERED_DISALLOW_PROC_EVENTS);
+                hitTarget->CastSpell(hitTarget, SPELL_ARCANE_BARRAGE_DAMAGE, triggerFlags, NULL, NULL, GetCaster()->GetGUID());
             }
 
             void Register()
             {
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_scion_of_eternity_arcane_barrage_SpellScript::FilterMeleeHoverDiskPassangers, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnHit += SpellHitFn(spell_scion_of_eternity_arcane_barrage_SpellScript::TriggerDamageSpellFromPlayer);
             }
 
             std::list<WorldObject*> _playersWithoutDisk;
