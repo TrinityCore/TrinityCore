@@ -20,7 +20,6 @@
 class LuaUnit
 {
 public:
-    // Get Methods
 
     //GetArenaPoints()
     static int GetArenaPoints(lua_State* L, Unit* unit)
@@ -29,6 +28,47 @@ public:
 
         Eluna::get()->PushUnsigned(L, player->GetArenaPoints());
         return 1;
+    }
+
+    //KnockbackFrom()
+    static int KnockbackFrom(lua_State* L, Unit* unit)
+    {
+        TO_UNIT();
+
+        float x = luaL_checknumber(L, 1);
+        float y = luaL_checknumber(L, 2);
+        float speedXY = luaL_checknumber(L, 3);
+        float speedZ = luaL_checknumber(L, 4);
+
+        unit->KnockbackFrom(x, y, speedXY, speedZ);
+        return 0;
+    }
+
+    //JumpTo(WorldObj, speedZ)
+    static int JumpTo(lua_State* L, Unit* unit)
+    {
+        TO_UNIT();
+
+        WorldObject* obj = Eluna::get()->CHECK_WORLDOBJECT(L, 1);
+        float speedZ = luaL_checknumber(L, 2);
+        if(!obj)
+            return 0;
+
+        unit->JumpTo(obj, speedZ);
+        return 0;
+    }
+
+    //Jump(speedXY, speedZ[, forward])
+    static int Jump(lua_State* L, Unit* unit)
+    {
+        TO_UNIT();
+
+        float speedXY = luaL_checknumber(L, 1);
+        float speedZ = luaL_checknumber(L, 2);
+        bool forward = luaL_optbool(L, 3, true);
+
+        unit->JumpTo(speedXY, speedZ, forward);
+        return 0;
     }
 
     //GetHonorPoints()

@@ -156,6 +156,9 @@ ElunaRegister<Unit> UnitMethods[] =
     {"PlayDistanceSound", &LuaUnit::PlayDistanceSound},             // :PlayDistanceSound(soundId,  player) - Unit plays soundID to player, or everyone around if no player. The sound fades the further you are UNDOCUMENTED
     {"PlaySoundToSet", &LuaUnit::PlayDirectSound},                  // :PlayDirectSound(soundId,  player) - Unit plays soundID to player, or everyone around if no player. (ARC compability) UNDOCUMENTED
     {"Kill", &LuaUnit::Kill},                                       // :Kill(target, durabilityLoss) - Unit kills the target, if no target then kills the unit. Durabilityloss is true by default UNDOCUMENTED
+    {"KnockbackFrom", &LuaUnit::KnockbackFrom},                     // :KnockbackFrom(x, y, speedXY, speedZ) - Knocks the player to the opposite direction from x,y at the defined speeds UNDOCUMENTED
+    {"JumpTo", &LuaUnit::JumpTo},                                   // :JumpTo(WorldObj, speedZ) - Unit jumps to world object UNDOCUMENTED
+    {"Jump", &LuaUnit::Jump},                                       // :Jump(speedXY, speedZ[, forward]) - Unit jumps at given speeds UNDOCUMENTED
 
     /* Vehicle */
     {"AddVehiclePassenger", &LuaUnit::AddVehiclePassenger},         // :AddVehiclePassenger(unit, seatId) - Adds a passenger to the vehicle by specifying a unit and seatId      UNDOCUMENTED (UNTESTED)
@@ -414,7 +417,7 @@ ElunaRegister<QueryResult> QueryMethods[] =  // UNDOCUMENTED
 ElunaRegister<WorldPacket> PacketMethods[] =
 {    
     {"GetOpcode", &LuaPacket::GetOpcode},                           //  :GetOpcode() -- Returns an opcode                    (UNDOCUMENTED)
-    {"GetSize", &LuaPacket::GetSize},                                //  :GetSize() -- Returns the packet size                 (UNDOCUMENTED)
+    {"GetSize", &LuaPacket::GetSize},                               //  :GetSize() -- Returns the packet size                 (UNDOCUMENTED)
     {"GetUnitType", &LuaPacket::GetOpcode},                         //  :GetUnitType() -- Returns the unit type: Packet      (UNDOCUMENTED)
 
     {"SetOpcode", &LuaPacket::SetOpcode},                           //  :SetOpcode(opcode) -- Sets the opcode by specifying an opcode            (UNDOCUMENTED)
