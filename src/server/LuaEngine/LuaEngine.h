@@ -918,7 +918,7 @@ public:
             }
 
             //Called at World update tick
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 diff)
             {
                 ScriptedAI::UpdateAI(diff);
                 LuaEventsUpdate(diff);

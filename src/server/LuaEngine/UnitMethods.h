@@ -1678,8 +1678,9 @@ public:
         if (!_unit)
             return 0;
 
-        Eluna::get()->PushInteger(L, _unit->GetVehicle()->GetNextEmptySeat(seatId, true));
-        return 1;
+        //Eluna::get()->PushInteger(L, _unit->GetVehicle()->GetNextEmptySeat(seatId, true));
+        //return 1;
+        return 0;
     }
 
     // GetAvailableSeats()
