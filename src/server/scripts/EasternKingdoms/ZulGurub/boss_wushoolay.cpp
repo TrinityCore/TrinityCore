@@ -64,7 +64,7 @@ class boss_wushoolay : public CreatureScript
                 events.ScheduleEvent(EVENT_LIGHTNINGWAVE, urand(8000, 16000));
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;

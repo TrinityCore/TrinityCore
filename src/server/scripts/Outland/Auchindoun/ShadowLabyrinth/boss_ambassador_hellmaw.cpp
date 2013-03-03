@@ -142,7 +142,7 @@ public:
                 instance->SetData(TYPE_HELLMAW, DONE);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (!Intro && !HasEscortState(STATE_ESCORT_ESCORTING))
             {

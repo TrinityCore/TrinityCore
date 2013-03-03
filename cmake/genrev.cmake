@@ -20,7 +20,8 @@ endif()
 
 if(NO_GIT)
   set(rev_date "1970-01-01 00:00:00 +0000")
-  set(rev_hash "Archived")
+  set(rev_hash "unknown")
+  set(rev_branch "Archived")
 else()
   if(GIT_EXEC)
     # Create a revision-string that we can use
@@ -40,18 +41,27 @@ else()
       OUTPUT_STRIP_TRAILING_WHITESPACE
       ERROR_QUIET
     )
+    
+    # Also retrieve branch name
+    execute_process(
+      COMMAND "${GIT_EXEC}" rev-parse --abbrev-ref HEAD
+      WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+      OUTPUT_VARIABLE rev_branch
+      OUTPUT_STRIP_TRAILING_WHITESPACE
+      ERROR_QUIET
+    )
   endif()
 
   # Last minute check - ensure that we have a proper revision
   # If everything above fails (means the user has erased the git revision control directory or removed the origin/HEAD tag)
-
   if(NOT rev_info)
     # No valid ways available to find/set the revision/hash, so let's force some defaults
     message(STATUS "
     Could not find a proper repository signature (hash) - you may need to pull tags with git fetch -t
-    Continuing anyway - note that the versionstring will be set to 1970-01-01 00:00:00 (Archived)")
+    Continuing anyway - note that the versionstring will be set to \"unknown 1970-01-01 00:00:00 (Archived)"\")
     set(rev_date "1970-01-01 00:00:00 +0000")
-    set(rev_hash "Archived")
+    set(rev_hash "unknown")
+    set(rev_branch "Archived")
   else()
     # Extract information required to build a proper versionstring
     string(REGEX REPLACE init-|[0-9]+-g "" rev_hash ${rev_info})
@@ -59,11 +69,12 @@ else()
 endif()
 
 # Create the actual revision.h file from the above params
-if(NOT "${rev_hash_cached}" MATCHES "${rev_hash}")
+if(NOT "${rev_hash_cached}" MATCHES "${rev_hash}" OR NOT "${rev_branch_cached}" MATCHES "${rev_branch}")
   configure_file(
     "${CMAKE_SOURCE_DIR}/revision.h.in.cmake"
     "${BUILDDIR}/revision.h"
     @ONLY
   )
   set(rev_hash_cached "${rev_hash}" CACHE INTERNAL "Cached commit-hash")
+  set(rev_branch_cached "${rev_branch}" CACHE INTERNAL "Cached branch name")
 endif()

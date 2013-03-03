@@ -608,7 +608,7 @@ class CreatureEventAI : public CreatureAI
         void SpellHit(Unit* unit, const SpellInfo* spell);
         void DamageTaken(Unit* done_by, uint32& damage);
         void HealReceived(Unit* /*done_by*/, uint32& /*addhealth*/) {}
-        void UpdateAI(const uint32 diff);
+        void UpdateAI(uint32 diff);
         void ReceiveEmote(Player* player, uint32 textEmote);
         static int Permissible(const Creature*);
 

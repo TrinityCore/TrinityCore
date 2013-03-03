@@ -66,7 +66,7 @@ class boss_hazzarah : public CreatureScript
                 events.ScheduleEvent(EVENT_ILLUSIONS, urand(10000, 18000));
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;

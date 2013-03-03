@@ -67,7 +67,7 @@ class boss_gahzranka : public CreatureScript // gahzranka
                 events.ScheduleEvent(EVENT_SLAM, 17000);
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;

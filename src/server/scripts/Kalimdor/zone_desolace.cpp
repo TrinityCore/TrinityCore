@@ -205,7 +205,7 @@ public:
             return;
         }
 
-        void UpdateAI(const uint32 Diff)
+        void UpdateAI(uint32 Diff)
         {
             npc_escortAI::UpdateAI(Diff);
             if (!UpdateVictim())
