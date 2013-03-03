@@ -251,10 +251,10 @@ class Field
             return data.value == NULL;
         }
 
+    protected:
         Field();
         ~Field();
 
-    protected:
         #if defined(__GNUC__)
         #pragma pack(1)
         #else
