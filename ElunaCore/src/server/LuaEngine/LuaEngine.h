@@ -241,11 +241,7 @@ public:
     static ElunaScript* getScript() { return Script; }
 
     typedef map<int, int> ElunaBindingMap;
-#if PLATFORM == PLATFORM_WINDOWS
-    typedef unordered_map<uint32, ElunaBindingMap> ElunaEntryMap;
-#else
-    typedef tr1::unordered_map<uint32, ElunaBindingMap> ElunaEntryMap;
-#endif
+    typedef UNORDERED_MAP<uint32, ElunaBindingMap> ElunaEntryMap;
 
     struct ElunaBind
     {
@@ -413,6 +409,7 @@ public:
     void PushQueryResult(lua_State*, QueryResult*);
     void PushAura(lua_State*, Aura*);
     void PushItem(lua_State*, Item*);
+	void PushSpell(lua_State*, Spell*);
     void PushPacket(lua_State*, WorldPacket*);
     // Checks
     Player * CHECK_PLAYER(lua_State* L, int narg)
@@ -1902,7 +1899,7 @@ public:
             Eluna::get()->BeginCall((*itr));
             Eluna::get()->PushUnsigned(Eluna::get()->LuaState, eventId);
             Eluna::get()->PushUnit(Eluna::get()->LuaState, player);
-            Eluna::get()->PushUnsigned(Eluna::get()->LuaState, spell->GetSpellInfo()->Id);
+            Eluna::get()->PushSpell(Eluna::get()->LuaState, spell);
             Eluna::get()->PushBoolean(Eluna::get()->LuaState, skipCheck);
             Eluna::get()->ExecuteCall(4, 0);
         }

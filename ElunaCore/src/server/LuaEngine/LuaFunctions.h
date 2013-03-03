@@ -284,26 +284,36 @@ ElunaRegister<Item> ItemMethods[] =
 ElunaRegister<Aura> AuraMethods[] = 
 {
     // Getters
-    {"GetUnitType", &LuaAura::GetUnitType},                         // :GetUnitType() - Returns object type, IE: Aura, Creature UNDOCUMENTED
-    {"GetCaster", &LuaAura::GetCaster},                             // :GetCaster() - Returns caster as object. UNDOCUMENTED
-    {"GetCasterGUID", &LuaAura::GetCasterGUID},                     // :GetCasterGUID() - Returns caster as GUID. UNDOCUMENTED
-    {"GetCasterLevel", &LuaAura::GetCasterLevel},                   // :GetCasterLevel() - Returns casters level. UNDOCUMENTED
-    {"GetDuration", &LuaAura::GetDuration},                         // :GetDuration() - Returns remaining duration. UNDOCUMENTED
-    {"GetMaxDuration", &LuaAura::GetMaxDuration},                   // :GetMaxDuration() - Returns maximum duration. UNDOCUMENTED
-    {"GetCharges", &LuaAura::GetCharges},                           // :GetCharges() - Returns remaining charges. UNDOCUMENTED
-    {"GetAuraId", &LuaAura::GetAuraId},                             // :GetAuraId() - Returns aura ID. UNDOCUMENTED
-    {"GetStackAmount", &LuaAura::GetStackAmount},                   // :GetStackAmount() - Returns current stack amount. UNDOCUMENTED
-    {"GetOwner", &LuaAura::GetOwner},                               // :GetOwner() - Gets the unit wearing the aura UNDOCUMENTED
+    {"GetUnitType", &LuaAura::GetUnitType},                         // :GetUnitType() - Returns object type, IE: Aura, Creature  UNDOCUMENTED
+    {"GetCaster", &LuaAura::GetCaster},                             // :GetCaster() - Returns caster as object.					 UNDOCUMENTED
+    {"GetCasterGUID", &LuaAura::GetCasterGUID},                     // :GetCasterGUID() - Returns caster as GUID.				 UNDOCUMENTED
+    {"GetCasterLevel", &LuaAura::GetCasterLevel},                   // :GetCasterLevel() - Returns casters level.				 UNDOCUMENTED
+    {"GetDuration", &LuaAura::GetDuration},                         // :GetDuration() - Returns remaining duration.				 UNDOCUMENTED
+    {"GetMaxDuration", &LuaAura::GetMaxDuration},                   // :GetMaxDuration() - Returns maximum duration.		     UNDOCUMENTED
+    {"GetCharges", &LuaAura::GetCharges},                           // :GetCharges() - Returns remaining charges.                UNDOCUMENTED
+    {"GetAuraId", &LuaAura::GetAuraId},                             // :GetAuraId() - Returns aura ID.							 UNDOCUMENTED
+    {"GetStackAmount", &LuaAura::GetStackAmount},                   // :GetStackAmount() - Returns current stack amount.         UNDOCUMENTED
+    {"GetOwner", &LuaAura::GetOwner},                               // :GetOwner() - Gets the unit wearing the aura              UNDOCUMENTED
 
     // Setters
-    {"SetDuration", &LuaAura::SetDuration},                         // :SetDuration(duration) - Sets remaining duration. UNDOCUMENTED
-    {"SetMaxDuration", &LuaAura::SetMaxDuration},                   // :SetMaxDuration(duration) - Sets maximum duration. UNDOCUMENTED
-    {"SetStackAmount", &LuaAura::SetStackAmount},                   // :SetStackAmount(amount) - Sets current stack amount. UNDOCUMENTED
+    {"SetDuration", &LuaAura::SetDuration},                         // :SetDuration(duration) - Sets remaining duration.         UNDOCUMENTED
+    {"SetMaxDuration", &LuaAura::SetMaxDuration},                   // :SetMaxDuration(duration) - Sets maximum duration.        UNDOCUMENTED
+    {"SetStackAmount", &LuaAura::SetStackAmount},                   // :SetStackAmount(amount) - Sets current stack amount.      UNDOCUMENTED
 
     // Other
-    {"Remove", &LuaAura::Remove},                                   // :Remove() - Removes the aura. UNDOCUMENTED
+    {"Remove", &LuaAura::Remove},                                   // :Remove() - Removes the aura.                             UNDOCUMENTED
 
     {NULL, NULL},
+};
+
+ElunaRegister<Spell> SpellMethods[] =
+{
+	// Getters
+	{"GetCaster", &LuaSpell::GetCaster},                            // :GetCaster()  -- Returns the spell's caster (UNIT)           UNDOCUMENTED
+	{"GetCastTime", &LuaSpell::GetCastTime},                        // :GetCastTime() -- Returns the spell cast time                UNDOCUMENTED
+	{"GetId", &LuaSpell::GetId},                                    // :GetId() -- Returns the spell's ID
+
+	{NULL, NULL},
 };
 
 ElunaRegister<Group> GroupMethods[] = 
@@ -439,4 +449,5 @@ template<> ElunaRegister<QueryResult>* GetMethodTable<QueryResult>() { return Qu
 template<> ElunaRegister<Aura>* GetMethodTable<Aura>() { return AuraMethods; }
 template<> ElunaRegister<Item>* GetMethodTable<Item>() { return ItemMethods; }
 template<> ElunaRegister<WorldPacket>* GetMethodTable<WorldPacket>() { return PacketMethods; }
+template<> ElunaRegister<Spell>* GetMethodTable<Spell>() { return SpellMethods; }
 #endif

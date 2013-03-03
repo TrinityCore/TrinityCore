@@ -9,6 +9,7 @@ Eluna::LuaWorldScript* sLuaWorldScript = NULL;
 #include "AuraMethods.h"
 #include "ItemMethods.h"
 #include "WorldPacketMethods.h"
+#include "SpellMethods.h"
 #include "LuaFunctions.h"
 
 #if PLATFORM == PLATFORM_UNIX
@@ -39,6 +40,7 @@ template<> const char* GetTName<QueryResult>() { return "QueryResult"; }
 template<> const char* GetTName<Aura>() { return "Aura"; }
 template<> const char* GetTName<WorldPacket>() { return "WorldPacket"; }
 template<> const char* GetTName<Item>() { return "Item"; }
+template<> const char* GetTName<Spell>() { return "Spell"; }
 
 void Eluna::StartEluna()
 {
@@ -59,6 +61,7 @@ void Eluna::StartEluna()
     ElunaTemplate<Aura>::Register(LuaState);
     ElunaTemplate<WorldPacket>::Register(LuaState);
     ElunaTemplate<Item>::Register(LuaState);
+	ElunaTemplate<Spell>::Register(LuaState);
 
     uint32 count = 0;
     char filename[200];
@@ -344,6 +347,15 @@ void Eluna::PushItem(lua_State* L, Item* item)
         ElunaTemplate<Item>::push(L, item);
     else
         lua_pushnil(L);
+}
+
+void Eluna::PushSpell(lua_State* L, Spell* spell)
+{
+	if (!L) L = LuaState;
+	if (spell)
+		ElunaTemplate<Spell>::push(L, spell);
+	else
+		lua_pushnil(L);
 }
 
 void Eluna::PushPacket(lua_State* L, WorldPacket* packet)
