@@ -71,6 +71,21 @@ public:
         return 0;
     }
 
+    //JumpToCoords(x, y, z, speedXY, speedZ)
+    static int JumpToCoords(lua_State* L, Unit* unit)
+    {
+        TO_UNIT();
+
+        float x = luaL_checknumber(L, 1);
+        float y = luaL_checknumber(L, 2);
+        float z = luaL_checknumber(L, 3);
+        float speedXY = luaL_checknumber(L, 4);
+        float speedZ = luaL_checknumber(L, 5);
+
+        unit->GetMotionMaster()->MoveJump(x, y, z, speedXY, speedZ);
+        return 0;
+    }
+
     //GetHonorPoints()
     static int GetHonorPoints(lua_State* L, Unit* unit)
     {
