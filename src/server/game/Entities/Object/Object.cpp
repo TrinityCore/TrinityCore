@@ -1443,7 +1443,7 @@ void WorldObject::_Create(uint32 guidlow, HighGuid guidhigh, uint32 phaseMask)
     m_phaseMask = phaseMask;
 }
 
-virtual void WorldObject::RemoveFromWorld()
+void WorldObject::RemoveFromWorld()
 {
     if (!IsInWorld())
         return;
