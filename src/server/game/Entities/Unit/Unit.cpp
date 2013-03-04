@@ -536,12 +536,6 @@ AuraApplication * Unit::GetVisibleAura(uint8 slot) const
     return 0;
 }
 
-void Unit::SetVisibleAura(uint8 slot, AuraApplication * aur)
-{
-	m_visibleAuras[slot]=aur;
-	UpdateAuraForGroup(slot);
-}
-
 void Unit::RemoveVisibleAura(uint8 slot)
 {
     AuraApplication *aurApp = GetVisibleAura(slot);
