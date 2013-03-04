@@ -62,11 +62,12 @@ typedef std::vector<std::vector<uint32> > AllItemsArray;
 
 struct SellerItemClassInfo
 {
-    SellerItemClassInfo() : AmountOfItems(0), MissItems(0), Quantity(0) {}
+    SellerItemClassInfo() : AmountOfItems(0), MissItems(0), Quantity(0), PriceRatio(0) {}
 
     uint32 AmountOfItems;
     uint32 MissItems;
     uint32 Quantity;
+    uint32 PriceRatio;
 };
 
 struct SellerItemInfo
@@ -128,6 +129,8 @@ public:
     uint32 GetItemsAmountPerQuality(AuctionQuality quality) const { return _ItemInfo[quality].AmountOfItems; }
     void SetPriceRatioPerQuality(AuctionQuality quality, uint32 value) { _ItemInfo[quality].PriceRatio = value; }
     uint32 GetPriceRatioPerQuality(AuctionQuality quality) const { return _ItemInfo[quality].PriceRatio; }
+    void SetPriceRatioPerClass(ItemClass item, uint32 value) { _ItemInfo[0].ItemClassInfos[item].PriceRatio = value; }
+    uint32 GetPriceRatioPerClass(ItemClass item) const {return _ItemInfo[0].ItemClassInfos[item].PriceRatio; }
 
 private:
     AuctionHouseType _houseType;
@@ -191,8 +194,11 @@ private:
     void LoadSellerValues(SellerConfiguration& config);
     uint32 SetStat(SellerConfiguration& config);
     bool getItemsToSell( SellerConfiguration& config, ItemsToSellArray& itemsToSellArray, AllItemsArray const& addedItem  );
-    void SetPricesOfItem(ItemTemplate const* itemProto, SellerConfiguration& config, uint32& buyp, uint32& bidp, uint32 stackcnt, ItemQualities itemQuality);
+    void SetPricesOfItem(ItemTemplate const* itemProto, SellerConfiguration& config, uint32& buyp, uint32& bidp, uint32 stackcnt);
     void LoadItemsQuantity(SellerConfiguration& config);
+    bool itemIsExcepted(ItemTemplate const* itemProto);
+    uint32 GetBuyModifier(ItemTemplate const* prototype);
+    uint32 GetSellModifier(ItemTemplate const* itemProto);
 };
 
 
@@ -335,6 +341,45 @@ void AuctionBotConfig::GetConfigFromFile()
     setConfig(CONFIG_AHBOT_ALLIANCE_PRICE_RATIO         , "AuctionHouseBot.Alliance.Price.Ratio"        , 100);
     setConfig(CONFIG_AHBOT_HORDE_PRICE_RATIO            , "AuctionHouseBot.Horde.Price.Ratio"           , 100);
     setConfig(CONFIG_AHBOT_NEUTRAL_PRICE_RATIO          , "AuctionHouseBot.Neutral.Price.Ratio"         , 100);
+
+    setConfig(CONFIG_AHBOT_ITEM_GREY_PRICE_RATIO        , "AuctionHouseBot.Items.Grey.Price.Ratio"      , 100);
+    setConfig(CONFIG_AHBOT_ITEM_WHITE_PRICE_RATIO       , "AuctionHouseBot.Items.White.Price.Ratio"     , 100);
+    setConfig(CONFIG_AHBOT_ITEM_GREEN_PRICE_RATIO       , "AuctionHouseBot.Items.Green.Price.Ratio"     , 100);
+    setConfig(CONFIG_AHBOT_ITEM_BLUE_PRICE_RATIO        , "AuctionHouseBot.Items.Blue.Price.Ratio"      , 100);
+    setConfig(CONFIG_AHBOT_ITEM_PURPLE_PRICE_RATIO      , "AuctionHouseBot.Items.Purple.Price.Ratio"    , 100);
+    setConfig(CONFIG_AHBOT_ITEM_ORANGE_PRICE_RATIO      , "AuctionHouseBot.Items.Orange.Price.Ratio"    , 100);
+    setConfig(CONFIG_AHBOT_ITEM_YELLOW_PRICE_RATIO      , "AuctionHouseBot.Items.Yellow.Price.Ratio"    , 100);
+
+    setConfig(CONFIG_AHBOT_CLASS_CONSUMABLE_PRICE_RATIO , "AuctionHouseBot.Class.Consumable.Price.Ratio", 100);
+    setConfig(CONFIG_AHBOT_CLASS_CONTAINER_PRICE_RATIO  , "AuctionHouseBot.Class.Container.Price.Ratio" , 100);
+    setConfig(CONFIG_AHBOT_CLASS_WEAPON_PRICE_RATIO     , "AuctionHouseBot.Class.Weapon.Price.Ratio"    , 100);
+    setConfig(CONFIG_AHBOT_CLASS_GEM_PRICE_RATIO        , "AuctionHouseBot.Class.Gem.Price.Ratio"       , 100);
+    setConfig(CONFIG_AHBOT_CLASS_ARMOR_PRICE_RATIO      , "AuctionHouseBot.Class.Armor.Price.Ratio"     , 100);
+    setConfig(CONFIG_AHBOT_CLASS_REAGENT_PRICE_RATIO    , "AuctionHouseBot.Class.Reagent.Price.Ratio"   , 100);
+    setConfig(CONFIG_AHBOT_CLASS_PROJECTILE_PRICE_RATIO , "AuctionHouseBot.Class.Projectile.Price.Ratio", 100);
+    setConfig(CONFIG_AHBOT_CLASS_TRADEGOOD_PRICE_RATIO  , "AuctionHouseBot.Class.TradeGood.Price.Ratio" , 100);
+    setConfig(CONFIG_AHBOT_CLASS_GENERIC_PRICE_RATIO    , "AuctionHouseBot.Class.Generic.Price.Ratio"   , 100);
+    setConfig(CONFIG_AHBOT_CLASS_RECIPE_PRICE_RATIO     , "AuctionHouseBot.Class.Recipe.Price.Ratio"    , 100);
+    setConfig(CONFIG_AHBOT_CLASS_QUIVER_PRICE_RATIO     , "AuctionHouseBot.Class.Quiver.Price.Ratio"    , 100);
+    setConfig(CONFIG_AHBOT_CLASS_QUEST_PRICE_RATIO      , "AuctionHouseBot.Class.Quest.Price.Ratio"     , 100);
+    setConfig(CONFIG_AHBOT_CLASS_KEY_PRICE_RATIO        , "AuctionHouseBot.Class.Key.Price.Ratio"       , 100);
+    setConfig(CONFIG_AHBOT_CLASS_MISC_PRICE_RATIO       , "AuctionHouseBot.Class.Misc.Price.Ratio"      , 100);
+    setConfig(CONFIG_AHBOT_CLASS_GLYPH_PRICE_RATIO      , "AuctionHouseBot.Class.Glyph.Price.Ratio"     , 100);
+
+    setConfig(CONFIG_AHBOT_CLASS_CONSUMABLE_ALLOW_ZERO  , "AuctionHouseBot.Class.Consumable.Allow.Zero" , false);
+    setConfig(CONFIG_AHBOT_CLASS_CONTAINER_ALLOW_ZERO   , "AuctionHouseBot.Class.Container.Allow.Zero"  , false);
+    setConfig(CONFIG_AHBOT_CLASS_WEAPON_ALLOW_ZERO      , "AuctionHouseBot.Class.Weapon.Allow.Zero"     , false);
+    setConfig(CONFIG_AHBOT_CLASS_GEM_ALLOW_ZERO         , "AuctionHouseBot.Class.Gem.Allow.Zero"        , false);
+    setConfig(CONFIG_AHBOT_CLASS_ARMOR_ALLOW_ZERO       , "AuctionHouseBot.Class.Armor.Allow.Zero"      , false);
+    setConfig(CONFIG_AHBOT_CLASS_REAGENT_ALLOW_ZERO     , "AuctionHouseBot.Class.Reagent.Allow.Zero"    , false);
+    setConfig(CONFIG_AHBOT_CLASS_PROJECTILE_ALLOW_ZERO  , "AuctionHouseBot.Class.Projectile.Allow.Zero" , false);
+    setConfig(CONFIG_AHBOT_CLASS_TRADEGOOD_ALLOW_ZERO   , "AuctionHouseBot.Class.TradeGood.Allow.Zero"  , false);
+    setConfig(CONFIG_AHBOT_CLASS_RECIPE_ALLOW_ZERO      , "AuctionHouseBot.Class.Recipe.Allow.Zero"     , false);
+    setConfig(CONFIG_AHBOT_CLASS_QUIVER_ALLOW_ZERO      , "AuctionHouseBot.Class.Quiver.Allow.Zero"     , false);
+    setConfig(CONFIG_AHBOT_CLASS_QUEST_ALLOW_ZERO       , "AuctionHouseBot.Class.Quest.Allow.Zero"      , false);
+    setConfig(CONFIG_AHBOT_CLASS_KEY_ALLOW_ZERO         , "AuctionHouseBot.Class.Key.Allow.Zero"        , false);
+    setConfig(CONFIG_AHBOT_CLASS_MISC_ALLOW_ZERO        , "AuctionHouseBot.Class.Misc.Allow.Zero"       , false);
+    setConfig(CONFIG_AHBOT_CLASS_GLYPH_ALLOW_ZERO       , "AuctionHouseBot.Class.Glyph.Allow.Zero"      , false);
 
     setConfig(CONFIG_AHBOT_MINTIME                      , "AuctionHouseBot.MinTime"                     , 1);
     setConfig(CONFIG_AHBOT_MAXTIME                      , "AuctionHouseBot.MaxTime"                     , 72);
@@ -962,16 +1007,39 @@ bool AuctionBotSeller::Initialize()
                 continue;
         }
 
-        // no price filter
-        if (sAuctionBotConfig->getConfig(CONFIG_AHBOT_BUYPRICE_SELLER))
+        bool allowZero = false;
+        switch (prototype->Class)
         {
-            if (prototype->BuyPrice == 0)
-                continue;
+            case 0:     allowZero = sAuctionBotConfig->getConfig(CONFIG_AHBOT_CLASS_CONSUMABLE_ALLOW_ZERO);break;
+            case 1:     allowZero = sAuctionBotConfig->getConfig(CONFIG_AHBOT_CLASS_CONTAINER_ALLOW_ZERO);break;
+            case 2:     allowZero = sAuctionBotConfig->getConfig(CONFIG_AHBOT_CLASS_WEAPON_ALLOW_ZERO);break;
+            case 3:     allowZero = sAuctionBotConfig->getConfig(CONFIG_AHBOT_CLASS_GEM_ALLOW_ZERO);break;
+            case 4:     allowZero = sAuctionBotConfig->getConfig(CONFIG_AHBOT_CLASS_ARMOR_ALLOW_ZERO);break;
+            case 5:     allowZero = sAuctionBotConfig->getConfig(CONFIG_AHBOT_CLASS_REAGENT_ALLOW_ZERO);break;
+            case 6:     allowZero = sAuctionBotConfig->getConfig(CONFIG_AHBOT_CLASS_PROJECTILE_ALLOW_ZERO);break;
+            case 7:     allowZero = sAuctionBotConfig->getConfig(CONFIG_AHBOT_CLASS_TRADEGOOD_ALLOW_ZERO);break;
+            case 9:     allowZero = sAuctionBotConfig->getConfig(CONFIG_AHBOT_CLASS_RECIPE_ALLOW_ZERO);break;
+            case 11:    allowZero = sAuctionBotConfig->getConfig(CONFIG_AHBOT_CLASS_QUIVER_ALLOW_ZERO);break;
+            case 12:    allowZero = sAuctionBotConfig->getConfig(CONFIG_AHBOT_CLASS_QUEST_ALLOW_ZERO);break;
+            case 13:    allowZero = sAuctionBotConfig->getConfig(CONFIG_AHBOT_CLASS_KEY_ALLOW_ZERO);break;
+            case 15:    allowZero = sAuctionBotConfig->getConfig(CONFIG_AHBOT_CLASS_MISC_ALLOW_ZERO);break;
+            case 16:    allowZero = sAuctionBotConfig->getConfig(CONFIG_AHBOT_CLASS_GLYPH_ALLOW_ZERO);break;
+            default:     allowZero = false;
         }
-        else
+
+        // Filter out items with no buy/sell price unless otherwise flagged in the config.
+        if (!allowZero)
         {
-            if (prototype->SellPrice == 0)
-                continue;
+            if (sAuctionBotConfig->getConfig(CONFIG_AHBOT_BUYPRICE_SELLER))
+            {
+                if (prototype->BuyPrice == 0)
+                        continue;
+            }
+            else
+            {
+                if (prototype->SellPrice == 0)
+                    continue;
+            }
         }
 
         // vendor filter
@@ -1322,13 +1390,31 @@ void AuctionBotSeller::LoadSellerValues(SellerConfiguration& config)
             break;
     }
     
-    config.SetPriceRatioPerQuality(AUCTION_QUALITY_GREY, PriceRatio);
-    config.SetPriceRatioPerQuality(AUCTION_QUALITY_WHITE, PriceRatio);
-    config.SetPriceRatioPerQuality(AUCTION_QUALITY_GREEN, PriceRatio);
-    config.SetPriceRatioPerQuality(AUCTION_QUALITY_BLUE, PriceRatio);
-    config.SetPriceRatioPerQuality(AUCTION_QUALITY_PURPLE, PriceRatio);
-    config.SetPriceRatioPerQuality(AUCTION_QUALITY_ORANGE, PriceRatio);
-    config.SetPriceRatioPerQuality(AUCTION_QUALITY_YELLOW, PriceRatio);
+    config.SetPriceRatioPerQuality(AUCTION_QUALITY_GREY, PriceRatio * sAuctionBotConfig->getConfig(CONFIG_AHBOT_ITEM_GREY_PRICE_RATIO) / 100);
+    config.SetPriceRatioPerQuality(AUCTION_QUALITY_WHITE, PriceRatio * sAuctionBotConfig->getConfig(CONFIG_AHBOT_ITEM_WHITE_PRICE_RATIO) / 100);
+    config.SetPriceRatioPerQuality(AUCTION_QUALITY_GREEN, PriceRatio * sAuctionBotConfig->getConfig(CONFIG_AHBOT_ITEM_GREEN_PRICE_RATIO) / 100);
+    config.SetPriceRatioPerQuality(AUCTION_QUALITY_BLUE, PriceRatio * sAuctionBotConfig->getConfig(CONFIG_AHBOT_ITEM_BLUE_PRICE_RATIO) / 100);
+    config.SetPriceRatioPerQuality(AUCTION_QUALITY_PURPLE, PriceRatio * sAuctionBotConfig->getConfig(CONFIG_AHBOT_ITEM_PURPLE_PRICE_RATIO) / 100);
+    config.SetPriceRatioPerQuality(AUCTION_QUALITY_ORANGE, PriceRatio * sAuctionBotConfig->getConfig(CONFIG_AHBOT_ITEM_ORANGE_PRICE_RATIO) / 100);
+    config.SetPriceRatioPerQuality(AUCTION_QUALITY_YELLOW, PriceRatio * sAuctionBotConfig->getConfig(CONFIG_AHBOT_ITEM_YELLOW_PRICE_RATIO) / 100);
+
+    config.SetPriceRatioPerClass(ITEM_CLASS_CONSUMABLE, sAuctionBotConfig->getConfig(CONFIG_AHBOT_CLASS_CONSUMABLE_PRICE_RATIO));
+    config.SetPriceRatioPerClass(ITEM_CLASS_CONTAINER, sAuctionBotConfig->getConfig(CONFIG_AHBOT_CLASS_CONTAINER_PRICE_RATIO));
+    config.SetPriceRatioPerClass(ITEM_CLASS_WEAPON, sAuctionBotConfig->getConfig(CONFIG_AHBOT_CLASS_WEAPON_PRICE_RATIO));
+    config.SetPriceRatioPerClass(ITEM_CLASS_GEM, sAuctionBotConfig->getConfig(CONFIG_AHBOT_CLASS_GEM_PRICE_RATIO));
+    config.SetPriceRatioPerClass(ITEM_CLASS_ARMOR, sAuctionBotConfig->getConfig(CONFIG_AHBOT_CLASS_ARMOR_PRICE_RATIO));
+    config.SetPriceRatioPerClass(ITEM_CLASS_REAGENT, sAuctionBotConfig->getConfig(CONFIG_AHBOT_CLASS_REAGENT_PRICE_RATIO));
+    config.SetPriceRatioPerClass(ITEM_CLASS_PROJECTILE, sAuctionBotConfig->getConfig(CONFIG_AHBOT_CLASS_PROJECTILE_PRICE_RATIO));
+    config.SetPriceRatioPerClass(ITEM_CLASS_TRADE_GOODS, sAuctionBotConfig->getConfig(CONFIG_AHBOT_CLASS_TRADEGOOD_PRICE_RATIO));
+    config.SetPriceRatioPerClass(ITEM_CLASS_GENERIC, sAuctionBotConfig->getConfig(CONFIG_AHBOT_CLASS_GENERIC_PRICE_RATIO));
+    config.SetPriceRatioPerClass(ITEM_CLASS_RECIPE, sAuctionBotConfig->getConfig(CONFIG_AHBOT_CLASS_RECIPE_PRICE_RATIO));
+    config.SetPriceRatioPerClass(ITEM_CLASS_MONEY, sAuctionBotConfig->getConfig(CONFIG_AHBOT_CLASS_MONEY_PRICE_RATIO));
+    config.SetPriceRatioPerClass(ITEM_CLASS_QUIVER, sAuctionBotConfig->getConfig(CONFIG_AHBOT_CLASS_QUIVER_PRICE_RATIO));
+    config.SetPriceRatioPerClass(ITEM_CLASS_QUEST, sAuctionBotConfig->getConfig(CONFIG_AHBOT_CLASS_QUEST_PRICE_RATIO));
+    config.SetPriceRatioPerClass(ITEM_CLASS_KEY, sAuctionBotConfig->getConfig(CONFIG_AHBOT_CLASS_KEY_PRICE_RATIO));
+    config.SetPriceRatioPerClass(ITEM_CLASS_PERMANENT, sAuctionBotConfig->getConfig(CONFIG_AHBOT_CLASS_PERMANENT_PRICE_RATIO));
+    config.SetPriceRatioPerClass(ITEM_CLASS_MISC, sAuctionBotConfig->getConfig(CONFIG_AHBOT_CLASS_MISC_PRICE_RATIO));
+    config.SetPriceRatioPerClass(ITEM_CLASS_GLYPH, sAuctionBotConfig->getConfig(CONFIG_AHBOT_CLASS_GLYPH_PRICE_RATIO));
 
     //load min and max auction times
     config.SetMinTime(sAuctionBotConfig->getConfig(CONFIG_AHBOT_MINTIME));
@@ -1419,17 +1505,132 @@ bool AuctionBotSeller::getItemsToSell(SellerConfiguration& config, ItemsToSellAr
 }
 
 // Set items price. All important value are passed by address.
-void AuctionBotSeller::SetPricesOfItem(ItemTemplate const* itemProto, SellerConfiguration& config, uint32& buyp, uint32& bidp, uint32 stackCount, ItemQualities itemQuality)
+void AuctionBotSeller::SetPricesOfItem(ItemTemplate const* itemProto, SellerConfiguration& config, uint32& buyp, uint32& bidp, uint32 stackCount)
 {
-    uint32 priceRatio = (itemQuality < MAX_AUCTION_QUALITY ? config.GetPriceRatioPerQuality(AuctionQuality(itemQuality)) : 100);
-    uint32 basePrice = (buyp * stackCount * priceRatio) / itemProto->BuyCount;
+    uint32 classRatio   = config.GetPriceRatioPerClass(ItemClass(itemProto->Class));
+    uint32 qualityRatio = config.GetPriceRatioPerQuality(AuctionQuality(itemProto->Quality));
+    uint32 priceRatio   = (classRatio * qualityRatio) / 100;
+
+    uint32 buyPrice = itemProto->BuyPrice;
+    uint32 sellPrice = itemProto->SellPrice;
+
+    if (buyPrice == 0)
+    {
+        if (sellPrice > 0)
+            buyPrice = sellPrice * GetSellModifier(itemProto);
+        else
+        {
+            uint32 divisor = ((itemProto->Class == 2 || itemProto->Class == 4) ? 284 : 80);
+            uint32 tempLevel = (itemProto->ItemLevel == 0 ? 1 : itemProto->ItemLevel);
+            uint32 tempQuality  = (itemProto->Quality == 0 ? 1 : itemProto->Quality);
+
+            buyPrice = tempLevel * tempQuality * GetBuyModifier(itemProto)* tempLevel / divisor;
+        }
+    }
+
+    if (sellPrice == 0)
+        sellPrice = (buyPrice > 10 ? buyPrice / GetSellModifier(itemProto) : buyPrice);
+
+    if (!sAuctionBotConfig->getConfig(CONFIG_AHBOT_BUYPRICE_SELLER))
+        buyPrice = sellPrice;
+
+    uint32 basePrice = (buyPrice * stackCount * priceRatio) / (itemProto->Class == 6 ? 200 : itemProto->BuyCount) / 100;
     uint32 range = basePrice * 0.04;
 
-    buyp = (urand(basePrice - range, basePrice + range) / 100) + 1;
-    
-    basePrice = buyp * 50;
-    range = buyp * 40;
-    bidp = (urand(basePrice - range, basePrice + range) / 100) + 1;
+    buyp = urand(basePrice - range, basePrice + range) + 1;
+
+    basePrice = buyp * .5;
+    range = buyp * .4;
+    bidp = urand(basePrice - range, basePrice + range) + 1;
+}
+
+//@todo: Change this using names and not magic numbers
+// Determine the multiplier for the sell price of any weapon without a buy price.
+uint32 AuctionBotSeller::GetSellModifier(ItemTemplate const* prototype)
+{
+    switch (prototype->Class)
+    {
+        case 2:
+        case 4:
+        case 5:
+        case 6:  return 5;
+        default: return 4;
+    }
+}
+
+//@todo: Change this using names and not magic numbers
+//  Return the modifier by which the item's level and quality will be modified by to derive a relatively accurate price.
+uint32 AuctionBotSeller::GetBuyModifier(ItemTemplate const* prototype)
+{
+    switch (prototype->Class)
+    {
+        case 0: switch (prototype->SubClass)
+            {
+                case 0:  return 100;
+                case 3:  return 400;
+                case 4:  return 15;
+                case 6:  return 250;
+                case 7:  return 125;
+                default: return 300;
+            }
+
+        case 2: switch (prototype->SubClass)
+            {
+                case 0:
+                case 4:
+                case 7:
+                case 13:
+                case 15: return 1200;
+                case 1:
+                case 5:
+                case 6:
+                case 8:
+                case 10: return 1500;
+                case 16: return 350;
+                default: return 1000;
+            }
+      
+        case 4: switch (prototype->SubClass)
+            {
+                case 0:
+                case 1:  return 500;
+                case 2:  return 600;
+                case 3:  return 700;
+                case 4:
+                case 6:  return 800;
+                default: return 400;
+            }
+
+        case 5:
+        case 6: return 50;
+
+        case 7: switch (prototype->SubClass)
+            {
+                case 0:
+                case 1:
+                case 8:  return 50;
+                case 2:  return 250;
+                case 3:  return 500;
+                case 10:
+                case 11:
+                case 12: return 300;
+                default: return 100;
+            }
+
+        case 8: switch (prototype->SubClass)
+            {
+                case 0:
+                case 1:
+                case 4:  return 1000;
+                case 2:
+                case 3:  return 750;
+                default: return 500;
+            }
+
+        case 12: return 1000;
+        case 13: return 3000;
+        default: return 500;
+    }
 }
 
 void AuctionBotSeller::SetItemsRatio(uint32 al, uint32 ho, uint32 ne)
@@ -1554,18 +1755,16 @@ void AuctionBotSeller::addNewAuctions(SellerConfiguration& config)
             return;
         }
 
+        // Update the just created item so that if it needs random properties it has them.
+        // Ex:  Notched Shortsword of Stamina will only generate as a Notched Shortsword without this.
         uint32 randomPropertyId = Item::GenerateItemRandomPropertyId(itemID);
         item->SetUnownedItemRandomProperties(randomPropertyId);
 
         uint32 buyoutPrice;
         uint32 bidPrice = 0;
 
-        if (sAuctionBotConfig->getConfig(CONFIG_AHBOT_BUYPRICE_SELLER))
-            buyoutPrice  = prototype->BuyPrice;
-        else
-            buyoutPrice  = prototype->SellPrice;
-        
-        SetPricesOfItem(prototype, config, buyoutPrice, bidPrice, stackCount, ItemQualities(prototype->Quality));
+        // Price of items are set here
+        SetPricesOfItem(prototype, config, buyoutPrice, bidPrice, stackCount);
 
         // Deposit time
         uint32 etime = urand(1,3);
