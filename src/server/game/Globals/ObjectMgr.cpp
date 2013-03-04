@@ -4919,11 +4919,11 @@ void ObjectMgr::ValidateSpellScripts()
     for (SpellScriptsContainer::iterator itr = _spellScriptsStore.begin(); itr != _spellScriptsStore.end();)
     {
         SpellInfo const* spellEntry = sSpellMgr->GetSpellInfo(itr->first);
-        std::vector<std::pair<SpellScriptLoader *, SpellScriptsContainer::const_iterator> > SpellScriptLoaders;
+        std::vector<std::pair<SpellScriptLoader *, SpellScriptsContainer::iterator> > SpellScriptLoaders;
         sScriptMgr->CreateSpellScriptLoaders(itr->first, SpellScriptLoaders);
         itr = _spellScriptsStore.upper_bound(itr->first);
 
-        for (std::vector<std::pair<SpellScriptLoader *, SpellScriptsContainer::const_iterator> >::iterator sitr = SpellScriptLoaders.begin(); sitr != SpellScriptLoaders.end(); ++sitr)
+        for (std::vector<std::pair<SpellScriptLoader *, SpellScriptsContainer::iterator> >::iterator sitr = SpellScriptLoaders.begin(); sitr != SpellScriptLoaders.end(); ++sitr)
         {
             SpellScript* spellScript = sitr->first->GetSpellScript();
             AuraScript* auraScript = sitr->first->GetAuraScript();
@@ -7684,7 +7684,7 @@ uint32 ObjectMgr::GetAreaTriggerScriptId(uint32 trigger_id)
     return 0;
 }
 
-SpellScriptsBounds ObjectMgr::GetSpellScriptsBounds(uint32 spellId) const
+SpellScriptsBounds ObjectMgr::GetSpellScriptsBounds(uint32 spellId)
 {
     return SpellScriptsBounds(_spellScriptsStore.equal_range(spellId));
 }
