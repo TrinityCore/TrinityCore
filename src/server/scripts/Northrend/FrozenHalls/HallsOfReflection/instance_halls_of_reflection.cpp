@@ -116,12 +116,17 @@ public:
         uint64 uiFalric;
         uint64 uiMarwyn;
         uint64 uiLichKingEvent;
+        uint64 uiLichKing;
         uint64 uiJainaPart1;
         uint64 uiSylvanasPart1;
+        uint64 uiLider;
+        uint64 uiPartner;
+        
 
         uint64 uiFrostmourne;
         uint64 uiFrostmourneAltar;
         uint64 uiArthasDoor;
+        uint64 uiFrostswornDoor;
         uint64 uiFrontDoor;
 
         uint32 uiEncounter[MAX_ENCOUNTER];
@@ -140,10 +145,13 @@ public:
             uiLichKingEvent = 0;
             uiJainaPart1 = 0;
             uiSylvanasPart1 = 0;
+            uiLichKing = 0;
+            uiLider = 0;
+            uiPartner = 0;
 
             uiFrostmourne = 0;
-            uiFrostmourneAltar = 0;
             uiArthasDoor = 0;
+            uiFrostswornDoor = 0;
             uiFrontDoor = 0;
             uiTeamInInstance = 0;
             uiWaveCount = 0;
@@ -152,7 +160,19 @@ public:
             for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
                 uiEncounter[i] = NOT_STARTED;
         }
+ void OpenDoor(uint64 guid)
+        {
+            if(!guid) return;
+            GameObject* go = instance->GetGameObject(guid);
+            if(go) go->SetGoState(GO_STATE_ACTIVE);
+        }
 
+        void CloseDoor(uint64 guid)
+        {
+            if(!guid) return;
+            GameObject* go = instance->GetGameObject(guid);
+            if(go) go->SetGoState(GO_STATE_READY);
+        }
         void OnCreatureCreate(Creature* creature)
         {
             Map::PlayerList const &players = instance->GetPlayers();
@@ -168,15 +188,50 @@ public:
                 case NPC_MARWYN:
                     uiMarwyn = creature->GetGUID();
                     break;
+                case NPC_FROSTSWORN_GENERAL:
+                    creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                    break;
                 case NPC_LICH_KING_EVENT:
                     uiLichKingEvent = creature->GetGUID();
                     break;
                 case NPC_JAINA_PART1:
+                    if (uiTeamInInstance == HORDE)
+                    creature->UpdateEntry(NPC_SYLVANAS_PART1, HORDE);
+                    else
                     uiJainaPart1 = creature->GetGUID();
                     break;
                 case NPC_SYLVANAS_PART1:
+                    if (uiTeamInInstance == ALLIANCE)
+                    {
+                        uiJainaPart1 = creature->GetGUID();
+                        creature->UpdateEntry(NPC_JAINA_PART1, ALLIANCE);
+                    }
+                    else
                     uiSylvanasPart1 = creature->GetGUID();
                     break;
+                case NPC_JAINA_PART2: 
+                    if (uiTeamInInstance == HORDE)
+                    creature->UpdateEntry(NPC_SYLVANAS_PART2, HORDE);
+                    uiLider = creature->GetGUID();
+                    break;
+                case NPC_SYLVANAS_PART2:                    
+                    uiLider = creature->GetGUID();
+                    break;
+                case NPC_LICH_KING_BOSS:                    
+                    uiLichKing = creature->GetGUID();
+                    break;
+                case NPC_LORALEN:
+                    if (uiTeamInInstance == ALLIANCE)
+                    {
+                    uiPartner = creature->GetGUID();
+                    creature->UpdateEntry(NPC_KORELN, ALLIANCE);                    
+                    }                    
+                    else
+                    break;
+                    uiPartner = creature->GetGUID();
+                    break;
+                    case NPC_KORELN:                    
+                    uiPartner = creature->GetGUID();
             }
         }
 
@@ -198,17 +253,21 @@ public:
                 case GO_FRONT_DOOR:
                     uiFrontDoor = go->GetGUID();
                     go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_INTERACT_COND);
-                    HandleGameObject(0, true, go);
+                    OpenDoor(uiFrontDoor);
                     break;
-                case GO_ARTHAS_DOOR:
-                    uiArthasDoor = go->GetGUID();
+                case GO_FROSTSWORN_DOOR:
+                    uiFrostswornDoor = go->GetGUID();
                     go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_INTERACT_COND);
 
                     if (uiEncounter[1] == DONE)
-                        HandleGameObject(0, true, go);
+                        OpenDoor(uiFrostswornDoor);
                     else
-                        HandleGameObject(0, false, go);
+                        CloseDoor(uiFrostswornDoor);
+
                     break;
+                case GO_ARTHAS_DOOR:
+                    uiArthasDoor = go->GetGUID();
+                    
             }
         }
 
@@ -217,7 +276,8 @@ public:
             if (type == DATA_WAVE_COUNT && data == SPECIAL)
             {
                 bIntroDone = true;
-                events.ScheduleEvent(EVENT_NEXT_WAVE, 10000);
+                CloseDoor(uiFrontDoor);
+                events.ScheduleEvent(EVENT_NEXT_WAVE, 9000);
                 return;
             }
 
@@ -229,15 +289,28 @@ public:
                 case DATA_FALRIC_EVENT:
                     uiEncounter[0] = data;
                     if (data == DONE)
-                        events.ScheduleEvent(EVENT_NEXT_WAVE, 60000);
+                        events.ScheduleEvent(EVENT_NEXT_WAVE, 9000);
                     break;
                 case DATA_MARWYN_EVENT:
                     uiEncounter[1] = data;
                     if (data == DONE)
-                        HandleGameObject(uiArthasDoor, true);
+                    {
+                        OpenDoor(uiFrostswornDoor);
+                        OpenDoor(uiFrontDoor);
+                    }
+                    break;
+                case DATA_FROSTSWORN_EVENT:
+                    uiEncounter[2] = data;
+                    if (data == DONE)
+                    {     
+                        OpenDoor(uiArthasDoor);
+                        instance->SummonCreature(NPC_LICH_KING_BOSS, OutroSpawns[0]);
+                        instance->SummonCreature(NPC_JAINA_PART2, OutroSpawns[1]);
+                    }
+
                     break;
                 case DATA_LICHKING_EVENT:
-                    uiEncounter[2] = data;
+                    
                     break;
             }
 
@@ -267,6 +340,9 @@ public:
                 case DATA_MARWYN:               return uiMarwyn;
                 case DATA_LICHKING:             return uiLichKingEvent;
                 case DATA_FROSTMOURNE:          return uiFrostmourne;
+                case DATA_ARTHAS_DOOR:          return uiArthasDoor;
+                case DATA_FROSTSWORN_DOOR:      return uiFrostswornDoor;
+                case DATA_LORALEN:              return uiPartner;                
             }
 
             return 0;
@@ -277,7 +353,7 @@ public:
             OUT_SAVE_INST_DATA;
 
             std::ostringstream saveStream;
-            saveStream << "H R 1 " << uiEncounter[0] << ' ' << uiEncounter[1] << ' ' << uiEncounter[2];
+            saveStream << "H R 1 " << uiEncounter[0] << " " << uiEncounter[1] << " " << uiEncounter[2];
 
             OUT_SAVE_INST_DATA_COMPLETE;
             return saveStream.str();
@@ -360,9 +436,11 @@ public:
         {
             uiWaveCount = 0;
             events.Reset();
-            DoUpdateWorldState(WORLD_STATE_HOR, 1);
-            DoUpdateWorldState(WORLD_STATE_HOR_WAVE_COUNT, uiWaveCount);
-            HandleGameObject(uiFrontDoor, true);
+            DoUpdateWorldState(WORLD_STATE_HOR, NULL);
+            DoUpdateWorldState(WORLD_STATE_HOR_WAVE_COUNT, 0);
+            OpenDoor(uiFrontDoor);
+            CloseDoor(uiArthasDoor);
+
 
             // TODO
             // in case of wipe, the event is normally restarted by jumping into the center of the room.
