@@ -493,9 +493,9 @@ void Unit::GetRandomContactPoint(const Unit* obj, float &x, float &y, float &z, 
         , GetAngle(obj) + (attacker_number ? (static_cast<float>(M_PI/2) - static_cast<float>(M_PI) * (float)rand_norm()) * float(attacker_number) / combat_reach * 0.3f : 0));
 }
 
-AuraApplication * Unit::GetVisibleAura(uint8 slot)
+AuraApplication * Unit::GetVisibleAura(uint8 slot) const
 {
-    VisibleAuraMap::iterator itr = m_visibleAuras.find(slot);
+    VisibleAuraMap::const_iterator itr = m_visibleAuras.find(slot);
     if (itr != m_visibleAuras.end())
         return itr->second;
     return 0;
