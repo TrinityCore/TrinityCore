@@ -2825,6 +2825,7 @@ void Player::SetInWater(bool apply)
 }
 void Player::SetSpectate(bool on)
 {
+   if
    {
         SetSpeed(MOVE_RUN, 5.0);
         spectatorFlag = true;
