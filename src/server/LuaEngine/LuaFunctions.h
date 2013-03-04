@@ -16,8 +16,8 @@ ElunaRegister<Unit> UnitMethods[] =
     {"GetGearLevel", &LuaUnit::GetGearLevel},                       // :GetGearLevel() -- Returns the player's average gear level
     {"GetAccountId", &LuaUnit::GetAccountId},                       // :GetAccountId()
     {"GetAccountName", &LuaUnit::GetAccountName},                   // :GetAccountName()
-    {"GetArenaPoints", &LuaUnit::GetArenaPoints},                   // :GetArenaPoints() - UNDOCUMENTED
-    {"GetHonorPoints", &LuaUnit::GetHonorPoints},                   // :GetHonorPoints() - UNDOCUMENTED
+    {"GetArenaPoints", &LuaUnit::GetArenaPoints},                   // :GetArenaPoints()
+    {"GetHonorPoints", &LuaUnit::GetHonorPoints},                   // :GetHonorPoints()
 
     // Setters
     {"SetCoinage", &LuaUnit::SetCoinage},                           // :SetCoinage(amount) - sets plr's coinage to this.
@@ -28,8 +28,8 @@ ElunaRegister<Unit> UnitMethods[] =
     {"AdvanceAllSkills", &LuaUnit::AdvanceAllSkills},               // AdvanceAllSkills(value) -- Advances all current skills to your input(value)
     {"SetBindPoint", &LuaUnit::SetBindPoint},                       // :SetBindPoint(x, y, z, map, areaid) -- sets home for hearthstone
     {"SetBindPointAtPlayerLoc", &LuaUnit::SetBindPointAtPlayerLoc}, // :SetBindPointAtPlayerLoc() -- Set's home for hearthstone at player's location
-    {"SetArenaPoints", &LuaUnit::SetArenaPoints},                   // :SetArenaPoints(amount) - UNDOCUMENTED
-    {"SetHonorPoints", &LuaUnit::SetHonorPoints},                   // :SetHonorPoints(amount) - UNDOCUMENTED
+    {"SetArenaPoints", &LuaUnit::SetArenaPoints},                   // :SetArenaPoints(amount)
+    {"SetHonorPoints", &LuaUnit::SetHonorPoints},                   // :SetHonorPoints(amount)
 
     // Boolean
     {"IsInGroup", &LuaUnit::IsInGroup},                             // :IsInGroup()
@@ -40,31 +40,31 @@ ElunaRegister<Unit> UnitMethods[] =
     {"HasTitle", &LuaUnit::HasTitle},                               // :HasTitle(id)
     {"Teleport", &LuaUnit::Teleport},                               // :Teleport(Map, X, Y, Z, O) - Teleports player to specified co-ordinates. Returns true if success and false if not.
     {"AddItem", &LuaUnit::AddItem},                                 // :AddItem(id, amount) - Adds amount of item to player. Returns true if success and false if not.
-    {"IsInArenaTeam", &LuaUnit::IsInArenaTeam},                     // :IsInArenaTeam(type) -  type : 0 = 2v2, 1 = 3v3, 2 = 5v5 UNDOCUMENTED
+    {"IsInArenaTeam", &LuaUnit::IsInArenaTeam},                     // :IsInArenaTeam(type) -  type : 0 = 2v2, 1 = 3v3, 2 = 5v5
 
     // Gossip                                                           
     {"GossipMenuAddItem", &LuaUnit::GossipMenuAddItem},             // :GossipMenuAddItem(icon, msg, sender, intid, code, popup, money)
     {"GossipSendMenu", &LuaUnit::GossipSendMenu},                   // :GossipSendMenu(npc_text, unit[, menu_id]) -- If unit is a player, you need to use a menu_id. menu_id is used to hook the gossip select function to the menu.
     {"GossipComplete", &LuaUnit::GossipComplete},                   // :GossipComplete()
-    {"GossipClearMenu", &LuaUnit::GossipClearMenu},                 // :GossipClearMenu() -- Clears the gossip menu of options. Pretty much only useful with player gossip. Need to use before creating a new menu for the player Undocumented
+    {"GossipClearMenu", &LuaUnit::GossipClearMenu},                 // :GossipClearMenu() -- Clears the gossip menu of options. Pretty much only useful with player gossip. Need to use before creating a new menu for the player
 
     // Update
 
     // Other
     {"SendBroadcastMessage", &LuaUnit::SendBroadcastMessage},       // :SendBroadcastMessage(message)
     {"SendAreaTriggerMessage", &LuaUnit::SendAreaTriggerMessage},   // :SendAreaTriggerMessage(message) -- Sends a yellow message in the middle of your screen
-    {"SendNotification", &LuaUnit::SendNotification},               // :SendNotification(message) -- Sends a red message in the middle of your screen UNDOCUMENTED
-    {"SendPacketToPlayer", &LuaUnit::SendPacketToPlayer},           // :SendPacketToPlayer(packet) - Sends a specified packet to the player (NOT DOCUMENTED)
-    {"SendPacket", &LuaUnit::SendPacket},                           // :SendPacket(packet) -- Sends a specified packet (NOT DOCUMENTED)
-    {"SendPacketToGroup", &LuaUnit::SendPacketToGroup},             // :SendPacketToGroup(packet, sendToPlayersInBattleground) - Sends a specified packet to the group with the choice (true/false) to send it to players in a battleground (NOT DOCUMENTED)
+    {"SendNotification", &LuaUnit::SendNotification},               // :SendNotification(message) -- Sends a red message in the middle of your screen
+    {"SendPacketToPlayer", &LuaUnit::SendPacketToPlayer},           // :SendPacketToPlayer(packet) - Sends a specified packet to the player
+    {"SendPacket", &LuaUnit::SendPacket},                           // :SendPacket(packet) -- Sends a specified packet
+    {"SendPacketToGroup", &LuaUnit::SendPacketToGroup},             // :SendPacketToGroup(packet, sendToPlayersInBattleground(bool)) - Sends a specified packet to the group with the choice (true/false) to send it to players in a battleground
     {"SendPacketToGuild", &LuaUnit::SendPacketToGuild},             // :SendPacketToGuild(packet) - Sends a specified packet to your guild
-    {"SendPacketToRankedInGuild", &LuaUnit::SendPacketToRankedInGuild}, // :SendPacketToRankedInGuild(packet, rankId) - Sends a specified packet to your guild, specifying a rankId will only send the packet to your ranked members. (NOT DOCUMENTED)
+    {"SendPacketToRankedInGuild", &LuaUnit::SendPacketToRankedInGuild}, // :SendPacketToRankedInGuild(packet, rankId) - Sends a specified packet to your guild, specifying a rankId will only send the packet to your ranked members.
     {"GiveCoinage", &LuaUnit::GiveCoinage},                         // :GiveCoinage(amount) - MODIFIES (does not set) coinage count.
     {"RemoveCoinage", &LuaUnit::RemoveCoinage},                     // :RemoveCoinage(amount) - Removes amount of coinage from plr.
     {"LearnSpell", &LuaUnit::LearnSpell},                           // :LearnSpell(id) - learns the given spell.
     {"RemoveItem", &LuaUnit::RemoveItem},                           // :RemoveItem(id, amount) - Removes amount of item to player.
     {"ResurrectPlayer", &LuaUnit::ResurrectPlayer},                 // :ResurrectPlayer([percent[, sickness(bool)]]) - Resurrects the player at percentage, player gets resurrection sickness if sickness set to true.
-    {"PlaySoundToPlayer", &LuaUnit::PlaySoundToPlayer},             // :PlaySoundToPlayer(soundId) - Plays the specified sound to the player (NOT DOCUMENTED)
+    {"PlaySoundToPlayer", &LuaUnit::PlaySoundToPlayer},             // :PlaySoundToPlayer(soundId) - Plays the specified sound to the player
 
 
     // Creature methods
@@ -74,10 +74,16 @@ ElunaRegister<Unit> UnitMethods[] =
     {"GetAITargetsCount", &LuaUnit::GetAITargetsCount},             // :GetAITargetsCount() - Get threat list size
 
     // Other
+<<<<<<< HEAD
     {"RegisterEvent", &LuaUnit::RegisterEvent},                     // :RegisterEvent(function, delay, calls) - UNDOCUMENTED
     {"RemoveEventByID", &LuaUnit::RemoveEventByID},                 // :RemoveEventByID(eventID) - UNDOCUMENTED
     {"RemoveEvents", &LuaUnit::RemoveEvents},                       // :RemoveEvents() - UNDOCUMENTED
     {"Despawn", &LuaUnit::Despawn},                                 // :Despawn([despawnDelay]) - Creature despawns after given time UNDOCUMENTED
+=======
+    {"RegisterEvent", &LuaUnit::RegisterEvent},                     // :RegisterEvent(function, delay, calls)
+    {"RemoveEventByID", &LuaUnit::RemoveEventByID},                 // :RemoveEventByID(eventID)
+    {"RemoveEvents", &LuaUnit::RemoveEvents},                       // :RemoveEvents()
+>>>>>>> b679b1fad1d0ea03e0b5bc097b0b85aa8fce9b56
 
 
     // Unit Methods
@@ -109,13 +115,13 @@ ElunaRegister<Unit> UnitMethods[] =
     {"GetUnitType", &LuaUnit::GetUnitType},                         // :GetUnitType() - Returns object type, IE: Player, Creature
     {"GetEntry", &LuaUnit::GetEntry},                               // :GetEntry() - Returns the unit's entryId
     {"GetAura", &LuaUnit::GetAura},                                 // :GetAura(spellID) - returns aura object
-    {"GetInt32Value", &LuaUnit::GetInt32Value},                     // :GetInt32Value(index) - returns an int value from unit fields UNDOCUMENTED
-    {"GetUInt32Value", &LuaUnit::GetUInt32Value},                   // :GetUInt32Value(index) - returns an uint value from unit fields UNDOCUMENTED
-    {"GetFloatValue", &LuaUnit::GetFloatValue},                     // :GetFloatValue(index) - returns a float value from unit fields UNDOCUMENTED
-    {"GetByteValue", &LuaUnit::GetByteValue},                       // :GetByteValue(index, offset) - returns a byte value from unit fields UNDOCUMENTED
-    {"GetUInt16Value", &LuaUnit::GetUInt16Value},                   // :GetUInt16Value(index, offset) - returns a uint16 value from unit fields UNDOCUMENTED
-    {"GetInstanceId", &LuaUnit::GetInstanceId},                     // :GetInstanceId() - Gets the instance id of the unit UNDOCUMENTED
-    {"GetPhaseMask", &LuaUnit::GetPhaseMask},                       // :GetPhaseMask() - gets the phase mask ofthe unit UNDOCUMENTED
+    {"GetInt32Value", &LuaUnit::GetInt32Value},                     // :GetInt32Value(index) - returns an int value from unit fields
+    {"GetUInt32Value", &LuaUnit::GetUInt32Value},                   // :GetUInt32Value(index) - returns an uint value from unit fields
+    {"GetFloatValue", &LuaUnit::GetFloatValue},                     // :GetFloatValue(index) - returns a float value from unit fields
+    {"GetByteValue", &LuaUnit::GetByteValue},                       // :GetByteValue(index, offset) - returns a byte value from unit fields
+    {"GetUInt16Value", &LuaUnit::GetUInt16Value},                   // :GetUInt16Value(index, offset) - returns a uint16 value from unit fields
+    {"GetInstanceId", &LuaUnit::GetInstanceId},                     // :GetInstanceId() - Gets the instance id of the unit
+    {"GetPhaseMask", &LuaUnit::GetPhaseMask},                       // :GetPhaseMask() - gets the phase mask of the unit
 
     // Setters
     {"SetLevel", &LuaUnit::SetLevel},                               // :SetLevel(amount)
@@ -126,20 +132,20 @@ ElunaRegister<Unit> UnitMethods[] =
     {"SetDisplayID", &LuaUnit::SetDisplayID},                       // :SetDisplayID(id)
     {"SetFacing", &LuaUnit::SetFacing},                             // :SetFacing(o) -- Sets the Unit facing to arg
     {"SetDeathState", &LuaUnit::SetDeathState},                     // :SetDeathState(value) -- 0 = alive 1 = just died 2 = corpse 3 = dead
-    {"SetInt32Value", &LuaUnit::SetInt32Value},                     // :SetInt32Value(index, value) - Sets an int value for the unit UNDOCUMENTED
-    {"SetUInt32Value", &LuaUnit::SetUInt32Value},                   // :SetUInt32Value(index, value) - Sets an uint value for the unit UNDOCUMENTED
-    {"UpdateUInt32Value", &LuaUnit::UpdateUInt32Value},             // :UpdateUInt32Value(index, value) - Updates an uint value for the unit UNDOCUMENTED
-    {"SetFloatValue", &LuaUnit::SetFloatValue},                     // :SetFloatValue(index, value) - Sets a float value for the unit UNDOCUMENTED
-    {"SetByteValue", &LuaUnit::SetByteValue},                       // :SetByteValue(index, offset, value) - Sets a byte value for the unit UNDOCUMENTED
-    {"SetUInt16Value", &LuaUnit::SetUInt16Value},                   // :SetUInt16Value(index, offset, value) - Sets an uint16 value for the unit UNDOCUMENTED
-    {"SetInt16Value", &LuaUnit::SetInt16Value},                     // :SetInt16Value(index, offset, value) - Sets an int16 value for the unit UNDOCUMENTED
-    {"SetPhaseMask", &LuaUnit::SetPhaseMask},                       // :SetPhaseMask(Phase[, update]) - Sets the phase of the unit UNDOCUMENTED
-    {"SetWalk", &LuaUnit::SetWalk},                                 // :SetWalk(enable) - If false, creature runs, otherwise walks UNDOCUMENTED
-    {"SetSpeed", &LuaUnit::SetSpeed},                               // :SetSpeed(type, speed[, forced]) - Sets speed for the movement type (0 = walk, 1 = run ..) UNDOCUMENTED
-    {"SetStunned", &LuaUnit::SetStunned},                           // :SetStunned(enable) - Stuns or removes stun UNDOCUMENTED
-    {"SetRooted", &LuaUnit::SetRooted},                             // :SetRooted(enable) - Roots or removes root UNDOCUMENTED
-    {"SetConfused", &LuaUnit::SetConfused},                         // :SetConfused(enable) - Sets confused or removes confusion UNDOCUMENTED
-    {"SetFeared", &LuaUnit::SetFeared},                             // :SetFeared(enable) - Fears or removes fear UNDOCUMENTED
+    {"SetInt32Value", &LuaUnit::SetInt32Value},                     // :SetInt32Value(index, value) - Sets an int value for the unit
+    {"SetUInt32Value", &LuaUnit::SetUInt32Value},                   // :SetUInt32Value(index, value) - Sets an uint value for the unit
+    {"UpdateUInt32Value", &LuaUnit::UpdateUInt32Value},             // :UpdateUInt32Value(index, value) - Updates an uint value for the unit
+    {"SetFloatValue", &LuaUnit::SetFloatValue},                     // :SetFloatValue(index, value) - Sets a float value for the unit
+    {"SetByteValue", &LuaUnit::SetByteValue},                       // :SetByteValue(index, offset, value) - Sets a byte value for the unit
+    {"SetUInt16Value", &LuaUnit::SetUInt16Value},                   // :SetUInt16Value(index, offset, value) - Sets an uint16 value for the unit
+    {"SetInt16Value", &LuaUnit::SetInt16Value},                     // :SetInt16Value(index, offset, value) - Sets an int16 value for the unit
+    {"SetPhaseMask", &LuaUnit::SetPhaseMask},                       // :SetPhaseMask(Phase[, update]) - Sets the phase of the unit
+    {"SetWalk", &LuaUnit::SetWalk},                                 // :SetWalk(enable) - If false, creature runs, otherwise walks
+    {"SetSpeed", &LuaUnit::SetSpeed},                               // :SetSpeed(type, speed[, forced]) - Sets speed for the movement type (0 = walk, 1 = run ..)
+    {"SetStunned", &LuaUnit::SetStunned},                           // :SetStunned(enable) - Stuns or removes stun
+    {"SetRooted", &LuaUnit::SetRooted},                             // :SetRooted(enable) - Roots or removes root
+    {"SetConfused", &LuaUnit::SetConfused},                         // :SetConfused(enable) - Sets confused or removes confusion
+    {"SetFeared", &LuaUnit::SetFeared},                             // :SetFeared(enable) - Fears or removes fear
 
     // Boolean
     {"IsAlive", &LuaUnit::IsAlive},                                 // :IsAlive()
@@ -159,36 +165,36 @@ ElunaRegister<Unit> UnitMethods[] =
     {"CastSpellAoF", &LuaUnit::CastSpellAoF},                       // :CastSpellAoF(x, y, z, SpellID, triggered) - Casts the spell on coordinates, if triggered is false has manacost and cast time
     {"FullCastSpell", &LuaUnit::FullCastSpell},                     // :FullCastSpell(spellID) - Casts the spell on self
     {"FullCastSpellOnTarget", &LuaUnit::FullCastSpellOnTarget},     // :FullCastSpellOnTarget(spellID, unit) - Casts the spell on target
-    {"PlayDirectSound", &LuaUnit::PlayDirectSound},                 // :PlayDirectSound(soundId,  player) - Unit plays soundID to player, or everyone around if no player. UNDOCUMENTED
-    {"PlayDistanceSound", &LuaUnit::PlayDistanceSound},             // :PlayDistanceSound(soundId,  player) - Unit plays soundID to player, or everyone around if no player. The sound fades the further you are UNDOCUMENTED
-    {"PlaySoundToSet", &LuaUnit::PlayDirectSound},                  // :PlayDirectSound(soundId,  player) - Unit plays soundID to player, or everyone around if no player. (ARC compability) UNDOCUMENTED
-    {"Kill", &LuaUnit::Kill},                                       // :Kill(target, durabilityLoss) - Unit kills the target, if no target then kills the unit. Durabilityloss is true by default UNDOCUMENTED
-    {"KnockbackFrom", &LuaUnit::KnockbackFrom},                     // :KnockbackFrom(x, y, speedXY, speedZ) - Knocks the player to the opposite direction from x,y at the defined speeds UNDOCUMENTED
-    {"JumpTo", &LuaUnit::JumpTo},                                   // :JumpTo(WorldObj, speedZ) - Unit jumps to world object UNDOCUMENTED
-    {"Jump", &LuaUnit::Jump},                                       // :Jump(speedXY, speedZ[, forward]) - Unit jumps at given speeds UNDOCUMENTED
-    {"JumpToCoords", &LuaUnit::JumpToCoords},                       // :JumpToCoords(x, y, z, speedXY, speedZ) - Unit jumps to coordinates at given speeds UNDOCUMENTED
-    {"MoveTo", &LuaUnit::MovePoint},                                // :MoveTo(id, x, y, z[, generatePath]) - Unit moves to point. ID is sent to WP reach hook UNDOCUMENTED
-    {"MoveCharge", &LuaUnit::MoveCharge},                           // :MoveCharge(x, y, z, speed) - Charges to target location UNDOCUMENTED
-    {"MoveChase", &LuaUnit::MoveChase},                             // :MoveChase(target[, dist, angle]) - Chases target unit UNDOCUMENTED
-    {"MoveFollow", &LuaUnit::MoveFollow},                           // :MoveFollow(target, dist, angle) - Follows target unit UNDOCUMENTED
-    {"MoveClear", &LuaUnit::MoveClear},                             // :MoveClear() - Stops movement UNDOCUMENTED
-    {"MoveRandom", &LuaUnit::MoveRandom},                           // :MoveRandom() - Moves randomly inside radius UNDOCUMENTED
-    {"MoveRotate", &LuaUnit::MoveRotate},                           // :MoveRotate(time, left) - Turns left (true or nil) or right (false) for given time UNDOCUMENTED
+    {"PlayDirectSound", &LuaUnit::PlayDirectSound},                 // :PlayDirectSound(soundId,  player) - Unit plays soundID to player, or everyone around if no player.
+    {"PlayDistanceSound", &LuaUnit::PlayDistanceSound},             // :PlayDistanceSound(soundId,  player) - Unit plays soundID to player, or everyone around if no player. The sound fades the further you are
+    {"PlaySoundToSet", &LuaUnit::PlayDirectSound},                  // :PlaySoundToSet(soundId, player) - Unit plays soundID to player, or everyone around if no player. (ARC compability)
+    {"Kill", &LuaUnit::Kill},                                       // :Kill(target, durabilityLoss) - Unit kills the target, if no target then kills the unit. Durabilityloss is true by default
+    {"KnockbackFrom", &LuaUnit::KnockbackFrom},                     // :KnockbackFrom(x, y, speedXY, speedZ) - Knocks the player to the opposite direction from x,y at the defined speeds
+    {"JumpTo", &LuaUnit::JumpTo},                                   // :JumpTo(WorldObj, speedZ) - Unit jumps to world object
+    {"Jump", &LuaUnit::Jump},                                       // :Jump(speedXY, speedZ[, forward]) - Unit jumps at given speeds
+    {"JumpToCoords", &LuaUnit::JumpToCoords},                       // :JumpToCoords(x, y, z, speedXY, speedZ) - Unit jumps to coordinates at given speeds
+    {"MoveTo", &LuaUnit::MovePoint},                                // :MoveTo(id, x, y, z[, generatePath]) - Unit moves to point. ID is sent to WP reach hook
+    {"MoveCharge", &LuaUnit::MoveCharge},                           // :MoveCharge(x, y, z, speed) - Charges to target location
+    {"MoveChase", &LuaUnit::MoveChase},                             // :MoveChase(target[, dist, angle]) - Chases target unit
+    {"MoveFollow", &LuaUnit::MoveFollow},                           // :MoveFollow(target, dist, angle) - Follows target unit
+    {"MoveClear", &LuaUnit::MoveClear},                             // :MoveClear() - Stops movement
+    {"MoveRandom", &LuaUnit::MoveRandom},                           // :MoveRandom() - Moves randomly inside radius
+    {"MoveRotate", &LuaUnit::MoveRotate},                           // :MoveRotate(time, left) - Turns left (true or nil) or right (false) for given time
     {"SummonGameObject", &LuaUnit::SummonGameObject},               // :SummonGameObject(entry, x, y, z, o[, respawnDelay]) - Spawns an object to location. Returns the object or nil UNDOCUMENTED
     {"SpawnCreature", &LuaUnit::SpawnCreature},                     // :SpawnCreature(entry, x, y, z, o[, despawnDelay]) - Spawns a creature to location that despawns after given time (0 for infinite). Returns the creature or nil UNDOCUMENTED
 
     /* Vehicle */
-    {"AddVehiclePassenger", &LuaUnit::AddVehiclePassenger},         // :AddVehiclePassenger(unit, seatId) - Adds a passenger to the vehicle by specifying a unit and seatId      UNDOCUMENTED (UNTESTED)
-    {"IsOnVehicle", &LuaUnit::IsOnVehicle},                         // :IsOnVehicle() - Checks if the (unit) is in a vehicle                UNDOCUMENTED (UNTESTED)
-    {"DismissVehicle", &LuaUnit::DismissVehicle},                   // :DismissVehicle() - Dismisses the (unit)'s vehicle (Unmounts)        UNDOCUMENTED (UNTESTED)
+    {"AddVehiclePassenger", &LuaUnit::AddVehiclePassenger},         // :AddVehiclePassenger(unit, seatId) - Adds a passenger to the vehicle by specifying a unit and seatId
+    {"IsOnVehicle", &LuaUnit::IsOnVehicle},                         // :IsOnVehicle() - Checks if the (unit) is in a vehicle
+    {"DismissVehicle", &LuaUnit::DismissVehicle},                   // :DismissVehicle() - Dismisses the (unit)'s vehicle (Unmounts)
     //{"EjectPassenger", &LuaUnit::EjectPassenger},                   // :EjectPassenger(unit) - Ejects a specified unit out of the vehicle   UNDOCUMENTED (UNTESTED)
-    {"RemovePassenger", &LuaUnit::RemovePassenger},                 // :RemovePassenger(unit) - Removes a specific unit from the vehicle    UNDOCUMENTED (UNTESTED)
-    {"RemoveAllPassengers", &LuaUnit::RemoveAllPassengers},         // :RemoveAllPassengers() - Removes all the passengers from the vehicle UNDOCUMENTED (UNTESTED)
-    {"GetPassenger", &LuaUnit::GetPassenger},                       // :GetPassenger(seatId) - Gets a passenger by their seatId             UNDOCUMENTED (UNTESTED)
-    {"GetNextEmptySeat", &LuaUnit::GetNextEmptySeat},               // :GetNextEmptySeat(seatId) - Gets(returns) the next empty seat        UNDOCUMENTED (UNTESTED)
-    {"GetAvailableSeats", &LuaUnit::GetAvailableSeats},             // :GetAvailableSeats() - Returns the available seats count             UNDOCUMENTED (UNTESTED)
-    {"GetVehicleBase", &LuaUnit::GetVehicleBase},                   // :GetVehicleBase() - Returns the unit/player's vehicle base           UNDOCUMENTED (UNTESTED)
-    {"HasEmptySeat", &LuaUnit::HasEmptySeat},                       // :HasEmptySeat(seatId) - Checks if the specified seatId is empty(nobody in it)     UNDOCUMENTED (UNTESTED)
+    {"RemovePassenger", &LuaUnit::RemovePassenger},                 // :RemovePassenger(unit) - Removes a specific unit from the vehicle
+    {"RemoveAllPassengers", &LuaUnit::RemoveAllPassengers},         // :RemoveAllPassengers() - Removes all the passengers from the vehicle
+    {"GetPassenger", &LuaUnit::GetPassenger},                       // :GetPassenger(seatId) - Gets a passenger by their seatId
+    {"GetNextEmptySeat", &LuaUnit::GetNextEmptySeat},               // :GetNextEmptySeat(seatId) - Gets(returns) the next empty seat
+    {"GetAvailableSeats", &LuaUnit::GetAvailableSeats},             // :GetAvailableSeats() - Returns the available seats count
+    {"GetVehicleBase", &LuaUnit::GetVehicleBase},                   // :GetVehicleBase() - Returns the unit's vehicle base
+    {"HasEmptySeat", &LuaUnit::HasEmptySeat},                       // :HasEmptySeat(seatId) - Checks if the specified seatId is empty(nobody in it)
     { NULL, NULL },
 };
 
