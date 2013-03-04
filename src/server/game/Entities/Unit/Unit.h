@@ -1659,7 +1659,7 @@ class Unit : public WorldObject
         virtual bool SetDisableGravity(bool disable, bool packetOnly = false);
         virtual bool SetHover(bool enable);
 
-        void SetInFront(Unit const* target);
+        void SetInFront(WorldObject const* target);
         void SetFacingTo(float ori);
         void SetFacingToObject(WorldObject* object);
 
@@ -2244,7 +2244,7 @@ class Unit : public WorldObject
         }
 
         // Handling caster facing during spellcast
-        void FocusTarget(Spell const* focusSpell, uint64 target);
+        void FocusTarget(Spell const* focusSpell, WorldObject const* target);
         void ReleaseFocus(Spell const* focusSpell);
 
         // Movement info
