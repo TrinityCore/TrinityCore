@@ -1207,12 +1207,14 @@ class ObjectMgr
 
         CharacterConversionMap FactionChange_Achievements;
         CharacterConversionMap FactionChange_Items;
+        CharacterConversionMap FactionChange_Quests;
         CharacterConversionMap FactionChange_Spells;
         CharacterConversionMap FactionChange_Reputation;
         CharacterConversionMap FactionChange_Titles;
 
         void LoadFactionChangeAchievements();
         void LoadFactionChangeItems();
+        void LoadFactionChangeQuests();
         void LoadFactionChangeSpells();
         void LoadFactionChangeReputations();
         void LoadFactionChangeTitles();
