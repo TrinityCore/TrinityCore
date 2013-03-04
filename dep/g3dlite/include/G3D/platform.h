@@ -56,6 +56,8 @@
     #define G3D_LINUX
 #elif defined(__linux__)
     #define G3D_LINUX
+#elif defined(__CYGWIN__)
+    #define G3D_LINUX
 #elif defined(__APPLE__)
     #define G3D_LINUX
 

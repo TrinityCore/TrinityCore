@@ -74,32 +74,32 @@ public:
             //Shadowflame Timer
             if (ShadowFlame_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_SHADOWFLAME);
+                DoCastVictim(SPELL_SHADOWFLAME);
                 ShadowFlame_Timer = urand(12000, 15000);
             } else ShadowFlame_Timer -= diff;
 
             //Thrash Timer
             if (Thrash_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_THRASH);
+                DoCastVictim(SPELL_THRASH);
                 Thrash_Timer = urand(10000, 15000);
             } else Thrash_Timer -= diff;
 
             //Wing Buffet Timer
             if (WingBuffet_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_WINGBUFFET);
+                DoCastVictim(SPELL_WINGBUFFET);
                 WingBuffet_Timer = 25000;
             } else WingBuffet_Timer -= diff;
 
             //Shadow of Ebonroc Timer
             if (ShadowOfEbonroc_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_SHADOWOFEBONROC);
+                DoCastVictim(SPELL_SHADOWOFEBONROC);
                 ShadowOfEbonroc_Timer = urand(25000, 350000);
             } else ShadowOfEbonroc_Timer -= diff;
 
-            if (me->getVictim()->HasAura(SPELL_SHADOWOFEBONROC))
+            if (me->getVictim() && me->getVictim()->HasAura(SPELL_SHADOWOFEBONROC))
             {
                 if (Heal_Timer <= diff)
                 {

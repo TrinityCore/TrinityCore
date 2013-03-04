@@ -322,8 +322,8 @@ bool Creature::InitEntry(uint32 Entry, uint32 /*team*/, const CreatureData* data
     SetByteValue(UNIT_FIELD_BYTES_0, 2, minfo->gender);
 
     // Load creature equipment
-    if (!data || data->equipmentId == 0)                    // use default from the template
-        LoadEquipment(GetOriginalEquipmentId());
+    if (!data || data->equipmentId == 0)
+        LoadEquipment(); // use default equipment (if available)
     else if (data && data->equipmentId != 0)                // override, 0 means no equipment
     {
         m_originalEquipmentId = data->equipmentId;
@@ -863,6 +863,16 @@ bool Creature::Create(uint32 guidlow, Map* map, uint32 phaseMask, uint32 Entry, 
     return true;
 }
 
+void Creature::InitializeReactState()
+{
+    if (isTotem() || isTrigger() || GetCreatureType() == CREATURE_TYPE_CRITTER || isSpiritService())
+        SetReactState(REACT_PASSIVE);
+    else
+        SetReactState(REACT_AGGRESSIVE);
+    /*else if (isCivilian())
+    SetReactState(REACT_DEFENSIVE);*/;
+}
+
 bool Creature::isCanTrainingOf(Player* player, bool msg) const
 {
     if (!isTrainer())
@@ -1214,6 +1224,12 @@ float Creature::_GetHealthMod(int32 Rank)
         default:
             return sWorld->getRate(RATE_CREATURE_ELITE_ELITE_HP);
     }
+}
+
+void Creature::LowerPlayerDamageReq(uint32 unDamage)
+{
+    if (m_PlayerDamageReq)
+        m_PlayerDamageReq > unDamage ? m_PlayerDamageReq -= unDamage : m_PlayerDamageReq = 0;
 }
 
 float Creature::_GetDamageMod(int32 Rank)
@@ -1734,6 +1750,23 @@ bool Creature::IsImmunedToSpellEffect(SpellInfo const* spellInfo, uint32 index) 
     return Unit::IsImmunedToSpellEffect(spellInfo, index);
 }
 
+bool Creature::isElite() const
+{
+    if (isPet())
+        return false;
+
+    uint32 rank = GetCreatureTemplate()->rank;
+    return rank != CREATURE_ELITE_NORMAL && rank != CREATURE_ELITE_RARE;
+}
+
+bool Creature::isWorldBoss() const
+{
+    if (isPet())
+        return false;
+
+    return GetCreatureTemplate()->type_flags & CREATURE_TYPEFLAGS_BOSS;
+}
+
 SpellInfo const* Creature::reachWithSpellAttack(Unit* victim)
 {
     if (!victim)
@@ -2221,6 +2254,11 @@ void Creature::SetInCombatWithZone()
     }
 }
 
+uint32 Creature::GetShieldBlockValue() const                  //dunno mob block value
+{
+    return (getLevel()/2 + uint32(GetStat(STAT_STRENGTH)/20));
+}
+
 void Creature::_AddCreatureSpellCooldown(uint32 spell_id, time_t end_time)
 {
     m_CreatureSpellCooldowns[spell_id] = end_time;
@@ -2256,6 +2294,13 @@ bool Creature::HasCategoryCooldown(uint32 spell_id) const
 
     CreatureSpellCooldowns::const_iterator itr = m_CreatureCategoryCooldowns.find(spellInfo->Category);
     return(itr != m_CreatureCategoryCooldowns.end() && time_t(itr->second + (spellInfo->CategoryRecoveryTime / IN_MILLISECONDS)) > time(NULL));
+}
+
+uint32 Creature::GetCreatureSpellCooldownDelay(uint32 spellId) const
+{
+    CreatureSpellCooldowns::const_iterator itr = m_CreatureSpellCooldowns.find(spellId);
+    time_t t = time(NULL);
+    return uint32(itr != m_CreatureSpellCooldowns.end() && itr->second > t ? itr->second - t : 0);
 }
 
 bool Creature::HasSpellCooldown(uint32 spell_id) const
@@ -2500,6 +2545,14 @@ void Creature::FarTeleportTo(Map* map, float X, float Y, float Z, float O)
     Relocate(X, Y, Z, O);
     SetMap(map);
     GetMap()->AddToMap(this);
+}
+
+uint32 Creature::GetPetAutoSpellOnPos(uint8 pos) const
+{
+    if (pos >= MAX_SPELL_CHARM || m_charmInfo->GetCharmSpell(pos)->GetType() != ACT_ENABLED)
+        return 0;
+    else
+        return m_charmInfo->GetCharmSpell(pos)->GetAction();
 }
 
 void Creature::SetPosition(float x, float y, float z, float o)

@@ -19,21 +19,67 @@
 #include "AccountMgr.h"
 #include "DatabaseEnv.h"
 
+void RBACRole::GrantPermission(uint32 permissionId)
+{
+    if (permissionId < RBAC_PERM_MAX)
+    {
+        sLog->outTrace(LOG_FILTER_RBAC, "RBACRole::GrantPermission (Role %u, Permission %u). Ok", GetId(), permissionId);
+        _perms.set(permissionId);
+    }
+    else
+        sLog->outError(LOG_FILTER_RBAC, "RBACRole::GrantPermission (Role %u, Permission %u). Permission not lower than %u",
+                       GetId(), permissionId, RBAC_PERM_MAX);
+}
+
+void RBACRole::RevokePermission(uint32 permissionId)
+{
+    if (permissionId < RBAC_PERM_MAX)
+    {
+        sLog->outTrace(LOG_FILTER_RBAC, "RBACRole::RevokePermission (Role %u, Permission %u). Ok", GetId(), permissionId);
+        _perms.reset(permissionId);
+    }
+    else
+        sLog->outError(LOG_FILTER_RBAC, "RBACRole::RevokePermission (Role %u, Permission %u). Permission not lower than %u",
+                       GetId(), permissionId, RBAC_PERM_MAX);
+}
+
+void RBACGroup::GrantRole(uint32 roleId)
+{
+    sLog->outTrace(LOG_FILTER_RBAC, "RBACRole::GrantPermission (Role %u, Permission %u). Ok", GetId(), roleId);
+    _roles.insert(roleId);
+}
+
+void RBACGroup::RevokeRole(uint32 roleId)
+{
+    sLog->outTrace(LOG_FILTER_RBAC, "RBACRole::GrantPermission (Role %u, Permission %u). Ok", GetId(), roleId);
+    _roles.erase(roleId);
+}
+
 RBACCommandResult RBACData::AddGroup(uint32 groupId, int32 realmId /* = 0 */)
 {
     // Check if group Id exists
     RBACGroup const* group = sAccountMgr->GetRBACGroup(groupId);
     if (!group)
+    {
+        sLog->outTrace(LOG_FILTER_RBAC, "RBACData::AddGroup [Id: %u Name: %s] (Group %u, RealmId %d). Group does not exists",
+                       GetId(), GetName().c_str(), groupId, realmId);
         return RBAC_ID_DOES_NOT_EXISTS;
+    }
 
     // Already added?
     std::pair<std::set<uint32>::iterator, bool> ret = _groups.insert(groupId);
     if (!ret.second)
+    {
+        sLog->outTrace(LOG_FILTER_RBAC, "RBACData::AddGroup [Id: %u Name: %s] (Group %u, RealmId %d). Group Already added",
+                       GetId(), GetName().c_str(), groupId, realmId);
         return RBAC_CANT_ADD_ALREADY_ADDED;
+    }
 
     // Do not save to db when loading data from DB (realmId = 0)
     if (realmId)
     {
+        sLog->outTrace(LOG_FILTER_RBAC, "RBACData::AddGroup [Id: %u Name: %s] (Group %u, RealmId %d). Added and DB updated",
+                       GetId(), GetName().c_str(), groupId, realmId);
         PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_RBAC_ACCOUNT_GROUP);
         stmt->setUInt32(0, GetId());
         stmt->setUInt32(1, groupId);
@@ -42,6 +88,9 @@ RBACCommandResult RBACData::AddGroup(uint32 groupId, int32 realmId /* = 0 */)
 
         CalculateNewPermissions();
     }
+    else
+        sLog->outTrace(LOG_FILTER_RBAC, "RBACData::AddGroup [Id: %u Name: %s] (Group %u, RealmId %d). Added",
+                       GetId(), GetName().c_str(), groupId, realmId);
 
     return RBAC_OK;
 }
@@ -50,11 +99,17 @@ RBACCommandResult RBACData::RemoveGroup(uint32 groupId, int32 realmId /* = 0 */)
 {
     // could remove it?
     if (!_groups.erase(groupId))
+    {
+        sLog->outTrace(LOG_FILTER_RBAC, "RBACData::RemoveGroup [Id: %u Name: %s] (Group %u, RealmId %d). Group not in list",
+                       GetId(), GetName().c_str(), groupId, realmId);
         return RBAC_CANT_REVOKE_NOT_IN_LIST;
+    }
 
     // Do not save to db when loading data from DB (realmId = 0)
     if (realmId)
     {
+        sLog->outTrace(LOG_FILTER_RBAC, "RBACData::RemoveGroup [Id: %u Name: %s] (Group %u, RealmId %d). Removed and DB updated",
+                       GetId(), GetName().c_str(), groupId, realmId);
         PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_DEL_RBAC_ACCOUNT_GROUP);
         stmt->setUInt32(0, GetId());
         stmt->setUInt32(1, groupId);
@@ -63,6 +118,9 @@ RBACCommandResult RBACData::RemoveGroup(uint32 groupId, int32 realmId /* = 0 */)
 
         CalculateNewPermissions();
     }
+    else
+        sLog->outTrace(LOG_FILTER_RBAC, "RBACData::RemoveGroup [Id: %u Name: %s] (Group %u, RealmId %d). Removed",
+                       GetId(), GetName().c_str(), groupId, realmId);
 
     return RBAC_OK;
 }
@@ -72,23 +130,40 @@ RBACCommandResult RBACData::GrantRole(uint32 roleId, int32 realmId /* = 0*/)
     // Check if role Id exists
     RBACRole const* role = sAccountMgr->GetRBACRole(roleId);
     if (!role)
+    {
+        sLog->outTrace(LOG_FILTER_RBAC, "RBACData::GrantRole [Id: %u Name: %s] (Role %u, RealmId %d). Role does not exists",
+                       GetId(), GetName().c_str(), roleId, realmId);
         return RBAC_ID_DOES_NOT_EXISTS;
+    }
 
     // Check if already added in denied list
     if (_deniedRoles.find(roleId) != _deniedRoles.end())
+    {
+        sLog->outTrace(LOG_FILTER_RBAC, "RBACData::GrantRole [Id: %u Name: %s] (Role %u, RealmId %d). Role in deny list",
+                       GetId(), GetName().c_str(), roleId, realmId);
         return RBAC_IN_DENIED_LIST;
+    }
 
     // Already added?
     std::pair<std::set<uint32>::iterator, bool> ret = _grantedRoles.insert(roleId);
     if (!ret.second)
+    {
+        sLog->outTrace(LOG_FILTER_RBAC, "RBACData::GrantRole [Id: %u Name: %s] (Role %u, RealmId %d). Role already granted",
+                       GetId(), GetName().c_str(), roleId, realmId);
         return RBAC_CANT_ADD_ALREADY_ADDED;
+    }
 
     // Do not save to db when loading data from DB (realmId = 0)
     if (realmId)
     {
+        sLog->outTrace(LOG_FILTER_RBAC, "RBACData::GrantRole [Id: %u Name: %s] (Role %u, RealmId %d). Ok and DB updated",
+                       GetId(), GetName().c_str(), roleId, realmId);
         SaveRole(roleId, true, realmId);
         CalculateNewPermissions();
     }
+    else
+        sLog->outTrace(LOG_FILTER_RBAC, "RBACData::GrantRole [Id: %u Name: %s] (Role %u, RealmId %d). Ok",
+                       GetId(), GetName().c_str(), roleId, realmId);
 
     return RBAC_OK;
 }
@@ -98,23 +173,40 @@ RBACCommandResult RBACData::DenyRole(uint32 roleId, int32 realmId /* = 0*/)
     // Check if role Id exists
     RBACRole const* role = sAccountMgr->GetRBACRole(roleId);
     if (!role)
+    {
+        sLog->outTrace(LOG_FILTER_RBAC, "RBACData::DenyRole [Id: %u Name: %s] (Role %u, RealmId %d). Role does not exists",
+                       GetId(), GetName().c_str(), roleId, realmId);
         return RBAC_ID_DOES_NOT_EXISTS;
+    }
 
     // Check if already added in granted list
     if (_grantedRoles.find(roleId) != _grantedRoles.end())
+    {
+        sLog->outTrace(LOG_FILTER_RBAC, "RBACData::DenyRole [Id: %u Name: %s] (Role %u, RealmId %d). Role in grant list",
+                       GetId(), GetName().c_str(), roleId, realmId);
         return RBAC_IN_GRANTED_LIST;
+    }
 
     // Already added?
     std::pair<std::set<uint32>::iterator, bool> ret = _deniedRoles.insert(roleId);
     if (!ret.second)
+    {
+        sLog->outTrace(LOG_FILTER_RBAC, "RBACData::DenyRole [Id: %u Name: %s] (Role %u, RealmId %d). Role already denied",
+                       GetId(), GetName().c_str(), roleId, realmId);
         return RBAC_CANT_ADD_ALREADY_ADDED;
+    }
 
     // Do not save to db when loading data from DB (realmId = 0)
     if (realmId)
     {
+        sLog->outTrace(LOG_FILTER_RBAC, "RBACData::DenyRole [Id: %u Name: %s] (Role %u, RealmId %d). Ok and DB updated",
+                       GetId(), GetName().c_str(), roleId, realmId);
         SaveRole(roleId, false, realmId);
         CalculateNewPermissions();
     }
+    else
+        sLog->outTrace(LOG_FILTER_RBAC, "RBACData::DenyRole [Id: %u Name: %s] (Role %u, RealmId %d). Ok",
+                       GetId(), GetName().c_str(), roleId, realmId);
 
     return RBAC_OK;
 }
@@ -135,11 +227,17 @@ RBACCommandResult RBACData::RevokeRole(uint32 roleId, int32 realmId /* = 0*/)
 
     // could remove it?
     if (!revoked)
+    {
+        sLog->outTrace(LOG_FILTER_RBAC, "RBACData::RevokeRole [Id: %u Name: %s] (Role %u, RealmId %d). Not granted or revoked",
+                       GetId(), GetName().c_str(), roleId, realmId);
         return RBAC_CANT_REVOKE_NOT_IN_LIST;
+    }
 
     // Do not save to db when loading data from DB (realmId = 0)
     if (realmId)
     {
+        sLog->outTrace(LOG_FILTER_RBAC, "RBACData::RevokeRole [Id: %u Name: %s] (Role %u, RealmId %d). Ok and DB updated",
+                       GetId(), GetName().c_str(), roleId, realmId);
         PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_DEL_RBAC_ACCOUNT_ROLE);
         stmt->setUInt32(0, GetId());
         stmt->setUInt32(1, roleId);
@@ -148,6 +246,9 @@ RBACCommandResult RBACData::RevokeRole(uint32 roleId, int32 realmId /* = 0*/)
 
         CalculateNewPermissions();
     }
+    else
+        sLog->outTrace(LOG_FILTER_RBAC, "RBACData::RevokeRole [Id: %u Name: %s] (Role %u, RealmId %d). Ok",
+                       GetId(), GetName().c_str(), roleId, realmId);
 
     return RBAC_OK;
 }
@@ -157,24 +258,41 @@ RBACCommandResult RBACData::GrantPermission(uint32 permissionId, int32 realmId /
     // Check if permission Id exists
     RBACPermission const* perm = sAccountMgr->GetRBACPermission(permissionId);
     if (!perm)
+    {
+        sLog->outTrace(LOG_FILTER_RBAC, "RBACData::GrantPermission [Id: %u Name: %s] (Permission %u, RealmId %d). Permission does not exists",
+                       GetId(), GetName().c_str(), permissionId, realmId);
         return RBAC_ID_DOES_NOT_EXISTS;
+    }
 
     // Check if already added in denied list
     if (_deniedPerms.test(permissionId))
+    {
+        sLog->outTrace(LOG_FILTER_RBAC, "RBACData::GrantPermission [Id: %u Name: %s] (Permission %u, RealmId %d). Permission in deny list",
+                       GetId(), GetName().c_str(), permissionId, realmId);
         return RBAC_IN_DENIED_LIST;
+    }
 
     // Already added?
     if (_grantedPerms.test(permissionId))
+    {
+        sLog->outTrace(LOG_FILTER_RBAC, "RBACData::GrantPermission [Id: %u Name: %s] (Permission %u, RealmId %d). Permission already granted",
+                       GetId(), GetName().c_str(), permissionId, realmId);
         return RBAC_CANT_ADD_ALREADY_ADDED;
+    }
 
     _grantedPerms.set(permissionId);
 
     // Do not save to db when loading data from DB (realmId = 0)
     if (realmId)
     {
+        sLog->outTrace(LOG_FILTER_RBAC, "RBACData::GrantPermission [Id: %u Name: %s] (Permission %u, RealmId %d). Ok and DB updated",
+                       GetId(), GetName().c_str(), permissionId, realmId);
         SavePermission(permissionId, true, realmId);
         CalculateNewPermissions();
     }
+    else
+        sLog->outTrace(LOG_FILTER_RBAC, "RBACData::GrantPermission [Id: %u Name: %s] (Permission %u, RealmId %d). Ok",
+                       GetId(), GetName().c_str(), permissionId, realmId);
 
     return RBAC_OK;
 }
@@ -184,24 +302,41 @@ RBACCommandResult RBACData::DenyPermission(uint32 permissionId, int32 realmId /*
     // Check if permission Id exists
     RBACPermission const* perm = sAccountMgr->GetRBACPermission(permissionId);
     if (!perm)
+    {
+        sLog->outTrace(LOG_FILTER_RBAC, "RBACData::DenyPermission [Id: %u Name: %s] (Permission %u, RealmId %d). Permission does not exists",
+                       GetId(), GetName().c_str(), permissionId, realmId);
         return RBAC_ID_DOES_NOT_EXISTS;
+    }
 
     // Check if already added in granted list
     if (_grantedPerms.test(permissionId))
+    {
+        sLog->outTrace(LOG_FILTER_RBAC, "RBACData::DenyPermission [Id: %u Name: %s] (Permission %u, RealmId %d). Permission in grant list",
+                       GetId(), GetName().c_str(), permissionId, realmId);
         return RBAC_IN_GRANTED_LIST;
+    }
 
     // Already added?
     if (_deniedPerms.test(permissionId))
+    {
+        sLog->outTrace(LOG_FILTER_RBAC, "RBACData::DenyPermission [Id: %u Name: %s] (Permission %u, RealmId %d). Permission already denied",
+                       GetId(), GetName().c_str(), permissionId, realmId);
         return RBAC_CANT_ADD_ALREADY_ADDED;
+    }
 
     _deniedPerms.set(permissionId);
 
     // Do not save to db when loading data from DB (realmId = 0)
     if (realmId)
     {
+        sLog->outTrace(LOG_FILTER_RBAC, "RBACData::DenyPermission [Id: %u Name: %s] (Permission %u, RealmId %d). Ok and DB updated",
+                       GetId(), GetName().c_str(), permissionId, realmId);
         SavePermission(permissionId, false, realmId);
         CalculateNewPermissions();
     }
+    else
+        sLog->outTrace(LOG_FILTER_RBAC, "RBACData::DenyPermission [Id: %u Name: %s] (Permission %u, RealmId %d). Ok",
+                       GetId(), GetName().c_str(), permissionId, realmId);
 
     return RBAC_OK;
 }
@@ -216,32 +351,44 @@ void RBACData::SavePermission(uint32 permission, bool granted, int32 realmId)
     LoginDatabase.Execute(stmt);
 }
 
-RBACCommandResult RBACData::RevokePermission(uint32 permission, int32 realmId /* = 0*/)
+RBACCommandResult RBACData::RevokePermission(uint32 permissionId, int32 realmId /* = 0*/)
 {
     // Check if it's present in any list
-    if (!_grantedPerms.test(permission) && !_deniedPerms.test(permission))
+    if (!_grantedPerms.test(permissionId) && !_deniedPerms.test(permissionId))
+    {
+        sLog->outTrace(LOG_FILTER_RBAC, "RBACData::RevokePermission [Id: %u Name: %s] (Permission %u, RealmId %d). Not granted or revoked",
+                       GetId(), GetName().c_str(), permissionId, realmId);
         return RBAC_CANT_REVOKE_NOT_IN_LIST;
+    }
 
-    _grantedPerms.reset(permission);
-    _deniedPerms.reset(permission);
+    _grantedPerms.reset(permissionId);
+    _deniedPerms.reset(permissionId);
 
     // Do not save to db when loading data from DB (realmId = 0)
     if (realmId)
     {
+        sLog->outTrace(LOG_FILTER_RBAC, "RBACData::RevokePermission [Id: %u Name: %s] (Permission %u, RealmId %d). Ok and DB updated",
+                       GetId(), GetName().c_str(), permissionId, realmId);
         PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_DEL_RBAC_ACCOUNT_PERMISSION);
         stmt->setUInt32(0, GetId());
-        stmt->setUInt32(1, permission);
+        stmt->setUInt32(1, permissionId);
         stmt->setInt32(2, realmId);
         LoginDatabase.Execute(stmt);
 
         CalculateNewPermissions();
     }
+    else
+        sLog->outTrace(LOG_FILTER_RBAC, "RBACData::RevokePermission [Id: %u Name: %s] (Permission %u, RealmId %d). Ok",
+                       GetId(), GetName().c_str(), permissionId, realmId);
 
     return RBAC_OK;
 }
 
 void RBACData::LoadFromDB()
 {
+    sLog->outInfo(LOG_FILTER_RBAC, "RBACData::LoadFromDB [Id: %u Name: %s]", GetId(), GetName().c_str());
+    sLog->outDebug(LOG_FILTER_RBAC, "RBACData::LoadFromDB [Id: %u Name: %s]: Loading groups", GetId(), GetName().c_str());
+
     // Load account group that affect current realm
     PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_RBAC_ACCOUNT_GROUPS);
     stmt->setUInt32(0, GetId());
@@ -258,6 +405,7 @@ void RBACData::LoadFromDB()
         while (result->NextRow());
     }
 
+    sLog->outDebug(LOG_FILTER_RBAC, "RBACData::LoadFromDB [Id: %u Name: %s]: Loading roles", GetId(), GetName().c_str());
     // Load account roles (granted and denied) that affect current realm
     stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_RBAC_ACCOUNT_ROLES);
     stmt->setUInt32(0, GetId());
@@ -277,6 +425,7 @@ void RBACData::LoadFromDB()
         while (result->NextRow());
     }
 
+    sLog->outDebug(LOG_FILTER_RBAC, "RBACData::LoadFromDB [Id: %u Name: %s]: Loading permissions", GetId(), GetName().c_str());
     // Load account permissions (granted and denied) that affect current realm
     stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_RBAC_ACCOUNT_PERMISSIONS);
     stmt->setUInt32(0, GetId());
@@ -296,11 +445,13 @@ void RBACData::LoadFromDB()
         while (result->NextRow());
     }
 
+    sLog->outDebug(LOG_FILTER_RBAC, "RBACData::LoadFromDB [Id: %u Name: %s]: Adding default groups", GetId(), GetName().c_str());
     // Add default groups
     RBACGroupContainer const& groups = sAccountMgr->GetRBACDefaultGroups();
     for (RBACGroupContainer::const_iterator itr = groups.begin(); itr != groups.end(); ++itr)
         AddGroup(*itr);
 
+    sLog->outDebug(LOG_FILTER_RBAC, "RBACData::LoadFromDB [Id: %u Name: %s]: Calculating global permissions", GetId(), GetName().c_str());
     // Force calculation of permissions, it wasn't performed at load time
     // while adding groups, roles and permissions
     CalculateNewPermissions();
@@ -308,6 +459,7 @@ void RBACData::LoadFromDB()
 
 void RBACData::CalculateNewPermissions()
 {
+    sLog->outTrace(LOG_FILTER_RBAC, "RBACData::LoadFromDB [Id: %u Name: %s]: Calculating global permissions", GetId(), GetName().c_str());
     // Get the list of directly granted roles
     RBACRoleContainer tempGrantedRoles = GetGrantedRoles();
 

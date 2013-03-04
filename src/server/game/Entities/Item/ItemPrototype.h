@@ -102,10 +102,8 @@ enum ItemBondingType
 
 #define MAX_BIND_TYPE                             6
 
-/* TODO
-    // need to know cases when using item is not allowed in shapeshift
-    ITEM_PROTO_FLAG_USABLE_WHEN_SHAPESHIFTED    = 0x00800000, // Item can be used in shapeshift forms
-*/
+/* /// @todo: Requiring actual cases in which using (an) item isn't allowed while shapeshifted. Else, this flag would need an implementation.
+    ITEM_PROTO_FLAG_USABLE_WHEN_SHAPESHIFTED    = 0x00800000, // Item can be used in shapeshift forms */
 
 enum ItemProtoFlags
 {
@@ -142,9 +140,6 @@ enum ItemProtoFlags
     ITEM_PROTO_FLAG_UNK11                       = 0x40000000, // ?
     ITEM_PROTO_FLAG_UNK12                       = 0x80000000  // ?
 };
-
-/* TODO
-*/
 
 enum ItemFieldFlags
 {

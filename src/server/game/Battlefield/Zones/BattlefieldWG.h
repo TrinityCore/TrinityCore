@@ -102,21 +102,21 @@ enum WintergraspData
 enum WintergraspAchievements
 {
     ACHIEVEMENTS_WIN_WG                          = 1717,
-    ACHIEVEMENTS_WIN_WG_100                      = 1718, // todo
-    ACHIEVEMENTS_WG_GNOMESLAUGHTER               = 1723, // todo
+    ACHIEVEMENTS_WIN_WG_100                      = 1718, /// @todo: Has to be implemented
+    ACHIEVEMENTS_WG_GNOMESLAUGHTER               = 1723, /// @todo: Has to be implemented
     ACHIEVEMENTS_WG_TOWER_DESTROY                = 1727,
-    ACHIEVEMENTS_DESTRUCTION_DERBY_A             = 1737, // todo
-    ACHIEVEMENTS_WG_TOWER_CANNON_KILL            = 1751, // todo
-    ACHIEVEMENTS_WG_MASTER_A                     = 1752, // todo
+    ACHIEVEMENTS_DESTRUCTION_DERBY_A             = 1737, /// @todo: Has to be implemented
+    ACHIEVEMENTS_WG_TOWER_CANNON_KILL            = 1751, /// @todo: Has to be implemented
+    ACHIEVEMENTS_WG_MASTER_A                     = 1752, /// @todo: Has to be implemented
     ACHIEVEMENTS_WIN_WG_TIMER_10                 = 1755,
-    ACHIEVEMENTS_STONE_KEEPER_50                 = 2085, // todo
-    ACHIEVEMENTS_STONE_KEEPER_100                = 2086, // todo
-    ACHIEVEMENTS_STONE_KEEPER_250                = 2087, // todo
-    ACHIEVEMENTS_STONE_KEEPER_500                = 2088, // todo
-    ACHIEVEMENTS_STONE_KEEPER_1000               = 2089, // todo
-    ACHIEVEMENTS_WG_RANGER                       = 2199, // todo
-    ACHIEVEMENTS_DESTRUCTION_DERBY_H             = 2476, // todo
-    ACHIEVEMENTS_WG_MASTER_H                     = 2776  // todo
+    ACHIEVEMENTS_STONE_KEEPER_50                 = 2085, /// @todo: Has to be implemented
+    ACHIEVEMENTS_STONE_KEEPER_100                = 2086, /// @todo: Has to be implemented
+    ACHIEVEMENTS_STONE_KEEPER_250                = 2087, /// @todo: Has to be implemented
+    ACHIEVEMENTS_STONE_KEEPER_500                = 2088, /// @todo: Has to be implemented
+    ACHIEVEMENTS_STONE_KEEPER_1000               = 2089, /// @todo: Has to be implemented
+    ACHIEVEMENTS_WG_RANGER                       = 2199, /// @todo: Has to be implemented
+    ACHIEVEMENTS_DESTRUCTION_DERBY_H             = 2476, /// @todo: Has to be implemented
+    ACHIEVEMENTS_WG_MASTER_H                     = 2776  /// @todo: Has to be implemented
 };
 
 enum WintergraspWorldStates
@@ -499,7 +499,7 @@ enum WintergraspTeamControl
     BATTLEFIELD_WG_TEAM_NEUTRAL
 };
 
-// TODO: Handle this with creature_text ?
+/// @todo: Can this be handled with creature_text or SmartAI ?
 enum WintergraspText
 {
     BATTLEFIELD_WG_TEXT_WORKSHOP_NAME_NE         = 12055,
@@ -562,7 +562,7 @@ struct WintergraspObjectPositionData
 };
 
 // *****************************************************
-// ************ Destructible (Wall, Tower..) ************
+// ************ Destructible (Wall, Tower..) ***********
 // *****************************************************
 
 struct WintergraspBuildingSpawnData
@@ -755,7 +755,7 @@ const WintergraspTeleporterData WGPortalDefenderData[WG_MAX_TELEPORTER] =
 };
 
 // *********************************************************
-// **********Tower Element(GameObject, Creature)*************
+// **********Tower Element(GameObject, Creature)************
 // *********************************************************
 
 struct WintergraspTowerData
@@ -764,7 +764,7 @@ struct WintergraspTowerData
     uint8 nbObject;                     // Number of gameobjects spawned on this point
     WintergraspObjectPositionData GameObject[6];   // Gameobject position and entry (Horde/Alliance)
 
-    // Creature : Turrets and Guard, TODO: check if killed on tower destruction? tower damage?
+    // Creature: Turrets and Guard /// @todo: Killed on Tower destruction ? Tower damage ? Requires confirming
     uint8 nbCreatureBottom;
     WintergraspObjectPositionData CreatureBottom[9];
     uint8 nbCreatureTop;
@@ -1055,7 +1055,7 @@ const WGWorkshopData WorkshopsData[WG_MAX_WORKSHOP] =
 };
 
 // ********************************************************************
-// *         Structs using for Building, Graveyard, Workshop            *
+// *         Structs using for Building, Graveyard, Workshop          *
 // ********************************************************************
 // Structure for different buildings that can be destroyed during battle
 struct BfWGGameObjectBuilding
