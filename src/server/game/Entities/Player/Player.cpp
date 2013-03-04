@@ -19368,7 +19368,7 @@ void Player::_SaveQuestStatus(SQLTransaction& trans)
     {
         if (saveItr->second)
         {
-            stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_QUESTSTATUS);
+            stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHAR_QUESTSTATUS_REWARDED);
             stmt->setUInt32(0, GetGUIDLow());
             stmt->setUInt32(1, saveItr->first);
             trans->Append(stmt);
