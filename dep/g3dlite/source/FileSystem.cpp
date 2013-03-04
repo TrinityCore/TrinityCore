@@ -35,6 +35,10 @@
 #   define _stat stat
 #endif
 
+#ifdef __CYGWIN__
+#define stat64 stat
+#endif
+
 namespace G3D {
 
 static FileSystem* common = NULL;

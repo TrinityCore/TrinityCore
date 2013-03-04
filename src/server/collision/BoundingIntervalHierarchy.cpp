@@ -20,6 +20,8 @@
 
 #if defined __APPLE__
   #define isnan std::isnan
+#elif defined __CYGWIN__
+  #define isnan std::isnan
 #elif defined _MSC_VER
   #define isnan _isnan
 #endif

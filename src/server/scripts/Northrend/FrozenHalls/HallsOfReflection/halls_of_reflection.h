@@ -22,7 +22,6 @@ enum Data
 {
     DATA_FALRIC_EVENT,
     DATA_MARWYN_EVENT,
-    DATA_FROSTSWORN_EVENT,
     DATA_LICHKING_EVENT,
     DATA_WAVE_COUNT,
     DATA_TEAM_IN_INSTANCE,
@@ -34,16 +33,12 @@ enum Data64
     DATA_MARWYN,
     DATA_LICHKING,
     DATA_FROSTMOURNE,
-    DATA_ARTHAS_DOOR,
-    DATA_FROSTSWORN_DOOR,
-
 };
 
 enum Creatures
 {
     NPC_FALRIC                                    = 38112,
     NPC_MARWYN                                    = 38113,
-    NPC_FROSTSWORN_GENERAL                         = 36723,
     NPC_LICH_KING_EVENT                           = 37226,
     NPC_LICH_KING_BOSS                            = 36954,
 
@@ -64,17 +59,8 @@ enum GameObjects
 {
     GO_FROSTMOURNE                                = 202302,
     GO_FROSTMOURNE_ALTAR                          = 202236,
-    GO_FRONT_DOOR                                  = 201976,
-    GO_FROSTWORN_DOOR                              = 197341,
-    GO_ARTHAS_DOOR                                  = 197342,
-    GO_RUN_DOOR                                      = 197343,
-};
-
-
-const Position OutroSpawns[2] =
-{
-    {5564.25f, 2274.69f, 733.01f, 3.93f}, // Lich King
-    {5556.27f, 2266.28f, 733.01f, 0.8f},  // Jaina/Sylvana
+    GO_FRONT_DOOR                                 = 201976,
+    GO_ARTHAS_DOOR                                = 197341,
 };
 
 enum HorWorldStates

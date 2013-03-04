@@ -91,8 +91,8 @@ struct GameObjectTemplate
             uint32 lootId;                                  //1
             uint32 chestRestockTime;                        //2
             uint32 consumable;                              //3
-            uint32 minSuccessOpens;                         //4
-            uint32 maxSuccessOpens;                         //5
+            uint32 minSuccessOpens;                         //4 Deprecated, pre 3.0 was used for mining nodes but since WotLK all mining nodes are usable once and grant all loot with a single use
+            uint32 maxSuccessOpens;                         //5 Deprecated, pre 3.0 was used for mining nodes but since WotLK all mining nodes are usable once and grant all loot with a single use
             uint32 eventId;                                 //6 lootedEvent
             uint32 linkedTrapId;                            //7
             uint32 questId;                                 //8 not used currently but store quest required for GO activation for player
@@ -529,6 +529,11 @@ class OPvPCapturePoint;
 
 union GameObjectValue
 {
+    //25 GAMEOBJECT_TYPE_FISHINGHOLE
+    struct
+    {
+        uint32 MaxOpens;
+    } FishingHole;
     //29 GAMEOBJECT_TYPE_CAPTURE_POINT
     struct
     {

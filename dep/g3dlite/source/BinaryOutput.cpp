@@ -22,6 +22,10 @@
 #    include <errno.h>
 #endif
 
+#ifdef __CYGWIN__
+#    include <errno.h>
+#endif
+
 // Largest memory buffer that the system will use for writing to
 // disk.  After this (or if the system runs out of memory)
 // chunks of the file will be dumped to disk.
