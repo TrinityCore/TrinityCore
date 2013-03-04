@@ -1277,8 +1277,8 @@ public:
     {
         TO_PLAYER();
 
-        float percent = luaL_checknumber(L, 1);
-        bool sickness = luaL_checkbool(L, 2);
+        float percent = luaL_optnumber(L, 1, 100.0f);
+        bool sickness = luaL_optbool(L, 2, false);
 
         player->ResurrectPlayer(percent, sickness);
         return 0;
