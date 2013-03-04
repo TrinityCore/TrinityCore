@@ -14,6 +14,49 @@ class LuaUnit
 {
 public:
 
+    //SpawnGameObject(entry, x, y, z, o[, respawnDelay])
+    static int SummonGameObject(lua_State* L, Unit* unit)
+    {
+        TO_UNIT();
+        
+        uint32 entry = luaL_checkunsigned(L, 1);
+        float x = luaL_checknumber(L, 2);
+        float y = luaL_checknumber(L, 3);
+        float z = luaL_checknumber(L, 4);
+        float o = luaL_checknumber(L, 5);
+        uint32 respawnDelay = luaL_optunsigned(L, 6, 30);
+
+        Eluna::get()->PushGO(L, unit->SummonGameObject(entry, x, y, z, o, 0, 0, 0, 0, respawnDelay));
+        return 1;
+    }
+
+    //SpawnCreature(entry, x, y, z, o[, despawnDelay])
+    static int SpawnCreature(lua_State* L, Unit* unit)
+    {
+        TO_UNIT();
+        
+        uint32 entry = luaL_checkunsigned(L, 1);
+        float x = luaL_checknumber(L, 2);
+        float y = luaL_checknumber(L, 3);
+        float z = luaL_checknumber(L, 4);
+        float o = luaL_checknumber(L, 5);
+        uint32 desp = luaL_optunsigned(L, 6, 0);
+        
+        Eluna::get()->PushUnit(L, unit->SummonCreature(entry, x, y, z, o, desp ? TEMPSUMMON_TIMED_OR_DEAD_DESPAWN : TEMPSUMMON_MANUAL_DESPAWN, desp));
+        return 1;
+    }
+
+    //Despawn([despawnDelay])
+    static int Despawn(lua_State* L, Unit* unit)
+    {
+        TO_CREATURE();
+        
+        uint32 time = luaL_optunsigned(L, 1, 0);
+        
+        creature->DespawnOrUnsummon(time);
+        return 0;
+    }
+
     //GetArenaPoints()
     static int GetArenaPoints(lua_State* L, Unit* unit)
     {

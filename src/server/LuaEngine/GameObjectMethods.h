@@ -165,6 +165,33 @@ public:
         return 1;
     }
 
+    //SpawnGameObject(entry, x, y, z, o[, respawnDelay])
+    static int SummonGameObject(lua_State* L, GameObject* go)
+    {
+        if (!go || !go->IsInWorld())
+            return 0;
+        
+        uint32 entry = luaL_checkunsigned(L, 1);
+        float x = luaL_checknumber(L, 2);
+        float y = luaL_checknumber(L, 3);
+        float z = luaL_checknumber(L, 4);
+        float o = luaL_checknumber(L, 5);
+        uint32 respawnDelay = luaL_optunsigned(L, 6, 30);
+
+        Eluna::get()->PushGO(L, go->SummonGameObject(entry, x, y, z, o, 0, 0, 0, 0, respawnDelay));
+        return 1;
+    }
+
+    //Despawn()
+    static int Despawn(lua_State* L, GameObject* go)
+    {
+        if (!go || !go->IsInWorld())
+            return 0;
+
+        go->RemoveFromWorld();
+        return 0;
+    }
+
     // GetDisplayId()
     static int GetDisplayId(lua_State* L, GameObject* go)
     {

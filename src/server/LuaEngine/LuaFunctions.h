@@ -77,6 +77,7 @@ ElunaRegister<Unit> UnitMethods[] =
     {"RegisterEvent", &LuaUnit::RegisterEvent},                     // :RegisterEvent(function, delay, calls) - UNDOCUMENTED
     {"RemoveEventByID", &LuaUnit::RemoveEventByID},                 // :RemoveEventByID(eventID) - UNDOCUMENTED
     {"RemoveEvents", &LuaUnit::RemoveEvents},                       // :RemoveEvents() - UNDOCUMENTED
+    {"Despawn", &LuaUnit::Despawn},                                 // :Despawn([despawnDelay]) - Creature despawns after given time UNDOCUMENTED
 
 
     // Unit Methods
@@ -173,6 +174,8 @@ ElunaRegister<Unit> UnitMethods[] =
     {"MoveClear", &LuaUnit::MoveClear},                             // :MoveClear() - Stops movement UNDOCUMENTED
     {"MoveRandom", &LuaUnit::MoveRandom},                           // :MoveRandom() - Moves randomly inside radius UNDOCUMENTED
     {"MoveRotate", &LuaUnit::MoveRotate},                           // :MoveRotate(time, left) - Turns left (true or nil) or right (false) for given time UNDOCUMENTED
+    {"SummonGameObject", &LuaUnit::SummonGameObject},               // :SummonGameObject(entry, x, y, z, o[, respawnDelay]) - Spawns an object to location. Returns the object or nil UNDOCUMENTED
+    {"SpawnCreature", &LuaUnit::SpawnCreature},                     // :SpawnCreature(entry, x, y, z, o[, despawnDelay]) - Spawns a creature to location that despawns after given time (0 for infinite). Returns the creature or nil UNDOCUMENTED
 
     /* Vehicle */
     {"AddVehiclePassenger", &LuaUnit::AddVehiclePassenger},         // :AddVehiclePassenger(unit, seatId) - Adds a passenger to the vehicle by specifying a unit and seatId      UNDOCUMENTED (UNTESTED)
@@ -232,10 +235,12 @@ ElunaRegister<GameObject> GameObjectMethods[] =
     // Other
     {"CastSpellOnTarget", &LuaGameObject::CastSpellOnTarget},       // :CastSpellOnTarget(target, spellId) - Casts the spell on target, no manacost or cast time - UNDOCUMENTED
     {"Move", &LuaGameObject::Move},                                 // :Move(x, y, z, o) - Moves the GO to coordinates - UNDOCUMENTED
-    {"SummonCreature", &LuaGameObject::SummonCreature},             // :SummonCreature(entry, x, y, z, o, despawntime) Summons a temporary creature. 0 for infinitely, otherwise despawns after despawntime (ms) - UNDOCUMENTED
+    {"SpawnCreature", &LuaGameObject::SummonCreature},              // :SummonCreature(entry, x, y, z, o, despawntime) Summons a temporary creature. 0 for infinitely, otherwise despawns after despawntime (ms) - UNDOCUMENTED
     {"RegisterEvent", &LuaGameObject::RegisterEvent},               // :RegisterEvent(function, delay, calls) - UNDOCUMENTED
     {"RemoveEventByID", &LuaGameObject::RemoveEventByID},           // :RemoveEventByID(eventID) - UNDOCUMENTED
     {"RemoveEvents", &LuaGameObject::RemoveEvents},                 // :RemoveEvents() - UNDOCUMENTED
+    {"Despawn", &LuaGameObject::Despawn},                           // :Despawn() - Object despawns UNDOCUMENTED
+    {"SummonGameObject", &LuaGameObject::SummonGameObject},         // :SummonGameObject(entry, x, y, z, o[, respawnDelay]) - Spawns an object to location. Returns the object or nil UNDOCUMENTED
 
     { NULL, NULL },
 };
