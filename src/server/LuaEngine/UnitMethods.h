@@ -79,6 +79,163 @@ public:
         return 0;
     }
 
+    //MoveCharge(x, y, z, speed)
+    static int MoveCharge(lua_State* L, Unit* unit)
+    {
+        TO_UNIT();
+
+        float x = luaL_checknumber(L, 1);
+        float y = luaL_checknumber(L, 2);
+        float z = luaL_checknumber(L, 3);
+        float speed = luaL_checknumber(L, 4);
+
+        unit->GetMotionMaster()->MoveCharge(x, y, z, speed);
+        return 0;
+    }
+
+    //MoveChase(target[, dist, angle])
+    static int MoveChase(lua_State* L, Unit* unit)
+    {
+        TO_UNIT();
+        
+        Unit* target = Eluna::get()->CHECK_UNIT(L, 1);
+        float dist = luaL_optnumber(L, 2, 0.0f);
+        float angle = luaL_optnumber(L, 3, 0.0f);
+        
+        unit->GetMotionMaster()->MoveChase(target, dist, angle);
+        return 0;
+    }
+
+    //SetStunned(apply)
+    static int SetStunned(lua_State* L, Unit* unit)
+    {
+        TO_UNIT();
+
+        bool apply = luaL_optbool(L, 1, true);
+        
+        unit->SetControlled(apply, UNIT_STATE_STUNNED);
+        return 0;
+    }
+
+    //SetRooted(apply)
+    static int SetRooted(lua_State* L, Unit* unit)
+    {
+        TO_UNIT();
+
+        bool apply = luaL_optbool(L, 1, true);
+        
+        unit->SetControlled(apply, UNIT_STATE_ROOT);
+        return 0;
+    }
+
+    //SetConfused(apply)
+    static int SetConfused(lua_State* L, Unit* unit)
+    {
+        TO_UNIT();
+
+        bool apply = luaL_optbool(L, 1, true);
+        
+        unit->SetControlled(apply, UNIT_STATE_CONFUSED);
+        return 0;
+    }
+
+    //SetFeared(apply)
+    static int SetFeared(lua_State* L, Unit* unit)
+    {
+        TO_UNIT();
+
+        bool apply = luaL_optbool(L, 1, true);
+        
+        unit->SetControlled(apply, UNIT_STATE_FLEEING);
+        return 0;
+    }
+
+    //MoveTo(id, x, y, z[, generatePath])
+    static int MovePoint(lua_State* L, Unit* unit)
+    {
+        TO_UNIT();
+        
+        float id = luaL_checknumber(L, 1);
+        float x = luaL_checknumber(L, 2);
+        float y = luaL_checknumber(L, 3);
+        float z = luaL_checknumber(L, 4);
+        bool generatePath = luaL_optbool(L, 5, true);
+        
+        unit->GetMotionMaster()->MovePoint(id, x, y, z, generatePath);
+        return 0;
+    }
+
+    //MoveFollow(target, dist, angle)
+    static int MoveFollow(lua_State* L, Unit* unit)
+    {
+        TO_UNIT();
+        
+        Unit* target = Eluna::get()->CHECK_UNIT(L, 1);
+        float dist = luaL_checknumber(L, 2);
+        float angle = luaL_checknumber(L, 3);
+        
+        unit->GetMotionMaster()->MoveFollow(target, dist, angle);
+        return 0;
+    }
+
+    //MoveClear()
+    static int MoveClear(lua_State* L, Unit* unit)
+    {
+        TO_UNIT();
+        
+        unit->GetMotionMaster()->Clear();
+        return 0;
+    }
+
+    //MoveRandom(radius)
+    static int MoveRandom(lua_State* L, Unit* unit)
+    {
+        TO_UNIT();
+
+        float radius = luaL_checknumber(L, 1);
+        
+        unit->GetMotionMaster()->MoveRandom(radius);
+        return 0;
+    }
+
+    //MoveRotate(time, left)
+    static int MoveRotate(lua_State* L, Unit* unit)
+    {
+        TO_UNIT();
+
+        uint32 time = luaL_checkunsigned(L, 1);
+        bool left = luaL_optbool(L, 2, true);
+        
+        unit->GetMotionMaster()->MoveRotate(time, left ? ROTATE_DIRECTION_LEFT : ROTATE_DIRECTION_RIGHT);
+        return 0;
+    }
+
+    //SetWalk(enable)
+    static int SetWalk(lua_State* L, Unit* unit)
+    {
+        TO_UNIT();
+        
+        bool enable = luaL_optbool(L, 1, true);
+
+        unit->SetWalk(enable);
+        return 0;
+    }
+
+    //SetSpeed(type, speed[, forced])
+    static int SetSpeed(lua_State* L, Unit* unit)
+    {
+        TO_UNIT();
+        
+        uint32 type = luaL_checkunsigned(L, 1);
+        float rate = luaL_checknumber(L, 2);
+        bool forced = luaL_optbool(L, 3, false);
+        if(type >= MAX_MOVE_TYPE)
+            sLog->outError(LOG_FILTER_GENERAL, "Eluna::Invalid movement type (%u)  for SetSpeed", type);
+        else
+            unit->SetSpeed((UnitMoveType)type, rate, forced);
+        return 0;
+    }
+
     //GetHonorPoints()
     static int GetHonorPoints(lua_State* L, Unit* unit)
     {

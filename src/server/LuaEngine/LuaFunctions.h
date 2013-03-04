@@ -43,10 +43,10 @@ ElunaRegister<Unit> UnitMethods[] =
     {"IsInArenaTeam", &LuaUnit::IsInArenaTeam},                     // :IsInArenaTeam(type) -  type : 0 = 2v2, 1 = 3v3, 2 = 5v5 UNDOCUMENTED
 
     // Gossip                                                           
-    {"GossipMenuAddItem", &LuaUnit::GossipMenuAddItem},            // :GossipMenuAddItem(icon, msg, sender, intid, code, popup, money)
-    {"GossipSendMenu", &LuaUnit::GossipSendMenu},                  // :GossipSendMenu(npc_text, unit)
-    {"GossipComplete", &LuaUnit::GossipComplete},                  // :GossipComplete()
-    {"GossipClearMenu", &LuaUnit::GossipClearMenu},                // :GossipClearMenu() -- Clears the gossip menu of options. Pretty much only useful with player gossip. Need to use before creating a new menu for the player Undocumented
+    {"GossipMenuAddItem", &LuaUnit::GossipMenuAddItem},             // :GossipMenuAddItem(icon, msg, sender, intid, code, popup, money)
+    {"GossipSendMenu", &LuaUnit::GossipSendMenu},                   // :GossipSendMenu(npc_text, unit[, menu_id]) -- If unit is a player, you need to use a menu_id. menu_id is used to hook the gossip select function to the menu.
+    {"GossipComplete", &LuaUnit::GossipComplete},                   // :GossipComplete()
+    {"GossipClearMenu", &LuaUnit::GossipClearMenu},                 // :GossipClearMenu() -- Clears the gossip menu of options. Pretty much only useful with player gossip. Need to use before creating a new menu for the player Undocumented
 
     // Update
 
@@ -133,6 +133,12 @@ ElunaRegister<Unit> UnitMethods[] =
     {"SetUInt16Value", &LuaUnit::SetUInt16Value},                   // :SetUInt16Value(index, offset, value) - Sets an uint16 value for the unit UNDOCUMENTED
     {"SetInt16Value", &LuaUnit::SetInt16Value},                     // :SetInt16Value(index, offset, value) - Sets an int16 value for the unit UNDOCUMENTED
     {"SetPhaseMask", &LuaUnit::SetPhaseMask},                       // :SetPhaseMask(Phase[, update]) - Sets the phase of the unit UNDOCUMENTED
+    {"SetWalk", &LuaUnit::SetWalk},                                 // :SetWalk(enable) - If false, creature runs, otherwise walks UNDOCUMENTED
+    {"SetSpeed", &LuaUnit::SetSpeed},                               // :SetSpeed(type, speed[, forced]) - Sets speed for the movement type (0 = walk, 1 = run ..) UNDOCUMENTED
+    {"SetStunned", &LuaUnit::SetStunned},                           // :SetStunned(enable) - Stuns or removes stun UNDOCUMENTED
+    {"SetRooted", &LuaUnit::SetRooted},                             // :SetRooted(enable) - Roots or removes root UNDOCUMENTED
+    {"SetConfused", &LuaUnit::SetConfused},                         // :SetConfused(enable) - Sets confused or removes confusion UNDOCUMENTED
+    {"SetFeared", &LuaUnit::SetFeared},                             // :SetFeared(enable) - Fears or removes fear UNDOCUMENTED
 
     // Boolean
     {"IsAlive", &LuaUnit::IsAlive},                                 // :IsAlive()
@@ -160,6 +166,13 @@ ElunaRegister<Unit> UnitMethods[] =
     {"JumpTo", &LuaUnit::JumpTo},                                   // :JumpTo(WorldObj, speedZ) - Unit jumps to world object UNDOCUMENTED
     {"Jump", &LuaUnit::Jump},                                       // :Jump(speedXY, speedZ[, forward]) - Unit jumps at given speeds UNDOCUMENTED
     {"JumpToCoords", &LuaUnit::JumpToCoords},                       // :JumpToCoords(x, y, z, speedXY, speedZ) - Unit jumps to coordinates at given speeds UNDOCUMENTED
+    {"MoveTo", &LuaUnit::MovePoint},                                // :MoveTo(id, x, y, z[, generatePath]) - Unit moves to point. ID is sent to WP reach hook UNDOCUMENTED
+    {"MoveCharge", &LuaUnit::MoveCharge},                           // :MoveCharge(x, y, z, speed) - Charges to target location UNDOCUMENTED
+    {"MoveChase", &LuaUnit::MoveChase},                             // :MoveChase(target[, dist, angle]) - Chases target unit UNDOCUMENTED
+    {"MoveFollow", &LuaUnit::MoveFollow},                           // :MoveFollow(target, dist, angle) - Follows target unit UNDOCUMENTED
+    {"MoveClear", &LuaUnit::MoveClear},                             // :MoveClear() - Stops movement UNDOCUMENTED
+    {"MoveRandom", &LuaUnit::MoveRandom},                           // :MoveRandom() - Moves randomly inside radius UNDOCUMENTED
+    {"MoveRotate", &LuaUnit::MoveRotate},                           // :MoveRotate(time, left) - Turns left (true or nil) or right (false) for given time UNDOCUMENTED
 
     /* Vehicle */
     {"AddVehiclePassenger", &LuaUnit::AddVehiclePassenger},         // :AddVehiclePassenger(unit, seatId) - Adds a passenger to the vehicle by specifying a unit and seatId      UNDOCUMENTED (UNTESTED)
