@@ -775,7 +775,7 @@ class ObjectMgr
         AreaTrigger const* GetMapEntranceTrigger(uint32 Map) const;
 
         uint32 GetAreaTriggerScriptId(uint32 trigger_id);
-        SpellScriptsBounds GetSpellScriptsBounds(uint32 spell_id);
+        SpellScriptsBounds GetSpellScriptsBounds(uint32 spellId);
 
         RepRewardRate const* GetRepRewardRate(uint32 factionId) const
         {
@@ -794,7 +794,7 @@ class ObjectMgr
             return NULL;
         }
 
-        int32 GetBaseReputationOff(FactionEntry const* factionEntry, uint8 race, uint8 playerClass);
+        int32 GetBaseReputationOf(FactionEntry const* factionEntry, uint8 race, uint8 playerClass);
 
         RepSpilloverTemplate const* GetRepSpilloverTemplate(uint32 factionId) const
         {
@@ -1212,16 +1212,18 @@ class ObjectMgr
                 value = data[loc_idx];
         }
 
-        CharacterConversionMap FactionChange_Achievements;
-        CharacterConversionMap FactionChange_Items;
-        CharacterConversionMap FactionChange_Spells;
-        CharacterConversionMap FactionChange_Reputation;
-        CharacterConversionMap FactionChange_Titles;
+        CharacterConversionMap FactionChangeAchievements;
+        CharacterConversionMap FactionChangeItems;
+        CharacterConversionMap FactionChangeQuests;
+        CharacterConversionMap FactionChangeReputation;
+        CharacterConversionMap FactionChangeSpells;
+        CharacterConversionMap FactionChangeTitles;
 
         void LoadFactionChangeAchievements();
         void LoadFactionChangeItems();
-        void LoadFactionChangeSpells();
+        void LoadFactionChangeQuests();
         void LoadFactionChangeReputations();
+        void LoadFactionChangeSpells();
         void LoadFactionChangeTitles();
 
         void LoadHotfixData();
