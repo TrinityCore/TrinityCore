@@ -526,6 +526,7 @@ void Unit::SetVisibleAura(uint8 slot, AuraApplication * aur)
 
     m_visibleAuras[slot] = aur;
     UpdateAuraForGroup(slot);
+}
 
 AuraApplication * Unit::GetVisibleAura(uint8 slot) const
 {
