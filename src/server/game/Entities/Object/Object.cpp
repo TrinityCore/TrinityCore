@@ -1827,6 +1827,13 @@ void WorldObject::GetRandomPoint(const Position &pos, float distance, float &ran
     UpdateGroundPositionZ(rand_x, rand_y, rand_z);            // update to LOS height if available
 }
 
+void WorldObject::GetRandomPoint(const Position &srcPos, float distance, Position &pos) const
+{
+    float x, y, z;
+    GetRandomPoint(srcPos, distance, x, y, z);
+    pos.Relocate(x, y, z, GetOrientation());
+}
+
 void WorldObject::UpdateGroundPositionZ(float x, float y, float &z) const
 {
     float new_z = GetBaseMap()->GetHeight(GetPhaseMask(), x, y, z, true);
