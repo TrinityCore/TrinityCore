@@ -452,9 +452,9 @@ void Unit::resetAttackTimer(WeaponAttackType type)
 }
 
 float Unit::GetMeleeReach() const
-{ 
-	float reach = m_floatValues[UNIT_FIELD_COMBATREACH]; 
-	return reach > MIN_MELEE_REACH ? reach : MIN_MELEE_REACH; 
+{
+    float reach = m_floatValues[UNIT_FIELD_COMBATREACH];
+    return reach > MIN_MELEE_REACH ? reach : MIN_MELEE_REACH;
 }
 
 bool Unit::IsWithinCombatRange(const Unit* obj, float dist2compare) const
@@ -512,14 +512,14 @@ AuraApplication * Unit::GetVisibleAura(uint8 slot) const
 
 void Unit::SetVisibleAura(uint8 slot, AuraApplication * aur)
 {
-	m_visibleAuras[slot]=aur;
-	UpdateAuraForGroup(slot);
+    m_visibleAuras[slot]=aur;
+    UpdateAuraForGroup(slot);
 }
 
 void Unit::RemoveVisibleAura(uint8 slot)
 {
-	m_visibleAuras.erase(slot);
-	UpdateAuraForGroup(slot);
+    m_visibleAuras.erase(slot);
+    UpdateAuraForGroup(slot);
 }
 
 void Unit::UpdateInterruptMask()
@@ -2479,8 +2479,8 @@ SpellMissInfo Unit::SpellHitResult(Unit* victim, SpellInfo const* spell, bool Ca
 }
 
 uint32 Unit::GetUnitMeleeSkill(Unit const* target) const
-{ 
-	return (target ? getLevelForTarget(target) : getLevel()) * 5;
+{
+    return (target ? getLevelForTarget(target) : getLevel()) * 5;
 }
 
 float Unit::GetUnitDodgeChance() const
@@ -3943,7 +3943,7 @@ AuraEffect* Unit::GetAuraEffect(AuraType type, SpellFamilyNames family, uint32 f
 
 AuraEffect* Unit::GetDummyAuraEffect(SpellFamilyNames name, uint32 iconId, uint8 effIndex) const
 {
-	return GetAuraEffect(SPELL_AURA_DUMMY, name, iconId, effIndex);
+    return GetAuraEffect(SPELL_AURA_DUMMY, name, iconId, effIndex);
 }
 
 AuraApplication * Unit::GetAuraApplication(uint32 spellId, uint64 casterGUID, uint64 itemCasterGUID, uint8 reqEffMask, AuraApplication * except) const
@@ -4470,35 +4470,35 @@ int32 Unit::GetMaxNegativeAuraModifierByAffectMask(AuraType auratype, SpellInfo 
 
 float Unit::GetResistanceBuffMods(SpellSchools school, bool positive) const
 {
-	return GetFloatValue(positive ? UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE+school : UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE+school);
+    return GetFloatValue(positive ? UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE+school : UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE+school);
 }
 
 void Unit::SetResistanceBuffMods(SpellSchools school, bool positive, float val)
 {
-	SetFloatValue(positive ? UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE+school : UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE+school, val);
+    SetFloatValue(positive ? UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE+school : UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE+school, val);
 }
 
 void Unit::ApplyResistanceBuffModsMod(SpellSchools school, bool positive, float val, bool apply)
 {
-	ApplyModSignedFloatValue(positive ? UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE+school : UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE+school, val, apply);
+    ApplyModSignedFloatValue(positive ? UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE+school : UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE+school, val, apply);
 }
 
 void Unit::ApplyResistanceBuffModsPercentMod(SpellSchools school, bool positive, float val, bool apply)
 {
-	ApplyPercentModFloatValue(positive ? UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE+school : UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE+school, val, apply);
+    ApplyPercentModFloatValue(positive ? UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE+school : UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE+school, val, apply);
 }
 
 void Unit::InitStatBuffMods()
 {
     for (uint8 i = STAT_STRENGTH; i < MAX_STATS; ++i)
-		SetFloatValue(UNIT_FIELD_POSSTAT0+i, 0);
+        SetFloatValue(UNIT_FIELD_POSSTAT0+i, 0);
     for (uint8 i = STAT_STRENGTH; i < MAX_STATS; ++i)
-		SetFloatValue(UNIT_FIELD_NEGSTAT0+i, 0);
+        SetFloatValue(UNIT_FIELD_NEGSTAT0+i, 0);
 }
 
 void Unit::ApplyStatBuffMod(Stats stat, float val, bool apply)
 {
-	ApplyModSignedFloatValue((val > 0 ? UNIT_FIELD_POSSTAT0+stat : UNIT_FIELD_NEGSTAT0+stat), val, apply);
+    ApplyModSignedFloatValue((val > 0 ? UNIT_FIELD_POSSTAT0+stat : UNIT_FIELD_NEGSTAT0+stat), val, apply);
 }
 
 void Unit::ApplyStatPercentBuffMod(Stats stat, float val, bool apply)
@@ -8382,7 +8382,7 @@ Unit* Unit::GetCharm() const
 
 Unit* Unit::GetCharmerOrOwner() const
 {
-	return GetCharmerGUID() ? GetCharmer() : GetOwner();
+    return GetCharmerGUID() ? GetCharmer() : GetOwner();
 }
 
 Unit* Unit::GetCharmerOrOwnerOrSelf() const
@@ -8769,14 +8769,14 @@ void Unit::RemoveAllControlled()
         sLog->outFatal(LOG_FILTER_UNITS, "Unit %u is not able to release its charm " UI64FMTD, GetEntry(), GetCharmGUID());
 }
 
-bool Unit::isPossessedByPlayer() const 
+bool Unit::isPossessedByPlayer() const
 {
-	return HasUnitState(UNIT_STATE_POSSESSED) && IS_PLAYER_GUID(GetCharmerGUID());
+    return HasUnitState(UNIT_STATE_POSSESSED) && IS_PLAYER_GUID(GetCharmerGUID());
 }
 
 bool Unit::isPossessing(Unit* u) const
 {
-	return u->isPossessed() && GetCharmGUID() == u->GetGUID();
+    return u->isPossessed() && GetCharmGUID() == u->GetGUID();
 }
 
 bool Unit::isPossessing() const
@@ -10996,7 +10996,7 @@ bool Unit::IsAlwaysDetectableFor(WorldObject const* seer) const
 
 bool Unit::IsVisible() const
 {
-	return (m_serverSideVisibility.GetValue(SERVERSIDE_VISIBILITY_GM) > SEC_PLAYER) ? false : true; 
+    return (m_serverSideVisibility.GetValue(SERVERSIDE_VISIBILITY_GM) > SEC_PLAYER) ? false : true;
 }
 
 void Unit::SetVisible(bool x)
@@ -13567,9 +13567,9 @@ SpellSchoolMask Unit::GetMeleeDamageSchoolMask() const
     return SPELL_SCHOOL_MASK_NORMAL;
 }
 
-uint64 Unit::GetCharmerOrOwnerGUID() const 
+uint64 Unit::GetCharmerOrOwnerGUID() const
 {
-	return GetCharmerGUID() ? GetCharmerGUID() : GetOwnerGUID();
+    return GetCharmerGUID() ? GetCharmerGUID() : GetOwnerGUID();
 }
 
 uint64 Unit::GetCharmerOrOwnerOrOwnGUID() const
@@ -15282,8 +15282,8 @@ void Unit::RestoreFaction()
 }
 
 Unit* Unit::GetRedirectThreatTarget()
-{ 
-	return _redirectThreadInfo.GetTargetGUID() ? GetUnit(*this, _redirectThreadInfo.GetTargetGUID()) : NULL; 
+{
+    return _redirectThreadInfo.GetTargetGUID() ? GetUnit(*this, _redirectThreadInfo.GetTargetGUID()) : NULL;
 }
 
 bool Unit::CreateVehicleKit(uint32 id, uint32 creatureEntry)
@@ -15314,9 +15314,9 @@ void Unit::RemoveVehicleKit()
     RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_PLAYER_VEHICLE);
 }
 
-bool Unit::IsOnVehicle(const Unit* vehicle) const 
-{ 
-	return m_vehicle && m_vehicle == vehicle->GetVehicleKit(); 
+bool Unit::IsOnVehicle(const Unit* vehicle) const
+{
+    return m_vehicle && m_vehicle == vehicle->GetVehicleKit();
 }
 
 Unit* Unit::GetVehicleBase() const
@@ -17112,8 +17112,8 @@ bool Unit::UpdatePosition(float x, float y, float z, float orientation, bool tel
 }
 
 bool Unit::UpdatePosition(const Position &pos, bool teleport)
-{ 
-	return UpdatePosition(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation(), teleport); 
+{
+    return UpdatePosition(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation(), teleport);
 }
 
 //! Only server-side orientation update, does not broadcast to client
