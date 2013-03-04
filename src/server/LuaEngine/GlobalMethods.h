@@ -17,6 +17,17 @@ namespace LuaGlobalFunctions
         return 1;
     }
 
+	// GetQuest(questId)
+	static int GetQuest(lua_State* L)
+	{
+		uint32 questId = luaL_checkunsigned(L, 1);
+		if (!questId)
+			return 0;
+
+		Eluna::get()->PushQuest(L, sObjectMgr->GetQuestTemplate(questId));
+		return 1;
+	}
+
     // ReloadEluna() - Reloads eluna
     static int ReloadEluna(lua_State* L)
     {

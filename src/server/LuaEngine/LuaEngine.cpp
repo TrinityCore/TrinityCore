@@ -10,6 +10,7 @@ Eluna::LuaWorldScript* sLuaWorldScript = NULL;
 #include "ItemMethods.h"
 #include "WorldPacketMethods.h"
 #include "SpellMethods.h"
+#include "QuestMethods.h"
 #include "LuaFunctions.h"
 
 #if PLATFORM == PLATFORM_UNIX
@@ -41,6 +42,7 @@ template<> const char* GetTName<Aura>() { return "Aura"; }
 template<> const char* GetTName<WorldPacket>() { return "WorldPacket"; }
 template<> const char* GetTName<Item>() { return "Item"; }
 template<> const char* GetTName<Spell>() { return "Spell"; }
+template<> const char* GetTName<Quest>() { return "Quest"; }
 
 void Eluna::StartEluna()
 {
@@ -62,6 +64,7 @@ void Eluna::StartEluna()
     ElunaTemplate<WorldPacket>::Register(LuaState);
     ElunaTemplate<Item>::Register(LuaState);
 	ElunaTemplate<Spell>::Register(LuaState);
+	ElunaTemplate<Quest>::Register(LuaState);
 
     uint32 count = 0;
     char filename[200];
@@ -111,6 +114,7 @@ void Eluna::RegisterGlobals(lua_State* L)
     lua_register(L, "GetLuaEngine", &LuaGlobalFunctions::GetLuaEngine);
     lua_register(L, "GetLUAEngine", &LuaGlobalFunctions::GetLuaEngine);
     lua_register(L, "GetCoreVersion", &LuaGlobalFunctions::GetCoreVersion);
+	lua_register(L, "GetQuest", &LuaGlobalFunctions::GetQuest);
     lua_register(L, "ReloadEluna", &LuaGlobalFunctions::ReloadEluna);
     lua_register(L, "GetPlayerByGUID", &LuaGlobalFunctions::GetPlayerByGUID);
     lua_register(L, "GetPlayerByName", &LuaGlobalFunctions::GetPlayerByName);
@@ -354,6 +358,15 @@ void Eluna::PushSpell(lua_State* L, Spell* spell)
 	if (!L) L = LuaState;
 	if (spell)
 		ElunaTemplate<Spell>::push(L, spell);
+	else
+		lua_pushnil(L);
+}
+
+void Eluna::PushQuest(lua_State* L, Quest const* quest)
+{
+	if (!L) L = LuaState;
+	if (quest)
+		ElunaTemplate<Quest>::push(L, const_cast<Quest*>(quest));
 	else
 		lua_pushnil(L);
 }

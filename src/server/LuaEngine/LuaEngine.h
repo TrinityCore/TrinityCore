@@ -2,17 +2,18 @@
 #define __ELUNA__H
 #include <string>
 #include <map>
+#include "AccountMgr.h"
 #include "Chat.h"
-#include "ScriptPCH.h"
-#include "ScriptMgr.h"
-#include "ScriptedCreature.h"
+#include "Channel.h"
 #include "Creature.h"
 #include "GameObjectAI.h"
-#include "Channel.h"
-#include "AccountMgr.h"
 #include "Group.h"
 #include "Guild.h"
 #include "GuildMgr.h"
+#include "QuestDef.h"
+#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 #include "ArenaTeam.h"
 #include "Vehicle.h"
 #include "SystemConfig.h"
@@ -412,6 +413,7 @@ public:
     void PushAura(lua_State*, Aura*);
     void PushItem(lua_State*, Item*);
 	void PushSpell(lua_State*, Spell*);
+	void PushQuest(lua_State*, Quest const*);
     void PushPacket(lua_State*, WorldPacket*);
     // Checks
     Player * CHECK_PLAYER(lua_State* L, int narg)
@@ -1542,7 +1544,7 @@ public:
         Eluna::get()->PushUnsigned(Eluna::get()->LuaState, eventId);
         Eluna::get()->PushUnit(Eluna::get()->LuaState, player);
         Eluna::get()->PushItem(Eluna::get()->LuaState, item);
-        Eluna::get()->PushUnsigned(Eluna::get()->LuaState, quest->GetQuestId());
+        Eluna::get()->PushQuest(Eluna::get()->LuaState, quest);
         Eluna::get()->ExecuteCall(4, 0);
         return true;
     }
@@ -2079,7 +2081,7 @@ public:
         Eluna::get()->PushInteger(Eluna::get()->LuaState, eventId);
         Eluna::get()->PushUnit(Eluna::get()->LuaState, player);
         Eluna::get()->PushUnit(Eluna::get()->LuaState, creature);
-        Eluna::get()->PushUnsigned(Eluna::get()->LuaState, quest->GetQuestId());
+        Eluna::get()->PushQuest(Eluna::get()->LuaState, quest);
         Eluna::get()->ExecuteCall(4, 0);
         return true;
     }
@@ -2093,7 +2095,7 @@ public:
         Eluna::get()->PushInteger(Eluna::get()->LuaState, eventId);
         Eluna::get()->PushUnit(Eluna::get()->LuaState, player);
         Eluna::get()->PushUnit(Eluna::get()->LuaState, creature);
-        Eluna::get()->PushUnsigned(Eluna::get()->LuaState, quest->GetQuestId());
+        Eluna::get()->PushQuest(Eluna::get()->LuaState, quest);
         Eluna::get()->ExecuteCall(4, 0);
         return true;
     }
@@ -2107,7 +2109,7 @@ public:
         Eluna::get()->PushInteger(Eluna::get()->LuaState, eventId);
         Eluna::get()->PushUnit(Eluna::get()->LuaState, player);
         Eluna::get()->PushUnit(Eluna::get()->LuaState, creature);
-        Eluna::get()->PushUnsigned(Eluna::get()->LuaState, quest->GetQuestId());
+        Eluna::get()->PushQuest(Eluna::get()->LuaState, quest);
         Eluna::get()->PushUnsigned(Eluna::get()->LuaState, opt);
         Eluna::get()->ExecuteCall(5, 0);
         return true;
@@ -2122,7 +2124,7 @@ public:
         Eluna::get()->PushInteger(Eluna::get()->LuaState, eventId);
         Eluna::get()->PushUnit(Eluna::get()->LuaState, player);
         Eluna::get()->PushUnit(Eluna::get()->LuaState, creature);
-        Eluna::get()->PushUnsigned(Eluna::get()->LuaState, quest->GetQuestId());
+        Eluna::get()->PushQuest(Eluna::get()->LuaState, quest);
         Eluna::get()->ExecuteCall(4, 0);
         return true;
     }
@@ -2214,7 +2216,7 @@ public:
         Eluna::get()->PushInteger(Eluna::get()->LuaState, eventId);
         Eluna::get()->PushUnit(Eluna::get()->LuaState, player);
         Eluna::get()->PushGO(Eluna::get()->LuaState, go);
-        Eluna::get()->PushUnsigned(Eluna::get()->LuaState, quest->GetQuestId());
+        Eluna::get()->PushQuest(Eluna::get()->LuaState, quest);
         Eluna::get()->ExecuteCall(4, 0);
         return true;
     }
@@ -2229,7 +2231,7 @@ public:
         Eluna::get()->PushInteger(Eluna::get()->LuaState, eventId);
         Eluna::get()->PushUnit(Eluna::get()->LuaState, player);
         Eluna::get()->PushGO(Eluna::get()->LuaState, go);
-        Eluna::get()->PushUnsigned(Eluna::get()->LuaState, quest->GetQuestId());
+        Eluna::get()->PushQuest(Eluna::get()->LuaState, quest);
         Eluna::get()->PushUnsigned(Eluna::get()->LuaState, opt);
         Eluna::get()->ExecuteCall(5, 0);
         return true;
