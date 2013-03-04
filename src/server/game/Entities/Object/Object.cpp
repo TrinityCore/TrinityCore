@@ -1723,18 +1723,18 @@ bool WorldObject::IsWithinDist3d(float x, float y, float z, float dist) const
 }
 
 bool WorldObject::IsWithinDist3d(const Position* pos, float dist) const
-{ 
-    return IsInDist(pos, dist + GetObjectSize()); 
+{
+    return IsInDist(pos, dist + GetObjectSize());
 }
 
 bool WorldObject::IsWithinDist2d(float x, float y, float dist) const
 {
-        return IsInDist2d(x, y, dist + GetObjectSize()); 
+    return IsInDist2d(x, y, dist + GetObjectSize());
 }
 
 bool WorldObject::IsWithinDist2d(const Position* pos, float dist) const
-{ 
-    return IsInDist2d(pos, dist + GetObjectSize()); 
+{
+    return IsInDist2d(pos, dist + GetObjectSize());
 }
 
 bool WorldObject::IsWithinDist(WorldObject const* obj, float dist2compare, bool is3D /*= true*/) const
@@ -2177,9 +2177,9 @@ bool WorldObject::canSeeOrDetect(WorldObject const* obj, bool ignoreStealth, boo
     return true;
 }
 
-bool WorldObject::CanNeverSee(WorldObject const* obj) const 
-{ 
-    return GetMap() != obj->GetMap() || !InSamePhase(obj); 
+bool WorldObject::CanNeverSee(WorldObject const* obj) const
+{
+    return GetMap() != obj->GetMap() || !InSamePhase(obj);
 }
 
 bool WorldObject::CanDetect(WorldObject const* obj, bool ignoreStealth) const
@@ -3222,7 +3222,7 @@ void WorldObject::SetPhaseMask(uint32 newPhaseMask, bool update)
         UpdateObjectVisibility();
 }
 
-bool WorldObject::InSamePhase(WorldObject const* obj) const 
+bool WorldObject::InSamePhase(WorldObject const* obj) const
 {
     return InSamePhase(obj->GetPhaseMask());
 }

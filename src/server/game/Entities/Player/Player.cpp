@@ -10301,7 +10301,7 @@ Item* Player::GetItemByPos(uint8 bag, uint8 slot) const
 }
 
 //Does additional check for disarmed weapons
-Item* Player::GetUseableItemByPos(uint8 bag, uint8 slot) const 
+Item* Player::GetUseableItemByPos(uint8 bag, uint8 slot) const
 {
     if (!CanUseAttackType(GetAttackBySlot(slot)))
         return NULL;
@@ -16048,7 +16048,7 @@ void Player::RemoveQuestSlotState(uint16 slot, uint32 state)
     RemoveFlag(PLAYER_QUEST_LOG_1_1 + slot * MAX_QUEST_OFFSET + QUEST_STATE_OFFSET, state);
 }
 
-void Player::SetQuestSlotTimer(uint16 slot, uint32 timer) 
+void Player::SetQuestSlotTimer(uint16 slot, uint32 timer)
 {
     SetUInt32Value(PLAYER_QUEST_LOG_1_1 + slot * MAX_QUEST_OFFSET + QUEST_TIME_OFFSET, timer);
 }
@@ -24023,6 +24023,10 @@ void Player::SetClientControl(Unit* target, uint8 allowMove)
 
 void Player::SetMover(Unit* target)
 {
+    m_mover->m_movedPlayer = NULL;
+    m_mover = target;
+    m_mover->m_movedPlayer = this;
+
     ObjectGuid guid = target->GetGUID();
 
     WorldPacket data(SMSG_MOVE_SET_ACTIVE_MOVER, 9);
