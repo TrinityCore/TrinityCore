@@ -451,6 +451,12 @@ void Unit::resetAttackTimer(WeaponAttackType type)
     m_attackTimer[type] = uint32(GetAttackTime(type) * m_modAttackSpeedPct[type]);
 }
 
+float Unit::GetMeleeReach() const
+{ 
+	float reach = m_floatValues[UNIT_FIELD_COMBATREACH]; 
+	return reach > MIN_MELEE_REACH ? reach : MIN_MELEE_REACH; 
+}
+
 bool Unit::IsWithinCombatRange(const Unit* obj, float dist2compare) const
 {
     if (!obj || !IsInMap(obj) || !InSamePhase(obj))
@@ -494,6 +500,26 @@ void Unit::GetRandomContactPoint(const Unit* obj, float &x, float &y, float &z, 
         --attacker_number;
     GetNearPoint(obj, x, y, z, obj->GetCombatReach(), distance2dMin+(distance2dMax-distance2dMin) * (float)rand_norm()
         , GetAngle(obj) + (attacker_number ? (static_cast<float>(M_PI/2) - static_cast<float>(M_PI) * (float)rand_norm()) * float(attacker_number) / combat_reach * 0.3f : 0));
+}
+
+AuraApplication * Unit::GetVisibleAura(uint8 slot) const
+{
+    VisibleAuraMap::const_iterator itr = m_visibleAuras.find(slot);
+    if (itr != m_visibleAuras.end())
+        return itr->second;
+    return 0;
+}
+
+void Unit::SetVisibleAura(uint8 slot, AuraApplication * aur)
+{
+	m_visibleAuras[slot]=aur;
+	UpdateAuraForGroup(slot);
+}
+
+void Unit::RemoveVisibleAura(uint8 slot)
+{
+	m_visibleAuras.erase(slot);
+	UpdateAuraForGroup(slot);
 }
 
 void Unit::UpdateInterruptMask()
@@ -2141,6 +2167,17 @@ int32 Unit::GetMechanicResistChance(const SpellInfo* spell)
     return resist_mech;
 }
 
+bool Unit::CanUseAttackType(uint8 attacktype) const
+{
+    switch (attacktype)
+    {
+        case BASE_ATTACK: return !HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISARMED);
+        case OFF_ATTACK: return !HasFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_DISARM_OFFHAND);
+        case RANGED_ATTACK: return !HasFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_DISARM_RANGED);
+    }
+    return true;
+}
+
 // Melee based spells hit result calculations
 SpellMissInfo Unit::MeleeSpellHitResult(Unit* victim, SpellInfo const* spell)
 {
@@ -2439,6 +2476,11 @@ SpellMissInfo Unit::SpellHitResult(Unit* victim, SpellInfo const* spell, bool Ca
             return MagicSpellHitResult(victim, spell);
     }
     return SPELL_MISS_NONE;
+}
+
+uint32 Unit::GetUnitMeleeSkill(Unit const* target) const
+{ 
+	return (target ? getLevelForTarget(target) : getLevel()) * 5;
 }
 
 float Unit::GetUnitDodgeChance() const
@@ -3899,6 +3941,11 @@ AuraEffect* Unit::GetAuraEffect(AuraType type, SpellFamilyNames family, uint32 f
     return NULL;
 }
 
+AuraEffect* Unit::GetDummyAuraEffect(SpellFamilyNames name, uint32 iconId, uint8 effIndex) const
+{
+	return GetAuraEffect(SPELL_AURA_DUMMY, name, iconId, effIndex);
+}
+
 AuraApplication * Unit::GetAuraApplication(uint32 spellId, uint64 casterGUID, uint64 itemCasterGUID, uint8 reqEffMask, AuraApplication * except) const
 {
     AuraApplicationMapBounds range = m_appliedAuras.equal_range(spellId);
@@ -4419,6 +4466,45 @@ int32 Unit::GetMaxNegativeAuraModifierByAffectMask(AuraType auratype, SpellInfo 
     }
 
     return modifier;
+}
+
+float Unit::GetResistanceBuffMods(SpellSchools school, bool positive) const
+{
+	return GetFloatValue(positive ? UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE+school : UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE+school);
+}
+
+void Unit::SetResistanceBuffMods(SpellSchools school, bool positive, float val)
+{
+	SetFloatValue(positive ? UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE+school : UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE+school, val);
+}
+
+void Unit::ApplyResistanceBuffModsMod(SpellSchools school, bool positive, float val, bool apply)
+{
+	ApplyModSignedFloatValue(positive ? UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE+school : UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE+school, val, apply);
+}
+
+void Unit::ApplyResistanceBuffModsPercentMod(SpellSchools school, bool positive, float val, bool apply)
+{
+	ApplyPercentModFloatValue(positive ? UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE+school : UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE+school, val, apply);
+}
+
+void Unit::InitStatBuffMods()
+{
+    for (uint8 i = STAT_STRENGTH; i < MAX_STATS; ++i)
+		SetFloatValue(UNIT_FIELD_POSSTAT0+i, 0);
+    for (uint8 i = STAT_STRENGTH; i < MAX_STATS; ++i)
+		SetFloatValue(UNIT_FIELD_NEGSTAT0+i, 0);
+}
+
+void Unit::ApplyStatBuffMod(Stats stat, float val, bool apply)
+{
+	ApplyModSignedFloatValue((val > 0 ? UNIT_FIELD_POSSTAT0+stat : UNIT_FIELD_NEGSTAT0+stat), val, apply);
+}
+
+void Unit::ApplyStatPercentBuffMod(Stats stat, float val, bool apply)
+{
+    ApplyPercentModFloatValue(UNIT_FIELD_POSSTAT0+stat, val, apply);
+    ApplyPercentModFloatValue(UNIT_FIELD_NEGSTAT0+stat, val, apply);
 }
 
 void Unit::_RegisterDynObject(DynamicObject* dynObj)
@@ -7883,6 +7969,27 @@ bool Unit::IsNeutralToAll() const
     return my_faction->IsNeutralToAll();
 }
 
+void Unit::_addAttacker(Unit* pAttacker)
+{
+    m_attackers.insert(pAttacker);
+}
+
+void Unit::_removeAttacker(Unit* pAttacker)
+{
+    m_attackers.erase(pAttacker);
+}
+
+Unit* Unit::getAttackerForHelper() const                 // If someone wants to help, who to give them
+{
+    if (getVictim() != NULL)
+        return getVictim();
+
+    if (!m_attackers.empty())
+        return *(m_attackers.begin());
+
+    return NULL;
+}
+
 bool Unit::Attack(Unit* victim, bool meleeAttack)
 {
     if (!victim || victim == this)
@@ -8273,6 +8380,19 @@ Unit* Unit::GetCharm() const
     return NULL;
 }
 
+Unit* Unit::GetCharmerOrOwner() const
+{
+	return GetCharmerGUID() ? GetCharmer() : GetOwner();
+}
+
+Unit* Unit::GetCharmerOrOwnerOrSelf() const
+{
+    if (Unit* u = GetCharmerOrOwner())
+        return u;
+
+    return (Unit*)this;
+}
+
 void Unit::SetMinion(Minion *minion, bool apply)
 {
     sLog->outDebug(LOG_FILTER_UNITS, "SetMinion %u for %u, apply %u", minion->GetEntry(), GetEntry(), apply);
@@ -8647,6 +8767,24 @@ void Unit::RemoveAllControlled()
         sLog->outFatal(LOG_FILTER_UNITS, "Unit %u is not able to release its minion " UI64FMTD, GetEntry(), GetMinionGUID());
     if (GetCharmGUID())
         sLog->outFatal(LOG_FILTER_UNITS, "Unit %u is not able to release its charm " UI64FMTD, GetEntry(), GetCharmGUID());
+}
+
+bool Unit::isPossessedByPlayer() const 
+{
+	return HasUnitState(UNIT_STATE_POSSESSED) && IS_PLAYER_GUID(GetCharmerGUID());
+}
+
+bool Unit::isPossessing(Unit* u) const
+{
+	return u->isPossessed() && GetCharmGUID() == u->GetGUID();
+}
+
+bool Unit::isPossessing() const
+{
+    if (Unit* u = GetCharm())
+        return u->isPossessed();
+    else
+        return false;
 }
 
 Unit* Unit::GetNextRandomRaidMemberOrPet(float radius)
@@ -10342,6 +10480,15 @@ MountCapabilityEntry const* Unit::GetMountCapability(uint32 mountType) const
     return NULL;
 }
 
+bool Unit::isServiceProvider() const
+{
+    return HasFlag(UNIT_NPC_FLAGS,
+        UNIT_NPC_FLAG_VENDOR | UNIT_NPC_FLAG_TRAINER | UNIT_NPC_FLAG_FLIGHTMASTER |
+        UNIT_NPC_FLAG_PETITIONER | UNIT_NPC_FLAG_BATTLEMASTER | UNIT_NPC_FLAG_BANKER |
+        UNIT_NPC_FLAG_INNKEEPER | UNIT_NPC_FLAG_SPIRITHEALER |
+        UNIT_NPC_FLAG_SPIRITGUIDE | UNIT_NPC_FLAG_TABARDDESIGNER | UNIT_NPC_FLAG_AUCTIONEER);
+}
+
 void Unit::SetInCombatWith(Unit* enemy)
 {
     Unit* eOwner = enemy->GetCharmerOrOwnerOrSelf();
@@ -10811,6 +10958,12 @@ int32 Unit::ModifyPowerPct(Powers power, float pct, bool apply)
     return ModifyPower(power, (int32)amount - GetMaxPower(power));
 }
 
+uint32 Unit::GetAttackTime(WeaponAttackType att) const
+{
+    float f_BaseAttackTime = GetFloatValue(UNIT_FIELD_BASEATTACKTIME+att) / m_modAttackSpeedPct[att];
+    return (uint32)f_BaseAttackTime;
+}
+
 bool Unit::IsAlwaysVisibleFor(WorldObject const* seer) const
 {
     if (WorldObject::IsAlwaysVisibleFor(seer))
@@ -10839,6 +10992,11 @@ bool Unit::IsAlwaysDetectableFor(WorldObject const* seer) const
         return true;
 
     return false;
+}
+
+bool Unit::IsVisible() const
+{
+	return (m_serverSideVisibility.GetValue(SERVERSIDE_VISIBILITY_GM) > SEC_PLAYER) ? false : true; 
 }
 
 void Unit::SetVisible(bool x)
@@ -12054,6 +12212,30 @@ uint32 Unit::GetCreatureType() const
         return ToCreature()->GetCreatureTemplate()->type;
 }
 
+uint32 Unit::GetCreatureTypeMask() const
+{
+    uint32 creatureType = GetCreatureType();
+    return (creatureType >= 1) ? (1 << (creatureType - 1)) : 0;
+}
+
+void Unit::SetShapeshiftForm(ShapeshiftForm form)
+{
+    SetByteValue(UNIT_FIELD_BYTES_2, 3, form);
+}
+
+bool Unit::IsInFeralForm() const
+{
+    ShapeshiftForm form = GetShapeshiftForm();
+    return form == FORM_CAT || form == FORM_BEAR;
+}
+
+bool Unit::IsInDisallowedMountForm() const
+{
+    ShapeshiftForm form = GetShapeshiftForm();
+    return form != FORM_NONE && form != FORM_BATTLESTANCE && form != FORM_BERSERKERSTANCE && form != FORM_DEFENSIVESTANCE &&
+        form != FORM_SHADOW && form != FORM_STEALTH && form != FORM_UNDEAD;
+}
+
 /*#######################################
 ########                         ########
 ########       STAT SYSTEM       ########
@@ -12250,6 +12432,12 @@ float Unit::GetWeaponDamageRange(WeaponAttackType attType, WeaponDamageRange typ
         return 0.0f;
 
     return m_weaponDamage[attType][type];
+}
+
+bool Unit::CanFreeMove() const
+{
+    return !HasUnitState(UNIT_STATE_CONFUSED | UNIT_STATE_FLEEING | UNIT_STATE_IN_FLIGHT |
+        UNIT_STATE_ROOT | UNIT_STATE_STUNNED | UNIT_STATE_DISTRACTED) && GetOwnerGUID() == 0;
 }
 
 void Unit::SetLevel(uint8 lvl)
@@ -13379,6 +13567,18 @@ SpellSchoolMask Unit::GetMeleeDamageSchoolMask() const
     return SPELL_SCHOOL_MASK_NORMAL;
 }
 
+uint64 Unit::GetCharmerOrOwnerGUID() const 
+{
+	return GetCharmerGUID() ? GetCharmerGUID() : GetOwnerGUID();
+}
+
+uint64 Unit::GetCharmerOrOwnerOrOwnGUID() const
+{
+    if (uint64 guid = GetCharmerOrOwnerGUID())
+        return guid;
+    return GetGUID();
+}
+
 Player* Unit::GetSpellModOwner() const
 {
     if (GetTypeId() == TYPEID_PLAYER)
@@ -13816,6 +14016,17 @@ void Unit::UpdateAuraForGroup(uint8 slot)
                 pet->SetAuraUpdateMaskForRaid(slot);
             }
         }
+    }
+}
+
+void Unit::SetCantProc(bool apply)
+{
+    if (apply)
+        ++m_procDeep;
+    else
+    {
+        ASSERT(m_procDeep);
+        --m_procDeep;
     }
 }
 
@@ -14463,6 +14674,15 @@ void Unit::Kill(Unit* victim, bool durabilityLoss)
     }
 }
 
+float Unit::GetPositionZMinusOffset() const
+{
+    float offset = 0.0f;
+    if (HasUnitMovementFlag(MOVEMENTFLAG_HOVER))
+        offset = GetFloatValue(UNIT_FIELD_HOVERHEIGHT);
+
+    return GetPositionZ() - offset;
+}
+
 void Unit::SetControlled(bool apply, UnitState state)
 {
     if (apply)
@@ -15061,6 +15281,11 @@ void Unit::RestoreFaction()
     }
 }
 
+Unit* Unit::GetRedirectThreatTarget()
+{ 
+	return _redirectThreadInfo.GetTargetGUID() ? GetUnit(*this, _redirectThreadInfo.GetTargetGUID()) : NULL; 
+}
+
 bool Unit::CreateVehicleKit(uint32 id, uint32 creatureEntry)
 {
     VehicleEntry const* vehInfo = sVehicleStore.LookupEntry(id);
@@ -15087,6 +15312,11 @@ void Unit::RemoveVehicleKit()
     m_unitTypeMask &= ~UNIT_MASK_VEHICLE;
     RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
     RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_PLAYER_VEHICLE);
+}
+
+bool Unit::IsOnVehicle(const Unit* vehicle) const 
+{ 
+	return m_vehicle && m_vehicle == vehicle->GetVehicleKit(); 
 }
 
 Unit* Unit::GetVehicleBase() const
@@ -15193,6 +15423,22 @@ void Unit::GetPartyMembers(std::list<Unit*> &TagUnitMap)
             if (pet->isAlive() && (pet == this || IsInMap(pet)))
                 TagUnitMap.push_back(pet);
     }
+}
+
+bool Unit::IsContestedGuard() const
+{
+    if (FactionTemplateEntry const* entry = getFactionTemplateEntry())
+        return entry->IsContestedGuardFaction();
+
+    return false;
+}
+
+void Unit::SetPvP(bool state)
+{
+    if (state)
+        SetByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_PVP);
+    else
+        RemoveByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_PVP);
 }
 
 Aura* Unit::AddAura(uint32 spellId, Unit* target)
@@ -16865,6 +17111,11 @@ bool Unit::UpdatePosition(float x, float y, float z, float orientation, bool tel
     return (relocated || turn);
 }
 
+bool Unit::UpdatePosition(const Position &pos, bool teleport)
+{ 
+	return UpdatePosition(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation(), teleport); 
+}
+
 //! Only server-side orientation update, does not broadcast to client
 void Unit::UpdateOrientation(float orientation)
 {
@@ -17140,7 +17391,7 @@ bool CharmInfo::IsReturning()
     return _isReturning;
 }
 
-void Unit::SetInFront(Unit const* target)
+void Unit::SetInFront(WorldObject const* target)
 {
     if (!HasUnitState(UNIT_STATE_CANNOT_TURN))
         SetOrientation(GetAngle(target));
@@ -17287,16 +17538,25 @@ bool Unit::IsSplineEnabled() const
     return movespline->Initialized();
 }
 
-void Unit::FocusTarget(Spell const* focusSpell, uint64 target)
+void Unit::SetTarget(uint64 guid)
+{
+    if (!_focusSpell)
+        SetUInt64Value(UNIT_FIELD_TARGET, guid);
+}
+
+void Unit::FocusTarget(Spell const* focusSpell, WorldObject const* target)
 {
     // already focused
     if (_focusSpell)
         return;
 
     _focusSpell = focusSpell;
-    SetUInt64Value(UNIT_FIELD_TARGET, target);
+    SetUInt64Value(UNIT_FIELD_TARGET, target->GetGUID());
     if (focusSpell->GetSpellInfo()->AttributesEx5 & SPELL_ATTR5_DONT_TURN_DURING_CAST)
         AddUnitState(UNIT_STATE_ROTATING);
+
+    // Set serverside orientation if needed (needs to be after attribute check)
+    SetInFront(target);
 }
 
 void Unit::ReleaseFocus(Spell const* focusSpell)

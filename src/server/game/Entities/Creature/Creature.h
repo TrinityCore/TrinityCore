@@ -473,15 +473,7 @@ class Creature : public Unit, public GridObject<Creature>, public MapCreature
         void SetReactState(ReactStates st) { m_reactState = st; }
         ReactStates GetReactState() { return m_reactState; }
         bool HasReactState(ReactStates state) const { return (m_reactState == state); }
-        void InitializeReactState()
-        {
-            if (isTotem() || isTrigger() || GetCreatureType() == CREATURE_TYPE_CRITTER || isSpiritService())
-                SetReactState(REACT_PASSIVE);
-            else
-                SetReactState(REACT_AGGRESSIVE);
-            /*else if (isCivilian())
-            SetReactState(REACT_DEFENSIVE);*/;
-        }
+        void InitializeReactState();
 
         /// @todo Rename these properly
         bool isCanTrainingOf(Player* player, bool msg) const;
@@ -490,22 +482,8 @@ class Creature : public Unit, public GridObject<Creature>, public MapCreature
         bool canCreatureAttack(Unit const* victim, bool force = true) const;
         bool IsImmunedToSpell(SpellInfo const* spellInfo);                           //override Unit::IsImmunedToSpell
         bool IsImmunedToSpellEffect(SpellInfo const* spellInfo, uint32 index) const; //override Unit::IsImmunedToSpellEffect
-        bool isElite() const
-        {
-            if (isPet())
-                return false;
-
-            uint32 rank = GetCreatureTemplate()->rank;
-            return rank != CREATURE_ELITE_NORMAL && rank != CREATURE_ELITE_RARE;
-        }
-
-        bool isWorldBoss() const
-        {
-            if (isPet())
-                return false;
-
-            return GetCreatureTemplate()->type_flags & CREATURE_TYPEFLAGS_BOSS;
-        }
+        bool isElite() const;
+        bool isWorldBoss() const;
 
         bool IsDungeonBoss() const;
 
@@ -530,12 +508,7 @@ class Creature : public Unit, public GridObject<Creature>, public MapCreature
         void AddCreatureSpellCooldown(uint32 spellid);
         bool HasSpellCooldown(uint32 spell_id) const;
         bool HasCategoryCooldown(uint32 spell_id) const;
-        uint32 GetCreatureSpellCooldownDelay(uint32 spellId) const
-        {
-            CreatureSpellCooldowns::const_iterator itr = m_CreatureSpellCooldowns.find(spellId);
-            time_t t = time(NULL);
-            return uint32(itr != m_CreatureSpellCooldowns.end() && itr->second > t ? itr->second - t : 0);
-        }
+        uint32 GetCreatureSpellCooldownDelay(uint32 spellId) const;
         virtual void ProhibitSpellSchool(SpellSchoolMask idSchoolMask, uint32 unTimeMs);
 
         bool HasSpell(uint32 spellID) const;
@@ -665,13 +638,7 @@ class Creature : public Unit, public GridObject<Creature>, public MapCreature
         bool isRegeneratingHealth() { return m_regenHealth; }
         void setRegeneratingHealth(bool regenHealth) { m_regenHealth = regenHealth; }
         virtual uint8 GetPetAutoSpellSize() const { return MAX_SPELL_CHARM; }
-        virtual uint32 GetPetAutoSpellOnPos(uint8 pos) const
-        {
-            if (pos >= MAX_SPELL_CHARM || m_charmInfo->GetCharmSpell(pos)->GetType() != ACT_ENABLED)
-                return 0;
-            else
-                return m_charmInfo->GetCharmSpell(pos)->GetAction();
-        }
+        virtual uint32 GetPetAutoSpellOnPos(uint8 pos) const;
 
         void SetPosition(float x, float y, float z, float o);
         void SetPosition(const Position &pos) { SetPosition(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation()); }
@@ -701,11 +668,7 @@ class Creature : public Unit, public GridObject<Creature>, public MapCreature
         void SetDisableReputationGain(bool disable) { DisableReputationGain = disable; }
         bool IsReputationGainDisabled() { return DisableReputationGain; }
         bool IsDamageEnoughForLootingAndReward() const { return m_PlayerDamageReq == 0; }
-        void LowerPlayerDamageReq(uint32 unDamage)
-        {
-            if (m_PlayerDamageReq)
-                m_PlayerDamageReq > unDamage ? m_PlayerDamageReq -= unDamage : m_PlayerDamageReq = 0;
-        }
+        void LowerPlayerDamageReq(uint32 unDamage);
         void ResetPlayerDamageReq() { m_PlayerDamageReq = GetHealth() / 2; }
         uint32 m_PlayerDamageReq;
 

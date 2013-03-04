@@ -3071,8 +3071,8 @@ void Spell::prepare(SpellCastTargets const* targets, AuraEffect const* triggered
 
         // set target for proper facing
         if ((m_casttime || m_spellInfo->IsChanneled()) && !(_triggeredCastFlags & TRIGGERED_IGNORE_SET_FACING))
-            if (m_caster->GetGUID() != m_targets.GetObjectTargetGUID() && m_caster->GetTypeId() == TYPEID_UNIT)
-                m_caster->FocusTarget(this, m_targets.GetObjectTargetGUID());
+            if (m_caster->GetTypeId() == TYPEID_UNIT && m_targets.GetObjectTarget() && m_caster != m_targets.GetObjectTarget())
+                m_caster->FocusTarget(this, m_targets.GetObjectTarget());
 
         if (!(_triggeredCastFlags & TRIGGERED_IGNORE_GCD))
             TriggerGlobalCooldown();
@@ -3164,10 +3164,12 @@ void Spell::cast(bool skipCheck)
                 if (playerPet->isAlive() && playerPet->isControlled() && (m_targets.GetTargetMask() & TARGET_FLAG_UNIT))
                     playerPet->AI()->OwnerAttacked(m_targets.GetObjectTarget()->ToUnit());
     }
+
     SetExecutedCurrently(true);
 
-    if (m_caster->GetTypeId() != TYPEID_PLAYER && m_targets.GetUnitTarget() && m_targets.GetUnitTarget() != m_caster)
-        m_caster->SetInFront(m_targets.GetUnitTarget());
+    if (!(_triggeredCastFlags & TRIGGERED_IGNORE_SET_FACING))
+        if (m_caster->GetTypeId() == TYPEID_UNIT && m_targets.GetObjectTarget() && m_caster != m_targets.GetObjectTarget())
+            m_caster->SetInFront(m_targets.GetObjectTarget());
 
     // Should this be done for original caster?
     if (m_caster->GetTypeId() == TYPEID_PLAYER)

@@ -324,8 +324,10 @@ enum MiscData
     // Target guids
     DATA_LAST_OVERLOAD_GUID          = 13, // used to store last Arcane Overload guid
     DATA_FIRST_SURGE_TARGET_GUID     = 14,
-    DATA_SECOND_SURGE_TARGET_GUID    = 15,
-    DATA_THIRD_SURGE_TARGET_GUID     = 16
+    //DATA_SECOND_SURGE_TARGET_GUID    = 15,
+    //DATA_THIRD_SURGE_TARGET_GUID     = 16
+
+    NUM_MAX_SURGE_TARGETS            = 3,
 };
 
 // Used to check if summons guids come from vehicles
@@ -357,9 +359,7 @@ public:
             _summonDeaths = 0;
             _preparingPulsesChecker = 0;
             _arcaneOverloadGUID = NULL;
-            _firstSelectedSurgeTargetGUID = NULL;
-            _secondSelectedSurgeTargetGUID = NULL;
-            _thirdSelectedSurgeTargetGUID = NULL;
+            memset(_surgeTargetGUID, 0, sizeof(_surgeTargetGUID));
 
             _killSpamFilter = false;
             _canAttack = false;
@@ -421,17 +421,10 @@ public:
             }
         }
 
-        uint64 GetGUID(int32 data) const
+        uint64 GetGUID(int32 type) const
         {
-            switch (data)
-            {
-                case DATA_FIRST_SURGE_TARGET_GUID:
-                    return _firstSelectedSurgeTargetGUID;
-                case DATA_SECOND_SURGE_TARGET_GUID:
-                    return _secondSelectedSurgeTargetGUID;
-                case DATA_THIRD_SURGE_TARGET_GUID:
-                    return _thirdSelectedSurgeTargetGUID;
-            }
+            if (type >= DATA_FIRST_SURGE_TARGET_GUID && type < DATA_FIRST_SURGE_TARGET_GUID + NUM_MAX_SURGE_TARGETS)
+                return _surgeTargetGUID[type - DATA_FIRST_SURGE_TARGET_GUID];
 
             return 0;
         }
@@ -444,13 +437,9 @@ public:
                     _arcaneOverloadGUID = guid;
                     break;
                 case DATA_FIRST_SURGE_TARGET_GUID:
-                    _firstSelectedSurgeTargetGUID = guid;
-                    break;
-                case DATA_SECOND_SURGE_TARGET_GUID:
-                    _secondSelectedSurgeTargetGUID = guid;
-                    break;
-                case DATA_THIRD_SURGE_TARGET_GUID:
-                    _thirdSelectedSurgeTargetGUID = guid;
+                case DATA_FIRST_SURGE_TARGET_GUID + 1:
+                case DATA_FIRST_SURGE_TARGET_GUID + 2:
+                    _surgeTargetGUID[type - DATA_FIRST_SURGE_TARGET_GUID] = guid;
                     break;
             }
         }
@@ -954,22 +943,24 @@ public:
                     case EVENT_SURGE_OF_POWER_P_THREE:
                         if (GetDifficulty() == RAID_DIFFICULTY_10MAN_NORMAL)
                         {
-                            _tempSurgeTarget = NULL;
-                            _drakeVehicle = NULL;
-                            _playerSurgeTarget = NULL;
-                            if ((_tempSurgeTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, false, SPELL_RIDE_RED_DRAGON_BUDDY)))
-                                if ((_drakeVehicle = _tempSurgeTarget->GetVehicleKit()))
-                                    if ((_playerSurgeTarget = _drakeVehicle->GetPassenger(0)->ToPlayer()))
+                            if (Unit* tempSurgeTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, false, SPELL_RIDE_RED_DRAGON_BUDDY))
+                            {
+                                if (Vehicle* drakeVehicle = tempSurgeTarget->GetVehicleKit())
+                                {
+                                    if (Unit* passenger = drakeVehicle->GetPassenger(0))
                                     {
-                                        Talk(EMOTE_SURGE_OF_POWER_WARNING_P3, _playerSurgeTarget->GetGUID());
-                                        DoCast(_tempSurgeTarget, SPELL_SURGE_OF_POWER_PHASE_3_10);
+                                        if (passenger->GetTypeId() == TYPEID_PLAYER)
+                                        {
+                                            Talk(EMOTE_SURGE_OF_POWER_WARNING_P3, passenger->GetGUID());
+                                            DoCast(tempSurgeTarget, SPELL_SURGE_OF_POWER_PHASE_3_10);
+                                        }
                                     }
+                                }
+                            }
                         }
                         else if (GetDifficulty() == RAID_DIFFICULTY_25MAN_NORMAL)
                         {
-                            _firstSelectedSurgeTargetGUID = NULL;
-                            _secondSelectedSurgeTargetGUID = NULL;
-                            _thirdSelectedSurgeTargetGUID = NULL;
+                            memset(_surgeTargetGUID, 0, sizeof(_surgeTargetGUID));
                             DoCastAOE(SPELL_SURGE_OF_POWER_WARNING_SELECTOR_25);
                         }
 
@@ -1053,13 +1044,7 @@ public:
         uint8 _summonDeaths; // Keeps count of arcane trash.
         uint8 _preparingPulsesChecker; // In retail they use 2 preparing pulses with 7 sec CD, after they pass 2 seconds.
         uint64 _arcaneOverloadGUID; // Last Arcane Overload summoned to know to which should visual be cast to (the purple ball, not bubble).
-        uint64 _firstSelectedSurgeTargetGUID; // All these three are used to keep current tagets to which warning should be sent
-        uint64 _secondSelectedSurgeTargetGUID; // during Surge of Power 25 man, also they act as sent targets because of that mechanic.
-        uint64 _thirdSelectedSurgeTargetGUID;
-
-        Unit* _tempSurgeTarget; // These three are used for 10 man Surge of Power targeting.
-        Vehicle* _drakeVehicle;
-        Player* _playerSurgeTarget;
+        uint64 _surgeTargetGUID[3]; // All these three are used to keep current tagets to which warning should be sent
 
         bool _killSpamFilter; // Prevent text spamming on killed player by helping implement a CD.
         bool _canAttack; // Used to control attacking (Move Chase not being applied after Stop Attack, only few times should act like this).
@@ -1542,8 +1527,11 @@ public:
 
         void IsSummonedBy(Unit* summoner)
         {
-            if ((_malygos = summoner->ToCreature()))
+            if (Creature* creature = summoner->ToCreature())
+            {
+                _malygos = creature;
                 _malygos->AI()->SetGUID(me->GetGUID(), DATA_LAST_OVERLOAD_GUID);
+            }
         }
 
         void UpdateAI (uint32 /*diff*/)
@@ -1598,8 +1586,11 @@ public:
         void IsSummonedBy(Unit* summoner)
         {
             _summoner = NULL;
-            if ((_summoner = summoner->ToPlayer()))
+            if (Player* player = summoner->ToPlayer())
+            {
+                _summoner = player;
                 _events.ScheduleEvent(EVENT_CAST_RIDE_SPELL, 2*IN_MILLISECONDS);
+            }
         }
 
         void UpdateAI(uint32 diff)
@@ -1618,7 +1609,7 @@ public:
             }
         }
 
-        void PassengerBoarded(Unit* unit, int8 /*seat*/, bool apply)
+        void PassengerBoarded(Unit* /*unit*/, int8 /*seat*/, bool apply)
         {
             if (!apply)
             {
@@ -1762,22 +1753,19 @@ class spell_malygos_random_portal : public SpellScriptLoader
         }
 };
 
-class isPlayerOnVehicleChecker
+class IsCreatureVehicleCheck
 {
     public:
-        isPlayerOnVehicleChecker(Unit* source) : _source(source) { }
+        IsCreatureVehicleCheck() { }
 
-        bool operator()(WorldObject* unit)
+        bool operator()(WorldObject* obj)
         {
-            if (Unit* target = ObjectAccessor::GetUnit(*_source, unit->GetGUID()))
-                if (target->IsOnVehicle(target->GetVehicleBase()))
+            if (Unit* unit = obj->ToUnit())
+                if (unit->GetTypeId() == TYPEID_UNIT && unit->GetVehicleKit())
                     return true;
 
             return false;
         }
-
-        private:
-            Unit* _source;
 };
 
 class spell_malygos_arcane_storm : public SpellScriptLoader
@@ -1804,20 +1792,31 @@ class spell_malygos_arcane_storm : public SpellScriptLoader
 
             void FilterTargets(std::list<WorldObject*>& targets)
             {
+                if (targets.empty())
+                    return;
+
                 Creature* malygos = GetCaster()->ToCreature();
                 if (GetSpellInfo()->Id == SPELL_ARCANE_STORM_P_III)
-                    targets.remove_if(isPlayerOnVehicleChecker(malygos));
-
-                if (!targets.empty())
+                {
+                    IsCreatureVehicleCheck check;
+                    Trinity::Containers::RandomResizeList(targets, check, (malygos->GetMap()->GetDifficulty() == RAID_DIFFICULTY_10MAN_NORMAL ? 4 : 10));
+                }
+                else
                     Trinity::Containers::RandomResizeList(targets, (malygos->GetMap()->GetDifficulty() == RAID_DIFFICULTY_10MAN_NORMAL ? 4 : 10));
+            }
 
-                for (std::list<WorldObject*>::const_iterator itr = targets.begin(); itr != targets.end(); ++itr)
-                    malygos->CastSpell((*itr)->ToUnit(), SPELL_ARCANE_STORM_EXTRA_VISUAL, true);
+            void HandleVisual()
+            {
+                if (!GetHitUnit())
+                    return;
+
+                GetCaster()->CastSpell(GetHitUnit(), SPELL_ARCANE_STORM_EXTRA_VISUAL, true);
             }
 
             void Register()
             {
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_malygos_arcane_storm_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+                AfterHit += SpellHitFn(spell_malygos_arcane_storm_SpellScript::HandleVisual);
             }
         };
 
@@ -2013,48 +2012,19 @@ class spell_nexus_lord_align_disk_aggro : public SpellScriptLoader
 class IsPlayerOnHoverDisk
 {
     public:
-        IsPlayerOnHoverDisk(Unit* source, bool isOnHoverDisk) : _source(source), _isOnHoverDisk(isOnHoverDisk) { }
+        IsPlayerOnHoverDisk(bool isOnHoverDisk) : _isOnHoverDisk(isOnHoverDisk) { }
 
-        bool operator()(WorldObject* unit)
+        bool operator()(WorldObject* obj)
         {
-            if (_isOnHoverDisk)
-            {
-                if (Unit* passenger = ObjectAccessor::GetUnit(*_source, unit->GetGUID()))
-                    if (passenger->GetVehicleBase() && passenger->GetVehicleBase()->GetEntry() == NPC_HOVER_DISK_MELEE)
-                        return true;
-            }
-            else if (!_isOnHoverDisk)
-            {
-                if (Unit* passenger = ObjectAccessor::GetUnit(*_source, unit->GetGUID()))
-                    if (!passenger->GetVehicleBase())
-                        return true;
-            }
+            if (Unit* passenger = obj->ToUnit())
+                if (passenger->GetVehicleBase() && passenger->GetVehicleBase()->GetEntry() == NPC_HOVER_DISK_MELEE)
+                    return _isOnHoverDisk;
 
-            return false;
-        }
-
-        private:
-            Unit* _source;
-
-            bool _isOnHoverDisk;
-};
-
-class CheckUnitAura
-{
-    public:
-        CheckUnitAura(Unit* source) : _source(source) { }
-
-        bool operator()(WorldObject* unit)
-        {
-            if (Unit* target = ObjectAccessor::GetUnit(*_source, unit->GetGUID()))
-                if (target->HasAura(SPELL_ARCANE_BARRAGE_DAMAGE))
-                    return true;
-
-            return false;
+            return !_isOnHoverDisk;
         }
 
     private:
-        Unit* _source;
+        bool _isOnHoverDisk;
 };
 
 class spell_scion_of_eternity_arcane_barrage : public SpellScriptLoader
@@ -2076,20 +2046,21 @@ class spell_scion_of_eternity_arcane_barrage : public SpellScriptLoader
                 if (targets.empty())
                     return;
 
-                Creature* caster = GetCaster()->ToCreature();
-                for (std::list<WorldObject*>::const_iterator itr = targets.begin(); itr != targets.end(); ++itr)
-                    _playersWithoutDisk.push_back((*itr));
+                // Remove players not on Hover Disk from second list
+                std::list<WorldObject*> playersWithoutDisk;
+                IsPlayerOnHoverDisk check(false);
+                for (std::list<WorldObject*>::iterator itr = targets.begin(); itr != targets.end(); ++itr)
+                    if (check(*itr))
+                        playersWithoutDisk.push_back(*itr);
 
-                // Remove players not on Hover Disk from second list,
                 // if it's empty than we can have player on Hover disk as target.
-                _playersWithoutDisk.remove_if(IsPlayerOnHoverDisk(caster, false));
-                // Else if there are players on the ground we remove all from vehicles.
-                if (_playersWithoutDisk.empty())
-                    targets.remove_if(IsPlayerOnHoverDisk(caster, true));
+                if (!playersWithoutDisk.empty())
+                    targets = playersWithoutDisk;
+
                 // Finally here we remove all targets that have been damaged by Arcane Barrage
                 // and have 2 seconds long aura still lasting. Used to give healers some time.
                 if (!targets.empty())
-                    targets.remove_if(CheckUnitAura(caster));
+                    targets.remove_if(Trinity::UnitAuraCheck(true, SPELL_ARCANE_BARRAGE_DAMAGE));
             }
 
             void TriggerDamageSpellFromPlayer()
@@ -2105,8 +2076,6 @@ class spell_scion_of_eternity_arcane_barrage : public SpellScriptLoader
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_scion_of_eternity_arcane_barrage_SpellScript::FilterMeleeHoverDiskPassangers, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
                 OnHit += SpellHitFn(spell_scion_of_eternity_arcane_barrage_SpellScript::TriggerDamageSpellFromPlayer);
             }
-
-            std::list<WorldObject*> _playersWithoutDisk;
         };
 
         SpellScript* GetSpellScript() const
@@ -2332,41 +2301,32 @@ class spell_malygos_surge_of_power_warning_selector_25 : public SpellScriptLoade
 
             void SendThreeTargets(std::list<WorldObject*>& targets)
             {
+                // This spell hits only vehicles (SMSG_SPELL_GO target)
                 Creature* caster = GetCaster()->ToCreature();
-                targets.remove_if(isPlayerOnVehicleChecker(caster));
+                targets.remove_if(IsCreatureVehicleCheck());
                 if (targets.empty())
                     return;
 
-                for (std::list<WorldObject*>::const_iterator itr = targets.begin(); itr != targets.end(); ++itr)
-                    _filteredSelectedTargets.push_back((*itr));
+                // But in fact it selects 3 targets (SMSG_SPELL_GO target are not filtered)
+                std::list<WorldObject*> selectedTargets = targets;
 
-                if (_filteredSelectedTargets.empty())
-                    return;
-
-                uint8 guidDataSlot = 14; // SetGuid in Malygos AI is reserved for 14th, 15th and 16th Id for the three targets
-                Trinity::Containers::RandomResizeList(_filteredSelectedTargets, 3);
-                for (std::list<WorldObject*>::const_iterator itr = _filteredSelectedTargets.begin(); itr != _filteredSelectedTargets.end(); ++itr)
+                uint8 guidDataSlot = DATA_FIRST_SURGE_TARGET_GUID; // SetGuid in Malygos AI is reserved for 14th, 15th and 16th Id for the three targets
+                Trinity::Containers::RandomResizeList(selectedTargets, 3);
+                for (std::list<WorldObject*>::const_iterator itr = selectedTargets.begin(); itr != selectedTargets.end(); ++itr)
                 {
-                    caster->AI()->SetGUID((*itr)->GetGUID(), guidDataSlot++);
-                    if (IS_VEHICLE_GUID((*itr)->GetGUID()))
-                    {
-                        if (Vehicle* tempVehicle = (*itr)->ToCreature()->GetVehicleKit())
-                            if (tempVehicle->GetPassenger(0))
-                                if (Player* tempPlayer = tempVehicle->GetPassenger(0)->ToPlayer())
-                                    caster->AI()->Talk(EMOTE_SURGE_OF_POWER_WARNING_P3, tempPlayer->GetGUID());
-                    }
-                    else if (IS_PLAYER_GUID((*itr)->GetGUID()))
-                    {
-                        caster->AI()->Talk(EMOTE_SURGE_OF_POWER_WARNING_P3, (*itr)->GetGUID());
-                    }
+                    Creature* target = (*itr)->ToCreature();
+                    caster->AI()->SetGUID(target->GetGUID(), guidDataSlot++);
+
+                    if (Vehicle* vehicle = target->GetVehicleKit())
+                        if (Unit* passenger = vehicle->GetPassenger(0))
+                            if (passenger->GetTypeId() == TYPEID_PLAYER)
+                                caster->AI()->Talk(EMOTE_SURGE_OF_POWER_WARNING_P3, passenger->GetGUID());
                 }
             }
 
             void ExecuteMainSpell()
             {
-                // We shouldn't cast stuff from target selector hooks
-                Creature* caster = GetCaster()->ToCreature();
-                caster->AI()->DoCastAOE(SPELL_SURGE_OF_POWER_PHASE_3_25);
+                GetCaster()->ToCreature()->AI()->DoCastAOE(SPELL_SURGE_OF_POWER_PHASE_3_25);
             }
 
             void Register()
@@ -2374,8 +2334,6 @@ class spell_malygos_surge_of_power_warning_selector_25 : public SpellScriptLoade
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_malygos_surge_of_power_warning_selector_25_SpellScript::SendThreeTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
                 AfterHit += SpellHitFn(spell_malygos_surge_of_power_warning_selector_25_SpellScript::ExecuteMainSpell);
             }
-
-            std::list<WorldObject*> _filteredSelectedTargets;
         };
 
         SpellScript* GetSpellScript() const
@@ -2401,25 +2359,25 @@ class spell_malygos_surge_of_power_25 : public SpellScriptLoader
             void FilterTargets(std::list<WorldObject*>& targets)
             {
                 Creature* caster = GetCaster()->ToCreature();
-                if (!targets.empty())
-                    targets.clear();
 
-                for (int guidSlot = 14; guidSlot <= 16; guidSlot++)
+                for (std::list<WorldObject*>::iterator itr = targets.begin(); itr != targets.end();)
                 {
-                    uint64 guidTypeChecker = caster->AI()->GetGUID(guidSlot);
-                    if (IS_EMPTY_GUID(guidTypeChecker))
-                        continue;
+                    bool found = false;
+                    WorldObject* target = *itr;
 
-                    if (IS_VEHICLE_GUID(guidTypeChecker))
+                    for (uint32 guidSlot = DATA_FIRST_SURGE_TARGET_GUID; guidSlot < DATA_FIRST_SURGE_TARGET_GUID + NUM_MAX_SURGE_TARGETS; ++guidSlot)
                     {
-                        WorldObject* tempTarget = caster->GetMap()->GetCreature(guidTypeChecker);
-                        targets.push_back(tempTarget);
+                        if (target->GetGUID() == caster->AI()->GetGUID(guidSlot))
+                        {
+                            found = true;
+                            break;
+                        }
                     }
-                    else if (IS_PLAYER_GUID(guidTypeChecker))
-                    {
-                        WorldObject* tempTarget = ObjectAccessor::GetPlayer(*caster, guidTypeChecker);
-                        targets.push_back(tempTarget);
-                    }
+
+                    if (!found)
+                        targets.erase(itr++);
+                    else
+                        ++itr;
                 }
             }
 
@@ -2513,12 +2471,12 @@ class spell_alexstrasza_gift_beam_visual : public SpellScriptLoader
                     if (InstanceScript* instance = GetCaster()->GetInstanceScript())
                     {
                         _alexstraszaGift->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
-                        if ((_heartMagic = target->GetMap()->GetGameObject(instance->GetData64(DATA_HEART_OF_MAGIC_GUID))))
+                        if (GameObject* heartMagic = target->GetMap()->GetGameObject(instance->GetData64(DATA_HEART_OF_MAGIC_GUID)))
                         {
-                            _heartMagic->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                            heartMagic->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
                             // TO DO: This is hack, core doesn't have support for these flags,
                             // remove line below if it ever gets supported otherwise object won't be accessible.
-                            _heartMagic->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_INTERACT_COND);
+                            heartMagic->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_INTERACT_COND);
                         }
                     }
             }
@@ -2530,7 +2488,6 @@ class spell_alexstrasza_gift_beam_visual : public SpellScriptLoader
             }
 
             GameObject* _alexstraszaGift;
-            GameObject* _heartMagic;
         };
 
         AuraScript* GetAuraScript() const
