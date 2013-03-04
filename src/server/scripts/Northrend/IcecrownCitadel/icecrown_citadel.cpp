@@ -714,9 +714,9 @@ class npc_rotting_frost_giant : public CreatureScript
                     instance->DoCompleteAchievement(RAID_MODE(IM_ON_A_BOAT_10,IM_ON_A_BOAT_25,IM_ON_A_BOAT_10,IM_ON_A_BOAT_25));
                     instance->DoCastSpellOnPlayers(SPELL_ACHIEVEMENT_SHIP);
                     if (instance->GetData(DATA_TEAM_IN_INSTANCE) == HORDE)
-                        me->SummonGameObject(RAID_MODE(GO_CAPITAN_CHEST_H_10N, GO_CAPITAN_CHEST_H_25N, GO_CAPITAN_CHEST_H_10H, GO_CAPITAN_CHEST_H_25H), -307.584930f, 2211.561768f, 199.990861f, 0, 0, 0, 0, 0, 100000);
+                        me->SummonGameObject(RAID_MODE(GO_CAPITAN_CHEST_H_10N, GO_CAPITAN_CHEST_H_25N, GO_CAPITAN_CHEST_H_10H, GO_CAPITAN_CHEST_H_25H), -307.584930f, 2211.561768f, 199.990861f, 0, 0, 0, 0, 0, 90000000);
                     else
-                        me->SummonGameObject(RAID_MODE(GO_CAPITAN_CHEST_A_10N, GO_CAPITAN_CHEST_A_25N, GO_CAPITAN_CHEST_A_10H, GO_CAPITAN_CHEST_A_25H), -307.584930f, 2211.561768f, 199.990861f, 0, 0, 0, 0, 0, 100000);
+                        me->SummonGameObject(RAID_MODE(GO_CAPITAN_CHEST_A_10N, GO_CAPITAN_CHEST_A_25N, GO_CAPITAN_CHEST_A_10H, GO_CAPITAN_CHEST_A_25H), -307.584930f, 2211.561768f, 199.990861f, 0, 0, 0, 0, 0, 90000000);
                 }
             }
 
