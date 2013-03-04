@@ -43,10 +43,10 @@ ElunaRegister<Unit> UnitMethods[] =
     {"IsInArenaTeam", &LuaUnit::IsInArenaTeam},                     // :IsInArenaTeam(type) -  type : 0 = 2v2, 1 = 3v3, 2 = 5v5 UNDOCUMENTED
 
     // Gossip                                                           
-    {"GossipMenuAddItem", &LuaUnit::GossipMenuAddItem },            // :GossipMenuAddItem(icon, msg, Intid, code, accept_decline_message, money)
-    {"GossipComplete", &LuaUnit::GossipComplete },                  // :GossipComplete()
-    {"GossipSendMenu", &LuaUnit::GossipSendMenu },                  // :GossipSendMenu(npc_text, unit)
-    {"GossipClearMenu", &LuaUnit::GossipClearMenu },                // :GossipClearMenu() -- Clears the gossip menu of options. Pretty much only useful with player gossip. Need to use before creating a new menu for the player Undocumented
+    {"GossipMenuAddItem", &LuaUnit::GossipMenuAddItem},            // :GossipMenuAddItem(icon, msg, sender, intid, code, popup, money)
+    {"GossipSendMenu", &LuaUnit::GossipSendMenu},                  // :GossipSendMenu(npc_text, unit)
+    {"GossipComplete", &LuaUnit::GossipComplete},                  // :GossipComplete()
+    {"GossipClearMenu", &LuaUnit::GossipClearMenu},                // :GossipClearMenu() -- Clears the gossip menu of options. Pretty much only useful with player gossip. Need to use before creating a new menu for the player Undocumented
 
     // Update
 
