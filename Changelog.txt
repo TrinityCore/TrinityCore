@@ -11,6 +11,7 @@
 #                                                                                          #
 ############################################################################################
 
+[144] --> Fix MMaps boss sindragosa and more... (Info #9083).
 [143] --> Fix crash StopCastingCharm (TEST #9293). 
 [142] --> Revert 'Fix Gargoyle haste (TEST).'
 [141] --> Small correction arena logs.

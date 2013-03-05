@@ -263,3 +263,13 @@ UPDATE `gameobject_template` SET `flags` = '0' WHERE `gameobject_template`.`entr
 UPDATE `gameobject_template` SET `flags` = '0' WHERE `gameobject_template`.`entry` = 201710;
 UPDATE `gameobject_template` SET `flags` = '0' WHERE `gameobject_template`.`entry` = 202337;
 UPDATE `gameobject_template` SET `flags` = '0' WHERE `gameobject_template`.`entry` = 202336;
+
+-- Fix MMaps
+UPDATE creature_template SET InhabitType = InhabitType | 4 WHERE entry=37955; -- Blood-Queen Lana'thel (ICC)
+UPDATE creature_template SET InhabitType = InhabitType | 4 WHERE entry=37813; -- Deathbringer Saurfang (ICC)
+UPDATE creature_template SET InhabitType = InhabitType | 4 WHERE entry=36853; -- Sindragosa (ICC)
+UPDATE creature_template SET InhabitType = InhabitType | 4 WHERE entry=37533; -- Rimefang (ICC)
+UPDATE creature_template SET InhabitType = InhabitType | 4 WHERE entry=37534; -- Spinestalker (ICC)
+UPDATE creature_template SET InhabitType = InhabitType | 4 WHERE entry=39747; -- Saviana Ragefire (RS)
+UPDATE creature_template SET InhabitType = InhabitType | 4 WHERE entry=10184; -- Onyxia (Ony)
+UPDATE creature_template SET InhabitType = InhabitType | 4 WHERE entry=24068; -- Annhylde the Caller (UK)
