@@ -160,7 +160,7 @@ public:
             for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
                 uiEncounter[i] = NOT_STARTED;
         }
- void OpenDoor(uint64 guid)
+        void OpenDoor(uint64 guid)
         {
             if(!guid) return;
             GameObject* go = instance->GetGameObject(guid);
@@ -223,15 +223,15 @@ public:
                 case NPC_LORALEN:
                     if (uiTeamInInstance == ALLIANCE)
                     {
-                    uiPartner = creature->GetGUID();
-                    creature->UpdateEntry(NPC_KORELN, ALLIANCE);                    
+                        uiPartner = creature->GetGUID();
+                        creature->UpdateEntry(NPC_KORELN, ALLIANCE);                    
                     }                    
                     else
+                        uiPartner = creature->GetGUID();
                     break;
+                case NPC_KORELN:                    
                     uiPartner = creature->GetGUID();
                     break;
-                    case NPC_KORELN:                    
-                    uiPartner = creature->GetGUID();
             }
         }
 
