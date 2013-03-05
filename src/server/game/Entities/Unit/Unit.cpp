@@ -6363,7 +6363,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                     triggered_spell_id = procSpell->IsRankOf(sSpellMgr->GetSpellInfo(635)) ? 53652 : 53654;
                 }
                 else
-                {    // Check Party/Raid Group
+				{    // Check Party/Raid Group
                     if (Group* group = ToPlayer()->GetGroup())
                     {
                         for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
@@ -6386,6 +6386,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                         }
                     }
                 }
+				
 
                 if (triggered_spell_id && beaconTarget)
                 {

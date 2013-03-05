@@ -914,11 +914,15 @@ void Battleground::EndBattleground(uint32 winner)
             if (IsRandom() || BattlegroundMgr::IsBGWeekend(GetTypeID()))
                 UpdatePlayerScore(player, SCORE_BONUS_HONOR, GetBonusHonorFromKill(loser_kills));
         }
+		if (isArena())
+		{
+		player->SetGMVisible(true);
+		player->SetGameMaster(false);
+		}
 
         player->ResetAllPowers();
         player->CombatStopWithPets(true);
 		player->setFactionForRace(player->getRace());
-
         BlockMovement(player);
 
         player->GetSession()->SendPacket(&pvpLogData);
@@ -1068,13 +1072,14 @@ void Battleground::RemovePlayerAtLeave(uint64 guid, bool Transport, bool SendPac
         sBattlegroundMgr->BuildPlayerLeftBattlegroundPacket(&data, guid);
         SendPacketToTeam(team, &data, player, false);
     }
-
     if (player)
     {
         // Do next only if found in battleground
         player->SetBattlegroundId(0, BATTLEGROUND_TYPE_NONE);  // We're not in BG.
         // reset destination bg team
         player->SetBGTeam(0);
+		player->SetGMVisible(true);
+		player->SetGameMaster(false);
 
         if (Transport)
             player->TeleportToBGEntryPoint();

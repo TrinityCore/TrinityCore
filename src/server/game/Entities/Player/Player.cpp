@@ -2856,11 +2856,15 @@ void Player::SetSpectate(bool on)
 
         m_ExtraFlags |= PLAYER_EXTRA_GM_ON;
         setFaction(35);
+		SetGMVisible(false);
+		SetGameMaster(true);
+
 
         if (Pet* pet = GetPet())
         {
             RemovePet(pet, PET_SAVE_AS_CURRENT);
         }
+
         UnsummonPetTemporaryIfAny();
 
         RemoveByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_FFA_PVP);
@@ -2870,7 +2874,6 @@ void Player::SetSpectate(bool on)
         CombatStopWithPets();
 
         SetDisplayId(22235);
-
         m_serverSideVisibility.SetValue(SERVERSIDE_VISIBILITY_GM, SEC_ADMINISTRATOR);
     }
     else
@@ -2890,6 +2893,8 @@ void Player::SetSpectate(bool on)
         setFactionForRace(getRace());
         RemoveFlag(PLAYER_FLAGS, PLAYER_FLAGS_GM);
         RemoveFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_ALLOW_CHEAT_SPELLS);
+		SetGMVisible(true);
+		SetGameMaster(false);
 
         if (spectateFrom)
             SetViewpoint(spectateFrom, false);
@@ -24213,6 +24218,7 @@ void Player::SetViewpoint(WorldObject* target, bool apply)
 		{
             if (isSpectator())
                 spectateFrom = (Unit*)target;
+
             ((Unit*)target)->AddPlayerToVision(this);
 		}
     }
