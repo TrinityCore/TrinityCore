@@ -3103,7 +3103,7 @@ void Player::InitTalentForLevel()
         // Remove all talent points
         if (m_usedTalentCount > 0)                           // Free any used talents
         {
-            resetTalents(true);
+            resetTalents(true); /// @todo: Has to (collectively) be renamed to ResetTalents
             SetFreeTalentPoints(0);
         }
     }
@@ -18717,7 +18717,7 @@ void Player::SaveToDB(bool create /*=false*/)
     if (create)
     {
         //! Insert query
-        //! TO DO: Filter out more redundant fields that can take their default value at player create
+        /// @todo: Filter out more redundant fields that can take their default value at player create
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHARACTER);
         stmt->setUInt32(index++, GetGUIDLow());
         stmt->setUInt32(index++, GetSession()->GetAccountId());
@@ -19629,7 +19629,7 @@ void Player::outDebugValues() const
 void Player::UpdateSpeakTime()
 {
     // ignore chat spam protection for GMs in any mode
-    if (!GetSession()->HasPermission(RBAC_PERM_SKIP_CHECK_CHAT_SPAM))
+    if (GetSession()->HasPermission(RBAC_PERM_SKIP_CHECK_CHAT_SPAM))
         return;
 
     time_t current = time (NULL);
