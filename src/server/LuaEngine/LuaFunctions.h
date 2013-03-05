@@ -74,16 +74,10 @@ ElunaRegister<Unit> UnitMethods[] =
     {"GetAITargetsCount", &LuaUnit::GetAITargetsCount},             // :GetAITargetsCount() - Get threat list size
 
     // Other
-<<<<<<< HEAD
-    {"RegisterEvent", &LuaUnit::RegisterEvent},                     // :RegisterEvent(function, delay, calls) - UNDOCUMENTED
-    {"RemoveEventByID", &LuaUnit::RemoveEventByID},                 // :RemoveEventByID(eventID) - UNDOCUMENTED
-    {"RemoveEvents", &LuaUnit::RemoveEvents},                       // :RemoveEvents() - UNDOCUMENTED
-    {"Despawn", &LuaUnit::Despawn},                                 // :Despawn([despawnDelay]) - Creature despawns after given time UNDOCUMENTED
-=======
     {"RegisterEvent", &LuaUnit::RegisterEvent},                     // :RegisterEvent(function, delay, calls)
     {"RemoveEventByID", &LuaUnit::RemoveEventByID},                 // :RemoveEventByID(eventID)
     {"RemoveEvents", &LuaUnit::RemoveEvents},                       // :RemoveEvents()
->>>>>>> b679b1fad1d0ea03e0b5bc097b0b85aa8fce9b56
+    {"Despawn", &LuaUnit::Despawn},                                 // :Despawn([despawnDelay]) - Creature despawns after given time UNDOCUMENTED
 
 
     // Unit Methods
