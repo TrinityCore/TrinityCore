@@ -1799,28 +1799,22 @@ class spell_malygos_arcane_storm : public SpellScriptLoader
                 }
                 else
                     Trinity::Containers::RandomResizeList(targets, (malygos->GetMap()->GetDifficulty() == RAID_DIFFICULTY_10MAN_NORMAL ? 4 : 10));
-
-                // Both casts should start approx at same time (with SPELL_ARCANE_STORM_EXTRA_VISUAL having advantage - it should lead)
-                // and not when purple light visual has already hit target.
-                filteredTargets = targets;
             }
 
-            void HandleVisual()
+            void HandleVisual(SpellEffIndex /*effIndex*/)
             {
-                if (filteredTargets.empty())
+                // Both missiles should start approx at same time (with SPELL_ARCANE_STORM_EXTRA_VISUAL having advantage - it should lead)
+                if (!GetHitUnit())
                     return;
 
-                for (std::list<WorldObject*>::iterator itr = filteredTargets.begin(); itr != filteredTargets.end(); ++itr)
-                    GetCaster()->CastSpell((*itr)->ToUnit(), SPELL_ARCANE_STORM_EXTRA_VISUAL, true);
+                GetCaster()->CastSpell(GetHitUnit(), SPELL_ARCANE_STORM_EXTRA_VISUAL, true);
             }
 
             void Register()
             {
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_malygos_arcane_storm_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
-                OnCast += SpellCastFn(spell_malygos_arcane_storm_SpellScript::HandleVisual);
+                OnEffectLaunchTarget += SpellEffectFn(spell_malygos_arcane_storm_SpellScript::HandleVisual, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
             }
-
-            std::list<WorldObject*> filteredTargets;
         };
 
         SpellScript* GetSpellScript() const
