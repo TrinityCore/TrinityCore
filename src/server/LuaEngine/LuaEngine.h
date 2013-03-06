@@ -46,7 +46,6 @@ enum REGISTER_TYPE
     REGTYPE_ITEM,
     REGTYPE_ITEM_GOSSIP,
     REGTYPE_PLAYER_GOSSIP,
-
     REGTYPE_COUNT
 };
 
@@ -185,7 +184,6 @@ enum CreatureEvents
     CREATURE_EVENT_ON_QUEST_COMPLETE                  = 33,     //Implemented
     CREATURE_EVENT_ON_QUEST_REWARD                    = 34,     //Implemented
     CREATURE_EVENT_ON_DIALOG_STATUS                   = 35,     //Implemented
-
     CREATURE_EVENT_COUNT
 };
 
@@ -201,7 +199,6 @@ enum GameObjectEvents
     GAMEOBJECT_EVENT_ON_DAMAGED                     = 8,    // Implemented
     GAMEOBJECT_EVENT_ON_LOOT_STATE_CHANGE           = 9,    // Implemented
     GAMEOBJECT_EVENT_ON_GO_STATE_CHANGED            = 10,   // Implemented
-
     GAMEOBJECT_EVENT_COUNT
 };
 
@@ -211,7 +208,6 @@ enum ItemEvents
     ITEM_EVENT_ON_USE                               = 2,    // Implemented
     ITEM_EVENT_ON_QUEST_ACCEPT                      = 3,    // Implemented
     ITEM_EVENT_ON_EXPIRE                            = 4,    // Implemented
-
     ITEM_EVENT_COUNT
 };
 
@@ -294,7 +290,6 @@ public:
 
         ElunaEntryMap Bindings; // Binding store Bindings[entryId][eventId] = funcRef;
     };
-
     // Binding stores
     map<int, vector<int> > ServerEventBindings;
     ElunaBind* CreatureEventBindings;
@@ -333,7 +328,6 @@ public:
             itr->second.clear();
         }
         ServerEventBindings.clear();
-
         CreatureEventBindings->Clear();
         CreatureGossipBindings->Clear();
         GameObjectEventBindings->Clear();
@@ -500,7 +494,6 @@ protected:
 
             lua_newtable(L);
             lua_setmetatable(L, methods);
-
 
             // fill method table.
             if (!GetMethodTable<T>())
@@ -671,7 +664,6 @@ public:
         typedef std::multimap<uint32, eventData> EventStore; // Not to use multimap? Can same function ref ID be used multiple times?
 
         virtual void OnLuaEvent(int funcRef, uint32 delay, uint32 calls) { }
-
         static void LuaEventsResetAll(); // Unregisters and stops all timed events
 
         void LuaEventsReset()

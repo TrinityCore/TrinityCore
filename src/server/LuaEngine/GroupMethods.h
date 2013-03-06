@@ -83,7 +83,6 @@ public:
         }
         else
             Eluna::get()->PushBoolean(L, false);
-
         return 1;
     }
 

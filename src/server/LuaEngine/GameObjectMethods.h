@@ -33,7 +33,6 @@ public:
 
         uint32 spell = luaL_checkunsigned(L, 1);
         Unit* target = Eluna::get()->CHECK_UNIT(L, 2);
-
         if (target)
             go->CastSpell(target, spell);
         return 0;
@@ -89,7 +88,6 @@ public:
         Eluna::get()->PushFloat(L, go->GetPositionY());
         Eluna::get()->PushFloat(L, go->GetPositionZ());
         Eluna::get()->PushFloat(L, go->GetOrientation());
-
         return 4;
     }
 
@@ -177,7 +175,6 @@ public:
         float z = luaL_checknumber(L, 4);
         float o = luaL_checknumber(L, 5);
         uint32 respawnDelay = luaL_optunsigned(L, 6, 30);
-
         Eluna::get()->PushGO(L, go->SummonGameObject(entry, x, y, z, o, 0, 0, 0, 0, respawnDelay));
         return 1;
     }
@@ -275,7 +272,6 @@ public:
         float Y = luaL_checknumber(L, 2);
         float Z = luaL_checknumber(L, 3);
         float O = luaL_checknumber(L, 4);
-
         go->Relocate(X, Y, Z, O);
         return 0;
     }
@@ -287,7 +283,6 @@ public:
             return 0;
 
         float scale = luaL_checknumber(L, 1);
-
         go->SetObjectScale(scale);
         return 0;
     }
@@ -327,7 +322,6 @@ public:
 
         int eventID = luaL_checkinteger(L, 1);
         Eluna::LuaGameObjectScript::LuaGameObjectAI* luaAI = sLuaGameObjectScript->GetAI(go);
-
         if (luaAI)
             luaAI->LuaEventCancel(eventID);
         return 0;
@@ -351,7 +345,6 @@ public:
             return 0;
 
         uint16 index = luaL_checkunsigned(L, 1);
-
         Eluna::get()->PushInteger(L, go->GetInt32Value(index));
         return 1;
     }
@@ -362,7 +355,6 @@ public:
             return 0;
 
         uint16 index = luaL_checkunsigned(L, 1);
-
         Eluna::get()->PushUnsigned(L, go->GetUInt32Value(index));
         return 1;
     }
@@ -373,7 +365,6 @@ public:
             return 0;
 
         uint16 index = luaL_checkunsigned(L, 1);
-
         Eluna::get()->PushFloat(L, go->GetFloatValue(index));
         return 1;
     }
@@ -385,7 +376,6 @@ public:
 
         uint16 index = luaL_checkunsigned(L, 1);
         uint8 offset = luaL_checkunsigned(L, 2);
-
         Eluna::get()->PushUnsigned(L, go->GetByteValue(index, offset));
         return 1;
     }
@@ -397,7 +387,6 @@ public:
 
         uint16 index = luaL_checkunsigned(L, 1);
         uint8 offset = luaL_checkunsigned(L, 2);
-
         Eluna::get()->PushUnsigned(L, go->GetUInt16Value(index, offset));
         return 1;
     }
@@ -409,7 +398,6 @@ public:
 
         uint16 index = luaL_checkunsigned(L, 1);
         int32 value = luaL_checkinteger(L, 2);
-
         go->SetInt32Value(index, value);
         return 0;
     }
@@ -421,7 +409,6 @@ public:
 
         uint16 index = luaL_checkunsigned(L, 1);
         uint32 value = luaL_checkunsigned(L, 2);
-
         go->SetUInt32Value(index, value);
         return 0;
     }
@@ -433,7 +420,6 @@ public:
 
         uint16 index = luaL_checkunsigned(L, 1);
         uint32 value = luaL_checkunsigned(L, 2);
-
         go->UpdateUInt32Value(index, value);
         return 0;
     }
@@ -445,7 +431,6 @@ public:
 
         uint16 index = luaL_checkunsigned(L, 1);
         float value = luaL_checknumber(L, 2);
-
         go->SetFloatValue(index, value);
         return 0;
     }
@@ -458,7 +443,6 @@ public:
         uint16 index = luaL_checkunsigned(L, 1);
         uint8 offset = luaL_checkunsigned(L, 2);
         uint8 value = luaL_checkunsigned(L, 3);
-
         go->SetByteValue(index, offset, value);
         return 0;
     }
@@ -471,7 +455,6 @@ public:
         uint16 index = luaL_checkunsigned(L, 1);
         uint8 offset = luaL_checkunsigned(L, 2);
         uint16 value = luaL_checkunsigned(L, 3);
-
         go->SetUInt16Value(index, offset, value);
         return 0;
     }
@@ -484,7 +467,6 @@ public:
         uint16 index = luaL_checkunsigned(L, 1);
         uint8 offset = luaL_checkunsigned(L, 2);
         int16 value = luaL_checkinteger(L, 3);
-
         go->SetInt16Value(index, offset, value);
         return 0;
     }

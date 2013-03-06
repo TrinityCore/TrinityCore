@@ -63,8 +63,8 @@ void Eluna::StartEluna()
     ElunaTemplate<Aura>::Register(LuaState);
     ElunaTemplate<WorldPacket>::Register(LuaState);
     ElunaTemplate<Item>::Register(LuaState);
-	ElunaTemplate<Spell>::Register(LuaState);
-	ElunaTemplate<Quest>::Register(LuaState);
+    ElunaTemplate<Spell>::Register(LuaState);
+    ElunaTemplate<Quest>::Register(LuaState);
 
     uint32 count = 0;
     char filename[200];
@@ -114,7 +114,7 @@ void Eluna::RegisterGlobals(lua_State* L)
     lua_register(L, "GetLuaEngine", &LuaGlobalFunctions::GetLuaEngine);
     lua_register(L, "GetLUAEngine", &LuaGlobalFunctions::GetLuaEngine);
     lua_register(L, "GetCoreVersion", &LuaGlobalFunctions::GetCoreVersion);
-	lua_register(L, "GetQuest", &LuaGlobalFunctions::GetQuest);
+    lua_register(L, "GetQuest", &LuaGlobalFunctions::GetQuest);
     lua_register(L, "ReloadEluna", &LuaGlobalFunctions::ReloadEluna);
     lua_register(L, "GetPlayerByGUID", &LuaGlobalFunctions::GetPlayerByGUID);
     lua_register(L, "GetPlayerByName", &LuaGlobalFunctions::GetPlayerByName);
@@ -122,21 +122,21 @@ void Eluna::RegisterGlobals(lua_State* L)
     lua_register(L, "SendWorldMessage", &LuaGlobalFunctions::SendWorldMessage);
     lua_register(L, "GetPlayersInWorld", &LuaGlobalFunctions::GetPlayersInWorld);
     lua_register(L, "GetPlayersInMap", &LuaGlobalFunctions::GetPlayersInMap);
-    lua_register(L, "WorldDBQuery", &LuaGlobalFunctions::WorldDBQuery);             // Not Documented
-    lua_register(L, "WorldDBExecute", &LuaGlobalFunctions::WorldDBExecute);             // Not Documented
-    lua_register(L, "CharDBQuery", &LuaGlobalFunctions::CharDBQuery);             // Not Documented
-    lua_register(L, "CharDBExecute", &LuaGlobalFunctions::CharDBExecute);             // Not Documented
-    lua_register(L, "AuthDBQuery", &LuaGlobalFunctions::AuthDBQuery);             // Not Documented
-    lua_register(L, "AuthDBExecute", &LuaGlobalFunctions::AuthDBExecute);             // Not Documented
+    lua_register(L, "WorldDBQuery", &LuaGlobalFunctions::WorldDBQuery); // Not Documented
+    lua_register(L, "WorldDBExecute", &LuaGlobalFunctions::WorldDBExecute); // Not Documented
+    lua_register(L, "CharDBQuery", &LuaGlobalFunctions::CharDBQuery); // Not Documented
+    lua_register(L, "CharDBExecute", &LuaGlobalFunctions::CharDBExecute); // Not Documented
+    lua_register(L, "AuthDBQuery", &LuaGlobalFunctions::AuthDBQuery); // Not Documented
+    lua_register(L, "AuthDBExecute", &LuaGlobalFunctions::AuthDBExecute); // Not Documented
     lua_register(L, "GetGuildByName", &LuaGlobalFunctions::GetGuildByName);
     lua_register(L, "GetGuildByLeaderGUID", &LuaGlobalFunctions::GetGuildByLeaderGUID);
     lua_register(L, "GetPlayerCount", &LuaGlobalFunctions::GetPlayerCount);
-    lua_register(L, "CreateLuaEvent", &LuaGlobalFunctions::CreateLuaEvent);             // Not Documented
-    lua_register(L, "RegisterTimedEvent", &LuaGlobalFunctions::CreateLuaEvent);             // Arc compability Not Documented
-    lua_register(L, "DestroyLuaEventByID", &LuaGlobalFunctions::DestroyLuaEventByID);             // Not Documented
-    lua_register(L, "DestroyLuaEvents", &LuaGlobalFunctions::DestroyLuaEvents);             // Not Documented
-    lua_register(L, "PerformIngameSpawn", &LuaGlobalFunctions::PerformIngameSpawn);             // Not Documented
-    lua_register(L, "CreatePacket", &LuaGlobalFunctions::CreatePacket);             // Not Documented
+    lua_register(L, "CreateLuaEvent", &LuaGlobalFunctions::CreateLuaEvent); // Not Documented
+    lua_register(L, "RegisterTimedEvent", &LuaGlobalFunctions::CreateLuaEvent); // Arc compability Not Documented
+    lua_register(L, "DestroyLuaEventByID", &LuaGlobalFunctions::DestroyLuaEventByID); // Not Documented
+    lua_register(L, "DestroyLuaEvents", &LuaGlobalFunctions::DestroyLuaEvents); // Not Documented
+    lua_register(L, "PerformIngameSpawn", &LuaGlobalFunctions::PerformIngameSpawn); // Not Documented
+    lua_register(L, "CreatePacket", &LuaGlobalFunctions::CreatePacket); // Not Documented
 }
 
 // Loads lua scripts from given directory

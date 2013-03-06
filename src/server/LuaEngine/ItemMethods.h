@@ -188,7 +188,6 @@ public:
             return 0;
 
         uint32 count = luaL_checkunsigned(L, 1);
-
         item->SetCount(count);
         return 0;
     }
@@ -310,7 +309,6 @@ public:
             return 0;
 
         uint16 index = luaL_checkunsigned(L, 1);
-
         Eluna::get()->PushInteger(L, item->GetInt32Value(index));
         return 1;
     }
@@ -321,7 +319,6 @@ public:
             return 0;
 
         uint16 index = luaL_checkunsigned(L, 1);
-
         Eluna::get()->PushUnsigned(L, item->GetUInt32Value(index));
         return 1;
     }
@@ -332,7 +329,6 @@ public:
             return 0;
 
         uint16 index = luaL_checkunsigned(L, 1);
-
         Eluna::get()->PushFloat(L, item->GetFloatValue(index));
         return 1;
     }
@@ -344,7 +340,6 @@ public:
 
         uint16 index = luaL_checkunsigned(L, 1);
         uint8 offset = luaL_checkunsigned(L, 2);
-
         Eluna::get()->PushUnsigned(L, item->GetByteValue(index, offset));
         return 1;
     }
@@ -356,7 +351,6 @@ public:
 
         uint16 index = luaL_checkunsigned(L, 1);
         uint8 offset = luaL_checkunsigned(L, 2);
-
         Eluna::get()->PushUnsigned(L, item->GetUInt16Value(index, offset));
         return 1;
     }
@@ -368,7 +362,6 @@ public:
 
         uint16 index = luaL_checkunsigned(L, 1);
         int32 value = luaL_checkinteger(L, 2);
-
         item->SetInt32Value(index, value);
         return 0;
     }
@@ -380,7 +373,6 @@ public:
 
         uint16 index = luaL_checkunsigned(L, 1);
         uint32 value = luaL_checkunsigned(L, 2);
-
         item->SetUInt32Value(index, value);
         return 0;
     }
@@ -392,7 +384,6 @@ public:
 
         uint16 index = luaL_checkunsigned(L, 1);
         uint32 value = luaL_checkunsigned(L, 2);
-
         item->UpdateUInt32Value(index, value);
         return 0;
     }
@@ -404,7 +395,6 @@ public:
 
         uint16 index = luaL_checkunsigned(L, 1);
         float value = luaL_checknumber(L, 2);
-
         item->SetFloatValue(index, value);
         return 0;
     }
@@ -417,7 +407,6 @@ public:
         uint16 index = luaL_checkunsigned(L, 1);
         uint8 offset = luaL_checkunsigned(L, 2);
         uint8 value = luaL_checkunsigned(L, 3);
-
         item->SetByteValue(index, offset, value);
         return 0;
     }
@@ -430,7 +419,6 @@ public:
         uint16 index = luaL_checkunsigned(L, 1);
         uint8 offset = luaL_checkunsigned(L, 2);
         uint16 value = luaL_checkunsigned(L, 3);
-
         item->SetUInt16Value(index, offset, value);
         return 0;
     }
@@ -443,7 +431,6 @@ public:
         uint16 index = luaL_checkunsigned(L, 1);
         uint8 offset = luaL_checkunsigned(L, 2);
         int16 value = luaL_checkinteger(L, 3);
-
         item->SetInt16Value(index, offset, value);
         return 0;
     }

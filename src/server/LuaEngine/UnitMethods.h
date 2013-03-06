@@ -25,7 +25,6 @@ public:
         float z = luaL_checknumber(L, 4);
         float o = luaL_checknumber(L, 5);
         uint32 respawnDelay = luaL_optunsigned(L, 6, 30);
-
         Eluna::get()->PushGO(L, unit->SummonGameObject(entry, x, y, z, o, 0, 0, 0, 0, respawnDelay));
         return 1;
     }
@@ -34,14 +33,13 @@ public:
     static int SpawnCreature(lua_State* L, Unit* unit)
     {
         TO_UNIT();
-        
+
         uint32 entry = luaL_checkunsigned(L, 1);
         float x = luaL_checknumber(L, 2);
         float y = luaL_checknumber(L, 3);
         float z = luaL_checknumber(L, 4);
         float o = luaL_checknumber(L, 5);
         uint32 desp = luaL_optunsigned(L, 6, 0);
-        
         Eluna::get()->PushUnit(L, unit->SummonCreature(entry, x, y, z, o, desp ? TEMPSUMMON_TIMED_OR_DEAD_DESPAWN : TEMPSUMMON_MANUAL_DESPAWN, desp));
         return 1;
     }
@@ -52,7 +50,6 @@ public:
         TO_CREATURE();
         
         uint32 time = luaL_optunsigned(L, 1, 0);
-        
         creature->DespawnOrUnsummon(time);
         return 0;
     }
@@ -75,7 +72,6 @@ public:
         float y = luaL_checknumber(L, 2);
         float speedXY = luaL_checknumber(L, 3);
         float speedZ = luaL_checknumber(L, 4);
-
         unit->KnockbackFrom(x, y, speedXY, speedZ);
         return 0;
     }
@@ -102,7 +98,6 @@ public:
         float speedXY = luaL_checknumber(L, 1);
         float speedZ = luaL_checknumber(L, 2);
         bool forward = luaL_optbool(L, 3, true);
-
         unit->JumpTo(speedXY, speedZ, forward);
         return 0;
     }
@@ -117,7 +112,6 @@ public:
         float z = luaL_checknumber(L, 3);
         float speedXY = luaL_checknumber(L, 4);
         float speedZ = luaL_checknumber(L, 5);
-
         unit->GetMotionMaster()->MoveJump(x, y, z, speedXY, speedZ);
         return 0;
     }
@@ -131,7 +125,6 @@ public:
         float y = luaL_checknumber(L, 2);
         float z = luaL_checknumber(L, 3);
         float speed = luaL_checknumber(L, 4);
-
         unit->GetMotionMaster()->MoveCharge(x, y, z, speed);
         return 0;
     }
@@ -144,7 +137,6 @@ public:
         Unit* target = Eluna::get()->CHECK_UNIT(L, 1);
         float dist = luaL_optnumber(L, 2, 0.0f);
         float angle = luaL_optnumber(L, 3, 0.0f);
-        
         unit->GetMotionMaster()->MoveChase(target, dist, angle);
         return 0;
     }
@@ -155,7 +147,6 @@ public:
         TO_UNIT();
 
         bool apply = luaL_optbool(L, 1, true);
-        
         unit->SetControlled(apply, UNIT_STATE_STUNNED);
         return 0;
     }
@@ -166,7 +157,6 @@ public:
         TO_UNIT();
 
         bool apply = luaL_optbool(L, 1, true);
-        
         unit->SetControlled(apply, UNIT_STATE_ROOT);
         return 0;
     }
@@ -177,7 +167,6 @@ public:
         TO_UNIT();
 
         bool apply = luaL_optbool(L, 1, true);
-        
         unit->SetControlled(apply, UNIT_STATE_CONFUSED);
         return 0;
     }
@@ -188,7 +177,6 @@ public:
         TO_UNIT();
 
         bool apply = luaL_optbool(L, 1, true);
-        
         unit->SetControlled(apply, UNIT_STATE_FLEEING);
         return 0;
     }
@@ -203,7 +191,6 @@ public:
         float y = luaL_checknumber(L, 3);
         float z = luaL_checknumber(L, 4);
         bool generatePath = luaL_optbool(L, 5, true);
-        
         unit->GetMotionMaster()->MovePoint(id, x, y, z, generatePath);
         return 0;
     }
@@ -216,7 +203,6 @@ public:
         Unit* target = Eluna::get()->CHECK_UNIT(L, 1);
         float dist = luaL_checknumber(L, 2);
         float angle = luaL_checknumber(L, 3);
-        
         unit->GetMotionMaster()->MoveFollow(target, dist, angle);
         return 0;
     }
@@ -225,7 +211,7 @@ public:
     static int MoveClear(lua_State* L, Unit* unit)
     {
         TO_UNIT();
-        
+
         unit->GetMotionMaster()->Clear();
         return 0;
     }
@@ -236,7 +222,6 @@ public:
         TO_UNIT();
 
         float radius = luaL_checknumber(L, 1);
-        
         unit->GetMotionMaster()->MoveRandom(radius);
         return 0;
     }
@@ -248,7 +233,6 @@ public:
 
         uint32 time = luaL_checkunsigned(L, 1);
         bool left = luaL_optbool(L, 2, true);
-        
         unit->GetMotionMaster()->MoveRotate(time, left ? ROTATE_DIRECTION_LEFT : ROTATE_DIRECTION_RIGHT);
         return 0;
     }
@@ -259,7 +243,6 @@ public:
         TO_UNIT();
         
         bool enable = luaL_optbool(L, 1, true);
-
         unit->SetWalk(enable);
         return 0;
     }
@@ -904,7 +887,6 @@ public:
         WorldLocation loc;
         player->GetPosition(&loc);
         loc.m_mapId = player->GetMapId();
-
         player->SetHomebind(loc, player->GetAreaId());
         return 0;
     }
@@ -1322,7 +1304,6 @@ public:
 
         float percent = luaL_optnumber(L, 1, 100.0f);
         bool sickness = luaL_optbool(L, 2, false);
-
         player->ResurrectPlayer(percent, sickness);
         return 0;
     }
@@ -1333,7 +1314,6 @@ public:
         TO_UNIT();
 
         uint32 spell = luaL_checkunsigned(L, 1);
-
         unit->CastSpell(unit, spell, true);
         return 0;
     }
@@ -1346,7 +1326,6 @@ public:
         uint32 spell = luaL_checkunsigned(L, 1);
         Unit* target = Eluna::get()->CHECK_UNIT(L, 2);
         bool triggered = luaL_optbool(L, 3, true);
-
         if (target)
             unit->CastSpell(target, spell, triggered);
         return 0;
@@ -1361,7 +1340,6 @@ public:
         float _y = luaL_checknumber(L, 2);
         float _z = luaL_checknumber(L, 3);
         uint32 spell = luaL_checkunsigned(L, 4);
-
         unit->CastSpell(_x, _y, _z, spell, true);
         return 0;
     }
@@ -1372,7 +1350,6 @@ public:
         TO_UNIT();
 
         uint32 spell = luaL_checkunsigned(L, 1);
-
         unit->CastSpell(unit, spell, false);
         return 0;
     }
@@ -1384,7 +1361,6 @@ public:
 
         uint32 spell = luaL_checkunsigned(L, 1);
         Unit* target = Eluna::get()->CHECK_UNIT(L, 2);
-
         if (target)
             unit->CastSpell(target, spell, false);
         return 0;
@@ -1478,7 +1454,6 @@ public:
         bool _code = luaL_optbool(L, 5, false);
         const char* _promptMsg = luaL_optstring(L, 6, "");
         uint32 _money = luaL_optunsigned(L, 7, 0);
-
         player->ADD_GOSSIP_ITEM_EXTENDED(_icon, msg, _sender, _intid, _promptMsg, _money, _code);
         return 0;
     }
@@ -1499,7 +1474,6 @@ public:
 
         uint32 _npcText = luaL_checkunsigned(L, 1);
         Unit* sender = Eluna::get()->CHECK_UNIT(L, 2);
-
         if (sender)
         {
             if (sender->ToPlayer())
@@ -1542,7 +1516,6 @@ public:
 
         uint32 soundId = luaL_checkunsigned(L, 1);
         Player* player = Eluna::get()->CHECK_PLAYER(L, 2);
-
         if (!sSoundEntriesStore.LookupEntry(soundId))
             return 0;
 
@@ -1560,7 +1533,6 @@ public:
 
         uint32 soundId = luaL_checkunsigned(L, 1);
         Player* player = Eluna::get()->CHECK_PLAYER(L, 2);
-
         if (!sSoundEntriesStore.LookupEntry(soundId))
             return 0;
 
@@ -1578,7 +1550,6 @@ public:
 
         Unit* target = Eluna::get()->CHECK_UNIT(L, 1);
         bool durLoss = luaL_optbool(L, 2, true);
-
         unit->Kill((target ? target : unit), durLoss);
         return 0;
     }
@@ -1616,7 +1587,6 @@ public:
 
         int eventID = luaL_checkinteger(L, 1);
         Eluna::LuaCreatureScript::LuaCreatureAI* luaAI = sLuaCreatureScript->GetAI(creature);
-
         if (luaAI)
             luaAI->LuaEventCancel(eventID);
         return 0;
@@ -1638,7 +1608,6 @@ public:
         TO_UNIT();
 
         uint16 index = luaL_checkunsigned(L, 1);
-
         Eluna::get()->PushInteger(L, unit->GetInt32Value(index));
         return 1;
     }
@@ -1648,7 +1617,6 @@ public:
         TO_UNIT();
 
         uint16 index = luaL_checkunsigned(L, 1);
-
         Eluna::get()->PushUnsigned(L, unit->GetUInt32Value(index));
         return 1;
     }
@@ -1658,7 +1626,6 @@ public:
         TO_UNIT();
 
         uint16 index = luaL_checkunsigned(L, 1);
-
         Eluna::get()->PushFloat(L, unit->GetFloatValue(index));
         return 1;
     }
@@ -1669,7 +1636,6 @@ public:
 
         uint16 index = luaL_checkunsigned(L, 1);
         uint8 offset = luaL_checkunsigned(L, 2);
-
         Eluna::get()->PushUnsigned(L, unit->GetByteValue(index, offset));
         return 1;
     }
@@ -1680,7 +1646,6 @@ public:
 
         uint16 index = luaL_checkunsigned(L, 1);
         uint8 offset = luaL_checkunsigned(L, 2);
-
         Eluna::get()->PushUnsigned(L, unit->GetUInt16Value(index, offset));
         return 1;
     }
@@ -1691,7 +1656,6 @@ public:
 
         uint16 index = luaL_checkunsigned(L, 1);
         int32 value = luaL_checkinteger(L, 2);
-
         unit->SetInt32Value(index, value);
         return 0;
     }
@@ -1702,7 +1666,6 @@ public:
 
         uint16 index = luaL_checkunsigned(L, 1);
         uint32 value = luaL_checkunsigned(L, 2);
-
         unit->SetUInt32Value(index, value);
         return 0;
     }
@@ -1713,7 +1676,6 @@ public:
 
         uint16 index = luaL_checkunsigned(L, 1);
         uint32 value = luaL_checkunsigned(L, 2);
-
         unit->UpdateUInt32Value(index, value);
         return 0;
     }
@@ -1736,7 +1698,6 @@ public:
         uint16 index = luaL_checkunsigned(L, 1);
         uint8 offset = luaL_checkunsigned(L, 2);
         uint8 value = luaL_checkunsigned(L, 3);
-
         unit->SetByteValue(index, offset, value);
         return 0;
     }
@@ -1748,7 +1709,6 @@ public:
         uint16 index = luaL_checkunsigned(L, 1);
         uint8 offset = luaL_checkunsigned(L, 2);
         uint16 value = luaL_checkunsigned(L, 3);
-
         unit->SetUInt16Value(index, offset, value);
         return 0;
     }
@@ -1760,7 +1720,6 @@ public:
         uint16 index = luaL_checkunsigned(L, 1);
         uint8 offset = luaL_checkunsigned(L, 2);
         int16 value = luaL_checkinteger(L, 3);
-
         unit->SetInt16Value(index, offset, value);
         return 0;
     }
@@ -1797,7 +1756,6 @@ public:
         Unit* passenger = Eluna::get()->CHECK_UNIT(L, 1);
         int8 seatId = luaL_checkunsigned(L, 2);
         Vehicle* _vehicle = unit->GetVehicle();
-
         if (!_vehicle)
             return 0;
 

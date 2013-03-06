@@ -281,7 +281,6 @@ namespace LuaGlobalFunctions
         bool save = luaL_optbool(L, 8, false);
         uint32 durorresptime = luaL_optunsigned(L, 9, 0);
         uint32 phase = luaL_optunsigned(L, 10, PHASEMASK_NORMAL);
-
         if (!phase)
             return 0;
 
@@ -305,7 +304,6 @@ namespace LuaGlobalFunctions
                 creature->SaveToDB(map->GetId(), (1 << map->GetSpawnMode()), phase);
 
                 uint32 db_guid = creature->GetDBTableGUIDLow();
-
                 if (!creature->LoadCreatureFromDB(db_guid, map))
                 {
                     delete creature;
