@@ -2387,7 +2387,7 @@ bool InstanceMap::CanEnter(Player* player)
 */
 bool InstanceMap::AddPlayerToMap(Player* player)
 {
-    // TODO: Not sure about checking player level: already done in HandleAreaTriggerOpcode
+    /// @todo: Not sure about checking player level: already done in HandleAreaTriggerOpcode
     // GMs still can teleport player in instance.
     // Is it needed?
 
@@ -2542,7 +2542,7 @@ void InstanceMap::CreateInstanceData(bool load)
 
     if (load)
     {
-        // TODO: make a global storage for this
+        /// @todo: make a global storage for this
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_INSTANCE);
         stmt->setUInt16(0, uint16(GetId()));
         stmt->setUInt32(1, i_InstanceId);

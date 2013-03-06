@@ -801,7 +801,7 @@ void WorldSession::HandlePetCastSpellOpcode(WorldPacket& recvPacket)
     spell->m_cast_count = castCount;                    // probably pending spell cast
     spell->m_targets = targets;
 
-    // TODO: need to check victim?
+    /// @todo: need to check victim?
     SpellCastResult result;
     if (caster->m_movedPlayer)
         result = spell->CheckPetCast(caster->m_movedPlayer->GetSelectedUnit());

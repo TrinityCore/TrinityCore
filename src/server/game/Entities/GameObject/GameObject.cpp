@@ -1369,7 +1369,7 @@ void GameObject::Use(Unit* user)
                         else
                             player->SendLoot(GetGUID(), LOOT_FISHING);
                     }
-                    // TODO: else: junk
+                    /// @todo: else: junk
                     else
                         m_respawnTime = time(NULL);
 
@@ -1832,7 +1832,7 @@ void GameObject::ModifyHealth(int32 change, Unit* attackerOrHealer /*= NULL*/, u
     Player* player = attackerOrHealer->GetCharmerOrOwnerPlayerOrPlayerItself();
 
     // dealing damage, send packet
-    // TODO: is there any packet for healing?
+    /// @todo: is there any packet for healing?
     if (change < 0 && player)
     {
         WorldPacket data(SMSG_DESTRUCTIBLE_BUILDING_DAMAGE, 8 + 8 + 8 + 4 + 4);

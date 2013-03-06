@@ -182,7 +182,7 @@ public:
 
         void OnGameObjectCreate(GameObject* go)
         {
-            // TODO: init state depending on encounters
+            /// @todo: init state depending on encounters
             switch (go->GetEntry())
             {
                 case GO_FROSTMOURNE:
@@ -385,7 +385,7 @@ public:
 
             summoner->SetVisible(true);
 
-            // TODO: do composition at random. # of spawn also depends on uiWaveCount
+            /// @todo: do composition at random. # of spawn also depends on uiWaveCount
             // As of now, it is just one of each.
             index = urand(0, ENCOUNTER_WAVE_MERCENARY-1);
             summoner->SummonCreature(NPC_WAVE_MERCENARY, MercenarySpawnPos[index], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 0);

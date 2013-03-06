@@ -121,7 +121,7 @@ void LoadHelper(CellCorpseSet const& cell_corpses, CellCoord &cell, CorpseMapTyp
         if (!obj)
             continue;
 
-        // TODO: this is a hack
+        /// @todo: this is a hack
         // corpse's map should be reset when the map is unloaded
         // but it may still exist when the grid is unloaded but map is not
         // in that case map == currMap

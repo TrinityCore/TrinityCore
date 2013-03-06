@@ -896,7 +896,7 @@ enum PlayerDelayedOperations
 
 // Player summoning auto-decline time (in secs)
 #define MAX_PLAYER_SUMMON_DELAY                   (2*MINUTE)
-#define MAX_MONEY_AMOUNT               (UI64LIT(9999999999)) // TODO: Move this restriction to worldserver.conf, default to this value, hardcap at uint64.max
+#define MAX_MONEY_AMOUNT               (UI64LIT(9999999999)) /// @todo: Move this restriction to worldserver.conf, default to this value, hardcap at uint64.max
 
 struct InstancePlayerBind
 {
@@ -2114,7 +2114,7 @@ class Player : public Unit, public GridObject<Player>
         /*********************************************************/
         /***                  PVP SYSTEM                       ***/
         /*********************************************************/
-        // TODO: Properly implement correncies as of Cataclysm
+        /// @todo: Properly implement currencies as of Cataclysm
         void UpdateHonorFields();
         bool RewardHonor(Unit* victim, uint32 groupsize, int32 honor = -1, bool pvptoken = false);
         uint32 GetMaxPersonalArenaRatingRequirement(uint32 minarenaslot) const;

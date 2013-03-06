@@ -69,7 +69,7 @@ public:
             if (who->GetEntry() == MOB_ZOMBIE && me->IsWithinDistInMap(who, 7))
             {
                 SetGazeOn(who);
-                // TODO: use a script text
+                /// @todo: use a script text
                 me->MonsterTextEmote(EMOTE_NEARBY, 0, true);
             }
             else

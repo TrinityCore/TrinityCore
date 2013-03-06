@@ -795,7 +795,7 @@ enum SilvermoonPolymorph
     NPC_AUROSALIA       = 18744
 };
 
-// TODO: move out of here and rename - not a mage spell
+/// @todo: move out of here and rename - not a mage spell
 class spell_mage_polymorph_cast_visual : public SpellScriptLoader
 {
     public:
