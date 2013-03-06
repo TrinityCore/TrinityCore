@@ -265,11 +265,11 @@ UPDATE `gameobject_template` SET `flags` = '0' WHERE `gameobject_template`.`entr
 UPDATE `gameobject_template` SET `flags` = '0' WHERE `gameobject_template`.`entry` = 202336;
 
 -- Fix MMaps
-UPDATE creature_template SET InhabitType = InhabitType | 4 WHERE entry=37955; -- Blood-Queen Lana'thel (ICC)
-UPDATE creature_template SET InhabitType = InhabitType | 4 WHERE entry=37813; -- Deathbringer Saurfang (ICC)
-UPDATE creature_template SET InhabitType = InhabitType | 4 WHERE entry=36853; -- Sindragosa (ICC)
-UPDATE creature_template SET InhabitType = InhabitType | 4 WHERE entry=37533; -- Rimefang (ICC)
-UPDATE creature_template SET InhabitType = InhabitType | 4 WHERE entry=37534; -- Spinestalker (ICC)
-UPDATE creature_template SET InhabitType = InhabitType | 4 WHERE entry=39747; -- Saviana Ragefire (RS)
-UPDATE creature_template SET InhabitType = InhabitType | 4 WHERE entry=10184; -- Onyxia (Ony)
-UPDATE creature_template SET InhabitType = InhabitType | 4 WHERE entry=24068; -- Annhylde the Caller (UK)
+UPDATE creature_template SET InhabitType = InhabitType | 4 WHERE `entry` IN (37955,38434,38435,38436); -- Blood-Queen Lana'thel (ICC)
+UPDATE creature_template SET InhabitType = InhabitType | 4 WHERE `entry` IN (37813,38402,38582,38583); -- Deathbringer Saurfang (ICC)
+UPDATE creature_template SET InhabitType = InhabitType | 4 WHERE `entry` IN (36853,38265,38266,38267); -- Sindragosa (ICC)
+UPDATE creature_template SET InhabitType = InhabitType | 4 WHERE `entry` IN (37533,38220); -- Rimefang (ICC)
+UPDATE creature_template SET InhabitType = InhabitType | 4 WHERE `entry` IN (37534,38219); -- Spinestalker (ICC)
+UPDATE creature_template SET InhabitType = InhabitType | 4 WHERE `entry` IN (39747,39823); -- Saviana Ragefire (RS)
+UPDATE creature_template SET InhabitType = InhabitType | 4 WHERE `entry` IN (10184,36538); -- Onyxia (Ony)
+UPDATE creature_template SET InhabitType = InhabitType | 4 WHERE `entry` IN (24068,31655); -- Annhylde the Caller (UK)
