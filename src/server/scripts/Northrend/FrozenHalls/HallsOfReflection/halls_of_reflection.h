@@ -20,19 +20,22 @@
 
 enum Data
 {
+    MAX_ENCOUNTER          = 4,
     DATA_FALRIC_EVENT,
     DATA_MARWYN_EVENT,
     DATA_FROSTSWORN_EVENT,
     DATA_LICHKING_EVENT,
     DATA_WAVE_COUNT,
+    DATA_WAVES_BEGIN,
     DATA_TEAM_IN_INSTANCE,
 };
 
 enum Data64
 {
+    
     DATA_FALRIC,
     DATA_MARWYN,
-    DATA_LICHKING,
+    DATA_LICHKING,    
     DATA_FROSTMOURNE,
     DATA_ARTHAS_DOOR,
     DATA_FROSTSWORN_DOOR,
@@ -45,6 +48,7 @@ enum Creatures
     NPC_FALRIC                                    = 38112,
     NPC_MARWYN                                    = 38113,
     NPC_FROSTSWORN_GENERAL                        = 36723,
+    NPC_REFLECTION                                = 37107,
     NPC_LICH_KING_EVENT                           = 37226,
     NPC_LICH_KING_BOSS                            = 36954,
 

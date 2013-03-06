@@ -22,3 +22,9 @@ DELETE FROM `creature_text` WHERE `entry` = 36723;
 INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) VALUES
 (36723,0,0,"You are not worthy to face the Lich King!",12,0,100,0,0,16921,"HOR"),
 (36723,1,0,"Master, I have failed...!",12,0,100,0,0,16922,"HOR");
+
+-- AreaTrigger to restart waves after wipe.
+
+
+insert into `areatrigger_scripts` (`entry`, `ScriptName`) 
+values('5697','at_hor_waves_restarter');

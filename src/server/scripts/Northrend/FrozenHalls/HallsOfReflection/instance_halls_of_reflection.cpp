@@ -21,12 +21,13 @@
 #include "halls_of_reflection.h"
 #include "Player.h"
 
-#define MAX_ENCOUNTER 3
+
 
 /* Halls of Reflection encounters:
 0- Falric
 1- Marwyn
 2- The Lich King
+0- Escape
 */
 
 enum eEnum
@@ -132,6 +133,7 @@ public:
         uint32 uiEncounter[MAX_ENCOUNTER];
         uint32 uiTeamInInstance;
         uint32 uiWaveCount;
+        uint32 uiWaveBegin;
         bool bIntroDone;
 
         EventMap events;
@@ -155,6 +157,7 @@ public:
             uiFrontDoor = 0;
             uiTeamInInstance = 0;
             uiWaveCount = 0;
+            uiWaveBegin = 0;
             bIntroDone = false;
 
             for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
@@ -258,16 +261,14 @@ public:
                 case GO_FROSTSWORN_DOOR:
                     uiFrostswornDoor = go->GetGUID();
                     go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_INTERACT_COND);
-
                     if (uiEncounter[1] == DONE)
                         OpenDoor(uiFrostswornDoor);
                     else
                         CloseDoor(uiFrostswornDoor);
-
                     break;
                 case GO_ARTHAS_DOOR:
                     uiArthasDoor = go->GetGUID();
-                    
+                    break;       
             }
         }
 
@@ -285,7 +286,7 @@ public:
                 DoWipe();
 
             switch (type)
-            {
+            {                
                 case DATA_FALRIC_EVENT:
                     uiEncounter[0] = data;
                     if (data == DONE)
@@ -310,7 +311,11 @@ public:
 
                     break;
                 case DATA_LICHKING_EVENT:
+                    uiEncounter[3] = data;
                     
+                    break;
+                case DATA_WAVES_BEGIN:
+                    uiWaveBegin = data;
                     break;
             }
 
@@ -322,6 +327,7 @@ public:
         {
             switch (type)
             {
+                case DATA_WAVES_BEGIN:          return uiWaveBegin;
                 case DATA_FALRIC_EVENT:         return uiEncounter[0];
                 case DATA_MARWYN_EVENT:         return uiEncounter[1];
                 case DATA_LICHKING_EVENT:       return uiEncounter[2];
@@ -405,57 +411,59 @@ public:
                 case 2:
                 case 3:
                 case 4:
-                    if (Creature* pFalric = instance->GetCreature(uiFalric))
-                        SpawnWave(pFalric);
+                    if (Creature* falric = instance->GetCreature(uiFalric))
+                        SpawnWave(falric);
                     break;
                 case 5:
                     if (GetData(DATA_FALRIC_EVENT) == DONE)
                         events.ScheduleEvent(EVENT_NEXT_WAVE, 10000);
-                    else if (Creature* pFalric = instance->GetCreature(uiFalric))
-                        if (pFalric->AI())
-                            pFalric->AI()->DoAction(ACTION_ENTER_COMBAT);
+                    else if (Creature* falric = instance->GetCreature(uiFalric))
+                        if (falric->AI())
+                            falric->AI()->DoAction(ACTION_ENTER_COMBAT);
                     break;
                 case 6:
                 case 7:
                 case 8:
                 case 9:
-                    if (Creature* pMarwyn  = instance->GetCreature(uiMarwyn))
-                        SpawnWave(pMarwyn);
+                    if (Creature* marwyn  = instance->GetCreature(uiMarwyn))
+                        SpawnWave(marwyn);
                     break;
                 case 10:
                     if (GetData(DATA_MARWYN_EVENT) != DONE) // wave should not have been started if DONE. Check anyway to avoid bug exploit!
-                        if (Creature* pMarwyn = instance->GetCreature(uiMarwyn))
-                            if (pMarwyn->AI())
-                                pMarwyn->AI()->DoAction(ACTION_ENTER_COMBAT);
+                        if (Creature* marwyn = instance->GetCreature(uiMarwyn))
+                            if (marwyn->AI())
+                                marwyn->AI()->DoAction(ACTION_ENTER_COMBAT);
                     break;
             }
         }
 
         // Wipe has been detected. Perform cleanup and reset.
         void DoWipe()
-        {
-            uiWaveCount = 0;
+        {            
             events.Reset();
+                // Mawyn wins waves restart at 6 after Falric dies
+                if (GetData(DATA_MARWYN_EVENT) == IN_PROGRESS)
+                    uiWaveCount = 6;
+                //Players kill Falric waves restart at 6 after Falric dies
+                if (GetData(DATA_MARWYN_EVENT) != DONE && GetData(DATA_FALRIC_EVENT) == DONE)
+                    uiWaveCount = 6;
+                //Players defeated waves restart at 1 = First wave
+                if (GetData(DATA_WAVES_BEGIN) == DONE && GetData(DATA_FALRIC_EVENT) == IN_PROGRESS)
+                    uiWaveCount = 0;
+                if (GetData(DATA_WAVES_BEGIN) == DONE && GetData(DATA_FALRIC_EVENT) == NOT_STARTED)
+                    uiWaveCount = 0;
+               
+                
+                
             DoUpdateWorldState(WORLD_STATE_HOR, NULL);
             DoUpdateWorldState(WORLD_STATE_HOR_WAVE_COUNT, 0);
             OpenDoor(uiFrontDoor);
-            CloseDoor(uiArthasDoor);
-
-
-            // TODO
-            // in case of wipe, the event is normally restarted by jumping into the center of the room.
-            // As I can't find a trigger area there, just respawn Jaina/Sylvanas so the event may be restarted.
-            if (Creature* pJaina = instance->GetCreature(uiJainaPart1))
-                pJaina->Respawn();
-            if (Creature* pSylvanas = instance->GetCreature(uiSylvanasPart1))
-                pSylvanas->Respawn();
-
-            if (Creature* pFalric = instance->GetCreature(uiFalric))
-                pFalric->SetVisible(false);
-            if (Creature* pMarwyn = instance->GetCreature(uiMarwyn))
-                pMarwyn->SetVisible(false);
+            CloseDoor(uiArthasDoor);     
+            if (Creature* falric = instance->GetCreature(uiFalric))
+                falric->SetVisible(false);
+            if (Creature* marwyn = instance->GetCreature(uiMarwyn))
+                marwyn->SetVisible(false);
         }
-
         // spawn a wave on behalf of the summoner.
         void SpawnWave(Creature* summoner)
         {
