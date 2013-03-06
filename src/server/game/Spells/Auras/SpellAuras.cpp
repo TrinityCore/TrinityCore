@@ -429,7 +429,7 @@ void Aura::_UnapplyForTarget(Unit* target, Unit* caster, AuraApplication * auraA
 
     ApplicationMap::iterator itr = m_applications.find(target->GetGUID());
 
-    // TODO: Figure out why this happens
+    /// @todo: Figure out why this happens
     if (itr == m_applications.end())
     {
         sLog->outError(LOG_FILTER_SPELLS_AURAS, "Aura::_UnapplyForTarget, target:%u, caster:%u, spell:%u was not found in owners application map!",
@@ -970,7 +970,7 @@ void Aura::UnregisterSingleTarget()
 {
     ASSERT(m_isSingleTarget);
     Unit* caster = GetCaster();
-    // TODO: find a better way to do this.
+    /// @todo: find a better way to do this.
     if (!caster)
         caster = ObjectAccessor::GetObjectInOrOutOfWorld(GetCasterGUID(), (Unit*)NULL);
     ASSERT(caster);
@@ -1183,7 +1183,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
             case SPELLFAMILY_MAGE:
                 if (!caster)
                     break;
-                // Todo: This should be moved to similar function in spell::hit
+                /// @todo: This should be moved to similar function in spell::hit
                 if (GetSpellInfo()->SpellFamilyFlags[0] & 0x01000000)
                 {
                     // Polymorph Sound - Sheep && Penguin
@@ -1691,7 +1691,7 @@ bool Aura::IsProcTriggeredOnEvent(AuraApplication* aurApp, ProcEventInfo& eventI
     if (IsProcOnCooldown())
         return false;
 
-    // TODO:
+    /// @todo:
     // something about triggered spells triggering, and add extra attack effect
 
     // do checks against db data
@@ -1709,14 +1709,14 @@ bool Aura::IsProcTriggeredOnEvent(AuraApplication* aurApp, ProcEventInfo& eventI
     if (!check)
         return false;
 
-    // TODO:
+    /// @todo:
     // do allow additional requirements for procs
     // this is needed because this is the last moment in which you can prevent aura charge drop on proc
     // and possibly a way to prevent default checks (if there're going to be any)
 
     // Check if current equipment meets aura requirements
     // do that only for passive spells
-    // TODO: this needs to be unified for all kinds of auras
+    /// @todo: this needs to be unified for all kinds of auras
     Unit* target = aurApp->GetTarget();
     if (IsPassive() && target->GetTypeId() == TYPEID_PLAYER)
     {

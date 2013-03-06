@@ -167,7 +167,7 @@ struct Mail
     uint8 messageType;
     uint8 stationery;
     uint16 mailTemplateId;
-    uint32 sender;  // TODO: change to uint64 and store full guids
+    uint32 sender;  /// @todo: change to uint64 and store full guids
     uint32 receiver;
     std::string subject;
     std::string body;

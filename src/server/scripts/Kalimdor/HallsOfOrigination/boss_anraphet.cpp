@@ -534,7 +534,7 @@ public:
         void SetDestPosition(SpellEffIndex effIndex)
         {
             // Do our own calculations for the destination position.
-            /// TODO: Remove this once we find a general rule for WorldObject::MovePosition (this spell shouldn't take the Z change into consideration)
+            //// @todo: Remove this once we find a general rule for WorldObject::MovePosition (this spell shouldn't take the Z change into consideration)
             Unit* caster = GetCaster();
             float angle = float(rand_norm()) * static_cast<float>(2 * M_PI);
             uint32 dist = caster->GetObjectSize() + GetSpellInfo()->Effects[effIndex].CalcRadius(GetCaster()) * (float)rand_norm();

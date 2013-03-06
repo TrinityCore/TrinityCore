@@ -234,7 +234,7 @@ void ObjectAccessor::RemoveCorpse(Corpse* corpse)
         TRINITY_WRITE_GUARD(ACE_RW_Thread_Mutex, i_corpseLock);
 
         Player2CorpsesMapType::iterator iter = i_player2corpse.find(corpse->GetOwnerGUID());
-        if (iter == i_player2corpse.end()) // TODO: Fix this
+        if (iter == i_player2corpse.end()) /// @todo: Fix this
             return;
 
         // build mapid*cellid -> guid_set map

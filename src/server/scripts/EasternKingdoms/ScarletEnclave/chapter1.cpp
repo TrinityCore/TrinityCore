@@ -493,7 +493,7 @@ public:
                 }
             }
 
-            // TODO: spells
+            /// @todo: spells
 
             CombatAI::UpdateAI(uiDiff);
         }

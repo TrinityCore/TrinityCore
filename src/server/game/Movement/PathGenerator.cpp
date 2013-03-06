@@ -256,7 +256,7 @@ void PathGenerator::BuildPolyPath(Vector3 const& startPos, Vector3 const& endPos
     }
 
     // look for startPoly/endPoly in current path
-    // TODO: we can merge it with getPathPolyByPosition() loop
+    /// @todo: we can merge it with getPathPolyByPosition() loop
     bool startPolyFound = false;
     bool endPolyFound = false;
     uint32 pathStartIndex = 0;

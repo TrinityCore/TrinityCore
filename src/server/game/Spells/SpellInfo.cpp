@@ -1191,7 +1191,7 @@ bool SpellInfo::IsMultiSlotAura() const
 
 bool SpellInfo::IsStackableOnOneSlotWithDifferentCasters() const
 {
-    /// TODO: Re-verify meaning of SPELL_ATTR3_STACK_FOR_DIFF_CASTERS and update conditions here
+    //// @todo: Re-verify meaning of SPELL_ATTR3_STACK_FOR_DIFF_CASTERS and update conditions here
     return StackAmount > 1 && !IsChanneled() && !(AttributesEx3 & SPELL_ATTR3_STACK_FOR_DIFF_CASTERS);
 }
 
@@ -1451,7 +1451,7 @@ SpellCastResult SpellInfo::CheckShapeshift(uint32 form) const
 
     // Check if stance disables cast of not-stance spells
     // Example: cannot cast any other spells in zombie or ghoul form
-    // TODO: Find a way to disable use of these spells clientside
+    /// @todo: Find a way to disable use of these spells clientside
     if (shapeInfo && shapeInfo->flags1 & 0x400)
     {
         if (!(stanceMask & Stances))
