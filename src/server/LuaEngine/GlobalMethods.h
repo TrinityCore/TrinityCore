@@ -435,7 +435,7 @@ namespace LuaGlobalFunctions
 		return 0;
 	}
 
-	// VendorRemoveAllItems(unit, persist(bool))
+	// VendorRemoveAllItems(creature, persist(bool))
 	static int VendorRemoveAllItems(lua_State* L)
 	{
 		Creature* creature = Eluna::get()->CHECK_CREATURE(L, 1);
