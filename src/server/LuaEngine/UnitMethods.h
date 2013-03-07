@@ -653,6 +653,16 @@ public:
         return 1;
     }
 
+	// GetLifetimeKills()
+	static int GetLifetimeKills(lua_State* L, Unit* unit)
+	{
+		TO_PLAYER();
+
+		uint32 currentKills = player->GetUInt32Value(PLAYER_FIELD_LIFETIME_HONORABLE_KILLS);
+		Eluna::get()->PushUnsigned(L, currentKills);
+		return 1;
+	}
+
     // GetUnitType()
     static int GetUnitType(lua_State* L, Unit* unit)
     {
@@ -744,6 +754,16 @@ public:
         player->SetHonorPoints(honorP);
         return 0;
     }
+
+	// SetLifetimeKills(val)
+	static int SetLifetimeKills(lua_State* L, Unit* unit)
+	{
+		TO_PLAYER();
+
+		uint32 val = luaL_checkunsigned(L, 1);
+		player->SetUInt32Value(PLAYER_FIELD_LIFETIME_HONORABLE_KILLS, val);
+		return 0;
+	}
 
     // SetHealth(amount)
     static int SetHealth(lua_State* L, Unit* unit)
@@ -999,6 +1019,15 @@ public:
         return 1;
     }
 
+	// IsDead()
+	static int IsDead(lua_State* L, Unit* unit)
+	{
+		TO_UNIT_BOOL();
+
+		Eluna::get()->PushBoolean(L, unit->isDead());
+		return 1;
+	}
+
     //IsInArenaTeam(type) type : 0 = 2v2, 1 = 3v3, 2 = 5v5
     static int IsInArenaTeam(lua_State* L, Unit* unit)
     {
@@ -1087,6 +1116,17 @@ public:
         return 1;
     }
 
+	// HasItem(itemId, count)
+	static int HasItem(lua_State* L, Unit* unit)
+	{
+		TO_PLAYER_BOOL();
+
+		uint32 itemId = luaL_checkunsigned(L, 1);
+		uint32 count = luaL_checkunsigned(L, 2);
+		Eluna::get()->PushBoolean(L, player->HasItemCount(itemId, 1));
+		return 1;
+	}
+
     // Other Methods
 
     // Teleport(mapid, x, y, z, o)
@@ -1102,6 +1142,17 @@ public:
         Eluna::get()->PushBoolean(L, player->TeleportTo(mapId, X, Y, Z, O));
         return 1;
     }
+
+	// AddLifetimeKills(val)
+	static int AddLifetimeKills(lua_State* L, Unit* unit)
+	{
+		TO_PLAYER();
+
+		uint32 val = luaL_checkunsigned(L, 1);
+		uint32 currentKills = player->GetUInt32Value(PLAYER_FIELD_LIFETIME_HONORABLE_KILLS);
+		player->SetUInt32Value(PLAYER_FIELD_LIFETIME_HONORABLE_KILLS, currentKills + val);
+		return 0;
+	}
 
     // AddItem(entry, amount)
     static int AddItem(lua_State* L, Unit* unit)
@@ -1125,6 +1176,22 @@ public:
         player->DestroyItemCount(itemId, itemCount, true);
         return 0;
     }
+
+	// RemoveLifetimeKills(val)
+	static int RemoveLifetimeKills(lua_State* L, Unit* unit)
+	{
+		TO_PLAYER();
+
+		uint32 val = luaL_checkunsigned(L, 1);
+		uint32 currentKills = player->GetUInt32Value(PLAYER_FIELD_LIFETIME_HONORABLE_KILLS);
+		if (currentKills == 0 || val > currentKills)
+		{
+			luaL_error(L, "Bad value. Player's Lifetime Kills must be greater than 0 and the value cannot be greater than the actual kills.");
+			return 0;
+		}
+		player->SetUInt32Value(PLAYER_FIELD_LIFETIME_HONORABLE_KILLS, currentKills - val);
+		return 0;
+	}
 
     // SendBroadcastMessage(msg)
     static int SendBroadcastMessage(lua_State* L, Unit* unit)
@@ -1453,6 +1520,24 @@ public:
         Eluna::get()->PushUnsigned(L, unit->GetMapId());
         return 1;
     }
+
+	// GetCombatTime()
+	static int GetCombatTime(lua_State* L, Unit* unit)
+	{
+		TO_UNIT();
+
+		Eluna::get()->PushUnsigned(L, unit->GetCombatTimer());
+		return 1;
+	}
+
+	// ClearInCombat()
+	static int ClearInCombat(lua_State* L, Unit* unit)
+	{
+		TO_UNIT();
+
+		unit->ClearInCombat();
+		return 0;
+	}
 
     // GossipMenuAddItem(icon, msg, Intid, code, accept_decline_message, money)
     static int GossipMenuAddItem(lua_State* L, Unit* unit)
