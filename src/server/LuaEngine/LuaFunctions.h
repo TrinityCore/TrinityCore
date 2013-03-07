@@ -10,7 +10,7 @@ ElunaRegister<Unit> UnitMethods[] =
     {"GetGuildID", &LuaUnit::GetGuildID},                           // :GetGuildID() - nil on no guild.
     {"GetCoinage", &LuaUnit::GetCoinage},                           // :GetCoinage()
     {"GetTeam", &LuaUnit::GetTeam},                                 // :GetTeam() - returns the player's team. 0 for ally, 1 for horde
-    {"GetItemCount", &LuaUnit::GetItemCount},                       // :GetItemCount(item_id)
+    {"GetItemCount", &LuaUnit::GetItemCount},                       // :GetItemCount(item_id[, check_bank]) - UNDOCUMENTED
     {"GetGroup", &LuaUnit::GetGroup},                               // :GetGroup()
     {"GetGuild", &LuaUnit::GetGuild},                               // :GetGuild()
     {"GetGearLevel", &LuaUnit::GetGearLevel},                       // :GetGearLevel() -- Returns the player's average gear level

@@ -665,7 +665,7 @@ public:
         TO_PLAYER();
 
         int id = luaL_checknumber(L, 1);
-        bool checkinBank = luaL_checkbool(L, 2);
+        bool checkinBank = luaL_optbool(L, 2, false);
         Eluna::get()->PushUnsigned(L, player->GetItemCount(id, checkinBank));
         return 1;
     }
