@@ -37,7 +37,7 @@ INSERT INTO `creature_equip_template2` (`entry`, `id`, `itemEntry1`, `itemEntry2
     WHERE `equipment_id` != 0;
 
 INSERT IGNORE INTO `creature_equip_template2` (`entry`, `id`, `itemEntry1`, `itemEntry2`, `itemEntry3`)
-    SELECT `id`, 2, `itemEntry1`, `itemEntry2`, `itemEntry3`
+    SELECT `creature`.`id`, 2, `itemEntry1`, `itemEntry2`, `itemEntry3`
     FROM `creature`
     JOIN `creature_equip_template` ON `creature_equip_template`.`entry` = `equipment_id`
     WHERE `equipment_id` != 0;
