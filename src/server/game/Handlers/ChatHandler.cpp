@@ -282,10 +282,9 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
                 return;
             }
 
-            if (GetPlayer()->GetTeam() != receiver->GetTeam() &&
-                (!sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_CHAT) ||
-                !HasPermission(RBAC_PERM_TWO_SIDE_INTERACTION_CHAT) ||
-                !receiver->GetSession()->HasPermission(RBAC_PERM_TWO_SIDE_INTERACTION_CHAT)))
+            if (GetPlayer()->GetTeam() != receiver->GetTeam() && !sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_CHAT) &&
+                !HasPermission(RBAC_PERM_TWO_SIDE_INTERACTION_CHAT) &&
+                !receiver->GetSession()->HasPermission(RBAC_PERM_TWO_SIDE_INTERACTION_CHAT))
             {
                 SendWrongFactionNotice();
                 return;
