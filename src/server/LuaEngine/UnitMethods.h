@@ -1252,6 +1252,18 @@ public:
         return 0;
     }
 
+	// :SendVendorWindow(unit)
+	static int SendVendorWindow(lua_State* L, Unit* unit)
+	{
+		TO_PLAYER();
+
+		Unit* sendTo = Eluna::get()->CHECK_UNIT(L, 1);
+		if (!sendTo)
+			return 0;
+		player->GetSession()->SendListInventory(sendTo->GetGUID());
+		return 0;
+	}
+
     // GiveCoinage(amount)
     static int GiveCoinage(lua_State* L, Unit* unit)
     {

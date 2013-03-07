@@ -391,5 +391,73 @@ namespace LuaGlobalFunctions
         }
         return 0;
     }
+
+	// AddVendorItem(entry, itemId, maxcount, incrtime, extendedcost, persist(bool))
+	static int AddVendorItem(lua_State* L)
+	{
+		uint32 entry = luaL_checkunsigned(L, 1);
+		uint32 item = luaL_checkunsigned(L, 2);
+		int maxcount = luaL_checkinteger(L, 3);
+		uint32 incrtime = luaL_checkunsigned(L, 4);
+		uint32 extendedcost = luaL_checkunsigned(L, 5);
+		bool persist = luaL_optbool(L, 6, true);
+		if (!sObjectMgr->GetCreatureTemplate(entry))
+		{
+			sLog->outError(LOG_FILTER_GENERAL, "Eluna Nova::Couldn't find a creature with (ID: %d)!", entry);
+			return 0;
+		}
+
+		if (!sObjectMgr->IsVendorItemValid(entry, item, maxcount, incrtime, extendedcost))
+			return 0;
+		sObjectMgr->AddVendorItem(entry, item, maxcount, incrtime, extendedcost, persist);
+		return 0;
+	}
+
+	// VendorRemoveItem(entry, item, persist(bool), otherNpcFlag(optional-uint))
+	static int VendorRemoveItem(lua_State* L)
+	{
+		uint32 entry = luaL_checkunsigned(L, 1);
+		uint32 item = luaL_checkunsigned(L, 2);
+		bool persist = luaL_optbool(L, 3, true);
+		uint32 otherFlag = luaL_optunsigned(L, 4, UNIT_NPC_FLAG_VENDOR+1);
+		if (!sObjectMgr->GetCreatureTemplate(entry))
+		{
+			sLog->outError(LOG_FILTER_GENERAL, "Eluna Nova::Couldn't find a creature with (ID: %d)!", entry);
+			return 0;
+		}
+
+		CreatureTemplate const* cInfo = sObjectMgr->GetCreatureTemplate(entry);
+		if (!((cInfo->npcflag | otherFlag) & UNIT_NPC_FLAG_VENDOR))
+			return 0;
+
+		if (!sObjectMgr->RemoveVendorItem(entry, item, persist))
+			return 0;
+		return 0;
+	}
+
+	// VendorRemoveAllItems(unit, persist(bool))
+	static int VendorRemoveAllItems(lua_State* L)
+	{
+		Creature* creature = Eluna::get()->CHECK_CREATURE(L, 1);
+		bool persist = luaL_optbool(L, 2, true);
+		if (!creature || !creature->IsInWorld())
+			return 0;
+
+		VendorItemData const* items = creature->GetVendorItems();
+		if (!items || items->Empty())
+			return 0;
+
+		uint32 vendorItems[200];
+		uint32 i = 0;
+		for (VendorItemList::const_iterator itr = items->m_items.begin(); itr != items->m_items.end(); ++itr)
+		{
+			vendorItems[i] = (*itr)->item;
+			i++;
+		}
+
+		for (i = 0; i < items->GetItemCount(); i++)
+			sObjectMgr->RemoveVendorItem(creature->GetEntry(), vendorItems[i], persist);
+		return 0;
+	}
 }
 #endif

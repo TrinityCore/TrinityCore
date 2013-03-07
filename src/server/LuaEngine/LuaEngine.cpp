@@ -137,6 +137,9 @@ void Eluna::RegisterGlobals(lua_State* L)
     lua_register(L, "DestroyLuaEvents", &LuaGlobalFunctions::DestroyLuaEvents); // Not Documented
     lua_register(L, "PerformIngameSpawn", &LuaGlobalFunctions::PerformIngameSpawn); // Not Documented
     lua_register(L, "CreatePacket", &LuaGlobalFunctions::CreatePacket); // Not Documented
+	lua_register(L, "AddVendorItem", &LuaGlobalFunctions::AddVendorItem);
+	lua_register(L, "VendorRemoveItem", &LuaGlobalFunctions::VendorRemoveItem);
+	lua_register(L, "VendorRemoveAllItems", &LuaGlobalFunctions::VendorRemoveAllItems); // :VendorRemoveAllItems(creature, persist(bool)) -- Removes all items from a vendor. If persist is true, it will remove the rows in the npc_vendor table.
 }
 
 // Loads lua scripts from given directory
