@@ -39,6 +39,7 @@ EndContentData */
 #include "ScriptedGossip.h"
 #include "Cell.h"
 #include "CellImpl.h"
+#include "GridNotifiersImpl.h"
 #include "GridNotifiers.h"
 
 /*######
