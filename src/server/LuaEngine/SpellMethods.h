@@ -7,11 +7,11 @@ public:
 	// :GetUnitType()
 	static int GetUnitType(lua_State* L, Spell* spell)
 	{
-		if (!spell)
-			return 0;
+        if (!spell)
+            return 0;
 
-		lua_pushstring(L, "Spell");
-		return 1;
+       lua_pushstring(L, "Spell");
+        return 1;
 	}
 
     // GetCaster()
@@ -57,22 +57,22 @@ public:
 	// GetDuration()
 	static int GetDuration(lua_State* L, Spell* spell)
 	{
-		if (!spell)
-			return 0;
+        if (!spell)
+            return 0;
 
-		Eluna::get()->PushInteger(L, spell->GetSpellInfo()->GetDuration());
-		return 1;
+        Eluna::get()->PushInteger(L, spell->GetSpellInfo()->GetDuration());
+        return 1;
 	}
 
 	// Cast(skipCheck)
 	static int Cast(lua_State* L, Spell* spell)
 	{
-		if (!spell)
-			return 0;
+        if (!spell)
+            return 0;
 
-		bool skipCheck = lua_toboolean(L, 1);
-		spell->cast(skipCheck);
-		return 0;
+        bool skipCheck = lua_toboolean(L, 1);
+        spell->cast(skipCheck);
+        return 0;
 	}
 
     // Cancel()
@@ -88,11 +88,11 @@ public:
 	// Finish()
 	static int Finish(lua_State* L, Spell* spell)
 	{
-		if (!spell)
-			return 0;
+        if (!spell)
+            return 0;
 
-		spell->finish();
-		return 0;
+        spell->finish();
+        return 0;
 	}
 };
 #endif

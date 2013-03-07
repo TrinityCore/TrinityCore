@@ -151,10 +151,6 @@ endif()
 
 add_dependencies(worldserver revision.h)
 
-target_link_libraries(worldserver
-  ${lua_STAT_SRCS}
-)
-
 if( UNIX AND NOT NOJEM )
   set(worldserver_LINK_FLAGS "-pthread -lncurses ${worldserver_LINK_FLAGS}")
 endif()

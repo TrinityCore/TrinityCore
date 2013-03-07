@@ -1247,11 +1247,11 @@ public:
         return true;
     }
 
-	static bool HandleReloadElunaLuaEngine(ChatHandler * handler, const char* /*args*/)
+	static bool HandleReloadElunaLuaEngine(ChatHandler* handler, const char* /*args*/)
 	{
-		Eluna::get()->Restart();
-		handler->SendSysMessage("Reloaded Eluna Nova Engine");
-		return true;
+        Eluna::get()->Restart();
+        handler->SendSysMessage("Reloaded Eluna Nova Engine");
+        return true;
 	}
 
     static bool HandleReloadRBACCommand(ChatHandler* handler, const char* /*args*/)
