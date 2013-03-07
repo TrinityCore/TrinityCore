@@ -121,8 +121,10 @@ ElunaRegister<Unit> UnitMethods[] =
     {"GetInstanceId", &LuaUnit::GetInstanceId},                     // :GetInstanceId() - Gets the instance id of the unit
     {"GetPhaseMask", &LuaUnit::GetPhaseMask},                       // :GetPhaseMask() - gets the phase mask of the unit
 	{"GetCombatTime", &LuaUnit::GetCombatTime},                     // :GetCombatTime() - Returns how long the unit has been in combat
+	{"GetFaction", &LuaUnit::GetFaction},                           // :GetFaction() -- Returns the unit's factionId
 
     // Setters
+	{"SetFaction", &LuaUnit::SetFaction},                           // :SetFaction(factionId) -- Sets the unit's faction
     {"SetLevel", &LuaUnit::SetLevel},                               // :SetLevel(amount)
     {"SetHealth", &LuaUnit::SetHealth},                             // :SetHealth(amount)
     {"SetMaxHealth", &LuaUnit::SetMaxHealth},                       // :SetMaxHealth(amount)

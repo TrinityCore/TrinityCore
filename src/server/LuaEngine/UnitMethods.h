@@ -713,7 +713,26 @@ public:
         return 1;
     }
 
+	// GetFaction()
+	static int GetFaction(lua_State* L, Unit* unit)
+	{
+		TO_UNIT();
+
+		Eluna::get()->PushUnsigned(L, unit->getFaction());
+		return 1;
+	}
+
     // Set Methods
+
+	// SetFaction(id)
+	static int SetFaction(lua_State* L, Unit* unit)
+	{
+		TO_UNIT();
+
+		uint32 factionId = luaL_checkunsigned(L, 1);
+		unit->setFaction(factionId);
+		return 0;
+	}
 
     // SetLevel(level)
     static int SetLevel(lua_State* L, Unit* unit)
