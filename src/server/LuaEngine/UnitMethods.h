@@ -1122,7 +1122,7 @@ public:
 		TO_PLAYER_BOOL();
 
 		uint32 itemId = luaL_checkunsigned(L, 1);
-		uint32 count = luaL_checkunsigned(L, 2);
+		uint32 count = luaL_optunsigned(L, 2, 1);
 		Eluna::get()->PushBoolean(L, player->HasItemCount(itemId, count));
 		return 1;
 	}
