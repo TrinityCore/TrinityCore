@@ -359,8 +359,8 @@ public:
 
             _summonDeaths = 0;
             _preparingPulsesChecker = 0;
-            _arcaneOverloadGUID = NULL;
-            _lastHitByArcaneBarrageGUID = NULL;
+            _arcaneOverloadGUID = 0;
+            _lastHitByArcaneBarrageGUID = 0;
             memset(_surgeTargetGUID, 0, sizeof(_surgeTargetGUID));
 
             _killSpamFilter = false;
@@ -2054,7 +2054,7 @@ class spell_scion_of_eternity_arcane_barrage : public SpellScriptLoader
                 // in longer terms this means if spell picks target X then 2nd cast of this spell will pick smth else
                 // and if 3rd picks X again 4th will pick smth else (by not limiting the cast to certain caster).
                 if (targets.size() > 1)
-                    if (malygos && malygos->AI()->GetGUID(DATA_LAST_TARGET_BARRAGE_GUID) != NULL)
+                    if (malygos && malygos->AI()->GetGUID(DATA_LAST_TARGET_BARRAGE_GUID))
                         targets.remove_if(Trinity::ObjectGUIDCheck(malygos->AI()->GetGUID(DATA_LAST_TARGET_BARRAGE_GUID)));
 
                 // Remove players not on Hover Disk from second list
