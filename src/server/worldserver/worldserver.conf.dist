@@ -1174,13 +1174,6 @@ Warden.BanDuration = 86400
 ###################################################################################################
 # PLAYER INTERACTION
 #
-#    AllowTwoSide.Accounts
-#        Description: Allow creating characters of both factions on the same account.
-#        Default:     1 - (Enabled)
-#                     0 - (Disabled)
-
-AllowTwoSide.Accounts = 1
-
 #
 #    AllowTwoSide.Interaction.Calendar
 #        Description: Allow calendar invites between factions.
@@ -1188,14 +1181,6 @@ AllowTwoSide.Accounts = 1
 #                     1 - (Enabled)
 
 AllowTwoSide.Interaction.Calendar = 0
-
-#
-#    AllowTwoSide.Interaction.Chat
-#        Description: Allow say chat between factions.
-#        Default:     0 - (Disabled)
-#                     1 - (Enabled)
-
-AllowTwoSide.Interaction.Chat = 0
 
 #
 #    AllowTwoSide.Interaction.Channel
@@ -1228,30 +1213,6 @@ AllowTwoSide.Interaction.Guild = 0
 #                     1 - (Enabled)
 
 AllowTwoSide.Interaction.Auction = 0
-
-#
-#    AllowTwoSide.Interaction.Mail
-#        Description: Allow sending mails between factions.
-#        Default:     0 - (Disabled)
-#                     1 - (Enabled)
-
-AllowTwoSide.Interaction.Mail = 0
-
-#
-#    AllowTwoSide.WhoList
-#        Description: Show characters from both factions in the /who list.
-#        Default:     0 - (Disabled)
-#                     1 - (Enabled)
-
-AllowTwoSide.WhoList = 0
-
-#
-#    AllowTwoSide.AddFriend
-#        Description: Allow adding friends from other faction the friends list.
-#        Default:     0 - (Disabled)
-#                     1 - (Enabled)
-
-AllowTwoSide.AddFriend = 0
 
 #
 #    AllowTwoSide.Trade
@@ -1508,15 +1469,6 @@ ChatFlood.MuteTime = 10
 Channel.RestrictedLfg = 1
 
 #
-#    Channel.SilentlyGMJoin
-#        Description: Silently join GM characters to channels. If set to 1, channel kick and ban
-#                     commands issued by a GM will not be broadcasted.
-#        Default:     0 - (Disabled, Join with announcement)
-#                     1 - (Enabled, Join without announcement)
-
-Channel.SilentlyGMJoin = 0
-
-#
 #    ChatLevelReq.Channel
 #        Description: Level requirement for characters to be able to write in chat channels.
 #        Default:     1
@@ -1620,14 +1572,6 @@ GM.InGMList.Level = 3
 GM.InWhoList.Level = 3
 
 #
-#    GM.LogTrade
-#        Description: Include GM trade and trade slot enchanting operations in GM log.
-#        Default:     1 - (Enabled)
-#                     0 - (Disabled)
-
-GM.LogTrade = 1
-
-#
 #    GM.StartLevel
 #        Description: GM character starting level.
 #        Default:     1
@@ -1641,14 +1585,6 @@ GM.StartLevel = 1
 #                     1 - (Enabled)
 
 GM.AllowInvite = 0
-
-#
-#    GM.AllowFriend
-#        Description: Allow players to add GM characters to their friends list.
-#        Default:     0 - (Disabled)
-#                     1 - (Enabled)
-
-GM.AllowFriend = 0
 
 #
 #    GM.LowerSecurity
