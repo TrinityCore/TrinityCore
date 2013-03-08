@@ -33,6 +33,7 @@ EndContentData */
 #include "SpellAuras.h"
 #include "Player.h"
 #include "TemporarySummon.h"
+#include "CombatAI.h"
 
 /*######
 ## npc_arete
