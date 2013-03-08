@@ -103,7 +103,7 @@ public:
                 switch (eventId)
                 {
                     case EVENT_WRAP:
-                        // TODO : Add missing text
+                        /// @todo Add missing text
                         for (uint8 i = 0; i < RAID_MODE(1, 2); ++i)
                         {
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0, true, -SPELL_WEB_WRAP))
@@ -134,7 +134,7 @@ public:
                         events.ScheduleEvent(EVENT_FRENZY, 600000);
                         break;
                     case EVENT_SUMMON:
-                        // TODO : Add missing text
+                        /// @todo Add missing text
                         uint8 amount = urand(8, 10);
                         for (uint8 i = 0; i < amount; ++i)
                             DoSummon(MOB_SPIDERLING, me, 0, TEMPSUMMON_CORPSE_DESPAWN);

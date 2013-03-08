@@ -493,7 +493,7 @@ public:
                 }
             }
 
-            // TODO: spells
+            /// @todo spells
 
             CombatAI::UpdateAI(uiDiff);
         }
@@ -758,7 +758,7 @@ public:
                         if (CAST_PLR(owner)->GetQuestStatus(12698) == QUEST_STATUS_INCOMPLETE)
                             CAST_CRE(who)->CastSpell(owner, 52517, true);
 
-                        //Todo: Creatures must not be removed, but, must instead
+                        /// @todo Creatures must not be removed, but, must instead
                         //      stand next to Gothik and be commanded into the pit
                         //      and dig into the ground.
                         CAST_CRE(who)->DespawnOrUnsummon();

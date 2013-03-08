@@ -107,7 +107,7 @@ class boss_faerlina : public CreatureScript
             {
                 if (spell->Id == SPELL_WIDOWS_EMBRACE || spell->Id == H_SPELL_WIDOWS_EMBRACE)
                 {
-                    // TODO : Add Text
+                    /// @todo Add Text
                     ++_frenzyDispels;
                     _delayFrenzy = true;
                     me->Kill(caster);
@@ -153,7 +153,7 @@ class boss_faerlina : public CreatureScript
                             events.ScheduleEvent(EVENT_FIRE, urand(6000, 18000));
                             break;
                         case EVENT_FRENZY:
-                            // TODO : Add Text
+                            /// @todo Add Text
                             if (!me->HasAura(SPELL_WIDOWS_EMBRACE_HELPER))
                                 DoCast(me, RAID_MODE(SPELL_FRENZY, H_SPELL_FRENZY));
                             else

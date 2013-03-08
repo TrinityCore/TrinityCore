@@ -507,7 +507,7 @@ public:
         {
              switch (summoned->GetEntry())
              {
-            //TODO: make Scarloc start into event instead, and not start attack directly
+            /// @todo make Scarloc start into event instead, and not start attack directly
              case MOB_ENTRY_BARN_GUARDSMAN:
              case MOB_ENTRY_BARN_PROTECTOR:
              case MOB_ENTRY_BARN_LOOKOUT:
@@ -543,7 +543,7 @@ public:
             if (!UpdateVictim())
                 return;
 
-                 //TODO: add his abilities'n-crap here
+                 /// @todo add his abilities'n-crap here
                 if (!LowHp && HealthBelowPct(20))
                 {
                     Talk(SAY_TH_RANDOM_LOW_HP);

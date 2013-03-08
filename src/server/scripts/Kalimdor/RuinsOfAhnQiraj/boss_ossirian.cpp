@@ -74,7 +74,7 @@ Position CrystalCoordinates[NUM_CRYSTALS] =
 };
 
 float RoomRadius = 165.0f;
-uint8 const NUM_TORNADOS = 5; // TODO: This number is completly random!
+uint8 const NUM_TORNADOS = 5; /// @todo This number is completly random!
 uint8 const NUM_WEAKNESS = 5;
 uint32 const SpellWeakness[NUM_WEAKNESS] = { 25177, 25178, 25180, 25181, 25183 };
 Position const RoomCenter = { -9343.041992f, 1923.278198f, 85.555984f, 0.0 };
