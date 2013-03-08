@@ -19,13 +19,10 @@
 SDName: Boss Malygos
 Script Data End */
 
-/* Main problems needing most attention:
- 1) Add support for using Exit Portal while on drake which means to
- find seat flag that allows casting on passenger or something that
- will prevent valid target filtering.
- 2) Find what cause client not sending release now availability
- if player dies after far falling. For now player needs to logout to get body after
- if release button remain unavailable after box popping.*/
+/* Main problem needing most attention:
+    Add support for using Exit Portal while on drake which means to
+   find seat flag that allows casting on passenger or something that
+   will prevent valid target filtering. */
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
