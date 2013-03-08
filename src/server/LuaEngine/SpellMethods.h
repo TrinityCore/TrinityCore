@@ -4,15 +4,15 @@
 class LuaSpell
 {
 public:
-	// :GetUnitType()
-	static int GetUnitType(lua_State* L, Spell* spell)
-	{
+    // :GetUnitType()
+    static int GetUnitType(lua_State* L, Spell* spell)
+    {
         if (!spell)
             return 0;
 
-       lua_pushstring(L, "Spell");
+        lua_pushstring(L, "Spell");
         return 1;
-	}
+    }
 
     // GetCaster()
     static int GetCaster(lua_State* L, Spell* spell)
@@ -44,36 +44,36 @@ public:
         return 1;
     }
 
-	// GetPowerCost()
-	static int GetPowerCost(lua_State* L, Spell* spell)
-	{
-		if (!spell)
-			return 0;
+    // GetPowerCost()
+    static int GetPowerCost(lua_State* L, Spell* spell)
+    {
+        if (!spell)
+            return 0;
 
-		sEluna->PushInteger(L, spell->GetPowerCost());
-		return 1;
-	}
+        sEluna->PushInteger(L, spell->GetPowerCost());
+        return 1;
+    }
 
-	// GetDuration()
-	static int GetDuration(lua_State* L, Spell* spell)
-	{
+    // GetDuration()
+    static int GetDuration(lua_State* L, Spell* spell)
+    {
         if (!spell)
             return 0;
 
         sEluna->PushInteger(L, spell->GetSpellInfo()->GetDuration());
         return 1;
-	}
+    }
 
-	// Cast(skipCheck)
-	static int Cast(lua_State* L, Spell* spell)
-	{
+    // Cast(skipCheck)
+    static int Cast(lua_State* L, Spell* spell)
+    {
         if (!spell)
             return 0;
 
         bool skipCheck = lua_toboolean(L, 1);
         spell->cast(skipCheck);
         return 0;
-	}
+    }
 
     // Cancel()
     static int cancel(lua_State* L, Spell* spell)
@@ -85,14 +85,14 @@ public:
         return 0;
     }
 
-	// Finish()
-	static int Finish(lua_State* L, Spell* spell)
-	{
+    // Finish()
+    static int Finish(lua_State* L, Spell* spell)
+    {
         if (!spell)
             return 0;
 
         spell->finish();
         return 0;
-	}
+    }
 };
 #endif

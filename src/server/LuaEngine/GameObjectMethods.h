@@ -168,7 +168,7 @@ public:
     {
         if (!go || !go->IsInWorld())
             return 0;
-        
+
         uint32 entry = luaL_checkunsigned(L, 1);
         float x = luaL_checknumber(L, 2);
         float y = luaL_checknumber(L, 3);
@@ -332,7 +332,7 @@ public:
     {
         if (!go || !go->IsInWorld())
             return 0;
-        
+
         Eluna::LuaEventMap* eventMap = sEluna->GetEvents(go);
         if (eventMap)
             eventMap->LuaEventsReset();

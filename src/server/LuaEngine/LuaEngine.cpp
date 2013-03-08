@@ -36,7 +36,7 @@ void Eluna::StartEluna(bool restart /*= false*/)
 {
     if (restart)
     {
-        OnElunaRestart(ELUNA_EVENT_ON_RESTART);
+        sHookMgr->OnElunaRestart(ELUNA_EVENT_ON_RESTART);
         sLog->outInfo(LOG_FILTER_GENERAL, "Eluna Nova::Restarting Engine");
 
         if (LuaState)
@@ -62,7 +62,6 @@ void Eluna::StartEluna(bool restart /*= false*/)
     }
     else
     {
-        Eluna_AddScriptHooks();
         sEluna->CreatureAI = new LuaCreatureScript;
         sEluna->GameObjectAI = new LuaGameObjectScript;
         sEluna->WorldAI = new LuaWorldScript;
@@ -149,9 +148,9 @@ void Eluna::RegisterGlobals(lua_State* L)
     lua_register(L, "DestroyLuaEvents", &LuaGlobalFunctions::DestroyLuaEvents); // Not Documented
     lua_register(L, "PerformIngameSpawn", &LuaGlobalFunctions::PerformIngameSpawn); // Not Documented
     lua_register(L, "CreatePacket", &LuaGlobalFunctions::CreatePacket); // Not Documented
-	lua_register(L, "AddVendorItem", &LuaGlobalFunctions::AddVendorItem);
-	lua_register(L, "VendorRemoveItem", &LuaGlobalFunctions::VendorRemoveItem);
-	lua_register(L, "VendorRemoveAllItems", &LuaGlobalFunctions::VendorRemoveAllItems); // :VendorRemoveAllItems(creature, persist(bool)) -- Removes all items from a vendor. If persist is true, it will remove the rows in the npc_vendor table.
+    lua_register(L, "AddVendorItem", &LuaGlobalFunctions::AddVendorItem);
+    lua_register(L, "VendorRemoveItem", &LuaGlobalFunctions::VendorRemoveItem);
+    lua_register(L, "VendorRemoveAllItems", &LuaGlobalFunctions::VendorRemoveAllItems); // :VendorRemoveAllItems(creature, persist(bool)) -- Removes all items from a vendor. If persist is true, it will remove the rows in the npc_vendor table.
 }
 
 // Loads lua scripts from given directory
@@ -412,20 +411,20 @@ void Eluna::PushItem(lua_State* L, Item* item)
 
 void Eluna::PushSpell(lua_State* L, Spell* spell)
 {
-	if (!L) L = LuaState;
-	if (spell)
-		ElunaTemplate<Spell>::push(L, spell);
-	else
-		lua_pushnil(L);
+    if (!L) L = LuaState;
+    if (spell)
+        ElunaTemplate<Spell>::push(L, spell);
+    else
+        lua_pushnil(L);
 }
 
 void Eluna::PushQuest(lua_State* L, Quest const* quest)
 {
-	if (!L) L = LuaState;
-	if (quest)
-		ElunaTemplate<Quest>::push(L, const_cast<Quest*>(quest));
-	else
-		lua_pushnil(L);
+    if (!L) L = LuaState;
+    if (quest)
+        ElunaTemplate<Quest>::push(L, const_cast<Quest*>(quest));
+    else
+        lua_pushnil(L);
 }
 
 void Eluna::PushPacket(lua_State* L, WorldPacket* packet)

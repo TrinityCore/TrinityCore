@@ -59,8 +59,8 @@ ElunaRegister<Unit> UnitMethods[] =
     {"SendPacketToGroup", &LuaUnit::SendPacketToGroup},             // :SendPacketToGroup(packet, sendToPlayersInBattleground(bool)) - Sends a specified packet to the group with the choice (true/false) to send it to players in a battleground
     {"SendPacketToGuild", &LuaUnit::SendPacketToGuild},             // :SendPacketToGuild(packet) - Sends a specified packet to your guild
     {"SendPacketToRankedInGuild", &LuaUnit::SendPacketToRankedInGuild}, // :SendPacketToRankedInGuild(packet, rankId) - Sends a specified packet to your guild, specifying a rankId will only send the packet to your ranked members.
-	{"SendVendorWindow", &LuaUnit::SendVendorWindow},               // :SendVendorWindow(unit) -- Sends the unit's vendor window to the player
-	{"GiveCoinage", &LuaUnit::GiveCoinage},                         // :GiveCoinage(amount) - MODIFIES (does not set) coinage count.
+    {"SendVendorWindow", &LuaUnit::SendVendorWindow},               // :SendVendorWindow(unit) -- Sends the unit's vendor window to the player
+    {"GiveCoinage", &LuaUnit::GiveCoinage},                         // :GiveCoinage(amount) - MODIFIES (does not set) coinage count.
     {"RemoveCoinage", &LuaUnit::RemoveCoinage},                     // :RemoveCoinage(amount) - Removes amount of coinage from plr.
     {"LearnSpell", &LuaUnit::LearnSpell},                           // :LearnSpell(id) - learns the given spell.
     {"RemoveItem", &LuaUnit::RemoveItem},                           // :RemoveItem(id, amount) - Removes amount of item to player.
@@ -329,44 +329,44 @@ ElunaRegister<Aura> AuraMethods[] =
 
 ElunaRegister<Spell> SpellMethods[] =
 {
-	// Getters
-	{"GetUnitType", &LuaSpell::GetUnitType},                        // :GetUnitType() -- Returns the unit type (Spell)              UNDOCUMENTED
-	{"GetCaster", &LuaSpell::GetCaster},                            // :GetCaster()  -- Returns the spell's caster (UNIT)           UNDOCUMENTED
-	{"GetCastTime", &LuaSpell::GetCastTime},                        // :GetCastTime() -- Returns the spell cast time                UNDOCUMENTED
-	{"GetId", &LuaSpell::GetId},                                    // :GetId() -- Returns the spell's ID                           UNDOCUMENTED
-	{"GetDuration", &LuaSpell::GetDuration},                        // :GetDuration() -- Returns the spell's duration               UNDOCUMENTED
-	{"GetPowerCost", &LuaSpell::GetPowerCost},                      // :GetPowerCost() -- Returns the spell's power cost (mana, energy, rage, etc)      UNDOCUMENTED
+    // Getters
+    {"GetUnitType", &LuaSpell::GetUnitType},                        // :GetUnitType() -- Returns the unit type (Spell)              UNDOCUMENTED
+    {"GetCaster", &LuaSpell::GetCaster},                            // :GetCaster()  -- Returns the spell's caster (UNIT)           UNDOCUMENTED
+    {"GetCastTime", &LuaSpell::GetCastTime},                        // :GetCastTime() -- Returns the spell cast time                UNDOCUMENTED
+    {"GetId", &LuaSpell::GetId},                                    // :GetId() -- Returns the spell's ID                           UNDOCUMENTED
+    {"GetDuration", &LuaSpell::GetDuration},                        // :GetDuration() -- Returns the spell's duration               UNDOCUMENTED
+    {"GetPowerCost", &LuaSpell::GetPowerCost},                      // :GetPowerCost() -- Returns the spell's power cost (mana, energy, rage, etc)      UNDOCUMENTED
 
     // Other
-	{"Cancel", &LuaSpell::cancel},                                  // :Cancel() -- Cancels the spell casting                       UNDOCUMENTED
-	{"Cast", &LuaSpell::Cast},                                      // :Cast(skipCheck) -- Casts the spell (if true, removes the check for instant spells, etc)      UNDOCUMENTED
-	{"Finish", &LuaSpell::Finish},                                  // :Finish() -- Finishes the spell (SPELL_STATE_FINISH)         UNDOCUMENTED
-	{NULL, NULL},
+    {"Cancel", &LuaSpell::cancel},                                  // :Cancel() -- Cancels the spell casting                       UNDOCUMENTED
+    {"Cast", &LuaSpell::Cast},                                      // :Cast(skipCheck) -- Casts the spell (if true, removes the check for instant spells, etc)      UNDOCUMENTED
+    {"Finish", &LuaSpell::Finish},                                  // :Finish() -- Finishes the spell (SPELL_STATE_FINISH)         UNDOCUMENTED
+    {NULL, NULL},
 };
 
 ElunaRegister<Quest> QuestMethods[] =
 {
-	// Getters
-	{"GetUnitType", &LuaQuest::GetUnitType},                        // :GetUnitType() -- Returns the unit type (Quest)              UNDOCUMENTED
-	{"GetId", &LuaQuest::GetId},                                    // :GetId() -- Returns the quest's Id                           UNDOCUMENTED
-	{"GetLevel", &LuaQuest::GetLevel},                              // :GetLevel() -- Returns the quest's level                     UNDOCUMENTED
-	{"GetMaxLevel", &LuaQuest::GetMaxLevel},                        // :GetMaxLevel() -- Returns the quest's max level              UNDOCUMENTED
-	{"GetMinLevel", &LuaQuest::GetMinLevel},                        // :GetMinLevel() -- Returns the quest's min level              UNDOCUMENTED
-	{"GetNextQuestId", &LuaQuest::GetNextQuestId},                  // :GetNextQuestId() -- Returns the quest's next quest ID       UNDOCUMENTED
-	{"GetPrevQuestId", &LuaQuest::GetPrevQuestId},                  // :GetPrevQuestId() -- Returns the quest's previous quest ID   UNDOCUMENTED
-	{"GetNextQuestInChain", &LuaQuest::GetNextQuestInChain},        // :GetNexQuestInChain() -- Returns the next quest in its chain  UNDOCUMENTED
-	{"GetFlags", &LuaQuest::GetFlags},                              // :GetFlags() -- Returns the quest's flags                     UNDOCUMENTED
-	{"GetType", &LuaQuest::GetType},                                // :GetType() -- Returns the quest's type                       UNDOCUMENTED
+    // Getters
+    {"GetUnitType", &LuaQuest::GetUnitType},                        // :GetUnitType() -- Returns the unit type (Quest)              UNDOCUMENTED
+    {"GetId", &LuaQuest::GetId},                                    // :GetId() -- Returns the quest's Id                           UNDOCUMENTED
+    {"GetLevel", &LuaQuest::GetLevel},                              // :GetLevel() -- Returns the quest's level                     UNDOCUMENTED
+    {"GetMaxLevel", &LuaQuest::GetMaxLevel},                        // :GetMaxLevel() -- Returns the quest's max level              UNDOCUMENTED
+    {"GetMinLevel", &LuaQuest::GetMinLevel},                        // :GetMinLevel() -- Returns the quest's min level              UNDOCUMENTED
+    {"GetNextQuestId", &LuaQuest::GetNextQuestId},                  // :GetNextQuestId() -- Returns the quest's next quest ID       UNDOCUMENTED
+    {"GetPrevQuestId", &LuaQuest::GetPrevQuestId},                  // :GetPrevQuestId() -- Returns the quest's previous quest ID   UNDOCUMENTED
+    {"GetNextQuestInChain", &LuaQuest::GetNextQuestInChain},        // :GetNexQuestInChain() -- Returns the next quest in its chain  UNDOCUMENTED
+    {"GetFlags", &LuaQuest::GetFlags},                              // :GetFlags() -- Returns the quest's flags                     UNDOCUMENTED
+    {"GetType", &LuaQuest::GetType},                                // :GetType() -- Returns the quest's type                       UNDOCUMENTED
 
-	// Boolean
-	{"HasFlag", &LuaQuest::HasFlag},                                // :HasFlag(flag) -- Returns true or false if the quest has the specified flag    UNDOCUMENTED
-	{"IsDaily", &LuaQuest::IsDaily},                                // :IsDaily() -- Returns true or false if the quest is a daily  UNDOCUMENTED
-	{"IsRepeatable", &LuaQuest::IsRepeatable},                      // :IsRepeatable() -- Returns true or false if the quest is repeatable   UNDOCUMENTED
+    // Boolean
+    {"HasFlag", &LuaQuest::HasFlag},                                // :HasFlag(flag) -- Returns true or false if the quest has the specified flag    UNDOCUMENTED
+    {"IsDaily", &LuaQuest::IsDaily},                                // :IsDaily() -- Returns true or false if the quest is a daily  UNDOCUMENTED
+    {"IsRepeatable", &LuaQuest::IsRepeatable},                      // :IsRepeatable() -- Returns true or false if the quest is repeatable   UNDOCUMENTED
 
-	// Setters
-	{"SetFlag", &LuaQuest::SetFlag},                                // :SetFlag(flag) -- Sets the flag of the quest by the specified flag    UNDOCUMENTED
+    // Setters
+    {"SetFlag", &LuaQuest::SetFlag},                                // :SetFlag(flag) -- Sets the flag of the quest by the specified flag    UNDOCUMENTED
 
-	{NULL, NULL},
+    {NULL, NULL},
 };
 
 ElunaRegister<Group> GroupMethods[] = 

@@ -1289,6 +1289,7 @@ void AddBattlegroundScripts()
 #ifdef SCRIPTS
 /* This is where custom scripts' loading functions should be declared. */
 
+void Eluna_AddScriptHooks();
 #endif
 
 void AddCustomScripts()
@@ -1296,5 +1297,6 @@ void AddCustomScripts()
 #ifdef SCRIPTS
     /* This is where custom scripts should be added. */
 
+    Eluna_AddScriptHooks();
 #endif
 }

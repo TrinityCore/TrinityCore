@@ -1,3 +1,9 @@
+#include "MapManager.h"
+#include "SharedDefines.h"
+#include "Guild.h"
+#include "GuildMgr.h"
+#include "AccountMgr.h"
+
 #ifndef __GLOBAL_METHODS_ELUNA
 #define __GLOBAL_METHODS_ELUNA
 

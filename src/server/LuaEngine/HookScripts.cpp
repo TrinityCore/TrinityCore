@@ -1,264 +1,167 @@
-#include "ScriptPCH.h"
-#include "ScriptMgr.h"
+#include "HookMgr.h"
 #include "LuaEngine.h"
-#include "LuaHooks.h"
 
-/* Item & player Gossip */
-void HandleGossipSelectOption(Player* player, uint64 guid, uint32 sender, uint32 action, std::string code, uint32 menuId)
+class Eluna_HookScript : public HookScript
 {
-    if (!player || !player->IsInWorld() || !player->isAlive() || player->GetCharmerGUID())
-        return;
-
-    if (player->HasUnitState(UNIT_STATE_DIED))
-        player->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
-    player->PlayerTalkClass->ClearMenus();
-
-    if (IS_ITEM_GUID(guid))
+public:
+    Eluna_HookScript() : HookScript() { }
+    // misc
+    void HandleGossipSelectOption(Player* player, uint64 guid, uint32 sender, uint32 action, std::string code, uint32 menuId)
     {
-        Item* item = player->GetItemByGuid(guid);
-        if (!item)
+        if (!player || !player->IsInWorld() || !player->isAlive() || player->GetCharmerGUID())
             return;
 
-        int bind = sEluna->ItemGossipBindings->GetBind(item->GetEntry(), GOSSIP_EVENT_ON_SELECT);
-        if (bind)
+        if (player->HasUnitState(UNIT_STATE_DIED))
+            player->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
+        player->PlayerTalkClass->ClearMenus();
+
+        if (IS_ITEM_GUID(guid))
         {
-            sEluna->BeginCall(bind);
-            sEluna->PushUnsigned(sEluna->LuaState, GOSSIP_EVENT_ON_SELECT);
+            Item* item = player->GetItemByGuid(guid);
+            if (!item)
+                return;
+
+            int bind = sEluna->ItemGossipBindings->GetBind(item->GetEntry(), GOSSIP_EVENT_ON_SELECT);
+            if (bind)
+            {
+                sEluna->BeginCall(bind);
+                sEluna->PushUnsigned(sEluna->LuaState, GOSSIP_EVENT_ON_SELECT);
+                sEluna->PushUnit(sEluna->LuaState, player);
+                sEluna->PushItem(sEluna->LuaState, item);
+                sEluna->PushUnsigned(sEluna->LuaState, sender);
+                sEluna->PushUnsigned(sEluna->LuaState, action);
+                if (code.empty())
+                    lua_pushnil(sEluna->LuaState);
+                else
+                    sEluna->PushString(sEluna->LuaState, code.c_str());
+                sEluna->ExecuteCall(6, 0);
+            }
+        }
+        else if (IS_PLAYER_GUID(guid))
+        {
+            if (player->GetGUID() != guid)
+                return;
+
+            int bind = sEluna->playerGossipBindings->GetBind(menuId, GOSSIP_EVENT_ON_SELECT);
+            if (bind)
+            {
+                sEluna->BeginCall(bind);
+                sEluna->PushUnsigned(sEluna->LuaState, GOSSIP_EVENT_ON_SELECT);
+                sEluna->PushUnit(sEluna->LuaState, player); // receiver
+                sEluna->PushUnit(sEluna->LuaState, player); // sender, just not to mess up the amount of args.
+                sEluna->PushUnsigned(sEluna->LuaState, sender);
+                sEluna->PushUnsigned(sEluna->LuaState, action);
+                if (code.empty())
+                    lua_pushnil(sEluna->LuaState);
+                else
+                    sEluna->PushString(sEluna->LuaState, code.c_str());
+                sEluna->PushUnsigned(sEluna->LuaState, menuId);
+                sEluna->ExecuteCall(7, 0);
+            }
+        }
+    }
+    bool OnChat(uint32 eventId, Player* player, uint32 type, uint32 lang, std::string& msg)
+    {
+        bool Result = true;
+        for (vector<int>::iterator itr = sEluna->ServerEventBindings.at(eventId).begin();
+            itr != sEluna->ServerEventBindings.at(eventId).end(); ++itr)
+        {
+            sEluna->BeginCall((*itr));
+            sEluna->PushUnsigned(sEluna->LuaState, eventId);
             sEluna->PushUnit(sEluna->LuaState, player);
-            sEluna->PushItem(sEluna->LuaState, item);
-            sEluna->PushUnsigned(sEluna->LuaState, sender);
-            sEluna->PushUnsigned(sEluna->LuaState, action);
-            if (code.empty())
-                lua_pushnil(sEluna->LuaState);
-            else
-                sEluna->PushString(sEluna->LuaState, code.c_str());
-            sEluna->ExecuteCall(6, 0);
+            sEluna->PushString(sEluna->LuaState, msg.c_str());
+            sEluna->PushUnsigned(sEluna->LuaState, type);
+            sEluna->PushUnsigned(sEluna->LuaState, lang);
+            if (sEluna->ExecuteCall(5, 1))
+            {
+                lua_State* L = sEluna->LuaState;
+                if (!lua_isnoneornil(L, 1) && !lua_toboolean(L, 1))
+                    Result = false;
+                sEluna->EndCall(1);
+            }
         }
+        return Result;
     }
-    else if (IS_PLAYER_GUID(guid))
+    bool OnChat(uint32 eventId, Player* player, uint32 type, uint32 lang, std::string& msg, Group* group)
     {
-        if (player->GetGUID() != guid)
-            return;
-
-        int bind = sEluna->playerGossipBindings->GetBind(menuId, GOSSIP_EVENT_ON_SELECT);
-        if (bind)
+        bool Result = true;
+        for (vector<int>::iterator itr = sEluna->ServerEventBindings.at(eventId).begin();
+            itr != sEluna->ServerEventBindings.at(eventId).end(); ++itr)
         {
-            sEluna->BeginCall(bind);
-            sEluna->PushUnsigned(sEluna->LuaState, GOSSIP_EVENT_ON_SELECT);
-            sEluna->PushUnit(sEluna->LuaState, player); // receiver
-            sEluna->PushUnit(sEluna->LuaState, player); // sender, just not to mess up the amount of args.
-            sEluna->PushUnsigned(sEluna->LuaState, sender);
-            sEluna->PushUnsigned(sEluna->LuaState, action);
-            if (code.empty())
-                lua_pushnil(sEluna->LuaState);
-            else
-                sEluna->PushString(sEluna->LuaState, code.c_str());
-            sEluna->PushUnsigned(sEluna->LuaState, menuId);
-            sEluna->ExecuteCall(7, 0);
+            sEluna->BeginCall((*itr));
+            sEluna->PushUnsigned(sEluna->LuaState, eventId);
+            sEluna->PushUnit(sEluna->LuaState, player);
+            sEluna->PushString(sEluna->LuaState, msg.c_str());
+            sEluna->PushUnsigned(sEluna->LuaState, type);
+            sEluna->PushUnsigned(sEluna->LuaState, lang);
+            sEluna->PushGroup(sEluna->LuaState, group);
+            if (sEluna->ExecuteCall(6, 1))
+            {
+                lua_State* L = sEluna->LuaState;
+                if (!lua_isnoneornil(L, 1) && !lua_toboolean(L, 1))
+                    Result = false;
+                sEluna->EndCall(1);
+            }
         }
+        return Result;
     }
-}
-
-bool OnChat(uint32 eventId, Player* player, uint32 type, uint32 lang, std::string& msg)
-{
-    bool Result = true;
-    for (vector<int>::iterator itr = sEluna->ServerEventBindings.at(eventId).begin();
-        itr != sEluna->ServerEventBindings.at(eventId).end(); ++itr)
+    bool OnChat(uint32 eventId, Player* player, uint32 type, uint32 lang, std::string& msg, Guild* guild)
     {
-        sEluna->BeginCall((*itr));
-        sEluna->PushUnsigned(sEluna->LuaState, eventId);
-        sEluna->PushUnit(sEluna->LuaState, player);
-        sEluna->PushString(sEluna->LuaState, msg.c_str());
-        sEluna->PushUnsigned(sEluna->LuaState, type);
-        sEluna->PushUnsigned(sEluna->LuaState, lang);
-        if (sEluna->ExecuteCall(5, 1))
+        bool Result = true;
+        for (vector<int>::iterator itr = sEluna->ServerEventBindings.at(eventId).begin();
+            itr != sEluna->ServerEventBindings.at(eventId).end(); ++itr)
         {
-            lua_State* L = sEluna->LuaState;
-            if (!lua_isnoneornil(L, 1) && !lua_toboolean(L, 1))
-                Result = false;
-            sEluna->EndCall(1);
+            sEluna->BeginCall((*itr));
+            sEluna->PushUnsigned(sEluna->LuaState, eventId);
+            sEluna->PushUnit(sEluna->LuaState, player);
+            sEluna->PushString(sEluna->LuaState, msg.c_str());
+            sEluna->PushUnsigned(sEluna->LuaState, type);
+            sEluna->PushUnsigned(sEluna->LuaState, lang);
+            sEluna->PushGuild(sEluna->LuaState, guild);
+            if (sEluna->ExecuteCall(6, 1))
+            {
+                lua_State* L = sEluna->LuaState;
+                if (!lua_isnoneornil(L, 1) && !lua_toboolean(L, 1))
+                    Result = false;
+                sEluna->EndCall(1);
+            }
         }
+        return Result;
     }
-    return Result;
-}
-
-bool OnChat(uint32 eventId, Player* player, uint32 type, uint32 lang, std::string& msg, Group* group)
-{
-    bool Result = true;
-    for (vector<int>::iterator itr = sEluna->ServerEventBindings.at(eventId).begin();
-        itr != sEluna->ServerEventBindings.at(eventId).end(); ++itr)
+    bool OnChat(uint32 eventId, Player* player, uint32 type, uint32 lang, std::string& msg, Channel* channel)
     {
-        sEluna->BeginCall((*itr));
-        sEluna->PushUnsigned(sEluna->LuaState, eventId);
-        sEluna->PushUnit(sEluna->LuaState, player);
-        sEluna->PushString(sEluna->LuaState, msg.c_str());
-        sEluna->PushUnsigned(sEluna->LuaState, type);
-        sEluna->PushUnsigned(sEluna->LuaState, lang);
-        sEluna->PushGroup(sEluna->LuaState, group);
-        if (sEluna->ExecuteCall(6, 1))
+        bool Result = true;
+        for (vector<int>::iterator itr = sEluna->ServerEventBindings.at(eventId).begin();
+            itr != sEluna->ServerEventBindings.at(eventId).end(); ++itr)
         {
-            lua_State* L = sEluna->LuaState;
-            if (!lua_isnoneornil(L, 1) && !lua_toboolean(L, 1))
-                Result = false;
-            sEluna->EndCall(1);
+            sEluna->BeginCall((*itr));
+            sEluna->PushUnsigned(sEluna->LuaState, eventId);
+            sEluna->PushUnit(sEluna->LuaState, player);
+            sEluna->PushString(sEluna->LuaState, msg.c_str());
+            sEluna->PushUnsigned(sEluna->LuaState, type);
+            sEluna->PushUnsigned(sEluna->LuaState, lang);
+            sEluna->PushUnsigned(sEluna->LuaState, channel->GetChannelId());
+            if (sEluna->ExecuteCall(6, 1))
+            {
+                lua_State* L = sEluna->LuaState;
+                if (!lua_isnoneornil(L, 1) && !lua_toboolean(L, 1))
+                    Result = false;
+                sEluna->EndCall(1);
+            }
         }
+        return Result;
     }
-    return Result;
-}
-
-bool OnChat(uint32 eventId, Player* player, uint32 type, uint32 lang, std::string& msg, Guild* guild)
-{
-    bool Result = true;
-    for (vector<int>::iterator itr = sEluna->ServerEventBindings.at(eventId).begin();
-        itr != sEluna->ServerEventBindings.at(eventId).end(); ++itr)
+    void OnElunaRestart(uint32 eventId)
     {
-        sEluna->BeginCall((*itr));
-        sEluna->PushUnsigned(sEluna->LuaState, eventId);
-        sEluna->PushUnit(sEluna->LuaState, player);
-        sEluna->PushString(sEluna->LuaState, msg.c_str());
-        sEluna->PushUnsigned(sEluna->LuaState, type);
-        sEluna->PushUnsigned(sEluna->LuaState, lang);
-        sEluna->PushGuild(sEluna->LuaState, guild);
-        if (sEluna->ExecuteCall(6, 1))
+        for (vector<int>::iterator itr = sEluna->ServerEventBindings.at(eventId).begin();
+            itr != sEluna->ServerEventBindings.at(eventId).end(); ++itr)
         {
-            lua_State* L = sEluna->LuaState;
-            if (!lua_isnoneornil(L, 1) && !lua_toboolean(L, 1))
-                Result = false;
-            sEluna->EndCall(1);
+            sEluna->BeginCall((*itr));
+            sEluna->PushUnsigned(sEluna->LuaState, eventId);
+            sEluna->ExecuteCall(1, 0);
         }
     }
-    return Result;
-}
-
-bool OnChat(uint32 eventId, Player* player, uint32 type, uint32 lang, std::string& msg, Channel* channel)
-{
-    bool Result = true;
-    for (vector<int>::iterator itr = sEluna->ServerEventBindings.at(eventId).begin();
-        itr != sEluna->ServerEventBindings.at(eventId).end(); ++itr)
-    {
-        sEluna->BeginCall((*itr));
-        sEluna->PushUnsigned(sEluna->LuaState, eventId);
-        sEluna->PushUnit(sEluna->LuaState, player);
-        sEluna->PushString(sEluna->LuaState, msg.c_str());
-        sEluna->PushUnsigned(sEluna->LuaState, type);
-        sEluna->PushUnsigned(sEluna->LuaState, lang);
-        sEluna->PushUnsigned(sEluna->LuaState, channel->GetChannelId());
-        if (sEluna->ExecuteCall(6, 1))
-        {
-            lua_State* L = sEluna->LuaState;
-            if (!lua_isnoneornil(L, 1) && !lua_toboolean(L, 1))
-                Result = false;
-            sEluna->EndCall(1);
-        }
-    }
-    return Result;
-}
-
-void OnElunaRestart(uint32 eventId)
-{
-    for (vector<int>::iterator itr = sEluna->ServerEventBindings.at(eventId).begin();
-        itr != sEluna->ServerEventBindings.at(eventId).end(); ++itr)
-    {
-        sEluna->BeginCall((*itr));
-        sEluna->PushUnsigned(sEluna->LuaState, eventId);
-        sEluna->ExecuteCall(1, 0);
-    }
-}
-
-class Eluna_ServerScript : public ServerScript
-{
-public:
-    Eluna_ServerScript() : ServerScript("Eluna_ServerScript") { }
-    void OnNetworkStart()
-    {
-    }
-    void OnNetworkStop()
-    {
-    }
-    void OnSocketOpen(WorldSocket* socket)
-    {
-    }
-    void OnSocketClose(WorldSocket* socket, bool wasNew)
-    {
-    }
-    void OnPacketReceive(WorldSocket* socket, WorldPacket& packet)
-    {
-    }
-    void OnPacketSend(WorldSocket* socket, WorldPacket& packet)
-    {
-    }
-    void OnUnknownPacketReceive(WorldSocket* socket, WorldPacket& packet)
-    {
-    }
-};
-class Eluna_FormulaScript : public FormulaScript
-{
-public:
-    Eluna_FormulaScript() : FormulaScript("Eluna_FormulaScript") { }
-    void OnHonorCalculation(float& honor, uint8 level, float multiplier)
-    {
-    }
-    void OnGrayLevelCalculation(uint8& grayLevel, uint8 playerLevel)
-    {
-    }
-    void OnColorCodeCalculation(XPColorChar& color, uint8 playerLevel, uint8 mobLevel)
-    {
-    }
-    void OnZeroDifferenceCalculation(uint8& diff, uint8 playerLevel)
-    {
-    }
-    void OnBaseGainCalculation(uint32& gain, uint8 playerLevel, uint8 mobLevel, ContentLevels content)
-    {
-    }
-    void OnGainCalculation(uint32& gain, Player* player, Unit* unit)
-    {
-    }
-    void OnGroupRateCalculation(float& rate, uint32 count, bool isRaid)
-    {
-    }
-};
-/*
-class Eluna_MapScript : public WorldMapScript
-{
-public:
-    Eluna_MapScript() : WorldMapScript("Eluna_MapScript", 123) { }
-    void OnCreateMap(Map* map)
-    {
-    }
-    void OnDestroyMap(Map* map)
-    {
-    }
-    void OnLoadGridMap(Map* map, GridMap* gmap, uint32 gx, uint32 gy)
-    {
-    }
-    void OnUnloadGridMap(Map* map, GridMap* gmap, uint32 gx, uint32 gy)
-    {
-    }
-    void OnPlayerEnterMap(Map* map, Player* player)
-    {
-    }
-    void OnPlayerLeaveMap(Map* map, Player* player)
-    {
-    }
-    void OnMapUpdate(Map* map, uint32 diff)
-    {
-    }
-};
-*/
-/*
-class Eluna_InstanceMapScript : public InstanceMapScript
-{
-public:
-    Eluna_InstanceMapScript() : InstanceMapScript("Eluna_InstanceMapScript") { }
-    InstanceScript* CreateInstanceData(InstanceMap* map)
-    {
-    }
-};
-*/
-class Eluna_ItemScript : public ItemScript
-{
-public:
-    Eluna_ItemScript() : ItemScript("Eluna_ItemScript") { }
+    // item
     bool OnDummyEffect(Unit* caster, uint32 spellId, SpellEffIndex effIndex, Item* target)
     {
         int bind = sEluna->ItemEventBindings->GetBind(target->GetEntry(), ITEM_EVENT_ON_DUMMY_EFFECT);
@@ -286,7 +189,7 @@ public:
         sEluna->ExecuteCall(4, 0);
         return true;
     }
-    bool OnItemUse(Player* player, Item* item, SpellCastTargets const& targets)
+    bool OnUse(Player* player, Item* item, SpellCastTargets const& targets)
     {
         int bind1 = sEluna->ItemGossipBindings->GetBind(item->GetEntry(), GOSSIP_EVENT_ON_HELLO);
         int bind2 = sEluna->ItemEventBindings->GetBind(item->GetEntry(), ITEM_EVENT_ON_USE);
@@ -319,7 +222,7 @@ public:
         }
         return true;
     }
-    bool OnItemExpire(Player* player, ItemTemplate const* proto)
+    bool OnExpire(Player* player, ItemTemplate const* proto)
     {
         int bind = sEluna->ItemEventBindings->GetBind(proto->ItemId, ITEM_EVENT_ON_EXPIRE);
         if (!bind)
@@ -331,11 +234,7 @@ public:
         sEluna->ExecuteCall(3, 0);
         return true;
     }
-};
-class Eluna_CreatureScript : public CreatureScript
-{
-public:
-    Eluna_CreatureScript() : CreatureScript("Eluna_CreatureScript") { }
+    // creature
     bool OnDummyEffect(Unit* caster, uint32 spellId, SpellEffIndex effIndex, Creature* target)
     {
         int bind = sEluna->CreatureEventBindings->GetBind(target->GetEntry(), CREATURE_EVENT_ON_DUMMY_EFFECT);
@@ -459,13 +358,7 @@ public:
         sEluna->ExecuteCall(3, 0);
         return 100;
     }
-};
-class Eluna_GameObjectScript : public GameObjectScript
-{
-public:
-    Eluna_GameObjectScript() : GameObjectScript("Eluna_GameObjectScript") { }
-    bool IsDatabaseBound() const { return false; }
-
+    // gameobject
     bool OnDummyEffect(Unit* caster, uint32 spellId, SpellEffIndex effIndex, GameObject* target)
     {
         int bind = sEluna->GameObjectEventBindings->GetBind(target->GetEntry(), GAMEOBJECT_EVENT_ON_DUMMY_EFFECT);
@@ -563,7 +456,7 @@ public:
         sEluna->ExecuteCall(3, 0);
         return 100;
     }
-    void OnGameObjectDestroyed(GameObject* go, Player* player)
+    void OnDestroyed(GameObject* go, Player* player)
     {
         int bind = sEluna->GameObjectEventBindings->GetBind(go->GetEntry(), GAMEOBJECT_EVENT_ON_DESTROYED);
         if (!bind)
@@ -574,7 +467,7 @@ public:
         sEluna->PushUnit(sEluna->LuaState, player);
         sEluna->ExecuteCall(3, 0);
     }
-    void OnGameObjectDamaged(GameObject* go, Player* player)
+    void OnDamaged(GameObject* go, Player* player)
     {
         int bind = sEluna->GameObjectEventBindings->GetBind(go->GetEntry(), GAMEOBJECT_EVENT_ON_DAMAGED);
         if (!bind)
@@ -585,7 +478,7 @@ public:
         sEluna->PushUnit(sEluna->LuaState, player);
         sEluna->ExecuteCall(3, 0);
     }
-    void OnGameObjectLootStateChanged(GameObject* go, uint32 state, Unit* unit)
+    void OnLootStateChanged(GameObject* go, uint32 state, Unit* unit)
     {
         int bind = sEluna->GameObjectEventBindings->GetBind(go->GetEntry(), GAMEOBJECT_EVENT_ON_LOOT_STATE_CHANGE);
         if (!bind)
@@ -608,12 +501,8 @@ public:
         sEluna->PushUnsigned(sEluna->LuaState, state);
         sEluna->ExecuteCall(3, 0);
     }
-};
-class Eluna_AreaTriggerScript : public AreaTriggerScript
-{
-public:
-    Eluna_AreaTriggerScript() : AreaTriggerScript("Eluna_AreaTriggerScript") { }
-    bool OnAreaTrigger(Player* player, AreaTriggerEntry const* trigger)
+    // areatrigger
+    bool OnTrigger(Player* player, AreaTriggerEntry const* trigger)
     {
         for (vector<int>::iterator itr = sEluna->ServerEventBindings.at(TRIGGER_EVENT_ON_TRIGGER).begin();
             itr != sEluna->ServerEventBindings.at(TRIGGER_EVENT_ON_TRIGGER).end(); ++itr)
@@ -626,12 +515,8 @@ public:
         }
         return false;
     }
-};
-class Eluna_WeatherScript : public WeatherScript
-{
-public:
-    Eluna_WeatherScript() : WeatherScript("Eluna_WeatherScript") { }
-    void OnWeatherChange(Weather* weather, WeatherState state, float grade)
+    // weather
+    void OnChange(Weather* weather, WeatherState state, float grade)
     {
         for (vector<int>::iterator itr = sEluna->ServerEventBindings.at(WEATHER_EVENT_ON_CHANGE).begin();
             itr != sEluna->ServerEventBindings.at(WEATHER_EVENT_ON_CHANGE).end(); ++itr)
@@ -644,10 +529,137 @@ public:
             sEluna->ExecuteCall(4, 0);
         }
     }
-    void OnWeatherUpdate(Weather* weather, uint32 diff)
+    // condition
+    bool OnConditionCheck(Condition* condition, ConditionSourceInfo& sourceInfo)
+    {
+        return true;
+    }
+    // transport
+    void OnAddPassenger(Transport* transport, Player* player)
+    {
+    }
+    void OnAddCreaturePassenger(Transport* transport, Creature* creature)
+    {
+    }
+    void OnRemovePassenger(Transport* transport, Player* player)
+    {
+    }
+    void OnRelocate(Transport* transport, uint32 waypointId, uint32 mapId, float x, float y, float z)
     {
     }
 };
+
+class Eluna_ServerScript : public ServerScript
+{
+public:
+    Eluna_ServerScript() : ServerScript("Eluna_ServerScript") { }
+    void OnNetworkStart()
+    {
+    }
+    void OnNetworkStop()
+    {
+    }
+    void OnSocketOpen(WorldSocket* socket)
+    {
+    }
+    void OnSocketClose(WorldSocket* socket, bool wasNew)
+    {
+    }
+    void OnPacketSend(WorldSocket* socket, WorldPacket& packet)
+    {
+    }
+    void OnPacketReceive(WorldSocket* socket, WorldPacket& packet)
+    {
+    }
+    void OnUnknownPacketReceive(WorldSocket* socket, WorldPacket& packet)
+    {
+    }
+};
+class Eluna_FormulaScript : public FormulaScript
+{
+public:
+    Eluna_FormulaScript() : FormulaScript("Eluna_FormulaScript") { }
+    void OnHonorCalculation(float& honor, uint8 level, float multiplier)
+    {
+    }
+    void OnGrayLevelCalculation(uint8& grayLevel, uint8 playerLevel)
+    {
+    }
+    void OnColorCodeCalculation(XPColorChar& color, uint8 playerLevel, uint8 mobLevel)
+    {
+    }
+    void OnZeroDifferenceCalculation(uint8& diff, uint8 playerLevel)
+    {
+    }
+    void OnBaseGainCalculation(uint32& gain, uint8 playerLevel, uint8 mobLevel, ContentLevels content)
+    {
+    }
+    void OnGainCalculation(uint32& gain, Player* player, Unit* unit)
+    {
+    }
+    void OnGroupRateCalculation(float& rate, uint32 count, bool isRaid)
+    {
+    }
+};
+/*
+class Eluna_MapScript : public WorldMapScript
+{
+public:
+Eluna_MapScript() : WorldMapScript("Eluna_MapScript", 123) { }
+void OnCreate(Map* map)
+{
+}
+void OnDestroy(Map* map)
+{
+}
+void OnLoadGridMap(Map* map, GridMap* gmap, uint32 gx, uint32 gy)
+{
+}
+void OnUnloadGridMap(Map* map, GridMap* gmap, uint32 gx, uint32 gy)
+{
+}
+void OnPlayerEnter(Map* map, Player* player)
+{
+}
+void OnPlayerLeave(Map* map, Player* player)
+{
+}
+void OnUpdate(Map* map, uint32 diff)
+{
+}
+};
+*/
+/*
+class Eluna_InstanceMapScript : public InstanceMapScript
+{
+public:
+Eluna_InstanceMapScript() : InstanceMapScript("Eluna_InstanceMapScript") { }
+InstanceScript* GetInstanceScript(InstanceMap* map)
+{
+}
+void OnCreate(Map* map)
+{
+}
+void OnDestroy(Map* map)
+{
+}
+void OnLoadGridMap(Map* map, GridMap* gmap, uint32 gx, uint32 gy)
+{
+}
+void OnUnloadGridMap(Map* map, GridMap* gmap, uint32 gx, uint32 gy)
+{
+}
+void OnPlayerEnter(Map* map, Player* player)
+{
+}
+void OnPlayerLeave(Map* map, Player* player)
+{
+}
+void OnUpdate(Map* map, uint32 diff)
+{
+}
+};
+*/
 class Eluna_AuctionHouseScript : public AuctionHouseScript
 {
 public:
@@ -697,14 +709,6 @@ public:
     {
     }
 };
-class Eluna_DynamicObjectScript : public DynamicObjectScript
-{
-public:
-    Eluna_DynamicObjectScript() : DynamicObjectScript("Eluna_DynamicObjectScript") { }
-    void OnDynamicObjectUpdate(DynamicObject* dynobj, uint32 diff)
-    {
-    }
-};
 class Eluna_TransportScript : public TransportScript
 {
 public:
@@ -716,9 +720,6 @@ public:
     {
     }
     void OnRemovePassenger(Transport* transport, Player* player)
-    {
-    }
-    void OnTransportUpdate(Transport* transport, uint32 diff)
     {
     }
     void OnRelocate(Transport* transport, uint32 waypointId, uint32 mapId, float x, float y, float z)
@@ -765,7 +766,7 @@ public:
             sEluna->ExecuteCall(3, 0);
         }
     }
-    void OnPlayerLevelChanged(Player* player, uint8 oldLevel)
+    void OnLevelChanged(Player* player, uint8 oldLevel)
     {
         for (vector<int>::iterator itr = sEluna->ServerEventBindings.at(PLAYER_EVENT_ON_LEVEL_CHANGE).begin();
             itr != sEluna->ServerEventBindings.at(PLAYER_EVENT_ON_LEVEL_CHANGE).end(); ++itr)
@@ -777,7 +778,7 @@ public:
             sEluna->ExecuteCall(3, 0);
         }
     }
-    void OnPlayerFreeTalentPointsChanged(Player* player, uint32 newPoints)
+    void OnFreeTalentPointsChanged(Player* player, uint32 newPoints)
     {
         for (vector<int>::iterator itr = sEluna->ServerEventBindings.at(PLAYER_EVENT_ON_TALENTS_CHANGE).begin();
             itr != sEluna->ServerEventBindings.at(PLAYER_EVENT_ON_TALENTS_CHANGE).end(); ++itr)
@@ -789,7 +790,7 @@ public:
             sEluna->ExecuteCall(3, 0);
         }
     }
-    void OnPlayerTalentsReset(Player* player, bool noCost)
+    void OnTalentsReset(Player* player, bool noCost)
     {
         for (vector<int>::iterator itr = sEluna->ServerEventBindings.at(PLAYER_EVENT_ON_TALENTS_RESET).begin();
             itr != sEluna->ServerEventBindings.at(PLAYER_EVENT_ON_TALENTS_RESET).end(); ++itr)
@@ -801,7 +802,7 @@ public:
             sEluna->ExecuteCall(3, 0);
         }
     }
-    void OnPlayerMoneyChanged(Player* player, int32& amount)
+    void OnMoneyChanged(Player* player, int32& amount)
     {
         for (vector<int>::iterator itr = sEluna->ServerEventBindings.at(PLAYER_EVENT_ON_MONEY_CHANGE).begin();
             itr != sEluna->ServerEventBindings.at(PLAYER_EVENT_ON_MONEY_CHANGE).end(); ++itr)
@@ -813,7 +814,7 @@ public:
             sEluna->ExecuteCall(3, 0);
         }
     }
-    void OnGivePlayerXP(Player* player, uint32& amount, Unit* victim)
+    void OnGiveXP(Player* player, uint32& amount, Unit* victim)
     {
         for (vector<int>::iterator itr = sEluna->ServerEventBindings.at(PLAYER_EVENT_ON_GIVE_XP).begin();
             itr != sEluna->ServerEventBindings.at(PLAYER_EVENT_ON_GIVE_XP).end(); ++itr)
@@ -826,7 +827,7 @@ public:
             sEluna->ExecuteCall(4, 0);
         }
     }
-    void OnPlayerReputationChange(Player* player, uint32 factionID, int32& standing, bool incremental)
+    void OnReputationChange(Player* player, uint32 factionID, int32& standing, bool incremental)
     {
         for (vector<int>::iterator itr = sEluna->ServerEventBindings.at(PLAYER_EVENT_ON_REPUTATION_CHANGE).begin();
             itr != sEluna->ServerEventBindings.at(PLAYER_EVENT_ON_REPUTATION_CHANGE).end(); ++itr)
@@ -840,7 +841,7 @@ public:
             sEluna->ExecuteCall(5, 0);
         }
     }
-    void OnPlayerDuelRequest(Player* target, Player* challenger)
+    void OnDuelRequest(Player* target, Player* challenger)
     {
         for (vector<int>::iterator itr = sEluna->ServerEventBindings.at(PLAYER_EVENT_ON_DUEL_REQUEST).begin();
             itr != sEluna->ServerEventBindings.at(PLAYER_EVENT_ON_DUEL_REQUEST).end(); ++itr)
@@ -852,7 +853,7 @@ public:
             sEluna->ExecuteCall(3, 0);
         }
     }
-    void OnPlayerDuelStart(Player* player1, Player* player2)
+    void OnDuelStart(Player* player1, Player* player2)
     {
         for (vector<int>::iterator itr = sEluna->ServerEventBindings.at(PLAYER_EVENT_ON_DUEL_START).begin();
             itr != sEluna->ServerEventBindings.at(PLAYER_EVENT_ON_DUEL_START).end(); ++itr)
@@ -864,7 +865,7 @@ public:
             sEluna->ExecuteCall(3, 0);
         }
     }
-    void OnPlayerDuelEnd(Player* winner, Player* loser, DuelCompleteType type)
+    void OnDuelEnd(Player* winner, Player* loser, DuelCompleteType type)
     {
         for (vector<int>::iterator itr = sEluna->ServerEventBindings.at(PLAYER_EVENT_ON_DUEL_END).begin();
             itr != sEluna->ServerEventBindings.at(PLAYER_EVENT_ON_DUEL_END).end(); ++itr)
@@ -877,10 +878,11 @@ public:
             sEluna->ExecuteCall(4, 0);
         }
     }
-    void OnPlayerChat(Player* player, uint32 type, uint32 lang, std::string& msg)
+    void OnChat(Player* player, uint32 type, uint32 lang, std::string& msg)
     {
+        // implemented in ChatHandler.cpp
     }
-    void OnPlayerChat(Player* player, uint32 type, uint32 lang, std::string& msg, Player* receiver)
+    void OnChat(Player* player, uint32 type, uint32 lang, std::string& msg, Player* receiver)
     {
         for (vector<int>::iterator itr = sEluna->ServerEventBindings.at(PLAYER_EVENT_ON_WHISPER).begin();
             itr != sEluna->ServerEventBindings.at(PLAYER_EVENT_ON_WHISPER).end(); ++itr)
@@ -895,16 +897,19 @@ public:
             sEluna->ExecuteCall(6, 0);
         }
     }
-    void OnPlayerChat(Player* player, uint32 type, uint32 lang, std::string& msg, Group* group)
+    void OnChat(Player* player, uint32 type, uint32 lang, std::string& msg, Group* group)
     {
+        // implemented in ChatHandler.cpp
     }
-    void OnPlayerChat(Player* player, uint32 type, uint32 lang, std::string& msg, Guild* guild)
+    void OnChat(Player* player, uint32 type, uint32 lang, std::string& msg, Guild* guild)
     {
+        // implemented in ChatHandler.cpp
     }
-    void OnPlayerChat(Player* player, uint32 type, uint32 lang, std::string& msg, Channel* channel)
+    void OnChat(Player* player, uint32 type, uint32 lang, std::string& msg, Channel* channel)
     {
+        // implemented in ChatHandler.cpp
     }
-    void OnPlayerEmote(Player* player, uint32 emote)
+    void OnEmote(Player* player, uint32 emote)
     {
         for (vector<int>::iterator itr = sEluna->ServerEventBindings.at(PLAYER_EVENT_ON_EMOTE).begin();
             itr != sEluna->ServerEventBindings.at(PLAYER_EVENT_ON_EMOTE).end(); ++itr)
@@ -916,7 +921,7 @@ public:
             sEluna->ExecuteCall(3, 0);
         }
     }
-    void OnPlayerTextEmote(Player* player, uint32 textEmote, uint32 emoteNum, uint64 guid)
+    void OnTextEmote(Player* player, uint32 textEmote, uint32 emoteNum, uint64 guid)
     {
         for (vector<int>::iterator itr = sEluna->ServerEventBindings.at(PLAYER_EVENT_ON_TEXT_EMOTE).begin();
             itr != sEluna->ServerEventBindings.at(PLAYER_EVENT_ON_TEXT_EMOTE).end(); ++itr)
@@ -930,7 +935,7 @@ public:
             sEluna->ExecuteCall(5, 0);
         }
     }
-    void OnPlayerSpellCast(Player* player, Spell* spell, bool skipCheck)
+    void OnSpellCast(Player* player, Spell* spell, bool skipCheck)
     {
         for (vector<int>::iterator itr = sEluna->ServerEventBindings.at(PLAYER_EVENT_ON_SPELL_CAST).begin();
             itr != sEluna->ServerEventBindings.at(PLAYER_EVENT_ON_SPELL_CAST).end(); ++itr)
@@ -943,7 +948,7 @@ public:
             sEluna->ExecuteCall(4, 0);
         }
     }
-    void OnPlayerLogin(Player* player)
+    void OnLogin(Player* player)
     {
         for (vector<int>::iterator itr = sEluna->ServerEventBindings.at(PLAYER_EVENT_ON_LOGIN).begin();
             itr != sEluna->ServerEventBindings.at(PLAYER_EVENT_ON_LOGIN).end(); ++itr)
@@ -954,7 +959,7 @@ public:
             sEluna->ExecuteCall(2, 0);
         }
     }
-    void OnPlayerLogout(Player* player)
+    void OnLogout(Player* player)
     {
         for (vector<int>::iterator itr = sEluna->ServerEventBindings.at(PLAYER_EVENT_ON_LOGOUT).begin();
             itr != sEluna->ServerEventBindings.at(PLAYER_EVENT_ON_LOGOUT).end(); ++itr)
@@ -965,7 +970,7 @@ public:
             sEluna->ExecuteCall(2, 0);
         }
     }
-    void OnPlayerCreate(Player* player)
+    void OnCreate(Player* player)
     {
         for (vector<int>::iterator itr = sEluna->ServerEventBindings.at(PLAYER_EVENT_ON_CHARACTER_CREATE).begin();
             itr != sEluna->ServerEventBindings.at(PLAYER_EVENT_ON_CHARACTER_CREATE).end(); ++itr)
@@ -976,7 +981,7 @@ public:
             sEluna->ExecuteCall(2, 0);
         }
     }
-    void OnPlayerDelete(uint64 guid)
+    void OnDelete(uint64 guid)
     {
         for (vector<int>::iterator itr = sEluna->ServerEventBindings.at(PLAYER_EVENT_ON_CHARACTER_DELETE).begin();
             itr != sEluna->ServerEventBindings.at(PLAYER_EVENT_ON_CHARACTER_DELETE).end(); ++itr)
@@ -987,7 +992,7 @@ public:
             sEluna->ExecuteCall(2, 0);
         }
     }
-    void OnPlayerSave(Player* player)
+    void OnSave(Player* player)
     {
         for (vector<int>::iterator itr = sEluna->ServerEventBindings.at(PLAYER_EVENT_ON_SAVE).begin();
             itr != sEluna->ServerEventBindings.at(PLAYER_EVENT_ON_SAVE).end(); ++itr)
@@ -998,7 +1003,7 @@ public:
             sEluna->ExecuteCall(2, 0);
         }
     }
-    void OnPlayerBindToInstance(Player* player, Difficulty difficulty, uint32 mapid, bool permanent)
+    void OnBindToInstance(Player* player, Difficulty difficulty, uint32 mapid, bool permanent)
     {
         for (vector<int>::iterator itr = sEluna->ServerEventBindings.at(PLAYER_EVENT_ON_BIND_TO_INSTANCE).begin();
             itr != sEluna->ServerEventBindings.at(PLAYER_EVENT_ON_BIND_TO_INSTANCE).end(); ++itr)
@@ -1012,7 +1017,7 @@ public:
             sEluna->ExecuteCall(5, 0);
         }
     }
-    void OnPlayerUpdateZone(Player* player, uint32 newZone, uint32 newArea)
+    void OnUpdateZone(Player* player, uint32 newZone, uint32 newArea)
     {
         for (vector<int>::iterator itr = sEluna->ServerEventBindings.at(PLAYER_EVENT_ON_UPDATE_ZONE).begin();
             itr != sEluna->ServerEventBindings.at(PLAYER_EVENT_ON_UPDATE_ZONE).end(); ++itr)
@@ -1041,7 +1046,7 @@ class Eluna_GuildScript : public GuildScript
 {
 public:
     Eluna_GuildScript() : GuildScript("Eluna_GuildScript") { }
-    void OnGuildAddMember(Guild* guild, Player* player, uint8& plRank)
+    void OnAddMember(Guild* guild, Player* player, uint8& plRank)
     {
         for (vector<int>::iterator itr = sEluna->ServerEventBindings.at(GUILD_EVENT_ON_ADD_MEMBER).begin();
             itr != sEluna->ServerEventBindings.at(GUILD_EVENT_ON_ADD_MEMBER).end(); ++itr)
@@ -1054,7 +1059,7 @@ public:
             sEluna->ExecuteCall(4, 0);
         }
     }
-    void OnGuildRemoveMember(Guild* guild, Player* player, bool isDisbanding, bool isKicked)
+    void OnRemoveMember(Guild* guild, Player* player, bool isDisbanding, bool isKicked)
     {
         for (vector<int>::iterator itr = sEluna->ServerEventBindings.at(GUILD_EVENT_ON_REMOVE_MEMBER).begin();
             itr != sEluna->ServerEventBindings.at(GUILD_EVENT_ON_REMOVE_MEMBER).end(); ++itr)
@@ -1068,7 +1073,7 @@ public:
             sEluna->ExecuteCall(5, 0);
         }
     }
-    void OnGuildMOTDChanged(Guild* guild, const std::string& newMotd)
+    void OnMOTDChanged(Guild* guild, const std::string& newMotd)
     {
         for (vector<int>::iterator itr = sEluna->ServerEventBindings.at(GUILD_EVENT_ON_MOTD_CHANGE).begin();
             itr != sEluna->ServerEventBindings.at(GUILD_EVENT_ON_MOTD_CHANGE).end(); ++itr)
@@ -1080,7 +1085,7 @@ public:
             sEluna->ExecuteCall(3, 0);
         }
     }
-    void OnGuildInfoChanged(Guild* guild, const std::string& newInfo)
+    void OnInfoChanged(Guild* guild, const std::string& newInfo)
     {
         for (vector<int>::iterator itr = sEluna->ServerEventBindings.at(GUILD_EVENT_ON_INFO_CHANGE).begin();
             itr != sEluna->ServerEventBindings.at(GUILD_EVENT_ON_INFO_CHANGE).end(); ++itr)
@@ -1092,7 +1097,7 @@ public:
             sEluna->ExecuteCall(3, 0);
         }
     }
-    void OnGuildCreate(Guild* guild, Player* leader, const std::string& name)
+    void OnCreate(Guild* guild, Player* leader, const std::string& name)
     {
         for (vector<int>::iterator itr = sEluna->ServerEventBindings.at(GUILD_EVENT_ON_CREATE).begin();
             itr != sEluna->ServerEventBindings.at(GUILD_EVENT_ON_CREATE).end(); ++itr)
@@ -1105,7 +1110,7 @@ public:
             sEluna->ExecuteCall(4, 0);
         }
     }
-    void OnGuildDisband(Guild* guild)
+    void OnDisband(Guild* guild)
     {
         for (vector<int>::iterator itr = sEluna->ServerEventBindings.at(GUILD_EVENT_ON_DISBAND).begin();
             itr != sEluna->ServerEventBindings.at(GUILD_EVENT_ON_DISBAND).end(); ++itr)
@@ -1116,7 +1121,7 @@ public:
             sEluna->ExecuteCall(2, 0);
         }
     }
-    void OnGuildMemberWitdrawMoney(Guild* guild, Player* player, uint32 &amount, bool isRepair)
+    void OnMemberWitdrawMoney(Guild* guild, Player* player, uint32 &amount, bool isRepair)
     {
         for (vector<int>::iterator itr = sEluna->ServerEventBindings.at(GUILD_EVENT_ON_MONEY_WITHDRAW).begin();
             itr != sEluna->ServerEventBindings.at(GUILD_EVENT_ON_MONEY_WITHDRAW).end(); ++itr)
@@ -1130,7 +1135,7 @@ public:
             sEluna->ExecuteCall(5, 0);
         }
     }
-    void OnGuildMemberDepositMoney(Guild* guild, Player* player, uint32 &amount)
+    void OnMemberDepositMoney(Guild* guild, Player* player, uint32 &amount)
     {
         for (vector<int>::iterator itr = sEluna->ServerEventBindings.at(GUILD_EVENT_ON_MONEY_DEPOSIT).begin();
             itr != sEluna->ServerEventBindings.at(GUILD_EVENT_ON_MONEY_DEPOSIT).end(); ++itr)
@@ -1143,7 +1148,7 @@ public:
             sEluna->ExecuteCall(4, 0);
         }
     }
-    void OnGuildItemMove(Guild* guild, Player* player, Item* pItem, bool isSrcBank, uint8 srcContainer, uint8 srcSlotId,
+    void OnItemMove(Guild* guild, Player* player, Item* pItem, bool isSrcBank, uint8 srcContainer, uint8 srcSlotId,
         bool isDestBank, uint8 destContainer, uint8 destSlotId)
     {
         for (vector<int>::iterator itr = sEluna->ServerEventBindings.at(GUILD_EVENT_ON_ITEM_MOVE).begin();
@@ -1163,7 +1168,7 @@ public:
             sEluna->ExecuteCall(10, 0);
         }
     }
-    void OnGuildEvent(Guild* guild, uint8 eventType, uint32 playerGuid1, uint32 playerGuid2, uint8 newRank)
+    void OnEvent(Guild* guild, uint8 eventType, uint32 playerGuid1, uint32 playerGuid2, uint8 newRank)
     {
         for (vector<int>::iterator itr = sEluna->ServerEventBindings.at(GUILD_EVENT_ON_EVENT).begin();
             itr != sEluna->ServerEventBindings.at(GUILD_EVENT_ON_EVENT).end(); ++itr)
@@ -1178,7 +1183,7 @@ public:
             sEluna->ExecuteCall(6, 0);
         }
     }
-    void OnGuildBankEvent(Guild* guild, uint8 eventType, uint8 tabId, uint32 playerGuid, uint32 itemOrMoney, uint16 itemStackCount, uint8 destTabId)
+    void OnBankEvent(Guild* guild, uint8 eventType, uint8 tabId, uint32 playerGuid, uint32 itemOrMoney, uint16 itemStackCount, uint8 destTabId)
     {
         for (vector<int>::iterator itr = sEluna->ServerEventBindings.at(GUILD_EVENT_ON_BANK_EVENT).begin();
             itr != sEluna->ServerEventBindings.at(GUILD_EVENT_ON_BANK_EVENT).end(); ++itr)
@@ -1200,7 +1205,7 @@ class Eluna_GroupScript : public GroupScript
 {
 public:
     Eluna_GroupScript() : GroupScript("Eluna_GroupScript") { }
-    void OnGroupAddMember(Group* group, uint64 guid)
+    void OnAddMember(Group* group, uint64 guid)
     {
         for (vector<int>::iterator itr = sEluna->ServerEventBindings.at(GROUP_EVENT_ON_MEMBER_ADD).begin();
             itr != sEluna->ServerEventBindings.at(GROUP_EVENT_ON_MEMBER_ADD).end(); ++itr)
@@ -1212,7 +1217,7 @@ public:
             sEluna->ExecuteCall(3, 0);
         }
     }
-    void OnGroupInviteMember(Group* group, uint64 guid)
+    void OnInviteMember(Group* group, uint64 guid)
     {
         for (vector<int>::iterator itr = sEluna->ServerEventBindings.at(GROUP_EVENT_ON_MEMBER_INVITE).begin();
             itr != sEluna->ServerEventBindings.at(GROUP_EVENT_ON_MEMBER_INVITE).end(); ++itr)
@@ -1224,7 +1229,7 @@ public:
             sEluna->ExecuteCall(3, 0);
         }
     }
-    void OnGroupRemoveMember(Group* group, uint64 guid, RemoveMethod method, uint64 kicker, const char* reason)
+    void OnRemoveMember(Group* group, uint64 guid, RemoveMethod method, uint64 kicker, const char* reason)
     {
         for (vector<int>::iterator itr = sEluna->ServerEventBindings.at(GROUP_EVENT_ON_MEMBER_REMOVE).begin();
             itr != sEluna->ServerEventBindings.at(GROUP_EVENT_ON_MEMBER_REMOVE).end(); ++itr)
@@ -1239,7 +1244,7 @@ public:
             sEluna->ExecuteCall(6, 0);
         }
     }
-    void OnGroupChangeLeader(Group* group, uint64 newLeaderGuid, uint64 oldLeaderGuid)
+    void OnChangeLeader(Group* group, uint64 newLeaderGuid, uint64 oldLeaderGuid)
     {
         for (vector<int>::iterator itr = sEluna->ServerEventBindings.at(GROUP_EVENT_ON_LEADER_CHANGE).begin();
             itr != sEluna->ServerEventBindings.at(GROUP_EVENT_ON_LEADER_CHANGE).end(); ++itr)
@@ -1252,7 +1257,7 @@ public:
             sEluna->ExecuteCall(4, 0);
         }
     }
-    void OnGroupDisband(Group* group)
+    void OnDisband(Group* group)
     {
         for (vector<int>::iterator itr = sEluna->ServerEventBindings.at(GROUP_EVENT_ON_DISBAND).begin();
             itr != sEluna->ServerEventBindings.at(GROUP_EVENT_ON_DISBAND).end(); ++itr)
@@ -1267,19 +1272,16 @@ public:
 
 void Eluna_AddScriptHooks()
 {
+    // Custom
+    new Eluna_HookScript;
+    // TC
     new Eluna_ServerScript;
     new Eluna_FormulaScript;
     //new Eluna_MapScript;
     //new Eluna_InstanceMapScript;
-    new Eluna_ItemScript;
-    new Eluna_CreatureScript;
-    new Eluna_GameObjectScript;
-    new Eluna_AreaTriggerScript;
-    new Eluna_WeatherScript;
     new Eluna_AuctionHouseScript;
     new Eluna_ConditionScript;
     new Eluna_VehicleScript;
-    new Eluna_DynamicObjectScript;
     new Eluna_TransportScript;
     new Eluna_PlayerScript;
     new Eluna_GuildScript;

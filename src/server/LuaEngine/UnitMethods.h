@@ -18,7 +18,7 @@ public:
     static int SummonGameObject(lua_State* L, Unit* unit)
     {
         TO_UNIT();
-        
+
         uint32 entry = luaL_checkunsigned(L, 1);
         float x = luaL_checknumber(L, 2);
         float y = luaL_checknumber(L, 3);
@@ -48,7 +48,7 @@ public:
     static int Despawn(lua_State* L, Unit* unit)
     {
         TO_CREATURE();
-        
+
         uint32 time = luaL_optunsigned(L, 1, 0);
         creature->DespawnOrUnsummon(time);
         return 0;
@@ -133,7 +133,7 @@ public:
     static int MoveChase(lua_State* L, Unit* unit)
     {
         TO_UNIT();
-        
+
         Unit* target = sEluna->CHECK_UNIT(L, 1);
         float dist = luaL_optnumber(L, 2, 0.0f);
         float angle = luaL_optnumber(L, 3, 0.0f);
@@ -185,7 +185,7 @@ public:
     static int MovePoint(lua_State* L, Unit* unit)
     {
         TO_UNIT();
-        
+
         float id = luaL_checknumber(L, 1);
         float x = luaL_checknumber(L, 2);
         float y = luaL_checknumber(L, 3);
@@ -199,7 +199,7 @@ public:
     static int MoveFollow(lua_State* L, Unit* unit)
     {
         TO_UNIT();
-        
+
         Unit* target = sEluna->CHECK_UNIT(L, 1);
         float dist = luaL_checknumber(L, 2);
         float angle = luaL_checknumber(L, 3);
@@ -241,7 +241,7 @@ public:
     static int SetWalk(lua_State* L, Unit* unit)
     {
         TO_UNIT();
-        
+
         bool enable = luaL_optbool(L, 1, true);
         unit->SetWalk(enable);
         return 0;
@@ -251,7 +251,7 @@ public:
     static int SetSpeed(lua_State* L, Unit* unit)
     {
         TO_UNIT();
-        
+
         uint32 type = luaL_checkunsigned(L, 1);
         float rate = luaL_checknumber(L, 2);
         bool forced = luaL_optbool(L, 3, false);
@@ -1252,17 +1252,17 @@ public:
         return 0;
     }
 
-	// :SendVendorWindow(unit)
-	static int SendVendorWindow(lua_State* L, Unit* unit)
-	{
-		TO_PLAYER();
+    // :SendVendorWindow(unit)
+    static int SendVendorWindow(lua_State* L, Unit* unit)
+    {
+        TO_PLAYER();
 
-		Unit* sendTo = sEluna->CHECK_UNIT(L, 1);
-		if (!sendTo)
-			return 0;
-		player->GetSession()->SendListInventory(sendTo->GetGUID());
-		return 0;
-	}
+        Unit* sendTo = sEluna->CHECK_UNIT(L, 1);
+        if (!sendTo)
+            return 0;
+        player->GetSession()->SendListInventory(sendTo->GetGUID());
+        return 0;
+    }
 
     // GiveCoinage(amount)
     static int GiveCoinage(lua_State* L, Unit* unit)
@@ -1608,7 +1608,7 @@ public:
     static int RemoveEvents(lua_State* L, Unit* unit)
     {
         TO_CREATURE();
-        
+
         Eluna::LuaEventMap* eventMap = sEluna->GetEvents(creature);
         if (eventMap)
             eventMap->LuaEventsReset();

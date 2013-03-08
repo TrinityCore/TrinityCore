@@ -2,7 +2,7 @@
 #define __ELUNA__H
 #include <string>
 #include <map>
-#include "LuaHooks.h"
+#include "HookMgr.h"
 #include "AccountMgr.h"
 #include "Chat.h"
 #include "Channel.h"
@@ -77,7 +77,7 @@ public:
     ElunaBind* ItemEventBindings;
     ElunaBind* ItemGossipBindings;
     ElunaBind* playerGossipBindings;
-    
+
     void StartEluna(bool restart = false);
     static void report(lua_State*);
     void Register(uint8 reg, uint32 id, uint32 evt, int func);
@@ -101,8 +101,8 @@ public:
     void PushQueryResult(lua_State*, QueryResult*);
     void PushAura(lua_State*, Aura*);
     void PushItem(lua_State*, Item*);
-	void PushSpell(lua_State*, Spell*);
-	void PushQuest(lua_State*, Quest const*);
+    void PushSpell(lua_State*, Spell*);
+    void PushQuest(lua_State*, Quest const*);
     void PushPacket(lua_State*, WorldPacket*);
     // Checks
     Player * CHECK_PLAYER(lua_State* L, int narg);
