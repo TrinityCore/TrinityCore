@@ -150,7 +150,7 @@ class boss_skeram : public CreatureScript
                             events.ScheduleEvent(EVENT_ARCANE_EXPLOSION, urand(8000, 18000));
                             break;
                         case EVENT_FULLFILMENT:
-                            // TODO: For some weird reason boss does not cast this
+                            /// @todo For some weird reason boss does not cast this
                             // Spell actually works, tested in duel
                             DoCast(SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true), SPELL_TRUE_FULFILLMENT, true);
                             events.ScheduleEvent(EVENT_FULLFILMENT, urand(20000, 30000));

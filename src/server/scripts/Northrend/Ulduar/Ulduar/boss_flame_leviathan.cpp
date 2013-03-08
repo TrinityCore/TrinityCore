@@ -1176,7 +1176,7 @@ class npc_lorekeeper : public CreatureScript
                             if (Creature* Branz = creature->FindNearestCreature(NPC_BRANZ_BRONZBEARD, 1000, true))
                             {
                                 Delorah->GetMotionMaster()->MovePoint(0, Branz->GetPositionX()-4, Branz->GetPositionY(), Branz->GetPositionZ());
-                                //TODO Delorah->AI()->Talk(xxxx, Branz->GetGUID()); when reached at branz
+                                /// @todo Delorah->AI()->Talk(xxxx, Branz->GetGUID()); when reached at branz
                             }
                         }
                     }
@@ -1608,7 +1608,7 @@ class FlameLeviathanPursuedTargetSelector
 
         bool operator()(WorldObject* target) const
         {
-            //! No players, only vehicles (todo: check if blizzlike)
+            //! No players, only vehicles (@todo check if blizzlike)
             Creature* creatureTarget = target->ToCreature();
             if (!creatureTarget)
                 return true;

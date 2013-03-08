@@ -556,7 +556,7 @@ void WorldSession::HandleCharCreateCallback(PreparedQueryResult result, Characte
                 }
 
                 // need to check team only for first character
-                // TODO: what to if account already has characters of both races?
+                /// @todo what to if account already has characters of both races?
                 if (!allowTwoSideAccounts)
                 {
                     uint32 accTeam = 0;
@@ -575,7 +575,7 @@ void WorldSession::HandleCharCreateCallback(PreparedQueryResult result, Characte
                 }
 
                 // search same race for cinematic or same class if need
-                // TODO: check if cinematic already shown? (already logged in?; cinematic field)
+                /// @todo check if cinematic already shown? (already logged in?; cinematic field)
                 while ((skipCinematics == 1 && !haveSameRace) || createInfo->Class == CLASS_DEATH_KNIGHT)
                 {
                     if (!result->NextRow())

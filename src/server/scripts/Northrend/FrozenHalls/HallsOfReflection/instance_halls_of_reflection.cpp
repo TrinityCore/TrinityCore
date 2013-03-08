@@ -182,7 +182,7 @@ public:
 
         void OnGameObjectCreate(GameObject* go)
         {
-            // TODO: init state depending on encounters
+            /// @todo init state depending on encounters
             switch (go->GetEntry())
             {
                 case GO_FROSTMOURNE:
@@ -364,7 +364,7 @@ public:
             DoUpdateWorldState(WORLD_STATE_HOR_WAVE_COUNT, uiWaveCount);
             HandleGameObject(uiFrontDoor, true);
 
-            // TODO
+            /// @todo
             // in case of wipe, the event is normally restarted by jumping into the center of the room.
             // As I can't find a trigger area there, just respawn Jaina/Sylvanas so the event may be restarted.
             if (Creature* pJaina = instance->GetCreature(uiJainaPart1))
@@ -385,7 +385,7 @@ public:
 
             summoner->SetVisible(true);
 
-            // TODO: do composition at random. # of spawn also depends on uiWaveCount
+            /// @todo do composition at random. # of spawn also depends on uiWaveCount
             // As of now, it is just one of each.
             index = urand(0, ENCOUNTER_WAVE_MERCENARY-1);
             summoner->SummonCreature(NPC_WAVE_MERCENARY, MercenarySpawnPos[index], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 0);
@@ -417,7 +417,7 @@ public:
                     AddWave();
                     break;
                 case EVENT_START_LICH_KING:
-                    // TODO
+                    /// @todo
                     break;
             }
         }

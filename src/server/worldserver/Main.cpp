@@ -141,7 +141,7 @@ extern int main(int argc, char **argv)
     sLog->outInfo(LOG_FILTER_WORLDSERVER, "Using ACE version: %s", ACE_VERSION);
 
     ///- and run the 'Master'
-    /// \todo Why do we need this 'Master'? Can't all of this be in the Main as for Realmd?
+    /// @todo Why do we need this 'Master'? Can't all of this be in the Main as for Realmd?
     int ret = sMaster->Run();
 
     // at sMaster return function exist with codes

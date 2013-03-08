@@ -26,7 +26,7 @@
 /* ScriptData
 SDName: boss_kologarn
 SD%Complete: 90
-SDComment: TODO: Achievements
+SDComment: @todo Achievements
 SDCategory: Ulduar
 EndScriptData */
 
