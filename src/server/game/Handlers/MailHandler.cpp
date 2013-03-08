@@ -165,7 +165,6 @@ void WorldSession::HandleSendMail(WorldPacket& recvData)
     uint8 mailsCount = 0;                                  //do not allow to send to one player more than 100 mails
     uint8 receiverLevel = 0;
     uint32 receiverAccountId = 0;
-    bool canReceiveMailFromOtherFaction = false;
 
     if (receiver)
     {
@@ -173,7 +172,6 @@ void WorldSession::HandleSendMail(WorldPacket& recvData)
         mailsCount = receiver->GetMailSize();
         receiverLevel = receiver->getLevel();
         receiverAccountId = receiver->GetSession()->GetAccountId();
-        canReceiveMailFromOtherFaction = receiver->GetSession()->HasPermission(RBAC_PERM_TWO_SIDE_INTERACTION_MAIL);
     }
     else
     {
@@ -200,7 +198,6 @@ void WorldSession::HandleSendMail(WorldPacket& recvData)
         }
 
         receiverAccountId = sObjectMgr->GetPlayerAccountIdByGUID(receiverGuid);
-        canReceiveMailFromOtherFaction = AccountMgr::HasPermission(receiverAccountId, RBAC_PERM_TWO_SIDE_INTERACTION_MAIL, realmID);
     }
 
     // do not allow to have more than 100 mails in mailbox.. mails count is in opcode uint8!!! - so max can be 255..
@@ -225,10 +222,7 @@ void WorldSession::HandleSendMail(WorldPacket& recvData)
         }
     }
 
-    if (!accountBound && player->GetTeam() != receiverTeam &&              // Sender and reciver are from different faction
-        (!sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_MAIL) || // Config not enabled
-        !HasPermission(RBAC_PERM_TWO_SIDE_INTERACTION_MAIL) ||             // Sender cant mail interact with the other faction
-        !canReceiveMailFromOtherFaction))                                  // Receiver cant mail interact with the other faction
+    if (!accountBound && player->GetTeam() != receiverTeam && !HasPermission(RBAC_PERM_TWO_SIDE_INTERACTION_MAIL))
     {
         player->SendMailResult(0, MAIL_SEND, MAIL_ERR_NOT_YOUR_TEAM);
         return;
@@ -305,7 +299,7 @@ void WorldSession::HandleSendMail(WorldPacket& recvData)
 
     if (items_count > 0 || money > 0)
     {
-        bool log = sWorld->getBoolConfig(CONFIG_GM_LOG_TRADE) && HasPermission(RBAC_PERM_LOG_GM_TRADE);
+        bool log = HasPermission(RBAC_PERM_LOG_GM_TRADE);
         if (items_count > 0)
         {
             for (uint8 i = 0; i < items_count; ++i)
@@ -507,7 +501,7 @@ void WorldSession::HandleMailTakeItem(WorldPacket& recvData)
 
             uint32 sender_accId = 0;
 
-            if (HasPermission(RBAC_PERM_LOG_GM_TRADE) && sWorld->getBoolConfig(CONFIG_GM_LOG_TRADE))
+            if (HasPermission(RBAC_PERM_LOG_GM_TRADE))
             {
                 std::string sender_name;
                 if (receiver)
