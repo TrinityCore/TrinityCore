@@ -983,8 +983,7 @@ void Guild::BankMoveItemData::LogBankEvent(SQLTransaction& trans, MoveItemData* 
 void Guild::BankMoveItemData::LogAction(MoveItemData* pFrom) const
 {
     MoveItemData::LogAction(pFrom);
-    if (!pFrom->IsBank() && sWorld->getBoolConfig(CONFIG_GM_LOG_TRADE) &&
-        m_pPlayer->GetSession()->HasPermission(RBAC_PERM_LOG_GM_TRADE))
+    if (!pFrom->IsBank() && m_pPlayer->GetSession()->HasPermission(RBAC_PERM_LOG_GM_TRADE))
     {
         sLog->outCommand(m_pPlayer->GetSession()->GetAccountId(),
             "GM %s (Account: %u) deposit item: %s (Entry: %d Count: %u) to guild bank (Guild ID: %u)",
@@ -1732,7 +1731,7 @@ void Guild::HandleMemberDepositMoney(WorldSession* session, uint32 amount)
     std::string aux = ByteArrayToHexStr(reinterpret_cast<uint8*>(&amount), 8, true);
     _BroadcastEvent(GE_BANK_MONEY_CHANGED, 0, aux.c_str());
 
-    if (player->GetSession()->HasPermission(RBAC_PERM_LOG_GM_TRADE) && sWorld->getBoolConfig(CONFIG_GM_LOG_TRADE))
+    if (player->GetSession()->HasPermission(RBAC_PERM_LOG_GM_TRADE))
     {
         sLog->outCommand(player->GetSession()->GetAccountId(),
             "GM %s (Account: %u) deposit money (Amount: %u) to guild bank (Guild ID %u)",
