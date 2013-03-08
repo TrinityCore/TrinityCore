@@ -13,6 +13,133 @@
 class LuaUnit
 {
 public:
+    //GetCurrentSpell(type)
+    static int GetCurrentSpell(lua_State* L, Unit* unit)
+    {
+        TO_UNIT();
+
+        uint32 type = luaL_checkunsigned(L, 1);
+        if(type >= CURRENT_MAX_SPELL)
+        {
+            sLog->outError(LOG_FILTER_GENERAL, "Eluna::Invalid spell type (%u) for GetCurrentSpell", type);
+            return 0;
+        }
+        Eluna::get()->PushSpell(L, unit->GetCurrentSpell(type));
+        return 1;
+    }
+
+    //EquipItem(entry/item, slot)
+    static int EquipItem(lua_State* L, Unit* unit)
+    {
+        TO_PLAYER();
+
+        uint16 dest = 0;
+        Item* item = Eluna::get()->CHECK_ITEM(L, 1);
+        uint32 slot = luaL_checkunsigned(L, 2);
+
+        if(slot >= EQUIPMENT_SLOT_END)
+            return 0;
+
+        if(!item)
+        {
+            uint32 entry = luaL_checkunsigned(L, 1);
+            item = Item::CreateItem(entry, 1, player);
+            if(!item)
+                return 0;
+
+            InventoryResult result = player->CanEquipItem(slot, dest, item, false);
+            if(result != EQUIP_ERR_OK)
+            {
+                delete item;
+                return 0;
+            }
+            player->ItemAddedQuestCheck(entry, 1);
+            player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_RECEIVE_EPIC_ITEM, entry, 1);
+        }
+        else
+        {
+            InventoryResult result = player->CanEquipItem(slot, dest, item, false);
+            if(result != EQUIP_ERR_OK)
+                return 0;
+            player->RemoveItem(item->GetBagSlot(), item->GetSlot(), true);
+        }
+
+        Eluna::get()->PushItem(L, player->EquipItem(dest, item, true));
+        return 1;
+    }
+
+    //CanEquipItem(entry/item, slot)
+    static int CanEquipItem(lua_State* L, Unit* unit)
+    {
+        TO_PLAYER_BOOL();
+
+        Item* item = Eluna::get()->CHECK_ITEM(L, 1);
+        uint32 slot = luaL_checkunsigned(L, 2);
+        if(slot >= EQUIPMENT_SLOT_END)
+        {
+            Eluna::get()->PushBoolean(L, false);
+            return 1;
+        }
+
+        if (!item)
+        {
+            uint32 entry = luaL_checkunsigned(L, 1);
+            uint16 dest;
+            InventoryResult msg = player->CanEquipNewItem(slot, dest, entry, false);
+            if (msg != EQUIP_ERR_OK)
+            {
+                Eluna::get()->PushBoolean(L, false);
+                return 1;
+            }
+        }
+        else
+        {
+            uint16 dest;
+            InventoryResult msg = player->CanEquipItem(slot, dest, item, false);
+            if (msg != EQUIP_ERR_OK)
+            {
+                Eluna::get()->PushBoolean(L, false);
+                return 1;
+            }
+        }
+        Eluna::get()->PushBoolean(L, true);
+        return 1;
+    }
+
+    //GetInventoryItem(slot)
+    static int GetInventoryItem(lua_State* L, Unit* unit)
+    {
+        TO_PLAYER();
+
+        uint8 slot = luaL_checkunsigned(L, 1);
+        if (slot >= INVENTORY_SLOT_ITEM_END)
+            return 0;
+
+        Item* item = player->GetItemByPos(INVENTORY_SLOT_BAG_0, slot);
+        Eluna::get()->PushItem(L, item);
+        return 1;
+    }
+
+    //GetBagItem(bagslot, slot)
+    static int GetBagItem(lua_State* L, Unit* unit)
+    {
+        TO_PLAYER();
+
+        uint8 bagslot = luaL_checkunsigned(L, 1);
+        uint32 slot = luaL_checkunsigned(L, 2);
+
+        bagslot += INVENTORY_SLOT_BAG_START;
+        if (bagslot >= INVENTORY_SLOT_BAG_END)
+            return 0;
+
+        Bag* bag = player->GetBagByPos(bagslot);
+        if (!bag || slot >= bag->GetBagSize())
+            return 0;
+
+        Item* item = player->GetItemByPos(bagslot, slot);
+        Eluna::get()->PushItem(L, item);
+        return 1;
+    }
 
     //SpawnGameObject(entry, x, y, z, o[, respawnDelay])
     static int SummonGameObject(lua_State* L, Unit* unit)
