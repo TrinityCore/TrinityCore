@@ -30,7 +30,7 @@ enum Spells
 
 enum Adds
 {
-    MODEL_REND_ON_DRAKE             = 9723, // TODO: use creature_template 10459 instead of its modelid
+    MODEL_REND_ON_DRAKE             = 9723, /// @todo use creature_template 10459 instead of its modelid
     NPC_RAGE_TALON_FIRE_TONG        = 10372,
     NPC_CHROMATIC_WHELP             = 10442,
     NPC_CHROMATIC_DRAGONSPAWN       = 10447,

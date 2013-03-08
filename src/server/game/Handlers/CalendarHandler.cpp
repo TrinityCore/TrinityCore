@@ -25,7 +25,7 @@ SMSG_CALENDAR_EVENT_INVITE_NOTES_ALERT  [ uint64(inviteId), string(Text) ]
 SMSG_CALENDAR_EVENT_INVITE_STATUS_ALERT [ uint64(eventId), uint32(eventTime), uint32(unkFlag), uint8(deletePending) ]
 SMSG_CALENDAR_RAID_LOCKOUT_UPDATED      SendCalendarRaidLockoutUpdated(InstanceSave const* save)
 
------ TODO -----
+@todo
 
 Finish complains' handling - what to do with received complains and how to respond?
 Find out what to do with all "not used yet" opcodes
@@ -147,7 +147,7 @@ void WorldSession::HandleCalendarGetCalendar(WorldPacket& /*recvData*/)
     data << uint32(boundCounter);
     data.append(dataBuffer);
 
-    // TODO: Fix this, how we do know how many and what holidays to send?
+    /// @todo Fix this, how we do know how many and what holidays to send?
     uint32 holidayCount = 0;
     data << uint32(holidayCount);
     for (uint32 i = 0; i < holidayCount; ++i)

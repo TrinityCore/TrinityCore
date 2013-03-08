@@ -44,7 +44,7 @@ enum Midnight
 
     MOUNTED_DISPLAYID           = 16040,
 
-    //Attumen (TODO: Use the summoning spell instead of Creature id. It works, but is not convenient for us)
+    //Attumen (@todo Use the summoning spell instead of Creature id. It works, but is not convenient for us)
     SUMMON_ATTUMEN              = 15550,
 };
 

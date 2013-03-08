@@ -1292,7 +1292,7 @@ SpellCastResult SpellInfo::CheckShapeshift(uint32 form) const
 
     // Check if stance disables cast of not-stance spells
     // Example: cannot cast any other spells in zombie or ghoul form
-    // TODO: Find a way to disable use of these spells clientside
+    /// @todo Find a way to disable use of these spells clientside
     if (shapeInfo && shapeInfo->flags1 & 0x400)
     {
         if (!(stanceMask & Stances))

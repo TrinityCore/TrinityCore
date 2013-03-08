@@ -188,7 +188,7 @@ bool MySQLConnection::Execute(PreparedStatement* stmt)
         MySQLPreparedStatement* m_mStmt = GetPreparedStatement(index);
         ASSERT(m_mStmt);            // Can only be null if preparation failed, server side error or bad query
         m_mStmt->m_stmt = stmt;     // Cross reference them for debug output
-        stmt->m_stmt = m_mStmt;     // TODO: Cleaner way
+        stmt->m_stmt = m_mStmt;     /// @todo Cleaner way
 
         stmt->BindParameters();
 
@@ -238,7 +238,7 @@ bool MySQLConnection::_Query(PreparedStatement* stmt, MYSQL_RES **pResult, uint6
         MySQLPreparedStatement* m_mStmt = GetPreparedStatement(index);
         ASSERT(m_mStmt);            // Can only be null if preparation failed, server side error or bad query
         m_mStmt->m_stmt = stmt;     // Cross reference them for debug output
-        stmt->m_stmt = m_mStmt;     // TODO: Cleaner way
+        stmt->m_stmt = m_mStmt;     /// @todo Cleaner way
 
         stmt->BindParameters();
 
