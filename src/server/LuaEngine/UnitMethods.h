@@ -6,9 +6,9 @@
 #define TO_UNIT()  if (!unit || !unit->IsInWorld() || !unit->ToUnit())  { return 0; } else (void)0;
 
 
-#define TO_PLAYER_BOOL()  Player* player;  if (!unit || !unit->IsInWorld() || !(player = unit->ToPlayer()))     { Eluna::get()->PushBoolean(L, false); return 1; } else (void)0;
-#define TO_CREATURE_BOOL()  Creature* creature; if (!unit || !unit->IsInWorld() || !(creature = unit->ToCreature())) { Eluna::get()->PushBoolean(L, false); return 1; } else (void)0;
-#define TO_UNIT_BOOL() if (!unit || !unit->IsInWorld() || !unit->ToUnit()) { Eluna::get()->PushBoolean(L, false); return 1; } else (void)0;
+#define TO_PLAYER_BOOL()  Player* player;  if (!unit || !unit->IsInWorld() || !(player = unit->ToPlayer()))     { sEluna->PushBoolean(L, false); return 1; } else (void)0;
+#define TO_CREATURE_BOOL()  Creature* creature; if (!unit || !unit->IsInWorld() || !(creature = unit->ToCreature())) { sEluna->PushBoolean(L, false); return 1; } else (void)0;
+#define TO_UNIT_BOOL() if (!unit || !unit->IsInWorld() || !unit->ToUnit()) { sEluna->PushBoolean(L, false); return 1; } else (void)0;
 
 class LuaUnit
 {
@@ -25,7 +25,7 @@ public:
         float z = luaL_checknumber(L, 4);
         float o = luaL_checknumber(L, 5);
         uint32 respawnDelay = luaL_optunsigned(L, 6, 30);
-        Eluna::get()->PushGO(L, unit->SummonGameObject(entry, x, y, z, o, 0, 0, 0, 0, respawnDelay));
+        sEluna->PushGO(L, unit->SummonGameObject(entry, x, y, z, o, 0, 0, 0, 0, respawnDelay));
         return 1;
     }
 
@@ -40,7 +40,7 @@ public:
         float z = luaL_checknumber(L, 4);
         float o = luaL_checknumber(L, 5);
         uint32 desp = luaL_optunsigned(L, 6, 0);
-        Eluna::get()->PushUnit(L, unit->SummonCreature(entry, x, y, z, o, desp ? TEMPSUMMON_TIMED_OR_DEAD_DESPAWN : TEMPSUMMON_MANUAL_DESPAWN, desp));
+        sEluna->PushUnit(L, unit->SummonCreature(entry, x, y, z, o, desp ? TEMPSUMMON_TIMED_OR_DEAD_DESPAWN : TEMPSUMMON_MANUAL_DESPAWN, desp));
         return 1;
     }
 
@@ -59,7 +59,7 @@ public:
     {
         TO_PLAYER();
 
-        Eluna::get()->PushUnsigned(L, player->GetArenaPoints());
+        sEluna->PushUnsigned(L, player->GetArenaPoints());
         return 1;
     }
 
@@ -81,7 +81,7 @@ public:
     {
         TO_UNIT();
 
-        WorldObject* obj = Eluna::get()->CHECK_WORLDOBJECT(L, 1);
+        WorldObject* obj = sEluna->CHECK_WORLDOBJECT(L, 1);
         float speedZ = luaL_checknumber(L, 2);
         if(!obj)
             return 0;
@@ -134,7 +134,7 @@ public:
     {
         TO_UNIT();
         
-        Unit* target = Eluna::get()->CHECK_UNIT(L, 1);
+        Unit* target = sEluna->CHECK_UNIT(L, 1);
         float dist = luaL_optnumber(L, 2, 0.0f);
         float angle = luaL_optnumber(L, 3, 0.0f);
         unit->GetMotionMaster()->MoveChase(target, dist, angle);
@@ -200,7 +200,7 @@ public:
     {
         TO_UNIT();
         
-        Unit* target = Eluna::get()->CHECK_UNIT(L, 1);
+        Unit* target = sEluna->CHECK_UNIT(L, 1);
         float dist = luaL_checknumber(L, 2);
         float angle = luaL_checknumber(L, 3);
         unit->GetMotionMaster()->MoveFollow(target, dist, angle);
@@ -267,7 +267,7 @@ public:
     {
         TO_PLAYER();
 
-        Eluna::get()->PushUnsigned(L, player->GetHonorPoints());
+        sEluna->PushUnsigned(L, player->GetHonorPoints());
         return 1;
     }
     //GetSelection()
@@ -275,7 +275,7 @@ public:
     {
         TO_PLAYER();
 
-        Eluna::get()->PushUnit(L, player->GetSelectedUnit());
+        sEluna->PushUnit(L, player->GetSelectedUnit());
         return 1;
     }
 
@@ -284,7 +284,7 @@ public:
     {
         TO_PLAYER();
 
-        Eluna::get()->PushInteger(L, player->GetSession()->GetSecurity());
+        sEluna->PushInteger(L, player->GetSession()->GetSecurity());
         return 1;
     }
 
@@ -293,7 +293,7 @@ public:
     {
         TO_PLAYER();
 
-        Eluna::get()->PushUnsigned(L, player->GetMoney());
+        sEluna->PushUnsigned(L, player->GetMoney());
         return 1;
     }
 
@@ -302,7 +302,7 @@ public:
     {
         TO_UNIT();
 
-        Eluna::get()->PushUnsigned(L, unit->GetDisplayId());
+        sEluna->PushUnsigned(L, unit->GetDisplayId());
         return 1;
     }
 
@@ -310,7 +310,7 @@ public:
     static int GetName(lua_State* L, Unit* unit)
     {
         TO_UNIT();
-        Eluna::get()->PushString(L, unit->GetName().c_str());
+        sEluna->PushString(L, unit->GetName().c_str());
         return 1;
     }
 
@@ -319,7 +319,7 @@ public:
     {
         TO_UNIT();
 
-        Eluna::get()->PushUnsigned(L, unit->getLevel());
+        sEluna->PushUnsigned(L, unit->getLevel());
         return 1;
     }
 
@@ -328,7 +328,7 @@ public:
     {
         TO_UNIT();
 
-        Eluna::get()->PushUnsigned(L, unit->GetHealth());
+        sEluna->PushUnsigned(L, unit->GetHealth());
         return 1;
     }
 
@@ -340,7 +340,7 @@ public:
         if (!player->GetGuildId())
             return 0;
 
-        Eluna::get()->PushUnsigned(L, player->GetGuildId());
+        sEluna->PushUnsigned(L, player->GetGuildId());
         return 1;
     }
 
@@ -349,7 +349,7 @@ public:
     {
         TO_UNIT();
 
-        Eluna::get()->PushFloat(L, unit->GetPositionX());
+        sEluna->PushFloat(L, unit->GetPositionX());
         return 1;
     }
 
@@ -358,7 +358,7 @@ public:
     {
         TO_UNIT();
 
-        Eluna::get()->PushFloat(L, unit->GetPositionY());
+        sEluna->PushFloat(L, unit->GetPositionY());
         return 1;
     }
 
@@ -367,7 +367,7 @@ public:
     {
         TO_UNIT();
 
-        Eluna::get()->PushFloat(L, unit->GetPositionZ());
+        sEluna->PushFloat(L, unit->GetPositionZ());
         return 1;
     }
 
@@ -376,7 +376,7 @@ public:
     {
         TO_UNIT();
 
-        Eluna::get()->PushFloat(L, unit->GetOrientation());
+        sEluna->PushFloat(L, unit->GetOrientation());
         return 1;
     }
 
@@ -385,10 +385,10 @@ public:
     {
         TO_UNIT();
 
-        Eluna::get()->PushFloat(L, unit->GetPositionX());
-        Eluna::get()->PushFloat(L, unit->GetPositionY());
-        Eluna::get()->PushFloat(L, unit->GetPositionZ());
-        Eluna::get()->PushFloat(L, unit->GetOrientation());
+        sEluna->PushFloat(L, unit->GetPositionX());
+        sEluna->PushFloat(L, unit->GetPositionY());
+        sEluna->PushFloat(L, unit->GetPositionZ());
+        sEluna->PushFloat(L, unit->GetOrientation());
         return 4;
     }
 
@@ -397,7 +397,7 @@ public:
     {
         TO_UNIT();
 
-        Eluna::get()->PushUnsigned(L, unit->GetZoneId());
+        sEluna->PushUnsigned(L, unit->GetZoneId());
         return 1;
     }
 
@@ -406,7 +406,7 @@ public:
     {
         TO_UNIT();
 
-        Eluna::get()->PushUnsigned(L, unit->GetInstanceId());
+        sEluna->PushUnsigned(L, unit->GetInstanceId());
         return 1;
     }
 
@@ -415,7 +415,7 @@ public:
     {
         TO_UNIT();
 
-        Eluna::get()->PushUnsigned(L, unit->GetPhaseMask());
+        sEluna->PushUnsigned(L, unit->GetPhaseMask());
         return 1;
     }
 
@@ -424,7 +424,7 @@ public:
     {
         TO_UNIT();
 
-        Eluna::get()->PushUnsigned(L, unit->GetAreaId());
+        sEluna->PushUnsigned(L, unit->GetAreaId());
         return 1;
     }
 
@@ -433,7 +433,7 @@ public:
     {
         TO_PLAYER();
 
-        Eluna::get()->PushInteger(L, player->GetTeamId());
+        sEluna->PushInteger(L, player->GetTeamId());
         return 1;
     }
 
@@ -442,7 +442,7 @@ public:
     {
         TO_UNIT();
 
-        Eluna::get()->PushGUID(L, unit->GetGUID());
+        sEluna->PushGUID(L, unit->GetGUID());
         return 1;
     }
 
@@ -485,7 +485,7 @@ public:
             return 0;
         }
 
-        Eluna::get()->PushUnsigned(L, unit->GetPower((Powers) type));
+        sEluna->PushUnsigned(L, unit->GetPower((Powers) type));
         return 1;
     }
 
@@ -528,7 +528,7 @@ public:
             return 0;
         }
 
-        Eluna::get()->PushUnsigned(L, unit->GetMaxPower((Powers) type));
+        sEluna->PushUnsigned(L, unit->GetMaxPower((Powers) type));
         return 1;
     }
 
@@ -537,7 +537,7 @@ public:
     {
         TO_UNIT();
 
-        Eluna::get()->PushInteger(L, unit->getPowerType());
+        sEluna->PushInteger(L, unit->getPowerType());
         return 1;
     }
 
@@ -546,7 +546,7 @@ public:
     {
         TO_UNIT();
 
-        Eluna::get()->PushUnsigned(L, unit->GetMaxHealth());
+        sEluna->PushUnsigned(L, unit->GetMaxHealth());
         return 1;
     }
 
@@ -555,7 +555,7 @@ public:
     {
         TO_UNIT();
 
-        Eluna::get()->PushFloat(L, unit->GetHealthPct());
+        sEluna->PushFloat(L, unit->GetHealthPct());
         return 1;
     }
 
@@ -565,7 +565,7 @@ public:
         TO_UNIT();
 
         float percent = (unit->GetPower(unit->getPowerType()) / unit->GetMaxPower(unit->getPowerType())) * 100;
-        Eluna::get()->PushFloat(L, percent);
+        sEluna->PushFloat(L, percent);
         return 1;
     }
 
@@ -573,7 +573,7 @@ public:
     static int GetGender(lua_State* L, Unit* unit)
     {
         TO_UNIT();
-        Eluna::get()->PushUnsigned(L, unit->getGender());
+        sEluna->PushUnsigned(L, unit->getGender());
         return 1;
     }
 
@@ -582,7 +582,7 @@ public:
     {
         TO_UNIT();
 
-        Eluna::get()->PushUnsigned(L, unit->getRace());
+        sEluna->PushUnsigned(L, unit->getRace());
         return 1;
     }
 
@@ -591,7 +591,7 @@ public:
     {
         TO_UNIT();
 
-        Eluna::get()->PushUnsigned(L, unit->getClass());
+        sEluna->PushUnsigned(L, unit->getClass());
         return 1;
     }
 
@@ -638,7 +638,7 @@ public:
             break;
         }
 
-        Eluna::get()->PushString(L, str);
+        sEluna->PushString(L, str);
         return 1;
     }
 
@@ -649,7 +649,7 @@ public:
 
         int id = luaL_checknumber(L, 1);
         bool checkinBank = luaL_optbool(L, 2, false);
-        Eluna::get()->PushUnsigned(L, player->GetItemCount(id, checkinBank));
+        sEluna->PushUnsigned(L, player->GetItemCount(id, checkinBank));
         return 1;
     }
 
@@ -659,11 +659,11 @@ public:
         TO_UNIT();
 
         if (unit->ToPlayer())
-            Eluna::get()->PushString(L, "Player");
+            sEluna->PushString(L, "Player");
         else if (unit->ToCreature())
-            Eluna::get()->PushString(L, "Creature");
+            sEluna->PushString(L, "Creature");
         else
-            Eluna::get()->PushString(L, "Unknown");
+            sEluna->PushString(L, "Unknown");
         return 1;
     }
 
@@ -672,7 +672,7 @@ public:
     {
         TO_PLAYER();
 
-        Eluna::get()->PushGuild(L, player->GetGuild());
+        sEluna->PushGuild(L, player->GetGuild());
         return 1;
     }
 
@@ -681,7 +681,7 @@ public:
     {
         TO_PLAYER();
 
-        Eluna::get()->PushGroup(L, player->GetGroup());
+        sEluna->PushGroup(L, player->GetGroup());
         return 1;
     }
 
@@ -690,7 +690,7 @@ public:
     {
         TO_PLAYER();
 
-        Eluna::get()->PushFloat(L, player->GetAverageItemLevel());
+        sEluna->PushFloat(L, player->GetAverageItemLevel());
         return 1;
     }
 
@@ -699,7 +699,7 @@ public:
     {
         TO_UNIT();
 
-        Eluna::get()->PushUnsigned(L, unit->GetEntry());
+        sEluna->PushUnsigned(L, unit->GetEntry());
         return 1;
     }
 
@@ -968,7 +968,7 @@ public:
     {
         TO_PLAYER_BOOL();
 
-        Eluna::get()->PushBoolean(L, (player->GetGroup() != NULL));
+        sEluna->PushBoolean(L, (player->GetGroup() != NULL));
         return 1;
     }
 
@@ -977,7 +977,7 @@ public:
     {
         TO_PLAYER_BOOL();
 
-        Eluna::get()->PushBoolean(L, (player->GetGuildId() != 0));
+        sEluna->PushBoolean(L, (player->GetGuildId() != 0));
         return 1;
     }
 
@@ -986,7 +986,7 @@ public:
     {
         TO_PLAYER_BOOL();
 
-        Eluna::get()->PushBoolean(L, player->isGameMaster());
+        sEluna->PushBoolean(L, player->isGameMaster());
         return 1;
     }
 
@@ -995,7 +995,7 @@ public:
     {
         TO_UNIT_BOOL();
 
-        Eluna::get()->PushBoolean(L, unit->isAlive());
+        sEluna->PushBoolean(L, unit->isAlive());
         return 1;
     }
 
@@ -1006,9 +1006,9 @@ public:
 
         uint32 type = luaL_checkunsigned(L, 1);
         if (type < MAX_ARENA_SLOT && player->GetArenaTeamId(type))
-            Eluna::get()->PushBoolean(L, true);
+            sEluna->PushBoolean(L, true);
         else
-            Eluna::get()->PushBoolean(L, false);
+            sEluna->PushBoolean(L, false);
         return 1;
     }
 
@@ -1017,7 +1017,7 @@ public:
     {
         TO_UNIT_BOOL();
 
-        Eluna::get()->PushBoolean(L, unit->IsInWorld());
+        sEluna->PushBoolean(L, unit->IsInWorld());
         return 1;
     }
 
@@ -1026,7 +1026,7 @@ public:
     {
         TO_UNIT_BOOL();
 
-        Eluna::get()->PushBoolean(L, unit->IsPvP());
+        sEluna->PushBoolean(L, unit->IsPvP());
         return 1;
     }
 
@@ -1036,7 +1036,7 @@ public:
         TO_UNIT_BOOL();
 
         uint32 questId = luaL_checkunsigned(L, 1);
-        Eluna::get()->PushBoolean(L, unit->hasQuest(questId));
+        sEluna->PushBoolean(L, unit->hasQuest(questId));
         return 1;
     }
 
@@ -1045,7 +1045,7 @@ public:
     {
         TO_PLAYER_BOOL();
 
-        Eluna::get()->PushBoolean(L, (player->GetTeam() == HORDE));
+        sEluna->PushBoolean(L, (player->GetTeam() == HORDE));
         return 1;
     }
 
@@ -1054,7 +1054,7 @@ public:
     {
         TO_PLAYER_BOOL();
 
-        Eluna::get()->PushBoolean(L, (player->GetTeam() == ALLIANCE));
+        sEluna->PushBoolean(L, (player->GetTeam() == ALLIANCE));
         return 1;
     }
 
@@ -1063,7 +1063,7 @@ public:
     {
         TO_UNIT_BOOL();
 
-        Eluna::get()->PushBoolean(L, unit->isInCombat());
+        sEluna->PushBoolean(L, unit->isInCombat());
         return 1;
     }
 
@@ -1073,7 +1073,7 @@ public:
         TO_PLAYER_BOOL();
 
         uint32 id = luaL_checkunsigned(L, 1);
-        Eluna::get()->PushBoolean(L, player->HasTitle(id));
+        sEluna->PushBoolean(L, player->HasTitle(id));
         return 1;
     }
 
@@ -1083,7 +1083,7 @@ public:
         TO_UNIT_BOOL();
 
         uint32 id = luaL_checkunsigned(L, 1);
-        Eluna::get()->PushBoolean(L, unit->HasSpell(id));
+        sEluna->PushBoolean(L, unit->HasSpell(id));
         return 1;
     }
 
@@ -1099,7 +1099,7 @@ public:
         float Y = luaL_checknumber(L, 3);
         float Z = luaL_checknumber(L, 4);
         float O = luaL_checknumber(L, 5);
-        Eluna::get()->PushBoolean(L, player->TeleportTo(mapId, X, Y, Z, O));
+        sEluna->PushBoolean(L, player->TeleportTo(mapId, X, Y, Z, O));
         return 1;
     }
 
@@ -1110,7 +1110,7 @@ public:
 
         uint32 itemId = luaL_checkunsigned(L, 1);
         uint32 itemCount = luaL_checkunsigned(L, 2);
-        Eluna::get()->PushBoolean(L, player->AddItem(itemId, itemCount));
+        sEluna->PushBoolean(L, player->AddItem(itemId, itemCount));
         return 0;
     }
 
@@ -1165,7 +1165,7 @@ public:
         TO_UNIT();
 
         const char* msg = luaL_checkstring(L, 1);
-        Unit* receiver = Eluna::get()->CHECK_UNIT(L, 2);
+        Unit* receiver = sEluna->CHECK_UNIT(L, 2);
         if (receiver && string(msg).length() > 0)
             unit->MonsterWhisper(msg, receiver->GetGUID(), false);
         return 0;
@@ -1200,7 +1200,7 @@ public:
     {
         TO_PLAYER();
 
-        WorldPacket* data = Eluna::get()->CHECK_PACKET(L, 1);
+        WorldPacket* data = sEluna->CHECK_PACKET(L, 1);
         if (data)
             player->GetSession()->SendPacket(data);
         return 0;
@@ -1211,7 +1211,7 @@ public:
     {
         TO_PLAYER();
 
-        WorldPacket* data = Eluna::get()->CHECK_PACKET(L, 1);
+        WorldPacket* data = sEluna->CHECK_PACKET(L, 1);
         if (data)
             player->SendMessageToSet(data, false);
         return 0;
@@ -1222,7 +1222,7 @@ public:
     {
         TO_PLAYER();
 
-        WorldPacket* data = Eluna::get()->CHECK_PACKET(L, 1);
+        WorldPacket* data = sEluna->CHECK_PACKET(L, 1);
         bool ignorePlayersInBg = luaL_checkbool(L, 2);
         if (data && player->GetGroup())
             player->GetGroup()->BroadcastPacket(data, ignorePlayersInBg, -1, player->GetGUID());
@@ -1234,7 +1234,7 @@ public:
     {
         TO_PLAYER();
 
-        WorldPacket* data = Eluna::get()->CHECK_PACKET(L, 1);
+        WorldPacket* data = sEluna->CHECK_PACKET(L, 1);
         if (data && player->GetGuild())
             player->GetGuild()->BroadcastPacket(data);
         return 0;
@@ -1245,7 +1245,7 @@ public:
     {
         TO_PLAYER();
 
-        WorldPacket* data = Eluna::get()->CHECK_PACKET(L, 1);
+        WorldPacket* data = sEluna->CHECK_PACKET(L, 1);
         uint8 ranked = luaL_checkunsigned(L, 2);
         if (data && player->GetGuild())
             player->GetGuild()->BroadcastPacketToRank(data, ranked);
@@ -1257,7 +1257,7 @@ public:
 	{
 		TO_PLAYER();
 
-		Unit* sendTo = Eluna::get()->CHECK_UNIT(L, 1);
+		Unit* sendTo = sEluna->CHECK_UNIT(L, 1);
 		if (!sendTo)
 			return 0;
 		player->GetSession()->SendListInventory(sendTo->GetGUID());
@@ -1271,9 +1271,9 @@ public:
 
         int amt = luaL_checkinteger(L, 1);
         if (amt > 0)
-            Eluna::get()->PushBoolean(L, player->ModifyMoney(amt));
+            sEluna->PushBoolean(L, player->ModifyMoney(amt));
         else
-            Eluna::get()->PushBoolean(L, false);
+            sEluna->PushBoolean(L, false);
         return 1;
     }
 
@@ -1284,9 +1284,9 @@ public:
 
         int amt = luaL_checkinteger(L, 1);
         if (amt > 0)
-            Eluna::get()->PushBoolean(L, player->ModifyMoney(amt));
+            sEluna->PushBoolean(L, player->ModifyMoney(amt));
         else
-            Eluna::get()->PushBoolean(L, false);
+            sEluna->PushBoolean(L, false);
         return 1;
     }
 
@@ -1336,7 +1336,7 @@ public:
         TO_UNIT();
 
         uint32 spell = luaL_checkunsigned(L, 1);
-        Unit* target = Eluna::get()->CHECK_UNIT(L, 2);
+        Unit* target = sEluna->CHECK_UNIT(L, 2);
         bool triggered = luaL_optbool(L, 3, true);
         if (target)
             unit->CastSpell(target, spell, triggered);
@@ -1372,7 +1372,7 @@ public:
         TO_UNIT();
 
         uint32 spell = luaL_checkunsigned(L, 1);
-        Unit* target = Eluna::get()->CHECK_UNIT(L, 2);
+        Unit* target = sEluna->CHECK_UNIT(L, 2);
         if (target)
             unit->CastSpell(target, spell, false);
         return 0;
@@ -1383,7 +1383,7 @@ public:
     {
         TO_PLAYER();
 
-        Eluna::get()->PushUnsigned(L, player->GetSession()->GetAccountId());
+        sEluna->PushUnsigned(L, player->GetSession()->GetAccountId());
         return 1;
     }
 
@@ -1394,7 +1394,7 @@ public:
 
         std::string accName;
         if (sAccountMgr->GetName(player->GetSession()->GetAccountId(), accName))
-            Eluna::get()->PushString(L, accName.c_str());
+            sEluna->PushString(L, accName.c_str());
         else
             return 0;
         return 1;
@@ -1417,8 +1417,8 @@ public:
             if (!target)
                 continue;
             ++i;
-            Eluna::get()->PushUnsigned(L, i);
-            Eluna::get()->PushUnit(L, target);
+            sEluna->PushUnsigned(L, i);
+            sEluna->PushUnit(L, target);
             lua_settable(L, tbl);
         }
 
@@ -1431,7 +1431,7 @@ public:
     {
         TO_CREATURE();
 
-        Eluna::get()->PushUnsigned(L, creature->getThreatManager().getThreatList().size());
+        sEluna->PushUnsigned(L, creature->getThreatManager().getThreatList().size());
         return 1;
     }
 
@@ -1441,7 +1441,7 @@ public:
         TO_UNIT();
 
         uint32 spellID = luaL_checkunsigned(L, 1);
-        Eluna::get()->PushAura(L, unit->GetAura(spellID));
+        sEluna->PushAura(L, unit->GetAura(spellID));
         return 1;
     }
 
@@ -1450,7 +1450,7 @@ public:
     {
         TO_UNIT();
 
-        Eluna::get()->PushUnsigned(L, unit->GetMapId());
+        sEluna->PushUnsigned(L, unit->GetMapId());
         return 1;
     }
 
@@ -1485,7 +1485,7 @@ public:
         TO_PLAYER();
 
         uint32 _npcText = luaL_checkunsigned(L, 1);
-        Unit* sender = Eluna::get()->CHECK_UNIT(L, 2);
+        Unit* sender = sEluna->CHECK_UNIT(L, 2);
         if (sender)
         {
             if (sender->ToPlayer())
@@ -1527,7 +1527,7 @@ public:
         TO_UNIT();
 
         uint32 soundId = luaL_checkunsigned(L, 1);
-        Player* player = Eluna::get()->CHECK_PLAYER(L, 2);
+        Player* player = sEluna->CHECK_PLAYER(L, 2);
         if (!sSoundEntriesStore.LookupEntry(soundId))
             return 0;
 
@@ -1544,7 +1544,7 @@ public:
         TO_UNIT();
 
         uint32 soundId = luaL_checkunsigned(L, 1);
-        Player* player = Eluna::get()->CHECK_PLAYER(L, 2);
+        Player* player = sEluna->CHECK_PLAYER(L, 2);
         if (!sSoundEntriesStore.LookupEntry(soundId))
             return 0;
 
@@ -1560,7 +1560,7 @@ public:
     {
         TO_UNIT();
 
-        Unit* target = Eluna::get()->CHECK_UNIT(L, 1);
+        Unit* target = sEluna->CHECK_UNIT(L, 1);
         bool durLoss = luaL_optbool(L, 2, true);
         unit->Kill((target ? target : unit), durLoss);
         return 0;
@@ -1573,8 +1573,8 @@ public:
 
         uint32 delay = luaL_checkunsigned(L, 2);
         uint32 repeats = luaL_checkunsigned(L, 3);
-        Eluna::LuaCreatureScript::LuaCreatureAI* luaAI = sLuaCreatureScript->GetAI(creature);
-        if (!luaAI)
+        Eluna::LuaEventMap* eventMap = sEluna->GetEvents(creature);
+        if (!eventMap)
         {
             luaL_error(L, "Creature has no registered creature events, please register one before using RegisterEvent");
             return 0;
@@ -1583,8 +1583,8 @@ public:
         {
             lua_settop(L, 1);
             int functionRef = lua_ref(L, true);
-            luaAI->LuaEventCreate(functionRef, delay, repeats);
-            Eluna::get()->PushInteger(L, functionRef);
+            eventMap->LuaEventCreate(functionRef, delay, repeats);
+            sEluna->PushInteger(L, functionRef);
         }
         else
             return 0;
@@ -1598,9 +1598,9 @@ public:
         TO_CREATURE();
 
         int eventID = luaL_checkinteger(L, 1);
-        Eluna::LuaCreatureScript::LuaCreatureAI* luaAI = sLuaCreatureScript->GetAI(creature);
-        if (luaAI)
-            luaAI->LuaEventCancel(eventID);
+        Eluna::LuaEventMap* eventMap = sEluna->GetEvents(creature);
+        if (eventMap)
+            eventMap->LuaEventCancel(eventID);
         return 0;
     }
 
@@ -1608,10 +1608,10 @@ public:
     static int RemoveEvents(lua_State* L, Unit* unit)
     {
         TO_CREATURE();
-
-        Eluna::LuaCreatureScript::LuaCreatureAI* luaAI = sLuaCreatureScript->GetAI(creature);
-        if (luaAI)
-            luaAI->LuaEventsReset();
+        
+        Eluna::LuaEventMap* eventMap = sEluna->GetEvents(creature);
+        if (eventMap)
+            eventMap->LuaEventsReset();
         return 0;
     }
 
@@ -1620,7 +1620,7 @@ public:
         TO_UNIT();
 
         uint16 index = luaL_checkunsigned(L, 1);
-        Eluna::get()->PushInteger(L, unit->GetInt32Value(index));
+        sEluna->PushInteger(L, unit->GetInt32Value(index));
         return 1;
     }
 
@@ -1629,7 +1629,7 @@ public:
         TO_UNIT();
 
         uint16 index = luaL_checkunsigned(L, 1);
-        Eluna::get()->PushUnsigned(L, unit->GetUInt32Value(index));
+        sEluna->PushUnsigned(L, unit->GetUInt32Value(index));
         return 1;
     }
 
@@ -1638,7 +1638,7 @@ public:
         TO_UNIT();
 
         uint16 index = luaL_checkunsigned(L, 1);
-        Eluna::get()->PushFloat(L, unit->GetFloatValue(index));
+        sEluna->PushFloat(L, unit->GetFloatValue(index));
         return 1;
     }
 
@@ -1648,7 +1648,7 @@ public:
 
         uint16 index = luaL_checkunsigned(L, 1);
         uint8 offset = luaL_checkunsigned(L, 2);
-        Eluna::get()->PushUnsigned(L, unit->GetByteValue(index, offset));
+        sEluna->PushUnsigned(L, unit->GetByteValue(index, offset));
         return 1;
     }
 
@@ -1658,7 +1658,7 @@ public:
 
         uint16 index = luaL_checkunsigned(L, 1);
         uint8 offset = luaL_checkunsigned(L, 2);
-        Eluna::get()->PushUnsigned(L, unit->GetUInt16Value(index, offset));
+        sEluna->PushUnsigned(L, unit->GetUInt16Value(index, offset));
         return 1;
     }
 
@@ -1765,7 +1765,7 @@ public:
     {
         TO_UNIT();
 
-        Unit* passenger = Eluna::get()->CHECK_UNIT(L, 1);
+        Unit* passenger = sEluna->CHECK_UNIT(L, 1);
         int8 seatId = luaL_checkunsigned(L, 2);
         Vehicle* _vehicle = unit->GetVehicle();
         if (!_vehicle)
@@ -1781,7 +1781,7 @@ public:
     {
     TO_UNIT();
 
-    Unit* passenger = Eluna::get()->CHECK_UNIT(L, 1);
+    Unit* passenger = sEluna->CHECK_UNIT(L, 1);
     Vehicle* _vehicle = unit->GetVehicle();
     if (!_vehicle)
     return 0;
@@ -1795,7 +1795,7 @@ public:
     {
         TO_UNIT();
 
-        Unit* passenger = Eluna::get()->CHECK_UNIT(L, 1);
+        Unit* passenger = sEluna->CHECK_UNIT(L, 1);
         Vehicle* _vehicle = unit->GetVehicle();
         if (!_vehicle)
             return 0;
@@ -1827,7 +1827,7 @@ public:
         if (!_unit)
             return 0;
 
-        Eluna::get()->PushUnit(L, _unit->GetVehicle()->GetPassenger(seatId));
+        sEluna->PushUnit(L, _unit->GetVehicle()->GetPassenger(seatId));
         return 1;
     }
 
@@ -1841,7 +1841,7 @@ public:
         if (!_unit)
             return 0;
 
-        //Eluna::get()->PushInteger(L, _unit->GetVehicle()->GetNextEmptySeat(seatId, true));
+        //sEluna->PushInteger(L, _unit->GetVehicle()->GetNextEmptySeat(seatId, true));
         //return 1;
         return 0;
     }
@@ -1855,7 +1855,7 @@ public:
         if (!_unit)
             return 0;
 
-        Eluna::get()->PushUnsigned(L, _unit->GetVehicle()->GetAvailableSeatCount());
+        sEluna->PushUnsigned(L, _unit->GetVehicle()->GetAvailableSeatCount());
         return 1;
     }
 
@@ -1866,7 +1866,7 @@ public:
 
         Unit* _unit = unit->GetVehicleBase();
         if (_unit)
-            Eluna::get()->PushUnit(L, _unit);
+            sEluna->PushUnit(L, _unit);
         else
             lua_pushnil(L);
         return 1;
@@ -1882,7 +1882,7 @@ public:
         if (!_unit)
             return 0;
 
-        Eluna::get()->PushBoolean(L, _unit->GetVehicle()->HasEmptySeat(seatId));
+        sEluna->PushBoolean(L, _unit->GetVehicle()->HasEmptySeat(seatId));
         return 1;
     }
 };

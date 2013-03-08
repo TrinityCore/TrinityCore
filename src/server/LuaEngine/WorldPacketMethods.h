@@ -20,7 +20,7 @@ public:
         if (!packet)
             return 0;
 
-        Eluna::get()->PushUnsigned(L, packet->GetOpcode());
+        sEluna->PushUnsigned(L, packet->GetOpcode());
         return 1;
     }
 
@@ -30,7 +30,7 @@ public:
         if (!packet)
             return 0;
 
-        Eluna::get()->PushUnsigned(L, packet->size());
+        sEluna->PushUnsigned(L, packet->size());
         return 1;
     }
 
@@ -56,7 +56,7 @@ public:
 
         int8 byte;
         (*packet) >> byte;
-        Eluna::get()->PushInteger(L, byte);
+        sEluna->PushInteger(L, byte);
         return 1;
     }
 
@@ -68,7 +68,7 @@ public:
 
         uint8 byte;
         (*packet) >> byte;
-        Eluna::get()->PushUnsigned(L, byte);
+        sEluna->PushUnsigned(L, byte);
         return 1;
     }
 
@@ -80,7 +80,7 @@ public:
 
         int16 _short;
         (*packet) >> _short;
-        Eluna::get()->PushInteger(L, _short);
+        sEluna->PushInteger(L, _short);
         return 1;
     }
 
@@ -92,7 +92,7 @@ public:
 
         uint16 _ushort;
         (*packet) >> _ushort;
-        Eluna::get()->PushUnsigned(L, _ushort);
+        sEluna->PushUnsigned(L, _ushort);
         return 1;
     }
 
@@ -104,7 +104,7 @@ public:
 
         int32 _long;
         (*packet) >> _long;
-        Eluna::get()->PushInteger(L, _long);
+        sEluna->PushInteger(L, _long);
         return 1;
     }
 
@@ -116,7 +116,7 @@ public:
 
         uint32 _ulong;
         (*packet) >> _ulong;
-        Eluna::get()->PushUnsigned(L, _ulong);
+        sEluna->PushUnsigned(L, _ulong);
         return 1;
     }
 
@@ -128,7 +128,7 @@ public:
 
         float _val;
         (*packet) >> _val;
-        Eluna::get()->PushFloat(L, _val);
+        sEluna->PushFloat(L, _val);
         return 1;
     }
 
@@ -140,7 +140,7 @@ public:
 
         double _val;
         (*packet) >> _val;
-        Eluna::get()->PushDouble(L, _val);
+        sEluna->PushDouble(L, _val);
         return 1;
     }
 
@@ -152,7 +152,7 @@ public:
 
         uint64 guid;
         (*packet) >> guid;
-        Eluna::get()->PushGUID(L, guid);
+        sEluna->PushGUID(L, guid);
         return 1;
     }
 
@@ -164,7 +164,7 @@ public:
 
         string _val;
         (*packet) >> _val;
-        Eluna::get()->PushString(L, _val.c_str());
+        sEluna->PushString(L, _val.c_str());
         return 1;
     }
 
@@ -174,7 +174,7 @@ public:
         if (!packet)
             return 0;
 
-        WorldObject* obj = Eluna::get()->CHECK_WORLDOBJECT(L, 1);
+        WorldObject* obj = sEluna->CHECK_WORLDOBJECT(L, 1);
         if (!obj)
             return 0;
 

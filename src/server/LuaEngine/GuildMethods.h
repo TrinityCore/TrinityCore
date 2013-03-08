@@ -23,8 +23,8 @@ public:
             if (itr->second->GetGuildId() == guild->GetId())
             {
                 ++i;
-                Eluna::get()->PushUnsigned(L, i);
-                Eluna::get()->PushUnit(L, itr->second);
+                sEluna->PushUnsigned(L, i);
+                sEluna->PushUnit(L, itr->second);
                 lua_settable(L, tbl);
             }
         }
@@ -38,7 +38,7 @@ public:
         if (!guild)
             return 0;
 
-        Eluna::get()->PushString(L, "Guild");
+        sEluna->PushString(L, "Guild");
         return 1;
     }
 
@@ -47,7 +47,7 @@ public:
         if (!guild)
             return 0;
 
-        Eluna::get()->PushGUID(L, guild->GetLeaderGUID());
+        sEluna->PushGUID(L, guild->GetLeaderGUID());
         return 1;
     }
 
@@ -57,7 +57,7 @@ public:
         if (!guild)
             return 0;
 
-        WorldPacket* data = Eluna::get()->CHECK_PACKET(L, 1);
+        WorldPacket* data = sEluna->CHECK_PACKET(L, 1);
 
         if (data)
             guild->BroadcastPacket(data);
@@ -70,7 +70,7 @@ public:
         if (!guild)
             return 0;
 
-        WorldPacket* data = Eluna::get()->CHECK_PACKET(L, 1);
+        WorldPacket* data = sEluna->CHECK_PACKET(L, 1);
         uint8 ranked = luaL_checkunsigned(L, 2);
 
         if (data)
@@ -92,7 +92,7 @@ public:
         if (!guild)
             return 0;
 
-        Eluna::get()->PushUnsigned(L, guild->GetId());
+        sEluna->PushUnsigned(L, guild->GetId());
         return 1;
     }
 
@@ -101,7 +101,7 @@ public:
         if (!guild)
             return 0;
 
-        Eluna::get()->PushString(L, guild->GetName().c_str());
+        sEluna->PushString(L, guild->GetName().c_str());
         return 1;
     }
 
@@ -110,7 +110,7 @@ public:
         if (!guild)
             return 0;
 
-        Eluna::get()->PushString(L, guild->GetMOTD().c_str());
+        sEluna->PushString(L, guild->GetMOTD().c_str());
         return 1;
     }
 
@@ -119,7 +119,7 @@ public:
         if (!guild)
             return 0;
 
-        Eluna::get()->PushString(L, guild->GetInfo().c_str());
+        sEluna->PushString(L, guild->GetInfo().c_str());
         return 1;
     }
 
@@ -128,7 +128,7 @@ public:
         if (!guild)
             return 0;
 
-        Player* player = Eluna::get()->CHECK_PLAYER(L, 1);
+        Player* player = sEluna->CHECK_PLAYER(L, 1);
         uint8 rankId = luaL_optint(L, 2, GUILD_RANK_NONE);
 
         if (player)
@@ -141,7 +141,7 @@ public:
         if (!guild)
             return 0;
 
-        Player* player = Eluna::get()->CHECK_PLAYER(L, 1);
+        Player* player = sEluna->CHECK_PLAYER(L, 1);
         bool isDisbanding = luaL_optbool(L, 2, false);
         bool isKicked = luaL_optbool(L, 3, false);
 
@@ -155,7 +155,7 @@ public:
         if (!guild)
             return 0;
 
-        Player* player = Eluna::get()->CHECK_PLAYER(L, 1);
+        Player* player = sEluna->CHECK_PLAYER(L, 1);
         uint8 newRank = luaL_checkunsigned(L, 2);
 
         if (player)

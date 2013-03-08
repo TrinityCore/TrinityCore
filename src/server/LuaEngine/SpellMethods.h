@@ -20,7 +20,7 @@ public:
         if (!spell)
             return 0;
 
-        Eluna::get()->PushUnit(L, spell->GetCaster());
+        sEluna->PushUnit(L, spell->GetCaster());
         return 1;
     }
 
@@ -30,7 +30,7 @@ public:
         if (!spell)
             return 0;
 
-        Eluna::get()->PushInteger(L, spell->GetCastTime());
+        sEluna->PushInteger(L, spell->GetCastTime());
         return 1;
     }
 
@@ -40,7 +40,7 @@ public:
         if (!spell)
             return 0;
 
-        Eluna::get()->PushUnsigned(L, spell->GetSpellInfo()->Id);
+        sEluna->PushUnsigned(L, spell->GetSpellInfo()->Id);
         return 1;
     }
 
@@ -50,7 +50,7 @@ public:
 		if (!spell)
 			return 0;
 
-		Eluna::get()->PushInteger(L, spell->GetPowerCost());
+		sEluna->PushInteger(L, spell->GetPowerCost());
 		return 1;
 	}
 
@@ -60,7 +60,7 @@ public:
         if (!spell)
             return 0;
 
-        Eluna::get()->PushInteger(L, spell->GetSpellInfo()->GetDuration());
+        sEluna->PushInteger(L, spell->GetSpellInfo()->GetDuration());
         return 1;
 	}
 

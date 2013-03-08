@@ -3,35 +3,192 @@
 
 namespace LuaGlobalFunctions
 {
+    // RegisterServerHook(ev, func)
+    static int RegisterServerHook(lua_State* L)
+    {
+        int functionRef = 0;
+        lua_settop(L, 2);
+        uint32 ev = luaL_checkunsigned(L, 1);
+        const char* typeName = luaL_typename(L, 2);
+
+        if (ev == 0 || !typeName)
+            return 0;
+
+        if (!strcmp(typeName, "function"))
+            functionRef = lua_ref(L, true);
+
+        if (functionRef > 0)
+            sEluna->Register(REGTYPE_SERVER, 0, ev, functionRef);
+        return 0;
+    }
+
+    //RegisterCreatureGossipEvent(ev, func)
+    static int RegisterCreatureGossipEvent(lua_State* L)
+    {
+        int functionRef = 0;
+        lua_settop(L, 3);
+        uint32 entry = luaL_checkint(L, 1);
+        uint32 ev = luaL_checkunsigned(L, 2);
+        const char* typeName = luaL_typename(L, 3);
+
+        if (ev == 0 || !typeName)
+            return 0;
+
+        if (!strcmp(typeName, "function"))
+            functionRef = lua_ref(L, true);
+
+        if (functionRef > 0)
+            sEluna->Register(REGTYPE_CREATURE_GOSSIP, entry, ev, functionRef);
+        return 0;
+    }
+
+    // RegisterGameObjectGossipEvent(entry, event, function)
+    static int RegisterGameObjectGossipEvent(lua_State* L)
+    {
+        int functionRef = 0;
+        lua_settop(L, 3);
+        uint32 entry = luaL_checkint(L, 1);
+        uint32 ev = luaL_checkunsigned(L, 2);
+        const char* typeName = luaL_typename(L, 3);
+
+        if (ev == 0 || !typeName)
+            return 0;
+
+        if (!strcmp(typeName, "function"))
+            functionRef = lua_ref(L, true);
+
+        if (functionRef > 0)
+            sEluna->Register(REGTYPE_GAMEOBJECT_GOSSIP, entry, ev, functionRef);
+        return 0;
+    }
+
+    // RegisterItemEvent(entry, event, function)
+    static int RegisterItemEvent(lua_State* L)
+    {
+        int functionRef = 0;
+        lua_settop(L, 3);
+        uint32 entry = luaL_checkint(L, 1);
+        uint32 ev = luaL_checkunsigned(L, 2);
+        const char* typeName = luaL_typename(L, 3);
+
+        if (ev == 0 || !typeName)
+            return 0;
+
+        if (!strcmp(typeName, "function"))
+            functionRef = lua_ref(L, true);
+
+        if (functionRef > 0)
+            sEluna->Register(REGTYPE_ITEM, entry, ev, functionRef);
+        return 0;
+    }
+
+    // RegisterItemGossipEvent(entry, event, function)
+    static int RegisterItemGossipEvent(lua_State* L)
+    {
+        int functionRef = 0;
+        lua_settop(L, 3);
+        uint32 entry = luaL_checkint(L, 1);
+        uint32 ev = luaL_checkunsigned(L, 2);
+        const char* typeName = luaL_typename(L, 3);
+
+        if (ev == 0 || !typeName)
+            return 0;
+
+        if (!strcmp(typeName, "function"))
+            functionRef = lua_ref(L, true);
+
+        if (functionRef > 0)
+            sEluna->Register(REGTYPE_ITEM_GOSSIP, entry, ev, functionRef);
+        return 0;
+    }
+
+    // RegisterPlayerGossipEvent(menu_id, event, function)
+    static int RegisterPlayerGossipEvent(lua_State* L)
+    {
+        int functionRef = 0;
+        lua_settop(L, 3);
+        uint32 menu_id = luaL_checkint(L, 1);
+        uint32 ev = luaL_checkunsigned(L, 2);
+        const char* typeName = luaL_typename(L, 3);
+
+        if (ev == 0 || !typeName)
+            return 0;
+
+        if (!strcmp(typeName, "function"))
+            functionRef = lua_ref(L, true);
+
+        if (functionRef > 0)
+            sEluna->Register(REGTYPE_PLAYER_GOSSIP, menu_id, ev, functionRef);
+        return 0;
+    }
+
+    // RegisterCreatureEvent(entry, ev, func)
+    static int RegisterCreatureEvent(lua_State* L)
+    {
+        int functionRef = 0;
+        lua_settop(L, 3);
+        uint32 entry = luaL_checkint(L, 1);
+        uint32 ev = luaL_checkunsigned(L, 2);
+        const char* typeName = luaL_typename(L, 3);
+        if (ev == 0 || !typeName)
+            return 0;
+
+        if (!strcmp(typeName, "function"))
+            functionRef = lua_ref(L, true);
+
+        if (functionRef > 0)
+            sEluna->Register(REGTYPE_CREATURE, entry, ev, functionRef);
+        return 0;
+    }
+
+    // RegisterGameObjectEvent(entry, event, func)
+    static int RegisterGameObjectEvent(lua_State* L)
+    {
+        int functionRef = 0;
+        lua_settop(L, 3);
+        uint32 entry = luaL_checkint(L, 1);
+        uint32 ev = luaL_checkunsigned(L, 2);
+        const char* typeName = luaL_typename(L, 3);
+        if (ev == 0 || !typeName)
+            return 0;
+
+        if (!strcmp(typeName, "function"))
+            functionRef = lua_ref(L, true);
+
+        if (functionRef > 0)
+            sEluna->Register(REGTYPE_GAMEOBJECT, entry, ev, functionRef);
+        return 0;
+    }
+
     // GetLuaEngine() - Gets lua engine name
     static int GetLuaEngine(lua_State* L)
     {
-        Eluna::get()->PushString(L, "Eluna Nova 0.1"); // remove version?
+        sEluna->PushString(L, "Eluna Nova 0.1"); // remove version?
         return 1;
     }
 
     // ReloadEluna() - Gets core version as string
     static int GetCoreVersion(lua_State* L)
     {
-        Eluna::get()->PushString(L, _FULLVERSION);
+        sEluna->PushString(L, _FULLVERSION);
         return 1;
     }
 
-	// GetQuest(questId)
-	static int GetQuest(lua_State* L)
-	{
-		uint32 questId = luaL_checkunsigned(L, 1);
-		if (!questId)
-			return 0;
+    // GetQuest(questId)
+    static int GetQuest(lua_State* L)
+    {
+        uint32 questId = luaL_checkunsigned(L, 1);
+        if (!questId)
+            return 0;
 
-		Eluna::get()->PushQuest(L, sObjectMgr->GetQuestTemplate(questId));
-		return 1;
-	}
+        sEluna->PushQuest(L, sObjectMgr->GetQuestTemplate(questId));
+        return 1;
+    }
 
     // ReloadEluna() - Reloads eluna
     static int ReloadEluna(lua_State* L)
     {
-        Eluna::get()->Restart();
+        sEluna->StartEluna(true);
         return 0;
     }
 
@@ -39,7 +196,7 @@ namespace LuaGlobalFunctions
     static int GetPlayerByGUID(lua_State* L)
     {
         uint32 guidLow = luaL_checkunsigned(L, 1);
-        Eluna::get()->PushUnit(L, sObjectAccessor->FindPlayer(MAKE_NEW_GUID(guidLow, 0, HIGHGUID_PLAYER)));
+        sEluna->PushUnit(L, sObjectAccessor->FindPlayer(MAKE_NEW_GUID(guidLow, 0, HIGHGUID_PLAYER)));
         return 1;
     }
 
@@ -47,14 +204,14 @@ namespace LuaGlobalFunctions
     static int GetPlayerByName(lua_State* L)
     {
         const char* message = luaL_checkstring(L, 1);
-        Eluna::get()->PushUnit(L, sObjectAccessor->FindPlayerByName(message));
+        sEluna->PushUnit(L, sObjectAccessor->FindPlayerByName(message));
         return 1;
     }
 
     // GetGameTime() - Gets ingame time as seconds (server time?)
     static int GetGameTime(lua_State* L)
     {
-        Eluna::get()->PushUnsigned(L, sWorld->GetGameTime());
+        sEluna->PushUnsigned(L, sWorld->GetGameTime());
         return 1;
     }
 
@@ -84,8 +241,8 @@ namespace LuaGlobalFunctions
                 if (player->GetSession() && ((team >= TEAM_NEUTRAL || player->GetTeamId() == team) && (!onlyGM || player->isGameMaster())))
                 {
                     ++i;
-                    Eluna::get()->PushUnsigned(L, i);
-                    Eluna::get()->PushUnit(L, player);
+                    sEluna->PushUnsigned(L, i);
+                    sEluna->PushUnit(L, player);
                     lua_settable(L, tbl);
                 }
             }
@@ -119,8 +276,8 @@ namespace LuaGlobalFunctions
             if (player->GetSession() && (team >= TEAM_NEUTRAL || player->GetTeamId() == team))
             {
                 ++i;
-                Eluna::get()->PushUnsigned(L, i);
-                Eluna::get()->PushUnit(L, player);
+                sEluna->PushUnsigned(L, i);
+                sEluna->PushUnit(L, player);
                 lua_settable(L, tbl);
             }
         }
@@ -140,7 +297,7 @@ namespace LuaGlobalFunctions
         if (!Result)
             return 0;
 
-        Eluna::get()->PushQueryResult(L, new QueryResult(Result));
+        sEluna->PushQueryResult(L, new QueryResult(Result));
         return 1;
     }
 
@@ -166,7 +323,7 @@ namespace LuaGlobalFunctions
         if (!Result)
             return 0;
 
-        Eluna::get()->PushQueryResult(L, new QueryResult(Result));
+        sEluna->PushQueryResult(L, new QueryResult(Result));
         return 1;
     }
 
@@ -192,7 +349,7 @@ namespace LuaGlobalFunctions
         if (!Result)
             return 0;
 
-        Eluna::get()->PushQueryResult(L, new QueryResult(Result));
+        sEluna->PushQueryResult(L, new QueryResult(Result));
         return 1;
     }
 
@@ -211,7 +368,7 @@ namespace LuaGlobalFunctions
     static int GetGuildByName(lua_State* L)
     {
         const char* name = luaL_checkstring(L, 1);
-        Eluna::get()->PushGuild(L, sGuildMgr->GetGuildByName(name));
+        sEluna->PushGuild(L, sGuildMgr->GetGuildByName(name));
         return 1;
     }
 
@@ -219,14 +376,14 @@ namespace LuaGlobalFunctions
     static int GetGuildByLeaderGUID(lua_State* L)
     {
         uint32 guidLow = luaL_checkunsigned(L, 1);
-        Eluna::get()->PushGuild(L, sGuildMgr->GetGuildByLeader(MAKE_NEW_GUID(guidLow, 0, HIGHGUID_PLAYER)));
+        sEluna->PushGuild(L, sGuildMgr->GetGuildByLeader(MAKE_NEW_GUID(guidLow, 0, HIGHGUID_PLAYER)));
         return 1;
     }
 
     // GetPlayerCount() - Gets server player count
     static int GetPlayerCount(lua_State* L)
     {
-        Eluna::get()->PushUnsigned(L, sWorld->GetPlayerCount());
+        sEluna->PushUnsigned(L, sWorld->GetPlayerCount());
         return 1;
     }
 
@@ -239,8 +396,8 @@ namespace LuaGlobalFunctions
         {
             lua_settop(L, 1);
             int functionRef = lua_ref(L, true);
-            sLuaWorldScript->LuaEventCreate(functionRef, delay, repeats);
-            Eluna::get()->PushInteger(L, functionRef);
+            sEluna->WorldAI->LuaEventCreate(functionRef, delay, repeats);
+            sEluna->PushInteger(L, functionRef);
         }
         else
             return 0;
@@ -251,7 +408,7 @@ namespace LuaGlobalFunctions
     static int DestroyLuaEventByID(lua_State* L)
     {
         int functionRef = luaL_checkinteger(L, 1);
-        sLuaWorldScript->LuaEventCancel(functionRef);
+        sEluna->WorldAI->LuaEventCancel(functionRef);
         return 0;
     }
 
@@ -263,7 +420,7 @@ namespace LuaGlobalFunctions
         if (all_Events)
             Eluna::LuaEventMap::LuaEventsResetAll();
         else
-            sLuaWorldScript->LuaEventsReset();
+            sEluna->WorldAI->LuaEventsReset();
         return 0;
     }
 
@@ -311,7 +468,7 @@ namespace LuaGlobalFunctions
                 }
 
                 sObjectMgr->AddCreatureToGrid(db_guid, sObjectMgr->GetCreatureData(db_guid));
-                Eluna::get()->PushUnit(L, creature);
+                sEluna->PushUnit(L, creature);
             }
             else
             {
@@ -324,7 +481,7 @@ namespace LuaGlobalFunctions
                 else
                     creature->SetTempSummonType(TEMPSUMMON_MANUAL_DESPAWN);
 
-                Eluna::get()->PushUnit(L, creature);
+                sEluna->PushUnit(L, creature);
             }
 
             return 1;
@@ -368,7 +525,7 @@ namespace LuaGlobalFunctions
             }
             else
                 map->AddToMap(object);
-            Eluna::get()->PushGO(L, object);
+            sEluna->PushGO(L, object);
             return 1;
         }
 
@@ -386,78 +543,78 @@ namespace LuaGlobalFunctions
         else
         {
             WorldPacket* _packet = new WorldPacket(opcode, size);
-            Eluna::get()->PushPacket(L, _packet);
+            sEluna->PushPacket(L, _packet);
             return 1;
         }
         return 0;
     }
 
-	// AddVendorItem(entry, itemId, maxcount, incrtime, extendedcost, persist(bool))
-	static int AddVendorItem(lua_State* L)
-	{
-		uint32 entry = luaL_checkunsigned(L, 1);
-		uint32 item = luaL_checkunsigned(L, 2);
-		int maxcount = luaL_checkinteger(L, 3);
-		uint32 incrtime = luaL_checkunsigned(L, 4);
-		uint32 extendedcost = luaL_checkunsigned(L, 5);
-		bool persist = luaL_optbool(L, 6, true);
-		if (!sObjectMgr->GetCreatureTemplate(entry))
-		{
-			sLog->outError(LOG_FILTER_GENERAL, "Eluna Nova::Couldn't find a creature with (ID: %d)!", entry);
-			return 0;
-		}
+    // AddVendorItem(entry, itemId, maxcount, incrtime, extendedcost, persist(bool))
+    static int AddVendorItem(lua_State* L)
+    {
+        uint32 entry = luaL_checkunsigned(L, 1);
+        uint32 item = luaL_checkunsigned(L, 2);
+        int maxcount = luaL_checkinteger(L, 3);
+        uint32 incrtime = luaL_checkunsigned(L, 4);
+        uint32 extendedcost = luaL_checkunsigned(L, 5);
+        bool persist = luaL_optbool(L, 6, true);
+        if (!sObjectMgr->GetCreatureTemplate(entry))
+        {
+            sLog->outError(LOG_FILTER_GENERAL, "Eluna Nova::Couldn't find a creature with (ID: %d)!", entry);
+            return 0;
+        }
 
-		if (!sObjectMgr->IsVendorItemValid(entry, item, maxcount, incrtime, extendedcost))
-			return 0;
-		sObjectMgr->AddVendorItem(entry, item, maxcount, incrtime, extendedcost, persist);
-		return 0;
-	}
+        if (!sObjectMgr->IsVendorItemValid(entry, item, maxcount, incrtime, extendedcost))
+            return 0;
+        sObjectMgr->AddVendorItem(entry, item, maxcount, incrtime, extendedcost, persist);
+        return 0;
+    }
 
-	// VendorRemoveItem(entry, item, persist(bool), otherNpcFlag(optional-uint))
-	static int VendorRemoveItem(lua_State* L)
-	{
-		uint32 entry = luaL_checkunsigned(L, 1);
-		uint32 item = luaL_checkunsigned(L, 2);
-		bool persist = luaL_optbool(L, 3, true);
-		uint32 otherFlag = luaL_optunsigned(L, 4, UNIT_NPC_FLAG_VENDOR+1);
-		if (!sObjectMgr->GetCreatureTemplate(entry))
-		{
-			sLog->outError(LOG_FILTER_GENERAL, "Eluna Nova::Couldn't find a creature with (ID: %d)!", entry);
-			return 0;
-		}
+    // VendorRemoveItem(entry, item, persist(bool), otherNpcFlag(optional-uint))
+    static int VendorRemoveItem(lua_State* L)
+    {
+        uint32 entry = luaL_checkunsigned(L, 1);
+        uint32 item = luaL_checkunsigned(L, 2);
+        bool persist = luaL_optbool(L, 3, true);
+        uint32 otherFlag = luaL_optunsigned(L, 4, UNIT_NPC_FLAG_VENDOR+1);
+        if (!sObjectMgr->GetCreatureTemplate(entry))
+        {
+            sLog->outError(LOG_FILTER_GENERAL, "Eluna Nova::Couldn't find a creature with (ID: %d)!", entry);
+            return 0;
+        }
 
-		CreatureTemplate const* cInfo = sObjectMgr->GetCreatureTemplate(entry);
-		if (!((cInfo->npcflag | otherFlag) & UNIT_NPC_FLAG_VENDOR))
-			return 0;
+        CreatureTemplate const* cInfo = sObjectMgr->GetCreatureTemplate(entry);
+        if (!((cInfo->npcflag | otherFlag) & UNIT_NPC_FLAG_VENDOR))
+            return 0;
 
-		if (!sObjectMgr->RemoveVendorItem(entry, item, persist))
-			return 0;
-		return 0;
-	}
+        if (!sObjectMgr->RemoveVendorItem(entry, item, persist))
+            return 0;
+        return 0;
+    }
 
-	// VendorRemoveAllItems(creature, persist(bool))
-	static int VendorRemoveAllItems(lua_State* L)
-	{
-		Creature* creature = Eluna::get()->CHECK_CREATURE(L, 1);
-		bool persist = luaL_optbool(L, 2, true);
-		if (!creature || !creature->IsInWorld())
-			return 0;
+    // VendorRemoveAllItems(creature, persist(bool))
+    static int VendorRemoveAllItems(lua_State* L)
+    {
+        Creature* creature = sEluna->CHECK_CREATURE(L, 1);
+        bool persist = luaL_optbool(L, 2, true);
+        if (!creature || !creature->IsInWorld())
+            return 0;
 
-		VendorItemData const* items = creature->GetVendorItems();
-		if (!items || items->Empty())
-			return 0;
+        VendorItemData const* items = creature->GetVendorItems();
+        if (!items || items->Empty())
+            return 0;
 
-		uint32 vendorItems[200];
-		uint32 i = 0;
-		for (VendorItemList::const_iterator itr = items->m_items.begin(); itr != items->m_items.end(); ++itr)
-		{
-			vendorItems[i] = (*itr)->item;
-			i++;
-		}
+        uint32 vendorItems[200];
+        uint32 i = 0;
+        for (VendorItemList::const_iterator itr = items->m_items.begin(); itr != items->m_items.end(); ++itr)
+        {
+            vendorItems[i] = (*itr)->item;
+            i++;
+        }
 
-		for (i = 0; i < items->GetItemCount(); i++)
-			sObjectMgr->RemoveVendorItem(creature->GetEntry(), vendorItems[i], persist);
-		return 0;
-	}
+        for (i = 0; i < items->GetItemCount(); i++)
+            sObjectMgr->RemoveVendorItem(creature->GetEntry(), vendorItems[i], persist);
+        return 0;
+    }
 }
 #endif

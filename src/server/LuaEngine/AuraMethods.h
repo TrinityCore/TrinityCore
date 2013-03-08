@@ -10,7 +10,7 @@ public:
         if (!aura)
             return 0;
 
-        Eluna::get()->PushString(L, "Aura");
+        sEluna->PushString(L, "Aura");
         return 1;
     }
 
@@ -20,7 +20,7 @@ public:
         if (!aura)
             return 0;
 
-        Eluna::get()->PushUnit(L, aura->GetCaster());
+        sEluna->PushUnit(L, aura->GetCaster());
         return 1;
     }
 
@@ -30,7 +30,7 @@ public:
         if (!aura)
             return 0;
 
-        Eluna::get()->PushGUID(L, aura->GetCasterGUID());
+        sEluna->PushGUID(L, aura->GetCasterGUID());
         return 1;
     }
 
@@ -40,7 +40,7 @@ public:
         if (!aura)
             return 0;
 
-        Eluna::get()->PushUnsigned(L, aura->GetCasterLevel());
+        sEluna->PushUnsigned(L, aura->GetCasterLevel());
         return 1;
     }
 
@@ -50,7 +50,7 @@ public:
         if (!aura)
             return 0;
 
-        Eluna::get()->PushInteger(L, aura->GetDuration());
+        sEluna->PushInteger(L, aura->GetDuration());
         return 1;
     }
 
@@ -60,7 +60,7 @@ public:
         if (!aura)
             return 0;
 
-        Eluna::get()->PushUnsigned(L, aura->GetCharges());
+        sEluna->PushUnsigned(L, aura->GetCharges());
         return 1;
     }
 
@@ -70,7 +70,7 @@ public:
         if (!aura)
             return 0;
 
-        Eluna::get()->PushUnsigned(L, aura->GetId());
+        sEluna->PushUnsigned(L, aura->GetId());
         return 1;
     }
 
@@ -80,7 +80,7 @@ public:
         if (!aura)
             return 0;
 
-        Eluna::get()->PushInteger(L, aura->GetMaxDuration());
+        sEluna->PushInteger(L, aura->GetMaxDuration());
         return 1;
     }
 
@@ -90,7 +90,7 @@ public:
         if (!aura)
             return 0;
 
-        Eluna::get()->PushUnsigned(L, aura->GetStackAmount());
+        sEluna->PushUnsigned(L, aura->GetStackAmount());
         return 1;
     }
 
@@ -146,7 +146,7 @@ public:
         if (aura->GetType() != UNIT_AURA_TYPE)
             return 0;
 
-        Eluna::get()->PushUnit(L, aura->GetUnitOwner());
+        sEluna->PushUnit(L, aura->GetUnitOwner());
         return 1;
     }
 };

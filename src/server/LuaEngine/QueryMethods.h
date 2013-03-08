@@ -12,38 +12,38 @@ public:
         if (!result)
             return 0;
 
-        Eluna::get()->PushString(L, "QueryResult");
+        sEluna->PushString(L, "QueryResult");
         return 1;
     }
 
     static int NextRow(lua_State* L, QueryResult* result)
     {
         if (!result)
-            Eluna::get()->PushBoolean(L, false);
+            sEluna->PushBoolean(L, false);
         else
-            Eluna::get()->PushBoolean(L, result->get()->NextRow());
+            sEluna->PushBoolean(L, result->get()->NextRow());
         return 1;
     }
 
     static int GetColumnCount(lua_State* L, QueryResult* result)
     {
         if (!result)
-            Eluna::get()->PushUnsigned(L, 0);
+            sEluna->PushUnsigned(L, 0);
         else
-            Eluna::get()->PushUnsigned(L, result->get()->GetFieldCount());
+            sEluna->PushUnsigned(L, result->get()->GetFieldCount());
         return 1;
     }
 
     static int GetRowCount(lua_State* L, QueryResult* result)
     {
         if (!result)
-            Eluna::get()->PushUnsigned(L, 0);
+            sEluna->PushUnsigned(L, 0);
         else
         {
             if (result->get()->GetRowCount() > (uint32)-1)
-                Eluna::get()->PushUnsigned(L, (uint32)-1);
+                sEluna->PushUnsigned(L, (uint32)-1);
             else
-                Eluna::get()->PushUnsigned(L, result->get()->GetRowCount());
+                sEluna->PushUnsigned(L, result->get()->GetRowCount());
         }
         return 1;
     }
@@ -55,9 +55,9 @@ public:
     {
         uint32 col = luaL_checkunsigned(L, 1);
         if (!result || !*result || col >= result->get()->GetFieldCount())
-            Eluna::get()->PushBoolean(L, true);
+            sEluna->PushBoolean(L, true);
         else
-            Eluna::get()->PushBoolean(L, result->get()->Fetch()[col].IsNull());
+            sEluna->PushBoolean(L, result->get()->Fetch()[col].IsNull());
         return 1;
     }
 
@@ -65,9 +65,9 @@ public:
     {
         uint32 col = luaL_checkunsigned(L, 1);
         if (!result || !*result || col >= result->get()->GetFieldCount())
-            Eluna::get()->PushBoolean(L, false);
+            sEluna->PushBoolean(L, false);
         else
-            Eluna::get()->PushBoolean(L, result->get()->Fetch()[col].GetBool());
+            sEluna->PushBoolean(L, result->get()->Fetch()[col].GetBool());
         return 1;
     }
 
@@ -75,9 +75,9 @@ public:
     {
         uint32 col = luaL_checkunsigned(L, 1);
         if (!result || !*result || col >= result->get()->GetFieldCount())
-            Eluna::get()->PushUnsigned(L, 0);
+            sEluna->PushUnsigned(L, 0);
         else
-            Eluna::get()->PushUnsigned(L, result->get()->Fetch()[col].GetUInt8());
+            sEluna->PushUnsigned(L, result->get()->Fetch()[col].GetUInt8());
         return 1;
     }
 
@@ -85,9 +85,9 @@ public:
     {
         uint32 col = luaL_checkunsigned(L, 1);
         if (!result || !*result || col >= result->get()->GetFieldCount())
-            Eluna::get()->PushUnsigned(L, 0);
+            sEluna->PushUnsigned(L, 0);
         else
-            Eluna::get()->PushUnsigned(L, result->get()->Fetch()[col].GetUInt16());
+            sEluna->PushUnsigned(L, result->get()->Fetch()[col].GetUInt16());
         return 1;
     }
 
@@ -95,9 +95,9 @@ public:
     {
         uint32 col = luaL_checkunsigned(L, 1);
         if (!result || !*result || col >= result->get()->GetFieldCount())
-            Eluna::get()->PushUnsigned(L, 0);
+            sEluna->PushUnsigned(L, 0);
         else
-            Eluna::get()->PushUnsigned(L, result->get()->Fetch()[col].GetUInt32());
+            sEluna->PushUnsigned(L, result->get()->Fetch()[col].GetUInt32());
         return 1;
     }
 
@@ -105,9 +105,9 @@ public:
     {
         uint32 col = luaL_checkunsigned(L, 1);
         if (!result || !*result || col >= result->get()->GetFieldCount())
-            Eluna::get()->PushInteger(L, 0);
+            sEluna->PushInteger(L, 0);
         else
-            Eluna::get()->PushInteger(L, result->get()->Fetch()[col].GetInt8());
+            sEluna->PushInteger(L, result->get()->Fetch()[col].GetInt8());
         return 1;
     }
 
@@ -115,9 +115,9 @@ public:
     {
         uint32 col = luaL_checkunsigned(L, 1);
         if (!result || !*result || col >= result->get()->GetFieldCount())
-            Eluna::get()->PushInteger(L, 0);
+            sEluna->PushInteger(L, 0);
         else
-            Eluna::get()->PushInteger(L, result->get()->Fetch()[col].GetInt16());
+            sEluna->PushInteger(L, result->get()->Fetch()[col].GetInt16());
         return 1;
     }
 
@@ -125,9 +125,9 @@ public:
     {
         uint32 col = luaL_checkunsigned(L, 1);
         if (!result || !*result || col >= result->get()->GetFieldCount())
-            Eluna::get()->PushInteger(L, 0);
+            sEluna->PushInteger(L, 0);
         else
-            Eluna::get()->PushInteger(L, result->get()->Fetch()[col].GetInt32());
+            sEluna->PushInteger(L, result->get()->Fetch()[col].GetInt32());
         return 1;
     }
 
@@ -135,9 +135,9 @@ public:
     {
         uint32 col = luaL_checkunsigned(L, 1);
         if (!result || !*result || col >= result->get()->GetFieldCount())
-            Eluna::get()->PushFloat(L, 0.0f);
+            sEluna->PushFloat(L, 0.0f);
         else
-            Eluna::get()->PushFloat(L, result->get()->Fetch()[col].GetFloat());
+            sEluna->PushFloat(L, result->get()->Fetch()[col].GetFloat());
         return 1;
     }
 
@@ -145,9 +145,9 @@ public:
     {
         uint32 col = luaL_checkunsigned(L, 1);
         if (!result || !*result || col >= result->get()->GetFieldCount())
-            Eluna::get()->PushDouble(L, 0.0);
+            sEluna->PushDouble(L, 0.0);
         else
-            Eluna::get()->PushDouble(L, result->get()->Fetch()[col].GetDouble());
+            sEluna->PushDouble(L, result->get()->Fetch()[col].GetDouble());
         return 1;
     }
 
@@ -155,9 +155,9 @@ public:
     {
         uint32 col = luaL_checkunsigned(L, 1);
         if (!result || !*result || col >= result->get()->GetFieldCount())
-            Eluna::get()->PushString(L, "");
+            sEluna->PushString(L, "");
         else
-            Eluna::get()->PushString(L, result->get()->Fetch()[col].GetString().c_str());
+            sEluna->PushString(L, result->get()->Fetch()[col].GetString().c_str());
         return 1;
     }
 };

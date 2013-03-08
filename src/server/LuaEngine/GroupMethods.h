@@ -22,8 +22,8 @@ public:
                 continue;
 
             ++i;
-            Eluna::get()->PushUnsigned(L, i);
-            Eluna::get()->PushUnit(L, member);
+            sEluna->PushUnsigned(L, i);
+            sEluna->PushUnit(L, member);
             lua_settable(L, tbl);
         }
 
@@ -36,7 +36,7 @@ public:
         if (!group)
             return 0;
 
-        Eluna::get()->PushGUID(L, group->GetLeaderGUID());
+        sEluna->PushGUID(L, group->GetLeaderGUID());
         return 1;
     }
 
@@ -45,7 +45,7 @@ public:
         if (!group)
             return 0;
 
-        Eluna::get()->PushUnit(L, sObjectAccessor->FindPlayer(group->GetLeaderGUID()));
+        sEluna->PushUnit(L, sObjectAccessor->FindPlayer(group->GetLeaderGUID()));
         return 1;
     }
 
@@ -54,7 +54,7 @@ public:
         if (!group)
             return 0;
 
-        Eluna::get()->PushString(L, "Group");
+        sEluna->PushString(L, "Group");
         return 1;
     }
 
@@ -63,7 +63,7 @@ public:
         if (!group)
             return 0;
 
-        Eluna::get()->PushGUID(L, group->GetGUID());
+        sEluna->PushGUID(L, group->GetGUID());
         return 1;
     }
 
@@ -71,18 +71,18 @@ public:
     {
         if (!group)
         {
-            Eluna::get()->PushBoolean(L, false);
+            sEluna->PushBoolean(L, false);
             return 1;
         }
 
-        Player* leader = Eluna::get()->CHECK_PLAYER(L, 1);
+        Player* leader = sEluna->CHECK_PLAYER(L, 1);
         if (leader)
         {
             group->ChangeLeader(leader->GetGUID());
-            Eluna::get()->PushBoolean(L, true);
+            sEluna->PushBoolean(L, true);
         }
         else
-            Eluna::get()->PushBoolean(L, false);
+            sEluna->PushBoolean(L, false);
         return 1;
     }
 
@@ -90,19 +90,19 @@ public:
     {
         if (!group)
         {
-            Eluna::get()->PushBoolean(L, false);
+            sEluna->PushBoolean(L, false);
             return 1;
         }
 
-        Player* player = Eluna::get()->CHECK_PLAYER(L, 1);
+        Player* player = sEluna->CHECK_PLAYER(L, 1);
         if (!player)
             if (const char* name = luaL_checkstring(L, 1))
                 player = sObjectAccessor->FindPlayerByName(name);
 
         if (player)
-            Eluna::get()->PushBoolean(L, group->IsLeader(player->GetGUID()));
+            sEluna->PushBoolean(L, group->IsLeader(player->GetGUID()));
         else
-            Eluna::get()->PushBoolean(L, false);
+            sEluna->PushBoolean(L, false);
         return 1;
     }
 
@@ -112,7 +112,7 @@ public:
         if (!group)
             return 0;
 
-        WorldPacket* data = Eluna::get()->CHECK_PACKET(L, 1);
+        WorldPacket* data = sEluna->CHECK_PACKET(L, 1);
         bool ignorePlayersInBg = luaL_checkbool(L, 2);
         uint32 ignore = luaL_optunsigned(L, 3, 0);
 
@@ -125,15 +125,15 @@ public:
     {
         if (!group)
         {
-            Eluna::get()->PushBoolean(L, false);
+            sEluna->PushBoolean(L, false);
             return 1;
         }
 
-        Player* player = Eluna::get()->CHECK_PLAYER(L, 1);
+        Player* player = sEluna->CHECK_PLAYER(L, 1);
         if (player)
-            Eluna::get()->PushBoolean(L, group->AddInvite(player));
+            sEluna->PushBoolean(L, group->AddInvite(player));
         else
-            Eluna::get()->PushBoolean(L, false);
+            sEluna->PushBoolean(L, false);
         return 1;
     }
 
@@ -141,15 +141,15 @@ public:
     {
         if (!group)
         {
-            Eluna::get()->PushBoolean(L, false);
+            sEluna->PushBoolean(L, false);
             return 1;
         }
 
-        Player* player = Eluna::get()->CHECK_PLAYER(L, 1);
+        Player* player = sEluna->CHECK_PLAYER(L, 1);
         if (player)
-            Eluna::get()->PushBoolean(L, group->RemoveMember(player->GetGUID()));
+            sEluna->PushBoolean(L, group->RemoveMember(player->GetGUID()));
         else
-            Eluna::get()->PushBoolean(L, false);
+            sEluna->PushBoolean(L, false);
         return 1;
     }
 
@@ -165,59 +165,59 @@ public:
     static int IsFull(lua_State* L, Group* group)
     {
         if (!group)
-            Eluna::get()->PushBoolean(L, false);
+            sEluna->PushBoolean(L, false);
         else
-            Eluna::get()->PushBoolean(L, group->IsFull());
+            sEluna->PushBoolean(L, group->IsFull());
         return 1;
     }
 
     static int isLFGGroup(lua_State* L, Group* group)
     {
         if (!group)
-            Eluna::get()->PushBoolean(L, false);
+            sEluna->PushBoolean(L, false);
         else
-            Eluna::get()->PushBoolean(L, group->isLFGGroup());
+            sEluna->PushBoolean(L, group->isLFGGroup());
         return 1;
     }
 
     static int isRaidGroup(lua_State* L, Group* group)
     {
         if (!group)
-            Eluna::get()->PushBoolean(L, false);
+            sEluna->PushBoolean(L, false);
         else
-            Eluna::get()->PushBoolean(L, group->isRaidGroup());
+            sEluna->PushBoolean(L, group->isRaidGroup());
         return 1;
     }
 
     static int isBGGroup(lua_State* L, Group* group)
     {
         if (!group)
-            Eluna::get()->PushBoolean(L, false);
+            sEluna->PushBoolean(L, false);
         else
-            Eluna::get()->PushBoolean(L, group->isBGGroup());
+            sEluna->PushBoolean(L, group->isBGGroup());
         return 1;
     }
 
     static int isBFGroup(lua_State* L, Group* group)
     {
         if (!group)
-            Eluna::get()->PushBoolean(L, false);
+            sEluna->PushBoolean(L, false);
         else
-            Eluna::get()->PushBoolean(L, group->isBFGroup());
+            sEluna->PushBoolean(L, group->isBFGroup());
         return 1;
     }
 
     static int IsMember(lua_State* L, Group* group)
     {
         if (!group)
-            Eluna::get()->PushBoolean(L, false);
+            sEluna->PushBoolean(L, false);
         else
         {
-            Player* player = Eluna::get()->CHECK_PLAYER(L, 1);
+            Player* player = sEluna->CHECK_PLAYER(L, 1);
             if (player)
-                Eluna::get()->PushBoolean(L, group->IsMember(player->GetGUID()));
+                sEluna->PushBoolean(L, group->IsMember(player->GetGUID()));
             else
-                Eluna::get()->PushBoolean(L, false);
+                sEluna->PushBoolean(L, false);
         }
         return 1;
     }
@@ -225,14 +225,14 @@ public:
     static int IsAssistant(lua_State* L, Group* group)
     {
         if (!group)
-            Eluna::get()->PushBoolean(L, false);
+            sEluna->PushBoolean(L, false);
         else
         {
-            Player* player = Eluna::get()->CHECK_PLAYER(L, 1);
+            Player* player = sEluna->CHECK_PLAYER(L, 1);
             if (player)
-                Eluna::get()->PushBoolean(L, group->IsAssistant(player->GetGUID()));
+                sEluna->PushBoolean(L, group->IsAssistant(player->GetGUID()));
             else
-                Eluna::get()->PushBoolean(L, false);
+                sEluna->PushBoolean(L, false);
         }
         return 1;
     }
@@ -240,15 +240,15 @@ public:
     static int SameSubGroup(lua_State* L, Group* group)
     {
         if (!group)
-            Eluna::get()->PushBoolean(L, false);
+            sEluna->PushBoolean(L, false);
         else
         {
-            Player* player1 = Eluna::get()->CHECK_PLAYER(L, 1);
-            Player* player2 = Eluna::get()->CHECK_PLAYER(L, 2);
+            Player* player1 = sEluna->CHECK_PLAYER(L, 1);
+            Player* player2 = sEluna->CHECK_PLAYER(L, 2);
             if (player1 && player2)
-                Eluna::get()->PushBoolean(L, group->SameSubGroup(player1, player2));
+                sEluna->PushBoolean(L, group->SameSubGroup(player1, player2));
             else
-                Eluna::get()->PushBoolean(L, false);
+                sEluna->PushBoolean(L, false);
         }
         return 1;
     }
@@ -256,11 +256,11 @@ public:
     static int HasFreeSlotSubGroup(lua_State* L, Group* group)
     {
         if (!group)
-            Eluna::get()->PushBoolean(L, false);
+            sEluna->PushBoolean(L, false);
         else
         {
             uint8 subGroup = luaL_checkunsigned(L, 1);
-            Eluna::get()->PushBoolean(L, group->HasFreeSlotSubGroup(subGroup));
+            sEluna->PushBoolean(L, group->HasFreeSlotSubGroup(subGroup));
         }
         return 1;
     }
@@ -271,7 +271,7 @@ public:
             return 0;
 
         const char* name = luaL_checkstring(L, 1);
-        Eluna::get()->PushGUID(L, group->GetMemberGUID(name));
+        sEluna->PushGUID(L, group->GetMemberGUID(name));
         return 1;
     }
 
@@ -280,7 +280,7 @@ public:
         if (!group)
             return 0;
 
-        Eluna::get()->PushUnsigned(L, group->GetMembersCount());
+        sEluna->PushUnsigned(L, group->GetMembersCount());
         return 1;
     }
 
@@ -307,7 +307,7 @@ public:
         if (!group)
             return 0;
 
-        Player* player = Eluna::get()->CHECK_PLAYER(L, 1);
+        Player* player = sEluna->CHECK_PLAYER(L, 1);
         uint8 groupID = luaL_checkunsigned(L, 2);
 
         if (player)
@@ -320,11 +320,11 @@ public:
         if (!group)
             return 0;
 
-        Player* player = Eluna::get()->CHECK_PLAYER(L, 1);
+        Player* player = sEluna->CHECK_PLAYER(L, 1);
         if (!player)
             return 0;
 
-        Eluna::get()->PushUnsigned(L, group->GetMemberGroup(player->GetGUID()));
+        sEluna->PushUnsigned(L, group->GetMemberGroup(player->GetGUID()));
         return 1;
     }
 

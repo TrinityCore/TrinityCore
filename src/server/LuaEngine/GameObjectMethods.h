@@ -11,7 +11,7 @@ public:
         if (!go || !go->IsInWorld())
             return 0;
 
-        Eluna::get()->PushString(L, "GameObject");
+        sEluna->PushString(L, "GameObject");
         return 1;
     }
 
@@ -21,7 +21,7 @@ public:
         if (!go || !go->IsInWorld())
             return 0;
 
-        Eluna::get()->PushGUID(L, go->GetGUID());
+        sEluna->PushGUID(L, go->GetGUID());
         return 1;
     }
 
@@ -32,7 +32,7 @@ public:
             return 0;
 
         uint32 spell = luaL_checkunsigned(L, 1);
-        Unit* target = Eluna::get()->CHECK_UNIT(L, 2);
+        Unit* target = sEluna->CHECK_UNIT(L, 2);
         if (target)
             go->CastSpell(target, spell);
         return 0;
@@ -44,7 +44,7 @@ public:
         if (!go || !go->IsInWorld())
             return 0;
 
-        Eluna::get()->PushFloat(L, go->GetPositionX());
+        sEluna->PushFloat(L, go->GetPositionX());
         return 1;
     }
 
@@ -54,7 +54,7 @@ public:
         if (!go || !go->IsInWorld())
             return 0;
 
-        Eluna::get()->PushFloat(L, go->GetPositionY());
+        sEluna->PushFloat(L, go->GetPositionY());
         return 1;
     }
 
@@ -64,7 +64,7 @@ public:
         if (!go || !go->IsInWorld())
             return 0;
 
-        Eluna::get()->PushFloat(L, go->GetPositionZ());
+        sEluna->PushFloat(L, go->GetPositionZ());
         return 1;
     }
 
@@ -74,7 +74,7 @@ public:
         if (!go || !go->IsInWorld())
             return 0;
 
-        Eluna::get()->PushFloat(L, go->GetOrientation());
+        sEluna->PushFloat(L, go->GetOrientation());
         return 1;
     }
 
@@ -84,10 +84,10 @@ public:
         if (!go || !go->IsInWorld())
             return 0;
 
-        Eluna::get()->PushFloat(L, go->GetPositionX());
-        Eluna::get()->PushFloat(L, go->GetPositionY());
-        Eluna::get()->PushFloat(L, go->GetPositionZ());
-        Eluna::get()->PushFloat(L, go->GetOrientation());
+        sEluna->PushFloat(L, go->GetPositionX());
+        sEluna->PushFloat(L, go->GetPositionY());
+        sEluna->PushFloat(L, go->GetPositionZ());
+        sEluna->PushFloat(L, go->GetOrientation());
         return 4;
     }
 
@@ -97,7 +97,7 @@ public:
         if (!go || !go->IsInWorld())
             return 0;
 
-        Eluna::get()->PushFloat(L, go->GetMapId());
+        sEluna->PushFloat(L, go->GetMapId());
         return 1;
     }
 
@@ -107,7 +107,7 @@ public:
         if (!go || !go->IsInWorld())
             return 0;
 
-        Eluna::get()->PushFloat(L, go->GetZoneId());
+        sEluna->PushFloat(L, go->GetZoneId());
         return 1;
     }
 
@@ -117,7 +117,7 @@ public:
         if (!go || !go->IsInWorld())
             return 0;
 
-        Eluna::get()->PushFloat(L, go->GetAreaId());
+        sEluna->PushFloat(L, go->GetAreaId());
         return 1;
     }
 
@@ -127,7 +127,7 @@ public:
         if (!go || !go->IsInWorld())
             return 0;
 
-        Eluna::get()->PushString(L, go->GetName().c_str());
+        sEluna->PushString(L, go->GetName().c_str());
         return 1;
     }
 
@@ -137,7 +137,7 @@ public:
         if (!go || !go->IsInWorld())
             return 0;
 
-        Eluna::get()->PushUnsigned(L, go->GetEntry());
+        sEluna->PushUnsigned(L, go->GetEntry());
         return 1;
     }
 
@@ -159,7 +159,7 @@ public:
             summontype = TEMPSUMMON_TIMED_OR_DEAD_DESPAWN;
         else
             summontype = TEMPSUMMON_MANUAL_DESPAWN;
-        Eluna::get()->PushUnit(L, go->SummonCreature(entry, x, y, z, o, summontype, despawn));
+        sEluna->PushUnit(L, go->SummonCreature(entry, x, y, z, o, summontype, despawn));
         return 1;
     }
 
@@ -175,7 +175,7 @@ public:
         float z = luaL_checknumber(L, 4);
         float o = luaL_checknumber(L, 5);
         uint32 respawnDelay = luaL_optunsigned(L, 6, 30);
-        Eluna::get()->PushGO(L, go->SummonGameObject(entry, x, y, z, o, 0, 0, 0, 0, respawnDelay));
+        sEluna->PushGO(L, go->SummonGameObject(entry, x, y, z, o, 0, 0, 0, 0, respawnDelay));
         return 1;
     }
 
@@ -195,7 +195,7 @@ public:
         if (!go || !go->IsInWorld())
             return 0;
 
-        Eluna::get()->PushUnsigned(L, go->GetDisplayId());
+        sEluna->PushUnsigned(L, go->GetDisplayId());
         return 1;
     }
 
@@ -205,7 +205,7 @@ public:
         if (!go || !go->IsInWorld())
             return 0;
 
-        Eluna::get()->PushFloat(L, go->GetObjectSize());
+        sEluna->PushFloat(L, go->GetObjectSize());
         return 1;
     }
 
@@ -213,9 +213,9 @@ public:
     static int IsInWorld(lua_State* L, GameObject* go)
     {
         if (!go)
-            Eluna::get()->PushBoolean(L, false);
+            sEluna->PushBoolean(L, false);
         else
-            Eluna::get()->PushBoolean(L, go->IsInWorld());
+            sEluna->PushBoolean(L, go->IsInWorld());
         return 1;
     }
 
@@ -223,11 +223,11 @@ public:
     static int HasQuest(lua_State* L, GameObject* go)
     {
         if (!go || !go->IsInWorld())
-            Eluna::get()->PushBoolean(L, false);
+            sEluna->PushBoolean(L, false);
         else
         {
             uint32 questId = luaL_checkunsigned(L, 1);
-            Eluna::get()->PushBoolean(L, go->hasQuest(questId));
+            sEluna->PushBoolean(L, go->hasQuest(questId));
         }
         return 1;
     }
@@ -236,9 +236,9 @@ public:
     static int IsTransport(lua_State* L, GameObject* go)
     {
         if (!go || !go->IsInWorld())
-            Eluna::get()->PushBoolean(L, false);
+            sEluna->PushBoolean(L, false);
         else
-            Eluna::get()->PushBoolean(L, go->IsTransport());
+            sEluna->PushBoolean(L, go->IsTransport());
         return 1;
     }
 
@@ -246,9 +246,9 @@ public:
     static int IsDestructible(lua_State* L, GameObject* go)
     {
         if (!go || !go->IsInWorld())
-            Eluna::get()->PushBoolean(L, false);
+            sEluna->PushBoolean(L, false);
         else
-            Eluna::get()->PushBoolean(L, go->IsDestructibleBuilding());
+            sEluna->PushBoolean(L, go->IsDestructibleBuilding());
         return 1;
     }
 
@@ -256,9 +256,9 @@ public:
     static int IsActive(lua_State* L, GameObject* go)
     {
         if (!go || !go->IsInWorld())
-            Eluna::get()->PushBoolean(L, false);
+            sEluna->PushBoolean(L, false);
         else
-            Eluna::get()->PushBoolean(L, go->isActiveObject());
+            sEluna->PushBoolean(L, go->isActiveObject());
         return 1;
     }
 
@@ -295,8 +295,8 @@ public:
 
         uint32 delay = luaL_checkunsigned(L, 2);
         uint32 repeats = luaL_checkunsigned(L, 3);
-        Eluna::LuaGameObjectScript::LuaGameObjectAI* luaAI = sLuaGameObjectScript->GetAI(go);
-        if (!luaAI)
+        Eluna::LuaEventMap* eventMap = sEluna->GetEvents(go);
+        if (!eventMap)
         {
             luaL_error(L, "GameObject has no registered gameobject events, please register one before using RegisterEvent");
             return 0;
@@ -305,8 +305,8 @@ public:
         {
             lua_settop(L, 1);
             int functionRef = lua_ref(L, true);
-            luaAI->LuaEventCreate(functionRef, delay, repeats);
-            Eluna::get()->PushInteger(L, functionRef);
+            eventMap->LuaEventCreate(functionRef, delay, repeats);
+            sEluna->PushInteger(L, functionRef);
         }
         else
             return 0;
@@ -321,9 +321,9 @@ public:
             return 0;
 
         int eventID = luaL_checkinteger(L, 1);
-        Eluna::LuaGameObjectScript::LuaGameObjectAI* luaAI = sLuaGameObjectScript->GetAI(go);
-        if (luaAI)
-            luaAI->LuaEventCancel(eventID);
+        Eluna::LuaEventMap* eventMap = sEluna->GetEvents(go);
+        if (eventMap)
+            eventMap->LuaEventCancel(eventID);
         return 0;
     }
 
@@ -332,10 +332,10 @@ public:
     {
         if (!go || !go->IsInWorld())
             return 0;
-
-        Eluna::LuaGameObjectScript::LuaGameObjectAI* luaAI = sLuaGameObjectScript->GetAI(go);
-        if (luaAI)
-            luaAI->LuaEventsReset();
+        
+        Eluna::LuaEventMap* eventMap = sEluna->GetEvents(go);
+        if (eventMap)
+            eventMap->LuaEventsReset();
         return 0;
     }
 
@@ -345,7 +345,7 @@ public:
             return 0;
 
         uint16 index = luaL_checkunsigned(L, 1);
-        Eluna::get()->PushInteger(L, go->GetInt32Value(index));
+        sEluna->PushInteger(L, go->GetInt32Value(index));
         return 1;
     }
 
@@ -355,7 +355,7 @@ public:
             return 0;
 
         uint16 index = luaL_checkunsigned(L, 1);
-        Eluna::get()->PushUnsigned(L, go->GetUInt32Value(index));
+        sEluna->PushUnsigned(L, go->GetUInt32Value(index));
         return 1;
     }
 
@@ -365,7 +365,7 @@ public:
             return 0;
 
         uint16 index = luaL_checkunsigned(L, 1);
-        Eluna::get()->PushFloat(L, go->GetFloatValue(index));
+        sEluna->PushFloat(L, go->GetFloatValue(index));
         return 1;
     }
 
@@ -376,7 +376,7 @@ public:
 
         uint16 index = luaL_checkunsigned(L, 1);
         uint8 offset = luaL_checkunsigned(L, 2);
-        Eluna::get()->PushUnsigned(L, go->GetByteValue(index, offset));
+        sEluna->PushUnsigned(L, go->GetByteValue(index, offset));
         return 1;
     }
 
@@ -387,7 +387,7 @@ public:
 
         uint16 index = luaL_checkunsigned(L, 1);
         uint8 offset = luaL_checkunsigned(L, 2);
-        Eluna::get()->PushUnsigned(L, go->GetUInt16Value(index, offset));
+        sEluna->PushUnsigned(L, go->GetUInt16Value(index, offset));
         return 1;
     }
 
