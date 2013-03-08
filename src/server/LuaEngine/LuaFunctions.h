@@ -18,18 +18,21 @@ ElunaRegister<Unit> UnitMethods[] =
     {"GetAccountName", &LuaUnit::GetAccountName},                   // :GetAccountName()
     {"GetArenaPoints", &LuaUnit::GetArenaPoints},                   // :GetArenaPoints()
     {"GetHonorPoints", &LuaUnit::GetHonorPoints},                   // :GetHonorPoints()
+	{"GetLifetimeKills", &LuaUnit::GetLifetimeKills},               // :GetLifetimeKills() -- Returns the player's lifetime (honorable) kills
 
     // Setters
+    {"AdvanceSkillsToMax", &LuaUnit::AdvanceSkillsToMax},           // :AdvanceSkillsToMax() -- Advances all currently known skills to the currently known max level
+    {"AdvanceSkill", &LuaUnit::AdvanceSkill},                       // :AdvanceSkill(skill_id, step) -- Advances skill by ID and the amount(step)
+    {"AdvanceAllSkills", &LuaUnit::AdvanceAllSkills},               // :AdvanceAllSkills(value) -- Advances all current skills to your input(value)
+	{"AddLifetimeKills", &LuaUnit::AddLifetimeKills},               // :AddLifetimeKills(val) -- Adds lifetime (honorable) kills to your current lifetime kills
     {"SetCoinage", &LuaUnit::SetCoinage},                           // :SetCoinage(amount) - sets plr's coinage to this.
     {"SetKnownTitle", &LuaUnit::SetKnownTitle},                     // :SetKnownTitle(id)
     {"UnsetKnownTitle", &LuaUnit::UnsetKnownTitle},                 // :UnsetKnownTitle(id)
-    {"AdvanceSkillsToMax", &LuaUnit::AdvanceSkillsToMax},           // :AdvanceSkillsToMax() -- Advances all currently known skills to the currently known max level
-    {"AdvanceSkill", &LuaUnit::AdvanceSkill},                       // AdvanceSkill(skill_id, step) -- Advances skill by ID and the amount(step)
-    {"AdvanceAllSkills", &LuaUnit::AdvanceAllSkills},               // AdvanceAllSkills(value) -- Advances all current skills to your input(value)
     {"SetBindPoint", &LuaUnit::SetBindPoint},                       // :SetBindPoint(x, y, z, map, areaid) -- sets home for hearthstone
     {"SetBindPointAtPlayerLoc", &LuaUnit::SetBindPointAtPlayerLoc}, // :SetBindPointAtPlayerLoc() -- Set's home for hearthstone at player's location
     {"SetArenaPoints", &LuaUnit::SetArenaPoints},                   // :SetArenaPoints(amount)
     {"SetHonorPoints", &LuaUnit::SetHonorPoints},                   // :SetHonorPoints(amount)
+	{"SetLifetimeKills", &LuaUnit::SetLifetimeKills},               // :SetLifetimeKills(val) -- Sets the overall lifetime (honorable) kills of the player
 
     // Boolean
     {"IsInGroup", &LuaUnit::IsInGroup},                             // :IsInGroup()
@@ -38,6 +41,7 @@ ElunaRegister<Unit> UnitMethods[] =
     {"IsAlliance", &LuaUnit::IsAlliance},                           // :IsAlliance()
     {"IsHorde", &LuaUnit::IsHorde},                                 // :IsHorde()
     {"HasTitle", &LuaUnit::HasTitle},                               // :HasTitle(id)
+	{"HasItem", &LuaUnit::HasItem},                                 // :HasItem(itemId, count) -- Returns true if the player has the item(itemId) and specified count, else it will return false. 
     {"Teleport", &LuaUnit::Teleport},                               // :Teleport(Map, X, Y, Z, O) - Teleports player to specified co-ordinates. Returns true if success and false if not.
     {"AddItem", &LuaUnit::AddItem},                                 // :AddItem(id, amount) - Adds amount of item to player. Returns true if success and false if not.
     {"IsInArenaTeam", &LuaUnit::IsInArenaTeam},                     // :IsInArenaTeam(type) -  type : 0 = 2v2, 1 = 3v3, 2 = 5v5
@@ -64,6 +68,7 @@ ElunaRegister<Unit> UnitMethods[] =
     {"RemoveCoinage", &LuaUnit::RemoveCoinage},                     // :RemoveCoinage(amount) - Removes amount of coinage from plr.
     {"LearnSpell", &LuaUnit::LearnSpell},                           // :LearnSpell(id) - learns the given spell.
     {"RemoveItem", &LuaUnit::RemoveItem},                           // :RemoveItem(id, amount) - Removes amount of item to player.
+	{"RemoveLifetimeKills", &LuaUnit::RemoveLifetimeKills},         // :RemoveLifetimeKills(val) - Removes a specified amount(val) of the player's lifetime (honorable) kills
     {"ResurrectPlayer", &LuaUnit::ResurrectPlayer},                 // :ResurrectPlayer([percent[, sickness(bool)]]) - Resurrects the player at percentage, player gets resurrection sickness if sickness set to true.
     {"PlaySoundToPlayer", &LuaUnit::PlaySoundToPlayer},             // :PlaySoundToPlayer(soundId) - Plays the specified sound to the player
 
@@ -115,8 +120,11 @@ ElunaRegister<Unit> UnitMethods[] =
     {"GetUInt16Value", &LuaUnit::GetUInt16Value},                   // :GetUInt16Value(index, offset) - returns a uint16 value from unit fields
     {"GetInstanceId", &LuaUnit::GetInstanceId},                     // :GetInstanceId() - Gets the instance id of the unit
     {"GetPhaseMask", &LuaUnit::GetPhaseMask},                       // :GetPhaseMask() - gets the phase mask of the unit
+	{"GetCombatTime", &LuaUnit::GetCombatTime},                     // :GetCombatTime() - Returns how long the unit has been in combat
+	{"GetFaction", &LuaUnit::GetFaction},                           // :GetFaction() -- Returns the unit's factionId
 
     // Setters
+	{"SetFaction", &LuaUnit::SetFaction},                           // :SetFaction(factionId) -- Sets the unit's faction
     {"SetLevel", &LuaUnit::SetLevel},                               // :SetLevel(amount)
     {"SetHealth", &LuaUnit::SetHealth},                             // :SetHealth(amount)
     {"SetMaxHealth", &LuaUnit::SetMaxHealth},                       // :SetMaxHealth(amount)
@@ -142,13 +150,15 @@ ElunaRegister<Unit> UnitMethods[] =
 
     // Boolean
     {"IsAlive", &LuaUnit::IsAlive},                                 // :IsAlive()
-    {"IsInWorld", &LuaUnit::IsInWorld},                             // :IsInWorld()
+	{"IsDead", &LuaUnit::IsDead},                                   // :IsDead() -- Returns true if the unit is dead, false if they are alive
+	{"IsInWorld", &LuaUnit::IsInWorld},                             // :IsInWorld()
     {"IsPvPFlagged", &LuaUnit::IsPvPFlagged},                       // :IsPvPFlagged()
     {"HasQuest", &LuaUnit::HasQuest},                               // :HasQuest(id)
     {"IsInCombat", &LuaUnit::IsInCombat},                           // :IsInCombat()
     {"HasSpell", &LuaUnit::HasSpell},                               // :HasSpell(id)
 
     // Other
+	{"ClearInCombat", &LuaUnit::ClearInCombat},                     // :ClearInCombat() -- Clears the unit's combat list (unit will be out of combat), resets the timer to 0, etc.
     {"DeMorph", &LuaUnit::DeMorph},                                 // :DeMorph() - Sets display back to native.
     {"SendUnitWhisper", &LuaUnit::SendUnitWhisper},                 // :SendUnitWhisper(msg, unit) -- Sends a whisper to the receiver
     {"SendUnitSay", &LuaUnit::SendUnitSay},                         // :SendUnitSay(msg, language) -- Sends a "Say" message with the specified language (all languages: 0)
