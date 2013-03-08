@@ -97,37 +97,34 @@ void AuctionHouseMgr::SendAuctionWonMail(AuctionEntry* auction, SQLTransaction& 
     uint64 bidderGuid = MAKE_NEW_GUID(auction->bidder, 0, HIGHGUID_PLAYER);
     Player* bidder = ObjectAccessor::FindPlayer(bidderGuid);
     // data for gm.log
-    if (sWorld->getBoolConfig(CONFIG_GM_LOG_TRADE))
+    std::string bidderName;
+    bool logGmTrade = false;
+
+    if (bidder)
     {
-        std::string bidderName;
-        bool logGmTrade = false;
+        bidderAccId = bidder->GetSession()->GetAccountId();
+        bidderName = bidder->GetName();
+        logGmTrade = bidder->GetSession()->HasPermission(RBAC_PERM_LOG_GM_TRADE);
+    }
+    else
+    {
+        bidderAccId = sObjectMgr->GetPlayerAccountIdByGUID(bidderGuid);
+        logGmTrade = AccountMgr::HasPermission(bidderAccId, RBAC_PERM_LOG_GM_TRADE, realmID);
 
-        if (bidder)
-        {
-            bidderAccId = bidder->GetSession()->GetAccountId();
-            bidderName = bidder->GetName();
-            logGmTrade = bidder->GetSession()->HasPermission(RBAC_PERM_LOG_GM_TRADE);
-        }
-        else
-        {
-            bidderAccId = sObjectMgr->GetPlayerAccountIdByGUID(bidderGuid);
-            logGmTrade = AccountMgr::HasPermission(bidderAccId, RBAC_PERM_LOG_GM_TRADE, realmID);
+        if (logGmTrade && !sObjectMgr->GetPlayerNameByGUID(bidderGuid, bidderName))
+            bidderName = sObjectMgr->GetTrinityStringForDBCLocale(LANG_UNKNOWN);
+    }
 
-            if (logGmTrade && !sObjectMgr->GetPlayerNameByGUID(bidderGuid, bidderName))
-                bidderName = sObjectMgr->GetTrinityStringForDBCLocale(LANG_UNKNOWN);
-        }
+    if (logGmTrade)
+    {
+        std::string ownerName;
+        if (!sObjectMgr->GetPlayerNameByGUID(auction->owner, ownerName))
+            ownerName = sObjectMgr->GetTrinityStringForDBCLocale(LANG_UNKNOWN);
 
-        if (logGmTrade)
-        {
-            std::string ownerName;
-            if (!sObjectMgr->GetPlayerNameByGUID(auction->owner, ownerName))
-                ownerName = sObjectMgr->GetTrinityStringForDBCLocale(LANG_UNKNOWN);
+        uint32 ownerAccId = sObjectMgr->GetPlayerAccountIdByGUID(auction->owner);
 
-            uint32 ownerAccId = sObjectMgr->GetPlayerAccountIdByGUID(auction->owner);
-
-            sLog->outCommand(bidderAccId, "GM %s (Account: %u) won item in auction: %s (Entry: %u Count: %u) and pay money: %u. Original owner %s (Account: %u)",
-                bidderName.c_str(), bidderAccId, pItem->GetTemplate()->Name1.c_str(), pItem->GetEntry(), pItem->GetCount(), auction->bid, ownerName.c_str(), ownerAccId);
-        }
+        sLog->outCommand(bidderAccId, "GM %s (Account: %u) won item in auction: %s (Entry: %u Count: %u) and pay money: %u. Original owner %s (Account: %u)",
+            bidderName.c_str(), bidderAccId, pItem->GetTemplate()->Name1.c_str(), pItem->GetEntry(), pItem->GetCount(), auction->bid, ownerName.c_str(), ownerAccId);
     }
 
     // receiver exist
