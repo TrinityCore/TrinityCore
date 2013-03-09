@@ -140,8 +140,8 @@ void Eluna::RegisterGlobals(lua_State* L)
 	lua_register(L, "AddVendorItem", &LuaGlobalFunctions::AddVendorItem);
 	lua_register(L, "VendorRemoveItem", &LuaGlobalFunctions::VendorRemoveItem);
 	lua_register(L, "VendorRemoveAllItems", &LuaGlobalFunctions::VendorRemoveAllItems);
-	lua_register(L, "Kick", &LuaGlobalFunctions::Kick);
-	lua_register(L, "Ban", &LuaGlobalFunctions::Ban);
+    lua_register(L, "Kick", &LuaGlobalFunctions::Kick);
+    lua_register(L, "Ban", &LuaGlobalFunctions::Ban);
 }
 
 // Loads lua scripts from given directory
