@@ -19,11 +19,6 @@
 SDName: Boss Malygos
 Script Data End */
 
-/* Main problem needing most attention:
-    Add support for using Exit Portal while on drake which means to
-   find seat flag that allows casting on passenger or something that
-   will prevent valid target filtering. */
-
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
