@@ -153,7 +153,7 @@ public:
     * .deserter bg remove
     * @endcode
     */
-    static bool HandleDeserterRemove(ChatHandler* handler, char const* args, bool isInstance)
+    static bool HandleDeserterRemove(ChatHandler* handler, char const* /*args*/, bool isInstance)
     {
         Player* player = handler->getSelectedPlayer();
         if (!player)
