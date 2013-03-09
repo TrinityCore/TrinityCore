@@ -152,7 +152,7 @@ public:
 
         void UpdateAI(uint32 diff)
         {
-            //TODO: make this work
+            /// @todo make this work
             if (CanPatrol && wpId == 0)
             {
                 me->GetMotionMaster()->MovePoint(DrakeWP[0].wpId, DrakeWP[0].x, DrakeWP[0].y, DrakeWP[0].z);

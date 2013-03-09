@@ -148,7 +148,7 @@ void Totem::UnSummon(uint32 msTime)
 
 bool Totem::IsImmunedToSpellEffect(SpellInfo const* spellInfo, uint32 index) const
 {
-    // TODO: possibly all negative auras immune?
+    /// @todo possibly all negative auras immune?
     if (GetEntry() == 5925)
         return false;
 

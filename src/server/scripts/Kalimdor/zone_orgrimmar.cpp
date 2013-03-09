@@ -149,7 +149,7 @@ enum ThrallWarchief
 #define GOSSIP_STW5 "I live only to serve, Warchief! My life is empty and meaningless without your guidance."
 #define GOSSIP_STW6 "Of course, Warchief!"
 
-//TODO: verify abilities/timers
+/// @todo verify abilities/timers
 class npc_thrall_warchief : public CreatureScript
 {
 public:

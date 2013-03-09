@@ -91,7 +91,7 @@ class npc_torek : public CreatureScript
                             Talk(SAY_PREPARE, player->GetGUID());
                             break;
                         case 19:
-                            //TODO: verify location and creatures amount.
+                            /// @todo verify location and creatures amount.
                             me->SummonCreature(ENTRY_DURIEL, 1776.73f, -2049.06f, 109.83f, 1.54f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
                             me->SummonCreature(ENTRY_SILVERWING_SENTINEL, 1774.64f, -2049.41f, 109.83f, 1.40f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
                             me->SummonCreature(ENTRY_SILVERWING_WARRIOR, 1778.73f, -2049.50f, 109.83f, 1.67f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
@@ -154,7 +154,7 @@ class npc_torek : public CreatureScript
         {
             if (quest->GetQuestId() == QUEST_TOREK_ASSULT)
             {
-                //TODO: find companions, make them follow Torek, at any time (possibly done by core/database in future?)
+                /// @todo find companions, make them follow Torek, at any time (possibly done by core/database in future?)
                 creature->AI()->Talk(SAY_READY, player->GetGUID());
                 creature->setFaction(113);
 
