@@ -25,8 +25,11 @@
 
     // Needed for _findfirst
 #   include <io.h>
-
-#define stat64 _stat64
+#  ifdef __MINGW32__
+#    define stat64 stat
+#  else
+#    define stat64 _stat64
+#  endif
 #else
 #   include <dirent.h>
 #   include <fnmatch.h>
