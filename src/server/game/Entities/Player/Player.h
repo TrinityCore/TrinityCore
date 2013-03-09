@@ -2272,6 +2272,7 @@ class Player : public Unit, public GridObject<Player>
         void ClearWhisperWhiteList() { WhisperList.clear(); }
         void AddWhisperWhiteList(uint64 guid) { WhisperList.push_back(guid); }
         bool IsInWhisperWhiteList(uint64 guid);
+        void RemoveFromWhisperWhiteList(uint64 guid) { WhisperList.remove(guid); }
 
         /*! These methods send different packets to the client in apply and unapply case.
             These methods are only sent to the current unit.
