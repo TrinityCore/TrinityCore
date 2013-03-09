@@ -126,10 +126,9 @@ public:
         TO_PLAYER();
 
         uint8 bagslot = luaL_checkunsigned(L, 1);
-        uint32 slot = luaL_checkunsigned(L, 2);
+        uint8 slot = luaL_checkunsigned(L, 2);
 
-        bagslot += INVENTORY_SLOT_BAG_START;
-        if (bagslot >= INVENTORY_SLOT_BAG_END)
+        if (bagslot < INVENTORY_SLOT_BAG_START && bagslot >= INVENTORY_SLOT_BAG_END)
             return 0;
 
         Bag* bag = player->GetBagByPos(bagslot);
