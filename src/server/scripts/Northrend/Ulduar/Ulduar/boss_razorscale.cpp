@@ -15,7 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-//TODO: Harpoon chain from 62505 should not get removed when other chain is applied
+/// @todo Harpoon chain from 62505 should not get removed when other chain is applied
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"

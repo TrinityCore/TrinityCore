@@ -243,7 +243,7 @@ namespace VMAP
         FILE* rf = fopen(fullname.c_str(), "rb");
         if (!rf)
             return false;
-        // TODO: check magic number when implemented...
+        /// @todo check magic number when implemented...
         char tiled;
         char chunk[8];
         if (!readChunk(rf, chunk, VMAP_MAGIC, 8) || fread(&tiled, sizeof(char), 1, rf) != 1)

@@ -983,7 +983,7 @@ void Guild::BankMoveItemData::LogBankEvent(SQLTransaction& trans, MoveItemData* 
 void Guild::BankMoveItemData::LogAction(MoveItemData* pFrom) const
 {
     MoveItemData::LogAction(pFrom);
-    if (!pFrom->IsBank() && m_pPlayer->GetSession()->HasPermission(RBAC_PERM_LOG_GM_TRADE))
+    if (!pFrom->IsBank() && m_pPlayer->GetSession()->HasPermission(RBAC_PERM_LOG_GM_TRADE)) /// @todo Move this to scripts
     {
         sLog->outCommand(m_pPlayer->GetSession()->GetAccountId(),
             "GM %s (Account: %u) deposit item: %s (Entry: %d Count: %u) to guild bank (Guild ID: %u)",
@@ -2730,7 +2730,7 @@ bool Guild::_DoItemsMove(MoveItemData* pSrc, MoveItemData* pDest, bool sendError
         if (!pSrc->CanStore(pDestItem, true, true))
             return false;
 
-    // GM LOG (TODO: move to scripts)
+    // GM LOG (@todo move to scripts)
     pDest->LogAction(pSrc);
     if (swap)
         pSrc->LogAction(pDest);
@@ -2874,7 +2874,7 @@ void Guild::_SendBankList(WorldSession* session /* = NULL*/, uint8 tabId /*= 0*/
         sLog->outDebug(LOG_FILTER_GUILD, "SMSG_GUILD_BANK_LIST [%s]: TabId: %u, FullSlots: %u, slots: %d",
                        session->GetPlayerInfo().c_str(), tabId, sendAllSlots, numSlots);
     }
-    else // TODO - Probably this is just sent to session + those that have sent CMSG_GUILD_BANKER_ACTIVATE
+    else /// @todo - Probably this is just sent to session + those that have sent CMSG_GUILD_BANKER_ACTIVATE
     {
         for (Members::const_iterator itr = m_members.begin(); itr != m_members.end(); ++itr)
         {

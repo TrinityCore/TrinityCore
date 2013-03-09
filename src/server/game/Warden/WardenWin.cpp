@@ -349,7 +349,7 @@ void WardenWin::HandleData(ByteBuffer &buff)
     {
         uint8 result;
         buff >> result;
-        // TODO: test it.
+        /// @todo test it.
         if (result == 0x00)
         {
             sLog->outWarn(LOG_FILTER_WARDEN, "%s failed timing check. Action: %s", _session->GetPlayerInfo().c_str(), Penalty().c_str());

@@ -577,7 +577,7 @@ public:
             if (victim == me)
                 return;
 
-            // TODO: Find better way to handle emote
+            /// @todo Find better way to handle emote
             switch (urand(0, 1))
             {
             case 0:
@@ -2091,7 +2091,7 @@ public:
                 // {
                 //    if (Unit* Illidan = Unit::GetUnit(*me, IllidanGUID)
                 //    {
-                //        // TODO: Find proper spells and properly apply 'caged' Illidan effect
+                //        /// @todo Find proper spells and properly apply 'caged' Illidan effect
                 //    }
                 // }
         }

@@ -72,10 +72,10 @@ public:
             if (instance)
                 instance->SetData(DATA_MARWYN_EVENT, IN_PROGRESS);
 
-            events.ScheduleEvent(EVENT_OBLITERATE, 30000);          // TODO Check timer
+            events.ScheduleEvent(EVENT_OBLITERATE, 30000);          /// @todo Check timer
             events.ScheduleEvent(EVENT_WELL_OF_CORRUPTION, 13000);
             events.ScheduleEvent(EVENT_CORRUPTED_FLESH, 20000);
-            events.ScheduleEvent(EVENT_SHARED_SUFFERING, 20000);    // TODO Check timer
+            events.ScheduleEvent(EVENT_SHARED_SUFFERING, 20000);    /// @todo Check timer
         }
 
         void JustDied(Unit* /*killer*/)

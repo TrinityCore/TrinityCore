@@ -457,7 +457,7 @@ void Object::_BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
                 *data << uint32(GetGUIDLow());              // GetGUIDLow()
                 break;
             //! Unit, Player and default here are sending wrong values.
-            //! TODO: Research the proper formula
+            /// @todo Research the proper formula
             case TYPEID_UNIT:
                 *data << uint32(0x0000000B);                // unk
                 break;
@@ -491,7 +491,7 @@ void Object::_BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
     // 0x80
     if (flags & UPDATEFLAG_VEHICLE)
     {
-        // TODO: Allow players to aquire this updateflag.
+        /// @todo Allow players to aquire this updateflag.
         *data << uint32(((Unit*)this)->GetVehicleKit()->GetVehicleInfo()->m_ID);
         *data << float(((Creature*)this)->GetOrientation());
     }
@@ -2174,7 +2174,7 @@ namespace Trinity
             {
                 char const* text = sObjectMgr->GetTrinityString(i_textId, loc_idx);
 
-                // TODO: i_object.GetName() also must be localized?
+                /// @todo i_object.GetName() also must be localized?
                 i_object.BuildMonsterChat(&data, i_msgtype, text, i_language, i_object.GetNameForLocaleIdx(loc_idx), i_targetGUID);
             }
 
@@ -2193,7 +2193,7 @@ namespace Trinity
                 : i_object(obj), i_msgtype(msgtype), i_text(text), i_language(language), i_targetGUID(targetGUID) {}
             void operator()(WorldPacket& data, LocaleConstant loc_idx)
             {
-                // TODO: i_object.GetName() also must be localized?
+                /// @todo i_object.GetName() also must be localized?
                 i_object.BuildMonsterChat(&data, i_msgtype, i_text, i_language, i_object.GetNameForLocaleIdx(loc_idx), i_targetGUID);
             }
 
@@ -3119,7 +3119,7 @@ void WorldObject::DestroyForNearbyPlayers()
         if (!player->HaveAtClient(this))
             continue;
 
-        if (isType(TYPEMASK_UNIT) && ((Unit*)this)->GetCharmerGUID() == player->GetGUID()) // TODO: this is for puppet
+        if (isType(TYPEMASK_UNIT) && ((Unit*)this)->GetCharmerGUID() == player->GetGUID()) /// @todo this is for puppet
             continue;
 
         DestroyForPlayer(player);
