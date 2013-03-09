@@ -18,6 +18,7 @@
 #include "Vehicle.h"
 #include "SystemConfig.h"
 #include "MapManager.h"
+#include "Language.h"
 
 using namespace std;
 

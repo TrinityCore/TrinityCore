@@ -19,6 +19,9 @@ ElunaRegister<Unit> UnitMethods[] =
     {"GetArenaPoints", &LuaUnit::GetArenaPoints},                   // :GetArenaPoints()
     {"GetHonorPoints", &LuaUnit::GetHonorPoints},                   // :GetHonorPoints()
 	{"GetLifetimeKills", &LuaUnit::GetLifetimeKills},               // :GetLifetimeKills() -- Returns the player's lifetime (honorable) kills
+	{"GetPlayerIP", &LuaUnit::GetPlayerIP},                         // :GetPlayerIP() -- Returns the player's IP Address
+	{"GetLevelPlayedTime", &LuaUnit::GetLevelPlayedTime},           // :GetLevelPlayedTime() -- Returns the player's played time at that level
+	{"GetTotalPlayedTime", &LuaUnit::GetTotalPlayedTime},           // :GetTotalPlayedTime() -- Returns the total played time of that player
 
     // Setters
     {"AdvanceSkillsToMax", &LuaUnit::AdvanceSkillsToMax},           // :AdvanceSkillsToMax() -- Advances all currently known skills to the currently known max level
@@ -82,6 +85,10 @@ ElunaRegister<Unit> UnitMethods[] =
     {"GetAITargets", &LuaUnit::GetAITargets},                       // :GetAITargets() - Get units in threat list
     {"GetAITargetsCount", &LuaUnit::GetAITargetsCount},             // :GetAITargetsCount() - Get threat list size
 
+	// Booleans
+	{"IsWorldBoss", &LuaUnit::IsWorldBoss},                         // :IsWorldBoss() -- Returns true if the creature is a WorldBoss, false if not.
+	{"IsDungeonBoss", &LuaUnit::IsDungeonBoss},                     // :IsDungeonBoss() -- Returns true if the creature is a DungeonBoss, false if not.
+
     // Other
     {"RegisterEvent", &LuaUnit::RegisterEvent},                     // :RegisterEvent(function, delay, calls)
     {"RemoveEventByID", &LuaUnit::RemoveEventByID},                 // :RemoveEventByID(eventID)
@@ -127,6 +134,7 @@ ElunaRegister<Unit> UnitMethods[] =
 	{"GetCombatTime", &LuaUnit::GetCombatTime},                     // :GetCombatTime() - Returns how long the unit has been in combat
 	{"GetFaction", &LuaUnit::GetFaction},                           // :GetFaction() -- Returns the unit's factionId
     {"GetCurrentSpell", &LuaUnit::GetCurrentSpell},                 // :GetCurrentSpell(type) -- Returns the currently casted spell of given type if any UNDOCUMENTED
+    {"GetCreatureType", &LuaUnit::GetCreatureType},                 // :GetCreatureType() -- Returns the unit's type
 
     // Setters
 	{"SetFaction", &LuaUnit::SetFaction},                           // :SetFaction(factionId) -- Sets the unit's faction
@@ -161,6 +169,11 @@ ElunaRegister<Unit> UnitMethods[] =
     {"HasQuest", &LuaUnit::HasQuest},                               // :HasQuest(id)
     {"IsInCombat", &LuaUnit::IsInCombat},                           // :IsInCombat()
     {"HasSpell", &LuaUnit::HasSpell},                               // :HasSpell(id)
+	{"IsBanker", &LuaUnit::IsBanker},                               // :IsBanker() -- Returns true if the unit is a banker, false if not.
+	{"IsBattleMaster", &LuaUnit::IsBattleMaster},                   // :IsBattleMaster() -- Returns true if the unit is a battle master, false if not.
+	{"IsCharmed", &LuaUnit::IsCharmed},                             // :IsCharmed() -- Returns true if the unit is charmed, false if not.
+	{"IsArmorer", &LuaUnit::IsArmorer},                             // :IsArmorer() -- Returns true if the unit is an Armorer, false if not.
+	{"IsAttackingPlayer", &LuaUnit::IsAttackingPlayer},             // :IsAttackingPlayer() -- Returns true if the unit is attacking a player, false if not.
 
     // Other
 	{"ClearInCombat", &LuaUnit::ClearInCombat},                     // :ClearInCombat() -- Clears the unit's combat list (unit will be out of combat), resets the timer to 0, etc.
@@ -190,6 +203,8 @@ ElunaRegister<Unit> UnitMethods[] =
     {"MoveRotate", &LuaUnit::MoveRotate},                           // :MoveRotate(time, left) - Turns left (true or nil) or right (false) for given time
     {"SummonGameObject", &LuaUnit::SummonGameObject},               // :SummonGameObject(entry, x, y, z, o[, respawnDelay]) - Spawns an object to location. Returns the object or nil UNDOCUMENTED
     {"SpawnCreature", &LuaUnit::SpawnCreature},                     // :SpawnCreature(entry, x, y, z, o[, despawnDelay]) - Spawns a creature to location that despawns after given time (0 for infinite). Returns the creature or nil UNDOCUMENTED
+    {"StopSpellCast", &LuaUnit::StopSpellCast},                     // :StopSpellCast(spellId(optional)) -- Stops the unit from casting a spell. If a spellId is defined, it will stop that unit from casting that spell
+    {"InterruptSpell", &LuaUnit::InterruptSpell},                   // :InterruptSpell(spellType, delayed(optional), instant(optional)) -- Interrupts the unit's spell by the spellType. If delayed is true it will skip if the spell is delayed. If instant is true, it will skip that the spell has a cast time.
 
     /* Vehicle */
     {"AddVehiclePassenger", &LuaUnit::AddVehiclePassenger},         // :AddVehiclePassenger(unit, seatId) - Adds a passenger to the vehicle by specifying a unit and seatId

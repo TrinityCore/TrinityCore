@@ -722,6 +722,15 @@ public:
         return 1;
     }
 
+	// GetCreatureType()
+	static int GetCreatureType(lua_State* L, Unit* unit)
+	{
+		TO_UNIT();
+
+		Eluna::get()->PushUnsigned(L, unit->GetCreatureType());
+		return 1;
+	}
+
     // GetClassAsString()
     static int GetClassAsString(lua_State* L, Unit* unit)
     {
@@ -787,6 +796,33 @@ public:
 
 		uint32 currentKills = player->GetUInt32Value(PLAYER_FIELD_LIFETIME_HONORABLE_KILLS);
 		Eluna::get()->PushUnsigned(L, currentKills);
+		return 1;
+	}
+
+	// GetPlayerIP()
+	static int GetPlayerIP(lua_State* L, Unit* unit)
+	{
+		TO_PLAYER();
+
+		Eluna::get()->PushString(L, player->GetSession()->GetRemoteAddress().c_str());
+		return 1;
+	}
+
+	// GetLevelPlayedTime()
+	static int GetLevelPlayedTime(lua_State* L, Unit* unit)
+	{
+		TO_PLAYER();
+
+		Eluna::get()->PushUnsigned(L, player->GetLevelPlayedTime());
+		return 1;
+	}
+
+	// GetTotalPlayedTime()
+	static int GetTotalPlayedTime(lua_State* L, Unit* unit)
+	{
+		TO_PLAYER();
+
+		Eluna::get()->PushUnsigned(L, player->GetTotalPlayedTime());
 		return 1;
 	}
 
@@ -1171,6 +1207,51 @@ public:
 		TO_UNIT_BOOL();
 
 		Eluna::get()->PushBoolean(L, unit->isDead());
+		return 1;
+	}
+
+	// IsBanker()
+	static int IsBanker(lua_State* L, Unit* unit)
+	{
+		TO_UNIT_BOOL();
+
+		Eluna::get()->PushBoolean(L, unit->isBanker());
+		return 1;
+	}
+
+	// IsBattleMaster()
+	static int IsBattleMaster(lua_State* L, Unit* unit)
+	{
+		TO_UNIT_BOOL();
+
+		Eluna::get()->PushBoolean(L, unit->isBattleMaster());
+		return 1;
+	}
+
+	// IsCharmed()
+	static int IsCharmed(lua_State* L, Unit* unit)
+	{
+		TO_UNIT_BOOL();
+
+		Eluna::get()->PushBoolean(L, unit->isCharmed());
+		return 1;
+	}
+
+	// IsArmorer()
+	static int IsArmorer(lua_State* L, Unit* unit)
+	{
+		TO_UNIT_BOOL();
+
+		Eluna::get()->PushBoolean(L, unit->isArmorer());
+		return 1;
+	}
+
+	// IsAttackingPlayer()
+	static int IsAttackingPlayer(lua_State* L, Unit* unit)
+	{
+		TO_UNIT_BOOL();
+
+		Eluna::get()->PushBoolean(L, unit->isAttackingPlayer());
 		return 1;
 	}
 
@@ -1648,6 +1729,26 @@ public:
         return 1;
     }
 
+	// Booleans
+
+	// IsDungeonBoss()
+	static int IsDungeonBoss(lua_State* L, Unit* unit)
+	{
+		TO_CREATURE_BOOL();
+
+		Eluna::get()->PushBoolean(L, creature->IsDungeonBoss());
+        return 1;
+	}
+
+	// IsWorldBoss()
+	static int IsWorldBoss(lua_State* L, Unit* unit)
+	{
+		TO_CREATURE_BOOL();
+
+		Eluna::get()->PushBoolean(L, creature->isWorldBoss());
+		return 1;
+	}
+
     // GetAura(spellID)
     static int GetAura(lua_State* L, Unit* unit)
     {
@@ -1682,6 +1783,43 @@ public:
 		TO_UNIT();
 
 		unit->ClearInCombat();
+		return 0;
+	}
+
+	// StopSpellCast(spellId(optional))
+	static int StopSpellCast(lua_State* L, Unit* unit)
+	{
+		TO_UNIT();
+
+		uint32 spellId = luaL_optunsigned(L, 1, 0);
+		unit->CastStop(spellId);
+		return 0;
+	}
+
+	// InterruptSpell(spellType, delayed(optional), instant(optional))
+	static int InterruptSpell(lua_State* L, Unit* unit)
+	{
+		TO_UNIT();
+
+		int spellType = luaL_checkint(L, 1);
+		bool delayed = luaL_optbool(L, 2, true);
+		bool instant = luaL_optbool(L, 3, true);
+		switch(spellType)
+		{
+		case 0:
+			spellType = CURRENT_MELEE_SPELL;
+			break;
+		case 1:
+			spellType = CURRENT_GENERIC_SPELL;
+			break;
+		case 2:
+			spellType = CURRENT_CHANNELED_SPELL;
+			break;
+		case 3:
+			spellType = CURRENT_AUTOREPEAT_SPELL;
+			break;
+		}
+		unit->InterruptSpell((CurrentSpellTypes)spellType, delayed, instant);
 		return 0;
 	}
 
