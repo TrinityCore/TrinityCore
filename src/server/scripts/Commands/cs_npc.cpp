@@ -82,7 +82,7 @@ public:
             { "item",           SEC_GAMEMASTER,     false, &HandleNpcAddVendorItemCommand,     "", NULL },
             { "move",           SEC_GAMEMASTER,     false, &HandleNpcAddMoveCommand,           "", NULL },
             { "temp",           SEC_GAMEMASTER,     false, &HandleNpcAddTempSpawnCommand,      "", NULL },
-            //{ TODO: fix or remove this command
+            //{@todo fix or remove this command
             { "weapon",         SEC_ADMINISTRATOR,  false, &HandleNpcAddWeaponCommand,         "", NULL },
             //}
             { "",               SEC_GAMEMASTER,     false, &HandleNpcAddCommand,               "", NULL },
@@ -114,7 +114,7 @@ public:
             { "spawndist",      SEC_GAMEMASTER,     false, &HandleNpcSetSpawnDistCommand,      "", NULL },
             { "spawntime",      SEC_GAMEMASTER,     false, &HandleNpcSetSpawnTimeCommand,      "", NULL },
             { "data",           SEC_ADMINISTRATOR,  false, &HandleNpcSetDataCommand,           "", NULL },
-            //{ TODO: fix or remove these commands
+            //{ @todo fix or remove these commands
             { "name",           SEC_GAMEMASTER,     false, &HandleNpcSetNameCommand,           "", NULL },
             { "subname",        SEC_GAMEMASTER,     false, &HandleNpcSetSubNameCommand,        "", NULL },
             //}
@@ -1421,7 +1421,7 @@ public:
         return true;
     }
 
-    //TODO: NpcCommands that need to be fixed :
+    /// @todo NpcCommands that need to be fixed :
     static bool HandleNpcAddWeaponCommand(ChatHandler* /*handler*/, char const* /*args*/)
     {
         /*if (!*args)

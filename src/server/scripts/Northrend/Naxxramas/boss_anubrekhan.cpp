@@ -95,7 +95,7 @@ public:
 
         void KilledUnit(Unit* victim)
         {
-            //Force the player to spawn corpse scarabs via spell, TODO: Check percent chance for scarabs, 20% at the moment
+            /// Force the player to spawn corpse scarabs via spell, @todo Check percent chance for scarabs, 20% at the moment
             if (!(rand()%5))
                 if (victim->GetTypeId() == TYPEID_PLAYER)
                     victim->CastSpell(victim, SPELL_SUMMON_CORPSE_SCARABS_PLR, true, NULL, NULL, me->GetGUID());
@@ -164,13 +164,13 @@ public:
                         events.ScheduleEvent(EVENT_IMPALE, urand(10000, 20000));
                         break;
                     case EVENT_LOCUST:
-                        // TODO : Add Text
+                        /// @todo Add Text
                         DoCast(me, RAID_MODE(SPELL_LOCUST_SWARM_10, SPELL_LOCUST_SWARM_25));
                         DoSummon(MOB_CRYPT_GUARD, GuardSummonPos, 0, TEMPSUMMON_CORPSE_DESPAWN);
                         events.ScheduleEvent(EVENT_LOCUST, 90000);
                         break;
                     case EVENT_SPAWN_GUARDIAN_NORMAL:
-                        // TODO : Add Text
+                        /// @todo Add Text
                         DoSummon(MOB_CRYPT_GUARD, GuardSummonPos, 0, TEMPSUMMON_CORPSE_DESPAWN);
                         break;
                     case EVENT_BERSERK:

@@ -558,7 +558,7 @@ class World
         int32 GetQueuePos(WorldSession*);
         bool HasRecentlyDisconnected(WorldSession*);
 
-        /// \todo Actions on m_allowMovement still to be implemented
+        /// @todo Actions on m_allowMovement still to be implemented
         /// Is movement allowed?
         bool getAllowMovement() const { return m_allowMovement; }
         /// Allow/Disallow object movements

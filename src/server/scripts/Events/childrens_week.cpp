@@ -601,7 +601,7 @@ class npc_elder_kekek : public CreatureScript
 
 /*######
 ## npc_the_etymidian
-## TODO: A red crystal as a gift for the great one should be spawned during the event.
+## @todo A red crystal as a gift for the great one should be spawned during the event.
 ######*/
 class npc_the_etymidian : public CreatureScript
 {

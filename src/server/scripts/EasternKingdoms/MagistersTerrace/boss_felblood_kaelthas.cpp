@@ -134,7 +134,7 @@ public:
 
         void Reset()
         {
-            // TODO: Timers
+            /// @todo Timers
             FireballTimer = 0;
             PhoenixTimer = 10000;
             FlameStrikeTimer = 25000;
