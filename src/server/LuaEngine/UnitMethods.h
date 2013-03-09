@@ -1419,6 +1419,37 @@ public:
 		return 0;
 	}
 
+	// ResetSpellCooldown(spellId, update(bool~optional))
+	static int ResetSpellCooldown(lua_State* L, Unit* unit)
+	{
+		TO_PLAYER();
+
+		uint32 spellId = luaL_checkunsigned(L, 1);
+		bool update = luaL_optbool(L, 2, true);
+		player->RemoveSpellCooldown(spellId, update);
+		return 0;
+	}
+
+	// ResetTypeCooldowns(category, update(bool~optional))
+	static int ResetTypeCooldowns(lua_State* L, Unit* unit)
+	{
+		TO_PLAYER();
+
+		uint32 category = luaL_checkunsigned(L, 1);
+		bool update = luaL_optbool(L, 2, true);
+		player->RemoveSpellCategoryCooldown(category, update);
+		return 0;
+	}
+
+	// ResetAllCooldowns()
+	static int ResetAllCooldowns(lua_State* L, Unit* unit)
+	{
+		TO_PLAYER();
+
+		player->RemoveAllSpellCooldown();
+		return 0;
+	}
+
     // SendBroadcastMessage(msg)
     static int SendBroadcastMessage(lua_State* L, Unit* unit)
     {
@@ -1819,6 +1850,39 @@ public:
 			break;
 		}
 		unit->InterruptSpell((CurrentSpellTypes)spellType, delayed, instant);
+		return 0;
+	}
+
+	// AddAura(spellId)
+	static int AddAura(lua_State* L, Unit* unit)
+	{
+		TO_UNIT();
+
+		uint32 spellId = luaL_checkunsigned(L, 1);
+		Unit* target = Eluna::get()->CHECK_UNIT(L, 2);
+		if (!target)
+			return 0;
+		unit->AddAura(12933, target);
+		return 0;
+	}
+
+	// RemoveAura(spellId, casterGuid(optional))
+	static int RemoveAura(lua_State* L, Unit* unit)
+	{
+		TO_UNIT();
+
+		uint32 spellId = luaL_checkunsigned(L, 1);
+		uint64 casterGUID = luaL_optunsigned(L, 2, 0);
+		unit->RemoveAurasDueToSpell(spellId, GUID_LOPART(casterGUID));
+		return 0;
+	}
+
+	// RemoveAllAuras()
+	static int RemoveAllAuras(lua_State* L, Unit* unit)
+	{
+		TO_UNIT();
+
+		unit->RemoveAllAuras();
 		return 0;
 	}
 
