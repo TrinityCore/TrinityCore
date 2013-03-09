@@ -1301,9 +1301,9 @@ typedef UNORDERED_MAP<int32, SmartAIEventList> SmartAIEventMap;
 class SmartAIMgr
 {
     friend class ACE_Singleton<SmartAIMgr, ACE_Null_Mutex>;
-    SmartAIMgr(){};
+    SmartAIMgr(){}
     public:
-        ~SmartAIMgr(){};
+        ~SmartAIMgr(){}
 
         void LoadSmartAIFromDB();
 
