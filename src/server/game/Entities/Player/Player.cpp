@@ -3134,7 +3134,7 @@ void Player::InitTalentForLevel()
         // Remove all talent points
         if (m_usedTalentCount > 0)                           // Free any used talents
         {
-            resetTalents(true);
+            resetTalents(true); /// @todo: Has to (collectively) be renamed to ResetTalents
             SetFreeTalentPoints(0);
         }
     }
@@ -18905,7 +18905,7 @@ void Player::SaveToDB(bool create /*=false*/)
     if (create)
     {
         //! Insert query
-        //! TO DO: Filter out more redundant fields that can take their default value at player create
+        /// @todo: Filter out more redundant fields that can take their default value at player create
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHARACTER);
         stmt->setUInt32(index++, GetGUIDLow());
         stmt->setUInt32(index++, GetSession()->GetAccountId());
