@@ -271,12 +271,15 @@ void WorldSession::HandleGameObjectUseOpcode(WorldPacket& recvData)
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd CMSG_GAMEOBJ_USE Message [guid=%u]", GUID_LOPART(guid));
 
-    // ignore for remote control state
-    if (_player->m_mover != _player)
-        return;
-
     if (GameObject* obj = GetPlayer()->GetMap()->GetGameObject(guid))
+    {
+        // ignore for remote control state
+        if (_player->m_mover != _player)
+            if (!_player->IsOnVehicle(_player->m_mover) || !_player->IsMounted() && !obj->GetGOInfo()->IsUsableMounted())
+                return;
+
         obj->Use(_player);
+    }
 }
 
 void WorldSession::HandleGameobjectReportUse(WorldPacket& recvPacket)
