@@ -3,7 +3,7 @@
 // MSDN Magazine, 2002
 // FILE: WheatyExceptionReport.CPP
 //==========================================
-#if PLATFORM == PLATFORM_WINDOWS
+#if PLATFORM == PLATFORM_WINDOWS && not defined(__MINGW32__)
 #define WIN32_LEAN_AND_MEAN
 #pragma warning(disable:4996)
 #pragma warning(disable:4312)
