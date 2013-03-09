@@ -336,7 +336,7 @@ void SmartAI::UpdateAI(uint32 diff)
     UpdatePath(diff);
     UpdateDespawn(diff);
 
-    //TODO move to void
+    /// @todo move to void
     if (mFollowGuid)
     {
         if (mFollowArrivedTimer < diff)

@@ -155,7 +155,7 @@ class boss_nalorakk : public CreatureScript
                 Berserk_Timer = 600000;
 
                 inBearForm = false;
-                // me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1, 5122);  // TODO: find the correct equipment id
+                // me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1, 5122);  /// @todo find the correct equipment id
             }
 
             void SendAttacker(Unit* target)

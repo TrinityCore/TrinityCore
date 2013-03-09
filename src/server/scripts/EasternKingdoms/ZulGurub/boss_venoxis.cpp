@@ -23,7 +23,7 @@
 #include "zulgurub.h"
 
 /*
- * TODO:
+ * @todo
  * - Fix timers (research some more)
  */
 

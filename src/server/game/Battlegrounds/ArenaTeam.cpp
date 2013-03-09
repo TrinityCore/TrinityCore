@@ -652,7 +652,7 @@ int32 ArenaTeam::GetRatingMod(uint32 ownRating, uint32 opponentRating, bool won 
     // Calculate the rating modification
     float mod;
 
-    // TODO: Replace this hack with using the confidence factor (limiting the factor to 2.0f)
+    /// @todo Replace this hack with using the confidence factor (limiting the factor to 2.0f)
     if (won && ownRating < 1300)
     {
         if (ownRating < 1000)
