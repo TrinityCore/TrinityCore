@@ -118,11 +118,11 @@ class BattlegroundRV : public Battleground
         void PostUpdateImpl(uint32 diff);
 
     protected:
-        uint32 getTimer() { return Timer; };
-        void setTimer(uint32 timer) { Timer = timer; };
+        uint32 getTimer() { return Timer; }
+        void setTimer(uint32 timer) { Timer = timer; }
 
-        uint32 getState() { return State; };
-        void setState(uint32 state) { State = state; };
+        uint32 getState() { return State; }
+        void setState(uint32 state) { State = state; }
         void TogglePillarCollision();
         bool GetPillarCollision() { return PillarCollision; }
         void SetPillarCollision(bool apply) { PillarCollision = apply; }
