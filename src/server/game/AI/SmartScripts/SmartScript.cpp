@@ -2068,6 +2068,19 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             delete targets;
             break;
         }
+        case SMART_ACTION_SUMMON_CREATURE_GROUP:
+        {
+            std::list<TempSummon*> summonList;
+            GetBaseObject()->SummonCreatureGroup(e.action.creatureGroup.group, &summonList);
+
+            for (std::list<TempSummon*>::const_iterator itr = summonList.begin(); itr != summonList.end(); ++itr)
+            {
+                if (unit && e.action.creatureGroup.attackInvoker)
+                    (*itr)->AI()->AttackStart(unit);
+            }
+
+            break;
+        }
         default:
             sLog->outError(LOG_FILTER_SQL, "SmartScript::ProcessAction: Entry %d SourceType %u, Event %u, Unhandled Action type %u", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType());
             break;

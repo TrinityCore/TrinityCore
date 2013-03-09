@@ -488,8 +488,9 @@ enum SMART_ACTION
     SMART_ACTION_SET_GO_FLAG                        = 104,    // Flags
     SMART_ACTION_ADD_GO_FLAG                        = 105,    // Flags
     SMART_ACTION_REMOVE_GO_FLAG                     = 106,    // Flags
+    SMART_ACTION_SUMMON_CREATURE_GROUP              = 107,    // Group, attackInvoker
 
-    SMART_ACTION_END                                = 107
+    SMART_ACTION_END                                = 108
 };
 
 struct SmartAction
@@ -930,6 +931,12 @@ struct SmartAction
         {
             uint32 flag;
         } goFlag;
+
+        struct
+        {
+            uint32 group;
+            uint32 attackInvoker;
+        } creatureGroup;
 
         //! Note for any new future actions
         //! All parameters must have type uint32
