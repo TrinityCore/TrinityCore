@@ -23673,14 +23673,14 @@ void Player::UpdateAreaDependentAuras(uint32 newArea)
             if (!HasAura(itr->second->spellId))
                 CastSpell(this, itr->second->spellId, true);
 
-    if (newArea == 4273 && GetVehicle() && GetPositionX() > 400) // Ulduar
+    if (newArea == 4273 && GetVehicleCreatureBase() && GetPositionX() > 400) // Ulduar
     {
         switch (GetVehicleBase()->GetEntry())
         {
             case 33062:
             case 33109:
             case 33060:
-                GetVehicle()->Dismiss();
+                GetVehicleCreatureBase()->DespawnOrUnsummon();
                 break;
         }
     }
