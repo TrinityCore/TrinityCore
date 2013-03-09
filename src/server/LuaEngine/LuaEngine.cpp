@@ -1,4 +1,5 @@
 #include "LuaEngine.h"
+#include "HookMgr.h"
 #include "GlobalMethods.h"
 #include "UnitMethods.h"
 #include "GroupMethods.h"
@@ -17,7 +18,6 @@
 #endif
 
 lua_State* Eluna::LuaState = NULL;
-map<uint64, Eluna::LuaEventMap*> Eluna::LuaEventMaps;
 
 template<typename T> const char* GetTName() { return "UNK"; }
 template<> const char* GetTName<Unit>() { return "Unit"; }
@@ -41,11 +41,11 @@ void Eluna::StartEluna(bool restart /*= false*/)
 
         if (LuaState)
         {
-            Eluna::LuaEventMap::LuaEventsResetAll(); // Unregisters and stops all timed events
+            ScriptEventMap::ScriptEventsResetAll(); // Unregisters and stops all timed events
 
-            for (map<int, vector<int> >::iterator itr = sEluna->ServerEventBindings.begin(); itr != sEluna->ServerEventBindings.end(); ++itr)
+            for (std::map<int, std::vector<int> >::iterator itr = sEluna->ServerEventBindings.begin(); itr != sEluna->ServerEventBindings.end(); ++itr)
             {
-                for (vector<int>::iterator it = itr->second.begin(); it != itr->second.end(); ++it)
+                for (std::vector<int>::iterator it = itr->second.begin(); it != itr->second.end(); ++it)
                     luaL_unref(sEluna->LuaState, LUA_REGISTRYINDEX, (*it));
                 itr->second.clear();
             }
@@ -59,12 +59,6 @@ void Eluna::StartEluna(bool restart /*= false*/)
 
             lua_close(sEluna->LuaState);
         }
-    }
-    else
-    {
-        sEluna->CreatureAI = new LuaCreatureScript;
-        sEluna->GameObjectAI = new LuaGameObjectScript;
-        sEluna->WorldAI = new LuaWorldScript;
     }
 
     LuaState = luaL_newstate();
@@ -142,10 +136,10 @@ void Eluna::RegisterGlobals(lua_State* L)
     lua_register(L, "GetGuildByName", &LuaGlobalFunctions::GetGuildByName);
     lua_register(L, "GetGuildByLeaderGUID", &LuaGlobalFunctions::GetGuildByLeaderGUID);
     lua_register(L, "GetPlayerCount", &LuaGlobalFunctions::GetPlayerCount);
-    lua_register(L, "CreateLuaEvent", &LuaGlobalFunctions::CreateLuaEvent); // Not Documented
-    lua_register(L, "RegisterTimedEvent", &LuaGlobalFunctions::CreateLuaEvent); // Arc compability Not Documented
-    lua_register(L, "DestroyLuaEventByID", &LuaGlobalFunctions::DestroyLuaEventByID); // Not Documented
-    lua_register(L, "DestroyLuaEvents", &LuaGlobalFunctions::DestroyLuaEvents); // Not Documented
+    lua_register(L, "CreateScriptEvent", &LuaGlobalFunctions::CreateScriptEvent); // Not Documented
+    lua_register(L, "RegisterTimedEvent", &LuaGlobalFunctions::CreateScriptEvent); // Arc compability Not Documented
+    lua_register(L, "DestroyScriptEventByID", &LuaGlobalFunctions::DestroyScriptEventByID); // Not Documented
+    lua_register(L, "DestroyScriptEvents", &LuaGlobalFunctions::DestroyScriptEvents); // Not Documented
     lua_register(L, "PerformIngameSpawn", &LuaGlobalFunctions::PerformIngameSpawn); // Not Documented
     lua_register(L, "CreatePacket", &LuaGlobalFunctions::CreatePacket); // Not Documented
     lua_register(L, "AddVendorItem", &LuaGlobalFunctions::AddVendorItem);
@@ -484,18 +478,6 @@ WorldObject* Eluna::CHECK_WORLDOBJECT(lua_State* L, int narg)
         return ElunaTemplate<WorldObject>::check(L, narg);
 }
 
-// Unregisters and stops all timed events
-void Eluna::LuaEventMap::LuaEventsResetAll()
-{
-    // GameObject && Creature events reset
-    if (!sEluna->LuaEventMaps.empty())
-        for (map<uint64, Eluna::LuaEventMap*>::iterator itr = sEluna->LuaEventMaps.begin(); itr != sEluna->LuaEventMaps.end(); ++itr)
-            if (itr->second)
-                itr->second->LuaEventsReset();
-    // Global events reset
-    sEluna->WorldAI->LuaEventsReset();
-}
-
 // Saves the function reference ID given to the register type's store for given entry under the given event
 void Eluna::Register(uint8 regtype, uint32 id, uint32 evt, int functionRef)
 {
@@ -512,7 +494,13 @@ void Eluna::Register(uint8 regtype, uint32 id, uint32 evt, int functionRef)
     case REGTYPE_CREATURE:
         if (evt < CREATURE_EVENT_COUNT)
         {
-            sEluna->CreatureAI->RegisterCreatureScript(id, evt, functionRef);
+            if (!sObjectMgr->GetCreatureTemplate(id))
+            {
+                sLog->outError(LOG_FILTER_GENERAL, "Eluna Nova::Couldn't find a creature with (ID: %d)!", id);
+                return;
+            }
+
+            sEluna->CreatureEventBindings->Insert(id, evt, functionRef);
             return;
         }
         break;
@@ -520,7 +508,13 @@ void Eluna::Register(uint8 regtype, uint32 id, uint32 evt, int functionRef)
     case REGTYPE_CREATURE_GOSSIP:
         if (evt < GOSSIP_EVENT_COUNT)
         {
-            sEluna->CreatureAI->RegisterCreatureGossipScript(id, evt, functionRef);
+            if (!sObjectMgr->GetCreatureTemplate(id))
+            {
+                sLog->outError(LOG_FILTER_GENERAL, "Eluna Nova::Couldn't find a creature with (ID: %d)!", id);
+                return;
+            }
+
+            sEluna->CreatureGossipBindings->Insert(id, evt, functionRef);
             return;
         }
         break;
@@ -528,7 +522,13 @@ void Eluna::Register(uint8 regtype, uint32 id, uint32 evt, int functionRef)
     case REGTYPE_GAMEOBJECT:
         if (evt < GAMEOBJECT_EVENT_COUNT)
         {
-            sEluna->GameObjectAI->RegisterGameObjectScript(id, evt, functionRef);
+            if (!sObjectMgr->GetGameObjectTemplate(id))
+            {
+                sLog->outError(LOG_FILTER_GENERAL, "Eluna Nova::Couldn't find a gameobject with (ID: %u)!", id);
+                return;
+            }
+
+            sEluna->GameObjectEventBindings->Insert(id, evt, functionRef);
             return;
         }
         break;
@@ -536,7 +536,13 @@ void Eluna::Register(uint8 regtype, uint32 id, uint32 evt, int functionRef)
     case REGTYPE_GAMEOBJECT_GOSSIP:
         if (evt < GOSSIP_EVENT_COUNT)
         {
-            sEluna->GameObjectAI->RegisterGameObjectGossipScript(id, evt, functionRef);
+            if (!sObjectMgr->GetGameObjectTemplate(id))
+            {
+                sLog->outError(LOG_FILTER_GENERAL, "Eluna Nova::Couldn't find a gameobject with (ID: %u)!", id);
+                return;
+            }
+
+            sEluna->GameObjectGossipBindings->Insert(id, evt, functionRef);
             return;
         }
         break;

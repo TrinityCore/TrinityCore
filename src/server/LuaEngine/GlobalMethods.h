@@ -393,8 +393,8 @@ namespace LuaGlobalFunctions
         return 1;
     }
 
-    // CreateLuaEvent(function, delay, calls) - Creates a timed event. Calls set to 0 will call inf returns eventID.
-    static int CreateLuaEvent(lua_State* L)
+    // CreateScriptEvent(function, delay, calls) - Creates a timed event. Calls set to 0 will call inf returns eventID.
+    static int CreateScriptEvent(lua_State* L)
     {
         uint32 delay = luaL_checkunsigned(L, 2);
         uint32 repeats = luaL_checkunsigned(L, 3);
@@ -402,7 +402,7 @@ namespace LuaGlobalFunctions
         {
             lua_settop(L, 1);
             int functionRef = lua_ref(L, true);
-            sEluna->WorldAI->LuaEventCreate(functionRef, delay, repeats);
+            sHookMgr->WorldAI->ScriptEventCreate(functionRef, delay, repeats);
             sEluna->PushInteger(L, functionRef);
         }
         else
@@ -410,23 +410,23 @@ namespace LuaGlobalFunctions
         return 1;
     }
 
-    // DestroyLuaEventByID(eventID) - removes all global lua events with eventid
-    static int DestroyLuaEventByID(lua_State* L)
+    // DestroyScriptEventByID(eventID) - removes all global lua events with eventid
+    static int DestroyScriptEventByID(lua_State* L)
     {
         int functionRef = luaL_checkinteger(L, 1);
-        sEluna->WorldAI->LuaEventCancel(functionRef);
+        sHookMgr->WorldAI->ScriptEventCancel(functionRef);
         return 0;
     }
 
-    // DestroyLuaEvents(all_events) - removes all global lua events, if all_events is true, removes creature and gameobject events too
-    static int DestroyLuaEvents(lua_State* L)
+    // DestroyScriptEvents(all_events) - removes all global lua events, if all_events is true, removes creature and gameobject events too
+    static int DestroyScriptEvents(lua_State* L)
     {
         bool all_Events = luaL_optbool(L, 1, false);
 
         if (all_Events)
-            Eluna::LuaEventMap::LuaEventsResetAll();
+            ScriptEventMap::ScriptEventsResetAll();
         else
-            sEluna->WorldAI->LuaEventsReset();
+            sHookMgr->WorldAI->ScriptEventsReset();
         return 0;
     }
 

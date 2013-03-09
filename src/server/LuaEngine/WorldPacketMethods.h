@@ -162,7 +162,7 @@ public:
         if (!packet)
             return 0;
 
-        string _val;
+        std::string _val;
         (*packet) >> _val;
         sEluna->PushString(L, _val.c_str());
         return 1;
@@ -188,7 +188,7 @@ public:
         if (!packet)
             return 0;
 
-        string _val = string(luaL_checkstring(L, 1));
+        std::string _val = std::string(luaL_checkstring(L, 1));
         (*packet) << _val;
         return 0;
     }

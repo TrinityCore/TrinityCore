@@ -295,7 +295,7 @@ public:
 
         uint32 delay = luaL_checkunsigned(L, 2);
         uint32 repeats = luaL_checkunsigned(L, 3);
-        Eluna::LuaEventMap* eventMap = sEluna->GetEvents(go);
+        ScriptEventMap* eventMap = ScriptEventMap::GetEvents(go);
         if (!eventMap)
         {
             luaL_error(L, "GameObject has no registered gameobject events, please register one before using RegisterEvent");
@@ -305,7 +305,7 @@ public:
         {
             lua_settop(L, 1);
             int functionRef = lua_ref(L, true);
-            eventMap->LuaEventCreate(functionRef, delay, repeats);
+            eventMap->ScriptEventCreate(functionRef, delay, repeats);
             sEluna->PushInteger(L, functionRef);
         }
         else
@@ -321,9 +321,9 @@ public:
             return 0;
 
         int eventID = luaL_checkinteger(L, 1);
-        Eluna::LuaEventMap* eventMap = sEluna->GetEvents(go);
+        ScriptEventMap* eventMap = ScriptEventMap::GetEvents(go);
         if (eventMap)
-            eventMap->LuaEventCancel(eventID);
+            eventMap->ScriptEventCancel(eventID);
         return 0;
     }
 
@@ -333,9 +333,9 @@ public:
         if (!go || !go->IsInWorld())
             return 0;
 
-        Eluna::LuaEventMap* eventMap = sEluna->GetEvents(go);
+        ScriptEventMap* eventMap = ScriptEventMap::GetEvents(go);
         if (eventMap)
-            eventMap->LuaEventsReset();
+            eventMap->ScriptEventsReset();
         return 0;
     }
 

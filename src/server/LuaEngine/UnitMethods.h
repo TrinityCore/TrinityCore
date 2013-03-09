@@ -1132,7 +1132,7 @@ public:
         TO_PLAYER();
 
         const char* message = luaL_checkstring(L, 1);
-        if (string(message).length() > 0)
+        if (std::string(message).length() > 0)
             ChatHandler(player->GetSession()).SendSysMessage(message);
         return 0;
     }
@@ -1143,7 +1143,7 @@ public:
         TO_PLAYER();
 
         const char* msg = luaL_checkstring(L, 1);
-        if (string(msg).length() > 0)
+        if (std::string(msg).length() > 0)
             player->GetSession()->SendAreaTriggerMessage(msg);
         return 0;
     }
@@ -1154,7 +1154,7 @@ public:
         TO_PLAYER();
 
         const char* msg = luaL_checkstring(L, 1);
-        if (string(msg).length() > 0)
+        if (std::string(msg).length() > 0)
             player->GetSession()->SendNotification(msg);
         return 0;
     }
@@ -1166,7 +1166,7 @@ public:
 
         const char* msg = luaL_checkstring(L, 1);
         Unit* receiver = sEluna->CHECK_UNIT(L, 2);
-        if (receiver && string(msg).length() > 0)
+        if (receiver && std::string(msg).length() > 0)
             unit->MonsterWhisper(msg, receiver->GetGUID(), false);
         return 0;
     }
@@ -1178,7 +1178,7 @@ public:
 
         const char* msg = luaL_checkstring(L, 1);
         uint32 language = luaL_checknumber(L, 2);
-        if (string(msg).length() > 0)
+        if (std::string(msg).length() > 0)
             unit->MonsterSay(msg, language, unit->GetGUID());
         return 0;
     }
@@ -1190,7 +1190,7 @@ public:
 
         const char* msg = luaL_checkstring(L, 1);
         uint32 language = luaL_checknumber(L, 2);
-        if (string(msg).length() > 0)
+        if (std::string(msg).length() > 0)
             unit->MonsterYell(msg, language, unit->GetGUID());
         return 0;
     }
@@ -1573,7 +1573,7 @@ public:
 
         uint32 delay = luaL_checkunsigned(L, 2);
         uint32 repeats = luaL_checkunsigned(L, 3);
-        Eluna::LuaEventMap* eventMap = sEluna->GetEvents(creature);
+        ScriptEventMap* eventMap = ScriptEventMap::GetEvents(creature);
         if (!eventMap)
         {
             luaL_error(L, "Creature has no registered creature events, please register one before using RegisterEvent");
@@ -1583,7 +1583,7 @@ public:
         {
             lua_settop(L, 1);
             int functionRef = lua_ref(L, true);
-            eventMap->LuaEventCreate(functionRef, delay, repeats);
+            eventMap->ScriptEventCreate(functionRef, delay, repeats);
             sEluna->PushInteger(L, functionRef);
         }
         else
@@ -1598,9 +1598,9 @@ public:
         TO_CREATURE();
 
         int eventID = luaL_checkinteger(L, 1);
-        Eluna::LuaEventMap* eventMap = sEluna->GetEvents(creature);
+        ScriptEventMap* eventMap = ScriptEventMap::GetEvents(creature);
         if (eventMap)
-            eventMap->LuaEventCancel(eventID);
+            eventMap->ScriptEventCancel(eventID);
         return 0;
     }
 
@@ -1609,9 +1609,9 @@ public:
     {
         TO_CREATURE();
 
-        Eluna::LuaEventMap* eventMap = sEluna->GetEvents(creature);
+        ScriptEventMap* eventMap = ScriptEventMap::GetEvents(creature);
         if (eventMap)
-            eventMap->LuaEventsReset();
+            eventMap->ScriptEventsReset();
         return 0;
     }
 

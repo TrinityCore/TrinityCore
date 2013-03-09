@@ -33,6 +33,7 @@
 #include "Player.h"
 #include "WorldPacket.h"
 #include "LuaEngine.h"
+#include "HookMgr.h"
 
 // This is the global static registry of scripts.
 template<class TScript>
@@ -177,12 +178,12 @@ void ScriptMgr::Initialize()
     uint32 oldMSTime = getMSTime();
 
     LoadDatabase();
+    sEluna->StartEluna();
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading C++ scripts");
 
     FillSpellSummary();
     AddScripts();
-    sEluna->StartEluna();
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u C++ scripts in %u ms", GetScriptCount(), GetMSTimeDiffToNow(oldMSTime));
 }
@@ -817,7 +818,7 @@ CreatureAI* ScriptMgr::GetCreatureAI(Creature* creature)
 {
     ASSERT(creature);
 
-    if(CreatureAI* luaAI = sEluna->CreatureAI->GetAI(creature))
+    if(CreatureAI* luaAI = sHookMgr->CreatureAI->GetAI(creature))
         return luaAI;
 
     GET_SCRIPT_RET(CreatureScript, creature->GetScriptId(), tmpscript, NULL);
@@ -828,7 +829,7 @@ GameObjectAI* ScriptMgr::GetGameObjectAI(GameObject* gameobject)
 {
     ASSERT(gameobject);
 
-    if(GameObjectAI* luaAI = sEluna->GameObjectAI->GetAI(gameobject))
+    if(GameObjectAI* luaAI = sHookMgr->GameObjectAI->GetAI(gameobject))
         return luaAI;
 
     GET_SCRIPT_RET(GameObjectScript, gameobject->GetScriptId(), tmpscript, NULL);
