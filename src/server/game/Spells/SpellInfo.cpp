@@ -2268,7 +2268,7 @@ uint32 SpellInfo::_GetExplicitTargetMask() const
 bool SpellInfo::_IsPositiveEffect(uint8 effIndex, bool deep) const
 {
     // not found a single positive spell with this attribute
-    if (Attributes & SPELL_ATTR0_NEGATIVE_1)
+    if (Attributes & SPELL_ATTR0_DEBUFF)
         return false;
 
     switch (SpellFamilyName)
@@ -2447,7 +2447,7 @@ bool SpellInfo::_IsPositiveEffect(uint8 effIndex, bool deep) const
                     if (Effects[effIndex].TargetA.GetTarget() != TARGET_UNIT_CASTER)
                         return false;
                     // but not this if this first effect (didn't find better check)
-                    if (Attributes & SPELL_ATTR0_NEGATIVE_1 && effIndex == 0)
+                    if (Attributes & SPELL_ATTR0_DEBUFF && effIndex == 0)
                         return false;
                     break;
                 case SPELL_AURA_MECHANIC_IMMUNITY:
