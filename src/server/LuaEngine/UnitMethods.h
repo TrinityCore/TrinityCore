@@ -13,6 +13,36 @@
 class LuaUnit
 {
 public:
+    // SendChatMessageToPlayer(type, lang, msg, target)
+    static int SendChatMessageToPlayer(lua_State* L, Unit* unit)
+    {
+        TO_PLAYER();
+
+        uint8 type = luaL_checkunsigned(L, 1);
+        uint32 lang = luaL_checkunsigned(L, 2);
+        const char* msg = luaL_checkstring(L, 3);
+        Player* target = Eluna::get()->CHECK_PLAYER(L, 4);
+        if(!target || type == CHAT_MSG_CHANNEL)
+            return 0;
+
+        WorldPacket* data; // Needs a custom built packet since TC doesnt set guids in some cases
+        uint32 messageLength = (uint32)strlen(msg) + 1;
+        data->Initialize(SMSG_MESSAGECHAT, 100);
+        *data << (uint8)type;
+        *data << lang;
+        *data << player->GetGUID();
+        *data << uint32(0);
+        *data << player->GetGUID();
+        *data << messageLength;
+        *data << msg;
+        if (type != CHAT_MSG_WHISPER_INFORM && type != CHAT_MSG_DND && type != CHAT_MSG_AFK)
+            *data << uint8(player->GetChatTag());
+        else
+            *data << uint8(0);
+        target->GetSession()->SendPacket(data);
+        return 0;
+    }
+
     //GetCurrentSpell(type)
     static int GetCurrentSpell(lua_State* L, Unit* unit)
     {

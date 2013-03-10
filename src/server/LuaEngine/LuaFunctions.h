@@ -81,6 +81,7 @@ ElunaRegister<Unit> UnitMethods[] =
     {"ResetSpellCooldown", &LuaUnit::ResetSpellCooldown},           // :ResetSpellCooldown(spellId, update(bool~optional)) -- Resets cooldown of the specified spellId. If update is true, it will send WorldPacket SMSG_CLEAR_COOLDOWN to the player, else it will just clear the spellId from m_spellCooldowns. This is true by default.
     {"ResetTypeCooldowns", &LuaUnit::ResetTypeCooldowns},           // :ResetTypeCooldowns(category, update(bool~optional)) -- Resets all cooldowns for the spell category(type). If update is true, it will send WorldPacket SMSG_CLEAR_COOLDOWN to the player, else it will just clear the spellId from m_spellCooldowns. This is true by default.
     {"ResetAllCooldowns", &LuaUnit::ResetAllCooldowns},             // :ResetAllCooldowns() -- Resets all spell cooldowns.
+    {"SendChatMessageToPlayer", &LuaUnit::SendChatMessageToPlayer}, // :SendChatMessageToPlayer(type, lang, msg, target) -- Player sends a chat message to the given target player UNDOCUMENTED
 
     // Creature methods
 
