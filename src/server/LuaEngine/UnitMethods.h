@@ -25,7 +25,7 @@ public:
         if(!target || type == CHAT_MSG_CHANNEL)
             return 0;
 
-        WorldPacket* data; // Needs a custom built packet since TC doesnt set guids in some cases
+        WorldPacket* data =  new WorldPacket(); // Needs a custom built packet since TC doesnt set guids in some cases
         uint32 messageLength = (uint32)strlen(msg) + 1;
         data->Initialize(SMSG_MESSAGECHAT, 100);
         *data << (uint8)type;
