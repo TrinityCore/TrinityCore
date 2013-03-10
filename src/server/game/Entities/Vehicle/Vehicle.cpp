@@ -744,6 +744,12 @@ void Vehicle::RemovePendingEventsForSeat(int8 seatId)
     }
 }
 
+VehicleJoinEvent::~VehicleJoinEvent()
+{
+    if (Target)
+        Target->RemovePendingEvent(this);
+}
+
 /**
  * @fn bool VehicleJoinEvent::Execute(uint64, uint32)
  *
@@ -762,7 +768,7 @@ void Vehicle::RemovePendingEventsForSeat(int8 seatId)
 bool VehicleJoinEvent::Execute(uint64, uint32)
 {
     ASSERT(Passenger->IsInWorld());
-    ASSERT(Target->GetBase()->IsInWorld());
+    ASSERT(Target && Target->GetBase()->IsInWorld());
 
     Target->RemovePendingEventsForSeat(Seat->first);
 
@@ -832,10 +838,6 @@ bool VehicleJoinEvent::Execute(uint64, uint32)
         // Actually quite a redundant hook. Could just use OnAddPassenger and check for unit typemask inside script.
         if (Passenger->HasUnitTypeMask(UNIT_MASK_ACCESSORY))
             sScriptMgr->OnInstallAccessory(Target, Passenger->ToCreature());
-
-        // update all passenger's positions
-        //Passenger's spline OR vehicle movement will update positions
-        //RelocatePassengers(_me->GetPositionX(), _me->GetPositionY(), _me->GetPositionZ(), _me->GetOrientation());
     }
 
     return true;
@@ -854,6 +856,7 @@ bool VehicleJoinEvent::Execute(uint64, uint32)
 
 void VehicleJoinEvent::Abort(uint64)
 {
+    /// Check if the Vehicle was already uninstalled, in which case all auras were removed already
     if (Target)
     {
         sLog->outDebug(LOG_FILTER_VEHICLES, "Passenger GuidLow: %u, Entry: %u, board on vehicle GuidLow: %u, Entry: %u SeatId: %d cancelled",
@@ -865,7 +868,7 @@ void VehicleJoinEvent::Abort(uint64)
         Target->GetBase()->RemoveAurasByType(SPELL_AURA_CONTROL_VEHICLE, Passenger->GetGUID());
     }
     else
-        sLog->outDebug(LOG_FILTER_VEHICLES, "Passenger GuidLow: %u, Entry: %u, board on destroyed vehicle SeatId: %d cancelled",
+        sLog->outDebug(LOG_FILTER_VEHICLES, "Passenger GuidLow: %u, Entry: %u, board on uninstalled vehicle SeatId: %d cancelled",
             Passenger->GetGUIDLow(), Passenger->GetEntry(), (int32)Seat->first);
 
     if (Passenger->IsInWorld() && Passenger->HasUnitTypeMask(UNIT_MASK_ACCESSORY))
