@@ -16,12 +16,7 @@
  */
 
 /*
-<<<<<<< HEAD
     TODO:
-=======
-    @todo
-        Fix void zone damage
->>>>>>> tc/master
         If the boss is to close to a scrap pile -> no summon  -- Needs retail confirmation
         make the life sparks visible...     /? Need test
 */
@@ -741,16 +736,9 @@ class mob_boombot : public CreatureScript
                 // these values are needed for correct damage of Boom spell
                 me->SetFloatValue(UNIT_FIELD_MINDAMAGE, 15000.0f);
                 me->SetFloatValue(UNIT_FIELD_MAXDAMAGE, 18000.0f);
-<<<<<<< HEAD
                 me->SetDisplayId(19139);
                 me->SetSpeed(MOVE_RUN, 0.5f, true);
                 me->SetInCombatWithZone();
-=======
-
-                /// @todo proper waypoints?
-                if (Creature* pXT002 = me->GetCreature(*me, _instance->GetData64(BOSS_XT002)))
-                    me->GetMotionMaster()->MoveFollow(pXT002, 0.0f, 0.0f);
->>>>>>> tc/master
             }
 
             void DamageTaken(Unit* /*who*/, uint32& damage)

@@ -691,10 +691,6 @@ class boss_thorim : public CreatureScript
             {
                 if (!UpdateVictim())
                     return;
-<<<<<<< HEAD
-=======
-                //SPELLS @todo
->>>>>>> tc/master
 
                 if (_phase == PHASE_ARENA_ADDS && me->getVictim() && ArenaAreaCheck(false)(me->getVictim()))
                 {

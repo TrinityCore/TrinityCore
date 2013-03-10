@@ -1717,13 +1717,8 @@ class npc_lorekeeper : public CreatureScript
                         {
                             if (Creature* Brann = creature->FindNearestCreature(NPC_BRANN_BRONZBEARD, 1000.0f, true))
                             {
-<<<<<<< HEAD
-                                Delorah->GetMotionMaster()->MovePoint(0, Brann->GetPositionX()-4, Brann->GetPositionY(), Brann->GetPositionZ());
-                                //TODO Talk(xxxx, Delorah, Branz); when reached at Brann
-=======
                                 Delorah->GetMotionMaster()->MovePoint(0, Branz->GetPositionX()-4, Branz->GetPositionY(), Branz->GetPositionZ());
                                 /// @todo Delorah->AI()->Talk(xxxx, Branz->GetGUID()); when reached at branz
->>>>>>> tc/master
                             }
                         }
                     }
@@ -2448,14 +2443,7 @@ class spell_vehicle_throw_passenger : public SpellScriptLoader
 
         class spell_vehicle_throw_passenger_SpellScript : public SpellScript
         {
-<<<<<<< HEAD
             PrepareSpellScript(spell_vehicle_throw_passenger_SpellScript);
-=======
-            //! No players, only vehicles (@todo check if blizzlike)
-            Creature* creatureTarget = target->ToCreature();
-            if (!creatureTarget)
-                return true;
->>>>>>> tc/master
 
             bool Validate(SpellInfo const* /*spell*/)
             {

@@ -23,7 +23,6 @@
 #include "Vehicle.h"
 #include "Player.h"
 
-<<<<<<< HEAD
 enum Achiev
 {
     ACHIEVEMENT_RUBBLE_AND_ROLL_10   = 2959,
@@ -35,16 +34,6 @@ enum Achiev
 };
 
 enum KologarnSpells
-=======
-/* ScriptData
-SDName: boss_kologarn
-SD%Complete: 90
-SDComment: @todo Achievements
-SDCategory: Ulduar
-EndScriptData */
-
-enum Spells
->>>>>>> tc/master
 {
     SPELL_ARM_DEAD_DAMAGE               = 63629,
     SPELL_TWO_ARM_SMASH                 = 63356,

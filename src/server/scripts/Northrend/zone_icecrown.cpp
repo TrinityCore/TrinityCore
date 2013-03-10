@@ -32,13 +32,10 @@ EndContentData */
 #include "ScriptedGossip.h"
 #include "SpellAuras.h"
 #include "Player.h"
-<<<<<<< HEAD
 #include "Vehicle.h"
 #include "SpellScript.h"
-=======
 #include "TemporarySummon.h"
 #include "CombatAI.h"
->>>>>>> tc/master
 
 /*######
 ## npc_arete
@@ -1897,7 +1894,6 @@ public:
     }
 };
 
-<<<<<<< HEAD
 enum TrampleScourge
 {
     SPELL_TRAMPLE_TRIGGERED = 63001,
@@ -1941,8 +1937,6 @@ class spell_gen_trample_scourge : public SpellScriptLoader
         }
 };
 
-
-=======
 /*######
 ## Borrowed Technology - Id: 13291, The Solution Solution (daily) - Id: 13292, Volatility - Id: 13239, Volatiliy - Id: 13261 (daily)
 ######*/
@@ -2029,7 +2023,6 @@ class npc_frostbrood_skytalon : public CreatureScript
         }
 };
 
->>>>>>> tc/master
 void AddSC_icecrown()
 {
     new npc_arete;

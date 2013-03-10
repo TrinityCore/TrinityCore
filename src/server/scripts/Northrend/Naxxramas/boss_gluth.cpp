@@ -75,14 +75,9 @@ public:
             if (who->GetEntry() == MOB_ZOMBIE && me->IsWithinDistInMap(who, 7))
             {
                 SetGazeOn(who);
-<<<<<<< HEAD
                 Talk(EMOTE_ZOMBIE);
                 me->Kill(who);
                 me->ModifyHealth(int32(me->CountPctFromMaxHealth(5)));                
-=======
-                /// @todo use a script text
-                me->MonsterTextEmote(EMOTE_NEARBY, 0, true);
->>>>>>> tc/master
             }
             else
                 BossAI::MoveInLineOfSight(who);
@@ -132,20 +127,12 @@ public:
                         events.ScheduleEvent(EVENT_WOUND, 10000);
                         break;
                     case EVENT_ENRAGE:
-<<<<<<< HEAD
                         Talk(EMOTE_ENRAGE);
-=======
-                        /// @todo Add missing text
->>>>>>> tc/master
                         DoCast(me, SPELL_ENRAGE);
                         events.ScheduleEvent(EVENT_ENRAGE, 15000);
                         break;
                     case EVENT_DECIMATE:
-<<<<<<< HEAD
                         Talk(EMOTE_DECIMATE);
-=======
-                        /// @todo Add missing text
->>>>>>> tc/master
                         DoCastAOE(SPELL_DECIMATE);
                         events.ScheduleEvent(EVENT_DECIMATE, 105000);
                         break;
