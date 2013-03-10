@@ -1862,7 +1862,7 @@ public:
 		Unit* target = Eluna::get()->CHECK_UNIT(L, 2);
 		if (!target)
 			return 0;
-		unit->AddAura(12933, target);
+		unit->AddAura(spellId, target);
 		return 0;
 	}
 
@@ -1872,8 +1872,7 @@ public:
 		TO_UNIT();
 
 		uint32 spellId = luaL_checkunsigned(L, 1);
-		uint64 casterGUID = luaL_optunsigned(L, 2, 0);
-		unit->RemoveAurasDueToSpell(spellId, GUID_LOPART(casterGUID));
+		unit->RemoveAurasDueToSpell(spellId);
 		return 0;
 	}
 
