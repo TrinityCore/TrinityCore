@@ -82,7 +82,7 @@ class boss_thorim : public CreatureScript
             {
                 if (!UpdateVictim())
                     return;
-                //SPELLS TODO:
+                //SPELLS @todo
 
                 //
                 DoMeleeAttackIfReady();

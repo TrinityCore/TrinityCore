@@ -2102,7 +2102,7 @@ void SpellMgr::LoadEnchantCustomAttr()
         if (!spellInfo)
             continue;
 
-        // TODO: find a better check
+        /// @todo find a better check
         if (!(spellInfo->AttributesEx2 & SPELL_ATTR2_PRESERVE_ENCHANT_IN_ARENA) || !(spellInfo->Attributes & SPELL_ATTR0_NOT_SHAPESHIFT))
             continue;
 

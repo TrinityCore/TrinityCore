@@ -333,7 +333,7 @@ enum Hendel
     NPC_TERVOSH                 = 4967
 };
 
-//TODO: develop this further, end event not created
+/// @todo develop this further, end event not created
 class npc_private_hendel : public CreatureScript
 {
 public:

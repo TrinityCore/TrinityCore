@@ -1019,7 +1019,7 @@ void Guild::BankMoveItemData::LogBankEvent(SQLTransaction& trans, MoveItemData* 
 void Guild::BankMoveItemData::LogAction(MoveItemData* pFrom) const
 {
     MoveItemData::LogAction(pFrom);
-    if (!pFrom->IsBank() && m_pPlayer->GetSession()->HasPermission(RBAC_PERM_LOG_GM_TRADE))
+    if (!pFrom->IsBank() && m_pPlayer->GetSession()->HasPermission(RBAC_PERM_LOG_GM_TRADE)) /// @todo Move this to scripts
     {
         sLog->outCommand(m_pPlayer->GetSession()->GetAccountId(),
             "GM %s (Account: %u) deposit item: %s (Entry: %d Count: %u) to guild bank (Guild ID: %u)",
@@ -3148,7 +3148,7 @@ bool Guild::_DoItemsMove(MoveItemData* pSrc, MoveItemData* pDest, bool sendError
         if (!pSrc->CanStore(pDestItem, true, true))
             return false;
 
-    // GM LOG (TODO: move to scripts)
+    // GM LOG (@todo move to scripts)
     pDest->LogAction(pSrc);
     if (swap)
         pSrc->LogAction(pDest);
@@ -3447,7 +3447,7 @@ void Guild::GiveXP(uint32 xp, Player* source)
     if (!sWorld->getBoolConfig(CONFIG_GUILD_LEVELING_ENABLED))
         return;
 
-    /// @TODO: Award reputation and count activity for player
+    /// @todo: Award reputation and count activity for player
 
     if (GetLevel() >= sWorld->getIntConfig(CONFIG_GUILD_MAX_LEVEL))
         xp = 0; // SMSG_GUILD_XP_GAIN is always sent, even for no gains

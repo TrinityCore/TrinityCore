@@ -19,7 +19,7 @@
 SDName: Boss mal_ganis
 SDAuthor: Tartalo
 SD%Complete: 80
-SDComment: TODO: Intro & outro
+SDComment: @todo Intro & outro
 SDCategory:
 Script Data End */
 

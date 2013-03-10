@@ -19,7 +19,7 @@
 /* ScriptData
 SDName: Black_Temple
 SD%Complete: 95
-SDComment: Spirit of Olum: Player Teleporter to Seer Kanai Teleport after defeating Naj'entus and Supremus. TODO: Find proper gossip.
+SDComment: Spirit of Olum: Player Teleporter to Seer Kanai Teleport after defeating Naj'entus and Supremus. @todo Find proper gossip.
 SDCategory: Black Temple
 EndScriptData */
 

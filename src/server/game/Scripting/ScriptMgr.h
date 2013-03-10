@@ -70,7 +70,7 @@ struct OutdoorPvPData;
 
 
 /*
-    TODO: Add more script type classes.
+    @todo Add more script type classes.
 
     MailScript
     SessionScript

@@ -216,13 +216,13 @@ enum AchievementCriteriaTypes
     ACHIEVEMENT_CRITERIA_TYPE_GAIN_EXALTED_REPUTATION       = 47,
     ACHIEVEMENT_CRITERIA_TYPE_VISIT_BARBER_SHOP             = 48,
     ACHIEVEMENT_CRITERIA_TYPE_EQUIP_EPIC_ITEM               = 49,
-    ACHIEVEMENT_CRITERIA_TYPE_ROLL_NEED_ON_LOOT             = 50, // TODO: itemlevel is mentioned in text but not present in dbc
+    ACHIEVEMENT_CRITERIA_TYPE_ROLL_NEED_ON_LOOT             = 50, /// @todo itemlevel is mentioned in text but not present in dbc
     ACHIEVEMENT_CRITERIA_TYPE_ROLL_GREED_ON_LOOT            = 51,
     ACHIEVEMENT_CRITERIA_TYPE_HK_CLASS                      = 52,
     ACHIEVEMENT_CRITERIA_TYPE_HK_RACE                       = 53,
     ACHIEVEMENT_CRITERIA_TYPE_DO_EMOTE                      = 54,
     ACHIEVEMENT_CRITERIA_TYPE_HEALING_DONE                  = 55,
-    ACHIEVEMENT_CRITERIA_TYPE_GET_KILLING_BLOWS             = 56, // TODO: in some cases map not present, and in some cases need do without die
+    ACHIEVEMENT_CRITERIA_TYPE_GET_KILLING_BLOWS             = 56, /// @todo in some cases map not present, and in some cases need do without die
     ACHIEVEMENT_CRITERIA_TYPE_EQUIP_ITEM                    = 57,
     ACHIEVEMENT_CRITERIA_TYPE_MONEY_FROM_VENDORS            = 59,
     ACHIEVEMENT_CRITERIA_TYPE_GOLD_SPENT_FOR_TALENTS        = 60,
@@ -236,8 +236,8 @@ enum AchievementCriteriaTypes
     ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET2              = 69,
     ACHIEVEMENT_CRITERIA_TYPE_SPECIAL_PVP_KILL              = 70,
     ACHIEVEMENT_CRITERIA_TYPE_FISH_IN_GAMEOBJECT            = 72,
-    // TODO 73: Achievements 1515, 1241, 1103 (Name: Mal'Ganis)
-    ACHIEVEMENT_CRITERIA_TYPE_EARNED_PVP_TITLE              = 74, // TODO: title id is not mentioned in dbc
+    /// @todo 73: Achievements 1515, 1241, 1103 (Name: Mal'Ganis)
+    ACHIEVEMENT_CRITERIA_TYPE_EARNED_PVP_TITLE              = 74, /// @todo title id is not mentioned in dbc
     ACHIEVEMENT_CRITERIA_TYPE_LEARN_SKILLLINE_SPELLS        = 75,
     ACHIEVEMENT_CRITERIA_TYPE_WIN_DUEL                      = 76,
     ACHIEVEMENT_CRITERIA_TYPE_LOSE_DUEL                     = 77,
@@ -264,7 +264,7 @@ enum AchievementCriteriaTypes
     ACHIEVEMENT_CRITERIA_TYPE_QUEST_ABANDONED               = 107,
     ACHIEVEMENT_CRITERIA_TYPE_FLIGHT_PATHS_TAKEN            = 108,
     ACHIEVEMENT_CRITERIA_TYPE_LOOT_TYPE                     = 109,
-    ACHIEVEMENT_CRITERIA_TYPE_CAST_SPELL2                   = 110, // TODO: target entry is missing
+    ACHIEVEMENT_CRITERIA_TYPE_CAST_SPELL2                   = 110, /// @todo target entry is missing
     ACHIEVEMENT_CRITERIA_TYPE_LEARN_SKILL_LINE              = 112,
     ACHIEVEMENT_CRITERIA_TYPE_EARN_HONORABLE_KILL           = 113,
     ACHIEVEMENT_CRITERIA_TYPE_ACCEPTED_SUMMONINGS           = 114,

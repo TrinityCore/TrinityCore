@@ -19,7 +19,7 @@
 /* ScriptData
 SDName: Arcatraz
 SD%Complete: 60
-SDComment: Warden Mellichar, event controller for Skyriss event. Millhouse Manastorm. TODO: make better combatAI for Millhouse.
+SDComment: Warden Mellichar, event controller for Skyriss event. Millhouse Manastorm. @todo make better combatAI for Millhouse.
 SDCategory: Tempest Keep, The Arcatraz
 EndScriptData */
 

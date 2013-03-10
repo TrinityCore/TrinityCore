@@ -690,7 +690,7 @@ public:
                         return;
                     }
 
-                    //TODO: simplify text's selection
+                    /// @todo simplify text's selection
 
                     switch (player->getRace())
                     {

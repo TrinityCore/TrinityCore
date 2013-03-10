@@ -206,7 +206,7 @@ public:
                 instance->SetData(TYPE_BJARNGRIM, DONE);
         }
 
-        //TODO: remove when removal is done by the core
+        /// @todo remove when removal is done by the core
         void DoRemoveStanceAura(uint8 uiStance)
         {
             switch (uiStance)

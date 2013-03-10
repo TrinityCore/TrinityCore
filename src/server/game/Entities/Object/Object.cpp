@@ -2317,7 +2317,7 @@ namespace Trinity
             {
                 char const* text = sObjectMgr->GetTrinityString(i_textId, loc_idx);
 
-                // TODO: i_object.GetName() also must be localized?
+                /// @todo i_object.GetName() also must be localized?
                 i_object.BuildMonsterChat(&data, i_msgtype, text, i_language, i_object.GetNameForLocaleIdx(loc_idx), i_targetGUID);
             }
 
@@ -2336,7 +2336,7 @@ namespace Trinity
                 : i_object(obj), i_msgtype(msgtype), i_text(text), i_language(language), i_targetGUID(targetGUID) {}
             void operator()(WorldPacket& data, LocaleConstant loc_idx)
             {
-                // TODO: i_object.GetName() also must be localized?
+                /// @todo i_object.GetName() also must be localized?
                 i_object.BuildMonsterChat(&data, i_msgtype, i_text, i_language, i_object.GetNameForLocaleIdx(loc_idx), i_targetGUID);
             }
 
@@ -3267,7 +3267,7 @@ void WorldObject::DestroyForNearbyPlayers()
         if (!player->HaveAtClient(this))
             continue;
 
-        if (isType(TYPEMASK_UNIT) && ((Unit*)this)->GetCharmerGUID() == player->GetGUID()) // TODO: this is for puppet
+        if (isType(TYPEMASK_UNIT) && ((Unit*)this)->GetCharmerGUID() == player->GetGUID()) /// @todo this is for puppet
             continue;
 
         DestroyForPlayer(player);

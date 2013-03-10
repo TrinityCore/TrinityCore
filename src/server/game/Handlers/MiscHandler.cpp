@@ -1094,7 +1094,7 @@ void WorldSession::HandleMoveTimeSkippedOpcode(WorldPacket& recvData)
         recvData >> time_skipped;
         sLog->outDebug(LOG_FILTER_PACKETIO, "WORLD: CMSG_MOVE_TIME_SKIPPED");
 
-        /// TODO
+        //// @todo
         must be need use in Trinity
         We substract server Lags to move time (AntiLags)
         for exmaple

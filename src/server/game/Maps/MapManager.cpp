@@ -195,7 +195,7 @@ bool MapManager::CanPlayerEnter(uint32 mapid, Player* player, bool loginCheck)
         if ((!group || !group->isRaidGroup()) && !sWorld->getBoolConfig(CONFIG_INSTANCE_IGNORE_RAID))
         {
             // probably there must be special opcode, because client has this string constant in GlobalStrings.lua
-            // TODO: this is not a good place to send the message
+            /// @todo this is not a good place to send the message
             player->GetSession()->SendAreaTriggerMessage(player->GetSession()->GetTrinityString(LANG_INSTANCE_RAID_GROUP_ONLY), mapName);
             sLog->outDebug(LOG_FILTER_MAPS, "MAP: Player '%s' must be in a raid group to enter instance '%s'", player->GetName().c_str(), mapName);
             return false;
@@ -247,7 +247,7 @@ bool MapManager::CanPlayerEnter(uint32 mapid, Player* player, bool loginCheck)
                 if (playerBoundedInstance && playerBoundedInstance->perm && playerBoundedInstance->save &&
                     boundedInstance->save->GetInstanceId() != playerBoundedInstance->save->GetInstanceId())
                 {
-                    //TODO: send some kind of error message to the player
+                    /// @todo send some kind of error message to the player
                     return false;
                 }*/
     }
@@ -321,7 +321,7 @@ bool MapManager::IsValidMAP(uint32 mapid, bool startUp)
     else
         return mEntry && (!mEntry->IsDungeon() || sObjectMgr->GetInstanceTemplate(mapid));
 
-    // TODO: add check for battleground template
+    /// @todo add check for battleground template
 }
 
 void MapManager::UnloadAll()

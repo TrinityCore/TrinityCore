@@ -1074,7 +1074,7 @@ void Spell::SelectImplicitConeTargets(SpellEffIndex effIndex, SpellImplicitTarge
                 Trinity::Containers::RandomResizeList(targets, maxTargets);
 
             // for compability with older code - add only unit and go targets
-            // TODO: remove this
+            /// @todo remove this
             std::list<Unit*> unitTargets;
             std::list<GameObject*> gObjTargets;
 
@@ -1151,7 +1151,7 @@ void Spell::SelectImplicitAreaTargets(SpellEffIndex effIndex, SpellImplicitTarge
     SearchAreaTargets(targets, radius, center, referer, targetType.GetObjectType(), targetType.GetCheckType(), m_spellInfo->Effects[effIndex].ImplicitTargetConditions);
 
     // Custom entries
-    // TODO: remove those
+    /// @todo remove those
     switch (m_spellInfo->Id)
     {
         case 46584: // Raise Dead
@@ -1226,7 +1226,7 @@ void Spell::SelectImplicitAreaTargets(SpellEffIndex effIndex, SpellImplicitTarge
     std::list<Unit*> unitTargets;
     std::list<GameObject*> gObjTargets;
     // for compability with older code - add only unit and go targets
-    // TODO: remove this
+    /// @todo remove this
     for (std::list<WorldObject*>::iterator itr = targets.begin(); itr != targets.end(); ++itr)
     {
         if (Unit* unitTarget = (*itr)->ToUnit())
@@ -1376,7 +1376,7 @@ void Spell::SelectImplicitCasterDestTargets(SpellEffIndex effIndex, SpellImplici
         case TARGET_DEST_DB:
             if (SpellTargetPosition const* st = sSpellMgr->GetSpellTargetPosition(m_spellInfo->Id))
             {
-                // TODO: fix this check
+                /// @todo fix this check
                 if (m_spellInfo->HasEffect(SPELL_EFFECT_TELEPORT_UNITS) || m_spellInfo->HasEffect(SPELL_EFFECT_BIND))
                     m_targets.SetDst(st->target_X, st->target_Y, st->target_Z, st->target_Orientation, (int32)st->target_mapId);
                 else if (st->target_mapId == m_caster->GetMapId())
@@ -1635,7 +1635,7 @@ void Spell::SelectImplicitTrajTargets()
                 continue;
 
         const float size = std::max((*itr)->GetObjectSize() * 0.7f, 1.0f); // 1/sqrt(3)
-        // TODO: all calculation should be based on src instead of m_caster
+        /// @todo all calculation should be based on src instead of m_caster
         const float objDist2d = m_targets.GetSrcPos()->GetExactDist2d(*itr) * std::cos(m_targets.GetSrcPos()->GetRelativeAngle(*itr));
         const float dz = (*itr)->GetPositionZ() - m_targets.GetSrcPos()->m_positionZ;
 
@@ -1738,7 +1738,7 @@ void Spell::SelectImplicitTrajTargets()
 void Spell::SelectEffectTypeImplicitTargets(uint8 effIndex)
 {
     // special case for SPELL_EFFECT_SUMMON_RAF_FRIEND and SPELL_EFFECT_SUMMON_PLAYER
-    // TODO: this is a workaround - target shouldn't be stored in target map for those spells
+    /// @todo this is a workaround - target shouldn't be stored in target map for those spells
     switch (m_spellInfo->Effects[effIndex].Effect)
     {
         case SPELL_EFFECT_SUMMON_RAF_FRIEND:
@@ -1781,7 +1781,7 @@ void Spell::SelectEffectTypeImplicitTargets(uint8 effIndex)
                 {
                     if (Corpse* corpseTarget = m_targets.GetCorpseTarget())
                     {
-                        // TODO: this is a workaround - corpses should be added to spell target map too, but we can't do that so we add owner instead
+                        /// @todo this is a workaround - corpses should be added to spell target map too, but we can't do that so we add owner instead
                         if (Player* owner = ObjectAccessor::FindPlayer(corpseTarget->GetOwnerGUID()))
                             target = owner;
                     }
@@ -2162,7 +2162,7 @@ void Spell::AddUnitTarget(Unit* target, uint32 effectMask, bool checkIfValid /*=
     if (m_spellInfo->Speed > 0.0f && m_caster != target)
     {
         // calculate spell incoming interval
-        // TODO: this is a hack
+        /// @todo this is a hack
         float dist = m_caster->GetDistance(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ());
 
         if (dist < 5.0f)
@@ -2399,7 +2399,7 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
     {
         m_needComboPoints = false;
         // Restore spell mods for a miss/dodge/parry Cold Blood
-        // TODO: check how broad this rule should be
+        /// @todo check how broad this rule should be
         if (m_caster->GetTypeId() == TYPEID_PLAYER && (missInfo == SPELL_MISS_MISS ||
                 missInfo == SPELL_MISS_DODGE || missInfo == SPELL_MISS_PARRY))
             m_caster->ToPlayer()->RestoreSpellMods(this, 14177);
@@ -2605,14 +2605,14 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask, bool scaleA
         if (m_caster->_IsValidAttackTarget(unit, m_spellInfo))
         {
             unit->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_HITBYSPELL);
-            //TODO: This is a hack. But we do not know what types of stealth should be interrupted by CC
+            /// @todo This is a hack. But we do not know what types of stealth should be interrupted by CC
             if ((m_spellInfo->AttributesCu & SPELL_ATTR0_CU_AURA_CC) && unit->IsControlledByPlayer())
                 unit->RemoveAurasByType(SPELL_AURA_MOD_STEALTH);
         }
         else if (m_caster->IsFriendlyTo(unit))
         {
             // for delayed spells ignore negative spells (after duel end) for friendly targets
-            // TODO: this cause soul transfer bugged
+            /// @todo this cause soul transfer bugged
             if (m_spellInfo->Speed > 0.0f && unit->GetTypeId() == TYPEID_PLAYER && !m_spellInfo->IsPositive())
                 return SPELL_MISS_EVADE;
 
@@ -2754,7 +2754,7 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask, bool scaleA
 void Spell::DoTriggersOnSpellHit(Unit* unit, uint8 effMask)
 {
     // Apply additional spell effects to target
-    // TODO: move this code to scripts
+    /// @todo move this code to scripts
     if (m_preCastSpell)
     {
         // Paladin immunity shields
@@ -2810,7 +2810,7 @@ void Spell::DoTriggersOnSpellHit(Unit* unit, uint8 effMask)
     }
 
     // trigger linked auras remove/apply
-    // TODO: remove/cleanup this, as this table is not documented and people are doing stupid things with it
+    /// @todo remove/cleanup this, as this table is not documented and people are doing stupid things with it
     if (std::vector<int32> const* spellTriggered = sSpellMgr->GetSpellLinked(m_spellInfo->Id + SPELL_LINK_HIT))
     {
         for (std::vector<int32>::const_iterator i = spellTriggered->begin(); i != spellTriggered->end(); ++i)
@@ -3047,7 +3047,7 @@ void Spell::prepare(SpellCastTargets const* targets, AuraEffect const* triggered
     sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Spell::prepare: spell id %u source %u caster %d customCastFlags %u mask %u", m_spellInfo->Id, m_caster->GetEntry(), m_originalCaster ? m_originalCaster->GetEntry() : -1, _triggeredCastFlags, m_targets.GetTargetMask());
 
     //Containers for channeled spells have to be set
-    //TODO:Apply this to all casted spells if needed
+    /// @todoApply this to all casted spells if needed
     // Why check duration? 29350: channelled triggers channelled
     if ((_triggeredCastFlags & TRIGGERED_CAST_DIRECTLY) && (!m_spellInfo->IsChanneled() || !m_spellInfo->GetMaxDuration()))
         cast(true);
@@ -3488,7 +3488,7 @@ void Spell::_handle_immediate_phase()
     if (!m_originalCaster)
         return;
     // Handle procs on cast
-    // TODO: finish new proc system:P
+    /// @todo finish new proc system:P
     if (m_UniqueTargetInfo.empty() && m_targets.HasDst())
     {
         uint32 procAttacker = m_procAttacker;
@@ -3519,7 +3519,7 @@ void Spell::_handle_finish_phase()
     if (m_caster->m_extraAttacks && GetSpellInfo()->HasEffect(SPELL_EFFECT_ADD_EXTRA_ATTACKS))
         m_caster->HandleProcExtraAttackFor(m_caster->getVictim());
 
-    // TODO: trigger proc phase finish here
+    /// @todo trigger proc phase finish here
 }
 
 void Spell::SendSpellCooldown()
@@ -4014,7 +4014,7 @@ void Spell::SendSpellGo()
 
     if (castFlags & CAST_FLAG_RUNE_LIST)                   // rune cooldowns list
     {
-        //TODO: There is a crash caused by a spell with CAST_FLAG_RUNE_LIST casted by a creature
+        /// @todo There is a crash caused by a spell with CAST_FLAG_RUNE_LIST casted by a creature
         //The creature is the mover of a player, so HandleCastSpellOpcode uses it as the caster
         if (Player* player = m_caster->ToPlayer())
         {
@@ -4999,7 +4999,7 @@ SpellCastResult Spell::CheckCast(bool strict)
     }
 
     // Triggered spells also have range check
-    // TODO: determine if there is some flag to enable/disable the check
+    /// @todo determine if there is some flag to enable/disable the check
     castResult = CheckRange(strict);
     if (castResult != SPELL_CAST_OK)
         return castResult;
@@ -6097,7 +6097,7 @@ SpellCastResult Spell::CheckItems()
                     if (msg != EQUIP_ERR_OK)
                     {
                         ItemTemplate const* pProto = sObjectMgr->GetItemTemplate(m_spellInfo->Effects[i].ItemType);
-                        // TODO: Needs review
+                        /// @todo Needs review
                         if (pProto && !(pProto->ItemLimitCategory))
                         {
                             p_caster->SendEquipError(msg, NULL, NULL, m_spellInfo->Effects[i].ItemType);
@@ -6516,7 +6516,7 @@ bool Spell::CheckEffectTarget(Unit const* target, uint32 eff) const
     if (IsTriggered() || m_spellInfo->AttributesEx2 & SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS || DisableMgr::IsDisabledFor(DISABLE_TYPE_SPELL, m_spellInfo->Id, NULL, SPELL_DISABLE_LOS))
         return true;
 
-    // todo: shit below shouldn't be here, but it's temporary
+    /// @todo shit below shouldn't be here, but it's temporary
     //Check targets for LOS visibility (except spells without range limitations)
     switch (m_spellInfo->Effects[eff].Effect)
     {
@@ -6562,7 +6562,7 @@ bool Spell::IsNextMeleeSwingSpell() const
 
 bool Spell::IsAutoActionResetSpell() const
 {
-    // TODO: changed SPELL_INTERRUPT_FLAG_AUTOATTACK -> SPELL_INTERRUPT_FLAG_INTERRUPT to fix compile - is this check correct at all?
+    /// @todo changed SPELL_INTERRUPT_FLAG_AUTOATTACK -> SPELL_INTERRUPT_FLAG_INTERRUPT to fix compile - is this check correct at all?
     return !IsTriggered() && (m_spellInfo->InterruptFlags & SPELL_INTERRUPT_FLAG_INTERRUPT);
 }
 
@@ -7180,7 +7180,7 @@ bool Spell::CanExecuteTriggersOnHit(uint8 effMask, SpellInfo const* triggeredByA
 
 void Spell::PrepareTriggersExecutedOnHit()
 {
-    // todo: move this to scripts
+    /// @todo move this to scripts
     if (m_spellInfo->SpellFamilyName)
     {
         SpellInfo const* excludeCasterSpellInfo = sSpellMgr->GetSpellInfo(m_spellInfo->ExcludeCasterAuraSpell);
@@ -7191,7 +7191,7 @@ void Spell::PrepareTriggersExecutedOnHit()
             m_preCastSpell = m_spellInfo->ExcludeTargetAuraSpell;
     }
 
-    // todo: move this to scripts
+    /// @todo move this to scripts
     switch (m_spellInfo->SpellFamilyName)
     {
         case SPELLFAMILY_MAGE:

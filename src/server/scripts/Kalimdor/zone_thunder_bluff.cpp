@@ -42,7 +42,7 @@ enum CairneBloodhoof
 };
 
 #define GOSSIP_HCB "I know this is rather silly but a young ward who is a bit shy would like your hoofprint."
-//TODO: verify abilities/timers
+/// @todo verify abilities/timers
 class npc_cairne_bloodhoof : public CreatureScript
 {
 public:

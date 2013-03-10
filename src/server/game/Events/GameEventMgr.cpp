@@ -765,7 +765,7 @@ void GameEventMgr::LoadFromDB()
                 Field* fields = result->Fetch();
 
                 uint32 questId  = fields[0].GetUInt32();
-                uint32 eventEntry = fields[1].GetUInt32(); // TODO: Change to uint8
+                uint32 eventEntry = fields[1].GetUInt32(); /// @todo Change to uint8
 
                 if (!sObjectMgr->GetQuestTemplate(questId))
                 {
@@ -1228,7 +1228,7 @@ void GameEventMgr::GameEventSpawn(int16 event_id)
             {
                 GameObject* pGameobject = new GameObject;
                 //sLog->outDebug(LOG_FILTER_GENERAL, "Spawning gameobject %u", *itr);
-                //TODO: find out when it is add to map
+                /// @todo find out when it is add to map
                 if (!pGameobject->LoadGameObjectFromDB(*itr, map, false))
                     delete pGameobject;
                 else

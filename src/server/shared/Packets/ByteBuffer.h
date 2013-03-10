@@ -769,6 +769,7 @@ inline ByteBuffer &operator>>(ByteBuffer &b, std::map<K, V> &m)
     return b;
 }
 
+/// @todo Make a ByteBuffer.cpp and move all this inlining to it.
 template<> inline std::string ByteBuffer::read<std::string>()
 {
     std::string tmp;

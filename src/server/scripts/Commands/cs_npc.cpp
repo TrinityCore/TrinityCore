@@ -82,7 +82,7 @@ public:
             { "item",           SEC_GAMEMASTER,     false, &HandleNpcAddVendorItemCommand,     "", NULL },
             { "move",           SEC_GAMEMASTER,     false, &HandleNpcAddMoveCommand,           "", NULL },
             { "temp",           SEC_GAMEMASTER,     false, &HandleNpcAddTempSpawnCommand,      "", NULL },
-            //{ TODO: fix or remove this command
+            //{@todo fix or remove this command
             { "weapon",         SEC_ADMINISTRATOR,  false, &HandleNpcAddWeaponCommand,         "", NULL },
             //}
             { "",               SEC_GAMEMASTER,     false, &HandleNpcAddCommand,               "", NULL },
@@ -114,7 +114,7 @@ public:
             { "spawndist",      SEC_GAMEMASTER,     false, &HandleNpcSetSpawnDistCommand,      "", NULL },
             { "spawntime",      SEC_GAMEMASTER,     false, &HandleNpcSetSpawnTimeCommand,      "", NULL },
             { "data",           SEC_ADMINISTRATOR,  false, &HandleNpcSetDataCommand,           "", NULL },
-            //{ TODO: fix or remove these commands
+            //{ @todo fix or remove these commands
             { "name",           SEC_GAMEMASTER,     false, &HandleNpcSetNameCommand,           "", NULL },
             { "subname",        SEC_GAMEMASTER,     false, &HandleNpcSetSubNameCommand,        "", NULL },
             //}
@@ -651,7 +651,7 @@ public:
         handler->PSendSysMessage(LANG_NPCINFO_LEVEL, target->getLevel());
         handler->PSendSysMessage(LANG_NPCINFO_EQUIPMENT, target->GetCurrentEquipmentId(), target->GetOriginalEquipmentId());
         handler->PSendSysMessage(LANG_NPCINFO_HEALTH, target->GetCreateHealth(), target->GetMaxHealth(), target->GetHealth());
-        handler->PSendSysMessage(LANG_NPCINFO_FLAGS, target->GetUInt32Value(UNIT_FIELD_FLAGS), target->GetUInt32Value(UNIT_DYNAMIC_FLAGS), target->getFaction());
+        handler->PSendSysMessage(LANG_NPCINFO_FLAGS, target->GetUInt32Value(UNIT_FIELD_FLAGS), target->GetUInt32Value(UNIT_FIELD_FLAGS_2), target->GetUInt32Value(UNIT_DYNAMIC_FLAGS), target->getFaction());
         handler->PSendSysMessage(LANG_COMMAND_RAWPAWNTIMES, defRespawnDelayStr.c_str(), curRespawnDelayStr.c_str());
         handler->PSendSysMessage(LANG_NPCINFO_LOOT,  cInfo->lootid, cInfo->pickpocketLootId, cInfo->SkinLootId);
         handler->PSendSysMessage(LANG_NPCINFO_DUNGEON_ID, target->GetInstanceId());
@@ -1425,7 +1425,7 @@ public:
         return true;
     }
 
-    //TODO: NpcCommands that need to be fixed :
+    /// @todo NpcCommands that need to be fixed :
     static bool HandleNpcAddWeaponCommand(ChatHandler* /*handler*/, char const* /*args*/)
     {
         /*if (!*args)

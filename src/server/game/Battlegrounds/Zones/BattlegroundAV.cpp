@@ -43,7 +43,7 @@ BattlegroundAV::~BattlegroundAV()
 {
 }
 
-uint16 BattlegroundAV::GetBonusHonor(uint8 kills) //TODO: move this function to Battleground.cpp (needs to find a way to get m_MaxLevel)
+uint16 BattlegroundAV::GetBonusHonor(uint8 kills) /// @todo move this function to Battleground.cpp (needs to find a way to get m_MaxLevel)
 {
     return Trinity::Honor::hk_honor_at_level(m_MaxLevel, kills);
 }
@@ -139,7 +139,7 @@ void BattlegroundAV::HandleQuestComplete(uint32 questid, Player* player)
     if (GetStatus() != STATUS_IN_PROGRESS)
         return;//maybe we should log this, cause this must be a cheater or a big bug
     uint8 team = GetTeamIndexByTeamId(player->GetTeam());
-    //TODO add reputation, events (including quest not available anymore, next quest availabe, go/npc de/spawning)and maybe honor
+    /// @todo add reputation, events (including quest not available anymore, next quest availabe, go/npc de/spawning)and maybe honor
     sLog->outDebug(LOG_FILTER_BATTLEGROUND, "BG_AV Quest %i completed", questid);
     switch (questid)
     {
@@ -298,7 +298,7 @@ Creature* BattlegroundAV::AddAVCreature(uint16 cinfoid, uint16 type)
     if (!creature)
         return NULL;
     if (creature->GetEntry() == BG_AV_CreatureInfo[AV_NPC_A_CAPTAIN][0] || creature->GetEntry() == BG_AV_CreatureInfo[AV_NPC_H_CAPTAIN][0])
-        creature->SetRespawnDelay(RESPAWN_ONE_DAY); // TODO: look if this can be done by database + also add this for the wingcommanders
+        creature->SetRespawnDelay(RESPAWN_ONE_DAY); /// @todo look if this can be done by database + also add this for the wingcommanders
 
     if ((isStatic && cinfoid >= 10 && cinfoid <= 14) || (!isStatic && ((cinfoid >= AV_NPC_A_GRAVEDEFENSE0 && cinfoid <= AV_NPC_A_GRAVEDEFENSE3) ||
         (cinfoid >= AV_NPC_H_GRAVEDEFENSE0 && cinfoid <= AV_NPC_H_GRAVEDEFENSE3))))
@@ -314,7 +314,7 @@ Creature* BattlegroundAV::AddAVCreature(uint16 cinfoid, uint16 type)
         creature->GetMotionMaster()->Initialize();
         creature->setDeathState(JUST_DIED);
         creature->Respawn();
-        //TODO: find a way to add a motionmaster without killing the creature (i
+        /// @todo find a way to add a motionmaster without killing the creature (i
         //just copied this code from a gm-command
     }
 
@@ -384,11 +384,11 @@ void BattlegroundAV::PostUpdateImpl(uint32 diff)
                 else
                 {
                     CastSpellOnTeam(AV_BUFF_H_CAPTAIN, HORDE);
-                    Creature* creature = GetBGCreature(AV_CPLACE_MAX + 59); //TODO: make the captains a dynamic creature
+                    Creature* creature = GetBGCreature(AV_CPLACE_MAX + 59); /// @todo make the captains a dynamic creature
                     if (creature)
                         YellToAll(creature, LANG_BG_AV_H_CAPTAIN_BUFF, LANG_ORCISH);
                 }
-                m_CaptainBuffTimer[i] = 120000 + urand(0, 4)* 60000; //as far as i could see, the buff is randomly so i make 2minutes (thats the duration of the buff itself) + 0-4minutes TODO get the right times
+                m_CaptainBuffTimer[i] = 120000 + urand(0, 4)* 60000; //as far as i could see, the buff is randomly so i make 2minutes (thats the duration of the buff itself) + 0-4minutes @todo get the right times
             }
         }
         //add points from mine owning, and look if he neutral team wanrts to reclaim the mine
@@ -455,7 +455,7 @@ void BattlegroundAV::AddPlayer(Player* player)
     BattlegroundAVScore* sc = new BattlegroundAVScore;
     PlayerScores[player->GetGUID()] = sc;
     if (m_MaxLevel == 0)
-        m_MaxLevel=(player->getLevel()%10 == 0)? player->getLevel() : (player->getLevel()-(player->getLevel()%10))+10; //TODO: just look at the code \^_^/ --but queue-info should provide this information..
+        m_MaxLevel=(player->getLevel()%10 == 0)? player->getLevel() : (player->getLevel()-(player->getLevel()%10))+10; /// @todo just look at the code \^_^/ --but queue-info should provide this information..
 }
 
 void BattlegroundAV::EndBattleground(uint32 winner)
@@ -494,7 +494,7 @@ void BattlegroundAV::EndBattleground(uint32 winner)
             RewardHonorToTeam(GetBonusHonor(kills[i]), i == 0 ? ALLIANCE : HORDE);
     }
 
-    //TODO add enterevademode for all attacking creatures
+    /// @todo add enterevademode for all attacking creatures
     Battleground::EndBattleground(winner);
 }
 
@@ -505,7 +505,7 @@ void BattlegroundAV::RemovePlayer(Player* player, uint64 /*guid*/, uint32 /*team
         sLog->outError(LOG_FILTER_BATTLEGROUND, "bg_AV no player at remove");
         return;
     }
-    //TODO search more buffs
+    /// @todo search more buffs
     player->RemoveAurasDueToSpell(AV_BUFF_ARMOR);
     player->RemoveAurasDueToSpell(AV_BUFF_A_CAPTAIN);
     player->RemoveAurasDueToSpell(AV_BUFF_H_CAPTAIN);
@@ -666,10 +666,10 @@ void BattlegroundAV::ChangeMineOwner(uint8 mine, uint32 team, bool initial)
         if (mine == AV_SOUTH_MINE)
             for (uint16 i=AV_CPLACE_MINE_S_S_MIN; i <= AV_CPLACE_MINE_S_S_MAX; i++)
                 if (BgCreatures[i])
-                    DelCreature(i); //TODO just set the respawntime to 999999
+                    DelCreature(i); /// @todo just set the respawntime to 999999
         for (uint16 i=((mine == AV_NORTH_MINE)?AV_CPLACE_MINE_N_1_MIN:AV_CPLACE_MINE_S_1_MIN); i <= ((mine == AV_NORTH_MINE)?AV_CPLACE_MINE_N_3:AV_CPLACE_MINE_S_3); i++)
             if (BgCreatures[i])
-                DelCreature(i); //TODO here also
+                DelCreature(i); /// @todo here also
     }
     SendMineWorldStates(mine);
 
@@ -1617,7 +1617,7 @@ void BattlegroundAV::ResetBGSubclass()
         m_Team_Scores[i]=BG_AV_SCORE_INITIAL_POINTS;
         m_IsInformedNearVictory[i]=false;
         m_CaptainAlive[i] = true;
-        m_CaptainBuffTimer[i] = 120000 + urand(0, 4)* 60; //as far as i could see, the buff is randomly so i make 2minutes (thats the duration of the buff itself) + 0-4minutes TODO get the right times
+        m_CaptainBuffTimer[i] = 120000 + urand(0, 4)* 60; //as far as i could see, the buff is randomly so i make 2minutes (thats the duration of the buff itself) + 0-4minutes @todo get the right times
         m_Mine_Owner[i] = AV_NEUTRAL_TEAM;
         m_Mine_PrevOwner[i] = m_Mine_Owner[i];
     }

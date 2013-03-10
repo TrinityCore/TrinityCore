@@ -82,7 +82,7 @@ void Battlefield::HandlePlayerEnterZone(Player* player, uint32 /*zone*/)
             InvitePlayerToWar(player);
         else // No more vacant places
         {
-            // TODO: Send a packet to announce it to player
+            /// @todo Send a packet to announce it to player
             m_PlayersWillBeKick[player->GetTeamId()][player->GetGUID()] = time(NULL) + 10;
             InvitePlayerToQueue(player);
         }
@@ -257,7 +257,7 @@ void Battlefield::InvitePlayerToWar(Player* player)
     if (!player)
         return;
 
-    // TODO : needed ?
+    /// @todo needed ?
     if (player->isInFlight())
         return;
 
