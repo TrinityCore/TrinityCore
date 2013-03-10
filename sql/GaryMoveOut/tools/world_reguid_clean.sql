@@ -1,6 +1,6 @@
 -- Variables, which define guid to start with
-SET @START_GUID_CRE := 300000; -- or use MAX(column)+1
-SET @START_GUID_GOB := 300000; -- or use MAX(column)+1
+SET @START_GUID_CRE := 300000;
+SET @START_GUID_GOB := 300000;
 
 -- ====== Reguid ======
 -- Execute in world-database

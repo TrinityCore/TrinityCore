@@ -99,6 +99,7 @@ DELETE FROM `petition_sign` WHERE `petitionguid` NOT IN (SELECT `petitionguid` F
 
 -- CLEANUP ITEMS
 DELETE FROM `auctionhouse` WHERE `itemguid` NOT IN (SELECT `guid` FROM `item_instance`);
+DELETE FROM `character_aura` WHERE `item_guid` != 0 AND `item_guid` NOT IN (SELECT `guid` FROM `item_instance`);
 DELETE FROM `character_gifts` WHERE `item_guid` NOT IN (SELECT `guid` FROM `item_instance`);
 DELETE FROM `character_inventory` WHERE `item` NOT IN (SELECT `guid` FROM `item_instance`);
 DELETE FROM `guild_bank_item` WHERE `item_guid` NOT IN (SELECT `guid` FROM `item_instance`);
