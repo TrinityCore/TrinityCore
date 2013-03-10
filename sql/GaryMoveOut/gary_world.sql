@@ -273,3 +273,10 @@ UPDATE creature_template SET InhabitType = InhabitType | 4 WHERE `entry` IN (375
 UPDATE creature_template SET InhabitType = InhabitType | 4 WHERE `entry` IN (39747,39823); -- Saviana Ragefire (RS)
 UPDATE creature_template SET InhabitType = InhabitType | 4 WHERE `entry` IN (10184,36538); -- Onyxia (Ony)
 UPDATE creature_template SET InhabitType = InhabitType | 4 WHERE `entry` IN (24068,31655); -- Annhylde the Caller (UK)
+
+-- Fix priest bug (kills and honour) spell_priest_spirit_of_redemption.
+-- Spell script assignment
+SET @ENTRY := 27827;
+DELETE FROM spell_script_names WHERE spell_id = @ENTRY;
+INSERT INTO spell_script_names (spell_id, ScriptName) VALUES
+(@ENTRY, 'spell_priest_spirit_of_redemption');

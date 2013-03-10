@@ -41,6 +41,8 @@ enum PriestSpells
     SPELL_PRIEST_REFLECTIVE_SHIELD_TRIGGERED        = 33619,
     SPELL_PRIEST_REFLECTIVE_SHIELD_R1               = 33201,
     SPELL_PRIEST_SHADOW_WORD_DEATH                  = 32409,
+    // -27827 Spirit of Redemption
+    SPELL_PRIEST_SPIRIT_OF_REDEMPTION               = 27827,
     SPELL_PRIEST_T9_HEALING_2P                      = 67201,
     SPELL_PRIEST_VAMPIRIC_TOUCH_DISPEL              = 64085,
 };
@@ -623,6 +625,52 @@ class spell_pri_shadow_word_death : public SpellScriptLoader
         }
 };
 
+// -27827 Spirit of Redemption
+class spell_priest_spirit_of_redemption : public SpellScriptLoader
+{
+    public:
+        spell_priest_spirit_of_redemption() : SpellScriptLoader("spell_priest_spirit_of_redemption") { }
+
+        class spell_priest_spirit_of_redemption_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_priest_spirit_of_redemption_AuraScript);
+
+            bool Load()
+            {
+                return GetCaster() && GetCaster()->GetTypeId() == TYPEID_PLAYER;
+            }
+
+            void HandleApplyEffect(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+            {
+                if (Player* caster = GetCaster()->ToPlayer())
+                {
+                    caster->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                    caster->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC); 
+                }
+            }
+
+            void HandleRemoveEffect(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (Player* caster = GetCaster()->ToPlayer())
+                {
+                    caster->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                    caster->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC); 
+                }
+            }
+
+            void Register()
+            {
+                OnEffectApply  += AuraEffectApplyFn(spell_priest_spirit_of_redemption_AuraScript::HandleApplyEffect, EFFECT_1, SPELL_AURA_WATER_BREATHING, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+                OnEffectRemove += AuraEffectRemoveFn(spell_priest_spirit_of_redemption_AuraScript::HandleRemoveEffect, EFFECT_1, SPELL_AURA_WATER_BREATHING, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_priest_spirit_of_redemption_AuraScript();
+        }
+};
+
 // -34914 - Vampiric Touch
 class spell_pri_vampiric_touch : public SpellScriptLoader
 {
@@ -679,5 +727,6 @@ void AddSC_priest_spell_scripts()
     new spell_pri_prayer_of_mending_heal();
     new spell_pri_renew();
     new spell_pri_shadow_word_death();
+    new spell_priest_spirit_of_redemption();
     new spell_pri_vampiric_touch();
 }

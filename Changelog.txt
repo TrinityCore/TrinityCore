@@ -11,6 +11,7 @@
 #                                                                                          #
 ############################################################################################
 
+[148] --> Fix priest bug (kills and honour) spell_priest_spirit_of_redemption. (Thx Vitasic)
 [147] --> Fix sacred shield CD. (TEST, By Odyssey & aedansilver)
 [146] --> Fix duel reset cd and Bladestorm. (By iconskater) 
 [145] --> Fix Sindragosa. (By Elron103) 
