@@ -4197,13 +4197,13 @@ void Spell::EffectApplyGlyph(SpellEffIndex effIndex)
     }
 
     // apply new one
-    if (uint32 glyph = m_spellInfo->Effects[effIndex].MiscValue)
+    if (uint32 newGlyph = m_spellInfo->Effects[effIndex].MiscValue)
     {
-        if (GlyphPropertiesEntry const* gp = sGlyphPropertiesStore.LookupEntry(glyph))
+        if (GlyphPropertiesEntry const* newGlyphProperties = sGlyphPropertiesStore.LookupEntry(newGlyph))
         {
-            if (GlyphSlotEntry const* gs = sGlyphSlotStore.LookupEntry(player->GetGlyphSlot(m_glyphIndex)))
+            if (GlyphSlotEntry const* newGlyphSlot = sGlyphSlotStore.LookupEntry(player->GetGlyphSlot(m_glyphIndex)))
             {
-                if (gp->TypeFlags != gs->TypeFlags)
+                if (newGlyphProperties->TypeFlags != newGlyphSlot->TypeFlags)
                 {
                     SendCastResult(SPELL_FAILED_INVALID_GLYPH);
                     return;                                 // glyph slot mismatch
@@ -4211,17 +4211,26 @@ void Spell::EffectApplyGlyph(SpellEffIndex effIndex)
             }
 
             // remove old glyph
-            if (uint32 oldglyph = player->GetGlyph(player->GetActiveSpec(), m_glyphIndex))
+            if (uint32 oldGlyph = player->GetGlyph(player->GetActiveSpec(), m_glyphIndex))
             {
-                if (GlyphPropertiesEntry const* old_gp = sGlyphPropertiesStore.LookupEntry(oldglyph))
+                if (GlyphPropertiesEntry const* oldGlyphProperties = sGlyphPropertiesStore.LookupEntry(oldGlyph))
                 {
-                    player->RemoveAurasDueToSpell(old_gp->SpellId);
+                    player->RemoveAurasDueToSpell(oldGlyphProperties->SpellId);
                     player->SetGlyph(m_glyphIndex, 0);
                 }
             }
 
-            player->CastSpell(m_caster, gp->SpellId, true);
-            player->SetGlyph(m_glyphIndex, glyph);
+            player->CastSpell(m_caster, newGlyphProperties->SpellId, true);
+            player->SetGlyph(m_glyphIndex, newGlyph);
+            player->SendTalentsInfoData(false);
+        }
+    }
+    else if (uint32 oldGlyph = player->GetGlyph(player->GetActiveSpec(), m_glyphIndex)) // Removing the glyph, get the old one
+    {
+        if (GlyphPropertiesEntry const* oldGlyphProperties = sGlyphPropertiesStore.LookupEntry(oldGlyph))
+        {
+            player->RemoveAurasDueToSpell(oldGlyphProperties->SpellId);
+            player->SetGlyph(m_glyphIndex, 0);
             player->SendTalentsInfoData(false);
         }
     }
