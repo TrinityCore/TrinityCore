@@ -210,7 +210,7 @@ public:
 
         void OnGameObjectCreate(GameObject* go)
         {
-            // TODO: init state depending on encounters
+            /// @todo init state depending on encounters
             switch (go->GetEntry())
             {
                 case GO_FROSTMOURNE:
@@ -681,6 +681,7 @@ public:
         // Wipe has been detected. Perform cleanup and reset.
         void DoWipe()
         {
+<<<<<<< HEAD
             if (GetData(DATA_MARWYN_EVENT) != DONE) {
 
                 uiWaveCount = 0;
@@ -697,6 +698,21 @@ public:
                     if (Creature* trashwave = instance->GetCreature(m_uiSummonGUID[i]))
                     trashwave->DespawnOrUnsummon(5000);
                 }
+=======
+            uiWaveCount = 0;
+            events.Reset();
+            DoUpdateWorldState(WORLD_STATE_HOR, 1);
+            DoUpdateWorldState(WORLD_STATE_HOR_WAVE_COUNT, uiWaveCount);
+            HandleGameObject(uiFrontDoor, true);
+
+            /// @todo
+            // in case of wipe, the event is normally restarted by jumping into the center of the room.
+            // As I can't find a trigger area there, just respawn Jaina/Sylvanas so the event may be restarted.
+            if (Creature* pJaina = instance->GetCreature(uiJainaPart1))
+                pJaina->Respawn();
+            if (Creature* pSylvanas = instance->GetCreature(uiSylvanasPart1))
+                pSylvanas->Respawn();
+>>>>>>> tc/master
 
             if (Creature* pFalric = instance->GetCreature(uiFalric))
                 pFalric->SetVisible(false);
@@ -708,6 +724,7 @@ public:
         // Activate a trash wave.
         void SpawnWave(Creature* trashwave)
         {
+<<<<<<< HEAD
             switch (uiWaveCount)
             {
                 case 1:
@@ -780,6 +797,28 @@ public:
                     break;
             }
             events.ScheduleEvent(EVENT_NEXT_WAVE, 60000);
+=======
+            uint32 index;
+
+            summoner->SetVisible(true);
+
+            /// @todo do composition at random. # of spawn also depends on uiWaveCount
+            // As of now, it is just one of each.
+            index = urand(0, ENCOUNTER_WAVE_MERCENARY-1);
+            summoner->SummonCreature(NPC_WAVE_MERCENARY, MercenarySpawnPos[index], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 0);
+
+            index = urand(0, ENCOUNTER_WAVE_FOOTMAN-1);
+            summoner->SummonCreature(NPC_WAVE_FOOTMAN, FootmenSpawnPos[index], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 0);
+
+            index = urand(0, ENCOUNTER_WAVE_RIFLEMAN-1);
+            summoner->SummonCreature(NPC_WAVE_RIFLEMAN, RiflemanSpawnPos[index], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 0);
+
+            index = urand(0, ENCOUNTER_WAVE_PRIEST-1);
+            summoner->SummonCreature(NPC_WAVE_PRIEST, PriestSpawnPos[index], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 0);
+
+            index = urand(0, ENCOUNTER_WAVE_MAGE-1);
+            summoner->SummonCreature(NPC_WAVE_MAGE, MageSpawnPos[index], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 0);
+>>>>>>> tc/master
         }
 
         void Update(uint32 diff)
@@ -805,8 +844,13 @@ public:
                     uiWaveCount++;
                     AddWave();
                     break;
+<<<<<<< HEAD
                 case EVENT_ADVANCE_WAVE:
                     WaveAdvanced = false;
+=======
+                case EVENT_START_LICH_KING:
+                    /// @todo
+>>>>>>> tc/master
                     break;
             }
         }

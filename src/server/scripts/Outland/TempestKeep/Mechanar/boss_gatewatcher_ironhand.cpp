@@ -103,7 +103,7 @@ class boss_gatewatcher_iron_hand : public CreatureScript
                             break;
                         case EVENT_JACKHAMMER:
                             Talk(EMOTE_HAMMER);
-                            //TODO: expect cast this about 5 times in a row (?), announce it by emote only once
+                            /// @todo expect cast this about 5 times in a row (?), announce it by emote only once
                             DoCastVictim(SPELL_JACKHAMMER, true);
                             if (roll_chance_i(50))
                                 Talk(SAY_HAMMER);

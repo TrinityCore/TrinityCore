@@ -29,11 +29,18 @@ set(authserver_SRCS
 )
 
 if( WIN32 )
-set(authserver_SRCS
-    ${authserver_SRCS}
-    ${sources_Debugging}
+  if ( MSVC )
+    set(authserver_SRCS
+      ${authserver_SRCS}
+      ${sources_Debugging}
     authserver.rc
-)
+    )
+  else ( )
+    set(authserver_SRCS
+      ${authserver_SRCS}
+      ${sources_Debugging}
+    )
+  endif ()
 endif()
 
 include_directories(
@@ -76,10 +83,17 @@ target_link_libraries(authserver
 )
 
 if( WIN32 )
-  add_custom_command(TARGET authserver
-    POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/authserver.conf.dist ${CMAKE_BINARY_DIR}/bin/$(ConfigurationName)/
-  )
+  if ( MSVC )
+    add_custom_command(TARGET authserver
+      POST_BUILD
+      COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/authserver.conf.dist ${CMAKE_BINARY_DIR}/bin/$(ConfigurationName)/
+    )
+  elseif ( MINGW )
+    add_custom_command(TARGET authserver
+      POST_BUILD
+      COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/authserver.conf.dist ${CMAKE_BINARY_DIR}/bin/
+    )
+  endif()
 endif()
 
 if( UNIX )

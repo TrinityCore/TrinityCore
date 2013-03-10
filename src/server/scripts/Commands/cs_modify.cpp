@@ -1258,6 +1258,7 @@ public:
         }
 
         target->GetReputationMgr().SetOneFactionReputation(factionEntry, amount, false);
+        target->GetReputationMgr().SendState(target->GetReputationMgr().GetState(factionEntry));
         handler->PSendSysMessage(LANG_COMMAND_MODIFY_REP, factionEntry->name[handler->GetSessionDbcLocale()], factionId,
             handler->GetNameLink(target).c_str(), target->GetReputationMgr().GetReputation(factionEntry));
         return true;

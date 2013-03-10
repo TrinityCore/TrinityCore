@@ -1904,7 +1904,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                     creature->GetMotionMaster()->Clear();
                     creature->GetMotionMaster()->MoveJump(e.target.x, e.target.y, e.target.z, (float)e.action.jump.speedxy, (float)e.action.jump.speedz);
                 }
-            // TODO: Resume path when reached jump location
+            /// @todo Resume path when reached jump location
 
             delete targets;
             break;
@@ -2066,6 +2066,19 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                     (*itr)->ToGameObject()->RemoveFlag(GAMEOBJECT_FLAGS, e.action.goFlag.flag);
 
             delete targets;
+            break;
+        }
+        case SMART_ACTION_SUMMON_CREATURE_GROUP:
+        {
+            std::list<TempSummon*> summonList;
+            GetBaseObject()->SummonCreatureGroup(e.action.creatureGroup.group, &summonList);
+
+            for (std::list<TempSummon*>::const_iterator itr = summonList.begin(); itr != summonList.end(); ++itr)
+            {
+                if (unit && e.action.creatureGroup.attackInvoker)
+                    (*itr)->AI()->AttackStart(unit);
+            }
+
             break;
         }
         default:

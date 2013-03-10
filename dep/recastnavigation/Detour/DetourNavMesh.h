@@ -21,7 +21,7 @@
 
 #include "DetourAlloc.h"
 
-#ifdef WIN32
+#if defined(WIN32) && !defined(__MINGW32__)
     typedef unsigned __int64   uint64;
 #else
 #include <stdint.h>

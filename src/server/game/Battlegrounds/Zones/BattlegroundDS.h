@@ -106,15 +106,15 @@ class BattlegroundDS : public Battleground
 
         void PostUpdateImpl(uint32 diff);
     protected:
-        uint32 getWaterFallStatus() { return _waterfallStatus; };
-        void setWaterFallStatus(uint8 status) { _waterfallStatus = status; };
-        uint32 getWaterFallTimer() { return _waterfallTimer; };
-        void setWaterFallTimer(uint32 timer) { _waterfallTimer = timer; };
-        uint32 getWaterFallKnockbackTimer() { return _waterfallKnockbackTimer; };
-        void setWaterFallKnockbackTimer(uint32 timer) { _waterfallKnockbackTimer = timer; };
-        uint8 getPipeKnockBackCount() { return _pipeKnockBackCount; };
-        void setPipeKnockBackCount(uint8 count) { _pipeKnockBackCount = count; };
-        uint32 getPipeKnockBackTimer() { return _pipeKnockBackTimer; };
-        void setPipeKnockBackTimer(uint32 timer) { _pipeKnockBackTimer = timer; };
+        uint32 getWaterFallStatus() { return _waterfallStatus; }
+        void setWaterFallStatus(uint8 status) { _waterfallStatus = status; }
+        uint32 getWaterFallTimer() { return _waterfallTimer; }
+        void setWaterFallTimer(uint32 timer) { _waterfallTimer = timer; }
+        uint32 getWaterFallKnockbackTimer() { return _waterfallKnockbackTimer; }
+        void setWaterFallKnockbackTimer(uint32 timer) { _waterfallKnockbackTimer = timer; }
+        uint8 getPipeKnockBackCount() { return _pipeKnockBackCount; }
+        void setPipeKnockBackCount(uint8 count) { _pipeKnockBackCount = count; }
+        uint32 getPipeKnockBackTimer() { return _pipeKnockBackTimer; }
+        void setPipeKnockBackTimer(uint32 timer) { _pipeKnockBackTimer = timer; }
 };
 #endif

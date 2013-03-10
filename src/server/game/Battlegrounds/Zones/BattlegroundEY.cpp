@@ -272,7 +272,7 @@ void BattlegroundEY::UpdatePointStatuses()
 void BattlegroundEY::UpdateTeamScore(uint32 Team)
 {
     uint32 score = GetTeamScore(Team);
-    //TODO there should be some sound played when one team is near victory!! - and define variables
+    /// @todo there should be some sound played when one team is near victory!! - and define variables
     /*if (!m_IsInformedNearVictory && score >= BG_EY_WARNING_NEAR_VICTORY_SCORE)
     {
         if (Team == ALLIANCE)

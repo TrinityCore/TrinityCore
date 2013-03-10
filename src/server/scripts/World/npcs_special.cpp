@@ -881,7 +881,7 @@ void npc_doctor::npc_doctorAI::UpdateAI(uint32 diff)
 ## npc_garments_of_quests
 ######*/
 
-//TODO: get text for each NPC
+/// @todo get text for each NPC
 
 enum Garments
 {

@@ -78,7 +78,7 @@ public:
             return true;
         }
 
-        // TO DO: this should be handled in map, maybe add a summon function in map
+        /// @todo this should be handled in map, maybe add a summon function in map
         // There is no other way afaik...
         void SpawnGameObject(uint32 entry, Position& pos)
         {
@@ -150,6 +150,19 @@ public:
                     giftBoxBunnyGUID = creature->GetGUID();
                     break;
             }
+        }
+
+        void OnUnitDeath(Unit* unit)
+        {
+            if (unit->GetTypeId() != TYPEID_PLAYER)
+                return;
+
+            // For some reason player continues sometimes to be moving after death on this map,
+            // perhaps only client side issue am not entirtly sure.
+            // This fix not being able to press release button.
+            // Variation of this with some check needs to be implemented somewhere within core code.
+            // It'll stay here until someone find where and why the leak happens.
+            unit->StopMoving();
         }
 
         void ProcessEvent(WorldObject* /*obj*/, uint32 eventId)

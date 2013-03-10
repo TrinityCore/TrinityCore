@@ -362,7 +362,7 @@ public:
         return true;
     }
 
-    // TODO: make prisoners help (unclear if summoned or using npc's from surrounding cages (summon inside small cages?))
+    /// @todo make prisoners help (unclear if summoned or using npc's from surrounding cages (summon inside small cages?))
     struct npc_daegarnAI : public ScriptedAI
     {
         npc_daegarnAI(Creature* creature) : ScriptedAI(creature) { }

@@ -22,7 +22,7 @@
 #include "SpellInfo.h"
 
 /*
- * TODO:
+ * @todo
  * - Fix model id during unleash soul -> seems DB issue 36503 is missing (likewise 36504 is also missing).
  * - Fix outro npc movement
  */
