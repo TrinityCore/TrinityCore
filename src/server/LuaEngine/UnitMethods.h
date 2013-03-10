@@ -98,7 +98,7 @@ public:
     // SendChatMessageToPlayer(type, lang, msg, target)
     static int SendChatMessageToPlayer(lua_State* L, Unit* unit)
     {
-        TO_PLAYER();
+        TO_UNIT();
 
         uint8 type = luaL_checkunsigned(L, 1);
         uint32 lang = luaL_checkunsigned(L, 2);
@@ -112,13 +112,13 @@ public:
         data->Initialize(SMSG_MESSAGECHAT, 100);
         *data << (uint8)type;
         *data << lang;
-        *data << player->GetGUID();
+        *data << unit->GetGUID();
         *data << uint32(0);
-        *data << player->GetGUID();
+        *data << unit->GetGUID();
         *data << messageLength;
         *data << msg;
-        if (type != CHAT_MSG_WHISPER_INFORM && type != CHAT_MSG_DND && type != CHAT_MSG_AFK)
-            *data << uint8(player->GetChatTag());
+        if (unit->ToPlayer() && type != CHAT_MSG_WHISPER_INFORM && type != CHAT_MSG_DND && type != CHAT_MSG_AFK)
+            *data << uint8(unit->ToPlayer()->GetChatTag());
         else
             *data << uint8(0);
         target->GetSession()->SendPacket(data);
