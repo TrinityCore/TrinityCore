@@ -81,8 +81,8 @@ enum MovePoints
     ROOM_CENTER                 = 1
 };
 
-Position const ViscidusCoord = { -7992.36f, 908.19f, -52.62f, 1.68f }; // TODO: Visci isn't in room middle
-float const RoomRadius = 40.0f; // TODO: Not sure if its correct
+Position const ViscidusCoord = { -7992.36f, 908.19f, -52.62f, 1.68f }; /// @todo Visci isn't in room middle
+float const RoomRadius = 40.0f; /// @todo Not sure if its correct
 
 class boss_viscidus : public CreatureScript
 {

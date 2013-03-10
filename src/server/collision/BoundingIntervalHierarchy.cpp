@@ -18,12 +18,10 @@
 
 #include "BoundingIntervalHierarchy.h"
 
-#if defined __APPLE__
-  #define isnan std::isnan
-#elif defined __CYGWIN__
-  #define isnan std::isnan
-#elif defined _MSC_VER
+#ifdef _MSC_VER
   #define isnan _isnan
+#else
+  #define isnan std::isnan
 #endif
 
 void BIH::buildHierarchy(std::vector<uint32> &tempTree, buildData &dat, BuildStats &stats)

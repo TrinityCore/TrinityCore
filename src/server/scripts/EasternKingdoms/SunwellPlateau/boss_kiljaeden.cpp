@@ -22,7 +22,7 @@ SDComment: Sinister Reflection Model, Armageddon Visual, SAY_KJ_SHADOWSPIKE3, Em
 SDCategory: Sunwell_Plateau
 EndScriptData */
 
-//TODO rewrite Armageddon
+/// @todo rewrite Armageddon
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -105,7 +105,7 @@ enum Spells
     SPELL_ARMAGEDDON_DAMAGE                     = 45915, // This does the area damage
 
     /* Shield Orb Spells*/
-    SPELL_SHADOW_BOLT                           = 45680, //45679 would be correct but triggers to often //TODO fix console error
+    SPELL_SHADOW_BOLT                           = 45680, //45679 would be correct but triggers to often /// @todo fix console error
 
     /* Anveena's spells and cosmetics (Or, generally, everything that has "Anveena" in name) */
     SPELL_ANVEENA_PRISON                        = 46367, // She hovers locked within a bubble
@@ -784,7 +784,7 @@ public:
                             break;
                         case TIMER_FLAME_DART: //Phase 3
                             DoCastAOE(SPELL_FLAME_DART, false);
-                            Timer[TIMER_FLAME_DART] = 3000; //TODO Timer
+                            Timer[TIMER_FLAME_DART] = 3000; /// @todo Timer
                             break;
                         case TIMER_DARKNESS: //Phase 3
                             if (!me->IsNonMeleeSpellCasted(false))
@@ -918,7 +918,7 @@ public:
 
         void Reset()
         {
-            // TODO: Timers!
+            /// @todo Timers!
             ShadowBoltVolleyTimer = urand(8000, 14000); // So they don't all cast it in the same moment.
             FelfirePortalTimer = 20000;
             if (instance)

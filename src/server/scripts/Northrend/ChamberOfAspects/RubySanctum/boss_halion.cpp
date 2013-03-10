@@ -779,7 +779,7 @@ class npc_halion_controller : public CreatureScript
             }
 
         private:
-            /// TODO: Find out a better scaling, if any.
+            //// @todo Find out a better scaling, if any.
             // [0   , 0.98[: Corporeality goes down
             // [0.98, 0.99]: Do nothing
             // ]0.99, 1.01[: Twilight Mending

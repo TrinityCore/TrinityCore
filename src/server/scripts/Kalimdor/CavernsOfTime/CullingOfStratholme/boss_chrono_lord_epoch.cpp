@@ -19,7 +19,7 @@
 SDName: Boss epoch
 SDAuthor: Tartalo
 SD%Complete: 80
-SDComment: TODO: Intro, consecutive attacks to a random target durin time wrap, adjust timers
+SDComment: @todo Intro, consecutive attacks to a random target durin time wrap, adjust timers
 SDCategory:
 Script Data End */
 

@@ -427,7 +427,7 @@ enum SMART_ACTION
     SMART_ACTION_SET_INVINCIBILITY_HP_LEVEL         = 42,     // MinHpValue(+pct, -flat)
     SMART_ACTION_MOUNT_TO_ENTRY_OR_MODEL            = 43,     // Creature_template entry(param1) OR ModelId (param2) (or 0 for both to dismount)
     SMART_ACTION_SET_INGAME_PHASE_MASK              = 44,     // mask
-    SMART_ACTION_SET_DATA                           = 45,     // Field, Data (only creature TODO)
+    SMART_ACTION_SET_DATA                           = 45,     // Field, Data (only creature @todo)
     SMART_ACTION_MOVE_FORWARD                       = 46,     // distance
     SMART_ACTION_SET_VISIBILITY                     = 47,     // on/off
     SMART_ACTION_SET_ACTIVE                         = 48,     // No Params
@@ -489,8 +489,9 @@ enum SMART_ACTION
     SMART_ACTION_SET_GO_FLAG                        = 104,    // Flags
     SMART_ACTION_ADD_GO_FLAG                        = 105,    // Flags
     SMART_ACTION_REMOVE_GO_FLAG                     = 106,    // Flags
+    SMART_ACTION_SUMMON_CREATURE_GROUP              = 107,    // Group, attackInvoker
 
-    SMART_ACTION_END                                = 107
+    SMART_ACTION_END                                = 108
 };
 
 struct SmartAction
@@ -932,6 +933,12 @@ struct SmartAction
             uint32 flag;
         } goFlag;
 
+        struct
+        {
+            uint32 group;
+            uint32 attackInvoker;
+        } creatureGroup;
+
         //! Note for any new future actions
         //! All parameters must have type uint32
 
@@ -1295,9 +1302,9 @@ typedef UNORDERED_MAP<int32, SmartAIEventList> SmartAIEventMap;
 class SmartAIMgr
 {
     friend class ACE_Singleton<SmartAIMgr, ACE_Null_Mutex>;
-    SmartAIMgr(){};
+    SmartAIMgr(){}
     public:
-        ~SmartAIMgr(){};
+        ~SmartAIMgr(){}
 
         void LoadSmartAIFromDB();
 

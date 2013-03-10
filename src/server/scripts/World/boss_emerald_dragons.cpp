@@ -304,7 +304,7 @@ class boss_ysondre : public CreatureScript
  * --- Dragonspecific scripts and handling: LETHON
  * ---
  *
- * TODO:
+ * @todo
  * - Spell: Shadow bolt whirl casts needs custom handling (spellscript)
  */
 
