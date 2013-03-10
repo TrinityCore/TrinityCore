@@ -157,12 +157,12 @@ public:
             if (unit->GetTypeId() != TYPEID_PLAYER)
                 return;
 
-            // For some reason player continues sometimes to be moving after death on this map,
-            // perhaps only client side issue am not entirtly sure.
-            // This fix not being able to press release button.
-            // Variation of this with some check needs to be implemented somewhere within core code.
-            // It'll stay here until someone find where and why the leak happens.
-            unit->StopMoving();
+            // Player continues to be moving after death no matter if spline will be cleared along with all movements,
+            // so on next world tick was all about delay if box will pop or not (when new movement will be registered)
+            // since in EoE you never stop falling. However root at this precise* moment works,
+            // it will get cleared on release. If by any chance some lag happen "Reload()" and "RepopMe()" works,
+            // last test I made now gave me 50/0 of this bug so I can't do more about it.
+            unit->SetControlled(true, UNIT_STATE_ROOT);
         }
 
         void ProcessEvent(WorldObject* /*obj*/, uint32 eventId)
