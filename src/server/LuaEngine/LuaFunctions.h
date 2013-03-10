@@ -24,6 +24,8 @@ ElunaRegister<Unit> UnitMethods[] =
     {"GetTotalPlayedTime", &LuaUnit::GetTotalPlayedTime},           // :GetTotalPlayedTime() -- Returns the total played time of that player
     {"GetInventoryItem", &LuaUnit::GetInventoryItem},               // :GetInventoryItem(slot) -  Returns item at given inventory slot (0, 1, 2.. for equipment 19-23 for bags, 23-39 for backpack) UNDOCUMENTED
     {"GetBagItem", &LuaUnit::GetBagItem},                           // :GetBagItem(bagSlot, slot) -  Returns item at given slot (0, 1, 2 .. max slots for bag) in a bag (19-23). UNDOCUMENTED
+    {"GetObjectGlobally", &LuaUnit::GetObjectGlobally},             // :GetObjectGlobally(guid, entry) - Returns the gameobject of given guid and entry if in world. UNDOCUMENTED
+    {"GetNearestGameObject", &LuaUnit::GetNearbyGameObject},        // :GetNearestGameObject() - Returns nearest gameobject if found. UNDOCUMENTED
 
     // Setters
     {"AdvanceSkillsToMax", &LuaUnit::AdvanceSkillsToMax},           // :AdvanceSkillsToMax() -- Advances all currently known skills to the currently known max level
@@ -88,6 +90,11 @@ ElunaRegister<Unit> UnitMethods[] =
     // Getters
     {"GetAITargets", &LuaUnit::GetAITargets},                       // :GetAITargets() - Get units in threat list
     {"GetAITargetsCount", &LuaUnit::GetAITargetsCount},             // :GetAITargetsCount() - Get threat list size
+    {"GetVictim", &LuaUnit::GetVictim},                             // :GetVictim() - Returns creature's current target. UNDOCUMENTED
+    {"GetNearestTargetInAttackDistance", &LuaUnit::GetNearestTargetInAttackDistance}, // :GetNearestTargetInAttackDistance([radius]) - Returns nearest target in attack distance and within given radius, if set. UNDOCUMENTED
+    {"GetNearestTarget", &LuaUnit::GetNearestTarget},               // :GetNearestTarget([radius]) - Returns nearest target in sight or given radius. UNDOCUMENTED
+    {"GetNearestPlayer", &LuaUnit::GetNearestPlayer},               // :GetNearestPlayer([radius]) - Returns nearest player in sight or given radius. UNDOCUMENTED
+    {"GetNearestHostileTargetInAggroRange", &LuaUnit::GetNearestHostileUnitInAggroRange}, // :GetNearestHostileTargetInAggroRange([checkLOS]) - Returns closest hostile target in aggro range of the creature. UNDOCUMENTED
 
 	// Booleans
     {"IsWorldBoss", &LuaUnit::IsWorldBoss},                         // :IsWorldBoss() -- Returns true if the creature is a WorldBoss, false if not.
@@ -139,6 +146,7 @@ ElunaRegister<Unit> UnitMethods[] =
     {"GetFaction", &LuaUnit::GetFaction},                           // :GetFaction() -- Returns the unit's factionId
     {"GetCurrentSpell", &LuaUnit::GetCurrentSpell},                 // :GetCurrentSpell(type) -- Returns the currently casted spell of given type if any UNDOCUMENTED
     {"GetCreatureType", &LuaUnit::GetCreatureType},                 // :GetCreatureType() -- Returns the unit's type
+    {"GetNearestTarget", &LuaUnit::GetNearbyTarget},                // :GetNearestTarget([radius[, exclude]]) - Returns nearest target within sight or given radius. Excludes current target and given unit. UNDOCUMENTED
 
     // Setters
     {"SetFaction", &LuaUnit::SetFaction},                           // :SetFaction(factionId) -- Sets the unit's faction

@@ -13,6 +13,88 @@
 class LuaUnit
 {
 public:
+    // GetVictim()
+    static int GetVictim(lua_State* L, Unit* unit)
+    {
+        TO_CREATURE();
+
+        Eluna::get()->PushUnit(L, creature->SelectVictim());
+        return 1;
+    }
+
+    // GetNearestTargetInAttackDistance([radius])
+    static int GetNearestTargetInAttackDistance(lua_State* L, Unit* unit)
+    {
+        TO_CREATURE();
+
+        float dist = luaL_optnumber(L, 1, 0.0f);
+        Eluna::get()->PushUnit(L, creature->SelectNearestTargetInAttackDistance(dist));
+        return 1;
+    }
+
+    // GetNearestTarget([radius])
+    static int GetNearestTarget(lua_State* L, Unit* unit)
+    {
+        TO_CREATURE();
+
+        float dist = luaL_optnumber(L, 1, 0.0f);
+        Eluna::get()->PushUnit(L, creature->SelectNearestTarget(dist));
+        return 1;
+    }
+
+    // GetNearestPlayer([radius])
+    static int GetNearestPlayer(lua_State* L, Unit* unit)
+    {
+        TO_CREATURE();
+
+        float dist = luaL_optnumber(L, 1, 0.0f);
+        Eluna::get()->PushUnit(L, creature->SelectNearestPlayer(dist));
+        return 1;
+    }
+
+    // GetNearestHostileTargetInAggroRange([checkLOS])
+    static int GetNearestHostileUnitInAggroRange(lua_State* L, Unit* unit)
+    {
+        TO_CREATURE();
+
+        bool checkLOS = luaL_optbool(L, 1, false);
+        Eluna::get()->PushUnit(L, creature->SelectNearestHostileUnitInAggroRange(checkLOS));
+        return 1;
+    }
+
+    // GetNearbyTarget([radius[, exclude]])
+    static int GetNearbyTarget(lua_State* L, Unit* unit)
+    {
+        TO_UNIT();
+
+        float dist = luaL_optnumber(L, 1, 5.0f);
+        Unit* exclude = Eluna::get()->CHECK_UNIT(L, 2);
+
+        Eluna::get()->PushUnit(L, unit->SelectNearbyTarget(exclude, dist));
+        return 1;
+    }
+
+    // GetObjectGlobally(guid, entry)
+    static int GetObjectGlobally(lua_State* L, Unit* unit)
+    {
+        TO_PLAYER();
+
+        uint32 guidLow = luaL_checkunsigned(L, 1);
+        uint32 entry = luaL_checkunsigned(L, 2);
+
+        Eluna::get()->PushGO(L, ChatHandler(player->GetSession()).GetObjectGlobalyWithGuidOrNearWithDbGuid(guidLow, entry));
+        return 1;
+    }
+
+    // GetNearestGameObject()
+    static int GetNearbyGameObject(lua_State* L, Unit* unit)
+    {
+        TO_PLAYER();
+
+        Eluna::get()->PushGO(L, ChatHandler(player->GetSession()).GetNearbyGameObject());
+        return 1;
+    }
+
     // SendChatMessageToPlayer(type, lang, msg, target)
     static int SendChatMessageToPlayer(lua_State* L, Unit* unit)
     {
