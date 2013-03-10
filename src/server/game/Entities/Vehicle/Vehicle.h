@@ -113,7 +113,7 @@ class VehicleJoinEvent : public BasicEvent
     friend class Vehicle;
     protected:
         VehicleJoinEvent(Vehicle* v, Unit* u) : Target(v), Passenger(u), Seat(Target->Seats.end()) {}
-        ~VehicleJoinEvent() { Target->RemovePendingEvent(this); }
+        ~VehicleJoinEvent();
         bool Execute(uint64, uint32);
         void Abort(uint64);
 
