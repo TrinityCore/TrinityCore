@@ -11,6 +11,7 @@
 #                                                                                          #
 ############################################################################################
 
+[147] --> Fix sacred shield CD. (TEST, By Odyssey & aedansilver)
 [146] --> Fix duel reset cd and Bladestorm. (By iconskater) 
 [145] --> Fix Sindragosa. (By Elron103) 
 [144] --> Fix MMaps boss sindragosa and more... (Info #9083).

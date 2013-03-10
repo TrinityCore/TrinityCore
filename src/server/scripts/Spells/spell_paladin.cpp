@@ -37,6 +37,8 @@ enum PaladinSpells
     SPELL_PALADIN_HOLY_SHOCK_R1_DAMAGE           = 25912,
     SPELL_PALADIN_HOLY_SHOCK_R1_HEALING          = 25914,
 
+    PALADIN_SPELL_SACRED_SHIELD_EFFECT           = 58597,
+		
     SPELL_PALADIN_BLESSING_OF_LOWER_CITY_DRUID   = 37878,
     SPELL_PALADIN_BLESSING_OF_LOWER_CITY_PALADIN = 37879,
     SPELL_PALADIN_BLESSING_OF_LOWER_CITY_PRIEST  = 37880,
@@ -816,6 +818,12 @@ class spell_pal_sacred_shield : public SpellScriptLoader
         class spell_pal_sacred_shield_AuraScript : public AuraScript
         {
             PrepareAuraScript(spell_pal_sacred_shield_AuraScript);
+            bool Validate(SpellInfo const* /*entry*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(PALADIN_SPELL_SACRED_SHIELD_EFFECT))
+                    return false;
+                return true;
+            }
 
             void CalculateAmount(AuraEffect const* aurEff, int32& amount, bool& /*canBeRecalculated*/)
             {
@@ -838,10 +846,18 @@ class spell_pal_sacred_shield : public SpellScriptLoader
                         AddPct(amount, dampening->GetAmount());
                 }
             }
+			
+            void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (Unit* caster = GetCaster())
+                    if (caster->ToPlayer())
+                        caster->ToPlayer()->AddSpellCooldown(PALADIN_SPELL_SACRED_SHIELD_EFFECT, 0, time(NULL) + 6);
+            }
 
             void Register()
             {
                 DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_pal_sacred_shield_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
+                AfterEffectRemove += AuraEffectRemoveFn(spell_pal_sacred_shield_AuraScript::HandleEffectRemove, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
             }
         };
 
