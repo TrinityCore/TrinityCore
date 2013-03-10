@@ -57,8 +57,8 @@ void WorldSession::HandleDuelAcceptedOpcode(WorldPacket& recvPacket)
         plTarget->SetHealth(plTarget->GetMaxHealth());
         player->RemoveArenaSpellCooldowns(true);
         plTarget->RemoveArenaSpellCooldowns(true);
-        player->RemoveArenaAuras();
-        plTarget->RemoveArenaAuras();
+        // player->RemoveArenaAuras();
+        // plTarget->RemoveArenaAuras();
         player->RemoveAurasDueToSpell(25771);
         plTarget->RemoveAurasDueToSpell(25771);
 
