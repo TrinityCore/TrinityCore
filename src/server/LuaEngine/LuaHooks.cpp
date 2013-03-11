@@ -678,15 +678,16 @@ public:
     {
     }
 };
-class Eluna_ConditionScript : public ConditionScript
+/*class Eluna_ConditionScript : public ConditionScript
 {
 public:
-    Eluna_ConditionScript() : ConditionScript("Eluna_ConditionScript") { }
-    bool OnConditionCheck(Condition* condition, ConditionSourceInfo& sourceInfo)
-    {
-        return false;
-    }
+Eluna_ConditionScript() : ConditionScript("Eluna_ConditionScript") { }
+bool OnConditionCheck(Condition* condition, ConditionSourceInfo& sourceInfo)
+{
+return false;
+}
 };
+*/
 class Eluna_VehicleScript : public VehicleScript
 {
 public:
@@ -710,23 +711,24 @@ public:
     {
     }
 };
-class Eluna_TransportScript : public TransportScript
+/*class Eluna_TransportScript : public TransportScript
 {
 public:
-    Eluna_TransportScript() : TransportScript("Eluna_TransportScript") { }
-    void OnAddPassenger(Transport* transport, Player* player)
-    {
-    }
-    void OnAddCreaturePassenger(Transport* transport, Creature* creature)
-    {
-    }
-    void OnRemovePassenger(Transport* transport, Player* player)
-    {
-    }
-    void OnRelocate(Transport* transport, uint32 waypointId, uint32 mapId, float x, float y, float z)
-    {
-    }
+Eluna_TransportScript() : TransportScript("Eluna_TransportScript") { }
+void OnAddPassenger(Transport* transport, Player* player)
+{
+}
+void OnAddCreaturePassenger(Transport* transport, Creature* creature)
+{
+}
+void OnRemovePassenger(Transport* transport, Player* player)
+{
+}
+void OnRelocate(Transport* transport, uint32 waypointId, uint32 mapId, float x, float y, float z)
+{
+}
 };
+*/
 class Eluna_PlayerScript : public PlayerScript
 {
 public:
@@ -1285,9 +1287,9 @@ void Eluna_AddScriptHooks()
     //new Eluna_MapScript;
     //new Eluna_InstanceMapScript;
     new Eluna_AuctionHouseScript;
-    new Eluna_ConditionScript;
+    //new Eluna_ConditionScript;
     new Eluna_VehicleScript;
-    new Eluna_TransportScript;
+    //new Eluna_TransportScript;
     new Eluna_PlayerScript;
     new Eluna_GuildScript;
     new Eluna_GroupScript;

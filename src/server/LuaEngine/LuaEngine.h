@@ -26,6 +26,7 @@ extern "C"
 #include "Vehicle.h"
 #include "SystemConfig.h"
 #include "MapManager.h"
+#include "Language.h"
 
 enum RegisterTypes
 {
@@ -350,6 +351,14 @@ public:
 
         ElunaEntryMap Bindings; // Binding store Bindings[entryId][eventId] = funcRef;
     };
+
+    Item* CHECK_ITEM(lua_State* L, int narg)
+    {
+        if (!L)
+            return ElunaTemplate<Item>::check(LuaState, narg);
+        else
+            return ElunaTemplate<Item>::check(L, narg);
+    }
 
 protected:
     template<typename T>

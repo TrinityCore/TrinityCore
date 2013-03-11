@@ -18,18 +18,28 @@ ElunaRegister<Unit> UnitMethods[] =
     {"GetAccountName", &LuaUnit::GetAccountName},                   // :GetAccountName()
     {"GetArenaPoints", &LuaUnit::GetArenaPoints},                   // :GetArenaPoints()
     {"GetHonorPoints", &LuaUnit::GetHonorPoints},                   // :GetHonorPoints()
+    {"GetLifetimeKills", &LuaUnit::GetLifetimeKills},               // :GetLifetimeKills() -- Returns the player's lifetime (honorable) kills
+    {"GetPlayerIP", &LuaUnit::GetPlayerIP},                         // :GetPlayerIP() -- Returns the player's IP Address
+    {"GetLevelPlayedTime", &LuaUnit::GetLevelPlayedTime},           // :GetLevelPlayedTime() -- Returns the player's played time at that level
+    {"GetTotalPlayedTime", &LuaUnit::GetTotalPlayedTime},           // :GetTotalPlayedTime() -- Returns the total played time of that player
+    {"GetInventoryItem", &LuaUnit::GetInventoryItem},               // :GetInventoryItem(slot) -  Returns item at given inventory slot (0, 1, 2.. for equipment 19-23 for bags, 23-39 for backpack) UNDOCUMENTED
+    {"GetBagItem", &LuaUnit::GetBagItem},                           // :GetBagItem(bagSlot, slot) -  Returns item at given slot (0, 1, 2 .. max slots for bag) in a bag (19-23). UNDOCUMENTED
+    {"GetObjectGlobally", &LuaUnit::GetObjectGlobally},             // :GetObjectGlobally(guid, entry) - Returns the gameobject of given guid and entry if in world. UNDOCUMENTED
+    {"GetNearbyGameObject", &LuaUnit::GetNearbyGameObject},         // :GetNearbyGameObject() - Returns nearby gameobject if found. UNDOCUMENTED
 
     // Setters
+    {"AdvanceSkillsToMax", &LuaUnit::AdvanceSkillsToMax},           // :AdvanceSkillsToMax() -- Advances all currently known skills to the currently known max level
+    {"AdvanceSkill", &LuaUnit::AdvanceSkill},                       // :AdvanceSkill(skill_id, step) -- Advances skill by ID and the amount(step)
+    {"AdvanceAllSkills", &LuaUnit::AdvanceAllSkills},               // :AdvanceAllSkills(value) -- Advances all current skills to your input(value)
+    {"AddLifetimeKills", &LuaUnit::AddLifetimeKills},               // :AddLifetimeKills(val) -- Adds lifetime (honorable) kills to your current lifetime kills
     {"SetCoinage", &LuaUnit::SetCoinage},                           // :SetCoinage(amount) - sets plr's coinage to this.
     {"SetKnownTitle", &LuaUnit::SetKnownTitle},                     // :SetKnownTitle(id)
     {"UnsetKnownTitle", &LuaUnit::UnsetKnownTitle},                 // :UnsetKnownTitle(id)
-    {"AdvanceSkillsToMax", &LuaUnit::AdvanceSkillsToMax},           // :AdvanceSkillsToMax() -- Advances all currently known skills to the currently known max level
-    {"AdvanceSkill", &LuaUnit::AdvanceSkill},                       // AdvanceSkill(skill_id, step) -- Advances skill by ID and the amount(step)
-    {"AdvanceAllSkills", &LuaUnit::AdvanceAllSkills},               // AdvanceAllSkills(value) -- Advances all current skills to your input(value)
     {"SetBindPoint", &LuaUnit::SetBindPoint},                       // :SetBindPoint(x, y, z, map, areaid) -- sets home for hearthstone
     {"SetBindPointAtPlayerLoc", &LuaUnit::SetBindPointAtPlayerLoc}, // :SetBindPointAtPlayerLoc() -- Set's home for hearthstone at player's location
     {"SetArenaPoints", &LuaUnit::SetArenaPoints},                   // :SetArenaPoints(amount)
     {"SetHonorPoints", &LuaUnit::SetHonorPoints},                   // :SetHonorPoints(amount)
+    {"SetLifetimeKills", &LuaUnit::SetLifetimeKills},               // :SetLifetimeKills(val) -- Sets the overall lifetime (honorable) kills of the player
 
     // Boolean
     {"IsInGroup", &LuaUnit::IsInGroup},                             // :IsInGroup()
@@ -38,9 +48,11 @@ ElunaRegister<Unit> UnitMethods[] =
     {"IsAlliance", &LuaUnit::IsAlliance},                           // :IsAlliance()
     {"IsHorde", &LuaUnit::IsHorde},                                 // :IsHorde()
     {"HasTitle", &LuaUnit::HasTitle},                               // :HasTitle(id)
+    {"HasItem", &LuaUnit::HasItem},                                 // :HasItem(itemId, count) -- Returns true if the player has the item(itemId) and specified count, else it will return false. 
     {"Teleport", &LuaUnit::Teleport},                               // :Teleport(Map, X, Y, Z, O) - Teleports player to specified co-ordinates. Returns true if success and false if not.
     {"AddItem", &LuaUnit::AddItem},                                 // :AddItem(id, amount) - Adds amount of item to player. Returns true if success and false if not.
     {"IsInArenaTeam", &LuaUnit::IsInArenaTeam},                     // :IsInArenaTeam(type) -  type : 0 = 2v2, 1 = 3v3, 2 = 5v5
+    {"CanEquipItem", &LuaUnit::CanEquipItem},                       // :CanEquipItem(entry/item, slot) - Returns true if the player can equip given item/item entry. UNDOCUMENTED
 
     // Gossip                                                           
     {"GossipMenuAddItem", &LuaUnit::GossipMenuAddItem},             // :GossipMenuAddItem(icon, msg, sender, intid, code, popup, money)
@@ -64,14 +76,28 @@ ElunaRegister<Unit> UnitMethods[] =
     {"RemoveCoinage", &LuaUnit::RemoveCoinage},                     // :RemoveCoinage(amount) - Removes amount of coinage from plr.
     {"LearnSpell", &LuaUnit::LearnSpell},                           // :LearnSpell(id) - learns the given spell.
     {"RemoveItem", &LuaUnit::RemoveItem},                           // :RemoveItem(id, amount) - Removes amount of item to player.
+    {"RemoveLifetimeKills", &LuaUnit::RemoveLifetimeKills},         // :RemoveLifetimeKills(val) - Removes a specified amount(val) of the player's lifetime (honorable) kills
     {"ResurrectPlayer", &LuaUnit::ResurrectPlayer},                 // :ResurrectPlayer([percent[, sickness(bool)]]) - Resurrects the player at percentage, player gets resurrection sickness if sickness set to true.
     {"PlaySoundToPlayer", &LuaUnit::PlaySoundToPlayer},             // :PlaySoundToPlayer(soundId) - Plays the specified sound to the player
+    {"EquipItem", &LuaUnit::EquipItem},                             // :EquipItem(entry/item, slot) -  Equips given item or item entry for player to given slot. Returns the equipped item or nil. UNDOCUMENTED
+    {"ResetSpellCooldown", &LuaUnit::ResetSpellCooldown},           // :ResetSpellCooldown(spellId, update(bool~optional)) -- Resets cooldown of the specified spellId. If update is true, it will send WorldPacket SMSG_CLEAR_COOLDOWN to the player, else it will just clear the spellId from m_spellCooldowns. This is true by default.
+    {"ResetTypeCooldowns", &LuaUnit::ResetTypeCooldowns},           // :ResetTypeCooldowns(category, update(bool~optional)) -- Resets all cooldowns for the spell category(type). If update is true, it will send WorldPacket SMSG_CLEAR_COOLDOWN to the player, else it will just clear the spellId from m_spellCooldowns. This is true by default.
+    {"ResetAllCooldowns", &LuaUnit::ResetAllCooldowns},             // :ResetAllCooldowns() -- Resets all spell cooldowns.
 
     // Creature methods
 
     // Getters
     {"GetAITargets", &LuaUnit::GetAITargets},                       // :GetAITargets() - Get units in threat list
     {"GetAITargetsCount", &LuaUnit::GetAITargetsCount},             // :GetAITargetsCount() - Get threat list size
+    {"GetVictim", &LuaUnit::GetVictim},                             // :GetVictim() - Returns creature's current target. UNDOCUMENTED
+    {"GetNearestTargetInAttackDistance", &LuaUnit::GetNearestTargetInAttackDistance}, // :GetNearestTargetInAttackDistance([radius]) - Returns nearest target in attack distance and within given radius, if set. UNDOCUMENTED
+    {"GetNearestTarget", &LuaUnit::GetNearestTarget},               // :GetNearestTarget([radius]) - Returns nearest target in sight or given radius. UNDOCUMENTED
+    {"GetNearestPlayer", &LuaUnit::GetNearestPlayer},               // :GetNearestPlayer([radius]) - Returns nearest player in sight or given radius. UNDOCUMENTED
+    {"GetNearestHostileTargetInAggroRange", &LuaUnit::GetNearestHostileUnitInAggroRange}, // :GetNearestHostileTargetInAggroRange([checkLOS]) - Returns closest hostile target in aggro range of the creature. UNDOCUMENTED
+
+    // Booleans
+    {"IsWorldBoss", &LuaUnit::IsWorldBoss},                         // :IsWorldBoss() -- Returns true if the creature is a WorldBoss, false if not.
+    {"IsDungeonBoss", &LuaUnit::IsDungeonBoss},                     // :IsDungeonBoss() -- Returns true if the creature is a DungeonBoss, false if not.
 
     // Other
     {"RegisterEvent", &LuaUnit::RegisterEvent},                     // :RegisterEvent(function, delay, calls)
@@ -115,8 +141,14 @@ ElunaRegister<Unit> UnitMethods[] =
     {"GetUInt16Value", &LuaUnit::GetUInt16Value},                   // :GetUInt16Value(index, offset) - returns a uint16 value from unit fields
     {"GetInstanceId", &LuaUnit::GetInstanceId},                     // :GetInstanceId() - Gets the instance id of the unit
     {"GetPhaseMask", &LuaUnit::GetPhaseMask},                       // :GetPhaseMask() - gets the phase mask of the unit
+    {"GetCombatTime", &LuaUnit::GetCombatTime},                     // :GetCombatTime() - Returns how long the unit has been in combat
+    {"GetFaction", &LuaUnit::GetFaction},                           // :GetFaction() -- Returns the unit's factionId
+    {"GetCurrentSpell", &LuaUnit::GetCurrentSpell},                 // :GetCurrentSpell(type) -- Returns the currently casted spell of given type if any UNDOCUMENTED
+    {"GetCreatureType", &LuaUnit::GetCreatureType},                 // :GetCreatureType() -- Returns the unit's type
+    {"GetNearbyTarget", &LuaUnit::GetNearbyTarget},                 // :GetNearbyTarget([radius[, exclude]]) - Returns nearby target within sight or given radius. Excludes current target and given unit. UNDOCUMENTED
 
     // Setters
+    {"SetFaction", &LuaUnit::SetFaction},                           // :SetFaction(factionId) -- Sets the unit's faction
     {"SetLevel", &LuaUnit::SetLevel},                               // :SetLevel(amount)
     {"SetHealth", &LuaUnit::SetHealth},                             // :SetHealth(amount)
     {"SetMaxHealth", &LuaUnit::SetMaxHealth},                       // :SetMaxHealth(amount)
@@ -142,13 +174,23 @@ ElunaRegister<Unit> UnitMethods[] =
 
     // Boolean
     {"IsAlive", &LuaUnit::IsAlive},                                 // :IsAlive()
+    {"IsDead", &LuaUnit::IsDead},                                   // :IsDead() -- Returns true if the unit is dead, false if they are alive
     {"IsInWorld", &LuaUnit::IsInWorld},                             // :IsInWorld()
     {"IsPvPFlagged", &LuaUnit::IsPvPFlagged},                       // :IsPvPFlagged()
     {"HasQuest", &LuaUnit::HasQuest},                               // :HasQuest(id)
     {"IsInCombat", &LuaUnit::IsInCombat},                           // :IsInCombat()
     {"HasSpell", &LuaUnit::HasSpell},                               // :HasSpell(id)
+    {"IsBanker", &LuaUnit::IsBanker},                               // :IsBanker() -- Returns true if the unit is a banker, false if not.
+    {"IsBattleMaster", &LuaUnit::IsBattleMaster},                   // :IsBattleMaster() -- Returns true if the unit is a battle master, false if not.
+    {"IsCharmed", &LuaUnit::IsCharmed},                             // :IsCharmed() -- Returns true if the unit is charmed, false if not.
+    {"IsArmorer", &LuaUnit::IsArmorer},                             // :IsArmorer() -- Returns true if the unit is an Armorer, false if not.
+    {"IsAttackingPlayer", &LuaUnit::IsAttackingPlayer},             // :IsAttackingPlayer() -- Returns true if the unit is attacking a player, false if not.
 
     // Other
+    {"AddAura", &LuaUnit::AddAura},                                 // :AddAura(spellId, target) -- Adds an aura to the specified target
+    {"RemoveAura", &LuaUnit::RemoveAura},                           // :RemoveAura(spellId, casterGuid(optional)) -- Removes an aura from the unit by the spellId, casterGUID(Original caster) is optional.
+    {"RemoveAllAuras", &LuaUnit::RemoveAllAuras},                   // :RemoveAllAuras() -- Removes all the unit's auras
+    {"ClearInCombat", &LuaUnit::ClearInCombat},                     // :ClearInCombat() -- Clears the unit's combat list (unit will be out of combat), resets the timer to 0, etc.
     {"DeMorph", &LuaUnit::DeMorph},                                 // :DeMorph() - Sets display back to native.
     {"SendUnitWhisper", &LuaUnit::SendUnitWhisper},                 // :SendUnitWhisper(msg, unit) -- Sends a whisper to the receiver
     {"SendUnitSay", &LuaUnit::SendUnitSay},                         // :SendUnitSay(msg, language) -- Sends a "Say" message with the specified language (all languages: 0)
@@ -175,6 +217,9 @@ ElunaRegister<Unit> UnitMethods[] =
     {"MoveRotate", &LuaUnit::MoveRotate},                           // :MoveRotate(time, left) - Turns left (true or nil) or right (false) for given time
     {"SummonGameObject", &LuaUnit::SummonGameObject},               // :SummonGameObject(entry, x, y, z, o[, respawnDelay]) - Spawns an object to location. Returns the object or nil UNDOCUMENTED
     {"SpawnCreature", &LuaUnit::SpawnCreature},                     // :SpawnCreature(entry, x, y, z, o[, despawnDelay]) - Spawns a creature to location that despawns after given time (0 for infinite). Returns the creature or nil UNDOCUMENTED
+    {"StopSpellCast", &LuaUnit::StopSpellCast},                     // :StopSpellCast(spellId(optional)) -- Stops the unit from casting a spell. If a spellId is defined, it will stop that unit from casting that spell
+    {"InterruptSpell", &LuaUnit::InterruptSpell},                   // :InterruptSpell(spellType, delayed(optional), instant(optional)) -- Interrupts the unit's spell by the spellType. If delayed is true it will skip if the spell is delayed. If instant is true, it will skip that the spell has a cast time.
+    {"SendChatMessageToPlayer", &LuaUnit::SendChatMessageToPlayer}, // :SendChatMessageToPlayer(type, lang, msg, target) -- Unit sends a chat message to the given target player UNDOCUMENTED
 
     /* Vehicle */
     {"AddVehiclePassenger", &LuaUnit::AddVehiclePassenger},         // :AddVehiclePassenger(unit, seatId) - Adds a passenger to the vehicle by specifying a unit and seatId
@@ -254,7 +299,7 @@ ElunaRegister<Item> ItemMethods[] =
     {"GetCount", &LuaItem::GetCount},                                       // :GetCount() - Returns item stack count UNDOCUMENTED
     {"GetMaxStackCount", &LuaItem::GetMaxStackCount},                       // :GetMaxStackCount() - Returns item max stack count RUNDOCUMENTED
     {"GetSlot", &LuaItem::GetSlot},                                         // :GetSlot() - returns the slot the item is in UNDOCUMENTED
-    {"GetBagSlot", &LuaItem::GetBagSlot},                                   // :GetBagSlot() - returns the bagslot the item is in UNDOCUMENTED
+    {"GetBagSlot", &LuaItem::GetBagSlot},                                   // :GetBagSlot() - returns the bagslot of the bag the item is in UNDOCUMENTED
     {"GetEntry", &LuaItem::GetEntry},                                       // :GetEntry() - returns the item entry UNDOCUMENTED
     {"GetInt32Value", &LuaItem::GetInt32Value},                             // :GetInt32Value(index) - returns an int value from item fields UNDOCUMENTED
     {"GetUInt32Value", &LuaItem::GetUInt32Value},                           // :GetUInt32Value(index) - returns an uint value from item fields UNDOCUMENTED
@@ -341,6 +386,7 @@ ElunaRegister<Spell> SpellMethods[] =
     {"Cancel", &LuaSpell::cancel},                                  // :Cancel() -- Cancels the spell casting                       UNDOCUMENTED
     {"Cast", &LuaSpell::Cast},                                      // :Cast(skipCheck) -- Casts the spell (if true, removes the check for instant spells, etc)      UNDOCUMENTED
     {"Finish", &LuaSpell::Finish},                                  // :Finish() -- Finishes the spell (SPELL_STATE_FINISH)         UNDOCUMENTED
+
     {NULL, NULL},
 };
 
@@ -462,13 +508,16 @@ ElunaRegister<QueryResult> QueryMethods[] =  // UNDOCUMENTED
 };
 
 ElunaRegister<WorldPacket> PacketMethods[] =
-{    
+{
+    // Getters
     {"GetOpcode", &LuaPacket::GetOpcode},                           //  :GetOpcode() -- Returns an opcode                    (UNDOCUMENTED)
     {"GetSize", &LuaPacket::GetSize},                               //  :GetSize() -- Returns the packet size                 (UNDOCUMENTED)
     {"GetUnitType", &LuaPacket::GetOpcode},                         //  :GetUnitType() -- Returns the unit type: Packet      (UNDOCUMENTED)
 
+    // Setters
     {"SetOpcode", &LuaPacket::SetOpcode},                           //  :SetOpcode(opcode) -- Sets the opcode by specifying an opcode            (UNDOCUMENTED)
 
+    // Readers
     {"ReadByte", &LuaPacket::ReadByte},                             //  :ReadByte() -- Reads an int8 value                    (UNDOCUMENTED)
     {"ReadUByte", &LuaPacket::ReadUByte},                           //  :ReadUByte() -- Reads a uint8 value                   (UNDOCUMENTED)             
     {"ReadShort", &LuaPacket::ReadShort},                           //  :ReadShort() -- Reads an int16 value                  (UNDOCUMENTED)
@@ -480,6 +529,7 @@ ElunaRegister<WorldPacket> PacketMethods[] =
     {"ReadULong", &LuaPacket::ReadULong},                           //  :ReadULong() -- Reads a uint32 value                  (UNDOCUMENTED)
     {"ReadGUID", &LuaPacket::ReadGUID},                             //  :ReadGUID() -- Reads a uint64 GUID value              (UNDOCUMENTED)
 
+    // Writers
     {"WriteByte", &LuaPacket::WriteByte},                           //  :WriteByte(val)  -- Writes an int8 byte value         (UNDOCUMENTED)
     {"WriteUByte", &LuaPacket::WriteUByte},                         //  :WriteUByte(val) -- Writes a uint8 ubyte value        (UNDOCUMENTED)
     {"WriteShort", &LuaPacket::WriteShort},                         //  :WriteShort(val) -- Writes an int16 short value       (UNDOCUMENTED)

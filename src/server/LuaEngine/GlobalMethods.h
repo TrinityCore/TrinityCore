@@ -173,7 +173,7 @@ namespace LuaGlobalFunctions
         return 1;
     }
 
-    // ReloadEluna() - Gets core version as string
+    // ReloadEluna() - Gets core version as std::string
     static int GetCoreVersion(lua_State* L)
     {
         sEluna->PushString(L, _FULLVERSION);
@@ -620,6 +620,86 @@ namespace LuaGlobalFunctions
 
         for (i = 0; i < items->GetItemCount(); i++)
             sObjectMgr->RemoveVendorItem(creature->GetEntry(), vendorItems[i], persist);
+        return 0;
+    }
+
+    // Kick(player)
+    static int Kick(lua_State* L)
+    {
+        Player* player = sEluna->CHECK_PLAYER(L, 1);
+        if (!player)
+            return 0;
+        player->GetSession()->KickPlayer();
+        return 0;
+    }
+
+    // Ban(banMode(integer), nameOrIP(string), duration(string), reason(string), player(whoBanned))
+    static int Ban(lua_State* L)
+    {
+        int banMode = luaL_checkint(L, 1);
+        std::string nameOrIP = luaL_checkstring(L, 2);
+        const char* duration = luaL_checkstring(L, 3);
+        const char* reason = luaL_checkstring(L, 4);
+        Player* whoBanned = sEluna->CHECK_PLAYER(L, 5);
+        if (!whoBanned)
+            return 0;
+
+        switch (banMode)
+        {
+        case 0:
+            if (!AccountMgr::normalizeString(nameOrIP))
+            {
+                ChatHandler(whoBanned->GetSession()).PSendSysMessage(LANG_ACCOUNT_NOT_EXIST, nameOrIP.c_str());
+                ChatHandler(whoBanned->GetSession()).SetSentErrorMessage(true);
+                return 0;
+            }
+            else
+                banMode = BAN_ACCOUNT;
+            break;
+        case 1:
+            if (!normalizePlayerName(nameOrIP))
+            {
+                ChatHandler(whoBanned->GetSession()).SendSysMessage(LANG_PLAYER_NOT_FOUND);
+                ChatHandler(whoBanned->GetSession()).SetSentErrorMessage(true);
+                return 0;
+            }
+            else
+                banMode = BAN_CHARACTER;
+            break;
+        case 2:
+            if (!IsIPAddress(nameOrIP.c_str()))
+                return 0;
+            else
+                banMode = BAN_IP;
+            break;
+        }
+
+        switch (sWorld->BanAccount((BanMode)banMode, nameOrIP, duration, reason, whoBanned->GetSession() ? whoBanned->GetName() : ""))
+        {
+        case BAN_SUCCESS:
+            if (atoi(duration) > 0)
+                ChatHandler(whoBanned->GetSession()).PSendSysMessage(LANG_BAN_YOUBANNED, nameOrIP.c_str(), secsToTimeString(TimeStringToSecs(duration), true).c_str(), reason);
+            else
+                ChatHandler(whoBanned->GetSession()).PSendSysMessage(LANG_BAN_YOUPERMBANNED, nameOrIP.c_str(), reason);
+            break;
+        case BAN_SYNTAX_ERROR:
+            return 0;
+        case BAN_NOTFOUND:
+            switch((BanMode)banMode)
+            {
+            default:
+                ChatHandler(whoBanned->GetSession()).PSendSysMessage(LANG_BAN_NOTFOUND, "account", nameOrIP.c_str());
+                break;
+            case BAN_CHARACTER:
+                ChatHandler(whoBanned->GetSession()).PSendSysMessage(LANG_BAN_NOTFOUND, "character", nameOrIP.c_str());
+                break;
+            case BAN_IP:
+                ChatHandler(whoBanned->GetSession()).PSendSysMessage(LANG_BAN_NOTFOUND, "ip", nameOrIP.c_str());
+                break;
+            }
+            ChatHandler(whoBanned->GetSession()).SetSentErrorMessage(true);
+            return 0;
+        }
         return 0;
     }
 }
