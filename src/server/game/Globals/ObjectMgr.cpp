@@ -3141,7 +3141,7 @@ void ObjectMgr::LoadPlayerInfo()
         uint32 oldMSTime = getMSTime();
 
         std::string tableName = sWorld->getBoolConfig(CONFIG_START_ALL_SPELLS) ? "playercreateinfo_spell_custom" : "playercreateinfo_spell";
-        QueryResult result = WorldDatabase.PQuery("SELECT race, class, Spell FROM %s", tableName.c_str());
+        QueryResult result = WorldDatabase.PQuery("SELECT racemask, classmask, Spell FROM %s", tableName.c_str());
 
         if (!result)
         {
@@ -3154,38 +3154,36 @@ void ObjectMgr::LoadPlayerInfo()
             do
             {
                 Field* fields = result->Fetch();
+                uint32 raceMask = fields[0].GetUInt32();
+                uint32 classMask = fields[1].GetUInt32();
 
-                uint32 current_race = fields[0].GetUInt8();
-                if (current_race >= MAX_RACES)
+                if (raceMask != 0 && !(raceMask & RACEMASK_ALL_PLAYABLE))
                 {
-                    sLog->outError(LOG_FILTER_SQL, "Wrong race %u in `playercreateinfo_spell` table, ignoring.", current_race);
+                    sLog->outError(LOG_FILTER_SQL, "Wrong race mask %u in `playercreateinfo_spell` table, ignoring.", raceMask);
                     continue;
                 }
 
-                uint32 current_class = fields[1].GetUInt8();
-                if (current_class >= MAX_CLASSES)
+                if (classMask != 0 && !(classMask & CLASSMASK_ALL_PLAYABLE))
                 {
-                    sLog->outError(LOG_FILTER_SQL, "Wrong class %u in `playercreateinfo_spell` table, ignoring.", current_class);
+                    sLog->outError(LOG_FILTER_SQL, "Wrong class mask %u in `playercreateinfo_spell` table, ignoring.", classMask);
                     continue;
                 }
 
-                if (!current_race || !current_class)
+                for (uint32 raceIndex = RACE_HUMAN; raceIndex < MAX_RACES; ++raceIndex)
                 {
-                    uint32 min_race = current_race ? current_race : 1;
-                    uint32 max_race = current_race ? current_race + 1 : MAX_RACES;
-                    uint32 min_class = current_class ? current_class : 1;
-                    uint32 max_class = current_class ? current_class + 1 : MAX_CLASSES;
-                    for (uint32 r = min_race; r < max_race; ++r)
-                        for (uint32 c = min_class; c < max_class; ++c)
-                            if (PlayerInfo* info = _playerInfo[r][c])
-                                info->spell.push_back(fields[2].GetUInt32());
-                }
-                else if (PlayerInfo* info = _playerInfo[current_race][current_class])
-                    info->spell.push_back(fields[2].GetUInt32());
-                else
-                {
-                    sLog->outError(LOG_FILTER_SQL, "Wrong race: %u, class: %u combination in `playercreateinfo_spell` table, ignoring.", current_race, current_class);
-                    continue;
+                    if (raceMask == 0 || ((1 << (raceIndex - 1)) & raceMask))
+                    {
+                        for (uint32 classIndex = CLASS_WARRIOR; classIndex < MAX_CLASSES; ++classIndex)
+                        {
+                            if (classMask == 0 || ((1 << (classIndex - 1)) & classMask))
+                            {
+                                if (PlayerInfo* info = _playerInfo[raceIndex][classIndex])
+                                    info->spell.push_back(fields[2].GetUInt32());
+                                else
+                                    sLog->outError(LOG_FILTER_SQL, "Racemask/classmask (%u/%u) combination was found containing an invalid race/class combination (%u/%u) in `playercreateinfo_spell` (Spell %u), ignoring.", raceMask, classMask, raceIndex, classIndex, fields[2].GetUInt32());
+                            }
+                        }
+                    }
                 }
 
                 ++count;
