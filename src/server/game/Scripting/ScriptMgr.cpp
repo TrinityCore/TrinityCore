@@ -178,7 +178,6 @@ void ScriptMgr::Initialize()
     uint32 oldMSTime = getMSTime();
 
     LoadDatabase();
-    sEluna->StartEluna();
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading C++ scripts");
 
@@ -186,6 +185,8 @@ void ScriptMgr::Initialize()
     AddScripts();
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u C++ scripts in %u ms", GetScriptCount(), GetMSTimeDiffToNow(oldMSTime));
+
+    sEluna->StartEluna();
 }
 
 void ScriptMgr::Unload()
@@ -818,7 +819,7 @@ CreatureAI* ScriptMgr::GetCreatureAI(Creature* creature)
 {
     ASSERT(creature);
 
-    if(CreatureAI* luaAI = sHookMgr->CreatureAI->GetAI(creature))
+    if(CreatureAI* luaAI = sEluna->LuaCreatureAI->GetAI(creature))
         return luaAI;
 
     GET_SCRIPT_RET(CreatureScript, creature->GetScriptId(), tmpscript, NULL);
@@ -829,7 +830,7 @@ GameObjectAI* ScriptMgr::GetGameObjectAI(GameObject* gameobject)
 {
     ASSERT(gameobject);
 
-    if(GameObjectAI* luaAI = sHookMgr->GameObjectAI->GetAI(gameobject))
+    if(GameObjectAI* luaAI = sEluna->LuaGameObjectAI->GetAI(gameobject))
         return luaAI;
 
     GET_SCRIPT_RET(GameObjectScript, gameobject->GetScriptId(), tmpscript, NULL);

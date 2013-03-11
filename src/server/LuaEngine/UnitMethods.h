@@ -1573,7 +1573,7 @@ public:
 
         uint32 delay = luaL_checkunsigned(L, 2);
         uint32 repeats = luaL_checkunsigned(L, 3);
-        ScriptEventMap* eventMap = ScriptEventMap::GetEvents(creature);
+        Eluna::LuaEventMap* eventMap = Eluna::LuaEventMap::GetEvents(creature);
         if (!eventMap)
         {
             luaL_error(L, "Creature has no registered creature events, please register one before using RegisterEvent");
@@ -1598,7 +1598,7 @@ public:
         TO_CREATURE();
 
         int eventID = luaL_checkinteger(L, 1);
-        ScriptEventMap* eventMap = ScriptEventMap::GetEvents(creature);
+        Eluna::LuaEventMap* eventMap = Eluna::LuaEventMap::GetEvents(creature);
         if (eventMap)
             eventMap->ScriptEventCancel(eventID);
         return 0;
@@ -1609,7 +1609,7 @@ public:
     {
         TO_CREATURE();
 
-        ScriptEventMap* eventMap = ScriptEventMap::GetEvents(creature);
+        Eluna::LuaEventMap* eventMap = Eluna::LuaEventMap::GetEvents(creature);
         if (eventMap)
             eventMap->ScriptEventsReset();
         return 0;

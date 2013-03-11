@@ -393,8 +393,8 @@ namespace LuaGlobalFunctions
         return 1;
     }
 
-    // CreateScriptEvent(function, delay, calls) - Creates a timed event. Calls set to 0 will call inf returns eventID.
-    static int CreateScriptEvent(lua_State* L)
+    // CreateLuaEvent(function, delay, calls) - Creates a timed event. Calls set to 0 will call inf returns eventID.
+    static int CreateLuaEvent(lua_State* L)
     {
         uint32 delay = luaL_checkunsigned(L, 2);
         uint32 repeats = luaL_checkunsigned(L, 3);
@@ -402,7 +402,7 @@ namespace LuaGlobalFunctions
         {
             lua_settop(L, 1);
             int functionRef = lua_ref(L, true);
-            sHookMgr->WorldAI->ScriptEventCreate(functionRef, delay, repeats);
+            sEluna->LuaWorldAI->ScriptEventCreate(functionRef, delay, repeats);
             sEluna->PushInteger(L, functionRef);
         }
         else
@@ -414,7 +414,7 @@ namespace LuaGlobalFunctions
     static int DestroyScriptEventByID(lua_State* L)
     {
         int functionRef = luaL_checkinteger(L, 1);
-        sHookMgr->WorldAI->ScriptEventCancel(functionRef);
+        sEluna->LuaWorldAI->ScriptEventCancel(functionRef);
         return 0;
     }
 
@@ -424,9 +424,9 @@ namespace LuaGlobalFunctions
         bool all_Events = luaL_optbool(L, 1, false);
 
         if (all_Events)
-            ScriptEventMap::ScriptEventsResetAll();
+            Eluna::LuaEventMap::ScriptEventsResetAll();
         else
-            sHookMgr->WorldAI->ScriptEventsReset();
+            sEluna->LuaWorldAI->ScriptEventsReset();
         return 0;
     }
 

@@ -17,8 +17,6 @@
 #include <dirent.h>
 #endif
 
-lua_State* Eluna::LuaState = NULL;
-
 template<typename T> const char* GetTName() { return "UNK"; }
 template<> const char* GetTName<Unit>() { return "Unit"; }
 template<> const char* GetTName<GameObject>() { return "GameObject"; }
@@ -41,23 +39,23 @@ void Eluna::StartEluna(bool restart /*= false*/)
 
         if (LuaState)
         {
-            ScriptEventMap::ScriptEventsResetAll(); // Unregisters and stops all timed events
+            LuaEventMap::ScriptEventsResetAll(); // Unregisters and stops all timed events
 
-            for (std::map<int, std::vector<int> >::iterator itr = sEluna->ServerEventBindings.begin(); itr != sEluna->ServerEventBindings.end(); ++itr)
+            for (std::map<int, std::vector<int> >::iterator itr = ServerEventBindings.begin(); itr != ServerEventBindings.end(); ++itr)
             {
                 for (std::vector<int>::iterator it = itr->second.begin(); it != itr->second.end(); ++it)
-                    luaL_unref(sEluna->LuaState, LUA_REGISTRYINDEX, (*it));
+                    luaL_unref(LuaState, LUA_REGISTRYINDEX, (*it));
                 itr->second.clear();
             }
-            sEluna->CreatureEventBindings->Clear();
-            sEluna->CreatureGossipBindings->Clear();
-            sEluna->GameObjectEventBindings->Clear();
-            sEluna->GameObjectGossipBindings->Clear();
-            sEluna->ItemEventBindings->Clear();
-            sEluna->ItemGossipBindings->Clear();
-            sEluna->playerGossipBindings->Clear();
+            CreatureEventBindings->Clear();
+            CreatureGossipBindings->Clear();
+            GameObjectEventBindings->Clear();
+            GameObjectGossipBindings->Clear();
+            ItemEventBindings->Clear();
+            ItemGossipBindings->Clear();
+            playerGossipBindings->Clear();
 
-            lua_close(sEluna->LuaState);
+            lua_close(LuaState);
         }
     }
 
@@ -136,8 +134,8 @@ void Eluna::RegisterGlobals(lua_State* L)
     lua_register(L, "GetGuildByName", &LuaGlobalFunctions::GetGuildByName);
     lua_register(L, "GetGuildByLeaderGUID", &LuaGlobalFunctions::GetGuildByLeaderGUID);
     lua_register(L, "GetPlayerCount", &LuaGlobalFunctions::GetPlayerCount);
-    lua_register(L, "CreateScriptEvent", &LuaGlobalFunctions::CreateScriptEvent); // Not Documented
-    lua_register(L, "RegisterTimedEvent", &LuaGlobalFunctions::CreateScriptEvent); // Arc compability Not Documented
+    lua_register(L, "CreateLuaEvent", &LuaGlobalFunctions::CreateLuaEvent); // Not Documented
+    lua_register(L, "RegisterTimedEvent", &LuaGlobalFunctions::CreateLuaEvent); // Arc compability Not Documented
     lua_register(L, "DestroyScriptEventByID", &LuaGlobalFunctions::DestroyScriptEventByID); // Not Documented
     lua_register(L, "DestroyScriptEvents", &LuaGlobalFunctions::DestroyScriptEvents); // Not Documented
     lua_register(L, "PerformIngameSpawn", &LuaGlobalFunctions::PerformIngameSpawn); // Not Documented
@@ -588,4 +586,89 @@ void Eluna::Register(uint8 regtype, uint32 id, uint32 evt, int functionRef)
         return;
     }
     sLog->outError(LOG_FILTER_GENERAL, "Unknown event type (regtype %u, id %u, event %u)", regtype, id, evt);
+}
+void Eluna::ElunaBind::Clear()
+{
+    for (ElunaEntryMap::iterator itr = Bindings.begin(); itr != Bindings.end(); ++itr)
+    {
+        for (ElunaBindingMap::iterator it = itr->second.begin(); it != itr->second.end(); ++it)
+            luaL_unref(sEluna->LuaState, LUA_REGISTRYINDEX, it->second);
+        itr->second.clear();
+    }
+    Bindings.clear();
+}
+void Eluna::ElunaBind::Insert(uint32 entryId, uint32 eventId, int funcRef)
+{
+    if (Bindings[entryId][eventId])
+    {
+        sLog->outError(LOG_FILTER_GENERAL, "Eluna Nova::A function is already registered for entry %u event %u", entryId, eventId);
+        luaL_unref(sEluna->LuaState, LUA_REGISTRYINDEX, funcRef); // free the unused ref
+    }
+    else
+        Bindings[entryId][eventId] = funcRef;
+}
+UNORDERED_MAP<uint64, Eluna::LuaEventMap*> Eluna::LuaEventMap::LuaEventMaps;
+void Eluna::LuaEventMap::ScriptEventsResetAll()
+{
+    // GameObject && Creature events reset
+    if (!LuaEventMaps.empty())
+        for (UNORDERED_MAP<uint64, LuaEventMap*>::iterator itr = LuaEventMaps.begin(); itr != LuaEventMaps.end(); ++itr)
+            if (itr->second)
+                itr->second->ScriptEventsReset();
+    // Global events reset
+    sEluna->LuaWorldAI->ScriptEventsReset();
+}
+void Eluna::LuaEventMap::ScriptEventsReset()
+{
+    _time = 0;
+    if (ScriptEventsEmpty())
+        return;
+    for (EventStore::iterator itr = _eventMap.begin(); itr != _eventMap.end();)
+    {
+        luaL_unref(sEluna->LuaState, LUA_REGISTRYINDEX, itr->second.funcRef);
+        ++itr;
+    }
+    _eventMap.clear();
+}
+void Eluna::LuaEventMap::ScriptEventCancel(int funcRef)
+{
+    if (ScriptEventsEmpty())
+        return;
+
+    for (EventStore::iterator itr = _eventMap.begin(); itr != _eventMap.end();)
+    {
+        if (funcRef == itr->second.funcRef)
+        {
+            luaL_unref(sEluna->LuaState, LUA_REGISTRYINDEX, itr->second.funcRef);
+            _eventMap.erase(itr++);
+        }
+        else
+            ++itr;
+    }
+}
+void Eluna::LuaEventMap::ScriptEventsExecute()
+{
+    if (ScriptEventsEmpty())
+        return;
+
+    for (EventStore::iterator itr = _eventMap.begin(); itr != _eventMap.end();)
+    {
+        if (itr->first > _time)
+        {
+            ++itr;
+            continue;
+        }
+
+        OnScriptEvent(itr->second.funcRef, itr->second.delay, itr->second.calls);
+
+        if (itr->second.calls != 1)
+        {
+            if (itr->second.calls > 1)
+                itr->second.calls = itr->second.calls-1;
+            _eventMap.insert(EventStore::value_type(_time + itr->second.delay, itr->second));
+        }
+        else
+            luaL_unref(sEluna->LuaState, LUA_REGISTRYINDEX, itr->second.funcRef);
+        _eventMap.erase(itr++);
+    }
 }

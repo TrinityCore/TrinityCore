@@ -1,47 +1,6 @@
 #include "HookMgr.h"
 #include "LuaEngine.h"
 
-UNORDERED_MAP<uint64, ScriptEventMap*> ScriptEventMap::ScriptEventMaps;
-void ScriptEventMap::ScriptEventsResetAll()
-{
-    // GameObject && Creature events reset
-    if (!ScriptEventMaps.empty())
-        for (UNORDERED_MAP<uint64, ScriptEventMap*>::iterator itr = ScriptEventMaps.begin(); itr != ScriptEventMaps.end(); ++itr)
-            if (itr->second)
-                itr->second->ScriptEventsReset();
-    // Global events reset
-    sHookMgr->WorldAI->ScriptEventsReset();
-}
-
-void ScriptEventMap::ScriptEventsReset()
-{
-    _time = 0;
-    if (ScriptEventsEmpty())
-        return;
-    for (EventStore::iterator itr = _eventMap.begin(); itr != _eventMap.end();)
-    {
-        luaL_unref(sEluna->LuaState, LUA_REGISTRYINDEX, itr->second.funcRef);
-        ++itr;
-    }
-    _eventMap.clear();
-}
-void ScriptEventMap::ScriptEventCancel(int funcRef)
-{
-    if (ScriptEventsEmpty())
-        return;
-
-    for (EventStore::iterator itr = _eventMap.begin(); itr != _eventMap.end();)
-    {
-        if (funcRef == itr->second.funcRef)
-        {
-            luaL_unref(sEluna->LuaState, LUA_REGISTRYINDEX, itr->second.funcRef);
-            _eventMap.erase(itr++);
-        }
-        else
-            ++itr;
-    }
-}
-
 // misc
 void HookMgr::HandleGossipSelectOption(Player* player, uint64 guid, uint32 sender, uint32 action, std::string code, uint32 menuId)
 {

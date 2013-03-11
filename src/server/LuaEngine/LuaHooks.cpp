@@ -1,6 +1,7 @@
 #include "HookMgr.h"
 #include "LuaEngine.h"
 
+// Custom
 class Eluna_HookScript : public HookScript
 {
 public:
@@ -548,6 +549,7 @@ public:
     {
     }
 };
+// TC
 class Eluna_ServerScript : public ServerScript
 {
 public:
@@ -1271,6 +1273,10 @@ public:
 
 void Eluna_AddScriptHooks()
 {
+    // AI
+    sEluna->LuaCreatureAI = new Eluna::Eluna_CreatureScript;
+    sEluna->LuaGameObjectAI = new Eluna::Eluna_GameObjectScript;
+    sEluna->LuaWorldAI = new Eluna::Eluna_WorldScript;
     // Custom
     new Eluna_HookScript;
     // TC
