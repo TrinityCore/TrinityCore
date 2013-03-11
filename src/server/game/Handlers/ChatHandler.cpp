@@ -271,14 +271,15 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
 
             Player* receiver = sObjectAccessor->FindPlayerByName(to);
             if (!receiver || (!HasPermission(RBAC_PERM_CAN_FILTER_WHISPERS) &&
-                receiver->GetSession()->HasPermission(RBAC_PERM_CAN_FILTER_WHISPERS) &&
                 !receiver->isAcceptWhispers() && !receiver->IsInWhisperWhiteList(sender->GetGUID())))
             {
                 SendPlayerNotFoundNotice(to);
                 return;
             }
 
-            if (GetPlayer()->GetTeam() != receiver->GetTeam() && !HasPermission(RBAC_PERM_TWO_SIDE_INTERACTION_CHAT))
+            // @todo: check only sender permission and add receiver to whiteList if receiver does not have the permission
+            if (GetPlayer()->GetTeam() != receiver->GetTeam() && !HasPermission(RBAC_PERM_TWO_SIDE_INTERACTION_CHAT) &&
+                !receiver->GetSession()->HasPermission(RBAC_PERM_TWO_SIDE_INTERACTION_CHAT))
             {
                 SendWrongFactionNotice();
                 return;
