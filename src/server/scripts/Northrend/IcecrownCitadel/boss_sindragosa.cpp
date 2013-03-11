@@ -36,6 +36,7 @@ enum Texts
                                              // A flaw of mortality...
     SAY_BERSERK                         = 9, // Enough! I tire of these games!
     SAY_DEATH                           = 10, // Free...at last...
+    EMOTE_BERSERK_RAID                  = 11
 };
 
 enum Spells
@@ -494,7 +495,7 @@ class boss_sindragosa : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_BERSERK:
-                            DoScriptText(EMOTE_GENERIC_BERSERK_RAID, me);
+                            Talk(EMOTE_BERSERK_RAID);
                             Talk(SAY_BERSERK);
                             DoCast(me, SPELL_BERSERK);
                             break;
@@ -648,11 +649,12 @@ class npc_ice_tomb : public CreatureScript
     public:
         npc_ice_tomb() : CreatureScript("npc_ice_tomb") { }
 
-        struct npc_ice_tombAI : public Scripted_NoMovementAI
+        struct npc_ice_tombAI : public ScriptedAI
         {
-            npc_ice_tombAI(Creature* creature) : Scripted_NoMovementAI(creature)
+            npc_ice_tombAI(Creature* creature) : ScriptedAI(creature)
             {
                 _trappedPlayerGUID = 0;
+                SetCombatMovement(false);
             }
 
             void Reset()
@@ -679,7 +681,7 @@ class npc_ice_tomb : public CreatureScript
                     _asphyxiationTimerEnabled = true;
             }
 
-            void DoAction(int32 const action)
+            void DoAction(int32 action)
             {
                 if (action == ACTION_TRIGGER_ASPHYXIATION)
                     if (Player* player = ObjectAccessor::GetPlayer(*me, _trappedPlayerGUID))
@@ -707,7 +709,7 @@ class npc_ice_tomb : public CreatureScript
                 }
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!_trappedPlayerGUID)
                     return;
