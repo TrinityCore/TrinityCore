@@ -3269,11 +3269,11 @@ void ObjectMgr::LoadPlayerInfo()
                     continue;
                 }
 
-                for (uint32 raceIndex = RACE_HUMAN; raceIndex <= RACE_WORGEN; ++raceIndex)
+                for (uint32 raceIndex = RACE_HUMAN; raceIndex < MAX_RACES; ++raceIndex)
                 {
                     if (raceMask == 0 || ((1 << (raceIndex - 1)) & raceMask))
                     {
-                        for (uint32 classIndex = CLASS_WARRIOR; classIndex <= CLASS_DRUID; ++classIndex)
+                        for (uint32 classIndex = CLASS_WARRIOR; classIndex < MAX_RACES; ++classIndex)
                         {
                             if (classMask == 0 || ((1 << (classIndex - 1)) & classMask))
                             {
