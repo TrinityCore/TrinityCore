@@ -1273,12 +1273,12 @@ public:
     }
 };
 
-void Eluna_AddScriptHooks()
+void Eluna::AddScriptHooks()
 {
     // AI
-    sEluna->LuaCreatureAI = new Eluna::Eluna_CreatureScript;
-    sEluna->LuaGameObjectAI = new Eluna::Eluna_GameObjectScript;
-    sEluna->LuaWorldAI = new Eluna::Eluna_WorldScript;
+    LuaCreatureAI = new Eluna_CreatureScript;
+    LuaGameObjectAI = new Eluna_GameObjectScript;
+    LuaWorldAI = new Eluna_WorldScript;
     // Custom
     new Eluna_HookScript;
     // TC

@@ -58,6 +58,8 @@ void Eluna::StartEluna(bool restart /*= false*/)
             lua_close(LuaState);
         }
     }
+    else
+        AddScriptHooks();
 
     LuaState = luaL_newstate();
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Eluna Nova Lua Engine loaded.");
