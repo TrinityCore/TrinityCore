@@ -11,6 +11,7 @@
 #                                                                                          #
 ############################################################################################
 
+[150] --> Update Trial of the Champion. (Thx Faq / sioa)
 [149] --> Fix Sindragosa. [TEST] (By Elron103)
 [148] --> Fix priest bug (kills and honour) spell_priest_spirit_of_redemption. (Thx Vitasic)
 [147] --> Fix sacred shield CD. (TEST, By Odyssey & aedansilver)
