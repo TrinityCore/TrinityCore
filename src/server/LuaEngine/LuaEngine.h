@@ -222,6 +222,9 @@ struct ElunaRegister
     int(*mfunc)(lua_State*, T*);
 };
 
+template<typename T> ElunaRegister<T>* GetMethodTable();
+template<typename T> const char* GetTName();
+
 class Eluna
 {
 public:
