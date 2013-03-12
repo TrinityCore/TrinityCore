@@ -30,7 +30,7 @@ template<> const char* GetTName<Item>() { return "Item"; }
 template<> const char* GetTName<Spell>() { return "Spell"; }
 template<> const char* GetTName<Quest>() { return "Quest"; }
 
-void Eluna::StartEluna(bool restart /*= false*/)
+void Eluna::StartEluna(bool restart)
 {
     if (restart)
     {

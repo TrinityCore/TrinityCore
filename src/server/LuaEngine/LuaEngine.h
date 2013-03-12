@@ -251,7 +251,7 @@ public:
     ElunaBind* ItemGossipBindings;
     ElunaBind* playerGossipBindings;
 
-    void StartEluna(bool restart = false);
+    void StartEluna(bool restart);
     void AddScriptHooks();
     static void report(lua_State*);
     void Register(uint8 reg, uint32 id, uint32 evt, int func);

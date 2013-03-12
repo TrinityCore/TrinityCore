@@ -186,7 +186,7 @@ void ScriptMgr::Initialize()
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u C++ scripts in %u ms", GetScriptCount(), GetMSTimeDiffToNow(oldMSTime));
 
-    sEluna->StartEluna();
+    sEluna->StartEluna(false);
 }
 
 void ScriptMgr::Unload()
