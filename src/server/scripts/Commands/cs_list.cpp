@@ -43,6 +43,7 @@ public:
             { "item",           SEC_ADMINISTRATOR,  true,  &HandleListItemCommand,              "", NULL },
             { "object",         SEC_ADMINISTRATOR,  true,  &HandleListObjectCommand,            "", NULL },
             { "auras",          SEC_ADMINISTRATOR,  false, &HandleListAurasCommand,             "", NULL },
+            { "mail",           SEC_ADMINISTRATOR,  true,  &HandleListMailCommand,              "", NULL },
             { NULL,             0,                  false, NULL,                                "", NULL }
         };
         static ChatCommand commandTable[] =
@@ -461,6 +462,71 @@ public:
                 handler->PSendSysMessage(LANG_COMMAND_TARGET_AURASIMPLE, (*itr)->GetId(), (*itr)->GetEffIndex(), (*itr)->GetAmount());
         }
 
+        return true;
+    }
+    static bool HandleListMailCommand(ChatHandler* handler, char const* args)
+    {
+        Player* target;
+        uint64 targetGuid;
+        std::string targetName;
+
+        uint32 parseGUID = MAKE_NEW_GUID(atol((char*)args), 0, HIGHGUID_PLAYER);
+
+        if (sObjectMgr->GetPlayerNameByGUID(parseGUID, targetName))
+        {
+            target = sObjectMgr->GetPlayerByLowGUID(parseGUID);
+            targetGuid = parseGUID;
+        }
+        else if (!handler->extractPlayerTarget((char*)args, &target, &targetGuid, &targetName))
+            return false;
+
+        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_MAIL_LIST_COUNT);
+        stmt->setUInt32(0, targetGuid);
+        PreparedQueryResult result = CharacterDatabase.Query(stmt);
+        if (result)
+        {
+            Field* fields = result->Fetch();
+            uint32 countMail = fields[0].GetUInt64();
+            std::string nameLink = handler->playerLink(targetName);
+            handler->PSendSysMessage(LANG_LIST_MAIL_HEADER, countMail, nameLink.c_str(), targetGuid);
+            handler->PSendSysMessage(LANG_ACCOUNT_LIST_BAR);
+            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_MAIL_LIST_INFO);
+            //  id, sender, sendername, receiver, receivername ,SUBJECT, expire_time, deliver_time, money
+            //  0   1       2           3         4             5        6            7             8
+            stmt->setUInt32(0, targetGuid);
+            PreparedQueryResult result2 = CharacterDatabase.Query(stmt);
+            if (result2)
+            {
+                do
+                {
+                    Field* fields           = result2->Fetch();
+                    uint32 messageId        = fields[0].GetUInt32(); // massage Id
+                    uint32 senderId         = fields[1].GetUInt32(); // Sender Guid
+                    std::string sender      = fields[2].GetString(); // Sender Name
+                    uint32 receiverId       = fields[3].GetUInt32(); // Reciver Guid
+                    std::string receiver    = fields[4].GetString(); // Reciver Name
+                    std::string subject     = fields[5].GetString(); // Subject of the mail
+                    uint64 deliverTime      = fields[6].GetUInt32(); // Time of deliver
+                    uint64 expireTime       = fields[7].GetUInt32(); // Time of expire
+                    uint32 money            = fields[8].GetUInt32(); // Money inside the mail
+                    uint32 gold = money /GOLD;
+                    uint32 silv = (money % GOLD) / SILVER;
+                    uint32 copp = (money % GOLD) % SILVER;
+                    std::string receiverStr = handler->playerLink(receiver);
+                    std::string senderStr = handler->playerLink(sender);
+                    handler->PSendSysMessage(LANG_LIST_MAIL_INFO_1 , messageId, subject.c_str(),gold, silv, copp);
+                    handler->PSendSysMessage(LANG_LIST_MAIL_INFO_2, senderStr.c_str(), senderId, receiverStr.c_str(), receiverId);
+                    handler->PSendSysMessage(LANG_LIST_MAIL_INFO_3, TimeToTimestampStr(deliverTime).c_str(), TimeToTimestampStr(expireTime).c_str());
+                    handler->PSendSysMessage(LANG_ACCOUNT_LIST_BAR);
+                }
+                while (result2->NextRow());
+            }
+            else
+                handler->PSendSysMessage(LANG_LIST_MAIL_NOT_FOUND);
+            return true;
+        }
+        else
+            handler->PSendSysMessage(LANG_LIST_MAIL_NOT_FOUND);
         return true;
     }
 };
