@@ -30,7 +30,7 @@ INSERT INTO `creature` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `modelid`
 (202294,37796,668,3,1,30687,1,5430.863281,2134.548584,707.695068,3.873826,86400,0.00,0,75600,0,0,0,0,0),
 (202293,37779,668,3,1,30687,1,5232.69,1931.52,707.77,0.82,86400,0.00,0,75600,0,0,0,0,0);
 
--- Update NPC's Script Name
+-- Update NPC's ScriptName
 UPDATE `creature_template` SET `AIName`='', `Scriptname`='npc_the_lich_king_hor' WHERE `entry`=36954;
 UPDATE `creature_template` SET `AIName`='', `Scriptname`='npc_jaina_and_sylvana_hor_part2' WHERE `entry` IN (36955, 37554);
 UPDATE `creature_template` SET `AIName`='', `Scriptname`='npc_raging_gnoul' WHERE `entry`=36940;
@@ -53,7 +53,7 @@ INSERT INTO `areatrigger_scripts` (`entry`, `ScriptName`)
 VALUES('5697','at_hor_waves_restarter');
 
 -- Insert missing GameObjects
-SET @GOGUID := 164235;  -- SET BY DEV
+SET @GOGUID := 164235; -- SET BY DEV
 SET @CENTRY := 300247; -- SET BY DEV
 
 DELETE FROM `gameobject_template` WHERE `entry` IN (@CENTRY+0, @CENTRY+1, @CENTRY+2, @CENTRY+3, @CENTRY+4, @CENTRY+5);
@@ -106,7 +106,7 @@ INSERT INTO `script_waypoint` (`entry`, `pointid`, `location_x`, `location_y`, `
 ('37554','20','5262.44','1680.41','784.294','0','WP21'),
 ('37554','21','5260.4','1677.78','784.301','0','WP22');
 
--- Says Jaina HOR Part2
+-- Says Sylvanas HOR Part2
 DELETE FROM `creature_text` WHERE `entry` = 37554;
 INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) VALUES
 (37554,5,0,'There''s an opening up ahead. GO NOW!',14,0,100,0,0,17059,'SAY_SYLVANA_ESCAPE_01'),
