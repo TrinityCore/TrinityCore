@@ -1,9 +1,5 @@
 TRUNCATE TABLE `playercreateinfo_spell_custom`;
 
-ALTER TABLE `playercreateinfo_spell_custom`
-  CHANGE `race` `racemask` INT(10) UNSIGNED DEFAULT 0 NOT NULL,
-  CHANGE `class` `classmask` INT(10) UNSIGNED DEFAULT 0 NOT NULL;
-
 INSERT INTO playercreateinfo_spell_custom (racemask, classmask, Spell, Note) VALUES
 -- Races:   Human, Orc, Dwarf, Night elf, Undead, Tauren, Gnome, Troll, Dranei
 -- Classes: Warrior
