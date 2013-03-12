@@ -500,7 +500,7 @@ public:
                 do
                 {
                     Field* fields           = result2->Fetch();
-                    uint32 massageId        = fields[0].GetUInt32(); // massage Id
+                    uint32 messageId        = fields[0].GetUInt32(); // massage Id
                     uint32 senderId         = fields[1].GetUInt32(); // Sender Guid
                     std::string sender      = fields[2].GetString(); // Sender Name
                     uint32 receiverId       = fields[3].GetUInt32(); // Reciver Guid
@@ -514,7 +514,7 @@ public:
                     uint32 copp = (money % GOLD) % SILVER;
                     std::string receiverStr = handler->playerLink(receiver);
                     std::string senderStr = handler->playerLink(sender);
-                    handler->PSendSysMessage(LANG_LIST_MAIL_INFO_1 , massageId, subject.c_str(),gold, silv, copp);
+                    handler->PSendSysMessage(LANG_LIST_MAIL_INFO_1 , messageId, subject.c_str(),gold, silv, copp);
                     handler->PSendSysMessage(LANG_LIST_MAIL_INFO_2, senderStr.c_str(), senderId, receiverStr.c_str(), receiverId);
                     handler->PSendSysMessage(LANG_LIST_MAIL_INFO_3, TimeToTimestampStr(deliverTime).c_str(), TimeToTimestampStr(expireTime).c_str());
                     handler->PSendSysMessage(LANG_ACCOUNT_LIST_BAR);
