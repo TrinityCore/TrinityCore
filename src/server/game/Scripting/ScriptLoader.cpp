@@ -487,6 +487,7 @@ void AddSC_boss_tyrannus();
 void AddSC_instance_halls_of_reflection();   // Halls of Reflection
 void AddSC_halls_of_reflection();
 void AddSC_boss_falric();
+void AddSC_npc_the_lich_king_hor();
 void AddSC_boss_marwyn();
 void AddSC_boss_lord_marrowgar();       // Icecrown Citadel
 void AddSC_boss_lady_deathwhisper();
@@ -1224,6 +1225,7 @@ void AddNorthrendScripts()
     AddSC_instance_halls_of_reflection();   // Halls of Reflection
     AddSC_halls_of_reflection();
     AddSC_boss_falric();
+    AddSC_npc_the_lich_king_hor();
     AddSC_boss_marwyn();
     AddSC_boss_lord_marrowgar();        // Icecrown Citadel
     AddSC_boss_lady_deathwhisper();
