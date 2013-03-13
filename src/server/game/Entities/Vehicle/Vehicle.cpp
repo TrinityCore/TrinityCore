@@ -744,6 +744,31 @@ void Vehicle::RemovePendingEventsForSeat(int8 seatId)
     }
 }
 
+/**
+ * @fn void Vehicle::RemovePendingEventsForSeat(uint8 seatId)
+ *
+ * @brief Removes any pending events for given passenger. Executed when vehicle control aura is removed while adding passenger is in progress
+ *
+ * @author Shauren
+ * @date 13-2-2013
+ *
+ * @param passenger Unit that is supposed to enter the vehicle.
+ */
+
+void Vehicle::RemovePendingEventsForPassenger(Unit* passenger)
+{
+    for (PendingJoinEventContainer::iterator itr = _pendingJoinEvents.begin(); itr != _pendingJoinEvents.end();)
+    {
+        if ((*itr)->Passenger == passenger)
+        {
+            (*itr)->to_Abort = true;
+            _pendingJoinEvents.erase(itr++);
+        }
+        else
+            ++itr;
+    }
+}
+
 VehicleJoinEvent::~VehicleJoinEvent()
 {
     if (Target)
@@ -769,6 +794,7 @@ bool VehicleJoinEvent::Execute(uint64, uint32)
 {
     ASSERT(Passenger->IsInWorld());
     ASSERT(Target && Target->GetBase()->IsInWorld());
+    ASSERT(Target->GetBase()->HasAuraTypeWithCaster(SPELL_AURA_CONTROL_VEHICLE, Passenger->GetGUID()));
 
     Target->RemovePendingEventsForSeat(Seat->first);
 
