@@ -2323,7 +2323,7 @@ void AuraEffect::HandleAuraModPacifyAndSilence(AuraApplication const* aurApp, ui
     Unit* target = aurApp->GetTarget();
 
     // Vengeance of the Blue Flight (@todo REMOVE THIS!)
-	/// @workaround
+    /// @workaround
     if (m_spellInfo->Id == 45839)
     {
         if (apply)
@@ -2935,6 +2935,8 @@ void AuraEffect::HandleAuraControlVehicle(AuraApplication const* aurApp, uint8 m
         caster->_ExitVehicle();
         // some SPELL_AURA_CONTROL_VEHICLE auras have a dummy effect on the player - remove them
         caster->RemoveAurasDueToSpell(GetId());
+
+        target->GetVehicleKit()->RemovePendingEventsForPassenger(caster);
     }
 }
 
