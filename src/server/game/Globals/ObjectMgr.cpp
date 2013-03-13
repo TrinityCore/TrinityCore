@@ -3279,7 +3279,7 @@ void ObjectMgr::LoadPlayerInfo()
                             {
                                 if (PlayerInfo* info = _playerInfo[raceIndex][classIndex])
                                     info->spell.push_back(fields[2].GetUInt32());
-                                else
+                                else if (raceMask != 0 && classMask != 0)
                                     sLog->outError(LOG_FILTER_SQL, "Racemask/classmask (%u/%u) combination was found containing an invalid race/class combination (%u/%u) in `playercreateinfo_spell` (Spell %u), ignoring.", raceMask, classMask, raceIndex, classIndex, fields[2].GetUInt32());
                             }
                         }
