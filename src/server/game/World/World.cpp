@@ -1842,6 +1842,9 @@ void World::SetInitialWorldSettings()
     sLog->outInfo(LOG_FILTER_GENERAL, "Loading hotfix info...");
     sObjectMgr->LoadHotfixData();
 
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading missing KeyChains...");
+    sObjectMgr->LoadMissingKeyChains();
+
     uint32 startupDuration = GetMSTimeDiffToNow(startupBegin);
 
     sLog->outInfo(LOG_FILTER_WORLDSERVER, "World initialized in %u minutes %u seconds", (startupDuration / 60000), ((startupDuration % 60000) / 1000));

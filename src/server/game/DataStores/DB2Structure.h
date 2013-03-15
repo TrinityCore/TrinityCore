@@ -148,6 +148,14 @@ struct ItemExtendedCostEntry
     //uint32    Unknown[5];                               // 26-30
 };
 
+#define KEYCHAIN_SIZE   32
+
+struct KeyChainEntry
+{
+    uint32      Id;
+    uint8       Key[KEYCHAIN_SIZE];
+};
+
 // GCC has alternative #pragma pack(N) syntax and old gcc version does not support pack(push, N), also any gcc version does not support it at some platform
 #if defined(__GNUC__)
 #pragma pack()
