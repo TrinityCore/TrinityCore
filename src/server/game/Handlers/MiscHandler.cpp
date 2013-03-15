@@ -55,6 +55,7 @@
 #include "BattlegroundMgr.h"
 #include "Battlefield.h"
 #include "BattlefieldMgr.h"
+#include "DB2Stores.h"
 
 void WorldSession::HandleRepopRequestOpcode(WorldPacket& recvData)
 {
@@ -1894,20 +1895,59 @@ void WorldSession::HandleRequestHotfix(WorldPacket& recvPacket)
 
         switch (type)
         {
-            case DB2_REPLY_ITEM:
+            case DB2_HASH_ITEM:
                 SendItemDb2Reply(entry);
                 break;
-            case DB2_REPLY_SPARSE:
+            case DB2_HASH_ITEM_SPARSE:
                 SendItemSparseDb2Reply(entry);
                 break;
+            case DB2_HASH_KEYCHAIN:
+                SendKeyChainDb2Reply(entry);
+                break;
             default:
-                sLog->outError(LOG_FILTER_NETWORKIO, "CMSG_REQUEST_HOTFIX: Received unknown hotfix type: %u", type);
+            {
+                WorldPacket data(SMSG_DB_REPLY, 4 * 4);
+                data << -int32(entry);
+                data << uint32(type);
+                data << uint32(time(NULL));
+                data << uint32(0);
+                SendPacket(&data);
+
+                sLog->outError(LOG_FILTER_NETWORKIO, "CMSG_REQUEST_HOTFIX: Received unknown hotfix type: %u, entry %u", type, entry);
                 recvPacket.rfinish();
                 break;
+            }
         }
     }
 
     delete[] guids;
+}
+
+void WorldSession::SendKeyChainDb2Reply(uint32 entry)
+{
+    WorldPacket data(SMSG_DB_REPLY, 44);
+    KeyChainEntry const* keyChain = sKeyChainStore.LookupEntry(entry);
+    if (!keyChain)
+    {
+        data << -int32(entry);      // entry
+        data << uint32(DB2_HASH_KEYCHAIN);
+        data << uint32(time(NULL)); // hotfix date
+        data << uint32(0);          // size of next block
+        return;
+    }
+
+    data << uint32(entry);
+    data << uint32(DB2_HASH_KEYCHAIN);
+    data << uint32(sObjectMgr->GetHotfixDate(entry, DB2_HASH_KEYCHAIN));
+
+    ByteBuffer buff;
+    buff << uint32(entry);
+    buff.append(keyChain->Key, KEYCHAIN_SIZE);
+
+    data << uint32(buff.size());
+    data.append(buff);
+
+    SendPacket(&data);
 }
 
 void WorldSession::HandleUpdateMissileTrajectory(WorldPacket& recvPacket)

@@ -16,23 +16,21 @@
  */
 
 #include "DB2Stores.h"
-#include "Log.h"
-#include "SharedDefines.h"
-#include "SpellMgr.h"
 #include "DB2fmt.h"
+#include "Common.h"
+#include "Log.h"
 
-#include <map>
-
-DB2Storage <ItemEntry> sItemStore(Itemfmt);
-DB2Storage <ItemCurrencyCostEntry> sItemCurrencyCostStore(ItemCurrencyCostfmt);
-DB2Storage <ItemExtendedCostEntry> sItemExtendedCostStore(ItemExtendedCostEntryfmt);
-DB2Storage <ItemSparseEntry> sItemSparseStore (ItemSparsefmt);
+DB2Storage<ItemEntry> sItemStore(Itemfmt);
+DB2Storage<ItemCurrencyCostEntry> sItemCurrencyCostStore(ItemCurrencyCostfmt);
+DB2Storage<ItemExtendedCostEntry> sItemExtendedCostStore(ItemExtendedCostEntryfmt);
+DB2Storage<ItemSparseEntry> sItemSparseStore(ItemSparsefmt);
+DB2Storage<KeyChainEntry> sKeyChainStore(KeyChainfmt);
 
 typedef std::list<std::string> StoreProblemList1;
 
 uint32 DB2FilesCount = 0;
 
-static bool LoadDB2_assert_print(uint32 fsize, uint32 rsize, const std::string& filename)
+static bool LoadDB2_assert_print(uint32 fsize, uint32 rsize, std::string const& filename)
 {
     sLog->outError(LOG_FILTER_GENERAL, "Size of '%s' setted by format string (%u) not equal size of C++ structure (%u).", filename.c_str(), fsize, rsize);
 
@@ -51,7 +49,7 @@ struct LocalDB2Data
 };
 
 template<class T>
-inline void LoadDB2(StoreProblemList1& errlist, DB2Storage<T>& storage, const std::string& db2_path, const std::string& filename)
+inline void LoadDB2(StoreProblemList1& errlist, DB2Storage<T>& storage, std::string const& db2_path, std::string const& filename)
 {
     // compatibility format and C++ structure sizes
     ASSERT(DB2FileLoader::GetFormatRecordSize(storage.GetFormat()) == sizeof(T) || LoadDB2_assert_print(DB2FileLoader::GetFormatRecordSize(storage.GetFormat()), sizeof(T), filename));
@@ -74,7 +72,7 @@ inline void LoadDB2(StoreProblemList1& errlist, DB2Storage<T>& storage, const st
     }
 }
 
-void LoadDB2Stores(const std::string& dataPath)
+void LoadDB2Stores(std::string const& dataPath)
 {
     std::string db2Path = dataPath + "dbc/";
 
@@ -84,6 +82,7 @@ void LoadDB2Stores(const std::string& dataPath)
     LoadDB2(bad_db2_files, sItemCurrencyCostStore, db2Path, "ItemCurrencyCost.db2");
     LoadDB2(bad_db2_files, sItemSparseStore, db2Path, "Item-sparse.db2");
     LoadDB2(bad_db2_files, sItemExtendedCostStore, db2Path, "ItemExtendedCost.db2");
+    LoadDB2(bad_db2_files, sKeyChainStore, db2Path, "KeyChain.db2");
     // error checks
     if (bad_db2_files.size() >= DB2FilesCount)
     {
