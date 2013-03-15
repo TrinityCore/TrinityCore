@@ -3256,6 +3256,7 @@ void ObjectMgr::LoadPlayerInfo()
                 Field* fields = result->Fetch();
                 uint32 raceMask = fields[0].GetUInt32();
                 uint32 classMask = fields[1].GetUInt32();
+                uint32 spellId = fields[2].GetUInt32();
 
                 if (raceMask != 0 && !(raceMask & RACEMASK_ALL_PLAYABLE))
                 {
@@ -3278,15 +3279,18 @@ void ObjectMgr::LoadPlayerInfo()
                             if (classMask == 0 || ((1 << (classIndex - 1)) & classMask))
                             {
                                 if (PlayerInfo* info = _playerInfo[raceIndex][classIndex])
-                                    info->spell.push_back(fields[2].GetUInt32());
-                                else if (raceMask != 0 && classMask != 0)
-                                    sLog->outError(LOG_FILTER_SQL, "Racemask/classmask (%u/%u) combination was found containing an invalid race/class combination (%u/%u) in `playercreateinfo_spell` (Spell %u), ignoring.", raceMask, classMask, raceIndex, classIndex, fields[2].GetUInt32());
+                                {
+                                    info->spell.push_back(spellId);
+                                    ++count;
+                                }
+                                // We need something better here, the check is not accounting for spells used by multiple races/classes but not all of them.
+                                // Either split the masks per class, or per race, which kind of kills the point yet.
+                                // else if (raceMask != 0 && classMask != 0)
+                                //     sLog->outError(LOG_FILTER_SQL, "Racemask/classmask (%u/%u) combination was found containing an invalid race/class combination (%u/%u) in `playercreateinfo_spell` (Spell %u), ignoring.", raceMask, classMask, raceIndex, classIndex, spellId);
                             }
                         }
                     }
                 }
-
-                ++count;
             }
             while (result->NextRow());
 
