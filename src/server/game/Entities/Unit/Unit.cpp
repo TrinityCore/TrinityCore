@@ -16912,7 +16912,7 @@ void Unit::_ExitVehicle(Position const* exitPosition)
 
     Player* player = ToPlayer();
 
-    // If player is on mouted duel and exits the mount should immediatly lose the duel
+    // If the player is on mounted duel and exits the mount, he should immediatly lose the duel
     if (player && player->duel && player->duel->isMounted)
         player->DuelComplete(DUEL_FLED);
 
