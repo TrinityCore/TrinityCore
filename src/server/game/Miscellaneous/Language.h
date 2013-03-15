@@ -384,7 +384,8 @@ enum TrinityStrings
     LANG_COMMAND_CHEAT_CD               = 360,
     LANG_COMMAND_CHEAT_POWER            = 361,
     LANG_COMMAND_CHEAT_WW               = 362,
-    // Room for more level 2              363-399 not used
+    LANG_COMMAND_WHISPEROFFPLAYER       = 363,
+    // Room for more level 2              364-399 not used
 
     // level 3 chat
     LANG_SCRIPTS_RELOADED               = 400,
