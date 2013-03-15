@@ -19,16 +19,11 @@
 /* ScriptData
 SDName: The_Barrens
 SD%Complete: 90
-SDComment: Quest support: 863, 898, 1719, 2458, 4921, 6981,
+SDComment: Quest support: 863
 SDCategory: Barrens
 EndScriptData */
 
 /* ContentData
-npc_beaten_corpse
-npc_gilthares
-npc_sputtervalve
-npc_taskmaster_fizzule
-npc_twiggy_flathead
 npc_wizzlecrank_shredder
 EndContentData */
 
@@ -686,10 +681,5 @@ public:
 
 void AddSC_the_barrens()
 {
-    new npc_beaten_corpse();
-    new npc_gilthares();
-    new npc_sputtervalve();
-    new npc_taskmaster_fizzule();
-    new npc_twiggy_flathead();
     new npc_wizzlecrank_shredder();
 }

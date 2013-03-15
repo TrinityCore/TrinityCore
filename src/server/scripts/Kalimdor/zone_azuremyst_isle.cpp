@@ -19,7 +19,7 @@
 /* ScriptData
 SDName: Azuremyst_Isle
 SD%Complete: 75
-SDComment: Quest support: 9283, 9537, 9582, 9554, 9531, ? (special flight path, proper model for mount missing). Injured Draenei cosmetic only, 9582.
+SDComment: Quest support: 9283, 9537, 9582, 9554, ? (special flight path, proper model for mount missing). Injured Draenei cosmetic only, 9582.
 SDCategory: Azuremyst Isle
 EndScriptData */
 
@@ -28,7 +28,6 @@ npc_draenei_survivor
 npc_engineer_spark_overgrind
 npc_injured_draenei
 npc_magwin
-npc_geezle
 go_ravager_cage
 npc_death_ravager
 EndContentData */
@@ -763,7 +762,6 @@ void AddSC_azuremyst_isle()
     new npc_engineer_spark_overgrind();
     new npc_injured_draenei();
     new npc_magwin();
-    new npc_geezle();
     new npc_death_ravager();
     new go_ravager_cage();
     new npc_stillpine_capitive();

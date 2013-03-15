@@ -132,9 +132,9 @@ bool GrandChampionsOutVehicle(Creature* me)
 
     if (pGrandChampion1 && pGrandChampion2 && pGrandChampion3)
     {
-        if (!pGrandChampion1->HasUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT) &&
-            !pGrandChampion2->HasUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT) &&
-            !pGrandChampion3->HasUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT))
+        if (!pGrandChampion1->m_movementInfo.t_guid &&
+            !pGrandChampion2->m_movementInfo.t_guid &&
+            !pGrandChampion3->m_movementInfo.t_guid)
             return true;
     }
 
@@ -386,7 +386,7 @@ public:
                 }
             }else uiPhaseTimer -= uiDiff;
 
-            if (!UpdateVictim() || me->HasUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT))
+            if (!UpdateVictim() || me->m_movementInfo.t_guid)
                 return;
 
             if (uiInterceptTimer <= uiDiff)
@@ -530,7 +530,7 @@ public:
                 uiFireBallTimer = 5000;
             } else uiFireBallTimer -= uiDiff;
 
-            if (!UpdateVictim() || me->HasUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT))
+            if (!UpdateVictim() || me->m_movementInfo.t_guid)
                 return;
 
             if (uiFireBallTimer <= uiDiff)
@@ -668,7 +668,7 @@ public:
                 }
             }else uiPhaseTimer -= uiDiff;
 
-            if (!UpdateVictim() || me->HasUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT))
+            if (!UpdateVictim() || me->m_movementInfo.t_guid)
                 return;
 
             if (uiChainLightningTimer <= uiDiff)
@@ -814,7 +814,7 @@ public:
                 }
             }else uiPhaseTimer -= uiDiff;
 
-            if (!UpdateVictim() || me->HasUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT))
+            if (!UpdateVictim() || me->m_movementInfo.t_guid)
                 return;
 
             if (uiLightningArrowsTimer <= uiDiff)
@@ -962,7 +962,7 @@ public:
                 }
             } else uiPhaseTimer -= uiDiff;
 
-            if (!UpdateVictim() || me->HasUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT))
+            if (!UpdateVictim() || me->m_movementInfo.t_guid)
                 return;
 
             if (uiEviscerateTimer <= uiDiff)

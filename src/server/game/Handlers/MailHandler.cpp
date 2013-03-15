@@ -31,15 +31,20 @@
 
 void WorldSession::HandleSendMail(WorldPacket& recvData)
 {
-    uint64 mailbox, unk3;
+    ObjectGuid mailbox;
+    uint64 money, COD;
     std::string receiverName, subject, body;
-    uint32 unk1, unk2, money, COD;
-    uint8 unk4;
-    uint8 items_count;
-    recvData >> mailbox >> receiverName >> subject >> body
-             >> unk1                                       // stationery?
-             >> unk2                                       // 0x00000000
-             >> items_count;                               // attached items count
+    uint32 bodyLength, subjectLength, receiverLength;
+    uint32 unk1, unk2;
+
+    recvData >> unk1;
+    recvData >> unk2; // Stationery?
+
+    recvData >> COD >> money;                              // money and cod
+    bodyLength = recvData.ReadBits(12);
+    subjectLength = recvData.ReadBits(9);
+
+    uint8 items_count = recvData.ReadBits(5);              // attached items count
 
     if (items_count > MAX_MAIL_ITEMS)                      // client limit
     {
@@ -48,17 +53,60 @@ void WorldSession::HandleSendMail(WorldPacket& recvData)
         return;
     }
 
-    uint64 itemGUIDs[MAX_MAIL_ITEMS];
+    mailbox[0] = recvData.ReadBit();
+
+    ObjectGuid itemGUIDs[MAX_MAIL_ITEMS];
 
     for (uint8 i = 0; i < items_count; ++i)
     {
-        recvData.read_skip<uint8>();                       // item slot in mail, not used
-        recvData >> itemGUIDs[i];
+        itemGUIDs[i][2] = recvData.ReadBit();
+        itemGUIDs[i][6] = recvData.ReadBit();
+        itemGUIDs[i][3] = recvData.ReadBit();
+        itemGUIDs[i][7] = recvData.ReadBit();
+        itemGUIDs[i][1] = recvData.ReadBit();
+        itemGUIDs[i][0] = recvData.ReadBit();
+        itemGUIDs[i][4] = recvData.ReadBit();
+        itemGUIDs[i][5] = recvData.ReadBit();
     }
 
-    recvData >> money >> COD;                              // money and cod
-    recvData >> unk3;                                      // const 0
-    recvData >> unk4;                                      // const 0
+    mailbox[3] = recvData.ReadBit();
+    mailbox[4] = recvData.ReadBit();
+    receiverLength = recvData.ReadBits(7);
+    mailbox[2] = recvData.ReadBit();
+    mailbox[6] = recvData.ReadBit();
+    mailbox[1] = recvData.ReadBit();
+    mailbox[7] = recvData.ReadBit();
+    mailbox[5] = recvData.ReadBit();
+
+    recvData.ReadByteSeq(mailbox[4]);
+
+    for (uint8 i = 0; i < items_count; ++i)
+    {
+        recvData.ReadByteSeq(itemGUIDs[i][6]);
+        recvData.ReadByteSeq(itemGUIDs[i][1]);
+        recvData.ReadByteSeq(itemGUIDs[i][7]);
+        recvData.ReadByteSeq(itemGUIDs[i][2]);
+        recvData.read_skip<uint8>();            // item slot in mail, not used
+        recvData.ReadByteSeq(itemGUIDs[i][3]);
+        recvData.ReadByteSeq(itemGUIDs[i][0]);
+        recvData.ReadByteSeq(itemGUIDs[i][4]);
+        recvData.ReadByteSeq(itemGUIDs[i][5]);
+    }
+
+    recvData.ReadByteSeq(mailbox[7]);
+    recvData.ReadByteSeq(mailbox[3]);
+    recvData.ReadByteSeq(mailbox[6]);
+    recvData.ReadByteSeq(mailbox[5]);
+
+    subject = recvData.ReadString(subjectLength);
+    receiverName = recvData.ReadString(receiverLength);
+
+    recvData.ReadByteSeq(mailbox[2]);
+    recvData.ReadByteSeq(mailbox[0]);
+
+    body = recvData.ReadString(bodyLength);
+
+    recvData.ReadByteSeq(mailbox[1]);
 
     // packet read complete, now do check
 
@@ -83,7 +131,7 @@ void WorldSession::HandleSendMail(WorldPacket& recvData)
     if (!receiverGuid)
     {
         sLog->outInfo(LOG_FILTER_NETWORKIO, "Player %u is sending mail to %s (GUID: not existed!) with subject %s "
-            "and body %s includes %u items, %u copper and %u COD copper with unk1 = %u, unk2 = %u",
+            "and body %s includes %u items, " UI64FMTD " copper and " UI64FMTD " COD copper with unk1 = %u, unk2 = %u",
             player->GetGUIDLow(), receiverName.c_str(), subject.c_str(), body.c_str(),
             items_count, money, COD, unk1, unk2);
         player->SendMailResult(0, MAIL_SEND, MAIL_ERR_RECIPIENT_NOT_FOUND);
@@ -91,7 +139,7 @@ void WorldSession::HandleSendMail(WorldPacket& recvData)
     }
 
     sLog->outInfo(LOG_FILTER_NETWORKIO, "Player %u is sending mail to %s (GUID: %u) with subject %s and body %s "
-        "includes %u items, %u copper and %u COD copper with unk1 = %u, unk2 = %u",
+        "includes %u items, " UI64FMTD " copper and " UI64FMTD " COD copper with unk1 = %u, unk2 = %u",
         player->GetGUIDLow(), receiverName.c_str(), GUID_LOPART(receiverGuid), subject.c_str(),
         body.c_str(), items_count, money, COD, unk1, unk2);
 
@@ -103,7 +151,7 @@ void WorldSession::HandleSendMail(WorldPacket& recvData)
 
     uint32 cost = items_count ? 30 * items_count : 30;  // price hardcoded in client
 
-    uint32 reqmoney = cost + money;
+    uint64 reqmoney = cost + money;
 
     if (!player->HasEnoughMoney(reqmoney) && !player->isGameMaster())
     {
@@ -213,7 +261,7 @@ void WorldSession::HandleSendMail(WorldPacket& recvData)
 
         if (item->IsBoundAccountWide() && item->IsSoulBound() && player->GetSession()->GetAccountId() != receiverAccountId)
         {
-            player->SendMailResult(0, MAIL_SEND, MAIL_ERR_EQUIP_ERROR, EQUIP_ERR_ARTEFACTS_ONLY_FOR_OWN_CHARACTERS);
+            player->SendMailResult(0, MAIL_SEND, MAIL_ERR_EQUIP_ERROR, EQUIP_ERR_NOT_SAME_ACCOUNT);
             return;
         }
 
@@ -231,7 +279,7 @@ void WorldSession::HandleSendMail(WorldPacket& recvData)
 
         if (item->IsNotEmptyBag())
         {
-            player->SendMailResult(0, MAIL_SEND, MAIL_ERR_EQUIP_ERROR, EQUIP_ERR_CAN_ONLY_DO_WITH_EMPTY_BAGS);
+            player->SendMailResult(0, MAIL_SEND, MAIL_ERR_EQUIP_ERROR, EQUIP_ERR_DESTROY_NONEMPTY_BAG);
             return;
         }
 
@@ -240,7 +288,7 @@ void WorldSession::HandleSendMail(WorldPacket& recvData)
 
     player->SendMailResult(0, MAIL_SEND, MAIL_OK);
 
-    player->ModifyMoney(-int32(reqmoney));
+    player->ModifyMoney(-int64(reqmoney));
     player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_GOLD_SPENT_FOR_MAIL, cost);
 
     bool needItemDelay = false;
@@ -281,7 +329,7 @@ void WorldSession::HandleSendMail(WorldPacket& recvData)
 
         if (log && money > 0)
         {
-            sLog->outCommand(GetAccountId(), "GM %s (Account: %u) mail money: %u to player: %s (Account: %u)",
+            sLog->outCommand(GetAccountId(), "GM %s (Account: %u) mail money: " UI64FMTD " to player: %s (Account: %u)",
                 GetPlayerName().c_str(), GetAccountId(), money, receiverName.c_str(), receiverAccountId);
         }
     }
@@ -369,8 +417,7 @@ void WorldSession::HandleMailReturnToSender(WorldPacket& recvData)
         player->SendMailResult(mailId, MAIL_RETURNED_TO_SENDER, MAIL_ERR_INTERNAL_ERROR);
         return;
     }
-    //we can return mail now
-    //so firstly delete the old one
+    //we can return mail now, so firstly delete the old one
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_MAIL_BY_ID);
@@ -394,14 +441,8 @@ void WorldSession::HandleMailReturnToSender(WorldPacket& recvData)
         {
             for (MailItemInfoVec::iterator itr2 = m->items.begin(); itr2 != m->items.end(); ++itr2)
             {
-                Item* item = player->GetMItem(itr2->item_guid);
-                if (item)
+                if (Item* const item = player->GetMItem(itr2->item_guid))
                     draft.AddItem(item);
-                else
-                {
-                    //WTF?
-                }
-
                 player->RemoveMItem(itr2->item_guid);
             }
         }
@@ -437,7 +478,7 @@ void WorldSession::HandleMailTakeItem(WorldPacket& recvData)
     }
 
     // prevent cheating with skip client money check
-    if (!player->HasEnoughMoney(m->COD))
+    if (!player->HasEnoughMoney(uint64(m->COD)))
     {
         player->SendMailResult(mailId, MAIL_ITEM_TAKEN, MAIL_ERR_NOT_ENOUGH_MONEY);
         return;
@@ -476,7 +517,7 @@ void WorldSession::HandleMailTakeItem(WorldPacket& recvData)
                     if (!sObjectMgr->GetPlayerNameByGUID(sender_guid, sender_name))
                         sender_name = sObjectMgr->GetTrinityStringForDBCLocale(LANG_UNKNOWN);
                 }
-                sLog->outCommand(GetAccountId(), "GM %s (Account: %u) receiver mail item: %s (Entry: %u Count: %u) and send COD money: %u to player: %s (Account: %u)",
+                sLog->outCommand(GetAccountId(), "GM %s (Account: %u) receiver mail item: %s (Entry: %u Count: %u) and send COD money: " UI64FMTD " to player: %s (Account: %u)",
                     GetPlayerName().c_str(), GetAccountId(), it->GetTemplate()->Name1.c_str(), it->GetEntry(), it->GetCount(), m->COD, sender_name.c_str(), sender_accId);
             }
             else if (!receiver)
@@ -514,9 +555,12 @@ void WorldSession::HandleMailTakeItem(WorldPacket& recvData)
 void WorldSession::HandleMailTakeMoney(WorldPacket& recvData)
 {
     uint64 mailbox;
+    uint64 money;
     uint32 mailId;
+
     recvData >> mailbox;
     recvData >> mailId;
+    recvData >> money;
 
     if (!GetPlayer()->GetGameObjectIfCanInteractWith(mailbox, GAMEOBJECT_TYPE_MAILBOX))
         return;
@@ -524,7 +568,8 @@ void WorldSession::HandleMailTakeMoney(WorldPacket& recvData)
     Player* player = _player;
 
     Mail* m = player->GetMail(mailId);
-    if (!m || m->state == MAIL_STATE_DELETED || m->deliver_time > time(NULL))
+    if ((!m || m->state == MAIL_STATE_DELETED || m->deliver_time > time(NULL)) ||
+        (money > 0 && m->money != money))
     {
         player->SendMailResult(mailId, MAIL_MONEY_TAKEN, MAIL_ERR_INTERNAL_ERROR);
         return;
@@ -570,7 +615,7 @@ void WorldSession::HandleGetMailList(WorldPacket& recvData)
     uint32 mailsCount = 0;                                 // real send to client mails amount
     uint32 realCount  = 0;                                 // real mails amount
 
-    WorldPacket data(SMSG_MAIL_LIST_RESULT, (200));         // guess size
+    WorldPacket data(SMSG_MAIL_LIST_RESULT, 200);         // guess size
     data << uint32(0);                                      // real mail's count
     data << uint8(0);                                       // mail's count
     time_t cur_time = time(NULL);
@@ -611,14 +656,14 @@ void WorldSession::HandleGetMailList(WorldPacket& recvData)
             case MAIL_GAMEOBJECT:
             case MAIL_AUCTION:
             case MAIL_CALENDAR:
-                data << uint32((*itr)->sender);            // creature/gameobject entry, auction id, calendar event id?
+                data << uint32((*itr)->sender);              // creature/gameobject entry, auction id, calendar event id?
                 break;
         }
 
-        data << uint32((*itr)->COD);                         // COD
-        data << uint32(0);                                   // package (Package.dbc)
+        data << uint64((*itr)->COD);                         // COD
+        data << uint32(0);                                   // Package.dbc ID ?
         data << uint32((*itr)->stationery);                  // stationery (Stationery.dbc)
-        data << uint32((*itr)->money);                       // Gold
+        data << uint64((*itr)->money);                       // Gold
         data << uint32((*itr)->checked);                     // flags
         data << float(float((*itr)->expire_time-time(NULL))/DAY); // Time
         data << uint32((*itr)->mailTemplateId);              // mail template (MailTemplate.dbc)
@@ -641,6 +686,7 @@ void WorldSession::HandleGetMailList(WorldPacket& recvData)
                 data << uint32((item ? item->GetEnchantmentDuration((EnchantmentSlot)j) : 0));
                 data << uint32((item ? item->GetEnchantmentCharges((EnchantmentSlot)j) : 0));
             }
+
             // can be negative
             data << int32((item ? item->GetItemRandomPropertyId() : 0));
             // unk
@@ -707,7 +753,7 @@ void WorldSession::HandleMailCreateTextItem(WorldPacket& recvData)
             return;
         }
 
-        bodyItem->SetText(mailTemplateEntry->content[GetSessionDbcLocale()]);
+        bodyItem->SetText(mailTemplateEntry->content);
     }
     else
         bodyItem->SetText(m->body);
@@ -736,7 +782,7 @@ void WorldSession::HandleMailCreateTextItem(WorldPacket& recvData)
 }
 
 /// @todo Fix me! ... this void has probably bad condition, but good data are sent
-void WorldSession::HandleQueryNextMailTime(WorldPacket & /*recvData*/)
+void WorldSession::HandleQueryNextMailTime(WorldPacket& /*recvData*/)
 {
     WorldPacket data(MSG_QUERY_NEXT_MAIL_TIME, 8);
 

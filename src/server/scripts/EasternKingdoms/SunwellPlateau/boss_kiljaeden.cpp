@@ -254,7 +254,7 @@ public:
         {
             OrbsEmpowered = 0;
             EmpowerCount = 0;
-            me->AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT | MOVEMENTFLAG_DISABLE_GRAVITY);
+            me->AddUnitMovementFlag(MOVEMENTFLAG_DISABLE_GRAVITY);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             me->setActive(true);
 
@@ -442,7 +442,7 @@ public:
                     summoned->CastSpell(summoned, SPELL_SHADOW_CHANNELING, false);
                     break;
                 case CREATURE_ANVEENA:
-                    summoned->AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT | MOVEMENTFLAG_DISABLE_GRAVITY);
+                    summoned->AddUnitMovementFlag(MOVEMENTFLAG_DISABLE_GRAVITY);
                     summoned->CastSpell(summoned, SPELL_ANVEENA_PRISON, true);
                     summoned->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                     break;

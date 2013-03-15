@@ -21,8 +21,10 @@
 
 #include "Common.h"
 #include "Debugging/Errors.h"
-#include "Logging/Log.h"
+#include "Log.h"
 #include "Utilities/ByteConverter.h"
+
+
 
 class ByteBufferException
 {
@@ -52,7 +54,7 @@ class ByteBufferPositionException : public ByteBufferException
         {
             ACE_Stack_Trace trace;
 
-            sLog->outError(LOG_FILTER_NETWORKIO, "Attempted to %s value with size: "SIZEFMTD" in ByteBuffer (pos: " SIZEFMTD " size: "SIZEFMTD")\n[Stacktrace: %s]",
+            sLog->outError(LOG_FILTER_NETWORKIO, "Attempted to %s value with size: " SIZEFMTD " in ByteBuffer (pos: " SIZEFMTD " size: "SIZEFMTD")\n[Stack trace: %s]",
                 (_add ? "put" : "get"), ValueSize, Pos, Size, trace.c_str());
         }
 
@@ -74,7 +76,7 @@ class ByteBufferSourceException : public ByteBufferException
         {
             ACE_Stack_Trace trace;
 
-            sLog->outError(LOG_FILTER_NETWORKIO, "Attempted to put a %s in ByteBuffer (pos: "SIZEFMTD" size: "SIZEFMTD")\n[Stacktrace: %s]",
+            sLog->outError(LOG_FILTER_NETWORKIO, "Attempted to put a %s in ByteBuffer (pos: " SIZEFMTD " size: "SIZEFMTD ")\n[Stack trace: %s]",
                 (ValueSize > 0 ? "NULL-pointer" : "zero-sized value"), Pos, Size, trace.c_str());
         }
 };
@@ -85,19 +87,21 @@ class ByteBuffer
         const static size_t DEFAULT_SIZE = 0x1000;
 
         // constructor
-        ByteBuffer(): _rpos(0), _wpos(0)
+        ByteBuffer() : _rpos(0), _wpos(0), _bitpos(8), _curbitval(0)
         {
             _storage.reserve(DEFAULT_SIZE);
         }
 
-        // constructor
-        ByteBuffer(size_t res): _rpos(0), _wpos(0)
+        ByteBuffer(size_t reserve) : _rpos(0), _wpos(0), _bitpos(8), _curbitval(0)
         {
-            _storage.reserve(res);
+            _storage.reserve(reserve);
         }
 
         // copy constructor
-        ByteBuffer(const ByteBuffer &buf): _rpos(buf._rpos), _wpos(buf._wpos), _storage(buf._storage) { }
+        ByteBuffer(const ByteBuffer &buf) : _rpos(buf._rpos), _wpos(buf._wpos),
+            _bitpos(buf._bitpos), _curbitval(buf._curbitval), _storage(buf._storage)
+        {
+        }
 
         void clear()
         {
@@ -107,14 +111,113 @@ class ByteBuffer
 
         template <typename T> void append(T value)
         {
+            FlushBits();
             EndianConvert(value);
             append((uint8 *)&value, sizeof(value));
+        }
+
+        void FlushBits()
+        {
+            if (_bitpos == 8)
+                return;
+
+            append((uint8 *)&_curbitval, sizeof(uint8));
+            _curbitval = 0;
+            _bitpos = 8;
+        }
+
+        bool WriteBit(uint32 bit)
+        {
+            --_bitpos;
+            if (bit)
+                _curbitval |= (1 << (_bitpos));
+
+            if (_bitpos == 0)
+            {
+                _bitpos = 8;
+                append((uint8 *)&_curbitval, sizeof(_curbitval));
+                _curbitval = 0;
+            }
+
+            return (bit != 0);
+        }
+
+        bool ReadBit()
+        {
+            ++_bitpos;
+            if (_bitpos > 7)
+            {
+                _bitpos = 0;
+                _curbitval = read<uint8>();
+            }
+
+            return ((_curbitval >> (7-_bitpos)) & 1) != 0;
+        }
+
+        template <typename T> void WriteBits(T value, size_t bits)
+        {
+            for (int32 i = bits-1; i >= 0; --i)
+                WriteBit((value >> i) & 1);
+        }
+
+        uint32 ReadBits(size_t bits)
+        {
+            uint32 value = 0;
+            for (int32 i = bits-1; i >= 0; --i)
+                if (ReadBit())
+                    value |= (1 << (i));
+
+            return value;
+        }
+
+        // Reads a byte (if needed) in-place
+        void ReadByteSeq(uint8& b)
+        {
+            if (b != 0)
+                b ^= read<uint8>();
+        }
+
+        void WriteByteSeq(uint8 b)
+        {
+            if (b != 0)
+                append<uint8>(b ^ 1);
         }
 
         template <typename T> void put(size_t pos, T value)
         {
             EndianConvert(value);
             put(pos, (uint8 *)&value, sizeof(value));
+        }
+
+        /**
+          * @name   PutBits
+          * @brief  Places specified amount of bits of value at specified position in packet.
+          *         To ensure all bits are correctly written, only call this method after
+          *         bit flush has been performed
+
+          * @param  pos Position to place the value at, in bits. The entire value must fit in the packet
+          *             It is advised to obtain the position using bitwpos() function.
+
+          * @param  value Data to write.
+          * @param  bitCount Number of bits to store the value on.
+        */
+        template <typename T> void PutBits(size_t pos, T value, uint32 bitCount)
+        {
+            if (!bitCount)
+                throw ByteBufferSourceException((pos + bitCount) / 8, size(), 0);
+
+            if (pos + bitCount > size() * 8)
+                throw ByteBufferPositionException(false, (pos + bitCount) / 8, size(), (bitCount - 1) / 8 + 1);
+
+            for (uint32 i = 0; i < bitCount; ++i)
+            {
+                size_t wp = (pos + i) / 8;
+                size_t bit = (pos + i) % 8;
+                if ((value >> (bitCount - i - 1)) & 1)
+                    _storage[wp] |= 1 << (7 - bit);
+                else
+                    _storage[wp] &= ~(1 << (7 - bit));
+            }
         }
 
         ByteBuffer &operator<<(uint8 value)
@@ -275,9 +378,18 @@ class ByteBuffer
             return *this;
         }
 
-        uint8 operator[](size_t pos) const
+        uint8& operator[](size_t const pos)
         {
-            return read<uint8>(pos);
+            if (pos >= size())
+                throw ByteBufferPositionException(false, pos, 1, size());
+            return _storage[pos];
+        }
+
+        uint8 const& operator[](size_t const pos) const
+        {
+            if (pos >= size())
+                throw ByteBufferPositionException(false, pos, 1, size());
+            return _storage[pos];
         }
 
         size_t rpos() const { return _rpos; }
@@ -299,6 +411,16 @@ class ByteBuffer
         {
             _wpos = wpos_;
             return _wpos;
+        }
+
+        /// Returns position of last written bit
+        size_t bitwpos() const { return _wpos * 8 + 8 - _bitpos; }
+
+        size_t bitwpos(size_t newPos)
+        {
+            _wpos = newPos / 8;
+            _bitpos = 8 - (newPos % 8);
+            return _wpos * 8 + 8 - _bitpos;
         }
 
         template<typename T>
@@ -357,6 +479,26 @@ class ByteBuffer
                     guid |= (uint64(bit) << (i * 8));
                 }
             }
+        }
+
+        std::string ReadString(uint32 length)
+        {
+            if (!length)
+                return std::string();
+            char* buffer = new char[length + 1];
+            memset(buffer, 0, length + 1);
+            read((uint8*)buffer, length);
+            std::string retval = buffer;
+            delete[] buffer;
+            return retval;
+        }
+
+        //! Method for writing strings that have their length sent separately in packet
+        //! without null-terminating the string
+        void WriteString(std::string const& str)
+        {
+            if (size_t len = str.length())
+                append(str.c_str(), len);
         }
 
         uint32 ReadPackedTime()
@@ -543,7 +685,8 @@ class ByteBuffer
         }
 
     protected:
-        size_t _rpos, _wpos;
+        size_t _rpos, _wpos, _bitpos;
+        uint8 _curbitval;
         std::vector<uint8> _storage;
 };
 
@@ -652,5 +795,6 @@ inline void ByteBuffer::read_skip<std::string>()
 {
     read_skip<char*>();
 }
+
 #endif
 

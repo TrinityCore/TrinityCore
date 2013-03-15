@@ -1347,24 +1347,6 @@ public:
                 return;
             if (GetCaster()->GetOwner()->ToPlayer())
             {
-                //  Pet's base damage changes depending on happiness
-                if (GetCaster()->isPet() && GetCaster()->ToPet()->isHunterPet())
-                {
-                    switch (GetCaster()->ToPet()->GetHappinessState())
-                    {
-                    case HAPPY:
-                        // 125% of normal damage
-                        amount += 25.0f;
-                        break;
-                    case CONTENT:
-                        // 100% of normal damage, nothing to modify
-                        break;
-                    case UNHAPPY:
-                        // 75% of normal damage
-                        amount += -25.0f;
-                        break;
-                    }
-                }
                 // Cobra Reflexes
                 if (AuraEffect* cobraReflexes = GetCaster()->GetAuraEffectOfRankedSpell(61682, EFFECT_0))
                     amount -= cobraReflexes->GetAmount();

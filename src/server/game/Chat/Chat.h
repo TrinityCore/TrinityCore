@@ -52,7 +52,7 @@ class ChatHandler
         explicit ChatHandler(WorldSession* session) : m_session(session), sentErrorMessage(false) {}
         virtual ~ChatHandler() {}
 
-        static void FillMessageData(WorldPacket* data, WorldSession* session, uint8 type, uint32 language, const char *channelName, uint64 target_guid, const char *message, Unit* speaker);
+        static void FillMessageData(WorldPacket* data, WorldSession* session, uint8 type, uint32 language, const char *channelName, uint64 target_guid, const char *message, Unit* speaker, const char* addonPrefix = NULL);
 
         void FillMessageData(WorldPacket* data, uint8 type, uint32 language, uint64 target_guid, const char* message)
         {

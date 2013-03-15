@@ -446,7 +446,7 @@ public:
 
         if (map->Instanceable())
         {
-            handler->PSendSysMessage(LANG_INVALID_ZONE_MAP, areaEntry->ID, areaEntry->area_name[handler->GetSessionDbcLocale()], map->GetId(), map->GetMapName());
+            handler->PSendSysMessage(LANG_INVALID_ZONE_MAP, areaEntry->ID, areaEntry->area_name, map->GetId(), map->GetMapName());
             handler->SetSentErrorMessage(true);
             return false;
         }

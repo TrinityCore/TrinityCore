@@ -21,13 +21,14 @@
 #include "SharedDefines.h"
 #include "Util.h"
 #include "DBCStructure.h"
-#include "Object.h"
+#include "SpellAuraDefines.h"
 
 class Unit;
 class Player;
 class Item;
 class Spell;
 class SpellInfo;
+class WorldObject;
 struct SpellChainNode;
 struct SpellTargetPosition;
 struct SpellDurationEntry;
@@ -60,7 +61,7 @@ enum SpellCastTargetFlags
     TARGET_FLAG_UNIT_MINIPET    = 0x00010000,               // pguid, used to validate target (if non combat pet)
     TARGET_FLAG_GLYPH_SLOT      = 0x00020000,               // used in glyph spells
     TARGET_FLAG_DEST_TARGET     = 0x00040000,               // sometimes appears with DEST_TARGET spells (may appear or not for a given spell)
-    TARGET_FLAG_UNUSED20        = 0x00080000,               // uint32 counter, loop { vec3 - screen position (?), guid }, not used so far
+    TARGET_FLAG_EXTRA_TARGETS   = 0x00080000,               // uint32 counter, loop { vec3 - screen position (?), guid }, not used so far
     TARGET_FLAG_UNIT_PASSENGER  = 0x00100000,               // guessed, used to validate target (if vehicle passenger)
 
     TARGET_FLAG_UNIT_MASK = TARGET_FLAG_UNIT | TARGET_FLAG_UNIT_RAID | TARGET_FLAG_UNIT_PARTY
@@ -165,7 +166,9 @@ enum SpellSpecificType
     SPELL_SPECIFIC_MAGE_ARCANE_BRILLANCE         = 25,
     SPELL_SPECIFIC_WARRIOR_ENRAGE                = 26,
     SPELL_SPECIFIC_PRIEST_DIVINE_SPIRIT          = 27,
-    SPELL_SPECIFIC_HAND                          = 28
+    SPELL_SPECIFIC_HAND                          = 28,
+    SPELL_SPECIFIC_PHASE                         = 29,
+    SPELL_SPECIFIC_BANE                          = 30
 };
 
 enum SpellCustomAttributes
@@ -197,7 +200,7 @@ class SpellImplicitTargetInfo
 private:
     Targets _target;
 public:
-    SpellImplicitTargetInfo() {}
+    SpellImplicitTargetInfo() : _target(Targets(0)) {}
     SpellImplicitTargetInfo(uint32 target);
 
     bool IsArea() const;
@@ -244,14 +247,19 @@ public:
     SpellImplicitTargetInfo TargetA;
     SpellImplicitTargetInfo TargetB;
     SpellRadiusEntry const* RadiusEntry;
+    SpellRadiusEntry const* MaxRadiusEntry;
     uint32    ChainTarget;
     uint32    ItemType;
     uint32    TriggerSpell;
     flag96    SpellClassMask;
     std::list<Condition*>* ImplicitTargetConditions;
+    // SpellScalingEntry
+    float     ScalingMultiplier;
+    float     DeltaScalingMultiplier;
+    float     ComboScalingMultiplier;
 
     SpellEffectInfo() {}
-    SpellEffectInfo(SpellEntry const* spellEntry, SpellInfo const* spellInfo, uint8 effIndex);
+    SpellEffectInfo(SpellEntry const* spellEntry, SpellInfo const* spellInfo, uint8 effIndex, SpellEffectEntry const* effect);
 
     bool IsEffect() const;
     bool IsEffect(SpellEffects effectName) const;
@@ -269,6 +277,7 @@ public:
     float CalcDamageMultiplier(Unit* caster, Spell* spell = NULL) const;
 
     bool HasRadius() const;
+    bool HasMaxRadius() const;
     float CalcRadius(Unit* caster = NULL, Spell* = NULL) const;
 
     uint32 GetProvidedTargetMask() const;
@@ -301,6 +310,9 @@ public:
     uint32 AttributesEx5;
     uint32 AttributesEx6;
     uint32 AttributesEx7;
+    uint32 AttributesEx8;
+    uint32 AttributesEx9;
+    uint32 AttributesEx10;
     uint32 AttributesCu;
     uint32 Stances;
     uint32 StancesNot;
@@ -335,7 +347,6 @@ public:
     uint32 ManaCost;
     uint32 ManaCostPerlevel;
     uint32 ManaPerSecond;
-    uint32 ManaPerSecondPerLevel;
     uint32 ManaCostPercentage;
     uint32 RuneCostID;
     SpellRangeEntry const* RangeEntry;
@@ -351,8 +362,8 @@ public:
     uint32 SpellVisual[2];
     uint32 SpellIconID;
     uint32 ActiveIconID;
-    char* SpellName[16];
-    char* Rank[16];
+    char* SpellName;
+    char* Rank;
     uint32 MaxTargetLevel;
     uint32 MaxAffectedTargets;
     uint32 SpellFamilyName;
@@ -361,11 +372,51 @@ public:
     uint32 PreventionType;
     int32  AreaGroupId;
     uint32 SchoolMask;
+    uint32 SpellDifficultyId;
+    uint32 SpellScalingId;
+    uint32 SpellAuraOptionsId;
+    uint32 SpellAuraRestrictionsId;
+    uint32 SpellCastingRequirementsId;
+    uint32 SpellCategoriesId;
+    uint32 SpellClassOptionsId;
+    uint32 SpellCooldownsId;
+    uint32 SpellEquippedItemsId;
+    uint32 SpellInterruptsId;
+    uint32 SpellLevelsId;
+    uint32 SpellPowerId;
+    uint32 SpellReagentsId;
+    uint32 SpellShapeshiftId;
+    uint32 SpellTargetRestrictionsId;
+    uint32 SpellTotemsId;
+    // SpellScalingEntry
+    int32  CastTimeMin;
+    int32  CastTimeMax;
+    int32  CastTimeMaxLevel;
+    int32  ScalingClass;
+    float  CoefBase;
+    int32  CoefLevelBase;
     SpellEffectInfo Effects[MAX_SPELL_EFFECTS];
     uint32 ExplicitTargetMask;
     SpellChainNode const* ChainEntry;
 
-    SpellInfo(SpellEntry const* spellEntry);
+    // struct access functions
+    SpellTargetRestrictionsEntry const* GetSpellTargetRestrictions() const;
+    SpellAuraOptionsEntry const* GetSpellAuraOptions() const;
+    SpellAuraRestrictionsEntry const* GetSpellAuraRestrictions() const;
+    SpellCastingRequirementsEntry const* GetSpellCastingRequirements() const;
+    SpellCategoriesEntry const* GetSpellCategories() const;
+    SpellClassOptionsEntry const* GetSpellClassOptions() const;
+    SpellCooldownsEntry const* GetSpellCooldowns() const;
+    SpellEquippedItemsEntry const* GetSpellEquippedItems() const;
+    SpellInterruptsEntry const* GetSpellInterrupts() const;
+    SpellLevelsEntry const* GetSpellLevels() const;
+    SpellPowerEntry const* GetSpellPower() const;
+    SpellReagentsEntry const* GetSpellReagents() const;
+    SpellScalingEntry const* GetSpellScaling() const;
+    SpellShapeshiftEntry const* GetSpellShapeshift() const;
+    SpellTotemsEntry const* GetSpellTotems() const;
+
+    SpellInfo(SpellEntry const* spellEntry, SpellEffectEntry const** effects);
     ~SpellInfo();
 
     bool HasEffect(SpellEffects effect) const;

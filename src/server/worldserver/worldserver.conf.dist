@@ -27,6 +27,7 @@
 #    CHARACTER DELETE OPTIONS
 #    CUSTOM SERVER OPTIONS
 #    LOGGING SYSTEM SETTINGS
+#    CURRENCIES SETTINGS
 #
 ###################################################################################################
 
@@ -578,8 +579,7 @@ StrictPetNames = 0
 #
 #    DBC.Locale
 #        Description: DBC language settings.
-#        Default:     255 - (Auto Detect)
-#                     0   - (English)
+#        Default:     0   - (English)
 #                     1   - (Korean)
 #                     2   - (French)
 #                     3   - (German)
@@ -589,7 +589,7 @@ StrictPetNames = 0
 #                     7   - (Spanish Mexico)
 #                     8   - (Russian)
 
-DBC.Locale = 255
+DBC.Locale = 0
 
 #
 #    DeclinedNames
@@ -603,11 +603,12 @@ DeclinedNames = 0
 #    Expansion
 #        Description: Allow server to use content from expansions. Checks for expansion-related
 #                     map files, client compatibility and class/race character creation.
-#        Default:     2 - (Expansion 2)
+#        Default:     3 - (Expansion 3)
+#                     2 - (Expansion 2)
 #                     1 - (Expansion 1)
 #                     0 - (Disabled, Ignore and disable expansion content (maps, races, classes)
 
-Expansion = 2
+Expansion = 3
 
 #
 #    MinPlayerName
@@ -734,16 +735,16 @@ SkipCinematics = 0
 #        Description: Maximum level that can be reached by players.
 #        Important:   Levels beyond 100 are not recommended at all.
 #        Range:       1-255
-#        Default:     80
+#        Default:     85
 
-MaxPlayerLevel = 80
+MaxPlayerLevel = 85
 
 #
 #    MinDualSpecLevel
 #        Description: Level requirement for Dual Talent Specialization
-#        Default:     40
+#        Default:     30
 
-MinDualSpecLevel = 40
+MinDualSpecLevel = 30
 
 #
 #    StartPlayerLevel
@@ -770,40 +771,12 @@ StartHeroicPlayerLevel = 55
 StartPlayerMoney = 0
 
 #
-#    MaxHonorPoints
-#        Description: Maximum honor points a character can have.
-#        Default:     75000
-
-MaxHonorPoints = 75000
-
-#
-#    StartHonorPoints
-#        Description: Amount of honor points that characters have after creation.
-#        Default:     0
-
-StartHonorPoints = 0
-
-#
-#    MaxArenaPoints
-#        Description: Maximum arena points a character can have.
-#        Default:     10000
-
-MaxArenaPoints = 10000
-
-#
-#    StartArenaPoints
-#        Description: Amount of arena points that characters has after creation.
-#        Default:     0
-
-StartArenaPoints = 0
-
-#
 #    RecruitAFriend.MaxLevel
 #        Description: Highest level up to which a character can benefit from the Recruit-A-Friend
 #                     experience multiplier.
-#        Default:     60
+#        Default:     80
 
-RecruitAFriend.MaxLevel = 60
+RecruitAFriend.MaxLevel = 80
 
 #
 #    RecruitAFriend.MaxDifference
@@ -840,15 +813,6 @@ AllFlightPaths = 0
 #                     1 - (Enabled)
 
 InstantFlightPaths = 0
-
-#
-#    AlwaysMaxSkillForLevel
-#        Description: Players will automatically gain max skill level when logging in or leveling
-#                     up.
-#        Default:     0 - (Disabled)
-#                     1 - (Enabled)
-
-AlwaysMaxSkillForLevel = 0
 
 #
 #    ActivateWeather
@@ -973,6 +937,16 @@ Guild.ResetHour = 6
 Guild.BankEventLogRecordsCount = 25
 
 #
+#    Guild.NewsLogRecordsCount
+#        Description: Number of log entries for guild news that are stored per guild. Old
+#                     entries will be overwritten if the number of log entries exceed the
+#                     configured value. High numbers prevent this behavior but may have performance
+#                     impacts.
+#        Default:     250
+
+Guild.NewsLogRecordsCount = 250
+
+#
 #    MaxPrimaryTradeSkill
 #        Description: Maximum number of primary professions a character can learn.
 #        Range:       0-10
@@ -983,10 +957,10 @@ MaxPrimaryTradeSkill = 2
 #
 #    MinPetitionSigns
 #        Description: Number of required signatures on charters to create a guild.
-#        Range:       0-9
-#        Default:     9
+#        Range:       0-4
+#        Default:     4
 
-MinPetitionSigns = 9
+MinPetitionSigns = 4
 
 #
 #    MaxGroupXPDistance
@@ -1872,19 +1846,13 @@ Rate.InstanceResetTime = 1
 
 #
 #    SkillGain.Crafting
-#    SkillGain.Defense
 #    SkillGain.Gathering
-#    SkillGain.Weapon
 #        Description: Crafting/defense/gathering/weapon skills gain rate.
 #        Default:     1 - (SkillGain.Crafting)
-#                     1 - (SkillGain.Defense)
 #                     1 - (SkillGain.Gathering)
-#                     1 - (SkillGain.Weapon)
 
 SkillGain.Crafting  = 1
-SkillGain.Defense   = 1
 SkillGain.Gathering = 1
-SkillGain.Weapon    = 1
 
 #
 #    SkillChance.Orange
@@ -2756,6 +2724,154 @@ Loggers=Root Chat DBErrors GM RA Warden Character Load WorldServer Opcodes
 #                     1 - (Enabled)
 
 Log.Async.Enable = 0
+
+#
+###################################################################################################
+
+###################################################################################################
+#
+#  GUILD LEVELING SETTINGS
+#
+#    Guild.LevelingEnabled
+#        Description: Controls whether guild can gain levels
+#        Default:     1
+#
+
+Guild.LevelingEnabled = 1
+
+#
+#    Guild.SaveInterval
+#        Description: Time (in minutes) between guild experience saves
+#        Default:     15
+#
+
+Guild.SaveInterval = 15
+
+#
+#    Guild.MaxLevel
+#        Description: Defines max level a guild can reach
+#        Default:     25
+#
+
+Guild.MaxLevel = 25
+
+#
+#    Guild.UndeletableLevel
+#        Description: Guild reaching this level (and higher) cannot be disbanded anymore
+#        Default:     4
+#
+
+Guild.UndeletableLevel = 4
+
+#
+#    Guild.XPModifier
+#        Description: Multiplier for guild experience gained from quests
+#        Default:     0.25
+#
+
+Guild.XPModifier = 0.25
+
+#
+#    Guild.DailyXPCap
+#        Description: Maximum experience points a guild can earn each day
+#        Default:     7807500
+#
+
+Guild.DailyXPCap = 7807500
+
+#
+#    Guild.WeeklyReputationCap
+#        Description: Maximum guild reputation a player can earn every week
+#        Default:     4375
+#
+
+Guild.WeeklyReputationCap = 4375
+
+#
+###################################################################################################
+
+###################################################################################################
+#
+# CURRENCIES SETTINGS
+#
+#    Currency.ResetInterval
+#        How often should currency week count reset (days)
+#        Default: 7 (weekly)
+#
+
+Currency.ResetInterval = 7
+
+#
+#    Currency.ResetWeekDay
+#        Week day when currency week count is reset (0..6) 0 == Sunday
+#        Default: 3 (Wednesday)
+#
+
+Currency.ResetWeekDay = 3
+
+#
+#    Currency.ResetHour
+#        Hour of a day when currency week count is reset (0..23)
+#        Default: 6
+#
+
+Currency.ResetHour = 6
+
+#
+#    Currency.StartHonorPoints
+#        Amount of honor points that new players will start with
+#        Default: 0 (with precision)
+#
+
+Currency.StartHonorPoints = 0
+
+#
+#    Currency.MaxHonorPoints
+#        Amount honor points a player can have
+#        Default: 4000
+#
+
+Currency.MaxHonorPoints = 4000
+
+#
+#    Currency.StartJusticePoints
+#        Amount of justice points that new players will start with
+#        Default: 0 (with precision)
+#
+
+Currency.StartJusticePoints = 0
+
+#
+#    Currency.MaxJusticePoints
+#        Amount justice points a player can have
+#        Default: 4000
+#
+
+Currency.MaxJusticePoints = 4000
+
+#
+#    Currency.StartConquestPoints
+#        Amount of conquest points that new players will start with
+#        Default: 0 (with precision)
+#
+
+Currency.StartConquestPoints = 0
+
+#
+#    Currency.ConquestPointsDefaultWeekCap
+#        Amount of conquest points that player can earn per week
+#        Default: 1350
+#
+
+Currency.ConquestPointsDefaultWeekCap = 1350
+
+#
+#    Currency.ConquestPointsArenaReward
+#        Amount of conquest points rewarded by winning arenas
+#        Default: 180
+#
+
+Currency.ConquestPointsArenaReward = 180
 
 #
 ###################################################################################################

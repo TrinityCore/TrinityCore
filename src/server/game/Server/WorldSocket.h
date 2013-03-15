@@ -161,6 +161,7 @@ class WorldSocket : public WorldHandler
         /// Called by ProcessIncoming() on CMSG_PING.
         int HandlePing(WorldPacket& recvPacket);
 
+        /// Called by CMSG_VERIFY_CONNECTIVITY_RESPONSE
         int HandleSendAuthSession();
 
     private:

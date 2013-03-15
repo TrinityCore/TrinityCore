@@ -61,9 +61,14 @@ void WorldSession::HandlePetAction(WorldPacket& recvData)
     uint64 guid1;
     uint32 data;
     uint64 guid2;
+    float x, y, z;
     recvData >> guid1;                                     //pet guid
     recvData >> data;
     recvData >> guid2;                                     //tag guid
+    // Position
+    recvData >> x;
+    recvData >> y;
+    recvData >> z;
 
     uint32 spellid = UNIT_ACTION_BUTTON_ACTION(data);
     uint8 flag = UNIT_ACTION_BUTTON_TYPE(data);             //delete = 0x07 CastSpell = C1
@@ -98,7 +103,7 @@ void WorldSession::HandlePetAction(WorldPacket& recvData)
         return;
 
     if (GetPlayer()->m_Controlled.size() == 1)
-        HandlePetActionHelper(pet, guid1, spellid, flag, guid2);
+        HandlePetActionHelper(pet, guid1, spellid, flag, guid2, x, y, z);
     else
     {
         //If a pet is dismissed, m_Controlled will change
@@ -107,7 +112,7 @@ void WorldSession::HandlePetAction(WorldPacket& recvData)
             if ((*itr)->GetEntry() == pet->GetEntry() && (*itr)->isAlive())
                 controlled.push_back(*itr);
         for (std::vector<Unit*>::iterator itr = controlled.begin(); itr != controlled.end(); ++itr)
-            HandlePetActionHelper(*itr, guid1, spellid, flag, guid2);
+            HandlePetActionHelper(*itr, guid1, spellid, flag, guid2, x, y, z);
     }
 }
 
@@ -139,7 +144,7 @@ void WorldSession::HandlePetStopAttack(WorldPacket &recvData)
     pet->AttackStop();
 }
 
-void WorldSession::HandlePetActionHelper(Unit* pet, uint64 guid1, uint32 spellid, uint16 flag, uint64 guid2)
+void WorldSession::HandlePetActionHelper(Unit* pet, uint64 guid1, uint32 spellid, uint16 flag, uint64 guid2, float x, float y, float z)
 {
     CharmInfo* charmInfo = pet->GetCharmInfo();
     if (!charmInfo)
@@ -260,6 +265,18 @@ void WorldSession::HandlePetActionHelper(Unit* pet, uint64 guid1, uint32 spellid
                             ((Minion*)pet)->UnSummon();
                         }
                     }
+                    break;
+                case COMMAND_MOVE_TO:
+                    pet->StopMoving();
+                    pet->GetMotionMaster()->Clear(false);
+                    pet->GetMotionMaster()->MovePoint(0, x, y, z);
+                    charmInfo->SetCommandState(COMMAND_MOVE_TO);
+
+                    charmInfo->SetIsCommandAttack(false);
+                    charmInfo->SetIsAtStay(true);
+                    charmInfo->SetIsFollowing(false);
+                    charmInfo->SetIsReturning(false);
+                    charmInfo->SaveStayPosition();
                     break;
                 default:
                     sLog->outError(LOG_FILTER_NETWORKIO, "WORLD: unknown PET flag Action %i and spellid %i.", uint32(flag), spellid);
@@ -683,15 +700,7 @@ void WorldSession::HandlePetAbandon(WorldPacket& recvData)
     if (pet)
     {
         if (pet->isPet())
-        {
-            if (pet->GetGUID() == _player->GetPetGUID())
-            {
-                uint32 feelty = pet->GetPower(POWER_HAPPINESS);
-                pet->SetPower(POWER_HAPPINESS, feelty > 50000 ? (feelty-50000) : 0);
-            }
-
             _player->RemovePet((Pet*)pet, PET_SAVE_AS_DELETED);
-        }
         else if (pet->GetGUID() == _player->GetCharmGUID())
             _player->StopCastingCharm();
     }

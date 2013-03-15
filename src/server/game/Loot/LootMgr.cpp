@@ -861,20 +861,23 @@ ByteBuffer& operator<<(ByteBuffer& b, LootView const& lv)
 {
     if (lv.permission == NONE_PERMISSION)
     {
-        b << uint32(0);                                     //gold
+        b << uint32(0);                                     // gold
         b << uint8(0);                                      // item count
-        return b;                                           // nothing output more
+        b << uint8(0);                                      // currency count
+        return b;
     }
 
     Loot &l = lv.loot;
 
     uint8 itemsShown = 0;
+    uint8 currenciesShown = 0;
 
-    //gold
-    b << uint32(l.gold);
+    b << uint32(l.gold);                                    //gold
 
     size_t count_pos = b.wpos();                            // pos of item count byte
     b << uint8(0);                                          // item count placeholder
+    size_t currency_count_pos = b.wpos();                   // pos of currency count byte
+    b << uint8(0);                                          // currency count placeholder
 
     switch (lv.permission)
     {
@@ -954,7 +957,7 @@ ByteBuffer& operator<<(ByteBuffer& b, LootView const& lv)
             break;
         }
         default:
-            return b;                                       // nothing output more
+            return b;
     }
 
     LootSlotType slotType = lv.permission == OWNER_PERMISSION ? LOOT_SLOT_TYPE_OWNER : LOOT_SLOT_TYPE_ALLOW_LOOT;
@@ -1052,8 +1055,9 @@ ByteBuffer& operator<<(ByteBuffer& b, LootView const& lv)
         }
     }
 
-    //update number of items shown
+    //update number of items and currencies shown
     b.put<uint8>(count_pos, itemsShown);
+    b.put<uint8>(currency_count_pos, currenciesShown);
 
     return b;
 }
@@ -1539,16 +1543,17 @@ void LoadLootTemplates_Disenchant()
     LootIdSet lootIdSet, lootIdSetUsed;
     uint32 count = LootTemplates_Disenchant.LoadAndCollectLootIds(lootIdSet);
 
-    ItemTemplateContainer const* its = sObjectMgr->GetItemTemplateStore();
-    for (ItemTemplateContainer::const_iterator itr = its->begin(); itr != its->end(); ++itr)
+    for (uint32 i = 0; i < sItemDisenchantLootStore.GetNumRows(); ++i)
     {
-        if (uint32 lootid = itr->second.DisenchantID)
-        {
-            if (lootIdSet.find(lootid) == lootIdSet.end())
-                LootTemplates_Disenchant.ReportNotExistedId(lootid);
-            else
-                lootIdSetUsed.insert(lootid);
-        }
+        ItemDisenchantLootEntry const* disenchant = sItemDisenchantLootStore.LookupEntry(i);
+        if (!disenchant)
+            continue;
+
+        uint32 lootid = disenchant->Id;
+        if (lootIdSet.find(lootid) == lootIdSet.end())
+            LootTemplates_Disenchant.ReportNotExistedId(lootid);
+        else
+            lootIdSetUsed.insert(lootid);
     }
 
     for (LootIdSet::const_iterator itr = lootIdSetUsed.begin(); itr != lootIdSetUsed.end(); ++itr)

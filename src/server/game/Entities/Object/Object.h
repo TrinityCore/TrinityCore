@@ -118,6 +118,62 @@ class Transport;
 
 typedef UNORDERED_MAP<Player*, UpdateData> UpdateDataMapType;
 
+//! Structure to ease conversions from single 64 bit integer guid into individual bytes, for packet sending purposes
+//! Nuke this out when porting ObjectGuid from MaNGOS, but preserve the per-byte storage
+struct ObjectGuid
+{
+    public:
+        ObjectGuid() { _data.u64 = 0LL; }
+        ObjectGuid(uint64 guid) { _data.u64 = guid; }
+        ObjectGuid(ObjectGuid const& other) { _data.u64 = other._data.u64; }
+
+        uint8& operator[](uint32 index)
+        {
+            ASSERT(index < sizeof(uint64));
+
+#if TRINITY_ENDIAN == TRINITY_LITTLEENDIAN
+            return _data.byte[index];
+#else
+            return _data.byte[7 - index];
+#endif
+        }
+
+        uint8 const& operator[](uint32 index) const
+        {
+            ASSERT(index < sizeof(uint64));
+
+#if TRINITY_ENDIAN == TRINITY_LITTLEENDIAN
+            return _data.byte[index];
+#else
+            return _data.byte[7 - index];
+#endif
+        }
+
+        operator uint64()
+        {
+            return _data.u64;
+        }
+
+        ObjectGuid& operator=(uint64 guid)
+        {
+            _data.u64 = guid;
+            return *this;
+        }
+
+        ObjectGuid& operator=(ObjectGuid const& other)
+        {
+            _data.u64 = other._data.u64;
+            return *this;
+        }
+
+    private:
+        union
+        {
+            uint64 u64;
+            uint8 byte[8];
+        } _data;
+};
+
 class Object
 {
     public:
@@ -146,7 +202,6 @@ class Object
 
         void BuildValuesUpdateBlockForPlayer(UpdateData* data, Player* target) const;
         void BuildOutOfRangeUpdateBlock(UpdateData* data) const;
-        void BuildMovementUpdateBlock(UpdateData* data, uint32 flags = 0) const;
 
         virtual void DestroyForPlayer(Player* target, bool onDeath = false) const;
 
@@ -211,19 +266,24 @@ class Object
         void ForceValuesUpdateAtIndex(uint32);
 
         Player* ToPlayer() { if (GetTypeId() == TYPEID_PLAYER) return reinterpret_cast<Player*>(this); else return NULL; }
-        Player const* ToPlayer() const { if (GetTypeId() == TYPEID_PLAYER) return (Player const*)((Player*)this); else return NULL; }
-        Creature* ToCreature() { if (GetTypeId() == TYPEID_UNIT) return reinterpret_cast<Creature*>(this); else return NULL; }
-        Creature const* ToCreature() const { if (GetTypeId() == TYPEID_UNIT) return (Creature const*)((Creature*)this); else return NULL; }
+        Player const* ToPlayer() const { if (GetTypeId() == TYPEID_PLAYER) return reinterpret_cast<Player const*>(this); else return NULL; }
 
-        Unit* ToUnit() { if (GetTypeId() == TYPEID_UNIT || GetTypeId() == TYPEID_PLAYER) return reinterpret_cast<Unit*>(this); else return NULL; }
-        Unit const* ToUnit() const { if (GetTypeId() == TYPEID_UNIT || GetTypeId() == TYPEID_PLAYER) return (const Unit*)((Unit*)this); else return NULL; }
+        Creature* ToCreature() { if (GetTypeId() == TYPEID_UNIT) return reinterpret_cast<Creature*>(this); else return NULL; }
+        Creature const* ToCreature() const { if (GetTypeId() == TYPEID_UNIT) return reinterpret_cast<Creature const*>(this); else return NULL; }
+
+        Unit* ToUnit() { if (isType(TYPEMASK_UNIT)) return reinterpret_cast<Unit*>(this); else return NULL; }
+        Unit const* ToUnit() const { if (isType(TYPEMASK_UNIT)) return reinterpret_cast<Unit const*>(this); else return NULL; }
+
         GameObject* ToGameObject() { if (GetTypeId() == TYPEID_GAMEOBJECT) return reinterpret_cast<GameObject*>(this); else return NULL; }
-        GameObject const* ToGameObject() const { if (GetTypeId() == TYPEID_GAMEOBJECT) return (const GameObject*)((GameObject*)this); else return NULL; }
+        GameObject const* ToGameObject() const { if (GetTypeId() == TYPEID_GAMEOBJECT) return reinterpret_cast<GameObject const*>(this); else return NULL; }
 
         Corpse* ToCorpse() { if (GetTypeId() == TYPEID_CORPSE) return reinterpret_cast<Corpse*>(this); else return NULL; }
-        Corpse const* ToCorpse() const { if (GetTypeId() == TYPEID_CORPSE) return (const Corpse*)((Corpse*)this); else return NULL; }
-    protected:
+        Corpse const* ToCorpse() const { if (GetTypeId() == TYPEID_CORPSE) return reinterpret_cast<Corpse const*>(this); else return NULL; }
 
+        DynamicObject* ToDynObject() { if (GetTypeId() == TYPEID_DYNAMICOBJECT) return reinterpret_cast<DynamicObject*>(this); else return NULL; }
+        DynamicObject const* ToDynObject() const { if (GetTypeId() == TYPEID_DYNAMICOBJECT) return reinterpret_cast<DynamicObject const*>(this); else return NULL; }
+
+    protected:
         Object();
 
         void _InitValues();
@@ -286,21 +346,24 @@ struct Position
     float m_positionX;
     float m_positionY;
     float m_positionZ;
+// Better to limit access to m_orientation field, but this will be hard to achieve with many scripts using array initialization for this structure
+//private:
     float m_orientation;
+//public:
 
     void Relocate(float x, float y)
         { m_positionX = x; m_positionY = y;}
     void Relocate(float x, float y, float z)
         { m_positionX = x; m_positionY = y; m_positionZ = z; }
     void Relocate(float x, float y, float z, float orientation)
-        { m_positionX = x; m_positionY = y; m_positionZ = z; m_orientation = orientation; }
+        { m_positionX = x; m_positionY = y; m_positionZ = z; SetOrientation(orientation); }
     void Relocate(const Position &pos)
-        { m_positionX = pos.m_positionX; m_positionY = pos.m_positionY; m_positionZ = pos.m_positionZ; m_orientation = pos.m_orientation; }
+        { m_positionX = pos.m_positionX; m_positionY = pos.m_positionY; m_positionZ = pos.m_positionZ; SetOrientation(pos.m_orientation); }
     void Relocate(const Position* pos)
-        { m_positionX = pos->m_positionX; m_positionY = pos->m_positionY; m_positionZ = pos->m_positionZ; m_orientation = pos->m_orientation; }
+        { m_positionX = pos->m_positionX; m_positionY = pos->m_positionY; m_positionZ = pos->m_positionZ; SetOrientation(pos->m_orientation); }
     void RelocateOffset(const Position &offset);
     void SetOrientation(float orientation)
-        { m_orientation = orientation; }
+    { m_orientation = NormalizeOrientation(orientation); }
 
     float GetPositionX() const { return m_positionX; }
     float GetPositionY() const { return m_positionY; }
@@ -364,9 +427,24 @@ struct Position
         { return GetExactDistSq(x, y, z) < dist * dist; }
     bool IsInDist(const Position* pos, float dist) const
         { return GetExactDistSq(pos) < dist * dist; }
-    bool HasInArc(float arcangle, const Position* pos) const;
+    bool HasInArc(float arcangle, const Position* pos, float border = 2.0f) const;
     bool HasInLine(WorldObject const* target, float width) const;
     std::string ToString() const;
+
+    // modulos a radian orientation to the range of 0..2PI
+    static float NormalizeOrientation(float o)
+    {
+        // fmod only supports positive numbers. Thus we have
+        // to emulate negative numbers
+        if (o < 0)
+        {
+            float mod = o *-1;
+            mod = fmod(mod, 2.0f * static_cast<float>(M_PI));
+            mod = -mod + 2.0f * static_cast<float>(M_PI);
+            return mod;
+        }
+        return fmod(o, 2.0f * static_cast<float>(M_PI));
+    }
 };
 ByteBuffer& operator>>(ByteBuffer& buf, Position::PositionXYZOStreamer const& streamer);
 ByteBuffer& operator<<(ByteBuffer& buf, Position::PositionXYZStreamer const& streamer);
@@ -376,25 +454,26 @@ ByteBuffer& operator<<(ByteBuffer& buf, Position::PositionXYZOStreamer const& st
 struct MovementInfo
 {
     // common
-    uint64  guid;
-    uint32  flags;
-    uint16  flags2;
+    uint64 guid;
+    uint32 flags;
+    uint16 flags2;
     Position pos;
-    uint32  time;
+    uint32 time;
     // transport
-    uint64  t_guid;
+    uint64 t_guid;
     Position t_pos;
-    uint32  t_time;
-    uint32  t_time2;
-    int8    t_seat;
+    int8 t_seat;
+    uint32 t_time;
+    uint32 t_time2;
+    uint32 t_time3;
     // swimming/flying
-    float   pitch;
+    float pitch;
     // falling
-    uint32  fallTime;
+    uint32 fallTime;
     // jumping
-    float   j_zspeed, j_sinAngle, j_cosAngle, j_xyspeed;
+    float j_zspeed, j_cosAngle, j_sinAngle, j_xyspeed;
     // spline
-    float   splineElevation;
+    float splineElevation;
 
     MovementInfo()
     {
@@ -402,7 +481,7 @@ struct MovementInfo
         guid = 0;
         flags = 0;
         flags2 = 0;
-        time = t_time = t_time2 = fallTime = 0;
+        time = t_time = t_time2 = t_time3 = fallTime = 0;
         splineElevation = 0;
         pitch = j_zspeed = j_sinAngle = j_cosAngle = j_xyspeed = 0.0f;
         t_guid = 0;

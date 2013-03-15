@@ -59,7 +59,7 @@ class AuraEffect
         void SetPeriodicTimer(int32 periodicTimer) { m_periodicTimer = periodicTimer; }
 
         int32 CalculateAmount(Unit* caster);
-        void CalculatePeriodic(Unit* caster, bool create = false, bool load = false);
+        void CalculatePeriodic(Unit* caster, bool resetPeriodicTimer = true, bool load = false);
         void CalculateSpellMod();
         void ChangeAmount(int32 newAmount, bool mark = true, bool onStackOrReapply = false);
         void RecalculateAmount() { if (!CanBeRecalculated()) return; ChangeAmount(CalculateAmount(GetCaster()), false); }
@@ -79,7 +79,7 @@ class AuraEffect
 
         bool IsPeriodic() const { return m_isPeriodic; }
         void SetPeriodic(bool isPeriodic) { m_isPeriodic = isPeriodic; }
-        bool IsAffectedOnSpell(SpellInfo const* spell) const;
+        bool IsAffectingSpell(SpellInfo const* spell) const;
         bool HasSpellClassMask() const { return m_spellInfo->Effects[m_effIndex].SpellClassMask; }
 
         void SendTickImmune(Unit* target, Unit* caster) const;
@@ -242,7 +242,6 @@ class AuraEffect
         void HandleModAttackSpeed(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleModMeleeSpeedPct(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraModRangedHaste(AuraApplication const* aurApp, uint8 mode, bool apply) const;
-        void HandleRangedAmmoHaste(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         //   combat rating
         void HandleModRating(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleModRatingFromStat(AuraApplication const* aurApp, uint8 mode, bool apply) const;
@@ -251,8 +250,6 @@ class AuraEffect
         void HandleAuraModRangedAttackPower(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraModAttackPowerPercent(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraModRangedAttackPowerPercent(AuraApplication const* aurApp, uint8 mode, bool apply) const;
-        void HandleAuraModRangedAttackPowerOfStatPercent(AuraApplication const* aurApp, uint8 mode, bool apply) const;
-        void HandleAuraModAttackPowerOfStatPercent(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraModAttackPowerOfArmor(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         //   damage bonus
         void HandleModDamageDone(AuraApplication const* aurApp, uint8 mode, bool apply) const;
@@ -280,6 +277,7 @@ class AuraEffect
         void HandleAuraOverrideSpells(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraSetVehicle(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandlePreventResurrection(AuraApplication const* aurApp, uint8 mode, bool apply) const;
+        void HandleAuraForceWeather(AuraApplication const* aurApp, uint8 mode, bool apply) const;
 
         // aura effect periodic tick handlers
         void HandlePeriodicDummyAuraTick(Unit* target, Unit* caster) const;

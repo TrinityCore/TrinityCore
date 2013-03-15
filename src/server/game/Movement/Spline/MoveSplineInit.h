@@ -59,6 +59,10 @@ namespace Movement
          */
         int32 Launch();
 
+        /*  Final pass of initialization that stops movement.
+         */
+        void Stop();
+
         /* Adds movement by parabolic trajectory
          * @param amplitude  - the maximum height of parabola, value could be negative and positive
          * @param start_time - delay between movement starting time and beginning to move by parabolic trajectory
@@ -103,6 +107,10 @@ namespace Movement
         void SetFly();
         /* Enables walk mode. Disabled by default
          */
+        void EnableTaxiFlight();
+        /* Flags used in taxi
+        */
+
         void SetWalk(bool enable);
         /* Makes movement cyclic. Disabled by default
          */
@@ -141,11 +149,10 @@ namespace Movement
         Unit*  unit;
     };
 
-    inline void MoveSplineInit::SetFly() { args.flags.EnableFlying(); }
+    inline void MoveSplineInit::SetFly() { args.flags.flying = true; }
     inline void MoveSplineInit::SetWalk(bool enable) { args.flags.walkmode = enable; }
     inline void MoveSplineInit::SetSmooth() { args.flags.EnableCatmullRom(); }
     inline void MoveSplineInit::SetCyclic() { args.flags.cyclic = true; }
-    inline void MoveSplineInit::SetFall() { args.flags.EnableFalling();}
     inline void MoveSplineInit::SetVelocity(float vel) { args.velocity = vel; args.HasVelocity = true; }
     inline void MoveSplineInit::SetOrientationInversed() { args.flags.orientationInversed = true;}
     inline void MoveSplineInit::SetTransportEnter() { args.flags.EnableTransportEnter(); }

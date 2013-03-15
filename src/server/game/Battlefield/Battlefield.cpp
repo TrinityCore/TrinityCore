@@ -38,6 +38,7 @@ Battlefield::Battlefield()
     m_isActive = false;
     m_DefenderTeam = TEAM_NEUTRAL;
 
+    m_Guid = 0;
     m_TypeId = 0;
     m_BattleId = 0;
     m_ZoneId = 0;
@@ -107,7 +108,7 @@ void Battlefield::HandlePlayerLeaveZone(Player* player, uint32 /*zone*/)
         if (m_PlayersInWar[player->GetTeamId()].find(player->GetGUID()) != m_PlayersInWar[player->GetTeamId()].end())
         {
             m_PlayersInWar[player->GetTeamId()].erase(player->GetGUID());
-            player->GetSession()->SendBfLeaveMessage(m_BattleId);
+            player->GetSession()->SendBfLeaveMessage(m_Guid);
             if (Group* group = player->GetGroup()) // Remove the player from the raid group
                 group->RemoveMember(player->GetGUID());
 
@@ -211,7 +212,7 @@ void Battlefield::InvitePlayerToQueue(Player* player)
         return;
 
     if (m_PlayersInQueue[player->GetTeamId()].size() <= m_MinPlayer || m_PlayersInQueue[GetOtherTeam(player->GetTeamId())].size() >= m_MinPlayer)
-        player->GetSession()->SendBfInvitePlayerToQueue(m_BattleId);
+        player->GetSession()->SendBfInvitePlayerToQueue(m_Guid);
 }
 
 void Battlefield::InvitePlayersInQueueToWar()
@@ -280,7 +281,7 @@ void Battlefield::InvitePlayerToWar(Player* player)
 
     m_PlayersWillBeKick[player->GetTeamId()].erase(player->GetGUID());
     m_InvitedPlayers[player->GetTeamId()][player->GetGUID()] = time(NULL) + m_TimeForAcceptInvite;
-    player->GetSession()->SendBfInvitePlayerToWar(m_BattleId, m_ZoneId, m_TimeForAcceptInvite);
+    player->GetSession()->SendBfInvitePlayerToWar(m_Guid, m_ZoneId, m_TimeForAcceptInvite);
 }
 
 void Battlefield::InitStalker(uint32 entry, float x, float y, float z, float o)
@@ -376,7 +377,7 @@ void Battlefield::PlayerAcceptInviteToQueue(Player* player)
     // Add player in queue
     m_PlayersInQueue[player->GetTeamId()].insert(player->GetGUID());
     // Send notification
-    player->GetSession()->SendBfQueueInviteResponse(m_BattleId, m_ZoneId);
+    player->GetSession()->SendBfQueueInviteResponse(m_Guid, m_ZoneId);
 }
 
 // Called in WorldSession::HandleBfExitRequest
@@ -394,7 +395,7 @@ void Battlefield::PlayerAcceptInviteToWar(Player* player)
 
     if (AddOrSetPlayerToCorrectBfGroup(player))
     {
-        player->GetSession()->SendBfEntered(m_BattleId);
+        player->GetSession()->SendBfEntered(m_Guid);
         m_PlayersInWar[player->GetTeamId()].insert(player->GetGUID());
         m_InvitedPlayers[player->GetTeamId()].erase(player->GetGUID());
 
@@ -458,6 +459,8 @@ WorldPacket Battlefield::BuildWarningAnnPacket(std::string const& msg)
     data << uint64(0);
     data << uint32(msg.length() + 1);
     data << msg;
+    data << uint8(0);
+    data << float(0);
     data << uint8(0);
 
     return data;

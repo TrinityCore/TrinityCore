@@ -191,13 +191,13 @@ public:
         }
 
         Creature* creature = new Creature();
-        if (!creature->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_UNIT), map, chr->GetPhaseMaskForSpawn(), id, 0, (uint32)teamval, x, y, z, o))
+        if (!creature->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_UNIT), map, chr->GetPhaseMgr().GetPhaseMaskForSpawn(), id, 0, (uint32)teamval, x, y, z, o))
         {
             delete creature;
             return false;
         }
 
-        creature->SaveToDB(map->GetId(), (1 << map->GetSpawnMode()), chr->GetPhaseMaskForSpawn());
+        creature->SaveToDB(map->GetId(), (1 << map->GetSpawnMode()), chr->GetPhaseMgr().GetPhaseMaskForSpawn());
 
         uint32 db_guid = creature->GetDBTableGUIDLow();
 
@@ -217,6 +217,8 @@ public:
     {
         if (!*args)
             return false;
+
+        const uint8 type = 1; // FIXME: make type (1 item, 2 currency) an argument
 
         char* pitem  = handler->extractKeyFromLink((char*)args, "Hitem");
         if (!pitem)
@@ -254,13 +256,13 @@ public:
 
         uint32 vendor_entry = vendor ? vendor->GetEntry() : 0;
 
-        if (!sObjectMgr->IsVendorItemValid(vendor_entry, itemId, maxcount, incrtime, extendedcost, handler->GetSession()->GetPlayer()))
+        if (!sObjectMgr->IsVendorItemValid(vendor_entry, itemId, maxcount, incrtime, extendedcost, type, handler->GetSession()->GetPlayer()))
         {
             handler->SetSentErrorMessage(true);
             return false;
         }
 
-        sObjectMgr->AddVendorItem(vendor_entry, itemId, maxcount, incrtime, extendedcost);
+        sObjectMgr->AddVendorItem(vendor_entry, itemId, maxcount, incrtime, extendedcost, type);
 
         ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(itemId);
 
@@ -475,7 +477,9 @@ public:
         }
         uint32 itemId = atol(pitem);
 
-        if (!sObjectMgr->RemoveVendorItem(vendor->GetEntry(), itemId))
+        const uint8 type = 1; // FIXME: make type (1 item, 2 currency) an argument
+
+        if (!sObjectMgr->RemoveVendorItem(vendor->GetEntry(), itemId, type))
         {
             handler->PSendSysMessage(LANG_ITEM_NOT_IN_LIST, itemId);
             handler->SetSentErrorMessage(true);

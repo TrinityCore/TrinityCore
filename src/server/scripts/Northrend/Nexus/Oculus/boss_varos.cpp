@@ -20,7 +20,6 @@
 #include "SpellScript.h"
 #include "SpellAuraEffects.h"
 #include "oculus.h"
-#include "MapManager.h"
 
 enum Says
 {
@@ -121,7 +120,7 @@ public:
                             coreEnergizeOrientation = me->GetOrientation();
                             firstCoreEnergize = true;
                         } else
-                            coreEnergizeOrientation = MapManager::NormalizeOrientation(coreEnergizeOrientation - 2.0f);
+                            coreEnergizeOrientation = Position::NormalizeOrientation(coreEnergizeOrientation - 2.0f);
 
                         DoCast(me, SPELL_ENERGIZE_CORES_VISUAL);
                         events.ScheduleEvent(EVENT_ENERGIZE_CORES_VISUAL, 5000);

@@ -75,8 +75,6 @@ class Pet : public Guardian
                 return m_autospells[pos];
         }
 
-        void LoseHappiness();
-        HappinessState GetHappinessState();
         void GivePetXP(uint32 xp);
         void GivePetLevel(uint8 level);
         void SynchronizeLevelWithOwner();
@@ -147,7 +145,6 @@ class Pet : public Guardian
         Player* GetOwner() const { return m_owner; }
     protected:
         Player* m_owner;
-        uint32  m_happinessTimer;
         PetType m_petType;
         int32   m_duration;                                 // time until unsummon (used mostly for summoned guardians and not used for controlled pets)
         uint64  m_auraRaidUpdateMask;

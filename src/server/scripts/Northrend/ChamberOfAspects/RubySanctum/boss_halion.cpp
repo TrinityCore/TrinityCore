@@ -20,7 +20,6 @@
 #include "SpellAuraEffects.h"
 #include "Spell.h"
 #include "Vehicle.h"
-#include "MapManager.h"
 #include "GameObjectAI.h"
 #include "ScriptedCreature.h"
 #include "ruby_sanctum.h"
@@ -1020,7 +1019,7 @@ class npc_meteor_strike_initial : public CreatureScript
                     _meteorList.clear();
                     for (uint8 i = 0; i < 4; i++)
                     {
-                        angle[i] = MapManager::NormalizeOrientation(angle[i]);
+                        angle[i] = Position::NormalizeOrientation(angle[i]);
                         me->SetOrientation(angle[i]);
                         me->GetNearPosition(newPos, 10.0f, 0.0f); // Exact distance
                         if (Creature* meteor = me->SummonCreature(NPC_METEOR_STRIKE_NORTH + i, newPos, TEMPSUMMON_TIMED_DESPAWN, 30000))
