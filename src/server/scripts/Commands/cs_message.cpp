@@ -213,12 +213,12 @@ public:
                 if (Player* player = sObjectAccessor->FindPlayerByName(name))
                 {
                     handler->GetSession()->GetPlayer()->RemoveFromWhisperWhiteList(player->GetGUID());
-                    handler->PSendSysMessage(LANG_COMMAND_WHISPEROFFPLAYER, name);
+                    handler->PSendSysMessage(LANG_COMMAND_WHISPEROFFPLAYER, name.c_str());
                     return true;
                 }
                 else
                 {
-                    handler->PSendSysMessage(LANG_PLAYER_NOT_FOUND, name);
+                    handler->PSendSysMessage(LANG_PLAYER_NOT_FOUND, name.c_str());
                     handler->SetSentErrorMessage(true);
                     return false;
                 }
