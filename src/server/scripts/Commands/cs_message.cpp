@@ -27,6 +27,7 @@ EndScriptData */
 #include "ChannelMgr.h"
 #include "Language.h"
 #include "Player.h"
+#include "ObjectMgr.h"
 
 class message_commandscript : public CommandScript
 {
