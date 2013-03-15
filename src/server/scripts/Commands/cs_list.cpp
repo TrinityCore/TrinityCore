@@ -548,9 +548,8 @@ public:
                                         if (handler->GetSession())
                                         {
                                             uint32 color = ItemQualityColors[item_quality];
-                                            std::ostringstream colorStr,itemStr;
-                                            colorStr << std::hex << color ;
-                                            itemStr << "|c" << colorStr.str() << "|Hitem:" << item_entry << ":0:0:0:0:0:0:0:0:0|h[" << item_name << "]|h|r";
+                                            std::ostringstream itemStr;
+                                            itemStr << "|c" << std::hex << color << "|Hitem:" << item_entry << ":0:0:0:0:0:0:0:0:0|h[" << item_name << "]|h|r";
                                             handler->PSendSysMessage(LANG_LIST_MAIL_INFO_ITEM, itemStr.str().c_str(), item_entry, item_guid, item_count);
                                         }
                                         else
