@@ -29,6 +29,7 @@ EndScriptData */
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "Player.h"
+#include <iostream>
 
 class list_commandscript : public CommandScript
 {
@@ -546,34 +547,10 @@ public:
                                         int item_quality        = fields1[1].GetUInt8();
                                         if (handler->GetSession())
                                         {
-                                            std::string colorStr;
-                                            switch (item_quality)
-                                            {
-                                                case 0:
-                                                    colorStr="ff9d9d9d";
-                                                    break;
-                                                case 2:
-                                                    colorStr="ff1eff00";
-                                                    break;
-                                                case 3:
-                                                    colorStr="ff0070dd";
-                                                    break;
-                                                case 4:
-                                                    colorStr="ffa335ee";
-                                                    break;
-                                                case 5:
-                                                    colorStr="ffff8000";
-                                                    break;
-                                                case 6:
-                                                case 7:
-                                                    colorStr="ffe6cc80";
-                                                    break;
-                                                default:
-                                                    colorStr="ffffffff";
-                                                    break;
-                                            }
-                                            std::ostringstream itemStr;
-                                            itemStr << "|c" << colorStr.c_str() << "|Hitem:" << item_entry << ":0:0:0:0:0:0:0:0:0|h[" << item_name.c_str() << "]|h|r";
+                                            uint32 color = ItemQualityColors[item_quality];
+                                            std::ostringstream colorStr,itemStr;
+                                            colorStr << std::hex << color ;
+                                            itemStr << "|c" << colorStr.str() << "|Hitem:" << item_entry << ":0:0:0:0:0:0:0:0:0|h[" << item_name << "]|h|r";
                                             handler->PSendSysMessage(LANG_LIST_MAIL_INFO_ITEM, itemStr.str().c_str(), item_entry, item_guid, item_count);
                                         }
                                         else
