@@ -45,7 +45,7 @@ public:
     uint32 size;
 
     struct adtData{
-        uint32 exist;
+        uint32 flag;
         uint32 data1;
     } adt_list[64][64];
 

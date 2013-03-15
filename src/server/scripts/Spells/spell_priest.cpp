@@ -33,13 +33,20 @@ enum PriestSpells
     SPELL_PRIEST_EMPOWERED_RENEW                    = 63544,
     SPELL_PRIEST_GLYPH_OF_LIGHTWELL                 = 55673,
     SPELL_PRIEST_GLYPH_OF_PRAYER_OF_HEALING_HEAL    = 56161,
+    SPELL_PRIEST_GLYPH_OF_SHADOW                    = 107906,
     SPELL_PRIEST_GUARDIAN_SPIRIT_HEAL               = 48153,
+    SPELL_PRIEST_LEAP_OF_FAITH                      = 73325,
+    SPELL_PRIEST_LEAP_OF_FAITH_EFFECT               = 92832,
+    SPELL_PRIEST_LEAP_OF_FAITH_EFFECT_TRIGGER       = 92833,
+    SPELL_PRIEST_LEAP_OF_FAITH_TRIGGERED            = 92572,
     SPELL_PRIEST_MANA_LEECH_PROC                    = 34650,
     SPELL_PRIEST_PENANCE_R1                         = 47540,
     SPELL_PRIEST_PENANCE_R1_DAMAGE                  = 47758,
     SPELL_PRIEST_PENANCE_R1_HEAL                    = 47757,
-    SPELL_PRIEST_REFLECTIVE_SHIELD_TRIGGERED        = 33619,
     SPELL_PRIEST_REFLECTIVE_SHIELD_R1               = 33201,
+    SPELL_PRIEST_REFLECTIVE_SHIELD_TRIGGERED        = 33619,
+    SPELL_PRIEST_SHADOWFORM_VISUAL_WITHOUT_GLYPH    = 107903,
+    SPELL_PRIEST_SHADOWFORM_VISUAL_WITH_GLYPH       = 107904,
     SPELL_PRIEST_SHADOW_WORD_DEATH                  = 32409,
     SPELL_PRIEST_T9_HEALING_2P                      = 67201,
     SPELL_PRIEST_VAMPIRIC_TOUCH_DISPEL              = 64085,
@@ -140,7 +147,7 @@ class spell_pri_glyph_of_prayer_of_healing : public SpellScriptLoader
         }
 };
 
-// -47788 - Guardian Spirit
+// 47788 - Guardian Spirit
 class spell_pri_guardian_spirit : public SpellScriptLoader
 {
     public:
@@ -197,6 +204,46 @@ class spell_pri_guardian_spirit : public SpellScriptLoader
         }
 };
 
+// 92833 - Leap of Faith
+class spell_pri_leap_of_faith_effect_trigger : public SpellScriptLoader
+{
+    public:
+        spell_pri_leap_of_faith_effect_trigger() : SpellScriptLoader("spell_pri_leap_of_faith_effect_trigger") { }
+
+        class spell_pri_leap_of_faith_effect_trigger_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_pri_leap_of_faith_effect_trigger_SpellScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_PRIEST_LEAP_OF_FAITH_EFFECT))
+                    return false;
+                return true;
+            }
+
+            void HandleEffectDummy(SpellEffIndex /*effIndex*/)
+            {
+                Position destPos;
+                GetHitDest()->GetPosition(&destPos);
+
+                SpellCastTargets targets;
+                targets.SetDst(destPos);
+                targets.SetUnitTarget(GetCaster());
+                GetHitUnit()->CastSpell(targets, sSpellMgr->GetSpellInfo(GetEffectValue()), NULL);
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_pri_leap_of_faith_effect_trigger_SpellScript::HandleEffectDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_pri_leap_of_faith_effect_trigger_SpellScript();
+        }
+};
+
 // -7001 - Lightwell Renew
 class spell_pri_lightwell_renew : public SpellScriptLoader
 {
@@ -229,7 +276,7 @@ class spell_pri_lightwell_renew : public SpellScriptLoader
         }
 };
 
-// -8129 - Mana Burn
+// 8129 - Mana Burn
 class spell_pri_mana_burn : public SpellScriptLoader
 {
     public:
@@ -308,7 +355,7 @@ class spell_pri_mana_leech : public SpellScriptLoader
         }
 };
 
-// -49821 - Mind Sear
+// 49821 - Mind Sear
 class spell_pri_mind_sear : public SpellScriptLoader
 {
     public:
@@ -365,7 +412,7 @@ class spell_pri_pain_and_suffering_proc : public SpellScriptLoader
         }
 };
 
-// -47540 - Penance
+// 47540 - Penance
 class spell_pri_penance : public SpellScriptLoader
 {
     public:
@@ -547,7 +594,50 @@ class spell_pri_prayer_of_mending_heal : public SpellScriptLoader
         }
 };
 
-// -139 - Renew
+// 17 - Reflective Shield
+class spell_pri_reflective_shield_trigger : public SpellScriptLoader
+{
+    public:
+        spell_pri_reflective_shield_trigger() : SpellScriptLoader("spell_pri_reflective_shield_trigger") { }
+
+        class spell_pri_reflective_shield_trigger_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_pri_reflective_shield_trigger_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_PRIEST_REFLECTIVE_SHIELD_TRIGGERED) || !sSpellMgr->GetSpellInfo(SPELL_PRIEST_REFLECTIVE_SHIELD_R1))
+                    return false;
+                return true;
+            }
+
+            void Trigger(AuraEffect* aurEff, DamageInfo & dmgInfo, uint32 & absorbAmount)
+            {
+                Unit* target = GetTarget();
+                if (dmgInfo.GetAttacker() == target)
+                    return;
+
+                if (GetCaster())
+                    if (AuraEffect* talentAurEff = target->GetAuraEffectOfRankedSpell(SPELL_PRIEST_REFLECTIVE_SHIELD_R1, EFFECT_0))
+                    {
+                        int32 bp = CalculatePct(absorbAmount, talentAurEff->GetAmount());
+                        target->CastCustomSpell(dmgInfo.GetAttacker(), SPELL_PRIEST_REFLECTIVE_SHIELD_TRIGGERED, &bp, NULL, NULL, true, NULL, aurEff);
+                    }
+            }
+
+            void Register()
+            {
+                 AfterEffectAbsorb += AuraEffectAbsorbFn(spell_pri_reflective_shield_trigger_AuraScript::Trigger, EFFECT_0);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_pri_reflective_shield_trigger_AuraScript();
+        }
+};
+
+// 139 - Renew
 class spell_pri_renew : public SpellScriptLoader
 {
     public:
@@ -590,7 +680,7 @@ class spell_pri_renew : public SpellScriptLoader
         }
 };
 
-// -32379 - Shadow Word Death
+// 32379 - Shadow Word Death
 class spell_pri_shadow_word_death : public SpellScriptLoader
 {
     public:
@@ -623,7 +713,48 @@ class spell_pri_shadow_word_death : public SpellScriptLoader
         }
 };
 
-// -34914 - Vampiric Touch
+// 15473 - Shadowform
+class spell_pri_shadowform : public SpellScriptLoader
+{
+    public:
+        spell_pri_shadowform() : SpellScriptLoader("spell_pri_shadowform") { }
+
+        class spell_pri_shadowform_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_pri_shadowform_AuraScript);
+
+            bool Validate(SpellInfo const* /*spellInfo*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_PRIEST_SHADOWFORM_VISUAL_WITHOUT_GLYPH) ||
+                    !sSpellMgr->GetSpellInfo(SPELL_PRIEST_SHADOWFORM_VISUAL_WITH_GLYPH))
+                    return false;
+                return true;
+            }
+
+            void HandleEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                GetTarget()->CastSpell(GetTarget(), GetTarget()->HasAura(SPELL_PRIEST_GLYPH_OF_SHADOW) ? SPELL_PRIEST_SHADOWFORM_VISUAL_WITH_GLYPH : SPELL_PRIEST_SHADOWFORM_VISUAL_WITHOUT_GLYPH, true);
+            }
+
+            void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                GetTarget()->RemoveAurasDueToSpell(GetTarget()->HasAura(SPELL_PRIEST_GLYPH_OF_SHADOW) ? SPELL_PRIEST_SHADOWFORM_VISUAL_WITH_GLYPH : SPELL_PRIEST_SHADOWFORM_VISUAL_WITHOUT_GLYPH);
+            }
+
+            void Register()
+            {
+                AfterEffectApply += AuraEffectApplyFn(spell_pri_shadowform_AuraScript::HandleEffectApply, EFFECT_0, SPELL_AURA_MOD_SHAPESHIFT, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+                AfterEffectRemove += AuraEffectRemoveFn(spell_pri_shadowform_AuraScript::HandleEffectRemove, EFFECT_0, SPELL_AURA_MOD_SHAPESHIFT, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_pri_shadowform_AuraScript();
+        }
+};
+
+// 34914 - Vampiric Touch
 class spell_pri_vampiric_touch : public SpellScriptLoader
 {
     public:
@@ -633,7 +764,7 @@ class spell_pri_vampiric_touch : public SpellScriptLoader
         {
             PrepareAuraScript(spell_pri_vampiric_touch_AuraScript);
 
-            bool Validate(SpellInfo const* /*spell*/)
+            bool Validate(SpellInfo const* /*spellInfo*/)
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_PRIEST_VAMPIRIC_TOUCH_DISPEL))
                     return false;
@@ -669,6 +800,7 @@ void AddSC_priest_spell_scripts()
     new spell_pri_divine_aegis();
     new spell_pri_glyph_of_prayer_of_healing();
     new spell_pri_guardian_spirit();
+    new spell_pri_leap_of_faith_effect_trigger();
     new spell_pri_lightwell_renew();
     new spell_pri_mana_burn();
     new spell_pri_mana_leech();
@@ -677,7 +809,9 @@ void AddSC_priest_spell_scripts()
     new spell_pri_penance();
     new spell_pri_power_word_shield();
     new spell_pri_prayer_of_mending_heal();
+    new spell_pri_reflective_shield_trigger();
     new spell_pri_renew();
     new spell_pri_shadow_word_death();
+    new spell_pri_shadowform();
     new spell_pri_vampiric_touch();
 }

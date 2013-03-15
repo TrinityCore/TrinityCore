@@ -19,13 +19,11 @@
 /* ScriptData
 SDName: Ghostlands
 SD%Complete: 100
-SDComment: Quest support: 9692, 9212. Obtain Budd's Guise of Zul'aman. Vendor Rathis Tomber
+SDComment:
 SDCategory: Ghostlands
 EndScriptData */
 
 /* ContentData
-npc_blood_knight_dawnstar
-npc_budd_nedreck
 npc_rathis_tomber
 npc_ranger_lilatha
 EndContentData */
@@ -36,41 +34,6 @@ EndContentData */
 #include "ScriptedEscortAI.h"
 #include "Player.h"
 #include "WorldSession.h"
-
-/*######
-## npc_budd_nedreck
-######*/
-
-#define GOSSIP_HBN "You gave the crew disguises?"
-
-class npc_budd_nedreck : public CreatureScript
-{
-public:
-    npc_budd_nedreck() : CreatureScript("npc_budd_nedreck") { }
-
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
-    {
-        player->PlayerTalkClass->ClearMenus();
-        if (action == GOSSIP_ACTION_INFO_DEF)
-        {
-            player->CLOSE_GOSSIP_MENU();
-            creature->CastSpell(player, 42540, false);
-        }
-        return true;
-    }
-
-    bool OnGossipHello(Player* player, Creature* creature)
-    {
-        if (creature->isQuestGiver())
-            player->PrepareQuestMenu(creature->GetGUID());
-
-        if (player->GetQuestStatus(11166) == QUEST_STATUS_INCOMPLETE)
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HBN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
-
-        player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-        return true;
-    }
-};
 
 /*######
 ## npc_rathis_tomber
@@ -220,7 +183,6 @@ public:
 
 void AddSC_ghostlands()
 {
-    new npc_budd_nedreck();
     new npc_rathis_tomber();
     new npc_ranger_lilatha();
 }

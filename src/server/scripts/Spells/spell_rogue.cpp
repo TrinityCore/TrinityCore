@@ -37,6 +37,11 @@ enum RogueSpells
     SPELL_ROGUE_TRICKS_OF_THE_TRADE_PROC         = 59628,
 };
 
+enum RogueSpellIcons
+{
+    ICON_ROGUE_IMPROVED_RECUPERATE               = 4819
+};
+
 // 13877, 33735, (check 51211, 65956) - Blade Flurry
 class spell_rog_blade_flurry : public SpellScriptLoader
 {
@@ -92,7 +97,7 @@ class spell_rog_blade_flurry : public SpellScriptLoader
         }
 };
 
-// -31228 - Cheat Death
+// 31228 - Cheat Death
 class spell_rog_cheat_death : public SpellScriptLoader
 {
     public:
@@ -155,7 +160,7 @@ class spell_rog_cheat_death : public SpellScriptLoader
         }
 };
 
-// -2818 - Deadly Poison
+// 2818 - Deadly Poison
 class spell_rog_deadly_poison : public SpellScriptLoader
 {
     public:
@@ -201,6 +206,9 @@ class spell_rog_deadly_poison : public SpellScriptLoader
                     // item combat enchantments
                     for (uint8 slot = 0; slot < MAX_ENCHANTMENT_SLOT; ++slot)
                     {
+                        if (slot > PRISMATIC_ENCHANTMENT_SLOT || slot < PROP_ENCHANTMENT_SLOT_0)    // not holding enchantment id
+                            continue;
+
                         SpellItemEnchantmentEntry const* enchant = sSpellItemEnchantmentStore.LookupEntry(item->GetEnchantmentId(EnchantmentSlot(slot)));
                         if (!enchant)
                             continue;
@@ -249,7 +257,7 @@ class spell_rog_deadly_poison : public SpellScriptLoader
         }
 };
 
-// -31130 - Nerves of Steel
+// 31130 - Nerves of Steel
 class spell_rog_nerves_of_steel : public SpellScriptLoader
 {
     public:
@@ -319,7 +327,7 @@ class spell_rog_preparation : public SpellScriptLoader
             {
                 Player* caster = GetCaster()->ToPlayer();
 
-                //immediately finishes the cooldown on certain Rogue abilities
+                // immediately finishes the cooldown on certain Rogue abilities
                 const SpellCooldowns& cm = caster->GetSpellCooldownMap();
                 for (SpellCooldowns::const_iterator itr = cm.begin(); itr != cm.end();)
                 {
@@ -327,13 +335,13 @@ class spell_rog_preparation : public SpellScriptLoader
 
                     if (spellInfo->SpellFamilyName == SPELLFAMILY_ROGUE)
                     {
-                        if (spellInfo->SpellFamilyFlags[1] & SPELLFAMILYFLAG1_ROGUE_COLDB_SHADOWSTEP ||      // Cold Blood, Shadowstep
-                            spellInfo->SpellFamilyFlags[0] & SPELLFAMILYFLAG_ROGUE_VAN_EVAS_SPRINT)           // Vanish, Evasion, Sprint
+                        if (spellInfo->SpellFamilyFlags[1] & SPELLFAMILYFLAG1_ROGUE_COLDB_SHADOWSTEP ||     // Cold Blood, Shadowstep
+                            spellInfo->SpellFamilyFlags[0] & SPELLFAMILYFLAG_ROGUE_VAN_EVAS_SPRINT)         // Vanish, Evasion, Sprint
                             caster->RemoveSpellCooldown((itr++)->first, true);
                         else if (caster->HasAura(SPELL_ROGUE_GLYPH_OF_PREPARATION))
                         {
-                            if (spellInfo->SpellFamilyFlags[1] & SPELLFAMILYFLAG1_ROGUE_DISMANTLE ||         // Dismantle
-                                spellInfo->SpellFamilyFlags[0] & SPELLFAMILYFLAG_ROGUE_KICK ||               // Kick
+                            if (spellInfo->SpellFamilyFlags[1] & SPELLFAMILYFLAG1_ROGUE_DISMANTLE ||        // Dismantle
+                                spellInfo->SpellFamilyFlags[0] & SPELLFAMILYFLAG_ROGUE_KICK ||              // Kick
                                 (spellInfo->SpellFamilyFlags[0] & SPELLFAMILYFLAG_ROGUE_BLADE_FLURRY &&     // Blade Flurry
                                 spellInfo->SpellFamilyFlags[1] & SPELLFAMILYFLAG1_ROGUE_BLADE_FLURRY))
                                 caster->RemoveSpellCooldown((itr++)->first, true);
@@ -360,7 +368,7 @@ class spell_rog_preparation : public SpellScriptLoader
         }
 };
 
-// -51685 - Prey on the Weak
+// 51685 - Prey on the Weak
 class spell_rog_prey_on_the_weak : public SpellScriptLoader
 {
     public:
@@ -402,6 +410,55 @@ class spell_rog_prey_on_the_weak : public SpellScriptLoader
         AuraScript* GetAuraScript() const
         {
             return new spell_rog_prey_on_the_weak_AuraScript();
+        }
+};
+
+// 73651 - Recuperate
+class spell_rog_recuperate : public SpellScriptLoader
+{
+    public:
+        spell_rog_recuperate() : SpellScriptLoader("spell_rog_recuperate") { }
+
+        class spell_rog_recuperate_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_rog_recuperate_AuraScript);
+
+            bool Load()
+            {
+                return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+            }
+
+            void OnPeriodic(AuraEffect const* /*aurEff*/)
+            {
+                if (Unit* caster = GetCaster())
+                    if (AuraEffect* effect = GetAura()->GetEffect(EFFECT_0))
+                        effect->RecalculateAmount(caster);
+            }
+
+            void CalculateBonus(AuraEffect const* /*aurEff*/, int32& amount, bool& canBeRecalculated)
+            {
+                canBeRecalculated = false;
+                if (Unit* caster = GetCaster())
+                {
+                    int32 baseAmount = GetSpellInfo()->Effects[EFFECT_0].CalcValue(caster) * 1000;
+                    // Improved Recuperate
+                    if (AuraEffect const* auraEffect = caster->GetDummyAuraEffect(SPELLFAMILY_ROGUE, ICON_ROGUE_IMPROVED_RECUPERATE, EFFECT_0))
+                        baseAmount += auraEffect->GetAmount();
+
+                    amount = CalculatePct(caster->GetMaxHealth(), float(baseAmount) / 1000.0f);
+                }
+            }
+
+            void Register()
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_rog_recuperate_AuraScript::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_rog_recuperate_AuraScript::CalculateBonus, EFFECT_0, SPELL_AURA_PERIODIC_HEAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_rog_recuperate_AuraScript();
         }
 };
 
@@ -597,6 +654,7 @@ void AddSC_rogue_spell_scripts()
     new spell_rog_nerves_of_steel();
     new spell_rog_preparation();
     new spell_rog_prey_on_the_weak();
+    new spell_rog_recuperate();
     new spell_rog_rupture();
     new spell_rog_shiv();
     new spell_rog_tricks_of_the_trade();

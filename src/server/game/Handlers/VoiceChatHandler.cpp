@@ -34,6 +34,10 @@ void WorldSession::HandleChannelVoiceOnOpcode(WorldPacket& /*recvData*/)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_CHANNEL_VOICE_ON");
     // Enable Voice button in channel context menu
+    /* structure:
+        8 bits -> channel name length
+        string -> channel name
+    */
 }
 
 void WorldSession::HandleSetActiveVoiceChannel(WorldPacket& recvData)

@@ -56,7 +56,7 @@ Location MoveSpline::ComputePosition() const
     }
     else
     {
-        if (!splineflags.hasFlag(MoveSplineFlag::OrientationFixed | MoveSplineFlag::Falling))
+        if (!splineflags.hasFlag(MoveSplineFlag::OrientationFixed | MoveSplineFlag::Falling | MoveSplineFlag::Unknown0))
         {
             Vector3 hermite;
             spline.evaluate_derivative(point_Idx, u, hermite);
@@ -173,6 +173,13 @@ void MoveSpline::Initialize(const MoveSplineInitArgs& args)
     vertical_acceleration = 0.f;
     effect_start_time = 0;
 
+    // Check if its a stop spline
+    if (args.flags.done)
+    {
+        spline.clear();
+        return;
+    }
+
     init_spline(args);
 
     // init parabolic / animation
@@ -216,7 +223,7 @@ bool MoveSplineInitArgs::Validate(Unit* unit) const
 // each vertex offset packed into 11 bytes
 bool MoveSplineInitArgs::_checkPathBounds() const
 {
-    if (!(flags & MoveSplineFlag::Mask_CatmullRom) && path.size() > 2)
+    if (!(flags & MoveSplineFlag::Catmullrom) && path.size() > 2)
     {
         enum{
             MAX_OFFSET = (1 << 11) / 2
@@ -266,7 +273,7 @@ MoveSpline::UpdateResult MoveSpline::_updateState(int32& ms_time_diff)
             {
                 point_Idx = spline.first();
                 time_passed = time_passed % Duration();
-                result = Result_NextSegment;
+                result = Result_NextCycle;
             }
             else
             {

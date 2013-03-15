@@ -30,6 +30,7 @@ EndScriptData */
 #include "Player.h"
 #include "WorldPacket.h"
 #include "Opcodes.h"
+#include "WorldSession.h"
 
 enum Misc
 {

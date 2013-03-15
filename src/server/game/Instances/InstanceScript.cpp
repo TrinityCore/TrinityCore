@@ -331,7 +331,7 @@ void InstanceScript::DoUpdateAchievementCriteria(AchievementCriteriaTypes type, 
     if (!PlayerList.isEmpty())
         for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
             if (Player* player = i->getSource())
-                player->UpdateAchievementCriteria(type, miscValue1, miscValue2, unit);
+                player->UpdateAchievementCriteria(type, miscValue1, miscValue2, 0, unit);
 }
 
 // Start timed achievement for all players in instance
@@ -403,12 +403,15 @@ void InstanceScript::SendEncounterUnit(uint32 type, Unit* unit /*= NULL*/, uint8
         case ENCOUNTER_FRAME_ENGAGE:
         case ENCOUNTER_FRAME_DISENGAGE:
         case ENCOUNTER_FRAME_UPDATE_PRIORITY:
+            if (!unit)
+                return;
             data.append(unit->GetPackGUID());
             data << uint8(param1);
             break;
         case ENCOUNTER_FRAME_ADD_TIMER:
         case ENCOUNTER_FRAME_ENABLE_OBJECTIVE:
         case ENCOUNTER_FRAME_DISABLE_OBJECTIVE:
+        case ENCOUNTER_FRAME_SET_COMBAT_RES_LIMIT:
             data << uint8(param1);
             break;
         case ENCOUNTER_FRAME_UPDATE_OBJECTIVE:
@@ -416,6 +419,8 @@ void InstanceScript::SendEncounterUnit(uint32 type, Unit* unit /*= NULL*/, uint8
             data << uint8(param2);
             break;
         case ENCOUNTER_FRAME_UNK7:
+        case ENCOUNTER_FRAME_ADD_COMBAT_RES_LIMIT:
+        case ENCOUNTER_FRAME_RESET_COMBAT_RES_LIMIT:
         default:
             break;
     }
@@ -440,7 +445,7 @@ void InstanceScript::UpdateEncounterState(EncounterCreditType type, uint32 credi
             if (encounter->lastEncounterDungeon)
             {
                 dungeonId = encounter->lastEncounterDungeon;
-                sLog->outDebug(LOG_FILTER_LFG, "UpdateEncounterState: Instance %s (instanceId %u) completed encounter %s. Credit Dungeon: %u", instance->GetMapName(), instance->GetInstanceId(), encounter->dbcEntry->encounterName[0], dungeonId);
+                sLog->outDebug(LOG_FILTER_LFG, "UpdateEncounterState: Instance %s (instanceId %u) completed encounter %s. Credit Dungeon: %u", instance->GetMapName(), instance->GetInstanceId(), encounter->dbcEntry->encounterName, dungeonId);
                 break;
             }
         }
@@ -460,4 +465,15 @@ void InstanceScript::UpdateEncounterState(EncounterCreditType type, uint32 credi
                     }
         }
     }
+}
+
+void InstanceScript::UpdatePhasing()
+{
+    PhaseUpdateData phaseUdateData;
+    phaseUdateData.AddConditionType(CONDITION_INSTANCE_INFO);
+
+    Map::PlayerList const& players = instance->GetPlayers();
+    for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+        if (Player* player = itr->getSource())
+            player->GetPhaseMgr().NotifyConditionChanged(phaseUdateData);
 }

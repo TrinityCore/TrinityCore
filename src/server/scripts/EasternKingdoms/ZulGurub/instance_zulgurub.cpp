@@ -16,67 +16,78 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: Instance_ZulGurub
-SD%Complete: 80
-SDComment: Missing reset function after killing a boss for Ohgan, Thekal.
-SDCategory: Zul'Gurub
-EndScriptData */
-
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
 #include "zulgurub.h"
 
+DoorData const doorData[] =
+{
+    { GO_VENOXIS_COIL,                  DATA_VENOXIS,   DOOR_TYPE_ROOM, BOUNDARY_NONE },
+    { GO_ARENA_DOOR_1,                  DATA_MANDOKIR,  DOOR_TYPE_ROOM, BOUNDARY_NONE },
+    { GO_FORCEFIELD,                    DATA_KILNARA,   DOOR_TYPE_ROOM, BOUNDARY_NONE },
+    { GO_ZANZIL_DOOR,                   DATA_ZANZIL,    DOOR_TYPE_ROOM, BOUNDARY_NONE },
+    //{ GO_THE_CACHE_OF_MADNESS_DOOR,     DATA_xxxxxxx,   DOOR_TYPE_ROOM, BOUNDARY_NONE },
+    { 0,                                0,              DOOR_TYPE_ROOM, BOUNDARY_NONE }
+};
+
 class instance_zulgurub : public InstanceMapScript
 {
-    public: instance_zulgurub(): InstanceMapScript(ZGScriptName, 309) {}
+    public:
+        instance_zulgurub() : InstanceMapScript(ZGScriptName, 859) { }
 
         struct instance_zulgurub_InstanceMapScript : public InstanceScript
         {
             instance_zulgurub_InstanceMapScript(Map* map) : InstanceScript(map)
             {
                 SetBossNumber(EncounterCount);
-            }
-
-            void Initialize()
-            {
-                _zealotLorkhanGUID = 0;
-                _zealotZathGUID = 0;
-                _highPriestTekalGUID = 0;
-                _jindoTheHexxerGUID = 0;
-                _vilebranchSpeakerGUID = 0;
-                _arlokkGUID = 0;
-                _goForcefieldGUID = 0;
-                _goGongOfBethekkGUID = 0;
-            }
-
-            bool IsEncounterInProgress() const
-            {
-                // not active in Zul'Gurub
-                return false;
+                LoadDoorData(doorData);
+                venoxisGUID         = 0;
+                mandokirGUID        = 0;
+                kilnaraGUID         = 0;
+                zanzilGUID          = 0;
+                jindoGUID           = 0;
+                hazzarahGUID        = 0;
+                renatakiGUID        = 0;
+                wushoolayGUID       = 0;
+                grilekGUID          = 0;
+                jindoTiggerGUID     = 0;
             }
 
             void OnCreatureCreate(Creature* creature)
             {
                 switch (creature->GetEntry())
                 {
-                    case NPC_ZEALOT_LORKHAN:
-                        _zealotLorkhanGUID = creature->GetGUID();
+                    case NPC_VENOXIS:
+                        venoxisGUID = creature->GetGUID();
                         break;
-                    case NPC_ZEALOT_ZATH:
-                        _zealotZathGUID = creature->GetGUID();
+                    case NPC_MANDOKIR:
+                        mandokirGUID = creature->GetGUID();
                         break;
-                    case NPC_HIGH_PRIEST_THEKAL:
-                        _highPriestTekalGUID = creature->GetGUID();
+                    case NPC_KILNARA:
+                        kilnaraGUID = creature->GetGUID();
                         break;
-                    case NPC_JINDO_THE_HEXXER:
-                        _jindoTheHexxerGUID = creature->GetGUID();
+                    case NPC_ZANZIL:
+                        zanzilGUID = creature->GetGUID();
                         break;
-                    case NPC_VILEBRANCH_SPEAKER:
-                        _vilebranchSpeakerGUID = creature->GetGUID();
+                    case NPC_JINDO:
+                        jindoGUID = creature->GetGUID();
                         break;
-                    case NPC_ARLOKK:
-                        _arlokkGUID = creature->GetGUID();
+                    case NPC_HAZZARAH:
+                        hazzarahGUID = creature->GetGUID();
+                        break;
+                    case NPC_RENATAKI:
+                        renatakiGUID = creature->GetGUID();
+                        break;
+                    case NPC_WUSHOOLAY:
+                        wushoolayGUID = creature->GetGUID();
+                        break;
+                    case NPC_GRILEK:
+                        grilekGUID = creature->GetGUID();
+                        break;
+                    case NPC_JINDO_TRIGGER:
+                        jindoTiggerGUID = creature->GetGUID();
+                        break;
+                    default:
                         break;
                 }
             }
@@ -85,47 +96,104 @@ class instance_zulgurub : public InstanceMapScript
             {
                 switch (go->GetEntry())
                 {
+                    case GO_VENOXIS_COIL:
+                    case GO_ARENA_DOOR_1:
                     case GO_FORCEFIELD:
-                        _goForcefieldGUID = go->GetGUID();
-                        break;
-                    case GO_GONG_OF_BETHEKK:
-                        _goGongOfBethekkGUID = go->GetGUID();
-                        if (GetBossState(DATA_ARLOKK) == DONE)
-                            go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
-                        else
-                            go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                    case GO_ZANZIL_DOOR:
+                    case GO_THE_CACHE_OF_MADNESS_DOOR:
+                        AddDoor(go, true);
                         break;
                     default:
                         break;
                 }
             }
 
-            uint64 GetData64(uint32 uiData) const
+            void OnGameObjectRemove(GameObject* go)
             {
-                switch (uiData)
+                switch (go->GetEntry())
                 {
-                    case DATA_LORKHAN:
-                        return _zealotLorkhanGUID;
-                        break;
-                    case DATA_ZATH:
-                        return _zealotZathGUID;
-                        break;
-                    case DATA_THEKAL:
-                        return _highPriestTekalGUID;
-                        break;
-                    case DATA_JINDO:
-                        return _jindoTheHexxerGUID;
-                        break;
-                    case NPC_ARLOKK:
-                        return _arlokkGUID;
-                        break;
+                    case GO_VENOXIS_COIL:
+                    case GO_ARENA_DOOR_1:
                     case GO_FORCEFIELD:
-                        return _goForcefieldGUID;
+                    case GO_ZANZIL_DOOR:
+                    case GO_THE_CACHE_OF_MADNESS_DOOR:
+                        AddDoor(go, false);
                         break;
-                    case GO_GONG_OF_BETHEKK:
-                        return _goGongOfBethekkGUID;
+                    default:
                         break;
                 }
+            }
+
+            bool SetBossState(uint32 type, EncounterState state)
+            {
+                if (!InstanceScript::SetBossState(type, state))
+                    return false;
+
+                switch (type)
+                {
+                    case DATA_VENOXIS:
+                    case DATA_MANDOKIR:
+                    case DATA_KILNARA:
+                    case DATA_ZANZIL:
+                    case DATA_JINDO:
+                    case DATA_HAZZARAH:
+                    case DATA_RENATAKI:
+                    case DATA_WUSHOOLAY:
+                    case DATA_GRILEK:
+                        break;
+                    default:
+                        break;
+                }
+
+                return true;
+            }
+
+            /*
+            void SetData(uint32 type, uint32 data)
+            {
+                switch (type)
+                {
+                }
+            }
+
+            uint32 GetData(uint32 type) const
+            {
+                switch (type)
+                {
+                }
+
+                return 0;
+            }
+            */
+
+            uint64 GetData64(uint32 type) const
+            {
+                switch (type)
+                {
+                    case DATA_VENOXIS:
+                        return venoxisGUID;
+                    case DATA_MANDOKIR:
+                        return mandokirGUID;
+                    case DATA_KILNARA:
+                        return kilnaraGUID;
+                    case DATA_ZANZIL:
+                        return zanzilGUID;
+                    case DATA_JINDO:
+                        return jindoGUID;
+                    case DATA_HAZZARAH:
+                        return hazzarahGUID;
+                    case DATA_RENATAKI:
+                        return renatakiGUID;
+                    case DATA_WUSHOOLAY:
+                        return wushoolayGUID;
+                    case DATA_GRILEK:
+                        return grilekGUID;
+                    case DATA_JINDOR_TRIGGER:
+                        return jindoTiggerGUID;
+                    default:
+                        break;
+                }
+
                 return 0;
             }
 
@@ -140,7 +208,7 @@ class instance_zulgurub : public InstanceMapScript
                 return saveStream.str();
             }
 
-            void Load(const char* str)
+            void Load(char const* str)
             {
                 if (!str)
                 {
@@ -157,12 +225,13 @@ class instance_zulgurub : public InstanceMapScript
 
                 if (dataHead1 == 'Z' && dataHead2 == 'G')
                 {
-                    for (uint32 i = 0; i < EncounterCount; ++i)
+                    for (uint8 i = 0; i < EncounterCount; ++i)
                     {
                         uint32 tmpState;
                         loadStream >> tmpState;
                         if (tmpState == IN_PROGRESS || tmpState > SPECIAL)
                             tmpState = NOT_STARTED;
+
                         SetBossState(i, EncounterState(tmpState));
                     }
                 }
@@ -171,18 +240,18 @@ class instance_zulgurub : public InstanceMapScript
 
                 OUT_LOAD_INST_DATA_COMPLETE;
             }
-        private:
-            //If all High Priest bosses were killed. Lorkhan, Zath and Ohgan are added too.
-            //Storing Lorkhan, Zath and Thekal because we need to cast on them later. Jindo is needed for healfunction too.
 
-            uint64 _zealotLorkhanGUID;
-            uint64 _zealotZathGUID;
-            uint64 _highPriestTekalGUID;
-            uint64 _jindoTheHexxerGUID;
-            uint64 _vilebranchSpeakerGUID;
-            uint64 _arlokkGUID;
-            uint64 _goForcefieldGUID;
-            uint64 _goGongOfBethekkGUID;
+        protected:
+             uint64 venoxisGUID;
+             uint64 mandokirGUID;
+             uint64 kilnaraGUID;
+             uint64 zanzilGUID;
+             uint64 jindoGUID;
+             uint64 hazzarahGUID;
+             uint64 renatakiGUID;
+             uint64 wushoolayGUID;
+             uint64 grilekGUID;
+             uint64 jindoTiggerGUID;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const

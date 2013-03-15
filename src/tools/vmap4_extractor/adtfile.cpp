@@ -74,7 +74,9 @@ char* GetExtension(char* FileName)
     return NULL;
 }
 
-ADTFile::ADTFile(char* filename): ADT(filename), nWMO(0), nMDX(0), WmoInstansName(NULL), ModelInstansName(NULL)
+extern HANDLE WorldMpq;
+
+ADTFile::ADTFile(char* filename): ADT(WorldMpq, filename)
 {
     Adtfilename.append(filename);
 }

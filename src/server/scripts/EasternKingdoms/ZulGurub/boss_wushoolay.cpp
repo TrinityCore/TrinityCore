@@ -16,52 +16,44 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: Boss_Wushoolay
-SD%Complete: 100
-SDComment:
-SDCategory: Zul'Gurub
-EndScriptData */
-
+#include "ObjectMgr.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "zulgurub.h"
 
+enum Yells
+{
+};
+
 enum Spells
 {
-    SPELL_LIGHTNINGCLOUD        = 25033,
-    SPELL_LIGHTNINGWAVE         = 24819
 };
 
 enum Events
 {
-    EVENT_LIGHTNINGCLOUD        = 0,
-    EVENT_LIGHTNINGWAVE         = 1
 };
 
 class boss_wushoolay : public CreatureScript
 {
-    public: boss_wushoolay() : CreatureScript("boss_wushoolay") {}
+    public:
+        boss_wushoolay() : CreatureScript("boss_wushoolay") { }
 
         struct boss_wushoolayAI : public BossAI
         {
-            boss_wushoolayAI(Creature* creature) : BossAI(creature, DATA_EDGE_OF_MADNESS) {}
+            boss_wushoolayAI(Creature* creature) : BossAI(creature, DATA_HAZZARAH)
+            {
+            }
 
             void Reset()
             {
-                _Reset();
-            }
-
-            void JustDied(Unit* /*killer*/)
-            {
-                _JustDied();
             }
 
             void EnterCombat(Unit* /*who*/)
             {
-                _EnterCombat();
-                events.ScheduleEvent(EVENT_LIGHTNINGCLOUD, urand(5000, 10000));
-                events.ScheduleEvent(EVENT_LIGHTNINGWAVE, urand(8000, 16000));
+            }
+
+            void JustDied(Unit* /*killer*/)
+            {
             }
 
             void UpdateAI(uint32 diff)
@@ -73,23 +65,16 @@ class boss_wushoolay : public CreatureScript
 
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
-
+                /*
                 while (uint32 eventId = events.ExecuteEvent())
                 {
                     switch (eventId)
                     {
-                        case EVENT_LIGHTNINGCLOUD:
-                            DoCastVictim(SPELL_LIGHTNINGCLOUD, true);
-                            events.ScheduleEvent(EVENT_LIGHTNINGCLOUD, urand(15000, 20000));
-                            break;
-                        case EVENT_LIGHTNINGWAVE:
-                            DoCast(SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true), SPELL_LIGHTNINGWAVE);
-                            events.ScheduleEvent(EVENT_LIGHTNINGWAVE, urand(12000, 16000));
-                            break;
                         default:
                             break;
                     }
                 }
+                */
 
                 DoMeleeAttackIfReady();
             }
@@ -105,4 +90,3 @@ void AddSC_boss_wushoolay()
 {
     new boss_wushoolay();
 }
-

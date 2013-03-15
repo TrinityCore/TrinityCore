@@ -75,6 +75,54 @@ void WorldSession::HandleArenaTeamRosterOpcode(WorldPacket& recvData)
         arenaTeam->Roster(this);
 }
 
+void WorldSession::HandleArenaTeamCreateOpcode(WorldPacket & recvData)
+{
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_ARENA_TEAM_CREATE");
+
+    uint32 slot, icon, iconcolor, border, bordercolor, background;
+    std::string name;
+
+    recvData >> slot;
+    recvData >> iconcolor;
+    recvData >> bordercolor;
+    recvData >> icon;
+    recvData >> background;
+    recvData >> border;
+    name = recvData.ReadString(recvData.ReadBits(8));
+
+    uint8 type = ArenaTeam::GetTypeBySlot(slot);
+
+    if (_player->GetArenaTeamId(slot))
+    {
+        SendArenaTeamCommandResult(ERR_ARENA_TEAM_INVITE_SS, "", _player->GetName(), ERR_ALREADY_IN_ARENA_TEAM_S);
+        return;
+    }
+
+    if (sObjectMgr->IsReservedName(name) || !ObjectMgr::IsValidCharterName(name))
+    {
+        SendArenaTeamCommandResult(ERR_ARENA_TEAM_CREATE_S, name, "", ERR_ARENA_TEAM_NAME_INVALID);
+        return;
+    }
+
+    if (sArenaTeamMgr->GetArenaTeamByName(name))
+    {
+        SendArenaTeamCommandResult(ERR_ARENA_TEAM_CREATE_S, name, "", ERR_ARENA_TEAM_NAME_EXISTS_S);
+        return;
+    }
+
+    ArenaTeam* arenaTeam = new ArenaTeam;
+    if (!arenaTeam->Create(GUID_LOPART(_player->GetGUID()), type, name, background, icon, iconcolor, border, bordercolor))
+    {
+        sLog->outError(LOG_FILTER_ARENAS, "Arena team create failed.");
+        delete arenaTeam;
+        return;
+    }
+
+    sArenaTeamMgr->AddArenaTeam(arenaTeam);
+
+    SendArenaTeamCommandResult(ERR_ARENA_TEAM_CREATE_S, name, "", ERR_ARENA_TEAM_CREATED);
+}
+
 void WorldSession::HandleArenaTeamInviteOpcode(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_ARENA_TEAM_INVITE");
@@ -110,6 +158,12 @@ void WorldSession::HandleArenaTeamInviteOpcode(WorldPacket& recvData)
     if (!arenaTeam)
     {
         SendArenaTeamCommandResult(ERR_ARENA_TEAM_CREATE_S, "", "", ERR_ARENA_TEAM_PLAYER_NOT_IN_TEAM);
+        return;
+    }
+
+    if (arenaTeam->GetCaptain() != _player->GetGUID())
+    {
+        SendArenaTeamCommandResult(ERR_ARENA_TEAM_CREATE_S, "", "", ERR_ARENA_TEAM_PERMISSIONS);
         return;
     }
 
@@ -349,20 +403,25 @@ void WorldSession::HandleArenaTeamLeaderOpcode(WorldPacket& recvData)
 
 void WorldSession::SendArenaTeamCommandResult(uint32 teamAction, const std::string& team, const std::string& player, uint32 errorId)
 {
-    WorldPacket data(SMSG_ARENA_TEAM_COMMAND_RESULT, 4+team.length()+1+player.length()+1+4);
+    WorldPacket data(SMSG_ARENA_TEAM_COMMAND_RESULT, 2 + team.length() + player.length() + 4 + 4);
+
+    data.WriteBits(player.length(), 7);
+    data.WriteBits(team.length(), 8);
+    data.FlushBits();
+
+    data.WriteString(player);
     data << uint32(teamAction);
-    data << team;
-    data << player;
     data << uint32(errorId);
+    data.WriteString(team);
     SendPacket(&data);
 }
 
 void WorldSession::SendNotInArenaTeamPacket(uint8 type)
 {
-    WorldPacket data(SMSG_ARENA_ERROR, 4+1);                // 886 - You are not in a %uv%u arena team
-    uint32 unk = 0;
-    data << uint32(unk);                                    // unk(0)
-    if (!unk)
+    WorldPacket data(SMSG_ARENA_ERROR, 4+1);
+    uint32 error = 0;
+    data << uint32(error);                                  // 0 = ERR_ARENA_NO_TEAM_II, 1 = ERR_ARENA_EXPIRED_CAIS, 2 = ERR_LFG_CANT_USE_BATTLEGROUND
+    if (!error)
         data << uint8(type);                                // team type (2=2v2, 3=3v3, 5=5v5), can be used for custom types...
     SendPacket(&data);
 }

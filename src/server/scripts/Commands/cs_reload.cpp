@@ -26,7 +26,6 @@ EndScriptData */
 #include "AchievementMgr.h"
 #include "AuctionHouseMgr.h"
 #include "Chat.h"
-#include "CreatureEventAIMgr.h"
 #include "CreatureTextMgr.h"
 #include "DisableMgr.h"
 #include "Language.h"
@@ -53,7 +52,6 @@ public:
         {
             { "achievement", SEC_ADMINISTRATOR,  true,  &HandleReloadAllAchievementCommand, "", NULL },
             { "area",       SEC_ADMINISTRATOR,  true,  &HandleReloadAllAreaCommand,       "", NULL },
-            { "eventai",    SEC_ADMINISTRATOR,  true,  &HandleReloadAllEventAICommand,    "", NULL },
             { "gossips",    SEC_ADMINISTRATOR,  true,  &HandleReloadAllGossipsCommand,    "", NULL },
             { "item",       SEC_ADMINISTRATOR,  true,  &HandleReloadAllItemCommand,       "", NULL },
             { "locales",    SEC_ADMINISTRATOR,  true,  &HandleReloadAllLocalesCommand,    "", NULL },
@@ -80,8 +78,6 @@ public:
             { "conditions",                   SEC_ADMINISTRATOR, true,  &HandleReloadConditions,                        "", NULL },
             { "config",                       SEC_ADMINISTRATOR, true,  &HandleReloadConfigCommand,                     "", NULL },
             { "creature_text",                SEC_ADMINISTRATOR, true,  &HandleReloadCreatureText,                      "", NULL },
-            { "creature_ai_scripts",          SEC_ADMINISTRATOR, true,  &HandleReloadEventAIScriptsCommand,             "", NULL },
-            { "creature_ai_texts",            SEC_ADMINISTRATOR, true,  &HandleReloadEventAITextsCommand,               "", NULL },
             { "creature_involvedrelation",    SEC_ADMINISTRATOR, true,  &HandleReloadCreatureQuestInvRelationsCommand,  "", NULL },
             { "creature_linked_respawn",      SEC_GAMEMASTER,    true,  &HandleReloadLinkedRespawnCommand,              "", NULL },
             { "creature_loot_template",       SEC_ADMINISTRATOR, true,  &HandleReloadLootTemplatesCreatureCommand,      "", NULL },
@@ -104,7 +100,6 @@ public:
             { "gossip_menu_option",           SEC_ADMINISTRATOR, true,  &HandleReloadGossipMenuOptionCommand,           "", NULL },
             { "item_enchantment_template",    SEC_ADMINISTRATOR, true,  &HandleReloadItemEnchantementsCommand,          "", NULL },
             { "item_loot_template",           SEC_ADMINISTRATOR, true,  &HandleReloadLootTemplatesItemCommand,          "", NULL },
-            { "item_set_names",               SEC_ADMINISTRATOR, true,  &HandleReloadItemSetNamesCommand,               "", NULL },
             { "lfg_dungeon_rewards",          SEC_ADMINISTRATOR, true,  &HandleReloadLfgRewardsCommand,                 "", NULL },
             { "locales_achievement_reward",   SEC_ADMINISTRATOR, true,  &HandleReloadLocalesAchievementRewardCommand,   "", NULL },
             { "locales_creature",             SEC_ADMINISTRATOR, true,  &HandleReloadLocalesCreatureCommand,            "", NULL },
@@ -112,7 +107,6 @@ public:
             { "locales_gameobject",           SEC_ADMINISTRATOR, true,  &HandleReloadLocalesGameobjectCommand,          "", NULL },
             { "locales_gossip_menu_option",   SEC_ADMINISTRATOR, true,  &HandleReloadLocalesGossipMenuOptionCommand,    "", NULL },
             { "locales_item",                 SEC_ADMINISTRATOR, true,  &HandleReloadLocalesItemCommand,                "", NULL },
-            { "locales_item_set_name",        SEC_ADMINISTRATOR, true,  &HandleReloadLocalesItemSetNameCommand,         "", NULL },
             { "locales_npc_text",             SEC_ADMINISTRATOR, true,  &HandleReloadLocalesNpcTextCommand,             "", NULL },
             { "locales_page_text",            SEC_ADMINISTRATOR, true,  &HandleReloadLocalesPageTextCommand,            "", NULL },
             { "locales_points_of_interest",   SEC_ADMINISTRATOR, true,  &HandleReloadLocalesPointsOfInterestCommand,    "", NULL },
@@ -124,6 +118,7 @@ public:
             { "npc_trainer",                  SEC_ADMINISTRATOR, true,  &HandleReloadNpcTrainerCommand,                 "", NULL },
             { "npc_vendor",                   SEC_ADMINISTRATOR, true,  &HandleReloadNpcVendorCommand,                  "", NULL },
             { "page_text",                    SEC_ADMINISTRATOR, true,  &HandleReloadPageTextsCommand,                  "", NULL },
+            { "phasedefinitions",             SEC_ADMINISTRATOR, true,  &HandleReloadPhaseDefinitionsCommand,           "", NULL },
             { "pickpocketing_loot_template",  SEC_ADMINISTRATOR, true,  &HandleReloadLootTemplatesPickpocketingCommand, "", NULL},
             { "points_of_interest",           SEC_ADMINISTRATOR, true,  &HandleReloadPointsOfInterestCommand,           "", NULL },
             { "prospecting_loot_template",    SEC_ADMINISTRATOR, true,  &HandleReloadLootTemplatesProspectingCommand,   "", NULL },
@@ -182,7 +177,6 @@ public:
 
         HandleReloadAllAchievementCommand(handler, "");
         HandleReloadAllAreaCommand(handler, "");
-        HandleReloadAllEventAICommand(handler, "");
         HandleReloadAllLootCommand(handler, "");
         HandleReloadAllNpcCommand(handler, "");
         HandleReloadAllQuestCommand(handler, "");
@@ -270,13 +264,6 @@ public:
         HandleReloadDbScriptStringCommand(handler, "a");
         HandleReloadWpScriptsCommand(handler, "a");
         HandleReloadWpCommand(handler, "a");
-        return true;
-    }
-
-    static bool HandleReloadAllEventAICommand(ChatHandler* handler, const char* /*args*/)
-    {
-        HandleReloadEventAITextsCommand(handler, "a");
-        HandleReloadEventAIScriptsCommand(handler, "a");
         return true;
     }
 
@@ -442,11 +429,12 @@ public:
 
             Field* fields = result->Fetch();
 
-            cInfo->DifficultyEntry[0] = fields[0].GetUInt32();
-            cInfo->DifficultyEntry[1] = fields[1].GetUInt32();
-            cInfo->DifficultyEntry[2] = fields[2].GetUInt32();
-            cInfo->KillCredit[0]      = fields[3].GetUInt32();
-            cInfo->KillCredit[1]      = fields[4].GetUInt32();
+            for (uint8 i = 0; i < MAX_DIFFICULTY - 1; ++i)
+                cInfo->DifficultyEntry[i] = fields[0 + i].GetUInt32();
+
+            for (uint8 i = 0; i < MAX_KILL_CREDIT; ++i)
+                cInfo->KillCredit[i] = fields[3 + i].GetUInt32();
+
             cInfo->Modelid1           = fields[5].GetUInt32();
             cInfo->Modelid2           = fields[6].GetUInt32();
             cInfo->Modelid3           = fields[7].GetUInt32();
@@ -458,27 +446,27 @@ public:
             cInfo->minlevel           = fields[13].GetUInt8();
             cInfo->maxlevel           = fields[14].GetUInt8();
             cInfo->expansion          = fields[15].GetUInt16();
-            cInfo->faction_A          = fields[16].GetUInt16();
-            cInfo->faction_H          = fields[17].GetUInt16();
-            cInfo->npcflag            = fields[18].GetUInt32();
-            cInfo->speed_walk         = fields[19].GetFloat();
-            cInfo->speed_run          = fields[20].GetFloat();
-            cInfo->scale              = fields[21].GetFloat();
-            cInfo->rank               = fields[22].GetUInt8();
-            cInfo->mindmg             = fields[23].GetFloat();
-            cInfo->maxdmg             = fields[24].GetFloat();
-            cInfo->dmgschool          = fields[25].GetUInt8();
-            cInfo->attackpower        = fields[26].GetUInt32();
-            cInfo->dmg_multiplier     = fields[27].GetFloat();
-            cInfo->baseattacktime     = fields[28].GetUInt32();
-            cInfo->rangeattacktime    = fields[29].GetUInt32();
-            cInfo->unit_class         = fields[30].GetUInt8();
-            cInfo->unit_flags         = fields[31].GetUInt32();
-            cInfo->unit_flags2        = fields[32].GetUInt32();
-            cInfo->dynamicflags       = fields[33].GetUInt32();
-            cInfo->family             = fields[34].GetUInt8();
-            cInfo->trainer_type       = fields[35].GetUInt8();
-            cInfo->trainer_spell      = fields[36].GetUInt32();
+            cInfo->expansionUnknown   = fields[16].GetUInt16();
+            cInfo->faction_A          = fields[17].GetUInt16();
+            cInfo->faction_H          = fields[18].GetUInt16();
+            cInfo->npcflag            = fields[19].GetUInt32();
+            cInfo->speed_walk         = fields[20].GetFloat();
+            cInfo->speed_run          = fields[21].GetFloat();
+            cInfo->scale              = fields[22].GetFloat();
+            cInfo->rank               = fields[23].GetUInt8();
+            cInfo->mindmg             = fields[24].GetFloat();
+            cInfo->maxdmg             = fields[25].GetFloat();
+            cInfo->dmgschool          = fields[26].GetUInt8();
+            cInfo->attackpower        = fields[27].GetUInt32();
+            cInfo->dmg_multiplier     = fields[28].GetFloat();
+            cInfo->baseattacktime     = fields[29].GetUInt32();
+            cInfo->rangeattacktime    = fields[30].GetUInt32();
+            cInfo->unit_class         = fields[31].GetUInt8();
+            cInfo->unit_flags         = fields[32].GetUInt32();
+            cInfo->unit_flags2        = fields[33].GetUInt32();
+            cInfo->dynamicflags       = fields[34].GetUInt32();
+            cInfo->family             = fields[35].GetUInt8();
+            cInfo->trainer_type       = fields[36].GetUInt8();
             cInfo->trainer_class      = fields[37].GetUInt8();
             cInfo->trainer_race       = fields[38].GetUInt8();
             cInfo->minrangedmg        = fields[39].GetFloat();
@@ -486,44 +474,39 @@ public:
             cInfo->rangedattackpower  = fields[41].GetUInt16();
             cInfo->type               = fields[42].GetUInt8();
             cInfo->type_flags         = fields[43].GetUInt32();
-            cInfo->lootid             = fields[44].GetUInt32();
-            cInfo->pickpocketLootId   = fields[45].GetUInt32();
-            cInfo->SkinLootId         = fields[46].GetUInt32();
+            cInfo->type_flags2        = fields[44].GetUInt32();
+            cInfo->lootid             = fields[45].GetUInt32();
+            cInfo->pickpocketLootId   = fields[46].GetUInt32();
+            cInfo->SkinLootId         = fields[47].GetUInt32();
 
             for (uint8 i = SPELL_SCHOOL_HOLY; i < MAX_SPELL_SCHOOL; ++i)
-                cInfo->resistance[i] = fields[47 + i -1].GetUInt16();
+                cInfo->resistance[i] = fields[48 + i -1].GetUInt16();
 
-            cInfo->spells[0]          = fields[53].GetUInt32();
-            cInfo->spells[1]          = fields[54].GetUInt32();
-            cInfo->spells[2]          = fields[55].GetUInt32();
-            cInfo->spells[3]          = fields[56].GetUInt32();
-            cInfo->spells[4]          = fields[57].GetUInt32();
-            cInfo->spells[5]          = fields[58].GetUInt32();
-            cInfo->spells[6]          = fields[59].GetUInt32();
-            cInfo->spells[7]          = fields[60].GetUInt32();
-            cInfo->PetSpellDataId     = fields[61].GetUInt32();
-            cInfo->VehicleId          = fields[62].GetUInt32();
-            cInfo->mingold            = fields[63].GetUInt32();
-            cInfo->maxgold            = fields[64].GetUInt32();
-            cInfo->AIName             = fields[65].GetString();
-            cInfo->MovementType       = fields[66].GetUInt8();
-            cInfo->InhabitType        = fields[67].GetUInt8();
-            cInfo->HoverHeight        = fields[68].GetFloat();
-            cInfo->ModHealth          = fields[69].GetFloat();
-            cInfo->ModMana            = fields[70].GetFloat();
-            cInfo->ModArmor           = fields[71].GetFloat();
-            cInfo->RacialLeader       = fields[72].GetBool();
-            cInfo->questItems[0]      = fields[73].GetUInt32();
-            cInfo->questItems[1]      = fields[74].GetUInt32();
-            cInfo->questItems[2]      = fields[75].GetUInt32();
-            cInfo->questItems[3]      = fields[76].GetUInt32();
-            cInfo->questItems[4]      = fields[77].GetUInt32();
-            cInfo->questItems[5]      = fields[78].GetUInt32();
-            cInfo->movementId         = fields[79].GetUInt32();
-            cInfo->RegenHealth        = fields[80].GetBool();
-            cInfo->MechanicImmuneMask = fields[81].GetUInt32();
-            cInfo->flags_extra        = fields[82].GetUInt32();
-            cInfo->ScriptID           = sObjectMgr->GetScriptId(fields[83].GetCString());
+            for (uint8 i = 0; i < CREATURE_MAX_SPELLS; ++i)
+                cInfo->spells[i] = fields[54 + i].GetUInt32();
+
+            cInfo->PetSpellDataId     = fields[62].GetUInt32();
+            cInfo->VehicleId          = fields[63].GetUInt32();
+            cInfo->mingold            = fields[64].GetUInt32();
+            cInfo->maxgold            = fields[65].GetUInt32();
+            cInfo->AIName             = fields[66].GetString();
+            cInfo->MovementType       = fields[67].GetUInt8();
+            cInfo->InhabitType        = fields[68].GetUInt8();
+            cInfo->HoverHeight        = fields[69].GetFloat();
+            cInfo->ModHealth          = fields[70].GetFloat();
+            cInfo->ModMana            = fields[71].GetFloat();
+            cInfo->ModManaExtra       = fields[72].GetFloat();
+            cInfo->ModArmor           = fields[73].GetFloat();
+            cInfo->RacialLeader       = fields[74].GetBool();
+
+            for (uint8 i = 0; i < MAX_CREATURE_QUEST_ITEMS; ++i)
+                cInfo->questItems[i] = fields[75 + i].GetUInt32();
+
+            cInfo->movementId         = fields[81].GetUInt32();
+            cInfo->RegenHealth        = fields[82].GetBool();
+            cInfo->MechanicImmuneMask = fields[83].GetUInt32();
+            cInfo->flags_extra        = fields[84].GetUInt32();
+            cInfo->ScriptID           = sObjectMgr->GetScriptId(fields[85].GetCString());
 
             sObjectMgr->CheckCreatureTemplate(cInfo);
         }
@@ -953,14 +936,6 @@ public:
         return true;
     }
 
-    static bool HandleReloadItemSetNamesCommand(ChatHandler* handler, const char* /*args*/)
-    {
-        sLog->outInfo(LOG_FILTER_GENERAL, "Re-Loading Item set names...");
-        sObjectMgr->LoadItemSetNames();
-        handler->SendGlobalGMSysMessage("DB table `item_set_names` reloaded.");
-        return true;
-    }
-
     static bool HandleReloadEventScriptsCommand(ChatHandler* handler, const char* args)
     {
         if (sScriptMgr->IsScriptScheduled())
@@ -1011,23 +986,6 @@ public:
         if (*args != 'a')
             handler->SendGlobalGMSysMessage("DB Table 'waypoint_data' reloaded.");
 
-        return true;
-    }
-
-    static bool HandleReloadEventAITextsCommand(ChatHandler* handler, const char* /*args*/)
-    {
-
-        sLog->outInfo(LOG_FILTER_GENERAL, "Re-Loading Texts from `creature_ai_texts`...");
-        sEventAIMgr->LoadCreatureEventAI_Texts();
-        handler->SendGlobalGMSysMessage("DB table `creature_ai_texts` reloaded.");
-        return true;
-    }
-
-    static bool HandleReloadEventAIScriptsCommand(ChatHandler* handler, const char* /*args*/)
-    {
-        sLog->outInfo(LOG_FILTER_GENERAL, "Re-Loading Scripts from `creature_ai_scripts`...");
-        sEventAIMgr->LoadCreatureEventAI_Scripts();
-        handler->SendGlobalGMSysMessage("DB table `creature_ai_scripts` reloaded.");
         return true;
     }
 
@@ -1147,14 +1105,6 @@ public:
         return true;
     }
 
-    static bool HandleReloadLocalesItemSetNameCommand(ChatHandler* handler, const char* /*args*/)
-    {
-        sLog->outInfo(LOG_FILTER_GENERAL, "Re-Loading Locales Item set name... ");
-        sObjectMgr->LoadItemSetNameLocales();
-        handler->SendGlobalGMSysMessage("DB table `locales_item_set_name` reloaded.");
-        return true;
-    }
-
     static bool HandleReloadLocalesNpcTextCommand(ChatHandler* handler, const char* /*args*/)
     {
         sLog->outInfo(LOG_FILTER_GENERAL, "Re-Loading Locales NPC Text ... ");
@@ -1242,6 +1192,16 @@ public:
         sLog->outInfo(LOG_FILTER_GENERAL, "Reloading vehicle_template_accessory table...");
         sObjectMgr->LoadVehicleTemplateAccessories();
         handler->SendGlobalGMSysMessage("Vehicle template accessories reloaded.");
+        return true;
+    }
+
+
+    static bool HandleReloadPhaseDefinitionsCommand(ChatHandler* handler, const char* /*args*/)
+    {
+        sLog->outInfo(LOG_FILTER_GENERAL, "Reloading phase_definitions table...");
+        sObjectMgr->LoadPhaseDefinitions();
+        sWorld->UpdatePhaseDefinitions();
+        handler->SendGlobalGMSysMessage("Phase Definitions reloaded.");
         return true;
     }
 

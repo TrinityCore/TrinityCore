@@ -45,7 +45,7 @@ namespace Trinity
         std::set<Unit*> i_visibleNow;
         Player::ClientGUIDs vis_guids;
 
-        VisibleNotifier(Player &player) : i_player(player), vis_guids(player.m_clientGUIDs) {}
+        VisibleNotifier(Player &player) : i_player(player), i_data(player.GetMapId()), vis_guids(player.m_clientGUIDs) {}
         template<class T> void Visit(GridRefManager<T> &m);
         void SendToSelf(void);
     };
@@ -1373,6 +1373,25 @@ namespace Trinity
 
         private:
             uint64 _GUID;
+    };
+
+    class HeightDifferenceCheck
+    {
+    public:
+        HeightDifferenceCheck(WorldObject* go, float diff, bool reverse)
+            : _baseObject(go), _difference(diff), _reverse(reverse)
+        {
+        }
+
+        bool operator()(WorldObject* unit) const
+        {
+            return (unit->GetPositionZ() - _baseObject->GetPositionZ() > _difference) != _reverse;
+        }
+
+    private:
+        WorldObject* _baseObject;
+        float _difference;
+        bool _reverse;
     };
 
     class UnitAuraCheck

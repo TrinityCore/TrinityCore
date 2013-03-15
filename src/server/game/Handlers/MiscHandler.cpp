@@ -388,7 +388,7 @@ void WorldSession::HandleLogoutRequestOpcode(WorldPacket& /*recvData*/)
 
     WorldPacket data(SMSG_LOGOUT_RESPONSE, 1+4);
     data << uint32(reason);
-    data << uint8(instantLogout);
+    data << uint8(0);
     SendPacket(&data);
 
     if (reason)
@@ -397,7 +397,7 @@ void WorldSession::HandleLogoutRequestOpcode(WorldPacket& /*recvData*/)
         return;
     }
 
-    //instant logout in taverns/cities or on taxi or for admins, gm's, mod's if its enabled in worldserver.conf
+    // instant logout in taverns/cities or on taxi or for admins, gm's, mod's if its enabled in worldserver.conf
     if (instantLogout)
     {
         LogoutPlayer(true);
@@ -408,11 +408,7 @@ void WorldSession::HandleLogoutRequestOpcode(WorldPacket& /*recvData*/)
     if (GetPlayer()->CanFreeMove())
     {
         GetPlayer()->SetStandState(UNIT_STAND_STATE_SIT);
-
-        WorldPacket data(SMSG_FORCE_MOVE_ROOT, (8+4));    // guess size
-        data.append(GetPlayer()->GetPackGUID());
-        data << (uint32)2;
-        SendPacket(&data);
+        GetPlayer()->SetRooted(true);
         GetPlayer()->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
     }
 
@@ -441,10 +437,7 @@ void WorldSession::HandleLogoutCancelOpcode(WorldPacket& /*recvData*/)
     if (GetPlayer()->CanFreeMove())
     {
         //!we can move again
-        data.Initialize(SMSG_FORCE_MOVE_UNROOT, 8);       // guess size
-        data.append(GetPlayer()->GetPackGUID());
-        data << uint32(0);
-        SendPacket(&data);
+        GetPlayer()->SetRooted(false);
 
         //! Stand Up
         GetPlayer()->SetStandState(UNIT_STAND_STATE_STAND);
@@ -501,6 +494,13 @@ void WorldSession::HandleZoneUpdateOpcode(WorldPacket& recvData)
     //GetPlayer()->SendInitWorldStates(true, newZone);
 }
 
+void WorldSession::HandleReturnToGraveyard(WorldPacket& /*recvPacket*/)
+{
+    if (GetPlayer()->isAlive() || !GetPlayer()->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_GHOST))
+        return;
+    GetPlayer()->RepopAtGraveyard();
+}
+
 void WorldSession::HandleSetSelectionOpcode(WorldPacket& recvData)
 {
     uint64 guid;
@@ -520,9 +520,8 @@ void WorldSession::HandleStandStateChangeOpcode(WorldPacket& recvData)
 
 void WorldSession::HandleContactListOpcode(WorldPacket& recvData)
 {
-    uint32 unk;
-    recvData >> unk;
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_CONTACT_LIST - Unk: %d", unk);
+    recvData.read_skip<uint32>(); // always 1
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_CONTACT_LIST");
     _player->GetSocial()->SendSocialList(_player);
 }
 
@@ -707,9 +706,11 @@ void WorldSession::HandleBugOpcode(WorldPacket& recvData)
     uint32 suggestion, contentlen, typelen;
     std::string content, type;
 
-    recvData >> suggestion >> contentlen >> content;
+    recvData >> suggestion >> contentlen;
+    content = recvData.ReadString(contentlen);
 
-    recvData >> typelen >> type;
+    recvData >> typelen;
+    type = recvData.ReadString(typelen);
 
     if (suggestion == 0)
         sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_BUG [Bug Report]");
@@ -778,11 +779,11 @@ void WorldSession::HandleResurrectResponseOpcode(WorldPacket& recvData)
 
     if (status == 0)
     {
-        GetPlayer()->clearResurrectRequestData();           // reject
+        GetPlayer()->ClearResurrectRequestData();           // reject
         return;
     }
 
-    if (!GetPlayer()->isRessurectRequestedBy(guid))
+    if (!GetPlayer()->IsRessurectRequestedBy(guid))
         return;
 
     GetPlayer()->ResurectUsingRequestData();
@@ -1028,6 +1029,13 @@ void WorldSession::HandleRequestAccountData(WorldPacket& recvData)
     SendPacket(&data);
 }
 
+int32 WorldSession::HandleEnableNagleAlgorithm()
+{
+    // Instructs the server we wish to receive few amounts of large packets (SMSG_MULTIPLE_PACKETS?)
+    // instead of large amount of small packets
+    return 0;
+}
+
 void WorldSession::HandleSetActionButtonOpcode(WorldPacket& recvData)
 {
     uint8 button;
@@ -1053,12 +1061,32 @@ void WorldSession::HandleNextCinematicCamera(WorldPacket& /*recvData*/)
 
 void WorldSession::HandleMoveTimeSkippedOpcode(WorldPacket& recvData)
 {
-    /*  WorldSession::Update(getMSTime());*/
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_MOVE_TIME_SKIPPED");
 
-    uint64 guid;
-    recvData.readPackGUID(guid);
-    recvData.read_skip<uint32>();
+    ObjectGuid guid;
+    uint32 time;
+    recvData >> time;
+
+    guid[5] = recvData.ReadBit();
+    guid[1] = recvData.ReadBit();
+    guid[3] = recvData.ReadBit();
+    guid[7] = recvData.ReadBit();
+    guid[6] = recvData.ReadBit();
+    guid[0] = recvData.ReadBit();
+    guid[4] = recvData.ReadBit();
+    guid[2] = recvData.ReadBit();
+
+    recvData.ReadByteSeq(guid[7]);
+    recvData.ReadByteSeq(guid[1]);
+    recvData.ReadByteSeq(guid[2]);
+    recvData.ReadByteSeq(guid[4]);
+    recvData.ReadByteSeq(guid[3]);
+    recvData.ReadByteSeq(guid[6]);
+    recvData.ReadByteSeq(guid[0]);
+    recvData.ReadByteSeq(guid[5]);
+
+    //TODO!
+
     /*
         uint64 guid;
         uint32 time_skipped;
@@ -1176,10 +1204,9 @@ void WorldSession::HandleInspectOpcode(WorldPacket& recvData)
         return;
     }
 
-    uint32 talent_points = 0x47;
-    uint32 guid_size = player->GetPackGUID().wpos();
-    WorldPacket data(SMSG_INSPECT_TALENT, guid_size+4+talent_points);
-    data.append(player->GetPackGUID());
+    uint32 talent_points = 41;
+    WorldPacket data(SMSG_INSPECT_TALENT, 8 + 4 + 1 + 1 + talent_points + 8 + 4 + 8 + 4);
+    data << player->GetGUID();
 
     if (sWorld->getBoolConfig(CONFIG_TALENTS_INSPECTING) || _player->isGameMaster())
         player->BuildPlayerTalentsInfoData(&data);
@@ -1191,29 +1218,66 @@ void WorldSession::HandleInspectOpcode(WorldPacket& recvData)
     }
 
     player->BuildEnchantmentsInfoData(&data);
+    if (Guild* guild = sGuildMgr->GetGuildById(player->GetGuildId()))
+    {
+        data << uint64(guild->GetGUID());
+        data << uint32(guild->GetLevel());
+        data << uint64(0/*guild->GetXP()*/);
+        data << uint32(guild->GetMembersCount());
+    }
     SendPacket(&data);
 }
 
 void WorldSession::HandleInspectHonorStatsOpcode(WorldPacket& recvData)
 {
-    uint64 guid;
-    recvData >> guid;
+    ObjectGuid guid;
+    guid[1] = recvData.ReadBit();
+    guid[5] = recvData.ReadBit();
+    guid[7] = recvData.ReadBit();
+    guid[3] = recvData.ReadBit();
+    guid[2] = recvData.ReadBit();
+    guid[4] = recvData.ReadBit();
+    guid[0] = recvData.ReadBit();
+    guid[6] = recvData.ReadBit();
 
+    recvData.ReadByteSeq(guid[4]);
+    recvData.ReadByteSeq(guid[7]);
+    recvData.ReadByteSeq(guid[0]);
+    recvData.ReadByteSeq(guid[5]);
+    recvData.ReadByteSeq(guid[1]);
+    recvData.ReadByteSeq(guid[6]);
+    recvData.ReadByteSeq(guid[2]);
+    recvData.ReadByteSeq(guid[3]);
     Player* player = ObjectAccessor::FindPlayer(guid);
 
     if (!player)
     {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "MSG_INSPECT_HONOR_STATS: No player found from GUID: " UI64FMTD, guid);
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_INSPECT_HONOR_STATS: No player found from GUID: " UI64FMTD, (uint64)guid);
         return;
     }
 
-    WorldPacket data(MSG_INSPECT_HONOR_STATS, 8+1+4*4);
-    data << uint64(player->GetGUID());
-    data << uint8(player->GetHonorPoints());
-    data << uint32(player->GetUInt32Value(PLAYER_FIELD_KILLS));
-    data << uint32(player->GetUInt32Value(PLAYER_FIELD_TODAY_CONTRIBUTION));
-    data << uint32(player->GetUInt32Value(PLAYER_FIELD_YESTERDAY_CONTRIBUTION));
+    ObjectGuid playerGuid = player->GetGUID();
+    WorldPacket data(SMSG_INSPECT_HONOR_STATS, 8+1+4+4);
+    data.WriteBit(playerGuid[4]);
+    data.WriteBit(playerGuid[3]);
+    data.WriteBit(playerGuid[6]);
+    data.WriteBit(playerGuid[2]);
+    data.WriteBit(playerGuid[5]);
+    data.WriteBit(playerGuid[0]);
+    data.WriteBit(playerGuid[7]);
+    data.WriteBit(playerGuid[1]);
+    data << uint8(0);                                               // rank
+    data << uint16(player->GetUInt16Value(PLAYER_FIELD_KILLS, 1));  // yesterday kills
+    data << uint16(player->GetUInt16Value(PLAYER_FIELD_KILLS, 0));  // today kills
+    data.WriteByteSeq(playerGuid[2]);
+    data.WriteByteSeq(playerGuid[0]);
+    data.WriteByteSeq(playerGuid[6]);
+    data.WriteByteSeq(playerGuid[3]);
+    data.WriteByteSeq(playerGuid[4]);
+    data.WriteByteSeq(playerGuid[1]);
+    data.WriteByteSeq(playerGuid[5]);
     data << uint32(player->GetUInt32Value(PLAYER_FIELD_LIFETIME_HONORABLE_KILLS));
+    data.WriteByteSeq(playerGuid[7]);
     SendPacket(&data);
 }
 
@@ -1345,8 +1409,9 @@ void WorldSession::HandleComplainOpcode(WorldPacket& recvData)
     // if it's mail spam - ALL mails from this spammer automatically removed by client
 
     // Complaint Received message
-    WorldPacket data(SMSG_COMPLAIN_RESULT, 1);
-    data << uint8(0);
+    WorldPacket data(SMSG_COMPLAIN_RESULT, 2);
+    data << uint8(0); // value 1 resets CGChat::m_complaintsSystemStatus in client. (unused?)
+    data << uint8(0); // value 0xC generates a "CalendarError" in client.
     SendPacket(&data);
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "REPORT SPAM: type %u, guid %u, unk1 %u, unk2 %u, unk3 %u, unk4 %u, message %s", spam_type, GUID_LOPART(spammer_guid), unk1, unk2, unk3, unk4, description.c_str());
@@ -1420,7 +1485,7 @@ void WorldSession::HandleTimeSyncResp(WorldPacket& recvData)
     sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_TIME_SYNC_RESP");
 
     uint32 counter, clientTicks;
-    recvData >> counter >> clientTicks;
+    recvData >> clientTicks >> counter;
 
     if (counter != _player->m_timeSyncCounter - 1)
         sLog->outDebug(LOG_FILTER_NETWORKIO, "Wrong time sync counter from player %s (cheater?)", _player->GetName().c_str());
@@ -1596,7 +1661,7 @@ void WorldSession::HandleMoveSetCanFlyAckOpcode(WorldPacket& recvData)
 
     MovementInfo movementInfo;
     movementInfo.guid = guid;
-    ReadMovementInfo(recvData, &movementInfo);
+    _player->ReadMovementInfo(recvData, &movementInfo);
 
     recvData.read_skip<float>();                           // unk2
 
@@ -1632,6 +1697,15 @@ void WorldSession::HandleQueryInspectAchievements(WorldPacket& recvData)
     player->SendRespondInspectAchievements(_player);
 }
 
+void WorldSession::HandleGuildAchievementProgressQuery(WorldPacket& recvData)
+{
+    uint32 achievementId;
+    recvData >> achievementId;
+
+    if (Guild* guild = sGuildMgr->GetGuildById(_player->GetGuildId()))
+        guild->GetAchievementMgr().SendAchievementInfo(_player, achievementId);
+}
+
 void WorldSession::HandleWorldStateUITimerUpdate(WorldPacket& /*recvData*/)
 {
     // empty opcode
@@ -1650,12 +1724,54 @@ void WorldSession::HandleReadyForAccountDataTimes(WorldPacket& /*recvData*/)
     SendAccountDataTimes(GLOBAL_CACHE_MASK);
 }
 
-void WorldSession::SendSetPhaseShift(uint32 PhaseShift)
+void WorldSession::SendSetPhaseShift(std::set<uint32> const& phaseIds, std::set<uint32> const& terrainswaps)
 {
-    WorldPacket data(SMSG_SET_PHASE_SHIFT, 4);
-    data << uint32(PhaseShift);
+    ObjectGuid guid = _player->GetGUID();
+
+    WorldPacket data(SMSG_SET_PHASE_SHIFT, 1 + 8 + 4 + 4 + 4 + 4 + 2 * phaseIds.size() + 4 + terrainswaps.size() * 2);
+    data.WriteBit(guid[2]);
+    data.WriteBit(guid[3]);
+    data.WriteBit(guid[1]);
+    data.WriteBit(guid[6]);
+    data.WriteBit(guid[4]);
+    data.WriteBit(guid[5]);
+    data.WriteBit(guid[0]);
+    data.WriteBit(guid[7]);
+
+    data.WriteByteSeq(guid[7]);
+    data.WriteByteSeq(guid[4]);
+
+    data << uint32(0);
+    //for (uint8 i = 0; i < worldMapAreaCount; ++i)
+    //    data << uint16(0);                    // WorldMapArea.dbc id (controls map display)
+
+    data.WriteByteSeq(guid[1]);
+
+    data << uint32(phaseIds.size() ? 0 : 8);  // flags (not phasemask)
+
+    data.WriteByteSeq(guid[2]);
+    data.WriteByteSeq(guid[6]);
+
+    data << uint32(0);                          // Inactive terrain swaps
+    //for (uint8 i = 0; i < inactiveSwapsCount; ++i)
+    //    data << uint16(0);
+
+    data << uint32(phaseIds.size()) * 2;        // Phase.dbc ids
+    for (std::set<uint32>::const_iterator itr = phaseIds.begin(); itr != phaseIds.end(); ++itr)
+        data << uint16(*itr);
+
+    data.WriteByteSeq(guid[3]);
+    data.WriteByteSeq(guid[0]);
+
+    data << uint32(terrainswaps.size()) * 2;    // Active terrain swaps
+    for (std::set<uint32>::const_iterator itr = terrainswaps.begin(); itr != terrainswaps.end(); ++itr)
+        data << uint16(*itr);
+
+    data.WriteByteSeq(guid[5]);
+
     SendPacket(&data);
 }
+
 // Battlefield and Battleground
 void WorldSession::HandleAreaSpiritHealerQueryOpcode(WorldPacket& recvData)
 {
@@ -1743,6 +1859,57 @@ void WorldSession::HandleInstanceLockResponse(WorldPacket& recvPacket)
     _player->SetPendingBind(0, 0);
 }
 
+void WorldSession::HandleRequestHotfix(WorldPacket& recvPacket)
+{
+    uint32 type, count;
+    recvPacket >> type;
+
+    count = recvPacket.ReadBits(23);
+
+    ObjectGuid* guids = new ObjectGuid[count];
+    for (uint32 i = 0; i < count; ++i)
+    {
+        guids[i][0] = recvPacket.ReadBit();
+        guids[i][4] = recvPacket.ReadBit();
+        guids[i][7] = recvPacket.ReadBit();
+        guids[i][2] = recvPacket.ReadBit();
+        guids[i][5] = recvPacket.ReadBit();
+        guids[i][3] = recvPacket.ReadBit();
+        guids[i][6] = recvPacket.ReadBit();
+        guids[i][1] = recvPacket.ReadBit();
+    }
+
+    uint32 entry;
+    for (uint32 i = 0; i < count; ++i)
+    {
+        recvPacket.ReadByteSeq(guids[i][5]);
+        recvPacket.ReadByteSeq(guids[i][6]);
+        recvPacket.ReadByteSeq(guids[i][7]);
+        recvPacket.ReadByteSeq(guids[i][0]);
+        recvPacket.ReadByteSeq(guids[i][1]);
+        recvPacket.ReadByteSeq(guids[i][3]);
+        recvPacket.ReadByteSeq(guids[i][4]);
+        recvPacket >> entry;
+        recvPacket.ReadByteSeq(guids[i][2]);
+
+        switch (type)
+        {
+            case DB2_REPLY_ITEM:
+                SendItemDb2Reply(entry);
+                break;
+            case DB2_REPLY_SPARSE:
+                SendItemSparseDb2Reply(entry);
+                break;
+            default:
+                sLog->outError(LOG_FILTER_NETWORKIO, "CMSG_REQUEST_HOTFIX: Received unknown hotfix type: %u", type);
+                recvPacket.rfinish();
+                break;
+        }
+    }
+
+    delete[] guids;
+}
+
 void WorldSession::HandleUpdateMissileTrajectory(WorldPacket& recvPacket)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_UPDATE_MISSILE_TRAJECTORY");
@@ -1782,7 +1949,169 @@ void WorldSession::HandleUpdateMissileTrajectory(WorldPacket& recvPacket)
     {
         uint32 opcode;
         recvPacket >> opcode;
-        recvPacket.SetOpcode(opcode);
+        recvPacket.SetOpcode(MSG_MOVE_STOP); // always set to MSG_MOVE_STOP in client SetOpcode
         HandleMovementOpcodes(recvPacket);
     }
+}
+
+void WorldSession::HandleViolenceLevel(WorldPacket& recvPacket)
+{
+    uint8 violenceLevel;
+    recvPacket >> violenceLevel;
+
+    // do something?
+}
+
+void WorldSession::HandleObjectUpdateFailedOpcode(WorldPacket& recvPacket)
+{
+    ObjectGuid guid;
+    guid[6] = recvPacket.ReadBit();
+    guid[7] = recvPacket.ReadBit();
+    guid[4] = recvPacket.ReadBit();
+    guid[0] = recvPacket.ReadBit();
+    guid[1] = recvPacket.ReadBit();
+    guid[5] = recvPacket.ReadBit();
+    guid[3] = recvPacket.ReadBit();
+    guid[2] = recvPacket.ReadBit();
+
+    recvPacket.ReadByteSeq(guid[6]);
+    recvPacket.ReadByteSeq(guid[7]);
+    recvPacket.ReadByteSeq(guid[2]);
+    recvPacket.ReadByteSeq(guid[3]);
+    recvPacket.ReadByteSeq(guid[1]);
+    recvPacket.ReadByteSeq(guid[4]);
+    recvPacket.ReadByteSeq(guid[0]);
+    recvPacket.ReadByteSeq(guid[5]);
+
+    WorldObject* obj = ObjectAccessor::GetWorldObject(*GetPlayer(), guid);
+    sLog->outError(LOG_FILTER_NETWORKIO, "Object update failed for object " UI64FMTD " (%s) for player %s (%u)", uint64(guid), obj ? obj->GetName().c_str() : "object-not-found", GetPlayerName().c_str(), GetGuidLow());
+}
+
+void WorldSession::HandleSaveCUFProfiles(WorldPacket& recvPacket)
+{
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_SAVE_CUF_PROFILES");
+
+    uint8 count = (uint8)recvPacket.ReadBits(20);
+
+    if (count > MAX_CUF_PROFILES)
+    {
+        sLog->outError(LOG_FILTER_PLAYER, "HandleSaveCUFProfiles - %s tried to save more than %i CUF profiles. Hacking attempt?", GetPlayerName().c_str(), MAX_CUF_PROFILES);
+        recvPacket.rfinish();
+        return;
+    }
+
+    CUFProfile* profiles[MAX_CUF_PROFILES];
+    uint8 strlens[MAX_CUF_PROFILES];
+
+    for (uint8 i = 0; i < count; ++i)
+    {
+        profiles[i] = new CUFProfile;
+        profiles[i]->BoolOptions.set(CUF_AUTO_ACTIVATE_SPEC_2            , recvPacket.ReadBit());
+        profiles[i]->BoolOptions.set(CUF_AUTO_ACTIVATE_10_PLAYERS        , recvPacket.ReadBit());
+        profiles[i]->BoolOptions.set(CUF_UNK_157                         , recvPacket.ReadBit());
+        profiles[i]->BoolOptions.set(CUF_DISPLAY_HEAL_PREDICTION         , recvPacket.ReadBit());
+        profiles[i]->BoolOptions.set(CUF_AUTO_ACTIVATE_SPEC_1            , recvPacket.ReadBit());
+        profiles[i]->BoolOptions.set(CUF_AUTO_ACTIVATE_PVP               , recvPacket.ReadBit());
+        profiles[i]->BoolOptions.set(CUF_DISPLAY_POWER_BAR               , recvPacket.ReadBit());
+        profiles[i]->BoolOptions.set(CUF_AUTO_ACTIVATE_15_PLAYERS        , recvPacket.ReadBit());
+        profiles[i]->BoolOptions.set(CUF_AUTO_ACTIVATE_40_PLAYERS        , recvPacket.ReadBit());
+        profiles[i]->BoolOptions.set(CUF_DISPLAY_PETS                    , recvPacket.ReadBit());
+        profiles[i]->BoolOptions.set(CUF_AUTO_ACTIVATE_5_PLAYERS         , recvPacket.ReadBit());
+        profiles[i]->BoolOptions.set(CUF_DISPLAY_ONLY_DISPELLABLE_DEBUFFS, recvPacket.ReadBit());
+        profiles[i]->BoolOptions.set(CUF_AUTO_ACTIVATE_2_PLAYERS         , recvPacket.ReadBit());
+        profiles[i]->BoolOptions.set(CUF_UNK_156                         , recvPacket.ReadBit());
+        profiles[i]->BoolOptions.set(CUF_DISPLAY_NON_BOSS_DEBUFFS        , recvPacket.ReadBit());
+        profiles[i]->BoolOptions.set(CUF_DISPLAY_MAIN_TANK_AND_ASSIST    , recvPacket.ReadBit());
+        profiles[i]->BoolOptions.set(CUF_DISPLAY_AGGRO_HIGHLIGHT         , recvPacket.ReadBit());
+        profiles[i]->BoolOptions.set(CUF_AUTO_ACTIVATE_3_PLAYERS         , recvPacket.ReadBit());
+        profiles[i]->BoolOptions.set(CUF_DISPLAY_BORDER                  , recvPacket.ReadBit());
+        profiles[i]->BoolOptions.set(CUF_USE_CLASS_COLORS                , recvPacket.ReadBit());
+        profiles[i]->BoolOptions.set(CUF_UNK_145                         , recvPacket.ReadBit());
+        strlens[i] = (uint8)recvPacket.ReadBits(8);
+        profiles[i]->BoolOptions.set(CUF_AUTO_ACTIVATE_PVE               , recvPacket.ReadBit());
+        profiles[i]->BoolOptions.set(CUF_DISPLAY_HORIZONTAL_GROUPS       , recvPacket.ReadBit());
+        profiles[i]->BoolOptions.set(CUF_AUTO_ACTIVATE_25_PLAYERS        , recvPacket.ReadBit());
+        profiles[i]->BoolOptions.set(CUF_KEEP_GROUPS_TOGETHER            , recvPacket.ReadBit());
+    }
+
+    for (uint8 i = 0; i < count; ++i)
+    {
+        recvPacket >> profiles[i]->Unk146;
+        profiles[i]->ProfileName = recvPacket.ReadString(strlens[i]);
+        recvPacket >> profiles[i]->Unk152;
+        recvPacket >> profiles[i]->FrameHeight;
+        recvPacket >> profiles[i]->FrameWidth;
+        recvPacket >> profiles[i]->Unk150;
+        recvPacket >> profiles[i]->HealthText;
+        recvPacket >> profiles[i]->Unk147;
+        recvPacket >> profiles[i]->SortBy;
+        recvPacket >> profiles[i]->Unk154;
+        recvPacket >> profiles[i]->Unk148;
+
+        GetPlayer()->SaveCUFProfile(i, profiles[i]);
+    }
+
+    for (uint8 i = count; i < MAX_CUF_PROFILES; ++i)
+        GetPlayer()->SaveCUFProfile(i, NULL);
+}
+
+void WorldSession::SendLoadCUFProfiles()
+{
+    Player* player = GetPlayer();
+
+    uint8 count = player->GetCUFProfilesCount();
+
+    ByteBuffer byteBuffer(25 * count);
+    WorldPacket data(SMSG_LOAD_CUF_PROFILES, 5 * count + 25 * count);
+
+    data.WriteBits(count, 20);
+    for (uint8 i = 0; i < MAX_CUF_PROFILES; ++i)
+    {
+        CUFProfile* profile = player->GetCUFProfile(i);
+        if (!profile)
+            continue;
+
+        data.WriteBit(profile->BoolOptions[CUF_UNK_157]);
+        data.WriteBit(profile->BoolOptions[CUF_AUTO_ACTIVATE_10_PLAYERS]);
+        data.WriteBit(profile->BoolOptions[CUF_AUTO_ACTIVATE_5_PLAYERS]);
+        data.WriteBit(profile->BoolOptions[CUF_AUTO_ACTIVATE_25_PLAYERS]);
+        data.WriteBit(profile->BoolOptions[CUF_DISPLAY_HEAL_PREDICTION]);
+        data.WriteBit(profile->BoolOptions[CUF_AUTO_ACTIVATE_PVE]);
+        data.WriteBit(profile->BoolOptions[CUF_DISPLAY_HORIZONTAL_GROUPS]);
+        data.WriteBit(profile->BoolOptions[CUF_AUTO_ACTIVATE_40_PLAYERS]);
+        data.WriteBit(profile->BoolOptions[CUF_AUTO_ACTIVATE_3_PLAYERS]);
+        data.WriteBit(profile->BoolOptions[CUF_DISPLAY_AGGRO_HIGHLIGHT]);
+        data.WriteBit(profile->BoolOptions[CUF_DISPLAY_BORDER]);
+        data.WriteBit(profile->BoolOptions[CUF_AUTO_ACTIVATE_2_PLAYERS]);
+        data.WriteBit(profile->BoolOptions[CUF_DISPLAY_NON_BOSS_DEBUFFS]);
+        data.WriteBit(profile->BoolOptions[CUF_DISPLAY_MAIN_TANK_AND_ASSIST]);
+        data.WriteBit(profile->BoolOptions[CUF_UNK_156]);
+        data.WriteBit(profile->BoolOptions[CUF_AUTO_ACTIVATE_SPEC_2]);
+        data.WriteBit(profile->BoolOptions[CUF_USE_CLASS_COLORS]);
+        data.WriteBit(profile->BoolOptions[CUF_DISPLAY_POWER_BAR]);
+        data.WriteBit(profile->BoolOptions[CUF_AUTO_ACTIVATE_SPEC_1]);
+        data.WriteBits(profile->ProfileName.size(), 8);
+        data.WriteBit(profile->BoolOptions[CUF_DISPLAY_ONLY_DISPELLABLE_DEBUFFS]);
+        data.WriteBit(profile->BoolOptions[CUF_KEEP_GROUPS_TOGETHER]);
+        data.WriteBit(profile->BoolOptions[CUF_UNK_145]);
+        data.WriteBit(profile->BoolOptions[CUF_AUTO_ACTIVATE_15_PLAYERS]);
+        data.WriteBit(profile->BoolOptions[CUF_DISPLAY_PETS]);
+        data.WriteBit(profile->BoolOptions[CUF_AUTO_ACTIVATE_PVP]);
+
+        byteBuffer << uint16(profile->Unk154);
+        byteBuffer << uint16(profile->FrameHeight);
+        byteBuffer << uint16(profile->Unk152);
+        byteBuffer << uint8(profile->Unk147);
+        byteBuffer << uint16(profile->Unk150);
+        byteBuffer << uint8(profile->Unk146);
+        byteBuffer << uint8(profile->HealthText);
+        byteBuffer << uint8(profile->SortBy);
+        byteBuffer << uint16(profile->FrameWidth);
+        byteBuffer << uint8(profile->Unk148);
+        byteBuffer.WriteString(profile->ProfileName);
+    }
+
+    data.FlushBits();
+    data.append(byteBuffer);
+    SendPacket(&data);
 }

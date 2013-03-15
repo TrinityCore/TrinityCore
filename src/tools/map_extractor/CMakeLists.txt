@@ -11,19 +11,12 @@
 
 file(GLOB_RECURSE sources *.cpp *.h)
 
-set(include_Dirs
-    ${CMAKE_SOURCE_DIR}/src/server/shared
-    ${CMAKE_SOURCE_DIR}/dep/libmpq
-    ${CMAKE_CURRENT_SOURCE_DIR}
-    ${CMAKE_CURRENT_SOURCE_DIR}/loadlib
+include_directories (
+  ${CMAKE_SOURCE_DIR}/src/server/shared
+  ${CMAKE_SOURCE_DIR}/dep/StormLib/src
+  ${CMAKE_CURRENT_SOURCE_DIR}
+  ${CMAKE_CURRENT_SOURCE_DIR}/loadlib
 )
-
-if( WIN32 )
-  set(include_Dirs
-    ${include_Dirs}
-    ${CMAKE_SOURCE_DIR}/dep/libmpq/win
-  )
-endif()
 
 include_directories(${include_Dirs})
 
@@ -32,10 +25,12 @@ add_executable(mapextractor
 )
 
 target_link_libraries(mapextractor
-  mpq
   ${BZIP2_LIBRARIES}
   ${ZLIB_LIBRARIES}
+  storm
 )
+
+add_dependencies(mapextractor storm)
 
 if( UNIX )
   install(TARGETS mapextractor DESTINATION bin)
