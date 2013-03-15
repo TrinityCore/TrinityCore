@@ -8769,7 +8769,7 @@ void ObjectMgr::LoadMissingKeyChains()
     do
     {
         Field* fields = result->Fetch();
-        uint32 id = fields[0].GetUInt32();;
+        uint32 id = fields[0].GetUInt32();
 
         KeyChainEntry* kce = sKeyChainStore.CreateEntry(id, true);
         kce->Id = id;
