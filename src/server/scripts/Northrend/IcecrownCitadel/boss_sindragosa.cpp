@@ -349,7 +349,7 @@ class boss_sindragosa : public CreatureScript
                         events.ScheduleEvent(EVENT_AIR_MOVEMENT, 1);
                         break;
                     case POINT_AIR_PHASE:
-                        me->CastCustomSpell(SPELL_ICE_TOMB_TARGET, SPELLVALUE_MAX_TARGETS, RAID_MODE<int32>(2, 5, 2, 6), NULL);
+                        me->CastCustomSpell(SPELL_ICE_TOMB_TARGET, SPELLVALUE_MAX_TARGETS, RAID_MODE<int32>(2, 5, 2, 6), false);
                         me->SetFacingTo(float(M_PI));
                         events.ScheduleEvent(EVENT_AIR_MOVEMENT_FAR, 1);
                         _frostBombCounter = 0;
@@ -1447,7 +1447,7 @@ class spell_sindragosa_ice_tomb : public SpellScriptLoader
                 float distance = caster->GetExactDist2d(unit) - 6.0f;
                 float summonX = caster->GetPositionX() + cos(angle) * distance;
                 float summonY = caster->GetPositionY() + sin(angle) * distance;
-                float summonZ = unit->GetPositionZ() + 1.0f;
+                float summonZ = unit->GetPositionZ() + 3.0f;
 
                 unit->UpdateGroundPositionZ(summonX, summonY, summonZ);
 

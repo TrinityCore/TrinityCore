@@ -1524,11 +1524,11 @@ bool WorldObject::IsWithinLOSInMap(const WorldObject* obj) const
 
     // Hack for ice tomb's gameobject
     if (obj->GetTypeId() == TYPEID_UNIT)
-        if (obj->GetEntry() == 36980 /* Ice Tomb */)
+        if (obj->GetEntry() == 36980 || obj->GetEntry() == 38320 || obj->GetEntry() == 38321 || obj->GetEntry() == 38322 /* Ice Tomb */)
             return true;
 
     if (GetTypeId() == TYPEID_UNIT)
-        if (GetEntry() == 36980 /* Ice Tomb */)
+        if (GetEntry() == 36980 || GetEntry() == 38320 || GetEntry() == 38321 || GetEntry() == 38322 /* Ice Tomb */)
             return true;
 
     float ox, oy, oz;
