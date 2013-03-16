@@ -2336,7 +2336,7 @@ void AuraEffect::HandleAuraModPacifyAndSilence(AuraApplication const* aurApp, ui
     Unit* target = aurApp->GetTarget();
 
     // Vengeance of the Blue Flight (@todo REMOVE THIS!)
-	/// @workaround
+    /// @workaround
     if (m_spellInfo->Id == 45839)
     {
         if (apply)
@@ -2935,6 +2935,9 @@ void AuraEffect::HandleAuraControlVehicle(AuraApplication const* aurApp, uint8 m
     }
     else
     {
+        // Remove pending passengers before exiting vehicle - might cause an Uninstall
+        target->GetVehicleKit()->RemovePendingEventsForPassenger(caster);
+
         if (GetId() == 53111) // Devour Humanoid
         {
             target->Kill(caster);
