@@ -659,7 +659,7 @@ enum TrashSpells
     SPELL_ICE_SHOT                                = 72268,
 };
 
-enum Trash Events
+enum TrashEvents
 {
     EVENT_TRASH_NONE,
 

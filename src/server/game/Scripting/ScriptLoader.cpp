@@ -1228,7 +1228,7 @@ void AddNorthrendScripts()
     AddSC_halls_of_reflection();
     AddSC_boss_falric();
     AddSC_boss_marwyn();
-    AddSC_npc_the_lich_king_hor()
+    AddSC_npc_the_lich_king_hor();
     AddSC_boss_lord_marrowgar();        // Icecrown Citadel
     AddSC_boss_lady_deathwhisper();
     AddSC_boss_deathbringer_saurfang();
