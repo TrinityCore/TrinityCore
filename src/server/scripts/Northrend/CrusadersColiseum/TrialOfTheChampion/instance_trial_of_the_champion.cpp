@@ -27,13 +27,6 @@ EndScriptData */
 
 #define MAX_ENCOUNTER  4
 
-enum eEnums
-{
-    SAY_START                               = 0, // WTF!
-    SAY_START11                             = 0, // WTF!
-    SAY_START_9                             = 0  // WTF!
-};
-
 class instance_trial_of_the_champion : public InstanceMapScript
 {
 public:
@@ -320,7 +313,6 @@ public:
                     uiAgroDone = uiData;
                     if (Creature* pAnnouncer = instance->GetCreature(uiAnnouncerGUID))
                     {
-                        pAnnouncer->AI()->Talk(SAY_START11);
                         pAnnouncer->SetVisible(false);
                     }
                     break;

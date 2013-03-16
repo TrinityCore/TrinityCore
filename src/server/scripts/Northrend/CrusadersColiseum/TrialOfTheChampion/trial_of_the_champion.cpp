@@ -43,47 +43,46 @@ EndContentData */
 const Position SpawnPosition  = {746.843f, 695.68f, 412.339f, 4.70776f};
 const Position SpawnPosition1 = {746.71f, 661.02f, 411.69f, 4.66995f};
 
-enum eEnums
+enum Texts
 {
-    SAY_START             = 3,
-    SAY_START2            = 2,
-    SAY_START3            = 3,
-    SAY_START5            = 8,
-    SAY_START11           = 0, //WTF!?
-    CHAMP_INTRO_H1        = 2, // Jaeren: The Sunreavers are proud to present their representatives in this trial by combat.
-    CHAMP_INTRO_2         = 50, // Tirion: Welcome, champions. Today, before the eyes of your leaders and peers, you will prove youselves worthy combatants.
-    CHAMP_INTRO_H3        = 0, // Thrall: Fight well, Horde! Lok'tar Ogar!
-    CHAMP_INTRO_H4        = 0, // Garrosh: Finally, a fight worth watching.
-    CHAMP_INTRO_H5        = 52, // Varian: I did not come here to watch animals tear at each other senselessly, Tirion
-    CHAMP_INTRO_H6        = 0, // WTF! Jaina: They're worthy fighters, you'll see.
-    CHAMP_INTRO_A1        = 2, // The Silver Covenant is pleased to present their contenders for this event, Highlord.
-    CHAMP_INTRO_A3        = 50, // Varian: I have no taste for these games, Tirion.  Still... I trust they will perform admirably.
-    CHAMP_INTRO_A4        = 0, // WTF! Jaina: Of course they will.
-    CHAMP_INTRO_A5        = 52, // Garrosh: Admirably? Hah!  I will enjoy watching your weak little champions fail, human.
-    CHAMP_INTRO_A6        = 2, // Thrall: Garrosh, enough.
-    CHAMP_INTRO_7         = 51,
-    AN_7                  = 53,
-    AN_8                  = 54,
-    CHAMP_ORG_1           = 5,
-    CHAMP_ORG_2           = 0,
-    CHAMP_SW_1            = 6,
-    CHAMP_SW_2            = 0,
-    CHAMP_SM_1            = 3,
-    CHAMP_SM_2            = 0,
-    CHAMP_GN_1            = 5,
-    CHAMP_GN_2            = 0,
-    CHAMP_TB_1            = 7,
-    CHAMP_TB_2            = 0,
-    CHAMP_EXO_1           = 3,
-    CHAMP_EXO_2           = 0, // WTF!
-    CHAMP_SJ_1            = 4,
-    CHAMP_SJ_2            = 0, // WTF!
-    CHAMP_DAR_1           = 4,
-    CHAMP_DAR_2           = 0,
-    CHAMP_UC_1            = 6,
-    CHAMP_UC_2            = 0,
-    CHAMP_IF_1            = 7,
-    CHAMP_IF_2            = 0, // WTF!
+    // Starts when you enter toc
+    SAY_INTRO_HERALD_1          = 0, 
+    SAY_INTRO_HERALD_2          = 17,
+    SAY_INTRO_HERALD_3          = 10,
+    SAY_INTRO_HERALD_4          = 10,
+    SAY_INTRO_HERALD_5          = 11,
+    SAY_INTRO_HERALD_6          = 11,
+    SAY_INTRO_HERALD_7          = 18,
+
+    // Announcing the fighters
+    SAY_WARRIOR_ENTERS          = 1,
+    SAY_WARRIOR_CHEER           = 2,
+    SAY_MAGE_ENTERS             = 3,
+    SAY_MAGE_CHEER              = 4,
+    SAY_SHAMAN_ENTERS           = 5,
+    SAY_SHAMAN_CHEER            = 6,
+    SAY_HUNTER_ENTERS           = 7,
+    SAY_HUNTER_CHEER            = 8,
+    SAY_ROGUE_ENTERS            = 9,
+    SAY_ROGUE_CHEER             = 10,
+
+    // Argent Champion
+    SAY_ARGENT_CHAMP_ENTERS     = 19,
+    SAY_PALETRESS_INTRO_1       = 11,
+    SAY_PALETRESS_INTRO_2       = 12,
+    SAY_PALETRESS_INTRO_3       = 0,
+    SAY_PALETRESS_INTRO_4       = 1,
+    SAY_EADRIC_INTRO_1          = 13,
+    SAY_EADRIC_INTRO_2          = 14,
+    SAY_EADRIC_INTRO_3          = 0,
+
+    // Black Knight
+    SAY_INTRO_BLACK_KNIGHT_TIRION   = 21,
+    SAY_HERALD_RAFTERS          = 15,
+    SAY_OUTRO_1_TIRION          = 23,
+    SAY_OUTRO_2_TIRION          = 24,
+    SAY_OUTRO_3_ALLY            = 13,
+    SAY_OUTRO_3_HORDE           = 12,
 };
 
 enum IntroPhase
@@ -211,51 +210,51 @@ class npc_anstart : public CreatureScript
                     case 1:
                         pInstance->DoCastSpellOnPlayers(SPELL_HERALD_ARGENT);
                         if (pInstance->GetData(DATA_TEAM_IN_INSTANCE) == HORDE)
-                            Talk(CHAMP_INTRO_H1);
+                            Talk(SAY_INTRO_HERALD_1);
                         else
-                            Talk(CHAMP_INTRO_A1);
+                            Talk(SAY_INTRO_HERALD_1);
                         ++uiIntroPhase;
                         uiIntroTimer = 5000;
                         break;
                     case 2:
-                        pHighlord->AI()->Talk(CHAMP_INTRO_2);
+                        pHighlord->AI()->Talk(SAY_INTRO_HERALD_2);
                         ++uiIntroPhase;
                         uiIntroTimer = 13000;
                         break;
                     case 3:
                         if (pInstance->GetData(DATA_TEAM_IN_INSTANCE) == HORDE)
-                            pTrall->AI()->Talk(CHAMP_INTRO_H3);
+                            pTrall->AI()->Talk(SAY_INTRO_HERALD_3);
                         else
-                            pKing->AI()->Talk(CHAMP_INTRO_A3);
+                            pKing->AI()->Talk(SAY_INTRO_HERALD_3);
                         ++uiIntroPhase;
                         uiIntroTimer = 4000;
                         break;
                     case 4:
                         if (pInstance->GetData(DATA_TEAM_IN_INSTANCE) == HORDE)
-                            pGarrosh->AI()->Talk(CHAMP_INTRO_H4);
+                            pGarrosh->AI()->Talk(SAY_INTRO_HERALD_4);
                         else
-                            pLady->AI()->Talk(CHAMP_INTRO_A4);
+                            pLady->AI()->Talk(SAY_INTRO_HERALD_4);
                         ++uiIntroPhase;
                         uiIntroTimer = 4000;
                         break;
                     case 5:
                         if (pInstance->GetData(DATA_TEAM_IN_INSTANCE) == HORDE)
-                            pKing->AI()->Talk(CHAMP_INTRO_H5);
+                            pKing->AI()->Talk(SAY_INTRO_HERALD_5);
                         else
-                            pGarrosh->AI()->Talk(CHAMP_INTRO_A5);
+                            pGarrosh->AI()->Talk(SAY_INTRO_HERALD_5);
                         ++uiIntroPhase;
                         uiIntroTimer = 6000;
                         break;
                     case 6:
                         if (pInstance->GetData(DATA_TEAM_IN_INSTANCE) == HORDE)
-                            pLady->AI()->Talk(CHAMP_INTRO_H6);
+                            pLady->AI()->Talk(SAY_INTRO_HERALD_6);
                         else
-                            pTrall->AI()->Talk(CHAMP_INTRO_A6);
+                            pTrall->AI()->Talk(SAY_INTRO_HERALD_6);
                         ++uiIntroPhase;
                         uiIntroTimer = 6000;
                         break;
                     case 7:
-                        pHighlord->AI()->Talk(CHAMP_INTRO_7);
+                        pHighlord->AI()->Talk(SAY_INTRO_HERALD_7);
                         ++uiIntroPhase;
                         uiIntroTimer = 1000;
                         break;
@@ -446,13 +445,13 @@ class npc_announcer_toc5 : public CreatureScript
                 case 0:
                     if (pInstance->GetData(DATA_TEAM_IN_INSTANCE) == HORDE)
                     {
-                        Talk(CHAMP_SW_1);
-                        Talk(CHAMP_SW_2);
+                        Talk(SAY_WARRIOR_ENTERS);
+                        Talk(SAY_WARRIOR_CHEER);
                     }
                     else
                     {
-                        Talk(CHAMP_ORG_1);
-                        Talk(CHAMP_ORG_2);
+                        Talk(SAY_WARRIOR_ENTERS);
+                        Talk(SAY_WARRIOR_CHEER);
                     }
                         VEHICLE_TO_SUMMON1 = VEHICLE_MOKRA_SKILLCRUSHER_MOUNT;
                         VEHICLE_TO_SUMMON2 = VEHICLE_ORGRIMMAR_WOLF;
@@ -460,13 +459,13 @@ class npc_announcer_toc5 : public CreatureScript
                 case 1:
                     if (pInstance->GetData(DATA_TEAM_IN_INSTANCE) == HORDE)
                     {
-                        Talk(CHAMP_GN_1);
-                        Talk(CHAMP_GN_2);
+                        Talk(SAY_MAGE_ENTERS);
+                        Talk(SAY_MAGE_CHEER);
                     }
                     else
                     {
-                        Talk(CHAMP_SM_1);
-                        Talk(CHAMP_SM_2);
+                        Talk(SAY_MAGE_ENTERS);
+                        Talk(SAY_MAGE_CHEER);
                     }
                         VEHICLE_TO_SUMMON1 = VEHICLE_ERESSEA_DAWNSINGER_MOUNT;
                         VEHICLE_TO_SUMMON2 = VEHICLE_SILVERMOON_HAWKSTRIDER;
@@ -474,13 +473,13 @@ class npc_announcer_toc5 : public CreatureScript
                 case 2:
                     if (pInstance->GetData(DATA_TEAM_IN_INSTANCE) == HORDE)
                     {
-                        Talk(CHAMP_EXO_1);
-                        Talk(CHAMP_EXO_2);
+                        Talk(SAY_SHAMAN_ENTERS);
+                        Talk(SAY_SHAMAN_CHEER);
                     }
                     else
                     {
-                        Talk(CHAMP_TB_1);
-                        Talk(CHAMP_TB_2);
+                        Talk(SAY_SHAMAN_ENTERS);
+                        Talk(SAY_SHAMAN_CHEER);
                     }
                         VEHICLE_TO_SUMMON1 = VEHICLE_RUNOK_WILDMANE_MOUNT;
                         VEHICLE_TO_SUMMON2 = VEHICLE_THUNDER_BLUFF_KODO;
@@ -488,13 +487,13 @@ class npc_announcer_toc5 : public CreatureScript
                 case 3:
                     if (pInstance->GetData(DATA_TEAM_IN_INSTANCE) == HORDE)
                     {
-                        Talk(CHAMP_DAR_1);
-                        Talk(CHAMP_DAR_2);
+                        Talk(SAY_HUNTER_ENTERS);
+                        Talk(SAY_HUNTER_CHEER);
                     }
                     else
                     {
-                        Talk(CHAMP_SJ_1);
-                        Talk(CHAMP_SJ_2);
+                        Talk(SAY_HUNTER_ENTERS);
+                        Talk(SAY_HUNTER_CHEER);
                     }
                         VEHICLE_TO_SUMMON1 = VEHICLE_ZUL_TORE_MOUNT;
                         VEHICLE_TO_SUMMON2 = VEHICLE_DARKSPEAR_RAPTOR;
@@ -502,13 +501,13 @@ class npc_announcer_toc5 : public CreatureScript
                 case 4:
                     if (pInstance->GetData(DATA_TEAM_IN_INSTANCE) == HORDE)
                     {
-                        Talk(CHAMP_IF_1);
-                        Talk(CHAMP_IF_2);
+                        Talk(SAY_ROGUE_ENTERS);
+                        Talk(SAY_ROGUE_CHEER);
                     }
                     else
                     {
-                        Talk(CHAMP_UC_1);
-                        Talk(CHAMP_UC_2);
+                        Talk(SAY_ROGUE_ENTERS);
+                        Talk(SAY_ROGUE_CHEER);
                     }
                         VEHICLE_TO_SUMMON1 = VEHICLE_DEATHSTALKER_VESCERI_MOUNT;
                         VEHICLE_TO_SUMMON2 = VEHICLE_FORSAKE_WARHORSE;
@@ -610,7 +609,7 @@ class npc_announcer_toc5 : public CreatureScript
 
         void DoStartArgentChampionEncounter()
         {
-            Talk(SAY_START3);
+            Talk(SAY_ARGENT_CHAMP_ENTERS);
             if (Creature* pBoss = me->SummonCreature(uiArgentChampion, SpawnPosition))
             {
                 pBoss->GetMotionMaster()->MovePoint(1, 746.71f, 661.02f, 411.69f);
@@ -628,7 +627,6 @@ class npc_announcer_toc5 : public CreatureScript
 
         void EnterCombat(Unit* pWho)
         {
-            Talk(SAY_START11);
             me->SetReactState(REACT_PASSIVE);
             if (Creature* pGhoul = me->SummonCreature(NPC_RISEN_JAEREN, 742.835f, 639.134f, 411.571f, 1.05731f))
             {
@@ -693,7 +691,7 @@ class npc_announcer_toc5 : public CreatureScript
                    me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                    me->SetReactState(REACT_AGGRESSIVE);
                    me->setFaction(2054);
-                   Talk(SAY_START5);
+                   Talk(SAY_INTRO_BLACK_KNIGHT_TIRION);
                 }
             }
         }

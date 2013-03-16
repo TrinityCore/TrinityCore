@@ -27,21 +27,20 @@ EndScriptData */
 #include "trial_of_the_champion.h"
 #include "Vehicle.h"
 
-enum eEnums
+enum Talk
 {
-    SAY_INTRO_1             = 0, // You spoiled my grand entrance, Rat.
-    SAY_INTRO_2             = 56, // What is the meaning of this? -Tirion
-    SAY_INTRO_3             = 1, // Did you honestly think an agent of the Lich King would be bested on the field of your pathetic little tournament?
-    SAY_INTRO_4             = 2, // I have come to finish my task
-    SAY_AGGRO               = 3, // This farce ends here!
-    SAY_AGGRO_A             = 51, // Don't just stand there; kill him!
-    SAY_AGGRO_H             = 51, // Tear him apart!
-    SAY_KILL_1              = 6, // Pathetic
-    SAY_KILL_2              = 6, // A waste of flesh.
-    SAY_PHASE_1             = 4, // My roting flash was just getting in the way!
-    SAY_PHASE_2             = 5, // I have no need for bones to best you!
-    SAY_DEATH               = 7, // No! I must not fail...again...
-    SAY_START11             = 0, // WTF! I am too young.
+
+   SAY_INTRO_1                             = 0, // You spoiled my grand entrance, Rat.
+   SAY_INTRO_2                             = 22, // What is the meaning of this? -Tirion
+   SAY_INTRO_3                             = 1, // Did you honestly think an agent of the Lich King would be bested on the field of your pathetic little tournament?
+   SAY_INTRO_4                             = 2, // I have come to finish my task
+   SAY_AGGRO                               = 3, // This farce ends here!
+   SAY_AGGRO_A                             = 12, // Don't just stand there; kill him!
+   SAY_AGGRO_H                             = 12, // Tear him apart!
+   SAY_KILLED_PLAYER                       = 4, // Pathetic | A waste of flesh.
+   SAY_PHASE_1                             = 5, // My roting flash was just getting in the way!
+   SAY_PHASE_2                             = 6, // I have no need for bones to best you!
+   SAY_DEATH                               = 7, // No! I must not fail...again...
 };
 
 enum eSpells
@@ -275,7 +274,6 @@ public:
                         case 1:
                         {
                             Creature* pAnnouncer = Unit::GetCreature(*me, instance->GetData64(DATA_ANNOUNCER));
-                            pAnnouncer->AI()->Talk(SAY_START11);
                             ++uiIntroPhase;
                             uiIntroTimer = 2000;
                             break;
@@ -536,8 +534,7 @@ public:
 
         void KilledUnit(Unit* /*victim*/)
         {
-            //Talk(urand(0, 1) ? SAY_KILL_1 : SAY_KILL_2);
-            Talk(urand(0, 1) ? SAY_KILL_1 : SAY_KILL_2);
+            Talk(SAY_KILLED_PLAYER);
             if (instance)
                 instance->SetData(BOSS_BLACK_KNIGHT, IN_PROGRESS);
         }

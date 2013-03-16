@@ -78,25 +78,23 @@ enum Misc
     ACHIEV_CONF                 = 3802
 };
 
-enum eEnums
+enum Talk
 {
-    SAY_MEM_DIE                 = 4,
-    SAY_DEATH_P                 = 6,
-    SAY_INTRO_P2                = 1,
-    SAY_INTRO_P1                = 0,
-    SAY_INTRO_E                 = 0,
-    SAY_HAMMER_E                = 4,
-    SAY_DEATH_E                 = 6,
-    SAY_START_E                 = 1,
-    SAY_KILL1_P                 = 5,
-    SAY_KILL2_P                 = 5,
-    SAY_KILL1_E                 = 5,
-    SAY_KILL2_E                 = 5,
-    SAY_START_10                = 0, // WTF!
-    SAY_START_8                 = 0, // WTF!
-    SAY_START_P                 = 0,
-    SAY_START_7                 = 0, // WTF!
-    SAY_START_6                 = 3
+    SAY_ARGENT_ENTERS           = 19,
+    SAY_ARGENT_READY            = 20,
+
+    // Paletress
+    SAY_PALETRESS_AGGRO         = 2,
+    SAY_PALETRESS_SUMMON_MEMORY = 3,
+    SAY_PALETRESS_MEMORY_DIES   = 4,
+    SAY_PALETRESS_PLAYER_DIES   = 5,
+    SAY_PALETRESS_DEFEATED      = 6,
+
+    // Eadric
+    SAY_EADRIC_AGGRO            = 1,
+    SAY_EADRIC_HAMMER           = 2,
+    SAY_EADRIC_PLAYER_DIES      = 3,
+    SAY_EADRIC_DEFEATED         = 4
 };
 
 class OrientationCheck
@@ -182,7 +180,6 @@ class boss_eadric : public CreatureScript
         {
             instance = creature->GetInstanceScript();
             creature->SetReactState(REACT_PASSIVE);
-            Talk(SAY_INTRO_E);
             creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
 
             hasBeenInCombat=false;
@@ -245,7 +242,7 @@ class boss_eadric : public CreatureScript
 
                 EnterEvadeMode();
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                Talk(SAY_DEATH_E);
+                Talk(SAY_EADRIC_DEFEATED);
                 me->setFaction(35);
                 bDone = true;
                 if (GameObject* pGO = GameObject::GetGameObject(*me, instance->GetData64(DATA_MAIN_GATE)))
@@ -268,7 +265,7 @@ class boss_eadric : public CreatureScript
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             _EnterCombat();
             me->SetHomePosition(746.843f, 665.000f, 412.339f, 4.670f);
-            Talk(SAY_START_E);
+            Talk(SAY_EADRIC_AGGRO);
             hasBeenInCombat = true;
         }
 
@@ -303,7 +300,7 @@ class boss_eadric : public CreatureScript
                 {
                     if (target && target->isAlive())
                     {
-                        Talk(SAY_HAMMER_E);
+                        Talk(SAY_EADRIC_HAMMER);
                         DoCast(target, SPELL_HAMMER_JUSTICE);
                         DoCast(target, SPELL_HAMMER_RIGHTEOUS);
                     }
@@ -356,7 +353,6 @@ class boss_paletress : public CreatureScript
             hasBeenInCombat = false;
             bCredit = false;
             MemoryGUID = 0;
-            Talk(SAY_INTRO_P2);
             creature->SetReactState(REACT_PASSIVE);
             creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             creature->RestoreFaction();
@@ -425,14 +421,14 @@ class boss_paletress : public CreatureScript
             _EnterCombat();
             me->SetHomePosition(746.843f, 665.000f, 412.339f, 4.670f);
             hasBeenInCombat = true;
-            Talk(SAY_START_10);
+            Talk(SAY_PALETRESS_AGGRO);
         }
 
         void SetData(uint32 uiId, uint32 uiValue)
         {
             if (uiId == 1)
                 me->RemoveAura(SPELL_SHIELD);
-                Talk(SAY_MEM_DIE);
+                Talk(SAY_PALETRESS_MEMORY_DIES);
         }
 
         void DamageTaken(Unit* /*who*/, uint32& damage)
@@ -448,7 +444,7 @@ class boss_paletress : public CreatureScript
 
                 EnterEvadeMode();
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                Talk(SAY_DEATH_P);
+                Talk(SAY_PALETRESS_DEFEATED);
                 me->setFaction(35);
                 bDone = true;
                 if (GameObject* pGO = GameObject::GetGameObject(*me, pInstance->GetData64(DATA_MAIN_GATE)))
@@ -537,7 +533,7 @@ class boss_paletress : public CreatureScript
 
             if (!bHealth && me->GetHealth() * 100 / me->GetMaxHealth() <= 35)
             {
-                Talk(SAY_START_6);
+                Talk(SAY_PALETRESS_SUMMON_MEMORY);
                 me->InterruptNonMeleeSpells(true);
                 DoCastAOE(SPELL_HOLY_NOVA, false);
                 DoCast(me, SPELL_SHIELD);
