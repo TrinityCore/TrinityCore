@@ -269,21 +269,21 @@ INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language
 (34990, 13, 0, "You fought well.", 12, 0, 0, 2, 0, 0, "ToC5 - Black Knight Dies Alliance 3");
 
 -- Equipment
-UPDATE `creature` SET `equipment_id`=2049 WHERE `entry` in (35314,35326,35327,35325,35323,35331,35330,35329,35328,35332);
-UPDATE `creature` SET `equipment_id`=2025 WHERE `entry` in (35571,36090);
-UPDATE `creature` SET `equipment_id`=2021 WHERE `entry` in (35569,36085);
-UPDATE `creature` SET `equipment_id`=2018 WHERE `entry` in (35572,36089);
-UPDATE `creature` SET `equipment_id`=2020 WHERE `entry` in (35617,36084);
-UPDATE `creature` SET `equipment_id`=2019 WHERE `entry` in (35570,36091);
-UPDATE `creature` SET `equipment_id`=2096 WHERE `entry` in (34701,36803);
-UPDATE `creature` SET `equipment_id`=2093 WHERE `entry` in (34703,36087);
-UPDATE `creature` SET `equipment_id`=2095 WHERE `entry` in (34657,36086);
-UPDATE `creature` SET `equipment_id`=2092 WHERE `entry` in (34705,36088);
-UPDATE `creature` SET `equipment_id`=834 WHERE `entry` in (35119,35518);
-UPDATE `creature` SET `equipment_id`=235 WHERE `entry` in (34928,35517);
-UPDATE `creature` SET `equipment_id`=279 WHERE `entry` in (35307);
-UPDATE `creature` SET `equipment_id`=1014 WHERE `entry` in (35309);
-UPDATE `creature` SET `equipment_id`=0 WHERE `entry` in (35451,35490);
+UPDATE `creature` SET `equipment_id`=2049 WHERE `id` in (35314,35326,35327,35325,35323,35331,35330,35329,35328,35332);
+UPDATE `creature` SET `equipment_id`=2025 WHERE `id` in (35571,36090);
+UPDATE `creature` SET `equipment_id`=2021 WHERE `id` in (35569,36085);
+UPDATE `creature` SET `equipment_id`=2018 WHERE `id` in (35572,36089);
+UPDATE `creature` SET `equipment_id`=2020 WHERE `id` in (35617,36084);
+UPDATE `creature` SET `equipment_id`=2019 WHERE `id` in (35570,36091);
+UPDATE `creature` SET `equipment_id`=2096 WHERE `id` in (34701,36803);
+UPDATE `creature` SET `equipment_id`=2093 WHERE `id` in (34703,36087);
+UPDATE `creature` SET `equipment_id`=2095 WHERE `id` in (34657,36086);
+UPDATE `creature` SET `equipment_id`=2092 WHERE `id` in (34705,36088);
+UPDATE `creature` SET `equipment_id`=834 WHERE `id` in (35119,35518);
+UPDATE `creature` SET `equipment_id`=235 WHERE `id` in (34928,35517);
+UPDATE `creature` SET `equipment_id`=279 WHERE `id` in (35307);
+UPDATE `creature` SET `equipment_id`=1014 WHERE `id` in (35309);
+UPDATE `creature` SET `equipment_id`=0 WHERE `id` in (35451,35490);
 
 -- Fountain of Light
 DELETE FROM `creature_template` WHERE `entry`=35311;
