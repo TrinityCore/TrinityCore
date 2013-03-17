@@ -1865,6 +1865,14 @@ void WorldSession::HandleRequestHotfix(WorldPacket& recvPacket)
     uint32 type, count;
     recvPacket >> type;
 
+    DB2StorageBase const* store = GetDB2Storage(type);
+    if (!store)
+    {
+        sLog->outError(LOG_FILTER_NETWORKIO, "CMSG_REQUEST_HOTFIX: Received unknown hotfix type: %u", type);
+        recvPacket.rfinish();
+        return;
+    }
+
     count = recvPacket.ReadBits(23);
 
     ObjectGuid* guids = new ObjectGuid[count];
@@ -1893,61 +1901,31 @@ void WorldSession::HandleRequestHotfix(WorldPacket& recvPacket)
         recvPacket >> entry;
         recvPacket.ReadByteSeq(guids[i][2]);
 
-        switch (type)
+        if (!store->HasRecord(entry))
         {
-            case DB2_HASH_ITEM:
-                SendItemDb2Reply(entry);
-                break;
-            case DB2_HASH_ITEM_SPARSE:
-                SendItemSparseDb2Reply(entry);
-                break;
-            case DB2_HASH_KEYCHAIN:
-                SendKeyChainDb2Reply(entry);
-                break;
-            default:
-            {
-                WorldPacket data(SMSG_DB_REPLY, 4 * 4);
-                data << -int32(entry);
-                data << uint32(type);
-                data << uint32(time(NULL));
-                data << uint32(0);
-                SendPacket(&data);
-
-                sLog->outError(LOG_FILTER_NETWORKIO, "CMSG_REQUEST_HOTFIX: Received unknown hotfix type: %u, entry %u", type, entry);
-                recvPacket.rfinish();
-                break;
-            }
+            WorldPacket data(SMSG_DB_REPLY, 4 * 4);
+            data << -int32(entry);
+            data << uint32(store->GetHash());
+            data << uint32(time(NULL));
+            data << uint32(0);
+            SendPacket(&data);
+            continue;
         }
+
+        WorldPacket data(SMSG_DB_REPLY);
+        data << int32(entry);
+        data << uint32(store->GetHash());
+        data << uint32(sObjectMgr->GetHotfixDate(entry, store->GetHash()));
+
+        size_t sizePos = data.wpos();
+        data << uint32(0);              // size of next block
+        store->WriteRecord(entry, data);
+        data.put<uint32>(sizePos, data.wpos() - sizePos - 4);
+
+        SendPacket(&data);
     }
 
     delete[] guids;
-}
-
-void WorldSession::SendKeyChainDb2Reply(uint32 entry)
-{
-    WorldPacket data(SMSG_DB_REPLY, 44);
-    KeyChainEntry const* keyChain = sKeyChainStore.LookupEntry(entry);
-    if (!keyChain)
-    {
-        data << -int32(entry);      // entry
-        data << uint32(DB2_HASH_KEYCHAIN);
-        data << uint32(time(NULL)); // hotfix date
-        data << uint32(0);          // size of next block
-        return;
-    }
-
-    data << uint32(entry);
-    data << uint32(DB2_HASH_KEYCHAIN);
-    data << uint32(sObjectMgr->GetHotfixDate(entry, DB2_HASH_KEYCHAIN));
-
-    ByteBuffer buff;
-    buff << uint32(entry);
-    buff.append(keyChain->Key, KEYCHAIN_SIZE);
-
-    data << uint32(buff.size());
-    data.append(buff);
-
-    SendPacket(&data);
 }
 
 void WorldSession::HandleUpdateMissileTrajectory(WorldPacket& recvPacket)

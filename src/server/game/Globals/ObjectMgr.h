@@ -641,7 +641,7 @@ typedef UNORDERED_MAP<uint32, DungeonEncounterList> DungeonEncounterContainer;
 
 struct HotfixInfo
 {
-    DB2Hash Type;
+    uint32 Type;
     uint32 Timestamp;
     uint32 Entry;
 };
@@ -1229,7 +1229,7 @@ class ObjectMgr
 
         void LoadHotfixData();
         HotfixData const& GetHotfixData() const { return _hotfixData; }
-        time_t GetHotfixDate(uint32 entry, DB2Hash type) const
+        time_t GetHotfixDate(uint32 entry, uint32 type) const
         {
             time_t ret = 0;
             for (HotfixData::const_iterator itr = _hotfixData.begin(); itr != _hotfixData.end(); ++itr)
