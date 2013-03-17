@@ -809,7 +809,6 @@ class World
         AccountTypes m_allowedSecurityLevel;
         LocaleConstant m_defaultDbcLocale;                     // from config for one from loaded DBC locales
         uint32 m_availableDbcLocaleMask;                       // by loaded DBC
-        void DetectDBCLang();
         bool m_allowMovement;
         std::string m_motd;
         std::string m_dataPath;
