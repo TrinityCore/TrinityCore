@@ -138,7 +138,7 @@ enum Spells
     SPELL_IN_FROSTMOURNE_ROOM           = 74276,
     SPELL_KILL_FROSTMOURNE_PLAYERS      = 75127,
     SPELL_HARVESTED_SOUL                = 72679,
-    SPELL_TRIGGER_VILE_SPIRIT_HEROIC    = 73582,    // TODO: Cast every 3 seconds during Frostmourne phase, targets a Wicked Spirit amd activates it
+    SPELL_TRIGGER_VILE_SPIRIT_HEROIC    = 73582,    /// @todo Cast every 3 seconds during Frostmourne phase, targets a Wicked Spirit amd activates it
 
     // Frostmourne
     SPELL_LIGHTS_FAVOR                  = 69382,

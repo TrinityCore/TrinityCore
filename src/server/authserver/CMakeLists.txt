@@ -29,11 +29,18 @@ set(authserver_SRCS
 )
 
 if( WIN32 )
-set(authserver_SRCS
-    ${authserver_SRCS}
-    ${sources_Debugging}
+  if ( MSVC )
+    set(authserver_SRCS
+      ${authserver_SRCS}
+      ${sources_Debugging}
     authserver.rc
-)
+    )
+  else ( )
+    set(authserver_SRCS
+      ${authserver_SRCS}
+      ${sources_Debugging}
+    )
+  endif ()
 endif()
 
 include_directories(
@@ -70,6 +77,7 @@ if( NOT WIN32 )
 endif()
 
 if( WIN32 )
+<<<<<<< HEAD
   add_custom_command(TARGET authserver
     POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/authserver.conf.dist ${CMAKE_BINARY_DIR}/bin/$(ConfigurationName)/
@@ -79,6 +87,19 @@ if( WIN32 )
     ${MYSQL_LIBRARY}
     ${OPENSSL_LIBRARIES}
   )
+=======
+  if ( MSVC )
+    add_custom_command(TARGET authserver
+      POST_BUILD
+      COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/authserver.conf.dist ${CMAKE_BINARY_DIR}/bin/$(ConfigurationName)/
+    )
+  elseif ( MINGW )
+    add_custom_command(TARGET authserver
+      POST_BUILD
+      COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/authserver.conf.dist ${CMAKE_BINARY_DIR}/bin/
+    )
+  endif()
+>>>>>>> fab18f67c8f47d90c2e32c05aff04b358d0abba8
 endif()
 
 if( UNIX )

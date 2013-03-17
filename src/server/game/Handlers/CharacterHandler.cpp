@@ -492,7 +492,7 @@ void WorldSession::HandleCharCreateCallback(PreparedQueryResult result, Characte
                 }
             }
 
-            bool allowTwoSideAccounts = !sWorld->IsPvPRealm() || sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_ACCOUNTS) || HasPermission(RBAC_PERM_TWO_SIDE_CHARACTER_CREATION);
+            bool allowTwoSideAccounts = !sWorld->IsPvPRealm() || HasPermission(RBAC_PERM_TWO_SIDE_CHARACTER_CREATION);
             uint32 skipCinematics = sWorld->getIntConfig(CONFIG_SKIP_CINEMATICS);
 
             _charCreateCallback.FreeResult();
@@ -516,7 +516,7 @@ void WorldSession::HandleCharCreateCallback(PreparedQueryResult result, Characte
             bool haveSameRace = false;
             uint32 heroicReqLevel = sWorld->getIntConfig(CONFIG_CHARACTER_CREATING_MIN_LEVEL_FOR_HEROIC_CHARACTER);
             bool hasHeroicReqLevel = (heroicReqLevel == 0);
-            bool allowTwoSideAccounts = !sWorld->IsPvPRealm() || sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_ACCOUNTS) || HasPermission(RBAC_PERM_TWO_SIDE_CHARACTER_CREATION);
+            bool allowTwoSideAccounts = !sWorld->IsPvPRealm() || HasPermission(RBAC_PERM_TWO_SIDE_CHARACTER_CREATION);
             uint32 skipCinematics = sWorld->getIntConfig(CONFIG_SKIP_CINEMATICS);
             bool checkHeroicReqs = createInfo->Class == CLASS_DEATH_KNIGHT && !HasPermission(RBAC_PERM_SKIP_CHECK_CHARACTER_CREATION_HEROIC_CHARACTER);
 
@@ -556,7 +556,7 @@ void WorldSession::HandleCharCreateCallback(PreparedQueryResult result, Characte
                 }
 
                 // need to check team only for first character
-                // TODO: what to if account already has characters of both races?
+                /// @todo what to if account already has characters of both races?
                 if (!allowTwoSideAccounts)
                 {
                     uint32 accTeam = 0;
@@ -575,7 +575,7 @@ void WorldSession::HandleCharCreateCallback(PreparedQueryResult result, Characte
                 }
 
                 // search same race for cinematic or same class if need
-                // TODO: check if cinematic already shown? (already logged in?; cinematic field)
+                /// @todo check if cinematic already shown? (already logged in?; cinematic field)
                 while ((skipCinematics == 1 && !haveSameRace) || createInfo->Class == CLASS_DEATH_KNIGHT)
                 {
                     if (!result->NextRow())
@@ -1909,7 +1909,7 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recvData)
                         guild->DeleteMember(MAKE_NEW_GUID(lowGuid, 0, HIGHGUID_PLAYER));
             }
 
-            if (!sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_ADD_FRIEND))
+            if (!HasPermission(RBAC_PERM_TWO_SIDE_ADD_FRIEND))
             {
                 // Delete Friend List
                 stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CHAR_SOCIAL_BY_GUID);

@@ -939,7 +939,7 @@ void Player::CleanupsBeforeDelete(bool finalCleanup)
 bool Player::Create(uint32 guidlow, CharacterCreateInfo* createInfo)
 {
     //FIXME: outfitId not used in player creating
-    // TODO: need more checks against packet modifications
+    /// @todo need more checks against packet modifications
     // should check that skin, face, hair* are valid via DBC per race/class
     // also do it in Player::BuildEnumData, Player::LoadFromDB
 
@@ -1047,7 +1047,7 @@ bool Player::Create(uint32 guidlow, CharacterCreateInfo* createInfo)
             SetFlag(PLAYER_EXPLORED_ZONES_1+i, 0xFFFFFFFF);
     }
 
-    //Reputations if "StartAllReputation" is enabled, -- TODO: Fix this in a better way
+    //Reputations if "StartAllReputation" is enabled, -- @todo Fix this in a better way
     if (sWorld->getBoolConfig(CONFIG_START_ALL_REP))
     {
         GetReputationMgr().SetReputation(sFactionStore.LookupEntry(942), 42999);
@@ -1383,7 +1383,7 @@ void Player::HandleDrowning(uint32 time_diff)
             {
                 m_MirrorTimer[BREATH_TIMER]+= 1*IN_MILLISECONDS;
                 // Calculate and deal damage
-                // TODO: Check this formula
+                /// @todo Check this formula
                 uint32 damage = GetMaxHealth() / 5 + urand(0, getLevel()-1);
                 EnvironmentalDamage(DAMAGE_DROWNING, damage);
             }
@@ -1452,7 +1452,7 @@ void Player::HandleDrowning(uint32 time_diff)
             {
                 m_MirrorTimer[FIRE_TIMER]+= 1*IN_MILLISECONDS;
                 // Calculate and deal damage
-                // TODO: Check this formula
+                /// @todo Check this formula
                 uint32 damage = urand(600, 700);
                 if (m_MirrorTimerFlags & UNDERWATER_INLAVA)
                     EnvironmentalDamage(DAMAGE_LAVA, damage);
@@ -1628,7 +1628,7 @@ void Player::Update(uint32 p_time)
         if (Unit* victim = getVictim())
         {
             // default combat reach 10
-            // TODO add weapon, skill check
+            /// @todo add weapon, skill check
 
             if (isAttackReady(BASE_ATTACK))
             {
@@ -2544,7 +2544,7 @@ void Player::Regenerate(Powers power)
 
     uint32 curValue = GetPower(power);
 
-    // TODO: possible use of miscvalueb instead of amount
+    /// @todo possible use of miscvalueb instead of amount
     if (HasAuraTypeWithValue(SPELL_AURA_PREVENT_REGENERATE_POWER, power))
         return;
 
@@ -2800,7 +2800,7 @@ GameObject* Player::GetGameObjectIfCanInteractWith(uint64 guid, GameobjectTypes 
             float maxdist;
             switch (type)
             {
-                // TODO: find out how the client calculates the maximal usage distance to spellless working
+                /// @todo find out how the client calculates the maximal usage distance to spellless working
                 // gameobjects like guildbanks and mailboxes - 10.0 is a just an abitrary choosen number
                 case GAMEOBJECT_TYPE_GUILD_BANK:
                 case GAMEOBJECT_TYPE_MAILBOX:
@@ -2839,7 +2839,7 @@ void Player::SetInWater(bool apply)
     //move player's guid into HateOfflineList of those mobs
     //which can't swim and move guid back into ThreatList when
     //on surface.
-    //TODO: exist also swimming mobs, and function must be symmetric to enter/leave water
+    /// @todo exist also swimming mobs, and function must be symmetric to enter/leave water
     m_isInWater = apply;
 
     // remove auras that need water/land
@@ -3045,7 +3045,7 @@ bool Player::IsInSameRaidWith(Player const* p) const
 }
 
 ///- If the player is invited, remove him. If the group if then only 1 person, disband the group.
-/// \todo Shouldn't we also check if there is no other invitees before disbanding the group?
+/// @todo Shouldn't we also check if there is no other invitees before disbanding the group?
 void Player::UninviteFromGroup()
 {
     Group* group = GetGroupInvite();
@@ -3234,7 +3234,7 @@ void Player::GiveLevel(uint8 level)
 
     if (MailLevelReward const* mailReward = sObjectMgr->GetMailLevelReward(level, getRaceMask()))
     {
-        //- TODO: Poor design of mail system
+        /// @todo Poor design of mail system
         SQLTransaction trans = CharacterDatabase.BeginTransaction();
         MailDraft(mailReward->mailTemplateId).SendMailTo(trans, this, MailSender(MAIL_CREATURE, mailReward->senderEntry));
         CharacterDatabase.CommitTransaction(trans);
@@ -3265,7 +3265,7 @@ void Player::InitTalentForLevel()
         // Remove all talent points
         if (m_usedTalentCount > 0)                           // Free any used talents
         {
-            resetTalents(true);
+            resetTalents(true); /// @todo: Has to (collectively) be renamed to ResetTalents
             SetFreeTalentPoints(0);
         }
     }
@@ -5955,7 +5955,7 @@ void Player::GetDodgeFromAgility(float &diminishing, float &nondiminishing)
     if (dodgeRatio == NULL || pclass > MAX_CLASSES)
         return;
 
-    // TODO: research if talents/effects that increase total agility by x% should increase non-diminishing part
+    /// @todo research if talents/effects that increase total agility by x% should increase non-diminishing part
     float base_agility = GetCreateStat(STAT_AGILITY) * m_auraModifiersGroup[UNIT_MOD_STAT_START + STAT_AGILITY][BASE_PCT];
     float bonus_agility = GetStat(STAT_AGILITY) - base_agility;
 
@@ -8900,7 +8900,7 @@ void Player::SendLoot(uint64 guid, LootType loot_type)
         {
             uint32 lootid = go->GetGOInfo()->GetLootId();
 
-            //TODO: fix this big hack
+            /// @todo fix this big hack
             if ((go->GetEntry() == BG_AV_OBJECTID_MINE_N || go->GetEntry() == BG_AV_OBJECTID_MINE_S))
                 if (Battleground* bg = GetBattleground())
                     if (bg->GetTypeID(true) == BATTLEGROUND_AV)
@@ -10305,7 +10305,7 @@ Item* Player::GetItemByPos(uint8 bag, uint8 slot) const
 }
 
 //Does additional check for disarmed weapons
-Item* Player::GetUseableItemByPos(uint8 bag, uint8 slot) const 
+Item* Player::GetUseableItemByPos(uint8 bag, uint8 slot) const
 {
     if (!CanUseAttackType(GetAttackBySlot(slot)))
         return NULL;
@@ -12033,7 +12033,7 @@ InventoryResult Player::CanUseItem(Item* pItem, bool not_loading) const
                 // Armor that is binded to account can "morph" from plate to mail, etc. if skill is not learned yet.
                 if (pProto->Quality == ITEM_QUALITY_HEIRLOOM && pProto->Class == ITEM_CLASS_ARMOR && !HasSkill(itemSkill))
                 {
-                    // TODO: when you right-click already equipped item it throws EQUIP_ERR_NO_REQUIRED_PROFICIENCY.
+                    /// @todo when you right-click already equipped item it throws EQUIP_ERR_NO_REQUIRED_PROFICIENCY.
 
                     // In fact it's a visual bug, everything works properly... I need sniffs of operations with
                     // binded to account items from off server.
@@ -13828,7 +13828,7 @@ void Player::AddTradeableItem(Item* item)
     m_itemSoulboundTradeable.push_back(item);
 }
 
-//TODO: should never allow an item to be added to m_itemSoulboundTradeable twice
+/// @todo should never allow an item to be added to m_itemSoulboundTradeable twice
 void Player::RemoveTradeableItem(Item* item)
 {
     m_itemSoulboundTradeable.remove(item);
@@ -14883,7 +14883,7 @@ void Player::SendPreparedQuest(uint64 guid)
             else if (icon == 4)
                 PlayerTalkClass->SendQuestGiverRequestItems(quest, guid, CanRewardQuest(quest, false), true);
             // Send completable on repeatable and autoCompletable quest if player don't have quest
-            // TODO: verify if check for !quest->IsDaily() is really correct (possibly not)
+            /// @todo verify if check for !quest->IsDaily() is really correct (possibly not)
             else
             {
                 Object* object = ObjectAccessor::GetObjectByTypeMask(*this, guid, TYPEMASK_UNIT | TYPEMASK_GAMEOBJECT | TYPEMASK_ITEM);
@@ -15420,7 +15420,7 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
     // Send reward mail
     if (uint32 mail_template_id = quest->GetRewMailTemplateId())
     {
-        //- TODO: Poor design of mail system
+        /// @todo Poor design of mail system
         SQLTransaction trans = CharacterDatabase.BeginTransaction();
         MailDraft(mail_template_id).SendMailTo(trans, this, questGiver, MAIL_CHECK_MASK_HAS_BODY, quest->GetRewMailDelaySecs());
         CharacterDatabase.CommitTransaction(trans);
@@ -16159,7 +16159,7 @@ void Player::RemoveQuestSlotState(uint16 slot, uint32 state)
     RemoveFlag(PLAYER_QUEST_LOG_1_1 + slot * MAX_QUEST_OFFSET + QUEST_STATE_OFFSET, state);
 }
 
-void Player::SetQuestSlotTimer(uint16 slot, uint32 timer) 
+void Player::SetQuestSlotTimer(uint16 slot, uint32 timer)
 {
     SetUInt32Value(PLAYER_QUEST_LOG_1_1 + slot * MAX_QUEST_OFFSET + QUEST_TIME_OFFSET, timer);
 }
@@ -17886,7 +17886,7 @@ void Player::_LoadInventory(PreparedQueryResult result, uint32 timeDiff)
     //NOTE: the "order by `bag`" is important because it makes sure
     //the bagMap is filled before items in the bags are loaded
     //NOTE2: the "order by `slot`" is needed because mainhand weapons are (wrongly?)
-    //expected to be equipped before offhand items (TODO: fixme)
+    //expected to be equipped before offhand items (@todo fixme)
 
     if (result)
     {
@@ -19041,7 +19041,7 @@ void Player::SaveToDB(bool create /*=false*/)
     if (create)
     {
         //! Insert query
-        //! TO DO: Filter out more redundant fields that can take their default value at player create
+        /// @todo: Filter out more redundant fields that can take their default value at player create
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHARACTER);
         stmt->setUInt32(index++, GetGUIDLow());
         stmt->setUInt32(index++, GetSession()->GetAccountId());
@@ -19249,7 +19249,7 @@ void Player::SaveToDB(bool create /*=false*/)
         stmt->setUInt8(index++, GetByteValue(PLAYER_FIELD_BYTES, 2));
         stmt->setUInt32(index++, m_grantableLevels);
 
-        stmt->setUInt8(index++, IsInWorld() ? 1 : 0);
+        stmt->setUInt8(index++, IsInWorld() && !GetSession()->PlayerLogout() ? 1 : 0);
         // Index
         stmt->setUInt32(index++, GetGUIDLow());
     }
@@ -19953,7 +19953,7 @@ void Player::outDebugValues() const
 void Player::UpdateSpeakTime()
 {
     // ignore chat spam protection for GMs in any mode
-    if (!GetSession()->HasPermission(RBAC_PERM_SKIP_CHECK_CHAT_SPAM))
+    if (GetSession()->HasPermission(RBAC_PERM_SKIP_CHECK_CHAT_SPAM))
         return;
 
     time_t current = time (NULL);
@@ -20409,7 +20409,7 @@ void Player::TextEmote(const std::string& text)
 
     WorldPacket data(SMSG_MESSAGECHAT, 200);
     BuildPlayerChat(&data, CHAT_MSG_EMOTE, _text, LANG_UNIVERSAL);
-    SendMessageToSetInRange(&data, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_TEXTEMOTE), true, !sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_CHAT));
+    SendMessageToSetInRange(&data, sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_TEXTEMOTE), true, !GetSession()->HasPermission(RBAC_PERM_TWO_SIDE_INTERACTION_CHAT));
 }
 
 void Player::Whisper(const std::string& text, uint32 language, uint64 receiver)
@@ -20832,7 +20832,7 @@ void Player::RestoreSpellMods(Spell* spell, uint32 ownerAuraId, Aura* aura)
                 mod->charges = mod->ownerAura->GetCharges();
 
             // Skip this check for now - aura charges may change due to various reason
-            // TODO: trac these changes correctly
+            /// @todo trac these changes correctly
             //ASSERT (mod->ownerAura->GetCharges() <= mod->charges);
         }
     }
@@ -21695,7 +21695,7 @@ void Player::UpdateHomebindTime(uint32 time)
 
 void Player::UpdatePvPState(bool onlyFFA)
 {
-    // TODO: should we always synchronize UNIT_FIELD_BYTES_2, 1 of controller and controlled?
+    /// @todo should we always synchronize UNIT_FIELD_BYTES_2, 1 of controller and controlled?
     // no, we shouldn't, those are checked for affecting player by client
     if (!pvpInfo.IsInNoPvPArea && !isGameMaster()
         && (pvpInfo.IsInFFAPvPArea || sWorld->IsFFAPvPRealm()))
@@ -23851,14 +23851,14 @@ void Player::UpdateAreaDependentAuras(uint32 newArea)
             if (!HasAura(itr->second->spellId))
                 CastSpell(this, itr->second->spellId, true);
 
-    if (newArea == 4273 && GetVehicle() && GetPositionX() > 400) // Ulduar
+    if (newArea == 4273 && GetVehicleCreatureBase() && GetPositionX() > 400) // Ulduar
     {
         switch (GetVehicleBase()->GetEntry())
         {
             case 33062:
             case 33109:
             case 33060:
-                GetVehicle()->Dismiss();
+                GetVehicleCreatureBase()->DespawnOrUnsummon();
                 break;
         }
     }
@@ -24003,7 +24003,7 @@ PartyResult Player::CanUninviteFromGroup() const
         if (grp->isRollLootActive())
             return ERR_PARTY_LFG_BOOT_LOOT_ROLLS;
 
-        // TODO: Should also be sent when anyone has recently left combat, with an aprox ~5 seconds timer.
+        /// @todo Should also be sent when anyone has recently left combat, with an aprox ~5 seconds timer.
         for (GroupReference const* itr = grp->GetFirstMember(); itr != NULL; itr = itr->next())
             if (itr->getSource() && itr->getSource()->isInCombat())
                 return ERR_PARTY_LFG_BOOT_IN_COMBAT;
@@ -25889,6 +25889,7 @@ void Player::ActivateSpec(uint8 spec)
     ClearComboPointHolders();
     ClearAllReactives();
     UnsummonAllTotems();
+    ExitVehicle();
     RemoveAllControlled();
     /*RemoveAllAurasOnDeath();
     if (GetPet())
@@ -26113,7 +26114,7 @@ bool Player::AddItem(uint32 itemId, uint32 count)
 
     if (count == 0 || dest.empty())
     {
-        // -- TODO: Send to mailbox if no space
+        /// @todo Send to mailbox if no space
         ChatHandler(GetSession()).PSendSysMessage("You don't have any space in your bags.");
         return false;
     }

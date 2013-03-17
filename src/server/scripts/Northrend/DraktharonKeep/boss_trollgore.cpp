@@ -16,7 +16,7 @@
  */
 
 /*
- * Comment: TODO: spawn troll waves
+ * Comment: @todo spawn troll waves
  */
 
 #include "ScriptMgr.h"

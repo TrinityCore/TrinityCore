@@ -19,14 +19,6 @@
 SDName: Boss Malygos
 Script Data End */
 
-/* Check TO DOs in the script, but here is one essential hack to be removed only if core changes are made:
-   At Wyrmrest Skytalon script I make it kill player if the drake dies, because at 100.0f z yards the map is
-   supposed to handle the air as ground or something to which you will fall and die. However, currently maps/movements
-   stop flying below it, however they don't stop movementflag FALLING. Which leads to % player falling at - 1200000.0 z,
-   Which leads due to some desynch to not being able to press "release spirit".
-   Also the teleport using while on vehicle is lacking support, but soon will have.
-   You can still click afer leaving vehicle. */
-
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
@@ -74,6 +66,9 @@ enum Events
     EVENT_MOVE_TO_VORTEX_POINT       = 22, // This should be fixed someday in core, we can't call new movement from MovementInform
     EVENT_START_FIRST_RANDOM_PORTAL  = 23, // There is something that is still loading when we first enter instance and it breaks
                                            // first visual cast of intro portal beam mechanic, so we need short delay from the event.
+    EVENT_DELAY_MOVE_TO_DESTROY_P    = 24, // If Malygos is too close to destroy platform point and transition from II to III is hit,
+                                           // this event will be sheduled to start after 5 seconds so there is enough time for "dimension change".
+
     // ============ NEXUS LORDS ============
     EVENT_ARCANE_SHOCK               = 1,
     EVENT_HASTE_BUFF                 = 2,
@@ -123,8 +118,8 @@ enum Spells
     SPELL_ARCANE_BOMB_TRIGGER                = 56430,
     SPELL_ARCANE_BOMB_KNOCKBACK_DAMAGE       = 56431,
     SPELL_ARCANE_OVERLOAD_1                  = 56432, // casted by npc Arcane Overload ID: 30282
-    // SPELL_ARCANE_OVERLOAD_2               = 56435, // Triggered by 56432
-    // SPELL_ARCANE_OVERLOAD_3               = 56438, // Triggered by 56432
+    // SPELL_ARCANE_OVERLOAD_2               = 56435, // Triggered by 56432 - resizing target
+    // SPELL_ARCANE_OVERLOAD_3               = 56438, // Triggered by 56432 - damage reduction
     SPELL_SURGE_OF_POWER_P_II                = 56505,
     // SPELL_SURGE_OF_POWER_TRIGGERED        = 56548,
     SPELL_ARCANE_SHOCK                       = 57058, // used by Nexus Lords
@@ -287,9 +282,9 @@ Position const MeleeHoverDisksWaypoints[MAX_MELEE_HOVER_DISK_WAYPOINTS] =
 Position const MalygosPositions[MAX_MALYGOS_POS] =
 {
     { 754.544f, 1301.71f, 320.01f, 0.0f }, // Point destroy platform
-    { 754.393f, 1301.27f, 292.91f, 0.0f }, // Point vortex
-    { 754.362f, 1301.61f, 266.17f, 0.0f }, // Land after vortex
-    { 754.695f, 1301.66f, 316.65f, 0.0f }, // Point surge of Power phase II
+    { 754.393f, 1301.27f, 292.91f, 0.0f }, // Point Vortex
+    { 754.362f, 1301.61f, 266.17f, 0.0f }, // Point land after Vortex
+    { 754.695f, 1301.66f, 316.65f, 0.0f }, // Point Surge of Power phase II
     { 755.681f, 1298.41f, 220.06f, 0.0f }  // Point idle phase III
 };
 
@@ -324,8 +319,9 @@ enum MiscData
     // Target guids
     DATA_LAST_OVERLOAD_GUID          = 13, // used to store last Arcane Overload guid
     DATA_FIRST_SURGE_TARGET_GUID     = 14,
-    //DATA_SECOND_SURGE_TARGET_GUID    = 15,
-    //DATA_THIRD_SURGE_TARGET_GUID     = 16
+    // DATA_SECOND_SURGE_TARGET_GUID = 15,
+    // DATA_THIRD_SURGE_TARGET_GUID  = 16,
+    DATA_LAST_TARGET_BARRAGE_GUID    = 17,
 
     NUM_MAX_SURGE_TARGETS            = 3,
 };
@@ -358,7 +354,8 @@ public:
 
             _summonDeaths = 0;
             _preparingPulsesChecker = 0;
-            _arcaneOverloadGUID = NULL;
+            _arcaneOverloadGUID = 0;
+            _lastHitByArcaneBarrageGUID = 0;
             memset(_surgeTargetGUID, 0, sizeof(_surgeTargetGUID));
 
             _killSpamFilter = false;
@@ -425,6 +422,8 @@ public:
         {
             if (type >= DATA_FIRST_SURGE_TARGET_GUID && type < DATA_FIRST_SURGE_TARGET_GUID + NUM_MAX_SURGE_TARGETS)
                 return _surgeTargetGUID[type - DATA_FIRST_SURGE_TARGET_GUID];
+            else if (type == DATA_LAST_TARGET_BARRAGE_GUID)
+                return _lastHitByArcaneBarrageGUID;
 
             return 0;
         }
@@ -441,6 +440,8 @@ public:
                 case DATA_FIRST_SURGE_TARGET_GUID + 2:
                     _surgeTargetGUID[type - DATA_FIRST_SURGE_TARGET_GUID] = guid;
                     break;
+                case DATA_LAST_TARGET_BARRAGE_GUID:
+                    _lastHitByArcaneBarrageGUID = guid;
             }
         }
 
@@ -486,14 +487,18 @@ public:
                     events.CancelEventGroup(0);
                     events.CancelEventGroup(1);
                     events.CancelEventGroup(2);
-                    me->GetMotionMaster()->Initialize();
-                    me->StopMoving();
                     // Vehicles shouldn't be despawned with 0 delay if the call comes from virtual function that overrides PassengerBoarded.
                     // Aside from that he doesn't despawn both vehicles and arcane overloads right away, but with some delay.
                     DummyEntryCheckPredicate pred;
                     summons.DoAction(ACTION_DELAYED_DESPAWN, pred);
                     Talk(SAY_END_P_TWO);
-                    me->GetMotionMaster()->MovePoint(POINT_DESTROY_PLATFORM_P_TWO, MalygosPositions[0]);
+                    me->GetMotionMaster()->Clear(false);
+                    me->StopMoving();
+                    if (me->GetPositionZ() > 300.0f)
+                        events.ScheduleEvent(EVENT_DELAY_MOVE_TO_DESTROY_P, 5*IN_MILLISECONDS, 0, PHASE_TWO);
+                    else
+                        me->GetMotionMaster()->MovePoint(POINT_DESTROY_PLATFORM_P_TWO, MalygosPositions[0]);
+
                     events.ScheduleEvent(EVENT_LIGHT_DIMENSION_CHANGE, 1*IN_MILLISECONDS, 0, PHASE_TWO);
                     break;
                 case ACTION_HANDLE_RESPAWN:
@@ -507,7 +512,7 @@ public:
                     break;
                 case ACTION_CYCLIC_MOVEMENT:
                     Movement::MoveSplineInit init(me);
-                    FillCirclePath(MalygosPositions[3], 130.0f, 283.2763f, init.Path(), true);
+                    FillCirclePath(MalygosPositions[3], 120.0f, 283.2763f, init.Path(), true);
                     init.SetFly();
                     init.SetCyclic();
                     init.Launch();
@@ -826,24 +831,27 @@ public:
                                 break;
                             }
 
-                            DoCast(me, SPELL_ARCANE_STORM_P_I, true);
+                            DoCastAOE(SPELL_ARCANE_STORM_P_I, true);
                             events.ScheduleEvent(EVENT_ARCANE_STORM, 10*IN_MILLISECONDS, 0, PHASE_ONE);
                         }
                         else if (_phase == PHASE_THREE)
                         {
-                            DoCast(me, SPELL_ARCANE_STORM_P_III, true);
+                            DoCastAOE(SPELL_ARCANE_STORM_P_III, true);
                             events.ScheduleEvent(EVENT_ARCANE_STORM, urand(6, 12)*IN_MILLISECONDS, 0, PHASE_THREE);
                         }
                         break;
                     case EVENT_FLY_OUT_OF_PLATFORM:
-                        if (Creature* alexstraszaBunny = me->GetMap()->GetCreature(instance->GetData64(DATA_ALEXSTRASZA_BUNNY_GUID)))
+                        if (!_performingDestroyPlatform)
                         {
-                            Position randomPosOnRadius;
-                            // Hardcodded retail value, reason is Z getters can fail... (TO DO: Change to getter when height calculation works on 100%!)
-                            randomPosOnRadius.m_positionZ = 283.0521f;
-                            alexstraszaBunny->GetNearPoint2D(randomPosOnRadius.m_positionX, randomPosOnRadius.m_positionY, 130.0f, alexstraszaBunny->GetAngle(me));
-                            me->GetMotionMaster()->MovePoint(POINT_FLY_OUT_OF_PLATFORM_P_TWO, randomPosOnRadius);
-                            _flyingOutOfPlatform = true;
+                            if (Creature* alexstraszaBunny = me->GetMap()->GetCreature(instance->GetData64(DATA_ALEXSTRASZA_BUNNY_GUID)))
+                            {
+                                Position randomPosOnRadius;
+                                // Hardcodded retail value, reason is Z getters can fail... (TO DO: Change to getter when height calculation works on 100%!)
+                                randomPosOnRadius.m_positionZ = 283.0521f;
+                                alexstraszaBunny->GetNearPoint2D(randomPosOnRadius.m_positionX, randomPosOnRadius.m_positionY, 120.0f, alexstraszaBunny->GetAngle(me));
+                                me->GetMotionMaster()->MovePoint(POINT_FLY_OUT_OF_PLATFORM_P_TWO, randomPosOnRadius);
+                                _flyingOutOfPlatform = true;
+                            }
                         }
 
                         if (_arcaneReinforcements && instance)
@@ -927,6 +935,9 @@ public:
                     case EVENT_LIGHT_DIMENSION_CHANGE:
                         SendLightOverride(LIGHT_CHANGE_DIMENSIONS, 2*IN_MILLISECONDS);
                         break;
+                    case EVENT_DELAY_MOVE_TO_DESTROY_P:
+                        me->GetMotionMaster()->MovePoint(POINT_DESTROY_PLATFORM_P_TWO, MalygosPositions[0]);
+                        break;
                     case EVENT_MOVE_TO_P_THREE_POINT:
                         Talk(SAY_START_P_THREE);
                         me->GetMotionMaster()->MovePoint(POINT_IDLE_P_THREE, MalygosPositions[4]);
@@ -952,7 +963,7 @@ public:
                                         if (passenger->GetTypeId() == TYPEID_PLAYER)
                                         {
                                             Talk(EMOTE_SURGE_OF_POWER_WARNING_P3, passenger->GetGUID());
-                                            DoCast(tempSurgeTarget, SPELL_SURGE_OF_POWER_PHASE_3_10);
+                                            DoCast(tempSurgeTarget, SPELL_SURGE_OF_POWER_PHASE_3_10, true);
                                         }
                                     }
                                 }
@@ -961,14 +972,14 @@ public:
                         else if (GetDifficulty() == RAID_DIFFICULTY_25MAN_NORMAL)
                         {
                             memset(_surgeTargetGUID, 0, sizeof(_surgeTargetGUID));
-                            DoCastAOE(SPELL_SURGE_OF_POWER_WARNING_SELECTOR_25);
+                            DoCastAOE(SPELL_SURGE_OF_POWER_WARNING_SELECTOR_25, true);
                         }
 
                         events.ScheduleEvent(EVENT_SURGE_OF_POWER_P_THREE, urand(9, 18)*IN_MILLISECONDS, 0, PHASE_THREE);
                         break;
                     case EVENT_STATIC_FIELD:
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 60.0f, false, SPELL_RIDE_RED_DRAGON_BUDDY))
-                            DoCast(target, SPELL_STATIC_FIELD_MISSLE);
+                            DoCast(target, SPELL_STATIC_FIELD_MISSLE, true);
 
                         events.ScheduleEvent(EVENT_STATIC_FIELD, urand(15, 30)*IN_MILLISECONDS, 0, PHASE_THREE);
                         break;
@@ -992,10 +1003,10 @@ public:
             {
                 if (GetDifficulty() == RAID_DIFFICULTY_10MAN_NORMAL)
                     alexstraszaGiftBoxBunny->SummonGameObject(GO_HEART_OF_MAGIC_10, HeartOfMagicSpawnPos.GetPositionX(), HeartOfMagicSpawnPos.GetPositionY(),
-                    HeartOfMagicSpawnPos.GetPositionZ(), HeartOfMagicSpawnPos.GetOrientation(), 0.0f, 0.0f, 0.0f, 1.0f, 0);
+                        HeartOfMagicSpawnPos.GetPositionZ(), HeartOfMagicSpawnPos.GetOrientation(), 0.0f, 0.0f, 0.0f, 1.0f, 0);
                 else if (GetDifficulty() == RAID_DIFFICULTY_25MAN_NORMAL)
                     alexstraszaGiftBoxBunny->SummonGameObject(GO_HEART_OF_MAGIC_25, HeartOfMagicSpawnPos.GetPositionX(), HeartOfMagicSpawnPos.GetPositionY(),
-                    HeartOfMagicSpawnPos.GetPositionZ(), HeartOfMagicSpawnPos.GetOrientation(), 0.0f, 0.0f, 0.0f, 1.0f, 0);
+                        HeartOfMagicSpawnPos.GetPositionZ(), HeartOfMagicSpawnPos.GetOrientation(), 0.0f, 0.0f, 0.0f, 1.0f, 0);
             }
 
             me->SummonCreature(NPC_ALEXSTRASZA, AlexstraszaSpawnPos, TEMPSUMMON_MANUAL_DESPAWN);
@@ -1044,7 +1055,8 @@ public:
         uint8 _summonDeaths; // Keeps count of arcane trash.
         uint8 _preparingPulsesChecker; // In retail they use 2 preparing pulses with 7 sec CD, after they pass 2 seconds.
         uint64 _arcaneOverloadGUID; // Last Arcane Overload summoned to know to which should visual be cast to (the purple ball, not bubble).
-        uint64 _surgeTargetGUID[3]; // All these three are used to keep current tagets to which warning should be sent
+        uint64 _lastHitByArcaneBarrageGUID; // Last hit player by Arcane Barrage, will be removed if targets > 1.
+        uint64 _surgeTargetGUID[3]; // All these three are used to keep current tagets to which warning should be sent.
 
         bool _killSpamFilter; // Prevent text spamming on killed player by helping implement a CD.
         bool _canAttack; // Used to control attacking (Move Chase not being applied after Stop Attack, only few times should act like this).
@@ -1386,15 +1398,11 @@ class npc_nexus_lord : public CreatureScript
             {
             }
 
-            void IsSummonedBy(Unit* /*summoner*/)
-            {
-                _events.ScheduleEvent(EVENT_ARCANE_SHOCK, 2*IN_MILLISECONDS);
-                _events.ScheduleEvent(EVENT_HASTE_BUFF, 12*IN_MILLISECONDS);
-            }
-
             void DoAction(int32 /*action*/)
             {
                 _events.ScheduleEvent(EVENT_NUKE_DUMMY, 1);
+                _events.ScheduleEvent(EVENT_ARCANE_SHOCK, 2*IN_MILLISECONDS);
+                _events.ScheduleEvent(EVENT_HASTE_BUFF, 12*IN_MILLISECONDS);
             }
 
             void UpdateAI(uint32 diff)
@@ -1409,8 +1417,9 @@ class npc_nexus_lord : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_ARCANE_SHOCK:
-                            DoCast(SelectTarget(SELECT_TARGET_RANDOM, 0, 5.0f, true), SPELL_ARCANE_SHOCK);
-                            _events.ScheduleEvent(EVENT_ARCANE_SHOCK, 3*IN_MILLISECONDS);
+                            if (Unit* victim = SelectTarget(SELECT_TARGET_RANDOM, 0, 5.0f, true))
+                                DoCast(victim, SPELL_ARCANE_SHOCK);
+                            _events.ScheduleEvent(EVENT_ARCANE_SHOCK, urand(7, 15)*IN_MILLISECONDS);
                             break;
                         case EVENT_HASTE_BUFF:
                             DoCast(me, SPELL_HASTE);
@@ -1463,8 +1472,7 @@ class npc_scion_of_eternity : public CreatureScript
 
             void IsSummonedBy(Unit* /*summoner*/)
             {
-                _events.SetPhase(PHASE_TWO);
-                _events.ScheduleEvent(EVENT_ARCANE_BARRAGE, urand(14, 24)*IN_MILLISECONDS, 0, PHASE_TWO);
+                _events.ScheduleEvent(EVENT_ARCANE_BARRAGE, urand(14, 29)*IN_MILLISECONDS);
             }
 
             void EnterCombat(Unit* /*who*/)
@@ -1489,7 +1497,7 @@ class npc_scion_of_eternity : public CreatureScript
                     {
                         case EVENT_ARCANE_BARRAGE:
                             DoCast(me, SPELL_ARCANE_BARRAGE);
-                            _events.ScheduleEvent(EVENT_ARCANE_BARRAGE, urand(3, 12)*IN_MILLISECONDS, 0, PHASE_TWO);
+                            _events.ScheduleEvent(EVENT_ARCANE_BARRAGE, urand(3, 15)*IN_MILLISECONDS);
                             break;
                     }
                 }
@@ -1536,7 +1544,6 @@ public:
 
         void UpdateAI (uint32 /*diff*/)
         {
-
         }
 
         void DoAction(int32 /*action*/)
@@ -1623,12 +1630,6 @@ public:
                 pos.m_positionZ += 12.0f;
                 me->GetMotionMaster()->MovePoint(1, pos);
             }
-        }
-
-        void JustDied(Unit* /*killer*/)
-        {
-            // TO DOs: check script beginning for more info.
-            _summoner->Kill(_summoner, true);
         }
 
     private:
@@ -1756,16 +1757,19 @@ class spell_malygos_random_portal : public SpellScriptLoader
 class IsCreatureVehicleCheck
 {
     public:
-        IsCreatureVehicleCheck() { }
+        IsCreatureVehicleCheck(bool isVehicle) : _isVehicle(isVehicle) { }
 
         bool operator()(WorldObject* obj)
         {
             if (Unit* unit = obj->ToUnit())
                 if (unit->GetTypeId() == TYPEID_UNIT && unit->GetVehicleKit())
-                    return true;
+                    return _isVehicle;
 
-            return false;
+            return !_isVehicle;
         }
+
+    private:
+        bool _isVehicle;
 };
 
 class spell_malygos_arcane_storm : public SpellScriptLoader
@@ -1798,15 +1802,17 @@ class spell_malygos_arcane_storm : public SpellScriptLoader
                 Creature* malygos = GetCaster()->ToCreature();
                 if (GetSpellInfo()->Id == SPELL_ARCANE_STORM_P_III)
                 {
-                    IsCreatureVehicleCheck check;
+                    // Resize list only to objects that are vehicles.
+                    IsCreatureVehicleCheck check(true);
                     Trinity::Containers::RandomResizeList(targets, check, (malygos->GetMap()->GetDifficulty() == RAID_DIFFICULTY_10MAN_NORMAL ? 4 : 10));
                 }
                 else
                     Trinity::Containers::RandomResizeList(targets, (malygos->GetMap()->GetDifficulty() == RAID_DIFFICULTY_10MAN_NORMAL ? 4 : 10));
             }
 
-            void HandleVisual()
+            void HandleVisual(SpellEffIndex /*effIndex*/)
             {
+                // Both missiles should start approx at same time (with SPELL_ARCANE_STORM_EXTRA_VISUAL having advantage - it should lead)
                 if (!GetHitUnit())
                     return;
 
@@ -1816,7 +1822,7 @@ class spell_malygos_arcane_storm : public SpellScriptLoader
             void Register()
             {
                 OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_malygos_arcane_storm_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
-                AfterHit += SpellHitFn(spell_malygos_arcane_storm_SpellScript::HandleVisual);
+                OnEffectLaunchTarget += SpellEffectFn(spell_malygos_arcane_storm_SpellScript::HandleVisual, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
             }
         };
 
@@ -1992,7 +1998,6 @@ class spell_nexus_lord_align_disk_aggro : public SpellScriptLoader
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
                 Creature* caster = GetCaster()->ToCreature();
-
                 if (Creature* target = GetHitCreature())
                     target->GetMotionMaster()->MoveChase(caster->getVictim());
             }
@@ -2038,13 +2043,24 @@ class spell_scion_of_eternity_arcane_barrage : public SpellScriptLoader
 
             bool Load()
             {
-                return GetCaster()->GetTypeId() == TYPEID_UNIT;
+                return GetCaster()->GetTypeId() == TYPEID_UNIT && GetCaster()->GetInstanceScript() != NULL;
             }
 
             void FilterMeleeHoverDiskPassangers(std::list<WorldObject*>& targets)
             {
                 if (targets.empty())
                     return;
+
+                Creature* caster = GetCaster()->ToCreature();
+                InstanceScript* instance = caster->GetInstanceScript();
+                Creature* malygos = caster->GetMap()->GetCreature(instance->GetData64(DATA_MALYGOS));
+
+                // If max possible targets are more than 1 then Scions wouldn't select previosly selected target,
+                // in longer terms this means if spell picks target X then 2nd cast of this spell will pick smth else
+                // and if 3rd picks X again 4th will pick smth else (by not limiting the cast to certain caster).
+                if (targets.size() > 1)
+                    if (malygos && malygos->AI()->GetGUID(DATA_LAST_TARGET_BARRAGE_GUID))
+                        targets.remove_if(Trinity::ObjectGUIDCheck(malygos->AI()->GetGUID(DATA_LAST_TARGET_BARRAGE_GUID)));
 
                 // Remove players not on Hover Disk from second list
                 std::list<WorldObject*> playersWithoutDisk;
@@ -2061,14 +2077,30 @@ class spell_scion_of_eternity_arcane_barrage : public SpellScriptLoader
                 // and have 2 seconds long aura still lasting. Used to give healers some time.
                 if (!targets.empty())
                     targets.remove_if(Trinity::UnitAuraCheck(true, SPELL_ARCANE_BARRAGE_DAMAGE));
+
+                // Now we resize the list to max output targets which can be only 1
+                // to take it's guid and send/store it to DATA_LAST_TARGET_BARRAGE_GUID.
+                // Same target is never picked until next pick pass. This doesn't mean
+                // that it can't be hit more than once. In fact all is chance and raid speed.
+                if (!targets.empty())
+                {
+                    if (targets.size() > 1)
+                        Trinity::Containers::RandomResizeList(targets, 1);
+
+                    if (WorldObject* filteredTarget = targets.front())
+                        if (malygos)
+                            malygos->AI()->SetGUID(filteredTarget->GetGUID(), DATA_LAST_TARGET_BARRAGE_GUID);
+                }
             }
 
             void TriggerDamageSpellFromPlayer()
             {
-                Player* hitTarget = GetHitPlayer();
-                // There is some proc in this spell I have absolutely no idea of use, but just in case...
-                TriggerCastFlags triggerFlags = TriggerCastFlags(TRIGGERED_FULL_MASK & ~TRIGGERED_DISALLOW_PROC_EVENTS);
-                hitTarget->CastSpell(hitTarget, SPELL_ARCANE_BARRAGE_DAMAGE, triggerFlags, NULL, NULL, GetCaster()->GetGUID());
+                if (Player* hitTarget = GetHitPlayer())
+                {
+                    // There is some proc in this spell I have absolutely no idea of use, but just in case...
+                    TriggerCastFlags triggerFlags = TriggerCastFlags(TRIGGERED_FULL_MASK & ~TRIGGERED_DISALLOW_PROC_EVENTS);
+                    hitTarget->CastSpell(hitTarget, SPELL_ARCANE_BARRAGE_DAMAGE, triggerFlags, NULL, NULL, GetCaster()->GetGUID());
+                }
             }
 
             void Register()
@@ -2151,9 +2183,7 @@ class spell_alexstrasza_bunny_destroy_platform_boom_visual : public SpellScriptL
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
                 if (Creature* target = GetHitCreature())
-                {
                     target->CastSpell(target, SPELL_DESTROY_PLATFORM_EVENT);
-                }
             }
 
             void Register()
@@ -2192,14 +2222,13 @@ class spell_alexstrasza_bunny_destroy_platform_event : public SpellScriptLoader
 
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
-                Creature* caster = GetCaster()->ToCreature();
-                caster->CastSpell(caster, SPELL_SUMMON_RED_DRAGON_BUDDY_F_CAST, true);
+                GetCaster()->CastSpell((Unit*)NULL, SPELL_SUMMON_RED_DRAGON_BUDDY_F_CAST);
             }
 
             void Register()
             {
                 OnEffectHit += SpellEffectFn(spell_alexstrasza_bunny_destroy_platform_event_SpellScript::HandleSendEvent, EFFECT_0, SPELL_EFFECT_SEND_EVENT);
-                OnEffectHitTarget += SpellEffectFn(spell_alexstrasza_bunny_destroy_platform_event_SpellScript::HandleScript, EFFECT_2, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHit += SpellEffectFn(spell_alexstrasza_bunny_destroy_platform_event_SpellScript::HandleScript, EFFECT_2, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
@@ -2303,7 +2332,8 @@ class spell_malygos_surge_of_power_warning_selector_25 : public SpellScriptLoade
             {
                 // This spell hits only vehicles (SMSG_SPELL_GO target)
                 Creature* caster = GetCaster()->ToCreature();
-                targets.remove_if(IsCreatureVehicleCheck());
+                // Remove all objects that aren't* vehicles.
+                targets.remove_if(IsCreatureVehicleCheck(false));
                 if (targets.empty())
                     return;
 

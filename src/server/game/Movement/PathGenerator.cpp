@@ -256,7 +256,7 @@ void PathGenerator::BuildPolyPath(Vector3 const& startPos, Vector3 const& endPos
     }
 
     // look for startPoly/endPoly in current path
-    // TODO: we can merge it with getPathPolyByPosition() loop
+    /// @todo we can merge it with getPathPolyByPosition() loop
     bool startPolyFound = false;
     bool endPolyFound = false;
     uint32 pathStartIndex = 0;
@@ -310,7 +310,7 @@ void PathGenerator::BuildPolyPath(Vector3 const& startPos, Vector3 const& endPos
         // sub-path of optimal path is optimal
 
         // take ~80% of the original length
-        // TODO : play with the values here
+        /// @todo play with the values here
         uint32 prefixPolyLength = uint32(_polyLength * 0.8f + 0.5f);
         memmove(_pathPolyRefs, _pathPolyRefs+pathStartIndex, prefixPolyLength * sizeof(dtPolyRef));
 
@@ -433,7 +433,7 @@ void PathGenerator::BuildPointPath(const float *startPoint, const float *endPoin
     {
         // only happens if pass bad data to findStraightPath or navmesh is broken
         // single point paths can be generated here
-        // TODO : check the exact cases
+        /// @todo check the exact cases
         sLog->outDebug(LOG_FILTER_MAPS, "++ PathGenerator::BuildPointPath FAILED! path sized %d returned\n", pointCount);
         BuildShortcut();
         _type = PATHFIND_NOPATH;

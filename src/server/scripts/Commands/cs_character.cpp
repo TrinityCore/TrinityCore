@@ -443,7 +443,7 @@ public:
         stmt->setUInt16(0, uint16(AT_LOGIN_CHANGE_RACE));
         if (target)
         {
-            // TODO : add text into database
+            /// @todo add text into database
             handler->PSendSysMessage(LANG_CUSTOMIZE_PLAYER, handler->GetNameLink(target).c_str());
             target->SetAtLoginFlag(AT_LOGIN_CHANGE_RACE);
             stmt->setUInt32(1, target->GetGUIDLow());
@@ -451,7 +451,7 @@ public:
         else
         {
             std::string oldNameLink = handler->playerLink(targetName);
-            // TODO : add text into database
+            /// @todo add text into database
             handler->PSendSysMessage(LANG_CUSTOMIZE_PLAYER_GUID, oldNameLink.c_str(), GUID_LOPART(targetGuid));
             stmt->setUInt32(1, GUID_LOPART(targetGuid));
         }

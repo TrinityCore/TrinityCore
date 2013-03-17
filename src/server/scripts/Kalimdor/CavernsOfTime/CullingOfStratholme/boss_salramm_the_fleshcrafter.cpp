@@ -19,7 +19,7 @@
 SDName: Boss salramm
 SDAuthor: Tartalo
 SD%Complete: 80
-SDComment: TODO: Intro
+SDComment: @todo Intro
 SDCategory:
 Script Data End */
 

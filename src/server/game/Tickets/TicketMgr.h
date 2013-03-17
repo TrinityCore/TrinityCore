@@ -162,7 +162,7 @@ private:
     bool _completed;
     GMTicketEscalationStatus _escalatedStatus;
     bool _viewed;
-    bool _needResponse; // TODO: find out the use of this, and then store it in DB
+    bool _needResponse; /// @todo find out the use of this, and then store it in DB
     bool _haveTicket;
     std::string _response;
     std::string _chatLog; // No need to store in db, will be refreshed every session client side
