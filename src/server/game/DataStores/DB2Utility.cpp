@@ -33,7 +33,7 @@ bool DB2Utilities::HasItemSparseEntry(DB2Storage<ItemSparseEntry> const& /*store
     return ItemExists(id);
 }
 
-void DB2Utilities::WriteItemDbReply(DB2Storage<ItemEntry> const& /*store*/, uint32 id, ByteBuffer& buffer)
+void DB2Utilities::WriteItemDbReply(DB2Storage<ItemEntry> const& /*store*/, uint32 id, uint32 /*locale*/, ByteBuffer& buffer)
 {
     ItemTemplate const* proto = sObjectMgr->GetItemTemplate(id);
     ASSERT(proto);
@@ -48,10 +48,12 @@ void DB2Utilities::WriteItemDbReply(DB2Storage<ItemEntry> const& /*store*/, uint
     buffer << uint32(proto->Sheath);
 }
 
-void DB2Utilities::WriteItemSparseDbReply(DB2Storage<ItemSparseEntry> const& /*store*/, uint32 id, ByteBuffer& buffer)
+void DB2Utilities::WriteItemSparseDbReply(DB2Storage<ItemSparseEntry> const& /*store*/, uint32 id, uint32 locale, ByteBuffer& buffer)
 {
     ItemTemplate const* proto = sObjectMgr->GetItemTemplate(id);
     ASSERT(proto);
+
+    ItemLocale const* localeData = locale ? sObjectMgr->GetItemLocale(id) : NULL;
 
     buffer << uint32(proto->ItemId);
     buffer << uint32(proto->Quality);
@@ -117,6 +119,9 @@ void DB2Utilities::WriteItemSparseDbReply(DB2Storage<ItemSparseEntry> const& /*s
 
     // item name
     std::string name = proto->Name1;
+    if (localeData)
+        ObjectMgr::GetLocaleString(localeData->Name, locale, name);
+
     buffer << uint16(name.length());
     if (name.length())
         buffer << name;
@@ -125,6 +130,9 @@ void DB2Utilities::WriteItemSparseDbReply(DB2Storage<ItemSparseEntry> const& /*s
         buffer << uint16(0);
 
     std::string desc = proto->Description;
+    if (localeData)
+        ObjectMgr::GetLocaleString(localeData->Description, locale, desc);
+
     buffer << uint16(desc.length());
     if (desc.length())
         buffer << desc;

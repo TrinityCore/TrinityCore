@@ -80,7 +80,7 @@ enum AchievementFlags
     ACHIEVEMENT_FLAG_SHOW_CRITERIA_MEMBERS = 0x00010000     //
 };
 
-enum
+enum AchievementCriteriaLimits
 {
     MAX_CRITERIA_REQUIREMENTS          = 2,
     MAX_ADDITIONAL_CRITERIA_CONDITIONS = 3

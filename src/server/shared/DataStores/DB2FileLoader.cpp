@@ -365,7 +365,7 @@ char* DB2FileLoader::AutoProduceStringsArrayHolders(const char* format, char* da
     return stringHoldersPool;
 }
 
-char* DB2FileLoader::AutoProduceStrings(const char* format, char* dataTable)
+char* DB2FileLoader::AutoProduceStrings(const char* format, char* dataTable, uint32 locale)
 {
     if (strlen(format) != fieldCount)
         return NULL;
@@ -391,14 +391,14 @@ char* DB2FileLoader::AutoProduceStrings(const char* format, char* dataTable)
             case FT_STRING:
             {
                 // fill only not filled entries
-                char** slot = (char**)(&dataTable[offset]);
-                if (**((char***)slot) == nullStr)
+                LocalizedString* db2str = *(LocalizedString**)(&dataTable[offset]);
+                if (db2str->Str[locale] == nullStr)
                 {
                     const char * st = getRecord(y).getString(x);
-                    *slot=stringPool + (st-(const char*)stringTable);
+                    db2str->Str[locale] = stringPool + (st - (const char*)stringTable);
                 }
 
-                offset+=sizeof(char*);
+                offset += sizeof(char*);
                 break;
             }
         }

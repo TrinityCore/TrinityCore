@@ -19,17 +19,7 @@
 #define TRINITY_DB2STRUCTURE_H
 
 #include "Common.h"
-#include "DBCEnums.h"
-#include "Define.h"
-#include "Path.h"
-#include "Util.h"
-#include "Vehicle.h"
-#include "SharedDefines.h"
 #include "ItemPrototype.h"
-
-#include <map>
-#include <set>
-#include <vector>
 
 // GCC has alternative #pragma pack(N) syntax and old gcc version does not support pack(push, N), also any gcc version does not support it at some platform
 #if defined(__GNUC__)
@@ -98,11 +88,11 @@ struct ItemSparseEntry
     int32      SpellCategory[MAX_ITEM_PROTO_SPELLS];         // 85 - 89
     int32      SpellCategoryCooldown[MAX_ITEM_PROTO_SPELLS]; // 90 - 94
     uint32     Bonding;                                      // 95
-    char*      Name;                                         // 96
-    char*      Name2;                                        // 97
-    char*      Name3;                                        // 98
-    char*      Name4;                                        // 99
-    char*      Description;                                  // 100
+    LocalizedString* Name;                                   // 96
+    LocalizedString* Name2;                                  // 97
+    LocalizedString* Name3;                                  // 98
+    LocalizedString* Name4;                                  // 99
+    LocalizedString* Description;                            // 100
     uint32     PageText;                                     // 101
     uint32     LanguageID;                                   // 102
     uint32     PageMaterial;                                 // 103
