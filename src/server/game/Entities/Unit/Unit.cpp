@@ -506,6 +506,15 @@ void Unit::GetRandomContactPoint(const Unit* obj, float &x, float &y, float &z, 
         , GetAngle(obj) + (attacker_number ? (static_cast<float>(M_PI/2) - static_cast<float>(M_PI) * (float)rand_norm()) * float(attacker_number) / combat_reach * 0.3f : 0));
 }
 
+AuraApplication * Unit::GetVisibleAura(uint8 slot) const
+{
+    VisibleAuraMap::const_iterator itr = m_visibleAuras.find(slot);
+    if (itr != m_visibleAuras.end())
+        return itr->second;
+    return 0;
+}
+
+
 void Unit::SetVisibleAura(uint8 slot, AuraApplication * aur)
 {
     if (Aura* aura = aur->GetBase())
@@ -528,50 +537,10 @@ void Unit::SetVisibleAura(uint8 slot, AuraApplication * aur)
     UpdateAuraForGroup(slot);
 }
 
-AuraApplication * Unit::GetVisibleAura(uint8 slot) const
-{
-    VisibleAuraMap::const_iterator itr = m_visibleAuras.find(slot);
-    if (itr != m_visibleAuras.end())
-        return itr->second;
-    return 0;
-}
-
-<<<<<<< HEAD
-void Unit::RemoveVisibleAura(uint8 slot)
-{
-    AuraApplication *aurApp = GetVisibleAura(slot);
-    if (aurApp && slot < MAX_AURAS)
-    {
-        if (Aura* aura = aurApp->GetBase())
-            if (Player *player = ToPlayer())
-                if (player->HaveSpectators())
-                {
-                    SpectatorAddonMsg msg;
-                    uint64 casterID = 0;
-                    if (aura->GetCaster())
-                        casterID = (aura->GetCaster()->ToPlayer()) ? aura->GetCaster()->GetGUID() : 0;
-                    msg.SetPlayer(player->GetName());
-                    msg.CreateAura(casterID, aura->GetSpellInfo()->Id,
-                                   aurApp->IsPositive(), aura->GetSpellInfo()->Dispel,
-                                   aura->GetDuration(), aura->GetMaxDuration(),
-                                   aura->GetStackAmount(), true);
-                    player->SendSpectatorAddonMsgToBG(msg);
-                }
-    }
-	m_visibleAuras.erase(slot);
-	UpdateAuraForGroup(slot);
-=======
-void Unit::SetVisibleAura(uint8 slot, AuraApplication * aur)
-{
-    m_visibleAuras[slot]=aur;
-    UpdateAuraForGroup(slot);
-}
-
 void Unit::RemoveVisibleAura(uint8 slot)
 {
     m_visibleAuras.erase(slot);
     UpdateAuraForGroup(slot);
->>>>>>> fab18f67c8f47d90c2e32c05aff04b358d0abba8
 }
 
 void Unit::UpdateInterruptMask()
