@@ -888,7 +888,13 @@ enum TrinityStrings
     LANG_GROUP_FULL                     = 1148,
     LANG_GROUP_TYPE                     = 1149,
     LANG_GROUP_PLAYER_NAME_GUID         = 1150,
-    // Room for more level 3              1151-1199 not used
+    LANG_LIST_MAIL_HEADER               = 1151,
+    LANG_LIST_MAIL_INFO_1               = 1152,
+    LANG_LIST_MAIL_INFO_2               = 1153,
+    LANG_LIST_MAIL_INFO_3               = 1154,
+    LANG_LIST_MAIL_INFO_ITEM            = 1155,
+    LANG_LIST_MAIL_NOT_FOUND            = 1156,
+    // Room for more level 3              1157-1199 not used
 
     // Debug commands
     LANG_CINEMATIC_NOT_EXIST            = 1200,
