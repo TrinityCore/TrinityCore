@@ -77,17 +77,6 @@ if( NOT WIN32 )
 endif()
 
 if( WIN32 )
-<<<<<<< HEAD
-  add_custom_command(TARGET authserver
-    POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/authserver.conf.dist ${CMAKE_BINARY_DIR}/bin/$(ConfigurationName)/
-  )
-  target_link_libraries(authserver
-    shared
-    ${MYSQL_LIBRARY}
-    ${OPENSSL_LIBRARIES}
-  )
-=======
   if ( MSVC )
     add_custom_command(TARGET authserver
       POST_BUILD
@@ -99,7 +88,6 @@ if( WIN32 )
       COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/authserver.conf.dist ${CMAKE_BINARY_DIR}/bin/
     )
   endif()
->>>>>>> fab18f67c8f47d90c2e32c05aff04b358d0abba8
 endif()
 
 if( UNIX )
