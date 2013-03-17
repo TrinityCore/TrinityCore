@@ -8737,7 +8737,7 @@ void ObjectMgr::LoadHotfixData()
 
         HotfixInfo info;
         info.Entry = fields[0].GetUInt32();
-        info.Type = DB2Hash(fields[1].GetUInt32());
+        info.Type = fields[1].GetUInt32();
         info.Timestamp = fields[2].GetUInt64();
         _hotfixData.push_back(info);
 

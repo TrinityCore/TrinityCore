@@ -19,30 +19,105 @@
 #define DB2STORE_H
 
 #include "DB2FileLoader.h"
-#include "DB2fmt.h"
-#include "Log.h"
-#include "Field.h"
-#include "DatabaseWorkerPool.h"
-#include "Implementation/WorldDatabase.h"
-#include "DatabaseEnv.h"
-
+#include "ByteBuffer.h"
 #include <vector>
 
+/// Interface class for common access
+class DB2StorageBase
+{
+public:
+    virtual ~DB2StorageBase() { }
+
+    uint32 GetHash() const { return tableHash; }
+
+    virtual bool HasRecord(uint32 id) const = 0;
+
+    virtual void WriteRecord(uint32 id, ByteBuffer& buffer) const = 0;
+
+protected:
+    uint32 tableHash;
+};
+
 template<class T>
-class DB2Storage
+class DB2Storage;
+
+template<class T>
+bool DB2StorageHasEntry(DB2Storage<T> const& store, uint32 id)
+{
+    return store.LookupEntry(id) != NULL;
+}
+
+template<class T>
+void WriteDB2RecordToPacket(DB2Storage<T> const& store, uint32 id, ByteBuffer& buffer)
+{
+    uint8 const* entry = (uint8 const*)store.LookupEntry(id);
+    ASSERT(entry);
+
+    std::string format = store.GetFormat();
+    for (uint32 i = 0; i < format.length(); ++i)
+    {
+        switch (format[i])
+        {
+            case FT_IND:
+            case FT_INT:
+                buffer << *(uint32*)entry;
+                entry += 4;
+                break;
+            case FT_FLOAT:
+                buffer << *(float*)entry;
+                entry += 4;
+                break;
+            case FT_BYTE:
+                buffer << *(uint8*)entry;
+                entry += 1;
+                break;
+            case FT_STRING:
+            {
+                size_t len = strlen(*(char**)entry);
+                buffer << uint16(len);
+                if (len)
+                    buffer << *(char**)entry;
+                entry += sizeof(char*);
+                break;
+            }
+            case FT_NA:
+            case FT_SORT:
+                buffer << uint32(0);
+                break;
+            case FT_NA_BYTE:
+                buffer << uint8(0);
+                break;
+        }
+    }
+}
+
+template<class T>
+class DB2Storage : public DB2StorageBase
 {
     typedef std::list<char*> StringPoolList;
     typedef std::vector<T*> DataTableEx;
+    typedef bool(*EntryChecker)(DB2Storage<T> const&, uint32);
+    typedef void(*PacketWriter)(DB2Storage<T> const&, uint32, ByteBuffer&);
 public:
-    explicit DB2Storage(char const* f) : nCount(0), fieldCount(0), fmt(f), indexTable(NULL), m_dataTable(NULL) { }
+    DB2Storage(char const* f, EntryChecker checkEntry = NULL, PacketWriter writePacket = NULL) :
+        nCount(0), fieldCount(0), fmt(f), indexTable(NULL), m_dataTable(NULL)
+    {
+        CheckEntry = checkEntry ? checkEntry : &DB2StorageHasEntry<T>;
+        WritePacket = writePacket ? writePacket : &WriteDB2RecordToPacket<T>;
+    }
+
     ~DB2Storage() { Clear(); }
 
+    bool HasRecord(uint32 id) const { return CheckEntry(*this, id); }
     T const* LookupEntry(uint32 id) const { return (id >= nCount) ? NULL : indexTable[id]; }
     uint32 GetNumRows() const { return nCount; }
     char const* GetFormat() const { return fmt; }
     uint32 GetFieldCount() const { return fieldCount; }
+    void WriteRecord(uint32 id, ByteBuffer& buffer) const
+    {
+        WritePacket(*this, id, buffer);
+    }
 
-    /// Copies the provided entry and stores it.
     T* CreateEntry(uint32 id, bool evenIfExists = false)
     {
         if (evenIfExists && LookupEntry(id))
@@ -75,6 +150,7 @@ public:
             return false;
 
         fieldCount = db2.GetCols();
+        tableHash = db2.GetHash();
 
         // load raw non-string data
         m_dataTable = (T*)db2.AutoProduceData(fmt, nCount, (char**&)indexTable);
@@ -130,10 +206,12 @@ public:
         nCount = 0;
     }
 
+    EntryChecker CheckEntry;
+    PacketWriter WritePacket;
+
 private:
     uint32 nCount;
     uint32 fieldCount;
-    uint32 recordSize;
     char const* fmt;
     T** indexTable;
     T* m_dataTable;

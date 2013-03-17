@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 TrintiyCore <http://www.trinitycore.org/>
+ * Copyright (C) 2013 TrintiyCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -15,21 +15,26 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRINITY_DB2STORES_H
-#define TRINITY_DB2STORES_H
+#ifndef DB2PACKETWRITER_H
+#define DB2PACKETWRITER_H
 
-#include "DB2Store.h"
-#include "DB2Structure.h"
-#include <string>
+#include "Define.h"
 
-extern DB2Storage<ItemEntry> sItemStore;
-extern DB2Storage<ItemCurrencyCostEntry> sItemCurrencyCostStore;
-extern DB2Storage<ItemExtendedCostEntry> sItemExtendedCostStore;
-extern DB2Storage<ItemSparseEntry> sItemSparseStore;
-extern DB2Storage<KeyChainEntry> sKeyChainStore;
+template<class T>
+class DB2Storage;
+class ByteBuffer;
+struct ItemEntry;
+struct ItemSparseEntry;
 
-void LoadDB2Stores(std::string const& dataPath);
+namespace DB2Utilities
+{
+    //
+    bool HasItemEntry(DB2Storage<ItemEntry> const& store, uint32 id);
+    bool HasItemSparseEntry(DB2Storage<ItemSparseEntry> const& store, uint32 id);
 
-DB2StorageBase const* GetDB2Storage(uint32 type);
+    //
+    void WriteItemDbReply(DB2Storage<ItemEntry> const& store, uint32 id, ByteBuffer& buffer);
+    void WriteItemSparseDbReply(DB2Storage<ItemSparseEntry> const& store, uint32 id, ByteBuffer& buffer);
+}
 
-#endif
+#endif // DB2PACKETWRITER_H
