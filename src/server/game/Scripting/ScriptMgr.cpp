@@ -751,8 +751,8 @@ bool ScriptMgr::OnQuestAccept(Player* player, Creature* creature, Quest const* q
     ASSERT(creature);
     ASSERT(quest);
 
-    if(sHookMgr->OnQuestAccept(player, creature, quest))
-        return true;
+    //if(sHookMgr->OnQuestAccept(player, creature, quest))
+        //return true;
 
     GET_SCRIPT_RET(CreatureScript, creature->GetScriptId(), tmpscript, false);
     player->PlayerTalkClass->ClearMenus();
@@ -765,8 +765,8 @@ bool ScriptMgr::OnQuestSelect(Player* player, Creature* creature, Quest const* q
     ASSERT(creature);
     ASSERT(quest);
 
-    if(sHookMgr->OnQuestSelect(player, creature, quest))
-        return true;
+    //if(sHookMgr->OnQuestSelect(player, creature, quest))
+        //return true;
 
     GET_SCRIPT_RET(CreatureScript, creature->GetScriptId(), tmpscript, false);
     player->PlayerTalkClass->ClearMenus();
@@ -779,8 +779,8 @@ bool ScriptMgr::OnQuestComplete(Player* player, Creature* creature, Quest const*
     ASSERT(creature);
     ASSERT(quest);
 
-    if(sHookMgr->OnQuestComplete(player, creature, quest))
-        return true;
+    //if(sHookMgr->OnQuestComplete(player, creature, quest))
+        //return true;
 
     GET_SCRIPT_RET(CreatureScript, creature->GetScriptId(), tmpscript, false);
     player->PlayerTalkClass->ClearMenus();
@@ -793,8 +793,8 @@ bool ScriptMgr::OnQuestReward(Player* player, Creature* creature, Quest const* q
     ASSERT(creature);
     ASSERT(quest);
 
-    if(sHookMgr->OnQuestReward(player, creature, quest, opt))
-        return true;
+    //if(sHookMgr->OnQuestReward(player, creature, quest, opt))
+        //return true;
 
     GET_SCRIPT_RET(CreatureScript, creature->GetScriptId(), tmpscript, false);
     player->PlayerTalkClass->ClearMenus();
