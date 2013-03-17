@@ -173,7 +173,7 @@ namespace LuaGlobalFunctions
         return 1;
     }
 
-    // ReloadEluna() - Gets core version as std::string
+    // ReloadEluna() - Gets core version as a string
     static int GetCoreVersion(lua_State* L)
     {
         sEluna->PushString(L, _FULLVERSION);
@@ -410,16 +410,16 @@ namespace LuaGlobalFunctions
         return 1;
     }
 
-    // DestroyScriptEventByID(eventID) - removes all global lua events with eventid
-    static int DestroyScriptEventByID(lua_State* L)
+    // DestroyEventByID(eventID) - removes all global lua events with eventid
+    static int DestroyEventByID(lua_State* L)
     {
         int functionRef = luaL_checkinteger(L, 1);
         sEluna->LuaWorldAI->ScriptEventCancel(functionRef);
         return 0;
     }
 
-    // DestroyScriptEvents(all_events) - removes all global lua events, if all_events is true, removes creature and gameobject events too
-    static int DestroyScriptEvents(lua_State* L)
+    // DestroyEvents([all_events]) - removes all global lua events, if all_events is true, removes creature and gameobject events too
+    static int DestroyEvents(lua_State* L)
     {
         bool all_Events = luaL_optbool(L, 1, false);
 

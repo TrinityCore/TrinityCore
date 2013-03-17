@@ -48,7 +48,7 @@ ElunaRegister<Unit> UnitMethods[] =
     {"IsAlliance", &LuaUnit::IsAlliance},                           // :IsAlliance()
     {"IsHorde", &LuaUnit::IsHorde},                                 // :IsHorde()
     {"HasTitle", &LuaUnit::HasTitle},                               // :HasTitle(id)
-    {"HasItem", &LuaUnit::HasItem},                                 // :HasItem(itemId, count) -- Returns true if the player has the item(itemId) and specified count, else it will return false. 
+    {"HasItem", &LuaUnit::HasItem},                                 // :HasItem(itemId[, count, check_bank]) -- Returns true if the player has the item(itemId) and specified count, else it will return false. 
     {"Teleport", &LuaUnit::Teleport},                               // :Teleport(Map, X, Y, Z, O) - Teleports player to specified co-ordinates. Returns true if success and false if not.
     {"AddItem", &LuaUnit::AddItem},                                 // :AddItem(id, amount) - Adds amount of item to player. Returns true if success and false if not.
     {"IsInArenaTeam", &LuaUnit::IsInArenaTeam},                     // :IsInArenaTeam(type) -  type : 0 = 2v2, 1 = 3v3, 2 = 5v5
