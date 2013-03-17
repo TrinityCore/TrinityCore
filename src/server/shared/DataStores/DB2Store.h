@@ -105,8 +105,9 @@ class DB2Storage : public DB2StorageBase
     typedef void(*PacketWriter)(DB2Storage<T> const&, uint32, uint32, ByteBuffer&);
 public:
     DB2Storage(char const* f, EntryChecker checkEntry = NULL, PacketWriter writePacket = NULL) :
-        nCount(0), fieldCount(0), fmt(f), indexTable(NULL), m_dataTable(NULL)
+        nCount(0), fieldCount(0), fmt(f), m_dataTable(NULL)
     {
+        indexTable.asT = NULL;
         CheckEntry = checkEntry ? checkEntry : (EntryChecker)&DB2StorageHasEntry<T>;
         WritePacket = writePacket ? writePacket : (PacketWriter)&WriteDB2RecordToPacket<T>;
     }
@@ -114,7 +115,7 @@ public:
     ~DB2Storage() { Clear(); }
 
     bool HasRecord(uint32 id) const { return CheckEntry(*this, id); }
-    T const* LookupEntry(uint32 id) const { return (id >= nCount) ? NULL : indexTable[id]; }
+    T const* LookupEntry(uint32 id) const { return (id >= nCount) ? NULL : indexTable.asT[id]; }
     uint32 GetNumRows() const { return nCount; }
     char const* GetFormat() const { return fmt; }
     uint32 GetFieldCount() const { return fieldCount; }
@@ -133,19 +134,19 @@ public:
             // reallocate index table
             char** tmpIdxTable = new char*[id + 1];
             memset(tmpIdxTable, 0, (id + 1) * sizeof(char*));
-            memcpy(tmpIdxTable, (char*)indexTable, nCount * sizeof(char*));
-            delete[] ((char*)indexTable);
+            memcpy(tmpIdxTable, indexTable.asChar, nCount * sizeof(char*));
+            delete[] reinterpret_cast<char*>(indexTable.asT);
             nCount = id + 1;
-            indexTable = (T**)tmpIdxTable;
+            indexTable.asChar = tmpIdxTable;
         }
 
         T* entryDst = new T;
         m_dataTableEx.push_back(entryDst);
-        indexTable[id] = entryDst;
+        indexTable.asT[id] = entryDst;
         return entryDst;
     }
 
-    void EraseEntry(uint32 id) { indexTable[id] = NULL; }
+    void EraseEntry(uint32 id) { indexTable.asT[id] = NULL; }
 
     bool Load(char const* fn, uint32 locale)
     {
@@ -158,7 +159,7 @@ public:
         tableHash = db2.GetHash();
 
         // load raw non-string data
-        m_dataTable = (T*)db2.AutoProduceData(fmt, nCount, (char**&)indexTable);
+        m_dataTable = reinterpret_cast<T*>(db2.AutoProduceData(fmt, nCount, indexTable.asChar));
 
         // create string holders for loaded string fields
         m_stringPoolList.push_back(db2.AutoProduceStringsArrayHolders(fmt, (char*)m_dataTable));
@@ -167,13 +168,13 @@ public:
         m_stringPoolList.push_back(db2.AutoProduceStrings(fmt, (char*)m_dataTable, locale));
 
         // error in dbc file at loading if NULL
-        return indexTable!=NULL;
+        return indexTable.asT != NULL;
     }
 
     bool LoadStringsFrom(char const* fn, uint32 locale)
     {
         // DBC must be already loaded using Load
-        if (!indexTable)
+        if (!indexTable.asT)
             return false;
 
         DB2FileLoader db2;
@@ -189,13 +190,13 @@ public:
 
     void Clear()
     {
-        if (!indexTable)
+        if (!indexTable.asT)
             return;
 
-        delete[] ((char*)indexTable);
-        indexTable = NULL;
+        delete[] reinterpret_cast<char*>(indexTable.asT);
+        indexTable.asT = NULL;
 
-        delete[] ((char*)m_dataTable);
+        delete[] reinterpret_cast<char*>(m_dataTable);
         m_dataTable = NULL;
 
         for (typename DataTableEx::iterator itr = m_dataTableEx.begin(); itr != m_dataTableEx.end(); ++itr)
@@ -218,7 +219,11 @@ private:
     uint32 nCount;
     uint32 fieldCount;
     char const* fmt;
-    T** indexTable;
+    union
+    {
+        T** asT;
+        char** asChar;
+    } indexTable;
     T* m_dataTable;
     DataTableEx m_dataTableEx;
     StringPoolList m_stringPoolList;
