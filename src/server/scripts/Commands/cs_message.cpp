@@ -210,6 +210,7 @@ public:
         {
             std::string name = strtok(NULL, " ");
             if (normalizePlayerName(name))
+            {
                 if (Player* player = sObjectAccessor->FindPlayerByName(name))
                 {
                     handler->GetSession()->GetPlayer()->RemoveFromWhisperWhiteList(player->GetGUID());
@@ -222,6 +223,7 @@ public:
                     handler->SetSentErrorMessage(true);
                     return false;
                 }
+            }
         }
         handler->SendSysMessage(LANG_USE_BOL);
         handler->SetSentErrorMessage(true);
