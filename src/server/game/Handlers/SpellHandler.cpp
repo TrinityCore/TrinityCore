@@ -275,7 +275,7 @@ void WorldSession::HandleGameObjectUseOpcode(WorldPacket& recvData)
     {
         // ignore for remote control state
         if (_player->m_mover != _player)
-            if (!_player->IsOnVehicle(_player->m_mover) || !(_player->IsMounted() && obj->GetGOInfo()->IsUsableMounted()))
+            if (!(_player->IsOnVehicle(_player->m_mover) || _player->IsMounted()) && !obj->GetGOInfo()->IsUsableMounted())
                 return;
 
         obj->Use(_player);

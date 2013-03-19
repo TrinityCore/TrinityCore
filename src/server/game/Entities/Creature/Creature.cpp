@@ -1294,8 +1294,8 @@ bool Creature::CreateFromProto(uint32 guidlow, uint32 Entry, uint32 vehId, uint3
     if (!UpdateEntry(Entry, team, data))
         return false;
 
-    if (vehId && !CreateVehicleKit(vehId, Entry))
-        vehId = 0;
+    if (vehId)
+        CreateVehicleKit(vehId, Entry);
 
     return true;
 }

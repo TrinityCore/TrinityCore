@@ -54,7 +54,7 @@ enum Yells
     SAY_SYLVANAS_OUTRO_4            = 4
 };
 
-enum Spelsl
+enum Spells
 {
     SPELL_OVERLORD_BRAND            = 69172,
     SPELL_OVERLORD_BRAND_HEAL       = 69190,
