@@ -406,10 +406,7 @@ void CreatureEventAI::ProcessAction(CreatureEventAI_Action const& action, uint32
                 if (action.morph.creatureId)
                 {
                     if (CreatureTemplate const* ci = sObjectMgr->GetCreatureTemplate(action.morph.creatureId))
-                    {
-                        uint32 display_id = sObjectMgr->ChooseDisplayId(0, ci);
-                        me->SetDisplayId(display_id);
-                    }
+                        me->SetDisplayId(ObjectMgr::ChooseDisplayId(ci));
                 }
                 //if no param1, then use value from param2 (modelId)
                 else
@@ -780,10 +777,7 @@ void CreatureEventAI::ProcessAction(CreatureEventAI_Action const& action, uint32
                 if (action.mount.creatureId)
                 {
                     if (CreatureTemplate const* cInfo = sObjectMgr->GetCreatureTemplate(action.mount.creatureId))
-                    {
-                        uint32 display_id = sObjectMgr->ChooseDisplayId(0, cInfo);
-                        me->Mount(display_id);
-                    }
+                        me->Mount(ObjectMgr::ChooseDisplayId(cInfo));
                 }
                 //if no param1, then use value from param2 (modelId)
                 else
