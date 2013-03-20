@@ -22,9 +22,15 @@
 // For static or at-server-startup loaded spell data
 
 #include <ace/Singleton.h>
-#include "Common.h"
+
+#include "DBCStructure.h"
 #include "SharedDefines.h"
-#include "Unit.h"
+#include "UnorderedMap.h"
+#include "Util.h"
+
+#include <map>
+#include <set>
+#include <vector>
 
 class SpellInfo;
 class Player;
@@ -442,10 +448,7 @@ class PetAura
         typedef UNORDERED_MAP<uint32, uint32> PetAuraMap;
 
     public:
-        PetAura() : removeOnChangePet(false), damage(0)
-        {
-            auras.clear();
-        }
+        PetAura() : removeOnChangePet(false), damage(0) { }
 
         PetAura(uint32 petEntry, uint32 aura, bool _removeOnChangePet, int _damage) :
         removeOnChangePet(_removeOnChangePet), damage(_damage)

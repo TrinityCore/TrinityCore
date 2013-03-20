@@ -65,8 +65,6 @@ Battlefield::~Battlefield()
 
     for (GraveyardVect::const_iterator itr = m_GraveyardList.begin(); itr != m_GraveyardList.end(); ++itr)
         delete *itr;
-
-    m_capturePoints.clear();
 }
 
 // Called when a player enters the zone
@@ -681,7 +679,6 @@ BfGraveyard::BfGraveyard(Battlefield* battlefield)
     m_ControlTeam = TEAM_NEUTRAL;
     m_SpiritGuide[0] = 0;
     m_SpiritGuide[1] = 0;
-    m_ResurrectQueue.clear();
 }
 
 void BfGraveyard::Initialize(TeamId startControl, uint32 graveyardId)
