@@ -155,13 +155,18 @@ struct CreatureTemplate
             return SKILL_SKINNING;                          // normal case
     }
 
-    bool isTameable(bool exotic) const
+    bool isExotic() const
+    {
+        return (type_flags & CREATURE_TYPEFLAGS_EXOTIC) != 0;
+    }
+
+    bool isTameable(bool canTameExotic) const
     {
         if (type != CREATURE_TYPE_BEAST || family == 0 || (type_flags & CREATURE_TYPEFLAGS_TAMEABLE) == 0)
             return false;
 
-        // if can tame exotic then can tame any temable
-        return exotic || (type_flags & CREATURE_TYPEFLAGS_EXOTIC) == 0;
+        // if can tame exotic then can tame any tameable
+        return canTameExotic || !isExotic();
     }
 };
 
@@ -481,8 +486,8 @@ class Creature : public Unit, public GridObject<Creature>, public MapCreature
         bool isCanInteractWithBattleMaster(Player* player, bool msg) const;
         bool isCanTrainingAndResetTalentsOf(Player* player) const;
         bool canCreatureAttack(Unit const* victim, bool force = true) const;
-        bool IsImmunedToSpell(SpellInfo const* spellInfo);                           //override Unit::IsImmunedToSpell
-        bool IsImmunedToSpellEffect(SpellInfo const* spellInfo, uint32 index) const; //override Unit::IsImmunedToSpellEffect
+        bool IsImmunedToSpell(SpellInfo const* spellInfo) const;                     // override Unit::IsImmunedToSpell
+        bool IsImmunedToSpellEffect(SpellInfo const* spellInfo, uint32 index) const; // override Unit::IsImmunedToSpellEffect
         bool isElite() const;
         bool isWorldBoss() const;
 
@@ -530,7 +535,7 @@ class Creature : public Unit, public GridObject<Creature>, public MapCreature
         uint8 GetCurrentEquipmentId() { return m_equipmentId; }
         void SetCurrentEquipmentId(uint8 id) { m_equipmentId = id; }
 
-        float GetSpellDamageMod(int32 Rank);
+        float GetSpellDamageMod(int32 Rank) const;
 
         VendorItemData const* GetVendorItems() const;
         uint32 GetVendorItemCurrentCount(VendorItem const* vItem);
@@ -659,8 +664,8 @@ class Creature : public Unit, public GridObject<Creature>, public MapCreature
         uint32 GetWaypointPath(){return m_path_id;}
         void LoadPath(uint32 pathid) { m_path_id = pathid; }
 
-        uint32 GetCurrentWaypointID(){return m_waypointID;}
-        void UpdateWaypointID(uint32 wpID){m_waypointID = wpID;}
+        uint32 GetCurrentWaypointID() const { return m_waypointID; }
+        void UpdateWaypointID(uint32 wpID) { m_waypointID = wpID; }
 
         void SearchFormation();
         CreatureGroup* GetFormation() {return m_formation;}

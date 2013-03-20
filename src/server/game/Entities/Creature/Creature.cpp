@@ -16,13 +16,13 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Creature.h"
 #include "BattlegroundMgr.h"
 #include "CellImpl.h"
 #include "Common.h"
 #include "CreatureAI.h"
 #include "CreatureAISelector.h"
 #include "CreatureGroups.h"
-#include "Creature.h"
 #include "DatabaseEnv.h"
 #include "Formulas.h"
 #include "GameEventMgr.h"
@@ -169,8 +169,6 @@ m_creatureInfo(NULL), m_creatureData(NULL), m_path_id(0), m_formation(NULL)
 
 Creature::~Creature()
 {
-    m_vendorItemCounts.clear();
-
     delete i_AI;
     i_AI = NULL;
 
@@ -258,12 +256,12 @@ void Creature::RemoveCorpse(bool setSpawnTime)
 /**
  * change the entry of creature until respawn
  */
-bool Creature::InitEntry(uint32 Entry, uint32 /*team*/, const CreatureData* data)
+bool Creature::InitEntry(uint32 entry, uint32 /*team*/, const CreatureData* data)
 {
-    CreatureTemplate const* normalInfo = sObjectMgr->GetCreatureTemplate(Entry);
+    CreatureTemplate const* normalInfo = sObjectMgr->GetCreatureTemplate(entry);
     if (!normalInfo)
     {
-        sLog->outError(LOG_FILTER_SQL, "Creature::InitEntry creature entry %u does not exist.", Entry);
+        sLog->outError(LOG_FILTER_SQL, "Creature::InitEntry creature entry %u does not exist.", entry);
         return false;
     }
 
@@ -293,7 +291,7 @@ bool Creature::InitEntry(uint32 Entry, uint32 /*team*/, const CreatureData* data
     if (GetMap()->Is25ManRaid())
         loot.maxDuplicates = 3;
 
-    SetEntry(Entry);                                        // normal entry always
+    SetEntry(entry);                                        // normal entry always
     m_creatureInfo = cinfo;                                 // map mode related always
 
     // equal to player Race field, but creature does not have race
@@ -305,7 +303,7 @@ bool Creature::InitEntry(uint32 Entry, uint32 /*team*/, const CreatureData* data
     // Cancel load if no model defined
     if (!(cinfo->GetFirstValidModelId()))
     {
-        sLog->outError(LOG_FILTER_SQL, "Creature (Entry: %u) has no model defined in table `creature_template`, can't load. ", Entry);
+        sLog->outError(LOG_FILTER_SQL, "Creature (Entry: %u) has no model defined in table `creature_template`, can't load. ", entry);
         return false;
     }
 
@@ -313,7 +311,7 @@ bool Creature::InitEntry(uint32 Entry, uint32 /*team*/, const CreatureData* data
     CreatureModelInfo const* minfo = sObjectMgr->GetCreatureModelRandomGender(&displayID);
     if (!minfo)                                             // Cancel load if no model defined
     {
-        sLog->outError(LOG_FILTER_SQL, "Creature (Entry: %u) has no model defined in table `creature_template`, can't load. ", Entry);
+        sLog->outError(LOG_FILTER_SQL, "Creature (Entry: %u) has no model defined in table `creature_template`, can't load. ", entry);
         return false;
     }
 
@@ -1248,7 +1246,7 @@ float Creature::_GetDamageMod(int32 Rank)
     }
 }
 
-float Creature::GetSpellDamageMod(int32 Rank)
+float Creature::GetSpellDamageMod(int32 Rank) const
 {
     switch (Rank)                                           // define rates for each elite rank
     {
@@ -1708,7 +1706,7 @@ void Creature::DespawnOrUnsummon(uint32 msTimeToDespawn /*= 0*/)
         ForcedDespawn(msTimeToDespawn);
 }
 
-bool Creature::IsImmunedToSpell(SpellInfo const* spellInfo)
+bool Creature::IsImmunedToSpell(SpellInfo const* spellInfo) const
 {
     if (!spellInfo)
         return false;
