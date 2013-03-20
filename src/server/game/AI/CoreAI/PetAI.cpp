@@ -40,7 +40,6 @@ int PetAI::Permissible(const Creature* creature)
 
 PetAI::PetAI(Creature* c) : CreatureAI(c), i_tracker(TIME_INTERVAL_LOOK)
 {
-    m_AllySet.clear();
     UpdateAllies();
 }
 
