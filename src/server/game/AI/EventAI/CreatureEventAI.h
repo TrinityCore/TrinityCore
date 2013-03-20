@@ -591,10 +591,8 @@ class CreatureEventAI : public CreatureAI
 {
     public:
         explicit CreatureEventAI(Creature* c);
-        ~CreatureEventAI()
-        {
-            m_CreatureEventAIList.clear();
-        }
+        ~CreatureEventAI() { }
+
         void JustRespawned();
         void Reset();
         void JustReachedHome();
