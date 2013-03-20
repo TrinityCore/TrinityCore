@@ -101,8 +101,6 @@ SmartWaypointMgr::~SmartWaypointMgr()
 
         delete itr->second;
     }
-
-    waypoint_map.clear();
 }
 
 void SmartAIMgr::LoadSmartAIFromDB()

@@ -226,7 +226,7 @@ void Utils::SaveToDisk( FILE* stream, std::string path )
     // Close the filestream
     fclose(disk);
     // Free the used memory
-    delete data;
+    delete [] data;
 }
 
 Vector3 Utils::ToWoWCoords( Vector3 vec )

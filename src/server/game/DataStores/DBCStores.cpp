@@ -22,6 +22,8 @@
 #include "SpellMgr.h"
 #include "DBCfmt.h"
 #include "ItemPrototype.h"
+#include "Timer.h"
+#include "ObjectDefines.h"
 
 #include <map>
 
