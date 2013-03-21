@@ -113,7 +113,7 @@ public:
             {
                 Unit* dalronn = Unit::GetUnit(*me, instance->GetData64(DATA_DALRONN));
                 if (dalronn && dalronn->isDead())
-                    CAST_CRE(dalronn)->Respawn();
+                    dalronn->ToCreature()->Respawn();
 
                 instance->SetData(DATA_SKARVALD_DALRONN_EVENT, NOT_STARTED);
             }
@@ -280,7 +280,7 @@ public:
             {
                 Unit* skarvald = Unit::GetUnit(*me, instance->GetData64(DATA_SKARVALD));
                 if (skarvald && skarvald->isDead())
-                    CAST_CRE(skarvald)->Respawn();
+                    skarvald->ToCreature()->Respawn();
 
                 instance->SetData(DATA_SKARVALD_DALRONN_EVENT, NOT_STARTED);
             }
