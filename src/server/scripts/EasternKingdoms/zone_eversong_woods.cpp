@@ -243,11 +243,11 @@ public:
             summonerGuid = summonerguid;
         }
 
-        void KilledUnit(Unit* Killed)
+        void KilledUnit(Unit* unit)
         {
-            if (Killed->GetTypeId() == TYPEID_PLAYER)
-                if (CAST_PLR(Killed)->GetQuestStatus(QUEST_SECOND_TRIAL) == QUEST_STATUS_INCOMPLETE)
-                    CAST_PLR(Killed)->FailQuest(QUEST_SECOND_TRIAL);
+            if (Player* player = unit->ToPlayer())
+                if (player->GetQuestStatus(QUEST_SECOND_TRIAL) == QUEST_STATUS_INCOMPLETE)
+                    player->FailQuest(QUEST_SECOND_TRIAL);
         }
 
         void JustDied(Unit* killer);
@@ -577,7 +577,7 @@ public:
         {
             if (!Progress && who->GetTypeId() == TYPEID_PLAYER && me->IsWithinDistInMap(who, 10.0f))
             {
-                if (CAST_PLR(who)->GetQuestStatus(QUEST_POWERING_OUR_DEFENSES) == QUEST_STATUS_INCOMPLETE)
+                if (who->ToPlayer()->GetQuestStatus(QUEST_POWERING_OUR_DEFENSES) == QUEST_STATUS_INCOMPLETE)
                 {
                     PlayerGUID = who->GetGUID();
                     WaveTimer = 1000;
@@ -596,7 +596,7 @@ public:
         {
             if (PlayerGUID && !Completed)
                 if (Player* player = Unit::GetPlayer(*me, PlayerGUID))
-                    CAST_PLR(player)->FailQuest(QUEST_POWERING_OUR_DEFENSES);
+                    player->FailQuest(QUEST_POWERING_OUR_DEFENSES);
         }
 
         void UpdateAI(uint32 diff)
@@ -607,7 +607,7 @@ public:
                 Completed = true;
                 if (PlayerGUID)
                     if (Player* player = Unit::GetPlayer(*me, PlayerGUID))
-                        CAST_PLR(player)->CompleteQuest(QUEST_POWERING_OUR_DEFENSES);
+                        player->CompleteQuest(QUEST_POWERING_OUR_DEFENSES);
 
                 me->DealDamage(me, me->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
                 me->RemoveCorpse();

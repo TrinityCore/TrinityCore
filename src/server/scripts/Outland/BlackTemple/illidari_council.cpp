@@ -305,7 +305,7 @@ public:
                     {
                         Unit* member = Unit::GetUnit(*me, Council[i]);
                         if (member && member->isAlive())
-                            CAST_CRE(member)->AI()->AttackStart(target);
+                            member->ToCreature()->AI()->AttackStart(target);
                     }
                 }
 

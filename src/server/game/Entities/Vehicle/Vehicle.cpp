@@ -674,7 +674,7 @@ uint8 Vehicle::GetAvailableSeatCount() const
     return ret;
 }
 
-void Vehicle::CalculatePassengerPosition(float& x, float& y, float& z, float& o)
+void Vehicle::CalculatePassengerPosition(float& x, float& y, float& z, float& o) const
 {
     float inx = x, iny = y, inz = z, ino = o;
     o = GetBase()->GetOrientation() + ino;
@@ -683,7 +683,7 @@ void Vehicle::CalculatePassengerPosition(float& x, float& y, float& z, float& o)
     z = GetBase()->GetPositionZ() + inz;
 }
 
-void Vehicle::CalculatePassengerOffset(float& x, float& y, float& z, float& o)
+void Vehicle::CalculatePassengerOffset(float& x, float& y, float& z, float& o) const
 {
     o -= GetBase()->GetOrientation();
     z -= GetBase()->GetPositionZ();
@@ -840,7 +840,7 @@ bool VehicleJoinEvent::Execute(uint64, uint32)
 
     if (Target->GetBase()->GetTypeId() == TYPEID_UNIT && Passenger->GetTypeId() == TYPEID_PLAYER &&
         Seat->second.SeatInfo->m_flags & VEHICLE_SEAT_FLAG_CAN_CONTROL)
-        ASSERT(Target->GetBase()->SetCharmedBy(Passenger, CHARM_TYPE_VEHICLE))  // SMSG_CLIENT_CONTROL
+        ASSERT(Target->GetBase()->SetCharmedBy(Passenger, CHARM_TYPE_VEHICLE));  // SMSG_CLIENT_CONTROL
 
     Passenger->SendClearTarget();                            // SMSG_BREAK_TARGET
     Passenger->SetControlled(true, UNIT_STATE_ROOT);         // SMSG_FORCE_ROOT - In some cases we send SMSG_SPLINE_MOVE_ROOT here (for creatures)
@@ -853,10 +853,10 @@ bool VehicleJoinEvent::Execute(uint64, uint32)
     init.SetTransportEnter();
     init.Launch();
 
-    if (Target->GetBase()->GetTypeId() == TYPEID_UNIT)
+    if (Creature* creature = Target->GetBase()->ToCreature())
     {
-        if (Target->GetBase()->ToCreature()->IsAIEnabled)
-            Target->GetBase()->ToCreature()->AI()->PassengerBoarded(Passenger, Seat->first, true);
+        if (creature->IsAIEnabled)
+            creature->AI()->PassengerBoarded(Passenger, Seat->first, true);
 
         sScriptMgr->OnAddPassenger(Target, Passenger, Seat->first);
 

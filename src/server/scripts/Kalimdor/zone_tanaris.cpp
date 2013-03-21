@@ -83,15 +83,17 @@ public:
 
         void SendItem(Unit* receiver)
         {
-            if (CAST_PLR(receiver)->HasItemCount(11169, 1, false) &&
-                CAST_PLR(receiver)->HasItemCount(11172, 11, false) &&
-                CAST_PLR(receiver)->HasItemCount(11173, 1, false) &&
-                !CAST_PLR(receiver)->HasItemCount(11522, 1, true))
+            Player* player = receiver->ToPlayer();
+
+            if (player && player->HasItemCount(11169, 1, false) &&
+                player->HasItemCount(11172, 11, false) &&
+                player->HasItemCount(11173, 1, false) &&
+                !player->HasItemCount(11522, 1, true))
             {
                 ItemPosCountVec dest;
-                uint8 msg = CAST_PLR(receiver)->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, 11522, 1, NULL);
+                uint8 msg = player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, 11522, 1, NULL);
                 if (msg == EQUIP_ERR_OK)
-                    CAST_PLR(receiver)->StoreNewItem(dest, 11522, 1, true);
+                    player->StoreNewItem(dest, 11522, 1, true);
             }
         }
 
@@ -250,9 +252,9 @@ public:
             if (HasEscortState(STATE_ESCORT_ESCORTING))
                 return;
 
-            if (who->GetTypeId() == TYPEID_PLAYER)
+            if (Player* player = who->ToPlayer())
             {
-                if (who->HasAura(34877) && CAST_PLR(who)->GetQuestStatus(10277) == QUEST_STATUS_INCOMPLETE)
+                if (who->HasAura(34877) && player->GetQuestStatus(10277) == QUEST_STATUS_INCOMPLETE)
                 {
                     float Radius = 10.0f;
                     if (me->IsWithinDistInMap(who, Radius))

@@ -138,8 +138,7 @@ public:
                     me->SetWalk(true);
                     break;
                 case 30:
-                    if (player->GetTypeId() == TYPEID_PLAYER)
-                        CAST_PLR(player)->GroupEventHappens(QUEST_ESCAPE_FROM_THE_CATACOMBS, me);
+                    player->GroupEventHappens(QUEST_ESCAPE_FROM_THE_CATACOMBS, me);
                     break;
                 case 32:
                     me->SetOrientation(2.978281f);
