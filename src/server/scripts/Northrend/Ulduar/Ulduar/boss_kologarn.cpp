@@ -219,7 +219,7 @@ class boss_kologarn : public CreatureScript
                         summon->CastSpell(me, SPELL_FOCUSED_EYEBEAM_VISUAL_RIGHT, true);
                         break;
                     case NPC_RUBBLE:
-                        summons.push_back(summon->GetGUID());
+                        summons.Summon(summon);
                         // absence of break intended
                     default:
                         return;
