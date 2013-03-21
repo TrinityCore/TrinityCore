@@ -147,7 +147,7 @@ enum Dummies
 struct DialogueEntry
 {
     int32 TextEntry;    ///< To be said text entry
-    uint32 SayerEntry;  ///< Entry of the mob who should say
+    int32 SayerEntry;   ///< Entry of the mob who should say
     uint32 SayTimer;    ///< Time delay until next text of array is said (0 stops)
 };
 
@@ -202,9 +202,9 @@ public:
 
 protected:
     /// Will be called when a dialogue step was done
-    virtual void JustDidDialogueStep(int32 entry) {}
+    virtual void JustDidDialogueStep(int32 /*entry*/) {}
     /// Will be called to get a speaker, MUST be implemented if not used in instances
-    virtual Creature* GetSpeakerByEntry(uint32 entry) { return NULL; }
+    virtual Creature* GetSpeakerByEntry(uint32 /*entry*/) { return NULL; }
 
 private:
     void DoNextDialogueStep()
@@ -225,7 +225,7 @@ private:
         if (sayerEntry && textEntry >= 0)
         {
             // Use Speaker if directly provided
-            if(Creature* speaker = GetSpeakerByEntry(sayerEntry))
+            if (Creature* speaker = GetSpeakerByEntry(sayerEntry))
                 speaker->AI()->Talk(textEntry);
         }
 
@@ -281,11 +281,11 @@ static Position wingThicketLocations[] =
     {5515.98f, -4903.43f, 846.30f, 4.58f},  // 0 right priestess summon loc
     {5501.94f, -4920.20f, 848.69f, 6.15f},  // 1 left priestess summon loc
     {5497.35f, -4906.49f, 850.83f, 2.76f},  // 2 guard of elune summon loc
-    {5518.38f, -4913.47f, 845.57f},         // 3 right priestess move loc
-    {5510.36f, -4921.17f, 846.33f},         // 4 left priestess move loc
-    {5511.31f, -4913.82f, 847.17f},         // 5 guard of elune move loc
-    {5518.51f, -4917.56f, 845.23f},         // 6 right priestess second move loc
-    {5514.40f, -4921.16f, 845.49f}          // 7 left priestess second move loc
+    {5518.38f, -4913.47f, 845.57f, 0.00f},  // 3 right priestess move loc
+    {5510.36f, -4921.17f, 846.33f, 0.00f},  // 4 left priestess move loc
+    {5511.31f, -4913.82f, 847.17f, 0.00f},  // 5 guard of elune move loc
+    {5518.51f, -4917.56f, 845.23f, 0.00f},  // 6 right priestess second move loc
+    {5514.40f, -4921.16f, 845.49f, 0.00f}   // 7 left priestess second move loc
 };
 
 /*#####
@@ -549,15 +549,18 @@ public:
             }
         }
 
-        Creature* GetSpeakerByEntry(uint32 entry)
+        Creature* GetSpeakerByEntry(int32 entry)
         {
             switch (entry)
             {
-                case NPC_RANSHALLA:         return me;
-                case NPC_VOICE_ELUNE:       return me->GetMap()->GetCreature(_voiceEluneGUID);
-                case NPC_PRIESTESS_DATA_1:  return me->GetMap()->GetCreature(_firstPriestessGUID);
-                case NPC_PRIESTESS_DATA_2:  return me->GetMap()->GetCreature(_secondPriestessGUID);
-
+                case NPC_RANSHALLA:
+                    return me;
+                case NPC_VOICE_ELUNE:
+                    return me->GetMap()->GetCreature(_voiceEluneGUID);
+                case NPC_PRIESTESS_DATA_1:
+                    return me->GetMap()->GetCreature(_firstPriestessGUID);
+                case NPC_PRIESTESS_DATA_2:
+                    return me->GetMap()->GetCreature(_secondPriestessGUID);
                 default:
                     return NULL;
             }
@@ -597,7 +600,7 @@ class go_elune_fire : public GameObjectScript
 {
 public:
     go_elune_fire() : GameObjectScript("go_elune_fire") { }
-    bool OnGossipHello(Player* player, GameObject* go)
+    bool OnGossipHello(Player* /*player*/, GameObject* go)
     {
         // Check if we are using the torches or the altar
         bool isAltar = false;

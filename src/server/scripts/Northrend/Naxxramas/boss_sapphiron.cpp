@@ -89,11 +89,10 @@ class boss_sapphiron : public CreatureScript
 
         struct boss_sapphironAI : public BossAI
         {
-            boss_sapphironAI(Creature* creature) : BossAI(creature, BOSS_SAPPHIRON)
-                , _phase(PHASE_NULL)
-            {
-                _map = me->GetMap();
-            }
+            boss_sapphironAI(Creature* creature) :
+                BossAI(creature, BOSS_SAPPHIRON), _phase(PHASE_NULL),
+                _map(me->GetMap())
+            { }
 
             void InitializeAI()
             {
