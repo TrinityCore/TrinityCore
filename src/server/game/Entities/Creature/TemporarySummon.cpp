@@ -37,6 +37,11 @@ Unit* TempSummon::GetSummoner() const
     return m_summonerGUID ? ObjectAccessor::GetUnit(*this, m_summonerGUID) : NULL;
 }
 
+Creature* TempSummon::GetSummonerCreatureBase() const
+{
+    return m_summonerGUID ? ObjectAccessor::GetCreature(*this, m_summonerGUID) : NULL;
+}
+
 void TempSummon::Update(uint32 diff)
 {
     Creature::Update(diff);
@@ -274,8 +279,9 @@ void TempSummon::RemoveFromWorld()
     Creature::RemoveFromWorld();
 }
 
-Minion::Minion(SummonPropertiesEntry const* properties, Unit* owner, bool isWorldObject) : TempSummon(properties, owner, isWorldObject)
-, m_owner(owner)
+Minion::Minion(SummonPropertiesEntry const* properties, Unit* owner,
+               bool isWorldObject)
+    : TempSummon(properties, owner, isWorldObject), m_owner(owner)
 {
     ASSERT(m_owner);
     m_unitTypeMask |= UNIT_MASK_MINION;
@@ -288,10 +294,10 @@ void Minion::InitStats(uint32 duration)
 
     SetReactState(REACT_PASSIVE);
 
-    SetCreatorGUID(m_owner->GetGUID());
-    setFaction(m_owner->getFaction());
+    SetCreatorGUID(GetOwner()->GetGUID());
+    setFaction(GetOwner()->getFaction());
 
-    m_owner->SetMinion(this, true);
+    GetOwner()->SetMinion(this, true);
 }
 
 void Minion::RemoveFromWorld()
@@ -299,7 +305,7 @@ void Minion::RemoveFromWorld()
     if (!IsInWorld())
         return;
 
-    m_owner->SetMinion(this, false);
+    GetOwner()->SetMinion(this, false);
     TempSummon::RemoveFromWorld();
 }
 
@@ -324,9 +330,9 @@ void Guardian::InitStats(uint32 duration)
 {
     Minion::InitStats(duration);
 
-    InitStatsForLevel(m_owner->getLevel());
+    InitStatsForLevel(GetOwner()->getLevel());
 
-    if (m_owner->GetTypeId() == TYPEID_PLAYER && HasUnitTypeMask(UNIT_MASK_CONTROLABLE_GUARDIAN))
+    if (GetOwner()->GetTypeId() == TYPEID_PLAYER && HasUnitTypeMask(UNIT_MASK_CONTROLABLE_GUARDIAN))
         m_charmInfo->InitCharmCreateSpells();
 
     SetReactState(REACT_AGGRESSIVE);
@@ -336,30 +342,32 @@ void Guardian::InitSummon()
 {
     TempSummon::InitSummon();
 
-    if (m_owner->GetTypeId() == TYPEID_PLAYER
-        && m_owner->GetMinionGUID() == GetGUID()
-        && !m_owner->GetCharmGUID())
-        m_owner->ToPlayer()->CharmSpellInitialize();
+    if (GetOwner()->GetTypeId() == TYPEID_PLAYER
+            && GetOwner()->GetMinionGUID() == GetGUID()
+            && !GetOwner()->GetCharmGUID())
+    {
+        GetOwner()->ToPlayer()->CharmSpellInitialize();
+    }
 }
 
-Puppet::Puppet(SummonPropertiesEntry const* properties, Unit* owner) : Minion(properties, owner, false) //maybe true?
+Puppet::Puppet(SummonPropertiesEntry const* properties, Unit* owner)
+    : Minion(properties, owner, false) //maybe true?
 {
-    ASSERT(owner->GetTypeId() == TYPEID_PLAYER);
-    m_owner = (Player*)owner;
+    ASSERT(m_owner->GetTypeId() == TYPEID_PLAYER);
     m_unitTypeMask |= UNIT_MASK_PUPPET;
 }
 
 void Puppet::InitStats(uint32 duration)
 {
     Minion::InitStats(duration);
-    SetLevel(m_owner->getLevel());
+    SetLevel(GetOwner()->getLevel());
     SetReactState(REACT_PASSIVE);
 }
 
 void Puppet::InitSummon()
 {
     Minion::InitSummon();
-    if (!SetCharmedBy(m_owner, CHARM_TYPE_POSSESS))
+    if (!SetCharmedBy(GetOwner(), CHARM_TYPE_POSSESS))
         ASSERT(false);
 }
 
