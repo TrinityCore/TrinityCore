@@ -24,7 +24,6 @@
 #include "CreatureAIImpl.h"
 #include "InstanceScript.h"
 
-#define CAST_PLR(a)     (dynamic_cast<Player*>(a))
 #define CAST_CRE(a)     (dynamic_cast<Creature*>(a))
 #define CAST_AI(a, b)   (dynamic_cast<a*>(b))
 

@@ -118,36 +118,33 @@ public:
 
             if (someplayer)
             {
-                Unit* p = Unit::GetUnit(*me, someplayer);
-                if (p && p->GetTypeId() == TYPEID_PLAYER)
+                if (Player* player = ObjectAccessor::GetPlayer(*me, someplayer))
                 {
                     switch (me->GetEntry())
                     {
                         case ENTRY_BNAAR_C_CONSOLE:
-                            CAST_PLR(p)->FailQuest(10299);
-                            CAST_PLR(p)->FailQuest(10329);
+                            player->FailQuest(10299);
+                            player->FailQuest(10329);
                             break;
                         case ENTRY_CORUU_C_CONSOLE:
-                            CAST_PLR(p)->FailQuest(10321);
-                            CAST_PLR(p)->FailQuest(10330);
+                            player->FailQuest(10321);
+                            player->FailQuest(10330);
                             break;
                         case ENTRY_DURO_C_CONSOLE:
-                            CAST_PLR(p)->FailQuest(10322);
-                            CAST_PLR(p)->FailQuest(10338);
+                            player->FailQuest(10322);
+                            player->FailQuest(10338);
                             break;
                         case ENTRY_ARA_C_CONSOLE:
-                            CAST_PLR(p)->FailQuest(10323);
-                            CAST_PLR(p)->FailQuest(10365);
+                            player->FailQuest(10323);
+                            player->FailQuest(10365);
                             break;
                     }
                 }
             }
 
             if (goConsole)
-            {
                 if (GameObject* go = GameObject::GetGameObject(*me, goConsole))
                     go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE);
-            }
         }
 
         void DoWaveSpawnForCreature(Creature* creature)
@@ -275,27 +272,30 @@ public:
                         Talk(EMOTE_COMPLETE);
                         if (someplayer)
                         {
-                            Unit* u = Unit::GetUnit(*me, someplayer);
-                            if (u && u->GetTypeId() == TYPEID_PLAYER)
-                                CAST_PLR(u)->KilledMonsterCredit(me->GetEntry(), me->GetGUID());
+                            if (Player* player = ObjectAccessor::GetPlayer(*me, someplayer))
+                                player->KilledMonsterCredit(me->GetEntry(), me->GetGUID());
                             DoCast(me, SPELL_DISABLE_VISUAL);
                         }
+
                         if (goConsole)
-                        {
                             if (GameObject* go = GameObject::GetGameObject(*me, goConsole))
                                 go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE);
-                        }
+
                         ++Phase;
                         break;
                 }
-            } else Event_Timer -= diff;
+            }
+            else
+                Event_Timer -= diff;
 
             if (Wave)
             {
                 if (Wave_Timer <= diff)
                 {
                     DoWaveSpawnForCreature(me);
-                } else Wave_Timer -= diff;
+                }
+                else
+                    Wave_Timer -= diff;
             }
         }
     };

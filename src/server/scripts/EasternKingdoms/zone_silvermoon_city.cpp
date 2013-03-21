@@ -88,19 +88,22 @@ public:
             }
         }
 
-        void SpellHit(Unit* Hitter, const SpellInfo* Spellkind)
+        void SpellHit(Unit* caster, const SpellInfo* Spellkind)
         {
-            if ((Spellkind->Id == SPELL_SHIMMERING_VESSEL) && !spellHit &&
-                (Hitter->GetTypeId() == TYPEID_PLAYER) && (CAST_PLR(Hitter)->IsActiveQuest(QUEST_REDEEMING_THE_DEAD)))
-            {
-                CAST_PLR(Hitter)->AreaExploredOrEventHappens(QUEST_REDEEMING_THE_DEAD);
-                DoCast(me, SPELL_REVIVE_SELF);
-                me->SetStandState(UNIT_STAND_STATE_STAND);
-                me->SetUInt32Value(UNIT_DYNAMIC_FLAGS, 0);
-                //me->RemoveAllAuras();
-                Talk(SAY_HEAL);
-                spellHit = true;
-            }
+            if (Spellkind->Id != SPELL_SHIMMERING_VESSEL || spellHit)
+                return;
+
+            Player* player = caster->ToPlayer();
+            if (!player || !player->IsActiveQuest(QUEST_REDEEMING_THE_DEAD))
+                return;
+
+            player->AreaExploredOrEventHappens(QUEST_REDEEMING_THE_DEAD);
+            DoCast(me, SPELL_REVIVE_SELF);
+            me->SetStandState(UNIT_STAND_STATE_STAND);
+            me->SetUInt32Value(UNIT_DYNAMIC_FLAGS, 0);
+            //me->RemoveAllAuras();
+            Talk(SAY_HEAL);
+            spellHit = true;
         }
     };
 };
