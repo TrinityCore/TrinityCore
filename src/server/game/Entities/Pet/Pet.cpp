@@ -694,7 +694,7 @@ HappinessState Pet::GetHappinessState()
 
 void Pet::Remove(PetSaveMode mode, bool returnreagent)
 {
-    m_owner->RemovePet(this, mode, returnreagent);
+    GetOwner()->RemovePet(this, mode, returnreagent);
 }
 
 void Pet::GivePetXP(uint32 xp)
@@ -1510,8 +1510,8 @@ bool Pet::learnSpell(uint32 spell_id)
     {
         WorldPacket data(SMSG_PET_LEARNED_SPELL, 4);
         data << uint32(spell_id);
-        m_owner->GetSession()->SendPacket(&data);
-        m_owner->PetSpellInitialize();
+        GetOwner()->GetSession()->SendPacket(&data);
+        GetOwner()->PetSpellInitialize();
     }
     return true;
 }
@@ -1563,7 +1563,7 @@ bool Pet::unlearnSpell(uint32 spell_id, bool learn_prev, bool clear_ab)
         {
             WorldPacket data(SMSG_PET_REMOVED_SPELL, 4);
             data << uint32(spell_id);
-            m_owner->GetSession()->SendPacket(&data);
+            GetOwner()->GetSession()->SendPacket(&data);
         }
         return true;
     }
