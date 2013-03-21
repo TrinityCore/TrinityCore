@@ -569,7 +569,8 @@ public:
                 return;
 
             if (Unit* summon = me->ToTempSummon()->GetSummoner())
-                CAST_CRE(summon)->AI()->SetData(2, 1);
+                if (Creature* creature = summon->ToCreature())
+                    creature->AI()->SetData(2, 1);
         }
 
         void UpdateAI(uint32 /*diff*/)
@@ -586,8 +587,8 @@ public:
                 return;
 
             if (Unit* summoner = me->ToTempSummon()->GetSummoner())
-                if (Creature* summonerCre = summoner->ToCreature())
-                    summonerCre->AI()->SetData(2, 2);
+                if (Creature* creature = summoner->ToCreature())
+                    creature->AI()->SetData(2, 2);
         }
     };
 
