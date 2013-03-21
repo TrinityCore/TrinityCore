@@ -167,9 +167,9 @@ class boss_warchief_kargath_bladefist : public CreatureScript
                     Unit* temp = Unit::GetUnit(*me, *itr);
                     if (temp && temp->isAlive())
                     {
-                        (*temp).GetMotionMaster()->Clear(true);
+                        temp->GetMotionMaster()->Clear(true);
                         me->DealDamage(temp, temp->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
-                        CAST_CRE(temp)->RemoveCorpse();
+                        temp->ToCreature()->RemoveCorpse();
                     }
                 }
                 adds.clear();
@@ -179,9 +179,9 @@ class boss_warchief_kargath_bladefist : public CreatureScript
                     Unit* temp = Unit::GetUnit(*me, *itr);
                     if (temp && temp->isAlive())
                     {
-                        (*temp).GetMotionMaster()->Clear(true);
+                        temp->GetMotionMaster()->Clear(true);
                         me->DealDamage(temp, temp->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
-                        CAST_CRE(temp)->RemoveCorpse();
+                        temp->ToCreature()->RemoveCorpse();
                     }
                 }
                 assassins.clear();

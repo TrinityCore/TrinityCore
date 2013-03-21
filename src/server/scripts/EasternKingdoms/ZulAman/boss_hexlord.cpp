@@ -274,9 +274,9 @@ class boss_hexlord_malacrass : public CreatureScript
 
                 for (uint8 i = 0; i < 4; ++i)
                 {
-                    Unit* Temp = Unit::GetUnit(*me, AddGUID[i]);
-                    if (Temp && Temp->isAlive())
-                        CAST_CRE(Temp)->AI()->AttackStart(me->getVictim());
+                    Creature* creature = Unit::GetCreature(*me, AddGUID[i]);
+                    if (creature && creature->isAlive())
+                        creature->AI()->AttackStart(me->getVictim());
                     else
                     {
                         EnterEvadeMode();

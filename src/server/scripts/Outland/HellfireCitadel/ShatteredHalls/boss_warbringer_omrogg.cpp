@@ -306,7 +306,7 @@ class boss_warbringer_omrogg : public CreatureScript
 
                 pLeftHead->AI()->Talk(YELL_DIE_L);
 
-                CAST_AI(mob_omrogg_heads::mob_omrogg_headsAI, CAST_CRE(pRightHead)->AI())->DoDeathYell();
+                CAST_AI(mob_omrogg_heads::mob_omrogg_headsAI, pRightHead->ToCreature()->AI())->DoDeathYell();
 
                 if (instance)
                     instance->SetData(TYPE_OMROGG, DONE);

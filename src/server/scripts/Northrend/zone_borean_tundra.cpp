@@ -190,7 +190,7 @@ public:
                     if (owner->GetTypeId() == TYPEID_PLAYER)
                     {
                         owner->CastSpell(owner, 46231, true);
-                        CAST_CRE(who)->DespawnOrUnsummon();
+                        who->ToCreature()->DespawnOrUnsummon();
                     }
                 }
             }
@@ -1263,7 +1263,7 @@ public:
 
             if (me->isSummon())
                 if (Unit* summoner = me->ToTempSummon()->GetSummoner())
-                    CAST_AI(npc_thassarian::npc_thassarianAI, CAST_CRE(summoner)->AI())->arthasInPosition = true;
+                    CAST_AI(npc_thassarian::npc_thassarianAI, summoner->ToCreature()->AI())->arthasInPosition = true;
         }
     };
 
@@ -1295,7 +1295,7 @@ public:
             me->CastSpell(me, SPELL_STUN, true);
             if (me->isSummon())
                 if (Unit* summoner = me->ToTempSummon()->GetSummoner())
-                    CAST_AI(npc_thassarian::npc_thassarianAI, CAST_CRE(summoner)->AI())->arlosInPosition = true;
+                    CAST_AI(npc_thassarian::npc_thassarianAI, summoner->ToCreature()->AI())->arlosInPosition = true;
         }
     };
 
@@ -1352,7 +1352,7 @@ public:
 
             if (me->isSummon())
                 if (Unit* summoner = me->ToTempSummon()->GetSummoner())
-                    CAST_AI(npc_thassarian::npc_thassarianAI, CAST_CRE(summoner)->AI())->talbotInPosition = true;
+                    CAST_AI(npc_thassarian::npc_thassarianAI, summoner->ToCreature()->AI())->talbotInPosition = true;
         }
 
         void UpdateAI(uint32 uiDiff)

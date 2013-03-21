@@ -2264,7 +2264,7 @@ public:
             if (CheckTimer <= diff)
             {
                 GETUNIT(Illidan, IllidanGUID);
-                if (!Illidan || CAST_CRE(Illidan)->IsInEvadeMode())
+                if (!Illidan || Illidan->ToCreature()->IsInEvadeMode())
                 {
                     me->SetVisible(false);
                     me->setDeathState(JUST_DIED);
