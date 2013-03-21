@@ -72,10 +72,13 @@ public:
 
         void SpellHit(Unit* caster, const SpellInfo* spell)
         {
-            if (spell->Id == SPELL_AWAKEN_PEON && caster->GetTypeId() == TYPEID_PLAYER
-                && CAST_PLR(caster)->GetQuestStatus(QUEST_LAZY_PEONS) == QUEST_STATUS_INCOMPLETE)
+            if (spell->Id != SPELL_AWAKEN_PEON)
+                return;
+
+            Player* player = caster->ToPlayer();
+            if (player && player->GetQuestStatus(QUEST_LAZY_PEONS) == QUEST_STATUS_INCOMPLETE)
             {
-                caster->ToPlayer()->KilledMonsterCredit(me->GetEntry(), me->GetGUID());
+                player->KilledMonsterCredit(me->GetEntry(), me->GetGUID());
                 Talk(SAY_SPELL_HIT, caster->GetGUID());
                 me->RemoveAllAuras();
                 if (GameObject* Lumberpile = me->FindNearestGameObject(GO_LUMBERPILE, 20))

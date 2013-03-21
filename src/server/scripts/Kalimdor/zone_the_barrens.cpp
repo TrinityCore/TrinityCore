@@ -380,14 +380,16 @@ public:
 
         void MoveInLineOfSight(Unit* who)
         {
-            if (!who || (!who->isAlive()))
+            if (!who || !who->isAlive() || EventInProgress)
                 return;
 
-            if (me->IsWithinDistInMap(who, 10.0f) && (who->GetTypeId() == TYPEID_PLAYER) && CAST_PLR(who)->GetQuestStatus(1719) == QUEST_STATUS_INCOMPLETE && !EventInProgress)
-            {
-                PlayerGUID = who->GetGUID();
-                EventInProgress = true;
-            }
+            if (who->GetTypeId() == TYPEID_PLAYER && me->IsWithinDistInMap(who, 10.0f))
+                if (Player* player = who->ToPlayer())
+                    if (player->GetQuestStatus(1719) == QUEST_STATUS_INCOMPLETE)
+                    {
+                        PlayerGUID = who->GetGUID();
+                        EventInProgress = true;
+                    }
         }
 
         void KilledUnit(Unit* /*victim*/) { }

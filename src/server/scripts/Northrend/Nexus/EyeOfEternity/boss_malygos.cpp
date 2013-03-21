@@ -621,7 +621,7 @@ public:
                 {
                     VehicleCheckPredicate pred;
                     summons.DoAction(ACTION_DELAYED_DESPAWN, pred);
-                    summons.remove_if(pred);
+                    summons.DespawnIf(pred);
                     summons.DespawnAll();
                 }
                 else if (_phase == PHASE_THREE)

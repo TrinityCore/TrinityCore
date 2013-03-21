@@ -167,10 +167,9 @@ public:
 
         void DamageTaken(Unit* done_by, uint32 &damage)
         {
-            if (done_by->GetTypeId() == TYPEID_PLAYER)
-                if (me->HealthBelowPctDamaged(20, damage))
+            if (done_by->GetTypeId() == TYPEID_PLAYER && me->HealthBelowPctDamaged(20, damage))
             {
-                CAST_PLR(done_by)->GroupEventHappens(QUEST_10004, me);
+                done_by->ToPlayer()->GroupEventHappens(QUEST_10004, me);
                 damage = 0;
                 EnterEvadeMode();
             }
@@ -410,20 +409,18 @@ public:
             if (HasEscortState(STATE_ESCORT_ESCORTING))
                 return;
 
-            if (who->GetTypeId() == TYPEID_PLAYER)
+            Player* player = who->ToPlayer();
+            if (player && player->GetQuestStatus(10211) == QUEST_STATUS_INCOMPLETE)
             {
-                if (CAST_PLR(who)->GetQuestStatus(10211) == QUEST_STATUS_INCOMPLETE)
+                float Radius = 10.0f;
+                if (me->IsWithinDistInMap(who, Radius))
                 {
-                    float Radius = 10.0f;
-                    if (me->IsWithinDistInMap(who, Radius))
-                    {
-                        Start(false, false, who->GetGUID());
-                    }
+                    Start(false, false, who->GetGUID());
                 }
             }
         }
 
-        void Reset() {}
+        void Reset() { }
     };
 };
 
@@ -477,17 +474,16 @@ public:
 
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             me->setFaction(1194);
-            Unit* Creepjack = me->FindNearestCreature(NPC_CREEPJACK, 20);
-            if (Creepjack)
+            if (Unit* Creepjack = me->FindNearestCreature(NPC_CREEPJACK, 20))
             {
-                CAST_CRE(Creepjack)->AI()->EnterEvadeMode();
+                Creepjack->ToCreature()->AI()->EnterEvadeMode();
                 Creepjack->setFaction(1194);
                 Creepjack->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             }
-            Unit* Malone = me->FindNearestCreature(NPC_MALONE, 20);
-            if (Malone)
+
+            if (Unit* Malone = me->FindNearestCreature(NPC_MALONE, 20))
             {
-                CAST_CRE(Malone)->AI()->EnterEvadeMode();
+                Malone->ToCreature()->AI()->EnterEvadeMode();
                 Malone->setFaction(1194);
                 Malone->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             }
@@ -561,18 +557,17 @@ public:
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                 me->RemoveAllAuras();
 
-                Unit* Creepjack = me->FindNearestCreature(NPC_CREEPJACK, 20);
-                if (Creepjack)
+                if (Unit* Creepjack = me->FindNearestCreature(NPC_CREEPJACK, 20))
                 {
-                    CAST_CRE(Creepjack)->AI()->EnterEvadeMode();
+                    Creepjack->ToCreature()->AI()->EnterEvadeMode();
                     Creepjack->setFaction(1194);
                     Creepjack->GetMotionMaster()->MoveTargetedHome();
                     Creepjack->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                 }
-                Unit* Malone = me->FindNearestCreature(NPC_MALONE, 20);
-                if (Malone)
+
+                if (Unit* Malone = me->FindNearestCreature(NPC_MALONE, 20))
                 {
-                    CAST_CRE(Malone)->AI()->EnterEvadeMode();
+                    Malone->ToCreature()->AI()->EnterEvadeMode();
                     Malone->setFaction(1194);
                     Malone->GetMotionMaster()->MoveTargetedHome();
                     Malone->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
@@ -583,9 +578,8 @@ public:
                 me->DeleteThreatList();
                 me->CombatStop();
                 me->GetMotionMaster()->MoveTargetedHome();
-                Player* player = Unit::GetPlayer(*me, PlayerGUID);
-                if (player)
-                    CAST_PLR(player)->GroupEventHappens(QUEST_WBI, me);
+                if (Player* player = Unit::GetPlayer(*me, PlayerGUID))
+                    player->GroupEventHappens(QUEST_WBI, me);
             }
             DoMeleeAttackIfReady();
         }

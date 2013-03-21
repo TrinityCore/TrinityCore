@@ -185,7 +185,7 @@ public:
 
         void JustSummoned(Creature* summon)
         {
-            lSummons.push_back(summon->GetGUID());
+            lSummons.Summon(summon);
             if (summon->AI())
                 summon->AI()->AttackStart(me);
         }

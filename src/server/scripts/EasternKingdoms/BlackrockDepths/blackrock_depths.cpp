@@ -981,9 +981,9 @@ public:
             if (HasEscortState(STATE_ESCORT_ESCORTING))
                 return;
 
-            if (who->GetTypeId() == TYPEID_PLAYER)
+            if (Player* player = who->ToPlayer())
             {
-                if (CAST_PLR(who)->GetQuestStatus(4322) == QUEST_STATUS_INCOMPLETE)
+                if (player->GetQuestStatus(4322) == QUEST_STATUS_INCOMPLETE)
                 {
                     float Radius = 10.0f;
                     if (me->IsWithinDistInMap(who, Radius))

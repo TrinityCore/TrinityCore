@@ -1377,20 +1377,19 @@ public:
             {
                 case TYPEID_UNIT:
                     if (Unit* owner = killer->GetOwner())
-                        if (owner->GetTypeId() == TYPEID_PLAYER)
-                            CAST_PLR(owner)->GroupEventHappens(QUEST_BATTLE_OF_THE_CRIMSON_WATCH, me);
+                        if (Player* player = owner->ToPlayer())
+                            player->GroupEventHappens(QUEST_BATTLE_OF_THE_CRIMSON_WATCH, me);
                     break;
                 case TYPEID_PLAYER:
-                    CAST_PLR(killer)->GroupEventHappens(QUEST_BATTLE_OF_THE_CRIMSON_WATCH, me);
+                    if (Player* player = killer->ToPlayer())
+                        player->GroupEventHappens(QUEST_BATTLE_OF_THE_CRIMSON_WATCH, me);
                     break;
                 default:
                     break;
             }
 
             if (Creature* LordIllidan = (Unit::GetCreature(*me, LordIllidanGUID)))
-            {
                 LordIllidan->AI()->EnterEvadeMode();
-            }
         }
     };
 };
@@ -1865,10 +1864,9 @@ public:
                      Summoned->setFaction(ENRAGED_SOUL_FRIENDLY);
                      Summoned->GetMotionMaster()->MovePoint(0, totemOspirits->GetPositionX(), totemOspirits->GetPositionY(), Summoned->GetPositionZ());
 
-                     Unit* Owner = totemOspirits->GetOwner();
-                     if (Owner && Owner->GetTypeId() == TYPEID_PLAYER)
-                         // DoCast(Owner, credit); -- not working!
-                         CAST_PLR(Owner)->KilledMonsterCredit(credit, 0);
+                     if (Unit* owner = totemOspirits->GetOwner())
+                         if (Player* player = owner->ToPlayer())
+                             player->KilledMonsterCredit(credit, 0);
                      DoCast(totemOspirits, SPELL_SOUL_CAPTURED);
                  }
             }
