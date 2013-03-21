@@ -279,8 +279,7 @@ void TempSummon::RemoveFromWorld()
     Creature::RemoveFromWorld();
 }
 
-Minion::Minion(SummonPropertiesEntry const* properties, Unit* owner,
-               bool isWorldObject)
+Minion::Minion(SummonPropertiesEntry const* properties, Unit* owner, bool isWorldObject)
     : TempSummon(properties, owner, isWorldObject), m_owner(owner)
 {
     ASSERT(m_owner);
