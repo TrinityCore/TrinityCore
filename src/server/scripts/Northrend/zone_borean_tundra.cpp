@@ -79,11 +79,11 @@ public:
 
         void SpellHit(Unit* caster, const SpellInfo* spell)
         {
-            if (phase)
+            if (phase || spell->Id != SPELL_SET_CART)
                 return;
 
-            if (spell->Id == SPELL_SET_CART && caster->GetTypeId() == TYPEID_PLAYER
-                && CAST_PLR(caster)->GetQuestStatus(11897) == QUEST_STATUS_INCOMPLETE)
+            Player* player = caster->ToPlayer();
+            if (player && player->GetQuestStatus(11897) == QUEST_STATUS_INCOMPLETE)
             {
                 phase = 1;
                 casterGuid = caster->GetGUID();
@@ -419,7 +419,7 @@ public:
 
             me->SetReactState(REACT_PASSIVE);
 
-            switch (CAST_PLR(me->GetOwner())->GetTeamId())
+            switch (me->GetOwner()->ToPlayer()->GetTeamId())
             {
                 case TEAM_ALLIANCE:
                     me->setFaction(FACTION_ESCORT_A_NEUTRAL_ACTIVE);
@@ -475,23 +475,18 @@ public:
         {
             ScriptedAI::MoveInLineOfSight(who);
 
-            if (who->GetTypeId() != TYPEID_UNIT)
+            if (who->GetEntry() != NPC_JENNY || !who->HasAura(SPELL_CRATES_CARRIED))
                 return;
 
-            if (who->GetEntry() == NPC_JENNY && me->IsWithinDistInMap(who, 10.0f))
+            Unit* owner = who->GetOwner();
+            if (!owner || !me->IsWithinDistInMap(who, 10.0f))
+                return;
+
+            if (Player* player = owner->ToPlayer())
             {
-                if (Unit* owner = who->GetOwner())
-                {
-                    if (owner->GetTypeId() == TYPEID_PLAYER)
-                    {
-                        if (who->HasAura(SPELL_CRATES_CARRIED))
-                        {
-                            owner->CastSpell(owner, SPELL_GIVE_JENNY_CREDIT, true); // Maybe is not working.
-                            CAST_PLR(owner)->CompleteQuest(QUEST_LOADER_UP);
-                            CAST_CRE(who)->DisappearAndDie();
-                        }
-                    }
-                }
+                owner->CastSpell(owner, SPELL_GIVE_JENNY_CREDIT, true); // Maybe is not working.
+                player->CompleteQuest(QUEST_LOADER_UP);
+                who->ToCreature()->DisappearAndDie();
             }
         }
     };
@@ -569,8 +564,8 @@ public:
             if (TempSummon* summon = me->ToTempSummon())
                 if (summon->isSummon())
                     if (Unit* temp = summon->GetSummoner())
-                        if (temp->GetTypeId() == TYPEID_PLAYER)
-                            CAST_PLR(temp)->KilledMonsterCredit(me->GetEntry(), 0);
+                        if (Player* player = temp->ToPlayer())
+                            player->KilledMonsterCredit(me->GetEntry(), 0);
 
             if (GameObject* go_caribou = me->GetMap()->GetGameObject(go_caribouGUID))
                 go_caribou->SetGoState(GO_STATE_READY);

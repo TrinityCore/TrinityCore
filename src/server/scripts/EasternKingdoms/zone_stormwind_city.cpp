@@ -139,8 +139,8 @@ public:
                 //Take 0 damage
                 uiDamage = 0;
 
-                if (pDoneBy->GetTypeId() == TYPEID_PLAYER)
-                    CAST_PLR(pDoneBy)->AreaExploredOrEventHappens(QUEST_BEAT);
+                if (Player* player = pDoneBy->ToPlayer())
+                    player->AreaExploredOrEventHappens(QUEST_BEAT);
                 EnterEvadeMode();
             }
         }

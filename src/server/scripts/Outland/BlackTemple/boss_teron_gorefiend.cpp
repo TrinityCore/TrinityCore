@@ -349,10 +349,10 @@ public:
             {
                 /*float x, y, z;
                 ghost->GetPosition(x, y, z);
-                Creature* control = me->SummonCreature(CREATURE_GHOST, x, y, z, 0, TEMPSUMMON_TIMED_DESAWN, 30000);
-                if (control)
+                if (Creature* control = me->SummonCreature(CREATURE_GHOST, x, y, z, 0, TEMPSUMMON_TIMED_DESAWN, 30000))
                 {
-                    CAST_PLR(ghost)->Possess(control);
+                    if (Player* player = ghost->ToPlayer())
+                        player->Possess(control);
                     ghost->DealDamage(ghost, ghost->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL,
                 false);
                 }*/
