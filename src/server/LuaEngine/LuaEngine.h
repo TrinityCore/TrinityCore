@@ -285,6 +285,8 @@ public:
     GameObject* CHECK_OBJECT(lua_State* L, int narg);
     WorldPacket* CHECK_PACKET(lua_State* L, int narg);
     WorldObject* CHECK_WORLDOBJECT(lua_State* L, int narg);
+    Quest* CHECK_QUEST(lua_State* L, int narg);
+    Spell* CHECK_SPELL(lua_State* L, int narg);
 
     // Creates new binding stores
     Eluna()

@@ -11,7 +11,7 @@ bool HookMgr::OnChat(uint32 eventId, Player* player, uint32 type, uint32 lang, s
 {
     bool result = true;
     for (HookPointerSet::iterator it = hookPointers.begin(); it != hookPointers.end(); ++it)
-        if(!(*it)->OnChat(eventId, player, type, lang, msg))
+        if (!(*it)->OnChat(eventId, player, type, lang, msg))
             result = false;
     return result;
 }
@@ -19,7 +19,7 @@ bool HookMgr::OnChat(uint32 eventId, Player* player, uint32 type, uint32 lang, s
 {
     bool result = true;
     for (HookPointerSet::iterator it = hookPointers.begin(); it != hookPointers.end(); ++it)
-        if(!(*it)->OnChat(eventId, player, type, lang, msg, group))
+        if (!(*it)->OnChat(eventId, player, type, lang, msg, group))
             result = false;
     return result;
 }
@@ -27,7 +27,7 @@ bool HookMgr::OnChat(uint32 eventId, Player* player, uint32 type, uint32 lang, s
 {
     bool result = true;
     for (HookPointerSet::iterator it = hookPointers.begin(); it != hookPointers.end(); ++it)
-        if(!(*it)->OnChat(eventId, player, type, lang, msg, guild))
+        if (!(*it)->OnChat(eventId, player, type, lang, msg, guild))
             result = false;
     return result;
 }
@@ -35,7 +35,7 @@ bool HookMgr::OnChat(uint32 eventId, Player* player, uint32 type, uint32 lang, s
 {
     bool result = true;
     for (HookPointerSet::iterator it = hookPointers.begin(); it != hookPointers.end(); ++it)
-        if(!(*it)->OnChat(eventId, player, type, lang, msg, channel))
+        if (!(*it)->OnChat(eventId, player, type, lang, msg, channel))
             result = false;
     return result;
 }
@@ -49,7 +49,7 @@ bool HookMgr::OnDummyEffect(Unit* caster, uint32 spellId, SpellEffIndex effIndex
 {
     bool result = false;
     for (HookPointerSet::iterator it = hookPointers.begin(); it != hookPointers.end(); ++it)
-        if((*it)->OnDummyEffect(caster, spellId, effIndex, target))
+        if ((*it)->OnDummyEffect(caster, spellId, effIndex, target))
             result = true;
     return result;
 }
@@ -57,7 +57,7 @@ bool HookMgr::OnQuestAccept(Player* player, Item* item, Quest const* quest)
 {
     bool result = false;
     for (HookPointerSet::iterator it = hookPointers.begin(); it != hookPointers.end(); ++it)
-        if((*it)->OnQuestAccept(player, item, quest))
+        if ((*it)->OnQuestAccept(player, item, quest))
             result = true;
     return result;
 }
@@ -65,7 +65,7 @@ bool HookMgr::OnUse(Player* player, Item* item, SpellCastTargets const& targets)
 {
     bool result = false;
     for (HookPointerSet::iterator it = hookPointers.begin(); it != hookPointers.end(); ++it)
-        if((*it)->OnUse(player, item, targets))
+        if ((*it)->OnUse(player, item, targets))
             result = true;
     return result;
 }
@@ -73,7 +73,7 @@ bool HookMgr::OnExpire(Player* player, ItemTemplate const* proto)
 {
     bool result = false;
     for (HookPointerSet::iterator it = hookPointers.begin(); it != hookPointers.end(); ++it)
-        if((*it)->OnExpire(player, proto))
+        if ((*it)->OnExpire(player, proto))
             result = true;
     return result;
 }
@@ -82,7 +82,7 @@ bool HookMgr::OnDummyEffect(Unit* caster, uint32 spellId, SpellEffIndex effIndex
 {
     bool result = false;
     for (HookPointerSet::iterator it = hookPointers.begin(); it != hookPointers.end(); ++it)
-        if((*it)->OnDummyEffect(caster, spellId, effIndex, target))
+        if ((*it)->OnDummyEffect(caster, spellId, effIndex, target))
             result = true;
     return result;
 }
@@ -90,7 +90,7 @@ bool HookMgr::OnGossipHello(Player* player, Creature* creature)
 {
     bool result = false;
     for (HookPointerSet::iterator it = hookPointers.begin(); it != hookPointers.end(); ++it)
-        if((*it)->OnGossipHello(player, creature))
+        if ((*it)->OnGossipHello(player, creature))
             result = true;
     return result;
 }
@@ -98,7 +98,7 @@ bool HookMgr::OnGossipSelect(Player* player, Creature* creature, uint32 sender, 
 {
     bool result = false;
     for (HookPointerSet::iterator it = hookPointers.begin(); it != hookPointers.end(); ++it)
-        if((*it)->OnGossipSelect(player, creature, sender, action))
+        if ((*it)->OnGossipSelect(player, creature, sender, action))
             result = true;
     return result;
 }
@@ -106,7 +106,7 @@ bool HookMgr::OnGossipSelectCode(Player* player, Creature* creature, uint32 send
 {
     bool result = false;
     for (HookPointerSet::iterator it = hookPointers.begin(); it != hookPointers.end(); ++it)
-        if((*it)->OnGossipSelectCode(player, creature, sender, action, code))
+        if ((*it)->OnGossipSelectCode(player, creature, sender, action, code))
             result = true;
     return result;
 }
@@ -114,7 +114,7 @@ bool HookMgr::OnQuestAccept(Player* player, Creature* creature, Quest const* que
 {
     bool result = false;
     for (HookPointerSet::iterator it = hookPointers.begin(); it != hookPointers.end(); ++it)
-        if((*it)->OnQuestAccept(player, creature, quest))
+        if ((*it)->OnQuestAccept(player, creature, quest))
             result = true;
     return result;
 }
@@ -122,7 +122,7 @@ bool HookMgr::OnQuestSelect(Player* player, Creature* creature, Quest const* que
 {
     bool result = false;
     for (HookPointerSet::iterator it = hookPointers.begin(); it != hookPointers.end(); ++it)
-        if((*it)->OnQuestSelect(player, creature, quest))
+        if ((*it)->OnQuestSelect(player, creature, quest))
             result = true;
     return result;
 }
@@ -130,7 +130,7 @@ bool HookMgr::OnQuestComplete(Player* player, Creature* creature, Quest const* q
 {
     bool result = false;
     for (HookPointerSet::iterator it = hookPointers.begin(); it != hookPointers.end(); ++it)
-        if((*it)->OnQuestComplete(player, creature, quest))
+        if ((*it)->OnQuestComplete(player, creature, quest))
             result = true;
     return result;
 }
@@ -138,7 +138,7 @@ bool HookMgr::OnQuestReward(Player* player, Creature* creature, Quest const* que
 {
     bool result = false;
     for (HookPointerSet::iterator it = hookPointers.begin(); it != hookPointers.end(); ++it)
-        if((*it)->OnQuestReward(player, creature, quest, opt))
+        if ((*it)->OnQuestReward(player, creature, quest, opt))
             result = true;
     return result;
 }
@@ -153,7 +153,7 @@ bool HookMgr::OnDummyEffect(Unit* caster, uint32 spellId, SpellEffIndex effIndex
 {
     bool result = false;
     for (HookPointerSet::iterator it = hookPointers.begin(); it != hookPointers.end(); ++it)
-        if((*it)->OnDummyEffect(caster, spellId, effIndex, target))
+        if ((*it)->OnDummyEffect(caster, spellId, effIndex, target))
             result = true;
     return result;
 }
@@ -161,7 +161,7 @@ bool HookMgr::OnGossipHello(Player* player, GameObject* go)
 {
     bool result = false;
     for (HookPointerSet::iterator it = hookPointers.begin(); it != hookPointers.end(); ++it)
-        if((*it)->OnGossipHello(player, go))
+        if ((*it)->OnGossipHello(player, go))
             result = true;
     return result;
 }
@@ -169,7 +169,7 @@ bool HookMgr::OnGossipSelect(Player* player, GameObject* go, uint32 sender, uint
 {
     bool result = false;
     for (HookPointerSet::iterator it = hookPointers.begin(); it != hookPointers.end(); ++it)
-        if((*it)->OnGossipSelect(player, go, sender, action))
+        if ((*it)->OnGossipSelect(player, go, sender, action))
             result = true;
     return result;
 }
@@ -177,7 +177,7 @@ bool HookMgr::OnGossipSelectCode(Player* player, GameObject* go, uint32 sender, 
 {
     bool result = false;
     for (HookPointerSet::iterator it = hookPointers.begin(); it != hookPointers.end(); ++it)
-        if((*it)->OnGossipSelectCode(player, go, sender, action, code))
+        if ((*it)->OnGossipSelectCode(player, go, sender, action, code))
             result = true;
     return result;
 }
@@ -185,7 +185,7 @@ bool HookMgr::OnQuestAccept(Player* player, GameObject* go, Quest const* quest)
 {
     bool result = false;
     for (HookPointerSet::iterator it = hookPointers.begin(); it != hookPointers.end(); ++it)
-        if((*it)->OnQuestAccept(player, go, quest))
+        if ((*it)->OnQuestAccept(player, go, quest))
             result = true;
     return result;
 }
@@ -193,7 +193,7 @@ bool HookMgr::OnQuestReward(Player* player, GameObject* go, Quest const* quest, 
 {
     bool result = false;
     for (HookPointerSet::iterator it = hookPointers.begin(); it != hookPointers.end(); ++it)
-        if((*it)->OnQuestReward(player, go, quest, opt))
+        if ((*it)->OnQuestReward(player, go, quest, opt))
             result = true;
     return result;
 }
@@ -228,7 +228,7 @@ bool HookMgr::OnTrigger(Player* player, AreaTriggerEntry const* trigger)
 {
     bool result = false;
     for (HookPointerSet::iterator it = hookPointers.begin(); it != hookPointers.end(); ++it)
-        if((*it)->OnTrigger(player, trigger))
+        if ((*it)->OnTrigger(player, trigger))
             result = true;
     return result;
 }
@@ -243,7 +243,7 @@ bool HookMgr::OnConditionCheck(Condition* condition, ConditionSourceInfo& source
 {
     bool result = true;
     for (HookPointerSet::iterator it = hookPointers.begin(); it != hookPointers.end(); ++it)
-        if(!(*it)->OnConditionCheck(condition, sourceInfo))
+        if (!(*it)->OnConditionCheck(condition, sourceInfo))
             result = false;
     return result;
 }

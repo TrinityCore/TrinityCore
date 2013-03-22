@@ -138,8 +138,8 @@ void Eluna::RegisterGlobals(lua_State* L)
     lua_register(L, "GetPlayerCount", &LuaGlobalFunctions::GetPlayerCount);
     lua_register(L, "CreateLuaEvent", &LuaGlobalFunctions::CreateLuaEvent); // Not Documented
     lua_register(L, "RegisterTimedEvent", &LuaGlobalFunctions::CreateLuaEvent); // Arc compability Not Documented
-    lua_register(L, "DestroyScriptEventByID", &LuaGlobalFunctions::DestroyScriptEventByID); // Not Documented
-    lua_register(L, "DestroyScriptEvents", &LuaGlobalFunctions::DestroyScriptEvents); // Not Documented
+    lua_register(L, "DestroyEventByID", &LuaGlobalFunctions::DestroyEventByID); // Not Documented
+    lua_register(L, "DestroyEvents", &LuaGlobalFunctions::DestroyEvents); // Not Documented
     lua_register(L, "PerformIngameSpawn", &LuaGlobalFunctions::PerformIngameSpawn); // Not Documented
     lua_register(L, "CreatePacket", &LuaGlobalFunctions::CreatePacket); // Not Documented
     lua_register(L, "AddVendorItem", &LuaGlobalFunctions::AddVendorItem);
@@ -478,6 +478,22 @@ WorldObject* Eluna::CHECK_WORLDOBJECT(lua_State* L, int narg)
         return ElunaTemplate<WorldObject>::check(LuaState, narg);
     else
         return ElunaTemplate<WorldObject>::check(L, narg);
+}
+
+Quest* Eluna::CHECK_QUEST(lua_State* L, int narg)
+{
+    if (!L)
+        return ElunaTemplate<Quest>::check(LuaState, narg);
+    else
+        return ElunaTemplate<Quest>::check(L, narg);
+}
+
+Spell* Eluna::CHECK_SPELL(lua_State* L, int narg)
+{
+    if (!L)
+        return ElunaTemplate<Spell>::check(LuaState, narg);
+    else
+        return ElunaTemplate<Spell>::check(L, narg);
 }
 
 // Saves the function reference ID given to the register type's store for given entry under the given event
