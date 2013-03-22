@@ -2590,7 +2590,7 @@ void AuraEffect::HandleAuraMounted(AuraApplication const* aurApp, uint8 mode, bo
 
         if (CreatureTemplate const* creatureInfo = sObjectMgr->GetCreatureTemplate(creatureEntry))
         {
-            uint32 displayID = ObjectMgr::ChooseDisplayId(creatureInfo);
+            displayId = ObjectMgr::ChooseDisplayId(creatureInfo);
             sObjectMgr->GetCreatureModelRandomGender(&displayId);
 
             vehicleId = creatureInfo->VehicleId;
