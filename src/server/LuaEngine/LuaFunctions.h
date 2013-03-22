@@ -68,6 +68,8 @@ ElunaRegister<Unit> UnitMethods[] =
     {"GetOriginalGroup", &LuaUnit::GetOriginalGroup},               // :GetOriginalGroup() -- Gets the original group object. UNDOCUMENTED
     {"GetOriginalSubGroup", &LuaUnit::GetOriginalSubGroup},         // :GetOriginalSubGroup() -- Returns the original subgroup ID. UNDOCUMENTED
     {"GetChampioningFaction", &LuaUnit::GetChampioningFaction},     // :GetChampioningFaction() -- Returns the player's championing faction. UNDOCUMENTED
+    {"GetLatency", &LuaUnit::GetLatency},                           // :GetLatency() -- Returns player's latency. UNDOCUMENTED
+    {"GetRecruiterId", &LuaUnit::GetRecruiterId},                   // :GetRecruiterId() -- Returns player's recruiter's ID. UNDOCUMENTED
 
     // Setters
     {"AdvanceSkillsToMax", &LuaUnit::AdvanceSkillsToMax},           // :AdvanceSkillsToMax() -- Advances all currently known skills to the currently known max level
@@ -157,6 +159,7 @@ ElunaRegister<Unit> UnitMethods[] =
     {"InBattleground", &LuaUnit::InBattleground},                   // :InBattleground() -- Returns true if the player is in a battleground. UNDOCUMENTED
     {"InArena", &LuaUnit::InArena},                                 // :InArena() -- Returns true if the player is in an arena. UNDOCUMENTED
     {"IsOutdoorPvPActive", &LuaUnit::IsOutdoorPvPActive},           // :IsOutdoorPvPActive() -- Returns true if the player is outdoor pvp active. UNDOCUMENTED
+    {"IsARecruiter", &LuaUnit::IsARecruiter},                       // :IsARecruiter() -- Returns true if the player is a recruiter. UNDOCUMENTED
 
     // Gossip                                                           
     {"GossipMenuAddItem", &LuaUnit::GossipMenuAddItem},             // :GossipMenuAddItem(icon, msg, sender, intid, code, popup, money)
@@ -233,6 +236,13 @@ ElunaRegister<Unit> UnitMethods[] =
     {"RemoveFromBattlegroundOrBattlefieldRaid", &LuaUnit::RemoveFromBattlegroundOrBattlefieldRaid}, // :RemoveFromBattlegroundOrBattlefieldRaid() -- Removes the player from a battleground or battlefield raid. UNDOCUMENTED
     {"ResetAchievements", &LuaUnit::ResetAchievements},             // :ResetAchievements() -- Resets playeräs achievements. UNDOCUMENTED
     {"KickPlayer", &LuaUnit::KickPlayer},                           // :KickPlayer() -- Kicks player from server. UNDOCUMENTED
+    {"LogoutPlayer", &LuaUnit::LogoutPlayer},                       // :LogoutPlayer(save) -- Logs the player out and saves if true. UNDOCUMENTED
+    {"SendTrainerList", &LuaUnit::SendTrainerList},                 // :SendTrainerList(WorldObject) -- Sends trainer list from object to player. UNDOCUMENTED
+    {"SendListInventory", &LuaUnit::SendListInventory},             // :SendListInventory(WorldObject) -- Sends vendor list from object to player. UNDOCUMENTED
+    {"SendShowBank", &LuaUnit::SendShowBank},                       // :SendShowBank(WorldObject) -- Sends bank window from object to player. UNDOCUMENTED
+    {"SendTabardVendorActivate", &LuaUnit::SendTabardVendorActivate},   // :SendTabardVendorActivate(WorldObject) -- Sends tabard vendor window from object to player. UNDOCUMENTED
+    {"SendSpiritResurrect", &LuaUnit::SendSpiritResurrect},         // :SendSpiritResurrect() -- Sends resurrect window to player. UNDOCUMENTED
+    {"SendTaxiMenu", &LuaUnit::SendTaxiMenu},                       // :SendTaxiMenu(creature) -- Sends flight window to player from creature. UNDOCUMENTED
 
     // Creature methods
 

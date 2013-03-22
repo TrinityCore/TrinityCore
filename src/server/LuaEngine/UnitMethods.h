@@ -13,6 +13,113 @@ class LuaUnit
 {
 public:
 
+    // IsARecruiter()
+    static int IsARecruiter(lua_State* L, Unit* unit)
+    {
+        TO_PLAYER_BOOL();
+
+        sEluna->PushBoolean(L, player->GetSession()->IsARecruiter());
+        return 1;
+    }
+
+    // GetRecruiterId()
+    static int GetRecruiterId(lua_State* L, Unit* unit)
+    {
+        TO_PLAYER();
+
+        sEluna->PushUnsigned(L, player->GetSession()->GetRecruiterId());
+        return 1;
+    }
+
+    // GetLatency()
+    static int GetLatency(lua_State* L, Unit* unit)
+    {
+        TO_PLAYER();
+
+        sEluna->PushUnsigned(L, player->GetSession()->GetLatency());
+        return 1;
+    }
+
+    // SendTaxiMenu(creature)
+    static int SendTaxiMenu(lua_State* L, Unit* unit)
+    {
+        TO_PLAYER();
+
+        Creature* creature = sEluna->CHECK_CREATURE(L, 1);
+
+        if (creature)
+            player->GetSession()->SendTaxiMenu(creature);
+        return 0;
+    }
+
+    // SendSpiritResurrect()
+    static int SendSpiritResurrect(lua_State* L, Unit* unit)
+    {
+        TO_PLAYER();
+
+        player->GetSession()->SendSpiritResurrect();
+        return 0;
+    }
+
+    // SendTabardVendorActivate(WorldObject)
+    static int SendTabardVendorActivate(lua_State* L, Unit* unit)
+    {
+        TO_PLAYER();
+
+        WorldObject* obj = sEluna->CHECK_WORLDOBJECT(L, 1);
+
+        if (obj)
+            player->GetSession()->SendTabardVendorActivate(obj->GetGUID());
+        return 0;
+    }
+
+    // SendShowBank(WorldObject)
+    static int SendShowBank(lua_State* L, Unit* unit)
+    {
+        TO_PLAYER();
+
+        WorldObject* obj = sEluna->CHECK_WORLDOBJECT(L, 1);
+
+        if (obj)
+            player->GetSession()->SendShowBank(obj->GetGUID());
+        return 0;
+    }
+
+    // SendListInventory(WorldObject)
+    static int SendListInventory(lua_State* L, Unit* unit)
+    {
+        TO_PLAYER();
+
+        WorldObject* obj = sEluna->CHECK_WORLDOBJECT(L, 1);
+
+        if (obj)
+            player->GetSession()->SendListInventory(obj->GetGUID());
+        return 0;
+    }
+
+    // SendTrainerList(WorldObject)
+    static int SendTrainerList(lua_State* L, Unit* unit)
+    {
+        TO_PLAYER();
+
+        WorldObject* obj = sEluna->CHECK_WORLDOBJECT(L, 1);
+
+        if (obj)
+            player->GetSession()->SendTrainerList(obj->GetGUID());
+        return 0;
+    }
+
+    // LogoutPlayer(save)
+    static int LogoutPlayer(lua_State* L, Unit* unit)
+    {
+        TO_PLAYER();
+
+        bool save = luaL_checkbool(L, 1);
+
+        player->GetSession()->LogoutPlayer(save);
+        return 0;
+    }
+
     // CanFly()
     static int CanFly(lua_State* L, Unit* unit)
     {
@@ -133,7 +240,7 @@ public:
         uint32 map = luaL_checkunsigned(L, 1);
         uint32 difficulty = luaL_checkunsigned(L, 2);
 
-        if(difficulty < MAX_DIFFICULTY)
+        if (difficulty < MAX_DIFFICULTY)
             player->UnbindInstance(map, (Difficulty)difficulty);
         return 0;
     }
@@ -194,7 +301,7 @@ public:
 
         Player* target = sEluna->CHECK_PLAYER(L, 1);
 
-        if(target)
+        if (target)
             sEluna->PushBoolean(L, player->IsVisibleGloballyFor(target));
         else
             sEluna->PushBoolean(L, false);
@@ -462,7 +569,7 @@ public:
 
         Unit* victim = sEluna->CHECK_UNIT(L, 1);
 
-        if(victim)
+        if (victim)
             sEluna->PushBoolean(L, player->isHonorOrXPTarget(victim));
         else
             sEluna->PushBoolean(L, false);
@@ -638,7 +745,7 @@ public:
 
         int32 slot = luaL_checkinteger(L, 1);
 
-        if(slot >= EQUIPMENT_SLOT_START && slot < EQUIPMENT_SLOT_END)
+        if (slot >= EQUIPMENT_SLOT_START && slot < EQUIPMENT_SLOT_END)
             player->DurabilityPointLossForEquipSlot((EquipmentSlots)slot);
         return 0;
     }
@@ -663,7 +770,7 @@ public:
         Item* item = sEluna->CHECK_ITEM(L, 1);
         int32 points = luaL_checkinteger(L, 2);
 
-        if(item)
+        if (item)
             player->DurabilityPointsLoss(item, points);
         return 0;
     }
@@ -676,7 +783,7 @@ public:
         Item* item = sEluna->CHECK_ITEM(L, 1);
         double percent = luaL_checknumber(L, 2);
 
-        if(item)
+        if (item)
             player->DurabilityLoss(item, percent);
         return 0;
     }
@@ -747,7 +854,7 @@ public:
 
         uint8 rank = luaL_checkunsigned(L, 1);
 
-        if(!player->GetGuild())
+        if (!player->GetGuild())
             return 0;
 
         player->SetRank(rank);
@@ -759,7 +866,7 @@ public:
     {
         TO_PLAYER();
 
-        if(!player->GetGroup())
+        if (!player->GetGroup())
             return 0;
 
         player->RemoveFromGroup();
@@ -772,7 +879,7 @@ public:
         TO_PLAYER_BOOL();
 
         Player* target = sEluna->CHECK_PLAYER(L, 1);
-        if(!target)
+        if (!target)
             sEluna->PushBoolean(L, false);
         else
             sEluna->PushBoolean(L, player->IsGroupVisibleFor(target));
@@ -785,7 +892,7 @@ public:
         TO_PLAYER_BOOL();
 
         Player* target = sEluna->CHECK_PLAYER(L, 1);
-        if(!target)
+        if (!target)
             sEluna->PushBoolean(L, false);
         else
             sEluna->PushBoolean(L, player->IsInSameRaidWith(target));
@@ -798,7 +905,7 @@ public:
         TO_PLAYER_BOOL();
 
         Player* target = sEluna->CHECK_PLAYER(L, 1);
-        if(!target)
+        if (!target)
             sEluna->PushBoolean(L, false);
         else
             sEluna->PushBoolean(L, player->IsInSameGroupWith(target));
@@ -863,7 +970,7 @@ public:
 
         uint32 spellId = luaL_checkunsigned(L, 1);
         uint8 spec = luaL_checkunsigned(L, 2);
-        if(spec >= MAX_TALENT_SPECS)
+        if (spec >= MAX_TALENT_SPECS)
             sEluna->PushBoolean(L, false);
         else
             sEluna->PushBoolean(L, player->HasTalent(spellId, spec));
@@ -878,7 +985,7 @@ public:
         uint32 spellId = luaL_checkunsigned(L, 1);
         uint8 spec = luaL_checkunsigned(L, 2);
         bool learning = luaL_checkbool(L, 3);
-        if(spec >= MAX_TALENT_SPECS)
+        if (spec >= MAX_TALENT_SPECS)
             sEluna->PushBoolean(L, false);
         else
             sEluna->PushBoolean(L, player->AddTalent(spellId, spec, learning));
@@ -931,7 +1038,7 @@ public:
     {
         TO_PLAYER();
 
-        if(!player->GetGuildId())
+        if (!player->GetGuildId())
             return 0;
         sEluna->PushString(L, player->GetGuildName().c_str());
         return 1;
@@ -1052,7 +1159,7 @@ public:
         TO_PLAYER();
 
         uint32 power = luaL_checkunsigned(L, 1);
-        if(power >= MAX_POWERS)
+        if (power >= MAX_POWERS)
             return 0;
 
         player->Regenerate((Powers)power);
@@ -1102,7 +1209,7 @@ public:
 
         uint32 entry = luaL_checkunsigned(L, 1);
         Creature* creature = sEluna->CHECK_CREATURE(L, 2);
-        if(!creature)
+        if (!creature)
             return 0;
 
         player->TalkedToCreature(entry, creature->GetGUID());
@@ -1117,7 +1224,7 @@ public:
         uint32 entry = luaL_checkunsigned(L, 1);
         Unit* creaOrGo = sEluna->CHECK_UNIT(L, 2);
         uint32 spellId = luaL_checkunsigned(L, 3);
-        if(!creaOrGo || !creaOrGo->ToGameObject() || !creaOrGo->ToCreature())
+        if (!creaOrGo || !creaOrGo->ToGameObject() || !creaOrGo->ToCreature())
             return 0;
 
         player->CastedCreatureOrGO(entry, creaOrGo->GetGUID(), spellId);
@@ -1151,7 +1258,7 @@ public:
 
         uint32 questId = luaL_checkunsigned(L, 1);
         WorldObject* obj = sEluna->CHECK_WORLDOBJECT(L, 1);
-        if(!obj)
+        if (!obj)
             return 0;
 
         player->GroupEventHappens(questId, obj);
@@ -1243,7 +1350,7 @@ public:
 
         uint32 entry = luaL_checkunsigned(L, 1);
         uint32 status = luaL_checkunsigned(L, 2);
-        if(status >= MAX_QUEST_STATUS)
+        if (status >= MAX_QUEST_STATUS)
             return 0;
 
         player->SetQuestStatus(entry, (QuestStatus)status);
@@ -1311,7 +1418,7 @@ public:
         TO_PLAYER();
 
         Quest* quest = sEluna->CHECK_QUEST(L, 1);
-        if(!quest)
+        if (!quest)
             return 0;
 
         sEluna->PushInteger(L, player->GetQuestLevel(quest));
@@ -1671,7 +1778,7 @@ public:
     {
         TO_UNIT_BOOL();
 
-        if(Player* player = unit->ToPlayer())
+        if (Player* player = unit->ToPlayer())
             sEluna->PushBoolean(L, player->IsInWater());
         else
             sEluna->PushBoolean(L, unit->IsInWater());
