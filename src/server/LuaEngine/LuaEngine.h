@@ -27,6 +27,7 @@ extern "C"
 #include "SystemConfig.h"
 #include "MapManager.h"
 #include "Language.h"
+#include "Pet.h"
 
 enum RegisterTypes
 {

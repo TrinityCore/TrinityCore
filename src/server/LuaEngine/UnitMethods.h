@@ -902,6 +902,12 @@ public:
         bool no_cost = luaL_optbool(L, 1, false);
 
         player->resetTalents(no_cost);
+        player->SendTalentsInfoData(false);
+
+        Pet* pet = player->GetPet();
+        Pet::resetTalentsForAllPetsOf(player, pet);
+        if (pet)
+            player->SendTalentsInfoData(true);
         return 0;
     }
 
