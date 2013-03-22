@@ -26,6 +26,48 @@ ElunaRegister<Unit> UnitMethods[] =
     {"GetBagItem", &LuaUnit::GetBagItem},                           // :GetBagItem(bagSlot, slot) -  Returns item at given slot (0, 1, 2 .. max slots for bag) in a bag (19-23). UNDOCUMENTED
     {"GetObjectGlobally", &LuaUnit::GetObjectGlobally},             // :GetObjectGlobally(guid, entry) - Returns the gameobject of given guid and entry if in world. UNDOCUMENTED
     {"GetNearbyGameObject", &LuaUnit::GetNearbyGameObject},         // :GetNearbyGameObject() - Returns nearby gameobject if found. UNDOCUMENTED
+    {"GetReputation", &LuaUnit::GetReputation},                     // :GetReputation(faction) -- Gets player's reputation with given faction. UNDOCUMENTED
+    {"GetItemByEntry", &LuaUnit::GetItemByEntry},                   // :GetItemByEntry(entry) -- Gets an item if the player has it. UNDOCUMENTED
+    {"GetQuestLevel", &LuaUnit::GetQuestLevel},                     // :GetQuestLevel(quest) -- Returns quest's level. UNDOCUMENTED
+    {"GetChatTag", &LuaUnit::GetChatTag},                           // :GetChatTag() -- Returns player chat tag ID. UNDOCUMENTED
+    {"GetRestBonus", &LuaUnit::GetRestBonus},                       // :GetRestBonus() -- Gets player's rest bonus. UNDOCUMENTED
+    {"GetRestType", &LuaUnit::GetRestType},                         // :GetRestType() -- Returns the player's rest type. UNDOCUMENTED
+    {"GetPhaseMaskForSpawn", &LuaUnit::GetPhaseMaskForSpawn},       // :GetPhaseMaskForSpawn() -- Gets the real phasemask for spawning things. Used if the player is in GM mode. UNDOCUMENTED
+    {"GetReqKillOrCastCurrentCount", &LuaUnit::RemoveRewardedQuest},    // :GetReqKillOrCastCurrentCount(questId, entry) -- Gets the objective (kill or cast) current count done. UNDOCUMENTED
+    {"GetQuestStatus", &LuaUnit::GetQuestStatus},                   // :GetQuestStatus(entry) -- Gets the quest's status. UNDOCUMENTED
+    {"GetInGameTime", &LuaUnit::GetInGameTime},                     // :GetInGameTime() -- Returns player's ingame time. UNDOCUMENTED
+    {"GetComboPoints", &LuaUnit::GetComboPoints},                   // :GetComboPoints() -- Returns player's combo points. UNDOCUMENTED
+    {"GetComboTarget", &LuaUnit::GetComboTarget},                   // :GetComboTarget() -- Returns the player's combo target. UNDOCUMENTED
+    {"GetGuildName", &LuaUnit::GetGuildName},                       // :GetGuildName() -- Returns player's guild's name or nil. UNDOCUMENTED
+    {"GetFreeTalentPoints", &LuaUnit::GetFreeTalentPoints},         // :GetFreeTalentPoints() -- Returns the amount of unused talent points. UNDOCUMENTED
+    {"GetActiveSpec", &LuaUnit::GetActiveSpec},                     // :GetActiveSpec() -- Returns the active specID. UNDOCUMENTED
+    {"GetSpecsCount", &LuaUnit::GetSpecsCount},                     // :GetSpecsCount() -- Returns the player's spec count. UNDOCUMENTED
+    {"GetSpellCooldownDelay", &LuaUnit::GetSpellCooldownDelay},     // :GetSpellCooldownDelay(spellId) -- Returns the spell's cooldown. UNDOCUMENTED
+    {"GetGuildRank", &LuaUnit::GetRank},                            // :GetGuildRank() -- Gets the player's guild rank. UNDOCUMENTED
+    {"GetDifficulty", &LuaUnit::GetDifficulty},                     // :GetDifficulty(isRaid) -- Returns the current difficulty. UNDOCUMENTED
+    {"GetHealthBonusFromStamina", &LuaUnit::GetHealthBonusFromStamina}, // :GetHealthBonusFromStamina() -- Returns the HP bonus from stamina. UNDOCUMENTED
+    {"GetManaBonusFromIntellect", &LuaUnit::GetManaBonusFromIntellect}, // :GetManaBonusFromIntellect() -- Returns the mana bonus from intellect. UNDOCUMENTED
+    {"GetMaxSkillValue", &LuaUnit::GetMaxSkillValue},               // :GetMaxSkillValue(skill) -- Gets max skill value for the given skill. UNDOCUMENTED
+    {"GetPureMaxSkillValue", &LuaUnit::GetPureMaxSkillValue},       // :GetPureMaxSkillValue(skill) -- Gets max base skill value. UNDOCUMENTED
+    {"GetSkillValue", &LuaUnit::GetSkillValue},                     // :GetSkillValue(skill) -- Gets current skill value. UNDOCUMENTED
+    {"GetBaseSkillValue", &LuaUnit::GetBaseSkillValue},             // :GetBaseSkillValue(skill) -- Gets current base skill value (no temp bonus). UNDOCUMENTED
+    {"GetPureSkillValue", &LuaUnit::GetPureSkillValue},             // :GetPureSkillValue(skill) -- Gets current base skill value (no bonuses). UNDOCUMENTED
+    {"GetSkillStep", &LuaUnit::GetSkillStep},                       // :GetSkillStep(skill) -- Returns current skillstep. UNDOCUMENTED
+    {"GetSkillPermBonusValue", &LuaUnit::GetSkillPermBonusValue},   // :GetSkillPermBonusValue(skill) -- Returns current permanent bonus. UNDOCUMENTED
+    {"GetSkillTempBonusValue", &LuaUnit::GetSkillTempBonusValue},   // :GetSkillTempBonusValue(skill) -- Returns current temp bonus. UNDOCUMENTED
+    {"GetReputationRank", &LuaUnit::GetReputationRank},             // :GetReputationRank(faction) -- Returns the reputation rank with given faction. UNDOCUMENTED
+    {"GetSpellCooldowns", &LuaUnit::GetSpellCooldowns},             // :GetSpellCooldowns() -- Gets a table where spellIDs are the keys and values are cooldowns. UNDOCUMENTED
+    {"GetDrunkValue", &LuaUnit::GetDrunkValue},                     // :GetDrunkValue() -- Returns the current drunkness value. UNDOCUMENTED
+    {"GetBattlegroundId", &LuaUnit::GetBattlegroundId},             // :GetBattlegroundId() -- Returns the player's current battleground ID. UNDOCUMENTED
+    {"GetBattlegroundTypeId", &LuaUnit::GetBattlegroundTypeId},     // :GetBattlegroundTypeId() -- Returns the player's current battleground type ID. UNDOCUMENTED
+    {"GetXPRestBonus", &LuaUnit::GetXPRestBonus},                   // :GetXPRestBonus(xp) -- Returns the rested bonus XP from given XP. UNDOCUMENTED
+    {"GetRestTime", &LuaUnit::GetRestTime},                         // :GetRestTime() -- Returns the timed rested. UNDOCUMENTED
+    {"GetGroupInvite", &LuaUnit::GetGroupInvite},                   // :GetGroupInvite() -- Returns the group invited to. UNDOCUMENTED
+    {"GetSubGroup", &LuaUnit::GetSubGroup},                         // :GetSubGroup() -- Gets the player's current subgroup ID. UNDOCUMENTED
+    {"GetNextRandomRaidMember", &LuaUnit::GetNextRandomRaidMember}, // :GetNextRandomRaidMember(radius) -- Gets a random raid member in given radius. UNDOCUMENTED
+    {"GetOriginalGroup", &LuaUnit::GetOriginalGroup},               // :GetOriginalGroup() -- Gets the original group object. UNDOCUMENTED
+    {"GetOriginalSubGroup", &LuaUnit::GetOriginalSubGroup},         // :GetOriginalSubGroup() -- Returns the original subgroup ID. UNDOCUMENTED
+    {"GetChampioningFaction", &LuaUnit::GetChampioningFaction},     // :GetChampioningFaction() -- Returns the player's championing faction. UNDOCUMENTED
 
     // Setters
     {"AdvanceSkillsToMax", &LuaUnit::AdvanceSkillsToMax},           // :AdvanceSkillsToMax() -- Advances all currently known skills to the currently known max level
@@ -40,6 +82,26 @@ ElunaRegister<Unit> UnitMethods[] =
     {"SetArenaPoints", &LuaUnit::SetArenaPoints},                   // :SetArenaPoints(amount)
     {"SetHonorPoints", &LuaUnit::SetHonorPoints},                   // :SetHonorPoints(amount)
     {"SetLifetimeKills", &LuaUnit::SetLifetimeKills},               // :SetLifetimeKills(val) -- Sets the overall lifetime (honorable) kills of the player
+    {"SetGameMaster", &LuaUnit::SetGameMaster},                     // :SetGameMaster(on) -- Sets GM mode on or off. UNDOCUMENTED
+    {"SetGMChat", &LuaUnit::SetGMChat},                             // :SetGMChat(on) -- Sets GM chat on or off. UNDOCUMENTED
+    {"SetTaxiCheater", &LuaUnit::SetTaxiCheater},                   // :SetTaxiCheater(on) -- Sets taxi cheat on or off. UNDOCUMENTED
+    {"SetGMVisible", &LuaUnit::SetGMVisible},                       // :SetGMVisible(on) -- Sets gm visibility on or off. UNDOCUMENTED
+    {"SetPvPDeath", &LuaUnit::SetPvPDeath},                         // :SetPvPDeath(on) -- Sets PvP death on or off. UNDOCUMENTED
+    {"SetAcceptWhispers", &LuaUnit::SetAcceptWhispers},             // :SetAcceptWhispers(on) -- Sets whisper accepting death on or off. UNDOCUMENTED
+    {"SetRestBonus", &LuaUnit::SetRestBonus},                       // :SetRestBonus(bonusrate) -- Sets new restbonus rate. UNDOCUMENTED
+    {"SetRestType", &LuaUnit::SetRestType},                         // :SetRestType() -- Sets rest type. UNDOCUMENTED
+    {"SetSheath", &LuaUnit::SetSheath},                             // :SetSheath(SheathState) -- Sets player's seathstate. UNDOCUMENTED
+    {"SetQuestStatus", &LuaUnit::SetQuestStatus},                   // :SetQuestStatus(entry, status) -- Sets the quest's status. UNDOCUMENTED
+    {"SetReputation", &LuaUnit::SetReputation},                     // :SetReputation(faction, value) -- Sets the faction reputation for the player. UNDOCUMENTED
+    {"SetFreeTalentPoints", &LuaUnit::SetFreeTalentPoints},         // :SetFreeTalentPoints(points) -- Sets the amount of unused talent points. UNDOCUMENTED
+    {"SetPvP", &LuaUnit::SetPvP},                                   // :SetPvP([apply]) -- Sets the player's PvP on or off. UNDOCUMENTED
+    {"SetGuildRank", &LuaUnit::SetRank},                            // :SetGuildRank(rank) -- Sets player's guild rank. UNDOCUMENTED
+    {"SetMovement", &LuaUnit::SetMovement},                         // :SetMovement(type) -- Sets player's movement type. UNDOCUMENTED
+    {"SetSkill", &LuaUnit::SetSkill},                               // :SetSkill(skill, step, currVal, maxVal) -- Sets the skill's boundaries and value. UNDOCUMENTED
+    {"SetFactionForRace", &LuaUnit::setFactionForRace},             // :SetFactionForRace(race) -- Sets the faction by raceID. UNDOCUMENTED
+    {"SetDrunkValue", &LuaUnit::SetDrunkValue},                     // :SetDrunkValue(newDrunkValue) -- Sets drunkness value. UNDOCUMENTED
+    {"SetRestTime", &LuaUnit::SetRestTime},                         // :SetRestTime(value) -- Sets the rested time. UNDOCUMENTED
+    {"SetAtLoginFlag", &LuaUnit::SetAtLoginFlag},                   // :SetAtLoginFlag(flag) -- Adds an at login flag. UNDOCUMENTED
 
     // Boolean
     {"IsInGroup", &LuaUnit::IsInGroup},                             // :IsInGroup()
@@ -53,14 +115,54 @@ ElunaRegister<Unit> UnitMethods[] =
     {"AddItem", &LuaUnit::AddItem},                                 // :AddItem(id, amount) - Adds amount of item to player. Returns true if success and false if not.
     {"IsInArenaTeam", &LuaUnit::IsInArenaTeam},                     // :IsInArenaTeam(type) -  type : 0 = 2v2, 1 = 3v3, 2 = 5v5
     {"CanEquipItem", &LuaUnit::CanEquipItem},                       // :CanEquipItem(entry/item, slot) - Returns true if the player can equip given item/item entry. UNDOCUMENTED
+    {"IsFalling", &LuaUnit::IsFalling},                             // :IsFalling() -- Returns true if the unit is falling. UNDOCUMENTED
+    {"ToggleAFK", &LuaUnit::ToggleAFK},                             // :ToggleAFK() -- Toggles AFK state for player. UNDOCUMENTED
+    {"ToggleDND", &LuaUnit::ToggleDND},                             // :ToggleDND() -- Toggles DND state for player. UNDOCUMENTED
+    {"IsAFK", &LuaUnit::isAFK},                                     // :IsAFK() -- Returns true if the player is afk. UNDOCUMENTED
+    {"IsDND", &LuaUnit::isDND},                                     // :IsDND() -- Returns true if the player is in dnd mode. UNDOCUMENTED
+    {"IsAcceptWhispers", &LuaUnit::isAcceptWhispers},               // :IsAcceptWhispers() -- Returns true if the player accepts whispers. UNDOCUMENTED
+    {"IsGMChat", &LuaUnit::isGMChat},                               // :IsGMChat() -- Returns true if the player has GM chat on. UNDOCUMENTED
+    {"IsTaxiCheater", &LuaUnit::isTaxiCheater},                     // :IsTaxiCheater() -- Returns true if the player has taxi cheat on. UNDOCUMENTED
+    {"IsGMVisible", &LuaUnit::isGMVisible},                         // :IsGMVisible() -- Returns true if the player is GM visible. UNDOCUMENTED
+    {"IsActiveQuest", &LuaUnit::IsActiveQuest},                     // :IsActiveQuest(entry) -- Returns true if the quest entry is active for the player. UNDOCUMENTED
+    {"CanFly", &LuaUnit::CanFly},                                   // :CanFly() -- Returns true if the player can fly. UNDOCUMENTED
+    {"InBattlegroundQueue", &LuaUnit::InBattlegroundQueue},         // :InBattlegroundQueue() -- Returns true if the player is in a battleground queue. UNDOCUMENTED
+    {"IsImmuneToEnvironmentalDamage", &LuaUnit::IsImmuneToEnvironmentalDamage}, // :IsImmuneToEnvironmentalDamage() -- Returns true if the player is immune to enviromental damage. UNDOCUMENTED
+    {"CanSpeak", &LuaUnit::CanSpeak},                               // :CanSpeak() -- Returns true if the player can speak. UNDOCUMENTED
+    {"HasAtLoginFlag", &LuaUnit::HasAtLoginFlag},                   // :HasAtLoginFlag(flag) -- returns true if the player has the login flag. UNDOCUMENTED
+    {"InRandomLfgDungeon", &LuaUnit::inRandomLfgDungeon},           // :InRandomLfgDungeon() -- Returns true if the player is in a random LFG dungeon. UNDOCUMENTED
+    {"HasPendingBind", &LuaUnit::HasPendingBind},                   // :HasPendingBind() -- Returns true if the player has a pending instance bind. UNDOCUMENTED
+    {"HasAchieved", &LuaUnit::HasAchieved},                         // :HasAchieved(achievementID) -- Returns true if the player has achieved the achievement. UNDOCUMENTED
+    {"CanUninviteFromGroup", &LuaUnit::CanUninviteFromGroup},       // :CanUninviteFromGroup() -- Returns true if the player can uninvite from group. UNDOCUMENTED
+    {"IsRested", &LuaUnit::isRested},                               // :IsRested() -- Returns true if the player is rested. UNDOCUMENTED
+    {"IsKnowHowFlyIn", &LuaUnit::IsKnowHowFlyIn},                   // :IsKnowHowFlyIn(mapid, zone) -- Returns true if the player can fly in the area. UNDOCUMENTED
+    {"IsNeverVisible", &LuaUnit::IsNeverVisible},                   // :IsNeverVisible() -- Returns true if the player is never visible. UNDOCUMENTED
+    {"IsVisibleGloballyFor", &LuaUnit::IsVisibleGloballyFor},       // :IsVisibleGloballyFor(player) -- Returns true if the player is visible for the target player. UNDOCUMENTED
+    {"IsUsingLfg", &LuaUnit::isUsingLfg},                           // :IsUsingLfg() -- Returns true if the player is using LFG. UNDOCUMENTED
+    {"HasQuestForItem", &LuaUnit::HasQuestForItem},                 // :HasQuestForItem(entry) -- Returns true if the player has the quest for the item. UNDOCUMENTED
+    {"HasQuestForGO", &LuaUnit::HasQuestForGO},                     // :HasQuestForGO(entry) -- Returns true if the player has the quest for the gameobject. UNDOCUMENTED
+    {"CanShareQuest", &LuaUnit::CanShareQuest},                     // :CanShareQuest(entry) -- Returns true if the quest entry is shareable by the player. UNDOCUMENTED
+    {"IsQuestRewarded", &LuaUnit::IsQuestRewarded},                 // :IsQuestRewarded(entry) -- Returns true if the player has recieved the quest's reward. UNDOCUMENTED
+    {"HasTalent", &LuaUnit::HasTalent},                             // :HasTalent(spellid, spec) -- Returns true if the player has the talent spell in given spec. UNDOCUMENTED
+    {"HasSpellCooldown", &LuaUnit::HasSpellCooldown},               // :HasSpellCooldown(spellId) -- Returns true if the spell is on cooldown. UNDOCUMENTED
+    {"IsInSameGroupWith", &LuaUnit::IsInSameGroupWith},             // :IsInSameGroupWith(player) -- Returns true if the players are in the same group. UNDOCUMENTED
+    {"IsInSameRaidWith", &LuaUnit::IsInSameRaidWith},               // :IsInSameRaidWith(player) -- Returns true if the players are in the same raid. UNDOCUMENTED
+    {"IsGroupVisibleFor", &LuaUnit::IsGroupVisibleFor},             // :IsGroupVisibleFor(player) -- Player is group visible for the target. UNDOCUMENTED
+    {"HasSkill", &LuaUnit::HasSkill},                               // :HasSkill(skill) -- Returns true if the player has the skill. UNDOCUMENTED
+    {"IsHonorOrXPTarget", &LuaUnit::isHonorOrXPTarget},             // :IsHonorOrXPTarget(victim) -- Returns true if the victim gives honor or XP. UNDOCUMENTED
+    {"CanParry", &LuaUnit::CanParry},                               // :CanParry() -- Returns true if the player can parry. UNDOCUMENTED
+    {"CanBlock", &LuaUnit::CanBlock},                               // :CanBlock() -- Returns true if the player can block. UNDOCUMENTED
+    {"CanTitanGrip", &LuaUnit::CanTitanGrip},                       // :CanTitanGrip() -- Returns true if the player has titan grip. UNDOCUMENTED
+    {"CanTameExoticPets", &LuaUnit::CanTameExoticPets},             // :CanTameExoticPets() -- Returns true if the player can tame exotic pets. UNDOCUMENTED
+    {"InBattleground", &LuaUnit::InBattleground},                   // :InBattleground() -- Returns true if the player is in a battleground. UNDOCUMENTED
+    {"InArena", &LuaUnit::InArena},                                 // :InArena() -- Returns true if the player is in an arena. UNDOCUMENTED
+    {"IsOutdoorPvPActive", &LuaUnit::IsOutdoorPvPActive},           // :IsOutdoorPvPActive() -- Returns true if the player is outdoor pvp active. UNDOCUMENTED
 
     // Gossip                                                           
     {"GossipMenuAddItem", &LuaUnit::GossipMenuAddItem},             // :GossipMenuAddItem(icon, msg, sender, intid, code, popup, money)
     {"GossipSendMenu", &LuaUnit::GossipSendMenu},                   // :GossipSendMenu(npc_text, unit[, menu_id]) -- If unit is a player, you need to use a menu_id. menu_id is used to hook the gossip select function to the menu.
     {"GossipComplete", &LuaUnit::GossipComplete},                   // :GossipComplete()
     {"GossipClearMenu", &LuaUnit::GossipClearMenu},                 // :GossipClearMenu() -- Clears the gossip menu of options. Pretty much only useful with player gossip. Need to use before creating a new menu for the player
-
-    // Update
 
     // Other
     {"SendBroadcastMessage", &LuaUnit::SendBroadcastMessage},       // :SendBroadcastMessage(message)
@@ -83,6 +185,53 @@ ElunaRegister<Unit> UnitMethods[] =
     {"ResetSpellCooldown", &LuaUnit::ResetSpellCooldown},           // :ResetSpellCooldown(spellId, update(bool~optional)) -- Resets cooldown of the specified spellId. If update is true, it will send WorldPacket SMSG_CLEAR_COOLDOWN to the player, else it will just clear the spellId from m_spellCooldowns. This is true by default.
     {"ResetTypeCooldowns", &LuaUnit::ResetTypeCooldowns},           // :ResetTypeCooldowns(category, update(bool~optional)) -- Resets all cooldowns for the spell category(type). If update is true, it will send WorldPacket SMSG_CLEAR_COOLDOWN to the player, else it will just clear the spellId from m_spellCooldowns. This is true by default.
     {"ResetAllCooldowns", &LuaUnit::ResetAllCooldowns},             // :ResetAllCooldowns() -- Resets all spell cooldowns.
+    {"GiveLevel", &LuaUnit::GiveLevel},                             // :GiveLevel(level) -- Gives levels to the player. UNDOCUMENTED
+    {"GiveXP", &LuaUnit::GiveXP},                                   // :GiveXP(xp[, victim, group_rate]) -- Gives XP to the player. UNDOCUMENTED
+    {"RemovePet", &LuaUnit::RemovePet},                             // :RemovePet([mode, returnreagent]) -- Removes the player's pet. Mode determines if the pet is saved and how. UNDOCUMENTED
+    {"SummonPet", &LuaUnit::SummonPet},                             // :SummonPet(entry, x, y, z, o, petType, despwtime) -- Summons a pet for the player. UNDOCUMENTED
+    {"Say", &LuaUnit::Say},                                         // :Say(text, lang) -- The player says the text. UNDOCUMENTED
+    {"Yell", &LuaUnit::Yell},                                       // :Yell(text, lang) -- The player yells the text. UNDOCUMENTED
+    {"TextEmote", &LuaUnit::TextEmote},                             // :TextEmote(text) -- The player does a textemote with the text. UNDOCUMENTED
+    {"Whisper", &LuaUnit::Whisper},                                 // :Whisper(text, lang, receiverGuid) -- The player whispers the text to the playerguid. UNDOCUMENTED
+    {"CompleteQuest", &LuaUnit::CompleteQuest},                     // :CompleteQuest(entry) -- Completes a quest by entry. UNDOCUMENTED
+    {"IncompleteQuest", &LuaUnit::IncompleteQuest},                 // :IncompleteQuest(entry) -- Uncompletes the quest by entry for the player. UNDOCUMENTED
+    {"FailQuest", &LuaUnit::FailQuest},                             // :FailQuest(entry) -- Player fails the quest entry. UNDOCUMENTED
+    {"RemoveActiveQuest", &LuaUnit::RemoveActiveQuest},             // :RemoveActiveQuest(entry) -- Removes an active quest. UNDOCUMENTED
+    {"RemoveRewardedQuest", &LuaUnit::RemoveRewardedQuest},         // :RemoveRewardedQuest(entry) -- Removes a rewarded quest. UNDOCUMENTED
+    {"AreaExploredOrEventHappens", &LuaUnit::AreaExploredOrEventHappens},   // :AreaExploredOrEventHappens(questId) -- Satisfies an area or event requrement for the questId. UNDOCUMENTED
+    {"GroupEventHappens", &LuaUnit::GroupEventHappens},             // :GroupEventHappens(questId, worldObject) -- Satisfies a group event for the questId with the world object. UNDOCUMENTED
+    {"KilledMonsterCredit", &LuaUnit::KilledMonsterCredit},         // :KilledMonsterCredit(entry) -- Satisfies a monsterkill for the player. UNDOCUMENTED
+    {"KilledPlayerCredit", &LuaUnit::KilledPlayerCredit},           // :KilledPlayerCredit() -- Satisfies a player kill for the player. UNDOCUMENTED
+    {"CastedCreatureOrGO", &LuaUnit::CastedCreatureOrGO},           // :CastedCreatureOrGO(creatureOrGOEntry, creatureOrGO, spellId) -- Satisfies a spellcast on unit for the player. UNDOCUMENTED
+    {"TalkedToCreature", &LuaUnit::TalkedToCreature},               // :TalkedToCreature(npcEntry, creature) -- Satisfies creature talk objective for the player. UNDOCUMENTED
+    {"SaveToDB", &LuaUnit::SaveToDB},                               // :SaveToDB() -- Saves the player to database. UNDOCUMENTED
+    {"ResetPetTalents", &LuaUnit::ResetPetTalents},                 // :ResetPetTalents() -- Resets player's pet's talents. UNDOCUMENTED
+    {"RegenerateAll", &LuaUnit::RegenerateAll},                     // :RegenerateAll() -- Regenerates all player's powers. UNDOCUMENTED
+    {"Regenerate", &LuaUnit::Regenerate},                           // :Regenerate(powerType) -- Regenerates the given power type. UNDOCUMENTED
+    {"RegenerateHealth", &LuaUnit::RegenerateHealth},               // :RegenerateHealth() -- Regenerates health. UNDOCUMENTED
+    {"AddComboPoints", &LuaUnit::AddComboPoints},                   // :AddComboPoints(target, count[, spell]) -- Adds combo points to the target for the player. UNDOCUMENTED
+    {"GainSpellComboPoints", &LuaUnit::GainSpellComboPoints},       // :GainSpellComboPoints(amount) -- Player gains spell combo points. UNDOCUMENTED
+    {"ClearComboPoints", &LuaUnit::ClearComboPoints},               // :ClearComboPoints() -- Clears player's combo points. UNDOCUMENTED
+    {"RemoveSpell", &LuaUnit::removeSpell},                         // :RemoveSpell(entry[, disabled, learn_low_rank]) -- Removes (unlearn) the given spell. UNDOCUMENTED
+    {"ResetTalents", &LuaUnit::resetTalents},                       // :ResetTalents([no_cost]) -- Resets player's talents. UNDOCUMENTED
+    {"ResetTalentsCost", &LuaUnit::resetTalentsCost},               // :ResetTalentsCost() -- Returns the reset talents cost. UNDOCUMENTED
+    {"AddTalent", &LuaUnit::AddTalent},                             // :AddTalent(spellid, spec, learning) -- Adds a talent spell for the player to given spec. UNDOCUMENTED
+    {"RemoveFromGroup", &LuaUnit::RemoveFromGroup},                 // :RemoveFromGroup() -- Removes the player from his group. UNDOCUMENTED
+    {"KillPlayer", &LuaUnit::KillPlayer},                           // :KillPlayer() -- Kills the player. UNDOCUMENTED
+    {"DurabilityLossAll", &LuaUnit::DurabilityLossAll},             // :DurabilityLossAll(percent[, inventory]) -- The player's items lose durability. Inventory true by default. UNDOCUMENTED
+    {"DurabilityLoss", &LuaUnit::DurabilityLoss},                   // :DurabilityLoss(item, percent) -- The given item loses durability. UNDOCUMENTED
+    {"DurabilityPointsLoss", &LuaUnit::DurabilityPointsLoss},       // :DurabilityPointsLoss(item, points) -- The given item loses durability. UNDOCUMENTED
+    {"DurabilityPointsLossAll", &LuaUnit::DurabilityPointsLossAll}, // :DurabilityPointsLossAll(points, inventory) -- Player's items lose durability. UNDOCUMENTED
+    {"DurabilityPointLossForEquipSlot", &LuaUnit::DurabilityPointLossForEquipSlot}, // :DurabilityPointLossForEquipSlot(slot) -- Causes durability loss for the item in the given slot. UNDOCUMENTED
+    {"DurabilityRepairAll", &LuaUnit::DurabilityRepairAll},         // :DurabilityRepairAll(has_cost, discount, guildBank) -- Repairs all durability. UNDOCUMENTED
+    {"DurabilityRepair", &LuaUnit::DurabilityRepair},               // :DurabilityRepair(position, has_cost, discount, guildBank) -- Repairs item durability of item in given position. UNDOCUMENTED
+    {"ModifyHonorPoints", &LuaUnit::ModifyHonorPoints},             // :ModifyHonorPoints(amount) -- Modifies the player's honor points. UNDOCUMENTED
+    {"ModifyArenaPoints", &LuaUnit::ModifyArenaPoints},             // :ModifyArenaPoints(amount) -- Modifies the player's arena points. UNDOCUMENTED
+    {"LeaveBattleground", &LuaUnit::LeaveBattleground},             // :LeaveBattleground([teleToEntryPoint]) -- The player leaves the battleground. UNDOCUMENTED
+    {"BindToInstance", &LuaUnit::BindToInstance},                   // :BindToInstance() -- Binds the player to the current instance. UNDOCUMENTED
+    {"UnbindInstance", &LuaUnit::UnbindInstance},                   // :UnbindInstance(map, difficulty) -- Unbinds the player from an instance. UNDOCUMENTED
+    {"RemoveFromBattlegroundOrBattlefieldRaid", &LuaUnit::RemoveFromBattlegroundOrBattlefieldRaid}, // :RemoveFromBattlegroundOrBattlefieldRaid() -- Removes the player from a battleground or battlefield raid. UNDOCUMENTED
+    {"ResetAchievements", &LuaUnit::ResetAchievements},             // :ResetAchievements() -- Resets playeräs achievements. UNDOCUMENTED
 
     // Creature methods
 
@@ -185,6 +334,8 @@ ElunaRegister<Unit> UnitMethods[] =
     {"IsCharmed", &LuaUnit::IsCharmed},                             // :IsCharmed() -- Returns true if the unit is charmed, false if not.
     {"IsArmorer", &LuaUnit::IsArmorer},                             // :IsArmorer() -- Returns true if the unit is an Armorer, false if not.
     {"IsAttackingPlayer", &LuaUnit::IsAttackingPlayer},             // :IsAttackingPlayer() -- Returns true if the unit is attacking a player, false if not.
+    {"IsInWater", &LuaUnit::IsInWater},                             // :IsInWater() -- Returns true if the unit is in water. UNDOCUMENTED
+    {"IsUnderWater", &LuaUnit::IsUnderWater},                       // :IsUnderWater() -- Returns true if the unit is under water. UNDOCUMENTED
 
     // Other
     {"AddAura", &LuaUnit::AddAura},                                 // :AddAura(spellId, target) -- Adds an aura to the specified target
