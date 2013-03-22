@@ -1528,8 +1528,8 @@ public:
         return 1;
     }
 
-    // isAcceptWhispers()
-    static int isAcceptWhispers(lua_State* L, Unit* unit)
+    // isAcceptingWhispers()
+    static int isAcceptingWhispers(lua_State* L, Unit* unit)
     {
         TO_PLAYER_BOOL();
 
@@ -3365,6 +3365,15 @@ public:
         if (!sendTo)
             return 0;
         player->GetSession()->SendListInventory(sendTo->GetGUID());
+        return 0;
+    }
+
+    // :KickPlayer(unit)
+    static int KickPlayer(lua_State* L, Unit* unit)
+    {
+        TO_PLAYER();
+
+        player->GetSession()->KickPlayer();
         return 0;
     }
 

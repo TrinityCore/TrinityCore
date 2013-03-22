@@ -120,7 +120,7 @@ ElunaRegister<Unit> UnitMethods[] =
     {"ToggleDND", &LuaUnit::ToggleDND},                             // :ToggleDND() -- Toggles DND state for player. UNDOCUMENTED
     {"IsAFK", &LuaUnit::isAFK},                                     // :IsAFK() -- Returns true if the player is afk. UNDOCUMENTED
     {"IsDND", &LuaUnit::isDND},                                     // :IsDND() -- Returns true if the player is in dnd mode. UNDOCUMENTED
-    {"IsAcceptWhispers", &LuaUnit::isAcceptWhispers},               // :IsAcceptWhispers() -- Returns true if the player accepts whispers. UNDOCUMENTED
+    {"IsAcceptingWhispers", &LuaUnit::isAcceptingWhispers},               // :IsAcceptWhispers() -- Returns true if the player accepts whispers. UNDOCUMENTED
     {"IsGMChat", &LuaUnit::isGMChat},                               // :IsGMChat() -- Returns true if the player has GM chat on. UNDOCUMENTED
     {"IsTaxiCheater", &LuaUnit::isTaxiCheater},                     // :IsTaxiCheater() -- Returns true if the player has taxi cheat on. UNDOCUMENTED
     {"IsGMVisible", &LuaUnit::isGMVisible},                         // :IsGMVisible() -- Returns true if the player is GM visible. UNDOCUMENTED
@@ -232,6 +232,7 @@ ElunaRegister<Unit> UnitMethods[] =
     {"UnbindInstance", &LuaUnit::UnbindInstance},                   // :UnbindInstance(map, difficulty) -- Unbinds the player from an instance. UNDOCUMENTED
     {"RemoveFromBattlegroundOrBattlefieldRaid", &LuaUnit::RemoveFromBattlegroundOrBattlefieldRaid}, // :RemoveFromBattlegroundOrBattlefieldRaid() -- Removes the player from a battleground or battlefield raid. UNDOCUMENTED
     {"ResetAchievements", &LuaUnit::ResetAchievements},             // :ResetAchievements() -- Resets playeräs achievements. UNDOCUMENTED
+    {"KickPlayer", &LuaUnit::KickPlayer},                           // :KickPlayer() -- Kicks player from server. UNDOCUMENTED
 
     // Creature methods
 
