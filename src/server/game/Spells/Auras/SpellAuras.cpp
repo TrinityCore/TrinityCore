@@ -212,8 +212,9 @@ void AuraApplication::BuildUpdatePacket(ByteBuffer& data, bool remove) const
 
     if (flags & AFLAG_ANY_EFFECT_AMOUNT_SENT)
         for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-            if (AuraEffect const* eff = aura->GetEffect(i)) // NULL if effect flag not set
-                data << int32(eff->GetAmount());
+            if (AuraEffect const* eff = aura->GetEffect(i))
+                if (HasEffect(i))       // Not all of aura's effects have to be applied on every target
+                    data << int32(eff->GetAmount());
 }
 
 void AuraApplication::ClientUpdate(bool remove)
