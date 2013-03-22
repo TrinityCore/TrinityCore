@@ -36,11 +36,11 @@ enum AuthResult
     WOW_FAIL_LOCKED_ENFORCED                     = 0x10,
     WOW_FAIL_TRIAL_ENDED                         = 0x11,
     WOW_FAIL_USE_BATTLENET                       = 0x12,
-    WOW_FAIL_TOO_FAST                            = 0x16,
-    WOW_FAIL_CHARGEBACK                          = 0x17,
+    WOW_FAIL_CHARGEBACK                          = 0x16,
+    WOW_FAIL_INTERNET_GAME_ROOM_WITHOUT_BNET     = 0x17,
     WOW_FAIL_GAME_ACCOUNT_LOCKED                 = 0x18,
-    WOW_FAIL_INTERNET_GAME_ROOM_WITHOUT_BNET     = 0x19,
-    WOW_FAIL_UNLOCKABLE_LOCK                     = 0x20,
+    WOW_FAIL_UNLOCKABLE_LOCK                     = 0x19,
+    WOW_FAIL_CONVERT_TO_BATTLE_NET               = 0x20,
     WOW_FAIL_DISCONNECTED                        = 0xFF
 };
 
