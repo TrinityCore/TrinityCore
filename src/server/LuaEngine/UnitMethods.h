@@ -13,6 +13,18 @@ class LuaUnit
 {
 public:
 
+    // HasAura(spellId[, caster])
+    static int HasAura(lua_State* L, Unit* unit)
+    {
+        TO_PLAYER_BOOL();
+
+        uint32 spell = luaL_checkunsigned(L, 1);
+        WorldObject* caster = sEluna->CHECK_WORLDOBJECT(L, 2);
+
+        sEluna->PushBoolean(L, player->HasAura(spell, caster ? caster->GetGUID() : 0));
+        return 1;
+    }
+
     // IsARecruiter()
     static int IsARecruiter(lua_State* L, Unit* unit)
     {
@@ -3617,6 +3629,84 @@ public:
             sEluna->PushString(L, accName.c_str());
         else
             return 0;
+        return 1;
+    }
+
+    // GetAITarget(type[, playeronly, position, distance, aura])
+    static int GetAITarget(lua_State* L, Unit* unit)
+    {
+        TO_CREATURE();
+
+        SelectAggroTarget targetType = (SelectAggroTarget)luaL_checkunsigned(L, 1);
+        bool playerOnly = luaL_optbool(L, 2, false);
+        uint32 position = luaL_optunsigned(L, 3, 0);
+        float dist = luaL_optnumber(L, 4, 0.0f);
+        int32 aura = luaL_optint(L, 5, 0);
+
+        // Unit* SelectTarget(SelectAggroTarget targetType, uint32 position = 0, float dist = 0.0f, bool playerOnly = false, int32 aura = 0);
+        ThreatContainer::StorageType const& threatlist = creature->getThreatManager().getThreatList();
+        if (position >= threatlist.size())
+        {
+            sEluna->PushUnit(L, NULL);
+            return 1;
+        }
+
+        std::list<Unit*> targetList;
+        for (ThreatContainer::StorageType::const_iterator itr = threatlist.begin(); itr != threatlist.end(); ++itr)
+        {
+            Unit* target = (*itr)->getTarget();
+            if (!target)
+                continue;
+            if (playerOnly && !target->ToPlayer())
+                continue;
+            if (aura > 0 && !target->HasAura(aura))
+                continue;
+            else if (aura < 0 && target->HasAura(-aura))
+                continue;
+            if (dist > 0.0f && !creature->IsWithinDist(target, dist))
+                continue;
+            targetList.push_back(target);
+        }
+
+        if (position >= targetList.size())
+        {
+            sEluna->PushUnit(L, NULL);
+            return 1;
+        }
+
+        if (targetType == SELECT_TARGET_NEAREST || targetType == SELECT_TARGET_FARTHEST)
+            targetList.sort(Trinity::ObjectDistanceOrderPred(creature));
+
+        switch (targetType)
+        {
+        case SELECT_TARGET_NEAREST:
+        case SELECT_TARGET_TOPAGGRO:
+            {
+                std::list<Unit*>::iterator itr = targetList.begin();
+                std::advance(itr, position);
+                sEluna->PushUnit(L, *itr);
+                return 1;
+            }
+        case SELECT_TARGET_FARTHEST:
+        case SELECT_TARGET_BOTTOMAGGRO:
+            {
+                std::list<Unit*>::reverse_iterator ritr = targetList.rbegin();
+                std::advance(ritr, position);
+                sEluna->PushUnit(L, *ritr);
+                return 1;
+            }
+        case SELECT_TARGET_RANDOM:
+            {
+                std::list<Unit*>::iterator itr = targetList.begin();
+                std::advance(itr, urand(position, targetList.size() - 1));
+                sEluna->PushUnit(L, *itr);
+                return 1;
+            }
+        default:
+            break;
+        }
+
+        sEluna->PushUnit(L, NULL);
         return 1;
     }
 

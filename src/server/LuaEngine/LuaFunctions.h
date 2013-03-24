@@ -247,6 +247,7 @@ ElunaRegister<Unit> UnitMethods[] =
     // Creature methods
 
     // Getters
+    {"GetAITarget", &LuaUnit::GetAITarget},                         // :GetAITarget(type[, playeronly, position, distance, aura]) - Get an unit in threat list
     {"GetAITargets", &LuaUnit::GetAITargets},                       // :GetAITargets() - Get units in threat list
     {"GetAITargetsCount", &LuaUnit::GetAITargetsCount},             // :GetAITargetsCount() - Get threat list size
     {"GetVictim", &LuaUnit::GetVictim},                             // :GetVictim() - Returns creature's current target. UNDOCUMENTED
@@ -347,6 +348,7 @@ ElunaRegister<Unit> UnitMethods[] =
     {"IsAttackingPlayer", &LuaUnit::IsAttackingPlayer},             // :IsAttackingPlayer() -- Returns true if the unit is attacking a player, false if not.
     {"IsInWater", &LuaUnit::IsInWater},                             // :IsInWater() -- Returns true if the unit is in water. UNDOCUMENTED
     {"IsUnderWater", &LuaUnit::IsUnderWater},                       // :IsUnderWater() -- Returns true if the unit is under water. UNDOCUMENTED
+    {"HasAura", &LuaUnit::HasAura},                                 // :HasAura(spellId[, caster]) -- Returns true if the unit has the aura from the spell and casted by the caster if provided. UNDOCUMENTED
 
     // Other
     {"AddAura", &LuaUnit::AddAura},                                 // :AddAura(spellId, target) -- Adds an aura to the specified target
