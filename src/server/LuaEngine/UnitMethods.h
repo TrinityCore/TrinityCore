@@ -13,6 +13,19 @@ class LuaUnit
 {
 public:
 
+    // RewardQuest(entry)
+    static int RewardQuest(lua_State* L, Unit* unit)
+    {
+        TO_PLAYER_BOOL();
+
+        uint32 entry = luaL_checkunsigned(L, 1);
+
+        Quest const* quest = sObjectMgr->GetQuestTemplate(entry);
+        if (quest)
+            player->RewardQuest(quest, 0, player);
+        return 0;
+    }
+
     // HasAura(spellId[, caster])
     static int HasAura(lua_State* L, Unit* unit)
     {
@@ -3871,7 +3884,7 @@ public:
         return 0;
     }
 
-    // GossipMenuAddItem(icon, msg, Intid, code, accept_decline_message, money)
+    // GossipMenuAddItem(icon, msg, Intid[, code, accept_decline_message, money])
     static int GossipMenuAddItem(lua_State* L, Unit* unit)
     {
         TO_PLAYER();
@@ -3896,13 +3909,13 @@ public:
         return 0;
     }
 
-    // GossipSendMenu(npc_text, unit)
+    // GossipSendMenu(npc_text, unit[, menu_id])
     static int GossipSendMenu(lua_State* L, Unit* unit)
     {
         TO_PLAYER();
 
         uint32 _npcText = luaL_checkunsigned(L, 1);
-        Unit* sender = sEluna->CHECK_UNIT(L, 2);
+        WorldObject* sender = sEluna->CHECK_WORLDOBJECT(L, 2);
         if (sender)
         {
             if (sender->ToPlayer())

@@ -162,7 +162,7 @@ ElunaRegister<Unit> UnitMethods[] =
     {"IsARecruiter", &LuaUnit::IsARecruiter},                       // :IsARecruiter() -- Returns true if the player is a recruiter. UNDOCUMENTED
 
     // Gossip                                                           
-    {"GossipMenuAddItem", &LuaUnit::GossipMenuAddItem},             // :GossipMenuAddItem(icon, msg, sender, intid, code, popup, money)
+    {"GossipMenuAddItem", &LuaUnit::GossipMenuAddItem},             // :GossipMenuAddItem(icon, msg, sender, intid[, code, popup, money])
     {"GossipSendMenu", &LuaUnit::GossipSendMenu},                   // :GossipSendMenu(npc_text, unit[, menu_id]) -- If unit is a player, you need to use a menu_id. menu_id is used to hook the gossip select function to the menu.
     {"GossipComplete", &LuaUnit::GossipComplete},                   // :GossipComplete()
     {"GossipClearMenu", &LuaUnit::GossipClearMenu},                 // :GossipClearMenu() -- Clears the gossip menu of options. Pretty much only useful with player gossip. Need to use before creating a new menu for the player
@@ -243,6 +243,7 @@ ElunaRegister<Unit> UnitMethods[] =
     {"SendTabardVendorActivate", &LuaUnit::SendTabardVendorActivate},   // :SendTabardVendorActivate(WorldObject) -- Sends tabard vendor window from object to player. UNDOCUMENTED
     {"SendSpiritResurrect", &LuaUnit::SendSpiritResurrect},         // :SendSpiritResurrect() -- Sends resurrect window to player. UNDOCUMENTED
     {"SendTaxiMenu", &LuaUnit::SendTaxiMenu},                       // :SendTaxiMenu(creature) -- Sends flight window to player from creature. UNDOCUMENTED
+    {"RewardQuest", &LuaUnit::RewardQuest},                         // :RewardQuest(entry) --  Gives quest rewards for the player. UNDOCUMENTED
 
     // Creature methods
 
