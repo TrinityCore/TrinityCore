@@ -28,6 +28,7 @@ extern "C"
 #include "MapManager.h"
 #include "Language.h"
 #include "Pet.h"
+#include "AuctionHouseMgr.h"
 
 enum RegisterTypes
 {

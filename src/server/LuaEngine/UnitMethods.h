@@ -65,6 +65,50 @@ public:
         return 1;
     }
 
+    // SendAuctionMenu([faction, creature])
+    static int SendAuctionHello(lua_State* L, Unit* unit)
+    {
+        TO_PLAYER();
+
+        Creature* creature = sEluna->CHECK_CREATURE(L, 1);
+        uint32 faction = luaL_checkunsigned(L, 2);
+
+        if (player->getLevel() < sWorld->getIntConfig(CONFIG_AUCTION_LEVEL_REQ))
+        {
+            player->GetSession()->SendNotification(player->GetSession()->GetTrinityString(LANG_AUCTION_REQ), sWorld->getIntConfig(CONFIG_AUCTION_LEVEL_REQ));
+            return 0;
+        }
+
+        uint64 guid = creature ? creature->GetGUID() : player->GetGUID();
+        uint32 faction = faction ? faction : creature ? creature->getFaction() : player->getFaction();
+
+        AuctionHouseEntry const* ahEntry = AuctionHouseMgr::GetAuctionHouseEntry(faction);
+        if (!ahEntry)
+            return 0;
+
+        WorldPacket data(MSG_AUCTION_HELLO, 12);
+        data << uint64(guid);
+        data << uint32(ahEntry->houseId);
+        data << uint8(1);
+        player->GetSession()->SendPacket(&data);
+        return 0;
+    }
+
+    // SendMailMenu(object)
+    static int HandleGetMailList(lua_State* L, Unit* unit)
+    {
+        TO_PLAYER();
+
+        GameObject* object = sEluna->CHECK_OBJECT(L, 1);
+        if(!object)
+            return 0;
+
+        WorldPacket data(SMSG_SHOW_MAILBOX, 8);
+        data << uint64(object->GetGUID());
+        player->GetSession()->HandleGetMailList(data);
+        return 0;
+    }
+
     // SendTaxiMenu(creature)
     static int SendTaxiMenu(lua_State* L, Unit* unit)
     {
