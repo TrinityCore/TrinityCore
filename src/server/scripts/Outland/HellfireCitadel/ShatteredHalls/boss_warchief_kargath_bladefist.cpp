@@ -164,24 +164,24 @@ class boss_warchief_kargath_bladefist : public CreatureScript
             {
                 for (std::vector<uint64>::const_iterator itr = adds.begin(); itr!= adds.end(); ++itr)
                 {
-                    Unit* temp = Unit::GetUnit(*me, *itr);
-                    if (temp && temp->isAlive())
+                    Creature* creature = Unit::GetCreature(*me, *itr);
+                    if (creature && creature->isAlive())
                     {
-                        temp->GetMotionMaster()->Clear(true);
-                        me->DealDamage(temp, temp->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
-                        temp->ToCreature()->RemoveCorpse();
+                        creature->GetMotionMaster()->Clear(true);
+                        me->DealDamage(creature, creature->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+                        creature->RemoveCorpse();
                     }
                 }
                 adds.clear();
 
                 for (std::vector<uint64>::const_iterator itr = assassins.begin(); itr!= assassins.end(); ++itr)
                 {
-                    Unit* temp = Unit::GetUnit(*me, *itr);
-                    if (temp && temp->isAlive())
+                    Creature* creature = Unit::GetCreature(*me, *itr);
+                    if (creature && creature->isAlive())
                     {
-                        temp->GetMotionMaster()->Clear(true);
-                        me->DealDamage(temp, temp->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
-                        temp->ToCreature()->RemoveCorpse();
+                        creature->GetMotionMaster()->Clear(true);
+                        me->DealDamage(creature, creature->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+                        creature->RemoveCorpse();
                     }
                 }
                 assassins.clear();

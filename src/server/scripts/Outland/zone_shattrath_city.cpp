@@ -474,16 +474,16 @@ public:
 
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             me->setFaction(1194);
-            if (Unit* Creepjack = me->FindNearestCreature(NPC_CREEPJACK, 20))
+            if (Creature* Creepjack = me->FindNearestCreature(NPC_CREEPJACK, 20))
             {
-                Creepjack->ToCreature()->AI()->EnterEvadeMode();
+                Creepjack->AI()->EnterEvadeMode();
                 Creepjack->setFaction(1194);
                 Creepjack->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             }
 
-            if (Unit* Malone = me->FindNearestCreature(NPC_MALONE, 20))
+            if (Creature* Malone = me->FindNearestCreature(NPC_MALONE, 20))
             {
-                Malone->ToCreature()->AI()->EnterEvadeMode();
+                Malone->AI()->EnterEvadeMode();
                 Malone->setFaction(1194);
                 Malone->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             }
@@ -521,31 +521,31 @@ public:
             {
                 if (Event)
                     SayTimer = NextStep(++Step);
-            } else SayTimer -= diff;
+            }
+            else
+                SayTimer -= diff;
 
             if (Attack)
             {
-                Player* player = Unit::GetPlayer(*me, PlayerGUID);
                 me->setFaction(14);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                if (player)
+                if (Player* player = Unit::GetPlayer(*me, PlayerGUID))
                 {
-                Unit* Creepjack = me->FindNearestCreature(NPC_CREEPJACK, 20);
-                if (Creepjack)
-                {
-                    Creepjack->Attack(player, true);
-                    Creepjack->setFaction(14);
-                    Creepjack->GetMotionMaster()->MoveChase(player);
-                    Creepjack->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                }
-                Unit* Malone = me->FindNearestCreature(NPC_MALONE, 20);
-                if (Malone)
-                {
-                    Malone->Attack(player, true);
-                    Malone->setFaction(14);
-                    Malone->GetMotionMaster()->MoveChase(player);
-                    Malone->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                }
+                    if (Creature* Creepjack = me->FindNearestCreature(NPC_CREEPJACK, 20))
+                    {
+                        Creepjack->Attack(player, true);
+                        Creepjack->setFaction(14);
+                        Creepjack->GetMotionMaster()->MoveChase(player);
+                        Creepjack->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                    }
+
+                    if (Creature* Malone = me->FindNearestCreature(NPC_MALONE, 20))
+                    {
+                        Malone->Attack(player, true);
+                        Malone->setFaction(14);
+                        Malone->GetMotionMaster()->MoveChase(player);
+                        Malone->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                    }
                     DoStartMovement(player);
                     AttackStart(player);
                 }
@@ -557,17 +557,17 @@ public:
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                 me->RemoveAllAuras();
 
-                if (Unit* Creepjack = me->FindNearestCreature(NPC_CREEPJACK, 20))
+                if (Creature* Creepjack = me->FindNearestCreature(NPC_CREEPJACK, 20))
                 {
-                    Creepjack->ToCreature()->AI()->EnterEvadeMode();
+                    Creepjack->AI()->EnterEvadeMode();
                     Creepjack->setFaction(1194);
                     Creepjack->GetMotionMaster()->MoveTargetedHome();
                     Creepjack->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                 }
 
-                if (Unit* Malone = me->FindNearestCreature(NPC_MALONE, 20))
+                if (Creature* Malone = me->FindNearestCreature(NPC_MALONE, 20))
                 {
-                    Malone->ToCreature()->AI()->EnterEvadeMode();
+                    Malone->AI()->EnterEvadeMode();
                     Malone->setFaction(1194);
                     Malone->GetMotionMaster()->MoveTargetedHome();
                     Malone->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);

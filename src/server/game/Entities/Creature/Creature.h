@@ -29,13 +29,13 @@
 
 #include <list>
 
-class SpellInfo;
-
 class CreatureAI;
+class CreatureGroup;
+class Group;
 class Quest;
 class Player;
+class SpellInfo;
 class WorldSession;
-class CreatureGroup;
 
 enum CreatureFlagsExtra
 {
