@@ -16,13 +16,13 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Object.h"
 #include "Common.h"
 #include "SharedDefines.h"
 #include "WorldPacket.h"
 #include "Opcodes.h"
 #include "Log.h"
 #include "World.h"
-#include "Object.h"
 #include "Creature.h"
 #include "Player.h"
 #include "Vehicle.h"
@@ -204,7 +204,7 @@ void Object::BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) c
     if (!target)
         return;
 
-    uint8  updatetype = UPDATETYPE_CREATE_OBJECT;
+    uint8  updateType = UPDATETYPE_CREATE_OBJECT;
     uint16 flags      = m_updateFlag;
 
     /** lower flag1 **/
@@ -215,22 +215,22 @@ void Object::BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) c
     {
         // UPDATETYPE_CREATE_OBJECT2 dynamic objects, corpses...
         if (isType(TYPEMASK_DYNAMICOBJECT) || isType(TYPEMASK_CORPSE) || isType(TYPEMASK_PLAYER))
-            updatetype = UPDATETYPE_CREATE_OBJECT2;
+            updateType = UPDATETYPE_CREATE_OBJECT2;
 
         // UPDATETYPE_CREATE_OBJECT2 for pets...
         if (target->GetPetGUID() == GetGUID())
-            updatetype = UPDATETYPE_CREATE_OBJECT2;
+            updateType = UPDATETYPE_CREATE_OBJECT2;
 
         // UPDATETYPE_CREATE_OBJECT2 for some gameobject types...
         if (isType(TYPEMASK_GAMEOBJECT))
         {
-            switch (((GameObject*)this)->GetGoType())
+            switch (ToGameObject()->GetGoType())
             {
                 case GAMEOBJECT_TYPE_TRAP:
                 case GAMEOBJECT_TYPE_DUEL_ARBITER:
                 case GAMEOBJECT_TYPE_FLAGSTAND:
                 case GAMEOBJECT_TYPE_FLAGDROP:
-                    updatetype = UPDATETYPE_CREATE_OBJECT2;
+                    updateType = UPDATETYPE_CREATE_OBJECT2;
                     break;
                 case GAMEOBJECT_TYPE_TRANSPORT:
                     flags |= UPDATEFLAG_TRANSPORT;
@@ -242,24 +242,24 @@ void Object::BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) c
 
         if (isType(TYPEMASK_UNIT))
         {
-            if (((Unit*)this)->getVictim())
+            if (ToUnit()->getVictim())
                 flags |= UPDATEFLAG_HAS_TARGET;
         }
     }
 
-    //sLog->outDebug("BuildCreateUpdate: update-type: %u, object-type: %u got flags: %X, flags2: %X", updatetype, m_objectTypeId, flags, flags2);
+    //sLog->outDebug("BuildCreateUpdate: update-type: %u, object-type: %u got flags: %X, flags2: %X", updateType, m_objectTypeId, flags, flags2);
 
     ByteBuffer buf(500);
-    buf << (uint8)updatetype;
+    buf << uint8(updateType);
     buf.append(GetPackGUID());
-    buf << (uint8)m_objectTypeId;
+    buf << uint8(m_objectTypeId);
 
     _BuildMovementUpdate(&buf, flags);
 
     UpdateMask updateMask;
     updateMask.SetCount(m_valuesCount);
     _SetCreateBits(&updateMask, target);
-    _BuildValuesUpdate(updatetype, &buf, &updateMask, target);
+    _BuildValuesUpdate(updateType, &buf, &updateMask, target);
     data->AddUpdateBlock(buf);
 }
 
@@ -278,7 +278,7 @@ void Object::BuildValuesUpdateBlockForPlayer(UpdateData* data, Player* target) c
 {
     ByteBuffer buf(500);
 
-    buf << (uint8) UPDATETYPE_VALUES;
+    buf << uint8(UPDATETYPE_VALUES);
     buf.append(GetPackGUID());
 
     UpdateMask updateMask;
@@ -360,64 +360,73 @@ uint16 Object::GetUInt16Value(uint16 index, uint8 offset) const
 
 void Object::_BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
 {
+    Unit const* unit = NULL;
+    WorldObject const* object = NULL;
+
+    if (isType(TYPEMASK_UNIT))
+        unit = ToUnit();
+    else
+        object = ((WorldObject*)this);
+
     *data << uint16(flags);                                  // update flags
 
     // 0x20
     if (flags & UPDATEFLAG_LIVING)
     {
-        ((Unit*)this)->BuildMovementPacket(data);
+        unit->BuildMovementPacket(data);
 
-        *data << ((Unit*)this)->GetSpeed(MOVE_WALK);
-        *data << ((Unit*)this)->GetSpeed(MOVE_RUN);
-        *data << ((Unit*)this)->GetSpeed(MOVE_RUN_BACK);
-        *data << ((Unit*)this)->GetSpeed(MOVE_SWIM);
-        *data << ((Unit*)this)->GetSpeed(MOVE_SWIM_BACK);
-        *data << ((Unit*)this)->GetSpeed(MOVE_FLIGHT);
-        *data << ((Unit*)this)->GetSpeed(MOVE_FLIGHT_BACK);
-        *data << ((Unit*)this)->GetSpeed(MOVE_TURN_RATE);
-        *data << ((Unit*)this)->GetSpeed(MOVE_PITCH_RATE);
+        *data << unit->GetSpeed(MOVE_WALK)
+              << unit->GetSpeed(MOVE_RUN)
+              << unit->GetSpeed(MOVE_RUN_BACK)
+              << unit->GetSpeed(MOVE_SWIM)
+              << unit->GetSpeed(MOVE_SWIM_BACK)
+              << unit->GetSpeed(MOVE_FLIGHT)
+              << unit->GetSpeed(MOVE_FLIGHT_BACK)
+              << unit->GetSpeed(MOVE_TURN_RATE)
+              << unit->GetSpeed(MOVE_PITCH_RATE);
 
         // 0x08000000
-        if (((Unit*)this)->m_movementInfo.GetMovementFlags() & MOVEMENTFLAG_SPLINE_ENABLED)
-            Movement::PacketBuilder::WriteCreate(*((Unit*)this)->movespline, *data);
+        if (unit->m_movementInfo.GetMovementFlags() & MOVEMENTFLAG_SPLINE_ENABLED)
+            Movement::PacketBuilder::WriteCreate(*unit->movespline, *data);
     }
     else
     {
         if (flags & UPDATEFLAG_POSITION)
         {
-            Transport* transport = ((WorldObject*)this)->GetTransport();
+            Transport* transport = object->GetTransport();
+
             if (transport)
                 data->append(transport->GetPackGUID());
             else
                 *data << uint8(0);
 
-            *data << ((WorldObject*)this)->GetPositionX();
-            *data << ((WorldObject*)this)->GetPositionY();
+            *data << object->GetPositionX();
+            *data << object->GetPositionY();
             if (isType(TYPEMASK_UNIT))
-                *data << ((Unit*)this)->GetPositionZMinusOffset();
+                *data << unit->GetPositionZMinusOffset();
             else
-                *data << ((WorldObject*)this)->GetPositionZ();
+                *data << object->GetPositionZ();
 
             if (transport)
             {
-                *data << ((WorldObject*)this)->GetTransOffsetX();
-                *data << ((WorldObject*)this)->GetTransOffsetY();
-                *data << ((WorldObject*)this)->GetTransOffsetZ();
+                *data << object->GetTransOffsetX();
+                *data << object->GetTransOffsetY();
+                *data << object->GetTransOffsetZ();
             }
             else
             {
-                *data << ((WorldObject*)this)->GetPositionX();
-                *data << ((WorldObject*)this)->GetPositionY();
+                *data << object->GetPositionX();
+                *data << object->GetPositionY();
                 if (isType(TYPEMASK_UNIT))
-                    *data << ((Unit*)this)->GetPositionZMinusOffset();
+                    *data << unit->GetPositionZMinusOffset();
                 else
-                    *data << ((WorldObject*)this)->GetPositionZ();
+                    *data << object->GetPositionZ();
             }
 
-            *data << ((WorldObject*)this)->GetOrientation();
+            *data << object->GetOrientation();
 
             if (GetTypeId() == TYPEID_CORPSE)
-                *data << float(((WorldObject*)this)->GetOrientation());
+                *data << float(object->GetOrientation());
             else
                 *data << float(0);
         }
@@ -426,13 +435,13 @@ void Object::_BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
             // 0x40
             if (flags & UPDATEFLAG_STATIONARY_POSITION)
             {
-                *data << ((WorldObject*)this)->GetPositionX();
-                *data << ((WorldObject*)this)->GetPositionY();
+                *data << object->GetPositionX();
+                *data << object->GetPositionY();
                 if (isType(TYPEMASK_UNIT))
-                    *data << ((Unit*)this)->GetPositionZMinusOffset();
+                    *data << unit->GetPositionZMinusOffset();
                 else
-                    *data << ((WorldObject*)this)->GetPositionZ();
-                *data << ((WorldObject*)this)->GetOrientation();
+                    *data << object->GetPositionZ();
+                *data << object->GetOrientation();
             }
         }
     }
@@ -476,7 +485,7 @@ void Object::_BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
     // 0x4
     if (flags & UPDATEFLAG_HAS_TARGET)
     {
-        if (Unit* victim = ((Unit*)this)->getVictim())
+        if (Unit* victim = unit->getVictim())
             data->append(victim->GetPackGUID());
         else
             *data << uint8(0);
@@ -492,67 +501,71 @@ void Object::_BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
     if (flags & UPDATEFLAG_VEHICLE)
     {
         /// @todo Allow players to aquire this updateflag.
-        *data << uint32(((Unit*)this)->GetVehicleKit()->GetVehicleInfo()->m_ID);
-        *data << float(((Creature*)this)->GetOrientation());
+        *data << uint32(unit->GetVehicleKit()->GetVehicleInfo()->m_ID);
+        *data << float(unit->GetOrientation());
     }
 
     // 0x200
     if (flags & UPDATEFLAG_ROTATION)
-    {
-        *data << int64(((GameObject*)this)->GetRotation());
-    }
+        *data << int64(ToGameObject()->GetRotation());
 }
 
-void Object::_BuildValuesUpdate(uint8 updatetype, ByteBuffer * data, UpdateMask* updateMask, Player* target) const
+void Object::_BuildValuesUpdate(uint8 updateType, ByteBuffer* data, UpdateMask* updateMask, Player* target) const
 {
     if (!target)
         return;
 
     bool IsActivateToQuest = false;
-    if (updatetype == UPDATETYPE_CREATE_OBJECT || updatetype == UPDATETYPE_CREATE_OBJECT2)
-    {
-        if (isType(TYPEMASK_GAMEOBJECT) && !((GameObject*)this)->IsDynTransport())
-        {
-            if (((GameObject*)this)->ActivateToQuest(target) || target->isGameMaster())
-                IsActivateToQuest = true;
 
-            if (((GameObject*)this)->GetGoArtKit())
+    // Before trying to convert to each type there is a check, so safe
+    Unit const* unit = ToUnit();
+    GameObject const* go = ToGameObject();
+
+    if (unit)
+    {
+        if (unit->HasFlag(UNIT_FIELD_AURASTATE, PER_CASTER_AURA_STATE_MASK))
+            updateMask->SetBit(UNIT_FIELD_AURASTATE);
+    }
+    else if (go)
+    {
+        if (updateType == UPDATETYPE_CREATE_OBJECT || updateType == UPDATETYPE_CREATE_OBJECT2)
+        {
+            if (!go->IsDynTransport())
+            {
+                if (go->ActivateToQuest(target) || target->isGameMaster())
+                    IsActivateToQuest = true;
+
+                if (go->GetGoArtKit())
+                    updateMask->SetBit(GAMEOBJECT_BYTES_1);
+            }
+        }
+        else
+        {
+            if (!go->IsTransport())
+            {
+                if (go->ActivateToQuest(target) || target->isGameMaster())
+                    IsActivateToQuest = true;
+
                 updateMask->SetBit(GAMEOBJECT_BYTES_1);
-        }
-        else if (isType(TYPEMASK_UNIT))
-        {
-            if (((Unit*)this)->HasFlag(UNIT_FIELD_AURASTATE, PER_CASTER_AURA_STATE_MASK))
-                updateMask->SetBit(UNIT_FIELD_AURASTATE);
-        }
-    }
-    else                                                    // case UPDATETYPE_VALUES
-    {
-        if (isType(TYPEMASK_GAMEOBJECT) && !((GameObject*)this)->IsTransport())
-        {
-            if (((GameObject*)this)->ActivateToQuest(target) || target->isGameMaster())
-                IsActivateToQuest = true;
 
-            updateMask->SetBit(GAMEOBJECT_BYTES_1);
-
-            if (ToGameObject()->GetGoType() == GAMEOBJECT_TYPE_CHEST && ToGameObject()->GetGOInfo()->chest.groupLootRules &&
-                ToGameObject()->HasLootRecipient())
-                updateMask->SetBit(GAMEOBJECT_FLAGS);
-        }
-        else if (isType(TYPEMASK_UNIT))
-        {
-            if (((Unit*)this)->HasFlag(UNIT_FIELD_AURASTATE, PER_CASTER_AURA_STATE_MASK))
-                updateMask->SetBit(UNIT_FIELD_AURASTATE);
+                if (go->GetGoType() == GAMEOBJECT_TYPE_CHEST && go->GetGOInfo()->chest.groupLootRules &&
+                    go->HasLootRecipient())
+                {
+                    updateMask->SetBit(GAMEOBJECT_FLAGS);
+                }
+            }
         }
     }
 
-    WPAssert(updateMask && updateMask->GetCount() == m_valuesCount);
+    ASSERT(updateMask && updateMask->GetCount() == m_valuesCount);
 
-    *data << (uint8)updateMask->GetBlockCount();
+    *data << uint8(updateMask->GetBlockCount());
     updateMask->AppendToPacket(data);
 
     // 2 specialized loops for speed optimization in non-unit case
-    if (isType(TYPEMASK_UNIT))                               // unit (creature/player) case
+    if (unit)                               // unit (creature/player) case
     {
+        Creature const* creature = ToCreature();
         for (uint16 index = 0; index < m_valuesCount; ++index)
         {
             if (updateMask->GetBit(index))
@@ -569,7 +582,7 @@ void Object::_BuildValuesUpdate(uint8 updatetype, ByteBuffer * data, UpdateMask*
 
                         if (appendValue & UNIT_NPC_FLAG_TRAINER)
                         {
-                            if (!this->ToCreature()->isCanTrainingOf(target, false))
+                            if (!creature->isCanTrainingOf(target, false))
                                 appendValue &= ~(UNIT_NPC_FLAG_TRAINER | UNIT_NPC_FLAG_TRAINER_CLASS | UNIT_NPC_FLAG_TRAINER_PROFESSION);
                         }
                     }
@@ -578,8 +591,8 @@ void Object::_BuildValuesUpdate(uint8 updatetype, ByteBuffer * data, UpdateMask*
                 }
                 else if (index == UNIT_FIELD_AURASTATE)
                 {
-                    // Check per caster aura states to not enable using a pell in client if specified aura is not by target
-                    *data << ((Unit*)this)->BuildAuraStateUpdateForTarget(target);
+                    // Check per caster aura states to not enable using a spell in client if specified aura is not by target
+                    *data << unit->BuildAuraStateUpdateForTarget(target);
                 }
                 // FIXME: Some values at server stored in float format but must be sent to client in uint32 format
                 else if (index >= UNIT_FIELD_BASEATTACKTIME && index <= UNIT_FIELD_RANGEDATTACKTIME)
@@ -608,7 +621,7 @@ void Object::_BuildValuesUpdate(uint8 updatetype, ByteBuffer * data, UpdateMask*
                 {
                     if (GetTypeId() == TYPEID_UNIT)
                     {
-                        CreatureTemplate const* cinfo = ToCreature()->GetCreatureTemplate();
+                        CreatureTemplate const* cinfo = creature->GetCreatureTemplate();
 
                         // this also applies for transform auras
                         if (SpellInfo const* transform = sSpellMgr->GetSpellInfo(ToUnit()->getTransForm()))
@@ -648,7 +661,7 @@ void Object::_BuildValuesUpdate(uint8 updatetype, ByteBuffer * data, UpdateMask*
                 {
                     uint32 dynamicFlags = m_uint32Values[index];
 
-                    if (Creature const* creature = ToCreature())
+                    if (creature)
                     {
                         if (creature->hasLootRecipient())
                         {
@@ -673,16 +686,14 @@ void Object::_BuildValuesUpdate(uint8 updatetype, ByteBuffer * data, UpdateMask*
                     }
 
                     // unit UNIT_DYNFLAG_TRACK_UNIT should only be sent to caster of SPELL_AURA_MOD_STALKED auras
-                    if (Unit const* unit = ToUnit())
-                        if (dynamicFlags & UNIT_DYNFLAG_TRACK_UNIT)
-                            if (!unit->HasAuraTypeWithCaster(SPELL_AURA_MOD_STALKED, target->GetGUID()))
-                                dynamicFlags &= ~UNIT_DYNFLAG_TRACK_UNIT;
+                    if (dynamicFlags & UNIT_DYNFLAG_TRACK_UNIT)
+                        if (!unit->HasAuraTypeWithCaster(SPELL_AURA_MOD_STALKED, target->GetGUID()))
+                            dynamicFlags &= ~UNIT_DYNFLAG_TRACK_UNIT;
                     *data << dynamicFlags;
                 }
                 // FG: pretend that OTHER players in own group are friendly ("blue")
                 else if (index == UNIT_FIELD_BYTES_2 || index == UNIT_FIELD_FACTIONTEMPLATE)
                 {
-                    Unit const* unit = ToUnit();
                     if (unit->IsControlledByPlayer() && target != this && sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_GROUP) && unit->IsInRaidWith(target))
                     {
                         FactionTemplateEntry const* ft1 = unit->getFactionTemplateEntry();
@@ -715,7 +726,7 @@ void Object::_BuildValuesUpdate(uint8 updatetype, ByteBuffer * data, UpdateMask*
             }
         }
     }
-    else if (isType(TYPEMASK_GAMEOBJECT))                    // gameobject case
+    else if (go)                    // gameobject case
     {
         for (uint16 index = 0; index < m_valuesCount; ++index)
         {
@@ -726,7 +737,7 @@ void Object::_BuildValuesUpdate(uint8 updatetype, ByteBuffer * data, UpdateMask*
                 {
                     if (IsActivateToQuest)
                     {
-                        switch (ToGameObject()->GetGoType())
+                        switch (go->GetGoType())
                         {
                             case GAMEOBJECT_TYPE_CHEST:
                                 if (target->isGameMaster())
@@ -766,8 +777,8 @@ void Object::_BuildValuesUpdate(uint8 updatetype, ByteBuffer * data, UpdateMask*
                 else if (index == GAMEOBJECT_FLAGS)
                 {
                     uint32 flags = m_uint32Values[index];
-                    if (ToGameObject()->GetGoType() == GAMEOBJECT_TYPE_CHEST)
-                        if (ToGameObject()->GetGOInfo()->chest.groupLootRules && !ToGameObject()->IsLootAllowedFor(target))
+                    if (go->GetGoType() == GAMEOBJECT_TYPE_CHEST)
+                        if (go->GetGOInfo()->chest.groupLootRules && !go->IsLootAllowedFor(target))
                             flags |= GO_FLAG_LOCKED | GO_FLAG_NOT_SELECTABLE;
 
                     *data << flags;
@@ -1294,6 +1305,14 @@ bool Object::PrintIndexError(uint32 index, bool set) const
     return false;
 }
 
+bool Position::operator==(Position const &a)
+{
+    return (G3D::fuzzyEq(a.m_positionX, m_positionX) &&
+            G3D::fuzzyEq(a.m_positionY, m_positionY) &&
+            G3D::fuzzyEq(a.m_positionZ, m_positionZ) &&
+            G3D::fuzzyEq(a.m_orientation, m_orientation));
+}
+
 bool Position::HasInLine(WorldObject const* target, float width) const
 {
     if (!HasInArc(M_PI, target))
@@ -1703,7 +1722,7 @@ void Position::RelocateOffset(const Position & offset)
     m_positionX = GetPositionX() + (offset.GetPositionX() * std::cos(GetOrientation()) + offset.GetPositionY() * std::sin(GetOrientation() + M_PI));
     m_positionY = GetPositionY() + (offset.GetPositionY() * std::cos(GetOrientation()) + offset.GetPositionX() * std::sin(GetOrientation()));
     m_positionZ = GetPositionZ() + offset.GetPositionZ();
-    m_orientation = GetOrientation() + offset.GetOrientation();
+    SetOrientation(GetOrientation() + offset.GetOrientation());
 }
 
 void Position::GetPositionOffsetTo(const Position & endPos, Position & retOffset) const
@@ -1714,7 +1733,7 @@ void Position::GetPositionOffsetTo(const Position & endPos, Position & retOffset
     retOffset.m_positionX = dx * std::cos(GetOrientation()) + dy * std::sin(GetOrientation());
     retOffset.m_positionY = dy * std::cos(GetOrientation()) - dx * std::sin(GetOrientation());
     retOffset.m_positionZ = endPos.GetPositionZ() - GetPositionZ();
-    retOffset.m_orientation = endPos.GetOrientation() - GetOrientation();
+    retOffset.SetOrientation(endPos.GetOrientation() - GetOrientation());
 }
 
 float Position::GetAngle(const Position* obj) const
@@ -1755,25 +1774,25 @@ void Position::GetSinCos(const float x, const float y, float &vsin, float &vcos)
     }
 }
 
-bool Position::HasInArc(float arc, const Position* obj) const
+bool Position::HasInArc(float arc, const Position* obj, float border) const
 {
     // always have self in arc
     if (obj == this)
         return true;
 
     // move arc to range 0.. 2*pi
-    arc = MapManager::NormalizeOrientation(arc);
+    arc = NormalizeOrientation(arc);
 
     float angle = GetAngle(obj);
     angle -= m_orientation;
 
     // move angle to range -pi ... +pi
-    angle = MapManager::NormalizeOrientation(angle);
+    angle = NormalizeOrientation(angle);
     if (angle > M_PI)
         angle -= 2.0f*M_PI;
 
-    float lborder = -1 * (arc/2.0f);                        // in range -pi..0
-    float rborder = (arc/2.0f);                             // in range 0..pi
+    float lborder = -1 * (arc/border);                        // in range -pi..0
+    float rborder = (arc/border);                             // in range 0..pi
     return ((angle >= lborder) && (angle <= rborder));
 }
 
@@ -2037,7 +2056,7 @@ bool WorldObject::CanDetect(WorldObject const* obj, bool ignoreStealth) const
     const WorldObject* seer = this;
 
     // Pets don't have detection, they use the detection of their masters
-    if (const Unit* thisUnit = ToUnit())
+    if (Unit const* thisUnit = ToUnit())
         if (Unit* controller = thisUnit->GetCharmerOrOwner())
             seer = controller;
 
@@ -2096,8 +2115,9 @@ bool WorldObject::CanDetectStealthOf(WorldObject const* obj) const
     float distance = GetExactDist(obj);
     float combatReach = 0.0f;
 
-    if (isType(TYPEMASK_UNIT))
-        combatReach = ((Unit*)this)->GetCombatReach();
+    Unit const* unit = ToUnit();
+    if (unit)
+        combatReach = unit->GetCombatReach();
 
     if (distance < combatReach)
         return true;
@@ -2105,14 +2125,14 @@ bool WorldObject::CanDetectStealthOf(WorldObject const* obj) const
     if (!HasInArc(M_PI, obj))
         return false;
 
+    GameObject const* go = ToGameObject();
     for (uint32 i = 0; i < TOTAL_STEALTH_TYPES; ++i)
     {
         if (!(obj->m_stealth.GetFlags() & (1 << i)))
             continue;
 
-        if (isType(TYPEMASK_UNIT))
-            if (((Unit*)this)->HasAuraTypeWithMiscvalue(SPELL_AURA_DETECT_STEALTH, i))
-                return true;
+        if (unit && unit->HasAuraTypeWithMiscvalue(SPELL_AURA_DETECT_STEALTH, i))
+            return true;
 
         // Starting points
         int32 detectionValue = 30;
@@ -2124,8 +2144,8 @@ bool WorldObject::CanDetectStealthOf(WorldObject const* obj) const
 
         // Apply modifiers
         detectionValue += m_stealthDetect.GetValue(StealthType(i));
-        if (obj->isType(TYPEMASK_GAMEOBJECT))
-            if (Unit* owner = ((GameObject*)obj)->GetOwner())
+        if (go)
+            if (Unit* owner = go->GetOwner())
                 detectionValue -= int32(owner->getLevelForTarget(this) - 1) * 5;
 
         detectionValue -= obj->m_stealth.GetValue(StealthType(i));
@@ -2955,7 +2975,7 @@ float WorldObject::GetObjectSize() const
 
 void WorldObject::MovePosition(Position &pos, float dist, float angle)
 {
-    angle += m_orientation;
+    angle += GetOrientation();
     float destx, desty, destz, ground, floor;
     destx = pos.m_positionX + dist * std::cos(angle);
     desty = pos.m_positionY + dist * std::sin(angle);
@@ -3000,7 +3020,7 @@ void WorldObject::MovePosition(Position &pos, float dist, float angle)
 
 void WorldObject::MovePositionToFirstCollision(Position &pos, float dist, float angle)
 {
-    angle += m_orientation;
+    angle += GetOrientation();
     float destx, desty, destz, ground, floor;
     pos.m_positionZ += 2.0f;
     destx = pos.m_positionX + dist * std::cos(angle);
@@ -3063,7 +3083,7 @@ void WorldObject::MovePositionToFirstCollision(Position &pos, float dist, float 
     Trinity::NormalizeMapCoord(pos.m_positionX);
     Trinity::NormalizeMapCoord(pos.m_positionY);
     UpdateAllowedPositionZ(pos.m_positionX, pos.m_positionY, pos.m_positionZ);
-    pos.m_orientation = m_orientation;
+    pos.SetOrientation(GetOrientation());
 }
 
 void WorldObject::SetPhaseMask(uint32 newPhaseMask, bool update)
