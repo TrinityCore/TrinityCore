@@ -861,17 +861,16 @@ ByteBuffer& operator<<(ByteBuffer& b, LootView const& lv)
 {
     if (lv.permission == NONE_PERMISSION)
     {
-        b << uint32(0);                                     //gold
+        b << uint32(0);                                     // gold
         b << uint8(0);                                      // item count
-        return b;                                           // nothing output more
+        return b;
     }
 
     Loot &l = lv.loot;
 
     uint8 itemsShown = 0;
 
-    //gold
-    b << uint32(l.gold);
+    b << uint32(l.gold);                                    //gold
 
     size_t count_pos = b.wpos();                            // pos of item count byte
     b << uint8(0);                                          // item count placeholder
@@ -954,7 +953,7 @@ ByteBuffer& operator<<(ByteBuffer& b, LootView const& lv)
             break;
         }
         default:
-            return b;                                       // nothing output more
+            return b;
     }
 
     LootSlotType slotType = lv.permission == OWNER_PERMISSION ? LOOT_SLOT_TYPE_OWNER : LOOT_SLOT_TYPE_ALLOW_LOOT;
@@ -1226,15 +1225,11 @@ void LootTemplate::LootGroup::CheckLootRefs(LootTemplateMap const& /*store*/, Lo
 
 LootTemplate::~LootTemplate()
 {
-    while (!Entries.empty())
-    {
-        delete Entries.back();
-        Entries.pop_back();
-    }
+    for (LootStoreItemList::iterator i = Entries.begin(); i != Entries.end(); ++i)
+        delete *i;
 
     for (size_t i = 0; i < Groups.size(); ++i)
         delete Groups[i];
-    Groups.clear();
 }
 
 // Adds an entry to the group (at loading stage)
