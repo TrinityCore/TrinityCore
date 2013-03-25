@@ -306,7 +306,7 @@ public:
             {
                 summoned->SetSpeed(MOVE_RUN, 0.3f);
                 summoned->GetMotionMaster()->MoveFollow(me, 0, 0);
-                m_waterElements.push_back(summoned->GetGUID());
+                m_waterElements.Summon(summoned);
                 instance->SetData64(DATA_ADD_TRASH_MOB, summoned->GetGUID());
             }
         }
@@ -315,7 +315,7 @@ public:
         {
             if (summoned)
             {
-                m_waterElements.remove(summoned->GetGUID());
+                m_waterElements.Despawn(summoned);
                 instance->SetData64(DATA_DEL_TRASH_MOB, summoned->GetGUID());
             }
         }
