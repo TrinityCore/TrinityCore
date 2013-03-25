@@ -28,15 +28,8 @@
 #include "AccountMgr.h"
 #include "WorldSession.h"
 
-PlayerSocial::PlayerSocial()
-{
-    m_playerGUID = 0;
-}
-
-PlayerSocial::~PlayerSocial()
-{
-    m_playerSocialMap.clear();
-}
+PlayerSocial::PlayerSocial(): m_playerGUID()
+{ }
 
 uint32 PlayerSocial::GetNumberOfSocialsWithFlag(SocialFlag flag)
 {

@@ -51,14 +51,13 @@ InstanceSaveManager::~InstanceSaveManager()
             ++next;
             (*itr2)->UnbindInstance(save->GetMapId(), save->GetDifficulty(), true);
         }
-        save->m_playerList.clear();
 
         for (InstanceSave::GroupListType::iterator itr2 = save->m_groupList.begin(), next = itr2; itr2 != save->m_groupList.end(); itr2 = next)
         {
             ++next;
             (*itr2)->UnbindInstance(save->GetMapId(), save->GetDifficulty(), true);
         }
-        save->m_groupList.clear();
+
         delete save;
     }
 }

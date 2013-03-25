@@ -23,7 +23,6 @@
 #include "SpellInfo.h"
 #include "Unit.h"
 
-class Unit;
 class SpellInfo;
 struct SpellModifier;
 struct ProcTriggerSpell;
@@ -153,7 +152,15 @@ class Aura
         bool IsArea() const;
         bool IsPassive() const;
         bool IsDeathPersistent() const;
-        bool IsRemovedOnShapeLost(Unit* target) const { return (GetCasterGUID() == target->GetGUID() && m_spellInfo->Stances && !(m_spellInfo->AttributesEx2 & SPELL_ATTR2_NOT_NEED_SHAPESHIFT) && !(m_spellInfo->Attributes & SPELL_ATTR0_NOT_SHAPESHIFT)); }
+
+        bool IsRemovedOnShapeLost(Unit* target) const
+        {
+            return GetCasterGUID() == target->GetGUID()
+                    && m_spellInfo->Stances
+                    && !(m_spellInfo->AttributesEx2 & SPELL_ATTR2_NOT_NEED_SHAPESHIFT)
+                    && !(m_spellInfo->Attributes & SPELL_ATTR0_NOT_SHAPESHIFT);
+        }
+
         bool CanBeSaved() const;
         bool IsRemoved() const { return m_isRemoved; }
         bool CanBeSentToClient() const;
@@ -175,7 +182,7 @@ class Aura
 
         // Helpers for targets
         ApplicationMap const & GetApplicationMap() {return m_applications;}
-        void GetApplicationList(std::list<AuraApplication*> & applicationList) const;
+        void GetApplicationList(Unit::AuraApplicationList& applicationList) const;
         const AuraApplication * GetApplicationOfTarget (uint64 guid) const { ApplicationMap::const_iterator itr = m_applications.find(guid); if (itr != m_applications.end()) return itr->second; return NULL; }
         AuraApplication * GetApplicationOfTarget (uint64 guid) { ApplicationMap::iterator itr = m_applications.find(guid); if (itr != m_applications.end()) return itr->second; return NULL; }
         bool IsAppliedOnTarget(uint64 guid) const { return m_applications.find(guid) != m_applications.end(); }

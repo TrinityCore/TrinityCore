@@ -1097,7 +1097,7 @@ AccountInstancesPerHour = 5
 #   RBAC.DefaultGroups
 #        Description: Comma separated list of groups to be added to any account
 #                     Check auth.rbac_groups for correct ids
-#         Default:    "" (No group)
+#        Default:     "" (No group)
 
 RBAC.DefaultGroups = ""
 
@@ -2680,6 +2680,7 @@ Appenders=Console Server GM DBErrors Char RA Warden Chat
 #                        41 - Opcodes (just id and name sent / received)
 #                        42 - SOAP
 #                        43 - RBAC (Role Based Access Control)
+#                        44 - Cheat (used to log cheat attempts)
 #
 #                     LogLevel
 #                         0 - (Disabled)

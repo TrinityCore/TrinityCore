@@ -19,6 +19,7 @@
 #define DB2STORE_H
 
 #include "DB2FileLoader.h"
+#include "Common.h"
 #include "ByteBuffer.h"
 #include <vector>
 
