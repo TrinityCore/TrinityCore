@@ -218,6 +218,8 @@ char const* Appender::getLogFilterTypeString(LogFilterType type)
             return "SOAP";
         case LOG_FILTER_RBAC:
             return "RBAC";
+        case LOG_FILTER_CHEAT:
+            return "CHEAT";
         default:
             break;
     }

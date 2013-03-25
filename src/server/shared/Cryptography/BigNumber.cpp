@@ -24,18 +24,15 @@
 #include <algorithm>
 
 BigNumber::BigNumber()
-    : _bn(BN_new())
-    , _array(NULL)
+    : _bn(BN_new()), _array(NULL)
 { }
 
 BigNumber::BigNumber(BigNumber const& bn)
-    : _bn(BN_dup(bn._bn))
-    , _array(NULL)
+    : _bn(BN_dup(bn._bn)), _array(NULL)
 { }
 
 BigNumber::BigNumber(uint32 val)
-    : _bn(BN_new())
-    , _array(NULL)
+    : _bn(BN_new()), _array(NULL)
 {
     BN_set_word(_bn, val);
 }

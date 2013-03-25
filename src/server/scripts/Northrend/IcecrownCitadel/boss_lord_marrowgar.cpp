@@ -19,7 +19,6 @@
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "SpellAuras.h"
-#include "MapManager.h"
 #include "MoveSplineInit.h"
 #include "Player.h"
 #include "icecrown_citadel.h"

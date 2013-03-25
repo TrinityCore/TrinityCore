@@ -1230,15 +1230,11 @@ void LootTemplate::LootGroup::CheckLootRefs(LootTemplateMap const& /*store*/, Lo
 
 LootTemplate::~LootTemplate()
 {
-    while (!Entries.empty())
-    {
-        delete Entries.back();
-        Entries.pop_back();
-    }
+    for (LootStoreItemList::iterator i = Entries.begin(); i != Entries.end(); ++i)
+        delete *i;
 
     for (size_t i = 0; i < Groups.size(); ++i)
         delete Groups[i];
-    Groups.clear();
 }
 
 // Adds an entry to the group (at loading stage)

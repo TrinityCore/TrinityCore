@@ -20,6 +20,8 @@
 #define __UPDATEDATA_H
 
 #include "ByteBuffer.h"
+#include <set>
+
 class WorldPacket;
 
 enum OBJECT_UPDATE_TYPE
