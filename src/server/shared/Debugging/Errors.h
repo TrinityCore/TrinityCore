@@ -19,15 +19,23 @@
 #ifndef TRINITYCORE_ERRORS_H
 #define TRINITYCORE_ERRORS_H
 
-#include "Common.h"
-#include "Log.h"
-#include <ace/Stack_Trace.h>
-#include <ace/OS_NS_unistd.h>
+namespace Trinity {
 
-#define WPAssert(assertion) { if (!(assertion)) { ACE_Stack_Trace st; fprintf(stderr, "\n%s:%i in %s ASSERTION FAILED:\n  %s\n%s\n", __FILE__, __LINE__, __FUNCTION__, #assertion, st.c_str()); *((volatile int*)NULL) = 0; } }
-#define WPError(assertion, errmsg) { if (!(assertion)) { sLog->outError(LOG_FILTER_GENERAL, "%\n%s:%i in %s ERROR:\n  %s\n", __FILE__, __LINE__, __FUNCTION__, (char *)errmsg); *((volatile int*)NULL) = 0; } }
-#define WPWarning(assertion, errmsg) { if (!(assertion)) { sLog->outError(LOG_FILTER_GENERAL, "\n%s:%i in %s WARNING:\n  %s\n", __FILE__, __LINE__, __FUNCTION__, (char *)errmsg); } }
-#define WPFatal(assertion, errmsg) { if (!(assertion)) { sLog->outError(LOG_FILTER_GENERAL, "\n%s:%i in %s FATAL ERROR:\n  %s\n", __FILE__, __LINE__, __FUNCTION__, (char *)errmsg); ACE_OS::sleep(10); *((volatile int*)NULL) = 0; } }
+void Assert(char const *file, int line, char const *function, char const *message);
+
+void Fatal(char const *file, int line, char const *function, char const *message);
+
+void Error(char const *file, int line, char const *function, char const *message);
+
+void Warning(char const *file, int line, char const *function, char const *message);
+
+} // namespace Trinity
+
+#define WPAssert(cond) do { if (!(cond)) Trinity::Assert(__FILE__, __LINE__, __FUNCTION__, #cond); } while(0)
+#define WPFatal(cond, msg) do { if (!(cond)) Trinity::Fatal(__FILE__, __LINE__, __FUNCTION__, (msg)); } while(0)
+#define WPError(cond, msg) do { if (!(cond)) Trinity::Error(__FILE__, __LINE__, __FUNCTION__, (msg)); } while(0)
+#define WPWarning(cond, msg) do { if (!(cond)) Trinity::Warning(__FILE__, __LINE__, __FUNCTION__, (msg)); } while(0)
 
 #define ASSERT WPAssert
+
 #endif
