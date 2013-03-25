@@ -202,9 +202,9 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto,
         }
         case SPELLFAMILY_SHAMAN:
         {
-            // Earthgrab
-            if (spellproto->SpellFamilyFlags[2] & 0x00004000)
-                return DIMINISHING_NONE;
+            // Storm, Earth and Fire - Earthgrab
+            if (spellproto->SpellFamilyFlags[2] & 0x4000)
+                return DIMINISHING_LIMITONLY;
             break;
         }
         default:

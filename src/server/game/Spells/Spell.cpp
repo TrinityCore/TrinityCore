@@ -6736,6 +6736,14 @@ bool Spell::CheckEffectTarget(Unit const* target, uint32 eff) const
 {
     switch (m_spellInfo->Effects[eff].ApplyAuraName)
     {
+        // Heroism over LOS
+        if (m_spellInfo->Id == 32182) 
+            return true;
+
+        // Bloodlust over LOS
+        if (m_spellInfo->Id == 2825) 
+            return true;
+
         case SPELL_AURA_MOD_POSSESS:
         case SPELL_AURA_MOD_CHARM:
         case SPELL_AURA_MOD_POSSESS_PET:

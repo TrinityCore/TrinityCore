@@ -559,11 +559,9 @@ class boss_sindragosa : public CreatureScript
                             me->GetMotionMaster()->MovePoint(POINT_AIR_PHASE_FAR, SindragosaAirPosFar);
                             break;
                         case EVENT_ICE_TOMB:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true, -SPELL_ICE_TOMB_DAMAGE))
-                            {
-                                Talk(EMOTE_WARN_FROZEN_ORB, target->GetGUID());
-                                DoCast(target, SPELL_ICE_TOMB_DUMMY, true);
-                            }
+                            Talk(EMOTE_WARN_FROZEN_ORB);
+                            me->CastCustomSpell(SPELL_ICE_TOMB_TARGET, SPELLVALUE_MAX_TARGETS, RAID_MODE<int32>(1, 1, 1, 1), false);
+                            me->SetFacingTo(float(2*M_PI)); // Fix by Diton
 
                             _iceTombCounter++;
                             if (_iceTombCounter < 4) // Avoid casting ice tomb more than 4 times between icy grips
@@ -1447,7 +1445,7 @@ class spell_sindragosa_ice_tomb : public SpellScriptLoader
                 float distance = caster->GetExactDist2d(unit) - 6.0f;
                 float summonX = caster->GetPositionX() + cos(angle) * distance;
                 float summonY = caster->GetPositionY() + sin(angle) * distance;
-                float summonZ = unit->GetPositionZ() + 3.0f;
+                float summonZ = unit->GetPositionZ() + 1.0f;
 
                 unit->UpdateGroundPositionZ(summonX, summonY, summonZ);
 
