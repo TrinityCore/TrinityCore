@@ -104,7 +104,6 @@ class Creature;
 class CreatureAI;
 class DynamicObject;
 class GameObject;
-class Map;
 class InstanceScript;
 class Player;
 class TempSummon;
