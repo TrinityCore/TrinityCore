@@ -560,7 +560,7 @@ class boss_sindragosa : public CreatureScript
                             break;
                         case EVENT_ICE_TOMB:
                             Talk(EMOTE_WARN_FROZEN_ORB);
-                            me->CastCustomSpell(SPELL_ICE_TOMB_TARGET, SPELLVALUE_MAX_TARGETS, RAID_MODE<int32>(1, 1, 1, 1), false);
+                            me->CastCustomSpell(SPELL_ICE_TOMB_TARGET, SPELLVALUE_MAX_TARGETS, RAID_MODE<int32>(1, 1, 1, 1), NULL);
                             me->SetFacingTo(float(2*M_PI)); // Fix by Diton
 
                             _iceTombCounter++;
