@@ -657,7 +657,7 @@ class boss_freya : public CreatureScript
                                     {
                                         for (uint8 n = 0; n < 3; ++n)
                                         {
-                                            summons.remove(Elemental[n][i]->GetGUID());
+                                            summons.Despawn(Elemental[n][i]);
                                             Elemental[n][i]->DespawnOrUnsummon(5*IN_MILLISECONDS);
                                             _trioDefeated[i] = true; // Stack-decrease spell is automatically performed through SummonedCreatureDespawn
                                         }

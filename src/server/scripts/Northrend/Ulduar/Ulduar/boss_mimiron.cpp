@@ -886,7 +886,7 @@ class boss_leviathan_mk : public CreatureScript
                 _events.SetPhase(_phase);
                 _gotMimironHardMode = false;
 
-                if (Creature* turret = CAST_CRE(me->GetVehicleKit()->GetPassenger(3)))
+                if (Creature* turret = me->GetVehicleKit()->GetPassenger(3)->ToCreature())
                 {
                     turret->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_ATTACKABLE_1);
                     turret->SetReactState(REACT_PASSIVE);
@@ -938,7 +938,7 @@ class boss_leviathan_mk : public CreatureScript
                             me->SetHealth(me->GetMaxHealth());
                             if (Creature* Mimiron = ObjectAccessor::GetCreature(*me, _instance->GetData64(BOSS_MIMIRON)))
                                 Mimiron->AI()->DoAction(DO_ACTIVATE_VX001);
-                            if (Creature* turret = CAST_CRE(me->GetVehicleKit()->GetPassenger(3)))
+                            if (Creature* turret = me->GetVehicleKit()->GetPassenger(3)->ToCreature())
                                 turret->Kill(turret, false);
                             me->SetSpeed(MOVE_RUN, 1.5f, true);
                             me->GetMotionMaster()->MovePoint(0, 2790.11f, 2595.83f, 364.32f);
@@ -963,7 +963,7 @@ class boss_leviathan_mk : public CreatureScript
                 if (Creature* Mimiron = ObjectAccessor::GetCreature(*me, _instance ? _instance->GetData64(BOSS_MIMIRON) : 0))
                     _gotMimironHardMode = Mimiron->AI()->GetData(DATA_GET_HARD_MODE);
             
-                if (Creature* turret = CAST_CRE(me->GetVehicleKit()->GetPassenger(3)))
+                if (Creature* turret = me->GetVehicleKit()->GetPassenger(3)->ToCreature())
                 {
                     turret->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_ATTACKABLE_1);
                     turret->SetReactState(REACT_AGGRESSIVE);

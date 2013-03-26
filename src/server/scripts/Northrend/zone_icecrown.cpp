@@ -315,7 +315,10 @@ public:
                 if (me->GetEntry() == NPC_ARGENT_VALIANT)
                     pDoneBy->CastSpell(pDoneBy, NPC_ARGENT_VALIANT_CREDIT, true);
                 if (me->GetEntry() == NPC_ARGENT_CHAMPION)
-                    CAST_PLR(pDoneBy)->KilledMonsterCredit(NPC_ARGENT_CHAMPION_CREDIT, 0);
+                {
+                    if (Player* player = pDoneBy->ToPlayer())
+                        player->KilledMonsterCredit(NPC_ARGENT_CHAMPION_CREDIT, 0);
+                }
                 me->setFaction(35);
                 me->DespawnOrUnsummon(5000);
                 me->SetHomePosition(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation());

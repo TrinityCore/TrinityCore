@@ -359,7 +359,7 @@ class npc_big_ooze : public CreatureScript
                     {
                         case EVENT_STICKY_OOZE:
                             // Set Rotface to original caster for this, no effect of sticky ooze will be triggered if ooze gets despawned
-                            me->CastSpell(me->getVictim(), SPELL_STICKY_OOZE, false, 0, 0, instance->GetData64(DATA_ROTFACE));
+                            me->CastSpell(me->getVictim(), SPELL_STICKY_OOZE, false, 0, 0, _instance->GetData64(DATA_ROTFACE));
                             _events.ScheduleEvent(EVENT_STICKY_OOZE, 15*IN_MILLISECONDS);
                         default:
                             break;
