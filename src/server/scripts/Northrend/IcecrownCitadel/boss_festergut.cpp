@@ -123,16 +123,22 @@ class boss_festergut : public CreatureScript
                 if (Creature* gasDummy = me->FindNearestCreature(NPC_GAS_DUMMY, 100.0f, true))
                     _gasDummyGUID = gasDummy->GetGUID();
                 if (Creature* professor = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_PROFESSOR_PUTRICIDE)))
-                    professor->AI()->DoAction(ACTION_FESTERGUT_COMBAT);
+                    if (professor->isAlive())
+                        professor->AI()->DoAction(ACTION_FESTERGUT_COMBAT);
                 DoZoneInCombat();
             }
 
             void JustDied(Unit* /*killer*/)
             {
+                // Remove Gastric Bloat on all players
+                if (instance)
+                    instance->DoRemoveAurasDueToSpellOnPlayers(RAID_MODE(72219, 72551, 72552, 72553));
+
                 _JustDied();
                 Talk(SAY_DEATH);
                 if (Creature* professor = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_PROFESSOR_PUTRICIDE)))
-                    professor->AI()->DoAction(ACTION_FESTERGUT_DEATH);
+                    if (professor->isAlive())
+                        professor->AI()->DoAction(ACTION_FESTERGUT_DEATH);
 
                 RemoveBlight();
             }
@@ -186,7 +192,8 @@ class boss_festergut : public CreatureScript
                                 DoCast(me, SPELL_PUNGENT_BLIGHT);
                                 _inhaleCounter = 0;
                                 if (Creature* professor = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_PROFESSOR_PUTRICIDE)))
-                                    professor->AI()->DoAction(ACTION_FESTERGUT_GAS);
+                                    if (professor->isAlive())
+                                        professor->AI()->DoAction(ACTION_FESTERGUT_GAS);
                                 events.RescheduleEvent(EVENT_GAS_SPORE, urand(20*IN_MILLISECONDS, 25*IN_MILLISECONDS));
                             }
                             else
