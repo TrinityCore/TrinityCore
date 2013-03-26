@@ -83,6 +83,10 @@ add_library(collision STATIC
   ${collision_STAT_PCH_SRC}
 )
 
+target_link_libraries(collision
+  shared
+)
+
 # Generate precompiled header
 if (USE_COREPCH)
   add_cxx_pch(collision ${collision_STAT_PCH_HDR} ${collision_STAT_PCH_SRC})
