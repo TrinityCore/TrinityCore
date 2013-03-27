@@ -127,7 +127,6 @@ ElunaRegister<Unit> UnitMethods[] =
     {"IsTaxiCheater", &LuaUnit::isTaxiCheater},                     // :IsTaxiCheater() -- Returns true if the player has taxi cheat on. UNDOCUMENTED
     {"IsGMVisible", &LuaUnit::isGMVisible},                         // :IsGMVisible() -- Returns true if the player is GM visible. UNDOCUMENTED
     {"IsActiveQuest", &LuaUnit::IsActiveQuest},                     // :IsActiveQuest(entry) -- Returns true if the quest entry is active for the player. UNDOCUMENTED
-    {"CanFly", &LuaUnit::CanFly},                                   // :CanFly() -- Returns true if the player can fly. UNDOCUMENTED
     {"InBattlegroundQueue", &LuaUnit::InBattlegroundQueue},         // :InBattlegroundQueue() -- Returns true if the player is in a battleground queue. UNDOCUMENTED
     {"IsImmuneToEnvironmentalDamage", &LuaUnit::IsImmuneToEnvironmentalDamage}, // :IsImmuneToEnvironmentalDamage() -- Returns true if the player is immune to enviromental damage. UNDOCUMENTED
     {"CanSpeak", &LuaUnit::CanSpeak},                               // :CanSpeak() -- Returns true if the player can speak. UNDOCUMENTED
@@ -146,7 +145,6 @@ ElunaRegister<Unit> UnitMethods[] =
     {"CanShareQuest", &LuaUnit::CanShareQuest},                     // :CanShareQuest(entry) -- Returns true if the quest entry is shareable by the player. UNDOCUMENTED
     {"IsQuestRewarded", &LuaUnit::IsQuestRewarded},                 // :IsQuestRewarded(entry) -- Returns true if the player has recieved the quest's reward. UNDOCUMENTED
     {"HasTalent", &LuaUnit::HasTalent},                             // :HasTalent(spellid, spec) -- Returns true if the player has the talent spell in given spec. UNDOCUMENTED
-    {"HasSpellCooldown", &LuaUnit::HasSpellCooldown},               // :HasSpellCooldown(spellId) -- Returns true if the spell is on cooldown. UNDOCUMENTED
     {"IsInSameGroupWith", &LuaUnit::IsInSameGroupWith},             // :IsInSameGroupWith(player) -- Returns true if the players are in the same group. UNDOCUMENTED
     {"IsInSameRaidWith", &LuaUnit::IsInSameRaidWith},               // :IsInSameRaidWith(player) -- Returns true if the players are in the same raid. UNDOCUMENTED
     {"IsGroupVisibleFor", &LuaUnit::IsGroupVisibleFor},             // :IsGroupVisibleFor(player) -- Player is group visible for the target. UNDOCUMENTED
@@ -207,7 +205,6 @@ ElunaRegister<Unit> UnitMethods[] =
     {"KilledPlayerCredit", &LuaUnit::KilledPlayerCredit},           // :KilledPlayerCredit() -- Satisfies a player kill for the player. UNDOCUMENTED
     {"CastedCreatureOrGO", &LuaUnit::CastedCreatureOrGO},           // :CastedCreatureOrGO(creatureOrGOEntry, creatureOrGO, spellId) -- Satisfies a spellcast on unit for the player. UNDOCUMENTED
     {"TalkedToCreature", &LuaUnit::TalkedToCreature},               // :TalkedToCreature(npcEntry, creature) -- Satisfies creature talk objective for the player. UNDOCUMENTED
-    {"SaveToDB", &LuaUnit::SaveToDB},                               // :SaveToDB() -- Saves the player to database. UNDOCUMENTED
     {"ResetPetTalents", &LuaUnit::ResetPetTalents},                 // :ResetPetTalents() -- Resets player's pet's talents. UNDOCUMENTED
     {"RegenerateAll", &LuaUnit::RegenerateAll},                     // :RegenerateAll() -- Regenerates all player's powers. UNDOCUMENTED
     {"Regenerate", &LuaUnit::Regenerate},                           // :Regenerate(powerType) -- Regenerates the given power type. UNDOCUMENTED
@@ -258,16 +255,69 @@ ElunaRegister<Unit> UnitMethods[] =
     {"GetNearestTarget", &LuaUnit::GetNearestTarget},               // :GetNearestTarget([radius]) - Returns nearest target in sight or given radius. UNDOCUMENTED
     {"GetNearestPlayer", &LuaUnit::GetNearestPlayer},               // :GetNearestPlayer([radius]) - Returns nearest player in sight or given radius. UNDOCUMENTED
     {"GetNearestHostileTargetInAggroRange", &LuaUnit::GetNearestHostileUnitInAggroRange}, // :GetNearestHostileTargetInAggroRange([checkLOS]) - Returns closest hostile target in aggro range of the creature. UNDOCUMENTED
+    {"GetHomePosition", &LuaUnit::GetHomePosition},                 // :GetHomePosition() - Returns x,y,z,o of spawn position. UNDOCUMENTED
+    {"GetTransportHomePosition", &LuaUnit::GetTransportHomePosition},   // :GetTransportHomePosition() - Returns x,y,z,o of transport spawn position. UNDOCUMENTED
+    {"GetCorpseDelay", &LuaUnit::GetCorpseDelay},                   // :GetCorpseDelay() - Returns corpse delay. UNDOCUMENTED
+    {"GetCreatureSpellCooldownDelay", &LuaUnit::GetCreatureSpellCooldownDelay}, // :GetCreatureSpellCooldownDelay(spellId) - Returns spell cooldown delay. UNDOCUMENTED
+    {"GetScriptId", &LuaUnit::GetScriptId},                         // :GetScriptId() - Returns creature's script ID. UNDOCUMENTED
+    {"GetAIName", &LuaUnit::GetAIName},                             // :GetAIName() - Returns creature's AI name. UNDOCUMENTED
+    {"GetScriptName", &LuaUnit::GetScriptName},                     // :GetScriptName() - Returns creature's script name. UNDOCUMENTED
+    {"GetReactState", &LuaUnit::GetReactState},                     // :GetReactState() - Returns creature's react state. UNDOCUMENTED
+    {"GetAttackDistance", &LuaUnit::GetAttackDistance},             // :GetAttackDistance(unit) - Returns attack distance to unit. UNDOCUMENTED
+    {"GetAggroRange", &LuaUnit::GetAggroRange},                     // :GetAggroRange(unit) - Returns aggro distance to unit. UNDOCUMENTED
+    {"GetDefaultMovementType", &LuaUnit::GetDefaultMovementType},   // :GetDefaultMovementType() - Returns default movement type. UNDOCUMENTED
+    {"GetRespawnDelay", &LuaUnit::GetRespawnDelay},                 // :GetRespawnDelay() - Returns respawn delay. UNDOCUMENTED
+    {"GetRespawnRadius", &LuaUnit::GetRespawnRadius},               // :GetRespawnRadius() - Returns respawn radius. UNDOCUMENTED
+    {"GetWaypointPath", &LuaUnit::GetWaypointPath},                 // :GetWaypointPath() - Returns waypoint path ID. UNDOCUMENTED
+    {"GetCurrentWaypointID", &LuaUnit::GetCurrentWaypointID},       // :GetCurrentWaypointID() - Returns waypoint ID. UNDOCUMENTED
+
+    // Setters
+    {"SetHover", &LuaUnit::SetHover},                               // :SetHover([enable]) -- Sets hover on or off. UNDOCUMENTED
+    {"SetDisableGravity", &LuaUnit::SetDisableGravity},             // :SetDisableGravity(disable[, packetOnly]) -- Disables or enables gravity. UNDOCUMENTED
+    {"SetReactState", &LuaUnit::SetReactState},                     // :SetReactState(state) -- Sets react state. UNDOCUMENTED
+    {"SetDeathState", &LuaUnit::setDeathState},                     // :SetDeathState(state) -- Sets death state. UNDOCUMENTED
+    {"SetNoCallAssistance", &LuaUnit::SetNoCallAssistance},         // :SetNoCallAssistance([noCall]) -- Sets call assistance to false or true. UNDOCUMENTED
+    {"SetNoSearchAssistance", &LuaUnit::SetNoSearchAssistance},     // :SetNoSearchAssistance([noSearch]) -- Sets assistance searhing to false or true. UNDOCUMENTED
+    {"SetDefaultMovementType", &LuaUnit::SetDefaultMovementType},   // :SetDefaultMovementType(type) -- Sets default movement type. UNDOCUMENTED
+    {"SetRespawnDelay", &LuaUnit::SetRespawnDelay},                 // :SetRespawnDelay(delay) -- Sets the respawn delay. UNDOCUMENTED
+    {"SetRespawnRadius", &LuaUnit::SetRespawnRadius},               // :SetRespawnRadius(dist) -- Sets the respawn radius. UNDOCUMENTED
+    {"SetInCombatWithZone", &LuaUnit::SetInCombatWithZone},         // :SetInCombatWithZone() -- Sets the creature in combat with everyone in zone. UNDOCUMENTED
+    {"SetDisableReputationGain", &LuaUnit::SetDisableReputationGain},   // :SetDisableReputationGain(disable) -- Disables or enables reputation gain from creature. UNDOCUMENTED
 
     // Booleans
     {"IsWorldBoss", &LuaUnit::IsWorldBoss},                         // :IsWorldBoss() -- Returns true if the creature is a WorldBoss, false if not.
     {"IsDungeonBoss", &LuaUnit::IsDungeonBoss},                     // :IsDungeonBoss() -- Returns true if the creature is a DungeonBoss, false if not.
+    {"IsRacialLeader", &LuaUnit::isRacialLeader},                   // :IsRacialLeader() -- Returns true if the creature is a racial leader, false if not. UNDOCUMENTED
+    {"IsCivilian", &LuaUnit::isCivilian},                           // :IsCivilian() -- Returns true if the creature is a civilian, false if not. UNDOCUMENTED
+    {"IsTrigger", &LuaUnit::isTrigger},                             // :IsTrigger() -- Returns true if the creature is a trigger, false if not. UNDOCUMENTED
+    {"IsGuard", &LuaUnit::isGuard},                                 // :IsGuard() -- Returns true if the creature is a guard, false if not. UNDOCUMENTED
+    {"IsElite", &LuaUnit::isElite},                                 // :IsElite() -- Returns true if the creature is an elite, false if not. UNDOCUMENTED
+    {"IsInEvadeMode", &LuaUnit::IsInEvadeMode},                     // :IsInEvadeMode() -- Returns true if the creature is in evade mode, false if not. UNDOCUMENTED
+    {"HasCategoryCooldown", &LuaUnit::HasCategoryCooldown},         // :HasCategoryCooldown(spellId) -- Returns true if the creature has a cooldown for the spell's category. UNDOCUMENTED
+    {"CanWalk", &LuaUnit::canWalk},                                 // :CanWalk() -- Returns true if the creature can walk. UNDOCUMENTED
+    {"CanSwim", &LuaUnit::canSwim},                                 // :CanSwim() -- Returns true if the creature can swim. UNDOCUMENTED
+    {"HasReactState", &LuaUnit::HasReactState},                     // :HasReactState(state) -- Returns true if the creature has react state. UNDOCUMENTED
+    {"CanStartAttack", &LuaUnit::canStartAttack},                   // :CanStartAttack(unit, force) -- Returns true if the creature can attack the unit. UNDOCUMENTED
+    {"HasSearchedAssistance", &LuaUnit::HasSearchedAssistance},     // :HasSearchedAssistance() -- Returns true if the creature has searched assistance. UNDOCUMENTED
+    {"CanAssistTo", &LuaUnit::CanAssistTo},                         // :CanAssistTo(unit, enemy[, checkfaction]) -- Returns true if the creature can assist unit with enemy. UNDOCUMENTED
+    {"IsTargetAcceptable", &LuaUnit::_IsTargetAcceptable},          // :IsTargetAcceptable(unit) -- Returns true if the creature can target unit. UNDOCUMENTED
+    {"HasInvolvedQuest", &LuaUnit::hasInvolvedQuest},               // :HasInvolvedQuest(questId) -- Returns true if the creature can finish the quest for players. UNDOCUMENTED
+    {"IsRegeneratingHealth", &LuaUnit::isRegeneratingHealth},       // :IsRegeneratingHealth() -- Returns true if the creature is regenerating health. UNDOCUMENTED
+    {"IsReputationGainDisabled", &LuaUnit::IsReputationGainDisabled},   // :IsReputationGainDisabled() -- Returns true if the creature has reputation gain disabled. UNDOCUMENTED
+    {"IsDamageEnoughForLootingAndReward", &LuaUnit::IsDamageEnoughForLootingAndReward}, // :IsDamageEnoughForLootingAndReward() -- UNDOCUMENTED
 
     // Other
     {"RegisterEvent", &LuaUnit::RegisterEvent},                     // :RegisterEvent(function, delay, calls)
     {"RemoveEventByID", &LuaUnit::RemoveEventByID},                 // :RemoveEventByID(eventID)
     {"RemoveEvents", &LuaUnit::RemoveEvents},                       // :RemoveEvents()
     {"Despawn", &LuaUnit::Despawn},                                 // :Despawn([despawnDelay]) - Creature despawns after given time UNDOCUMENTED
+    {"FleeToGetAssistance", &LuaUnit::DoFleeToGetAssistance},       // :FleeToGetAssistance() - Creature flees for assistance UNDOCUMENTED
+    {"CallForHelp", &LuaUnit::CallForHelp},                         // :CallForHelp(radius) - Creature calls for help from units in radius UNDOCUMENTED
+    {"CallAssistance", &LuaUnit::CallAssistance},                   // :CallAssistance() - Creature calls for assistance UNDOCUMENTED
+    {"RemoveCorpse", &LuaUnit::RemoveCorpse},                       // :RemoveCorpse([setSpawnTime]) - Removes corpse UNDOCUMENTED
+    {"DespawnOrUnsummon", &LuaUnit::DespawnOrUnsummon},             // :DespawnOrUnsummon([Delay]) - Despawns the creature after delay if given UNDOCUMENTED
+    {"Respawn", &LuaUnit::Respawn},                                 // :Respawn([force]) -- Respawns the creature. UNDOCUMENTED
+    {"SelectVictim", &LuaUnit::SelectVictim},                       // :SelectVictim() - Returns a victim or nil. UNDOCUMENTED
 
     // Unit Methods
 
@@ -310,6 +360,7 @@ ElunaRegister<Unit> UnitMethods[] =
     {"GetCurrentSpell", &LuaUnit::GetCurrentSpell},                 // :GetCurrentSpell(type) -- Returns the currently casted spell of given type if any UNDOCUMENTED
     {"GetCreatureType", &LuaUnit::GetCreatureType},                 // :GetCreatureType() -- Returns the unit's type
     {"GetNearbyTarget", &LuaUnit::GetNearbyTarget},                 // :GetNearbyTarget([radius[, exclude]]) - Returns nearby target within sight or given radius. Excludes current target and given unit. UNDOCUMENTED
+    {"GetShieldBlockValue", &LuaUnit::GetShieldBlockValue},         // :GetShieldBlockValue() - Returns block value. UNDOCUMENTED
 
     // Setters
     {"SetFaction", &LuaUnit::SetFaction},                           // :SetFaction(factionId) -- Sets the unit's faction
@@ -329,12 +380,12 @@ ElunaRegister<Unit> UnitMethods[] =
     {"SetUInt16Value", &LuaUnit::SetUInt16Value},                   // :SetUInt16Value(index, offset, value) - Sets an uint16 value for the unit
     {"SetInt16Value", &LuaUnit::SetInt16Value},                     // :SetInt16Value(index, offset, value) - Sets an int16 value for the unit
     {"SetPhaseMask", &LuaUnit::SetPhaseMask},                       // :SetPhaseMask(Phase[, update]) - Sets the phase of the unit
-    {"SetWalk", &LuaUnit::SetWalk},                                 // :SetWalk(enable) - If false, creature runs, otherwise walks
-    {"SetSpeed", &LuaUnit::SetSpeed},                               // :SetSpeed(type, speed[, forced]) - Sets speed for the movement type (0 = walk, 1 = run ..)
-    {"SetStunned", &LuaUnit::SetStunned},                           // :SetStunned(enable) - Stuns or removes stun
-    {"SetRooted", &LuaUnit::SetRooted},                             // :SetRooted(enable) - Roots or removes root
-    {"SetConfused", &LuaUnit::SetConfused},                         // :SetConfused(enable) - Sets confused or removes confusion
-    {"SetFeared", &LuaUnit::SetFeared},                             // :SetFeared(enable) - Fears or removes fear
+    {"SetWalk", &LuaUnit::SetWalk},                                 // :SetWalk([enable]) - If false, creature runs, otherwise walks UNDOCUMENTED
+    {"SetSpeed", &LuaUnit::SetSpeed},                               // :SetSpeed(type, speed[, forced]) - Sets speed for the movement type (0 = walk, 1 = run ..) UNDOCUMENTED
+    {"SetStunned", &LuaUnit::SetStunned},                           // :SetStunned([enable]) - Stuns or removes stun UNDOCUMENTED
+    {"SetRooted", &LuaUnit::SetRooted},                             // :SetRooted([enable]) - Roots or removes root UNDOCUMENTED
+    {"SetConfused", &LuaUnit::SetConfused},                         // :SetConfused([enable]) - Sets confused or removes confusion UNDOCUMENTED
+    {"SetFeared", &LuaUnit::SetFeared},                             // :SetFeared([enable]) - Fears or removes fear UNDOCUMENTED
 
     // Boolean
     {"IsAlive", &LuaUnit::IsAlive},                                 // :IsAlive()
@@ -352,6 +403,8 @@ ElunaRegister<Unit> UnitMethods[] =
     {"IsInWater", &LuaUnit::IsInWater},                             // :IsInWater() -- Returns true if the unit is in water. UNDOCUMENTED
     {"IsUnderWater", &LuaUnit::IsUnderWater},                       // :IsUnderWater() -- Returns true if the unit is under water. UNDOCUMENTED
     {"HasAura", &LuaUnit::HasAura},                                 // :HasAura(spellId[, caster]) -- Returns true if the unit has the aura from the spell and casted by the caster if provided. UNDOCUMENTED
+    {"CanFly", &LuaUnit::CanFly},                                   // :CanFly() -- Returns true if the unit can fly. UNDOCUMENTED
+    {"HasSpellCooldown", &LuaUnit::HasSpellCooldown},               // :HasSpellCooldown(spellId) -- Returns true if the spell is on cooldown. UNDOCUMENTED
 
     // Other
     {"AddAura", &LuaUnit::AddAura},                                 // :AddAura(spellId, target) -- Adds an aura to the specified target
@@ -359,7 +412,8 @@ ElunaRegister<Unit> UnitMethods[] =
     {"RemoveAllAuras", &LuaUnit::RemoveAllAuras},                   // :RemoveAllAuras() -- Removes all the unit's auras
     {"ClearInCombat", &LuaUnit::ClearInCombat},                     // :ClearInCombat() -- Clears the unit's combat list (unit will be out of combat), resets the timer to 0, etc.
     {"DeMorph", &LuaUnit::DeMorph},                                 // :DeMorph() - Sets display back to native.
-    {"SendUnitWhisper", &LuaUnit::SendUnitWhisper},                 // :SendUnitWhisper(msg, unit) -- Sends a whisper to the receiver
+    {"SendUnitWhisper", &LuaUnit::SendUnitWhisper},                 // :SendUnitWhisper(msg, receiver[, bossWhisper]) -- Sends a whisper to the receiver
+    {"SendUnitEmote", &LuaUnit::SendUnitEmote},                     // :SendUnitEmote(msg[, receiver, bossEmote]) -- Sends a text emote UNDOCUMENTED
     {"SendUnitSay", &LuaUnit::SendUnitSay},                         // :SendUnitSay(msg, language) -- Sends a "Say" message with the specified language (all languages: 0)
     {"SendUnitYell", &LuaUnit::SendUnitYell},                       // :SendUnitYell(msg, language) -- Sends a "Yell" message with the specified language (all languages: 0)
     {"CastSpell", &LuaUnit::CastSpell},                             // :CastSpell(spellID) - Casts the spell on self, no manacost or cast time
@@ -387,6 +441,7 @@ ElunaRegister<Unit> UnitMethods[] =
     {"StopSpellCast", &LuaUnit::StopSpellCast},                     // :StopSpellCast(spellId(optional)) -- Stops the unit from casting a spell. If a spellId is defined, it will stop that unit from casting that spell
     {"InterruptSpell", &LuaUnit::InterruptSpell},                   // :InterruptSpell(spellType, delayed(optional), instant(optional)) -- Interrupts the unit's spell by the spellType. If delayed is true it will skip if the spell is delayed. If instant is true, it will skip that the spell has a cast time.
     {"SendChatMessageToPlayer", &LuaUnit::SendChatMessageToPlayer}, // :SendChatMessageToPlayer(type, lang, msg, target) -- Unit sends a chat message to the given target player UNDOCUMENTED
+    {"SaveToDB", &LuaUnit::SaveToDB},                               // :SaveToDB() -- Saves the unit to database. UNDOCUMENTED
 
     /* Vehicle */
     {"AddVehiclePassenger", &LuaUnit::AddVehiclePassenger},         // :AddVehiclePassenger(unit, seatId) - Adds a passenger to the vehicle by specifying a unit and seatId
