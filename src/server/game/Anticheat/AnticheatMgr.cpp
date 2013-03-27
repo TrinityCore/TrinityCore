@@ -164,7 +164,7 @@ void AnticheatMgr::ClimbHackDetection(Player *player, MovementInfo movementInfo,
     float deltaZ = fabs(playerPos.GetPositionZ() - movementInfo.pos.GetPositionZ());
     float deltaXY = movementInfo.pos.GetExactDist2d(&playerPos);
 
-    float angle = Position::NormalizeOrientation(tan(deltaZ/deltaXY)); 
+    float angle = Position::NormalizeOrientation(tan(deltaZ/deltaXY));
 
     if (angle > CLIMB_ANGLE)
     {
