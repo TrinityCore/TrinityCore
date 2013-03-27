@@ -20,16 +20,16 @@
 #define _BYTEBUFFER_H
 
 #include "Define.h"
-#include "Debugging/Errors.h"
-#include "Utilities/ByteConverter.h"
+#include "Errors.h"
+#include "ByteConverter.h"
 
 #include <exception>
 #include <list>
 #include <map>
 #include <string>
 #include <vector>
-
 #include <cstring>
+#include <time.h>
 
 // Root of ByteBuffer exception hierarchy
 class ByteBufferException : public std::exception

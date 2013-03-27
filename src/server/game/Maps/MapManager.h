@@ -19,13 +19,14 @@
 #ifndef TRINITY_MAPMANAGER_H
 #define TRINITY_MAPMANAGER_H
 
-#include "Define.h"
-#include <ace/Singleton.h>
-#include <ace/Thread_Mutex.h>
-#include "Common.h"
+#include "Object.h"
 #include "Map.h"
 #include "GridStates.h"
 #include "MapUpdater.h"
+
+#include <ace/Singleton.h>
+#include <ace/Thread_Mutex.h>
+
 
 class Transport;
 struct TransportCreatureProto;
