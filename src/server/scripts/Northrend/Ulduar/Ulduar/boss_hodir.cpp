@@ -142,7 +142,7 @@ enum HodirActions
 };
 
 #define ACHIEVEMENT_CHEESE_THE_FREEZE            RAID_MODE<uint8>(2961, 2962)
-#define ACHIEVEMENT_GETTING_COLD_IN_HERE         RAID_MODE<uint32>(2967, 2968)
+#define ACHIEVEMENT_GETTING_COLD_IN_HERE         RAID_MODE<uint8>(2967, 2968)
 #define ACHIEVEMENT_THIS_CACHE_WAS_RARE          RAID_MODE<uint8>(3182, 3184)
 #define ACHIEVEMENT_COOLEST_FRIENDS              RAID_MODE<uint8>(2963, 2965)
 #define ACHIEVEMENT_STAYING_BUFFED_ALL_WINTER    RAID_MODE<uint8>(2969, 2970) // 10223, 10240, 10241 - 10229, 10238, 10239
@@ -372,6 +372,7 @@ class boss_hodir : public CreatureScript
                 events.ScheduleEvent(EVENT_FLASH_FREEZE, 45*IN_MILLISECONDS);
                 events.ScheduleEvent(EVENT_RARE_CACHE, 3*MINUTE*IN_MILLISECONDS);
                 events.ScheduleEvent(EVENT_BERSERK, 8*MINUTE*IN_MILLISECONDS);
+                me->SetReactState(REACT_AGGRESSIVE);
             }
 
             void KilledUnit(Unit* /*who*/)
