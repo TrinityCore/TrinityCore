@@ -600,7 +600,7 @@ ElunaRegister<Spell> SpellMethods[] =
     {"GetUnitType", &LuaSpell::GetUnitType},                        // :GetUnitType() -- Returns the unit type (Spell)              UNDOCUMENTED
     {"GetCaster", &LuaSpell::GetCaster},                            // :GetCaster()  -- Returns the spell's caster (UNIT)           UNDOCUMENTED
     {"GetCastTime", &LuaSpell::GetCastTime},                        // :GetCastTime() -- Returns the spell cast time                UNDOCUMENTED
-    {"GetId", &LuaSpell::GetId},                                    // :GetId() -- Returns the spell's ID                           UNDOCUMENTED
+    {"GetEntry", &LuaSpell::GetId},                                 // :GetEntry() -- Returns the spell's ID                        UNDOCUMENTED
     {"GetDuration", &LuaSpell::GetDuration},                        // :GetDuration() -- Returns the spell's duration               UNDOCUMENTED
     {"GetPowerCost", &LuaSpell::GetPowerCost},                      // :GetPowerCost() -- Returns the spell's power cost (mana, energy, rage, etc)      UNDOCUMENTED
 
