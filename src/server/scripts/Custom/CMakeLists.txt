@@ -1,5 +1,5 @@
 # Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
-#
+# U wanna piece of a champ?
 # This file is free software; as a special exception the author gives
 # unlimited permission to copy and/or distribute it, with or without
 # modifications, as long as this notice is preserved.
