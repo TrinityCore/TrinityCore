@@ -75,7 +75,7 @@ public:
         TO_CREATURE();
 
         float x,y,z,o;
-        creature->GetTransportHomePosition(x,y,x,o);
+        creature->GetTransportHomePosition(x,y,z,o);
 
         sEluna->PushFloat(L, x);
         sEluna->PushFloat(L, y);
@@ -697,7 +697,7 @@ public:
         TO_CREATURE();
 
         float x,y,z,o;
-        creature->GetHomePosition(x,y,x,o);
+        creature->GetHomePosition(x,y,z,o);
 
         sEluna->PushFloat(L, x);
         sEluna->PushFloat(L, y);
