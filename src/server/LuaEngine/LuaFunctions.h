@@ -386,6 +386,7 @@ ElunaRegister<Unit> UnitMethods[] =
     {"SetRooted", &LuaUnit::SetRooted},                             // :SetRooted([enable]) - Roots or removes root UNDOCUMENTED
     {"SetConfused", &LuaUnit::SetConfused},                         // :SetConfused([enable]) - Sets confused or removes confusion UNDOCUMENTED
     {"SetFeared", &LuaUnit::SetFeared},                             // :SetFeared([enable]) - Fears or removes fear UNDOCUMENTED
+	{"SetGender", &LuaUnit::SetGender},								// :SetGender(value) -- 1 = male 2 = female UNDOCUMENTED
 
     // Boolean
     {"IsAlive", &LuaUnit::IsAlive},                                 // :IsAlive()
