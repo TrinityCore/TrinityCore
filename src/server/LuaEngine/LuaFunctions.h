@@ -371,6 +371,7 @@ ElunaRegister<Unit> UnitMethods[] =
     {"SetPower", &LuaUnit::SetPower},                               // :SetPower(index, amount)
     {"SetMaxPower", &LuaUnit::SetMaxPower},                         // :SetMaxPower(index, amount)
     {"SetDisplayID", &LuaUnit::SetDisplayID},                       // :SetDisplayID(id)
+	{"SetNativeDisplayID", &LuaUnit::SetNativeDisplayID},           // :SetNativeDisplayID(id)
     {"SetFacing", &LuaUnit::SetFacing},                             // :SetFacing(o) -- Sets the Unit facing to arg
     {"SetDeathState", &LuaUnit::SetDeathState},                     // :SetDeathState(value) -- 0 = alive 1 = just died 2 = corpse 3 = dead
     {"SetInt32Value", &LuaUnit::SetInt32Value},                     // :SetInt32Value(index, value) - Sets an int value for the unit

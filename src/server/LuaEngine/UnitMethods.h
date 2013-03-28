@@ -3708,6 +3708,16 @@ public:
         return 0;
     }
 
+	//SetNativeDisplayID(id)
+	static int SetNativeDisplayID(lua_State* L, Unit* unit)
+	{
+		TO_UNIT();
+
+		uint32 model = luaL_checkunsigned(L, 1);
+		unit->SetNativeDisplayId(model);
+		return 0;
+	}
+
     // SetFacing(o)
     static int SetFacing(lua_State* L, Unit* unit)
     {
