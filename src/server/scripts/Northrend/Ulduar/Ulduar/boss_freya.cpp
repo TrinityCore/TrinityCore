@@ -287,7 +287,6 @@ class boss_freya : public CreatureScript
             void Reset()
             {
                 _Reset();
-                summons.clear();
                 trioWaveCount = 0;
                 trioWaveController = 0;
                 waveCount = 0;
@@ -494,7 +493,7 @@ class boss_freya : public CreatureScript
                                     {
                                         for (uint8 n = 0; n < 3; ++n)
                                         {
-                                            summons.remove(Elemental[n][i]->GetGUID());
+                                            summons.Despawn(Elemental[n][i]);
                                             Elemental[n][i]->DespawnOrUnsummon(5000);
                                             trioDefeated[i] = true;
                                             Elemental[n][i]->CastSpell(me, SPELL_REMOVE_10STACK, true);
@@ -625,7 +624,7 @@ class boss_freya : public CreatureScript
                     case NPC_ANCIENT_WATER_SPIRIT:
                     case NPC_STORM_LASHER:
                         ElementalGUID[trioWaveController][trioWaveCount] = summoned->GetGUID();
-                        summons.push_back(summoned->GetGUID());
+                        summons.Summon(summoned);
                         ++trioWaveController;
                         if (trioWaveController > 2)
                             trioWaveController = 0;
@@ -633,7 +632,7 @@ class boss_freya : public CreatureScript
                     case NPC_DETONATING_LASHER:
                     case NPC_ANCIENT_CONSERVATOR:
                     default:
-                        summons.push_back(summoned->GetGUID());
+                        summons.Summon(summoned);
                         break;
                 }
 
@@ -654,12 +653,12 @@ class boss_freya : public CreatureScript
                         summoned->CastSpell(me, SPELL_REMOVE_2STACK, true);
                         summoned->CastSpell(who, SPELL_DETONATE, true);
                         summoned->DespawnOrUnsummon(5000);
-                        summons.remove(summoned->GetGUID());
+                        summons.Despawn(summoned);
                         break;
                     case NPC_ANCIENT_CONSERVATOR:
                         summoned->CastSpell(me, SPELL_REMOVE_25STACK, true);
                         summoned->DespawnOrUnsummon(5000);
-                        summons.remove(summoned->GetGUID());
+                        summons.Despawn(summoned);
                         break;
                 }
             }

@@ -502,7 +502,7 @@ void WorldSession::HandleQuestgiverCompleteQuest(WorldPacket& recvData)
                           _player->GetName().c_str(), _player->GetGUIDLow(), questId);
             return;
         }
-        // TODO: need a virtual function
+        /// @todo need a virtual function
         if (_player->InBattleground())
             if (Battleground* bg = _player->GetBattleground())
                 if (bg->GetTypeID() == BATTLEGROUND_AV)

@@ -180,11 +180,6 @@ Transport::~Transport()
         (*itr)->SetTransport(NULL);
         GetMap()->AddObjectToRemoveList(*itr);
     }
-
-    m_NPCPassengerSet.clear();
-
-    m_WayPoints.clear();
-    m_passengers.clear();
 }
 
 bool Transport::Create(uint32 guidlow, uint32 entry, uint32 mapid, float x, float y, float z, float ang, uint32 animprogress, uint32 dynflags)
@@ -553,7 +548,7 @@ void Transport::Update(uint32 p_diff)
         else
         {
             Relocate(m_curr->second.x, m_curr->second.y, m_curr->second.z, GetAngle(m_next->second.x, m_next->second.y) + float(M_PI));
-            UpdateNPCPositions(); // COME BACK MARKER
+            UpdatePassengerPositions(); // COME BACK MARKER
         }
 
         sScriptMgr->OnRelocate(this, m_curr->first, m_curr->second.mapid, m_curr->second.x, m_curr->second.y, m_curr->second.z);
@@ -686,10 +681,10 @@ void Transport::UpdatePosition(MovementInfo* mi)
     float transport_z = mi->pos.m_positionZ - mi->t_pos.m_positionZ;
 
     Relocate(transport_x, transport_y, transport_z, transport_o);
-    UpdateNPCPositions();
+    UpdatePassengerPositions();
 }
 
-void Transport::UpdateNPCPositions()
+void Transport::UpdatePassengerPositions()
 {
     for (CreatureSet::iterator itr = m_NPCPassengerSet.begin(); itr != m_NPCPassengerSet.end(); ++itr)
     {
@@ -705,7 +700,7 @@ void Transport::UpdateNPCPositions()
     }
 }
 
-void Transport::CalculatePassengerPosition(float& x, float& y, float& z, float& o)
+void Transport::CalculatePassengerPosition(float& x, float& y, float& z, float& o) const
 {
     float inx = x, iny = y, inz = z, ino = o;
     o = GetOrientation() + ino;
@@ -714,7 +709,7 @@ void Transport::CalculatePassengerPosition(float& x, float& y, float& z, float& 
     z = GetPositionZ() + inz;
 }
 
-void Transport::CalculatePassengerOffset(float& x, float& y, float& z, float& o)
+void Transport::CalculatePassengerOffset(float& x, float& y, float& z, float& o) const
 {
     o -= GetOrientation();
     z -= GetPositionZ();

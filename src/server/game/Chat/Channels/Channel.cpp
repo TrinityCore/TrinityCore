@@ -191,8 +191,7 @@ void Channel::JoinChannel(Player* player, std::string const& pass)
 
     player->JoinedChannel(this);
 
-    if (_announce && (!sWorld->getBoolConfig(CONFIG_SILENTLY_GM_JOIN_TO_CHANNEL) ||
-            !player->GetSession()->HasPermission(RBAC_PERM_SILENTLY_JOIN_CHANNEL)))
+    if (_announce && !player->GetSession()->HasPermission(RBAC_PERM_SILENTLY_JOIN_CHANNEL))
     {
         WorldPacket data;
         MakeJoined(&data, guid);
@@ -253,8 +252,7 @@ void Channel::LeaveChannel(Player* player, bool send)
 
     playersStore.erase(guid);
 
-    if (_announce && (!sWorld->getBoolConfig(CONFIG_SILENTLY_GM_JOIN_TO_CHANNEL) ||
-            !player->GetSession()->HasPermission(RBAC_PERM_SILENTLY_JOIN_CHANNEL)))
+    if (_announce && !player->GetSession()->HasPermission(RBAC_PERM_SILENTLY_JOIN_CHANNEL))
     {
         WorldPacket data;
         MakeLeft(&data, guid);
@@ -318,21 +316,19 @@ void Channel::KickOrBan(Player const* player, std::string const& badname, bool b
         return;
     }
 
-    bool notify = !sWorld->getBoolConfig(CONFIG_SILENTLY_GM_JOIN_TO_CHANNEL) || !player->GetSession()->HasPermission(RBAC_PERM_SILENTLY_JOIN_CHANNEL);
-
     if (ban && !IsBanned(victim))
     {
         bannedStore.insert(victim);
         UpdateChannelInDB();
 
-        if (notify)
+        if (!player->GetSession()->HasPermission(RBAC_PERM_SILENTLY_JOIN_CHANNEL))
         {
             WorldPacket data;
             MakePlayerBanned(&data, victim, good);
             SendToAll(&data);
         }
     }
-    else if (notify)
+    else if (!player->GetSession()->HasPermission(RBAC_PERM_SILENTLY_JOIN_CHANNEL))
     {
         WorldPacket data;
         MakePlayerKicked(&data, victim, good);
@@ -447,11 +443,9 @@ void Channel::SetMode(Player const* player, std::string const& p2n, bool mod, bo
     uint64 victim = newp ? newp->GetGUID() : 0;
 
     if (!victim || !IsOn(victim) ||
-        (player->GetTeam() != newp->GetTeam() && (!sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_CHANNEL) ||
-        !player->GetSession()->HasPermission(RBAC_PERM_TWO_SIDE_INTERACTION_CHANNEL) ||
+        (player->GetTeam() != newp->GetTeam() &&
+        (!player->GetSession()->HasPermission(RBAC_PERM_TWO_SIDE_INTERACTION_CHANNEL) ||
         !newp->GetSession()->HasPermission(RBAC_PERM_TWO_SIDE_INTERACTION_CHANNEL))))
-        // allow make moderator from another team only if both is GMs
-        // at this moment this only way to show channel post for GM from another team
     {
         WorldPacket data;
         MakePlayerNotFound(&data, p2n);
@@ -497,7 +491,9 @@ void Channel::SetOwner(Player const* player, std::string const& newname)
     uint64 victim = newp ? newp->GetGUID() : 0;
 
     if (!victim || !IsOn(victim) ||
-        (newp->GetTeam() != player->GetTeam() && !sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_CHANNEL)))
+        (player->GetTeam() != newp->GetTeam() &&
+        (!player->GetSession()->HasPermission(RBAC_PERM_TWO_SIDE_INTERACTION_CHANNEL) ||
+        !newp->GetSession()->HasPermission(RBAC_PERM_TWO_SIDE_INTERACTION_CHANNEL))))
     {
         WorldPacket data;
         MakePlayerNotFound(&data, newname);
@@ -671,8 +667,8 @@ void Channel::Invite(Player const* player, std::string const& newname)
         return;
     }
 
-    if (newp->GetTeam() != player->GetTeam() && (!sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_CHANNEL) ||
-        !player->GetSession()->HasPermission(RBAC_PERM_TWO_SIDE_INTERACTION_CHANNEL) ||
+    if (newp->GetTeam() != player->GetTeam() &&
+        (!player->GetSession()->HasPermission(RBAC_PERM_TWO_SIDE_INTERACTION_CHANNEL) ||
         !newp->GetSession()->HasPermission(RBAC_PERM_TWO_SIDE_INTERACTION_CHANNEL)))
     {
         WorldPacket data;

@@ -780,7 +780,7 @@ class npc_halion_controller : public CreatureScript
             }
 
         private:
-            /// TODO: Find out a better scaling, if any.
+            //// @todo Find out a better scaling, if any.
             // [0   , 0.98[: Corporeality goes down
             // [0.98, 0.99]: Do nothing
             // ]0.99, 1.01[: Twilight Mending
@@ -1020,7 +1020,7 @@ class npc_meteor_strike_initial : public CreatureScript
                     _meteorList.clear();
                     for (uint8 i = 0; i < 4; i++)
                     {
-                        angle[i] = MapManager::NormalizeOrientation(angle[i]);
+                        angle[i] = Position::NormalizeOrientation(angle[i]);
                         me->SetOrientation(angle[i]);
                         me->GetNearPosition(newPos, 10.0f, 0.0f); // Exact distance
                         if (Creature* meteor = me->SummonCreature(NPC_METEOR_STRIKE_NORTH + i, newPos, TEMPSUMMON_TIMED_DESPAWN, 30000))

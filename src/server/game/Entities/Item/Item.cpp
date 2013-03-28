@@ -737,7 +737,7 @@ void Item::RemoveFromUpdateQueueOf(Player* player)
     if (!IsInUpdateQueue())
         return;
 
-    ASSERT(player != NULL)
+    ASSERT(player != NULL);
 
     if (player->GetGUID() != GetOwnerGUID())
     {
@@ -1018,27 +1018,27 @@ void Item::SendTimeUpdate(Player* owner)
     owner->GetSession()->SendPacket(&data);
 }
 
-Item* Item::CreateItem(uint32 item, uint32 count, Player const* player)
+Item* Item::CreateItem(uint32 itemEntry, uint32 count, Player const* player)
 {
     if (count < 1)
         return NULL;                                        //don't create item at zero count
 
-    ItemTemplate const* pProto = sObjectMgr->GetItemTemplate(item);
-    if (pProto)
+    ItemTemplate const* proto = sObjectMgr->GetItemTemplate(itemEntry);
+    if (proto)
     {
-        if (count > pProto->GetMaxStackSize())
-            count = pProto->GetMaxStackSize();
+        if (count > proto->GetMaxStackSize())
+            count = proto->GetMaxStackSize();
 
         ASSERT(count != 0 && "pProto->Stackable == 0 but checked at loading already");
 
-        Item* pItem = NewItemOrBag(pProto);
-        if (pItem->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_ITEM), item, player))
+        Item* item = NewItemOrBag(proto);
+        if (item->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_ITEM), itemEntry, player))
         {
-            pItem->SetCount(count);
-            return pItem;
+            item->SetCount(count);
+            return item;
         }
         else
-            delete pItem;
+            delete item;
     }
     else
         ASSERT(false);
@@ -1176,7 +1176,7 @@ bool Item::IsRefundExpired()
     return (GetPlayedTime() > 2*HOUR);
 }
 
-void Item::SetSoulboundTradeable(AllowedLooterSet& allowedLooters)
+void Item::SetSoulboundTradeable(AllowedLooterSet const& allowedLooters)
 {
     SetFlag(ITEM_FIELD_FLAGS, ITEM_FLAG_BOP_TRADEABLE);
     allowedGUIDs = allowedLooters;

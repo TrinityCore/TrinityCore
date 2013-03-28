@@ -256,11 +256,17 @@ void Vehicle::RemoveAllPassengers()
 
     /// Setting to_Abort to true will cause @VehicleJoinEvent::Abort to be executed on next @Unit::UpdateEvents call
     /// This will properly "reset" the pending join process for the passenger.
-    while (!_pendingJoinEvents.empty())
     {
-        VehicleJoinEvent* e = _pendingJoinEvents.front();
-        e->to_Abort = true;
-        _pendingJoinEvents.pop_front();
+        /// Update vehicle pointer in every pending join event - Abort may be called after vehicle is deleted
+        Vehicle* eventVehicle = _status != STATUS_UNINSTALLING ? this : NULL;
+
+        while (!_pendingJoinEvents.empty())
+        {
+            VehicleJoinEvent* e = _pendingJoinEvents.front();
+            e->to_Abort = true;
+            e->Target = eventVehicle;
+            _pendingJoinEvents.pop_front();
+        }
     }
 
     // Passengers always cast an aura with SPELL_AURA_CONTROL_VEHICLE on the vehicle
@@ -381,13 +387,13 @@ void Vehicle::InstallAccessory(uint32 entry, int8 seatId, bool minion, uint8 typ
     /// @Prevent adding accessories when vehicle is uninstalling. (Bad script in OnUninstall/OnRemovePassenger/PassengerBoarded hook.)
     if (_status == STATUS_UNINSTALLING)
     {
-        sLog->outError(LOG_FILTER_VEHICLES, "Vehicle (GuidLow: %u, DB GUID: %u, Entry: %u) attempts to install accessory (Entry: %u) on seat %i with STATUS_UNINSTALLING! "
+        sLog->outError(LOG_FILTER_VEHICLES, "Vehicle (GuidLow: %u, DB GUID: %u, Entry: %u) attempts to install accessory (Entry: %u) on seat %d with STATUS_UNINSTALLING! "
             "Check Uninstall/PassengerBoarded script hooks for errors.", _me->GetGUIDLow(),
             (_me->GetTypeId() == TYPEID_UNIT ? _me->ToCreature()->GetDBTableGUIDLow() : _me->GetGUIDLow()), GetCreatureEntry(), entry, (int32)seatId);
         return;
     }
 
-    sLog->outDebug(LOG_FILTER_VEHICLES, "Vehicle (GuidLow: %u, DB Guid: %u, Entry %u): installing accessory (Entry: %u) on seat: %i",
+    sLog->outDebug(LOG_FILTER_VEHICLES, "Vehicle (GuidLow: %u, DB Guid: %u, Entry %u): installing accessory (Entry: %u) on seat: %d",
         _me->GetGUIDLow(), (_me->GetTypeId() == TYPEID_UNIT ? _me->ToCreature()->GetDBTableGUIDLow() : _me->GetGUIDLow()), GetCreatureEntry(),
         entry, (int32)seatId);
 
@@ -557,25 +563,6 @@ void Vehicle::RelocatePassengers()
 }
 
 /**
- * @fn void Vehicle::Dismiss()
- *
- * @brief Dismiss the vehicle. Removes passengers and despawns self. Only valid for creatures.
- *
- * @author Machiavelli
- * @date 17-2-2013
- */
-
-void Vehicle::Dismiss()
-{
-    if (GetBase()->GetTypeId() != TYPEID_UNIT)
-        return;
-
-    sLog->outDebug(LOG_FILTER_VEHICLES, "Vehicle::Dismiss Entry: %u, GuidLow %u, DBGuid: %u", GetCreatureEntry(), _me->GetGUIDLow(), _me->ToCreature()->GetDBTableGUIDLow());
-    Uninstall();
-    GetBase()->ToCreature()->DespawnOrUnsummon();
-}
-
-/**
  * @fn bool Vehicle::IsVehicleInUse() const
  *
  * @brief Returns information whether the vehicle is currently used by any unit
@@ -633,10 +620,9 @@ void Vehicle::InitMovementInfoForBase()
  * @return null if passenger not found on vehicle, else the DBC record for the seat.
  */
 
-VehicleSeatEntry const* Vehicle::GetSeatForPassenger(Unit const* passenger)
+VehicleSeatEntry const* Vehicle::GetSeatForPassenger(Unit const* passenger) const
 {
-    SeatMap::iterator itr;
-    for (itr = Seats.begin(); itr != Seats.end(); ++itr)
+    for (SeatMap::const_iterator itr = Seats.begin(); itr != Seats.end(); ++itr)
         if (itr->second.Passenger == passenger->GetGUID())
             return itr->second.SeatInfo;
 
@@ -688,7 +674,7 @@ uint8 Vehicle::GetAvailableSeatCount() const
     return ret;
 }
 
-void Vehicle::CalculatePassengerPosition(float& x, float& y, float& z, float& o)
+void Vehicle::CalculatePassengerPosition(float& x, float& y, float& z, float& o) const
 {
     float inx = x, iny = y, inz = z, ino = o;
     o = GetBase()->GetOrientation() + ino;
@@ -697,7 +683,7 @@ void Vehicle::CalculatePassengerPosition(float& x, float& y, float& z, float& o)
     z = GetBase()->GetPositionZ() + inz;
 }
 
-void Vehicle::CalculatePassengerOffset(float& x, float& y, float& z, float& o)
+void Vehicle::CalculatePassengerOffset(float& x, float& y, float& z, float& o) const
 {
     o -= GetBase()->GetOrientation();
     z -= GetBase()->GetPositionZ();
@@ -759,6 +745,37 @@ void Vehicle::RemovePendingEventsForSeat(int8 seatId)
 }
 
 /**
+ * @fn void Vehicle::RemovePendingEventsForSeat(uint8 seatId)
+ *
+ * @brief Removes any pending events for given passenger. Executed when vehicle control aura is removed while adding passenger is in progress
+ *
+ * @author Shauren
+ * @date 13-2-2013
+ *
+ * @param passenger Unit that is supposed to enter the vehicle.
+ */
+
+void Vehicle::RemovePendingEventsForPassenger(Unit* passenger)
+{
+    for (PendingJoinEventContainer::iterator itr = _pendingJoinEvents.begin(); itr != _pendingJoinEvents.end();)
+    {
+        if ((*itr)->Passenger == passenger)
+        {
+            (*itr)->to_Abort = true;
+            _pendingJoinEvents.erase(itr++);
+        }
+        else
+            ++itr;
+    }
+}
+
+VehicleJoinEvent::~VehicleJoinEvent()
+{
+    if (Target)
+        Target->RemovePendingEvent(this);
+}
+
+/**
  * @fn bool VehicleJoinEvent::Execute(uint64, uint32)
  *
  * @brief Actually adds the passenger @Passenger to vehicle @Target.
@@ -776,7 +793,8 @@ void Vehicle::RemovePendingEventsForSeat(int8 seatId)
 bool VehicleJoinEvent::Execute(uint64, uint32)
 {
     ASSERT(Passenger->IsInWorld());
-    ASSERT(Target->GetBase()->IsInWorld());
+    ASSERT(Target && Target->GetBase()->IsInWorld());
+    ASSERT(Target->GetBase()->HasAuraTypeWithCaster(SPELL_AURA_CONTROL_VEHICLE, Passenger->GetGUID()));
 
     Target->RemovePendingEventsForSeat(Seat->first);
 
@@ -823,7 +841,7 @@ bool VehicleJoinEvent::Execute(uint64, uint32)
 
     if (Target->GetBase()->GetTypeId() == TYPEID_UNIT && Passenger->GetTypeId() == TYPEID_PLAYER &&
         Seat->second.SeatInfo->m_flags & VEHICLE_SEAT_FLAG_CAN_CONTROL)
-        ASSERT(Target->GetBase()->SetCharmedBy(Passenger, CHARM_TYPE_VEHICLE))  // SMSG_CLIENT_CONTROL
+        ASSERT(Target->GetBase()->SetCharmedBy(Passenger, CHARM_TYPE_VEHICLE));  // SMSG_CLIENT_CONTROL
 
     Passenger->SendClearTarget();                            // SMSG_BREAK_TARGET
     Passenger->SetControlled(true, UNIT_STATE_ROOT);         // SMSG_FORCE_ROOT - In some cases we send SMSG_SPLINE_MOVE_ROOT here (for creatures)
@@ -836,20 +854,16 @@ bool VehicleJoinEvent::Execute(uint64, uint32)
     init.SetTransportEnter();
     init.Launch();
 
-    if (Target->GetBase()->GetTypeId() == TYPEID_UNIT)
+    if (Creature* creature = Target->GetBase()->ToCreature())
     {
-        if (Target->GetBase()->ToCreature()->IsAIEnabled)
-            Target->GetBase()->ToCreature()->AI()->PassengerBoarded(Passenger, Seat->first, true);
+        if (creature->IsAIEnabled)
+            creature->AI()->PassengerBoarded(Passenger, Seat->first, true);
 
         sScriptMgr->OnAddPassenger(Target, Passenger, Seat->first);
 
         // Actually quite a redundant hook. Could just use OnAddPassenger and check for unit typemask inside script.
         if (Passenger->HasUnitTypeMask(UNIT_MASK_ACCESSORY))
             sScriptMgr->OnInstallAccessory(Target, Passenger->ToCreature());
-
-        // update all passenger's positions
-        //Passenger's spline OR vehicle movement will update positions
-        //RelocatePassengers(_me->GetPositionX(), _me->GetPositionY(), _me->GetPositionZ(), _me->GetOrientation());
     }
 
     return true;
@@ -868,13 +882,20 @@ bool VehicleJoinEvent::Execute(uint64, uint32)
 
 void VehicleJoinEvent::Abort(uint64)
 {
-    sLog->outDebug(LOG_FILTER_VEHICLES, "Passenger GuidLow: %u, Entry: %u, board on vehicle GuidLow: %u, Entry: %u SeatId: %i cancelled",
-        Passenger->GetGUIDLow(), Passenger->GetEntry(), Target->GetBase()->GetGUIDLow(), Target->GetBase()->GetEntry(), (int32)Seat->first);
+    /// Check if the Vehicle was already uninstalled, in which case all auras were removed already
+    if (Target)
+    {
+        sLog->outDebug(LOG_FILTER_VEHICLES, "Passenger GuidLow: %u, Entry: %u, board on vehicle GuidLow: %u, Entry: %u SeatId: %d cancelled",
+            Passenger->GetGUIDLow(), Passenger->GetEntry(), Target->GetBase()->GetGUIDLow(), Target->GetBase()->GetEntry(), (int32)Seat->first);
 
-    /// @SPELL_AURA_CONTROL_VEHICLE auras can be applied even when the passenger is not (yet) on the vehicle.
-    /// When this code is triggered it means that something went wrong in @Vehicle::AddPassenger, and we should remove
-    /// the aura manually.
-    Target->GetBase()->RemoveAurasByType(SPELL_AURA_CONTROL_VEHICLE, Passenger->GetGUID());
+        /// @SPELL_AURA_CONTROL_VEHICLE auras can be applied even when the passenger is not (yet) on the vehicle.
+        /// When this code is triggered it means that something went wrong in @Vehicle::AddPassenger, and we should remove
+        /// the aura manually.
+        Target->GetBase()->RemoveAurasByType(SPELL_AURA_CONTROL_VEHICLE, Passenger->GetGUID());
+    }
+    else
+        sLog->outDebug(LOG_FILTER_VEHICLES, "Passenger GuidLow: %u, Entry: %u, board on uninstalled vehicle SeatId: %d cancelled",
+            Passenger->GetGUIDLow(), Passenger->GetEntry(), (int32)Seat->first);
 
     if (Passenger->IsInWorld() && Passenger->HasUnitTypeMask(UNIT_MASK_ACCESSORY))
         Passenger->ToCreature()->DespawnOrUnsummon();

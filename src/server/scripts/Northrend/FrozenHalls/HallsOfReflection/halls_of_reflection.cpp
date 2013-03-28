@@ -270,7 +270,7 @@ public:
                     events.ScheduleEvent(EVENT_INTRO_A2_3, 10000);
                     break;
                 case EVENT_INTRO_A2_3:
-                    // TODO: she's doing some kind of spell casting emote
+                    /// @todo she's doing some kind of spell casting emote
                     instance->HandleGameObject(instance->GetData64(DATA_FROSTMOURNE), true);
                     events.ScheduleEvent(EVENT_INTRO_A2_4, 10000);
                     break;
@@ -367,7 +367,7 @@ public:
                     break;
                 case EVENT_INTRO_H2_3:
                     Talk(SAY_SYLVANAS_INTRO_3);
-                    // TODO: she's doing some kind of spell casting emote
+                    /// @todo she's doing some kind of spell casting emote
                     events.ScheduleEvent(EVENT_INTRO_H2_4, 6000);
                     break;
                 case EVENT_INTRO_H2_4:
@@ -524,7 +524,7 @@ public:
                         Talk(SAY_SYLVANAS_INTRO_END);
 
                     me->GetMotionMaster()->MovePoint(0, LichKingSpawnPos);
-                    // TODO: Loralen/Koreln shall run also
+                    /// @todo Loralen/Koreln shall run also
                     events.ScheduleEvent(EVENT_INTRO_END, 10000);
                     break;
 
@@ -537,7 +537,7 @@ public:
                     break;
 
                 case EVENT_SKIP_INTRO:
-                    // TODO: implement
+                    /// @todo implement
 
                     if (Creature* pFalric = me->GetCreature(*me, instance->GetData64(DATA_FALRIC)))
                         pFalric->SetVisible(true);
@@ -545,7 +545,7 @@ public:
                         pMarwyn->SetVisible(true);
 
                     me->GetMotionMaster()->MovePoint(0, LichKingSpawnPos);
-                    // TODO: Loralen/Koreln shall run also
+                    /// @todo Loralen/Koreln shall run also
 
                     events.ScheduleEvent(EVENT_INTRO_END, 15000);
                     break;
@@ -651,7 +651,7 @@ public:
 
         void EnterCombat(Unit* /*who*/)
         {
-            events.ScheduleEvent(EVENT_SHADOW_WORD_PAIN, 8000); // TODO: adjust timers
+            events.ScheduleEvent(EVENT_SHADOW_WORD_PAIN, 8000); /// @todo adjust timers
             events.ScheduleEvent(EVENT_CIRCLE_OF_DESTRUCTION, 12000);
             events.ScheduleEvent(EVENT_COWER_IN_FEAR, 10000);
             events.ScheduleEvent(EVENT_DARK_MENDING, 20000);
@@ -733,7 +733,7 @@ public:
 
         void EnterCombat(Unit* /*who*/)
         {
-            events.ScheduleEvent(EVENT_FIREBALL, 3000); // TODO: adjust timers
+            events.ScheduleEvent(EVENT_FIREBALL, 3000); /// @todo adjust timers
             events.ScheduleEvent(EVENT_FLAMESTRIKE, 6000);
             events.ScheduleEvent(EVENT_FROSTBOLT, 9000);
             events.ScheduleEvent(EVENT_CHAINS_OF_ICE, 12000);
@@ -834,7 +834,7 @@ public:
 
         void EnterCombat(Unit* /*who*/)
         {
-            events.ScheduleEvent(EVENT_SHADOW_STEP, 8000); // TODO: adjust timers
+            events.ScheduleEvent(EVENT_SHADOW_STEP, 8000); /// @todo adjust timers
             events.ScheduleEvent(EVENT_DEADLY_POISON, 5000);
             events.ScheduleEvent(EVENT_ENVENOMED_DAGGER_THROW, 10000);
             events.ScheduleEvent(EVENT_KIDNEY_SHOT, 12000);
@@ -905,7 +905,7 @@ public:
 
         void EnterCombat(Unit* /*who*/)
         {
-            events.ScheduleEvent(EVENT_SPECTRAL_STRIKE, 5000); // TODO: adjust timers
+            events.ScheduleEvent(EVENT_SPECTRAL_STRIKE, 5000); /// @todo adjust timers
             events.ScheduleEvent(EVENT_SHIELD_BASH, 10000);
             events.ScheduleEvent(EVENT_TORTURED_ENRAGE, 15000);
         }
@@ -970,7 +970,7 @@ public:
 
         void EnterCombat(Unit* /*who*/)
         {
-            events.ScheduleEvent(EVENT_SHOOT, 2000); // TODO: adjust timers
+            events.ScheduleEvent(EVENT_SHOOT, 2000); /// @todo adjust timers
             events.ScheduleEvent(EVENT_CURSED_ARROW, 10000);
             events.ScheduleEvent(EVENT_FROST_TRAP, 1000);
             events.ScheduleEvent(EVENT_ICE_SHOT, 15000);

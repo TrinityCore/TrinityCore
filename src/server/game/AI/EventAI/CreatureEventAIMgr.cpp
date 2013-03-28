@@ -211,7 +211,10 @@ void CreatureEventAIMgr::LoadCreatureEventAI_Scripts()
                     }
 
                     if ((temp.spell_hit.schoolMask & spell->SchoolMask) != spell->SchoolMask)
-                        sLog->outError(LOG_FILTER_SQL, "CreatureEventAI:  Creature %u has param1(spellId %u) but param2 is not -1 and not equal to spell's school mask. Event %u can never trigger.", temp.creature_id, temp.spell_hit.schoolMask, i);
+                    {
+                        sLog->outError(LOG_FILTER_SQL, "CreatureEventAI:  Creature %u has param1(spellId %u) but param2 is not -1 and not equal to spell's school mask. Event %u can never trigger.",
+                                       temp.creature_id, temp.spell_hit.schoolMask, i);
+                    }
                 }
 
                 if (!temp.spell_hit.schoolMask)
@@ -237,11 +240,17 @@ void CreatureEventAIMgr::LoadCreatureEventAI_Scripts()
                         break;
                     case SPAWNED_EVENT_MAP:
                         if (!sMapStore.LookupEntry(temp.spawned.conditionValue1))
-                            sLog->outError(LOG_FILTER_SQL, "CreatureEventAI:  Creature %u are using spawned event(%u) with param1 = %u 'map specific' but with not existed map (%u) in param2. Event will never repeat.", temp.creature_id, i, temp.spawned.condition, temp.spawned.conditionValue1);
+                        {
+                            sLog->outError(LOG_FILTER_SQL, "CreatureEventAI:  Creature %u are using spawned event(%u) with param1 = %u 'map specific' but with not existed map (%u) in param2. Event will never repeat.",
+                                           temp.creature_id, i, temp.spawned.condition, temp.spawned.conditionValue1);
+                        }
                         break;
                     case SPAWNED_EVENT_ZONE:
                         if (!GetAreaEntryByAreaID(temp.spawned.conditionValue1))
-                            sLog->outError(LOG_FILTER_SQL, "CreatureEventAI:  Creature %u are using spawned event(%u) with param1 = %u 'area specific' but with not existed area (%u) in param2. Event will never repeat.", temp.creature_id, i, temp.spawned.condition, temp.spawned.conditionValue1);
+                        {
+                            sLog->outError(LOG_FILTER_SQL, "CreatureEventAI:  Creature %u are using spawned event(%u) with param1 = %u 'area specific' but with not existed area (%u) in param2. Event will never repeat.",
+                                           temp.creature_id, i, temp.spawned.condition, temp.spawned.conditionValue1);
+                        }
                     default:
                         sLog->outError(LOG_FILTER_SQL, "CreatureEventAI:  Creature %u are using invalid spawned event %u mode (%u) in param1", temp.creature_id, i, temp.spawned.condition);
                         break;

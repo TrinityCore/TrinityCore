@@ -78,7 +78,7 @@ void LFGPlayerScript::OnLogin(Player* player)
 
     sLFGMgr->InitializeLockedDungeons(player);
     sLFGMgr->SetTeam(player->GetGUID(), player->GetTeam());
-    // TODO - Restore LfgPlayerData and send proper status to player if it was in a group
+    /// @todo - Restore LfgPlayerData and send proper status to player if it was in a group
 }
 
 void LFGPlayerScript::OnBindToInstance(Player* player, Difficulty difficulty, uint32 mapId, bool /*permanent*/)
@@ -166,7 +166,7 @@ void LFGGroupScript::OnRemoveMember(Group* group, uint64 guid, RemoveMethod meth
 
     if (isLFG && method == GROUP_REMOVEMETHOD_KICK)        // Player have been kicked
     {
-        // TODO - Update internal kick cooldown of kicker
+        /// @todo - Update internal kick cooldown of kicker
         std::string str_reason = "";
         if (reason)
             str_reason = std::string(reason);

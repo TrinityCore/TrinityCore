@@ -51,14 +51,13 @@ InstanceSaveManager::~InstanceSaveManager()
             ++next;
             (*itr2)->UnbindInstance(save->GetMapId(), save->GetDifficulty(), true);
         }
-        save->m_playerList.clear();
 
         for (InstanceSave::GroupListType::iterator itr2 = save->m_groupList.begin(), next = itr2; itr2 != save->m_groupList.end(); itr2 = next)
         {
             ++next;
             (*itr2)->UnbindInstance(save->GetMapId(), save->GetDifficulty(), true);
         }
-        save->m_groupList.clear();
+
         delete save;
     }
 }
@@ -646,7 +645,7 @@ void InstanceSaveManager::_ResetOrWarnAll(uint32 mapid, Difficulty difficulty, b
             ((InstanceMap*)map2)->Reset(INSTANCE_RESET_GLOBAL);
     }
 
-    // TODO: delete creature/gameobject respawn times even if the maps are not loaded
+    /// @todo delete creature/gameobject respawn times even if the maps are not loaded
 }
 
 uint32 InstanceSaveManager::GetNumBoundPlayersTotal()
