@@ -4141,6 +4141,20 @@ public:
         return 0;
     }
 
+	// SendClearCooldowns(spellId, (unit)target)
+    static int SendClearCooldowns(lua_State* L, Unit* unit)
+    {
+        TO_PLAYER();
+
+        uint32 spellId = luaL_checkunsigned(L, 1);
+        Unit* target = sEluna->CHECK_UNIT(L, 2);
+        if (!target)
+            return 0;
+
+        player->SendClearCooldown(spellId, target);
+        return 0;
+    }
+
     // SendBroadcastMessage(msg)
     static int SendBroadcastMessage(lua_State* L, Unit* unit)
     {
