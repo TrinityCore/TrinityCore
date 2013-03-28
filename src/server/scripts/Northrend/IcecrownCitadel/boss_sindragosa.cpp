@@ -352,7 +352,6 @@ class boss_sindragosa : public CreatureScript
                         me->CastCustomSpell(SPELL_ICE_TOMB_TARGET, SPELLVALUE_MAX_TARGETS, RAID_MODE<int32>(2, 5, 2, 6), NULL);
                         me->SetFacingTo(float(M_PI));
                         events.ScheduleEvent(EVENT_AIR_MOVEMENT_FAR, 1);
-                        _frostBombCounter = 0;
                         events.ScheduleEvent(EVENT_FROST_BOMB, 13000);
                         break;
                     case POINT_AIR_PHASE_FAR:
@@ -562,12 +561,7 @@ class boss_sindragosa : public CreatureScript
                             Talk(EMOTE_WARN_FROZEN_ORB);
                             me->CastCustomSpell(SPELL_ICE_TOMB_TARGET, SPELLVALUE_MAX_TARGETS, RAID_MODE<int32>(1, 1, 1, 1), NULL);
                             me->SetFacingTo(float(2*M_PI)); // Fix by Diton
-
-                            _iceTombCounter++;
-                            if (_iceTombCounter < 4) // Avoid casting ice tomb more than 4 times between icy grips
-                                events.ScheduleEvent(EVENT_ICE_TOMB, urand(16000, 23000));
-                            else // We are done with all ice tombs, start icy grip timer
-                                events.ScheduleEvent(EVENT_ICY_GRIP, 20000);
+                            events.ScheduleEvent(EVENT_ICE_TOMB, urand(16000, 23000));
                             break;
                         case EVENT_FROST_BOMB:
                         {
