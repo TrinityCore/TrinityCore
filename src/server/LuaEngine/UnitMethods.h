@@ -2953,6 +2953,34 @@ public:
         return 0;
     }
 
+    //SetGender(value)
+    static int SetGender(lua_State * L, Unit * unit)
+    {
+        TO_PLAYER();
+
+        Gender gender;
+        uint32 _gender = luaL_checkint(L, 1);
+
+        switch(_gender)
+        {
+        case 0:
+            gender = GENDER_MALE;
+            break;
+        case 1:
+            gender = GENDER_FEMALE;
+            break;
+        default:
+            luaL_error(L, "1st argument not a valid gender");
+            return 0;
+        }
+
+        // Set gender
+        player->SetByteValue(UNIT_FIELD_BYTES_0, 2, gender);
+        player->SetByteValue(PLAYER_BYTES_3, 0, gender);
+        player->InitDisplayIds();
+        return 0;
+    }
+
     //MoveTo(id, x, y, z[, generatePath])
     static int MovePoint(lua_State* L, Unit* unit)
     {
