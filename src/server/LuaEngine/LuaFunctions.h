@@ -166,6 +166,7 @@ ElunaRegister<Unit> UnitMethods[] =
     {"GossipClearMenu", &LuaUnit::GossipClearMenu},                 // :GossipClearMenu() -- Clears the gossip menu of options. Pretty much only useful with player gossip. Need to use before creating a new menu for the player
 
     // Other
+	{"SendClearCooldowns", &LuaUnit::SendClearCooldowns },          // :SendClearCooldowns(spellId, (unit)target) -- Clears the cooldown of the target with a specified spellId.
     {"SendBroadcastMessage", &LuaUnit::SendBroadcastMessage},       // :SendBroadcastMessage(message)
     {"SendAreaTriggerMessage", &LuaUnit::SendAreaTriggerMessage},   // :SendAreaTriggerMessage(message) -- Sends a yellow message in the middle of your screen
     {"SendNotification", &LuaUnit::SendNotification},               // :SendNotification(message) -- Sends a red message in the middle of your screen
