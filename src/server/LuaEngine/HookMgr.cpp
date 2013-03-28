@@ -144,9 +144,10 @@ bool HookMgr::OnQuestReward(Player* player, Creature* creature, Quest const* que
 }
 uint32 HookMgr::GetDialogStatus(Player* player, Creature* creature)
 {
+    uint32 result = 0;
     for (HookPointerSet::iterator it = hookPointers.begin(); it != hookPointers.end(); ++it)
-        (*it)->GetDialogStatus(player, creature);
-    return 100;
+        result = (*it)->GetDialogStatus(player, creature);
+    return result;
 }
 // gameobject
 bool HookMgr::OnDummyEffect(Unit* caster, uint32 spellId, SpellEffIndex effIndex, GameObject* target)
@@ -199,9 +200,10 @@ bool HookMgr::OnQuestReward(Player* player, GameObject* go, Quest const* quest, 
 }
 uint32 HookMgr::GetDialogStatus(Player* player, GameObject* go)
 {
+    bool result = 0;
     for (HookPointerSet::iterator it = hookPointers.begin(); it != hookPointers.end(); ++it)
-        (*it)->GetDialogStatus(player, go);
-    return 100;
+        result = (*it)->GetDialogStatus(player, go);
+    return result;
 }
 void HookMgr::OnDestroyed(GameObject* go, Player* player)
 {

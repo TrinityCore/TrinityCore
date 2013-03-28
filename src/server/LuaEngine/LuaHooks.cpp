@@ -351,7 +351,7 @@ public:
     {
         int bind = sEluna->CreatureEventBindings->GetBind(creature->GetEntry(), CREATURE_EVENT_ON_DIALOG_STATUS);
         if (!bind)
-            return 100;
+            return 0;
         sEluna->BeginCall(bind);
         sEluna->PushInteger(sEluna->LuaState, CREATURE_EVENT_ON_DIALOG_STATUS);
         sEluna->PushUnit(sEluna->LuaState, player);
@@ -449,7 +449,7 @@ public:
     {
         int bind = sEluna->GameObjectEventBindings->GetBind(go->GetEntry(), GAMEOBJECT_EVENT_ON_DIALOG_STATUS);
         if (!bind)
-            return 100;
+            return 0;
         sEluna->BeginCall(bind);
         sEluna->PushInteger(sEluna->LuaState, GAMEOBJECT_EVENT_ON_DIALOG_STATUS);
         sEluna->PushUnit(sEluna->LuaState, player);

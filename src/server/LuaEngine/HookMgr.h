@@ -96,7 +96,7 @@ public:
     virtual bool OnQuestSelect(Player* player, Creature* creature, Quest const* quest) { return false; }
     virtual bool OnQuestComplete(Player* player, Creature* creature, Quest const* quest) { return false; }
     virtual bool OnQuestReward(Player* player, Creature* creature, Quest const* quest, uint32 opt) { return false; }
-    virtual uint32 GetDialogStatus(Player* player, Creature* creature) { return false; }
+    virtual uint32 GetDialogStatus(Player* player, Creature* creature) { return 100; }
     // gameobject
     virtual bool OnDummyEffect(Unit* caster, uint32 spellId, SpellEffIndex effIndex, GameObject* target) { return false; }
     virtual bool OnGossipHello(Player* player, GameObject* go) { return false; }

@@ -931,8 +931,11 @@ uint32 ScriptMgr::GetDialogStatus(Player* player, GameObject* go)
     ASSERT(player);
     ASSERT(go);
 
-    if(uint32 value = sHookMgr->GetDialogStatus(player, go))
-        return value;
+    if(uint32 dialogid = sHookMgr->GetDialogStatus(player, go))
+    {
+        player->PlayerTalkClass->ClearMenus();
+        return dialogid;
+    }
 
     // TODO: 100 is a funny magic number to have hanging around here...
     GET_SCRIPT_RET(GameObjectScript, go->GetScriptId(), tmpscript, 100);
