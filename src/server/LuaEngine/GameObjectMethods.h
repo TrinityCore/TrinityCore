@@ -232,6 +232,19 @@ public:
         return 1;
     }
 
+	// IsInvisibleDueToDespawn()
+	static int IsInvisibleDueToDespawn(lua_State* L, GameObject * go)
+	{
+		if(!go || !go->IsInWorld())
+			sEluna->PushBoolean(L, false);
+		else
+		{
+			bool respond = go->IsInvisibleDueToDespawn();
+			sEluna->PushBoolean(L, respond);
+		}
+		return 1;
+	}
+
     // IsTransport()
     static int IsTransport(lua_State* L, GameObject* go)
     {

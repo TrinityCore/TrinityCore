@@ -500,6 +500,7 @@ ElunaRegister<GameObject> GameObjectMethods[] =
     {"IsDestructible", &LuaGameObject::IsDestructible},             // :IsDestructible() - UNDOCUMENTED
     {"IsActive", &LuaGameObject::IsActive},                         // :IsActive() - UNDOCUMENTED
     {"HasQuest", &LuaGameObject::HasQuest},                         // :HasQuest(questId) - UNDOCUMENTED
+    {"IsInvisibleDueToDespawn", &LuaGameObject::IsInvisibleDueToDespawn}, // :IsInvisibleDueToDespawn() - UNDOCUMENTED
 
     // Other
     {"CastSpellOnTarget", &LuaGameObject::CastSpellOnTarget},       // :CastSpellOnTarget(target, spellId) - Casts the spell on target, no manacost or cast time - UNDOCUMENTED
@@ -531,8 +532,7 @@ ElunaRegister<Item> ItemMethods[] =
     {"GetFloatValue", &LuaItem::GetFloatValue},                             // :GetFloatValue(index) - returns a float value from item fields UNDOCUMENTED
     {"GetByteValue", &LuaItem::GetByteValue},                               // :GetByteValue(index, offset) - returns a byte value from item fields UNDOCUMENTED
     {"GetUInt16Value", &LuaItem::GetUInt16Value},                           // :GetUInt16Value(index, offset) - returns a uint16 value from item fields UNDOCUMENTED
-
-    // Setters
+	// Setters
     {"SetOwner", &LuaItem::SetOwner},                                       // :SetOwner(player) - Sets the owner of the item UNDOCUMENTED
     {"SetBinding", &LuaItem::SetBinding},                                   // :SetBinding(bound) - Sets the item binding to true or false UNDOCUMENTED
     {"SetCount", &LuaItem::SetCount},                                       // :SetCount(count) - Sets the item count UNDOCUMENTED
