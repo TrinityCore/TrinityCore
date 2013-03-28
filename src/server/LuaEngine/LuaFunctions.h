@@ -122,7 +122,7 @@ ElunaRegister<Unit> UnitMethods[] =
     {"ToggleDND", &LuaUnit::ToggleDND},                             // :ToggleDND() -- Toggles DND state for player. UNDOCUMENTED
     {"IsAFK", &LuaUnit::isAFK},                                     // :IsAFK() -- Returns true if the player is afk. UNDOCUMENTED
     {"IsDND", &LuaUnit::isDND},                                     // :IsDND() -- Returns true if the player is in dnd mode. UNDOCUMENTED
-    {"IsAcceptingWhispers", &LuaUnit::isAcceptingWhispers},               // :IsAcceptWhispers() -- Returns true if the player accepts whispers. UNDOCUMENTED
+    {"IsAcceptingWhispers", &LuaUnit::isAcceptingWhispers},         // :IsAcceptWhispers() -- Returns true if the player accepts whispers. UNDOCUMENTED
     {"IsGMChat", &LuaUnit::isGMChat},                               // :IsGMChat() -- Returns true if the player has GM chat on. UNDOCUMENTED
     {"IsTaxiCheater", &LuaUnit::isTaxiCheater},                     // :IsTaxiCheater() -- Returns true if the player has taxi cheat on. UNDOCUMENTED
     {"IsGMVisible", &LuaUnit::isGMVisible},                         // :IsGMVisible() -- Returns true if the player is GM visible. UNDOCUMENTED
@@ -386,7 +386,7 @@ ElunaRegister<Unit> UnitMethods[] =
     {"SetRooted", &LuaUnit::SetRooted},                             // :SetRooted([enable]) - Roots or removes root UNDOCUMENTED
     {"SetConfused", &LuaUnit::SetConfused},                         // :SetConfused([enable]) - Sets confused or removes confusion UNDOCUMENTED
     {"SetFeared", &LuaUnit::SetFeared},                             // :SetFeared([enable]) - Fears or removes fear UNDOCUMENTED
-    {"SetGender", &LuaUnit::SetGender},								// :SetGender(value) -- 0 = male 1 = female UNDOCUMENTED
+    {"SetGender", &LuaUnit::SetGender},                             // :SetGender(value) -- 0 = male 1 = female UNDOCUMENTED
 
     // Boolean
     {"IsAlive", &LuaUnit::IsAlive},                                 // :IsAlive()
@@ -574,13 +574,13 @@ ElunaRegister<Aura> AuraMethods[] =
 {
     // Getters
     {"GetUnitType", &LuaAura::GetUnitType},                         // :GetUnitType() - Returns object type, IE: Aura, Creature  UNDOCUMENTED
-    {"GetCaster", &LuaAura::GetCaster},                             // :GetCaster() - Returns caster as object.					 UNDOCUMENTED
-    {"GetCasterGUID", &LuaAura::GetCasterGUID},                     // :GetCasterGUID() - Returns caster as GUID.				 UNDOCUMENTED
-    {"GetCasterLevel", &LuaAura::GetCasterLevel},                   // :GetCasterLevel() - Returns casters level.				 UNDOCUMENTED
-    {"GetDuration", &LuaAura::GetDuration},                         // :GetDuration() - Returns remaining duration.				 UNDOCUMENTED
-    {"GetMaxDuration", &LuaAura::GetMaxDuration},                   // :GetMaxDuration() - Returns maximum duration.		     UNDOCUMENTED
+    {"GetCaster", &LuaAura::GetCaster},                             // :GetCaster() - Returns caster as object.                     UNDOCUMENTED
+    {"GetCasterGUID", &LuaAura::GetCasterGUID},                     // :GetCasterGUID() - Returns caster as GUID.                 UNDOCUMENTED
+    {"GetCasterLevel", &LuaAura::GetCasterLevel},                   // :GetCasterLevel() - Returns casters level.                 UNDOCUMENTED
+    {"GetDuration", &LuaAura::GetDuration},                         // :GetDuration() - Returns remaining duration.                 UNDOCUMENTED
+    {"GetMaxDuration", &LuaAura::GetMaxDuration},                   // :GetMaxDuration() - Returns maximum duration.             UNDOCUMENTED
     {"GetCharges", &LuaAura::GetCharges},                           // :GetCharges() - Returns remaining charges.                UNDOCUMENTED
-    {"GetAuraId", &LuaAura::GetAuraId},                             // :GetAuraId() - Returns aura ID.							 UNDOCUMENTED
+    {"GetAuraId", &LuaAura::GetAuraId},                             // :GetAuraId() - Returns aura ID.                             UNDOCUMENTED
     {"GetStackAmount", &LuaAura::GetStackAmount},                   // :GetStackAmount() - Returns current stack amount.         UNDOCUMENTED
     {"GetOwner", &LuaAura::GetOwner},                               // :GetOwner() - Gets the unit wearing the aura              UNDOCUMENTED
 
