@@ -711,5 +711,12 @@ namespace LuaGlobalFunctions
         }
         return 0;
     }
+
+    // SaveAllPlayers()
+    static int SaveAllPlayers(lua_State* L)
+    {
+        sObjectAccessor->SaveAllPlayers();
+        return 0;
+    }
 }
 #endif

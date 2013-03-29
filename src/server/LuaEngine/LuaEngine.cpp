@@ -152,6 +152,7 @@ void Eluna::RegisterGlobals(lua_State* L)
     lua_register(L, "VendorRemoveAllItems", &LuaGlobalFunctions::VendorRemoveAllItems);
     lua_register(L, "Kick", &LuaGlobalFunctions::Kick);
     lua_register(L, "Ban", &LuaGlobalFunctions::Ban);
+    lua_register(L, "SaveAllPlayers", &LuaGlobalFunctions::SaveAllPlayers);
 }
 
 // Loads lua scripts from given directory
