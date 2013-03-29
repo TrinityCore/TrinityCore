@@ -744,11 +744,28 @@ public:
     static int GetRecruiterId(lua_State* L, Unit* unit)
     {
         TO_PLAYER();
-
+        
         sEluna->PushUnsigned(L, player->GetSession()->GetRecruiterId());
         return 1;
     }
+    
+    // GetSelectedPlayer()
+    static int GetSelectedPlayer(lua_State* L, Unit* unit)
+    {
+        TO_PLAYER();
+        
+        sEluna->PushUnit(L, player->GetSelectedPlayer());
+        return 1;
+    }
 
+    static int GetSelectedUnit(lua_State* L, Unit* unit)
+    {
+        TO_PLAYER();
+
+        sEluna->PushUnit(L, player->GetSelectedUnit());
+        return 1;
+    }
+    
     // GetLatency()
     static int GetLatency(lua_State* L, Unit* unit)
     {
@@ -3108,6 +3125,16 @@ public:
         sEluna->PushUnsigned(L, unit->GetDisplayId());
         return 1;
     }
+
+    //GetNativeDisplayID()
+    static int GetNativeDisplayID(lua_State* L, Unit* unit)
+    {
+        TO_UNIT();
+
+        sEluna->PushUnsigned(L, unit->GetNativeDisplayId());
+        return 1;
+    }
+
 
     // GetName()
     static int GetName(lua_State* L, Unit* unit)

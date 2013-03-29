@@ -70,6 +70,9 @@ ElunaRegister<Unit> UnitMethods[] =
     {"GetChampioningFaction", &LuaUnit::GetChampioningFaction},     // :GetChampioningFaction() -- Returns the player's championing faction.
     {"GetLatency", &LuaUnit::GetLatency},                           // :GetLatency() -- Returns player's latency.
     {"GetRecruiterId", &LuaUnit::GetRecruiterId},                   // :GetRecruiterId() -- Returns player's recruiter's ID.
+    {"GetSelectedPlayer", &LuaUnit::GetSelectedPlayer},             // :GetSelectedPlayer() -- Returns player's selected player. UNDOCUMENTED
+    {"GetSelectedUnit", &LuaUnit::GetSelectedUnit},                 // :GetSelectedUnit() -- Returns player's selected unit. UNDOCUMENTED
+
 
     // Setters
     {"AdvanceSkillsToMax", &LuaUnit::AdvanceSkillsToMax},           // :AdvanceSkillsToMax() -- Advances all currently known skills to the currently known max level
@@ -327,6 +330,7 @@ ElunaRegister<Unit> UnitMethods[] =
     {"GetLevel", &LuaUnit::GetLevel},                               // :GetLevel()
     {"GetHealth", &LuaUnit::GetHealth},                             // :GetHealth()
     {"GetDisplayID", &LuaUnit::GetDisplayID},                       // :GetDisplayID()
+    {"GetNativeDisplayID", &LuaUnit::GetNativeDisplayID},           // :GetNativeDisplayID() -- UNDOCUMENTED
     {"GetGUID", &LuaUnit::GetGUID},                                 // :GetGUID()
     {"GetMapId", &LuaUnit::GetMapId},                               // :GetMapId()
     {"GetX", &LuaUnit::GetX},                                       // :GetX()
@@ -500,6 +504,7 @@ ElunaRegister<GameObject> GameObjectMethods[] =
     {"IsDestructible", &LuaGameObject::IsDestructible},             // :IsDestructible() -
     {"IsActive", &LuaGameObject::IsActive},                         // :IsActive() -
     {"HasQuest", &LuaGameObject::HasQuest},                         // :HasQuest(questId) -
+    {"IsInvisibleDueToDespawn", &LuaGameObject::IsInvisibleDueToDespawn}, // :IsInvisibleDueToDespawn() - UNDOCUMENTED
 
     // Other
     {"CastSpellOnTarget", &LuaGameObject::CastSpellOnTarget},       // :CastSpellOnTarget(target, spellId) - Casts the spell on target, no manacost or cast time -
@@ -531,8 +536,7 @@ ElunaRegister<Item> ItemMethods[] =
     {"GetFloatValue", &LuaItem::GetFloatValue},                             // :GetFloatValue(index) - returns a float value from item fields
     {"GetByteValue", &LuaItem::GetByteValue},                               // :GetByteValue(index, offset) - returns a byte value from item fields
     {"GetUInt16Value", &LuaItem::GetUInt16Value},                           // :GetUInt16Value(index, offset) - returns a uint16 value from item fields
-
-    // Setters
+	// Setters
     {"SetOwner", &LuaItem::SetOwner},                                       // :SetOwner(player) - Sets the owner of the item
     {"SetBinding", &LuaItem::SetBinding},                                   // :SetBinding(bound) - Sets the item binding to true or false
     {"SetCount", &LuaItem::SetCount},                                       // :SetCount(count) - Sets the item count
@@ -606,8 +610,14 @@ ElunaRegister<Spell> SpellMethods[] =
     {"GetEntry", &LuaSpell::GetId},                                 // :GetEntry() -- Returns the spell's ID                       
     {"GetDuration", &LuaSpell::GetDuration},                        // :GetDuration() -- Returns the spell's duration              
     {"GetPowerCost", &LuaSpell::GetPowerCost},                      // :GetPowerCost() -- Returns the spell's power cost (mana, energy, rage, etc)     
+    
+    //Setters
+    {"SetAutoRepeat", &LuaSpell::SetAutoRepeat},                    // :SetAutoRepeat(boolean) -- UNDOCUMENTED
 
-    // Other
+    //Boolean
+    {"IsAutoRepeat", &LuaSpell::IsAutoRepeat},                      // :IsAutoRepeat() -- UNDOCUMENTED
+
+	// Other
     {"Cancel", &LuaSpell::cancel},                                  // :Cancel() -- Cancels the spell casting                      
     {"Cast", &LuaSpell::Cast},                                      // :Cast(skipCheck) -- Casts the spell (if true, removes the check for instant spells, etc)     
     {"Finish", &LuaSpell::Finish},                                  // :Finish() -- Finishes the spell (SPELL_STATE_FINISH)        
