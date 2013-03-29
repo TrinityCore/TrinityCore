@@ -5993,6 +5993,16 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
     if (damage)
         procVictim |= PROC_FLAG_TAKEN_DAMAGE;
 
+    if (damage > 0)
+    {
+        if (target->HasAura(65220) || target->HasAura(32233) || target->HasAura(63623) || target->HasAura(62137))
+        {
+            if (GetCaster()->GetTypeId() == TYPEID_UNIT)
+                damage = int32(float(damage) / 100 * 10);
+                resist -= damage;
+        }
+    }
+
     int32 overkill = damage - target->GetHealth();
     if (overkill < 0)
         overkill = 0;
