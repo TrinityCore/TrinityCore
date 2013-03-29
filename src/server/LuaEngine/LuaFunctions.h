@@ -536,7 +536,7 @@ ElunaRegister<Item> ItemMethods[] =
     {"GetFloatValue", &LuaItem::GetFloatValue},                             // :GetFloatValue(index) - returns a float value from item fields
     {"GetByteValue", &LuaItem::GetByteValue},                               // :GetByteValue(index, offset) - returns a byte value from item fields
     {"GetUInt16Value", &LuaItem::GetUInt16Value},                           // :GetUInt16Value(index, offset) - returns a uint16 value from item fields
-	// Setters
+    // Setters
     {"SetOwner", &LuaItem::SetOwner},                                       // :SetOwner(player) - Sets the owner of the item
     {"SetBinding", &LuaItem::SetBinding},                                   // :SetBinding(bound) - Sets the item binding to true or false
     {"SetCount", &LuaItem::SetCount},                                       // :SetCount(count) - Sets the item count
@@ -610,14 +610,14 @@ ElunaRegister<Spell> SpellMethods[] =
     {"GetEntry", &LuaSpell::GetId},                                 // :GetEntry() -- Returns the spell's ID                       
     {"GetDuration", &LuaSpell::GetDuration},                        // :GetDuration() -- Returns the spell's duration              
     {"GetPowerCost", &LuaSpell::GetPowerCost},                      // :GetPowerCost() -- Returns the spell's power cost (mana, energy, rage, etc)     
-    
+
     //Setters
     {"SetAutoRepeat", &LuaSpell::SetAutoRepeat},                    // :SetAutoRepeat(boolean) -- UNDOCUMENTED
 
     //Boolean
     {"IsAutoRepeat", &LuaSpell::IsAutoRepeat},                      // :IsAutoRepeat() -- UNDOCUMENTED
 
-	// Other
+    // Other
     {"Cancel", &LuaSpell::cancel},                                  // :Cancel() -- Cancels the spell casting                      
     {"Cast", &LuaSpell::Cast},                                      // :Cast(skipCheck) -- Casts the spell (if true, removes the check for instant spells, etc)     
     {"Finish", &LuaSpell::Finish},                                  // :Finish() -- Finishes the spell (SPELL_STATE_FINISH)        

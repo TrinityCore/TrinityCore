@@ -75,13 +75,13 @@ public:
         return 0;
     }
 
-	//IsAutoRepeat()
+    //IsAutoRepeat()
     static int IsAutoRepeat(lua_State* L, Spell* spell)
     {
         if (!spell)
             sEluna->PushBoolean(L, false);
-		else
-		{
+        else
+        {
             bool repeat = spell->IsAutoRepeat();
             sEluna->PushBoolean(L, repeat);
         }
@@ -89,15 +89,15 @@ public:
     }
 
     //SetAutoRepeat(boolean)
-	static int SetAutoRepeat(lua_State* L, Spell* spell)
-	{
-		if (!spell)
-			return 0;
+    static int SetAutoRepeat(lua_State* L, Spell* spell)
+    {
+        if (!spell)
+            return 0;
 
-		bool repeat = luaL_checkbool(L, 1);
-		spell->SetAutoRepeat(repeat);
-		return 0;
-	}
+        bool repeat = luaL_checkbool(L, 1);
+        spell->SetAutoRepeat(repeat);
+        return 0;
+    }
 
     // Cancel()
     static int cancel(lua_State* L, Spell* spell)

@@ -235,7 +235,7 @@ public:
     // IsInvisibleDueToDespawn()
     static int IsInvisibleDueToDespawn(lua_State* L, GameObject * go)
     {
-        if(!go || !go->IsInWorld())
+        if (!go || !go->IsInWorld())
             sEluna->PushBoolean(L, false);
         else
         {

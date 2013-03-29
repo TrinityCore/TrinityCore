@@ -213,7 +213,7 @@ public:
 
         Unit* target = sEluna->CHECK_UNIT(L, 1);
 
-        if(!target)
+        if (!target)
         {
             luaL_error(L, "1st argument is not an unit");
             sEluna->PushBoolean(L, false);
@@ -232,12 +232,12 @@ public:
         Unit* enemy = sEluna->CHECK_UNIT(L, 2);
         bool checkfaction = luaL_optbool(L, 3, true);
 
-        if(!u)
+        if (!u)
         {
             luaL_error(L, "1st argument is not an unit");
             sEluna->PushBoolean(L, false);
         }
-        if(!enemy)
+        if (!enemy)
         {
             luaL_error(L, "2nd argument is not an unit");
             sEluna->PushBoolean(L, false);
@@ -314,7 +314,7 @@ public:
 
         Unit* target = sEluna->CHECK_UNIT(L, 1);
 
-        if(!target)
+        if (!target)
         {
             luaL_error(L, "unit is nil");
             return 0;
@@ -330,7 +330,7 @@ public:
 
         Unit* target = sEluna->CHECK_UNIT(L, 1);
 
-        if(!target)
+        if (!target)
         {
             luaL_error(L, "unit is nil");
             return 0;
@@ -347,7 +347,7 @@ public:
         Unit* target = sEluna->CHECK_UNIT(L, 1);
         bool force = luaL_checkbool(L, 2);
 
-        if(!target)
+        if (!target)
         {
             luaL_error(L, "unit is nil");
             return 0;
@@ -673,9 +673,9 @@ public:
     {
         TO_UNIT();
 
-        if(Player* player = unit->ToPlayer())
+        if (Player* player = unit->ToPlayer())
             sEluna->PushUnsigned(L, player->GetShieldBlockValue());
-        if(Creature* creature = unit->ToCreature())
+        if (Creature* creature = unit->ToCreature())
             sEluna->PushUnsigned(L, creature->GetShieldBlockValue());
         else
             sEluna->PushUnsigned(L, unit->GetShieldBlockValue());
@@ -744,16 +744,16 @@ public:
     static int GetRecruiterId(lua_State* L, Unit* unit)
     {
         TO_PLAYER();
-        
+
         sEluna->PushUnsigned(L, player->GetSession()->GetRecruiterId());
         return 1;
     }
-    
+
     // GetSelectedPlayer()
     static int GetSelectedPlayer(lua_State* L, Unit* unit)
     {
         TO_PLAYER();
-        
+
         sEluna->PushUnit(L, player->GetSelectedPlayer());
         return 1;
     }
@@ -765,7 +765,7 @@ public:
         sEluna->PushUnit(L, player->GetSelectedUnit());
         return 1;
     }
-    
+
     // GetLatency()
     static int GetLatency(lua_State* L, Unit* unit)
     {
@@ -811,7 +811,7 @@ public:
         TO_PLAYER();
 
         GameObject* object = sEluna->CHECK_OBJECT(L, 1);
-        if(!object)
+        if (!object)
             return 0;
 
         WorldPacket data(SMSG_SHOW_MAILBOX, 8);
@@ -3735,15 +3735,15 @@ public:
         return 0;
     }
 
-	//SetNativeDisplayID(id)
-	static int SetNativeDisplayID(lua_State* L, Unit* unit)
-	{
-		TO_UNIT();
+    //SetNativeDisplayID(id)
+    static int SetNativeDisplayID(lua_State* L, Unit* unit)
+    {
+        TO_UNIT();
 
-		uint32 model = luaL_checkunsigned(L, 1);
-		unit->SetNativeDisplayId(model);
-		return 0;
-	}
+        uint32 model = luaL_checkunsigned(L, 1);
+        unit->SetNativeDisplayId(model);
+        return 0;
+    }
 
     // SetFacing(o)
     static int SetFacing(lua_State* L, Unit* unit)
@@ -4178,7 +4178,7 @@ public:
         return 0;
     }
 
-	// SendClearCooldowns(spellId, (unit)target)
+    // SendClearCooldowns(spellId, (unit)target)
     static int SendClearCooldowns(lua_State* L, Unit* unit)
     {
         TO_PLAYER();
@@ -5029,8 +5029,8 @@ public:
     {
         TO_UNIT();
 
-		if (Creature* vehicle = unit->GetVehicleCreatureBase())
-			vehicle->DespawnOrUnsummon();
+        if (Creature* vehicle = unit->GetVehicleCreatureBase())
+            vehicle->DespawnOrUnsummon();
         return 0;
     }
 
