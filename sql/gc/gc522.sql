@@ -49,6 +49,63 @@ UPDATE creature_template AS a INNER JOIN creature_template AS b SET a.equipment_
 -- adding immunities to some northrend heroic bosses
 UPDATE creature_template SET mechanic_immune_mask = mechanic_immune_mask |1|2|4|8|16|32|64|256|512|1024|2048|4096|8192|65536|131072|262144|524288|4194304|8388608|67108864|536870912 WHERE entry IN (30258,31463,29120,31610,31134,31506,29307,31365,29573,31367,27654,31558,29932,29315,31507,29306,31368,28586,31533,26687,30774,28921,31611,29311,31464,29313,31508,28546,31537,29310,31465,27483,31349,27977,31381,29312,31509,27656,31561,28923,31538,27655,31560,27975,31384,29305,30530,29316,31510,29308,31469,27978,31386,29304,31370,27447,31559,28587,31536,29266,31511,29314,31512);
 
+
+###########
+-- ULDUAR #
+###########
+
+-- CLEANUP
+
+UPDATE `creature_template` SET `unit_flags`= 33554432 WHERE `entry`=33661;
+UPDATE `creature_template` SET `speed_walk`= 1 WHERE `entry` IN (32865, 33147);
+UPDATE `creature_template` SET `baseattacktime`= 2000 WHERE `entry`=33147;
+UPDATE `creature_template` SET `modelid2`=16925 WHERE `entry`=32879;
+UPDATE `creature_template` SET `unit_flags`=33554432 WHERE `entry`=32879;
+UPDATE `creature_template` SET `unit_flags`=32768, `dynamicflags`=8 WHERE `entry` IN (32885,32883,32908,32907,32882,32886);
+UPDATE `creature_template` SET `modelid1`=169, `modelid2`=16925 WHERE `entry` IN (33378, 32892);
+UPDATE `creature_template` SET `unit_flags`=33554432 WHERE `entry` IN (33725, 33054);
+UPDATE `creature_template` SET `unit_flags`=256 WHERE `entry` IN (32872, 32873, 32874);
+UPDATE `creature_template` SET `flags_extra`=128 WHERE `entry`=32879;
+UPDATE `creature_template` SET `flags_extra`=0 WHERE `entry`=34143;
+UPDATE `creature_template` SET `modelid1`= 1126 WHERE `entry` IN (33990,33991);
+UPDATE `creature_template` SET `modelid2`= 1126 WHERE `entry` IN (33881,33882);
+UPDATE `creature_template` SET `minlevel`=1, `maxlevel`=1 WHERE `entry`=33990;
+UPDATE `creature_template` SET `modelid1`= 169 WHERE `entry` IN (34188,34189, 33233, 34129, 34153);
+UPDATE `creature_template` SET `unit_flags`=16384 WHERE `entry`=33264;
+UPDATE `creature_template` SET `unit_flags`=33554432 WHERE `entry`=33233;
+UPDATE `creature_template` SET `modelid1`= 169, `modelid2`=23258 WHERE `entry` IN (33050, 33395, 33170, 33402);
+UPDATE `creature_template` SET `modelid1`= 19725, `modelid2`=28549 WHERE `entry`=33292;
+UPDATE `creature_template` SET `modelid1`= 1126, `modelid2`=28549 WHERE `entry`=34194;
+UPDATE `creature_template` SET `mindmg`= 356, `maxdmg`=503, `minlevel`=76, `maxlevel`=76 WHERE `entry`=32879;
+UPDATE `creature_template` SET `minlevel`=1, `maxlevel`=1, `faction_A`=35, `faction_H`=35, `mindmg`=2, `maxdmg`=2, `attackpower`=24, `dmg_multiplier`=1, `unit_flags`=0, `InhabitType`=3, `ScriptName`='npc_yogg_saron_encounter_controller' WHERE `entry`=29224;
+UPDATE `creature` SET `spawndist`=0 WHERE `id`=32865;
+UPDATE `creature` SET `MovementType`=0, `spawndist`=0 WHERE `id`=32865;
+UPDATE `gameobject_template` SET `flags`=16 WHERE `entry`=194312;
+UPDATE `gameobject_template` SET `type`=0, `faction`=0, `data1`=1845, `data4`=33914 WHERE `entry`=194264;
+UPDATE `gameobject_template` SET `flags`=48 WHERE `entry` IN (194912, 194914);
+UPDATE `gameobject` SET `rotation2`=0, `spawntimesecs`=180, `animprogress`=255 WHERE `id`=194264;
+DELETE FROM `gameobject_template` WHERE `entry`=194438;
+DELETE FROM `gameobject` WHERE `id`=194438;
+DELETE FROM `waypoint_data` WHERE `id` IN (34496, 34497);
+DELETE FROM `creature` WHERE `id`=33856;
+INSERT INTO `creature` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `modelid`, `position_x`, `position_y`, `position_z`, `spawntimesecs`, `curhealth`) VALUES 
+(137621,33856,603,3,1,16925,2703.93,2569.32,364.397,180,4120),
+(137622,33856,603,3,1,16925,2715.33,2569.23,364.397,180,4120),
+(137623,33856,603,3,1,16925,2726.85,2569.28,364.397,180,4120),
+(137624,33856,603,3,1,16925,2765.24,2534.38,364.397,180,4120),
+(137625,33856,603,3,1,16925,2759.54,2544.3,364.397,180,4120),
+(137626,33856,603,3,1,16925,2753.82,2554.22,364.397,180,4120),
+(137627,33856,603,3,1,16925,2764.95,2604.11,364.397,180,4120),
+(137628,33856,603,3,1,16925,2759.19,2594.26,364.397,180,4120),
+(137629,33856,603,3,1,16925,2753.56,2584.3,364.397,180,4120);
+
+UPDATE `gameobject_template` SET `type`=0, `faction`=0, `data1`=1845, `data4`=33914 WHERE `entry`=194264;
+DELETE FROM `gameobject_scripts` WHERE `id`=55194;
+UPDATE `gameobject` SET `rotation2`=0, `spawntimesecs`=180, `animprogress`=255 WHERE `id`=194264;
+DELETE FROM `spell_linked_spell` WHERE `spell_trigger` IN (66336, 67076, 67077, 67078);
+
+-- END OF CLEANUP
+
 ###########
 -- ULDUAR #
 ###########
@@ -397,7 +454,6 @@ INSERT INTO `vehicle_template_accessory` VALUES
 DELETE FROM `npc_spellclick_spells` WHERE `npc_entry`=33432;
 INSERT INTO `npc_spellclick_spells` (`npc_entry`, `spell_id`, `cast_flags`, `user_type`) VALUES
 (33432, 46598, 1, 0);
-
 -- Leviathan skills and skill-helper
 UPDATE `creature_template` SET `ScriptName`='npc_proximity_mine' WHERE `entry`=34362;
 UPDATE `creature_model_info` SET `bounding_radius`=0.5, `combat_reach`=7 WHERE `modelid` IN (28831, 28841, 28979);
@@ -1010,8 +1066,8 @@ INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language
 (32845, 8, 0, 'Hodir gains Frozen Blows!', 41, 0, 100, 0, 0, 0, 'Hodir - EMOTE_BLOW');
 
 -- Mimiron
-DELETE FROM `script_texts` WHERE `npc_entry` IN (33350, 33432);
-DELETE FROM `creature_text` WHERE `entry` IN (33350, 33432);
+DELETE FROM `script_texts` WHERE `npc_entry`=33350;
+DELETE FROM `creature_text` WHERE `entry`=33350;
 INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) VALUES
 (33350, 0, 0, 'Oh, my! I wasn''t expecting company! The workshop is such a mess! How embarrassing!', 14, 0, 100, 0, 0, 15611, 'Mimiron SAY_AGGRO'),
 (33350, 1, 0, 'Now why would you go and do something like that? Didn''t you see the sign that said ''DO NOT PUSH THIS BUTTON!''? How will we finish testing with the self-destruct mechanism active?', 14, 0, 100, 0, 0, 15629, 'Mimiron SAY_HARDMODE_ON'),
@@ -1031,8 +1087,7 @@ INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language
 (33350, 12, 0, 'Prognosis: Negative!', 14, 0, 100, 0, 0, 15625, 'Mimiron SAY_V07TRON_SLAY_1'),
 (33350, 12, 1, 'You''re not going to get up from that one, friend.', 14, 0, 100, 0, 0, 15626, 'Mimiron SAY_V07TRON_SLAY_2'),
 (33350, 13, 0, 'It would appear that I''ve made a slight miscalculation. I allowed my mind to be corrupted by the fiend in the prison, overriding my primary directive. All systems seem to be functional now. Clear.', 14, 0, 100, 0, 0, 15627, 'Mimiron SAY_V07TRON_DEATH'),
-(33350, 14, 0, 'Oh, my! It would seem that we are out of time, my friends!', 14, 0, 100, 0, 0, 15628, 'Mimiron SAY_BERSERK'),
-(33432, 0, 0, 'Leviathan MK II begins to cast Plasma Blast!', 41, 0, 100, 0, 0, 0, 'Leviathan MK II EMOTE_PLASMA_BLAST');
+(33350, 14, 0, 'Oh, my! It would seem that we are out of time, my friends!', 14, 0, 100, 0, 0, 15628, 'Mimiron SAY_BERSERK');
 
 -- Thorim
 DELETE FROM `script_texts` WHERE `npc_entry` IN (33413, 32865, 32872);

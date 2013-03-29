@@ -115,58 +115,63 @@ Position const ConstructSpawnPosition[CONSTRUCT_SPAWN_POINTS] =
     {543.256f, 224.831f, 360.891f, 0.122173f}
 };
 
+/* 
+    TODO: 
+    - Shatter Achievement (2925/2926)
+*/
+
 class AchievShatterHelper
 {
     public:
-        explicit AchievShatterHelper(const uint64 timeLimit) : _gotInformed(false), _achievFulfilled(false), _timer(0), _limit(timeLimit) {}
+        explicit AchievShatterHelper(const uint64 timeLimit) : gotInformed(false), achievFulfilled(false), timer(0), limit(timeLimit) {}
 
         // Called when an Iron Construct got Shattered
         void Inform()
         {
-            if (_achievFulfilled)
+            if (achievFulfilled)
                 return; // Nothing to be done
 
-            if (_gotInformed)                // Check if timer is ok
+            if (gotInformed)                // Check if timer is ok
             {
-                if (_timer <= _limit)
-                    _achievFulfilled = true;
+                if (timer <= limit)
+                    achievFulfilled = true;
             }
             else                            // First information, start tracking
             {
-                _gotInformed = true;
-                _timer = 0;
+                gotInformed = true;
+                timer = 0;
             }
         }
 
         void Reset()
         {
-            _gotInformed = _achievFulfilled = false;
-            _timer = 0;
+            gotInformed = achievFulfilled = false;
+            timer = 0;
         }
 
         // Updated by boss script
-        void Update(const uint32 diff)
+        void Update(uint32 diff)
         {
-            if (_achievFulfilled || !_gotInformed)    // Nothing to be done if achievement got already fulfilled, or tracking was not started yet.
+            if (achievFulfilled || !gotInformed)    // Nothing to be done if achievement got already fulfilled, or tracking was not started yet.
                 return;
 
-            _timer += diff;
-            if (_timer > _limit)  // Check timeout
+            timer += diff;
+            if (timer > limit)  // Check timeout
             {
-                _gotInformed = false;
-                _timer = 0;
+                gotInformed = false;
+                timer = 0;
             }
         }
 
         bool GotAchievFulfilled() const
         {
-            return _achievFulfilled;
+            return achievFulfilled;
         }
     private:        
-        bool _gotInformed;       // Starts time-tracking
-        bool _achievFulfilled;   // Set if achievement was completed successfully
-        const uint64 _limit;     // Time-limit, set on construction
-        uint64 _timer;           // Current timer
+        bool gotInformed;       // Starts time-tracking
+        bool achievFulfilled;   // Set if achievement was completed successfully
+        const uint64 limit;     // Time-limit, set on construction
+        uint64 timer;           // Current timer
 };
 
 class boss_ignis : public CreatureScript
@@ -176,19 +181,19 @@ class boss_ignis : public CreatureScript
 
         struct boss_ignis_AI : public BossAI
         {
-            boss_ignis_AI(Creature* creature) : BossAI(creature, BOSS_IGNIS), _vehicle(me->GetVehicleKit()), _shatteredHelper(ACHIEVEMENT_SHATTERED_TIME_LIMIT)
+            boss_ignis_AI(Creature* creature) : BossAI(creature, BOSS_IGNIS), vehicle(me->GetVehicleKit()), shatteredHelper(ACHIEVEMENT_SHATTERED_TIME_LIMIT)
             {
-                ASSERT(_vehicle);
+                ASSERT(vehicle);
             }
 
             void Reset()
             {
                 _Reset();
-                if (_vehicle)
-                    _vehicle->RemoveAllPassengers();
+                if (vehicle)
+                    vehicle->RemoveAllPassengers();
 
                 summons.DespawnAll();
-                _shatteredHelper.Reset();
+                shatteredHelper.Reset();
 
                 for (uint8 i = 0; i < CONSTRUCT_SPAWN_POINTS; i++)
                     if (Creature* construct = me->SummonCreature(NPC_IRON_CONSTRUCT, ConstructSpawnPosition[i]))
@@ -207,7 +212,7 @@ class boss_ignis : public CreatureScript
                 events.ScheduleEvent(EVENT_CONSTRUCT, 15*IN_MILLISECONDS);
                 events.ScheduleEvent(EVENT_END_POT, 40*IN_MILLISECONDS);
                 events.ScheduleEvent(EVENT_BERSERK, 8*MINUTE*IN_MILLISECONDS);
-                _slagPotGUID = 0;
+                slagPotGUID = 0;
                 instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEVEMENT_IGNIS_START_EVENT);
             }
 
@@ -215,8 +220,10 @@ class boss_ignis : public CreatureScript
             {
                 _JustDied();
                 Talk(SAY_DEATH);
-                if (_shatteredHelper.GotAchievFulfilled())
+                if (shatteredHelper.GotAchievFulfilled())
+                {
                     instance->DoCompleteAchievement(RAID_MODE(2925,2926));
+                }
             }
 
             void SummonedCreatureDespawn(Creature* summon)      // Gets called then an Iron Construct despawns through its own script
@@ -234,7 +241,7 @@ class boss_ignis : public CreatureScript
             uint32 GetData(uint32 type) const
             {
                 if (type == DATA_SHATTERED)
-                    return _shatteredHelper.GotAchievFulfilled() ? 1 : 0;
+                    return shatteredHelper.GotAchievFulfilled() ? 1 : 0;
 
                 return 0;
             }
@@ -252,7 +259,7 @@ class boss_ignis : public CreatureScript
                     case ACTION_REMOVE_BUFF: // Action is called every time a construct is shattered.
                         me->RemoveAuraFromStack(SPELL_STRENGTH);
                         // Shattered Achievement - testing stage
-                        _shatteredHelper.Inform();
+                        shatteredHelper.Inform();
                         break;
                     default:
                         break;
@@ -264,7 +271,7 @@ class boss_ignis : public CreatureScript
                 if (!UpdateVictim())
                     return;
 
-                _shatteredHelper.Update(diff);
+                shatteredHelper.Update(diff);
                 events.Update(diff);
 
                 if (me->HasUnitState(UNIT_STATE_CASTING))
@@ -281,10 +288,10 @@ class boss_ignis : public CreatureScript
                             events.ScheduleEvent(EVENT_JET, urand(35*IN_MILLISECONDS, 40*IN_MILLISECONDS));
                             return;
                         case EVENT_SLAG_POT:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, NonTankTargetSelector(me)))
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true))
                             {
                                 Talk(SAY_SLAG_POT);
-                                _slagPotGUID = target->GetGUID();
+                                slagPotGUID = target->GetGUID();
                                 DoCast(target, SPELL_GRAB);
                                 events.DelayEvents(3*IN_MILLISECONDS);
                                 events.ScheduleEvent(EVENT_GRAB_POT, 0.5*IN_MILLISECONDS);
@@ -292,14 +299,14 @@ class boss_ignis : public CreatureScript
                             events.ScheduleEvent(EVENT_SLAG_POT, RAID_MODE(30*IN_MILLISECONDS, 15*IN_MILLISECONDS));
                             return;
                         case EVENT_GRAB_POT:
-                            if (Unit* slagPotTarget = ObjectAccessor::GetUnit(*me, _slagPotGUID))
+                            if (Unit* slagPotTarget = ObjectAccessor::GetUnit(*me, slagPotGUID))
                             {
                                 slagPotTarget->EnterVehicle(me, 1);
                                 events.ScheduleEvent(EVENT_CHANGE_POT, 1*IN_MILLISECONDS);
                             }
                             return;
                         case EVENT_CHANGE_POT:
-                            if (Unit* slagPotTarget = ObjectAccessor::GetUnit(*me, _slagPotGUID))
+                            if (Unit* slagPotTarget = ObjectAccessor::GetUnit(*me, slagPotGUID))
                             {
                                 slagPotTarget->EnterVehicle(me, 1);
                                 slagPotTarget->ClearUnitState(UNIT_STATE_ONVEHICLE);
@@ -308,10 +315,10 @@ class boss_ignis : public CreatureScript
                             }
                             return;
                         case EVENT_END_POT:
-                            if (Unit* slagPotTarget = ObjectAccessor::GetUnit(*me, _slagPotGUID))
+                            if (Unit* slagPotTarget = ObjectAccessor::GetUnit(*me, slagPotGUID))
                             {
                                 slagPotTarget->ExitVehicle();
-                                _slagPotGUID = 0;
+                                slagPotGUID = 0;
                             }
                             return;
                         case EVENT_SCORCH:
@@ -344,9 +351,9 @@ class boss_ignis : public CreatureScript
             }
 
             private:
-                AchievShatterHelper _shatteredHelper;
-                uint64 _slagPotGUID;
-                Vehicle* _vehicle;
+                AchievShatterHelper shatteredHelper;
+                uint64 slagPotGUID;
+                Vehicle* vehicle;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -362,7 +369,7 @@ class npc_iron_construct : public CreatureScript
 
         struct npc_iron_constructAI : public ScriptedAI
         {
-            npc_iron_constructAI(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript())
+            npc_iron_constructAI(Creature* creature) : ScriptedAI(creature), instance(creature->GetInstanceScript())
             {
                 creature->setActive(true);
                 creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_STUNNED | UNIT_FLAG_DISABLE_MOVE);
@@ -372,7 +379,7 @@ class npc_iron_construct : public CreatureScript
             void Reset()
             {
                 me->SetReactState(REACT_PASSIVE);
-                _brittled = false;
+                brittled = false;
             }
 
             void JustReachedHome()
@@ -386,7 +393,7 @@ class npc_iron_construct : public CreatureScript
                 if (me->HasAura(SPELL_BRITTLE) && damage >= 5*IN_MILLISECONDS)
                 {
                     DoCast(SPELL_SHATTER);
-                    if (Creature* ignis = ObjectAccessor::GetCreature(*me, _instance->GetData64(BOSS_IGNIS)))
+                    if (Creature* ignis = ObjectAccessor::GetCreature(*me, instance->GetData64(BOSS_IGNIS)))
                         if (ignis->AI())
                             ignis->AI()->DoAction(ACTION_REMOVE_BUFF);
 
@@ -402,7 +409,7 @@ class npc_iron_construct : public CreatureScript
                     me->SetReactState(REACT_AGGRESSIVE);
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_STUNNED | UNIT_FLAG_DISABLE_MOVE);
                     me->AI()->DoZoneInCombat();
-                    if (Creature* ignis = ObjectAccessor::GetCreature(*me, _instance->GetData64(BOSS_IGNIS)))
+                    if (Creature* ignis = ObjectAccessor::GetCreature(*me, instance->GetData64(BOSS_IGNIS)))
                     {
                         me->AI()->AttackStart(ignis->getVictim());
                         ignis->CastSpell(ignis, SPELL_STRENGTH, true);
@@ -421,24 +428,24 @@ class npc_iron_construct : public CreatureScript
                     {
                         me->RemoveAura(SPELL_HEAT);
                         DoCast(SPELL_MOLTEN);
-                        _brittled = false;
+                        brittled = false;
                     }
                 }
 
                 // Water pools
-                if (me->IsInWater() && !_brittled && me->HasAura(SPELL_MOLTEN))
+                if (me->IsInWater() && !brittled && me->HasAura(SPELL_MOLTEN))
                 {
                     DoCast(SPELL_BRITTLE);
                     me->RemoveAura(SPELL_MOLTEN);
-                    _brittled = true;
+                    brittled = true;
                 }
 
                 DoMeleeAttackIfReady();
             }
 
         private:
-            InstanceScript* _instance;
-            bool _brittled;
+            InstanceScript* instance;
+            bool brittled;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -462,14 +469,14 @@ class npc_scorch_ground : public CreatureScript
 
             void MoveInLineOfSight(Unit* unit)
             {
-                if (!_heat)
+                if (!heat)
                 {
                     if (unit->GetEntry() == NPC_IRON_CONSTRUCT)
                     {
                         if (!unit->HasAura(SPELL_HEAT) || !unit->HasAura(SPELL_MOLTEN))
                         {
-                            _constructGUID = unit->GetGUID();
-                            _heat = true;
+                            constructGUID = unit->GetGUID();
+                            heat = true;
                         }
                     }
                 }
@@ -477,34 +484,34 @@ class npc_scorch_ground : public CreatureScript
 
             void Reset()
             {
-                _heat = false;
+                heat = false;
                 DoCast(me, SPELL_GROUND);
-                _constructGUID = 0;
-                _heatTimer = 0;
+                constructGUID = 0;
+                heatTimer = 0;
             }
 
             void UpdateAI(uint32 uiDiff)
             {
-                if (_heat)
+                if (heat)
                 {
-                    if (_heatTimer <= uiDiff)
+                    if (heatTimer <= uiDiff)
                     {
-                        Creature* construct = me->GetCreature(*me, _constructGUID);
+                        Creature* construct = me->GetCreature(*me, constructGUID);
                         if (construct && !construct->HasAura(SPELL_MOLTEN))
                         {
                             me->AddAura(SPELL_HEAT, construct);
-                            _heatTimer = 1*IN_MILLISECONDS;
+                            heatTimer = 1*IN_MILLISECONDS;
                         }
                     }
                     else
-                        _heatTimer -= uiDiff;
+                        heatTimer -= uiDiff;
                 }
             }
 
         private:
-            uint64 _constructGUID;
-            uint32 _heatTimer;
-            bool _heat;
+            uint64 constructGUID;
+            uint32 heatTimer;
+            bool heat;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -638,12 +645,10 @@ void AddSC_boss_ignis()
     new boss_ignis();
     new npc_iron_construct();
     new npc_scorch_ground();
-
     new spell_ignis_slag_pot();
     new spell_ignis_flame_jets();
-    new spell_ignis_activate_construct();
-
     new achievement_ignis_shattered();
+    new spell_ignis_activate_construct();
 }
 
 #undef SPELL_BRITTLE 

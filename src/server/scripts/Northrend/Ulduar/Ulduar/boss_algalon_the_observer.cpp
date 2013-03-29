@@ -176,10 +176,7 @@ enum EncounterPhases
 {
     PHASE_NORMAL             = 0,
     PHASE_ROLE_PLAY          = 1,
-    PHASE_BIG_BANG           = 2,
-
-    PHASE_MASK_NO_UPDATE     = (1 << PHASE_ROLE_PLAY) | (1 << PHASE_BIG_BANG),
-    PHASE_MASK_NO_CAST_CHECK = 1 << PHASE_ROLE_PLAY
+    PHASE_BIG_BANG           = 2
 };
 
 enum AchievmentInfo
@@ -376,8 +373,6 @@ class boss_algalon_the_observer : public CreatureScript
                         _firstPull = false;
                         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
                         break;
-                    default:
-                        break;
                 }
             }
 
@@ -489,8 +484,6 @@ class boss_algalon_the_observer : public CreatureScript
                             if (summon->Attack(target, true))
                                 summon->GetMotionMaster()->MoveChase(target);
                         break;
-                    default:
-                        break;
                 }
             }
 
@@ -547,12 +540,12 @@ class boss_algalon_the_observer : public CreatureScript
 
             void UpdateAI(uint32 diff)
             {
-                if ((!(events.GetPhaseMask() & PHASE_MASK_NO_UPDATE) && !UpdateVictim()) || !CheckInRoom())
+                if ((!(events.IsInPhase(PHASE_ROLE_PLAY) || events.IsInPhase(PHASE_BIG_BANG)) && !UpdateVictim()) || !CheckInRoom())
                     return;
 
                 events.Update(diff);
 
-                if (!(events.GetPhaseMask() & PHASE_MASK_NO_CAST_CHECK))
+                if (!events.IsInPhase(PHASE_ROLE_PLAY))
                     if (me->HasUnitState(UNIT_STATE_CASTING))
                         return;
 
@@ -695,8 +688,6 @@ class boss_algalon_the_observer : public CreatureScript
                             DoCast(me, SPELL_TELEPORT);
                             me->DespawnOrUnsummon(1.5*IN_MILLISECONDS);
                             break;
-                        default:
-                            break;
                     }
                 }
 
@@ -779,7 +770,7 @@ class npc_living_constellation : public CreatureScript
 
             void UpdateAI(uint32 diff)
             {
-                if (!(_events.GetPhaseMask() & PHASE_MASK_NO_UPDATE) && !UpdateVictim())
+                if (!(_events.IsInPhase(PHASE_ROLE_PLAY) || _events.IsInPhase(PHASE_BIG_BANG)) && !UpdateVictim())
                     return;
 
                 _events.Update(diff);
@@ -794,8 +785,6 @@ class npc_living_constellation : public CreatureScript
                             break;
                         case EVENT_RESUME_UPDATING:
                             _events.SetPhase(0);
-                            break;
-                        default:
                             break;
                     }
                 }
@@ -895,8 +884,6 @@ class npc_brann_bronzebeard_algalon : public CreatureScript
                         _events.ScheduleEvent(EVENT_BRANN_OUTRO_1, 89.5*IN_MILLISECONDS);
                         _events.ScheduleEvent(EVENT_BRANN_OUTRO_2, 116.5*IN_MILLISECONDS);
                         break;
-                    default:
-                        break;
                 }
             }
 
@@ -924,8 +911,6 @@ class npc_brann_bronzebeard_algalon : public CreatureScript
                     case POINT_BRANN_OUTRO:
                     case POINT_BRANN_OUTRO_END:
                         return;
-                    default:
-                        break;
                 }
 
                 _events.ScheduleEvent(EVENT_BRANN_MOVE_INTRO, delay);
@@ -975,6 +960,11 @@ class npc_brann_bronzebeard_algalon : public CreatureScript
 
 class npc_algalon_asteroid_target : public CreatureScript
 {
+    enum Events
+    {
+        EVENT_COSMIC_SMASH  = 1
+    };
+
     public:
         npc_algalon_asteroid_target() : CreatureScript("npc_algalon_asteroid_target") { }
 
@@ -988,29 +978,29 @@ class npc_algalon_asteroid_target : public CreatureScript
             void Reset()
             {
                 me->SetReactState(REACT_PASSIVE);
-                _cosmicSmashTimer = 4*IN_MILLISECONDS;
-                _casted = false;
+                events.ScheduleEvent(EVENT_COSMIC_SMASH, 4*IN_MILLISECONDS);
                 me->SetDisplayId(me->GetCreatureTemplate()->Modelid2);
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 diff)
             {
-                if (!_casted)
+                events.Update(diff);
+
+                while (uint32 event = events.ExecuteEvent())
                 {
-                    if (_cosmicSmashTimer <= diff)
+                    switch (event)
                     {
-                        DoCast(SPELL_COSMIC_SMASH_TRIGGERED);
-                        me->DespawnOrUnsummon(3*IN_MILLISECONDS);
-                        _casted = true;
+                        case EVENT_COSMIC_SMASH:
+                            DoCast(SPELL_COSMIC_SMASH_TRIGGERED);
+                            break;
+                        default:
+                            break;
                     }
-                    else
-                        _cosmicSmashTimer -= diff;
                 }
             }
 
             private:
-                uint32 _cosmicSmashTimer;
-                bool _casted;
+                EventMap events;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -1084,8 +1074,6 @@ class go_celestial_planetarium_access : public GameObjectScript
                     {
                         case EVENT_DESPAWN_CONSOLE:
                             go->Delete();
-                            break;
-                        default:
                             break;
                     }
                 }

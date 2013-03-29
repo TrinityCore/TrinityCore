@@ -11,6 +11,7 @@
 #                                                                                          #
 ############################################################################################
 
+[152] --> Update Ulduar by aedansilver.
 [151] --> Update ICC by Elron103.
 [150] --> Update Trial of the Champion. (Thx Faq / sioa)
 [149] --> Fix Sindragosa. [TEST] (By Elron103)
