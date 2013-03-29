@@ -766,6 +766,18 @@ public:
         return 1;
     }
 
+    // GetDistance(x, y, z)
+    static int GetDistance(lua_State* L, Unit* unit)
+    {
+        TO_UNIT();
+
+        float X = luaL_checknumber(L, 1);
+        float Y = luaL_checknumber(L, 2);
+        float Z = luaL_checknumber(L, 3);
+        sEluna->PushFloat(L, unit->GetDistance(X, Y, Z));
+        return 1;
+    }
+
     // GetLatency()
     static int GetLatency(lua_State* L, Unit* unit)
     {
