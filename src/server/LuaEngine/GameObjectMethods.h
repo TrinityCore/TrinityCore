@@ -239,8 +239,7 @@ public:
             sEluna->PushBoolean(L, false);
         else
         {
-            bool respond = go->IsInvisibleDueToDespawn();
-            sEluna->PushBoolean(L, respond);
+            sEluna->PushBoolean(L, go->IsInvisibleDueToDespawn());
         }
         return 1;
     }
@@ -327,8 +326,8 @@ public:
 
     }
 
-    // RemoveEventByID(eventID)
-    static int RemoveEventByID(lua_State* L, GameObject* go)
+    // RemoveEventById(eventID)
+    static int RemoveEventById(lua_State* L, GameObject* go)
     {
         if (!go || !go->IsInWorld())
             return 0;

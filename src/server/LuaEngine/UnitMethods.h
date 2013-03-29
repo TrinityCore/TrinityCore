@@ -51,8 +51,8 @@ public:
         return 1;
     }
 
-    // GetCurrentWaypointID()
-    static int GetCurrentWaypointID(lua_State* L, Unit* unit)
+    // GetCurrentWaypointId()
+    static int GetCurrentWaypointId(lua_State* L, Unit* unit)
     {
         TO_CREATURE();
 
@@ -1077,8 +1077,8 @@ public:
         return 1;
     }
 
-    // IsVisibleGloballyFor(player)
-    static int IsVisibleGloballyFor(lua_State* L, Unit* unit)
+    // IsVisibleForPlayer(player)
+    static int IsVisibleForPlayer(lua_State* L, Unit* unit)
     {
         TO_PLAYER_BOOL();
 
@@ -1100,8 +1100,8 @@ public:
         return 1;
     }
 
-    // IsKnowHowFlyIn(mapid, zone)
-    static int IsKnowHowFlyIn(lua_State* L, Unit* unit)
+    // CanFlyInZone(mapid, zone)
+    static int CanFlyInZone(lua_State* L, Unit* unit)
     {
         TO_PLAYER_BOOL();
 
@@ -1921,8 +1921,8 @@ public:
         return 1;
     }
 
-    // IsQuestRewarded(entry)
-    static int IsQuestRewarded(lua_State* L, Unit* unit)
+    // HasReceivedQuestReward(entry)
+    static int HasReceivedQuestReward(lua_State* L, Unit* unit)
     {
         TO_PLAYER_BOOL();
 
@@ -2477,8 +2477,8 @@ public:
         return 0;
     }
 
-    // SetTaxiCheater(on)
-    static int SetTaxiCheater(lua_State* L, Unit* unit)
+    // SetTaxiCheat(on)
+    static int SetTaxiCheat(lua_State* L, Unit* unit)
     {
         TO_PLAYER();
 
@@ -3138,8 +3138,8 @@ public:
         return 1;
     }
 
-    // GetDisplayID()
-    static int GetDisplayID(lua_State* L, Unit* unit)
+    // GetDisplayId()
+    static int GetDisplayId(lua_State* L, Unit* unit)
     {
         TO_UNIT();
 
@@ -3147,8 +3147,8 @@ public:
         return 1;
     }
 
-    //GetNativeDisplayID()
-    static int GetNativeDisplayID(lua_State* L, Unit* unit)
+    //GetNativeDisplayId()
+    static int GetNativeDisplayId(lua_State* L, Unit* unit)
     {
         TO_UNIT();
 
@@ -3161,6 +3161,7 @@ public:
     static int GetName(lua_State* L, Unit* unit)
     {
         TO_UNIT();
+
         sEluna->PushString(L, unit->GetName().c_str());
         return 1;
     }
@@ -3184,7 +3185,7 @@ public:
     }
 
     // GetGuildId()
-    static int GetGuildID(lua_State* L, Unit* unit)
+    static int GetGuildId(lua_State* L, Unit* unit)
     {
         TO_PLAYER();
 
@@ -3746,8 +3747,8 @@ public:
         return 0;
     }
 
-    // SetDisplayID(id)
-    static int SetDisplayID(lua_State* L, Unit* unit)
+    // SetDisplayId(id)
+    static int SetDisplayId(lua_State* L, Unit* unit)
     {
         TO_UNIT();
 
@@ -3756,8 +3757,8 @@ public:
         return 0;
     }
 
-    //SetNativeDisplayID(id)
-    static int SetNativeDisplayID(lua_State* L, Unit* unit)
+    //SetNativeDisplayId(id)
+    static int SetNativeDisplayId(lua_State* L, Unit* unit)
     {
         TO_UNIT();
 
@@ -4887,8 +4888,8 @@ public:
 
     }
 
-    // RemoveEventByID(eventID)
-    static int RemoveEventByID(lua_State* L, Unit* unit)
+    // RemoveEventById(eventID)
+    static int RemoveEventById(lua_State* L, Unit* unit)
     {
         TO_CREATURE();
 

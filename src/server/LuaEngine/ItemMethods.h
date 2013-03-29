@@ -91,7 +91,7 @@ public:
         return 1;
     }
 
-    static int IsBindedNotWith(lua_State* L, Item* item)
+    static int IsNotBoundToPlayer(lua_State* L, Item* item)
     {
         if (!item || !item->IsInWorld())
             sEluna->PushBoolean(L, false);

@@ -7,7 +7,7 @@ ElunaRegister<Unit> UnitMethods[] =
     // Getters
     {"GetSelection", &LuaUnit::GetSelection},                       // :GetSelection()
     {"GetGMRank", &LuaUnit::GetSecurity},                           // :GetSecurity()
-    {"GetGuildID", &LuaUnit::GetGuildID},                           // :GetGuildID() - nil on no guild.
+    {"GetGuildId", &LuaUnit::GetGuildId},                           // :GetGuildId() - nil on no guild.
     {"GetCoinage", &LuaUnit::GetCoinage},                           // :GetCoinage()
     {"GetTeam", &LuaUnit::GetTeam},                                 // :GetTeam() - returns the player's team. 0 for ally, 1 for horde
     {"GetItemCount", &LuaUnit::GetItemCount},                       // :GetItemCount(item_id[, check_bank]) -
@@ -90,7 +90,7 @@ ElunaRegister<Unit> UnitMethods[] =
     {"SetLifetimeKills", &LuaUnit::SetLifetimeKills},               // :SetLifetimeKills(val) -- Sets the overall lifetime (honorable) kills of the player
     {"SetGameMaster", &LuaUnit::SetGameMaster},                     // :SetGameMaster(on) -- Sets GM mode on or off.
     {"SetGMChat", &LuaUnit::SetGMChat},                             // :SetGMChat(on) -- Sets GM chat on or off.
-    {"SetTaxiCheater", &LuaUnit::SetTaxiCheater},                   // :SetTaxiCheater(on) -- Sets taxi cheat on or off.
+    {"SetTaxiCheat", &LuaUnit::SetTaxiCheat},                       // :SetTaxiCheat(on) -- Sets taxi cheat on or off.
     {"SetGMVisible", &LuaUnit::SetGMVisible},                       // :SetGMVisible(on) -- Sets gm visibility on or off.
     {"SetPvPDeath", &LuaUnit::SetPvPDeath},                         // :SetPvPDeath(on) -- Sets PvP death on or off.
     {"SetAcceptWhispers", &LuaUnit::SetAcceptWhispers},             // :SetAcceptWhispers(on) -- Sets whisper accepting death on or off.
@@ -140,14 +140,14 @@ ElunaRegister<Unit> UnitMethods[] =
     {"HasAchieved", &LuaUnit::HasAchieved},                         // :HasAchieved(achievementID) -- Returns true if the player has achieved the achievement.
     {"CanUninviteFromGroup", &LuaUnit::CanUninviteFromGroup},       // :CanUninviteFromGroup() -- Returns true if the player can uninvite from group.
     {"IsRested", &LuaUnit::isRested},                               // :IsRested() -- Returns true if the player is rested.
-    {"IsKnowHowFlyIn", &LuaUnit::IsKnowHowFlyIn},                   // :IsKnowHowFlyIn(mapid, zone) -- Returns true if the player can fly in the area.
+    {"CanFlyInZone", &LuaUnit::CanFlyInZone},                       // :CanFlyInZone(mapid, zone) -- Returns true if the player can fly in the area.
     {"IsNeverVisible", &LuaUnit::IsNeverVisible},                   // :IsNeverVisible() -- Returns true if the player is never visible.
-    {"IsVisibleGloballyFor", &LuaUnit::IsVisibleGloballyFor},       // :IsVisibleGloballyFor(player) -- Returns true if the player is visible for the target player.
+    {"IsVisibleForPlayer", &LuaUnit::IsVisibleForPlayer},           // :IsVisibleForPlayer(player) -- Returns true if the player is visible for the target player.
     {"IsUsingLfg", &LuaUnit::isUsingLfg},                           // :IsUsingLfg() -- Returns true if the player is using LFG.
     {"HasQuestForItem", &LuaUnit::HasQuestForItem},                 // :HasQuestForItem(entry) -- Returns true if the player has the quest for the item.
     {"HasQuestForGO", &LuaUnit::HasQuestForGO},                     // :HasQuestForGO(entry) -- Returns true if the player has the quest for the gameobject.
     {"CanShareQuest", &LuaUnit::CanShareQuest},                     // :CanShareQuest(entry) -- Returns true if the quest entry is shareable by the player.
-    {"IsQuestRewarded", &LuaUnit::IsQuestRewarded},                 // :IsQuestRewarded(entry) -- Returns true if the player has recieved the quest's reward.
+    {"HasReceivedQuestReward", &LuaUnit::HasReceivedQuestReward},   // :HasReceivedQuestReward(entry) -- Returns true if the player has recieved the quest's reward.
     {"HasTalent", &LuaUnit::HasTalent},                             // :HasTalent(spellid, spec) -- Returns true if the player has the talent spell in given spec.
     {"IsInSameGroupWith", &LuaUnit::IsInSameGroupWith},             // :IsInSameGroupWith(player) -- Returns true if the players are in the same group.
     {"IsInSameRaidWith", &LuaUnit::IsInSameRaidWith},               // :IsInSameRaidWith(player) -- Returns true if the players are in the same raid.
@@ -274,7 +274,7 @@ ElunaRegister<Unit> UnitMethods[] =
     {"GetRespawnDelay", &LuaUnit::GetRespawnDelay},                 // :GetRespawnDelay() - Returns respawn delay.
     {"GetRespawnRadius", &LuaUnit::GetRespawnRadius},               // :GetRespawnRadius() - Returns respawn radius.
     {"GetWaypointPath", &LuaUnit::GetWaypointPath},                 // :GetWaypointPath() - Returns waypoint path ID.
-    {"GetCurrentWaypointID", &LuaUnit::GetCurrentWaypointID},       // :GetCurrentWaypointID() - Returns waypoint ID.
+    {"GetCurrentWaypointId", &LuaUnit::GetCurrentWaypointId},       // :GetCurrentWaypointId() - Returns waypoint ID.
 
     // Setters
     {"SetHover", &LuaUnit::SetHover},                               // :SetHover([enable]) -- Sets hover on or off.
@@ -313,7 +313,7 @@ ElunaRegister<Unit> UnitMethods[] =
 
     // Other
     {"RegisterEvent", &LuaUnit::RegisterEvent},                     // :RegisterEvent(function, delay, calls)
-    {"RemoveEventByID", &LuaUnit::RemoveEventByID},                 // :RemoveEventByID(eventID)
+    {"RemoveEventById", &LuaUnit::RemoveEventById},                 // :RemoveEventById(eventID)
     {"RemoveEvents", &LuaUnit::RemoveEvents},                       // :RemoveEvents()
     {"Despawn", &LuaUnit::Despawn},                                 // :Despawn([despawnDelay]) - Creature despawns after given time
     {"FleeToGetAssistance", &LuaUnit::DoFleeToGetAssistance},       // :FleeToGetAssistance() - Creature flees for assistance
@@ -330,8 +330,8 @@ ElunaRegister<Unit> UnitMethods[] =
     {"GetName", &LuaUnit::GetName},                                 // :GetName()
     {"GetLevel", &LuaUnit::GetLevel},                               // :GetLevel()
     {"GetHealth", &LuaUnit::GetHealth},                             // :GetHealth()
-    {"GetDisplayID", &LuaUnit::GetDisplayID},                       // :GetDisplayID()
-    {"GetNativeDisplayID", &LuaUnit::GetNativeDisplayID},           // :GetNativeDisplayID() -- UNDOCUMENTED
+    {"GetDisplayId", &LuaUnit::GetDisplayId},                       // :GetDisplayId()
+    {"GetNativeDisplayId", &LuaUnit::GetNativeDisplayId},           // :GetNativeDisplayId()
     {"GetGUID", &LuaUnit::GetGUID},                                 // :GetGUID()
     {"GetMapId", &LuaUnit::GetMapId},                               // :GetMapId()
     {"GetX", &LuaUnit::GetX},                                       // :GetX()
@@ -375,8 +375,8 @@ ElunaRegister<Unit> UnitMethods[] =
     {"SetMaxHealth", &LuaUnit::SetMaxHealth},                       // :SetMaxHealth(amount)
     {"SetPower", &LuaUnit::SetPower},                               // :SetPower(index, amount)
     {"SetMaxPower", &LuaUnit::SetMaxPower},                         // :SetMaxPower(index, amount)
-    {"SetDisplayID", &LuaUnit::SetDisplayID},                       // :SetDisplayID(id)
-    {"SetNativeDisplayID", &LuaUnit::SetNativeDisplayID},           // :SetNativeDisplayID(id)
+    {"SetDisplayId", &LuaUnit::SetDisplayId},                       // :SetDisplayId(id)
+    {"SetNativeDisplayId", &LuaUnit::SetNativeDisplayId},           // :SetNativeDisplayId(id)
     {"SetFacing", &LuaUnit::SetFacing},                             // :SetFacing(o) -- Sets the Unit facing to arg
     {"SetDeathState", &LuaUnit::SetDeathState},                     // :SetDeathState(value) -- 0 = alive 1 = just died 2 = corpse 3 = dead
     {"SetInt32Value", &LuaUnit::SetInt32Value},                     // :SetInt32Value(index, value) - Sets an int value for the unit
@@ -456,7 +456,7 @@ ElunaRegister<Unit> UnitMethods[] =
     {"AddVehiclePassenger", &LuaUnit::AddVehiclePassenger},         // :AddVehiclePassenger(unit, seatId) - Adds a passenger to the vehicle by specifying a unit and seatId
     {"IsOnVehicle", &LuaUnit::IsOnVehicle},                         // :IsOnVehicle() - Checks if the (unit) is in a vehicle
     {"DismissVehicle", &LuaUnit::DismissVehicle},                   // :DismissVehicle() - Dismisses the (unit)'s vehicle (Unmounts)
-    //{"EjectPassenger", &LuaUnit::EjectPassenger},                   // :EjectPassenger(unit) - Ejects a specified unit out of the vehicle   (UNTESTED)
+    //{"EjectPassenger", &LuaUnit::EjectPassenger},                 // :EjectPassenger(unit) - Ejects a specified unit out of the vehicle   (UNTESTED)
     {"RemovePassenger", &LuaUnit::RemovePassenger},                 // :RemovePassenger(unit) - Removes a specific unit from the vehicle
     {"RemoveAllPassengers", &LuaUnit::RemoveAllPassengers},         // :RemoveAllPassengers() - Removes all the passengers from the vehicle
     {"GetPassenger", &LuaUnit::GetPassenger},                       // :GetPassenger(seatId) - Gets a passenger by their seatId
@@ -513,7 +513,7 @@ ElunaRegister<GameObject> GameObjectMethods[] =
     {"Move", &LuaGameObject::Move},                                 // :Move(x, y, z, o) - Moves the GO to coordinates -
     {"SpawnCreature", &LuaGameObject::SummonCreature},              // :SummonCreature(entry, x, y, z, o, despawntime) Summons a temporary creature. 0 for infinitely, otherwise despawns after despawntime (ms) -
     {"RegisterEvent", &LuaGameObject::RegisterEvent},               // :RegisterEvent(function, delay, calls) -
-    {"RemoveEventByID", &LuaGameObject::RemoveEventByID},           // :RemoveEventByID(eventID) -
+    {"RemoveEventById", &LuaGameObject::RemoveEventById},           // :RemoveEventById(eventID) -
     {"RemoveEvents", &LuaGameObject::RemoveEvents},                 // :RemoveEvents() -
     {"Despawn", &LuaGameObject::Despawn},                           // :Despawn() - Object despawns
     {"SummonGameObject", &LuaGameObject::SummonGameObject},         // :SummonGameObject(entry, x, y, z, o[, respawnDelay]) - Spawns an object to location. Returns the object or nil
@@ -538,6 +538,7 @@ ElunaRegister<Item> ItemMethods[] =
     {"GetFloatValue", &LuaItem::GetFloatValue},                             // :GetFloatValue(index) - returns a float value from item fields
     {"GetByteValue", &LuaItem::GetByteValue},                               // :GetByteValue(index, offset) - returns a byte value from item fields
     {"GetUInt16Value", &LuaItem::GetUInt16Value},                           // :GetUInt16Value(index, offset) - returns a uint16 value from item fields
+
     // Setters
     {"SetOwner", &LuaItem::SetOwner},                                       // :SetOwner(player) - Sets the owner of the item
     {"SetBinding", &LuaItem::SetBinding},                                   // :SetBinding(bound) - Sets the item binding to true or false
@@ -554,8 +555,8 @@ ElunaRegister<Item> ItemMethods[] =
     {"IsSoulBound", &LuaItem::IsSoulBound},                                 // :IsSoulBound() - Returns true if the item is soulbound
     {"IsBoundAccountWide", &LuaItem::IsBoundAccountWide},                   // :IsBoundAccountWide() - Returns true if the item is account bound
     {"IsBoundByEnchant", &LuaItem::IsBoundByEnchant},                       // :IsBoundByEnchant() - Returns true if the item is bound with an enchant
-    {"IsBindedNotWith", &LuaItem::IsBindedNotWith},                         // :IsBindedNotWith(player) - Returns true if the item is not bound with player
-    {"IsLocked", &LuaItem::IsBindedNotWith},                                // :IsLocked() - Returns true if the item is locked
+    {"IsNotBoundToPlayer", &LuaItem::IsNotBoundToPlayer},                   // :IsNotBoundToPlayer(player) - Returns true if the item is not bound with player
+    {"IsLocked", &LuaItem::IsLocked},                                       // :IsLocked() - Returns true if the item is locked
     {"IsBag", &LuaItem::IsBag},                                             // :IsBag() - Returns true if the item is a bag
     {"IsCurrencyToken", &LuaItem::IsCurrencyToken},                         // :IsCurrencyToken() - Returns true if the item is a currency token
     {"IsNotEmptyBag", &LuaItem::IsNotEmptyBag},                             // :IsNotEmptyBag() - Returns true if the item is not an empty bag
