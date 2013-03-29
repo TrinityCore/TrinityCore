@@ -327,7 +327,8 @@ ElunaRegister<Unit> UnitMethods[] =
     {"GetLevel", &LuaUnit::GetLevel},                               // :GetLevel()
     {"GetHealth", &LuaUnit::GetHealth},                             // :GetHealth()
     {"GetDisplayID", &LuaUnit::GetDisplayID},                       // :GetDisplayID()
-    {"GetGUID", &LuaUnit::GetGUID},                                 // :GetGUID()
+    {"GetNativeDisplayID", &LuaUnit::GetNativeDisplayID},           // :GetNativeDisplayID() -- UNDOCUMENTED
+	{"GetGUID", &LuaUnit::GetGUID},                                 // :GetGUID()
     {"GetMapId", &LuaUnit::GetMapId},                               // :GetMapId()
     {"GetX", &LuaUnit::GetX},                                       // :GetX()
     {"GetY", &LuaUnit::GetY},                                       // :GetY()
@@ -606,8 +607,14 @@ ElunaRegister<Spell> SpellMethods[] =
     {"GetEntry", &LuaSpell::GetId},                                 // :GetEntry() -- Returns the spell's ID                        UNDOCUMENTED
     {"GetDuration", &LuaSpell::GetDuration},                        // :GetDuration() -- Returns the spell's duration               UNDOCUMENTED
     {"GetPowerCost", &LuaSpell::GetPowerCost},                      // :GetPowerCost() -- Returns the spell's power cost (mana, energy, rage, etc)      UNDOCUMENTED
+    
+    //Setters
+    {"SetAutoRepeat", &LuaSpell::SetAutoRepeat},                    // :SetAutoRepeat(boolean) -- UNDOCUMENTED
 
-    // Other
+    //Boolean
+    {"IsAutoRepeat", &LuaSpell::IsAutoRepeat},                      // :IsAutoRepeat() -- UNDOCUMENTED
+
+	// Other
     {"Cancel", &LuaSpell::cancel},                                  // :Cancel() -- Cancels the spell casting                       UNDOCUMENTED
     {"Cast", &LuaSpell::Cast},                                      // :Cast(skipCheck) -- Casts the spell (if true, removes the check for instant spells, etc)      UNDOCUMENTED
     {"Finish", &LuaSpell::Finish},                                  // :Finish() -- Finishes the spell (SPELL_STATE_FINISH)         UNDOCUMENTED

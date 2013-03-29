@@ -3109,6 +3109,16 @@ public:
         return 1;
     }
 
+    //GetNativeDisplayID()
+    static int GetNativeDisplayID(lua_State* L, Unit* unit)
+    {
+        TO_UNIT();
+
+        sEluna->PushUnsigned(L, unit->GetNativeDisplayId());
+        return 1;
+    }
+
+
     // GetName()
     static int GetName(lua_State* L, Unit* unit)
     {
