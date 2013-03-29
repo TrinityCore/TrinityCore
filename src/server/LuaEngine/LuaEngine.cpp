@@ -107,6 +107,7 @@ void Eluna::StartEluna(bool restart)
 
 void Eluna::RegisterGlobals(lua_State* L)
 {
+    // Hooks
     lua_register(L, "RegisterServerHook", &LuaGlobalFunctions::RegisterServerHook);
     lua_register(L, "RegisterCreatureEvent", &LuaGlobalFunctions::RegisterCreatureEvent);
     lua_register(L, "RegisterCreatureGossipEvent", &LuaGlobalFunctions::RegisterCreatureGossipEvent);
@@ -116,32 +117,35 @@ void Eluna::RegisterGlobals(lua_State* L)
     lua_register(L, "RegisterItemGossipEvent", &LuaGlobalFunctions::RegisterItemGossipEvent);
     lua_register(L, "RegisterPlayerGossipEvent", &LuaGlobalFunctions::RegisterPlayerGossipEvent);
 
+    // Getters
     lua_register(L, "GetLuaEngine", &LuaGlobalFunctions::GetLuaEngine);
     lua_register(L, "GetLUAEngine", &LuaGlobalFunctions::GetLuaEngine);
     lua_register(L, "GetCoreVersion", &LuaGlobalFunctions::GetCoreVersion);
     lua_register(L, "GetQuest", &LuaGlobalFunctions::GetQuest);
-    lua_register(L, "ReloadEluna", &LuaGlobalFunctions::ReloadEluna);
     lua_register(L, "GetPlayerByGUID", &LuaGlobalFunctions::GetPlayerByGUID);
     lua_register(L, "GetPlayerByName", &LuaGlobalFunctions::GetPlayerByName);
     lua_register(L, "GetGameTime", &LuaGlobalFunctions::GetGameTime);
-    lua_register(L, "SendWorldMessage", &LuaGlobalFunctions::SendWorldMessage);
     lua_register(L, "GetPlayersInWorld", &LuaGlobalFunctions::GetPlayersInWorld);
     lua_register(L, "GetPlayersInMap", &LuaGlobalFunctions::GetPlayersInMap);
-    lua_register(L, "WorldDBQuery", &LuaGlobalFunctions::WorldDBQuery); // Not Documented
-    lua_register(L, "WorldDBExecute", &LuaGlobalFunctions::WorldDBExecute); // Not Documented
-    lua_register(L, "CharDBQuery", &LuaGlobalFunctions::CharDBQuery); // Not Documented
-    lua_register(L, "CharDBExecute", &LuaGlobalFunctions::CharDBExecute); // Not Documented
-    lua_register(L, "AuthDBQuery", &LuaGlobalFunctions::AuthDBQuery); // Not Documented
-    lua_register(L, "AuthDBExecute", &LuaGlobalFunctions::AuthDBExecute); // Not Documented
     lua_register(L, "GetGuildByName", &LuaGlobalFunctions::GetGuildByName);
     lua_register(L, "GetGuildByLeaderGUID", &LuaGlobalFunctions::GetGuildByLeaderGUID);
     lua_register(L, "GetPlayerCount", &LuaGlobalFunctions::GetPlayerCount);
-    lua_register(L, "CreateLuaEvent", &LuaGlobalFunctions::CreateLuaEvent); // Not Documented
-    lua_register(L, "RegisterTimedEvent", &LuaGlobalFunctions::CreateLuaEvent); // Arc compability Not Documented
-    lua_register(L, "DestroyEventByID", &LuaGlobalFunctions::DestroyEventByID); // Not Documented
-    lua_register(L, "DestroyEvents", &LuaGlobalFunctions::DestroyEvents); // Not Documented
-    lua_register(L, "PerformIngameSpawn", &LuaGlobalFunctions::PerformIngameSpawn); // Not Documented
-    lua_register(L, "CreatePacket", &LuaGlobalFunctions::CreatePacket); // Not Documented
+
+    // Other
+    lua_register(L, "ReloadEluna", &LuaGlobalFunctions::ReloadEluna);
+    lua_register(L, "SendWorldMessage", &LuaGlobalFunctions::SendWorldMessage);
+    lua_register(L, "WorldDBQuery", &LuaGlobalFunctions::WorldDBQuery);
+    lua_register(L, "WorldDBExecute", &LuaGlobalFunctions::WorldDBExecute);
+    lua_register(L, "CharDBQuery", &LuaGlobalFunctions::CharDBQuery);
+    lua_register(L, "CharDBExecute", &LuaGlobalFunctions::CharDBExecute);
+    lua_register(L, "AuthDBQuery", &LuaGlobalFunctions::AuthDBQuery);
+    lua_register(L, "AuthDBExecute", &LuaGlobalFunctions::AuthDBExecute);
+    lua_register(L, "CreateLuaEvent", &LuaGlobalFunctions::CreateLuaEvent);
+    lua_register(L, "RegisterTimedEvent", &LuaGlobalFunctions::CreateLuaEvent);
+    lua_register(L, "DestroyEventByID", &LuaGlobalFunctions::DestroyEventByID);
+    lua_register(L, "DestroyEvents", &LuaGlobalFunctions::DestroyEvents);
+    lua_register(L, "PerformIngameSpawn", &LuaGlobalFunctions::PerformIngameSpawn);
+    lua_register(L, "CreatePacket", &LuaGlobalFunctions::CreatePacket);
     lua_register(L, "AddVendorItem", &LuaGlobalFunctions::AddVendorItem);
     lua_register(L, "VendorRemoveItem", &LuaGlobalFunctions::VendorRemoveItem);
     lua_register(L, "VendorRemoveAllItems", &LuaGlobalFunctions::VendorRemoveAllItems);
