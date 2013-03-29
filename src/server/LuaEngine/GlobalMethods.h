@@ -393,6 +393,15 @@ namespace LuaGlobalFunctions
         return 1;
     }
 
+    // FindUnit(guid, entry)
+    static int FindUnit(lua_State* L)
+    {
+        uint32 guidLow = luaL_checkunsigned(L, 1);
+        uint32 entry = luaL_checkunsigned(L, 2);
+        sEluna->PushUnit(L, sObjectAccessor->FindUnit(MAKE_NEW_GUID(guidLow, entry, HIGHGUID_UNIT)));
+        return 1;
+    }
+
     // CreateLuaEvent(function, delay, calls) - Creates a timed event. Calls set to 0 will call inf returns eventID.
     static int CreateLuaEvent(lua_State* L)
     {
@@ -700,6 +709,13 @@ namespace LuaGlobalFunctions
             ChatHandler(whoBanned->GetSession()).SetSentErrorMessage(true);
             return 0;
         }
+        return 0;
+    }
+
+    // SaveAllPlayers()
+    static int SaveAllPlayers(lua_State* L)
+    {
+        sObjectAccessor->SaveAllPlayers();
         return 0;
     }
 }

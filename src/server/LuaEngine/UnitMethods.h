@@ -766,6 +766,18 @@ public:
         return 1;
     }
 
+    // GetDistance(x, y, z)
+    static int GetDistance(lua_State* L, Unit* unit)
+    {
+        TO_UNIT();
+
+        float X = luaL_checknumber(L, 1);
+        float Y = luaL_checknumber(L, 2);
+        float Z = luaL_checknumber(L, 3);
+        sEluna->PushFloat(L, unit->GetDistance(X, Y, Z));
+        return 1;
+    }
+
     // GetLatency()
     static int GetLatency(lua_State* L, Unit* unit)
     {
@@ -1969,6 +1981,15 @@ public:
             player->SaveToDB();
         if (Creature* creature = unit->ToCreature())
             creature->SaveToDB();
+        return 0;
+    }
+
+    // HandleEmoteCommand(emote)
+    static int HandleEmoteCommand(lua_State* L, Unit* unit)
+    {
+        TO_UNIT();
+
+        unit->HandleEmoteCommand(luaL_checkunsigned(L, 1));
         return 0;
     }
 

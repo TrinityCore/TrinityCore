@@ -130,6 +130,7 @@ void Eluna::RegisterGlobals(lua_State* L)
     lua_register(L, "GetGuildByName", &LuaGlobalFunctions::GetGuildByName);
     lua_register(L, "GetGuildByLeaderGUID", &LuaGlobalFunctions::GetGuildByLeaderGUID);
     lua_register(L, "GetPlayerCount", &LuaGlobalFunctions::GetPlayerCount);
+    lua_register(L, "FindUnit", &LuaGlobalFunctions::FindUnit);
 
     // Other
     lua_register(L, "ReloadEluna", &LuaGlobalFunctions::ReloadEluna);
@@ -151,6 +152,7 @@ void Eluna::RegisterGlobals(lua_State* L)
     lua_register(L, "VendorRemoveAllItems", &LuaGlobalFunctions::VendorRemoveAllItems);
     lua_register(L, "Kick", &LuaGlobalFunctions::Kick);
     lua_register(L, "Ban", &LuaGlobalFunctions::Ban);
+    lua_register(L, "SaveAllPlayers", &LuaGlobalFunctions::SaveAllPlayers);
 }
 
 // Loads lua scripts from given directory

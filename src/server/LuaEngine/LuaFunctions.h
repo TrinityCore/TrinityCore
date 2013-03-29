@@ -72,6 +72,7 @@ ElunaRegister<Unit> UnitMethods[] =
     {"GetRecruiterId", &LuaUnit::GetRecruiterId},                   // :GetRecruiterId() -- Returns player's recruiter's ID.
     {"GetSelectedPlayer", &LuaUnit::GetSelectedPlayer},             // :GetSelectedPlayer() -- Returns player's selected player. UNDOCUMENTED
     {"GetSelectedUnit", &LuaUnit::GetSelectedUnit},                 // :GetSelectedUnit() -- Returns player's selected unit. UNDOCUMENTED
+    {"GetDistance", &LuaUnit::GetDistance},                         // :GetDistance(x, y, z) -- UNDOCUMENTED
 
 
     // Setters
@@ -449,6 +450,7 @@ ElunaRegister<Unit> UnitMethods[] =
     {"InterruptSpell", &LuaUnit::InterruptSpell},                   // :InterruptSpell(spellType, delayed(optional), instant(optional)) -- Interrupts the unit's spell by the spellType. If delayed is true it will skip if the spell is delayed. If instant is true, it will skip that the spell has a cast time.
     {"SendChatMessageToPlayer", &LuaUnit::SendChatMessageToPlayer}, // :SendChatMessageToPlayer(type, lang, msg, target) -- Unit sends a chat message to the given target player
     {"SaveToDB", &LuaUnit::SaveToDB},                               // :SaveToDB() -- Saves the unit to database.
+    {"HandleEmoteCommand", &LuaUnit::HandleEmoteCommand},           // :HandleEmoteCommand(emote) -- UNDOCUMENTED
 
     /* Vehicle */
     {"AddVehiclePassenger", &LuaUnit::AddVehiclePassenger},         // :AddVehiclePassenger(unit, seatId) - Adds a passenger to the vehicle by specifying a unit and seatId
