@@ -328,7 +328,7 @@ ElunaRegister<Unit> UnitMethods[] =
     {"GetHealth", &LuaUnit::GetHealth},                             // :GetHealth()
     {"GetDisplayID", &LuaUnit::GetDisplayID},                       // :GetDisplayID()
     {"GetNativeDisplayID", &LuaUnit::GetNativeDisplayID},           // :GetNativeDisplayID() -- UNDOCUMENTED
-	{"GetGUID", &LuaUnit::GetGUID},                                 // :GetGUID()
+    {"GetGUID", &LuaUnit::GetGUID},                                 // :GetGUID()
     {"GetMapId", &LuaUnit::GetMapId},                               // :GetMapId()
     {"GetX", &LuaUnit::GetX},                                       // :GetX()
     {"GetY", &LuaUnit::GetY},                                       // :GetY()
