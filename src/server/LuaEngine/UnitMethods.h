@@ -1984,6 +1984,15 @@ public:
         return 0;
     }
 
+    // HandleEmoteCommand(emote)
+    static int HandleEmoteCommand(lua_State* L, Unit* unit)
+    {
+        TO_UNIT();
+
+        unit->HandleEmoteCommand(luaL_checkunsigned(L, 1));
+        return 0;
+    }
+
     // GetInGameTime()
     static int GetInGameTime(lua_State* L, Unit* unit)
     {
