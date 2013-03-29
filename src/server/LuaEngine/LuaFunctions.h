@@ -70,6 +70,9 @@ ElunaRegister<Unit> UnitMethods[] =
     {"GetChampioningFaction", &LuaUnit::GetChampioningFaction},     // :GetChampioningFaction() -- Returns the player's championing faction.
     {"GetLatency", &LuaUnit::GetLatency},                           // :GetLatency() -- Returns player's latency.
     {"GetRecruiterId", &LuaUnit::GetRecruiterId},                   // :GetRecruiterId() -- Returns player's recruiter's ID.
+    {"GetSelectedPlayer", &LuaUnit::GetSelectedPlayer},             // :GetSelectedPlayer() -- Returns player's selected player. UNDOCUMENTED
+    {"GetSelectedUnit", &LuaUnit::GetSelectedUnit},                 // :GetSelectedUnit() -- Returns player's selected unit. UNDOCUMENTED
+
 
     // Setters
     {"AdvanceSkillsToMax", &LuaUnit::AdvanceSkillsToMax},           // :AdvanceSkillsToMax() -- Advances all currently known skills to the currently known max level
