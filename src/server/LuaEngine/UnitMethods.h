@@ -682,8 +682,8 @@ public:
         return 1;
     }
 
-    // GetMountID()
-    static int GetMountID(lua_State* L, Unit* unit)
+    // GetMountId()
+    static int GetMountId(lua_State* L, Unit* unit)
     {
         TO_UNIT();
 
@@ -1776,12 +1776,30 @@ public:
         return 1;
     }
 
-    // isAuctioner()
-    static int isAuctioner(lua_State* L, Unit* unit)
+    // IsAuctioner()
+    static int IsAuctioner(lua_State* L, Unit* unit)
     {
         TO_UNIT();
 
         sEluna->PushBoolean(L, unit->isAuctioner());
+        return 1;
+    }
+
+    // HealthBelowPct(pct)
+    static int HealthBelowPct(lua_State* L, Unit* unit)
+    {
+        TO_UNIT();
+
+        sEluna->PushBoolean(L, unit->HealthBelowPct(luaL_checkint(L, 1)));
+        return 1;
+    }
+
+    // HealthAbovePct
+    static int HealthAbovePct(lua_State* L, Unit* unit)
+    {
+        TO_UNIT();
+
+        sEluna->PushBoolean(L, unit->HealthAbovePct(luaL_checkint(L, 1)));
         return 1;
     }
 
