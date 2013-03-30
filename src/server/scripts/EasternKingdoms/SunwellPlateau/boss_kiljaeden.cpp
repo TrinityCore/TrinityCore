@@ -524,7 +524,7 @@ public:
 
         void InitializeAI()
         {
-            // ScriptedAI::InitializeAI();
+            // Scripted_NoMovementAI::InitializeAI();
         }
 
         void Reset()
