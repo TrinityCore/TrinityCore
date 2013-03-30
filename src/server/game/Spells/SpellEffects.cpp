@@ -1023,38 +1023,6 @@ void Spell::EffectTriggerMissileSpell(SpellEffIndex effIndex)
 
 void Spell::EffectForceCast(SpellEffIndex effIndex)
 {
-    switch (m_spellInfo->Id)
-    {
-            case 66548: //Teleports (Isle of Conquest)
-            {
-                if (Creature* TargetTeleport = m_caster->FindNearestCreature(22515, 60.0f, true))
-                {
-                    float x, y, z, o;
-                    TargetTeleport->GetPosition(x, y, z, o);
-
-                    if (m_caster->GetTypeId() != TYPEID_PLAYER)
-                        return;
-
-                    m_caster->ToPlayer()->TeleportTo(628, x, y, z, o);
-                }
-                return;
-            }
-            case 66549: //Teleports (Isle of Conquest)
-            {
-                if (Creature* TargetTeleport = m_caster->FindNearestCreature(23472, 60.0f, true))
-                {
-                    float x, y, z, o;
-                    TargetTeleport->GetPosition(x, y, z, o);
-
-                    if (m_caster->GetTypeId() != TYPEID_PLAYER)
-                        return;
-
-                    m_caster->ToPlayer()->TeleportTo(628, x, y, z, o);
-                }
-                return;
-            }
-    }
-
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
         return;
 
@@ -1183,34 +1151,24 @@ void Spell::EffectTeleportUnits(SpellEffIndex /*effIndex*/)
     // Pre effects
     switch (m_spellInfo->Id)
     {
-            case 66548: //Teleports (Isle of Conquest)
+        case 66550: // teleports outside (Isle of Conquest)
+            if (Player* target = unitTarget->ToPlayer())
             {
-                if (Creature* TargetTeleport = m_caster->FindNearestCreature(22515, 60.0f, true))
-                {
-                    float x, y, z, o;
-                    TargetTeleport->GetPosition(x, y, z, o);
-
-                    if (m_caster->GetTypeId() != TYPEID_PLAYER)
-                        return;
-
-                    m_caster->ToPlayer()->TeleportTo(628, x, y, z, o);
-                }
-                return;
+                if (target->GetTeamId() == TEAM_ALLIANCE)
+                    m_targets.SetDst(442.24f, -835.25f, 44.30f, 0.06f, 628);
+                else
+                    m_targets.SetDst(1120.43f, -762.11f, 47.92f, 2.94f, 628);
             }
-            case 66549: //Teleports (Isle of Conquest)
+            break;
+        case 66551: // teleports inside (Isle of Conquest)
+            if (Player* target = unitTarget->ToPlayer())
             {
-                if (Creature* TargetTeleport = m_caster->FindNearestCreature(23472, 60.0f, true))
-                {
-                    float x, y, z, o;
-                    TargetTeleport->GetPosition(x, y, z, o);
-
-                    if (m_caster->GetTypeId() != TYPEID_PLAYER)
-                        return;
-
-                    m_caster->ToPlayer()->TeleportTo(628, x, y, z, o);
-                }
-                return;
+                if (target->GetTeamId() == TEAM_ALLIANCE)
+                    m_targets.SetDst(389.57f, -832.38f, 48.65f, 3.00f, 628);
+                else
+                    m_targets.SetDst(1174.85f, -763.24f, 48.72f, 6.26f, 628);
             }
+            break;
     }
 
     // If not exist data for dest location - return
