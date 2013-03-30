@@ -1297,40 +1297,6 @@ class spell_sindragosa_frost_breath : public SpellScriptLoader
         }
 };
 
-class spell_sindragosa_instability : public SpellScriptLoader
-{
-    public:
-        spell_sindragosa_instability() : SpellScriptLoader("spell_sindragosa_instability") { }
-
-        class spell_sindragosa_instability_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_sindragosa_instability_AuraScript);
-
-            bool Validate(SpellInfo const* /*spell*/)
-            {
-                if (!sSpellMgr->GetSpellInfo(SPELL_BACKLASH))
-                    return false;
-                return true;
-            }
-
-            void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
-            {
-                if (GetTargetApplication()->GetRemoveMode() == AURA_REMOVE_BY_EXPIRE)
-                    GetTarget()->CastCustomSpell(SPELL_BACKLASH, SPELLVALUE_BASE_POINT0, aurEff->GetAmount(), GetTarget(), true, NULL, aurEff, GetCasterGUID());
-            }
-
-            void Register()
-            {
-                AfterEffectRemove += AuraEffectRemoveFn(spell_sindragosa_instability_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_sindragosa_instability_AuraScript();
-        }
-};
-
 class spell_sindragosa_frost_beacon : public SpellScriptLoader
 {
     public:
