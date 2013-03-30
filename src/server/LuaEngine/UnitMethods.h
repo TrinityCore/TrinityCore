@@ -1733,6 +1733,15 @@ public:
         return 1;
     }
 
+    // isAuctioner()
+    static int isAuctioner(lua_State* L, Unit* unit)
+    {
+        TO_UNIT();
+
+        sEluna->PushBoolean(L, unit->isAuctioner());
+        return 1;
+    }
+
     // GetSpecsCount()
     static int GetSpecsCount(lua_State* L, Unit* unit)
     {
@@ -1991,6 +2000,24 @@ public:
 
         unit->HandleEmoteCommand(luaL_checkunsigned(L, 1));
         return 0;
+    }
+
+    // CountPctFromCurHealth(pct)
+    static int CountPctFromCurHealth(lua_State* L, Unit* unit)
+    {
+        TO_UNIT();
+
+        sEluna->PushUnsigned(L, unit->CountPctFromCurHealth(luaL_checkint(L, 1)));
+        return 1;
+    }
+
+    // CountPctFromMaxHealth()
+    static int CountPctFromMaxHealth(lua_State* L, Unit* unit)
+    {
+        TO_UNIT();
+
+        sEluna->PushUnsigned(L, unit->CountPctFromMaxHealth(luaL_checkint(L, 1)));
+        return 1;
     }
 
     // GetInGameTime()
@@ -3939,6 +3966,15 @@ public:
         TO_UNIT_BOOL();
 
         sEluna->PushBoolean(L, unit->isDead());
+        return 1;
+    }
+
+    // IsDying()
+    static int IsDying(lua_State* L, Unit* unit)
+    {
+        TO_UNIT_BOOL();
+
+        sEluna->PushBoolean(L, unit->isDying());
         return 1;
     }
 
