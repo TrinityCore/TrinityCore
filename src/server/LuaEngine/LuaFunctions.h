@@ -419,7 +419,7 @@ ElunaRegister<Unit> UnitMethods[] =
     {"HasAura", &LuaUnit::HasAura},                                 // :HasAura(spellId[, caster]) -- Returns true if the unit has the aura from the spell and casted by the caster if provided.
     {"CanFly", &LuaUnit::CanFly},                                   // :CanFly() -- Returns true if the unit can fly.
     {"HasSpellCooldown", &LuaUnit::HasSpellCooldown},               // :HasSpellCooldown(spellId) -- Returns true if the spell is on cooldown.
-    {"IsAuctioner", &LuaUnit::IsAuctioner},                         // :IsAuctioner() -- UNDOCUMENTED
+    {"IsAuctioneer", &LuaUnit::IsAuctioneer},                       // :IsAuctioneer() -- UNDOCUMENTED
     {"HealthBelowPct", &LuaUnit::HealthBelowPct},                   // :HealthBelowPct(int32 pct) -- UNDOCUMENTED
     {"HealthAbovePct", &LuaUnit::HealthAbovePct},                   // :HealthAbovePct(int32 pct) -- UNDOCUMENTED
 
@@ -459,7 +459,7 @@ ElunaRegister<Unit> UnitMethods[] =
     {"InterruptSpell", &LuaUnit::InterruptSpell},                   // :InterruptSpell(spellType, delayed(optional), instant(optional)) -- Interrupts the unit's spell by the spellType. If delayed is true it will skip if the spell is delayed. If instant is true, it will skip that the spell has a cast time.
     {"SendChatMessageToPlayer", &LuaUnit::SendChatMessageToPlayer}, // :SendChatMessageToPlayer(type, lang, msg, target) -- Unit sends a chat message to the given target player
     {"SaveToDB", &LuaUnit::SaveToDB},                               // :SaveToDB() -- Saves the unit to database.
-    {"HandleEmoteCommand", &LuaUnit::HandleEmoteCommand},           // :HandleEmoteCommand(emote) -- UNDOCUMENTED
+    {"Emote", &LuaUnit::Emote},                                     // :Emote(emote) -- UNDOCUMENTED
     {"CountPctFromCurHealth", &LuaUnit::CountPctFromCurHealth},     // :CountPctFromCurHealth(int32 pct) -- UNDOCUMENTED
     {"CountPctFromMaxHealth", &LuaUnit::CountPctFromMaxHealth},     // :CountPctFromMaxHealth() -- UNDOCUMENTED
 

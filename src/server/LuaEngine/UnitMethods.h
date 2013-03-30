@@ -1796,8 +1796,8 @@ public:
         return 1;
     }
 
-    // IsAuctioner()
-    static int IsAuctioner(lua_State* L, Unit* unit)
+    // IsAuctioneer()
+    static int IsAuctioneer(lua_State* L, Unit* unit)
     {
         TO_UNIT_BOOL();
 
@@ -2074,8 +2074,8 @@ public:
         return 0;
     }
 
-    // HandleEmoteCommand(emote)
-    static int HandleEmoteCommand(lua_State* L, Unit* unit)
+    // Emote(emote)
+    static int Emote(lua_State* L, Unit* unit)
     {
         TO_UNIT();
 
