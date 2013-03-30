@@ -179,6 +179,7 @@ set(scripts_STAT_SRCS
   Northrend/IcecrownCitadel/boss_valithria_dreamwalker.cpp
   Northrend/IcecrownCitadel/boss_sindragosa.cpp
   Northrend/IcecrownCitadel/boss_the_lich_king.cpp
+  Northrend/IcecrownCitadel/icc_trash.cpp
   Northrend/zone_zuldrak.cpp
   Northrend/zone_icecrown.cpp
   Northrend/Gundrak/boss_slad_ran.cpp

@@ -378,7 +378,6 @@ public:
                 me->SetStandState(UNIT_STAND_STATE_STAND);
                 me->Mount(25279);
                 me->SetVisible(true);
-                me->SetDespawnAtFar(false);
 
                 UpdateWorldState(me->GetMap(), WORLD_STATE_REMAINS, 0);
                 //UpdateWorldState(me->GetMap(), WORLD_STATE_COUNTDOWN, 0);
