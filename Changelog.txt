@@ -11,6 +11,7 @@
 #                                                                                          #
 ############################################################################################
 
+[158] --> Improved Mirror Images AI by A-Metaphysical-Drama. (TEST)
 [157] --> Fix Earth Shield by joschiwald.
 [156] --> Fix Glyph of Succubus. (TEST)
 [155] --> Update Sunwell Plateau by aedansilver.
