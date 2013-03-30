@@ -1698,11 +1698,11 @@ public:
     // SetPvP([apply])
     static int SetPvP(lua_State* L, Unit* unit)
     {
-        TO_PLAYER();
+        TO_UNIT();
 
         bool apply = luaL_optbool(L, 1, true);
 
-        player->SetPvP(apply);
+        unit->SetPvP(apply);
         return 0;
     }
 
@@ -1717,6 +1717,25 @@ public:
             unit->SetByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_FFA_PVP);
         else
             unit->RemoveByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_FFA_PVP);
+
+        return 0;
+    }
+
+    // SetSanctuary([apply])
+    static int SetSanctuary(lua_State* L, Unit* unit)
+    {
+        TO_UNIT();
+
+        bool apply = luaL_optbool(L, 1, true);
+
+        if (apply)
+        {
+            unit->SetByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_SANCTUARY);
+            unit->CombatStop();
+            unit->CombatStopWithPets();
+        }
+        else
+            unit->RemoveByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_SANCTUARY);
 
         return 0;
     }
