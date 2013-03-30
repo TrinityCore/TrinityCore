@@ -13,6 +13,26 @@ class LuaUnit
 {
 public:
 
+    // GetScale()
+    static int GetScale(lua_State* L, Unit* unit)
+    {
+        TO_UNIT();
+
+        sEluna->PushFloat(L, unit->GetObjectSize());
+        return 1;
+    }
+
+    // SetScale(size)
+    static int SetScale(lua_State* L, Unit* unit)
+    {
+        TO_UNIT();
+
+        float size = luaL_checknumber(L, 1);
+
+        unit->SetObjectScale(size);
+        return 0;
+    }
+
     // IsDamageEnoughForLootingAndReward()
     static int IsDamageEnoughForLootingAndReward(lua_State* L, Unit* unit)
     {

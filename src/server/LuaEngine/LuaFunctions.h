@@ -367,6 +367,7 @@ ElunaRegister<Unit> UnitMethods[] =
     {"GetNearbyTarget", &LuaUnit::GetNearbyTarget},                 // :GetNearbyTarget([radius[, exclude]]) - Returns nearby target within sight or given radius. Excludes current target and given unit.
     {"GetShieldBlockValue", &LuaUnit::GetShieldBlockValue},         // :GetShieldBlockValue() - Returns block value.
     {"GetMountId", &LuaUnit::GetMountId},                           // :GetMountId() -- UNDOCUMENTED
+    {"GetScale", &LuaUnit::GetScale},                               // :GetScale() - UNDOCUMENTED
 
     // Setters
     {"SetFaction", &LuaUnit::SetFaction},                           // :SetFaction(factionId) -- Sets the unit's faction
@@ -397,6 +398,7 @@ ElunaRegister<Unit> UnitMethods[] =
     {"SetPvP", &LuaUnit::SetPvP},                                   // :SetPvP([apply]) -- Sets the units PvP on or off.
     {"SetFFA", &LuaUnit::SetFFA},                                   // :SetFFA([apply]) -- Sets the units FFA tag on or off.
     {"SetSanctuary", &LuaUnit::SetSanctuary},                       // :SetSanctuary([apply]) -- Enables or disables units sanctuary flag.
+    {"SetScale", &LuaUnit::SetScale},                               // :SetScale(scale) - UNDOCUMENTED
 
     // Boolean
     {"IsAlive", &LuaUnit::IsAlive},                                 // :IsAlive()
