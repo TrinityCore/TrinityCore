@@ -1628,11 +1628,11 @@ public:
             if (!player->HasItemCount(C_F,1) && !player->HasItemCount(H_F,1) && !player->HasItemCount(MS_F,1) && !player->HasItemCount(MA_F,1) &&
                 !player->HasItemCount(T_F,1) && player->GetQuestStatus(QUEST_CHOOSE_YOUR_PATH) == QUEST_STATUS_COMPLETE)
             {
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT,"Anillo caster (amistoso)",GOSSIP_SENDER_MAIN,GOSSIP_ACTION_INFO_DEF+1);
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT,"Anillo healer (amistoso)",GOSSIP_SENDER_MAIN,GOSSIP_ACTION_INFO_DEF+2);
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT,"Anillo melee - fuerza (amistoso)",GOSSIP_SENDER_MAIN,GOSSIP_ACTION_INFO_DEF+3);
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT,"Anillo melee - agilidad (amistoso)",GOSSIP_SENDER_MAIN,GOSSIP_ACTION_INFO_DEF+4);
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT,"Anillo tanque (amistoso)",GOSSIP_SENDER_MAIN,GOSSIP_ACTION_INFO_DEF+5);
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT,"Ring caster (Friendly)",GOSSIP_SENDER_MAIN,GOSSIP_ACTION_INFO_DEF+1);
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT,"Ring healer (Friendly)",GOSSIP_SENDER_MAIN,GOSSIP_ACTION_INFO_DEF+2);
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT,"Ring melee - strength (Friendly)",GOSSIP_SENDER_MAIN,GOSSIP_ACTION_INFO_DEF+3);
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT,"Ring melee - agility (Friendly)",GOSSIP_SENDER_MAIN,GOSSIP_ACTION_INFO_DEF+4);
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT,"Ring tank (Friendly)",GOSSIP_SENDER_MAIN,GOSSIP_ACTION_INFO_DEF+5);
                 player->SEND_GOSSIP_MENU(GMSG, creature->GetGUID());
                 return true;
             }
@@ -1644,11 +1644,11 @@ public:
                 !player->HasItemCount(T_F,1) && !player->HasItemCount(C_H,1) && !player->HasItemCount(H_H,1) && !player->HasItemCount(MS_H,1) &&
                 !player->HasItemCount(MA_H,1) && !player->HasItemCount(T_H,1))
             {
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT,"Anillo caster (honorable)",GOSSIP_SENDER_MAIN,GOSSIP_ACTION_INFO_DEF+6);
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT,"Anillo healer (honorable)",GOSSIP_SENDER_MAIN,GOSSIP_ACTION_INFO_DEF+7);
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT,"Anillo melee - fuerza (honorable)",GOSSIP_SENDER_MAIN,GOSSIP_ACTION_INFO_DEF+8);
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT,"Anillo melee - agilidad (honorable)",GOSSIP_SENDER_MAIN,GOSSIP_ACTION_INFO_DEF+9);
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT,"Anillo tanque (honorable)",GOSSIP_SENDER_MAIN,GOSSIP_ACTION_INFO_DEF+10);
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT,"Ring caster (Honored)",GOSSIP_SENDER_MAIN,GOSSIP_ACTION_INFO_DEF+6);
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT,"Ring healer (Honored)",GOSSIP_SENDER_MAIN,GOSSIP_ACTION_INFO_DEF+7);
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT,"Ring melee - strength (Honored)",GOSSIP_SENDER_MAIN,GOSSIP_ACTION_INFO_DEF+8);
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT,"Ring melee - agility (Honored)",GOSSIP_SENDER_MAIN,GOSSIP_ACTION_INFO_DEF+9);
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT,"Ring tank (Honored)",GOSSIP_SENDER_MAIN,GOSSIP_ACTION_INFO_DEF+10);
                 player->SEND_GOSSIP_MENU(GMSG, creature->GetGUID());
                 return true;
             }
@@ -1661,11 +1661,11 @@ public:
                 !player->HasItemCount(MA_H,1) && !player->HasItemCount(T_H,1) && !player->HasItemCount(C_R,1) && !player->HasItemCount(H_R,1) &&
                 !player->HasItemCount(MS_R,1) && !player->HasItemCount(MA_R,1) && !player->HasItemCount(T_R,1))
             {
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT,"Anillo caster (venerado)",GOSSIP_SENDER_MAIN,GOSSIP_ACTION_INFO_DEF+11);
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT,"Anillo healer (venerado)",GOSSIP_SENDER_MAIN,GOSSIP_ACTION_INFO_DEF+12);
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT,"Anillo melee - fuerza (venerado)",GOSSIP_SENDER_MAIN,GOSSIP_ACTION_INFO_DEF+13);
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT,"Anillo melee - agilidad (venerado)",GOSSIP_SENDER_MAIN,GOSSIP_ACTION_INFO_DEF+14);
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT,"Anillo tanque (venerado)",GOSSIP_SENDER_MAIN,GOSSIP_ACTION_INFO_DEF+15);
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT,"Ring caster (Revered)",GOSSIP_SENDER_MAIN,GOSSIP_ACTION_INFO_DEF+11);
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT,"Ring healer (Revered)",GOSSIP_SENDER_MAIN,GOSSIP_ACTION_INFO_DEF+12);
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT,"Ring melee - strength (Revered)",GOSSIP_SENDER_MAIN,GOSSIP_ACTION_INFO_DEF+13);
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT,"Ring melee - agility (Revered)",GOSSIP_SENDER_MAIN,GOSSIP_ACTION_INFO_DEF+14);
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT,"Ring tank (Revered)",GOSSIP_SENDER_MAIN,GOSSIP_ACTION_INFO_DEF+15);
                 player->SEND_GOSSIP_MENU(GMSG, creature->GetGUID());
                 return true;
             }
@@ -1679,11 +1679,11 @@ public:
                 !player->HasItemCount(MS_R,1) && !player->HasItemCount(MA_R,1) && !player->HasItemCount(T_R,1) && !player->HasItemCount(C_E,1) &&
                 !player->HasItemCount(H_E,1) && !player->HasItemCount(MS_E,1) && !player->HasItemCount(MA_E,1) && !player->HasItemCount(T_E,1))
             {
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT,"Anillo caster (exaltado)",GOSSIP_SENDER_MAIN,GOSSIP_ACTION_INFO_DEF+16);
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT,"Anillo healer (exaltado)",GOSSIP_SENDER_MAIN,GOSSIP_ACTION_INFO_DEF+17);
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT,"Anillo melee - fuerza (exaltado)",GOSSIP_SENDER_MAIN,GOSSIP_ACTION_INFO_DEF+18);
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT,"Anillo melee - agilidad (exaltado)",GOSSIP_SENDER_MAIN,GOSSIP_ACTION_INFO_DEF+19);
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT,"Anillo tanque (exaltado)",GOSSIP_SENDER_MAIN,GOSSIP_ACTION_INFO_DEF+20);
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT,"Ring caster (Exalted)",GOSSIP_SENDER_MAIN,GOSSIP_ACTION_INFO_DEF+16);
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT,"Ring healer (Exalted)",GOSSIP_SENDER_MAIN,GOSSIP_ACTION_INFO_DEF+17);
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT,"Ring melee - strength (Exalted)",GOSSIP_SENDER_MAIN,GOSSIP_ACTION_INFO_DEF+18);
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT,"Ring melee - agility (Exalted)",GOSSIP_SENDER_MAIN,GOSSIP_ACTION_INFO_DEF+19);
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT,"Ring tank (Exalted)",GOSSIP_SENDER_MAIN,GOSSIP_ACTION_INFO_DEF+20);
                 player->SEND_GOSSIP_MENU(GMSG, creature->GetGUID());
                 return true;
             }
