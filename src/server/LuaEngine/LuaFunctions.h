@@ -366,6 +366,7 @@ ElunaRegister<Unit> UnitMethods[] =
     {"GetCreatureType", &LuaUnit::GetCreatureType},                 // :GetCreatureType() -- Returns the unit's type
     {"GetNearbyTarget", &LuaUnit::GetNearbyTarget},                 // :GetNearbyTarget([radius[, exclude]]) - Returns nearby target within sight or given radius. Excludes current target and given unit.
     {"GetShieldBlockValue", &LuaUnit::GetShieldBlockValue},         // :GetShieldBlockValue() - Returns block value.
+    {"GetMountId", &LuaUnit::GetMountId},                           // :GetMountId() -- UNDOCUMENTED
 
     // Setters
     {"SetFaction", &LuaUnit::SetFaction},                           // :SetFaction(factionId) -- Sets the unit's faction
@@ -400,6 +401,7 @@ ElunaRegister<Unit> UnitMethods[] =
     // Boolean
     {"IsAlive", &LuaUnit::IsAlive},                                 // :IsAlive()
     {"IsDead", &LuaUnit::IsDead},                                   // :IsDead() -- Returns true if the unit is dead, false if they are alive
+    {"IsDying", &LuaUnit::IsDying},                                 // :IsDying() -- Returns true if the unit death state is JUST_DIED. UNDOCUMENTED
     {"IsInWorld", &LuaUnit::IsInWorld},                             // :IsInWorld()
     {"IsPvPFlagged", &LuaUnit::IsPvPFlagged},                       // :IsPvPFlagged()
     {"HasQuest", &LuaUnit::HasQuest},                               // :HasQuest(id)
@@ -415,6 +417,9 @@ ElunaRegister<Unit> UnitMethods[] =
     {"HasAura", &LuaUnit::HasAura},                                 // :HasAura(spellId[, caster]) -- Returns true if the unit has the aura from the spell and casted by the caster if provided.
     {"CanFly", &LuaUnit::CanFly},                                   // :CanFly() -- Returns true if the unit can fly.
     {"HasSpellCooldown", &LuaUnit::HasSpellCooldown},               // :HasSpellCooldown(spellId) -- Returns true if the spell is on cooldown.
+    {"IsAuctioner", &LuaUnit::IsAuctioner},                         // :IsAuctioner() -- UNDOCUMENTED
+    {"HealthBelowPct", &LuaUnit::HealthBelowPct},                   // :HealthBelowPct(int32 pct) -- UNDOCUMENTED
+    {"HealthAbovePct", &LuaUnit::HealthAbovePct},                   // :HealthAbovePct(int32 pct) -- UNDOCUMENTED
 
     // Other
     {"AddAura", &LuaUnit::AddAura},                                 // :AddAura(spellId, target) -- Adds an aura to the specified target
@@ -453,6 +458,8 @@ ElunaRegister<Unit> UnitMethods[] =
     {"SendChatMessageToPlayer", &LuaUnit::SendChatMessageToPlayer}, // :SendChatMessageToPlayer(type, lang, msg, target) -- Unit sends a chat message to the given target player
     {"SaveToDB", &LuaUnit::SaveToDB},                               // :SaveToDB() -- Saves the unit to database.
     {"HandleEmoteCommand", &LuaUnit::HandleEmoteCommand},           // :HandleEmoteCommand(emote) -- UNDOCUMENTED
+    {"CountPctFromCurHealth", &LuaUnit::CountPctFromCurHealth},     // :CountPctFromCurHealth(int32 pct) -- UNDOCUMENTED
+    {"CountPctFromMaxHealth", &LuaUnit::CountPctFromMaxHealth},     // :CountPctFromMaxHealth() -- UNDOCUMENTED
 
     /* Vehicle */
     {"AddVehiclePassenger", &LuaUnit::AddVehiclePassenger},         // :AddVehiclePassenger(unit, seatId) - Adds a passenger to the vehicle by specifying a unit and seatId
