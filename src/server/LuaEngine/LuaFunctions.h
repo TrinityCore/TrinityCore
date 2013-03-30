@@ -100,7 +100,6 @@ ElunaRegister<Unit> UnitMethods[] =
     {"SetQuestStatus", &LuaUnit::SetQuestStatus},                   // :SetQuestStatus(entry, status) -- Sets the quest's status.
     {"SetReputation", &LuaUnit::SetReputation},                     // :SetReputation(faction, value) -- Sets the faction reputation for the player.
     {"SetFreeTalentPoints", &LuaUnit::SetFreeTalentPoints},         // :SetFreeTalentPoints(points) -- Sets the amount of unused talent points.
-    {"SetPvP", &LuaUnit::SetPvP},                                   // :SetPvP([apply]) -- Sets the player's PvP on or off.
     {"SetGuildRank", &LuaUnit::SetRank},                            // :SetGuildRank(rank) -- Sets player's guild rank.
     {"SetMovement", &LuaUnit::SetMovement},                         // :SetMovement(type) -- Sets player's movement type.
     {"SetSkill", &LuaUnit::SetSkill},                               // :SetSkill(skill, step, currVal, maxVal) -- Sets the skill's boundaries and value.
@@ -288,7 +287,6 @@ ElunaRegister<Unit> UnitMethods[] =
     {"SetRespawnRadius", &LuaUnit::SetRespawnRadius},               // :SetRespawnRadius(dist) -- Sets the respawn radius.
     {"SetInCombatWithZone", &LuaUnit::SetInCombatWithZone},         // :SetInCombatWithZone() -- Sets the creature in combat with everyone in zone.
     {"SetDisableReputationGain", &LuaUnit::SetDisableReputationGain},   // :SetDisableReputationGain(disable) -- Disables or enables reputation gain from creature.
-    {"SetFFA", &LuaUnit::SetFFA},                                   // :SetFFA([apply]) -- Sets the unit's FFA tag on or off.
 
     // Booleans
     {"IsWorldBoss", &LuaUnit::IsWorldBoss},                         // :IsWorldBoss() -- Returns true if the creature is a WorldBoss, false if not.
@@ -396,6 +394,9 @@ ElunaRegister<Unit> UnitMethods[] =
     {"SetConfused", &LuaUnit::SetConfused},                         // :SetConfused([enable]) - Sets confused or removes confusion
     {"SetFeared", &LuaUnit::SetFeared},                             // :SetFeared([enable]) - Fears or removes fear
     {"SetGender", &LuaUnit::SetGender},                             // :SetGender(value) -- 0 = male 1 = female
+    {"SetPvP", &LuaUnit::SetPvP},                                   // :SetPvP([apply]) -- Sets the units PvP on or off.
+    {"SetFFA", &LuaUnit::SetFFA},                                   // :SetFFA([apply]) -- Sets the units FFA tag on or off.
+    {"SetSanctuary", &LuaUnit::SetSanctuary},                       // :SetSanctuary([apply]) -- Enables or disables units sanctuary flag.
 
     // Boolean
     {"IsAlive", &LuaUnit::IsAlive},                                 // :IsAlive()
