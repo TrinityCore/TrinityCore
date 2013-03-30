@@ -401,7 +401,6 @@ class boss_freya : public CreatureScript
             {
                 if (!urand(0,5))
                     Talk(SAY_SLAY);
-                me->SummonGameObject(RAID_MODE(GO_FREYA_CHEST, GO_FREYA_CHEST_HERO), 2349.05f, -40.7049f, 425.686f, 3.1765f, 0, 0, 0, 0, 90000000);
             }
 
             void DamageTaken(Unit* /*attacker*/, uint32 &amount)
@@ -437,6 +436,7 @@ class boss_freya : public CreatureScript
                 me->DeleteThreatList();
                 me->CombatStop(true);
                 me->CastSpell(me, SPELL_KNOCK_ON_WOOD_CREDIT, true);
+                me->SummonGameObject(RAID_MODE(GO_FREYA_CHEST, GO_FREYA_CHEST_HERO), 2349.05f, -40.7049f, 425.686f, 3.1765f, 0, 0, 0, 0, 90000000);
 
                 // getting back to nature achievement
                 attunedToNature = me->GetAuraCount(SPELL_ATTUNED_TO_NATURE);
