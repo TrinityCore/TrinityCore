@@ -288,6 +288,7 @@ ElunaRegister<Unit> UnitMethods[] =
     {"SetRespawnRadius", &LuaUnit::SetRespawnRadius},               // :SetRespawnRadius(dist) -- Sets the respawn radius.
     {"SetInCombatWithZone", &LuaUnit::SetInCombatWithZone},         // :SetInCombatWithZone() -- Sets the creature in combat with everyone in zone.
     {"SetDisableReputationGain", &LuaUnit::SetDisableReputationGain},   // :SetDisableReputationGain(disable) -- Disables or enables reputation gain from creature.
+    {"SetFFA", &LuaUnit::SetFFA},                                   // :SetFFA([apply]) -- Sets the unit's FFA tag on or off.
 
     // Booleans
     {"IsWorldBoss", &LuaUnit::IsWorldBoss},                         // :IsWorldBoss() -- Returns true if the creature is a WorldBoss, false if not.

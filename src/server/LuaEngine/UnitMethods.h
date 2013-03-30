@@ -1706,6 +1706,21 @@ public:
         return 0;
     }
 
+    // SetFFA([apply])
+    static int SetFFA(lua_State* L, Unit* unit)
+    {
+        TO_UNIT();
+
+        bool apply = luaL_optbool(L, 1, true);
+
+        if (apply)
+            unit->SetByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_FFA_PVP);
+        else
+            unit->RemoveByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_FFA_PVP);
+
+        return 0;
+    }
+
     // GetSpellCooldownDelay(spellid)
     static int GetSpellCooldownDelay(lua_State* L, Unit* unit)
     {
