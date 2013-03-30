@@ -682,6 +682,15 @@ public:
         return 1;
     }
 
+    // GetMountID()
+    static int GetMountID(lua_State* L, Unit* unit)
+    {
+        TO_UNIT();
+
+        sEluna->PushUnsigned(L, unit->GetMountID());
+        return 1;
+    }
+
     // GetCorpseDelay()
     static int GetCorpseDelay(lua_State* L, Unit* unit)
     {
