@@ -1779,7 +1779,7 @@ public:
     // IsAuctioner()
     static int IsAuctioner(lua_State* L, Unit* unit)
     {
-        TO_UNIT();
+        TO_UNIT_BOOL();
 
         sEluna->PushBoolean(L, unit->isAuctioner());
         return 1;
@@ -1788,7 +1788,7 @@ public:
     // HealthBelowPct(pct)
     static int HealthBelowPct(lua_State* L, Unit* unit)
     {
-        TO_UNIT();
+        TO_UNIT_BOOL();
 
         sEluna->PushBoolean(L, unit->HealthBelowPct(luaL_checkint(L, 1)));
         return 1;
@@ -1797,7 +1797,7 @@ public:
     // HealthAbovePct
     static int HealthAbovePct(lua_State* L, Unit* unit)
     {
-        TO_UNIT();
+        TO_UNIT_BOOL();
 
         sEluna->PushBoolean(L, unit->HealthAbovePct(luaL_checkint(L, 1)));
         return 1;
