@@ -292,3 +292,8 @@ UPDATE `creature_template` SET `flags_extra`=`flags_extra`|256 WHERE `entry` IN 
 UPDATE `creature_template` SET `speed_walk` = 0.642857, `speed_run` = 0.642857, `InhabitType` = 4 WHERE `entry` IN (36609, 39120, 39121, 39122);
 -- Set speed values to database for Vile Spirits in encounter The Lich King in instance / Instanz ICC / Eiskronenzitadelle / Icecrown Citadel
 UPDATE `creature_template` SET `speed_walk` = 0.5, `speed_run` = 0.5, `InhabitType` = 4 WHERE `entry` IN (37799, 39284, 39285, 39286);
+
+-- Fix Glyph of Succubus.
+DELETE FROM `spell_script_names` WHERE `spell_id`=6358;
+INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
+(6358,'spell_warl_seduction');
