@@ -7,13 +7,10 @@ void HookMgr::OnFirstLogin(Player* player)
     for (HookPointerSet::iterator it = hookPointers.begin(); it != hookPointers.end(); ++it)
         (*it)->OnFirstLogin(player);
 }
-bool HookMgr::OnEquip(Player* player, Item* item, uint16 pos, bool update)
+void HookMgr::OnEquip(Player* player, Item* item, uint16 pos, bool update)
 {
-    bool result = true;
     for (HookPointerSet::iterator it = hookPointers.begin(); it != hookPointers.end(); ++it)
-        if (!(*it)->OnEquip(player, item, pos, update))
-            result = false;
-    return result;
+        (*it)->OnEquip(player, item, pos, update);
 }
 void HookMgr::HandleGossipSelectOption(Player* player, uint64 guid, uint32 sender, uint32 action, std::string code, uint32 menuId)
 {

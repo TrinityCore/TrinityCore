@@ -18,9 +18,8 @@ public:
             sEluna->ExecuteCall(2, 0);
         }
     }
-    bool OnEquip(Player* player, Item* item, uint16 pos, bool update)
+    void OnEquip(Player* player, Item* item, uint16 pos, bool update)
     {
-        bool Result = true;
         for (std::vector<int>::iterator itr = sEluna->ServerEventBindings.at(PLAYER_EVENT_ON_EQUIP).begin();
             itr != sEluna->ServerEventBindings.at(PLAYER_EVENT_ON_EQUIP).end(); ++itr)
         {
@@ -30,15 +29,8 @@ public:
             sEluna->PushItem(sEluna->LuaState, item);
             sEluna->PushUnsigned(sEluna->LuaState, pos);
             sEluna->PushBoolean(sEluna->LuaState, update);
-            if (sEluna->ExecuteCall(5, 1))
-            {
-                lua_State* L = sEluna->LuaState;
-                if (!lua_isnoneornil(L, 1) && !lua_toboolean(L, 1))
-                    Result = false;
-                sEluna->EndCall(1);
-            }
+            sEluna->ExecuteCall(5, 0);
         }
-        return Result;
     }
     void HandleGossipSelectOption(Player* player, uint64 guid, uint32 sender, uint32 action, std::string code, uint32 menuId)
     {

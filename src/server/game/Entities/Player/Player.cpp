@@ -12294,9 +12294,6 @@ Item* Player::EquipNewItem(uint16 pos, uint32 item, bool update)
 {
     if (Item* pItem = Item::CreateItem(item, 1, this))
     {
-        if(!sHookMgr->OnEquip(this, pItem, pos, update))
-            return NULL;
-
         ItemAddedQuestCheck(item, 1);
         UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_RECEIVE_EPIC_ITEM, item, 1);
         return EquipItem(pos, pItem, update);
@@ -12307,9 +12304,6 @@ Item* Player::EquipNewItem(uint16 pos, uint32 item, bool update)
 
 Item* Player::EquipItem(uint16 pos, Item* pItem, bool update)
 {
-    if(!sHookMgr->OnEquip(this, pItem, pos, update))
-        return NULL;
-
     AddEnchantmentDurations(pItem);
     AddItemDurations(pItem);
 
@@ -12406,14 +12400,16 @@ Item* Player::EquipItem(uint16 pos, Item* pItem, bool update)
         pItem2->SetState(ITEM_CHANGED, this);
 
         ApplyEquipCooldown(pItem2);
-
+        
+        sHookMgr->OnEquip(this, pItem2, pos, update);
         return pItem2;
     }
 
     // only for full equip instead adding to stack
     UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_EQUIP_ITEM, pItem->GetEntry());
     UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_EQUIP_EPIC_ITEM, pItem->GetEntry(), slot);
-
+    
+    sHookMgr->OnEquip(this, pItem, pos, update);
     return pItem;
 }
 
@@ -12435,6 +12431,8 @@ void Player::QuickEquipItem(uint16 pos, Item* pItem)
 
         UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_EQUIP_ITEM, pItem->GetEntry());
         UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_EQUIP_EPIC_ITEM, pItem->GetEntry(), slot);
+
+        sHookMgr->OnEquip(this, pItem, pos, IsInWorld());
     }
 }
 
