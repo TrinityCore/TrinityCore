@@ -17,12 +17,14 @@ public:
     HookMgr() { }
 
     // misc
+    void OnFirstLogin(Player* player);
+    bool OnEquip(Player* player, Item* item, uint16 pos, bool update);
     void HandleGossipSelectOption(Player* player, uint64 guid, uint32 sender, uint32 action, std::string code, uint32 menuId);
-    bool OnChat(uint32 eventId, Player* player, uint32 type, uint32 lang, std::string& msg);
-    bool OnChat(uint32 eventId, Player* player, uint32 type, uint32 lang, std::string& msg, Group* group);
-    bool OnChat(uint32 eventId, Player* player, uint32 type, uint32 lang, std::string& msg, Guild* guild);
-    bool OnChat(uint32 eventId, Player* player, uint32 type, uint32 lang, std::string& msg, Channel* channel);
-    void OnElunaRestart(uint32 eventId);
+    bool OnChat(Player* player, uint32 type, uint32 lang, std::string& msg);
+    bool OnChat(Player* player, uint32 type, uint32 lang, std::string& msg, Group* group);
+    bool OnChat(Player* player, uint32 type, uint32 lang, std::string& msg, Guild* guild);
+    bool OnChat(Player* player, uint32 type, uint32 lang, std::string& msg, Channel* channel);
+    void OnEngineRestart();
     // item
     bool OnDummyEffect(Unit* caster, uint32 spellId, SpellEffIndex effIndex, Item* target);
     bool OnQuestAccept(Player* player, Item* item, Quest const* quest);
@@ -76,12 +78,14 @@ public:
         sHookMgr->hookPointers.erase(this);
     }
     // misc
+    virtual void OnFirstLogin(Player* player) { }
+    virtual bool OnEquip(Player* player, Item* item, uint16 pos, bool update) { return true; }
     virtual void HandleGossipSelectOption(Player* player, uint64 guid, uint32 sender, uint32 action, std::string code, uint32 menuId) { }
-    virtual bool OnChat(uint32 eventId, Player* player, uint32 type, uint32 lang, std::string& msg) { return true; }
-    virtual bool OnChat(uint32 eventId, Player* player, uint32 type, uint32 lang, std::string& msg, Group* group) { return true; }
-    virtual bool OnChat(uint32 eventId, Player* player, uint32 type, uint32 lang, std::string& msg, Guild* guild) { return true; }
-    virtual bool OnChat(uint32 eventId, Player* player, uint32 type, uint32 lang, std::string& msg, Channel* channel) { return true; }
-    virtual void OnElunaRestart(uint32 eventId) { }
+    virtual bool OnChat(Player* player, uint32 type, uint32 lang, std::string& msg) { return true; }
+    virtual bool OnChat(Player* player, uint32 type, uint32 lang, std::string& msg, Group* group) { return true; }
+    virtual bool OnChat(Player* player, uint32 type, uint32 lang, std::string& msg, Guild* guild) { return true; }
+    virtual bool OnChat(Player* player, uint32 type, uint32 lang, std::string& msg, Channel* channel) { return true; }
+    virtual void OnEngineRestart() { }
     // item
     virtual bool OnDummyEffect(Unit* caster, uint32 spellId, SpellEffIndex effIndex, Item* target) { return false; }
     virtual bool OnQuestAccept(Player* player, Item* item, Quest const* quest) { return false; }

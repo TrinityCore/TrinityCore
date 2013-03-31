@@ -138,6 +138,10 @@ enum ServerEvents
     GROUP_EVENT_ON_LEADER_CHANGE            =     72,           // (event, group, newLeaderGuid, oldLeaderGuid)
     GROUP_EVENT_ON_DISBAND                  =     73,           // (event, group)
 
+    // Custom
+    PLAYER_EVENT_ON_EQUIP                   =     74,           // (player, item, pos, update)
+    PLAYER_EVENT_ON_LOGIN_FIRST             =     75,           // (player)
+
     SERVER_EVENT_COUNT
 };
 

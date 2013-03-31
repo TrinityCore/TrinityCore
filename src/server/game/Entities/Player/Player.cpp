@@ -78,6 +78,7 @@
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
+#include "HookMgr.h"
 
 #define ZONE_UPDATE_INTERVAL (1*IN_MILLISECONDS)
 
@@ -12293,6 +12294,9 @@ Item* Player::EquipNewItem(uint16 pos, uint32 item, bool update)
 {
     if (Item* pItem = Item::CreateItem(item, 1, this))
     {
+        if(!sHookMgr->OnEquip(this, pItem, pos, update))
+            return NULL;
+
         ItemAddedQuestCheck(item, 1);
         UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_RECEIVE_EPIC_ITEM, item, 1);
         return EquipItem(pos, pItem, update);
@@ -12303,6 +12307,9 @@ Item* Player::EquipNewItem(uint16 pos, uint32 item, bool update)
 
 Item* Player::EquipItem(uint16 pos, Item* pItem, bool update)
 {
+    if(!sHookMgr->OnEquip(this, pItem, pos, update))
+        return NULL;
+
     AddEnchantmentDurations(pItem);
     AddItemDurations(pItem);
 
