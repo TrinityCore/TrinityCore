@@ -266,6 +266,7 @@ UPDATE creature_template SET InhabitType = InhabitType | 4 WHERE `entry` IN (397
 UPDATE creature_template SET InhabitType = InhabitType | 4 WHERE `entry` IN (10184,36538); -- Onyxia (Ony)
 UPDATE creature_template SET InhabitType = InhabitType | 4 WHERE `entry` IN (24068,31655); -- Annhylde the Caller (UK)
 UPDATE creature_template SET InhabitType = InhabitType | 4 WHERE `entry` IN (11583); -- Nefarian
+UPDATE creature_template SET InhabitType = InhabitType | 4 WHERE `entry` IN (27829); -- Ebon Gargyole
 
 -- Fix priest bug (kills and honour) spell_priest_spirit_of_redemption.
 -- Spell script assignment
