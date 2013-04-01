@@ -114,10 +114,10 @@ public:
 
         WorldPacket* data = sEluna->CHECK_PACKET(L, 1);
         bool ignorePlayersInBg = luaL_checkbool(L, 2);
-        uint32 ignore = luaL_optunsigned(L, 3, 0);
+        uint64 ignore = sEluna->CHECK_GUID(L, 3);
 
         if (data)
-            group->BroadcastPacket(data, ignorePlayersInBg, -1, (ignore ? MAKE_NEW_GUID(ignore, 0, HIGHGUID_PLAYER) : 0));
+            group->BroadcastPacket(data, ignorePlayersInBg, -1, ignore);
         return 0;
     }
 

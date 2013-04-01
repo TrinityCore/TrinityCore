@@ -201,8 +201,8 @@ namespace LuaGlobalFunctions
     // GetPlayerByGUID(guid) - Gets Player object by its guid
     static int GetPlayerByGUID(lua_State* L)
     {
-        uint32 guidLow = luaL_checkunsigned(L, 1);
-        sEluna->PushUnit(L, sObjectAccessor->FindPlayer(MAKE_NEW_GUID(guidLow, 0, HIGHGUID_PLAYER)));
+        uint64 guid = sEluna->CHECK_GUID(L, 1);
+        sEluna->PushUnit(L, sObjectAccessor->FindPlayer(guid));
         return 1;
     }
 
@@ -381,8 +381,8 @@ namespace LuaGlobalFunctions
     // GetGuildByLeaderGUID(leaderGUID) - Gets guild object
     static int GetGuildByLeaderGUID(lua_State* L)
     {
-        uint32 guidLow = luaL_checkunsigned(L, 1);
-        sEluna->PushGuild(L, sGuildMgr->GetGuildByLeader(MAKE_NEW_GUID(guidLow, 0, HIGHGUID_PLAYER)));
+        uint64 guid = sEluna->CHECK_GUID(L, 1);
+        sEluna->PushGuild(L, sGuildMgr->GetGuildByLeader(guid));
         return 1;
     }
 
@@ -393,12 +393,45 @@ namespace LuaGlobalFunctions
         return 1;
     }
 
-    // FindUnit(guid, entry)
+    // FindUnit(guid)
     static int FindUnit(lua_State* L)
     {
-        uint32 guidLow = luaL_checkunsigned(L, 1);
+        uint64 guid = sEluna->CHECK_GUID(L, 1);
+        sEluna->PushUnit(L, sObjectAccessor->FindUnit(guid));
+        return 1;
+    }
+
+    // GetPlayerGUID(lowguid)
+    static int GetPlayerGUID(lua_State* L)
+    {
+        uint32 lowguid = luaL_checkunsigned(L, 1);
+        sEluna->PushGUID(L, MAKE_NEW_GUID(lowguid, 0, HIGHGUID_PLAYER));
+        return 1;
+    }
+
+    // GetItemGUID(lowguid)
+    static int GetItemGUID(lua_State* L)
+    {
+        uint32 lowguid = luaL_checkunsigned(L, 1);
+        sEluna->PushGUID(L, MAKE_NEW_GUID(lowguid, 0, HIGHGUID_ITEM));
+        return 1;
+    }
+
+    // GetObjectGUID(lowguid, entry)
+    static int GetObjectGUID(lua_State* L)
+    {
+        uint32 lowguid = luaL_checkunsigned(L, 1);
         uint32 entry = luaL_checkunsigned(L, 2);
-        sEluna->PushUnit(L, sObjectAccessor->FindUnit(MAKE_NEW_GUID(guidLow, entry, HIGHGUID_UNIT)));
+        sEluna->PushGUID(L, MAKE_NEW_GUID(lowguid, entry, HIGHGUID_GAMEOBJECT));
+        return 1;
+    }
+
+    // GetUnitGUID(lowguid, entry)
+    static int GetUnitGUID(lua_State* L)
+    {
+        uint32 lowguid = luaL_checkunsigned(L, 1);
+        uint32 entry = luaL_checkunsigned(L, 2);
+        sEluna->PushGUID(L, MAKE_NEW_GUID(lowguid, entry, HIGHGUID_UNIT));
         return 1;
     }
 
@@ -475,14 +508,14 @@ namespace LuaGlobalFunctions
 
                 creature->SaveToDB(map->GetId(), (1 << map->GetSpawnMode()), phase);
 
-                uint32 db_guid = creature->GetDBTableGUIDLow();
-                if (!creature->LoadCreatureFromDB(db_guid, map))
+                uint32 db_lowguid = creature->GetDBTableGUIDLow();
+                if (!creature->LoadCreatureFromDB(db_lowguid, map))
                 {
                     delete creature;
                     return 0;
                 }
 
-                sObjectMgr->AddCreatureToGrid(db_guid, sObjectMgr->GetCreatureData(db_guid));
+                sObjectMgr->AddCreatureToGrid(db_lowguid, sObjectMgr->GetCreatureData(db_lowguid));
                 sEluna->PushUnit(L, creature);
             }
             else
@@ -513,9 +546,9 @@ namespace LuaGlobalFunctions
                 return 0;
 
             GameObject* object = new GameObject;
-            uint32 guidLow = sObjectMgr->GenerateLowGuid(HIGHGUID_GAMEOBJECT);
+            uint32 lowguid = sObjectMgr->GenerateLowGuid(HIGHGUID_GAMEOBJECT);
 
-            if (!object->Create(guidLow, objectInfo->entry, map, phase, x, y, z, o, 0.0f, 0.0f, 0.0f, 0.0f, 0, GO_STATE_READY))
+            if (!object->Create(lowguid, objectInfo->entry, map, phase, x, y, z, o, 0.0f, 0.0f, 0.0f, 0.0f, 0, GO_STATE_READY))
             {
                 delete object;
                 return 0;
@@ -529,14 +562,14 @@ namespace LuaGlobalFunctions
                 // fill the gameobject data and save to the db
                 object->SaveToDB(map->GetId(), (1 << map->GetSpawnMode()), phase);
 
-                // this will generate a new guid if the object is in an instance
-                if (!object->LoadGameObjectFromDB(guidLow, map))
+                // this will generate a new lowguid if the object is in an instance
+                if (!object->LoadGameObjectFromDB(lowguid, map))
                 {
                     delete object;
                     return false;
                 }
 
-                sObjectMgr->AddGameobjectToGrid(guidLow, sObjectMgr->GetGOData(guidLow));
+                sObjectMgr->AddGameobjectToGrid(lowguid, sObjectMgr->GetGOData(lowguid));
             }
             else
                 map->AddToMap(object);
@@ -675,6 +708,15 @@ namespace LuaGlobalFunctions
     static int SaveAllPlayers(lua_State* L)
     {
         sObjectAccessor->SaveAllPlayers();
+        return 0;
+    }
+
+    // GetGUIDLow(guid)
+    static int GetGUIDLow(lua_State* L)
+    {
+        uint64 guid = sEluna->CHECK_GUID(L, 1);
+
+        sEluna->PushUnsigned(L, GUID_LOPART(guid));
         return 0;
     }
 }

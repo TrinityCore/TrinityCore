@@ -150,9 +150,9 @@ public:
         if (!packet)
             return 0;
 
-        uint64 guid;
-        (*packet) >> guid;
-        sEluna->PushGUID(L, guid);
+        uint64 lowguid;
+        (*packet) >> lowguid;
+        sEluna->PushGUID(L, lowguid);
         return 1;
     }
 
@@ -168,17 +168,15 @@ public:
         return 1;
     }
 
-    // WriteGUID(WorldObject)
+    // WriteGUID(guid)
     static int WriteGUID(lua_State* L, WorldPacket* packet)
     {
         if (!packet)
             return 0;
 
-        WorldObject* obj = sEluna->CHECK_WORLDOBJECT(L, 1);
-        if (!obj)
-            return 0;
+        uint64 guid = sEluna->CHECK_GUID(L, 1);
 
-        (*packet) << obj->GetGUID();
+        (*packet) << guid;
         return 0;
     }
 

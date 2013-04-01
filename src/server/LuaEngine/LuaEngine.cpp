@@ -122,7 +122,7 @@ void Eluna::RegisterGlobals(lua_State* L)
     lua_register(L, "GetLUAEngine", &LuaGlobalFunctions::GetLuaEngine);                     // GetLUAEngine() - Returns ElunaEngine
     lua_register(L, "GetCoreVersion", &LuaGlobalFunctions::GetCoreVersion);                 // GetCoreVersion() - Returns core version string
     lua_register(L, "GetQuest", &LuaGlobalFunctions::GetQuest);                             // GetQuest(questId) - Returns quest object
-    lua_register(L, "GetPlayerByGUID", &LuaGlobalFunctions::GetPlayerByGUID);               // GetPlayerByGUID(guid) - Returns player object by low GUID
+    lua_register(L, "GetPlayerByGUID", &LuaGlobalFunctions::GetPlayerByGUID);               // GetPlayerByGUID(guid) - Returns player object by GUID
     lua_register(L, "GetPlayerByName", &LuaGlobalFunctions::GetPlayerByName);               // GetPlayerByName(name) - Returns player object by player name
     lua_register(L, "GetGameTime", &LuaGlobalFunctions::GetGameTime);                       // GetGameTime() - Returns game time
     lua_register(L, "GetPlayersInWorld", &LuaGlobalFunctions::GetPlayersInWorld);           // GetPlayersInWorld([team, onlyGM]) - Returns a table with all player objects. Team can be 0 for ally, 1 for horde and 2 for neutral
@@ -130,7 +130,12 @@ void Eluna::RegisterGlobals(lua_State* L)
     lua_register(L, "GetGuildByName", &LuaGlobalFunctions::GetGuildByName);                 // GetGuildByName(name) - Returns guild object by the guild name
     lua_register(L, "GetGuildByLeaderGUID", &LuaGlobalFunctions::GetGuildByLeaderGUID);     // GetGuildByLeaderGUID(guid) - Returns guild by it's leader's guid
     lua_register(L, "GetPlayerCount", &LuaGlobalFunctions::GetPlayerCount);                 // GetPlayerCount() - Returns the server's player count
-    lua_register(L, "FindUnit", &LuaGlobalFunctions::FindUnit);                             // FindUnit(guid, entry) - Returns unit by it's guid and entry
+    lua_register(L, "FindUnit", &LuaGlobalFunctions::FindUnit);                             // FindUnit(guid) - Returns unit by it's guid
+    lua_register(L, "GetPlayerGUID", &LuaGlobalFunctions::GetPlayerGUID);                   // GetPlayerGUID(lowguid) - Generates GUID (uint64) string from player lowguid UNDOCUMENTED
+    lua_register(L, "GetItemGUID", &LuaGlobalFunctions::GetItemGUID);                       // GetItemGUID(lowguid) - Generates GUID (uint64) string from item lowguid UNDOCUMENTED
+    lua_register(L, "GetObjectGUID", &LuaGlobalFunctions::GetObjectGUID);                   // GetObjectGUID(lowguid, entry) - Generates GUID (uint64) string from gameobject lowguid and entry UNDOCUMENTED
+    lua_register(L, "GetUnitGUID", &LuaGlobalFunctions::GetUnitGUID);                       // GetUnitGUID(lowguid, entry) - Generates GUID (uint64) string from unit (creature) lowguid and entry UNDOCUMENTED
+    lua_register(L, "GetGUIDLow", &LuaGlobalFunctions::GetGUIDLow);                         // GetGUIDLow(guid) - Returns GUIDLow (uint32) from guid (uint64 as string) UNDOCUMENTED
 
     // Other
     lua_register(L, "ReloadEluna", &LuaGlobalFunctions::ReloadEluna);                       // ReloadEluna() - Reload's Eluna engine
@@ -302,11 +307,12 @@ void Eluna::EndCall(uint8 res)
 }
 
 /* Pushes */
-// Pushes a low part of a guid (low guid)
 void Eluna::PushGUID(lua_State* L, uint64 g)
 {
     if (!L) L = LuaState;
-    lua_pushunsigned(L, GUID_LOPART(g));
+    std::ostringstream ss;
+    ss << g;
+    sEluna->PushString(L, ss.str().c_str());
 }
 
 void Eluna::PushInteger(lua_State* L, int i)
@@ -500,6 +506,18 @@ Spell* Eluna::CHECK_SPELL(lua_State* L, int narg)
         return ElunaTemplate<Spell>::check(LuaState, narg);
     else
         return ElunaTemplate<Spell>::check(L, narg);
+}
+
+uint64 Eluna::CHECK_GUID(lua_State* L, int narg)
+{
+    const char* c_str;
+    if (!L)
+        c_str = luaL_optstring(LuaState, narg, "0");
+    else
+        c_str = luaL_optstring(L, narg, "0");
+    uint64 guid;
+    std::istringstream(c_str) >> guid;
+    return guid;
 }
 
 // Saves the function reference ID given to the register type's store for given entry under the given event

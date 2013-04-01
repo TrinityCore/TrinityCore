@@ -491,5 +491,13 @@ public:
         return 1;
     }
 
+    static int GetGUIDLow(lua_State* L, Item* item)
+    {
+        if (!item || !item->IsInWorld())
+            return 0;
+
+        sEluna->PushUnsigned(L, item->GetGUIDLow());
+        return 1;
+    }
 };
 #endif

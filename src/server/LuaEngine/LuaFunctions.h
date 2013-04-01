@@ -24,7 +24,7 @@ ElunaRegister<Unit> UnitMethods[] =
     {"GetTotalPlayedTime", &LuaUnit::GetTotalPlayedTime},           // :GetTotalPlayedTime() -- Returns the total played time of that player
     {"GetInventoryItem", &LuaUnit::GetInventoryItem},               // :GetInventoryItem(slot) -  Returns item at given inventory slot (0, 1, 2.. for equipment 19-23 for bags, 23-39 for backpack)
     {"GetBagItem", &LuaUnit::GetBagItem},                           // :GetBagItem(bagSlot, slot) -  Returns item at given slot (0, 1, 2 .. max slots for bag) in a bag (19-23).
-    {"GetObjectGlobally", &LuaUnit::GetObjectGlobally},             // :GetObjectGlobally(guid, entry) - Returns the gameobject of given guid and entry if in world.
+    {"GetObjectGlobally", &LuaUnit::GetObjectGlobally},             // :GetObjectGlobally(lowguid, entry) - Returns the gameobject of given lowguid and entry if in world.
     {"GetNearbyGameObject", &LuaUnit::GetNearbyGameObject},         // :GetNearbyGameObject() - Returns nearby gameobject if found.
     {"GetReputation", &LuaUnit::GetReputation},                     // :GetReputation(faction) -- Gets player's reputation with given faction.
     {"GetItemByEntry", &LuaUnit::GetItemByEntry},                   // :GetItemByEntry(entry) -- Gets an item if the player has it.
@@ -196,7 +196,7 @@ ElunaRegister<Unit> UnitMethods[] =
     {"Say", &LuaUnit::Say},                                         // :Say(text, lang) -- The player says the text.
     {"Yell", &LuaUnit::Yell},                                       // :Yell(text, lang) -- The player yells the text.
     {"TextEmote", &LuaUnit::TextEmote},                             // :TextEmote(text) -- The player does a textemote with the text.
-    {"Whisper", &LuaUnit::Whisper},                                 // :Whisper(text, lang, receiverGuid) -- The player whispers the text to the playerguid.
+    {"Whisper", &LuaUnit::Whisper},                                 // :Whisper(text, lang, receiverGuid) -- The player whispers the text to the guid.
     {"CompleteQuest", &LuaUnit::CompleteQuest},                     // :CompleteQuest(entry) -- Completes a quest by entry.
     {"IncompleteQuest", &LuaUnit::IncompleteQuest},                 // :IncompleteQuest(entry) -- Uncompletes the quest by entry for the player.
     {"FailQuest", &LuaUnit::FailQuest},                             // :FailQuest(entry) -- Player fails the quest entry.
@@ -368,6 +368,7 @@ ElunaRegister<Unit> UnitMethods[] =
     {"GetMountId", &LuaUnit::GetMountId},                           // :GetMountId() -- UNDOCUMENTED
     {"GetScale", &LuaUnit::GetScale},                               // :GetScale() - UNDOCUMENTED
     {"GetDistance", &LuaUnit::GetDistance},                         // :GetDistance(x, y, z) -- UNDOCUMENTED
+    {"GetGUIDLow", &LuaUnit::GetGUIDLow},                           // :GetGUIDLow() -- Returns uint32 guid (low guid) that is used in database. UNDOCUMENTED
 
     // Setters
     {"SetFaction", &LuaUnit::SetFaction},                           // :SetFaction(factionId) -- Sets the unit's faction
@@ -425,7 +426,7 @@ ElunaRegister<Unit> UnitMethods[] =
 
     // Other
     {"AddAura", &LuaUnit::AddAura},                                 // :AddAura(spellId, target) -- Adds an aura to the specified target
-    {"RemoveAura", &LuaUnit::RemoveAura},                           // :RemoveAura(spellId, casterGuid(optional)) -- Removes an aura from the unit by the spellId, casterGUID(Original caster) is optional.
+    {"RemoveAura", &LuaUnit::RemoveAura},                           // :RemoveAura(spellId[, casterGUID]) -- Removes an aura from the unit by the spellId, casterGUID(Original caster) is optional.
     {"RemoveAllAuras", &LuaUnit::RemoveAllAuras},                   // :RemoveAllAuras() -- Removes all the unit's auras
     {"ClearInCombat", &LuaUnit::ClearInCombat},                     // :ClearInCombat() -- Clears the unit's combat list (unit will be out of combat), resets the timer to 0, etc.
     {"DeMorph", &LuaUnit::DeMorph},                                 // :DeMorph() - Sets display back to native.
@@ -482,7 +483,7 @@ ElunaRegister<GameObject> GameObjectMethods[] =
 {
     // Getters
     {"GetUnitType", &LuaGameObject::GetUnitType},                   // :GetUnitType() - Returns unit type Ex. GameObject
-    {"GetGUID", &LuaGameObject::GetGUID},                           // :GetGUID() - returns object guid
+    {"GetGUID", &LuaGameObject::GetGUID},                           // :GetGUID() - returns object guid (string)
     {"GetName", &LuaGameObject::GetName},                           // :GetName() -
     {"GetDisplayId", &LuaGameObject::GetDisplayId},                 // :GetDisplayId() -
     {"GetScale", &LuaGameObject::GetScale},                         // :GetScale() -
@@ -500,6 +501,7 @@ ElunaRegister<GameObject> GameObjectMethods[] =
     {"GetFloatValue", &LuaGameObject::GetFloatValue},               // :GetFloatValue(index) - returns a float value from object fields
     {"GetByteValue", &LuaGameObject::GetByteValue},                 // :GetByteValue(index, offset) - returns a byte value from object fields
     {"GetUInt16Value", &LuaGameObject::GetUInt16Value},             // :GetUInt16Value(index, offset) - returns a uint16 value from object fields
+    {"GetGUIDLow", &LuaGameObject::GetGUIDLow},                     // :GetGUIDLow() -- Returns uint32 guid (low guid) that is used in database. UNDOCUMENTED
 
     // Setters
     {"SetScale", &LuaGameObject::SetScale},                         // :SetScale(scale) -
@@ -536,7 +538,7 @@ ElunaRegister<Item> ItemMethods[] =
 {
     // Getters
     {"GetUnitType", &LuaItem::GetUnitType},                                 // :GetUnitType() - Returns object type, IE: Item, Creature
-    {"GetGUID", &LuaItem::GetGUID},                                         // :GetGUID() - Returns object guid
+    {"GetGUID", &LuaItem::GetGUID},                                         // :GetGUID() - Returns object guid (string)
     {"GetOwnerGUID", &LuaItem::GetOwnerGUID},                               // :GetOwnerGUID() - Returns the owner's guid
     {"GetOwner", &LuaItem::GetOwner},                                       // :GetOwner() - Returns the owner object (player)
     {"GetCount", &LuaItem::GetCount},                                       // :GetCount() - Returns item stack count
@@ -549,6 +551,7 @@ ElunaRegister<Item> ItemMethods[] =
     {"GetFloatValue", &LuaItem::GetFloatValue},                             // :GetFloatValue(index) - returns a float value from item fields
     {"GetByteValue", &LuaItem::GetByteValue},                               // :GetByteValue(index, offset) - returns a byte value from item fields
     {"GetUInt16Value", &LuaItem::GetUInt16Value},                           // :GetUInt16Value(index, offset) - returns a uint16 value from item fields
+    {"GetGUIDLow", &LuaItem::GetGUIDLow},                                   // :GetGUIDLow() -- Returns uint32 guid (low guid) that is used in database. UNDOCUMENTED
 
     // Setters
     {"SetOwner", &LuaItem::SetOwner},                                       // :SetOwner(player) - Sets the owner of the item
@@ -602,7 +605,7 @@ ElunaRegister<Aura> AuraMethods[] =
     {"GetCharges", &LuaAura::GetCharges},                           // :GetCharges() - Returns remaining charges.               
     {"GetAuraId", &LuaAura::GetAuraId},                             // :GetAuraId() - Returns aura ID.                            
     {"GetStackAmount", &LuaAura::GetStackAmount},                   // :GetStackAmount() - Returns current stack amount.        
-    {"GetOwner", &LuaAura::GetOwner},                               // :GetOwner() - Gets the unit wearing the aura             
+    {"GetOwner", &LuaAura::GetOwner},                               // :GetOwner() - Gets the unit wearing the aura          
 
     // Setters
     {"SetDuration", &LuaAura::SetDuration},                         // :SetDuration(duration) - Sets remaining duration.        
@@ -786,7 +789,7 @@ ElunaRegister<WorldPacket> PacketMethods[] =
     {"WriteString", &LuaPacket::WriteString},                       //  :WriteString(val) -- Writes a string value            (UNDOCUMENTED)
     {"WriteFloat", &LuaPacket::WriteFloat},                         //  :WriteFloat(val) -- Writes a float value              (UNDOCUMENTED)
     {"WriteDouble", &LuaPacket::WriteDouble},                       //  :WriteDouble(val) -- Writes a double value            (UNDOCUMENTED)
-    {"WriteGUID", &LuaPacket::WriteGUID},                           //  :WriteGUID(worldobject) -- Writes a uint64 guid value. WorldObject can be any unit: creature, gameobject, item.. (UNDOCUMENTED)
+    {"WriteGUID", &LuaPacket::WriteGUID},                           //  :WriteGUID(guid) -- Writes a uint64 guid value.       (UNDOCUMENTED)
     {"WriteLong", &LuaPacket::WriteLong},                           //  :WriteLong(val) -- Writes an int32 long value         (UNDOCUMENTED)
     {"WriteULong", &LuaPacket::WriteULong},                         //  :WriteULong(val) -- Writes a uint32 ulong value       (UNDOCUMENTED)
     {NULL, NULL},

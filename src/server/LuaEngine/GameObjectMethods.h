@@ -482,6 +482,15 @@ public:
         go->SetInt16Value(index, offset, value);
         return 0;
     }
+
+    static int GetGUIDLow(lua_State* L, GameObject* go)
+    {
+        if (!go || !go->IsInWorld())
+            return 0;
+
+        sEluna->PushUnsigned(L, go->GetGUIDLow());
+        return 1;
+    }
 };
 
 #endif

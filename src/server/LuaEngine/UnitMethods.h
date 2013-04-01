@@ -2367,9 +2367,9 @@ public:
 
         std::string text = luaL_checkstring(L, 1);
         uint32 lang = luaL_checkunsigned(L, 2);
-        uint32 guidLow = luaL_checkunsigned(L, 3);
+        uint32 guid = sEluna->CHECK_GUID(L, 3);
 
-        player->Whisper(text, lang, MAKE_NEW_GUID(guidLow, 0, HIGHGUID_PLAYER));
+        player->Whisper(text, lang, guid);
         return 0;
     }
 
@@ -2754,15 +2754,15 @@ public:
         return 1;
     }
 
-    // GetObjectGlobally(guid, entry)
+    // GetObjectGlobally(lowguid, entry)
     static int GetObjectGlobally(lua_State* L, Unit* unit)
     {
         TO_PLAYER();
 
-        uint32 guidLow = luaL_checkunsigned(L, 1);
+        uint32 lowguid = luaL_checkunsigned(L, 1);
         uint32 entry = luaL_checkunsigned(L, 2);
 
-        sEluna->PushGO(L, ChatHandler(player->GetSession()).GetObjectGlobalyWithGuidOrNearWithDbGuid(guidLow, entry));
+        sEluna->PushGO(L, ChatHandler(player->GetSession()).GetObjectGlobalyWithGuidOrNearWithDbGuid(lowguid, entry));
         return 1;
     }
 
@@ -3400,6 +3400,15 @@ public:
         TO_UNIT();
 
         sEluna->PushGUID(L, unit->GetGUID());
+        return 1;
+    }
+
+    // GetGUIDLow()
+    static int GetGUIDLow(lua_State* L, Unit* unit)
+    {
+        TO_UNIT();
+
+        sEluna->PushUnsigned(L, unit->GetGUIDLow());
         return 1;
     }
 
@@ -4848,13 +4857,14 @@ public:
         return 0;
     }
 
-    // RemoveAura(spellId, casterGuid(optional))
+    // RemoveAura(spellId[, casterGUID])
     static int RemoveAura(lua_State* L, Unit* unit)
     {
         TO_UNIT();
 
         uint32 spellId = luaL_checkunsigned(L, 1);
-        unit->RemoveAurasDueToSpell(spellId);
+        uint64 casterGUID = sEluna->CHECK_GUID(L, 2);
+        unit->RemoveAurasDueToSpell(spellId, casterGUID);
         return 0;
     }
 
