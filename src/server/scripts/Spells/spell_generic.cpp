@@ -3513,6 +3513,55 @@ class spell_gen_aura_service_uniform : public SpellScriptLoader
         }
 };
 
+enum OrcDisguiseSpells
+{
+    SPELL_ORC_DISGUISE_TRIGGER       = 45759,
+    SPELL_ORC_DISGUISE_MALE          = 45760,
+    SPELL_ORC_DISGUISE_FEMALE        = 45762,
+};
+
+class spell_gen_orc_disguise : public SpellScriptLoader
+{
+    public:
+        spell_gen_orc_disguise() : SpellScriptLoader("spell_gen_orc_disguise") { }
+
+        class spell_gen_orc_disguise_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_gen_orc_disguise_SpellScript);
+
+            bool Validate(SpellInfo const* /*spell*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_ORC_DISGUISE_TRIGGER) || !sSpellMgr->GetSpellInfo(SPELL_ORC_DISGUISE_MALE) || 
+                    !sSpellMgr->GetSpellInfo(SPELL_ORC_DISGUISE_FEMALE))
+                    return false;
+                return true;
+            }
+
+            void HandleScript(SpellEffIndex /*effIndex*/)
+            {
+                Unit* caster = GetCaster();
+                if (Player* target = GetHitPlayer())
+                {
+                    uint8 gender = target->getGender();
+                    if (!gender)
+                        caster->CastSpell(target, SPELL_ORC_DISGUISE_MALE, true);
+                    else
+                        caster->CastSpell(target, SPELL_ORC_DISGUISE_FEMALE, true);
+                }
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_gen_orc_disguise_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_gen_orc_disguise_SpellScript();
+        }
+};
+
 void AddSC_generic_spell_scripts()
 {
     new spell_gen_absorb0_hitlimit1();
@@ -3592,4 +3641,5 @@ void AddSC_generic_spell_scripts()
     new spell_gen_gift_of_naaru();
     new spell_gen_replenishment();
     new spell_gen_aura_service_uniform();
+	new spell_gen_orc_disguise();
 }
