@@ -72,7 +72,6 @@ ElunaRegister<Unit> UnitMethods[] =
     {"GetRecruiterId", &LuaUnit::GetRecruiterId},                   // :GetRecruiterId() -- Returns player's recruiter's ID.
     {"GetSelectedPlayer", &LuaUnit::GetSelectedPlayer},             // :GetSelectedPlayer() -- Returns player's selected player. UNDOCUMENTED
     {"GetSelectedUnit", &LuaUnit::GetSelectedUnit},                 // :GetSelectedUnit() -- Returns player's selected unit. UNDOCUMENTED
-    {"GetDistance", &LuaUnit::GetDistance},                         // :GetDistance(x, y, z) -- UNDOCUMENTED
 
 
     // Setters
@@ -368,6 +367,7 @@ ElunaRegister<Unit> UnitMethods[] =
     {"GetShieldBlockValue", &LuaUnit::GetShieldBlockValue},         // :GetShieldBlockValue() - Returns block value.
     {"GetMountId", &LuaUnit::GetMountId},                           // :GetMountId() -- UNDOCUMENTED
     {"GetScale", &LuaUnit::GetScale},                               // :GetScale() - UNDOCUMENTED
+    {"GetDistance", &LuaUnit::GetDistance},                         // :GetDistance(x, y, z) -- UNDOCUMENTED
 
     // Setters
     {"SetFaction", &LuaUnit::SetFaction},                           // :SetFaction(factionId) -- Sets the unit's faction

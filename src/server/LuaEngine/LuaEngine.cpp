@@ -108,51 +108,51 @@ void Eluna::StartEluna(bool restart)
 void Eluna::RegisterGlobals(lua_State* L)
 {
     // Hooks
-    lua_register(L, "RegisterServerHook", &LuaGlobalFunctions::RegisterServerHook);
-    lua_register(L, "RegisterCreatureEvent", &LuaGlobalFunctions::RegisterCreatureEvent);
-    lua_register(L, "RegisterCreatureGossipEvent", &LuaGlobalFunctions::RegisterCreatureGossipEvent);
-    lua_register(L, "RegisterGameObjectEvent", &LuaGlobalFunctions::RegisterGameObjectEvent);
-    lua_register(L, "RegisterGameObjectGossipEvent", &LuaGlobalFunctions::RegisterGameObjectGossipEvent);
-    lua_register(L, "RegisterItemEvent", &LuaGlobalFunctions::RegisterItemEvent);
-    lua_register(L, "RegisterItemGossipEvent", &LuaGlobalFunctions::RegisterItemGossipEvent);
-    lua_register(L, "RegisterPlayerGossipEvent", &LuaGlobalFunctions::RegisterPlayerGossipEvent);
+    lua_register(L, "RegisterServerHook", &LuaGlobalFunctions::RegisterServerHook);                         // RegisterServerHook(event, function)
+    lua_register(L, "RegisterCreatureEvent", &LuaGlobalFunctions::RegisterCreatureEvent);                   // RegisterCreatureEvent(entry, event, function)
+    lua_register(L, "RegisterCreatureGossipEvent", &LuaGlobalFunctions::RegisterCreatureGossipEvent);       // RegisterCreatureGossipEvent(entry, event, function)
+    lua_register(L, "RegisterGameObjectEvent", &LuaGlobalFunctions::RegisterGameObjectEvent);               // RegisterGameObjectEvent(entry, event, function)
+    lua_register(L, "RegisterGameObjectGossipEvent", &LuaGlobalFunctions::RegisterGameObjectGossipEvent);   // RegisterGameObjectGossipEvent(entry, event, function)
+    lua_register(L, "RegisterItemEvent", &LuaGlobalFunctions::RegisterItemEvent);                           // RegisterItemEvent(entry, event, function)
+    lua_register(L, "RegisterItemGossipEvent", &LuaGlobalFunctions::RegisterItemGossipEvent);               // RegisterItemGossipEvent(entry, event, function)
+    lua_register(L, "RegisterPlayerGossipEvent", &LuaGlobalFunctions::RegisterPlayerGossipEvent);           // RegisterPlayerGossipEvent(menu_id, event, function)
 
     // Getters
-    lua_register(L, "GetLuaEngine", &LuaGlobalFunctions::GetLuaEngine);
-    lua_register(L, "GetLUAEngine", &LuaGlobalFunctions::GetLuaEngine);
-    lua_register(L, "GetCoreVersion", &LuaGlobalFunctions::GetCoreVersion);
-    lua_register(L, "GetQuest", &LuaGlobalFunctions::GetQuest);
-    lua_register(L, "GetPlayerByGUID", &LuaGlobalFunctions::GetPlayerByGUID);
-    lua_register(L, "GetPlayerByName", &LuaGlobalFunctions::GetPlayerByName);
-    lua_register(L, "GetGameTime", &LuaGlobalFunctions::GetGameTime);
-    lua_register(L, "GetPlayersInWorld", &LuaGlobalFunctions::GetPlayersInWorld);
-    lua_register(L, "GetPlayersInMap", &LuaGlobalFunctions::GetPlayersInMap);
-    lua_register(L, "GetGuildByName", &LuaGlobalFunctions::GetGuildByName);
-    lua_register(L, "GetGuildByLeaderGUID", &LuaGlobalFunctions::GetGuildByLeaderGUID);
-    lua_register(L, "GetPlayerCount", &LuaGlobalFunctions::GetPlayerCount);
-    lua_register(L, "FindUnit", &LuaGlobalFunctions::FindUnit);
+    lua_register(L, "GetLuaEngine", &LuaGlobalFunctions::GetLuaEngine);                     // GetLuaEngine() - Returns ElunaEngine
+    lua_register(L, "GetLUAEngine", &LuaGlobalFunctions::GetLuaEngine);                     // GetLUAEngine() - Returns ElunaEngine
+    lua_register(L, "GetCoreVersion", &LuaGlobalFunctions::GetCoreVersion);                 // GetCoreVersion() - Returns core version string
+    lua_register(L, "GetQuest", &LuaGlobalFunctions::GetQuest);                             // GetQuest(questId) - Returns quest object
+    lua_register(L, "GetPlayerByGUID", &LuaGlobalFunctions::GetPlayerByGUID);               // GetPlayerByGUID(guid) - Returns player object by low GUID
+    lua_register(L, "GetPlayerByName", &LuaGlobalFunctions::GetPlayerByName);               // GetPlayerByName(name) - Returns player object by player name
+    lua_register(L, "GetGameTime", &LuaGlobalFunctions::GetGameTime);                       // GetGameTime() - Returns game time
+    lua_register(L, "GetPlayersInWorld", &LuaGlobalFunctions::GetPlayersInWorld);           // GetPlayersInWorld([team, onlyGM]) - Returns a table with all player objects. Team can be 0 for ally, 1 for horde and 2 for neutral
+    lua_register(L, "GetPlayersInMap", &LuaGlobalFunctions::GetPlayersInMap);               // GetPlayersInWorld(mapId[, instanceId, team]) - Returns a table with all player objects in map. Team can be 0 for ally, 1 for horde and 2 for neutral
+    lua_register(L, "GetGuildByName", &LuaGlobalFunctions::GetGuildByName);                 // GetGuildByName(name) - Returns guild object by the guild name
+    lua_register(L, "GetGuildByLeaderGUID", &LuaGlobalFunctions::GetGuildByLeaderGUID);     // GetGuildByLeaderGUID(guid) - Returns guild by it's leader's guid
+    lua_register(L, "GetPlayerCount", &LuaGlobalFunctions::GetPlayerCount);                 // GetPlayerCount() - Returns the server's player count
+    lua_register(L, "FindUnit", &LuaGlobalFunctions::FindUnit);                             // FindUnit(guid, entry) - Returns unit by it's guid and entry
 
     // Other
-    lua_register(L, "ReloadEluna", &LuaGlobalFunctions::ReloadEluna);
-    lua_register(L, "SendWorldMessage", &LuaGlobalFunctions::SendWorldMessage);
-    lua_register(L, "WorldDBQuery", &LuaGlobalFunctions::WorldDBQuery);
-    lua_register(L, "WorldDBExecute", &LuaGlobalFunctions::WorldDBExecute);
-    lua_register(L, "CharDBQuery", &LuaGlobalFunctions::CharDBQuery);
-    lua_register(L, "CharDBExecute", &LuaGlobalFunctions::CharDBExecute);
-    lua_register(L, "AuthDBQuery", &LuaGlobalFunctions::AuthDBQuery);
-    lua_register(L, "AuthDBExecute", &LuaGlobalFunctions::AuthDBExecute);
-    lua_register(L, "CreateLuaEvent", &LuaGlobalFunctions::CreateLuaEvent);
-    lua_register(L, "RegisterTimedEvent", &LuaGlobalFunctions::CreateLuaEvent);
-    lua_register(L, "DestroyEventByID", &LuaGlobalFunctions::DestroyEventByID);
-    lua_register(L, "DestroyEvents", &LuaGlobalFunctions::DestroyEvents);
-    lua_register(L, "PerformIngameSpawn", &LuaGlobalFunctions::PerformIngameSpawn);
-    lua_register(L, "CreatePacket", &LuaGlobalFunctions::CreatePacket);
-    lua_register(L, "AddVendorItem", &LuaGlobalFunctions::AddVendorItem);
-    lua_register(L, "VendorRemoveItem", &LuaGlobalFunctions::VendorRemoveItem);
-    lua_register(L, "VendorRemoveAllItems", &LuaGlobalFunctions::VendorRemoveAllItems);
-    lua_register(L, "Kick", &LuaGlobalFunctions::Kick);
-    lua_register(L, "Ban", &LuaGlobalFunctions::Ban);
-    lua_register(L, "SaveAllPlayers", &LuaGlobalFunctions::SaveAllPlayers);
+    lua_register(L, "ReloadEluna", &LuaGlobalFunctions::ReloadEluna);                       // ReloadEluna() - Reload's Eluna engine
+    lua_register(L, "SendWorldMessage", &LuaGlobalFunctions::SendWorldMessage);             // SendWorldMessage(msg) - Sends a broadcast message to everyone
+    lua_register(L, "WorldDBQuery", &LuaGlobalFunctions::WorldDBQuery);                     // WorldDBQuery(sql) - Executes given SQL query to world database instantly and returns a QueryResult object
+    lua_register(L, "WorldDBExecute", &LuaGlobalFunctions::WorldDBExecute);                 // WorldDBExecute(sql) - Executes given SQL query to world database (not instant)
+    lua_register(L, "CharDBQuery", &LuaGlobalFunctions::CharDBQuery);                       // CharDBQuery(sql) - Executes given SQL query to character database instantly and returns a QueryResult object
+    lua_register(L, "CharDBExecute", &LuaGlobalFunctions::CharDBExecute);                   // CharDBExecute(sql) - Executes given SQL query to character database (not instant)
+    lua_register(L, "AuthDBQuery", &LuaGlobalFunctions::AuthDBQuery);                       // AuthDBQuery(sql) - Executes given SQL query to auth/logon database instantly and returns a QueryResult object
+    lua_register(L, "AuthDBExecute", &LuaGlobalFunctions::AuthDBExecute);                   // AuthDBExecute(sql) - Executes given SQL query to auth/logon database (not instant)
+    lua_register(L, "CreateLuaEvent", &LuaGlobalFunctions::CreateLuaEvent);                 // CreateLuaEvent(function, delay, calls) - Creates a timed event. Returns Event ID
+    lua_register(L, "RegisterTimedEvent", &LuaGlobalFunctions::CreateLuaEvent);             // RegisterTimedEvent(function, delay, calls) - Creates a timed event. Returns Event ID
+    lua_register(L, "DestroyEventByID", &LuaGlobalFunctions::DestroyEventByID);             // DestroyEventByID(eventId) - Removes a global timed event by it's ID
+    lua_register(L, "DestroyEvents", &LuaGlobalFunctions::DestroyEvents);                   // DestroyEvents([allEvents]) - Removes all global timed events. Removes all timed events (creature and gameobject) if allEvents is true
+    lua_register(L, "PerformIngameSpawn", &LuaGlobalFunctions::PerformIngameSpawn);         // PerformIngameSpawn(spawntype, entry, mapid, x, y, z, o[, save, DurOrResptime, phase]) - spawntype: 1 Creature, 2 Object. DurOrResptime is respawntime for gameobjects and despawntime for creatures if creature is not saved. Returns spawned creature/gameobject
+    lua_register(L, "CreatePacket", &LuaGlobalFunctions::CreatePacket);                     // CreatePacket(opcode, size) - Creates a new packet object
+    lua_register(L, "AddVendorItem", &LuaGlobalFunctions::AddVendorItem);                   // AddVendorItem(entry, itemId, maxcount, incrtime, extendedcost[, persist(bool)]) - Adds an item to vendor entry. If persist is false, wont be saved to database.
+    lua_register(L, "VendorRemoveItem", &LuaGlobalFunctions::VendorRemoveItem);             // VendorRemoveItem(entry, item[, persist(bool)]) - Removes an item from vendor entry. If persist is false, wont be saved to database.
+    lua_register(L, "VendorRemoveAllItems", &LuaGlobalFunctions::VendorRemoveAllItems);     // VendorRemoveAllItems(entry[, persist(bool)]) - Removes all items from vendor entry. If persist is false, wont be saved to database.
+    lua_register(L, "Kick", &LuaGlobalFunctions::Kick);                                     // Kick(player) - Kicks given player
+    lua_register(L, "Ban", &LuaGlobalFunctions::Ban);                                       // Ban(banMode(integer), nameOrIP(string), duration(string), reason(string), player(whoBanned)) - Banmode: 0 account, 1 character, 2 IP
+    lua_register(L, "SaveAllPlayers", &LuaGlobalFunctions::SaveAllPlayers);                 // SaveAllPlayers() - Saves all players
 }
 
 // Loads lua scripts from given directory

@@ -169,7 +169,7 @@ namespace LuaGlobalFunctions
     // GetLuaEngine() - Gets lua engine name
     static int GetLuaEngine(lua_State* L)
     {
-        sEluna->PushString(L, "Eluna Nova 0.1"); // remove version?
+        sEluna->PushString(L, "ElunaEngine");
         return 1;
     }
 
@@ -564,7 +564,7 @@ namespace LuaGlobalFunctions
         return 0;
     }
 
-    // AddVendorItem(entry, itemId, maxcount, incrtime, extendedcost, persist(bool))
+    // AddVendorItem(entry, itemId, maxcount, incrtime, extendedcost[, persist(bool)])
     static int AddVendorItem(lua_State* L)
     {
         uint32 entry = luaL_checkunsigned(L, 1);
@@ -585,50 +585,34 @@ namespace LuaGlobalFunctions
         return 0;
     }
 
-    // VendorRemoveItem(entry, item, persist(bool), otherNpcFlag(optional-uint))
+    // VendorRemoveItem(entry, item[, persist(bool)])
     static int VendorRemoveItem(lua_State* L)
     {
         uint32 entry = luaL_checkunsigned(L, 1);
         uint32 item = luaL_checkunsigned(L, 2);
         bool persist = luaL_optbool(L, 3, true);
-        uint32 otherFlag = luaL_optunsigned(L, 4, UNIT_NPC_FLAG_VENDOR+1);
         if (!sObjectMgr->GetCreatureTemplate(entry))
         {
             sLog->outError(LOG_FILTER_GENERAL, "Eluna Nova::Couldn't find a creature with (ID: %d)!", entry);
             return 0;
         }
 
-        CreatureTemplate const* cInfo = sObjectMgr->GetCreatureTemplate(entry);
-        if (!((cInfo->npcflag | otherFlag) & UNIT_NPC_FLAG_VENDOR))
-            return 0;
-
-        if (!sObjectMgr->RemoveVendorItem(entry, item, persist))
-            return 0;
+        sObjectMgr->RemoveVendorItem(entry, item, persist);
         return 0;
     }
 
-    // VendorRemoveAllItems(creature, persist(bool))
+    // VendorRemoveAllItems(entry, persist(bool))
     static int VendorRemoveAllItems(lua_State* L)
     {
-        Creature* creature = sEluna->CHECK_CREATURE(L, 1);
+        uint32 entry = luaL_checkunsigned(L, 1);
         bool persist = luaL_optbool(L, 2, true);
-        if (!creature || !creature->IsInWorld())
-            return 0;
 
-        VendorItemData const* items = creature->GetVendorItems();
+        VendorItemData const* items = sObjectMgr->GetNpcVendorItemList(entry);
         if (!items || items->Empty())
             return 0;
 
-        uint32 vendorItems[200];
-        uint32 i = 0;
         for (VendorItemList::const_iterator itr = items->m_items.begin(); itr != items->m_items.end(); ++itr)
-        {
-            vendorItems[i] = (*itr)->item;
-            i++;
-        }
-
-        for (i = 0; i < items->GetItemCount(); i++)
-            sObjectMgr->RemoveVendorItem(creature->GetEntry(), vendorItems[i], persist);
+            sObjectMgr->RemoveVendorItem(entry, (*itr)->item, persist);
         return 0;
     }
 
@@ -655,32 +639,20 @@ namespace LuaGlobalFunctions
 
         switch (banMode)
         {
-        case 0:
+        case BAN_ACCOUNT:
             if (!AccountMgr::normalizeString(nameOrIP))
-            {
-                ChatHandler(whoBanned->GetSession()).PSendSysMessage(LANG_ACCOUNT_NOT_EXIST, nameOrIP.c_str());
-                ChatHandler(whoBanned->GetSession()).SetSentErrorMessage(true);
                 return 0;
-            }
-            else
-                banMode = BAN_ACCOUNT;
             break;
-        case 1:
+        case BAN_CHARACTER:
             if (!normalizePlayerName(nameOrIP))
-            {
-                ChatHandler(whoBanned->GetSession()).SendSysMessage(LANG_PLAYER_NOT_FOUND);
-                ChatHandler(whoBanned->GetSession()).SetSentErrorMessage(true);
                 return 0;
-            }
-            else
-                banMode = BAN_CHARACTER;
             break;
-        case 2:
+        case BAN_IP:
             if (!IsIPAddress(nameOrIP.c_str()))
                 return 0;
-            else
-                banMode = BAN_IP;
             break;
+        default:
+            return 0;
         }
 
         switch (sWorld->BanAccount((BanMode)banMode, nameOrIP, duration, reason, whoBanned->GetSession() ? whoBanned->GetName() : ""))
@@ -694,19 +666,6 @@ namespace LuaGlobalFunctions
         case BAN_SYNTAX_ERROR:
             return 0;
         case BAN_NOTFOUND:
-            switch((BanMode)banMode)
-            {
-            default:
-                ChatHandler(whoBanned->GetSession()).PSendSysMessage(LANG_BAN_NOTFOUND, "account", nameOrIP.c_str());
-                break;
-            case BAN_CHARACTER:
-                ChatHandler(whoBanned->GetSession()).PSendSysMessage(LANG_BAN_NOTFOUND, "character", nameOrIP.c_str());
-                break;
-            case BAN_IP:
-                ChatHandler(whoBanned->GetSession()).PSendSysMessage(LANG_BAN_NOTFOUND, "ip", nameOrIP.c_str());
-                break;
-            }
-            ChatHandler(whoBanned->GetSession()).SetSentErrorMessage(true);
             return 0;
         }
         return 0;
