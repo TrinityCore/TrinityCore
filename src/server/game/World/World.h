@@ -166,6 +166,7 @@ enum WorldBoolConfigs
     CONFIG_CRYPT_RUN_ENABLE,
     CONFIG_UI_QUESTLEVELS_IN_DIALOGS,     // Should we add quest levels to the title in the NPC dialogs?
     CONFIG_EVENT_ANNOUNCE,
+    CONFIG_LFG_LOOKING_FOR_GROUP,
     BOOL_CONFIG_VALUE_COUNT
 };
 
