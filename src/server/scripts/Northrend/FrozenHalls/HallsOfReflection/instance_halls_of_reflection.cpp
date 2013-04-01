@@ -356,14 +356,18 @@ public:
                 case DATA_LICHKING_EVENT:
                     uiEncounter[3] = data;
                     if(data == IN_PROGRESS)
-                    if(instance->IsHeroic())
+                    {
+                        OpenDoor(uiRunDoor);
+
+                        if(instance->IsHeroic())
                             DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_NOT_RETREATING_EVENT);
+                    }
                     if(data == FAIL)
                     {
                         for(uint8 i = 0; i<4; i++)
                             OpenDoor(uiWallID[i]);
 
-                        OpenDoor(uiRunDoor);
+                        CloseDoor(uiRunDoor);
 
                         if(Creature* pLichKing = instance->GetCreature(uiLichKing))
                             pLichKing->DespawnOrUnsummon(10000);

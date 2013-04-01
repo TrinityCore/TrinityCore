@@ -11,6 +11,7 @@
 #                                                                                          #
 ############################################################################################
 
+[161] --> Update Halls Of Reflection by aedansilver.
 [160] --> Add Looking For Group Join All Maps.
 [159] --> Fix Ebon Gargoyle Target and make gargoyle benefit from haste auras, like unholy presence. (By Demonid)
 [158] --> Improved Mirror Images AI by A-Metaphysical-Drama. (TEST)

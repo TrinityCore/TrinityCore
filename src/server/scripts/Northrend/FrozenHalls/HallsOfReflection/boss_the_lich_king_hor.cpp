@@ -632,7 +632,7 @@ public:
    }
 };
 
-void AddSC_boss_lich_king_hr()
+void AddSC_boss_the_lich_king_hor()
 {
    new boss_lich_king_hor();
    new npc_raging_gnoul();
