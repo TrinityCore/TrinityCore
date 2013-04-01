@@ -307,11 +307,19 @@ void Eluna::EndCall(uint8 res)
 }
 
 /* Pushes */
-void Eluna::PushGUID(lua_State* L, uint64 g)
+void Eluna::PushULong(lua_State* L, uint64 l)
 {
     if (!L) L = LuaState;
     std::ostringstream ss;
-    ss << g;
+    ss << l;
+    sEluna->PushString(L, ss.str().c_str());
+}
+
+void Eluna::PushLong(lua_State* L, int64 l)
+{
+    if (!L) L = LuaState;
+    std::ostringstream ss;
+    ss << l;
     sEluna->PushString(L, ss.str().c_str());
 }
 
@@ -508,7 +516,7 @@ Spell* Eluna::CHECK_SPELL(lua_State* L, int narg)
         return ElunaTemplate<Spell>::check(L, narg);
 }
 
-uint64 Eluna::CHECK_GUID(lua_State* L, int narg)
+uint64 Eluna::CHECK_ULONG(lua_State* L, int narg)
 {
     const char* c_str;
     if (!L)
@@ -516,6 +524,18 @@ uint64 Eluna::CHECK_GUID(lua_State* L, int narg)
     else
         c_str = luaL_optstring(L, narg, "0");
     uint64 guid;
+    std::istringstream(c_str) >> guid;
+    return guid;
+}
+
+int64 Eluna::CHECK_LONG(lua_State* L, int narg)
+{
+    const char* c_str;
+    if (!L)
+        c_str = luaL_optstring(LuaState, narg, "0");
+    else
+        c_str = luaL_optstring(L, narg, "0");
+    int64 guid;
     std::istringstream(c_str) >> guid;
     return guid;
 }

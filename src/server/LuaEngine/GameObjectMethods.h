@@ -21,7 +21,7 @@ public:
         if (!go || !go->IsInWorld())
             return 0;
 
-        sEluna->PushGUID(L, go->GetGUID());
+        sEluna->PushULong(L, go->GetGUID());
         return 1;
     }
 

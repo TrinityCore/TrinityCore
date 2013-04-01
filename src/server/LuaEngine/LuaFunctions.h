@@ -743,14 +743,14 @@ ElunaRegister<QueryResult> QueryMethods[] =
     {"GetRowCount", &LuaQuery::GetRowCount},                        // :GetRowCount() - Gets the row count of the query
 
     {"GetBool", &LuaQuery::GetBool},                                // :GetBool(column) -- returns a bool from a number column (for example tinyint)
-    {"GetUInt8", &LuaQuery::GetUInt8},                              // :GetInt8(column) -- returns the value of an unsigned tinyint column
-    {"GetUInt16", &LuaQuery::GetUInt16},                            // :GetInt16(column) -- returns the value of a unsigned smallint column
-    {"GetUInt32", &LuaQuery::GetUInt32},                            // :GetInt32(column) -- returns the value of an unsigned int or mediumint column
-    //{"GetUInt64", &LuaQuery::GetUInt64},
+    {"GetUInt8", &LuaQuery::GetUInt8},                              // :GetUInt8(column) -- returns the value of an unsigned tinyint column
+    {"GetUInt16", &LuaQuery::GetUInt16},                            // :GetUInt16(column) -- returns the value of a unsigned smallint column
+    {"GetUInt32", &LuaQuery::GetUInt32},                            // :GetUInt32(column) -- returns the value of an unsigned int or mediumint column
+    {"GetUInt64", &LuaQuery::GetUInt64},                            // :GetUInt64(column) -- returns the value of an unsigned bigint column as string UNDOCUMENTED
     {"GetInt8", &LuaQuery::GetInt8},                                // :GetInt8(column) -- returns the value of an tinyint column
     {"GetInt16", &LuaQuery::GetInt16},                              // :GetInt16(column) -- returns the value of a smallint column
     {"GetInt32", &LuaQuery::GetInt32},                              // :GetInt32(column) -- returns the value of an int or mediumint column
-    //{"GetInt64", &LuaQuery::GetInt64},
+    {"GetInt64", &LuaQuery::GetInt64},                              // :GetInt64(column) -- returns the value of a bigint column as string UNDOCUMENTED
     {"GetFloat", &LuaQuery::GetFloat},                              // :GetFloat(column) -- returns the value of a float column
     {"GetDouble", &LuaQuery::GetDouble},                            // :GetDouble(column) -- returns the value of a double column
     {"GetString", &LuaQuery::GetString},                            // :GetString(column) -- returns the value of a string column

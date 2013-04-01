@@ -959,7 +959,7 @@ public:
             sEluna->PushUnit(sEluna->LuaState, player);
             sEluna->PushUnsigned(sEluna->LuaState, textEmote);
             sEluna->PushUnsigned(sEluna->LuaState, emoteNum);
-            sEluna->PushGUID(sEluna->LuaState, guid);
+            sEluna->PushULong(sEluna->LuaState, guid);
             sEluna->ExecuteCall(5, 0);
         }
     }
@@ -1016,7 +1016,7 @@ public:
         {
             sEluna->BeginCall((*itr));
             sEluna->PushUnsigned(sEluna->LuaState, PLAYER_EVENT_ON_CHARACTER_DELETE);
-            sEluna->PushGUID(sEluna->LuaState, guid);
+            sEluna->PushULong(sEluna->LuaState, guid);
             sEluna->ExecuteCall(2, 0);
         }
     }
@@ -1241,7 +1241,7 @@ public:
             sEluna->BeginCall((*itr));
             sEluna->PushUnsigned(sEluna->LuaState, GROUP_EVENT_ON_MEMBER_ADD);
             sEluna->PushGroup(sEluna->LuaState, group);
-            sEluna->PushGUID(sEluna->LuaState, guid);
+            sEluna->PushULong(sEluna->LuaState, guid);
             sEluna->ExecuteCall(3, 0);
         }
     }
@@ -1253,7 +1253,7 @@ public:
             sEluna->BeginCall((*itr));
             sEluna->PushUnsigned(sEluna->LuaState, GROUP_EVENT_ON_MEMBER_INVITE);
             sEluna->PushGroup(sEluna->LuaState, group);
-            sEluna->PushGUID(sEluna->LuaState, guid);
+            sEluna->PushULong(sEluna->LuaState, guid);
             sEluna->ExecuteCall(3, 0);
         }
     }
@@ -1265,9 +1265,9 @@ public:
             sEluna->BeginCall((*itr));
             sEluna->PushUnsigned(sEluna->LuaState, GROUP_EVENT_ON_MEMBER_REMOVE);
             sEluna->PushGroup(sEluna->LuaState, group);
-            sEluna->PushGUID(sEluna->LuaState, guid);
+            sEluna->PushULong(sEluna->LuaState, guid);
             sEluna->PushInteger(sEluna->LuaState, method);
-            sEluna->PushGUID(sEluna->LuaState, kicker);
+            sEluna->PushULong(sEluna->LuaState, kicker);
             sEluna->PushString(sEluna->LuaState, reason);
             sEluna->ExecuteCall(6, 0);
         }
@@ -1280,8 +1280,8 @@ public:
             sEluna->BeginCall((*itr));
             sEluna->PushUnsigned(sEluna->LuaState, GROUP_EVENT_ON_LEADER_CHANGE);
             sEluna->PushGroup(sEluna->LuaState, group);
-            sEluna->PushGUID(sEluna->LuaState, newLeaderGuid);
-            sEluna->PushGUID(sEluna->LuaState, oldLeaderGuid);
+            sEluna->PushULong(sEluna->LuaState, newLeaderGuid);
+            sEluna->PushULong(sEluna->LuaState, oldLeaderGuid);
             sEluna->ExecuteCall(4, 0);
         }
     }

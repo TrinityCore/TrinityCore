@@ -19,7 +19,7 @@ public:
         if (!item || !item->IsInWorld())
             return 0;
 
-        sEluna->PushGUID(L, item->GetGUID());
+        sEluna->PushULong(L, item->GetGUID());
         return 1;
     }
 
@@ -28,7 +28,7 @@ public:
         if (!item || !item->IsInWorld())
             return 0;
 
-        sEluna->PushGUID(L, item->GetOwnerGUID());
+        sEluna->PushULong(L, item->GetOwnerGUID());
         return 1;
     }
 

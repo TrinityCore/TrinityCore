@@ -152,7 +152,7 @@ public:
 
         uint64 lowguid;
         (*packet) >> lowguid;
-        sEluna->PushGUID(L, lowguid);
+        sEluna->PushULong(L, lowguid);
         return 1;
     }
 
@@ -174,7 +174,7 @@ public:
         if (!packet)
             return 0;
 
-        uint64 guid = sEluna->CHECK_GUID(L, 1);
+        uint64 guid = sEluna->CHECK_ULONG(L, 1);
 
         (*packet) << guid;
         return 0;

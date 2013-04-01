@@ -267,7 +267,8 @@ public:
     void RegisterGlobals(lua_State* L);
     void LoadDirectory(char* directory, LoadedScripts* scr);
     // Pushes
-    void PushGUID(lua_State*, uint64); // Gets GUIDLow (uint32)
+    void PushULong(lua_State*, uint64);
+    void PushLong(lua_State*, int64);
     void PushInteger(lua_State*, int);
     void PushUnsigned(lua_State*, uint32);
     void PushBoolean(lua_State*, bool);
@@ -293,7 +294,8 @@ public:
     WorldObject* CHECK_WORLDOBJECT(lua_State* L, int narg);
     Quest* CHECK_QUEST(lua_State* L, int narg);
     Spell* CHECK_SPELL(lua_State* L, int narg);
-    uint64 CHECK_GUID(lua_State* L, int narg);
+    uint64 CHECK_ULONG(lua_State* L, int narg);
+    int64 CHECK_LONG(lua_State* L, int narg);
 
     // Creates new binding stores
     Eluna()

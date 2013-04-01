@@ -2367,7 +2367,7 @@ public:
 
         std::string text = luaL_checkstring(L, 1);
         uint32 lang = luaL_checkunsigned(L, 2);
-        uint32 guid = sEluna->CHECK_GUID(L, 3);
+        uint32 guid = sEluna->CHECK_ULONG(L, 3);
 
         player->Whisper(text, lang, guid);
         return 0;
@@ -3399,7 +3399,7 @@ public:
     {
         TO_UNIT();
 
-        sEluna->PushGUID(L, unit->GetGUID());
+        sEluna->PushULong(L, unit->GetGUID());
         return 1;
     }
 
@@ -4863,7 +4863,7 @@ public:
         TO_UNIT();
 
         uint32 spellId = luaL_checkunsigned(L, 1);
-        uint64 casterGUID = sEluna->CHECK_GUID(L, 2);
+        uint64 casterGUID = sEluna->CHECK_ULONG(L, 2);
         unit->RemoveAurasDueToSpell(spellId, casterGUID);
         return 0;
     }

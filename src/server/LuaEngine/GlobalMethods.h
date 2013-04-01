@@ -201,7 +201,7 @@ namespace LuaGlobalFunctions
     // GetPlayerByGUID(guid) - Gets Player object by its guid
     static int GetPlayerByGUID(lua_State* L)
     {
-        uint64 guid = sEluna->CHECK_GUID(L, 1);
+        uint64 guid = sEluna->CHECK_ULONG(L, 1);
         sEluna->PushUnit(L, sObjectAccessor->FindPlayer(guid));
         return 1;
     }
@@ -381,7 +381,7 @@ namespace LuaGlobalFunctions
     // GetGuildByLeaderGUID(leaderGUID) - Gets guild object
     static int GetGuildByLeaderGUID(lua_State* L)
     {
-        uint64 guid = sEluna->CHECK_GUID(L, 1);
+        uint64 guid = sEluna->CHECK_ULONG(L, 1);
         sEluna->PushGuild(L, sGuildMgr->GetGuildByLeader(guid));
         return 1;
     }
@@ -396,7 +396,7 @@ namespace LuaGlobalFunctions
     // FindUnit(guid)
     static int FindUnit(lua_State* L)
     {
-        uint64 guid = sEluna->CHECK_GUID(L, 1);
+        uint64 guid = sEluna->CHECK_ULONG(L, 1);
         sEluna->PushUnit(L, sObjectAccessor->FindUnit(guid));
         return 1;
     }
@@ -405,7 +405,7 @@ namespace LuaGlobalFunctions
     static int GetPlayerGUID(lua_State* L)
     {
         uint32 lowguid = luaL_checkunsigned(L, 1);
-        sEluna->PushGUID(L, MAKE_NEW_GUID(lowguid, 0, HIGHGUID_PLAYER));
+        sEluna->PushULong(L, MAKE_NEW_GUID(lowguid, 0, HIGHGUID_PLAYER));
         return 1;
     }
 
@@ -413,7 +413,7 @@ namespace LuaGlobalFunctions
     static int GetItemGUID(lua_State* L)
     {
         uint32 lowguid = luaL_checkunsigned(L, 1);
-        sEluna->PushGUID(L, MAKE_NEW_GUID(lowguid, 0, HIGHGUID_ITEM));
+        sEluna->PushULong(L, MAKE_NEW_GUID(lowguid, 0, HIGHGUID_ITEM));
         return 1;
     }
 
@@ -422,7 +422,7 @@ namespace LuaGlobalFunctions
     {
         uint32 lowguid = luaL_checkunsigned(L, 1);
         uint32 entry = luaL_checkunsigned(L, 2);
-        sEluna->PushGUID(L, MAKE_NEW_GUID(lowguid, entry, HIGHGUID_GAMEOBJECT));
+        sEluna->PushULong(L, MAKE_NEW_GUID(lowguid, entry, HIGHGUID_GAMEOBJECT));
         return 1;
     }
 
@@ -431,7 +431,7 @@ namespace LuaGlobalFunctions
     {
         uint32 lowguid = luaL_checkunsigned(L, 1);
         uint32 entry = luaL_checkunsigned(L, 2);
-        sEluna->PushGUID(L, MAKE_NEW_GUID(lowguid, entry, HIGHGUID_UNIT));
+        sEluna->PushULong(L, MAKE_NEW_GUID(lowguid, entry, HIGHGUID_UNIT));
         return 1;
     }
 
@@ -714,7 +714,7 @@ namespace LuaGlobalFunctions
     // GetGUIDLow(guid)
     static int GetGUIDLow(lua_State* L)
     {
-        uint64 guid = sEluna->CHECK_GUID(L, 1);
+        uint64 guid = sEluna->CHECK_ULONG(L, 1);
 
         sEluna->PushUnsigned(L, GUID_LOPART(guid));
         return 0;

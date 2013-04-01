@@ -30,7 +30,7 @@ public:
         if (!aura)
             return 0;
 
-        sEluna->PushGUID(L, aura->GetCasterGUID());
+        sEluna->PushULong(L, aura->GetCasterGUID());
         return 1;
     }
 

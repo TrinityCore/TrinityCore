@@ -47,7 +47,7 @@ public:
         if (!guild)
             return 0;
 
-        sEluna->PushGUID(L, guild->GetLeaderGUID());
+        sEluna->PushULong(L, guild->GetLeaderGUID());
         return 1;
     }
 

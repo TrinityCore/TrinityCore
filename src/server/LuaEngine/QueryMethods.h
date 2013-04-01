@@ -101,6 +101,16 @@ public:
         return 1;
     }
 
+    static int GetUInt64(lua_State* L, QueryResult* result)
+    {
+        uint32 col = luaL_checkunsigned(L, 1);
+        if (!result || !*result || col >= result->get()->GetFieldCount())
+            sEluna->PushULong(L, 0);
+        else
+            sEluna->PushULong(L, result->get()->Fetch()[col].GetUInt64());
+        return 1;
+    }
+
     static int GetInt8(lua_State* L, QueryResult* result)
     {
         uint32 col = luaL_checkunsigned(L, 1);
@@ -128,6 +138,16 @@ public:
             sEluna->PushInteger(L, 0);
         else
             sEluna->PushInteger(L, result->get()->Fetch()[col].GetInt32());
+        return 1;
+    }
+
+    static int GetInt64(lua_State* L, QueryResult* result)
+    {
+        uint32 col = luaL_checkunsigned(L, 1);
+        if (!result || !*result || col >= result->get()->GetFieldCount())
+            sEluna->PushULong(L, 0);
+        else
+            sEluna->PushLong(L, result->get()->Fetch()[col].GetInt64());
         return 1;
     }
 
