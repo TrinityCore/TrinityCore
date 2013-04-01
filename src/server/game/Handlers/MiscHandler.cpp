@@ -389,7 +389,7 @@ void WorldSession::HandleLogoutRequestOpcode(WorldPacket& /*recvData*/)
 
     WorldPacket data(SMSG_LOGOUT_RESPONSE, 1+4);
     data << uint32(reason);
-    data << uint8(0);
+    data << uint8(instantLogout);
     SendPacket(&data);
 
     if (reason)
