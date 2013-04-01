@@ -717,6 +717,52 @@ namespace LuaGlobalFunctions
         uint64 guid = sEluna->CHECK_ULONG(L, 1);
 
         sEluna->PushUnsigned(L, GUID_LOPART(guid));
+        return 1;
+    }
+
+    // SendMail(subject, text, receiverLowGUID[, sender, stationary, delay, itemEntry, itemAmount, itemEntry2, itemAmount2...])
+    static int SendMail(lua_State* L)
+    {
+        int i = 0;
+        std::string subject = luaL_checkstring(L, ++i);
+        std::string text = luaL_checkstring(L, ++i);
+        uint32 receiverGUIDLow = luaL_checkunsigned(L, ++i);
+        Player* senderPlayer = sEluna->CHECK_PLAYER(L, ++i);
+        uint32 stationary = luaL_optunsigned(L, ++i, MAIL_STATIONERY_DEFAULT);
+        uint32 delay = luaL_optunsigned(L, ++i, 0);
+        int32 argAmount = lua_gettop(L);
+
+        MailSender sender(MAIL_NORMAL, senderPlayer ? senderPlayer->GetGUIDLow() : 0, (MailStationery)stationary);
+        MailDraft draft(subject, text);
+
+        SQLTransaction trans = CharacterDatabase.BeginTransaction();
+        uint8 addedItems = 0;
+        while (addedItems <= MAX_MAIL_ITEMS && i+2 <= argAmount)
+        {
+            uint32 entry = luaL_checkunsigned(L, ++i);
+            uint32 amount = luaL_checkunsigned(L, ++i);
+
+            ItemTemplate const* item_proto = sObjectMgr->GetItemTemplate(entry);
+            if (!item_proto)
+            {
+                luaL_error(L, "Item entry %u does not exist", entry);
+                continue;
+            }
+            if(amount < 1 || (item_proto->MaxCount > 0 && amount > uint32(item_proto->MaxCount)))
+            {
+                luaL_error(L, "Item entry %u has invalid amount %u", entry, amount);
+                continue;
+            }
+            if (Item* item = Item::CreateItem(entry, amount, senderPlayer ? senderPlayer : 0))
+            {
+                item->SaveToDB(trans);
+                draft.AddItem(item);
+                ++addedItems;
+            }
+        }
+
+        draft.SendMailTo(trans, MailReceiver(receiverGUIDLow), sender, MAIL_CHECK_MASK_NONE, delay);
+        CharacterDatabase.CommitTransaction(trans);
         return 0;
     }
 }

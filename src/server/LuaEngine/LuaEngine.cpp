@@ -158,6 +158,7 @@ void Eluna::RegisterGlobals(lua_State* L)
     lua_register(L, "Kick", &LuaGlobalFunctions::Kick);                                     // Kick(player) - Kicks given player
     lua_register(L, "Ban", &LuaGlobalFunctions::Ban);                                       // Ban(banMode(integer), nameOrIP(string), duration(string), reason(string), player(whoBanned)) - Banmode: 0 account, 1 character, 2 IP
     lua_register(L, "SaveAllPlayers", &LuaGlobalFunctions::SaveAllPlayers);                 // SaveAllPlayers() - Saves all players
+    lua_register(L, "SendMail", &LuaGlobalFunctions::SendMail);                             // SendMail(subject, text, receiverLowGUID[, sender, stationary, delay, itemEntry, itemAmount, itemEntry2, itemAmount2...]) - Sends a mail to player with lowguid. use nil to use default values on optional arguments. Sender is an optional player object. UNDOCUMENTED
 }
 
 // Loads lua scripts from given directory
