@@ -4267,15 +4267,21 @@ public:
         return 0;
     }
 
-    // RemoveItem(entry, amount)
+    // RemoveItem(item/entry, amount)
     static int RemoveItem(lua_State* L, Unit* unit)
     {
         TO_PLAYER();
 
-        uint32 itemId = luaL_checkunsigned(L, 1);
+        Item* item = sEluna->CHECK_ITEM(L, 1);
+        uint32 itemId;
+        if (!item)
+            uint32 itemId = luaL_checkunsigned(L, 1);
         uint32 itemCount = luaL_checkunsigned(L, 2);
 
-        player->DestroyItemCount(itemId, itemCount, true);
+        if(!item)
+            player->DestroyItemCount(itemId, itemCount, true);
+        else
+            player->DestroyItemCount(item, itemCount, true);
         return 0;
     }
 

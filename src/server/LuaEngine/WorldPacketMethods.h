@@ -150,9 +150,9 @@ public:
         if (!packet)
             return 0;
 
-        uint64 lowguid;
-        (*packet) >> lowguid;
-        sEluna->PushULong(L, lowguid);
+        uint64 guid;
+        (*packet) >> guid;
+        sEluna->PushULong(L, guid);
         return 1;
     }
 
