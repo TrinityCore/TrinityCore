@@ -684,7 +684,6 @@ class npc_the_etymidian : public CreatureScript
         private:
             uint32 timer;
             int8 phase;
-            uint32 GOtimer;
             uint64 playerGUID;
             uint64 orphanGUID;
 
@@ -847,7 +846,6 @@ class npc_alexstraza_the_lifebinder : public CreatureScript
                 uint32 timer;
                 uint64 playerGUID;
                 uint64 orphanGUID;
-                uint64 alexstraszaGUID;
 
         };
 
