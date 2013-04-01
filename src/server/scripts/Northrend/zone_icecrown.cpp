@@ -688,7 +688,7 @@ public:
                 challengeeGUID = data;
         }
 
-        void DoAction(int32 const type)
+        void DoAction(int32 type)
         {
             if (type == EVENT_START)
             {
