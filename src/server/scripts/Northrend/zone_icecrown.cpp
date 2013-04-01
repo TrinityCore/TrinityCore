@@ -36,6 +36,7 @@ EndContentData */
 #include "SpellScript.h"
 #include "TemporarySummon.h"
 #include "CombatAI.h"
+#define CAST_PLR(a)     (dynamic_cast<Player*>(a))
 
 /*######
 ## npc_arete
@@ -315,10 +316,7 @@ public:
                 if (me->GetEntry() == NPC_ARGENT_VALIANT)
                     pDoneBy->CastSpell(pDoneBy, NPC_ARGENT_VALIANT_CREDIT, true);
                 if (me->GetEntry() == NPC_ARGENT_CHAMPION)
-                {
-                    if (Player* player = pDoneBy->ToPlayer())
-                        player->KilledMonsterCredit(NPC_ARGENT_CHAMPION_CREDIT, 0);
-                }
+                    CAST_PLR(pDoneBy)->KilledMonsterCredit(NPC_ARGENT_CHAMPION_CREDIT, 0);
                 me->setFaction(35);
                 me->DespawnOrUnsummon(5000);
                 me->SetHomePosition(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation());

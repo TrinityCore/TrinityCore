@@ -24,6 +24,7 @@
 #include <limits>
 #include <map>
 #include "ace/Mutex.h"
+#define CAST_CRE(a)     (dynamic_cast<Creature*>(a))
 
 enum Yells
 {
@@ -882,7 +883,7 @@ class boss_leviathan_mk : public CreatureScript
                 events.SetPhase(phase);
                 gotMimironHardMode = false;
 
-                if (Creature* turret = me->GetVehicleKit()->GetPassenger(3)->ToCreature())
+                if (Creature* turret = CAST_CRE(me->GetVehicleKit()->GetPassenger(3)))
                 {
                     turret->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_ATTACKABLE_1);
                     turret->SetReactState(REACT_PASSIVE);
@@ -934,7 +935,7 @@ class boss_leviathan_mk : public CreatureScript
                             me->SetHealth(me->GetMaxHealth());
                             if (Creature* Mimiron = ObjectAccessor::GetCreature(*me, instance->GetData64(BOSS_MIMIRON)))
                                 Mimiron->AI()->DoAction(DO_ACTIVATE_VX001);
-                            if (Creature* turret = me->GetVehicleKit()->GetPassenger(3)->ToCreature())
+                            if (Creature* turret = CAST_CRE(me->GetVehicleKit()->GetPassenger(3)))
                                 turret->Kill(turret, false);
                             me->SetSpeed(MOVE_RUN, 1.5f, true);
                             me->GetMotionMaster()->MovePoint(0, 2790.11f, 2595.83f, 364.32f);
@@ -952,14 +953,14 @@ class boss_leviathan_mk : public CreatureScript
                     phase = PHASE_IDLE;
                     events.SetPhase(phase);  
                 }
-            }        
+            }
 
             void EnterCombat(Unit* /*who*/)
             {
                 if (Creature* Mimiron = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(BOSS_MIMIRON) : 0))
                     gotMimironHardMode = Mimiron->AI()->GetData(DATA_GET_HARD_MODE);
-            
-                if (Creature* turret = me->GetVehicleKit()->GetPassenger(3)->ToCreature())
+
+                if (Creature* turret = CAST_CRE(me->GetVehicleKit()->GetPassenger(3)))
                 {
                     turret->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_ATTACKABLE_1);
                     turret->SetReactState(REACT_AGGRESSIVE);
