@@ -34,7 +34,7 @@ void Eluna::StartEluna(bool restart)
 {
     if (restart)
     {
-        sHookMgr->OnElunaRestart(ELUNA_EVENT_ON_RESTART);
+        sHookMgr->OnEngineRestart();
         sLog->outInfo(LOG_FILTER_GENERAL, "Eluna Nova::Restarting Engine");
 
         if (LuaState)

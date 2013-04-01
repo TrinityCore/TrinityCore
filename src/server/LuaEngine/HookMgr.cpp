@@ -2,47 +2,57 @@
 #include "LuaEngine.h"
 
 // misc
+void HookMgr::OnFirstLogin(Player* player)
+{
+    for (HookPointerSet::iterator it = hookPointers.begin(); it != hookPointers.end(); ++it)
+        (*it)->OnFirstLogin(player);
+}
+void HookMgr::OnEquip(Player* player, Item* item, uint16 pos, bool update)
+{
+    for (HookPointerSet::iterator it = hookPointers.begin(); it != hookPointers.end(); ++it)
+        (*it)->OnEquip(player, item, pos, update);
+}
 void HookMgr::HandleGossipSelectOption(Player* player, uint64 guid, uint32 sender, uint32 action, std::string code, uint32 menuId)
 {
     for (HookPointerSet::iterator it = hookPointers.begin(); it != hookPointers.end(); ++it)
         (*it)->HandleGossipSelectOption(player, guid, sender, action, code, menuId);
 }
-bool HookMgr::OnChat(uint32 eventId, Player* player, uint32 type, uint32 lang, std::string& msg)
+bool HookMgr::OnChat(Player* player, uint32 type, uint32 lang, std::string& msg)
 {
     bool result = true;
     for (HookPointerSet::iterator it = hookPointers.begin(); it != hookPointers.end(); ++it)
-        if (!(*it)->OnChat(eventId, player, type, lang, msg))
+        if (!(*it)->OnChat(player, type, lang, msg))
             result = false;
     return result;
 }
-bool HookMgr::OnChat(uint32 eventId, Player* player, uint32 type, uint32 lang, std::string& msg, Group* group)
+bool HookMgr::OnChat(Player* player, uint32 type, uint32 lang, std::string& msg, Group* group)
 {
     bool result = true;
     for (HookPointerSet::iterator it = hookPointers.begin(); it != hookPointers.end(); ++it)
-        if (!(*it)->OnChat(eventId, player, type, lang, msg, group))
+        if (!(*it)->OnChat(player, type, lang, msg, group))
             result = false;
     return result;
 }
-bool HookMgr::OnChat(uint32 eventId, Player* player, uint32 type, uint32 lang, std::string& msg, Guild* guild)
+bool HookMgr::OnChat(Player* player, uint32 type, uint32 lang, std::string& msg, Guild* guild)
 {
     bool result = true;
     for (HookPointerSet::iterator it = hookPointers.begin(); it != hookPointers.end(); ++it)
-        if (!(*it)->OnChat(eventId, player, type, lang, msg, guild))
+        if (!(*it)->OnChat(player, type, lang, msg, guild))
             result = false;
     return result;
 }
-bool HookMgr::OnChat(uint32 eventId, Player* player, uint32 type, uint32 lang, std::string& msg, Channel* channel)
+bool HookMgr::OnChat(Player* player, uint32 type, uint32 lang, std::string& msg, Channel* channel)
 {
     bool result = true;
     for (HookPointerSet::iterator it = hookPointers.begin(); it != hookPointers.end(); ++it)
-        if (!(*it)->OnChat(eventId, player, type, lang, msg, channel))
+        if (!(*it)->OnChat(player, type, lang, msg, channel))
             result = false;
     return result;
 }
-void HookMgr::OnElunaRestart(uint32 eventId)
+void HookMgr::OnEngineRestart()
 {
     for (HookPointerSet::iterator it = hookPointers.begin(); it != hookPointers.end(); ++it)
-        (*it)->OnElunaRestart(eventId);
+        (*it)->OnEngineRestart();
 }
 // item
 bool HookMgr::OnDummyEffect(Unit* caster, uint32 spellId, SpellEffIndex effIndex, Item* target)
