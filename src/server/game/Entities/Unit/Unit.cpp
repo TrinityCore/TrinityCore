@@ -16867,19 +16867,19 @@ void Unit::WriteMovementInfo(WorldPacket& data) const
             break;
         case MSETransportPositionX:
             if (hasTransportData)
-                data << mover->GetTransport()->GetPositionX();
+                data << mover->GetTransOffsetX();
             break;
         case MSETransportPositionY:
             if (hasTransportData)
-                data << mover->GetTransport()->GetPositionY();
+                data << mover->GetTransOffsetY();
             break;
         case MSETransportPositionZ:
             if (hasTransportData)
-                data << mover->GetTransport()->GetPositionZ();
+                data << mover->GetTransOffsetZ();
             break;
         case MSETransportOrientation:
             if (hasTransportData)
-                data << mover->GetTransport()->GetOrientation();
+                data << mover->GetTransOffsetO();
             break;
         case MSETransportSeat:
             if (hasTransportData)
