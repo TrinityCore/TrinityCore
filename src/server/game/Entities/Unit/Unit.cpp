@@ -16421,92 +16421,6 @@ void Unit::_ExitVehicle(Position const* exitPosition)
     }
 }
 
-void Unit::BuildMovementPacket(ByteBuffer *data) const
-{
-    *data << uint32(GetUnitMovementFlags());            // movement flags
-    *data << uint16(GetExtraUnitMovementFlags());       // 2.3.0
-    *data << uint32(getMSTime());                       // time / counter
-    *data << GetPositionX();
-    *data << GetPositionY();
-    *data << GetPositionZMinusOffset();
-    *data << GetOrientation();
-
-    bool onTransport = m_movementInfo.t_guid != 0;
-    bool hasInterpolatedMovement = m_movementInfo.flags2 & MOVEMENTFLAG2_INTERPOLATED_MOVEMENT;
-    bool time3 = false;
-    bool swimming = ((GetUnitMovementFlags() & (MOVEMENTFLAG_SWIMMING | MOVEMENTFLAG_FLYING))
-        || (m_movementInfo.flags2 & MOVEMENTFLAG2_ALWAYS_ALLOW_PITCHING));
-    bool interPolatedTurning = m_movementInfo.flags2 & MOVEMENTFLAG2_INTERPOLATED_TURNING;
-    bool jumping = GetUnitMovementFlags() & MOVEMENTFLAG_FALLING;
-    bool splineElevation = GetUnitMovementFlags() & MOVEMENTFLAG_SPLINE_ELEVATION;
-    bool splineData = false;
-
-    data->WriteBits(GetUnitMovementFlags(), 30);
-    data->WriteBits(m_movementInfo.flags2, 12);
-    data->WriteBit(onTransport);
-    if (onTransport)
-    {
-        data->WriteBit(hasInterpolatedMovement);
-        data->WriteBit(time3);
-    }
-
-    data->WriteBit(swimming);
-    data->WriteBit(interPolatedTurning);
-    if (interPolatedTurning)
-        data->WriteBit(jumping);
-
-    data->WriteBit(splineElevation);
-    data->WriteBit(splineData);
-
-    data->FlushBits(); // reset bit stream
-
-    *data << uint64(GetGUID());
-    *data << uint32(getMSTime());
-    *data << float(GetPositionX());
-    *data << float(GetPositionY());
-    *data << float(GetPositionZ());
-    *data << float(GetOrientation());
-
-    if (onTransport)
-    {
-        if (m_vehicle)
-            *data << uint64(m_vehicle->GetBase()->GetGUID());
-        else if (GetTransport())
-            *data << uint64(GetTransport()->GetGUID());
-        else // probably should never happen
-            *data << (uint64)0;
-
-        *data << float (GetTransOffsetX());
-        *data << float (GetTransOffsetY());
-        *data << float (GetTransOffsetZ());
-        *data << float (GetTransOffsetO());
-        *data << uint8 (GetTransSeat());
-        *data << uint32(GetTransTime());
-        if (hasInterpolatedMovement)
-            *data << int32(0); // Transport Time 2
-        if (time3)
-            *data << int32(0); // Transport Time 3
-    }
-
-    if (swimming)
-        *data << (float)m_movementInfo.pitch;
-
-    if (interPolatedTurning)
-    {
-        *data << (uint32)m_movementInfo.fallTime;
-        *data << (float)m_movementInfo.j_zspeed;
-        if (jumping)
-        {
-            *data << (float)m_movementInfo.j_sinAngle;
-            *data << (float)m_movementInfo.j_cosAngle;
-            *data << (float)m_movementInfo.j_xyspeed;
-        }
-    }
-
-    if (splineElevation)
-        *data << (float)m_movementInfo.splineElevation;
-}
-
 void Unit::SetCanFly(bool apply)
 {
     if (apply)
@@ -16539,13 +16453,6 @@ void Unit::ReadMovementInfo(WorldPacket& data, MovementInfo* mi)
     bool hasTimestamp = false;
     bool hasOrientation = false;
     bool hasTransportData = false;
-    bool hasTransportTime2 = false;
-    bool hasTransportTime3 = false;
-    bool hasPitch = false;
-    bool hasFallData = false;
-    bool hasFallDirection = false;
-    bool hasSplineElevation = false;
-    bool hasSpline = false;
 
     MovementStatusElements* sequence = GetMovementStatusElementsSequence(data.GetOpcode());
     if (sequence == NULL)
@@ -16610,27 +16517,27 @@ void Unit::ReadMovementInfo(WorldPacket& data, MovementInfo* mi)
                 break;
             case MSEHasTransportTime2:
                 if (hasTransportData)
-                    hasTransportTime2 = data.ReadBit();
+                    mi->bits.hasTransportTime2 = data.ReadBit();
                 break;
             case MSEHasTransportTime3:
                 if (hasTransportData)
-                    hasTransportTime3 = data.ReadBit();
+                    mi->bits.hasTransportTime3 = data.ReadBit();
                 break;
             case MSEHasPitch:
-                hasPitch = !data.ReadBit();
+                mi->bits.hasPitch = !data.ReadBit();
                 break;
             case MSEHasFallData:
-                hasFallData = data.ReadBit();
+                mi->bits.hasFallData = data.ReadBit();
                 break;
             case MSEHasFallDirection:
-                if (hasFallData)
-                    hasFallDirection = data.ReadBit();
+                if (mi->bits.hasFallData)
+                    mi->bits.hasFallDirection = data.ReadBit();
                 break;
             case MSEHasSplineElevation:
-                hasSplineElevation = !data.ReadBit();
+                mi->bits.hasSplineElevation = !data.ReadBit();
                 break;
             case MSEHasSpline:
-                hasSpline = data.ReadBit();
+                data.ReadBit();
                 break;
             case MSEMovementFlags:
                 if (hasMovementFlags)
@@ -16682,39 +16589,39 @@ void Unit::ReadMovementInfo(WorldPacket& data, MovementInfo* mi)
                     data >> mi->t_time;
                 break;
             case MSETransportTime2:
-                if (hasTransportData && hasTransportTime2)
+                if (hasTransportData && mi->bits.hasTransportTime2)
                     data >> mi->t_time2;
                 break;
             case MSETransportTime3:
-                if (hasTransportData && hasTransportTime3)
+                if (hasTransportData && mi->bits.hasTransportTime3)
                     data >> mi->t_time3;
                 break;
             case MSEPitch:
-                if (hasPitch)
+                if (mi->bits.hasPitch)
                     data >> mi->pitch;
                 break;
             case MSEFallTime:
-                if (hasFallData)
+                if (mi->bits.hasFallData)
                     data >> mi->fallTime;
                 break;
             case MSEFallVerticalSpeed:
-                if (hasFallData)
+                if (mi->bits.hasFallData)
                     data >> mi->j_zspeed;
                 break;
             case MSEFallCosAngle:
-                if (hasFallData && hasFallDirection)
+                if (mi->bits.hasFallData && mi->bits.hasFallDirection)
                     data >> mi->j_cosAngle;
                 break;
             case MSEFallSinAngle:
-                if (hasFallData && hasFallDirection)
+                if (mi->bits.hasFallData && mi->bits.hasFallDirection)
                     data >> mi->j_sinAngle;
                 break;
             case MSEFallHorizontalSpeed:
-                if (hasFallData && hasFallDirection)
+                if (mi->bits.hasFallData && mi->bits.hasFallDirection)
                     data >> mi->j_xyspeed;
                 break;
             case MSESplineElevation:
-                if (hasSplineElevation)
+                if (mi->bits.hasSplineElevation)
                     data >> mi->splineElevation;
                 break;
             case MSEZeroBit:
@@ -16741,7 +16648,7 @@ void Unit::ReadMovementInfo(WorldPacket& data, MovementInfo* mi)
     { \
         if (check) \
         { \
-            sLog->outDebug(LOG_FILTER_UNITS, "WorldSession::ReadMovementInfo: Violation of MovementFlags found (%s). " \
+            sLog->outDebug(LOG_FILTER_UNITS, "Unit::ReadMovementInfo: Violation of MovementFlags found (%s). " \
                 "MovementFlags: %u, MovementFlags2: %u for player GUID: %u. Mask %u will be removed.", \
                 STRINGIZE(check), mi->GetMovementFlags(), mi->GetExtraMovementFlags(), GetGUIDLow(), maskToRemove); \
             mi->RemoveMovementFlag((maskToRemove)); \
@@ -16807,22 +16714,46 @@ void Unit::ReadMovementInfo(WorldPacket& data, MovementInfo* mi)
     #undef REMOVE_VIOLATING_FLAGS
 }
 
-void Unit::WriteMovementInfo(WorldPacket& data)
+void Unit::WriteMovementInfo(WorldPacket& data) const
 {
-    Unit* mover = GetCharmerGUID() ? GetCharmer() : this;
+    Unit const* mover = GetCharmerGUID() ? GetCharmer() : this;
+    if (Player const* player = ToPlayer())
+        mover = player->m_mover;
 
     bool hasMovementFlags = mover->GetUnitMovementFlags() != 0;
     bool hasMovementFlags2 = mover->GetExtraUnitMovementFlags() != 0;
     bool hasTimestamp = GetTypeId() == TYPEID_PLAYER ? (mover->m_movementInfo.time != 0) : true;
     bool hasOrientation = !G3D::fuzzyEq(mover->GetOrientation(), 0.0f);
-    bool hasTransportData = mover->GetTransport() != NULL;
-    bool hasTransportTime2 = mover->HasExtraUnitMovementFlag(MOVEMENTFLAG2_INTERPOLATED_MOVEMENT);
-    bool hasTransportTime3 = false;
-    bool hasPitch = mover->HasUnitMovementFlag(MovementFlags(MOVEMENTFLAG_SWIMMING | MOVEMENTFLAG_FLYING)) || mover->HasExtraUnitMovementFlag(MOVEMENTFLAG2_ALWAYS_ALLOW_PITCHING);
-    bool hasFallData = mover->HasExtraUnitMovementFlag(MOVEMENTFLAG2_INTERPOLATED_TURNING);
-    bool hasFallDirection = mover->HasUnitMovementFlag(MOVEMENTFLAG_FALLING);
-    bool hasSplineElevation = mover->HasUnitMovementFlag(MOVEMENTFLAG_SPLINE_ELEVATION);
-    bool hasSpline = false;
+    bool hasTransportData = GetTransGUID() != 0;
+    bool hasSpline = mover->IsSplineEnabled();
+
+    bool hasTransportTime2;
+    bool hasTransportTime3;
+    bool hasPitch;
+    bool hasFallData;
+    bool hasFallDirection;
+    bool hasSplineElevation;
+
+    if (GetTypeId() == TYPEID_PLAYER)
+    {
+        hasTransportTime2 = mover->m_movementInfo.bits.hasTransportTime2;
+        hasTransportTime3 = mover->m_movementInfo.bits.hasTransportTime3;
+        hasPitch = mover->m_movementInfo.bits.hasPitch;
+        hasFallData = mover->m_movementInfo.bits.hasFallData;
+        hasFallDirection = mover->m_movementInfo.bits.hasFallDirection;
+        hasSplineElevation = mover->m_movementInfo.bits.hasSplineElevation;
+    }
+    else
+    {
+        hasTransportTime2 = mover->HasExtraUnitMovementFlag(MOVEMENTFLAG2_INTERPOLATED_MOVEMENT);
+        hasTransportTime3 = false;
+        hasPitch = mover->HasUnitMovementFlag(MovementFlags(MOVEMENTFLAG_SWIMMING | MOVEMENTFLAG_FLYING)) || mover->HasExtraUnitMovementFlag(MOVEMENTFLAG2_ALWAYS_ALLOW_PITCHING);
+        hasFallDirection = mover->HasUnitMovementFlag(MOVEMENTFLAG_FALLING);
+        hasFallData = hasFallDirection; // FallDirection implies that FallData is set as well
+                                        // the only case when hasFallData = 1 && hasFallDirection = 0
+                                        // is for MSG_MOVE_LAND, which is handled above, in player case
+        hasSplineElevation = mover->HasUnitMovementFlag(MOVEMENTFLAG_SPLINE_ELEVATION);
+    }
 
     MovementStatusElements* sequence = GetMovementStatusElementsSequence(data.GetOpcode());
     if (!sequence)
@@ -16832,7 +16763,7 @@ void Unit::WriteMovementInfo(WorldPacket& data)
     }
 
     ObjectGuid guid = mover->GetGUID();
-    ObjectGuid tguid = hasTransportData ? GetTransport()->GetGUID() : 0;
+    ObjectGuid tguid = hasTransportData ? GetTransGUID() : 0;
 
     for (uint32 i = 0; i < MSE_COUNT; ++i)
     {
@@ -17484,8 +17415,7 @@ void Unit::SendMovementHover()
         ToPlayer()->SendMovementSetHover(HasUnitMovementFlag(MOVEMENTFLAG_HOVER));
 
     WorldPacket data(MSG_MOVE_HOVER, 64);
-    data.append(GetPackGUID());
-    BuildMovementPacket(&data);
+    WriteMovementInfo(data);
     SendMessageToSet(&data, false);
 }
 
@@ -17495,8 +17425,7 @@ void Unit::SendMovementWaterWalking()
         ToPlayer()->SendMovementSetWaterWalking(HasUnitMovementFlag(MOVEMENTFLAG_WATERWALKING));
 
     WorldPacket data(MSG_MOVE_WATER_WALK, 64);
-    data.append(GetPackGUID());
-    BuildMovementPacket(&data);
+    WriteMovementInfo(data);
     SendMessageToSet(&data, false);
 }
 
@@ -17506,16 +17435,14 @@ void Unit::SendMovementFeatherFall()
         ToPlayer()->SendMovementSetFeatherFall(HasUnitMovementFlag(MOVEMENTFLAG_FALLING_SLOW));
 
     WorldPacket data(MSG_MOVE_FEATHER_FALL, 64);
-    data.append(GetPackGUID());
-    BuildMovementPacket(&data);
+    WriteMovementInfo(data);
     SendMessageToSet(&data, false);
 }
 
 void Unit::SendMovementGravityChange()
 {
     WorldPacket data(MSG_MOVE_GRAVITY_CHNG, 64);
-    data.append(GetPackGUID());
-    BuildMovementPacket(&data);
+    WriteMovementInfo(data);
     SendMessageToSet(&data, false);
 }
 
@@ -17539,8 +17466,7 @@ void Unit::SendMovementCanFlyChange()
         ToPlayer()->SendMovementSetCanFly(CanFly());
 
     WorldPacket data(MSG_MOVE_UPDATE_CAN_FLY, 64);
-    data.append(GetPackGUID());
-    BuildMovementPacket(&data);
+    WriteMovementInfo(data);
     SendMessageToSet(&data, false);
 }
 

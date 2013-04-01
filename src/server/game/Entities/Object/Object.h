@@ -480,11 +480,26 @@ struct MovementInfo
     // spline
     float splineElevation;
 
+    // bit markers
+    struct MovementElementMarkers
+    {
+        bool hasTransportTime2;
+        bool hasTransportTime3;
+        bool hasPitch;
+        bool hasFallData;
+        bool hasFallDirection;
+        bool hasSplineElevation;
+    } bits;
+
     MovementInfo() :
-        guid(), flags(), flags2(), pos(), time(), t_guid(), t_pos(),
-        t_seat(-1), t_time(), t_time2(), pitch(), fallTime(),
-        j_zspeed(), j_sinAngle(), j_cosAngle(), j_xyspeed()
-    { }
+        guid(0), flags(0), flags2(0), time(0), t_guid(0),
+        t_seat(-1), t_time(0), t_time2(0), t_time3(0), pitch(0.0f), fallTime(0),
+        j_zspeed(0.0f), j_sinAngle(0.0f), j_cosAngle(0.0f), j_xyspeed(0.0f)
+    {
+        pos.Relocate(0.0f, 0.0f, 0.0f, 0.0f);
+        t_pos.Relocate(0.0f, 0.0f, 0.0f, 0.0f);
+        memset(&bits, 0, sizeof(bits));
+    }
 
     uint32 GetMovementFlags() const { return flags; }
     void SetMovementFlags(uint32 flag) { flags = flag; }
