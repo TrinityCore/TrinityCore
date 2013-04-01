@@ -25,20 +25,20 @@ UPDATE creature_template SET scriptname = "npc_darkfallen_tactician" WHERE entry
 
 -- Equip for darkfallen blood knight
 DELETE FROM creature_equip_template WHERE entry = 37595;
-INSERT INTO creature_equip_template VALUES (37595, 51028, 0, 0);
-UPDATE creature_template SET equipment_id = 37595 WHERE entry = 37595;
+INSERT INTO creature_equip_template VALUES (37595, 1, 51028, 0, 0);
+UPDATE creature SET equipment_id = 37595 WHERE id = 37595;
 -- Equip for darkfallen tactician
 DELETE FROM creature_equip_template WHERE entry = 37666;
-INSERT INTO creature_equip_template VALUES (37666, 51029, 51029, 0);
-UPDATE creature_template SET equipment_id = 37666 WHERE entry = 37666;
+INSERT INTO creature_equip_template VALUES (37666, 1, 51029, 51029, 0);
+UPDATE creature SET equipment_id = 37666 WHERE id = 37666;
 -- Equip for darkfallen commander
 DELETE FROM creature_equip_template WHERE entry = 37662;
-INSERT INTO creature_equip_template VALUES (37662, 51322, 0, 0);
-UPDATE creature_template SET equipment_id = 37662 WHERE entry = 37662;
+INSERT INTO creature_equip_template VALUES (37662, 1, 51322, 0, 0);
+UPDATE creature SET equipment_id = 37662 WHERE id = 37662;
 -- Equip for darkfallen lieutenant
 DELETE FROM creature_equip_template WHERE entry = 37665;
-INSERT INTO creature_equip_template VALUES (37665, 51323, 51324, 0);
-UPDATE creature_template SET equipment_id = 37662 WHERE entry = 37665;
+INSERT INTO creature_equip_template VALUES (37665, 1, 51323, 51324, 0);
+UPDATE creature SET equipment_id = 37662 WHERE id = 37665;
 
 -- Nerubar Broodkeeper position
 UPDATE `creature` SET `position_z` = 35.24 WHERE `guid`=201170;
@@ -110,7 +110,7 @@ UPDATE `creature_template` SET `mechanic_immune_mask` = `mechanic_immune_mask`|1
 
 -- Recuperador de anillos del veredicto cinereo
 DELETE FROM `creature_template` WHERE (`entry`=97015);
-INSERT INTO `creature_template` (`entry`, `difficulty_entry_1`, `difficulty_entry_2`, `difficulty_entry_3`, `KillCredit1`, `KillCredit2`, `modelid1`, `modelid2`, `modelid3`, `modelid4`, `name`, `subname`, `IconName`, `gossip_menu_id`, `minlevel`, `maxlevel`, `exp`, `faction_A`, `faction_H`, `npcflag`, `speed_walk`, `speed_run`, `scale`, `rank`, `mindmg`, `maxdmg`, `dmgschool`, `attackpower`, `dmg_multiplier`, `baseattacktime`, `rangeattacktime`, `unit_class`, `unit_flags`, `dynamicflags`, `family`, `trainer_type`, `trainer_spell`, `trainer_class`, `trainer_race`, `minrangedmg`, `maxrangedmg`, `rangedattackpower`, `type`, `type_flags`, `lootid`, `pickpocketloot`, `skinloot`, `resistance1`, `resistance2`, `resistance3`, `resistance4`, `resistance5`, `resistance6`, `spell1`, `spell2`, `spell3`, `spell4`, `spell5`, `spell6`, `spell7`, `spell8`, `PetSpellDataId`, `VehicleId`, `mingold`, `maxgold`, `AIName`, `MovementType`, `InhabitType`, `Health_mod`, `Mana_mod`, `Armor_mod`, `RacialLeader`, `questItem1`, `questItem2`, `questItem3`, `questItem4`, `questItem5`, `questItem6`, `movementId`, `RegenHealth`, `equipment_id`, `mechanic_immune_mask`, `flags_extra`, `ScriptName`, `WDBVerified`) VALUES (97015, 0, 0, 0, 0, 0, 30859, 30987, 30861, 30862, 'Recuperador de Anillos del Veredicto Cin reo', 'H blale si has perdido tu anillo', '', 0, 80, 80, 2, 35, 35, 1, 1, 1.14286, 1, 1, 422, 586, 0, 642, 7.5, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 345, 509, 103, 7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '', 0, 3, 75, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2354, 0, 2, 'npc_icc_rep_rings', 12340);
+INSERT INTO `creature_template` (`entry`, `difficulty_entry_1`, `difficulty_entry_2`, `difficulty_entry_3`, `KillCredit1`, `KillCredit2`, `modelid1`, `modelid2`, `modelid3`, `modelid4`, `name`, `subname`, `IconName`, `gossip_menu_id`, `minlevel`, `maxlevel`, `exp`, `faction_A`, `faction_H`, `npcflag`, `speed_walk`, `speed_run`, `scale`, `rank`, `mindmg`, `maxdmg`, `dmgschool`, `attackpower`, `dmg_multiplier`, `baseattacktime`, `rangeattacktime`, `unit_class`, `unit_flags`, `dynamicflags`, `family`, `trainer_type`, `trainer_spell`, `trainer_class`, `trainer_race`, `minrangedmg`, `maxrangedmg`, `rangedattackpower`, `type`, `type_flags`, `lootid`, `pickpocketloot`, `skinloot`, `resistance1`, `resistance2`, `resistance3`, `resistance4`, `resistance5`, `resistance6`, `spell1`, `spell2`, `spell3`, `spell4`, `spell5`, `spell6`, `spell7`, `spell8`, `PetSpellDataId`, `VehicleId`, `mingold`, `maxgold`, `AIName`, `MovementType`, `InhabitType`, `Health_mod`, `Mana_mod`, `Armor_mod`, `RacialLeader`, `questItem1`, `questItem2`, `questItem3`, `questItem4`, `questItem5`, `questItem6`, `movementId`, `RegenHealth`, `mechanic_immune_mask`, `flags_extra`, `ScriptName`, `WDBVerified`) VALUES (97015, 0, 0, 0, 0, 0, 30859, 30987, 30861, 30862, 'Recuperador de Anillos del Veredicto Cin reo', 'H blale si has perdido tu anillo', '', 0, 80, 80, 2, 35, 35, 1, 1, 1.14286, 1, 1, 422, 586, 0, 642, 7.5, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 345, 509, 103, 7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '', 0, 3, 75, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 2, 'npc_icc_rep_rings', 12340);
 UPDATE creature_template SET npcflag=1, gossip_menu_id=61001 WHERE entry=97015;
 DELETE FROM gossip_menu WHERE entry=61001;
 INSERT INTO gossip_menu VALUES (61001,537006);
