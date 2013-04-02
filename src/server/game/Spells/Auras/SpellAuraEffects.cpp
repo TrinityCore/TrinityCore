@@ -4995,16 +4995,16 @@ void AuraEffect::HandleAuraDummy(AuraApplication const* aurApp, uint8 mode, bool
                 Player* player = target->ToPlayer();
                 if (apply)
                 {
-                    player->setDeathState(GHOULED);                            
+                    player->setDeathState(GHOULED);
                     player->RemoveAllAurasOnDeath();
                     WorldPacket data(SMSG_PRE_RESURRECT, player->GetPackGUID().size());
                     data.append(player->GetPackGUID());
                     player->GetSession()->SendPacket(&data);
                     player->StopMirrorTimers();
                     player->SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, float(1.0f));
-                    player->SetHealth(1);                                      
+                    player->SetHealth(1);
                     player->SetPower(player->getPowerType(), 1);
-                    player->SetMovement(MOVE_ROOT)
+                    player->SetMovement(MOVE_ROOT);
                 }
                 else
                 {
