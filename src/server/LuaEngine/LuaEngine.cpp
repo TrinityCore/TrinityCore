@@ -136,6 +136,14 @@ void Eluna::RegisterGlobals(lua_State* L)
     lua_register(L, "GetObjectGUID", &LuaGlobalFunctions::GetObjectGUID);                   // GetObjectGUID(lowguid, entry) - Generates GUID (uint64) string from gameobject lowguid and entry UNDOCUMENTED
     lua_register(L, "GetUnitGUID", &LuaGlobalFunctions::GetUnitGUID);                       // GetUnitGUID(lowguid, entry) - Generates GUID (uint64) string from unit (creature) lowguid and entry UNDOCUMENTED
     lua_register(L, "GetGUIDLow", &LuaGlobalFunctions::GetGUIDLow);                         // GetGUIDLow(guid) - Returns GUIDLow (uint32) from guid (uint64 as string) UNDOCUMENTED
+    lua_register(L, "GetGUIDType", &LuaGlobalFunctions::GetGUIDType);                       // GetGUIDType(guid) - Returns Type (uint32) from guid (uint64 as string) UNDOCUMENTED
+    lua_register(L, "GetGUIDEntry", &LuaGlobalFunctions::GetGUIDEntry);                     // GetGUIDLow(guid) - Returns Entry (uint32) from guid (uint64 as string), may be always 0 UNDOCUMENTED
+    lua_register(L, "bit_not", &LuaGlobalFunctions::bit_not);                               // bit_not(a) - Returns ~a UNDOCUMENTED
+    lua_register(L, "bit_xor", &LuaGlobalFunctions::bit_xor);                               // bit_xor(a, b) - Returns a ^ b UNDOCUMENTED
+    lua_register(L, "bit_rshift", &LuaGlobalFunctions::bit_rshift);                         // bit_rshift(a, b) - Returns a >> b UNDOCUMENTED
+    lua_register(L, "bit_lshift", &LuaGlobalFunctions::bit_lshift);                         // bit_lshift(a, b) - Returns a << b UNDOCUMENTED
+    lua_register(L, "bit_or", &LuaGlobalFunctions::bit_or);                                 // bit_or(a, b) - Returns a | b UNDOCUMENTED
+    lua_register(L, "bit_and", &LuaGlobalFunctions::bit_and);                               // bit_and(a, b) - Returns a & b UNDOCUMENTED
 
     // Other
     lua_register(L, "ReloadEluna", &LuaGlobalFunctions::ReloadEluna);                       // ReloadEluna() - Reload's Eluna engine

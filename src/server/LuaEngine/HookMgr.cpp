@@ -7,10 +7,22 @@ void HookMgr::OnFirstLogin(Player* player)
     for (HookPointerSet::iterator it = hookPointers.begin(); it != hookPointers.end(); ++it)
         (*it)->OnFirstLogin(player);
 }
-void HookMgr::OnEquip(Player* player, Item* item, uint16 pos, bool update)
+void HookMgr::OnEquip(const Player* player, Item* item, uint16 dest, uint16 src)
 {
+    Player* player2 = const_cast<Player*>(player);
     for (HookPointerSet::iterator it = hookPointers.begin(); it != hookPointers.end(); ++it)
-        (*it)->OnEquip(player, item, pos, update);
+        (*it)->OnEquip(player2, item, dest, src);
+}
+InventoryResult HookMgr::OnCanUseItem(const Player* player, uint32 itemEntry)
+{
+    Player* player2 = const_cast<Player*>(player);
+    for (HookPointerSet::iterator it = hookPointers.begin(); it != hookPointers.end(); ++it)
+    {
+        InventoryResult value = (*it)->OnCanUseItem(player2, itemEntry);
+        if(value != EQUIP_ERR_OK)
+            return value;
+    }
+    return EQUIP_ERR_OK;
 }
 void HookMgr::HandleGossipSelectOption(Player* player, uint64 guid, uint32 sender, uint32 action, std::string code, uint32 menuId)
 {

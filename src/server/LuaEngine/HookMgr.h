@@ -18,7 +18,8 @@ public:
 
     // misc
     void OnFirstLogin(Player* player);
-    void OnEquip(Player* player, Item* item, uint16 pos, bool update);
+    void OnEquip(const Player* player, Item* item, uint16 dest, uint16 src);
+    InventoryResult OnCanUseItem(const Player* player, uint32 itemEntry);
     void HandleGossipSelectOption(Player* player, uint64 guid, uint32 sender, uint32 action, std::string code, uint32 menuId);
     bool OnChat(Player* player, uint32 type, uint32 lang, std::string& msg);
     bool OnChat(Player* player, uint32 type, uint32 lang, std::string& msg, Group* group);
@@ -79,7 +80,8 @@ public:
     }
     // misc
     virtual void OnFirstLogin(Player* player) { }
-    virtual void OnEquip(Player* player, Item* item, uint16 pos, bool update) { }
+    virtual void OnEquip(Player* player, Item* item, uint16 dest, uint16 src) { }
+    virtual InventoryResult OnCanUseItem(Player* player, uint32 itemEntry) { return EQUIP_ERR_OK; }
     virtual void HandleGossipSelectOption(Player* player, uint64 guid, uint32 sender, uint32 action, std::string code, uint32 menuId) { }
     virtual bool OnChat(Player* player, uint32 type, uint32 lang, std::string& msg) { return true; }
     virtual bool OnChat(Player* player, uint32 type, uint32 lang, std::string& msg, Group* group) { return true; }

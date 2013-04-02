@@ -18,7 +18,7 @@ public:
             sEluna->ExecuteCall(2, 0);
         }
     }
-    void OnEquip(Player* player, Item* item, uint16 pos, bool update)
+    void OnEquip(Player* player, Item* item, uint16 dest, uint16 src)
     {
         for (std::vector<int>::iterator itr = sEluna->ServerEventBindings.at(PLAYER_EVENT_ON_EQUIP).begin();
             itr != sEluna->ServerEventBindings.at(PLAYER_EVENT_ON_EQUIP).end(); ++itr)
@@ -27,10 +27,30 @@ public:
             sEluna->PushUnsigned(sEluna->LuaState, PLAYER_EVENT_ON_EQUIP);
             sEluna->PushUnit(sEluna->LuaState, player);
             sEluna->PushItem(sEluna->LuaState, item);
-            sEluna->PushUnsigned(sEluna->LuaState, pos);
-            sEluna->PushBoolean(sEluna->LuaState, update);
+            sEluna->PushUnsigned(sEluna->LuaState, dest);
+            sEluna->PushUnsigned(sEluna->LuaState, src);
             sEluna->ExecuteCall(5, 0);
         }
+    }
+    InventoryResult OnCanUseItem(Player* player, uint32 itemEntry)
+    {
+        InventoryResult result = EQUIP_ERR_OK;
+        for (std::vector<int>::iterator itr = sEluna->ServerEventBindings.at(PLAYER_EVENT_ON_CAN_USE_ITEM).begin();
+            itr != sEluna->ServerEventBindings.at(PLAYER_EVENT_ON_CAN_USE_ITEM).end(); ++itr)
+        {
+            sEluna->BeginCall((*itr));
+            sEluna->PushUnsigned(sEluna->LuaState, PLAYER_EVENT_ON_CAN_USE_ITEM);
+            sEluna->PushUnit(sEluna->LuaState, player);
+            sEluna->PushUnsigned(sEluna->LuaState, itemEntry);
+            if (sEluna->ExecuteCall(3, 1))
+            {
+                lua_State* L = sEluna->LuaState;
+                if (!lua_isnoneornil(L, 1))
+                    result = (InventoryResult)lua_tounsigned(L, 1);
+                sEluna->EndCall(1);
+            }
+        }
+        return result;
     }
     void HandleGossipSelectOption(Player* player, uint64 guid, uint32 sender, uint32 action, std::string code, uint32 menuId)
     {

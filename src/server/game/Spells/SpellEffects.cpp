@@ -65,6 +65,7 @@
 #include "InstanceScript.h"
 #include "PathGenerator.h"
 #include "ReputationMgr.h"
+#include "HookMgr.h"
 
 pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
 {
@@ -2212,6 +2213,7 @@ void Spell::EffectSummonChangeItem(SpellEffIndex effIndex)
 
             player->EquipItem(dest, pNewItem, true);
             player->AutoUnequipOffhandIfNeed();
+            sHookMgr->OnEquip(player, pNewItem, dest, 0);
             return;
         }
     }

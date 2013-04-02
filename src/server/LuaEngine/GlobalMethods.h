@@ -765,5 +765,72 @@ namespace LuaGlobalFunctions
         CharacterDatabase.CommitTransaction(trans);
         return 0;
     }
+
+    // bit_and(a, b)
+    static int bit_and(lua_State* L)
+    {
+        uint32 a = luaL_checkunsigned(L, 1);
+        uint32 b = luaL_checkunsigned(L, 2);
+        sEluna->PushUnsigned(L, a & b);
+        return 1;
+    }
+
+    // bit_or(a, b)
+    static int bit_or(lua_State* L)
+    {
+        uint32 a = luaL_checkunsigned(L, 1);
+        uint32 b = luaL_checkunsigned(L, 2);
+        sEluna->PushUnsigned(L, a | b);
+        return 1;
+    }
+
+    // bit_lshift(a, b)
+    static int bit_lshift(lua_State* L)
+    {
+        uint32 a = luaL_checkunsigned(L, 1);
+        uint32 b = luaL_checkunsigned(L, 2);
+        sEluna->PushUnsigned(L, a << b);
+        return 1;
+    }
+
+    // bit_rshift(a, b)
+    static int bit_rshift(lua_State* L)
+    {
+        uint32 a = luaL_checkunsigned(L, 1);
+        uint32 b = luaL_checkunsigned(L, 2);
+        sEluna->PushUnsigned(L, a >> b);
+        return 1;
+    }
+
+    // bit_xor(a, b)
+    static int bit_xor(lua_State* L)
+    {
+        uint32 a = luaL_checkunsigned(L, 1);
+        uint32 b = luaL_checkunsigned(L, 2);
+        sEluna->PushUnsigned(L, a ^ b);
+        return 1;
+    }
+
+    // bit_not(a)
+    static int bit_not(lua_State* L)
+    {
+        uint32 a = luaL_checkunsigned(L, 1);
+        sEluna->PushUnsigned(L, ~ a);
+        return 1;
+    }
+
+    static int GetGUIDType(lua_State* L)
+    {
+        uint64 guid = sEluna->CHECK_ULONG(L, 1);
+        sEluna->PushUnsigned(L, GUID_HIPART(guid));
+        return 1;
+    }
+
+    static int GetGUIDEntry(lua_State* L)
+    {
+        uint64 guid = sEluna->CHECK_ULONG(L, 1);
+        sEluna->PushUnsigned(L, GUID_ENPART(guid));
+        return 1;
+    }
 }
 #endif

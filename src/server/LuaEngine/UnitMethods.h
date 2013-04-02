@@ -4273,13 +4273,12 @@ public:
         TO_PLAYER();
 
         Item* item = sEluna->CHECK_ITEM(L, 1);
-        uint32 itemId;
-        if (!item)
-            uint32 itemId = luaL_checkunsigned(L, 1);
         uint32 itemCount = luaL_checkunsigned(L, 2);
-
-        if(!item)
+        if (!item)
+        {
+            uint32 itemId = luaL_checkunsigned(L, 1);
             player->DestroyItemCount(itemId, itemCount, true);
+        }
         else
             player->DestroyItemCount(item, itemCount, true);
         return 0;
