@@ -1,4 +1,4 @@
-﻿DELETE FROM `spell_script_names` WHERE `spell_id`=45759;
+DELETE FROM `spell_script_names` WHERE `spell_id`=45759;
 INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 (45759,'spell_gen_orc_disguise');
 
