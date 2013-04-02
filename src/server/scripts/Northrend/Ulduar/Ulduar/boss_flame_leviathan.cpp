@@ -1610,7 +1610,7 @@ class npc_freya_ward_of_life : public CreatureScript
 
 
 /// @todo Add script to database - not sure where exactly, seems to be a dummy that is used as a seat handler
-class npc_leviathan_player_vehicle : public CreatureScript
+/* class npc_leviathan_player_vehicle : public CreatureScript
 {
     public:
         npc_leviathan_player_vehicle() : CreatureScript("npc_leviathan_player_vehicle") {}
@@ -1657,7 +1657,7 @@ class npc_leviathan_player_vehicle : public CreatureScript
         {
             return new npc_leviathan_player_vehicleAI(creature);
         }
-};
+}; */
 
 // npc lore keeper
 #define GOSSIP_ITEM_1  "Activate secondary defensive systems"
@@ -2741,7 +2741,7 @@ void AddSC_boss_flame_leviathan()
     new npc_hodirs_fury();                          // 33212
     new npc_freyas_ward();                          // 33367
     new npc_freya_ward_of_life();                   // 34275
-    new npc_leviathan_player_vehicle();            
+    /* new npc_leviathan_player_vehicle(); */ 
     new npc_lorekeeper();                           // 33686
     // new npc_brann_bronzebeard(); 
     new at_RX_214_repair_o_matic_station();         // Area-Trigger 5369/5423

@@ -593,7 +593,7 @@ public:
 
 };
 
-class npc_risen_ghoul : public CreatureScript
+/* class npc_risen_ghoul : public CreatureScript
 {
 public:
     npc_risen_ghoul() : CreatureScript("npc_risen_ghoul") { }
@@ -635,7 +635,7 @@ public:
     {
         return new npc_risen_ghoulAI(creature);
     }
-};
+}; */
 
 class npc_risen_announcer : public CreatureScript
 {
@@ -777,7 +777,7 @@ public:
 void AddSC_boss_black_knight()
 {
     new boss_black_knight();
-    new npc_risen_ghoul();
+    /* new npc_risen_ghoul(); */
     new npc_risen_announcer();
     new npc_black_knight_skeletal_gryphon();
 }
