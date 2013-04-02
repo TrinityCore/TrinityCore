@@ -57,10 +57,18 @@ void WorldSession::HandleDuelAcceptedOpcode(WorldPacket& recvPacket)
         plTarget->SetHealth(plTarget->GetMaxHealth());
         player->RemoveArenaSpellCooldowns(true);
         plTarget->RemoveArenaSpellCooldowns(true);
-        // player->RemoveArenaAuras();
-        // plTarget->RemoveArenaAuras();
-        player->RemoveAurasDueToSpell(25771);
-        plTarget->RemoveAurasDueToSpell(25771);
+
+        // Debuffs
+        player->RemoveAura(57723);
+        player->RemoveAura(57724);
+        player->RemoveAura(25771);
+        player->RemoveAura(41425);
+        player->RemoveAura(61987);
+        plTarget->RemoveAura(57723);
+        plTarget->RemoveAura(57724);
+        plTarget->RemoveAura(25771);
+        plTarget->RemoveAura(41425);
+        plTarget->RemoveAura(61987);
 
         if (player->getPowerType() == POWER_MANA)
             player->SetPower(POWER_MANA, player->GetMaxPower(POWER_MANA));

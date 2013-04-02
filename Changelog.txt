@@ -11,6 +11,7 @@
 #                                                                                          #
 ############################################################################################
 
+[163] --> Updatel duel reset and fix hp pets at dismount.
 [162] --> Fix [ITEM] Black Bruise / [SPELL] Necrotic Touch. (By  joschiwald)
 [161] --> Update Halls Of Reflection by aedansilver.
 [160] --> Add Looking For Group Join All Maps.
