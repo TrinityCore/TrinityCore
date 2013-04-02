@@ -212,6 +212,8 @@ class boss_sindragosa : public CreatureScript
             {
                 BossAI::Reset();
                 me->SetReactState(REACT_AGGRESSIVE);
+                instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_ICE_TOMB_UNTARGETABLE);
+                me->ApplySpellImmune(0, IMMUNITY_ID, RAID_MODE(70127, 72528, 72529, 72530), true);
                 DoCast(me, SPELL_TANK_MARKER, true);
                 events.ScheduleEvent(EVENT_BERSERK, 600000);
                 events.ScheduleEvent(EVENT_CLEAVE, 10000, EVENT_GROUP_LAND_PHASE);
@@ -223,6 +225,7 @@ class boss_sindragosa : public CreatureScript
                 events.ScheduleEvent(EVENT_CHECK_PLAYERS, 5000);
                 _iceTombCounter = 0;
                 _mysticBuffetStack = 0;
+                _frostBombCounter = 0;
                 _isInAirPhase = false;
                 _isThirdPhase = false;
 
@@ -236,6 +239,7 @@ class boss_sindragosa : public CreatureScript
             void JustDied(Unit* /* killer */)
             {
                 _JustDied();
+                instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_ICE_TOMB_UNTARGETABLE);
                 Talk(SAY_DEATH);
 
                 if (Is25ManRaid() && me->HasAura(SPELL_SHADOWS_FATE))
@@ -253,6 +257,7 @@ class boss_sindragosa : public CreatureScript
                 }
 
                 //BossAI::EnterCombat(victim);
+                instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_ICE_TOMB_UNTARGETABLE);
                 DoCast(me, SPELL_FROST_AURA);
                 DoCast(me, SPELL_PERMAEATING_CHILL);
                 Talk(SAY_AGGRO);
@@ -323,7 +328,11 @@ class boss_sindragosa : public CreatureScript
                         me->SetSpeed(MOVE_FLIGHT, 2.5f);
 
                         // Sindragosa enters combat as soon as she lands
-                        DoZoneInCombat();
+                        DoZoneInCombat(me, 100.0f);
+
+                        // Sindragosa should be in combat here, otherwise EnterEvadeMode and despawn
+                        if (!me->isInCombat())
+                            EnterEvadeMode(); 
                         break;
                     case POINT_TAKEOFF:
                         events.ScheduleEvent(EVENT_AIR_MOVEMENT, 1);
@@ -332,17 +341,18 @@ class boss_sindragosa : public CreatureScript
                         me->CastCustomSpell(SPELL_ICE_TOMB_TARGET, SPELLVALUE_MAX_TARGETS, RAID_MODE<int32>(2, 5, 2, 6), NULL);
                         me->SetFacingTo(float(M_PI));
                         events.ScheduleEvent(EVENT_AIR_MOVEMENT_FAR, 1);
-                        events.ScheduleEvent(EVENT_FROST_BOMB, 9000);
+                        events.ScheduleEvent(EVENT_FROST_BOMB, 13000);
                         break;
                     case POINT_AIR_PHASE_FAR:
                         me->SetFacingTo(float(M_PI));
-                        events.ScheduleEvent(EVENT_LAND, 30000);
+                        //events.ScheduleEvent(EVENT_LAND, 30000);
                         break;
                     case POINT_LAND:
                         events.ScheduleEvent(EVENT_LAND_GROUND, 1);
                         break;
                     case POINT_LAND_GROUND:
                     {
+                        instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_ICE_TOMB_UNTARGETABLE);
                         me->SetCanFly(false);
                         me->SetDisableGravity(false);
                         me->RemoveByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
@@ -483,7 +493,7 @@ class boss_sindragosa : public CreatureScript
                             pos.m_positionZ += 17.0f;
                             me->GetMotionMaster()->MoveTakeoff(POINT_TAKEOFF, pos);
                             events.CancelEventGroup(EVENT_GROUP_LAND_PHASE);
-                            events.ScheduleEvent(EVENT_AIR_PHASE, 110000);
+                            events.ScheduleEvent(EVENT_AIR_PHASE, 120000);
                             break;
                         }
                         case EVENT_AIR_MOVEMENT:
@@ -514,7 +524,12 @@ class boss_sindragosa : public CreatureScript
                             destZ = 205.0f; // random number close to ground, get exact in next call
                             me->UpdateGroundPositionZ(destX, destY, destZ);
                             me->CastSpell(destX, destY, destZ, SPELL_FROST_BOMB_TRIGGER, false);
-                            events.ScheduleEvent(EVENT_FROST_BOMB, urand(6000, 8000));
+
+                            _frostBombCounter++;
+                            if (_frostBombCounter < 4) // Avoid casting Frost Bomb more than 4 times
+                                events.ScheduleEvent(EVENT_FROST_BOMB, urand(6000, 8000));
+                            else // We are done with all frost bombs, initiate landing
+                                events.ScheduleEvent(EVENT_LAND, 3000); 
                             break;
                         }
                         case EVENT_LAND:
@@ -559,6 +574,7 @@ class boss_sindragosa : public CreatureScript
             }
 
         private:
+            uint8 _frostBombCounter;
             uint8 _iceTombCounter;
             uint8 _mysticBuffetStack;
             bool _isInAirPhase;
@@ -615,8 +631,17 @@ class npc_ice_tomb : public CreatureScript
                 if (Player* player = ObjectAccessor::GetPlayer(*me, _trappedPlayerGUID))
                 {
                     _trappedPlayerGUID = 0;
+                    player->RemoveAurasDueToSpell(SPELL_ICE_TOMB_UNTARGETABLE);
                     player->RemoveAurasDueToSpell(SPELL_ICE_TOMB_DAMAGE);
                     player->RemoveAurasDueToSpell(SPELL_ASPHYXIATION);
+
+                    // set back in combat with sindragosa
+                    if (InstanceScript* instance = player->GetInstanceScript())
+                        if (Creature* sindragosa = ObjectAccessor::GetCreature(*player, instance->GetData64(DATA_SINDRAGOSA)))
+                        {
+                            sindragosa->SetInCombatWith(player);
+                            player->SetInCombatWith(sindragosa);
+                        } 
                 }
             }
 
