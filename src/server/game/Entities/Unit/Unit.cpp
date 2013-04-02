@@ -12512,7 +12512,7 @@ void Unit::SetSpeed(UnitMoveType mtype, float rate, bool forced)
 
 void Unit::setDeathState(DeathState s)
 {
-    if (s != ALIVE && s != JUST_RESPAWNED)
+    if (s != ALIVE && s != JUST_RESPAWNED && s != GHOULED)
     {
         CombatStop();
         DeleteThreatList();
