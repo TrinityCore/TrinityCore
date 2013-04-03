@@ -122,7 +122,7 @@ namespace Movement
         STR(PendingStrafeStop  ), // 0x00004000,
         STR(PendingForward     ), // 0x00008000,
         STR(PendingBackward    ), // 0x00010000,
-        STR(PendingStrafeReft  ), // 0x00020000,
+        STR(PendingStrafeLeft  ), // 0x00020000,
         STR(PendingStrafeRight ), // 0x00040000,
         STR(PendingRoot        ), // 0x00080000,
         STR(Swimming           ), // 0x00100000,               // Appears With Fly Flag Also
