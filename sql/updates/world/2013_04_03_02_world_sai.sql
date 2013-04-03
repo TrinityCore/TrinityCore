@@ -657,8 +657,8 @@ INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_
 (@HARDKNUCKLEMATRIARCH, 0, 2, 0, 0, 0, 100, 0, 6000, 10000, 12000, 15000, 11 , 61580, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Hardknuckle Matriarch - In Combat - Cast Cast Thunderstomp'),
 (@HARDKNUCKLEMATRIARCH, 0, 3, 0, 6, 0, 100, 0, 0, 0, 0, 0, 45, 1, 1, 0, 0, 0, 0, 9, @GOREGEK, 0, 50, 0, 0, 0, 0, 'Hardknuckle Matriarch - On Death Send Data to Goregek');
 
-DELETE FROM `creature_ai_texts` WHERE `entry` -738;
-DELETE FROM `creature_text` WHERE `entry` =@HARDKNUCKLEMATRIARCH;
+DELETE FROM `creature_ai_texts` WHERE `entry`= -738;
+DELETE FROM `creature_text` WHERE `entry`=@HARDKNUCKLEMATRIARCH;
 INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) VALUES 
 (@HARDKNUCKLEMATRIARCH, 0, 0, 'We are Not Amused', 12, 0, 100, 0, 0, 0, 'Hardknuckle Matriarch');
 
