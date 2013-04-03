@@ -11,6 +11,7 @@
 #                                                                                          #
 ############################################################################################
 
+[165] --> Implement [Strand of the Ancients] Warnings system. (By  Vincent-Michael)
 [164] --> Implement Raise ally. (TEST By Runico)
 [163] --> Updatel duel reset and fix hp pets at dismount.
 [162] --> Fix [ITEM] Black Bruise / [SPELL] Necrotic Touch. (By  joschiwald)

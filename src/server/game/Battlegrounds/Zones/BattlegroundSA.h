@@ -46,7 +46,8 @@ enum BG_SA_GateState
 {
     BG_SA_GATE_OK           = 1,
     BG_SA_GATE_DAMAGED      = 2,
-    BG_SA_GATE_DESTROYED    = 3
+    BG_SA_GATE_DESTROYED    = 3,
+    BG_SA_GATE_DAMAGE       = 4
 };
 
 enum BG_SA_EventIdGate
@@ -183,6 +184,16 @@ uint32 const BG_SA_NpcEntries[BG_SA_MAXNPC] =
     // Used Demolisher Salesman
     NPC_RIGGER_SPARKLIGHT,
     NPC_GORGRIL_RIGSPARK
+};
+
+enum GameOjects
+{
+    BG_SA_GO_GREEN_GATE             = 190722,
+    BG_SA_GO_BLUE_GATE              = 190724,
+    BG_SA_GO_RED_GATE               = 190726,
+    BG_SA_GO_PURPLE_GATE            = 190723,
+    BG_SA_GO_YELLOW_GATE            = 190727,
+    BG_SA_GO_ANCIENT_GATE           = 192549
 };
 
 float const BG_SA_NpcSpawnlocs[BG_SA_MAXNPC + BG_SA_DEMOLISHER_AMOUNT][4] =
@@ -472,7 +483,7 @@ class BattlegroundSA : public Battleground
         /// Called when a player use a gamobject (relic)
         void EventPlayerUsedGO(Player* Source, GameObject* object);
         /// Return gate id, relative to bg data, according to gameobject id
-        uint32 getGateIdFromDamagedOrDestroyEventId(uint32 id)
+        uint32 getGateIdFromEventId(uint32 id)
         {
             switch (id)
             {
@@ -499,6 +510,33 @@ class BattlegroundSA : public Battleground
                 // Ancient gate
                 case BG_SA_EVENT_ANCIENT_GATE_DAMAGED:
                 case BG_SA_EVENT_ANCIENT_GATE_DESTROYED:
+                    return BG_SA_ANCIENT_GATE;
+                default:
+                    break;
+            }
+            return 0;
+        }
+        uint32 getGateIdFromEntry(uint32 entry)
+        {
+            switch (entry)
+            {
+                // Green gate
+                case BG_SA_GO_GREEN_GATE:
+                    return BG_SA_GREEN_GATE;
+                 // Blue gate
+                case BG_SA_GO_BLUE_GATE:
+                    return BG_SA_BLUE_GATE;
+                // Red gate
+                case BG_SA_GO_RED_GATE:
+                    return BG_SA_RED_GATE;
+                // Purple gate
+                case BG_SA_GO_PURPLE_GATE:
+                    return BG_SA_PURPLE_GATE;
+                // Yellow gate
+                case BG_SA_GO_YELLOW_GATE:
+                    return BG_SA_YELLOW_GATE;
+                // Ancient gate
+                case BG_SA_GO_ANCIENT_GATE:
                     return BG_SA_ANCIENT_GATE;
                 default:
                     break;
