@@ -89,6 +89,19 @@ enum MovementStatusElements
     MSEFallHorizontalSpeed,
     MSESplineElevation,
 
+    MSECounter,
+
+    // Speed
+    MSESpeedWalk,
+    MSESpeedRun,
+    MSESpeedRunBack,
+    MSESpeedSwim,
+    MSESpeedSwimBack,
+    MSESpeedTurnRate,
+    MSESpeedFlight,
+    MSESpeedFlightBack,
+    MSESpeedPitchRate,
+
     // Special
     MSEZeroBit, // writes bit value 1 or skips read bit
     MSEOneBit,  // writes bit value 0 or skips read bit
