@@ -380,10 +380,6 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvPacket)
 
     /*----------------------*/
     /* process position-change */
-    WorldPacket data(SMSG_PLAYER_MOVE, recvPacket.size());
-    _player->WriteMovementInfo(data);
-    mover->SendMessageToSet(&data, _player);
-
     // this is almost never true (not sure why it is sometimes, but it is), normally use mover->IsVehicle()
     if (mover->GetVehicle())
     {
@@ -392,6 +388,10 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvPacket)
     }
 
     mover->UpdatePosition(movementInfo.pos);
+
+    WorldPacket data(SMSG_PLAYER_MOVE, recvPacket.size());
+    _player->WriteMovementInfo(data);
+    mover->SendMessageToSet(&data, _player);
 
     if (plrMover)                                            // nothing is charmed, or player charmed
     {
