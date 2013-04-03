@@ -33,3 +33,6 @@ INSERT INTO `smart_scripts` (entryorguid, source_type, id, link, event_type, eve
 (37502, 0, 0, 0, 0, 0, 100, 30, 3000, 5000, 10000, 15000, 11, 71326, 1, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 'Nerub\'ar Webweaver - Cast Crypt Scarabs'),
 (37502, 0, 1, 0, 0, 0, 100, 30, 10000, 15000, 10000, 20000, 11, 71327, 0, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 'Nerub\'ar Webweaver - Cast Web'),
 (37502, 0, 2, 0, 6, 0, 100, 30, 0, 0, 0, 0, 11, 71203, 2, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 'Nerub\'ar Webweaver - Cast Soul Feast On Death');
+
+-- Close entrance door by default in encounter Sindragosa in instance / Instanz ICC / Eiskronenzitadelle / Icecrown Citadel
+UPDATE `gameobject` SET `state` = 1 WHERE `id` = 201373; 

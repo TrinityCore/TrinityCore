@@ -341,6 +341,7 @@ class boss_sindragosa : public CreatureScript
                         me->CastCustomSpell(SPELL_ICE_TOMB_TARGET, SPELLVALUE_MAX_TARGETS, RAID_MODE<int32>(2, 5, 2, 6), NULL);
                         me->SetFacingTo(float(M_PI));
                         events.ScheduleEvent(EVENT_AIR_MOVEMENT_FAR, 1);
+                        _frostBombCounter = 0;
                         events.ScheduleEvent(EVENT_FROST_BOMB, 13000);
                         break;
                     case POINT_AIR_PHASE_FAR:
@@ -707,6 +708,14 @@ class npc_spinestalker : public CreatureScript
                 }
             }
 
+            void EnterCombat(Unit* /*victim*/)
+            {
+                // Close this door when Rimefang or Spinestalker get infight
+                // Server crashes can be ignored in this case, since teleporter to Sindragosa is active
+                if (GameObject* sindragosaDoor = _instance->instance->GetGameObject(_instance->GetData64(GO_SINDRAGOSA_ENTRANCE_DOOR)))
+                    _instance->HandleGameObject(_instance->GetData64(GO_SINDRAGOSA_ENTRANCE_DOOR), false, sindragosaDoor);
+            } 
+
             void JustRespawned()
             {
                 ScriptedAI::JustRespawned();
@@ -890,6 +899,11 @@ class npc_rimefang : public CreatureScript
             void EnterCombat(Unit* /*victim*/)
             {
                 DoCast(me, SPELL_FROST_AURA_RIMEFANG, true);
+
+                // Close this door when Rimefang or Spinestalker get infight
+                // Server crashes can be ignored in this case, since teleporter to Sindragosa is active
+                if (GameObject* sindragosaDoor = _instance->instance->GetGameObject(_instance->GetData64(GO_SINDRAGOSA_ENTRANCE_DOOR)))
+                    _instance->HandleGameObject(_instance->GetData64(GO_SINDRAGOSA_ENTRANCE_DOOR), false, sindragosaDoor); 
             }
 
             void UpdateAI(uint32 diff)
@@ -1376,6 +1390,9 @@ class spell_sindragosa_ice_tomb : public SpellScriptLoader
                     summon->AI()->SetGUID(GetHitUnit()->GetGUID(), DATA_TRAPPED_PLAYER);
                     if (GameObject* go = summon->SummonGameObject(GO_ICE_BLOCK, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation(), 0.0f, 0.0f, 0.0f, 0.0f, 0))
                     {
+                        if (GetCaster()->HealthAbovePct(35))
+                            GetHitUnit()->CastSpell(GetHitUnit(), SPELL_ICE_TOMB_UNTARGETABLE, true);
+
                         go->SetSpellId(SPELL_ICE_TOMB_DAMAGE);
                         summon->AddGameObject(go);
                 /* Unit* unit = GetHitUnit();
