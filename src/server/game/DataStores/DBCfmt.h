@@ -61,6 +61,7 @@ char const GtChanceToMeleeCritBasefmt[] = "f";
 char const GtChanceToMeleeCritfmt[] = "f";
 char const GtChanceToSpellCritBasefmt[] = "f";
 char const GtChanceToSpellCritfmt[] = "f";
+char const GtNPCManaCostScalerfmt[] = "f";
 char const GtOCTClassCombatRatingScalarfmt[] = "df";
 char const GtOCTRegenHPfmt[] = "f";
 //char const GtOCTRegenMPfmt[] = "f";
