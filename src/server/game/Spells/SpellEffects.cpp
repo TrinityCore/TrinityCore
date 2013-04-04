@@ -953,7 +953,6 @@ void Spell::EffectTriggerSpell(SpellEffIndex effIndex)
     // set basepoints for trigger with value effect
     if (m_spellInfo->Effects[effIndex].Effect == SPELL_EFFECT_TRIGGER_SPELL_WITH_VALUE)
     {
-        // maybe need to set value only when basepoints == 0?
         values.AddSpellMod(SPELLVALUE_BASE_POINT0, damage);
         values.AddSpellMod(SPELLVALUE_BASE_POINT1, damage);
         values.AddSpellMod(SPELLVALUE_BASE_POINT2, damage);
