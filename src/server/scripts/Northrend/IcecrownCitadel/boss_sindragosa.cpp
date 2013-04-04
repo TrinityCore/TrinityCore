@@ -263,6 +263,14 @@ class boss_sindragosa : public CreatureScript
                 Talk(SAY_AGGRO);
             }
 
+            bool CanAIAttack(Unit const* target) const
+            {
+                if (target->GetPositionZ() >= 211.0f && !me->IsWithinLOS(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ()))
+                    return false;
+
+                return true;
+            }
+
             void JustReachedHome()
             {
                 BossAI::JustReachedHome();
@@ -1740,9 +1748,18 @@ class at_sindragosa_lair : public AreaTriggerScript
                     if (player->GetMap()->IsHeroic() && !instance->GetData(DATA_HEROIC_ATTEMPTS))
                         return true;
 
-                    player->GetMap()->LoadGrid(SindragosaSpawnPos.GetPositionX(), SindragosaSpawnPos.GetPositionY());
-                    if (Creature* sindragosa = player->GetMap()->SummonCreature(NPC_SINDRAGOSA, SindragosaSpawnPos))
-                        sindragosa->AI()->DoAction(ACTION_START_FROSTWYRM);
+                    Creature* sindragosa = ObjectAccessor::GetCreature(*player, instance->GetData64(DATA_SINDRAGOSA));
+
+                    // Sindragosa is not spawned, so respawn now
+                    if (!sindragosa)
+                    {
+                        player->GetMap()->LoadGrid(SindragosaSpawnPos.GetPositionX(), SindragosaSpawnPos.GetPositionY());
+                        if (sindragosa = player->GetMap()->SummonCreature(NPC_SINDRAGOSA, SindragosaSpawnPos))
+                        {
+                            sindragosa->AI()->DoAction(ACTION_START_FROSTWYRM);
+                            return true;
+                        }
+                    }
                 }
             }
 
