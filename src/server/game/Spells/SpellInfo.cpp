@@ -2047,10 +2047,11 @@ int32 SpellInfo::GetMaxDuration() const
     return (DurationEntry->Duration[2] == -1) ? -1 : abs(DurationEntry->Duration[2]);
 }
 
-uint32 SpellInfo::CalcCastTime(Unit* caster, Spell* spell) const
+uint32 SpellInfo::CalcCastTime(Unit* caster, Spell* spell, bool istriggered) const
 {
-    // not all spells have cast time index and this is all is pasiive abilities
-    if (!CastTimeEntry)
+    // not all spells have cast time index and this is all is passive abilities
+    // triggered spells also have no cast time
+    if (!CastTimeEntry || istriggered)
         return 0;
 
     int32 castTime = CastTimeEntry->CastTime;

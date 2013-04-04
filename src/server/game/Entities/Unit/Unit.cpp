@@ -8542,9 +8542,8 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
                 if (!roll_chance_i(aurEff->GetAmount()))
                     break;
                 CastSpell(this, 70849, true, castItem, triggeredByAura); // Extra Charge!
-                // Slam! trigger -Slam GCD Reduced and Sudden Death trigger -Execute GCD Reduced
-                int32 gcd_spell = (trigger_spell_id == 46916) ? 71072 : 71069;
-                CastSpell(this, gcd_spell, true, castItem, triggeredByAura);
+                CastSpell(this, 71072, true, castItem, triggeredByAura); // Slam GCD Reduced
+                CastSpell(this, 71069, true, castItem, triggeredByAura); // Execute GCD Reduced
             }
             break;
         }
@@ -14243,6 +14242,15 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
 
                 switch (triggeredByAura->GetAuraType())
                 {
+                    case SPELL_AURA_ABILITY_IGNORE_AURASTATE:
+                    {
+                        // hack for Execute by Sudden Death aura
+                        if (triggeredByAura->GetId() == 52437 && !damage)
+                            takeCharges = false;
+                        else
+                            takeCharges = true;
+                        break;
+                    }
                     case SPELL_AURA_PROC_TRIGGER_SPELL:
                     {
                         sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "ProcDamageAndSpell: casting spell %u (triggered by %s aura of spell %u)", spellInfo->Id, (isVictim?"a victim's":"an attacker's"), triggeredByAura->GetId());
