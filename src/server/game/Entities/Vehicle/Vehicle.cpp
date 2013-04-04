@@ -48,6 +48,39 @@ UsableSeatNum(0), _me(unit), _vehicleInfo(vehInfo), _creatureEntry(creatureEntry
             }
     }
 
+    // Vehicle Immunities
+    switch (GetVehicleInfo()->m_ID)
+    {
+        case 160:
+        case 116:
+            _me->SetControlled(true, UNIT_STATE_ROOT);
+            _me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
+            _me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK_DEST, true);
+        case 117:
+        case 324:
+        case 158:
+        case 79:
+        case 106:
+            _me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_HEAL_PCT, true);
+            _me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_ATTACK_ME, true);
+            _me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_DISPEL, true);
+            _me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_HEAL, true);
+            _me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_FEAR, true);
+            _me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_PERIODIC_HEAL, true);
+            _me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_STUN, true);
+            _me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_ROOT, true);
+            _me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_DECREASE_SPEED, true);
+            _me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_CONFUSE, true);
+            _me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
+            _me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_SHIELD, true);
+            _me->ApplySpellImmune(0, IMMUNITY_ID, 13810, true); // Frost Trap
+            _me->ApplySpellImmune(0, IMMUNITY_ID, 55741, true); // Desecration Rank 1
+            _me->ApplySpellImmune(0, IMMUNITY_ID, 68766, true); // Desecration Rank 2
+            break;
+        default:
+            break;
+    }
+
     // Set or remove correct flags based on available seats. Will overwrite db data (if wrong).
     if (UsableSeatNum)
         _me->SetFlag(UNIT_NPC_FLAGS, (_me->GetTypeId() == TYPEID_PLAYER ? UNIT_NPC_FLAG_PLAYER_VEHICLE : UNIT_NPC_FLAG_SPELLCLICK));
@@ -518,6 +551,7 @@ void Vehicle::RemovePassenger(Unit* unit)
         _me->SetFlag(UNIT_NPC_FLAGS, (_me->GetTypeId() == TYPEID_PLAYER ? UNIT_NPC_FLAG_PLAYER_VEHICLE : UNIT_NPC_FLAG_SPELLCLICK));
 
     unit->ClearUnitState(UNIT_STATE_ONVEHICLE);
+    unit->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, false);
 
     if (_me->GetTypeId() == TYPEID_UNIT && unit->GetTypeId() == TYPEID_PLAYER && seat->second.SeatInfo->m_flags & VEHICLE_SEAT_FLAG_CAN_CONTROL)
         _me->RemoveCharmedBy(unit);
@@ -839,6 +873,7 @@ bool VehicleJoinEvent::Execute(uint64, uint32)
         Passenger->AddUnitState(UNIT_STATE_ONVEHICLE);
 
     Passenger->AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
+    Passenger->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_GRIP, true);
     VehicleSeatEntry const* veSeat = Seat->second.SeatInfo;
     Passenger->m_movementInfo.t_pos.Relocate(veSeat->m_attachmentOffsetX, veSeat->m_attachmentOffsetY, veSeat->m_attachmentOffsetZ);
     Passenger->m_movementInfo.t_time = 0; // 1 for player
