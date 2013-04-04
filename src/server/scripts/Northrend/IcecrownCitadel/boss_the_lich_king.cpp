@@ -263,6 +263,9 @@ enum Events
     EVENT_TELEPORT                  = 61,
     EVENT_MOVE_TO_LICH_KING         = 62,
     EVENT_DESPAWN_SELF              = 63,
+
+    // Hack - Check player positions
+    EVENT_CHECK_PLAYER_POSITIONS    = 65,
 };
 
 enum EventGroups
@@ -553,8 +556,36 @@ class boss_the_lich_king : public CreatureScript
                 events.ScheduleEvent(EVENT_INFEST, 5000, 0, PHASE_ONE);
                 events.ScheduleEvent(EVENT_NECROTIC_PLAGUE, urand(30000, 33000), 0, PHASE_ONE);
                 events.ScheduleEvent(EVENT_BERSERK, 900000, EVENT_GROUP_BERSERK);
+                events.ScheduleEvent(EVENT_CHECK_PLAYER_POSITIONS, 5000); 
                 if (IsHeroic())
                     events.ScheduleEvent(EVENT_SHADOW_TRAP, 15500, 0, PHASE_ONE);
+            }
+
+            void CheckPlayerPositions()
+            {
+                Map* map = me->GetMap();
+
+                if (!map)
+                    return;
+
+                if (!map->IsDungeon())
+                    return;
+
+                Map::PlayerList const &PlayerList = map->GetPlayers();
+
+                if (PlayerList.isEmpty())
+                    return;
+
+                // Always teleport victim to center if not in line of sight, on whole platform
+                if (me->getVictim())
+                    if (me->getVictim()->ToPlayer())
+                        if (!me->getVictim()->GetVehicle() && !me->getVictim()->HasUnitMovementFlag(MOVEMENTFLAG_FALLING) && me->getVictim()->GetPositionZ() >= 835.0f && me->getVictim()->GetPositionZ() <= 870.0f && !me->IsWithinLOS(me->getVictim()->GetPositionX(), me->getVictim()->GetPositionY(), me->getVictim()->GetPositionZ()))
+                            me->getVictim()->ToPlayer()->TeleportTo(631, 503.6282f, -2124.655f, 841.0f, 0.0f);
+
+                for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
+                    if (i->getSource()) // Teleport player to center position if on throne and not in line of sight and not falling
+                        if (!i->getSource()->GetVehicle() && !i->getSource()->HasUnitMovementFlag(MOVEMENTFLAG_FALLING) && i->getSource()->GetPositionZ() >= 842.0f && i->getSource()->GetPositionZ() <= 870.0f && !me->IsWithinLOS(i->getSource()->GetPositionX(), i->getSource()->GetPositionY(), i->getSource()->GetPositionZ()))
+                            i->getSource()->TeleportTo(631, 503.6282f, -2124.655f, 841.0f, 0.0f);
             }
 
             void JustReachedHome()
@@ -573,8 +604,8 @@ class boss_the_lich_king : public CreatureScript
 
             bool CanAIAttack(Unit const* target) const
             {
-                // The Lich King must not select targets in frostmourne room if he killed everyone outside
-                return !target->HasAura(SPELL_IN_FROSTMOURNE_ROOM);
+                // The Lich King must not select targets in frostmourne room if he killed everyone outside and no falling targets
+                return !target->HasAura(SPELL_IN_FROSTMOURNE_ROOM) && target->GetPositionZ() > 830.0f;
             }
 
             void EnterEvadeMode()
@@ -1060,6 +1091,10 @@ class boss_the_lich_king : public CreatureScript
                                 }
                             }
                             break;
+                        case EVENT_CHECK_PLAYER_POSITIONS:
+                            CheckPlayerPositions();
+                            events.ScheduleEvent(EVENT_CHECK_PLAYER_POSITIONS, 5000);
+                            break;
                         case EVENT_OUTRO_TALK_1:
                             Talk(SAY_LK_OUTRO_1);
                             DoCastAOE(SPELL_FURY_OF_FROSTMOURNE_NO_REZ, true);
@@ -1128,19 +1163,19 @@ class boss_the_lich_king : public CreatureScript
 
         private:
 
-            void SetImmuneToTaunt(bool apply)	
-            {	
-                me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_ATTACK_ME, apply);	
-                me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_THREAT, apply);	
-                me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, apply);	
+            void SetImmuneToTaunt(bool apply)
+            {
+                me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_ATTACK_ME, apply);
+                me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_THREAT, apply);
+                me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, apply);
 
-                // Following might not be necessay, but just in case...	
-                me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TOTAL_THREAT, apply);	
-                me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_CRITICAL_THREAT, apply);	
-                me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_THREAT_ALL, apply);	
-                me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_MODIFY_THREAT_PERCENT, apply);	
-                me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_REDIRECT_THREAT, apply);	
-            }	
+                // Following might not be necessay, but just in case...
+                me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TOTAL_THREAT, apply);
+                me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_CRITICAL_THREAT, apply);
+                me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_THREAT_ALL, apply);
+                me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_MODIFY_THREAT_PERCENT, apply);
+                me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_REDIRECT_THREAT, apply);
+            }
 
             void SendMusicToPlayers(uint32 musicId) const
             {
@@ -1679,17 +1714,41 @@ class npc_strangulate_vehicle : public CreatureScript
                 if (action != ACTION_TELEPORT_BACK)
                     return;
 
-                if (TempSummon* summ = me->ToTempSummon())
+                if (Creature* lichKing = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_THE_LICH_KING)))
                 {
-                    if (Unit* summoner = summ->GetSummoner())
+                    lichKing->AI()->SummonedCreatureDespawn(me);
+
+                    if (TempSummon* summ = me->ToTempSummon())
                     {
-                        DoCast(summoner, SPELL_HARVEST_SOUL_TELEPORT_BACK);
-                        summoner->RemoveAurasDueToSpell(SPELL_HARVEST_SOUL_DAMAGE_AURA);
+                        if (Unit* summoner = summ->GetSummoner())
+                        {
+                            summoner->RemoveAurasDueToSpell(SPELL_HARVEST_SOUL_DAMAGE_AURA);
+
+                            // Teleport to main tank location, otherwise we might land under the map or inside defile
+                            if (Unit* victim = lichKing->getVictim())
+                                summoner->NearTeleportTo(victim->GetPositionX(), victim->GetPositionY(), victim->GetPositionZ() + 1.0f, victim->GetOrientation());
+                            else // In heroic, all players are inside frostmourne, teleport to our own location
+                            {
+                                float x, y, z;
+                                x = me->GetPositionX();
+                                y = me->GetPositionY();
+                                z = me->GetPositionZ() + 1.0f;
+
+                                // If one coordinate is out of bounds, use default center position
+                                if (z < 840.0f || y < -2174.0f || y > -2075.0f || x < 458.0f || x > 552.0f)
+                                {
+                                    x = 503.6282f;
+                                    y = -2124.655f;
+                                    z = 841.0f;
+                                }
+
+                                summoner->NearTeleportTo(x, y, z, me->GetOrientation());
+                            }
+                        }
                     }
                 }
 
-                if (Creature* lichKing = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_THE_LICH_KING)))
-                    lichKing->AI()->SummonedCreatureDespawn(me);
+                me->DespawnOrUnsummon(2000);
             }
 
             void UpdateAI(uint32 diff)
@@ -1729,7 +1788,7 @@ class npc_strangulate_vehicle : public CreatureScript
                                 if (me->GetExactDist(lichKing) > 10.0f)
                                 {
                                     Position pos;
-                                    lichKing->GetNearPosition(pos, float(rand_norm()) * 5.0f  + 7.5f, lichKing->GetAngle(me));
+                                    lichKing->GetNearPosition(pos, float(rand_norm()) * 5.0f + 7.5f, lichKing->GetAngle(me));
                                     me->GetMotionMaster()->MovePoint(0, pos);
                                 }
                             }
@@ -1932,6 +1991,12 @@ class npc_spirit_warden : public CreatureScript
             {
                 if (Creature* terenas = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_TERENAS_MENETHIL)))
                     terenas->AI()->DoAction(ACTION_TELEPORT_BACK);
+            }
+
+            void KilledUnit(Unit* victim)
+            {
+                if (victim->GetTypeId() == TYPEID_PLAYER)
+                    victim->RemoveAurasDueToSpell(IsHeroic() ? SPELL_HARVEST_SOULS_TELEPORT : SPELL_HARVEST_SOUL_TELEPORT);
             }
 
             void UpdateAI(uint32 diff)
@@ -2182,40 +2247,31 @@ class spell_the_lich_king_necrotic_plague_jump : public SpellScriptLoader
         {
             PrepareSpellScript(spell_the_lich_king_necrotic_plague_SpellScript);
 
-            bool Load()
-            {
-                _hadAura = false;
-                return true;
-            }
-
-            void SelectTarget(std::list<Unit*>& targets)
-            {
-                targets.sort(Trinity::ObjectDistanceOrderPred(GetCaster()));
-                if (targets.size() < 2)
-                    return;
-
-                targets.resize(1);
-            }
-
-            void CheckAura()
-            {
-                if (GetHitUnit()->HasAura(GetSpellInfo()->Id))
-                    _hadAura = true;
-            }
-
             void AddMissingStack()
             {
-                if (GetHitAura() && !_hadAura && GetSpellValue()->EffectBasePoints[EFFECT_1] != AURA_REMOVE_BY_ENEMY_SPELL)
+                // Add stack if we were not removed by dispel
+                if (GetHitAura() && GetSpellValue()->EffectBasePoints[EFFECT_1] != AURA_REMOVE_BY_ENEMY_SPELL)
                     GetHitAura()->ModStackAmount(1);
+
+                // Add stack if target has LK spell on it
+                if (GetHitAura() && GetHitUnit())
+                {
+                    if (GetHitUnit()->HasAura(70337) || GetHitUnit()->HasAura(73912) || GetHitUnit()->HasAura(73913) || GetHitUnit()->HasAura(73914))
+                    {
+                        GetHitUnit()->RemoveAurasDueToSpell(70337);
+                        GetHitUnit()->RemoveAurasDueToSpell(73912);
+                        GetHitUnit()->RemoveAurasDueToSpell(73913);
+                        GetHitUnit()->RemoveAurasDueToSpell(73914);
+
+                        GetHitAura()->ModStackAmount(1);
+                    }
+                }
             }
 
             void Register()
             {
-                BeforeHit += SpellHitFn(spell_the_lich_king_necrotic_plague_SpellScript::CheckAura);
                 OnHit += SpellHitFn(spell_the_lich_king_necrotic_plague_SpellScript::AddMissingStack);
             }
-
-            bool _hadAura;
         };
 
         class spell_the_lich_king_necrotic_plague_AuraScript : public AuraScript

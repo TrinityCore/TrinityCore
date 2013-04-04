@@ -1839,8 +1839,8 @@ class npc_arthas_teleport_visual : public CreatureScript
             {
                 _events.Reset();
                 if (_instance->GetBossState(DATA_PROFESSOR_PUTRICIDE) == DONE &&
-                    _instance->GetBossState(DATA_BLOOD_QUEEN_LANA_THEL) == DONE &&
-                    _instance->GetBossState(DATA_SINDRAGOSA) == DONE)
+                    _instance->GetBossState(DATA_BLOOD_QUEEN_LANA_THEL) == DONE/* &&
+                    _instance->GetBossState(DATA_SINDRAGOSA) == DONE*/)
                     _events.ScheduleEvent(EVENT_SOUL_MISSILE, urand(1000, 6000));
             }
 
