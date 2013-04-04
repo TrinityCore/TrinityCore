@@ -8542,8 +8542,9 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
                 if (!roll_chance_i(aurEff->GetAmount()))
                     break;
                 CastSpell(this, 70849, true, castItem, triggeredByAura); // Extra Charge!
-                CastSpell(this, 71072, true, castItem, triggeredByAura); // Slam GCD Reduced
-                CastSpell(this, 71069, true, castItem, triggeredByAura); // Execute GCD Reduced
+                // Slam! trigger -Slam GCD Reduced and Sudden Death trigger -Execute GCD Reduced
+                int32 gcd_spell = (trigger_spell_id == 46916) ? 71072 : 71069;
+                CastSpell(this, gcd_spell, true, castItem, triggeredByAura);
             }
             break;
         }
