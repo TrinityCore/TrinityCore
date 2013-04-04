@@ -4064,5 +4064,5 @@ void AddSC_generic_spell_scripts()
     new spell_pilgrims_bounty_buff_food("spell_gen_candied_sweet_potato", SPELL_WELL_FED_HASTE_TRIGGER);
     new spell_gen_replenishment();
     new spell_gen_aura_service_uniform();
-	new spell_gen_orc_disguise();
+    new spell_gen_orc_disguise();
 }
