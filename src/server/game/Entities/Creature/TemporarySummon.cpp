@@ -250,11 +250,6 @@ void TempSummon::UnSummon(uint32 msTime)
     }
 
     Unit* owner = GetSummoner();
-    if (owner && GetEntry() == 30230) // Risen ally
-    {
-        owner->RemoveAurasDueToSpell(62218);
-        owner->RemoveAurasDueToSpell(46619);
-    }
     if (owner && owner->GetTypeId() == TYPEID_UNIT && owner->ToCreature()->IsAIEnabled)
         owner->ToCreature()->AI()->SummonedCreatureDespawn(this);
 
