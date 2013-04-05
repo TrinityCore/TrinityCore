@@ -557,7 +557,7 @@ void Eluna::Register(uint8 regtype, uint32 id, uint32 evt, int functionRef)
     case REGTYPE_SERVER:
         if (evt < SERVER_EVENT_COUNT)
         {
-            ServerEventBindings.at(evt).push_back(functionRef);
+            ServerEventBindings[evt].push_back(functionRef);
             return;
         }
         break;
