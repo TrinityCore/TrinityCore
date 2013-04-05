@@ -596,6 +596,15 @@ struct BankBagSlotPricesEntry
     uint32  price;
 };
 
+struct BannedAddOnsEntry
+{
+    uint32 Id;
+    // uint32 NameMD5[4];
+    // uint32 VersionMD5[4];
+    // uint32 Timestamp;
+    // uint32 State;
+};
+
 struct BarberShopStyleEntry
 {
     uint32  Id;                                             // 0
