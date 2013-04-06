@@ -42,13 +42,12 @@ INSERT INTO `creature` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `modelid`
 (109724, 31634, 571, 1, 1, 0, 0, 5772.38, 528.269, 652.632, 4.02134, 300, 0, 0, 50400, 0, 0, 0, 0, 0);
 
 -- queries for correcting missing equipment_id at other than 10m normal brackets
-UPDATE creature_template AS a INNER JOIN creature_template AS b SET a.equipment_id = b.equipment_id WHERE a.equipment_id = 0 AND a.entry = b.difficulty_entry_1;
-UPDATE creature_template AS a INNER JOIN creature_template AS b SET a.equipment_id = b.equipment_id WHERE a.equipment_id = 0 AND a.entry = b.difficulty_entry_2;
-UPDATE creature_template AS a INNER JOIN creature_template AS b SET a.equipment_id = b.equipment_id WHERE a.equipment_id = 0 AND a.entry = b.difficulty_entry_3;
+-- UPDATE creature_template AS a INNER JOIN creature_template AS b SET a.equipment_id = b.equipment_id WHERE a.equipment_id = 0 AND a.entry = b.difficulty_entry_1;
+-- UPDATE creature_template AS a INNER JOIN creature_template AS b SET a.equipment_id = b.equipment_id WHERE a.equipment_id = 0 AND a.entry = b.difficulty_entry_2;
+-- UPDATE creature_template AS a INNER JOIN creature_template AS b SET a.equipment_id = b.equipment_id WHERE a.equipment_id = 0 AND a.entry = b.difficulty_entry_3;
 
 -- adding immunities to some northrend heroic bosses
 UPDATE creature_template SET mechanic_immune_mask = mechanic_immune_mask |1|2|4|8|16|32|64|256|512|1024|2048|4096|8192|65536|131072|262144|524288|4194304|8388608|67108864|536870912 WHERE entry IN (30258,31463,29120,31610,31134,31506,29307,31365,29573,31367,27654,31558,29932,29315,31507,29306,31368,28586,31533,26687,30774,28921,31611,29311,31464,29313,31508,28546,31537,29310,31465,27483,31349,27977,31381,29312,31509,27656,31561,28923,31538,27655,31560,27975,31384,29305,30530,29316,31510,29308,31469,27978,31386,29304,31370,27447,31559,28587,31536,29266,31511,29314,31512);
-
 
 ###########
 -- ULDUAR #
@@ -100,7 +99,7 @@ INSERT INTO `creature` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `modelid`
 (137629,33856,603,3,1,16925,2753.56,2584.3,364.397,180,4120);
 
 UPDATE `gameobject_template` SET `type`=0, `faction`=0, `data1`=1845, `data4`=33914 WHERE `entry`=194264;
-DELETE FROM `gameobject_scripts` WHERE `id`=55194;
+-- DELETE FROM `gameobject_scripts` WHERE `id`=55194;
 UPDATE `gameobject` SET `rotation2`=0, `spawntimesecs`=180, `animprogress`=255 WHERE `id`=194264;
 DELETE FROM `spell_linked_spell` WHERE `spell_trigger` IN (66336, 67076, 67077, 67078);
 
@@ -334,11 +333,11 @@ INSERT INTO `achievement_criteria_data` (`criteria_id`, `type`, `value1`, `value
 (10239, 11, 0, 0, 'achievement_staying_buffed_all_winter_25');
 
 -- adding hodir a weapon in 25m mode
-UPDATE `creature_template` SET `equipment_id`=1842 WHERE `entry`=32845;
+UPDATE `creature` SET `equipment_id`=1842 WHERE `id`=32845;
 
 -- Thorim
 UPDATE `creature_template` SET `ScriptName`='boss_thorim' WHERE `entry`=32865;
-UPDATE `creature_template` SET `equipment_id`=1844 WHERE `entry`=33147;
+UPDATE `creature` SET `equipment_id`=1844 WHERE `id`=33147;
 -- Thunder orbs are spawned via boss script
 DELETE FROM `creature` WHERE `id`=33378;
 -- Lightning orb scriptname and waypoints
@@ -379,10 +378,10 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 
 -- Pre-phase adds: Register scripts.
 UPDATE `creature_template` SET `ScriptName`='npc_thorim_pre_phase_add' WHERE `entry` IN (32885,32883,32908,32907,32882,32886);
-UPDATE `creature_template` SET `equipment_id`=1847 WHERE `entry`=33152;
-UPDATE `creature_template` SET `equipment_id`=1849 WHERE `entry` IN (32885,33153);
-UPDATE `creature_template` SET `equipment_id`=1850 WHERE `entry` IN (32908,33151);
-UPDATE `creature_template` SET `equipment_id`=1852 WHERE `entry`=33150;
+UPDATE `creature` SET `equipment_id`=1847 WHERE `id`=33152;
+UPDATE `creature` SET `equipment_id`=1849 WHERE `id` IN (32885,33153);
+UPDATE `creature` SET `equipment_id`=1850 WHERE `id` IN (32908,33151);
+UPDATE `creature` SET `equipment_id`=1852 WHERE `id`=33150;
 DELETE FROM `creature` WHERE `id` IN (32882,32908,32885,32886,32907,32883); -- NPCs are spawned by script.
 
 -- Thorim Mini bosses : Runic Colossus, Ancient Rune Giant, Sif
@@ -715,8 +714,8 @@ UPDATE `gameobject` SET `spawnMask`=3 WHERE `guid` IN (35446, 35393, 35413, 3541
 UPDATE `creature_model_info` SET `bounding_radius`=1.085, `combat_reach`=10.5 WHERE `modelid` IN (28787, 29185, 28611, 28324, 28344, 28381, 28651, 28777, 28548, 28817);
 
 -- adding weapons to Expedition Trappers and Expedition Engineers
-UPDATE `creature_template` SET `equipment_id`=1762 WHERE `entry`=34257;
-UPDATE `creature_template` SET `equipment_id`=361 WHERE `entry`=34256;
+UPDATE `creature` SET `equipment_id`=1762 WHERE `id`=34257;
+UPDATE `creature` SET `equipment_id`=361 WHERE `id`=34256;
 
 -- updating Razorscale Controller positions
 DELETE FROM `creature` WHERE `guid` BETWEEN 48304 AND 48310;
@@ -730,7 +729,7 @@ INSERT INTO `creature` (`guid`, `id`, `map`, `spawnMask`, `position_x`, `positio
 DELETE FROM `gameobject` WHERE `id`=194565;
 
 -- small Emote to Say correction
-UPDATE `script_texts` SET `type`=3 WHERE `entry`=-1603266;
+-- UPDATE `script_texts` SET `type`=3 WHERE `entry`=-1603266;
 
 -- XD-175 Compactobot
 UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=34271;
@@ -896,7 +895,7 @@ UPDATE `creature_loot_template` SET `lootmode`=1 WHERE `entry` IN (33885, 33293,
 
 -- Ulduar Texts
 -- Flame Leviathan
-DELETE FROM `script_texts` WHERE `npc_entry`=33113;
+-- DELETE FROM `script_texts` WHERE `npc_entry`=33113;
 DELETE FROM `creature_text` WHERE `entry`=33113;
 INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) VALUES
 (33113, 0, 0, 'Hostile entities detected. Threat assessment protocol active. Primary target engaged. Time minus thirty seconds to re-evaluation.', 14, 0, 0, 0, 0, 15506, 'Flame Leviathan SAY_AGGRO'),
@@ -920,7 +919,7 @@ INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language
 (33113, 14, 0, 'Automatic repair sequence initiated.', 41, 0, 0, 0, 0, 0, 'Flame Leviathan EMOTE_REPAIR');
 
 -- Ignis
-DELETE FROM `script_texts` WHERE `npc_entry`=33118;
+-- DELETE FROM `script_texts` WHERE `npc_entry`=33118;
 DELETE FROM `creature_text` WHERE `entry`=33118;
 INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) VALUES
 (33118, 0, 0, 'Insolent whelps! Your blood will temper the weapons used to reclaim this world!', 14, 0, 100, 0, 0, 15564, 'Ignis SAY_AGGRO'),
@@ -935,7 +934,7 @@ INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language
 (33118, 7, 0, 'Ignis the Furnace Master begins to cast Flame Jets!', 41, 0, 100, 0, 0, 0, 'Ignis EMOTE_JETS');
 
 -- Razorscale
-DELETE FROM `script_texts` WHERE `npc_entry` IN (33186, 33210, 33287, 33233);
+-- DELETE FROM `script_texts` WHERE `npc_entry` IN (33186, 33210, 33287, 33233);
 DELETE FROM `creature_text` WHERE `entry` IN (33186, 33210, 33287, 33233);
 INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) VALUES
 (33186, 0, 0, 'Razorscale takes a deep breath...', 41, 0, 100, 0, 0, 0, 'Razorscale EMOTE_BREATH'),
@@ -949,7 +948,7 @@ INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language
 (33233, 0, 0, 'Harpoon Turret is ready for use!', 41, 0, 100, 0, 0, 0, 'Razorscale Controller EMOTE_HARPOON');
 
 -- XT-002 Deconstructor
-DELETE FROM `script_texts` WHERE `npc_entry` IN (33293, 33343);
+-- DELETE FROM `script_texts` WHERE `npc_entry` IN (33293, 33343);
 DELETE FROM `creature_text` WHERE `entry` IN (33293, 33343);
 INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) VALUES
 (33293, 0, 0, 'New toys? For me? I promise I won''t break them this time!', 14, 0, 100, 0, 0, 15724, 'XT002 SAY_AGGRO'),
@@ -966,7 +965,7 @@ INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language
 (33343, 0, 0, 'XT-002 Deconstructor consumes a scrap bot to repair himself!', 41, 0, 100, 0, 0, 0, 'XS-013 Scrapbot EMOTE_REPAIR');
 
 -- Assembly of Iron
-DELETE FROM `script_texts` WHERE `npc_entry` IN (32867, 32927, 32857);
+-- DELETE FROM `script_texts` WHERE `npc_entry` IN (32867, 32927, 32857);
 DELETE FROM `creature_text` WHERE `entry` IN (32867, 32927, 32857);
 INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) VALUES
 (32867, 0, 0, 'You will not defeat the Assembly of Iron so easily, invaders!', 14, 0, 100, 0, 0, 15674, 'Steelbreaker SAY_AGGRO'),
@@ -995,7 +994,7 @@ INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language
 (32857, 6, 0, 'Stormcaller Brundir begins to Overload!', 41, 0, 100, 0, 0, 0, 'Brundir EMOTE_OVERLOAD');
 
 -- Kologarn
-DELETE FROM `script_texts` WHERE `npc_entry`=32930;
+-- DELETE FROM `script_texts` WHERE `npc_entry`=32930;
 DELETE FROM `creature_text` WHERE `entry`=32930;
 INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) VALUES
 (32930, 0, 0, 'None shall pass!', 14, 0, 100, 0, 0, 15586, 'Kologarn SAY_AGGRO'),
@@ -1013,7 +1012,7 @@ INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language
 (32930, 11, 0, 'Kologarn casts Stone Grip!', 41, 0, 100, 0, 0, 0, 'Kologarn EMOTE_STONE');
 
 -- Auriaya
-DELETE FROM `script_texts` WHERE `npc_entry`=33515;
+-- DELETE FROM `script_texts` WHERE `npc_entry`=33515;
 DELETE FROM `creature_text` WHERE `entry`=33515;
 INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) VALUES
 (33515, 0, 0, 'Some things are better left alone!', 14, 0, 100, 0, 0, 15473, 'Auriaya SAY_AGGRO'),
@@ -1025,7 +1024,7 @@ INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language
 (33515, 5, 0, 'Auriaya begins to activate the Feral Defender!', 41, 0, 100, 0, 0, 0, 'Auriaya - EMOTE_DEFENDER');
 
 -- Freya
-DELETE FROM `script_texts` WHERE `npc_entry` IN (32906, 32913, 32914, 32915);
+-- DELETE FROM `script_texts` WHERE `npc_entry` IN (32906, 32913, 32914, 32915);
 DELETE FROM `creature_text` WHERE `entry` IN (32906, 32913, 32914, 32915);
 INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) VALUES
 (32906, 0, 0, 'The Conservatory must be protected!', 14, 0, 100, 0, 0, 15526, 'Freya SAY_AGGRO'),
@@ -1051,7 +1050,7 @@ INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language
 (32914, 2, 0, 'Matron, flee! They are ruthless....', 14, 0, 100, 0, 0, 15503, 'Elder Stonebark SAY_DEATH');
 
 -- Hodir
-DELETE FROM `script_texts` WHERE `npc_entry`=32845;
+-- DELETE FROM `script_texts` WHERE `npc_entry`=32845;
 DELETE FROM `creature_text` WHERE `entry`=32845;
 INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) VALUES
 (32845, 0, 0, 'You will suffer for this trespass!', 14, 0, 100, 0, 0, 15552, 'Hodir SAY_AGGRO'),
@@ -1066,7 +1065,7 @@ INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language
 (32845, 8, 0, 'Hodir gains Frozen Blows!', 41, 0, 100, 0, 0, 0, 'Hodir - EMOTE_BLOW');
 
 -- Mimiron
-DELETE FROM `script_texts` WHERE `npc_entry`=33350;
+-- DELETE FROM `script_texts` WHERE `npc_entry`=33350;
 DELETE FROM `creature_text` WHERE `entry`=33350;
 INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) VALUES
 (33350, 0, 0, 'Oh, my! I wasn''t expecting company! The workshop is such a mess! How embarrassing!', 14, 0, 100, 0, 0, 15611, 'Mimiron SAY_AGGRO'),
@@ -1090,7 +1089,7 @@ INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language
 (33350, 14, 0, 'Oh, my! It would seem that we are out of time, my friends!', 14, 0, 100, 0, 0, 15628, 'Mimiron SAY_BERSERK');
 
 -- Thorim
-DELETE FROM `script_texts` WHERE `npc_entry` IN (33413, 32865, 32872);
+-- DELETE FROM `script_texts` WHERE `npc_entry` IN (33413, 32865, 32872);
 DELETE FROM `creature_text` WHERE `entry` IN (33413, 32865, 32872);
 INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) VALUES
 (32865, 0, 0, 'Interlopers! You mortals who dare to interfere with my sport will pay... Wait--you...', 14, 0, 100, 0, 0, 15733, 'Thorim SAY_AGGRO_1'),
@@ -1113,7 +1112,7 @@ INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language
 (32872, 0, 0, 'Runic Colossus surrounds itself with a crackling Runic Barrier!', 41, 0, 100, 0, 0, 0, 'Runic Colossus EMOTE_BARRIER');
 
 -- General Vezax
-DELETE FROM `script_texts` WHERE `npc_entry` IN (33271, 33488);
+-- DELETE FROM `script_texts` WHERE `npc_entry` IN (33271, 33488);
 DELETE FROM `creature_text` WHERE `entry` IN (33271, 33488);
 INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) VALUES
 (33271, 0, 0, 'Your destruction will herald a new age of suffering!', 14, 0, 100, 0, 0, 15542, 'General Vezax SAY_AGGRO'),
@@ -1129,7 +1128,7 @@ INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language
 (33488, 0, 0, 'A cloud of saronite vapors coalesces nearby!', 41, 0, 100, 0, 0, 0, 'Saronite Vapor - EMOTE_VAPOR');
 
 -- Yogg-Saron
-DELETE FROM `script_texts` WHERE `npc_entry` IN (33288, 33241, 33213, 33244, 33242, 33436, 33437, 33523, 33495, 33535, 33441, 33442, 33134);
+-- DELETE FROM `script_texts` WHERE `npc_entry` IN (33288, 33241, 33213, 33244, 33242, 33436, 33437, 33523, 33495, 33535, 33441, 33442, 33134);
 DELETE FROM `creature_text` WHERE `entry` IN (33288, 33241, 33213, 33244, 33242, 33436, 33437, 33523, 33495, 33535, 33441, 33442, 33134);
 INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) VALUES
 (33288, 0, 0, 'BOW DOWN BEFORE THE GOD OF DEATH!', 14, 0, 100, 0, 0, 0, 'YoggSaron SAY_PHASE2'),
@@ -1283,7 +1282,7 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 
 -- 80 bracket mob stats
 UPDATE creature_template SET difficulty_entry_3 = 37412 WHERE entry = 12050;
-UPDATE creature_template SET minlevel = 83, maxlevel = 83, faction_A = 1216, faction_H = 1216, speed_walk = 1.26, mindmg = 537, maxdmg = 733, attackpower = 723, baseattacktime = 2000, unit_flags = 4096, dynamicflags = 8, MovementType = 1, equipment_id = 1874 WHERE entry = 37412;
+UPDATE creature_template SET minlevel = 83, maxlevel = 83, faction_A = 1216, faction_H = 1216, speed_walk = 1.26, mindmg = 537, maxdmg = 733, attackpower = 723, baseattacktime = 2000, unit_flags = 4096, dynamicflags = 8, MovementType = 1 WHERE entry = 37412;
 UPDATE creature_template SET difficulty_entry_3 = 37383 WHERE entry = 13326;
 UPDATE creature_template SET minlevel = 83, maxlevel = 83, faction_A = 11, faction_H = 11, speed_walk = 1.26, mindmg = 585, maxdmg = 796, attackpower = 647, baseattacktime = 2000, MovementType = 1 WHERE entry = 37383;
 UPDATE creature_template SET difficulty_entry_3 = 37450 WHERE entry = 13331;
@@ -1291,13 +1290,13 @@ UPDATE creature_template SET minlevel = 83, maxlevel = 83, faction_A = 11, facti
 UPDATE creature_template SET difficulty_entry_3 = 37250 WHERE entry = 13422;
 UPDATE creature_template SET minlevel = 83, maxlevel = 83, faction_A = 11, faction_H = 11, speed_walk = 1.27, mindmg = 653, maxdmg = 846, attackpower = 786, baseattacktime = 2000, dynamicflags = 8, MovementType = 1 WHERE entry = 37250;
 UPDATE creature_template SET difficulty_entry_3 = 37410 WHERE entry = 13358;
-UPDATE creature_template SET minlevel = 83, maxlevel = 83, faction_A = 1216, faction_H = 1216, speed_walk = 1.27, mindmg = 613, maxdmg = 830, attackpower = 752, baseattacktime = 2000, unit_flags = 4608, dynamicflags = 8, minrangedmg = 467, maxrangedmg = 723, rangedattackpower = 167, equipment_id = 170 WHERE entry = 37410;
+UPDATE creature_template SET minlevel = 83, maxlevel = 83, faction_A = 1216, faction_H = 1216, speed_walk = 1.27, mindmg = 613, maxdmg = 830, attackpower = 752, baseattacktime = 2000, unit_flags = 4608, dynamicflags = 8, minrangedmg = 467, maxrangedmg = 723, rangedattackpower = 167 WHERE entry = 37410;
 UPDATE creature_template SET difficulty_entry_3 = 37243 WHERE entry = 11949;
-UPDATE creature_template SET minlevel = 83, maxlevel = 83, faction_A = 1216, faction_H = 1216, speed_walk = 1.8, mindmg = 570, maxdmg = 813, attackpower = 832, dmg_multiplier = 70, baseattacktime = 2000, unit_class = 2, unit_flags = 4096, dynamicflags = 8, MovementType = 1, equipment_id = 325, mechanic_immune_mask = 617299803 WHERE entry = 37243;
+UPDATE creature_template SET minlevel = 83, maxlevel = 83, faction_A = 1216, faction_H = 1216, speed_walk = 1.8, mindmg = 570, maxdmg = 813, attackpower = 832, dmg_multiplier = 70, baseattacktime = 2000, unit_class = 2, unit_flags = 4096, dynamicflags = 8, MovementType = 1, mechanic_immune_mask = 617299803 WHERE entry = 37243;
 UPDATE creature_template SET difficulty_entry_3 = 37444 WHERE entry = 11948;
-UPDATE creature_template SET minlevel = 83, maxlevel = 83, exp = 1, faction_A = 1216, faction_H = 1216, speed_walk = 1.78, mindmg = 723, maxdmg = 845, attackpower = 970, dmg_multiplier = 70, baseattacktime = 2000, dynamicflags = 8, MovementType = 1, equipment_id = 2383, mechanic_immune_mask = 617299803 WHERE entry = 37444;
+UPDATE creature_template SET minlevel = 83, maxlevel = 83, exp = 1, faction_A = 1216, faction_H = 1216, speed_walk = 1.78, mindmg = 723, maxdmg = 845, attackpower = 970, dmg_multiplier = 70, baseattacktime = 2000, dynamicflags = 8, MovementType = 1, mechanic_immune_mask = 617299803 WHERE entry = 37444;
 UPDATE creature_template SET difficulty_entry_3 = 37300 WHERE entry = 12053;
-UPDATE creature_template SET minlevel = 83, maxlevel = 83, faction_A = 1214, faction_H = 1214, speed_walk = 1.26, mindmg = 553, maxdmg = 738, attackpower = 635, baseattacktime = 2000, unit_flags = 4096, dynamicflags = 8, MovementType = 1, equipment_id = 1876 WHERE entry = 37300;
+UPDATE creature_template SET minlevel = 83, maxlevel = 83, faction_A = 1214, faction_H = 1214, speed_walk = 1.26, mindmg = 553, maxdmg = 738, attackpower = 635, baseattacktime = 2000, unit_flags = 4096, dynamicflags = 8, MovementType = 1 WHERE entry = 37300;
 UPDATE creature_template SET difficulty_entry_3 = 37384 WHERE entry = 13328;
 UPDATE creature_template SET minlevel = 83, maxlevel = 83, faction_A = 85, faction_H = 85, speed_walk = 1.26, mindmg = 586, maxdmg = 794, attackpower = 667, baseattacktime = 2000, dynamicflags = 8 WHERE entry = 37384;
 UPDATE creature_template SET difficulty_entry_3 = 37451 WHERE entry = 13332;
@@ -1305,27 +1304,27 @@ UPDATE creature_template SET minlevel = 83, maxlevel = 83, faction_A = 85, facti
 UPDATE creature_template SET difficulty_entry_3 = 37251 WHERE entry = 13421;
 UPDATE creature_template SET minlevel = 83, maxlevel = 83, faction_A = 32, faction_H = 32, speed_walk = 1.27, mindmg = 610, maxdmg = 813, attackpower = 845, baseattacktime = 2000, dynamicflags = 8 WHERE entry = 37251;
 UPDATE creature_template SET difficulty_entry_3 = 37297 WHERE entry = 13358;
-UPDATE creature_template SET minlevel = 83, maxlevel = 83, faction_A = 1214, faction_H = 1214, speed_walk = 1.27, mindmg = 623, maxdmg = 834, attackpower = 731, baseattacktime = 2000, unit_flags = 4608, dynamicflags = 8, minrangedmg = 423, maxrangedmg = 720, rangedattackpower = 167, MovementType = 1, equipment_id = 953 WHERE entry = 37297;
+UPDATE creature_template SET minlevel = 83, maxlevel = 83, faction_A = 1214, faction_H = 1214, speed_walk = 1.27, mindmg = 623, maxdmg = 834, attackpower = 731, baseattacktime = 2000, unit_flags = 4608, dynamicflags = 8, minrangedmg = 423, maxrangedmg = 720, rangedattackpower = 167, MovementType = 1 WHERE entry = 37297;
 UPDATE creature_template SET difficulty_entry_3 = 37244 WHERE entry = 11947;
-UPDATE creature_template SET minlevel = 83, maxlevel = 83, faction_A = 1214, faction_H = 1214, speed_walk = 1.8, mindmg = 631, maxdmg = 840, attackpower = 810, dmg_multiplier = 70, baseattacktime = 2000, unit_flags = 4160, dynamicflags = 8, MovementType = 1, equipment_id = 1552, mechanic_immune_mask = 617299803 WHERE entry = 37244;
+UPDATE creature_template SET minlevel = 83, maxlevel = 83, faction_A = 1214, faction_H = 1214, speed_walk = 1.8, mindmg = 631, maxdmg = 840, attackpower = 810, dmg_multiplier = 70, baseattacktime = 2000, unit_flags = 4160, dynamicflags = 8, MovementType = 1, mechanic_immune_mask = 617299803 WHERE entry = 37244;
 UPDATE creature_template SET difficulty_entry_3 = 37283 WHERE entry = 11946;
-UPDATE creature_template SET minlevel = 83, maxlevel = 83, faction_A = 1214, faction_H = 1214, npcflag = 1, speed_walk = 1.78, mindmg = 678, maxdmg = 871, attackpower = 852, dmg_multiplier = 70, baseattacktime = 2000, unit_flags = 4096, dynamicflags = 8, MovementType = 1, equipment_id = 2384, mechanic_immune_mask = 617299803 WHERE entry = 37283;
+UPDATE creature_template SET minlevel = 83, maxlevel = 83, faction_A = 1214, faction_H = 1214, npcflag = 1, speed_walk = 1.78, mindmg = 678, maxdmg = 871, attackpower = 852, dmg_multiplier = 70, baseattacktime = 2000, unit_flags = 4096, dynamicflags = 8, MovementType = 1, mechanic_immune_mask = 617299803 WHERE entry = 37283;
 UPDATE creature_template SET difficulty_entry_3 = 37287 WHERE entry = 14763;
-UPDATE creature_template SET minlevel = 83, maxlevel = 83, faction_A = 1534, faction_H = 1534, speed_walk = 1.76, mindmg = 614, maxdmg = 823, attackpower = 759, dmg_multiplier = 13, baseattacktime = 2000, unit_flags = 32768, dynamicflags = 8, MovementType = 1, equipment_id = 2063 WHERE entry = 37287;
+UPDATE creature_template SET minlevel = 83, maxlevel = 83, faction_A = 1534, faction_H = 1534, speed_walk = 1.76, mindmg = 614, maxdmg = 823, attackpower = 759, dmg_multiplier = 13, baseattacktime = 2000, unit_flags = 32768, dynamicflags = 8, MovementType = 1 WHERE entry = 37287;
 UPDATE creature_template SET difficulty_entry_3 = 37285 WHERE entry = 14762;
-UPDATE creature_template SET minlevel = 83, maxlevel = 83, faction_A = 1534, faction_H = 1534, speed_walk = 1.76, mindmg = 614, maxdmg = 823, attackpower = 750, dmg_multiplier = 13, baseattacktime = 2000, unit_flags = 32768, dynamicflags = 8, MovementType = 1, equipment_id = 2063 WHERE entry = 37285;
+UPDATE creature_template SET minlevel = 83, maxlevel = 83, faction_A = 1534, faction_H = 1534, speed_walk = 1.76, mindmg = 614, maxdmg = 823, attackpower = 750, dmg_multiplier = 13, baseattacktime = 2000, unit_flags = 32768, dynamicflags = 8, MovementType = 1 WHERE entry = 37285;
 UPDATE creature_template SET difficulty_entry_3 = 37327 WHERE entry = 14764;
-UPDATE creature_template SET minlevel = 83, maxlevel = 83, faction_A = 1534, faction_H = 1534, speed_walk = 1.76, mindmg = 615, maxdmg = 820, attackpower = 743, dmg_multiplier = 13, baseattacktime = 2000, dynamicflags = 8, MovementType = 1, equipment_id = 2063 WHERE entry = 37327;
+UPDATE creature_template SET minlevel = 83, maxlevel = 83, faction_A = 1534, faction_H = 1534, speed_walk = 1.76, mindmg = 615, maxdmg = 820, attackpower = 743, dmg_multiplier = 13, baseattacktime = 2000, dynamicflags = 8, MovementType = 1 WHERE entry = 37327;
 UPDATE creature_template SET difficulty_entry_3 = 37407 WHERE entry = 14765;
 UPDATE creature_template SET minlevel = 83, maxlevel = 83, faction_A = 1534, faction_H = 1534, speed_walk = 1.76, mindmg = 615, maxdmg = 821, attackpower = 745, dmg_multiplier = 13, baseattacktime = 2000, dynamicflags = 8, MovementType = 1 WHERE entry = 37407;
 UPDATE creature_template SET difficulty_entry_3 = 37326 WHERE entry = 14773;
-UPDATE creature_template SET minlevel = 83, maxlevel = 83, faction_A = 1214, faction_H = 1214, speed_walk = 1.76, mindmg = 613, maxdmg = 820, attackpower = 745, dmg_multiplier = 13, baseattacktime = 2000, unit_flags = 4096, dynamicflags = 8, MovementType = 1, equipment_id = 2064 WHERE entry = 37326;
+UPDATE creature_template SET minlevel = 83, maxlevel = 83, faction_A = 1214, faction_H = 1214, speed_walk = 1.76, mindmg = 613, maxdmg = 820, attackpower = 745, dmg_multiplier = 13, baseattacktime = 2000, unit_flags = 4096, dynamicflags = 8, MovementType = 1 WHERE entry = 37326;
 UPDATE creature_template SET difficulty_entry_3 = 37435 WHERE entry = 14776;
-UPDATE creature_template SET minlevel = 83, maxlevel = 83, faction_A = 1214, faction_H = 1214, speed_walk = 1.76, mindmg = 614, maxdmg = 820, attackpower = 745, dmg_multiplier = 13, baseattacktime = 2000, unit_flags = 4096, dynamicflags = 8, MovementType = 1, equipment_id = 2064 WHERE entry = 37435;
+UPDATE creature_template SET minlevel = 83, maxlevel = 83, faction_A = 1214, faction_H = 1214, speed_walk = 1.76, mindmg = 614, maxdmg = 820, attackpower = 745, dmg_multiplier = 13, baseattacktime = 2000, unit_flags = 4096, dynamicflags = 8, MovementType = 1 WHERE entry = 37435;
 UPDATE creature_template SET difficulty_entry_3 = 37291 WHERE entry = 14772;
-UPDATE creature_template SET minlevel = 83, maxlevel = 83, faction_A = 1214, faction_H = 1214, speed_walk = 1.76, mindmg = 614, maxdmg = 820, attackpower = 745, dmg_multiplier = 13, baseattacktime = 2000, unit_flags = 4096, dynamicflags = 8, MovementType = 1, equipment_id = 2064 WHERE entry = 37291;
+UPDATE creature_template SET minlevel = 83, maxlevel = 83, faction_A = 1214, faction_H = 1214, speed_walk = 1.76, mindmg = 614, maxdmg = 820, attackpower = 745, dmg_multiplier = 13, baseattacktime = 2000, unit_flags = 4096, dynamicflags = 8, MovementType = 1 WHERE entry = 37291;
 UPDATE creature_template SET difficulty_entry_3 = 37468 WHERE entry = 14777;
-UPDATE creature_template SET minlevel = 83, maxlevel = 83, faction_A = 1214, faction_H = 1214, speed_walk = 1.76, mindmg = 614, maxdmg = 820, attackpower = 745, dmg_multiplier = 13, baseattacktime = 2000, unit_flags = 4096, dynamicflags = 8, MovementType = 1, equipment_id = 2064 WHERE entry = 37468;
+UPDATE creature_template SET minlevel = 83, maxlevel = 83, faction_A = 1214, faction_H = 1214, speed_walk = 1.76, mindmg = 614, maxdmg = 820, attackpower = 745, dmg_multiplier = 13, baseattacktime = 2000, unit_flags = 4096, dynamicflags = 8, MovementType = 1 WHERE entry = 37468;
 
 -- misc battleground queries
 UPDATE battleground_template SET MinPlayersPerTeam = 5 WHERE id IN (3, 7, 9, 32);
