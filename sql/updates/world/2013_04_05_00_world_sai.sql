@@ -924,4 +924,4 @@ INSERT INTO `pool_template` (`entry`, `max_limit`, `description`) VALUES
 (@QUESTPOOL+2, 1, 'Rejek Dailies'),
 (@QUESTPOOL+3, 1, 'Vekgar Dailies');
 -- Return of the lich hunter should be takable by both factions not only horde
-UPDATE `quest_template` SET `RequiredRaces`=0 WHERE `Id`=12692
+UPDATE `quest_template` SET `RequiredRaces`=0 WHERE `Id`=12692;
