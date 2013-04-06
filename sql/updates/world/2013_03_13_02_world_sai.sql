@@ -41,9 +41,3 @@ UPDATE `smart_scripts` SET `event_type`=0 WHERE  `entryorguid`=83600 AND `source
 UPDATE `smart_scripts` SET `event_type`=0 WHERE  `entryorguid`=83600 AND `source_type`=9 AND `id`=3 AND `link`=0;
 UPDATE `smart_scripts` SET `link`=0, `event_type`=0 WHERE  `entryorguid`=305400 AND `source_type`=9 AND `id`=1 AND `link`=2;
 UPDATE `smart_scripts` SET `link`=0 WHERE  `entryorguid`=15938 AND `source_type`=0 AND `id`=7 AND `link`=8;
--- This one had messed up ID's too
-UPDATE `smart_scripts` SET `id`=5, `link`=6 WHERE  `entryorguid`=19456 AND `source_type`=0 AND `id`=6 AND `link`=7;
-UPDATE `smart_scripts` SET `id`=6 WHERE  `entryorguid`=19456 AND `source_type`=0 AND `id`=7 AND `link`=0;
-UPDATE `smart_scripts` SET `id`=7 WHERE  `entryorguid`=19456 AND `source_type`=0 AND `id`=8 AND `link`=0;
-UPDATE `smart_scripts` SET `id`=8 WHERE  `entryorguid`=19456 AND `source_type`=0 AND `id`=9 AND `link`=0;
-UPDATE `smart_scripts` SET `id`=9 WHERE  `entryorguid`=19456 AND `source_type`=0 AND `id`=10 AND `link`=0;

@@ -821,7 +821,7 @@ class npc_hodir_mage : public CreatureScript
             void SummonedCreatureDespawn(Creature* summoned)
             {
                 if (summoned->GetEntry() == NPC_TOASTY_FIRE)
-                    summons.remove(summoned->GetGUID());
+                    summons.Despawn(summoned);
             }
 
             void UpdateAI(uint32 diff)

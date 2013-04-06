@@ -208,7 +208,7 @@ bool ItemCanGoIntoBag(ItemTemplate const* proto, ItemTemplate const* pBagProto);
 class Item : public Object
 {
     public:
-        static Item* CreateItem(uint32 item, uint32 count, Player const* player = NULL);
+        static Item* CreateItem(uint32 itemEntry, uint32 count, Player const* player = NULL);
         Item* CloneItem(uint32 count, Player const* player = NULL) const;
 
         Item();
@@ -334,16 +334,17 @@ class Item : public Object
         void SetRefundRecipient(uint32 pGuidLow) { m_refundRecipient = pGuidLow; }
         void SetPaidMoney(uint32 money) { m_paidMoney = money; }
         void SetPaidExtendedCost(uint32 iece) { m_paidExtendedCost = iece; }
-        uint32 GetRefundRecipient() { return m_refundRecipient; }
-        uint32 GetPaidMoney() { return m_paidMoney; }
-        uint32 GetPaidExtendedCost() { return m_paidExtendedCost; }
+
+        uint32 GetRefundRecipient() const { return m_refundRecipient; }
+        uint32 GetPaidMoney() const { return m_paidMoney; }
+        uint32 GetPaidExtendedCost() const { return m_paidExtendedCost; }
 
         void UpdatePlayedTime(Player* owner);
         uint32 GetPlayedTime();
         bool IsRefundExpired();
 
         // Soulbound trade system
-        void SetSoulboundTradeable(AllowedLooterSet& allowedLooters);
+        void SetSoulboundTradeable(AllowedLooterSet const& allowedLooters);
         void ClearSoulboundTradeable(Player* currentOwner);
         bool CheckSoulboundTradeExpire();
 

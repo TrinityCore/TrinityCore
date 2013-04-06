@@ -27,6 +27,7 @@
 #include "DatabaseEnv.h"
 
 class GameObjectAI;
+class Group;
 
 #define MAX_GAMEOBJECT_QUEST_ITEMS 6
 

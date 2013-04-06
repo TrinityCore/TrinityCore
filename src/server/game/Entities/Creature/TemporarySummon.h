@@ -50,6 +50,7 @@ class TempSummon : public Creature
         void SetTempSummonType(TempSummonType type);
         void SaveToDB(uint32 /*mapid*/, uint8 /*spawnMask*/, uint32 /*phaseMask*/) {}
         Unit* GetSummoner() const;
+        Creature* GetSummonerCreatureBase() const;
         uint64 GetSummonerGUID() const { return m_summonerGUID; }
         TempSummonType const& GetSummonType() { return m_type; }
         uint32 GetTimer() { return m_timer; }
@@ -68,7 +69,7 @@ class Minion : public TempSummon
         Minion(SummonPropertiesEntry const* properties, Unit* owner, bool isWorldObject);
         void InitStats(uint32 duration);
         void RemoveFromWorld();
-        Unit* GetOwner() { return m_owner; }
+        Unit* GetOwner() const { return m_owner; }
         float GetFollowAngle() const { return m_followAngle; }
         void SetFollowAngle(float angle) { m_followAngle = angle; }
         bool IsPetGhoul() const {return GetEntry() == 26125;} // Ghoul may be guardian or pet
@@ -96,7 +97,7 @@ class Guardian : public Minion
         void UpdateAttackPowerAndDamage(bool ranged = false);
         void UpdateDamagePhysical(WeaponAttackType attType);
 
-        int32 GetBonusDamage() { return m_bonusSpellDamage; }
+        int32 GetBonusDamage() const { return m_bonusSpellDamage; }
         void SetBonusDamage(int32 damage);
     protected:
         int32   m_bonusSpellDamage;
@@ -111,8 +112,6 @@ class Puppet : public Minion
         void InitSummon();
         void Update(uint32 time);
         void RemoveFromWorld();
-    protected:
-        Player* m_owner;
 };
 
 class ForcedUnsummonDelayEvent : public BasicEvent

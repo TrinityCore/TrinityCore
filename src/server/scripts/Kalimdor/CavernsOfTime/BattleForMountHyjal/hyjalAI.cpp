@@ -960,12 +960,12 @@ void hyjalAI::WaypointReached(uint32 waypointId)
             DoCast(me, SPELL_MASS_TELEPORT, false);
         if (me->GetEntry() == THRALL && DummyGuid)
         {
-            Unit* Dummy = Unit::GetUnit(*me, DummyGuid);
-            if (Dummy)
+            if (Creature* creature = Unit::GetCreature(*me, DummyGuid))
             {
-                CAST_AI(hyjalAI, CAST_CRE(Dummy)->AI())->DoMassTeleport = true;
-                CAST_AI(hyjalAI, CAST_CRE(Dummy)->AI())->MassTeleportTimer = 20000;
-                Dummy->CastSpell(me, SPELL_MASS_TELEPORT, false);
+                hyjalAI* ai = CAST_AI(hyjalAI, creature->AI());
+                ai->DoMassTeleport = true;
+                ai->MassTeleportTimer = 20000;
+                creature->CastSpell(me, SPELL_MASS_TELEPORT, false);
             }
         }
         //do some talking

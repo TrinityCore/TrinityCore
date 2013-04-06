@@ -1083,19 +1083,13 @@ CreatureModelInfo const* ObjectMgr::GetCreatureModelInfo(uint32 modelId)
     return NULL;
 }
 
-uint32 ObjectMgr::ChooseDisplayId(uint32 /*team*/, const CreatureTemplate* cinfo, const CreatureData* data /*= NULL*/)
+uint32 ObjectMgr::ChooseDisplayId(CreatureTemplate const* cinfo, CreatureData const* data /*= NULL*/)
 {
     // Load creature model (display id)
-    uint32 display_id = 0;
-
-    if (!data || data->displayid == 0)
-    {
-        display_id = cinfo->GetRandomValidModelId();
-    }
-    else
+    if (data && data->displayid)
         return data->displayid;
 
-    return display_id;
+    return cinfo->GetRandomValidModelId();
 }
 
 void ObjectMgr::ChooseCreatureFlags(const CreatureTemplate* cinfo, uint32& npcflag, uint32& unit_flags, uint32& dynamicflags, const CreatureData* data /*= NULL*/)
@@ -7950,13 +7944,13 @@ void ObjectMgr::AddSpellToTrainer(uint32 entry, uint32 spell, uint32 spellCost, 
     CreatureTemplate const* cInfo = GetCreatureTemplate(entry);
     if (!cInfo)
     {
-        sLog->outError(LOG_FILTER_SQL, "Table `npc_trainer` contains an entry for a non-existing creature template (Entry: %u), ignoring", entry);
+        sLog->outError(LOG_FILTER_SQL, "Table `npc_trainer` contains entries for a non-existing creature template (Entry: %u), ignoring", entry);
         return;
     }
 
     if (!(cInfo->npcflag & UNIT_NPC_FLAG_TRAINER))
     {
-        sLog->outError(LOG_FILTER_SQL, "Table `npc_trainer` contains an entry for a creature template (Entry: %u) without trainer flag, ignoring", entry);
+        sLog->outError(LOG_FILTER_SQL, "Table `npc_trainer` contains entries for a creature template (Entry: %u) without trainer flag, ignoring", entry);
         return;
     }
 

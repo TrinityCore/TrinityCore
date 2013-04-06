@@ -78,15 +78,10 @@ class NGrid
 {
     public:
         typedef Grid<ACTIVE_OBJECT, WORLD_OBJECT_TYPES, GRID_OBJECT_TYPES> GridType;
-        NGrid(uint32 id, int32 x, int32 y, time_t expiry, bool unload = true)
-            : i_gridId(id)
-            , i_GridInfo(GridInfo(expiry, unload))
-            , i_x(x)
-            , i_y(y)
-            , i_cellstate(GRID_STATE_INVALID)
-            , i_GridObjectDataLoaded(false)
-        {
-        }
+        NGrid(uint32 id, int32 x, int32 y, time_t expiry, bool unload = true) :
+            i_gridId(id), i_GridInfo(GridInfo(expiry, unload)), i_x(x), i_y(y),
+            i_cellstate(GRID_STATE_INVALID), i_GridObjectDataLoaded(false)
+        { }
 
         GridType& GetGridType(const uint32 x, const uint32 y)
         {
