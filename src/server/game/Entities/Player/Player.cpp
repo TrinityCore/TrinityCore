@@ -20346,7 +20346,7 @@ void Player::StopCastingCharm()
     if (GetCharmGUID())
         charm->RemoveCharmAuras();
 
-    if (GetCharmGUID())
+    /* if (GetCharmGUID())
     {
         sLog->outFatal(LOG_FILTER_PLAYER, "Player %s (GUID: " UI64FMTD " is not able to uncharm unit (GUID: " UI64FMTD " Entry: %u, Type: %u)", GetName().c_str(), GetGUID(), GetCharmGUID(), charm->GetEntry(), charm->GetTypeId());
         if (charm->GetCharmerGUID())
@@ -20356,7 +20356,7 @@ void Player::StopCastingCharm()
         }
         else
             SetCharm(charm, false);
-    }
+    } */
 }
 
 inline void Player::BuildPlayerChat(WorldPacket* data, uint8 msgtype, const std::string& text, uint32 language) const
