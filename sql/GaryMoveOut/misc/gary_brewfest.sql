@@ -56,7 +56,7 @@ INSERT INTO `creature_equip_template` (`entry`,`itemEntry1`,`itemEntry2`,`itemEn
 (2478,33161,33161,0);
 
 -- Update the templates for the Brewmaidens (the golden mugs)
-UPDATE `creature_template` SET `equipment_id`=2478 WHERE `entry` IN (23684,23683,23685,24493,24492);
+UPDATE `creature` SET `equipment_id`=2478 WHERE `id` IN (23684,23683,23685,24493,24492);
 
 -- Make the Event Generator spawns only spawn if Brewfest is active
 DELETE FROM `game_event_creature` WHERE `eventEntry`=24 AND `guid` IN (@GUID+0,@GUID+1,@GUID+2,@GUID+3);
@@ -353,7 +353,8 @@ INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`pr
 
 -- Dark Iron Guzzler
 -- We are setting AIName because some people applied the SAI for this NPC
-UPDATE `creature_template` SET `AIName`='',`ScriptName`='npc_dark_iron_guzzler',`equipment_id`=2477,`unit_flags`=33024 WHERE `entry`=23709;
+UPDATE `creature_template` SET `AIName`='',`ScriptName`='npc_dark_iron_guzzler',`unit_flags`=33024 WHERE `entry`=23709;
+UPDATE `creature` SET `equipment_id`=2477 WHERE `id`=23709;
 -- Text
 DELETE FROM `creature_text` WHERE `entry`=23709;
 INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`probability`,`emote`,`duration`,`sound`,`comment`) VALUES
