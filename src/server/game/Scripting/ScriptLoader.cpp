@@ -1290,13 +1290,39 @@ void AddBattlegroundScripts()
 
 #ifdef SCRIPTS
 /* This is where custom scripts' loading functions should be declared. */
+	void AddSC_npc_arena_setup();
+	void AddSC_npc_enchantment();
+	void AddSC_Npc_Beastmaster();
+	void AddSC_npc_mmr_reset();
+	void AddSC_NPC_Transmogrify();
+	void AddSC_System_Censure();
+	void AddSC_PvPToken_NPC();
+	void AddSC_Duel_Reset();
+	void AddSC_npc_info();
+	void AddSC_skill_npc();
 
+
+
+	
 #endif
 
 void AddCustomScripts()
 {
 #ifdef SCRIPTS
     /* This is where custom scripts should be added. */
+	AddSC_npc_arena_setup();
+	AddSC_npc_enchantment();
+	AddSC_Npc_Beastmaster();
+	AddSC_npc_mmr_reset();
+	AddSC_NPC_Transmogrify();
+	AddSC_System_Censure();
+	AddSC_PvPToken_NPC();
+	AddSC_Duel_Reset();
+	AddSC_npc_info();
+	void AddSC_skill_npc();
+	
 
+	
 #endif
+
 }

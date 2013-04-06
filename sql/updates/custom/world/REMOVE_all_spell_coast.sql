@@ -1,0 +1,1 @@
+UPDATE `npc_trainer` SET `spellcost` = 0
