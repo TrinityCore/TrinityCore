@@ -2861,9 +2861,7 @@ void Player::SetSpectate(bool on)
 
 
         if (Pet* pet = GetPet())
-        {
-            RemovePet(pet, PET_SAVE_AS_CURRENT);
-        }
+			 RemovePet(pet, PET_SAVE_NOT_IN_SLOT, true);
 
         UnsummonPetTemporaryIfAny();
 
