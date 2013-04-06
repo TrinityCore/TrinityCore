@@ -1433,6 +1433,7 @@ INSERT INTO `item_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `lootm
 SET @GUID := 42662;
 
 DELETE FROM `creature` WHERE `id`=23682;
+DELETE FROM `creature` WHERE `guid`=42662;
 INSERT INTO `creature` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`) VALUES
 (@GUID,'23682','189','1','1','0','0','1763.1','1347.73','17.5602','6.20833','86400','0','0','126000','3994','0','0','0','0');
 
@@ -1554,7 +1555,7 @@ UPDATE `creature_template` SET `minlevel` = 80, `maxlevel` = 80, `exp` = 2, `fac
 UPDATE `creature_template` SET `mechanic_immune_mask` = `mechanic_immune_mask` | 33554432 WHERE entry IN (36497, 36498);
 
 -- Bronjahm texts
-DELETE FROM `script_texts` WHERE `npc_entry` = 36497;
+-- DELETE FROM `script_texts` WHERE `npc_entry` = 36497;
 DELETE FROM `creature_text` WHERE `entry` = 36497;
 INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) VALUES
 (36497, 0, 0, 'More souls to power the engine!', 14, 0, 100, 0, 0, 0, 'Bronjahm SAY_AGGRO_1'),
@@ -1566,7 +1567,7 @@ INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language
 (36497, 4, 0, 'My soul for you, master.', 14, 0, 100, 0, 0, 16598, 'Bronjahm SAY_DEATH');
 
 -- Devourer of Souls texts
-DELETE FROM `script_texts` WHERE `npc_entry` IN (36502, 38160, 38161);
+-- DELETE FROM `script_texts` WHERE `npc_entry` IN (36502, 38160, 38161);
 DELETE FROM `creature_text` WHERE `entry` IN (36502, 38160, 38161);
 INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) VALUES
 (36502, 0, 0, 'You dare look upon the host of souls? I SHALL DEVOUR YOU WHOLE!', 14, 0, 100, 0, 0, 16884, 'Devourer of Souls SAY_FACE_ANGER_AGGRO'),
