@@ -381,17 +381,16 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvPacket)
     /*----------------------*/
     /* process position-change */
     // this is almost never true (not sure why it is sometimes, but it is), normally use mover->IsVehicle()
+    WorldPacket data(SMSG_PLAYER_MOVE, recvPacket.size());
     if (mover->GetVehicle())
     {
         mover->SetOrientation(movementInfo.pos.GetOrientation());
+        _player->WriteMovementInfo(data);
+        mover->SendMessageToSet(&data, _player);
         return;
     }
 
     mover->UpdatePosition(movementInfo.pos);
-
-    WorldPacket data(SMSG_PLAYER_MOVE, recvPacket.size());
-    _player->WriteMovementInfo(data);
-    mover->SendMessageToSet(&data, _player);
 
     if (plrMover)                                            // nothing is charmed, or player charmed
     {
@@ -418,6 +417,8 @@ void WorldSession::HandleMovementOpcodes(WorldPacket& recvPacket)
             }
         }
     }
+    _player->WriteMovementInfo(data);
+    mover->SendMessageToSet(&data, _player);
 }
 
 void WorldSession::HandleForceSpeedChangeAck(WorldPacket &recvData)
