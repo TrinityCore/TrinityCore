@@ -10,6 +10,21 @@
 
 set(scripts_STAT_SRCS
   ${scripts_STAT_SRCS}
+
+		Custom/npc_arena_teamTop.cpp
+		Custom/Enchant.cpp
+		Custom/beast.cpp
+		Custom/mmr.cpp
+		Custom/Transmogrification.h
+  
+		Custom/Transmogrification.cpp
+ 		Custom/censure.cpp
+		Custom/pvp.cpp
+		Custom/DuelCD.cpp
+  		Custom/npc_info.cpp
+		Custom/Professions_NPC.cpp
+		
+
 )
 
 message("  -> Prepared: Custom")
