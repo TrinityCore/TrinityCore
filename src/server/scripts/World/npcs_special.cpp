@@ -1937,6 +1937,7 @@ public:
             for (std::list<Unit*>::const_iterator iter = targets.begin(); iter != targets.end(); ++iter)
                 if ((*iter)->GetAura(49206, ownerGuid))
                 {
+                    me->AddThreat((*iter), 100000.0f);
                     me->Attack((*iter), false);
                     break;
                 }
@@ -1983,6 +1984,18 @@ public:
 
         void UpdateAI(uint32 diff)
         {
+            uint64 ownerGuid = me->GetOwnerGUID();
+            std::list<Unit*> targets;
+            Trinity::AnyUnfriendlyUnitInObjectRangeCheck u_check(me, me, 30);
+            Trinity::UnitListSearcher<Trinity::AnyUnfriendlyUnitInObjectRangeCheck> searcher(me, targets, u_check);
+            me->VisitNearbyObject(30, searcher);
+            for (std::list<Unit*>::const_iterator iter = targets.begin(); iter != targets.end(); ++iter)
+                if ((*iter)->GetAura(49206, ownerGuid))
+                {
+                    me->AddThreat((*iter), 1000000.0f);
+                    break;
+                }
+
             if (despawnTimer > 0)
             {
                 if (despawnTimer > diff)
