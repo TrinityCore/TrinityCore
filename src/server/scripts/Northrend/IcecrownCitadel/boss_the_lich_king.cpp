@@ -263,9 +263,6 @@ enum Events
     EVENT_TELEPORT                  = 61,
     EVENT_MOVE_TO_LICH_KING         = 62,
     EVENT_DESPAWN_SELF              = 63,
-
-    // Hack - Check player positions
-    EVENT_CHECK_PLAYER_POSITIONS    = 65,
 };
 
 enum EventGroups
@@ -556,36 +553,8 @@ class boss_the_lich_king : public CreatureScript
                 events.ScheduleEvent(EVENT_INFEST, 5000, 0, PHASE_ONE);
                 events.ScheduleEvent(EVENT_NECROTIC_PLAGUE, urand(30000, 33000), 0, PHASE_ONE);
                 events.ScheduleEvent(EVENT_BERSERK, 900000, EVENT_GROUP_BERSERK);
-                events.ScheduleEvent(EVENT_CHECK_PLAYER_POSITIONS, 5000); 
                 if (IsHeroic())
                     events.ScheduleEvent(EVENT_SHADOW_TRAP, 15500, 0, PHASE_ONE);
-            }
-
-            void CheckPlayerPositions()
-            {
-                Map* map = me->GetMap();
-
-                if (!map)
-                    return;
-
-                if (!map->IsDungeon())
-                    return;
-
-                Map::PlayerList const &PlayerList = map->GetPlayers();
-
-                if (PlayerList.isEmpty())
-                    return;
-
-                // Always teleport victim to center if not in line of sight, on whole platform
-                if (me->getVictim())
-                    if (me->getVictim()->ToPlayer())
-                        if (!me->getVictim()->GetVehicle() && !me->getVictim()->HasUnitMovementFlag(MOVEMENTFLAG_FALLING) && me->getVictim()->GetPositionZ() >= 835.0f && me->getVictim()->GetPositionZ() <= 870.0f && !me->IsWithinLOS(me->getVictim()->GetPositionX(), me->getVictim()->GetPositionY(), me->getVictim()->GetPositionZ()))
-                            me->getVictim()->ToPlayer()->TeleportTo(631, 503.6282f, -2124.655f, 841.0f, 0.0f);
-
-                for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
-                    if (i->getSource()) // Teleport player to center position if on throne and not in line of sight and not falling
-                        if (!i->getSource()->GetVehicle() && !i->getSource()->HasUnitMovementFlag(MOVEMENTFLAG_FALLING) && i->getSource()->GetPositionZ() >= 842.0f && i->getSource()->GetPositionZ() <= 870.0f && !me->IsWithinLOS(i->getSource()->GetPositionX(), i->getSource()->GetPositionY(), i->getSource()->GetPositionZ()))
-                            i->getSource()->TeleportTo(631, 503.6282f, -2124.655f, 841.0f, 0.0f);
             }
 
             void JustReachedHome()
@@ -1090,10 +1059,6 @@ class boss_the_lich_king : public CreatureScript
                                     }
                                 }
                             }
-                            break;
-                        case EVENT_CHECK_PLAYER_POSITIONS:
-                            CheckPlayerPositions();
-                            events.ScheduleEvent(EVENT_CHECK_PLAYER_POSITIONS, 5000);
                             break;
                         case EVENT_OUTRO_TALK_1:
                             Talk(SAY_LK_OUTRO_1);
