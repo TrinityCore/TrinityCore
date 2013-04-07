@@ -15236,7 +15236,7 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
             ModifyCurrency(quest->RewardCurrencyId[i], quest->RewardCurrencyCount[i]);
     
     if (uint32 skill = quest->GetRewardSkillId())
-        UpdateSkill(skill, quest->GetRewardSkillPoints());
+        UpdateSkillPro(skill, 1000, quest->GetRewardSkillPoints());
     
     RewardReputation(quest);
 
