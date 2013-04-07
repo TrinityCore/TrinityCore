@@ -1503,9 +1503,9 @@ public:
         uint8 Class;
         int64 muteTime          = 0;
         int64 banTime           = -1;
-        uint32 mapId;
-        uint32 areaId;
-        uint32 phase            = 0;
+        //uint32 mapId;
+        //uint32 areaId;
+        //uint32 phase            = 0;
 
         // get additional information from Player object
         if (target)
@@ -1522,9 +1522,9 @@ public:
             race              = target->getRace();
             Class             = target->getClass();
             muteTime          = target->GetSession()->m_muteTime;
-            mapId             = target->GetMapId();
-            areaId            = target->GetAreaId();
-            phase             = target->GetPhaseMask();
+            //mapId             = target->GetMapId();
+            //areaId            = target->GetAreaId();
+            //phase             = target->GetPhaseMask();
         }
         // get additional information from DB
         else
@@ -1547,8 +1547,8 @@ public:
             accId             = fields[3].GetUInt32();
             race              = fields[4].GetUInt8();
             Class             = fields[5].GetUInt8();
-            mapId             = fields[6].GetUInt16();
-            areaId            = fields[7].GetUInt16();
+            //mapId             = fields[6].GetUInt16();
+            //areaId            = fields[7].GetUInt16();
         }
 
         std::string userName    = handler->GetTrinityString(LANG_ERROR);
@@ -1715,7 +1715,7 @@ public:
         handler->PSendSysMessage(LANG_PINFO_LEVEL, raceStr.c_str(), ClassStr.c_str(), timeStr.c_str(), level, gold, silv, copp);
 
         // Add map, zone, subzone and phase to output
-        int locale = handler->GetSessionDbcLocale();
+        /* int locale = handler->GetSessionDbcLocale();
         std::string areaName = "<unknown>";
         std::string zoneName = "";
 
@@ -1739,7 +1739,7 @@ public:
                 handler->PSendSysMessage(LANG_PINFO_MAP_ONLINE, map->name[locale], areaName.c_str(), "<unknown>", phase);
         }
         else
-           handler->PSendSysMessage(LANG_PINFO_MAP_OFFLINE, map->name[locale], areaName.c_str());
+           handler->PSendSysMessage(LANG_PINFO_MAP_OFFLINE, map->name[locale], areaName.c_str()); */
 
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GUILD_MEMBER_EXTENDED);
         stmt->setUInt32(0, GUID_LOPART(targetGuid));
