@@ -4559,6 +4559,7 @@ public:
         float percent = luaL_optnumber(L, 1, 100.0f);
         bool sickness = luaL_optbool(L, 2, false);
         player->ResurrectPlayer(percent, sickness);
+		player->SpawnCorpseBones();
         return 0;
     }
 
