@@ -871,9 +871,6 @@ class npc_brann_bronzebeard_algalon : public CreatureScript
                         _events.Reset();
                         me->SetWalk(false);
                         _events.ScheduleEvent(EVENT_BRANN_MOVE_INTRO, 1);
-
-                        if (InstanceScript* instance = me->GetInstanceScript())
-                            instance->SetBossState(BOSS_ALGALON, SPECIAL);
                         break;
                     case ACTION_FINISH_INTRO:
                         Talk(SAY_BRANN_ALGALON_INTRO_2);
@@ -1262,9 +1259,8 @@ class spell_algalon_big_bang : public SpellScriptLoader
 
             void CheckTargets()
             {
-                if (GetCaster())
-                    if (!_targetCount)
-                        GetCaster()->GetAI()->DoAction(ACTION_ASCEND);
+                if (!_targetCount)
+                    GetCaster()->GetAI()->DoAction(ACTION_ASCEND);
             }
 
             void Register()
@@ -1294,8 +1290,7 @@ class spell_algalon_remove_phase : public SpellScriptLoader
             void HandlePeriodic(AuraEffect const* /*aurEff*/)
             {
                 PreventDefaultAction();
-                if (GetTarget())
-                    GetTarget()->RemoveAurasByType(SPELL_AURA_PHASE);
+                GetTarget()->RemoveAurasByType(SPELL_AURA_PHASE);
             }
 
             void Register()
