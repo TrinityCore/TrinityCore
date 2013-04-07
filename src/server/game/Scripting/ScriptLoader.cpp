@@ -30,8 +30,6 @@ void AddSC_npc_hunterpetvendor();
 void AddSC_NPC_Transmogrify();
 //Chat Censure
 void AddSC_System_Censure();
-// Argent Tournament quest scripts
-void AddSC_ArgentTournament();
 // Npc Top 10 Arena Teams
 void AddSC_npc_arena_setup();
 // [MOD] MultiKill
@@ -1343,8 +1341,6 @@ void AddCustomScripts()
     AddSC_NPC_Transmogrify();
     //Chat Censure
     AddSC_System_Censure();
-    // Argent Tournament quest scripts
-    AddSC_ArgentTournament();
     // Npc Top 10 Arena Teams
     AddSC_npc_arena_setup();
     // [MOD] MultiKill
