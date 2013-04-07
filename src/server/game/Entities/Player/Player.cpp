@@ -3026,7 +3026,7 @@ bool Player::IsGroupVisibleFor(Player const* p) const
     {
         default: return IsInSameGroupWith(p);
         case 1:  return IsInSameRaidWith(p);
-        case 2:  return GetTeam() == p->GetTeam();
+        case 2:  return GetBGTeam() == p->GetBGTeam();
     }
 }
 
@@ -5661,7 +5661,7 @@ void Player::RepopAtGraveyard()
         if (Battlefield* bf = sBattlefieldMgr->GetBattlefieldToZoneId(GetZoneId()))
             ClosestGrave = bf->GetClosestGraveYard(this);
         else
-            ClosestGrave = sObjectMgr->GetClosestGraveYard(GetPositionX(), GetPositionY(), GetPositionZ(), GetMapId(), GetTeam());
+            ClosestGrave = sObjectMgr->GetClosestGraveYard(GetPositionX(), GetPositionY(), GetPositionZ(), GetMapId(), GetBGTeam());
     }
 
     // stop countdown until repop
@@ -5717,7 +5717,7 @@ void Player::CleanupChannels()
         Channel* ch = *m_channels.begin();
         m_channels.erase(m_channels.begin());               // remove from player's channel list
         ch->LeaveChannel(this, false);                     // not send to client, not remove from player's channel list
-        if (ChannelMgr* cMgr = ChannelMgr::forTeam(GetTeam()))
+        if (ChannelMgr* cMgr = ChannelMgr::forTeam(GetBGTeam()))
             cMgr->LeftChannel(ch->GetName());               // deleted channel if empty
     }
     sLog->outDebug(LOG_FILTER_CHATSYS, "Player %s: channels cleaned up!", GetName().c_str());
@@ -5732,7 +5732,7 @@ void Player::UpdateLocalChannels(uint32 newZone)
     if (!current_zone)
         return;
 
-    ChannelMgr* cMgr = ChannelMgr::forTeam(GetTeam());
+    ChannelMgr* cMgr = ChannelMgr::forTeam(GetBGTeam());
     if (!cMgr)
         return;
 
@@ -7159,7 +7159,7 @@ void Player::RewardReputation(Unit* victim, float rate)
         }
     }
 
-    uint32 team = GetTeam();
+    uint32 team = GetBGTeam();
 
     if (Rep->RepFaction1 && (!Rep->TeamDependent || team == ALLIANCE))
     {
@@ -7652,10 +7652,10 @@ void Player::UpdateZone(uint32 newZone, uint32 newArea)
     switch (zone->team)
     {
         case AREATEAM_ALLY:
-            pvpInfo.IsInHostileArea = GetTeam() != ALLIANCE && (sWorld->IsPvPRealm() || zone->flags & AREA_FLAG_CAPITAL);
+            pvpInfo.IsInHostileArea = GetBGTeam() != ALLIANCE && (sWorld->IsPvPRealm() || zone->flags & AREA_FLAG_CAPITAL);
             break;
         case AREATEAM_HORDE:
-            pvpInfo.IsInHostileArea = GetTeam() != HORDE && (sWorld->IsPvPRealm() || zone->flags & AREA_FLAG_CAPITAL);
+            pvpInfo.IsInHostileArea = GetBGTeam() != HORDE && (sWorld->IsPvPRealm() || zone->flags & AREA_FLAG_CAPITAL);
             break;
         case AREATEAM_NONE:
             // overwrite for battlegrounds, maybe batter some zone flags but current known not 100% fit to this
@@ -8902,7 +8902,7 @@ void Player::SendLoot(uint64 guid, LootType loot_type)
             if ((go->GetEntry() == BG_AV_OBJECTID_MINE_N || go->GetEntry() == BG_AV_OBJECTID_MINE_S))
                 if (Battleground* bg = GetBattleground())
                     if (bg->GetTypeID(true) == BATTLEGROUND_AV)
-                        if (!(((BattlegroundAV*)bg)->PlayerCanDoMineQuest(go->GetEntry(), GetTeam())))
+                        if (!(((BattlegroundAV*)bg)->PlayerCanDoMineQuest(go->GetEntry(), GetBGTeam())))
                         {
                             SendLootRelease(guid);
                             return;
@@ -12067,10 +12067,10 @@ InventoryResult Player::CanUseItem(ItemTemplate const* proto) const
 
     if (proto)
     {
-        if ((proto->Flags2 & ITEM_FLAGS_EXTRA_HORDE_ONLY) && GetTeam() != HORDE)
+        if ((proto->Flags2 & ITEM_FLAGS_EXTRA_HORDE_ONLY) && GetBGTeam() != HORDE)
             return EQUIP_ERR_YOU_CAN_NEVER_USE_THAT_ITEM;
 
-        if ((proto->Flags2 & ITEM_FLAGS_EXTRA_ALLIANCE_ONLY) && GetTeam() != ALLIANCE)
+        if ((proto->Flags2 & ITEM_FLAGS_EXTRA_ALLIANCE_ONLY) && GetBGTeam() != ALLIANCE)
             return EQUIP_ERR_YOU_CAN_NEVER_USE_THAT_ITEM;
 
         if ((proto->AllowableClass & getClassMask()) == 0 || (proto->AllowableRace & getRaceMask()) == 0)
@@ -22109,7 +22109,7 @@ void Player::SetBGTeam(uint32 team)
 
 uint32 Player::GetBGTeam() const
 {
-    return m_bgData.bgTeam ? m_bgData.bgTeam : GetTeam();
+    return m_bgData.bgTeam ? m_bgData.bgTeam : GetBGTeam();
 }
 
 void Player::LeaveBattleground(bool teleportToEntryPoint)
@@ -22168,7 +22168,7 @@ void Player::ReportedAfkBy(Player* reporter)
 {
     Battleground* bg = GetBattleground();
     // Battleground also must be in progress!
-    if (!bg || bg != reporter->GetBattleground() || GetTeam() != reporter->GetTeam() || bg->GetStatus() != STATUS_IN_PROGRESS)
+    if (!bg || bg != reporter->GetBattleground() || GetBGTeam() != reporter->GetBGTeam() || bg->GetStatus() != STATUS_IN_PROGRESS)
         return;
 
     // check if player has 'Idle' or 'Inactive' debuff
