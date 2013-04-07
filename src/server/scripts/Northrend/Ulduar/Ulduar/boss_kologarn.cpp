@@ -230,7 +230,7 @@ class boss_kologarn : public CreatureScript
                     haveLeftArm = apply;
                     if (!apply && isEncounterInProgress)
                     {
-                        who->ToCreature()->DisappearAndDie();
+                        who->ToCreature()->DespawnOrUnsummon();
                         Talk(SAY_LEFT_ARM_GONE);
                         events.ScheduleEvent(EVENT_RESPAWN_LEFT_ARM, 40*IN_MILLISECONDS);
                     }
@@ -240,7 +240,7 @@ class boss_kologarn : public CreatureScript
                     haveRightArm = apply;
                     if (!apply && isEncounterInProgress)
                     {
-                        who->ToCreature()->DisappearAndDie();
+                        who->ToCreature()->DespawnOrUnsummon();
                         Talk(SAY_RIGHT_ARM_GONE);
                         events.ScheduleEvent(EVENT_RESPAWN_RIGHT_ARM, 40*IN_MILLISECONDS);
                     }
