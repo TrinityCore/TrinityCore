@@ -58,3 +58,9 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
 
 -- Achievement GunShip
 UPDATE `gameobject_template` SET `data4` = 1 WHERE `entry` IN (201814,201815,201816,201817);
+
+-- Fix Rotting Frost Giant
+UPDATE `creature` SET `spawntimesecs` =  '604800' WHERE `creature`.`id` =38494;
+UPDATE `creature` SET `spawntimesecs` =  '604800' WHERE `creature`.`id` =38490;
+UPDATE `creature_template` SET `rank` =  '3' WHERE `creature_template`.`entry` =38490;
+UPDATE `creature_template` SET `rank` =  '3' WHERE `creature_template`.`entry` =38494;
