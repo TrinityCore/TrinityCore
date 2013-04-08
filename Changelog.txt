@@ -11,6 +11,7 @@
 #                                                                                          #
 ############################################################################################
 
+[171] --> Fix - Water Elemental + Despawn. (Thx Demonid)
 [170] --> Fix - Misdirection. (Thx Demonid)
 [169] --> Fix Ebon Gargoyle - Target + Follow. (By Moco23)
 [168] --> Fix Bonus 4P T10 Warrior. (TEST By Ranou)
