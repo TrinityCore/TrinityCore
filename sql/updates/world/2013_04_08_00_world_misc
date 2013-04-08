@@ -1,0 +1,17 @@
+ALTER TABLE `quest_template`
+MODIFY COLUMN `RequiredCurrencyCount1`  mediumint(12),
+MODIFY COLUMN `RequiredCurrencyCount2`  mediumint(12),
+MODIFY COLUMN `RequiredCurrencyCount3`  mediumint(12),
+MODIFY COLUMN `RequiredCurrencyCount4`  mediumint(12),
+MODIFY COLUMN `RewardCurrencyCount1`  mediumint(12),
+MODIFY COLUMN `RewardCurrencyCount2`  mediumint(12),
+MODIFY COLUMN `RewardCurrencyCount3`  mediumint(12),
+MODIFY COLUMN `RewardCurrencyCount4`  mediumint(12);
+UPDATE `quest_template` SET `RewardCurrencyCount1`= Concat(`RewardCurrencyCount1`, '000');
+UPDATE `quest_template` SET `RewardCurrencyCount2`= Concat(`RewardCurrencyCount2`, '000');
+UPDATE `quest_template` SET `RewardCurrencyCount3`= Concat(`RewardCurrencyCount3`, '000');
+UPDATE `quest_template` SET `RewardCurrencyCount4`= Concat(`RewardCurrencyCount4`, '000');
+UPDATE `quest_template` SET `RequiredCurrencyCount1`= Concat(`RequiredCurrencyCount1`, '000');
+UPDATE `quest_template` SET `RequiredCurrencyCount2`= Concat(`RequiredCurrencyCount2`, '000');
+UPDATE `quest_template` SET `RequiredCurrencyCount3`= Concat(`RequiredCurrencyCount3`, '000');
+UPDATE `quest_template` SET `RequiredCurrencyCount4`= Concat(`RequiredCurrencyCount4`, '000');
