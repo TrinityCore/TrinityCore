@@ -2998,7 +2998,13 @@ void SpellMgr::LoadDbcDataCorrections()
                 spellInfo->speed = 100;
                 break;
             case 49575: // Death Grip
-                 spellInfo->EffectMiscValueB[0] = 1;
+                spellInfo->EffectMiscValueB[0] = 1;
+                break;
+            case 49224: // Magic Suppression
+            case 49610:
+            case 49611:
+                spellInfo->procCharges = 0;
+                count++;
                 break;
             case 30541: // Blaze (needs conditions entry)
                 spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_TARGET_ENEMY;
