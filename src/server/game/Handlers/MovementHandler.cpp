@@ -30,6 +30,7 @@
 #include "WaypointMovementGenerator.h"
 #include "InstanceSaveMgr.h"
 #include "ObjectMgr.h"
+#include "MovementStructures.h"
 
 void WorldSession::HandleMoveWorldportAckOpcode(WorldPacket& /*recvPacket*/)
 {
@@ -425,28 +426,19 @@ void WorldSession::HandleForceSpeedChangeAck(WorldPacket &recvData)
     uint32 opcode = recvData.GetOpcode();
 
     /* extract packet */
-    uint64 guid;
-    uint32 unk1;
-    float  newspeed;
-
-    recvData.readPackGUID(guid);
+    MovementInfo movementInfo;
+    static MovementStatusElements const speedElement = MSEExtraFloat;
+    Movement::ExtraMovementStatusElement extras(&speedElement);
+    GetPlayer()->ReadMovementInfo(recvData, &movementInfo, &extras);
 
     // now can skip not our packet
-    if (_player->GetGUID() != guid)
+    if (_player->GetGUID() != movementInfo.guid)
     {
         recvData.rfinish();                   // prevent warnings spam
         return;
     }
 
-    // continue parse packet
-
-    recvData >> unk1;                                      // counter or moveEvent
-
-    MovementInfo movementInfo;
-    movementInfo.guid = guid;
-    GetPlayer()->ReadMovementInfo(recvData, &movementInfo);
-
-    recvData >> newspeed;
+    float newspeed = extras.Data.floatData;
     /*----------------*/
 
     // client ACK send one packet for mounted/run case and need skip all except last from its
@@ -614,4 +606,14 @@ void WorldSession::HandleSummonResponseOpcode(WorldPacket& recvData)
     recvData >> agree;
 
     _player->SummonIfPossible(agree);
+}
+
+void WorldSession::HandleSetCollisionHeightAck(WorldPacket& recvPacket)
+{
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_MOVE_SET_COLLISION_HEIGHT_ACK");
+
+    static MovementStatusElements const heightElement = MSEExtraFloat;
+    Movement::ExtraMovementStatusElement extra(&heightElement);
+    MovementInfo movementInfo;
+    GetPlayer()->ReadMovementInfo(recvPacket, &movementInfo, &extra);
 }

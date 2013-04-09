@@ -185,10 +185,11 @@ public:
 
         std::string argstr = (char*)args;
 
+        Player* target = handler->GetSession()->GetPlayer();
         if (!*args)
         {
-            argstr = (handler->GetSession()->GetPlayer()->GetCommandStatus(CHEAT_WATERWALK)) ? "off" : "on";
-            if (handler->GetSession()->GetPlayer()->GetCommandStatus(CHEAT_WATERWALK))
+            argstr = (target->GetCommandStatus(CHEAT_WATERWALK)) ? "off" : "on";
+            if (target->GetCommandStatus(CHEAT_WATERWALK))
                 argstr = "off";
             else
                 argstr = "on";
@@ -196,15 +197,17 @@ public:
 
         if (argstr == "off")
         {
-            handler->GetSession()->GetPlayer()->SetCommandStatusOff(CHEAT_WATERWALK);
-            handler->GetSession()->GetPlayer()->SendMovementSetWaterWalking(false);         // OFF
+            target->SetCommandStatusOff(CHEAT_WATERWALK);
+            target->RemoveUnitMovementFlag(MOVEMENTFLAG_WATERWALKING);
+            target->SendMovementWaterWalking();         // OFF
             handler->SendSysMessage("Waterwalking is OFF. You can't walk on water.");
             return true;
         }
         else if (argstr == "on")
         {
-            handler->GetSession()->GetPlayer()->SetCommandStatusOn(CHEAT_WATERWALK);
-            handler->GetSession()->GetPlayer()->SendMovementSetWaterWalking(true);          // ON
+            target->SetCommandStatusOn(CHEAT_WATERWALK);
+            target->AddUnitMovementFlag(MOVEMENTFLAG_WATERWALKING);
+            target->SendMovementWaterWalking();          // ON
             handler->SendSysMessage("Waterwalking is ON. You can walk on water.");
             return true;
         }

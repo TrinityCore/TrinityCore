@@ -205,7 +205,6 @@ class boss_blood_queen_lana_thel : public CreatureScript
                         minchar->SetUInt32Value(UNIT_NPC_EMOTESTATE, 0);
                         minchar->RemoveByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND);
                         minchar->SetCanFly(false);
-                        minchar->SendMovementFlagUpdate();
                         minchar->RemoveAllAuras();
                         minchar->GetMotionMaster()->MoveCharge(4629.3711f, 2782.6089f, 401.5301f, SPEED_CHARGE/3.0f);
                     }
@@ -238,7 +237,6 @@ class boss_blood_queen_lana_thel : public CreatureScript
                     me->SetDisableGravity(true);
                     me->SetByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND);
                     me->SetCanFly(true);
-                    me->SendMovementFlagUpdate();
                     me->GetMotionMaster()->MovePoint(POINT_MINCHAR, mincharPos);
                 }
             }
@@ -318,7 +316,6 @@ class boss_blood_queen_lana_thel : public CreatureScript
                         me->SetDisableGravity(false);
                         me->RemoveByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND);
                         me->SetCanFly(false);
-                        me->SendMovementFlagUpdate();
                         me->SetReactState(REACT_AGGRESSIVE);
                         if (Unit* victim = me->SelectVictim())
                             AttackStart(victim);
@@ -445,7 +442,6 @@ class boss_blood_queen_lana_thel : public CreatureScript
                             me->SetDisableGravity(true);
                             me->SetByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND);
                             me->SetCanFly(true);
-                            me->SendMovementFlagUpdate();
                             me->GetMotionMaster()->MovePoint(POINT_AIR, airPos);
                             break;
                         case EVENT_AIR_FLY_DOWN:

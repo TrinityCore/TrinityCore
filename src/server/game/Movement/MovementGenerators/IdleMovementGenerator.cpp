@@ -19,6 +19,7 @@
 #include "IdleMovementGenerator.h"
 #include "CreatureAI.h"
 #include "Creature.h"
+#include <G3D/g3dmath.h>
 
 IdleMovementGenerator si_idleMovement;
 
@@ -44,25 +45,17 @@ void RotateMovementGenerator::Initialize(Unit* owner)
         owner->SetInFront(owner->getVictim());
 
     owner->AddUnitState(UNIT_STATE_ROTATING);
-
     owner->AttackStop();
 }
 
 bool RotateMovementGenerator::Update(Unit* owner, uint32 diff)
 {
     float angle = owner->GetOrientation();
-    if (m_direction == ROTATE_DIRECTION_LEFT)
-    {
-        angle += (float)diff * static_cast<float>(M_PI * 2) / m_maxDuration;
-        while (angle >= static_cast<float>(M_PI * 2)) angle -= static_cast<float>(M_PI * 2);
-    }
-    else
-    {
-        angle -= (float)diff * static_cast<float>(M_PI * 2) / m_maxDuration;
-        while (angle < 0) angle += static_cast<float>(M_PI * 2);
-    }
-    owner->SetOrientation(angle);
-    owner->SendMovementFlagUpdate(); // this is a hack. we do not have anything correct to send in the beginning
+    angle += (float(diff) * static_cast<float>(M_PI * 2) / m_maxDuration) * (m_direction == ROTATE_DIRECTION_LEFT ? 1.0f : -1.0f);
+    angle = G3D::wrap(angle, 0.0f, float(G3D::twoPi()));
+
+    owner->SetOrientation(angle);   // UpdateSplinePosition does not set orientation with UNIT_STATE_ROTATING
+    owner->SetFacingTo(angle);      // Send spline movement to clients
 
     if (m_duration > diff)
         m_duration -= diff;
