@@ -78,7 +78,11 @@ enum eTradeskill
 // d - Action (identifys this Menu Item)
 // e - Text to be displayed in pop up box
 // f - Money value in pop up box
+// g - Coded
+// h - Menu ID from DB
+// i - Menu item ID from DB
 #define ADD_GOSSIP_ITEM(a, b, c, d)   PlayerTalkClass->GetGossipMenu().AddMenuItem(-1, a, b, c, d, "", 0)
+#define ADD_GOSSIP_ITEM_DB(h, i, c, d)   PlayerTalkClass->GetGossipMenu().AddMenuItem(h, i, c, d)
 #define ADD_GOSSIP_ITEM_EXTENDED(a, b, c, d, e, f, g)   PlayerTalkClass->GetGossipMenu().AddMenuItem(-1, a, b, c, d, e, f, g)
 
 // This fuction Sends the current menu to show to client, a - NPCTEXTID(uint32), b - npc guid(uint64)
