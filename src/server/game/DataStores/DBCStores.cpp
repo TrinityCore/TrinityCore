@@ -186,6 +186,8 @@ DBCStorage <TaxiPathEntry> sTaxiPathStore(TaxiPathEntryfmt);
 TaxiPathNodesByPath sTaxiPathNodesByPath;
 static DBCStorage <TaxiPathNodeEntry> sTaxiPathNodeStore(TaxiPathNodeEntryfmt);
 
+TaxiPathNodeEntriesByPath sTaxiPathNodeEntriesByPath;
+
 DBCStorage <TeamContributionPointsEntry> sTeamContributionPointsStore(TeamContributionPointsfmt);
 DBCStorage <TotemCategoryEntry> sTotemCategoryStore(TotemCategoryEntryfmt);
 DBCStorage <VehicleEntry> sVehicleStore(VehicleEntryfmt);
@@ -517,6 +519,14 @@ void LoadDBCStores(const std::string& dataPath)
         if (TaxiPathEntry const* entry = sTaxiPathStore.LookupEntry(i))
             sTaxiPathSetBySource[entry->from][entry->to] = TaxiPathBySourceAndDestination(entry->ID, entry->price);
     uint32 pathCount = sTaxiPathStore.GetNumRows();
+
+    for (uint32 i = 1; i < sTaxiNodesStore.GetNumRows(); ++i)
+    {
+        TaxiNodesEntry const* node = sTaxiNodesStore.LookupEntry(i);
+        if (!node)
+            continue;
+        sTaxiPathNodeEntriesByPath.nodeEntries[i] = node;
+    }
 
     //## TaxiPathNode.dbc ## Loaded only for initialization different structures
     LoadDBC(availableDbcLocales, bad_dbc_files, sTaxiPathNodeStore,           dbcPath, "TaxiPathNode.dbc");

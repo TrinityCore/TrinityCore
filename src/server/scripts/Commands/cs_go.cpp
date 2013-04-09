@@ -329,7 +329,7 @@ public:
         if (!nodeId)
             return false;
 
-        TaxiNodesEntry const* node = sTaxiNodesStore.LookupEntry(nodeId);
+        TaxiNodesEntry const* node = sTaxiPathNodeEntriesByPath.LookupEntry(nodeId);
         if (!node)
         {
             handler->PSendSysMessage(LANG_COMMAND_GOTAXINODENOTFOUND, nodeId);

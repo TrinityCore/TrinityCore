@@ -5526,9 +5526,9 @@ uint32 ObjectMgr::GetNearestTaxiNode(float x, float y, float z, uint32 mapid, ui
     float dist = 10000;
     uint32 id = 0;
 
-    for (uint32 i = 1; i < sTaxiNodesStore.GetNumRows(); ++i)
+    for (uint32 i = 1; i < sTaxiPathNodeEntriesByPath.GetNumRows(); ++i)
     {
-        TaxiNodesEntry const* node = sTaxiNodesStore.LookupEntry(i);
+        TaxiNodesEntry const* node = sTaxiPathNodeEntriesByPath.LookupEntry(i);
 
         if (!node || node->map_id != mapid || (!node->MountCreatureID[team == ALLIANCE ? 1 : 0] && node->MountCreatureID[0] != 32981)) // dk flight
             continue;
@@ -5589,7 +5589,7 @@ uint32 ObjectMgr::GetTaxiMountDisplayId(uint32 id, uint32 team, bool allowed_alt
     uint32 mount_id = 0;
 
     // select mount creature id
-    TaxiNodesEntry const* node = sTaxiNodesStore.LookupEntry(id);
+    TaxiNodesEntry const* node = sTaxiPathNodeEntriesByPath.LookupEntry(id);
     if (node)
     {
         uint32 mount_entry = 0;

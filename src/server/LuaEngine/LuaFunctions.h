@@ -73,7 +73,6 @@ ElunaRegister<Unit> UnitMethods[] =
     {"GetSelectedPlayer", &LuaUnit::GetSelectedPlayer},             // :GetSelectedPlayer() -- Returns player's selected player. UNDOCUMENTED
     {"GetSelectedUnit", &LuaUnit::GetSelectedUnit},                 // :GetSelectedUnit() -- Returns player's selected unit. UNDOCUMENTED
 
-
     // Setters
     {"AdvanceSkillsToMax", &LuaUnit::AdvanceSkillsToMax},           // :AdvanceSkillsToMax() -- Advances all currently known skills to the currently known max level
     {"AdvanceSkill", &LuaUnit::AdvanceSkill},                       // :AdvanceSkill(skill_id, step) -- Advances skill by ID and the amount(step)
@@ -246,6 +245,8 @@ ElunaRegister<Unit> UnitMethods[] =
     {"RewardQuest", &LuaUnit::RewardQuest},                         // :RewardQuest(entry) --  Gives quest rewards for the player.
     {"SendAuctionMenu", &LuaUnit::SendAuctionHello},                // :SendAuctionMenu([creature, faction]) --  Sends auction window to player. Auction house is sent by creature if provided. AH entry is searched with faction or creature's faction if provided.
     {"SendMailMenu", &LuaUnit::HandleGetMailList},                  // :SendMailMenu(object) --  Sends mail window to player from gameobject.
+    {"StartTaxi", &LuaUnit::StartTaxi},                             // :StartTaxi(pathId) -- player starts the given flight path UNDOCUMENTED
+
 
     // Creature methods
 

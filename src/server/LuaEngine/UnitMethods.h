@@ -5313,5 +5313,16 @@ public:
         sEluna->PushBoolean(L, _unit->GetVehicle()->HasEmptySeat(seatId));
         return 1;
     }
+
+    // StartTaxi(pathId)
+    static int StartTaxi(lua_State* L, Unit* unit)
+    {
+        TO_PLAYER();
+
+        uint32 pathId = luaL_checkunsigned(L, 1);
+
+        LuaTaxiMgr::StartTaxi(player, pathId);
+        return 0;
+    }
 };
 #endif

@@ -167,6 +167,7 @@ void Eluna::RegisterGlobals(lua_State* L)
     lua_register(L, "Ban", &LuaGlobalFunctions::Ban);                                       // Ban(banMode(integer), nameOrIP(string), duration(string), reason(string), player(whoBanned)) - Banmode: 0 account, 1 character, 2 IP
     lua_register(L, "SaveAllPlayers", &LuaGlobalFunctions::SaveAllPlayers);                 // SaveAllPlayers() - Saves all players
     lua_register(L, "SendMail", &LuaGlobalFunctions::SendMail);                             // SendMail(subject, text, receiverLowGUID[, sender, stationary, delay, itemEntry, itemAmount, itemEntry2, itemAmount2...]) - Sends a mail to player with lowguid. use nil to use default values on optional arguments. Sender is an optional player object. UNDOCUMENTED
+    lua_register(L, "AddTaxiPath", &LuaGlobalFunctions::AddTaxiPath);                       // AddTaxiPath(pathTable, mountA, mountH[, price, pathId]) - Adds a new taxi path. Returns the path's ID. Will replace an existing path if pathId provided and already used. path table structure: T = {{map, x, y, z[, actionFlag, delay, arrivalEvId, departEvId]}, {...}, ...} UDOCUMENTED
 }
 
 // Loads lua scripts from given directory
@@ -744,4 +745,60 @@ void Eluna::LuaEventMap::ScriptEventsExecute()
             luaL_unref(sEluna->LuaState, LUA_REGISTRYINDEX, itr->second.funcRef);
         _eventMap.erase(itr++);
     }
+}
+
+// Lua taxi helper functions
+uint32 LuaTaxiMgr::nodeId = 500;
+void LuaTaxiMgr::StartTaxi(Player* player, uint32 pathid)
+{
+    if (pathid >= sTaxiPathNodesByPath.size())
+        return;
+
+    TaxiPathNodeList const& path = sTaxiPathNodesByPath[pathid];
+    if(path.size() < 2)
+        return;
+
+    std::vector<uint32> nodes;
+    nodes.resize(2);
+    nodes[0] = path[0].index;
+    nodes[1] = path[path.size()-1].index;
+
+    player->ActivateTaxiPathTo(nodes);
+}
+uint32 LuaTaxiMgr::AddPath(std::list<TaxiPathNodeEntry> nodes, uint32 mountA, uint32 mountH, uint32 price, uint32 pathId)
+{
+    if(nodes.size() < 2)
+        return 0;
+    if(!pathId)
+        pathId = sTaxiPathNodesByPath.size();
+    if(sTaxiPathNodesByPath.size() >= pathId)
+        sTaxiPathNodesByPath.resize(pathId+1);
+    sTaxiPathNodesByPath[pathId].resize(nodes.size());
+    uint32 startNode = nodeId;
+    uint32 index = 0;
+    for(std::list<TaxiPathNodeEntry>::iterator it = nodes.begin(); it != nodes.end(); ++it)
+    {
+        TaxiPathNodeEntry entry = *it;
+        entry.path = pathId;
+        TaxiNodesEntry* nodeEntry = new TaxiNodesEntry();
+        nodeEntry->ID = index;
+        nodeEntry->map_id = entry.mapid;
+        nodeEntry->MountCreatureID[0] = mountH;
+        nodeEntry->MountCreatureID[1] = mountA;
+        nodeEntry->x = entry.x;
+        nodeEntry->y = entry.y;
+        nodeEntry->z = entry.z;
+        sTaxiPathNodeEntriesByPath.nodeEntries[nodeId] = nodeEntry;
+        entry.index = nodeId++;
+        sTaxiPathNodesByPath[pathId].set(index++, TaxiPathNodePtr(new TaxiPathNodeEntry(entry)));
+        TaxiPathNodeList const& path = sTaxiPathNodesByPath[pathId];
+    }
+    TaxiPathNodeList const& path = sTaxiPathNodesByPath[pathId];
+    if(startNode >= nodeId)
+    {
+        nodeId = startNode;
+        return 0;
+    }
+    sTaxiPathSetBySource[startNode][nodeId-1] = TaxiPathBySourceAndDestination(pathId, price);
+    return pathId;
 }

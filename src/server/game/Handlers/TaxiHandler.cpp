@@ -216,7 +216,7 @@ void WorldSession::HandleMoveSplineDoneOpcode(WorldPacket& recvData)
     if (!curDest)
         return;
 
-    TaxiNodesEntry const* curDestNode = sTaxiNodesStore.LookupEntry(curDest);
+    TaxiNodesEntry const* curDestNode = sTaxiPathNodeEntriesByPath.LookupEntry(curDest);
 
     // far teleport case
     if (curDestNode && curDestNode->map_id != GetPlayer()->GetMapId())

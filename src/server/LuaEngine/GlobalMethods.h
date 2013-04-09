@@ -832,5 +832,67 @@ namespace LuaGlobalFunctions
         sEluna->PushUnsigned(L, GUID_ENPART(guid));
         return 1;
     }
+
+    // AddTaxiPath(pathTable, mountA, mountH[, price, pathId])
+    static int AddTaxiPath(lua_State* L)
+    {
+        luaL_checktype(L, 1, LUA_TTABLE);
+        uint32 mountA = luaL_checkunsigned(L, 2);
+        uint32 mountH = luaL_checkunsigned(L, 3);
+        uint32 price = luaL_optunsigned(L, 4, 0);
+        uint32 pathId = luaL_optunsigned(L, 5, 0);
+        lua_settop(L, 1);
+
+        std::list<TaxiPathNodeEntry> nodes;
+
+        int start = lua_gettop(L);
+        int end = start;
+
+        lua_pushnil(L);
+        while(lua_next(L, -2) != 0)
+        {
+            luaL_checktype(L, -1, LUA_TTABLE);
+            lua_pushnil(L);
+            while(lua_next(L, -2) != 0)
+            {
+                lua_insert(L, end++);
+            }
+            if(start == end)
+                continue;
+            if(end-start < 4) // no mandatory args, dont add
+            {
+                while (end != start)
+                    lua_remove(L, --end);
+                continue;
+            }
+
+            while (end-start < 8) // fill optional args with 0
+            {
+                lua_pushunsigned(L, 0);
+                lua_insert(L, end++);
+            }
+            TaxiPathNodeEntry* entry = new TaxiPathNodeEntry();
+            // mandatory
+            entry->mapid = luaL_checkunsigned(L, start);
+            entry->x = luaL_checknumber(L, start+1);
+            entry->y = luaL_checknumber(L, start+2);
+            entry->z = luaL_checknumber(L, start+3);
+            // optional
+            entry->actionFlag = luaL_checkunsigned(L, start+4);
+            entry->delay = luaL_checkunsigned(L, start+5);
+            entry->arrivalEventID = luaL_checkunsigned(L, start+6);
+            entry->departureEventID = luaL_checkunsigned(L, start+7);
+
+            nodes.push_back(*entry);
+
+            while (end != start) // remove args
+                lua_remove(L, --end);
+
+            lua_pop(L, 1);
+        }
+
+        sEluna->PushUnsigned(L, LuaTaxiMgr::AddPath(nodes, mountA, mountH, price, pathId));
+        return 1;
+    }
 }
 #endif
