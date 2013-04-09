@@ -107,18 +107,26 @@ void PhaseMgr::Recalculate()
 
 inline bool PhaseMgr::CheckDefinition(PhaseDefinition const* phaseDefinition)
 {
-    return sConditionMgr->IsObjectMeetToConditions(player, sConditionMgr->GetConditionsForPhaseDefinition(phaseDefinition->zoneId, phaseDefinition->entry));
+    ConditionList const* conditions = sConditionMgr->GetConditionsForPhaseDefinition(phaseDefinition->zoneId, phaseDefinition->entry);
+    if (!conditions)
+        return true;
+
+    ConditionSourceInfo srcInfo(player);
+    return sConditionMgr->IsObjectMeetToConditions(srcInfo, *conditions);
 }
 
-bool PhaseMgr::NeedsPhaseUpdateWithData(PhaseUpdateData const updateData) const
+bool PhaseMgr::NeedsPhaseUpdateWithData(PhaseUpdateData const& updateData) const
 {
     PhaseDefinitionStore::const_iterator itr = _PhaseDefinitionStore->find(player->GetZoneId());
     if (itr != _PhaseDefinitionStore->end())
     {
         for (PhaseDefinitionContainer::const_iterator phase = itr->second.begin(); phase != itr->second.end(); ++phase)
         {
-            ConditionList conditionList = sConditionMgr->GetConditionsForPhaseDefinition(phase->zoneId, phase->entry);
-            for (ConditionList::const_iterator condition = conditionList.begin(); condition != conditionList.end(); ++condition)
+            ConditionList const* conditionList = sConditionMgr->GetConditionsForPhaseDefinition(phase->zoneId, phase->entry);
+            if (!conditionList)
+                continue;
+
+            for (ConditionList::const_iterator condition = conditionList->begin(); condition != conditionList->end(); ++condition)
                 if (updateData.IsConditionRelated(*condition))
                     return true;
         }
@@ -203,7 +211,7 @@ void PhaseMgr::SendDebugReportToPlayer(Player* const debugger)
     ChatHandler(debugger->GetSession()).PSendSysMessage(LANG_PHASING_PHASEMASK, phaseData.GetPhaseMaskForSpawn(), player->GetPhaseMask());
 }
 
-void PhaseMgr::SetCustomPhase(uint32 const phaseMask)
+void PhaseMgr::SetCustomPhase(uint32 phaseMask)
 {
     phaseData._CustomPhasemask = phaseMask;
 
@@ -291,7 +299,7 @@ void PhaseData::AddPhaseDefinition(PhaseDefinition const* phaseDefinition)
     activePhaseDefinitions.push_back(phaseDefinition);
 }
 
-void PhaseData::AddAuraInfo(uint32 const spellId, PhaseInfo phaseInfo)
+void PhaseData::AddAuraInfo(uint32 spellId, PhaseInfo const& phaseInfo)
 {
     if (phaseInfo.phasemask)
         _PhasemaskThroughAuras |= phaseInfo.phasemask;
@@ -299,7 +307,7 @@ void PhaseData::AddAuraInfo(uint32 const spellId, PhaseInfo phaseInfo)
     spellPhaseInfo[spellId] = phaseInfo;
 }
 
-uint32 PhaseData::RemoveAuraInfo(uint32 const spellId)
+uint32 PhaseData::RemoveAuraInfo(uint32 spellId)
 {
     PhaseInfoContainer::const_iterator rAura = spellPhaseInfo.find(spellId);
     if (rAura != spellPhaseInfo.end())
@@ -323,14 +331,14 @@ uint32 PhaseData::RemoveAuraInfo(uint32 const spellId)
 
         return updateflag;
     }
-    else
-        return 0;
+
+    return 0;
 }
 
 //////////////////////////////////////////////////////////////////
 // Phase Update Data
 
-void PhaseUpdateData::AddQuestUpdate(uint32 const questId)
+void PhaseUpdateData::AddQuestUpdate(uint32 questId)
 {
     AddConditionType(CONDITION_QUESTREWARDED);
     AddConditionType(CONDITION_QUESTTAKEN);
@@ -354,7 +362,7 @@ bool PhaseUpdateData::IsConditionRelated(Condition const* condition) const
     }
 }
 
-bool PhaseMgr::IsConditionTypeSupported(ConditionTypes const conditionType)
+bool PhaseMgr::IsConditionTypeSupported(ConditionTypes conditionType)
 {
     switch (conditionType)
     {
