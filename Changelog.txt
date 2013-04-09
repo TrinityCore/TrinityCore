@@ -11,6 +11,7 @@
 #                                                                                          #
 ############################################################################################
 
+[173] --> Fix - Bladestorm - Knockback Effect. (Thx Demonid)
 [172] --> Fix - Warrior - Multi Reflect + Scatter Shot - Silencing Shot Travel time delay. (Thx Demonid)
 [171] --> Fix - Water Elemental + Despawn. (Thx Demonid)
 [170] --> Fix - Misdirection. (Thx Demonid)
