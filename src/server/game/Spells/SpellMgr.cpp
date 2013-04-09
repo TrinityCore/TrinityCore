@@ -3004,7 +3004,6 @@ void SpellMgr::LoadDbcDataCorrections()
             case 49610:
             case 49611:
                 spellInfo->procCharges = 0;
-                count++;
                 break;
             case 30541: // Blaze (needs conditions entry)
                 spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_TARGET_ENEMY;
