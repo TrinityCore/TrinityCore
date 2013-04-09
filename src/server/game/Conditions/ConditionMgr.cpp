@@ -727,20 +727,20 @@ ConditionList ConditionMgr::GetConditionsForSmartEvent(int32 entryOrGuid, uint32
     return cond;
 }
 
-ConditionList ConditionMgr::GetConditionsForPhaseDefinition(uint32 zone, uint32 entry)
+ConditionList const* ConditionMgr::GetConditionsForPhaseDefinition(uint32 zone, uint32 entry)
 {
-    ConditionList cond;
     PhaseDefinitionConditionContainer::const_iterator itr = PhaseDefinitionsConditionStore.find(zone);
     if (itr != PhaseDefinitionsConditionStore.end())
     {
-        ConditionTypeContainer::const_iterator i = (*itr).second.find(entry);
-        if (i != (*itr).second.end())
+        ConditionTypeContainer::const_iterator i = itr->second.find(entry);
+        if (i != itr->second.end())
         {
-            cond = (*i).second;
             sLog->outDebug(LOG_FILTER_CONDITIONSYS, "GetConditionsForPhaseDefinition: found conditions for zone %u entry %u", zone, entry);
+            return &i->second;
         }
     }
-    return cond;
+
+    return NULL;
 }
 
 ConditionList ConditionMgr::GetConditionsForNpcVendorEvent(uint32 creatureId, uint32 itemId)
