@@ -103,9 +103,15 @@ public:
 
         WorldPacket data;
         if (strncmp(args, "on", 3) == 0)
-            target->SendMovementSetCanFly(true);
+        {
+            target->AddUnitMovementFlag(MOVEMENTFLAG_CAN_FLY);
+            target->SendMovementCanFlyChange();
+        }
         else if (strncmp(args, "off", 4) == 0)
-            target->SendMovementSetCanFly(false);
+        {
+            target->RemoveUnitMovementFlag(MOVEMENTFLAG_CAN_FLY);
+            target->SendMovementCanFlyChange();
+        }
         else
         {
             handler->SendSysMessage(LANG_USE_BOL);

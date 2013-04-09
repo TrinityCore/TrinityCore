@@ -1001,10 +1001,7 @@ public:
             {
                 case 1:
                     if (Unit* car = Unit::GetCreature(*me, carGUID))
-                    {
-                        me->SetInFront(car);
-                        me->SendMovementFlagUpdate();
-                    }
+                        me->SetFacingToObject(car);
                     Talk(SAY_SCARLET_MINER_0);
                     SetRun(true);
                     IntroTimer = 4000;
@@ -1013,8 +1010,7 @@ public:
                 case 17:
                     if (Unit* car = Unit::GetCreature(*me, carGUID))
                     {
-                        me->SetInFront(car);
-                        me->SendMovementFlagUpdate();
+                        me->SetFacingToObject(car);
                         car->Relocate(car->GetPositionX(), car->GetPositionY(), me->GetPositionZ() + 1);
                         car->StopMoving();
                         car->RemoveAura(SPELL_CART_DRAG);

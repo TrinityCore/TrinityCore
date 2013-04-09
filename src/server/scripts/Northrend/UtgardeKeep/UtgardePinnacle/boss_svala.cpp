@@ -325,8 +325,7 @@ public:
                             break;
                         case 7:
                             Talk(SAY_SVALA_INTRO_2);
-                            me->SetOrientation(1.58f);
-                            me->SendMovementFlagUpdate();
+                            me->SetFacingTo(1.58f);
                             arthas->SetVisible(false);
                             ++introPhase;
                             introTimer = 13800;

@@ -886,12 +886,10 @@ void Map::ScriptsProcess()
                         if (!targetUnit)
                             break;
 
-                        sourceUnit->SetInFront(targetUnit);
+                        sourceUnit->SetFacingToObject(targetUnit);
                     }
                     else
-                        sourceUnit->SetOrientation(step.script->Orientation.Orientation);
-
-                    sourceUnit->SendMovementFlagUpdate();
+                        sourceUnit->SetFacingTo(step.script->Orientation.Orientation);
                 }
                 break;
 

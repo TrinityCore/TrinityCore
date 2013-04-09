@@ -1331,7 +1331,15 @@ public:
                 target->SetExtraUnitMovementFlags(moveFlagsExtra);
             }
 
-            target->SendMovementFlagUpdate();
+            if (target->GetTypeId() != TYPEID_PLAYER)
+                target->DestroyForNearbyPlayers();  // Force new SMSG_UPDATE_OBJECT:CreateObject
+            else
+            {
+                WorldPacket data(SMSG_PLAYER_MOVE);
+                target->WriteMovementInfo(data);
+                target->SendMessageToSet(&data, true);
+            }
+
             handler->PSendSysMessage(LANG_MOVEFLAGS_SET, target->GetUnitMovementFlags(), target->GetExtraUnitMovementFlags());
         }
 
