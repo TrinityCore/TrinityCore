@@ -166,7 +166,7 @@ class boss_kologarn : public CreatureScript
                     left = apply;
                     if (!apply && isEncounterInProgress)
                     {
-                        who->ToCreature()->DisappearAndDie();
+                        who->ToCreature()->DespawnOrUnsummon();
                         Talk(SAY_LEFT_ARM_GONE);
                         events.ScheduleEvent(EVENT_RESPAWN_LEFT_ARM, 40000);
                     }
@@ -177,7 +177,7 @@ class boss_kologarn : public CreatureScript
                     right = apply;
                     if (!apply && isEncounterInProgress)
                     {
-                        who->ToCreature()->DisappearAndDie();
+                        who->ToCreature()->DespawnOrUnsummon();
                         Talk(SAY_RIGHT_ARM_GONE);
                         events.ScheduleEvent(EVENT_RESPAWN_RIGHT_ARM, 40000);
                     }
@@ -529,7 +529,7 @@ class spell_ulduar_stone_grip_absorb : public SpellScriptLoader
             //! What we do here is remove all harmful aura's related and teleport to safe spot.
             void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                if (GetTargetApplication()->GetRemoveMode() !=  AURA_REMOVE_BY_ENEMY_SPELL)
+                if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_ENEMY_SPELL)
                     return;
 
                 if (!GetOwner()->ToCreature())
@@ -568,22 +568,30 @@ class spell_ulduar_stone_grip : public SpellScriptLoader
                     owner->RemoveAurasDueToSpell(aurEff->GetAmount());
             }
 
-            void OnRemoveVehicle(AuraEffect const* /*aurEff*/, AuraEffectHandleModes mode)
+            void OnRemoveVehicle(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                if (!(mode & AURA_EFFECT_HANDLE_REAL))
-                    return;
-
-                if (GetOwner()->GetTypeId() != TYPEID_UNIT)
-                    return;
-
-                Player* caster = GetCaster() ? GetCaster()->ToPlayer() : NULL;
-                if (!caster || !caster->IsOnVehicle(GetOwner()->ToUnit()))
-                    return;
-
-                caster->RemoveAurasDueToSpell(GetId());
-                caster->ExitVehicle();
-                caster->GetMotionMaster()->MoveJump(1756.25f + irand(-3, 3), -8.3f + irand(-3, 3), 448.8f, 5.0f, 5.0f);
                 PreventDefaultAction();
+                Unit* caster = GetCaster();
+                if (!caster)
+                    return;
+
+                Position exitPosition;
+                exitPosition.m_positionX = 1750.0f;
+                exitPosition.m_positionY = -7.5f + frand(-3.0f, 3.0f);
+                exitPosition.m_positionZ = 457.9322f;
+
+                // Remove pending passengers before exiting vehicle - might cause an Uninstall
+                GetTarget()->GetVehicleKit()->RemovePendingEventsForPassenger(caster);
+                caster->_ExitVehicle(&exitPosition);
+                caster->RemoveAurasDueToSpell(GetId());
+
+                // Temporarily relocate player to vehicle exit dest serverside to send proper fall movement
+                // beats me why blizzard sends these 2 spline packets one after another instantly
+                Position oldPos;
+                caster->GetPosition(&oldPos);
+                caster->Relocate(exitPosition);
+                caster->GetMotionMaster()->MoveFall();
+                caster->Relocate(oldPos);
             }
 
             void Register()

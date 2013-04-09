@@ -135,12 +135,6 @@ void BattlegroundRV::HandleKillPlayer(Player* player, Player* killer)
     CheckArenaWinConditions();
 }
 
-bool BattlegroundRV::HandlePlayerUnderMap(Player* player)
-{
-    player->TeleportTo(GetMapId(), 763.5f, -284, 28.276f, 2.422f);
-    return true;
-}
-
 void BattlegroundRV::HandleAreaTrigger(Player* player, uint32 trigger)
 {
     if (GetStatus() != STATUS_IN_PROGRESS)

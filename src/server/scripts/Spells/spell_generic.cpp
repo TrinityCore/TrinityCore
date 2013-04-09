@@ -3641,5 +3641,5 @@ void AddSC_generic_spell_scripts()
     new spell_gen_gift_of_naaru();
     new spell_gen_replenishment();
     new spell_gen_aura_service_uniform();
-	new spell_gen_orc_disguise();
+    new spell_gen_orc_disguise();
 }
