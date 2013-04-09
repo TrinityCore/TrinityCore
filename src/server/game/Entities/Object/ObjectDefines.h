@@ -150,7 +150,7 @@ bool IS_PLAYER_GUID(uint64 guid)
 
 bool IS_GUILD_GUID(uint64 guid)
 {
-    return guid != 0 && GUID_HIPART(guid) == HIGHGUID_GUILD;
+    return GUID_HIPART(guid) == HIGHGUID_GUILD;
 }
 
 bool IS_UNIT_GUID(uint64 guid)
@@ -195,13 +195,13 @@ bool IS_GROUP_GUID(uint64 guid)
 
 uint64 MAKE_NEW_GUID(uint32 l, uint32 e, uint32 h)
 {
-    return uint64(uint64(l) | (uint64(e) << 32) | (uint64(h) << ((h == HIGHGUID_GUILD || h == HIGHGUID_CORPSE) ? 48 : 52)));
+    return uint64(uint64(l) | (uint64(e) << 32) | (uint64(h) << ((h == HIGHGUID_CORPSE) ? 48 : 52)));
 }
 
 uint32 GUID_HIPART(uint64 guid)
 {
     uint32 t = ((uint64(guid) >> 48) & 0x0000FFFF);
-    return (t == HIGHGUID_GUILD || t == HIGHGUID_CORPSE) ? t : ((t >> 4) & 0x00000FFF);
+    return (t == HIGHGUID_CORPSE) ? t : ((t >> 4) & 0x00000FFF);
 }
 
 uint32 GUID_ENPART(uint64 x)
