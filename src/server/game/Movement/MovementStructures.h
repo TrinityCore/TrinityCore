@@ -96,8 +96,9 @@ enum MovementStatusElements
     MSEOneBit,          // writes bit value 0 or skips read bit
     MSEEnd,             // marks end of parsing
     MSEExtraElement,    // Used to sinalize reading into ExtraMovementStatusElement, element sequence inside it is declared as separate array
-                        // Allowed internal elements are: GUID markers (not transport) and MSEExtraFloat
+                        // Allowed internal elements are: GUID markers (not transport), MSEExtraFloat, MSEExtraInt8
     MSEExtraFloat,
+    MSEExtraInt8,
     MSE_COUNT
 };
 
@@ -115,6 +116,7 @@ namespace Movement
         {
             ObjectGuid guid;
             float floatData;
+            int8  byteData;
         } Data;
 
     private:
