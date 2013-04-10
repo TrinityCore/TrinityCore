@@ -5334,9 +5334,15 @@ public:
         bool apply = luaL_optbool(L, 1, true);
 
         if(apply)
+        {
+            player->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED | UNIT_FLAG_SILENCED);
             player->SetClientControl(player, 0);
+        }
         else
+        {
+            player->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED | UNIT_FLAG_SILENCED);
             player->SetClientControl(player, 1);
+        }
         return 0;
     }
 };
