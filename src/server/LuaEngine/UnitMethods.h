@@ -5325,5 +5325,19 @@ public:
         LuaTaxiMgr::StartTaxi(player, pathId);
         return 0;
     }
+
+    // SetPlayerLock(on/off)
+    static int SetPlayerLock(lua_State* L, Unit* unit)
+    {
+        TO_PLAYER();
+
+        bool apply = luaL_optbool(L, 1, true);
+
+        if(apply)
+            player->SetClientControl(player, 0);
+        else
+            player->SetClientControl(player, 1);
+        return 0;
+    }
 };
 #endif

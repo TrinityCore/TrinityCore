@@ -105,6 +105,7 @@ ElunaRegister<Unit> UnitMethods[] =
     {"SetDrunkValue", &LuaUnit::SetDrunkValue},                     // :SetDrunkValue(newDrunkValue) -- Sets drunkness value.
     {"SetRestTime", &LuaUnit::SetRestTime},                         // :SetRestTime(value) -- Sets the rested time.
     {"SetAtLoginFlag", &LuaUnit::SetAtLoginFlag},                   // :SetAtLoginFlag(flag) -- Adds an at login flag.
+    {"SetPlayerLock", &LuaUnit::SetPlayerLock},                     // :SetPlayerLock(on/off) - UNDOCUMENTED
 
     // Boolean
     {"IsInGroup", &LuaUnit::IsInGroup},                             // :IsInGroup()
