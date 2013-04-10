@@ -51,10 +51,7 @@ void WorldSession::HandleClientCastFlags(WorldPacket& recvPacket, uint8 castFlag
         uint8 hasMovementData;
         recvPacket >> hasMovementData;
         if (hasMovementData)
-        {
-            recvPacket.SetOpcode(Opcodes(recvPacket.read<uint32>()));
             HandleMovementOpcodes(recvPacket);
-        }
     }
     else if (castFlags & 0x8)   // Archaeology
     {
