@@ -295,3 +295,18 @@ DELETE FROM spell_script_names WHERE spell_id = 52437;
 DELETE FROM creature_template WHERE entry = 30230;
 INSERT INTO `creature_template` (`entry`, `difficulty_entry_1`, `difficulty_entry_2`, `difficulty_entry_3`, `KillCredit1`, `KillCredit2`, `modelid1`, `modelid2`, `modelid3`, `modelid4`, `name`, `subname`, `IconName`, `gossip_menu_id`, `minlevel`, `maxlevel`, `exp`, `faction_A`, `faction_H`, `npcflag`, `speed_walk`, `speed_run`, `scale`, `rank`, `mindmg`, `maxdmg`, `dmgschool`, `attackpower`, `dmg_multiplier`, `baseattacktime`, `rangeattacktime`, `unit_class`, `unit_flags`, `unit_flags2`, `dynamicflags`, `family`, `trainer_type`, `trainer_spell`, `trainer_class`, `trainer_race`, `minrangedmg`, `maxrangedmg`, `rangedattackpower`, `type`, `type_flags`, `lootid`, `pickpocketloot`, `skinloot`, `resistance1`, `resistance2`, `resistance3`, `resistance4`, `resistance5`, `resistance6`, `spell1`, `spell2`, `spell3`, `spell4`, `spell5`, `spell6`, `spell7`, `spell8`, `PetSpellDataId`, `VehicleId`, `mingold`, `maxgold`, `AIName`, `MovementType`, `InhabitType`, `HoverHeight`, `Health_mod`, `Mana_mod`, `Armor_mod`, `RacialLeader`, `questItem1`, `questItem2`, `questItem3`, `questItem4`, `questItem5`, `questItem6`, `movementId`, `RegenHealth`, `mechanic_immune_mask`, `flags_extra`, `ScriptName`, `WDBVerified`) VALUES
 (30230, 0, 0, 0, 0, 0, 24994, 24993, 24992, 24995, 'Risen Ally', '', '', 0, 1, 1, 0, 35, 35, 0, 0.8, 0.99206, 1, 0, 2, 2, 0, 24, 1, 2000, 0, 1, 0, 2048, 8, 40, 0, 0, 0, 0, 1, 1, 0, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '', 0, 3, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 8388624, 0, '', 12340);
+
+-- Spell threat entries fix
+DELETE FROM `spell_threat` WHERE `entry` IN (52372,61411,53595,20187,48818,47520,47488,20243,12809,48568);
+INSERT INTO `spell_threat` (`entry`, `flatMod`, `pctMod`, `apPctMod`) VALUES 
+(52372, 0, 7.00, 0.0), -- Icy Touch
+/*
+(61411, 0, 3.00, 0.0), -- Shield of Righteousness
+(53595, 0, 3.00, 0.0), -- Hammer of Righteousness
+(20187, 0, 2.00, 0.0), -- Judgment of Righteousness
+(48818, 0, 2.00, 0.0), -- Consecration */
+(47520, 225, 1.00, 0.0), -- Cleave (Rank 8)
+(47488, 770, 1.30, 0.0), -- Shield Slam (Rank 8)
+(20243, 315, 1.00, 0.05), -- Devastate (Rank 1)
+(12809, 0, 2.00, 0.0), -- Concussion Blow
+(48568, 1031, 0.50, 0.0);  -- Lacerate (Rank 3)
