@@ -11,6 +11,7 @@
 #                                                                                          #
 ############################################################################################
 
+[176] --> Fix Sylvanas Music Box.
 [175] --> Fix Shadowmeld. (Thx Hlkz)
 [174] --> Fix - always apply paladin auras' linked spells for caster. (Thx Timothy Liang)
 [173] --> Fix - Bladestorm - Knockback Effect. (Thx Demonid)

@@ -3954,6 +3954,44 @@ class spell_gen_shadowmeld : public SpellScriptLoader
         }
 };
 
+enum MusicBox
+{
+    SOUND_LAMENT_OF_THE_HIGHBORNE = 15095,
+};
+
+class spell_item_sylvanas_music_box : public SpellScriptLoader
+{
+    public:
+        spell_item_sylvanas_music_box() : SpellScriptLoader("spell_item_sylvanas_music_box") {}
+
+        class spell_item_sylvanas_music_box_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_item_sylvanas_music_box_SpellScript);
+
+            bool Load()
+            {
+                return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+            }
+
+            void HandleScript(SpellEffIndex effIndex)
+            {
+                PreventHitDefaultEffect(effIndex);
+                Player* player = GetCaster()->ToPlayer();
+                player->PlayDirectSound(SOUND_LAMENT_OF_THE_HIGHBORNE, player);
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_item_sylvanas_music_box_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_item_sylvanas_music_box_SpellScript();
+        }
+};
+
 enum OrcDisguiseSpells
 {
     SPELL_ORC_DISGUISE_TRIGGER       = 45759,
@@ -4102,5 +4140,6 @@ void AddSC_generic_spell_scripts()
     new spell_gen_replenishment();
     new spell_gen_aura_service_uniform();
     new spell_gen_shadowmeld();
+    new spell_item_sylvanas_music_box();
     new spell_gen_orc_disguise();
 }
