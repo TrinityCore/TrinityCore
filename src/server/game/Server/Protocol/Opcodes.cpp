@@ -1012,14 +1012,14 @@ void OpcodeTable::Initialize()
     DEFINE_OPCODE_HANDLER(SMSG_MOVE_UNSET_HOVER,                        STATUS_NEVER,     PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
     DEFINE_OPCODE_HANDLER(SMSG_MOVE_UPDATE_COLLISION_HEIGHT,            STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
     DEFINE_OPCODE_HANDLER(SMSG_MOVE_UPDATE_FLIGHT_BACK_SPEED,           STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
-    DEFINE_OPCODE_HANDLER(SMSG_MOVE_UPDATE_FLIGHT_SPEED,                 STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
+    DEFINE_OPCODE_HANDLER(SMSG_MOVE_UPDATE_FLIGHT_SPEED,                STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     DEFINE_OPCODE_HANDLER(SMSG_MOVE_UPDATE_KNOCK_BACK,                  STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
     DEFINE_OPCODE_HANDLER(SMSG_MOVE_UPDATE_PITCH_RATE,                  STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
     DEFINE_OPCODE_HANDLER(SMSG_MOVE_UPDATE_RUN_BACK_SPEED,              STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
-    DEFINE_OPCODE_HANDLER(SMSG_MOVE_UPDATE_RUN_SPEED,                    STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
+    DEFINE_OPCODE_HANDLER(SMSG_MOVE_UPDATE_RUN_SPEED,                   STATUS_NEVER,     PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     DEFINE_OPCODE_HANDLER(SMSG_MOVE_UPDATE_SWIM_BACK_SPEED,             STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
     DEFINE_OPCODE_HANDLER(SMSG_MOVE_UPDATE_SWIM_SPEED,                  STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
-    DEFINE_OPCODE_HANDLER(SMSG_MOVE_UPDATE_TELEPORT,                     STATUS_NEVER,     PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
+    DEFINE_OPCODE_HANDLER(SMSG_MOVE_UPDATE_TELEPORT,                    STATUS_NEVER,     PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
     DEFINE_OPCODE_HANDLER(SMSG_MOVE_UPDATE_TURN_RATE,                   STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
     DEFINE_OPCODE_HANDLER(SMSG_MOVE_UPDATE_WALK_SPEED,                  STATUS_UNHANDLED, PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
     DEFINE_OPCODE_HANDLER(SMSG_MOVE_WATER_WALK,                         STATUS_NEVER,     PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
