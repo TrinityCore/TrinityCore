@@ -310,3 +310,7 @@ INSERT INTO `spell_threat` (`entry`, `flatMod`, `pctMod`, `apPctMod`) VALUES
 (20243, 315, 1.00, 0.05), -- Devastate (Rank 1)
 (12809, 0, 2.00, 0.0), -- Concussion Blow
 (48568, 1031, 0.50, 0.0);  -- Lacerate (Rank 3)
+
+-- Fix Shadowmeld.
+DELETE FROM spell_script_names WHERE spell_id = 58984;
+INSERT INTO spell_script_names VALUES (58984, 'spell_gen_shadowmeld');

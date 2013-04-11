@@ -11,6 +11,7 @@
 #                                                                                          #
 ############################################################################################
 
+[175] --> Fix Shadowmeld. (Thx Hlkz)
 [174] --> Fix - always apply paladin auras' linked spells for caster. (Thx Timothy Liang)
 [173] --> Fix - Bladestorm - Knockback Effect. (Thx Demonid)
 [172] --> Fix - Warrior - Multi Reflect + Scatter Shot - Silencing Shot Travel time delay. (Thx Demonid)

@@ -825,15 +825,6 @@ void Spell::EffectTriggerSpell(SpellEffIndex effIndex)
                 m_caster->CombatStop();
             return;
 
-            case 58984: // Shadowmeld
-                m_caster->InterruptSpell(CURRENT_AUTOREPEAT_SPELL);
-                m_caster->InterruptSpell(CURRENT_CHANNELED_SPELL);
-                m_caster->AttackStop();
-                m_caster->CombatStop();
-                if (m_caster->ToPlayer())
-                    m_caster->ToPlayer()->SendAttackSwingCancelAttack();
-            return;
-
             // Vanish (not exist)
             case 18461:
             {
