@@ -16242,7 +16242,7 @@ void Unit::ReadMovementInfo(WorldPacket& data, MovementInfo* mi, Movement::Extra
                 extras->ReadNextElement(data);
                 break;
             default:
-                ASSERT(false && "Incorrect sequence element detected at ReadMovementInfo");
+                ASSERT(Movement::PrintInvalidSequenceElement(element, __FUNCTION__));
                 break;
         }
     }
@@ -16551,7 +16551,7 @@ void Unit::WriteMovementInfo(WorldPacket& data, Movement::ExtraMovementStatusEle
                 extras->WriteNextElement(data);
                 break;
             default:
-                ASSERT(false && "Incorrect sequence element detected at ReadMovementInfo");
+                ASSERT(Movement::PrintInvalidSequenceElement(element, __FUNCTION__));
                 break;
         }
     }

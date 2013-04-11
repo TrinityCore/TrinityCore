@@ -2462,16 +2462,25 @@ MovementStatusElements MovementUpdateRunSpeed[] =
     MSEPositionY,
     MSEExtraElement,
     MSEHasGuidByte6,
+    MSEHasMovementFlags2,
+    MSEHasPitch,
     MSEHasGuidByte2,
     MSEHasGuidByte5,
+    MSEHasSplineElevation,
+    MSEHasSpline,
     MSEHasMovementFlags,
+    MSEHasTimestamp,
     MSEHasGuidByte1,
+    MSEMovementFlags2,
     MSEHasGuidByte3,
     MSEMovementFlags,
     MSEHasGuidByte7,
     MSEHasGuidByte0,
     MSEHasOrientation,
+    MSEHasTransportData,
     MSEHasTransportGuidByte5,
+    MSEHasTransportTime2,
+    MSEHasTransportTime3,
     MSEHasTransportGuidByte7,
     MSEHasTransportGuidByte4,
     MSEHasTransportGuidByte2,
@@ -2479,6 +2488,7 @@ MovementStatusElements MovementUpdateRunSpeed[] =
     MSEHasTransportGuidByte6,
     MSEHasTransportGuidByte1,
     MSEHasTransportGuidByte0,
+    MSEHasFallData,
     MSEHasFallDirection,
     MSEHasGuidByte4,
     MSEZeroBit,
@@ -2492,9 +2502,11 @@ MovementStatusElements MovementUpdateRunSpeed[] =
     MSETransportTime,
     MSETransportGuidByte7,
     MSETransportSeat,
+    MSETransportTime2,
     MSETransportPositionY,
     MSETransportGuidByte3,
     MSETransportGuidByte2,
+    MSETransportTime3,
     MSETransportPositionZ,
     MSETimestamp,
     MSEFallSinAngle,
@@ -2504,6 +2516,7 @@ MovementStatusElements MovementUpdateRunSpeed[] =
     MSEFallTime,
     MSEPitch,
     MSEGuidByte6,
+    MSESplineElevation,
     MSEGuidByte5,
     MSEGuidByte7,
     MSEGuidByte4,
@@ -4928,10 +4941,10 @@ void Movement::ExtraMovementStatusElement::ReadNextElement(ByteBuffer& packet)
             packet >> Data.byteData;
             break;
         default:
+            ASSERT(PrintInvalidSequenceElement(element, __FUNCTION__));
             break;
     }
 }
-
 
 void Movement::ExtraMovementStatusElement::WriteNextElement(ByteBuffer& packet)
 {
@@ -4958,8 +4971,15 @@ void Movement::ExtraMovementStatusElement::WriteNextElement(ByteBuffer& packet)
             packet << Data.byteData;
             break;
         default:
+            ASSERT(PrintInvalidSequenceElement(element, __FUNCTION__));
             break;
     }
+}
+
+bool Movement::PrintInvalidSequenceElement(MovementStatusElements element, char const* function)
+{
+    sLog->outError(LOG_FILTER_UNITS, "Incorrect sequence element %d detected at %s", element, function);
+    return false;
 }
 
 Movement::PacketSender::PacketSender(Unit* unit, Opcodes serverControl, Opcodes playerControl, Opcodes broadcast /*= SMSG_PLAYER_MOVE*/, ExtraMovementStatusElement* extras /*= NULL*/)
@@ -4989,6 +5009,10 @@ void Movement::PacketSender::Send() const
 
     if (_broadcast != NULL_OPCODE)
     {
+        ///! Need to reset current extra element index before writing another packet
+        if (_extraElements)
+            _extraElements->ResetIndex();
+
         WorldPacket data(_broadcast);
         _unit->WriteMovementInfo(data, _extraElements);
         _unit->SendMessageToSet(&data, !isPlayerMovement);
@@ -5179,6 +5203,7 @@ MovementStatusElements* GetMovementStatusElementsSequence(Opcodes opcode)
             return ChangeSeatsOnControlledVehicle;
         case CMSG_CAST_SPELL:
         case CMSG_PET_CAST_SPELL:
+        case CMSG_USE_ITEM:
             return CastSpellEmbeddedMovement;
         default:
             break;
