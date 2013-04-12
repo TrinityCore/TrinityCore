@@ -730,6 +730,7 @@ class npc_rotting_frost_giant : public CreatureScript
             void JustDied(Unit* /*killer*/)
             {
                 _events.Reset();
+                me->DespawnOrUnsummon(10000);
                 if (InstanceScript* instance = me->GetInstanceScript())
                 {
                     instance->DoCompleteAchievement(RAID_MODE(IM_ON_A_BOAT_10,IM_ON_A_BOAT_25,IM_ON_A_BOAT_10,IM_ON_A_BOAT_25));

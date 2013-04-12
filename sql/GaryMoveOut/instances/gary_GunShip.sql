@@ -62,5 +62,6 @@ UPDATE `gameobject_template` SET `data4` = 1 WHERE `entry` IN (201814,201815,201
 -- Fix Rotting Frost Giant
 UPDATE `creature` SET `spawntimesecs` =  '604800' WHERE `creature`.`id` =38494;
 UPDATE `creature` SET `spawntimesecs` =  '604800' WHERE `creature`.`id` =38490;
-UPDATE `creature_template` SET `rank` =  '3' WHERE `creature_template`.`entry` =38490;
-UPDATE `creature_template` SET `rank` =  '3' WHERE `creature_template`.`entry` =38494;
+UPDATE `creature_template` SET `rank` =  '1' WHERE `creature_template`.`entry` =38490;
+UPDATE `creature_template` SET `rank` =  '1' WHERE `creature_template`.`entry` =38494;
+UPDATE `gameobject_template` SET `IconName` = '',`castBarCaption` = '',`unk1` = '',`faction` = 0,`flags` = 50,`questItem1` = 0,`questItem2` = 0,`questItem3` = 0,`questItem4` = 0,`questItem5` = 0,`questItem6` = 0,`data2` = 0,`data3` = 1,`data4` = 0,`data5` = 0,`data6` = 0,`data7` = 0,`data8` = 0,`data9` = 0,`data10` = 0,`data11` = 1,`data12` = 0,`data13` = 1,`data14` = 0,`data15` = 1,`data16` = 0,`data17` = 0,`data18` = 0,`data19` = 0,`data20` = 0,`data21` = 0,`data22` = 0,`data23` = 0,`AIName` = '',`ScriptName` = '' WHERE `gameobject_template`.`entry` in (201872, 201874, 201873, 201875, 202177, 202180, 202178, 202179);

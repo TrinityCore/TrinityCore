@@ -474,9 +474,10 @@ class instance_icecrown_citadel : public InstanceMapScript
                     case GO_CAPITAN_CHEST_H_10H:
                     case GO_CAPITAN_CHEST_H_25N:
                     case GO_CAPITAN_CHEST_H_25H:
+                        RottingFrostGiantGUID = go->GetGUID();
                         if (Creature* rotting = instance->GetCreature(RottingFrostGiantGUID))
                             go->SetLootRecipient(rotting->GetLootRecipient());
-                        go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_LOCKED | GO_FLAG_NOT_SELECTABLE | GO_FLAG_NODESPAWN);
+                            go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_LOCKED | GO_FLAG_NOT_SELECTABLE | GO_FLAG_NODESPAWN);
                         break;
                     case GO_SAURFANG_S_DOOR:
                         DeathbringerSaurfangDoorGUID = go->GetGUID();
