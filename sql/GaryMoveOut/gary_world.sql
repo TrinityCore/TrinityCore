@@ -157,6 +157,7 @@ REPLACE INTO `trinity_string` (`entry`, `content_default`, `content_loc1`, `cont
 (11002, '|cFFFFFC00[ANTICHEAT]|cFF00FFFF[|cFF60FF00%s|cFF00FFFF] Banned for cheating!|r', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 
 -- Removes Master's Call stun immunity.
+DELETE FROM `spell_linked_spell` WHERE `spell_trigger` = 54216;
 INSERT INTO `spell_linked_spell`(`spell_trigger`, `spell_effect`, `type`, `comment`) VALUES (54216,-56651,1,'Removes Master''s Call stun immunity');
 
 -- Sap removes Stealth.
