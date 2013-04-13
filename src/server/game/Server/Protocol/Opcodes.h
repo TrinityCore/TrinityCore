@@ -180,7 +180,7 @@ enum Opcodes
     CMSG_DECLINE_CHANNEL_INVITE                       = 0x0000,
     CMSG_DELETEEQUIPMENT_SET                          = 0x4D07,
     CMSG_DEL_FRIEND                                   = 0x6A15,
-    CMSG_DEL_IGNORE                                   = 0x4727,
+    CMSG_DEL_IGNORE                                   = 0x6D26,
     CMSG_DEL_VOICE_IGNORE                             = 0x0024,
     CMSG_DESTROY_ITEM                                 = 0x4A27,
     CMSG_DISMISS_CONTROLLED_VEHICLE                   = 0x3218,
