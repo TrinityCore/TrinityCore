@@ -49,24 +49,15 @@ void BattlegroundRV::PostUpdateImpl(uint32 diff)
     {
         switch (getState())
         {
-            case BG_RV_STATE_OPEN_FENCES:
-                // Open fire (only at game start)
-                for (uint8 i = BG_RV_OBJECT_FIRE_1; i <= BG_RV_OBJECT_FIREDOOR_2; ++i)
-                    DoorOpen(i);
-                setTimer(BG_RV_CLOSE_FIRE_TIMER);
-                setState(BG_RV_STATE_CLOSE_FIRE);
-                break;
+                /// close fire doors at game start
             case BG_RV_STATE_CLOSE_FIRE:
                 for (uint8 i = BG_RV_OBJECT_FIRE_1; i <= BG_RV_OBJECT_FIREDOOR_2; ++i)
                     DoorClose(i);
-                // Fire got closed after five seconds, leaves twenty seconds before toggling pillars
-                setTimer(BG_RV_FIRE_TO_PILLAR_TIMER);
+                setTimer(BG_RV_PILLAR_SWITCH_TIMER);
                 setState(BG_RV_STATE_SWITCH_PILLARS);
                 break;
             case BG_RV_STATE_SWITCH_PILLARS:
-                for (uint8 i = BG_RV_OBJECT_PILAR_1; i <= BG_RV_OBJECT_PULLEY_2; ++i)
-                    DoorOpen(i);
-                TogglePillarCollision();
+                TogglePillars();
                 setTimer(BG_RV_PILLAR_SWITCH_TIMER);
                 break;
         }
@@ -75,25 +66,29 @@ void BattlegroundRV::PostUpdateImpl(uint32 diff)
         setTimer(getTimer() - diff);
 }
 
-void BattlegroundRV::StartingEventCloseDoors()
-{
-}
-
 void BattlegroundRV::StartingEventOpenDoors()
 {
-    // Buff respawn
-    SpawnBGObject(BG_RV_OBJECT_BUFF_1, 90);
-    SpawnBGObject(BG_RV_OBJECT_BUFF_2, 90);
-    // Elevators
-    DoorOpen(BG_RV_OBJECT_ELEVATOR_1);
-    DoorOpen(BG_RV_OBJECT_ELEVATOR_2);
+    /// Buff respawn
+    for (uint32 i = BG_RV_OBJECT_BUFF_1; i <= BG_RV_OBJECT_BUFF_2; ++i)
+        SpawnBGObject(i, 60);
 
-    setState(BG_RV_STATE_OPEN_FENCES);
+    /// Elevators
+    for (uint32 i = BG_RV_OBJECT_ELEVATOR_1; i <= BG_RV_OBJECT_ELEVATOR_2; ++i)
+        DoorOpen(i);
+
+    /// Collision
+    UseGameObject(BG_RV_OBJECT_PILAR_COLLISION_2);
+    UseGameObject(BG_RV_OBJECT_PILAR_COLLISION_4);
+
+    /// visual GOs
+    for (uint32 i = BG_RV_OBJECT_GEAR_1; i <= BG_RV_OBJECT_GEAR_2; ++i)
+        UseGameObject(i);
+    for (uint32 i = BG_RV_OBJECT_PULLEY_1; i <= BG_RV_OBJECT_PULLEY_2; ++i)
+        UseGameObject(i);
+
+    /// start timer
+    setState(BG_RV_STATE_CLOSE_FIRE);
     setTimer(BG_RV_FIRST_TIMER);
-
-    // Should be false at first, TogglePillarCollision will do it.
-    SetPillarCollision(true);
-    TogglePillarCollision();
 }
 
 void BattlegroundRV::AddPlayer(Player* player)
@@ -158,13 +153,7 @@ void BattlegroundRV::FillInitialWorldStates(WorldPacket &data)
 {
     data << uint32(BG_RV_WORLD_STATE_A) << uint32(GetAlivePlayersCountByTeam(ALLIANCE));
     data << uint32(BG_RV_WORLD_STATE_H) << uint32(GetAlivePlayersCountByTeam(HORDE));
-    data << uint32(BG_RV_WORLD_STATE) << uint32(1);
-}
-
-void BattlegroundRV::Reset()
-{
-    //call parent's class reset
-    Battleground::Reset();
+    data << uint32(BG_RV_WORLD_STATE)   << uint32(1);
 }
 
 bool BattlegroundRV::SetupBattleground()
@@ -191,14 +180,11 @@ bool BattlegroundRV::SetupBattleground()
         || !AddObject(BG_RV_OBJECT_PILAR_2, BG_RV_OBJECT_TYPE_PILAR_2, 723.644287f, -284.493256f, 24.648525f, 3.141593f, 0, 0, 0, RESPAWN_IMMEDIATELY)
         || !AddObject(BG_RV_OBJECT_PILAR_3, BG_RV_OBJECT_TYPE_PILAR_3, 763.611145f, -261.856750f, 25.909504f, 0.000000f, 0, 0, 0, RESPAWN_IMMEDIATELY)
         || !AddObject(BG_RV_OBJECT_PILAR_4, BG_RV_OBJECT_TYPE_PILAR_4, 802.211609f, -284.493256f, 24.648525f, 0.000000f, 0, 0, 0, RESPAWN_IMMEDIATELY)
-
     // Pilars Collision
         || !AddObject(BG_RV_OBJECT_PILAR_COLLISION_1, BG_RV_OBJECT_TYPE_PILAR_COLLISION_1, 763.632385f, -306.162384f, 30.639660f, 3.141593f, 0, 0, 0, RESPAWN_IMMEDIATELY)
         || !AddObject(BG_RV_OBJECT_PILAR_COLLISION_2, BG_RV_OBJECT_TYPE_PILAR_COLLISION_2, 723.644287f, -284.493256f, 32.382710f, 0.000000f, 0, 0, 0, RESPAWN_IMMEDIATELY)
         || !AddObject(BG_RV_OBJECT_PILAR_COLLISION_3, BG_RV_OBJECT_TYPE_PILAR_COLLISION_3, 763.611145f, -261.856750f, 30.639660f, 0.000000f, 0, 0, 0, RESPAWN_IMMEDIATELY)
-        || !AddObject(BG_RV_OBJECT_PILAR_COLLISION_4, BG_RV_OBJECT_TYPE_PILAR_COLLISION_4, 802.211609f, -284.493256f, 32.382710f, 3.141593f, 0, 0, 0, RESPAWN_IMMEDIATELY)
-
-)
+        || !AddObject(BG_RV_OBJECT_PILAR_COLLISION_4, BG_RV_OBJECT_TYPE_PILAR_COLLISION_4, 802.211609f, -284.493256f, 32.382710f, 3.141593f, 0, 0, 0, RESPAWN_IMMEDIATELY))
     {
         sLog->outError(LOG_FILTER_SQL, "BatteGroundRV: Failed to spawn some object!");
         return false;
@@ -206,31 +192,45 @@ bool BattlegroundRV::SetupBattleground()
     return true;
 }
 
-
-void BattlegroundRV::TogglePillarCollision()
+void BattlegroundRV::TogglePillars()
 {
-    bool apply = GetPillarCollision();
-
-    for (uint8 i = BG_RV_OBJECT_PILAR_1; i <= BG_RV_OBJECT_PILAR_COLLISION_4; ++i)
+    /// visual
+    for (uint8 i = BG_RV_OBJECT_PILAR_1; i <= BG_RV_OBJECT_PULLEY_2; ++i)
     {
-        if (GameObject* gob = GetBgMap()->GetGameObject(BgObjects[i]))
-        {
-            if (i >= BG_RV_OBJECT_PILAR_COLLISION_1)
-            {
-                uint32 _state = GO_STATE_READY;
-                if (gob->GetGOInfo()->door.startOpen)
-                    _state = GO_STATE_ACTIVE;
-                gob->SetGoState(apply ? (GOState)_state : (GOState)(!_state));
-
-                if (gob->GetGOInfo()->door.startOpen)
-                    gob->EnableCollision(!apply); // Forced collision toggle
-            }
-
-            for (BattlegroundPlayerMap::iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
-                if (Player* player = ObjectAccessor::FindPlayer(MAKE_NEW_GUID(itr->first, 0, HIGHGUID_PLAYER)))
-                    gob->SendUpdateToPlayer(player);
-        }
+        if (GameObject* go = GetBgMap()->GetGameObject(BgObjects[i]))
+            UseGameObject(i);
     }
 
-    SetPillarCollision(!apply);
+    /// collision
+    for (uint8 i = BG_RV_OBJECT_PILAR_COLLISION_1; i <= BG_RV_OBJECT_PILAR_COLLISION_4; ++i)
+    {
+        if (GameObject* go = GetBgMap()->GetGameObject(BgObjects[i]))
+            UseGameObject(i);
+    }
+
+    /// Force every pillar to update their status to players
+    for (BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
+    {
+        Player* player = ObjectAccessor::FindPlayer(itr->first);
+        if (!player)
+            continue;
+
+        if (GameObject* pilar = GetBGObject(BG_RV_OBJECT_PILAR_1))
+            pilar->SendUpdateToPlayer(player);
+        if (GameObject* pilar = GetBGObject(BG_RV_OBJECT_PILAR_2))
+            pilar->SendUpdateToPlayer(player);
+        if (GameObject* pilar = GetBGObject(BG_RV_OBJECT_PILAR_3))
+            pilar->SendUpdateToPlayer(player);
+        if (GameObject* pilar = GetBGObject(BG_RV_OBJECT_PILAR_4))
+            pilar->SendUpdateToPlayer(player);
+    }
+}
+
+void BattlegroundRV::UseGameObject(uint32 type)
+{
+    if (GameObject* go = GetBgMap()->GetGameObject(BgObjects[type]))
+    {
+        go->SetLootState(GO_READY);
+        go->UseDoorOrButton(10000, false, NULL);
+    }
 }
