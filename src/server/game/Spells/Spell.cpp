@@ -2996,6 +2996,10 @@ void Spell::prepare(SpellCastTargets const* targets, AuraEffect const* triggered
         m_needComboPoints = false;
 
     SpellCastResult result = CheckCast(true);
+    // target is checked in too many locations and with different results to handle each of them
+    // handle just the general SPELL_FAILED_BAD_TARGETS result which is the default result for most DBC target checks
+    if (_triggeredCastFlags & TRIGGERED_IGNORE_TARGET_CHECK && result == SPELL_FAILED_BAD_TARGETS)
+        result = SPELL_CAST_OK;
     if (result != SPELL_CAST_OK && !IsAutoRepeat())          //always cast autorepeat dummy for triggering
     {
         // Periodic auras should be interrupted when aura triggers a spell which can't be cast
