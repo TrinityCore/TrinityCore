@@ -91,6 +91,7 @@ public:
         static ChatCommand npcDeleteCommandTable[] =
         {
             { "item",           SEC_GAMEMASTER,     false, &HandleNpcDeleteVendorItemCommand,  "", NULL },
+            { "guid",           SEC_GAMEMASTER,     false, &HandleNpcDeleteByGuidCommand,      "", NULL },
             { "",               SEC_GAMEMASTER,     false, &HandleNpcDeleteCommand,            "", NULL },
             { NULL,             SEC_PLAYER,         false, NULL,                               "", NULL }
         };
@@ -485,6 +486,48 @@ public:
         ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(itemId);
 
         handler->PSendSysMessage(LANG_ITEM_DELETED_FROM_LIST, itemId, itemTemplate->Name1.c_str());
+        return true;
+    }
+
+    static bool HandleNpcDeleteByGuidCommand(ChatHandler* handler, char const* args)
+    {
+        if (!*args)
+            return false;
+
+        uint32 guid = atol((char*)args);
+        if (!guid)
+        {
+            handler->SendSysMessage(LANG_BAD_VALUE);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        QueryResult result = WorldDatabase.PQuery("SELECT id FROM creature WHERE guid = %u", guid);
+        if (!result)
+        {
+            handler->SendSysMessage(LANG_COMMAND_GOCREATNOTFOUND);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        Field* fields = result->Fetch();
+        uint32 id = fields[0].GetUInt32();
+
+        // if creature is in same map with caster go at its current location
+        if (Creature* creature = sObjectAccessor->GetCreature(*handler->GetSession()->GetPlayer(), MAKE_NEW_GUID(guid, id, HIGHGUID_UNIT)))
+        {
+            creature->CombatStop();
+            creature->DeleteFromDB();
+            creature->AddObjectToRemoveList();
+        }
+        else if (Creature* creature = ObjectAccessor::GetObjectInWorld(MAKE_NEW_GUID(guid, id, HIGHGUID_UNIT), (Creature*)NULL))
+        {
+            creature->CombatStop();
+            creature->DeleteFromDB();
+            creature->AddObjectToRemoveList();
+        }
+
+        handler->SendSysMessage(LANG_COMMAND_DELCREATMESSAGE);
         return true;
     }
 
