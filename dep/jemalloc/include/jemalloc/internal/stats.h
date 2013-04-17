@@ -151,21 +151,21 @@ JEMALLOC_INLINE size_t
 stats_cactive_get(void)
 {
 
-        return (atomic_read_z(&stats_cactive));
+	return (atomic_read_z(&stats_cactive));
 }
 
 JEMALLOC_INLINE void
 stats_cactive_add(size_t size)
 {
 
-        atomic_add_z(&stats_cactive, size);
+	atomic_add_z(&stats_cactive, size);
 }
 
 JEMALLOC_INLINE void
 stats_cactive_sub(size_t size)
 {
 
-        atomic_sub_z(&stats_cactive, size);
+	atomic_sub_z(&stats_cactive, size);
 }
 #endif
 

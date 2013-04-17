@@ -93,7 +93,7 @@
  * Among other things, it must be possible to initialize a mutex without
  * triggering allocation in order for threaded allocation to be safe.
  */
-#define JEMALLOC_THREADED_INIT
+#define JEMALLOC_THREADED_INIT 
 
 /*
  * Defined if the pthreads implementation defines
@@ -129,10 +129,10 @@
 #endif
 
 /* Defined if sbrk() is supported. */
-#define JEMALLOC_HAVE_SBRK
+#define JEMALLOC_HAVE_SBRK 
 
 /* Non-empty if the tls_model attribute is supported. */
-#define JEMALLOC_TLS_MODEL __attribute__((tls_model("initial-exec")))
+#define JEMALLOC_TLS_MODEL @JEM_TLSMODEL@
 
 /* JEMALLOC_CC_SILENCE enables code that silences unuseful compiler warnings. */
 /* #undef JEMALLOC_CC_SILENCE */
@@ -144,7 +144,7 @@
 /* #undef JEMALLOC_DEBUG */
 
 /* JEMALLOC_STATS enables statistics calculation. */
-#define JEMALLOC_STATS
+#define JEMALLOC_STATS 
 
 /* JEMALLOC_PROF enables allocation profiling. */
 /* #undef JEMALLOC_PROF */
@@ -163,7 +163,7 @@
  * This makes it possible to allocate/deallocate objects without any locking
  * when the cache is in the steady state.
  */
-#define JEMALLOC_TCACHE
+#define JEMALLOC_TCACHE 
 
 /*
  * JEMALLOC_DSS enables use of sbrk(2) to allocate chunks from the data storage
@@ -172,10 +172,10 @@
 /* #undef JEMALLOC_DSS */
 
 /* Support memory filling (junk/zero/quarantine/redzone). */
-#define JEMALLOC_FILL
+#define JEMALLOC_FILL 
 
 /* Support the experimental API. */
-#define JEMALLOC_EXPERIMENTAL
+#define JEMALLOC_EXPERIMENTAL 
 
 /* Support utrace(2)-based tracing. */
 /* #undef JEMALLOC_UTRACE */
@@ -207,7 +207,7 @@
 /* #undef JEMALLOC_MREMAP */
 
 /* TLS is used to map arenas and magazine caches to threads. */
-#define JEMALLOC_TLS
+#define JEMALLOC_TLS 
 
 /*
  * JEMALLOC_IVSALLOC enables ivsalloc(), which verifies that pointers reside
@@ -219,8 +219,17 @@
  * Define overrides for non-standard allocator-related functions if they
  * are present on the system.
  */
-#define JEMALLOC_OVERRIDE_MEMALIGN
-#define JEMALLOC_OVERRIDE_VALLOC
+#define JEMALLOC_OVERRIDE_MEMALIGN 
+#define JEMALLOC_OVERRIDE_VALLOC 
+
+/*
+ * At least Linux omits the "const" in:
+ *
+ *   size_t malloc_usable_size(const void *ptr);
+ *
+ * Match the operating system's prototype.
+ */
+#define JEMALLOC_USABLE_SIZE_CONST 
 
 /*
  * Darwin (OS X) uses zones to work around Mach-O symbol override shortcomings.
@@ -238,17 +247,22 @@
  *                             unused, such that they will be discarded rather
  *                             than swapped out.
  */
-#define JEMALLOC_PURGE_MADVISE_DONTNEED
+#define JEMALLOC_PURGE_MADVISE_DONTNEED 
 /* #undef JEMALLOC_PURGE_MADVISE_FREE */
 
+/*
+ * Define if operating system has alloca.h header.
+ */
+#define JEMALLOC_HAS_ALLOCA_H
+
 /* sizeof(void *) == 2^LG_SIZEOF_PTR. */
-#define LG_SIZEOF_PTR 3
+#define LG_SIZEOF_PTR @JEM_SIZEDEF@
 
 /* sizeof(int) == 2^LG_SIZEOF_INT. */
 #define LG_SIZEOF_INT 2
 
 /* sizeof(long) == 2^LG_SIZEOF_LONG. */
-#define LG_SIZEOF_LONG 3
+#define LG_SIZEOF_LONG @JEM_SIZEDEF@
 
 /* sizeof(intmax_t) == 2^LG_SIZEOF_INTMAX_T. */
 #define LG_SIZEOF_INTMAX_T 3

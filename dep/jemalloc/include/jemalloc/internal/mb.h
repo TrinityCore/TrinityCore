@@ -92,7 +92,7 @@ JEMALLOC_INLINE void
 mb_write(void)
 {
 
-        __sync_synchronize();
+	__sync_synchronize();
 }
 #else
 /*

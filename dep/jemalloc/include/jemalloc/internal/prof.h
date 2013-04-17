@@ -121,18 +121,18 @@ struct prof_ctx_s {
 	/* Associated backtrace. */
 	prof_bt_t		*bt;
 
-        /* Protects nlimbo, cnt_merged, and cnts_ql. */
-        malloc_mutex_t		*lock;
+	/* Protects nlimbo, cnt_merged, and cnts_ql. */
+	malloc_mutex_t		*lock;
 
-        /*
-         * Number of threads that currently cause this ctx to be in a state of
-         * limbo due to one of:
-         *   - Initializing per thread counters associated with this ctx.
-         *   - Preparing to destroy this ctx.
-         * nlimbo must be 1 (single destroyer) in order to safely destroy the
-         * ctx.
-         */
-        unsigned		nlimbo;
+	/*
+	 * Number of threads that currently cause this ctx to be in a state of
+	 * limbo due to one of:
+	 *   - Initializing per thread counters associated with this ctx.
+	 *   - Preparing to destroy this ctx.
+	 * nlimbo must be 1 (single destroyer) in order to safely destroy the
+	 * ctx.
+	 */
+	unsigned		nlimbo;
 
 	/* Temporary storage for summation during dump. */
 	prof_cnt_t		cnt_summed;
@@ -167,14 +167,14 @@ struct prof_tdata_s {
 	void			**vec;
 
 	/* Sampling state. */
-        uint64_t		prng_state;
+	uint64_t		prng_state;
 	uint64_t		threshold;
 	uint64_t		accum;
 
-        /* State used to avoid dumping while operating on prof internals. */
-        bool			enq;
-        bool			enq_idump;
-        bool			enq_gdump;
+	/* State used to avoid dumping while operating on prof internals. */
+	bool			enq;
+	bool			enq_idump;
+	bool			enq_gdump;
 };
 
 #endif /* JEMALLOC_H_STRUCTS */
@@ -223,67 +223,70 @@ void	prof_tdata_cleanup(void *arg);
 void	prof_boot0(void);
 void	prof_boot1(void);
 bool	prof_boot2(void);
+void	prof_prefork(void);
+void	prof_postfork_parent(void);
+void	prof_postfork_child(void);
 
 #endif /* JEMALLOC_H_EXTERNS */
 /******************************************************************************/
 #ifdef JEMALLOC_H_INLINES
 
 #define	PROF_ALLOC_PREP(nignore, size, ret) do {			\
-        prof_tdata_t *prof_tdata;					\
-        prof_bt_t bt;							\
-                                                                        \
-        assert(size == s2u(size));					\
-                                                                        \
-        prof_tdata = prof_tdata_get();					\
-        if ((uintptr_t)prof_tdata <= (uintptr_t)PROF_TDATA_STATE_MAX) {	\
-                if (prof_tdata != NULL)					\
-                        ret = (prof_thr_cnt_t *)(uintptr_t)1U;		\
-                else							\
-                        ret = NULL;					\
-                break;							\
-        }								\
-                                                                        \
-        if (opt_prof_active == false) {					\
-                /* Sampling is currently inactive, so avoid sampling. */\
-                ret = (prof_thr_cnt_t *)(uintptr_t)1U;			\
-        } else if (opt_lg_prof_sample == 0) {				\
-                /* Don't bother with sampling logic, since sampling   */\
-                /* interval is 1.                                     */\
-                bt_init(&bt, prof_tdata->vec);				\
-                prof_backtrace(&bt, nignore);				\
-                ret = prof_lookup(&bt);					\
-        } else {							\
-                if (prof_tdata->threshold == 0) {			\
-                        /* Initialize.  Seed the prng differently for */\
-                        /* each thread.                               */\
-                        prof_tdata->prng_state =			\
-                            (uint64_t)(uintptr_t)&size;			\
-                        prof_sample_threshold_update(prof_tdata);	\
-                }							\
-                                                                        \
-                /* Determine whether to capture a backtrace based on  */\
-                /* whether size is enough for prof_accum to reach     */\
-                /* prof_tdata->threshold.  However, delay updating    */\
-                /* these variables until prof_{m,re}alloc(), because  */\
-                /* we don't know for sure that the allocation will    */\
-                /* succeed.                                           */\
-                /*                                                    */\
-                /* Use subtraction rather than addition to avoid      */\
-                /* potential integer overflow.                        */\
-                if (size >= prof_tdata->threshold -			\
-                    prof_tdata->accum) {				\
-                        bt_init(&bt, prof_tdata->vec);			\
-                        prof_backtrace(&bt, nignore);			\
-                        ret = prof_lookup(&bt);				\
-                } else							\
-                        ret = (prof_thr_cnt_t *)(uintptr_t)1U;		\
-        }								\
+	prof_tdata_t *prof_tdata;					\
+	prof_bt_t bt;							\
+									\
+	assert(size == s2u(size));					\
+									\
+	prof_tdata = prof_tdata_get(true);				\
+	if ((uintptr_t)prof_tdata <= (uintptr_t)PROF_TDATA_STATE_MAX) {	\
+		if (prof_tdata != NULL)					\
+			ret = (prof_thr_cnt_t *)(uintptr_t)1U;		\
+		else							\
+			ret = NULL;					\
+		break;							\
+	}								\
+									\
+	if (opt_prof_active == false) {					\
+		/* Sampling is currently inactive, so avoid sampling. */\
+		ret = (prof_thr_cnt_t *)(uintptr_t)1U;			\
+	} else if (opt_lg_prof_sample == 0) {				\
+		/* Don't bother with sampling logic, since sampling   */\
+		/* interval is 1.                                     */\
+		bt_init(&bt, prof_tdata->vec);				\
+		prof_backtrace(&bt, nignore);				\
+		ret = prof_lookup(&bt);					\
+	} else {							\
+		if (prof_tdata->threshold == 0) {			\
+			/* Initialize.  Seed the prng differently for */\
+			/* each thread.                               */\
+			prof_tdata->prng_state =			\
+			    (uint64_t)(uintptr_t)&size;			\
+			prof_sample_threshold_update(prof_tdata);	\
+		}							\
+									\
+		/* Determine whether to capture a backtrace based on  */\
+		/* whether size is enough for prof_accum to reach     */\
+		/* prof_tdata->threshold.  However, delay updating    */\
+		/* these variables until prof_{m,re}alloc(), because  */\
+		/* we don't know for sure that the allocation will    */\
+		/* succeed.                                           */\
+		/*                                                    */\
+		/* Use subtraction rather than addition to avoid      */\
+		/* potential integer overflow.                        */\
+		if (size >= prof_tdata->threshold -			\
+		    prof_tdata->accum) {				\
+			bt_init(&bt, prof_tdata->vec);			\
+			prof_backtrace(&bt, nignore);			\
+			ret = prof_lookup(&bt);				\
+		} else							\
+			ret = (prof_thr_cnt_t *)(uintptr_t)1U;		\
+	}								\
 } while (0)
 
 #ifndef JEMALLOC_ENABLE_INLINE
 malloc_tsd_protos(JEMALLOC_ATTR(unused), prof_tdata, prof_tdata_t *)
 
-prof_tdata_t	*prof_tdata_get(void);
+prof_tdata_t	*prof_tdata_get(bool create);
 void	prof_sample_threshold_update(prof_tdata_t *prof_tdata);
 prof_ctx_t	*prof_ctx_get(const void *ptr);
 void	prof_ctx_set(const void *ptr, prof_ctx_t *ctx);
@@ -301,19 +304,17 @@ malloc_tsd_funcs(JEMALLOC_INLINE, prof_tdata, prof_tdata_t *, NULL,
     prof_tdata_cleanup)
 
 JEMALLOC_INLINE prof_tdata_t *
-prof_tdata_get(void)
+prof_tdata_get(bool create)
 {
-        prof_tdata_t *prof_tdata;
+	prof_tdata_t *prof_tdata;
 
-        cassert(config_prof);
+	cassert(config_prof);
 
-        prof_tdata = *prof_tdata_tsd_get();
-        if ((uintptr_t)prof_tdata <= (uintptr_t)PROF_TDATA_STATE_MAX) {
-                if (prof_tdata == NULL)
-                        prof_tdata = prof_tdata_init();
-        }
+	prof_tdata = *prof_tdata_tsd_get();
+	if (create && prof_tdata == NULL)
+		prof_tdata = prof_tdata_init();
 
-        return (prof_tdata);
+	return (prof_tdata);
 }
 
 JEMALLOC_INLINE void
@@ -322,28 +323,28 @@ prof_sample_threshold_update(prof_tdata_t *prof_tdata)
 	uint64_t r;
 	double u;
 
-        cassert(config_prof);
+	cassert(config_prof);
 
 	/*
-         * Compute sample threshold as a geometrically distributed random
+	 * Compute sample threshold as a geometrically distributed random
 	 * variable with mean (2^opt_lg_prof_sample).
-         *
-         *                         __        __
-         *                         |  log(u)  |                     1
-         * prof_tdata->threshold = | -------- |, where p = -------------------
-         *                         | log(1-p) |             opt_lg_prof_sample
-         *                                                 2
-         *
-         * For more information on the math, see:
-         *
-         *   Non-Uniform Random Variate Generation
-         *   Luc Devroye
-         *   Springer-Verlag, New York, 1986
-         *   pp 500
-         *   (http://cg.scs.carleton.ca/~luc/rnbookindex.html)
+	 *
+	 *                         __        __
+	 *                         |  log(u)  |                     1
+	 * prof_tdata->threshold = | -------- |, where p = -------------------
+	 *                         | log(1-p) |             opt_lg_prof_sample
+	 *                                                 2
+	 *
+	 * For more information on the math, see:
+	 *
+	 *   Non-Uniform Random Variate Generation
+	 *   Luc Devroye
+	 *   Springer-Verlag, New York, 1986
+	 *   pp 500
+	 *   (http://cg.scs.carleton.ca/~luc/rnbookindex.html)
 	 */
-        prng64(r, 53, prof_tdata->prng_state,
-            UINT64_C(6364136223846793005), UINT64_C(1442695040888963407));
+	prng64(r, 53, prof_tdata->prng_state,
+	    UINT64_C(6364136223846793005), UINT64_C(1442695040888963407));
 	u = (double)r * (1.0/9007199254740992.0L);
 	prof_tdata->threshold = (uint64_t)(log(u) /
 	    log(1.0 - (1.0 / (double)((uint64_t)1U << opt_lg_prof_sample))))
@@ -356,7 +357,7 @@ prof_ctx_get(const void *ptr)
 	prof_ctx_t *ret;
 	arena_chunk_t *chunk;
 
-        cassert(config_prof);
+	cassert(config_prof);
 	assert(ptr != NULL);
 
 	chunk = (arena_chunk_t *)CHUNK_ADDR2BASE(ptr);
@@ -374,7 +375,7 @@ prof_ctx_set(const void *ptr, prof_ctx_t *ctx)
 {
 	arena_chunk_t *chunk;
 
-        cassert(config_prof);
+	cassert(config_prof);
 	assert(ptr != NULL);
 
 	chunk = (arena_chunk_t *)CHUNK_ADDR2BASE(ptr);
@@ -390,18 +391,18 @@ prof_sample_accum_update(size_t size)
 {
 	prof_tdata_t *prof_tdata;
 
-        cassert(config_prof);
+	cassert(config_prof);
 	/* Sampling logic is unnecessary if the interval is 1. */
 	assert(opt_lg_prof_sample != 0);
 
-        prof_tdata = *prof_tdata_tsd_get();
-        if ((uintptr_t)prof_tdata <= (uintptr_t)PROF_TDATA_STATE_MAX)
-                return (true);
+	prof_tdata = prof_tdata_get(false);
+	if ((uintptr_t)prof_tdata <= (uintptr_t)PROF_TDATA_STATE_MAX)
+		return (true);
 
 	/* Take care to avoid integer overflow. */
 	if (size >= prof_tdata->threshold - prof_tdata->accum) {
 		prof_tdata->accum -= (prof_tdata->threshold - size);
-                /* Compute new sample threshold. */
+		/* Compute new sample threshold. */
 		prof_sample_threshold_update(prof_tdata);
 		while (prof_tdata->accum >= prof_tdata->threshold) {
 			prof_tdata->accum -= prof_tdata->threshold;
@@ -418,9 +419,9 @@ JEMALLOC_INLINE void
 prof_malloc(const void *ptr, size_t size, prof_thr_cnt_t *cnt)
 {
 
-        cassert(config_prof);
+	cassert(config_prof);
 	assert(ptr != NULL);
-        assert(size == isalloc(ptr, true));
+	assert(size == isalloc(ptr, true));
 
 	if (opt_lg_prof_sample != 0) {
 		if (prof_sample_accum_update(size)) {
@@ -429,7 +430,7 @@ prof_malloc(const void *ptr, size_t size, prof_thr_cnt_t *cnt)
 			 * always possible to tell in advance how large an
 			 * object's usable size will be, so there should never
 			 * be a difference between the size passed to
-                         * PROF_ALLOC_PREP() and prof_malloc().
+			 * PROF_ALLOC_PREP() and prof_malloc().
 			 */
 			assert((uintptr_t)cnt == (uintptr_t)1U);
 		}
@@ -465,16 +466,16 @@ prof_realloc(const void *ptr, size_t size, prof_thr_cnt_t *cnt,
 {
 	prof_thr_cnt_t *told_cnt;
 
-        cassert(config_prof);
+	cassert(config_prof);
 	assert(ptr != NULL || (uintptr_t)cnt <= (uintptr_t)1U);
 
 	if (ptr != NULL) {
-                assert(size == isalloc(ptr, true));
+		assert(size == isalloc(ptr, true));
 		if (opt_lg_prof_sample != 0) {
 			if (prof_sample_accum_update(size)) {
 				/*
 				 * Don't sample.  The size passed to
-                                 * PROF_ALLOC_PREP() was larger than what
+				 * PROF_ALLOC_PREP() was larger than what
 				 * actually got allocated, so a backtrace was
 				 * captured for this allocation, even though
 				 * its actual size was insufficient to cross
@@ -492,10 +493,10 @@ prof_realloc(const void *ptr, size_t size, prof_thr_cnt_t *cnt,
 			 * It's too late to propagate OOM for this realloc(),
 			 * so operate directly on old_cnt->ctx->cnt_merged.
 			 */
-                        malloc_mutex_lock(old_ctx->lock);
+			malloc_mutex_lock(old_ctx->lock);
 			old_ctx->cnt_merged.curobjs--;
 			old_ctx->cnt_merged.curbytes -= old_size;
-                        malloc_mutex_unlock(old_ctx->lock);
+			malloc_mutex_unlock(old_ctx->lock);
 			told_cnt = (prof_thr_cnt_t *)(uintptr_t)1U;
 		}
 	} else
@@ -506,7 +507,7 @@ prof_realloc(const void *ptr, size_t size, prof_thr_cnt_t *cnt,
 	if ((uintptr_t)cnt > (uintptr_t)1U) {
 		prof_ctx_set(ptr, cnt->ctx);
 		cnt->epoch++;
-	} else
+	} else if (ptr != NULL)
 		prof_ctx_set(ptr, (prof_ctx_t *)(uintptr_t)1U);
 	/*********/
 	mb_write();
@@ -539,12 +540,12 @@ prof_free(const void *ptr, size_t size)
 {
 	prof_ctx_t *ctx = prof_ctx_get(ptr);
 
-        cassert(config_prof);
+	cassert(config_prof);
 
 	if ((uintptr_t)ctx > (uintptr_t)1) {
-                prof_thr_cnt_t *tcnt;
-                assert(size == isalloc(ptr, true));
-                tcnt = prof_lookup(ctx->bt);
+		prof_thr_cnt_t *tcnt;
+		assert(size == isalloc(ptr, true));
+		tcnt = prof_lookup(ctx->bt);
 
 		if (tcnt != NULL) {
 			tcnt->epoch++;
@@ -565,10 +566,10 @@ prof_free(const void *ptr, size_t size)
 			 * OOM during free() cannot be propagated, so operate
 			 * directly on cnt->ctx->cnt_merged.
 			 */
-                        malloc_mutex_lock(ctx->lock);
+			malloc_mutex_lock(ctx->lock);
 			ctx->cnt_merged.curobjs--;
 			ctx->cnt_merged.curbytes -= size;
-                        malloc_mutex_unlock(ctx->lock);
+			malloc_mutex_unlock(ctx->lock);
 		}
 	}
 }
