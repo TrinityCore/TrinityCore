@@ -1211,23 +1211,23 @@ AllowTwoSide.Interaction.Calendar = 0
 #
 #    AllowTwoSide.Interaction.Channel
 #        Description: Allow channel chat between factions.
-#        Default:     0 - (Disabled)
+#        Default:     1 - (Disabled)
 #                     1 - (Enabled)
 
-AllowTwoSide.Interaction.Channel = 0
+AllowTwoSide.Interaction.Channel = 1
 
 #
 #    AllowTwoSide.Interaction.Group
 #        Description: Allow group joining between factions.
-#        Default:     0 - (Disabled)
+#        Default:     1 - (Disabled)
 #                     1 - (Enabled)
 
-AllowTwoSide.Interaction.Group = 0
+AllowTwoSide.Interaction.Group = 1
 
 #
 #    AllowTwoSide.Interaction.Guild
 #        Description: Allow guild joining between factions.
-#        Default:     0 - (Disabled)
+#        Default:     1- (Disabled)
 #                     1 - (Enabled)
 
 AllowTwoSide.Interaction.Guild = 0
