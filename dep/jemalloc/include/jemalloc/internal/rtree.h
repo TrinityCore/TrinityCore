@@ -36,6 +36,9 @@ struct rtree_s {
 #ifdef JEMALLOC_H_EXTERNS
 
 rtree_t	*rtree_new(unsigned bits);
+void	rtree_prefork(rtree_t *rtree);
+void	rtree_postfork_parent(rtree_t *rtree);
+void	rtree_postfork_child(rtree_t *rtree);
 
 #endif /* JEMALLOC_H_EXTERNS */
 /******************************************************************************/
@@ -49,7 +52,7 @@ void	*rtree_get(rtree_t *rtree, uintptr_t key);
 bool	rtree_set(rtree_t *rtree, uintptr_t key, void *val);
 #endif
 
-#if (defined(JEMALLOC_ENABLE_INLINE) || defined(RTREE_C_))
+#if (defined(JEMALLOC_ENABLE_INLINE) || defined(JEMALLOC_RTREE_C_))
 #define	RTREE_GET_GENERATE(f)						\
 /* The least significant bits of the key are ignored. */		\
 JEMALLOC_INLINE void *							\
