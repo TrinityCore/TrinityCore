@@ -18,6 +18,9 @@
 #ifndef DEF_PIT_OF_SARON_H
 #define DEF_PIT_OF_SARON_H
 
+#include "Map.h"
+#include "Creature.h"
+
 #define PoSScriptName "instance_pit_of_saron"
 #define MAX_ENCOUNTER 3
 
@@ -93,5 +96,15 @@ enum GameObjectIds
     GO_ICE_WALL                                 = 201885,
     GO_HALLS_OF_REFLECTION_PORTCULLIS           = 201848,
 };
+
+template<class AI>
+AI* GetPitOfSaronAI(Creature* creature)
+{
+    if (InstanceMap* instance = creature->GetMap()->ToInstanceMap())
+        if (instance->GetInstanceScript())
+            if (instance->GetScriptId() == sObjectMgr->GetScriptId(PoSScriptName))
+                return new AI(creature);
+    return NULL;
+}
 
 #endif
