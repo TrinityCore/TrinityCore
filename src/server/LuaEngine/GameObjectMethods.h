@@ -491,6 +491,56 @@ public:
         sEluna->PushUnsigned(L, go->GetGUIDLow());
         return 1;
     }
+
+    static int GetNearestPlayer(lua_State* L, GameObject* go)
+    {
+        if (!go || !go->IsInWorld())
+            return 0;
+
+        float distance = luaL_optnumber(L, 1, SIZE_OF_GRIDS);
+
+        Player* target = NULL;
+        Eluna::NearestTypeWithEntryInRangeCheck checker(go, distance, TYPEID_PLAYER);
+        Trinity::PlayerLastSearcher<Eluna::NearestTypeWithEntryInRangeCheck> searcher(go, target, checker);
+        go->VisitNearbyObject(distance, searcher);
+
+        sEluna->PushUnit(L, target);
+        return 1;
+    }
+
+    static int GetNearestGameObject(lua_State* L, GameObject* go)
+    {
+        if (!go || !go->IsInWorld())
+            return 0;
+
+        uint32 entry = luaL_optunsigned(L, 1, 0);
+        float range = luaL_optnumber(L, 2, SIZE_OF_GRIDS);
+
+        GameObject* target = NULL;
+        Eluna::NearestTypeWithEntryInRangeCheck checker(go, range, TYPEID_GAMEOBJECT, entry);
+        Trinity::GameObjectLastSearcher<Eluna::NearestTypeWithEntryInRangeCheck> searcher(go, target, checker);
+        go->VisitNearbyGridObject(range, searcher);
+
+        sEluna->PushGO(L, target);
+        return 1;
+    }
+
+    static int GetNearestCreature(lua_State* L, GameObject* go)
+    {
+        if (!go || !go->IsInWorld())
+            return 0;
+
+        uint32 entry = luaL_optunsigned(L, 1, 0);
+        float range = luaL_optnumber(L, 2, SIZE_OF_GRIDS);
+
+        Creature* target = NULL;
+        Eluna::NearestTypeWithEntryInRangeCheck checker(go, range, TYPEID_UNIT, entry);
+        Trinity::CreatureLastSearcher<Eluna::NearestTypeWithEntryInRangeCheck> searcher(go, target, checker);
+        go->VisitNearbyGridObject(range, searcher);
+
+        sEluna->PushUnit(L, target);
+        return 1;
+    }
 };
 
 #endif

@@ -376,6 +376,38 @@ public:
             return ElunaTemplate<Item>::check(L, narg);
     }
 
+    class NearestTypeWithEntryInRangeCheck // not self
+    {
+    public:
+        NearestTypeWithEntryInRangeCheck(WorldObject const* obj, float range, TypeID typeId, uint32 entry = 0) : i_obj(obj), i_range(range), i_typeId(typeId), i_entry(entry)
+        {
+        }
+
+        bool operator()(WorldObject* u)
+        {
+            if (u->GetTypeId() == i_typeId && i_obj->GetGUID() != u->GetGUID() && (!i_entry || u->GetEntry() == i_entry) && i_obj->IsWithinDistInMap(u, i_range))
+            {
+                if(Unit* unit = u->ToUnit())
+                {
+                    if(!unit->isAlive())
+                        return false;
+                }
+
+                i_range = i_obj->GetDistance(u);
+                return true;
+            }
+
+            return false;
+        }
+    private:
+        WorldObject const* i_obj;
+        float i_range;
+        TypeID i_typeId;
+        uint32 i_entry;
+
+        NearestTypeWithEntryInRangeCheck(NearestTypeWithEntryInRangeCheck const&);
+    };
+
 protected:
     template<typename T>
     class ElunaTemplate

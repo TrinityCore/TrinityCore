@@ -2722,16 +2722,6 @@ public:
         return 1;
     }
 
-    // GetNearestPlayer([radius])
-    static int GetNearestPlayer(lua_State* L, Unit* unit)
-    {
-        TO_CREATURE();
-
-        float dist = luaL_optnumber(L, 1, 0.0f);
-        sEluna->PushUnit(L, creature->SelectNearestPlayer(dist));
-        return 1;
-    }
-
     // GetNearestHostileTargetInAggroRange([checkLOS])
     static int GetNearestHostileUnitInAggroRange(lua_State* L, Unit* unit)
     {
@@ -5346,101 +5336,53 @@ public:
         return 0;
     }
 
-    static std::list<Unit*> GetUnitList(Unit* unit, float dist)
-    {
-        std::list<Unit*> targets;
-        Trinity::AnyUnitInObjectRangeCheck u_check(unit, dist);
-        Trinity::UnitListSearcher<Trinity::AnyUnitInObjectRangeCheck> searcher(unit, targets, u_check);
-        unit->VisitNearbyObject(dist, searcher);
-
-        for (std::list<Unit*>::iterator tIter = targets.begin(); tIter != targets.end();)
-        {
-            if ((*tIter)->isTotem() || (*tIter)->isSpiritService() || (*tIter)->GetCreatureType() == CREATURE_TYPE_CRITTER)
-                targets.erase(tIter++);
-            else
-                ++tIter;
-        }
-
-        return targets;
-    }
-
-    // GetClosestPlayer([distance, alive, ])
-    bool UnitIsDead (Unit *const &unit) { return (unit->isAlive()); }
-    struct NearestWorldObjectInObjectRangeCheck {
-        std::list<WorldObject const*> i_list;
-        WorldObject const* i_obj;
-        WorldObject const* target;
-        float i_range;
-
-        NearestWorldObjectInObjectRangeCheck(std::list<WorldObject const*> list,  WorldObject const* obj, float range) : i_list(list), i_obj(obj), i_range(range)
-        {
-            this->target = NULL;
-        }
-
-        bool IsWithinDistInMap (WorldObject *const &obj)
-        {
-            if (i_obj->IsWithinDistInMap(obj, i_range))
-            {
-                i_range = i_obj->GetDistance(obj);
-                return true;
-            }
-
-            return false;
-        }
-
-        WorldObject const* operator() ()
-        {
-            if (i_obj->IsWithinDistInMap(obj, i_range))
-            {
-                i_range = i_obj->GetDistance(obj);
-                target = obj;
-            }
-        }
-    };
-    class NearestWorldObjectInObjectRangeCheck
-    {
-        public:
-            NearestWorldObjectInObject(WorldObject const* obj) : i_obj(obj)
-            {
-            }
-
-            bool operator()(Player* u)
-            {
-                if (u->isAlive() && i_obj->IsWithinDistInMap(u, i_range))
-                {
-                    i_range = i_obj->GetDistance(u);
-                    return true;
-                }
-
-                return false;
-            }
-        private:
-            WorldObject const* i_obj;
-    };
-    static int GetClosestPlayer(lua_State* L, Unit* unit)
+    // GetNearestPlayer([radius])
+    static int GetNearestPlayer(lua_State* L, Unit* unit)
     {
         TO_UNIT();
-        
-        float dist = luaL_optnumber(L, 1, 0.0f);
-        float dist = luaL_optnumber(L, 1, 0.0f);
 
-        if(dist < 0)
-            dist = 0.0f;
+        float distance = luaL_optnumber(L, 1, SIZE_OF_GRIDS);
 
-        std::list<Unit*> list = GetUnitList(unit, dist);
-        if(list.empty())
-        {
-            lua_pushnil(L);
-            return 1;
-        }
-        if(!lua_isnoneornil(L, 2))
-        {
-            bool alive = luaL_optbool(L, 2, true);
-            if(alive)
-                list.remove(UnitIsDead);
-            else
-                list.remove(!UnitIsDead);
-        }
+        Player* target = NULL;
+        Eluna::NearestTypeWithEntryInRangeCheck checker(unit, distance, TYPEID_PLAYER);
+        Trinity::PlayerLastSearcher<Eluna::NearestTypeWithEntryInRangeCheck> searcher(unit, target, checker);
+        unit->VisitNearbyObject(distance, searcher);
+
+        sEluna->PushUnit(L, target);
+        return 1;
+    }
+
+    // GetNearestGameObject([entry, radius])
+    static int GetNearestGameObject(lua_State* L, Unit* unit)
+    {
+        TO_UNIT();
+
+        uint32 entry = luaL_optunsigned(L, 1, 0);
+        float range = luaL_optnumber(L, 2, SIZE_OF_GRIDS);
+
+        GameObject* target = NULL;
+        Eluna::NearestTypeWithEntryInRangeCheck checker(unit, range, TYPEID_GAMEOBJECT, entry);
+        Trinity::GameObjectLastSearcher<Eluna::NearestTypeWithEntryInRangeCheck> searcher(unit, target, checker);
+        unit->VisitNearbyGridObject(range, searcher);
+
+        sEluna->PushGO(L, target);
+        return 1;
+    }
+
+    // GetNearestCreatureEntry([entry, radius])
+    static int GetNearestCreature(lua_State* L, Unit* unit)
+    {
+        TO_UNIT();
+
+        uint32 entry = luaL_optunsigned(L, 1, 0);
+        float range = luaL_optnumber(L, 2, SIZE_OF_GRIDS);
+
+        Creature* target = NULL;
+        Eluna::NearestTypeWithEntryInRangeCheck checker(unit, range, TYPEID_UNIT, entry);
+        Trinity::CreatureLastSearcher<Eluna::NearestTypeWithEntryInRangeCheck> searcher(unit, target, checker);
+        unit->VisitNearbyGridObject(range, searcher);
+
+        sEluna->PushUnit(L, target);
         return 1;
     }
 };

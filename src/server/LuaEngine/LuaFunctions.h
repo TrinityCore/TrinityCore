@@ -258,7 +258,6 @@ ElunaRegister<Unit> UnitMethods[] =
     {"GetVictim", &LuaUnit::GetVictim},                             // :GetVictim() - Returns creature's current target.
     {"GetNearestTargetInAttackDistance", &LuaUnit::GetNearestTargetInAttackDistance}, // :GetNearestTargetInAttackDistance([radius]) - Returns nearest target in attack distance and within given radius, if set.
     {"GetNearestTarget", &LuaUnit::GetNearestTarget},               // :GetNearestTarget([radius]) - Returns nearest target in sight or given radius.
-    {"GetNearestPlayer", &LuaUnit::GetNearestPlayer},               // :GetNearestPlayer([radius]) - Returns nearest player in sight or given radius.
     {"GetNearestHostileTargetInAggroRange", &LuaUnit::GetNearestHostileUnitInAggroRange}, // :GetNearestHostileTargetInAggroRange([checkLOS]) - Returns closest hostile target in aggro range of the creature.
     {"GetHomePosition", &LuaUnit::GetHomePosition},                 // :GetHomePosition() - Returns x,y,z,o of spawn position.
     {"GetTransportHomePosition", &LuaUnit::GetTransportHomePosition},   // :GetTransportHomePosition() - Returns x,y,z,o of transport spawn position.
@@ -371,6 +370,9 @@ ElunaRegister<Unit> UnitMethods[] =
     {"GetScale", &LuaUnit::GetScale},                               // :GetScale() - UNDOCUMENTED
     {"GetDistance", &LuaUnit::GetDistance},                         // :GetDistance(x, y, z) -- UNDOCUMENTED
     {"GetGUIDLow", &LuaUnit::GetGUIDLow},                           // :GetGUIDLow() -- Returns uint32 guid (low guid) that is used in database. UNDOCUMENTED
+    {"GetNearestPlayer", &LuaUnit::GetNearestPlayer},               // :GetNearestPlayer([radius]) - Returns nearest player in sight or given radius. UNDOCUMENTED
+    {"GetNearestGameObject", &LuaUnit::GetNearestGameObject},       // :GetNearestGameObject([entry, radius]) - Returns nearest gameobject with given entry in sight or given radius. UNDOCUMENTED
+    {"GetNearestCreature", &LuaUnit::GetNearestCreature},           // :GetNearestCreatureEntry([entry, radius]) - Returns nearest creature with given entry in sight or given radius. UNDOCUMENTED
 
     // Setters
     {"SetFaction", &LuaUnit::SetFaction},                           // :SetFaction(factionId) -- Sets the unit's faction
@@ -504,6 +506,9 @@ ElunaRegister<GameObject> GameObjectMethods[] =
     {"GetByteValue", &LuaGameObject::GetByteValue},                 // :GetByteValue(index, offset) - returns a byte value from object fields
     {"GetUInt16Value", &LuaGameObject::GetUInt16Value},             // :GetUInt16Value(index, offset) - returns a uint16 value from object fields
     {"GetGUIDLow", &LuaGameObject::GetGUIDLow},                     // :GetGUIDLow() -- Returns uint32 guid (low guid) that is used in database. UNDOCUMENTED
+    {"GetNearestPlayer", &LuaGameObject::GetNearestPlayer},               // :GetNearestPlayer([radius]) - Returns nearest player in sight or given radius. UNDOCUMENTED
+    {"GetNearestGameObject", &LuaGameObject::GetNearestGameObject},       // :GetNearestGameObject([entry, radius]) - Returns nearest gameobject with given entry in sight or given radius. UNDOCUMENTED
+    {"GetNearestCreature", &LuaGameObject::GetNearestCreature},           // :GetNearestCreatureEntry([entry, radius]) - Returns nearest creature with given entry in sight or given radius. UNDOCUMENTED
 
     // Setters
     {"SetScale", &LuaGameObject::SetScale},                         // :SetScale(scale) -
