@@ -2113,7 +2113,7 @@ void SpellMgr::LoadEnchantCustomAttr()
         if (!spellInfo)
             continue;
 
-        // TODO: find a better check
+        /// @todo find a better check
         if (!(spellInfo->AttributesEx2 & SPELL_ATTR2_PRESERVE_ENCHANT_IN_ARENA) || !(spellInfo->Attributes & SPELL_ATTR0_NOT_SHAPESHIFT))
             continue;
 
@@ -3613,12 +3613,17 @@ void SpellMgr::LoadDbcDataCorrections()
             // All spells below work even without these changes. The LOS attribute is due to problem
             // from collision between maps & gos with active destroyed state.
             case 57473: // Arcane Storm bonus explicit visual spell
-            case 57430: // Summon Static Field
+            case 57431: // Summon Static Field
             case 56091: // Flame Spike (Wyrmrest Skytalon)
             case 56092: // Engulf in Flames (Wyrmrest Skytalon)
             case 57090: // Revivify (Wyrmrest Skytalon)
             case 57143: // Life Burst (Wyrmrest Skytalon)
                 spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
+                break;
+            // This would never crit on retail and it has attribute for SPELL_ATTR3_NO_DONE_BONUS because is handled from player,
+            // until someone figures how to make scions not critting without hack and without making them main casters this should stay here.
+            case 63934: // Arcane Barrage (casted by players and NONMELEEDAMAGELOG with caster Scion of Eternity (original caster)).
+                spellInfo->AttributesEx2 |= SPELL_ATTR2_CANT_CRIT;
                 break;
             // ENDOF EYE OF ETERNITY SPELLS
             //

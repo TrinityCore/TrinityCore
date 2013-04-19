@@ -78,7 +78,7 @@ public:
             return true;
         }
 
-        // TO DO: this should be handled in map, maybe add a summon function in map
+        /// @todo this should be handled in map, maybe add a summon function in map
         // There is no other way afaik...
         void SpawnGameObject(uint32 entry, Position& pos)
         {
@@ -150,6 +150,19 @@ public:
                     giftBoxBunnyGUID = creature->GetGUID();
                     break;
             }
+        }
+
+        void OnUnitDeath(Unit* unit)
+        {
+            if (unit->GetTypeId() != TYPEID_PLAYER)
+                return;
+
+            // Player continues to be moving after death no matter if spline will be cleared along with all movements,
+            // so on next world tick was all about delay if box will pop or not (when new movement will be registered)
+            // since in EoE you never stop falling. However root at this precise* moment works,
+            // it will get cleared on release. If by any chance some lag happen "Reload()" and "RepopMe()" works,
+            // last test I made now gave me 50/0 of this bug so I can't do more about it.
+            unit->SetControlled(true, UNIT_STATE_ROOT);
         }
 
         void ProcessEvent(WorldObject* /*obj*/, uint32 eventId)

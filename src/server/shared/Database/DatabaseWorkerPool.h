@@ -55,8 +55,8 @@ class DatabaseWorkerPool
             memset(_connectionCount, 0, sizeof(_connectionCount));
             _connections.resize(IDX_SIZE);
 
-            WPFatal (mysql_thread_safe(), "Used MySQL library isn't thread-safe.");
-            WPFatal (mysql_get_client_version() >= MIN_MYSQL_CLIENT_VERSION, "TrinityCore does not support MySQL versions below 5.1");
+            WPFatal(mysql_thread_safe(), "Used MySQL library isn't thread-safe.");
+            WPFatal(mysql_get_client_version() >= MIN_MYSQL_CLIENT_VERSION, "TrinityCore does not support MySQL versions below 5.1");
         }
 
         ~DatabaseWorkerPool()
@@ -388,7 +388,7 @@ class DatabaseWorkerPool
             }
 
             //! Handle MySQL Errno 1213 without extending deadlock to the core itself
-            //! TODO: More elegant way
+            /// @todo More elegant way
             if (con->GetLastError() == 1213)
             {
                 uint8 loopBreaker = 5;

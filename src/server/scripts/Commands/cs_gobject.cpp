@@ -174,7 +174,7 @@ public:
             return false;
         }
 
-        // TODO: is it really necessary to add both the real and DB table guid here ?
+        /// @todo is it really necessary to add both the real and DB table guid here ?
         sObjectMgr->AddGameobjectToGrid(guidLow, sObjectMgr->GetGOData(guidLow));
 
         handler->PSendSysMessage(LANG_GAMEOBJECT_ADD, objectId, objectInfo->name.c_str(), guidLow, x, y, z);
@@ -592,7 +592,8 @@ public:
                 entry = object->GetEntry();
             else
                 entry = atoi((char*)args);
-        }
+        } else
+                entry = atoi((char*)args);
 
         GameObjectTemplate const* gameObjectInfo = sObjectMgr->GetGameObjectTemplate(entry);
 

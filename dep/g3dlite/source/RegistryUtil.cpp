@@ -16,6 +16,15 @@
 #include "G3D/RegistryUtil.h"
 #include "G3D/System.h"
 
+#ifdef __MINGW32__
+#  ifndef HKEY_PERFORMANCE_TEXT
+#    define HKEY_PERFORMANCE_TEXT ((HKEY)((LONG)0x80000050))
+#  endif
+#  ifndef HKEY_PERFORMANCE_NLSTEXT
+#    define HKEY_PERFORMANCE_NLSTEXT ((HKEY)((LONG)0x80000060))
+#  endif
+#endif
+
 namespace G3D {
 
 // static helpers

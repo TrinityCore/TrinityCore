@@ -95,15 +95,14 @@ public:
             return true;
         }
 
-        uint32 accountId = AccountMgr::GetId(target);
+        uint64 targetGuid = sObjectMgr->GetPlayerGUIDByName(target);
+        uint32 accountId = sObjectMgr->GetPlayerAccountIdByGUID(targetGuid);
         // Target must exist and have administrative rights
         if (!AccountMgr::HasPermission(accountId, RBAC_PERM_COMMANDS_BE_ASSIGNED_TICKET, realmID))
         {
             handler->SendSysMessage(LANG_COMMAND_TICKETASSIGNERROR_A);
             return true;
         }
-
-        uint64 targetGuid = sObjectMgr->GetPlayerGUIDByName(target);
 
         // If already assigned, leave
         if (ticket->IsAssignedTo(targetGuid))

@@ -140,7 +140,7 @@ public:
     }
 
     /// Delete a user account and all associated characters in this realm
-    /// \todo This function has to be enhanced to respect the login/realm split (delete char, delete account chars in realm then delete account)
+    /// @todo This function has to be enhanced to respect the login/realm split (delete char, delete account chars in realm then delete account)
     static bool HandleAccountDeleteCommand(ChatHandler* handler, char const* args)
     {
         if (!*args)

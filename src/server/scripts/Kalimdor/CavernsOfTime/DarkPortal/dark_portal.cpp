@@ -229,7 +229,7 @@ public:
                         if (me->HasAura(SPELL_CHANNEL))
                             me->RemoveAura(SPELL_CHANNEL);
 
-                        //TODO: start the post-event here
+                        /// @todo start the post-event here
                         instance->SetData(TYPE_MEDIVH, DONE);
                     }
                 } else Check_Timer -= diff;

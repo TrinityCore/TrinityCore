@@ -73,10 +73,13 @@ public:
 
         void SpellHit(Unit* caster, const SpellInfo* spell)
         {
-            if (spell->Id == SPELL_AWAKEN_PEON && caster->GetTypeId() == TYPEID_PLAYER
-                && CAST_PLR(caster)->GetQuestStatus(QUEST_LAZY_PEONS) == QUEST_STATUS_INCOMPLETE)
+            if (spell->Id != SPELL_AWAKEN_PEON)
+                return;
+
+            Player* player = caster->ToPlayer();
+            if (player && player->GetQuestStatus(QUEST_LAZY_PEONS) == QUEST_STATUS_INCOMPLETE)
             {
-                caster->ToPlayer()->KilledMonsterCredit(me->GetEntry(), me->GetGUID());
+                player->KilledMonsterCredit(me->GetEntry(), me->GetGUID());
                 Talk(SAY_SPELL_HIT, caster->GetGUID());
                 me->RemoveAllAuras();
                 if (GameObject* Lumberpile = me->FindNearestGameObject(GO_LUMBERPILE, 20))
@@ -342,7 +345,7 @@ class npc_tiger_matriarch : public CreatureScript
 };
 
 // These models was found in sniff.
-// TODO: generalize these models with race from dbc
+/// @todo generalize these models with race from dbc
 uint32 const trollmodel[] =
 {11665, 11734, 11750, 12037, 12038, 12042, 12049, 12849, 13529, 14759, 15570, 15701,
 15702, 1882, 1897, 1976, 2025, 27286, 2734, 2735, 4084, 4085, 4087, 4089, 4231, 4357,

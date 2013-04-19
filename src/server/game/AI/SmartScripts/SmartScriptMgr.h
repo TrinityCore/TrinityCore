@@ -104,8 +104,8 @@ enum SMART_EVENT
     SMART_EVENT_REWARD_QUEST             = 20,      // QuestID(0any)
     SMART_EVENT_REACHED_HOME             = 21,      // NONE
     SMART_EVENT_RECEIVE_EMOTE            = 22,      // EmoteId, CooldownMin, CooldownMax, condition, val1, val2, val3
-    SMART_EVENT_HAS_AURA                 = 23,      // Param1 = SpellID, Param2 = Number of Time STacked, Param3/4 RepeatMin, RepeatMax
-    SMART_EVENT_TARGET_BUFFED            = 24,      // Param1 = SpellID, Param2 = Number of Time STacked, Param3/4 RepeatMin, RepeatMax
+    SMART_EVENT_HAS_AURA                 = 23,      // Param1 = SpellID, Param2 = Stack amount, Param3/4 RepeatMin, RepeatMax
+    SMART_EVENT_TARGET_BUFFED            = 24,      // Param1 = SpellID, Param2 = Stack amount, Param3/4 RepeatMin, RepeatMax
     SMART_EVENT_RESET                    = 25,      // Called after combat, when the creature respawn and spawn.
     SMART_EVENT_IC_LOS                   = 26,      // NoHostile, MaxRnage, CooldownMin, CooldownMax
     SMART_EVENT_PASSENGER_BOARDED        = 27,      // CooldownMin, CooldownMax
@@ -426,7 +426,7 @@ enum SMART_ACTION
     SMART_ACTION_SET_INVINCIBILITY_HP_LEVEL         = 42,     // MinHpValue(+pct, -flat)
     SMART_ACTION_MOUNT_TO_ENTRY_OR_MODEL            = 43,     // Creature_template entry(param1) OR ModelId (param2) (or 0 for both to dismount)
     SMART_ACTION_SET_INGAME_PHASE_MASK              = 44,     // mask
-    SMART_ACTION_SET_DATA                           = 45,     // Field, Data (only creature TODO)
+    SMART_ACTION_SET_DATA                           = 45,     // Field, Data (only creature @todo)
     SMART_ACTION_MOVE_FORWARD                       = 46,     // distance
     SMART_ACTION_SET_VISIBILITY                     = 47,     // on/off
     SMART_ACTION_SET_ACTIVE                         = 48,     // No Params
@@ -488,8 +488,9 @@ enum SMART_ACTION
     SMART_ACTION_SET_GO_FLAG                        = 104,    // Flags
     SMART_ACTION_ADD_GO_FLAG                        = 105,    // Flags
     SMART_ACTION_REMOVE_GO_FLAG                     = 106,    // Flags
+    SMART_ACTION_SUMMON_CREATURE_GROUP              = 107,    // Group, attackInvoker
 
-    SMART_ACTION_END                                = 107
+    SMART_ACTION_END                                = 108
 };
 
 struct SmartAction
@@ -931,6 +932,12 @@ struct SmartAction
             uint32 flag;
         } goFlag;
 
+        struct
+        {
+            uint32 group;
+            uint32 attackInvoker;
+        } creatureGroup;
+
         //! Note for any new future actions
         //! All parameters must have type uint32
 
@@ -1294,9 +1301,9 @@ typedef UNORDERED_MAP<int32, SmartAIEventList> SmartAIEventMap;
 class SmartAIMgr
 {
     friend class ACE_Singleton<SmartAIMgr, ACE_Null_Mutex>;
-    SmartAIMgr(){};
+    SmartAIMgr(){}
     public:
-        ~SmartAIMgr(){};
+        ~SmartAIMgr(){}
 
         void LoadSmartAIFromDB();
 

@@ -477,6 +477,9 @@ void WorldSession::LogoutPlayer(bool save)
         ///- Remove pet
         _player->RemovePet(NULL, PET_SAVE_AS_CURRENT, true);
 
+        ///- Clear whisper whitelist
+        _player->ClearWhisperWhiteList();
+
         ///- empty buyback items and save the player in the database
         // some save parts only correctly work in case player present in map/player_lists (pets, etc)
         if (save)
@@ -957,12 +960,7 @@ void WorldSession::ReadAddonsInfo(WorldPacket &data)
             SavedAddon const* savedAddon = AddonMgr::GetAddonInfo(addonName);
             if (savedAddon)
             {
-                bool match = true;
-
                 if (addon.CRC != savedAddon->CRC)
-                    match = false;
-
-                if (!match)
                     sLog->outInfo(LOG_FILTER_GENERAL, "ADDON: %s was known, but didn't match known CRC (0x%x)!", addon.Name.c_str(), savedAddon->CRC);
                 else
                     sLog->outInfo(LOG_FILTER_GENERAL, "ADDON: %s was known, CRC is correct (0x%x)", addon.Name.c_str(), savedAddon->CRC);
@@ -974,16 +972,13 @@ void WorldSession::ReadAddonsInfo(WorldPacket &data)
                 sLog->outInfo(LOG_FILTER_GENERAL, "ADDON: %s (0x%x) was not known, saving...", addon.Name.c_str(), addon.CRC);
             }
 
-            // TODO: Find out when to not use CRC/pubkey, and other possible states.
+            /// @todo Find out when to not use CRC/pubkey, and other possible states.
             m_addonsList.push_back(addon);
         }
 
         uint32 currentTime;
         addonInfo >> currentTime;
         sLog->outDebug(LOG_FILTER_NETWORKIO, "ADDON: CurrentTime: %u", currentTime);
-
-        if (addonInfo.rpos() != addonInfo.size())
-            sLog->outDebug(LOG_FILTER_NETWORKIO, "packet under-read!");
     }
     else
         sLog->outError(LOG_FILTER_GENERAL, "Addon packet uncompress error!");
@@ -1031,21 +1026,26 @@ void WorldSession::SendAddonsInfo()
                 data.append(addonPublicKey, sizeof(addonPublicKey));
             }
 
-            data << uint32(0);                              // TODO: Find out the meaning of this.
+            data << uint32(0);                              /// @todo Find out the meaning of this.
         }
 
-        uint8 unk3 = 0;                                     // 0 is sent here
-        data << uint8(unk3);
-        if (unk3)
-        {
-            // String, length 256 (null terminated)
-            data << uint8(0);
-        }
+        data << uint8(0);       // uses URL
+        //if (usesURL)
+        //    data << uint8(0); // URL
     }
 
     m_addonsList.clear();
 
-    data << uint32(0); // count for an unknown for loop
+    AddonMgr::BannedAddonList const* bannedAddons = AddonMgr::GetBannedAddons();
+    data << uint32(bannedAddons->size());
+    for (AddonMgr::BannedAddonList::const_iterator itr = bannedAddons->begin(); itr != bannedAddons->end(); ++itr)
+    {
+        data << uint32(itr->Id);
+        data.append(itr->NameMD5, sizeof(itr->NameMD5));
+        data.append(itr->VersionMD5, sizeof(itr->VersionMD5));
+        data << uint32(itr->Timestamp);
+        data << uint32(1);  // IsBanned
+    }
 
     SendPacket(&data);
 }

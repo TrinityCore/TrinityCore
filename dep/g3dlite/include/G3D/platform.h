@@ -51,6 +51,11 @@
 
 #ifdef _MSC_VER 
     #define G3D_WIN32
+#elif defined(__MINGW32__)
+    #define G3D_WIN32
+    #undef __MSVCRT_VERSION__
+    #define __MSVCRT_VERSION__ 0x0601
+    #include <windows.h>
 #elif  defined(__FreeBSD__) || defined(__OpenBSD__)
     #define G3D_FREEBSD
     #define G3D_LINUX

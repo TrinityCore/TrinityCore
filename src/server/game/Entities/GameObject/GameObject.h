@@ -27,6 +27,7 @@
 #include "DatabaseEnv.h"
 
 class GameObjectAI;
+class Group;
 
 #define MAX_GAMEOBJECT_QUEST_ITEMS 6
 
@@ -81,7 +82,7 @@ struct GameObjectTemplate
             uint32 noDamageImmune;                          //5
             uint32 openTextID;                              //6 can be used to replace castBarCaption?
             uint32 losOK;                                   //7
-            uint32 allowMounted;                            //8
+            uint32 allowMounted;                            //8 Is usable while on mount/vehicle. (0/1)
             uint32 large;                                   //9
         } questgiver;
         //3 GAMEOBJECT_TYPE_CHEST
@@ -91,8 +92,8 @@ struct GameObjectTemplate
             uint32 lootId;                                  //1
             uint32 chestRestockTime;                        //2
             uint32 consumable;                              //3
-            uint32 minSuccessOpens;                         //4
-            uint32 maxSuccessOpens;                         //5
+            uint32 minSuccessOpens;                         //4 Deprecated, pre 3.0 was used for mining nodes but since WotLK all mining nodes are usable once and grant all loot with a single use
+            uint32 maxSuccessOpens;                         //5 Deprecated, pre 3.0 was used for mining nodes but since WotLK all mining nodes are usable once and grant all loot with a single use
             uint32 eventId;                                 //6 lootedEvent
             uint32 linkedTrapId;                            //7
             uint32 questId;                                 //8 not used currently but store quest required for GO activation for player
@@ -160,7 +161,7 @@ struct GameObjectTemplate
             uint32 pageID;                                  //0
             uint32 language;                                //1
             uint32 pageMaterial;                            //2
-            uint32 allowMounted;                            //3
+            uint32 allowMounted;                            //3 Is usable while on mount/vehicle. (0/1)
         } text;
         //10 GAMEOBJECT_TYPE_GOOBER
         struct
@@ -182,7 +183,7 @@ struct GameObjectTemplate
             uint32 openTextID;                              //14 can be used to replace castBarCaption?
             uint32 closeTextID;                             //15
             uint32 losOK;                                   //16 isBattlegroundObject
-            uint32 allowMounted;                            //17
+            uint32 allowMounted;                            //17 Is usable while on mount/vehicle. (0/1)
             uint32 floatingTooltip;                         //18
             uint32 gossipID;                                //19
             uint32 WorldStateSetsState;                     //20
@@ -257,7 +258,7 @@ struct GameObjectTemplate
             uint32 spellId;                                 //0
             uint32 charges;                                 //1
             uint32 partyOnly;                               //2
-            uint32 allowMounted;                            //3
+            uint32 allowMounted;                            //3 Is usable while on mount/vehicle. (0/1)
             uint32 large;                                   //4
         } spellcaster;
         //23 GAMEOBJECT_TYPE_MEETINGSTONE
@@ -409,6 +410,18 @@ struct GameObjectTemplate
         }
     }
 
+    bool IsUsableMounted() const
+    {
+        switch (type)
+        {
+            case GAMEOBJECT_TYPE_QUESTGIVER: return questgiver.allowMounted;
+            case GAMEOBJECT_TYPE_TEXT: return text.allowMounted;
+            case GAMEOBJECT_TYPE_GOOBER: return goober.allowMounted;
+            case GAMEOBJECT_TYPE_SPELLCASTER: return spellcaster.allowMounted;
+            default: return false;
+        }
+    }
+
     uint32 GetLockId() const
     {
         switch (type)
@@ -529,6 +542,11 @@ class OPvPCapturePoint;
 
 union GameObjectValue
 {
+    //25 GAMEOBJECT_TYPE_FISHINGHOLE
+    struct
+    {
+        uint32 MaxOpens;
+    } FishingHole;
     //29 GAMEOBJECT_TYPE_CAPTURE_POINT
     struct
     {

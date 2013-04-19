@@ -10,7 +10,7 @@
 
 #define TEXT_SOURCE_RANGE -1000000                          //the amount of entries each text source has available
 
-//TODO: find better namings and definitions.
+/// @todo find better namings and definitions.
 //N=Neutral, A=Alliance, H=Horde.
 //NEUTRAL or FRIEND = Hostility to player surroundings (not a good definition)
 //ACTIVE or PASSIVE = Hostility to environment surroundings.

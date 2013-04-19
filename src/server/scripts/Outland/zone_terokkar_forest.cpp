@@ -98,10 +98,11 @@ public:
 
         void DamageTaken(Unit* done_by, uint32 &damage)
         {
-            if (done_by->GetTypeId() == TYPEID_PLAYER)
-                if (me->HealthBelowPctDamaged(30, damage))
+            Player* player = done_by->ToPlayer();
+
+            if (player && me->HealthBelowPctDamaged(30, damage))
             {
-                if (Group* group = CAST_PLR(done_by)->GetGroup())
+                if (Group* group = player->GetGroup())
                 {
                     for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
                     {
@@ -115,11 +116,11 @@ public:
                                 CanDoQuest = true;
                         }
                     }
-                } else
-                if (CAST_PLR(done_by)->GetQuestStatus(QUEST_DONTKILLTHEFATONE) == QUEST_STATUS_INCOMPLETE &&
-                    CAST_PLR(done_by)->GetReqKillOrCastCurrentCount(QUEST_DONTKILLTHEFATONE, 18260) == 10)
+                }
+                else if (player->GetQuestStatus(QUEST_DONTKILLTHEFATONE) == QUEST_STATUS_INCOMPLETE &&
+                    player->GetReqKillOrCastCurrentCount(QUEST_DONTKILLTHEFATONE, 18260) == 10)
                 {
-                    CAST_PLR(done_by)->AreaExploredOrEventHappens(QUEST_DONTKILLTHEFATONE);
+                    player->AreaExploredOrEventHappens(QUEST_DONTKILLTHEFATONE);
                     CanDoQuest = true;
                 }
             }
@@ -229,20 +230,13 @@ public:
             if (HasEscortState(STATE_ESCORT_ESCORTING))
                 return;
 
-            if (who->GetTypeId() == TYPEID_PLAYER)
-            {
-                if (CAST_PLR(who)->GetQuestStatus(10898) == QUEST_STATUS_INCOMPLETE)
-                {
-                    float Radius = 10.0f;
-                    if (me->IsWithinDistInMap(who, Radius))
-                    {
-                        Start(false, false, who->GetGUID());
-                    }
-                }
-            }
+            Player* player = who->ToPlayer();
+            if (player && player->GetQuestStatus(10898) == QUEST_STATUS_INCOMPLETE)
+                if (me->IsWithinDistInMap(who, 10.0f))
+                    Start(false, false, who->GetGUID());
         }
 
-        void Reset() {}
+        void Reset() { }
 
         void UpdateAI(uint32 diff)
         {
