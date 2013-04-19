@@ -3116,6 +3116,16 @@ void SpellMgr::LoadDbcDataCorrections()
                 spellInfo->EffectRadiusIndex[0] = EFFECT_RADIUS_100_YARDS;
                 spellInfo->DurationIndex = 28;          // 5 seconds
                 break;
+            case 7328:  // Redemption
+            case 7329:  // Redemption
+            case 10322: // Redemption
+            case 10324: // Redemption
+            case 20772: // Redemption
+            case 20773: // Redemption
+            case 48949: // Redemption
+            case 48950: // Redemption
+                spellInfo->SpellFamilyName = SPELLFAMILY_PALADIN;
+                break;
             case 38310: // Multi-Shot
             case 53385: // Divine Storm (Damage)
                 spellInfo->MaxAffectedTargets = 4;
