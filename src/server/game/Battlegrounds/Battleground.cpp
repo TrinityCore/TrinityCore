@@ -623,7 +623,7 @@ inline Player* Battleground::_GetPlayerForTeam(uint32 teamId, BattlegroundPlayer
     {
         uint32 team = itr->second.Team;
         if (!team)
-            team = player->GetTeam();
+            team = player->GetBGTeam();
         if (team != teamId)
             player = NULL;
     }
@@ -986,6 +986,7 @@ void Battleground::EndBattleground(uint32 winner)
 
         player->ResetAllPowers();
         player->CombatStopWithPets(true);
+        player->setFactionForRace(player->getRace());
 
         BlockMovement(player);
 
@@ -1072,7 +1073,7 @@ void Battleground::RemovePlayerAtLeave(uint64 guid, bool Transport, bool SendPac
         {
             player->ClearAfkReports();
 
-            if (!team) team = player->GetTeam();
+            if (!team) team = player->GetBGTeam();
 
             // if arena, remove the specific arena auras
             if (isArena())
@@ -1202,10 +1203,34 @@ void Battleground::AddPlayer(Player* player)
     if (player->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_AFK))
         player->ToggleAFK();
 
+    uint32 team;
+    uint64 guid;
+  
     // score struct must be created in inherited class
+    if (/* sWorld->getBoolConfig(CONFIG_BG_CROSSFRACTION) == 1 && */!isArena())
+    {
+        uint32 hCount = GetPlayersCountByTeam(HORDE);
+        uint32 aCount = GetPlayersCountByTeam(ALLIANCE);
+        guid = player->GetGUID();
 
-    uint64 guid = player->GetGUID();
-    uint32 team = player->GetBGTeam();
+        if (aCount >= hCount)
+        {
+            team = HORDE;
+            player->SetBGTeam(HORDE);
+            player->setFaction(2);
+        }
+        else
+        {
+            team = ALLIANCE;
+            player->SetBGTeam(ALLIANCE);
+            player->setFaction(1);
+        }
+    }
+    else
+    {
+        guid = player->GetGUID();
+        team = player->GetBGTeam();
+    } 
 
     BattlegroundPlayer bp;
     bp.OfflineRemoveTime = 0;
@@ -1228,14 +1253,14 @@ void Battleground::AddPlayer(Player* player)
         player->RemoveArenaEnchantments(TEMP_ENCHANTMENT_SLOT);
         if (team == ALLIANCE)                                // gold
         {
-            if (player->GetTeam() == HORDE)
+            if (player->GetBGTeam() == HORDE)
                 player->CastSpell(player, SPELL_HORDE_GOLD_FLAG, true);
             else
                 player->CastSpell(player, SPELL_ALLIANCE_GOLD_FLAG, true);
         }
         else                                                // green
         {
-            if (player->GetTeam() == HORDE)
+            if (player->GetBGTeam() == HORDE)
                 player->CastSpell(player, SPELL_HORDE_GREEN_FLAG, true);
             else
                 player->CastSpell(player, SPELL_ALLIANCE_GREEN_FLAG, true);
@@ -1878,7 +1903,7 @@ void Battleground::HandleKillPlayer(Player* victim, Player* killer)
             if (!creditedPlayer || creditedPlayer == killer)
                 continue;
 
-            if (creditedPlayer->GetTeam() == killer->GetTeam() && creditedPlayer->IsAtGroupRewardDistance(victim))
+            if (creditedPlayer->GetBGTeam() == killer->GetBGTeam() && creditedPlayer->IsAtGroupRewardDistance(victim))
                 UpdatePlayerScore(creditedPlayer, SCORE_HONORABLE_KILLS, 1);
         }
     }
@@ -1996,7 +2021,7 @@ void Battleground::SetBgRaid(uint32 TeamID, Group* bg_raid)
 
 WorldSafeLocsEntry const* Battleground::GetClosestGraveYard(Player* player)
 {
-    return sObjectMgr->GetClosestGraveYard(player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetMapId(), player->GetTeam());
+    return sObjectMgr->GetClosestGraveYard(player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetMapId(), player->GetBGTeam());
 }
 
 void Battleground::StartTimedAchievement(AchievementCriteriaTimedTypes type, uint32 entry)

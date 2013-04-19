@@ -21,7 +21,7 @@
 #include "ArenaTeamMgr.h"
 #include "World.h"
 #include "WorldPacket.h"
-
+#include "Battleground.h"
 #include "ArenaTeam.h"
 #include "BattlegroundMgr.h"
 #include "BattlegroundAV.h"
@@ -45,6 +45,7 @@
 #include "Formulas.h"
 #include "DisableMgr.h"
 #include "Opcodes.h"
+#include "Player.h"
 
 /*********************************************************/
 /***            BATTLEGROUND MANAGER                   ***/
@@ -280,9 +281,7 @@ void BattlegroundMgr::BuildPvpLogDataPacket(WorldPacket* data, Battleground* bg)
         else
         {
             Player* player = ObjectAccessor::FindPlayer(itr2->first);
-            uint32 team = bg->GetPlayerTeam(itr2->first);
-            if (!team && player)
-                team = player->GetBGTeam();
+            uint32 team = player->GetBGTeam();
             *data << uint8(team == ALLIANCE ? 1 : 0); // green or yellow
         }
         *data << uint32(itr2->second->DamageDone);              // damage done
@@ -888,11 +887,22 @@ void BattlegroundMgr::SendToBattleground(Player* player, uint32 instanceId, Batt
 {
     if (Battleground* bg = GetBattleground(instanceId, bgTypeId))
     {
+        uint32 team;
+        if (/* sWorld->getBoolConfig(CONFIG_BG_CROSSFRACTION) == 1 && */!bg->isArena())
+        {
+            uint32 hCount = bg->GetPlayersCountByTeam(HORDE);
+            uint32 aCount = bg->GetPlayersCountByTeam(ALLIANCE);
+
+            if (aCount >= hCount)
+                team = HORDE;
+            else
+                team = ALLIANCE;
+        }
+        else
+            team = player->GetBGTeam();
+
         float x, y, z, O;
         uint32 mapid = bg->GetMapId();
-        uint32 team = player->GetBGTeam();
-        if (team == 0)
-            team = player->GetTeam();
 
         bg->GetTeamStartLoc(team, x, y, z, O);
         sLog->outDebug(LOG_FILTER_BATTLEGROUND, "BattlegroundMgr::SendToBattleground: Sending %s to map %u, X %f, Y %f, Z %f, O %f (bgType %u)", player->GetName().c_str(), mapid, x, y, z, O, bgTypeId);
@@ -1208,3 +1218,24 @@ void BattlegroundMgr::RemoveBattleground(BattlegroundTypeId bgTypeId, uint32 ins
     bgDataStore[bgTypeId].m_Battlegrounds.erase(instanceId);
 }
 
+bool BattlegroundMgr::HasBattleground(Battleground *_bg)
+{
+    BattlegroundContainer::iterator itr, next;
+    for (uint32 i = BATTLEGROUND_TYPE_NONE; i < MAX_BATTLEGROUND_TYPE_ID; ++i)
+    {
+        itr = m_Battlegrounds[i].begin();
+        // skip updating battleground template
+        if (itr != m_Battlegrounds[i].end())
+            ++itr;
+        for (; itr != m_Battlegrounds[i].end(); itr = next)
+        {
+            next = itr;
+            ++next;
+            Battleground* bg = itr->second;
+            if (bg == _bg)
+                return true;
+        }
+    }
+
+    return false;
+}

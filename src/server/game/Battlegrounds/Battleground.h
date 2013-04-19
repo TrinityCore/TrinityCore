@@ -155,8 +155,10 @@ enum BattlegroundStatus
 
 struct BattlegroundPlayer
 {
-    time_t  OfflineRemoveTime;                              // for tracking and removing offline players from queue after 5 minutes
-    uint32  Team;                                           // Player's team
+    time_t OfflineRemoveTime; // for tracking and removing offline players from queue after 5 minutes
+    uint32 hCount;
+    uint32 aCount;
+    uint32 Team; // Player's team
 };
 
 struct BattlegroundObjectInfo

@@ -11,6 +11,7 @@
 #                                                                                          #
 ############################################################################################
 
+[178] --> Implement Battleground Crossfraction. (Thx Quentis)
 [177] --> Implement Fast Arena Start. (Thx Demonid)
 [176] --> Fix Sylvanas Music Box.
 [175] --> Fix Shadowmeld. (Thx Hlkz)
