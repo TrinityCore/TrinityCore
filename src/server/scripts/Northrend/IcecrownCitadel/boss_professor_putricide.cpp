@@ -595,8 +595,20 @@ class boss_professor_putricide : public CreatureScript
                             EnterEvadeMode();
                             break;
                         case EVENT_ROTFACE_VILE_GAS:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, NonTankTargetSelector(me)))
-                                DoCast(target, SPELL_VILE_GAS_H, true); // triggered, to skip LoS check
+                            // Taken from Festergut
+                            if (Creature* rotface = Unit::GetCreature(*me, instance->GetData64(DATA_ROTFACE)))
+                            {
+                                std::list<Unit*> targets;
+                                uint32 minTargets = RAID_MODE<uint32>(3, 8, 3, 8);
+                                rotface->AI()->SelectTargetList(targets, minTargets, SELECT_TARGET_RANDOM, -5.0f, true);
+                                float minDist = 0.0f;
+                                if (targets.size() >= minTargets)
+                                    minDist = -5.0f;
+
+                                if (Unit* target = rotface->AI()->SelectTarget(SELECT_TARGET_RANDOM, 0, minDist, true))
+                                    DoCast(target, SPELL_VILE_GAS_H, true); // triggered, to skip LoS check
+                            }
+
                             events.ScheduleEvent(EVENT_ROTFACE_VILE_GAS, urand(15*IN_MILLISECONDS, 20*IN_MILLISECONDS), 0, PHASE_ROTFACE);
                             break;
                         case EVENT_ROTFACE_OOZE_FLOOD:
