@@ -508,6 +508,8 @@ inline void Battleground::_ProcessJoin(uint32 diff)
     {
         m_Events |= BG_STARTING_EVENT_4;
 
+        DespawnCrystals();
+
         StartingEventOpenDoors();
 
         SendWarningToAll(StartMessageIds[BG_STARTING_EVENT_FOURTH]);
@@ -2029,4 +2031,50 @@ void Battleground::HandleAreaTrigger(Player* player, uint32 trigger)
 {
     sLog->outDebug(LOG_FILTER_BATTLEGROUND, "Unhandled AreaTrigger %u in Battleground %u. Player coords (x: %f, y: %f, z: %f)",
                    trigger, player->GetMapId(), player->GetPositionX(), player->GetPositionY(), player->GetPositionZ());
+}
+
+uint8 Battleground::ClickFastStart(Player *player, GameObject *go)
+{
+    if (!isArena())
+        return 0;
+
+    std::set<uint64>::iterator pIt = m_playersWantsFastStart.find(player->GetGUID());
+    if (pIt != m_playersWantsFastStart.end() || GetStartDelayTime() < BG_START_DELAY_15S)
+        return m_playersWantsFastStart.size();
+
+    m_playersWantsFastStart.insert(player->GetGUID());
+    std::set<GameObject*>::iterator goIt = m_crystals.find(go);
+
+    if (goIt == m_crystals.end())
+        m_crystals.insert(go);
+
+    uint8 playersNeeded = 0;
+    switch(GetArenaType())
+    {
+        case ARENA_TYPE_2v2:
+            playersNeeded = 4;
+            break;
+        case ARENA_TYPE_3v3:
+            playersNeeded = 6;
+            break;
+        case ARENA_TYPE_5v5:
+            playersNeeded = 10;
+            break;
+    }
+
+    if (m_playersWantsFastStart.size() == playersNeeded)
+    {
+        DespawnCrystals();
+        SetStartDelayTime(BG_START_DELAY_15S);
+    }
+
+    return m_playersWantsFastStart.size();
+}
+
+void Battleground::DespawnCrystals()
+{
+    if (m_crystals.empty())
+        return;
+    /*  for (std::set<GameObject*>::iterator itr = m_crystals.begin(); itr != m_crystals.end(); itr)
+    { } */
 }

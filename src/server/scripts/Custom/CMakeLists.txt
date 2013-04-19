@@ -19,6 +19,7 @@ set(scripts_STAT_SRCS
   Custom/npc_maniek.cpp
   Custom/npc_mmr_reset.cpp
   Custom/npc_shop.cpp
+  Custom/arena_fast_start.cpp
 )
 
 message("  -> Prepared: Custom")

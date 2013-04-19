@@ -40,6 +40,8 @@ void AddSC_npc_maniek();
 void AddSC_npc_mmr_reset();
 // NPC Astranaar SHOP
 void AddSC_npc_shop();
+// Fast Arena Start
+void AddSC_fast_arena_start();
 
 // spells
 void AddSC_deathknight_spell_scripts();
@@ -1351,5 +1353,7 @@ void AddCustomScripts()
     AddSC_npc_mmr_reset();
     // NPC Astranaar SHOP
     AddSC_npc_shop();
+    // Fast Arena Start
+    AddSC_fast_arena_start();
 #endif
 }

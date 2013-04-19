@@ -319,3 +319,7 @@ INSERT INTO spell_script_names VALUES (58984, 'spell_gen_shadowmeld');
 -- Fix Sylvanas Music Box
 DELETE FROM spell_script_names WHERE spell_id = 73331;
 INSERT INTO spell_script_names VALUES ('73331', 'spell_item_sylvanas_music_box');
+
+-- Implement Fast Arena Start
+DELETE FROM `gameobject_template` WHERE `entry` = 42000;
+INSERT INTO `gameobject_template`(`entry`, `type`, `displayId`, `name`, `IconName`, `size`, `ScriptName`, `WDBVerified`) VALUES (42000, 10, 327, 'Faster Start', 'PVP' , 1, 'fast_arena_start', 12340);

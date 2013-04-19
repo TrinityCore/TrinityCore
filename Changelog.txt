@@ -11,6 +11,7 @@
 #                                                                                          #
 ############################################################################################
 
+[177] --> Implement Fast Arena Start. (Thx Demonid)
 [176] --> Fix Sylvanas Music Box.
 [175] --> Fix Shadowmeld. (Thx Hlkz)
 [174] --> Fix - always apply paladin auras' linked spells for caster. (Thx Timothy Liang)
