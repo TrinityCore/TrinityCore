@@ -12,60 +12,28 @@
 class LuaUnit
 {
 public:
-	
-	//Dismount()
-	static int Dismount(lua_State*L, Unit* unit)
-	{
-		TO_UNIT();
-		unit->Dismount();
+
+    //Dismount()
+    static int Dismount(lua_State*L, Unit* unit)
+    {
+        TO_UNIT();
+
+        unit->Dismount();
         return 0;
-	}
+    }
 
-	//IsWithinLOS(unit)
-	static int IsWithinLOS(lua_State*L, Unit* unit)
-	{
-		TO_UNIT_BOOL();
+    //IsWithinLOS(x, y, z)
+    static int IsWithinLOS(lua_State*L, Unit* unit)
+    {
+        TO_UNIT_BOOL();
 
-		Unit* target = sEluna->CHECK_UNIT(L, 1);
+        float x = luaL_checknumber(L, 1);
+        float y = luaL_checknumber(L, 2);
+        float z = luaL_checknumber(L, 3);
 
-		if (target)
-		{
-			float x = target->GetPositionX();
-			float y = target->GetPositionY();
-			float z = target->GetPositionZ();
-
-			sEluna->PushBoolean(L, unit->IsWithinLOS(x, y, z));
-			return 1;
-		}
-		else
-		{
-            luaL_error(L, "1st argument is not an unit");
-            sEluna->PushBoolean(L, false);
-			return 1;
-		}
-		return 0;
-	}
-
-	//GetRange(unit)
-	static int GetRange(lua_State* L, Unit* unit)
-	{
-		TO_UNIT();
-
-		Unit* target = sEluna->CHECK_UNIT(L, 1);
-
-		if (target)
-		{
-			sEluna->PushFloat(L, unit->GetDistance(target));
-			return 1;
-		}
-		else
-		{
-            luaL_error(L, "1st argument is not an unit");
-            sEluna->PushBoolean(L, false);
-			return 1;
-		}
-		return 0;
-	}
+        sEluna->PushBoolean(L, unit->IsWithinLOS(x, y, z));
+        return 1;
+    }
 
     // GetScale()
     static int GetScale(lua_State* L, Unit* unit)
@@ -849,15 +817,21 @@ public:
         return 1;
     }
 
-    // GetDistance(x, y, z)
+    // GetDistance(WorldObject or x, y, z)
     static int GetDistance(lua_State* L, Unit* unit)
     {
         TO_UNIT();
 
-        float X = luaL_checknumber(L, 1);
-        float Y = luaL_checknumber(L, 2);
-        float Z = luaL_checknumber(L, 3);
-        sEluna->PushFloat(L, unit->GetDistance(X, Y, Z));
+        WorldObject* obj = sEluna->CHECK_WORLDOBJECT(L, 1);
+        if (obj && obj->IsInWorld())
+            sEluna->PushFloat(L, unit->GetDistance(obj));
+        else
+        {
+            float X = luaL_checknumber(L, 1);
+            float Y = luaL_checknumber(L, 2);
+            float Z = luaL_checknumber(L, 3);
+            sEluna->PushFloat(L, unit->GetDistance(X, Y, Z));
+        }
         return 1;
     }
 
@@ -5377,7 +5351,7 @@ public:
 
         bool apply = luaL_optbool(L, 1, true);
 
-        if(apply)
+        if (apply)
         {
             player->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED | UNIT_FLAG_SILENCED);
             player->SetClientControl(player, 0);

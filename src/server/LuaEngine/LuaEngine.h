@@ -387,9 +387,9 @@ public:
         {
             if (u->GetTypeId() == i_typeId && i_obj->GetGUID() != u->GetGUID() && (!i_entry || u->GetEntry() == i_entry) && i_obj->IsWithinDistInMap(u, i_range))
             {
-                if(Unit* unit = u->ToUnit())
+                if (Unit* unit = u->ToUnit())
                 {
-                    if(!unit->isAlive())
+                    if (!unit->isAlive())
                         return false;
                 }
 

@@ -748,7 +748,7 @@ namespace LuaGlobalFunctions
                 luaL_error(L, "Item entry %u does not exist", entry);
                 continue;
             }
-            if(amount < 1 || (item_proto->MaxCount > 0 && amount > uint32(item_proto->MaxCount)))
+            if (amount < 1 || (item_proto->MaxCount > 0 && amount > uint32(item_proto->MaxCount)))
             {
                 luaL_error(L, "Item entry %u has invalid amount %u", entry, amount);
                 continue;
@@ -857,9 +857,9 @@ namespace LuaGlobalFunctions
             {
                 lua_insert(L, end++);
             }
-            if(start == end)
+            if (start == end)
                 continue;
-            if(end-start < 4) // no mandatory args, dont add
+            if (end-start < 4) // no mandatory args, dont add
             {
                 while (end != start)
                     lua_remove(L, --end);

@@ -5,7 +5,6 @@ ElunaRegister<Unit> UnitMethods[] =
 {
     // Player Methods
     // Getters
-	{"GetRange", &LuaUnit::GetRange },								// :GetRange(unit)
     {"GetSelection", &LuaUnit::GetSelection},                       // :GetSelection()
     {"GetGMRank", &LuaUnit::GetSecurity},                           // :GetSecurity()
     {"GetGuildId", &LuaUnit::GetGuildId},                           // :GetGuildId() - nil on no guild.
@@ -109,7 +108,7 @@ ElunaRegister<Unit> UnitMethods[] =
     {"SetPlayerLock", &LuaUnit::SetPlayerLock},                     // :SetPlayerLock(on/off) - UNDOCUMENTED
 
     // Boolean
-	{"IsWithinLOS", &LuaUnit::IsWithinLOS},							// :IsWithinLOS(unit)
+    {"IsWithinLOS", &LuaUnit::IsWithinLOS},							// :IsWithinLOS(x, y, z) - UNDOCUMENTED
     {"IsInGroup", &LuaUnit::IsInGroup},                             // :IsInGroup()
     {"IsInGuild", &LuaUnit::IsInGuild},                             // :IsInGuild()
     {"IsGM", &LuaUnit::IsGM},                                       // :IsGM()
@@ -170,7 +169,7 @@ ElunaRegister<Unit> UnitMethods[] =
     {"GossipClearMenu", &LuaUnit::GossipClearMenu},                 // :GossipClearMenu() -- Clears the gossip menu of options. Pretty much only useful with player gossip. Need to use before creating a new menu for the player
 
     // Other
-	{"Dismount", &LuaUnit::Dismount },								// :Dismount()
+    {"Dismount", &LuaUnit::Dismount },								// :Dismount() - Dismounts the unit. UNDOCUMENTED
     {"SendClearCooldowns", &LuaUnit::SendClearCooldowns },          // :SendClearCooldowns(spellId, (unit)target) -- Clears the cooldown of the target with a specified spellId.
     {"SendBroadcastMessage", &LuaUnit::SendBroadcastMessage},       // :SendBroadcastMessage(message)
     {"SendAreaTriggerMessage", &LuaUnit::SendAreaTriggerMessage},   // :SendAreaTriggerMessage(message) -- Sends a yellow message in the middle of your screen
@@ -371,7 +370,7 @@ ElunaRegister<Unit> UnitMethods[] =
     {"GetShieldBlockValue", &LuaUnit::GetShieldBlockValue},         // :GetShieldBlockValue() - Returns block value.
     {"GetMountId", &LuaUnit::GetMountId},                           // :GetMountId() -- UNDOCUMENTED
     {"GetScale", &LuaUnit::GetScale},                               // :GetScale() - UNDOCUMENTED
-    {"GetDistance", &LuaUnit::GetDistance},                         // :GetDistance(x, y, z) -- UNDOCUMENTED
+    {"GetDistance", &LuaUnit::GetDistance},                         // :GetDistance(WorldObject or x, y, z) -- UNDOCUMENTED
     {"GetGUIDLow", &LuaUnit::GetGUIDLow},                           // :GetGUIDLow() -- Returns uint32 guid (low guid) that is used in database. UNDOCUMENTED
     {"GetNearestPlayer", &LuaUnit::GetNearestPlayer},               // :GetNearestPlayer([radius]) - Returns nearest player in sight or given radius. UNDOCUMENTED
     {"GetNearestGameObject", &LuaUnit::GetNearestGameObject},       // :GetNearestGameObject([entry, radius]) - Returns nearest gameobject with given entry in sight or given radius. UNDOCUMENTED
@@ -562,6 +561,8 @@ ElunaRegister<Item> ItemMethods[] =
     {"GetByteValue", &LuaItem::GetByteValue},                               // :GetByteValue(index, offset) - returns a byte value from item fields
     {"GetUInt16Value", &LuaItem::GetUInt16Value},                           // :GetUInt16Value(index, offset) - returns a uint16 value from item fields
     {"GetGUIDLow", &LuaItem::GetGUIDLow},                                   // :GetGUIDLow() -- Returns uint32 guid (low guid) that is used in database. UNDOCUMENTED
+    {"GetEnchantmentId", &LuaItem::GetEnchantmentId},                       // :GetEnchantmentId(enchant_slot) -- Returns the enchantment in given slot. (permanent = 0) UNDOCUMENTED
+    {"GetName", &LuaItem::GetName},                                         // :GetName() -- Returns item name UNDOCUMENTED
 
     // Setters
     {"SetOwner", &LuaItem::SetOwner},                                       // :SetOwner(player) - Sets the owner of the item

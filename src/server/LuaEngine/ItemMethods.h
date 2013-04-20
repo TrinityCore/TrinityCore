@@ -499,5 +499,25 @@ public:
         sEluna->PushUnsigned(L, item->GetGUIDLow());
         return 1;
     }
+
+    static int GetEnchantmentId(lua_State* L, Item* item)
+    {
+        if (!item || !item->IsInWorld())
+            return 0;
+
+        uint32 enchant_slot = luaL_checkunsigned(L, 1);
+
+        sEluna->PushUnsigned(L, item->GetEnchantmentId(EnchantmentSlot(enchant_slot)));
+        return 1;
+    }
+
+    static int GetName(lua_State* L, Item* item)
+    {
+        if (!item || !item->IsInWorld())
+            return 0;
+
+        sEluna->PushString(L, item->GetTemplate()->Name1.c_str());
+        return 1;
+    }
 };
 #endif

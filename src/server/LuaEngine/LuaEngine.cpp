@@ -755,7 +755,7 @@ void LuaTaxiMgr::StartTaxi(Player* player, uint32 pathid)
         return;
 
     TaxiPathNodeList const& path = sTaxiPathNodesByPath[pathid];
-    if(path.size() < 2)
+    if (path.size() < 2)
         return;
 
     std::vector<uint32> nodes;
@@ -767,11 +767,11 @@ void LuaTaxiMgr::StartTaxi(Player* player, uint32 pathid)
 }
 uint32 LuaTaxiMgr::AddPath(std::list<TaxiPathNodeEntry> nodes, uint32 mountA, uint32 mountH, uint32 price, uint32 pathId)
 {
-    if(nodes.size() < 2)
+    if (nodes.size() < 2)
         return 0;
-    if(!pathId)
+    if (!pathId)
         pathId = sTaxiPathNodesByPath.size();
-    if(sTaxiPathNodesByPath.size() >= pathId)
+    if (sTaxiPathNodesByPath.size() >= pathId)
         sTaxiPathNodesByPath.resize(pathId+1);
     sTaxiPathNodesByPath[pathId].clear();
     sTaxiPathNodesByPath[pathId].resize(nodes.size());
@@ -793,7 +793,7 @@ uint32 LuaTaxiMgr::AddPath(std::list<TaxiPathNodeEntry> nodes, uint32 mountA, ui
         entry.index = nodeId++;
         sTaxiPathNodesByPath[pathId].set(index++, TaxiPathNodePtr(new TaxiPathNodeEntry(entry)));
     }
-    if(startNode >= nodeId)
+    if (startNode >= nodeId)
     {
         nodeId = startNode;
         return 0;
