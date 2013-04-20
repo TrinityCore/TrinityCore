@@ -12,6 +12,60 @@
 class LuaUnit
 {
 public:
+	
+	//Dismount()
+	static int Dismount(lua_State*L, Unit* unit)
+	{
+		TO_UNIT();
+		unit->Dismount();
+        return 0;
+	}
+
+	//IsWithinLOS(unit)
+	static int IsWithinLOS(lua_State*L, Unit* unit)
+	{
+		TO_UNIT_BOOL();
+
+		Unit* target = sEluna->CHECK_UNIT(L, 1);
+
+		if (target)
+		{
+			float x = target->GetPositionX();
+			float y = target->GetPositionY();
+			float z = target->GetPositionZ();
+
+			sEluna->PushBoolean(L, unit->IsWithinLOS(x, y, z));
+			return 1;
+		}
+		else
+		{
+            luaL_error(L, "1st argument is not an unit");
+            sEluna->PushBoolean(L, false);
+			return 1;
+		}
+		return 0;
+	}
+
+	//GetRange(unit)
+	static int GetRange(lua_State* L, Unit* unit)
+	{
+		TO_UNIT();
+
+		Unit* target = sEluna->CHECK_UNIT(L, 1);
+
+		if (target)
+		{
+			sEluna->PushFloat(L, unit->GetDistance(target));
+			return 1;
+		}
+		else
+		{
+            luaL_error(L, "1st argument is not an unit");
+            sEluna->PushBoolean(L, false);
+			return 1;
+		}
+		return 0;
+	}
 
     // GetScale()
     static int GetScale(lua_State* L, Unit* unit)

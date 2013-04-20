@@ -5,6 +5,7 @@ ElunaRegister<Unit> UnitMethods[] =
 {
     // Player Methods
     // Getters
+	{"GetRange", &LuaUnit::GetRange },								// :GetRange(unit)
     {"GetSelection", &LuaUnit::GetSelection},                       // :GetSelection()
     {"GetGMRank", &LuaUnit::GetSecurity},                           // :GetSecurity()
     {"GetGuildId", &LuaUnit::GetGuildId},                           // :GetGuildId() - nil on no guild.
@@ -108,6 +109,7 @@ ElunaRegister<Unit> UnitMethods[] =
     {"SetPlayerLock", &LuaUnit::SetPlayerLock},                     // :SetPlayerLock(on/off) - UNDOCUMENTED
 
     // Boolean
+	{"IsWithinLOS", &LuaUnit::IsWithinLOS},							// :IsWithinLOS(unit)
     {"IsInGroup", &LuaUnit::IsInGroup},                             // :IsInGroup()
     {"IsInGuild", &LuaUnit::IsInGuild},                             // :IsInGuild()
     {"IsGM", &LuaUnit::IsGM},                                       // :IsGM()
@@ -168,6 +170,7 @@ ElunaRegister<Unit> UnitMethods[] =
     {"GossipClearMenu", &LuaUnit::GossipClearMenu},                 // :GossipClearMenu() -- Clears the gossip menu of options. Pretty much only useful with player gossip. Need to use before creating a new menu for the player
 
     // Other
+	{"Dismount", &LuaUnit::Dismount },								// :Dismount()
     {"SendClearCooldowns", &LuaUnit::SendClearCooldowns },          // :SendClearCooldowns(spellId, (unit)target) -- Clears the cooldown of the target with a specified spellId.
     {"SendBroadcastMessage", &LuaUnit::SendBroadcastMessage},       // :SendBroadcastMessage(message)
     {"SendAreaTriggerMessage", &LuaUnit::SendAreaTriggerMessage},   // :SendAreaTriggerMessage(message) -- Sends a yellow message in the middle of your screen
