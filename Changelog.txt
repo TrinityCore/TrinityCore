@@ -11,6 +11,7 @@
 #                                                                                          #
 ############################################################################################
 
+[181] --> Update Target Movement Generator. (Thx Quentis)
 [180] --> Update PathPoint in Blade's Edge Arena, Dalaran Sewers and Eye of the Storm. (Thx Quentis)
 [179] --> Fix SpellFamily for Redemption (Paladin) so it scales with haste rating. (Thx  mweinelt)
 [178] --> Implement Battleground Crossfraction. (Thx Quentis)
