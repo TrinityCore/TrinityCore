@@ -29,7 +29,12 @@ public:
     {
         TO_UNIT();
 
-        unit->Dismount();
+        if (unit->IsMounted())
+        {
+            unit->Dismount();
+            unit->RemoveAurasByType(SPELL_AURA_MOUNTED);
+        }
+
         return 0;
     }
 
@@ -42,8 +47,8 @@ public:
         return 1;
     }
 
-    // IsWithinLOS(x, y, z)
-    static int IsWithinLOS(lua_State*L, Unit* unit)
+    // IsWithinLoS(x, y, z)
+    static int IsWithinLoS(lua_State*L, Unit* unit)
     {
         TO_UNIT_BOOL();
 

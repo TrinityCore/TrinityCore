@@ -108,7 +108,7 @@ ElunaRegister<Unit> UnitMethods[] =
     {"SetPlayerLock", &LuaUnit::SetPlayerLock},                     // :SetPlayerLock(on/off) - UNDOCUMENTED
 
     // Boolean
-    {"IsWithinLOS", &LuaUnit::IsWithinLOS},							// :IsWithinLOS(x, y, z) - UNDOCUMENTED
+    {"IsWithinLoS", &LuaUnit::IsWithinLoS},							// :IsWithinLoS(x, y, z) - UNDOCUMENTED
     {"IsInGroup", &LuaUnit::IsInGroup},                             // :IsInGroup()
     {"IsInGuild", &LuaUnit::IsInGuild},                             // :IsInGuild()
     {"IsGM", &LuaUnit::IsGM},                                       // :IsGM()
