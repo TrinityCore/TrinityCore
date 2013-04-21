@@ -169,7 +169,6 @@ ElunaRegister<Unit> UnitMethods[] =
     {"GossipClearMenu", &LuaUnit::GossipClearMenu},                 // :GossipClearMenu() -- Clears the gossip menu of options. Pretty much only useful with player gossip. Need to use before creating a new menu for the player
 
     // Other
-    {"Dismount", &LuaUnit::Dismount },								// :Dismount() - Dismounts the unit. UNDOCUMENTED
     {"SendClearCooldowns", &LuaUnit::SendClearCooldowns },          // :SendClearCooldowns(spellId, (unit)target) -- Clears the cooldown of the target with a specified spellId.
     {"SendBroadcastMessage", &LuaUnit::SendBroadcastMessage},       // :SendBroadcastMessage(message)
     {"SendAreaTriggerMessage", &LuaUnit::SendAreaTriggerMessage},   // :SendAreaTriggerMessage(message) -- Sends a yellow message in the middle of your screen
@@ -429,6 +428,7 @@ ElunaRegister<Unit> UnitMethods[] =
     {"IsAuctioneer", &LuaUnit::IsAuctioneer},                       // :IsAuctioneer() -- UNDOCUMENTED
     {"HealthBelowPct", &LuaUnit::HealthBelowPct},                   // :HealthBelowPct(int32 pct) -- UNDOCUMENTED
     {"HealthAbovePct", &LuaUnit::HealthAbovePct},                   // :HealthAbovePct(int32 pct) -- UNDOCUMENTED
+    {"IsMounted", &LuaUnit::IsMounted},                             // :IsMounted() -- UNDOCUMENTED
 
     // Other
     {"AddAura", &LuaUnit::AddAura},                                 // :AddAura(spellId, target) -- Adds an aura to the specified target
@@ -469,6 +469,8 @@ ElunaRegister<Unit> UnitMethods[] =
     {"Emote", &LuaUnit::Emote},                                     // :Emote(emote) -- UNDOCUMENTED
     {"CountPctFromCurHealth", &LuaUnit::CountPctFromCurHealth},     // :CountPctFromCurHealth(int32 pct) -- UNDOCUMENTED
     {"CountPctFromMaxHealth", &LuaUnit::CountPctFromMaxHealth},     // :CountPctFromMaxHealth() -- UNDOCUMENTED
+    {"Dismount", &LuaUnit::Dismount},								// :Dismount() - Dismounts the unit. UNDOCUMENTED
+    {"Mount", &LuaUnit::Mount},								        // :Mount(displayId) - Mounts the unit on the specified displayId. UNDOCUMENTED
 
     /* Vehicle */
     {"AddVehiclePassenger", &LuaUnit::AddVehiclePassenger},         // :AddVehiclePassenger(unit, seatId) - Adds a passenger to the vehicle by specifying a unit and seatId
