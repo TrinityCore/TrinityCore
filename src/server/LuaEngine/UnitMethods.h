@@ -13,17 +13,42 @@ class LuaUnit
 {
 public:
 
-    //Dismount()
+    // Mount(displayId)
+    static int Mount(lua_State*L, Unit* unit)
+    {
+        TO_UNIT();
+
+        uint32 displayId = luaL_checkunsigned(L, 1);
+
+        unit->Mount(displayId);
+        return 0;
+    }
+
+    // Dismount()
     static int Dismount(lua_State*L, Unit* unit)
     {
         TO_UNIT();
 
-        unit->Dismount();
+        if (unit->IsMounted())
+        {
+            unit->Dismount();
+            unit->RemoveAurasByType(SPELL_AURA_MOUNTED);
+        }
+
         return 0;
     }
 
-    //IsWithinLOS(x, y, z)
-    static int IsWithinLOS(lua_State*L, Unit* unit)
+    // IsMounted()
+    static int IsMounted(lua_State*L, Unit* unit)
+    {
+        TO_UNIT_BOOL();
+
+        sEluna->PushBoolean(L, unit->IsMounted());
+        return 1;
+    }
+
+    // IsWithinLoS(x, y, z)
+    static int IsWithinLoS(lua_State*L, Unit* unit)
     {
         TO_UNIT_BOOL();
 
