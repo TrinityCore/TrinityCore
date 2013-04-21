@@ -506,7 +506,6 @@ void PathGenerator::BuildPointPath(const float *startPoint, const float *endPoin
         {
              // Path X,y,z 1# Start
              Clear();
-             _type = PathType(PATHFIND_DEBUG | PATHFIND_DEBUG);
              _polyLength = 4;
              _pathPoints.resize(4);
              _pathPoints[0] = GetStartPosition();

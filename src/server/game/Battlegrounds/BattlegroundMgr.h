@@ -105,8 +105,6 @@ class BattlegroundMgr
 
         void SendToBattleground(Player* player, uint32 InstanceID, BattlegroundTypeId bgTypeId);
 
-        void SendToBattleground(Player* player, uint32 InstanceID, BattlegroundTypeId bgTypeId);
-
         void SendToBattleground(Player* player, Battleground* bg);
 
         /* Battleground queues */
