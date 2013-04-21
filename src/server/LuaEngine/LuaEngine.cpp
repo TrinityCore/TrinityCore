@@ -39,8 +39,11 @@ void Eluna::StartEluna(bool restart)
 
         if (LuaState)
         {
-            LuaEventMap::ScriptEventsResetAll(); // Unregisters and stops all timed events
+            // Unregisters and stops all timed events
+            LuaEventMap::ScriptEventsResetAll();
+            LuaEventData::RemoveAll();
 
+            // Remove bindings
             for (std::map<int, std::vector<int> >::iterator itr = ServerEventBindings.begin(); itr != ServerEventBindings.end(); ++itr)
             {
                 for (std::vector<int>::iterator it = itr->second.begin(); it != itr->second.end(); ++it)
@@ -284,7 +287,7 @@ bool Eluna::ExecuteCall(uint8 params, uint8 res)
 {
     bool ret = true;
     int top = lua_gettop(LuaState);
-    if (strcmp(luaL_typename(LuaState,top-params), "function") )
+    if (lua_isfunction(LuaState,top-params))
     {
         ret = false;
         if (params > 0)
@@ -681,7 +684,11 @@ void Eluna::ElunaBind::Insert(uint32 entryId, uint32 eventId, int funcRef)
     else
         Bindings[entryId][eventId] = funcRef;
 }
+
 UNORDERED_MAP<uint64, Eluna::LuaEventMap*> Eluna::LuaEventMap::LuaEventMaps;
+UNORDERED_MAP<int, Eluna::LuaEventData*> Eluna::LuaEventData::LuaEvents;
+UNORDERED_MAP<uint64, std::list<int> > Eluna::LuaEventData::EventIDs;
+
 void Eluna::LuaEventMap::ScriptEventsResetAll()
 {
     // GameObject && Creature events reset
@@ -777,7 +784,7 @@ uint32 LuaTaxiMgr::AddPath(std::list<TaxiPathNodeEntry> nodes, uint32 mountA, ui
     sTaxiPathNodesByPath[pathId].resize(nodes.size());
     uint32 startNode = nodeId;
     uint32 index = 0;
-    for(std::list<TaxiPathNodeEntry>::iterator it = nodes.begin(); it != nodes.end(); ++it)
+    for (std::list<TaxiPathNodeEntry>::iterator it = nodes.begin(); it != nodes.end(); ++it)
     {
         TaxiPathNodeEntry entry = *it;
         entry.path = pathId;

@@ -9,40 +9,30 @@
 
 namespace LuaGlobalFunctions
 {
-    // RegisterServerHook(ev, func)
+    // RegisterServerHook(event, function)
     static int RegisterServerHook(lua_State* L)
     {
-        int functionRef = 0;
-        lua_settop(L, 2);
         uint32 ev = luaL_checkunsigned(L, 1);
-        const char* typeName = luaL_typename(L, 2);
-
-        if (ev == 0 || !typeName)
+        lua_settop(L, 2);
+        if (ev == 0 || !lua_isfunction(L, lua_gettop(L)))
             return 0;
 
-        if (!strcmp(typeName, "function"))
-            functionRef = lua_ref(L, true);
-
+        int functionRef = lua_ref(L, true);
         if (functionRef > 0)
             sEluna->Register(REGTYPE_SERVER, 0, ev, functionRef);
         return 0;
     }
 
-    //RegisterCreatureGossipEvent(ev, func)
+    //RegisterCreatureGossipEvent(entry, event, function)
     static int RegisterCreatureGossipEvent(lua_State* L)
     {
-        int functionRef = 0;
-        lua_settop(L, 3);
-        uint32 entry = luaL_checkint(L, 1);
+        uint32 entry = luaL_checkunsigned(L, 1);
         uint32 ev = luaL_checkunsigned(L, 2);
-        const char* typeName = luaL_typename(L, 3);
-
-        if (ev == 0 || !typeName)
+        lua_settop(L, 3);
+        if (ev == 0 || !lua_isfunction(L, lua_gettop(L)))
             return 0;
 
-        if (!strcmp(typeName, "function"))
-            functionRef = lua_ref(L, true);
-
+        int functionRef = lua_ref(L, true);
         if (functionRef > 0)
             sEluna->Register(REGTYPE_CREATURE_GOSSIP, entry, ev, functionRef);
         return 0;
@@ -51,18 +41,13 @@ namespace LuaGlobalFunctions
     // RegisterGameObjectGossipEvent(entry, event, function)
     static int RegisterGameObjectGossipEvent(lua_State* L)
     {
-        int functionRef = 0;
-        lua_settop(L, 3);
-        uint32 entry = luaL_checkint(L, 1);
+        uint32 entry = luaL_checkunsigned(L, 1);
         uint32 ev = luaL_checkunsigned(L, 2);
-        const char* typeName = luaL_typename(L, 3);
-
-        if (ev == 0 || !typeName)
+        lua_settop(L, 3);
+        if (ev == 0 || !lua_isfunction(L, lua_gettop(L)))
             return 0;
 
-        if (!strcmp(typeName, "function"))
-            functionRef = lua_ref(L, true);
-
+        int functionRef = lua_ref(L, true);
         if (functionRef > 0)
             sEluna->Register(REGTYPE_GAMEOBJECT_GOSSIP, entry, ev, functionRef);
         return 0;
@@ -71,18 +56,13 @@ namespace LuaGlobalFunctions
     // RegisterItemEvent(entry, event, function)
     static int RegisterItemEvent(lua_State* L)
     {
-        int functionRef = 0;
-        lua_settop(L, 3);
-        uint32 entry = luaL_checkint(L, 1);
+        uint32 entry = luaL_checkunsigned(L, 1);
         uint32 ev = luaL_checkunsigned(L, 2);
-        const char* typeName = luaL_typename(L, 3);
-
-        if (ev == 0 || !typeName)
+        lua_settop(L, 3);
+        if (ev == 0 || !lua_isfunction(L, lua_gettop(L)))
             return 0;
 
-        if (!strcmp(typeName, "function"))
-            functionRef = lua_ref(L, true);
-
+        int functionRef = lua_ref(L, true);
         if (functionRef > 0)
             sEluna->Register(REGTYPE_ITEM, entry, ev, functionRef);
         return 0;
@@ -91,18 +71,13 @@ namespace LuaGlobalFunctions
     // RegisterItemGossipEvent(entry, event, function)
     static int RegisterItemGossipEvent(lua_State* L)
     {
-        int functionRef = 0;
-        lua_settop(L, 3);
-        uint32 entry = luaL_checkint(L, 1);
+        uint32 entry = luaL_checkunsigned(L, 1);
         uint32 ev = luaL_checkunsigned(L, 2);
-        const char* typeName = luaL_typename(L, 3);
-
-        if (ev == 0 || !typeName)
+        lua_settop(L, 3);
+        if (ev == 0 || !lua_isfunction(L, lua_gettop(L)))
             return 0;
 
-        if (!strcmp(typeName, "function"))
-            functionRef = lua_ref(L, true);
-
+        int functionRef = lua_ref(L, true);
         if (functionRef > 0)
             sEluna->Register(REGTYPE_ITEM_GOSSIP, entry, ev, functionRef);
         return 0;
@@ -111,56 +86,43 @@ namespace LuaGlobalFunctions
     // RegisterPlayerGossipEvent(menu_id, event, function)
     static int RegisterPlayerGossipEvent(lua_State* L)
     {
-        int functionRef = 0;
-        lua_settop(L, 3);
-        uint32 menu_id = luaL_checkint(L, 1);
+        uint32 menu_id = luaL_checkunsigned(L, 1);
         uint32 ev = luaL_checkunsigned(L, 2);
-        const char* typeName = luaL_typename(L, 3);
-
-        if (ev == 0 || !typeName)
+        lua_settop(L, 3);
+        if (ev == 0 || !lua_isfunction(L, lua_gettop(L)))
             return 0;
 
-        if (!strcmp(typeName, "function"))
-            functionRef = lua_ref(L, true);
-
+        int functionRef = lua_ref(L, true);
         if (functionRef > 0)
             sEluna->Register(REGTYPE_PLAYER_GOSSIP, menu_id, ev, functionRef);
         return 0;
     }
 
-    // RegisterCreatureEvent(entry, ev, func)
+    // RegisterCreatureEvent(entry, event, function)
     static int RegisterCreatureEvent(lua_State* L)
     {
-        int functionRef = 0;
-        lua_settop(L, 3);
-        uint32 entry = luaL_checkint(L, 1);
+        uint32 entry = luaL_checkunsigned(L, 1);
         uint32 ev = luaL_checkunsigned(L, 2);
-        const char* typeName = luaL_typename(L, 3);
-        if (ev == 0 || !typeName)
+        lua_settop(L, 3);
+        if (ev == 0 || !lua_isfunction(L, lua_gettop(L)))
             return 0;
 
-        if (!strcmp(typeName, "function"))
-            functionRef = lua_ref(L, true);
-
+        int functionRef = lua_ref(L, true);
         if (functionRef > 0)
             sEluna->Register(REGTYPE_CREATURE, entry, ev, functionRef);
         return 0;
     }
 
-    // RegisterGameObjectEvent(entry, event, func)
+    // RegisterGameObjectEvent(entry, event, function)
     static int RegisterGameObjectEvent(lua_State* L)
     {
-        int functionRef = 0;
-        lua_settop(L, 3);
-        uint32 entry = luaL_checkint(L, 1);
+        uint32 entry = luaL_checkunsigned(L, 1);
         uint32 ev = luaL_checkunsigned(L, 2);
-        const char* typeName = luaL_typename(L, 3);
-        if (ev == 0 || !typeName)
+        lua_settop(L, 3);
+        if (ev == 0 || !lua_isfunction(L, lua_gettop(L)))
             return 0;
 
-        if (!strcmp(typeName, "function"))
-            functionRef = lua_ref(L, true);
-
+        int functionRef = lua_ref(L, true);
         if (functionRef > 0)
             sEluna->Register(REGTYPE_GAMEOBJECT, entry, ev, functionRef);
         return 0;
@@ -440,15 +402,16 @@ namespace LuaGlobalFunctions
     {
         uint32 delay = luaL_checkunsigned(L, 2);
         uint32 repeats = luaL_checkunsigned(L, 3);
-        if (!strcmp(luaL_typename(L, 1), "function") || delay > 0)
+        if (!lua_isfunction(L, 1))
         {
-            lua_settop(L, 1);
-            int functionRef = lua_ref(L, true);
-            sEluna->LuaWorldAI->ScriptEventCreate(functionRef, delay, repeats);
-            sEluna->PushInteger(L, functionRef);
-        }
-        else
+            luaL_error(L, "#1 argument is not a function");
             return 0;
+        }
+
+        lua_settop(L, 1);
+        int functionRef = lua_ref(L, true);
+        sEluna->LuaWorldAI->ScriptEventCreate(functionRef, delay, repeats);
+        sEluna->PushInteger(L, functionRef);
         return 1;
     }
 
@@ -466,7 +429,10 @@ namespace LuaGlobalFunctions
         bool all_Events = luaL_optbool(L, 1, false);
 
         if (all_Events)
+        {
             Eluna::LuaEventMap::ScriptEventsResetAll();
+            Eluna::LuaEventData::RemoveAll();
+        }
         else
             sEluna->LuaWorldAI->ScriptEventsReset();
         return 0;
@@ -849,11 +815,11 @@ namespace LuaGlobalFunctions
         int end = start;
 
         lua_pushnil(L);
-        while(lua_next(L, -2) != 0)
+        while (lua_next(L, -2) != 0)
         {
             luaL_checktype(L, -1, LUA_TTABLE);
             lua_pushnil(L);
-            while(lua_next(L, -2) != 0)
+            while (lua_next(L, -2) != 0)
             {
                 lua_insert(L, end++);
             }

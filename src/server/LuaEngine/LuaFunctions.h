@@ -313,9 +313,6 @@ ElunaRegister<Unit> UnitMethods[] =
     {"IsDamageEnoughForLootingAndReward", &LuaUnit::IsDamageEnoughForLootingAndReward}, // :IsDamageEnoughForLootingAndReward() --
 
     // Other
-    {"RegisterEvent", &LuaUnit::RegisterEvent},                     // :RegisterEvent(function, delay, calls)
-    {"RemoveEventById", &LuaUnit::RemoveEventById},                 // :RemoveEventById(eventID)
-    {"RemoveEvents", &LuaUnit::RemoveEvents},                       // :RemoveEvents()
     {"Despawn", &LuaUnit::Despawn},                                 // :Despawn([despawnDelay]) - Creature despawns after given time
     {"FleeToGetAssistance", &LuaUnit::DoFleeToGetAssistance},       // :FleeToGetAssistance() - Creature flees for assistance
     {"CallForHelp", &LuaUnit::CallForHelp},                         // :CallForHelp(radius) - Creature calls for help from units in radius
@@ -431,6 +428,9 @@ ElunaRegister<Unit> UnitMethods[] =
     {"HealthAbovePct", &LuaUnit::HealthAbovePct},                   // :HealthAbovePct(int32 pct) -- UNDOCUMENTED
 
     // Other
+    {"RegisterEvent", &LuaUnit::RegisterEvent},                     // :RegisterEvent(function, delay, calls)
+    {"RemoveEventById", &LuaUnit::RemoveEventById},                 // :RemoveEventById(eventID)
+    {"RemoveEvents", &LuaUnit::RemoveEvents},                       // :RemoveEvents()
     {"AddAura", &LuaUnit::AddAura},                                 // :AddAura(spellId, target) -- Adds an aura to the specified target
     {"RemoveAura", &LuaUnit::RemoveAura},                           // :RemoveAura(spellId[, casterGUID]) -- Removes an aura from the unit by the spellId, casterGUID(Original caster) is optional.
     {"RemoveAllAuras", &LuaUnit::RemoveAllAuras},                   // :RemoveAllAuras() -- Removes all the unit's auras

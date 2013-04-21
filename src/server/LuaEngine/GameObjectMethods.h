@@ -307,23 +307,24 @@ public:
 
         uint32 delay = luaL_checkunsigned(L, 2);
         uint32 repeats = luaL_checkunsigned(L, 3);
+        if (!lua_isfunction(L, 1))
+        {
+            luaL_error(L, "#1 argument is not a function");
+            return 0;
+        }
+
+        lua_settop(L, 1);
         Eluna::LuaEventMap* eventMap = Eluna::LuaEventMap::GetEvents(go);
         if (!eventMap)
         {
             luaL_error(L, "GameObject has no registered gameobject events, please register one before using RegisterEvent");
             return 0;
         }
-        if (!strcmp(luaL_typename(L, 1), "function") || delay > 0)
-        {
-            lua_settop(L, 1);
-            int functionRef = lua_ref(L, true);
-            eventMap->ScriptEventCreate(functionRef, delay, repeats);
-            sEluna->PushInteger(L, functionRef);
-        }
-        else
-            return 0;
-        return 1;
 
+        int functionRef = lua_ref(L, true);
+        eventMap->ScriptEventCreate(functionRef, delay, repeats);
+        sEluna->PushInteger(L, functionRef);
+        return 1;
     }
 
     // RemoveEventById(eventID)

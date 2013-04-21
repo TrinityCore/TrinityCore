@@ -239,6 +239,7 @@ public:
     lua_State* LuaState;
 
     class LuaEventMap;
+    struct LuaEventData;
     class Eluna_WorldScript;
     class Eluna_CreatureScript;
     class Eluna_GameObjectScript;
@@ -771,22 +772,19 @@ public:
     {
     }
 
-    struct ScriptCreatureAI : ScriptedAI, public Eluna::LuaEventMap
+    struct ScriptCreatureAI : ScriptedAI
     {
-        ScriptCreatureAI(Creature* creature) : ScriptedAI(creature), LuaEventMap()
+        ScriptCreatureAI(Creature* creature) : ScriptedAI(creature)
         {
         }
         ~ScriptCreatureAI()
         {
-            LuaEventMap::LuaEventMaps.erase(me->GetGUID());
         }
 
         //Called at World update tick
         void UpdateAI(uint32 diff)
         {
             ScriptedAI::UpdateAI(diff);
-            ScriptEventsUpdate(diff);
-            ScriptEventsExecute();
             int bind = sEluna->CreatureEventBindings->GetBind(me->GetEntry(), CREATURE_EVENT_ON_AIUPDATE);
             if (!bind)
                 return;
@@ -795,17 +793,6 @@ public:
             sEluna->PushUnit(sEluna->LuaState, me);
             sEluna->PushUnsigned(sEluna->LuaState, diff);
             sEluna->ExecuteCall(3, 0);
-        }
-
-        // executed when a  timed event fires
-        void OnScriptEvent(int funcRef, uint32 delay, uint32 calls)
-        {
-            sEluna->BeginCall(funcRef);
-            sEluna->PushUnsigned(sEluna->LuaState, funcRef);
-            sEluna->PushUnsigned(sEluna->LuaState, delay);
-            sEluna->PushUnsigned(sEluna->LuaState, calls);
-            sEluna->PushUnit(sEluna->LuaState, me);
-            sEluna->ExecuteCall(4, 0);
         }
 
         //Called for reaction at enter to combat if not in combat yet (enemy can be NULL)
@@ -1207,7 +1194,6 @@ public:
             return NULL;
 
         ScriptCreatureAI* luaCreatureAI = new ScriptCreatureAI(creature);
-        LuaEventMap::LuaEventMaps[creature->GetGUID()] = luaCreatureAI;
         return luaCreatureAI;
     }
 };
@@ -1273,6 +1259,58 @@ public:
         ScriptGameObjectAI* luaGameObjectAI = new ScriptGameObjectAI(gameObject);
         LuaEventMap::LuaEventMaps[gameObject->GetGUID()] = luaGameObjectAI;
         return luaGameObjectAI;
+    }
+};
+struct Eluna::LuaEventData : public BasicEvent, public Eluna::LuaEventMap::eventData
+{
+    static UNORDERED_MAP<int, LuaEventData*> LuaEvents;
+    static UNORDERED_MAP<uint64, std::list<int> > EventIDs;
+    Unit* _unit;
+    uint64 GUID;
+
+    LuaEventData(int funcRef, uint32 delay, uint32 calls, Unit* unit) :
+    _unit(unit), GUID(unit->GetGUID()), Eluna::LuaEventMap::eventData(funcRef, delay, calls)
+    {
+        LuaEvents[funcRef] = this;
+    }
+
+    ~LuaEventData()
+    {
+        luaL_unref(sEluna->LuaState, LUA_REGISTRYINDEX, funcRef);
+        LuaEvents.erase(funcRef);
+        EventIDs.erase(GUID);
+    }
+
+    static void RemoveAll()
+    {
+        LuaEvents.clear();
+        EventIDs.clear();
+    }
+    static void RemoveAll(Unit* unit)
+    {
+        for (std::list<int>::iterator it = EventIDs[unit->GetGUID()].begin(); it != EventIDs[unit->GetGUID()].end(); ++it)
+            LuaEvents.erase(*it);
+        EventIDs.erase(unit->GetGUID());
+    }
+    static void Remove(int eventID)
+    {
+        LuaEvents.erase(eventID);
+    }
+
+    bool Execute(uint64 time, uint32 diff)
+    {
+        if (LuaEvents.find(funcRef) == LuaEvents.end())
+            return true; // destory event
+        sEluna->BeginCall(funcRef);
+        sEluna->PushUnsigned(sEluna->LuaState, funcRef);
+        sEluna->PushUnsigned(sEluna->LuaState, delay);
+        sEluna->PushUnsigned(sEluna->LuaState, calls);
+        sEluna->PushUnit(sEluna->LuaState, _unit);
+        sEluna->ExecuteCall(4, 0);
+        if (calls && !--calls) // dont repeat anymore
+            return true; // destory event
+        _unit->m_Events.AddEvent(this, _unit->m_Events.CalculateTime(delay));
+        return false; // dont destory event
     }
 };
 class LuaTaxiMgr

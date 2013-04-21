@@ -5016,49 +5016,39 @@ public:
     // RegisterEvent(function, delay, calls)
     static int RegisterEvent(lua_State* L, Unit* unit)
     {
-        TO_CREATURE();
+        TO_UNIT();
 
         uint32 delay = luaL_checkunsigned(L, 2);
         uint32 repeats = luaL_checkunsigned(L, 3);
-        Eluna::LuaEventMap* eventMap = Eluna::LuaEventMap::GetEvents(creature);
-        if (!eventMap)
+        if (!lua_isfunction(L, 1))
         {
-            luaL_error(L, "Creature has no registered creature events, please register one before using RegisterEvent");
+            luaL_error(L, "#1 argument is not a function");
             return 0;
         }
-        if (!strcmp(luaL_typename(L, 1), "function") || delay > 0)
-        {
-            lua_settop(L, 1);
-            int functionRef = lua_ref(L, true);
-            eventMap->ScriptEventCreate(functionRef, delay, repeats);
-            sEluna->PushInteger(L, functionRef);
-        }
-        else
-            return 0;
-        return 1;
 
+        lua_settop(L, 1);
+        int functionRef = lua_ref(L, true);
+        unit->m_Events.AddEvent(new Eluna::LuaEventData(functionRef, delay, repeats, unit), unit->m_Events.CalculateTime(delay));
+        sEluna->PushInteger(L, functionRef);
+        return 1;
     }
 
     // RemoveEventById(eventID)
     static int RemoveEventById(lua_State* L, Unit* unit)
     {
-        TO_CREATURE();
+        TO_UNIT();
 
         int eventID = luaL_checkinteger(L, 1);
-        Eluna::LuaEventMap* eventMap = Eluna::LuaEventMap::GetEvents(creature);
-        if (eventMap)
-            eventMap->ScriptEventCancel(eventID);
+        Eluna::LuaEventData::Remove(eventID);
         return 0;
     }
 
     // RemoveEvents()
     static int RemoveEvents(lua_State* L, Unit* unit)
     {
-        TO_CREATURE();
+        TO_UNIT();
 
-        Eluna::LuaEventMap* eventMap = Eluna::LuaEventMap::GetEvents(creature);
-        if (eventMap)
-            eventMap->ScriptEventsReset();
+        Eluna::LuaEventData::RemoveAll(unit);
         return 0;
     }
 
