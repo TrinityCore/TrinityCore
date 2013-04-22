@@ -1239,3 +1239,24 @@ bool BattlegroundMgr::HasBattleground(Battleground *_bg)
 
     return false;
 }
+
+void BattlegroundMgr::HandleCrossfactionSendToBattle(Player* player, Battleground* bg, uint32 InstanceID, BattlegroundTypeId bgTypeId)
+{
+    if (!player || !bg)
+       return;
+
+    if (/* sWorld->getBoolConfig(CONFIG_BG_CROSSFRACTION) == 1 && */!bg->isArena())
+    {
+            if (bg->GetPlayersCountByTeam(HORDE) < bg->GetMaxPlayersPerTeam() && bg->GetPlayersCountByTeam(HORDE) <= bg->GetPlayersCountByTeam(ALLIANCE))
+                player->SetBGTeam(HORDE);
+            else if (bg->GetPlayersCountByTeam(ALLIANCE) < bg->GetMaxPlayersPerTeam())	  	
+                player->SetBGTeam(ALLIANCE);
+
+        if (player->GetBGTeam() == HORDE)
+            player->setFaction(2); // Horde Faction
+        else
+            if (player->GetBGTeam() == ALLIANCE)
+                player->setFaction(1); // Alliance Faction
+    }
+    bg->UpdatePlayersCountByTeam(player->GetBGTeam(), false); // Add here instead of in AddPlayer, because AddPlayer is not made until loading screen is finished. Which can cause unbalance in the system.
+}
