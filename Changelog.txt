@@ -11,6 +11,7 @@
 #                                                                                          #
 ############################################################################################
 
+[183] --> Implement - Anti-Rollback on Crash System for Items, Loot, and Quest. (Thx Demonid)
 [182] --> Custom - Revive Pets on Arena + Remove some Debuffs. (Thx Demonid)
 [181] --> Update Target Movement Generator. (Thx Quentis)
 [180] --> Update PathPoint in Blade's Edge Arena, Dalaran Sewers and Eye of the Storm. (Thx Quentis)
