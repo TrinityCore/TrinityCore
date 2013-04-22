@@ -569,3 +569,25 @@ DELETE FROM `pickpocketing_loot_template` WHERE entry = 94839 AND item IN (54291
 INSERT INTO pickpocketing_loot_template (entry, item, ChanceOrQuestChance, lootmode, groupid, mincountOrRef, maxcount) values('94839','54291','80','1','0','4','5'); -- A Steamy Romance Novel: Blue Moon
 INSERT INTO pickpocketing_loot_template (entry, item, ChanceOrQuestChance, lootmode, groupid, mincountOrRef, maxcount) values('94839','43575','40','1','0','1','2');
 INSERT INTO pickpocketing_loot_template (entry, item, ChanceOrQuestChance, lootmode, groupid, mincountOrRef, maxcount) values('94839','33447','40','1','0','1','2');
+
+-- Fix Flags & Faction (Thx tea91)
+-- boss_hunter_toc5 A 1076 darnassus
+UPDATE creature_template SET faction_A= 14, faction_h=14 WHERE entry in (34657, 36086);
+-- boss_hunter_toc5 H 126 darkspear trolls
+UPDATE creature_template SET faction_A= 14, faction_h=14 WHERE entry in (35570, 36091);
+-- boss_shaman_toc5 A 1694 exodar
+UPDATE creature_template SET faction_A= 14, faction_h=14 WHERE entry in (34701, 36083);
+-- boss_shaman_toc5 H 104 thunder bluff
+UPDATE creature_template SET faction_A= 14, faction_h=14 WHERE entry in (35571, 36090);
+-- boss_mage_toc5 A 64 gnom
+UPDATE creature_template SET faction_A= 14, faction_h=14 WHERE entry in (34702, 36082);
+-- boss_mage_toc5 H 1604 blood elf
+UPDATE creature_template SET faction_A= 14, faction_h=14 WHERE entry in (35569, 36085);
+-- boss_rouge_toc5 A 2155 ironforge
+UPDATE creature_template SET faction_A= 14, faction_h=14 WHERE entry in (34703, 36087);
+-- boss_rouge_toc5 H 68 undercity
+UPDATE creature_template SET faction_A= 14, faction_h=14 WHERE entry in (35617, 36084);
+-- boss_warrior_toc5 A 1078 stormwind
+UPDATE creature_template SET faction_A= 14, faction_h=14 WHERE entry in (34705, 36088);
+-- boss_warrior_toc5 H 29 orgrimmar
+UPDATE creature_template SET faction_A= 14, faction_h=14 WHERE entry in (35572, 36089); 

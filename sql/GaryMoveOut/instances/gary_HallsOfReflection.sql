@@ -380,3 +380,19 @@ INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language
 (38176, 0, 2, 'Our souls will never be freed.', 12, 0, 10, 0, 0, 0, 'HoR Trash death'),
 (38175, 0, 2, 'Our souls will never be freed.', 12, 0, 10, 0, 0, 0, 'HoR Trash death'),
 (38172, 0, 2, 'Our souls will never be freed.', 12, 0, 10, 0, 0, 0, 'HoR Trash death');
+
+-- Update unit flags for creature error fix "has empty threat list" (Thx tea91)
+UPDATE creature_template SET unit_flags= 770 WHERE entry=38112;
+UPDATE creature_template SET unit_flags= 770 WHERE entry=38113;
+UPDATE creature_template SET unit_flags= 770 WHERE entry=38172;
+UPDATE creature_template SET unit_flags= 770 WHERE entry=38173;
+UPDATE creature_template SET unit_flags= 770 WHERE entry=38175;
+UPDATE creature_template SET unit_flags= 770 WHERE entry=38176;
+UPDATE creature_template SET unit_flags= 770 WHERE entry=38177;
+UPDATE creature_template SET unit_flags= 770 WHERE entry=38599;
+UPDATE creature_template SET unit_flags= 770 WHERE entry=38603;
+UPDATE creature_template SET unit_flags= 770 WHERE entry=38524;
+UPDATE creature_template SET unit_flags= 770 WHERE entry=38525;
+UPDATE creature_template SET unit_flags= 770 WHERE entry=38563;
+UPDATE creature_template SET unit_flags= 770 WHERE entry=38544;
+UPDATE creature_template SET unit_flags= 770 WHERE entry=38564;
