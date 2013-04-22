@@ -53,6 +53,12 @@ bool Weather::Update(uint32 diff)
     if (m_timer.Passed())
     {
         m_timer.Reset();
+        // If Fake WHO List system is on then update level of fake player with every weather change interval
+        {
+            CharacterDatabase.Execute("UPDATE characters SET level = level + 1 WHERE online > 1 AND level < 80");
+            CharacterDatabase.Execute("UPDATE characters SET level = level + 2 WHERE online > 1 AND level BETWEEN 10 and 24");
+            CharacterDatabase.Execute("UPDATE characters SET level = level + 1 WHERE online > 1 AND level BETWEEN 25 and 45");
+        }
         // update only if Regenerate has changed the weather
         if (ReGenerate())
         {

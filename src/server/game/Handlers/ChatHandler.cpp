@@ -269,6 +269,16 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
                 receiver->GetSession()->HasPermission(RBAC_PERM_CAN_FILTER_WHISPERS) &&
                 !receiver->isAcceptWhispers() && !receiver->IsInWhisperWhiteList(sender->GetGUID()))) 
             {
+                // If Fake WHO List system is on and the receiver is fake, we return the DND message
+                if (sWorld->getBoolConfig(CONFIG_FAKE_WHO_LIST))
+                {
+                    QueryResult result = CharacterDatabase.PQuery("SELECT guid FROM characters WHERE name = '%s' AND online > 1", to.c_str());
+                    if (result)
+                    {
+                        ChatHandler(this).SendSysMessage(LANG_FAKE_DND);
+                        return;
+                    }
+                }
                 SendPlayerNotFoundNotice(to);
                 return;
             }

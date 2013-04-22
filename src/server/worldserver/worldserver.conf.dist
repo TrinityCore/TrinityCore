@@ -3029,5 +3029,18 @@ MultiKill.BattleGround.Only = 0
 MultiKill.Log = 0
 MultiKill.Time.Between = 15
 
+###################################################################################################################
+# FAKE PLAYERS SYSTEM
+# 
+# Fake.WHO.List
+# Description: Add fake players to fill in WHO LIST (who is online list, "O" button) if there is less then
+#              49 real players online (need to set online=2 in character database in order to work).
+# Default: 0 (disabled)
+#          1 (enabled)
+#
+###################################################################################################################
+
+Fake.Who.List = 0
+
 #
 ###################################################################################################################

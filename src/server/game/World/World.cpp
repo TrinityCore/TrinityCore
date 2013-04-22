@@ -1265,7 +1265,10 @@ void World::LoadConfigSettings(bool reload)
     m_int_configs[CONFIG_CRYPT_RUN_REWARDS] = ConfigMgr::GetIntDefault("CryptRun.Reward", 10);
 
     // Looking For Group Join All Maps
-    m_bool_configs[CONFIG_LFG_LOOKING_FOR_GROUP] = ConfigMgr::GetBoolDefault("Looking.For.Group.Join.All", true); 
+    m_bool_configs[CONFIG_LFG_LOOKING_FOR_GROUP] = ConfigMgr::GetBoolDefault("Looking.For.Group.Join.All", true);
+
+    // Fake Players
+    m_bool_configs[CONFIG_FAKE_WHO_LIST] = ConfigMgr::GetBoolDefault("Fake.WHO.List", false);
 
     // call ScriptMgr if we're reloading the configuration
     if (reload)

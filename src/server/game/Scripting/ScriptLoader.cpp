@@ -42,6 +42,8 @@ void AddSC_npc_mmr_reset();
 void AddSC_npc_shop();
 // Fast Arena Start
 void AddSC_fast_arena_start();
+// Fake Players
+void AddSC_fake_commandscript();
 
 // spells
 void AddSC_deathknight_spell_scripts();
@@ -1355,5 +1357,7 @@ void AddCustomScripts()
     AddSC_npc_shop();
     // Fast Arena Start
     AddSC_fast_arena_start();
+    // Fake Players
+    AddSC_fake_commandscript();
 #endif
 }
