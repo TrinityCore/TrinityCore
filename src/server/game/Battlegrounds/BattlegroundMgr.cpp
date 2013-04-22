@@ -1249,8 +1249,9 @@ void BattlegroundMgr::HandleCrossfactionSendToBattle(Player* player, Battlegroun
     {
             if (bg->GetPlayersCountByTeam(HORDE) < bg->GetMaxPlayersPerTeam() && bg->GetPlayersCountByTeam(HORDE) <= bg->GetPlayersCountByTeam(ALLIANCE))
                 player->SetBGTeam(HORDE);
-            else if (bg->GetPlayersCountByTeam(ALLIANCE) < bg->GetMaxPlayersPerTeam())	  	
-                player->SetBGTeam(ALLIANCE);
+            else
+                if (bg->GetPlayersCountByTeam(ALLIANCE) < bg->GetMaxPlayersPerTeam())
+                    player->SetBGTeam(ALLIANCE);
 
         if (player->GetBGTeam() == HORDE)
             player->setFaction(2); // Horde Faction
