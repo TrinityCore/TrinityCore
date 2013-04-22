@@ -2,6 +2,11 @@
 #include "LuaEngine.h"
 
 // misc
+void HookMgr::OnLootItem(Player* player, Item* item, uint32 count, uint64 guid)
+{
+    for (HookPointerSet::iterator it = hookPointers.begin(); it != hookPointers.end(); ++it)
+        (*it)->OnLootItem(player, item, count, guid);
+}
 void HookMgr::OnFirstLogin(Player* player)
 {
     for (HookPointerSet::iterator it = hookPointers.begin(); it != hookPointers.end(); ++it)

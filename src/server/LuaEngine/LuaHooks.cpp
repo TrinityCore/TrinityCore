@@ -7,6 +7,20 @@ class Eluna_HookScript : public HookScript
 public:
     Eluna_HookScript() : HookScript() { }
     // misc
+    void OnLootItem(Player* player, Item* item, uint32 count, uint64 guid)
+    {
+        for (std::vector<int>::iterator itr = sEluna->ServerEventBindings[PLAYER_EVENT_ON_LOOT_ITEM].begin();
+            itr != sEluna->ServerEventBindings[PLAYER_EVENT_ON_LOOT_ITEM].end(); ++itr)
+        {
+            sEluna->BeginCall((*itr));
+            sEluna->PushUnsigned(sEluna->LuaState, PLAYER_EVENT_ON_LOOT_ITEM);
+            sEluna->PushUnit(sEluna->LuaState, player);
+            sEluna->PushItem(sEluna->LuaState, item);
+            sEluna->PushUnsigned(sEluna->LuaState, count);
+            sEluna->PushULong(sEluna->LuaState, guid);
+            sEluna->ExecuteCall(5, 0);
+        }
+    }
     void OnFirstLogin(Player* player)
     {
         for (std::vector<int>::iterator itr = sEluna->ServerEventBindings[PLAYER_EVENT_ON_LOGIN_FIRST].begin();

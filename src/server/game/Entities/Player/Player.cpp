@@ -24484,6 +24484,7 @@ void Player::StoreLootItem(uint8 lootSlot, Loot* loot)
         if (loot->containerID > 0)
             loot->DeleteLootItemFromContainerItemDB(item->itemid);
 
+        sHookMgr->OnLootItem(this, newitem, item->count, this->GetLootGUID());
     }
     else
         SendEquipError(msg, NULL, NULL, item->itemid);
