@@ -12,7 +12,10 @@
 ********************************************************************************************/
 
 #include "ScriptPCH.h"
+#include "Player.h"
 #include "Battleground.h"
+#include "BattlegroundMgr.h"
+#include <sstream> 
 
 class fast_arena_start : public GameObjectScript
 {

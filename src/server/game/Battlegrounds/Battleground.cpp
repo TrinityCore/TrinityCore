@@ -2068,8 +2068,8 @@ uint8 Battleground::ClickFastStart(Player *player, GameObject *go)
         return m_playersWantsFastStart.size();
 
     m_playersWantsFastStart.insert(player->GetGUID());
-    std::set<GameObject*>::iterator goIt = m_crystals.find(go);
 
+    std::set<GameObject*>::iterator goIt = m_crystals.find(go);
     if (goIt == m_crystals.end())
         m_crystals.insert(go);
 
@@ -2087,10 +2087,16 @@ uint8 Battleground::ClickFastStart(Player *player, GameObject *go)
             break;
     }
 
+    if (sBattlegroundMgr->isTesting() && isArena())
+       playersNeeded = 2;
+
     if (m_playersWantsFastStart.size() == playersNeeded)
     {
         DespawnCrystals();
-        SetStartDelayTime(BG_START_DELAY_15S);
+        if (GetStartDelayTime() > BG_START_DELAY_15S)
+            SetStartDelayTime(BG_START_DELAY_15S);
+        else
+            DespawnCrystals();
     }
 
     return m_playersWantsFastStart.size();
@@ -2100,6 +2106,11 @@ void Battleground::DespawnCrystals()
 {
     if (m_crystals.empty())
         return;
-    /*  for (std::set<GameObject*>::iterator itr = m_crystals.begin(); itr != m_crystals.end(); itr)
-    { } */
+
+    for (std::set<GameObject*>::iterator itr = m_crystals.begin(); itr != m_crystals.end(); ++itr)
+    {
+        GameObject *go = *itr;
+        go->Delete();
+        m_crystals.erase(itr);
+    }
 }
