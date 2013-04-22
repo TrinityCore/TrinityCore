@@ -1588,12 +1588,8 @@ public:
 #endif
 
                 PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_IP2NATION_COUNTRY);
-
                 stmt->setUInt32(0, ip);
-
-                PreparedQueryResult result2 = WorldDatabase.Query(stmt);
-
-                if (result2)
+                if (PreparedQueryResult result2 = LoginDatabase.Query(stmt))
                 {
                     Field* fields2 = result2->Fetch();
                     lastIp.append(" (");
