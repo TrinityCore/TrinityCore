@@ -888,5 +888,42 @@ namespace LuaGlobalFunctions
         sEluna->PushUnsigned(L, LuaTaxiMgr::AddPath(nodes, mountA, mountH, price, pathId));
         return 1;
     }
+
+    static int GetItemLink(lua_State* L)
+    {
+        uint32 entry = luaL_checkunsigned(L, 1);
+        const ItemTemplate* temp = sObjectMgr->GetItemTemplate(entry);
+        if(!temp)
+        {
+            luaL_error(L, "Invalid item entry (%d)", entry);
+            return 0;
+        }
+        /*
+        LOCALE_enUS = 0,
+        LOCALE_koKR = 1,
+        LOCALE_frFR = 2,
+        LOCALE_deDE = 3,
+        LOCALE_zhCN = 4,
+        LOCALE_zhTW = 5,
+        LOCALE_esES = 6,
+        LOCALE_esMX = 7,
+        LOCALE_ruRU = 8
+        */
+        int loc_idx = luaL_optint(L, 2, DEFAULT_LOCALE);
+        if(loc_idx < 0 || loc_idx >= TOTAL_LOCALES)
+        {
+            luaL_error(L, "Invalid locale index (%d)", loc_idx);
+            return 0;
+        }
+
+        std::string name = temp->Name1;
+        if (ItemLocale const* il = sObjectMgr->GetItemLocale(temp->ItemId))
+            sObjectMgr->GetLocaleString(il->Name, loc_idx, name);
+
+        std::ostringstream oss;
+        oss << "|c" << std::hex << ItemQualityColors[temp->Quality] << std::dec << "|Hitem:" << entry << ":0:0:0:0:0:0:0:0:0|h[" << temp->Name1 << "]|h|r";
+        sEluna->PushString(L, oss.str().c_str());
+        return 1;
+    }
 }
 #endif

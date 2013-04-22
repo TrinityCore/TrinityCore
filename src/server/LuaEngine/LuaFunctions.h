@@ -565,6 +565,15 @@ ElunaRegister<Item> ItemMethods[] =
     {"GetGUIDLow", &LuaItem::GetGUIDLow},                                   // :GetGUIDLow() -- Returns uint32 guid (low guid) that is used in database. UNDOCUMENTED
     {"GetEnchantmentId", &LuaItem::GetEnchantmentId},                       // :GetEnchantmentId(enchant_slot) -- Returns the enchantment in given slot. (permanent = 0) UNDOCUMENTED
     {"GetName", &LuaItem::GetName},                                         // :GetName() -- Returns item name UNDOCUMENTED
+    {"GetClass", &LuaItem::GetClass},                                       // :GetClass() -- Returns item class UNDOCUMENTED
+    {"GetSubClass", &LuaItem::GetSubClass},                                 // :GetSubClass() -- Returns item subclass UNDOCUMENTED
+    {"GetInventoryType", &LuaItem::GetInventoryType},                       // :GetInventoryType() -- Returns item inventorytype UNDOCUMENTED
+    {"GetSpellId", &LuaItem::GetSpellId},                                   // :GetSpellId(index) -- Returns spellID at given index (0-4) UNDOCUMENTED
+    {"GetSpellTrigger", &LuaItem::GetSpellTrigger},                         // :GetSpellTrigger(index) -- Returns spell trigger at given index (0-4) UNDOCUMENTED
+    {"GetItemLevel", &LuaItem::GetItemLevel},                               // :GetItemLevel() -- Returns the itemlevel UNDOCUMENTED
+    {"GetRequiredLevel", &LuaItem::GetRequiredLevel},                       // :GetRequiredLevel() -- Returns the required level UNDOCUMENTED
+    {"GetBuyPrice", &LuaItem::GetBuyPrice},                                 // :GetBuyPrice() -- Returns the buy price UNDOCUMENTED
+    {"GetSellPrice", &LuaItem::GetSellPrice},                               // :GetSellPrice() -- Returns the sell price UNDOCUMENTED
 
     // Setters
     {"SetOwner", &LuaItem::SetOwner},                                       // :SetOwner(player) - Sets the owner of the item
@@ -592,7 +601,7 @@ ElunaRegister<Item> ItemMethods[] =
     {"IsInTrade", &LuaItem::IsInTrade},                                     // :IsInTrade() - Returns true if the item is in trade
     {"IsInBag", &LuaItem::IsInBag},                                         // :IsInBag() - Returns true if the item is in a bag
     {"IsEquipped", &LuaItem::IsEquipped},                                   // :IsEquipped() - Returns true if the item is equipped
-    {"hasQuest", &LuaItem::hasQuest},                                       // :hasQuest(questId) - Returns true if the item starts the quest
+    {"HasQuest", &LuaItem::hasQuest},                                       // :HasQuest(questId) - Returns true if the item starts the quest
     {"IsPotion", &LuaItem::IsPotion},                                       // :IsPotion() - Returns true if the item is a potion
     {"IsWeaponVellum", &LuaItem::IsWeaponVellum},                           // :IsWeaponVellum() - Returns true if the item is a weapon vellum
     {"IsArmorVellum", &LuaItem::IsArmorVellum},                             // :IsArmorVellum() - Returns true if the item is an armor vellum

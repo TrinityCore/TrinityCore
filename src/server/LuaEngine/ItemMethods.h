@@ -519,5 +519,100 @@ public:
         sEluna->PushString(L, item->GetTemplate()->Name1.c_str());
         return 1;
     }
+
+    static int GetClass(lua_State* L, Item* item)
+    {
+        if (!item || !item->IsInWorld())
+            return 0;
+
+        sEluna->PushUnsigned(L, item->GetTemplate()->Class);
+        return 1;
+    }
+
+    static int GetSubClass(lua_State* L, Item* item)
+    {
+        if (!item || !item->IsInWorld())
+            return 0;
+
+        sEluna->PushUnsigned(L, item->GetTemplate()->SubClass);
+        return 1;
+    }
+
+    static int GetInventoryType(lua_State* L, Item* item)
+    {
+        if (!item || !item->IsInWorld())
+            return 0;
+
+        sEluna->PushUnsigned(L, item->GetTemplate()->InventoryType);
+        return 1;
+    }
+
+    static int GetSpellId(lua_State* L, Item* item)
+    {
+        if (!item || !item->IsInWorld())
+            return 0;
+
+        uint32 index = luaL_checkunsigned(L, 1);
+        if(index >= MAX_ITEM_PROTO_SPELLS)
+        {
+            luaL_error(L, "Invalid index (%d)", index);
+            return 0;
+        }
+
+        sEluna->PushUnsigned(L, item->GetTemplate()->Spells[index].SpellId);
+        return 1;
+    }
+
+    static int GetSpellTrigger(lua_State* L, Item* item)
+    {
+        if (!item || !item->IsInWorld())
+            return 0;
+
+        uint32 index = luaL_checkunsigned(L, 1);
+        if(index >= MAX_ITEM_PROTO_SPELLS)
+        {
+            luaL_error(L, "Invalid index (%d)", index);
+            return 0;
+        }
+
+        sEluna->PushUnsigned(L, item->GetTemplate()->Spells[index].SpellTrigger);
+        return 1;
+    }
+
+    static int GetItemLevel(lua_State* L, Item* item)
+    {
+        if (!item || !item->IsInWorld())
+            return 0;
+
+        sEluna->PushUnsigned(L, item->GetTemplate()->ItemLevel);
+        return 1;
+    }
+
+    static int GetRequiredLevel(lua_State* L, Item* item)
+    {
+        if (!item || !item->IsInWorld())
+            return 0;
+
+        sEluna->PushUnsigned(L, item->GetTemplate()->RequiredLevel);
+        return 1;
+    }
+
+    static int GetBuyPrice(lua_State* L, Item* item)
+    {
+        if (!item || !item->IsInWorld())
+            return 0;
+
+        sEluna->PushUnsigned(L, item->GetTemplate()->BuyPrice);
+        return 1;
+    }
+
+    static int GetSellPrice(lua_State* L, Item* item)
+    {
+        if (!item || !item->IsInWorld())
+            return 0;
+
+        sEluna->PushUnsigned(L, item->GetTemplate()->SellPrice);
+        return 1;
+    }
 };
 #endif

@@ -147,6 +147,7 @@ void Eluna::RegisterGlobals(lua_State* L)
     lua_register(L, "bit_lshift", &LuaGlobalFunctions::bit_lshift);                         // bit_lshift(a, b) - Returns a << b UNDOCUMENTED
     lua_register(L, "bit_or", &LuaGlobalFunctions::bit_or);                                 // bit_or(a, b) - Returns a | b UNDOCUMENTED
     lua_register(L, "bit_and", &LuaGlobalFunctions::bit_and);                               // bit_and(a, b) - Returns a & b UNDOCUMENTED
+    lua_register(L, "GetItemLink", &LuaGlobalFunctions::GetItemLink);                       // GetItemLink(entry[, localeIndex]) - Returns the shift clickable link of the item. Item name translated if translate available for provided locale index UNDOCUMENTED
 
     // Other
     lua_register(L, "ReloadEluna", &LuaGlobalFunctions::ReloadEluna);                       // ReloadEluna() - Reload's Eluna engine
