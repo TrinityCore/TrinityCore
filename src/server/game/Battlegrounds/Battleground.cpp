@@ -27,6 +27,7 @@
 #include "MapManager.h"
 #include "Object.h"
 #include "ObjectMgr.h"
+#include "Pet.h"
 #include "Player.h"
 #include "ReputationMgr.h"
 #include "SpellAuraEffects.h"
@@ -1273,6 +1274,24 @@ void Battleground::AddPlayer(Player* player)
         {
             player->CastSpell(player, SPELL_ARENA_PREPARATION, true);
             player->ResetAllPowers();
+            player->RemoveAura(61987);
+            player->RemoveAura(25771);
+
+            Powers powerType = player->getPowerType();
+            player->SetPower(powerType, player->GetMaxPower(powerType));
+
+            if (player->getClass() == CLASS_HUNTER)
+                player->CastSpell(player, 883, true);
+            Pet* pet = player->GetPet();
+            if (pet != NULL)
+            {
+                if (pet->isDead())
+                    pet->setDeathState(ALIVE);
+                pet->SetHealth(pet->GetMaxHealth());
+                pet->SetPower(POWER_MANA, pet->GetMaxPower(POWER_MANA));
+                pet->m_CreatureSpellCooldowns.clear();
+                pet->RemoveAura(55711);
+            }
         }
     }
     else
