@@ -12,12 +12,16 @@ namespace LuaGlobalFunctions
     // RegisterServerHook(event, function)
     static int RegisterServerHook(lua_State* L)
     {
-        uint32 ev = luaL_checkunsigned(L, 1);
         lua_settop(L, 2);
-        if (ev == 0 || !lua_isfunction(L, lua_gettop(L)))
+        uint32 ev = luaL_checkunsigned(L, 1);
+        if (ev == 0)
+        {
+            luaL_error(L, "0 is not a valid event");
             return 0;
+        }
+        luaL_checktype(L, lua_gettop(L), LUA_TFUNCTION);
 
-        int functionRef = lua_ref(L, true);
+        int functionRef  = lua_ref(L, true);
         if (functionRef > 0)
             sEluna->Register(REGTYPE_SERVER, 0, ev, functionRef);
         return 0;
@@ -26,13 +30,17 @@ namespace LuaGlobalFunctions
     //RegisterCreatureGossipEvent(entry, event, function)
     static int RegisterCreatureGossipEvent(lua_State* L)
     {
+        lua_settop(L, 3);
         uint32 entry = luaL_checkunsigned(L, 1);
         uint32 ev = luaL_checkunsigned(L, 2);
-        lua_settop(L, 3);
-        if (ev == 0 || !lua_isfunction(L, lua_gettop(L)))
+        if (ev == 0)
+        {
+            luaL_error(L, "0 is not a valid event");
             return 0;
+        }
+        luaL_checktype(L, lua_gettop(L), LUA_TFUNCTION);
 
-        int functionRef = lua_ref(L, true);
+        int functionRef  = lua_ref(L, true);
         if (functionRef > 0)
             sEluna->Register(REGTYPE_CREATURE_GOSSIP, entry, ev, functionRef);
         return 0;
@@ -41,13 +49,17 @@ namespace LuaGlobalFunctions
     // RegisterGameObjectGossipEvent(entry, event, function)
     static int RegisterGameObjectGossipEvent(lua_State* L)
     {
+        lua_settop(L, 3);
         uint32 entry = luaL_checkunsigned(L, 1);
         uint32 ev = luaL_checkunsigned(L, 2);
-        lua_settop(L, 3);
-        if (ev == 0 || !lua_isfunction(L, lua_gettop(L)))
+        if (ev == 0)
+        {
+            luaL_error(L, "0 is not a valid event");
             return 0;
+        }
+        luaL_checktype(L, lua_gettop(L), LUA_TFUNCTION);
 
-        int functionRef = lua_ref(L, true);
+        int functionRef  = lua_ref(L, true);
         if (functionRef > 0)
             sEluna->Register(REGTYPE_GAMEOBJECT_GOSSIP, entry, ev, functionRef);
         return 0;
@@ -56,13 +68,17 @@ namespace LuaGlobalFunctions
     // RegisterItemEvent(entry, event, function)
     static int RegisterItemEvent(lua_State* L)
     {
+        lua_settop(L, 3);
         uint32 entry = luaL_checkunsigned(L, 1);
         uint32 ev = luaL_checkunsigned(L, 2);
-        lua_settop(L, 3);
-        if (ev == 0 || !lua_isfunction(L, lua_gettop(L)))
+        if (ev == 0)
+        {
+            luaL_error(L, "0 is not a valid event");
             return 0;
+        }
+        luaL_checktype(L, lua_gettop(L), LUA_TFUNCTION);
 
-        int functionRef = lua_ref(L, true);
+        int functionRef  = lua_ref(L, true);
         if (functionRef > 0)
             sEluna->Register(REGTYPE_ITEM, entry, ev, functionRef);
         return 0;
@@ -71,13 +87,17 @@ namespace LuaGlobalFunctions
     // RegisterItemGossipEvent(entry, event, function)
     static int RegisterItemGossipEvent(lua_State* L)
     {
+        lua_settop(L, 3);
         uint32 entry = luaL_checkunsigned(L, 1);
         uint32 ev = luaL_checkunsigned(L, 2);
-        lua_settop(L, 3);
-        if (ev == 0 || !lua_isfunction(L, lua_gettop(L)))
+        if (ev == 0)
+        {
+            luaL_error(L, "0 is not a valid event");
             return 0;
+        }
+        luaL_checktype(L, lua_gettop(L), LUA_TFUNCTION);
 
-        int functionRef = lua_ref(L, true);
+        int functionRef  = lua_ref(L, true);
         if (functionRef > 0)
             sEluna->Register(REGTYPE_ITEM_GOSSIP, entry, ev, functionRef);
         return 0;
@@ -86,13 +106,17 @@ namespace LuaGlobalFunctions
     // RegisterPlayerGossipEvent(menu_id, event, function)
     static int RegisterPlayerGossipEvent(lua_State* L)
     {
+        lua_settop(L, 3);
         uint32 menu_id = luaL_checkunsigned(L, 1);
         uint32 ev = luaL_checkunsigned(L, 2);
-        lua_settop(L, 3);
-        if (ev == 0 || !lua_isfunction(L, lua_gettop(L)))
+        if (ev == 0)
+        {
+            luaL_error(L, "0 is not a valid event");
             return 0;
+        }
+        luaL_checktype(L, lua_gettop(L), LUA_TFUNCTION);
 
-        int functionRef = lua_ref(L, true);
+        int functionRef  = lua_ref(L, true);
         if (functionRef > 0)
             sEluna->Register(REGTYPE_PLAYER_GOSSIP, menu_id, ev, functionRef);
         return 0;
@@ -101,13 +125,17 @@ namespace LuaGlobalFunctions
     // RegisterCreatureEvent(entry, event, function)
     static int RegisterCreatureEvent(lua_State* L)
     {
+        lua_settop(L, 3);
         uint32 entry = luaL_checkunsigned(L, 1);
         uint32 ev = luaL_checkunsigned(L, 2);
-        lua_settop(L, 3);
-        if (ev == 0 || !lua_isfunction(L, lua_gettop(L)))
+        if (ev == 0)
+        {
+            luaL_error(L, "0 is not a valid event");
             return 0;
+        }
+        luaL_checktype(L, lua_gettop(L), LUA_TFUNCTION);
 
-        int functionRef = lua_ref(L, true);
+        int functionRef  = lua_ref(L, true);
         if (functionRef > 0)
             sEluna->Register(REGTYPE_CREATURE, entry, ev, functionRef);
         return 0;
@@ -116,13 +144,17 @@ namespace LuaGlobalFunctions
     // RegisterGameObjectEvent(entry, event, function)
     static int RegisterGameObjectEvent(lua_State* L)
     {
+        lua_settop(L, 3);
         uint32 entry = luaL_checkunsigned(L, 1);
         uint32 ev = luaL_checkunsigned(L, 2);
-        lua_settop(L, 3);
-        if (ev == 0 || !lua_isfunction(L, lua_gettop(L)))
+        if (ev == 0)
+        {
+            luaL_error(L, "0 is not a valid event");
             return 0;
+        }
+        luaL_checktype(L, lua_gettop(L), LUA_TFUNCTION);
 
-        int functionRef = lua_ref(L, true);
+        int functionRef  = lua_ref(L, true);
         if (functionRef > 0)
             sEluna->Register(REGTYPE_GAMEOBJECT, entry, ev, functionRef);
         return 0;
@@ -400,13 +432,9 @@ namespace LuaGlobalFunctions
     // CreateLuaEvent(function, delay, calls) - Creates a timed event. Calls set to 0 will call inf returns eventID.
     static int CreateLuaEvent(lua_State* L)
     {
+        luaL_checktype(L, 1, LUA_TFUNCTION);
         uint32 delay = luaL_checkunsigned(L, 2);
         uint32 repeats = luaL_checkunsigned(L, 3);
-        if (!lua_isfunction(L, 1))
-        {
-            luaL_error(L, "#1 argument is not a function");
-            return 0;
-        }
 
         lua_settop(L, 1);
         int functionRef = lua_ref(L, true);
@@ -553,7 +581,7 @@ namespace LuaGlobalFunctions
         size_t size = luaL_checkunsigned(L, 2);
 
         if (opcode >= NUM_MSG_TYPES)
-            luaL_error(L, "Eluna Nova:: Opcode %d is greater than the max Opcode type (%d)!", opcode, NUM_MSG_TYPES);
+            luaL_error(L, "Invalid opcode type (%d)", opcode);
         else
         {
             WorldPacket* _packet = new WorldPacket(opcode, size);
@@ -574,7 +602,7 @@ namespace LuaGlobalFunctions
         bool persist = luaL_optbool(L, 6, true);
         if (!sObjectMgr->GetCreatureTemplate(entry))
         {
-            sLog->outError(LOG_FILTER_GENERAL, "Eluna Nova::Couldn't find a creature with (ID: %d)!", entry);
+            luaL_error(L, "Couldn't find a creature with (ID: %d)!", entry);
             return 0;
         }
 
@@ -592,7 +620,7 @@ namespace LuaGlobalFunctions
         bool persist = luaL_optbool(L, 3, true);
         if (!sObjectMgr->GetCreatureTemplate(entry))
         {
-            sLog->outError(LOG_FILTER_GENERAL, "Eluna Nova::Couldn't find a creature with (ID: %d)!", entry);
+            luaL_error(L, "Couldn't find a creature with (ID: %d)!", entry);
             return 0;
         }
 
@@ -711,12 +739,12 @@ namespace LuaGlobalFunctions
             ItemTemplate const* item_proto = sObjectMgr->GetItemTemplate(entry);
             if (!item_proto)
             {
-                luaL_error(L, "Item entry %u does not exist", entry);
+                luaL_error(L, "Item entry %d does not exist", entry);
                 continue;
             }
             if (amount < 1 || (item_proto->MaxCount > 0 && amount > uint32(item_proto->MaxCount)))
             {
-                luaL_error(L, "Item entry %u has invalid amount %u", entry, amount);
+                luaL_error(L, "Item entry %d has invalid amount %d", entry, amount);
                 continue;
             }
             if (Item* item = Item::CreateItem(entry, amount, senderPlayer ? senderPlayer : 0))

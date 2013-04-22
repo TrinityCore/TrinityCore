@@ -281,10 +281,7 @@ public:
         Unit* target = sEluna->CHECK_UNIT(L, 1);
 
         if (!target)
-        {
-            luaL_error(L, "1st argument is not an unit");
             sEluna->PushBoolean(L, false);
-        }
         else
             sEluna->PushBoolean(L, creature->_IsTargetAcceptable(unit));
         return 1;
@@ -300,15 +297,9 @@ public:
         bool checkfaction = luaL_optbool(L, 3, true);
 
         if (!u)
-        {
-            luaL_error(L, "1st argument is not an unit");
             sEluna->PushBoolean(L, false);
-        }
         if (!enemy)
-        {
-            luaL_error(L, "2nd argument is not an unit");
             sEluna->PushBoolean(L, false);
-        }
         else
             sEluna->PushBoolean(L, creature->CanAssistTo(u, enemy, checkfaction));
         return 1;
@@ -382,10 +373,8 @@ public:
         Unit* target = sEluna->CHECK_UNIT(L, 1);
 
         if (!target)
-        {
-            luaL_error(L, "unit is nil");
             return 0;
-        }
+
         sEluna->PushFloat(L, creature->GetAggroRange(target));
         return 1;
     }
@@ -398,10 +387,8 @@ public:
         Unit* target = sEluna->CHECK_UNIT(L, 1);
 
         if (!target)
-        {
-            luaL_error(L, "unit is nil");
             return 0;
-        }
+
         sEluna->PushFloat(L, creature->GetAttackDistance(target));
         return 1;
     }
@@ -415,10 +402,8 @@ public:
         bool force = luaL_checkbool(L, 2);
 
         if (!target)
-        {
-            luaL_error(L, "unit is nil");
             return 0;
-        }
+
         sEluna->PushBoolean(L, creature->canStartAttack(target, force));
         return 1;
     }
@@ -2856,7 +2841,7 @@ public:
         uint32 type = luaL_checkunsigned(L, 1);
         if (type >= CURRENT_MAX_SPELL)
         {
-            sLog->outError(LOG_FILTER_GENERAL, "Eluna::Invalid spell type (%u) for GetCurrentSpell", type);
+            luaL_error(L, "Invalid spell type (%d)", type);
             return 0;
         }
         sEluna->PushSpell(L, unit->GetCurrentSpell(type));
@@ -3159,7 +3144,7 @@ public:
             gender = GENDER_FEMALE;
             break;
         default:
-            luaL_error(L, "1st argument not a valid gender");
+            luaL_error(L, "Invalid gender (%d)", _gender);
             return 0;
         }
 
@@ -3248,7 +3233,7 @@ public:
         float rate = luaL_checknumber(L, 2);
         bool forced = luaL_optbool(L, 3, false);
         if (type >= MAX_MOVE_TYPE)
-            sLog->outError(LOG_FILTER_GENERAL, "Eluna::Invalid movement type (%u)  for SetSpeed", type);
+            luaL_error(L, "Invalid movement type (%d)", type);
         else
             unit->SetSpeed((UnitMoveType)type, rate, forced);
         return 0;
@@ -3490,7 +3475,7 @@ public:
         }
         else if (type >= POWER_ALL)
         {
-            luaL_error(L, "Bad argument #1 to :GetPower(index) - specified out of range index (%i)", type);
+            luaL_error(L, "Invalid power type (%d)", type);
             return 0;
         }
 
@@ -3533,7 +3518,7 @@ public:
         }
         else if (type >= POWER_ALL)
         {
-            luaL_error(L, "Bad argument #1 to :GetMaxPower(index) - specified out of range index.");
+            luaL_error(L, "Invalid index (%d)", type);
             return 0;
         }
 
@@ -3872,7 +3857,7 @@ public:
             unit->SetPower(POWER_RUNIC_POWER, amt);
             break;
         default:
-            luaL_error(L, "Bad argument #1 for SetPower - Unknown power type (%i)", type);
+            luaL_error(L, "Invalid power type (%d)", type);
             break;
         }
         return 0;
@@ -3901,7 +3886,7 @@ public:
             unit->SetMaxPower(POWER_RUNIC_POWER, amt);
             break;
         default:
-            luaL_error(L, "Bad argument #1 for SetPower - Unknown power type (%i)", type);
+            luaL_error(L, "Invalid power type (%d)", type);
             break;
         }
         return 0;
@@ -4334,11 +4319,8 @@ public:
 
         uint32 val = luaL_checkunsigned(L, 1);
         uint32 currentKills = player->GetUInt32Value(PLAYER_FIELD_LIFETIME_HONORABLE_KILLS);
-        if (currentKills == 0 || val > currentKills)
-        {
-            luaL_error(L, "Bad value. Player's Lifetime Kills must be greater than 0 and the value cannot be greater than the actual kills.");
-            return 0;
-        }
+        if (val > currentKills)
+            val = currentKills;
         player->SetUInt32Value(PLAYER_FIELD_LIFETIME_HONORABLE_KILLS, currentKills - val);
         return 0;
     }
@@ -5043,13 +5025,9 @@ public:
     {
         TO_UNIT();
 
+        luaL_checktype(L, 1, LUA_TFUNCTION);
         uint32 delay = luaL_checkunsigned(L, 2);
         uint32 repeats = luaL_checkunsigned(L, 3);
-        if (!lua_isfunction(L, 1))
-        {
-            luaL_error(L, "#1 argument is not a function");
-            return 0;
-        }
 
         lua_settop(L, 1);
         int functionRef = lua_ref(L, true);

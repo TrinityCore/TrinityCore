@@ -42,7 +42,7 @@ public:
 
         uint16 opcode = luaL_checkunsigned(L, 1);
         if (opcode >= NUM_MSG_TYPES)
-            luaL_error(L, "Eluna Nova::Opcode %d is greater than the max Opcode type (%d)!", opcode, NUM_MSG_TYPES);
+            luaL_error(L, "Invalid opcode type (%d)", opcode);
         else
             packet->SetOpcode(opcode);
         return 0;

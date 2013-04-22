@@ -287,7 +287,16 @@ bool Eluna::ExecuteCall(uint8 params, uint8 res)
 {
     bool ret = true;
     int top = lua_gettop(LuaState);
-    if (lua_isfunction(LuaState,top-params))
+
+    if (lua_type(LuaState, top-params) == LUA_TFUNCTION) // is function
+    {
+        if (lua_pcall(LuaState,params,res,0) )
+        {
+            report(LuaState);
+            ret = false;
+        }
+    }
+    else
     {
         ret = false;
         if (params > 0)
@@ -297,14 +306,6 @@ bool Eluna::ExecuteCall(uint8 params, uint8 res)
                 if (!lua_isnone(LuaState, i) )
                     lua_remove(LuaState, i);
             }
-        }
-    }
-    else
-    {
-        if (lua_pcall(LuaState,params,res,0) )
-        {
-            report(LuaState);
-            ret = false;
         }
     }
     return ret;
@@ -571,7 +572,7 @@ void Eluna::Register(uint8 regtype, uint32 id, uint32 evt, int functionRef)
         {
             if (!sObjectMgr->GetCreatureTemplate(id))
             {
-                sLog->outError(LOG_FILTER_GENERAL, "Eluna Nova::Couldn't find a creature with (ID: %d)!", id);
+                luaL_error(LuaState, "Couldn't find a creature with (ID: %d)!", id);
                 return;
             }
 
@@ -585,7 +586,7 @@ void Eluna::Register(uint8 regtype, uint32 id, uint32 evt, int functionRef)
         {
             if (!sObjectMgr->GetCreatureTemplate(id))
             {
-                sLog->outError(LOG_FILTER_GENERAL, "Eluna Nova::Couldn't find a creature with (ID: %d)!", id);
+                luaL_error(LuaState, "Couldn't find a creature with (ID: %d)!", id);
                 return;
             }
 
@@ -599,7 +600,7 @@ void Eluna::Register(uint8 regtype, uint32 id, uint32 evt, int functionRef)
         {
             if (!sObjectMgr->GetGameObjectTemplate(id))
             {
-                sLog->outError(LOG_FILTER_GENERAL, "Eluna Nova::Couldn't find a gameobject with (ID: %u)!", id);
+                luaL_error(LuaState, "Couldn't find a gameobject with (ID: %d)!", id);
                 return;
             }
 
@@ -613,7 +614,7 @@ void Eluna::Register(uint8 regtype, uint32 id, uint32 evt, int functionRef)
         {
             if (!sObjectMgr->GetGameObjectTemplate(id))
             {
-                sLog->outError(LOG_FILTER_GENERAL, "Eluna Nova::Couldn't find a gameobject with (ID: %u)!", id);
+                luaL_error(LuaState, "Couldn't find a gameobject with (ID: %d)!", id);
                 return;
             }
 
@@ -627,7 +628,7 @@ void Eluna::Register(uint8 regtype, uint32 id, uint32 evt, int functionRef)
         {
             if (!sObjectMgr->GetItemTemplate(id))
             {
-                sLog->outError(LOG_FILTER_GENERAL, "Eluna Nova::Couldn't find a item with (ID: %d)!", id);
+                luaL_error(LuaState, "Couldn't find a item with (ID: %d)!", id);
                 return;
             }
 
@@ -641,7 +642,7 @@ void Eluna::Register(uint8 regtype, uint32 id, uint32 evt, int functionRef)
         {
             if (!sObjectMgr->GetItemTemplate(id))
             {
-                sLog->outError(LOG_FILTER_GENERAL, "Eluna Nova::Couldn't find a item with (ID: %d)!", id);
+                luaL_error(LuaState, "Couldn't find a item with (ID: %d)!", id);
                 return;
             }
 
@@ -659,10 +660,10 @@ void Eluna::Register(uint8 regtype, uint32 id, uint32 evt, int functionRef)
         break;
 
     default:
-        sLog->outError(LOG_FILTER_GENERAL, "Unknown register type (regtype %u, id %u, event %u)", regtype, id, evt);
+        luaL_error(LuaState, "Unknown register type (regtype %d, id %d, event %d)", regtype, id, evt);
         return;
     }
-    sLog->outError(LOG_FILTER_GENERAL, "Unknown event type (regtype %u, id %u, event %u)", regtype, id, evt);
+    luaL_error(LuaState, "Unknown event type (regtype %d, id %d, event %d)", regtype, id, evt);
 }
 void Eluna::ElunaBind::Clear()
 {
@@ -678,7 +679,7 @@ void Eluna::ElunaBind::Insert(uint32 entryId, uint32 eventId, int funcRef)
 {
     if (Bindings[entryId][eventId])
     {
-        sLog->outError(LOG_FILTER_GENERAL, "Eluna Nova::A function is already registered for entry %u event %u", entryId, eventId);
+        luaL_error(sEluna->LuaState, "A function is already registered for entry (%d) event (%d)", entryId, eventId);
         luaL_unref(sEluna->LuaState, LUA_REGISTRYINDEX, funcRef); // free the unused ref
     }
     else

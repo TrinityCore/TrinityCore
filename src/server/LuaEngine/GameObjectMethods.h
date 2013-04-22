@@ -305,19 +305,15 @@ public:
         if (!go || !go->IsInWorld())
             return 0;
 
+        luaL_checktype(L, 1, LUA_TFUNCTION);
         uint32 delay = luaL_checkunsigned(L, 2);
         uint32 repeats = luaL_checkunsigned(L, 3);
-        if (!lua_isfunction(L, 1))
-        {
-            luaL_error(L, "#1 argument is not a function");
-            return 0;
-        }
 
         lua_settop(L, 1);
         Eluna::LuaEventMap* eventMap = Eluna::LuaEventMap::GetEvents(go);
         if (!eventMap)
         {
-            luaL_error(L, "GameObject has no registered gameobject events, please register one before using RegisterEvent");
+            luaL_error(L, "You need to use RegisterGameObjectEvent for the gameobject first");
             return 0;
         }
 
