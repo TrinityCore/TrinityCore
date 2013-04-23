@@ -248,6 +248,8 @@ ElunaRegister<Unit> UnitMethods[] =
     {"SendAuctionMenu", &LuaUnit::SendAuctionHello},                // :SendAuctionMenu([creature, faction]) --  Sends auction window to player. Auction house is sent by creature if provided. AH entry is searched with faction or creature's faction if provided.
     {"SendMailMenu", &LuaUnit::HandleGetMailList},                  // :SendMailMenu(object) --  Sends mail window to player from gameobject.
     {"StartTaxi", &LuaUnit::StartTaxi},                             // :StartTaxi(pathId) -- player starts the given flight path UNDOCUMENTED
+    {"GossipSendPOI", &LuaUnit::GossipSendPOI},                     // :GossipSendPOI(X, Y, Icon, Flags, Data, Name) -- Sends a point of interest to the player UNDOCUMENTED
+    {"GossipAddQuests", &LuaUnit::GossipAddQuests},                 // :GossipAddQuests(unit) -- Adds unit's quests to player's gossip menu UNDOCUMENTED
 
 
     // Creature methods

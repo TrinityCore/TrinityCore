@@ -5406,5 +5406,50 @@ public:
         sEluna->PushUnit(L, target);
         return 1;
     }
+
+    // GossipSendPOI(X, Y, Icon, Flags, Data, Name)
+    static int GossipSendPOI(lua_State* L, Unit* unit)
+    {
+        TO_PLAYER();
+
+        float x = luaL_checknumber(L, 1);
+        float y = luaL_checknumber(L, 2);
+        uint32 icon = luaL_checkunsigned(L, 3);
+        uint32 flags = luaL_checkunsigned(L, 4);
+        uint32 data = luaL_checkunsigned(L, 5);
+        std::string iconText = luaL_checkstring(L, 6);
+
+        WorldPacket packet(SMSG_GOSSIP_POI, 4 + 4 + 4 + 4 + 4 + 10);  // guess size
+        packet << flags;
+        packet << x;
+        packet << y;
+        packet << icon;
+        packet << data;
+        packet << iconText;
+        player->GetSession()->SendPacket(&packet);
+        return 0;
+    }
+
+    // GossipAddQuests(unit)
+    static int GossipAddQuests(lua_State* L, Unit* unit)
+    {
+        TO_PLAYER();
+
+        WorldObject* source = sEluna->CHECK_WORLDOBJECT(L, 1);
+        if(!source)
+            return 0;
+
+        if (source->GetTypeId() == TYPEID_UNIT)
+        {
+            if (source->GetUInt32Value(UNIT_NPC_FLAGS) & UNIT_NPC_FLAG_QUESTGIVER)
+                player->PrepareQuestMenu(source->GetGUID());
+        }
+        else if (source->GetTypeId() == TYPEID_GAMEOBJECT)
+        {
+            if (source->ToGameObject()->GetGoType() == GAMEOBJECT_TYPE_QUESTGIVER)
+                player->PrepareQuestMenu(source->GetGUID());
+        }
+        return 0;
+    }
 };
 #endif
