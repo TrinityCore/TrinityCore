@@ -338,6 +338,14 @@ class instance_ruby_sanctum : public InstanceMapScript
 
                         SetBossState(i, EncounterState(tmpState));
                     }
+
+                    /// This is here for a reason: Zarithrian is loaded before Halion,
+                    /// and we don't want to spawn Halion if he was defeated. If we do
+                    /// this in Zarithrian's SetBossState case, we won't know if
+                    /// Halion was defeated.
+                    if (GetBossState(DATA_HALION) != DONE && GetBossState(DATA_GENERAL_ZARITHRIAN) == DONE)
+                        if (Creature* halionController = instance->SummonCreature(NPC_HALION_CONTROLLER, HalionControllerSpawnPos))
+                            halionController->AI()->DoAction(ACTION_INTRO_HALION);
                 }
                 else
                     OUT_LOAD_INST_DATA_FAIL;

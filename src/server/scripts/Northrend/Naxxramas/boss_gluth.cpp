@@ -19,11 +19,12 @@
 #include "ScriptedCreature.h"
 #include "naxxramas.h"
 
-#define SPELL_MORTAL_WOUND      25646
-#define SPELL_ENRAGE            RAID_MODE(28371, 54427)
-#define SPELL_DECIMATE          RAID_MODE(28374, 54426)
-#define SPELL_BERSERK           26662
-#define SPELL_INFECTED_WOUND    29306
+#define SPELL_MORTAL_WOUND          25646
+#define SPELL_ENRAGE                RAID_MODE(28371, 54427)
+#define SPELL_DECIMATE              RAID_MODE(28374, 54426)
+#define SPELL_BERSERK               26662
+#define SPELL_INFECTED_WOUND        29306
+#define SPELL_INFECTED_WOUND_AURA   29307
 
 #define MOB_ZOMBIE  16360
 
@@ -44,7 +45,12 @@ enum Events
     EVENT_SUMMON,
 };
 
-#define EMOTE_NEARBY    " spots a nearby zombie to devour!"
+enum Emotes
+{
+    EMOTE_ZOMBIE      = 0,
+    EMOTE_ENRAGE      = 1,
+    EMOTE_DECIMATE    = 2,
+};
 
 class boss_gluth : public CreatureScript
 {
@@ -69,8 +75,9 @@ public:
             if (who->GetEntry() == MOB_ZOMBIE && me->IsWithinDistInMap(who, 7))
             {
                 SetGazeOn(who);
-                /// @todo use a script text
-                me->MonsterTextEmote(EMOTE_NEARBY, 0, true);
+                Talk(EMOTE_ZOMBIE);
+                me->Kill(who);
+                me->ModifyHealth(int32(me->CountPctFromMaxHealth(5)));                
             }
             else
                 BossAI::MoveInLineOfSight(who);
@@ -90,7 +97,18 @@ public:
         {
             if (summon->GetEntry() == MOB_ZOMBIE)
                 summon->AI()->AttackStart(me);
+                summon->SetInCombatWithZone();
+                summon->AddAura(SPELL_INFECTED_WOUND_AURA, summon);
             summons.Summon(summon);
+        }
+
+        void SpellHitTarget(Unit* target, SpellInfo const* spell)
+        {
+            if (target->GetTypeId() == TYPEID_UNIT && target->GetEntry() == MOB_ZOMBIE && spell->Id == SPELL_DECIMATE)
+            {
+                target->ToCreature()->AI()->AttackStart(me);
+                target->ToCreature()->SetReactState(REACT_PASSIVE);
+            }
         }
 
         void UpdateAI(uint32 diff)
@@ -109,12 +127,12 @@ public:
                         events.ScheduleEvent(EVENT_WOUND, 10000);
                         break;
                     case EVENT_ENRAGE:
-                        /// @todo Add missing text
+                        Talk(EMOTE_ENRAGE);
                         DoCast(me, SPELL_ENRAGE);
                         events.ScheduleEvent(EVENT_ENRAGE, 15000);
                         break;
                     case EVENT_DECIMATE:
-                        /// @todo Add missing text
+                        Talk(EMOTE_DECIMATE);
                         DoCastAOE(SPELL_DECIMATE);
                         events.ScheduleEvent(EVENT_DECIMATE, 105000);
                         break;
@@ -130,16 +148,7 @@ public:
                 }
             }
 
-            if (me->getVictim() && me->getVictim()->GetEntry() == MOB_ZOMBIE)
-            {
-                if (me->IsWithinMeleeRange(me->getVictim()))
-                {
-                    me->Kill(me->getVictim());
-                    me->ModifyHealth(int32(me->CountPctFromMaxHealth(5)));
-                }
-            }
-            else
-                DoMeleeAttackIfReady();
+            DoMeleeAttackIfReady();
         }
     };
 

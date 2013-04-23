@@ -278,6 +278,17 @@ bool Item::Create(uint32 guidlow, uint32 itemid, Player const* owner)
 
     SetUInt32Value(ITEM_FIELD_DURATION, itemProto->Duration);
     SetUInt32Value(ITEM_FIELD_CREATE_PLAYED_TIME, 0);
+    /** World of Warcraft Armory **/
+    if (sWorld->getBoolConfig(CONFIG_ARMORY_ENABLE))
+    {
+        if (itemProto->Quality > 2 && itemProto->Flags != 2048 && (itemProto->Class == ITEM_CLASS_WEAPON || itemProto->Class == ITEM_CLASS_ARMOR))
+        {
+            if (!GetOwner())
+                return true;
+            GetOwner()->CreateWowarmoryFeed(2, itemid, guidlow, itemProto->Quality);
+        }
+    }
+    /** World of Warcraft Armory **/
     return true;
 }
 
@@ -479,6 +490,7 @@ bool Item::LoadFromDB(uint32 guid, uint64 owner_guid, Field* fields, uint32 entr
 /*static*/
 void Item::DeleteFromDB(SQLTransaction& trans, uint32 itemGuid)
 {
+    DeleteFakeFromDB(itemGuid);
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_INSTANCE);
     stmt->setUInt32(0, itemGuid);
     trans->Append(stmt);
@@ -1205,6 +1217,35 @@ bool Item::CheckSoulboundTradeExpire()
     }
 
     return false;
+}
+
+uint32 Item::GetFakeEntry() // custom
+{
+    ItemFakeEntryContainer::const_iterator itr = sObjectMgr->_itemFakeEntryStore.find(GetGUIDLow());
+    if (itr == sObjectMgr->_itemFakeEntryStore.end()) return NULL;
+    return itr->second;
+}
+
+bool Item::DeleteFakeEntry() // custom
+{
+    if (!GetFakeEntry())
+        return false;
+    GetOwner()->UpdateUInt32Value(PLAYER_VISIBLE_ITEM_1_ENTRYID + (GetSlot() * 2), GetEntry());
+    DeleteFakeFromDB(GetGUIDLow());
+    return true;
+}
+
+void Item::DeleteFakeFromDB(uint32 lowGUID) // custom
+{
+    sObjectMgr->_itemFakeEntryStore.erase(lowGUID);
+    CharacterDatabase.PExecute("DELETE FROM custom_transmogrification WHERE GUID = %u", lowGUID);
+}
+
+void Item::SetFakeEntry(uint32 entry) // custom
+{
+    GetOwner()->UpdateUInt32Value(PLAYER_VISIBLE_ITEM_1_ENTRYID + (GetSlot() * 2), entry);
+    sObjectMgr->_itemFakeEntryStore[GetGUIDLow()] = entry;
+    CharacterDatabase.PExecute("REPLACE INTO custom_transmogrification (GUID, FakeEntry) VALUES (%u, %u)", GetGUIDLow(), entry);
 }
 
 void Item::ItemContainerSaveLootToDB()

@@ -270,6 +270,14 @@ void WorldSession::HandlePetActionHelper(Unit* pet, uint64 guid1, uint32 spellid
             {
                 case REACT_PASSIVE:                         //passive
                     pet->AttackStop();
+                    pet->InterruptNonMeleeSpells(false);
+
+                    if (charmInfo->HasCommandState(COMMAND_FOLLOW))
+                    {
+                        pet->GetMotionMaster()->Clear(true);
+                        pet->GetMotionMaster()->MoveFollow(pet->GetCharmerOrOwner(), PET_FOLLOW_DIST, pet->GetFollowAngle());
+                        charmInfo->SetIsReturning(false);
+                    }
 
                 case REACT_DEFENSIVE:                       //recovery
                 case REACT_AGGRESSIVE:                      //activete

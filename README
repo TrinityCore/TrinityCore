@@ -1,6 +1,14 @@
-= TrinityCore -- General information =
+= TrinityCore / GaryMoveOut -- General information =
+  ______                   ______                   _____             
+ / _____)                 |  ___ \                 / ___ \       _    
+| /  ___  ____  ____ _   _| | _ | | ___ _   _ ____| |   | |_   _| |_  
+| | (___)/ _  |/ ___) | | | || || |/ _ \ | | / _  ) |   | | | | |  _) 
+| \____/( ( | | |   | |_| | || || | |_| \ V ( (/ /| |___| | |_| | |__ 
+ \_____/ \_||_|_|    \__  |_||_||_|\___/ \_/ \____)\_____/ \____|\___)
+                    (____/                                            
 
 Copyright (C) TrinityCore (http://www.trinitycore.org)
+Copyright (C) GaryFisher  (http://www.github.com/garyfisher)
 
   Trinity Core is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by

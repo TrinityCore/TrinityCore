@@ -16,6 +16,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "AnticheatMgr.h"
 #include "Common.h"
 #include "DatabaseEnv.h"
 #include "WorldPacket.h"
@@ -550,7 +551,7 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                                         unitTarget->RemoveAuraFromStack(spellId);
 
                                 damage *= doses;
-                                damage += int32(player->GetTotalAttackPowerValue(BASE_ATTACK) * 0.09f * combo);
+                                damage += int32(player->GetTotalAttackPowerValue(BASE_ATTACK) * 0.11f * combo);
                             }
 
                             // Eviscerate and Envenom Bonus Damage (item set effect)
@@ -628,9 +629,18 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                 if (m_spellInfo->SpellFamilyFlags[1]&0x00040000)
                 {
                     // Add main hand dps * effect[2] amount
-                    float average = (m_caster->GetFloatValue(UNIT_FIELD_MINDAMAGE) + m_caster->GetFloatValue(UNIT_FIELD_MAXDAMAGE)) / 2;
-                    int32 count = m_caster->CalculateSpellDamage(unitTarget, m_spellInfo, EFFECT_2);
-                    damage += count * int32(average * IN_MILLISECONDS) / m_caster->GetAttackTime(BASE_ATTACK);
+                    if (m_caster->HasAura(31884)) // Avenging Wrath
+                    {
+                        float average = (m_caster->GetFloatValue(UNIT_FIELD_MINDAMAGE) + m_caster->GetFloatValue(UNIT_FIELD_MAXDAMAGE)) / 2.4; // decrease by 20% to prevent aura stacking with itself
+                        int32 count = m_caster->CalculateSpellDamage(unitTarget, m_spellInfo, EFFECT_2);
+                        damage += count * int32(average * IN_MILLISECONDS) / m_caster->GetAttackTime(BASE_ATTACK);
+                    }
+                    else if (!m_caster->HasAura(31884))
+                    {
+                         float average = (m_caster->GetFloatValue(UNIT_FIELD_MINDAMAGE) + m_caster->GetFloatValue(UNIT_FIELD_MAXDAMAGE)) / 2;
+                         int32 count = m_caster->CalculateSpellDamage(unitTarget, m_spellInfo, EFFECT_2);
+                         damage += count * int32(average * IN_MILLISECONDS) / m_caster->GetAttackTime(BASE_ATTACK);
+                    }
                     break;
                 }
                 // Shield of Righteousness
@@ -729,36 +739,18 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
             switch (m_spellInfo->Id)
             {
                 case 46584: // Raise Dead
-                    if (m_caster->GetTypeId() != TYPEID_PLAYER)
-                        return;
-
-                    // Do we have talent Master of Ghouls?
-                    if (m_caster->HasAura(52143))
-                        // summon as pet
-                        bp = 52150;
-                    else
-                        // or guardian
-                        bp = 46585;
-
-                    if (m_targets.HasDst())
-                        targets.SetDst(*m_targets.GetDstPos());
-                    else
-                    {
-                        targets.SetDst(*m_caster);
-                        // Corpse not found - take reagents (only not triggered cast can take them)
-                        triggered = false;
-                    }
-                    // Remove cooldown - summon spellls have category
-                    m_caster->ToPlayer()->RemoveSpellCooldown(m_spellInfo->Id, true);
-                    spell_id = 48289;
-                    break;
-                // Raise dead - take reagents and trigger summon spells
-                case 48289:
-                    if (m_targets.HasDst())
-                        targets.SetDst(*m_targets.GetDstPos());
-                    spell_id = CalculateDamage(0, NULL);
+                    // rest of the spell handled in spell_dk.cpp
+                    m_caster->ToPlayer()->RemoveSpellCooldown(46584, true);
                     break;
             }
+            break;
+        case SPELLFAMILY_MAGE:
+            // Cold Snap
+            if (m_spellInfo->Id == 11958)
+                // Normal and Glyph of Eternal Water - Water Elemental
+                if (Creature* playerPet = m_caster->ToPlayer()->GetGuardianPet())
+                    if ((playerPet->GetEntry() == 510 || playerPet->GetEntry() == 37994) && playerPet->isDead())
+                        playerPet->DespawnOrUnsummon();
             break;
     }
 
@@ -824,9 +816,23 @@ void Spell::EffectTriggerSpell(SpellEffIndex effIndex)
 
                 break;
             }
+
+            case 35009: // Invisible
+                m_caster->CombatStop();
+            return;
+
+            case 62196: // Shadow. Trigger
+                m_caster->CombatStop();
+            return;
+
             // Vanish (not exist)
             case 18461:
             {
+                m_caster->InterruptSpell(CURRENT_AUTOREPEAT_SPELL); // break Auto Shot and autohit
+                unitTarget->InterruptSpell(CURRENT_CHANNELED_SPELL); // break channeled spells
+                m_caster->AttackStop();
+                m_caster->CombatStop();
+                ((Player*)m_caster)->SendAttackSwingCancelAttack();
                 unitTarget->RemoveMovementImpairingAuras();
                 unitTarget->RemoveAurasByType(SPELL_AURA_MOD_STALKED);
 
@@ -1917,6 +1923,15 @@ void Spell::EffectEnergize(SpellEffIndex effIndex)
             // cast random elixir on target
             m_caster->CastSpell(unitTarget, Trinity::Containers::SelectRandomContainerElement(avalibleElixirs), true, m_CastItem);
         }
+    }
+
+    // Enrage talent armor decreasing
+    if (m_spellInfo->Id == 5229)
+    {
+        if (m_caster->GetShapeshiftForm() == FORM_BEAR)
+            unitTarget->HandleStatModifier(UNIT_MOD_ARMOR, BASE_PCT, 27, false);
+        else if (m_caster->GetShapeshiftForm() == FORM_DIREBEAR)
+            unitTarget->HandleStatModifier(UNIT_MOD_ARMOR, BASE_PCT, 16, false);
     }
 }
 
@@ -3060,6 +3075,7 @@ void Spell::EffectSummonPet(SpellEffIndex effIndex)
     // if pet requested type already exist
     if (OldSummon)
     {
+        OldSummon->m_CreatureSpellCooldowns.clear();
         if (petentry == 0 || OldSummon->GetEntry() == petentry)
         {
             // pet in corpse state can't be summoned
@@ -3227,6 +3243,15 @@ void Spell::EffectWeaponDmg(SpellEffIndex effIndex)
                     fixed_bonus += (aur->GetStackAmount() - 1) * CalculateDamage(2, unitTarget);
                 }
             }
+            // Heroic Strike
+            else if (m_spellInfo->SpellFamilyFlags[0] & 0x64)
+            {
+                // only rank 10+ gives the bonus damage
+                if (m_spellInfo->BaseLevel >= 66)
+                    // check for daze
+                    if (unitTarget->HasAuraType(SPELL_AURA_MOD_DECREASE_SPEED))
+                        spell_bonus += (m_spellInfo->Effects[EFFECT_0].CalcValue() * 0.35);
+            }
             if (m_spellInfo->SpellFamilyFlags[0] & 0x8000000) // Mocking Blow
             {
                 if (unitTarget->IsImmunedToSpellEffect(m_spellInfo, EFFECT_1) || unitTarget->GetTypeId() == TYPEID_PLAYER)
@@ -3277,7 +3302,7 @@ void Spell::EffectWeaponDmg(SpellEffIndex effIndex)
                 }
 
                 if (found)
-                    totalDamagePercentMod *= 1.2f;          // 120% if poisoned
+                    totalDamagePercentMod *= 1.20f;          // 120% if poisoned
             }
             break;
         }
@@ -3864,6 +3889,18 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
                     sprintf(buf, "%s causually tosses %s [Worn Troll Dice]. One %u and one %u.", m_caster->GetName().c_str(), gender, urand(1, 6), urand(1, 6));
                     m_caster->MonsterTextEmote(buf, 0);
                     break;
+                }
+                // Vigilance
+                case 50725:
+                {
+                    if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
+                        return;
+
+                    // Remove Taunt cooldown
+                    if (m_originalCaster)
+                        m_originalCaster->ToPlayer()->RemoveSpellCooldown(355, true);
+
+                    return;
                 }
                 // Death Knight Initiate Visual
                 case 51519:
@@ -5766,9 +5803,13 @@ void Spell::EffectTitanGrip(SpellEffIndex /*effIndex*/)
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT)
         return;
-
-    if (m_caster->GetTypeId() == TYPEID_PLAYER)
-        m_caster->ToPlayer()->SetCanTitanGrip(true);
+    
+    if (Player* player = (Player*)m_caster)
+    {
+        player->SetCanTitanGrip(true);
+        if (player->HasTwoHandWeaponInOneHand() && !player->HasAura(49152))
+            player->CastSpell(player, 49152, true);
+    }
 }
 
 void Spell::EffectRedirectThreat(SpellEffIndex /*effIndex*/)

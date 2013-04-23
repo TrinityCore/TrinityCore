@@ -32,6 +32,7 @@
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
+#include "InstanceSaveMgr.h"
 
 class Aura;
 
@@ -79,6 +80,16 @@ void WorldSession::HandleGroupInviteOpcode(WorldPacket& recvData)
     // no player
     if (!player)
     {
+        // If Fake WHO List system is on and the invited is fake, we return that he's already in a group
+        if (sWorld->getBoolConfig(CONFIG_FAKE_WHO_LIST))
+        {
+            QueryResult result = CharacterDatabase.PQuery("SELECT guid FROM characters WHERE name = '%s' AND online > 1", membername.c_str());
+            if (result)
+            {
+                SendPartyResult(PARTY_OP_INVITE, membername, ERR_ALREADY_IN_GROUP_S);
+                return;
+            }
+        }
         SendPartyResult(PARTY_OP_INVITE, membername, ERR_BAD_PLAYER_NAME_S);
         return;
     }
@@ -380,6 +391,32 @@ void WorldSession::HandleGroupSetLeaderOpcode(WorldPacket& recvData)
 
     if (!group->IsLeader(GetPlayer()->GetGUID()) || player->GetGroup() != group)
         return;
+
+    //FIX INSTANCE COOLDOWN EXPLOIT
+    Group::MemberSlotList members = group->GetMemberSlots();
+    Player* plr = NULL;
+    bool ch = false;
+
+    for (Group::member_citerator itr = members.begin(); itr != members.end(); ++itr)
+    {
+        plr = sObjectMgr->GetPlayerByLowGUID(itr->guid);
+        for (int i = 0; i < MAX_DIFFICULTY; ++i)
+        {
+            for (Player::BoundInstancesMap::iterator it = player->m_boundInstances[i].begin(); it != player->m_boundInstances[i].end(); ++it)
+            {
+                if (plr && it->first == plr->GetMapId() && plr->GetGUID() != player->GetGUID())
+                {
+                    group->BindToInstance(it->second.save, false);
+                    ch = true;
+                    break;
+                }
+            }
+            if (ch)
+                break;
+        }
+        if (ch)
+            break;
+    }
 
     // Everything's fine, accepted.
     group->ChangeLeader(guid);

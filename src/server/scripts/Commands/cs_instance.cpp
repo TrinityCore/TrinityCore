@@ -43,6 +43,8 @@ public:
             { "unbind",         SEC_ADMINISTRATOR,  false,  &HandleInstanceUnbindCommand,       "", NULL },
             { "stats",          SEC_ADMINISTRATOR,  true,   &HandleInstanceStatsCommand,        "", NULL },
             { "savedata",       SEC_ADMINISTRATOR,  false,  &HandleInstanceSaveDataCommand,     "", NULL },
+            { "setdata",        SEC_ADMINISTRATOR,  false,  &HandleInstanceSetDataCommand,      "", NULL },
+            { "getdata",        SEC_ADMINISTRATOR,  false,  &HandleInstanceGetDataCommand,      "", NULL },
             { NULL,             0,                  false,  NULL,                               "", NULL }
         };
 
@@ -184,6 +186,69 @@ public:
 
         ((InstanceMap*)map)->GetInstanceScript()->SaveToDB();
 
+        return true;
+    }
+
+    static bool HandleInstanceSetDataCommand(ChatHandler* handler, char const* args)
+    {
+        if (!*args)
+            return false;
+
+        Player* player = handler->GetSession()->GetPlayer();
+        Map* map = player->GetMap();
+        if (!map->IsDungeon())
+        {
+            handler->PSendSysMessage("Map is not a dungeon.");
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        if (!((InstanceMap*)map)->GetInstanceScript())
+        {
+            handler->PSendSysMessage("Map has no instance data.");
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        char* field_str = strtok((char*) args, " ");
+        char* value_str = strtok(NULL, "");
+
+        if (!field_str || !value_str)
+            return false;
+
+        int32 field = atoi(field_str);
+        int32 value = atoi(value_str);
+
+        ((InstanceMap*)map)->GetInstanceScript()->SetBossState(field, (EncounterState)value);
+        handler->PSendSysMessage("Instance data field %i is now set to %i.", field, value);
+        return true;
+    }
+
+    static bool HandleInstanceGetDataCommand(ChatHandler* handler, char const* args)
+    {
+        if (!*args)
+            return false;
+
+        Player* player = handler->GetSession()->GetPlayer();
+        Map* map = player->GetMap();
+        if (!map->IsDungeon())
+        {
+            handler->PSendSysMessage("Map is not a dungeon.");
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        if (!((InstanceMap*)map)->GetInstanceScript())
+        {
+            handler->PSendSysMessage("Map has no instance data.");
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        int32 field = atoi (args);
+
+        int32 value = ((InstanceMap*)map)->GetInstanceScript()->GetBossState(field);
+        handler->PSendSysMessage("Instance data for field %i is %i.", field, value);
         return true;
     }
 };

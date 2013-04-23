@@ -1738,6 +1738,7 @@ bool GameObject::IsInRange(float x, float y, float z, float radius) const
     float dx = x - GetPositionX();
     float dy = y - GetPositionY();
     float dz = z - GetPositionZ();
+
     float dist = sqrt(dx*dx + dy*dy);
     //! Check if the distance between the 2 objects is 0, can happen if both objects are on the same position.
     //! The code below this check wont crash if dist is 0 because 0/0 in float operations is valid, and returns infinite
@@ -1841,6 +1842,8 @@ void GameObject::ModifyHealth(int32 change, Unit* attackerOrHealer /*= NULL*/, u
         data << uint32(-change);
         data << uint32(spellId);
         player->GetSession()->SendPacket(&data);
+        if (Battleground* bg = player->GetBattleground())
+            bg->EventPlayerDamagedGO(player, this, m_goInfo->building.damageEvent);
     }
 
     GameObjectDestructibleState newState = GetDestructibleState();

@@ -36,9 +36,16 @@ enum EventIds
 
 enum TimedEvents
 {
-    EVENT_UPDATE_EXECUTION_TIME = 1,
-    EVENT_QUAKE_SHATTER         = 2,
-    EVENT_REBUILD_PLATFORM      = 3,
+    EVENT_UPDATE_EXECUTION_TIME  = 1,
+    EVENT_QUAKE_SHATTER          = 2,
+    EVENT_REBUILD_PLATFORM       = 3,
+    EVENT_CHECK_HERO_ACHIEVEMENT = 4,
+};
+
+enum RequiredAchievementsForHeroic
+{
+    ACHIEVEMENT_FROZEN_THRONE_10 = 4530,
+    ACHIEVEMENT_FROZEN_THRONE_25 = 4597,
 };
 
 DoorData const doorData[] =
@@ -63,6 +70,7 @@ DoorData const doorData[] =
     {GO_DOODAD_ICECROWN_ROOSTPORTCULLIS_02,  DATA_VALITHRIA_DREAMWALKER, DOOR_TYPE_SPAWN_HOLE, BOUNDARY_S   },
     {GO_DOODAD_ICECROWN_ROOSTPORTCULLIS_03,  DATA_VALITHRIA_DREAMWALKER, DOOR_TYPE_SPAWN_HOLE, BOUNDARY_N   },
     {GO_DOODAD_ICECROWN_ROOSTPORTCULLIS_04,  DATA_VALITHRIA_DREAMWALKER, DOOR_TYPE_SPAWN_HOLE, BOUNDARY_S   },
+    {GO_SINDRAGOSA_ENTRANCE_DOOR,            DATA_SINDRAGOSA_GAUNTLET,   DOOR_TYPE_PASSAGE,    BOUNDARY_N   },
     {GO_SINDRAGOSA_ENTRANCE_DOOR,            DATA_SINDRAGOSA,            DOOR_TYPE_ROOM,       BOUNDARY_S   },
     {GO_SINDRAGOSA_SHORTCUT_ENTRANCE_DOOR,   DATA_SINDRAGOSA,            DOOR_TYPE_PASSAGE,    BOUNDARY_E   },
     {GO_SINDRAGOSA_SHORTCUT_EXIT_DOOR,       DATA_SINDRAGOSA,            DOOR_TYPE_PASSAGE,    BOUNDARY_NONE},
@@ -106,6 +114,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                 TeamInInstance = 0;
                 HeroicAttempts = MaxHeroicAttempts;
                 LadyDeathwisperElevatorGUID = 0;
+                RottingFrostGiantGUID = 0;
                 DeathbringerSaurfangGUID = 0;
                 DeathbringerSaurfangDoorGUID = 0;
                 DeathbringerSaurfangEventGUID = 0;
@@ -149,6 +158,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                 ColdflameJetsState = NOT_STARTED;
                 BloodQuickeningState = NOT_STARTED;
                 BloodQuickeningMinutes = 0;
+                SindragosasWardGUID = 0;
             }
 
             void FillInitialWorldStates(WorldPacket& data)
@@ -164,6 +174,9 @@ class instance_icecrown_citadel : public InstanceMapScript
             {
                 if (!TeamInInstance)
                     TeamInInstance = player->GetTeam();
+
+                if (instance->IsHeroic())
+                    Events.ScheduleEvent(EVENT_CHECK_HERO_ACHIEVEMENT, 10000);
             }
 
             void OnCreatureCreate(Creature* creature)
@@ -213,6 +226,10 @@ class instance_icecrown_citadel : public InstanceMapScript
                     case NPC_GARROSH_HELLSCREAM:
                         if (TeamInInstance == ALLIANCE)
                             creature->UpdateEntry(NPC_KING_VARIAN_WRYNN, ALLIANCE);
+                        break;
+                    case NPC_ROTTING_FROST_GIANT_10:
+                    case NPC_ROTTING_FROST_GIANT_25:
+                        RottingFrostGiantGUID = creature->GetGUID();
                         break;
                     case NPC_DEATHBRINGER_SAURFANG:
                         DeathbringerSaurfangGUID = creature->GetGUID();
@@ -298,6 +315,9 @@ class instance_icecrown_citadel : public InstanceMapScript
                     case NPC_TERENAS_MENETHIL_FROSTMOURNE:
                     case NPC_TERENAS_MENETHIL_FROSTMOURNE_H:
                         TerenasMenethilGUID = creature->GetGUID();
+                        break;
+                    case NPC_SINDRAGOSAS_WARD:
+                        SindragosasWardGUID = creature->GetGUID();
                         break;
                     case NPC_WICKED_SPIRIT:
                         // Remove corpse as soon as it dies (and respawn 10 seconds later)
@@ -446,6 +466,19 @@ class instance_icecrown_citadel : public InstanceMapScript
                             go->SetGoState(GO_STATE_READY);
                         }
                         break;
+                    case GO_CAPITAN_CHEST_A_10N:
+                    case GO_CAPITAN_CHEST_A_10H:
+                    case GO_CAPITAN_CHEST_A_25N:
+                    case GO_CAPITAN_CHEST_A_25H:
+                    case GO_CAPITAN_CHEST_H_10N:
+                    case GO_CAPITAN_CHEST_H_10H:
+                    case GO_CAPITAN_CHEST_H_25N:
+                    case GO_CAPITAN_CHEST_H_25H:
+                        RottingFrostGiantGUID = go->GetGUID();
+                        if (Creature* rotting = instance->GetCreature(RottingFrostGiantGUID))
+                            go->SetLootRecipient(rotting->GetLootRecipient());
+                            go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_LOCKED | GO_FLAG_NOT_SELECTABLE | GO_FLAG_NODESPAWN);
+                        break;
                     case GO_SAURFANG_S_DOOR:
                         DeathbringerSaurfangDoorGUID = go->GetGUID();
                         AddDoor(go, true);
@@ -516,7 +549,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                         break;
                     case GO_SCOURGE_TRANSPORTER_LK:
                         TheLichKingTeleportGUID = go->GetGUID();
-                        if (GetBossState(DATA_PROFESSOR_PUTRICIDE) == DONE && GetBossState(DATA_BLOOD_QUEEN_LANA_THEL) == DONE && GetBossState(DATA_SINDRAGOSA) == DONE)
+                        if (GetBossState(DATA_PROFESSOR_PUTRICIDE) == DONE && GetBossState(DATA_BLOOD_QUEEN_LANA_THEL) == DONE/* && GetBossState(DATA_SINDRAGOSA) == DONE*/)
                             go->SetGoState(GO_STATE_ACTIVE);
                         break;
                     case GO_ARTHAS_PLATFORM:
@@ -676,6 +709,8 @@ class instance_icecrown_citadel : public InstanceMapScript
                         return ArthasPlatformGUID;
                     case DATA_TERENAS_MENETHIL:
                         return TerenasMenethilGUID;
+                    case DATA_SINDRAGOSA_GAUNTLET:
+                        return SindragosasWardGUID;
                     default:
                         break;
                 }
@@ -1106,6 +1141,21 @@ class instance_icecrown_citadel : public InstanceMapScript
                     }
                 }
             }
+ 
+            bool CheckHeroicAchievement(uint32 mode)
+            {
+                Map::PlayerList const &players = instance->GetPlayers();
+                for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+                {
+                    Player* player = itr->getSource();
+                    if (player->isGameMaster())
+                        continue;
+
+                    if (player->HasAchieved(mode == 25 ? ACHIEVEMENT_FROZEN_THRONE_25 : ACHIEVEMENT_FROZEN_THRONE_10))
+                        return true;
+                }
+                return false;
+            }
 
             std::string GetSaveData()
             {
@@ -1172,6 +1222,16 @@ class instance_icecrown_citadel : public InstanceMapScript
                 {
                     switch (eventId)
                     {
+                        case EVENT_CHECK_HERO_ACHIEVEMENT:
+                            if (!CheckHeroicAchievement(instance->ToInstanceMap()->GetMaxPlayers()))
+                            {
+                                Map::PlayerList const &players = instance->GetPlayers();
+                                for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+                                    if (Player* player = itr->getSource())
+                                        player->RepopAtGraveyard();
+                            }
+                            Events.ScheduleEvent(EVENT_CHECK_HERO_ACHIEVEMENT, 10000);
+                            break;
                         case EVENT_UPDATE_EXECUTION_TIME:
                         {
                             --BloodQuickeningMinutes;
@@ -1261,6 +1321,7 @@ class instance_icecrown_citadel : public InstanceMapScript
         protected:
             EventMap Events;
             uint64 LadyDeathwisperElevatorGUID;
+            uint64 RottingFrostGiantGUID;
             uint64 DeathbringerSaurfangGUID;
             uint64 DeathbringerSaurfangDoorGUID;
             uint64 DeathbringerSaurfangEventGUID;   // Muradin Bronzebeard or High Overlord Saurfang
@@ -1312,6 +1373,7 @@ class instance_icecrown_citadel : public InstanceMapScript
             bool IsOozeDanceEligible;
             bool IsNauseaEligible;
             bool IsOrbWhispererEligible;
+            uint64 SindragosasWardGUID;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const

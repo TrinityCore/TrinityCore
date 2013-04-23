@@ -1153,77 +1153,6 @@ void Spell::SelectImplicitAreaTargets(SpellEffIndex effIndex, SpellImplicitTarge
     float radius = m_spellInfo->Effects[effIndex].CalcRadius(m_caster) * m_spellValue->RadiusMod;
     SearchAreaTargets(targets, radius, center, referer, targetType.GetObjectType(), targetType.GetCheckType(), m_spellInfo->Effects[effIndex].ImplicitTargetConditions);
 
-    // Custom entries
-    /// @todo remove those
-    switch (m_spellInfo->Id)
-    {
-        case 46584: // Raise Dead
-        {
-            if (Player* playerCaster = m_caster->ToPlayer())
-            {
-                for (std::list<WorldObject*>::iterator itr = targets.begin(); itr != targets.end(); ++itr)
-                {
-                    switch ((*itr)->GetTypeId())
-                    {
-                        case TYPEID_UNIT:
-                        case TYPEID_PLAYER:
-                        {
-                            Unit* unitTarget = (*itr)->ToUnit();
-                            if (unitTarget->isAlive() || !playerCaster->isHonorOrXPTarget(unitTarget)
-                                || ((unitTarget->GetCreatureTypeMask() & (1 << (CREATURE_TYPE_HUMANOID-1))) == 0)
-                                || (unitTarget->GetDisplayId() != unitTarget->GetNativeDisplayId()))
-                                break;
-                            AddUnitTarget(unitTarget, effMask, false);
-                            // no break;
-                        }
-                        case TYPEID_CORPSE: // wont work until corpses are allowed in target lists, but at least will send dest in packet
-                            m_targets.SetDst(*(*itr));
-                            return; // nothing more to do here
-                        default:
-                            break;
-                    }
-                }
-            }
-            return; // don't add targets to target map
-        }
-        // Corpse Explosion
-        case 49158:
-        case 51325:
-        case 51326:
-        case 51327:
-        case 51328:
-            // check if our target is not valid (spell can target ghoul or dead unit)
-            if (!(m_targets.GetUnitTarget() && m_targets.GetUnitTarget()->GetDisplayId() == m_targets.GetUnitTarget()->GetNativeDisplayId() &&
-                ((m_targets.GetUnitTarget()->GetEntry() == 26125 && m_targets.GetUnitTarget()->GetOwnerGUID() == m_caster->GetGUID())
-                || m_targets.GetUnitTarget()->isDead())))
-            {
-                // remove existing targets
-                CleanupTargetList();
-
-                for (std::list<WorldObject*>::iterator itr = targets.begin(); itr != targets.end(); ++itr)
-                {
-                    switch ((*itr)->GetTypeId())
-                    {
-                        case TYPEID_UNIT:
-                        case TYPEID_PLAYER:
-                            if (!(*itr)->ToUnit()->isDead())
-                                break;
-                            AddUnitTarget((*itr)->ToUnit(), 1 << effIndex, false);
-                            return;
-                        default:
-                            break;
-                    }
-                }
-                if (m_caster->GetTypeId() == TYPEID_PLAYER)
-                    m_caster->ToPlayer()->RemoveSpellCooldown(m_spellInfo->Id, true);
-                SendCastResult(SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW);
-                finish(false);
-            }
-            return;
-        default:
-            break;
-    }
-
     CallScriptObjectAreaTargetSelectHandlers(targets, effIndex);
 
     std::list<Unit*> unitTargets;
@@ -1435,10 +1364,19 @@ void Spell::SelectImplicitCasterDestTargets(SpellEffIndex effIndex, SpellImplici
         dist = objSize + (dist - objSize) * (float)rand_norm();
 
     Position pos;
-    if (targetType.GetTarget() == TARGET_DEST_CASTER_FRONT_LEAP)
-        m_caster->GetFirstCollisionPosition(pos, dist, angle);
-    else
-        m_caster->GetNearPosition(pos, dist, angle);
+    switch (targetType.GetTarget())
+    {
+        case TARGET_DEST_CASTER_FRONT_LEAP:
+        case TARGET_DEST_CASTER_FRONT_LEFT:
+        case TARGET_DEST_CASTER_BACK_LEFT:
+        case TARGET_DEST_CASTER_BACK_RIGHT:
+        case TARGET_DEST_CASTER_FRONT_RIGHT:
+            m_caster->GetFirstCollisionPosition(pos, dist, angle);
+        break;
+        default:
+            m_caster->GetNearPosition(pos, dist, angle);
+        break;
+    }
     m_targets.SetDst(*m_caster);
     m_targets.ModDst(pos);
 }
@@ -2188,7 +2126,11 @@ void Spell::AddUnitTarget(Unit* target, uint32 effectMask, bool checkIfValid /*=
             m_delayMoment = targetInfo.timeDelay;
     }
     else
-        targetInfo.timeDelay = 0LL;
+    {
+        targetInfo.timeDelay = GetCCDelay(m_spellInfo);
+        if (m_delayMoment == 0 || m_delayMoment > targetInfo.timeDelay)
+            m_delayMoment = targetInfo.timeDelay;
+    }
 
     // If target reflect spell back to caster
     if (targetInfo.missCondition == SPELL_MISS_REFLECT)
@@ -2381,6 +2323,8 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
         if (target->reflectResult == SPELL_MISS_NONE)       // If reflected spell hit caster -> do all effect on him
         {
             spellHitTarget = m_caster;
+            // Start triggers for remove charges if need (trigger only for victim, and mark as active spell)
+            m_caster->ProcDamageAndSpell(unit, PROC_FLAG_NONE, PROC_FLAG_TAKEN_SPELL_MAGIC_DMG_CLASS_NEG, PROC_EX_REFLECT, 1, BASE_ATTACK, m_spellInfo);
             if (m_caster->GetTypeId() == TYPEID_UNIT)
                 m_caster->ToCreature()->LowerPlayerDamageReq(target->damage);
         }
@@ -2503,6 +2447,12 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
                 caster->ToPlayer()->CastItemCombatSpell(unitTarget, m_attackType, procVictim, procEx);
         }
 
+
+        // Cobra Strikes charge removing
+        if (m_spellInfo->SpellFamilyName == SPELLFAMILY_HUNTER && m_spellInfo->SpellFamilyFlags[1] & 0x10000000)
+            if (Unit * owner = caster->GetOwner())
+                if (Aura* pAura = owner->GetAura(53257))
+                    pAura->ModStackAmount(-1);
 
         m_damage = damageInfo.damage;
 
@@ -2735,6 +2685,34 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask, bool scaleA
                     {
                         if (m_spellInfo->AttributesEx5 & SPELL_ATTR5_HASTE_AFFECT_DURATION)
                             m_originalCaster->ModSpellCastTime(aurSpellInfo, duration, this);
+
+                        //Spell Fix Improved Succubuss Duration
+                        if (m_spellInfo->Id == 6358 && unit->GetTypeId() == TYPEID_PLAYER && m_originalCaster->GetOwner())
+                        {
+                            float mod = 1.0f;
+                            float durationadd = 0.0f;
+
+                            if (m_originalCaster->GetOwner()->HasAura(18754))
+                                durationadd += float(1.5*IN_MILLISECONDS*0.22);
+                            else if (m_originalCaster->GetOwner()->HasAura(18755))
+                                durationadd += float(1.5*IN_MILLISECONDS*0.44);
+                            else if (m_originalCaster->GetOwner()->HasAura(18756))
+                                durationadd += float(1.5*IN_MILLISECONDS*0.66);
+
+                            if (durationadd)
+                            {
+                                switch (m_diminishLevel)
+                                {
+                                    case DIMINISHING_LEVEL_1: break;
+                                    case DIMINISHING_LEVEL_2: duration += 1000; mod = 0.5f; break;
+                                    case DIMINISHING_LEVEL_3: duration += 1000; mod = 0.25f; break;
+                                    case DIMINISHING_LEVEL_IMMUNE: { m_spellAura->Remove(); return SPELL_MISS_IMMUNE; }
+                                    default: break;
+                                }
+                                durationadd *= mod;
+                                duration += int32(durationadd);
+                            }
+                        }
                     }
                     // and duration of auras affected by SPELL_AURA_PERIODIC_HASTE
                     else if (m_originalCaster->HasAuraTypeWithAffectMask(SPELL_AURA_PERIODIC_HASTE, aurSpellInfo) || m_spellInfo->AttributesEx5 & SPELL_ATTR5_HASTE_AFFECT_DURATION)
@@ -3023,7 +3001,7 @@ void Spell::prepare(SpellCastTargets const* targets, AuraEffect const* triggered
     if (m_caster->GetTypeId() == TYPEID_PLAYER)
         m_caster->ToPlayer()->SetSpellModTakingSpell(this, true);
     // calculate cast time (calculated after first CheckCast check to prevent charge counting for first CheckCast fail)
-    m_casttime = m_spellInfo->CalcCastTime(m_caster, this);
+    m_casttime = m_spellInfo->CalcCastTime(m_caster, this, _triggeredCastFlags & TRIGGERED_IGNORE_GCD); 
     if (m_caster->GetTypeId() == TYPEID_PLAYER)
     {
         m_caster->ToPlayer()->SetSpellModTakingSpell(this, false);
@@ -3292,7 +3270,7 @@ void Spell::cast(bool skipCheck)
     SendSpellGo();
 
     // Okay, everything is prepared. Now we need to distinguish between immediate and evented delayed spells
-    if ((m_spellInfo->Speed > 0.0f && !m_spellInfo->IsChanneled()) || m_spellInfo->Id == 14157)
+    if (((m_spellInfo->Speed > 0.0f || GetCCDelay(m_spellInfo) > 0) && !m_spellInfo->IsChanneled()) || m_spellInfo->Id == 14157 || m_spellInfo->Id == 70802)
     {
         // Remove used for cast item if need (it can be already NULL after TakeReagents call
         // in case delayed spell remove item at cast delay start
@@ -4728,7 +4706,10 @@ SpellCastResult Spell::CheckCast(bool strict)
             if (m_triggeredByAuraSpell)
                 return SPELL_FAILED_DONT_REPORT;
             else
-                return SPELL_FAILED_NOT_READY;
+            {
+                // Return spell fizzle for shadowform, returning not ready causes it to bug out client side.
+                return m_spellInfo->Id == 15473 ? SPELL_FAILED_FIZZLE : SPELL_FAILED_NOT_READY;
+            }
         }
     }
 
@@ -4740,7 +4721,10 @@ SpellCastResult Spell::CheckCast(bool strict)
 
     // Check global cooldown
     if (strict && !(_triggeredCastFlags & TRIGGERED_IGNORE_GCD) && HasGlobalCooldown())
-        return SPELL_FAILED_NOT_READY;
+    {
+        // Return spell fizzle for shadowform, returning not ready causes it to bug out client side.
+        return m_spellInfo->Id == 15473 ? SPELL_FAILED_FIZZLE : SPELL_FAILED_NOT_READY;
+    }
 
     // only triggered spells can be processed an ended battleground
     if (!IsTriggered() && m_caster->GetTypeId() == TYPEID_PLAYER)
@@ -5029,6 +5013,25 @@ SpellCastResult Spell::CheckCast(bool strict)
         // for effects of spells that have only one target
         switch (m_spellInfo->Effects[i].Effect)
         {
+            case SPELL_EFFECT_DUMMY:
+            {
+                if (m_spellInfo->Id == 19938)          // Awaken Peon
+                {
+                    Unit* unit = m_targets.GetUnitTarget();
+                    if (!unit || !unit->HasAura(17743))
+                        return SPELL_FAILED_BAD_TARGETS;
+                }
+                else if (m_spellInfo->Id == 31789)          // Righteous Defense
+                {
+                    if (m_caster->GetTypeId() != TYPEID_PLAYER)
+                        return SPELL_FAILED_DONT_REPORT;
+
+                    Unit* target = m_targets.GetUnitTarget();
+                    if (!target || !target->IsFriendlyTo(m_caster) || target->getAttackers().empty())
+                        return SPELL_FAILED_BAD_TARGETS;
+                }
+                break;
+            }
             case SPELL_EFFECT_LEARN_SPELL:
             {
                 if (m_caster->GetTypeId() != TYPEID_PLAYER)
@@ -5389,6 +5392,68 @@ SpellCastResult Spell::CheckCast(bool strict)
     {
         switch (m_spellInfo->Effects[i].ApplyAuraName)
         {
+            case SPELL_AURA_DUMMY:
+            {
+                //custom check
+                switch (m_spellInfo->Id)
+                {
+                    case 52610: //Savage Roar
+                    {
+                        if (m_caster->GetTypeId() != TYPEID_PLAYER || m_caster->ToPlayer()->GetShapeshiftForm()!=FORM_CAT)
+                                return SPELL_FAILED_ONLY_SHAPESHIFT;
+                        break;
+                    }
+                    // Tag Murloc
+                    case 30877:
+                    {
+                        Unit* target = m_targets.GetUnitTarget();
+                        if (!target || target->GetEntry() != 17326)
+                            return SPELL_FAILED_BAD_TARGETS;
+                        break;
+                    }
+                    case 61336:
+                        if (m_caster->GetTypeId() != TYPEID_PLAYER || !m_caster->ToPlayer()->IsInFeralForm())
+                            return SPELL_FAILED_ONLY_SHAPESHIFT;
+                        break;
+                    case 1515:
+                    {
+                        if (m_caster->GetTypeId() != TYPEID_PLAYER)
+                            return SPELL_FAILED_BAD_TARGETS;
+
+                        if (!m_targets.GetUnitTarget() || m_targets.GetUnitTarget()->GetTypeId() == TYPEID_PLAYER)
+                            return SPELL_FAILED_BAD_IMPLICIT_TARGETS;
+
+                        Creature* target = m_targets.GetUnitTarget()->ToCreature();
+
+                        if (target->getLevel() > m_caster->getLevel())
+                            return SPELL_FAILED_HIGHLEVEL;
+
+                        // use SMSG_PET_TAME_FAILURE?
+                        if (!target->GetCreatureTemplate()->isTameable (m_caster->ToPlayer()->CanTameExoticPets()))
+                            return SPELL_FAILED_BAD_TARGETS;
+
+                        if (m_caster->GetPetGUID())
+                            return SPELL_FAILED_ALREADY_HAVE_SUMMON;
+
+                        if (m_caster->GetCharmGUID())
+                            return SPELL_FAILED_ALREADY_HAVE_CHARM;
+
+                        break;
+                    }
+                    case 44795: // Parachute
+                    {
+                        float x, y, z;
+                        m_caster->GetPosition(x, y, z);
+                        float ground_Z = m_caster->GetMap()->GetHeight(m_caster->GetPhaseMask(), x, y, z);
+                        if (fabs(ground_Z - z) < 0.1f)
+                            return SPELL_FAILED_DONT_REPORT;
+                        break;
+                    }
+                    default:
+                        break;
+                }
+                break;
+            }
             case SPELL_AURA_MOD_POSSESS_PET:
             {
                 if (m_caster->GetTypeId() != TYPEID_PLAYER)
@@ -5565,6 +5630,198 @@ SpellCastResult Spell::CheckPetCast(Unit* target)
     return CheckCast(true);
 }
 
+uint32 Spell::GetCCDelay(SpellInfo const* _spell)
+{
+    AuraType auraWithCCD[] = {
+        SPELL_AURA_MOD_STUN,
+        SPELL_AURA_MOD_SILENCE,
+        SPELL_AURA_MOD_CONFUSE,
+        SPELL_AURA_MOD_FEAR,
+        SPELL_AURA_MOD_DISARM,
+        SPELL_AURA_MOD_ROOT,
+        SPELL_AURA_MOD_POSSESS
+};
+
+    uint8 CCDArraySize = 7;
+
+    const uint32 delayForRoots           = 0; // currently unused
+    const uint32 delayForStuns           = 50;
+    const uint32 delayForDisarms         = 0; // currently unused
+    const uint32 delayForDisorients      = 100;
+    const uint32 delayForFears           = 100;
+    const uint32 delayForHorrors         = 50;
+    const uint32 delayForOpenerStuns     = 70;
+    const uint32 delayForScatters        = 100;
+    const uint32 delayForBanishes        = 50;
+    const uint32 NOdelayForInstantSpells = 0;
+
+    switch(_spell->SpellFamilyName)
+    {
+        case SPELLFAMILY_DEATHKNIGHT:
+            // Death Grip
+            if (_spell->Id == 49576)
+                return NOdelayForInstantSpells;
+            // Hungering Cold
+            if (_spell->Id == 49203)
+                return delayForDisorients;
+            // Gnaw (ghoul's stun)
+            if (_spell->Id == 47481)
+                return delayForStuns;
+            break;
+        case SPELLFAMILY_DRUID:
+            // Bash
+            if (_spell->Id == 5211)
+                return delayForStuns;
+            // Cyclone
+            if (_spell->Id == 33786)
+                return delayForBanishes;
+            // Hibernate 
+            if (_spell->Id == 2637)
+                return delayForDisorients;
+            // Feral charge
+            if (_spell->Id == 45334)
+                return NOdelayForInstantSpells; 
+            // Maim
+            if (_spell->Id == 22570)
+                return delayForStuns;
+            // Pounce
+            if (_spell->Id == 9005)
+                return delayForOpenerStuns;
+            break;
+        case SPELLFAMILY_HUNTER: // TODO all pet's cc 
+            // Traps
+            if (_spell->SpellFamilyFlags[0] & 0x8 || // Frozen trap
+                _spell->Id == 57879 || // Snake Trap
+                _spell->SpellFamilyFlags[2] & 0x00024000) // Explosive and Immolation Trap
+                return 0;
+            // Entrapment
+            if (_spell->SpellIconID == 20)
+                return 0;
+            // Scatter Shot
+            if (_spell->Id == 19503)
+                return delayForScatters;
+            // Wyvern Sting
+            if (_spell->Id == 19386)
+                return delayForDisorients;
+            break;
+        case SPELLFAMILY_MAGE:
+            // Deep Freeze
+            if (_spell->Id == 44572)
+                return delayForStuns;
+            // Dragon Breath
+            if (_spell->Id == 42950)
+                return delayForDisorients;
+            // Impact
+            if (_spell->Id == 64343)
+                return delayForStuns;
+            // Polymorph
+            if (_spell->Id == 12826)
+                return delayForDisorients;
+            break;
+        case SPELLFAMILY_PALADIN:
+            // Hammer of Justice
+            if (_spell->Id == 853)
+                return delayForStuns;
+            // Repentance
+            if (_spell->Id == 20066)
+                return delayForDisorients;
+            // Turn Evil
+            if (_spell->Id == 10326)
+                return delayForFears;
+            break;
+        case SPELLFAMILY_PRIEST:
+            // Psychic Scream
+            if (_spell->Id == 10890)
+                return delayForFears;
+            // Mind Control
+            if (_spell->Id == 605)
+                return delayForBanishes;
+            // Psychic Horror
+            if (_spell->Id == 64044)
+                return delayForHorrors;
+            // Shackle Undead
+            if (_spell->Id == 9484)
+                return delayForDisorients;
+            break;
+        case SPELLFAMILY_ROGUE:
+            // Blind
+            if (_spell->Id == 2094)
+                return delayForDisorients;
+            // CheapShot
+            if (_spell->Id == 1833)
+                return delayForOpenerStuns;
+            // Gouge
+            if (_spell->Id == 1776)
+                return delayForDisorients;
+            // Kidney Shot
+            if (_spell->Id == 408)
+                return delayForStuns;
+            // Sap
+            if (_spell->Id == 6770)
+                return delayForDisorients;
+            break;
+        case SPELLFAMILY_SHAMAN: // TODO stoneclaw totem stun and pet stun (bash)
+            // HEX
+            if (_spell->Id == 51514)
+                return delayForDisorients;
+            break;
+        case SPELLFAMILY_WARLOCK: // TODO felguard's intercept(27826?), seduction
+            // Banish
+            if (_spell->Id == 710)
+                return delayForBanishes;
+            // DeathCoil
+            if (_spell->Id == 27223)
+                return delayForHorrors;
+            // Demon charge 
+            if (_spell->Id == 60995) // might use 54785 - req testing
+                return delayForStuns;
+            // Fear
+            if (_spell->Id == 5782)
+                return delayForFears;
+            // Howl of Terror
+            if (_spell->Id == 5484)
+                return delayForFears;
+            // Shadowfury
+            if (_spell->Id == 30283)
+                return delayForStuns;
+            // Spell Lock - Debuff
+            if (_spell->Id == 24259)
+                return NOdelayForInstantSpells;
+           break;
+        case SPELLFAMILY_WARRIOR:
+            // Charge
+            if (_spell->Id == 7922)
+                return delayForOpenerStuns;
+            // Charge trig.
+            if (_spell->Id == 65929)
+                return delayForStuns;
+            // Concussion Blow
+            if (_spell->Id == 12809)
+                return delayForStuns;
+            // Intercept
+            if (_spell->Id == 20253)
+                return delayForStuns;
+            // Intimidating Shout
+            if (_spell->Id == 20511)
+                return delayForFears;
+            // Shockwave
+            if (_spell->Id == 46968)
+                return delayForStuns;
+            break;    
+        case SPELLFAMILY_GENERIC: // is that ok?!
+            // War Stomp - Tauren's racial
+            if (_spell->Id == 46026)
+                return delayForStuns;
+            break;
+    }
+
+    for (uint8 i = 0; i < CCDArraySize; ++i)
+         if (_spell->HasAura(auraWithCCD[i]))
+             return NOdelayForInstantSpells;
+
+    return 0;
+}
+
 SpellCastResult Spell::CheckCasterAuras() const
 {
     // spells totally immuned to caster auras (wsg flag drop, give marks etc)
@@ -5619,6 +5876,7 @@ SpellCastResult Spell::CheckCasterAuras() const
                     break;
                 }
             }
+            // allow Barkskin being cast while sleeping or stuned
             if (foundNotStun && m_spellInfo->Id != 22812)
                 prevented_reason = SPELL_FAILED_STUNNED;
         }
@@ -6480,6 +6738,14 @@ bool Spell::CheckEffectTarget(Unit const* target, uint32 eff) const
 {
     switch (m_spellInfo->Effects[eff].ApplyAuraName)
     {
+        // Heroism over LOS
+        if (m_spellInfo->Id == 32182) 
+            return true;
+
+        // Bloodlust over LOS
+        if (m_spellInfo->Id == 2825) 
+            return true;
+
         case SPELL_AURA_MOD_POSSESS:
         case SPELL_AURA_MOD_CHARM:
         case SPELL_AURA_MOD_POSSESS_PET:

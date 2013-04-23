@@ -193,7 +193,11 @@ enum ScoreType
     SCORE_SECONDARY_OBJECTIVES  = 17,
     //SOTA
     SCORE_DESTROYED_DEMOLISHER  = 18,
-    SCORE_DESTROYED_WALL        = 19
+    SCORE_DESTROYED_WALL        = 19,
+    /** World of Warcraft Armory **/
+    SCORE_DAMAGE_TAKEN          = 20,
+    SCORE_HEALING_TAKEN         = 21
+    /** World of Warcraft Armory **/
 };
 
 enum ArenaType
@@ -250,6 +254,10 @@ struct BattlegroundScore
     uint32 BonusHonor;
     uint32 DamageDone;
     uint32 HealingDone;
+    /** World of Warcraft Armory **/
+    uint32 DamageTaken;
+    uint32 HealingTaken;
+    /** World of Warcraft Armory **/
 };
 
 enum BGHonorMode
@@ -287,6 +295,9 @@ class Battleground
         virtual void ResetBGSubclass() { }                  // must be implemented in BG subclass
 
         virtual void DestroyGate(Player* /*player*/, GameObject* /*go*/) {}
+
+        /* MultiKill System */
+        bool firstkill;
 
         /* achievement req. */
         virtual bool IsAllNodesConrolledByTeam(uint32 /*team*/) const { return false; }
@@ -531,6 +542,9 @@ class Battleground
 
         virtual uint32 GetPrematureWinner();
 
+        uint8 ClickFastStart(Player *player, GameObject *go);
+        void DespawnCrystals();
+
     protected:
         // this method is called, when BG cannot spawn its own spirit guide, or something is wrong, It correctly ends Battleground
         void EndNow();
@@ -593,6 +607,9 @@ class Battleground
         bool   m_PrematureCountDown;
         uint32 m_PrematureCountDownTimer;
         char const* m_Name;
+
+        std::set<uint64> m_playersWantsFastStart;
+        std::set<GameObject*> m_crystals;
 
         /* Pre- and post-update hooks */
 

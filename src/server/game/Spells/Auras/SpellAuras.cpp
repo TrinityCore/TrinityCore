@@ -340,6 +340,14 @@ m_isRemoved(false), m_isSingleTarget(false), m_isUsingCharges(false)
     if (m_spellInfo->ManaPerSecond || m_spellInfo->ManaPerSecondPerLevel)
         m_timeCla = 1 * IN_MILLISECONDS;
 
+    switch (m_spellInfo->Id)
+    {
+        // some auras should have max stacks at applying
+        case 53257:                                         // Cobra Strikes
+            m_stackAmount = spellproto->StackAmount;
+            break;
+    }
+
     m_maxDuration = CalcMaxDuration(caster);
     m_duration = m_maxDuration;
     m_procCharges = CalcMaxCharges(caster);
@@ -1432,7 +1440,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                                 if (caster->ToPlayer()->GetSpellCooldownDelay(aura->GetId()) <= 11)
                                     break;
                             }
-                            else    // and add if needed
+                            else // and add if needed
                                 caster->ToPlayer()->AddSpellCooldown(aura->GetId(), 0, uint32(time(NULL) + 12));
                         }
 
@@ -1463,7 +1471,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                                     caster->CastCustomSpell(target, 63654, &basepoints0, NULL, NULL, true);
                                     break;
                                 }
-                                case POWER_RAGE:   triggeredSpellId = 63653; break;
+                                case POWER_RAGE: triggeredSpellId = 63653; break;
                                 case POWER_ENERGY: triggeredSpellId = 63655; break;
                                 case POWER_RUNIC_POWER: triggeredSpellId = 63652; break;
                                 default:
@@ -1597,17 +1605,34 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
             }
             break;
         case SPELLFAMILY_PALADIN:
+            // retribution aura works fine by default, dont do anything to it
+            if (GetSpellInfo()->GetSpellSpecific() == SPELL_SPECIFIC_AURA && GetSpellInfo()->SpellIconID != 555)
+            {
+                // search for Swift and Sanctified Retribution
+                float hasteBonus = 0;
+                Unit::AuraEffectList const& TalentAuras = caster->GetAuraEffectsByType(SPELL_AURA_ADD_FLAT_MODIFIER);
+                for (Unit::AuraEffectList::const_iterator itr = TalentAuras.begin(); itr != TalentAuras.end(); ++itr)
+                {
+                    if ((*itr)->GetSpellInfo()->SpellIconID == 3028)
+                        hasteBonus = ((*itr)->GetSpellInfo()->Effects[0].CalcValue(target));
+                    // add melee dmg bonus of Sanctified Retribution to the paladin
+                    if ((*itr)->GetSpellInfo()->Id == 31869)
+                        ((*itr)->HandleModDamagePercentDone(aurApp, AURA_EFFECT_HANDLE_REAL, apply));
+                }
+
+                // make Swift retribution apply its buffs on every paladin aura
+                if (hasteBonus)
+                {
+                    target->ApplyCastTimePercentMod(hasteBonus, apply);
+                    target->ApplyAttackTimePercentMod(BASE_ATTACK, hasteBonus, apply);
+                    target->ApplyAttackTimePercentMod(OFF_ATTACK, hasteBonus, apply);
+                    target->ApplyAttackTimePercentMod(RANGED_ATTACK, hasteBonus, apply);
+                }
+            }
+
             switch (GetId())
             {
                 case 19746:
-                    // Improved concentration aura - linked aura
-                    if (caster->HasAura(20254) || caster->HasAura(20255) || caster->HasAura(20256))
-                    {
-                        if (apply)
-                            target->CastSpell(target, 63510, true);
-                        else
-                            target->RemoveAura(63510);
-                    }
                 case 31821:
                     // Aura Mastery Triggered Spell Handler
                     // If apply Concentration Aura -> trigger -> apply Aura Mastery Immunity
@@ -1636,25 +1661,24 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                     }
                     break;
             }
-            if (GetSpellInfo()->GetSpellSpecific() == SPELL_SPECIFIC_AURA)
+            if (GetSpellInfo()->GetSpellSpecific() == SPELL_SPECIFIC_AURA && target == caster)
             {
-                if (!caster)
-                    break;
-
+                // Improved concentration aura - linked aura
+                if (apply)
+                    target->CastSpell(target, 63510, true);
+                else
+                    target->RemoveAura(63510);
                 // Improved devotion aura
-                if (caster->HasAura(20140) || caster->HasAura(20138) || caster->HasAura(20139))
-                {
-                    if (apply)
-                        caster->CastSpell(target, 63514, true);
-                    else
-                        target->RemoveAura(63514);
-                }
+                if (apply)
+                    target->CastSpell(target, 63514, true);
+                else
+                    target->RemoveAura(63514);
                 // 63531 - linked aura for both Sanctified Retribution and Swift Retribution talents
                 // Not allow for Retribution Aura (prevent stacking)
-                if ((GetSpellInfo()->SpellIconID != 555) && (caster->HasAura(53648) || caster->HasAura(53484) || caster->HasAura(53379) || caster->HasAura(31869)))
+                if (!(GetSpellInfo()->SpellFamilyFlags[0] & 0x8 /* Retribution Aura */))
                 {
                     if (apply)
-                        caster->CastSpell(target, 63531, true);
+                        target->CastSpell(target, 63531, true);
                     else
                         target->RemoveAura(63531);
                 }
@@ -1747,6 +1771,54 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                         target->RemoveAurasDueToSpell(49772);
                     }
                 }
+            }
+            // Improved Blood Presence
+            else if (GetSpellInfo()->SpellIconID == 2636 && GetSpellInfo()->IsPassive())
+            {
+                // if Frost or Unholy Presence is active
+                if (apply && (target->HasAura(48263) || target->HasAura(48265)))
+                {
+                    int32 basePoints1 = GetSpellInfo()->Effects[EFFECT_1].CalcValue();
+                    target->CastCustomSpell(target, 63611, NULL, &basePoints1, NULL, true, 0, GetEffect(EFFECT_1));
+                }
+                // if no Unholy Presence active
+                else if (!apply && !target->HasAura(48266))
+                    target->RemoveAurasDueToSpell(63611);
+                return;
+            }
+            // Improved Frost Presence
+            else if (GetSpellInfo()->SpellIconID == 2632 && GetSpellInfo()->IsPassive())
+            {
+                // if Unholy or Blood Presence is active
+                if (apply && (target->HasAura(48265) || target->HasAura(48266)))
+                {
+                    int32 basePoints0 = GetSpellInfo()->Effects[EFFECT_0].CalcValue();
+                    target->CastCustomSpell(target, 61261, &basePoints0, NULL, NULL, true, 0, GetEffect(EFFECT_0));
+                }
+                // if no Frost Presence is active
+                else if (!apply && !target->HasAura(48263))
+                    target->RemoveAurasDueToSpell(61261);
+                return;
+            }
+            // Improved Unholy Presence
+            else if (GetSpellInfo()->SpellIconID == 2633 && GetSpellInfo()->IsPassive())
+            {
+                // if Unholy Presence is active
+                if (apply && target->HasAura(48265))
+                {
+                    int32 basePoints0 = GetSpellInfo()->Effects[EFFECT_1].CalcValue();
+                    target->CastCustomSpell(target, 49772, &basePoints0, &basePoints0, &basePoints0, true, 0, GetEffect(EFFECT_1));
+                }
+                // if Blood or Frost presence is active
+                else if (apply && (target->HasAura(48266) || target->HasAura(48263)))
+                {
+                    int32 basePoints0 = GetSpellInfo()->Effects[EFFECT_0].CalcValue();
+                    target->CastCustomSpell(target, 49772, &basePoints0, NULL, NULL, true, 0, GetEffect(EFFECT_0));
+                }
+                // if no Unholy presence is active
+                else if (!apply && !target->HasAura(48265))
+                    target->RemoveAurasDueToSpell(49772);
+                return;
             }
             break;
         case SPELLFAMILY_WARLOCK:

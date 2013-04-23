@@ -10,6 +10,7 @@
 
 set(scripts_STAT_SRCS
   ${scripts_STAT_SRCS}
+  Commands/cs_anticheat.cpp
   Commands/cs_account.cpp
   Commands/cs_achievement.cpp
   Commands/cs_ban.cpp
@@ -36,6 +37,7 @@ set(scripts_STAT_SRCS
   Commands/cs_modify.cpp
   Commands/cs_npc.cpp
   Commands/cs_quest.cpp
+  Commands/cs_rates.cpp
   Commands/cs_rbac.cpp
   Commands/cs_reload.cpp
   Commands/cs_reset.cpp

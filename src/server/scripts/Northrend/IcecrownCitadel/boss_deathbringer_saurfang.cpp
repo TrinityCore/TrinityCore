@@ -82,7 +82,7 @@ enum ScriptTexts
     SAY_OUTRO_ALLIANCE_11           = 0,
     SAY_OUTRO_ALLIANCE_16           = 1,
     SAY_OUTRO_ALLIANCE_18           = 2,
-    SAY_OUTRO_ALLIANCE_20           = 3,
+    SAY_OUTRO_ALLIANCE_20           = 3
 };
 
 enum Spells
@@ -114,7 +114,7 @@ enum Spells
     SPELL_RIDE_VEHICLE                  = 70640, // Outro
     SPELL_ACHIEVEMENT                   = 72928,
     SPELL_REMOVE_MARKS_OF_THE_FALLEN_CHAMPION = 72257,
-    SPELL_PERMANENT_FEIGN_DEATH         = 70628,
+    SPELL_PERMANENT_FEIGN_DEATH         = 70628
 };
 
 // Helper to get id of the aura on different modes (HasAura(baseId) wont work)
@@ -178,14 +178,16 @@ enum EventTypes
     EVENT_OUTRO_HORDE_5         = 48,
     EVENT_OUTRO_HORDE_6         = 49,
     EVENT_OUTRO_HORDE_7         = 50,
-    EVENT_OUTRO_HORDE_8         = 51,
+    EVENT_OUTRO_HORDE_8         = 51
 };
 
 enum Phases
 {
     PHASE_INTRO_A       = 1,
     PHASE_INTRO_H       = 2,
-    PHASE_COMBAT        = 3
+    PHASE_COMBAT        = 3,
+
+    PHASE_INTRO_MASK    = (1 << PHASE_INTRO_A) | (1 << PHASE_INTRO_H)
 };
 
 enum Actions
@@ -196,7 +198,7 @@ enum Actions
     ACTION_START_OUTRO                  = -3781303,
     ACTION_DESPAWN                      = -3781304,
     ACTION_INTERRUPT_INTRO              = -3781305,
-    ACTION_MARK_OF_THE_FALLEN_CHAMPION  = -72293,
+    ACTION_MARK_OF_THE_FALLEN_CHAMPION  = -72293
 };
 
 #define DATA_MADE_A_MESS 45374613 // 4537, 4613 are achievement IDs
@@ -209,7 +211,7 @@ enum MovePoints
     POINT_CHOKE             = 3781303,
     POINT_CORPSE            = 3781304,
     POINT_FINAL             = 3781305,
-    POINT_EXIT              = 5,        // waypoint id
+    POINT_EXIT              = 5         // waypoint id
 };
 
 Position const deathbringerPos = {-496.3542f, 2211.33f, 541.1138f, 0.0f};
@@ -297,11 +299,11 @@ class boss_deathbringer_saurfang : public CreatureScript
                 _introDone = true;
 
                 Talk(SAY_AGGRO);
-                events.ScheduleEvent(EVENT_SUMMON_BLOOD_BEAST, 30000, 0, PHASE_COMBAT);
-                events.ScheduleEvent(EVENT_BERSERK, IsHeroic() ? 360000 : 480000, 0, PHASE_COMBAT);
-                events.ScheduleEvent(EVENT_BOILING_BLOOD, 15500, 0, PHASE_COMBAT);
-                events.ScheduleEvent(EVENT_BLOOD_NOVA, 17000, 0, PHASE_COMBAT);
-                events.ScheduleEvent(EVENT_RUNE_OF_BLOOD, 20000, 0, PHASE_COMBAT);
+                events.ScheduleEvent(EVENT_SUMMON_BLOOD_BEAST, 40*IN_MILLISECONDS, 0, PHASE_COMBAT);
+                events.ScheduleEvent(EVENT_BERSERK, IsHeroic() ? 6*MINUTE*IN_MILLISECONDS : 8*MINUTE*IN_MILLISECONDS, 0, PHASE_COMBAT);
+                events.ScheduleEvent(EVENT_BOILING_BLOOD, 15.5*IN_MILLISECONDS, 0, PHASE_COMBAT);
+                events.ScheduleEvent(EVENT_BLOOD_NOVA, 17*IN_MILLISECONDS, 0, PHASE_COMBAT);
+                events.ScheduleEvent(EVENT_RUNE_OF_BLOOD, 20*IN_MILLISECONDS, 0, PHASE_COMBAT);
 
                 _fallenChampionCastCount = 0;
                 instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_MARK_OF_THE_FALLEN_CHAMPION);
@@ -467,21 +469,24 @@ class boss_deathbringer_saurfang : public CreatureScript
                                 for (uint32 i25 = 0; i25 < 3; ++i25)
                                     DoCast(me, SPELL_SUMMON_BLOOD_BEAST_25_MAN+i25);
                             Talk(SAY_BLOOD_BEASTS);
-                            events.ScheduleEvent(EVENT_SUMMON_BLOOD_BEAST, 40000, 0, PHASE_COMBAT);
+                            events.ScheduleEvent(EVENT_SUMMON_BLOOD_BEAST, 40*IN_MILLISECONDS, 0, PHASE_COMBAT);
                             if (IsHeroic())
-                                events.ScheduleEvent(EVENT_SCENT_OF_BLOOD, 10000, 0, PHASE_COMBAT);
+                                events.ScheduleEvent(EVENT_SCENT_OF_BLOOD, 10*IN_MILLISECONDS, 0, PHASE_COMBAT);
                             break;
                         case EVENT_BLOOD_NOVA:
                             DoCastAOE(SPELL_BLOOD_NOVA_TRIGGER);
-                            events.ScheduleEvent(EVENT_BLOOD_NOVA, urand(20000, 25000), 0, PHASE_COMBAT);
+                            events.ScheduleEvent(EVENT_BLOOD_NOVA, urand(20*IN_MILLISECONDS, 25*IN_MILLISECONDS), 0, PHASE_COMBAT);
                             break;
                         case EVENT_RUNE_OF_BLOOD:
                             DoCastVictim(SPELL_RUNE_OF_BLOOD);
-                            events.ScheduleEvent(EVENT_RUNE_OF_BLOOD, urand(20000, 25000), 0, PHASE_COMBAT);
+                            events.ScheduleEvent(EVENT_RUNE_OF_BLOOD, urand(20*IN_MILLISECONDS, 25*IN_MILLISECONDS), 0, PHASE_COMBAT);
                             break;
                         case EVENT_BOILING_BLOOD:
-                            DoCast(me, SPELL_BOILING_BLOOD);
-                            events.ScheduleEvent(EVENT_BOILING_BLOOD, urand(15000, 20000), 0, PHASE_COMBAT);
+                            // hackfix for wrong Boiling Blood applying
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, NonTankTargetSelector(me)))
+                                target->AddAura(SPELL_BOILING_BLOOD, target);
+                            //DoCast(me, SPELL_BOILING_BLOOD);
+                            events.ScheduleEvent(EVENT_BOILING_BLOOD, urand(15*IN_MILLISECONDS, 20*IN_MILLISECONDS), 0, PHASE_COMBAT);
                             break;
                         case EVENT_BERSERK:
                             DoCast(me, SPELL_BERSERK);
@@ -532,10 +537,10 @@ class boss_deathbringer_saurfang : public CreatureScript
                         me->SetHomePosition(deathbringerPos.GetPositionX(), deathbringerPos.GetPositionY(), deathbringerPos.GetPositionZ(), me->GetOrientation());
                         me->GetMotionMaster()->MovePoint(POINT_SAURFANG, deathbringerPos.GetPositionX(), deathbringerPos.GetPositionY(), deathbringerPos.GetPositionZ());
 
-                        events.ScheduleEvent(EVENT_INTRO_ALLIANCE_2, 2500, 0, PHASE_INTRO_A);
-                        events.ScheduleEvent(EVENT_INTRO_ALLIANCE_3, 20000, 0, PHASE_INTRO_A);
+                        events.ScheduleEvent(EVENT_INTRO_ALLIANCE_2, 2.5*IN_MILLISECONDS, 0, PHASE_INTRO_A);
+                        events.ScheduleEvent(EVENT_INTRO_ALLIANCE_3, 20*IN_MILLISECONDS, 0, PHASE_INTRO_A);
 
-                        events.ScheduleEvent(EVENT_INTRO_HORDE_2, 5000, 0, PHASE_INTRO_H);
+                        events.ScheduleEvent(EVENT_INTRO_HORDE_2, 5*IN_MILLISECONDS, 0, PHASE_INTRO_H);
                         break;
                     }
                     case ACTION_CONTINUE_INTRO:
@@ -543,12 +548,12 @@ class boss_deathbringer_saurfang : public CreatureScript
                         if (_introDone)
                             return;
 
-                        events.ScheduleEvent(EVENT_INTRO_ALLIANCE_6, 6500+500, 0, PHASE_INTRO_A);
-                        events.ScheduleEvent(EVENT_INTRO_FINISH, 8000, 0, PHASE_INTRO_A);
+                        events.ScheduleEvent(EVENT_INTRO_ALLIANCE_6, 6.5*IN_MILLISECONDS + 0.5*IN_MILLISECONDS, 0, PHASE_INTRO_A);
+                        events.ScheduleEvent(EVENT_INTRO_FINISH, 8*IN_MILLISECONDS, 0, PHASE_INTRO_A);
 
-                        events.ScheduleEvent(EVENT_INTRO_HORDE_4, 6500, 0, PHASE_INTRO_H);
-                        events.ScheduleEvent(EVENT_INTRO_HORDE_9, 46700+1000+500, 0, PHASE_INTRO_H);
-                        events.ScheduleEvent(EVENT_INTRO_FINISH,  46700+1000+8000, 0, PHASE_INTRO_H);
+                        events.ScheduleEvent(EVENT_INTRO_HORDE_4, 6.5*IN_MILLISECONDS, 0, PHASE_INTRO_H);
+                        events.ScheduleEvent(EVENT_INTRO_HORDE_9, 46.7*IN_MILLISECONDS + 1*IN_MILLISECONDS + 0.5*IN_MILLISECONDS, 0, PHASE_INTRO_H);
+                        events.ScheduleEvent(EVENT_INTRO_FINISH,  46.7*IN_MILLISECONDS + 1*IN_MILLISECONDS + 8*IN_MILLISECONDS, 0, PHASE_INTRO_H);
                         break;
                     }
                     case ACTION_MARK_OF_THE_FALLEN_CHAMPION:
@@ -622,7 +627,7 @@ class npc_high_overlord_saurfang_icc : public CreatureScript
                         me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                         Talk(SAY_INTRO_HORDE_1);
                         _events.SetPhase(PHASE_INTRO_H);
-                        _events.ScheduleEvent(EVENT_INTRO_HORDE_3, 18500, 0, PHASE_INTRO_H);
+                        _events.ScheduleEvent(EVENT_INTRO_HORDE_3, 18.5*IN_MILLISECONDS, 0, PHASE_INTRO_H);
                         _instance->HandleGameObject(_instance->GetData64(GO_SAURFANG_S_DOOR), true);
                         if (Creature* deathbringer = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_DEATHBRINGER_SAURFANG)))
                             deathbringer->AI()->DoAction(PHASE_INTRO_H);
@@ -632,10 +637,10 @@ class npc_high_overlord_saurfang_icc : public CreatureScript
                     {
                         me->RemoveAurasDueToSpell(SPELL_GRIP_OF_AGONY);
                         Talk(SAY_OUTRO_HORDE_1);
-                        _events.ScheduleEvent(EVENT_OUTRO_HORDE_2, 10000);   // say
-                        _events.ScheduleEvent(EVENT_OUTRO_HORDE_3, 18000);   // say
-                        _events.ScheduleEvent(EVENT_OUTRO_HORDE_4, 24000);   // cast
-                        _events.ScheduleEvent(EVENT_OUTRO_HORDE_5, 30000);   // move
+                        _events.ScheduleEvent(EVENT_OUTRO_HORDE_2, 10*IN_MILLISECONDS);   // say
+                        _events.ScheduleEvent(EVENT_OUTRO_HORDE_3, 18*IN_MILLISECONDS);   // say
+                        _events.ScheduleEvent(EVENT_OUTRO_HORDE_4, 24*IN_MILLISECONDS);   // cast
+                        _events.ScheduleEvent(EVENT_OUTRO_HORDE_5, 30*IN_MILLISECONDS);   // move
                         me->SetDisableGravity(false);
                         me->GetMotionMaster()->MoveFall();
                         for (std::list<Creature*>::iterator itr = _guardList.begin(); itr != _guardList.end(); ++itr)
@@ -672,10 +677,10 @@ class npc_high_overlord_saurfang_icc : public CreatureScript
                         case POINT_FIRST_STEP:
                             me->SetWalk(false);
                             Talk(SAY_INTRO_HORDE_3);
-                            _events.ScheduleEvent(EVENT_INTRO_HORDE_5, 15500, 0, PHASE_INTRO_H);
-                            _events.ScheduleEvent(EVENT_INTRO_HORDE_6, 29500, 0, PHASE_INTRO_H);
-                            _events.ScheduleEvent(EVENT_INTRO_HORDE_7, 43800, 0, PHASE_INTRO_H);
-                            _events.ScheduleEvent(EVENT_INTRO_HORDE_8, 47000, 0, PHASE_INTRO_H);
+                            _events.ScheduleEvent(EVENT_INTRO_HORDE_5, 15.5*IN_MILLISECONDS, 0, PHASE_INTRO_H);
+                            _events.ScheduleEvent(EVENT_INTRO_HORDE_6, 29.5*IN_MILLISECONDS, 0, PHASE_INTRO_H);
+                            _events.ScheduleEvent(EVENT_INTRO_HORDE_7, 43.8*IN_MILLISECONDS, 0, PHASE_INTRO_H);
+                            _events.ScheduleEvent(EVENT_INTRO_HORDE_8, 47*IN_MILLISECONDS, 0, PHASE_INTRO_H);
                             if (Creature* deathbringer = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_DEATHBRINGER_SAURFANG)))
                                 deathbringer->AI()->DoAction(ACTION_CONTINUE_INTRO);
                             break;
@@ -686,8 +691,8 @@ class npc_high_overlord_saurfang_icc : public CreatureScript
                                 deathbringer->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                                 deathbringer->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_DROWNED);
                             }
-                            _events.ScheduleEvent(EVENT_OUTRO_HORDE_5, 1000);    // move
-                            _events.ScheduleEvent(EVENT_OUTRO_HORDE_6, 4000);    // say
+                            _events.ScheduleEvent(EVENT_OUTRO_HORDE_5, 1*IN_MILLISECONDS);    // move
+                            _events.ScheduleEvent(EVENT_OUTRO_HORDE_6, 4*IN_MILLISECONDS);    // say
                             break;
                         case POINT_FINAL:
                             if (Creature* deathbringer = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_DEATHBRINGER_SAURFANG)))
@@ -756,6 +761,8 @@ class npc_high_overlord_saurfang_icc : public CreatureScript
                             break;
                         case EVENT_OUTRO_HORDE_6:   // say
                             Talk(SAY_OUTRO_HORDE_4);
+                            break;
+                        default:
                             break;
                     }
                 }
@@ -831,7 +838,7 @@ class npc_muradin_bronzebeard_icc : public CreatureScript
 
                         me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                         Talk(SAY_INTRO_ALLIANCE_1);
-                        _events.ScheduleEvent(EVENT_INTRO_ALLIANCE_4, 2500+17500+9500, 0, PHASE_INTRO_A);
+                        _events.ScheduleEvent(EVENT_INTRO_ALLIANCE_4, 2.5*IN_MILLISECONDS + 17.5*IN_MILLISECONDS + 9.5*IN_MILLISECONDS, 0, PHASE_INTRO_A);
                         _instance->HandleGameObject(_instance->GetData64(GO_SAURFANG_S_DOOR), true);
                         if (Creature* deathbringer = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_DEATHBRINGER_SAURFANG)))
                             deathbringer->AI()->DoAction(PHASE_INTRO_A);
@@ -848,13 +855,15 @@ class npc_muradin_bronzebeard_icc : public CreatureScript
 
                         // temp until outro fully done - to put deathbringer on respawn timer (until next reset)
                         if (Creature* deathbringer = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_DEATHBRINGER_SAURFANG)))
-                            deathbringer->DespawnOrUnsummon(5000);
+                            deathbringer->DespawnOrUnsummon(5*IN_MILLISECONDS);
                         break;
                     }
                     case ACTION_INTERRUPT_INTRO:
                         _events.Reset();
                         for (std::list<Creature*>::iterator itr = _guardList.begin(); itr != _guardList.end(); ++itr)
                             (*itr)->AI()->DoAction(ACTION_DESPAWN);
+                        break;
+                    default:
                         break;
                 }
             }
@@ -874,7 +883,7 @@ class npc_muradin_bronzebeard_icc : public CreatureScript
                 {
                     me->SetWalk(false);
                     Talk(SAY_INTRO_ALLIANCE_4);
-                    _events.ScheduleEvent(EVENT_INTRO_ALLIANCE_5, 5000, 0, PHASE_INTRO_A);
+                    _events.ScheduleEvent(EVENT_INTRO_ALLIANCE_5, 5*IN_MILLISECONDS, 0, PHASE_INTRO_A);
                     if (Creature* deathbringer = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_DEATHBRINGER_SAURFANG)))
                         deathbringer->AI()->DoAction(ACTION_CONTINUE_INTRO);
                 }
@@ -904,6 +913,8 @@ class npc_muradin_bronzebeard_icc : public CreatureScript
                             for (std::list<Creature*>::iterator itr = _guardList.begin(); itr != _guardList.end(); ++itr)
                                 (*itr)->AI()->DoAction(ACTION_CHARGE);
                             me->GetMotionMaster()->MoveCharge(chargePos[0].GetPositionX(), chargePos[0].GetPositionY(), chargePos[0].GetPositionZ(), 8.5f, POINT_CHARGE);
+                            break;
+                        default:
                             break;
                     }
                 }
@@ -1344,6 +1355,7 @@ void AddSC_boss_deathbringer_saurfang()
     new npc_high_overlord_saurfang_icc();
     new npc_muradin_bronzebeard_icc();
     new npc_saurfang_event();
+
     new spell_deathbringer_blood_link();
     new spell_deathbringer_blood_link_aura();
     new spell_deathbringer_blood_power();
@@ -1352,5 +1364,6 @@ void AddSC_boss_deathbringer_saurfang()
     new spell_deathbringer_blood_nova_targeting();
     new spell_deathbringer_boiling_blood();
     new spell_deathbringer_remove_marks();
+
     new achievement_ive_gone_and_made_a_mess();
 }

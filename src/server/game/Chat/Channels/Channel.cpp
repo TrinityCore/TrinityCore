@@ -605,7 +605,7 @@ void Channel::Say(uint64 guid, std::string const& what, uint32 lang)
         chatTag = player->GetChatTag();
 
     // TODO: Add proper RBAC check
-    if (sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_CHANNEL))
+    if (sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_CHANNEL) || sAccountMgr->IsGMAccount || sAccountMgr->IsAdminAccount || sAccountMgr->IsModeratorAccount)
         lang = LANG_UNIVERSAL;
 
     if (!IsOn(guid))
@@ -615,7 +615,7 @@ void Channel::Say(uint64 guid, std::string const& what, uint32 lang)
         SendToOne(&data, guid);
         return;
     }
-
+    
     if (playersStore[guid].IsMuted())
     {
         WorldPacket data;

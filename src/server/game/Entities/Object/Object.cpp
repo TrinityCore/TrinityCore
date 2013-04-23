@@ -905,6 +905,10 @@ void Object::_SetUpdateBits(UpdateMask* updateMask, Player* target) const
     for (uint16 index = 0; index < m_valuesCount; ++index)
         if (_fieldNotifyFlags & flags[index] || ((flags[index] & visibleFlag) & UF_FLAG_SPECIAL_INFO) || (_changesMask.GetBit(index) && (flags[index] & visibleFlag)))
             updateMask->SetBit(index);
+
+    // always update this field to prevent problems with shapeshifting
+    if (GetTypeId() == TYPEID_PLAYER)
+        updateMask->SetBit(UNIT_FIELD_BYTES_2);
 }
 
 void Object::_SetCreateBits(UpdateMask* updateMask, Player* target) const
@@ -1536,6 +1540,15 @@ bool WorldObject::IsWithinLOSInMap(const WorldObject* obj) const
 {
     if (!IsInMap(obj))
         return false;
+
+    // Hack for ice tomb's gameobject
+    if (obj->GetTypeId() == TYPEID_UNIT)
+        if (obj->GetEntry() == 36980 || obj->GetEntry() == 38320 || obj->GetEntry() == 38321 || obj->GetEntry() == 38322 /* Ice Tomb */)
+            return true;
+
+    if (GetTypeId() == TYPEID_UNIT)
+        if (GetEntry() == 36980 || GetEntry() == 38320 || GetEntry() == 38321 || GetEntry() == 38322 /* Ice Tomb */)
+            return true;
 
     float ox, oy, oz;
     obj->GetPosition(ox, oy, oz);

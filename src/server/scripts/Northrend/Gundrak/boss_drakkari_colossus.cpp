@@ -283,6 +283,8 @@ class boss_drakkari_elemental : public CreatureScript
                     if (Creature* colossus = Unit::GetCreature(*me, instance->GetData64(DATA_DRAKKARI_COLOSSUS)))
                         killer->Kill(colossus);
                 }
+
+                me->RemoveAllAuras();
             }
 
             void UpdateAI(uint32 diff)

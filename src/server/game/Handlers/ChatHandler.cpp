@@ -125,7 +125,8 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
     else
     {
         // send in universal language if player in .gmon mode (ignore spell effects)
-        if (sender->isGameMaster())
+        // and allow players interact in chat on specific area
+        if (sender->isGameMaster() || sender->GetAreaId() == sWorld->getIntConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_CHAT_AREA))
             lang = LANG_UNIVERSAL;
         else
         {
@@ -264,8 +265,20 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
             }
 
             Player* receiver = sObjectAccessor->FindPlayerByName(to);
-            if (!receiver || (!receiver->isAcceptWhispers() && receiver->GetSession()->HasPermission(RBAC_PERM_CAN_FILTER_WHISPERS) && !receiver->IsInWhisperWhiteList(sender->GetGUID())))
+            if (!receiver || (!HasPermission(RBAC_PERM_CAN_FILTER_WHISPERS) &&
+                receiver->GetSession()->HasPermission(RBAC_PERM_CAN_FILTER_WHISPERS) &&
+                !receiver->isAcceptWhispers() && !receiver->IsInWhisperWhiteList(sender->GetGUID()))) 
             {
+                // If Fake WHO List system is on and the receiver is fake, we return the DND message
+                if (sWorld->getBoolConfig(CONFIG_FAKE_WHO_LIST))
+                {
+                    QueryResult result = CharacterDatabase.PQuery("SELECT guid FROM characters WHERE name = '%s' AND online > 1", to.c_str());
+                    if (result)
+                    {
+                        ChatHandler(this).SendSysMessage(LANG_FAKE_DND);
+                        return;
+                    }
+                }
                 SendPlayerNotFoundNotice(to);
                 return;
             }
@@ -275,7 +288,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
                 return;
             }
 
-            if (GetPlayer()->GetTeam() != receiver->GetTeam() && !HasPermission(RBAC_PERM_TWO_SIDE_INTERACTION_CHAT) && !receiver->IsInWhisperWhiteList(sender->GetGUID()))
+            if (GetPlayer()->GetTeam() != receiver->GetTeam() && !HasPermission(RBAC_PERM_TWO_SIDE_INTERACTION_CHAT) && !receiver->GetSession()->HasPermission(RBAC_PERM_TWO_SIDE_INTERACTION_CHAT))
             {
                 SendWrongFactionNotice();
                 return;

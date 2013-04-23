@@ -30,6 +30,8 @@
 #include <ace/SOCK_Stream.h>
 #include <ace/SOCK_Acceptor.h>
 
+#define RA_BUFF_SIZE 8192
+
 /// Remote Administration socket
 class RASocket: public ACE_Svc_Handler<ACE_SOCK_STREAM, ACE_MT_SYNCH>
 {
@@ -40,6 +42,9 @@ class RASocket: public ACE_Svc_Handler<ACE_SOCK_STREAM, ACE_MT_SYNCH>
         virtual int svc(void);
         virtual int open(void * = 0);
         virtual int handle_close(ACE_HANDLE = ACE_INVALID_HANDLE, ACE_Reactor_Mask = ACE_Event_Handler::ALL_EVENTS_MASK);
+
+        int sendf(const char*);
+        static void raprint(const char * szText );
 
     private:
         int recv_line(std::string& out_line);
@@ -53,6 +58,14 @@ class RASocket: public ACE_Svc_Handler<ACE_SOCK_STREAM, ACE_MT_SYNCH>
 
         static void zprint(void* callbackArg, const char * szText );
         static void commandFinished(void* callbackArg, bool success);
+
+        static ACE_Thread_Mutex listLock;
+        static std::set<RASocket*> connectedClients;
+
+        ACE_Thread_Mutex outBufferLock;
+        char outputBuffer[RA_BUFF_SIZE];
+        uint32 outputBufferLen;
+        bool outActive;
 
     private:
         /// Minimum security level required to connect

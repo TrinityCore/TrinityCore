@@ -1675,8 +1675,15 @@ float Map::GetHeight(float x, float y, float z, bool checkVMap /*= true*/, float
         else
             return vmapHeight;                              // we have only vmapHeight (if have)
     }
-
-    return mapHeight;                               // explicitly use map data
+    else
+    {
+        if (!checkVMap)
+            return mapHeight;                               // explicitly use map data (if have)
+        else if (mapHeight > INVALID_HEIGHT && (z < mapHeight + 2 || z == MAX_HEIGHT))
+            return mapHeight;                               // explicitly use map data if original z < mapHeight but map found (z+2 > mapHeight)
+        else
+            return VMAP_INVALID_HEIGHT_VALUE;               // we not have any height
+    }
 }
 
 inline bool IsOutdoorWMO(uint32 mogpFlags, int32 /*adtId*/, int32 /*rootId*/, int32 /*groupId*/, WMOAreaTableEntry const* wmoEntry, AreaTableEntry const* atEntry)
