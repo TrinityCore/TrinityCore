@@ -803,10 +803,7 @@ uint32 LuaTaxiMgr::AddPath(std::list<TaxiPathNodeEntry> nodes, uint32 mountA, ui
         sTaxiPathNodesByPath[pathId].set(index++, TaxiPathNodePtr(new TaxiPathNodeEntry(entry)));
     }
     if (startNode >= nodeId)
-    {
-        nodeId = startNode;
         return 0;
-    }
     sTaxiPathSetBySource[startNode][nodeId-1] = TaxiPathBySourceAndDestination(pathId, price);
     return pathId;
 }
