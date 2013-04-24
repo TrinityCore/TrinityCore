@@ -21,6 +21,7 @@ set(scripts_STAT_SRCS
   Custom/npc_shop.cpp
   Custom/arena_fast_start.cpp
   Custom/cs_fake.cpp
+  Custom/ArenaSpectate.cpp
 )
 
 message("  -> Prepared: Custom")

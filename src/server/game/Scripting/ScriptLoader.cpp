@@ -44,6 +44,8 @@ void AddSC_npc_shop();
 void AddSC_fast_arena_start();
 // Fake Players
 void AddSC_fake_commandscript();
+// Arena Spectator
+void AddSC_arena_spectator_script();
 
 // spells
 void AddSC_deathknight_spell_scripts();
@@ -1359,5 +1361,7 @@ void AddCustomScripts()
     AddSC_fast_arena_start();
     // Fake Players
     AddSC_fake_commandscript();
+    // Arena Spectator
+    AddSC_arena_spectator_script();
 #endif
 }
