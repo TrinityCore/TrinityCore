@@ -1251,6 +1251,7 @@ void Battleground::AddPlayer(Player* player)
             player->ResetAllPowers();
             player->RemoveAura(61987);
             player->RemoveAura(25771);
+            player->RemoveAura(66233);
 
             Powers powerType = player->getPowerType();
             player->SetPower(powerType, player->GetMaxPower(powerType));
