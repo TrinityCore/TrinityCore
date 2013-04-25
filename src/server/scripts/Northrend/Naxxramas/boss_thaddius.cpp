@@ -34,7 +34,6 @@ enum StalagSpells
     SPELL_POWERSURGE        = 28134,
     H_SPELL_POWERSURGE      = 54529,
     SPELL_MAGNETIC_PULL     = 28338,
-    SPELL_STALAGG_TESLA     = 28097
 };
 
 //Feugen
@@ -49,20 +48,7 @@ enum FeugenSpells
 {
     SPELL_STATICFIELD       = 28135,
     H_SPELL_STATICFIELD     = 54528,
-    SPELL_FEUGEN_TESLA      = 28109
 };
-
-// Thaddius DoAction
-enum ThaddiusActions
-{
-    ACTION_FEUGEN_RESET,
-    ACTION_FEUGEN_DIED,
-    ACTION_STALAGG_RESET,
-    ACTION_STALAGG_DIED
-};
-
-//generic
-#define C_TESLA_COIL            16218           //the coils (emotes "Tesla Coil overloads!")
 
 //Thaddius
 enum ThaddiusYells
@@ -72,22 +58,51 @@ enum ThaddiusYells
     SAY_SLAY                = 2,
     SAY_ELECT               = 3,
     SAY_DEATH               = 4,
-    SAY_SCREAM              = 5
+    EMOTE_SHIFT             = 5,
+    SAY_SCREAM              = 6,
 };
 
 enum ThaddiusSpells
 {
-    SPELL_POLARITY_SHIFT        = 28089,
-    SPELL_BALL_LIGHTNING        = 28299,
-    SPELL_CHAIN_LIGHTNING       = 28167,
-    H_SPELL_CHAIN_LIGHTNING     = 54531,
-    SPELL_BERSERK               = 27680,
-    SPELL_POSITIVE_CHARGE       = 28062,
-    SPELL_POSITIVE_CHARGE_STACK = 29659,
-    SPELL_NEGATIVE_CHARGE       = 28085,
-    SPELL_NEGATIVE_CHARGE_STACK = 29660,
-    SPELL_POSITIVE_POLARITY     = 28059,
-    SPELL_NEGATIVE_POLARITY     = 28084,
+    SPELL_THADIUS_SPAWN             = 28160,
+    SPELL_THADIUS_LIGHTNING_VISUAL  = 28136,
+    SPELL_POLARITY_SHIFT            = 28089,
+    SPELL_BALL_LIGHTNING            = 28299,
+    SPELL_CHAIN_LIGHTNING           = 28167,
+    H_SPELL_CHAIN_LIGHTNING         = 54531,
+    SPELL_BERSERK                   = 27680,
+    SPELL_POSITIVE_CHARGE           = 28062,
+    SPELL_POSITIVE_CHARGE_STACK     = 29659,
+    SPELL_NEGATIVE_CHARGE           = 28085,
+    SPELL_NEGATIVE_CHARGE_STACK     = 29660,
+    SPELL_POSITIVE_POLARITY         = 28059,
+    SPELL_NEGATIVE_POLARITY         = 28084,
+};
+
+enum ThaddiusActions
+{
+    ACTION_FEUGEN_RESET     = 1,
+    ACTION_FEUGEN_DIED      = 2,
+    ACTION_STALAGG_RESET    = 3,
+    ACTION_STALAGG_DIED     = 4,
+    ACTION_INTRO            = 5,
+};
+
+// Tesla Coils
+enum TeslaSpells
+{
+    SPELL_FEUGEN_CHAIN              = 28111,
+    SPELL_STALAGG_CHAIN             = 28096,
+    SPELL_FEUGEN_TESLA_PASSIVE      = 28109,
+    SPELL_STALAGG_TESLA_PASSIVE     = 28097,
+    SPELL_SHOCK_OVERLOAD            = 28159,
+    SPELL_SHOCK                     = 28099,
+};
+
+enum TeslaEmotes
+{
+    EMOTE_LOSING_LINK               = 1,
+    EMOTE_TESLA_OVERLOAD            = 2,
 };
 
 enum Events
@@ -115,13 +130,8 @@ public:
 
     struct boss_thaddiusAI : public BossAI
     {
-        boss_thaddiusAI(Creature* creature) : BossAI(creature, BOSS_THADDIUS)
+        boss_thaddiusAI(Creature* creature) : BossAI(creature, DATA_THADDIUS)
         {
-            // init is a bit tricky because thaddius shall track the life of both adds, but not if there was a wipe
-            // and, in particular, if there was a crash after both adds were killed (should not respawn)
-
-            // Moreover, the adds may not yet be spawn. So just track down the status if mob is spawn
-            // and each mob will send its status at reset (meaning that it is alive)
             checkFeugenAlive = false;
             if (Creature* pFeugen = me->GetCreature(*me, instance->GetData64(DATA_FEUGEN)))
                 checkFeugenAlive = pFeugen->isAlive();
@@ -132,31 +142,32 @@ public:
 
             if (!checkFeugenAlive && !checkStalaggAlive)
             {
+                me->RemoveAurasDueToSpell(SPELL_THADIUS_SPAWN);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_STUNNED);
-                me->SetReactState(REACT_AGGRESSIVE);
             }
             else
             {
+                me->CastSpell(me,SPELL_THADIUS_SPAWN,true);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_STUNNED);
-                me->SetReactState(REACT_PASSIVE);
             }
         }
 
         bool checkStalaggAlive;
         bool checkFeugenAlive;
         bool polaritySwitch;
+        bool _introDone;
         uint32 uiAddsTimer;
 
         void KilledUnit(Unit* /*victim*/)
         {
             if (!(rand()%5))
-                Talk(SAY_SLAY);
+                TalkToMap(SAY_SLAY);
         }
 
         void JustDied(Unit* /*killer*/)
         {
             _JustDied();
-            Talk(SAY_DEATH);
+            TalkToMap(SAY_DEATH);
         }
 
         void DoAction(int32 action)
@@ -175,25 +186,27 @@ public:
                 case ACTION_STALAGG_DIED:
                     checkStalaggAlive = false;
                     break;
+                case ACTION_INTRO:
+                    if (!_introDone)
+                    {
+                        TalkToMap(SAY_GREET);
+                        _introDone = true;
+                    }
+                    break;
             }
 
             if (!checkFeugenAlive && !checkStalaggAlive)
             {
+                me->RemoveAurasDueToSpell(SPELL_THADIUS_SPAWN);
+                me->CastSpell(me,SPELL_THADIUS_LIGHTNING_VISUAL,true);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_STUNNED);
-                // REACT_AGGRESSIVE only reset when he takes damage.
-                DoZoneInCombat();
-            }
-            else
-            {
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_STUNNED);
-                me->SetReactState(REACT_PASSIVE);
             }
         }
 
         void EnterCombat(Unit* /*who*/)
         {
             _EnterCombat();
-            Talk(SAY_AGGRO);
+            TalkToMap(SAY_AGGRO);
             events.ScheduleEvent(EVENT_SHIFT, 30000);
             events.ScheduleEvent(EVENT_CHAIN, urand(10000, 20000));
             events.ScheduleEvent(EVENT_BERSERK, 360000);
@@ -256,6 +269,8 @@ public:
                 switch (eventId)
                 {
                     case EVENT_SHIFT:
+                        TalkToMap(EMOTE_SHIFT);
+                        TalkToMap(SAY_ELECT);
                         DoCastAOE(SPELL_POLARITY_SHIFT);
                         events.ScheduleEvent(EVENT_SHIFT, 30000);
                         return;
@@ -293,12 +308,15 @@ public:
         mob_stalaggAI(Creature* creature) : ScriptedAI(creature)
         {
             instance = creature->GetInstanceScript();
+            IsChanneling = false;
         }
 
         InstanceScript* instance;
 
         uint32 powerSurgeTimer;
         uint32 magneticPullTimer;
+        uint32 TeslaStalaggTimer;
+        bool IsChanneling;
 
         void Reset()
         {
@@ -308,31 +326,57 @@ public:
                         pThaddius->AI()->DoAction(ACTION_STALAGG_RESET);
             powerSurgeTimer = urand(20000, 25000);
             magneticPullTimer = 20000;
-        }
-
-        void KilledUnit(Unit* /*victim*/)
-        {
-            if (!(rand()%5))
-                Talk(SAY_STAL_SLAY);
+            TeslaStalaggTimer=0;
+            IsChanneling = false;
+            if (GameObject* pTesla = instance->instance->GetGameObject(instance->GetData64(DATA_TESLA_STALAG)))
+                if (Creature* tesla = pTesla->FindNearestCreature(NPC_TESLA, 0.0f))
+                {
+                    tesla->CastSpell(me,SPELL_STALAGG_CHAIN);
+                    IsChanneling = true;
+                    TeslaStalaggTimer = 0;
+                }
         }
 
         void EnterCombat(Unit* /*who*/)
         {
-            Talk(SAY_STAL_AGGRO);
-            DoCast(SPELL_STALAGG_TESLA);
+            TalkToMap(SAY_STAL_AGGRO);
         }
 
         void JustDied(Unit* /*killer*/)
         {
-            Talk(SAY_STAL_DEATH);
+            TalkToMap(SAY_STAL_DEATH);
             if (instance)
                 if (Creature* pThaddius = me->GetCreature(*me, instance->GetData64(DATA_THADDIUS)))
                     if (pThaddius->AI())
                         pThaddius->AI()->DoAction(ACTION_STALAGG_DIED);
         }
 
+        void KilledUnit(Unit* /*victim*/)
+        {
+            TalkToMap(SAY_STAL_SLAY);
+        }
+
         void UpdateAI(uint32 uiDiff)
         {
+            if (TeslaStalaggTimer <= uiDiff)
+            {
+                if (!IsChanneling)
+                {
+                    if (GameObject* pTesla = instance->instance->GetGameObject(instance->GetData64(DATA_TESLA_STALAG)))
+                        if (Creature* tesla = pTesla->FindNearestCreature(NPC_TESLA, 0.0f))
+                        {
+                            pTesla->SetGoState(GO_STATE_ACTIVE);
+                            tesla->CastSpell(me,SPELL_STALAGG_CHAIN);
+                            IsChanneling = true;
+                            TeslaStalaggTimer = 0;
+                        }
+                }
+                else
+                    TeslaStalaggTimer = 1;
+            } 
+            else 
+                TeslaStalaggTimer -= uiDiff;
+
             if (!UpdateVictim())
                 return;
 
@@ -345,9 +389,6 @@ public:
 
                     if (pFeugenVictim && pStalaggVictim)
                     {
-                        // magnetic pull is not working. So just jump.
-
-                        // reset aggro to be sure that feugen will not follow the jump
                         pFeugen->getThreatManager().modifyThreatPercent(pFeugenVictim, -100);
                         pFeugenVictim->JumpTo(me, 0.3f);
 
@@ -355,16 +396,18 @@ public:
                         pStalaggVictim->JumpTo(pFeugen, 0.3f);
                     }
                 }
-
                 magneticPullTimer = 20000;
             }
-            else magneticPullTimer -= uiDiff;
+            else
+                magneticPullTimer -= uiDiff;
 
             if (powerSurgeTimer <= uiDiff)
             {
                 DoCast(me, RAID_MODE(SPELL_POWERSURGE, H_SPELL_POWERSURGE));
                 powerSurgeTimer = urand(15000, 20000);
-            } else powerSurgeTimer -= uiDiff;
+            }
+            else
+                powerSurgeTimer -= uiDiff;
 
             DoMeleeAttackIfReady();
         }
@@ -387,44 +430,71 @@ public:
         mob_feugenAI(Creature* creature) : ScriptedAI(creature)
         {
             instance = creature->GetInstanceScript();
+            IsChanneling = false;
         }
 
         InstanceScript* instance;
-
+        uint32 TeslaFeugenTimer;
         uint32 staticFieldTimer;
+        bool IsChanneling;
 
         void Reset()
         {
             if (instance)
                 if (Creature* pThaddius = me->GetCreature(*me, instance->GetData64(DATA_THADDIUS)))
-                    if (pThaddius->AI())
-                        pThaddius->AI()->DoAction(ACTION_FEUGEN_RESET);
+                    pThaddius->AI()->DoAction(ACTION_FEUGEN_RESET);
             staticFieldTimer = 5000;
-        }
-
-        void KilledUnit(Unit* /*victim*/)
-        {
-            if (!(rand()%5))
-                Talk(SAY_FEUG_SLAY);
+            TeslaFeugenTimer = 0;
+            IsChanneling = false;
+            if (GameObject* pTesla = instance->instance->GetGameObject(instance->GetData64(DATA_TESLA_FEUGEN)))
+                if (Creature* tesla = pTesla->FindNearestCreature(NPC_TESLA, 0.0f))
+                {
+                    tesla->CastSpell(me,SPELL_FEUGEN_CHAIN);
+                    IsChanneling = true;
+                    TeslaFeugenTimer = 0;
+                }
         }
 
         void EnterCombat(Unit* /*who*/)
         {
-            Talk(SAY_FEUG_AGGRO);
-            DoCast(SPELL_FEUGEN_TESLA);
+            TalkToMap(SAY_FEUG_AGGRO);
         }
 
         void JustDied(Unit* /*killer*/)
         {
-            Talk(SAY_FEUG_DEATH);
+            TalkToMap(SAY_FEUG_DEATH);
             if (instance)
                 if (Creature* pThaddius = me->GetCreature(*me, instance->GetData64(DATA_THADDIUS)))
                     if (pThaddius->AI())
                         pThaddius->AI()->DoAction(ACTION_FEUGEN_DIED);
         }
 
+        void KilledUnit(Unit* /*victim*/)
+        {
+            TalkToMap(SAY_FEUG_SLAY);
+        }
+
         void UpdateAI(uint32 uiDiff)
         {
+            if (TeslaFeugenTimer <= uiDiff)
+            {
+                if (!IsChanneling)
+                {
+                    if (GameObject* pTesla = instance->instance->GetGameObject(instance->GetData64(DATA_TESLA_FEUGEN)))
+                        if (Creature* tesla = pTesla->FindNearestCreature(NPC_TESLA, 0.0f))
+                        {
+                            pTesla->SetGoState(GO_STATE_ACTIVE);
+                            tesla->CastSpell(me,SPELL_FEUGEN_CHAIN);
+                            IsChanneling = true;
+                            TeslaFeugenTimer = 0;
+                        }
+                }
+                else
+                    TeslaFeugenTimer = 1;
+            } 
+            else 
+                TeslaFeugenTimer -= uiDiff;
+
             if (!UpdateVictim())
                 return;
 
@@ -432,7 +502,9 @@ public:
             {
                 DoCast(me, RAID_MODE(SPELL_STATICFIELD, H_SPELL_STATICFIELD));
                 staticFieldTimer = 5000;
-            } else staticFieldTimer -= uiDiff;
+            }
+            else
+                staticFieldTimer -= uiDiff;
 
             DoMeleeAttackIfReady();
         }
@@ -482,7 +554,7 @@ class spell_thaddius_pos_neg_charge : public SpellScriptLoader
 
                     if (GetSpellInfo()->Id == SPELL_POSITIVE_CHARGE)
                         spellId = SPELL_POSITIVE_CHARGE_STACK;
-                    else // if (GetSpellInfo()->Id == SPELL_NEGATIVE_CHARGE)
+                    else
                         spellId = SPELL_NEGATIVE_CHARGE_STACK;
 
                     GetCaster()->SetAuraStack(spellId, GetCaster(), count);
@@ -565,6 +637,20 @@ class achievement_polarity_switch : public AchievementCriteriaScript
         }
 };
 
+class at_thaddius_intro : public AreaTriggerScript
+{
+public:
+    at_thaddius_intro() : AreaTriggerScript("at_thaddius_intro") { }
+
+    bool OnTrigger(Player* player, const AreaTriggerEntry* /*at*/)
+    {
+        if (InstanceScript* instance = player->GetInstanceScript())		
+            if (Creature* Thaddius = ObjectAccessor::GetCreature(*player, instance->GetData64(DATA_THADDIUS)))
+                Thaddius->AI()->DoAction(ACTION_INTRO);
+        return true;
+    }
+};
+
 void AddSC_boss_thaddius()
 {
     new boss_thaddius();
@@ -573,4 +659,5 @@ void AddSC_boss_thaddius()
     new spell_thaddius_pos_neg_charge();
     new spell_thaddius_polarity_shift();
     new achievement_polarity_switch();
+    new at_thaddius_intro();
 }

@@ -31,18 +31,22 @@ enum Yells
 
 enum Spells
 {
-    SPELL_FROST_AURA        = 28531,
+    SPELL_FROST_AURA_10     = 28531,
+    SPELL_FROST_AURA_25     = 55799,
     SPELL_CLEAVE            = 19983,
-    SPELL_TAIL_SWEEP        = 55697,
+    SPELL_TAIL_SWEEP_10     = 55697,
+    SPELL_TAIL_SWEEP_25     = 55696,
     SPELL_SUMMON_BLIZZARD   = 28560,
-    SPELL_LIFE_DRAIN        = 28542,
+    SPELL_LIFE_DRAIN_10     = 28542,
+    SPELL_LIFE_DRAIN_25     = 55665,
     SPELL_ICEBOLT           = 28522,
     SPELL_FROST_BREATH      = 29318,
     SPELL_FROST_EXPLOSION   = 28524,
     SPELL_FROST_MISSILE     = 30101,
     SPELL_BERSERK           = 26662,
     SPELL_DIES              = 29357,
-    SPELL_CHILL             = 28547,
+    SPELL_CHILL_10          = 28547,
+    SPELL_CHILL_15          = 55699,
 };
 
 enum Phases
@@ -89,10 +93,11 @@ class boss_sapphiron : public CreatureScript
 
         struct boss_sapphironAI : public BossAI
         {
-            boss_sapphironAI(Creature* creature) :
-                BossAI(creature, BOSS_SAPPHIRON), _phase(PHASE_NULL),
-                _map(me->GetMap())
-            { }
+            boss_sapphironAI(Creature* creature) : BossAI(creature, DATA_SAPPHIRON)
+                , _phase(PHASE_NULL)
+            {
+                _map = me->GetMap();
+            }
 
             void InitializeAI()
             {
@@ -123,7 +128,7 @@ class boss_sapphiron : public CreatureScript
             {
                 _EnterCombat();
 
-                me->CastSpell(me, SPELL_FROST_AURA, true);
+                DoCast(me, RAID_MODE(SPELL_FROST_AURA_10, SPELL_FROST_AURA_25));
 
                 events.ScheduleEvent(EVENT_BERSERK, 15 * MINUTE * IN_MILLISECONDS);
                 EnterPhaseGround();
@@ -244,7 +249,7 @@ class boss_sapphiron : public CreatureScript
                         switch (eventId)
                         {
                             case EVENT_BERSERK:
-                                Talk(EMOTE_ENRAGE);
+                                TalkToMap(EMOTE_ENRAGE);
                                 DoCast(me, SPELL_BERSERK);
                                 return;
                             case EVENT_CLEAVE:
@@ -252,11 +257,11 @@ class boss_sapphiron : public CreatureScript
                                 events.ScheduleEvent(EVENT_CLEAVE, urand(5, 15) * IN_MILLISECONDS, 0, PHASE_GROUND);
                                 return;
                             case EVENT_TAIL:
-                                DoCastAOE(SPELL_TAIL_SWEEP);
+                                DoCastAOE(RAID_MODE(SPELL_TAIL_SWEEP_10, SPELL_TAIL_SWEEP_25));
                                 events.ScheduleEvent(EVENT_TAIL, urand(5, 15) * IN_MILLISECONDS, 0, PHASE_GROUND);
                                 return;
                             case EVENT_DRAIN:
-                                DoCastAOE(SPELL_LIFE_DRAIN);
+                                DoCastAOE(RAID_MODE(SPELL_LIFE_DRAIN_10, SPELL_LIFE_DRAIN_25));
                                 events.ScheduleEvent(EVENT_DRAIN, 24 * IN_MILLISECONDS, 0, PHASE_GROUND);
                                 return;
                             case EVENT_BLIZZARD:
@@ -268,17 +273,14 @@ class boss_sapphiron : public CreatureScript
                                 break;
                             }
                             case EVENT_FLIGHT:
-                                if (HealthAbovePct(10))
-                                {
-                                    _phase = PHASE_FLIGHT;
-                                    events.SetPhase(PHASE_FLIGHT);
-                                    me->SetReactState(REACT_PASSIVE);
-                                    me->AttackStop();
-                                    float x, y, z, o;
-                                    me->GetHomePosition(x, y, z, o);
-                                    me->GetMotionMaster()->MovePoint(1, x, y, z);
-                                    return;
-                                }
+                                _phase = PHASE_FLIGHT;
+                                events.SetPhase(PHASE_FLIGHT);
+                                me->SetReactState(REACT_PASSIVE);
+                                me->AttackStop();
+                                float x, y, z, o;
+                                me->GetHomePosition(x, y, z, o);
+                                me->GetMotionMaster()->MovePoint(1, x, y, z);
+                                return;
                                 break;
                         }
                     }
@@ -292,7 +294,7 @@ class boss_sapphiron : public CreatureScript
                         switch (eventId)
                         {
                             case EVENT_LIFTOFF:
-                                Talk(EMOTE_AIR_PHASE);
+                                TalkToMap(EMOTE_AIR_PHASE);
                                 me->SetDisableGravity(true);
                                 me->SendMovementFlagUpdate();
                                 events.ScheduleEvent(EVENT_ICEBOLT, 1500);
@@ -325,7 +327,7 @@ class boss_sapphiron : public CreatureScript
                             }
                             case EVENT_BREATH:
                             {
-                                Talk(EMOTE_BREATH);
+                                TalkToMap(EMOTE_BREATH);
                                 DoCastAOE(SPELL_FROST_MISSILE);
                                 events.ScheduleEvent(EVENT_EXPLOSION, 8 * IN_MILLISECONDS);
                                 return;
@@ -337,7 +339,7 @@ class boss_sapphiron : public CreatureScript
                                 return;
                             case EVENT_LAND:
                                 me->HandleEmoteCommand(EMOTE_ONESHOT_LAND);
-                                Talk(EMOTE_GROUND_PHASE);
+                                TalkToMap(EMOTE_GROUND_PHASE);
                                 me->SetDisableGravity(false);
                                 me->SendMovementFlagUpdate();
                                 events.ScheduleEvent(EVENT_GROUND, 1500);

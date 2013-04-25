@@ -32,24 +32,19 @@ EndScriptData */
 
 enum Yells
 {
-    //when shappiron dies. dialog between kel and lich king (in this order)
-    SAY_SAPP_DIALOG1                                       = 0, //not used
-    SAY_SAPP_DIALOG2_LICH                                  = 1, //not used
-    SAY_SAPP_DIALOG3                                       = 2, //not used
-    SAY_SAPP_DIALOG4_LICH                                  = 3, //not used
-    SAY_SAPP_DIALOG5                                       = 4, //not used
-    SAY_CAT_DIED                                           = 5, //when cat dies, not used
-    //when each of the 4 wing bosses dies
-    SAY_TAUNT                                              = 6,
-    SAY_AGGRO                                              = 7,
-    SAY_SLAY                                               = 8,
-    SAY_DEATH                                              = 9,
-    SAY_CHAIN                                              = 10,
-    SAY_FROST_BLAST                                        = 11,
-    SAY_REQUEST_AID                                        = 12, //start of phase 3
-    SAY_ANSWER_REQUEST                                     = 13, //lich king answer
-    SAY_SUMMON_MINIONS                                     = 14, //start of phase 1
-    SAY_SPECIAL                                            = 15
+    // Kel'thuzad
+    SAY_AGGRO                                              = 8,
+    SAY_SLAY                                               = 9,
+    SAY_DEATH                                              = 10,
+    SAY_CHAIN                                              = 11,
+    SAY_FROST_BLAST                                        = 12,
+    SAY_REQUEST_AID                                        = 13,
+    SAY_SUMMON_MINIONS                                     = 14,
+    SAY_SPECIAL                                            = 15,
+    EMOTE_ATTACK                                           = 16,
+    EMOTE_GUARDIAN                                         = 17,
+    // Lich king
+    SAY_ANSWER                                             = 2,
 };
 
 enum Events
@@ -71,6 +66,8 @@ enum Events
 
     EVENT_PHASE,
     EVENT_MORTAL_WOUND,
+    EVENT_ANSWER,
+    EVENT_REQUEST,
 };
 
 enum Spells
@@ -245,6 +242,8 @@ const Position PosWeavers[MAX_WEAVERS] =
     {3704.71f, -5175.96f, 143.597f, 3.36549f},
 };
 
+Position const KelthuzadPos  = {3749.6799f, -5114.0600f, 142.1150f, 2.932150f};
+
 // predicate function to select not charmed target
 struct NotCharmedTargetSelector : public std::unary_function<Unit*, bool>
 {
@@ -263,7 +262,7 @@ public:
 
     struct boss_kelthuzadAI : public BossAI
     {
-        boss_kelthuzadAI(Creature* creature) : BossAI(creature, BOSS_KELTHUZAD), spawns(creature)
+        boss_kelthuzadAI(Creature* creature) : BossAI(creature, DATA_KELTHUZAD), spawns(creature)
         {
             uiFaction = me->getFaction();
         }
@@ -332,13 +331,13 @@ public:
 
         void KilledUnit(Unit* /*victim*/)
         {
-            Talk(SAY_SLAY);
+            TalkToMap(SAY_SLAY);
         }
 
         void JustDied(Unit* /*killer*/)
         {
             _JustDied();
-            Talk(SAY_DEATH);
+            TalkToMap(SAY_DEATH);
 
             std::map<uint64, float>::const_iterator itr;
             for (itr = chained.begin(); itr != chained.end(); ++itr)
@@ -361,7 +360,7 @@ public:
                     pPortal->ResetDoorOrButton();
             }
             DoCast(me, SPELL_KELTHUZAD_CHANNEL, false);
-            Talk(SAY_SUMMON_MINIONS);
+            TalkToMap(SAY_SUMMON_MINIONS);
             Phase = 1;
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_NOT_SELECTABLE);
             me->SetFloatValue(UNIT_FIELD_COMBATREACH, 4);
@@ -426,7 +425,8 @@ public:
                             break;
                         case EVENT_PHASE:
                             events.Reset();
-                            Talk(SAY_AGGRO);
+                            TalkToMap(SAY_AGGRO);
+                            TalkToMap(EMOTE_ATTACK);
                             spawns.DespawnAll();
                             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_NOT_SELECTABLE);
                             me->CastStop();
@@ -455,10 +455,8 @@ public:
                     if (HealthBelowPct(45))
                     {
                         Phase = 3;
-                        Talk(SAY_REQUEST_AID);
-                        //here Lich King should respond to KelThuzad but I don't know which Creature to make talk
-                        //so for now just make Kelthuzad says it.
-                        Talk(SAY_ANSWER_REQUEST);
+                        TalkToMap(SAY_REQUEST_AID);
+                        events.ScheduleEvent(EVENT_REQUEST, 3100);
 
                         for (uint8 i = 0; i <= 3; ++i)
                         {
@@ -474,7 +472,7 @@ public:
                 {
                     if (uiGuardiansOfIcecrownTimer <= diff)
                     {
-                        /// @todo Add missing text
+                        TalkToMap(EMOTE_GUARDIAN);
                         if (Creature* pGuardian = DoSummon(NPC_ICECROWN, Pos[RAND(2, 5, 8, 11)]))
                             pGuardian->SetFloatValue(UNIT_FIELD_COMBATREACH, 2);
                         ++nGuardiansOfIcecrownCount;
@@ -490,6 +488,16 @@ public:
                 {
                     switch (eventId)
                     {
+                        case EVENT_REQUEST:
+                            if (Creature* kel = Unit::GetCreature(*me, instance ? instance->GetData64(DATA_KELTHUZAD) : 0))
+                            {
+                                if (Creature* Lichking = kel->SummonCreature(28765, KelthuzadPos, TEMPSUMMON_TIMED_DESPAWN,10000))
+                                {
+                                    Lichking->AI()->TalkToMap(SAY_ANSWER);
+                                    events.CancelEvent(EVENT_REQUEST);
+                                }
+                            }
+                            break;
                         case EVENT_BOLT:
                             DoCastVictim(RAID_MODE(SPELL_FROST_BOLT, H_SPELL_FROST_BOLT));
                             events.RepeatEvent(urand(5000, 10000));
@@ -514,7 +522,7 @@ public:
                                 }
                             }
                             if (!chained.empty())
-                                Talk(SAY_CHAIN);
+                                TalkToMap(SAY_CHAIN);
                             events.RepeatEvent(urand(100000, 180000));
                             break;
                         }
@@ -618,7 +626,7 @@ public:
                                 std::vector<Unit*>::const_iterator itr = unitList.begin();
                                 advance(itr, rand()%unitList.size());
                                 DoCast(*itr, SPELL_MANA_DETONATION);
-                                Talk(SAY_SPECIAL);
+                                TalkToMap(SAY_SPECIAL);
                             }
 
                             events.RepeatEvent(urand(20000, 50000));
@@ -633,7 +641,7 @@ public:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, RAID_MODE(1, 0), 0, true))
                                 DoCast(target, SPELL_FROST_BLAST);
                             if (rand()%2)
-                                Talk(SAY_FROST_BLAST);
+                                TalkToMap(SAY_FROST_BLAST);
                             events.RepeatEvent(urand(30000, 90000));
                             break;
                         default:

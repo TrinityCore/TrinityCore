@@ -20,12 +20,13 @@
 #include "naxxramas.h"
 #include "SpellInfo.h"
 
-enum Yells
+enum Texts
 {
     SAY_GREET       = 0,
     SAY_AGGRO       = 1,
     SAY_SLAY        = 2,
-    SAY_DEATH       = 3
+    SAY_DEATH       = 3,
+    SAY_ENRAGE      = 4
 };
 
 enum Spells
@@ -40,13 +41,18 @@ enum Spells
     H_SPELL_WIDOWS_EMBRACE      = 54097
 };
 
-#define SPELL_WIDOWS_EMBRACE_HELPER RAID_MODE(SPELL_WIDOWS_EMBRACE, H_SPELL_WIDOWS_EMBRACE)
+#define SPELL_WIDOWS_EMBRACE_HELPER (SPELL_WIDOWS_EMBRACE)
 
 enum Events
 {
     EVENT_POISON    = 1,
     EVENT_FIRE      = 2,
     EVENT_FRENZY    = 3
+};
+
+enum Actions
+{
+    ACTION_INTRO    = 1,
 };
 
 #define DATA_FRENZY_DISPELS 1
@@ -58,20 +64,16 @@ class boss_faerlina : public CreatureScript
 
         struct boss_faerlinaAI : public BossAI
         {
-            boss_faerlinaAI(Creature* creature) : BossAI(creature, BOSS_FAERLINA),
-                _frenzyDispels(0), _introDone(false), _delayFrenzy(false)
+            boss_faerlinaAI(Creature* creature) : BossAI(creature, DATA_FAERLINA)
             {
+                _frenzyDispels=0;
+                _introDone=false;
+                _delayFrenzy=false;
             }
 
-
-            void EnterCombat(Unit* /*who*/)
-            {
-                _EnterCombat();
-                Talk(SAY_AGGRO);
-                events.ScheduleEvent(EVENT_POISON, urand(10000, 15000));
-                events.ScheduleEvent(EVENT_FIRE, urand(6000, 18000));
-                events.ScheduleEvent(EVENT_FRENZY, urand(60000, 80000));
-            }
+            uint32 _frenzyDispels;
+            bool _introDone;
+            bool _delayFrenzy;
 
             void Reset()
             {
@@ -80,38 +82,48 @@ class boss_faerlina : public CreatureScript
                 _frenzyDispels = 0;
             }
 
-            void MoveInLineOfSight(Unit* who)
+            void DoAction(int32 action)
             {
-                if (!_introDone && who->GetTypeId() == TYPEID_PLAYER)
+                switch (action)
                 {
-                    Talk(SAY_GREET);
-                    _introDone = true;
+                    case ACTION_INTRO:
+                       if (!_introDone)
+                       {
+                           TalkToMap(SAY_GREET);
+                           _introDone = true;
+                       }
+                    break;
                 }
+            }
 
-                BossAI::MoveInLineOfSight(who);
+            void EnterCombat(Unit* /*who*/)
+            {
+                _EnterCombat();
+                TalkToMap(SAY_AGGRO);
+                events.ScheduleEvent(EVENT_POISON, urand(10000, 15000));
+                events.ScheduleEvent(EVENT_FIRE, urand(6000, 18000));
+                events.ScheduleEvent(EVENT_FRENZY, urand(60000, 80000));
             }
 
             void KilledUnit(Unit* /*victim*/)
             {
-                if (!urand(0, 2))
-                    Talk(SAY_SLAY);
-            }
-
-            void JustDied(Unit* /*killer*/)
-            {
-                _JustDied();
-                Talk(SAY_DEATH);
+                TalkToMap(SAY_SLAY);
             }
 
             void SpellHit(Unit* caster, SpellInfo const* spell)
             {
                 if (spell->Id == SPELL_WIDOWS_EMBRACE || spell->Id == H_SPELL_WIDOWS_EMBRACE)
                 {
-                    /// @todo Add Text
                     ++_frenzyDispels;
                     _delayFrenzy = true;
                     me->Kill(caster);
                 }
+            }
+
+            void JustDied(Unit* /*killer*/)
+            {
+                _JustDied();
+                TalkToMap(SAY_DEATH);
             }
 
             uint32 GetData(uint32 type) const
@@ -153,9 +165,11 @@ class boss_faerlina : public CreatureScript
                             events.ScheduleEvent(EVENT_FIRE, urand(6000, 18000));
                             break;
                         case EVENT_FRENZY:
-                            /// @todo Add Text
                             if (!me->HasAura(SPELL_WIDOWS_EMBRACE_HELPER))
+                            {
+                                TalkToMap(SAY_ENRAGE);
                                 DoCast(me, RAID_MODE(SPELL_FRENZY, H_SPELL_FRENZY));
+                            }
                             else
                                 _delayFrenzy = true;
 
@@ -163,16 +177,9 @@ class boss_faerlina : public CreatureScript
                             break;
                     }
                 }
-
                 DoMeleeAttackIfReady();
             }
-
-        private:
-            uint32 _frenzyDispels;
-            bool _introDone;
-            bool _delayFrenzy;
         };
-
         CreatureAI* GetAI(Creature* creature) const
         {
             return new boss_faerlinaAI(creature);
@@ -187,13 +194,14 @@ class mob_faerlina_add : public CreatureScript
         struct mob_faerlina_addAI : public ScriptedAI
         {
             mob_faerlina_addAI(Creature* creature) : ScriptedAI(creature),
-                _instance(creature->GetInstanceScript())
+                instance(creature->GetInstanceScript())
             {
             }
 
             void Reset()
             {
-                if (GetDifficulty() == RAID_DIFFICULTY_10MAN_NORMAL) {
+                if (GetDifficulty() == RAID_DIFFICULTY_10MAN_NORMAL)
+                {
                     me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_BIND, true);
                     me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_CHARM, true);
                 }
@@ -201,13 +209,13 @@ class mob_faerlina_add : public CreatureScript
 
             void JustDied(Unit* /*killer*/)
             {
-                if (_instance && GetDifficulty() == RAID_DIFFICULTY_10MAN_NORMAL)
-                    if (Creature* faerlina = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_FAERLINA)))
+                if (instance && GetDifficulty() == RAID_DIFFICULTY_10MAN_NORMAL)
+                    if (Creature* faerlina = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_FAERLINA)))
                         DoCast(faerlina, SPELL_WIDOWS_EMBRACE);
             }
 
         private:
-            InstanceScript* const _instance;
+            InstanceScript* const instance;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -227,9 +235,25 @@ class achievement_momma_said_knock_you_out : public AchievementCriteriaScript
         }
 };
 
+class at_faerlina_intro : public AreaTriggerScript
+{
+public:
+    at_faerlina_intro() : AreaTriggerScript("at_faerlina_intro") { }
+
+    bool OnTrigger(Player* player, const AreaTriggerEntry* /*at*/)
+    {
+        if (InstanceScript* instance = player->GetInstanceScript())
+            if (instance->GetBossState(DATA_FAERLINA) != DONE)
+                if (Creature* Faerlina = ObjectAccessor::GetCreature(*player, instance->GetData64(DATA_FAERLINA)))
+                    Faerlina->AI()->DoAction(ACTION_INTRO);
+        return true;
+    }
+};
+
 void AddSC_boss_faerlina()
 {
     new boss_faerlina();
     new mob_faerlina_add();
     new achievement_momma_said_knock_you_out();
+    new at_faerlina_intro();
 }

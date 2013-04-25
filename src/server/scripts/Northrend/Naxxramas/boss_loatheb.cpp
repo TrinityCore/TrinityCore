@@ -60,7 +60,7 @@ class boss_loatheb : public CreatureScript
 
         struct boss_loathebAI : public BossAI
         {
-            boss_loathebAI(Creature* creature) : BossAI(creature, BOSS_LOATHEB)
+            boss_loathebAI(Creature* creature) : BossAI(creature, DATA_LOATHEB)
             {
             }
 
@@ -124,7 +124,7 @@ class boss_loatheb : public CreatureScript
                             events.ScheduleEvent(EVENT_SPORE, IsHeroic() ? 18000 : 36000);
                             break;
                         case EVENT_NECROTIC_AURA_FADING:
-                            Talk(SAY_NECROTIC_AURA_FADING);
+                            TalkToMap(SAY_NECROTIC_AURA_FADING);
                             break;
                         default:
                             break;
@@ -177,13 +177,13 @@ class spell_loatheb_necrotic_aura_warning : public SpellScriptLoader
             void HandleEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (GetTarget()->IsAIEnabled)
-                    CAST_AI(LoathebAI, GetTarget()->GetAI())->Talk(SAY_NECROTIC_AURA_APPLIED);
+                    CAST_AI(LoathebAI, GetTarget()->GetAI())->TalkToMap(SAY_NECROTIC_AURA_APPLIED);
             }
 
             void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (GetTarget()->IsAIEnabled)
-                    CAST_AI(LoathebAI, GetTarget()->GetAI())->Talk(SAY_NECROTIC_AURA_REMOVED);
+                    CAST_AI(LoathebAI, GetTarget()->GetAI())->TalkToMap(SAY_NECROTIC_AURA_REMOVED);
             }
 
             void Register()
