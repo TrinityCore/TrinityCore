@@ -18,59 +18,151 @@
 #ifndef DEF_NAXXRAMAS_H
 #define DEF_NAXXRAMAS_H
 
-enum Encounter
+#define MAX_ENCOUNTERS 15
+
+enum Datas
 {
-    BOSS_ANUBREKHAN,
-    BOSS_FAERLINA,
-    BOSS_MAEXXNA,
-    BOSS_NOTH,
-    BOSS_HEIGAN,
-    BOSS_LOATHEB,
-    BOSS_PATCHWERK,
-    BOSS_GROBBULUS,
-    BOSS_GLUTH,
-    BOSS_THADDIUS,
-    BOSS_RAZUVIOUS,
-    BOSS_GOTHIK,
-    BOSS_HORSEMEN,
-    BOSS_SAPPHIRON,
-    BOSS_KELTHUZAD,
-    MAX_BOSS_NUMBER
+    // Encounters
+    DATA_ANUBREKHAN         = 1,
+    DATA_FAERLINA           = 2,
+    DATA_MAEXXNA            = 3,
+    DATA_NOTH               = 4,
+    DATA_HEIGAN             = 5,
+    DATA_LOATHEB            = 6,
+    DATA_PATCHWERK          = 7,
+    DATA_GROBBULUS          = 8,
+    DATA_GLUTH              = 9,
+    DATA_THADDIUS           = 10,
+    DATA_RAZUVIOUS          = 11,
+    DATA_GOTHIK             = 12,
+    DATA_HORSEMEN           = 13,
+    DATA_SAPPHIRON          = 14,
+    DATA_KELTHUZAD          = 15,
+
+    DATA_HEIGAN_ERUPT       = 16,
+    DATA_GOTHIK_GATE        = 17,
+    DATA_SAPPHIRON_BIRTH    = 18,
+
+    DATA_HORSEMEN0          = 19,
+    DATA_HORSEMEN1          = 20,
+    DATA_HORSEMEN2          = 21,
+    DATA_HORSEMEN3          = 22,
+    DATA_ABOMINATION_KILLED = 23,
+
+    DATA_THANE              = 24,
+    DATA_LADY               = 25,
+    DATA_BARON              = 26,
+    DATA_SIR                = 27,
+
+    DATA_STALAGG            = 28,
+    DATA_FEUGEN             = 29,
+
+    DATA_KELTHUZAD_PORTAL01 = 30,
+    DATA_KELTHUZAD_PORTAL02 = 31,
+    DATA_KELTHUZAD_PORTAL03 = 32,
+    DATA_KELTHUZAD_PORTAL04 = 33,
+    DATA_KELTHUZAD_TRIGGER  = 34,
+    DATA_TESLA_FEUGEN       = 35,
+    DATA_TESLA_STALAG       = 36,
+    DATA_TESLA              = 37,
+
 };
 
-enum Data
+enum NaxxTexts
 {
-    DATA_HEIGAN_ERUPT,
-    DATA_GOTHIK_GATE,
-    DATA_SAPPHIRON_BIRTH,
-
-    DATA_HORSEMEN0,
-    DATA_HORSEMEN1,
-    DATA_HORSEMEN2,
-    DATA_HORSEMEN3,
-    DATA_ABOMINATION_KILLED,
+    SAY_SAPP_DIALOG2_LICH       = 1,
+    SAY_SAPP_DIALOG4_LICH       = 3,
+    SAY_CAT_DIED                = 0,
+    SAY_TAUNT1                  = 1,
+    SAY_TAUNT2                  = 2,
+    SAY_TAUNT3                  = 3,
+    SAY_TAUNT4                  = 4,
+    SAY_SAPP_DIALOG1            = 5, 
+    SAY_SAPP_DIALOG3            = 6,
+    SAY_SAPP_DIALOG5            = 7,
+    SAY_HORSEMEN_1              = 5,
+    SAY_HORSEMEN_2              = 5, 
+    SAY_HORSEMEN_3              = 5, 
+    SAY_HORSEMEN_4              = 6, 
+    SAY_HORSEMEN_5              = 6, 
+    SAY_HORSEMEN_6              = 5,
+    SAY_HORSEMEN_7              = 6,
+    SAY_KORT_TAUNT1             = 1,
 };
 
-enum Data64
+enum NaxxCreatures
 {
-    DATA_FAERLINA,
-    DATA_THANE,
-    DATA_LADY,
-    DATA_BARON,
-    DATA_SIR,
-    DATA_THADDIUS,
-    DATA_HEIGAN,
-    DATA_FEUGEN,
-    DATA_STALAGG,
-    DATA_KELTHUZAD,
-    DATA_KELTHUZAD_PORTAL01,
-    DATA_KELTHUZAD_PORTAL02,
-    DATA_KELTHUZAD_PORTAL03,
-    DATA_KELTHUZAD_PORTAL04,
-    DATA_KELTHUZAD_TRIGGER,
+    // Bosses
+    BOSS_SAPPHIRON  = 15989,
+    BOSS_FAERLINA   = 15953,
+    BOSS_THANE      = 16064,
+    BOSS_LADY       = 16065,
+    BOSS_BARON      = 30549,
+    BOSS_SIR        = 16063,
+    BOSS_MAEXXNA    = 15952,
+    BOSS_GOTHIK     = 16060,
+    BOSS_LOATHEB    = 16011,
+    BOSS_THADDIUS   = 15928,
+    BOSS_HEIGAN     = 15936,
+    BOSS_FEUGEN     = 15930,
+    BOSS_STALAGG    = 15929,
+    BOSS_KELTHUZAD  = 15990,
+    BOSS_NOTH       = 15954,
+
+    NPC_CRYPT_GUARD     = 16573,
+    NPC_CORPSE_SCARAB   = 16698,
+    NPC_TESLA           = 16218,
 };
 
-#define GO_BIRTH                181356
+enum NaxxGameObjects
+{
+    GO_HORSEMEN_CHEST_HERO  = 193426,
+    GO_HORSEMEN_CHEST       = 181366,
+    GO_GOTHIK_GATE          = 181170,
+    GO_KELTHUZAD_PORTAL01   = 181402,
+    GO_KELTHUZAD_PORTAL02   = 181403,
+    GO_KELTHUZAD_PORTAL03   = 181404,
+    GO_KELTHUZAD_PORTAL04   = 181405,
+    GO_KELTHUZAD_TRIGGER    = 181444,
+    GO_ARAC_PORTAL          = 181575,
+    GO_PLAG_PORTAL          = 181577,
+    GO_MILI_PORTAL          = 181578,
+    GO_CONS_PORTAL          = 181576,
+    GO_BIRTH                = 181356,
+
+    GO_ANUBREKHAN_DOOR      = 181126,
+    GO_ANUBREKHAN_ESCAPE    = 181195,
+    GO_FEARLINA_DOOR_1      = 194022,
+    GO_MAEXXNA_DOOR         = 181209,
+    GO_NOTH_ENTRANCE        = 181200,
+    GO_NOTH_ESCAPE          = 181201,
+    GO_HEIGAN_ENTRANCE      = 181202,
+    GO_HEIGAN_ESCAPE        = 181203,
+    GO_LOATHEB_DOOR         = 181241,
+    GO_GROBBULUS_DOOR       = 181123,
+    GO_GLUTH_ESCAPE         = 181120,
+    GO_THADDIUS_DOOR        = 181121,
+    GO_GOTHIK_ENTRANCE      = 181124,
+    GO_GOTHIK_ESCAPE        = 181125,
+    GO_HORSEMEN_DOOR        = 181119,
+    GO_SAPPHIRON_ESCAPE     = 181225,
+    GO_KELTHUZAD_DOOR       = 181228,
+
+    GO_PLAGUE_WING_PORTAL   = 181211,
+    GO_DEATHKNIGHT_PORTAL   = 181210,
+    GO_SPIDER_PORTAL        = 181212,
+    GO_CONSTRUCTION_PORTAL  = 181213,
+    GO_TESLA_FEUGEN         = 181477,
+    GO_TESLA_STALAG         = 181478,
+};
+
+enum NaxxSpells
+{
+    SPELL_ERUPTION          = 29371,
+    SPELL_PORTAL            = 28444,
+    SPELL_ORB_TELEPORT_1    = 72617,
+    SPELL_ORB_TELEPORT_2    = 72613,
+};
 
 #endif
 

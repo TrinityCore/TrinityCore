@@ -25,11 +25,15 @@ enum Noth
     SAY_SUMMON                      = 1,
     SAY_SLAY                        = 2,
     SAY_DEATH                       = 3,
+    EMOTE_SUMMON                    = 4,
+    EMOTE_BALCONY                   = 5,
+    EMOTE_SKELETON                  = 6,
+    EMOTE_TELEPORT                  = 7,  
 
-    SOUND_DEATH                     = 8848,
-
-    SPELL_CURSE_PLAGUEBRINGER       = 29213, // 25-man: 54835
-    SPELL_CRIPPLE                   = 29212, // 25-man: 54814
+    SPELL_CURSE_PLAGUEBRINGER_10   = 29213,
+    SPELL_CURSE_PLAGUEBRINGER_25   = 54835,
+    SPELL_CRIPPLE_10               = 29212,
+    SPELL_CRIPPLE_25               = 54814,
     SPELL_TELEPORT                  = 29216,
 
     MOB_WARRIOR                     = 16984,
@@ -39,11 +43,7 @@ enum Noth
 
 #define SPELL_BLINK                     RAND(29208, 29209, 29210, 29211)
 
-// Teleport position of Noth on his balcony
-#define TELE_X 2631.370f
-#define TELE_Y -3529.680f
-#define TELE_Z 274.040f
-#define TELE_O 6.277f
+const Position TelePos = {2631.370f, -3529.680f, 274.040f, 6.277f};
 
 #define MAX_SUMMON_POS 5
 
@@ -80,7 +80,7 @@ public:
 
     struct boss_nothAI : public BossAI
     {
-        boss_nothAI(Creature* creature) : BossAI(creature, BOSS_NOTH) {}
+        boss_nothAI(Creature* creature) : BossAI(creature, DATA_NOTH) {}
 
         uint32 waveCount, balconyCount;
 
@@ -94,7 +94,7 @@ public:
         void EnterCombat(Unit* /*who*/)
         {
             _EnterCombat();
-            Talk(SAY_AGGRO);
+            TalkToMap(SAY_AGGRO);
             balconyCount = 0;
             EnterPhaseGround();
         }
@@ -119,7 +119,7 @@ public:
         void KilledUnit(Unit* /*victim*/)
         {
             if (!(rand()%5))
-                Talk(SAY_SLAY);
+                TalkToMap(SAY_SLAY);
         }
 
         void JustSummoned(Creature* summon)
@@ -132,7 +132,7 @@ public:
         void JustDied(Unit* /*killer*/)
         {
             _JustDied();
-            Talk(SAY_DEATH);
+            TalkToMap(SAY_DEATH);
         }
 
         void SummonUndead(uint32 entry, uint32 num)
@@ -157,16 +157,18 @@ public:
                 switch (eventId)
                 {
                     case EVENT_CURSE:
-                        DoCastAOE(SPELL_CURSE_PLAGUEBRINGER);
+                        DoCastAOE(RAID_MODE(SPELL_CURSE_PLAGUEBRINGER_10, SPELL_CURSE_PLAGUEBRINGER_25));
                         events.ScheduleEvent(EVENT_CURSE, urand(50000, 60000));
                         return;
                     case EVENT_WARRIOR:
-                        Talk(SAY_SUMMON);
+                        TalkToMap(SAY_SUMMON);
+                        TalkToMap(EMOTE_SUMMON);
                         SummonUndead(MOB_WARRIOR, RAID_MODE(2, 3));
                         events.ScheduleEvent(EVENT_WARRIOR, 30000);
                         return;
                     case EVENT_BLINK:
-                        DoCastAOE(SPELL_CRIPPLE, true);
+                        TalkToMap(EVENT_BALCONY);
+                        DoCastAOE(RAID_MODE(SPELL_CRIPPLE_10, SPELL_CRIPPLE_25));
                         DoCastAOE(SPELL_BLINK);
                         DoResetThreat();
                         events.ScheduleEvent(EVENT_BLINK, 40000);
@@ -176,13 +178,13 @@ public:
                         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                         me->AttackStop();
                         me->RemoveAllAuras();
-                        me->NearTeleportTo(TELE_X, TELE_Y, TELE_Z, TELE_O);
+                        me->NearTeleportTo(TelePos.m_positionX,TelePos.m_positionY,TelePos.m_positionZ,TelePos.m_orientation);
                         events.Reset();
                         events.ScheduleEvent(EVENT_WAVE, urand(2000, 5000));
                         waveCount = 0;
                         return;
                     case EVENT_WAVE:
-                        Talk(SAY_SUMMON);
+                        TalkToMap(EMOTE_SKELETON);
                         switch (balconyCount)
                         {
                             case 0: SummonUndead(MOB_CHAMPION, RAID_MODE(2, 4)); break;
@@ -197,6 +199,7 @@ public:
                         return;
                     case EVENT_GROUND:
                     {
+                        TalkToMap(EMOTE_TELEPORT);
                         ++balconyCount;
                         float x, y, z, o;
                         me->GetHomePosition(x, y, z, o);

@@ -19,30 +19,20 @@
 #include "ScriptedCreature.h"
 #include "naxxramas.h"
 
-//Razuvious - NO TEXT sound only
-//8852 aggro01 - Hah hah, I'm just getting warmed up!
-//8853 aggro02 Stand and fight!
-//8854 aggro03 Show me what you've got!
-//8861 slay1 - You should've stayed home!
-//8863 slay2-
-//8858 cmmnd3 - You disappoint me, students!
-//8855 cmmnd1 - Do as I taught you!
-//8856 cmmnd2 - Show them no mercy!
-//8859 cmmnd4 - The time for practice is over! Show me what you've learned!
-//8861 Sweep the leg! Do you have a problem with that?
-//8860 death - An honorable... death...
-//8947 - Aggro Mixed? - ?
+enum ScriptTexts
+{
+    SAY_AGGRO   = 0,
+    SAY_COMMND  = 1,
+    SAY_DEATH   = 2,
+};
 
-#define SOUND_AGGRO     RAND(8852, 8853, 8854)
-#define SOUND_SLAY      RAND(8861, 8863)
-#define SOUND_COMMND    RAND(8855, 8856, 8858, 8859, 8861)
-#define SOUND_DEATH     8860
-#define SOUND_AGGROMIX  8847
-
-#define SPELL_UNBALANCING_STRIKE    26613
-#define SPELL_DISRUPTING_SHOUT      RAID_MODE(29107, 55543)
-#define SPELL_JAGGED_KNIFE          55550
-#define SPELL_HOPELESS              29125
+enum Spells
+{
+    SPELL_UNBALANCING_STRIKE     = 26613,
+    SPELL_DISRUPTING_SHOUT       = 29107,
+    SPELL_JAGGED_KNIFE           = 55550,
+    SPELL_HOPELESS               = 29125,
+};
 
 enum Events
 {
@@ -65,13 +55,7 @@ public:
 
     struct boss_razuviousAI : public BossAI
     {
-        boss_razuviousAI(Creature* creature) : BossAI(creature, BOSS_RAZUVIOUS) {}
-
-        void KilledUnit(Unit* /*victim*/)
-        {
-            if (!(rand()%3))
-                DoPlaySoundToSet(me, SOUND_SLAY);
-        }
+        boss_razuviousAI(Creature* creature) : BossAI(creature, DATA_RAZUVIOUS) {}
 
         void DamageTaken(Unit* pDone_by, uint32& uiDamage)
         {
@@ -85,14 +69,14 @@ public:
         void JustDied(Unit* /*killer*/)
         {
             _JustDied();
-            DoPlaySoundToSet(me, SOUND_DEATH);
-            me->CastSpell(me, SPELL_HOPELESS, true); /// @todo this may affect other creatures
+            TalkToMap(SAY_DEATH);
+            me->CastSpell(me, SPELL_HOPELESS, true);
         }
 
         void EnterCombat(Unit* /*who*/)
         {
             _EnterCombat();
-            DoPlaySoundToSet(me, SOUND_AGGRO);
+            TalkToMap(SAY_AGGRO);
             events.ScheduleEvent(EVENT_STRIKE, 30000);
             events.ScheduleEvent(EVENT_SHOUT, 25000);
             events.ScheduleEvent(EVENT_COMMAND, 40000);
@@ -124,7 +108,7 @@ public:
                         events.ScheduleEvent(EVENT_KNIFE, 10000);
                         return;
                     case EVENT_COMMAND:
-                        DoPlaySoundToSet(me, SOUND_COMMND);
+                        TalkToMap(SAY_COMMND);
                         events.ScheduleEvent(EVENT_COMMAND, 40000);
                         return;
                 }

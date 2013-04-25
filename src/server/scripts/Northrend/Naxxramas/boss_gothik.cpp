@@ -163,7 +163,7 @@ class boss_gothik : public CreatureScript
 
         struct boss_gothikAI : public BossAI
         {
-            boss_gothikAI(Creature* creature) : BossAI(creature, BOSS_GOTHIK) {}
+            boss_gothikAI(Creature* creature) : BossAI(creature, DATA_GOTHIK) { }
 
             uint32 waveCount;
             typedef std::vector<Creature*> TriggerVct;
@@ -209,7 +209,7 @@ class boss_gothik : public CreatureScript
                 waveCount = 0;
                 events.ScheduleEvent(EVENT_SUMMON, 30000);
                 DoTeleportTo(PosPlatform);
-                Talk(SAY_SPEECH);
+                TalkToMap(SAY_SPEECH);
                 if (instance)
                     instance->SetData(DATA_GOTHIK_GATE, GO_STATE_READY);
             }
@@ -238,8 +238,7 @@ class boss_gothik : public CreatureScript
 
             void KilledUnit(Unit* /*victim*/)
             {
-                if (!(rand()%5))
-                    Talk(SAY_KILL);
+                TalkToMap(SAY_KILL);
             }
 
             void JustDied(Unit* /*killer*/)
@@ -247,7 +246,7 @@ class boss_gothik : public CreatureScript
                 LiveTriggerGUID.clear();
                 DeadTriggerGUID.clear();
                 _JustDied();
-                Talk(SAY_DEATH);
+                TalkToMap(SAY_DEATH);
                 if (instance)
                     instance->SetData(DATA_GOTHIK_GATE, GO_STATE_ACTIVE);
             }
@@ -452,7 +451,7 @@ class boss_gothik : public CreatureScript
                             else
                             {
                                 phaseTwo = true;
-                                Talk(SAY_TELEPORT);
+                                TalkToMap(SAY_TELEPORT);
                                 DoTeleportTo(PosGroundLiveSide);
                                 me->SetReactState(REACT_AGGRESSIVE);
                                 DummyEntryCheckPredicate pred;

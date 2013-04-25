@@ -39,6 +39,11 @@ enum Events
     EVENT_SPRAY                 = 3
 };
 
+enum ScriptTexts
+{
+    EMOTE_SPRAY                 = 0,
+};
+
 enum CreatureId
 {
     MOB_FALLOUT_SLIME           = 16290
@@ -55,7 +60,7 @@ public: boss_grobbulus() : CreatureScript("boss_grobbulus") { }
 
     struct boss_grobbulusAI : public BossAI
     {
-        boss_grobbulusAI(Creature* creature) : BossAI(creature, BOSS_GROBBULUS)
+        boss_grobbulusAI(Creature* creature) : BossAI(creature, DATA_GROBBULUS)
         {
             me->ApplySpellImmune(0, IMMUNITY_ID, SPELL_POISON_CLOUD_ADD, true);
         }
@@ -71,7 +76,7 @@ public: boss_grobbulus() : CreatureScript("boss_grobbulus") { }
 
         void SpellHitTarget(Unit* target, const SpellInfo* spell)
         {
-            if (spell->Id == uint32(SPELL_SLIME_SPRAY))
+            if (spell->Id == uint32(SPELL_SLIME_SPRAY || H_SPELL_SLIME_SPRAY))
             {
                 if (TempSummon* slime = me->SummonCreature(MOB_FALLOUT_SLIME, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 0))
                     DoZoneInCombat(slime);
@@ -97,7 +102,8 @@ public: boss_grobbulus() : CreatureScript("boss_grobbulus") { }
                         DoCastAOE(SPELL_BERSERK);
                         return;
                     case EVENT_SPRAY:
-                        DoCastAOE(SPELL_SLIME_SPRAY);
+                        TalkToMap(EMOTE_SPRAY);
+                        DoCastAOE(RAID_MODE(SPELL_SLIME_SPRAY, H_SPELL_SLIME_SPRAY));
                         events.ScheduleEvent(EVENT_SPRAY, 15000+rand()%15000);
                         return;
                     case EVENT_INJECT:

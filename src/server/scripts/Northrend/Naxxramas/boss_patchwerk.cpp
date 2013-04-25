@@ -62,7 +62,7 @@ public:
 
     struct boss_patchwerkAI : public BossAI
     {
-        boss_patchwerkAI(Creature* creature) : BossAI(creature, BOSS_PATCHWERK) {}
+        boss_patchwerkAI(Creature* creature) : BossAI(creature, DATA_PATCHWERK) {}
 
         bool Enraged;
 
@@ -77,20 +77,20 @@ public:
         void KilledUnit(Unit* /*Victim*/)
         {
             if (!(rand()%5))
-                Talk(SAY_SLAY);
+                TalkToMap(SAY_SLAY);
         }
 
         void JustDied(Unit* /*killer*/)
         {
             _JustDied();
-            Talk(SAY_DEATH);
+            TalkToMap(SAY_DEATH);
         }
 
         void EnterCombat(Unit* /*who*/)
         {
             _EnterCombat();
             Enraged = false;
-            Talk(SAY_AGGRO);
+            TalkToMap(SAY_AGGRO);
             events.ScheduleEvent(EVENT_HATEFUL, 1000);
             events.ScheduleEvent(EVENT_BERSERK, 360000);
 
@@ -136,7 +136,7 @@ public:
                     }
                     case EVENT_BERSERK:
                         DoCast(me, SPELL_BERSERK, true);
-                        Talk(EMOTE_BERSERK);
+                        TalkToMap(EMOTE_BERSERK);
                         events.ScheduleEvent(EVENT_SLIME, 2000);
                         break;
                     case EVENT_SLIME:
@@ -149,7 +149,7 @@ public:
             if (!Enraged && HealthBelowPct(5))
             {
                 DoCast(me, SPELL_FRENZY, true);
-                Talk(EMOTE_ENRAGE);
+                TalkToMap(EMOTE_ENRAGE);
                 Enraged = true;
             }
 

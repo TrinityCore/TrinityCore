@@ -318,6 +318,113 @@ uint32 CreatureTextMgr::SendChat(Creature* source, uint8 textGroup, uint64 whisp
     return iter->duration;
 }
 
+uint32 CreatureTextMgr::SendChatToMap(Creature* source, uint8 textGroup, uint64 whisperGuid /*= 0*/, ChatMsg msgType /*= CHAT_MSG_ADDON*/, Language language /*= LANG_ADDON*/, CreatureTextRange range /*= TEXT_RANGE_MAP*/, uint32 sound /*= 0*/, Team team /*= TEAM_OTHER*/, bool gmOnly /*= false*/, Player* srcPlr /*= NULL*/)
+{
+    if (!source)
+        return 0;
+
+    CreatureTextMap::const_iterator sList = mTextMap.find(source->GetEntry());
+    if (sList == mTextMap.end())
+    {
+        sLog->outError(LOG_FILTER_SQL, "CreatureTextMgr: Could not find Text for Creature(%s) Entry %u in 'creature_text' table. Ignoring.", source->GetName().c_str(), source->GetEntry());
+        return 0;
+    }
+
+    CreatureTextHolder const& textHolder = sList->second;
+    CreatureTextHolder::const_iterator itr = textHolder.find(textGroup);
+    if (itr == textHolder.end())
+    {
+        sLog->outError(LOG_FILTER_SQL, "CreatureTextMgr: Could not find TextGroup %u for Creature(%s) GuidLow %u Entry %u. Ignoring.", uint32(textGroup), source->GetName().c_str(), source->GetGUIDLow(), source->GetEntry());
+        return 0;
+    }
+
+    CreatureTextGroup const& textGroupContainer = itr->second;  //has all texts in the group
+    CreatureTextRepeatIds repeatGroup = GetRepeatGroup(source, textGroup);//has all textIDs from the group that were already said
+    CreatureTextGroup tempGroup;//will use this to talk after sorting repeatGroup
+
+    for (CreatureTextGroup::const_iterator giter = textGroupContainer.begin(); giter != textGroupContainer.end(); ++giter)
+        if (std::find(repeatGroup.begin(), repeatGroup.end(), giter->id) == repeatGroup.end())
+            tempGroup.push_back(*giter);
+
+    if (tempGroup.empty())
+    {
+        CreatureTextRepeatMap::iterator mapItr = mTextRepeatMap.find(source->GetGUID());
+        if (mapItr != mTextRepeatMap.end())
+        {
+            CreatureTextRepeatGroup::iterator groupItr = mapItr->second.find(textGroup);
+            groupItr->second.clear();
+        }
+
+        tempGroup = textGroupContainer;
+    }
+
+    uint8 count = 0;
+    float lastChance = -1;
+    bool isEqualChanced = true;
+
+    float totalChance = 0;
+
+    for (CreatureTextGroup::const_iterator iter = tempGroup.begin(); iter != tempGroup.end(); ++iter)
+    {
+        if (lastChance >= 0 && lastChance != iter->probability)
+            isEqualChanced = false;
+
+        lastChance = iter->probability;
+        totalChance += iter->probability;
+        ++count;
+    }
+
+    int32 offset = -1;
+    if (!isEqualChanced)
+    {
+        for (CreatureTextGroup::const_iterator iter = tempGroup.begin(); iter != tempGroup.end(); ++iter)
+        {
+            uint32 chance = uint32(iter->probability);
+            uint32 r = urand(0, 100);
+            ++offset;
+            if (r <= chance)
+                break;
+        }
+    }
+
+    uint32 pos = 0;
+    if (isEqualChanced || offset < 0)
+        pos = urand(0, count - 1);
+    else if (offset >= 0)
+        pos = offset;
+
+    CreatureTextGroup::const_iterator iter = tempGroup.begin() + pos;
+
+    ChatMsg finalType = (msgType == CHAT_MSG_ADDON) ? iter->type : msgType;
+    Language finalLang = (language == LANG_ADDON) ? iter->lang : language;
+    uint32 finalSound = sound ? sound : iter->sound;
+
+    if (finalSound)
+        SendSound(source, finalSound, finalType, whisperGuid, range, team, gmOnly);
+
+    Unit* finalSource = source;
+    if (srcPlr)
+        finalSource = srcPlr;
+
+    if (iter->emote)
+        SendEmote(finalSource, iter->emote);
+
+    if (srcPlr)
+    {
+        PlayerTextBuilder builder(source, finalSource, finalType, iter->group, iter->id, finalLang, whisperGuid);
+        SendChatPacket(finalSource, builder, finalType, whisperGuid, range, team, gmOnly);
+    }
+    else
+    {
+        CreatureTextBuilder builder(finalSource, finalType, iter->group, iter->id, finalLang, whisperGuid);
+        SendChatPacket(finalSource, builder, finalType, whisperGuid, range, team, gmOnly);
+    }
+    if (isEqualChanced || (!isEqualChanced && totalChance == 100.0f))
+        SetRepeatId(source, textGroup, iter->id);
+
+    return iter->duration;
+}
+
 float CreatureTextMgr::GetRangeForChatType(ChatMsg msgType) const
 {
     float dist = sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_SAY);
