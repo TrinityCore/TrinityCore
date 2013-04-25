@@ -12,9 +12,38 @@
 class LuaUnit
 {
 public:
+    // GetHeight(X, Y)
+    static int GetHeight(lua_State* L, Unit* unit)
+    {
+        TO_UNIT();
+
+        float x = luaL_checknumber(L, 1);
+        float y = luaL_checknumber(L, 2);
+
+        float z = unit->GetMap()->GetHeight(unit->GetPhaseMask(), x, y, MAX_HEIGHT);
+        if (z == INVALID_HEIGHT)
+            z = unit->GetPositionZ();
+        sEluna->PushFloat(L, z);
+        return 1;
+    }
+
+    // GetRelativePoint(dist, degrees)
+    static int GetRelativePoint(lua_State* L, Unit* unit)
+    {
+        TO_UNIT();
+
+        float dist = luaL_checknumber(L, 1);
+        int deg = luaL_checkinteger(L, 2);
+
+        float o = Position::NormalizeOrientation(unit->GetOrientation() + (deg*M_PI/180));
+        sEluna->PushFloat(L, unit->GetPositionX()+(dist*cosf(o)));
+        sEluna->PushFloat(L, unit->GetPositionY()+(dist*sinf(o)));
+        sEluna->PushFloat(L, o);
+        return 3;
+    }
 
     // Mount(displayId)
-    static int Mount(lua_State*L, Unit* unit)
+    static int Mount(lua_State* L, Unit* unit)
     {
         TO_UNIT();
 
@@ -25,7 +54,7 @@ public:
     }
 
     // Dismount()
-    static int Dismount(lua_State*L, Unit* unit)
+    static int Dismount(lua_State* L, Unit* unit)
     {
         TO_UNIT();
 
@@ -39,7 +68,7 @@ public:
     }
 
     // IsMounted()
-    static int IsMounted(lua_State*L, Unit* unit)
+    static int IsMounted(lua_State* L, Unit* unit)
     {
         TO_UNIT_BOOL();
 
@@ -48,7 +77,7 @@ public:
     }
 
     // IsWithinLoS(x, y, z)
-    static int IsWithinLoS(lua_State*L, Unit* unit)
+    static int IsWithinLoS(lua_State* L, Unit* unit)
     {
         TO_UNIT_BOOL();
 
@@ -5436,7 +5465,7 @@ public:
         TO_PLAYER();
 
         WorldObject* source = sEluna->CHECK_WORLDOBJECT(L, 1);
-        if(!source)
+        if (!source)
             return 0;
 
         if (source->GetTypeId() == TYPEID_UNIT)

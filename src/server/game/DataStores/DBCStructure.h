@@ -2116,23 +2116,5 @@ typedef std::vector<TaxiPathNodeList> TaxiPathNodesByPath;
 
 #define TaxiMaskSize 14
 typedef uint32 TaxiMask[TaxiMaskSize];
-
-struct TaxiPathNodeEntriesList
-{
-    typedef std::map<uint32, TaxiNodesEntry const*> nodeEntriesList;
-    uint32 GetNumRows()
-    {
-        return nodeEntries.size();
-    }
-    TaxiNodesEntry const* LookupEntry(uint32 i)
-    {
-        nodeEntriesList::iterator it = nodeEntries.find(i);
-        if(it == nodeEntries.end())
-            return NULL;
-        return it->second;
-    }
-    nodeEntriesList nodeEntries;
-};
-typedef TaxiPathNodeEntriesList TaxiPathNodeEntriesByPath;
 #endif
 

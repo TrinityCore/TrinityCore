@@ -4,6 +4,37 @@
 class LuaGameObject
 {
 public:
+    // GetHeight(X, Y)
+    static int GetHeight(lua_State* L, GameObject* go)
+    {
+        if (!go || !go->IsInWorld())
+            return 0;
+
+        float x = luaL_checknumber(L, 1);
+        float y = luaL_checknumber(L, 2);
+
+        float z = go->GetMap()->GetHeight(go->GetPhaseMask(), x, y, MAX_HEIGHT);
+        if (z == INVALID_HEIGHT)
+            z = go->GetPositionZ();
+        sEluna->PushFloat(L, z);
+        return 1;
+    }
+
+    // GetRelativePoint(dist, degrees)
+    static int GetRelativePoint(lua_State* L, GameObject* go)
+    {
+        if (!go || !go->IsInWorld())
+            return 0;
+
+        float dist = luaL_checknumber(L, 1);
+        int deg = luaL_checkinteger(L, 2);
+
+        float o = Position::NormalizeOrientation(go->GetOrientation() + (deg*M_PI/180));
+        sEluna->PushFloat(L, go->GetPositionX()+(dist*cosf(o)));
+        sEluna->PushFloat(L, go->GetPositionY()+(dist*sinf(o)));
+        sEluna->PushFloat(L, o);
+        return 3;
+    }
 
     // GetUnitType()
     static int GetUnitType(lua_State* L, GameObject* go)

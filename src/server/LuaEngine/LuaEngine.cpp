@@ -780,7 +780,7 @@ uint32 LuaTaxiMgr::AddPath(std::list<TaxiPathNodeEntry> nodes, uint32 mountA, ui
         return 0;
     if (!pathId)
         pathId = sTaxiPathNodesByPath.size();
-    if (sTaxiPathNodesByPath.size() >= pathId)
+    if (sTaxiPathNodesByPath.size() <= pathId)
         sTaxiPathNodesByPath.resize(pathId+1);
     sTaxiPathNodesByPath[pathId].clear();
     sTaxiPathNodesByPath[pathId].resize(nodes.size());
@@ -798,7 +798,7 @@ uint32 LuaTaxiMgr::AddPath(std::list<TaxiPathNodeEntry> nodes, uint32 mountA, ui
         nodeEntry->x = entry.x;
         nodeEntry->y = entry.y;
         nodeEntry->z = entry.z;
-        sTaxiPathNodeEntriesByPath.nodeEntries[nodeId] = nodeEntry;
+        sTaxiNodesStore.SetEntry(nodeId, nodeEntry);
         entry.index = nodeId++;
         sTaxiPathNodesByPath[pathId].set(index++, TaxiPathNodePtr(new TaxiPathNodeEntry(entry)));
     }

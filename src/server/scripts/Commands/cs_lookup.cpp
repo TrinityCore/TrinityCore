@@ -1059,9 +1059,9 @@ public:
         uint32 maxResults = sWorld->getIntConfig(CONFIG_MAX_RESULTS_LOOKUP_COMMANDS);
 
         // Search in TaxiNodes.dbc
-        for (uint32 id = 0; id < sTaxiPathNodeEntriesByPath.GetNumRows(); id++)
+        for (uint32 id = 0; id < sTaxiNodesStore.GetNumRows(); id++)
         {
-            TaxiNodesEntry const* nodeEntry = sTaxiPathNodeEntriesByPath.LookupEntry(id);
+            TaxiNodesEntry const* nodeEntry = sTaxiNodesStore.LookupEntry(id);
             if (nodeEntry)
             {
                 int locale = handler->GetSessionDbcLocale();

@@ -4,6 +4,83 @@
 class LuaItem
 {
 public:
+    static int GetQuality(lua_State* L, Item* item)
+    {
+        if (!item || !item->IsInWorld())
+            return 0;
+
+        sEluna->PushUnsigned(L, item->GetTemplate()->Quality);
+        return 1;
+    }
+
+    static int GetItemLink(lua_State* L, Item* item)
+    {
+        if (!item || !item->IsInWorld())
+            return 0;
+
+        /*
+        LOCALE_enUS = 0,
+        LOCALE_koKR = 1,
+        LOCALE_frFR = 2,
+        LOCALE_deDE = 3,
+        LOCALE_zhCN = 4,
+        LOCALE_zhTW = 5,
+        LOCALE_esES = 6,
+        LOCALE_esMX = 7,
+        LOCALE_ruRU = 8
+        */
+        int loc_idx = luaL_optint(L, 1, DEFAULT_LOCALE);
+        if (loc_idx < 0 || loc_idx >= TOTAL_LOCALES)
+        {
+            luaL_error(L, "Invalid locale index (%d)", loc_idx);
+            return 0;
+        }
+
+        const ItemTemplate* temp = item->GetTemplate();
+        std::string name = temp->Name1;
+        if (ItemLocale const* il = sObjectMgr->GetItemLocale(temp->ItemId))
+            ObjectMgr::GetLocaleString(il->Name, loc_idx, name);
+
+        if (int32 itemRandPropId = item->GetItemRandomPropertyId())
+        {
+            char* const* suffix = NULL;
+            if (itemRandPropId < 0)
+            {
+                const ItemRandomSuffixEntry* itemRandEntry = sItemRandomSuffixStore.LookupEntry(-item->GetItemRandomPropertyId());
+                if (itemRandEntry)
+                    suffix = itemRandEntry->nameSuffix;
+            }
+            else
+            {
+                const ItemRandomPropertiesEntry* itemRandEntry = sItemRandomPropertiesStore.LookupEntry(item->GetItemRandomPropertyId());
+                if (itemRandEntry)
+                    suffix = itemRandEntry->nameSuffix;
+            }
+            if (suffix)
+            {
+                std::string test(suffix[(name != temp->Name1) ? loc_idx : DEFAULT_LOCALE]);
+                if (!test.empty())
+                {
+                    name += ' ';
+                    name += test;
+                }
+            }
+        }
+
+        std::ostringstream oss;
+        oss << "|c" << std::hex << ItemQualityColors[temp->Quality] << std::dec <<
+            "|Hitem:" << temp->ItemId <<":" <<
+            item->GetEnchantmentId(PERM_ENCHANTMENT_SLOT) << ":" <<
+            item->GetEnchantmentId(SOCK_ENCHANTMENT_SLOT) << ":" <<
+            item->GetEnchantmentId(SOCK_ENCHANTMENT_SLOT_2) << ":" <<
+            item->GetEnchantmentId(SOCK_ENCHANTMENT_SLOT_3) << ":" <<
+            item->GetEnchantmentId(BONUS_ENCHANTMENT_SLOT) << ":" <<
+            item->GetItemRandomPropertyId() << ":" << item->GetItemSuffixFactor() << ":" <<
+            (uint32)item->GetOwner()->getLevel() << "|h[" << name << "]|h|r";
+
+        sEluna->PushString(L, oss.str().c_str());
+        return 1;
+    }
 
     static int GetUnitType(lua_State* L, Item* item)
     {
@@ -553,7 +630,7 @@ public:
             return 0;
 
         uint32 index = luaL_checkunsigned(L, 1);
-        if(index >= MAX_ITEM_PROTO_SPELLS)
+        if (index >= MAX_ITEM_PROTO_SPELLS)
         {
             luaL_error(L, "Invalid index (%d)", index);
             return 0;
@@ -569,7 +646,7 @@ public:
             return 0;
 
         uint32 index = luaL_checkunsigned(L, 1);
-        if(index >= MAX_ITEM_PROTO_SPELLS)
+        if (index >= MAX_ITEM_PROTO_SPELLS)
         {
             luaL_error(L, "Invalid index (%d)", index);
             return 0;

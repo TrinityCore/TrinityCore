@@ -373,6 +373,8 @@ ElunaRegister<Unit> UnitMethods[] =
     {"GetNearestPlayer", &LuaUnit::GetNearestPlayer},               // :GetNearestPlayer([radius]) - Returns nearest player in sight or given radius. UNDOCUMENTED
     {"GetNearestGameObject", &LuaUnit::GetNearestGameObject},       // :GetNearestGameObject([entry, radius]) - Returns nearest gameobject with given entry in sight or given radius. UNDOCUMENTED
     {"GetNearestCreature", &LuaUnit::GetNearestCreature},           // :GetNearestCreatureEntry([entry, radius]) - Returns nearest creature with given entry in sight or given radius. UNDOCUMENTED
+    {"GetRelativePoint", &LuaUnit::GetRelativePoint},               // :GetRelativePoint(dist, degrees) - Returns the X, Y and orientation of a point dist away from unit. Degrees are -90 for right and 90 for left. UNDOCUMENTED
+    {"GetHeight", &LuaUnit::GetHeight},                             // :GetHeight(X, Y) - Returns returns the Z coord of the given location. If no valid position found, returns unit Z coordinate. UNDOCUMENTED
 
     // Setters
     {"SetFaction", &LuaUnit::SetFaction},                           // :SetFaction(factionId) -- Sets the unit's faction
@@ -512,9 +514,11 @@ ElunaRegister<GameObject> GameObjectMethods[] =
     {"GetByteValue", &LuaGameObject::GetByteValue},                 // :GetByteValue(index, offset) - returns a byte value from object fields
     {"GetUInt16Value", &LuaGameObject::GetUInt16Value},             // :GetUInt16Value(index, offset) - returns a uint16 value from object fields
     {"GetGUIDLow", &LuaGameObject::GetGUIDLow},                     // :GetGUIDLow() -- Returns uint32 guid (low guid) that is used in database. UNDOCUMENTED
-    {"GetNearestPlayer", &LuaGameObject::GetNearestPlayer},               // :GetNearestPlayer([radius]) - Returns nearest player in sight or given radius. UNDOCUMENTED
-    {"GetNearestGameObject", &LuaGameObject::GetNearestGameObject},       // :GetNearestGameObject([entry, radius]) - Returns nearest gameobject with given entry in sight or given radius. UNDOCUMENTED
-    {"GetNearestCreature", &LuaGameObject::GetNearestCreature},           // :GetNearestCreatureEntry([entry, radius]) - Returns nearest creature with given entry in sight or given radius. UNDOCUMENTED
+    {"GetNearestPlayer", &LuaGameObject::GetNearestPlayer},         // :GetNearestPlayer([radius]) - Returns nearest player in sight or given radius. UNDOCUMENTED
+    {"GetNearestGameObject", &LuaGameObject::GetNearestGameObject}, // :GetNearestGameObject([entry, radius]) - Returns nearest gameobject with given entry in sight or given radius. UNDOCUMENTED
+    {"GetNearestCreature", &LuaGameObject::GetNearestCreature},     // :GetNearestCreatureEntry([entry, radius]) - Returns nearest creature with given entry in sight or given radius. UNDOCUMENTED
+    {"GetRelativePoint", &LuaGameObject::GetRelativePoint},         // :GetRelativePoint(dist, degrees) - Returns the X, Y and orientation of a point dist away from gob. Degrees are -90 for right and 90 for left. UNDOCUMENTED
+    {"GetHeight", &LuaGameObject::GetHeight},                       // :GetHeight(X, Y) - Returns returns the Z coord of the given location. If no valid position found, returns gob Z coordinate. UNDOCUMENTED
 
     // Setters
     {"SetScale", &LuaGameObject::SetScale},                         // :SetScale(scale) -
@@ -576,6 +580,8 @@ ElunaRegister<Item> ItemMethods[] =
     {"GetRequiredLevel", &LuaItem::GetRequiredLevel},                       // :GetRequiredLevel() -- Returns the required level UNDOCUMENTED
     {"GetBuyPrice", &LuaItem::GetBuyPrice},                                 // :GetBuyPrice() -- Returns the buy price UNDOCUMENTED
     {"GetSellPrice", &LuaItem::GetSellPrice},                               // :GetSellPrice() -- Returns the sell price UNDOCUMENTED
+    {"GetItemLink", &LuaItem::GetItemLink},                                 // :GetItemLink([localeID]) -- Returns the shift clickable link of the item. Name translated if locale given and exists UNDOCUMENTED
+    {"GetItemLink", &LuaItem::GetItemLink},                                 // :GetItemLink([localeID]) -- Returns the shift clickable link of the item. Name translated if locale given and exists UNDOCUMENTED
 
     // Setters
     {"SetOwner", &LuaItem::SetOwner},                                       // :SetOwner(player) - Sets the owner of the item

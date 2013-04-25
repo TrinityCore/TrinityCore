@@ -5760,7 +5760,7 @@ void Spell::EffectDiscoverTaxi(SpellEffIndex effIndex)
     if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
         return;
     uint32 nodeid = m_spellInfo->Effects[effIndex].MiscValue;
-    if (sTaxiPathNodeEntriesByPath.LookupEntry(nodeid))
+    if (sTaxiNodesStore.LookupEntry(nodeid))
         unitTarget->ToPlayer()->GetSession()->SendDiscoverNewTaxiNode(nodeid);
 }
 
