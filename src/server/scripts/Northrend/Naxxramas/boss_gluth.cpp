@@ -19,13 +19,18 @@
 #include "ScriptedCreature.h"
 #include "naxxramas.h"
 
-#define SPELL_MORTAL_WOUND      25646
-#define SPELL_ENRAGE            RAID_MODE(28371, 54427)
-#define SPELL_DECIMATE          RAID_MODE(28374, 54426)
-#define SPELL_BERSERK           26662
-#define SPELL_INFECTED_WOUND    29306
+enum Gluth
+{
+    SPELL_MORTAL_WOUND      = 25646,
+    SPELL_ENRAGE_10         = 28371,
+    SPELL_ENRAGE_25         = 54427,
+    SPELL_DECIMATE_10       = 28374,
+    SPELL_DECIMATE_25       = 54426,
+    SPELL_BERSERK           = 26662,
+    SPELL_INFECTED_WOUND    = 29306,
 
-#define MOB_ZOMBIE  16360
+    MOB_ZOMBIE              = 16360,
+};
 
 const Position PosSummon[3] =
 {
@@ -44,7 +49,12 @@ enum Events
     EVENT_SUMMON,
 };
 
-#define EMOTE_NEARBY    " spots a nearby zombie to devour!"
+enum ScriptTexts
+{
+    EMOTE_ENRAGE     = 0,
+    EMOTE_DECIMATE   = 1,
+    EMOTE_NEARBY     = 2,
+};
 
 class boss_gluth : public CreatureScript
 {
@@ -58,7 +68,7 @@ public:
 
     struct boss_gluthAI : public BossAI
     {
-        boss_gluthAI(Creature* creature) : BossAI(creature, BOSS_GLUTH)
+        boss_gluthAI(Creature* creature) : BossAI(creature, DATA_GLUTH)
         {
             // Do not let Gluth be affected by zombies' debuff
             me->ApplySpellImmune(0, IMMUNITY_ID, SPELL_INFECTED_WOUND, true);
@@ -69,8 +79,7 @@ public:
             if (who->GetEntry() == MOB_ZOMBIE && me->IsWithinDistInMap(who, 7))
             {
                 SetGazeOn(who);
-                /// @todo use a script text
-                me->MonsterTextEmote(EMOTE_NEARBY, 0, true);
+                TalkToMap(EMOTE_NEARBY);
             }
             else
                 BossAI::MoveInLineOfSight(who);
@@ -82,7 +91,7 @@ public:
             events.ScheduleEvent(EVENT_WOUND, 10000);
             events.ScheduleEvent(EVENT_ENRAGE, 15000);
             events.ScheduleEvent(EVENT_DECIMATE, 105000);
-            events.ScheduleEvent(EVENT_BERSERK, 8*60000);
+            events.ScheduleEvent(EVENT_BERSERK, 480000);
             events.ScheduleEvent(EVENT_SUMMON, 15000);
         }
 
@@ -109,18 +118,18 @@ public:
                         events.ScheduleEvent(EVENT_WOUND, 10000);
                         break;
                     case EVENT_ENRAGE:
-                        /// @todo Add missing text
-                        DoCast(me, SPELL_ENRAGE);
+                        TalkToMap(EMOTE_ENRAGE);
+                        DoCast(me, RAID_MODE(SPELL_ENRAGE_10, SPELL_ENRAGE_25));
                         events.ScheduleEvent(EVENT_ENRAGE, 15000);
                         break;
                     case EVENT_DECIMATE:
-                        /// @todo Add missing text
-                        DoCastAOE(SPELL_DECIMATE);
+                        TalkToMap(EMOTE_DECIMATE);
+                        DoCastAOE(RAID_MODE(SPELL_DECIMATE_10, SPELL_DECIMATE_25));
                         events.ScheduleEvent(EVENT_DECIMATE, 105000);
                         break;
                     case EVENT_BERSERK:
                         DoCast(me, SPELL_BERSERK);
-                        events.ScheduleEvent(EVENT_BERSERK, 5*60000);
+                        events.ScheduleEvent(EVENT_BERSERK, 300000);
                         break;
                     case EVENT_SUMMON:
                         for (int32 i = 0; i < RAID_MODE(1, 2); ++i)

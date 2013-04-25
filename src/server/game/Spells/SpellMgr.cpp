@@ -3305,6 +3305,18 @@ void SpellMgr::LoadDbcDataCorrections()
             case 34471: // The Beast Within
                 spellInfo->AttributesEx5 |= SPELL_ATTR5_USABLE_WHILE_CONFUSED | SPELL_ATTR5_USABLE_WHILE_FEARED | SPELL_ATTR5_USABLE_WHILE_STUNNED;
                 break;
+            // NAXXRAMAS SPELLS
+            //
+            case 29125: // Hopeless (Razuvious)
+                spellInfo->MaxAffectedTargets = 4;
+                break;
+            case 28111: // Chain 
+            case 28096:
+                spellInfo->EffectRadiusIndex[0] = EFFECT_RADIUS_50000_YARDS;
+                spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
+                break;
+            // ENDOF NAXXRAMAS SPELLS
+            //
             // ULDUAR SPELLS
             //
             case 62374: // Pursued (Flame Leviathan)

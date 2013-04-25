@@ -75,11 +75,17 @@ const uint32 SPELL_PUNISH[]     =   {0, 57381, 0, 57377};
 
 enum FourHorsemen
 {
+    SAY_ZELI_AGGRO  = 0,
     SAY_AGGRO       = 0,
     SAY_TAUNT       = 1,
     SAY_SPECIAL     = 2,
     SAY_SLAY        = 3,
-    SAY_DEATH       = 4
+    SAY_DEATH       = 4,
+};
+
+enum Actions
+{
+    ACTION_INTRO    = 1,
 };
 
 class boss_four_horsemen : public CreatureScript
@@ -94,7 +100,7 @@ public:
 
     struct boss_four_horsemenAI : public BossAI
     {
-        boss_four_horsemenAI(Creature* creature) : BossAI(creature, BOSS_HORSEMEN)
+        boss_four_horsemenAI(Creature* creature) : BossAI(creature, DATA_HORSEMEN)
         {
             id = Horsemen(0);
             for (uint8 i = 0; i < 4; ++i)
@@ -115,6 +121,7 @@ public:
         bool encounterActionAttack;
         bool encounterActionReset;
         bool doDelayPunish;
+        bool _isEventDone;
 
         void Reset()
         {
@@ -164,7 +171,7 @@ public:
 
                 if (reset)
                 {
-                    if (instance->GetBossState(BOSS_HORSEMEN) != NOT_STARTED)
+                    if (instance->GetBossState(DATA_HORSEMEN) != NOT_STARTED)
                     {
                         if (!Thane->isAlive())
                             Thane->Respawn();
@@ -270,6 +277,20 @@ public:
                 SelectNearestTarget(who);
         }
 
+        void DoAction(int32 action)
+        {
+            switch (action)
+            {
+                case ACTION_INTRO:
+                    if (!_isEventDone)
+                    {
+                       TalkToMap(SAY_ZELI_AGGRO);
+                       _isEventDone = true;
+                    }
+                break;
+            }
+        }
+
         void AttackStart(Unit* who)
         {
             if (!movementCompleted && !movementStarted)
@@ -292,7 +313,7 @@ public:
         void KilledUnit(Unit* /*victim*/)
         {
             if (!(rand()%5))
-                Talk(SAY_SLAY);
+                TalkToMap(SAY_SLAY);
         }
 
         void JustDied(Unit* /*killer*/)
@@ -305,7 +326,7 @@ public:
 
             if (instance && DoEncounteraction(NULL, false, false, true))
             {
-                instance->SetBossState(BOSS_HORSEMEN, DONE);
+                instance->SetBossState(DATA_HORSEMEN, DONE);
                 instance->SaveToDB();
 
                 // Achievements related to the 4-horsemen are given through spell 59450 which does not exist.
@@ -313,13 +334,13 @@ public:
                 instance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, 59450);
             }
 
-            Talk(SAY_DEATH);
+            TalkToMap(SAY_DEATH);
         }
 
         void EnterCombat(Unit* /*who*/)
         {
             _EnterCombat();
-            Talk(SAY_AGGRO);
+            TalkToMap(SAY_AGGRO);
 
             events.ScheduleEvent(EVENT_MARK, 15000);
             events.ScheduleEvent(EVENT_CAST, 20000+rand()%5000);
@@ -348,13 +369,13 @@ public:
                 {
                     case EVENT_MARK:
                         if (!(rand()%5))
-                            Talk(SAY_SPECIAL);
+                            TalkToMap(SAY_SPECIAL);
                         DoCastAOE(SPELL_MARK[id]);
                         events.ScheduleEvent(EVENT_MARK, 15000);
                         break;
                     case EVENT_CAST:
                         if (!(rand()%5))
-                            Talk(SAY_TAUNT);
+                            TalkToMap(SAY_TAUNT);
 
                         if (caster)
                         {
@@ -367,7 +388,7 @@ public:
                         events.ScheduleEvent(EVENT_CAST, 15000);
                         break;
                     case EVENT_BERSERK:
-                        Talk(SAY_SPECIAL);
+                        TalkToMap(SAY_SPECIAL);
                         DoCast(me, EVENT_BERSERK);
                         break;
                 }

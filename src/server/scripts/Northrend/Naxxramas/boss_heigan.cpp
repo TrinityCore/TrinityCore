@@ -21,31 +21,38 @@
 #include "naxxramas.h"
 #include "Player.h"
 
-enum Heigan
+enum ScriptTexts
 {
-    SPELL_DECREPIT_FEVER        = 29998, // 25-man: 55011
-    SPELL_SPELL_DISRUPTION      = 29310,
-    SPELL_PLAGUE_CLOUD          = 29350,
+    SAY_AGGRO           = 0,
+    SAY_SLAY            = 1,
+    SAY_PHASE           = 2,
+    EMOTE_TELEPORT1     = 3,
+    EMOTE_TELEPORT2     = 4,
+    SAY_DEATH           = 5,
+};
 
-    SAY_AGGRO                   = 0,
-    SAY_SLAY                    = 1,
-    SAY_TAUNT                   = 2,
-    SAY_DEATH                   = 3
+enum Spells
+{
+    SPELL_SPELL_DISRUPTION      = 29310,
+    SPELL_DECREPIT_FEVER_10     = 29998,
+    SPELL_DECREPIT_FEVER_25     = 55011,
+    SPELL_PLAGUE_CLOUD          = 29350,
 };
 
 enum Events
 {
-    EVENT_NONE,
-    EVENT_DISRUPT,
-    EVENT_FEVER,
-    EVENT_ERUPT,
-    EVENT_PHASE,
+    EVENT_NONE                  = 1,
+    EVENT_DISRUPT               = 2,
+    EVENT_FEVER                 = 3,
+    EVENT_ERUPT                 = 4,
+    EVENT_PHASE1                = 5,
+    EVENT_PHASE2                = 6,
 };
 
 enum Phases
 {
-    PHASE_FIGHT = 1,
-    PHASE_DANCE,
+    PHASE_1,
+    PHASE_2,
 };
 
 #define ACTION_SAFETY_DANCE_FAIL 1
@@ -63,7 +70,7 @@ public:
 
     struct boss_heiganAI : public BossAI
     {
-        boss_heiganAI(Creature* creature) : BossAI(creature, BOSS_HEIGAN) {}
+        boss_heiganAI(Creature* creature) : BossAI(creature, DATA_HEIGAN) {}
 
         uint32 eruptSection;
         bool eruptDirection;
@@ -72,8 +79,7 @@ public:
 
         void KilledUnit(Unit* who)
         {
-            if (!(rand()%5))
-                Talk(SAY_SLAY);
+            TalkToMap(SAY_SLAY);
             if (who->GetTypeId() == TYPEID_PLAYER)
                 safetyDance = false;
         }
@@ -95,42 +101,26 @@ public:
         void JustDied(Unit* /*killer*/)
         {
             _JustDied();
-            Talk(SAY_DEATH);
+            TalkToMap(SAY_DEATH);
         }
 
         void EnterCombat(Unit* /*who*/)
         {
             _EnterCombat();
-            Talk(SAY_AGGRO);
-            EnterPhase(PHASE_FIGHT);
+            TalkToMap(SAY_AGGRO);
+            EnterPhaseFight();
             safetyDance = true;
         }
 
-        void EnterPhase(Phases newPhase)
+        void EnterPhaseFight()
         {
-            phase = newPhase;
             events.Reset();
             eruptSection = 3;
-            if (phase == PHASE_FIGHT)
-            {
-                events.ScheduleEvent(EVENT_DISRUPT, urand(10000, 25000));
-                events.ScheduleEvent(EVENT_FEVER, urand(15000, 20000));
-                events.ScheduleEvent(EVENT_PHASE, 90000);
-                events.ScheduleEvent(EVENT_ERUPT, 15000);
-                me->GetMotionMaster()->MoveChase(me->getVictim());
-            }
-            else
-            {
-                float x, y, z, o;
-                me->GetHomePosition(x, y, z, o);
-                me->NearTeleportTo(x, y, z, o - G3D::halfPi());
-                me->GetMotionMaster()->Clear();
-                me->GetMotionMaster()->MoveIdle();
-                me->SetTarget(0);
-                DoCastAOE(SPELL_PLAGUE_CLOUD);
-                events.ScheduleEvent(EVENT_PHASE, 45000);
-                events.ScheduleEvent(EVENT_ERUPT, 8000);
-            }
+            events.ScheduleEvent(EVENT_DISRUPT, urand(10000, 25000));
+            events.ScheduleEvent(EVENT_FEVER, urand(15000, 20000));
+            events.ScheduleEvent(EVENT_PHASE2, 90000);
+            events.ScheduleEvent(EVENT_ERUPT, 15000);
+            phase = PHASE_1;
         }
 
         void UpdateAI(uint32 diff)
@@ -149,12 +139,37 @@ public:
                         events.ScheduleEvent(EVENT_DISRUPT, urand(5000, 10000));
                         break;
                     case EVENT_FEVER:
-                        DoCastAOE(SPELL_DECREPIT_FEVER);
+                        DoCastAOE(RAID_MODE(SPELL_DECREPIT_FEVER_10, SPELL_DECREPIT_FEVER_25));
                         events.ScheduleEvent(EVENT_FEVER, urand(20000, 25000));
                         break;
-                    case EVENT_PHASE:
-                        /// @todo Add missing texts for both phase switches
-                        EnterPhase(phase == PHASE_FIGHT ? PHASE_DANCE : PHASE_FIGHT);
+                    case EVENT_PHASE1:
+                        TalkToMap(EMOTE_TELEPORT2);
+                        me->SetReactState(REACT_AGGRESSIVE);
+                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                        DoZoneInCombat();
+                        events.Reset();
+                        eruptSection = 3;
+                        events.ScheduleEvent(EVENT_DISRUPT, urand(10000, 25000));
+                        events.ScheduleEvent(EVENT_FEVER, urand(15000, 20000));
+                        events.ScheduleEvent(EVENT_PHASE2, 90000);
+                        events.ScheduleEvent(EVENT_ERUPT, 15000);
+                        phase = PHASE_1;
+                        break;
+                    case EVENT_PHASE2:
+                        TalkToMap(SAY_PHASE);
+                        TalkToMap(EMOTE_TELEPORT1);
+                        me->SetReactState(REACT_PASSIVE);
+                        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                        me->AttackStop();
+                        me->RemoveAllAuras();
+                        float x, y, z, o;
+                        me->GetHomePosition(x, y, z, o);
+                        me->NearTeleportTo(x, y, z, o);
+                        DoCastAOE(SPELL_PLAGUE_CLOUD);
+                        events.Reset();
+                        events.ScheduleEvent(EVENT_PHASE1, 45000);
+                        events.ScheduleEvent(EVENT_ERUPT, 8000);
+                        phase = PHASE_2;
                         break;
                     case EVENT_ERUPT:
                         instance->SetData(DATA_HEIGAN_ERUPT, eruptSection);
@@ -167,7 +182,7 @@ public:
 
                         eruptDirection ? ++eruptSection : --eruptSection;
 
-                        events.ScheduleEvent(EVENT_ERUPT, phase == PHASE_FIGHT ? 10000 : 3000);
+                        events.ScheduleEvent(EVENT_ERUPT, EVENT_PHASE1 ? 10000 : 3000);
                         break;
                 }
             }
@@ -195,7 +210,7 @@ class spell_heigan_eruption : public SpellScriptLoader
 
                 if (GetHitDamage() >= int32(GetHitPlayer()->GetHealth()))
                     if (InstanceScript* instance = caster->GetInstanceScript())
-                        if (Creature* Heigan = ObjectAccessor::GetCreature(*caster, instance->GetData64(DATA_HEIGAN)))
+                        if (Creature* Heigan = ObjectAccessor::GetCreature(*caster, instance->GetData64(BOSS_HEIGAN)))
                             Heigan->AI()->SetData(DATA_SAFETY_DANCE, 0);
             }
 
