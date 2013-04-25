@@ -581,7 +581,7 @@ ElunaRegister<Item> ItemMethods[] =
     {"GetBuyPrice", &LuaItem::GetBuyPrice},                                 // :GetBuyPrice() -- Returns the buy price UNDOCUMENTED
     {"GetSellPrice", &LuaItem::GetSellPrice},                               // :GetSellPrice() -- Returns the sell price UNDOCUMENTED
     {"GetItemLink", &LuaItem::GetItemLink},                                 // :GetItemLink([localeID]) -- Returns the shift clickable link of the item. Name translated if locale given and exists UNDOCUMENTED
-    {"GetItemLink", &LuaItem::GetItemLink},                                 // :GetItemLink([localeID]) -- Returns the shift clickable link of the item. Name translated if locale given and exists UNDOCUMENTED
+    {"GetQuality", &LuaItem::GetQuality},                                   // :GetQuality() -- Returns item quality UNDOCUMENTED
 
     // Setters
     {"SetOwner", &LuaItem::SetOwner},                                       // :SetOwner(player) - Sets the owner of the item
