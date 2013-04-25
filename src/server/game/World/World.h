@@ -820,7 +820,11 @@ class World
         // used versions
         std::string m_DBVersion;
 
-        std::list<std::string> m_Autobroadcasts;
+        typedef std::map<uint8, std::string> AutobroadcastsMap;
+        AutobroadcastsMap m_Autobroadcasts;
+
+        typedef std::map<uint8, uint8> AutobroadcastsWeightMap;
+        AutobroadcastsWeightMap m_AutobroadcastsWeights;
 
         std::map<uint32, CharacterNameData> _characterNameDataMap;
         void LoadCharacterNameData();
