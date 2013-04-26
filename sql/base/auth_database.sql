@@ -126,6 +126,32 @@ CREATE TABLE `ip_banned` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Banned IPs';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
+/*Table structure for table `ip2nation` */
+
+DROP TABLE IF EXISTS `ip2nation`;
+
+CREATE TABLE `ip2nation` (
+  `ip` int(11) unsigned NOT NULL DEFAULT '0',
+  `country` char(2) NOT NULL DEFAULT '',
+  KEY `ip` (`ip`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+/*Table structure for table `ip2nationCountries` */
+
+DROP TABLE IF EXISTS `ip2nationCountries`;
+
+CREATE TABLE `ip2nationCountries` (
+  `code` varchar(4) NOT NULL DEFAULT '',
+  `iso_code_2` varchar(2) NOT NULL DEFAULT '',
+  `iso_code_3` varchar(3) DEFAULT '',
+  `iso_country` varchar(255) NOT NULL DEFAULT '',
+  `country` varchar(255) NOT NULL DEFAULT '',
+  `lat` float NOT NULL DEFAULT '0',
+  `lon` float NOT NULL DEFAULT '0',
+  PRIMARY KEY (`code`),
+  KEY `code` (`code`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 --
 -- Dumping data for table `ip_banned`
 --
