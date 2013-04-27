@@ -3077,7 +3077,6 @@ void World::ProcessQueryCallbacks()
     }
 }
 
-/*                                    */
 /**
 * @brief Loads several pieces of information on server startup with the low GUID
 * There is no further database query necessary.
@@ -3164,7 +3163,6 @@ CharacterNameData const* World::GetCharacterNameData(uint32 guid) const
     else
         return NULL;
 }
-/*                                    */
 
 void World::ReloadRBAC()
 {

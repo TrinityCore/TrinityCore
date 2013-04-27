@@ -4692,7 +4692,7 @@ void Player::DeleteFromDB(uint64 playerguid, uint32 accountId, bool updateRealmC
     if (accountId == 0)
         updateRealmChars = false;
 
-    // Convert guid to low GUID for CharacterNameData
+    // Convert guid to low GUID for CharacterNameData, but also other methods on success
     uint32 guid = GUID_LOPART(playerguid);
 
     // To avoid a query, we select loaded data. If it doesn't exist, return.
@@ -4711,7 +4711,7 @@ void Player::DeleteFromDB(uint64 playerguid, uint32 accountId, bool updateRealmC
     uint32 charDelete_minLvl = sWorld->getIntConfig(CONFIG_CHARDELETE_MIN_LEVEL);
     uint32 charDelete_minHLvl = sWorld->getIntConfig(CONFIG_CHARDELETE_HEROIC_MIN_LEVEL);
 
-    // if we want to finally delete the character or the character does not meet the level requirement of either heroic or non-heroic settings,
+    // if we want to finalize the character removal or the character does not meet the level requirement of either heroic or non-heroic settings,
     // we set it to mode CHAR_DELETE_REMOVE
     if (deleteFinally || ((playerLevel < charDelete_minLvl) && (playerClass != CLASS_DEATH_KNIGHT))
                       || ((playerLevel < charDelete_minHLvl) && (playerClass == CLASS_DEATH_KNIGHT)))
