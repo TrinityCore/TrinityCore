@@ -119,7 +119,9 @@ enum TrinityStrings
     LANG_RBAC_LIST_GROUPS_HEADER        = 93,
     LANG_RBAC_LIST_ROLES_HEADER         = 94,
     LANG_RBAC_LIST_PERMISSIONS_HEADER   = 95,
-    // Room for more level 0            96-99 not used
+    LANG_GUILD_RENAME_ALREADY_EXISTS    = 96,
+    LANG_GUILD_RENAME_DONE              = 97,
+    // Room for more level 0            98-99 not used
 
     // level 1 chat
     LANG_GLOBAL_NOTIFY                  = 100,
