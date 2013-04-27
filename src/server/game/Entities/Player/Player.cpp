@@ -16910,7 +16910,9 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
     PreparedQueryResult result = holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOAD_FROM);
     if (!result)
     {
-        sLog->outError(LOG_FILTER_PLAYER, "Player (GUID: %u) not found in table `characters`, can't load. ", guid);
+        std::string name = "<unknown>";
+        sObjectMgr->GetPlayerNameByGUID(guid, name);
+        sLog->outError(LOG_FILTER_PLAYER, "Player %s (GUID: %u) not found in table `characters`, can't load. ", name.c_str(), guid);
         return false;
     }
 
