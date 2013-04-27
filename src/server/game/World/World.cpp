@@ -1866,12 +1866,16 @@ void World::LoadAutobroadcasts()
     uint32 oldMSTime = getMSTime();
 
     m_Autobroadcasts.clear();
+    m_AutobroadcastsWeights.clear();
 
-    QueryResult result = WorldDatabase.Query("SELECT text FROM autobroadcast");
+    uint32 realmId = ConfigMgr::GetIntDefault("RealmID", 0);
+    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_AUTOBROADCAST);
+    stmt->setInt32(0, realmId);
+    PreparedQueryResult result = LoginDatabase.Query(stmt);
 
     if (!result)
     {
-        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 autobroadcasts definitions. DB table `autobroadcast` is empty!");
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 autobroadcasts definitions. DB table `autobroadcast` is empty for this realm!");
         return;
     }
 
@@ -1880,9 +1884,10 @@ void World::LoadAutobroadcasts()
     do
     {
         Field* fields = result->Fetch();
-        std::string message = fields[0].GetString();
+        uint8 id = fields[0].GetUInt8();
 
-        m_Autobroadcasts.push_back(message);
+        m_Autobroadcasts[id] = fields[2].GetString();
+        m_AutobroadcastsWeights[id] = fields[1].GetUInt8();
 
         ++count;
     } while (result->NextRow());
@@ -2635,9 +2640,35 @@ void World::SendAutoBroadcast()
     if (m_Autobroadcasts.empty())
         return;
 
+    uint32 weight = 0;
+    AutobroadcastsWeightMap selectionWeights;
     std::string msg;
 
-    msg = Trinity::Containers::SelectRandomContainerElement(m_Autobroadcasts);
+    for (AutobroadcastsWeightMap::const_iterator it = m_AutobroadcastsWeights.begin(); it != m_AutobroadcastsWeights.end(); ++it)
+    {
+        if (it->second)
+        {
+            weight += it->second;
+            selectionWeights[it->first] = it->second;
+        }
+    }
+
+    if (weight)
+    {
+        uint32 selectedWeight = urand(0, weight - 1);
+        weight = 0;
+        for (AutobroadcastsWeightMap::const_iterator it = selectionWeights.begin(); it != selectionWeights.end(); ++it)
+        {
+            weight += it->second;
+            if (selectedWeight < weight)
+            {
+                msg = m_Autobroadcasts[it->first];
+                break;
+            }
+        }
+    }
+    else
+        msg = m_Autobroadcasts[urand(0, m_Autobroadcasts.size())];
 
     uint32 abcenter = sWorld->getIntConfig(CONFIG_AUTOBROADCAST_CENTER);
 
