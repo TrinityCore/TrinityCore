@@ -280,10 +280,17 @@ bool OPvPCapturePoint::Update(uint32 diff)
     float radius = (float)m_capturePoint->GetGOInfo()->capturePoint.radius;
 
     for (uint32 team = 0; team < 2; ++team)
-        for (PlayerSet::iterator itr = m_activePlayers[team].begin(); itr != m_activePlayers[team].end(); ++itr)
-            if (Player* player = ObjectAccessor::FindPlayer(*itr))
+    {
+        for (PlayerSet::iterator itr = m_activePlayers[team].begin(); itr != m_activePlayers[team].end();)
+        {
+            uint64 playerGuid = *itr;
+            ++itr;
+
+            if (Player* player = ObjectAccessor::FindPlayer(playerGuid))
                 if (!m_capturePoint->IsWithinDistInMap(player, radius) || !player->IsOutdoorPvPActive())
                     HandlePlayerLeave(player);
+        }
+    }
 
     std::list<Player*> players;
     Trinity::AnyPlayerInObjectRangeCheck checker(m_capturePoint, radius);
