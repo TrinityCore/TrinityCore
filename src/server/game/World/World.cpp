@@ -3086,7 +3086,7 @@ void World::ProcessQueryCallbacks()
 * @return Name, Gender, Race, Class and Level of player character
 * Example Usage:
 * @code
-* CharacterNameData const* nameData = sWorld->GetCharacterNameData(lowGUID);
+*    CharacterNameData const* nameData = sWorld->GetCharacterNameData(lowGUID);
 *    if (!nameData)
 *        return;
 *

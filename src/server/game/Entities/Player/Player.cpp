@@ -4699,7 +4699,7 @@ void Player::DeleteFromDB(uint64 playerguid, uint32 accountId, bool updateRealmC
     CharacterNameData const* nameData = sWorld->GetCharacterNameData(guid);
     if (!nameData)
     {
-        sLog->outError(LOG_FILTER_PLAYER, "Invalid call on information for guid (%d) from account (%d). Could not delete character.", playerguid, accountId);
+        sLog->outError(LOG_FILTER_PLAYER, "Invalid call on information for guid (%u) from account (%u). Could not delete character.", guid, accountId);
         return;
     }
 
@@ -4708,13 +4708,11 @@ void Player::DeleteFromDB(uint64 playerguid, uint32 accountId, bool updateRealmC
     uint8 playerLevel = nameData->m_level;
     // Define the required variables
     uint32 charDelete_method = sWorld->getIntConfig(CONFIG_CHARDELETE_METHOD);
-    uint32 charDelete_minLvl = sWorld->getIntConfig(CONFIG_CHARDELETE_MIN_LEVEL);
-    uint32 charDelete_minHLvl = sWorld->getIntConfig(CONFIG_CHARDELETE_HEROIC_MIN_LEVEL);
+    uint32 charDelete_minLvl = sWorld->getIntConfig(playerClass != CLASS_DEATH_KNIGHT ? CONFIG_CHARDELETE_MIN_LEVEL : CONFIG_CHARDELETE_HEROIC_MIN_LEVEL);
 
     // if we want to finalize the character removal or the character does not meet the level requirement of either heroic or non-heroic settings,
     // we set it to mode CHAR_DELETE_REMOVE
-    if (deleteFinally || ((playerLevel < charDelete_minLvl) && (playerClass != CLASS_DEATH_KNIGHT))
-                      || ((playerLevel < charDelete_minHLvl) && (playerClass == CLASS_DEATH_KNIGHT)))
+    if (deleteFinally || playerLevel < charDelete_minLvl)
         charDelete_method = CHAR_DELETE_REMOVE;
 
     // convert corpse to bones if exist (to prevent exiting Corpse in World without DB entry)
