@@ -1100,6 +1100,7 @@ void World::LoadConfigSettings(bool reload)
     ///- Load the CharDelete related config options
     m_int_configs[CONFIG_CHARDELETE_METHOD] = ConfigMgr::GetIntDefault("CharDelete.Method", 0);
     m_int_configs[CONFIG_CHARDELETE_MIN_LEVEL] = ConfigMgr::GetIntDefault("CharDelete.MinLevel", 0);
+    m_int_configs[CONFIG_CHARDELETE_HEROIC_MIN_LEVEL] = ConfigMgr::GetIntDefault("CharDelete.Heroic.MinLevel", 0);
     m_int_configs[CONFIG_CHARDELETE_KEEP_DAYS] = ConfigMgr::GetIntDefault("CharDelete.KeepDays", 30);
 
     ///- Read the "Data" directory from the config file
@@ -3076,6 +3077,27 @@ void World::ProcessQueryCallbacks()
     }
 }
 
+/**
+* @brief Loads several pieces of information on server startup with the low GUID
+* There is no further database query necessary.
+* These are a number of methods that work into the calling function.
+*
+* @param guid Requires a lowGUID to call
+* @return Name, Gender, Race, Class and Level of player character
+* Example Usage:
+* @code
+*    CharacterNameData const* nameData = sWorld->GetCharacterNameData(lowGUID);
+*    if (!nameData)
+*        return;
+*
+* std::string playerName = nameData->m_name;
+* uint8 playerGender = nameData->m_gender;
+* uint8 playerRace = nameData->m_race;
+* uint8 playerClass = nameData->m_class;
+* uint8 playerLevel = nameData->m_level;
+* @endcode
+**/
+
 void World::LoadCharacterNameData()
 {
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading character name data");
@@ -3145,7 +3167,7 @@ CharacterNameData const* World::GetCharacterNameData(uint32 guid) const
 
 void World::ReloadRBAC()
 {
-    // Pasive reload, we mark the data as invalidated and next time a permission is checked it will be reloaded
+    // Passive reload, we mark the data as invalidated and next time a permission is checked it will be reloaded
     sLog->outInfo(LOG_FILTER_RBAC, "World::ReloadRBAC()");
     for (SessionMap::const_iterator itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
         if (WorldSession* session = itr->second)
