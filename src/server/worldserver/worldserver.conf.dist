@@ -2372,11 +2372,19 @@ CharDelete.Method = 0
 
 #
 #    CharDelete.MinLevel
-#        Description: Required level to use the unlinking method if enabled.
+#        Description: Required level to use the unlinking method if enabled for non-heroic classes.
 #        Default:     0  - (Same method for every level)
 #                     1+ - (Only characters with the specified level will use the unlinking method)
 
 CharDelete.MinLevel = 0
+
+#
+#    CharDelete.Heroic.MinLevel
+#        Description: Required level to use the unlinking method if enabled for heroic classes.
+#        Default:     0  - (Same method for every level)
+#                     1+ - (Only characters with the specified level will use the unlinking method)
+
+CharDelete.Heroic.MinLevel = 0
 
 #
 #    CharDelete.KeepDays
