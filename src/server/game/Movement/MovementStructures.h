@@ -19,6 +19,10 @@
 #ifndef _MOVEMENT_STRUCTURES_H
 #define _MOVEMENT_STRUCTURES_H
 
+#include "ByteBuffer.h"
+#include "Opcodes.h"
+#include "Unit.h"
+
 enum MovementStatusElements
 {
     MSEHasGuidByte0,
