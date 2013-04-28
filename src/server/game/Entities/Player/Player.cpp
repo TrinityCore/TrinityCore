@@ -4688,19 +4688,32 @@ TrainerSpellState Player::GetTrainerSpellState(TrainerSpell const* trainer_spell
  */
 void Player::DeleteFromDB(uint64 playerguid, uint32 accountId, bool updateRealmChars, bool deleteFinally)
 {
-    // for not existed account avoid update realm
+    // Avoid realm-update for non-existing account
     if (accountId == 0)
         updateRealmChars = false;
 
-    uint32 charDelete_method = sWorld->getIntConfig(CONFIG_CHARDELETE_METHOD);
-    uint32 charDelete_minLvl = sWorld->getIntConfig(CONFIG_CHARDELETE_MIN_LEVEL);
-
-    // if we want to finally delete the character or the character does not meet the level requirement,
-    // we set it to mode CHAR_DELETE_REMOVE
-    if (deleteFinally || Player::GetLevelFromDB(playerguid) < charDelete_minLvl)
-        charDelete_method = CHAR_DELETE_REMOVE;
-
+    // Convert guid to low GUID for CharacterNameData, but also other methods on success
     uint32 guid = GUID_LOPART(playerguid);
+
+    // To avoid a query, we select loaded data. If it doesn't exist, return.
+    CharacterNameData const* nameData = sWorld->GetCharacterNameData(guid);
+    if (!nameData)
+    {
+        sLog->outError(LOG_FILTER_PLAYER, "Invalid call on information for guid (%u) from account (%u). Could not delete character.", guid, accountId);
+        return;
+    }
+
+    // Selecting the required pieces of information
+    uint8 playerClass = nameData->m_class;
+    uint8 playerLevel = nameData->m_level;
+    // Define the required variables
+    uint32 charDelete_method = sWorld->getIntConfig(CONFIG_CHARDELETE_METHOD);
+    uint32 charDelete_minLvl = sWorld->getIntConfig(playerClass != CLASS_DEATH_KNIGHT ? CONFIG_CHARDELETE_MIN_LEVEL : CONFIG_CHARDELETE_HEROIC_MIN_LEVEL);
+
+    // if we want to finalize the character removal or the character does not meet the level requirement of either heroic or non-heroic settings,
+    // we set it to mode CHAR_DELETE_REMOVE
+    if (deleteFinally || playerLevel < charDelete_minLvl)
+        charDelete_method = CHAR_DELETE_REMOVE;
 
     // convert corpse to bones if exist (to prevent exiting Corpse in World without DB entry)
     // bones will be deleted by corpse/bones deleting thread shortly
