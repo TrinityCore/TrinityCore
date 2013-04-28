@@ -987,7 +987,7 @@ void Guild::BankMoveItemData::LogAction(MoveItemData* pFrom) const
     {
         sLog->outCommand(m_pPlayer->GetSession()->GetAccountId(),
             "GM %s (Guid: %u) (Account: %u) deposit item: %s (Entry: %d Count: %u) to guild bank named: %s (Guild ID: %u)",
-            GUID_LOPART(m_pPlayer->GetGUID()), m_pPlayer->GetName().c_str(), m_pPlayer->GetSession()->GetAccountId(),
+            m_pPlayer->GetName().c_str(), m_pPlayer->GetGUIDLow(), m_pPlayer->GetSession()->GetAccountId(),
             pFrom->GetItem()->GetTemplate()->Name1.c_str(), pFrom->GetItem()->GetEntry(), pFrom->GetItem()->GetCount(),
             m_pGuild->GetName().c_str(), m_pGuild->GetId());
     }
