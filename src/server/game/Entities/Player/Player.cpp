@@ -5013,10 +5013,13 @@ void Player::DeleteFromDB(uint64 playerguid, uint32 accountId, bool updateRealmC
         }
         default:
             sLog->outError(LOG_FILTER_PLAYER, "Player::DeleteFromDB: Unsupported delete method: %u.", charDelete_method);
+            return;
     }
 
     if (updateRealmChars)
         sWorld->UpdateRealmCharCount(accountId);
+
+    sWorld->DeleteCharacterNameData(GUID_LOPART(guid));
 }
 
 /**
