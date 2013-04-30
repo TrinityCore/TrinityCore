@@ -31,22 +31,18 @@ enum Yells
 
 enum Spells
 {
-    SPELL_FROST_AURA_10     = 28531,
-    SPELL_FROST_AURA_25     = 55799,
+    SPELL_FROST_AURA        = 28531,
     SPELL_CLEAVE            = 19983,
-    SPELL_TAIL_SWEEP_10     = 55697,
-    SPELL_TAIL_SWEEP_25     = 55696,
+    SPELL_TAIL_SWEEP        = 55697,
     SPELL_SUMMON_BLIZZARD   = 28560,
-    SPELL_LIFE_DRAIN_10     = 28542,
-    SPELL_LIFE_DRAIN_25     = 55665,
+    SPELL_LIFE_DRAIN        = 28542,
     SPELL_ICEBOLT           = 28522,
     SPELL_FROST_BREATH      = 29318,
     SPELL_FROST_EXPLOSION   = 28524,
     SPELL_FROST_MISSILE     = 30101,
     SPELL_BERSERK           = 26662,
     SPELL_DIES              = 29357,
-    SPELL_CHILL_10          = 28547,
-    SPELL_CHILL_15          = 55699,
+    SPELL_CHILL             = 28547
 };
 
 enum Phases
@@ -128,7 +124,7 @@ class boss_sapphiron : public CreatureScript
             {
                 _EnterCombat();
 
-                DoCast(me, RAID_MODE(SPELL_FROST_AURA_10, SPELL_FROST_AURA_25));
+                DoCast(me, SPELL_FROST_AURA);
 
                 events.ScheduleEvent(EVENT_BERSERK, 15 * MINUTE * IN_MILLISECONDS);
                 EnterPhaseGround();
@@ -257,11 +253,11 @@ class boss_sapphiron : public CreatureScript
                                 events.ScheduleEvent(EVENT_CLEAVE, urand(5, 15) * IN_MILLISECONDS, 0, PHASE_GROUND);
                                 return;
                             case EVENT_TAIL:
-                                DoCastAOE(RAID_MODE(SPELL_TAIL_SWEEP_10, SPELL_TAIL_SWEEP_25));
+                                DoCastAOE(SPELL_TAIL_SWEEP);
                                 events.ScheduleEvent(EVENT_TAIL, urand(5, 15) * IN_MILLISECONDS, 0, PHASE_GROUND);
                                 return;
                             case EVENT_DRAIN:
-                                DoCastAOE(RAID_MODE(SPELL_LIFE_DRAIN_10, SPELL_LIFE_DRAIN_25));
+                                DoCastAOE(SPELL_LIFE_DRAIN);
                                 events.ScheduleEvent(EVENT_DRAIN, 24 * IN_MILLISECONDS, 0, PHASE_GROUND);
                                 return;
                             case EVENT_BLIZZARD:

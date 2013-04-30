@@ -34,9 +34,9 @@ enum ScriptTexts
 enum Spells
 {
     SPELL_SPELL_DISRUPTION      = 29310,
-    SPELL_DECREPIT_FEVER_10     = 29998,
-    SPELL_DECREPIT_FEVER_25     = 55011,
+    SPELL_DECREPIT_FEVER        = 29998,
     SPELL_PLAGUE_CLOUD          = 29350,
+    SPELL_TELEPORT_SELF         = 30211
 };
 
 enum Events
@@ -139,7 +139,7 @@ public:
                         events.ScheduleEvent(EVENT_DISRUPT, urand(5000, 10000));
                         break;
                     case EVENT_FEVER:
-                        DoCastAOE(RAID_MODE(SPELL_DECREPIT_FEVER_10, SPELL_DECREPIT_FEVER_25));
+                        DoCastAOE(SPELL_DECREPIT_FEVER);
                         events.ScheduleEvent(EVENT_FEVER, urand(20000, 25000));
                         break;
                     case EVENT_PHASE1:
@@ -162,9 +162,7 @@ public:
                         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                         me->AttackStop();
                         me->RemoveAllAuras();
-                        float x, y, z, o;
-                        me->GetHomePosition(x, y, z, o);
-                        me->NearTeleportTo(x, y, z, o);
+                        DoCast(SPELL_TELEPORT_SELF);
                         DoCastAOE(SPELL_PLAGUE_CLOUD);
                         events.Reset();
                         events.ScheduleEvent(EVENT_PHASE1, 45000);

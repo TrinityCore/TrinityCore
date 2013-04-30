@@ -39,6 +39,7 @@ enum Events
     EVENT_HORSEMEN6   = 14,
     EVENT_HORSEMEN7   = 15,
     EVENT_SCREAM      = 16,
+    EVENT_CAT         = 17,
 };
 
 const DoorData doorData[] =
@@ -198,7 +199,7 @@ public:
         void OnPlayerEnter(Player* player)
         {
             if (GetBossState(DATA_THADDIUS) != DONE)
-                events.ScheduleEvent(EVENT_SCREAM, 600000);
+                events.ScheduleEvent(EVENT_SCREAM, 540000);
         }
 
         void OnCreatureCreate(Creature* creature)
@@ -395,6 +396,11 @@ public:
                 playerDied = 1;
                 SaveToDB();
             }
+            if (unit->GetTypeId() == TYPEID_UNIT && unit->GetEntry() ==NPC_BIGGLESWORTH)
+            {
+                if (GetBossState(DATA_KELTHUZAD) != DONE)
+                    events.ScheduleEvent(EVENT_CAT, 2000);
+            }
         }
 
         void SetData(uint32 id, uint32 value)
@@ -570,15 +576,11 @@ public:
                     break;
                 case DATA_SAPPHIRON:
                     if (state == DONE)
-                    {
                         events.ScheduleEvent(EVENT_SAPPH1, 8000);
-                    }
                     break;
                 case DATA_GOTHIK:
                     if (state == DONE)
-                    {
                         events.ScheduleEvent(EVENT_THANE1, 10000);
-                    }
                     break;
             }
 
@@ -593,6 +595,11 @@ public:
             {
                 switch (eventId)
                 {
+                    case EVENT_CAT:
+                        instance->LoadGrid(KelthuzadPos.GetPositionX(), KelthuzadPos.GetPositionY());
+                        if (Creature* KelThuzad = instance->GetCreature(kelthuzadGUID))
+                            KelThuzad->AI()->TalkToMap(SAY_CAT_DIED);
+                        break;
                     case EVENT_TALK:
                         instance->LoadGrid(KelthuzadPos.GetPositionX(), KelthuzadPos.GetPositionY());
                         switch(WingsCleared)

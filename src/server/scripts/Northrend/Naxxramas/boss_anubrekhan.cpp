@@ -30,7 +30,6 @@ enum Texts
 };
 
 const Position GuardSummonPos = {3333.72f, -3476.30f, 287.1f, 6.2801f};
-
 enum Events
 {
     EVENT_IMPALE            = 1,
@@ -41,10 +40,8 @@ enum Events
 
 enum Spells
 {
-    SPELL_IMPALE_10                 = 28783,
-    SPELL_IMPALE_25                 = 56090,
-    SPELL_LOCUST_SWARM_10           = 28785,
-    SPELL_LOCUST_SWARM_25           = 54021,
+    SPELL_IMPALE                    = 28783,
+    SPELL_LOCUST_SWARM              = 28785,
     SPELL_SUMMON_CORPSE_SCARABS_PLR = 29105,    // This spawns 5 corpse scarabs on top of player
     SPELL_SUMMON_CORPSE_SCARABS_MOB = 28864,   // This spawns 10 corpse scarabs on top of dead guards
     SPELL_BERSERK                   = 27680,
@@ -69,11 +66,12 @@ public:
     {
         boss_anubrekhanAI(Creature* creature) : BossAI(creature, DATA_ANUBREKHAN)
         {
-            _taunted = false;
+            _introDone=false;
         }
 
-        bool _taunted;
-
+private:
+    bool _introDone;
+		
         void Reset()
         {
             _Reset();
@@ -96,10 +94,10 @@ public:
             switch (action)
             {
                 case ACTION_INTRO:
-                    if (!_taunted)
+                    if (!_introDone)
                     {
-                        TalkToMap(SAY_GREET);
-                        _taunted = true;
+                           TalkToMap(SAY_GREET);
+                           _introDone = true;
                     }
                 break;
             }
@@ -157,14 +155,14 @@ public:
                 switch (eventId)
                 {
                     case EVENT_IMPALE:
-                        if (!me->HasAura(RAID_MODE(SPELL_LOCUST_SWARM_10, SPELL_LOCUST_SWARM_25)))
+                        if (!me->HasAura(SPELL_LOCUST_SWARM))
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                                DoCast(target, RAID_MODE(SPELL_IMPALE_10, SPELL_IMPALE_25));
+                                DoCast(target, SPELL_IMPALE);
                         events.ScheduleEvent(EVENT_IMPALE, urand(10000, 20000));
                         break;
                     case EVENT_LOCUST:
                         TalkToMap(EMOTE_LOCUST);
-                        DoCast(me, RAID_MODE(SPELL_LOCUST_SWARM_10, SPELL_LOCUST_SWARM_25));
+                        DoCast(me, SPELL_LOCUST_SWARM);
                         me->SummonCreature(NPC_CRYPT_GUARD, GuardSummonPos, TEMPSUMMON_CORPSE_DESPAWN, 5000);
                         events.ScheduleEvent(EVENT_LOCUST, 90000);
                         events.RescheduleEvent(EVENT_IMPALE, 20000);
@@ -195,10 +193,11 @@ public:
 
     bool OnTrigger(Player* player, const AreaTriggerEntry* /*at*/)
     {
+        player->GetMap()->LoadGrid(GuardSummonPos.GetPositionX(), GuardSummonPos.GetPositionY());
         if (InstanceScript* instance = player->GetInstanceScript())
             if (instance->GetBossState(DATA_ANUBREKHAN) != DONE)
                 if (Creature* Anub = ObjectAccessor::GetCreature(*player, instance->GetData64(DATA_ANUBREKHAN)))
-                    Anub->AI()->DoAction(ACTION_INTRO);
+                    Anub->AI()->TalkToMap(SAY_GREET);
         return true;
     }
 };

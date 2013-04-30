@@ -21,15 +21,13 @@
 
 enum Gluth
 {
-    SPELL_MORTAL_WOUND      = 25646,
-    SPELL_ENRAGE_10         = 28371,
-    SPELL_ENRAGE_25         = 54427,
-    SPELL_DECIMATE_10       = 28374,
-    SPELL_DECIMATE_25       = 54426,
+    SPELL_MORTAL_WOUND      = 54378,
+    SPELL_ENRAGE            = 28371,
+    SPELL_DECIMATE          = 28374,
     SPELL_BERSERK           = 26662,
     SPELL_INFECTED_WOUND    = 29306,
 
-    MOB_ZOMBIE              = 16360,
+    MOB_ZOMBIE              = 16360
 };
 
 const Position PosSummon[3] =
@@ -119,12 +117,12 @@ public:
                         break;
                     case EVENT_ENRAGE:
                         TalkToMap(EMOTE_ENRAGE);
-                        DoCast(me, RAID_MODE(SPELL_ENRAGE_10, SPELL_ENRAGE_25));
+                        DoCast(me, SPELL_ENRAGE);
                         events.ScheduleEvent(EVENT_ENRAGE, 15000);
                         break;
                     case EVENT_DECIMATE:
                         TalkToMap(EMOTE_DECIMATE);
-                        DoCastAOE(RAID_MODE(SPELL_DECIMATE_10, SPELL_DECIMATE_25));
+                        DoCastAOE(SPELL_DECIMATE);
                         events.ScheduleEvent(EVENT_DECIMATE, 105000);
                         break;
                     case EVENT_BERSERK:

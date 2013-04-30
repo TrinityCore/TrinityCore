@@ -35,7 +35,6 @@ enum Spells
 {
     SPELL_HARVEST_SOUL          = 28679,
     SPELL_SHADOW_BOLT           = 29317,
-    H_SPELL_SHADOW_BOLT         = 56405,
     SPELL_INFORM_LIVE_TRAINEE   = 27892,
     SPELL_INFORM_LIVE_KNIGHT    = 27928,
     SPELL_INFORM_LIVE_RIDER     = 27935,
@@ -43,7 +42,8 @@ enum Spells
     SPELL_INFORM_DEAD_KNIGHT    = 27931,
     SPELL_INFORM_DEAD_RIDER     = 27937,
 
-    SPELL_SHADOW_MARK           = 27825
+    SPELL_SHADOW_MARK           = 27825,
+    SPELL_TELEPORT              = 28025
 };
 
 enum Creatures
@@ -208,7 +208,6 @@ class boss_gothik : public CreatureScript
                 _EnterCombat();
                 waveCount = 0;
                 events.ScheduleEvent(EVENT_SUMMON, 30000);
-                DoTeleportTo(PosPlatform);
                 TalkToMap(SAY_SPEECH);
                 if (instance)
                     instance->SetData(DATA_GOTHIK_GATE, GO_STATE_READY);
@@ -354,9 +353,15 @@ class boss_gothik : public CreatureScript
                 uint32 spellId = 0;
                 switch (spell->Id)
                 {
-                    case SPELL_INFORM_LIVE_TRAINEE: spellId = SPELL_INFORM_DEAD_TRAINEE;    break;
-                    case SPELL_INFORM_LIVE_KNIGHT:  spellId = SPELL_INFORM_DEAD_KNIGHT;     break;
-                    case SPELL_INFORM_LIVE_RIDER:   spellId = SPELL_INFORM_DEAD_RIDER;      break;
+                    case SPELL_INFORM_LIVE_TRAINEE:
+                        spellId = SPELL_INFORM_DEAD_TRAINEE;
+                        break;
+                    case SPELL_INFORM_LIVE_KNIGHT:
+                        spellId = SPELL_INFORM_DEAD_KNIGHT;
+                        break;
+                    case SPELL_INFORM_LIVE_RIDER:
+                        spellId = SPELL_INFORM_DEAD_RIDER;
+                        break;
                 }
                 if (spellId && me->isInCombat())
                 {
@@ -452,7 +457,7 @@ class boss_gothik : public CreatureScript
                             {
                                 phaseTwo = true;
                                 TalkToMap(SAY_TELEPORT);
-                                DoTeleportTo(PosGroundLiveSide);
+                                DoCast(SPELL_TELEPORT);
                                 me->SetReactState(REACT_AGGRESSIVE);
                                 DummyEntryCheckPredicate pred;
                                 summons.DoAction(0, pred);  //! Magic numbers fail
@@ -463,7 +468,7 @@ class boss_gothik : public CreatureScript
                             }
                             break;
                         case EVENT_BOLT:
-                            DoCast(me->getVictim(), RAID_MODE(SPELL_SHADOW_BOLT, H_SPELL_SHADOW_BOLT));
+                            DoCast(me->getVictim(), SPELL_SHADOW_BOLT);
                             events.ScheduleEvent(EVENT_BOLT, 1000);
                             break;
                         case EVENT_HARVEST:
@@ -485,7 +490,6 @@ class boss_gothik : public CreatureScript
                                     me->getThreatManager().addThreat(target, 100.0f);
                                     AttackStart(target);
                                 }
-
                                 events.ScheduleEvent(EVENT_TELEPORT, 20000);
                             }
                             break;

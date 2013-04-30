@@ -76,6 +76,8 @@ const uint32 SPELL_PUNISH[]     =   {0, 57381, 0, 57377};
 enum FourHorsemen
 {
     SAY_ZELI_AGGRO  = 0,
+    SAY_LADY_AGGRO  = 1,
+    SAY_THANE_AGGRO = 1,
     SAY_AGGRO       = 0,
     SAY_TAUNT       = 1,
     SAY_SPECIAL     = 2,

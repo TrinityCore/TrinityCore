@@ -32,8 +32,7 @@ enum StalaggYells
 enum StalagSpells
 {
     SPELL_POWERSURGE        = 28134,
-    H_SPELL_POWERSURGE      = 54529,
-    SPELL_MAGNETIC_PULL     = 28338,
+    SPELL_MAGNETIC_PULL     = 28338
 };
 
 //Feugen
@@ -46,8 +45,7 @@ enum FeugenYells
 
 enum FeugenSpells
 {
-    SPELL_STATICFIELD       = 28135,
-    H_SPELL_STATICFIELD     = 54528,
+    SPELL_STATICFIELD       = 28135
 };
 
 //Thaddius
@@ -59,7 +57,7 @@ enum ThaddiusYells
     SAY_ELECT               = 3,
     SAY_DEATH               = 4,
     EMOTE_SHIFT             = 5,
-    SAY_SCREAM              = 6,
+    SAY_SCREAM              = 6
 };
 
 enum ThaddiusSpells
@@ -69,14 +67,13 @@ enum ThaddiusSpells
     SPELL_POLARITY_SHIFT            = 28089,
     SPELL_BALL_LIGHTNING            = 28299,
     SPELL_CHAIN_LIGHTNING           = 28167,
-    H_SPELL_CHAIN_LIGHTNING         = 54531,
     SPELL_BERSERK                   = 27680,
     SPELL_POSITIVE_CHARGE           = 28062,
     SPELL_POSITIVE_CHARGE_STACK     = 29659,
     SPELL_NEGATIVE_CHARGE           = 28085,
     SPELL_NEGATIVE_CHARGE_STACK     = 29660,
     SPELL_POSITIVE_POLARITY         = 28059,
-    SPELL_NEGATIVE_POLARITY         = 28084,
+    SPELL_NEGATIVE_POLARITY         = 28084
 };
 
 enum ThaddiusActions
@@ -85,7 +82,7 @@ enum ThaddiusActions
     ACTION_FEUGEN_DIED      = 2,
     ACTION_STALAGG_RESET    = 3,
     ACTION_STALAGG_DIED     = 4,
-    ACTION_INTRO            = 5,
+    ACTION_INTRO            = 5
 };
 
 // Tesla Coils
@@ -96,13 +93,13 @@ enum TeslaSpells
     SPELL_FEUGEN_TESLA_PASSIVE      = 28109,
     SPELL_STALAGG_TESLA_PASSIVE     = 28097,
     SPELL_SHOCK_OVERLOAD            = 28159,
-    SPELL_SHOCK                     = 28099,
+    SPELL_SHOCK                     = 28099
 };
 
 enum TeslaEmotes
 {
     EMOTE_LOSING_LINK               = 1,
-    EMOTE_TESLA_OVERLOAD            = 2,
+    EMOTE_TESLA_OVERLOAD            = 2
 };
 
 enum Events
@@ -110,12 +107,12 @@ enum Events
     EVENT_NONE,
     EVENT_SHIFT,
     EVENT_CHAIN,
-    EVENT_BERSERK,
+    EVENT_BERSERK
 };
 
 enum Achievement
 {
-    DATA_POLARITY_SWITCH    = 76047605,
+    DATA_POLARITY_SWITCH    = 76047605
 };
 
 class boss_thaddius : public CreatureScript
@@ -275,7 +272,7 @@ public:
                         events.ScheduleEvent(EVENT_SHIFT, 30000);
                         return;
                     case EVENT_CHAIN:
-                        DoCast(me->getVictim(), RAID_MODE(SPELL_CHAIN_LIGHTNING, H_SPELL_CHAIN_LIGHTNING));
+                        DoCast(me->getVictim(), SPELL_CHAIN_LIGHTNING);
                         events.ScheduleEvent(EVENT_CHAIN, urand(10000, 20000));
                         return;
                     case EVENT_BERSERK:
@@ -403,7 +400,7 @@ public:
 
             if (powerSurgeTimer <= uiDiff)
             {
-                DoCast(me, RAID_MODE(SPELL_POWERSURGE, H_SPELL_POWERSURGE));
+                DoCast(me, SPELL_POWERSURGE);
                 powerSurgeTimer = urand(15000, 20000);
             }
             else
@@ -500,7 +497,7 @@ public:
 
             if (staticFieldTimer <= uiDiff)
             {
-                DoCast(me, RAID_MODE(SPELL_STATICFIELD, H_SPELL_STATICFIELD));
+                DoCast(me, SPELL_STATICFIELD);
                 staticFieldTimer = 5000;
             }
             else
@@ -644,9 +641,10 @@ public:
 
     bool OnTrigger(Player* player, const AreaTriggerEntry* /*at*/)
     {
-        if (InstanceScript* instance = player->GetInstanceScript())		
-            if (Creature* Thaddius = ObjectAccessor::GetCreature(*player, instance->GetData64(DATA_THADDIUS)))
-                Thaddius->AI()->DoAction(ACTION_INTRO);
+        if (InstanceScript* instance = player->GetInstanceScript())
+            if (instance->GetBossState(DATA_THADDIUS) != DONE)
+                if (Creature* Thaddius = ObjectAccessor::GetCreature(*player, instance->GetData64(DATA_THADDIUS)))
+                    Thaddius->AI()->DoAction(ACTION_INTRO);
         return true;
     }
 };

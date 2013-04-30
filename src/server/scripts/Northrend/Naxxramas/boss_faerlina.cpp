@@ -32,16 +32,12 @@ enum Texts
 enum Spells
 {
     SPELL_POISON_BOLT_VOLLEY    = 28796,
-    H_SPELL_POISON_BOLT_VOLLEY  = 54098,
     SPELL_RAIN_OF_FIRE          = 28794,
-    H_SPELL_RAIN_OF_FIRE        = 54099,
     SPELL_FRENZY                = 28798,
-    H_SPELL_FRENZY              = 54100,
-    SPELL_WIDOWS_EMBRACE        = 28732,
-    H_SPELL_WIDOWS_EMBRACE      = 54097
+    SPELL_WIDOWS_EMBRACE        = 28732
 };
 
-#define SPELL_WIDOWS_EMBRACE_HELPER (SPELL_WIDOWS_EMBRACE)
+#define SPELL_WIDOWS_EMBRACE_HELPER SPELL_WIDOWS_EMBRACE
 
 enum Events
 {
@@ -71,9 +67,10 @@ class boss_faerlina : public CreatureScript
                 _delayFrenzy=false;
             }
 
-            uint32 _frenzyDispels;
-            bool _introDone;
-            bool _delayFrenzy;
+    private:
+        uint32 _frenzyDispels;
+        bool _introDone;
+        bool _delayFrenzy;
 
             void Reset()
             {
@@ -112,7 +109,7 @@ class boss_faerlina : public CreatureScript
 
             void SpellHit(Unit* caster, SpellInfo const* spell)
             {
-                if (spell->Id == SPELL_WIDOWS_EMBRACE || spell->Id == H_SPELL_WIDOWS_EMBRACE)
+                if (spell->Id == SPELL_WIDOWS_EMBRACE)
                 {
                     ++_frenzyDispels;
                     _delayFrenzy = true;
@@ -142,7 +139,7 @@ class boss_faerlina : public CreatureScript
                 if (_delayFrenzy && !me->HasAura(SPELL_WIDOWS_EMBRACE_HELPER))
                 {
                     _delayFrenzy = false;
-                    DoCast(me, RAID_MODE(SPELL_FRENZY, H_SPELL_FRENZY), true);
+                    DoCast(me, SPELL_FRENZY, true);
                 }
 
                 events.Update(diff);
@@ -156,19 +153,19 @@ class boss_faerlina : public CreatureScript
                     {
                         case EVENT_POISON:
                             if (!me->HasAura(SPELL_WIDOWS_EMBRACE_HELPER))
-                                DoCastAOE(RAID_MODE(SPELL_POISON_BOLT_VOLLEY, H_SPELL_POISON_BOLT_VOLLEY));
+                                DoCastAOE(SPELL_POISON_BOLT_VOLLEY);
                             events.ScheduleEvent(EVENT_POISON, urand(8000, 15000));
                             break;
                         case EVENT_FIRE:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                                DoCast(target, RAID_MODE(SPELL_RAIN_OF_FIRE, H_SPELL_RAIN_OF_FIRE));
+                                DoCast(target, SPELL_RAIN_OF_FIRE);
                             events.ScheduleEvent(EVENT_FIRE, urand(6000, 18000));
                             break;
                         case EVENT_FRENZY:
                             if (!me->HasAura(SPELL_WIDOWS_EMBRACE_HELPER))
                             {
                                 TalkToMap(SAY_ENRAGE);
-                                DoCast(me, RAID_MODE(SPELL_FRENZY, H_SPELL_FRENZY));
+                                DoCast(me, SPELL_FRENZY);
                             }
                             else
                                 _delayFrenzy = true;
@@ -180,6 +177,7 @@ class boss_faerlina : public CreatureScript
                 DoMeleeAttackIfReady();
             }
         };
+
         CreatureAI* GetAI(Creature* creature) const
         {
             return new boss_faerlinaAI(creature);

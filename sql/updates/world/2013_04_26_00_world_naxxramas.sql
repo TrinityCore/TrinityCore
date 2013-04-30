@@ -37,17 +37,17 @@ DELETE FROM `creature_text` WHERE `entry` = 16064;
 INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) VALUES
 (16064, 0, 0, 'Come out and fight, ye wee ninny!', 14, 0, 100, 0, 0, 8899, 'korthazz SAY_KORT_AGGRO'),
 (16064, 1, 0, 'To arms, ye roustabouts! We\'ve got company!', 14, 0, 100, 0, 0, 8903, 'korthazz SAY_KORT_TAUNT1'),
-(16064, 6, 0, 'I\'m gonna enjoy killin\' these slack-jawed daffodils!', 14, 0, 100, 0, 0, 8905, 'korthazz SAY_KORT_TAUNT3'),
 (16064, 2, 0, 'I like my meat extra crispy!', 14, 0, 100, 0, 0, 8902, 'korthazz SAY_KORT_SPECIAl'),
 (16064, 3, 0, 'Next time, bring more friends!', 14, 0, 100, 0, 0, 8901, 'korthazz SAY_KORT_SLAY'),
 (16064, 4, 0, 'What a bloody waste this is!', 14, 0, 100, 0, 0, 8900, 'korthazz SAY_KORT_DEATH'),
-(16064, 5, 0, 'I heard about enough of yer sniveling. Shut yer fly trap \'afore I shut it for ye!', 14, 0, 0, 0, 0, 8904, 'Korthazz SAY_HORSEMEN_6');
+(16064, 5, 0, 'I heard about enough of yer sniveling. Shut yer fly trap \'afore I shut it for ye!', 14, 0, 0, 0, 0, 8904, 'Korthazz SAY_HORSEMEN_6'),
+(16064, 6, 0, 'I\'m gonna enjoy killin\' these slack-jawed daffodils!', 14, 0, 100, 0, 0, 8905, 'korthazz SAY_KORT_TAUNT3');
 
 -- Lady Blaumeux
 DELETE FROM `creature_text` WHERE `entry` = 16065;
 INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) VALUES
 (16065, 0, 0, 'Defend youself!', 14, 0, 100, 0, 0, 8892, 'blaumeux SAY_BLAU_AGGRO'),
-(16065, 1, 2, 'The first kill goes to me! Anyone care to wager?', 14, 0, 100, 0, 0, 8898, 'blaumeux SAY_BLAU_TAUNT3'),
+(16065, 1, 0, 'The first kill goes to me! Anyone care to wager?', 14, 0, 100, 0, 0, 8898, 'blaumeux SAY_BLAU_TAUNT3'),
 (16065, 2, 0, 'Your life is mine!', 14, 0, 100, 0, 0, 8895, 'blaumeux SAY_BLAU_SPECIAL'),
 (16065, 3, 0, 'Who\'s next?', 14, 0, 100, 0, 0, 8894, 'blaumeux SAY_BLAU_SLAY'),
 (16065, 4, 0, 'Tou... che!', 14, 0, 100, 0, 0, 8893, 'blaumeux SAY_BLAU_DEATH'),
@@ -71,8 +71,8 @@ INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language
 -- Sir Zeliek
 DELETE FROM `creature_text` WHERE `entry` = 16063;
 INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) VALUES
-(16063, 0, 0, 'Flee, before it\'s too late!', 14, 0, 100, 0, 0, 8913, 'zeliek SAY_ZELI_AGGRO'),
-(16063, 1, 0, 'Do not continue! Turn back while there\'s still time!', 14, 0, 100, 0, 0, 8919, 'zeliek SAY_ZELI_TAUNT3'),
+(16063, 0, 0, 'Do not continue! Turn back while there\'s still time!', 14, 0, 100, 0, 0, 8919, 'zeliek SAY_ZELI_TAUNT3'),
+(16063, 1, 0, 'Flee, before it\'s too late!', 14, 0, 100, 0, 0, 8913, 'zeliek SAY_ZELI_AGGRO'),
 (16063, 2, 0, 'I- I have no choice but to obey!', 14, 0, 100, 0, 0, 8916, 'zeliek SAY_ZELI_SPECIAL'),
 (16063, 3, 0, 'Forgive me!', 14, 0, 100, 0, 0, 8915, 'zeliek SAY_ZELI_SLAY'),
 (16063, 4, 0, 'It is... as it should be.', 14, 0, 100, 0, 0, 8914, 'zeliek SAY_ZELI_DEATH'),
@@ -247,7 +247,6 @@ INSERT INTO `gameobject_template` (`entry`, `type`, `displayId`, `name`, `IconNa
 (202277, 10, 7800, 'Orb of Naxxramas', '', '', '', 0, 32, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3000, 0, 0, 0, 0, 0, 0, 72613, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '', '', 12340);
 
 -- Scriptnames
-UPDATE `creature_template` SET `ScriptName`='mr_bigglesworth_npc' WHERE `entry`=16998;
 UPDATE `gameobject_template` SET `ScriptName`='go_naxxramas_portal' WHERE `entry` IN (181575,181576,181577,181578);
 UPDATE `gameobject_template` SET `ScriptName`='go_orb_of_naxxramas' WHERE `entry` IN (202277,202278);
 
@@ -306,3 +305,33 @@ DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId` = 13 AND `SourceEntry` 
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,`SourceId`,`ElseGroup`,`ConditionTypeOrReference`,`ConditionTarget`,`ConditionValue1`,`ConditionValue2`,`ConditionValue3`,`NegativeCondition`,`ErrorTextId`,`ScriptName`,`Comment`) VALUES
 (13, 7, 28111, 0, 0, 31, 0, 3, 15930, 0, 0, 0, '', ''),
 (13, 7, 28096, 0, 0, 31, 0, 3, 15929, 0, 0, 0, '', '');
+
+-- Add spell difficulties
+DELETE FROM `spelldifficulty_dbc` WHERE `id` IN (28783,28785,28796,28794,28798,28732,28371,28374,29317,28157,29998,28478,28479,29865,29204,29484,28741,28776,54123,29213,29212,41926,29107,28134,28135,28167);
+INSERT INTO `spelldifficulty_dbc` (`id`, `spellid0`, `spellid1`) VALUES 
+(28783, 28783, 56090),	-- Impale	Anub'Rekhan
+(28785, 28785, 54021),	-- Locust Swarm	Anub'Rekhan
+(28796, 28796, 54098),	-- Poison Bolt Volley	Grand Widow Faerlina
+(28794, 28794, 54099),	-- Rain of Fire Grand	Widow Faerlina
+(28798, 28798, 54100),	-- Frenzy	Grand Widow Faerlina
+(28732, 28732, 54097),	-- Widow's Embrace	Grand Widow Faerlina
+(28371, 28371, 54427),	-- Enrage	Gluth
+(28374, 28374, 54426),	-- Decimate	Gluth
+(29317, 29317, 56405),	-- Shadow Bolt	Gothik the Harvester
+(28157, 28157, 54364),	-- Slime Spray	Grobbulus
+(29998, 29998, 55011),	-- Decrepit Fever	Heigan the Unclean
+(28478, 28478, 55802),	--	Frostbolt	Kel'Thuzad
+(28479, 28479, 55807),	-- Frostbolt AOE	Kel'Thuzad
+(29865, 29865, 55053),	-- Deathbloom	Loatheb
+(29204, 29204, 55052),	--	Inevitable Doom	Loatheb
+(29484, 29484, 54125),	-- Web Spray	Maexxna
+(28741, 28741, 54122),	-- Poison Shock	Maexxna
+(28776, 28776, 54121),	--	Necrotic Poison	Maexxna
+(54123, 54123, 54124),	-- Frenzy	Maexxna
+(29213, 29213, 54835),	--	Curse of the Plaguebringer	Noth the Plaguebringer
+(29212, 29212, 54814),	-- Cripple	Noth the Plaguebringer
+(41926, 41926, 59192),	-- Hateful Strike	Patchwerk
+(29107, 29107, 55543),	-- Disrupting Shout	Instructor Razuvious
+(28134, 28134, 54529),	-- Powersurge	Stalagg
+(28135, 28135, 54528),	-- Staticfield	Feugen
+(28167, 28167, 54531);	-- Chain Lighting Thaddius

@@ -30,21 +30,17 @@ enum Noth
     EMOTE_SKELETON                  = 6,
     EMOTE_TELEPORT                  = 7,  
 
-    SPELL_CURSE_PLAGUEBRINGER_10   = 29213,
-    SPELL_CURSE_PLAGUEBRINGER_25   = 54835,
-    SPELL_CRIPPLE_10               = 29212,
-    SPELL_CRIPPLE_25               = 54814,
-    SPELL_TELEPORT                  = 29216,
+    SPELL_CURSE_PLAGUEBRINGER      = 29213,
+    SPELL_CRIPPLE                  = 29212,
+    SPELL_TELEPORT_BALCONY         = 29216,
+    SPELL_TELEPORT_BACK            = 29231,
 
-    MOB_WARRIOR                     = 16984,
-    MOB_CHAMPION                    = 16983,
-    MOB_GUARDIAN                    = 16981
+    MOB_WARRIOR                    = 16984,
+    MOB_CHAMPION                   = 16983,
+    MOB_GUARDIAN                   = 16981
 };
 
 #define SPELL_BLINK                     RAND(29208, 29209, 29210, 29211)
-
-const Position TelePos = {2631.370f, -3529.680f, 274.040f, 6.277f};
-
 #define MAX_SUMMON_POS 5
 
 const float SummonPos[MAX_SUMMON_POS][4] =
@@ -66,6 +62,7 @@ enum Events
     EVENT_BALCONY,
     EVENT_WAVE,
     EVENT_GROUND,
+    EVENT_SUMMON,
 };
 
 class boss_noth : public CreatureScript
@@ -157,28 +154,33 @@ public:
                 switch (eventId)
                 {
                     case EVENT_CURSE:
-                        DoCastAOE(RAID_MODE(SPELL_CURSE_PLAGUEBRINGER_10, SPELL_CURSE_PLAGUEBRINGER_25));
+                        DoCastAOE(SPELL_CURSE_PLAGUEBRINGER);
                         events.ScheduleEvent(EVENT_CURSE, urand(50000, 60000));
                         return;
                     case EVENT_WARRIOR:
                         TalkToMap(SAY_SUMMON);
                         TalkToMap(EMOTE_SUMMON);
-                        SummonUndead(MOB_WARRIOR, RAID_MODE(2, 3));
-                        events.ScheduleEvent(EVENT_WARRIOR, 30000);
+                        //SummonUndead(MOB_WARRIOR, RAID_MODE(2, 3));
+						events.ScheduleEvent(EVENT_SUMMON, 5000);
                         return;
+                    case EVENT_SUMMON:
+						DoCast(29248);
+						DoCast(29247);
+                        events.ScheduleEvent(EVENT_WARRIOR, 25000);
+                        return;		
                     case EVENT_BLINK:
-                        TalkToMap(EVENT_BALCONY);
-                        DoCastAOE(RAID_MODE(SPELL_CRIPPLE_10, SPELL_CRIPPLE_25));
+                        DoCastAOE(SPELL_CRIPPLE);
                         DoCastAOE(SPELL_BLINK);
                         DoResetThreat();
                         events.ScheduleEvent(EVENT_BLINK, 40000);
                         return;
                     case EVENT_BALCONY:
+                        TalkToMap(EMOTE_BALCONY);
                         me->SetReactState(REACT_PASSIVE);
                         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                         me->AttackStop();
                         me->RemoveAllAuras();
-                        me->NearTeleportTo(TelePos.m_positionX,TelePos.m_positionY,TelePos.m_positionZ,TelePos.m_orientation);
+                        DoCast(SPELL_TELEPORT_BALCONY);
                         events.Reset();
                         events.ScheduleEvent(EVENT_WAVE, urand(2000, 5000));
                         waveCount = 0;
@@ -187,9 +189,8 @@ public:
                         TalkToMap(EMOTE_SKELETON);
                         switch (balconyCount)
                         {
-                            case 0: SummonUndead(MOB_CHAMPION, RAID_MODE(2, 4)); break;
-                            case 1: SummonUndead(MOB_CHAMPION, RAID_MODE(1, 2));
-                                    SummonUndead(MOB_GUARDIAN, RAID_MODE(1, 2)); break;
+                            case 0: DoCast(29255);DoCast(29257); break;
+                            case 1: DoCast(29255);DoCast(29257); break;
                             case 2: SummonUndead(MOB_GUARDIAN, RAID_MODE(2, 4)); break;
                             default:SummonUndead(MOB_CHAMPION, RAID_MODE(5, 10));
                                     SummonUndead(MOB_GUARDIAN, RAID_MODE(5, 10));break;
@@ -201,9 +202,7 @@ public:
                     {
                         TalkToMap(EMOTE_TELEPORT);
                         ++balconyCount;
-                        float x, y, z, o;
-                        me->GetHomePosition(x, y, z, o);
-                        me->NearTeleportTo(x, y, z, o);
+                        DoCast(SPELL_TELEPORT_BACK);
                         events.ScheduleEvent(EVENT_BALCONY, 110000);
                         EnterPhaseGround();
                         return;

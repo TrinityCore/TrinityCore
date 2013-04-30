@@ -43,37 +43,6 @@ public:
     }
 };
 
-class mr_bigglesworth_npc : public CreatureScript
-{
-    public:
-        mr_bigglesworth_npc(): CreatureScript("mr_bigglesworth_npc") {}
-
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new mr_bigglesworth_npcAI (creature);
-    }
-
-    struct mr_bigglesworth_npcAI : public ScriptedAI
-    {
-        mr_bigglesworth_npcAI(Creature *creature) : ScriptedAI(creature)
-        {
-            instance = creature->GetInstanceScript();
-        }
-
-        InstanceScript* instance;
-
-        void JustDied(Unit* killer)
-        {
-            if (instance->GetBossState(DATA_KELTHUZAD) != DONE)
-            {
-                me->GetMap()->LoadGrid(KelthuzadPos.GetPositionX(), KelthuzadPos.GetPositionY());	
-                if (Creature* KelThuzad = Unit::GetCreature(*me, instance ? instance->GetData64(DATA_KELTHUZAD) : 0))
-                    KelThuzad->AI()->TalkToMap(SAY_CAT_DIED);
-            }
-        }
-    };
-};
-
 class go_naxxramas_portal : public GameObjectScript
 {
     public:
@@ -132,7 +101,6 @@ class go_orb_of_naxxramas : public GameObjectScript
 void AddSC_naxxramas()
 {
     new at_millitary_quarter();
-    new mr_bigglesworth_npc();
     new go_naxxramas_portal();
     new go_orb_of_naxxramas();
 }

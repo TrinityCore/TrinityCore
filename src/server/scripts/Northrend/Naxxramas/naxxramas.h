@@ -20,7 +20,7 @@
 
 #define MAX_ENCOUNTERS 15
 
-enum Datas
+enum DataTypes
 {
     // Encounters
     DATA_ANUBREKHAN         = 1,
@@ -68,7 +68,7 @@ enum Datas
 
 };
 
-enum NaxxTexts
+enum TextIds
 {
     SAY_SAPP_DIALOG2_LICH       = 1,
     SAY_SAPP_DIALOG4_LICH       = 3,
@@ -90,7 +90,7 @@ enum NaxxTexts
     SAY_KORT_TAUNT1             = 1,
 };
 
-enum NaxxCreatures
+enum CreaturesIds
 {
     // Bosses
     BOSS_SAPPHIRON  = 15989,
@@ -112,9 +112,10 @@ enum NaxxCreatures
     NPC_CRYPT_GUARD     = 16573,
     NPC_CORPSE_SCARAB   = 16698,
     NPC_TESLA           = 16218,
+    NPC_BIGGLESWORTH    = 16998,
 };
 
-enum NaxxGameObjects
+enum GameObjectsIds
 {
     GO_HORSEMEN_CHEST_HERO  = 193426,
     GO_HORSEMEN_CHEST       = 181366,
@@ -156,7 +157,7 @@ enum NaxxGameObjects
     GO_TESLA_STALAG         = 181478,
 };
 
-enum NaxxSpells
+enum SpellIds
 {
     SPELL_ERUPTION          = 29371,
     SPELL_PORTAL            = 28444,

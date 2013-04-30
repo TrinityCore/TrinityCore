@@ -73,9 +73,7 @@ enum Events
 enum Spells
 {
     SPELL_FROST_BOLT                                       = 28478,
-    H_SPELL_FROST_BOLT                                     = 55802,
     SPELL_FROST_BOLT_AOE                                   = 28479,
-    H_SPELL_FROST_BOLT_AOE                                 = 55807,
     SPELL_SHADOW_FISURE                                    = 27810,
     SPELL_VOID_BLAST                                       = 27812,
     SPELL_MANA_DETONATION                                  = 27819,
@@ -499,11 +497,11 @@ public:
                             }
                             break;
                         case EVENT_BOLT:
-                            DoCastVictim(RAID_MODE(SPELL_FROST_BOLT, H_SPELL_FROST_BOLT));
+                            DoCastVictim(SPELL_FROST_BOLT);
                             events.RepeatEvent(urand(5000, 10000));
                             break;
                         case EVENT_NOVA:
-                            DoCastAOE(RAID_MODE(SPELL_FROST_BOLT_AOE, H_SPELL_FROST_BOLT_AOE));
+                            DoCastAOE(SPELL_FROST_BOLT_AOE);
                             events.RepeatEvent(urand(15000, 30000));
                             break;
                         case EVENT_CHAIN:

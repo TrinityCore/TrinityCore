@@ -23,12 +23,11 @@
 enum Spells
 {
     SPELL_BOMBARD_SLIME         = 28280,
-    SPELL_POISON_CLOUD          = 28240,
     SPELL_MUTATING_INJECTION    = 28169,
+    SPELL_POISON_CLOUD          = 28240,
+    SPELL_POISON_CLOUD_ADD      = 59116,
     SPELL_SLIME_SPRAY           = 28157,
-    H_SPELL_SLIME_SPRAY         = 54364,
-    SPELL_BERSERK               = 26662,
-    SPELL_POISON_CLOUD_ADD      = 59116
+    SPELL_BERSERK               = 26662
 };
 
 enum Events
@@ -76,7 +75,7 @@ public: boss_grobbulus() : CreatureScript("boss_grobbulus") { }
 
         void SpellHitTarget(Unit* target, const SpellInfo* spell)
         {
-            if (spell->Id == uint32(SPELL_SLIME_SPRAY || H_SPELL_SLIME_SPRAY))
+            if (spell->Id == uint32(SPELL_SLIME_SPRAY))
             {
                 if (TempSummon* slime = me->SummonCreature(MOB_FALLOUT_SLIME, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 0))
                     DoZoneInCombat(slime);
@@ -103,7 +102,7 @@ public: boss_grobbulus() : CreatureScript("boss_grobbulus") { }
                         return;
                     case EVENT_SPRAY:
                         TalkToMap(EMOTE_SPRAY);
-                        DoCastAOE(RAID_MODE(SPELL_SLIME_SPRAY, H_SPELL_SLIME_SPRAY));
+                        DoCastAOE(SPELL_SLIME_SPRAY);
                         events.ScheduleEvent(EVENT_SPRAY, 15000+rand()%15000);
                         return;
                     case EVENT_INJECT:
