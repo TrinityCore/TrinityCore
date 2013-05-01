@@ -74,13 +74,13 @@ void WorldSession::HandlePetAction(WorldPacket& recvData)
 
     if (!pet)
     {
-        sLog->outError(LOG_FILTER_NETWORKIO, "HandlePetAction: Pet (GUID: %u) doesn't exist for player '%s'", uint32(GUID_LOPART(guid1)), GetPlayer()->GetName().c_str());
+        sLog->outError(LOG_FILTER_NETWORKIO, "HandlePetAction: Pet (GUID: %u) doesn't exist for player %s (GUID: %u)", uint32(GUID_LOPART(guid1)), GetPlayer()->GetName().c_str(), GUID_LOPART(GetPlayer()->GetGUID()));
         return;
     }
 
     if (pet != GetPlayer()->GetFirstControlled())
     {
-        sLog->outError(LOG_FILTER_NETWORKIO, "HandlePetAction: Pet (GUID: %u) does not belong to player '%s'", uint32(GUID_LOPART(guid1)), GetPlayer()->GetName().c_str());
+        sLog->outError(LOG_FILTER_NETWORKIO, "HandlePetAction: Pet (GUID: %u) does not belong to player %s (GUID: %u)", uint32(GUID_LOPART(guid1)), GetPlayer()->GetName().c_str(), GUID_LOPART(GetPlayer()->GetGUID()));
         return;
     }
 
@@ -715,7 +715,7 @@ void WorldSession::HandlePetSpellAutocastOpcode(WorldPacket& recvPacket)
 
     if (!pet || (pet != _player->GetGuardianPet() && pet != _player->GetCharm()))
     {
-        sLog->outError(LOG_FILTER_NETWORKIO, "HandlePetSpellAutocastOpcode.Pet %u isn't pet of player %s .", uint32(GUID_LOPART(guid)), GetPlayer()->GetName().c_str());
+        sLog->outError(LOG_FILTER_NETWORKIO, "HandlePetSpellAutocastOpcode.Pet %u isn't pet of player %s (GUID: %u).", uint32(GUID_LOPART(guid)), GetPlayer()->GetName().c_str(), GUID_LOPART(GetPlayer()->GetGUID()));
         return;
     }
 
@@ -760,7 +760,7 @@ void WorldSession::HandlePetCastSpellOpcode(WorldPacket& recvPacket)
 
     if (!caster || (caster != _player->GetGuardianPet() && caster != _player->GetCharm()))
     {
-        sLog->outError(LOG_FILTER_NETWORKIO, "HandlePetCastSpellOpcode: Pet %u isn't pet of player %s .", uint32(GUID_LOPART(guid)), GetPlayer()->GetName().c_str());
+        sLog->outError(LOG_FILTER_NETWORKIO, "HandlePetCastSpellOpcode: Pet %u isn't pet of player %s (GUID: %u).", uint32(GUID_LOPART(guid)), GetPlayer()->GetName().c_str(), GUID_LOPART(GetPlayer()->GetGUID()));
         return;
     }
 
