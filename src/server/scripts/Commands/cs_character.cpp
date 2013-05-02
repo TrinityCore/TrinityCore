@@ -308,28 +308,121 @@ public:
         if (!handler->extractPlayerTarget((char*)args, &target, &targetGuid, &targetName))
             return false;
 
-        if (target)
-        {
-            // check online security
-            if (handler->HasLowerSecurity(target, 0))
-                return false;
+        char const* newNameStr = strtok(NULL, " ");
 
-            handler->PSendSysMessage(LANG_RENAME_PLAYER, handler->GetNameLink(target).c_str());
-            target->SetAtLoginFlag(AT_LOGIN_RENAME);
+        if (newNameStr)
+        {
+            std::string playerOldName;
+            std::string newName = newNameStr;
+
+            if (target)
+            {
+                // check online security
+                if (handler->HasLowerSecurity(target, 0))
+                    return false;
+                
+                playerOldName = target->GetName();
+            }
+            else
+            {
+                // check offline security
+                if (handler->HasLowerSecurity(NULL, targetGuid))
+                    return false;
+
+                sObjectMgr->GetPlayerNameByGUID(targetGuid, playerOldName);
+            }
+
+            if (!normalizePlayerName(newName))
+            {
+                handler->SendSysMessage(LANG_BAD_VALUE);
+                handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            if (ObjectMgr::CheckPlayerName(newName, true) != CHAR_NAME_SUCCESS)
+            {
+                handler->SendSysMessage(LANG_BAD_VALUE);
+                handler->SetSentErrorMessage(true);
+                return false;
+            }
+            
+            if (WorldSession* session = handler->GetSession())
+            {
+                if (!session->HasPermission(RBAC_PERM_SKIP_CHECK_CHARACTER_CREATION_RESERVEDNAME) && sObjectMgr->IsReservedName(newName))
+                {
+                    handler->SendSysMessage(LANG_RESERVED_NAME);
+                    handler->SetSentErrorMessage(true);
+                    return false;
+                }
+            }
+
+            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHECK_NAME);
+            stmt->setString(0, newName);
+            PreparedQueryResult result = CharacterDatabase.Query(stmt);
+            if (result)
+            {
+                handler->PSendSysMessage(LANG_RENAME_PLAYER_ALREADY_EXISTS, newName.c_str());
+                handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            // Remove declined name from db
+            stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_DECLINED_NAME);
+            stmt->setUInt32(0, targetGuid);
+            CharacterDatabase.Execute(stmt);
+
+            if (target)
+            {
+                target->SetName(newName);
+
+                if (WorldSession* session = target->GetSession())
+                    session->KickPlayer();
+            }
+            else
+            {
+                stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_NAME_BY_GUID);
+                stmt->setString(0, newName);
+                stmt->setUInt32(1, GUID_LOPART(targetGuid));
+                CharacterDatabase.Execute(stmt);
+            }
+
+            sWorld->UpdateCharacterNameData(targetGuid, newName);
+
+            handler->PSendSysMessage(LANG_RENAME_PLAYER_WITH_NEW_NAME, playerOldName.c_str(), newName.c_str());
+
+            if (WorldSession* session = handler->GetSession())
+            {
+                if (Player* player = session->GetPlayer())
+                    sLog->outCommand(session->GetAccountId(), "GM %s (Account: %u) forced rename %s to player %s (Account: %u)", player->GetName().c_str(), session->GetAccountId(), newName.c_str(), playerOldName.c_str(), sObjectMgr->GetPlayerAccountIdByGUID(targetGuid));
+            }
+            else
+                sLog->outCommand(0, "CONSOLE forced rename '%s' to '%s' (GUID: %u)", playerOldName.c_str(), newName.c_str(), GUID_LOPART(targetGuid));
         }
         else
         {
-            // check offline security
-            if (handler->HasLowerSecurity(NULL, targetGuid))
-                return false;
+            if (target)
+            {
+                // check online security
+                if (handler->HasLowerSecurity(target, 0))
+                    return false;
 
-            std::string oldNameLink = handler->playerLink(targetName);
-            handler->PSendSysMessage(LANG_RENAME_PLAYER_GUID, oldNameLink.c_str(), GUID_LOPART(targetGuid));
+                handler->PSendSysMessage(LANG_RENAME_PLAYER, handler->GetNameLink(target).c_str());
+                target->SetAtLoginFlag(AT_LOGIN_RENAME);
+            }
+            else
+            {
+                // check offline security
+                if (handler->HasLowerSecurity(NULL, targetGuid))
+                    return false;
 
-            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ADD_AT_LOGIN_FLAG);
-            stmt->setUInt16(0, uint16(AT_LOGIN_RENAME));
-            stmt->setUInt32(1, GUID_LOPART(targetGuid));
-            CharacterDatabase.Execute(stmt);
+                std::string oldNameLink = handler->playerLink(targetName);
+                handler->PSendSysMessage(LANG_RENAME_PLAYER_GUID, oldNameLink.c_str(), GUID_LOPART(targetGuid));
+
+                PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ADD_AT_LOGIN_FLAG);
+                stmt->setUInt16(0, uint16(AT_LOGIN_RENAME));
+                stmt->setUInt32(1, GUID_LOPART(targetGuid));
+                CharacterDatabase.Execute(stmt);
+            }
         }
 
         return true;
