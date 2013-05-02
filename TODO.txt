@@ -1,0 +1,5 @@
+﻿-- ChaosCore Todolist --
+-Remove that fucking RBAC
+-port over old Trial of the Champion
+-port over Halls of Reflection
+-port over Ulduar
