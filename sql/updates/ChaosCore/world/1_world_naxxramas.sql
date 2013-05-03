@@ -308,30 +308,45 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,
 
 -- Add spell difficulties
 DELETE FROM `spelldifficulty_dbc` WHERE `id` IN (28783,28785,28796,28794,28798,28732,28371,28374,29317,28157,29998,28478,28479,29865,29204,29484,28741,28776,54123,29213,29212,41926,29107,28134,28135,28167);
-INSERT INTO `spelldifficulty_dbc` (`id`, `spellid0`, `spellid1`) VALUES 
-(28783, 28783, 56090),	-- Impale	Anub'Rekhan
-(28785, 28785, 54021),	-- Locust Swarm	Anub'Rekhan
-(28796, 28796, 54098),	-- Poison Bolt Volley	Grand Widow Faerlina
-(28794, 28794, 54099),	-- Rain of Fire Grand	Widow Faerlina
-(28798, 28798, 54100),	-- Frenzy	Grand Widow Faerlina
-(28732, 28732, 54097),	-- Widow's Embrace	Grand Widow Faerlina
-(28371, 28371, 54427),	-- Enrage	Gluth
-(28374, 28374, 54426),	-- Decimate	Gluth
-(29317, 29317, 56405),	-- Shadow Bolt	Gothik the Harvester
-(28157, 28157, 54364),	-- Slime Spray	Grobbulus
-(29998, 29998, 55011),	-- Decrepit Fever	Heigan the Unclean
-(28478, 28478, 55802),	--	Frostbolt	Kel'Thuzad
-(28479, 28479, 55807),	-- Frostbolt AOE	Kel'Thuzad
-(29865, 29865, 55053),	-- Deathbloom	Loatheb
-(29204, 29204, 55052),	--	Inevitable Doom	Loatheb
-(29484, 29484, 54125),	-- Web Spray	Maexxna
-(28741, 28741, 54122),	-- Poison Shock	Maexxna
-(28776, 28776, 54121),	--	Necrotic Poison	Maexxna
-(54123, 54123, 54124),	-- Frenzy	Maexxna
-(29213, 29213, 54835),	--	Curse of the Plaguebringer	Noth the Plaguebringer
-(29212, 29212, 54814),	-- Cripple	Noth the Plaguebringer
-(41926, 41926, 59192),	-- Hateful Strike	Patchwerk
-(29107, 29107, 55543),	-- Disrupting Shout	Instructor Razuvious
-(28134, 28134, 54529),	-- Powersurge	Stalagg
-(28135, 28135, 54528),	-- Staticfield	Feugen
-(28167, 28167, 54531);	-- Chain Lighting Thaddius
+INSERT INTO `spelldifficulty_dbc` (`id`, `spellid0`, `spellid1`) VALUES
+-- Anub'Rekhan
+(28783, 28783, 56090),
+(28785, 28785, 54021),
+-- Grand Widow Faerlina
+(28796, 28796, 54098),
+(28794, 28794, 54099),
+(28798, 28798, 54100),
+(28732, 28732, 54097),
+-- Gluth
+(28371, 28371, 54427),
+(28374, 28374, 54426),
+-- Gothik the Harvester
+(29317, 29317, 56405),
+-- Grobbulus
+(28157, 28157, 54364),
+-- Heigan the Unclean
+(29998, 29998, 55011),
+-- Kel'Thuzad
+(28478, 28478, 55802),
+(28479, 28479, 55807),
+-- Loatheb
+(29865, 29865, 55053),
+(29204, 29204, 55052),
+-- Maexxna
+(29484, 29484, 54125),	
+(28741, 28741, 54122),
+(28776, 28776, 54121),
+(54123, 54123, 54124),
+-- Noth the Plaguebringer
+(29213, 29213, 54835),
+(29212, 29212, 54814),
+-- Patchwerk
+(41926, 41926, 59192),
+-- Instructor Razuvious
+(29107, 29107, 55543),
+-- Stalagg
+(28134, 28134, 54529),
+-- Feugen
+(28135, 28135, 54528),
+-- Thaddius
+(28167, 28167, 54531);
