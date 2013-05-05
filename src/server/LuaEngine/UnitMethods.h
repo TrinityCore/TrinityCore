@@ -4250,7 +4250,11 @@ public:
         TO_PLAYER_BOOL();
 
         uint32 id = luaL_checkunsigned(L, 1);
-        sEluna->PushBoolean(L, player->HasTitle(id));
+        CharTitlesEntry const* titleInfo = sCharTitlesStore.LookupEntry(id);
+        if (titleInfo)
+            sEluna->PushBoolean(L, player->HasTitle(titleInfo));
+        else
+            sEluna->PushBoolean(L, false);
         return 1;
     }
 
