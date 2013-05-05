@@ -1265,12 +1265,12 @@ public:
 struct Eluna::LuaEventData : public BasicEvent, public Eluna::LuaEventMap::eventData
 {
     static UNORDERED_MAP<int, LuaEventData*> LuaEvents;
-    static UNORDERED_MAP<uint64, std::list<int> > EventIDs;
+    static UNORDERED_MAP<uint64, std::set<int> > EventIDs;
     Unit* _unit;
     uint64 GUID;
 
     LuaEventData(int funcRef, uint32 delay, uint32 calls, Unit* unit) :
-    _unit(unit), GUID(unit->GetGUID()), Eluna::LuaEventMap::eventData(funcRef, delay, calls)
+        _unit(unit), GUID(unit->GetGUID()), Eluna::LuaEventMap::eventData(funcRef, delay, calls)
     {
         LuaEvents[funcRef] = this;
     }
@@ -1284,24 +1284,40 @@ struct Eluna::LuaEventData : public BasicEvent, public Eluna::LuaEventMap::event
 
     static void RemoveAll()
     {
+        for (UNORDERED_MAP<uint64, std::set<int> >::const_iterator it = EventIDs.begin(); it != EventIDs.end(); ++it)
+        {
+            if(!it->second.empty())
+            {
+                int eventID = *it->second.begin();
+                if(LuaEvents.find(eventID) != LuaEvents.end())
+                    if(LuaEvents[eventID]->_unit)
+                        LuaEvents[eventID]->_unit->m_Events.KillAllEvents(true);
+            }
+        }
         LuaEvents.clear();
         EventIDs.clear();
     }
     static void RemoveAll(Unit* unit)
     {
-        for (std::list<int>::iterator it = EventIDs[unit->GetGUID()].begin(); it != EventIDs[unit->GetGUID()].end(); ++it)
+        if(!unit)
+            return;
+        for (std::set<int>::const_iterator it = EventIDs[unit->GetGUID()].begin(); it != EventIDs[unit->GetGUID()].end(); ++it)
             LuaEvents.erase(*it);
         EventIDs.erase(unit->GetGUID());
+        unit->m_Events.KillAllEvents(true);
     }
-    static void Remove(int eventID)
+    static void Remove(uint64 guid, int eventID)
     {
-        LuaEvents.erase(eventID);
+        if(LuaEvents.find(eventID) != LuaEvents.end())
+        {
+            LuaEvents[eventID]->to_Abort = true; // delete on next cycle
+            LuaEvents.erase(eventID);
+        }
+        EventIDs[guid].erase(eventID);
     }
 
-    bool Execute(uint64 time, uint32 diff)
+    bool Execute(uint64 time, uint32 diff) // Should NEVER execute on dead events
     {
-        if (LuaEvents.find(funcRef) == LuaEvents.end())
-            return true; // destory event
         sEluna->BeginCall(funcRef);
         sEluna->PushUnsigned(sEluna->LuaState, funcRef);
         sEluna->PushUnsigned(sEluna->LuaState, delay);
@@ -1309,7 +1325,10 @@ struct Eluna::LuaEventData : public BasicEvent, public Eluna::LuaEventMap::event
         sEluna->PushUnit(sEluna->LuaState, _unit);
         sEluna->ExecuteCall(4, 0);
         if (calls && !--calls) // dont repeat anymore
+        {
+            Remove(GUID, funcRef);
             return true; // destory event
+        }
         _unit->m_Events.AddEvent(this, _unit->m_Events.CalculateTime(delay));
         return false; // dont destory event
     }

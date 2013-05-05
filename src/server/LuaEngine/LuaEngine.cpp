@@ -689,7 +689,7 @@ void Eluna::ElunaBind::Insert(uint32 entryId, uint32 eventId, int funcRef)
 
 UNORDERED_MAP<uint64, Eluna::LuaEventMap*> Eluna::LuaEventMap::LuaEventMaps;
 UNORDERED_MAP<int, Eluna::LuaEventData*> Eluna::LuaEventData::LuaEvents;
-UNORDERED_MAP<uint64, std::list<int> > Eluna::LuaEventData::EventIDs;
+UNORDERED_MAP<uint64, std::set<int> > Eluna::LuaEventData::EventIDs;
 
 void Eluna::LuaEventMap::ScriptEventsResetAll()
 {

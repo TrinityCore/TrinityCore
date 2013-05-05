@@ -5071,7 +5071,7 @@ public:
         TO_UNIT();
 
         int eventID = luaL_checkinteger(L, 1);
-        Eluna::LuaEventData::Remove(eventID);
+        Eluna::LuaEventData::Remove(unit->GetGUID(), eventID);
         return 0;
     }
 
@@ -5081,7 +5081,6 @@ public:
         TO_UNIT();
 
         Eluna::LuaEventData::RemoveAll(unit);
-        unit->m_Events.KillAllEvents(true);
         return 0;
     }
 
