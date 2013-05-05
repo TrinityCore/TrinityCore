@@ -5081,6 +5081,7 @@ public:
         TO_UNIT();
 
         Eluna::LuaEventData::RemoveAll(unit);
+        unit->m_Events.KillAllEvents(true);
         return 0;
     }
 
