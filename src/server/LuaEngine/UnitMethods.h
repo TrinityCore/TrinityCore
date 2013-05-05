@@ -5501,8 +5501,11 @@ public:
 
         Unit* who = sEluna->CHECK_UNIT(L, 1);
         bool meleeAttack = luaL_optbool(L, 2, false);
-
-        sEluna->PushBoolean(L, unit->Attack(who, meleeAttack));
+        
+        if (!who)
+            sEluna->PushBoolean(L, false);
+        else
+            sEluna->PushBoolean(L, unit->Attack(who, meleeAttack));
         return 1;
     }
     
