@@ -620,7 +620,7 @@ public:
         TO_CREATURE_BOOL();
 
         bool disable = luaL_checkbool(L, 1);
-        bool packetOnly = luaL_optbool(L, 1, false);
+        bool packetOnly = luaL_optbool(L, 2, false);
 
         sEluna->PushBoolean(L, creature->SetDisableGravity(disable, packetOnly));
         return 1;
