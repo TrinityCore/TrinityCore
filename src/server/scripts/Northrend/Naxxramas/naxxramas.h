@@ -19,6 +19,7 @@
 #define DEF_NAXXRAMAS_H
 
 #define MAX_ENCOUNTERS 15
+#define NaxxScriptName "instance_naxxramas"
 
 enum DataTypes
 {
@@ -64,7 +65,7 @@ enum DataTypes
     DATA_KELTHUZAD_TRIGGER  = 34,
     DATA_TESLA_FEUGEN       = 35,
     DATA_TESLA_STALAG       = 36,
-    DATA_TESLA              = 37,
+    DATA_TESLA_TRIGGER      = 37,
 
 };
 
@@ -93,26 +94,34 @@ enum TextIds
 enum CreaturesIds
 {
     // Bosses
-    BOSS_SAPPHIRON  = 15989,
-    BOSS_FAERLINA   = 15953,
-    BOSS_THANE      = 16064,
-    BOSS_LADY       = 16065,
-    BOSS_BARON      = 30549,
-    BOSS_SIR        = 16063,
-    BOSS_MAEXXNA    = 15952,
-    BOSS_GOTHIK     = 16060,
-    BOSS_LOATHEB    = 16011,
-    BOSS_THADDIUS   = 15928,
-    BOSS_HEIGAN     = 15936,
-    BOSS_FEUGEN     = 15930,
-    BOSS_STALAGG    = 15929,
-    BOSS_KELTHUZAD  = 15990,
-    BOSS_NOTH       = 15954,
+    BOSS_ANUBREKHAN         = 15956,
+    BOSS_FAERLINA           = 15953,
+    BOSS_MAEXXNA            = 15952,
+    BOSS_NOTH               = 15954,
+    BOSS_HEIGAN             = 15936,
+    BOSS_LOATHEB            = 16011,
+    BOSS_PATCHWERK          = 16028,
+    BOSS_GROBBULUS          = 15931,
+    BOSS_GLUTH              = 15932,
+    BOSS_THADDIUS           = 15928,
+    BOSS_RAZUVIOUS          = 16061,
+    BOSS_GOTHIK             = 16060,
+    BOSS_THANE              = 16064,
+    BOSS_LADY               = 16065,
+    BOSS_BARON              = 30549,
+    BOSS_SIR                = 16063,
+    BOSS_SAPPHIRON          = 15989,
+    BOSS_KELTHUZAD          = 15990,
 
-    NPC_CRYPT_GUARD     = 16573,
-    NPC_CORPSE_SCARAB   = 16698,
-    NPC_TESLA           = 16218,
-    NPC_BIGGLESWORTH    = 16998,
+    // Mini bosses
+    BOSS_FEUGEN             = 15930,
+    BOSS_STALAGG            = 15929,
+
+    // Creatures
+    NPC_CRYPT_GUARD         = 16573,
+    NPC_CORPSE_SCARAB       = 16698,
+    NPC_TESLA               = 16218,
+    NPC_BIGGLESWORTH        = 16998,
 };
 
 enum GameObjectsIds
@@ -164,6 +173,16 @@ enum SpellIds
     SPELL_ORB_TELEPORT_1    = 72617,
     SPELL_ORB_TELEPORT_2    = 72613,
 };
+
+template<class AI>
+CreatureAI* GetNaxxramasAI(Creature* creature)
+{
+    if (InstanceMap* instance = creature->GetMap()->ToInstanceMap())
+        if (instance->GetInstanceScript())
+            if (instance->GetScriptId() == sObjectMgr->GetScriptId(NaxxScriptName))
+                return new AI(creature);
+    return NULL;
+}
 
 #endif
 

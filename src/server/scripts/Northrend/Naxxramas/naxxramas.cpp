@@ -29,18 +29,18 @@ enum Actions
 
 class at_millitary_quarter : public AreaTriggerScript
 {
-public:
-    at_millitary_quarter() : AreaTriggerScript("at_millitary_quarter") { }
+    public:
+        at_millitary_quarter() : AreaTriggerScript("at_millitary_quarter") { }
 
-    bool OnTrigger(Player* player, const AreaTriggerEntry* /*at*/)
-    {
-        player->GetMap()->LoadGrid(HorsemenPos.GetPositionX(), HorsemenPos.GetPositionY());
-        if (InstanceScript* instance = player->GetInstanceScript())
-            if (instance->GetBossState(DATA_HORSEMEN) != DONE)
-                if (Creature* Sir = ObjectAccessor::GetCreature(*player, instance->GetData64(DATA_SIR)))
-                    Sir->AI()->DoAction(ACTION_TAUNT);
-        return true;
-    }
+        bool OnTrigger(Player* player, const AreaTriggerEntry* /*at*/)
+        {
+            player->GetMap()->LoadGrid(HorsemenPos.GetPositionX(), HorsemenPos.GetPositionY());
+            if (InstanceScript* instance = player->GetInstanceScript())
+                if (instance->GetBossState(DATA_HORSEMEN) != DONE)
+                    if (Creature* Sir = ObjectAccessor::GetCreature(*player, instance->GetData64(DATA_SIR)))
+                        Sir->AI()->DoAction(ACTION_TAUNT);
+            return true;
+        }
 };
 
 class go_naxxramas_portal : public GameObjectScript
@@ -91,7 +91,6 @@ class go_orb_of_naxxramas : public GameObjectScript
                         return true;
                     }
                     player->CastSpell(player, SPELL_ORB_TELEPORT_2, true);
-                    break;
                     break;
              }
              return true;

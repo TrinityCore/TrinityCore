@@ -26,7 +26,7 @@ enum Yells
     EMOTE_AIR_PHASE         = 0,
     EMOTE_GROUND_PHASE      = 1,
     EMOTE_BREATH            = 2,
-    EMOTE_ENRAGE            = 3
+    EMOTE_ENRAGE            = 3,
 };
 
 enum Spells
@@ -42,42 +42,40 @@ enum Spells
     SPELL_FROST_MISSILE     = 30101,
     SPELL_BERSERK           = 26662,
     SPELL_DIES              = 29357,
-    SPELL_CHILL             = 28547
+    SPELL_CHILL             = 28547,
 };
 
 enum Phases
 {
     PHASE_NULL          = 0,
-    PHASE_BIRTH,
-    PHASE_GROUND,
-    PHASE_FLIGHT
+    PHASE_BIRTH         = 1,
+    PHASE_GROUND        = 2,
+    PHASE_FLIGHT        = 3,
 };
 
 enum Events
 {
     EVENT_BERSERK       = 1,
-    EVENT_CLEAVE,
-    EVENT_TAIL,
-    EVENT_DRAIN,
-    EVENT_BLIZZARD,
-    EVENT_FLIGHT,
-    EVENT_LIFTOFF,
-    EVENT_ICEBOLT,
-    EVENT_BREATH,
-    EVENT_EXPLOSION,
-    EVENT_LAND,
-    EVENT_GROUND,
-    EVENT_BIRTH
+    EVENT_CLEAVE        = 2,
+    EVENT_TAIL          = 3,
+    EVENT_DRAIN         = 4,
+    EVENT_BLIZZARD      = 5,
+    EVENT_FLIGHT        = 6,
+    EVENT_LIFTOFF       = 7,
+    EVENT_ICEBOLT       = 8,
+    EVENT_BREATH        = 9,
+    EVENT_EXPLOSION     = 10,
+    EVENT_LAND          = 11,
+    EVENT_GROUND        = 12,
+    EVENT_BIRTH         = 13,
 };
 
 enum Misc
 {
     NPC_BLIZZARD            = 16474,
     GO_ICEBLOCK             = 181247,
-
-    // The Hundred Club
     DATA_THE_HUNDRED_CLUB   = 21462147,
-    MAX_FROST_RESISTANCE    = 100
+    MAX_FROST_RESISTANCE    = 100,
 };
 
 typedef std::map<uint64, uint64> IceBlockMap;
@@ -262,7 +260,6 @@ class boss_sapphiron : public CreatureScript
                                 return;
                             case EVENT_BLIZZARD:
                             {
-                                //DoCastAOE(SPELL_SUMMON_BLIZZARD);
                                 if (Creature* summon = DoSummon(NPC_BLIZZARD, me, 0.0f, urand(25, 30) * IN_MILLISECONDS, TEMPSUMMON_TIMED_DESPAWN))
                                     summon->GetMotionMaster()->MoveRandom(40);
                                 events.ScheduleEvent(EVENT_BLIZZARD, RAID_MODE(20, 7) * IN_MILLISECONDS, 0, PHASE_GROUND);
@@ -355,7 +352,7 @@ class boss_sapphiron : public CreatureScript
 
             void CastExplosion()
             {
-                DoZoneInCombat(); // make sure everyone is in threatlist
+                DoZoneInCombat();
                 std::vector<Unit*> targets;
                 std::list<HostileReference*>::const_iterator i = me->getThreatManager().getThreatList().begin();
                 for (; i != me->getThreatManager().getThreatList().end(); ++i)
@@ -403,7 +400,7 @@ class boss_sapphiron : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new boss_sapphironAI (creature);
+            return GetNaxxramasAI<boss_sapphironAI>(creature);
         }
 };
 

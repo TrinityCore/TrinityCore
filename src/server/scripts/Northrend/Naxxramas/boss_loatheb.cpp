@@ -27,7 +27,7 @@ enum Spells
     SPELL_WARN_NECROTIC_AURA                = 59481,
     SPELL_SUMMON_SPORE                      = 29234,
     SPELL_DEATHBLOOM                        = 29865,
-    SPELL_INEVITABLE_DOOM                   = 29204
+    SPELL_INEVITABLE_DOOM                   = 29204,
 };
 
 enum Texts
@@ -139,7 +139,7 @@ class boss_loatheb : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new boss_loathebAI(creature);
+            return GetNaxxramasAI<boss_loathebAI>(creature);
         }
 };
 

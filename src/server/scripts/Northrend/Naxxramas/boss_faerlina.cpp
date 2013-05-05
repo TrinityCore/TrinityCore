@@ -20,13 +20,16 @@
 #include "naxxramas.h"
 #include "SpellInfo.h"
 
+#define DATA_FRENZY_DISPELS 1
+#define SPELL_WIDOWS_EMBRACE_HELPER SPELL_WIDOWS_EMBRACE
+
 enum Texts
 {
     SAY_GREET       = 0,
     SAY_AGGRO       = 1,
     SAY_SLAY        = 2,
     SAY_DEATH       = 3,
-    SAY_ENRAGE      = 4
+    SAY_ENRAGE      = 4,
 };
 
 enum Spells
@@ -34,24 +37,20 @@ enum Spells
     SPELL_POISON_BOLT_VOLLEY    = 28796,
     SPELL_RAIN_OF_FIRE          = 28794,
     SPELL_FRENZY                = 28798,
-    SPELL_WIDOWS_EMBRACE        = 28732
+    SPELL_WIDOWS_EMBRACE        = 28732,
 };
-
-#define SPELL_WIDOWS_EMBRACE_HELPER SPELL_WIDOWS_EMBRACE
 
 enum Events
 {
     EVENT_POISON    = 1,
     EVENT_FIRE      = 2,
-    EVENT_FRENZY    = 3
+    EVENT_FRENZY    = 3,
 };
 
 enum Actions
 {
     ACTION_INTRO    = 1,
 };
-
-#define DATA_FRENZY_DISPELS 1
 
 class boss_faerlina : public CreatureScript
 {
@@ -66,11 +65,6 @@ class boss_faerlina : public CreatureScript
                 _introDone=false;
                 _delayFrenzy=false;
             }
-
-    private:
-        uint32 _frenzyDispels;
-        bool _introDone;
-        bool _delayFrenzy;
 
             void Reset()
             {
@@ -176,11 +170,16 @@ class boss_faerlina : public CreatureScript
                 }
                 DoMeleeAttackIfReady();
             }
+
+        private:
+            uint32 _frenzyDispels;
+            bool _introDone;
+            bool _delayFrenzy;
         };
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new boss_faerlinaAI(creature);
+            return GetNaxxramasAI<boss_faerlinaAI>(creature);
         }
 };
 
@@ -218,7 +217,7 @@ class mob_faerlina_add : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new mob_faerlina_addAI(creature);
+            return GetNaxxramasAI<mob_faerlina_addAI>(creature);
         }
 };
 
@@ -235,17 +234,17 @@ class achievement_momma_said_knock_you_out : public AchievementCriteriaScript
 
 class at_faerlina_intro : public AreaTriggerScript
 {
-public:
-    at_faerlina_intro() : AreaTriggerScript("at_faerlina_intro") { }
+    public:
+        at_faerlina_intro() : AreaTriggerScript("at_faerlina_intro") { }
 
-    bool OnTrigger(Player* player, const AreaTriggerEntry* /*at*/)
-    {
-        if (InstanceScript* instance = player->GetInstanceScript())
-            if (instance->GetBossState(DATA_FAERLINA) != DONE)
-                if (Creature* Faerlina = ObjectAccessor::GetCreature(*player, instance->GetData64(DATA_FAERLINA)))
-                    Faerlina->AI()->DoAction(ACTION_INTRO);
-        return true;
-    }
+        bool OnTrigger(Player* player, const AreaTriggerEntry* /*at*/)
+        {
+            if (InstanceScript* instance = player->GetInstanceScript())
+                if (instance->GetBossState(DATA_FAERLINA) != DONE)
+                    if (Creature* Faerlina = ObjectAccessor::GetCreature(*player, instance->GetData64(DATA_FAERLINA)))
+                        Faerlina->AI()->DoAction(ACTION_INTRO);
+            return true;
+        }
 };
 
 void AddSC_boss_faerlina()

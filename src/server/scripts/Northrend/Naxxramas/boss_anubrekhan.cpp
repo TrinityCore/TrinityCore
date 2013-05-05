@@ -19,6 +19,8 @@
 #include "ScriptedCreature.h"
 #include "naxxramas.h"
 
+const Position GuardSummonPos = {3333.72f, -3476.30f, 287.1f, 6.2801f};
+
 enum Texts
 {
     SAY_AGGRO           = 0,
@@ -29,7 +31,6 @@ enum Texts
     EMOTE_CORPSE_SCARAB = 5,
 };
 
-const Position GuardSummonPos = {3333.72f, -3476.30f, 287.1f, 6.2801f};
 enum Events
 {
     EVENT_IMPALE            = 1,
@@ -42,14 +43,14 @@ enum Spells
 {
     SPELL_IMPALE                    = 28783,
     SPELL_LOCUST_SWARM              = 28785,
-    SPELL_SUMMON_CORPSE_SCARABS_PLR = 29105,    // This spawns 5 corpse scarabs on top of player
-    SPELL_SUMMON_CORPSE_SCARABS_MOB = 28864,   // This spawns 10 corpse scarabs on top of dead guards
+    SPELL_SUMMON_CORPSE_SCARABS_PLR = 29105,
+    SPELL_SUMMON_CORPSE_SCARABS_MOB = 28864,
     SPELL_BERSERK                   = 27680,
 };
 
 enum Achievement
 {
-    ACHIEV_TIMED_START_EVENT                      = 9891,
+    ACHIEV_TIMED_START_EVENT        = 9891,
 };
 
 enum Actions
@@ -59,147 +60,148 @@ enum Actions
 
 class boss_anubrekhan : public CreatureScript
 {
-public:
-    boss_anubrekhan() : CreatureScript("boss_anubrekhan") { }
+    public:
+        boss_anubrekhan() : CreatureScript("boss_anubrekhan") { }
 
-    struct boss_anubrekhanAI : public BossAI
-    {
-        boss_anubrekhanAI(Creature* creature) : BossAI(creature, DATA_ANUBREKHAN)
+        struct boss_anubrekhanAI : public BossAI
         {
-            _introDone=false;
-        }
-
-private:
-    bool _introDone;
-		
-        void Reset()
-        {
-            _Reset();
-
-            if (GetDifficulty() == RAID_DIFFICULTY_25MAN_NORMAL)
+            boss_anubrekhanAI(Creature* creature) : BossAI(creature, DATA_ANUBREKHAN)
             {
-                Position pos;
-                pos = me->GetHomePosition();
-                pos.m_positionY -= 10.0f;
-                me->SummonCreature(NPC_CRYPT_GUARD, pos, TEMPSUMMON_CORPSE_DESPAWN, 5000);
-
-                pos = me->GetHomePosition();
-                pos.m_positionY += 10.0f;
-                me->SummonCreature(NPC_CRYPT_GUARD, pos, TEMPSUMMON_CORPSE_DESPAWN, 5000);
+                _introDone=false;
             }
-        }
 
-        void DoAction(int32 action)
-        {
-            switch (action)
+            void Reset()
             {
-                case ACTION_INTRO:
-                    if (!_introDone)
-                    {
-                           TalkToMap(SAY_GREET);
-                           _introDone = true;
-                    }
-                break;
-            }
-        }
+                _Reset();
 
-        void EnterCombat(Unit* /*who*/)
-        {
-            _EnterCombat();
-            TalkToMap(SAY_AGGRO);
-            events.ScheduleEvent(EVENT_IMPALE, urand(10000, 20000));
-            events.ScheduleEvent(EVENT_LOCUST, 90000);
-            events.ScheduleEvent(EVENT_BERSERK, 600000);
-
-            if (GetDifficulty() == RAID_DIFFICULTY_10MAN_NORMAL)
-                events.ScheduleEvent(EVENT_SUMMON_GUARDIAN, urand(15000, 20000));
-        }
-
-        void KilledUnit(Unit* victim)
-        {
-            if (!(rand()%5))
-                if (victim->GetTypeId() == TYPEID_PLAYER)
-                    victim->CastSpell(victim, SPELL_SUMMON_CORPSE_SCARABS_PLR, true, 0, 0, me->GetGUID());
-            TalkToMap(EMOTE_CORPSE_SCARAB);
-            TalkToMap(SAY_SLAY);
-        }
-
-        void SummonedCreatureDies(Creature* summon, Unit* /*killer*/)
-        {
-            switch (summon->GetEntry())
-            {
-                case NPC_CRYPT_GUARD:
-                    summon->CastSpell(summon, SPELL_SUMMON_CORPSE_SCARABS_MOB, true, 0, 0, me->GetGUID());
-                    break;
-                default:
-                    break;
-            }
-        }
-
-        void JustDied(Unit* /*killer*/)
-        {
-            _JustDied();
-            if (instance)
-                instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
-        }
-
-        void UpdateAI(uint32 diff)
-        {
-            if (!UpdateVictim() || !CheckInRoom())
-                return;
-
-            events.Update(diff);
-
-            while (uint32 eventId = events.ExecuteEvent())
-            {
-                switch (eventId)
+                if (GetDifficulty() == RAID_DIFFICULTY_25MAN_NORMAL)
                 {
-                    case EVENT_IMPALE:
-                        if (!me->HasAura(SPELL_LOCUST_SWARM))
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                                DoCast(target, SPELL_IMPALE);
-                        events.ScheduleEvent(EVENT_IMPALE, urand(10000, 20000));
-                        break;
-                    case EVENT_LOCUST:
-                        TalkToMap(EMOTE_LOCUST);
-                        DoCast(me, SPELL_LOCUST_SWARM);
-                        me->SummonCreature(NPC_CRYPT_GUARD, GuardSummonPos, TEMPSUMMON_CORPSE_DESPAWN, 5000);
-                        events.ScheduleEvent(EVENT_LOCUST, 90000);
-                        events.RescheduleEvent(EVENT_IMPALE, 20000);
-                        break;
-                    case EVENT_SUMMON_GUARDIAN:
-                        TalkToMap(EMOTE_CRYPT);
-                        me->SummonCreature(NPC_CRYPT_GUARD, GuardSummonPos, TEMPSUMMON_CORPSE_DESPAWN, 5000);
-                        break;
-                    case EVENT_BERSERK:
-                        DoCastAOE(SPELL_BERSERK);
-                        events.ScheduleEvent(EVENT_BERSERK, 600000);
+                    Position pos;
+                    pos = me->GetHomePosition();
+                    pos.m_positionY -= 10.0f;
+                    me->SummonCreature(NPC_CRYPT_GUARD, pos, TEMPSUMMON_CORPSE_DESPAWN, 5000);
+
+                    pos = me->GetHomePosition();
+                    pos.m_positionY += 10.0f;
+                    me->SummonCreature(NPC_CRYPT_GUARD, pos, TEMPSUMMON_CORPSE_DESPAWN, 5000);
+                }
+            }
+
+            void DoAction(int32 action)
+            {
+                switch (action)
+                {
+                    case ACTION_INTRO:
+                        if (!_introDone)
+                        {
+                            TalkToMap(SAY_GREET);
+                           _introDone = true;
+                        }
                         break;
                 }
             }
-            DoMeleeAttackIfReady();
+
+            void EnterCombat(Unit* /*who*/)
+            {
+                _EnterCombat();
+                TalkToMap(SAY_AGGRO);
+                events.ScheduleEvent(EVENT_IMPALE, urand(10000, 20000));
+                events.ScheduleEvent(EVENT_LOCUST, 90000);
+                events.ScheduleEvent(EVENT_BERSERK, 600000);
+
+                if (GetDifficulty() == RAID_DIFFICULTY_10MAN_NORMAL)
+                    events.ScheduleEvent(EVENT_SUMMON_GUARDIAN, urand(15000, 20000));
+            }
+
+            void KilledUnit(Unit* victim)
+            {
+                if (!(rand()%5))
+                    if (victim->GetTypeId() == TYPEID_PLAYER)
+                        victim->CastSpell(victim, SPELL_SUMMON_CORPSE_SCARABS_PLR, true, 0, 0, me->GetGUID());
+                TalkToMap(EMOTE_CORPSE_SCARAB);
+                TalkToMap(SAY_SLAY);
+            }
+
+            void SummonedCreatureDies(Creature* summon, Unit* /*killer*/)
+            {
+                switch (summon->GetEntry())
+                {
+                    case NPC_CRYPT_GUARD:
+                        summon->CastSpell(summon, SPELL_SUMMON_CORPSE_SCARABS_MOB, true, 0, 0, me->GetGUID());
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            void JustDied(Unit* /*killer*/)
+            {
+                _JustDied();
+                if (instance)
+                    instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
+            }
+
+            void UpdateAI(uint32 diff)
+            {
+                if (!UpdateVictim() || !CheckInRoom())
+                    return;
+
+                events.Update(diff);
+
+                while (uint32 eventId = events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        case EVENT_IMPALE:
+                            if (!me->HasAura(SPELL_LOCUST_SWARM))
+                                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                                    DoCast(target, SPELL_IMPALE);
+                            events.ScheduleEvent(EVENT_IMPALE, urand(10000, 20000));
+                            break;
+                        case EVENT_LOCUST:
+                            TalkToMap(EMOTE_LOCUST);
+                            DoCast(me, SPELL_LOCUST_SWARM);
+                            me->SummonCreature(NPC_CRYPT_GUARD, GuardSummonPos, TEMPSUMMON_CORPSE_DESPAWN, 5000);
+                            events.ScheduleEvent(EVENT_LOCUST, 90000);
+                            events.RescheduleEvent(EVENT_IMPALE, 20000);
+                            break;
+                        case EVENT_SUMMON_GUARDIAN:
+                            TalkToMap(EMOTE_CRYPT);
+                            me->SummonCreature(NPC_CRYPT_GUARD, GuardSummonPos, TEMPSUMMON_CORPSE_DESPAWN, 5000);
+                            break;
+                        case EVENT_BERSERK:
+                            DoCastAOE(SPELL_BERSERK);
+                            events.ScheduleEvent(EVENT_BERSERK, 600000);
+                            break;
+                    }
+                }
+                DoMeleeAttackIfReady();
+            }
+
+        private:
+            bool _introDone;
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return GetNaxxramasAI<boss_anubrekhanAI>(creature);
         }
-    };
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new boss_anubrekhanAI (creature);
-    }
 };
 
 class at_anubrekhan_intro : public AreaTriggerScript
 {
-public:
-    at_anubrekhan_intro() : AreaTriggerScript("at_anubrekhan_intro") { }
+    public:
+        at_anubrekhan_intro() : AreaTriggerScript("at_anubrekhan_intro") { }
 
-    bool OnTrigger(Player* player, const AreaTriggerEntry* /*at*/)
-    {
-        player->GetMap()->LoadGrid(GuardSummonPos.GetPositionX(), GuardSummonPos.GetPositionY());
-        if (InstanceScript* instance = player->GetInstanceScript())
-            if (instance->GetBossState(DATA_ANUBREKHAN) != DONE)
-                if (Creature* Anub = ObjectAccessor::GetCreature(*player, instance->GetData64(DATA_ANUBREKHAN)))
-                    Anub->AI()->TalkToMap(SAY_GREET);
-        return true;
-    }
+        bool OnTrigger(Player* player, const AreaTriggerEntry* /*at*/)
+        {
+            player->GetMap()->LoadGrid(GuardSummonPos.GetPositionX(), GuardSummonPos.GetPositionY());
+            if (InstanceScript* instance = player->GetInstanceScript())
+                if (instance->GetBossState(DATA_ANUBREKHAN) != DONE)
+                    if (Creature* Anub = Unit::GetCreature(*player, instance->GetData64(DATA_ANUBREKHAN)))
+                        Anub->AI()->DoAction(ACTION_INTRO);
+            return true;
+        }
 };
 
 void AddSC_boss_anubrekhan()

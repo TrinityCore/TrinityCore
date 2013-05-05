@@ -21,6 +21,9 @@
 #include "naxxramas.h"
 #include "Player.h"
 
+#define ACTION_SAFETY_DANCE_FAIL 1
+#define DATA_SAFETY_DANCE 19962139
+
 enum ScriptTexts
 {
     SAY_AGGRO           = 0,
@@ -36,7 +39,7 @@ enum Spells
     SPELL_SPELL_DISRUPTION      = 29310,
     SPELL_DECREPIT_FEVER        = 29998,
     SPELL_PLAGUE_CLOUD          = 29350,
-    SPELL_TELEPORT_SELF         = 30211
+    SPELL_TELEPORT_SELF         = 30211,
 };
 
 enum Events
@@ -55,140 +58,133 @@ enum Phases
     PHASE_2,
 };
 
-#define ACTION_SAFETY_DANCE_FAIL 1
-#define DATA_SAFETY_DANCE        19962139
-
 class boss_heigan : public CreatureScript
 {
-public:
-    boss_heigan() : CreatureScript("boss_heigan") { }
+    public:
+        boss_heigan() : CreatureScript("boss_heigan") { }
 
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new boss_heiganAI (creature);
-    }
-
-    struct boss_heiganAI : public BossAI
-    {
-        boss_heiganAI(Creature* creature) : BossAI(creature, DATA_HEIGAN) {}
-
-        uint32 eruptSection;
-        bool eruptDirection;
-        bool safetyDance;
-        Phases phase;
-
-        void KilledUnit(Unit* who)
+        struct boss_heiganAI : public BossAI
         {
-            TalkToMap(SAY_SLAY);
-            if (who->GetTypeId() == TYPEID_PLAYER)
-                safetyDance = false;
-        }
+            boss_heiganAI(Creature* creature) : BossAI(creature, DATA_HEIGAN) {}
 
-        void SetData(uint32 id, uint32 data)
-        {
-            if (id == DATA_SAFETY_DANCE)
-                safetyDance = data ? true : false;
-        }
-
-        uint32 GetData(uint32 type) const
-        {
-            if (type == DATA_SAFETY_DANCE)
-                return safetyDance ? 1 : 0;
-
-            return 0;
-        }
-
-        void JustDied(Unit* /*killer*/)
-        {
-            _JustDied();
-            TalkToMap(SAY_DEATH);
-        }
-
-        void EnterCombat(Unit* /*who*/)
-        {
-            _EnterCombat();
-            TalkToMap(SAY_AGGRO);
-            EnterPhaseFight();
-            safetyDance = true;
-        }
-
-        void EnterPhaseFight()
-        {
-            events.Reset();
-            eruptSection = 3;
-            events.ScheduleEvent(EVENT_DISRUPT, urand(10000, 25000));
-            events.ScheduleEvent(EVENT_FEVER, urand(15000, 20000));
-            events.ScheduleEvent(EVENT_PHASE2, 90000);
-            events.ScheduleEvent(EVENT_ERUPT, 15000);
-            phase = PHASE_1;
-        }
-
-        void UpdateAI(uint32 diff)
-        {
-            if (!UpdateVictim() || !CheckInRoom())
-                return;
-
-            events.Update(diff);
-
-            while (uint32 eventId = events.ExecuteEvent())
+            void KilledUnit(Unit* who)
             {
-                switch (eventId)
-                {
-                    case EVENT_DISRUPT:
-                        DoCastAOE(SPELL_SPELL_DISRUPTION);
-                        events.ScheduleEvent(EVENT_DISRUPT, urand(5000, 10000));
-                        break;
-                    case EVENT_FEVER:
-                        DoCastAOE(SPELL_DECREPIT_FEVER);
-                        events.ScheduleEvent(EVENT_FEVER, urand(20000, 25000));
-                        break;
-                    case EVENT_PHASE1:
-                        TalkToMap(EMOTE_TELEPORT2);
-                        me->SetReactState(REACT_AGGRESSIVE);
-                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                        DoZoneInCombat();
-                        events.Reset();
-                        eruptSection = 3;
-                        events.ScheduleEvent(EVENT_DISRUPT, urand(10000, 25000));
-                        events.ScheduleEvent(EVENT_FEVER, urand(15000, 20000));
-                        events.ScheduleEvent(EVENT_PHASE2, 90000);
-                        events.ScheduleEvent(EVENT_ERUPT, 15000);
-                        phase = PHASE_1;
-                        break;
-                    case EVENT_PHASE2:
-                        TalkToMap(SAY_PHASE);
-                        TalkToMap(EMOTE_TELEPORT1);
-                        me->SetReactState(REACT_PASSIVE);
-                        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                        me->AttackStop();
-                        me->RemoveAllAuras();
-                        DoCast(SPELL_TELEPORT_SELF);
-                        DoCastAOE(SPELL_PLAGUE_CLOUD);
-                        events.Reset();
-                        events.ScheduleEvent(EVENT_PHASE1, 45000);
-                        events.ScheduleEvent(EVENT_ERUPT, 8000);
-                        phase = PHASE_2;
-                        break;
-                    case EVENT_ERUPT:
-                        instance->SetData(DATA_HEIGAN_ERUPT, eruptSection);
-                        TeleportCheaters();
-
-                        if (eruptSection == 0)
-                            eruptDirection = true;
-                        else if (eruptSection == 3)
-                            eruptDirection = false;
-
-                        eruptDirection ? ++eruptSection : --eruptSection;
-
-                        events.ScheduleEvent(EVENT_ERUPT, EVENT_PHASE1 ? 10000 : 3000);
-                        break;
-                }
+                TalkToMap(SAY_SLAY);
+                if (who->GetTypeId() == TYPEID_PLAYER)
+                    safetyDance = false;
             }
 
-            DoMeleeAttackIfReady();
-        }
-    };
+            void SetData(uint32 id, uint32 data)
+            {
+                if (id == DATA_SAFETY_DANCE)
+                    safetyDance = data ? true : false;
+            }
 
+            uint32 GetData(uint32 type) const
+            {
+                if (type == DATA_SAFETY_DANCE)
+                    return safetyDance ? 1 : 0;
+
+                return 0;
+            }
+
+            void JustDied(Unit* /*killer*/)
+            {
+                _JustDied();
+                TalkToMap(SAY_DEATH);
+            }
+
+            void EnterCombat(Unit* /*who*/)
+            {
+                _EnterCombat();
+                TalkToMap(SAY_AGGRO);
+                EnterPhaseFight();
+                safetyDance = true;
+            }
+
+            void EnterPhaseFight()
+            {
+                events.Reset();
+                eruptSection = 3;
+                events.ScheduleEvent(EVENT_DISRUPT, urand(10000, 25000));
+                events.ScheduleEvent(EVENT_FEVER, urand(15000, 20000));
+                events.ScheduleEvent(EVENT_PHASE2, 90000);
+                events.ScheduleEvent(EVENT_ERUPT, 15000);
+                phase = PHASE_1;
+            }
+
+            void UpdateAI(uint32 diff)
+            {
+                if (!UpdateVictim() || !CheckInRoom())
+                    return;
+
+                events.Update(diff);
+
+                while (uint32 eventId = events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        case EVENT_DISRUPT:
+                            DoCastAOE(SPELL_SPELL_DISRUPTION);
+                            events.ScheduleEvent(EVENT_DISRUPT, urand(5000, 10000));
+                            break;
+                        case EVENT_FEVER:
+                            DoCastAOE(SPELL_DECREPIT_FEVER);
+                            events.ScheduleEvent(EVENT_FEVER, urand(20000, 25000));
+                            break;
+                        case EVENT_PHASE1:
+                            TalkToMap(EMOTE_TELEPORT2);
+                            me->SetReactState(REACT_AGGRESSIVE);
+                            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                            DoZoneInCombat();
+                            events.Reset();
+                            eruptSection = 3;
+                            events.ScheduleEvent(EVENT_DISRUPT, urand(10000, 25000));
+                            events.ScheduleEvent(EVENT_FEVER, urand(15000, 20000));
+                            events.ScheduleEvent(EVENT_PHASE2, 90000);
+                            events.ScheduleEvent(EVENT_ERUPT, 15000);
+                            phase = PHASE_1;
+                            break;
+                        case EVENT_PHASE2:
+                            TalkToMap(SAY_PHASE);
+                            TalkToMap(EMOTE_TELEPORT1);
+                            me->SetReactState(REACT_PASSIVE);
+                            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                            me->AttackStop();
+                            me->RemoveAllAuras();
+                            DoCast(SPELL_TELEPORT_SELF);
+                            DoCastAOE(SPELL_PLAGUE_CLOUD);
+                            events.Reset();
+                            events.ScheduleEvent(EVENT_PHASE1, 45000);
+                            events.ScheduleEvent(EVENT_ERUPT, 8000);
+                            phase = PHASE_2;
+                            break;
+                        case EVENT_ERUPT:
+                            instance->SetData(DATA_HEIGAN_ERUPT, eruptSection);
+                            TeleportCheaters();
+                            if (eruptSection == 0)
+                                eruptDirection = true;
+                            else if (eruptSection == 3)
+                                eruptDirection = false;
+                            eruptDirection ? ++eruptSection : --eruptSection;
+                            events.ScheduleEvent(EVENT_ERUPT, EVENT_PHASE1 ? 10000 : 3000);
+                            break;
+                    }
+                }
+                DoMeleeAttackIfReady();
+            }
+
+        private:
+            uint32 eruptSection;
+            bool eruptDirection;
+            bool safetyDance;
+            Phases phase;
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return GetNaxxramasAI<boss_heiganAI>(creature);
+        }
 };
 
 class spell_heigan_eruption : public SpellScriptLoader

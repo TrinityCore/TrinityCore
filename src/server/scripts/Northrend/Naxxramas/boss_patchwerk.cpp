@@ -33,7 +33,7 @@ enum Yells
     SAY_SLAY                                    = 1,
     SAY_DEATH                                   = 2,
     EMOTE_BERSERK                               = 3,
-    EMOTE_ENRAGE                                = 4
+    EMOTE_ENRAGE                                = 4,
 };
 
 enum Events
@@ -41,7 +41,7 @@ enum Events
     EVENT_NONE,
     EVENT_BERSERK,
     EVENT_HATEFUL,
-    EVENT_SLIME
+    EVENT_SLIME,
 };
 
 enum
@@ -51,111 +51,103 @@ enum
 
 class boss_patchwerk : public CreatureScript
 {
-public:
-    boss_patchwerk() : CreatureScript("boss_patchwerk") { }
+    public:
+        boss_patchwerk() : CreatureScript("boss_patchwerk") { }
 
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new boss_patchwerkAI (creature);
-    }
-
-    struct boss_patchwerkAI : public BossAI
-    {
-        boss_patchwerkAI(Creature* creature) : BossAI(creature, DATA_PATCHWERK) {}
-
-        bool Enraged;
-
-        void Reset()
+        struct boss_patchwerkAI : public BossAI
         {
-            _Reset();
+            boss_patchwerkAI(Creature* creature) : BossAI(creature, DATA_PATCHWERK) {}
 
-            if (instance)
-                instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_MAKE_QUICK_WERK_OF_HIM_STARTING_EVENT);
-        }
+            void Reset()
+            {
+                _Reset();
+                if (instance)
+                    instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_MAKE_QUICK_WERK_OF_HIM_STARTING_EVENT);
+            }
 
-        void KilledUnit(Unit* /*Victim*/)
-        {
-            if (!(rand()%5))
+            void KilledUnit(Unit* /*Victim*/)
+            {
                 TalkToMap(SAY_SLAY);
-        }
+            }
 
-        void JustDied(Unit* /*killer*/)
-        {
-            _JustDied();
-            TalkToMap(SAY_DEATH);
-        }
-
-        void EnterCombat(Unit* /*who*/)
-        {
-            _EnterCombat();
-            Enraged = false;
-            TalkToMap(SAY_AGGRO);
-            events.ScheduleEvent(EVENT_HATEFUL, 1000);
-            events.ScheduleEvent(EVENT_BERSERK, 360000);
-
-            if (instance)
-                instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_MAKE_QUICK_WERK_OF_HIM_STARTING_EVENT);
-        }
-
-        void UpdateAI(uint32 diff)
-        {
-            if (!UpdateVictim())
-                return;
-
-            events.Update(diff);
-
-            while (uint32 eventId = events.ExecuteEvent())
+            void JustDied(Unit* /*killer*/)
             {
-                switch (eventId)
+                _JustDied();
+                TalkToMap(SAY_DEATH);
+            }
+
+            void EnterCombat(Unit* /*who*/)
+            {
+                _EnterCombat();
+                Enraged = false;
+                TalkToMap(SAY_AGGRO);
+                events.ScheduleEvent(EVENT_HATEFUL, 1000);
+                events.ScheduleEvent(EVENT_BERSERK, 360000);
+                if (instance)
+                    instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_MAKE_QUICK_WERK_OF_HIM_STARTING_EVENT);
+            }
+
+            void UpdateAI(uint32 diff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                events.Update(diff);
+
+                while (uint32 eventId = events.ExecuteEvent())
                 {
-                    case EVENT_HATEFUL:
+                    switch (eventId)
                     {
-                        //Cast Hateful strike on the player with the highest
-                        //amount of HP within melee distance
-                        uint32 MostHP = 0;
-                        Unit* pMostHPTarget = NULL;
-                        std::list<HostileReference*>::const_iterator i = me->getThreatManager().getThreatList().begin();
-                        for (; i != me->getThreatManager().getThreatList().end(); ++i)
+                        case EVENT_HATEFUL:
                         {
-                            Unit* target = (*i)->getTarget();
-                            if (target->isAlive() && target != me->getVictim() && target->GetHealth() > MostHP && me->IsWithinMeleeRange(target))
+                            uint32 MostHP = 0;
+                            Unit* pMostHPTarget = NULL;
+                            std::list<HostileReference*>::const_iterator i = me->getThreatManager().getThreatList().begin();
+                            for (; i != me->getThreatManager().getThreatList().end(); ++i)
                             {
-                                MostHP = target->GetHealth();
-                                pMostHPTarget = target;
+                                Unit* target = (*i)->getTarget();
+                                if (target->isAlive() && target != me->getVictim() && target->GetHealth() > MostHP && me->IsWithinMeleeRange(target))
+                                {
+                                    MostHP = target->GetHealth();
+                                    pMostHPTarget = target;
+                                }
                             }
+                            if (!pMostHPTarget)
+                                pMostHPTarget = me->getVictim();
+                            DoCast(pMostHPTarget, SPELL_HATEFUL_STRIKE, true);
+                            events.ScheduleEvent(EVENT_HATEFUL, 1000);
+                            break;
                         }
-
-                        if (!pMostHPTarget)
-                            pMostHPTarget = me->getVictim();
-
-                        DoCast(pMostHPTarget, SPELL_HATEFUL_STRIKE, true);
-
-                        events.ScheduleEvent(EVENT_HATEFUL, 1000);
-                        break;
+                        case EVENT_BERSERK:
+                            DoCast(me, SPELL_BERSERK, true);
+                            TalkToMap(EMOTE_BERSERK);
+                            events.ScheduleEvent(EVENT_SLIME, 2000);
+                            break;
+                        case EVENT_SLIME:
+                            DoCast(me->getVictim(), SPELL_SLIME_BOLT, true);
+                            events.ScheduleEvent(EVENT_SLIME, 2000);
+                            break;
                     }
-                    case EVENT_BERSERK:
-                        DoCast(me, SPELL_BERSERK, true);
-                        TalkToMap(EMOTE_BERSERK);
-                        events.ScheduleEvent(EVENT_SLIME, 2000);
-                        break;
-                    case EVENT_SLIME:
-                        DoCast(me->getVictim(), SPELL_SLIME_BOLT, true);
-                        events.ScheduleEvent(EVENT_SLIME, 2000);
-                        break;
                 }
+
+                if (!Enraged && HealthBelowPct(5))
+                {
+                    DoCast(me, SPELL_FRENZY, true);
+                    TalkToMap(EMOTE_ENRAGE);
+                    Enraged = true;
+                }
+
+                DoMeleeAttackIfReady();
             }
 
-            if (!Enraged && HealthBelowPct(5))
-            {
-                DoCast(me, SPELL_FRENZY, true);
-                TalkToMap(EMOTE_ENRAGE);
-                Enraged = true;
-            }
+        private:
+            bool Enraged;
+        };
 
-            DoMeleeAttackIfReady();
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return GetNaxxramasAI<boss_patchwerkAI>(creature);
         }
-    };
-
 };
 
 void AddSC_boss_patchwerk()

@@ -22,6 +22,13 @@
 #include "CombatAI.h"
 #include "naxxramas.h"
 
+#define POS_Y_GATE  -3360.78f
+#define POS_Y_WEST  -3285.0f
+#define POS_Y_EAST  -3434.0f
+#define POS_X_NORTH  2750.49f
+#define POS_X_SOUTH  2633.84f
+#define IN_LIVE_SIDE(who) (who->GetPositionY() < POS_Y_GATE)
+
 enum Yells
 {
     SAY_SPEECH                  = 0,
@@ -30,7 +37,6 @@ enum Yells
     SAY_TELEPORT                = 3
 };
 
-//Gothik
 enum Spells
 {
     SPELL_HARVEST_SOUL          = 28679,
@@ -57,10 +63,21 @@ enum Creatures
     MOB_DEAD_HORSE      = 16149
 };
 
+enum Events
+{
+    EVENT_NONE,
+    EVENT_SUMMON,
+    EVENT_HARVEST,
+    EVENT_BOLT,
+    EVENT_TELEPORT
+};
+enum Pos
+{
+   POS_LIVE = 6,
+   POS_DEAD = 5
+};
+
 struct Waves { uint32 entry, time, mode; };
-// wave setups are not the same in heroic and normal difficulty,
-// mode is 0 only normal, 1 both and 2 only heroic
-// but this is handled in DoGothikSummon function
 const Waves waves[] =
 {
     {MOB_LIVE_TRAINEE, 20000, 1},
@@ -97,28 +114,6 @@ const Waves waves[] =
     {0, 0, 1},
 };
 
-#define POS_Y_GATE  -3360.78f
-#define POS_Y_WEST  -3285.0f
-#define POS_Y_EAST  -3434.0f
-#define POS_X_NORTH  2750.49f
-#define POS_X_SOUTH  2633.84f
-
-#define IN_LIVE_SIDE(who) (who->GetPositionY() < POS_Y_GATE)
-
-enum Events
-{
-    EVENT_NONE,
-    EVENT_SUMMON,
-    EVENT_HARVEST,
-    EVENT_BOLT,
-    EVENT_TELEPORT
-};
-enum Pos
-{
-   POS_LIVE = 6,
-   POS_DEAD = 5
-};
-
 const Position PosSummonLive[POS_LIVE] =
 {
     {2669.7f, -3428.76f, 268.56f, 1.6f},
@@ -142,7 +137,6 @@ float const PosGroundLiveSide[4] = {2691.2f, -3387.0f, 267.68f, 1.52f};
 float const PosGroundDeadSide[4] = {2693.5f, -3334.6f, 267.68f, 4.67f};
 float const PosPlatform[4] = {2640.5f, -3360.6f, 285.26f, 0.0f};
 
-// Predicate function to check that the r   efzr unit is NOT on the same side as the source.
 struct NotOnSameSide : public std::unary_function<Unit*, bool>
 {
     NotOnSameSide(Unit* source) : _onLiveSide(IN_LIVE_SIDE(source)) {}
@@ -428,7 +422,6 @@ class boss_gothik : public CreatureScript
                                 else if (waves[waveCount].mode == 1)
                                     DoGothikSummon(waves[waveCount].entry);
 
-                                // if group is not splitted, open gate and merge both sides at ~ 2 minutes (wave 11)
                                 if (waveCount == 11)
                                 {
                                     if (!CheckGroupSplitted())
@@ -436,7 +429,7 @@ class boss_gothik : public CreatureScript
                                         if (instance)
                                             instance->SetData(DATA_GOTHIK_GATE, GO_STATE_ACTIVE);
                                         DummyEntryCheckPredicate pred;
-                                        summons.DoAction(0, pred);  //! Magic numbers fail
+                                        summons.DoAction(0, pred);
                                         summons.DoZoneInCombat();
                                         mergedSides = true;
                                     }
@@ -460,7 +453,7 @@ class boss_gothik : public CreatureScript
                                 DoCast(SPELL_TELEPORT);
                                 me->SetReactState(REACT_AGGRESSIVE);
                                 DummyEntryCheckPredicate pred;
-                                summons.DoAction(0, pred);  //! Magic numbers fail
+                                summons.DoAction(0, pred);
                                 summons.DoZoneInCombat();
                                 events.ScheduleEvent(EVENT_BOLT, 1000);
                                 events.ScheduleEvent(EVENT_HARVEST, urand(3000, 15000));
@@ -503,7 +496,7 @@ class boss_gothik : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new boss_gothikAI(creature);
+            return GetNaxxramasAI<boss_gothikAI>(creature);
         }
 };
 
@@ -591,7 +584,7 @@ class mob_gothik_minion : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new mob_gothik_minionAI(creature);
+            return GetNaxxramasAI<mob_gothik_minionAI>(creature);
         }
 };
 
