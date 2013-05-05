@@ -620,7 +620,7 @@ public:
         TO_CREATURE_BOOL();
 
         bool disable = luaL_checkbool(L, 1);
-        bool packetOnly = luaL_optbool(L, 1, false);
+        bool packetOnly = luaL_optbool(L, 2, false);
 
         sEluna->PushBoolean(L, creature->SetDisableGravity(disable, packetOnly));
         return 1;
@@ -5482,6 +5482,50 @@ public:
             if (source->ToGameObject()->GetGoType() == GAMEOBJECT_TYPE_QUESTGIVER)
                 player->PrepareQuestMenu(source->GetGUID());
         }
+        return 0;
+    }
+    
+    // AttackStop()
+    static int AttackStop(lua_State* L, Unit* unit)
+    {
+        TO_UNIT_BOOL();
+
+        sEluna->PushBoolean(L, unit->AttackStop());
+        return 1;
+    }
+    
+    // Attack(who, meleeAttack)
+    static int Attack(lua_State* L, Unit* unit)
+    {
+        TO_UNIT_BOOL();
+
+        Unit* who = sEluna->CHECK_UNIT(L, 1);
+        bool meleeAttack = luaL_optbool(L, 2, false);
+        
+        if (!who)
+            sEluna->PushBoolean(L, false);
+        else
+            sEluna->PushBoolean(L, unit->Attack(who, meleeAttack));
+        return 1;
+    }
+    
+    //SetCanFly(apply)
+    static int SetCanFly(lua_State* L, Unit* unit)
+    {
+        TO_UNIT();
+
+        bool apply = luaL_optbool(L, 1, true);
+        unit->SetCanFly(apply);
+        return 0;
+    }
+    
+    //SetVisible(x)
+    static int SetVisible(lua_State* L, Unit* unit)
+    {
+        TO_UNIT();
+
+        bool x = luaL_optbool(L, 1, true);
+        unit->SetVisible(x);
         return 0;
     }
 };
