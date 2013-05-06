@@ -127,15 +127,14 @@ int Master::Run()
     sLog->outInfo(LOG_FILTER_WORLDSERVER, "%s (worldserver-daemon)", _FULLVERSION);
     sLog->outInfo(LOG_FILTER_WORLDSERVER, "<Ctrl-C> to stop.\n");
 
-    sLog->outInfo(LOG_FILTER_WORLDSERVER, " ______                       __");
-    sLog->outInfo(LOG_FILTER_WORLDSERVER, "/\\__  _\\       __          __/\\ \\__");
-    sLog->outInfo(LOG_FILTER_WORLDSERVER, "\\/_/\\ \\/ _ __ /\\_\\    ___ /\\_\\ \\, _\\  __  __");
-    sLog->outInfo(LOG_FILTER_WORLDSERVER, "   \\ \\ \\/\\`'__\\/\\ \\ /' _ `\\/\\ \\ \\ \\/ /\\ \\/\\ \\");
-    sLog->outInfo(LOG_FILTER_WORLDSERVER, "    \\ \\ \\ \\ \\/ \\ \\ \\/\\ \\/\\ \\ \\ \\ \\ \\_\\ \\ \\_\\ \\");
-    sLog->outInfo(LOG_FILTER_WORLDSERVER, "     \\ \\_\\ \\_\\  \\ \\_\\ \\_\\ \\_\\ \\_\\ \\__\\\\/`____ \\");
-    sLog->outInfo(LOG_FILTER_WORLDSERVER, "      \\/_/\\/_/   \\/_/\\/_/\\/_/\\/_/\\/__/ `/___/> \\");
-    sLog->outInfo(LOG_FILTER_WORLDSERVER, "                                 C O R E  /\\___/");
-    sLog->outInfo(LOG_FILTER_WORLDSERVER, "http://TrinityCore.org                    \\/__/\n");
+    sLog->outInfo(LOG_FILTER_WORLDSERVER, "      ______   __     __   _________   ________   ________   ");
+    sLog->outInfo(LOG_FILTER_WORLDSERVER, "     / ____/  / /    / /  / _____  /  / ____  /  / ______/   ");
+    sLog->outInfo(LOG_FILTER_WORLDSERVER, "    / /      / /____/ /  / /    / /  / /   / /  / /_____     ");
+    sLog->outInfo(LOG_FILTER_WORLDSERVER, "   / /      / _____  /  / /____/ /  / /   / /  /_____  /     ");
+    sLog->outInfo(LOG_FILTER_WORLDSERVER, "  / /____  / /    / /  / _____  /  / /___/ /  ______/ /      ");
+    sLog->outInfo(LOG_FILTER_WORLDSERVER, " /______/ /_/    /_/  /_/    /_/  /_______/  /_______/       ");
+    sLog->outInfo(LOG_FILTER_WORLDSERVER, "                                                             ");
+    sLog->outInfo(LOG_FILTER_WORLDSERVER, "Based on TrinityCore http://www.TrinityCore.org\n            ");
 
     /// worldserver PID file creation
     std::string pidfile = ConfigMgr::GetStringDefault("PidFile", "");

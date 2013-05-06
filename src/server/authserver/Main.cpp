@@ -103,6 +103,15 @@ extern int main(int argc, char **argv)
         return 1;
     }
 
+    sLog->outInfo(LOG_FILTER_AUTHSERVER, "      ______   __     __   _________   ________   ________   ");
+    sLog->outInfo(LOG_FILTER_AUTHSERVER, "     / ____/  / /    / /  / _____  /  / ____  /  / ______/   ");
+    sLog->outInfo(LOG_FILTER_AUTHSERVER, "    / /      / /____/ /  / /    / /  / /   / /  / /_____     ");
+    sLog->outInfo(LOG_FILTER_AUTHSERVER, "   / /      / _____  /  / /____/ /  / /   / /  /_____  /     ");
+    sLog->outInfo(LOG_FILTER_AUTHSERVER, "  / /____  / /    / /  / _____  /  / /___/ /  ______/ /      ");
+    sLog->outInfo(LOG_FILTER_AUTHSERVER, " /______/ /_/    /_/  /_/    /_/  /_______/  /_______/       ");
+    sLog->outInfo(LOG_FILTER_AUTHSERVER, "                                                             ");
+    sLog->outInfo(LOG_FILTER_AUTHSERVER, "Based on TrinityCore http://www.TrinityCore.org\n            ");
+
     sLog->outInfo(LOG_FILTER_AUTHSERVER, "%s (authserver)", _FULLVERSION);
     sLog->outInfo(LOG_FILTER_AUTHSERVER, "<Ctrl-C> to stop.\n");
     sLog->outInfo(LOG_FILTER_AUTHSERVER, "Using configuration file %s.", cfg_file);
