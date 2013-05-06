@@ -5528,5 +5528,50 @@ public:
         unit->SetVisible(x);
         return 0;
     }
+    
+    // IsVisible()
+    static int IsVisible(lua_State* L, Unit* unit)
+    {
+        TO_UNIT_BOOL();
+
+        sEluna->PushBoolean(L, unit->IsVisible());
+        return 1;
+    }
+    
+    // isMoving()
+    static int isMoving(lua_State* L, Unit* unit)
+    {
+        TO_UNIT_BOOL();
+
+        sEluna->PushBoolean(L, unit->isMoving());
+        return 1;
+    }
+    
+    // IsFlying()
+    static int IsFlying(lua_State* L, Unit* unit)
+    {
+        TO_UNIT_BOOL();
+
+        sEluna->PushBoolean(L, unit->IsFlying());
+        return 1;
+    }
+    
+    // IsStopped()
+    static int IsStopped(lua_State* L, Unit* unit)
+    {
+        TO_UNIT_BOOL();
+
+        sEluna->PushBoolean(L, unit->IsStopped());
+        return 1;
+    }
+    
+    //RestoreDisplayId()
+    static int RestoreDisplayId(lua_State* L, Unit* unit)
+    {
+        TO_UNIT();
+
+        unit->RestoreDisplayId();
+        return 0;
+    }
 };
 #endif
