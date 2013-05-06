@@ -20,7 +20,6 @@
 #include "naxxramas.h"
 
 #define SPELL_BLINK                     RAND(29208, 29209, 29210, 29211)
-#define MAX_SUMMON_POS 5
 
 enum Noth
 {
@@ -54,15 +53,28 @@ enum Events
     EVENT_WAVE,
     EVENT_GROUND,
     EVENT_SUMMON,
+    EVENT_BALCONY_TELEPORT,
 };
 
-const float SummonPos[MAX_SUMMON_POS][4] =
+class StartMovementEvent : public BasicEvent
 {
-    {2728.12f, -3544.43f, 261.91f, 6.04f},
-    {2729.05f, -3544.47f, 261.91f, 5.58f},
-    {2728.24f, -3465.08f, 264.20f, 3.56f},
-    {2704.11f, -3456.81f, 265.53f, 4.51f},
-    {2663.56f, -3464.43f, 262.66f, 5.20f},
+    public:
+        StartMovementEvent(Creature* summoner, Creature* owner)
+            : _summoner(summoner), _owner(owner)
+        {
+        }
+
+        bool Execute(uint64 /*time*/, uint32 /*diff*/)
+        {
+            _owner->SetReactState(REACT_AGGRESSIVE);
+            if (Unit* target = _summoner->AI()->SelectTarget(SELECT_TARGET_RANDOM, 0, NonTankTargetSelector(_summoner)))
+                _owner->AI()->AttackStart(target);
+            return true;
+        }
+
+    private:
+        Creature* _summoner;
+        Creature* _owner;
 };
 
 class boss_noth : public CreatureScript
@@ -113,25 +125,38 @@ class boss_noth : public CreatureScript
 
             void JustSummoned(Creature* summon)
             {
-                summons.Summon(summon);
-                summon->setActive(true);
-                summon->AI()->DoZoneInCombat();
+                switch (summon->GetEntry())
+                {
+                    case MOB_WARRIOR:
+                    case MOB_CHAMPION:
+                        summon->SetReactState(REACT_PASSIVE);
+                        summon->HandleEmoteCommand(EMOTE_ONESHOT_EMERGE);
+                        summon->m_Events.AddEvent(new StartMovementEvent(me, summon), summon->m_Events.CalculateTime(5000));
+                        break;
+                    default:
+                        break;
+                }
+                BossAI::JustSummoned(summon);
+            }
+
+            void SummonedCreatureDies(Creature* summon, Unit* /*killer*/)
+            {
+                switch (summon->GetEntry())
+                {
+                    case MOB_WARRIOR:
+                    case MOB_CHAMPION:
+                    case MOB_GUARDIAN:
+                        summon->ToTempSummon()->DespawnOrUnsummon(4000);
+                        break;
+                    default:
+                        break;
+                }
             }
 
             void JustDied(Unit* /*killer*/)
             {
                 _JustDied();
                 TalkToMap(SAY_DEATH);
-            }
-
-            void SummonUndead(uint32 entry, uint32 num)
-            {
-                for (uint32 i = 0; i < num; ++i)
-                {
-                    uint32 pos = rand()%MAX_SUMMON_POS;
-                    me->SummonCreature(entry, SummonPos[pos][0], SummonPos[pos][1], SummonPos[pos][2],
-                    SummonPos[pos][3], TEMPSUMMON_CORPSE_DESPAWN, 60000);
-                }
             }
 
             void UpdateAI(uint32 diff)
@@ -152,12 +177,12 @@ class boss_noth : public CreatureScript
                         case EVENT_WARRIOR:
                             TalkToMap(SAY_SUMMON);
                             TalkToMap(EMOTE_SUMMON);
-                            events.ScheduleEvent(EVENT_SUMMON, 5000);
+                            events.ScheduleEvent(EVENT_SUMMON, 4000);
                             break;
                         case EVENT_SUMMON:
                             DoCast(29248);
                             DoCast(29247);
-                            events.ScheduleEvent(EVENT_WARRIOR, 25000);
+                            events.ScheduleEvent(EVENT_WARRIOR, 26000);
                             break;
                         case EVENT_BLINK:
                             DoCastAOE(SPELL_CRIPPLE);
@@ -171,6 +196,9 @@ class boss_noth : public CreatureScript
                             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                             me->AttackStop();
                             me->RemoveAllAuras();
+                            events.ScheduleEvent(EVENT_BALCONY_TELEPORT, 2000);
+                            break;
+                        case EVENT_BALCONY_TELEPORT:
                             DoCast(SPELL_TELEPORT_BALCONY);
                             events.Reset();
                             events.ScheduleEvent(EVENT_WAVE, urand(2000, 5000));
@@ -189,11 +217,14 @@ class boss_noth : public CreatureScript
                                     DoCast(29257);
                                     break;
                                 case 2:
-                                    SummonUndead(MOB_GUARDIAN, RAID_MODE(2, 4));
+                                    DoCast(29255);
+                                    DoCast(29268);
+                                    DoCast(29226);
                                     break;
                                 default:
-                                    SummonUndead(MOB_CHAMPION, RAID_MODE(5, 10));
-                                    SummonUndead(MOB_GUARDIAN, RAID_MODE(5, 10));
+                                    DoCast(29257);
+                                    DoCast(54862);
+                                    DoCast(29226);
                                     break;
                             }
                             ++waveCount;

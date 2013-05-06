@@ -159,16 +159,6 @@ class boss_gothik : public CreatureScript
         {
             boss_gothikAI(Creature* creature) : BossAI(creature, DATA_GOTHIK) { }
 
-            uint32 waveCount;
-            typedef std::vector<Creature*> TriggerVct;
-            TriggerVct liveTrigger, deadTrigger;
-            bool mergedSides;
-            bool phaseTwo;
-            bool thirtyPercentReached;
-
-            std::vector<uint64> LiveTriggerGUID;
-            std::vector<uint64> DeadTriggerGUID;
-
             void Reset()
             {
                 LiveTriggerGUID.clear();
@@ -492,6 +482,16 @@ class boss_gothik : public CreatureScript
                 if (!phaseTwo)
                     DoMeleeAttackIfReady();
             }
+
+        private:
+            uint32 waveCount;
+            typedef std::vector<Creature*> TriggerVct;
+            TriggerVct liveTrigger, deadTrigger;
+            bool mergedSides;
+            bool phaseTwo;
+            bool thirtyPercentReached;
+            std::vector<uint64> LiveTriggerGUID;
+            std::vector<uint64> DeadTriggerGUID;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -511,9 +511,6 @@ class mob_gothik_minion : public CreatureScript
             {
                 liveSide = IN_LIVE_SIDE(me);
             }
-
-            bool liveSide;
-            bool gateClose;
 
             bool isOnSameSide(Unit const* who) const
             {
@@ -580,8 +577,11 @@ class mob_gothik_minion : public CreatureScript
 
                 CombatAI::UpdateAI(diff);
             }
-        };
 
+        private:
+            bool liveSide;
+            bool gateClose;
+        };
         CreatureAI* GetAI(Creature* creature) const
         {
             return GetNaxxramasAI<mob_gothik_minionAI>(creature);
