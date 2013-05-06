@@ -2287,6 +2287,9 @@ class Player : public Unit, public GridObject<Player>
         //! Return collision height sent to client
         float GetCollisionHeight(bool mounted) const;
 
+        std::string GetMapAreaAndZoneString();
+        std::string GetCoordsMapAreaAndZoneString();
+
     protected:
         // Gamemaster whisper whitelist
         WhisperListContainer WhisperList;
