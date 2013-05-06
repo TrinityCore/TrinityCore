@@ -408,6 +408,7 @@ ElunaRegister<Unit> UnitMethods[] =
     {"SetScale", &LuaUnit::SetScale},                               // :SetScale(scale) - UNDOCUMENTED
     {"SetCanFly", &LuaUnit::SetCanFly},                             // :SetCanFly(apply) - UNDOCUMENTED
     {"SetVisible", &LuaUnit::SetVisible},                           // :SetVisible(x) - UNDOCUMENTED
+    {"RestoreDisplayId", &LuaUnit::RestoreDisplayId},               // :RestoreDisplayId()
 
     // Boolean
     {"IsAlive", &LuaUnit::IsAlive},                                 // :IsAlive()
@@ -434,6 +435,10 @@ ElunaRegister<Unit> UnitMethods[] =
     {"IsMounted", &LuaUnit::IsMounted},                             // :IsMounted() -- UNDOCUMENTED
     {"AttackStop", &LuaUnit::AttackStop},                           // :AttackStop() -- UNDOCUMENTED
     {"Attack", &LuaUnit::Attack},                                   // :Attack(who, meleeAttack) -- UNDOCUMENTED
+    {"IsVisible", &LuaUnit::IsVisible},                             // :IsVisible()
+    {"isMoving", &LuaUnit::isMoving},                               // :isMoving()
+    {"IsFlying", &LuaUnit::IsFlying},                               // :IsFlying()
+    {"IsStopped", &LuaUnit::IsStopped},                             // :IsStopped()
 
     // Other
     {"RegisterEvent", &LuaUnit::RegisterEvent},                     // :RegisterEvent(function, delay, calls)
