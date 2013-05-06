@@ -46,6 +46,8 @@ void AddSC_fast_arena_start();
 void AddSC_fake_commandscript();
 // Arena Spectator
 void AddSC_arena_spectator_script();
+// Factions on Channel
+void AddSC_channel_factions();
 
 // spells
 void AddSC_deathknight_spell_scripts();
@@ -1364,5 +1366,7 @@ void AddCustomScripts()
     AddSC_fake_commandscript();
     // Arena Spectator
     AddSC_arena_spectator_script();
+    // Factions on Channel
+    AddSC_channel_factions();
 #endif
 }

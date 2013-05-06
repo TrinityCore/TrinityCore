@@ -22,6 +22,7 @@ set(scripts_STAT_SRCS
   Custom/arena_fast_start.cpp
   Custom/cs_fake.cpp
   Custom/ArenaSpectate.cpp
+  Custom/channel_factions.cpp
 )
 
 message("  -> Prepared: Custom")

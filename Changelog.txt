@@ -11,6 +11,7 @@
 #                                                                                          #
 ############################################################################################
 
+[187] --> Implement Factions on Channel. (Thx MarWit)
 [186] --> Implement Arena Spectator. (Thx Demonid)
 [185] --> Implement Fake Players. (Thx LORDofDOOM)
 [184] --> Fix Master's Call. (Thx digz6666)
