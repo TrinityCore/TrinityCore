@@ -109,7 +109,7 @@ extern int main(int argc, char **argv)
     sLog->outInfo(LOG_FILTER_AUTHSERVER, "   / /      / _____  /  / /____/ /  / /   / /  /_____  /     ");
     sLog->outInfo(LOG_FILTER_AUTHSERVER, "  / /____  / /    / /  / _____  /  / /___/ /  ______/ /      ");
     sLog->outInfo(LOG_FILTER_AUTHSERVER, " /______/ /_/    /_/  /_/    /_/  /_______/  /_______/       ");
-    sLog->outInfo(LOG_FILTER_AUTHSERVER, "                                                             ");
+    sLog->outInfo(LOG_FILTER_AUTHSERVER, "                                    C O R E                  ");
     sLog->outInfo(LOG_FILTER_AUTHSERVER, "Based on TrinityCore http://www.TrinityCore.org\n            ");
 
     sLog->outInfo(LOG_FILTER_AUTHSERVER, "%s (authserver)", _FULLVERSION);

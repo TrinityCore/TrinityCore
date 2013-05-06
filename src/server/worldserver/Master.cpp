@@ -133,7 +133,7 @@ int Master::Run()
     sLog->outInfo(LOG_FILTER_WORLDSERVER, "   / /      / _____  /  / /____/ /  / /   / /  /_____  /     ");
     sLog->outInfo(LOG_FILTER_WORLDSERVER, "  / /____  / /    / /  / _____  /  / /___/ /  ______/ /      ");
     sLog->outInfo(LOG_FILTER_WORLDSERVER, " /______/ /_/    /_/  /_/    /_/  /_______/  /_______/       ");
-    sLog->outInfo(LOG_FILTER_WORLDSERVER, "                                                             ");
+    sLog->outInfo(LOG_FILTER_WORLDSERVER, "                                    C O R E                  ");
     sLog->outInfo(LOG_FILTER_WORLDSERVER, "Based on TrinityCore http://www.TrinityCore.org\n            ");
 
     /// worldserver PID file creation
