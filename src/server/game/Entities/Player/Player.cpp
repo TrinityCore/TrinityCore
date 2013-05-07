@@ -4677,7 +4677,7 @@ TrainerSpellState Player::GetTrainerSpellState(TrainerSpell const* trainer_spell
 /**
  * Deletes a character from the database
  *
- * The way, how the characters will be deleted is decided based on the config option.
+ * The way characters will be deleted is decided based on the config option.
  *
  * @see Player::DeleteOldCharacters
  *
@@ -4694,26 +4694,26 @@ void Player::DeleteFromDB(uint64 playerguid, uint32 accountId, bool updateRealmC
 
     // Convert guid to low GUID for CharacterNameData, but also other methods on success
     uint32 guid = GUID_LOPART(playerguid);
-
-    // To avoid a query, we select loaded data. If it doesn't exist, return.
-    CharacterNameData const* nameData = sWorld->GetCharacterNameData(guid);
-    if (!nameData)
-    {
-        sLog->outError(LOG_FILTER_PLAYER, "Invalid call on information for guid (%u) from account (%u). Could not delete character.", guid, accountId);
-        return;
-    }
-
-    // Selecting the required pieces of information
-    uint8 playerClass = nameData->m_class;
-    uint8 playerLevel = nameData->m_level;
-    // Define the required variables
     uint32 charDelete_method = sWorld->getIntConfig(CONFIG_CHARDELETE_METHOD);
-    uint32 charDelete_minLvl = sWorld->getIntConfig(playerClass != CLASS_DEATH_KNIGHT ? CONFIG_CHARDELETE_MIN_LEVEL : CONFIG_CHARDELETE_HEROIC_MIN_LEVEL);
 
-    // if we want to finalize the character removal or the character does not meet the level requirement of either heroic or non-heroic settings,
-    // we set it to mode CHAR_DELETE_REMOVE
-    if (deleteFinally || playerLevel < charDelete_minLvl)
+    if (deleteFinally)
         charDelete_method = CHAR_DELETE_REMOVE;
+    else if (CharacterNameData const* nameData = sWorld->GetCharacterNameData(guid))    // To avoid a query, we select loaded data. If it doesn't exist, return.
+    {
+        if (!nameData)
+        {
+            sLog->outError(LOG_FILTER_PLAYER, "Cannot find CharacterNameData entry for player %u from account %u. Could not delete character.", guid, accountId);
+            return;
+        }
+
+        // Define the required variables
+        uint32 charDelete_minLvl = sWorld->getIntConfig(nameData->m_class != CLASS_DEATH_KNIGHT ? CONFIG_CHARDELETE_MIN_LEVEL : CONFIG_CHARDELETE_HEROIC_MIN_LEVEL);
+
+        // if we want to finalize the character removal or the character does not meet the level requirement of either heroic or non-heroic settings,
+        // we set it to mode CHAR_DELETE_REMOVE
+        if (nameData->m_level < charDelete_minLvl)
+            charDelete_method = CHAR_DELETE_REMOVE;
+    }
 
     // convert corpse to bones if exist (to prevent exiting Corpse in World without DB entry)
     // bones will be deleted by corpse/bones deleting thread shortly
