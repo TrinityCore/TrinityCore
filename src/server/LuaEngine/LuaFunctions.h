@@ -409,6 +409,10 @@ ElunaRegister<Unit> UnitMethods[] =
     {"SetCanFly", &LuaUnit::SetCanFly},                             // :SetCanFly(apply) - UNDOCUMENTED
     {"SetVisible", &LuaUnit::SetVisible},                           // :SetVisible(x) - UNDOCUMENTED
     {"RestoreDisplayId", &LuaUnit::RestoreDisplayId},               // :RestoreDisplayId()
+    {"RestoreFaction", &LuaUnit::RestoreFaction},                   // :RestoreFaction()
+    {"RemoveBindSightAuras", &LuaUnit::RemoveBindSightAuras},       // :RemoveBindSightAuras()
+    {"RemoveCharmAuras", &LuaUnit::RemoveCharmAuras},               // :RemoveCharmAuras()
+    {"StopMoving", &LuaUnit::StopMoving},                           // :StopMoving()
 
     // Boolean
     {"IsAlive", &LuaUnit::IsAlive},                                 // :IsAlive()
