@@ -5573,5 +5573,41 @@ public:
         unit->RestoreDisplayId();
         return 0;
     }
+    
+    //RestoreFaction()
+    static int RestoreFaction(lua_State* L, Unit* unit)
+    {
+        TO_UNIT();
+
+        unit->RestoreFaction();
+        return 0;
+    }
+    
+    //RemoveBindSightAuras()
+    static int RemoveBindSightAuras(lua_State* L, Unit* unit)
+    {
+        TO_UNIT();
+
+        unit->RemoveBindSightAuras();
+        return 0;
+    }
+    
+    //RemoveCharmAuras()
+    static int RemoveCharmAuras(lua_State* L, Unit* unit)
+    {
+        TO_UNIT();
+
+        unit->RemoveCharmAuras();
+        return 0;
+    }
+    
+    //StopMoving()
+    static int StopMoving(lua_State* L, Unit* unit)
+    {
+        TO_UNIT();
+
+        unit->StopMoving();
+        return 0;
+    }
 };
 #endif
