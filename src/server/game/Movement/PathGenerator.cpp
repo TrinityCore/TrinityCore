@@ -28,9 +28,10 @@
 
 ////////////////// PathGenerator //////////////////
 PathGenerator::PathGenerator(const Unit* owner) :
-    _polyLength(0), _type(PATHFIND_BLANK),
-    _useStraightPath(false), _forceDestination(false), _pointPathLimit(MAX_POINT_PATH_LENGTH),
-    _endPosition(Vector3::zero()), _sourceUnit(owner), _navMesh(NULL), _navMeshQuery(NULL)
+    _polyLength(0), _type(PATHFIND_BLANK), _useStraightPath(false),
+    _forceDestination(false), _pointPathLimit(MAX_POINT_PATH_LENGTH),
+    _endPosition(G3D::Vector3::zero()), _sourceUnit(owner), _navMesh(NULL),
+    _navMeshQuery(NULL)
 {
     sLog->outDebug(LOG_FILTER_MAPS, "++ PathGenerator::PathGenerator for %u \n", _sourceUnit->GetGUIDLow());
 
@@ -58,10 +59,10 @@ bool PathGenerator::CalculatePath(float destX, float destY, float destZ, bool fo
     if (!Trinity::IsValidMapCoord(destX, destY, destZ) || !Trinity::IsValidMapCoord(x, y, z))
         return false;
 
-    Vector3 dest(destX, destY, destZ);
+    G3D::Vector3 dest(destX, destY, destZ);
     SetEndPosition(dest);
 
-    Vector3 start(x, y, z);
+    G3D::Vector3 start(x, y, z);
     SetStartPosition(start);
 
     _forceDestination = forceDest;
@@ -151,7 +152,7 @@ dtPolyRef PathGenerator::GetPolyByLocation(float const* point, float* distance) 
     return INVALID_POLYREF;
 }
 
-void PathGenerator::BuildPolyPath(Vector3 const& startPos, Vector3 const& endPos)
+void PathGenerator::BuildPolyPath(G3D::Vector3 const& startPos, G3D::Vector3 const& endPos)
 {
     // *** getting start/end poly logic ***
 
@@ -202,7 +203,7 @@ void PathGenerator::BuildPolyPath(Vector3 const& startPos, Vector3 const& endPos
         {
             Creature* owner = (Creature*)_sourceUnit;
 
-            Vector3 p = (distToStartPoly > 7.0f) ? startPos : endPos;
+            G3D::Vector3 const& p = (distToStartPoly > 7.0f) ? startPos : endPos;
             if (_sourceUnit->GetBaseMap()->IsUnderWater(p.x, p.y, p.z))
             {
                 sLog->outDebug(LOG_FILTER_MAPS, "++ BuildPolyPath :: underWater case\n");
@@ -230,7 +231,7 @@ void PathGenerator::BuildPolyPath(Vector3 const& startPos, Vector3 const& endPos
             if (DT_SUCCESS == _navMeshQuery->closestPointOnPoly(endPoly, endPoint, closestPoint))
             {
                 dtVcopy(endPoint, closestPoint);
-                SetActualEndPosition(Vector3(endPoint[2], endPoint[0], endPoint[1]));
+                SetActualEndPosition(G3D::Vector3(endPoint[2], endPoint[0], endPoint[1]));
             }
 
             _type = PATHFIND_INCOMPLETE;
@@ -449,7 +450,7 @@ void PathGenerator::BuildPointPath(const float *startPoint, const float *endPoin
 
     _pathPoints.resize(pointCount);
     for (uint32 i = 0; i < pointCount; ++i)
-        _pathPoints[i] = Vector3(pathPoints[i*VERTEX_SIZE+2], pathPoints[i*VERTEX_SIZE], pathPoints[i*VERTEX_SIZE+1]);
+        _pathPoints[i] = G3D::Vector3(pathPoints[i*VERTEX_SIZE+2], pathPoints[i*VERTEX_SIZE], pathPoints[i*VERTEX_SIZE+1]);
 
     NormalizePath();
 
@@ -563,7 +564,7 @@ NavTerrain PathGenerator::GetNavTerrain(float x, float y, float z)
     }
 }
 
-bool PathGenerator::HaveTile(const Vector3& p) const
+bool PathGenerator::HaveTile(const G3D::Vector3& p) const
 {
     int tx = -1, ty = -1;
     float point[VERTEX_SIZE] = {p.y, p.z, p.x};
@@ -791,13 +792,13 @@ bool PathGenerator::InRangeYZX(const float* v1, const float* v2, float r, float 
     return (dx * dx + dz * dz) < r * r && fabsf(dy) < h;
 }
 
-bool PathGenerator::InRange(Vector3 const& p1, Vector3 const& p2, float r, float h) const
+bool PathGenerator::InRange(G3D::Vector3 const& p1, G3D::Vector3 const& p2, float r, float h) const
 {
-    Vector3 d = p1 - p2;
+    G3D::Vector3 d = p1 - p2;
     return (d.x * d.x + d.y * d.y) < r * r && fabsf(d.z) < h;
 }
 
-float PathGenerator::Dist3DSqr(Vector3 const& p1, Vector3 const& p2) const
+float PathGenerator::Dist3DSqr(G3D::Vector3 const& p1, G3D::Vector3 const& p2) const
 {
     return (p1 - p2).squaredLength();
 }
