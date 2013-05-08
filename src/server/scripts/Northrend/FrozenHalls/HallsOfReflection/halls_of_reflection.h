@@ -18,27 +18,30 @@
 #ifndef DEF_HALLS_OF_REFLECTION_H
 #define DEF_HALLS_OF_REFLECTION_H
 
+#define HoFScriptName "instance_halls_of_reflection"
+
 enum Data
 {
-    MAX_ENCOUNTER          = 4,
+    MAX_ENCOUNTER           = 4,
 
-    DATA_FALRIC_EVENT      = 1,
-    DATA_MARWYN_EVENT      = 2,
-    DATA_FROSWORN_EVENT    = 3,
-    DATA_LICHKING_EVENT    = 4,
+    DATA_FALRIC_EVENT       = 1,
+    DATA_MARWYN_EVENT       = 2,
+    DATA_FROSWORN_EVENT     = 3,
+    DATA_LICHKING_EVENT     = 4,
 
-    DATA_INTRO_EVENT       = 5,
-    DATA_TEAM_IN_INSTANCE  = 6,
-    DATA_WAVE_COUNT        = 7,
-    DATA_WAVE_STATE       = 8,
+    DATA_INTRO_EVENT        = 5,
+    DATA_TEAM_IN_INSTANCE   = 6,
+    DATA_WAVE_COUNT         = 7,
 
-    DATA_SUMMONS           = 9,
-    DATA_ICE_WALL_1        = 10,
-    DATA_ICE_WALL_2        = 11,
-    DATA_ICE_WALL_3        = 12,
-    DATA_ICE_WALL_4        = 13,
+    DATA_SUMMONS            = 8,
+    DATA_ICE_WALL_1         = 9,
+    DATA_ICE_WALL_2         = 10,
+    DATA_ICE_WALL_3         = 11,
+    DATA_ICE_WALL_4         = 12,
 
-    DATA_PHASE             = 14,
+    DATA_PHASE              = 13,
+    DATA_WIPE               = 14,
+    DATA_WAVE_STATE         = 15,
 };
 
 enum Data64
@@ -113,23 +116,23 @@ enum GameObjects
 
 enum Achievements
 {
-    ACHIEV_HALLS_OF_REFLECTION_N   = 4518,
-    ACHIEV_HALLS_OF_REFLECTION_H   = 4521,
-    ACHIEV_NOT_RETREATING_EVENT    = 22615,
-    SPELL_ACHIEV_CHECK             = 72830,
+    ACHIEVHORN                   = 4518,
+    ACHIEVHORH                   = 4521,
+    ACHIEVNOTRETREATINGEVENT     = 22615,
+    SPELL_ACHIEV_CHECK           = 72830,
 };
 
 enum InstanceSpells
 {
-    SPELL_SPIRIT_SPAWN             = 72630, // Well of Corruption small.
-    SPELL_SPIRIT_ACTIVATE_VIS      = 72130, // Visual for Falric/Marwyn trash
-    SPELL_CAST_VISUAL              = 65633, // Sylvanas and Jaine use this aparently
-    SPELL_BOSS_SPAWN_AURA          = 72712, // Falric, Marwyn and Uther
-    SPELL_UTHER_DESPAWN            = 70693, // Todo, makes him invisible, but you're not able to see the visual from it as a player.
-    SPELL_TAKE_FROSTMOURNE         = 72729,
-    SPELL_FROSTMOURNE_DESPAWN      = 72726,
-    SPELL_FROSTMOURNE_VISUAL       = 73220,
-    SPELL_FROSTMOURNE_SOUNDS       = 70667,
+    SPELL_SPIRIT_SPAWN           = 72630, // Well of Corruption small.
+    SPELL_SPIRIT_ACTIVATE_VIS    = 72130, // Visual for Falric/Marwyn trash
+    SPELL_CAST_VISUAL            = 65633, // Sylvanas and Jaine use this aparently
+    SPELL_BOSS_SPAWN_AURA        = 72712, // Falric, Marwyn and Uther
+    SPELL_UTHER_DESPAWN          = 70693, // Todo, makes him invisible, but you're not able to see the visual from it as a player.
+    SPELL_TAKE_FROSTMOURNE       = 72729,
+    SPELL_FROSTMOURNE_DESPAWN    = 72726,
+    SPELL_FROSTMOURNE_VISUAL     = 73220,
+    SPELL_FROSTMOURNE_SOUNDS     = 70667,
 };
 
 const Position OutroSpawns[2] =
@@ -140,8 +143,8 @@ const Position OutroSpawns[2] =
 
 enum HorWorldStates
 {
-    WORLD_STATE_HOR                               = 4884,
-    WORLD_STATE_HOR_WAVE_COUNT                    = 4882,
+    WORLD_STATE_HOR              = 4884,
+    WORLD_STATE_HOR_WAVE_COUNT   = 4882,
 };
 
 // Common actions from Instance Script to Boss Script
@@ -149,13 +152,12 @@ enum Actions
 {
     ACTION_ENTER_COMBAT,
     ACTION_TRASH_ACTIVATE,
+    ACTION_TRASH_PASSIVE,
 };
-
 
 static Position SpawnLoc[]=
 {
-
-// Yes I know groups here don't agree with instance_halls, but I can't think of another way of doing it atm.
+    // Yes I know groups here don't agree with instance_halls, but I can't think of another way of doing it atm.
     // Priests
     {5277.74f, 2016.88f, 707.778f, 5.96903f},
     {5295.88f, 2040.34f, 707.778f, 5.07891f},
@@ -205,7 +207,7 @@ static Position SpawnLoc[]=
 // handled the summonList and the notification events to/from the InstanceScript
 struct boss_horAI : ScriptedAI
 {
-    boss_horAI(Creature* creature) : ScriptedAI(creature), summons(creature)
+    boss_horAI(Creature *pCreature) : ScriptedAI(pCreature), summons(pCreature)
     {
         instance = me->GetInstanceScript();
     }
@@ -222,15 +224,15 @@ struct boss_horAI : ScriptedAI
         me->SetReactState(REACT_PASSIVE);
     }
 
-    void DamageTaken(Unit* /*who*/, uint32 &uiDamage)
+    void DamageTaken(Unit* /*pWho*/, uint32 &uiDamage)
     {
         if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
             uiDamage = 0;
     }
 
-    void DoAction(int32 actionID)
+    void DoAction(const int32 actionID)
     {
-        switch (actionID)
+        switch(actionID)
         {
             case ACTION_ENTER_COMBAT:  // called by InstanceScript when boss shall enter in combat.
                 // Just in case. Should have been done by InstanceScript
@@ -240,11 +242,51 @@ struct boss_horAI : ScriptedAI
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE);
                 me->SetReactState(REACT_AGGRESSIVE);
 
-                if (Unit* unit = me->SelectNearestTarget())
-                    AttackStart(unit);
+                if (Unit *pUnit = me->SelectNearestTarget())
+                    AttackStart(pUnit);
 
                 DoZoneInCombat();
                 break;
+        }
+    }
+
+    void JustSummoned(Creature *pSummoned)
+    {
+        summons.Summon(pSummoned);
+
+        if (Unit *pUnit = pSummoned->SelectNearestTarget())
+        {
+            if (pSummoned->AI())
+                pSummoned->AI()->AttackStart(pUnit);
+            else
+            {
+                pSummoned->GetMotionMaster()->MoveChase(pUnit);
+                pSummoned->Attack(pUnit, true);
+            }
+        }
+
+        if (pSummoned->AI())
+            pSummoned->AI()->DoZoneInCombat();
+    }
+
+    void EnterEvadeMode()
+    {
+        instance->SetData(DATA_WIPE, 1);
+        ScriptedAI::EnterEvadeMode();
+    }
+
+    void SummonedCreatureDespawn(Creature *pSummoned)
+    {
+        summons.Despawn(pSummoned);
+        if (summons.empty())
+        {
+            if (pSummoned->isAlive())
+            {
+                instance->SetData(DATA_WIPE, 1);
+                instance->SetData(DATA_WAVE_COUNT, NOT_STARTED);
+            }
+            else
+                instance->SetData(DATA_WAVE_COUNT, SPECIAL);
         }
     }
 };

@@ -11,6 +11,7 @@
 #                                                                                          #
 ############################################################################################
 
+[189] --> Update Halls Of Reflection. (Thx lostgenx)
 [188] --> Fix halion Outside the scope of the fire. (Thx siley)
 [187] --> Implement Factions on Channel. (Thx MarWit)
 [186] --> Implement Arena Spectator. (Thx Demonid)

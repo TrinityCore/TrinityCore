@@ -23,15 +23,16 @@
 1- Marwyn
 2- Frostworn General
 3- The Lich King
+4= The Escape
 */
 
 enum eEnum
 {
-    ENCOUNTER_WAVE_MERCENARY                      = 6,
-    ENCOUNTER_WAVE_FOOTMAN                        = 10,
-    ENCOUNTER_WAVE_RIFLEMAN                       = 6,
-    ENCOUNTER_WAVE_PRIEST                         = 6,
-    ENCOUNTER_WAVE_MAGE                           = 6,
+    ENCOUNTER_WAVE_MERCENARY    = 6,
+    ENCOUNTER_WAVE_FOOTMAN      = 10,
+    ENCOUNTER_WAVE_RIFLEMAN     = 6,
+    ENCOUNTER_WAVE_PRIEST       = 6,
+    ENCOUNTER_WAVE_MAGE         = 6,
 };
 
 enum Events
@@ -46,14 +47,14 @@ class instance_halls_of_reflection : public InstanceMapScript
 public:
     instance_halls_of_reflection() : InstanceMapScript("instance_halls_of_reflection", 668) { }
 
-    InstanceScript* GetInstanceScript(InstanceMap* map) const
+    InstanceScript* GetInstanceScript(InstanceMap* pMap) const
     {
-        return new instance_halls_of_reflection_InstanceMapScript(map);
+        return new instance_halls_of_reflection_InstanceMapScript(pMap);
     }
 
     struct instance_halls_of_reflection_InstanceMapScript : public InstanceScript
     {
-        instance_halls_of_reflection_InstanceMapScript(Map* map) : InstanceScript(map) {};
+        instance_halls_of_reflection_InstanceMapScript(Map* pMap) : InstanceScript(pMap) {};
 
         bool m_bIsCall;
         bool WaveAdvanced;
@@ -118,7 +119,7 @@ public:
             uiCaveDoor = 0;
             uiTeamInInstance = 0;
             uiWaveCount = 0;
-            uiWaveState = 0;
+            uiWaveCount = 0;
             uiIntroDone = 0;
             m_uiCheckSummon = 0;
             WaveAlive = 0;
@@ -151,8 +152,8 @@ public:
         {
             Map::PlayerList const &players = instance->GetPlayers();
             if (!players.isEmpty())
-                if (Player* player = players.begin()->getSource())
-                    uiTeamInInstance = player->GetTeam();
+                if (Player* pPlayer = players.begin()->getSource())
+                    uiTeamInInstance = pPlayer->GetTeam();
 
             switch (creature->GetEntry())
             {
@@ -174,6 +175,7 @@ public:
                     uiSylvanasPart1 = creature->GetGUID();
                     break;
                 case NPC_FROSTWORN_GENERAL:
+                    creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                     break;
                 case NPC_JAINA_OUTRO:
                     if (uiTeamInInstance == HORDE)
@@ -184,6 +186,26 @@ public:
                 case BOSS_LICH_KING:
                     creature->SetHealth(20917000);
                     uiLichKing = creature->GetGUID();
+                    break;                    
+                case NPC_WAVE_PRIEST:
+                    creature->SetReactState(REACT_PASSIVE);
+                    creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_SILENCED | UNIT_FLAG_PACIFIED | UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_IMMUNE_TO_PC);
+                    break;
+                case NPC_WAVE_FOOTMAN:
+                    creature->SetReactState(REACT_PASSIVE);
+                    creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_SILENCED | UNIT_FLAG_PACIFIED | UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_IMMUNE_TO_PC);
+                    break;
+                case NPC_WAVE_RIFLEMAN:
+                    creature->SetReactState(REACT_PASSIVE);
+                    creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_SILENCED | UNIT_FLAG_PACIFIED | UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_IMMUNE_TO_PC);
+                    break;
+                case NPC_WAVE_MAGE:
+                    creature->SetReactState(REACT_PASSIVE);
+                    creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_SILENCED | UNIT_FLAG_PACIFIED | UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_IMMUNE_TO_PC);
+                    break;
+                case NPC_WAVE_MERCENARY:
+                    creature->SetReactState(REACT_PASSIVE);
+                    creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_SILENCED | UNIT_FLAG_PACIFIED | UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_IMMUNE_TO_PC);
                     break;
             }
         }
@@ -210,7 +232,7 @@ public:
 
         void OnGameObjectCreate(GameObject* go)
         {
-            /// @todo init state depending on encounters
+            // TODO: init state depending on encounters
             switch (go->GetEntry())
             {
                 case GO_FROSTMOURNE:
@@ -298,9 +320,6 @@ public:
         {
             switch (type)
             {
-                case DATA_INTRO_EVENT:
-                    uiIntroDone = data;
-                    break;
                 case DATA_WAVE_STATE:
                     uiWaveState = data;
                     
@@ -309,19 +328,19 @@ public:
                         CloseDoor(uiFrontDoor);
                         if (!m_bIsCall)
                         {
-                           m_bIsCall = true;
-                           Summon();
+                            m_bIsCall = true;
+                            Summon();
                         }
                         events.ScheduleEvent(EVENT_NEXT_WAVE, 15000);
-                     }
+                    }
                      
-                     if (data == IN_PROGRESS) // Called on failed wave
+                    if (data == IN_PROGRESS) // Called on failed wave
                     {
                         CloseDoor(uiFrontDoor);
                         if (!m_bIsCall)
                         {
-                           m_bIsCall = true;
-                           Summon();
+                            m_bIsCall = true;
+                            Summon();
                         }
                         events.ScheduleEvent(EVENT_NEXT_WAVE, 3000);
                     }
@@ -329,7 +348,9 @@ public:
                     if (uiWaveCount && data == FAIL)
                         DoWipe();
                     break;
-                    
+                case DATA_INTRO_EVENT:
+                    uiIntroDone = data;
+                    break;
                 case DATA_FALRIC_EVENT:
                     uiEncounter[0] = data;
                     if (data == DONE)
@@ -360,7 +381,7 @@ public:
                         OpenDoor(uiRunDoor);
 
                         if(instance->IsHeroic())
-                            DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_NOT_RETREATING_EVENT);
+                            DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEVNOTRETREATINGEVENT);
                     }
                     if(data == FAIL)
                     {
@@ -374,24 +395,33 @@ public:
                         if(Creature* pLider = instance->GetCreature(uiLider))
                             pLider->DespawnOrUnsummon(10000);
 
-                        DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_NOT_RETREATING_EVENT);
+                        DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEVNOTRETREATINGEVENT);
+                        DoCastSpellOnPlayers(5); // Kill all players
 
                         SetData(DATA_PHASE, 3);
                         instance->SummonCreature(BOSS_LICH_KING, OutroSpawns[0]);
                         instance->SummonCreature(NPC_JAINA_OUTRO, OutroSpawns[1]);
                     }
-                    if(data == DONE)
+                    if (data == DONE)
                     {
                         if(GameObject *pChest = instance->GetGameObject(uiChest))
                             pChest->SetPhaseMask(1, true);
                         if(GameObject *pPortal = instance->GetGameObject(uiPortal))
                             pPortal->SetPhaseMask(1, true);
 
-                        DoCastSpellOnPlayers(SPELL_ACHIEV_CHECK);
-                        if(instance->IsHeroic())
+                        AchievementEntry const* AchievHoRN = sAchievementStore.LookupEntry(ACHIEVHORN);
+
+                        Map::PlayerList const &players = instance->GetPlayers();
+                        for(Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+                            itr->getSource()->CompletedAchievement(AchievHoRN);
+
+                        if (instance->IsHeroic())
                         {
+                            AchievementEntry const* AchievHoRH = sAchievementStore.LookupEntry(ACHIEVHORH);
+                            for(Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+                                itr->getSource()->CompletedAchievement(AchievHoRH);
                             DoCastSpellOnPlayers(SPELL_ACHIEV_CHECK);
-                            DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_NOT_RETREATING_EVENT);
+                            DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEVNOTRETREATINGEVENT);
                         }
                     }
                     break;
@@ -471,7 +501,7 @@ public:
                 case GO_CAPTAIN_CHEST_3:
                 case GO_CAPTAIN_CHEST_4:        return uiChest;
                 case GO_SKYBREAKER:
-                case GO_ORGRIM_HAMMER:            return uiGunship;
+                case GO_ORGRIM_HAMMER:          return uiGunship;
             }
 
             return 0;
@@ -669,12 +699,10 @@ public:
                  }
 
                  if (Creature* pMarwyn = instance->GetCreature(uiMarwyn))
-                 { 
+                 {
                      if (Creature* trashwave = pMarwyn->SummonCreature(randsummon, SpawnLoc[i], TEMPSUMMON_DEAD_DESPAWN))
                      {
                         m_uiSummonGUID[i] = trashwave->GetGUID();
-                        trashwave->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE|UNIT_FLAG_IMMUNE_TO_PC);
-                        trashwave->SetReactState(REACT_PASSIVE);
                         trashwave->CastSpell(trashwave, SPELL_SPIRIT_SPAWN, true);
                      }
                  }
@@ -687,11 +715,11 @@ public:
         {
             if (GetData(DATA_MARWYN_EVENT) != DONE) {
 
-                uiWaveCount = 0;
-                WaveAlive = 0;
-                m_bIsCall = false;
-                WaveAdvanced = false;
-                m_uiCheckSummon = 0;
+                uiWaveCount         = 0;
+                WaveAlive           = 0;
+                m_bIsCall           = false;
+                WaveAdvanced        = false;
+                m_uiCheckSummon     = 0;
                 events.Reset();
                 DoUpdateWorldState(WORLD_STATE_HOR, 1);
                 DoUpdateWorldState(WORLD_STATE_HOR_WAVE_COUNT, uiWaveCount);
@@ -720,7 +748,6 @@ public:
                         if (Creature* trashwave = instance->GetCreature(m_uiSummonGUID[m_uiCheckSummon]))
                         {
                             trashwave->AI()->DoAction(ACTION_TRASH_ACTIVATE);
-                            trashwave->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                             trashwave->CastSpell(trashwave, SPELL_SPIRIT_ACTIVATE_VIS, true);
                         }
                         m_uiCheckSummon++;
@@ -733,7 +760,6 @@ public:
                     {
                         if (Creature* trashwave = instance->GetCreature(m_uiSummonGUID[m_uiCheckSummon]))
                         {
-                            trashwave->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                             trashwave->CastSpell(trashwave, SPELL_SPIRIT_ACTIVATE_VIS, true);
                             trashwave->AI()->DoAction(ACTION_TRASH_ACTIVATE);
                         }
@@ -746,7 +772,6 @@ public:
                     {
                         if (Creature* trashwave = instance->GetCreature(m_uiSummonGUID[m_uiCheckSummon]))
                         {
-                            trashwave->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                             trashwave->CastSpell(trashwave, SPELL_SPIRIT_ACTIVATE_VIS, true);
                             trashwave->AI()->DoAction(ACTION_TRASH_ACTIVATE);
                         }
@@ -760,7 +785,6 @@ public:
                     {
                         if (Creature* trashwave = instance->GetCreature(m_uiSummonGUID[m_uiCheckSummon]))
                         {
-                            trashwave->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                             trashwave->CastSpell(trashwave, SPELL_SPIRIT_ACTIVATE_VIS, true);
                             trashwave->AI()->DoAction(ACTION_TRASH_ACTIVATE);
                         }
@@ -774,7 +798,6 @@ public:
                     {
                         if (Creature* trashwave = instance->GetCreature(m_uiSummonGUID[m_uiCheckSummon]))
                         {
-                            trashwave->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                             trashwave->CastSpell(trashwave, SPELL_SPIRIT_ACTIVATE_VIS, true);
                             trashwave->AI()->DoAction(ACTION_TRASH_ACTIVATE);
                         }
@@ -783,7 +806,7 @@ public:
                     }
                     break;
             }
-            events.ScheduleEvent(EVENT_NEXT_WAVE, 60000);
+            events.ScheduleEvent(EVENT_NEXT_WAVE, 120000); // Should be enough time...
         }
 
         void Update(uint32 diff)
@@ -793,7 +816,7 @@ public:
 
             if (WaveAlive == 0 && !WaveAdvanced)
             {
-                if (uiWaveCount == 1 || uiWaveCount == 2 || uiWaveCount == 3 || uiWaveCount == 4 || uiWaveCount == 6 || uiWaveCount == 7 ||uiWaveCount == 8  || uiWaveCount == 9)
+                if (uiWaveCount == 1 || uiWaveCount == 2 || uiWaveCount == 3 || uiWaveCount == 4 || uiWaveCount == 6 || uiWaveCount == 7 ||uiWaveCount == 8 || uiWaveCount == 9)
                 {
                     WaveAdvanced = true;
                     events.RescheduleEvent(EVENT_NEXT_WAVE, 1000);
