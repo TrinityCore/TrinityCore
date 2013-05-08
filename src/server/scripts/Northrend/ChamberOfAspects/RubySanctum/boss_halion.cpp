@@ -365,6 +365,12 @@ class boss_halion : public CreatureScript
 
             void DamageTaken(Unit* attacker, uint32& damage)
             {
+                if (!me->IsInDist2d(3156.67f, 533.8108f, 38.0f))
+                {
+                    BossAI::DoTeleportAll(3156.037f, 533.2656f, 72.97205f, 0.0f);
+                    return;
+                }
+
                 if (me->HealthBelowPctDamaged(75, damage) && events.IsInPhase(PHASE_ONE))
                 {
                     events.SetPhase(PHASE_TWO);
