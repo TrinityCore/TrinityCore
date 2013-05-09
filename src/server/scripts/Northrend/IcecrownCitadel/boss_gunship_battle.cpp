@@ -1113,7 +1113,7 @@ class npc_muradin_gunship : public CreatureScript
                             break;
                         case EVENT_OUTRO_ALLIANCE_2:
                             StopFlyShip(skybreaker);
-                            me->SummonGameObject(RAID_MODE(GO_CAPITAN_CHEST_A_10N, GO_CAPITAN_CHEST_A_25N, GO_CAPITAN_CHEST_A_10H, GO_CAPITAN_CHEST_A_25H), -590.200022f, 2241.193115f, 538.588269f, 0, 0, 0, 0, 0, 100000);
+                            me->SummonGameObject(RAID_MODE(GO_CAPTAIN_CHEST_A_10N, GO_CAPTAIN_CHEST_A_25N, GO_CAPTAIN_CHEST_A_10H, GO_CAPTAIN_CHEST_A_25H), -590.200022f, 2241.193115f, 538.588269f, 0, 0, 0, 0, 0, 100000);
                             me->AddUnitMovementFlag(MOVEMENTFLAG_WALKING);
                             me->GetMotionMaster()->MovePoint(0, -590.700f, 2213.01f, 539.1f);
                             break;
@@ -1500,7 +1500,7 @@ class npc_sergeant : public CreatureScript
                                         me->AI()->AttackStart(target);
                                     }
                                 break;
-                                case NPC_GB_SKYBREAKER_SERGANTE:
+                                case NPC_GB_SKYBREAKER_SERGEANT:
                                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true, SPELL_ON_ORGRIMS_HAMMERS_DECK))
                                     {
                                         me->GetMotionMaster()->MoveChase(target);
@@ -2091,7 +2091,7 @@ class npc_saurfang_gunship : public CreatureScript
 
             bool CanAIAttack(Unit const* target) const
             {
-                if (target->GetEntry() == NPC_GB_SKYBREAKER_SERGANTE || target->GetEntry() == NPC_GB_SKYBREAKER_MARINE)
+                if (target->GetEntry() == NPC_GB_SKYBREAKER_SERGEANT || target->GetEntry() == NPC_GB_SKYBREAKER_MARINE)
                     return true;
 
                 return false;
@@ -2294,7 +2294,7 @@ class npc_saurfang_gunship : public CreatureScript
                              {
                                  pSaurfang->AI()->Talk(SAY_BOARDING_SKYBREAKER_MURADIN);
                              }
-                             if (Creature* Sergante = orgrimmar->AddNPCPassengerInInstance(NPC_GB_SKYBREAKER_SERGANTE, 15.03016f, -7.00016f, 37.70952f, 1.55138f))
+                             if (Creature* Sergante = orgrimmar->AddNPCPassengerInInstance(NPC_GB_SKYBREAKER_SERGEANT, 15.03016f, -7.00016f, 37.70952f, 1.55138f))
                              {
                                  Sergante->CastSpell(Sergante, SPELL_TELEPORT_VISUAL, true);
                              }
@@ -2322,7 +2322,7 @@ class npc_saurfang_gunship : public CreatureScript
                             break;
                         case EVENT_OUTRO_HORDE_2:
                             StopFlyShip(orgrimmar);
-                            me->SummonGameObject(RAID_MODE(GO_CAPITAN_CHEST_H_10N, GO_CAPITAN_CHEST_H_25N, GO_CAPITAN_CHEST_H_10H, GO_CAPITAN_CHEST_H_25H), -590.200022f, 2241.193115f, 539.588269f, 0, 0, 0, 0, 0, 100000);
+                            me->SummonGameObject(RAID_MODE(GO_CAPTAIN_CHEST_H_10N, GO_CAPTAIN_CHEST_H_25N, GO_CAPTAIN_CHEST_H_10H, GO_CAPTAIN_CHEST_H_25H), -590.200022f, 2241.193115f, 539.588269f, 0, 0, 0, 0, 0, 100000);
                             me->AddUnitMovementFlag(MOVEMENTFLAG_WALKING);
                             me->GetMotionMaster()->MovePoint(0, -590.700f, 2213.01f, 539.1f);
                             break;

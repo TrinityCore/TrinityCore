@@ -183,7 +183,7 @@ class instance_icecrown_citadel : public InstanceMapScript
             {
                 if (!TeamInInstance)
                     TeamInInstance = player->GetTeam();
-					PrepareGunshipEvent(player); // Spawn Gunship Event
+                    PrepareGunshipEvent(player); // Spawn Gunship Event
             }
 
             void OnCreatureCreate(Creature* creature)
@@ -1597,7 +1597,7 @@ class instance_icecrown_citadel : public InstanceMapScript
             bool IsOozeDanceEligible;
             bool IsNauseaEligible;
             bool IsOrbWhispererEligible;
-			bool isPrepared;
+            bool isPrepared;
             // Gunship: Variables
             // Here we must add states and these things first squad with real events ls
             uint32 FirstSquadState;

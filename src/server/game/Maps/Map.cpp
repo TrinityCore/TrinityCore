@@ -700,7 +700,7 @@ void Map::RemoveFromMap(T *obj, bool remove)
 
     obj->UpdateObjectVisibility(true);
     obj->RemoveFromGrid();
-  // gunship data
+    // gunship data
     obj->ResetMap();
 
     if (remove)
@@ -1677,9 +1677,7 @@ float Map::GetHeight(float x, float y, float z, bool checkVMap /*= true*/, float
         else
             return vmapHeight;                              // we have only vmapHeight (if have)
     }
-
-else  
-
+    else
     {  
 
         if (!checkVMap)  

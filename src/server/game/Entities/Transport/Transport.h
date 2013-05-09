@@ -48,10 +48,10 @@ class Transport : public GameObject, public TransportBase
         typedef std::set<Creature*> CreatureSet;
         CreatureSet m_NPCPassengerSet;
         uint32 AddNPCPassenger(uint32 tguid, uint32 entry, float x, float y, float z, float o, uint32 anim=0);
-      Creature* AddNPCPassengerInInstance(uint32 entry, float x, float y, float z, float o, uint32 anim=0);
+        Creature* AddNPCPassengerInInstance(uint32 entry, float x, float y, float z, float o, uint32 anim=0);
         void UpdatePosition(MovementInfo* mi);
         void UpdatePassengerPositions();
-		void UpdatePlayerPositions();
+        void UpdatePlayerPositions();
 
         /// This method transforms supplied transport offsets into global coordinates
         void CalculatePassengerPosition(float& x, float& y, float& z, float& o) const;
@@ -99,8 +99,8 @@ class Transport : public GameObject, public TransportBase
         uint32 m_nextNodeTime;
 
     private:
-		void TeleportTransport(uint32 newMapid, float x, float y, float z);
-		void UpdateForMap(Map const* map);
+        void TeleportTransport(uint32 newMapid, float x, float y, float z);
+        void UpdateForMap(Map const* map);
         void DoEventIfAny(WayPointMap::value_type const& node, bool departure);
         WayPointMap::const_iterator GetNextWayPoint();
 };
