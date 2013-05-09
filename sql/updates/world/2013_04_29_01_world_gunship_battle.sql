@@ -6,6 +6,7 @@ INSERT INTO `creature_template` (`entry`, `difficulty_entry_1`, `difficulty_entr
 
 -- Miscs
 UPDATE `creature_template` SET `npcflag` = 1 WHERE `entry` IN (36939, 38156, 38637, 38638, 37184);
+UPDATE `creature_template` SET `modelid1` = 25455, `modelid2` = 0, `unit_flags` = 33555202, `flags_extra` = 129, `ScriptName` = 'npc_sindragosas_ward' WHERE `entry` = 37503;
 
 -- Templates del trash
 UPDATE `creature_template` SET `faction_A` = 1801, `faction_H` = 1801, `baseattacktime` = 2000, `rangeattacktime` = 2000, `unit_flags` = 32832, `spell1` = 71339, `spell2` = 70161, `spell3` = 72539, `mechanic_immune_mask` = 73745 WHERE `entry` IN (36968, 38403, 38675, 38676);
@@ -46,16 +47,17 @@ UPDATE `gameobject_template` SET `ScriptName` = 'transport_gunship' WHERE `entry
 UPDATE `item_template` SET ScriptName = 'item_icc_rocket_pack' WHERE entry = 49278;
 
 -- Areatriggers Script
-DELETE FROM `areatrigger_scripts` WHERE `entry` IN (5630, 5628);
+DELETE FROM `areatrigger_scripts` WHERE `entry` IN (5630, 5628, 5623);
 INSERT INTO `areatrigger_scripts` (`entry`,`ScriptName`) VALUES
 (5628,'at_icc_land_frostwyrm'),
-(5630,'at_icc_land_frostwyrm');
+(5630,'at_icc_land_frostwyrm'),
+(5623, 'at_icc_start_sindragosa_gauntlet');
 
 -- Spell Scripts
 DELETE FROM `spell_script_names` WHERE `spell_id` IN (70713, 68645, 69471, 69488, 69402, 70175, 71335, 71339);
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 ('70713', 'spell_icc_remove_rocket_pack'),
-('68645', 'spell_rocket_pack'),
+('68645', 'spell_icc_rocket_pack'),
 ('69471', 'spell_gb_heat_drain'),
 ('69488', 'spell_gb_overheat_drain'),
 ('69402', 'spell_gb_incinerating_blast'),
