@@ -204,7 +204,7 @@ void MapManager::LoadTransports()
         uint32 mapid = t->m_WayPoints[0].mapid;
         float o = 1.0f;
 
-         // creates the Gameobject -- Gunship
+        // creates the Gameobject -- Gunship
         if (!t->Create(lowguid, entry, mapid, x, y, z, o, 100, 0))
          {
             delete t;
@@ -789,7 +789,7 @@ uint32 Transport::AddNPCPassenger(uint32 tguid, uint32 entry, float x, float y, 
     }
     else
         currenttguid = std::max(tguid, currenttguid);
-	creature->setActive(true);	
+    creature->setActive(true);	
     creature->SetGUIDTransport(tguid);
     sScriptMgr->OnAddCreaturePassenger(this, creature);
     return tguid;
@@ -842,7 +842,7 @@ void Transport::UpdatePosition(MovementInfo* mi)
 
     Relocate(transport_x, transport_y, transport_z, transport_o);
     UpdatePassengerPositions();
-	UpdatePlayerPositions();
+    UpdatePlayerPositions();
 }
 
 void Transport::UpdatePassengerPositions()
