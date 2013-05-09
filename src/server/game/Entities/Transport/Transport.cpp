@@ -1,19 +1,21 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2008-2013 Trinity <http://www.trinitycore.org/>
  *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
+ * Updated by: Toba and Baeumchen (maddin)
  */
 
 #include "Common.h"
@@ -27,6 +29,123 @@
 #include "World.h"
 #include "GameObjectAI.h"
 #include "Player.h"
+#include "Vehicle.h"
+
+Transport* MapManager::LoadTransportInMap(Map* instance, uint32 goEntry, uint32 period)
+{
+    const GameObjectTemplate* goInfo = sObjectMgr->GetGameObjectTemplate(goEntry);
+
+    if (!goInfo)
+    {
+        return NULL;
+    }
+
+    if (goInfo->type != GAMEOBJECT_TYPE_MO_TRANSPORT)
+    {
+        return NULL;
+    }
+
+    Transport* t = new Transport(period, goInfo->ScriptId);
+    std::set<uint32> mapsUsed;
+    if (!t->GenerateWaypoints(goInfo->moTransport.taxiPathId, mapsUsed))
+    {
+        delete t;
+        return NULL;
+    }
+    uint32 transportLowGuid = sObjectMgr->GenerateLowGuid(HIGHGUID_MO_TRANSPORT);
+
+    if (!t->Create(transportLowGuid, goEntry, t->m_WayPoints[0].mapid, t->m_WayPoints[0].x, t->m_WayPoints[0].y, t->m_WayPoints[0].z-10, 0.0f, 0, 0))
+    {
+        delete t;
+        return NULL;
+    }
+
+    m_Transports.insert(t);
+    m_TransportsByInstanceIdMap[instance->GetInstanceId()].insert(t);
+    t->SetMap(instance);
+    t->AddToWorld();
+
+    return t;
+}
+
+void MapManager::UnLoadTransportFromMap(Transport* t)
+{
+    Map* map = t->GetMap();
+
+    for (Transport::CreatureSet::iterator itr = t->m_NPCPassengerSet.begin(); itr != t->m_NPCPassengerSet.end();)
+    {
+        if (Creature* npc = *itr)
+        {
+            npc->SetTransport(NULL);
+            npc->setActive(false);
+            npc->RemoveFromWorld();
+        }
+        ++itr;
+    }
+
+    UpdateData transData;
+    t->BuildOutOfRangeUpdateBlock(&transData);
+    WorldPacket out_packet;
+    transData.BuildPacket(&out_packet);
+
+    for (Map::PlayerList::const_iterator itr = map->GetPlayers().begin(); itr != map->GetPlayers().end(); ++itr)
+        if (t != itr->getSource()->GetTransport())
+            itr->getSource()->SendDirectMessage(&out_packet);
+
+    t->m_NPCPassengerSet.clear();         
+    m_TransportsByInstanceIdMap[t->GetInstanceId()].erase(t);
+    m_Transports.erase(t);
+    t->m_WayPoints.clear();
+    t->RemoveFromWorld();
+
+}
+
+void MapManager::LoadTransportForPlayers(Player* player)
+{
+    MapManager::TransportMap& tmap = sMapMgr->m_TransportsByInstanceIdMap;
+    
+    UpdateData transData;
+
+    MapManager::TransportSet& tset = tmap[player->GetInstanceId()];
+
+    for (MapManager::TransportSet::const_iterator i = tset.begin(); i != tset.end(); ++i)
+    {
+        (*i)->BuildCreateUpdateBlockForPlayer(&transData, player);
+    }
+
+    WorldPacket packet;
+    transData.BuildPacket(&packet);
+    player->SendDirectMessage(&packet);
+}
+
+void MapManager::UnLoadTransportForPlayers(Player* player)
+{
+    MapManager::TransportMap& tmap = sMapMgr->m_TransportsByInstanceIdMap;
+    
+    UpdateData transData;
+
+    MapManager::TransportSet& tset = tmap[player->GetInstanceId()];
+
+    for (MapManager::TransportSet::const_iterator i = tset.begin(); i != tset.end(); ++i)
+    {
+        for (Transport::CreatureSet::iterator itr = (*i)->m_NPCPassengerSet.begin(); itr != (*i)->m_NPCPassengerSet.end();)
+        {
+            if (Creature* npc = *itr)
+            {
+                npc->SetTransport(NULL);
+                npc->setActive(false);
+                npc->RemoveFromWorld();
+            }
+            ++itr;
+        }
+
+        (*i)->BuildOutOfRangeUpdateBlock(&transData);
+    }
+
+    WorldPacket packet;
+    transData.BuildPacket(&packet);
+    player->SendDirectMessage(&packet);
+}
 
 void MapManager::LoadTransports()
 {
@@ -85,9 +204,9 @@ void MapManager::LoadTransports()
         uint32 mapid = t->m_WayPoints[0].mapid;
         float o = 1.0f;
 
-         // creates the Gameobject
-        if (!t->Create(lowguid, entry, mapid, x, y, z, o, 255, 0))
-        {
+         // creates the Gameobject -- Gunship
+        if (!t->Create(lowguid, entry, mapid, x, y, z, o, 100, 0))
+         {
             delete t;
             continue;
         }
@@ -209,7 +328,8 @@ bool Transport::Create(uint32 guidlow, uint32 entry, uint32 mapid, float x, floa
     SetObjectScale(goinfo->size);
 
     SetUInt32Value(GAMEOBJECT_FACTION, goinfo->faction);
-    SetUInt32Value(GAMEOBJECT_FLAGS, goinfo->flags);
+    //SetUInt32Value(GAMEOBJECT_FLAGS, goinfo->flags); -- gunship
+    SetUInt32Value(GAMEOBJECT_FLAGS, MAKE_PAIR32(0x28, 0x64));
     SetUInt32Value(GAMEOBJECT_LEVEL, m_period);
     SetEntry(goinfo->entry);
 
@@ -549,6 +669,8 @@ void Transport::Update(uint32 p_diff)
         {
             Relocate(m_curr->second.x, m_curr->second.y, m_curr->second.z, GetAngle(m_next->second.x, m_next->second.y) + float(M_PI));
             UpdatePassengerPositions(); // COME BACK MARKER
+            // This forces the server to update positions in transportation for players -- gunship
+            UpdatePlayerPositions();      	
         }
 
         sScriptMgr->OnRelocate(this, m_curr->first, m_curr->second.mapid, m_curr->second.x, m_curr->second.y, m_curr->second.z);
@@ -667,12 +789,50 @@ uint32 Transport::AddNPCPassenger(uint32 tguid, uint32 entry, float x, float y, 
     }
     else
         currenttguid = std::max(tguid, currenttguid);
-
+	creature->setActive(true);	
     creature->SetGUIDTransport(tguid);
     sScriptMgr->OnAddCreaturePassenger(this, creature);
     return tguid;
 }
 
+// gunship data
+Creature* Transport::AddNPCPassengerInInstance(uint32 entry, float x, float y, float z, float o, uint32 anim)
+{
+    Map* map = GetMap();
+    Creature* creature = new Creature;
+
+    if (!creature->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_UNIT), map, GetPhaseMask(), entry, 0, GetGOInfo()->faction, 0, 0, 0, 0))
+    {
+        delete creature;
+        return 0;
+    }
+
+    creature->SetTransport(this);
+    creature->AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
+    creature->m_movementInfo.guid = GetGUID();
+    creature->m_movementInfo.t_pos.Relocate(x, y, z, o);
+
+    creature->Relocate(
+        GetPositionX() + (x * cos(GetOrientation()) + y * sin(GetOrientation() + float(M_PI))),
+        GetPositionY() + (y * cos(GetOrientation()) + x * sin(GetOrientation())),
+        z + GetPositionZ(),
+        o + GetOrientation());
+
+    creature->SetHomePosition(creature->GetPositionX(), creature->GetPositionY(), creature->GetPositionZ(), creature->GetOrientation());
+
+    if (!creature->IsPositionValid())
+    {
+        delete creature;
+        return 0;
+    }
+
+    map->AddToMap(creature);
+    m_NPCPassengerSet.insert(creature);
+
+    creature->setActive(true);
+    sScriptMgr->OnAddCreaturePassenger(this, creature);
+    return creature;
+}
 void Transport::UpdatePosition(MovementInfo* mi)
 {
     float transport_o = mi->pos.GetOrientation() - mi->t_pos.GetOrientation();
@@ -682,6 +842,7 @@ void Transport::UpdatePosition(MovementInfo* mi)
 
     Relocate(transport_x, transport_y, transport_z, transport_o);
     UpdatePassengerPositions();
+	UpdatePlayerPositions();
 }
 
 void Transport::UpdatePassengerPositions()
@@ -697,6 +858,26 @@ void Transport::UpdatePassengerPositions()
         npc->GetTransportHomePosition(x, y, z, o);
         CalculatePassengerPosition(x, y, z, o);
         npc->SetHomePosition(x, y, z, o);
+    }
+}
+
+// gunship Data
+void Transport::UpdatePlayerPositions()
+{
+    for (PlayerSet::iterator itr = m_passengers.begin(); itr != m_passengers.end(); ++itr)
+    {
+        Player* plr = *itr;
+
+        float x, y, z, o;
+        o = GetOrientation() + plr->m_movementInfo.t_pos.m_orientation;
+        x = GetPositionX() + (plr->m_movementInfo.t_pos.m_positionX * cos(GetOrientation()) + plr->m_movementInfo.t_pos.m_positionY * sin(GetOrientation() + M_PI));
+        y = GetPositionY() + (plr->m_movementInfo.t_pos.m_positionY * cos(GetOrientation()) + plr->m_movementInfo.t_pos.m_positionX * sin(GetOrientation()));
+        z = GetPositionZ() + plr->m_movementInfo.t_pos.m_positionZ;
+        plr->Relocate(x, y, z, o);
+        UpdateData transData;
+        WorldPacket packet;
+        transData.BuildPacket(&packet);
+        plr->SendDirectMessage(&packet);
     }
 }
 
