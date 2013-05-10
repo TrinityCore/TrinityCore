@@ -5129,6 +5129,11 @@ void Spell::EffectCreateTamedPet()
     if (!pet)
         return;
 
+    // relocate
+    float px, py, pz;
+    unitTarget->GetClosePoint(px, py, pz, pet->GetCombatReach(), PET_FOLLOW_DIST, pet->GetFollowAngle());
+    pet->Relocate(px, py, pz, unitTarget->GetOrientation());
+
     // add to world
     pet->GetMap()->AddToMap(pet->ToCreature());
 
