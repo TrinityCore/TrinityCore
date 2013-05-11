@@ -31,11 +31,24 @@ enum Noth
     EMOTE_BALCONY                   = 5,
     EMOTE_SKELETON                  = 6,
     EMOTE_TELEPORT                  = 7,  
+    EMOTE_BLINK                     = 8,
 
     SPELL_CURSE_PLAGUEBRINGER       = 29213,
     SPELL_CRIPPLE                   = 29212,
     SPELL_TELEPORT_BALCONY          = 29216,
     SPELL_TELEPORT_BACK             = 29231,
+    SPELL_SUMMON_WARRIOR_1          = 29247,
+    SPELL_SUMMON_WARRIOR_2          = 29248,
+    SPELL_SUMMON_WARRIOR_3          = 29249,
+    SPELL_SUMMON_CHAMPION_1         = 29255,
+    SPELL_SUMMON_CHAMPION_2         = 29257,
+    SPELL_SUMMON_CHAMPION_3         = 29224,
+    SPELL_SUMMON_CHAMPION_4         = 29262,
+    SPELL_SUMMON_GUARDIAN_1         = 29226,
+    SPELL_SUMMON_GUARDIAN_2         = 29268,
+    SPELL_SUMMON_GUARDIAN_3         = 29256,
+    SPELL_SUMMON_CONSTRUCT_1        = 54862,
+	SPELL_SUMMON_CONST_CHAMP        = 29240,
 
     MOB_WARRIOR                     = 16984,
     MOB_CHAMPION                    = 16983,
@@ -164,6 +177,9 @@ class boss_noth : public CreatureScript
                 if (!UpdateVictim() || !CheckInRoom())
                     return;
 
+                if (me->HasUnitState(UNIT_STATE_CASTING))
+                    return;
+
                 events.Update(diff);
 
                 while (uint32 eventId = events.ExecuteEvent())
@@ -180,11 +196,14 @@ class boss_noth : public CreatureScript
                             events.ScheduleEvent(EVENT_SUMMON, 4000);
                             break;
                         case EVENT_SUMMON:
-                            DoCast(29248);
-                            DoCast(29247);
+                            DoCast(me, SPELL_SUMMON_WARRIOR_1);
+                            DoCast(me, SPELL_SUMMON_WARRIOR_2);
+                            if (GetDifficulty() == RAID_DIFFICULTY_25MAN_NORMAL)
+                                DoCast(me, SPELL_SUMMON_WARRIOR_3);
                             events.ScheduleEvent(EVENT_WARRIOR, 26000);
                             break;
                         case EVENT_BLINK:
+                            TalkToMap(EMOTE_BLINK);
                             DoCastAOE(SPELL_CRIPPLE);
                             DoCastAOE(SPELL_BLINK);
                             DoResetThreat();
@@ -209,22 +228,58 @@ class boss_noth : public CreatureScript
                             switch (balconyCount)
                             {
                                 case 0:
-                                    DoCast(29255);
-                                    DoCast(29257);
+                                    DoCast(me, SPELL_SUMMON_CHAMPION_1);
+                                    DoCast(me, SPELL_SUMMON_CHAMPION_2);
+                                    if (GetDifficulty() == RAID_DIFFICULTY_25MAN_NORMAL)
+                                    {
+									    DoCast(me, SPELL_SUMMON_CHAMPION_3);
+									    DoCast(me, SPELL_SUMMON_CHAMPION_4);
+                                    }
                                     break;
                                 case 1:
-                                    DoCast(29255);
-                                    DoCast(29257);
+                                    DoCast(me, SPELL_SUMMON_CHAMPION_1);
+                                    DoCast(me, SPELL_SUMMON_CHAMPION_2);
+                                    if (GetDifficulty() == RAID_DIFFICULTY_25MAN_NORMAL)
+                                    {
+									    DoCast(me, SPELL_SUMMON_CHAMPION_3);
+									    DoCast(me, SPELL_SUMMON_CHAMPION_4);
+                                    }
                                     break;
                                 case 2:
-                                    DoCast(29255);
-                                    DoCast(29268);
-                                    DoCast(29226);
+                                    if (GetDifficulty() == RAID_DIFFICULTY_10MAN_NORMAL)
+                                    {
+									    DoCast(me, SPELL_SUMMON_CHAMPION_1);
+									    DoCast(me, SPELL_SUMMON_GUARDIAN_2);
+									    DoCast(me, SPELL_SUMMON_GUARDIAN_1);
+                                    }
+                                    else if (GetDifficulty() == RAID_DIFFICULTY_25MAN_NORMAL)
+                                    {
+									    DoCast(me, SPELL_SUMMON_CHAMPION_1);
+									    DoCast(me, SPELL_SUMMON_CHAMPION_2);
+									    DoCast(me, SPELL_SUMMON_CHAMPION_3);
+									    DoCast(me, SPELL_SUMMON_CHAMPION_4);
+									    DoCast(me, SPELL_SUMMON_GUARDIAN_1);
+									    DoCast(me, SPELL_SUMMON_GUARDIAN_3);
+                                    }
                                     break;
                                 default:
-                                    DoCast(29257);
-                                    DoCast(54862);
-                                    DoCast(29226);
+                                    if (GetDifficulty() == RAID_DIFFICULTY_10MAN_NORMAL)
+                                    {
+									    DoCast(me, SPELL_SUMMON_CHAMPION_2);
+									    DoCast(me, SPELL_SUMMON_CONSTRUCT_1);
+									    DoCast(me, SPELL_SUMMON_GUARDIAN_1);
+                                    }
+                                    else if (GetDifficulty() == RAID_DIFFICULTY_25MAN_NORMAL)
+                                    {
+									    DoCast(me, SPELL_SUMMON_CONST_CHAMP);
+									    DoCast(me, SPELL_SUMMON_CHAMPION_2);
+									    DoCast(me, SPELL_SUMMON_CHAMPION_3);
+									    DoCast(me, SPELL_SUMMON_CHAMPION_4);
+									    DoCast(me, SPELL_SUMMON_GUARDIAN_1);
+									    DoCast(me, SPELL_SUMMON_GUARDIAN_3);
+									    DoCast(me, SPELL_SUMMON_CONSTRUCT_1);
+									    DoCast(me, SPELL_SUMMON_CONST_CHAMP);
+                                    }
                                     break;
                             }
                             ++waveCount;
