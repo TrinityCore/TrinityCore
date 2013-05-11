@@ -242,6 +242,7 @@ public:
     float     ValueMultiplier;
     float     DamageMultiplier;
     float     BonusMultiplier;
+    float     BonusCoefficient;
     int32     MiscValue;
     int32     MiscValueB;
     Mechanics Mechanic;
