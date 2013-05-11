@@ -48,7 +48,7 @@ enum Noth
     SPELL_SUMMON_GUARDIAN_2         = 29268,
     SPELL_SUMMON_GUARDIAN_3         = 29256,
     SPELL_SUMMON_CONSTRUCT_1        = 54862,
-	SPELL_SUMMON_CONST_CHAMP        = 29240,
+    SPELL_SUMMON_CONST_CHAMP        = 29240,
 
     MOB_WARRIOR                     = 16984,
     MOB_CHAMPION                    = 16983,
@@ -232,8 +232,8 @@ class boss_noth : public CreatureScript
                                     DoCast(me, SPELL_SUMMON_CHAMPION_2);
                                     if (GetDifficulty() == RAID_DIFFICULTY_25MAN_NORMAL)
                                     {
-									    DoCast(me, SPELL_SUMMON_CHAMPION_3);
-									    DoCast(me, SPELL_SUMMON_CHAMPION_4);
+                                        DoCast(me, SPELL_SUMMON_CHAMPION_3);
+                                        DoCast(me, SPELL_SUMMON_CHAMPION_4);
                                     }
                                     break;
                                 case 1:
@@ -241,44 +241,44 @@ class boss_noth : public CreatureScript
                                     DoCast(me, SPELL_SUMMON_CHAMPION_2);
                                     if (GetDifficulty() == RAID_DIFFICULTY_25MAN_NORMAL)
                                     {
-									    DoCast(me, SPELL_SUMMON_CHAMPION_3);
-									    DoCast(me, SPELL_SUMMON_CHAMPION_4);
+                                        DoCast(me, SPELL_SUMMON_CHAMPION_3);
+                                        DoCast(me, SPELL_SUMMON_CHAMPION_4);
                                     }
                                     break;
                                 case 2:
                                     if (GetDifficulty() == RAID_DIFFICULTY_10MAN_NORMAL)
                                     {
-									    DoCast(me, SPELL_SUMMON_CHAMPION_1);
-									    DoCast(me, SPELL_SUMMON_GUARDIAN_2);
-									    DoCast(me, SPELL_SUMMON_GUARDIAN_1);
+                                        DoCast(me, SPELL_SUMMON_CHAMPION_1);
+                                        DoCast(me, SPELL_SUMMON_GUARDIAN_2);
+                                        DoCast(me, SPELL_SUMMON_GUARDIAN_1);
                                     }
                                     else if (GetDifficulty() == RAID_DIFFICULTY_25MAN_NORMAL)
                                     {
-									    DoCast(me, SPELL_SUMMON_CHAMPION_1);
-									    DoCast(me, SPELL_SUMMON_CHAMPION_2);
-									    DoCast(me, SPELL_SUMMON_CHAMPION_3);
-									    DoCast(me, SPELL_SUMMON_CHAMPION_4);
-									    DoCast(me, SPELL_SUMMON_GUARDIAN_1);
-									    DoCast(me, SPELL_SUMMON_GUARDIAN_3);
+                                        DoCast(me, SPELL_SUMMON_CHAMPION_1);
+                                        DoCast(me, SPELL_SUMMON_CHAMPION_2);
+                                        DoCast(me, SPELL_SUMMON_CHAMPION_3);
+                                        DoCast(me, SPELL_SUMMON_CHAMPION_4);
+                                        DoCast(me, SPELL_SUMMON_GUARDIAN_1);
+                                        DoCast(me, SPELL_SUMMON_GUARDIAN_3);
                                     }
                                     break;
                                 default:
                                     if (GetDifficulty() == RAID_DIFFICULTY_10MAN_NORMAL)
                                     {
-									    DoCast(me, SPELL_SUMMON_CHAMPION_2);
-									    DoCast(me, SPELL_SUMMON_CONSTRUCT_1);
-									    DoCast(me, SPELL_SUMMON_GUARDIAN_1);
+                                        DoCast(me, SPELL_SUMMON_CHAMPION_2);
+                                        DoCast(me, SPELL_SUMMON_CONSTRUCT_1);
+                                        DoCast(me, SPELL_SUMMON_GUARDIAN_1);
                                     }
                                     else if (GetDifficulty() == RAID_DIFFICULTY_25MAN_NORMAL)
                                     {
-									    DoCast(me, SPELL_SUMMON_CONST_CHAMP);
-									    DoCast(me, SPELL_SUMMON_CHAMPION_2);
-									    DoCast(me, SPELL_SUMMON_CHAMPION_3);
-									    DoCast(me, SPELL_SUMMON_CHAMPION_4);
-									    DoCast(me, SPELL_SUMMON_GUARDIAN_1);
-									    DoCast(me, SPELL_SUMMON_GUARDIAN_3);
-									    DoCast(me, SPELL_SUMMON_CONSTRUCT_1);
-									    DoCast(me, SPELL_SUMMON_CONST_CHAMP);
+                                        DoCast(me, SPELL_SUMMON_CONST_CHAMP);
+                                        DoCast(me, SPELL_SUMMON_CHAMPION_2);
+                                        DoCast(me, SPELL_SUMMON_CHAMPION_3);
+                                        DoCast(me, SPELL_SUMMON_CHAMPION_4);
+                                        DoCast(me, SPELL_SUMMON_GUARDIAN_1);
+                                        DoCast(me, SPELL_SUMMON_GUARDIAN_3);
+                                        DoCast(me, SPELL_SUMMON_CONSTRUCT_1);
+                                        DoCast(me, SPELL_SUMMON_CONST_CHAMP);
                                     }
                                     break;
                             }
