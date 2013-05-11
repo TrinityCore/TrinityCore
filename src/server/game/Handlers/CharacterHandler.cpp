@@ -1089,7 +1089,30 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
     }
 
     if (pCurrChar->HasAtLoginFlag(AT_LOGIN_FIRST))
+    {
         pCurrChar->RemoveAtLoginFlag(AT_LOGIN_FIRST);
+
+        if (pCurrChar->getClass() == CLASS_HUNTER)
+        {
+            static uint32 const HunterCreatePetSpells[MAX_RACES] = 
+            {
+                   0,  /* None */                          79597,  /* Human - Young Wolf */
+               79598,  /* Orc - Young Boar */              79593,  /* Dwarf - Young Bear */
+               79602,  /* Night Elf - Young Cat */         79600,  /* Undead - Young Widow */
+               79603,  /* Tauren - Young Tallstrider */        0,  /* Gnome */
+               79599,  /* Troll - Young Raptor */          79595,  /* Goblin - Young Crab */
+               79594,  /* Blood Elf - Young Dragonhawk */  79601,  /* Draenei - Young Moth */
+                   0,  /* Fel Orc */                           0,  /* Naga */
+                   0,  /* Broken */                            0,  /* Skeleton */
+                   0,  /* Vrykul */                            0,  /* Tuskarr */
+                   0,  /* Forest Troll */                      0,  /* Taunka */
+                   0,  /* Northrend Skeleton */                0,  /* Ice Troll */
+               79596,  /* Worgen - Young Mastiff */
+            };
+
+            pCurrChar->CastSpell(pCurrChar, HunterCreatePetSpells[pCurrChar->getRace()], true);
+        }
+    }
 
     // show time before shutdown if shutdown planned.
     if (sWorld->IsShuttingDown())
