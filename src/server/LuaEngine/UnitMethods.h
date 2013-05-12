@@ -826,7 +826,7 @@ public:
     {
         TO_PLAYER_BOOL();
 
-        sEluna->PushBoolean(L, player->GetSession()->IsARecruiter());
+        sEluna->PushBoolean(L, player->GetSession()->IsARecruiter() || (player->GetSession()->GetRecruiterId() != 0));
         return 1;
     }
 
