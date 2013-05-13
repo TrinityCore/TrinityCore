@@ -23,17 +23,16 @@
 #include "Appender.h"
 #include "LogWorker.h"
 #include "Logger.h"
-
-#include <ace/Singleton.h>
+#include "Dynamic/UnorderedMap.h"
 
 #include <string>
-#include <set>
+#include <ace/Singleton.h>
 
 class Log
 {
     friend class ACE_Singleton<Log, ACE_Thread_Mutex>;
 
-    typedef std::map<uint8, Logger> LoggerMap;
+    typedef UNORDERED_MAP<uint8, Logger> LoggerMap;
 
     private:
         Log();
@@ -80,6 +79,56 @@ class Log
         LogWorker* worker;
 };
 
+inline bool Log::ShouldLog(LogFilterType type, LogLevel level) const
+{
+    LoggerMap::const_iterator it = loggers.find(uint8(type));
+    if (it != loggers.end())
+    {
+        LogLevel logLevel = it->second.getLogLevel();
+        return logLevel != LOG_LEVEL_DISABLED && logLevel <= level;
+    }
+
+    if (type != LOG_FILTER_GENERAL)
+        return ShouldLog(LOG_FILTER_GENERAL, level);
+    else
+        return false;
+}
+
 #define sLog ACE_Singleton<Log, ACE_Thread_Mutex>::instance()
+
+#if PLATFORM != PLATFORM_WINDOWS
+#   define TC_LOG_MESSAGE_BODY(level__, call__, filterType__, ...)  \
+        do {                                                        \
+            if (sLog->ShouldLog(filterType__, level__))             \
+                sLog->call__(filterType__, __VA_ARGS__);            \
+        } while (0)
+#else
+#   define TC_LOG_MESSAGE_BODY(level__, call__, filterType__, ...)  \
+        __pragma(warning(push))                                     \
+        __pragma(warning(disable:4127))                             \
+        do {                                                        \
+            if (sLog->ShouldLog(filterType__, level__))             \
+                sLog->call__(filterType__, __VA_ARGS__);            \
+        } while (0)                                                 \
+        __pragma(warning(pop))
+#endif
+
+#define TC_LOG_TRACE(filterType__, ...) \
+    TC_LOG_MESSAGE_BODY(LOG_LEVEL_TRACE, outTrace, filterType__, __VA_ARGS__)
+
+#define TC_LOG_DEBUG(filterType__, ...) \
+    TC_LOG_MESSAGE_BODY(LOG_LEVEL_DEBUG, outDebug, filterType__, __VA_ARGS__)
+
+#define TC_LOG_INFO(filterType__, ...)  \
+    TC_LOG_MESSAGE_BODY(LOG_LEVEL_INFO, outInfo, filterType__, __VA_ARGS__)
+
+#define TC_LOG_WARN(filterType__, ...)  \
+    TC_LOG_MESSAGE_BODY(LOG_LEVEL_WARN, outWarn, filterType__, __VA_ARGS__)
+
+#define TC_LOG_ERROR(filterType__, ...) \
+    TC_LOG_MESSAGE_BODY(LOG_LEVEL_ERROR, outError, filterType__, __VA_ARGS__)
+
+#define TC_LOG_FATAL(filterType__, ...) \
+    TC_LOG_MESSAGE_BODY(LOG_LEVEL_FATAL, outFatal, filterType__, __VA_ARGS__)
 
 #endif
