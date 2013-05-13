@@ -11,6 +11,7 @@
 #                                                                                          #
 ############################################################################################
 
+[193] --> Update Naxxramas. (Thx Shaco)
 [192] --> Update Naxxramas. (Thx Shaco)
 [191] --> Implement melee damage delay. (Thx trickerer)
 [190] --> Update Utgarde Pinnacle: Skadi. (Thx lostgenx)

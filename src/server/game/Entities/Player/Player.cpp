@@ -4618,6 +4618,8 @@ bool Player::resetTalents(bool no_cost)
             const SpellInfo* _spellEntry = sSpellMgr->GetSpellInfo(talentInfo->RankID[rank]);
             if (!_spellEntry)
                 continue;
+            if (talentInfo->RankID[rank] == 20473)
+                continue;
             removeSpell(talentInfo->RankID[rank], true);
             // search for spells that the talent teaches and unlearn them
             for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
