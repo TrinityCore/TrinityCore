@@ -96,14 +96,14 @@ inline bool Log::ShouldLog(LogFilterType type, LogLevel level) const
 
 #define sLog ACE_Singleton<Log, ACE_Thread_Mutex>::instance()
 
-#if PLATFORM != PLATFORM_WINDOWS
-#   define TC_LOG_MESSAGE_BODY(level__, call__, filterType__, ...)  \
+#if COMPILER != COMPILER_MICROSOFT
+#define TC_LOG_MESSAGE_BODY(level__, call__, filterType__, ...)     \
         do {                                                        \
             if (sLog->ShouldLog(filterType__, level__))             \
                 sLog->call__(filterType__, __VA_ARGS__);            \
         } while (0)
 #else
-#   define TC_LOG_MESSAGE_BODY(level__, call__, filterType__, ...)  \
+#define TC_LOG_MESSAGE_BODY(level__, call__, filterType__, ...)     \
         __pragma(warning(push))                                     \
         __pragma(warning(disable:4127))                             \
         do {                                                        \
