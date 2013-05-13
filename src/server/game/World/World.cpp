@@ -271,7 +271,7 @@ void World::AddSession_(WorldSession* s)
     {
         AddQueuedPlayer(s);
         UpdateMaxSessionCounters();
-        sLog->outInfo(LOG_FILTER_GENERAL, "PlayerQueue: Account id %u is in Queue Position (%u).", s->GetAccountId(), ++QueueSize);
+        TC_LOG_INFO(LOG_FILTER_GENERAL, "PlayerQueue: Account id %u is in Queue Position (%u).", s->GetAccountId(), ++QueueSize);
         return;
     }
 
@@ -288,7 +288,7 @@ void World::AddSession_(WorldSession* s)
         float popu = (float)GetActiveSessionCount();              // updated number of users on the server
         popu /= pLimit;
         popu *= 2;
-        sLog->outInfo(LOG_FILTER_GENERAL, "Server Population (%f).", popu);
+        TC_LOG_INFO(LOG_FILTER_GENERAL, "Server Population (%f).", popu);
     }
 }
 
@@ -399,7 +399,7 @@ void World::LoadConfigSettings(bool reload)
     {
         if (!ConfigMgr::Load())
         {
-            sLog->outError(LOG_FILTER_GENERAL, "World settings reload fail: can't read settings from %s.", ConfigMgr::GetFilename().c_str());
+            TC_LOG_ERROR(LOG_FILTER_GENERAL, "World settings reload fail: can't read settings from %s.", ConfigMgr::GetFilename().c_str());
             return;
         }
         sLog->LoadFromConfig();
@@ -422,27 +422,27 @@ void World::LoadConfigSettings(bool reload)
     rate_values[RATE_HEALTH]      = ConfigMgr::GetFloatDefault("Rate.Health", 1);
     if (rate_values[RATE_HEALTH] < 0)
     {
-        sLog->outError(LOG_FILTER_SERVER_LOADING, "Rate.Health (%f) must be > 0. Using 1 instead.", rate_values[RATE_HEALTH]);
+        TC_LOG_ERROR(LOG_FILTER_SERVER_LOADING, "Rate.Health (%f) must be > 0. Using 1 instead.", rate_values[RATE_HEALTH]);
         rate_values[RATE_HEALTH] = 1;
     }
     rate_values[RATE_POWER_MANA]  = ConfigMgr::GetFloatDefault("Rate.Mana", 1);
     if (rate_values[RATE_POWER_MANA] < 0)
     {
-        sLog->outError(LOG_FILTER_SERVER_LOADING, "Rate.Mana (%f) must be > 0. Using 1 instead.", rate_values[RATE_POWER_MANA]);
+        TC_LOG_ERROR(LOG_FILTER_SERVER_LOADING, "Rate.Mana (%f) must be > 0. Using 1 instead.", rate_values[RATE_POWER_MANA]);
         rate_values[RATE_POWER_MANA] = 1;
     }
     rate_values[RATE_POWER_RAGE_INCOME] = ConfigMgr::GetFloatDefault("Rate.Rage.Income", 1);
     rate_values[RATE_POWER_RAGE_LOSS]   = ConfigMgr::GetFloatDefault("Rate.Rage.Loss", 1);
     if (rate_values[RATE_POWER_RAGE_LOSS] < 0)
     {
-        sLog->outError(LOG_FILTER_SERVER_LOADING, "Rate.Rage.Loss (%f) must be > 0. Using 1 instead.", rate_values[RATE_POWER_RAGE_LOSS]);
+        TC_LOG_ERROR(LOG_FILTER_SERVER_LOADING, "Rate.Rage.Loss (%f) must be > 0. Using 1 instead.", rate_values[RATE_POWER_RAGE_LOSS]);
         rate_values[RATE_POWER_RAGE_LOSS] = 1;
     }
     rate_values[RATE_POWER_RUNICPOWER_INCOME] = ConfigMgr::GetFloatDefault("Rate.RunicPower.Income", 1);
     rate_values[RATE_POWER_RUNICPOWER_LOSS]   = ConfigMgr::GetFloatDefault("Rate.RunicPower.Loss", 1);
     if (rate_values[RATE_POWER_RUNICPOWER_LOSS] < 0)
     {
-        sLog->outError(LOG_FILTER_SERVER_LOADING, "Rate.RunicPower.Loss (%f) must be > 0. Using 1 instead.", rate_values[RATE_POWER_RUNICPOWER_LOSS]);
+        TC_LOG_ERROR(LOG_FILTER_SERVER_LOADING, "Rate.RunicPower.Loss (%f) must be > 0. Using 1 instead.", rate_values[RATE_POWER_RUNICPOWER_LOSS]);
         rate_values[RATE_POWER_RUNICPOWER_LOSS] = 1;
     }
     rate_values[RATE_POWER_FOCUS]  = ConfigMgr::GetFloatDefault("Rate.Focus", 1.0f);
@@ -466,7 +466,7 @@ void World::LoadConfigSettings(bool reload)
     rate_values[RATE_REPAIRCOST]  = ConfigMgr::GetFloatDefault("Rate.RepairCost", 1.0f);
     if (rate_values[RATE_REPAIRCOST] < 0.0f)
     {
-        sLog->outError(LOG_FILTER_SERVER_LOADING, "Rate.RepairCost (%f) must be >=0. Using 0.0 instead.", rate_values[RATE_REPAIRCOST]);
+        TC_LOG_ERROR(LOG_FILTER_SERVER_LOADING, "Rate.RepairCost (%f) must be >=0. Using 0.0 instead.", rate_values[RATE_REPAIRCOST]);
         rate_values[RATE_REPAIRCOST] = 0.0f;
     }
     rate_values[RATE_REPUTATION_GAIN]  = ConfigMgr::GetFloatDefault("Rate.Reputation.Gain", 1.0f);
@@ -501,13 +501,13 @@ void World::LoadConfigSettings(bool reload)
     rate_values[RATE_TALENT] = ConfigMgr::GetFloatDefault("Rate.Talent", 1.0f);
     if (rate_values[RATE_TALENT] < 0.0f)
     {
-        sLog->outError(LOG_FILTER_SERVER_LOADING, "Rate.Talent (%f) must be > 0. Using 1 instead.", rate_values[RATE_TALENT]);
+        TC_LOG_ERROR(LOG_FILTER_SERVER_LOADING, "Rate.Talent (%f) must be > 0. Using 1 instead.", rate_values[RATE_TALENT]);
         rate_values[RATE_TALENT] = 1.0f;
     }
     rate_values[RATE_MOVESPEED] = ConfigMgr::GetFloatDefault("Rate.MoveSpeed", 1.0f);
     if (rate_values[RATE_MOVESPEED] < 0)
     {
-        sLog->outError(LOG_FILTER_SERVER_LOADING, "Rate.MoveSpeed (%f) must be > 0. Using 1 instead.", rate_values[RATE_MOVESPEED]);
+        TC_LOG_ERROR(LOG_FILTER_SERVER_LOADING, "Rate.MoveSpeed (%f) must be > 0. Using 1 instead.", rate_values[RATE_MOVESPEED]);
         rate_values[RATE_MOVESPEED] = 1.0f;
     }
     for (uint8 i = 0; i < MAX_MOVE_TYPE; ++i) playerBaseMoveSpeed[i] = baseMoveSpeed[i] * rate_values[RATE_MOVESPEED];
@@ -516,12 +516,12 @@ void World::LoadConfigSettings(bool reload)
     rate_values[RATE_TARGET_POS_RECALCULATION_RANGE] = ConfigMgr::GetFloatDefault("TargetPosRecalculateRange", 1.5f);
     if (rate_values[RATE_TARGET_POS_RECALCULATION_RANGE] < CONTACT_DISTANCE)
     {
-        sLog->outError(LOG_FILTER_SERVER_LOADING, "TargetPosRecalculateRange (%f) must be >= %f. Using %f instead.", rate_values[RATE_TARGET_POS_RECALCULATION_RANGE], CONTACT_DISTANCE, CONTACT_DISTANCE);
+        TC_LOG_ERROR(LOG_FILTER_SERVER_LOADING, "TargetPosRecalculateRange (%f) must be >= %f. Using %f instead.", rate_values[RATE_TARGET_POS_RECALCULATION_RANGE], CONTACT_DISTANCE, CONTACT_DISTANCE);
         rate_values[RATE_TARGET_POS_RECALCULATION_RANGE] = CONTACT_DISTANCE;
     }
     else if (rate_values[RATE_TARGET_POS_RECALCULATION_RANGE] > NOMINAL_MELEE_RANGE)
     {
-        sLog->outError(LOG_FILTER_SERVER_LOADING, "TargetPosRecalculateRange (%f) must be <= %f. Using %f instead.",
+        TC_LOG_ERROR(LOG_FILTER_SERVER_LOADING, "TargetPosRecalculateRange (%f) must be <= %f. Using %f instead.",
             rate_values[RATE_TARGET_POS_RECALCULATION_RANGE], NOMINAL_MELEE_RANGE, NOMINAL_MELEE_RANGE);
         rate_values[RATE_TARGET_POS_RECALCULATION_RANGE] = NOMINAL_MELEE_RANGE;
     }
@@ -529,12 +529,12 @@ void World::LoadConfigSettings(bool reload)
     rate_values[RATE_DURABILITY_LOSS_ON_DEATH]  = ConfigMgr::GetFloatDefault("DurabilityLoss.OnDeath", 10.0f);
     if (rate_values[RATE_DURABILITY_LOSS_ON_DEATH] < 0.0f)
     {
-        sLog->outError(LOG_FILTER_SERVER_LOADING, "DurabilityLoss.OnDeath (%f) must be >=0. Using 0.0 instead.", rate_values[RATE_DURABILITY_LOSS_ON_DEATH]);
+        TC_LOG_ERROR(LOG_FILTER_SERVER_LOADING, "DurabilityLoss.OnDeath (%f) must be >=0. Using 0.0 instead.", rate_values[RATE_DURABILITY_LOSS_ON_DEATH]);
         rate_values[RATE_DURABILITY_LOSS_ON_DEATH] = 0.0f;
     }
     if (rate_values[RATE_DURABILITY_LOSS_ON_DEATH] > 100.0f)
     {
-        sLog->outError(LOG_FILTER_SERVER_LOADING, "DurabilityLoss.OnDeath (%f) must be <= 100. Using 100.0 instead.", rate_values[RATE_DURABILITY_LOSS_ON_DEATH]);
+        TC_LOG_ERROR(LOG_FILTER_SERVER_LOADING, "DurabilityLoss.OnDeath (%f) must be <= 100. Using 100.0 instead.", rate_values[RATE_DURABILITY_LOSS_ON_DEATH]);
         rate_values[RATE_DURABILITY_LOSS_ON_DEATH] = 0.0f;
     }
     rate_values[RATE_DURABILITY_LOSS_ON_DEATH] = rate_values[RATE_DURABILITY_LOSS_ON_DEATH] / 100.0f;
@@ -542,25 +542,25 @@ void World::LoadConfigSettings(bool reload)
     rate_values[RATE_DURABILITY_LOSS_DAMAGE] = ConfigMgr::GetFloatDefault("DurabilityLossChance.Damage", 0.5f);
     if (rate_values[RATE_DURABILITY_LOSS_DAMAGE] < 0.0f)
     {
-        sLog->outError(LOG_FILTER_SERVER_LOADING, "DurabilityLossChance.Damage (%f) must be >=0. Using 0.0 instead.", rate_values[RATE_DURABILITY_LOSS_DAMAGE]);
+        TC_LOG_ERROR(LOG_FILTER_SERVER_LOADING, "DurabilityLossChance.Damage (%f) must be >=0. Using 0.0 instead.", rate_values[RATE_DURABILITY_LOSS_DAMAGE]);
         rate_values[RATE_DURABILITY_LOSS_DAMAGE] = 0.0f;
     }
     rate_values[RATE_DURABILITY_LOSS_ABSORB] = ConfigMgr::GetFloatDefault("DurabilityLossChance.Absorb", 0.5f);
     if (rate_values[RATE_DURABILITY_LOSS_ABSORB] < 0.0f)
     {
-        sLog->outError(LOG_FILTER_SERVER_LOADING, "DurabilityLossChance.Absorb (%f) must be >=0. Using 0.0 instead.", rate_values[RATE_DURABILITY_LOSS_ABSORB]);
+        TC_LOG_ERROR(LOG_FILTER_SERVER_LOADING, "DurabilityLossChance.Absorb (%f) must be >=0. Using 0.0 instead.", rate_values[RATE_DURABILITY_LOSS_ABSORB]);
         rate_values[RATE_DURABILITY_LOSS_ABSORB] = 0.0f;
     }
     rate_values[RATE_DURABILITY_LOSS_PARRY] = ConfigMgr::GetFloatDefault("DurabilityLossChance.Parry", 0.05f);
     if (rate_values[RATE_DURABILITY_LOSS_PARRY] < 0.0f)
     {
-        sLog->outError(LOG_FILTER_SERVER_LOADING, "DurabilityLossChance.Parry (%f) must be >=0. Using 0.0 instead.", rate_values[RATE_DURABILITY_LOSS_PARRY]);
+        TC_LOG_ERROR(LOG_FILTER_SERVER_LOADING, "DurabilityLossChance.Parry (%f) must be >=0. Using 0.0 instead.", rate_values[RATE_DURABILITY_LOSS_PARRY]);
         rate_values[RATE_DURABILITY_LOSS_PARRY] = 0.0f;
     }
     rate_values[RATE_DURABILITY_LOSS_BLOCK] = ConfigMgr::GetFloatDefault("DurabilityLossChance.Block", 0.05f);
     if (rate_values[RATE_DURABILITY_LOSS_BLOCK] < 0.0f)
     {
-        sLog->outError(LOG_FILTER_SERVER_LOADING, "DurabilityLossChance.Block (%f) must be >=0. Using 0.0 instead.", rate_values[RATE_DURABILITY_LOSS_BLOCK]);
+        TC_LOG_ERROR(LOG_FILTER_SERVER_LOADING, "DurabilityLossChance.Block (%f) must be >=0. Using 0.0 instead.", rate_values[RATE_DURABILITY_LOSS_BLOCK]);
         rate_values[RATE_DURABILITY_LOSS_BLOCK] = 0.0f;
     }
     ///- Read other configuration items from the config file
@@ -570,7 +570,7 @@ void World::LoadConfigSettings(bool reload)
     m_int_configs[CONFIG_COMPRESSION] = ConfigMgr::GetIntDefault("Compression", 1);
     if (m_int_configs[CONFIG_COMPRESSION] < 1 || m_int_configs[CONFIG_COMPRESSION] > 9)
     {
-        sLog->outError(LOG_FILTER_SERVER_LOADING, "Compression level (%i) must be in range 1..9. Using default compression level (1).", m_int_configs[CONFIG_COMPRESSION]);
+        TC_LOG_ERROR(LOG_FILTER_SERVER_LOADING, "Compression level (%i) must be in range 1..9. Using default compression level (1).", m_int_configs[CONFIG_COMPRESSION]);
         m_int_configs[CONFIG_COMPRESSION] = 1;
     }
     m_bool_configs[CONFIG_ADDON_CHANNEL] = ConfigMgr::GetBoolDefault("AddonChannel", true);
@@ -593,14 +593,14 @@ void World::LoadConfigSettings(bool reload)
     m_int_configs[CONFIG_MIN_LEVEL_STAT_SAVE] = ConfigMgr::GetIntDefault("PlayerSave.Stats.MinLevel", 0);
     if (m_int_configs[CONFIG_MIN_LEVEL_STAT_SAVE] > MAX_LEVEL)
     {
-        sLog->outError(LOG_FILTER_SERVER_LOADING, "PlayerSave.Stats.MinLevel (%i) must be in range 0..80. Using default, do not save character stats (0).", m_int_configs[CONFIG_MIN_LEVEL_STAT_SAVE]);
+        TC_LOG_ERROR(LOG_FILTER_SERVER_LOADING, "PlayerSave.Stats.MinLevel (%i) must be in range 0..80. Using default, do not save character stats (0).", m_int_configs[CONFIG_MIN_LEVEL_STAT_SAVE]);
         m_int_configs[CONFIG_MIN_LEVEL_STAT_SAVE] = 0;
     }
 
     m_int_configs[CONFIG_INTERVAL_GRIDCLEAN] = ConfigMgr::GetIntDefault("GridCleanUpDelay", 5 * MINUTE * IN_MILLISECONDS);
     if (m_int_configs[CONFIG_INTERVAL_GRIDCLEAN] < MIN_GRID_DELAY)
     {
-        sLog->outError(LOG_FILTER_SERVER_LOADING, "GridCleanUpDelay (%i) must be greater %u. Use this minimal value.", m_int_configs[CONFIG_INTERVAL_GRIDCLEAN], MIN_GRID_DELAY);
+        TC_LOG_ERROR(LOG_FILTER_SERVER_LOADING, "GridCleanUpDelay (%i) must be greater %u. Use this minimal value.", m_int_configs[CONFIG_INTERVAL_GRIDCLEAN], MIN_GRID_DELAY);
         m_int_configs[CONFIG_INTERVAL_GRIDCLEAN] = MIN_GRID_DELAY;
     }
     if (reload)
@@ -609,7 +609,7 @@ void World::LoadConfigSettings(bool reload)
     m_int_configs[CONFIG_INTERVAL_MAPUPDATE] = ConfigMgr::GetIntDefault("MapUpdateInterval", 100);
     if (m_int_configs[CONFIG_INTERVAL_MAPUPDATE] < MIN_MAP_UPDATE_DELAY)
     {
-        sLog->outError(LOG_FILTER_SERVER_LOADING, "MapUpdateInterval (%i) must be greater %u. Use this minimal value.", m_int_configs[CONFIG_INTERVAL_MAPUPDATE], MIN_MAP_UPDATE_DELAY);
+        TC_LOG_ERROR(LOG_FILTER_SERVER_LOADING, "MapUpdateInterval (%i) must be greater %u. Use this minimal value.", m_int_configs[CONFIG_INTERVAL_MAPUPDATE], MIN_MAP_UPDATE_DELAY);
         m_int_configs[CONFIG_INTERVAL_MAPUPDATE] = MIN_MAP_UPDATE_DELAY;
     }
     if (reload)
@@ -621,7 +621,7 @@ void World::LoadConfigSettings(bool reload)
     {
         uint32 val = ConfigMgr::GetIntDefault("WorldServerPort", 8085);
         if (val != m_int_configs[CONFIG_PORT_WORLD])
-            sLog->outError(LOG_FILTER_SERVER_LOADING, "WorldServerPort option can't be changed at worldserver.conf reload, using current value (%u).", m_int_configs[CONFIG_PORT_WORLD]);
+            TC_LOG_ERROR(LOG_FILTER_SERVER_LOADING, "WorldServerPort option can't be changed at worldserver.conf reload, using current value (%u).", m_int_configs[CONFIG_PORT_WORLD]);
     }
     else
         m_int_configs[CONFIG_PORT_WORLD] = ConfigMgr::GetIntDefault("WorldServerPort", 8085);
@@ -640,7 +640,7 @@ void World::LoadConfigSettings(bool reload)
     {
         uint32 val = ConfigMgr::GetIntDefault("GameType", 0);
         if (val != m_int_configs[CONFIG_GAME_TYPE])
-            sLog->outError(LOG_FILTER_SERVER_LOADING, "GameType option can't be changed at worldserver.conf reload, using current value (%u).", m_int_configs[CONFIG_GAME_TYPE]);
+            TC_LOG_ERROR(LOG_FILTER_SERVER_LOADING, "GameType option can't be changed at worldserver.conf reload, using current value (%u).", m_int_configs[CONFIG_GAME_TYPE]);
     }
     else
         m_int_configs[CONFIG_GAME_TYPE] = ConfigMgr::GetIntDefault("GameType", 0);
@@ -649,7 +649,7 @@ void World::LoadConfigSettings(bool reload)
     {
         uint32 val = ConfigMgr::GetIntDefault("RealmZone", REALM_ZONE_DEVELOPMENT);
         if (val != m_int_configs[CONFIG_REALM_ZONE])
-            sLog->outError(LOG_FILTER_SERVER_LOADING, "RealmZone option can't be changed at worldserver.conf reload, using current value (%u).", m_int_configs[CONFIG_REALM_ZONE]);
+            TC_LOG_ERROR(LOG_FILTER_SERVER_LOADING, "RealmZone option can't be changed at worldserver.conf reload, using current value (%u).", m_int_configs[CONFIG_REALM_ZONE]);
     }
     else
         m_int_configs[CONFIG_REALM_ZONE] = ConfigMgr::GetIntDefault("RealmZone", REALM_ZONE_DEVELOPMENT);
@@ -667,21 +667,21 @@ void World::LoadConfigSettings(bool reload)
     m_int_configs[CONFIG_MIN_PLAYER_NAME]                     = ConfigMgr::GetIntDefault ("MinPlayerName",  2);
     if (m_int_configs[CONFIG_MIN_PLAYER_NAME] < 1 || m_int_configs[CONFIG_MIN_PLAYER_NAME] > MAX_PLAYER_NAME)
     {
-        sLog->outError(LOG_FILTER_SERVER_LOADING, "MinPlayerName (%i) must be in range 1..%u. Set to 2.", m_int_configs[CONFIG_MIN_PLAYER_NAME], MAX_PLAYER_NAME);
+        TC_LOG_ERROR(LOG_FILTER_SERVER_LOADING, "MinPlayerName (%i) must be in range 1..%u. Set to 2.", m_int_configs[CONFIG_MIN_PLAYER_NAME], MAX_PLAYER_NAME);
         m_int_configs[CONFIG_MIN_PLAYER_NAME] = 2;
     }
 
     m_int_configs[CONFIG_MIN_CHARTER_NAME]                    = ConfigMgr::GetIntDefault ("MinCharterName", 2);
     if (m_int_configs[CONFIG_MIN_CHARTER_NAME] < 1 || m_int_configs[CONFIG_MIN_CHARTER_NAME] > MAX_CHARTER_NAME)
     {
-        sLog->outError(LOG_FILTER_SERVER_LOADING, "MinCharterName (%i) must be in range 1..%u. Set to 2.", m_int_configs[CONFIG_MIN_CHARTER_NAME], MAX_CHARTER_NAME);
+        TC_LOG_ERROR(LOG_FILTER_SERVER_LOADING, "MinCharterName (%i) must be in range 1..%u. Set to 2.", m_int_configs[CONFIG_MIN_CHARTER_NAME], MAX_CHARTER_NAME);
         m_int_configs[CONFIG_MIN_CHARTER_NAME] = 2;
     }
 
     m_int_configs[CONFIG_MIN_PET_NAME]                        = ConfigMgr::GetIntDefault ("MinPetName",     2);
     if (m_int_configs[CONFIG_MIN_PET_NAME] < 1 || m_int_configs[CONFIG_MIN_PET_NAME] > MAX_PET_NAME)
     {
-        sLog->outError(LOG_FILTER_SERVER_LOADING, "MinPetName (%i) must be in range 1..%u. Set to 2.", m_int_configs[CONFIG_MIN_PET_NAME], MAX_PET_NAME);
+        TC_LOG_ERROR(LOG_FILTER_SERVER_LOADING, "MinPetName (%i) must be in range 1..%u. Set to 2.", m_int_configs[CONFIG_MIN_PET_NAME], MAX_PET_NAME);
         m_int_configs[CONFIG_MIN_PET_NAME] = 2;
     }
 
@@ -692,7 +692,7 @@ void World::LoadConfigSettings(bool reload)
     m_int_configs[CONFIG_CHARACTERS_PER_REALM] = ConfigMgr::GetIntDefault("CharactersPerRealm", 10);
     if (m_int_configs[CONFIG_CHARACTERS_PER_REALM] < 1 || m_int_configs[CONFIG_CHARACTERS_PER_REALM] > 10)
     {
-        sLog->outError(LOG_FILTER_SERVER_LOADING, "CharactersPerRealm (%i) must be in range 1..10. Set to 10.", m_int_configs[CONFIG_CHARACTERS_PER_REALM]);
+        TC_LOG_ERROR(LOG_FILTER_SERVER_LOADING, "CharactersPerRealm (%i) must be in range 1..10. Set to 10.", m_int_configs[CONFIG_CHARACTERS_PER_REALM]);
         m_int_configs[CONFIG_CHARACTERS_PER_REALM] = 10;
     }
 
@@ -700,14 +700,14 @@ void World::LoadConfigSettings(bool reload)
     m_int_configs[CONFIG_CHARACTERS_PER_ACCOUNT] = ConfigMgr::GetIntDefault("CharactersPerAccount", 50);
     if (m_int_configs[CONFIG_CHARACTERS_PER_ACCOUNT] < m_int_configs[CONFIG_CHARACTERS_PER_REALM])
     {
-        sLog->outError(LOG_FILTER_SERVER_LOADING, "CharactersPerAccount (%i) can't be less than CharactersPerRealm (%i).", m_int_configs[CONFIG_CHARACTERS_PER_ACCOUNT], m_int_configs[CONFIG_CHARACTERS_PER_REALM]);
+        TC_LOG_ERROR(LOG_FILTER_SERVER_LOADING, "CharactersPerAccount (%i) can't be less than CharactersPerRealm (%i).", m_int_configs[CONFIG_CHARACTERS_PER_ACCOUNT], m_int_configs[CONFIG_CHARACTERS_PER_REALM]);
         m_int_configs[CONFIG_CHARACTERS_PER_ACCOUNT] = m_int_configs[CONFIG_CHARACTERS_PER_REALM];
     }
 
     m_int_configs[CONFIG_HEROIC_CHARACTERS_PER_REALM] = ConfigMgr::GetIntDefault("HeroicCharactersPerRealm", 1);
     if (int32(m_int_configs[CONFIG_HEROIC_CHARACTERS_PER_REALM]) < 0 || m_int_configs[CONFIG_HEROIC_CHARACTERS_PER_REALM] > 10)
     {
-        sLog->outError(LOG_FILTER_SERVER_LOADING, "HeroicCharactersPerRealm (%i) must be in range 0..10. Set to 1.", m_int_configs[CONFIG_HEROIC_CHARACTERS_PER_REALM]);
+        TC_LOG_ERROR(LOG_FILTER_SERVER_LOADING, "HeroicCharactersPerRealm (%i) must be in range 0..10. Set to 1.", m_int_configs[CONFIG_HEROIC_CHARACTERS_PER_REALM]);
         m_int_configs[CONFIG_HEROIC_CHARACTERS_PER_REALM] = 1;
     }
 
@@ -716,7 +716,7 @@ void World::LoadConfigSettings(bool reload)
     m_int_configs[CONFIG_SKIP_CINEMATICS] = ConfigMgr::GetIntDefault("SkipCinematics", 0);
     if (int32(m_int_configs[CONFIG_SKIP_CINEMATICS]) < 0 || m_int_configs[CONFIG_SKIP_CINEMATICS] > 2)
     {
-        sLog->outError(LOG_FILTER_SERVER_LOADING, "SkipCinematics (%i) must be in range 0..2. Set to 0.", m_int_configs[CONFIG_SKIP_CINEMATICS]);
+        TC_LOG_ERROR(LOG_FILTER_SERVER_LOADING, "SkipCinematics (%i) must be in range 0..2. Set to 0.", m_int_configs[CONFIG_SKIP_CINEMATICS]);
         m_int_configs[CONFIG_SKIP_CINEMATICS] = 0;
     }
 
@@ -724,14 +724,14 @@ void World::LoadConfigSettings(bool reload)
     {
         uint32 val = ConfigMgr::GetIntDefault("MaxPlayerLevel", DEFAULT_MAX_LEVEL);
         if (val != m_int_configs[CONFIG_MAX_PLAYER_LEVEL])
-            sLog->outError(LOG_FILTER_SERVER_LOADING, "MaxPlayerLevel option can't be changed at config reload, using current value (%u).", m_int_configs[CONFIG_MAX_PLAYER_LEVEL]);
+            TC_LOG_ERROR(LOG_FILTER_SERVER_LOADING, "MaxPlayerLevel option can't be changed at config reload, using current value (%u).", m_int_configs[CONFIG_MAX_PLAYER_LEVEL]);
     }
     else
         m_int_configs[CONFIG_MAX_PLAYER_LEVEL] = ConfigMgr::GetIntDefault("MaxPlayerLevel", DEFAULT_MAX_LEVEL);
 
     if (m_int_configs[CONFIG_MAX_PLAYER_LEVEL] > MAX_LEVEL)
     {
-        sLog->outError(LOG_FILTER_SERVER_LOADING, "MaxPlayerLevel (%i) must be in range 1..%u. Set to %u.", m_int_configs[CONFIG_MAX_PLAYER_LEVEL], MAX_LEVEL, MAX_LEVEL);
+        TC_LOG_ERROR(LOG_FILTER_SERVER_LOADING, "MaxPlayerLevel (%i) must be in range 1..%u. Set to %u.", m_int_configs[CONFIG_MAX_PLAYER_LEVEL], MAX_LEVEL, MAX_LEVEL);
         m_int_configs[CONFIG_MAX_PLAYER_LEVEL] = MAX_LEVEL;
     }
 
@@ -740,25 +740,25 @@ void World::LoadConfigSettings(bool reload)
     m_int_configs[CONFIG_START_PLAYER_LEVEL] = ConfigMgr::GetIntDefault("StartPlayerLevel", 1);
     if (m_int_configs[CONFIG_START_PLAYER_LEVEL] < 1)
     {
-        sLog->outError(LOG_FILTER_SERVER_LOADING, "StartPlayerLevel (%i) must be in range 1..MaxPlayerLevel(%u). Set to 1.", m_int_configs[CONFIG_START_PLAYER_LEVEL], m_int_configs[CONFIG_MAX_PLAYER_LEVEL]);
+        TC_LOG_ERROR(LOG_FILTER_SERVER_LOADING, "StartPlayerLevel (%i) must be in range 1..MaxPlayerLevel(%u). Set to 1.", m_int_configs[CONFIG_START_PLAYER_LEVEL], m_int_configs[CONFIG_MAX_PLAYER_LEVEL]);
         m_int_configs[CONFIG_START_PLAYER_LEVEL] = 1;
     }
     else if (m_int_configs[CONFIG_START_PLAYER_LEVEL] > m_int_configs[CONFIG_MAX_PLAYER_LEVEL])
     {
-        sLog->outError(LOG_FILTER_SERVER_LOADING, "StartPlayerLevel (%i) must be in range 1..MaxPlayerLevel(%u). Set to %u.", m_int_configs[CONFIG_START_PLAYER_LEVEL], m_int_configs[CONFIG_MAX_PLAYER_LEVEL], m_int_configs[CONFIG_MAX_PLAYER_LEVEL]);
+        TC_LOG_ERROR(LOG_FILTER_SERVER_LOADING, "StartPlayerLevel (%i) must be in range 1..MaxPlayerLevel(%u). Set to %u.", m_int_configs[CONFIG_START_PLAYER_LEVEL], m_int_configs[CONFIG_MAX_PLAYER_LEVEL], m_int_configs[CONFIG_MAX_PLAYER_LEVEL]);
         m_int_configs[CONFIG_START_PLAYER_LEVEL] = m_int_configs[CONFIG_MAX_PLAYER_LEVEL];
     }
 
     m_int_configs[CONFIG_START_HEROIC_PLAYER_LEVEL] = ConfigMgr::GetIntDefault("StartHeroicPlayerLevel", 55);
     if (m_int_configs[CONFIG_START_HEROIC_PLAYER_LEVEL] < 1)
     {
-        sLog->outError(LOG_FILTER_SERVER_LOADING, "StartHeroicPlayerLevel (%i) must be in range 1..MaxPlayerLevel(%u). Set to 55.",
+        TC_LOG_ERROR(LOG_FILTER_SERVER_LOADING, "StartHeroicPlayerLevel (%i) must be in range 1..MaxPlayerLevel(%u). Set to 55.",
             m_int_configs[CONFIG_START_HEROIC_PLAYER_LEVEL], m_int_configs[CONFIG_MAX_PLAYER_LEVEL]);
         m_int_configs[CONFIG_START_HEROIC_PLAYER_LEVEL] = 55;
     }
     else if (m_int_configs[CONFIG_START_HEROIC_PLAYER_LEVEL] > m_int_configs[CONFIG_MAX_PLAYER_LEVEL])
     {
-        sLog->outError(LOG_FILTER_SERVER_LOADING, "StartHeroicPlayerLevel (%i) must be in range 1..MaxPlayerLevel(%u). Set to %u.",
+        TC_LOG_ERROR(LOG_FILTER_SERVER_LOADING, "StartHeroicPlayerLevel (%i) must be in range 1..MaxPlayerLevel(%u). Set to %u.",
             m_int_configs[CONFIG_START_HEROIC_PLAYER_LEVEL], m_int_configs[CONFIG_MAX_PLAYER_LEVEL], m_int_configs[CONFIG_MAX_PLAYER_LEVEL]);
         m_int_configs[CONFIG_START_HEROIC_PLAYER_LEVEL] = m_int_configs[CONFIG_MAX_PLAYER_LEVEL];
     }
@@ -766,12 +766,12 @@ void World::LoadConfigSettings(bool reload)
     m_int_configs[CONFIG_START_PLAYER_MONEY] = ConfigMgr::GetIntDefault("StartPlayerMoney", 0);
     if (int32(m_int_configs[CONFIG_START_PLAYER_MONEY]) < 0)
     {
-        sLog->outError(LOG_FILTER_SERVER_LOADING, "StartPlayerMoney (%i) must be in range 0..%u. Set to %u.", m_int_configs[CONFIG_START_PLAYER_MONEY], MAX_MONEY_AMOUNT, 0);
+        TC_LOG_ERROR(LOG_FILTER_SERVER_LOADING, "StartPlayerMoney (%i) must be in range 0..%u. Set to %u.", m_int_configs[CONFIG_START_PLAYER_MONEY], MAX_MONEY_AMOUNT, 0);
         m_int_configs[CONFIG_START_PLAYER_MONEY] = 0;
     }
     else if (m_int_configs[CONFIG_START_PLAYER_MONEY] > MAX_MONEY_AMOUNT)
     {
-        sLog->outError(LOG_FILTER_SERVER_LOADING, "StartPlayerMoney (%i) must be in range 0..%u. Set to %u.",
+        TC_LOG_ERROR(LOG_FILTER_SERVER_LOADING, "StartPlayerMoney (%i) must be in range 0..%u. Set to %u.",
             m_int_configs[CONFIG_START_PLAYER_MONEY], MAX_MONEY_AMOUNT, MAX_MONEY_AMOUNT);
         m_int_configs[CONFIG_START_PLAYER_MONEY] = MAX_MONEY_AMOUNT;
     }
@@ -779,20 +779,20 @@ void World::LoadConfigSettings(bool reload)
     m_int_configs[CONFIG_MAX_HONOR_POINTS] = ConfigMgr::GetIntDefault("MaxHonorPoints", 75000);
     if (int32(m_int_configs[CONFIG_MAX_HONOR_POINTS]) < 0)
     {
-        sLog->outError(LOG_FILTER_SERVER_LOADING, "MaxHonorPoints (%i) can't be negative. Set to 0.", m_int_configs[CONFIG_MAX_HONOR_POINTS]);
+        TC_LOG_ERROR(LOG_FILTER_SERVER_LOADING, "MaxHonorPoints (%i) can't be negative. Set to 0.", m_int_configs[CONFIG_MAX_HONOR_POINTS]);
         m_int_configs[CONFIG_MAX_HONOR_POINTS] = 0;
     }
 
     m_int_configs[CONFIG_START_HONOR_POINTS] = ConfigMgr::GetIntDefault("StartHonorPoints", 0);
     if (int32(m_int_configs[CONFIG_START_HONOR_POINTS]) < 0)
     {
-        sLog->outError(LOG_FILTER_SERVER_LOADING, "StartHonorPoints (%i) must be in range 0..MaxHonorPoints(%u). Set to %u.",
+        TC_LOG_ERROR(LOG_FILTER_SERVER_LOADING, "StartHonorPoints (%i) must be in range 0..MaxHonorPoints(%u). Set to %u.",
             m_int_configs[CONFIG_START_HONOR_POINTS], m_int_configs[CONFIG_MAX_HONOR_POINTS], 0);
         m_int_configs[CONFIG_START_HONOR_POINTS] = 0;
     }
     else if (m_int_configs[CONFIG_START_HONOR_POINTS] > m_int_configs[CONFIG_MAX_HONOR_POINTS])
     {
-        sLog->outError(LOG_FILTER_SERVER_LOADING, "StartHonorPoints (%i) must be in range 0..MaxHonorPoints(%u). Set to %u.",
+        TC_LOG_ERROR(LOG_FILTER_SERVER_LOADING, "StartHonorPoints (%i) must be in range 0..MaxHonorPoints(%u). Set to %u.",
             m_int_configs[CONFIG_START_HONOR_POINTS], m_int_configs[CONFIG_MAX_HONOR_POINTS], m_int_configs[CONFIG_MAX_HONOR_POINTS]);
         m_int_configs[CONFIG_START_HONOR_POINTS] = m_int_configs[CONFIG_MAX_HONOR_POINTS];
     }
@@ -800,20 +800,20 @@ void World::LoadConfigSettings(bool reload)
     m_int_configs[CONFIG_MAX_ARENA_POINTS] = ConfigMgr::GetIntDefault("MaxArenaPoints", 10000);
     if (int32(m_int_configs[CONFIG_MAX_ARENA_POINTS]) < 0)
     {
-        sLog->outError(LOG_FILTER_SERVER_LOADING, "MaxArenaPoints (%i) can't be negative. Set to 0.", m_int_configs[CONFIG_MAX_ARENA_POINTS]);
+        TC_LOG_ERROR(LOG_FILTER_SERVER_LOADING, "MaxArenaPoints (%i) can't be negative. Set to 0.", m_int_configs[CONFIG_MAX_ARENA_POINTS]);
         m_int_configs[CONFIG_MAX_ARENA_POINTS] = 0;
     }
 
     m_int_configs[CONFIG_START_ARENA_POINTS] = ConfigMgr::GetIntDefault("StartArenaPoints", 0);
     if (int32(m_int_configs[CONFIG_START_ARENA_POINTS]) < 0)
     {
-        sLog->outError(LOG_FILTER_SERVER_LOADING, "StartArenaPoints (%i) must be in range 0..MaxArenaPoints(%u). Set to %u.",
+        TC_LOG_ERROR(LOG_FILTER_SERVER_LOADING, "StartArenaPoints (%i) must be in range 0..MaxArenaPoints(%u). Set to %u.",
             m_int_configs[CONFIG_START_ARENA_POINTS], m_int_configs[CONFIG_MAX_ARENA_POINTS], 0);
         m_int_configs[CONFIG_START_ARENA_POINTS] = 0;
     }
     else if (m_int_configs[CONFIG_START_ARENA_POINTS] > m_int_configs[CONFIG_MAX_ARENA_POINTS])
     {
-        sLog->outError(LOG_FILTER_SERVER_LOADING, "StartArenaPoints (%i) must be in range 0..MaxArenaPoints(%u). Set to %u.",
+        TC_LOG_ERROR(LOG_FILTER_SERVER_LOADING, "StartArenaPoints (%i) must be in range 0..MaxArenaPoints(%u). Set to %u.",
             m_int_configs[CONFIG_START_ARENA_POINTS], m_int_configs[CONFIG_MAX_ARENA_POINTS], m_int_configs[CONFIG_MAX_ARENA_POINTS]);
         m_int_configs[CONFIG_START_ARENA_POINTS] = m_int_configs[CONFIG_MAX_ARENA_POINTS];
     }
@@ -821,7 +821,7 @@ void World::LoadConfigSettings(bool reload)
     m_int_configs[CONFIG_MAX_RECRUIT_A_FRIEND_BONUS_PLAYER_LEVEL] = ConfigMgr::GetIntDefault("RecruitAFriend.MaxLevel", 60);
     if (m_int_configs[CONFIG_MAX_RECRUIT_A_FRIEND_BONUS_PLAYER_LEVEL] > m_int_configs[CONFIG_MAX_PLAYER_LEVEL])
     {
-        sLog->outError(LOG_FILTER_SERVER_LOADING, "RecruitAFriend.MaxLevel (%i) must be in the range 0..MaxLevel(%u). Set to %u.",
+        TC_LOG_ERROR(LOG_FILTER_SERVER_LOADING, "RecruitAFriend.MaxLevel (%i) must be in the range 0..MaxLevel(%u). Set to %u.",
             m_int_configs[CONFIG_MAX_RECRUIT_A_FRIEND_BONUS_PLAYER_LEVEL], m_int_configs[CONFIG_MAX_PLAYER_LEVEL], 60);
         m_int_configs[CONFIG_MAX_RECRUIT_A_FRIEND_BONUS_PLAYER_LEVEL] = 60;
     }
@@ -841,7 +841,7 @@ void World::LoadConfigSettings(bool reload)
     m_int_configs[CONFIG_MIN_PETITION_SIGNS] = ConfigMgr::GetIntDefault("MinPetitionSigns", 9);
     if (m_int_configs[CONFIG_MIN_PETITION_SIGNS] > 9)
     {
-        sLog->outError(LOG_FILTER_SERVER_LOADING, "MinPetitionSigns (%i) must be in range 0..9. Set to 9.", m_int_configs[CONFIG_MIN_PETITION_SIGNS]);
+        TC_LOG_ERROR(LOG_FILTER_SERVER_LOADING, "MinPetitionSigns (%i) must be in range 0..9. Set to 9.", m_int_configs[CONFIG_MIN_PETITION_SIGNS]);
         m_int_configs[CONFIG_MIN_PETITION_SIGNS] = 9;
     }
 
@@ -855,13 +855,13 @@ void World::LoadConfigSettings(bool reload)
     m_int_configs[CONFIG_START_GM_LEVEL]        = ConfigMgr::GetIntDefault("GM.StartLevel", 1);
     if (m_int_configs[CONFIG_START_GM_LEVEL] < m_int_configs[CONFIG_START_PLAYER_LEVEL])
     {
-        sLog->outError(LOG_FILTER_SERVER_LOADING, "GM.StartLevel (%i) must be in range StartPlayerLevel(%u)..%u. Set to %u.",
+        TC_LOG_ERROR(LOG_FILTER_SERVER_LOADING, "GM.StartLevel (%i) must be in range StartPlayerLevel(%u)..%u. Set to %u.",
             m_int_configs[CONFIG_START_GM_LEVEL], m_int_configs[CONFIG_START_PLAYER_LEVEL], MAX_LEVEL, m_int_configs[CONFIG_START_PLAYER_LEVEL]);
         m_int_configs[CONFIG_START_GM_LEVEL] = m_int_configs[CONFIG_START_PLAYER_LEVEL];
     }
     else if (m_int_configs[CONFIG_START_GM_LEVEL] > MAX_LEVEL)
     {
-        sLog->outError(LOG_FILTER_SERVER_LOADING, "GM.StartLevel (%i) must be in range 1..%u. Set to %u.", m_int_configs[CONFIG_START_GM_LEVEL], MAX_LEVEL, MAX_LEVEL);
+        TC_LOG_ERROR(LOG_FILTER_SERVER_LOADING, "GM.StartLevel (%i) must be in range 1..%u. Set to %u.", m_int_configs[CONFIG_START_GM_LEVEL], MAX_LEVEL, MAX_LEVEL);
         m_int_configs[CONFIG_START_GM_LEVEL] = MAX_LEVEL;
     }
     m_bool_configs[CONFIG_ALLOW_GM_GROUP]       = ConfigMgr::GetBoolDefault("GM.AllowInvite", false);
@@ -875,7 +875,7 @@ void World::LoadConfigSettings(bool reload)
     m_int_configs[CONFIG_UPTIME_UPDATE] = ConfigMgr::GetIntDefault("UpdateUptimeInterval", 10);
     if (int32(m_int_configs[CONFIG_UPTIME_UPDATE]) <= 0)
     {
-        sLog->outError(LOG_FILTER_SERVER_LOADING, "UpdateUptimeInterval (%i) must be > 0, set to default 10.", m_int_configs[CONFIG_UPTIME_UPDATE]);
+        TC_LOG_ERROR(LOG_FILTER_SERVER_LOADING, "UpdateUptimeInterval (%i) must be > 0, set to default 10.", m_int_configs[CONFIG_UPTIME_UPDATE]);
         m_int_configs[CONFIG_UPTIME_UPDATE] = 10;
     }
     if (reload)
@@ -888,7 +888,7 @@ void World::LoadConfigSettings(bool reload)
     m_int_configs[CONFIG_LOGDB_CLEARINTERVAL] = ConfigMgr::GetIntDefault("LogDB.Opt.ClearInterval", 10);
     if (int32(m_int_configs[CONFIG_LOGDB_CLEARINTERVAL]) <= 0)
     {
-        sLog->outError(LOG_FILTER_SERVER_LOADING, "LogDB.Opt.ClearInterval (%i) must be > 0, set to default 10.", m_int_configs[CONFIG_LOGDB_CLEARINTERVAL]);
+        TC_LOG_ERROR(LOG_FILTER_SERVER_LOADING, "LogDB.Opt.ClearInterval (%i) must be > 0, set to default 10.", m_int_configs[CONFIG_LOGDB_CLEARINTERVAL]);
         m_int_configs[CONFIG_LOGDB_CLEARINTERVAL] = 10;
     }
     if (reload)
@@ -897,7 +897,7 @@ void World::LoadConfigSettings(bool reload)
         m_timers[WUPDATE_CLEANDB].Reset();
     }
     m_int_configs[CONFIG_LOGDB_CLEARTIME] = ConfigMgr::GetIntDefault("LogDB.Opt.ClearTime", 1209600); // 14 days default
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Will clear `logs` table of entries older than %i seconds every %u minutes.",
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Will clear `logs` table of entries older than %i seconds every %u minutes.",
         m_int_configs[CONFIG_LOGDB_CLEARTIME], m_int_configs[CONFIG_LOGDB_CLEARINTERVAL]);
 
     m_int_configs[CONFIG_SKILL_CHANCE_ORANGE] = ConfigMgr::GetIntDefault("SkillChance.Orange", 100);
@@ -922,7 +922,7 @@ void World::LoadConfigSettings(bool reload)
     m_int_configs[CONFIG_MAX_OVERSPEED_PINGS] = ConfigMgr::GetIntDefault("MaxOverspeedPings", 2);
     if (m_int_configs[CONFIG_MAX_OVERSPEED_PINGS] != 0 && m_int_configs[CONFIG_MAX_OVERSPEED_PINGS] < 2)
     {
-        sLog->outError(LOG_FILTER_SERVER_LOADING, "MaxOverspeedPings (%i) must be in range 2..infinity (or 0 to disable check). Set to 2.", m_int_configs[CONFIG_MAX_OVERSPEED_PINGS]);
+        TC_LOG_ERROR(LOG_FILTER_SERVER_LOADING, "MaxOverspeedPings (%i) must be in range 2..infinity (or 0 to disable check). Set to 2.", m_int_configs[CONFIG_MAX_OVERSPEED_PINGS]);
         m_int_configs[CONFIG_MAX_OVERSPEED_PINGS] = 2;
     }
 
@@ -937,7 +937,7 @@ void World::LoadConfigSettings(bool reload)
     {
         uint32 val = ConfigMgr::GetIntDefault("Expansion", 1);
         if (val != m_int_configs[CONFIG_EXPANSION])
-            sLog->outError(LOG_FILTER_SERVER_LOADING, "Expansion option can't be changed at worldserver.conf reload, using current value (%u).", m_int_configs[CONFIG_EXPANSION]);
+            TC_LOG_ERROR(LOG_FILTER_SERVER_LOADING, "Expansion option can't be changed at worldserver.conf reload, using current value (%u).", m_int_configs[CONFIG_EXPANSION]);
     }
     else
         m_int_configs[CONFIG_EXPANSION] = ConfigMgr::GetIntDefault("Expansion", 1);
@@ -969,14 +969,14 @@ void World::LoadConfigSettings(bool reload)
     m_int_configs[CONFIG_RANDOM_BG_RESET_HOUR] = ConfigMgr::GetIntDefault("Battleground.Random.ResetHour", 6);
     if (m_int_configs[CONFIG_RANDOM_BG_RESET_HOUR] > 23)
     {
-        sLog->outError(LOG_FILTER_SERVER_LOADING, "Battleground.Random.ResetHour (%i) can't be load. Set to 6.", m_int_configs[CONFIG_RANDOM_BG_RESET_HOUR]);
+        TC_LOG_ERROR(LOG_FILTER_SERVER_LOADING, "Battleground.Random.ResetHour (%i) can't be load. Set to 6.", m_int_configs[CONFIG_RANDOM_BG_RESET_HOUR]);
         m_int_configs[CONFIG_RANDOM_BG_RESET_HOUR] = 6;
     }
 
     m_int_configs[CONFIG_GUILD_RESET_HOUR] = ConfigMgr::GetIntDefault("Guild.ResetHour", 6);
     if (m_int_configs[CONFIG_GUILD_RESET_HOUR] > 23)
     {
-        sLog->outError(LOG_FILTER_GENERAL, "Guild.ResetHour (%i) can't be load. Set to 6.", m_int_configs[CONFIG_GUILD_RESET_HOUR]);
+        TC_LOG_ERROR(LOG_FILTER_GENERAL, "Guild.ResetHour (%i) can't be load. Set to 6.", m_int_configs[CONFIG_GUILD_RESET_HOUR]);
         m_int_configs[CONFIG_GUILD_RESET_HOUR] = 6;
     }
 
@@ -1041,10 +1041,10 @@ void World::LoadConfigSettings(bool reload)
         if (clientCacheId > 0)
         {
             m_int_configs[CONFIG_CLIENTCACHE_VERSION] = clientCacheId;
-            sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Client cache version set to: %u", clientCacheId);
+            TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Client cache version set to: %u", clientCacheId);
         }
         else
-            sLog->outError(LOG_FILTER_SERVER_LOADING, "ClientCacheVersion can't be negative %d, ignored.", clientCacheId);
+            TC_LOG_ERROR(LOG_FILTER_SERVER_LOADING, "ClientCacheVersion can't be negative %d, ignored.", clientCacheId);
     }
 
     m_int_configs[CONFIG_GUILD_EVENT_LOG_COUNT] = ConfigMgr::GetIntDefault("Guild.EventLogRecordsCount", GUILD_EVENTLOG_MAX_RECORDS);
@@ -1058,12 +1058,12 @@ void World::LoadConfigSettings(bool reload)
     m_MaxVisibleDistanceOnContinents = ConfigMgr::GetFloatDefault("Visibility.Distance.Continents", DEFAULT_VISIBILITY_DISTANCE);
     if (m_MaxVisibleDistanceOnContinents < 45*sWorld->getRate(RATE_CREATURE_AGGRO))
     {
-        sLog->outError(LOG_FILTER_SERVER_LOADING, "Visibility.Distance.Continents can't be less max aggro radius %f", 45*sWorld->getRate(RATE_CREATURE_AGGRO));
+        TC_LOG_ERROR(LOG_FILTER_SERVER_LOADING, "Visibility.Distance.Continents can't be less max aggro radius %f", 45*sWorld->getRate(RATE_CREATURE_AGGRO));
         m_MaxVisibleDistanceOnContinents = 45*sWorld->getRate(RATE_CREATURE_AGGRO);
     }
     else if (m_MaxVisibleDistanceOnContinents > MAX_VISIBILITY_DISTANCE)
     {
-        sLog->outError(LOG_FILTER_SERVER_LOADING, "Visibility.Distance.Continents can't be greater %f", MAX_VISIBILITY_DISTANCE);
+        TC_LOG_ERROR(LOG_FILTER_SERVER_LOADING, "Visibility.Distance.Continents can't be greater %f", MAX_VISIBILITY_DISTANCE);
         m_MaxVisibleDistanceOnContinents = MAX_VISIBILITY_DISTANCE;
     }
 
@@ -1071,12 +1071,12 @@ void World::LoadConfigSettings(bool reload)
     m_MaxVisibleDistanceInInstances = ConfigMgr::GetFloatDefault("Visibility.Distance.Instances", DEFAULT_VISIBILITY_INSTANCE);
     if (m_MaxVisibleDistanceInInstances < 45*sWorld->getRate(RATE_CREATURE_AGGRO))
     {
-        sLog->outError(LOG_FILTER_SERVER_LOADING, "Visibility.Distance.Instances can't be less max aggro radius %f", 45*sWorld->getRate(RATE_CREATURE_AGGRO));
+        TC_LOG_ERROR(LOG_FILTER_SERVER_LOADING, "Visibility.Distance.Instances can't be less max aggro radius %f", 45*sWorld->getRate(RATE_CREATURE_AGGRO));
         m_MaxVisibleDistanceInInstances = 45*sWorld->getRate(RATE_CREATURE_AGGRO);
     }
     else if (m_MaxVisibleDistanceInInstances > MAX_VISIBILITY_DISTANCE)
     {
-        sLog->outError(LOG_FILTER_SERVER_LOADING, "Visibility.Distance.Instances can't be greater %f", MAX_VISIBILITY_DISTANCE);
+        TC_LOG_ERROR(LOG_FILTER_SERVER_LOADING, "Visibility.Distance.Instances can't be greater %f", MAX_VISIBILITY_DISTANCE);
         m_MaxVisibleDistanceInInstances = MAX_VISIBILITY_DISTANCE;
     }
 
@@ -1084,12 +1084,12 @@ void World::LoadConfigSettings(bool reload)
     m_MaxVisibleDistanceInBGArenas = ConfigMgr::GetFloatDefault("Visibility.Distance.BGArenas", DEFAULT_VISIBILITY_BGARENAS);
     if (m_MaxVisibleDistanceInBGArenas < 45*sWorld->getRate(RATE_CREATURE_AGGRO))
     {
-        sLog->outError(LOG_FILTER_SERVER_LOADING, "Visibility.Distance.BGArenas can't be less max aggro radius %f", 45*sWorld->getRate(RATE_CREATURE_AGGRO));
+        TC_LOG_ERROR(LOG_FILTER_SERVER_LOADING, "Visibility.Distance.BGArenas can't be less max aggro radius %f", 45*sWorld->getRate(RATE_CREATURE_AGGRO));
         m_MaxVisibleDistanceInBGArenas = 45*sWorld->getRate(RATE_CREATURE_AGGRO);
     }
     else if (m_MaxVisibleDistanceInBGArenas > MAX_VISIBILITY_DISTANCE)
     {
-        sLog->outError(LOG_FILTER_SERVER_LOADING, "Visibility.Distance.BGArenas can't be greater %f", MAX_VISIBILITY_DISTANCE);
+        TC_LOG_ERROR(LOG_FILTER_SERVER_LOADING, "Visibility.Distance.BGArenas can't be greater %f", MAX_VISIBILITY_DISTANCE);
         m_MaxVisibleDistanceInBGArenas = MAX_VISIBILITY_DISTANCE;
     }
 
@@ -1120,16 +1120,16 @@ void World::LoadConfigSettings(bool reload)
     if (reload)
     {
         if (dataPath != m_dataPath)
-            sLog->outError(LOG_FILTER_SERVER_LOADING, "DataDir option can't be changed at worldserver.conf reload, using current value (%s).", m_dataPath.c_str());
+            TC_LOG_ERROR(LOG_FILTER_SERVER_LOADING, "DataDir option can't be changed at worldserver.conf reload, using current value (%s).", m_dataPath.c_str());
     }
     else
     {
         m_dataPath = dataPath;
-        sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Using DataDir %s", m_dataPath.c_str());
+        TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Using DataDir %s", m_dataPath.c_str());
     }
 
     m_bool_configs[CONFIG_ENABLE_MMAPS] = ConfigMgr::GetBoolDefault("mmap.enablePathFinding", false);
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "WORLD: MMap data directory is: %smmaps", m_dataPath.c_str());
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "WORLD: MMap data directory is: %smmaps", m_dataPath.c_str());
 
     m_bool_configs[CONFIG_VMAP_INDOOR_CHECK] = ConfigMgr::GetBoolDefault("vmap.enableIndoorCheck", 0);
     bool enableIndoor = ConfigMgr::GetBoolDefault("vmap.enableIndoorCheck", true);
@@ -1137,17 +1137,17 @@ void World::LoadConfigSettings(bool reload)
     bool enableHeight = ConfigMgr::GetBoolDefault("vmap.enableHeight", true);
 
     if (!enableHeight)
-        sLog->outError(LOG_FILTER_SERVER_LOADING, "VMap height checking disabled! Creatures movements and other various things WILL be broken! Expect no support.");
+        TC_LOG_ERROR(LOG_FILTER_SERVER_LOADING, "VMap height checking disabled! Creatures movements and other various things WILL be broken! Expect no support.");
 
     VMAP::VMapFactory::createOrGetVMapManager()->setEnableLineOfSightCalc(enableLOS);
     VMAP::VMapFactory::createOrGetVMapManager()->setEnableHeightCalc(enableHeight);
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "VMap support included. LineOfSight: %i, getHeight: %i, indoorCheck: %i", enableLOS, enableHeight, enableIndoor);
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "VMap data directory is: %svmaps", m_dataPath.c_str());
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "VMap support included. LineOfSight: %i, getHeight: %i, indoorCheck: %i", enableLOS, enableHeight, enableIndoor);
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "VMap data directory is: %svmaps", m_dataPath.c_str());
 
     m_int_configs[CONFIG_MAX_WHO] = ConfigMgr::GetIntDefault("MaxWhoListReturns", 49);
     m_bool_configs[CONFIG_START_ALL_SPELLS] = ConfigMgr::GetBoolDefault("PlayerStart.AllSpells", false);
     if (m_bool_configs[CONFIG_START_ALL_SPELLS])
-        sLog->outWarn(LOG_FILTER_SERVER_LOADING, "PlayerStart.AllSpells enabled - may not function as intended!");
+        TC_LOG_WARN(LOG_FILTER_SERVER_LOADING, "PlayerStart.AllSpells enabled - may not function as intended!");
     m_int_configs[CONFIG_HONOR_AFTER_DUEL] = ConfigMgr::GetIntDefault("HonorPointsAfterDuel", 0);
     m_bool_configs[CONFIG_START_ALL_EXPLORED] = ConfigMgr::GetBoolDefault("PlayerStart.MapsExplored", false);
     m_bool_configs[CONFIG_START_ALL_REP] = ConfigMgr::GetBoolDefault("PlayerStart.AllReputation", false);
@@ -1261,7 +1261,7 @@ void World::SetInitialWorldSettings()
             !MapManager::ExistMapAndVMap(530, 10349.6f, -6357.29f) ||
             !MapManager::ExistMapAndVMap(530, -3961.64f, -13931.2f))))
     {
-        sLog->outError(LOG_FILTER_SERVER_LOADING, "Correct *.map files not found in path '%smaps' or *.vmtree/*.vmtile files in '%svmaps'. Please place *.map/*.vmtree/*.vmtile files in appropriate directories or correct the DataDir value in the worldserver.conf file.", m_dataPath.c_str(), m_dataPath.c_str());
+        TC_LOG_ERROR(LOG_FILTER_SERVER_LOADING, "Correct *.map files not found in path '%smaps' or *.vmtree/*.vmtile files in '%svmaps'. Please place *.map/*.vmtree/*.vmtile files in appropriate directories or correct the DataDir value in the worldserver.conf file.", m_dataPath.c_str(), m_dataPath.c_str());
         exit(1);
     }
 
@@ -1273,7 +1273,7 @@ void World::SetInitialWorldSettings()
 
     ///- Loading strings. Getting no records means core load has to be canceled because no error message can be output.
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Trinity strings...");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading Trinity strings...");
     if (!sObjectMgr->LoadTrinityStrings())
         exit(1);                                            // Error message displayed in function already
 
@@ -1292,36 +1292,36 @@ void World::SetInitialWorldSettings()
     CharacterDatabase.Execute(stmt);
 
     ///- Load the DBC files
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Initialize data stores...");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Initialize data stores...");
     LoadDBCStores(m_dataPath);
     DetectDBCLang();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading spell dbc data corrections...");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading spell dbc data corrections...");
     sSpellMgr->LoadDbcDataCorrections();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading SpellInfo store...");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading SpellInfo store...");
     sSpellMgr->LoadSpellInfoStore();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading SkillLineAbilityMultiMap Data...");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading SkillLineAbilityMultiMap Data...");
     sSpellMgr->LoadSkillLineAbilityMap();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading spell custom attributes...");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading spell custom attributes...");
     sSpellMgr->LoadSpellCustomAttr();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading GameObject models...");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading GameObject models...");
     LoadGameObjectModelList();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Script Names...");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading Script Names...");
     sObjectMgr->LoadScriptNames();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Instance Template...");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading Instance Template...");
     sObjectMgr->LoadInstanceTemplate();
 
     // Must be called before `creature_respawn`/`gameobject_respawn` tables
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading instances...");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading instances...");
     sInstanceSaveMgr->LoadInstances();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Localization strings...");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading Localization strings...");
     uint32 oldMSTime = getMSTime();
     sObjectMgr->LoadCreatureLocales();
     sObjectMgr->LoadGameObjectLocales();
@@ -1334,321 +1334,321 @@ void World::SetInitialWorldSettings()
     sObjectMgr->LoadPointOfInterestLocales();
 
     sObjectMgr->SetDBCLocaleIndex(GetDefaultDbcLocale());        // Get once for all the locale index of DBC language (console/broadcasts)
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Localization strings loaded in %u ms", GetMSTimeDiffToNow(oldMSTime));
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, ">> Localization strings loaded in %u ms", GetMSTimeDiffToNow(oldMSTime));
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Account Roles and Permissions...");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading Account Roles and Permissions...");
     sAccountMgr->LoadRBAC();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Page Texts...");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading Page Texts...");
     sObjectMgr->LoadPageTexts();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Game Object Templates...");         // must be after LoadPageTexts
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading Game Object Templates...");         // must be after LoadPageTexts
     sObjectMgr->LoadGameObjectTemplate();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Spell Rank Data...");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading Spell Rank Data...");
     sSpellMgr->LoadSpellRanks();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Spell Required Data...");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading Spell Required Data...");
     sSpellMgr->LoadSpellRequired();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Spell Group types...");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading Spell Group types...");
     sSpellMgr->LoadSpellGroups();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Spell Learn Skills...");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading Spell Learn Skills...");
     sSpellMgr->LoadSpellLearnSkills();                           // must be after LoadSpellRanks
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Spell Learn Spells...");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading Spell Learn Spells...");
     sSpellMgr->LoadSpellLearnSpells();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Spell Proc Event conditions...");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading Spell Proc Event conditions...");
     sSpellMgr->LoadSpellProcEvents();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Spell Proc conditions and data...");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading Spell Proc conditions and data...");
     sSpellMgr->LoadSpellProcs();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Spell Bonus Data...");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading Spell Bonus Data...");
     sSpellMgr->LoadSpellBonusess();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Aggro Spells Definitions...");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading Aggro Spells Definitions...");
     sSpellMgr->LoadSpellThreats();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Spell Group Stack Rules...");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading Spell Group Stack Rules...");
     sSpellMgr->LoadSpellGroupStackRules();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading NPC Texts...");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading NPC Texts...");
     sObjectMgr->LoadGossipText();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Enchant Spells Proc datas...");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading Enchant Spells Proc datas...");
     sSpellMgr->LoadSpellEnchantProcData();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Item Random Enchantments Table...");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading Item Random Enchantments Table...");
     LoadRandomEnchantmentsTable();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Disables");                         // must be before loading quests and items
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading Disables");                         // must be before loading quests and items
     DisableMgr::LoadDisables();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Items...");                         // must be after LoadRandomEnchantmentsTable and LoadPageTexts
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading Items...");                         // must be after LoadRandomEnchantmentsTable and LoadPageTexts
     sObjectMgr->LoadItemTemplates();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Item set names...");                // must be after LoadItemPrototypes
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading Item set names...");                // must be after LoadItemPrototypes
     sObjectMgr->LoadItemSetNames();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Creature Model Based Info Data...");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading Creature Model Based Info Data...");
     sObjectMgr->LoadCreatureModelInfo();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Creature templates...");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading Creature templates...");
     sObjectMgr->LoadCreatureTemplates();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Equipment templates...");           // must be after LoadCreatureTemplates
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading Equipment templates...");           // must be after LoadCreatureTemplates
     sObjectMgr->LoadEquipmentTemplates();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Creature template addons...");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading Creature template addons...");
     sObjectMgr->LoadCreatureTemplateAddons();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Reputation Reward Rates...");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading Reputation Reward Rates...");
     sObjectMgr->LoadReputationRewardRate();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Creature Reputation OnKill Data...");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading Creature Reputation OnKill Data...");
     sObjectMgr->LoadReputationOnKill();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Reputation Spillover Data...");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading Reputation Spillover Data...");
     sObjectMgr->LoadReputationSpilloverTemplate();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Points Of Interest Data...");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading Points Of Interest Data...");
     sObjectMgr->LoadPointsOfInterest();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Creature Base Stats...");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading Creature Base Stats...");
     sObjectMgr->LoadCreatureClassLevelStats();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Creature Data...");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading Creature Data...");
     sObjectMgr->LoadCreatures();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Temporary Summon Data...");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading Temporary Summon Data...");
     sObjectMgr->LoadTempSummons();                               // must be after LoadCreatureTemplates() and LoadGameObjectTemplates()
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading pet levelup spells...");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading pet levelup spells...");
     sSpellMgr->LoadPetLevelupSpellMap();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading pet default spells additional to levelup spells...");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading pet default spells additional to levelup spells...");
     sSpellMgr->LoadPetDefaultSpells();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Creature Addon Data...");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading Creature Addon Data...");
     sObjectMgr->LoadCreatureAddons();                            // must be after LoadCreatureTemplates() and LoadCreatures()
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Gameobject Data...");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading Gameobject Data...");
     sObjectMgr->LoadGameobjects();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Creature Linked Respawn...");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading Creature Linked Respawn...");
     sObjectMgr->LoadLinkedRespawn();                             // must be after LoadCreatures(), LoadGameObjects()
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Weather Data...");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading Weather Data...");
     WeatherMgr::LoadWeatherData();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Quests...");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading Quests...");
     sObjectMgr->LoadQuests();                                    // must be loaded after DBCs, creature_template, item_template, gameobject tables
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Checking Quest Disables");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Checking Quest Disables");
     DisableMgr::CheckQuestDisables();                           // must be after loading quests
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Quest POI");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading Quest POI");
     sObjectMgr->LoadQuestPOI();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Quests Relations...");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading Quests Relations...");
     sObjectMgr->LoadQuestRelations();                            // must be after quest load
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Objects Pooling Data...");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading Objects Pooling Data...");
     sPoolMgr->LoadFromDB();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Game Event Data...");               // must be after loading pools fully
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading Game Event Data...");               // must be after loading pools fully
     sGameEventMgr->LoadFromDB();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading UNIT_NPC_FLAG_SPELLCLICK Data..."); // must be after LoadQuests
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading UNIT_NPC_FLAG_SPELLCLICK Data..."); // must be after LoadQuests
     sObjectMgr->LoadNPCSpellClickSpells();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Vehicle Template Accessories...");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading Vehicle Template Accessories...");
     sObjectMgr->LoadVehicleTemplateAccessories();                // must be after LoadCreatureTemplates() and LoadNPCSpellClickSpells()
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Vehicle Accessories...");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading Vehicle Accessories...");
     sObjectMgr->LoadVehicleAccessories();                       // must be after LoadCreatureTemplates() and LoadNPCSpellClickSpells()
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading SpellArea Data...");                // must be after quest load
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading SpellArea Data...");                // must be after quest load
     sSpellMgr->LoadSpellAreas();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading AreaTrigger definitions...");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading AreaTrigger definitions...");
     sObjectMgr->LoadAreaTriggerTeleports();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Access Requirements...");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading Access Requirements...");
     sObjectMgr->LoadAccessRequirements();                        // must be after item template load
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Quest Area Triggers...");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading Quest Area Triggers...");
     sObjectMgr->LoadQuestAreaTriggers();                         // must be after LoadQuests
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Tavern Area Triggers...");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading Tavern Area Triggers...");
     sObjectMgr->LoadTavernAreaTriggers();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading AreaTrigger script names...");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading AreaTrigger script names...");
     sObjectMgr->LoadAreaTriggerScripts();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading LFG entrance positions..."); // Must be after areatriggers
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading LFG entrance positions..."); // Must be after areatriggers
     sLFGMgr->LoadLFGDungeons();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Dungeon boss data...");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading Dungeon boss data...");
     sObjectMgr->LoadInstanceEncounters();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading LFG rewards...");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading LFG rewards...");
     sLFGMgr->LoadRewards();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Graveyard-zone links...");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading Graveyard-zone links...");
     sObjectMgr->LoadGraveyardZones();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading spell pet auras...");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading spell pet auras...");
     sSpellMgr->LoadSpellPetAuras();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Spell target coordinates...");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading Spell target coordinates...");
     sSpellMgr->LoadSpellTargetPositions();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading enchant custom attributes...");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading enchant custom attributes...");
     sSpellMgr->LoadEnchantCustomAttr();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading linked spells...");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading linked spells...");
     sSpellMgr->LoadSpellLinked();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Player Create Data...");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading Player Create Data...");
     sObjectMgr->LoadPlayerInfo();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Exploration BaseXP Data...");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading Exploration BaseXP Data...");
     sObjectMgr->LoadExplorationBaseXP();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Pet Name Parts...");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading Pet Name Parts...");
     sObjectMgr->LoadPetNames();
 
     CharacterDatabaseCleaner::CleanDatabase();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading the max pet number...");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading the max pet number...");
     sObjectMgr->LoadPetNumber();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading pet level stats...");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading pet level stats...");
     sObjectMgr->LoadPetLevelInfo();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Player Corpses...");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading Player Corpses...");
     sObjectMgr->LoadCorpses();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Player level dependent mail rewards...");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading Player level dependent mail rewards...");
     sObjectMgr->LoadMailLevelRewards();
 
     // Loot tables
     LoadLootTables();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Skill Discovery Table...");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading Skill Discovery Table...");
     LoadSkillDiscoveryTable();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Skill Extra Item Table...");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading Skill Extra Item Table...");
     LoadSkillExtraItemTable();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Skill Fishing base level requirements...");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading Skill Fishing base level requirements...");
     sObjectMgr->LoadFishingBaseSkillLevel();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Achievements...");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading Achievements...");
     sAchievementMgr->LoadAchievementReferenceList();
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Achievement Criteria Lists...");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading Achievement Criteria Lists...");
     sAchievementMgr->LoadAchievementCriteriaList();
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Achievement Criteria Data...");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading Achievement Criteria Data...");
     sAchievementMgr->LoadAchievementCriteriaData();
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Achievement Rewards...");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading Achievement Rewards...");
     sAchievementMgr->LoadRewards();
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Achievement Reward Locales...");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading Achievement Reward Locales...");
     sAchievementMgr->LoadRewardLocales();
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Completed Achievements...");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading Completed Achievements...");
     sAchievementMgr->LoadCompletedAchievements();
 
     // Delete expired auctions before loading
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Deleting expired auctions...");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Deleting expired auctions...");
     sAuctionMgr->DeleteExpiredAuctionsAtStartup();
 
     ///- Load dynamic data tables from the database
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Item Auctions...");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading Item Auctions...");
     sAuctionMgr->LoadAuctionItems();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Auctions...");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading Auctions...");
     sAuctionMgr->LoadAuctions();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Guilds...");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading Guilds...");
     sGuildMgr->LoadGuilds();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading ArenaTeams...");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading ArenaTeams...");
     sArenaTeamMgr->LoadArenaTeams();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Groups...");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading Groups...");
     sGroupMgr->LoadGroups();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading ReservedNames...");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading ReservedNames...");
     sObjectMgr->LoadReservedPlayersNames();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading GameObjects for quests...");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading GameObjects for quests...");
     sObjectMgr->LoadGameObjectForQuests();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading BattleMasters...");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading BattleMasters...");
     sBattlegroundMgr->LoadBattleMastersEntry();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading GameTeleports...");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading GameTeleports...");
     sObjectMgr->LoadGameTele();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Gossip menu...");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading Gossip menu...");
     sObjectMgr->LoadGossipMenu();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Gossip menu options...");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading Gossip menu options...");
     sObjectMgr->LoadGossipMenuItems();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Vendors...");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading Vendors...");
     sObjectMgr->LoadVendors();                                   // must be after load CreatureTemplate and ItemTemplate
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Trainers...");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading Trainers...");
     sObjectMgr->LoadTrainerSpell();                              // must be after load CreatureTemplate
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Waypoints...");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading Waypoints...");
     sWaypointMgr->Load();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading SmartAI Waypoints...");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading SmartAI Waypoints...");
     sSmartWaypointMgr->LoadFromDB();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Creature Formations...");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading Creature Formations...");
     sFormationMgr->LoadCreatureFormations();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading World States...");              // must be loaded before battleground, outdoor PvP and conditions
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading World States...");              // must be loaded before battleground, outdoor PvP and conditions
     LoadWorldStates();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Conditions...");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading Conditions...");
     sConditionMgr->LoadConditions();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading faction change achievement pairs...");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading faction change achievement pairs...");
     sObjectMgr->LoadFactionChangeAchievements();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading faction change spell pairs...");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading faction change spell pairs...");
     sObjectMgr->LoadFactionChangeSpells();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading faction change item pairs...");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading faction change item pairs...");
     sObjectMgr->LoadFactionChangeItems();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading faction change reputation pairs...");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading faction change reputation pairs...");
     sObjectMgr->LoadFactionChangeReputations();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading faction change title pairs...");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading faction change title pairs...");
     sObjectMgr->LoadFactionChangeTitles();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading GM tickets...");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading GM tickets...");
     sTicketMgr->LoadTickets();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading GM surveys...");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading GM surveys...");
     sTicketMgr->LoadSurveys();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading client addons...");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading client addons...");
     AddonMgr::LoadFromDB();
 
     ///- Handle outdated emails (delete/return)
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Returning old mails...");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Returning old mails...");
     sObjectMgr->ReturnOrDeleteOldMails(false);
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Autobroadcasts...");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading Autobroadcasts...");
     LoadAutobroadcasts();
 
     ///- Load and initialize scripts
@@ -1656,39 +1656,39 @@ void World::SetInitialWorldSettings()
     sObjectMgr->LoadEventScripts();                              // must be after load Creature/Gameobject(Template/Data)
     sObjectMgr->LoadWaypointScripts();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Scripts text locales...");      // must be after Load*Scripts calls
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading Scripts text locales...");      // must be after Load*Scripts calls
     sObjectMgr->LoadDbScriptStrings();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading CreatureEventAI Texts...");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading CreatureEventAI Texts...");
     sEventAIMgr->LoadCreatureEventAI_Texts();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading CreatureEventAI Scripts...");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading CreatureEventAI Scripts...");
     sEventAIMgr->LoadCreatureEventAI_Scripts();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading spell script names...");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading spell script names...");
     sObjectMgr->LoadSpellScriptNames();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Creature Texts...");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading Creature Texts...");
     sCreatureTextMgr->LoadCreatureTexts();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Creature Text Locales...");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading Creature Text Locales...");
     sCreatureTextMgr->LoadCreatureTextLocales();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Initializing Scripts...");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Initializing Scripts...");
     sScriptMgr->Initialize();
     sScriptMgr->OnConfigLoad(false);                                // must be done after the ScriptMgr has been properly initialized
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Validating spell scripts...");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Validating spell scripts...");
     sObjectMgr->ValidateSpellScripts();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading SmartAI scripts...");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading SmartAI scripts...");
     sSmartScriptMgr->LoadSmartAIFromDB();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Calendar data...");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading Calendar data...");
     sCalendarMgr->LoadFromDB();
 
     ///- Initialize game time and timers
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Initialize game time and timers");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Initialize game time and timers");
     m_gameTime = time(NULL);
     m_startTime = m_gameTime;
 
@@ -1715,16 +1715,16 @@ void World::SetInitialWorldSettings()
     mail_timer = ((((localtime(&m_gameTime)->tm_hour + 20) % 24)* HOUR * IN_MILLISECONDS) / m_timers[WUPDATE_AUCTIONS].GetInterval());
                                                             //1440
     mail_timer_expires = ((DAY * IN_MILLISECONDS) / (m_timers[WUPDATE_AUCTIONS].GetInterval()));
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Mail timer set to: " UI64FMTD ", mail return is called every " UI64FMTD " minutes", uint64(mail_timer), uint64(mail_timer_expires));
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Mail timer set to: " UI64FMTD ", mail return is called every " UI64FMTD " minutes", uint64(mail_timer), uint64(mail_timer_expires));
 
     ///- Initilize static helper structures
     AIRegistry::Initialize();
 
     ///- Initialize MapManager
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Starting Map System");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Starting Map System");
     sMapMgr->Initialize();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Starting Game Event system...");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Starting Game Event system...");
     uint32 nextGameEvent = sGameEventMgr->StartSystem();
     m_timers[WUPDATE_EVENTS].SetInterval(nextGameEvent);    //depend on next event
 
@@ -1734,60 +1734,60 @@ void World::SetInitialWorldSettings()
     // Delete all custom channels which haven't been used for PreserveCustomChannelDuration days.
     Channel::CleanOldChannelsInDB();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Starting Arena Season...");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Starting Arena Season...");
     sGameEventMgr->StartArenaSeason();
 
     sTicketMgr->Initialize();
 
     ///- Initialize Battlegrounds
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Starting Battleground System");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Starting Battleground System");
     sBattlegroundMgr->CreateInitialBattlegrounds();
     sBattlegroundMgr->InitAutomaticArenaPointDistribution();
 
     ///- Initialize outdoor pvp
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Starting Outdoor PvP System");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Starting Outdoor PvP System");
     sOutdoorPvPMgr->InitOutdoorPvP();
 
     ///- Initialize Battlefield
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Starting Battlefield System");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Starting Battlefield System");
     sBattlefieldMgr->InitBattlefield();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Transports...");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading Transports...");
     sMapMgr->LoadTransports();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Transport NPCs...");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading Transport NPCs...");
     sMapMgr->LoadTransportNPCs();
 
     ///- Initialize Warden
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Warden Checks...");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading Warden Checks...");
     sWardenCheckMgr->LoadWardenChecks();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading Warden Action Overrides...");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading Warden Action Overrides...");
     sWardenCheckMgr->LoadWardenOverrides();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Deleting expired bans...");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Deleting expired bans...");
     LoginDatabase.Execute("DELETE FROM ip_banned WHERE unbandate <= UNIX_TIMESTAMP() AND unbandate<>bandate");      // One-time query
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Calculate next daily quest reset time...");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Calculate next daily quest reset time...");
     InitDailyQuestResetTime();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Calculate next weekly quest reset time...");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Calculate next weekly quest reset time...");
     InitWeeklyQuestResetTime();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Calculate next monthly quest reset time...");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Calculate next monthly quest reset time...");
     InitMonthlyQuestResetTime();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Calculate random battleground reset time...");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Calculate random battleground reset time...");
     InitRandomBGResetTime();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Calculate guild limitation(s) reset time...");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Calculate guild limitation(s) reset time...");
     InitGuildResetTime();
 
     LoadCharacterNameData();
 
     uint32 startupDuration = GetMSTimeDiffToNow(startupBegin);
 
-    sLog->outInfo(LOG_FILTER_WORLDSERVER, "World initialized in %u minutes %u seconds", (startupDuration / 60000), ((startupDuration % 60000) / 1000));
+    TC_LOG_INFO(LOG_FILTER_WORLDSERVER, "World initialized in %u minutes %u seconds", (startupDuration / 60000), ((startupDuration % 60000) / 1000));
 
     if (uint32 realmId = ConfigMgr::GetIntDefault("RealmID", 0)) // 0 reserved for auth
         sLog->SetRealmId(realmId);
@@ -1799,7 +1799,7 @@ void World::DetectDBCLang()
 
     if (m_lang_confid != 255 && m_lang_confid >= TOTAL_LOCALES)
     {
-        sLog->outError(LOG_FILTER_SERVER_LOADING, "Incorrect DBC.Locale! Must be >= 0 and < %d (set to 0)", TOTAL_LOCALES);
+        TC_LOG_ERROR(LOG_FILTER_SERVER_LOADING, "Incorrect DBC.Locale! Must be >= 0 and < %d (set to 0)", TOTAL_LOCALES);
         m_lang_confid = LOCALE_enUS;
     }
 
@@ -1827,13 +1827,13 @@ void World::DetectDBCLang()
 
     if (default_locale >= TOTAL_LOCALES)
     {
-        sLog->outError(LOG_FILTER_SERVER_LOADING, "Unable to determine your DBC Locale! (corrupt DBC?)");
+        TC_LOG_ERROR(LOG_FILTER_SERVER_LOADING, "Unable to determine your DBC Locale! (corrupt DBC?)");
         exit(1);
     }
 
     m_defaultDbcLocale = LocaleConstant(default_locale);
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Using %s DBC Locale as default. All available DBC locales: %s", localeNames[m_defaultDbcLocale], availableLocalsStr.empty() ? "<none>" : availableLocalsStr.c_str());
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Using %s DBC Locale as default. All available DBC locales: %s", localeNames[m_defaultDbcLocale], availableLocalsStr.empty() ? "<none>" : availableLocalsStr.c_str());
 }
 
 void World::RecordTimeDiff(const char *text, ...)
@@ -1856,7 +1856,7 @@ void World::RecordTimeDiff(const char *text, ...)
         va_start(ap, text);
         vsnprintf(str, 256, text, ap);
         va_end(ap);
-        sLog->outInfo(LOG_FILTER_GENERAL, "Difftime %s: %u.", str, diff);
+        TC_LOG_INFO(LOG_FILTER_GENERAL, "Difftime %s: %u.", str, diff);
     }
 
     m_currentTime = thisTime;
@@ -1876,7 +1876,7 @@ void World::LoadAutobroadcasts()
 
     if (!result)
     {
-        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 autobroadcasts definitions. DB table `autobroadcast` is empty for this realm!");
+        TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 autobroadcasts definitions. DB table `autobroadcast` is empty for this realm!");
         return;
     }
 
@@ -1893,7 +1893,7 @@ void World::LoadAutobroadcasts()
         ++count;
     } while (result->NextRow());
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u autobroadcast definitions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, ">> Loaded %u autobroadcast definitions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
 /// Update the World !
@@ -1905,7 +1905,7 @@ void World::Update(uint32 diff)
     {
         if (m_updateTimeSum > m_int_configs[CONFIG_INTERVAL_LOG_UPDATE])
         {
-            sLog->outDebug(LOG_FILTER_GENERAL, "Update time diff: %u. Players online: %u.", m_updateTimeSum / m_updateTimeCount, GetActiveSessionCount());
+            TC_LOG_DEBUG(LOG_FILTER_GENERAL, "Update time diff: %u. Players online: %u.", m_updateTimeSum / m_updateTimeCount, GetActiveSessionCount());
             m_updateTimeSum = m_updateTime;
             m_updateTimeCount = 1;
         }
@@ -2070,7 +2070,7 @@ void World::Update(uint32 diff)
     if (m_timers[WUPDATE_PINGDB].Passed())
     {
         m_timers[WUPDATE_PINGDB].Reset();
-        sLog->outDebug(LOG_FILTER_GENERAL, "Ping MySQL to keep connection alive");
+        TC_LOG_DEBUG(LOG_FILTER_GENERAL, "Ping MySQL to keep connection alive");
         CharacterDatabase.KeepAlive();
         LoginDatabase.KeepAlive();
         WorldDatabase.KeepAlive();
@@ -2551,7 +2551,7 @@ void World::ShutdownMsg(bool show, Player* player)
         ServerMessageType msgid = (m_ShutdownMask & SHUTDOWN_MASK_RESTART) ? SERVER_MSG_RESTART_TIME : SERVER_MSG_SHUTDOWN_TIME;
 
         SendServerMessage(msgid, str.c_str(), player);
-        sLog->outDebug(LOG_FILTER_GENERAL, "Server is %s in %s", (m_ShutdownMask & SHUTDOWN_MASK_RESTART ? "restart" : "shuttingdown"), str.c_str());
+        TC_LOG_DEBUG(LOG_FILTER_GENERAL, "Server is %s in %s", (m_ShutdownMask & SHUTDOWN_MASK_RESTART ? "restart" : "shuttingdown"), str.c_str());
     }
 }
 
@@ -2569,7 +2569,7 @@ void World::ShutdownCancel()
     m_ExitCode = SHUTDOWN_EXIT_CODE;                       // to default value
     SendServerMessage(msgid);
 
-    sLog->outDebug(LOG_FILTER_GENERAL, "Server %s cancelled.", (m_ShutdownMask & SHUTDOWN_MASK_RESTART ? "restart" : "shuttingdown"));
+    TC_LOG_DEBUG(LOG_FILTER_GENERAL, "Server %s cancelled.", (m_ShutdownMask & SHUTDOWN_MASK_RESTART ? "restart" : "shuttingdown"));
 
     sScriptMgr->OnShutdownCancel();
 }
@@ -2625,7 +2625,7 @@ void World::ProcessCliCommands()
     CliCommandHolder* command = NULL;
     while (cliCmdQueue.next(command))
     {
-        sLog->outInfo(LOG_FILTER_GENERAL, "CLI command under processing...");
+        TC_LOG_INFO(LOG_FILTER_GENERAL, "CLI command under processing...");
         zprint = command->m_print;
         callbackArg = command->m_callbackArg;
         CliHandler handler(callbackArg, zprint);
@@ -2692,7 +2692,7 @@ void World::SendAutoBroadcast()
         sWorld->SendGlobalMessage(&data);
     }
 
-    sLog->outDebug(LOG_FILTER_GENERAL, "AutoBroadcast: '%s'", msg.c_str());
+    TC_LOG_DEBUG(LOG_FILTER_GENERAL, "AutoBroadcast: '%s'", msg.c_str());
 }
 
 void World::UpdateRealmCharCount(uint32 accountId)
@@ -2828,7 +2828,7 @@ void World::InitGuildResetTime()
 
 void World::ResetDailyQuests()
 {
-    sLog->outInfo(LOG_FILTER_GENERAL, "Daily quests reset for all characters.");
+    TC_LOG_INFO(LOG_FILTER_GENERAL, "Daily quests reset for all characters.");
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_QUEST_STATUS_DAILY);
     CharacterDatabase.Execute(stmt);
@@ -2862,7 +2862,7 @@ void World::SetPlayerSecurityLimit(AccountTypes _sec)
 
 void World::ResetWeeklyQuests()
 {
-    sLog->outInfo(LOG_FILTER_GENERAL, "Weekly quests reset for all characters.");
+    TC_LOG_INFO(LOG_FILTER_GENERAL, "Weekly quests reset for all characters.");
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_QUEST_STATUS_WEEKLY);
     CharacterDatabase.Execute(stmt);
@@ -2880,7 +2880,7 @@ void World::ResetWeeklyQuests()
 
 void World::ResetMonthlyQuests()
 {
-    sLog->outInfo(LOG_FILTER_GENERAL, "Monthly quests reset for all characters.");
+    TC_LOG_INFO(LOG_FILTER_GENERAL, "Monthly quests reset for all characters.");
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_QUEST_STATUS_MONTHLY);
     CharacterDatabase.Execute(stmt);
@@ -2934,7 +2934,7 @@ void World::ResetEventSeasonalQuests(uint16 event_id)
 
 void World::ResetRandomBG()
 {
-    sLog->outInfo(LOG_FILTER_GENERAL, "Random BG status reset for all characters.");
+    TC_LOG_INFO(LOG_FILTER_GENERAL, "Random BG status reset for all characters.");
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_BATTLEGROUND_RANDOM);
     CharacterDatabase.Execute(stmt);
@@ -2949,7 +2949,7 @@ void World::ResetRandomBG()
 
 void World::ResetGuildCap()
 {
-    sLog->outInfo(LOG_FILTER_GENERAL, "Guild Daily Cap reset.");
+    TC_LOG_INFO(LOG_FILTER_GENERAL, "Guild Daily Cap reset.");
 
     m_NextGuildReset = time_t(m_NextGuildReset + DAY);
     sWorld->setWorldState(WS_GUILD_DAILY_RESET_TIME, uint64(m_NextGuildReset));
@@ -3007,7 +3007,7 @@ void World::LoadWorldStates()
 
     if (!result)
     {
-        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 world states. DB table `worldstates` is empty!");
+        TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 world states. DB table `worldstates` is empty!");
 
         return;
     }
@@ -3022,7 +3022,7 @@ void World::LoadWorldStates()
     }
     while (result->NextRow());
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u world states in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, ">> Loaded %u world states in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 
 }
 
@@ -3100,12 +3100,12 @@ void World::ProcessQueryCallbacks()
 
 void World::LoadCharacterNameData()
 {
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading character name data");
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading character name data");
 
     QueryResult result = CharacterDatabase.Query("SELECT guid, name, race, gender, class, level FROM characters WHERE deleteDate IS NULL");
     if (!result)
     {
-        sLog->outInfo(LOG_FILTER_SERVER_LOADING, "No character name data loaded, empty query");
+        TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "No character name data loaded, empty query");
         return;
     }
 
@@ -3119,7 +3119,7 @@ void World::LoadCharacterNameData()
         ++count;
     } while (result->NextRow());
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loaded name data for %u characters", count);
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loaded name data for %u characters", count);
 }
 
 void World::AddCharacterNameData(uint32 guid, std::string const& name, uint8 gender, uint8 race, uint8 playerClass, uint8 level)
@@ -3168,7 +3168,7 @@ CharacterNameData const* World::GetCharacterNameData(uint32 guid) const
 void World::ReloadRBAC()
 {
     // Passive reload, we mark the data as invalidated and next time a permission is checked it will be reloaded
-    sLog->outInfo(LOG_FILTER_RBAC, "World::ReloadRBAC()");
+    TC_LOG_INFO(LOG_FILTER_RBAC, "World::ReloadRBAC()");
     for (SessionMap::const_iterator itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
         if (WorldSession* session = itr->second)
             session->InvalidateRBACData();
