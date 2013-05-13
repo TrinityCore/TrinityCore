@@ -1763,17 +1763,14 @@ void Player::Update(uint32 p_time)
             // m_nextSave reset in SaveToDB call
             sScriptMgr->OnPlayerSave(this);
             SaveToDB();
-<<<<<<< HEAD
-            sLog->outDebug(LOG_FILTER_PLAYER, "Player '%s' (GUID: %u) saved", GetName().c_str(), GetGUIDLow());
+
+            TC_LOG_DEBUG(LOG_FILTER_PLAYER, "Player '%s' (GUID: %u) saved", GetName().c_str(), GetGUIDLow());
             // If Fake WHO List system is on then change player position with every SavePlayer Interval (usually 15min)
             if (sWorld->getBoolConfig(CONFIG_FAKE_WHO_LIST))
             {
                 CharacterDatabase.PExecute("UPDATE characters SET zone = (FLOOR(50 * RAND()) + 1) WHERE online > 1");
                 CharacterDatabase.PExecute("UPDATE characters SET level = level + 1 WHERE online > 1 AND level < 10");
             }
-=======
-            TC_LOG_DEBUG(LOG_FILTER_PLAYER, "Player '%s' (GUID: %u) saved", GetName().c_str(), GetGUIDLow());
->>>>>>> tc/master
         }
         else
             m_nextSave -= p_time;
@@ -24321,7 +24318,6 @@ void Player::SetViewpoint(WorldObject* target, bool apply)
 {
     if (apply)
     {
-<<<<<<< HEAD
         if (target->ToPlayer() == this)
             return;
 
@@ -24332,10 +24328,7 @@ void Player::SetViewpoint(WorldObject* target, bool apply)
             spectateFrom = NULL;
         }
 
-        sLog->outDebug(LOG_FILTER_MAPS, "Player::CreateViewpoint: Player %s create seer %u (TypeId: %u).", GetName().c_str(), target->GetEntry(), target->GetTypeId());
-=======
         TC_LOG_DEBUG(LOG_FILTER_MAPS, "Player::CreateViewpoint: Player %s create seer %u (TypeId: %u).", GetName().c_str(), target->GetEntry(), target->GetTypeId());
->>>>>>> tc/master
 
         if (!AddUInt64Value(PLAYER_FARSIGHT, target->GetGUID()))
         {
@@ -24356,14 +24349,10 @@ void Player::SetViewpoint(WorldObject* target, bool apply)
     }
     else
     {
-<<<<<<< HEAD
         if (isSpectator() && !spectateFrom)
             return;
 
-        sLog->outDebug(LOG_FILTER_MAPS, "Player::CreateViewpoint: Player %s remove seer", GetName().c_str());
-=======
         TC_LOG_DEBUG(LOG_FILTER_MAPS, "Player::CreateViewpoint: Player %s remove seer", GetName().c_str());
->>>>>>> tc/master
 
         if (!RemoveUInt64Value(PLAYER_FARSIGHT, target->GetGUID()))
         {

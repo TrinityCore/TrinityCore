@@ -486,7 +486,6 @@ void PathGenerator::BuildPointPath(const float *startPoint, const float *endPoin
         _type = PathType(PATHFIND_NORMAL | PATHFIND_NOT_USING_PATH);
     }
 
-<<<<<<< HEAD
     // Custom Point for Bugged Zone (By Quentis)
     float startEndDist = Dist3DSqr(GetStartPosition(), GetEndPosition());
 
@@ -592,10 +591,7 @@ void PathGenerator::BuildPointPath(const float *startPoint, const float *endPoin
     }
     // Custom Point for Bugged Zone 
 
-    sLog->outDebug(LOG_FILTER_MAPS, "++ PathGenerator::BuildPointPath path type %d size %d poly-size %d\n", _type, pointCount, _polyLength);
-=======
     TC_LOG_DEBUG(LOG_FILTER_MAPS, "++ PathGenerator::BuildPointPath path type %d size %d poly-size %d\n", _type, pointCount, _polyLength);
->>>>>>> tc/master
 }
 
 void PathGenerator::NormalizePath()

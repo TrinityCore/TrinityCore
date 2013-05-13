@@ -145,13 +145,9 @@ public:
                             return player;
                 }
             }
-<<<<<<< HEAD
-=======
             else
                 TC_LOG_DEBUG(LOG_FILTER_TSCR, "Instance Sunwell Plateau: GetPlayerInMap, but PlayerList is empty!");
->>>>>>> tc/master
 
-            sLog->outDebug(LOG_FILTER_TSCR, "TSCR: Instance Sunwell Plateau: GetPlayerInMap, but PlayerList is empty!");
             return NULL;
         }
 

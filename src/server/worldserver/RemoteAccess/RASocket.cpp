@@ -273,13 +273,9 @@ int RASocket::authenticate()
     if (check_password(user, pass) == -1)
         return -1;
 
-<<<<<<< HEAD
-    sLog->outInfo(LOG_FILTER_REMOTECOMMAND, "User login: %s", user.c_str());
+    TC_LOG_INFO(LOG_FILTER_REMOTECOMMAND, "User login: %s", user.c_str());
     ACE_GUARD_RETURN(ACE_Thread_Mutex,Guard,RASocket::listLock,-1);
     RASocket::connectedClients.insert(this);
-=======
-    TC_LOG_INFO(LOG_FILTER_REMOTECOMMAND, "User login: %s", user.c_str());
->>>>>>> tc/master
 
     return 0;
 }
