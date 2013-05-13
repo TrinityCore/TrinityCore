@@ -922,7 +922,7 @@ void Battleground::EndBattleground(uint32 winner)
 
         player->ResetAllPowers();
         player->CombatStopWithPets(true);
-		player->setFactionForRace(player->getRace());
+        player->setFactionForRace(player->getRace());
         BlockMovement(player);
 
         player->GetSession()->SendPacket(&pvpLogData);
@@ -1078,8 +1078,8 @@ void Battleground::RemovePlayerAtLeave(uint64 guid, bool Transport, bool SendPac
         player->SetBattlegroundId(0, BATTLEGROUND_TYPE_NONE);  // We're not in BG.
         // reset destination bg team
         player->SetBGTeam(0);
-		player->SetGMVisible(true);
-		player->SetGameMaster(false);
+	 player->SetGMVisible(true);
+	 player->SetGameMaster(false);
 
         if (Transport)
             player->TeleportToBGEntryPoint();
@@ -1870,7 +1870,7 @@ uint32 Battleground::GetPlayerTeam(uint64 guid) const
 
 uint32 Battleground::GetOtherTeam(uint32 teamId) const
 {
-    return teamId ? ((teamId == ALLIANCE) ? HORDE : ALLIANCE) : 0;
+      return teamId ? ((teamId == ALLIANCE) ? HORDE : ALLIANCE) : 0;
 }
 
 bool Battleground::IsPlayerInBattleground(uint64 guid) const

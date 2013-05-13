@@ -562,7 +562,7 @@ uint32 ArenaTeam::GetPoints(uint32 memberRating)
 
     if (rating <= 1500)
     {
-      points = 263 * 1.5;
+      points = 336 * 1.5;
     }
     else
       //points = 1511.26f / (1.0f + 1639.28f * exp(-0.00412f * (float)rating));

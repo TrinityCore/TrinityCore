@@ -2768,7 +2768,6 @@ void SpellMgr::LoadSpellCustomAttr()
             case 52743: // Head Smack
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_REQ_TARGET_FACING_CASTER;
                 break;
-//Saqirmdev Tool Fixes
 
             case 48955: // Refer A Friend Summon Effect
             case 2825: // Bloodlust
@@ -2789,11 +2788,16 @@ void SpellMgr::LoadSpellCustomAttr()
             case 52865: //CotR
                 spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
           break;
-
             case 52212: // Death Knight: Death and Decay trigger spell
                 spellInfo->AttributesEx6 |= SPELL_ATTR6_CAN_TARGET_INVISIBLE;
           break;
-
+            case 3355: // Freezing Trap Effect (Rank 1)
+	     case 14308: // Freezing Trap Effect (Rank 2)
+	     case 14309: // Freezing Trap Effect (Rank 3)
+	     case 60210: // Freezing Arrow Effect (Rank 1)
+	          spellInfo->AttributesEx6 |= SPELL_ATTR6_CAN_TARGET_INVISIBLE;
+	          spellInfo->rangeIndex = 1;
+	     break;
             case 48788: //Lay of Hand Rank 5 
             case 27154: //Lay of Hand Rank 4 
             case 10310: //Lay of Hand Rank 3 
@@ -2802,7 +2806,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->AttributesEx2 |= SPELL_ATTR2_CANT_CRIT;
           break;
 
-//Saqirmdev Tool Fixes
             case 53: // Backstab
             case 2589:
             case 2590:
