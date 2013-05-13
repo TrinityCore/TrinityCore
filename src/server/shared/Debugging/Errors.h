@@ -19,15 +19,18 @@
 #ifndef TRINITYCORE_ERRORS_H
 #define TRINITYCORE_ERRORS_H
 
-namespace Trinity {
+#include "Define.h"
 
-void Assert(char const *file, int line, char const *function, char const *message);
+namespace Trinity
+{
 
-void Fatal(char const *file, int line, char const *function, char const *message);
+    DECLSPEC_NORETURN void Assert(char const *file, int line, char const *function, char const *message) ATTR_NORETURN;
 
-void Error(char const *file, int line, char const *function, char const *message);
+    DECLSPEC_NORETURN void Fatal(char const *file, int line, char const *function, char const *message) ATTR_NORETURN;
 
-void Warning(char const *file, int line, char const *function, char const *message);
+    DECLSPEC_NORETURN void Error(char const *file, int line, char const *function, char const *message) ATTR_NORETURN;
+
+    void Warning(char const *file, int line, char const *function, char const *message);
 
 } // namespace Trinity
 

@@ -377,6 +377,8 @@ struct SpellTargetPosition
     float  target_Orientation;
 };
 
+typedef std::map<std::pair<uint32 /*spell_id*/, SpellEffIndex /*effIndex*/>, SpellTargetPosition> SpellTargetPositionMap;
+
 // Enum with EffectRadiusIndex and their actual radius
 enum EffectRadiusIndex
 {
@@ -438,8 +440,6 @@ enum EffectRadiusIndex
     EFFECT_RADIUS_3_5_YARDS     = 64,   // 3.5 yards
     EFFECT_RADIUS_80_YARDS_2    = 65
 };
-
-typedef UNORDERED_MAP<uint32, SpellTargetPosition> SpellTargetPositionMap;
 
 // Spell pet auras
 class PetAura
@@ -641,7 +641,7 @@ class SpellMgr
         bool IsSpellLearnToSpell(uint32 spell_id1, uint32 spell_id2) const;
 
         // Spell target coordinates
-        SpellTargetPosition const* GetSpellTargetPosition(uint32 spell_id) const;
+        SpellTargetPosition const* GetSpellTargetPosition(uint32 spell_id, SpellEffIndex effIndex) const;
 
         // Spell Groups table
         SpellSpellGroupMapBounds GetSpellSpellGroupMapBounds(uint32 spell_id) const;
