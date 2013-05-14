@@ -85,7 +85,7 @@ bool DynamicObject::CreateDynamicObject(uint32 guidlow, Unit* caster, uint32 spe
     Relocate(pos);
     if (!IsPositionValid())
     {
-        sLog->outError(LOG_FILTER_GENERAL, "DynamicObject (spell %u) not created. Suggested coordinates isn't valid (X: %f Y: %f)", spellId, GetPositionX(), GetPositionY());
+        TC_LOG_ERROR(LOG_FILTER_GENERAL, "DynamicObject (spell %u) not created. Suggested coordinates isn't valid (X: %f Y: %f)", spellId, GetPositionX(), GetPositionY());
         return false;
     }
 

@@ -58,13 +58,10 @@ std::string GetConfigStringDefault(std::string base, const char* name, const cha
 }
 
 // Returns default logger if the requested logger is not found
-Logger* Log::GetLoggerByType(LogFilterType filter)
+Logger* Log::GetLoggerByType(LogFilterType filterType)
 {
-    LoggerMap::iterator it = loggers.begin();
-    while (it != loggers.end() && it->second.getType() != filter)
-        ++it;
-
-    return it == loggers.end() ? &(loggers[0]) : &(it->second);
+    LoggerMap::iterator it = loggers.find(static_cast<uint8>(filterType));
+    return it == loggers.end() ? &loggers[0] : &it->second;
 }
 
 Appender* Log::GetAppenderByName(std::string const& name)
@@ -278,7 +275,10 @@ void Log::vlog(LogFilterType filter, LogLevel level, char const* str, va_list ar
 void Log::write(LogMessage* msg)
 {
     if (loggers.empty())
+    {
+        delete msg;
         return;
+    }
 
     msg->text.append("\n");
     Logger* logger = GetLoggerByType(msg->type);
@@ -335,26 +335,8 @@ bool Log::SetLogLevel(std::string const& name, const char* newLevelc, bool isLog
     return true;
 }
 
-bool Log::ShouldLog(LogFilterType type, LogLevel level) const
-{
-    LoggerMap::const_iterator it = loggers.find(uint8(type));
-    if (it != loggers.end())
-    {
-        LogLevel loggerLevel = it->second.getLogLevel();
-        return loggerLevel && loggerLevel <= level;
-    }
-
-    if (type != LOG_FILTER_GENERAL)
-        return ShouldLog(LOG_FILTER_GENERAL, level);
-
-    return false;
-}
-
 void Log::outTrace(LogFilterType filter, const char * str, ...)
 {
-    if (!str || !ShouldLog(filter, LOG_LEVEL_TRACE))
-        return;
-
     va_list ap;
     va_start(ap, str);
 
@@ -365,9 +347,6 @@ void Log::outTrace(LogFilterType filter, const char * str, ...)
 
 void Log::outDebug(LogFilterType filter, const char * str, ...)
 {
-    if (!str || !ShouldLog(filter, LOG_LEVEL_DEBUG))
-        return;
-
     va_list ap;
     va_start(ap, str);
 
@@ -378,9 +357,6 @@ void Log::outDebug(LogFilterType filter, const char * str, ...)
 
 void Log::outInfo(LogFilterType filter, const char * str, ...)
 {
-    if (!str || !ShouldLog(filter, LOG_LEVEL_INFO))
-        return;
-
     va_list ap;
     va_start(ap, str);
 
@@ -391,9 +367,6 @@ void Log::outInfo(LogFilterType filter, const char * str, ...)
 
 void Log::outWarn(LogFilterType filter, const char * str, ...)
 {
-    if (!str || !ShouldLog(filter, LOG_LEVEL_WARN))
-        return;
-
     va_list ap;
     va_start(ap, str);
 
@@ -404,9 +377,6 @@ void Log::outWarn(LogFilterType filter, const char * str, ...)
 
 void Log::outError(LogFilterType filter, const char * str, ...)
 {
-    if (!str || !ShouldLog(filter, LOG_LEVEL_ERROR))
-        return;
-
     va_list ap;
     va_start(ap, str);
 
@@ -417,9 +387,6 @@ void Log::outError(LogFilterType filter, const char * str, ...)
 
 void Log::outFatal(LogFilterType filter, const char * str, ...)
 {
-    if (!str || !ShouldLog(filter, LOG_LEVEL_FATAL))
-        return;
-
     va_list ap;
     va_start(ap, str);
 

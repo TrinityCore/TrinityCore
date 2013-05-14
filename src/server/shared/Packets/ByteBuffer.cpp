@@ -61,7 +61,7 @@ void ByteBuffer::print_storage() const
         o << read<uint8>(i) << " - ";
     o << " ";
 
-    sLog->outTrace(LOG_FILTER_NETWORKIO, "%s", o.str().c_str());
+    TC_LOG_TRACE(LOG_FILTER_NETWORKIO, "%s", o.str().c_str());
 }
 
 void ByteBuffer::textlike() const
@@ -78,7 +78,7 @@ void ByteBuffer::textlike() const
         o << buf;
     }
     o << " ";
-    sLog->outTrace(LOG_FILTER_NETWORKIO, "%s", o.str().c_str());
+    TC_LOG_TRACE(LOG_FILTER_NETWORKIO, "%s", o.str().c_str());
 }
 
 void ByteBuffer::hexlike() const
@@ -110,5 +110,5 @@ void ByteBuffer::hexlike() const
         o << buf;
     }
     o << " ";
-    sLog->outTrace(LOG_FILTER_NETWORKIO, "%s", o.str().c_str());
+    TC_LOG_TRACE(LOG_FILTER_NETWORKIO, "%s", o.str().c_str());
 }

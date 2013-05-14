@@ -1235,7 +1235,7 @@ public:
         if (!playerTarget)
             playerTarget = player;
 
-        sLog->outDebug(LOG_FILTER_GENERAL, handler->GetTrinityString(LANG_ADDITEM), itemId, count);
+        TC_LOG_DEBUG(LOG_FILTER_GENERAL, handler->GetTrinityString(LANG_ADDITEM), itemId, count);
 
         ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(itemId);
         if (!itemTemplate)
@@ -1314,7 +1314,7 @@ public:
         if (!playerTarget)
             playerTarget = player;
 
-        sLog->outDebug(LOG_FILTER_GENERAL, handler->GetTrinityString(LANG_ADDITEMSET), itemSetId);
+        TC_LOG_DEBUG(LOG_FILTER_GENERAL, handler->GetTrinityString(LANG_ADDITEMSET), itemSetId);
 
         bool found = false;
         ItemTemplateContainer const* its = sObjectMgr->GetItemTemplateStore();
@@ -2042,6 +2042,70 @@ public:
         if (!*args)
             return false;
 
+        char* str = strtok((char*)args, " ");
+
+        if (strcmp(str, "go") == 0)
+        {
+            char* guidStr = strtok(NULL, " ");
+            if (!guidStr)
+            {
+                handler->SendSysMessage(LANG_BAD_VALUE);
+                handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            int32 guid = atoi(guidStr);
+            if (!guid)
+            {
+                handler->SendSysMessage(LANG_BAD_VALUE);
+                handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            char* damageStr = strtok(NULL, " ");
+            if (!damageStr)
+            {
+                handler->SendSysMessage(LANG_BAD_VALUE);
+                handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            int32 damage = atoi(damageStr);
+            if (!damage)
+            {
+                handler->SendSysMessage(LANG_BAD_VALUE);
+                handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            if (Player* player = handler->GetSession()->GetPlayer())
+            {
+                GameObject* go = NULL;
+
+                if (GameObjectData const* goData = sObjectMgr->GetGOData(guid))
+                    go = handler->GetObjectGlobalyWithGuidOrNearWithDbGuid(guid, goData->id);
+
+                if (!go)
+                {
+                    handler->PSendSysMessage(LANG_COMMAND_OBJNOTFOUND, guid);
+                    handler->SetSentErrorMessage(true);
+                    return false;
+                }
+
+                if (!go->IsDestructibleBuilding())
+                {
+                    handler->SendSysMessage(LANG_INVALID_GAMEOBJECT_TYPE);
+                    handler->SetSentErrorMessage(true);
+                    return false;
+                }
+
+                go->ModifyHealth(-damage, player);
+                handler->PSendSysMessage(LANG_GAMEOBJECT_DAMAGED, go->GetName().c_str(), guid, -damage, go->GetGOValue()->Building.Health);
+            }
+
+            return true;
+        }
+
         Unit* target = handler->getSelectedUnit();
         if (!target || !handler->GetSession()->GetPlayer()->GetSelection())
         {
@@ -2458,7 +2522,7 @@ public:
 
         if (!pet->InitStatsForLevel(creatureTarget->getLevel()))
         {
-            sLog->outError(LOG_FILTER_GENERAL, "InitStatsForLevel() in EffectTameCreature failed! Pet deleted.");
+            TC_LOG_ERROR(LOG_FILTER_GENERAL, "InitStatsForLevel() in EffectTameCreature failed! Pet deleted.");
             handler->PSendSysMessage("Error 2");
             delete pet;
             return false;
