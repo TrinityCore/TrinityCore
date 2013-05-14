@@ -453,7 +453,7 @@ public:
                     }
                     else
                     {
-                        sLog->outError(LOG_FILTER_TSCR, "Sathrovarr is unable to find Kalecgos");
+                        TC_LOG_ERROR(LOG_FILTER_TSCR, "Sathrovarr is unable to find Kalecgos");
                         EnterEvadeMode();
                         return;
                     }
@@ -604,7 +604,7 @@ public:
                         }
                         else
                         {
-                            sLog->outError(LOG_FILTER_TSCR, "TSCR: Didn't find Shathrowar. Kalecgos event reseted.");
+                            TC_LOG_ERROR(LOG_FILTER_TSCR, "TSCR: Didn't find Shathrowar. Kalecgos event reseted.");
                             EnterEvadeMode();
                             return;
                         }

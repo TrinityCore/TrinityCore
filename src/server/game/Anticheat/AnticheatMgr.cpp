@@ -38,7 +38,7 @@ void AnticheatMgr::JumpHackDetection(Player* player, MovementInfo movementInfo,u
     if (m_Players[key].GetLastOpcode() == MSG_MOVE_JUMP && opcode == MSG_MOVE_JUMP)
     {
         BuildReport(player,JUMP_HACK_REPORT);
-        //sLog->outError("AnticheatMgr:: Jump-Hack detected player GUID (low) %u",player->GetGUIDLow());
+        //TC_LOG_ERROR("AnticheatMgr:: Jump-Hack detected player GUID (low) %u",player->GetGUIDLow());
     }
 }
 
@@ -60,7 +60,7 @@ void AnticheatMgr::WalkOnWaterHackDetection(Player* player, MovementInfo movemen
         player->HasAuraType(SPELL_AURA_WATER_WALK))
         return;
 
-    //sLog->outError("AnticheatMgr:: Walk on Water - Hack detected player GUID (low) %u",player->GetGUIDLow());
+    //TC_LOG_ERROR("AnticheatMgr:: Walk on Water - Hack detected player GUID (low) %u",player->GetGUIDLow());
     BuildReport(player,WALK_WATER_HACK_REPORT);
 
 }
@@ -79,7 +79,7 @@ void AnticheatMgr::FlyHackDetection(Player* player, MovementInfo movementInfo)
         player->HasAuraType(SPELL_AURA_MOD_INCREASE_FLIGHT_SPEED))
         return;
 
-    //sLog->outError("AnticheatMgr:: Fly-Hack detected player GUID (low) %u",player->GetGUIDLow());
+    //TC_LOG_ERROR("AnticheatMgr:: Fly-Hack detected player GUID (low) %u",player->GetGUIDLow());
     BuildReport(player,FLY_HACK_REPORT);
 }
 
@@ -107,7 +107,7 @@ void AnticheatMgr::TeleportPlaneHackDetection(Player* player, MovementInfo movem
     // we are not really walking there
     if (z_diff > 1.0f)
     {
-        //sLog->outError("AnticheatMgr:: Teleport To Plane - Hack detected player GUID (low) %u",player->GetGUIDLow());
+        //TC_LOG_ERROR("AnticheatMgr:: Teleport To Plane - Hack detected player GUID (low) %u",player->GetGUIDLow());
         BuildReport(player,TELEPORT_PLANE_HACK_REPORT);
     }
 }
@@ -168,7 +168,7 @@ void AnticheatMgr::ClimbHackDetection(Player *player, MovementInfo movementInfo,
 
     if (angle > CLIMB_ANGLE)
     {
-        //sLog->outError("AnticheatMgr:: Climb-Hack detected player GUID (low) %u", player->GetGUIDLow());
+        //TC_LOG_ERROR("AnticheatMgr:: Climb-Hack detected player GUID (low) %u", player->GetGUIDLow());
         BuildReport(player,CLIMB_HACK_REPORT);
     }
 }
@@ -216,7 +216,7 @@ void AnticheatMgr::SpeedHackDetection(Player* player,MovementInfo movementInfo)
     if (clientSpeedRate > speedRate)
     {
         BuildReport(player,SPEED_HACK_REPORT);
-        //sLog->outError("AnticheatMgr:: Speed-Hack detected player GUID (low) %u",player->GetGUIDLow());
+        //TC_LOG_ERROR("AnticheatMgr:: Speed-Hack detected player GUID (low) %u",player->GetGUIDLow());
     }
 }
 

@@ -392,7 +392,7 @@ public:
             {
             case 0:
                 //me->AttackStop();
-                sLog->outError(LOG_FILTER_TSCR, "prevent fly phase");
+                TC_LOG_ERROR(LOG_FILTER_TSCR, "prevent fly phase");
                 me->GetMotionMaster()->Clear(false);
                 me->HandleEmoteCommand(EMOTE_ONESHOT_LIFTOFF);
                 me->SetUnitMovementFlags(MOVEMENTFLAG_DISABLE_GRAVITY + MOVEMENTFLAG_ONTRANSPORT);
@@ -401,13 +401,13 @@ public:
                 Timer[EVENT_FLIGHT_SEQUENCE] = 2000;
                 break;
             case 1:
-                sLog->outError(LOG_FILTER_TSCR, "Move to Fly point");
+                TC_LOG_ERROR(LOG_FILTER_TSCR, "Move to Fly point");
                 me->GetMotionMaster()->MovePoint(0, me->GetPositionX()+1, me->GetPositionY(), me->GetPositionZ()+10);
                 Timer[EVENT_FLIGHT_SEQUENCE] = 0;
                 break;
             case 2:
             {
-                sLog->outError(LOG_FILTER_TSCR, "Summon Vapor case 2");
+                TC_LOG_ERROR(LOG_FILTER_TSCR, "Summon Vapor case 2");
                 Unit* target;
                 target = SelectTarget(SELECT_TARGET_RANDOM, 0, 150, true);
                 if(!target) target = Unit::GetUnit((*me), pInstance->GetData64(DATA_PLAYER_GUID));
@@ -433,7 +433,7 @@ public:
             case 3:
             {
                 DespawnSummons(MOB_VAPOR_TRAIL);
-                sLog->outError(LOG_FILTER_TSCR, "Summon Vapor case3");
+                TC_LOG_ERROR(LOG_FILTER_TSCR, "Summon Vapor case3");
                 //me->CastSpell(me, SPELL_VAPOR_SELECT); need core support
                 Unit* target;
                 target = SelectTarget(SELECT_TARGET_RANDOM, 0, 150, true);

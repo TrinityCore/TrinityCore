@@ -2105,7 +2105,7 @@ void ObjectMgr::LoadTransmogrifications() // custom
                 _itemFakeEntryStore[lowGUID] = entry;
             else
             {
-                sLog->outError(LOG_FILTER_SQL, "Item entry (Entry: %u, GUID: %u) does not exist, deleting.", entry, lowGUID);
+                TC_LOG_ERROR(LOG_FILTER_SQL, "Item entry (Entry: %u, GUID: %u) does not exist, deleting.", entry, lowGUID);
                 CharacterDatabase.PExecute("DELETE FROM custom_transmogrification WHERE GUID = %u", lowGUID);
             }
         } while (result->NextRow());

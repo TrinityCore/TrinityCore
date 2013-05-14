@@ -2092,14 +2092,14 @@ struct FlameLeviathanPursuedTargetSelector
         // check area
         if (object->ToUnit()->GetAreaId() != AREA_FORMATION_GROUNDS)
         {
-            sLog->outError(LOG_FILTER_SQL, "Levi true 1");
+            TC_LOG_ERROR(LOG_FILTER_SQL, "Levi true 1");
             return true;
         }
 
         // ignore players loaded on leviathan seats
         if (object->ToUnit()->GetVehicleBase() && object->ToUnit()->GetVehicleBase()->GetEntry() == NPC_SEAT)
         {
-            sLog->outError(LOG_FILTER_SQL, "Levi true 2");
+            TC_LOG_ERROR(LOG_FILTER_SQL, "Levi true 2");
             return true;
         }
 
@@ -2112,7 +2112,7 @@ struct FlameLeviathanPursuedTargetSelector
                 creatureTarget->GetEntry() != VEHICLE_SIEGE &&
                 creatureTarget->GetEntry() != VEHICLE_CHOPPER)
             {
-                sLog->outError(LOG_FILTER_SQL, "Levi true 3");
+                TC_LOG_ERROR(LOG_FILTER_SQL, "Levi true 3");
                 return true;
             }
 
@@ -2120,7 +2120,7 @@ struct FlameLeviathanPursuedTargetSelector
             Vehicle* vehicle = creatureTarget->GetVehicleKit();
             if (!vehicle)
             {
-                sLog->outError(LOG_FILTER_SQL, "Levi true 4");
+                TC_LOG_ERROR(LOG_FILTER_SQL, "Levi true 4");
                 return true;
             }
 
@@ -2129,10 +2129,10 @@ struct FlameLeviathanPursuedTargetSelector
             for (SeatMap::const_iterator itr = vehicle->Seats.begin(); itr != vehicle->Seats.end() && !playerFound; ++itr)
                 if (IS_PLAYER_GUID(itr->second.Passenger))
                     playerFound = true;
-            sLog->outError(LOG_FILTER_SQL, "Levi false 1");
+            TC_LOG_ERROR(LOG_FILTER_SQL, "Levi false 1");
             return !playerFound;
         }
-        sLog->outError(LOG_FILTER_SQL, "Levi false 2");
+        TC_LOG_ERROR(LOG_FILTER_SQL, "Levi false 2");
         return false;
     }
 };
@@ -2167,7 +2167,7 @@ class spell_pursued : public SpellScriptLoader
                 {
                     if (Creature* caster = GetCaster()->ToCreature())
                     {
-                        sLog->outError(LOG_FILTER_SQL, "Leviathan evading");
+                        TC_LOG_ERROR(LOG_FILTER_SQL, "Leviathan evading");
                         caster->AI()->EnterEvadeMode();
                     }
                     return;

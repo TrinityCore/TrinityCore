@@ -79,25 +79,25 @@ void LoadDataFromDataBase()
 
         if (MultiKillTemp.Type > KILL_TYPE_FIRST)
         {
-            sLog->outError(LOG_FILTER_SQL, "MultiKill: KillType (Type: %u) non-existing", MultiKillTemp.Type);
+            TC_LOG_ERROR(LOG_FILTER_SQL, "MultiKill: KillType (Type: %u) non-existing", MultiKillTemp.Type);
             continue;
         }
 
         if (MultiKillTemp.Type == KILL_TYPE_FIRST && MultiKillTemp.Count != 0)
         {
-            sLog->outError(LOG_FILTER_SQL, "MultiKill: FirstKill (Type: %u) need count = 0", MultiKillTemp.Type);
+            TC_LOG_ERROR(LOG_FILTER_SQL, "MultiKill: FirstKill (Type: %u) need count = 0", MultiKillTemp.Type);
             continue;
         }
 
         if (MultiKillTemp.BuffFirst != 0 && !sSpellMgr->GetSpellInfo(MultiKillTemp.BuffFirst))
         {
-            sLog->outError(LOG_FILTER_SQL, "MultiKill: BuffFirst spell (ID: %u) non-existing", MultiKillTemp.BuffFirst);
+            TC_LOG_ERROR(LOG_FILTER_SQL, "MultiKill: BuffFirst spell (ID: %u) non-existing", MultiKillTemp.BuffFirst);
             MultiKillTemp.BuffFirst = 0;
         }
 
         if (MultiKillTemp.BuffSecond != 0 && !sSpellMgr->GetSpellInfo(MultiKillTemp.BuffSecond))
         {
-            sLog->outError(LOG_FILTER_SQL, "MultiKill: BuffSecond spell (ID: %u) non-existing", MultiKillTemp.BuffSecond);
+            TC_LOG_ERROR(LOG_FILTER_SQL, "MultiKill: BuffSecond spell (ID: %u) non-existing", MultiKillTemp.BuffSecond);
             MultiKillTemp.BuffSecond = 0;
         }
 
