@@ -271,6 +271,11 @@ Unit::Unit(bool isWorldObject) : WorldObject(isWorldObject),
     _focusSpell = NULL;
     _lastLiquid = NULL;
     _isWalkingBeforeCharm = false;
+
+    m_pveDamageTakenSecondTimer = 0;
+
+    for (uint32 i = 0; i < 6; ++i)
+        m_pveDamageTaken[i] = 0;
 }
 
 ////////////////////////////////////////////////////////////
@@ -329,6 +334,21 @@ void Unit::Update(uint32 p_time)
 
     if (!IsInWorld())
         return;
+
+    if (GetTypeId() == TYPEID_PLAYER && getClass() == CLASS_DEATH_KNIGHT && HasSpell(49998))
+    {
+        m_pveDamageTakenSecondTimer -= p_time;
+
+        if (m_pveDamageTakenSecondTimer <= 0)
+        {
+            m_pveDamageTakenSecondTimer = 1000;
+
+            for (uint32 i = 5; i > 0; i--)
+                m_pveDamageTaken[i] = m_pveDamageTaken[i - 1];
+
+            m_pveDamageTaken[0] = 0;
+        }
+    }
 
     _UpdateSpells(p_time);
 
@@ -578,6 +598,19 @@ void Unit::DealDamageMods(Unit* victim, uint32 &damage, uint32* absorb)
     }
 }
 
+uint32 Unit::GetPveDamageTakenInPastSeconds(uint32 secs)
+{
+    uint32 totalPveDamageTaken = 0;
+
+    if (secs > 5)
+        secs = 5;
+
+    for (uint32 i = 0; i <= secs; i++)
+        totalPveDamageTaken += m_pveDamageTaken[i];
+
+    return std::max<uint32>(0, totalPveDamageTaken);
+};
+
 uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDamage, DamageEffectType damagetype, SpellSchoolMask damageSchoolMask, SpellInfo const* spellProto, bool durabilityLoss)
 {
     if (victim->IsAIEnabled)
@@ -585,6 +618,10 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
 
     if (IsAIEnabled)
         GetAI()->DamageDealt(victim, damage, damagetype);
+
+    if (GetTypeId() != TYPEID_PLAYER && !(ToCreature()->isPet() && IsControlledByPlayer()) // Must be a non-player damage source
+        && victim->GetTypeId() == TYPEID_PLAYER && victim->getClass() == CLASS_DEATH_KNIGHT && victim->HasSpell(49998))
+        victim->m_pveDamageTaken[0] += damage;
 
     if (victim->GetTypeId() == TYPEID_PLAYER && this != victim)
     {
