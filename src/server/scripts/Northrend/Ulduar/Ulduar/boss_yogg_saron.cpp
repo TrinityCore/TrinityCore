@@ -1301,7 +1301,7 @@ class npc_constrictor_tentacle : public CreatureScript
                 UpdateVictim();
             }
 
-            void IsSummonedBy(Unit* summoner)
+            void IsSummonedBy(Unit* /*summoner*/)
             {
                 if (Creature* voice = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_VOICE_OF_YOGG_SARON)))
                     voice->AI()->JustSummoned(me);
@@ -1398,7 +1398,7 @@ class npc_influence_tentacle : public CreatureScript
                     brain->AI()->DoAction(ACTION_TENTACLE_KILLED);
             }
 
-            void UpdateAI(uint32 diff) { }
+            void UpdateAI(uint32 /*diff*/) { }
 
         private:
             InstanceScript* _instance;
@@ -1540,7 +1540,7 @@ class npc_observation_ring_keeper : public CreatureScript
                 }
             }
 
-            void UpdateAI(uint32 diff) { }
+            void UpdateAI(uint32 /*diff*/) { }
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -1910,7 +1910,7 @@ class npc_laughing_skull : public CreatureScript
             }
 
             // don't evade, otherwise the Lunatic Gaze aura is removed
-            void UpdateAI(uint32 diff) { }
+            void UpdateAI(uint32 /*diff*/) { }
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -2848,7 +2848,7 @@ class spell_yogg_saron_sanity : public SpellScriptLoader     // 63050
                 return true;
             }
 
-            void DummyTick(AuraEffect const* aurEff)
+            void DummyTick(AuraEffect const* /*aurEff*/)
             {
                 if (GetTarget()->HasAura(SPELL_SANITY_WELL))
                     ModStackAmount(20);
