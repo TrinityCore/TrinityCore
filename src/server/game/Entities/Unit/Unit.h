@@ -2152,6 +2152,11 @@ class Unit : public WorldObject
         time_t GetLastDamagedTime() const { return _lastDamagedTime; }
         void SetLastDamagedTime(time_t val) { _lastDamagedTime = val; }
 
+        // PvE damage taken logging (for death knight's Death Strike)
+        uint32 m_pveDamageTaken[6];
+        int32 m_pveDamageTakenSecondTimer;
+        uint32 GetPveDamageTakenInPastSeconds(uint32 secs);
+
     protected:
         explicit Unit (bool isWorldObject);
 

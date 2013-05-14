@@ -48,7 +48,11 @@ enum DeathKnightSpells
     SPELL_DK_UNHOLY_PRESENCE                    = 48265,
     SPELL_DK_IMPROVED_UNHOLY_PRESENCE_TRIGGERED = 63622,
     SPELL_DK_ITEM_SIGIL_VENGEFUL_HEART          = 64962,
-    SPELL_DK_ITEM_T8_MELEE_4P_BONUS             = 64736
+    SPELL_DK_ITEM_T8_MELEE_4P_BONUS             = 64736,
+
+    // Blood Shield mastery
+    SPELL_DK_MASTERY_BLOOD_SHIELD               = 77513,
+    SPELL_DK_BLOOD_SHIELD                       = 77535
 };
 
 enum DeathKnightSpellIcons
@@ -570,6 +574,8 @@ class spell_dk_death_strike : public SpellScriptLoader
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_DK_DEATH_STRIKE_HEAL))
                     return false;
+                if (!sSpellMgr->GetSpellInfo(SPELL_DK_BLOOD_SHIELD))
+                    return false;
                 return true;
             }
 
@@ -578,12 +584,29 @@ class spell_dk_death_strike : public SpellScriptLoader
                 Unit* caster = GetCaster();
                 if (Unit* target = GetHitUnit())
                 {
-                    uint32 count = target->GetDiseasesByCaster(caster->GetGUID());
-                    int32 bp = int32(count * caster->CountPctFromMaxHealth(int32(GetSpellInfo()->Effects[EFFECT_0].DamageMultiplier)));
+                    int32 bp = caster->GetPveDamageTakenInPastSeconds(5) * 0.2f;
+
                     // Improved Death Strike
                     if (AuraEffect const* aurEff = caster->GetAuraEffect(SPELL_AURA_ADD_PCT_MODIFIER, SPELLFAMILY_DEATHKNIGHT, DK_ICON_ID_IMPROVED_DEATH_STRIKE, 0))
                         AddPct(bp, caster->CalculateSpellDamage(caster, aurEff->GetSpellInfo(), 2));
+
+                    bp = std::max(bp, int32(caster->CountPctFromMaxHealth(7)));
+
                     caster->CastCustomSpell(caster, SPELL_DK_DEATH_STRIKE_HEAL, &bp, NULL, NULL, false);
+
+                    // Blood Shield mastery
+                    if (AuraEffect const* MasteryEffect = caster->GetAuraEffect(SPELL_DK_MASTERY_BLOOD_SHIELD, EFFECT_0))
+                    {
+                        ApplyPct(bp, MasteryEffect->GetAmount());
+
+                        // Blood Shield aura present already? Sum amounts up to death knight's maximum health.
+                        if (AuraEffect* curBloodShield = caster->GetAuraEffect(SPELL_DK_BLOOD_SHIELD, EFFECT_0))
+                            bp += curBloodShield->GetAmount();
+
+                        bp = std::min(bp, int32(caster->GetMaxHealth()));
+
+                        caster->CastCustomSpell(caster, SPELL_DK_BLOOD_SHIELD, &bp, NULL, NULL, false);
+                    }
                 }
             }
 
