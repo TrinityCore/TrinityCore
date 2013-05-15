@@ -37,9 +37,10 @@ EndContentData */
 #include "ScriptedGossip.h"
 #include "Player.h"
 #include "SpellInfo.h"
+#include "GridNotifiers.h"
+#include "GridNotifiersImpl.h"
 #include "Cell.h"
 #include "CellImpl.h"
-#include "GridNotifiers.h"
 
 /*######
 ## npc_bunthen_plainswind
@@ -383,7 +384,7 @@ public:
             return;
         }
 
-        void UpdateAI(uint32 const diff)
+        void UpdateAI(uint32 diff)
         {
             npc_escortAI::UpdateAI(diff);
 
@@ -630,7 +631,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (!UpdateVictim())
                 return;
@@ -677,7 +678,7 @@ public:
             events.ScheduleEvent(EVENT_DESPAWN, 5*MINUTE*IN_MILLISECONDS);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             events.Update(diff);
 

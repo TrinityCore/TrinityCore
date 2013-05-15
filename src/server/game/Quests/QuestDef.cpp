@@ -207,6 +207,14 @@ int32 Quest::GetRewOrReqMoney() const
     return int32(RewardOrRequiredMoney * sWorld->getRate(RATE_DROP_MONEY));
 }
 
+uint32 Quest::GetRewMoneyMaxLevel() const
+{
+    if (HasFlag(QUEST_FLAGS_NO_MONEY_FROM_XP))
+        return 0;
+
+    return RewardMoneyMaxLevel;
+}
+
 bool Quest::IsAutoAccept() const
 {
     return sWorld->getBoolConfig(CONFIG_QUEST_IGNORE_AUTO_ACCEPT) ? false : (Flags & QUEST_FLAGS_AUTO_ACCEPT);

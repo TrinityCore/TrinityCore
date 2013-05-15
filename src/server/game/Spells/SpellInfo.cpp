@@ -23,6 +23,7 @@
 #include "ConditionMgr.h"
 #include "Player.h"
 #include "Battleground.h"
+#include "Vehicle.h"
 
 uint32 GetTargetFlagMask(SpellTargetObjectTypes objType)
 {
@@ -449,17 +450,56 @@ int32 SpellEffectInfo::CalcValue(Unit const* caster, int32 const* bp, Unit const
         value = caster->ApplyEffectModifiers(_spellInfo, _effIndex, value);
 
         // amount multiplication based on caster's level
-        if (!basePointsPerLevel && (_spellInfo->Attributes & SPELL_ATTR0_LEVEL_DAMAGE_CALCULATION && _spellInfo->SpellLevel) &&
-                Effect != SPELL_EFFECT_WEAPON_PERCENT_DAMAGE &&
-                Effect != SPELL_EFFECT_KNOCK_BACK &&
-                Effect != SPELL_EFFECT_ADD_EXTRA_ATTACKS &&
-                ApplyAuraName != SPELL_AURA_MOD_SPEED_ALWAYS &&
-                ApplyAuraName != SPELL_AURA_MOD_SPEED_NOT_STACK &&
-                ApplyAuraName != SPELL_AURA_MOD_INCREASE_SPEED &&
-                ApplyAuraName != SPELL_AURA_MOD_DECREASE_SPEED)
-                //there are many more: slow speed, -healing pct
-            value *= 0.25f * exp(caster->getLevel() * (70 - _spellInfo->SpellLevel) / 1000.0f);
-            //value = int32(value * (int32)getLevel() / (int32)(_spellInfo->spellLevel ? _spellInfo->spellLevel : 1));
+        if (!caster->IsControlledByPlayer() &&
+            _spellInfo->SpellLevel && _spellInfo->SpellLevel != caster->getLevel() &&
+            !basePointsPerLevel && (_spellInfo->Attributes & SPELL_ATTR0_LEVEL_DAMAGE_CALCULATION))
+        {
+            bool canEffectScale = false;
+            switch (Effect)
+            {
+                case SPELL_EFFECT_SCHOOL_DAMAGE:
+                case SPELL_EFFECT_DUMMY:
+                case SPELL_EFFECT_POWER_DRAIN:
+                case SPELL_EFFECT_HEALTH_LEECH:
+                case SPELL_EFFECT_HEAL:
+                case SPELL_EFFECT_WEAPON_DAMAGE:
+                case SPELL_EFFECT_POWER_BURN:
+                case SPELL_EFFECT_SCRIPT_EFFECT:
+                case SPELL_EFFECT_NORMALIZED_WEAPON_DMG:
+                case SPELL_EFFECT_FORCE_CAST_WITH_VALUE:
+                case SPELL_EFFECT_TRIGGER_SPELL_WITH_VALUE:
+                case SPELL_EFFECT_TRIGGER_MISSILE_SPELL_WITH_VALUE:
+                    canEffectScale = true;
+                    break;
+                default:
+                    break;
+            }
+
+            switch (ApplyAuraName)
+            {
+                case SPELL_AURA_PERIODIC_DAMAGE:
+                case SPELL_AURA_DUMMY:
+                case SPELL_AURA_PERIODIC_HEAL:
+                case SPELL_AURA_DAMAGE_SHIELD:
+                case SPELL_AURA_PROC_TRIGGER_DAMAGE:
+                case SPELL_AURA_PERIODIC_LEECH:
+                case SPELL_AURA_PERIODIC_MANA_LEECH:
+                case SPELL_AURA_SCHOOL_ABSORB:
+                case SPELL_AURA_PERIODIC_TRIGGER_SPELL_WITH_VALUE:
+                    canEffectScale = true;
+                    break;
+                default:
+                    break;
+            }
+
+            if (canEffectScale)
+            {
+                GtNPCManaCostScalerEntry const* spellScaler = sGtNPCManaCostScalerStore.LookupEntry(_spellInfo->SpellLevel - 1);
+                GtNPCManaCostScalerEntry const* casterScaler = sGtNPCManaCostScalerStore.LookupEntry(caster->getLevel() - 1);
+                if (spellScaler && casterScaler)
+                    value *= casterScaler->ratio / spellScaler->ratio;
+            }
+        }
     }
 
     return int32(value);
@@ -849,7 +889,7 @@ bool SpellInfo::IsLootCrafting() const
     return (Effects[0].Effect == SPELL_EFFECT_CREATE_RANDOM_ITEM ||
         // different random cards from Inscription (121==Virtuoso Inking Set category) r without explicit item
         (Effects[0].Effect == SPELL_EFFECT_CREATE_ITEM_2 &&
-        (TotemCategory[0] != 0 || Effects[0].ItemType == 0)));
+        ((TotemCategory[0] != 0 || (Totem[0] != 0 && SpellIconID == 1)) || Effects[0].ItemType == 0)));
 }
 
 bool SpellInfo::IsQuestTame() const
@@ -1030,6 +1070,12 @@ bool SpellInfo::IsMultiSlotAura() const
     return IsPassive() || Id == 55849 || Id == 40075 || Id == 44413; // Power Spark, Fel Flak Fire, Incanter's Absorption
 }
 
+bool SpellInfo::IsStackableOnOneSlotWithDifferentCasters() const
+{
+    /// TODO: Re-verify meaning of SPELL_ATTR3_STACK_FOR_DIFF_CASTERS and update conditions here
+    return StackAmount > 1 && !IsChanneled() && !(AttributesEx3 & SPELL_ATTR3_STACK_FOR_DIFF_CASTERS);
+}
+
 bool SpellInfo::IsDeathPersistent() const
 {
     return AttributesEx3 & SPELL_ATTR3_DEATH_PERSISTENT;
@@ -1168,10 +1214,8 @@ bool SpellInfo::IsSingleTarget() const
 
 bool SpellInfo::IsSingleTargetWith(SpellInfo const* spellInfo) const
 {
-    // TODO - need better check
-    // Equal icon and spellfamily
-    if (SpellFamilyName == spellInfo->SpellFamilyName &&
-        SpellIconID == spellInfo->SpellIconID)
+    // Same spell?
+    if (IsRankOf(spellInfo))
         return true;
 
     SpellSpecificType spec = GetSpellSpecific();
@@ -1265,7 +1309,7 @@ SpellCastResult SpellInfo::CheckShapeshift(uint32 form) const
         shapeInfo = sSpellShapeshiftStore.LookupEntry(form);
         if (!shapeInfo)
         {
-            sLog->outError(LOG_FILTER_SPELLS_AURAS, "GetErrorAtShapeshiftedCast: unknown shapeshift %u", form);
+            TC_LOG_ERROR(LOG_FILTER_SPELLS_AURAS, "GetErrorAtShapeshiftedCast: unknown shapeshift %u", form);
             return SPELL_CAST_OK;
         }
         actAsShifted = !(shapeInfo->flags1 & 1);            // shapeshift acts as normal form for spells
@@ -1287,7 +1331,7 @@ SpellCastResult SpellInfo::CheckShapeshift(uint32 form) const
 
     // Check if stance disables cast of not-stance spells
     // Example: cannot cast any other spells in zombie or ghoul form
-    // TODO: Find a way to disable use of these spells clientside
+    /// @todo Find a way to disable use of these spells clientside
     if (shapeInfo && shapeInfo->flags1 & 0x400)
     {
         if (!(stanceMask & Stances))
@@ -1610,6 +1654,56 @@ SpellCastResult SpellInfo::CheckExplicitTarget(Unit const* caster, WorldObject c
     return SPELL_CAST_OK;
 }
 
+SpellCastResult SpellInfo::CheckVehicle(Unit const* caster) const
+{
+    // All creatures should be able to cast as passengers freely, restriction and attribute are only for players
+    if (caster->GetTypeId() != TYPEID_PLAYER)
+        return SPELL_CAST_OK;
+
+    Vehicle* vehicle = caster->GetVehicle();
+    if (vehicle)
+    {
+        uint16 checkMask = 0;
+        for (uint8 effIndex = EFFECT_0; effIndex < MAX_SPELL_EFFECTS; ++effIndex)
+        {
+            if (Effects[effIndex].ApplyAuraName == SPELL_AURA_MOD_SHAPESHIFT)
+            {
+                SpellShapeshiftEntry const* shapeShiftEntry = sSpellShapeshiftStore.LookupEntry(Effects[effIndex].MiscValue);
+                if (shapeShiftEntry && (shapeShiftEntry->flags1 & 1) == 0)  // unk flag
+                    checkMask |= VEHICLE_SEAT_FLAG_UNCONTROLLED;
+                break;
+            }
+        }
+
+        if (HasAura(SPELL_AURA_MOUNTED))
+            checkMask |= VEHICLE_SEAT_FLAG_CAN_CAST_MOUNT_SPELL;
+
+        if (!checkMask)
+            checkMask = VEHICLE_SEAT_FLAG_CAN_ATTACK;
+
+        VehicleSeatEntry const* vehicleSeat = vehicle->GetSeatForPassenger(caster);
+        if (!(AttributesEx6 & SPELL_ATTR6_CASTABLE_WHILE_ON_VEHICLE) && !(Attributes & SPELL_ATTR0_CASTABLE_WHILE_MOUNTED)
+            && (vehicleSeat->m_flags & checkMask) != checkMask)
+            return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
+
+        // Can only summon uncontrolled minions/guardians when on controlled vehicle
+        if (vehicleSeat->m_flags & (VEHICLE_SEAT_FLAG_CAN_CONTROL | VEHICLE_SEAT_FLAG_UNK2))
+        {
+            for (uint32 i = EFFECT_0; i < MAX_SPELL_EFFECTS; ++i)
+            {
+                if (Effects[i].Effect != SPELL_EFFECT_SUMMON)
+                    continue;
+
+                SummonPropertiesEntry const* props = sSummonPropertiesStore.LookupEntry(Effects[i].MiscValueB);
+                if (props && props->Category != SUMMON_CATEGORY_WILD)
+                    return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
+            }
+        }
+    }
+
+    return SPELL_CAST_OK;
+}
+
 bool SpellInfo::CheckTargetCreatureType(Unit const* target) const
 {
     // Curse of Doom & Exorcism: not find another way to fix spell target check :/
@@ -1922,6 +2016,9 @@ SpellSpecificType SpellInfo::GetSpellSpecific() const
                 case SPELL_AURA_AOE_CHARM:
                     return SPELL_SPECIFIC_CHARM;
                 case SPELL_AURA_TRACK_CREATURES:
+                    /// @workaround For non-stacking tracking spells (We need generic solution)
+                    if (Id == 30645) // Gas Cloud Tracking
+                        return SPELL_SPECIFIC_NORMAL;
                 case SPELL_AURA_TRACK_RESOURCES:
                 case SPELL_AURA_TRACK_STEALTHED:
                     return SPELL_SPECIFIC_TRACKER;
@@ -2030,7 +2127,7 @@ int32 SpellInfo::CalcPowerCost(Unit const* caster, SpellSchoolMask schoolMask) c
         // Else drain all power
         if (PowerType < MAX_POWERS)
             return caster->GetPower(Powers(PowerType));
-        sLog->outError(LOG_FILTER_SPELLS_AURAS, "SpellInfo::CalcPowerCost: Unknown power type '%d' in spell %d", PowerType, Id);
+        TC_LOG_ERROR(LOG_FILTER_SPELLS_AURAS, "SpellInfo::CalcPowerCost: Unknown power type '%d' in spell %d", PowerType, Id);
         return 0;
     }
 
@@ -2056,25 +2153,49 @@ int32 SpellInfo::CalcPowerCost(Unit const* caster, SpellSchoolMask schoolMask) c
                 break;
             case POWER_RUNE:
             case POWER_RUNIC_POWER:
-                sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "CalculateManaCost: Not implemented yet!");
+                TC_LOG_DEBUG(LOG_FILTER_SPELLS_AURAS, "CalculateManaCost: Not implemented yet!");
                 break;
             default:
-                sLog->outError(LOG_FILTER_SPELLS_AURAS, "CalculateManaCost: Unknown power type '%d' in spell %d", PowerType, Id);
+                TC_LOG_ERROR(LOG_FILTER_SPELLS_AURAS, "CalculateManaCost: Unknown power type '%d' in spell %d", PowerType, Id);
                 return 0;
         }
     }
     SpellSchools school = GetFirstSchoolInMask(schoolMask);
     // Flat mod from caster auras by spell school
     powerCost += caster->GetInt32Value(UNIT_FIELD_POWER_COST_MODIFIER + school);
+
     // Shiv - costs 20 + weaponSpeed*10 energy (apply only to non-triggered spell with energy cost)
     if (AttributesEx4 & SPELL_ATTR4_SPELL_VS_EXTEND_COST)
-        powerCost += caster->GetAttackTime(OFF_ATTACK) / 100;
+    {
+        uint32 speed = 0;
+        if (SpellShapeshiftEntry const* ss = sSpellShapeshiftStore.LookupEntry(caster->GetShapeshiftForm()))
+            speed = ss->attackSpeed;
+        else
+        {
+            WeaponAttackType slot = BASE_ATTACK;
+            if (AttributesEx3 & SPELL_ATTR3_REQ_OFFHAND)
+                slot = OFF_ATTACK;
+
+            speed = caster->GetAttackTime(slot);
+        }
+
+        powerCost += speed / 100;
+    }
+
     // Apply cost mod by spell
     if (Player* modOwner = caster->GetSpellModOwner())
         modOwner->ApplySpellMod(Id, SPELLMOD_COST, powerCost);
 
-    if (Attributes & SPELL_ATTR0_LEVEL_DAMAGE_CALCULATION)
-        powerCost = int32(powerCost / (1.117f * SpellLevel / caster->getLevel() -0.1327f));
+    if (!caster->IsControlledByPlayer())
+    {
+        if (Attributes & SPELL_ATTR0_LEVEL_DAMAGE_CALCULATION)
+        {
+            GtNPCManaCostScalerEntry const* spellScaler = sGtNPCManaCostScalerStore.LookupEntry(SpellLevel - 1);
+            GtNPCManaCostScalerEntry const* casterScaler = sGtNPCManaCostScalerStore.LookupEntry(caster->getLevel() - 1);
+            if (spellScaler && casterScaler)
+                powerCost *= casterScaler->ratio / spellScaler->ratio;
+        }
+    }
 
     // PCT mod from user auras by school
     powerCost = int32(powerCost * (1.0f + caster->GetFloatValue(UNIT_FIELD_POWER_COST_MULTIPLIER + school)));

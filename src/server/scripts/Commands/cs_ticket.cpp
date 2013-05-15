@@ -95,13 +95,10 @@ public:
             return true;
         }
 
-        // Get target information
-        uint64 targetGuid = sObjectMgr->GetPlayerGUIDByName(target.c_str());
-        uint64 targetAccountId = sObjectMgr->GetPlayerAccountIdByGUID(targetGuid);
-        uint32 targetGmLevel = AccountMgr::GetSecurity(targetAccountId, realmID);
-
+        uint64 targetGuid = sObjectMgr->GetPlayerGUIDByName(target);
+        uint32 accountId = sObjectMgr->GetPlayerAccountIdByGUID(targetGuid);
         // Target must exist and have administrative rights
-        if (!targetGuid || AccountMgr::IsPlayerAccount(targetGmLevel))
+        if (!AccountMgr::HasPermission(accountId, RBAC_PERM_COMMANDS_BE_ASSIGNED_TICKET, realmID))
         {
             handler->SendSysMessage(LANG_COMMAND_TICKETASSIGNERROR_A);
             return true;
@@ -125,7 +122,7 @@ public:
 
         // Assign ticket
         SQLTransaction trans = SQLTransaction(NULL);
-        ticket->SetAssignedTo(targetGuid, AccountMgr::IsAdminAccount(targetGmLevel));
+        ticket->SetAssignedTo(targetGuid, AccountMgr::IsAdminAccount(AccountMgr::GetSecurity(accountId, realmID)));
         ticket->SaveToDB(trans);
         sTicketMgr->UpdateLastChange();
 
@@ -237,6 +234,10 @@ public:
         if (Player* player = ticket->GetPlayer())
             if (player->IsInWorld())
                 ticket->SendResponse(player->GetSession());
+
+        SQLTransaction trans = SQLTransaction(NULL);
+        ticket->SetCompleted();
+        ticket->SaveToDB(trans);
 
         sTicketMgr->UpdateLastChange();
         return true;

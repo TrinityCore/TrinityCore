@@ -44,7 +44,7 @@ enum Midnight
 
     MOUNTED_DISPLAYID           = 16040,
 
-    //Attumen (TODO: Use the summoning spell instead of Creature id. It works, but is not convenient for us)
+    //Attumen (@todo Use the summoning spell instead of Creature id. It works, but is not convenient for us)
     SUMMON_ATTUMEN              = 15550,
 };
 
@@ -104,7 +104,7 @@ public:
                 midnight->Kill(midnight);
         }
 
-        void UpdateAI(const uint32 diff);
+        void UpdateAI(uint32 diff);
 
         void SpellHit(Unit* /*source*/, const SpellInfo* spell)
         {
@@ -153,7 +153,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (!UpdateVictim())
                 return;
@@ -234,7 +234,7 @@ public:
     };
 };
 
-void boss_attumen::boss_attumenAI::UpdateAI(const uint32 diff)
+void boss_attumen::boss_attumenAI::UpdateAI(uint32 diff)
 {
     if (ResetTimer)
     {

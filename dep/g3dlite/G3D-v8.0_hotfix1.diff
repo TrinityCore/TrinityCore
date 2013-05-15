@@ -1,0 +1,520 @@
+diff -urN a/dep/g3dlite/include/G3D/debugAssert.h b/dep/g3dlite/include/G3D/debugAssert.h
+--- a/dep/g3dlite/include/G3D/debugAssert.h	2010-02-07 23:39:20.000000000 +0100
++++ b/dep/g3dlite/include/G3D/debugAssert.h	2010-08-26 21:36:32.000000000 +0200
+@@ -39,10 +39,12 @@
+ #ifdef G3D_LINUX
+     // Needed so we can define a global display
+     // pointer for debugAssert.
++#if 0 /* G3DFIX: Disabled to avoid requirement for X11 libraries */
+     #include <X11/Xlib.h>
+     #include <X11/Xutil.h>
+     #include <X11/Xatom.h>
+ #endif
++#endif
+ 
+ 
+ /**
+@@ -178,6 +180,7 @@
+ namespace G3D {  namespace _internal {
+ 
+ #ifdef G3D_LINUX
++#if 0 /* G3DFIX: Disabled to avoid requirement for X11 libraries */
+     /**
+      A pointer to the X11 display.  Initially NULL.  If set to a
+      non-null value (e.g. by SDLWindow), debugAssert attempts to use
+@@ -194,6 +197,7 @@
+      */
+     extern Window        x11Window;
+ #endif
++#endif
+ 
+ /**
+  Pops up an assertion dialog or prints an assertion
+diff -urN a/dep/g3dlite/include/G3D/g3dmath.h b/dep/g3dlite/include/G3D/g3dmath.h
+--- a/dep/g3dlite/include/G3D/g3dmath.h	2010-02-07 23:39:20.000000000 +0100
++++ b/dep/g3dlite/include/G3D/g3dmath.h	2010-08-26 21:36:32.000000000 +0200
+@@ -65,6 +65,8 @@
+     return ::rand() / double(RAND_MAX);
+ }
+ 
++#if !defined(_WIN64)
++
+ /**
+    Win32 implementation of the C99 fast rounding routines.
+    
+@@ -99,6 +101,19 @@
+ 
+     return intgr;
+ }
++
++#else
++
++    __inline long int lrint (double flt) {
++        return (long int)floor(flt+0.5f);
++    }
++
++    __inline long int lrintf(float flt) {
++        return (long int)floorf(flt+0.5f);
++    }
++
++#endif
++
+ #endif
+ 
+ 
+diff -urN a/dep/g3dlite/include/G3D/platform.h b/dep/g3dlite/include/G3D/platform.h
+--- a/dep/g3dlite/include/G3D/platform.h	2010-02-07 23:39:20.000000000 +0100
++++ b/dep/g3dlite/include/G3D/platform.h	2010-08-26 21:36:32.000000000 +0200
+@@ -56,12 +57,15 @@
+    // pi as a constant, which creates a conflict with G3D
+ #define __FP__
+ #else
+-    #error Unknown platform 
++    #error Unknown platform
+ #endif
+ 
+ // Detect 64-bit under various compilers
+ #if (defined(_M_X64) || defined(_WIN64) || defined(__LP64__) || defined(_LP64))
+ #    define G3D_64BIT
++	#if defined(WIN32)
++        #include <intrin.h>
++    #endif
+ #else
+ #    define G3D_32BIT
+ #endif
+@@ -126,13 +130,11 @@
+ // TODO: remove
+ #   pragma warning (disable : 4244)
+ 
+-#   define ZLIB_WINAPI
+-
+ #   define restrict
+ 
+ /** @def G3D_CHECK_PRINTF_METHOD_ARGS()
+     Enables printf parameter validation on gcc. */
+-#   define G3D_CHECK_PRINTF_ARGS 
++#   define G3D_CHECK_PRINTF_ARGS
+ 
+ /** @def G3D_CHECK_PRINTF_METHOD_ARGS()
+     Enables printf parameter validation on gcc. */
+diff -urN a/dep/g3dlite/include/G3D/System.h b/dep/g3dlite/include/G3D/System.h
+--- a/dep/g3dlite/include/G3D/System.h	2010-02-07 23:39:20.000000000 +0100
++++ b/dep/g3dlite/include/G3D/System.h	2010-08-26 21:36:32.000000000 +0200
+@@ -375,10 +375,10 @@
+      // count now contains the cycle count for the intervening operation.
+      </PRE>
+      */
+-    static void beginCycleCount(uint64& cycleCount);
++    /* static void beginCycleCount(uint64& cycleCount);
+     static void endCycleCount(uint64& cycleCount);
+ 
+-    static uint64 getCycleCount();
++    static uint64 getCycleCount(); */
+ 
+     inline static void setOutOfMemoryCallback(OutOfMemoryCallback c) {
+         instance().m_outOfMemoryCallback = c;
+@@ -438,7 +438,7 @@
+ 
+ };
+ 
+-
++/* don't need that for MaNGOS, not portable to Win64...
+ #ifdef _MSC_VER
+     inline uint64 System::getCycleCount() {
+         uint32 timehi, timelo;
+@@ -493,14 +493,14 @@
+     cycleCount = getCycleCount() - cycleCount;
+ #else
+     AbsoluteTime end = UpTime();
+-    Nanoseconds diffNS = 
++    Nanoseconds diffNS =
+         AbsoluteDeltaToNanoseconds(end, UInt64ToUnsignedWide(cycleCount));
+-    cycleCount = 
+-        (uint64) ((double) (instance().m_OSXCPUSpeed) * 
++    cycleCount =
++        (uint64) ((double) (instance().m_OSXCPUSpeed) *
+                   (double) UnsignedWideToUInt64(diffNS) * instance().m_secondsPerNS);
+ #endif
+ }
+-
++ */
+ 
+ } // namespace
+ 
+diff -urN a/dep/g3dlite/source/BinaryInput.cpp b/dep/g3dlite/source/BinaryInput.cpp
+--- a/dep/g3dlite/source/BinaryInput.cpp	2010-02-07 23:39:20.000000000 +0100
++++ b/dep/g3dlite/source/BinaryInput.cpp	2010-08-15 11:37:26.000000000 +0200
+@@ -39,7 +39,9 @@
+ #include "G3D/Log.h"
+ #include "G3D/FileSystem.h"
+ #include <zlib.h>
+-#include "zip.h"
++#if _HAVE_ZIP /* G3DFIX: Use ZIP-library only if defined */
++  #include "zip.h"
++#endif
+ #include <cstring>
+ 
+ namespace G3D {
+@@ -273,6 +275,7 @@ BinaryInput::BinaryInput(
+     _internal::currentFilesUsed.insert(m_filename);
+     
+ 
++#if _HAVE_ZIP /* G3DFIX: Use ZIP-library only if defined */
+     std::string zipfile;
+     if (FileSystem::inZipfile(m_filename, zipfile)) {
+         // Load from zipfile
+@@ -304,6 +307,7 @@ BinaryInput::BinaryInput(
+         m_freeBuffer = true;
+         return;
+     }
++#endif
+ 
+     // Figure out how big the file is and verify that it exists.
+     m_length = FileSystem::size(m_filename);
+diff -urN a/dep/g3dlite/source/debugAssert.cpp b/dep/g3dlite/source/debugAssert.cpp
+--- a/dep/g3dlite/source/debugAssert.cpp	2010-02-07 23:39:20.000000000 +0100
++++ b/dep/g3dlite/source/debugAssert.cpp	2010-08-15 11:37:26.000000000 +0200
+@@ -37,9 +37,11 @@
+ AssertionHook _failureHook = _handleErrorCheck_;
+ 
+ #ifdef G3D_LINUX
++#if 0 /* G3DFIX: Disabled to avoid requirement for X11 libraries */
+     Display*      x11Display = NULL;
+     Window        x11Window  = 0;
+ #endif
++#endif
+ 
+ 
+ #ifdef G3D_WIN32
+@@ -250,6 +252,7 @@
+         ClipCursor(NULL);
+         
+     #elif defined(G3D_LINUX)
++#if 0 /* G3DFIX: Disabled to avoid requirement for X11 libraries */
+         if (x11Display != NULL) {
+             XUngrabPointer(x11Display, CurrentTime);
+             XUngrabKeyboard(x11Display, CurrentTime);
+@@ -264,6 +267,7 @@
+             XAllowEvents(x11Display, AsyncPointer, CurrentTime);
+             XFlush(x11Display);
+         }
++#endif
+     #elif defined(G3D_OSX)
+         // TODO: OS X
+     #endif
+diff -urN a/dep/g3dlite/source/FileSystem.cpp b/dep/g3dlite/source/FileSystem.cpp
+--- a/dep/g3dlite/source/FileSystem.cpp	2010-02-07 23:39:20.000000000 +0100
++++ b/dep/g3dlite/source/FileSystem.cpp	2010-08-15 11:37:26.000000000 +0200
+@@ -12,7 +12,9 @@
+ #include "G3D/fileutils.h"
+ #include <sys/stat.h>
+ #include <sys/types.h>
+-#include "zip.h"
++#if _HAVE_ZIP /* G3DFIX: Use ZIP-library only if defined */
++    #include "zip.h"
++#endif
+ #include "G3D/g3dfnmatch.h"
+ #include "G3D/BinaryInput.h"
+ #include "G3D/BinaryOutput.h"
+@@ -78,6 +80,7 @@ bool FileSystem::Dir::contains(const std
+ }
+     
+ void FileSystem::Dir::computeZipListing(const std::string& zipfile, const std::string& pathInsideZipfile) {
++#if _HAVE_ZIP /* G3DFIX: Use ZIP-library only if defined */
+     struct zip* z = zip_open( FilePath::removeTrailingSlash(zipfile).c_str(), ZIP_CHECKCONS, NULL );
+     debugAssert(z);
+ 
+@@ -126,6 +129,7 @@ void FileSystem::Dir::computeZipListing(
+     
+     zip_close(z);
+     z = NULL;
++#endif
+ }
+ 
+ 
+@@ -522,6 +526,7 @@ int64 FileSystem::_size(const std::strin
+     int result = stat64(filename.c_str(), &st);
+     
+     if (result == -1) {
++#if _HAVE_ZIP /* G3DFIX: Use ZIP-library only if defined */
+         std::string zip, contents;
+         if (zipfileExists(filename, zip, contents)) {
+             int64 requiredMem;
+@@ -538,8 +543,11 @@ int64 FileSystem::_size(const std::strin
+             zip_close(z);
+             return requiredMem;
+         } else {
++#endif
+             return -1;
++#if _HAVE_ZIP /* G3DFIX: Use ZIP-library only if defined */
+         }
++#endif
+     }
+     
+     return st.st_size;
+diff -urN a/dep/g3dlite/source/fileutils.cpp b/dep/g3dlite/source/fileutils.cpp
+--- a/dep/g3dlite/source/fileutils.cpp	2010-02-07 23:39:20.000000000 +0100
++++ b/dep/g3dlite/source/fileutils.cpp	2010-08-15 11:37:26.000000000 +0200
+@@ -20,7 +20,9 @@
+ 
+ #include <sys/stat.h>
+ #include <sys/types.h>
+-#include "zip.h"
++#if _HAVE_ZIP /* G3DFIX: Use ZIP-library only if defined */
++    #include "zip.h"
++#endif
+ 
+ #ifdef G3D_WIN32
+    // Needed for _getcwd
+@@ -144,7 +146,7 @@
+              void*& data,
+              size_t& length) {
+     std::string zip, desiredFile;
+-    
++#if _HAVE_ZIP /* G3DFIX: Use ZIP-library only if defined */    
+     if (zipfileExists(file, zip, desiredFile)) {
+         struct zip *z = zip_open( zip.c_str(), ZIP_CHECKCONS, NULL );
+         {
+@@ -167,6 +169,9 @@
+     } else {
+         data = NULL;
+     }
++#else
++    data = NULL;
++#endif
+ }
+ 
+ 
+@@ -180,6 +185,7 @@
+     int result = _stat(filename.c_str(), &st);
+     
+     if (result == -1) {
++#if _HAVE_ZIP /* G3DFIX: Use ZIP-library only if defined */
+ 		std::string zip, contents;
+ 		if(zipfileExists(filename, zip, contents)){
+ 			int64 requiredMem;
+@@ -198,6 +204,9 @@
+ 		} else {
+         return -1;
+ 		}
++#else
++        return -1;
++#endif
+     }
+ 
+     return st.st_size;
+@@ -518,6 +527,7 @@
+ 
+ ///////////////////////////////////////////////////////////////////////////////
+ 
++#if _HAVE_ZIP /* G3DFIX: Use ZIP-library only if defined */
+ /* Helper methods for zipfileExists()*/
+ // Given a string (the drive) and an array (the path), computes the directory
+ static void _zip_resolveDirectory(std::string& completeDir, const std::string& drive, const Array<std::string>& path, const int length){
+@@ -551,12 +561,12 @@
+ 	}
+ 	return true;
+ }
+-
++#endif
+ 
+ // If no zipfile exists, outZipfile and outInternalFile are unchanged
+ bool zipfileExists(const std::string& filename, std::string& outZipfile,
+                    std::string& outInternalFile){
+-   
++#if _HAVE_ZIP /* G3DFIX: Use ZIP-library only if defined */
+     Array<std::string> path;
+     std::string drive, base, ext, zipfile, infile;
+     parseFilename(filename, drive, path, base, ext);
+@@ -618,7 +628,7 @@
+         }
+         
+     }
+-    
++#endif
+     // not a valid directory structure ever, 
+     // obviously no .zip was found within the path 
+     return false;
+@@ -900,7 +910,7 @@
+ #   endif
+ }
+ 
+-
++#if _HAVE_ZIP /* G3DFIX: Use ZIP-library only if defined */
+ /**
+  @param path   The zipfile name (no trailing slash)
+  @param prefix Directory inside the zipfile. No leading slash, must have trailing slash if non-empty.
+@@ -951,13 +961,14 @@
+         }
+     }
+ }
+-
++#endif
+ 
+ static void getFileOrDirListZip(const std::string& path,
+                                 const std::string& prefix,
+                                 Array<std::string>& files,
+                                 bool wantFiles,
+                                 bool includePath){
++#if _HAVE_ZIP /* G3DFIX: Use ZIP-library only if defined */
+     struct zip *z = zip_open( path.c_str(), ZIP_CHECKCONS, NULL );
+ 
+     Set<std::string> fileSet;
+@@ -973,6 +984,7 @@
+     zip_close( z );
+     
+     fileSet.getMembers(files);
++#endif
+ }
+ 
+ 
+diff -urN a/dep/g3dlite/source/prompt.cpp b/dep/g3dlite/source/prompt.cpp
+--- a/dep/g3dlite/source/prompt.cpp	2010-02-07 23:39:20.000000000 +0100
++++ b/dep/g3dlite/source/prompt.cpp	2010-08-15 11:37:26.000000000 +0200
+@@ -21,6 +21,7 @@
+ #    define _getch getchar
+ #endif
+ 
++#if 0 /* G3DFIX: exclude GUI prompt code */
+ #ifdef G3D_OSX
+ 
+ /*#ifdef __LP64__
+@@ -37,9 +38,11 @@
+ */
+ 
+ #endif
++#endif /* G3DFIX: exclude GUI prompt code */
+ 
+ namespace G3D {
+ 
++#if 0 /* G3DFIX: exclude GUI prompt code */
+ #ifdef G3D_WIN32
+ 
+ namespace _internal {
+@@ -469,6 +472,7 @@
+ }
+ 
+ #endif
++#endif /* G3DFIX: exclude GUI prompt code */
+ 
+ 
+ /**
+@@ -531,6 +535,8 @@
+     return c;
+ }
+ 
++#if 0 /* G3DFIX: exclude GUI prompt code */
++
+ #ifdef G3D_OSX
+ 
+ // See http://developer.apple.com/documentation/Carbon/Reference/Carbon_Event_Manager_Ref/index.html
+@@ -689,13 +695,15 @@
+ 
+ #endif
+ 
++#endif /* G3DFIX: exclude GUI prompt code */
++
+ int prompt(
+     const char*      windowTitle,
+     const char*      prompt, 
+     const char**     choice,
+     int              numChoices,
+     bool             useGui) {
+-
++#if 0 /* G3DFIX: exclude GUI prompt code */
+     #ifdef G3D_WIN32
+         if (useGui) {
+             // Build the message box
+@@ -709,6 +717,7 @@
+                         return guiPrompt(windowTitle, prompt, choice, numChoices);
+                 }
+         #endif
++#endif /* G3DFIX: exclude GUI prompt code */
+     return textPrompt(windowTitle, prompt, choice, numChoices);
+ }
+ 
+diff -urN a/dep/g3dlite/source/RegistryUtil.cpp b/dep/g3dlite/source/RegistryUtil.cpp
+--- a/dep/g3dlite/source/RegistryUtil.cpp	2010-02-07 23:39:20.000000000 +0100
++++ b/dep/g3dlite/source/RegistryUtil.cpp	2010-08-15 11:37:26.000000000 +0200
+@@ -257,7 +257,7 @@
+ 
+ 
+ // static helpers
+-static HKEY getRootKeyFromString(const char* str, uint32 length) {
++static HKEY getRootKeyFromString(const char* str, size_t length) {
+     debugAssert(str);
+ 
+     if (str) {
+diff -urN a/dep/g3dlite/source/System.cpp b/dep/g3dlite/source/System.cpp
+--- a/dep/g3dlite/source/System.cpp	2010-02-07 23:39:20.000000000 +0100
++++ b/dep/g3dlite/source/System.cpp	2010-08-15 11:37:26.000000000 +0200
+@@ -80,8 +80,9 @@
+ #endif
+ 
+ // SIMM include
++#ifdef __SSE__
+ #include <xmmintrin.h>
+-
++#endif
+ 
+ namespace G3D {
+ 
+@@ -559,7 +560,7 @@
+ #endif
+ }
+ 
+-#if defined(G3D_WIN32)
++#if defined(G3D_WIN32) && !defined(G3D_64BIT) /* G3DFIX: Don't check if on 64-bit Windows platforms */
+     #pragma message("Port System::memcpy SIMD to all platforms")
+ /** Michael Herf's fast memcpy */
+ void memcpyMMX(void* dst, const void* src, int nbytes) {
+@@ -610,7 +611,7 @@
+ #endif
+ 
+ void System::memcpy(void* dst, const void* src, size_t numBytes) {
+-#if defined(G3D_WIN32)
++#if defined(G3D_WIN32) && !defined(G3D_64BIT) /* G3DFIX: Don't check if on 64-bit Windows platforms */
+     memcpyMMX(dst, src, numBytes);
+ #else
+     ::memcpy(dst, src, numBytes);
+@@ -620,7 +621,7 @@
+ 
+ /** Michael Herf's fastest memset. n32 must be filled with the same
+     character repeated. */
+-#if defined(G3D_WIN32)
++#if defined(G3D_WIN32) && !defined(G3D_64BIT) /* G3DFIX: Don't check if on 64-bit Windows platforms */
+     #pragma message("Port System::memfill SIMD to all platforms")
+ 
+ // On x86 processors, use MMX
+@@ -659,7 +660,7 @@
+ 
+ 
+ void System::memset(void* dst, uint8 value, size_t numBytes) {
+-#if defined(G3D_WIN32)
++#if defined(G3D_WIN32) && !defined(G3D_64BIT) /* G3DFIX: Don't check if on 64-bit Windows platforms */
+     uint32 v = value;
+     v = v + (v << 8) + (v << 16) + (v << 24); 
+     G3D::memfill(dst, v, numBytes);
+@@ -1676,6 +1677,7 @@
+ 
+ // VC on Intel
+ void System::cpuid(CPUIDFunction func, uint32& areg, uint32& breg, uint32& creg, uint32& dreg) {
++#if !defined(G3D_64BIT) /* G3DFIX: Don't check if on 64-bit platform */
+     // Can't copy from assembler direct to a function argument (which is on the stack) in VC.
+     uint32 a,b,c,d;
+ 
+@@ -1693,6 +1695,14 @@
+     breg = b; 
+     creg = c;
+     dreg = d;
++#else
++    int CPUInfo[4];
++    __cpuid(CPUInfo, func);
++    memcpy(&areg, &CPUInfo[0], 4);
++    memcpy(&breg, &CPUInfo[1], 4);
++    memcpy(&creg, &CPUInfo[2], 4);
++    memcpy(&dreg, &CPUInfo[3], 4);
++#endif
+ }
+ 
+ #elif defined(G3D_OSX) && ! defined(G3D_OSX_INTEL)

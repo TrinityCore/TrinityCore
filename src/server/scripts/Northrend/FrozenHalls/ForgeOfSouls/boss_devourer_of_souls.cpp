@@ -22,7 +22,7 @@
 #include "SpellInfo.h"
 
 /*
- * TODO:
+ * @todo
  * - Fix model id during unleash soul -> seems DB issue 36503 is missing (likewise 36504 is also missing).
  * - Fix outro npc movement
  */
@@ -247,7 +247,7 @@ class boss_devourer_of_souls : public CreatureScript
                 return 0;
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 // Return since we have no target
                 if (!UpdateVictim())

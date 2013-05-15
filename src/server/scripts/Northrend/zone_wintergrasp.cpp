@@ -40,7 +40,7 @@ enum WGqueuenpctext
     WG_NPCQUEUE_TEXT_A_NOWAR            = 14782,
     WG_NPCQUEUE_TEXT_A_QUEUE            = 14791,
     WG_NPCQUEUE_TEXT_A_WAR              = 14781,
-    WG_NPCQUEUE_TEXTOPTION_JOIN         = -1850507,
+    WG_NPCQUEUE_TEXTOPTION_JOIN         = 20077,
 };
 
 enum Spells
@@ -224,7 +224,7 @@ class npc_wg_spirit_guide : public CreatureScript
         {
             npc_wg_spirit_guideAI(Creature* creature) : ScriptedAI(creature) { }
 
-            void UpdateAI(uint32 const /*diff*/)
+            void UpdateAI(uint32 /*diff*/)
             {
                 if (!me->HasUnitState(UNIT_STATE_CASTING))
                     DoCast(me, SPELL_CHANNEL_SPIRIT_HEAL);

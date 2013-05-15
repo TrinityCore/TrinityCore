@@ -60,7 +60,7 @@ public:
             m_uiFrenzy_Timer = 0;
         }
 
-        void UpdateAI(const uint32 uiDiff)
+        void UpdateAI(uint32 uiDiff)
         {
             if (!UpdateVictim())
                 return;

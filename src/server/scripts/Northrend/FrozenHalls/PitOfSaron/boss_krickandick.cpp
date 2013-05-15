@@ -203,7 +203,7 @@ class boss_ick : public CreatureScript
                 me->AddThreat(target, _tempThreat);
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!me->isInCombat())
                     return;
@@ -338,7 +338,7 @@ class boss_krick : public CreatureScript
                 }
             }
 
-            void DoAction(const int32 actionId)
+            void DoAction(int32 actionId)
             {
                 if (actionId == ACTION_OUTRO)
                 {
@@ -365,7 +365,7 @@ class boss_krick : public CreatureScript
                 _events.ScheduleEvent(EVENT_OUTRO_1, 1000);
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 if (_phase != PHASE_OUTRO)
                     return;
@@ -448,7 +448,7 @@ class boss_krick : public CreatureScript
                             break;
                         case EVENT_OUTRO_9:
                             Talk(SAY_KRICK_OUTRO_8);
-                            // TODO: Tyrannus starts killing Krick.
+                            /// @todo Tyrannus starts killing Krick.
                             // there shall be some visual spell effect
                             if (Creature* tyrannus = ObjectAccessor::GetCreature(*me, _tyrannusGUID))
                                 tyrannus->CastSpell(me, SPELL_NECROMANTIC_POWER, true);  //not sure if it's the right spell :/

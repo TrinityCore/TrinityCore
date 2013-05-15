@@ -69,7 +69,7 @@ public:
             if (who->GetEntry() == MOB_ZOMBIE && me->IsWithinDistInMap(who, 7))
             {
                 SetGazeOn(who);
-                // TODO: use a script text
+                /// @todo use a script text
                 me->MonsterTextEmote(EMOTE_NEARBY, 0, true);
             }
             else
@@ -93,7 +93,7 @@ public:
             summons.Summon(summon);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (!UpdateVictimWithGaze() || !CheckInRoom())
                 return;
@@ -109,12 +109,12 @@ public:
                         events.ScheduleEvent(EVENT_WOUND, 10000);
                         break;
                     case EVENT_ENRAGE:
-                        // TODO : Add missing text
+                        /// @todo Add missing text
                         DoCast(me, SPELL_ENRAGE);
                         events.ScheduleEvent(EVENT_ENRAGE, 15000);
                         break;
                     case EVENT_DECIMATE:
-                        // TODO : Add missing text
+                        /// @todo Add missing text
                         DoCastAOE(SPELL_DECIMATE);
                         events.ScheduleEvent(EVENT_DECIMATE, 105000);
                         break;

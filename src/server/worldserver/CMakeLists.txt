@@ -29,16 +29,24 @@ set(worldserver_SRCS
 )
 
 if( WIN32 )
-  set(worldserver_SRCS
-    ${worldserver_SRCS}
-    ${sources_Debugging}
-    worldserver.rc
-  )
+  if ( MSVC )
+    set(worldserver_SRCS
+      ${worldserver_SRCS}
+      ${sources_Debugging}
+      worldserver.rc
+    )
+  else ( )
+    set(worldserver_SRCS
+      ${worldserver_SRCS}
+      ${sources_Debugging}
+    )
+  endif ()
 endif()
 
 include_directories(
   ${CMAKE_BINARY_DIR}
   ${CMAKE_SOURCE_DIR}/dep/g3dlite/include
+  ${CMAKE_SOURCE_DIR}/dep/recastnavigation/Detour
   ${CMAKE_SOURCE_DIR}/dep/gsoap
   ${CMAKE_SOURCE_DIR}/dep/sockets/include
   ${CMAKE_SOURCE_DIR}/dep/SFMT
@@ -163,6 +171,7 @@ target_link_libraries(worldserver
   collision
   g3dlib
   gsoap
+  Detour
   ${JEMALLOC_LIBRARY}
   ${READLINE_LIBRARY}
   ${TERMCAP_LIBRARY}
@@ -173,15 +182,22 @@ target_link_libraries(worldserver
 )
 
 if( WIN32 )
-  add_custom_command(TARGET worldserver
-    POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/worldserver.conf.dist ${CMAKE_BINARY_DIR}/bin/$(ConfigurationName)/
-  )
+  if ( MSVC )
+    add_custom_command(TARGET worldserver
+      POST_BUILD
+      COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/worldserver.conf.dist ${CMAKE_BINARY_DIR}/bin/$(ConfigurationName)/
+    )
+  elseif ( MINGW )
+    add_custom_command(TARGET worldserver
+      POST_BUILD
+      COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/worldserver.conf.dist ${CMAKE_BINARY_DIR}/bin/
+    )
+  endif()
 endif()
 
 if( UNIX )
   install(TARGETS worldserver DESTINATION bin)
-  install(FILES worldserver.conf.dist DESTINATION etc)
+  install(FILES worldserver.conf.dist DESTINATION ${CONF_DIR})
 elseif( WIN32 )
   install(TARGETS worldserver DESTINATION "${CMAKE_INSTALL_PREFIX}")
   install(FILES worldserver.conf.dist DESTINATION "${CMAKE_INSTALL_PREFIX}")

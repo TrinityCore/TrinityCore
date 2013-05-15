@@ -134,7 +134,7 @@ public:
                 EnterEvadeMode();
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             //Return since we have no target
             if (!UpdateVictim())
@@ -198,5 +198,5 @@ public:
 
 void AddSC_boss_hadronox()
 {
-    new boss_hadronox;
+    new boss_hadronox();
 }

@@ -86,7 +86,7 @@ public:
             me->RemoveCorpse();
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (CheckTeronTimer <= diff)
             {
@@ -188,7 +188,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (CheckPlayerTimer <= diff)
             {
@@ -349,10 +349,10 @@ public:
             {
                 /*float x, y, z;
                 ghost->GetPosition(x, y, z);
-                Creature* control = me->SummonCreature(CREATURE_GHOST, x, y, z, 0, TEMPSUMMON_TIMED_DESAWN, 30000);
-                if (control)
+                if (Creature* control = me->SummonCreature(CREATURE_GHOST, x, y, z, 0, TEMPSUMMON_TIMED_DESAWN, 30000))
                 {
-                    CAST_PLR(ghost)->Possess(control);
+                    if (Player* player = ghost->ToPlayer())
+                        player->Possess(control);
                     ghost->DealDamage(ghost, ghost->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL,
                 false);
                 }*/
@@ -378,7 +378,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (Intro && !Done)
             {
@@ -468,8 +468,7 @@ public:
 
             if (CrushingShadowsTimer <= diff)
             {
-                Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0);
-                if (target && target->isAlive())
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                     DoCast(target, SPELL_CRUSHING_SHADOWS);
                 CrushingShadowsTimer = urand(10, 26) * 1000;
             } else CrushingShadowsTimer -= diff;

@@ -38,7 +38,7 @@ void AddItemsSetItem(Player* player, Item* item)
 
     if (!set)
     {
-        sLog->outError(LOG_FILTER_SQL, "Item set %u for item (id %u) not found, mods not applied.", setid, proto->ItemId);
+        TC_LOG_ERROR(LOG_FILTER_SQL, "Item set %u for item (id %u) not found, mods not applied.", setid, proto->ItemId);
         return;
     }
 
@@ -98,7 +98,7 @@ void AddItemsSetItem(Player* player, Item* item)
                 SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(set->spells[x]);
                 if (!spellInfo)
                 {
-                    sLog->outError(LOG_FILTER_PLAYER_ITEMS, "WORLD: unknown spell id %u in items set %u effects", set->spells[x], setid);
+                    TC_LOG_ERROR(LOG_FILTER_PLAYER_ITEMS, "WORLD: unknown spell id %u in items set %u effects", set->spells[x], setid);
                     break;
                 }
 
@@ -119,7 +119,7 @@ void RemoveItemsSetItem(Player*player, ItemTemplate const* proto)
 
     if (!set)
     {
-        sLog->outError(LOG_FILTER_SQL, "Item set #%u for item #%u not found, mods not removed.", setid, proto->ItemId);
+        TC_LOG_ERROR(LOG_FILTER_SQL, "Item set #%u for item #%u not found, mods not removed.", setid, proto->ItemId);
         return;
     }
 
@@ -295,7 +295,7 @@ void Item::UpdateDuration(Player* owner, uint32 diff)
     if (!GetUInt32Value(ITEM_FIELD_DURATION))
         return;
 
-    sLog->outDebug(LOG_FILTER_PLAYER_ITEMS, "Item::UpdateDuration Item (Entry: %u Duration %u Diff %u)", GetEntry(), GetUInt32Value(ITEM_FIELD_DURATION), diff);
+    TC_LOG_DEBUG(LOG_FILTER_PLAYER_ITEMS, "Item::UpdateDuration Item (Entry: %u Duration %u Diff %u)", GetEntry(), GetUInt32Value(ITEM_FIELD_DURATION), diff);
 
     if (GetUInt32Value(ITEM_FIELD_DURATION) <= diff)
     {
@@ -607,7 +607,7 @@ int32 Item::GenerateItemRandomPropertyId(uint32 item_id)
     // item can have not null only one from field values
     if ((itemProto->RandomProperty) && (itemProto->RandomSuffix))
     {
-        sLog->outError(LOG_FILTER_SQL, "Item template %u have RandomProperty == %u and RandomSuffix == %u, but must have one from field =0", itemProto->ItemId, itemProto->RandomProperty, itemProto->RandomSuffix);
+        TC_LOG_ERROR(LOG_FILTER_SQL, "Item template %u have RandomProperty == %u and RandomSuffix == %u, but must have one from field =0", itemProto->ItemId, itemProto->RandomProperty, itemProto->RandomSuffix);
         return 0;
     }
 
@@ -618,7 +618,7 @@ int32 Item::GenerateItemRandomPropertyId(uint32 item_id)
         ItemRandomPropertiesEntry const* random_id = sItemRandomPropertiesStore.LookupEntry(randomPropId);
         if (!random_id)
         {
-            sLog->outError(LOG_FILTER_SQL, "Enchantment id #%u used but it doesn't have records in 'ItemRandomProperties.dbc'", randomPropId);
+            TC_LOG_ERROR(LOG_FILTER_SQL, "Enchantment id #%u used but it doesn't have records in 'ItemRandomProperties.dbc'", randomPropId);
             return 0;
         }
 
@@ -631,7 +631,7 @@ int32 Item::GenerateItemRandomPropertyId(uint32 item_id)
         ItemRandomSuffixEntry const* random_id = sItemRandomSuffixStore.LookupEntry(randomPropId);
         if (!random_id)
         {
-            sLog->outError(LOG_FILTER_SQL, "Enchantment id #%u used but it doesn't have records in sItemRandomSuffixStore.", randomPropId);
+            TC_LOG_ERROR(LOG_FILTER_SQL, "Enchantment id #%u used but it doesn't have records in sItemRandomSuffixStore.", randomPropId);
             return 0;
         }
 
@@ -721,7 +721,7 @@ void Item::AddToUpdateQueueOf(Player* player)
 
     if (player->GetGUID() != GetOwnerGUID())
     {
-        sLog->outDebug(LOG_FILTER_PLAYER_ITEMS, "Item::AddToUpdateQueueOf - Owner's guid (%u) and player's guid (%u) don't match!", GUID_LOPART(GetOwnerGUID()), player->GetGUIDLow());
+        TC_LOG_DEBUG(LOG_FILTER_PLAYER_ITEMS, "Item::AddToUpdateQueueOf - Owner's guid (%u) and player's guid (%u) don't match!", GUID_LOPART(GetOwnerGUID()), player->GetGUIDLow());
         return;
     }
 
@@ -737,11 +737,11 @@ void Item::RemoveFromUpdateQueueOf(Player* player)
     if (!IsInUpdateQueue())
         return;
 
-    ASSERT(player != NULL)
+    ASSERT(player != NULL);
 
     if (player->GetGUID() != GetOwnerGUID())
     {
-        sLog->outDebug(LOG_FILTER_PLAYER_ITEMS, "Item::RemoveFromUpdateQueueOf - Owner's guid (%u) and player's guid (%u) don't match!", GUID_LOPART(GetOwnerGUID()), player->GetGUIDLow());
+        TC_LOG_DEBUG(LOG_FILTER_PLAYER_ITEMS, "Item::RemoveFromUpdateQueueOf - Owner's guid (%u) and player's guid (%u) don't match!", GUID_LOPART(GetOwnerGUID()), player->GetGUIDLow());
         return;
     }
 
@@ -1018,27 +1018,27 @@ void Item::SendTimeUpdate(Player* owner)
     owner->GetSession()->SendPacket(&data);
 }
 
-Item* Item::CreateItem(uint32 item, uint32 count, Player const* player)
+Item* Item::CreateItem(uint32 itemEntry, uint32 count, Player const* player)
 {
     if (count < 1)
         return NULL;                                        //don't create item at zero count
 
-    ItemTemplate const* pProto = sObjectMgr->GetItemTemplate(item);
-    if (pProto)
+    ItemTemplate const* proto = sObjectMgr->GetItemTemplate(itemEntry);
+    if (proto)
     {
-        if (count > pProto->GetMaxStackSize())
-            count = pProto->GetMaxStackSize();
+        if (count > proto->GetMaxStackSize())
+            count = proto->GetMaxStackSize();
 
         ASSERT(count != 0 && "pProto->Stackable == 0 but checked at loading already");
 
-        Item* pItem = NewItemOrBag(pProto);
-        if (pItem->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_ITEM), item, player))
+        Item* item = NewItemOrBag(proto);
+        if (item->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_ITEM), itemEntry, player))
         {
-            pItem->SetCount(count);
-            return pItem;
+            item->SetCount(count);
+            return item;
         }
         else
-            delete pItem;
+            delete item;
     }
     else
         ASSERT(false);
@@ -1176,7 +1176,7 @@ bool Item::IsRefundExpired()
     return (GetPlayedTime() > 2*HOUR);
 }
 
-void Item::SetSoulboundTradeable(AllowedLooterSet& allowedLooters)
+void Item::SetSoulboundTradeable(AllowedLooterSet const& allowedLooters)
 {
     SetFlag(ITEM_FIELD_FLAGS, ITEM_FLAG_BOP_TRADEABLE);
     allowedGUIDs = allowedLooters;

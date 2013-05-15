@@ -121,7 +121,7 @@ public:
         void EnterCombat(Unit* /*who*/) {}
         void MoveInLineOfSight(Unit* /*who*/) {}
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (HellfireTimer)
             {
@@ -145,9 +145,9 @@ public:
 
         void KilledUnit(Unit* who)
         {
-            Unit* pMalchezaar = Unit::GetUnit(*me, malchezaar);
-            if (pMalchezaar)
-                CAST_CRE(pMalchezaar)->AI()->KilledUnit(who);
+            if (Unit* unit = Unit::GetUnit(*me, malchezaar))
+                if (Creature* creature = unit->ToCreature())
+                    creature->AI()->KilledUnit(who);
         }
 
         void SpellHit(Unit* /*who*/, const SpellInfo* spell)
@@ -386,7 +386,7 @@ public:
             Talk(SAY_SUMMON);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (!UpdateVictim())
                 return;

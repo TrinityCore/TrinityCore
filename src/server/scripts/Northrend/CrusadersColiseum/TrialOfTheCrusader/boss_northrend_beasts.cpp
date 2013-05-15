@@ -146,10 +146,7 @@ enum Phases
 {
     PHASE_MOBILE            = 1,
     PHASE_STATIONARY        = 2,
-    PHASE_SUBMERGED         = 3,
-
-    PHASE_MASK_MOBILE       = 1 << PHASE_MOBILE,
-    PHASE_MASK_STATIONARY   = 1 << PHASE_STATIONARY
+    PHASE_SUBMERGED         = 3
 };
 
 class boss_gormok : public CreatureScript
@@ -238,7 +235,7 @@ class boss_gormok : public CreatureScript
                             pSnobold->ToCreature()->DespawnOrUnsummon();
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;
@@ -362,7 +359,7 @@ class mob_snobold_vassal : public CreatureScript
                     _instance->SetData(DATA_SNOBOLD_COUNT, DECREASE);
             }
 
-            void DoAction(int32 const action)
+            void DoAction(int32 action)
             {
                 switch (action)
                 {
@@ -377,7 +374,7 @@ class mob_snobold_vassal : public CreatureScript
                 }
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim() || _targetDied)
                     return;
@@ -484,7 +481,7 @@ class npc_firebomb : public CreatureScript
                 me->SetDisplayId(me->GetCreatureTemplate()->Modelid2);
             }
 
-            void UpdateAI(uint32 const /*diff*/)
+            void UpdateAI(uint32 /*diff*/)
             {
                 if (_instance->GetData(TYPE_NORTHREND_BEASTS) != GORMOK_IN_PROGRESS)
                     me->DespawnOrUnsummon();
@@ -561,7 +558,7 @@ struct boss_jormungarAI : public BossAI
             instance->SetData(TYPE_NORTHREND_BEASTS, SNAKES_IN_PROGRESS);
     }
 
-    void UpdateAI(uint32 const diff)
+    void UpdateAI(uint32 diff)
     {
         if (!UpdateVictim())
             return;
@@ -624,9 +621,9 @@ struct boss_jormungarAI : public BossAI
                     return;
             }
         }
-        if (events.GetPhaseMask() & PHASE_MASK_MOBILE)
+        if (events.IsInPhase(PHASE_MOBILE))
             DoMeleeAttackIfReady();
-        if (events.GetPhaseMask() & PHASE_MASK_STATIONARY)
+        if (events.IsInPhase(PHASE_STATIONARY))
             DoSpellAttackIfReady(SpitSpell);
     }
 
@@ -807,7 +804,7 @@ class mob_slime_pool : public CreatureScript
                 me->SetReactState(REACT_PASSIVE);
             }
 
-            void UpdateAI(uint32 const /*diff*/)
+            void UpdateAI(uint32 /*diff*/)
             {
                 if (!_cast)
                 {
@@ -975,7 +972,7 @@ class boss_icehowl : public CreatureScript
                 }
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;

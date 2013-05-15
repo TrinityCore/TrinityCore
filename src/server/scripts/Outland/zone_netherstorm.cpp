@@ -118,36 +118,33 @@ public:
 
             if (someplayer)
             {
-                Unit* p = Unit::GetUnit(*me, someplayer);
-                if (p && p->GetTypeId() == TYPEID_PLAYER)
+                if (Player* player = ObjectAccessor::GetPlayer(*me, someplayer))
                 {
                     switch (me->GetEntry())
                     {
                         case ENTRY_BNAAR_C_CONSOLE:
-                            CAST_PLR(p)->FailQuest(10299);
-                            CAST_PLR(p)->FailQuest(10329);
+                            player->FailQuest(10299);
+                            player->FailQuest(10329);
                             break;
                         case ENTRY_CORUU_C_CONSOLE:
-                            CAST_PLR(p)->FailQuest(10321);
-                            CAST_PLR(p)->FailQuest(10330);
+                            player->FailQuest(10321);
+                            player->FailQuest(10330);
                             break;
                         case ENTRY_DURO_C_CONSOLE:
-                            CAST_PLR(p)->FailQuest(10322);
-                            CAST_PLR(p)->FailQuest(10338);
+                            player->FailQuest(10322);
+                            player->FailQuest(10338);
                             break;
                         case ENTRY_ARA_C_CONSOLE:
-                            CAST_PLR(p)->FailQuest(10323);
-                            CAST_PLR(p)->FailQuest(10365);
+                            player->FailQuest(10323);
+                            player->FailQuest(10365);
                             break;
                     }
                 }
             }
 
             if (goConsole)
-            {
                 if (GameObject* go = GameObject::GetGameObject(*me, goConsole))
                     go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE);
-            }
         }
 
         void DoWaveSpawnForCreature(Creature* creature)
@@ -237,7 +234,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (Event_Timer <= diff)
             {
@@ -275,27 +272,30 @@ public:
                         Talk(EMOTE_COMPLETE);
                         if (someplayer)
                         {
-                            Unit* u = Unit::GetUnit(*me, someplayer);
-                            if (u && u->GetTypeId() == TYPEID_PLAYER)
-                                CAST_PLR(u)->KilledMonsterCredit(me->GetEntry(), me->GetGUID());
+                            if (Player* player = ObjectAccessor::GetPlayer(*me, someplayer))
+                                player->KilledMonsterCredit(me->GetEntry(), me->GetGUID());
                             DoCast(me, SPELL_DISABLE_VISUAL);
                         }
+
                         if (goConsole)
-                        {
                             if (GameObject* go = GameObject::GetGameObject(*me, goConsole))
                                 go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE);
-                        }
+
                         ++Phase;
                         break;
                 }
-            } else Event_Timer -= diff;
+            }
+            else
+                Event_Timer -= diff;
 
             if (Wave)
             {
                 if (Wave_Timer <= diff)
                 {
                     DoWaveSpawnForCreature(me);
-                } else Wave_Timer -= diff;
+                }
+                else
+                    Wave_Timer -= diff;
             }
         }
     };
@@ -305,7 +305,7 @@ public:
 ## go_manaforge_control_console
 ######*/
 
-//TODO: clean up this workaround when Trinity adds support to do it properly (with gossip selections instead of instant summon)
+/// @todo clean up this workaround when Trinity adds support to do it properly (with gossip selections instead of instant summon)
 class go_manaforge_control_console : public GameObjectScript
 {
 public:
@@ -502,11 +502,11 @@ public:
                 return true;
             }
 
-            sLog->outDebug(LOG_FILTER_TSCR, "npc_commander_dawnforge event already in progress, need to wait.");
+            TC_LOG_DEBUG(LOG_FILTER_TSCR, "npc_commander_dawnforge event already in progress, need to wait.");
             return false;
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             //Is event even running?
             if (!isEvent)
@@ -784,7 +784,7 @@ public:
         //    DoCast(me, SPELL_DE_MATERIALIZE);
         //}
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (!Materialize)
             {
@@ -997,7 +997,7 @@ public:
                 player->FailQuest(QUEST_MARK_V_IS_ALIVE);
         }
 
-        void UpdateAI(const uint32 uiDiff)
+        void UpdateAI(uint32 uiDiff)
         {
             npc_escortAI::UpdateAI(uiDiff);
 

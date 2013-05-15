@@ -86,7 +86,7 @@ public:
         {
             _JustDied();
             DoPlaySoundToSet(me, SOUND_DEATH);
-            me->CastSpell(me, SPELL_HOPELESS, true); // TODO: this may affect other creatures
+            me->CastSpell(me, SPELL_HOPELESS, true); /// @todo this may affect other creatures
         }
 
         void EnterCombat(Unit* /*who*/)
@@ -99,7 +99,7 @@ public:
             events.ScheduleEvent(EVENT_KNIFE, 10000);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (!UpdateVictim())
                 return;

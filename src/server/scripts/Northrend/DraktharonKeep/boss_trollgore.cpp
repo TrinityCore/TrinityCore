@@ -16,7 +16,7 @@
  */
 
 /*
- * Comment: TODO: spawn troll waves
+ * Comment: @todo spawn troll waves
  */
 
 #include "ScriptMgr.h"
@@ -108,7 +108,7 @@ public:
                 instance->SetData(DATA_TROLLGORE_EVENT, IN_PROGRESS);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             //Return since we have no target
             if (!UpdateVictim())
@@ -185,7 +185,7 @@ public:
 
         void JustSummoned(Creature* summon)
         {
-            lSummons.push_back(summon->GetGUID());
+            lSummons.Summon(summon);
             if (summon->AI())
                 summon->AI()->AttackStart(me);
         }

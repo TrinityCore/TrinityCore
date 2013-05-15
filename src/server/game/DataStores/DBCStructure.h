@@ -76,7 +76,7 @@ struct AchievementCriteriaEntry
     union
     {
         // ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE          = 0
-        // TODO: also used for player deaths..
+        /// @todo also used for player deaths..
         struct
         {
             uint32  creatureID;                             // 3
@@ -288,14 +288,14 @@ struct AchievementCriteriaEntry
         // ACHIEVEMENT_CRITERIA_TYPE_EXPLORE_AREA           = 43
         struct
         {
-            // TODO: This rank is _NOT_ the index from AreaTable.dbc
+            /// @todo This rank is _NOT_ the index from AreaTable.dbc
             uint32  areaReference;                          // 3
         } explore_area;
 
         // ACHIEVEMENT_CRITERIA_TYPE_OWN_RANK               = 44
         struct
         {
-            // TODO: This rank is _NOT_ the index from CharTitles.dbc
+            /// @todo This rank is _NOT_ the index from CharTitles.dbc
             uint32  rank;                                   // 3
         } own_rank;
 
@@ -328,7 +328,7 @@ struct AchievementCriteriaEntry
         } visit_barber;
 
         // ACHIEVEMENT_CRITERIA_TYPE_EQUIP_EPIC_ITEM        = 49
-        // TODO: where is the required itemlevel stored?
+        /// @todo where is the required itemlevel stored?
         struct
         {
             uint32  itemSlot;                               // 3
@@ -363,7 +363,7 @@ struct AchievementCriteriaEntry
         } hk_race;
 
         // ACHIEVEMENT_CRITERIA_TYPE_DO_EMOTE               = 54
-        // TODO: where is the information about the target stored?
+        /// @todo where is the information about the target stored?
         struct
         {
             uint32  emoteID;                                // 3 enum TextEmotes
@@ -413,7 +413,7 @@ struct AchievementCriteriaEntry
         } use_gameobject;
 
         // ACHIEVEMENT_CRITERIA_TYPE_SPECIAL_PVP_KILL       = 70
-        // TODO: are those special criteria stored in the dbc or do we have to add another sql table?
+        /// @todo are those special criteria stored in the dbc or do we have to add another sql table?
         struct
         {
             uint32  unused;                                 // 3
@@ -596,6 +596,15 @@ struct BankBagSlotPricesEntry
     uint32  price;
 };
 
+struct BannedAddOnsEntry
+{
+    uint32 Id;
+    // uint32 NameMD5[4];
+    // uint32 VersionMD5[4];
+    // uint32 Timestamp;
+    // uint32 State;
+};
+
 struct BarberShopStyleEntry
 {
     uint32  Id;                                             // 0
@@ -629,13 +638,13 @@ struct BattlemasterListEntry
 struct CharStartOutfitEntry
 {
     //uint32 Id;                                            // 0
-    uint32 RaceClassGender;                                 // 1 (UNIT_FIELD_BYTES_0 & 0x00FFFFFF) comparable (0 byte = race, 1 byte = class, 2 byte = gender)
-    int32 ItemId[MAX_OUTFIT_ITEMS];                         // 2-13
-    //int32 ItemDisplayId[MAX_OUTFIT_ITEMS];                // 14-25 not required at server side
-    //int32 ItemInventorySlot[MAX_OUTFIT_ITEMS];            // 26-37 not required at server side
-    //uint32 Unknown1;                                      // 38, unique values (index-like with gaps ordered in other way as ids)
-    //uint32 Unknown2;                                      // 39
-    //uint32 Unknown3;                                      // 40
+    uint8 Race;                                             // 1
+    uint8 Class;                                            // 2
+    uint8 Gender;                                           // 3
+    //uint8 Unused;                                         // 4
+    int32 ItemId[MAX_OUTFIT_ITEMS];                         // 5-28
+    //int32 ItemDisplayId[MAX_OUTFIT_ITEMS];                // 29-52 not required at server side
+    //int32 ItemInventorySlot[MAX_OUTFIT_ITEMS];            // 53-76 not required at server side
 };
 
 struct CharTitlesEntry
@@ -1018,6 +1027,11 @@ struct GtChanceToMeleeCritEntry
 struct GtChanceToSpellCritBaseEntry
 {
     float    base;
+};
+
+struct GtNPCManaCostScalerEntry
+{
+    float    ratio;
 };
 
 struct GtChanceToSpellCritEntry

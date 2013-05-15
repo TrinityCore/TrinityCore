@@ -35,7 +35,7 @@ class TotemAI : public CreatureAI
         void AttackStart(Unit* victim);
         void EnterEvadeMode();
 
-        void UpdateAI(uint32 const diff);
+        void UpdateAI(uint32 diff);
         static int Permissible(Creature const* creature);
 
     private:

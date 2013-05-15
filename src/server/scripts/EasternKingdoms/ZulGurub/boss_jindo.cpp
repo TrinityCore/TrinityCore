@@ -86,7 +86,7 @@ class boss_jindo : public CreatureScript
                 Talk(SAY_AGGRO);
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;
@@ -110,9 +110,12 @@ class boss_jindo : public CreatureScript
                             events.ScheduleEvent(EVENT_POWERFULLHEALINGWARD, urand(14000, 20000));
                             break;
                         case EVENT_HEX:
-                            DoCastVictim(SPELL_HEX, true);
-                            if (DoGetThreat(me->getVictim()))
-                                DoModifyThreatPercent(me->getVictim(), -80);
+                            if (Unit* target = me->getVictim())
+                            {
+                                DoCast(target, SPELL_HEX, true);
+                                if (DoGetThreat(target))
+                                    DoModifyThreatPercent(target, -80);
+                            }
                             events.ScheduleEvent(EVENT_HEX, urand(12000, 20000));
                             break;
                         case EVENT_DELUSIONSOFJINDO: // HACK
@@ -161,7 +164,7 @@ class boss_jindo : public CreatureScript
                                 SacrificedTroll = me->SummonCreature(NPC_SACRIFICED_TROLL, target->GetPositionX()+3, target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
                                 if (SacrificedTroll)
                                     SacrificedTroll->AI()->AttackStart(target);
-                              }
+                            }
                             events.ScheduleEvent(EVENT_TELEPORT, urand(15000, 23000));
                             break;
                         default:
@@ -209,7 +212,7 @@ class mob_healing_ward : public CreatureScript
             {
             }
 
-            void UpdateAI (const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 //Heal_Timer
                 if (Heal_Timer <= diff)
@@ -257,7 +260,7 @@ class mob_shade_of_jindo : public CreatureScript
 
             void EnterCombat(Unit* /*who*/){}
 
-            void UpdateAI (const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
 
                 //ShadowShock_Timer

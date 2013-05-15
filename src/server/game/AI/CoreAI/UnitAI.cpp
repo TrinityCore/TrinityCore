@@ -103,8 +103,7 @@ void UnitAI::DoAddAuraToAllHostilePlayers(uint32 spellid)
                 if (unit->GetTypeId() == TYPEID_PLAYER)
                     me->AddAura(spellid, unit);
         }
-    }else
-        return;
+    }
 }
 
 void UnitAI::DoCastToAllHostilePlayers(uint32 spellid, bool triggered)
@@ -118,14 +117,13 @@ void UnitAI::DoCastToAllHostilePlayers(uint32 spellid, bool triggered)
                 if (unit->GetTypeId() == TYPEID_PLAYER)
                     me->CastSpell(unit, spellid, triggered);
         }
-    }else
-        return;
+    }
 }
 
 void UnitAI::DoCast(uint32 spellId)
 {
     Unit* target = NULL;
-    //sLog->outError(LOG_FILTER_GENERAL, "aggre %u %u", spellId, (uint32)AISpellInfo[spellId].target);
+    //TC_LOG_ERROR(LOG_FILTER_GENERAL, "aggre %u %u", spellId, (uint32)AISpellInfo[spellId].target);
     switch (AISpellInfo[spellId].target)
     {
         default:
@@ -148,8 +146,7 @@ void UnitAI::DoCast(uint32 spellId)
             float range = spellInfo->GetMaxRange(false);
 
             DefaultTargetSelector targetSelector(me, range, playerOnly, -(int32)spellId);
-            if (!(spellInfo->Attributes & SPELL_ATTR0_BREAKABLE_BY_DAMAGE)
-                && !(spellInfo->AuraInterruptFlags & AURA_INTERRUPT_FLAG_NOT_VICTIM)
+            if (!(spellInfo->AuraInterruptFlags & AURA_INTERRUPT_FLAG_NOT_VICTIM)
                 && targetSelector(me->getVictim()))
                 target = me->getVictim();
             else
@@ -240,7 +237,10 @@ void UnitAI::FillAISpellInfo()
 }
 
 //Enable PlayerAI when charmed
-void PlayerAI::OnCharmed(bool apply) { me->IsAIEnabled = apply; }
+void PlayerAI::OnCharmed(bool apply)
+{
+    me->IsAIEnabled = apply;
+}
 
 void SimpleCharmedAI::UpdateAI(const uint32 /*diff*/)
 {

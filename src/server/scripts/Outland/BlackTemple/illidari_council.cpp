@@ -161,7 +161,7 @@ public:
                 Council[1] = instance->GetData64(DATA_VERASDARKSHADOW);
                 Council[2] = instance->GetData64(DATA_LADYMALANDE);
                 Council[3] = instance->GetData64(DATA_HIGHNETHERMANCERZEREVOR);
-            } else sLog->outError(LOG_FILTER_TSCR, ERROR_INST_DATA);
+            } else TC_LOG_ERROR(LOG_FILTER_TSCR, ERROR_INST_DATA);
         }
 
         void EnterCombat(Unit* /*who*/) {}
@@ -169,7 +169,7 @@ public:
         void AttackStart(Unit* /*who*/) {}
         void MoveInLineOfSight(Unit* /*who*/) {}
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (!EventStarted)
                 return;
@@ -305,7 +305,7 @@ public:
                     {
                         Unit* member = Unit::GetUnit(*me, Council[i]);
                         if (member && member->isAlive())
-                            CAST_CRE(member)->AI()->AttackStart(target);
+                            member->ToCreature()->AI()->AttackStart(target);
                     }
                 }
 
@@ -315,7 +315,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (!EventBegun)
                 return;
@@ -407,7 +407,7 @@ struct boss_illidari_councilAI : public ScriptedAI
         }
         else
         {
-            sLog->outError(LOG_FILTER_TSCR, ERROR_INST_DATA);
+            TC_LOG_ERROR(LOG_FILTER_TSCR, ERROR_INST_DATA);
             EnterEvadeMode();
             return;
         }
@@ -455,7 +455,7 @@ struct boss_illidari_councilAI : public ScriptedAI
     {
         if (!instance)
         {
-            sLog->outError(LOG_FILTER_TSCR, ERROR_INST_DATA);
+            TC_LOG_ERROR(LOG_FILTER_TSCR, ERROR_INST_DATA);
             return;
         }
 
@@ -536,7 +536,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (!UpdateVictim())
                 return;
@@ -641,7 +641,7 @@ public:
             Talk(SAY_ZERE_DEATH);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (!UpdateVictim())
                 return;
@@ -741,7 +741,7 @@ public:
             Talk(SAY_MALA_DEATH);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (!UpdateVictim())
                 return;
@@ -827,7 +827,7 @@ public:
             Talk(SAY_VERA_DEATH);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (!UpdateVictim())
                 return;

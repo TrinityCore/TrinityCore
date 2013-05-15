@@ -22,6 +22,7 @@
 #include "Util.h"
 #include "DBCStructure.h"
 #include "Object.h"
+#include "SpellAuraDefines.h"
 
 class Unit;
 class Player;
@@ -392,6 +393,7 @@ public:
     bool IsStackableWithRanks() const;
     bool IsPassiveStackableWithRanks() const;
     bool IsMultiSlotAura() const;
+    bool IsStackableOnOneSlotWithDifferentCasters() const;
     bool IsDeathPersistent() const;
     bool IsRequiringDeadTarget() const;
     bool IsAllowingDeadTarget() const;
@@ -419,6 +421,7 @@ public:
     SpellCastResult CheckLocation(uint32 map_id, uint32 zone_id, uint32 area_id, Player const* player = NULL) const;
     SpellCastResult CheckTarget(Unit const* caster, WorldObject const* target, bool implicit = true) const;
     SpellCastResult CheckExplicitTarget(Unit const* caster, WorldObject const* target, Item const* itemTarget = NULL) const;
+    SpellCastResult CheckVehicle(Unit const* caster) const;
     bool CheckTargetCreatureType(Unit const* target) const;
 
     SpellSchoolMask GetSchoolMask() const;

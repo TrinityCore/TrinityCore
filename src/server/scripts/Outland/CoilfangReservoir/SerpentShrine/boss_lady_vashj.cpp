@@ -310,7 +310,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (!CanAttack && Intro)
             {
@@ -599,7 +599,7 @@ public:
 
         void MoveInLineOfSight(Unit* /*who*/) {}
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (!instance)
                 return;
@@ -677,7 +677,7 @@ public:
             me->AddThreat(who, 0.1f);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             // PoisonBoltTimer
             if (PoisonBoltTimer <= diff)
@@ -754,7 +754,7 @@ public:
                 MovementTimer = 0;
         }
 
-        void UpdateAI (const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             // Random movement
             if (MovementTimer <= diff)
@@ -786,7 +786,7 @@ public:
                 {
                     // check if vashj is death
                     Unit* Vashj = Unit::GetUnit(*me, instance->GetData64(DATA_LADYVASHJ));
-                    if (!Vashj || (Vashj && !Vashj->isAlive()) || (Vashj && CAST_AI(boss_lady_vashj::boss_lady_vashjAI, CAST_CRE(Vashj)->AI())->Phase != 3))
+                    if (!Vashj || !Vashj->isAlive() || CAST_AI(boss_lady_vashj::boss_lady_vashjAI, Vashj->ToCreature()->AI())->Phase != 3)
                     {
                         // remove
                         me->setDeathState(DEAD);
@@ -796,7 +796,9 @@ public:
                 }
 
                 CheckTimer = 1000;
-            } else CheckTimer -= diff;
+            }
+            else
+                CheckTimer -= diff;
         }
     };
 
@@ -834,7 +836,7 @@ public:
 
         void MoveInLineOfSight(Unit* /*who*/) {}
 
-        void UpdateAI (const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (!instance)
                 return;

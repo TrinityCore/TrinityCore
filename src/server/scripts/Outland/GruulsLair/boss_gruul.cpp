@@ -142,7 +142,7 @@ public:
             //this part should be in the core
             if (pSpell->Id == SPELL_SHATTER)
             {
-                // todo: use eventmap to kill this stuff
+                /// @todo use eventmap to kill this stuff
                 //clear this, if we are still performing
                 if (m_bPerformingGroundSlam)
                 {
@@ -158,7 +158,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 uiDiff)
+        void UpdateAI(uint32 uiDiff)
         {
             //Return since we have no target
             if (!UpdateVictim())

@@ -164,24 +164,24 @@ class boss_warchief_kargath_bladefist : public CreatureScript
             {
                 for (std::vector<uint64>::const_iterator itr = adds.begin(); itr!= adds.end(); ++itr)
                 {
-                    Unit* temp = Unit::GetUnit(*me, *itr);
-                    if (temp && temp->isAlive())
+                    Creature* creature = Unit::GetCreature(*me, *itr);
+                    if (creature && creature->isAlive())
                     {
-                        (*temp).GetMotionMaster()->Clear(true);
-                        me->DealDamage(temp, temp->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
-                        CAST_CRE(temp)->RemoveCorpse();
+                        creature->GetMotionMaster()->Clear(true);
+                        me->DealDamage(creature, creature->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+                        creature->RemoveCorpse();
                     }
                 }
                 adds.clear();
 
                 for (std::vector<uint64>::const_iterator itr = assassins.begin(); itr!= assassins.end(); ++itr)
                 {
-                    Unit* temp = Unit::GetUnit(*me, *itr);
-                    if (temp && temp->isAlive())
+                    Creature* creature = Unit::GetCreature(*me, *itr);
+                    if (creature && creature->isAlive())
                     {
-                        (*temp).GetMotionMaster()->Clear(true);
-                        me->DealDamage(temp, temp->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
-                        CAST_CRE(temp)->RemoveCorpse();
+                        creature->GetMotionMaster()->Clear(true);
+                        me->DealDamage(creature, creature->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+                        creature->RemoveCorpse();
                     }
                 }
                 assassins.clear();
@@ -194,7 +194,7 @@ class boss_warchief_kargath_bladefist : public CreatureScript
                 me->SummonCreature(MOB_SHATTERED_ASSASSIN, AssassExit[0], AssassExit[1]-8, AssassExit[2], 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 //Return since we have no target
                 if (!UpdateVictim())

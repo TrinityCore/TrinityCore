@@ -107,7 +107,7 @@ WayPoint* SmartAI::GetNextWayPoint()
         mLastWP = (*itr).second;
         if (mLastWP->id != mCurrentWPID)
         {
-            sLog->outError(LOG_FILTER_GENERAL, "SmartAI::GetNextWayPoint: Got not expected waypoint id %u, expected %u", mLastWP->id, mCurrentWPID);
+            TC_LOG_ERROR(LOG_FILTER_GENERAL, "SmartAI::GetNextWayPoint: Got not expected waypoint id %u, expected %u", mLastWP->id, mCurrentWPID);
         }
         return (*itr).second;
     }
@@ -118,7 +118,7 @@ void SmartAI::StartPath(bool run, uint32 path, bool repeat, Unit* /*invoker*/)
 {
     if (me->isInCombat())// no wp movement in combat
     {
-        sLog->outError(LOG_FILTER_GENERAL, "SmartAI::StartPath: Creature entry %u wanted to start waypoint movement while in combat, ignoring.", me->GetEntry());
+        TC_LOG_ERROR(LOG_FILTER_GENERAL, "SmartAI::StartPath: Creature entry %u wanted to start waypoint movement while in combat, ignoring.", me->GetEntry());
         return;
     }
     if (HasEscortState(SMART_ESCORT_ESCORTING))
@@ -162,7 +162,7 @@ void SmartAI::PausePath(uint32 delay, bool forced)
         return;
     if (HasEscortState(SMART_ESCORT_PAUSED))
     {
-        sLog->outError(LOG_FILTER_GENERAL, "SmartAI::StartPath: Creature entry %u wanted to pause waypoint movement while already paused, ignoring.", me->GetEntry());
+        TC_LOG_ERROR(LOG_FILTER_GENERAL, "SmartAI::StartPath: Creature entry %u wanted to pause waypoint movement while already paused, ignoring.", me->GetEntry());
         return;
     }
     mForcedPaused = forced;
@@ -330,13 +330,13 @@ void SmartAI::UpdatePath(const uint32 diff)
     }
 }
 
-void SmartAI::UpdateAI(const uint32 diff)
+void SmartAI::UpdateAI(uint32 diff)
 {
     GetScript()->OnUpdate(diff);
     UpdatePath(diff);
     UpdateDespawn(diff);
 
-    //TODO move to void
+    /// @todo move to void
     if (mFollowGuid)
     {
         if (mFollowArrivedTimer < diff)
@@ -422,6 +422,9 @@ void SmartAI::MovepointReached(uint32 id)
 
 void SmartAI::MovementInform(uint32 MovementType, uint32 Data)
 {
+    if ((MovementType == POINT_MOTION_TYPE && Data == SMART_ESCORT_LAST_OOC_POINT) || MovementType == FOLLOW_MOTION_TYPE)
+        me->ClearUnitState(UNIT_STATE_EVADE);
+
     GetScript()->ProcessEventsFor(SMART_EVENT_MOVEMENTINFORM, NULL, MovementType, Data);
     if (MovementType != POINT_MOTION_TYPE || !HasEscortState(SMART_ESCORT_ESCORTING))
         return;
@@ -430,23 +433,25 @@ void SmartAI::MovementInform(uint32 MovementType, uint32 Data)
 
 void SmartAI::RemoveAuras()
 {
-    // Only loop throught the applied auras, because here is where all auras on the current unit are stored
-    Unit::AuraApplicationMap appliedAuras = me->GetAppliedAuras();
-    for (Unit::AuraApplicationMap::iterator iter = appliedAuras.begin(); iter != appliedAuras.end(); ++iter)
+    Unit::AuraApplicationMap& appliedAuras = me->GetAppliedAuras();
+    for (Unit::AuraApplicationMap::iterator iter = appliedAuras.begin(); iter != appliedAuras.end();)
     {
         Aura const* aura = iter->second->GetBase();
-        if (!aura->GetSpellInfo()->IsPassive() && !aura->GetSpellInfo()->HasAura(SPELL_AURA_CONTROL_VEHICLE) && aura->GetCaster() != me)
-            me->RemoveAurasDueToSpell(aura->GetId());
+        if (!aura->IsPassive() && !aura->HasEffectType(SPELL_AURA_CONTROL_VEHICLE) && aura->GetCasterGUID() != me->GetGUID())
+            me->RemoveAura(iter);
+        else
+            ++iter;
     }
 }
 
 void SmartAI::EnterEvadeMode()
 {
-    if (!me->isAlive())
+    if (!me->isAlive() || me->IsInEvadeMode())
         return;
 
     RemoveAuras();
 
+    me->AddUnitState(UNIT_STATE_EVADE);
     me->DeleteThreatList();
     me->CombatStop(true);
     me->LoadCreaturesAddon();
@@ -693,7 +698,7 @@ void SmartAI::OnCharmed(bool apply)
     GetScript()->ProcessEventsFor(SMART_EVENT_CHARMED, NULL, 0, 0, apply);
 }
 
-void SmartAI::DoAction(const int32 param)
+void SmartAI::DoAction(int32 param)
 {
     GetScript()->ProcessEventsFor(SMART_EVENT_ACTION_DONE, NULL, param);
 }
@@ -855,7 +860,7 @@ void SmartGameObjectAI::Reset()
 // Called when a player opens a gossip dialog with the gameobject.
 bool SmartGameObjectAI::GossipHello(Player* player)
 {
-    sLog->outDebug(LOG_FILTER_DATABASE_AI, "SmartGameObjectAI::GossipHello");
+    TC_LOG_DEBUG(LOG_FILTER_DATABASE_AI, "SmartGameObjectAI::GossipHello");
     GetScript()->ProcessEventsFor(SMART_EVENT_GOSSIP_HELLO, player, 0, 0, false, NULL, go);
     return false;
 }
@@ -934,7 +939,7 @@ class SmartTrigger : public AreaTriggerScript
             if (!player->isAlive())
                 return false;
 
-            sLog->outDebug(LOG_FILTER_DATABASE_AI, "AreaTrigger %u is using SmartTrigger script", trigger->id);
+            TC_LOG_DEBUG(LOG_FILTER_DATABASE_AI, "AreaTrigger %u is using SmartTrigger script", trigger->id);
             SmartScript script;
             script.OnInitialize(NULL, trigger);
             script.ProcessEventsFor(SMART_EVENT_AREATRIGGER_ONTRIGGER, player, trigger->id);

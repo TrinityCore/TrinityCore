@@ -19,7 +19,7 @@
 SDName: Boss mal_ganis
 SDAuthor: Tartalo
 SD%Complete: 80
-SDComment: TODO: Intro & outro
+SDComment: @todo Intro & outro
 SDCategory:
 Script Data End */
 
@@ -119,7 +119,7 @@ public:
                 damage = me->GetHealth()-1;
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             switch (Phase)
             {

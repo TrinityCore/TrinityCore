@@ -97,7 +97,7 @@ class boss_jeklik : public CreatureScript //jeklik
                 DoCast(me, SPELL_BAT_FORM);
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;
@@ -158,7 +158,7 @@ class boss_jeklik : public CreatureScript //jeklik
                     {
                         if (PhaseTwo)
                         {
-                            if (PhaseTwo && ShadowWordPain_Timer <= diff)
+                            if (ShadowWordPain_Timer <= diff)
                             {
                                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                                 {
@@ -189,13 +189,11 @@ class boss_jeklik : public CreatureScript //jeklik
 
                             if (SpawnFlyingBats_Timer <= diff)
                             {
-                                Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0);
-                                if (!target)
-                                    return;
-
-                                Creature* FlyingBat = me->SummonCreature(14965, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ()+15, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
-                                if (FlyingBat)
-                                    FlyingBat->AI()->AttackStart(target);
+                                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                                {
+                                    if (Creature* FlyingBat = me->SummonCreature(14965, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ()+15, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000))
+                                        FlyingBat->AI()->AttackStart(target);
+                                }
 
                                 SpawnFlyingBats_Timer = urand(10000, 15000);
                             } else SpawnFlyingBats_Timer -=diff;
@@ -251,7 +249,7 @@ class mob_batrider : public CreatureScript
 
             void EnterCombat(Unit* /*who*/) {}
 
-            void UpdateAI (const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;

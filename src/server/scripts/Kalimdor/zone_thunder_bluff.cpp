@@ -42,7 +42,7 @@ enum CairneBloodhoof
 };
 
 #define GOSSIP_HCB "I know this is rather silly but a young ward who is a bit shy would like your hoofprint."
-//TODO: verify abilities/timers
+/// @todo verify abilities/timers
 class npc_cairne_bloodhoof : public CreatureScript
 {
 public:
@@ -98,15 +98,14 @@ public:
 
         void EnterCombat(Unit* /*who*/) {}
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (!UpdateVictim())
                 return;
 
             if (BerserkerChargeTimer <= diff)
             {
-                Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0);
-                if (target)
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                     DoCast(target, SPELL_BERSERKER_CHARGE);
                 BerserkerChargeTimer = 25000;
             } else BerserkerChargeTimer -= diff;

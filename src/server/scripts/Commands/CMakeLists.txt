@@ -18,6 +18,7 @@ set(scripts_STAT_SRCS
   Commands/cs_character.cpp
   Commands/cs_cheat.cpp
   Commands/cs_debug.cpp
+  Commands/cs_deserter.cpp
   Commands/cs_disable.cpp
   Commands/cs_event.cpp
   Commands/cs_gm.cpp
@@ -35,6 +36,7 @@ set(scripts_STAT_SRCS
   Commands/cs_modify.cpp
   Commands/cs_npc.cpp
   Commands/cs_quest.cpp
+  Commands/cs_rbac.cpp
   Commands/cs_reload.cpp
   Commands/cs_reset.cpp
   Commands/cs_tele.cpp
@@ -42,6 +44,7 @@ set(scripts_STAT_SRCS
   Commands/cs_server.cpp
   Commands/cs_titles.cpp
   Commands/cs_wp.cpp
+  Commands/cs_mmaps.cpp
 #  Commands/cs_pdump.cpp
 #  Commands/cs_channel.cpp
 #  Commands/cs_pet.cpp

@@ -212,7 +212,7 @@ public:
             Summons.DespawnAll();
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (!beam)
             {
@@ -272,8 +272,7 @@ public:
                 //VileSludge_Timer
                 if (VileSludge_Timer <= diff)
                 {
-                    Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0);
-                    if (target)
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                         DoCast(target, SPELL_VILE_SLUDGE);
 
                     VileSludge_Timer = 15000;

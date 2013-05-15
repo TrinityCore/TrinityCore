@@ -250,7 +250,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (Phase == IDLE)
                 return;
@@ -459,11 +459,13 @@ public:
         return new npc_ritual_channelerAI(creature);
     }
 
-    struct npc_ritual_channelerAI : public Scripted_NoMovementAI
+    struct npc_ritual_channelerAI : public ScriptedAI
     {
-        npc_ritual_channelerAI(Creature* creature) :Scripted_NoMovementAI(creature)
+        npc_ritual_channelerAI(Creature* creature) :ScriptedAI(creature)
         {
             instance = creature->GetInstanceScript();
+
+            SetCombatMovement(false);
         }
 
         InstanceScript* instance;
@@ -477,7 +479,7 @@ public:
                     DoCast(me, SPELL_SHADOWS_IN_THE_DARK);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
@@ -599,7 +601,7 @@ class npc_scourge_hulk : public CreatureScript
                     killedByRitualStrike = true;
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;

@@ -195,7 +195,7 @@ class boss_high_astromancer_solarian : public CreatureScript
                 return (z*sqrt(radius*radius - (x - CENTER_X)*(x - CENTER_X)) + CENTER_Y);
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;
@@ -245,11 +245,13 @@ class boss_high_astromancer_solarian : public CreatureScript
                         }
                         else
                         {
-                            Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0);
-                            if (!me->HasInArc(2.5f, target))
-                                target = me->getVictim();
-                            if (target)
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                            {
+                                if (!me->HasInArc(2.5f, target))
+                                    target = me->getVictim();
+
                                 DoCast(target, SPELL_ARCANE_MISSILES);
+                            }
                         }
                         ArcaneMissiles_Timer = 3000;
                     }
@@ -441,7 +443,7 @@ class mob_solarium_priest : public CreatureScript
             {
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;

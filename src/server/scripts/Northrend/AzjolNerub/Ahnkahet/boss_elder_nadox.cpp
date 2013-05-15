@@ -139,7 +139,7 @@ class boss_elder_nadox : public CreatureScript
                     instance->SetData(DATA_ELDER_NADOX_EVENT, DONE);
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;
@@ -218,7 +218,7 @@ class mob_ahnkahar_nerubian : public CreatureScript
                     me->RemoveAurasDueToSpell(SPELL_GUARDIAN_AURA);
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;
@@ -254,9 +254,9 @@ class mob_nadox_eggs : public CreatureScript
 public:
     mob_nadox_eggs() : CreatureScript("mob_nadox_eggs") { }
 
-    struct mob_nadox_eggsAI : public Scripted_NoMovementAI
+    struct mob_nadox_eggsAI : public ScriptedAI
     {
-        mob_nadox_eggsAI(Creature* creature) : Scripted_NoMovementAI(creature)
+        mob_nadox_eggsAI(Creature* creature) : ScriptedAI(creature)
         {
             creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
             creature->UpdateAllStats();
@@ -266,7 +266,7 @@ public:
         void EnterCombat(Unit* /*who*/) {}
         void AttackStart(Unit* /*victim*/) {}
         void MoveInLineOfSight(Unit* /*who*/) {}
-        void UpdateAI(const uint32 /*diff*/) {}
+        void UpdateAI(uint32 /*diff*/) {}
     };
 
     CreatureAI* GetAI(Creature* creature) const

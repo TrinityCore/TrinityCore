@@ -122,8 +122,28 @@ const char *ChatHandler::GetTrinityString(int32 entry) const
 
 bool ChatHandler::isAvailable(ChatCommand const& cmd) const
 {
-    // check security level only for simple  command (without child commands)
-    return m_session->GetSecurity() >= AccountTypes(cmd.SecurityLevel);
+    uint32 permission = 0;
+
+    ///@Workaround:: Fast adaptation to RBAC system till all commands are moved to permissions
+    switch (AccountTypes(cmd.SecurityLevel))
+    {
+        case SEC_ADMINISTRATOR:
+            permission = RBAC_PERM_ADMINISTRATOR_COMMANDS;
+            break;
+        case SEC_GAMEMASTER:
+            permission = RBAC_PERM_GAMEMASTER_COMMANDS;
+            break;
+        case SEC_MODERATOR:
+            permission = RBAC_PERM_MODERATOR_COMMANDS;
+            break;
+        case SEC_PLAYER:
+            permission = RBAC_PERM_PLAYER_COMMANDS;
+            break;
+        default: // Allow custom security levels for commands
+            return m_session->GetSecurity() >= AccountTypes(cmd.SecurityLevel);
+    }
+
+    return m_session->HasPermission(permission);
 }
 
 bool ChatHandler::HasLowerSecurity(Player* target, uint64 guid, bool strong)
@@ -155,7 +175,7 @@ bool ChatHandler::HasLowerSecurityAccount(WorldSession* target, uint32 target_ac
         return false;
 
     // ignore only for non-players for non strong checks (when allow apply command at least to same sec level)
-    if (!AccountMgr::IsPlayerAccount(m_session->GetSecurity()) && !strong && !sWorld->getBoolConfig(CONFIG_GM_LOWER_SECURITY))
+    if (m_session->HasPermission(RBAC_PERM_CHECK_FOR_LOWER_SECURITY) && !strong && !sWorld->getBoolConfig(CONFIG_GM_LOWER_SECURITY))
         return false;
 
     if (target)
@@ -341,6 +361,7 @@ bool ChatHandler::ExecuteCommandInTable(ChatCommand* table, const char* text, co
         // table[i].Name == "" is special case: send original command to handler
         if ((table[i].Handler)(this, table[i].Name[0] != '\0' ? text : oldtext))
         {
+            // FIXME: When Command system is moved to RBAC this check must be changed
             if (!AccountMgr::IsPlayerAccount(table[i].SecurityLevel))
             {
                 // chat case
@@ -348,8 +369,19 @@ bool ChatHandler::ExecuteCommandInTable(ChatCommand* table, const char* text, co
                 {
                     Player* p = m_session->GetPlayer();
                     uint64 sel_guid = p->GetSelection();
-                    sLog->outCommand(m_session->GetAccountId(), "Command: %s [Player: %s (Account: %u) X: %f Y: %f Z: %f Map: %u Selected %s: %s (GUID: %u)]",
-                        fullcmd.c_str(), p->GetName().c_str(), m_session->GetAccountId(), p->GetPositionX(), p->GetPositionY(), p->GetPositionZ(), p->GetMapId(),
+                    uint32 areaId = p->GetAreaId();
+                    std::string areaName = "Unknown";
+                    std::string zoneName = "Unknown";
+                    if (AreaTableEntry const* area = GetAreaEntryByAreaID(areaId))
+                    {
+                        int locale = GetSessionDbcLocale();
+                        areaName = area->area_name[locale];
+                        if (AreaTableEntry const* zone = GetAreaEntryByAreaID(area->zone))
+                            zoneName = zone->area_name[locale];
+                    }
+
+                    sLog->outCommand(m_session->GetAccountId(), "Command: %s [Player: %s (Guid: %u) (Account: %u) X: %f Y: %f Z: %f Map: %u (%s) Area: %u (%s) Zone: %s Selected %s: %s (GUID: %u)]",
+                        fullcmd.c_str(), p->GetName().c_str(), GUID_LOPART(p->GetGUID()), m_session->GetAccountId(), p->GetPositionX(), p->GetPositionY(), p->GetPositionZ(), p->GetMapId(), p->GetMap() ? p->GetMap()->GetMapName() : "Unknown", areaId, areaName.c_str(), zoneName.c_str(),
                         GetLogNameForGuid(sel_guid), (p->GetSelectedUnit()) ? p->GetSelectedUnit()->GetName().c_str() : "", GUID_LOPART(sel_guid));
                 }
             }
@@ -400,12 +432,12 @@ bool ChatHandler::SetDataForCommandInTable(ChatCommand* table, char const* text,
         // expected subcommand by full name DB content
         else if (*text)
         {
-            sLog->outError(LOG_FILTER_SQL, "Table `command` have unexpected subcommand '%s' in command '%s', skip.", text, fullcommand.c_str());
+            TC_LOG_ERROR(LOG_FILTER_SQL, "Table `command` have unexpected subcommand '%s' in command '%s', skip.", text, fullcommand.c_str());
             return false;
         }
 
         if (table[i].SecurityLevel != security)
-            sLog->outInfo(LOG_FILTER_GENERAL, "Table `command` overwrite for command '%s' default security (%u) by %u", fullcommand.c_str(), table[i].SecurityLevel, security);
+            TC_LOG_INFO(LOG_FILTER_GENERAL, "Table `command` overwrite for command '%s' default security (%u) by %u", fullcommand.c_str(), table[i].SecurityLevel, security);
 
         table[i].SecurityLevel = security;
         table[i].Help          = help;
@@ -416,9 +448,9 @@ bool ChatHandler::SetDataForCommandInTable(ChatCommand* table, char const* text,
     if (!cmd.empty())
     {
         if (table == getCommandTable())
-            sLog->outError(LOG_FILTER_SQL, "Table `command` have not existed command '%s', skip.", cmd.c_str());
+            TC_LOG_ERROR(LOG_FILTER_SQL, "Table `command` have not existed command '%s', skip.", cmd.c_str());
         else
-            sLog->outError(LOG_FILTER_SQL, "Table `command` have not existed subcommand '%s' in command '%s', skip.", cmd.c_str(), fullcommand.c_str());
+            TC_LOG_ERROR(LOG_FILTER_SQL, "Table `command` have not existed subcommand '%s' in command '%s', skip.", cmd.c_str(), fullcommand.c_str());
     }
 
     return false;
@@ -431,7 +463,7 @@ bool ChatHandler::ParseCommands(char const* text)
 
     std::string fullcmd = text;
 
-    if (m_session && AccountMgr::IsPlayerAccount(m_session->GetSecurity()) && !sWorld->getBoolConfig(CONFIG_ALLOW_PLAYER_COMMANDS))
+    if (m_session && !m_session->HasPermission(RBAC_PERM_PLAYER_COMMANDS))
        return false;
 
     /// chat case (.command or !command format)
@@ -456,7 +488,7 @@ bool ChatHandler::ParseCommands(char const* text)
 
     if (!ExecuteCommandInTable(getCommandTable(), text, fullcmd))
     {
-        if (m_session && AccountMgr::IsPlayerAccount(m_session->GetSecurity()))
+        if (m_session && !m_session->HasPermission(RBAC_PERM_COMMANDS_NOTIFY_COMMAND_NOT_FOUND_ERROR))
             return false;
 
         SendSysMessage(LANG_NO_CMD);

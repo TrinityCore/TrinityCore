@@ -95,7 +95,7 @@ class mobs_risen_husk_spirit : public CreatureScript
                 }
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;
@@ -204,7 +204,7 @@ public:
             Step = 0;
         }
 
-        void UpdateAI(const uint32 Diff)
+        void UpdateAI(uint32 Diff)
         {
             if (!me->HasAura(SPELL_PROPAGANDIZED))
                 me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
@@ -336,7 +336,7 @@ enum Hendel
     NPC_TERVOSH                 = 4967
 };
 
-//TODO: develop this further, end event not created
+/// @todo develop this further, end event not created
 class npc_private_hendel : public CreatureScript
 {
 public:
@@ -458,7 +458,7 @@ public:
             Talk(SAY_ZELFRAX2);
         }
 
-        void UpdateAI(uint32 const /*Diff*/)
+        void UpdateAI(uint32 /*Diff*/)
         {
             if (!UpdateVictim())
                 return;
@@ -583,7 +583,7 @@ public:
             }
         }
 
-       void UpdateAI(const uint32 uiDiff)
+       void UpdateAI(uint32 uiDiff)
         {
             npc_escortAI::UpdateAI(uiDiff);
 

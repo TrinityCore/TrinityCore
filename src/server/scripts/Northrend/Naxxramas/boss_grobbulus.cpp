@@ -78,7 +78,7 @@ public: boss_grobbulus() : CreatureScript("boss_grobbulus") { }
             }
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (!UpdateVictim())
                 return;
@@ -125,11 +125,11 @@ public:
         return new npc_grobbulus_poison_cloudAI(creature);
     }
 
-    struct npc_grobbulus_poison_cloudAI : public Scripted_NoMovementAI
+    struct npc_grobbulus_poison_cloudAI : public ScriptedAI
     {
-        npc_grobbulus_poison_cloudAI(Creature* creature) : Scripted_NoMovementAI(creature)
+        npc_grobbulus_poison_cloudAI(Creature* creature) : ScriptedAI(creature)
         {
-            Reset();
+            SetCombatMovement(false);
         }
 
         uint32 Cloud_Timer;
@@ -140,7 +140,7 @@ public:
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (Cloud_Timer <= diff)
             {

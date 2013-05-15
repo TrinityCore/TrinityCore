@@ -86,7 +86,7 @@ public:
             Talk(SAY_SUMMON);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (Faction_Timer)
             {
@@ -160,7 +160,7 @@ public:
             if (creature->GetOwner() && creature->GetOwner()->GetTypeId() == TYPEID_PLAYER)
                 Start(false, false, creature->GetOwner()->GetGUID());
             else
-                sLog->outError(LOG_FILTER_TSCR, "TRINITY: npc_ancestral_wolf can not obtain owner or owner is not a player.");
+                TC_LOG_ERROR(LOG_FILTER_TSCR, "TRINITY: npc_ancestral_wolf can not obtain owner or owner is not a player.");
 
             creature->SetSpeed(MOVE_WALK, 1.5f);
             Reset();
@@ -487,7 +487,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 uiDiff)
+        void UpdateAI(uint32 uiDiff)
         {
             if (uiCheckTimer <= uiDiff)
             {

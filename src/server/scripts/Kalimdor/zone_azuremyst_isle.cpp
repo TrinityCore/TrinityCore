@@ -39,6 +39,7 @@ EndContentData */
 #include "ScriptedGossip.h"
 #include "Cell.h"
 #include "CellImpl.h"
+#include "GridNotifiersImpl.h"
 #include "GridNotifiers.h"
 
 /*######
@@ -124,7 +125,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (SayThanksTimer)
             {
@@ -254,7 +255,7 @@ public:
             Talk(ATTACK_YELL, who->GetGUID());
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (!me->isInCombat() && !IsTreeEvent)
             {
@@ -321,7 +322,7 @@ public:
 
         void MoveInLineOfSight(Unit* /*who*/) {}
 
-        void UpdateAI(const uint32 /*diff*/) {}
+        void UpdateAI(uint32 /*diff*/) {}
     };
 
 };
@@ -552,10 +553,10 @@ public:
                 }
             }
             else
-                sLog->outError(LOG_FILTER_TSCR, "SD2 ERROR: FlagList is empty!");
+                TC_LOG_ERROR(LOG_FILTER_TSCR, "SD2 ERROR: FlagList is empty!");
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (SayTimer <= diff)
             {
@@ -626,7 +627,7 @@ public:
             me->SetReactState(REACT_PASSIVE);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (!UpdateVictim())
                 return;
@@ -712,7 +713,7 @@ class npc_stillpine_capitive : public CreatureScript
                 _events.ScheduleEvent(EVENT_DESPAWN, 3500);
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!_movementComplete)
                     return;

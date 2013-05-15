@@ -99,7 +99,7 @@ public:
                 instance->SetData(DATA_KRYSTALLUS_EVENT, IN_PROGRESS);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             //Return since we have no target
             if (!UpdateVictim())
@@ -164,7 +164,7 @@ public:
             //this part should be in the core
             if (pSpell->Id == SPELL_SHATTER || pSpell->Id == H_SPELL_SHATTER)
             {
-                // todo: we need eventmap to kill this stuff
+                /// @todo we need eventmap to kill this stuff
                 //clear this, if we are still performing
                 if (bIsSlam)
                 {

@@ -153,13 +153,13 @@ enum AchievementCriteriaTypes
     ACHIEVEMENT_CRITERIA_TYPE_GAIN_EXALTED_REPUTATION       = 47,
     ACHIEVEMENT_CRITERIA_TYPE_VISIT_BARBER_SHOP             = 48,
     ACHIEVEMENT_CRITERIA_TYPE_EQUIP_EPIC_ITEM               = 49,
-    ACHIEVEMENT_CRITERIA_TYPE_ROLL_NEED_ON_LOOT             = 50, // TODO: itemlevel is mentioned in text but not present in dbc
+    ACHIEVEMENT_CRITERIA_TYPE_ROLL_NEED_ON_LOOT             = 50, /// @todo itemlevel is mentioned in text but not present in dbc
     ACHIEVEMENT_CRITERIA_TYPE_ROLL_GREED_ON_LOOT            = 51,
     ACHIEVEMENT_CRITERIA_TYPE_HK_CLASS                      = 52,
     ACHIEVEMENT_CRITERIA_TYPE_HK_RACE                       = 53,
     ACHIEVEMENT_CRITERIA_TYPE_DO_EMOTE                      = 54,
     ACHIEVEMENT_CRITERIA_TYPE_HEALING_DONE                  = 55,
-    ACHIEVEMENT_CRITERIA_TYPE_GET_KILLING_BLOWS             = 56, // TODO: in some cases map not present, and in some cases need do without die
+    ACHIEVEMENT_CRITERIA_TYPE_GET_KILLING_BLOWS             = 56, /// @todo in some cases map not present, and in some cases need do without die
     ACHIEVEMENT_CRITERIA_TYPE_EQUIP_ITEM                    = 57,
     ACHIEVEMENT_CRITERIA_TYPE_MONEY_FROM_VENDORS            = 59,
     ACHIEVEMENT_CRITERIA_TYPE_GOLD_SPENT_FOR_TALENTS        = 60,
@@ -173,8 +173,8 @@ enum AchievementCriteriaTypes
     ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET2              = 69,
     ACHIEVEMENT_CRITERIA_TYPE_SPECIAL_PVP_KILL              = 70,
     ACHIEVEMENT_CRITERIA_TYPE_FISH_IN_GAMEOBJECT            = 72,
-    // TODO 73: Achievements 1515, 1241, 1103 (Name: Mal'Ganis)
-    ACHIEVEMENT_CRITERIA_TYPE_EARNED_PVP_TITLE              = 74, // TODO: title id is not mentioned in dbc
+    /// @todo 73: Achievements 1515, 1241, 1103 (Name: Mal'Ganis)
+    ACHIEVEMENT_CRITERIA_TYPE_EARNED_PVP_TITLE              = 74, /// @todo title id is not mentioned in dbc
     ACHIEVEMENT_CRITERIA_TYPE_LEARN_SKILLLINE_SPELLS        = 75,
     ACHIEVEMENT_CRITERIA_TYPE_WIN_DUEL                      = 76,
     ACHIEVEMENT_CRITERIA_TYPE_LOSE_DUEL                     = 77,
@@ -207,7 +207,7 @@ enum AchievementCriteriaTypes
     ACHIEVEMENT_CRITERIA_TYPE_QUEST_ABANDONED               = 107,
     ACHIEVEMENT_CRITERIA_TYPE_FLIGHT_PATHS_TAKEN            = 108,
     ACHIEVEMENT_CRITERIA_TYPE_LOOT_TYPE                     = 109,
-    ACHIEVEMENT_CRITERIA_TYPE_CAST_SPELL2                   = 110, // TODO: target entry is missing
+    ACHIEVEMENT_CRITERIA_TYPE_CAST_SPELL2                   = 110, /// @todo target entry is missing
     ACHIEVEMENT_CRITERIA_TYPE_LEARN_SKILL_LINE              = 112,
     ACHIEVEMENT_CRITERIA_TYPE_EARN_HONORABLE_KILL           = 113,
     ACHIEVEMENT_CRITERIA_TYPE_ACCEPTED_SUMMONINGS           = 114,
@@ -389,27 +389,38 @@ enum SummonPropFlags
 
 enum VehicleSeatFlags
 {
-    VEHICLE_SEAT_FLAG_HAS_LOWER_ANIM_FOR_ENTER   = 0x00000001,
-    VEHICLE_SEAT_FLAG_HAS_LOWER_ANIM_FOR_RIDE    = 0x00000002,
-    VEHICLE_SEAT_FLAG_SHOULD_USE_VEH_SEAT_EXIT_ANIM_ON_VOLUNTARY_EXIT = 0x00000008,
-    VEHICLE_SEAT_FLAG_HIDE_PASSENGER             = 0x00000200,           // Passenger is hidden
-    VEHICLE_SEAT_FLAG_ALLOW_TURNING              = 0x00000400,           // needed for CGCamera__SyncFreeLookFacing
-    VEHICLE_SEAT_FLAG_CAN_CONTROL                = 0x00000800,           // Lua_UnitInVehicleControlSeat
-    VEHICLE_SEAT_FLAG_CAN_CAST_MOUNT_SPELL       = 0x00001000,           // Can cast spells with SPELL_AURA_MOUNTED from seat (possibly 4.x only, 0 seats on 3.3.5a)
-    VEHICLE_SEAT_FLAG_UNCONTROLLED               = 0x00002000,           // can override !& VEHICLE_SEAT_FLAG_CAN_ENTER_OR_EXIT
-    VEHICLE_SEAT_FLAG_CAN_ATTACK                 = 0x00004000,           // Can attack, cast spells and use items from vehicle
-    VEHICLE_SEAT_FLAG_SHOULD_USE_VEH_SEAT_EXIT_ANIMN_ON_FORCED_EXIT = 0x00008000,
-    VEHICLE_SEAT_FLAG_HAS_VEH_EXIT_ANIM_VOLUNTARY_EXIT = 0x00040000,
-    VEHICLE_SEAT_FLAG_HAS_VEH_EXIT_ANIM_FORCED_EXIT = 0x00080000,
-    VEHICLE_SEAT_FLAG_REC_HAS_VEHICLE_ENTER_ANIM = 0x00400000,
-    VEHICLE_SEAT_FLAG_ENABLE_VEHICLE_ZOOM        = 0x01000000,
-    VEHICLE_SEAT_FLAG_CAN_ENTER_OR_EXIT          = 0x02000000,           // Lua_CanExitVehicle - can enter and exit at free will
-    VEHICLE_SEAT_FLAG_CAN_SWITCH                 = 0x04000000,           // Lua_CanSwitchVehicleSeats
+    VEHICLE_SEAT_FLAG_HAS_LOWER_ANIM_FOR_ENTER                         = 0x00000001,
+    VEHICLE_SEAT_FLAG_HAS_LOWER_ANIM_FOR_RIDE                          = 0x00000002,
+    VEHICLE_SEAT_FLAG_UNK3                                             = 0x00000004,
+    VEHICLE_SEAT_FLAG_SHOULD_USE_VEH_SEAT_EXIT_ANIM_ON_VOLUNTARY_EXIT  = 0x00000008,
+    VEHICLE_SEAT_FLAG_UNK5                                             = 0x00000010,
+    VEHICLE_SEAT_FLAG_UNK6                                             = 0x00000020,
+    VEHICLE_SEAT_FLAG_UNK7                                             = 0x00000040,
+    VEHICLE_SEAT_FLAG_UNK8                                             = 0x00000080,
+    VEHICLE_SEAT_FLAG_UNK9                                             = 0x00000100,
+    VEHICLE_SEAT_FLAG_HIDE_PASSENGER                                   = 0x00000200, // Passenger is hidden
+    VEHICLE_SEAT_FLAG_ALLOW_TURNING                                    = 0x00000400, // needed for CGCamera__SyncFreeLookFacing
+    VEHICLE_SEAT_FLAG_CAN_CONTROL                                      = 0x00000800, // Lua_UnitInVehicleControlSeat
+    VEHICLE_SEAT_FLAG_CAN_CAST_MOUNT_SPELL                             = 0x00001000, // Can cast spells with SPELL_AURA_MOUNTED from seat (possibly 4.x only, 0 seats on 3.3.5a)
+    VEHICLE_SEAT_FLAG_UNCONTROLLED                                     = 0x00002000, // can override !& VEHICLE_SEAT_FLAG_CAN_ENTER_OR_EXIT
+    VEHICLE_SEAT_FLAG_CAN_ATTACK                                       = 0x00004000, // Can attack, cast spells and use items from vehicle
+    VEHICLE_SEAT_FLAG_SHOULD_USE_VEH_SEAT_EXIT_ANIM_ON_FORCED_EXIT     = 0x00008000,
+    VEHICLE_SEAT_FLAG_UNK17                                            = 0x00010000,
+    VEHICLE_SEAT_FLAG_UNK18                                            = 0x00020000, // Needs research and support (28 vehicles): Allow entering vehicles while keeping specific permanent(?) auras that impose visuals (states like beeing under freeze/stun mechanic, emote state animations).
+    VEHICLE_SEAT_FLAG_HAS_VEH_EXIT_ANIM_VOLUNTARY_EXIT                 = 0x00040000,
+    VEHICLE_SEAT_FLAG_HAS_VEH_EXIT_ANIM_FORCED_EXIT                    = 0x00080000,
+    VEHICLE_SEAT_FLAG_UNK21                                            = 0x00100000,
+    VEHICLE_SEAT_FLAG_UNK22                                            = 0x00200000,
+    VEHICLE_SEAT_FLAG_REC_HAS_VEHICLE_ENTER_ANIM                       = 0x00400000,
+    VEHICLE_SEAT_FLAG_IS_USING_VEHICLE_CONTROLS                        = 0x00800000, // Lua_IsUsingVehicleControls
+    VEHICLE_SEAT_FLAG_ENABLE_VEHICLE_ZOOM                              = 0x01000000,
+    VEHICLE_SEAT_FLAG_CAN_ENTER_OR_EXIT                                = 0x02000000, // Lua_CanExitVehicle - can enter and exit at free will
+    VEHICLE_SEAT_FLAG_CAN_SWITCH                                       = 0x04000000, // Lua_CanSwitchVehicleSeats
     VEHICLE_SEAT_FLAG_HAS_START_WARITING_FOR_VEH_TRANSITION_ANIM_ENTER = 0x08000000,
-    VEHICLE_SEAT_FLAG_HAS_START_WARITING_FOR_VEH_TRANSITION_ANIM_EXIT = 0x10000000,
-    VEHICLE_SEAT_FLAG_CAN_CAST                   = 0x20000000,           // Lua_UnitHasVehicleUI
-    VEHICLE_SEAT_FLAG_UNK2                       = 0x40000000,           // checked in conjunction with 0x800 in CastSpell2
-    VEHICLE_SEAT_FLAG_ALLOWS_INTERACTION         = 0x80000000
+    VEHICLE_SEAT_FLAG_HAS_START_WARITING_FOR_VEH_TRANSITION_ANIM_EXIT  = 0x10000000,
+    VEHICLE_SEAT_FLAG_CAN_CAST                                         = 0x20000000, // Lua_UnitHasVehicleUI
+    VEHICLE_SEAT_FLAG_UNK2                                             = 0x40000000, // checked in conjunction with 0x800 in CastSpell2
+    VEHICLE_SEAT_FLAG_ALLOWS_INTERACTION                               = 0x80000000
 };
 
 enum VehicleSeatFlagsB

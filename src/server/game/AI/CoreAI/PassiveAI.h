@@ -28,7 +28,7 @@ class PassiveAI : public CreatureAI
 
         void MoveInLineOfSight(Unit*) {}
         void AttackStart(Unit*) {}
-        void UpdateAI(const uint32);
+        void UpdateAI(uint32);
 
         static int Permissible(const Creature*) { return PERMIT_BASE_IDLE;  }
 };
@@ -40,7 +40,7 @@ class PossessedAI : public CreatureAI
 
         void MoveInLineOfSight(Unit*) {}
         void AttackStart(Unit* target);
-        void UpdateAI(const uint32);
+        void UpdateAI(uint32);
         void EnterEvadeMode() {}
 
         void JustDied(Unit*);
@@ -56,7 +56,7 @@ class NullCreatureAI : public CreatureAI
 
         void MoveInLineOfSight(Unit*) {}
         void AttackStart(Unit*) {}
-        void UpdateAI(const uint32) {}
+        void UpdateAI(uint32) {}
         void EnterEvadeMode() {}
         void OnCharmed(bool /*apply*/) {}
 

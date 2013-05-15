@@ -54,7 +54,7 @@ bool     obelisk_one, obelisk_two, obelisk_three, obelisk_four, obelisk_five;
 ## mobs_bladespire_ogre
 ######*/
 
-//TODO: add support for quest 10512 + Creature abilities
+/// @todo add support for quest 10512 + Creature abilities
 class mobs_bladespire_ogre : public CreatureScript
 {
 public:
@@ -71,7 +71,7 @@ public:
 
         void Reset() { }
 
-        void UpdateAI(const uint32 /*uiDiff*/)
+        void UpdateAI(uint32 /*uiDiff*/)
         {
             if (!UpdateVictim())
                 return;
@@ -195,7 +195,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (IsNihil)
             {
@@ -296,7 +296,7 @@ public:
                 if (who->HasAura(SPELL_LASHHAN_CHANNEL) && me->IsWithinDistInMap(who, 10.0f))
                 {
                     Talk(SAY_SPELL_INFLUENCE, who->GetGUID());
-                    //TODO: Move the below to updateAI and run if this statement == true
+                    /// @todo Move the below to updateAI and run if this statement == true
                     DoCast(who, 37028, true);
                 }
             }
@@ -468,7 +468,7 @@ public:
             OgreGUID = 0;
         }
 
-        void UpdateAI(const uint32 /*uiDiff*/) {}
+        void UpdateAI(uint32 /*uiDiff*/) {}
     };
 };
 
@@ -528,7 +528,7 @@ public:
             }
         }
 
-        void UpdateAI(const uint32 /*diff*/)
+        void UpdateAI(uint32 /*diff*/)
         {
             if (!UpdateVictim())
                 return;
@@ -654,7 +654,7 @@ class npc_simon_bunny : public CreatureScript
             EventMap _events;
             std::list<uint8> colorSequence, playableSequence, playerSequence;
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 _events.Update(diff);
 
@@ -708,7 +708,7 @@ class npc_simon_bunny : public CreatureScript
                 }
             }
 
-            void DoAction(const int32 action)
+            void DoAction(int32 action)
             {
                 switch (action)
                 {

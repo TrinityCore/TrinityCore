@@ -253,9 +253,9 @@ public:
                         player->FailQuest(QUEST_PYREWOOD_AMBUSH);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
-            //sLog->outInfo(LOG_FILTER_TSCR, "DEBUG: p(%i) k(%i) d(%u) W(%i)", Phase, KillCount, diff, WaitTimer);
+            //TC_LOG_INFO(LOG_FILTER_TSCR, "DEBUG: p(%i) k(%i) d(%u) W(%i)", Phase, KillCount, diff, WaitTimer);
 
             if (!QuestInProgress)
                 return;

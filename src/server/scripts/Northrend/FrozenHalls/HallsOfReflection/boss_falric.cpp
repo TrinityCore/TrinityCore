@@ -34,7 +34,7 @@ enum Spells
     SPELL_IMPENDING_DESPAIR                       = 72426,
     SPELL_DEFILING_HORROR                         = 72435,
     SPELL_HOPELESSNESS                            = 72395,
-    H_SPELL_HOPELESSNESS                          = 72390, // TODO: not in dbc. Add in DB.
+    H_SPELL_HOPELESSNESS                          = 72390, /// @todo not in dbc. Add in DB.
 };
 
 enum Events
@@ -79,7 +79,7 @@ public:
 
             events.ScheduleEvent(EVENT_QUIVERING_STRIKE, 23000);
             events.ScheduleEvent(EVENT_IMPENDING_DESPAIR, 9000);
-            events.ScheduleEvent(EVENT_DEFILING_HORROR, urand(25000, 45000)); // TODO adjust timer.
+            events.ScheduleEvent(EVENT_DEFILING_HORROR, urand(25000, 45000)); /// @todo adjust timer.
         }
 
         void JustDied(Unit* /*killer*/)
@@ -95,7 +95,7 @@ public:
             Talk(SAY_SLAY);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             // Return since we have no target
             if (!UpdateVictim())
@@ -122,7 +122,7 @@ public:
                     break;
                 case EVENT_DEFILING_HORROR:
                     DoCast(SPELL_DEFILING_HORROR);
-                    events.ScheduleEvent(EVENT_DEFILING_HORROR, urand(25000, 45000)); // TODO adjust timer.
+                    events.ScheduleEvent(EVENT_DEFILING_HORROR, urand(25000, 45000)); /// @todo adjust timer.
                     break;
             }
 

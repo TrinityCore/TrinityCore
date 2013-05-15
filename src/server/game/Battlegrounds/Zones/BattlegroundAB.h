@@ -282,7 +282,7 @@ class BattlegroundAB : public Battleground
         void _SendNodeUpdate(uint8 node);
 
         /* Creature spawning/despawning */
-        // TODO: working, scripted peons spawning
+        /// @todo working, scripted peons spawning
         void _NodeOccupied(uint8 node, Team team);
         void _NodeDeOccupied(uint8 node);
 

@@ -146,7 +146,7 @@ public:
             events.RescheduleEvent(EVENT_SHIELD, 60000 + inc);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (!UpdateVictim())
                 return;

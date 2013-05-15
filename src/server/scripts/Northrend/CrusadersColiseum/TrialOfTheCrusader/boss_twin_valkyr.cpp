@@ -270,7 +270,7 @@ struct boss_twin_baseAI : public BossAI
         DoCast(me, SurgeSpellId);
     }
 
-    void DoAction(const int32 action)
+    void DoAction(int32 action)
     {
         switch (action)
         {
@@ -292,7 +292,7 @@ struct boss_twin_baseAI : public BossAI
         me->UpdateDamagePhysical(mode ? OFF_ATTACK : BASE_ATTACK);
     }
 
-    void UpdateAI(const uint32 diff)
+    void UpdateAI(uint32 diff)
     {
         if (!instance || !UpdateVictim())
             return;
@@ -594,7 +594,7 @@ class mob_unleashed_dark : public CreatureScript
         {
             mob_unleashed_darkAI(Creature* creature) : mob_unleashed_ballAI(creature) {}
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 if (RangeCheckTimer < diff)
                 {
@@ -626,7 +626,7 @@ class mob_unleashed_light : public CreatureScript
         {
             mob_unleashed_lightAI(Creature* creature) : mob_unleashed_ballAI(creature) {}
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 if (RangeCheckTimer < diff)
                 {
@@ -654,11 +654,11 @@ class mob_bullet_controller : public CreatureScript
     public:
         mob_bullet_controller() : CreatureScript("mob_bullet_controller") { }
 
-        struct mob_bullet_controllerAI : public Scripted_NoMovementAI
+        struct mob_bullet_controllerAI : public ScriptedAI
         {
-            mob_bullet_controllerAI(Creature* creature) : Scripted_NoMovementAI(creature)
+            mob_bullet_controllerAI(Creature* creature) : ScriptedAI(creature)
             {
-                Reset();
+                SetCombatMovement(false);
             }
 
             void Reset()
@@ -666,7 +666,7 @@ class mob_bullet_controller : public CreatureScript
                 DoCastAOE(SPELL_CONTROLLER_PERIODIC);
             }
 
-            void UpdateAI(const uint32 /*diff*/)
+            void UpdateAI(uint32 /*diff*/)
             {
                 UpdateVictim();
             }

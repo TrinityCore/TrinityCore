@@ -42,13 +42,19 @@ public:
             { "password",       SEC_CONSOLE,        true,  &HandleAccountSetPasswordCommand,  "", NULL },
             { NULL,             SEC_PLAYER,         false, NULL,                              "", NULL }
         };
+        static ChatCommand accountLockCommandTable[] =
+        {
+            { "country",        SEC_PLAYER,         true,  &HandleAccountLockCountryCommand,  "", NULL },
+            { "ip",             SEC_PLAYER,         true,  &HandleAccountLockIpCommand,       "", NULL },
+            { NULL,             SEC_PLAYER,         false, NULL,                              "", NULL },
+        };
         static ChatCommand accountCommandTable[] =
         {
             { "addon",          SEC_MODERATOR,      false, &HandleAccountAddonCommand,        "", NULL },
             { "create",         SEC_CONSOLE,        true,  &HandleAccountCreateCommand,       "", NULL },
             { "delete",         SEC_CONSOLE,        true,  &HandleAccountDeleteCommand,       "", NULL },
             { "onlinelist",     SEC_CONSOLE,        true,  &HandleAccountOnlineListCommand,   "", NULL },
-            { "lock",           SEC_PLAYER,         false, &HandleAccountLockCommand,         "", NULL },
+            { "lock",           SEC_PLAYER,         false, NULL,           "", accountLockCommandTable },
             { "set",            SEC_ADMINISTRATOR,  true,  NULL,            "", accountSetCommandTable },
             { "password",       SEC_PLAYER,         false, &HandleAccountPasswordCommand,     "", NULL },
             { "",               SEC_PLAYER,         false, &HandleAccountCommand,             "", NULL },
@@ -106,14 +112,14 @@ public:
         if (!accountName || !password)
             return false;
 
-        AccountOpResult result = AccountMgr::CreateAccount(std::string(accountName), std::string(password));
+        AccountOpResult result = sAccountMgr->CreateAccount(std::string(accountName), std::string(password));
         switch (result)
         {
             case AOR_OK:
                 handler->PSendSysMessage(LANG_ACCOUNT_CREATED, accountName);
                 if (handler->GetSession())
                 {
-                    sLog->outInfo(LOG_FILTER_CHARACTER, "Account: %d (IP: %s) Character:[%s] (GUID: %u) Change Password.",
+                    TC_LOG_INFO(LOG_FILTER_CHARACTER, "Account: %d (IP: %s) Character:[%s] (GUID: %u) Change Password.",
                         handler->GetSession()->GetAccountId(), handler->GetSession()->GetRemoteAddress().c_str(),
                         handler->GetSession()->GetPlayer()->GetName().c_str(), handler->GetSession()->GetPlayer()->GetGUIDLow());
                 }
@@ -140,7 +146,7 @@ public:
     }
 
     /// Delete a user account and all associated characters in this realm
-    /// \todo This function has to be enhanced to respect the login/realm split (delete char, delete account chars in realm then delete account)
+    /// @todo This function has to be enhanced to respect the login/realm split (delete char, delete account chars in realm then delete account)
     static bool HandleAccountDeleteCommand(ChatHandler* handler, char const* args)
     {
         if (!*args)
@@ -245,7 +251,57 @@ public:
         return true;
     }
 
-    static bool HandleAccountLockCommand(ChatHandler* handler, char const* args)
+    static bool HandleAccountLockCountryCommand(ChatHandler* handler, char const* args)
+    {
+        if (!*args)
+        {
+            handler->SendSysMessage(LANG_USE_BOL);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+        std::string param = (char*)args;
+
+        if (!param.empty())
+        {
+            if (param == "on")
+            {
+                PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_LOGON_COUNTRY);
+                uint32 ip = inet_addr(handler->GetSession()->GetRemoteAddress().c_str());
+                EndianConvertReverse(ip);
+                stmt->setUInt32(0, ip);
+                PreparedQueryResult result = LoginDatabase.Query(stmt);
+                if (result)
+                {
+                    Field* fields = result->Fetch();
+                    std::string country = fields[0].GetString();
+                    stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_ACCOUNT_LOCK_CONTRY);
+                    stmt->setString(0, country);
+                    stmt->setUInt32(1, handler->GetSession()->GetAccountId());
+                    LoginDatabase.Execute(stmt);
+                    handler->PSendSysMessage(LANG_COMMAND_ACCLOCKLOCKED);
+                }
+                else
+                {
+                    handler->PSendSysMessage("[IP2NATION] Table empty");
+                    TC_LOG_DEBUG(LOG_FILTER_AUTHSERVER, "[IP2NATION] Table empty");
+                }
+            }
+            else if (param == "off")
+            {
+                PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_ACCOUNT_LOCK_CONTRY);
+                stmt->setString(0, "00");
+                stmt->setUInt32(1, handler->GetSession()->GetAccountId());
+                LoginDatabase.Execute(stmt);
+                handler->PSendSysMessage(LANG_COMMAND_ACCLOCKUNLOCKED);
+            }
+            return true;
+        }
+        handler->SendSysMessage(LANG_USE_BOL);
+        handler->SetSentErrorMessage(true);
+        return false;
+    }
+
+    static bool HandleAccountLockIpCommand(ChatHandler* handler, char const* args)
     {
         if (!*args)
         {
@@ -306,7 +362,7 @@ public:
         {
             handler->SendSysMessage(LANG_COMMAND_WRONGOLDPASSWORD);
             handler->SetSentErrorMessage(true);
-            sLog->outInfo(LOG_FILTER_CHARACTER, "Account: %u (IP: %s) Character:[%s] (GUID: %u) Tried to change password.",
+            TC_LOG_INFO(LOG_FILTER_CHARACTER, "Account: %u (IP: %s) Character:[%s] (GUID: %u) Tried to change password.",
                 handler->GetSession()->GetAccountId(), handler->GetSession()->GetRemoteAddress().c_str(),
                 handler->GetSession()->GetPlayer()->GetName().c_str(), handler->GetSession()->GetPlayer()->GetGUIDLow());
             return false;
@@ -324,7 +380,7 @@ public:
         {
             case AOR_OK:
                 handler->SendSysMessage(LANG_COMMAND_PASSWORD);
-                sLog->outInfo(LOG_FILTER_CHARACTER, "Account: %u (IP: %s) Character:[%s] (GUID: %u) Changed Password.",
+                TC_LOG_INFO(LOG_FILTER_CHARACTER, "Account: %u (IP: %s) Character:[%s] (GUID: %u) Changed Password.",
                     handler->GetSession()->GetAccountId(), handler->GetSession()->GetRemoteAddress().c_str(),
                     handler->GetSession()->GetPlayer()->GetName().c_str(), handler->GetSession()->GetPlayer()->GetGUIDLow());
                 break;
@@ -503,36 +559,8 @@ public:
             return false;
         }
 
-        // If gmRealmID is -1, delete all values for the account id, else, insert values for the specific realmID
-        PreparedStatement* stmt;
-
-        if (gmRealmID == -1)
-        {
-            stmt = LoginDatabase.GetPreparedStatement(LOGIN_DEL_ACCOUNT_ACCESS);
-
-            stmt->setUInt32(0, targetAccountId);
-        }
-        else
-        {
-            stmt = LoginDatabase.GetPreparedStatement(LOGIN_DEL_ACCOUNT_ACCESS_BY_REALM);
-
-            stmt->setUInt32(0, targetAccountId);
-            stmt->setUInt32(1, realmID);
-        }
-
-        LoginDatabase.Execute(stmt);
-
-        if (gm != 0)
-        {
-            stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_ACCOUNT_ACCESS);
-
-            stmt->setUInt32(0, targetAccountId);
-            stmt->setUInt8(1, uint8(gm));
-            stmt->setInt32(2, gmRealmID);
-
-            LoginDatabase.Execute(stmt);
-        }
-
+        RBACData* rbac = isAccountNameGiven ? NULL : handler->getSelectedPlayer()->GetSession()->GetRBACData();
+        sAccountMgr->UpdateAccountAccess(rbac, targetAccountId, uint8(gm), gmRealmID);
 
         handler->PSendSysMessage(LANG_YOU_CHANGE_SECURITY, targetAccountName.c_str(), gm);
         return true;

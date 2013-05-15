@@ -74,7 +74,7 @@ Position CrystalCoordinates[NUM_CRYSTALS] =
 };
 
 float RoomRadius = 165.0f;
-uint8 const NUM_TORNADOS = 5; // TODO: This number is completly random!
+uint8 const NUM_TORNADOS = 5; /// @todo This number is completly random!
 uint8 const NUM_WEAKNESS = 5;
 uint32 const SpellWeakness[NUM_WEAKNESS] = { 25177, 25178, 25180, 25181, 25183 };
 Position const RoomCenter = { -9343.041992f, 1923.278198f, 85.555984f, 0.0 };
@@ -117,7 +117,7 @@ class boss_ossirian : public CreatureScript
                 }
             }
 
-            void DoAction(const int32 action)
+            void DoAction(int32 action)
             {
                 if (action == ACTION_TRIGGER_WEAKNESS)
                     if (Creature* Trigger = me->GetMap()->GetCreature(TriggerGUID))
@@ -212,7 +212,7 @@ class boss_ossirian : public CreatureScript
                 BossAI::MoveInLineOfSight(who);
             }
 
-            void UpdateAI(uint32 const diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;

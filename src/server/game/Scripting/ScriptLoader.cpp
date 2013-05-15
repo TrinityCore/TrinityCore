@@ -52,6 +52,7 @@ void AddSC_cast_commandscript();
 void AddSC_character_commandscript();
 void AddSC_cheat_commandscript();
 void AddSC_debug_commandscript();
+void AddSC_deserter_commandscript();
 void AddSC_disable_commandscript();
 void AddSC_event_commandscript();
 void AddSC_gm_commandscript();
@@ -66,9 +67,11 @@ void AddSC_list_commandscript();
 void AddSC_lookup_commandscript();
 void AddSC_message_commandscript();
 void AddSC_misc_commandscript();
+void AddSC_mmaps_commandscript();
 void AddSC_modify_commandscript();
 void AddSC_npc_commandscript();
 void AddSC_quest_commandscript();
+void AddSC_rbac_commandscript();
 void AddSC_reload_commandscript();
 void AddSC_reset_commandscript();
 void AddSC_server_commandscript();
@@ -442,6 +445,7 @@ void AddSC_ulduar_teleporter();
 void AddSC_boss_mimiron();
 void AddSC_boss_hodir();
 void AddSC_boss_freya();
+void AddSC_boss_yogg_saron();
 void AddSC_boss_algalon_the_observer();
 void AddSC_instance_ulduar();
 void AddSC_boss_keleseth();              //Utgarde Keep
@@ -637,6 +641,7 @@ void AddScripts()
     AddKalimdorScripts();
     AddOutlandScripts();
     AddNorthrendScripts();
+    AddEventScripts();
     AddBattlegroundScripts();
     AddOutdoorPvPScripts();
     AddCustomScripts();
@@ -681,6 +686,7 @@ void AddCommandScripts()
     AddSC_character_commandscript();
     AddSC_cheat_commandscript();
     AddSC_debug_commandscript();
+    AddSC_deserter_commandscript();
     AddSC_disable_commandscript();
     AddSC_event_commandscript();
     AddSC_gm_commandscript();
@@ -695,9 +701,11 @@ void AddCommandScripts()
     AddSC_list_commandscript();
     AddSC_message_commandscript();
     AddSC_misc_commandscript();
+    AddSC_mmaps_commandscript();
     AddSC_modify_commandscript();
     AddSC_npc_commandscript();
     AddSC_quest_commandscript();
+    AddSC_rbac_commandscript();
     AddSC_reload_commandscript();
     AddSC_reset_commandscript();
     AddSC_server_commandscript();
@@ -1177,6 +1185,7 @@ void AddNorthrendScripts()
     AddSC_boss_mimiron();
     AddSC_boss_hodir();
     AddSC_boss_freya();
+    AddSC_boss_yogg_saron();
     AddSC_boss_algalon_the_observer();
     AddSC_instance_ulduar();
     AddSC_boss_keleseth();              //Utgarde Keep

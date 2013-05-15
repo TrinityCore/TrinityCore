@@ -229,8 +229,7 @@ void Player::UpdateArmor()
 float Player::GetHealthBonusFromStamina()
 {
     float stamina = GetStat(STAT_STAMINA);
-
-    float baseStam = stamina < 20 ? stamina : 20;
+    float baseStam = std::min(20.0f, stamina);
     float moreStam = stamina - baseStam;
 
     return baseStam + (moreStam*10.0f);
@@ -240,10 +239,10 @@ float Player::GetManaBonusFromIntellect()
 {
     float intellect = GetStat(STAT_INTELLECT);
 
-    float baseInt = intellect < 20 ? intellect : 20;
+    float baseInt = std::min(20.0f, intellect);
     float moreInt = intellect - baseInt;
 
-    return baseInt + (moreInt*15.0f);
+    return baseInt + (moreInt * 15.0f);
 }
 
 void Player::UpdateMaxHealth()
@@ -442,6 +441,7 @@ void Player::UpdateAttackPowerAndDamage(bool ranged)
     SetFloatValue(index_mult, attPowerMultiplier);          //UNIT_FIELD_(RANGED)_ATTACK_POWER_MULTIPLIER field
 
     Pet* pet = GetPet();                                //update pet's AP
+    Guardian* guardian = GetGuardianPet();
     //automatically update weapon damage after attack power modification
     if (ranged)
     {
@@ -457,8 +457,11 @@ void Player::UpdateAttackPowerAndDamage(bool ranged)
         if (getClass() == CLASS_SHAMAN || getClass() == CLASS_PALADIN)                      // mental quickness
             UpdateSpellDamageAndHealingBonus();
 
-        if (pet && pet->IsPetGhoul()) // At ranged attack change for hunter pet
+        if (pet && pet->IsPetGhoul()) // At melee attack power change for DK pet
             pet->UpdateAttackPowerAndDamage();
+
+        if (guardian && guardian->IsSpiritWolf()) // At melee attack power change for Shaman feral spirit
+            guardian->UpdateAttackPowerAndDamage();
     }
 }
 
@@ -1305,6 +1308,14 @@ void Guardian::UpdateAttackPowerAndDamage(bool ranged)
         {
             bonusAP = owner->GetTotalAttackPowerValue(BASE_ATTACK) * 0.22f;
             SetBonusDamage(int32(owner->GetTotalAttackPowerValue(BASE_ATTACK) * 0.1287f));
+        }
+        else if (IsSpiritWolf()) //wolf benefit from shaman's attack power
+        {
+            float dmg_multiplier = 0.31f;
+            if (m_owner->GetAuraEffect(63271, 0)) // Glyph of Feral Spirit
+                dmg_multiplier = 0.61f;
+            bonusAP = owner->GetTotalAttackPowerValue(BASE_ATTACK) * dmg_multiplier;
+            SetBonusDamage(int32(owner->GetTotalAttackPowerValue(BASE_ATTACK) * dmg_multiplier));
         }
         //demons benefit from warlocks shadow or fire damage
         else if (isPet())

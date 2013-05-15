@@ -86,7 +86,43 @@ enum TrinityStrings
     LANG_CONNECTED_PLAYERS              = 60,
     LANG_ACCOUNT_ADDON                  = 61,
     LANG_IMPROPER_VALUE                 = 62,
-    // Room for more level 0              63-99 not used
+    LANG_RBAC_WRONG_PARAMETER_ID        = 63,
+    LANG_RBAC_WRONG_PARAMETER_REALM     = 64,
+    LANG_RBAC_GROUP_IN_LIST             = 65,
+    LANG_RBAC_GROUP_NOT_IN_LIST         = 66,
+    LANG_RBAC_GROUP_ADDED               = 67,
+    LANG_RBAC_GROUP_REMOVED             = 68,
+    LANG_RBAC_GROUP_LIST_HEADER         = 69,
+    LANG_RBAC_LIST_EMPTY                = 70,
+    LANG_RBAC_LIST_ELEMENT              = 71,
+    LANG_RBAC_ROLE_GRANTED_IN_LIST      = 72,
+    LANG_RBAC_ROLE_GRANTED_IN_DENIED_LIST = 73,
+    LANG_RBAC_ROLE_GRANTED              = 74,
+    LANG_RBAC_ROLE_DENIED_IN_LIST       = 75,
+    LANG_RBAC_ROLE_DENIED_IN_GRANTED_LIST = 76,
+    LANG_RBAC_ROLE_DENIED               = 77,
+    LANG_RBAC_ROLE_REVOKED              = 78,
+    LANG_RBAC_ROLE_REVOKED_NOT_IN_LIST  = 79,
+    LANG_RBAC_ROLE_LIST_HEADER_GRANTED  = 80,
+    LANG_RBAC_ROLE_LIST_HEADER_DENIED   = 81,
+    LANG_RBAC_PERM_GRANTED_IN_LIST      = 82,
+    LANG_RBAC_PERM_GRANTED_IN_DENIED_LIST = 83,
+    LANG_RBAC_PERM_GRANTED              = 84,
+    LANG_RBAC_PERM_DENIED_IN_LIST       = 85,
+    LANG_RBAC_PERM_DENIED_IN_GRANTED_LIST = 86,
+    LANG_RBAC_PERM_DENIED               = 87,
+    LANG_RBAC_PERM_REVOKED              = 88,
+    LANG_RBAC_PERM_REVOKED_NOT_IN_LIST  = 89,
+    LANG_RBAC_PERM_LIST_HEADER_GRANTED  = 90,
+    LANG_RBAC_PERM_LIST_HEADER_DENIED   = 91,
+    LANG_RBAC_PERM_LIST_GLOBAL          = 92,
+    LANG_RBAC_LIST_GROUPS_HEADER        = 93,
+    LANG_RBAC_LIST_ROLES_HEADER         = 94,
+    LANG_RBAC_LIST_PERMISSIONS_HEADER   = 95,
+    LANG_GUILD_RENAME_ALREADY_EXISTS    = 96,
+    LANG_GUILD_RENAME_DONE              = 97,
+    LANG_RENAME_PLAYER_ALREADY_EXISTS   = 98,
+    LANG_RENAME_PLAYER_WITH_NEW_NAME    = 99,
 
     // level 1 chat
     LANG_GLOBAL_NOTIFY                  = 100,
@@ -163,7 +199,7 @@ enum TrinityStrings
     LANG_COMMAND_TELE_NOTFOUND          = 164,
     LANG_COMMAND_TELE_PARAMETER         = 165,
     LANG_COMMAND_TELE_NOLOCATION        = 166,
-    //                                    167               // not used
+    LANG_RESERVED_NAME                  = 167,
     LANG_COMMAND_TELE_LOCATION          = 168,
 
     LANG_MAIL_SENT                      = 169,
@@ -173,7 +209,9 @@ enum TrinityStrings
     LANG_YOU_CHANGE_RUNIC_POWER         = 173,
     LANG_YOURS_RUNIC_POWER_CHANGED      = 174,
     LANG_LIQUID_STATUS                  = 175,
-    // Room for more level 1              176-199 not used
+    LANG_INVALID_GAMEOBJECT_TYPE        = 176,
+    LANG_GAMEOBJECT_DAMAGED             = 177,
+    // Room for more level 1              178-199 not used
 
     // level 2 chat
     LANG_NO_SELECTION                   = 200,
@@ -343,7 +381,8 @@ enum TrinityStrings
     LANG_COMMAND_CHEAT_CD               = 360,
     LANG_COMMAND_CHEAT_POWER            = 361,
     LANG_COMMAND_CHEAT_WW               = 362,
-    // Room for more level 2              363-399 not used
+    LANG_COMMAND_WHISPEROFFPLAYER       = 363,
+    // Room for more level 2              364-399 not used
 
     // level 3 chat
     LANG_SCRIPTS_RELOADED               = 400,
@@ -522,6 +561,7 @@ enum TrinityStrings
     LANG_PINFO_BAN                      = 453,
     LANG_PINFO_MAP_ONLINE               = 714,
     LANG_PINFO_MAP_OFFLINE              = 716,
+    LANG_PINFO_GUILD_INFO               = 749,
 
     LANG_YOU_SET_EXPLORE_ALL            = 551,
     LANG_YOU_SET_EXPLORE_NOTHING        = 552,
@@ -742,7 +782,32 @@ enum TrinityStrings
     LANG_COMMAND_CREATURESTORAGE_NOTFOUND  = 818,
 
     LANG_CHANNEL_CITY                   = 819,
-    // Room for in-game strings           820-999 not used
+
+    LANG_NPCINFO_GOSSIP                 = 820,
+    LANG_NPCINFO_QUESTGIVER             = 821,
+    LANG_NPCINFO_TRAINER_CLASS          = 822,
+    LANG_NPCINFO_TRAINER_PROFESSION     = 823,
+    LANG_NPCINFO_VENDOR_AMMO            = 824,
+    LANG_NPCINFO_VENDOR_FOOD            = 825,
+    LANG_NPCINFO_VENDOR_POISON          = 826,
+    LANG_NPCINFO_VENDOR_REAGENT         = 827,
+    LANG_NPCINFO_REPAIR                 = 828,
+    LANG_NPCINFO_FLIGHTMASTER           = 829,
+    LANG_NPCINFO_SPIRITHEALER           = 830,
+    LANG_NPCINFO_SPIRITGUIDE            = 831,
+    LANG_NPCINFO_INNKEEPER              = 832,
+    LANG_NPCINFO_BANKER                 = 833,
+    LANG_NPCINFO_PETITIONER             = 834,
+    LANG_NPCINFO_TABARDDESIGNER         = 835,
+    LANG_NPCINFO_BATTLEMASTER           = 836,
+    LANG_NPCINFO_AUCTIONEER             = 837,
+    LANG_NPCINFO_STABLEMASTER           = 838,
+    LANG_NPCINFO_GUILD_BANKER           = 839,
+    LANG_NPCINFO_SPELLCLICK             = 840,
+    LANG_NPCINFO_MAILBOX                = 841,
+    LANG_NPCINFO_PLAYER_VEHICLE         = 842,
+
+    // Room for in-game strings           843-999 not used
 
     // Level 4 (CLI only commands)
     LANG_COMMAND_EXIT                   = 1000,
@@ -822,7 +887,19 @@ enum TrinityStrings
     LANG_MOVEGENS_EFFECT                = 1142,
     LANG_MOVEFLAGS_GET                  = 1143,
     LANG_MOVEFLAGS_SET                  = 1144,
-    // Room for more level 3              1144-1199 not used
+    LANG_GROUP_ALREADY_IN_GROUP         = 1145,
+    LANG_GROUP_PLAYER_JOINED            = 1146,
+    LANG_GROUP_NOT_IN_GROUP             = 1147,
+    LANG_GROUP_FULL                     = 1148,
+    LANG_GROUP_TYPE                     = 1149,
+    LANG_GROUP_PLAYER_NAME_GUID         = 1150,
+    LANG_LIST_MAIL_HEADER               = 1151,
+    LANG_LIST_MAIL_INFO_1               = 1152,
+    LANG_LIST_MAIL_INFO_2               = 1153,
+    LANG_LIST_MAIL_INFO_3               = 1154,
+    LANG_LIST_MAIL_INFO_ITEM            = 1155,
+    LANG_LIST_MAIL_NOT_FOUND            = 1156,
+    // Room for more level 3              1157-1199 not used
 
     // Debug commands
     LANG_CINEMATIC_NOT_EXIST            = 1200,
@@ -968,7 +1045,8 @@ enum TrinityStrings
     LANG_COMMAND_NO_ACHIEVEMENT_CRITERIA_FOUND = 5033,
     LANG_COMMAND_NO_OUTDOOR_PVP_FORUND  = 5034,
     LANG_CALL_FOR_HELP                  = 5035,
-    // Room for more Trinity strings      5036-9999
+    LANG_NPCINFO_EQUIPMENT              = 5036,
+    // Room for more Trinity strings      5037-9999
 
     // Level requirement notifications
     LANG_SAY_REQ                        = 6604,

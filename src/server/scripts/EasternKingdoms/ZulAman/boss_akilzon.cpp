@@ -201,8 +201,11 @@ class boss_akilzon : public CreatureScript
                     //dealdamege
                     for (std::list<Unit*>::const_iterator i = tempUnitMap.begin(); i != tempUnitMap.end(); ++i)
                     {
-                        if (!Cloud->IsWithinDist(*i, 6, false))
-                            Cloud->CastCustomSpell(*i, 43137, &bp0, NULL, NULL, true, 0, 0, me->GetGUID());
+                        if (Unit* target = (*i))
+                        {
+                            if (!Cloud->IsWithinDist(target, 6, false))
+                                Cloud->CastCustomSpell(target, 43137, &bp0, NULL, NULL, true, 0, 0, me->GetGUID());
+                        }
                     }
                     // visual
                     float x, y, z;
@@ -237,7 +240,7 @@ class boss_akilzon : public CreatureScript
                 StormSequenceTimer = 1000;
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 if (!UpdateVictim())
                     return;
@@ -418,7 +421,7 @@ class mob_akilzon_eagle : public CreatureScript
                 }
             }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 diff)
             {
                 if (EagleSwoop_Timer <= diff)
                     EagleSwoop_Timer = 0;

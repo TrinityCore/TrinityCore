@@ -141,7 +141,8 @@ public:
                 if (who->GetTypeId() == TYPEID_PLAYER && me->IsWithinDistInMap(who, 15) && who->isInAccessiblePlaceFor(me))
                 {
                     DoCast(who, 16472);
-                    CAST_PLR(who)->AreaExploredOrEventHappens(4866);
+                    if (Player* player = who->ToPlayer())
+                        player->AreaExploredOrEventHappens(4866);
                 }
             }
 

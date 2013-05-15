@@ -167,7 +167,7 @@ public:
             else
             {
                 //Madrigosa not found, end intro
-                sLog->outError(LOG_FILTER_TSCR, "Madrigosa was not found");
+                TC_LOG_ERROR(LOG_FILTER_TSCR, "Madrigosa was not found");
                 EndIntro();
             }
         }
@@ -277,7 +277,7 @@ public:
                 ScriptedAI::MoveInLineOfSight(who);
         }
 
-        void UpdateAI(const uint32 diff)
+        void UpdateAI(uint32 diff)
         {
             if (IsIntro)
             {

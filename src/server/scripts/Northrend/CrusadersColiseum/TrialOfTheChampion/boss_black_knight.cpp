@@ -153,7 +153,7 @@ public:
             summon->AI()->AttackStart(me->getVictim());
         }
 
-        void UpdateAI(const uint32 uiDiff)
+        void UpdateAI(uint32 uiDiff)
         {
             //Return since we have no target
             if (!UpdateVictim())
@@ -320,7 +320,7 @@ public:
             uiAttackTimer = 3500;
         }
 
-        void UpdateAI(const uint32 uiDiff)
+        void UpdateAI(uint32 uiDiff)
         {
             if (!UpdateVictim())
                 return;
@@ -362,7 +362,7 @@ public:
 
         }
 
-        void UpdateAI(const uint32 uiDiff)
+        void UpdateAI(uint32 uiDiff)
         {
             npc_escortAI::UpdateAI(uiDiff);
 

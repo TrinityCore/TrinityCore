@@ -70,10 +70,10 @@ Group::~Group()
 {
     if (m_bgGroup)
     {
-        sLog->outDebug(LOG_FILTER_BATTLEGROUND, "Group::~Group: battleground group being deleted.");
+        TC_LOG_DEBUG(LOG_FILTER_BATTLEGROUND, "Group::~Group: battleground group being deleted.");
         if (m_bgGroup->GetBgRaid(ALLIANCE) == this) m_bgGroup->SetBgRaid(ALLIANCE, NULL);
         else if (m_bgGroup->GetBgRaid(HORDE) == this) m_bgGroup->SetBgRaid(HORDE, NULL);
-        else sLog->outError(LOG_FILTER_GENERAL, "Group::~Group: battleground group is not linked to the correct battleground.");
+        else TC_LOG_ERROR(LOG_FILTER_GENERAL, "Group::~Group: battleground group is not linked to the correct battleground.");
     }
     Rolls::iterator itr;
     while (!RollId.empty())
@@ -634,7 +634,7 @@ void Group::ChangeLeader(uint64 guid)
     if (!player)
         return;
 
-    sScriptMgr->OnGroupChangeLeader(this, m_leaderGuid, guid);
+    sScriptMgr->OnGroupChangeLeader(this, guid, m_leaderGuid);
 
     if (!isBGGroup() && !isBFGroup())
     {
@@ -917,7 +917,7 @@ void Group::GroupLoot(Loot* loot, WorldObject* pLootedObject)
         item = sObjectMgr->GetItemTemplate(i->itemid);
         if (!item)
         {
-            //sLog->outDebug(LOG_FILTER_GENERAL, "Group::GroupLoot: missing item prototype for item with id: %d", i->itemid);
+            //TC_LOG_DEBUG(LOG_FILTER_GENERAL, "Group::GroupLoot: missing item prototype for item with id: %d", i->itemid);
             continue;
         }
 
@@ -1004,7 +1004,7 @@ void Group::GroupLoot(Loot* loot, WorldObject* pLootedObject)
         item = sObjectMgr->GetItemTemplate(i->itemid);
         if (!item)
         {
-            //sLog->outDebug(LOG_FILTER_GENERAL, "Group::GroupLoot: missing item prototype for item with id: %d", i->itemid);
+            //TC_LOG_DEBUG(LOG_FILTER_GENERAL, "Group::GroupLoot: missing item prototype for item with id: %d", i->itemid);
             continue;
         }
 
@@ -1201,7 +1201,7 @@ void Group::NeedBeforeGreed(Loot* loot, WorldObject* lootedObject)
 
 void Group::MasterLoot(Loot* /*loot*/, WorldObject* pLootedObject)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "Group::MasterLoot (SMSG_LOOT_MASTER_LIST)");
+    TC_LOG_DEBUG(LOG_FILTER_NETWORKIO, "Group::MasterLoot (SMSG_LOOT_MASTER_LIST)");
 
     uint32 real_count = 0;
 
@@ -1336,8 +1336,7 @@ void Group::CountTheRoll(Rolls::iterator rollI)
                     item->is_looted = true;
                     roll->getLoot()->NotifyItemRemoved(roll->itemSlot);
                     roll->getLoot()->unlootedCount--;
-                    AllowedLooterSet looters = item->GetAllowedLooters();
-                    player->StoreNewItem(dest, roll->itemid, true, item->randomPropertyId, looters);
+                    player->StoreNewItem(dest, roll->itemid, true, item->randomPropertyId, item->GetAllowedLooters());
                 }
                 else
                 {
@@ -1389,8 +1388,7 @@ void Group::CountTheRoll(Rolls::iterator rollI)
                         item->is_looted = true;
                         roll->getLoot()->NotifyItemRemoved(roll->itemSlot);
                         roll->getLoot()->unlootedCount--;
-                        AllowedLooterSet looters = item->GetAllowedLooters();
-                        player->StoreNewItem(dest, roll->itemid, true, item->randomPropertyId, looters);
+                        player->StoreNewItem(dest, roll->itemid, true, item->randomPropertyId, item->GetAllowedLooters());
                     }
                     else
                     {
@@ -1496,7 +1494,7 @@ void Group::SendUpdateToPlayer(uint64 playerGUID, MemberSlot* slot)
     data << uint8(slot->roles);
     if (isLFGGroup())
     {
-        data << uint8(sLFGMgr->GetState(m_guid) == LFG_STATE_FINISHED_DUNGEON ? 2 : 0); // FIXME - Dungeon save status? 2 = done
+        data << uint8(sLFGMgr->GetState(m_guid) == lfg::LFG_STATE_FINISHED_DUNGEON ? 2 : 0); // FIXME - Dungeon save status? 2 = done
         data << uint32(sLFGMgr->GetDungeon(m_guid));
     }
 
@@ -1818,7 +1816,7 @@ GroupJoinBattlegroundResult Group::CanJoinBattlegroundQueue(Battleground const* 
         if (bgOrTemplate->GetTypeID() == BATTLEGROUND_RB && member->InBattlegroundQueue())
             return ERR_IN_NON_RANDOM_BG;
         // check for deserter debuff in case not arena queue
-        if (bgOrTemplate->GetTypeID() != BATTLEGROUND_AA && !member->CanJoinToBattleground())
+        if (bgOrTemplate->GetTypeID() != BATTLEGROUND_AA && !member->CanJoinToBattleground(bgOrTemplate))
             return ERR_GROUP_JOIN_BATTLEGROUND_DESERTERS;
         // check if member can join any more battleground queues
         if (!member->HasFreeBattlegroundQueueId())
@@ -2044,7 +2042,7 @@ InstanceGroupBind* Group::BindToInstance(InstanceSave* save, bool permanent, boo
     bind.save = save;
     bind.perm = permanent;
     if (!load)
-        sLog->outDebug(LOG_FILTER_MAPS, "Group::BindToInstance: Group (guid: %u, storage id: %u) is now bound to map %d, instance %d, difficulty %d",
+        TC_LOG_DEBUG(LOG_FILTER_MAPS, "Group::BindToInstance: Group (guid: %u, storage id: %u) is now bound to map %d, instance %d, difficulty %d",
         GUID_LOPART(GetGUID()), m_dbStoreId, save->GetMapId(), save->GetInstanceId(), save->GetDifficulty());
 
     return &bind;
@@ -2087,7 +2085,7 @@ void Group::BroadcastGroupUpdate(void)
         {
             pp->ForceValuesUpdateAtIndex(UNIT_FIELD_BYTES_2);
             pp->ForceValuesUpdateAtIndex(UNIT_FIELD_FACTIONTEMPLATE);
-            sLog->outDebug(LOG_FILTER_GENERAL, "-- Forced group value update for '%s'", pp->GetName().c_str());
+            TC_LOG_DEBUG(LOG_FILTER_GENERAL, "-- Forced group value update for '%s'", pp->GetName().c_str());
         }
     }
 }
@@ -2126,7 +2124,7 @@ void Group::SetLfgRoles(uint64 guid, const uint8 roles)
         return;
 
     slot->roles = roles;
-         SendUpdate();
+    SendUpdate();
 }
 
 bool Group::IsFull() const
@@ -2174,7 +2172,7 @@ uint32 Group::GetLowGUID() const
     return GUID_LOPART(m_guid);
 }
 
-const char * Group::GetLeaderName() const
+char const* Group::GetLeaderName() const
 {
     return m_leaderName.c_str();
 }

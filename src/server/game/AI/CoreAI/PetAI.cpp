@@ -40,7 +40,6 @@ int PetAI::Permissible(const Creature* creature)
 
 PetAI::PetAI(Creature* c) : CreatureAI(c), i_tracker(TIME_INTERVAL_LOOK)
 {
-    m_AllySet.clear();
     UpdateAllies();
 }
 
@@ -57,7 +56,7 @@ void PetAI::_stopAttack()
 {
     if (!me->isAlive())
     {
-        sLog->outDebug(LOG_FILTER_GENERAL, "Creature stoped attacking cuz his dead [guid=%u]", me->GetGUIDLow());
+        TC_LOG_DEBUG(LOG_FILTER_GENERAL, "Creature stoped attacking cuz his dead [guid=%u]", me->GetGUIDLow());
         me->GetMotionMaster()->Clear();
         me->GetMotionMaster()->MoveIdle();
         me->CombatStop();
@@ -74,7 +73,7 @@ void PetAI::_stopAttack()
     HandleReturnMovement();
 }
 
-void PetAI::UpdateAI(const uint32 diff)
+void PetAI::UpdateAI(uint32 diff)
 {
     if (!me->isAlive() || !me->GetCharmInfo())
         return;
@@ -98,7 +97,7 @@ void PetAI::UpdateAI(const uint32 diff)
 
         if (_needToStop())
         {
-            sLog->outDebug(LOG_FILTER_GENERAL, "Pet AI stopped attacking [guid=%u]", me->GetGUIDLow());
+            TC_LOG_DEBUG(LOG_FILTER_GENERAL, "Pet AI stopped attacking [guid=%u]", me->GetGUIDLow());
             _stopAttack();
             return;
         }
@@ -432,29 +431,23 @@ void PetAI::HandleReturnMovement()
         if (!me->GetCharmInfo()->IsAtStay() && !me->GetCharmInfo()->IsReturning())
         {
             // Return to previous position where stay was clicked
-            if (!me->GetCharmInfo()->IsCommandAttack())
-            {
-                float x, y, z;
+            float x, y, z;
 
-                me->GetCharmInfo()->GetStayPosition(x, y, z);
-                ClearCharmInfoFlags();
-                me->GetCharmInfo()->SetIsReturning(true);
-                me->GetMotionMaster()->Clear();
-                me->GetMotionMaster()->MovePoint(me->GetGUIDLow(), x, y, z);
-            }
+            me->GetCharmInfo()->GetStayPosition(x, y, z);
+            ClearCharmInfoFlags();
+            me->GetCharmInfo()->SetIsReturning(true);
+            me->GetMotionMaster()->Clear();
+            me->GetMotionMaster()->MovePoint(me->GetGUIDLow(), x, y, z);
         }
     }
     else // COMMAND_FOLLOW
     {
         if (!me->GetCharmInfo()->IsFollowing() && !me->GetCharmInfo()->IsReturning())
         {
-            if (!me->GetCharmInfo()->IsCommandAttack())
-            {
-                ClearCharmInfoFlags();
-                me->GetCharmInfo()->SetIsReturning(true);
-                me->GetMotionMaster()->Clear();
-                me->GetMotionMaster()->MoveFollow(me->GetCharmerOrOwner(), PET_FOLLOW_DIST, me->GetFollowAngle());
-            }
+            ClearCharmInfoFlags();
+            me->GetCharmInfo()->SetIsReturning(true);
+            me->GetMotionMaster()->Clear();
+            me->GetMotionMaster()->MoveFollow(me->GetCharmerOrOwner(), PET_FOLLOW_DIST, me->GetFollowAngle());
         }
     }
 }
@@ -473,12 +466,13 @@ void PetAI::DoAttack(Unit* target, bool chase)
         if (me->HasReactState(REACT_AGGRESSIVE) && !me->GetCharmInfo()->IsCommandAttack())
             me->SendPetAIReaction(me->GetGUID());
 
-
         if (chase)
         {
-           ClearCharmInfoFlags();
-           me->GetMotionMaster()->Clear();
-           me->GetMotionMaster()->MoveChase(target);
+            bool oldCmdAttack = me->GetCharmInfo()->IsCommandAttack(); // This needs to be reset after other flags are cleared
+            ClearCharmInfoFlags();
+            me->GetCharmInfo()->SetIsCommandAttack(oldCmdAttack); // For passive pets commanded to attack so they will use spells
+            me->GetMotionMaster()->Clear();
+            me->GetMotionMaster()->MoveChase(target);
         }
         else // (Stay && ((Aggressive || Defensive) && In Melee Range)))
         {
