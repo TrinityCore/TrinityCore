@@ -19,9 +19,11 @@
 #ifndef _MOVEMENT_STRUCTURES_H
 #define _MOVEMENT_STRUCTURES_H
 
-#include "ByteBuffer.h"
 #include "Opcodes.h"
-#include "Unit.h"
+#include "Object.h"
+
+class ByteBuffer;
+class Unit;
 
 enum MovementStatusElements
 {
@@ -103,7 +105,6 @@ enum MovementStatusElements
                         // Allowed internal elements are: GUID markers (not transport), MSEExtraFloat, MSEExtraInt8
     MSEExtraFloat,
     MSEExtraInt8,
-    MSE_COUNT
 };
 
 namespace Movement
@@ -152,6 +153,6 @@ namespace Movement
     bool PrintInvalidSequenceElement(MovementStatusElements element, char const* function);
 }
 
-MovementStatusElements* GetMovementStatusElementsSequence(Opcodes opcode);
+MovementStatusElements const* GetMovementStatusElementsSequence(Opcodes opcode);
 
 #endif

@@ -19,8 +19,7 @@
 #include "MovementStructures.h"
 #include "Player.h"
 
-//4.3.4
-MovementStatusElements PlayerMoveSequence[] =
+MovementStatusElements const PlayerMove[] =
 {
     MSEHasFallData,
     MSEHasGuidByte3,
@@ -92,8 +91,7 @@ MovementStatusElements PlayerMoveSequence[] =
     MSEEnd,
 };
 
-//4.3.4
-MovementStatusElements MovementFallLandSequence[] =
+MovementStatusElements const MovementFallLand[] =
 {
     MSEPositionX,
     MSEPositionY,
@@ -165,8 +163,7 @@ MovementStatusElements MovementFallLandSequence[] =
     MSEEnd,
 };
 
-//4.3.4
-MovementStatusElements MovementHeartBeatSequence[] =
+MovementStatusElements const MovementHeartBeat[] =
 {
     MSEPositionZ,
     MSEPositionX,
@@ -238,8 +235,7 @@ MovementStatusElements MovementHeartBeatSequence[] =
     MSEEnd,
 };
 
-//4.3.4
-MovementStatusElements MovementJumpSequence[] =
+MovementStatusElements const MovementJump[] =
 {
     MSEPositionY,
     MSEPositionX,
@@ -311,8 +307,7 @@ MovementStatusElements MovementJumpSequence[] =
     MSEEnd,
 };
 
-//4.3.4
-MovementStatusElements MovementSetFacingSequence[] =
+MovementStatusElements const MovementSetFacing[] =
 {
     MSEPositionX,
     MSEPositionY,
@@ -384,8 +379,7 @@ MovementStatusElements MovementSetFacingSequence[] =
     MSEEnd,
 };
 
-//4.3.4
-MovementStatusElements MovementSetPitchSequence[] =
+MovementStatusElements const MovementSetPitch[] =
 {
     MSEPositionX,
     MSEPositionZ,
@@ -457,8 +451,7 @@ MovementStatusElements MovementSetPitchSequence[] =
     MSEEnd,
 };
 
-//4.3.4
-MovementStatusElements MovementStartBackwardSequence[] =
+MovementStatusElements const MovementStartBackward[] =
 {
     MSEPositionX,
     MSEPositionZ,
@@ -530,8 +523,7 @@ MovementStatusElements MovementStartBackwardSequence[] =
     MSEEnd,
 };
 
-//4.3.4
-MovementStatusElements MovementStartForwardSequence[] =
+MovementStatusElements const MovementStartForward[] =
 {
     MSEPositionY,
     MSEPositionZ,
@@ -604,8 +596,7 @@ MovementStatusElements MovementStartForwardSequence[] =
     MSEEnd,
 };
 
-//4.3.4
-MovementStatusElements MovementStartStrafeLeftSequence[] =
+MovementStatusElements const MovementStartStrafeLeft[] =
 {
     MSEPositionZ,
     MSEPositionX,
@@ -677,8 +668,7 @@ MovementStatusElements MovementStartStrafeLeftSequence[] =
     MSEEnd,
 };
 
-//4.3.4
-MovementStatusElements MovementStartStrafeRightSequence[] =
+MovementStatusElements const MovementStartStrafeRight[] =
 {
     MSEPositionY,
     MSEPositionX,
@@ -750,8 +740,7 @@ MovementStatusElements MovementStartStrafeRightSequence[] =
     MSEEnd,
 };
 
-//4.3.4
-MovementStatusElements MovementStartTurnLeftSequence[] =
+MovementStatusElements const MovementStartTurnLeft[] =
 {
     MSEPositionY,
     MSEPositionX,
@@ -823,8 +812,7 @@ MovementStatusElements MovementStartTurnLeftSequence[] =
     MSEEnd,
 };
 
-//4.3.4
-MovementStatusElements MovementStartTurnRightSequence[] =
+MovementStatusElements const MovementStartTurnRight[] =
 {
     MSEPositionX,
     MSEPositionZ,
@@ -896,8 +884,7 @@ MovementStatusElements MovementStartTurnRightSequence[] =
     MSEEnd,
 };
 
-//4.3.4
-MovementStatusElements MovementStopSequence[] =
+MovementStatusElements const MovementStop[] =
 {
     MSEPositionX,
     MSEPositionY,
@@ -969,8 +956,7 @@ MovementStatusElements MovementStopSequence[] =
     MSEEnd,
 };
 
-//4.3.4
-MovementStatusElements MovementStopStrafeSequence[] =
+MovementStatusElements const MovementStopStrafe[] =
 {
     MSEPositionY,
     MSEPositionZ,
@@ -1042,8 +1028,7 @@ MovementStatusElements MovementStopStrafeSequence[] =
     MSEEnd,
 };
 
-//4.3.4
-MovementStatusElements MovementStopTurnSequence[] =
+MovementStatusElements const MovementStopTurn[] =
 {
     MSEPositionX,
     MSEPositionZ,
@@ -1115,8 +1100,7 @@ MovementStatusElements MovementStopTurnSequence[] =
     MSEEnd,
 };
 
-//4.3.4
-MovementStatusElements MovementStartAscendSequence[] =
+MovementStatusElements const MovementStartAscend[] =
 {
     MSEPositionX,
     MSEPositionY,
@@ -1188,8 +1172,7 @@ MovementStatusElements MovementStartAscendSequence[] =
     MSEEnd,
 };
 
-//4.3.4
-MovementStatusElements MovementStartDescendSequence[] =
+MovementStatusElements const MovementStartDescend[] =
 {
     MSEPositionY,
     MSEPositionZ,
@@ -1261,8 +1244,7 @@ MovementStatusElements MovementStartDescendSequence[] =
     MSEEnd,
 };
 
-//4.3.4
-MovementStatusElements MovementStartSwimSequence[] =
+MovementStatusElements const MovementStartSwim[] =
 {
     MSEPositionZ,
     MSEPositionX,
@@ -1334,8 +1316,7 @@ MovementStatusElements MovementStartSwimSequence[] =
     MSEEnd,
 };
 
-//4.3.4
-MovementStatusElements MovementStopSwimSequence[] =
+MovementStatusElements const MovementStopSwim[] =
 {
     MSEPositionX,
     MSEPositionY,
@@ -1407,8 +1388,7 @@ MovementStatusElements MovementStopSwimSequence[] =
     MSEEnd,
 };
 
-//4.3.4
-MovementStatusElements MovementStopAscendSequence[] =
+MovementStatusElements const MovementStopAscend[] =
 {
     MSEPositionZ,
     MSEPositionY,
@@ -1480,8 +1460,7 @@ MovementStatusElements MovementStopAscendSequence[] =
     MSEEnd,
 };
 
-//4.3.4
-MovementStatusElements MovementStopPitchSequence[] =
+MovementStatusElements const MovementStopPitch[] =
 {
     MSEPositionY,
     MSEPositionX,
@@ -1553,8 +1532,7 @@ MovementStatusElements MovementStopPitchSequence[] =
     MSEEnd,
 };
 
-//4.3.4
-MovementStatusElements MovementStartPitchDownSequence[] =
+MovementStatusElements const MovementStartPitchDown[] =
 {
     MSEPositionX,
     MSEPositionZ,
@@ -1626,8 +1604,7 @@ MovementStatusElements MovementStartPitchDownSequence[] =
     MSEEnd,
 };
 
-//4.3.4
-MovementStatusElements MovementStartPitchUpSequence[] =
+MovementStatusElements const MovementStartPitchUp[] =
 {
     MSEPositionZ,
     MSEPositionY,
@@ -1699,7 +1676,7 @@ MovementStatusElements MovementStartPitchUpSequence[] =
     MSEEnd,
 };
 
-MovementStatusElements MoveChngTransport[]=
+MovementStatusElements const MoveChngTransport[]=
 {
     MSEPositionY,
     MSEPositionX,
@@ -1777,8 +1754,7 @@ MovementStatusElements MoveChngTransport[]=
     MSEEnd,
 };
 
-// 4.3.4
-MovementStatusElements MoveSplineDone[] =
+MovementStatusElements const MoveSplineDone[] =
 {
     MSEPositionY,
     MSEPositionX,
@@ -1857,8 +1833,7 @@ MovementStatusElements MoveSplineDone[] =
     MSEEnd,
 };
 
-// 4.3.4
-MovementStatusElements MoveNotActiveMover[] =
+MovementStatusElements const MoveNotActiveMover[] =
 {
     MSEPositionZ,
     MSEPositionX,
@@ -1937,8 +1912,7 @@ MovementStatusElements MoveNotActiveMover[] =
     MSEEnd,
 };
 
-// 4.3.4
-MovementStatusElements DismissControlledVehicle[] =
+MovementStatusElements const DismissControlledVehicle[] =
 {
     MSEPositionY,
     MSEPositionZ,
@@ -2017,8 +1991,7 @@ MovementStatusElements DismissControlledVehicle[] =
     MSEEnd,
 };
 
-// 4.3.4
-MovementStatusElements MoveUpdateTeleport[] =
+MovementStatusElements const MoveUpdateTeleport[] =
 {
     MSEPositionZ,
     MSEPositionY,
@@ -2100,8 +2073,7 @@ MovementStatusElements MoveUpdateTeleport[] =
     MSEEnd,
 };
 
-//4.3.4
-MovementStatusElements MovementSetRunMode[] =
+MovementStatusElements const MovementSetRunMode[] =
 {
     MSEPositionY,
     MSEPositionX,
@@ -2173,8 +2145,7 @@ MovementStatusElements MovementSetRunMode[] =
     MSEEnd,
 };
 
-//4.3.4
-MovementStatusElements MovementSetWalkMode[] =
+MovementStatusElements const MovementSetWalkMode[] =
 {
     MSEPositionY,
     MSEPositionX,
@@ -2246,8 +2217,7 @@ MovementStatusElements MovementSetWalkMode[] =
     MSEEnd,
 };
 
-//4.3.4
-MovementStatusElements MovementSetCanFly[] =
+MovementStatusElements const MovementSetCanFly[] =
 {
     MSEPositionZ,
     MSEPositionX,
@@ -2319,8 +2289,7 @@ MovementStatusElements MovementSetCanFly[] =
     MSEEnd,
 };
 
-//4.3.4
-MovementStatusElements MovementSetCanTransitionBetweenSwimAndFlyAck[] =
+MovementStatusElements const MovementSetCanTransitionBetweenSwimAndFlyAck[] =
 {
     MSEPositionZ,
     MSEPositionY,
@@ -2393,8 +2362,7 @@ MovementStatusElements MovementSetCanTransitionBetweenSwimAndFlyAck[] =
     MSEEnd,
 };
 
-//4.3.4
-MovementStatusElements MovementUpdateSwimSpeed[] =
+MovementStatusElements const MovementUpdateSwimSpeed[] =
 {
     MSEHasMovementFlags,
     MSEHasGuidByte2,
@@ -2454,8 +2422,7 @@ MovementStatusElements MovementUpdateSwimSpeed[] =
     MSEEnd,
 };
 
-//4.3.4
-MovementStatusElements MovementUpdateRunSpeed[] =
+MovementStatusElements const MovementUpdateRunSpeed[] =
 {
     MSEPositionZ,
     MSEPositionX,
@@ -2528,8 +2495,7 @@ MovementStatusElements MovementUpdateRunSpeed[] =
     MSEEnd,
 };
 
-//4.3.4
-MovementStatusElements MovementUpdateFlightSpeed[] =
+MovementStatusElements const MovementUpdateFlightSpeed[] =
 {
     MSEPositionY,
     MSEExtraElement,
@@ -2589,8 +2555,7 @@ MovementStatusElements MovementUpdateFlightSpeed[] =
     MSEEnd,
 };
 
-//4.3.4
-MovementStatusElements MovementUpdateCollisionHeight[] =
+MovementStatusElements const MovementUpdateCollisionHeight[] =
 {
     MSEPositionZ,
     MSEExtraElement,
@@ -2650,8 +2615,7 @@ MovementStatusElements MovementUpdateCollisionHeight[] =
     MSEEnd,
 };
 
-//4.3.4
-MovementStatusElements MovementForceRunSpeedChangeAck[] =
+MovementStatusElements const MovementForceRunSpeedChangeAck[] =
 {
     MSECounter,
     MSEPositionX,
@@ -2725,8 +2689,7 @@ MovementStatusElements MovementForceRunSpeedChangeAck[] =
     MSEEnd,
 };
 
-//4.3.4
-MovementStatusElements MovementSetCollisionHeightAck[] =
+MovementStatusElements const MovementSetCollisionHeightAck[] =
 {
     MSEExtraElement,
     MSEPositionX,
@@ -2802,8 +2765,7 @@ MovementStatusElements MovementSetCollisionHeightAck[] =
     MSEEnd,
 };
 
-//4.3.4
-MovementStatusElements MovementForceFlightSpeedChangeAck[] =
+MovementStatusElements const MovementForceFlightSpeedChangeAck[] =
 {
     MSECounter,
     MSEPositionZ,
@@ -2877,8 +2839,7 @@ MovementStatusElements MovementForceFlightSpeedChangeAck[] =
     MSEEnd,
 };
 
-//4.3.4
-MovementStatusElements MovementSetCanFlyAck[] =
+MovementStatusElements const MovementSetCanFlyAck[] =
 {
     MSEPositionY,
     MSECounter,
@@ -2951,8 +2912,7 @@ MovementStatusElements MovementSetCanFlyAck[] =
     MSEEnd,
 };
 
-//4.3.4
-MovementStatusElements MovementForceSwimSpeedChangeAck[] =
+MovementStatusElements const MovementForceSwimSpeedChangeAck[] =
 {
     MSEPositionX,
     MSECounter,
@@ -3026,8 +2986,7 @@ MovementStatusElements MovementForceSwimSpeedChangeAck[] =
     MSEEnd,
 };
 
-//4.3.4
-MovementStatusElements MovementForceWalkSpeedChangeAck[] =
+MovementStatusElements const MovementForceWalkSpeedChangeAck[] =
 {
     MSEPositionZ,
     MSEPositionY,
@@ -3101,8 +3060,7 @@ MovementStatusElements MovementForceWalkSpeedChangeAck[] =
     MSEEnd,
 };
 
-//4.3.4
-MovementStatusElements MovementForceRunBackSpeedChangeAck[] =
+MovementStatusElements const MovementForceRunBackSpeedChangeAck[] =
 {
     MSEExtraElement,
     MSECounter,
@@ -3176,8 +3134,7 @@ MovementStatusElements MovementForceRunBackSpeedChangeAck[] =
     MSEEnd,
 };
 
-//4.3.4
-MovementStatusElements MovementUpdateRunBackSpeed[] =
+MovementStatusElements const MovementUpdateRunBackSpeed[] =
 {
     MSEHasGuidByte1,
     MSEHasGuidByte2,
@@ -3237,8 +3194,7 @@ MovementStatusElements MovementUpdateRunBackSpeed[] =
     MSEEnd,
 };
 
-//4.3.4
-MovementStatusElements MovementUpdateWalkSpeed[] =
+MovementStatusElements const MovementUpdateWalkSpeed[] =
 {
     MSEHasOrientation,
     MSEZeroBit,
@@ -3298,8 +3254,7 @@ MovementStatusElements MovementUpdateWalkSpeed[] =
     MSEEnd,
 };
 
-//4.3.4
-MovementStatusElements ForceMoveRootAck[] =
+MovementStatusElements const ForceMoveRootAck[] =
 {
     MSEPositionY,
     MSEPositionZ,
@@ -3372,8 +3327,7 @@ MovementStatusElements ForceMoveRootAck[] =
     MSEEnd,
 };
 
-//4.3.4
-MovementStatusElements ForceMoveUnrootAck[] =
+MovementStatusElements const ForceMoveUnrootAck[] =
 {
     MSECounter,
     MSEPositionZ,
@@ -3446,8 +3400,7 @@ MovementStatusElements ForceMoveUnrootAck[] =
     MSEEnd,
 };
 
-//4.3.4
-MovementStatusElements MovementFallReset[] =
+MovementStatusElements const MovementFallReset[] =
 {
     MSEPositionZ,
     MSEPositionX,
@@ -3519,8 +3472,7 @@ MovementStatusElements MovementFallReset[] =
     MSEEnd,
 };
 
-//4.3.4
-MovementStatusElements MovementFeatherFallAck[] =
+MovementStatusElements const MovementFeatherFallAck[] =
 {
     MSEPositionZ,
     MSECounter,
@@ -3593,8 +3545,7 @@ MovementStatusElements MovementFeatherFallAck[] =
     MSEEnd,
 };
 
-//4.3.4
-MovementStatusElements MovementGravityDisableAck[] =
+MovementStatusElements const MovementGravityDisableAck[] =
 {
     MSEPositionZ,
     MSEPositionY,
@@ -3667,8 +3618,7 @@ MovementStatusElements MovementGravityDisableAck[] =
     MSEEnd,
 };
 
-//4.3.4
-MovementStatusElements MovementGravityEnableAck[] =
+MovementStatusElements const MovementGravityEnableAck[] =
 {
     MSEPositionZ,
     MSEPositionX,
@@ -3741,8 +3691,7 @@ MovementStatusElements MovementGravityEnableAck[] =
     MSEEnd,
 };
 
-//4.3.4
-MovementStatusElements MovementHoverAck[] =
+MovementStatusElements const MovementHoverAck[] =
 {
     MSECounter,
     MSEPositionZ,
@@ -3815,8 +3764,7 @@ MovementStatusElements MovementHoverAck[] =
     MSEEnd,
 };
 
-//4.3.4
-MovementStatusElements MovementKnockBackAck[] =
+MovementStatusElements const MovementKnockBackAck[] =
 {
     MSEPositionY,
     MSEPositionZ,
@@ -3889,8 +3837,7 @@ MovementStatusElements MovementKnockBackAck[] =
     MSEEnd,
 };
 
-//4.3.4
-MovementStatusElements MovementWaterWalkAck[] =
+MovementStatusElements const MovementWaterWalkAck[] =
 {
     MSEPositionY,
     MSEPositionZ,
@@ -3963,8 +3910,7 @@ MovementStatusElements MovementWaterWalkAck[] =
     MSEEnd,
 };
 
-//4.3.4
-MovementStatusElements MovementUpdateKnockBack[] =
+MovementStatusElements const MovementUpdateKnockBack[] =
 {
     MSEZeroBit,
     MSEHasGuidByte4,
@@ -4023,7 +3969,7 @@ MovementStatusElements MovementUpdateKnockBack[] =
     MSEEnd,
 };
 
-MovementStatusElements SplineMoveSetWalkSpeed[] =
+MovementStatusElements const SplineMoveSetWalkSpeed[] =
 {
     MSEHasGuidByte0,
     MSEHasGuidByte6,
@@ -4045,7 +3991,7 @@ MovementStatusElements SplineMoveSetWalkSpeed[] =
     MSEEnd,
 };
 
-MovementStatusElements SplineMoveSetRunSpeed[] =
+MovementStatusElements const SplineMoveSetRunSpeed[] =
 {
     MSEHasGuidByte4,
     MSEHasGuidByte0,
@@ -4067,7 +4013,7 @@ MovementStatusElements SplineMoveSetRunSpeed[] =
     MSEEnd,
 };
 
-MovementStatusElements SplineMoveSetRunBackSpeed[] =
+MovementStatusElements const SplineMoveSetRunBackSpeed[] =
 {
     MSEHasGuidByte1,
     MSEHasGuidByte2,
@@ -4089,7 +4035,7 @@ MovementStatusElements SplineMoveSetRunBackSpeed[] =
     MSEEnd,
 };
 
-MovementStatusElements SplineMoveSetSwimSpeed[] =
+MovementStatusElements const SplineMoveSetSwimSpeed[] =
 {
     MSEHasGuidByte4,
     MSEHasGuidByte2,
@@ -4111,7 +4057,7 @@ MovementStatusElements SplineMoveSetSwimSpeed[] =
     MSEEnd,
 };
 
-MovementStatusElements SplineMoveSetSwimBackSpeed[] =
+MovementStatusElements const SplineMoveSetSwimBackSpeed[] =
 {
     MSEHasGuidByte0,
     MSEHasGuidByte1,
@@ -4133,7 +4079,7 @@ MovementStatusElements SplineMoveSetSwimBackSpeed[] =
     MSEEnd,
 };
 
-MovementStatusElements SplineMoveSetTurnRate[] =
+MovementStatusElements const SplineMoveSetTurnRate[] =
 {
     MSEHasGuidByte2,
     MSEHasGuidByte4,
@@ -4155,7 +4101,7 @@ MovementStatusElements SplineMoveSetTurnRate[] =
     MSEEnd,
 };
 
-MovementStatusElements SplineMoveSetFlightSpeed[] =
+MovementStatusElements const SplineMoveSetFlightSpeed[] =
 {
     MSEHasGuidByte7,
     MSEHasGuidByte4,
@@ -4177,7 +4123,7 @@ MovementStatusElements SplineMoveSetFlightSpeed[] =
     MSEEnd,
 };
 
-MovementStatusElements SplineMoveSetFlightBackSpeed[] =
+MovementStatusElements const SplineMoveSetFlightBackSpeed[] =
 {
     MSEHasGuidByte2,
     MSEHasGuidByte1,
@@ -4199,7 +4145,7 @@ MovementStatusElements SplineMoveSetFlightBackSpeed[] =
     MSEEnd,
 };
 
-MovementStatusElements SplineMoveSetPitchRate[] =
+MovementStatusElements const SplineMoveSetPitchRate[] =
 {
     MSEHasGuidByte3,
     MSEHasGuidByte5,
@@ -4221,7 +4167,7 @@ MovementStatusElements SplineMoveSetPitchRate[] =
     MSEEnd,
 };
 
-MovementStatusElements MoveSetWalkSpeed[] =
+MovementStatusElements const MoveSetWalkSpeed[] =
 {
     MSEHasGuidByte0,
     MSEHasGuidByte4,
@@ -4244,7 +4190,7 @@ MovementStatusElements MoveSetWalkSpeed[] =
     MSEEnd,
 };
 
-MovementStatusElements MoveSetRunSpeed[] =
+MovementStatusElements const MoveSetRunSpeed[] =
 {
     MSEHasGuidByte6,
     MSEHasGuidByte1,
@@ -4267,7 +4213,7 @@ MovementStatusElements MoveSetRunSpeed[] =
     MSEEnd,
 };
 
-MovementStatusElements MoveSetRunBackSpeed[] =
+MovementStatusElements const MoveSetRunBackSpeed[] =
 {
     MSEHasGuidByte0,
     MSEHasGuidByte6,
@@ -4290,7 +4236,7 @@ MovementStatusElements MoveSetRunBackSpeed[] =
     MSEEnd,
 };
 
-MovementStatusElements MoveSetSwimSpeed[] =
+MovementStatusElements const MoveSetSwimSpeed[] =
 {
     MSEHasGuidByte5,
     MSEHasGuidByte4,
@@ -4313,7 +4259,7 @@ MovementStatusElements MoveSetSwimSpeed[] =
     MSEEnd,
 };
 
-MovementStatusElements MoveSetSwimBackSpeed[] =
+MovementStatusElements const MoveSetSwimBackSpeed[] =
 {
     MSEHasGuidByte4,
     MSEHasGuidByte2,
@@ -4336,7 +4282,7 @@ MovementStatusElements MoveSetSwimBackSpeed[] =
     MSEEnd,
 };
 
-MovementStatusElements MoveSetTurnRate[] =
+MovementStatusElements const MoveSetTurnRate[] =
 {
     MSEHasGuidByte7,
     MSEHasGuidByte2,
@@ -4359,7 +4305,7 @@ MovementStatusElements MoveSetTurnRate[] =
     MSEEnd,
 };
 
-MovementStatusElements MoveSetFlightSpeed[] =
+MovementStatusElements const MoveSetFlightSpeed[] =
 {
     MSEHasGuidByte0,
     MSEHasGuidByte5,
@@ -4382,7 +4328,7 @@ MovementStatusElements MoveSetFlightSpeed[] =
     MSEEnd,
 };
 
-MovementStatusElements MoveSetFlightBackSpeed[] =
+MovementStatusElements const MoveSetFlightBackSpeed[] =
 {
     MSEHasGuidByte1,
     MSEHasGuidByte2,
@@ -4405,7 +4351,7 @@ MovementStatusElements MoveSetFlightBackSpeed[] =
     MSEEnd,
 };
 
-MovementStatusElements MoveSetPitchRate[] =
+MovementStatusElements const MoveSetPitchRate[] =
 {
     MSEHasGuidByte1,
     MSEHasGuidByte2,
@@ -4428,7 +4374,7 @@ MovementStatusElements MoveSetPitchRate[] =
     MSEEnd,
 };
 
-MovementStatusElements MoveSetCollisionHeight[] =
+MovementStatusElements const MoveSetCollisionHeight[] =
 {
     MSEZeroBit,
     MSEZeroBit,
@@ -4453,7 +4399,7 @@ MovementStatusElements MoveSetCollisionHeight[] =
     MSEEnd,
 };
 
-MovementStatusElements SplineMoveSetWalkMode[] =
+MovementStatusElements const SplineMoveSetWalkMode[] =
 {
     MSEHasGuidByte7,
     MSEHasGuidByte6,
@@ -4474,7 +4420,7 @@ MovementStatusElements SplineMoveSetWalkMode[] =
     MSEEnd,
 };
 
-MovementStatusElements SplineMoveSetRunMode[] =
+MovementStatusElements const SplineMoveSetRunMode[] =
 {
     MSEHasGuidByte5,
     MSEHasGuidByte6,
@@ -4495,7 +4441,7 @@ MovementStatusElements SplineMoveSetRunMode[] =
     MSEEnd,
 };
 
-MovementStatusElements SplineMoveGravityDisable[] =
+MovementStatusElements const SplineMoveGravityDisable[] =
 {
     MSEHasGuidByte7,
     MSEHasGuidByte3,
@@ -4516,7 +4462,7 @@ MovementStatusElements SplineMoveGravityDisable[] =
     MSEEnd,
 };
 
-MovementStatusElements SplineMoveGravityEnable[] =
+MovementStatusElements const SplineMoveGravityEnable[] =
 {
     MSEHasGuidByte5,
     MSEHasGuidByte4,
@@ -4537,7 +4483,7 @@ MovementStatusElements SplineMoveGravityEnable[] =
     MSEEnd,
 };
 
-MovementStatusElements SplineMoveSetHover[] =
+MovementStatusElements const SplineMoveSetHover[] =
 {
     MSEHasGuidByte3,
     MSEHasGuidByte7,
@@ -4558,7 +4504,7 @@ MovementStatusElements SplineMoveSetHover[] =
     MSEEnd,
 };
 
-MovementStatusElements SplineMoveUnsetHover[] =
+MovementStatusElements const SplineMoveUnsetHover[] =
 {
     MSEHasGuidByte6,
     MSEHasGuidByte7,
@@ -4579,7 +4525,7 @@ MovementStatusElements SplineMoveUnsetHover[] =
     MSEEnd,
 };
 
-MovementStatusElements MoveSetCanFly[] =
+MovementStatusElements const MoveSetCanFly[] =
 {
     MSEHasGuidByte1,
     MSEHasGuidByte6,
@@ -4601,7 +4547,7 @@ MovementStatusElements MoveSetCanFly[] =
     MSEEnd,
 };
 
-MovementStatusElements MoveUnsetCanFly[] =
+MovementStatusElements const MoveUnsetCanFly[] =
 {
     MSEHasGuidByte1,
     MSEHasGuidByte4,
@@ -4623,7 +4569,7 @@ MovementStatusElements MoveUnsetCanFly[] =
     MSEEnd,
 };
 
-MovementStatusElements MoveSetHover[] =
+MovementStatusElements const MoveSetHover[] =
 {
     MSEHasGuidByte1,
     MSEHasGuidByte4,
@@ -4645,7 +4591,7 @@ MovementStatusElements MoveSetHover[] =
     MSEEnd,
 };
 
-MovementStatusElements MoveUnsetHover[] =
+MovementStatusElements const MoveUnsetHover[] =
 {
     MSEHasGuidByte4,
     MSEHasGuidByte6,
@@ -4667,7 +4613,7 @@ MovementStatusElements MoveUnsetHover[] =
     MSEEnd,
 };
 
-MovementStatusElements MoveWaterWalk[] =
+MovementStatusElements const MoveWaterWalk[] =
 {
     MSEHasGuidByte4,
     MSEHasGuidByte7,
@@ -4689,7 +4635,7 @@ MovementStatusElements MoveWaterWalk[] =
     MSEEnd,
 };
 
-MovementStatusElements MoveLandWalk[] =
+MovementStatusElements const MoveLandWalk[] =
 {
     MSEHasGuidByte5,
     MSEHasGuidByte1,
@@ -4711,7 +4657,7 @@ MovementStatusElements MoveLandWalk[] =
     MSEEnd,
 };
 
-MovementStatusElements MoveFeatherFall[] =
+MovementStatusElements const MoveFeatherFall[] =
 {
     MSEHasGuidByte3,
     MSEHasGuidByte1,
@@ -4733,7 +4679,7 @@ MovementStatusElements MoveFeatherFall[] =
     MSEEnd,
 };
 
-MovementStatusElements MoveNormalFall[] =
+MovementStatusElements const MoveNormalFall[] =
 {
     MSECounter,
     MSEHasGuidByte3,
@@ -4755,7 +4701,7 @@ MovementStatusElements MoveNormalFall[] =
     MSEEnd,
 };
 
-MovementStatusElements ChangeSeatsOnControlledVehicle[] =
+MovementStatusElements const ChangeSeatsOnControlledVehicle[] =
 {
     MSEPositionY,
     MSEPositionX,
@@ -4844,7 +4790,7 @@ MovementStatusElements ChangeSeatsOnControlledVehicle[] =
     MSEEnd,
 };
 
-MovementStatusElements CastSpellEmbeddedMovement[] =
+MovementStatusElements const CastSpellEmbeddedMovement[] =
 {
     MSEPositionZ,
     MSEPositionY,
@@ -4918,22 +4864,30 @@ MovementStatusElements CastSpellEmbeddedMovement[] =
 
 void Movement::ExtraMovementStatusElement::ReadNextElement(ByteBuffer& packet)
 {
-    MovementStatusElements element = _elements[_index++];
-
-    if (element >= MSEHasGuidByte0 && element <= MSEHasGuidByte7)
-    {
-        Data.guid[element - MSEHasGuidByte0] = packet.ReadBit();
-        return;
-    }
-
-    if (element >= MSEGuidByte0 && element <= MSEGuidByte7)
-    {
-        packet.ReadByteSeq(Data.guid[element - MSEGuidByte0]);
-        return;
-    }
+    MovementStatusElements const element = _elements[_index++];
 
     switch (element)
     {
+        case MSEHasGuidByte0:
+        case MSEHasGuidByte1:
+        case MSEHasGuidByte2:
+        case MSEHasGuidByte3:
+        case MSEHasGuidByte4:
+        case MSEHasGuidByte5:
+        case MSEHasGuidByte6:
+        case MSEHasGuidByte7:
+            Data.guid[element - MSEHasGuidByte0] = packet.ReadBit();
+            break;
+        case MSEGuidByte0:
+        case MSEGuidByte1:
+        case MSEGuidByte2:
+        case MSEGuidByte3:
+        case MSEGuidByte4:
+        case MSEGuidByte5:
+        case MSEGuidByte6:
+        case MSEGuidByte7:
+            packet.ReadByteSeq(Data.guid[element - MSEGuidByte0]);
+            break;
         case MSEExtraFloat:
             packet >> Data.floatData;
             break;
@@ -4948,22 +4902,30 @@ void Movement::ExtraMovementStatusElement::ReadNextElement(ByteBuffer& packet)
 
 void Movement::ExtraMovementStatusElement::WriteNextElement(ByteBuffer& packet)
 {
-    MovementStatusElements element = _elements[_index++];
-
-    if (element >= MSEHasGuidByte0 && element <= MSEHasGuidByte7)
-    {
-        packet.WriteBit(Data.guid[element - MSEHasGuidByte0]);
-        return;
-    }
-
-    if (element >= MSEGuidByte0 && element <= MSEGuidByte7)
-    {
-        packet.WriteByteSeq(Data.guid[element - MSEGuidByte0]);
-        return;
-    }
+    MovementStatusElements const element = _elements[_index++];
 
     switch (element)
     {
+        case MSEHasGuidByte0:
+        case MSEHasGuidByte1:
+        case MSEHasGuidByte2:
+        case MSEHasGuidByte3:
+        case MSEHasGuidByte4:
+        case MSEHasGuidByte5:
+        case MSEHasGuidByte6:
+        case MSEHasGuidByte7:
+            packet.WriteBit(Data.guid[element - MSEHasGuidByte0]);
+            break;
+        case MSEGuidByte0:
+        case MSEGuidByte1:
+        case MSEGuidByte2:
+        case MSEGuidByte3:
+        case MSEGuidByte4:
+        case MSEGuidByte5:
+        case MSEGuidByte6:
+        case MSEGuidByte7:
+            packet.WriteByteSeq(Data.guid[element - MSEGuidByte0]);
+            break;
         case MSEExtraFloat:
             packet << Data.floatData;
             break;
@@ -4976,14 +4938,14 @@ void Movement::ExtraMovementStatusElement::WriteNextElement(ByteBuffer& packet)
     }
 }
 
-bool Movement::PrintInvalidSequenceElement(MovementStatusElements element, char const* function)
+bool Movement::PrintInvalidSequenceElement(MovementStatusElements const element, char const* function)
 {
     sLog->outError(LOG_FILTER_UNITS, "Incorrect sequence element %d detected at %s", element, function);
     return false;
 }
 
 Movement::PacketSender::PacketSender(Unit* unit, Opcodes serverControl, Opcodes playerControl, Opcodes broadcast /*= SMSG_PLAYER_MOVE*/, ExtraMovementStatusElement* extras /*= NULL*/)
-    : _unit(unit), _extraElements(extras)
+    : _extraElements(extras), _unit(unit)
 {
     if (unit->GetTypeId() == TYPEID_PLAYER && unit->ToPlayer()->m_mover->GetTypeId() == TYPEID_PLAYER)
     {
@@ -4999,12 +4961,16 @@ Movement::PacketSender::PacketSender(Unit* unit, Opcodes serverControl, Opcodes 
 
 void Movement::PacketSender::Send() const
 {
-    bool isPlayerMovement = _unit->GetTypeId() == TYPEID_PLAYER && _unit->ToPlayer()->m_mover->GetTypeId() == TYPEID_PLAYER;
-    if (isPlayerMovement && _selfOpcode != NULL_OPCODE)
+    bool isPlayerMovement = false;
+    if (Player* player = _unit->ToPlayer())
     {
-        WorldPacket data(_selfOpcode);
-        _unit->WriteMovementInfo(data, _extraElements);
-        _unit->ToPlayer()->SendDirectMessage(&data);
+        isPlayerMovement = player->m_mover->GetTypeId() == TYPEID_PLAYER;
+        if (isPlayerMovement && _selfOpcode != NULL_OPCODE)
+        {
+            WorldPacket data(_selfOpcode);
+            _unit->WriteMovementInfo(data, _extraElements);
+            player->SendDirectMessage(&data);
+        }
     }
 
     if (_broadcast != NULL_OPCODE)
@@ -5019,56 +4985,56 @@ void Movement::PacketSender::Send() const
     }
 }
 
-MovementStatusElements* GetMovementStatusElementsSequence(Opcodes opcode)
+MovementStatusElements const* GetMovementStatusElementsSequence(Opcodes opcode)
 {
     switch (opcode)
     {
         case MSG_MOVE_FALL_LAND:
-            return MovementFallLandSequence;
+            return MovementFallLand;
         case MSG_MOVE_HEARTBEAT:
-            return MovementHeartBeatSequence;
+            return MovementHeartBeat;
         case MSG_MOVE_JUMP:
-            return MovementJumpSequence;
+            return MovementJump;
         case MSG_MOVE_SET_FACING:
-            return MovementSetFacingSequence;
+            return MovementSetFacing;
         case MSG_MOVE_SET_PITCH:
-            return MovementSetPitchSequence;
+            return MovementSetPitch;
         case MSG_MOVE_START_ASCEND:
-            return MovementStartAscendSequence;
+            return MovementStartAscend;
         case MSG_MOVE_START_BACKWARD:
-            return MovementStartBackwardSequence;
+            return MovementStartBackward;
         case MSG_MOVE_START_DESCEND:
-            return MovementStartDescendSequence;
+            return MovementStartDescend;
         case MSG_MOVE_START_FORWARD:
-            return MovementStartForwardSequence;
+            return MovementStartForward;
         case MSG_MOVE_START_PITCH_DOWN:
-            return MovementStartPitchDownSequence;
+            return MovementStartPitchDown;
         case MSG_MOVE_START_PITCH_UP:
-            return MovementStartPitchUpSequence;
+            return MovementStartPitchUp;
         case MSG_MOVE_START_STRAFE_LEFT:
-            return MovementStartStrafeLeftSequence;
+            return MovementStartStrafeLeft;
         case MSG_MOVE_START_STRAFE_RIGHT:
-            return MovementStartStrafeRightSequence;
+            return MovementStartStrafeRight;
         case MSG_MOVE_START_SWIM:
-            return MovementStartSwimSequence;
+            return MovementStartSwim;
         case MSG_MOVE_START_TURN_LEFT:
-            return MovementStartTurnLeftSequence;
+            return MovementStartTurnLeft;
         case MSG_MOVE_START_TURN_RIGHT:
-            return MovementStartTurnRightSequence;
+            return MovementStartTurnRight;
         case MSG_MOVE_STOP:
-            return MovementStopSequence;
+            return MovementStop;
         case MSG_MOVE_STOP_ASCEND:
-            return MovementStopAscendSequence;
+            return MovementStopAscend;
         case MSG_MOVE_STOP_PITCH:
-            return MovementStopPitchSequence;
+            return MovementStopPitch;
         case MSG_MOVE_STOP_STRAFE:
-            return MovementStopStrafeSequence;
+            return MovementStopStrafe;
         case MSG_MOVE_STOP_SWIM:
-            return MovementStopSwimSequence;
+            return MovementStopSwim;
         case MSG_MOVE_STOP_TURN:
-            return MovementStopTurnSequence;
+            return MovementStopTurn;
         case SMSG_PLAYER_MOVE:
-            return PlayerMoveSequence;
+            return PlayerMove;
         case CMSG_MOVE_CHNG_TRANSPORT:
             return MoveChngTransport;
         case CMSG_MOVE_SPLINE_DONE:
