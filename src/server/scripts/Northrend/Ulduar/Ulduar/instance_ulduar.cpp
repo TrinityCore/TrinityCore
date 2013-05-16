@@ -64,6 +64,10 @@ class instance_ulduar : public InstanceMapScript
             uint64 KologarnGUID;
             uint64 AuriayaGUID;
             uint64 MimironGUID;
+            uint64 LeviathanMKIIGUID;
+            uint64 VX001GUID;
+            uint64 AerialUnitGUID;
+            uint64 MagneticCoreGUID;
             uint64 HodirGUID;
             uint64 ThorimGUID;
             uint64 FreyaGUID;
@@ -96,8 +100,11 @@ class instance_ulduar : public InstanceMapScript
             uint64 AlgalonUniverseGUID;
             uint64 AlgalonTrapdoorGUID;
             uint64 GiftOfTheObserverGUID;
+            std::list<uint64> uiMimironDoorGUIDList;
 
             // Miscellaneous
+            uint64 MimironElevatorGUID;
+            uint64 MimironTrainGUID;
             uint32 TeamInInstance;
             uint32 HodirRareCacheData;
             uint32 ColossusData;
@@ -123,6 +130,10 @@ class instance_ulduar : public InstanceMapScript
                 KologarnGUID                     = 0;
                 AuriayaGUID                      = 0;
                 MimironGUID                      = 0;
+                LeviathanMKIIGUID                = 0;
+                VX001GUID                        = 0;
+                AerialUnitGUID                   = 0;
+                MagneticCoreGUID                 = 0;
                 HodirGUID                        = 0;
                 ThorimGUID                       = 0;
                 FreyaGUID                        = 0;
@@ -149,6 +160,8 @@ class instance_ulduar : public InstanceMapScript
                 _algalonTimer                    = 61;
                 _maxArmorItemLevel               = 0;
                 _maxWeaponItemLevel              = 0;
+                MimironTrainGUID                 = 0;
+                MimironElevatorGUID              = 0;
                 TeamInInstance                   = 0;
                 HodirRareCacheData               = 0;
                 ColossusData                     = 0;
@@ -291,6 +304,15 @@ class instance_ulduar : public InstanceMapScript
                         break;
                     case NPC_MIMIRON:
                         MimironGUID = creature->GetGUID();
+                        break;
+                    case NPC_LEVIATHAN_MKII:
+                        LeviathanMKIIGUID = creature->GetGUID();
+                        break;
+                    case NPC_VX_001:
+                        VX001GUID = creature->GetGUID();
+                        break;
+                    case NPC_AERIAL_COMMAND_UNIT:
+                        AerialUnitGUID = creature->GetGUID();
                         break;
 
                     // Hodir
@@ -509,6 +531,12 @@ class instance_ulduar : public InstanceMapScript
                     case GO_HODIR_ICE_DOOR:
                         HodirIceDoorGUID = gameObject->GetGUID();
                         break;
+                    case GO_MIMIRON_DOOR_1:
+                    case GO_MIMIRON_DOOR_2:
+                    case GO_MIMIRON_DOOR_3:
+                        gameObject->setActive(true);
+                        uiMimironDoorGUIDList.push_back(gameObject->GetGUID());
+                        break;
                     case GO_ARCHIVUM_DOOR:
                         ArchivumDoorGUID = gameObject->GetGUID();
                         if (GetBossState(BOSS_ASSEMBLY_OF_IRON) != DONE)
@@ -661,6 +689,11 @@ class instance_ulduar : public InstanceMapScript
                     case BOSS_AURIAYA:
                         break;
                     case BOSS_MIMIRON:
+                        for (std::list<uint64>::iterator i = uiMimironDoorGUIDList.begin(); i != uiMimironDoorGUIDList.end(); i++)
+                        {
+                            if (GameObject* obj = instance->GetGameObject(*i))
+                                obj->SetGoState(state == IN_PROGRESS ? GO_STATE_READY : GO_STATE_ACTIVE );
+                        }
                         if (state == DONE)
                             instance->SummonCreature(NPC_MIMIRON_OBSERVATION_RING, ObservationRingKeepersPos[3]);
                         break;
@@ -787,6 +820,14 @@ class instance_ulduar : public InstanceMapScript
                                     Hodir->RemoveGameObject(gameObject, false);
                         }
                         break;
+                    case DATA_CALL_TRAM:
+                        if (GameObject* go = instance->GetGameObject(MimironTrainGUID))
+                            go->UseDoorOrButton();
+                        break;
+                    case DATA_MIMIRON_ELEVATOR:
+                        if (GameObject* go = instance->GetGameObject(MimironElevatorGUID))
+                            go->SetGoState(GOState(data));
+                        break;
                     case DATA_UNBROKEN:
                         Unbroken = bool(data);
                         break;
@@ -863,6 +904,14 @@ class instance_ulduar : public InstanceMapScript
                         return AuriayaGUID;
                     case BOSS_MIMIRON:
                         return MimironGUID;
+                    case DATA_VX_001:
+                        return VX001GUID;
+                    case DATA_LEVIATHAN_MK_II:
+                        return LeviathanMKIIGUID;
+                    case DATA_AERIAL_UNIT:
+                        return AerialUnitGUID;
+                    case DATA_MAGNETIC_CORE:
+                        return MagneticCoreGUID;
                     case BOSS_HODIR:
                         return HodirGUID;
                     case BOSS_THORIM:
@@ -1110,7 +1159,35 @@ class instance_ulduar : public InstanceMapScript
         }
 };
 
+class go_call_tram : public GameObjectScript
+{
+public:
+    go_call_tram() : GameObjectScript("go_call_tram") { }
+
+    bool OnGossipHello(Player* /*pPlayer*/, GameObject* pGo)
+    {
+        InstanceScript* pInstance = pGo->GetInstanceScript();
+
+        if (!pInstance)
+            return false;
+
+        switch (pGo->GetEntry())
+        {
+            case 194914:
+            case 194438:
+                pInstance->SetData(DATA_CALL_TRAM, 0);
+                break;
+            case 194912:
+            case 194437:
+                pInstance->SetData(DATA_CALL_TRAM, 1);
+                break;
+        }
+        return true;
+    }
+};
+
 void AddSC_instance_ulduar()
 {
     new instance_ulduar();
+    new go_call_tram();
 }

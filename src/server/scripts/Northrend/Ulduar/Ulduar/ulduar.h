@@ -189,7 +189,12 @@ enum UlduarGameObjects
     GO_HODIR_DOOR                           = 194634,
     GO_HODIR_ICE_DOOR                       = 194441,
     GO_ARCHIVUM_DOOR                        = 194556,
-
+    GO_MIMIRON_TRAIN                        = 194675,
+    GO_MIMIRON_ELEVATOR                     = 194749,
+    GO_MIMIRON_DOOR_1                       = 194776,
+    GO_MIMIRON_DOOR_2                       = 194774,
+    GO_MIMIRON_DOOR_3                       = 194775,
+    GO_BIG_RED_BUTTON                       = 194739,
     // Yogg-Saron
     GO_YOGG_SARON_DOOR                      = 194773,
     GO_BRAIN_ROOM_DOOR_1                    = 194635,
@@ -297,6 +302,14 @@ enum UlduarData
     DATA_UNIVERSE_GLOBE,
     DATA_ALGALON_TRAPDOOR,
     DATA_BRANN_BRONZEBEARD_ALG,
+
+    // Mimiron
+    DATA_MIMIRON_ELEVATOR,
+    DATA_LEVIATHAN_MK_II,
+    DATA_AERIAL_UNIT,
+    DATA_CALL_TRAM,
+    DATA_VX_001,
+    DATA_MAGNETIC_CORE,
 };
 
 enum UlduarWorldStates
