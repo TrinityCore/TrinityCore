@@ -302,12 +302,12 @@ class instance_ulduar : public InstanceMapScript
                     case NPC_AURIAYA:
                         AuriayaGUID = creature->GetGUID();
                         break;
+                    // Mimiron
                     case NPC_MIMIRON:
                         MimironGUID = creature->GetGUID();
                         break;
                     case NPC_LEVIATHAN_MKII:
                         LeviathanMKIIGUID = creature->GetGUID();
-                        break;
                     case NPC_VX_001:
                         VX001GUID = creature->GetGUID();
                         break;
