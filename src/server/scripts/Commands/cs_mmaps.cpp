@@ -95,14 +95,14 @@ public:
         path.SetUseStraightPath(useStraightPath);
         bool result = path.CalculatePath(x, y, z);
 
-        PointsArray const& pointPath = path.GetPath();
+        Movement::PointsArray const& pointPath = path.GetPath();
         handler->PSendSysMessage("%s's path to %s:", target->GetName().c_str(), player->GetName().c_str());
         handler->PSendSysMessage("Building: %s", useStraightPath ? "StraightPath" : "SmoothPath");
-        handler->PSendSysMessage("Result: %s - Length: "SIZEFMTD" - Type: %u", (result ? "true" : "false"), pointPath.size(), path.GetPathType());
+        handler->PSendSysMessage("Result: %s - Length: " SIZEFMTD " - Type: %u", (result ? "true" : "false"), pointPath.size(), path.GetPathType());
 
-        Vector3 start = path.GetStartPosition();
-        Vector3 end = path.GetEndPosition();
-        Vector3 actualEnd = path.GetActualEndPosition();
+        G3D::Vector3 const &start = path.GetStartPosition();
+        G3D::Vector3 const &end = path.GetEndPosition();
+        G3D::Vector3 const &actualEnd = path.GetActualEndPosition();
 
         handler->PSendSysMessage("StartPosition     (%.3f, %.3f, %.3f)", start.x, start.y, start.z);
         handler->PSendSysMessage("EndPosition       (%.3f, %.3f, %.3f)", end.x, end.y, end.z);
@@ -264,7 +264,7 @@ public:
 
         if (!creatureList.empty())
         {
-            handler->PSendSysMessage("Found "SIZEFMTD" Creatures.", creatureList.size());
+            handler->PSendSysMessage("Found " SIZEFMTD " Creatures.", creatureList.size());
 
             uint32 paths = 0;
             uint32 uStartTime = getMSTime();

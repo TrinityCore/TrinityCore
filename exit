@@ -1,0 +1,295 @@
+diff --cc src/server/game/Battlegrounds/Zones/BattlegroundAV.cpp
+index 791f71a,5dc20ab..0000000
+--- a/src/server/game/Battlegrounds/Zones/BattlegroundAV.cpp
++++ b/src/server/game/Battlegrounds/Zones/BattlegroundAV.cpp
+@@@ -150,9 -150,9 +150,9 @@@ void BattlegroundAV::HandleQuestComplet
+              m_Team_QuestStatus[team][0]+=20;
+              if (m_Team_QuestStatus[team][0] == 500 || m_Team_QuestStatus[team][0] == 1000 || m_Team_QuestStatus[team][0] == 1500) //25, 50, 75 turn ins
+              {
+-                 sLog->outDebug(LOG_FILTER_BATTLEGROUND, "BG_AV Quest %i completed starting with unit upgrading..", questid);
++                 TC_LOG_DEBUG(LOG_FILTER_BATTLEGROUND, "BG_AV Quest %i completed starting with unit upgrading..", questid);
+                  for (BG_AV_Nodes i = BG_AV_NODES_FIRSTAID_STATION; i <= BG_AV_NODES_FROSTWOLF_HUT; ++i)
+ -                    if (m_Nodes[i].Owner == player->GetTeam() && m_Nodes[i].State == POINT_CONTROLED)
+ +                    if (m_Nodes[i].Owner == player->GetBGTeam() && m_Nodes[i].State == POINT_CONTROLED)
+                      {
+                          DePopulateNode(i);
+                          PopulateNode(i);
+@@@ -163,23 -163,23 +163,23 @@@
+          case AV_QUEST_A_COMMANDER1:
+          case AV_QUEST_H_COMMANDER1:
+              m_Team_QuestStatus[team][1]++;
+ -            RewardReputationToTeam(team, 1, player->GetTeam());
+ +            RewardReputationToTeam(team, 1, player->GetBGTeam());
+              if (m_Team_QuestStatus[team][1] == 30)
+-                 sLog->outDebug(LOG_FILTER_BATTLEGROUND, "BG_AV Quest %i completed (need to implement some events here", questid);
++                 TC_LOG_DEBUG(LOG_FILTER_BATTLEGROUND, "BG_AV Quest %i completed (need to implement some events here", questid);
+              break;
+          case AV_QUEST_A_COMMANDER2:
+          case AV_QUEST_H_COMMANDER2:
+              m_Team_QuestStatus[team][2]++;
+ -            RewardReputationToTeam(team, 1, player->GetTeam());
+ +            RewardReputationToTeam(team, 1, player->GetBGTeam());
+              if (m_Team_QuestStatus[team][2] == 60)
+-                 sLog->outDebug(LOG_FILTER_BATTLEGROUND, "BG_AV Quest %i completed (need to implement some events here", questid);
++                 TC_LOG_DEBUG(LOG_FILTER_BATTLEGROUND, "BG_AV Quest %i completed (need to implement some events here", questid);
+              break;
+          case AV_QUEST_A_COMMANDER3:
+          case AV_QUEST_H_COMMANDER3:
+              m_Team_QuestStatus[team][3]++;
+ -            RewardReputationToTeam(team, 1, player->GetTeam());
+ +            RewardReputationToTeam(team, 1, player->GetBGTeam());
+              if (m_Team_QuestStatus[team][3] == 120)
+-                 sLog->outDebug(LOG_FILTER_BATTLEGROUND, "BG_AV Quest %i completed (need to implement some events here", questid);
++                 TC_LOG_DEBUG(LOG_FILTER_BATTLEGROUND, "BG_AV Quest %i completed (need to implement some events here", questid);
+              break;
+          case AV_QUEST_A_BOSS1:
+          case AV_QUEST_H_BOSS1:
+@@@ -982,8 -982,8 +982,8 @@@ void BattlegroundAV::EventPlayerAssault
+  
+      BG_AV_Nodes node = GetNodeThroughObject(object);
+      uint32 owner = m_Nodes[node].Owner; //maybe name it prevowner
+ -    uint32 team  = player->GetTeam();
+ +    uint32 team  = player->GetBGTeam();
+-     sLog->outDebug(LOG_FILTER_BATTLEGROUND, "bg_av: player assaults point object %i node %i", object, node);
++     TC_LOG_DEBUG(LOG_FILTER_BATTLEGROUND, "bg_av: player assaults point object %i node %i", object, node);
+      if (owner == team || team == m_Nodes[node].TotalOwner)
+          return; //surely a gm used this object
+  
+diff --cc src/server/game/Entities/Player/Player.cpp
+index 34269f8,353ba8f..0000000
+--- a/src/server/game/Entities/Player/Player.cpp
++++ b/src/server/game/Entities/Player/Player.cpp
+@@@ -24194,18 -24018,7 +24194,14 @@@ void Player::SetViewpoint(WorldObject* 
+  {
+      if (apply)
+      {
+-         if (target->ToPlayer() == this)
+-             return;
+- 
+ +        //remove Viewpoint if already have
+ +        if (isSpectator() && spectateFrom)
+ +        {
+ +            SetViewpoint(spectateFrom, false);
+ +            spectateFrom = NULL;
+ +        }
+ +
+-        sLog->outDebug(LOG_FILTER_MAPS, "Player::CreateViewpoint: Player %s create seer %u (TypeId: %u).", GetName().c_str(), target->GetEntry(), target->GetTypeId());
+- 
++         TC_LOG_DEBUG(LOG_FILTER_MAPS, "Player::CreateViewpoint: Player %s create seer %u (TypeId: %u).", GetName().c_str(), target->GetEntry(), target->GetTypeId());
+  
+          if (!AddUInt64Value(PLAYER_FARSIGHT, target->GetGUID()))
+          {
+diff --cc src/server/game/Handlers/DuelHandler.cpp
+index edfae7e,bff1f20..0000000
+--- a/src/server/game/Handlers/DuelHandler.cpp
++++ b/src/server/game/Handlers/DuelHandler.cpp
+@@@ -41,31 -41,10 +41,30 @@@ void WorldSession::HandleDuelAcceptedOp
+      if (player == player->duel->initiator || !plTarget || player == plTarget || player->duel->startTime != 0 || plTarget->duel->startTime != 0)
+          return;
+  
+-     //sLog->outDebug(LOG_FILTER_PACKETIO, "WORLD: Received CMSG_DUEL_ACCEPTED");
+-     sLog->outDebug(LOG_FILTER_NETWORKIO, "Player 1 is: %u (%s)", player->GetGUIDLow(), player->GetName().c_str());
+-     sLog->outDebug(LOG_FILTER_NETWORKIO, "Player 2 is: %u (%s)", plTarget->GetGUIDLow(), plTarget->GetName().c_str());
++     //TC_LOG_DEBUG(LOG_FILTER_PACKETIO, "WORLD: Received CMSG_DUEL_ACCEPTED");
++     TC_LOG_DEBUG(LOG_FILTER_NETWORKIO, "Player 1 is: %u (%s)", player->GetGUIDLow(), player->GetName().c_str());
++     TC_LOG_DEBUG(LOG_FILTER_NETWORKIO, "Player 2 is: %u (%s)", plTarget->GetGUIDLow(), plTarget->GetName().c_str());
+ +    
+ +	if (player->GetZoneId() != 4080)
+ +	{
+ + 	   player->SetHealth(player->GetMaxHealth());
+ +  	   player->SetPower(POWER_MANA, player->GetMaxPower(POWER_MANA));
+ +  	   plTarget->SetHealth(plTarget->GetMaxHealth());
+ + 	   plTarget->SetPower(POWER_MANA, plTarget->GetMaxPower(POWER_MANA));
+ +  	   player->RemoveArenaSpellCooldowns();
+ +  	   plTarget->RemoveArenaSpellCooldowns();
+ +   	   player->RemoveAura(57723);
+ +  	   player->RemoveAura(57724);
+ +    	   player->RemoveAura(25771);
+ +   	   player->RemoveAura(41425);
+ + 	   player->RemoveAura(61987);
+ + 	   plTarget->RemoveAura(57723);
+ + 	   plTarget->RemoveAura(57724);
+ + 	   plTarget->RemoveAura(25771);
+ +  	   plTarget->RemoveAura(41425);
+ + 	   plTarget->RemoveAura(61987);
+ +	}
+  
+- 
+      time_t now = time(NULL);
+      player->duel->startTimer = now;
+      plTarget->duel->startTimer = now;
+diff --cc src/server/game/Maps/Map.cpp
+index 185092e,b28873d..0000000
+--- a/src/server/game/Maps/Map.cpp
++++ b/src/server/game/Maps/Map.cpp
+@@@ -2753,17 -2752,8 +2753,16 @@@ bool BattlegroundMap::AddPlayerToMap(Pl
+  
+  void BattlegroundMap::RemovePlayerFromMap(Player* player, bool remove)
+  {
+- 
+ +    if (player && player->isSpectator() && !player->isSpectateCanceled())
+ +    {
+ +        if (GetBG())
+ +            GetBG()->RemoveSpectator(player->GetGUID());
+ +        player->SetSpectate(false);
+ +    }
+ +
+-     sLog->outInfo(LOG_FILTER_MAPS, "MAP: Removing player '%s' from bg '%u' of map '%s' before relocating to another map", player->GetName().c_str(), GetInstanceId(), GetMapName());
++     TC_LOG_INFO(LOG_FILTER_MAPS, "MAP: Removing player '%s' from bg '%u' of map '%s' before relocating to another map", player->GetName().c_str(), GetInstanceId(), GetMapName());
+      Map::RemovePlayerFromMap(player, remove);
+ +          
+  }
+  
+  void BattlegroundMap::SetUnload()
+diff --cc src/server/game/Movement/PathGenerator.cpp
+index c50b1c5,80e8f1e..0000000
+--- a/src/server/game/Movement/PathGenerator.cpp
++++ b/src/server/game/Movement/PathGenerator.cpp
+@@@ -475,111 -476,7 +476,111 @@@ void PathGenerator::BuildPointPath(cons
+          _type = PathType(PATHFIND_NORMAL | PATHFIND_NOT_USING_PATH);
+      }
+  
+-     //Custom Point for Bugged Zone (By saqi)
+-       float startEndDist = Dist3DSqr(GetStartPosition(), GetEndPosition());   
+++       float startEndDist = Dist3DSqr(GetStartPosition(), GetEndPosition());   
+ +        //Blade edge arena (mapid)
+ +        if (_sourceUnit->GetMapId() == 562)
+ +        {
+ +		    //Your Position & Target Position
+ +            if (endPoint[1] >= 9.000000f && startPoint[1] >= 9.000000f && endPoint[2] <= 6233.953223f && endPoint[2] >= 6223.140430f && endPoint[0] >= 246.160000f && endPoint[0] <= 256.818940f)      // southeast pillar
+ +            {
+ +              //  Path X,y,z 1# END 
+ +		        Clear();
+ +                _pathPoints.resize(4);
+- 		        _pathPoints[0] = GetStartPosition();
+++		    _pathPoints[0] = GetStartPosition();
+ +                _pathPoints[1] = Vector3(6236.567836f, 258.339106f, 11.500018f);
+ +                _pathPoints[2] = Vector3(6229.818836f, 252.049106f, 11.500018f);
+ +                _pathPoints[3] = GetEndPosition();
+ +            }
+ +            else if (startEndDist < 3000.0f && startPoint[1] >= 9.000000f && endPoint[1] >= 9.000000f && startPoint[2] <= 6233.953223f && startPoint[2] >= 6223.440430f && startPoint[0] >= 246.060000f && startPoint[0] <= 256.818940f)       // southeast pillar
+ +            {
+ +                //  Path X,y,z 1# Start 
+ +		        Clear();
+ +				_type = PathType(PATHFIND_DEBUG | PATHFIND_DEBUG);
+ +				_polyLength = 4;
+ +                _pathPoints.resize(4);
+ +                _pathPoints[0] = GetStartPosition();
+- 			    _pathPoints[1] = Vector3(6229.818836f, 252.049106f, 11.500018f);
+++	          _pathPoints[1] = Vector3(6229.818836f, 252.049106f, 11.500018f);
+ +                _pathPoints[2] = Vector3(6236.567836f, 258.339106f, 11.500018f);
+ +                _pathPoints[3] = GetEndPosition();
+ +            }
+ +	     else if (startEndDist < 3000.0f && startPoint[1] >= 9.000000f && startPoint[2] >= 6242.185660f && startPoint[2] <= 6254.611660f && startPoint[0] >= 266.757917f && startPoint[0] <= 279.558794f) // northwest pillar
+ +            {
+ +                //  Path X,y,z 2# Start
+ +		         Clear();
+ +                _pathPoints.resize(5);
+ +                _pathPoints[0] = GetStartPosition();
+ +                _pathPoints[1] = Vector3(6246.324219f, 271.570000f, 11.300000f);
+ +                _pathPoints[2] = Vector3(6242.942484f, 267.210030f, 11.280000f);
+- 		        _pathPoints[3] = Vector3(6241.539484f, 265.441030f, 11.280000f);
+++		   _pathPoints[3] = Vector3(6241.539484f, 265.441030f, 11.280000f);
+ +                _pathPoints[4] = GetEndPosition();
+ +            } 
+ +	      else if (startEndDist < 3000.0f && endPoint[1] >= 9.000000f && endPoint[2] >= 6242.185660f && endPoint[2] <= 6254.611660f && endPoint[0] >= 266.757917f && endPoint[0] <= 279.558794f) // northwest pillar
+ +            {
+ +                //  Path X,y,z 2# END  
+ +		        Clear();
+ +                _pathPoints.resize(5);
+ +                _pathPoints[0] = GetStartPosition();
+- 		        _pathPoints[1] = Vector3(6241.539484f, 265.441030f, 11.280000f);
+++		   _pathPoints[1] = Vector3(6241.539484f, 265.441030f, 11.280000f);
+ +                _pathPoints[2] = Vector3(6242.942484f, 267.210030f, 11.280000f);
+ +                _pathPoints[3] = Vector3(6246.324219f, 271.570000f, 11.300000f);
+ +                _pathPoints[4] = GetEndPosition();
+ +            }
+ +      }
+ +       //Dalaran Sewer
+ +       else if (_sourceUnit->GetMapId() == 617)
+ +        {
+ +            if (startEndDist < 2500.0f && startPoint[2] >= 1325.033223f && startPoint[1] >= 9.000000f)      // Canal 1#
+ +            {
+ +              //  Path X,y,z
+ +		        Clear();
+ +                _pathPoints.resize(5);
+ +                _pathPoints[0] = GetStartPosition();
+ +                _pathPoints[1] = Vector3(1332.749268f, 816.274780f, 8.355900f);
+ +                _pathPoints[2] = Vector3(1325.749268f, 816.602539f, 5.4000000f);
+ +                _pathPoints[3] = Vector3(1328.749268f, 816.602539f, 3.4000000f);
+ +                _pathPoints[4] = GetEndPosition();
+ +            }
+ +            else if (startEndDist < 2500.0f && startPoint[2] <= 1253.904785f && startPoint[1] >= 9.000000f)      // Canal 2#
+ +            {
+ +                //  Path X,y,z
+ +		         Clear();
+ +                _pathPoints.resize(5);
+ +                _pathPoints[0] = GetStartPosition();
+ +                _pathPoints[1] = Vector3(1252.425395f, 764.971680f, 8.000000f); 
+ +                _pathPoints[3] = Vector3(1255.425395f, 764.971680f, 5.3559000f);
+ +                _pathPoints[3] = Vector3(1257.425395f, 764.971680f, 3.3559000f);
+ +                _pathPoints[4] = GetEndPosition();
+ +            }
+ +         }
+ +	         //Eye of The Storm
+ +       else if (_sourceUnit->GetMapId() == 566)
+ +        {
+ +            if (startEndDist < 2500.0f && startPoint[2] <= 1850.003223f && startPoint[1] >= 1237.000000f && startPoint[0] >= 1501.420000f && startPoint[0] <= 1579.960000f)      // StartZone Horde
+ +            {
+ +              //  Path X,y,z
+ +	         Clear();
+ +                _pathPoints.resize(5);
+ +                _pathPoints[0] = GetStartPosition();
+ +                _pathPoints[1] = Vector3(1847.004468f, 1540.660539f, 1243.400000f);
+ +	            _pathPoints[2] = Vector3(1842.883268f, 1527.123839f, 1238.410000f);
+ +	            _pathPoints[3] = Vector3(1839.593268f, 1519.479539f, 1229.428000f);
+ +                _pathPoints[4] = GetEndPosition();
+ +            }
+ +            if (startEndDist < 2500.0f && startPoint[2] >= 2484.003223f && startPoint[1] >= 1240.000000f && startPoint[0] >= 1567.420000f && startPoint[0] <= 1626.960000f)      // StartZone Alliance
+ +            {
+ +                //  Path X,y,z
+ +			 	Clear();
+ +                _pathPoints.resize(5);
+ +                _pathPoints[0] = GetStartPosition();
+ +                _pathPoints[1] = Vector3(2485.154468f, 1596.583439f, 1244.898315f);
+ +	            _pathPoints[2] = Vector3(2482.733268f, 1608.305649f, 1238.092000f);
+ +                _pathPoints[3] = Vector3(2488.073268f, 1623.749539f, 1227.788000f);
+ +                _pathPoints[4] = GetEndPosition();
+ +            }
+ +         }
+-      //Custom Point for Bugged Zone 
+-     sLog->outDebug(LOG_FILTER_MAPS, "++ PathGenerator::BuildPointPath path type %d size %d poly-size %d\n", _type, pointCount, _polyLength);
+++
++     TC_LOG_DEBUG(LOG_FILTER_MAPS, "++ PathGenerator::BuildPointPath path type %d size %d poly-size %d\n", _type, pointCount, _polyLength);
+++
+  }
+  
+  void PathGenerator::NormalizePath()
+diff --cc src/server/game/Scripting/ScriptMgr.cpp
+index f8a4cc0,0dc96b3..0000000
+--- a/src/server/game/Scripting/ScriptMgr.cpp
++++ b/src/server/game/Scripting/ScriptMgr.cpp
+@@@ -178,10 -177,7 +178,10 @@@ void ScriptMgr::Initialize(
+  
+      LoadDatabase();
+  
+ +  // Load TeleNPC2 - maybe not the best place to load it ...
+ +  LoadNpcTele();
+ +
+-     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading C++ scripts");
++     TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading C++ scripts");
+  
+      FillSpellSummary();
+      AddScripts();
+diff --git a/src/server/game/Movement/PathGenerator.h b/src/server/game/Movement/PathGenerator.h
+index 59c184f..b1caf51 100644
+--- a/src/server/game/Movement/PathGenerator.h
++++ b/src/server/game/Movement/PathGenerator.h
+@@ -23,6 +23,7 @@
+ #include "DetourNavMesh.h"
+ #include "DetourNavMeshQuery.h"
+ #include "MoveSplineInitArgs.h"
++#include <vector>
+ 
+ class Unit;
+ 
