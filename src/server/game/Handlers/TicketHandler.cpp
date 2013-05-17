@@ -83,6 +83,7 @@ void WorldSession::HandleGMTicketCreateOpcode(WorldPacket& recvData)
             {
                 TC_LOG_ERROR(LOG_FILTER_NETWORKIO, "CMSG_GMTICKET_CREATE possibly corrupt. Uncompression failed.");
                 recvData.rfinish();
+                delete ticket;
                 return;
             }
 

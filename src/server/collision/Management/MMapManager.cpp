@@ -123,6 +123,7 @@ namespace MMAP
         if (fread(&fileHeader, sizeof(MmapTileHeader), 1, file) != 1 || fileHeader.mmapMagic != MMAP_MAGIC)
         {
             TC_LOG_ERROR(LOG_FILTER_MAPS, "MMAP:loadMap: Bad header in mmap %03u%02i%02i.mmtile", mapId, x, y);
+            fclose(file);
             return false;
         }
 
@@ -130,6 +131,7 @@ namespace MMAP
         {
             TC_LOG_ERROR(LOG_FILTER_MAPS, "MMAP:loadMap: %03u%02i%02i.mmtile was built with generator v%i, expected v%i",
                 mapId, x, y, fileHeader.mmapVersion, MMAP_VERSION);
+            fclose(file);
             return false;
         }
 
