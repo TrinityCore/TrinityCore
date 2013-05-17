@@ -5662,12 +5662,13 @@ void Player::RepopAtGraveyard()
     AreaTableEntry const* zone = GetAreaEntryByAreaID(GetAreaId());
 
     // Such zones are considered unreachable as a ghost and the player must be automatically revived
-    if ((!isAlive() && zone && zone->flags & AREA_FLAG_NEED_FLY) || GetTransport() || GetPositionZ() < -500.0f)
+  //  if ((!isAlive() && zone && zone->flags & AREA_FLAG_NEED_FLY) || GetTransport() || GetPositionZ() < -500.0f)
+    if ((GetMapId() == 1 || GetMapId() == 0 || GetMapId() == 571 || GetMapId() == 531)) 
     {
         ResurrectPlayer(0.5f);
         SpawnCorpseBones();
     }
-
+   
     WorldSafeLocsEntry const* ClosestGrave = NULL;
 
     // Special handle for battleground maps
