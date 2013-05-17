@@ -2587,8 +2587,9 @@ void Player::Regenerate(Powers power)
         case POWER_RUNE:
         case POWER_FOCUS:
         case POWER_HAPPINESS:
-        case POWER_HEALTH:
             break;
+        case POWER_HEALTH:
+            return;
         default:
             break;
     }

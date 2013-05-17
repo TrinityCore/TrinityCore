@@ -23,6 +23,7 @@
 SHA1Hash::SHA1Hash()
 {
     SHA1_Init(&mC);
+    memset(mDigest, 0, SHA_DIGEST_LENGTH * sizeof(uint8));
 }
 
 SHA1Hash::~SHA1Hash()
