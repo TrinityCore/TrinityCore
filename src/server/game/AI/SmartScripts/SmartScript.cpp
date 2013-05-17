@@ -1470,8 +1470,10 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                         if (!einfo)
                         {
                             TC_LOG_ERROR(LOG_FILTER_SQL, "SmartScript: SMART_ACTION_EQUIP uses non-existent equipment info id %u for creature %u", equipId, npc->GetEntry());
+                            delete targets;
                             return;
                         }
+
                         npc->SetCurrentEquipmentId(equipId);
                         slot[0] = einfo->ItemEntry[0];
                         slot[1] = einfo->ItemEntry[1];
