@@ -251,6 +251,8 @@ void BattlegroundWS::RespawnFlagAfterDrop(uint32 team)
     if (GetStatus() != STATUS_IN_PROGRESS)
         return;
 
+    Player* source;
+
     RespawnFlag(team, false);
     if (team == ALLIANCE)
     {
@@ -331,6 +333,11 @@ void BattlegroundWS::EventPlayerCapturedFlag(Player* Source)
 
     UpdateFlagState(Source->GetBGTeam(), 1);                  // flag state none
     UpdateTeamScore(Source->GetTeamId());
+   // UpdateTeamScore(Source->GetBGTeam());
+   /* if (Source->GetBGTeam() == ALLIANCE)
+        UpdateTeamScore(1);
+    else
+	 UpdateTeamScore(2); */
     // only flag capture should be updated
     UpdatePlayerScore(Source, SCORE_FLAG_CAPTURES, 1);      // +1 flag captures
 

@@ -893,8 +893,8 @@ void BattlegroundMgr::SendToBattleground(Player* player, uint32 instanceId, Batt
     if (Battleground* bg = GetBattleground(instanceId, bgTypeId))
 	{   
 		uint32 team;
-		if (/*sWorld->getBoolConfig(CONFIG_BG_CROSSFRACTION) == 1 && */!bg->isArena())
-        {
+	       if (!bg->isArena())
+              {
 			uint32 hCount = bg->GetPlayersCountByTeam(HORDE);	
 			uint32 aCount = bg->GetPlayersCountByTeam(ALLIANCE);
 	
@@ -902,9 +902,9 @@ void BattlegroundMgr::SendToBattleground(Player* player, uint32 instanceId, Batt
 				team = HORDE;
 			else
 				team = ALLIANCE;
-    }
-    else
-	    team = player->GetBGTeam();
+    	      }
+             else
+	         team = player->GetBGTeam();
 		
         float x, y, z, O;
         uint32 mapid = bg->GetMapId();
@@ -1260,6 +1260,6 @@ void BattlegroundMgr::HandleCrossfactionSendToBattle(Player* player, Battlegroun
         else if (player->GetBGTeam() == ALLIANCE)
             player->setFaction(1); // Alliance Faction
     }
-    bg->UpdatePlayersCountByTeam(player->GetBGTeam(), false); // Add here instead of in AddPlayer, because AddPlayer is not made until loading screen is finished. Which can cause unbalance in the system.
+    bg->UpdatePlayersCountByTeam(player->GetBGTeam(), true); // Add here instead of in AddPlayer, because AddPlayer is not made until loading screen is finished. Which can cause unbalance in the system.
  }
 
