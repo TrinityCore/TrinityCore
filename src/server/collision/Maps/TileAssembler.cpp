@@ -500,7 +500,7 @@ namespace VMAP
         char ident[8];
         ident[7] = 0;
         int readOperation = 0;
-        
+
         READ_OR_RETURN(&ident, 7);
         CMP_OR_RETURN(ident, RAW_VMAP_MAGIC);
 
@@ -517,7 +517,7 @@ namespace VMAP
         for (uint32 g = 0; g < groups && succeed; ++g)
             succeed = groupsArray[g].Read(rf);
 
-        if (!succeed) /// rf will be freed inside Read if the function had any errors.
+        if (succeed) /// rf will be freed inside Read if the function had any errors.
             fclose(rf);
         return succeed;
     }
