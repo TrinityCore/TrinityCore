@@ -106,7 +106,7 @@ class npc_change : public CreatureScript
 									player->CLOSE_GOSSIP_MENU();
 
 								}else{
-									_creature->MonsterWhisper("You need more Badge of Justice!", player->GetGUID());
+									_creature->MonsterWhisper("You need more Honor!", player->GetGUID());
 									player->CLOSE_GOSSIP_MENU();
 
 								}

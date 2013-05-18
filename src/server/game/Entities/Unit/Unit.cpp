@@ -359,7 +359,7 @@ void Unit::Update(uint32 p_time)
         	 }
 
 		 // Update combat when enemy is in Stealth && or not exist in 60yds
-		 if (player->InBattleground() || player->duel)
+		 /*if (player->InBattleground() || player->duel)
        	 {
             		int32 EnemyPlayerInCombatRange;
             		std::list<Player*> PlayerList;
@@ -377,7 +377,7 @@ void Unit::Update(uint32 p_time)
 		        	CombatStop(player); // if Player is in combat, owner get combat.. 
 		 	}
 
-       	}
+       	}*/
 	 }
    }
 

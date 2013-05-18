@@ -21,6 +21,7 @@
 #include "WorldPacket.h"
 #include "WorldSession.h"
 #include "Player.h"
+#include "Unit.h"
 #include "World.h"
 #include "ObjectMgr.h"
 #include "GroupMgr.h"
@@ -35,6 +36,8 @@
 #include "Util.h"
 #include "LFGMgr.h"
 #include "UpdateFieldFlags.h"
+#include "GridNotifiers.h"
+#include "GridNotifiersImpl.h"
 
 Roll::Roll(uint64 _guid, LootItem const& li) : itemGUID(_guid), itemid(li.itemid),
 itemRandomPropId(li.randomPropertyId), itemRandomSuffix(li.randomSuffix), itemCount(li.count),
@@ -275,6 +278,10 @@ bool Group::AddInvite(Player* player)
         group = player->GetOriginalGroup();
     if (group)
         return false;
+
+    if (player->GetAreaId() == 297)
+	 if (group->GetMembersCount() >= 3)
+            return false;	
 
     RemoveInvite(player);
 

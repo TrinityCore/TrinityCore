@@ -5699,7 +5699,7 @@ void Player::RepopAtGraveyard()
 
     // Such zones are considered unreachable as a ghost and the player must be automatically revived
   //  if ((!isAlive() && zone && zone->flags & AREA_FLAG_NEED_FLY) || GetTransport() || GetPositionZ() < -500.0f)
-    if ((!isAlive() && zone && zone->flags & AREA_FLAG_NEED_FLY) || (GetMapId() == 1 || GetMapId() == 0 || GetMapId() == 571 || GetMapId() == 531) || GetPositionZ() < -500.0f || GetTransport()) 
+    if (((!isAlive() && zone && zone->flags & AREA_FLAG_NEED_FLY) || (GetMapId() == 1 || GetMapId() == 0 || GetMapId() == 571 || GetMapId() == 531) || GetPositionZ() < -500.0f || GetTransport()) && GetAreaId() != 297) 
     {
         ResurrectPlayer(0.5f);
         SpawnCorpseBones();

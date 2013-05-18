@@ -1,5 +1,6 @@
 #include "ScriptPCH.h"
 #include "AccountMgr.h"
+#include "Group.h"
  
 struct PvPIslandInfo
 {
@@ -21,34 +22,15 @@ enum PvPIsland
  
     SPELL_BERSERK               = 24378,
     SPELL_FOOD                  = 23493,
-    SPELL_SPIRITUAL_IMMUNITY    = 58729,
+    SPELL_SPIRITUAL_IMMUNITY    = 36910,
     SPELL_SUMMON_PET            = 883,
-    
-    QUEST_KILL_25_PLAYERS       = 78880,
-    QUEST_KILL_50_PLAYERS       = 78881,
-    QUEST_KILL_100_PLAYERS      = 78882,
-    QUEST_KILL_150_PLAYERS      = 78883,
-    QUEST_KILL_200_PLAYERS      = 78884,
-    QUEST_KILL_250_PLAYERS      = 78885,
- 
-    QUEST_KILLSTREAK_OF_5       = 78886,
-    QUEST_KILLSTREAK_OF_10      = 78887,
-    QUEST_KILLSTREAK_OF_15      = 78888,
-    QUEST_KILLSTREAK_OF_20      = 78889,
-    QUEST_KILLSTREAK_OF_25      = 78890,
-    
-    QUEST_HEAL_FOR_100K         = 78891,
-    QUEST_HEAL_FOR_200K         = 78892,
-    QUEST_HEAL_FOR_300K         = 78893,
-    QUEST_HEAL_FOR_400K         = 78894,
-    QUEST_HEAL_FOR_500K         = 78895,
+    SPELL_ANCIENT               = 56354,
  
     NPC_GRAVEYARD_TELEPORTER    = 731131,
-    NPC_PLAYER_QUEST_CREDIT     = 731133,
-    NPC_HEAL_QUEST_CREDIT       = 731134,
  
     GAMEOBJECT_BERSERKING       = 1649780,
     GAMEOBJECT_FOOD             = 1649781,
+    GAMEOBJECT_ANCIENT          = 1649783,
 };
  
 const int MAX_PLAYER_SPAWN_POINTS = 20;
@@ -76,7 +58,7 @@ static const Position playerSpawnPoint[MAX_PLAYER_SPAWN_POINTS] =
     {-14851.310547f, -400.764923f, 0.554863f, 1.562001f},
 };
  
-const int MAX_POWERUP_SPAWN_POINTS = 13;
+const int MAX_POWERUP_SPAWN_POINTS = 16;
 static const Position powerSpawnPoint[MAX_POWERUP_SPAWN_POINTS] = 
 {
     {-14593.151367f, -259.881683f, 12.135949f, 5.246307f}, 
@@ -92,10 +74,12 @@ static const Position powerSpawnPoint[MAX_POWERUP_SPAWN_POINTS] =
     {-14644.129883f, -137.240311f, 5.689415f, 4.612478f},
     {-14592.359375f, -204.442627f, 15.142118f, 0.166331f},
     {-14484.213867f, -186.565048f, 10.063410f, 0.627370f},
+    {-14812.387695f, -383.693542f, 5.5103410f, 3.821413f},
+    {-14587.189453f, -446.756470f, 3.4505070f, 0.696409f},
+    {-14526.170898f, -316.358124f, 7.5021808f, 5.891276f},
  
 };
  
-static std::map<uint32, PvPIslandInfo> KillingStreak;
  
 class pvp_island_resurrect_event : public BasicEvent
 {
@@ -104,9 +88,12 @@ class pvp_island_resurrect_event : public BasicEvent
  
         bool Execute(uint64 /*time*/, uint32 /*diff*/)
         {
-            _victim->ResurrectPlayer(0.5, false);
-            _victim->TeleportTo(0, -14905.758789f, 317.563995f, 6.556074f, 5.193286f);
+            _victim->ResurrectPlayer(1.0, false);
+	     int32 RespawnPos = urand(0, MAX_PLAYER_SPAWN_POINTS - 1);
+            _victim->TeleportTo(0, playerSpawnPoint[RespawnPos].GetPositionX(), playerSpawnPoint[RespawnPos].GetPositionY(), playerSpawnPoint[RespawnPos].GetPositionZ(), playerSpawnPoint[RespawnPos].GetOrientation());
             _victim->ResetAllPowers();
+	     _victim->RemoveArenaSpellCooldowns();
+	     _victim->CastSpell(_victim, SPELL_SPIRITUAL_IMMUNITY, true);
             return true;
         }
  
@@ -141,32 +128,20 @@ class pvp_island : public PlayerScript
         void OnLogout(Player* player)
         {
             if (player->GetGUID() == killerGUID)
-                KillingStreak[killerGUID].killCount = 0;
+                return;
         }
  
-        // When player leaves PvP Island and his GUID was stored as the GUID of a killer, the killcount will be reset
+        // When player leaves PvP Island and his GUID was stored as the GUID of a killer, the group will be reset
         void OnUpdateZone(Player* player, uint32 newZone, uint32 newArea)
         {
+            // Prevent Group
+            if (Group* group = player->GetGroup())
+	         if (newArea != AREA_PVP_ISLAND)
+		      group->Disband(true);
+
             if (newArea != AREA_PVP_ISLAND || newArea != AREA_WILD_SHORE)
                 if (player->GetGUID() == killerGUID)
-                    KillingStreak[killerGUID].killCount = 0;
-        }
- 
-        // Area id is checked in SpellEffects.cpp L2323 so it's less expensive
-        void OnPVPHeal(Player* healer, Unit* healed, uint32 healAmount)
-        {
-            if (!healed || !healer)
-                return;
- 
-            // If it's for example a (bugged) area-heal that also heals enemies we should not count this for the quest
-            if (!healed->IsFriendlyTo(healer))
-                return;
- 
-            if (healed->isPet() || healed->GetTypeId() == TYPEID_PLAYER)
-                if (healer->GetQuestStatus(QUEST_HEAL_FOR_100K) == QUEST_STATUS_INCOMPLETE || healer->GetQuestStatus(QUEST_HEAL_FOR_200K) == QUEST_STATUS_INCOMPLETE ||
-                    healer->GetQuestStatus(QUEST_HEAL_FOR_300K) == QUEST_STATUS_INCOMPLETE || healer->GetQuestStatus(QUEST_HEAL_FOR_400K) == QUEST_STATUS_INCOMPLETE ||
-                    healer->GetQuestStatus(QUEST_HEAL_FOR_500K) == QUEST_STATUS_INCOMPLETE)
-                    healer->KilledMonsterCredit(NPC_HEAL_QUEST_CREDIT, 0, healAmount / 1000);
+		      return;
         }
  
         void OnPVPKill(Player* killer, Player* victim)
@@ -188,65 +163,14 @@ class pvp_island : public PlayerScript
  
                         return;
                     }
- 
-                    // When a game master kills a player it'll be logged with names in the worldserver and none of the code will be executed
-                    if (AccountMgr::IsGMAccount(killer->GetSession()->GetSecurity()) && !victim->isGameMaster())
-                    {
-                        sLog->outString("[PvP Island] Game Master %s killed player %s, possible power abuse", killer->GetName(), victim->GetName());
- 
-                        victim->m_Events.AddEvent(new pvp_island_resurrect_event(victim), victim->m_Events.CalculateTime(1000));
- 
-                        if (victim->getClass() == CLASS_HUNTER || victim->getClass() == CLASS_WARLOCK)
-                            victim->m_Events.AddEvent(new pvp_island_resurrect_event_pet(victim), victim->m_Events.CalculateTime(2000));
- 
-                        return;
-                    }
-                    
-                    KillingStreak[killerGUID].killCount++; // Increment kill count by one on every kill
-                    KillingStreak[victimGUID].killCount = 0; // Streak ends on death
- 
+
                     // This will cause the victim to be resurrected, teleported and health set to 100% after 1 second of dieing
                     victim->m_Events.AddEvent(new pvp_island_resurrect_event(victim), victim->m_Events.CalculateTime(1000));
  
                     // This will cause warlocks and hunters to have their last-used pet to be re-summoned when arriving on the island
                     if (victim->getClass() == CLASS_HUNTER || victim->getClass() == CLASS_WARLOCK)
                         victim->m_Events.AddEvent(new pvp_island_resurrect_event_pet(victim), victim->m_Events.CalculateTime(2000));
- 
-                    if (killer->GetQuestStatus(QUEST_KILL_25_PLAYERS) == QUEST_STATUS_INCOMPLETE || killer->GetQuestStatus(QUEST_KILL_50_PLAYERS) == QUEST_STATUS_INCOMPLETE ||
-                        killer->GetQuestStatus(QUEST_KILL_100_PLAYERS) == QUEST_STATUS_INCOMPLETE || killer->GetQuestStatus(QUEST_KILL_150_PLAYERS) == QUEST_STATUS_INCOMPLETE ||
-                        killer->GetQuestStatus(QUEST_KILL_200_PLAYERS) == QUEST_STATUS_INCOMPLETE || killer->GetQuestStatus(QUEST_KILL_250_PLAYERS) == QUEST_STATUS_INCOMPLETE)
-                        killer->KilledMonsterCredit(NPC_PLAYER_QUEST_CREDIT, 0);
- 
-                    // If killcount is 5, 10, 15, 20, 25, etc.
-                    if ((KillingStreak[killerGUID].killCount % 5) == 0)
-                    {
-                        sprintf(msg, "[PvP Island] %s is now on a killstreak of %u!", killer->GetName(), KillingStreak[killerGUID].killCount);
-                        sWorld->SendZoneText(ZONE_STRANGLETHORN, msg);
-                    }
- 
-                    switch (KillingStreak[killerGUID].killCount)
-                    {
-                        case 5:
-                            if (killer->GetQuestStatus(QUEST_KILLSTREAK_OF_5) == QUEST_STATUS_INCOMPLETE)
-                                killer->AreaExploredOrEventHappens(QUEST_KILLSTREAK_OF_5);
-                            break;
-                        case 10:
-                            if (killer->GetQuestStatus(QUEST_KILLSTREAK_OF_10) == QUEST_STATUS_INCOMPLETE)
-                                killer->AreaExploredOrEventHappens(QUEST_KILLSTREAK_OF_10);
-                            break;
-                        case 15:
-                            if (killer->GetQuestStatus(QUEST_KILLSTREAK_OF_15) == QUEST_STATUS_INCOMPLETE)
-                                killer->AreaExploredOrEventHappens(QUEST_KILLSTREAK_OF_15);
-                            break;
-                        case 20:
-                            if (killer->GetQuestStatus(QUEST_KILLSTREAK_OF_20) == QUEST_STATUS_INCOMPLETE)
-                                killer->AreaExploredOrEventHappens(QUEST_KILLSTREAK_OF_20);
-                            break;
-                        case 25:
-                            if (killer->GetQuestStatus(QUEST_KILLSTREAK_OF_25) == QUEST_STATUS_INCOMPLETE)
-                                killer->AreaExploredOrEventHappens(QUEST_KILLSTREAK_OF_25);
-                            break;
-                    }
+
                 }
             }
         }
@@ -265,16 +189,22 @@ class npc_summon_powerups : public CreatureScript
  
             void Reset()
             {
-                summonTimer = urand(30000, 120000);
+                summonTimer = urand(30000, 60000);
             }
  
             void UpdateAI(const uint32 diff)
             {
                 if (summonTimer <= diff)
                 {
-                    int i = urand(0, MAX_POWERUP_SPAWN_POINTS - 1);
-                    urand(0, 1) == 0 ? me->SummonGameObject(GAMEOBJECT_BERSERKING, powerSpawnPoint[i].GetPositionX(), powerSpawnPoint[i].GetPositionY(), powerSpawnPoint[i].GetPositionZ(), powerSpawnPoint[i].GetOrientation(), powerSpawnPoint[i].GetOrientation(), powerSpawnPoint[i].GetOrientation(), powerSpawnPoint[i].GetOrientation(), powerSpawnPoint[i].GetOrientation(), 300000) : me->SummonGameObject(GAMEOBJECT_FOOD, powerSpawnPoint[i].GetPositionX(), powerSpawnPoint[i].GetPositionY(), powerSpawnPoint[i].GetPositionZ(), powerSpawnPoint[i].GetOrientation(), powerSpawnPoint[i].GetOrientation(), powerSpawnPoint[i].GetOrientation(), powerSpawnPoint[i].GetOrientation(), powerSpawnPoint[i].GetOrientation(), 300000);
-                    summonTimer = urand(30000, 120000);
+		      int i;
+			
+                    i = urand(0, MAX_POWERUP_SPAWN_POINTS - 1);
+                    me->SummonGameObject(GAMEOBJECT_BERSERKING, powerSpawnPoint[i].GetPositionX(), powerSpawnPoint[i].GetPositionY(), powerSpawnPoint[i].GetPositionZ(), powerSpawnPoint[i].GetOrientation(), powerSpawnPoint[i].GetOrientation(), powerSpawnPoint[i].GetOrientation(), powerSpawnPoint[i].GetOrientation(), powerSpawnPoint[i].GetOrientation(), 90000);
+                    i = urand(0, MAX_POWERUP_SPAWN_POINTS - 1);
+                    me->SummonGameObject(GAMEOBJECT_FOOD, powerSpawnPoint[i].GetPositionX(), powerSpawnPoint[i].GetPositionY(), powerSpawnPoint[i].GetPositionZ(), powerSpawnPoint[i].GetOrientation(), powerSpawnPoint[i].GetOrientation(), powerSpawnPoint[i].GetOrientation(), powerSpawnPoint[i].GetOrientation(), powerSpawnPoint[i].GetOrientation(), 90000);
+                    i = urand(0, MAX_POWERUP_SPAWN_POINTS - 1);
+                    me->SummonGameObject(GAMEOBJECT_ANCIENT, powerSpawnPoint[i].GetPositionX(), powerSpawnPoint[i].GetPositionY(), powerSpawnPoint[i].GetPositionZ(), powerSpawnPoint[i].GetOrientation(), powerSpawnPoint[i].GetOrientation(), powerSpawnPoint[i].GetOrientation(), powerSpawnPoint[i].GetOrientation(), powerSpawnPoint[i].GetOrientation(), 90000);
+                    summonTimer = urand(45000, 60000);
                 }
                 else
                     summonTimer -= diff;
@@ -312,6 +242,20 @@ class go_powerup_food : public GameObjectScript
             return false;
         }
 };
+
+class go_powerup_ancient : public GameObjectScript
+{
+    public:
+        go_powerup_ancient() : GameObjectScript("go_powerup_ancient") { }
+ 
+        bool OnGossipHello(Player* player, GameObject* go)
+        {
+            player->CastSpell(player, SPELL_ANCIENT, false);
+	     player->RemoveArenaSpellCooldowns();
+            go->RemoveFromWorld();
+            return false;
+        }
+};
  
 class npc_teleport_pvp_island : public CreatureScript
 {
@@ -326,8 +270,20 @@ class npc_teleport_pvp_island : public CreatureScript
             {
                 if (Player* player = me->SelectNearestPlayer(0.7f))
                 {
-                    if (!player || player->IsBeingTeleported() || !player->isAlive())
+                    if (!player || player->IsBeingTeleported() || !player->isAlive() || player->isInCombat())
                         return;
+
+		      // Prevent Group
+                    if (Group* group = player->GetGroup())
+		      {
+		          if (group->GetMembersCount() > 3) 
+			       group->Disband(true);
+			   
+                        if (group->isRaidGroup())
+                            group->Disband(true);
+		      }
+
+	              player->CastSpell(player, SPELL_SPIRITUAL_IMMUNITY, true);
  
                     int i = urand(0, MAX_PLAYER_SPAWN_POINTS - 1);
                     player->TeleportTo(0, playerSpawnPoint[i].GetPositionX(), playerSpawnPoint[i].GetPositionY(), playerSpawnPoint[i].GetPositionZ(), playerSpawnPoint[i].GetOrientation());
@@ -385,6 +341,7 @@ void AddSC_vitality_pvp_island()
     new npc_summon_powerups();
     new go_powerup_berserking();
     new go_powerup_food();
+    new go_powerup_ancient();
     new npc_teleport_pvp_island();
     //new spell_spiritual_immunity();
 }
