@@ -20,6 +20,7 @@ set(scripts_STAT_SRCS
   Custom/ArenaFastStart.cpp
   Custom/ArenaSpectate.cpp
   Custom/ChangeToken.cpp
+  Custom/PvPIsleScript.cpp
 )
 
 message("  -> Prepared: Custom")
