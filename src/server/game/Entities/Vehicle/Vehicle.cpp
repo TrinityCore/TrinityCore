@@ -353,8 +353,9 @@ SeatMap::const_iterator Vehicle::GetNextEmptySeat(int8 seatId, bool next) const
         }
         else
         {
-            if (seat-- == Seats.begin())
+            if (seat == Seats.begin())
                 seat = Seats.end();
+            --seat;
         }
 
         // Make sure we don't loop indefinetly

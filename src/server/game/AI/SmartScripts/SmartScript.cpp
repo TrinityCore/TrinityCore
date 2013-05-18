@@ -2578,6 +2578,7 @@ void SmartScript::ProcessEvent(SmartScriptHolder& e, Unit* unit, uint32 var0, ui
                 return;
 
             ProcessTimedAction(e, e.event.minMaxRepeat.repeatMin, e.event.minMaxRepeat.repeatMax, me->getVictim());
+            break;
         }
         case SMART_EVENT_FRIENDLY_HEALTH:
         {

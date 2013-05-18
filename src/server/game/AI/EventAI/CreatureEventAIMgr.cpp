@@ -251,6 +251,7 @@ void CreatureEventAIMgr::LoadCreatureEventAI_Scripts()
                             TC_LOG_ERROR(LOG_FILTER_SQL, "CreatureEventAI:  Creature %u are using spawned event(%u) with param1 = %u 'area specific' but with not existed area (%u) in param2. Event will never repeat.",
                                            temp.creature_id, i, temp.spawned.condition, temp.spawned.conditionValue1);
                         }
+                        break;
                     default:
                         TC_LOG_ERROR(LOG_FILTER_SQL, "CreatureEventAI:  Creature %u are using invalid spawned event %u mode (%u) in param1", temp.creature_id, i, temp.spawned.condition);
                         break;

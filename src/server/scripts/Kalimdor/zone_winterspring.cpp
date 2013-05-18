@@ -182,10 +182,8 @@ public:
           }
 
           if (!found)
-          {
               return;
-          }
-
+ 
           DoNextDialogueStep();
       }
 
@@ -210,7 +208,7 @@ private:
     void DoNextDialogueStep()
     {
         // Last Dialogue Entry done?
-        if (_currentEntry && !_currentEntry->TextEntry)
+        if (!_currentEntry || !_currentEntry->TextEntry)
         {
             _actionTimer = 0;
             return;

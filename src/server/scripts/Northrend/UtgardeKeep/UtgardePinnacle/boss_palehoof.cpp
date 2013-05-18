@@ -23,6 +23,7 @@ SDComment:
 SDCategory:
 Script Data End */
 
+#include <algorithm>
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "utgarde_pinnacle.h"
@@ -105,20 +106,25 @@ public:
         uint32 uiWaitingTimer;
         Phase currentPhase;
         uint8 AddCount;
-        bool DoneAdds[4];
+        Phase Sequence[4];
 
         InstanceScript* instance;
 
         void Reset()
         {
+            /// There is a good reason to store them like this, we are going to shuffle the order.
+            for (uint32 i = PHASE_FRENZIED_WORGEN; i < PHASE_GORTOK_PALEHOOF; ++i)
+                Sequence[i] = Phase(i);
+            
+            /// This ensures a random order and only executes each phase once.
+            std::random_shuffle(Sequence, Sequence + PHASE_GORTOK_PALEHOOF);
+            
             uiArcingSmashTimer = 15000;
             uiImpaleTimer = 12000;
             uiWhiteringRoarTimer = 10000;
 
             me->GetMotionMaster()->MoveTargetedHome();
 
-            for (uint32 i = 0; i < 4; i++)
-                DoneAdds[i] = false;
             AddCount = 0;
 
             currentPhase = PHASE_NONE;
@@ -235,26 +241,7 @@ public:
             if (AddCount >= DUNGEON_MODE(2, 4))
                 move = PHASE_GORTOK_PALEHOOF;
             else
-            {
-                //select random not yet defeated add
-                uint8 next = urand(0, 3);
-                for (uint8 i = 0; i < 16; i++)
-                {
-                    if (!DoneAdds[i % 4])
-                    {
-                        if (next == 0)
-                        {
-                            move = (Phase)(i % 4);
-                            break;
-                        }
-                        else if (next > 0)
-                            --next;
-                    }
-                }
-                ++AddCount;
-                DoneAdds[move] = true;
-                move = (Phase)(move % 4);
-            }
+                move = Sequence[AddCount++];
             //send orb to summon spot
             Creature* pOrb = Unit::GetCreature((*me), instance ? instance->GetData64(DATA_MOB_ORB) : 0);
             if (pOrb && pOrb->isAlive())
