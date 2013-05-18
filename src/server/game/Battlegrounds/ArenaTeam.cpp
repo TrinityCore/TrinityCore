@@ -367,31 +367,31 @@ void ArenaTeam::Roster(WorldSession* session)
     uint8 unk308 = 0;
 
     WorldPacket data(SMSG_ARENA_TEAM_ROSTER, 100);
-    data << uint32(GetId());                                // team id
-    data << uint8(unk308);                                  // 308 unknown value but affect packet structure
-    data << uint32(GetMembersSize());                       // members count
-    data << uint32(GetType());                              // arena team type?
+    data << uint32(GetId());                                    // team id
+    data << uint8(unk308);                                      // 3.0.8 unknown value but affect packet structure
+    data << uint32(GetMembersSize());                           // members count
+    data << uint32(GetType());                                  // arena team type?
 
     for (MemberList::const_iterator itr = Members.begin(); itr != Members.end(); ++itr)
     {
         player = ObjectAccessor::FindPlayer(itr->Guid);
 
-        data << uint64(itr->Guid);                          // guid
+        data << uint64(itr->Guid);                              // guid
         data << uint8((player ? 1 : 0));                        // online flag
-        data << itr->Name;                                  // member name
-        data << uint32((itr->Guid == GetCaptain() ? 0 : 1));// captain flag 0 captain 1 member
-        data << uint8((player ? player->getLevel() : 0));           // unknown, level?
-        data << uint8(itr->Class);                          // class
-        data << uint32(itr->WeekGames);                    // played this week
-        data << uint32(itr->WeekWins);                     // wins this week
-        data << uint32(itr->SeasonGames);                  // played this season
-        data << uint32(itr->SeasonWins);                   // wins this season
-        data << uint32(itr->PersonalRating);               // personal rating
-        if (unk308)
-        {
-            data << float(0.0f);                           // 308 unk
-            data << float(0.0f);                           // 308 unk
-        }
+        data << itr->Name;                                      // member name
+        data << uint32((itr->Guid == GetCaptain() ? 0 : 1));    // captain flag 0 captain 1 member
+        data << uint8((player ? player->getLevel() : 0));       // unknown, level?
+        data << uint8(itr->Class);                              // class
+        data << uint32(itr->WeekGames);                         // played this week
+        data << uint32(itr->WeekWins);                          // wins this week
+        data << uint32(itr->SeasonGames);                       // played this season
+        data << uint32(itr->SeasonWins);                        // wins this season
+        data << uint32(itr->PersonalRating);                    // personal rating
+        //if (unk308)
+        //{
+        //    data << float(0.0f);                              // 308 unk
+        //    data << float(0.0f);                              // 308 unk
+        //}
     }
 
     session->SendPacket(&data);

@@ -2551,8 +2551,9 @@ void Player::Regenerate(Powers power)
         case POWER_RUNE:
         case POWER_FOCUS:
         case POWER_HAPPINESS:
-        case POWER_HEALTH:
             break;
+        case POWER_HEALTH:
+            return;
         default:
             break;
     }
@@ -4150,6 +4151,7 @@ void Player::removeSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
             //    learnSpell(prev_id, false);
         }
         // if ranked non-stackable spell: need activate lesser rank and update dendence state
+        /// No need to check for spellInfo != NULL here because if cur_active is true, then that means that the spell was already in m_spells, and only valid spells can be pushed there.
         else if (cur_active && !spellInfo->IsStackableWithRanks() && spellInfo->IsRanked())
         {
             // need manually update dependence state (learn spell ignore like attempts)

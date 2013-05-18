@@ -482,7 +482,7 @@ public:
         char* arg3 = strtok(NULL, " ");
         bool isAccountNameGiven = true;
 
-        if (arg1 && !arg3)
+        if (!arg3)
         {
             if (!handler->getSelectedPlayer())
                 return false;
