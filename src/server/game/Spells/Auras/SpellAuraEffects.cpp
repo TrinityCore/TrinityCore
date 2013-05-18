@@ -1697,19 +1697,23 @@ void AuraEffect::HandleAuraModShapeshift(AuraApplication const* aurApp, uint8 mo
                     switch (GetMiscValue())
                     {
                         case FORM_CAT:
+                        {
                             int32 basePoints = int32(std::min(oldPower, FurorChance));
                             target->SetPower(POWER_ENERGY, 0);
                             target->CastCustomSpell(target, 17099, &basePoints, NULL, NULL, true, NULL, this);
                             break;
+                        }
                         case FORM_BEAR:
                         case FORM_DIREBEAR:
                             if (urand(0, 99) < FurorChance)
                                 target->CastSpell(target, 17057, true);
                             break;
                         default:
+                        {
                             uint32 newEnergy = std::min(target->GetPower(POWER_ENERGY), FurorChance);
                             target->SetPower(POWER_ENERGY, newEnergy);
                             break;
+                        }
                     }
                     break;
                 }
