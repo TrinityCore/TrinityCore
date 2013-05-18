@@ -7478,7 +7478,7 @@ bool Unit::HandleAuraProc(Unit* victim, uint32 damage, Aura* triggeredByAura, Sp
         case SPELLFAMILY_PALADIN:
         {
             // Infusion of Light
-            if (dummySpell->SpellIconID == 3021)
+            if (procSpell && dummySpell->SpellIconID == 3021)
             {
                 // Flash of Light HoT on Flash of Light when Sacred Shield active
                 if (procSpell->SpellFamilyFlags[0] & 0x40000000 && procSpell->SpellIconID == 242)
@@ -7509,6 +7509,8 @@ bool Unit::HandleAuraProc(Unit* victim, uint32 damage, Aura* triggeredByAura, Sp
             // Glyph of Divinity
             else if (dummySpell->Id == 54939)
             {
+                if (!procSpell)
+                    return false;
                 *handled = true;
                 // Check if we are the target and prevent mana gain
                 if (victim && triggeredByAura->GetCasterGUID() == victim->GetGUID())
@@ -16837,7 +16839,7 @@ void Unit::_EnterVehicle(Vehicle* vehicle, int8 seatId, AuraApplication const* a
         }
     }
 
-    if (aurApp && aurApp->GetRemoveMode())
+    if (!aurApp || aurApp->GetRemoveMode())
         return;
 
     if (Player* player = ToPlayer())
