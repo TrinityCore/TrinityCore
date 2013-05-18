@@ -251,8 +251,6 @@ void BattlegroundWS::RespawnFlagAfterDrop(uint32 team)
     if (GetStatus() != STATUS_IN_PROGRESS)
         return;
 
-    Player* source;
-
     RespawnFlag(team, false);
     if (team == ALLIANCE)
     {

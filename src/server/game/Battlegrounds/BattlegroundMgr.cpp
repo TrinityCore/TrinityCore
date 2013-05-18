@@ -1260,6 +1260,6 @@ void BattlegroundMgr::HandleCrossfactionSendToBattle(Player* player, Battlegroun
         else if (player->GetBGTeam() == ALLIANCE)
             player->setFaction(1); // Alliance Faction
     }
-    bg->UpdatePlayersCountByTeam(player->GetBGTeam(), true); // Add here instead of in AddPlayer, because AddPlayer is not made until loading screen is finished. Which can cause unbalance in the system.
+    bg->UpdatePlayersCountByTeam(player->GetBGTeam(), false); // Add here instead of in AddPlayer, because AddPlayer is not made until loading screen is finished. Which can cause unbalance in the system.
  }
 
