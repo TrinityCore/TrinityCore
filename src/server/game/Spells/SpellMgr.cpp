@@ -2818,6 +2818,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 73788: // Pain and Suffering
             case 73789: // Pain and Suffering
             case 73790: // Pain and Suffering
+            case 63293: // Mimiron - P3Wx2 Laser Barrage
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_CONE_LINE;
                 break;
             case 24340: // Meteor

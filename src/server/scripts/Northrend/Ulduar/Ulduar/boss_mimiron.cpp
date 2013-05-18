@@ -50,53 +50,46 @@ enum Yells
 
 enum Spells
 {
-    SPELL_JETPACK                               = 63341,
-    SPELL_EMERGENCY_MODE                        = 64582,
-    SPELL_SELF_REPAIR                           = 64383,
     // Leviathan MK II
-    SPELL_FLAME_SUPPRESSANT_MK                  = 64570,
-    SPELL_NAPALM_SHELL                          = 63666,
-    SPELL_PLASMA_BLAST                          = 62977,
+    SPELL_MINES_SPAWN                           = 65347,
     SPELL_PROXIMITY_MINES                       = 63027,
+    SPELL_PLASMA_BLAST                          = 62997,
     SPELL_SHOCK_BLAST                           = 63631,
-    // VX 001
-    SPELL_FLAME_SUPPRESSANT_VX                  = 65192,
-    SPELL_FROSTBOMB                             = 64623,
-    SPELL_HAND_PULSE                            = 64348,
-    SPELL_SPINNING_UP                           = 63414,
-    SPELL_RAPID_BURST                           = 63387,
+    SPELL_EXPLOSION                             = 66351,
+    SPELL_NAPALM_SHELL                          = 63666,
+    SPELL_TRIGGER_MISSILE                       = 65347,
+    // VX-001
+    SPELL_RAPID_BURST                           = 63382,
     SPELL_RAPID_BURST_LEFT_10                   = 63387,
     SPELL_RAPID_BURST_RIGHT_10                  = 64019,
     SPELL_RAPID_BURST_LEFT_25                   = 64531,
     SPELL_RAPID_BURST_RIGHT_25                  = 64532,
-    SPELL_P3WX2_LASER_BARRAGE                   = 63293,
-    SPELL_ROCKET_STRIKE                         = 63041,
+    SPELL_ROCKET_STRIKE                         = 63036,
     SPELL_ROCKET_STRIKE_AURA                    = 64064,
+    SPELL_ROCKET_STRIKE_DMG                     = 63041,
+    SPELL_SPINNING_UP                           = 63414,
     SPELL_HEAT_WAVE                             = 63677,
-    SPELL_HOVER                                 = 57764,
+    SPELL_HAND_PULSE                            = 64348,
     // Aerial Command Unit
     SPELL_PLASMA_BALL                           = 63689,
     SPELL_MAGNETIC_CORE                         = 64436,
     SPELL_MAGNETIC_CORE_VISUAL                  = 64438,
-    SPELL_BOMB_BOT                              = 63801,
-    // Additonal spells
+    SPELL_BOOM_BOT                              = 63801,
     SPELL_MAGNETIC_FIELD                        = 64668,
-    SPELL_DEAFENING_SIREN                       = 64616,
-    SPELL_WATER_SPRAY                           = 64619,
-    SPELL_FROST_BOMB_HARD_MODE                  = 64627,
-    SPELL_EXPLOSION                             = 66351,
-    SPELL_DISARM                                = 1842,
-    SPELL_RIDE_VEHICLE                          = 46598,
-    SPELL_TRIGGER_MISSILE                       = 65347,
-    SPELL_ROCKET_STRIKE_DMG                     = 63041,
+    SPELL_HOVER                                 = 57764, // Set Hover position
     SPELL_BERSERK                               = 47008,
+    // Hard Mode
+    SPELL_EMERGENCY_MODE                        = 64582,
     SPELL_FLAME_SUPPRESSANT                     = 64570,
-    SPELL_MINES_SPAWN                           = 65347,
-    SPELL_FLAME                                 = 64561,
     SPELL_FLAME_SUPPRESSANT_VX001               = 65192,
+    SPELL_FLAME                                 = 64561,
     SPELL_FROST_BOMB                            = 64624,
     SPELL_FROST_BOMB_EXPLOSION_10               = 64626,
     SPELL_FROST_BOMB_EXPLOSION_25               = 65333,
+    SPELL_WATER_SPRAY                           = 64619,
+    SPELL_SIREN                                 = 64616,
+    // NPCs
+    SPELL_BOMB_BOT                              = 63801,
 };
 
 enum Npcs
@@ -110,6 +103,7 @@ enum Npcs
     NPC_FLAME                                   = 34363,
     NPC_FLAME_SPREAD                            = 34121,
     NPC_FROST_BOMB                              = 34149,
+    NPC_MKII_TURRET                             = 34071,
 };
 
 enum Events
@@ -137,6 +131,10 @@ enum Events
     EVENT_AERIAL_4,
     EVENT_AERIAL_5,
     EVENT_AERIAL_6,
+    EVENT_V0L7R0N_1,
+    EVENT_V0L7R0N_2,
+    EVENT_V0L7R0N_3,
+    EVENT_V0L7R0N_4,
     // Misc
     EVENT_ENRAGE,
     EVENT_FLAME,
@@ -259,8 +257,6 @@ class boss_mimiron : public CreatureScript
                             creature->AI()->EnterEvadeMode();
                         }
 
-                events.SetPhase(PHASE_NULL);
-                phase = PHASE_NULL;
                 uiBotTimer = 0;
                 MimironHardMode = false;
                 checkBotAlive = true;
@@ -286,7 +282,6 @@ class boss_mimiron : public CreatureScript
                     TalkToMap(SAY_AGGRO);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_ATTACKABLE_1);
                 events.SetPhase(PHASE_INTRO);
-                phase = PHASE_INTRO;
                 events.ScheduleEvent(EVENT_INTRO_2, 10000, 0, PHASE_INTRO);
 
                 if (MimironHardMode)
@@ -331,18 +326,16 @@ class boss_mimiron : public CreatureScript
                 {
                     case DO_ACTIVATE_VX001:
                         events.SetPhase(PHASE_VX001_ACTIVATION);
-                        phase = PHASE_VX001_ACTIVATION;
                         events.ScheduleEvent(EVENT_VX001_1, 200, 0, PHASE_VX001_ACTIVATION);
                         break;
                     case DO_ACTIVATE_AERIAL:
                         events.SetPhase(PHASE_AERIAL_ACTIVATION);
-                        phase = PHASE_AERIAL_ACTIVATION;
-                        events.ScheduleEvent(EVENT_AERIAL_1, 200, 0, PHASE_VX001_ACTIVATION);
+                        events.ScheduleEvent(EVENT_AERIAL_1, 200, 0, PHASE_AERIAL_ACTIVATION);
                         break;
                     case DO_ACTIVATE_V0L7R0N:
                         me->SetVisible(true);
-                        phase = PHASE_V0L7R0N_ACTIVATION;
-                        //JumpToNextStep(1000);
+                        events.SetPhase(PHASE_V0L7R0N_ACTIVATION);
+                        events.ScheduleEvent(EVENT_V0L7R0N_1, 1000, 0, PHASE_V0L7R0N_ACTIVATION);
                         break;
                     case DO_ACTIVATE_DEATH_TIMER:
                         checkBotAlive = false;
@@ -361,15 +354,54 @@ class boss_mimiron : public CreatureScript
 
                 events.Update(diff);
 
+                if (checkBotAlive)
+                    uiBotTimer = 0;
+                else
+                {
+                    uiBotTimer += diff;
+                    if (uiBotTimer > 10000)
+                    {
+                        if (Creature* Leviathan = me->GetCreature(*me, instance->GetData64(DATA_LEVIATHAN_MK_II)))
+                            Leviathan->AI()->DoAction(DO_LEVIATHAN_ASSEMBLED);
+                        if (Creature* VX_001 = me->GetCreature(*me, instance->GetData64(DATA_VX_001)))
+                            VX_001->AI()->DoAction(DO_VX001_ASSEMBLED);
+                        if (Creature* AerialUnit = me->GetCreature(*me, instance->GetData64(DATA_AERIAL_UNIT)))
+                            AerialUnit->AI()->DoAction(DO_AERIAL_ASSEMBLED);
+
+                        checkBotAlive = true;
+                    }
+                    else
+                    {
+                        if (Creature* Leviathan = me->GetCreature(*me, instance->GetData64(DATA_LEVIATHAN_MK_II)))
+                            if (Creature* VX_001 = me->GetCreature(*me, instance->GetData64(DATA_VX_001)))
+                                if (Creature* AerialUnit = me->GetCreature(*me, instance->GetData64(DATA_AERIAL_UNIT)))
+                                    if (Leviathan->getStandState() == UNIT_STAND_STATE_DEAD)
+                                        if (VX_001->getStandState() == UNIT_STAND_STATE_DEAD)
+                                            if (AerialUnit->getStandState() == UNIT_STAND_STATE_DEAD)
+                                            {
+                                                Leviathan->DisappearAndDie();
+                                                VX_001->DisappearAndDie();
+                                                AerialUnit->DisappearAndDie();
+                                                DespawnCreatures(NPC_ROCKET, 100);
+                                                DespawnCreatures(NPC_MKII_TURRET, 100);
+                                                me->ExitVehicle();
+                                                EndEncounter();
+                                                checkBotAlive = true;
+                                            }
+                    }
+                }
+
                 while (uint32 eventId = events.ExecuteEvent())
                 {
                     switch (eventId)
                     {
                         case EVENT_INTRO_2:
                             if (instance)
+                            {
                                 if (Creature* Leviathan = me->GetCreature(*me, instance->GetData64(DATA_LEVIATHAN_MK_II)))
                                     me->EnterVehicle(Leviathan, 4);
-                            events.ScheduleEvent(EVENT_INTRO_3, 2000, 0, PHASE_INTRO);
+                                events.ScheduleEvent(EVENT_INTRO_3, 2000, 0, PHASE_INTRO);
+                            }
                             break;
                         case EVENT_INTRO_3:
                             me->ChangeSeat(2);
@@ -391,12 +423,14 @@ class boss_mimiron : public CreatureScript
                             break;
                         case EVENT_INTRO_7:
                             if (instance)
+                            {
                                  if (Creature* Leviathan = me->GetCreature(*me, instance->GetData64(DATA_LEVIATHAN_MK_II)))
                                  {
                                     me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_STAND);
                                     Leviathan->AI()->DoAction(DO_START_ENCOUNTER);
                                     events.SetPhase(PHASE_COMBAT);
                                  }
+                            }
                             break;
                         case EVENT_VX001_1:
                             TalkToMap(SAY_MKII_DEATH);
@@ -407,11 +441,14 @@ class boss_mimiron : public CreatureScript
                             events.ScheduleEvent(EVENT_VX001_3, 2000, 0, PHASE_VX001_ACTIVATION);
                         case EVENT_VX001_3:
                             if (instance)
+                            {
                                 instance->SetData(DATA_MIMIRON_ELEVATOR, GO_STATE_READY);
-                            events.ScheduleEvent(EVENT_VX001_4, 5000, 0, PHASE_VX001_ACTIVATION);
+                                events.ScheduleEvent(EVENT_VX001_4, 5000, 0, PHASE_VX001_ACTIVATION);
+                            }
                             break;
                         case EVENT_VX001_4:
                             if (instance)
+                            {
                                 if (Creature* VX_001 = me->SummonCreature(NPC_VX_001, 2744.65f, 2569.46f, 364.397f, 3.14159f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000))
                                 {
                                     instance->SetData(DATA_MIMIRON_ELEVATOR, GO_STATE_ACTIVE_ALTERNATIVE);
@@ -425,13 +462,16 @@ class boss_mimiron : public CreatureScript
                                         }
                                     }
                                 }
-                            events.ScheduleEvent(EVENT_VX001_5, 8000, 0, PHASE_VX001_ACTIVATION);
+                                events.ScheduleEvent(EVENT_VX001_5, 8000, 0, PHASE_VX001_ACTIVATION);
+                            }
                             break;
                         case EVENT_VX001_5:
                             if (instance)
+                            {
                                 if (Creature* VX_001 = me->GetCreature(*me, instance->GetData64(DATA_VX_001)))
                                     me->EnterVehicle(VX_001, 0);
-                            events.ScheduleEvent(EVENT_VX001_6, 3500, 0, PHASE_VX001_ACTIVATION);
+                                events.ScheduleEvent(EVENT_VX001_6, 3500, 0, PHASE_VX001_ACTIVATION);
+                            }
                             break;
                         case EVENT_VX001_6:
                             me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_TALK);
@@ -441,22 +481,26 @@ class boss_mimiron : public CreatureScript
                         case EVENT_VX001_7:
                             me->ChangeSeat(1);
                             me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_SIT);
-                            events.ScheduleEvent(EVENT_VX001_7, 2000, 0, PHASE_VX001_ACTIVATION);
+                            events.ScheduleEvent(EVENT_VX001_8, 2000, 0, PHASE_VX001_ACTIVATION);
                             break;
                         case EVENT_VX001_8:
                             if (instance)
+                            {
                                 if (Creature* VX_001 = me->GetCreature(*me, instance->GetData64(DATA_VX_001)))
                                     VX_001->HandleEmoteCommand(EMOTE_ONESHOT_EMERGE);
-                            events.ScheduleEvent(EVENT_VX001_9, 3500, 0, PHASE_VX001_ACTIVATION);
+                                events.ScheduleEvent(EVENT_VX001_9, 3500, 0, PHASE_VX001_ACTIVATION);
+                            }
                             break;
                         case EVENT_VX001_9:
                             if (instance)
+                            {
                                 if (Creature* VX_001 = me->GetCreature(*me, instance->GetData64(DATA_VX_001)))
                                 {
                                     VX_001->AddAura(SPELL_HOVER, VX_001); // Hover
                                     VX_001->AI()->DoAction(DO_START_VX001);
                                     events.SetPhase(PHASE_COMBAT);
                                 }
+                            }
                             break;
                         case EVENT_AERIAL_1:
                             me->ChangeSeat(4);
@@ -471,9 +515,11 @@ class boss_mimiron : public CreatureScript
                         case EVENT_AERIAL_3:
                             me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_STAND);
                             if (instance)
+                            {
                                 if (Creature* AerialUnit = me->SummonCreature(NPC_AERIAL_COMMAND_UNIT, 2744.65f, 2569.46f, 380, 3.14159f,  TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000))
                                     AerialUnit->SetVisible(true);
-                            events.ScheduleEvent(EVENT_AERIAL_4, 5000, 0, PHASE_AERIAL_ACTIVATION);
+                                events.ScheduleEvent(EVENT_AERIAL_4, 5000, 0, PHASE_AERIAL_ACTIVATION);
+                            }
                             break;
                         case EVENT_AERIAL_4:
                             me->ExitVehicle();
@@ -489,12 +535,66 @@ class boss_mimiron : public CreatureScript
                         case EVENT_AERIAL_6:
                             me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_STAND);
                             if (instance)
+                            {
                                 if (Creature* AerialUnit = me->GetCreature(*me, instance->GetData64(DATA_AERIAL_UNIT)))
                                 {
                                     AerialUnit->AI()->DoAction(DO_START_AERIAL);
-                                    phase = PHASE_COMBAT;
                                     events.SetPhase(PHASE_COMBAT);
                                 }
+                            }
+                            break;
+                        case EVENT_V0L7R0N_1:
+                            if (instance)
+                            {
+                                if (Creature* Leviathan = me->GetCreature(*me, instance->GetData64(DATA_LEVIATHAN_MK_II)))
+                                    Leviathan->GetMotionMaster()->MovePoint(0, 2744.65f, 2569.46f, 364.397f);
+                                if (Creature* VX_001 = me->GetCreature(*me, instance->GetData64(DATA_VX_001)))
+                                {
+                                    me->EnterVehicle(VX_001, 1);
+                                    me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_STAND);
+                                    TalkToMap(SAY_AERIAL_DEATH);
+                                }
+                                events.ScheduleEvent(EVENT_V0L7R0N_2, 5000, 0, PHASE_V0L7R0N_ACTIVATION);
+                            }
+                            break;
+                        case EVENT_V0L7R0N_2:
+                            if (instance)
+                            {
+                                if (Creature* VX_001 = me->GetCreature(*me, instance->GetData64(DATA_VX_001)))
+                                    if (Creature* Leviathan = me->GetCreature(*me, instance->GetData64(DATA_LEVIATHAN_MK_II)))
+                                    {
+                                        VX_001->SetStandState(UNIT_STAND_STATE_STAND);
+                                        VX_001->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_CUSTOM_SPELL_01);
+                                        VX_001->EnterVehicle(Leviathan, 7);
+                                    }
+                                events.ScheduleEvent(EVENT_V0L7R0N_3, 2000, 0, PHASE_V0L7R0N_ACTIVATION);
+                            }
+                            break;
+                        case EVENT_V0L7R0N_3:
+                            if (instance)
+                            {
+                                if (Creature* VX_001 = me->GetCreature(*me, instance->GetData64(DATA_VX_001)))
+                                    if (Creature* AerialUnit = me->GetCreature(*me, instance->GetData64(DATA_AERIAL_UNIT)))
+                                    {
+                                        AerialUnit->CanFly();
+                                        AerialUnit->SetDisableGravity(false);
+                                        AerialUnit->EnterVehicle(VX_001, 3);
+                                        TalkToMap(SAY_V07TRON_ACTIVATE);
+                                    }
+                                events.ScheduleEvent(EVENT_V0L7R0N_4, 10000, 0, PHASE_V0L7R0N_ACTIVATION);
+                            }
+                            break;
+                        case EVENT_V0L7R0N_4:
+                            if (instance)
+                            {
+                                if (Creature* Leviathan = me->GetCreature(*me, instance->GetData64(DATA_LEVIATHAN_MK_II)))
+                                    Leviathan->AI()->DoAction(DO_LEVIATHAN_ASSEMBLED);
+                                if (Creature* VX_001 = me->GetCreature(*me, instance->GetData64(DATA_VX_001)))
+                                    VX_001->AI()->DoAction(DO_VX001_ASSEMBLED);
+                                if (Creature* AerialUnit = me->GetCreature(*me, instance->GetData64(DATA_AERIAL_UNIT)))
+                                    AerialUnit->AI()->DoAction(DO_AERIAL_ASSEMBLED);
+                                events.SetPhase(PHASE_COMBAT);
+                            }
                             break;
                         case EVENT_ENRAGE:
                             TalkToMap(SAY_BERSERK);
@@ -520,7 +620,6 @@ class boss_mimiron : public CreatureScript
             uint32 uiBotTimer;
             bool checkBotAlive;
             bool Enraged;
-            Phases phase;
             EventMap events;
         };
 
@@ -553,9 +652,10 @@ class boss_leviathan_mk : public CreatureScript
                 me->RemoveAllAurasExceptType(SPELL_AURA_CONTROL_VEHICLE);
                 phase = PHASE_NULL;
                 events.SetPhase(PHASE_NULL);
-                if (Unit* turret = me->GetVehicleKit()->GetPassenger(3))
+                if (Creature *turret = CAST_CRE(me->GetVehicleKit()->GetPassenger(3)))
                 {
                     turret->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_ATTACKABLE_1);
+                    turret->SetReactState(REACT_PASSIVE);
                 }
             }
 
@@ -585,6 +685,8 @@ class boss_leviathan_mk : public CreatureScript
                         phase = PHASE_NULL;
                         if (Creature* Mimiron = me->GetCreature(*me, instance->GetData64(DATA_MIMIRON)))
                             Mimiron->AI()->DoAction(DO_ACTIVATE_VX001);
+                        if (Creature* turret = CAST_CRE(me->GetVehicleKit()->GetPassenger(3)))
+                            turret->Kill(turret, false);
                         me->SetSpeed(MOVE_RUN, 1.5f, true);
                         me->GetMotionMaster()->MovePoint(0, 2790.11f, 2595.83f, 364.32f);
                     }
@@ -614,9 +716,11 @@ class boss_leviathan_mk : public CreatureScript
                     events.ScheduleEvent(EVENT_FLAME_SUPPRESSANT, 60000, 0, PHASE_LEVIATHAN_SOLO);
                 }
 
-                if (Unit* turret = me->GetVehicleKit()->GetPassenger(3))
+                if (Creature* turret = CAST_CRE(me->GetVehicleKit()->GetPassenger(3)))
                 {
                     turret->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_ATTACKABLE_1);
+                    turret->SetReactState(REACT_AGGRESSIVE);
+                    turret->AI()->DoZoneInCombat();
                 }
 
                 events.ScheduleEvent(EVENT_PROXIMITY_MINE, 1000);
@@ -773,7 +877,7 @@ class npc_proximity_mine : public CreatureScript
                 if (!Boom && me->IsWithinDistInMap(who, 0.5f) && who->ToPlayer() && !who->ToPlayer()->isGameMaster())
                 {
                     DoCastAOE(SPELL_EXPLOSION);
-					me->DespawnOrUnsummon(1000);
+                    me->DespawnOrUnsummon(1000);
                     Boom = true;
                 }
             }
@@ -997,11 +1101,11 @@ class boss_vx_001 : public CreatureScript
                                 break;
                             case EVENT_ROCKET_STRIKE:
                                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                                    if (Unit* missile = me->GetVehicleKit()->GetPassenger(5))
+                                    if (Creature* missile = CAST_CRE(me->GetVehicleKit()->GetPassenger(5)))
                                         missile->CastSpell(target, SPELL_ROCKET_STRIKE, true);
                                 if (phase == PHASE_VX001_ASSEMBLED)
                                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                                        if (Unit* missile = me->GetVehicleKit()->GetPassenger(6))
+                                        if (Creature* missile = CAST_CRE(me->GetVehicleKit()->GetPassenger(6)))
                                             missile->CastSpell(target, SPELL_ROCKET_STRIKE, true);
                                 events.RescheduleEvent(EVENT_ROCKET_STRIKE, urand(20000, 25000));
                                 break;
