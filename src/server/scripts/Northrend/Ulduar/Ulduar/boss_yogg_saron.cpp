@@ -425,7 +425,7 @@ class boss_voice_of_yogg_saron : public CreatureScript
 
         struct boss_voice_of_yogg_saronAI : public BossAI
         {
-            boss_voice_of_yogg_saronAI(Creature* creature) : BossAI(creature, BOSS_YOGG_SARON)
+            boss_voice_of_yogg_saronAI(Creature* creature) : BossAI(creature, DATA_YOGG_SARON)
             {
                 SetCombatMovement(false);
             }
@@ -503,7 +503,7 @@ class boss_voice_of_yogg_saron : public CreatureScript
             void JustDied(Unit* killer)
             {
                 // don't despawn Yogg-Saron's corpse, remove him from SummonList!
-                if (Creature* yogg = ObjectAccessor::GetCreature(*me, instance->GetData64(BOSS_YOGG_SARON)))
+                if (Creature* yogg = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_YOGG_SARON)))
                     summons.Despawn(yogg);
 
                 BossAI::JustDied(killer);
@@ -525,10 +525,10 @@ class boss_voice_of_yogg_saron : public CreatureScript
                     {
                         case EVENT_LOCK_DOOR:
                             DoCast(me, SPELL_INSANE_PERIODIC);
-                            instance->SetBossState(BOSS_YOGG_SARON, IN_PROGRESS);
+                            instance->SetBossState(DATA_YOGG_SARON, IN_PROGRESS);
                             break;
                         case EVENT_EXTINGUISH_ALL_LIFE:
-                            if (Creature* yogg = ObjectAccessor::GetCreature(*me, instance->GetData64(BOSS_YOGG_SARON)))
+                            if (Creature* yogg = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_YOGG_SARON)))
                             {
                                 yogg->AI()->Talk(EMOTE_YOGG_SARON_EXTINGUISH_ALL_LIFE, me->GetGUID());
                                 yogg->CastSpell((Unit*)NULL, SPELL_EXTINGUISH_ALL_LIFE, true);
@@ -556,7 +556,7 @@ class boss_voice_of_yogg_saron : public CreatureScript
                             break;
                         case EVENT_ILLUSION:
                         {
-                            if (Creature* yogg = ObjectAccessor::GetCreature(*me, instance->GetData64(BOSS_YOGG_SARON)))
+                            if (Creature* yogg = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_YOGG_SARON)))
                             {
                                 yogg->AI()->Talk(EMOTE_YOGG_SARON_MADNESS);
                                 yogg->AI()->Talk(SAY_YOGG_SARON_MADNESS);
@@ -794,7 +794,7 @@ class boss_sara : public CreatureScript
                             break;
                         case EVENT_TRANSFORM_4:
                             DoCast(me, SPELL_PHASE_2_TRANSFORM);
-                            if (Creature* yogg = ObjectAccessor::GetCreature(*me, _instance->GetData64(BOSS_YOGG_SARON)))
+                            if (Creature* yogg = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_YOGG_SARON)))
                                 DoCast(yogg, SPELL_RIDE_YOGG_SARON_VEHICLE);
                             DoCast(me, SPELL_SHADOWY_BARRIER_SARA);
                             _events.SetPhase(PHASE_TWO);
@@ -1036,7 +1036,7 @@ class boss_brain_of_yogg_saron : public CreatureScript
                         voice->AI()->DoAction(ACTION_PHASE_THREE);
                     if (Creature* sara = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_SARA)))
                         sara->AI()->DoAction(ACTION_PHASE_THREE);
-                    if (Creature* yogg = ObjectAccessor::GetCreature(*me, _instance->GetData64(BOSS_YOGG_SARON)))
+                    if (Creature* yogg = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_YOGG_SARON)))
                         yogg->AI()->DoAction(ACTION_PHASE_THREE);
 
                     for (uint8 i = DATA_THORIM_YS; i <= DATA_MIMIRON_YS; ++i)
@@ -3076,7 +3076,7 @@ class spell_yogg_saron_in_the_maws_of_the_old_god : public SpellScriptLoader    
             SpellCastResult CheckRequirement()
             {
                 if (InstanceScript* instance = GetCaster()->GetInstanceScript())
-                    if (Creature* yogg = ObjectAccessor::GetCreature(*GetCaster(), instance->GetData64(BOSS_YOGG_SARON)))
+                    if (Creature* yogg = ObjectAccessor::GetCreature(*GetCaster(), instance->GetData64(DATA_YOGG_SARON)))
                         if (yogg->FindCurrentSpellBySpellId(SPELL_DEAFENING_ROAR))
                             if (GetCaster()->GetDistance(yogg) > 20.0f)
                                 return SPELL_FAILED_OUT_OF_RANGE;
