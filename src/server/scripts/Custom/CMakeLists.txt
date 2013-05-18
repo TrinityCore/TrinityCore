@@ -19,6 +19,7 @@ set(scripts_STAT_SRCS
   Custom/Transmogrification.cpp
   Custom/ArenaFastStart.cpp
   Custom/ArenaSpectate.cpp
+  Custom/ChangeToken.cpp
 )
 
 message("  -> Prepared: Custom")

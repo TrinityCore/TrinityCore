@@ -32,6 +32,8 @@ void AddSC_guru_event();
 void AddSC_NPC_Transmogrify();
 void AddSC_arena_spectator_script();
 void AddSC_fast_arena_start();
+void AddSC_npc_change();
+void AddSC_vitality_pvp_island();
 
 // spells
 void AddSC_deathknight_spell_scripts();
@@ -1318,7 +1320,9 @@ void AddCustomScripts()
     AddSC_guru_event();
     AddSC_NPC_Transmogrify();
     AddSC_fast_arena_start();
+    AddSC_npc_change();
     AddSC_arena_spectator_script();
+    AddSC_vitality_pvp_island();
 
 #endif
 }
