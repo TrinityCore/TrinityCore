@@ -3342,7 +3342,7 @@ void Spell::handle_immediate()
     if (m_spellInfo->IsChanneled())
     {
         int32 duration = m_spellInfo->GetDuration();
-        if (duration)
+        if (duration > 0)
         {
             // First mod_duration then haste - see Missile Barrage
             // Apply duration mod
