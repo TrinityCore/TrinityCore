@@ -42,11 +42,11 @@ enum Spells
 
 enum Events
 {
-    EVENT_DISMEMBER             = 0,
-    EVENT_GATHERING_SPEED       = 1,
-    EVENT_FULL_SPEED            = 2,
-    EVENT_CREEPING_PLAGUE       = 3,
-    EVENT_RESPAWN_EGG           = 4
+    EVENT_DISMEMBER             = 1,
+    EVENT_GATHERING_SPEED       = 2,
+    EVENT_FULL_SPEED            = 3,
+    EVENT_CREEPING_PLAGUE       = 4,
+    EVENT_RESPAWN_EGG           = 5
 };
 
 enum Phases
