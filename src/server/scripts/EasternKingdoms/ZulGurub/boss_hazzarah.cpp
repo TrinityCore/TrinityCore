@@ -35,9 +35,9 @@ enum Spells
 
 enum Events
 {
-    EVENT_MANABURN              = 0,
-    EVENT_SLEEP                 = 1,
-    EVENT_ILLUSIONS             = 2
+    EVENT_MANABURN              = 1,
+    EVENT_SLEEP                 = 2,
+    EVENT_ILLUSIONS             = 3
 };
 
 class boss_hazzarah : public CreatureScript
