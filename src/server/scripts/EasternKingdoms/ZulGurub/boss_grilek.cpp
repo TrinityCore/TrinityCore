@@ -35,8 +35,8 @@ enum Spells
 
 enum Events
 {
-    EVENT_AVATAR                    = 0,
-    EVENT_GROUND_TREMOR             = 1
+    EVENT_AVATAR                    = 1,
+    EVENT_GROUND_TREMOR             = 2
 };
 
 class boss_grilek : public CreatureScript // grilek
