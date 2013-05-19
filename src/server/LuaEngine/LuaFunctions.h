@@ -473,8 +473,9 @@ ElunaRegister<Unit> UnitMethods[] =
     {"Emote", &LuaUnit::Emote},                                     // :Emote(emote) -- UNDOCUMENTED
     {"CountPctFromCurHealth", &LuaUnit::CountPctFromCurHealth},     // :CountPctFromCurHealth(int32 pct) -- UNDOCUMENTED
     {"CountPctFromMaxHealth", &LuaUnit::CountPctFromMaxHealth},     // :CountPctFromMaxHealth() -- UNDOCUMENTED
-    {"Dismount", &LuaUnit::Dismount},								// :Dismount() - Dismounts the unit. UNDOCUMENTED
-    {"Mount", &LuaUnit::Mount},								        // :Mount(displayId) - Mounts the unit on the specified displayId. UNDOCUMENTED
+    {"Dismount", &LuaUnit::Dismount},                                // :Dismount() - Dismounts the unit. UNDOCUMENTED
+    {"Mount", &LuaUnit::Mount},                                     // :Mount(displayId) - Mounts the unit on the specified displayId. UNDOCUMENTED
+    {"Mute", &LuaUnit::Mute},                                       // :Mute(time[, reason]) - Mutes the player for given time in seconds. UNDOCUMENTED
 
     /* Vehicle */
     {"AddVehiclePassenger", &LuaUnit::AddVehiclePassenger},         // :AddVehiclePassenger(unit, seatId) - Adds a passenger to the vehicle by specifying a unit and seatId

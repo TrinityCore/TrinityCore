@@ -143,6 +143,8 @@ enum ServerEvents
     PLAYER_EVENT_ON_LOGIN_FIRST             =     75,           // (event, player)
     PLAYER_EVENT_ON_CAN_USE_ITEM            =     76,           // (event, player, itemEntry)
     PLAYER_EVENT_ON_LOOT_ITEM               =     77,           // (event, player, item, count)
+    PLAYER_EVENT_ON_ENTER_COMBAT            =     78,           // (event, player, enemy)
+    PLAYER_EVENT_ON_LEAVE_COMBAT            =     79,           // (event, player)
 
     SERVER_EVENT_COUNT
 };

@@ -1368,6 +1368,16 @@ void ScriptMgr::OnPlayerUpdateZone(Player* player, uint32 newZone, uint32 newAre
     FOREACH_SCRIPT(PlayerScript)->OnUpdateZone(player, newZone, newArea);
 }
 
+void ScriptMgr::OnPlayerEnterCombat(Player* player, Unit* enemy)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnPlayerEnterCombat(player, enemy);
+}
+
+void ScriptMgr::OnPlayerLeaveCombat(Player* player)
+{
+    FOREACH_SCRIPT(PlayerScript)->OnPlayerLeaveCombat(player);
+}
+
 // Guild
 void ScriptMgr::OnGuildAddMember(Guild* guild, Player* player, uint8& plRank)
 {

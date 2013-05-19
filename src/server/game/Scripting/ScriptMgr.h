@@ -757,6 +757,12 @@ class PlayerScript : public UnitScript
 
         // Called when a player changes to a new map (after moving to new map)
         virtual void OnMapChanged(Player* /*player*/) { }
+
+        // Called when a player enters combat
+        virtual void OnPlayerEnterCombat(Player* /*player*/, Unit* /*enemy*/) { }
+
+        // Called when a player leaves combat
+        virtual void OnPlayerLeaveCombat(Player* /*player*/) { }
 };
 
 class GuildScript : public ScriptObject
@@ -1031,6 +1037,8 @@ class ScriptMgr
         void OnPlayerSave(Player* player);
         void OnPlayerBindToInstance(Player* player, Difficulty difficulty, uint32 mapid, bool permanent);
         void OnPlayerUpdateZone(Player* player, uint32 newZone, uint32 newArea);
+        void OnPlayerEnterCombat(Player* player, Unit* enemy);
+        void OnPlayerLeaveCombat(Player* player);
 
     public: /* GuildScript */
 

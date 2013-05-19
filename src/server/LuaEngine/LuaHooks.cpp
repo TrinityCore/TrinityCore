@@ -280,6 +280,7 @@ public:
                 lua_pushnil(sEluna->LuaState);
             sEluna->ExecuteCall(4, 0);
         }
+        player->SendEquipError((InventoryResult)83, item, NULL);
         return true;
     }
     bool OnExpire(Player* player, ItemTemplate const* proto)
@@ -792,6 +793,29 @@ class Eluna_PlayerScript : public PlayerScript
 {
 public:
     Eluna_PlayerScript() : PlayerScript("Eluna_PlayerScript") { }
+    void OnPlayerEnterCombat(Player* player, Unit* enemy)
+    {
+        for (std::vector<int>::iterator itr = sEluna->ServerEventBindings[PLAYER_EVENT_ON_ENTER_COMBAT].begin();
+            itr != sEluna->ServerEventBindings[PLAYER_EVENT_ON_ENTER_COMBAT].end(); ++itr)
+        {
+            sEluna->BeginCall((*itr));
+            sEluna->PushUnsigned(sEluna->LuaState, PLAYER_EVENT_ON_ENTER_COMBAT);
+            sEluna->PushUnit(sEluna->LuaState, player);
+            sEluna->PushUnit(sEluna->LuaState, enemy);
+            sEluna->ExecuteCall(3, 0);
+        }
+    }
+    void OnPlayerLeaveCombat(Player* player)
+    {
+        for (std::vector<int>::iterator itr = sEluna->ServerEventBindings[PLAYER_EVENT_ON_LEAVE_COMBAT].begin();
+            itr != sEluna->ServerEventBindings[PLAYER_EVENT_ON_LEAVE_COMBAT].end(); ++itr)
+        {
+            sEluna->BeginCall((*itr));
+            sEluna->PushUnsigned(sEluna->LuaState, PLAYER_EVENT_ON_LEAVE_COMBAT);
+            sEluna->PushUnit(sEluna->LuaState, player);
+            sEluna->ExecuteCall(2, 0);
+        }
+    }
     void OnPVPKill(Player* killer, Player* killed)
     {
         for (std::vector<int>::iterator itr = sEluna->ServerEventBindings[PLAYER_EVENT_ON_KILL_PLAYER].begin();

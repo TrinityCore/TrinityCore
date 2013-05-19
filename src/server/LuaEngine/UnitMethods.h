@@ -12,6 +12,25 @@
 class LuaUnit
 {
 public:
+    // Mute(time[, reason])
+    static int Mute(lua_State* L, Unit* unit)
+    {
+        TO_PLAYER();
+
+        uint32 muteseconds = luaL_checkunsigned(L, 1);
+        const char* reason = luaL_checkstring(L, 2);
+
+        PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_MUTE_TIME);
+        int64 muteTime = time(NULL) + muteseconds;
+        player->GetSession()->m_muteTime = muteTime;
+        stmt->setInt64(0, muteTime);
+        stmt->setString(1, reason ? reason : "");
+        stmt->setString(2, "Eluna");
+        stmt->setUInt32(3, player->GetSession()->GetAccountId());
+        LoginDatabase.Execute(stmt);
+        return 0;
+    }
+
     // GetHeight(X, Y)
     static int GetHeight(lua_State* L, Unit* unit)
     {
@@ -3651,7 +3670,7 @@ public:
             str = "Priest";
             break;
         case 6:
-            str = "DeathKnight";
+            str = "Death Knight";
             break;
         case 7:
             str = "Shaman";
