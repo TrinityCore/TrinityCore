@@ -32,6 +32,12 @@ EndScriptData */
 struct RBACCommandData
 {
     RBACCommandData(): id(0), realmId(0), rbac(NULL), needDelete(false) { }
+    ~RBACCommandData()
+    {
+        if (needDelete)
+            delete rbac;
+    }
+
     uint32 id;
     int32 realmId;
     RBACData* rbac;
@@ -230,8 +236,7 @@ public:
                 break;
         }
 
-        if (command->needDelete)
-            delete command;
+        delete command;
 
         return true;
     }
@@ -266,8 +271,7 @@ public:
                 break;
         }
 
-        if (command->needDelete)
-            delete command;
+        delete command;
 
         return true;
     }
@@ -295,8 +299,7 @@ public:
             }
         }
 
-        if (command->needDelete)
-            delete command;
+        delete command;
 
         return true;
     }
@@ -335,8 +338,7 @@ public:
                 break;
         }
 
-        if (command->needDelete)
-            delete command;
+        delete command;
 
         return true;
     }
@@ -375,8 +377,7 @@ public:
                 break;
         }
 
-        if (command->needDelete)
-            delete command;
+        delete command;
 
         return true;
     }
@@ -411,8 +412,7 @@ public:
                 break;
         }
 
-        if (command->needDelete)
-            delete command;
+        delete command;
 
         return true;
     }
@@ -453,8 +453,7 @@ public:
             }
         }
 
-        if (command->needDelete)
-            delete command;
+        delete command;
 
         return true;
     }
@@ -493,8 +492,7 @@ public:
                 break;
         }
 
-        if (command->needDelete)
-            delete command;
+        delete command;
 
         return true;
     }
@@ -533,8 +531,7 @@ public:
                 break;
         }
 
-        if (command->needDelete)
-            delete command;
+        delete command;
 
         return true;
     }
@@ -569,8 +566,7 @@ public:
                 break;
         }
 
-        if (command->needDelete)
-            delete command;
+        delete command;
 
         return true;
     }
@@ -613,8 +609,7 @@ public:
                 }
         }
 
-        if (command->needDelete)
-            delete command;
+        delete command;
 
         return true;
     }
@@ -643,8 +638,7 @@ public:
                 }
         }
 
-        if (command->needDelete)
-            delete command;
+        delete command;
 
         return true;
     }

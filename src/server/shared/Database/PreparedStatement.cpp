@@ -203,6 +203,7 @@ void PreparedStatement::setNull(const uint8 index)
 }
 
 MySQLPreparedStatement::MySQLPreparedStatement(MYSQL_STMT* stmt) :
+m_stmt(NULL),
 m_Mstmt(stmt),
 m_bind(NULL)
 {

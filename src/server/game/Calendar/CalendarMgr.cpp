@@ -159,20 +159,20 @@ void CalendarMgr::RemoveEvent(uint64 eventId, uint64 remover)
     PreparedStatement* stmt;
     MailDraft mail(calendarEvent->BuildCalendarMailSubject(remover), calendarEvent->BuildCalendarMailBody());
 
-    CalendarInviteStore::iterator itr = _invites[eventId].begin();
-    while (itr != _invites[eventId].end())
+    CalendarInviteStore& eventInvites = _invites[eventId];
+    for (size_t i = 0; i < eventInvites.size(); ++i)
     {
+        CalendarInvite* invite = eventInvites[i];
         stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_CALENDAR_INVITE);
-        stmt->setUInt64(0, (*itr)->GetInviteId());
+        stmt->setUInt64(0, invite->GetInviteId());
         trans->Append(stmt);
 
         // guild events only? check invite status here?
         // When an event is deleted, all invited (accepted/declined? - verify) guildies are notified via in-game mail. (wowwiki)
-        if (remover && (*itr)->GetInviteeGUID() != remover)
-            mail.SendMailTo(trans, MailReceiver((*itr)->GetInviteeGUID()), calendarEvent, MAIL_CHECK_MASK_COPIED);
+        if (remover && invite->GetInviteeGUID() != remover)
+            mail.SendMailTo(trans, MailReceiver(invite->GetInviteeGUID()), calendarEvent, MAIL_CHECK_MASK_COPIED);
 
-        delete *itr;
-        _invites[eventId].erase(itr);
+        delete invite;
     }
 
     _invites.erase(eventId);

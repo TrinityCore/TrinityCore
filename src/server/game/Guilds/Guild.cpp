@@ -2571,7 +2571,7 @@ inline int32 Guild::_GetMemberRemainingSlots(Member const* member, uint8 tabId) 
         uint8 rankId = member->GetRankId();
         if (rankId == GR_GUILDMASTER)
             return GUILD_WITHDRAW_SLOT_UNLIMITED;
-        if ((_GetRankBankTabRights(rankId, tabId) & GUILD_BANK_RIGHT_VIEW_TAB) != GR_RIGHT_EMPTY)
+        if ((_GetRankBankTabRights(rankId, tabId) & GUILD_BANK_RIGHT_VIEW_TAB) != 0)
         {
             int32 remaining = _GetRankBankTabSlotsPerDay(rankId, tabId) - member->GetBankWithdrawValue(tabId);
             if (remaining > 0)
@@ -2589,7 +2589,7 @@ inline int32 Guild::_GetMemberRemainingMoney(Member const* member) const
         if (rankId == GR_GUILDMASTER)
             return GUILD_WITHDRAW_MONEY_UNLIMITED;
 
-        if ((_GetRankRights(rankId) & (GR_RIGHT_WITHDRAW_REPAIR | GR_RIGHT_WITHDRAW_GOLD)) != GR_RIGHT_EMPTY)
+        if ((_GetRankRights(rankId) & (GR_RIGHT_WITHDRAW_REPAIR | GR_RIGHT_WITHDRAW_GOLD)) != 0)
         {
             int32 remaining = _GetRankBankMoneyPerDay(rankId) - member->GetBankWithdrawValue(GUILD_BANK_MAX_TABS);
             if (remaining > 0)
