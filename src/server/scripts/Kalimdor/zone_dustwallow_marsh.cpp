@@ -61,8 +61,8 @@ enum HauntingWitchHill
     NPC_RISEN_SPIRIT                    = 23554,
 
     // Events
-    EVENT_CONSUME_FLESH                 = 0,
-    EVENT_INTANGIBLE_PRESENCE           = 1,
+    EVENT_CONSUME_FLESH                 = 1,
+    EVENT_INTANGIBLE_PRESENCE           = 2,
 };
 
 class mobs_risen_husk_spirit : public CreatureScript
