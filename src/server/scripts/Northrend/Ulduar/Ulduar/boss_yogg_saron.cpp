@@ -2024,12 +2024,6 @@ class spell_yogg_saron_malady_of_the_mind : public SpellScriptLoader    // 63830
 
             PrepareSpellScript(spell_yogg_saron_malady_of_the_mind_SpellScript);
 
-            bool Load()
-            {
-                _applyHandlers = GetSpellInfo()->Id == SPELL_MALADY_OF_THE_MIND;
-                return true;
-            }
-
             void FilterTargets(std::list<WorldObject*>& targets)
             {
                 targets.remove_if(HighSanityTargetSelector());
@@ -2038,7 +2032,7 @@ class spell_yogg_saron_malady_of_the_mind : public SpellScriptLoader    // 63830
 
             void Register()
             {
-                if (_applyHandlers)
+                if (m_scriptSpellId == SPELL_MALADY_OF_THE_MIND)
                 {
                     OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_yogg_saron_malady_of_the_mind_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
                     OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_yogg_saron_malady_of_the_mind_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_SRC_AREA_ENEMY);
@@ -2047,8 +2041,6 @@ class spell_yogg_saron_malady_of_the_mind : public SpellScriptLoader    // 63830
 
                 OnEffectHitTarget += SpellEffectFn(spell_yogg_saron_malady_of_the_mind_SpellScript::RemoveSanity, EFFECT_2, SPELL_EFFECT_SCRIPT_EFFECT);
             }
-
-            bool _applyHandlers;
         };
 
         class spell_yogg_saron_malady_of_the_mind_AuraScript : public AuraScript
