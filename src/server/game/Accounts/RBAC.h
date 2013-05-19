@@ -245,7 +245,7 @@ class RBACData: public RBACObject
          * // previously defined "RBACData* rbac" with proper initialization
          * uint32 groupId = 2;
          * if (rbac->AddGroup(groupId) == RBAC_OK)
-         *     sLog->outDebug(LOG_FILTER_PLAYER, "Group %u succesfully added", groupId);
+         *     TC_LOG_DEBUG(LOG_FILTER_PLAYER, "Group %u succesfully added", groupId);
          * @endcode
          */
         RBACCommandResult AddGroup(uint32 groupId, int32 realmId = 0);
@@ -269,7 +269,7 @@ class RBACData: public RBACObject
          * // previously defined "RBACData* rbac" with proper initialization
          * uint32 groupId = 2;
          * if (rbac->RemoveGroup(groupId) == RBAC_OK)
-         *     sLog->outDebug(LOG_FILTER_PLAYER, "Group %u succesfully removed", groupId);
+         *     TC_LOG_DEBUG(LOG_FILTER_PLAYER, "Group %u succesfully removed", groupId);
          * @endcode
          */
         RBACCommandResult RemoveGroup(uint32 groupId, int32 realmId = 0);
@@ -292,7 +292,7 @@ class RBACData: public RBACObject
          * // previously defined "RBACData* rbac" with proper initialization
          * uint32 roleId = 2;
          * if (rbac->GrantRole(roleId) == RBAC_IN_DENIED_LIST)
-         *     sLog->outDebug(LOG_FILTER_PLAYER, "Failed to grant role %u, already denied", roleId);
+         *     TC_LOG_DEBUG(LOG_FILTER_PLAYER, "Failed to grant role %u, already denied", roleId);
          * @endcode
          */
         RBACCommandResult GrantRole(uint32 roleId, int32 realmId = 0);
@@ -315,7 +315,7 @@ class RBACData: public RBACObject
          * // previously defined "RBACData* rbac" with proper initialization
          * uint32 roleId = 2;
          * if (rbac->DenyRole(roleId) == RBAC_ID_DOES_NOT_EXISTS)
-         *     sLog->outDebug(LOG_FILTER_PLAYER, "Role Id %u does not exists", roleId);
+         *     TC_LOG_DEBUG(LOG_FILTER_PLAYER, "Role Id %u does not exists", roleId);
          * @endcode
          */
         RBACCommandResult DenyRole(uint32 roleId, int32 realmId = 0);
@@ -339,7 +339,7 @@ class RBACData: public RBACObject
          * // previously defined "RBACData* rbac" with proper initialization
          * uint32 roleId = 2;
          * if (rbac->RevokeRole(roleId) == RBAC_OK)
-         *     sLog->outDebug(LOG_FILTER_PLAYER, "Role %u succesfully removed", roleId);
+         *     TC_LOG_DEBUG(LOG_FILTER_PLAYER, "Role %u succesfully removed", roleId);
          * @endcode
          */
         RBACCommandResult RevokeRole(uint32 roleId, int32 realmId = 0);
@@ -362,7 +362,7 @@ class RBACData: public RBACObject
          * // previously defined "RBACData* rbac" with proper initialization
          * uint32 permissionId = 2;
          * if (rbac->GrantRole(permissionId) == RBAC_IN_DENIED_LIST)
-         *     sLog->outDebug(LOG_FILTER_PLAYER, "Failed to grant permission %u, already denied", permissionId);
+         *     TC_LOG_DEBUG(LOG_FILTER_PLAYER, "Failed to grant permission %u, already denied", permissionId);
          * @endcode
          */
         RBACCommandResult GrantPermission(uint32 permissionId, int32 realmId = 0);
@@ -385,7 +385,7 @@ class RBACData: public RBACObject
          * // previously defined "RBACData* rbac" with proper initialization
          * uint32 permissionId = 2;
          * if (rbac->DenyRole(permissionId) == RBAC_ID_DOES_NOT_EXISTS)
-         *     sLog->outDebug(LOG_FILTER_PLAYER, "Role Id %u does not exists", permissionId);
+         *     TC_LOG_DEBUG(LOG_FILTER_PLAYER, "Role Id %u does not exists", permissionId);
          * @endcode
          */
         RBACCommandResult DenyPermission(uint32 permissionId, int32 realmId = 0);
@@ -409,7 +409,7 @@ class RBACData: public RBACObject
          * // previously defined "RBACData* rbac" with proper initialization
          * uint32 permissionId = 2;
          * if (rbac->RevokeRole(permissionId) == RBAC_OK)
-         *     sLog->outDebug(LOG_FILTER_PLAYER, "Permission %u succesfully removed", permissionId);
+         *     TC_LOG_DEBUG(LOG_FILTER_PLAYER, "Permission %u succesfully removed", permissionId);
          * @endcode
          */
         RBACCommandResult RevokePermission(uint32 permissionId, int32 realmId = 0);

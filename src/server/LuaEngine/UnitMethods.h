@@ -639,7 +639,7 @@ public:
         TO_CREATURE_BOOL();
 
         bool disable = luaL_checkbool(L, 1);
-        bool packetOnly = luaL_optbool(L, 1, false);
+        bool packetOnly = luaL_optbool(L, 2, false);
 
         sEluna->PushBoolean(L, creature->SetDisableGravity(disable, packetOnly));
         return 1;
@@ -5501,6 +5501,131 @@ public:
             if (source->ToGameObject()->GetGoType() == GAMEOBJECT_TYPE_QUESTGIVER)
                 player->PrepareQuestMenu(source->GetGUID());
         }
+        return 0;
+    }
+    
+    // AttackStop()
+    static int AttackStop(lua_State* L, Unit* unit)
+    {
+        TO_UNIT_BOOL();
+
+        sEluna->PushBoolean(L, unit->AttackStop());
+        return 1;
+    }
+    
+    // Attack(who, meleeAttack)
+    static int Attack(lua_State* L, Unit* unit)
+    {
+        TO_UNIT_BOOL();
+
+        Unit* who = sEluna->CHECK_UNIT(L, 1);
+        bool meleeAttack = luaL_optbool(L, 2, false);
+        
+        if (!who)
+            sEluna->PushBoolean(L, false);
+        else
+            sEluna->PushBoolean(L, unit->Attack(who, meleeAttack));
+        return 1;
+    }
+    
+    //SetCanFly(apply)
+    static int SetCanFly(lua_State* L, Unit* unit)
+    {
+        TO_UNIT();
+
+        bool apply = luaL_optbool(L, 1, true);
+        unit->SetCanFly(apply);
+        return 0;
+    }
+    
+    //SetVisible(x)
+    static int SetVisible(lua_State* L, Unit* unit)
+    {
+        TO_UNIT();
+
+        bool x = luaL_optbool(L, 1, true);
+        unit->SetVisible(x);
+        return 0;
+    }
+    
+    // IsVisible()
+    static int IsVisible(lua_State* L, Unit* unit)
+    {
+        TO_UNIT_BOOL();
+
+        sEluna->PushBoolean(L, unit->IsVisible());
+        return 1;
+    }
+    
+    // isMoving()
+    static int isMoving(lua_State* L, Unit* unit)
+    {
+        TO_UNIT_BOOL();
+
+        sEluna->PushBoolean(L, unit->isMoving());
+        return 1;
+    }
+    
+    // IsFlying()
+    static int IsFlying(lua_State* L, Unit* unit)
+    {
+        TO_UNIT_BOOL();
+
+        sEluna->PushBoolean(L, unit->IsFlying());
+        return 1;
+    }
+    
+    // IsStopped()
+    static int IsStopped(lua_State* L, Unit* unit)
+    {
+        TO_UNIT_BOOL();
+
+        sEluna->PushBoolean(L, unit->IsStopped());
+        return 1;
+    }
+    
+    //RestoreDisplayId()
+    static int RestoreDisplayId(lua_State* L, Unit* unit)
+    {
+        TO_UNIT();
+
+        unit->RestoreDisplayId();
+        return 0;
+    }
+    
+    //RestoreFaction()
+    static int RestoreFaction(lua_State* L, Unit* unit)
+    {
+        TO_UNIT();
+
+        unit->RestoreFaction();
+        return 0;
+    }
+    
+    //RemoveBindSightAuras()
+    static int RemoveBindSightAuras(lua_State* L, Unit* unit)
+    {
+        TO_UNIT();
+
+        unit->RemoveBindSightAuras();
+        return 0;
+    }
+    
+    //RemoveCharmAuras()
+    static int RemoveCharmAuras(lua_State* L, Unit* unit)
+    {
+        TO_UNIT();
+
+        unit->RemoveCharmAuras();
+        return 0;
+    }
+    
+    //StopMoving()
+    static int StopMoving(lua_State* L, Unit* unit)
+    {
+        TO_UNIT();
+
+        unit->StopMoving();
         return 0;
     }
 };

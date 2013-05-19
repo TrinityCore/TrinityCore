@@ -406,6 +406,13 @@ ElunaRegister<Unit> UnitMethods[] =
     {"SetFFA", &LuaUnit::SetFFA},                                   // :SetFFA([apply]) -- Sets the units FFA tag on or off.
     {"SetSanctuary", &LuaUnit::SetSanctuary},                       // :SetSanctuary([apply]) -- Enables or disables units sanctuary flag.
     {"SetScale", &LuaUnit::SetScale},                               // :SetScale(scale) - UNDOCUMENTED
+    {"SetCanFly", &LuaUnit::SetCanFly},                             // :SetCanFly(apply) - UNDOCUMENTED
+    {"SetVisible", &LuaUnit::SetVisible},                           // :SetVisible(x) - UNDOCUMENTED
+    {"RestoreDisplayId", &LuaUnit::RestoreDisplayId},               // :RestoreDisplayId()
+    {"RestoreFaction", &LuaUnit::RestoreFaction},                   // :RestoreFaction()
+    {"RemoveBindSightAuras", &LuaUnit::RemoveBindSightAuras},       // :RemoveBindSightAuras()
+    {"RemoveCharmAuras", &LuaUnit::RemoveCharmAuras},               // :RemoveCharmAuras()
+    {"StopMoving", &LuaUnit::StopMoving},                           // :StopMoving()
 
     // Boolean
     {"IsAlive", &LuaUnit::IsAlive},                                 // :IsAlive()
@@ -430,6 +437,12 @@ ElunaRegister<Unit> UnitMethods[] =
     {"HealthBelowPct", &LuaUnit::HealthBelowPct},                   // :HealthBelowPct(int32 pct) -- UNDOCUMENTED
     {"HealthAbovePct", &LuaUnit::HealthAbovePct},                   // :HealthAbovePct(int32 pct) -- UNDOCUMENTED
     {"IsMounted", &LuaUnit::IsMounted},                             // :IsMounted() -- UNDOCUMENTED
+    {"AttackStop", &LuaUnit::AttackStop},                           // :AttackStop() -- UNDOCUMENTED
+    {"Attack", &LuaUnit::Attack},                                   // :Attack(who, meleeAttack) -- UNDOCUMENTED
+    {"IsVisible", &LuaUnit::IsVisible},                             // :IsVisible()
+    {"isMoving", &LuaUnit::isMoving},                               // :isMoving()
+    {"IsFlying", &LuaUnit::IsFlying},                               // :IsFlying()
+    {"IsStopped", &LuaUnit::IsStopped},                             // :IsStopped()
 
     // Other
     {"RegisterEvent", &LuaUnit::RegisterEvent},                     // :RegisterEvent(function, delay, calls)

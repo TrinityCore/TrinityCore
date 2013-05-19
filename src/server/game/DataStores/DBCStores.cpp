@@ -203,7 +203,7 @@ uint32 DBCFileCount = 0;
 
 static bool LoadDBC_assert_print(uint32 fsize, uint32 rsize, const std::string& filename)
 {
-    sLog->outError(LOG_FILTER_GENERAL, "Size of '%s' set by format string (%u) not equal size of C++ structure (%u).", filename.c_str(), fsize, rsize);
+    TC_LOG_ERROR(LOG_FILTER_GENERAL, "Size of '%s' set by format string (%u) not equal size of C++ structure (%u).", filename.c_str(), fsize, rsize);
 
     // ASSERT must fail after function call
     return false;
@@ -467,7 +467,7 @@ void LoadDBCStores(const std::string& dataPath)
             if (spellDiff->SpellID[x] <= 0 || !sSpellStore.LookupEntry(spellDiff->SpellID[x]))
             {
                 if (spellDiff->SpellID[x] > 0)//don't show error if spell is <= 0, not all modes have spells and there are unknown negative values
-                    sLog->outError(LOG_FILTER_SQL, "spelldifficulty_dbc: spell %i at field id:%u at spellid%i does not exist in SpellStore (spell.dbc), loaded as 0", spellDiff->SpellID[x], spellDiff->ID, x);
+                    TC_LOG_ERROR(LOG_FILTER_SQL, "spelldifficulty_dbc: spell %i at field id:%u at spellid%i does not exist in SpellStore (spell.dbc), loaded as 0", spellDiff->SpellID[x], spellDiff->ID, x);
                 newEntry.SpellID[x] = 0;//spell was <= 0 or invalid, set to 0
             }
             else
@@ -508,10 +508,9 @@ void LoadDBCStores(const std::string& dataPath)
                 continue;
 
             // store class talent tab pages
-            uint32 cls = 1;
-            for (uint32 m=1; !(m & talentTabInfo->ClassMask) && cls < MAX_CLASSES; m <<= 1, ++cls) {}
-
-            sTalentTabPages[cls][talentTabInfo->tabpage]=talentTabId;
+            for (uint32 cls = 1; cls < MAX_CLASSES; ++cls)
+                if (talentTabInfo->ClassMask & (1 << (cls - 1)))
+                    sTalentTabPages[cls][talentTabInfo->tabpage] = talentTabId;
         }
     }
 
@@ -620,7 +619,7 @@ void LoadDBCStores(const std::string& dataPath)
     // error checks
     if (bad_dbc_files.size() >= DBCFileCount)
     {
-        sLog->outError(LOG_FILTER_GENERAL, "Incorrect DataDir value in worldserver.conf or ALL required *.dbc files (%d) not found by path: %sdbc", DBCFileCount, dataPath.c_str());
+        TC_LOG_ERROR(LOG_FILTER_GENERAL, "Incorrect DataDir value in worldserver.conf or ALL required *.dbc files (%d) not found by path: %sdbc", DBCFileCount, dataPath.c_str());
         exit(1);
     }
     else if (!bad_dbc_files.empty())
@@ -629,7 +628,7 @@ void LoadDBCStores(const std::string& dataPath)
         for (StoreProblemList::iterator i = bad_dbc_files.begin(); i != bad_dbc_files.end(); ++i)
             str += *i + "\n";
 
-        sLog->outError(LOG_FILTER_GENERAL, "Some required *.dbc files (%u from %d) not found or not compatible:\n%s", (uint32)bad_dbc_files.size(), DBCFileCount, str.c_str());
+        TC_LOG_ERROR(LOG_FILTER_GENERAL, "Some required *.dbc files (%u from %d) not found or not compatible:\n%s", (uint32)bad_dbc_files.size(), DBCFileCount, str.c_str());
         exit(1);
     }
 
@@ -642,11 +641,11 @@ void LoadDBCStores(const std::string& dataPath)
         !sMapStore.LookupEntry(724)                ||       // last map added in 3.3.5a
         !sSpellStore.LookupEntry(80864)            )        // last client known item added in 3.3.5a
     {
-        sLog->outError(LOG_FILTER_GENERAL, "You have _outdated_ DBC files. Please extract correct versions from current using client.");
+        TC_LOG_ERROR(LOG_FILTER_GENERAL, "You have _outdated_ DBC files. Please extract correct versions from current using client.");
         exit(1);
     }
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Initialized %d data stores in %u ms", DBCFileCount, GetMSTimeDiffToNow(oldMSTime));
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, ">> Initialized %d data stores in %u ms", DBCFileCount, GetMSTimeDiffToNow(oldMSTime));
 
 }
 
@@ -721,6 +720,18 @@ AreaTableEntry const* GetAreaEntryByAreaFlagAndMap(uint32 area_flag, uint32 map_
         return GetAreaEntryByAreaID(mapEntry->linked_zone);
 
     return NULL;
+}
+
+char const* GetRaceName(uint8 race, uint8 locale)
+{
+    ChrRacesEntry const* raceEntry = sChrRacesStore.LookupEntry(race);
+    return raceEntry ? raceEntry->name[locale] : NULL;
+}
+
+char const* GetClassName(uint8 class_, uint8 locale)
+{
+    ChrClassesEntry const* classEntry = sChrClassesStore.LookupEntry(class_);
+    return classEntry ? classEntry->name[locale] : NULL;
 }
 
 uint32 GetAreaFlagByMapId(uint32 mapid)
@@ -891,4 +902,20 @@ CharStartOutfitEntry const* GetCharStartOutfitEntry(uint8 race, uint8 class_, ui
         return NULL;
 
     return itr->second;
+}
+
+/// Returns LFGDungeonEntry for a specific map and difficulty. Will return first found entry if multiple dungeons use the same map (such as Scarlet Monastery)
+LFGDungeonEntry const* GetLFGDungeon(uint32 mapId, Difficulty difficulty)
+{
+    for (uint32 i = 0; i < sLFGDungeonStore.GetNumRows(); ++i)
+    {
+        LFGDungeonEntry const* dungeon = sLFGDungeonStore.LookupEntry(i);
+        if (!dungeon)
+            continue;
+
+        if (dungeon->map == int32(mapId) && Difficulty(dungeon->difficulty) == difficulty)
+            return dungeon;
+    }
+
+    return NULL;
 }

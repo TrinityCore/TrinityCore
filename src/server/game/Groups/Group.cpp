@@ -70,10 +70,10 @@ Group::~Group()
 {
     if (m_bgGroup)
     {
-        sLog->outDebug(LOG_FILTER_BATTLEGROUND, "Group::~Group: battleground group being deleted.");
+        TC_LOG_DEBUG(LOG_FILTER_BATTLEGROUND, "Group::~Group: battleground group being deleted.");
         if (m_bgGroup->GetBgRaid(ALLIANCE) == this) m_bgGroup->SetBgRaid(ALLIANCE, NULL);
         else if (m_bgGroup->GetBgRaid(HORDE) == this) m_bgGroup->SetBgRaid(HORDE, NULL);
-        else sLog->outError(LOG_FILTER_GENERAL, "Group::~Group: battleground group is not linked to the correct battleground.");
+        else TC_LOG_ERROR(LOG_FILTER_GENERAL, "Group::~Group: battleground group is not linked to the correct battleground.");
     }
     Rolls::iterator itr;
     while (!RollId.empty())
@@ -365,24 +365,21 @@ bool Group::AddMember(Player* player)
 
     SubGroupCounterIncrease(subGroup);
 
-    if (player)
+    player->SetGroupInvite(NULL);
+    if (player->GetGroup())
     {
-        player->SetGroupInvite(NULL);
-        if (player->GetGroup())
-        {
-            if (isBGGroup() || isBFGroup()) // if player is in group and he is being added to BG raid group, then call SetBattlegroundRaid()
-                player->SetBattlegroundOrBattlefieldRaid(this, subGroup);
-            else //if player is in bg raid and we are adding him to normal group, then call SetOriginalGroup()
-                player->SetOriginalGroup(this, subGroup);
-        }
-        else //if player is not in group, then call set group
-            player->SetGroup(this, subGroup);
-
-        // if the same group invites the player back, cancel the homebind timer
-        InstanceGroupBind* bind = GetBoundInstance(player);
-        if (bind && bind->save->GetInstanceId() == player->GetInstanceId())
-            player->m_InstanceValid = true;
+        if (isBGGroup() || isBFGroup()) // if player is in group and he is being added to BG raid group, then call SetBattlegroundRaid()
+            player->SetBattlegroundOrBattlefieldRaid(this, subGroup);
+        else //if player is in bg raid and we are adding him to normal group, then call SetOriginalGroup()
+            player->SetOriginalGroup(this, subGroup);
     }
+    else //if player is not in group, then call set group
+        player->SetGroup(this, subGroup);
+
+    // if the same group invites the player back, cancel the homebind timer
+    InstanceGroupBind* bind = GetBoundInstance(player);
+    if (bind && bind->save->GetInstanceId() == player->GetInstanceId())
+        player->m_InstanceValid = true;
 
     if (!isRaidGroup())                                      // reset targetIcons for non-raid-groups
     {
@@ -408,89 +405,86 @@ bool Group::AddMember(Player* player)
     SendUpdate();
     sScriptMgr->OnGroupAddMember(this, player->GetGUID());
 
-    if (player)
+    if (!IsLeader(player->GetGUID()) && !isBGGroup() && !isBFGroup())
     {
-        if (!IsLeader(player->GetGUID()) && !isBGGroup() && !isBFGroup())
-        {
-            // reset the new member's instances, unless he is currently in one of them
-            // including raid/heroic instances that they are not permanently bound to!
-            player->ResetInstances(INSTANCE_RESET_GROUP_JOIN, false);
-            player->ResetInstances(INSTANCE_RESET_GROUP_JOIN, true);
+        // reset the new member's instances, unless he is currently in one of them
+        // including raid/heroic instances that they are not permanently bound to!
+        player->ResetInstances(INSTANCE_RESET_GROUP_JOIN, false);
+        player->ResetInstances(INSTANCE_RESET_GROUP_JOIN, true);
 
-            if (player->getLevel() >= LEVELREQUIREMENT_HEROIC)
+        if (player->getLevel() >= LEVELREQUIREMENT_HEROIC)
+        {
+            if (player->GetDungeonDifficulty() != GetDungeonDifficulty())
             {
-                if (player->GetDungeonDifficulty() != GetDungeonDifficulty())
-                {
-                    player->SetDungeonDifficulty(GetDungeonDifficulty());
-                    player->SendDungeonDifficulty(true);
-                }
-                if (player->GetRaidDifficulty() != GetRaidDifficulty())
-                {
-                    player->SetRaidDifficulty(GetRaidDifficulty());
-                    player->SendRaidDifficulty(true);
-                }
+                player->SetDungeonDifficulty(GetDungeonDifficulty());
+                player->SendDungeonDifficulty(true);
+            }
+            if (player->GetRaidDifficulty() != GetRaidDifficulty())
+            {
+                player->SetRaidDifficulty(GetRaidDifficulty());
+                player->SendRaidDifficulty(true);
             }
         }
-        player->SetGroupUpdateFlag(GROUP_UPDATE_FULL);
-        UpdatePlayerOutOfRange(player);
-
-        // quest related GO state dependent from raid membership
-        if (isRaidGroup())
-            player->UpdateForQuestWorldObjects();
-
-        {
-            // Broadcast new player group member fields to rest of the group
-            player->SetFieldNotifyFlag(UF_FLAG_PARTY_MEMBER);
-
-            UpdateData groupData;
-            WorldPacket groupDataPacket;
-
-            // Broadcast group members' fields to player
-            for (GroupReference* itr = GetFirstMember(); itr != NULL; itr = itr->next())
-            {
-                if (itr->getSource() == player)
-                    continue;
-
-                if (Player* member = itr->getSource())
-                {
-                    if (player->HaveAtClient(member))
-                    {
-                        member->SetFieldNotifyFlag(UF_FLAG_PARTY_MEMBER);
-                        member->BuildValuesUpdateBlockForPlayer(&groupData, player);
-                        member->RemoveFieldNotifyFlag(UF_FLAG_PARTY_MEMBER);
-                    }
-
-                    if (member->HaveAtClient(player))
-                    {
-                        UpdateData newData;
-                        WorldPacket newDataPacket;
-                        player->BuildValuesUpdateBlockForPlayer(&newData, member);
-                        if (newData.HasData())
-                        {
-                            newData.BuildPacket(&newDataPacket);
-                            member->SendDirectMessage(&newDataPacket);
-                        }
-                    }
-                }
-            }
-
-            if (groupData.HasData())
-            {
-                groupData.BuildPacket(&groupDataPacket);
-                player->SendDirectMessage(&groupDataPacket);
-            }
-
-            player->RemoveFieldNotifyFlag(UF_FLAG_PARTY_MEMBER);
-        }
-
-        if (m_maxEnchantingLevel < player->GetSkillValue(SKILL_ENCHANTING))
-            m_maxEnchantingLevel = player->GetSkillValue(SKILL_ENCHANTING);
     }
+    player->SetGroupUpdateFlag(GROUP_UPDATE_FULL);
+    UpdatePlayerOutOfRange(player);
+
+    // quest related GO state dependent from raid membership
+    if (isRaidGroup())
+        player->UpdateForQuestWorldObjects();
+
+    {
+        // Broadcast new player group member fields to rest of the group
+        player->SetFieldNotifyFlag(UF_FLAG_PARTY_MEMBER);
+
+        UpdateData groupData;
+        WorldPacket groupDataPacket;
+
+        // Broadcast group members' fields to player
+        for (GroupReference* itr = GetFirstMember(); itr != NULL; itr = itr->next())
+        {
+            if (itr->getSource() == player)
+                continue;
+
+            if (Player* member = itr->getSource())
+            {
+                if (player->HaveAtClient(member))
+                {
+                    member->SetFieldNotifyFlag(UF_FLAG_PARTY_MEMBER);
+                    member->BuildValuesUpdateBlockForPlayer(&groupData, player);
+                    member->RemoveFieldNotifyFlag(UF_FLAG_PARTY_MEMBER);
+                }
+
+                if (member->HaveAtClient(player))
+                {
+                    UpdateData newData;
+                    WorldPacket newDataPacket;
+                    player->BuildValuesUpdateBlockForPlayer(&newData, member);
+                    if (newData.HasData())
+                    {
+                        newData.BuildPacket(&newDataPacket);
+                        member->SendDirectMessage(&newDataPacket);
+                    }
+                }
+            }
+        }
+
+        if (groupData.HasData())
+        {
+            groupData.BuildPacket(&groupDataPacket);
+            player->SendDirectMessage(&groupDataPacket);
+        }
+
+        player->RemoveFieldNotifyFlag(UF_FLAG_PARTY_MEMBER);
+    }
+
+    if (m_maxEnchantingLevel < player->GetSkillValue(SKILL_ENCHANTING))
+        m_maxEnchantingLevel = player->GetSkillValue(SKILL_ENCHANTING);
 
     return true;
 }
 
-bool Group::RemoveMember(uint64 guid, const RemoveMethod &method /*= GROUP_REMOVEMETHOD_DEFAULT*/, uint64 kicker /*= 0*/, const char* reason /*= NULL*/)
+bool Group::RemoveMember(uint64 guid, const RemoveMethod& method /*= GROUP_REMOVEMETHOD_DEFAULT*/, uint64 kicker /*= 0*/, const char* reason /*= NULL*/)
 {
     BroadcastGroupUpdate();
 
@@ -917,7 +911,7 @@ void Group::GroupLoot(Loot* loot, WorldObject* pLootedObject)
         item = sObjectMgr->GetItemTemplate(i->itemid);
         if (!item)
         {
-            //sLog->outDebug(LOG_FILTER_GENERAL, "Group::GroupLoot: missing item prototype for item with id: %d", i->itemid);
+            //TC_LOG_DEBUG(LOG_FILTER_GENERAL, "Group::GroupLoot: missing item prototype for item with id: %d", i->itemid);
             continue;
         }
 
@@ -1004,7 +998,7 @@ void Group::GroupLoot(Loot* loot, WorldObject* pLootedObject)
         item = sObjectMgr->GetItemTemplate(i->itemid);
         if (!item)
         {
-            //sLog->outDebug(LOG_FILTER_GENERAL, "Group::GroupLoot: missing item prototype for item with id: %d", i->itemid);
+            //TC_LOG_DEBUG(LOG_FILTER_GENERAL, "Group::GroupLoot: missing item prototype for item with id: %d", i->itemid);
             continue;
         }
 
@@ -1201,7 +1195,7 @@ void Group::NeedBeforeGreed(Loot* loot, WorldObject* lootedObject)
 
 void Group::MasterLoot(Loot* /*loot*/, WorldObject* pLootedObject)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "Group::MasterLoot (SMSG_LOOT_MASTER_LIST)");
+    TC_LOG_DEBUG(LOG_FILTER_NETWORKIO, "Group::MasterLoot (SMSG_LOOT_MASTER_LIST)");
 
     uint32 real_count = 0;
 
@@ -2042,7 +2036,7 @@ InstanceGroupBind* Group::BindToInstance(InstanceSave* save, bool permanent, boo
     bind.save = save;
     bind.perm = permanent;
     if (!load)
-        sLog->outDebug(LOG_FILTER_MAPS, "Group::BindToInstance: Group (guid: %u, storage id: %u) is now bound to map %d, instance %d, difficulty %d",
+        TC_LOG_DEBUG(LOG_FILTER_MAPS, "Group::BindToInstance: Group (guid: %u, storage id: %u) is now bound to map %d, instance %d, difficulty %d",
         GUID_LOPART(GetGUID()), m_dbStoreId, save->GetMapId(), save->GetInstanceId(), save->GetDifficulty());
 
     return &bind;
@@ -2085,7 +2079,7 @@ void Group::BroadcastGroupUpdate(void)
         {
             pp->ForceValuesUpdateAtIndex(UNIT_FIELD_BYTES_2);
             pp->ForceValuesUpdateAtIndex(UNIT_FIELD_FACTIONTEMPLATE);
-            sLog->outDebug(LOG_FILTER_GENERAL, "-- Forced group value update for '%s'", pp->GetName().c_str());
+            TC_LOG_DEBUG(LOG_FILTER_GENERAL, "-- Forced group value update for '%s'", pp->GetName().c_str());
         }
     }
 }

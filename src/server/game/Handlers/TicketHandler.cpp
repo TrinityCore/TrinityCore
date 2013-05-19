@@ -41,10 +41,15 @@ void WorldSession::HandleGMTicketCreateOpcode(WorldPacket& recvData)
     }
 
     GMTicketResponse response = GMTICKET_RESPONSE_CREATE_ERROR;
+    GmTicket* ticket = sTicketMgr->GetTicketByPlayer(GetPlayer()->GetGUID());
+
+    if (ticket && ticket->IsCompleted())
+        sTicketMgr->CloseTicket(ticket->GetId(), GetPlayer()->GetGUID());;
+
     // Player must not have ticket
-    if (!sTicketMgr->GetTicketByPlayer(GetPlayer()->GetGUID()))
+    if (!ticket || ticket->IsClosed())
     {
-        GmTicket* ticket = new GmTicket(GetPlayer(), recvData);
+        ticket = new GmTicket(GetPlayer(), recvData);
 
         uint32 count;
         std::list<uint32> times;
@@ -76,8 +81,9 @@ void WorldSession::HandleGMTicketCreateOpcode(WorldPacket& recvData)
             }
             else
             {
-                sLog->outError(LOG_FILTER_NETWORKIO, "CMSG_GMTICKET_CREATE possibly corrupt. Uncompression failed.");
+                TC_LOG_ERROR(LOG_FILTER_NETWORKIO, "CMSG_GMTICKET_CREATE possibly corrupt. Uncompression failed.");
                 recvData.rfinish();
+                delete ticket;
                 return;
             }
 
