@@ -4702,12 +4702,6 @@ void Player::DeleteFromDB(uint64 playerguid, uint32 accountId, bool updateRealmC
         charDelete_method = CHAR_DELETE_REMOVE;
     else if (CharacterNameData const* nameData = sWorld->GetCharacterNameData(guid))    // To avoid a query, we select loaded data. If it doesn't exist, return.
     {
-        if (!nameData)
-        {
-            TC_LOG_ERROR(LOG_FILTER_PLAYER, "Cannot find CharacterNameData entry for player %u from account %u. Could not delete character.", guid, accountId);
-            return;
-        }
-
         // Define the required variables
         uint32 charDelete_minLvl = sWorld->getIntConfig(nameData->m_class != CLASS_DEATH_KNIGHT ? CONFIG_CHARDELETE_MIN_LEVEL : CONFIG_CHARDELETE_HEROIC_MIN_LEVEL);
 

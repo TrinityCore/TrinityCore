@@ -2167,7 +2167,7 @@ namespace Trinity
                 {
                     WorldPacket* data = new WorldPacket();
 
-                    uint32 lineLength = (line ? strlen(line) : 0) + 1;
+                    uint32 lineLength = strlen(line) + 1;
 
                     data->Initialize(SMSG_MESSAGECHAT, 100);                // guess size
                     *data << uint8(CHAT_MSG_SYSTEM);
