@@ -59,15 +59,15 @@ enum Spells
 
 enum Events
 {
-    EVENT_MORTALCLEAVE        = 0, // Phase 1
-    EVENT_SILENCE             = 1, // Phase 1
-    EVENT_CHECK_TIMER         = 2, // Phase 1
-    EVENT_RESURRECT_TIMER     = 3, // Phase 1
-    EVENT_FRENZY              = 4, // Phase 2
-    EVENT_FORCEPUNCH          = 5, // Phase 2
-    EVENT_SPELL_CHARGE        = 6, // Phase 2
-    EVENT_ENRAGE              = 7, // Phase 2
-    EVENT_SUMMONTIGERS        = 8  // Phase 2
+    EVENT_MORTALCLEAVE        = 1, // Phase 1
+    EVENT_SILENCE             = 2, // Phase 1
+    EVENT_CHECK_TIMER         = 3, // Phase 1
+    EVENT_RESURRECT_TIMER     = 4, // Phase 1
+    EVENT_FRENZY              = 5, // Phase 2
+    EVENT_FORCEPUNCH          = 6, // Phase 2
+    EVENT_SPELL_CHARGE        = 7, // Phase 2
+    EVENT_ENRAGE              = 8, // Phase 2
+    EVENT_SUMMONTIGERS        = 9  // Phase 2
 };
 
 enum Phases

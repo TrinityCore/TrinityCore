@@ -40,10 +40,10 @@ enum Spells
 
 enum Events
 {
-    EVENT_ARCANE_EXPLOSION      = 0,
-    EVENT_FULLFILMENT           = 1,
-    EVENT_BLINK                 = 2,
-    EVENT_EARTH_SHOCK           = 3
+    EVENT_ARCANE_EXPLOSION      = 1,
+    EVENT_FULLFILMENT           = 2,
+    EVENT_BLINK                 = 3,
+    EVENT_EARTH_SHOCK           = 4
 };
 
 uint32 const BlinkSpells[3] = { 4801, 8195, 20449 };
