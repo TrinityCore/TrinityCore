@@ -42,8 +42,6 @@ void AddSC_npc_mmr_reset();
 void AddSC_npc_shop();
 // Fast Arena Start
 void AddSC_fast_arena_start();
-// Fake Players
-void AddSC_fake_commandscript();
 // Factions on Channel
 void AddSC_channel_factions();
 
@@ -1362,8 +1360,6 @@ void AddCustomScripts()
     AddSC_npc_shop();
     // Fast Arena Start
     AddSC_fast_arena_start();
-    // Fake Players
-    AddSC_fake_commandscript();
     // Factions on Channel
     AddSC_channel_factions();
 #endif

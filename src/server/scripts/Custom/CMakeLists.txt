@@ -20,7 +20,6 @@ set(scripts_STAT_SRCS
   Custom/npc_mmr_reset.cpp
   Custom/npc_shop.cpp
   Custom/arena_fast_start.cpp
-  Custom/cs_fake.cpp
   Custom/channel_factions.cpp
 )
 
