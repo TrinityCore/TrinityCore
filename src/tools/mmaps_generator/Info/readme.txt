@@ -1,5 +1,8 @@
 Generator command line args
 
+--threads           [#]             Max number of threads used by the generator
+                                    Default: 3
+
 --offMeshInput      [file.*]        Path to file containing off mesh connections data.
                                     Format must be: (see offmesh_example.txt)
                                     "map_id tile_x,tile_y (start_x start_y start_z) (end_x end_y end_z) size  //optional comments"

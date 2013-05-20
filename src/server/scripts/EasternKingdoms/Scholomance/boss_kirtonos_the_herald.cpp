@@ -146,49 +146,51 @@ class boss_kirtonos_the_herald : public CreatureScript
             {
                 events.Update(diff);
 
-                while (uint32 eventId = events.ExecuteEvent() && !UpdateVictim())
-                {
-                    switch (eventId)
-                    {
-                        case INTRO_1:
-                            me->GetMotionMaster()->MovePath(KIRTONOS_PATH, false);
-                            break;
-                        case INTRO_2:
-                            me->GetMotionMaster()->MovePoint(0, PosMove[0]);
-                            events.ScheduleEvent(INTRO_3, 1000);
-                            break;
-                        case INTRO_3:
-                            if (GameObject* gate = me->GetMap()->GetGameObject(instance->GetData64(GO_GATE_KIRTONOS)))
-                                gate->SetGoState(GO_STATE_READY);
-                            me->SetFacingTo(0.01745329f);
-                            events.ScheduleEvent(INTRO_4, 3000);
-                            break;
-                        case INTRO_4:
-                            if (GameObject* brazier = me->GetMap()->GetGameObject(instance->GetData64(GO_BRAZIER_OF_THE_HERALD)))
-                                brazier->SetGoState(GO_STATE_READY);
-                            me->SetWalk(true);
-                            me->SetDisableGravity(false);
-                            DoCast(me, SPELL_KIRTONOS_TRANSFORM);
-                            me->SetCanFly(false);
-                            events.ScheduleEvent(INTRO_5, 1000);
-                            break;
-                        case INTRO_5:
-                            me->HandleEmoteCommand(EMOTE_ONESHOT_ROAR);
-                            me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 0, uint32(WEAPON_KIRTONOS_STAFF));
-                            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE);
-                            me->SetReactState(REACT_AGGRESSIVE);
-                            events.ScheduleEvent(INTRO_6, 5000);
-                            break;
-                        case INTRO_6:
-                            me->GetMotionMaster()->MovePoint(0, PosMove[1]);
-                            break;
-                        default:
-                            break;
-                    }
-                }
-
                 if (!UpdateVictim())
+                {
+                    while (uint32 eventId = events.ExecuteEvent())
+                    {
+                        switch (eventId)
+                        {
+                            case INTRO_1:
+                                me->GetMotionMaster()->MovePath(KIRTONOS_PATH, false);
+                                break;
+                            case INTRO_2:
+                                me->GetMotionMaster()->MovePoint(0, PosMove[0]);
+                                events.ScheduleEvent(INTRO_3, 1000);
+                                break;
+                            case INTRO_3:
+                                if (GameObject* gate = me->GetMap()->GetGameObject(instance->GetData64(GO_GATE_KIRTONOS)))
+                                    gate->SetGoState(GO_STATE_READY);
+                                me->SetFacingTo(0.01745329f);
+                                events.ScheduleEvent(INTRO_4, 3000);
+                                break;
+                            case INTRO_4:
+                                if (GameObject* brazier = me->GetMap()->GetGameObject(instance->GetData64(GO_BRAZIER_OF_THE_HERALD)))
+                                    brazier->SetGoState(GO_STATE_READY);
+                                me->SetWalk(true);
+                                me->SetDisableGravity(false);
+                                DoCast(me, SPELL_KIRTONOS_TRANSFORM);
+                                me->SetCanFly(false);
+                                events.ScheduleEvent(INTRO_5, 1000);
+                                break;
+                            case INTRO_5:
+                                me->HandleEmoteCommand(EMOTE_ONESHOT_ROAR);
+                                me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 0, uint32(WEAPON_KIRTONOS_STAFF));
+                                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE);
+                                me->SetReactState(REACT_AGGRESSIVE);
+                                events.ScheduleEvent(INTRO_6, 5000);
+                                break;
+                            case INTRO_6:
+                                me->GetMotionMaster()->MovePoint(0, PosMove[1]);
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+
                     return;
+                }
 
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;

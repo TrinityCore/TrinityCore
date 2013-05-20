@@ -48,11 +48,11 @@ enum Spells
 
 enum Events
 {
-    EVENT_BRAINWASHTOTEM            = 0,
-    EVENT_POWERFULLHEALINGWARD      = 1,
-    EVENT_HEX                       = 2,
-    EVENT_DELUSIONSOFJINDO          = 3,
-    EVENT_TELEPORT                  = 4
+    EVENT_BRAINWASHTOTEM            = 1,
+    EVENT_POWERFULLHEALINGWARD      = 2,
+    EVENT_HEX                       = 3,
+    EVENT_DELUSIONSOFJINDO          = 4,
+    EVENT_TELEPORT                  = 5
 };
 
 Position const TeleportLoc = {-11583.7783f, -1249.4278f, 77.5471f, 4.745f};

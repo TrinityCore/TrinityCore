@@ -215,34 +215,6 @@ UPDATE creature_template SET dmg_multiplier = 100 WHERE entry IN (39864, 40143);
 UPDATE creature_template SET dmg_multiplier = 100 WHERE entry IN (39944, 40144); -- 10 hc
 UPDATE creature_template SET dmg_multiplier = 170 WHERE entry IN (39945, 40145); -- 25 hc
 
--- Fix loot Trial of Champion
-UPDATE `gameobject_template` SET `flags` = '0' WHERE `gameobject_template`.`entry` = 195709;
-UPDATE `gameobject_template` SET `flags` = '0' WHERE `gameobject_template`.`entry` = 195710;
-UPDATE `gameobject_template` SET `flags` = '0' WHERE `gameobject_template`.`entry` = 195374;
-UPDATE `gameobject_template` SET `flags` = '0' WHERE `gameobject_template`.`entry` = 195375;
-UPDATE `gameobject_template` SET `flags` = '0' WHERE `gameobject_template`.`entry` = 195323;
-UPDATE `gameobject_template` SET `flags` = '0' WHERE `gameobject_template`.`entry` = 195324;
-
--- Fix loot Trial of Crusader
-UPDATE `gameobject_template` SET `flags` = '0' WHERE `gameobject_template`.`entry` = 195631;
-UPDATE `gameobject_template` SET `flags` = '0' WHERE `gameobject_template`.`entry` = 195632;
-UPDATE `gameobject_template` SET `flags` = '0' WHERE `gameobject_template`.`entry` = 195633;
-UPDATE `gameobject_template` SET `flags` = '0' WHERE `gameobject_template`.`entry` = 195635;
-UPDATE `gameobject_template` SET `flags` = '0' WHERE `gameobject_template`.`entry` = 195668;
-UPDATE `gameobject_template` SET `flags` = '0' WHERE `gameobject_template`.`entry` = 195667;
-UPDATE `gameobject_template` SET `flags` = '0' WHERE `gameobject_template`.`entry` = 195666;
-UPDATE `gameobject_template` SET `flags` = '0' WHERE `gameobject_template`.`entry` = 195665;
-UPDATE `gameobject_template` SET `flags` = '0' WHERE `gameobject_template`.`entry` = 195672;
-UPDATE `gameobject_template` SET `flags` = '0' WHERE `gameobject_template`.`entry` = 195671;
-UPDATE `gameobject_template` SET `flags` = '0' WHERE `gameobject_template`.`entry` = 195670;
-UPDATE `gameobject_template` SET `flags` = '0' WHERE `gameobject_template`.`entry` = 195669;
-
--- Fix loot Halls of Reflection
-UPDATE `gameobject_template` SET `flags` = '0' WHERE `gameobject_template`.`entry` = 202212;
-UPDATE `gameobject_template` SET `flags` = '0' WHERE `gameobject_template`.`entry` = 201710;
-UPDATE `gameobject_template` SET `flags` = '0' WHERE `gameobject_template`.`entry` = 202337;
-UPDATE `gameobject_template` SET `flags` = '0' WHERE `gameobject_template`.`entry` = 202336;
-
 -- Fix MMaps
 UPDATE creature_template SET InhabitType = InhabitType | 4 WHERE `entry` IN (37955,38434,38435,38436); -- Blood-Queen Lana'thel (ICC)
 -- UPDATE creature_template SET InhabitType = InhabitType | 4 WHERE `entry` IN (37813,38402,38582,38583); -- Deathbringer Saurfang (ICC)
@@ -291,11 +263,6 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 DELETE FROM spell_script_names WHERE spell_id = 46916;
 -- Execute
 DELETE FROM spell_script_names WHERE spell_id = 52437;
-
--- Revert 'Implement Raise ally'
-DELETE FROM creature_template WHERE entry = 30230;
-INSERT INTO `creature_template` (`entry`, `difficulty_entry_1`, `difficulty_entry_2`, `difficulty_entry_3`, `KillCredit1`, `KillCredit2`, `modelid1`, `modelid2`, `modelid3`, `modelid4`, `name`, `subname`, `IconName`, `gossip_menu_id`, `minlevel`, `maxlevel`, `exp`, `faction_A`, `faction_H`, `npcflag`, `speed_walk`, `speed_run`, `scale`, `rank`, `mindmg`, `maxdmg`, `dmgschool`, `attackpower`, `dmg_multiplier`, `baseattacktime`, `rangeattacktime`, `unit_class`, `unit_flags`, `unit_flags2`, `dynamicflags`, `family`, `trainer_type`, `trainer_spell`, `trainer_class`, `trainer_race`, `minrangedmg`, `maxrangedmg`, `rangedattackpower`, `type`, `type_flags`, `lootid`, `pickpocketloot`, `skinloot`, `resistance1`, `resistance2`, `resistance3`, `resistance4`, `resistance5`, `resistance6`, `spell1`, `spell2`, `spell3`, `spell4`, `spell5`, `spell6`, `spell7`, `spell8`, `PetSpellDataId`, `VehicleId`, `mingold`, `maxgold`, `AIName`, `MovementType`, `InhabitType`, `HoverHeight`, `Health_mod`, `Mana_mod`, `Armor_mod`, `RacialLeader`, `questItem1`, `questItem2`, `questItem3`, `questItem4`, `questItem5`, `questItem6`, `movementId`, `RegenHealth`, `mechanic_immune_mask`, `flags_extra`, `ScriptName`, `WDBVerified`) VALUES
-(30230, 0, 0, 0, 0, 0, 24994, 24993, 24992, 24995, 'Risen Ally', '', '', 0, 1, 1, 0, 35, 35, 0, 0.8, 0.99206, 1, 0, 2, 2, 0, 24, 1, 2000, 0, 1, 0, 2048, 8, 40, 0, 0, 0, 0, 1, 1, 0, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '', 0, 3, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 8388624, 0, '', 12340);
 
 -- Spell threat entries fix
 DELETE FROM `spell_threat` WHERE `entry` IN (52372,61411,53595,20187,48818,47520,47488,20243,12809,48568);

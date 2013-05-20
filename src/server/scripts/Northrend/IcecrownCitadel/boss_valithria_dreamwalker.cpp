@@ -296,7 +296,6 @@ class boss_valithria_dreamwalker : public CreatureScript
 
             void Reset()
             {
-                _events.Reset();
                 me->SetHealth(_spawnHealth);
                 me->SetReactState(REACT_PASSIVE);
                 me->LoadCreaturesAddon(true);
@@ -961,10 +960,9 @@ class npc_gluttonous_abomination : public CreatureScript
                 _events.ScheduleEvent(EVENT_GUT_SPRAY, urand(10000, 13000));
             }
 
-            void JustDied(Unit* killer)
+            void JustDied(Unit* /*killer*/)
             {
-                if (!killer->GetEntry())
-                    DoCast(me, SPELL_ROT_WORM_SPAWNER, true);
+                DoCast(me, SPELL_ROT_WORM_SPAWNER, true);
             }
 
             void UpdateAI(uint32 diff)

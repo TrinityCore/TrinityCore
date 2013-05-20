@@ -773,7 +773,7 @@ public:
         void JustSummoned(Creature* summon)
         {
             Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 30, true);
-            if (target && summon)
+            if (target)
                 summon->Attack(target, false);
             summons.Summon(summon);
         }

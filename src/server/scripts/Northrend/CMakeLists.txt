@@ -27,7 +27,7 @@ set(scripts_STAT_SRCS
   Northrend/Ulduar/Ulduar/boss_algalon_the_observer.cpp
   Northrend/Ulduar/Ulduar/instance_ulduar.cpp
   Northrend/Ulduar/Ulduar/boss_auriaya.cpp
-  Northrend/Ulduar/Ulduar/boss_yoggsaron.cpp
+  Northrend/Ulduar/Ulduar/boss_yogg_saron.cpp
   Northrend/Ulduar/Ulduar/boss_hodir.cpp
   Northrend/Ulduar/Ulduar/boss_assembly_of_iron.cpp
   Northrend/Ulduar/Ulduar/boss_flame_leviathan.cpp
@@ -37,7 +37,6 @@ set(scripts_STAT_SRCS
   Northrend/Ulduar/Ulduar/boss_freya.cpp
   Northrend/Ulduar/Ulduar/boss_razorscale.cpp
   Northrend/Ulduar/Ulduar/boss_kologarn.cpp
-  Northrend/Ulduar/Ulduar/ulduar_trash.cpp
   Northrend/Ulduar/HallsOfStone/boss_krystallus.cpp
   Northrend/Ulduar/HallsOfStone/halls_of_stone.h
   Northrend/Ulduar/HallsOfStone/instance_halls_of_stone.cpp
@@ -180,7 +179,7 @@ set(scripts_STAT_SRCS
   Northrend/IcecrownCitadel/boss_valithria_dreamwalker.cpp
   Northrend/IcecrownCitadel/boss_sindragosa.cpp
   Northrend/IcecrownCitadel/boss_the_lich_king.cpp
-  Northrend/IcecrownCitadel/icc_trash.cpp
+  Northrend/IcecrownCitadel/boss_gunship_battle.cpp
   Northrend/zone_zuldrak.cpp
   Northrend/zone_icecrown.cpp
   Northrend/Gundrak/boss_slad_ran.cpp
