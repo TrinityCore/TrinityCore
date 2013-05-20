@@ -62,7 +62,7 @@ public:
         }
 
         pPlayer->ADD_GOSSIP_ITEM( 5, "Teleport to Astranaar", GOSSIP_SENDER_MAIN, 6266);
-        pPlayer->ADD_GOSSIP_ITEM( 5, "Teleport to StairCase Event", GOSSIP_SENDER_MAIN, 6270);
+        //pPlayer->ADD_GOSSIP_ITEM( 5, "Teleport to StairCase Event", GOSSIP_SENDER_MAIN, 6270);
 
         if (PlayerLevel>=30)
             pPlayer->ADD_GOSSIP_ITEM( 5, "Teleport to Gurubashi Arena", GOSSIP_SENDER_MAIN, 6200);

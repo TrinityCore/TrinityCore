@@ -869,7 +869,7 @@ class npc_muradin_gunship : public CreatureScript
                         {
                             me->SetReactState(REACT_AGGRESSIVE);
                             pHordeBoss->SetInCombatWith(pAllianceBoss);
-                            AllianceBoss->SetInCombatWith(pHordeBoss);
+                            pAllianceBoss->SetInCombatWith(pHordeBoss);
                             pAllianceBoss->AddThreat(pHordeBoss, 0.0f);
                             pHordeBoss->AddThreat(pAllianceBoss, 0.0f);
                             _instance->SetBossState(DATA_GUNSHIP_EVENT, IN_PROGRESS);
