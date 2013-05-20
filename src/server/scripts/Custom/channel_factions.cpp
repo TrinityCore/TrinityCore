@@ -20,9 +20,9 @@
 class channel_factions : public PlayerScript
 {
     public:
-        channel_factions() : PlayerScript("channel_factions"){}
+        channel_factions() : PlayerScript("channel_factions") { }
 
-    void OnChat(Player* player, uint32 /*type*/, uint32 lang, std::string& msg, Channel* channel )
+    void OnChat(Player* player, uint32 /*type*/, uint32 lang, std::string& msg, Channel* channel)
     {
         if (!player || !channel)
             return;
