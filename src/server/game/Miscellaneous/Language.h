@@ -806,8 +806,23 @@ enum TrinityStrings
     LANG_NPCINFO_SPELLCLICK             = 840,
     LANG_NPCINFO_MAILBOX                = 841,
     LANG_NPCINFO_PLAYER_VEHICLE         = 842,
+    // Room for the pinfo rewrite command 843-856
+    LANG_ARENA_ERROR_NOT_FOUND          = 857,
+    LANG_ARENA_ERROR_NAME_EXISTS        = 858,
+    LANG_ARENA_ERROR_SIZE               = 859,
+    LANG_ARENA_ERROR_COMBAT             = 860,
+    LANG_AREAN_ERROR_NAME_NOT_FOUND     = 861,
+    LANG_ARENA_ERROR_NOT_MEMBER         = 862,
+    LANG_ARENA_ERROR_CAPTAIN            = 863,
+    LANG_ARENA_CREATE                   = 864,
+    LANG_ARENA_DISBAND                  = 865,
+    LANG_ARENA_RENAME                   = 866,
+    LANG_ARENA_CAPTAIN                  = 867,
+    LANG_ARENA_INFO_HEADER              = 868,
+    LANG_ARENA_INFO_MEMBERS             = 869,
+    LANG_ARENA_LOOKUP                   = 870,
 
-    // Room for in-game strings           843-999 not used
+    // Room for in-game strings           870-999 not used
 
     // Level 4 (CLI only commands)
     LANG_COMMAND_EXIT                   = 1000,
