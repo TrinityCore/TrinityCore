@@ -469,7 +469,6 @@ void AddSC_boss_kologarn();
 void AddSC_boss_assembly_of_iron();
 void AddSC_boss_general_vezax();
 void AddSC_ulduar_teleporter();
-void AddSC_ulduar_trash();
 void AddSC_boss_mimiron();
 void AddSC_boss_hodir();
 void AddSC_boss_thorim();
@@ -535,7 +534,6 @@ void AddSC_boss_the_lich_king();
 void AddSC_icecrown_citadel_teleport();
 void AddSC_instance_icecrown_citadel();
 void AddSC_icecrown_citadel();
-void AddSC_icc_trash();
 void AddSC_instance_ruby_sanctum();      // Ruby Sanctum
 void AddSC_ruby_sanctum();
 void AddSC_boss_baltharus_the_warborn();
@@ -1221,7 +1219,6 @@ void AddNorthrendScripts()
     AddSC_boss_assembly_of_iron();
     AddSC_boss_kologarn();
     AddSC_ulduar_teleporter();
-    AddSC_ulduar_trash();
     AddSC_boss_mimiron();
     AddSC_boss_hodir();
     AddSC_boss_thorim();
@@ -1287,7 +1284,6 @@ void AddNorthrendScripts()
     AddSC_icecrown_citadel_teleport();
     AddSC_instance_icecrown_citadel();
     AddSC_icecrown_citadel();
-    AddSC_icc_trash();
     AddSC_instance_ruby_sanctum();      // Ruby Sanctum
     AddSC_ruby_sanctum();
     AddSC_boss_baltharus_the_warborn();
