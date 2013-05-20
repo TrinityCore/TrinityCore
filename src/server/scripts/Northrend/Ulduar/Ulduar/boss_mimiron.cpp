@@ -463,6 +463,7 @@ class boss_mimiron : public CreatureScript
                                     }
                                 }
                                 events.ScheduleEvent(EVENT_VX001_5, 8000, 0, PHASE_VX001_ACTIVATION);
+                                events.CancelEvent(EVENT_VX001_4);
                             }
                             break;
                         case EVENT_VX001_5:
@@ -474,9 +475,10 @@ class boss_mimiron : public CreatureScript
                             }
                             break;
                         case EVENT_VX001_6:
-                            me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_TALK);
                             TalkToMap(SAY_VX001_ACTIVATE);
+                            me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_TALK);
                             events.ScheduleEvent(EVENT_VX001_7, 10000, 0, PHASE_VX001_ACTIVATION);
+                            events.CancelEvent(EVENT_VX001_6);
                             break;
                         case EVENT_VX001_7:
                             me->ChangeSeat(1);
