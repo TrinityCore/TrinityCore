@@ -2169,7 +2169,7 @@ bool WorldObject::CanDetectStealthOf(WorldObject const* obj) const
         if (visibilityRange > MAX_PLAYER_STEALTH_DETECT_RANGE)
             visibilityRange = MAX_PLAYER_STEALTH_DETECT_RANGE;
 
-        if (distance > visibilityRange /* && !isSpectator()*/)
+        if (distance > visibilityRange)
             return false;
     }
 

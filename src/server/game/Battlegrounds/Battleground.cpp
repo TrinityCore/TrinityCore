@@ -985,12 +985,6 @@ void Battleground::EndBattleground(uint32 winner)
                 UpdatePlayerScore(player, SCORE_BONUS_HONOR, GetBonusHonorFromKill(loser_kills));
         }
 
-        if (isArena())
-        {
-            player->SetGMVisible(true);
-            player->SetGameMaster(false);
-        }
-
         player->ResetAllPowers();
         player->CombatStopWithPets(true);
 
@@ -1150,8 +1144,6 @@ void Battleground::RemovePlayerAtLeave(uint64 guid, bool Transport, bool SendPac
         player->SetBattlegroundId(0, BATTLEGROUND_TYPE_NONE);  // We're not in BG.
         // reset destination bg team
         player->SetBGTeam(0);
-        player->SetGMVisible(true);
-        player->SetGameMaster(false);
 
         if (Transport)
             player->TeleportToBGEntryPoint();
@@ -1365,24 +1357,13 @@ void Battleground::EventPlayerLoggedOut(Player* player)
     m_Players[guid].OfflineRemoveTime = sWorld->GetGameTime() + MAX_OFFLINE_TIME;
     if (GetStatus() == STATUS_IN_PROGRESS)
     {
-        if (!player->isSpectator())
-         {
-            // drop flag and handle other cleanups
-            RemovePlayer(player, guid, GetPlayerTeam(guid));
+        // drop flag and handle other cleanups
+        RemovePlayer(player, guid, GetPlayerTeam(guid));
 
-            // 1 player is logging out, if it is the last, then end arena!
-            if (isArena())
-                if (GetAlivePlayersCountByTeam(player->GetTeam()) <= 1 && GetPlayersCountByTeam(GetOtherTeam(player->GetTeam())))
-                    EndBattleground(GetOtherTeam(player->GetTeam()));
-        }
-    }
-
-    if (!player->isSpectator())
-        player->LeaveBattleground();
-    else
-    {
-        player->TeleportToBGEntryPoint();
-        RemoveSpectator(player->GetGUID());
+        // 1 player is logging out, if it is the last, then end arena!
+        if (isArena())
+            if (GetAlivePlayersCountByTeam(player->GetBGTeam()) <= 1 && GetPlayersCountByTeam(GetOtherTeam(player->GetBGTeam())))
+                EndBattleground(GetOtherTeam(player->GetBGTeam()));
     }
 }
 
@@ -2078,7 +2059,7 @@ uint8 Battleground::ClickFastStart(Player *player, GameObject *go)
         return 0;
 
     std::set<uint64>::iterator pIt = m_playersWantsFastStart.find(player->GetGUID());
-    if (pIt != m_playersWantsFastStart.end() || GetStartDelayTime() < BG_START_DELAY_15S || player->isSpectator())
+    if (pIt != m_playersWantsFastStart.end() || GetStartDelayTime() < BG_START_DELAY_15S)
         return m_playersWantsFastStart.size();
 
     m_playersWantsFastStart.insert(player->GetGUID());
@@ -2127,13 +2108,4 @@ void Battleground::DespawnCrystals()
         go->Delete();
         m_crystals.erase(itr);
     }
-}
-
-void Battleground::SendSpectateAddonsMsg(SpectatorAddonMsg msg)
-{
-    if (!HaveSpectators())
-        return;
-
-    for (SpectatorList::iterator itr = m_Spectators.begin(); itr != m_Spectators.end(); ++itr)
-         msg.SendPacket(*itr);
 }

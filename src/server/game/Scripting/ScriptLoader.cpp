@@ -44,8 +44,6 @@ void AddSC_npc_shop();
 void AddSC_fast_arena_start();
 // Fake Players
 void AddSC_fake_commandscript();
-// Arena Spectator
-void AddSC_arena_spectator_script();
 // Factions on Channel
 void AddSC_channel_factions();
 
@@ -1366,8 +1364,6 @@ void AddCustomScripts()
     AddSC_fast_arena_start();
     // Fake Players
     AddSC_fake_commandscript();
-    // Arena Spectator
-    AddSC_arena_spectator_script();
     // Factions on Channel
     AddSC_channel_factions();
 #endif
