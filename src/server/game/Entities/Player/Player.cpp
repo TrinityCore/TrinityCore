@@ -24162,21 +24162,7 @@ void Player::SetViewpoint(WorldObject* target, bool apply)
 {
     if (apply)
     {
-<<<<<<< HEAD
-        if (target->ToPlayer() == this)
-            return;
-
-        //remove Viewpoint if already have
-        if (isSpectator() && spectateFrom)
-        {
-            SetViewpoint(spectateFrom, false);
-            spectateFrom = NULL;
-        }
-
         TC_LOG_DEBUG(LOG_FILTER_MAPS, "Player::CreateViewpoint: Player %s create seer %u (TypeId: %u).", GetName().c_str(), target->GetEntry(), target->GetTypeId());
-=======
-        sLog->outDebug(LOG_FILTER_MAPS, "Player::CreateViewpoint: Player %s create seer %u (TypeId: %u).", GetName().c_str(), target->GetEntry(), target->GetTypeId());
->>>>>>> parent of dada152... [186] Implement Arena Spectator. (Thx Demonid)
 
         if (!AddUInt64Value(PLAYER_FARSIGHT, target->GetGUID()))
         {
@@ -24192,14 +24178,7 @@ void Player::SetViewpoint(WorldObject* target, bool apply)
     }
     else
     {
-<<<<<<< HEAD
-        if (isSpectator() && !spectateFrom)
-            return;
-
         TC_LOG_DEBUG(LOG_FILTER_MAPS, "Player::CreateViewpoint: Player %s remove seer", GetName().c_str());
-=======
-        sLog->outDebug(LOG_FILTER_MAPS, "Player::CreateViewpoint: Player %s remove seer", GetName().c_str());
->>>>>>> parent of dada152... [186] Implement Arena Spectator. (Thx Demonid)
 
         if (!RemoveUInt64Value(PLAYER_FARSIGHT, target->GetGUID()))
         {
