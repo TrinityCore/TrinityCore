@@ -32,6 +32,7 @@ EndContentData */
 #include "Player.h"
 #include "TemporarySummon.h"
 #include "CombatAI.h"
+#define CAST_PLR(a)     (dynamic_cast<Player*>(a))
 
 /*######
 ## npc_arete
