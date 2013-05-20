@@ -1,332 +1,281 @@
-DELETE FROM `creature_text` WHERE `entry` IN (33562, 33559, 33558, 33564, 33561, 33382, 33383, 33384, 33306, 33285, 33739, 33738, 33747, 33743, 33740, 33746, 33748, 33744, 33745, 33749);
-INSERT INTO `creature_text` (`entry`, `groupid`, `id`, `text`, `type`, `language`, `probability`, `emote`, `duration`, `sound`, `comment`) VALUES 
-(33383, 0, 0, 'Prepare yourself!', 12, 0, 100, 0, 0, 0, 'Thunder Bluff Valiant Aggro 1'),
-(33383, 0, 1, 'Ready yourself!', 12, 0, 100, 0, 0, 0, 'Thunder Bluff Valiant Aggro 2'),
-(33383, 0, 2, 'On your guard!', 12, 0, 100, 0, 0, 0, 'Thunder Bluff Valiant Aggro 3'),
-(33383, 0, 3, 'Let it begin!', 12, 0, 100, 0, 0, 0, 'Thunder Bluff Valiant Aggro 4'),
-(33383, 1, 0, 'I have been defeated.  Good fight!', 12, 0, 100, 0, 0, 0, 'Thunder Bluff Valiant Defeated 1'),
-(33383, 1, 1, 'I yield to you.', 12, 0, 100, 0, 0, 0, 'Thunder Bluff Valiant Defeated 2'),
-(33383, 1, 2, 'It would seem I underestimated your skills.  Well done.', 12, 0, 100, 0, 0, 0, 'Thunder Bluff Valiant Defeated 3'),
-(33383, 1, 3, 'That was a well fought battle.  I yield to you.', 12, 0, 100, 0, 0, 0, 'Thunder Bluff Valiant Defeated 4'),
-(33383, 2, 0, 'I have won.  Better luck another time, friend.', 12, 0, 100, 0, 0, 0, 'Thunder Bluff Valiant Victory 1'),
-(33383, 2, 1, 'I am afraid you will need more practice to defeat me.', 12, 0, 100, 0, 0, 0, 'Thunder Bluff Valiant Victory 2'),
-(33383, 2, 2, 'It seems you still need more practice.  Perhaps another time.', 12, 0, 100, 0, 0, 0, 'Thunder Bluff Valiant Victory 3'),
-(33383, 2, 3, 'Victory is mine!', 12, 0, 100, 0, 0, 0, 'Thunder Bluff Valiant Victory 4'),
-(33384, 0, 0, 'Prepare yourself!', 12, 0, 100, 0, 0, 0, 'Undercity Valiant Aggro 1'),
-(33384, 0, 1, 'Ready yourself!', 12, 0, 100, 0, 0, 0, 'Undercity Valiant Aggro 2'),
-(33384, 0, 2, 'On your guard!', 12, 0, 100, 0, 0, 0, 'Undercity Valiant Aggro 3'),
-(33384, 0, 3, 'Let it begin!', 12, 0, 100, 0, 0, 0, 'Undercity Valiant Aggro 4'),
-(33384, 1, 0, 'I have been defeated.  Good fight!', 12, 0, 100, 0, 0, 0, 'Undercity Valiant Defeated 1'),
-(33384, 1, 1, 'I yield to you.', 12, 0, 100, 0, 0, 0, 'Undercity Valiant Defeated 2'),
-(33384, 1, 2, 'It would seem I underestimated your skills.  Well done.', 12, 0, 100, 0, 0, 0, 'Undercity Valiant Defeated 3'),
-(33384, 1, 3, 'That was a well fought battle.  I yield to you.', 12, 0, 100, 0, 0, 0, 'Undercity Valiant Defeated 4'),
-(33384, 2, 0, 'I have won.  Better luck another time, friend.', 12, 0, 100, 0, 0, 0, 'Undercity Valiant Victory 1'),
-(33384, 2, 1, 'I am afraid you will need more practice to defeat me.', 12, 0, 100, 0, 0, 0, 'Undercity Valiant Victory 2'),
-(33384, 2, 2, 'It seems you still need more practice.  Perhaps another time.', 12, 0, 100, 0, 0, 0, 'Undercity Valiant Victory 3'),
-(33384, 2, 3, 'Victory is mine!', 12, 0, 100, 0, 0, 0, 'Undercity Valiant Victory 4'),
-(33306, 0, 0, 'Prepare yourself!', 12, 0, 100, 0, 0, 0, 'Orgrimmar Valiant Aggro 1'),
-(33306, 0, 1, 'Ready yourself!', 12, 0, 100, 0, 0, 0, 'Orgrimmar Valiant Aggro 2'),
-(33306, 0, 2, 'On your guard!', 12, 0, 100, 0, 0, 0, 'Orgrimmar Valiant Aggro 3'),
-(33306, 0, 3, 'Let it begin!', 12, 0, 100, 0, 0, 0, 'Orgrimmar Valiant Aggro 4'),
-(33306, 1, 0, 'I have been defeated.  Good fight!', 12, 0, 100, 0, 0, 0, 'Orgrimmar Valiant Defeated 1'),
-(33306, 1, 1, 'I yield to you.', 12, 0, 100, 0, 0, 0, 'Orgrimmar Valiant Defeated 2'),
-(33306, 1, 2, 'It would seem I underestimated your skills.  Well done.', 12, 0, 100, 0, 0, 0, 'Orgrimmar Valiant Defeated 3'),
-(33306, 1, 3, 'That was a well fought battle.  I yield to you.', 12, 0, 100, 0, 0, 0, 'Orgrimmar Valiant Defeated 4'),
-(33306, 2, 0, 'I have won.  Better luck another time, friend.', 12, 0, 100, 0, 0, 0, 'Orgrimmar Valiant Victory 1'),
-(33306, 2, 1, 'I am afraid you will need more practice to defeat me.', 12, 0, 100, 0, 0, 0, 'Orgrimmar Valiant Victory 2'),
-(33306, 2, 2, 'It seems you still need more practice.  Perhaps another time.', 12, 0, 100, 0, 0, 0, 'Orgrimmar Valiant Victory 3'),
-(33306, 2, 3, 'Victory is mine!', 12, 0, 100, 0, 0, 0, 'Orgrimmar Valiant Victory 4'),
-(33285, 0, 0, 'Prepare yourself!', 12, 0, 100, 0, 0, 0, 'Senjin Valiant Aggro 1'),
-(33285, 0, 1, 'Ready yourself!', 12, 0, 100, 0, 0, 0, 'Senjin Valiant Aggro 2'),
-(33285, 0, 2, 'On your guard!', 12, 0, 100, 0, 0, 0, 'Senjin Valiant Aggro 3'),
-(33285, 0, 3, 'Let it begin!', 12, 0, 100, 0, 0, 0, 'Senjin Valiant Aggro 4'),
-(33285, 1, 0, 'I have been defeated.  Good fight!', 12, 0, 100, 0, 0, 0, 'Senjin Valiant Defeated 1'),
-(33285, 1, 1, 'I yield to you.', 12, 0, 100, 0, 0, 0, 'Senjin Valiant Defeated 2'),
-(33285, 1, 2, 'It would seem I underestimated your skills.  Well done.', 12, 0, 100, 0, 0, 0, 'Senjin Valiant Defeated 3'),
-(33285, 1, 3, 'That was a well fought battle.  I yield to you.', 12, 0, 100, 0, 0, 0, 'Senjin Valiant Defeated 4'),
-(33285, 2, 0, 'I have won.  Better luck another time, friend.', 12, 0, 100, 0, 0, 0, 'Senjin Valiant Victory 1'),
-(33285, 2, 1, 'I am afraid you will need more practice to defeat me.', 12, 0, 100, 0, 0, 0, 'Senjin Valiant Victory 2'),
-(33285, 2, 2, 'It seems you still need more practice.  Perhaps another time.', 12, 0, 100, 0, 0, 0, 'Senjin Valiant Victory 3'),
-(33285, 2, 3, 'Victory is mine!', 12, 0, 100, 0, 0, 0, 'Senjin Valiant Victory 4'),
-(33382, 0, 0, 'Prepare yourself!', 12, 0, 100, 0, 0, 0, 'Silvermoon Valiant Aggro 1'),
-(33382, 0, 1, 'Ready yourself!', 12, 0, 100, 0, 0, 0, 'Silvermoon Valiant Aggro 2'),
-(33382, 0, 2, 'On your guard!', 12, 0, 100, 0, 0, 0, 'Silvermoon Valiant Aggro 3'),
-(33382, 0, 3, 'Let it begin!', 12, 0, 100, 0, 0, 0, 'Silvermoon Valiant Aggro 4'),
-(33382, 1, 0, 'I have been defeated.  Good fight!', 12, 0, 100, 0, 0, 0, 'Silvermoon Valiant Defeated 1'),
-(33382, 1, 1, 'I yield to you.', 12, 0, 100, 0, 0, 0, 'Silvermoon Valiant Defeated 2'),
-(33382, 1, 2, 'It would seem I underestimated your skills.  Well done.', 12, 0, 100, 0, 0, 0, 'Silvermoon Valiant Defeated 3'),
-(33382, 1, 3, 'That was a well fought battle.  I yield to you.', 12, 0, 100, 0, 0, 0, 'Silvermoon Valiant Defeated 4'),
-(33382, 2, 0, 'I have won.  Better luck another time, friend.', 12, 0, 100, 0, 0, 0, 'Silvermoon Valiant Victory 1'),
-(33382, 2, 1, 'I am afraid you will need more practice to defeat me.', 12, 0, 100, 0, 0, 0, 'Silvermoon Valiant Victory 2'),
-(33382, 2, 2, 'It seems you still need more practice.  Perhaps another time.', 12, 0, 100, 0, 0, 0, 'Silvermoon Valiant Victory 3'),
-(33382, 2, 3, 'Victory is mine!', 12, 0, 100, 0, 0, 0, 'Silvermoon Valiant Victory 4'),
-(33559, 0, 0, 'Prepare yourself!', 12, 0, 100, 0, 0, 0, 'Darnassus Valiant Aggro 1'),
-(33559, 0, 1, 'Ready yourself!', 12, 0, 100, 0, 0, 0, 'Darnassus Valiant Aggro 2'),
-(33559, 0, 2, 'On your guard!', 12, 0, 100, 0, 0, 0, 'Darnassus Valiant Aggro 3'),
-(33559, 0, 3, 'Let it begin!', 12, 0, 100, 0, 0, 0, 'Darnassus Valiant Aggro 4'),
-(33559, 1, 0, 'I have been defeated.  Good fight!', 12, 0, 100, 0, 0, 0, 'Darnassus Valiant Defeated 1'),
-(33559, 1, 1, 'I yield to you.', 12, 0, 100, 0, 0, 0, 'Darnassus Valiant Defeated 2'),
-(33559, 1, 2, 'It would seem I underestimated your skills.  Well done.', 12, 0, 100, 0, 0, 0, 'Darnassus Valiant Defeated 3'),
-(33559, 1, 3, 'That was a well fought battle.  I yield to you.', 12, 0, 100, 0, 0, 0, 'Darnassus Valiant Defeated 4'),
-(33559, 2, 0, 'I have won.  Better luck another time, friend.', 12, 0, 100, 0, 0, 0, 'Darnassus Valiant Victory 1'),
-(33559, 2, 1, 'I am afraid you will need more practice to defeat me.', 12, 0, 100, 0, 0, 0, 'Darnassus Valiant Victory 2'),
-(33559, 2, 2, 'It seems you still need more practice.  Perhaps another time.', 12, 0, 100, 0, 0, 0, 'Darnassus Valiant Victory 3'),
-(33559, 2, 3, 'Victory is mine!', 12, 0, 100, 0, 0, 0, 'Darnassus Valiant Victory 4'),
-(33558, 0, 0, 'Prepare yourself!', 12, 0, 100, 0, 0, 0, 'Gnomeregan Valiant Aggro 1'),
-(33558, 0, 1, 'Ready yourself!', 12, 0, 100, 0, 0, 0, 'Gnomeregan Valiant Aggro 2'),
-(33558, 0, 2, 'On your guard!', 12, 0, 100, 0, 0, 0, 'Gnomeregan Valiant Aggro 3'),
-(33558, 0, 3, 'Let it begin!', 12, 0, 100, 0, 0, 0, 'Gnomeregan Valiant Aggro 4'),
-(33558, 1, 0, 'I have been defeated.  Good fight!', 12, 0, 100, 0, 0, 0, 'Gnomeregan Valiant Defeated 1'),
-(33558, 1, 1, 'I yield to you.', 12, 0, 100, 0, 0, 0, 'Gnomeregan Valiant Defeated 2'),
-(33558, 1, 2, 'It would seem I underestimated your skills.  Well done.', 12, 0, 100, 0, 0, 0, 'Gnomeregan Valiant Defeated 3'),
-(33558, 1, 3, 'That was a well fought battle.  I yield to you.', 12, 0, 100, 0, 0, 0, 'Gnomeregan Valiant Defeated 4'),
-(33558, 2, 0, 'I have won.  Better luck another time, friend.', 12, 0, 100, 0, 0, 0, 'Gnomeregan Valiant Victory 1'),
-(33558, 2, 1, 'I am afraid you will need more practice to defeat me.', 12, 0, 100, 0, 0, 0, 'Gnomeregan Valiant Victory 2'),
-(33558, 2, 2, 'It seems you still need more practice.  Perhaps another time.', 12, 0, 100, 0, 0, 0, 'Gnomeregan Valiant Victory 3'),
-(33558, 2, 3, 'Victory is mine!', 12, 0, 100, 0, 0, 0, 'Gnomeregan Valiant Victory 4'),
-(33564, 0, 0, 'Prepare yourself!', 12, 0, 100, 0, 0, 0, 'Ironforge Valiant Aggro 1'),
-(33564, 0, 1, 'Ready yourself!', 12, 0, 100, 0, 0, 0, 'Ironforge Valiant Aggro 2'),
-(33564, 0, 2, 'On your guard!', 12, 0, 100, 0, 0, 0, 'Ironforge Valiant Aggro 3'),
-(33564, 0, 3, 'Let it begin!', 12, 0, 100, 0, 0, 0, 'Ironforge Valiant Aggro 4'),
-(33564, 1, 0, 'I have been defeated.  Good fight!', 12, 0, 100, 0, 0, 0, 'Ironforge Valiant Defeated 1'),
-(33564, 1, 1, 'I yield to you.', 12, 0, 100, 0, 0, 0, 'Ironforge Valiant Defeated 2'),
-(33564, 1, 2, 'It would seem I underestimated your skills.  Well done.', 12, 0, 100, 0, 0, 0, 'Ironforge Valiant Defeated 3'),
-(33564, 1, 3, 'That was a well fought battle.  I yield to you.', 12, 0, 100, 0, 0, 0, 'Ironforge Valiant Defeated 4'),
-(33564, 2, 0, 'I have won.  Better luck another time, friend.', 12, 0, 100, 0, 0, 0, 'Ironforge Valiant Victory 1'),
-(33564, 2, 1, 'I am afraid you will need more practice to defeat me.', 12, 0, 100, 0, 0, 0, 'Ironforge Valiant Victory 2'),
-(33564, 2, 2, 'It seems you still need more practice.  Perhaps another time.', 12, 0, 100, 0, 0, 0, 'Ironforge Valiant Victory 3'),
-(33564, 2, 3, 'Victory is mine!', 12, 0, 100, 0, 0, 0, 'Ironforge Valiant Victory 4'),
-(33561, 0, 0, 'Prepare yourself!', 12, 0, 100, 0, 0, 0, 'Stormwind Valiant Aggro 1'),
-(33561, 0, 1, 'Ready yourself!', 12, 0, 100, 0, 0, 0, 'Stormwind Valiant Aggro 2'),
-(33561, 0, 2, 'On your guard!', 12, 0, 100, 0, 0, 0, 'Stormwind Valiant Aggro 3'),
-(33561, 0, 3, 'Let it begin!', 12, 0, 100, 0, 0, 0, 'Stormwind Valiant Aggro 4'),
-(33561, 1, 0, 'I have been defeated.  Good fight!', 12, 0, 100, 0, 0, 0, 'Stormwind Valiant Defeated 1'),
-(33561, 1, 1, 'I yield to you.', 12, 0, 100, 0, 0, 0, 'Stormwind Valiant Defeated 2'),
-(33561, 1, 2, 'It would seem I underestimated your skills.  Well done.', 12, 0, 100, 0, 0, 0, 'Stormwind Valiant Defeated 3'),
-(33561, 1, 3, 'That was a well fought battle.  I yield to you.', 12, 0, 100, 0, 0, 0, 'Stormwind Valiant Defeated 4'),
-(33561, 2, 0, 'I have won.  Better luck another time, friend.', 12, 0, 100, 0, 0, 0, 'Stormwind Valiant Victory 1'),
-(33561, 2, 1, 'I am afraid you will need more practice to defeat me.', 12, 0, 100, 0, 0, 0, 'Stormwind Valiant Victory 2'),
-(33561, 2, 2, 'It seems you still need more practice.  Perhaps another time.', 12, 0, 100, 0, 0, 0, 'Stormwind Valiant Victory 3'),
-(33561, 2, 3, 'Victory is mine!', 12, 0, 100, 0, 0, 0, 'Stormwind Valiant Victory 4'),
-(33562, 0, 0, 'Prepare yourself!', 12, 0, 100, 0, 0, 0, 'Exodar Valiant Aggro 1'),
-(33562, 0, 1, 'Ready yourself!', 12, 0, 100, 0, 0, 0, 'Exodar Valiant Aggro 2'),
-(33562, 0, 2, 'On your guard!', 12, 0, 100, 0, 0, 0, 'Exodar Valiant Aggro 3'),
-(33562, 0, 3, 'Let it begin!', 12, 0, 100, 0, 0, 0, 'Exodar Valiant Aggro 4'),
-(33562, 1, 0, 'I have been defeated.  Good fight!', 12, 0, 100, 0, 0, 0, 'Exodar Valiant Defeated 1'),
-(33562, 1, 1, 'I yield to you.', 12, 0, 100, 0, 0, 0, 'Exodar Valiant Defeated 2'),
-(33562, 1, 2, 'It would seem I underestimated your skills.  Well done.', 12, 0, 100, 0, 0, 0, 'Exodar Valiant Defeated 3'),
-(33562, 1, 3, 'That was a well fought battle.  I yield to you.', 12, 0, 100, 0, 0, 0, 'Exodar Valiant Defeated 4'),
-(33562, 2, 0, 'I have won.  Better luck another time, friend.', 12, 0, 100, 0, 0, 0, 'Exodar Valiant Victory 1'),
-(33562, 2, 1, 'I am afraid you will need more practice to defeat me.', 12, 0, 100, 0, 0, 0, 'Exodar Valiant Victory 2'),
-(33562, 2, 2, 'It seems you still need more practice.  Perhaps another time.', 12, 0, 100, 0, 0, 0, 'Exodar Valiant Victory 3'),
-(33562, 2, 3, 'Victory is mine!', 12, 0, 100, 0, 0, 0, 'Exodar Valiant Victory 4'),
-(33748, 0, 0, 'Prepare yourself!', 12, 0, 100, 0, 0, 0, 'Thunder Bluff Champion Aggro 1'),
-(33748, 0, 1, 'Ready yourself!', 12, 0, 100, 0, 0, 0, 'Thunder Bluff Champion Aggro 2'),
-(33748, 0, 2, 'On your guard!', 12, 0, 100, 0, 0, 0, 'Thunder Bluff Champion Aggro 3'),
-(33748, 0, 3, 'Let it begin!', 12, 0, 100, 0, 0, 0, 'Thunder Bluff Champion Aggro 4'),
-(33748, 1, 0, 'I have been defeated.  Good fight!', 12, 0, 100, 0, 0, 0, 'Thunder Bluff Champion Defeated 1'),
-(33748, 1, 1, 'I yield to you.', 12, 0, 100, 0, 0, 0, 'Thunder Bluff Champion Defeated 2'),
-(33748, 1, 2, 'It would seem I underestimated your skills.  Well done.', 12, 0, 100, 0, 0, 0, 'Thunder Bluff Champion Defeated 3'),
-(33748, 1, 3, 'That was a well fought battle.  I yield to you.', 12, 0, 100, 0, 0, 0, 'Thunder Bluff Champion Defeated 4'),
-(33748, 2, 0, 'I have won.  Better luck another time, friend.', 12, 0, 100, 0, 0, 0, 'Thunder Bluff Champion Victory 1'),
-(33748, 2, 1, 'I am afraid you will need more practice to defeat me.', 12, 0, 100, 0, 0, 0, 'Thunder Bluff Champion Victory 2'),
-(33748, 2, 2, 'It seems you still need more practice.  Perhaps another time.', 12, 0, 100, 0, 0, 0, 'Thunder Bluff Champion Victory 3'),
-(33748, 2, 3, 'Victory is mine!', 12, 0, 100, 0, 0, 0, 'Thunder Bluff Champion Victory 4'),
-(33749, 0, 0, 'Prepare yourself!', 12, 0, 100, 0, 0, 0, 'Undercity Champion Aggro 1'),
-(33749, 0, 1, 'Ready yourself!', 12, 0, 100, 0, 0, 0, 'Undercity Champion Aggro 2'),
-(33749, 0, 2, 'On your guard!', 12, 0, 100, 0, 0, 0, 'Undercity Champion Aggro 3'),
-(33749, 0, 3, 'Let it begin!', 12, 0, 100, 0, 0, 0, 'Undercity Champion Aggro 4'),
-(33749, 1, 0, 'I have been defeated.  Good fight!', 12, 0, 100, 0, 0, 0, 'Undercity Champion Defeated 1'),
-(33749, 1, 1, 'I yield to you.', 12, 0, 100, 0, 0, 0, 'Undercity Champion Defeated 2'),
-(33749, 1, 2, 'It would seem I underestimated your skills.  Well done.', 12, 0, 100, 0, 0, 0, 'Undercity Champion Defeated 3'),
-(33749, 1, 3, 'That was a well fought battle.  I yield to you.', 12, 0, 100, 0, 0, 0, 'Undercity Champion Defeated 4'),
-(33749, 2, 0, 'I have won.  Better luck another time, friend.', 12, 0, 100, 0, 0, 0, 'Undercity Champion Victory 1'),
-(33749, 2, 1, 'I am afraid you will need more practice to defeat me.', 12, 0, 100, 0, 0, 0, 'Undercity Champion Victory 2'),
-(33749, 2, 2, 'It seems you still need more practice.  Perhaps another time.', 12, 0, 100, 0, 0, 0, 'Undercity Champion Victory 3'),
-(33749, 2, 3, 'Victory is mine!', 12, 0, 100, 0, 0, 0, 'Undercity Champion Victory 4'),
-(33744, 0, 0, 'Prepare yourself!', 12, 0, 100, 0, 0, 0, 'Orgrimmar Champion Aggro 1'),
-(33744, 0, 1, 'Ready yourself!', 12, 0, 100, 0, 0, 0, 'Orgrimmar Champion Aggro 2'),
-(33744, 0, 2, 'On your guard!', 12, 0, 100, 0, 0, 0, 'Orgrimmar Champion Aggro 3'),
-(33744, 0, 3, 'Let it begin!', 12, 0, 100, 0, 0, 0, 'Orgrimmar Champion Aggro 4'),
-(33744, 1, 0, 'I have been defeated.  Good fight!', 12, 0, 100, 0, 0, 0, 'Orgrimmar Champion Defeated 1'),
-(33744, 1, 1, 'I yield to you.', 12, 0, 100, 0, 0, 0, 'Orgrimmar Champion Defeated 2'),
-(33744, 1, 2, 'It would seem I underestimated your skills.  Well done.', 12, 0, 100, 0, 0, 0, 'Orgrimmar Champion Defeated 3'),
-(33744, 1, 3, 'That was a well fought battle.  I yield to you.', 12, 0, 100, 0, 0, 0, 'Orgrimmar Champion Defeated 4'),
-(33744, 2, 0, 'I have won.  Better luck another time, friend.', 12, 0, 100, 0, 0, 0, 'Orgrimmar Champion Victory 1'),
-(33744, 2, 1, 'I am afraid you will need more practice to defeat me.', 12, 0, 100, 0, 0, 0, 'Orgrimmar Champion Victory 2'),
-(33744, 2, 2, 'It seems you still need more practice.  Perhaps another time.', 12, 0, 100, 0, 0, 0, 'Orgrimmar Champion Victory 3'),
-(33744, 2, 3, 'Victory is mine!', 12, 0, 100, 0, 0, 0, 'Orgrimmar Champion Victory 4'),
-(33745, 0, 0, 'Prepare yourself!', 12, 0, 100, 0, 0, 0, 'Senjin Champion Aggro 1'),
-(33745, 0, 1, 'Ready yourself!', 12, 0, 100, 0, 0, 0, 'Senjin Champion Aggro 2'),
-(33745, 0, 2, 'On your guard!', 12, 0, 100, 0, 0, 0, 'Senjin Champion Aggro 3'),
-(33745, 0, 3, 'Let it begin!', 12, 0, 100, 0, 0, 0, 'Senjin Champion Aggro 4'),
-(33745, 1, 0, 'I have been defeated.  Good fight!', 12, 0, 100, 0, 0, 0, 'Senjin Champion Defeated 1'),
-(33745, 1, 1, 'I yield to you.', 12, 0, 100, 0, 0, 0, 'Senjin Champion Defeated 2'),
-(33745, 1, 2, 'It would seem I underestimated your skills.  Well done.', 12, 0, 100, 0, 0, 0, 'Senjin Champion Defeated 3'),
-(33745, 1, 3, 'That was a well fought battle.  I yield to you.', 12, 0, 100, 0, 0, 0, 'Senjin Champion Defeated 4'),
-(33745, 2, 0, 'I have won.  Better luck another time, friend.', 12, 0, 100, 0, 0, 0, 'Senjin Champion Victory 1'),
-(33745, 2, 1, 'I am afraid you will need more practice to defeat me.', 12, 0, 100, 0, 0, 0, 'Senjin Champion Victory 2'),
-(33745, 2, 2, 'It seems you still need more practice.  Perhaps another time.', 12, 0, 100, 0, 0, 0, 'Senjin Champion Victory 3'),
-(33745, 2, 3, 'Victory is mine!', 12, 0, 100, 0, 0, 0, 'Senjin Champion Victory 4'),
-(33746, 0, 0, 'Prepare yourself!', 12, 0, 100, 0, 0, 0, 'Silvermoon Champion Aggro 1'),
-(33746, 0, 1, 'Ready yourself!', 12, 0, 100, 0, 0, 0, 'Silvermoon Champion Aggro 2'),
-(33746, 0, 2, 'On your guard!', 12, 0, 100, 0, 0, 0, 'Silvermoon Champion Aggro 3'),
-(33746, 0, 3, 'Let it begin!', 12, 0, 100, 0, 0, 0, 'Silvermoon Champion Aggro 4'),
-(33746, 1, 0, 'I have been defeated.  Good fight!', 12, 0, 100, 0, 0, 0, 'Silvermoon Champion Defeated 1'),
-(33746, 1, 1, 'I yield to you.', 12, 0, 100, 0, 0, 0, 'Silvermoon Champion Defeated 2'),
-(33746, 1, 2, 'It would seem I underestimated your skills.  Well done.', 12, 0, 100, 0, 0, 0, 'Silvermoon Champion Defeated 3'),
-(33746, 1, 3, 'That was a well fought battle.  I yield to you.', 12, 0, 100, 0, 0, 0, 'Silvermoon Champion Defeated 4'),
-(33746, 2, 0, 'I have won.  Better luck another time, friend.', 12, 0, 100, 0, 0, 0, 'Silvermoon Champion Victory 1'),
-(33746, 2, 1, 'I am afraid you will need more practice to defeat me.', 12, 0, 100, 0, 0, 0, 'Silvermoon Champion Victory 2'),
-(33746, 2, 2, 'It seems you still need more practice.  Perhaps another time.', 12, 0, 100, 0, 0, 0, 'Silvermoon Champion Victory 3'),
-(33746, 2, 3, 'Victory is mine!', 12, 0, 100, 0, 0, 0, 'Silvermoon Champion Victory 4'),
-(33738, 0, 0, 'Prepare yourself!', 12, 0, 100, 0, 0, 0, 'Darnassus Champion Aggro 1'),
-(33738, 0, 1, 'Ready yourself!', 12, 0, 100, 0, 0, 0, 'Darnassus Champion Aggro 2'),
-(33738, 0, 2, 'On your guard!', 12, 0, 100, 0, 0, 0, 'Darnassus Champion Aggro 3'),
-(33738, 0, 3, 'Let it begin!', 12, 0, 100, 0, 0, 0, 'Darnassus Champion Aggro 4'),
-(33738, 1, 0, 'I have been defeated.  Good fight!', 12, 0, 100, 0, 0, 0, 'Darnassus Champion Defeated 1'),
-(33738, 1, 1, 'I yield to you.', 12, 0, 100, 0, 0, 0, 'Darnassus Champion Defeated 2'),
-(33738, 1, 2, 'It would seem I underestimated your skills.  Well done.', 12, 0, 100, 0, 0, 0, 'Darnassus Champion Defeated 3'),
-(33738, 1, 3, 'That was a well fought battle.  I yield to you.', 12, 0, 100, 0, 0, 0, 'Darnassus Champion Defeated 4'),
-(33738, 2, 0, 'I have won.  Better luck another time, friend.', 12, 0, 100, 0, 0, 0, 'Darnassus Champion Victory 1'),
-(33738, 2, 1, 'I am afraid you will need more practice to defeat me.', 12, 0, 100, 0, 0, 0, 'Darnassus Champion Victory 2'),
-(33738, 2, 2, 'It seems you still need more practice.  Perhaps another time.', 12, 0, 100, 0, 0, 0, 'Darnassus Champion Victory 3'),
-(33738, 2, 3, 'Victory is mine!', 12, 0, 100, 0, 0, 0, 'Darnassus Champion Victory 4'),
-(33740, 0, 0, 'Prepare yourself!', 12, 0, 100, 0, 0, 0, 'Gnomeregan Champion Aggro 1'),
-(33740, 0, 1, 'Ready yourself!', 12, 0, 100, 0, 0, 0, 'Gnomeregan Champion Aggro 2'),
-(33740, 0, 2, 'On your guard!', 12, 0, 100, 0, 0, 0, 'Gnomeregan Champion Aggro 3'),
-(33740, 0, 3, 'Let it begin!', 12, 0, 100, 0, 0, 0, 'Gnomeregan Champion Aggro 4'),
-(33740, 1, 0, 'I have been defeated.  Good fight!', 12, 0, 100, 0, 0, 0, 'Gnomeregan Champion Defeated 1'),
-(33740, 1, 1, 'I yield to you.', 12, 0, 100, 0, 0, 0, 'Gnomeregan Champion Defeated 2'),
-(33740, 1, 2, 'It would seem I underestimated your skills.  Well done.', 12, 0, 100, 0, 0, 0, 'Gnomeregan Champion Defeated 3'),
-(33740, 1, 3, 'That was a well fought battle.  I yield to you.', 12, 0, 100, 0, 0, 0, 'Gnomeregan Champion Defeated 4'),
-(33740, 2, 0, 'I have won.  Better luck another time, friend.', 12, 0, 100, 0, 0, 0, 'Gnomeregan Champion Victory 1'),
-(33740, 2, 1, 'I am afraid you will need more practice to defeat me.', 12, 0, 100, 0, 0, 0, 'Gnomeregan Champion Victory 2'),
-(33740, 2, 2, 'It seems you still need more practice.  Perhaps another time.', 12, 0, 100, 0, 0, 0, 'Gnomeregan Champion Victory 3'),
-(33740, 2, 3, 'Victory is mine!', 12, 0, 100, 0, 0, 0, 'Gnomeregan Champion Victory 4'),
-(33743, 0, 0, 'Prepare yourself!', 12, 0, 100, 0, 0, 0, 'Ironforge Champion Aggro 1'),
-(33743, 0, 1, 'Ready yourself!', 12, 0, 100, 0, 0, 0, 'Ironforge Champion Aggro 2'),
-(33743, 0, 2, 'On your guard!', 12, 0, 100, 0, 0, 0, 'Ironforge Champion Aggro 3'),
-(33743, 0, 3, 'Let it begin!', 12, 0, 100, 0, 0, 0, 'Ironforge Champion Aggro 4'),
-(33743, 1, 0, 'I have been defeated.  Good fight!', 12, 0, 100, 0, 0, 0, 'Ironforge Champion Defeated 1'),
-(33743, 1, 1, 'I yield to you.', 12, 0, 100, 0, 0, 0, 'Ironforge Champion Defeated 2'),
-(33743, 1, 2, 'It would seem I underestimated your skills.  Well done.', 12, 0, 100, 0, 0, 0, 'Ironforge Champion Defeated 3'),
-(33743, 1, 3, 'That was a well fought battle.  I yield to you.', 12, 0, 100, 0, 0, 0, 'Ironforge Champion Defeated 4'),
-(33743, 2, 0, 'I have won.  Better luck another time, friend.', 12, 0, 100, 0, 0, 0, 'Ironforge Champion Victory 1'),
-(33743, 2, 1, 'I am afraid you will need more practice to defeat me.', 12, 0, 100, 0, 0, 0, 'Ironforge Champion Victory 2'),
-(33743, 2, 2, 'It seems you still need more practice.  Perhaps another time.', 12, 0, 100, 0, 0, 0, 'Ironforge Champion Victory 3'),
-(33743, 2, 3, 'Victory is mine!', 12, 0, 100, 0, 0, 0, 'Ironforge Champion Victory 4'),
-(33747, 0, 0, 'Prepare yourself!', 12, 0, 100, 0, 0, 0, 'Stormwind Champion Aggro 1'),
-(33747, 0, 1, 'Ready yourself!', 12, 0, 100, 0, 0, 0, 'Stormwind Champion Aggro 2'),
-(33747, 0, 2, 'On your guard!', 12, 0, 100, 0, 0, 0, 'Stormwind Champion Aggro 3'),
-(33747, 0, 3, 'Let it begin!', 12, 0, 100, 0, 0, 0, 'Stormwind Champion Aggro 4'),
-(33747, 1, 0, 'I have been defeated.  Good fight!', 12, 0, 100, 0, 0, 0, 'Stormwind Champion Defeated 1'),
-(33747, 1, 1, 'I yield to you.', 12, 0, 100, 0, 0, 0, 'Stormwind Champion Defeated 2'),
-(33747, 1, 2, 'It would seem I underestimated your skills.  Well done.', 12, 0, 100, 0, 0, 0, 'Stormwind Champion Defeated 3'),
-(33747, 1, 3, 'That was a well fought battle.  I yield to you.', 12, 0, 100, 0, 0, 0, 'Stormwind Champion Defeated 4'),
-(33747, 2, 0, 'I have won.  Better luck another time, friend.', 12, 0, 100, 0, 0, 0, 'Stormwind Champion Victory 1'),
-(33747, 2, 1, 'I am afraid you will need more practice to defeat me.', 12, 0, 100, 0, 0, 0, 'Stormwind Champion Victory 2'),
-(33747, 2, 2, 'It seems you still need more practice.  Perhaps another time.', 12, 0, 100, 0, 0, 0, 'Stormwind Champion Victory 3'),
-(33747, 2, 3, 'Victory is mine!', 12, 0, 100, 0, 0, 0, 'Stormwind Champion Victory 4'),
-(33739, 0, 0, 'Prepare yourself!', 12, 0, 100, 0, 0, 0, 'Exodar Champion Aggro 1'),
-(33739, 0, 1, 'Ready yourself!', 12, 0, 100, 0, 0, 0, 'Exodar Champion Aggro 2'),
-(33739, 0, 2, 'On your guard!', 12, 0, 100, 0, 0, 0, 'Exodar Champion Aggro 3'),
-(33739, 0, 3, 'Let it begin!', 12, 0, 100, 0, 0, 0, 'Exodar Champion Aggro 4'),
-(33739, 1, 0, 'I have been defeated.  Good fight!', 12, 0, 100, 0, 0, 0, 'Exodar Champion Defeated 1'),
-(33739, 1, 1, 'I yield to you.', 12, 0, 100, 0, 0, 0, 'Exodar Champion Defeated 2'),
-(33739, 1, 2, 'It would seem I underestimated your skills.  Well done.', 12, 0, 100, 0, 0, 0, 'Exodar Champion Defeated 3'),
-(33739, 1, 3, 'That was a well fought battle.  I yield to you.', 12, 0, 100, 0, 0, 0, 'Exodar Champion Defeated 4'),
-(33739, 2, 0, 'I have won.  Better luck another time, friend.', 12, 0, 100, 0, 0, 0, 'Exodar Champion Victory 1'),
-(33739, 2, 1, 'I am afraid you will need more practice to defeat me.', 12, 0, 100, 0, 0, 0, 'Exodar Champion Victory 2'),
-(33739, 2, 2, 'It seems you still need more practice.  Perhaps another time.', 12, 0, 100, 0, 0, 0, 'Exodar Champion Victory 3'),
-(33739, 2, 3, 'Victory is mine!', 12, 0, 100, 0, 0, 0, 'Exodar Champion Victory 4');
+-- fix quest The Aspirant's Challenge / Die Herausforderung des Streiters
+-- set quest autocomplete to normal mode
+UPDATE `quest_template` SET `Method` = 2 WHERE `Id` IN (13679,13680);
+-- set correct killcredit
+UPDATE `quest_template` SET `RequiredNpcOrGo1` = 38595 WHERE `Id` IN (13679,13680);
+-- set missing next quest for horde
+UPDATE `quest_template` SET `NextQuestID` = 13696 WHERE `Id` = 13680;
+-- add missing lance for the Argent Valiant
+UPDATE `creature` SET `equipment_id` = 1873 WHERE `id` = 33448;
 
-DELETE FROM `conditions` WHERE `SourceEntry` = 63001;
-INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionTarget`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `NegativeCondition`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES ('13', '1', '63001', '0', '0', '31', '0', '3', '33438', '0', '0', '0', '', 'Trample Scourge can only target Boneguard Footmen');
-DELETE FROM `smart_scripts` WHERE `entryorguid` = 33550;
-INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES ('33550', '0', '0', '0', '0', '0', '100', '0', '0', '0', '2500', '2500', '11', '63233', '0', '0', '0', '0', '0', '2', '0', '0', '0', '0', '0', '0', '0', 'Boneguard Scout - Cast Necroution');
-UPDATE `creature_template` SET `AIName` = "SmartAI" WHERE `entry` = 33550; 
-UPDATE `creature_template` SET `ScriptName` = "npc_boneguard_mounted" WHERE `entry` IN (34127, 33429);
-DELETE FROM `spell_script_names` WHERE `spell_id` = 63000;
-INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES (63000, "spell_gen_trample_scourge");
-UPDATE `creature` SET `spawntimesecs` = 4 WHERE `id` IN (33562, 33559, 33558, 33564, 33561, 33382, 33383, 33384, 33306, 33285, 33739, 33738, 33747, 33743, 33740, 33746, 33748, 33744, 33745, 33749);
+UPDATE creature_template SET ScriptName = 'npc_argent_combatant' WHERE entry IN (33448, 33707);
+UPDATE creature_template SET ScriptName = 'npc_argent_squire' WHERE entry IN (33447, 33518, 33522);
 
--- Sunreaver / Silver Covenant Quest Pooling
-SET @pool_narasi := 31415;
-SET @pool_savinia := @pool_narasi+1;
-SET @pool_girana := @pool_narasi+2;
-SET @pool_tylos := @pool_narasi+3;
+-- add mount for argent champion
+DELETE FROM creature_template_addon WHERE entry = 33707;
+INSERT INTO creature_template_addon (entry, path_id, mount, bytes1, bytes2, emote, auras) VALUES
+(33707, 0, 28919, 0, 0, 0, '');
 
-DELETE FROM `pool_template` WHERE `entry` IN (@pool_narasi, @pool_savinia, @pool_girana, @pool_tylos);
-INSERT INTO `pool_template` (`entry`, `max_limit`, `description`) VALUES
-(@pool_narasi, 1, 'Narasi Snowdawn <The Silver Covenant> - Daily Quests'),
-(@pool_savinia, 1, 'Savinia Loresong <The Silver Covenant> - Daily Quests'),
-(@pool_girana, 1, 'Girana the Blooded <The Sunreavers> - Daily Quests'),
-(@pool_tylos, 1, 'Tylos Dawnrunner <The Sunreavers> - Daily Quests');
+DELETE FROM `achievement_criteria_data` WHERE criteria_id IN (9918, 10224, 10225, 10226, 10227, 9919, 9920, 10228, 9921, 9922);
+INSERT INTO `achievement_criteria_data` (criteria_id, type, value1, value2, ScriptName) VALUES
+(9918, 5, 64805, 0, ''), -- Darnassus
+(10224, 5, 64808, 0, ''), -- Exodar
+(10225, 5, 64809, 0, ''), -- Gnomeregan
+(10226, 5, 64810, 0, ''), -- Ironforge
+(10227, 5, 64811, 0, ''), -- Orgrimmar
+(9919, 5, 64812, 0, ''), -- Sen'Jin
+(9920, 5, 64813, 0, ''), -- Silvermoon
+(10228, 5, 64814, 0, ''), -- Stormwind
+(9921, 5, 64815, 0, ''), -- Thunder Bluff
+(9922, 5, 64816, 0, ''); -- Undercity
 
-DELETE FROM `pool_quest` WHERE `entry` IN (SELECT quest FROM creature_questrelation WHERE id IN (34880, 34912, 34771, 34914));
-INSERT INTO `pool_quest` (`entry`, `pool_entry`, `description`) VALUES
--- Narasi Snowdawn
-(14074, @pool_narasi, 'A Leg Up'),
-(14152, @pool_narasi, 'Rescue at Sea'),
-(14080, @pool_narasi, 'Stop The Aggressors'),
-(14077, @pool_narasi, 'The Light''s Mercy'),
--- Savinia
-(14076, @pool_savinia, 'Breakfast of Champions'),
-(14090, @pool_savinia, 'Gormok Wants His Snobolds'),
-(14112, @pool_savinia, 'What Do You Feed a Yeti, Anyway?'),
--- Girana
-(14143, @pool_girana, 'A Leg Up'),
-(14136, @pool_girana, 'Rescue at Sea'),
-(14140, @pool_girana, 'Stop The Aggressors'),
-(14144, @pool_girana, 'The Light''s Mercy'),
--- Tylos
-(14092, @pool_tylos, 'Breakfast of Champions'),
-(14141, @pool_tylos, 'Gormok Wants His Snobolds'),
-(14145, @pool_tylos, 'What Do You Feed a Yeti, Anyway?');
+UPDATE creature_template SET ScriptName = 'npc_argent_faction_rider', gossip_menu_id = 0, speed_walk = 1.2, dmg_multiplier = 2, unit_flags = 256, flags_extra = 0 WHERE entry IN (33562, 33559, 33558, 33564, 33561, 33382, 33383, 33384, 33306, 33285, 33739, 33738, 33747, 33743, 33740, 33746, 33748, 33744, 33745,33749);
 
-INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
-(20, 0, 14101, 0, 0, 17, 2817, 0, 0, 0, '', 'Drottinn Hrothgar requires crusader'),
-(20, 0, 14101, 0, 1, 17, 2816, 0, 0, 0, '', 'Drottinn Hrothgar requires crusader'),
-(20, 0, 14102, 0, 0, 17, 2817, 0, 0, 0, '', 'Mistcaller Yngvar requires crusader'),
-(20, 0, 14102, 0, 1, 17, 2816, 0, 0, 0, '', 'Mistcaller Yngvar requires crusader'),
-(20, 0, 14104, 0, 0, 17, 2817, 0, 0, 0, '', 'Ornolf The Scarred requires crusader'),
-(20, 0, 14104, 0, 1, 17, 2816, 0, 0, 0, '', 'Ornolf The Scarred requires crusader'),
-(20, 0, 14105, 0, 0, 17, 2817, 0, 0, 0, '', 'Deathspeaker Kharos requires crusader'),
-(20, 0, 14105, 0, 1, 17, 2816, 0, 0, 0, '', 'Deathspeaker Kharos requires crusader'),
-(20, 0, 14107, 0, 0, 17, 2817, 0, 0, 0, '', 'The Fate Of The Fallen requires crusader'),
-(20, 0, 14107, 0, 1, 17, 2816, 0, 0, 0, '', 'The Fate Of The Fallen requires crusader'),
-(20, 0, 14108, 0, 0, 17, 2817, 0, 0, 0, '', 'Get Kraken requires crusader'),
-(20, 0, 14108, 0, 1, 17, 2816, 0, 0, 0, '', 'Get Kraken requires crusader'),
-(20, 0, 14074, 0, 0, 17, 3676, 0, 0, 0, '', 'A Leg Up requires A silver confident'),
-(20, 0, 14076, 0, 0, 17, 3676, 0, 0, 0, '', 'Breakfast Of Champions requires A silver confident'),
-(20, 0, 14077, 0, 0, 17, 3676, 0, 0, 0, '', 'The Light''s Mercy requires A silver confident'),
-(20, 0, 14080, 0, 0, 17, 3676, 0, 0, 0, '', 'Stop The Aggressors requires A silver confident'),
-(20, 0, 14090, 0, 0, 17, 3676, 0, 0, 0, '', 'Gormok Wants His Snobolds requires A silver confident'),
-(20, 0, 14096, 0, 0, 17, 3676, 0, 0, 0, '', 'You''ve Really Done It This Time, Kul requires A silver confident'),
-(20, 0, 14112, 0, 0, 17, 3676, 0, 0, 0, '', 'What Do You Feed a Yeti, Anyway? requires A silver confident'),
-(20, 0, 14152, 0, 0, 17, 3676, 0, 0, 0, '', 'Rescue at Sea requires A silver confident'),
-(20, 0, 14092, 0, 0, 17, 3677, 0, 0, 0, '', 'Breakfast Of Champions requires The sunreavers'),
-(20, 0, 14136, 0, 0, 17, 3677, 0, 0, 0, '', 'Rescue at Sea requires The sunreavers'),
-(20, 0, 14140, 0, 0, 17, 3677, 0, 0, 0, '', 'Stop The Aggressors requires The sunreavers'),
-(20, 0, 14141, 0, 0, 17, 3677, 0, 0, 0, '', 'Gormok Wants His Snobolds requires The sunreavers'),
-(20, 0, 14142, 0, 0, 17, 3677, 0, 0, 0, '', 'You''ve Really Done It This Time, Kul requires The sunreavers'),
-(20, 0, 14143, 0, 0, 17, 3677, 0, 0, 0, '', 'A Leg Up requires The sunreavers'),
-(20, 0, 14144, 0, 0, 17, 3677, 0, 0, 0, '', 'The Light''s Mercy requires The sunreavers'),
-(20, 0, 14145, 0, 0, 17, 3677, 0, 0, 0, '', 'What Do You Feed a Yeti, Anyway? requires The sunreavers');
+-- Debug QuestRelation A2
+DELETE FROM `creature_questrelation` WHERE `quest` IN (13828, 13672, 13679, 13684, 13685, 13689, 13688, 13690);
+INSERT `creature_questrelation` (`id`, `quest`) VALUES (33625, 13828), (33625, 13672), (33625, 13679), (33625, 13684), (33625, 13685), (33625,13689), (33625, 13688), (33625, 13690);
 
--- Argent scripts, I forgot to add them earlier
-UPDATE  `creature_template` SET  `ScriptName` =  'npc_argent_combatant' WHERE  `entry` =33448;
-UPDATE  `creature_template` SET  `ScriptName` =  'npc_argent_combatant' WHERE  `entry` =33707;
-UPDATE  `creature_template` SET  `ScriptName` =  'npc_argent_squire' WHERE  `entry` =33447;
-UPDATE  `creature_template` SET  `ScriptName` =  'npc_argent_squire' WHERE  `entry` =33518;
-UPDATE  `creature_template` SET  `ScriptName` =  'npc_argent_squire' WHERE  `entry` =33522;
-UPDATE  `creature_template` SET  `ScriptName` =  'npc_argent_faction_rider' WHERE `entry` IN (33562,33559,33558,33564,33561,33382,33383,33384,33306,33285,33739,33738,33747,33743,33740,33746,33748,33744,33745,33749);
-UPDATE  `creature_template` SET  `ScriptName` =  'npc_argent_valiant' WHERE `entry`=33448;
-UPDATE  `creature_template` SET  `ScriptName` =  'npc_black_knights_grave' WHERE  `entry` =34735;
+-- Debug QuestRelation H2
+DELETE FROM `creature_questrelation` WHERE `quest` IN (13691, 13693, 13694, 13695, 13696, 13829, 13680, 13678);
+INSERT `creature_questrelation` (`id`, `quest`) VALUES (33542, 13691), (33542, 13693), (33542, 13694), (33542, 13695), (33542, 13696), (33542,13829), (33542, 13680), (33542, 13678);
 
--- ARGENT SQUIRE/GRUNTLING
--- Gossip flag
+-- Quest : A Blade Fit for A Champion
+UPDATE `creature_template` SET `ScriptName` = 'npc_lake_frog' WHERE `creature_template`.`entry` =33211 LIMIT 1 ;
+UPDATE `creature_template` SET `npcflag` = `npcflag` | 1, `ScriptName` = 'npc_maiden_of_ashwood_lake' WHERE `creature_template`.`entry` =33220;
+-- frog speed from sniff
+UPDATE creature_template SET speed_run = 1 WHERE entry = 33211;
+UPDATE creature_template SET speed_walk = 1.6 WHERE entry = 33211;
+
+-- Quest : A Worthy Weapon
+SET @DrakmarGUID := 199000; -- custom, cari guid kosong
+DELETE FROM `gameobject` WHERE `id` =300009;
+INSERT INTO `gameobject` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`)VALUES 
+(@DrakmarGUID,'300009','571','1','1','4601.68','-1601.91','156.659','1.0243','0','0','0.490051','0.871694','1','0','1');
+DELETE FROM `creature_text` WHERE `entry`= 33273;
+INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`probability`,`emote`,`duration`,`sound`,`comment`) VALUES 
+(33273,0,0, 'Are those winter hyacinths? For me?',12,0,100,0,0,0, 'Maiden of Drak Mar 0'),
+(33273,1,0, 'I had not brought flowers here for so long.It\'s been so long since a traveler has come here bearing flowers. It\'s been so long since a traveler has come here bearing flowers.',12,0,100,0,0,0, 'Maiden of Drak Mar 1'),
+(33273,2,0, 'The lake has been too lonely these past years. The travelers stopped coming and evil came to these waters.',12,0,100,0,0,0, 'Maiden of Drak Mar 2'),
+(33273,3,0, 'Your gift reveals a rare kindness, traveler. I beg you, take this blade as a token of my gratitude. Long ago, another passenger who had left here, but I have little use for it...',12,0,100,0,0,0, 'Maiden of Drak Mar 3');
+
+DELETE FROM `event_scripts` WHERE `id`=20990;
+INSERT INTO `event_scripts` (`id`, `delay`, `command`, `datalong`, `datalong2`, `x`, `y`, `z`, `o`) VALUES (20990, 0, 10, 33273, 42000, 4602.977, -1600.141, 156.7834, 0.7504916);
+UPDATE `creature_template` SET `InhabitType`=5, `ScriptName`='npc_maiden_of_drak_mar' WHERE `entry`=33273;
+DELETE FROM `creature_template_addon` WHERE `entry`=33273;
+INSERT INTO `creature_template_addon` (`entry`, `emote`) VALUES (33273, 13); -- 13 = EMOTE_STATE_SIT
+
+-- Add Scripts to NPCs
+UPDATE `creature_template` SET `ScriptName`='npc_quest_givers_argent_tournament' WHERE `entry` IN (33593, 33592, 33225, 33312, 33335, 33379, 33373, 33361, 33403, 33372);
+UPDATE `creature_template` SET `ScriptName`='npc_quest_givers_for_crusaders' WHERE `entry` IN (34882, 35094);
+UPDATE `creature_template` SET `ScriptName`='npc_crusader_rhydalla' WHERE `entry`=33417;
+UPDATE `creature_template` SET `ScriptName`='npc_eadric_the_pure' WHERE `entry`=33759;
+UPDATE `creature_template` SET `ScriptName`='npc_crok_scourgebane_argent' WHERE `entry`=33762;
+UPDATE `creature_template` SET `ScriptName`='quest_givers_argent_tournament' WHERE `entry` IN (33593, 33592, 33225, 33312, 33335, 33379, 33373, 33361, 33403, 33372);
+UPDATE `creature_template` SET `ScriptName`='npc_justicar_mariel_trueheart' WHERE `entry`=33817;
+
+-- Horde Premiere quete : Le tournoi d'argent
+DELETE FROM `creature_questrelation` WHERE `quest`=13668;
+INSERT INTO `creature_questrelation` (`id`, `quest`) VALUES (33817, 13668);
+
+-- Horde ArgentTournament  Aspirant Quests
+UPDATE `quest_template` SET `PrevQuestId`=0, `NextQuestId`=0, `ExclusiveGroup`=0, `NextQuestIdChain`=0 WHERE `id`=13668;
+UPDATE `quest_template` SET `PrevQuestId`=13668, `NextQuestId`=13678, `ExclusiveGroup`=-13829, `NextQuestIdChain`=0 WHERE `id` IN (13829, 13839, 13838);
+UPDATE `quest_template` SET `PrevQuestId`=0, `NextQuestId`=0, `ExclusiveGroup`=0, `NextQuestIdChain`=13680 WHERE `id`=13678;
+	-- Daily Aspirant Quests
+UPDATE `quest_template` SET `PrevQuestId`=-13678, `NextQuestId`=0, `ExclusiveGroup`=13673, `NextQuestIdChain`=0 WHERE `id`=13673;
+UPDATE `quest_template` SET `PrevQuestId`=-13678, `NextQuestId`=0, `ExclusiveGroup`=13673, `NextQuestIdChain`=0 WHERE `id`=13675;
+UPDATE `quest_template` SET `PrevQuestId`=-13678, `NextQuestId`=0, `ExclusiveGroup`=13673, `NextQuestIdChain`=0 WHERE `id`=13674;
+UPDATE `quest_template` SET `PrevQuestId`=-13678, `NextQuestId`=0, `ExclusiveGroup`=0, `NextQuestIdChain`=0 WHERE `id`=13676;
+UPDATE `quest_template` SET `PrevQuestId`=-13678, `NextQuestId`=0, `ExclusiveGroup`=0, `NextQuestIdChain`=0 WHERE `id`=13677;
+	-- End Of Aspirant Quests
+UPDATE `quest_template` SET `PrevQuestId`=13678, `NextQuestId`=0, `ExclusiveGroup`=0, `NextQuestIdChain`=0 WHERE `id`=13680;
+	-- Valiant Quests
+UPDATE `quest_template` SET `PrevQuestId`=13680 WHERE `id` IN (13691, 13693, 13694, 13695, 13696);
+
+UPDATE `quest_template` SET `RequiredRaces`=2, `NextQuestId`=13697, `NextQuestIdChain`=13697, `ExclusiveGroup`=13691 WHERE `id`=13691;
+UPDATE `quest_template` SET `RequiredRaces`=128, `NextQuestId`=13719, `NextQuestIdChain`=13719, `ExclusiveGroup`=13693 WHERE `id`=13693;
+UPDATE `quest_template` SET `RequiredRaces`=32, `NextQuestId`=13720, `NextQuestIdChain`=13720, `ExclusiveGroup`=13694 WHERE `id`=13694;
+UPDATE `quest_template` SET `RequiredRaces`=16, `NextQuestId`=13721, `NextQuestIdChain`=13721, `ExclusiveGroup`=13695 WHERE `id`=13695;
+UPDATE `quest_template` SET `RequiredRaces`=512, `NextQuestId`=13722, `NextQuestIdChain`=13722, `ExclusiveGroup`=13696 WHERE `id`=13696;
+
+-- INFOS DEV -- Premiere Quete (Admissibilité) : 13687 Deuxieme Quete (Champion) : 13701
+UPDATE `quest_template` SET `PrevQuestId`=13701 WHERE `id` IN (13707, 13708, 13709, 13710, 13711); -- TOScript into the core (check of 13687)
+
+UPDATE `quest_template` SET `NextQuestId`=13697, `NextQuestIdChain`=13697, `ExclusiveGroup`=13691 WHERE `id`=13707;
+UPDATE `quest_template` SET `NextQuestId`=13719, `NextQuestIdChain`=13719, `ExclusiveGroup`=13693 WHERE `id`=13708;
+UPDATE `quest_template` SET `NextQuestId`=13720, `NextQuestIdChain`=13720, `ExclusiveGroup`=13694 WHERE `id`=13709;
+UPDATE `quest_template` SET `NextQuestId`=13721, `NextQuestIdChain`=13721, `ExclusiveGroup`=13695 WHERE `id`=13710;
+UPDATE `quest_template` SET `NextQuestId`=13722, `NextQuestIdChain`=13722, `ExclusiveGroup`=13696 WHERE `id`=13711;
+
+UPDATE `quest_template` SET `PrevQuestId`=0, `ExclusiveGroup`=0 WHERE `id` IN (13697, 13719, 13720, 13721, 13722);
+
+UPDATE `quest_template` SET `NextQuestId`=13726, `NextQuestIdChain`=13726 WHERE `id`=13697;
+UPDATE `quest_template` SET `NextQuestId`=13727, `NextQuestIdChain`=13727  WHERE `id`=13719;
+UPDATE `quest_template` SET `NextQuestId`=13728, `NextQuestIdChain`=13728  WHERE `id`=13720;
+UPDATE `quest_template` SET `NextQuestId`=13729, `NextQuestIdChain`=13729  WHERE `id`=13721;
+UPDATE `quest_template` SET `NextQuestId`=13731, `NextQuestIdChain`=13731  WHERE `id`=13722;
+	-- Valiant Daily Quests A Blade Fit For A Champion, The Edge Of Winter, A Worthy Weapon
+UPDATE `quest_template` SET `PrevQuestId`=-13697, `NextQuestId`=0, `ExclusiveGroup`=13762, `NextQuestIdChain`=0 WHERE `id` IN (13762, 13763, 13764);
+UPDATE `quest_template` SET `PrevQuestId`=-13719, `NextQuestId`=0, `ExclusiveGroup`=13768, `NextQuestIdChain`=0 WHERE `id` IN (13768, 13769, 13770);
+UPDATE `quest_template` SET `PrevQuestId`=-13720, `NextQuestId`=0, `ExclusiveGroup`=13773, `NextQuestIdChain`=0 WHERE `id` IN (13773, 13774, 13775);
+UPDATE `quest_template` SET `PrevQuestId`=-13721, `NextQuestId`=0, `ExclusiveGroup`=13778, `NextQuestIdChain`=0 WHERE `id` IN (13778, 13779, 13780);
+UPDATE `quest_template` SET `PrevQuestId`=-13722, `NextQuestId`=0, `ExclusiveGroup`=13783, `NextQuestIdChain`=0 WHERE `id` IN (13783, 13784, 13785);
+		-- A Valiant's Field Training, The Grand Melee, At The Enemy's Gates
+UPDATE `quest_template` SET `PrevQuestId`=-13697, `NextQuestId`=0, `ExclusiveGroup`=0, `NextQuestIdChain`=0 WHERE `id` IN (13765, 13767, 13856);
+UPDATE `quest_template` SET `PrevQuestId`=-13719, `NextQuestId`=0, `ExclusiveGroup`=0, `NextQuestIdChain`=0 WHERE `id` IN (13771, 13772, 13857);
+UPDATE `quest_template` SET `PrevQuestId`=-13720, `NextQuestId`=0, `ExclusiveGroup`=0, `NextQuestIdChain`=0 WHERE `id` IN (13776, 13777, 13858);
+UPDATE `quest_template` SET `PrevQuestId`=-13721, `NextQuestId`=0, `ExclusiveGroup`=0, `NextQuestIdChain`=0 WHERE `id` IN (13781, 13782, 13860);
+UPDATE `quest_template` SET `PrevQuestId`=-13722, `NextQuestId`=0, `ExclusiveGroup`=0, `NextQuestIdChain`=0 WHERE `id` IN (13786, 13787, 13859);
+	-- End Of Valiant Quests
+UPDATE `quest_template` SET `PrevQuestId`=13697, `NextQuestId`=13736, `ExclusiveGroup`=0, `NextQuestIdChain`=13736 WHERE `id`=13726;
+UPDATE `quest_template` SET `PrevQuestId`=13719, `NextQuestId`=13737, `ExclusiveGroup`=0, `NextQuestIdChain`=13737 WHERE `id`=13727;
+UPDATE `quest_template` SET `PrevQuestId`=13720, `NextQuestId`=13738, `ExclusiveGroup`=0, `NextQuestIdChain`=13738 WHERE `id`=13728;
+UPDATE `quest_template` SET `PrevQuestId`=13721, `NextQuestId`=13739, `ExclusiveGroup`=0, `NextQuestIdChain`=13739 WHERE `id`=13729;
+UPDATE `quest_template` SET `PrevQuestId`=13722, `NextQuestId`=13740, `ExclusiveGroup`=0, `NextQuestIdChain`=13740 WHERE `id`=13731;
+	-- A Champion Rises (Final Quest of a Branch)
+UPDATE `quest_template` SET `PrevQuestId`=13726, `NextQuestId`=13794, `ExclusiveGroup`=0, `NextQuestIdChain`=0 WHERE `id`=13736;
+UPDATE `quest_template` SET `PrevQuestId`=13727, `NextQuestId`=13794, `ExclusiveGroup`=0, `NextQuestIdChain`=0 WHERE `id`=13737;
+UPDATE `quest_template` SET `PrevQuestId`=13728, `NextQuestId`=13794, `ExclusiveGroup`=0, `NextQuestIdChain`=0 WHERE `id`=13738;
+UPDATE `quest_template` SET `PrevQuestId`=13729, `NextQuestId`=13794, `ExclusiveGroup`=0, `NextQuestIdChain`=0 WHERE `id`=13739;
+UPDATE `quest_template` SET `PrevQuestId`=13740, `NextQuestId`=13794, `ExclusiveGroup`=0, `NextQuestIdChain`=0 WHERE `id`=13740;
+
+-- Debug Quest Requirements
+UPDATE `quest_template` SET `RequiredRaces`=690 WHERE `id` IN (13697, 13719, 13720, 13721, 13722);
+UPDATE `quest_template` SET `RequiredRaces`=690 WHERE `id` IN (13726, 13727, 13728, 13729, 13731);
+UPDATE `quest_template` SET `RequiredRaces`=690 WHERE `id` IN (13736, 13737, 13738, 13739, 13740);
+
+-- Alliance Premiere quete : Le tournoi d'argent
+DELETE FROM `creature_questrelation` WHERE `quest`=13667;
+INSERT INTO `creature_questrelation` (`id`, `quest`) VALUES (33817, 13667);
+
+-- Alliance ArgentTournament Aspirant Quests
+UPDATE `quest_template` SET `PrevQuestId`=0, `NextQuestId`=0, `ExclusiveGroup`=0, `NextQuestIdChain`=0 WHERE `id`=13667;
+UPDATE `quest_template` SET `PrevQuestId`=13667, `NextQuestId`=13672, `ExclusiveGroup`=-13828, `NextQuestIdChain`=0 WHERE `id` IN (13828, 13837, 13835);
+UPDATE `quest_template` SET `PrevQuestId`=0, `NextQuestId`=0, `ExclusiveGroup`=0, `NextQuestIdChain`=13679 WHERE `id`=13672;
+	-- Daily Aspirant Quests
+UPDATE `quest_template` SET `PrevQuestId`=-13672, `NextQuestId`=0, `ExclusiveGroup`=13666, `NextQuestIdChain`=0 WHERE `id`=13666;
+UPDATE `quest_template` SET `PrevQuestId`=-13672, `NextQuestId`=0, `ExclusiveGroup`=13666, `NextQuestIdChain`=0 WHERE `id`=13670;
+UPDATE `quest_template` SET `PrevQuestId`=-13672, `NextQuestId`=0, `ExclusiveGroup`=13666, `NextQuestIdChain`=0 WHERE `id`=13669;
+UPDATE `quest_template` SET `PrevQuestId`=-13672, `NextQuestId`=0, `ExclusiveGroup`=0, `NextQuestIdChain`=0 WHERE `id`=13671;
+UPDATE `quest_template` SET `PrevQuestId`=-13672, `NextQuestId`=0, `ExclusiveGroup`=0, `NextQuestIdChain`=0 WHERE `id`=13625;
+	-- End Of Aspirant Quests
+UPDATE `quest_template` SET `PrevQuestId`=13672, `NextQuestId`=0, `ExclusiveGroup`=0, `NextQuestIdChain`=0 WHERE `id`=13679;
+	-- Valiant Quests
+UPDATE `quest_template` SET `PrevQuestId`=13679 WHERE `id` IN (13684, 13685, 13689, 13688, 13690);
+
+UPDATE `quest_template` SET `RequiredRaces`=1, `NextQuestId`=13718, `NextQuestIdChain`=13718, `ExclusiveGroup`=13684 WHERE `id`=13684;
+UPDATE `quest_template` SET `RequiredRaces`=4, `NextQuestId`=13714, `NextQuestIdChain`=13714, `ExclusiveGroup`=13685 WHERE `id`=13685;
+UPDATE `quest_template` SET `RequiredRaces`=8, `NextQuestId`=13717, `NextQuestIdChain`=13717, `ExclusiveGroup`=13689 WHERE `id`=13689;
+UPDATE `quest_template` SET `RequiredRaces`=64, `NextQuestId`=13715, `NextQuestIdChain`=13715, `ExclusiveGroup`=13688 WHERE `id`=13688;
+UPDATE `quest_template` SET `RequiredRaces`=1024, `NextQuestId`=13716, `NextQuestIdChain`=13716, `ExclusiveGroup`=13690 WHERE `id`=13690;
+
+-- INFOS DEV -- Premiere Quete (Admissibilité) : 13686 Deuxieme Quete (Champion) : 13700
+UPDATE `quest_template` SET `PrevQuestId`=13700 WHERE `id` IN (13593, 13703, 13706, 13704, 13705); -- TOScript into the core (check of 13686)
+
+UPDATE `quest_template` SET `NextQuestId`=13718, `NextQuestIdChain`=13718, `ExclusiveGroup`=13718 WHERE `id`=13593;
+UPDATE `quest_template` SET `NextQuestId`=13714, `NextQuestIdChain`=13714, `ExclusiveGroup`=13714 WHERE `id`=13703;
+UPDATE `quest_template` SET `NextQuestId`=13717, `NextQuestIdChain`=13717, `ExclusiveGroup`=13717 WHERE `id`=13706;
+UPDATE `quest_template` SET `NextQuestId`=13715, `NextQuestIdChain`=13715, `ExclusiveGroup`=13715 WHERE `id`=13704;
+UPDATE `quest_template` SET `NextQuestId`=13716, `NextQuestIdChain`=13716, `ExclusiveGroup`=13716 WHERE `id`=13705;
+
+UPDATE `quest_template` SET `PrevQuestId`=0, `ExclusiveGroup`=0 WHERE `id` IN (13718, 13714, 13717, 13715, 13716);
+
+UPDATE `quest_template` SET `NextQuestId`=13699, `NextQuestIdChain`=13699 WHERE `id`=13718;
+UPDATE `quest_template` SET `NextQuestId`=13713, `NextQuestIdChain`=13713  WHERE `id`=13714;
+UPDATE `quest_template` SET `NextQuestId`=13725, `NextQuestIdChain`=13725  WHERE `id`=13717;
+UPDATE `quest_template` SET `NextQuestId`=13723, `NextQuestIdChain`=13723  WHERE `id`=13715;
+UPDATE `quest_template` SET `NextQuestId`=13724, `NextQuestIdChain`=13724  WHERE `id`=13716;
+	-- Valiant Daily Quests, A Blade Fit For A Champion, The Edge Of Winter, A Worthy Weapon
+UPDATE `quest_template` SET `PrevQuestId`=-13718, `NextQuestId`=0, `ExclusiveGroup`=13603, `NextQuestIdChain`=0 WHERE `id` IN (13603, 13600, 13616);
+UPDATE `quest_template` SET `PrevQuestId`=-13714, `NextQuestId`=0, `ExclusiveGroup`=13741, `NextQuestIdChain`=0 WHERE `id` IN (13741, 13742, 13743);
+UPDATE `quest_template` SET `PrevQuestId`=-13717, `NextQuestId`=0, `ExclusiveGroup`=13757, `NextQuestIdChain`=0 WHERE `id` IN (13757, 13758, 13759);
+UPDATE `quest_template` SET `PrevQuestId`=-13715, `NextQuestId`=0, `ExclusiveGroup`=13746, `NextQuestIdChain`=0 WHERE `id` IN (13746, 13747, 13748);
+UPDATE `quest_template` SET `PrevQuestId`=-13716, `NextQuestId`=0, `ExclusiveGroup`=13752, `NextQuestIdChain`=0 WHERE `id` IN (13752, 13753, 13754);
+		-- A Valiant's Field Training, The Grand Melee, At The Enemy's Gates
+UPDATE `quest_template` SET `PrevQuestId`=-13718, `NextQuestId`=0, `ExclusiveGroup`=0, `NextQuestIdChain`=0 WHERE `id` IN (13592, 13665, 13847);
+UPDATE `quest_template` SET `PrevQuestId`=-13714, `NextQuestId`=0, `ExclusiveGroup`=0, `NextQuestIdChain`=0 WHERE `id` IN (13744, 13745, 13851);
+UPDATE `quest_template` SET `PrevQuestId`=-13717, `NextQuestId`=0, `ExclusiveGroup`=0, `NextQuestIdChain`=0 WHERE `id` IN (13760, 13761, 13855);
+UPDATE `quest_template` SET `PrevQuestId`=-13715, `NextQuestId`=0, `ExclusiveGroup`=0, `NextQuestIdChain`=0 WHERE `id` IN (13749, 13750, 13852);
+UPDATE `quest_template` SET `PrevQuestId`=-13716, `NextQuestId`=0, `ExclusiveGroup`=0, `NextQuestIdChain`=0 WHERE `id` IN (13755, 13756, 13854);
+	-- End Of Valiant Quests
+UPDATE `quest_template` SET `PrevQuestId`=13718, `NextQuestId`=13702, `ExclusiveGroup`=0, `NextQuestIdChain`=13702 WHERE `id`=13699;
+UPDATE `quest_template` SET `PrevQuestId`=13714, `NextQuestId`=13732, `ExclusiveGroup`=0, `NextQuestIdChain`=13732 WHERE `id`=13713;
+UPDATE `quest_template` SET `PrevQuestId`=13717, `NextQuestId`=13735, `ExclusiveGroup`=0, `NextQuestIdChain`=13735 WHERE `id`=13725;
+UPDATE `quest_template` SET `PrevQuestId`=13715, `NextQuestId`=13733, `ExclusiveGroup`=0, `NextQuestIdChain`=13733 WHERE `id`=13723;
+UPDATE `quest_template` SET `PrevQuestId`=13716, `NextQuestId`=13734, `ExclusiveGroup`=0, `NextQuestIdChain`=13734 WHERE `id`=13724;
+	-- A Champion Rises (Final Quest of a Branch)
+UPDATE `quest_template` SET `PrevQuestId`=13699, `NextQuestId`=13794, `ExclusiveGroup`=0, `NextQuestIdChain`=0 WHERE `id`=13702;
+UPDATE `quest_template` SET `PrevQuestId`=13713, `NextQuestId`=13794, `ExclusiveGroup`=0, `NextQuestIdChain`=0 WHERE `id`=13732;
+UPDATE `quest_template` SET `PrevQuestId`=13725, `NextQuestId`=13794, `ExclusiveGroup`=0, `NextQuestIdChain`=0 WHERE `id`=13735;
+UPDATE `quest_template` SET `PrevQuestId`=13723, `NextQuestId`=13794, `ExclusiveGroup`=0, `NextQuestIdChain`=0 WHERE `id`=13733;
+UPDATE `quest_template` SET `PrevQuestId`=13734, `NextQuestId`=13794, `ExclusiveGroup`=0, `NextQuestIdChain`=0 WHERE `id`=13734;
+
+-- Debug Quest Requirements
+UPDATE `quest_template` SET `RequiredRaces`=1101 WHERE `id` IN (13718, 13714, 13717, 13715, 13716);
+UPDATE `quest_template` SET `RequiredRaces`=1101 WHERE `id` IN (13699, 13713, 13725, 13723, 13724);
+UPDATE `quest_template` SET `RequiredRaces`=1101 WHERE `id` IN (13702, 13732, 13735, 13733, 13734);
+
+
+-- Black Night chain
+UPDATE `quest_template` SET `PrevQuestId`=0, `NextQuestId`=13641, `ExclusiveGroup`=13633, `NextQuestIdChain`=13641 WHERE `id` IN (13633, 13634);
+UPDATE `quest_template` SET `PrevQuestId`=0, `NextQuestId`=0, `ExclusiveGroup`=0, `NextQuestIdChain`=13643 WHERE `id`=13641;
+UPDATE `quest_template` SET `PrevQuestId`=13641, `NextQuestId`=0, `ExclusiveGroup`=0, `NextQuestIdChain`=13654 WHERE `id`=13643;
+UPDATE `quest_template` SET `PrevQuestId`=13643, `NextQuestId`=0, `ExclusiveGroup`=0, `NextQuestIdChain`=13663 WHERE `id`=13654;
+UPDATE `quest_template` SET `PrevQuestId`=13654, `NextQuestId`=0, `ExclusiveGroup`=0, `NextQuestIdChain`=13664 WHERE `id`=13663;
+UPDATE `quest_template` SET `PrevQuestId`=13663, `NextQuestId`=0, `ExclusiveGroup`=0, `NextQuestIdChain`=14016 WHERE `id`=13664;
+UPDATE `quest_template` SET `PrevQuestId`=13664, `NextQuestId`=0, `ExclusiveGroup`=0, `NextQuestIdChain`=14017 WHERE `id`=14016;
+UPDATE `quest_template` SET `PrevQuestId`=14016, `NextQuestId`=0, `ExclusiveGroup`=0, `NextQuestIdChain`=0 WHERE `id`=14017;
+
+-- Champion Dailies
+UPDATE `quest_template` SET `PrevQuestId`=0, `NextQuestId`=0, `ExclusiveGroup`=0, `NextQuestIdChain`=0 WHERE `id`=13794; -- Eadric the Pure Works yet, but might bug with The Scourgebane
+UPDATE `quest_template` SET `PrevQuestId`=0, `NextQuestId`=0, `ExclusiveGroup`=0, `NextQuestIdChain`=0 WHERE `id`=13795; -- The Scourgebane
+UPDATE `quest_template` SET `RequiredRaces`=1101, `PrevQuestId`=13794, `NextQuestId`=0, `ExclusiveGroup`=0, `NextQuestIdChain`=0 WHERE `id`=13790; -- Alliance Among The Champions
+UPDATE `quest_template` SET `RequiredRaces`=1101, `PrevQuestId`=13795, `NextQuestId`=0, `ExclusiveGroup`=0, `NextQuestIdChain`=0 WHERE `id`=13793; -- Alliance DK Among The Champions
+UPDATE `quest_template` SET `RequiredRaces`=690, `PrevQuestId`=13794, `NextQuestId`=0, `ExclusiveGroup`=0, `NextQuestIdChain`=0 WHERE `id`=13811; -- Horde Among The Champions
+UPDATE `quest_template` SET `RequiredRaces`=690, `PrevQuestId`=13795, `NextQuestId`=0, `ExclusiveGroup`=0, `NextQuestIdChain`=0 WHERE `id`=13814; -- Horde DK Among The Champions
+UPDATE `quest_template` SET `RequiredRaces`=1101, `PrevQuestId`=13794, `NextQuestId`=0, `ExclusiveGroup`=0, `NextQuestIdChain`=0 WHERE `id`=13861; -- Alliance Battle Before The Citadel
+UPDATE `quest_template` SET `RequiredRaces`=1101, `PrevQuestId`=13795, `NextQuestId`=0, `ExclusiveGroup`=0, `NextQuestIdChain`=0 WHERE `id`=13864; -- Alliance DK Battle Before The Citadel
+UPDATE `quest_template` SET `RequiredRaces`=690, `PrevQuestId`=13794, `NextQuestId`=0, `ExclusiveGroup`=0, `NextQuestIdChain`=0 WHERE `id`=13862; -- Horde Battle Before The Citadel
+UPDATE `quest_template` SET `RequiredRaces`=690, `PrevQuestId`=13795, `NextQuestId`=0, `ExclusiveGroup`=0, `NextQuestIdChain`=0 WHERE `id`=13863; -- Horde DK Battle Before The Citadel
+UPDATE `quest_template` SET `RequiredRaces`=1101, `PrevQuestId`=13794, `NextQuestId`=0, `ExclusiveGroup`=0, `NextQuestIdChain`=0 WHERE `id`=13789; -- Alliance Taking Battle To The Enemy
+UPDATE `quest_template` SET `RequiredRaces`=1101, `PrevQuestId`=13795, `NextQuestId`=0, `ExclusiveGroup`=0, `NextQuestIdChain`=0 WHERE `id`=13791; -- Alliance DK Taking Battle To The Enemy
+UPDATE `quest_template` SET `RequiredRaces`=690, `PrevQuestId`=13794, `NextQuestId`=0, `ExclusiveGroup`=0, `NextQuestIdChain`=0 WHERE `id`=13810; -- Horde Taking Battle To The Enemy
+UPDATE `quest_template` SET `RequiredRaces`=690, `PrevQuestId`=13795, `NextQuestId`=0, `ExclusiveGroup`=0, `NextQuestIdChain`=0 WHERE `id`=13813; -- Horde DK Taking Battle To The Enemy
+UPDATE `quest_template` SET `RequiredRaces`=1101, `PrevQuestId`=13794, `NextQuestId`=0, `ExclusiveGroup`=0, `NextQuestIdChain`=0 WHERE `id`=13682; -- Alliance Threat From Above
+UPDATE `quest_template` SET `RequiredRaces`=1101, `PrevQuestId`=13795, `NextQuestId`=0, `ExclusiveGroup`=0, `NextQuestIdChain`=0 WHERE `id`=13788; -- Alliance DK Threat From Above
+UPDATE `quest_template` SET `RequiredRaces`=690, `PrevQuestId`=13794, `NextQuestId`=0, `ExclusiveGroup`=0, `NextQuestIdChain`=0 WHERE `id`=13809; -- Horde Threat From Above
+UPDATE `quest_template` SET `RequiredRaces`=690, `PrevQuestId`=13795, `NextQuestId`=0, `ExclusiveGroup`=0, `NextQuestIdChain`=0 WHERE `id`=13812;
+
+-- Crusader dailies, Mistcaller Yngvar, Drottinn Hrothgar, Ornolf The Scarred, Deathspeaker Kharos
+UPDATE `quest_template` SET `ExclusiveGroup`=14102, `NextQuestId`=0, `NextQuestIdChain`=0 WHERE `id` IN (14102, 14101, 14104, 14105);
+	-- The Fate Of The Fallen, Get Kraken!, Identifying the Remains
+UPDATE `quest_template` SET `ExclusiveGroup`=14107, `NextQuestId`=0, `NextQuestIdChain`=0 WHERE `id` IN (14107, 14108, 14095);
+
+-- Covenant Quests
+UPDATE `quest_template` SET `PrevQuestId`=13700, `RequiredMinRepFaction`=1094, `RequiredMinRepValue`=42000, `NextQuestId`=0, `NextQuestIdChain`=0 WHERE `id` IN (14112, 14076, 14090, 14096, 14152, 14080, 14077, 14074);
+UPDATE `quest_template` SET `PrevQuestId`=13701, `RequiredMinRepFaction`=1124, `RequiredMinRepValue`=42000, `NextQuestId`=0, `NextQuestIdChain`=0 WHERE `id` IN (14145, 14092, 14141, 14142, 14136, 14140, 14144, 14143);
+	-- What Do You Feed A Yeti, Anyway? Breakfast Of Champions, Gormok Wants His Snobolds
+UPDATE `quest_template` SET `ExclusiveGroup`=14112 WHERE `id` IN (14112, 14145, 14076, 14092, 14090, 14141);
+	-- You've Really Done It This Time, Kul, Rescue At Sea, Stop The Agressors, The Light's Mercy, A Leg Up
+UPDATE `quest_template` SET `ExclusiveGroup`=14152 WHERE `id` IN (14152, 14136, 14080, 14140, 14077, 14144, 14074, 14143);
+
+-- Champion Marker
+UPDATE `quest_template` SET `NextQuestId`=13846, `ExclusiveGroup`=13700 WHERE `id` IN (13700, 13701);
+
+-- Contributin' To The Cause
+UPDATE `quest_template` SET `RequiredMaxRepFaction`=1106, `RequiredMaxRepValue`=42000 WHERE `id`=13846;
+
+-- Goblin Dailies Removing
+DELETE FROM `creature_questrelation` WHERE `quest` IN (13820, 13681, 13627);
+
+-- DK Quests Restrictions
+UPDATE `quest_template` SET `RequiredClasses`=32 WHERE `id` IN (13795, 13791, 13813, 13788, 13812, 13793, 13814, 13864, 13863);
+-- Non DK Quests Restrictions
+UPDATE `quest_template` SET `RequiredClasses`=1503 WHERE `id` IN (13794, 13788, 13789, 13810, 13682, 13809, 13790, 13811, 13861, 13862);
+
+-- ####
+-- ## npc_argent_pet
+-- ####
 UPDATE creature_template SET npcflag = 129, gossip_menu_id = 50000, ScriptName = 'npc_argent_pet', `IconName` =  'Speak' WHERE entry = 33238;
 UPDATE creature_template SET npcflag = 129, gossip_menu_id = 50001, ScriptName = 'npc_argent_pet', `IconName` =  'Speak' WHERE entry = 33239;
 
@@ -408,264 +357,3 @@ INSERT INTO npc_vendor VALUES
 (33239, 0, 35951, 0, 0, 0),
 (33239, 0, 35948, 0, 0, 0),
 (33239, 0, 35950, 0, 0, 0);
-
-UPDATE  `quest_template` SET  `RequiredRaces` =  '0' WHERE `id` IN (13665,13745,13750,13756,13761,13767,13772,13777,13782,13787);
-UPDATE  `quest_template` SET  `RequiredRaces` =  '0' WHERE `title` = "A Blade Fit For A Champion";
-UPDATE  `quest_template` SET  `RequiredRaces` =  '0' WHERE `title` = "A Worthy Weapon";
-UPDATE  `quest_template` SET  `RequiredRaces` =  '0' WHERE `title` = "The Edge Of Winter";
-UPDATE  `quest_template` SET  `RequiredRaces` =  '0' WHERE `title` = "A Blade Fit For A Champion";
-
-UPDATE `quest_template` SET `PrevQuestId`=0 WHERE `id` IN (13718,13714,13715,13716,13717,13697,13719,13720,13721,13722);
-
-UPDATE `quest_template` SET `RequiredRaces`=1101 WHERE `id` IN (13718,13714,13715,13716,13717,13759,13670,13743,13748,13754,13616,13757.13666,13741,13746,13752,13758,13669,13742,13747,13753,13600,13760,13744,13749,13755,13592,13855,13851,13852,13854,13847,13725,13713,13723,13724,13699);
-
-UPDATE `quest_template` SET `RequiredRaces`=690 WHERE `id` IN (13697,13719,13720,13721,13722,13770,13764,13775,13780,13785,13675,13768,13762,13773,13778,13783,13769,13763,13774,13779,13784,13674,13771,13776,13781,13786,13765,13857,13858,13859,13860,13856,13727,13728,13729,13731,13726);
-
-INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `SourceId`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
-(19, 0, 13697, 0, 0, 8, 13691, 0, 0, 0, '', 'The valiants charge after a valiant of ogrimmar'),
-(19, 0, 13697, 0, 1, 8, 13707, 0, 0, 0, '', 'The valiants charge after valiant of orgrimmar'),
-(19, 0, 13714, 0, 0, 8, 13685, 0, 0, 0, '', 'The valiants charge after a valiant of iron forge'),
-(19, 0, 13714, 0, 1, 8, 13703, 0, 0, 0, '', 'The valiants charge after valiant of iron forge'),
-(19, 0, 13715, 0, 0, 8, 13688, 0, 0, 0, '', 'The valiants charge after a valiant of gomregan'),
-(19, 0, 13715, 0, 1, 8, 13704, 0, 0, 0, '', 'The valiants charge after valiant of gomregan'),
-(19, 0, 13716, 0, 0, 8, 13690, 0, 0, 0, '', 'The valiants charge after a valiant of exodar'),
-(19, 0, 13716, 0, 1, 8, 13705, 0, 0, 0, '', 'The valiants charge after valiant of exodar'),
-(19, 0, 13717, 0, 0, 8, 13689, 0, 0, 0, '', 'The valiants charge after a valiant of darnassus'),
-(19, 0, 13717, 0, 1, 8, 13706, 0, 0, 0, '', 'The valiants charge after valiant of darnassus'),
-(19, 0, 13718, 0, 0, 8, 13684, 0, 0, 0, '', 'The valiants charge after a valiant of stormwind'),
-(19, 0, 13718, 0, 1, 8, 13593, 0, 0, 0, '', 'The valiants charge after valiant of stormwind'),
-(19, 0, 13719, 0, 0, 8, 13693, 0, 0, 0, '', 'The valiants charge after a valiant of sen''jin'),
-(19, 0, 13719, 0, 1, 8, 13708, 0, 0, 0, '', 'The valiants charge after valiant of sen''jin'),
-(19, 0, 13720, 0, 0, 8, 13694, 0, 0, 0, '', 'The valiants charge after a valiant of thunderbluff'),
-(19, 0, 13720, 0, 1, 8, 13709, 0, 0, 0, '', 'The valiants charge after valiant of thunderbluff'),
-(19, 0, 13721, 0, 0, 8, 13695, 0, 0, 0, '', 'The valiants charge after a valiant of undercity'),
-(19, 0, 13721, 0, 1, 8, 13710, 0, 0, 0, '', 'The valiants charge after valiant of undercity'),
-(19, 0, 13722, 0, 0, 8, 13696, 0, 0, 0, '', 'The valiants charge after a valiant of silvermoon'),
-(19, 0, 13722, 0, 1, 8, 13711, 0, 0, 0, '', 'The valiants charge after valiant of silvermoon'),
-(20, 0, 13697, 0, 0, 8, 13691, 0, 0, 0, '', 'The valiants charge after a valiant of orgrimmar'),
-(20, 0, 13697, 0, 1, 8, 13707, 0, 0, 0, '', 'The valiants charge after valiant of orgrimmar'),
-(20, 0, 13714, 0, 0, 8, 13685, 0, 0, 0, '', 'The valiants charge after a valiant of iron forge'),
-(20, 0, 13714, 0, 1, 8, 13703, 0, 0, 0, '', 'The valiants charge after valiant of iron forge'),
-(20, 0, 13715, 0, 0, 8, 13688, 0, 0, 0, '', 'The valiants charge after a valiant of gomregan'),
-(20, 0, 13715, 0, 1, 8, 13704, 0, 0, 0, '', 'The valiants charge after valiant of gomregan'),
-(20, 0, 13716, 0, 0, 8, 13690, 0, 0, 0, '', 'The valiants charge after a valiant of exodar'),
-(20, 0, 13716, 0, 1, 8, 13705, 0, 0, 0, '', 'The valiants charge after valiant of exodar'),
-(20, 0, 13717, 0, 0, 8, 13689, 0, 0, 0, '', 'The valiants charge after a valiant of darnassus'),
-(20, 0, 13717, 0, 1, 8, 13706, 0, 0, 0, '', 'The valiants charge after valiant of darnassus'),
-(20, 0, 13718, 0, 0, 8, 13684, 0, 0, 0, '', 'The valiants charge after a valiant of stormwind'),
-(20, 0, 13718, 0, 1, 8, 13593, 0, 0, 0, '', 'The valiants charge after valiant of stormwind'),
-(20, 0, 13719, 0, 0, 8, 13693, 0, 0, 0, '', 'The valiants charge after a valiant of sen''jin'),
-(20, 0, 13719, 0, 1, 8, 13708, 0, 0, 0, '', 'The valiants charge after valiant of sen''jin'),
-(20, 0, 13720, 0, 0, 8, 13694, 0, 0, 0, '', 'The valiants charge after a valiant of thunderbluff'),
-(20, 0, 13720, 0, 1, 8, 13709, 0, 0, 0, '', 'The valiants charge after valiant of tunderbluff'),
-(20, 0, 13721, 0, 0, 8, 13695, 0, 0, 0, '', 'The valiants charge after a valiant of undercity'),
-(20, 0, 13721, 0, 1, 8, 13710, 0, 0, 0, '', 'The valiants charge after valiant of undercity'),
-(20, 0, 13722, 0, 0, 8, 13696, 0, 0, 0, '', 'The valiants charge after a valiant of silvermoon'),
-(20, 0, 13722, 0, 1, 8, 13711, 0, 0, 0, '', 'The valiants charge after valiant of silvermoon'),
-(19, 0, 13593, 0, 0, 14, 13686, 0, 0, 0, '', 'Valiant of Stormwind if no tournament eligility marker'),
-(19, 0, 13703, 0, 0, 14, 13686, 0, 0, 0, '', 'Valiant of Iron Forge if no tournament eligility marker'),
-(19, 0, 13704, 0, 0, 14, 13686, 0, 0, 0, '', 'Valiant of Gomregan if no tournament eligility marker'),
-(19, 0, 13705, 0, 0, 14, 13686, 0, 0, 0, '', 'Valiant of Exodar if no tournament eligility marker'),
-(19, 0, 13706, 0, 0, 14, 13686, 0, 0, 0, '', 'Valiant of Darnassus if no tournament eligility marker'),
-(19, 0, 13707, 0, 0, 14, 13687, 0, 0, 0, '', 'Valiant of Orgrimmar if no tournament eligility marker'),
-(19, 0, 13708, 0, 0, 14, 13687, 0, 0, 0, '', 'Valiant of Sen''Jin if no tournament eligility marker'),
-(19, 0, 13709, 0, 0, 14, 13687, 0, 0, 0, '', 'Valiant of Thunderbluff if no tournament eligility marker'),
-(19, 0, 13710, 0, 0, 14, 13687, 0, 0, 0, '', 'Valiant of Undercity if no tournament eligility marker'),
-(19, 0, 13711, 0, 0, 14, 13687, 0, 0, 0, '', 'Valiant of Silvermoon if no tournament eligility marker'),
-(20, 0, 13593, 0, 0, 14, 13686, 0, 0, 0, '', 'Valiant of Stormwind if no tournament eligility marker'),
-(20, 0, 13703, 0, 0, 14, 13686, 0, 0, 0, '', 'Valiant of Iron Forge if no tournament eligility marker'),
-(20, 0, 13704, 0, 0, 14, 13686, 0, 0, 0, '', 'Valiant of gomregan if no tournament eligility marker'),
-(20, 0, 13705, 0, 0, 14, 13686, 0, 0, 0, '', 'Valiant of Exodar if no tournament eligility marker'),
-(20, 0, 13706, 0, 0, 14, 13686, 0, 0, 0, '', 'Valiant of Darnassus if no tournament eligility marker'),
-(20, 0, 13707, 0, 0, 14, 13687, 0, 0, 0, '', 'Valiant of Orgrimmar if no tournament eligility marker'),
-(20, 0, 13708, 0, 0, 14, 13687, 0, 0, 0, '', 'Valiant of Sen''Jin if no tournament eligility marker'),
-(20, 0, 13709, 0, 0, 14, 13687, 0, 0, 0, '', 'Valiant of Thunderbluff if no tournament eligility marker'),
-(20, 0, 13710, 0, 0, 14, 13687, 0, 0, 0, '', 'Valiant of Undercity if no tournament eligility marker'),
-(20, 0, 13711, 0, 0, 14, 13687, 0, 0, 0, '', 'Valiant of Silvermoon if no tournament eligility marker'),
-(19, 0, 13616, 0, 0, 9, 13718, 0, 0, 0, '', 'edge of winter- Stormwind'),
-(19, 0, 13743, 0, 0, 9, 13714, 0, 0, 0, '', 'edge of winter- Iron Forge'),
-(19, 0, 13748, 0, 0, 9, 13715, 0, 0, 0, '', 'edge of winter- Gnomeregan'),
-(19, 0, 13754, 0, 0, 9, 13716, 0, 0, 0, '', 'edge of winter- Exodar'),
-(19, 0, 13759, 0, 0, 9, 13717, 0, 0, 0, '', 'edge of winter- darnassus'),
-(19, 0, 13764, 0, 0, 9, 13697, 0, 0, 0, '', 'edge of winter- Ogrimmar'),
-(19, 0, 13770, 0, 0, 9, 13719, 0, 0, 0, '', 'edge of winter- Darkspear'),
-(19, 0, 13775, 0, 0, 9, 13720, 0, 0, 0, '', 'edge of winter- Thunderbluff'),
-(19, 0, 13780, 0, 0, 9, 13721, 0, 0, 0, '', 'edge of winter- Undercity'),
-(19, 0, 13785, 0, 0, 9, 13722, 0, 0, 0, '', 'edge of winter- Silvermoon'),
-(20, 0, 13616, 0, 0, 9, 13718, 0, 0, 0, '', 'edge of winter- Stormwind'),
-(20, 0, 13743, 0, 0, 9, 13714, 0, 0, 0, '', 'edge of winter- Iron Forge'),
-(20, 0, 13748, 0, 0, 9, 13715, 0, 0, 0, '', 'edge of winter- Gnomeregan'),
-(20, 0, 13754, 0, 0, 9, 13716, 0, 0, 0, '', 'edge of winter- Exodar'),
-(20, 0, 13759, 0, 0, 9, 13717, 0, 0, 0, '', 'edge of winter- darnassus'),
-(20, 0, 13764, 0, 0, 9, 13697, 0, 0, 0, '', 'edge of winter- Ogrimmar'),
-(20, 0, 13770, 0, 0, 9, 13719, 0, 0, 0, '', 'edge of winter- Darkspear'),
-(20, 0, 13775, 0, 0, 9, 13720, 0, 0, 0, '', 'edge of winter- Thunderbluff'),
-(20, 0, 13780, 0, 0, 9, 13721, 0, 0, 0, '', 'edge of winter- Undercity'),
-(20, 0, 13785, 0, 0, 9, 13722, 0, 0, 0, '', 'edge of winter- Silvermoon'),
-(19, 0, 13603, 0, 0, 9, 13718, 0, 0, 0, '', 'a blade fit for a champion- Stormwind'),
-(19, 0, 13741, 0, 0, 9, 13714, 0, 0, 0, '', 'a blade fit for a champion- Iron Forge'),
-(19, 0, 13746, 0, 0, 9, 13715, 0, 0, 0, '', 'a blade fit for a champion- Gnomeregan'),
-(19, 0, 13752, 0, 0, 9, 13716, 0, 0, 0, '', 'a blade fit for a champion- Exodar'),
-(19, 0, 13757, 0, 0, 9, 13717, 0, 0, 0, '', 'a blade fit for a champion- darnassus'),
-(19, 0, 13762, 0, 0, 9, 13697, 0, 0, 0, '', 'a blade fit for a champion- Ogrimmar'),
-(19, 0, 13768, 0, 0, 9, 13719, 0, 0, 0, '', 'a blade fit for a champion- Darkspear'),
-(19, 0, 13773, 0, 0, 9, 13720, 0, 0, 0, '', 'a blade fit for a champion- Thunderbluff'),
-(19, 0, 13778, 0, 0, 9, 13721, 0, 0, 0, '', 'a blade fit for a champion- Undercity'),
-(19, 0, 13783, 0, 0, 9, 13722, 0, 0, 0, '', 'a blade fit for a champion- Silvermoon'),
-(20, 0, 13603, 0, 0, 9, 13718, 0, 0, 0, '', 'a blade fit for a champion- Stormwind'),
-(20, 0, 13741, 0, 0, 9, 13714, 0, 0, 0, '', 'a blade fit for a champion- Iron Forge'),
-(20, 0, 13746, 0, 0, 9, 13715, 0, 0, 0, '', 'a blade fit for a champion- Gnomeregan'),
-(20, 0, 13752, 0, 0, 9, 13716, 0, 0, 0, '', 'a blade fit for a champion- Exodar'),
-(20, 0, 13757, 0, 0, 9, 13717, 0, 0, 0, '', 'a blade fit for a champion- darnassus'),
-(20, 0, 13762, 0, 0, 9, 13697, 0, 0, 0, '', 'a blade fit for a champion- Ogrimmar'),
-(20, 0, 13768, 0, 0, 9, 13719, 0, 0, 0, '', 'a blade fit for a champion- Darkspear'),
-(20, 0, 13773, 0, 0, 9, 13720, 0, 0, 0, '', 'a blade fit for a champion- Thunderbluff'),
-(20, 0, 13778, 0, 0, 9, 13721, 0, 0, 0, '', 'a blade fit for a champion- Undercity'),
-(20, 0, 13783, 0, 0, 9, 13722, 0, 0, 0, '', 'a blade fit for a champion- Silvermoon'),
-(19, 0, 13600, 0, 0, 9, 13718, 0, 0, 0, '', 'a worthy weapon- Stormwind'),
-(19, 0, 13742, 0, 0, 9, 13714, 0, 0, 0, '', 'a worthy weapon- Iron Forge'),
-(19, 0, 13747, 0, 0, 9, 13715, 0, 0, 0, '', 'a worthy weapon- Gnomeregan'),
-(19, 0, 13753, 0, 0, 9, 13716, 0, 0, 0, '', 'a worthy weapon- Exodar'),
-(19, 0, 13758, 0, 0, 9, 13717, 0, 0, 0, '', 'a worthy weapon- darnassus'),
-(19, 0, 13763, 0, 0, 9, 13697, 0, 0, 0, '', 'a worthy weapon- Ogrimmar'),
-(19, 0, 13769, 0, 0, 9, 13719, 0, 0, 0, '', 'a worthy weapon- Darkspear'),
-(19, 0, 13774, 0, 0, 9, 13720, 0, 0, 0, '', 'a worthy weapon- Thunderbluff'),
-(19, 0, 13779, 0, 0, 9, 13721, 0, 0, 0, '', 'a worthy weapon- Undercity'),
-(19, 0, 13784, 0, 0, 9, 13722, 0, 0, 0, '', 'a worthy weapon- Silvermoon'),
-(20, 0, 13600, 0, 0, 9, 13718, 0, 0, 0, '', 'a worthy weapon- Stormwind'),
-(20, 0, 13742, 0, 0, 9, 13714, 0, 0, 0, '', 'a worthy weapon- Iron Forge'),
-(20, 0, 13747, 0, 0, 9, 13715, 0, 0, 0, '', 'a worthy weapon- Gnomeregan'),
-(20, 0, 13753, 0, 0, 9, 13716, 0, 0, 0, '', 'a worthy weapon- Exodar'),
-(20, 0, 13758, 0, 0, 9, 13717, 0, 0, 0, '', 'a worthy weapon- darnassus'),
-(20, 0, 13763, 0, 0, 9, 13697, 0, 0, 0, '', 'a worthy weapon- Ogrimmar'),
-(20, 0, 13769, 0, 0, 9, 13719, 0, 0, 0, '', 'a worthy weapon- Darkspear'),
-(20, 0, 13774, 0, 0, 9, 13720, 0, 0, 0, '', 'a worthy weapon- Thunderbluff'),
-(20, 0, 13779, 0, 0, 9, 13721, 0, 0, 0, '', 'a worthy weapon- Undercity'),
-(20, 0, 13784, 0, 0, 9, 13722, 0, 0, 0, '', 'a worthy weapon- Silvermoon'),
-(19, 0, 13625, 0, 0, 9, 13672, 0, 0, 0, '', 'player needs to be on quest upto the challenge'),
-(19, 0, 13666, 0, 0, 9, 13672, 0, 0, 0, '', 'player needs to be on quest upto the challenge'),
-(19, 0, 13669, 0, 0, 9, 13672, 0, 0, 0, '', 'player needs to be on quest upto the challenge'),
-(19, 0, 13670, 0, 0, 9, 13672, 0, 0, 0, '', 'player needs to be on quest upto the challenge'),
-(19, 0, 13671, 0, 0, 9, 13672, 0, 0, 0, '', 'player needs to be on quest upto the challenge'),
-(19, 0, 13673, 0, 0, 9, 13678, 0, 0, 0, '', 'player needs to be on quest upto the challenge'),
-(19, 0, 13674, 0, 0, 9, 13678, 0, 0, 0, '', 'player needs to be on quest upto the challenge'),
-(19, 0, 13675, 0, 0, 9, 13678, 0, 0, 0, '', 'player needs to be on quest upto the challenge'),
-(19, 0, 13676, 0, 0, 9, 13678, 0, 0, 0, '', 'player needs to be on quest upto the challenge'),
-(19, 0, 13677, 0, 0, 9, 13678, 0, 0, 0, '', 'player needs to be on quest upto the challenge'),
-(20, 0, 13625, 0, 0, 9, 13672, 0, 0, 0, '', 'player needs to be on quest upto the challenge'),
-(20, 0, 13666, 0, 0, 9, 13672, 0, 0, 0, '', 'player needs to be on quest upto the challenge'),
-(20, 0, 13669, 0, 0, 9, 13672, 0, 0, 0, '', 'player needs to be on quest upto the challenge'),
-(20, 0, 13670, 0, 0, 9, 13672, 0, 0, 0, '', 'player needs to be on quest upto the challenge'),
-(20, 0, 13671, 0, 0, 9, 13672, 0, 0, 0, '', 'player needs to be on quest upto the challenge'),
-(20, 0, 13673, 0, 0, 9, 13678, 0, 0, 0, '', 'player needs to be on quest upto the challenge'),
-(20, 0, 13674, 0, 0, 9, 13678, 0, 0, 0, '', 'player needs to be on quest upto the challenge'),
-(20, 0, 13675, 0, 0, 9, 13678, 0, 0, 0, '', 'player needs to be on quest upto the challenge'),
-(20, 0, 13676, 0, 0, 9, 13678, 0, 0, 0, '', 'player needs to be on quest upto the challenge'),
-(20, 0, 13677, 0, 0, 9, 13678, 0, 0, 0, '', 'player needs to be on quest upto the challenge'),
-(19, 0, 13592, 0, 0, 9, 13718, 0, 0, 0, '', 'A Valiants Field Training- Stormwind'),
-(19, 0, 13744, 0, 0, 9, 13714, 0, 0, 0, '', 'A Valiants Field Training- Iron Forge'),
-(19, 0, 13749, 0, 0, 9, 13715, 0, 0, 0, '', 'A Valiants Field Training- Gnomeregan'),
-(19, 0, 13755, 0, 0, 9, 13716, 0, 0, 0, '', 'A Valiants Field Training- Exodar'),
-(19, 0, 13760, 0, 0, 9, 13717, 0, 0, 0, '', 'A Valiants Field Training- darnassus'),
-(19, 0, 13765, 0, 0, 9, 13697, 0, 0, 0, '', 'A Valiants Field Training- Ogrimmar'),
-(19, 0, 13771, 0, 0, 9, 13719, 0, 0, 0, '', 'A Valiants Field Training- Darkspear'),
-(19, 0, 13776, 0, 0, 9, 13720, 0, 0, 0, '', 'A Valiants Field Training- Thunderbluff'),
-(19, 0, 13781, 0, 0, 9, 13721, 0, 0, 0, '', 'A Valiants Field Training- Undercity'),
-(19, 0, 13786, 0, 0, 9, 13722, 0, 0, 0, '', 'A Valiants Field Training- Silvermoon'),
-(20, 0, 13592, 0, 0, 9, 13718, 0, 0, 0, '', 'A Valiants Field Training- Stormwind'),
-(20, 0, 13744, 0, 0, 9, 13714, 0, 0, 0, '', 'A Valiants Field Training- Iron Forge'),
-(20, 0, 13749, 0, 0, 9, 13715, 0, 0, 0, '', 'A Valiants Field Training- Gnomeregan'),
-(20, 0, 13755, 0, 0, 9, 13716, 0, 0, 0, '', 'A Valiants Field Training- Exodar'),
-(20, 0, 13760, 0, 0, 9, 13717, 0, 0, 0, '', 'A Valiants Field Training- darnassus'),
-(20, 0, 13765, 0, 0, 9, 13697, 0, 0, 0, '', 'A Valiants Field Training- Ogrimmar'),
-(20, 0, 13771, 0, 0, 9, 13719, 0, 0, 0, '', 'A Valiants Field Training- Darkspear'),
-(20, 0, 13776, 0, 0, 9, 13720, 0, 0, 0, '', 'A Valiants Field Training- Thunderbluff'),
-(20, 0, 13781, 0, 0, 9, 13721, 0, 0, 0, '', 'A Valiants Field Training- Undercity'),
-(20, 0, 13786, 0, 0, 9, 13722, 0, 0, 0, '', 'A Valiants Field Training- Silvermoon'),
-
-(19, 0, 13665, 0, 0, 9, 13718, 0, 0, 0, '', 'The Grand Melee- Stormwind'),
-(19, 0, 13745, 0, 0, 9, 13714, 0, 0, 0, '', 'The Grand Melee- Iron Forge'),
-(19, 0, 13750, 0, 0, 9, 13715, 0, 0, 0, '', 'The Grand Melee- Gnomeregan'),
-(19, 0, 13756, 0, 0, 9, 13716, 0, 0, 0, '', 'The Grand Melee- Exodar'),
-(19, 0, 13761, 0, 0, 9, 13717, 0, 0, 0, '', 'The Grand Melee- Darnassus'),
-(19, 0, 13767, 0, 0, 9, 13697, 0, 0, 0, '', 'The Grand Melee- Ogrimmar'),
-(19, 0, 13772, 0, 0, 9, 13719, 0, 0, 0, '', 'The Grand Melee- Darkspear'),
-(19, 0, 13777, 0, 0, 9, 13720, 0, 0, 0, '', 'The Grand Melee- Thunderbluff'),
-(19, 0, 13782, 0, 0, 9, 13721, 0, 0, 0, '', 'The Grand Melee- Undercity'),
-(19, 0, 13787, 0, 0, 9, 13722, 0, 0, 0, '', 'The Grand Melee- Silvermoon'),
-(20, 0, 13665, 0, 0, 9, 13718, 0, 0, 0, '', 'The Grand Melee- Stormwind'),
-(20, 0, 13745, 0, 0, 9, 13714, 0, 0, 0, '', 'The Grand Melee- Iron Forge'),
-(20, 0, 13750, 0, 0, 9, 13715, 0, 0, 0, '', 'The Grand Melee- Gnomeregan'),
-(20, 0, 13756, 0, 0, 9, 13716, 0, 0, 0, '', 'The Grand Melee- Exodar'),
-(20, 0, 13761, 0, 0, 9, 13717, 0, 0, 0, '', 'The Grand Melee- Darnassus'),
-(20, 0, 13767, 0, 0, 9, 13697, 0, 0, 0, '', 'The Grand Melee- Ogrimmar'),
-(20, 0, 13772, 0, 0, 9, 13719, 0, 0, 0, '', 'The Grand Melee- Darkspear'),
-(20, 0, 13777, 0, 0, 9, 13720, 0, 0, 0, '', 'The Grand Melee- Thunderbluff'),
-(20, 0, 13782, 0, 0, 9, 13721, 0, 0, 0, '', 'The Grand Melee- Undercity'),
-(20, 0, 13787, 0, 0, 9, 13722, 0, 0, 0, '', 'The Grand Melee- Silvermoon'),
-
-(19, 0, 13847, 0, 0, 9, 13718, 0, 0, 0, '', 'At The Enemys Gates- Stormwind'),
-(19, 0, 13851, 0, 0, 9, 13714, 0, 0, 0, '', 'At The Enemys Gates- Iron Forge'),
-(19, 0, 13852, 0, 0, 9, 13715, 0, 0, 0, '', 'At The Enemys Gates- Gnomeregan'),
-(19, 0, 13854, 0, 0, 9, 13716, 0, 0, 0, '', 'At The Enemys Gates- Exodar'),
-(19, 0, 13855, 0, 0, 9, 13717, 0, 0, 0, '', 'At The Enemys Gates- Darnassus'),
-(19, 0, 13856, 0, 0, 9, 13697, 0, 0, 0, '', 'At The Enemys Gates- Ogrimmar'),
-(19, 0, 13857, 0, 0, 9, 13719, 0, 0, 0, '', 'At The Enemys Gates- Darkspear'),
-(19, 0, 13858, 0, 0, 9, 13720, 0, 0, 0, '', 'At The Enemys Gates- Thunderbluff'),
-(19, 0, 13860, 0, 0, 9, 13721, 0, 0, 0, '', 'At The Enemys Gates- Undercity'),
-(19, 0, 13859, 0, 0, 9, 13722, 0, 0, 0, '', 'At The Enemys Gates- Silvermoon'),
-(20, 0, 13847, 0, 0, 9, 13718, 0, 0, 0, '', 'At The Enemys Gates- Stormwind'),
-(20, 0, 13851, 0, 0, 9, 13714, 0, 0, 0, '', 'At The Enemys Gates- Iron Forge'),
-(20, 0, 13852, 0, 0, 9, 13715, 0, 0, 0, '', 'At The Enemys Gates- Gnomeregan'),
-(20, 0, 13854, 0, 0, 9, 13716, 0, 0, 0, '', 'At The Enemys Gates- Exodar'),
-(20, 0, 13855, 0, 0, 9, 13717, 0, 0, 0, '', 'At The Enemys Gates- Darnassus'),
-(20, 0, 13856, 0, 0, 9, 13697, 0, 0, 0, '', 'At The Enemys Gates- Ogrimmar'),
-(20, 0, 13857, 0, 0, 9, 13719, 0, 0, 0, '', 'At The Enemys Gates- Darkspear'),
-(20, 0, 13858, 0, 0, 9, 13720, 0, 0, 0, '', 'At The Enemys Gates- Thunderbluff'),
-(20, 0, 13860, 0, 0, 9, 13721, 0, 0, 0, '', 'At The Enemys Gates- Undercity'),
-(20, 0, 13859, 0, 0, 9, 13722, 0, 0, 0, '', 'At The Enemys Gates- Silvermoon');
-
--- [QUEST/FIX] The Black Knight's Curse (14016)
-    UPDATE `creature_template` SET ainame='SmartAI' WHERE `entry`= 35116;
-    UPDATE `creature_template` SET ainame='SmartAI' WHERE `entry`= 35127;
-    UPDATE `creature_template` SET ainame='', scriptname='npc_black_knights_grave' WHERE `entry`= 34735;
-
-    DELETE FROM `creature_text` WHERE `entry`=35116;
-    INSERT INTO `creature_text` VALUES
-    (35116,0,0, 'What do you think you\'re doing? ',12,0,0,1,0,0, ''),
-    (35116,1,0, 'You\'re too late to stop our plan.',12,0,0,1,0,0, ''),
-    (35116,2,0, 'See to it that I\'m not followed.',12,0,0,1,0,0, '');
-
-    DELETE FROM `creature_text` WHERE `entry`=35127;
-    INSERT INTO `creature_text` VALUES
-    (35127,0,0, 'Gladly',12,0,1,0,0,0, '');
-
-    DELETE FROM `smart_scripts` WHERE `entryorguid`=35116;
-    INSERT INTO `smart_scripts` VALUES
-    -- need add (The saboteur ports out, via spell)
-    (35116, 0, 0, 0, 54, 0, 100, 1, 0, 0, 0, 0, 71, 0, 0, 3334, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0,''), -- Equip shovel ID: 3334 ?
-    (35116, 0, 1, 0, 38, 0, 100, 0, 0, 0, 0, 0, 22, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0,''),
-    (35116, 0, 2, 0, 1, 1, 100, 1, 5000, 5000, 0, 0, 41, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0,'');
-
-    DELETE FROM `smart_scripts` WHERE `entryorguid`=35127;
-    DELETE FROM `smart_scripts` WHERE `entryorguid`=35127*100;
-    INSERT INTO `smart_scripts` VALUES
-    (35127, 0, 0, 1, 54,0,100,0,0,0,0,0,80,35127*100,0,2,0,0,0,1,0,0,0,0,0,0,0,""),
-    (35127, 0, 1, 0, 61,0,100,0,0,0,0,0,17,68,0,0,0,0,0,1,0,0,0,0,0,0,0,""),
-    -- script
-    (35127*100, 9, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 2, 35, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0,''),
-    (35127*100, 9, 1, 0, 0, 0, 100, 0, 0, 0, 0, 0, 24, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0,''),
-    (35127*100, 9, 2, 0, 0, 0, 100, 0, 0, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0,''),
-    (35127*100, 9, 3, 0, 0, 0, 100, 0, 2000, 2000, 0, 0, 1, 0, 0, 0, 0, 0, 0, 11, 35116, 20, 0, 0, 0, 0, 0,''),
-    (35127*100, 9, 4, 0, 0, 0, 100, 0, 4000, 4000, 0, 0, 1, 1, 0, 0, 0, 0, 0, 11, 35116, 20, 0, 0, 0, 0, 0,''),
-    (35127*100, 9, 5, 0, 0, 0, 100, 0, 3000, 3000, 0, 0, 1, 2, 0, 0, 0, 0, 0, 11, 35116, 20, 0, 0, 0, 0, 0,''),
-    (35127*100, 9, 6, 0, 0, 0, 100, 0, 0, 0, 0, 0, 45, 0, 0, 0, 0, 0, 0, 11, 35116, 20, 0, 0, 0, 0, 0,''),
-    (35127*100, 9, 7, 0, 0, 0, 100, 0, 2000, 2000, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0,''),
-    (35127*100, 9, 8, 0, 0, 0, 100, 0, 0, 0, 0, 0, 8, 2, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0,''),
-    (35127*100, 9, 9, 0, 0, 0, 100, 0, 1000, 1000, 0, 0, 2, 14, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0,''),
-    (35127*100, 9, 10, 0, 0, 0, 100, 0, 0, 0, 0, 0, 17, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0,''), -- emote 0 or roar?
-    -- combat
-    (35127, 0, 2, 0, 0, 0, 100, 0, 3000, 4000, 14000, 15000, 11, 60842, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0,''),
-    (35127, 0, 3, 0, 0, 0, 100, 0, 1000, 2000, 7000, 8000, 11, 14873, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0,''),
-    -- on death(quest credit)
-    (35127, 0, 4, 0, 6, 0, 100, 1, 0, 0, 0, 0, 85, 66785, 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 0, 0, 0,'');
