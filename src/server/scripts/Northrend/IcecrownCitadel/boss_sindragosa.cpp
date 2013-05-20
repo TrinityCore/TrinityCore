@@ -210,7 +210,7 @@ class boss_sindragosa : public CreatureScript
             void Reset()
             {
                 BossAI::Reset();
-                me->SetReactState(REACT_DEFENSIVE);
+                me->SetReactState(REACT_AGGRESSIVE);
                 DoCast(me, SPELL_TANK_MARKER, true);
                 events.ScheduleEvent(EVENT_BERSERK, 600000);
                 events.ScheduleEvent(EVENT_CLEAVE, 10000, EVENT_GROUP_LAND_PHASE);
@@ -219,6 +219,7 @@ class boss_sindragosa : public CreatureScript
                 events.ScheduleEvent(EVENT_UNCHAINED_MAGIC, urand(9000, 14000), EVENT_GROUP_LAND_PHASE);
                 events.ScheduleEvent(EVENT_ICY_GRIP, 33500, EVENT_GROUP_LAND_PHASE);
                 events.ScheduleEvent(EVENT_AIR_PHASE, 50000);
+                _iceTombCounter = 0;
                 _mysticBuffetStack = 0;
                 _isInAirPhase = false;
                 _isThirdPhase = false;
@@ -249,7 +250,7 @@ class boss_sindragosa : public CreatureScript
                     return;
                 }
 
-                BossAI::EnterCombat(victim);
+                //BossAI::EnterCombat(victim);
                 DoCast(me, SPELL_FROST_AURA);
                 DoCast(me, SPELL_PERMAEATING_CHILL);
                 Talk(SAY_AGGRO);
@@ -343,7 +344,7 @@ class boss_sindragosa : public CreatureScript
                         me->SetCanFly(false);
                         me->SetDisableGravity(false);
                         me->RemoveByteFlag(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
-                        me->SetReactState(REACT_DEFENSIVE);
+                        me->SetReactState(REACT_AGGRESSIVE);
                         if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() == POINT_MOTION_TYPE)
                             me->GetMotionMaster()->MovementExpired();
                         _isInAirPhase = false;
@@ -391,7 +392,6 @@ class boss_sindragosa : public CreatureScript
                     if (spellId == spell->Id)
                         if (Aura const* mysticBuffet = target->GetAura(spell->Id))
                             _mysticBuffetStack = std::max<uint8>(_mysticBuffetStack, mysticBuffet->GetStackAmount());
-
             }
 
             void UpdateAI(uint32 diff)
@@ -433,6 +433,13 @@ class boss_sindragosa : public CreatureScript
                         case EVENT_ICY_GRIP:
                             DoCast(me, SPELL_ICY_GRIP);
                             events.ScheduleEvent(EVENT_BLISTERING_COLD, 1000, EVENT_GROUP_LAND_PHASE);
+
+                            // Reset Ice Tomb counter, and schedule Ice Tombs again in phase 3
+                            if (_isThirdPhase)
+                            {
+                                _iceTombCounter = 0;
+                                events.ScheduleEvent(EVENT_ICE_TOMB, urand(7000, 10000));
+                            }
                             break;
                         case EVENT_BLISTERING_COLD:
                             Talk(EMOTE_WARN_BLISTERING_COLD);
@@ -466,12 +473,18 @@ class boss_sindragosa : public CreatureScript
                             me->GetMotionMaster()->MovePoint(POINT_AIR_PHASE_FAR, SindragosaAirPosFar);
                             break;
                         case EVENT_ICE_TOMB:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true, -SPELL_ICE_TOMB_UNTARGETABLE))
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true, -SPELL_ICE_TOMB_DAMAGE))
                             {
                                 Talk(EMOTE_WARN_FROZEN_ORB, target->GetGUID());
-                                DoCast(target, SPELL_ICE_TOMB_DUMMY, true);
+                                me->CastCustomSpell(SPELL_ICE_TOMB_TARGET, SPELLVALUE_MAX_TARGETS, RAID_MODE<int32>(1, 1, 1, 1), NULL);
+                                me->SetFacingTo(float(2*M_PI));
                             }
-                            events.ScheduleEvent(EVENT_ICE_TOMB, urand(16000, 23000));
+
+                            _iceTombCounter++;
+                            if (_iceTombCounter < 4) // Avoid casting ice tomb more than 4 times between icy grips
+                                events.ScheduleEvent(EVENT_ICE_TOMB, urand(16000, 23000));
+                            else // We are done with all ice tombs, start icy grip timer
+                                events.ScheduleEvent(EVENT_ICY_GRIP, 20000);
                             break;
                         case EVENT_FROST_BOMB:
                         {
@@ -502,9 +515,11 @@ class boss_sindragosa : public CreatureScript
                         {
                             if (!_isInAirPhase)
                             {
+                                events.CancelEvent(EVENT_ICY_GRIP);
+                                _isThirdPhase = true;
                                 Talk(SAY_PHASE_2);
+                                _iceTombCounter = 2; // Set to 2 here, so we get 2 casts until first icy grip
                                 events.ScheduleEvent(EVENT_ICE_TOMB, urand(7000, 10000));
-                                events.RescheduleEvent(EVENT_ICY_GRIP, urand(35000, 40000));
                                 DoCast(me, SPELL_MYSTIC_BUFFET, true);
                             }
                             else
@@ -520,6 +535,7 @@ class boss_sindragosa : public CreatureScript
             }
 
         private:
+            uint8 _iceTombCounter;
             uint8 _mysticBuffetStack;
             bool _isInAirPhase;
             bool _isThirdPhase;
@@ -548,6 +564,8 @@ class npc_ice_tomb : public CreatureScript
             void Reset()
             {
                 me->SetReactState(REACT_PASSIVE);
+                me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
+                me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK_DEST, true);
             }
 
             void SetGUID(uint64 guid, int32 type/* = 0 */)
@@ -637,7 +655,9 @@ class npc_spinestalker : public CreatureScript
                 _events.ScheduleEvent(EVENT_BELLOWING_ROAR, urand(20000, 25000));
                 _events.ScheduleEvent(EVENT_CLEAVE_SPINESTALKER, urand(10000, 15000));
                 _events.ScheduleEvent(EVENT_TAIL_SWEEP, urand(8000, 12000));
-                me->SetReactState(REACT_DEFENSIVE);
+                me->SetReactState(REACT_AGGRESSIVE);
+                me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
+                me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK_DEST, true);
 
                 if (!_summoned)
                 {
@@ -766,7 +786,9 @@ class npc_rimefang : public CreatureScript
                 _events.Reset();
                 _events.ScheduleEvent(EVENT_FROST_BREATH_RIMEFANG, urand(12000, 15000));
                 _events.ScheduleEvent(EVENT_ICY_BLAST, urand(30000, 35000));
-                me->SetReactState(REACT_DEFENSIVE);
+                me->SetReactState(REACT_AGGRESSIVE);
+                me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
+                me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK_DEST, true);
                 _icyBlastCounter = 0;
 
                 if (!_summoned)
@@ -1131,8 +1153,7 @@ class spell_sindragosa_frost_breath : public SpellScriptLoader
                 if (!target)
                     return;
 
-                // Check difficulty and quest status
-                if (!(target->GetRaidDifficulty() & RAID_DIFFICULTY_MASK_25MAN) || target->GetQuestStatus(QUEST_FROST_INFUSION) != QUEST_STATUS_INCOMPLETE)
+                if (target->GetQuestStatus(QUEST_FROST_INFUSION) != QUEST_STATUS_INCOMPLETE)
                     return;
 
                 // Check if player has Shadow's Edge equipped and not ready for infusion
@@ -1314,7 +1335,24 @@ class spell_sindragosa_icy_grip : public SpellScriptLoader
             void HandleScript(SpellEffIndex effIndex)
             {
                 PreventHitDefaultEffect(effIndex);
-                GetHitUnit()->CastSpell(GetCaster(), SPELL_ICY_GRIP_JUMP, true);
+
+                Unit* unit = GetHitUnit();
+                Unit* caster = GetCaster();
+
+                if (unit && caster)
+                {
+                    if (caster->GetTypeId() == TYPEID_UNIT && unit->GetTypeId() == TYPEID_PLAYER && caster->getVictim())
+                    {
+                        if (caster->getVictim()->GetGUID() != unit->GetGUID()) // exclude tank
+                        {
+                            float x, y, z;
+                            caster->GetPosition(x, y, z);
+                            float speedZ = 10.0f;
+                            float speedXY = unit->GetExactDist2d(x, y);
+                            unit->GetMotionMaster()->MoveJump(x, y, z, speedXY, speedZ);
+                        }
+                    }
+                }
             }
 
             void Register()

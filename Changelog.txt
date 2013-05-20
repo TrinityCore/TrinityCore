@@ -11,6 +11,7 @@
 #                                                                                          #
 ############################################################################################
 
+[197] --> Update Icecrown Citadel. (Thx aedansilver)
 [196] --> Implement [ICC] Check Heroic Achievement.
 [195] --> Implement Trial of the Champion. (Thx fiveofeight)
 [194] --> Update scripts and core... Original TrinityCore and Chaos Core.

@@ -19,6 +19,7 @@
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "SpellAuras.h"
+#include "MapManager.h"
 #include "MoveSplineInit.h"
 #include "Player.h"
 #include "icecrown_citadel.h"
@@ -371,7 +372,7 @@ class npc_coldflame : public CreatureScript
 
                 if (owner->HasAura(SPELL_BONE_STORM))
                 {
-                    float ang = Position::NormalizeOrientation(pos.GetAngle(me));
+                    float ang = MapManager::NormalizeOrientation(pos.GetAngle(me));
                     me->SetOrientation(ang);
                     owner->GetNearPoint2D(pos.m_positionX, pos.m_positionY, 5.0f - owner->GetObjectSize(), ang);
                 }
@@ -384,7 +385,7 @@ class npc_coldflame : public CreatureScript
                         return;
                     }
 
-                    float ang = Position::NormalizeOrientation(pos.GetAngle(target));
+                    float ang = MapManager::NormalizeOrientation(pos.GetAngle(target));
                     me->SetOrientation(ang);
                     owner->GetNearPoint2D(pos.m_positionX, pos.m_positionY, 15.0f - owner->GetObjectSize(), ang);
                 }
