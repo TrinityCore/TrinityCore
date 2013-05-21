@@ -30,13 +30,12 @@ enum Yells
 {
     //Yells Ingvar
     YELL_AGGRO_1                                = 0,
-    YELL_AGGRO_2                                = 1,
-
+    YELL_KILL_1                                 = 1,
     YELL_DEAD_1                                 = 2,
-    YELL_DEAD_2                                 = 3,
 
-    YELL_KILL_1                                 = 4,
-    YELL_KILL_2                                 = 5,
+    YELL_AGGRO_2                                = 0,
+    YELL_KILL_2                                 = 1,
+    YELL_DEAD_2                                 = 2
 };
 
 enum Creatures

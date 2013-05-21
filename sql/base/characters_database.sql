@@ -214,6 +214,32 @@ LOCK TABLES `auctionhouse` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `banned_addons`
+--
+
+DROP TABLE IF EXISTS `banned_addons`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `banned_addons` (
+  `Id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `Name` varchar(255) NOT NULL,
+  `Version` varchar(255) NOT NULL DEFAULT '',
+  `Timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`Id`),
+  UNIQUE KEY `idx_name_ver` (`Name`, `Version`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `banned_addons`
+--
+
+LOCK TABLES `banned_addons` WRITE;
+/*!40000 ALTER TABLE `banned_addons` DISABLE KEYS */;
+/*!40000 ALTER TABLE `banned_addons` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `bugreport`
 --
 

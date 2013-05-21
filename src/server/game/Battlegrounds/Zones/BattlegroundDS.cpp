@@ -201,12 +201,6 @@ void BattlegroundDS::HandleAreaTrigger(Player* player, uint32 trigger)
     }
 }
 
-bool BattlegroundDS::HandlePlayerUnderMap(Player* player)
-{
-    player->TeleportTo(GetMapId(), 1299.046f, 784.825f, 9.338f, 2.422f);
-    return true;
-}
-
 void BattlegroundDS::FillInitialWorldStates(WorldPacket &data)
 {
     data << uint32(3610) << uint32(1);                                              // 9 show

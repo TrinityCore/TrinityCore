@@ -1135,6 +1135,7 @@ void World::LoadConfigSettings(bool reload)
     ///- Load the CharDelete related config options
     m_int_configs[CONFIG_CHARDELETE_METHOD] = ConfigMgr::GetIntDefault("CharDelete.Method", 0);
     m_int_configs[CONFIG_CHARDELETE_MIN_LEVEL] = ConfigMgr::GetIntDefault("CharDelete.MinLevel", 0);
+    m_int_configs[CONFIG_CHARDELETE_HEROIC_MIN_LEVEL] = ConfigMgr::GetIntDefault("CharDelete.Heroic.MinLevel", 0);
     m_int_configs[CONFIG_CHARDELETE_KEEP_DAYS] = ConfigMgr::GetIntDefault("CharDelete.KeepDays", 30);
 
     ///- Read the "Data" directory from the config file
@@ -1837,7 +1838,7 @@ void World::SetInitialWorldSettings()
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Calculate random battleground reset time...");
     InitRandomBGResetTime();
 
-    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Calculate Guild cap reset time...");
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Calculate guild limitation(s) reset time...");
     InitGuildResetTime();
 
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Calculate next currency reset time...");
@@ -1893,12 +1894,16 @@ void World::LoadAutobroadcasts()
     uint32 oldMSTime = getMSTime();
 
     m_Autobroadcasts.clear();
+    m_AutobroadcastsWeights.clear();
 
-    QueryResult result = WorldDatabase.Query("SELECT text FROM autobroadcast");
+    uint32 realmId = ConfigMgr::GetIntDefault("RealmID", 0);
+    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_AUTOBROADCAST);
+    stmt->setInt32(0, realmId);
+    PreparedQueryResult result = LoginDatabase.Query(stmt);
 
     if (!result)
     {
-        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 autobroadcasts definitions. DB table `autobroadcast` is empty!");
+        sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded 0 autobroadcasts definitions. DB table `autobroadcast` is empty for this realm!");
         return;
     }
 
@@ -1907,9 +1912,10 @@ void World::LoadAutobroadcasts()
     do
     {
         Field* fields = result->Fetch();
-        std::string message = fields[0].GetString();
+        uint8 id = fields[0].GetUInt8();
 
-        m_Autobroadcasts.push_back(message);
+        m_Autobroadcasts[id] = fields[2].GetString();
+        m_AutobroadcastsWeights[id] = fields[1].GetUInt8();
 
         ++count;
     } while (result->NextRow());
@@ -2671,9 +2677,35 @@ void World::SendAutoBroadcast()
     if (m_Autobroadcasts.empty())
         return;
 
+    uint32 weight = 0;
+    AutobroadcastsWeightMap selectionWeights;
     std::string msg;
 
-    msg = Trinity::Containers::SelectRandomContainerElement(m_Autobroadcasts);
+    for (AutobroadcastsWeightMap::const_iterator it = m_AutobroadcastsWeights.begin(); it != m_AutobroadcastsWeights.end(); ++it)
+    {
+        if (it->second)
+        {
+            weight += it->second;
+            selectionWeights[it->first] = it->second;
+        }
+    }
+
+    if (weight)
+    {
+        uint32 selectedWeight = urand(0, weight - 1);
+        weight = 0;
+        for (AutobroadcastsWeightMap::const_iterator it = selectionWeights.begin(); it != selectionWeights.end(); ++it)
+        {
+            weight += it->second;
+            if (selectedWeight < weight)
+            {
+                msg = m_Autobroadcasts[it->first];
+                break;
+            }
+        }
+    }
+    else
+        msg = m_Autobroadcasts[urand(0, m_Autobroadcasts.size())];
 
     uint32 abcenter = sWorld->getIntConfig(CONFIG_AUTOBROADCAST_CENTER);
 
@@ -3129,6 +3161,27 @@ void World::ProcessQueryCallbacks()
     }
 }
 
+/**
+* @brief Loads several pieces of information on server startup with the low GUID
+* There is no further database query necessary.
+* These are a number of methods that work into the calling function.
+*
+* @param guid Requires a lowGUID to call
+* @return Name, Gender, Race, Class and Level of player character
+* Example Usage:
+* @code
+*    CharacterNameData const* nameData = sWorld->GetCharacterNameData(lowGUID);
+*    if (!nameData)
+*        return;
+*
+* std::string playerName = nameData->m_name;
+* uint8 playerGender = nameData->m_gender;
+* uint8 playerRace = nameData->m_race;
+* uint8 playerClass = nameData->m_class;
+* uint8 playerLevel = nameData->m_level;
+* @endcode
+**/
+
 void World::LoadCharacterNameData()
 {
     sLog->outInfo(LOG_FILTER_SERVER_LOADING, "Loading character name data");
@@ -3206,7 +3259,7 @@ void World::UpdatePhaseDefinitions()
 
 void World::ReloadRBAC()
 {
-    // Pasive reload, we mark the data as invalidated and next time a permission is checked it will be reloaded
+    // Passive reload, we mark the data as invalidated and next time a permission is checked it will be reloaded
     sLog->outInfo(LOG_FILTER_RBAC, "World::ReloadRBAC()");
     for (SessionMap::const_iterator itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
         if (WorldSession* session = itr->second)

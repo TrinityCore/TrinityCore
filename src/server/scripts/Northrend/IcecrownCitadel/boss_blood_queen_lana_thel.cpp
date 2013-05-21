@@ -73,7 +73,6 @@ enum Spells
 enum Shadowmourne
 {
     QUEST_BLOOD_INFUSION                    = 24756,
-    ITEM_SHADOW_S_EDGE                      = 49888,
 
     SPELL_GUSHING_WOUND                     = 72132,
     SPELL_THIRST_QUENCHED                   = 72154,
