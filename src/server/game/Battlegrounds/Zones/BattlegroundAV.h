@@ -1046,7 +1046,7 @@ const uint32 BG_AV_CreatureInfo[AV_NPC_INFO_MAX][4] =
     { 13326, 1216, 59, 59 }, //Seasoned Defender
     { 13331, 1216, 60, 60 }, //Veteran Defender
     { 13422, 1216, 61, 61 }, //Champion Defender
-    { 13358, 1216, 59, 60 }, //Stormpike Bowman /// @todo: Confirm if this is correct. Author assumpted 60,61 & 69,70, but wouldn't work here
+    { 13358, 1216, 59, 60 }, //Stormpike Bowman /// @todo: Confirm if this is correct. Author assumpted 60, 61 & 69, 70, but wouldn't work here
     { 11949, 469, 0, 0}, //not spawned with this data, but used for handlekillunit
     { 11948, 469, 0, 0}, //not spawned with this data, but used for handlekillunit
     { 12053, 1214, 58, 58 }, //Frostwolf Guardian

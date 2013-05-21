@@ -154,14 +154,14 @@ struct DialogueEntry
 class DialogueHelper
 {
 public:
-    // The array MUST be terminated by {0,0,0}
+    // The array MUST be terminated by {0, 0, 0}
     DialogueHelper(DialogueEntry const* dialogueArray) :
       _dialogueArray(dialogueArray),
           _currentEntry(NULL),
           _actionTimer(0),
           _isFirstSide(true)
       {}
-      // The array MUST be terminated by {0,0,0,0,0}
+      // The array MUST be terminated by {0, 0, 0, 0, 0}
 
       /// Function to initialize the dialogue helper for instances. If not used with instances, GetSpeakerByEntry MUST be overwritten to obtain the speakers
       /// Set if take first entries or second entries
@@ -183,7 +183,7 @@ public:
 
           if (!found)
               return;
- 
+
           DoNextDialogueStep();
       }
 
@@ -398,7 +398,7 @@ public:
 
         void WaypointReached(uint32 pointId)
         {
-            switch(pointId)
+            switch (pointId)
             {
                 case 3:
                     Talk(SAY_ENTER_OWL_THICKET);
@@ -437,7 +437,7 @@ public:
                     SetEscortPaused(true);
                     DoSummonPriestess();
                     Talk(SAY_RANSHALLA_ALTAR_2);
-                    events.ScheduleEvent(EVENT_RESUME,2000);
+                    events.ScheduleEvent(EVENT_RESUME, 2000);
                     break;
                 case 44:
                     // Stop the escort and turn towards the altar
