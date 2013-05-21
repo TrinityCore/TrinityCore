@@ -25,6 +25,7 @@ EndScriptData */
 #include "Chat.h"
 #include "Language.h"
 #include "ArenaTeamMgr.h"
+#include "Player.h"
 #include "ScriptMgr.h"
 
 class arena_commandscript : public CommandScript
