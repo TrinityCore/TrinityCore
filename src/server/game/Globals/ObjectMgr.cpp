@@ -7930,13 +7930,13 @@ void ObjectMgr::AddSpellToTrainer(uint32 entry, uint32 spell, uint32 spellCost, 
     CreatureTemplate const* cInfo = GetCreatureTemplate(entry);
     if (!cInfo)
     {
-        sLog->outError(LOG_FILTER_SQL, "Table `npc_trainer` contains an entry for a non-existing creature template (Entry: %u), ignoring", entry);
+        sLog->outError(LOG_FILTER_SQL, "Table `npc_trainer` contains entries for a non-existing creature template (Entry: %u), ignoring", entry);
         return;
     }
 
     if (!(cInfo->npcflag & UNIT_NPC_FLAG_TRAINER))
     {
-        sLog->outError(LOG_FILTER_SQL, "Table `npc_trainer` contains an entry for a creature template (Entry: %u) without trainer flag, ignoring", entry);
+        sLog->outError(LOG_FILTER_SQL, "Table `npc_trainer` contains entries for a creature template (Entry: %u) without trainer flag, ignoring", entry);
         return;
     }
 

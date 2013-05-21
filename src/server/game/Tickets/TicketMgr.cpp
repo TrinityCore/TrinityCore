@@ -244,7 +244,10 @@ void GmTicket::SetChatLog(std::list<uint32> time, std::string const& log)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // Ticket manager
-TicketMgr::TicketMgr() : _status(true), _lastTicketId(0), _lastSurveyId(0), _openTicketCount(0), _lastChange(time(NULL)) { }
+TicketMgr::TicketMgr() : _status(true), _lastTicketId(0), _lastSurveyId(0), _openTicketCount(0),
+    _lastChange(time(NULL))
+{
+}
 
 TicketMgr::~TicketMgr()
 {
@@ -252,7 +255,10 @@ TicketMgr::~TicketMgr()
         delete itr->second;
 }
 
-void TicketMgr::Initialize() { SetStatus(sWorld->getBoolConfig(CONFIG_ALLOW_TICKETS)); }
+void TicketMgr::Initialize()
+{
+    SetStatus(sWorld->getBoolConfig(CONFIG_ALLOW_TICKETS));
+}
 
 void TicketMgr::ResetTickets()
 {

@@ -91,12 +91,6 @@ void BattlegroundRL::HandleKillPlayer(Player* player, Player* killer)
     CheckArenaWinConditions();
 }
 
-bool BattlegroundRL::HandlePlayerUnderMap(Player* player)
-{
-    player->TeleportTo(GetMapId(), 1285.810547f, 1667.896851f, 39.957642f, player->GetOrientation());
-    return true;
-}
-
 void BattlegroundRL::HandleAreaTrigger(Player* player, uint32 trigger)
 {
     if (GetStatus() != STATUS_IN_PROGRESS)

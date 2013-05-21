@@ -59,7 +59,6 @@ class BattlegroundBE : public Battleground
         void Reset();
         void FillInitialWorldStates(WorldPacket &d);
         void HandleKillPlayer(Player* player, Player* killer);
-        bool HandlePlayerUnderMap(Player* player);
 
         /* Scorekeeping */
         void UpdatePlayerScore(Player* Source, uint32 type, uint32 value, bool doAddHonor = true);

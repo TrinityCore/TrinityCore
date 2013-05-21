@@ -3585,6 +3585,55 @@ class spell_gen_darkflight : public SpellScriptLoader
         }
 };
 
+enum OrcDisguiseSpells
+{
+    SPELL_ORC_DISGUISE_TRIGGER       = 45759,
+    SPELL_ORC_DISGUISE_MALE          = 45760,
+    SPELL_ORC_DISGUISE_FEMALE        = 45762,
+};
+
+class spell_gen_orc_disguise : public SpellScriptLoader
+{
+    public:
+        spell_gen_orc_disguise() : SpellScriptLoader("spell_gen_orc_disguise") { }
+
+        class spell_gen_orc_disguise_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_gen_orc_disguise_SpellScript);
+
+            bool Validate(SpellInfo const* /*spell*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_ORC_DISGUISE_TRIGGER) || !sSpellMgr->GetSpellInfo(SPELL_ORC_DISGUISE_MALE) ||
+                    !sSpellMgr->GetSpellInfo(SPELL_ORC_DISGUISE_FEMALE))
+                    return false;
+                return true;
+            }
+
+            void HandleScript(SpellEffIndex /*effIndex*/)
+            {
+                Unit* caster = GetCaster();
+                if (Player* target = GetHitPlayer())
+                {
+                    uint8 gender = target->getGender();
+                    if (!gender)
+                        caster->CastSpell(target, SPELL_ORC_DISGUISE_MALE, true);
+                    else
+                        caster->CastSpell(target, SPELL_ORC_DISGUISE_FEMALE, true);
+                }
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_gen_orc_disguise_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_gen_orc_disguise_SpellScript();
+        }
+};
+
 void AddSC_generic_spell_scripts()
 {
     new spell_gen_absorb0_hitlimit1();
@@ -3672,4 +3721,5 @@ void AddSC_generic_spell_scripts()
     new spell_gen_running_wild();
     new spell_gen_two_forms();
     new spell_gen_darkflight();
+    new spell_gen_orc_disguise();
 }

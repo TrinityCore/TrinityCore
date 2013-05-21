@@ -768,6 +768,8 @@ public:
     std::string const& GetMOTD() const { return m_motd; }
     std::string const& GetInfo() const { return m_info; }
 
+    bool SetName(std::string const& name);
+
     // Handle client commands
     void HandleRoster(WorldSession* session = NULL);
     void HandleQuery(WorldSession* session);

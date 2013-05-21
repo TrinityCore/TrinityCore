@@ -1474,19 +1474,19 @@ class Unit : public WorldObject
         uint32 GetCritDamageReduction(uint32 damage) const { return GetCombatRatingDamageReduction(CR_RESILIENCE_CRIT_TAKEN, 2.2f, 33.0f, damage); }
         uint32 GetDamageReduction(uint32 damage) const { return GetCombatRatingDamageReduction(CR_RESILIENCE_PLAYER_DAMAGE_TAKEN, 2.0f, 100.0f, damage); }
 
-        void ApplyResilience(const Unit* victim, int32 * damage, bool isCrit) const;
+        void ApplyResilience(Unit const* victim, int32 * damage, bool isCrit) const;
 
-        float MeleeSpellMissChance(const Unit* victim, WeaponAttackType attType, uint32 spellId) const;
+        float MeleeSpellMissChance(Unit const* victim, WeaponAttackType attType, uint32 spellId) const;
         SpellMissInfo MeleeSpellHitResult(Unit* victim, SpellInfo const* spell);
         SpellMissInfo MagicSpellHitResult(Unit* victim, SpellInfo const* spell);
         SpellMissInfo SpellHitResult(Unit* victim, SpellInfo const* spell, bool canReflect = false);
 
-        float GetUnitDodgeChance()    const;
-        float GetUnitParryChance()    const;
-        float GetUnitBlockChance()    const;
-        float GetUnitMissChance(WeaponAttackType attType)     const;
+        float GetUnitDodgeChance() const;
+        float GetUnitParryChance() const;
+        float GetUnitBlockChance() const;
+        float GetUnitMissChance(WeaponAttackType attType) const;
         float GetUnitCriticalChance(WeaponAttackType attackType, const Unit* victim) const;
-        int32 GetMechanicResistChance(const SpellInfo* spell);
+        int32 GetMechanicResistChance(const SpellInfo* spell) const;
         bool CanUseAttackType(uint8 attacktype) const;
 
         virtual uint32 GetBlockPercent() const { return 30; }
@@ -1784,9 +1784,9 @@ class Unit : public WorldObject
         bool HasAuraTypeWithMiscvalue(AuraType auratype, int32 miscvalue) const;
         bool HasAuraTypeWithAffectMask(AuraType auratype, SpellInfo const* affectedSpell) const;
         bool HasAuraTypeWithValue(AuraType auratype, int32 value) const;
-        bool HasNegativeAuraWithInterruptFlag(uint32 flag, uint64 guid = 0);
-        bool HasNegativeAuraWithAttribute(uint32 flag, uint64 guid = 0);
-        bool HasAuraWithMechanic(uint32 mechanicMask);
+        bool HasNegativeAuraWithInterruptFlag(uint32 flag, uint64 guid = 0) const;
+        bool HasNegativeAuraWithAttribute(uint32 flag, uint64 guid = 0) const;
+        bool HasAuraWithMechanic(uint32 mechanicMask) const;
 
         AuraEffect* IsScriptOverriden(SpellInfo const* spell, int32 script) const;
         uint32 GetDiseasesByCaster(uint64 casterGUID, bool remove = false);

@@ -369,8 +369,19 @@ bool ChatHandler::ExecuteCommandInTable(ChatCommand* table, const char* text, co
                 {
                     Player* p = m_session->GetPlayer();
                     uint64 sel_guid = p->GetSelection();
-                    sLog->outCommand(m_session->GetAccountId(), "Command: %s [Player: %s (Account: %u) X: %f Y: %f Z: %f Map: %u Selected %s: %s (GUID: %u)]",
-                        fullcmd.c_str(), p->GetName().c_str(), m_session->GetAccountId(), p->GetPositionX(), p->GetPositionY(), p->GetPositionZ(), p->GetMapId(),
+                    uint32 areaId = p->GetAreaId();
+                    std::string areaName = "Unknown";
+                    std::string zoneName = "Unknown";
+                    if (AreaTableEntry const* area = GetAreaEntryByAreaID(areaId))
+                    {
+                        int locale = GetSessionDbcLocale();
+                        areaName = area->area_name[locale];
+                        if (AreaTableEntry const* zone = GetAreaEntryByAreaID(area->zone))
+                            zoneName = zone->area_name[locale];
+                    }
+
+                    sLog->outCommand(m_session->GetAccountId(), "Command: %s [Player: %s (Guid: %u) (Account: %u) X: %f Y: %f Z: %f Map: %u (%s) Area: %u (%s) Zone: %s Selected %s: %s (GUID: %u)]",
+                        fullcmd.c_str(), p->GetName().c_str(), GUID_LOPART(p->GetGUID()), m_session->GetAccountId(), p->GetPositionX(), p->GetPositionY(), p->GetPositionZ(), p->GetMapId(), p->GetMap() ? p->GetMap()->GetMapName() : "Unknown", areaId, areaName.c_str(), zoneName.c_str(),
                         GetLogNameForGuid(sel_guid), (p->GetSelectedUnit()) ? p->GetSelectedUnit()->GetName().c_str() : "", GUID_LOPART(sel_guid));
                 }
             }

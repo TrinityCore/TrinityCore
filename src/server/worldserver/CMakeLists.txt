@@ -196,7 +196,7 @@ endif()
 
 if( UNIX )
   install(TARGETS worldserver DESTINATION bin)
-  install(FILES worldserver.conf.dist DESTINATION etc)
+  install(FILES worldserver.conf.dist DESTINATION ${CONF_DIR})
 elseif( WIN32 )
   install(TARGETS worldserver DESTINATION "${CMAKE_INSTALL_PREFIX}")
   install(FILES worldserver.conf.dist DESTINATION "${CMAKE_INSTALL_PREFIX}")

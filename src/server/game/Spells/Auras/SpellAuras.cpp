@@ -1524,7 +1524,7 @@ bool Aura::CanStackWith(Aura const* existingAura) const
         return true;
 
     // Dynobj auras always stack
-    if (existingAura->GetType() == DYNOBJ_AURA_TYPE)
+    if (GetType() == DYNOBJ_AURA_TYPE || existingAura->GetType() == DYNOBJ_AURA_TYPE)
         return true;
 
     SpellInfo const* existingSpellInfo = existingAura->GetSpellInfo();

@@ -14,7 +14,7 @@ G3D (a commercial-grade C++ 3D engine available as Open Source (BSD License)
 
 jemalloc (a general-purpose scalable concurrent malloc-implementation)
   http://www.canonware.com/jemalloc/
-  Version: 2.1.0
+  Version: 3.3.1
   
 MySQL (the world's most popular open source database software)
   http://www.mysql.com/
