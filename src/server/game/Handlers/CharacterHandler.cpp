@@ -1093,7 +1093,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
 
         if (pCurrChar->getClass() == CLASS_HUNTER)
         {
-            static uint32 const HunterCreatePetSpells[MAX_RACES] = 
+            static uint32 const HunterCreatePetSpells[MAX_RACES] =
             {
                    0,  /* None */                          79597,  /* Human - Young Wolf */
                79598,  /* Orc - Young Boar */              79593,  /* Dwarf - Young Bear */
