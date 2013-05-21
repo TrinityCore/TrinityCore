@@ -80,6 +80,8 @@ target_link_libraries(authserver
   shared
   ${MYSQL_LIBRARY}
   ${OPENSSL_LIBRARIES}
+  ${CMAKE_THREAD_LIBS_INIT}
+  ${ACE_LIBRARY}
 )
 
 if( WIN32 )
