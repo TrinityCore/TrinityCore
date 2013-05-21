@@ -121,6 +121,7 @@ class ArenaTeam
 
         bool Create(uint64 captainGuid, uint8 type, std::string const& teamName, uint32 backgroundColor, uint8 emblemStyle, uint32 emblemColor, uint8 borderStyle, uint32 borderColor);
         void Disband(WorldSession* session);
+        void Disband();
 
         typedef std::list<ArenaTeamMember> MemberList;
 
@@ -136,6 +137,7 @@ class ArenaTeam
         uint32 GetAverageMMR(Group* group) const;
 
         void SetCaptain(uint64 guid);
+        bool SetName(std::string const& name);
         bool AddMember(uint64 PlayerGuid);
 
         // Shouldn't be uint64 ed, because than can reference guid from members on Disband
