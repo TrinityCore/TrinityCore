@@ -37,6 +37,7 @@ namespace AuthHelper
 
     static RealmBuildInfo const PreBcAcceptedClientBuilds[] =
     {
+        {6141,  1, 12, 3, ' '},
         {6005,  1, 12, 2, ' '},
         {5875,  1, 12, 1, ' '},
         {0,     0, 0, 0, ' '}                                   // terminator
