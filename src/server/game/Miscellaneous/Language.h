@@ -803,6 +803,7 @@ enum TrinityStrings
     LANG_NPCINFO_MAILBOX                = 841,
     LANG_NPCINFO_PLAYER_VEHICLE         = 842,
 
+    // Pinfo commands
     LANG_PINFO_PLAYER                   = 453,
     LANG_PINFO_GM_ACTIVE                = 548,
     LANG_PINFO_BANNED                   = 549,
@@ -826,7 +827,7 @@ enum TrinityStrings
 
     LANG_CHARACTER_GENDER_MALE          = 855,
     LANG_CHARACTER_GENDER_FEMALE        = 856,
-    
+
     LANG_ARENA_ERROR_NOT_FOUND          = 857,
     LANG_ARENA_ERROR_NAME_EXISTS        = 858,
     LANG_ARENA_ERROR_SIZE               = 859,
