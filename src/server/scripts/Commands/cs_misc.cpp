@@ -1583,7 +1583,7 @@ public:
         // Position data print
         uint32 mapId;
         uint32 areaId;
-        uint32 phase;
+        uint32 phase            = 0;
         std::string areaName    = "<unknown>";
         std::string zoneName    = "<unknown>";
 
