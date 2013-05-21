@@ -58,7 +58,7 @@ uint32 realmID;                                             ///< Id of the realm
 /// Print out the usage string for this program on the console.
 void usage(const char *prog)
 {
-    sLog->outInfo(LOG_FILTER_WORLDSERVER, "Usage: \n %s [<options>]\n"
+    TC_LOG_INFO(LOG_FILTER_WORLDSERVER, "Usage: \n %s [<options>]\n"
         "    -c config_file           use config_file as configuration file\n\r"
         #ifdef _WIN32
         "    Running as service functions:\n\r"
@@ -135,10 +135,10 @@ extern int main(int argc, char **argv)
         printf("Verify that the file exists and has \'[worldserver]' written in the top of the file!\n");
         return 1;
     }
-    sLog->outInfo(LOG_FILTER_WORLDSERVER, "Using configuration file %s.", cfg_file);
+    TC_LOG_INFO(LOG_FILTER_WORLDSERVER, "Using configuration file %s.", cfg_file);
 
-    sLog->outInfo(LOG_FILTER_WORLDSERVER, "Using SSL version: %s (library: %s)", OPENSSL_VERSION_TEXT, SSLeay_version(SSLEAY_VERSION));
-    sLog->outInfo(LOG_FILTER_WORLDSERVER, "Using ACE version: %s", ACE_VERSION);
+    TC_LOG_INFO(LOG_FILTER_WORLDSERVER, "Using SSL version: %s (library: %s)", OPENSSL_VERSION_TEXT, SSLeay_version(SSLEAY_VERSION));
+    TC_LOG_INFO(LOG_FILTER_WORLDSERVER, "Using ACE version: %s", ACE_VERSION);
 
     ///- and run the 'Master'
     /// @todo Why do we need this 'Master'? Can't all of this be in the Main as for Realmd?
