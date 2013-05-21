@@ -22,6 +22,7 @@ Comment: All arena team related commands
 Category: commandscripts
 EndScriptData */
 
+#include "ObjectMgr.h"
 #include "Chat.h"
 #include "Language.h"
 #include "ArenaTeamMgr.h"
