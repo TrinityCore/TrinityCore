@@ -502,7 +502,7 @@ public:
                 return true;
             }
 
-            sLog->outDebug(LOG_FILTER_TSCR, "npc_commander_dawnforge event already in progress, need to wait.");
+            TC_LOG_DEBUG(LOG_FILTER_TSCR, "npc_commander_dawnforge event already in progress, need to wait.");
             return false;
         }
 

@@ -241,7 +241,7 @@ void WorldSession::HandleBfQueueInviteResponse(WorldPacket& recvData)
     recvData.ReadByteSeq(guid[0]);
     recvData.ReadByteSeq(guid[5]);
 
-    sLog->outError(LOG_FILTER_GENERAL, "HandleQueueInviteResponse: GUID:"UI64FMTD" Accepted:%u", (uint64)guid, accepted);
+    TC_LOG_ERROR(LOG_FILTER_GENERAL, "HandleQueueInviteResponse: GUID:"UI64FMTD" Accepted:%u", (uint64)guid, accepted);
 
     Battlefield* bf = sBattlefieldMgr->GetBattlefieldByGUID(guid);
     if (!bf)
@@ -276,7 +276,7 @@ void WorldSession::HandleBfEntryInviteResponse(WorldPacket& recvData)
     recvData.ReadByteSeq(guid[7]);
     recvData.ReadByteSeq(guid[5]);
 
-    sLog->outError(LOG_FILTER_GENERAL, "HandleBattlefieldInviteResponse: GUID:"UI64FMTD" Accepted:%u", (uint64)guid, accepted);
+    TC_LOG_ERROR(LOG_FILTER_GENERAL, "HandleBattlefieldInviteResponse: GUID:"UI64FMTD" Accepted:%u", (uint64)guid, accepted);
 
     Battlefield* bf = sBattlefieldMgr->GetBattlefieldByGUID(guid);
     if (!bf)
@@ -311,7 +311,7 @@ void WorldSession::HandleBfExitRequest(WorldPacket& recvData)
     recvData.ReadByteSeq(guid[7]);
     recvData.ReadByteSeq(guid[6]);
 
-    sLog->outError(LOG_FILTER_GENERAL, "HandleBfExitRequest: GUID:"UI64FMTD" ", (uint64)guid);
+    TC_LOG_ERROR(LOG_FILTER_GENERAL, "HandleBfExitRequest: GUID:"UI64FMTD" ", (uint64)guid);
 
     if (Battlefield* bf = sBattlefieldMgr->GetBattlefieldByGUID(guid))
         bf->AskToLeaveQueue(_player);

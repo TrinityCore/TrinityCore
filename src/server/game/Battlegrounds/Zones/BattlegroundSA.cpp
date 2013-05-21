@@ -165,7 +165,7 @@ bool BattlegroundSA::ResetObjs()
 
         if (!sg)
         {
-            sLog->outError(LOG_FILTER_BATTLEGROUND, "SOTA: Can't find GY entry %u", BG_SA_GYEntries[i]);
+            TC_LOG_ERROR(LOG_FILTER_BATTLEGROUND, "SOTA: Can't find GY entry %u", BG_SA_GYEntries[i]);
             return false;
         }
 
@@ -178,7 +178,7 @@ bool BattlegroundSA::ResetObjs()
         {
             GraveyardStatus[i] = ((Attackers == TEAM_HORDE)? TEAM_ALLIANCE : TEAM_HORDE);
             if (!AddSpiritGuide(i + BG_SA_MAXNPC, sg->x, sg->y, sg->z, BG_SA_GYOrientation[i], ((Attackers == TEAM_HORDE)? ALLIANCE : HORDE)))
-                sLog->outError(LOG_FILTER_BATTLEGROUND, "SOTA: couldn't spawn GY: %u", i);
+                TC_LOG_ERROR(LOG_FILTER_BATTLEGROUND, "SOTA: couldn't spawn GY: %u", i);
         }
     }
 
@@ -734,7 +734,7 @@ void BattlegroundSA::CaptureGraveyard(BG_SA_Graveyards i, Player* Source)
     WorldSafeLocsEntry const* sg = sWorldSafeLocsStore.LookupEntry(BG_SA_GYEntries[i]);
     if (!sg)
     {
-        sLog->outError(LOG_FILTER_BATTLEGROUND, "BattlegroundSA::CaptureGraveyard: non-existant GY entry: %u", BG_SA_GYEntries[i]);
+        TC_LOG_ERROR(LOG_FILTER_BATTLEGROUND, "BattlegroundSA::CaptureGraveyard: non-existant GY entry: %u", BG_SA_GYEntries[i]);
         return;
     }
 
