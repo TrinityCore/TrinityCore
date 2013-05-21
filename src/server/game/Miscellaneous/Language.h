@@ -444,7 +444,7 @@ enum TrinityStrings
     LANG_COMMAND_GRAVEYARDALRLINKED     = 450,
     LANG_COMMAND_GRAVEYARDLINKED        = 451,
     LANG_COMMAND_GRAVEYARDWRONGZONE     = 452,
-    //                                  = 453, see LANG_PINFO_BAN
+    //                                  = 453, see LANG_PINFO_PLAYER
     LANG_COMMAND_GRAVEYARDERROR         = 454,
     LANG_COMMAND_GRAVEYARD_NOTEAM       = 455,
     LANG_COMMAND_GRAVEYARD_ANY          = 456,
@@ -555,13 +555,9 @@ enum TrinityStrings
     LANG_NPCINFO_TRAINER                = 546,
     LANG_NPCINFO_DUNGEON_ID             = 547,
 
-    LANG_PINFO_ACCOUNT                  = 548,
-    LANG_PINFO_LEVEL                    = 549,
-    LANG_PINFO_MUTE                     = 550,
-    LANG_PINFO_BAN                      = 453,
-    LANG_PINFO_MAP_ONLINE               = 714,
-    LANG_PINFO_MAP_OFFLINE              = 716,
-    LANG_PINFO_GUILD_INFO               = 749,
+    //                                  = 548, see LANG_PINFO_GM_ACTIVE
+    //                                  = 549, see LANG_PINFO_BANNED
+    //                                  = 550, see LANG_PINFO_MUTED
 
     LANG_YOU_SET_EXPLORE_ALL            = 551,
     LANG_YOU_SET_EXPLORE_NOTHING        = 552,
@@ -709,9 +705,9 @@ enum TrinityStrings
     LANG_BG_QUEUE_ANNOUNCE_SELF         = 711,
     LANG_BG_QUEUE_ANNOUNCE_WORLD        = 712,
     LANG_YOUR_ARENA_LEVEL_REQ_ERROR     = 713,
-//                                      = 714, see LANG_PINFO_MAP_ONLINE
+//                                      = 714, see LANG_PINFO_ACC_ACCOUNT
     LANG_YOUR_BG_LEVEL_REQ_ERROR        = 715,
-//                                      = 716, see LANG_PINFO_MAP_OFFLINE
+//                                      = 716, see LANG_PINFO_ACC_LASTLOGIN
     LANG_BG_STARTED_ANNOUNCE_WORLD      = 717,
     LANG_ARENA_QUEUE_ANNOUNCE_WORLD_JOIN= 718,
     LANG_ARENA_QUEUE_ANNOUNCE_WORLD_EXIT= 719,
@@ -746,10 +742,10 @@ enum TrinityStrings
     LANG_DIST_ARENA_POINTS_END          = 746,
     LANG_BG_DISABLED                    = 747,
     LANG_ARENA_DISABLED                 = 748,
-//                                      = 749, not used
+//                                      = 749, see LANG_PINFO_ACC_OS
     LANG_BATTLEGROUND_PREMATURE_FINISH_WARNING = 750,       // "Not enough players. This game will close in %u mins."
     LANG_BATTLEGROUND_PREMATURE_FINISH_WARNING_SECS = 751,  // "Not enough players. This game will close in %u seconds."
-//                                      = 752, not used
+//                                      = 752, see LANG_PINFO_ACC_IP
 //  LANG_BG_WS_START_TWO_MINUTES        = 753, - defined above
 //  LANG_BG_AB_START_TWO_MINUTES        = 754, - defined above
 //  LANG_BG_EY_START_TWO_MINUTES        = 755, - defined above
@@ -807,7 +803,32 @@ enum TrinityStrings
     LANG_NPCINFO_MAILBOX                = 841,
     LANG_NPCINFO_PLAYER_VEHICLE         = 842,
 
-    // Room for in-game strings           843-999 not used
+    // Pinfo commands
+    LANG_PINFO_PLAYER                   = 453,
+    LANG_PINFO_GM_ACTIVE                = 548,
+    LANG_PINFO_BANNED                   = 549,
+    LANG_PINFO_MUTED                    = 550,
+    LANG_PINFO_ACC_ACCOUNT              = 714,
+    LANG_PINFO_ACC_LASTLOGIN            = 716,
+    LANG_PINFO_ACC_OS                   = 749,
+    LANG_PINFO_ACC_IP                   = 752,
+    LANG_PINFO_CHR_LEVEL                = 843,
+    LANG_PINFO_CHR_RACE                 = 844,
+    LANG_PINFO_CHR_ALIVE                = 845,
+    LANG_PINFO_CHR_PHASE                = 846,
+    LANG_PINFO_CHR_MONEY                = 847,
+    LANG_PINFO_CHR_MAP                  = 848,
+    LANG_PINFO_CHR_GUILD                = 849,
+    LANG_PINFO_CHR_GUILD_RANK           = 850,
+    LANG_PINFO_CHR_GUILD_NOTE           = 851,
+    LANG_PINFO_CHR_GUILD_ONOTE          = 852,
+    LANG_PINFO_CHR_PLAYEDTIME           = 853,
+    LANG_PINFO_CHR_MAILS                = 854,
+
+    LANG_CHARACTER_GENDER_MALE          = 855,
+    LANG_CHARACTER_GENDER_FEMALE        = 856,
+
+    // Room for in-game strings           857-999 not used
 
     // Level 4 (CLI only commands)
     LANG_COMMAND_EXIT                   = 1000,
