@@ -128,7 +128,7 @@ public:
         int32 gy = 32 - player->GetPositionY() / SIZE_OF_GRIDS;
 
         handler->PSendSysMessage("%03u%02i%02i.mmtile", player->GetMapId(), gy, gx);
-        handler->PSendSysMessage("gridloc [%i,%i]", gx, gy);
+        handler->PSendSysMessage("gridloc [%i, %i]", gx, gy);
 
         // calculate navmesh tile location
         dtNavMesh const* navmesh = MMAP::MMapFactory::createOrGetMMapManager()->GetNavMesh(handler->GetSession()->GetPlayer()->GetMapId());
@@ -148,7 +148,7 @@ public:
         int32 tilex = int32((y - min[0]) / SIZE_OF_GRIDS);
         int32 tiley = int32((x - min[2]) / SIZE_OF_GRIDS);
 
-        handler->PSendSysMessage("Calc   [%02i,%02i]", tilex, tiley);
+        handler->PSendSysMessage("Calc   [%02i, %02i]", tilex, tiley);
 
         // navmesh poly -> navmesh tile location
         dtQueryFilter filter = dtQueryFilter();
@@ -156,16 +156,16 @@ public:
         navmeshquery->findNearestPoly(location, extents, &filter, &polyRef, NULL);
 
         if (polyRef == INVALID_POLYREF)
-            handler->PSendSysMessage("Dt     [??,??] (invalid poly, probably no tile loaded)");
+            handler->PSendSysMessage("Dt     [??, ??] (invalid poly, probably no tile loaded)");
         else
         {
             dtMeshTile const* tile;
             dtPoly const* poly;
             navmesh->getTileAndPolyByRef(polyRef, &tile, &poly);
             if (tile)
-                handler->PSendSysMessage("Dt     [%02i,%02i]", tile->header->x, tile->header->y);
+                handler->PSendSysMessage("Dt     [%02i, %02i]", tile->header->x, tile->header->y);
             else
-                handler->PSendSysMessage("Dt     [??,??] (no tile loaded)");
+                handler->PSendSysMessage("Dt     [??, ??] (no tile loaded)");
         }
 
         return true;
@@ -190,7 +190,7 @@ public:
             if (!tile || !tile->header)
                 continue;
 
-            handler->PSendSysMessage("[%02i,%02i]", tile->header->x, tile->header->y);
+            handler->PSendSysMessage("[%02i, %02i]", tile->header->x, tile->header->y);
         }
 
         return true;

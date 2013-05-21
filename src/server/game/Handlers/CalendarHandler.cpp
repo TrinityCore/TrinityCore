@@ -450,8 +450,8 @@ void WorldSession::HandleCalendarEventInvite(WorldPacket& recvData)
         }
 
         // 946684800 is 01/01/2000 00:00:00 - default response time
-        CalendarInvite* invite = new CalendarInvite(inviteId, 0, inviteeGuid, playerGuid, 946684800, CALENDAR_STATUS_INVITED, CALENDAR_RANK_PLAYER, "");
-        sCalendarMgr->SendCalendarEventInvite(*invite);
+        CalendarInvite invite(inviteId, 0, inviteeGuid, playerGuid, 946684800, CALENDAR_STATUS_INVITED, CALENDAR_RANK_PLAYER, "");
+        sCalendarMgr->SendCalendarEventInvite(invite);
     }
 }
 

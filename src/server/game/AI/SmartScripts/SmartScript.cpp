@@ -1470,8 +1470,10 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                         if (!einfo)
                         {
                             TC_LOG_ERROR(LOG_FILTER_SQL, "SmartScript: SMART_ACTION_EQUIP uses non-existent equipment info id %u for creature %u", equipId, npc->GetEntry());
+                            delete targets;
                             return;
                         }
+
                         npc->SetCurrentEquipmentId(equipId);
                         slot[0] = einfo->ItemEntry[0];
                         slot[1] = einfo->ItemEntry[1];
@@ -2576,6 +2578,7 @@ void SmartScript::ProcessEvent(SmartScriptHolder& e, Unit* unit, uint32 var0, ui
                 return;
 
             ProcessTimedAction(e, e.event.minMaxRepeat.repeatMin, e.event.minMaxRepeat.repeatMax, me->getVictim());
+            break;
         }
         case SMART_EVENT_FRIENDLY_HEALTH:
         {

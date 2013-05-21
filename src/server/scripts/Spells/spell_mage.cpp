@@ -918,7 +918,7 @@ class spell_mage_ring_of_frost : public SpellScriptLoader
                 return true;
             }
 
-            void HandleEffectPeriodic(AuraEffect const* aurEff)
+            void HandleEffectPeriodic(AuraEffect const* /*aurEff*/)
             {
                 if (ringOfFrost)
                     if (GetMaxDuration() - (int32)ringOfFrost->GetTimer() >= sSpellMgr->GetSpellInfo(SPELL_MAGE_RING_OF_FROST_DUMMY)->GetDuration())
@@ -1018,7 +1018,7 @@ class spell_mage_ring_of_frost_freeze : public SpellScriptLoader
                 return true;
             }
 
-            void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE)
                     if (GetCaster())

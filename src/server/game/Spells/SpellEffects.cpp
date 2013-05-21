@@ -5417,7 +5417,7 @@ void Spell::EffectActivateRune(SpellEffIndex effIndex)
             if ((player->GetRuneCooldown(l) && player->GetCurrentRune(l) == RuneType(m_spellInfo->Effects[effIndex].MiscValueB)) && (player->GetRuneCooldown(l+1) && player->GetCurrentRune(l+1) == RuneType(m_spellInfo->Effects[effIndex].MiscValueB)))
             {
                 // Should always update the rune with the lowest cd
-                if (player->GetRuneCooldown(l) >= player->GetRuneCooldown(l+1))
+                if (l + 1 < MAX_RUNES && player->GetRuneCooldown(l) >= player->GetRuneCooldown(l+1))
                     l++;
                 player->SetRuneCooldown(l, 0);
                 --count;
