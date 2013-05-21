@@ -2624,8 +2624,9 @@ void Player::Regenerate(Powers power)
         }
         break;
         case POWER_RUNES:
-        case POWER_HEALTH:
             break;
+        case POWER_HEALTH:
+            return;
         default:
             break;
     }
@@ -4223,6 +4224,7 @@ void Player::removeSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
             //    learnSpell(prev_id, false);
         }
         // if ranked non-stackable spell: need activate lesser rank and update dendence state
+        /// No need to check for spellInfo != NULL here because if cur_active is true, then that means that the spell was already in m_spells, and only valid spells can be pushed there.
         else if (cur_active && !spellInfo->IsStackableWithRanks() && spellInfo->IsRanked())
         {
             // need manually update dependence state (learn spell ignore like attempts)
@@ -4746,12 +4748,6 @@ void Player::DeleteFromDB(uint64 playerguid, uint32 accountId, bool updateRealmC
         charDelete_method = CHAR_DELETE_REMOVE;
     else if (CharacterNameData const* nameData = sWorld->GetCharacterNameData(guid))    // To avoid a query, we select loaded data. If it doesn't exist, return.
     {
-        if (!nameData)
-        {
-            TC_LOG_ERROR(LOG_FILTER_PLAYER, "Cannot find CharacterNameData entry for player %u from account %u. Could not delete character.", guid, accountId);
-            return;
-        }
-
         // Define the required variables
         uint32 charDelete_minLvl = sWorld->getIntConfig(nameData->m_class != CLASS_DEATH_KNIGHT ? CONFIG_CHARDELETE_MIN_LEVEL : CONFIG_CHARDELETE_HEROIC_MIN_LEVEL);
 

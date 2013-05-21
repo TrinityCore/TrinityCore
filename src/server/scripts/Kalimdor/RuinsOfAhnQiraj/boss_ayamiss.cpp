@@ -34,13 +34,13 @@ enum Spells
 
 enum Events
 {
-    EVENT_STINGER_SPRAY         = 0,
-    EVENT_POISON_STINGER        = 1,
-    EVENT_SUMMON_SWARMER        = 2,
-    EVENT_SWARMER_ATTACK        = 3,
-    EVENT_PARALYZE              = 4,
-    EVENT_LASH                  = 5,
-    EVENT_TRASH                 = 6
+    EVENT_STINGER_SPRAY         = 1,
+    EVENT_POISON_STINGER        = 2,
+    EVENT_SUMMON_SWARMER        = 3,
+    EVENT_SWARMER_ATTACK        = 4,
+    EVENT_PARALYZE              = 5,
+    EVENT_LASH                  = 6,
+    EVENT_TRASH                 = 7
 };
 
 enum Emotes

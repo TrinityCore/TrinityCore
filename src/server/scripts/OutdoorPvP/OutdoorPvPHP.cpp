@@ -62,6 +62,8 @@ OPvPCapturePointHP::OPvPCapturePointHP(OutdoorPvP* pvp, OutdoorPvPHPTowerType ty
 OutdoorPvPHP::OutdoorPvPHP()
 {
     m_TypeId = OUTDOOR_PVP_HP;
+    m_AllianceTowersControlled = 0;
+    m_HordeTowersControlled = 0;
 }
 
 bool OutdoorPvPHP::SetupOutdoorPvP()

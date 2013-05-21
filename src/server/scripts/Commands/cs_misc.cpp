@@ -1070,9 +1070,7 @@ public:
         Player* player = handler->GetSession()->GetPlayer();
         uint32 zone_id = player->GetZoneId();
 
-        WorldSafeLocsEntry const* graveyard = sObjectMgr->GetClosestGraveYard(
-            player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetMapId(), team);
-
+        WorldSafeLocsEntry const* graveyard = sObjectMgr->GetClosestGraveYard(player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetMapId(), team);
         if (graveyard)
         {
             uint32 graveyardId = graveyard->ID;
@@ -1102,14 +1100,12 @@ public:
         {
             std::string team_name;
 
-            if (team == 0)
-                team_name = handler->GetTrinityString(LANG_COMMAND_GRAVEYARD_ANY);
-            else if (team == HORDE)
+            if (team == HORDE)
                 team_name = handler->GetTrinityString(LANG_COMMAND_GRAVEYARD_HORDE);
             else if (team == ALLIANCE)
                 team_name = handler->GetTrinityString(LANG_COMMAND_GRAVEYARD_ALLIANCE);
 
-            if (team == ~uint32(0))
+            if (!team)
                 handler->PSendSysMessage(LANG_COMMAND_ZONENOGRAVEYARDS, zone_id);
             else
                 handler->PSendSysMessage(LANG_COMMAND_ZONENOGRAFACTION, zone_id, team_name.c_str());
@@ -2046,6 +2042,70 @@ public:
         if (!*args)
             return false;
 
+        char* str = strtok((char*)args, " ");
+
+        if (strcmp(str, "go") == 0)
+        {
+            char* guidStr = strtok(NULL, " ");
+            if (!guidStr)
+            {
+                handler->SendSysMessage(LANG_BAD_VALUE);
+                handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            int32 guid = atoi(guidStr);
+            if (!guid)
+            {
+                handler->SendSysMessage(LANG_BAD_VALUE);
+                handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            char* damageStr = strtok(NULL, " ");
+            if (!damageStr)
+            {
+                handler->SendSysMessage(LANG_BAD_VALUE);
+                handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            int32 damage = atoi(damageStr);
+            if (!damage)
+            {
+                handler->SendSysMessage(LANG_BAD_VALUE);
+                handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            if (Player* player = handler->GetSession()->GetPlayer())
+            {
+                GameObject* go = NULL;
+
+                if (GameObjectData const* goData = sObjectMgr->GetGOData(guid))
+                    go = handler->GetObjectGlobalyWithGuidOrNearWithDbGuid(guid, goData->id);
+
+                if (!go)
+                {
+                    handler->PSendSysMessage(LANG_COMMAND_OBJNOTFOUND, guid);
+                    handler->SetSentErrorMessage(true);
+                    return false;
+                }
+
+                if (!go->IsDestructibleBuilding())
+                {
+                    handler->SendSysMessage(LANG_INVALID_GAMEOBJECT_TYPE);
+                    handler->SetSentErrorMessage(true);
+                    return false;
+                }
+
+                go->ModifyHealth(-damage, player);
+                handler->PSendSysMessage(LANG_GAMEOBJECT_DAMAGED, go->GetName().c_str(), guid, -damage, go->GetGOValue()->Building.Health);
+            }
+
+            return true;
+        }
+
         Unit* target = handler->getSelectedUnit();
         if (!target || !handler->GetSession()->GetPlayer()->GetSelection())
         {
@@ -2084,7 +2144,7 @@ public:
             return true;
         }
 
-        uint32 school = schoolStr ? atoi((char*)schoolStr) : SPELL_SCHOOL_NORMAL;
+        uint32 school = atoi((char*)schoolStr);
         if (school >= MAX_SPELL_SCHOOL)
             return false;
 

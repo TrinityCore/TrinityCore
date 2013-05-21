@@ -1745,7 +1745,7 @@ public:
         {
             me->HandleEmoteCommand(emote);
             Unit* owner = me->GetOwner();
-            if (emote != TEXT_EMOTE_KISS || owner || owner->GetTypeId() != TYPEID_PLAYER ||
+            if (emote != TEXT_EMOTE_KISS || !owner || owner->GetTypeId() != TYPEID_PLAYER ||
                 owner->ToPlayer()->GetTeam() != player->GetTeam())
             {
                 return;

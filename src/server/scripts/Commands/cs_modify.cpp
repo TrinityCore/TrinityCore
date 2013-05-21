@@ -310,22 +310,12 @@ public:
 
         if (!pfactionid)
         {
-            if (target)
-            {
-                uint32 factionid = target->getFaction();
-                uint32 flag      = target->GetUInt32Value(UNIT_FIELD_FLAGS);
-                uint32 npcflag   = target->GetUInt32Value(UNIT_NPC_FLAGS);
-                uint32 dyflag    = target->GetUInt32Value(UNIT_DYNAMIC_FLAGS);
-                handler->PSendSysMessage(LANG_CURRENT_FACTION, target->GetGUIDLow(), factionid, flag, npcflag, dyflag);
-            }
+            uint32 factionid = target->getFaction();
+            uint32 flag      = target->GetUInt32Value(UNIT_FIELD_FLAGS);
+            uint32 npcflag   = target->GetUInt32Value(UNIT_NPC_FLAGS);
+            uint32 dyflag    = target->GetUInt32Value(UNIT_DYNAMIC_FLAGS);
+            handler->PSendSysMessage(LANG_CURRENT_FACTION, target->GetGUIDLow(), factionid, flag, npcflag, dyflag);
             return true;
-        }
-
-        if (!target)
-        {
-            handler->SendSysMessage(LANG_NO_CHAR_SELECTED);
-            handler->SetSentErrorMessage(true);
-            return false;
         }
 
         uint32 factionid = atoi(pfactionid);
@@ -341,7 +331,7 @@ public:
 
         uint32 npcflag;
         if (!pnpcflag)
-            npcflag   = target->GetUInt32Value(UNIT_NPC_FLAGS);
+            npcflag = target->GetUInt32Value(UNIT_NPC_FLAGS);
         else
             npcflag = atoi(pnpcflag);
 
@@ -349,7 +339,7 @@ public:
 
         uint32  dyflag;
         if (!pdyflag)
-            dyflag   = target->GetUInt32Value(UNIT_DYNAMIC_FLAGS);
+            dyflag = target->GetUInt32Value(UNIT_DYNAMIC_FLAGS);
         else
             dyflag = atoi(pdyflag);
 

@@ -1134,6 +1134,9 @@ bool ConditionMgr::addToSpellImplicitTargetConditions(Condition* cond)
                 if ((1<<firstEffIndex) & *itr)
                     break;
 
+            if (firstEffIndex >= MAX_SPELL_EFFECTS)
+                return false;
+
             // get shared data
             ConditionList* sharedList = spellInfo->Effects[firstEffIndex].ImplicitTargetConditions;
 
@@ -1153,9 +1156,18 @@ bool ConditionMgr::addToSpellImplicitTargetConditions(Condition* cond)
             {
                 // add new list, create new shared mask
                 sharedList = new ConditionList();
+                bool assigned = false;
                 for (uint8 i = firstEffIndex; i < MAX_SPELL_EFFECTS; ++i)
+                {
                     if ((1<<i) & commonMask)
+                    {
                         spellInfo->Effects[i].ImplicitTargetConditions = sharedList;
+                        assigned = true;
+                    }
+                }
+
+                if (!assigned)
+                    delete sharedList;
             }
             sharedList->push_back(cond);
             break;

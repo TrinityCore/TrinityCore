@@ -109,7 +109,7 @@ namespace MMAP
 
         snprintf(fileName, pathLen, (sWorld->GetDataPath()+"mmaps/%03i%02i%02i.mmtile").c_str(), mapId, x, y);
 
-        FILE *file = fopen(fileName, "rb");
+        FILE* file = fopen(fileName, "rb");
         if (!file)
         {
             TC_LOG_DEBUG(LOG_FILTER_MAPS, "MMAP:loadMap: Could not open mmtile file '%s'", fileName);
@@ -123,6 +123,7 @@ namespace MMAP
         if (fread(&fileHeader, sizeof(MmapTileHeader), 1, file) != 1 || fileHeader.mmapMagic != MMAP_MAGIC)
         {
             TC_LOG_ERROR(LOG_FILTER_MAPS, "MMAP:loadMap: Bad header in mmap %03u%02i%02i.mmtile", mapId, x, y);
+            fclose(file);
             return false;
         }
 
@@ -130,6 +131,7 @@ namespace MMAP
         {
             TC_LOG_ERROR(LOG_FILTER_MAPS, "MMAP:loadMap: %03u%02i%02i.mmtile was built with generator v%i, expected v%i",
                 mapId, x, y, fileHeader.mmapVersion, MMAP_VERSION);
+            fclose(file);
             return false;
         }
 
@@ -154,7 +156,7 @@ namespace MMAP
         {
             mmap->mmapLoadedTiles.insert(std::pair<uint32, dtTileRef>(packedGridPos, tileRef));
             ++loadedTiles;
-            TC_LOG_INFO(LOG_FILTER_MAPS, "MMAP:loadMap: Loaded mmtile %03i[%02i,%02i] into %03i[%02i,%02i]", mapId, x, y, mapId, header->x, header->y);
+            TC_LOG_INFO(LOG_FILTER_MAPS, "MMAP:loadMap: Loaded mmtile %03i[%02i, %02i] into %03i[%02i, %02i]", mapId, x, y, mapId, header->x, header->y);
             return true;
         }
         else
@@ -203,7 +205,7 @@ namespace MMAP
         {
             mmap->mmapLoadedTiles.erase(packedGridPos);
             --loadedTiles;
-            TC_LOG_INFO(LOG_FILTER_MAPS, "MMAP:unloadMap: Unloaded mmtile %03i[%02i,%02i] from %03i", mapId, x, y, mapId);
+            TC_LOG_INFO(LOG_FILTER_MAPS, "MMAP:unloadMap: Unloaded mmtile %03i[%02i, %02i] from %03i", mapId, x, y, mapId);
             return true;
         }
 
@@ -230,7 +232,7 @@ namespace MMAP
             else
             {
                 --loadedTiles;
-                TC_LOG_INFO(LOG_FILTER_MAPS, "MMAP:unloadMap: Unloaded mmtile %03i[%02i,%02i] from %03i", mapId, x, y, mapId);
+                TC_LOG_INFO(LOG_FILTER_MAPS, "MMAP:unloadMap: Unloaded mmtile %03i[%02i, %02i] from %03i", mapId, x, y, mapId);
             }
         }
 

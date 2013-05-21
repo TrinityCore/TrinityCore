@@ -683,7 +683,7 @@ void AuraEffect::CalculateSpellMod()
                 m_spellmod->op = SpellModOp(GetMiscValue());
                 ASSERT(m_spellmod->op < MAX_SPELLMOD);
 
-                m_spellmod->type = SpellModType(GetAuraType()); // SpellModType value == spell aura types
+                m_spellmod->type = SpellModType(uint32(GetAuraType())); // SpellModType value == spell aura types
                 m_spellmod->spellId = GetId();
                 m_spellmod->mask = GetSpellInfo()->Effects[GetEffIndex()].SpellClassMask;
                 m_spellmod->charges = GetBase()->GetCharges();
@@ -1788,17 +1788,17 @@ void AuraEffect::HandleAuraModShapeshift(AuraApplication const* aurApp, uint8 mo
                             int32 basePoints = std::min<int32>(oldPower, FurorChance);
                             target->SetPower(POWER_ENERGY, 0);
                             target->CastCustomSpell(target, 17099, &basePoints, NULL, NULL, true, NULL, this);
+                            break;
                         }
-                        break;
                         case FORM_BEAR:
-                        if (irand(0, 99) < FurorChance)
+                        if (urand(0, 99) < FurorChance)
                             target->CastSpell(target, 17057, true);
                         default:
                         {
                             int32 newEnergy = std::min(target->GetPower(POWER_ENERGY), FurorChance);
                             target->SetPower(POWER_ENERGY, newEnergy);
+                            break;
                         }
-                        break;
                     }
                     break;
                 }

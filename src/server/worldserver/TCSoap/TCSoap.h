@@ -27,7 +27,7 @@
 class TCSoapRunnable: public ACE_Based::Runnable
 {
     public:
-        TCSoapRunnable() { }
+        TCSoapRunnable() : m_host(""), m_port(0) { }
         void run();
         void setListenArguments(std::string host, uint16 port)
         {

@@ -921,7 +921,7 @@ class npc_frostbrood_skytalon : public CreatureScript
                 if (id == POINT_GRAB_DECOY)
                     if (TempSummon* summon = me->ToTempSummon())
                         if (Unit* summoner = summon->GetSummoner())
-                            DoCast(summoner, SPELL_GRAB); 
+                            DoCast(summoner, SPELL_GRAB);
             }
 
             void UpdateAI(uint32 diff)

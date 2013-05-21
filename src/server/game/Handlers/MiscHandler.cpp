@@ -1001,7 +1001,7 @@ void WorldSession::HandleRequestAccountData(WorldPacket& recvData)
 
     TC_LOG_DEBUG(LOG_FILTER_NETWORKIO, "RAD: type %u", type);
 
-    if (type > NUM_ACCOUNT_DATA_TYPES)
+    if (type >= NUM_ACCOUNT_DATA_TYPES)
         return;
 
     AccountData* adata = GetAccountData(AccountDataType(type));

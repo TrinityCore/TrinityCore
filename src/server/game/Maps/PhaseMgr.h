@@ -113,8 +113,9 @@ private:
 
 struct PhaseUpdateData
 {
-    void AddConditionType(ConditionTypes conditionType) { _conditionTypeFlags |= (1 << conditionType); }
-    void AddQuestUpdate(uint32 questId);
+    PhaseUpdateData(): _conditionTypeFlags(0), _questId(0) { }
+    void AddConditionType(ConditionTypes const conditionType) { _conditionTypeFlags |= (1 << conditionType); }
+    void AddQuestUpdate(uint32 const questId);
 
     bool IsConditionRelated(Condition const* condition) const;
 

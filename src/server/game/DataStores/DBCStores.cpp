@@ -853,6 +853,18 @@ AreaTableEntry const* GetAreaEntryByAreaFlagAndMap(uint32 area_flag, uint32 map_
     return NULL;
 }
 
+char const* GetRaceName(uint8 race, uint8 /*locale*/)
+{
+    ChrRacesEntry const* raceEntry = sChrRacesStore.LookupEntry(race);
+    return raceEntry ? raceEntry->name : NULL;
+}
+
+char const* GetClassName(uint8 class_, uint8 /*locale*/)
+{
+    ChrClassesEntry const* classEntry = sChrClassesStore.LookupEntry(class_);
+    return classEntry ? classEntry->name : NULL;
+}
+
 uint32 GetAreaFlagByMapId(uint32 mapid)
 {
     AreaFlagByMapID::iterator i = sAreaFlagByMapID.find(mapid);
@@ -1226,7 +1238,7 @@ LFGDungeonEntry const* GetLFGDungeon(uint32 mapId, Difficulty difficulty)
         if (!dungeon)
             continue;
 
-        if (dungeon->map == mapId && Difficulty(dungeon->difficulty) == difficulty)
+        if (dungeon->map == int32(mapId) && Difficulty(dungeon->difficulty) == difficulty)
             return dungeon;
     }
 
