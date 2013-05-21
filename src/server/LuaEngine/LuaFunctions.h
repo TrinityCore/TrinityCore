@@ -331,7 +331,7 @@ ElunaRegister<Unit> UnitMethods[] =
     {"GetHealth", &LuaUnit::GetHealth},                             // :GetHealth()
     {"GetDisplayId", &LuaUnit::GetDisplayId},                       // :GetDisplayId()
     {"GetNativeDisplayId", &LuaUnit::GetNativeDisplayId},           // :GetNativeDisplayId()
-    {"GetGUID", &LuaUnit::GetGUID},                                 // :GetGUID()
+    {"GetGUID", &LuaUnit::GetGUID},                                 // :GetGUID() - Returns uint64 guid as hex string
     {"GetMapId", &LuaUnit::GetMapId},                               // :GetMapId()
     {"GetX", &LuaUnit::GetX},                                       // :GetX()
     {"GetY", &LuaUnit::GetY},                                       // :GetY()
@@ -510,7 +510,7 @@ ElunaRegister<GameObject> GameObjectMethods[] =
 {
     // Getters
     {"GetUnitType", &LuaGameObject::GetUnitType},                   // :GetUnitType() - Returns unit type Ex. GameObject
-    {"GetGUID", &LuaGameObject::GetGUID},                           // :GetGUID() - returns object guid (string)
+    {"GetGUID", &LuaGameObject::GetGUID},                           // :GetGUID() - Returns uint64 guid as hex string
     {"GetName", &LuaGameObject::GetName},                           // :GetName() -
     {"GetDisplayId", &LuaGameObject::GetDisplayId},                 // :GetDisplayId() -
     {"GetScale", &LuaGameObject::GetScale},                         // :GetScale() -
@@ -570,7 +570,7 @@ ElunaRegister<Item> ItemMethods[] =
 {
     // Getters
     {"GetUnitType", &LuaItem::GetUnitType},                                 // :GetUnitType() - Returns object type, IE: Item, Creature
-    {"GetGUID", &LuaItem::GetGUID},                                         // :GetGUID() - Returns object guid (string)
+    {"GetGUID", &LuaItem::GetGUID},                                         // :GetGUID() - Returns uint64 guid as hex string
     {"GetOwnerGUID", &LuaItem::GetOwnerGUID},                               // :GetOwnerGUID() - Returns the owner's guid
     {"GetOwner", &LuaItem::GetOwner},                                       // :GetOwner() - Returns the owner object (player)
     {"GetCount", &LuaItem::GetCount},                                       // :GetCount() - Returns item stack count

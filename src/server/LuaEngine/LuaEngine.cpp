@@ -326,7 +326,7 @@ void Eluna::PushULong(lua_State* L, uint64 l)
 {
     if (!L) L = LuaState;
     std::ostringstream ss;
-    ss << l;
+    ss << std::hex << l;
     sEluna->PushString(L, ss.str().c_str());
 }
 
@@ -334,7 +334,7 @@ void Eluna::PushLong(lua_State* L, int64 l)
 {
     if (!L) L = LuaState;
     std::ostringstream ss;
-    ss << l;
+    ss << std::hex << l;
     sEluna->PushString(L, ss.str().c_str());
 }
 
@@ -538,9 +538,7 @@ uint64 Eluna::CHECK_ULONG(lua_State* L, int narg)
         c_str = luaL_optstring(LuaState, narg, "0");
     else
         c_str = luaL_optstring(L, narg, "0");
-    uint64 guid;
-    std::istringstream(c_str) >> guid;
-    return guid;
+    return strtoul(c_str, NULL, 0);
 }
 
 int64 Eluna::CHECK_LONG(lua_State* L, int narg)
@@ -550,9 +548,7 @@ int64 Eluna::CHECK_LONG(lua_State* L, int narg)
         c_str = luaL_optstring(LuaState, narg, "0");
     else
         c_str = luaL_optstring(L, narg, "0");
-    int64 guid;
-    std::istringstream(c_str) >> guid;
-    return guid;
+    return strtol(c_str, NULL, 0);
 }
 
 // Saves the function reference ID given to the register type's store for given entry under the given event
