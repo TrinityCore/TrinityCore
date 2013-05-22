@@ -299,3 +299,6 @@ INSERT INTO `gameobject` VALUES ('xxx', 42000, 572, 1, 1, 1274.79, 1732.94, 31.6
 INSERT INTO `gameobject` VALUES ('xxx', 42000, 617, 1, 1, 1352.68, 815.687, 15.2511, 0.401281, 0, 0, 0.199297, 0.979939, 300, 0, 1);
 INSERT INTO `gameobject` VALUES ('xxx', 42000, 617, 1, 1, 1229.86, 761.566, 15.7332, 0.0471227, 0, 0, 0.0235592, 0.999722, 300, 0, 1);
 INSERT INTO `gameobject` VALUES ('xxx', 42000, 559, 1, 1, 4023.85, 2967.25, 12.1642, 5.05796, 0, 0, 0.575005, -0.81815, 300, 0, 1);
+
+-- Fix Halion- Orb Rotation Focus visible for players
+UPDATE `creature_template` SET `modelid1`=169, `modelid2`=11686, `flags_extra` = `flags_extra` | 128 WHERE `entry` IN (40091, 43280, 43281, 43282);
