@@ -518,7 +518,7 @@ public:
                     uint32 copp = (money % GOLD) % SILVER;
                     std::string receiverStr = handler->playerLink(receiver);
                     std::string senderStr = handler->playerLink(sender);
-                    handler->PSendSysMessage(LANG_LIST_MAIL_INFO_1 , messageId, subject.c_str(),gold, silv, copp);
+                    handler->PSendSysMessage(LANG_LIST_MAIL_INFO_1, messageId, subject.c_str(), gold, silv, copp);
                     handler->PSendSysMessage(LANG_LIST_MAIL_INFO_2, senderStr.c_str(), senderId, receiverStr.c_str(), receiverId);
                     handler->PSendSysMessage(LANG_LIST_MAIL_INFO_3, TimeToTimestampStr(deliverTime).c_str(), TimeToTimestampStr(expireTime).c_str());
                     if (hasItem == 1)
@@ -541,7 +541,7 @@ public:
                                         uint32 item_entry       = fields[0].GetUInt32();
                                         uint32 item_count       = fields[1].GetUInt32();
                                         QueryResult result4;
-                                        result4 = WorldDatabase.PQuery("SELECT name,quality FROM item_template WHERE entry = '%u'", item_entry);
+                                        result4 = WorldDatabase.PQuery("SELECT name, quality FROM item_template WHERE entry = '%u'", item_entry);
                                         Field* fields1          = result4->Fetch();
                                         std::string item_name   = fields1[0].GetString();
                                         int item_quality        = fields1[1].GetUInt8();

@@ -409,7 +409,7 @@ class spell_threatening_gaze : public SpellScriptLoader
             void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Unit* caster = GetCaster())
-                    if(Unit* target = GetTarget())
+                    if (Unit* target = GetTarget())
                         if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE && GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_DEATH)
                             caster->CastSpell(target, SPELL_WATCH_CHARGE);
             }

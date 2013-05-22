@@ -13,6 +13,7 @@ set(scripts_STAT_SRCS
   Commands/cs_anticheat.cpp
   Commands/cs_account.cpp
   Commands/cs_achievement.cpp
+  Commands/cs_arena.cpp
   Commands/cs_ban.cpp
   Commands/cs_bf.cpp
   Commands/cs_cast.cpp

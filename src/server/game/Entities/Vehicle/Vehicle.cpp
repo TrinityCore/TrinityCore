@@ -454,7 +454,7 @@ void Vehicle::InstallAccessory(uint32 entry, int8 seatId, bool minion, uint8 typ
  * @author Machiavelli
  * @date 17-2-2013
  *
- * @param [in,out] The prospective passenger.
+ * @param [in, out] The prospective passenger.
  * @param seatId        Identifier for the seat. Value of -1 indicates the next available seat.
  *
  * @return true if it succeeds, false if it fails.
@@ -533,7 +533,7 @@ bool Vehicle::AddPassenger(Unit* unit, int8 seatId)
  * @author Machiavelli
  * @date 17-2-2013
  *
- * @param [in,out] unit The passenger to remove.
+ * @param [in, out] unit The passenger to remove.
  */
 
 void Vehicle::RemovePassenger(Unit* unit)
@@ -657,7 +657,7 @@ void Vehicle::InitMovementInfoForBase()
  * @author Machiavelli
  * @date 17-2-2013
  *
- * @param [in,out] The passenger for which we check the seat info.
+ * @param [in, out] The passenger for which we check the seat info.
  *
  * @return null if passenger not found on vehicle, else the DBC record for the seat.
  */
@@ -679,7 +679,7 @@ VehicleSeatEntry const* Vehicle::GetSeatForPassenger(Unit const* passenger) cons
  * @author Machiavelli
  * @date 17-2-2013
  *
- * @param [in,out] passenger Passenger to look up.
+ * @param [in, out] passenger Passenger to look up.
  *
  * @return The seat iterator for specified passenger if it's found on the vehicle. Otherwise Seats.end() (invalid iterator).
  */
