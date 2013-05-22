@@ -105,6 +105,19 @@ extern int main(int argc, char **argv)
 
     TC_LOG_INFO(LOG_FILTER_AUTHSERVER, "%s (authserver)", _FULLVERSION);
     TC_LOG_INFO(LOG_FILTER_AUTHSERVER, "<Ctrl-C> to stop.\n");
+
+    TC_LOG_INFO(LOG_FILTER_AUTHSERVER, "                                                                                 ");
+    TC_LOG_INFO(LOG_FILTER_AUTHSERVER, "   #####                      #     #                      #######               ");
+    TC_LOG_INFO(LOG_FILTER_AUTHSERVER, "  #     #   ##   #####  #   # ##   ##  ####  #    # ###### #     # #    # #####  ");
+    TC_LOG_INFO(LOG_FILTER_AUTHSERVER, "  #        #  #  #    #  # #  # # # # #    # #    # #      #     # #    #   #    ");
+    TC_LOG_INFO(LOG_FILTER_AUTHSERVER, "  #  #### #    # #    #   #   #  #  # #    # #    # #####  #     # #    #   #    ");
+    TC_LOG_INFO(LOG_FILTER_AUTHSERVER, "  #     # ###### #####    #   #     # #    # #    # #      #     # #    #   #    ");
+    TC_LOG_INFO(LOG_FILTER_AUTHSERVER, "  #     # #    # #   #    #   #     # #    #  #  #  #      #     # #    #   #    ");
+    TC_LOG_INFO(LOG_FILTER_AUTHSERVER, "   #####  #    # #    #   #   #     #  ####    ##   ###### #######  ####    #    ");
+    TC_LOG_INFO(LOG_FILTER_AUTHSERVER, "                                                                                 ");
+    TC_LOG_INFO(LOG_FILTER_AUTHSERVER, "                                                           C O R E               ");
+    TC_LOG_INFO(LOG_FILTER_AUTHSERVER, "  Based on TrinityCore http://www.TrinityCore.org\n                              ");
+
     TC_LOG_INFO(LOG_FILTER_AUTHSERVER, "Using configuration file %s.", cfg_file);
 
     TC_LOG_WARN(LOG_FILTER_AUTHSERVER, "%s (Library: %s)", OPENSSL_VERSION_TEXT, SSLeay_version(SSLEAY_VERSION));
