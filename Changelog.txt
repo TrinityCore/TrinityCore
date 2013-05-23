@@ -252,13 +252,18 @@
 
 ############################################################################################
 #                                                                                          #
-# Thanks to:                                                                               #
-#                                                                                          #
-#            https://github.com/diton                                                      #
-#            https://github.com/gc                                                         #
-#            https://github.com/tibbi                                                      #
-#            https://github.com/locksmith                                                  #
-#            https://github.com/Thainification                                             #
-#            https://github.com/fiveofeight                                                #
+#   Thanks to:                                                                             #
+#               https://github.com/TrinityCore                                             #
+#               https://github.com/diton                                                   #
+#               https://github.com/gc                                                      #
+#               https://github.com/tibbi                                                   #
+#               https://github.com/locksmith                                               #
+#               https://github.com/Thainification                                          #
+#               https://github.com/fiveofeight                                             #
+#               https://github.com/Locknes                                                 #
+#               https://github.com/lostgenx                                                #
+#               https://github.com/saqirmdev                                               #
+#               https://github.com/codels                                                  #
+#               https://github.com/Arkania                                                 #
 #                                                                                          #
 ############################################################################################
