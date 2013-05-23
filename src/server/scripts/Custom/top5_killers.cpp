@@ -15,9 +15,9 @@
 using namespace std;  
 
 /* Basic Menu */
-#define Menu_Whisp     "Murder World Top Class killers"
-#define Notification   "Murder World Top Class killers"
-#define M_Whisper      "Murder World Top Class killers"
+#define Menu_Whisp     "World Top Class Killers"
+#define Notification   "World Top Class Killers"
+#define M_Whisper      "World Top Class Killers"
 #define leave          "Nevermind"
 
 /* Class E_Menu */
@@ -30,19 +30,19 @@ using namespace std;
 #define E_Mage         "View top 5 Mage Killers"
 #define E_Warlock      "View top 5 Warlock Killers"
 #define E_Druid        "View top 5 Druid Killers"
-#define E_Death_knight "View top 5 Death knight Killers"
+#define E_Death_knight "View top 5 Death Knight Killers"
 
 /* Top 5 Message */
-#define M_Warrior      "Here is top 5 Warrior Killers"
-#define M_Paladin      "Here is top 5 Paladin Killers"
-#define M_Hunter       "Here is top 5 Hunter Killers"
-#define M_Rogue        "Here is top 5 Rogue Killers"
-#define M_Priest       "Here is top 5 Priest Killers"
-#define M_Shaman       "Here is top 5 Shaman Killers"
-#define M_Mage         "Here is top 5 Mage Killers"
-#define M_Warlock      "Here is top 5 Warlock Killers"
-#define M_Druid        "Here is top 5 Druid Killers"
-#define M_Death_knight "Here is top 5 Death knight Killers"
+#define M_Warrior      "The top 5 Warrior Killers are:"
+#define M_Paladin      "The top 5 Paladin Killers are:"
+#define M_Hunter       "The top 5 Hunter Killers are:"
+#define M_Rogue        "The top 5 Rogue Killers are:"
+#define M_Priest       "The top 5 Priest Killers are:"
+#define M_Shaman       "The top 5 Shaman Killers are:"
+#define M_Mage         "The top 5 Mage Killers are:"
+#define M_Warlock      "The top 5 Warlock Killers are:"
+#define M_Druid        "The top 5 Druid Killers are:"
+#define M_Death_knight "The top 5 Death knight Killers are:"
 
 class top5_killers : public CreatureScript
 {
