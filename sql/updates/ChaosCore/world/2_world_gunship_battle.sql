@@ -54,8 +54,8 @@ INSERT INTO `areatrigger_scripts` (`entry`,`ScriptName`) VALUES
 -- Spell Scripts
 DELETE FROM `spell_script_names` WHERE `spell_id` IN (70713, 68645, 69471, 69488, 69402, 70175, 71335, 71339);
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
-('70713', 'spell_icc_remove_rocket_pack'),
-('68645', 'spell_icc_rocket_pack'),
+('70713', 'spell_remove_rocket_pack'),
+('68645', 'spell_rocket_pack'),
 ('69471', 'spell_gb_heat_drain'),
 ('69488', 'spell_gb_overheat_drain'),
 ('69402', 'spell_gb_incinerating_blast'),
