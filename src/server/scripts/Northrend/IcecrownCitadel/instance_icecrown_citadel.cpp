@@ -162,7 +162,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                 ColdflameJetsState = NOT_STARTED;
                 BloodQuickeningState = NOT_STARTED;
                 BloodQuickeningMinutes = 0;
-				// Gunship event
+                // Gunship event
                 FirstSquadState = 0;
                 SecondSquadState = 0;
                 SpireSquadState = 0;
@@ -174,7 +174,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                 MuradinBronzebeardNotVisualGUID = 0;
                 GbBattleMageGUID = 0;
                 isPrepared = false;
-                SindragosasWardGUID = 0;	
+                SindragosasWardGUID = 0;
             }
 
             void FillInitialWorldStates(WorldPacket& data)
@@ -336,8 +336,8 @@ class instance_icecrown_citadel : public InstanceMapScript
                         break;
                     case NPC_SINDRAGOSAS_WARD:
                         SindragosasWardGUID = creature->GetGUID();
-						break;	
-					case NPC_GB_SKYBREAKER:
+                        break;
+                    case NPC_GB_SKYBREAKER:
                         SkybreakerBossGUID = creature->GetGUID();
                         break;
                     case NPC_GB_ORGRIMS_HAMMER:
@@ -630,7 +630,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                     case NPC_GB_SKYBREAKER_SORCERERS:
                     case NPC_GB_KORKRON_BATTLE_MAGE:
                         GbBattleMageGUID = go->GetGUID();
-                        break;						
+                        break;
                     default:
                         break;
                 }
@@ -754,7 +754,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                         return ArthasPlatformGUID;
                     case DATA_TERENAS_MENETHIL:
                         return TerenasMenethilGUID;
-						//Gunship: To merge all
+                    // Gunship: To merge all
                     case DATA_SKYBREAKER_BOSS:
                         return SkybreakerBossGUID;
                     case DATA_ORGRIMMAR_HAMMER_BOSS:
@@ -786,7 +786,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                 switch (type)
                 {
                     case DATA_LADY_DEATHWHISPER:
-                        SetBossState(DATA_GUNSHIP_EVENT, state);    // TEMP HACK UNTIL GUNSHIP SCRIPTED
+                        // SetBossState(DATA_GUNSHIP_EVENT, state);    // TEMP HACK UNTIL GUNSHIP SCRIPTED
                         if (state == DONE)
                         {
                             if (GameObject* elevator = instance->GetGameObject(LadyDeathwisperElevatorGUID))
@@ -1127,9 +1127,9 @@ class instance_icecrown_citadel : public InstanceMapScript
             {
                 switch (bossId)
                 {
-                    case DATA_THE_LICH_KING:
+                    /* case DATA_THE_LICH_KING:
                         if (GetBossState(DATA_SINDRAGOSA) != DONE)
-                            return false;
+                            return false; */
                         // no break
                     case DATA_SINDRAGOSA:
                         if (GetBossState(DATA_VALITHRIA_DREAMWALKER) != DONE)
@@ -1158,8 +1158,8 @@ class instance_icecrown_citadel : public InstanceMapScript
                             return false;
                         // no break
                     case DATA_DEATHBRINGER_SAURFANG:
-                        if (GetBossState(DATA_GUNSHIP_EVENT) != DONE)
-                            return false;
+                        /* if (GetBossState(DATA_GUNSHIP_EVENT) != DONE)
+                            return false; */
                         // no break
                     case DATA_GUNSHIP_EVENT:
                         if (GetBossState(DATA_LADY_DEATHWHISPER) != DONE)
@@ -1628,7 +1628,7 @@ class instance_icecrown_citadel : public InstanceMapScript
             bool IsOozeDanceEligible;
             bool IsNauseaEligible;
             bool IsOrbWhispererEligible;
-			bool isPrepared;
+            bool isPrepared;
             // Gunship: Variables
             // Here we must add states and these things first squad with real events ls
             uint32 FirstSquadState;
