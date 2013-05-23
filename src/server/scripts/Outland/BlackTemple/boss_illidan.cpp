@@ -120,6 +120,7 @@ enum Spells
     SPELL_FLAME_BLAST               =   40631,
     SPELL_CHARGE                    =   41581,
     SPELL_FLAME_ENRAGE              =   45078,
+    SPELL_EYE_BLAST_DUMMY           =   39908,                // This does the blue beam channel - targets 23070
 // Akama spells
     SPELL_AKAMA_DOOR_CHANNEL        =   41268,
     SPELL_DEATHSWORN_DOOR_CHANNEL   =   41269,
@@ -166,6 +167,7 @@ enum CreatureEntry
     ILLIDARI_ELITE          =   23226,
     PARASITIC_SHADOWFIEND   =   23498,
     CAGE_TRAP_TRIGGER       =   23292,
+    NPC_ILLIDAN_TARGET      =   23070,                // the eye blast target - has aura 40017
 };
 
 /*** Phase Names ***/
@@ -319,10 +321,21 @@ static const Locations GlaivePosition[4]=
     {664.338f, 305.303f, 354.256f}
 };
 
-static const Locations EyeBlast[2]=
+static const Locations aEyeBlastPos[] =
 {
-    {677.0f, 350.0f, 354.0f}, // start point, pass through glaive point
-    {677.0f, 260.0f, 354.0f}
+    // spawn
+    {650.600f, 258.124f, 352.996f},             // back left
+    {651.867f, 353.212f, 352.996f},             // back right
+    {710.010f, 266.950f, 352.996f},             // front left
+    {711.003f, 343.562f, 352.996f},             // front right
+    // target - left
+    {742.212f, 338.333f, 352.996f},             // front right
+    {674.559f, 375.761f, 352.996f},             // back right
+    // target - right
+    {741.545f, 270.640f, 352.996f},             // front left
+    {671.943f, 235.718f, 352.996f},             // back left
+    // center back
+    {639.511f, 305.852f, 353.264f}
 };
 
 static const Locations AkamaWP[13]=
@@ -456,7 +469,7 @@ public:
 
             if (CheckTimer <= diff)
             {
-                ChargeCheck();
+                // ChargeCheck(); Disabled for now, Flames can fall through the map and start charging when they shouldn't, and mmaps is broken for BT.
                 EnrageCheck();
                 CheckTimer = 1000;
             } else CheckTimer -= diff;
@@ -490,6 +503,8 @@ public:
         PhaseIllidan Phase;
         EventIllidan Event;
         uint32 Timer[EVENT_ENRAGE + 1];
+
+        float m_fTargetMoveX, m_fTargetMoveY, m_fTargetMoveZ;
 
         uint32 TalkCount;
         uint32 TransformCount;
@@ -665,7 +680,7 @@ public:
                 if (NextPhase == PHASE_NORMAL)
                     break;
                 Timer[EVENT_AGONIZING_FLAMES] = 35000;
-                Timer[EVENT_TRANSFORM_NORMAL] = 60000;
+                Timer[EVENT_TRANSFORM_NORMAL] = 75000;
                 if (NextPhase == PHASE_NORMAL_2)
                     break;
                 Timer[EVENT_ENRAGE] = urand(30, 40) * 1000;
@@ -733,41 +748,25 @@ public:
         }
         void CastEyeBlast()
         {
-            me->InterruptNonMeleeSpells(false);
-
             me->MonsterYell(SAY_EYE_BLAST, LANG_UNIVERSAL, 0);
             DoPlaySoundToSet(me, SOUND_EYE_BLAST);
 
-            float distx, disty, dist[2];
-            for (uint8 i = 0; i < 2; ++i)
+            // Set spawn and target loc
+            uint8 uiSpawnLoc = urand(0, 3);
+            uint8 uiTargetLoc = 0;
+            switch (uiSpawnLoc)
             {
-                distx = EyeBlast[i].x - HoverPosition[HoverPoint].x;
-                disty = EyeBlast[i].y - HoverPosition[HoverPoint].y;
-                dist[i] = distx * distx + disty * disty;
+                case 0: uiTargetLoc = urand(4, 5); break;
+                case 1: uiTargetLoc = urand(6, 7); break;
+                case 2: uiTargetLoc = urand(0, 1) ? 5 : 8; break;
+                case 3: uiTargetLoc = urand(7, 8); break;
             }
-            Locations initial = EyeBlast[dist[0] < dist[1] ? 0 : 1];
-            for (uint8 i = 0; i < 2; ++i)
-            {
-                distx = GlaivePosition[i].x - HoverPosition[HoverPoint].x;
-                disty = GlaivePosition[i].y - HoverPosition[HoverPoint].y;
-                dist[i] = distx * distx + disty * disty;
-            }
-            Locations final = GlaivePosition[dist[0] < dist[1] ? 0 : 1];
 
-            final.x = 2 * final.x - initial.x;
-            final.y = 2 * final.y - initial.y;
-
-            Creature* Trigger = me->SummonCreature(23069, initial.x, initial.y, initial.z, 0, TEMPSUMMON_TIMED_DESPAWN, 13000);
-            if (!Trigger)
-                return;
-
-            Trigger->SetSpeed(MOVE_WALK, 3);
-            Trigger->SetWalk(true);
-            Trigger->GetMotionMaster()->MovePoint(0, final.x, final.y, final.z);
-
-            // Trigger->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-            me->SetTarget(Trigger->GetGUID());
-            DoCast(Trigger, SPELL_EYE_BLAST);
+            m_fTargetMoveX = aEyeBlastPos[uiTargetLoc].x;
+            m_fTargetMoveY = aEyeBlastPos[uiTargetLoc].y;
+            m_fTargetMoveZ = aEyeBlastPos[uiTargetLoc].z;
+            me->SummonCreature(NPC_ILLIDAN_TARGET, aEyeBlastPos[uiSpawnLoc].x, aEyeBlastPos[uiSpawnLoc].y, aEyeBlastPos[uiSpawnLoc].z, 0, TEMPSUMMON_TIMED_DESPAWN, 15000);
+        
         }
         void SummonFlamesOfAzzinoth()
         {
@@ -1929,6 +1928,19 @@ void boss_illidan_stormrage::boss_illidan_stormrageAI::JustSummoned(Creature* su
         {
             summon->AI()->AttackStart(summon->SelectNearestTarget(999));
         }
+        break;
+    case DEMON_FIRE:
+        summon->CastSpell(summon, SPELL_DEMON_FIRE, true);
+        summon->DespawnOrUnsummon(15000);
+        break;
+    case NPC_ILLIDAN_TARGET:
+        summon->CastSpell(summon, SPELL_EYE_BLAST_TRIGGER, true);
+        summon->GetMotionMaster()->MovePoint(0, m_fTargetMoveX, m_fTargetMoveY, m_fTargetMoveZ);
+        me->CastSpell(summon, SPELL_EYE_BLAST_DUMMY, true);
+        break;
+    case FLAME_CRASH:
+        summon->CastSpell(summon, SPELL_FLAME_CRASH_EFFECT, false);
+        summon->DespawnOrUnsummon(30000);
         break;
     default:
         break;

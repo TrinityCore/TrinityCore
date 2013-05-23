@@ -351,7 +351,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNoImmediateEffect,                         //291 SPELL_AURA_MOD_XP_QUEST_PCT  implemented in Player::RewardQuest
     &AuraEffect::HandleAuraOpenStable,                            //292 SPELL_AURA_OPEN_STABLE
     &AuraEffect::HandleAuraOverrideSpells,                        //293 auras which probably add set of abilities to their target based on it's miscvalue
-    &AuraEffect::HandleNoImmediateEffect,                         //294 SPELL_AURA_PREVENT_REGENERATE_POWER implemented in Player::Regenerate(Powers power)
+    &AuraEffect::HandleAuraPreventRegeneratePower,                //294 SPELL_AURA_PREVENT_REGENERATE_POWER implemented in Player::Regenerate(Powers power)
     &AuraEffect::HandleUnused,                                    //295 0 spells in 3.3.5
     &AuraEffect::HandleAuraSetVehicle,                            //296 SPELL_AURA_SET_VEHICLE_ID sets vehicle on target
     &AuraEffect::HandleNULL,                                      //297 Spirit Burst spells
@@ -1729,6 +1729,15 @@ void AuraEffect::HandleAuraModShapeshift(AuraApplication const* aurApp, uint8 mo
     }
     else
     {
+        // adding back armor decreased by Enrage talent of druids
+        if (target->HasAura(5229))
+        {
+            if (target->GetShapeshiftForm() == FORM_BEAR)
+                target->HandleStatModifier(UNIT_MOD_ARMOR, BASE_PCT, 27, true);
+            else if (target->GetShapeshiftForm() == FORM_DIREBEAR)
+                target->HandleStatModifier(UNIT_MOD_ARMOR, BASE_PCT, 16, true);
+        }
+
         // reset model id if no other auras present
         // may happen when aura is applied on linked event on aura removal
         if (!target->HasAuraType(SPELL_AURA_MOD_SHAPESHIFT))
@@ -1911,6 +1920,10 @@ void AuraEffect::HandleAuraTransform(AuraApplication const* aurApp, uint8 mode, 
                     // Murloc costume
                     case 42365:
                         target->SetDisplayId(21723);
+                        break;
+                    // Frostmourne
+                    case 43827:
+                        target->SetDisplayId(30721);
                         break;
                     // Dread Corsair
                     case 50517:
@@ -2816,10 +2829,6 @@ void AuraEffect::HandleModPossessPet(AuraApplication const* aurApp, uint8 mode, 
     Unit* caster = GetCaster();
     if (!caster || caster->GetTypeId() != TYPEID_PLAYER)
         return;
-
-    //seems it may happen that when removing it is no longer owner's pet
-    //if (caster->ToPlayer()->GetPet() != target)
-    //    return;
 
     Unit* target = aurApp->GetTarget();
     if (target->GetTypeId() != TYPEID_UNIT || !target->ToCreature()->isPet())
@@ -4400,7 +4409,8 @@ void AuraEffect::HandleModDamagePercentDone(AuraApplication const* aurApp, uint8
                 target->ToPlayer()->_ApplyWeaponDependentAuraDamageMod(item, WeaponAttackType(i), this, apply);
     }
 
-    if ((GetMiscValue() & SPELL_SCHOOL_MASK_NORMAL) && (GetSpellInfo()->EquippedItemClass == -1 || target->GetTypeId() != TYPEID_PLAYER))
+    if (((GetMiscValue() & SPELL_SCHOOL_MASK_NORMAL) && (GetSpellInfo()->EquippedItemClass == -1 || target->GetTypeId() != TYPEID_PLAYER))
+        || GetId() == 31869)    // Sanctified Retribution
     {
         target->HandleStatModifier(UNIT_MOD_DAMAGE_MAINHAND,         TOTAL_PCT, float (GetAmount()), apply);
         target->HandleStatModifier(UNIT_MOD_DAMAGE_OFFHAND,          TOTAL_PCT, float (GetAmount()), apply);
@@ -4676,8 +4686,46 @@ void AuraEffect::HandleAuraDummy(AuraApplication const* aurApp, uint8 mode, bool
                 case 52916: // Honor Among Thieves
                     if (target->GetTypeId() == TYPEID_PLAYER)
                         if (Unit* spellTarget = ObjectAccessor::GetUnit(*target, target->ToPlayer()->GetComboTarget()))
-                            target->CastSpell(spellTarget, 51699, true);
+                            if (caster)
+                                caster->CastSpell(spellTarget, 51699, true);
                    break;
+                case 53601: // Sacred Shield
+                    // reset both swing timers just to be sure
+                    caster->resetAttackTimer(BASE_ATTACK);
+                    caster->resetAttackTimer(OFF_ATTACK);
+                    break;
+                case 28832: // Mark of Korth'azz
+                case 28833: // Mark of Blaumeux
+                case 28834: // Mark of Rivendare
+                case 28835: // Mark of Zeliek
+                    if (caster) // actually we can also use cast(this, originalcasterguid)
+                    {
+                        int32 damage;
+                        switch (GetBase()->GetStackAmount())
+                        {
+                            case 1: damage = 0;     break;
+                            case 2: damage = 500;   break;
+                            case 3: damage = 1000;  break;
+                            case 4: damage = 1500;  break;
+                            case 5: damage = 4000;  break;
+                            case 6: damage = 12000; break;
+                            default:damage = 20000 + 1000 * (GetBase()->GetStackAmount() - 7); break;
+                        }
+                        if (damage)
+                            caster->CastCustomSpell(28836, SPELLVALUE_BASE_POINT0, damage, target);
+                    }
+                    break;
+                case 63322: // Saronite Vapors
+                {
+                    if (caster)
+                    {
+                        int32 mana = int32(GetAmount() * pow(2.0f, GetBase()->GetStackAmount())); // mana restore - bp * 2^stackamount
+                        int32 damage = mana * 2; // damage
+                        caster->CastCustomSpell(target, 63337, &mana, NULL, NULL, true);
+                        caster->CastCustomSpell(target, 63338, &damage, NULL, NULL, true);
+                    }
+                    break;
+                }
                 case 71563:
                     if (Aura* newAura = target->AddAura(71564, target))
                         newAura->SetStackAmount(newAura->GetSpellInfo()->StackAmount);
@@ -4939,6 +4987,19 @@ void AuraEffect::HandleAuraDummy(AuraApplication const* aurApp, uint8 mode, bool
         {
             //if (!(mode & AURA_EFFECT_HANDLE_REAL))
             //    break;
+            break;
+        }
+        case SPELLFAMILY_HUNTER:
+        {
+            switch (GetId())
+            {
+                // Animal Handler rank 1, 2
+                case 34453:
+                case 34454:
+                    if (Guardian* pet = target->ToPlayer()->GetGuardianPet())
+                        pet->UpdateAttackPowerAndDamage();
+                    break;
+            }
             break;
         }
     }
@@ -5261,6 +5322,20 @@ void AuraEffect::HandleAuraOverrideSpells(AuraApplication const* aurApp, uint8 m
     }
 }
 
+void AuraEffect::HandleAuraPreventRegeneratePower(AuraApplication const* aurApp, uint8 mode, bool apply) const
+{
+    if (!(mode & AURA_EFFECT_HANDLE_REAL))
+        return;
+
+    Player* target = aurApp->GetTarget()->ToPlayer();
+
+    if (!target || !target->IsInWorld())
+        return;
+
+    if (target->getClass() != CLASS_DEATH_KNIGHT)
+        target->ApplyModFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_REGENERATE_POWER, !apply && !target->IsUnderLastManaUseEffect());
+}
+
 void AuraEffect::HandleAuraSetVehicle(AuraApplication const* aurApp, uint8 mode, bool apply) const
 {
     if (!(mode & AURA_EFFECT_HANDLE_REAL))
@@ -5338,6 +5413,15 @@ void AuraEffect::HandlePeriodicDummyAuraTick(Unit* target, Unit* caster) const
                     {
                         target->CastSpell(target, 64774, true, NULL, NULL, GetCasterGUID());
                         target->RemoveAura(64821);
+                    }
+                    break;
+                case 67039: // argent squire mount
+                    if (caster && caster->GetOwner())
+                    {
+                        if (caster->GetOwner()->IsMounted())
+                            caster->Mount(29736);
+                        else if (caster->IsMounted())
+                                 caster->Dismount();
                     }
                     break;
             }
@@ -5470,7 +5554,7 @@ void AuraEffect::HandlePeriodicDummyAuraTick(Unit* target, Unit* caster) const
             if (GetSpellInfo()->SpellFamilyFlags[0] & 0x20)
             {
                 if (caster)
-                    caster->CastCustomSpell(target, 52212, &m_amount, NULL, NULL, true, 0, this);
+                    target->CastCustomSpell(target, 52212, &m_amount, NULL, NULL, true, 0, this, caster->GetGUID());
                 break;
             }
             // Blood of the North
@@ -5684,35 +5768,6 @@ void AuraEffect::HandlePeriodicTriggerSpellAuraTick(Unit* target, Unit* caster) 
         // Spell exist but require custom code
         switch (auraId)
         {
-            // Pursuing Spikes (Anub'arak)
-            case 65920:
-            case 65922:
-            case 65923:
-            {
-                Unit* permafrostCaster = NULL;
-                Aura* permafrostAura = target->GetAura(66193);
-                if (!permafrostAura)
-                    permafrostAura = target->GetAura(67855);
-                if (!permafrostAura)
-                    permafrostAura = target->GetAura(67856);
-                if (!permafrostAura)
-                    permafrostAura = target->GetAura(67857);
-
-                if (permafrostAura)
-                    permafrostCaster = permafrostAura->GetCaster();
-
-                if (permafrostCaster)
-                {
-                    if (Creature* permafrostCasterCreature = permafrostCaster->ToCreature())
-                        permafrostCasterCreature->DespawnOrUnsummon(3000);
-
-                    target->CastSpell(target, 66181, false);
-                    target->RemoveAllAuras();
-                    if (Creature* targetCreature = target->ToCreature())
-                        targetCreature->DisappearAndDie();
-                }
-                break;
-            }
             // Mana Tide
             case 16191:
                 target->CastCustomSpell(target, triggerSpellId, &m_amount, NULL, NULL, true, NULL, this);
@@ -5936,6 +5991,16 @@ void AuraEffect::HandlePeriodicDamageAurasTick(Unit* target, Unit* caster) const
     damage = (damage <= absorb+resist) ? 0 : (damage-absorb-resist);
     if (damage)
         procVictim |= PROC_FLAG_TAKEN_DAMAGE;
+
+    if (damage > 0)
+    {
+        if (target->HasAura(65220) || target->HasAura(32233) || target->HasAura(63623) || target->HasAura(62137))
+        {
+            if (GetCaster()->GetTypeId() == TYPEID_UNIT)
+                damage = int32(float(damage) / 100 * 10);
+                resist -= damage;
+        }
+    }
 
     int32 overkill = damage - target->GetHealth();
     if (overkill < 0)

@@ -866,16 +866,25 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
 
     //scale
     CreatureFamilyEntry const* cFamily = sCreatureFamilyStore.LookupEntry(cinfo->family);
-    if (cFamily && cFamily->minScale > 0.0f && petType == HUNTER_PET)
+    if (cFamily && petType == HUNTER_PET)
     {
-        float scale;
-        if (getLevel() >= cFamily->maxScaleLevel)
-            scale = cFamily->maxScale;
-        else if (getLevel() <= cFamily->minScaleLevel)
-            scale = cFamily->minScale;
+        float scale, minscale, maxscale, maxlevel;
+        minscale = 0.8f;
+        maxscale = 1.2f;
+        if (getLevel() > 70)
+        {
+            if (cinfo->type_flags & CREATURE_TYPEFLAGS_EXOTIC)
+                if (getLevel() > 80)
+                    maxlevel = 80; //for gms and fun servers
+                else
+                    maxlevel = getLevel();
+            else
+                maxlevel = 70;
+        }
         else
-            scale = cFamily->minScale + float(getLevel() - cFamily->minScaleLevel) / cFamily->maxScaleLevel * (cFamily->maxScale - cFamily->minScale);
+            maxlevel = getLevel();
 
+        scale = minscale + (maxlevel * ((maxscale - minscale) / 80));
         SetObjectScale(scale);
     }
 
@@ -929,6 +938,17 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
             SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, float(petlevel + (petlevel / 4)));
 
             //SetModifierValue(UNIT_MOD_ATTACK_POWER, BASE_VALUE, float(cinfo->attackpower));
+
+            if (GetEntry() == 26125)
+            {
+                // remove Corpse Explosion visual from ghouls
+                if (HasAura(51270))
+                    RemoveAura(51270);
+
+                // ghoul should inherit full owners hit chance
+                m_modMeleeHitChance = GetOwner()->m_modMeleeHitChance;
+            }
+
             break;
         }
         case HUNTER_PET:
@@ -940,6 +960,8 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
             //damage range is then petlevel / 2
             SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, float(petlevel + (petlevel / 4)));
             //damage is increased afterwards as strength and pet scaling modify attack power
+            SetModifierValue(UNIT_MOD_STAT_STAMINA, BASE_VALUE, float(GetOwner()->GetStat(STAT_STAMINA)) * 0.3f);
+            //  Bonus Stamina (30% of player stamina)
             break;
         }
         default:
@@ -955,9 +977,34 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
                 {
                     if (!pInfo)
                         SetCreateHealth(30 + 30*petlevel);
+
                     float bonusDmg = GetOwner()->SpellBaseDamageBonusDone(SPELL_SCHOOL_MASK_NATURE) * 0.15f;
-                    SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, float(petlevel * 2.5f - (petlevel / 2) + bonusDmg));
-                    SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, float(petlevel * 2.5f + (petlevel / 2) + bonusDmg));
+                    float minDmg = float(petlevel * 2.5f - (petlevel / 2) + bonusDmg);
+                    float maxDmg = float(petlevel * 2.5f + (petlevel / 2) + bonusDmg);
+
+                    // Brambles rank 1
+                    if (GetOwner()->HasAura(16836))
+                    {
+                        minDmg *= 1.05f;
+                        maxDmg *= 1.05f;
+                    }
+                    // Brambles rank 2
+                    else
+                        if (GetOwner()->HasAura(16839))
+                        {
+                            minDmg *= 1.10f;
+                            maxDmg *= 1.10f;
+                        }
+                    // Brambles rank 3
+                    else
+                        if (GetOwner()->HasAura(16840))
+                        {
+                            minDmg *= 1.15f;
+                            maxDmg *= 1.15f;
+                        }
+
+                    SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, minDmg);
+                    SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, maxDmg);
                     break;
                 }
                 case 15352: //earth elemental 36213
@@ -1040,7 +1087,16 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
                         SetCreateMana(28 + 10*petlevel);
                         SetCreateHealth(28 + 30*petlevel);
                     }
-                    SetBonusDamage(int32(GetOwner()->GetTotalAttackPowerValue(BASE_ATTACK) * 0.5f));
+
+                    // convert DK melee haste into the gargoyles spell haste, should it be like that? /tibbi
+                    float ownerHaste = ((Player*)m_owner)->GetRatingBonusValue(CR_HASTE_MELEE);
+                    ApplyPercentModFloatValue(UNIT_MOD_CAST_SPEED, ownerHaste, false);
+
+                    // also make gargoyle benefit from haste auras, like unholy presence
+                    int meleeHaste = ((Player*)m_owner)->GetTotalAuraModifier(SPELL_AURA_MOD_MELEE_HASTE);
+                    ApplyCastTimePercentMod(meleeHaste, true);
+
+                    SetBonusDamage(int32(GetOwner()->GetTotalAttackPowerValue(BASE_ATTACK) * 0.33f));
                     SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, float(petlevel - (petlevel / 4)));
                     SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, float(petlevel + (petlevel / 4)));
                     break;

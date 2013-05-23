@@ -2181,6 +2181,21 @@ Arena.MaxRatingDifference = 150
 Arena.RatingDiscardTimer = 600000
 
 #
+# Arena.ProgressiveMMRTimer
+# Description: Time between increases in MMR search range
+# Default: 30000 (30 seconds)
+
+Arena.ProgressiveMMRTimer = 30000
+
+#
+# Arena.ProgressiveMMRStepSize
+# Description: Amount by which the search range is increased
+# for each passing of ProgressiveMMRTimer
+# Default: 50
+
+Arena.ProgressiveMMRStepSize = 100
+
+#
 #    Arena.RatedUpdateTimer
 #        Description: Time (in milliseconds) between checks for matchups in rated arena
 #        Default:     5000 - (5 seconds)
@@ -2570,12 +2585,53 @@ PlayerDump.DisallowPaths = 1
 PlayerDump.DisallowOverwrite = 1
 
 #
+#    CustomArenaLogs
+#        Description: Use custom arena logs, done by gc only for website arena log purposes, doesnt effect anything ingame
+#        Default:     0 - (Disabled)
+#                     1 - (Enabled)
+#
+
+CustomArenaLogs = 0
+
+#
+#     GCTokenVendorLog
+#        Description: Log items/services bought through our custom gc_token vendor
+#        Default:     0 - (Disabled)
+#                     1 - (Enabled)
+#
+
+GCTokenVendorLog = 0
+
+#
+#     CryptRun.Enable
+#        Description: Determines whether custom Crypt run event is enabled or not
+#        Default:     0 - (Disabled)
+#                     1 - (Enabled)
+#
+
+CryptRun.Enable = 0
+
+#
+#     CryptRun.Reward
+#        Description: Amount of GC tokens rewarded to the race winner
+#        Default:     10
+#
+
+CryptRun.Reward = 10
+
 #     UI.ShowQuestLevelsInDialogs
 #        Description: Show quest levels next to quest titles in UI dialogs
 #        Example: [13] Westfall Stew
 #        Default: 0 (do not show)
 
 UI.ShowQuestLevelsInDialogs = 0
+
+#
+# Includes satellite to search for work else where LFG
+# Default: 0 - Disable
+#          1 - Enable
+
+LFG.Location.All = 1
 
 #
 ###################################################################################################
@@ -2758,7 +2814,6 @@ Logger.Opcodes=41,6,Console Server
 
 Loggers=Root Chat DBErrors GM RA Warden Character Load WorldServer Opcodes
 
-#
 #    Log.Async.Enable
 #        Description: Enables asyncronous message logging.
 #        Default:     0 - (Disabled)
@@ -2766,5 +2821,221 @@ Loggers=Root Chat DBErrors GM RA Warden Character Load WorldServer Opcodes
 
 Log.Async.Enable = 0
 
+###################################################################################################################
+# PVP RANK / TITLE SYSTEM
 #
+# PvPRank.Rate.ExtraHonor
+# Rate of honor bonus for killing higher pvp ranked players
+# Default: 1 - 10% more honor per rank difference
+# 2 - 20%
+# 0 - off
+#
+# PvPRank.HKPerRank
+# Honor Kills needed for each rank, use "," between values.
+# Whole string must be enclosed with " "
+# Always specify 14 values, for 14 ranks
+# Default: "10,50,100,200,450,1000,2000,3000,4500,7500,10500,15000,30000,50000"
+#
+###################################################################################################################
+
+PvPRank.Rate.ExtraHonor = 0
+PvPRank.HKPerRank = "10,50,100,200,450,1000,2000,3000,4500,7500,10500,15000,30000,50000"
+
+###################################################################################################################
+# Passive Anticheat System!
+#
+#     Anticheat.Enable
+#        Description: Enables or disables the Anticheat System functionality
+#        Default:     1 - (Enabled)
+#                     0 - (Disabled)
+#
+#     Anticheat.ReportsForIngameWarnings
+#        Description: How many reports the player must have to notify to GameMasters ingame when he generates a new report.
+#        Default:     70
+#
+#     Anticheat.DetectionsEnabled
+#        Description: It represents which detections are enabled.
+#
+#        SPEED_HACK_DETECTION            = 1
+#        FLY_HACK_DETECTION              = 2
+#        WALK_WATER_HACK_DETECTION       = 4
+#        JUMP_HACK_DETECTION             = 8
+#        TELEPORT_PLANE_HACK_DETECTION   = 16
+#        CLIMB_HACK_DETECTION            = 32
+#
+#        Default:     31
+#
+#     Anticheat.MaxReportsForDailyReport
+#        Description: How many reports must the player have to make a report that it is in DB for a day (not only during the player's session).
+#        Default:     70
+#
+#     Anticheat.Ban
+#        Description: Make anticheat active (Ban cheaters character for 1 hour.)
+#        Default: 1 - (Enabled)
+#                 0 - (Disabled)
+#
+###################################################################################################################
+
+Anticheat.Enable = 1
+Anticheat.ReportsForIngameWarnings = 70
+Anticheat.DetectionsEnabled = 31
+Anticheat.MaxReportsForDailyReport = 70
+Anticheat.Ban = 1
+
 ###################################################################################################
+#    Transmogrification config                                                                    #
+###################################################################################################
+#
+#    GOLD COST
+#
+#    Transmogrification.RequireGold
+#        Description: 0 No gold cost, 1 scaling gold cost, 2 custom gold cost
+#        Default:    1
+#
+#    Transmogrification.GoldModifier
+#        Description: A multiplier for the default gold cost (Transmogrification.RequireGold is 1)
+#        Default:    1.0
+#
+#    Transmogrification.GoldCost
+#        Description: Cost of transmogrification in copper for custom gold cost (Transmogrification.RequireGold is 2)
+#        Default:    100000
+
+Transmogrification.RequireGold = 1
+Transmogrification.GoldModifier = 1.0
+Transmogrification.GoldCost = 100000
+
+#
+#    TOKEN COST
+#
+#    Transmogrification.RequireToken
+#        Description: Adds/disables token cost
+#        Default:    0
+#
+#    Transmogrification.TokenEntry
+#        Description: Entry of the token item
+#        Default:    49426
+#
+#    Transmogrification.TokenAmount
+#        Description: Amount of tokens required
+#        Default:    1
+
+Transmogrification.RequireToken = 0
+Transmogrification.TokenEntry = 49426
+Transmogrification.TokenAmount = 1
+
+#
+#    QUALITIES
+#
+#    Transmogrification.AllowPoor
+#        Description: Allow poor quality items to be used as source and target items
+#        Default:    0
+#
+#    Transmogrification.AllowCommon
+#        Description: Allow common quality items to be used as source and target items
+#        Default:    0
+#
+#    Transmogrification.AllowUncommon
+#        Description: Allow uncommon quality items to be used as source and target items
+#        Default:    1
+#
+#    Transmogrification.AllowRare
+#        Description: Allow rare quality items to be used as source and target items
+#        Default:    1
+#
+#    Transmogrification.AllowEpic
+#        Description: Allow epic quality items to be used as source and target items
+#        Default:    1
+#
+#    Transmogrification.AllowLegendary
+#        Description: Allow legendary quality items to be used as source and target items
+#        Default:    0
+#
+#    Transmogrification.AllowArtifact
+#        Description: Allow artifact quality items to be used as source and target items
+#        Default:    0
+#
+#    Transmogrification.AllowHeirloom
+#        Description: Allow heirloom quality items to be used as source and target items
+#        Default:    1
+
+Transmogrification.AllowPoor = 0
+Transmogrification.AllowCommon = 0
+Transmogrification.AllowUncommon = 1
+Transmogrification.AllowRare = 1
+Transmogrification.AllowEpic = 1
+Transmogrification.AllowLegendary = 0
+Transmogrification.AllowArtifact = 0
+Transmogrification.AllowHeirloom = 1
+
+###################################################################################################################
+# Updated external mail!
+#
+# ExternalMail
+#       Enable external mail delivery from mail_external table.
+#       Default: 0 (disabled)
+#                1 (enabled)
+#
+# ExternalMailInterval
+#       Mail delivery delay time for item sending from mail_external table, in minutes.
+#       Default: 1 minute
+#
+###################################################################################################################
+
+ExternalMail = 1
+ExternalMailInterval = 1
+
+###################################################################################################################
+# Armory!
+#
+#    Armory.Enable
+#        Description: Activates the WowArmory.
+#        Default:     0 - (Disable)
+#                     1 - (Enable)
+#
+###################################################################################################################
+
+Armory.Enable = 1
+
+###################################################################################################################
+# Allow Two Side Interaction Chat!
+#
+#      AllowTwoSide.Interaction.Chat.Area
+#              Description: Allow say chat between factions on specific area.
+#              Default:         -1 - (Disabled)
+#              Astranaar:      415 - (Enable location Astranaar)
+#
+###################################################################################################################
+
+AllowTwoSide.Interaction.Chat.Area = 415
+
+###################################################################################################################
+# MULTIKILL SYSTEM
+#
+# MultiKill.Enable
+# Description: Enable Disable Multikill System.
+# Default: 0 - (Disabled)
+# 1 - (Enabled)
+#
+# MultiKill.BattleGround.Only
+# Description: System works only battlegrounds.
+# Default: 0 - (Disabled)
+# 1 - (Enabled)
+#
+# MultiKill.Log
+# Description: Enable/Disable Multkill Logging in DB.
+# Default: 0 - (Disabled)
+# 1 - (Enabled)
+#
+# MultiKill.Time.Between
+# Description: The period between murders which it is possible to consider simultaneous.
+# Default: 15
+#
+###################################################################################################################
+
+MultiKill.Enable = 0
+MultiKill.BattleGround.Only = 0
+MultiKill.Log = 0
+MultiKill.Time.Between = 15
+
+#
+###################################################################################################################

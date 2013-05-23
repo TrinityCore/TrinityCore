@@ -29,16 +29,16 @@
 
 enum Yells
 {
-    SAY_FACE_AGGRO                              = 0,
+    SAY_AGGRO                                   = 0,
     SAY_FACE_ANGER_SLAY                         = 1,
     SAY_FACE_SORROW_SLAY                        = 2,
     SAY_FACE_DESIRE_SLAY                        = 3,
-    SAY_FACE_DEATH                              = 4,
+    SAY_DEATH                                   = 4,
     EMOTE_MIRRORED_SOUL                         = 5,
     EMOTE_UNLEASH_SOUL                          = 6,
-    SAY_FACE_UNLEASH_SOUL                       = 7,
+    SAY_UNLEASH_SOUL                            = 7,
     EMOTE_WAILING_SOUL                          = 8,
-    SAY_FACE_WAILING_SOUL                       = 9,
+    SAY_WAILING_SOUL                            = 9,
 
     SAY_JAINA_OUTRO                             = 0,
     SAY_SYLVANAS_OUTRO                          = 0
@@ -46,15 +46,15 @@ enum Yells
 
 enum Spells
 {
-    SPELL_PHANTOM_BLAST                         = 68982,
-    H_SPELL_PHANTOM_BLAST                       = 70322,
-    SPELL_MIRRORED_SOUL                         = 69051,
-    SPELL_WELL_OF_SOULS                         = 68820,
-    SPELL_UNLEASHED_SOULS                       = 68939,
-    SPELL_WAILING_SOULS_STARTING                = 68912,  // Initial spell cast at begining of wailing souls phase
-    SPELL_WAILING_SOULS_BEAM                    = 68875,  // the beam visual
-    SPELL_WAILING_SOULS                         = 68873,  // the actual spell
-    H_SPELL_WAILING_SOULS                       = 70324,
+    SPELL_PHANTOM_BLAST                           = 68982,
+    H_SPELL_PHANTOM_BLAST                         = 70322,
+    SPELL_MIRRORED_SOUL                           = 69051,
+    SPELL_WELL_OF_SOULS                           = 68820,
+    SPELL_UNLEASHED_SOULS                         = 68939,
+    SPELL_WAILING_SOULS_STARTING                  = 68912,  // Initial spell cast at begining of wailing souls phase
+    SPELL_WAILING_SOULS_BEAM                      = 68875,  // the beam visual
+    SPELL_WAILING_SOULS                           = 68873,  // the actual spell
+    H_SPELL_WAILING_SOULS                         = 70324
 //    68871, 68873, 68875, 68876, 68899, 68912, 70324,
 // 68899 trigger 68871
 };
@@ -62,12 +62,12 @@ enum Spells
 enum Events
 {
     EVENT_PHANTOM_BLAST         = 1,
-    EVENT_MIRRORED_SOUL         = 2,
-    EVENT_WELL_OF_SOULS         = 3,
-    EVENT_UNLEASHED_SOULS       = 4,
-    EVENT_WAILING_SOULS         = 5,
-    EVENT_WAILING_SOULS_TICK    = 6,
-    EVENT_FACE_ANGER            = 7,
+    EVENT_MIRRORED_SOUL,
+    EVENT_WELL_OF_SOULS,
+    EVENT_UNLEASHED_SOULS,
+    EVENT_WAILING_SOULS,
+    EVENT_WAILING_SOULS_TICK,
+    EVENT_FACE_ANGER
 };
 
 enum eEnum
@@ -137,29 +137,24 @@ class boss_devourer_of_souls : public CreatureScript
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
                 me->SetDisplayId(DISPLAY_ANGER);
                 me->SetReactState(REACT_AGGRESSIVE);
-
-                events.Reset();
-                summons.DespawnAll();
+                _Reset();
 
                 threeFaced = true;
                 mirroredSoulTarget = 0;
-
-                instance->SetData(DATA_DEVOURER_EVENT, NOT_STARTED);
             }
 
             void EnterCombat(Unit* /*who*/)
             {
-                Talk(SAY_FACE_AGGRO);
+                _EnterCombat();
+                Talk(SAY_AGGRO);
 
                 if (!me->FindNearestCreature(NPC_CRUCIBLE_OF_SOULS, 60)) // Prevent double spawn
                     instance->instance->SummonCreature(NPC_CRUCIBLE_OF_SOULS, CrucibleSummonPos);
-                events.ScheduleEvent(EVENT_PHANTOM_BLAST, 5000);
-                events.ScheduleEvent(EVENT_MIRRORED_SOUL, 8000);
-                events.ScheduleEvent(EVENT_WELL_OF_SOULS, 30000);
-                events.ScheduleEvent(EVENT_UNLEASHED_SOULS, 20000);
-                events.ScheduleEvent(EVENT_WAILING_SOULS, urand(60000, 70000));
-
-                instance->SetData(DATA_DEVOURER_EVENT, IN_PROGRESS);
+                events.ScheduleEvent(EVENT_PHANTOM_BLAST, 5*IN_MILLISECONDS);
+                events.ScheduleEvent(EVENT_MIRRORED_SOUL, 8*IN_MILLISECONDS);
+                events.ScheduleEvent(EVENT_WELL_OF_SOULS, 30*IN_MILLISECONDS);
+                events.ScheduleEvent(EVENT_UNLEASHED_SOULS, 20*IN_MILLISECONDS);
+                events.ScheduleEvent(EVENT_WAILING_SOULS, urand(60*IN_MILLISECONDS, 70*IN_MILLISECONDS));
             }
 
             void DamageTaken(Unit* /*pDoneBy*/, uint32 &uiDamage)
@@ -206,13 +201,11 @@ class boss_devourer_of_souls : public CreatureScript
 
             void JustDied(Unit* /*killer*/)
             {
-                summons.DespawnAll();
+                _JustDied();
 
                 Position spawnPoint = {5618.139f, 2451.873f, 705.854f, 0};
 
-                Talk(SAY_FACE_DEATH);
-
-                instance->SetData(DATA_DEVOURER_EVENT, DONE);
+                Talk(SAY_DEATH);
 
                 int32 entryIndex;
                 if (instance->GetData(DATA_TEAM_IN_INSTANCE) == ALLIANCE)
@@ -264,8 +257,8 @@ class boss_devourer_of_souls : public CreatureScript
                     {
                         case EVENT_PHANTOM_BLAST:
                             DoCastVictim(SPELL_PHANTOM_BLAST);
-                            events.ScheduleEvent(EVENT_PHANTOM_BLAST, 5000);
-                            break;
+                            events.ScheduleEvent(EVENT_PHANTOM_BLAST, 5*IN_MILLISECONDS);
+                            return;
                         case EVENT_MIRRORED_SOUL:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0, true))
                             {
@@ -273,29 +266,28 @@ class boss_devourer_of_souls : public CreatureScript
                                 DoCast(target, SPELL_MIRRORED_SOUL);
                                 Talk(EMOTE_MIRRORED_SOUL);
                             }
-                            events.ScheduleEvent(EVENT_MIRRORED_SOUL, urand(15000, 30000));
-                            break;
+                            events.ScheduleEvent(EVENT_MIRRORED_SOUL, urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS));
+                            return;
                         case EVENT_WELL_OF_SOULS:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                                 DoCast(target, SPELL_WELL_OF_SOULS);
-                            events.ScheduleEvent(EVENT_WELL_OF_SOULS, 20000);
-                            break;
+                            events.ScheduleEvent(EVENT_WELL_OF_SOULS, 20*IN_MILLISECONDS);
+                            return;
                         case EVENT_UNLEASHED_SOULS:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                                 DoCast(target, SPELL_UNLEASHED_SOULS);
                             me->SetDisplayId(DISPLAY_SORROW);
-                            Talk(SAY_FACE_UNLEASH_SOUL);
+                            Talk(SAY_UNLEASH_SOUL);
                             Talk(EMOTE_UNLEASH_SOUL);
-                            events.ScheduleEvent(EVENT_UNLEASHED_SOULS, 30000);
-                            events.ScheduleEvent(EVENT_FACE_ANGER, 5000);
-                            break;
+                            events.ScheduleEvent(EVENT_UNLEASHED_SOULS, 30*IN_MILLISECONDS);
+                            events.ScheduleEvent(EVENT_FACE_ANGER, 5*IN_MILLISECONDS);
+                            return;
                         case EVENT_FACE_ANGER:
                             me->SetDisplayId(DISPLAY_ANGER);
-                            break;
-
+                            return;
                         case EVENT_WAILING_SOULS:
                             me->SetDisplayId(DISPLAY_DESIRE);
-                            Talk(SAY_FACE_WAILING_SOUL);
+                            Talk(SAY_WAILING_SOUL);
                             Talk(EMOTE_WAILING_SOUL);
                             DoCast(me, SPELL_WAILING_SOULS_STARTING);
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
@@ -322,9 +314,8 @@ class boss_devourer_of_souls : public CreatureScript
 
                             wailingSoulTick = 15;
                             events.DelayEvents(18000); // no other events during wailing souls
-                            events.ScheduleEvent(EVENT_WAILING_SOULS_TICK, 3000); // first one after 3 secs.
-                            break;
-
+                            events.ScheduleEvent(EVENT_WAILING_SOULS_TICK, 3*IN_MILLISECONDS); // first one after 3 secs.
+                            return;
                         case EVENT_WAILING_SOULS_TICK:
                             beamAngle += beamAngleDiff;
                             me->SetOrientation(beamAngle);
@@ -334,15 +325,17 @@ class boss_devourer_of_souls : public CreatureScript
                             DoCast(me, SPELL_WAILING_SOULS);
 
                             if (--wailingSoulTick)
-                                events.ScheduleEvent(EVENT_WAILING_SOULS_TICK, 1000);
+                                events.ScheduleEvent(EVENT_WAILING_SOULS_TICK, 1*IN_MILLISECONDS);
                             else
                             {
                                 me->SetReactState(REACT_AGGRESSIVE);
                                 me->SetDisplayId(DISPLAY_ANGER);
                                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
                                 me->GetMotionMaster()->MoveChase(me->getVictim());
-                                events.ScheduleEvent(EVENT_WAILING_SOULS, urand(60000, 70000));
+                                events.ScheduleEvent(EVENT_WAILING_SOULS, urand(60*IN_MILLISECONDS, 70*IN_MILLISECONDS));
                             }
+                            return;
+                        default:
                             break;
                     }
                 }
@@ -390,5 +383,6 @@ class achievement_three_faced : public AchievementCriteriaScript
 void AddSC_boss_devourer_of_souls()
 {
     new boss_devourer_of_souls();
+
     new achievement_three_faced();
 }

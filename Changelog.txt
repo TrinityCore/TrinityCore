@@ -1,0 +1,270 @@
+############################################################################################
+#              ______                   ______                   _____                     #
+#             / _____)                 |  ___ \                 / ___ \       _            #
+#            | /  ___  ____  ____ _   _| | _ | | ___ _   _ ____| |   | |_   _| |_          #
+#            | | (___)/ _  |/ ___) | | | || || |/ _ \ | | / _  ) |   | | | | |  _)         #
+#            | \____/( ( | | |   | |_| | || || | |_| \ V ( (/ /| |___| | |_| | |__         #
+#             \_____/ \_||_|_|    \__  |_||_||_|\___/ \_/ \____)\_____/ \____|\___)        #
+#                                 (____/                                                   #
+#                                                                                          #
+#                                      Changelog                                           #
+#                                                                                          #
+############################################################################################
+
+[200] --> Implement Top 5 Killers.
+[199] --> Update GunShip Battle.
+[198] --> Update Argent Tournament. (Thx aedansilver)
+[197] --> Update Icecrown Citadel. (Thx aedansilver)
+[196] --> Implement [ICC] Check Heroic Achievement.
+[195] --> Implement Trial of the Champion. (Thx fiveofeight)
+[194] --> Update scripts and core... Original TrinityCore and Chaos Core.
+[193] --> Update Naxxramas. (Thx Shaco)
+[192] --> Update Naxxramas. (Thx Shaco)
+[191] --> Implement melee damage delay. (Thx trickerer)
+[190] --> Update Utgarde Pinnacle: Skadi. (Thx lostgenx)
+[189] --> Update Halls Of Reflection. (Thx lostgenx)
+[188] --> Fix halion Outside the scope of the fire. (Thx siley)
+[187] --> Implement Factions on Channel. (Thx MarWit)
+[186] --> Implement Arena Spectator. (Thx Demonid)
+[185] --> Implement Fake Players. (Thx LORDofDOOM)
+[184] --> Fix Master's Call. (Thx digz6666)
+[183] --> Implement - Anti-Rollback on Crash System for Items, Loot, and Quest. (Thx Demonid)
+[182] --> Custom - Revive Pets on Arena + Remove some Debuffs. (Thx Demonid)
+[181] --> Update Target Movement Generator. (Thx Quentis)
+[180] --> Update PathPoint in Blade's Edge Arena, Dalaran Sewers and Eye of the Storm. (Thx Quentis)
+[179] --> Fix SpellFamily for Redemption (Paladin) so it scales with haste rating. (Thx  mweinelt)
+[178] --> Implement Battleground Crossfraction. (Thx Quentis)
+[177] --> Implement Fast Arena Start. (Thx Demonid)
+[176] --> Fix Sylvanas Music Box.
+[175] --> Fix Shadowmeld. (Thx Hlkz)
+[174] --> Fix - always apply paladin auras' linked spells for caster. (Thx Timothy Liang)
+[173] --> Fix - Bladestorm - Knockback Effect. (Thx Demonid)
+[172] --> Fix - Warrior - Multi Reflect + Scatter Shot - Silencing Shot Travel time delay. (Thx Demonid)
+[171] --> Fix - Water Elemental + Despawn. (Thx Demonid)
+[170] --> Fix - Misdirection. (Thx Demonid)
+[169] --> Fix Ebon Gargoyle - Target + Follow. (By Moco23)
+[168] --> Fix Bonus 4P T10 Warrior. (TEST By Ranou)
+[167] --> Revert 'Implement Raise ally. (TEST By Runico)'.
+[166] --> Fix - Vehicle Immunities. (By Demonid)
+[165] --> Implement [Strand of the Ancients] Warnings system. (By  Vincent-Michael)
+[164] --> Implement Raise ally. (TEST By Runico)
+[163] --> Updatel duel reset and fix hp pets at dismount.
+[162] --> Fix [ITEM] Black Bruise / [SPELL] Necrotic Touch. (By  joschiwald)
+[161] --> Update Halls Of Reflection by aedansilver.
+[160] --> Add Looking For Group Join All Maps.
+[159] --> Fix Ebon Gargoyle Target and make gargoyle benefit from haste auras, like unholy presence. (By Demonid)
+[158] --> Improved Mirror Images AI by A-Metaphysical-Drama. (TEST)
+[157] --> Fix Earth Shield by joschiwald.
+[156] --> Fix Glyph of Succubus. (TEST)
+[155] --> Update Sunwell Plateau by aedansilver.
+[154] --> Fix - Don't Allow Vehicles in Arena by Demonid.
+[153] --> Update Icecrown Citadel by aedansilver.
+[152] --> Update Ulduar by aedansilver.
+[151] --> Update ICC by Elron103.
+[150] --> Update Trial of the Champion. (Thx Faq / sioa)
+[149] --> Fix Sindragosa. [TEST] (By Elron103)
+[148] --> Fix priest bug (kills and honour) spell_priest_spirit_of_redemption. (Thx Vitasic)
+[147] --> Fix sacred shield CD. (TEST, By Odyssey & aedansilver)
+[146] --> Fix duel reset cd and Bladestorm. (By iconskater) 
+[145] --> Fix Sindragosa. (By Elron103) 
+[144] --> Fix MMaps boss sindragosa and more... (Info #9083).
+[143] --> Fix crash StopCastingCharm (TEST #9293). 
+[142] --> Revert 'Fix Gargoyle haste (TEST).'
+[141] --> Small correction arena logs.
+[140] --> Hack-Fix Rune Strike. (By Juliean)
+[139] --> Fix loot Halls of Reflection.
+[138] --> Fix Blood Prince Council and Lord Marrowgar (Original script TC).
+[137] --> Fix Lady Deathwhisper (Original script TC).
+[136] --> SQL/Misc: Database reguid, cleanup files. (By Elron103)
+[135] --> Fix loot Trial of Crusader.
+[134] --> Fix Lich King.
+[133] --> Fix loot Freya and Trial of Champion.
+[132] --> Fix Sindragosa.
+[131] --> Fix Instance Cooldown Exploit.
+[130] --> Revert 'Misc fixes (TEST)...'.
+[129] --> Revert 'Fix Blood Tap (TEST).'.
+[128] --> Restore original scripts Sunwell Plateau.
+[127] --> Fix Death and Decay.
+[126] --> Fix Masters Call (53271).
+[125] --> Fix Blood Tap (TEST).
+[124] --> Misc fixes (TEST):
+           - Fixed cinderglacier charge removal.
+           - Use spell ids for reaping, death rune mastery, blood of the north.
+           - Fixes crash with chains of ice frost rune refresh.
+[123] --> Fix hammer of the righteous double pct damage mods.
+[122] --> SOTA: Fix battleground demolisher's faction.
+[121] --> Fix Halion immunities and damage.
+[120] --> Fix Gargoyle haste (TEST).
+[119] --> Fix Culling Of Stratholme.
+[118] --> Add Astranaar SHOP.
+[117] --> Fix Night Elf: Shadowmeld.
+[116] --> Revert '[gc354] remove IoC from rbg list'.
+[115] --> Delete [MOD] CharacterHistory.
+[114] --> Fix Val'kyr Shadowguard speed.
+[113] --> Add NPC MMR Master (Final version).
+[112] --> Add NPC MMR Master (Beta).
+[111] --> Fix LoS Totems (Test!).
+[110] --> Fix Arena frames (Test!).
+[109] --> Add Mr.Maniek ;)
+[108] --> Fix item procs of Reign of the Dead / Reign of the Unliving, cooldown should be used.
+[107] --> Fix Item - Shaman T10 Elemental 4P Bonus.
+[106] --> Fix buff Frostmourne.
+[105] --> Add [MOD] CharacterHistory.
+[104] --> Fix quest The Ring of Blood: The Final Challenge (Nagrand Arena).
+[103] --> Fix Zul'drak arena.
+[102] --> Scripts/BlackTemple: Fix Illidan.
+[101] --> Fix Bonus 4P T10 Rogue.
+[100] --> Scripts/BlackTemple: Prevent Akama (Shade Encounter) to aggro outside of event.
+[99] --> Fix Bonus 4P T10 Warrior.
+[98] --> Fix Sunwell Plateau. (Test!)
+[97] --> Fixed a crash with npc_boneguard_mounted script. (Thx fiveofeight)
+[96] --> Fix Isle of Conquest - Teleports.
+[95] --> Fix Halion.
+[94] --> Fix Normal and Glyph of Eternal Water - Water Elemental.
+[93] --> Fix Quests Argent Tournament.
+[92] --> Add [MOD] MultiKill.
+[91] --> Fix lowlevel pets cause big damage.
+[90] --> Fix Warlock: Spell Lock.
+[89] --> Fix crash (Test!).
+[88] --> Fix Hunter pet scale.
+[87] --> Fix Magic Absorption.
+[86] --> Fix crash Trial Of The Crusader.
+[85] --> Remove unit lost control before teleport.
+[84] --> Fix loot GunShip.
+[83] --> Add Name Developer Announce.
+[82] --> Add Name Admin, GameMaster and Guard Announces.
+[81] --> Fix Sindragosa (Final version!).
+[80] --> Update CCDelay by Diton.
+[79] --> Core/Resistances:
+          - Remove Holy Resistance from Players
+          - Do not add Holy Resist from Items to Players
+          - Resistance Handling from Holy resist removed
+          Signed-off-by: Pointerxx <marvin.wichmann@web.de>
+[78] --> Fix Sindragosa (Test!).
+[77] --> Fix autocast petspells.
+[76] --> Misc fixs: (Test!)
+         - Fix Totems LOS.
+         - Fix combatstop spells Invisible, Shadow. Trigger, Shadowmeld.
+         - Fix Rogue: Vanish.
+         - Fix Mage: Water Elemental.
+         - Fix problem pets. (If you are dismounted, your pet had 1hp.)
+[75] --> Fix Shaman: Earthbind Totem.
+[74] --> Fix Paladin: Righteous Defense.
+[73] --> Update CCDelay.
+[72] --> Fix Grounding Totem.
+[71] --> Fix Priest: Shadowform.
+[70] --> Fixed [Item] Wrathful Gladiator's Dreadplate Gauntlets.
+[69] --> Add Npc Top 10 Arena Teams.
+[68] --> Alternate script Gunship by fiveofeight.
+[67] --> Add Scripts/Trial Of The Champion.
+[66] --> Scripts/Headless Horseman: Cleanup.
+[65] --> [ICC][Lich King] Fix Val'kyr Shadowguard.
+[64] --> Fix Quests Argent Tournament.
+[63] --> Fix Evade (Test).
+[62] --> Core/Maps: Merge some changes to GetHeight Calculation.
+[61] --> Fix Death Knight: Death and Decay.
+[60] --> Fix Priest: Shadowfiend.
+[59] --> Fix Sap removes Stealth.
+[58] --> Fix [Warlock] Chaos Bolt.
+         - "Chaos Bolt cannot be resisted, and pierces through all absorption effects."
+[57] --> Removes Master's Call stun immunity.
+[56] --> [ICC] Fix Lich King.
+[55] --> Fix Earthbind totem effect and Wandering plague.
+[54] --> [Spells/Hunter] Fix Misdirection.
+[53] --> Add Scripts: Brewfest Festival.
+[52] --> Fix crash 'arena_run_reg_alloc'.
+[51] --> Add Scripts/Halls Of Lightning (thx Cashew).
+[50] --> Add Scripts/Halls Of Stone (thx Cashew).
+[49] --> Add Scripts/Halls Of Reflection (thx Cashew).
+[48] --> Pet: Return to player in passive reactstate if commandstate is follow.
+[47] --> Add Scripts/Ruby Sanctum: Halion (thx Warpten).
+[46] --> Updated script Transmogrification and fix crash gargoyle.
+[45] --> [Argent Tournament] Fix Npc Lake Frog.
+[44] --> Revert 'Fix Pet CD After Summon.'.
+[43] --> Fix [Warrior] T10 4P Bonus.
+[42] --> [Death Grip] Fix castable while jumping/falling.
+[41] --> Fix pets scaling HP.
+[40] --> Fix Pet CD After Summon.
+[39] --> Add AutoBanned Passive Anticheat System!
+[38] --> [Censor] Update vulgar slang.
+[37] --> Reset Duel Cooldowns, Hp, Mana, Rage and Runic Power in Astranaar.
+[36] --> [Censor] Update vulgar slang.
+[35] --> Add Admin Announce Command.
+[34] --> GM Account can chat at 2 faction.
+[33] --> Add script Allow Two Side Interaction Chat.
+[32] --> Add Armory Patch.
+[31] --> Fix crash script Chat Censure.
+[30] --> Add script Chat Censure.
+[29] --> [Gundrak] Changes:
+                    - Fix Drakkari Elemental.
+                   by Thainification.
+[28] --> [ICC] Changes:
+                - Dark nucleus lose aggro without a reason.
+                - Svalna & Crok: add spell Divine Surge, try to fix position problem, misc...
+               by Thainification.
+[27] --> Fix player on transports.
+[26] --> Fix Pick Lock.
+[25] --> Fix pet not returning on target death by other player.
+[24] --> Add Updated external mail.
+[23] --> Add script Transmogrification.
+[22] --> Fix Lifebloom.
+[21] --> Project Astranaar.
+[20] --> Now priest is energized for each Power Word: Shield that is absorbed or dispelled.
+[19] --> [ICC] Big Changes:
+               Blood Prince Council:
+                - Shadow prison should only hit player.
+                - Try to relocate dark nucleus position if spawned out of LoS.
+                - Dark nucleus now should follow current target.
+                - Properly clear Kinetic Bomb MotionMaster before given new one.
+               Professor Putricide:
+                - Changed ooze target searching intervals & change amount of stacks.
+                - Ooze change target if current target died before explosion.
+               Rotface:
+                - Make Rotface facing ooze stalker in beginning on casting, instead of after finished.
+                - Slime spray now damaging correct target (in front of Rotface when casting).
+                - Add immunity.
+               Sindragosa:
+                - Will continue using Icy Grip / Blistering Cold in phase three.
+               Lich King:
+                - Interrupt Spellcasts when entering Outro.
+                - Target needs to be healable.
+               Valithria Dreamwalker:
+                - Fix double spawning of portals after wipe.
+               Crok Scourgebane:
+                - Improve resetting of Crok, so event will run better under bad conditions.
+[18] --> [ICC] Hack for ice tomb's gameobject.
+[17] --> [ICC] Modify teleport to LK!
+[16] --> Final fix of Hammer of the Righteous dmg during Avenging Wrath.
+[15] --> Fix Dancing Rune Weapon.
+[14] --> Elemental focus(shaman talent) correct proc.
+[13] --> Fix no combo points after Mind Control.
+[12] --> Reset Duel Cooldowns, Hp, Mana, Rage and Runic Power.
+[11] --> Add Passive Anticheat System.
+[10] --> Fix Grounding Totem.
+[9] --> Add PvP-Ranks System.
+[8] --> Implemented Crowd Control Delay.
+[7] --> Fix Slice and Dice and Honor Among Thieves.
+[6] --> Add script hunterpet vendor.
+[5] --> Insert change in Replace.
+[4] --> Fix Gnomeregan Pride.
+[3] --> Fix Flare and Death Grip.
+[2] --> Misc small changes.
+[1] --> Implement progressive MMR search range.
+
+############################################################################################
+#                                                                                          #
+#   Thanks to:                                                                             #
+#               https://github.com/TrinityCore                                             #
+#               https://github.com/diton                                                   #
+#               https://github.com/gc                                                      #
+#               https://github.com/tibbi                                                   #
+#               https://github.com/locksmith                                               #
+#               https://github.com/Thainification                                          #
+#               https://github.com/fiveofeight                                             #
+#               https://github.com/Locknes                                                 #
+#               https://github.com/lostgenx                                                #
+#               https://github.com/saqirmdev                                               #
+#               https://github.com/codels                                                  #
+#               https://github.com/Arkania                                                 #
+#                                                                                          #
+############################################################################################

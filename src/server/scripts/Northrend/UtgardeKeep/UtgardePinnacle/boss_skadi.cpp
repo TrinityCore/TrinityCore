@@ -31,6 +31,8 @@ Script Data End */
 #include "Player.h"
 #include "SpellInfo.h"
 
+#define SPELL_POISONED_SPEAR    DUNGEON_MODE(50255, 59331)
+
 //Yell
 enum eYells
 {
@@ -44,7 +46,7 @@ enum eYells
 };
 
 static Position SpawnLoc = {468.931f, -513.555f, 104.723f, 0};
-static Position Location[]=
+static Position Location[] =
 {
     // Boss
     {341.740997f, -516.955017f, 104.66900f, 0}, // 0
@@ -134,8 +136,7 @@ enum eSpells
 {
     //Skadi Spells
     SPELL_CRUSH             = 50234,
-    SPELL_POISONED_SPEAR    = 50225, //isn't being casted =/
-    SPELL_WHIRLWIND         = 50228, //random target, but not the tank approx. every 20s
+    SPELL_WHIRLWIND         = 50228,
     SPELL_RAPID_FIRE        = 56570,
     SPELL_HARPOON_DAMAGE    = 56578,
     SPELL_FREEZING_CLOUD    = 47579,
@@ -153,7 +154,7 @@ enum eCreature
 
 enum eAchievments
 {
-    ACHIEV_TIMED_START_EVENT                      = 17726,
+    ACHIEV_TIMED_START_EVENT       = 17726,
 };
 
 class boss_skadi : public CreatureScript
@@ -206,23 +207,61 @@ public:
             Phase = SKADI;
 
             Summons.DespawnAll();
+
             me->SetSpeed(MOVE_FLIGHT, 3.0f);
-            if ((Unit::GetCreature(*me, m_uiGraufGUID) == NULL) && !me->IsMounted())
-                 me->SummonCreature(CREATURE_GRAUF, Location[0].GetPositionX(), Location[0].GetPositionY(), Location[0].GetPositionZ(), 3.0f);
+
+            //if ((Unit::GetCreature(*me, m_uiGraufGUID) == NULL) && !me->IsMounted())
+            //     me->SummonCreature(CREATURE_GRAUF, Location[0].GetPositionX(), Location[0].GetPositionY(), Location[0].GetPositionZ(), 3.0f);
             if (instance)
             {
+                if (!me->IsMounted())
+                {
+                    me->SetCanFly(false);
+                    me->SetDisableGravity(false);
+                    me->SetUnitMovementFlags(MOVEMENTFLAG_WALKING);
+
+                    if (Creature* grauf = me->GetMap()->GetCreature(instance->GetData64(DATA_MOB_GRAUF)))
+                    {
+                        if (!grauf->isAlive())
+                            grauf->Respawn(true);
+                    }
+                    else
+                        me->SummonCreature(CREATURE_GRAUF, Location[0].GetPositionX(), Location[0].GetPositionY(), Location[0].GetPositionZ(), 3.0f);
+                }
                 instance->SetData(DATA_SKADI_THE_RUTHLESS_EVENT, NOT_STARTED);
                 instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
             }
         }
 
+        void DamageTaken(Unit* /*attacker*/, uint32 & damage)
+        {
+            if (!me->isInCombat() || Phase != SKADI || me->IsMounted())
+                damage = 0;
+        }
+
         void JustReachedHome()
         {
+            me->Dismount();
             me->SetCanFly(false);
+            me->SetDisableGravity(false);
+            me->SetUnitMovementFlags(MOVEMENTFLAG_WALKING);
+            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
+
+            if (instance)
+            {
+                if (Creature* grauf = me->GetMap()->GetCreature(instance->GetData64(DATA_MOB_GRAUF)))
+                {
+                    if (!grauf->isAlive())
+                        grauf->Respawn(true);
+                }
+                else
+                    me->SummonCreature(CREATURE_GRAUF, Location[0].GetPositionX(), Location[0].GetPositionY(), Location[0].GetPositionZ(), 3.0f);
+            }
+            /*me->SetCanFly(false);
             me->Dismount();
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
             if (!Unit::GetCreature(*me, m_uiGraufGUID))
-                me->SummonCreature(CREATURE_GRAUF, Location[0].GetPositionX(), Location[0].GetPositionY(), Location[0].GetPositionZ(), 3.0f);
+                me->SummonCreature(CREATURE_GRAUF, Location[0].GetPositionX(), Location[0].GetPositionY(), Location[0].GetPositionZ(), 3.0f);*/
         }
 
         void EnterCombat(Unit* /*who*/)
@@ -235,7 +274,8 @@ public:
 
             m_uiMovementTimer = 1000;
             m_uiSummonTimer = 10000;
-            me->SetInCombatWithZone();
+            DoZoneInCombat();
+
             if (instance)
             {
                 instance->SetData(DATA_SKADI_THE_RUTHLESS_EVENT, IN_PROGRESS);
@@ -285,20 +325,28 @@ public:
                 if (m_uiSpellHitCount >= 3)
                 {
                     Phase = SKADI;
-                    me->SetCanFly(false);
                     me->Dismount();
+                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
                     if (Creature* pGrauf = me->SummonCreature(CREATURE_GRAUF, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3*IN_MILLISECONDS))
                     {
-                        pGrauf->GetMotionMaster()->MoveFall();
+                        pGrauf->GetMotionMaster()->MoveFall(0);
                         pGrauf->HandleEmoteCommand(EMOTE_ONESHOT_FLYDEATH);
+                        pGrauf->AI()->Talk(SAY_DRAKE_DEATH);
                     }
+
+                    me->SetCanFly(false);
+                    me->SetDisableGravity(false);
                     me->GetMotionMaster()->MoveJump(Location[4].GetPositionX(), Location[4].GetPositionY(), Location[4].GetPositionZ(), 5.0f, 10.0f);
-                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
-                    Talk(SAY_DRAKE_DEATH);
+                    me->SetHealth(me->GetMaxHealth());
+                    me->SetUnitMovementFlags(MOVEMENTFLAG_WALKING);
+                    me->UpdateObjectVisibility(true);
+
+                    if (Unit* target = me->SelectNearestPlayer())
+                        AttackStart(target);
+
                     m_uiCrushTimer = 8000;
                     m_uiPoisonedSpearTimer = 10000;
                     m_uiWhirlwindTimer = 20000;
-                    me->AI()->AttackStart(SelectTarget(SELECT_TARGET_RANDOM));
                 }
             }
         }
@@ -330,6 +378,7 @@ public:
                     {
                         me->Mount(DATA_MOUNT);
                         me->SetCanFly(true);
+                        me->SetDisableGravity(true);
                         m_uiMountTimer = 0;
                     } else m_uiMountTimer -= diff;
 
@@ -424,22 +473,12 @@ public:
         void SpawnMobs()
         {
             for (uint8 i = 0; i < DUNGEON_MODE(5, 6); ++i)
-            {
                 switch (urand(0, 2))
                 {
-                    case 0:
-                        me->SummonCreature(CREATURE_YMIRJAR_WARRIOR, SpawnLoc.GetPositionX()+rand()%5, SpawnLoc.GetPositionY()+rand()%5, SpawnLoc.GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
-                        break;
-
-                    case 1:
-                        me->SummonCreature(CREATURE_YMIRJAR_WITCH_DOCTOR, SpawnLoc.GetPositionX()+rand()%5, SpawnLoc.GetPositionY()+rand()%5, SpawnLoc.GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
-                        break;
-
-                    case 2:
-                        me->SummonCreature(CREATURE_YMIRJAR_HARPOONER, SpawnLoc.GetPositionX()+rand()%5, SpawnLoc.GetPositionY()+rand()%5, SpawnLoc.GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
-                        break;
+                    case 0: me->SummonCreature(CREATURE_YMIRJAR_WARRIOR, SpawnLoc.GetPositionX()+rand()%5, SpawnLoc.GetPositionY()+rand()%5, SpawnLoc.GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000); break;
+                    case 1: me->SummonCreature(CREATURE_YMIRJAR_WITCH_DOCTOR, SpawnLoc.GetPositionX()+rand()%5, SpawnLoc.GetPositionY()+rand()%5, SpawnLoc.GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000); break;
+                    case 2: me->SummonCreature(CREATURE_YMIRJAR_HARPOONER, SpawnLoc.GetPositionX()+rand()%5, SpawnLoc.GetPositionY()+rand()%5, SpawnLoc.GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000); break;
                 }
-            }
         }
 
         void SpawnTrigger()
@@ -459,7 +498,11 @@ public:
                     break;
             }
             for (uint32 i = iStart; i < iEnd; ++i)
-                me->SummonCreature(CREATURE_TRIGGER, Location[i]);
+                if (Creature* creature = me->SummonCreature(CREATURE_TRIGGER, Location[i], TEMPSUMMON_TIMED_DESPAWN, 5 * IN_MILLISECONDS))
+                {
+                    creature->SetVisible(false);
+                    creature->setFaction(35);
+                }
         }
     };
 

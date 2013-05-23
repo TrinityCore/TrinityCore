@@ -1212,6 +1212,47 @@ enum TrinityStrings
     // Use for custom patches             11000-11999
     LANG_AUTO_BROADCAST                 = 11000,
     LANG_INVALID_REALMID                = 11001,
+    LANG_BAN_CHEATER                    = 11002,
+
+    // Admin, GameMaster and Guard Announce
+    LANG_SYSTEMMESSAGE_ADMINISTRATOR    = 11666,
+    LANG_SYSTEMMESSAGE_GAMEMASTER       = 11667,
+    LANG_SYSTEMMESSAGE_GUARD            = 11668,
+    LANG_SYSTEMMESSAGE_DEVELOPER        = 11669,
+
+    LANG_REM_TRANSMOGRIFICATIONS_ITEMS  = 11100,
+    LANG_ERR_NO_TRANSMOGRIFICATIONS     = 11101,
+    LANG_REM_TRANSMOGRIFICATION_ITEM    = 11102,
+    LANG_ERR_NO_TRANSMOGRIFICATION      = 11103,
+    LANG_ITEM_TRANSMOGRIFIED            = 11104,
+    LANG_ERR_NO_ITEM_SUITABLE           = 11105,
+    LANG_ERR_NO_ITEM_EXISTS             = 11106,
+    LANG_ERR_EQUIP_SLOT_EMPTY           = 11107,
+
+    LANG_SLOT_NAME_HEAD                 = 11108,
+    LANG_SLOT_NAME_SHOULDERS            = 11109,
+    LANG_SLOT_NAME_BODY                 = 11110,
+    LANG_SLOT_NAME_CHEST                = 11111,
+    LANG_SLOT_NAME_WAIST                = 11112,
+    LANG_SLOT_NAME_LEGS                 = 11113,
+    LANG_SLOT_NAME_FEET                 = 11114,
+    LANG_SLOT_NAME_WRISTS               = 11115,
+    LANG_SLOT_NAME_HANDS                = 11116,
+    LANG_SLOT_NAME_BACK                 = 11117,
+    LANG_SLOT_NAME_MAINHAND             = 11118,
+    LANG_SLOT_NAME_OFFHAND              = 11119,
+    LANG_SLOT_NAME_RANGED               = 11120,
+    LANG_SLOT_NAME_TABARD               = 11121,
+
+    LANG_OPTION_BACK                    = 11122,
+    LANG_OPTION_REMOVE_ALL              = 11123,
+    LANG_POPUP_REMOVE_ALL               = 11124,
+    LANG_OPTION_UPDATE_MENU             = 11125,
+    LANG_OPTION_REMOVE_ONE              = 11126,
+    LANG_POPUP_REMOVE_ONE               = 11127,
+    LANG_POPUP_TRANSMOGRIFY             = 11128,
+
+    LANG_ERR_NO_TOKEN                   = 11129
 
     // NOT RESERVED IDS                   12000-1999999999
     // `db_script_string` table index     2000000000-2000009999 (MIN_DB_SCRIPT_STRING_ID-MAX_DB_SCRIPT_STRING_ID)

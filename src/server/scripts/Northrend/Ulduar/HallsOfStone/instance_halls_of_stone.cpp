@@ -55,7 +55,7 @@ public:
         uint64 uiSjonnirDoor;
         uint64 uiBrannDoor;
         uint64 uiTribunalConsole;
-        uint64 uiTribunalChest;
+        //uint64 uiTribunalChest;
         uint64 uiTribunalSkyFloor;
         uint64 uiKaddrakGo;
         uint64 uiAbedneumGo;
@@ -83,7 +83,7 @@ public:
             uiMarnakGo = 0;
             uiAbedneumGo = 0;
             uiTribunalConsole = 0;
-            uiTribunalChest = 0;
+            //uiTribunalChest = 0;
             uiTribunalSkyFloor = 0;
 
             for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
@@ -141,12 +141,12 @@ public:
                 case GO_TRIBUNAL_CONSOLE:
                     uiTribunalConsole = go->GetGUID();
                     break;
-                case GO_TRIBUNAL_CHEST:
+                /*case GO_TRIBUNAL_CHEST:
                 case GO_TRIBUNAL_CHEST_HERO:
                     uiTribunalChest = go->GetGUID();
                     if (m_auiEncounter[2] == DONE)
                         go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_INTERACT_COND);
-                    break;
+                    break;*/
                 case 191527:
                     uiTribunalSkyFloor = go->GetGUID();
                     break;
@@ -175,9 +175,9 @@ public:
                     if (m_auiEncounter[2] == DONE)
                     {
                         HandleGameObject(uiSjonnirDoor, true);
-                        GameObject* go = instance->GetGameObject(uiTribunalChest);
+                        /*GameObject* go = instance->GetGameObject(uiTribunalChest);
                         if (go)
-                            go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_INTERACT_COND);
+                            go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_INTERACT_COND);*/
                     }
                     break;
             }

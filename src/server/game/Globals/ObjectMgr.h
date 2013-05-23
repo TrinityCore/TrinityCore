@@ -873,6 +873,11 @@ class ObjectMgr
             return &_creatureQuestRelations;
         }
 
+        QuestRelations* GetCreatureQuestInvolvedRelation()
+        {
+            return &_creatureQuestInvolvedRelations;
+        } 
+
         QuestRelationBounds GetCreatureQuestRelationBounds(uint32 creature_entry)
         {
             return _creatureQuestRelations.equal_range(creature_entry);
@@ -911,6 +916,7 @@ class ObjectMgr
         void LoadItemLocales();
         void LoadItemSetNames();
         void LoadItemSetNameLocales();
+        void LoadTransmogrifications();
         void LoadQuestLocales();
         void LoadNpcTextLocales();
         void LoadPageTextLocales();
@@ -1218,6 +1224,8 @@ class ObjectMgr
         void LoadFactionChangeReputations();
         void LoadFactionChangeSpells();
         void LoadFactionChangeTitles();
+
+        ItemFakeEntryContainer _itemFakeEntryStore; // custom
 
     private:
         // first free id for selected id type

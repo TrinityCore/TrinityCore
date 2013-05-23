@@ -354,9 +354,9 @@ void BattlegroundQueue::RemovePlayer(uint64 guid, bool decreaseInvitedCount)
     m_QueuedPlayers.erase(itr);
 
     // announce to world if arena team left queue for rated match, show only once
-    if (group->ArenaType && group->IsRated && group->Players.empty() && sWorld->getBoolConfig(CONFIG_ARENA_QUEUE_ANNOUNCER_ENABLE))
+    /*if (group->ArenaType && group->IsRated && group->Players.empty() && sWorld->getBoolConfig(CONFIG_ARENA_QUEUE_ANNOUNCER_ENABLE))
         if (ArenaTeam* Team = sArenaTeamMgr->GetArenaTeamById(group->ArenaTeamId))
-            sWorld->SendWorldText(LANG_ARENA_QUEUE_ANNOUNCE_WORLD_EXIT, Team->GetName().c_str(), group->ArenaType, group->ArenaType, group->ArenaTeamRating);
+            sWorld->SendWorldText(LANG_ARENA_QUEUE_ANNOUNCE_WORLD_EXIT, Team->GetName().c_str(), group->ArenaType, group->ArenaType, group->ArenaTeamRating);*/
 
     // if player leaves queue and he is invited to rated arena match, then he have to lose
     if (group->IsInvitedToBGInstanceGUID && group->IsRated && decreaseInvitedCount)
@@ -861,6 +861,7 @@ void BattlegroundQueue::BattlegroundQueueUpdate(uint32 /*diff*/, BattlegroundTyp
         // found out the minimum and maximum ratings the newly added team should battle against
         // arenaRating is the rating of the latest joined team, or 0
         // 0 is on (automatic update call) and we must set it to team's with longest wait time
+        uint32 mmrMaxDiff = 0;
         if (!arenaRating)
         {
             GroupQueueInfo* front1 = NULL;
@@ -869,16 +870,30 @@ void BattlegroundQueue::BattlegroundQueueUpdate(uint32 /*diff*/, BattlegroundTyp
             {
                 front1 = m_QueuedGroups[bracket_id][BG_QUEUE_PREMADE_ALLIANCE].front();
                 arenaRating = front1->ArenaMatchmakerRating;
+                // progressive mmr
+                float timer1 = (getMSTime() - front1->JoinTime) / sWorld->getIntConfig(CONFIG_ARENA_PROGRESSIVE_MMR_TIMER);
+                float mmrSteps = floor(timer1);
+                mmrMaxDiff = mmrSteps * sWorld->getIntConfig(CONFIG_ARENA_PROGRESSIVE_MMR_STEPSIZE);
             }
             if (!m_QueuedGroups[bracket_id][BG_QUEUE_PREMADE_HORDE].empty())
             {
                 front2 = m_QueuedGroups[bracket_id][BG_QUEUE_PREMADE_HORDE].front();
                 arenaRating = front2->ArenaMatchmakerRating;
+                // progressive mmr
+                float timer2 = (getMSTime() - front2->JoinTime) / sWorld->getIntConfig(CONFIG_ARENA_PROGRESSIVE_MMR_TIMER);
+                float mmrSteps = floor(timer2);
+                mmrMaxDiff = mmrSteps * sWorld->getIntConfig(CONFIG_ARENA_PROGRESSIVE_MMR_STEPSIZE);
             }
             if (front1 && front2)
             {
                 if (front1->JoinTime < front2->JoinTime)
+                {
                     arenaRating = front1->ArenaMatchmakerRating;
+                    // progressive mmr
+                    float timer3 = (getMSTime() - front1->JoinTime) / sWorld->getIntConfig(CONFIG_ARENA_PROGRESSIVE_MMR_TIMER);
+                    float mmrSteps = floor(timer3);
+                    mmrMaxDiff = mmrSteps * sWorld->getIntConfig(CONFIG_ARENA_PROGRESSIVE_MMR_STEPSIZE);
+                }
             }
             else if (!front1 && !front2)
                 return; //queues are empty
@@ -892,6 +907,13 @@ void BattlegroundQueue::BattlegroundQueueUpdate(uint32 /*diff*/, BattlegroundTyp
         // the discard time is current_time - time_to_discard, teams that joined after that, will have their ratings taken into account
         // else leave the discard time on 0, this way all ratings will be discarded
         uint32 discardTime = getMSTime() - sBattlegroundMgr->GetRatingDiscardTimer();
+
+        // progressive mmr
+        if (mmrMaxDiff > 0)
+        {
+            arenaMinRating = (mmrMaxDiff >= arenaMinRating) ? 0 : arenaMinRating - mmrMaxDiff;
+            arenaMaxRating = mmrMaxDiff + arenaMaxRating;
+        }
 
         // we need to find 2 teams which will play next game
         GroupsQueueType::iterator itr_teams[BG_TEAMS_COUNT];

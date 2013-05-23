@@ -228,6 +228,8 @@ class npc_little_ooze : public CreatureScript
 
             void IsSummonedBy(Unit* summoner)
             {
+                me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
+                me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK_DEST, true);
                 DoCast(me, SPELL_LITTLE_OOZE_COMBINE, true);
                 DoCast(me, SPELL_WEAK_RADIATING_OOZE, true);
                 events.ScheduleEvent(EVENT_STICKY_OOZE, 5000);
@@ -278,6 +280,8 @@ class npc_big_ooze : public CreatureScript
 
             void IsSummonedBy(Unit* /*summoner*/)
             {
+                me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
+                me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK_DEST, true);
                 DoCast(me, SPELL_LARGE_OOZE_COMBINE, true);
                 DoCast(me, SPELL_LARGE_OOZE_BUFF_COMBINE, true);
                 DoCast(me, SPELL_RADIATING_OOZE, true);
@@ -350,6 +354,8 @@ class npc_precious_icc : public CreatureScript
 
             void Reset()
             {
+                me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
+                me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK_DEST, true);
                 _events.Reset();
                 _events.ScheduleEvent(EVENT_DECIMATE, urand(20000, 25000));
                 _events.ScheduleEvent(EVENT_MORTAL_WOUND, urand(3000, 7000));

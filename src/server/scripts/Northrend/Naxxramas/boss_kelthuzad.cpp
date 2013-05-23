@@ -16,13 +16,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: Boss_KelThuzad
-SD%Complete: 80%
-SDComment: VERIFY SCRIPT
-SDCategory: Naxxramas
-EndScriptData */
-
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "SpellScript.h"
@@ -30,26 +23,23 @@ EndScriptData */
 #include "naxxramas.h"
 #include "Player.h"
 
+#define MAX_WEAVERS                             7
+#define MAX_WASTES                              49
+#define MAX_ABOMINATIONS                        21
+
 enum Yells
 {
-    //when shappiron dies. dialog between kel and lich king (in this order)
-    SAY_SAPP_DIALOG1                                       = 0, //not used
-    SAY_SAPP_DIALOG2_LICH                                  = 1, //not used
-    SAY_SAPP_DIALOG3                                       = 2, //not used
-    SAY_SAPP_DIALOG4_LICH                                  = 3, //not used
-    SAY_SAPP_DIALOG5                                       = 4, //not used
-    SAY_CAT_DIED                                           = 5, //when cat dies, not used
-    //when each of the 4 wing bosses dies
-    SAY_TAUNT                                              = 6,
-    SAY_AGGRO                                              = 7,
-    SAY_SLAY                                               = 8,
-    SAY_DEATH                                              = 9,
-    SAY_CHAIN                                              = 10,
-    SAY_FROST_BLAST                                        = 11,
-    SAY_REQUEST_AID                                        = 12, //start of phase 3
-    SAY_ANSWER_REQUEST                                     = 13, //lich king answer
-    SAY_SUMMON_MINIONS                                     = 14, //start of phase 1
-    SAY_SPECIAL                                            = 15
+    SAY_AGGRO                                              = 8,
+    SAY_SLAY                                               = 9,
+    SAY_DEATH                                              = 10,
+    SAY_CHAIN                                              = 11,
+    SAY_FROST_BLAST                                        = 12,
+    SAY_REQUEST_AID                                        = 13,
+    SAY_SUMMON_MINIONS                                     = 14,
+    SAY_SPECIAL                                            = 15,
+    EMOTE_ATTACK                                           = 16,
+    EMOTE_GUARDIAN                                         = 17,
+    SAY_ANSWER                                             = 2,
 };
 
 enum Events
@@ -71,20 +61,20 @@ enum Events
 
     EVENT_PHASE,
     EVENT_MORTAL_WOUND,
+    EVENT_ANSWER,
+    EVENT_REQUEST,
 };
 
 enum Spells
 {
     SPELL_FROST_BOLT                                       = 28478,
-    H_SPELL_FROST_BOLT                                     = 55802,
     SPELL_FROST_BOLT_AOE                                   = 28479,
-    H_SPELL_FROST_BOLT_AOE                                 = 55807,
     SPELL_SHADOW_FISURE                                    = 27810,
     SPELL_VOID_BLAST                                       = 27812,
     SPELL_MANA_DETONATION                                  = 27819,
     SPELL_MANA_DETONATION_DAMAGE                           = 27820,
     SPELL_FROST_BLAST                                      = 27808,
-    SPELL_CHAINS_OF_KELTHUZAD                              = 28410, //28408 script effect
+    SPELL_CHAINS_OF_KELTHUZAD                              = 28410,
     SPELL_KELTHUZAD_CHANNEL                                = 29423,
     SPELL_BERSERK                                          = 28498,
 
@@ -119,7 +109,6 @@ enum Spells
     //death knight
     SPELL_PLAGUE_STRIKE                                    = 49921,
     SPELL_HOWLING_BLAST                                    = 51411,
-
     // Abomination spells
     SPELL_FRENZY                                           = 28468,
     SPELL_MORTAL_WOUND                                     = 28467,
@@ -127,10 +116,10 @@ enum Spells
 
 enum Creatures
 {
-    NPC_WASTE                                              = 16427, // Soldiers of the Frozen Wastes
-    NPC_ABOMINATION                                        = 16428, // Unstoppable Abominations
-    NPC_WEAVER                                             = 16429, // Soul Weavers
-    NPC_ICECROWN                                           = 16441 // Guardians of Icecrown
+    NPC_WASTE                                              = 16427,
+    NPC_ABOMINATION                                        = 16428,
+    NPC_WEAVER                                             = 16429,
+    NPC_ICECROWN                                           = 16441,
 };
 
 const Position Pos[12] =
@@ -149,9 +138,6 @@ const Position Pos[12] =
     {3782.76f, -5062.97f, 143.79f, 3.82f},                     //WINDOW_PORTAL03
 };
 
-//creatures in corners
-//Unstoppable Abominations
-#define MAX_ABOMINATIONS                        21
 const Position PosAbominations[MAX_ABOMINATIONS] =
 {
     {3755.52f, -5155.22f, 143.480f, 2.0f},
@@ -177,8 +163,6 @@ const Position PosAbominations[MAX_ABOMINATIONS] =
     {3709.62f, -5169.15f, 143.576f, 5.97695f},
 };
 
-//Soldiers of the Frozen Wastes
-#define MAX_WASTES                              49
 const Position PosWastes[MAX_WASTES] =
 {
     {3754.41f, -5147.24f, 143.204f, 2.0f},
@@ -232,8 +216,6 @@ const Position PosWastes[MAX_WASTES] =
     {3695.66f, -5164.63f, 143.674f, 1.54416f},
 };
 
-//Soul Weavers
-#define MAX_WEAVERS                             7
 const Position PosWeavers[MAX_WEAVERS] =
 {
     {3752.45f, -5168.35f, 143.562f, 1.6094f},
@@ -245,7 +227,8 @@ const Position PosWeavers[MAX_WEAVERS] =
     {3704.71f, -5175.96f, 143.597f, 3.36549f},
 };
 
-// predicate function to select not charmed target
+Position const KelthuzadPos  = {3749.6799f, -5114.0600f, 142.1150f, 2.932150f};
+
 struct NotCharmedTargetSelector : public std::unary_function<Unit*, bool>
 {
     NotCharmedTargetSelector() {}
@@ -258,462 +241,441 @@ struct NotCharmedTargetSelector : public std::unary_function<Unit*, bool>
 
 class boss_kelthuzad : public CreatureScript
 {
-public:
-    boss_kelthuzad() : CreatureScript("boss_kelthuzad") { }
+    public:
+        boss_kelthuzad() : CreatureScript("boss_kelthuzad") { }
 
-    struct boss_kelthuzadAI : public BossAI
-    {
-        boss_kelthuzadAI(Creature* creature) : BossAI(creature, BOSS_KELTHUZAD), spawns(creature)
+        struct boss_kelthuzadAI : public BossAI
         {
-            uiFaction = me->getFaction();
-        }
-
-        uint32 Phase;
-        uint32 uiGuardiansOfIcecrownTimer;
-        uint32 uiFaction;
-
-        uint8  nGuardiansOfIcecrownCount;
-        uint8  nAbomination;
-        uint8  nWeaver;
-
-        std::map<uint64, float> chained;
-
-        uint64 PortalsGUID[4];
-        uint64 KTTriggerGUID;
-
-        SummonList spawns; // adds spawn by the trigger. kept in separated list (i.e. not in summons)
-
-        void Reset()
-        {
-            _Reset();
-
-            PortalsGUID[0] = PortalsGUID[1] = PortalsGUID[2] = PortalsGUID[3] = 0;
-            KTTriggerGUID = 0;
-
-            me->setFaction(35);
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_NOT_SELECTABLE);
-            std::map<uint64, float>::const_iterator itr;
-            for (itr = chained.begin(); itr != chained.end(); ++itr)
+            boss_kelthuzadAI(Creature* creature) : BossAI(creature, DATA_KELTHUZAD), spawns(creature)
             {
-                if (Player* charmed = Unit::GetPlayer(*me, (*itr).first))
-                    charmed->SetObjectScale((*itr).second);
+                uiFaction = me->getFaction();
             }
 
-            chained.clear();
-            spawns.DespawnAll();
-
-            FindGameObjects();
-
-            if (instance)
-                instance->SetData(DATA_ABOMINATION_KILLED, 0);
-
-            if (GameObject* pKTTrigger = me->GetMap()->GetGameObject(KTTriggerGUID))
+            void Reset()
             {
-                pKTTrigger->ResetDoorOrButton();
-                pKTTrigger->SetPhaseMask(1, true);
-            }
-
-            for (uint8 i = 0; i <= 3; ++i)
-            {
-                if (GameObject* pPortal = me->GetMap()->GetGameObject(PortalsGUID[i]))
+                _Reset();
+                PortalsGUID[0] = PortalsGUID[1] = PortalsGUID[2] = PortalsGUID[3] = 0;
+                KTTriggerGUID = 0;
+                me->setFaction(35);
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_NOT_SELECTABLE);
+                std::map<uint64, float>::const_iterator itr;
+                for (itr = chained.begin(); itr != chained.end(); ++itr)
                 {
-                    if (!((pPortal->getLootState() == GO_READY) || (pPortal->getLootState() == GO_NOT_READY)))
+                    if (Player* charmed = Unit::GetPlayer(*me, (*itr).first))
+                        charmed->SetObjectScale((*itr).second);
+                }
+                chained.clear();
+                spawns.DespawnAll();
+                FindGameObjects();
+                if (instance)
+                    instance->SetData(DATA_ABOMINATION_KILLED, 0);
+                if (GameObject* pKTTrigger = me->GetMap()->GetGameObject(KTTriggerGUID))
+                {
+                    pKTTrigger->ResetDoorOrButton();
+                    pKTTrigger->SetPhaseMask(1, true);
+                }
+
+                for (uint8 i = 0; i <= 3; ++i)
+                {
+                    if (GameObject* pPortal = me->GetMap()->GetGameObject(PortalsGUID[i]))
+                    {
+                        if (!((pPortal->getLootState() == GO_READY) || (pPortal->getLootState() == GO_NOT_READY)))
+                            pPortal->ResetDoorOrButton();
+                    }
+                }
+                nGuardiansOfIcecrownCount = 0;
+                uiGuardiansOfIcecrownTimer = 5000;
+                Phase = 0;
+                nAbomination = 0;
+                nWeaver = 0;
+            }
+
+            void KilledUnit(Unit* /*victim*/)
+            {
+                TalkToMap(SAY_SLAY);
+            }
+
+            void JustDied(Unit* /*killer*/)
+            {
+                _JustDied();
+                TalkToMap(SAY_DEATH);
+                std::map<uint64, float>::const_iterator itr;
+                for (itr = chained.begin(); itr != chained.end(); ++itr)
+                {
+                    if (Player* player = Unit::GetPlayer(*me, (*itr).first))
+                        player->SetObjectScale((*itr).second);
+                }
+                chained.clear();
+            }
+
+            void EnterCombat(Unit* /*who*/)
+            {
+                me->setFaction(uiFaction);
+                _EnterCombat();
+                FindGameObjects();
+                for (uint8 i = 0; i <= 3; ++i)
+                {
+                    if (GameObject* pPortal = me->GetMap()->GetGameObject(PortalsGUID[i]))
                         pPortal->ResetDoorOrButton();
                 }
+                DoCast(me, SPELL_KELTHUZAD_CHANNEL, false);
+                TalkToMap(SAY_SUMMON_MINIONS);
+                Phase = 1;
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_NOT_SELECTABLE);
+                me->SetFloatValue(UNIT_FIELD_COMBATREACH, 4);
+                me->SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, 4);
+                events.ScheduleEvent(EVENT_TRIGGER, 5000);
+                events.ScheduleEvent(EVENT_WASTE, 15000);
+                events.ScheduleEvent(EVENT_ABOMIN, 30000);
+                events.ScheduleEvent(EVENT_WEAVER, 50000);
+                events.ScheduleEvent(EVENT_PHASE, 228000);
             }
 
-            nGuardiansOfIcecrownCount = 0;
-            uiGuardiansOfIcecrownTimer = 5000;                   //5 seconds for summoning each Guardian of Icecrown in phase 3
-
-            Phase = 0;
-            nAbomination = 0;
-            nWeaver = 0;
-        }
-
-        void KilledUnit(Unit* /*victim*/)
-        {
-            Talk(SAY_SLAY);
-        }
-
-        void JustDied(Unit* /*killer*/)
-        {
-            _JustDied();
-            Talk(SAY_DEATH);
-
-            std::map<uint64, float>::const_iterator itr;
-            for (itr = chained.begin(); itr != chained.end(); ++itr)
+            void FindGameObjects()
             {
-                if (Player* player = Unit::GetPlayer(*me, (*itr).first))
-                    player->SetObjectScale((*itr).second);
+                PortalsGUID[0] = instance ? instance->GetData64(DATA_KELTHUZAD_PORTAL01) : 0;
+                PortalsGUID[1] = instance ? instance->GetData64(DATA_KELTHUZAD_PORTAL02) : 0;
+                PortalsGUID[2] = instance ? instance->GetData64(DATA_KELTHUZAD_PORTAL03) : 0;
+                PortalsGUID[3] = instance ? instance->GetData64(DATA_KELTHUZAD_PORTAL04) : 0;
+                KTTriggerGUID = instance ? instance->GetData64(DATA_KELTHUZAD_TRIGGER) : 0;
             }
-            chained.clear();
-        }
 
-        void EnterCombat(Unit* /*who*/)
-        {
-            me->setFaction(uiFaction);
-
-            _EnterCombat();
-            FindGameObjects();
-            for (uint8 i = 0; i <= 3; ++i)
+            void UpdateAI(uint32 diff)
             {
-                if (GameObject* pPortal = me->GetMap()->GetGameObject(PortalsGUID[i]))
-                    pPortal->ResetDoorOrButton();
-            }
-            DoCast(me, SPELL_KELTHUZAD_CHANNEL, false);
-            Talk(SAY_SUMMON_MINIONS);
-            Phase = 1;
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_NOT_SELECTABLE);
-            me->SetFloatValue(UNIT_FIELD_COMBATREACH, 4);
-            me->SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, 4);
-            events.ScheduleEvent(EVENT_TRIGGER, 5000);
-            events.ScheduleEvent(EVENT_WASTE, 15000);
-            events.ScheduleEvent(EVENT_ABOMIN, 30000);
-            events.ScheduleEvent(EVENT_WEAVER, 50000);
-            events.ScheduleEvent(EVENT_PHASE, 228000);
-        }
-
-        void FindGameObjects()
-        {
-            PortalsGUID[0] = instance ? instance->GetData64(DATA_KELTHUZAD_PORTAL01) : 0;
-            PortalsGUID[1] = instance ? instance->GetData64(DATA_KELTHUZAD_PORTAL02) : 0;
-            PortalsGUID[2] = instance ? instance->GetData64(DATA_KELTHUZAD_PORTAL03) : 0;
-            PortalsGUID[3] = instance ? instance->GetData64(DATA_KELTHUZAD_PORTAL04) : 0;
-            KTTriggerGUID = instance ? instance->GetData64(DATA_KELTHUZAD_TRIGGER) : 0;
-        }
-
-        void UpdateAI(uint32 diff)
-        {
-            if (!UpdateVictim())
-                return;
-
-            events.Update(diff);
-
-            if (Phase == 1)
-            {
-                while (uint32 eventId = events.GetEvent())
-                {
-                    switch (eventId)
-                    {
-                        case EVENT_WASTE:
-                            DoSummon(NPC_WASTE, Pos[RAND(0, 3, 6, 9)]);
-                            events.RepeatEvent(urand(2000, 5000));
-                            break;
-                        case EVENT_ABOMIN:
-                            if (nAbomination < 8)
-                            {
-                                DoSummon(NPC_ABOMINATION, Pos[RAND(1, 4, 7, 10)]);
-                                nAbomination++;
-                                events.RepeatEvent(20000);
-                            }
-                            else
-                                events.PopEvent();
-                            break;
-                        case EVENT_WEAVER:
-                            if (nWeaver < 8)
-                            {
-                                DoSummon(NPC_WEAVER, Pos[RAND(0, 3, 6, 9)]);
-                                nWeaver++;
-                                events.RepeatEvent(25000);
-                            }
-                            else
-                                events.PopEvent();
-                            break;
-                        case EVENT_TRIGGER:
-                            if (GameObject* pKTTrigger = me->GetMap()->GetGameObject(KTTriggerGUID))
-                                pKTTrigger->SetPhaseMask(2, true);
-                            events.PopEvent();
-                            break;
-                        case EVENT_PHASE:
-                            events.Reset();
-                            Talk(SAY_AGGRO);
-                            spawns.DespawnAll();
-                            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_NOT_SELECTABLE);
-                            me->CastStop();
-
-                            DoStartMovement(me->getVictim());
-                            events.ScheduleEvent(EVENT_BOLT, urand(5000, 10000));
-                            events.ScheduleEvent(EVENT_NOVA, 15000);
-                            events.ScheduleEvent(EVENT_DETONATE, urand(30000, 40000));
-                            events.ScheduleEvent(EVENT_FISSURE, urand(10000, 30000));
-                            events.ScheduleEvent(EVENT_BLAST, urand(60000, 120000));
-                            if (GetDifficulty() == RAID_DIFFICULTY_25MAN_NORMAL)
-                                events.ScheduleEvent(EVENT_CHAIN, urand(30000, 60000));
-                            Phase = 2;
-                            break;
-                        default:
-                            events.PopEvent();
-                            break;
-                    }
-                }
-            }
-            else
-            {
-                //start phase 3 when we are 45% health
-                if (Phase != 3)
-                {
-                    if (HealthBelowPct(45))
-                    {
-                        Phase = 3;
-                        Talk(SAY_REQUEST_AID);
-                        //here Lich King should respond to KelThuzad but I don't know which Creature to make talk
-                        //so for now just make Kelthuzad says it.
-                        Talk(SAY_ANSWER_REQUEST);
-
-                        for (uint8 i = 0; i <= 3; ++i)
-                        {
-                            if (GameObject* pPortal = me->GetMap()->GetGameObject(PortalsGUID[i]))
-                            {
-                                if (pPortal->getLootState() == GO_READY)
-                                    pPortal->UseDoorOrButton();
-                            }
-                        }
-                    }
-                }
-                else if (nGuardiansOfIcecrownCount < RAID_MODE(2, 4))
-                {
-                    if (uiGuardiansOfIcecrownTimer <= diff)
-                    {
-                        /// @todo Add missing text
-                        if (Creature* pGuardian = DoSummon(NPC_ICECROWN, Pos[RAND(2, 5, 8, 11)]))
-                            pGuardian->SetFloatValue(UNIT_FIELD_COMBATREACH, 2);
-                        ++nGuardiansOfIcecrownCount;
-                        uiGuardiansOfIcecrownTimer = 5000;
-                    }
-                    else uiGuardiansOfIcecrownTimer -= diff;
-                }
-
-                if (me->HasUnitState(UNIT_STATE_CASTING))
+                if (!UpdateVictim())
                     return;
 
-                if (uint32 eventId = events.GetEvent())
+                events.Update(diff);
+
+                if (Phase == 1)
                 {
-                    switch (eventId)
+                    while (uint32 eventId = events.GetEvent())
                     {
-                        case EVENT_BOLT:
-                            DoCastVictim(RAID_MODE(SPELL_FROST_BOLT, H_SPELL_FROST_BOLT));
-                            events.RepeatEvent(urand(5000, 10000));
-                            break;
-                        case EVENT_NOVA:
-                            DoCastAOE(RAID_MODE(SPELL_FROST_BOLT_AOE, H_SPELL_FROST_BOLT_AOE));
-                            events.RepeatEvent(urand(15000, 30000));
-                            break;
-                        case EVENT_CHAIN:
+                        switch (eventId)
                         {
-                            uint32 count = urand(1, 3);
-                            for (uint8 i = 1; i <= count; i++)
-                            {
-                                Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 200, true);
-                                if (target && !target->isCharmed() && (chained.find(target->GetGUID()) == chained.end()))
+                            case EVENT_WASTE:
+                                DoSummon(NPC_WASTE, Pos[RAND(0, 3, 6, 9)]);
+                                events.RepeatEvent(urand(2000, 5000));
+                                break;
+                            case EVENT_ABOMIN:
+                                if (nAbomination < 8)
                                 {
-                                    DoCast(target, SPELL_CHAINS_OF_KELTHUZAD);
-                                    float scale = target->GetFloatValue(OBJECT_FIELD_SCALE_X);
-                                    chained.insert(std::make_pair(target->GetGUID(), scale));
-                                    target->SetObjectScale(scale * 2);
-                                    events.ScheduleEvent(EVENT_CHAINED_SPELL, 2000); //core has 2000ms to set unit flag charm
+                                    DoSummon(NPC_ABOMINATION, Pos[RAND(1, 4, 7, 10)]);
+                                    nAbomination++;
+                                    events.RepeatEvent(20000);
                                 }
-                            }
-                            if (!chained.empty())
-                                Talk(SAY_CHAIN);
-                            events.RepeatEvent(urand(100000, 180000));
-                            break;
-                        }
-                        case EVENT_CHAINED_SPELL:
-                        {
-                            std::map<uint64, float>::iterator itr;
-                            for (itr = chained.begin(); itr != chained.end();)
-                            {
-                                if (Unit* player = Unit::GetPlayer(*me, (*itr).first))
+                                else
+                                    events.PopEvent();
+                                break;
+                            case EVENT_WEAVER:
+                                if (nWeaver < 8)
                                 {
-                                    if (!player->isCharmed())
-                                    {
-                                        player->SetObjectScale((*itr).second);
-                                        std::map<uint64, float>::iterator next = itr;
-                                        ++next;
-                                        chained.erase(itr);
-                                        itr = next;
-                                        continue;
-                                    }
-
-                                    if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO, 0, NotCharmedTargetSelector()))
-                                    {
-                                        switch (player->getClass())
-                                        {
-                                            case CLASS_DRUID:
-                                                if (urand(0, 1))
-                                                    player->CastSpell(target, SPELL_MOONFIRE, false);
-                                                else
-                                                    player->CastSpell(me, SPELL_LIFEBLOOM, false);
-                                                break;
-                                            case CLASS_HUNTER:
-                                                player->CastSpell(target, RAND(SPELL_MULTI_SHOT, SPELL_VOLLEY), false);
-                                                break;
-                                            case CLASS_MAGE:
-                                                player->CastSpell(target, RAND(SPELL_FROST_FIREBOLT, SPELL_ARCANE_MISSILES), false);
-                                                break;
-                                            case CLASS_WARLOCK:
-                                                player->CastSpell(target, RAND(SPELL_CURSE_OF_AGONY, SPELL_SHADOW_BOLT), true);
-                                                break;
-                                            case CLASS_WARRIOR:
-                                                player->CastSpell(target, RAND(SPELL_BLADESTORM, SPELL_CLEAVE), false);
-                                                break;
-                                            case CLASS_PALADIN:
-                                                if (urand(0, 1))
-                                                    player->CastSpell(target, SPELL_HAMMER_OF_JUSTICE, false);
-                                                else
-                                                    player->CastSpell(me, SPELL_HOLY_SHOCK, false);
-                                                break;
-                                            case CLASS_PRIEST:
-                                                if (urand(0, 1))
-                                                    player->CastSpell(target, SPELL_VAMPIRIC_TOUCH, false);
-                                                else
-                                                    player->CastSpell(me, SPELL_RENEW, false);
-                                                break;
-                                            case CLASS_SHAMAN:
-                                                if (urand(0, 1))
-                                                    player->CastSpell(target, SPELL_EARTH_SHOCK, false);
-                                                else
-                                                    player->CastSpell(me, SPELL_HEALING_WAVE, false);
-                                                break;
-                                            case CLASS_ROGUE:
-                                                player->CastSpell(target, RAND(SPELL_HEMORRHAGE, SPELL_MUTILATE), false);
-                                                break;
-                                            case CLASS_DEATH_KNIGHT:
-                                                if (urand(0, 1))
-                                                    player->CastSpell(target, SPELL_PLAGUE_STRIKE, true);
-                                                else
-                                                    player->CastSpell(target, SPELL_HOWLING_BLAST, true);
-                                                break;
-                                        }
-                                    }
+                                    DoSummon(NPC_WEAVER, Pos[RAND(0, 3, 6, 9)]);
+                                    nWeaver++;
+                                    events.RepeatEvent(25000);
                                 }
-                                ++itr;
-                            }
-
-                            if (chained.empty())
+                                else
+                                    events.PopEvent();
+                                break;
+                            case EVENT_TRIGGER:
+                                if (GameObject* pKTTrigger = me->GetMap()->GetGameObject(KTTriggerGUID))
+                                    pKTTrigger->SetPhaseMask(2, true);
                                 events.PopEvent();
-                            else
-                                events.RepeatEvent(5000);
-
-                            break;
+                                break;
+                            case EVENT_PHASE:
+                                events.Reset();
+                                TalkToMap(SAY_AGGRO);
+                                TalkToMap(EMOTE_ATTACK);
+                                spawns.DespawnAll();
+                                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_NOT_SELECTABLE);
+                                me->CastStop();
+                                DoStartMovement(me->getVictim());
+                                events.ScheduleEvent(EVENT_BOLT, urand(5000, 10000));
+                                events.ScheduleEvent(EVENT_NOVA, 15000);
+                                events.ScheduleEvent(EVENT_DETONATE, urand(30000, 40000));
+                                events.ScheduleEvent(EVENT_FISSURE, urand(10000, 30000));
+                                events.ScheduleEvent(EVENT_BLAST, urand(60000, 120000));
+                                if (GetDifficulty() == RAID_DIFFICULTY_25MAN_NORMAL)
+                                    events.ScheduleEvent(EVENT_CHAIN, urand(30000, 60000));
+                                Phase = 2;
+                                break;
+                            default:
+                                events.PopEvent();
+                                break;
                         }
-                        case EVENT_DETONATE:
-                        {
-                            std::vector<Unit*> unitList;
-                            ThreatContainer::StorageType const &threatList = me->getThreatManager().getThreatList();
-                            for (ThreatContainer::StorageType::const_iterator itr = threatList.begin(); itr != threatList.end(); ++itr)
-                            {
-                                Unit* const target = (*itr)->getTarget();
-
-                                if (target->GetTypeId() == TYPEID_PLAYER
-                                        && target->getPowerType() == POWER_MANA
-                                        && target->GetPower(POWER_MANA))
-                                {
-                                    unitList.push_back(target);
-                                }
-                            }
-
-                            if (!unitList.empty())
-                            {
-                                std::vector<Unit*>::const_iterator itr = unitList.begin();
-                                advance(itr, rand()%unitList.size());
-                                DoCast(*itr, SPELL_MANA_DETONATION);
-                                Talk(SAY_SPECIAL);
-                            }
-
-                            events.RepeatEvent(urand(20000, 50000));
-                            break;
-                        }
-                        case EVENT_FISSURE:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                                DoCast(target, SPELL_SHADOW_FISURE);
-                            events.RepeatEvent(urand(10000, 45000));
-                            break;
-                        case EVENT_BLAST:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, RAID_MODE(1, 0), 0, true))
-                                DoCast(target, SPELL_FROST_BLAST);
-                            if (rand()%2)
-                                Talk(SAY_FROST_BLAST);
-                            events.RepeatEvent(urand(30000, 90000));
-                            break;
-                        default:
-                            events.PopEvent();
-                            break;
                     }
                 }
+                else
+                {
+                    if (Phase != 3)
+                    {
+                        if (HealthBelowPct(45))
+                        {
+                            Phase = 3;
+                            TalkToMap(SAY_REQUEST_AID);
+                            events.ScheduleEvent(EVENT_REQUEST, 3100);
+                            for (uint8 i = 0; i <= 3; ++i)
+                            {
+                                if (GameObject* pPortal = me->GetMap()->GetGameObject(PortalsGUID[i]))
+                                {
+                                    if (pPortal->getLootState() == GO_READY)
+                                        pPortal->UseDoorOrButton();
+                                }
+                            }
+                        }
+                    }
+                    else if (nGuardiansOfIcecrownCount < RAID_MODE(2, 4))
+                    {
+                        if (uiGuardiansOfIcecrownTimer <= diff)
+                        {
+                            TalkToMap(EMOTE_GUARDIAN);
+                            if (Creature* pGuardian = DoSummon(NPC_ICECROWN, Pos[RAND(2, 5, 8, 11)]))
+                                pGuardian->SetFloatValue(UNIT_FIELD_COMBATREACH, 2);
+                            ++nGuardiansOfIcecrownCount;
+                            uiGuardiansOfIcecrownTimer = 5000;
+                        }
+                        else
+                            uiGuardiansOfIcecrownTimer -= diff;
+                    }
 
-                DoMeleeAttackIfReady();
+                    if (me->HasUnitState(UNIT_STATE_CASTING))
+                        return;
+
+                    if (uint32 eventId = events.GetEvent())
+                    {
+                        switch (eventId)
+                        {
+                            case EVENT_REQUEST:
+                                if (Creature* kel = Unit::GetCreature(*me, instance ? instance->GetData64(DATA_KELTHUZAD) : 0))
+                                {
+                                    if (Creature* Lichking = kel->SummonCreature(28765, KelthuzadPos, TEMPSUMMON_TIMED_DESPAWN,10000))
+                                    {
+                                        Lichking->AI()->TalkToMap(SAY_ANSWER);
+                                        events.CancelEvent(EVENT_REQUEST);
+                                    }
+                                }
+                                break;
+                            case EVENT_BOLT:
+                                DoCastVictim(SPELL_FROST_BOLT);
+                                events.RepeatEvent(urand(5000, 10000));
+                                break;
+                            case EVENT_NOVA:
+                                DoCastAOE(SPELL_FROST_BOLT_AOE);
+                                events.RepeatEvent(urand(15000, 30000));
+                                break;
+                            case EVENT_CHAIN:
+                            {
+                                uint32 count = urand(1, 3);
+                                for (uint8 i = 1; i <= count; i++)
+                                {
+                                    Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 200, true);
+                                    if (target && !target->isCharmed() && (chained.find(target->GetGUID()) == chained.end()))
+                                    {
+                                        DoCast(target, SPELL_CHAINS_OF_KELTHUZAD);
+                                        float scale = target->GetFloatValue(OBJECT_FIELD_SCALE_X);
+                                        chained.insert(std::make_pair(target->GetGUID(), scale));
+                                        target->SetObjectScale(scale * 2);
+                                        events.ScheduleEvent(EVENT_CHAINED_SPELL, 2000); //core has 2000ms to set unit flag charm
+                                    }
+                                }
+                                if (!chained.empty())
+                                    TalkToMap(SAY_CHAIN);
+                                events.RepeatEvent(urand(100000, 180000));
+                                break;
+                            }
+                            case EVENT_CHAINED_SPELL:
+                            {
+                                std::map<uint64, float>::iterator itr;
+                                for (itr = chained.begin(); itr != chained.end();)
+                                {
+                                    if (Unit* player = Unit::GetPlayer(*me, (*itr).first))
+                                    {
+                                        if (!player->isCharmed())
+                                        {
+                                            player->SetObjectScale((*itr).second);
+                                            std::map<uint64, float>::iterator next = itr;
+                                            ++next;
+                                            chained.erase(itr);
+                                            itr = next;
+                                            continue;
+                                        }
+
+                                        if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO, 0, NotCharmedTargetSelector()))
+                                        {
+                                            switch (player->getClass())
+                                            {
+                                                case CLASS_DRUID:
+                                                    if (urand(0, 1))
+                                                        player->CastSpell(target, SPELL_MOONFIRE, false);
+                                                    else
+                                                        player->CastSpell(me, SPELL_LIFEBLOOM, false);
+                                                    break;
+                                                case CLASS_HUNTER:
+                                                    player->CastSpell(target, RAND(SPELL_MULTI_SHOT, SPELL_VOLLEY), false);
+                                                    break;
+                                                case CLASS_MAGE:
+                                                    player->CastSpell(target, RAND(SPELL_FROST_FIREBOLT, SPELL_ARCANE_MISSILES), false);
+                                                    break;
+                                                case CLASS_WARLOCK:
+                                                    player->CastSpell(target, RAND(SPELL_CURSE_OF_AGONY, SPELL_SHADOW_BOLT), true);
+                                                    break;
+                                                case CLASS_WARRIOR:
+                                                    player->CastSpell(target, RAND(SPELL_BLADESTORM, SPELL_CLEAVE), false);
+                                                    break;
+                                                case CLASS_PALADIN:
+                                                    if (urand(0, 1))
+                                                        player->CastSpell(target, SPELL_HAMMER_OF_JUSTICE, false);
+                                                    else
+                                                        player->CastSpell(me, SPELL_HOLY_SHOCK, false);
+                                                    break;
+                                                case CLASS_PRIEST:
+                                                    if (urand(0, 1))
+                                                        player->CastSpell(target, SPELL_VAMPIRIC_TOUCH, false);
+                                                    else
+                                                        player->CastSpell(me, SPELL_RENEW, false);
+                                                    break;
+                                                case CLASS_SHAMAN:
+                                                    if (urand(0, 1))
+                                                        player->CastSpell(target, SPELL_EARTH_SHOCK, false);
+                                                    else
+                                                        player->CastSpell(me, SPELL_HEALING_WAVE, false);
+                                                    break;
+                                                case CLASS_ROGUE:
+                                                    player->CastSpell(target, RAND(SPELL_HEMORRHAGE, SPELL_MUTILATE), false);
+                                                    break;
+                                                case CLASS_DEATH_KNIGHT:
+                                                    if (urand(0, 1))
+                                                        player->CastSpell(target, SPELL_PLAGUE_STRIKE, true);
+                                                    else
+                                                        player->CastSpell(target, SPELL_HOWLING_BLAST, true);
+                                                    break;
+                                            }
+                                        }
+                                    }
+                                    ++itr;
+                                }
+                                if (chained.empty())
+                                    events.PopEvent();
+                                else
+                                    events.RepeatEvent(5000);
+                                break;
+                            }
+                            case EVENT_DETONATE:
+                            {
+                                std::vector<Unit*> unitList;
+                                ThreatContainer::StorageType const &threatList = me->getThreatManager().getThreatList();
+                                for (ThreatContainer::StorageType::const_iterator itr = threatList.begin(); itr != threatList.end(); ++itr)
+                                {
+                                    Unit* const target = (*itr)->getTarget();
+                                    if (target->GetTypeId() == TYPEID_PLAYER && target->getPowerType() == POWER_MANA && target->GetPower(POWER_MANA))
+                                    {
+                                        unitList.push_back(target);
+                                    }
+                                }
+                                if (!unitList.empty())
+                                {
+                                    std::vector<Unit*>::const_iterator itr = unitList.begin();
+                                    advance(itr, rand()%unitList.size());
+                                    DoCast(*itr, SPELL_MANA_DETONATION);
+                                    TalkToMap(SAY_SPECIAL);
+                                }
+                                events.RepeatEvent(urand(20000, 50000));
+                                break;
+                            }
+                            case EVENT_FISSURE:
+                                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                                    DoCast(target, SPELL_SHADOW_FISURE);
+                                events.RepeatEvent(urand(10000, 45000));
+                                break;
+                            case EVENT_BLAST:
+                                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, RAID_MODE(1, 0), 0, true))
+                                    DoCast(target, SPELL_FROST_BLAST);
+                                if (rand()%2)
+                                    TalkToMap(SAY_FROST_BLAST);
+                                events.RepeatEvent(urand(30000, 90000));
+                                break;
+                            default:
+                                events.PopEvent();
+                                break;
+                        }
+                    }
+                    DoMeleeAttackIfReady();
+                }
             }
-        }
-    };
 
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new boss_kelthuzadAI (creature);
-    }
+        private:
+            uint32 Phase;
+            uint32 uiGuardiansOfIcecrownTimer;
+            uint32 uiFaction;
+            uint8  nGuardiansOfIcecrownCount;
+            uint8  nAbomination;
+            uint8  nWeaver;
+            std::map<uint64, float> chained;
+            uint64 PortalsGUID[4];
+            uint64 KTTriggerGUID;
+        public:
+            SummonList spawns;
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return GetNaxxramasAI<boss_kelthuzadAI>(creature);
+        }
 };
 
 class at_kelthuzad_center : public AreaTriggerScript
 {
-public:
-    at_kelthuzad_center() : AreaTriggerScript("at_kelthuzad_center") { }
+    public:
+        at_kelthuzad_center() : AreaTriggerScript("at_kelthuzad_center") { }
 
-    bool OnTrigger(Player* player, const AreaTriggerEntry* /*at*/)
-    {
-        if (player->isGameMaster())
-            return false;
-
-        InstanceScript* instance = player->GetInstanceScript();
-        if (!instance || instance->IsEncounterInProgress() || instance->GetBossState(BOSS_KELTHUZAD) == DONE)
-            return false;
-
-        Creature* pKelthuzad = Unit::GetCreature(*player, instance->GetData64(DATA_KELTHUZAD));
-        if (!pKelthuzad)
-            return false;
-
-        boss_kelthuzad::boss_kelthuzadAI* pKelthuzadAI = CAST_AI(boss_kelthuzad::boss_kelthuzadAI, pKelthuzad->AI());
-        if (!pKelthuzadAI)
-            return false;
-
-        pKelthuzadAI->AttackStart(player);
-        if (GameObject* trigger = instance->instance->GetGameObject(instance->GetData64(DATA_KELTHUZAD_TRIGGER)))
+        bool OnTrigger(Player* player, const AreaTriggerEntry* /*at*/)
         {
-            if (trigger->getLootState() == GO_READY)
-                trigger->UseDoorOrButton();
-
-            // Note: summon must be done by trigger and not by KT.
-            // Otherwise, they attack immediately as KT is in combat.
-            for (uint8 i = 0; i < MAX_ABOMINATIONS; ++i)
+            if (player->isGameMaster())
+                return false;
+            InstanceScript* instance = player->GetInstanceScript();
+            if (!instance || instance->IsEncounterInProgress() || instance->GetBossState(BOSS_KELTHUZAD) == DONE)
+                return false;
+            Creature* pKelthuzad = Unit::GetCreature(*player, instance->GetData64(DATA_KELTHUZAD));
+            if (!pKelthuzad)
+                return false;
+            boss_kelthuzad::boss_kelthuzadAI* pKelthuzadAI = CAST_AI(boss_kelthuzad::boss_kelthuzadAI, pKelthuzad->AI());
+            if (!pKelthuzadAI)
+                return false;
+            pKelthuzadAI->AttackStart(player);
+            if (GameObject* trigger = instance->instance->GetGameObject(instance->GetData64(DATA_KELTHUZAD_TRIGGER)))
             {
-                if (Creature* sum = trigger->SummonCreature(NPC_ABOMINATION, PosAbominations[i]))
+                if (trigger->getLootState() == GO_READY)
+                    trigger->UseDoorOrButton();
+                for (uint8 i = 0; i < MAX_ABOMINATIONS; ++i)
                 {
-                    pKelthuzadAI->spawns.Summon(sum);
-                    sum->GetMotionMaster()->MoveRandom(9.0f);
-                    sum->SetReactState(REACT_DEFENSIVE);
+                    if (Creature* sum = trigger->SummonCreature(NPC_ABOMINATION, PosAbominations[i]))
+                    {
+                        pKelthuzadAI->spawns.Summon(sum);
+                        sum->GetMotionMaster()->MoveRandom(9.0f);
+                        sum->SetReactState(REACT_DEFENSIVE);
+                    }
+                }
+                for (uint8 i = 0; i < MAX_WASTES; ++i)
+                {
+                    if (Creature* sum = trigger->SummonCreature(NPC_WASTE, PosWastes[i]))
+                    {
+                        pKelthuzadAI->spawns.Summon(sum);
+                        sum->GetMotionMaster()->MoveRandom(5.0f);
+                        sum->SetReactState(REACT_DEFENSIVE);
+                    }
+                }
+                for (uint8 i = 0; i < MAX_WEAVERS; ++i)
+                {
+                    if (Creature* sum = trigger->SummonCreature(NPC_WEAVER, PosWeavers[i]))
+                    {
+                        pKelthuzadAI->spawns.Summon(sum);
+                        sum->GetMotionMaster()->MoveRandom(9.0f);
+                        sum->SetReactState(REACT_DEFENSIVE);
+                    }
                 }
             }
-            for (uint8 i = 0; i < MAX_WASTES; ++i)
-            {
-                if (Creature* sum = trigger->SummonCreature(NPC_WASTE, PosWastes[i]))
-                {
-                    pKelthuzadAI->spawns.Summon(sum);
-                    sum->GetMotionMaster()->MoveRandom(5.0f);
-                    sum->SetReactState(REACT_DEFENSIVE);
-                }
-            }
-            for (uint8 i = 0; i < MAX_WEAVERS; ++i)
-            {
-                if (Creature* sum = trigger->SummonCreature(NPC_WEAVER, PosWeavers[i]))
-                {
-                    pKelthuzadAI->spawns.Summon(sum);
-                    sum->GetMotionMaster()->MoveRandom(9.0f);
-                    sum->SetReactState(REACT_DEFENSIVE);
-                }
-            }
+            return true;
         }
-
-        return true;
-    }
 };
 
 class npc_kelthuzad_abomination : public CreatureScript
@@ -769,7 +731,7 @@ class npc_kelthuzad_abomination : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new npc_kelthuzad_abominationAI(creature);
+            return GetNaxxramasAI<npc_kelthuzad_abominationAI>(creature);
         }
 };
 

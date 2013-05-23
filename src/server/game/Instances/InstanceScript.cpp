@@ -1,19 +1,21 @@
 /*
- * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2008-2013 Trinity <http://www.trinitycore.org/>
  *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
+ * Updated by: Toba and Baeumchen (maddin)
  */
 
 #include "Creature.h"
@@ -323,6 +325,23 @@ void InstanceScript::DoSendNotifyToInstance(char const* format, ...)
     }
 }
 
+// Complete Achievement for all players in instance
+void InstanceScript::DoCompleteAchievement(uint32 achievement)
+{
+    AchievementEntry const* pAE = sAchievementStore.LookupEntry(achievement);
+    Map::PlayerList const &PlayerList = instance->GetPlayers();
+
+    if (!pAE)
+    {
+        return;
+    }
+
+    if (!PlayerList.isEmpty())
+        for(Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
+            if (Player *player = i->getSource())
+                player->CompletedAchievement(pAE);
+}
+
 // Update Achievement Criteria for all players in instance
 void InstanceScript::DoUpdateAchievementCriteria(AchievementCriteriaTypes type, uint32 miscValue1 /*= 0*/, uint32 miscValue2 /*= 0*/, Unit* unit /*= NULL*/)
 {
@@ -461,5 +480,62 @@ void InstanceScript::UpdateEncounterState(EncounterCreditType type, uint32 credi
                         return;
                     }
         }
+    }
+}
+
+uint32 InstanceScript::GetMajorityTeam()
+{
+    uint32 hordePlayers = 0, alliancePlayers = 0;
+    if (instance)
+    {
+        const Map::PlayerList& players = instance->GetPlayers();
+        if (!players.isEmpty())
+        {
+            Player* arbitraryPlayer = players.getFirst()->getSource();  // Just get the first one - it doesn't matter, we may take anyone. 
+            if (!arbitraryPlayer)
+                return 0;   // Cannot make a decision if there's no player
+
+            Group* group = arbitraryPlayer->GetGroup();                 // Decisions are based on the players group, despite they are in the instance or not.
+            if (!group)
+                return arbitraryPlayer->GetTeam();   // Only one player -> get his team
+
+            for (GroupReference* it = group->GetFirstMember(); it != 0; it = it->next())
+            {
+                if (Player* member = it->getSource())
+                {
+                    if (!member->isGameMaster())
+                    {
+                        // If it's not an alliance member, it's a horde member... should be logical :)
+                        if (member->GetTeam() == ALLIANCE)
+                            alliancePlayers++;
+                        else
+                            hordePlayers++;
+                        if (!ServerAllowsTwoSideGroups())
+                            break;
+                    }
+                }
+            }
+        }
+    }
+
+    // Note: We have to return 0 if we cannot make a decision, i.e. when there's no player in the instance (yet).
+    if (hordePlayers == 0 && alliancePlayers == 0)
+    {
+        return 0;
+    }
+    else
+    {
+        /*
+            Decision rules:
+            #Horde > #Alliance: HORDE
+            #Horde == #Alliance: Random(HORDE, ALLIANCE)
+            else: ALLIANCE
+        */
+        if (hordePlayers > alliancePlayers) 
+            return HORDE;
+        else if (hordePlayers < alliancePlayers)
+            return ALLIANCE;
+        else
+            return (urand(0,1) ? ALLIANCE : HORDE);
     }
 }

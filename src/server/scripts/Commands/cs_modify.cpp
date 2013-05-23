@@ -99,11 +99,20 @@ public:
         }
 
         Player* target = handler->getSelectedPlayer();
-        if (!target)
+        Unit* target2 = handler->getSelectedUnit();
+
+        if (!target && !target2)
         {
             handler->SendSysMessage(LANG_NO_CHAR_SELECTED);
             handler->SetSentErrorMessage(true);
             return false;
+        }
+
+        if (target2)
+        {
+            target2->SetMaxHealth(hpm);
+            target2->SetHealth(hp);
+            return true;
         }
 
         if (handler->HasLowerSecurity(target, 0))

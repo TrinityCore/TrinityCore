@@ -27,6 +27,7 @@
 #include "MapManager.h"
 #include "Object.h"
 #include "ObjectMgr.h"
+#include "Pet.h"
 #include "Player.h"
 #include "ReputationMgr.h"
 #include "SpellAuraEffects.h"
@@ -204,6 +205,8 @@ Battleground::Battleground()
     StartMessageIds[BG_STARTING_EVENT_SECOND] = LANG_BG_WS_START_ONE_MINUTE;
     StartMessageIds[BG_STARTING_EVENT_THIRD]  = LANG_BG_WS_START_HALF_MINUTE;
     StartMessageIds[BG_STARTING_EVENT_FOURTH] = LANG_BG_WS_HAS_BEGUN;
+    // MultiKill System
+    firstkill = true;
 }
 
 Battleground::~Battleground()
@@ -506,6 +509,8 @@ inline void Battleground::_ProcessJoin(uint32 diff)
     {
         m_Events |= BG_STARTING_EVENT_4;
 
+        DespawnCrystals();
+
         StartingEventOpenDoors();
 
         SendWarningToAll(StartMessageIds[BG_STARTING_EVENT_FOURTH]);
@@ -792,6 +797,50 @@ void Battleground::EndBattleground(uint32 winner)
                 SetArenaMatchmakerRating(GetOtherTeam(winner), loserMatchmakerRating + loserMatchmakerChange);
                 SetArenaTeamRatingChangeForTeam(winner, winnerChange);
                 SetArenaTeamRatingChangeForTeam(GetOtherTeam(winner), loserChange);
+                /** World of Warcraft Armory **/
+                if (sWorld->getBoolConfig(CONFIG_ARMORY_ENABLE))
+                {
+                    uint32 maxChartID;
+                    QueryResult result = CharacterDatabase.PQuery("SELECT MAX(gameid) FROM armory_game_chart");
+                    if(!result)
+                        maxChartID = 0;
+                    else
+                    {
+                        maxChartID = (*result)[0].GetUInt32();
+                        //result.release();
+                    }
+                    uint32 gameID = maxChartID+1;
+                    for(BattlegroundScoreMap::const_iterator itr = PlayerScores.begin(); itr != PlayerScores.end(); ++itr)
+                    {
+                        Player* player = ObjectAccessor::FindPlayer(itr->first);
+                        if (!player)
+                            continue;
+                        uint32 plTeamID = player->GetArenaTeamId(winnerArenaTeam->GetSlot());
+                        int changeType;
+                        uint32 resultRating;
+                        uint32 resultTeamID;
+                        int32 ratingChange;
+                        if (plTeamID == winnerArenaTeam->GetId())
+                        {
+                            changeType = 1; //win
+                            resultRating = winnerTeamRating;
+                            resultTeamID = plTeamID;
+                            ratingChange = winnerChange;
+                        }
+                        else
+                        {
+                            changeType = 2; //lose
+                            resultRating = loserTeamRating;
+                            resultTeamID = loserArenaTeam->GetId();
+                            ratingChange = loserChange;
+                        }
+                        std::ostringstream sql_query;
+                        //                                                        gameid,              teamid,                     guid,                    changeType,             ratingChange,               teamRating,                  damageDone,                          deaths,                          healingDone,                           damageTaken,,                           healingTaken,                         killingBlows,                      mapId,                 start,                   end
+                        sql_query << "INSERT INTO armory_game_chart VALUES ('" << gameID << "', '" << resultTeamID << "', '" << player->GetGUID() << "', '" << changeType << "', '" << ratingChange  << "', '" << resultRating << "', '" << itr->second->DamageDone << "', '" << itr->second->Deaths << "', '" << itr->second->HealingDone << "', '" << itr->second->DamageTaken << "', '" << itr->second->HealingTaken << "', '" << itr->second->KillingBlows << "', '" << m_MapId << "', '" << m_StartTime << "', '" << m_EndTime << "')";
+                        CharacterDatabase.Execute(sql_query.str().c_str());
+                    }
+                }
+                /** World of Warcraft Armory **/
                 TC_LOG_DEBUG(LOG_FILTER_ARENAS, "Arena match Type: %u for Team1Id: %u - Team2Id: %u ended. WinnerTeamId: %u. Winner rating: +%d, Loser rating: %d", m_ArenaType, m_ArenaTeamIds[TEAM_ALLIANCE], m_ArenaTeamIds[TEAM_HORDE], winnerArenaTeam->GetId(), winnerChange, loserChange);
                 if (sWorld->getBoolConfig(CONFIG_ARENA_LOG_EXTENDED_INFO))
                     for (Battleground::BattlegroundScoreMap::const_iterator itr = GetPlayerScoresBegin(); itr != GetPlayerScoresEnd(); ++itr)
@@ -802,6 +851,31 @@ void Battleground::EndBattleground(uint32 winner)
                                 player->GetSession()->GetRemoteAddress().c_str(), itr->second->DamageDone, itr->second->HealingDone,
                                 itr->second->KillingBlows);
                         }
+
+                std::string winnerIds = "";
+                std::string loserIds = "";
+                for (BattlegroundPlayerMap::iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
+                {
+                    Player *plr = ObjectAccessor::FindPlayer(itr->first);
+                    if (!plr)
+                        continue;
+
+                    char _buf[32];
+                    sprintf(_buf, ":%d", plr->GetGUIDLow());
+
+                    if (itr->second.Team == winner)
+                        winnerIds += _buf;
+                    else
+                        loserIds += _buf;
+                }
+
+                if (sWorld->getBoolConfig(CONFIG_CUSTOM_ARENA_LOGS))
+                {
+                    CharacterDatabase.PExecute("INSERT INTO `arena_logs` (`team1`,`team1_members`,`team1_rating_change`,`team2`,`team2_members`,`team2_rating_change`,`winner`) VALUES ('%u','%s','%i','%u','%s','%i','%u')",
+                                            winnerArenaTeam->GetId(), winnerIds.c_str(), winnerChange,
+                                            loserArenaTeam->GetId(), loserIds.c_str(), loserChange,
+                                            winnerArenaTeam->GetId());
+                }
             }
             // Deduct 16 points from each teams arena-rating if there are no winners after 45+2 minutes
             else
@@ -1175,6 +1249,25 @@ void Battleground::AddPlayer(Player* player)
         {
             player->CastSpell(player, SPELL_ARENA_PREPARATION, true);
             player->ResetAllPowers();
+            player->RemoveAura(61987);
+            player->RemoveAura(25771);
+            player->RemoveAura(66233);
+
+            Powers powerType = player->getPowerType();
+            player->SetPower(powerType, player->GetMaxPower(powerType));
+
+            if (player->getClass() == CLASS_HUNTER)
+                player->CastSpell(player, 883, true);
+            Pet* pet = player->GetPet();
+            if (pet != NULL)
+            {
+                if (pet->isDead())
+                    pet->setDeathState(ALIVE);
+                pet->SetHealth(pet->GetMaxHealth());
+                pet->SetPower(POWER_MANA, pet->GetMaxPower(POWER_MANA));
+                pet->m_CreatureSpellCooldowns.clear();
+                pet->RemoveAura(55711);
+            }
         }
     }
     else
@@ -1198,6 +1291,8 @@ void Battleground::AddPlayer(Player* player)
     // setup BG group membership
     PlayerAddedToBGCheckIfBGIsRunning(player);
     AddOrSetPlayerToCorrectBgGroup(player, team);
+    // MultiKill System
+    sScriptMgr->OnPlayerJoinedBattleground(player, this);
 }
 
 // this method adds player to his team's bg group, or sets his correct group if player is already in bg group
@@ -1365,6 +1460,11 @@ void Battleground::UpdatePlayerScore(Player* Source, uint32 type, uint32 value, 
     {
         case SCORE_KILLING_BLOWS:                           // Killing blows
             itr->second->KillingBlows += value;
+            if (firstkill)
+            {
+                sScriptMgr->OnPlayerFirstKillBattleground(Source, this);
+                firstkill = false;
+            }
             break;
         case SCORE_DEATHS:                                  // Deaths
             itr->second->Deaths += value;
@@ -1390,6 +1490,14 @@ void Battleground::UpdatePlayerScore(Player* Source, uint32 type, uint32 value, 
         case SCORE_HEALING_DONE:                            // Healing Done
             itr->second->HealingDone += value;
             break;
+        /** World of Warcraft Armory **/
+        case SCORE_DAMAGE_TAKEN:
+            itr->second->DamageTaken += value;              // Damage Taken
+            break;
+        case SCORE_HEALING_TAKEN:
+            itr->second->HealingTaken += value;             // Healing Taken
+            break;
+        /** World of Warcraft Armory **/
         default:
             TC_LOG_ERROR(LOG_FILTER_BATTLEGROUND, "Battleground::UpdatePlayerScore: unknown score type (%u) for BG (map: %u, instance id: %u)!",
                 type, m_MapId, m_InstanceID);
@@ -1943,4 +2051,61 @@ void Battleground::HandleAreaTrigger(Player* player, uint32 trigger)
 {
     TC_LOG_DEBUG(LOG_FILTER_BATTLEGROUND, "Unhandled AreaTrigger %u in Battleground %u. Player coords (x: %f, y: %f, z: %f)",
                    trigger, player->GetMapId(), player->GetPositionX(), player->GetPositionY(), player->GetPositionZ());
+}
+
+uint8 Battleground::ClickFastStart(Player *player, GameObject *go)
+{
+    if (!isArena())
+        return 0;
+
+    std::set<uint64>::iterator pIt = m_playersWantsFastStart.find(player->GetGUID());
+    if (pIt != m_playersWantsFastStart.end() || GetStartDelayTime() < BG_START_DELAY_15S)
+        return m_playersWantsFastStart.size();
+
+    m_playersWantsFastStart.insert(player->GetGUID());
+
+    std::set<GameObject*>::iterator goIt = m_crystals.find(go);
+    if (goIt == m_crystals.end())
+        m_crystals.insert(go);
+
+    uint8 playersNeeded = 0;
+    switch(GetArenaType())
+    {
+        case ARENA_TYPE_2v2:
+            playersNeeded = 4;
+            break;
+        case ARENA_TYPE_3v3:
+            playersNeeded = 6;
+            break;
+        case ARENA_TYPE_5v5:
+            playersNeeded = 10;
+            break;
+    }
+
+    if (sBattlegroundMgr->isTesting() && isArena())
+       playersNeeded = 2;
+
+    if (m_playersWantsFastStart.size() == playersNeeded)
+    {
+        DespawnCrystals();
+        if (GetStartDelayTime() > BG_START_DELAY_15S)
+            SetStartDelayTime(BG_START_DELAY_15S);
+        else
+            DespawnCrystals();
+    }
+
+    return m_playersWantsFastStart.size();
+}
+
+void Battleground::DespawnCrystals()
+{
+    if (m_crystals.empty())
+        return;
+
+    for (std::set<GameObject*>::iterator itr = m_crystals.begin(); itr != m_crystals.end(); ++itr)
+    {
+        GameObject *go = *itr;
+        go->Delete();
+        m_crystals.erase(itr);
+    }
 }

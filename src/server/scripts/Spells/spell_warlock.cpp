@@ -51,6 +51,8 @@ enum WarlockSpells
     SPELL_WARLOCK_LIFE_TAP_ENERGIZE_2               = 32553,
     SPELL_WARLOCK_SOULSHATTER                       = 32835,
     SPELL_WARLOCK_SIPHON_LIFE_HEAL                  = 63106,
+    SPELL_WARLOCK_GLYPH_OF_SUCCUBUS                 = 56250,
+    SPELL_PRIEST_SHADOW_WORD_DEATH                  = 32409,
     SPELL_WARLOCK_UNSTABLE_AFFLICTION_DISPEL        = 31117
 };
 
@@ -820,6 +822,42 @@ class spell_warl_soulshatter : public SpellScriptLoader
         }
 };
 
+// 6358 - Seduction (Glyph of Succubus)
+class spell_warl_seduction : public SpellScriptLoader
+{
+    public:
+        spell_warl_seduction() : SpellScriptLoader("spell_warl_seduction") { }
+
+        class spell_warl_seduction_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_warl_seduction_SpellScript);
+
+            void HandleScriptEffect(SpellEffIndex /*effIndex*/)
+            {
+                Unit* caster = GetCaster();
+                if (Unit* target = GetHitUnit())
+                {
+                    if (caster->GetOwner() && caster->GetOwner()->HasAura(SPELL_WARLOCK_GLYPH_OF_SUCCUBUS))
+                    {
+                        target->RemoveAurasByType(SPELL_AURA_PERIODIC_DAMAGE, 0, target->GetAura(SPELL_PRIEST_SHADOW_WORD_DEATH)); // SW:D shall not be removed.
+                        target->RemoveAurasByType(SPELL_AURA_PERIODIC_DAMAGE_PERCENT);
+                        target->RemoveAurasByType(SPELL_AURA_PERIODIC_LEECH);
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_warl_seduction_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_warl_seduction_SpellScript();
+        }
+};
+
 // -30108 - Unstable Affliction
 class spell_warl_unstable_affliction : public SpellScriptLoader
 {
@@ -878,5 +916,6 @@ void AddSC_warlock_spell_scripts()
     new spell_warl_shadow_ward();
     new spell_warl_siphon_life();
     new spell_warl_soulshatter();
+    new spell_warl_seduction();
     new spell_warl_unstable_affliction();
 }

@@ -79,6 +79,7 @@
 #include "WardenCheckMgr.h"
 #include "Warden.h"
 #include "CalendarMgr.h"
+#include "AnticheatMgr.h"
 #include "BattlefieldMgr.h"
 
 ACE_Atomic_Op<ACE_Thread_Mutex, bool> World::m_stopEvent = false;
@@ -871,6 +872,8 @@ void World::LoadConfigSettings(bool reload)
     m_int_configs[CONFIG_GROUP_VISIBILITY] = ConfigMgr::GetIntDefault("Visibility.GroupMode", 1);
 
     m_int_configs[CONFIG_MAIL_DELIVERY_DELAY] = ConfigMgr::GetIntDefault("MailDeliveryDelay", HOUR);
+    m_bool_configs[CONFIG_EXTERNAL_MAIL] = ConfigMgr::GetBoolDefault("ExternalMail", false);
+    m_int_configs[CONFIG_EXTERNAL_MAIL_INTERVAL] = ConfigMgr::GetIntDefault("ExternalMailInterval", 1);
 
     m_int_configs[CONFIG_UPTIME_UPDATE] = ConfigMgr::GetIntDefault("UpdateUptimeInterval", 10);
     if (int32(m_int_configs[CONFIG_UPTIME_UPDATE]) <= 0)
@@ -1030,6 +1033,8 @@ void World::LoadConfigSettings(bool reload)
     m_int_configs[CONFIG_ARENA_START_RATING]                         = ConfigMgr::GetIntDefault ("Arena.ArenaStartRating", 0);
     m_int_configs[CONFIG_ARENA_START_PERSONAL_RATING]                = ConfigMgr::GetIntDefault ("Arena.ArenaStartPersonalRating", 1000);
     m_int_configs[CONFIG_ARENA_START_MATCHMAKER_RATING]              = ConfigMgr::GetIntDefault ("Arena.ArenaStartMatchmakerRating", 1500);
+    m_int_configs[CONFIG_ARENA_PROGRESSIVE_MMR_TIMER]                = ConfigMgr::GetIntDefault ("Arena.ProgressiveMMRTimer", 30000);
+    m_int_configs[CONFIG_ARENA_PROGRESSIVE_MMR_STEPSIZE]             = ConfigMgr::GetIntDefault ("Arena.ProgressiveMMRStepSize", 50);
     m_bool_configs[CONFIG_ARENA_SEASON_IN_PROGRESS]                  = ConfigMgr::GetBoolDefault("Arena.ArenaSeason.InProgress", true);
     m_bool_configs[CONFIG_ARENA_LOG_EXTENDED_INFO]                   = ConfigMgr::GetBoolDefault("ArenaLog.ExtendedInfo", false);
 
@@ -1213,6 +1218,34 @@ void World::LoadConfigSettings(bool reload)
     m_bool_configs[CONFIG_PDUMP_NO_OVERWRITE] = ConfigMgr::GetBoolDefault("PlayerDump.DisallowOverwrite", true);
     m_bool_configs[CONFIG_UI_QUESTLEVELS_IN_DIALOGS] = ConfigMgr::GetBoolDefault("UI.ShowQuestLevelsInDialogs", false);
 
+    // PvP Rank
+    rate_values[RATE_PVP_RANK_EXTRA_HONOR] = ConfigMgr::GetFloatDefault("PvPRank.Rate.ExtraHonor", 0);
+    std::string s_pvp_ranks = ConfigMgr::GetStringDefault("PvPRank.HKPerRank", "10,50,100,200,450,1000,2000,3000,4500,7500,10500,15000,30000,50000");
+    char *c_pvp_ranks = const_cast<char*>(s_pvp_ranks.c_str());
+    for (int i = 0; i !=HKRANKMAX; i++)
+    {
+        if (i==0)
+            pvp_ranks[0] = 0;
+        else if (i==1)
+            pvp_ranks[1] = atoi(strtok (c_pvp_ranks, ","));
+        else
+            pvp_ranks[i] = atoi(strtok (NULL, ","));
+    }
+
+    //Passive Anticheat System!
+    m_bool_configs[CONFIG_ANTICHEAT_ENABLE] = ConfigMgr::GetBoolDefault("Anticheat.Enable", true);
+    m_int_configs[CONFIG_ANTICHEAT_REPORTS_INGAME_NOTIFICATION] = ConfigMgr::GetIntDefault("Anticheat.ReportsForIngameWarnings", 70);
+    m_int_configs[CONFIG_ANTICHEAT_DETECTIONS_ENABLED] = ConfigMgr::GetIntDefault("Anticheat.DetectionsEnabled",31);
+    m_int_configs[CONFIG_ANTICHEAT_MAX_REPORTS_FOR_DAILY_REPORT] = ConfigMgr::GetIntDefault("Anticheat.MaxReportsForDailyReport",70);
+    m_bool_configs[CONFIG_BAN_PLAYER] = ConfigMgr::GetBoolDefault("Anticheat.Ban", true);
+
+    /** World of Warcraft Armory **/
+    m_bool_configs[CONFIG_ARMORY_ENABLE] = ConfigMgr::GetBoolDefault("Armory.Enable", true);
+    /** World of Warcraft Armory **/
+
+    //Allow Two Side Interaction Chat
+    m_int_configs[CONFIG_ALLOW_TWO_SIDE_INTERACTION_CHAT_AREA] = ConfigMgr::GetIntDefault("AllowTwoSide.Interaction.Chat.Area", -1);
+
     // Wintergrasp battlefield
     m_bool_configs[CONFIG_WINTERGRASP_ENABLE] = ConfigMgr::GetBoolDefault("Wintergrasp.Enable", false);
     m_int_configs[CONFIG_WINTERGRASP_PLR_MAX] = ConfigMgr::GetIntDefault("Wintergrasp.PlayerMax", 100);
@@ -1221,6 +1254,19 @@ void World::LoadConfigSettings(bool reload)
     m_int_configs[CONFIG_WINTERGRASP_BATTLETIME] = ConfigMgr::GetIntDefault("Wintergrasp.BattleTimer", 30);
     m_int_configs[CONFIG_WINTERGRASP_NOBATTLETIME] = ConfigMgr::GetIntDefault("Wintergrasp.NoBattleTimer", 150);
     m_int_configs[CONFIG_WINTERGRASP_RESTART_AFTER_CRASH] = ConfigMgr::GetIntDefault("Wintergrasp.CrashRestartTimer", 10);
+
+    // gc custom logs
+    // custom arena logs just for webpage purposes
+    m_bool_configs[CONFIG_CUSTOM_ARENA_LOGS] = ConfigMgr::GetBoolDefault("CustomArenaLogs", false);
+    // gc_token vendor log
+    m_bool_configs[CONFIG_GC_TOKEN_VENDOR] = ConfigMgr::GetBoolDefault("GCTokenVendorLog", false);
+    // enable crypt run
+    m_bool_configs[CONFIG_CRYPT_RUN_ENABLE] = ConfigMgr::GetBoolDefault("CryptRun.Enable", false);
+    // crypt run token reward
+    m_int_configs[CONFIG_CRYPT_RUN_REWARDS] = ConfigMgr::GetIntDefault("CryptRun.Reward", 10);
+
+    // Looking For Group Join All Maps
+    m_bool_configs[CONFIG_LFG_LOOKING_FOR_GROUP] = ConfigMgr::GetBoolDefault("Looking.For.Group.Join.All", true); 
 
     // call ScriptMgr if we're reloading the configuration
     if (reload)
@@ -1392,6 +1438,9 @@ void World::SetInitialWorldSettings()
 
     TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading Item set names...");                // must be after LoadItemPrototypes
     sObjectMgr->LoadItemSetNames();
+
+    TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading Transmogrifications...");           // custom must be after LoadItemTemplates
+    sObjectMgr->LoadTransmogrifications();
 
     TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Loading Creature Model Based Info Data...");
     sObjectMgr->LoadCreatureModelInfo();
@@ -1714,6 +1763,7 @@ void World::SetInitialWorldSettings()
     /// @todo Get rid of magic numbers
     mail_timer = ((((localtime(&m_gameTime)->tm_hour + 20) % 24)* HOUR * IN_MILLISECONDS) / m_timers[WUPDATE_AUCTIONS].GetInterval());
                                                             //1440
+    extmail_timer.SetInterval(m_int_configs[CONFIG_EXTERNAL_MAIL_INTERVAL] * MINUTE * IN_MILLISECONDS);
     mail_timer_expires = ((DAY * IN_MILLISECONDS) / (m_timers[WUPDATE_AUCTIONS].GetInterval()));
     TC_LOG_INFO(LOG_FILTER_SERVER_LOADING, "Mail timer set to: " UI64FMTD ", mail return is called every " UI64FMTD " minutes", uint64(mail_timer), uint64(mail_timer_expires));
 
@@ -1948,6 +1998,17 @@ void World::Update(uint32 diff)
 
     if (m_gameTime > m_NextGuildReset)
         ResetGuildCap();
+
+    // Handle external mail
+    if (sWorld->getBoolConfig(CONFIG_EXTERNAL_MAIL))
+    {
+        extmail_timer.Update(diff);
+        if (extmail_timer.Passed())
+        {
+            WorldSession::SendExternalMails();
+            extmail_timer.Reset();
+        }
+    }
 
     /// <ul><li> Handle auctions when the timer has passed
     if (m_timers[WUPDATE_AUCTIONS].Passed())
@@ -2839,6 +2900,8 @@ void World::ResetDailyQuests()
 
     // change available dailies
     sPoolMgr->ChangeDailyQuests();
+
+    sAnticheatMgr->ResetDailyReportStates();
 }
 
 void World::LoadDBAllowedSecurityLevel()

@@ -22,6 +22,13 @@
 #include "CombatAI.h"
 #include "naxxramas.h"
 
+#define POS_Y_GATE  -3360.78f
+#define POS_Y_WEST  -3285.0f
+#define POS_Y_EAST  -3434.0f
+#define POS_X_NORTH  2750.49f
+#define POS_X_SOUTH  2633.84f
+#define IN_LIVE_SIDE(who) (who->GetPositionY() < POS_Y_GATE)
+
 enum Yells
 {
     SAY_SPEECH                  = 0,
@@ -30,12 +37,10 @@ enum Yells
     SAY_TELEPORT                = 3
 };
 
-//Gothik
 enum Spells
 {
     SPELL_HARVEST_SOUL          = 28679,
     SPELL_SHADOW_BOLT           = 29317,
-    H_SPELL_SHADOW_BOLT         = 56405,
     SPELL_INFORM_LIVE_TRAINEE   = 27892,
     SPELL_INFORM_LIVE_KNIGHT    = 27928,
     SPELL_INFORM_LIVE_RIDER     = 27935,
@@ -43,7 +48,8 @@ enum Spells
     SPELL_INFORM_DEAD_KNIGHT    = 27931,
     SPELL_INFORM_DEAD_RIDER     = 27937,
 
-    SPELL_SHADOW_MARK           = 27825
+    SPELL_SHADOW_MARK           = 27825,
+    SPELL_TELEPORT              = 28025
 };
 
 enum Creatures
@@ -57,10 +63,21 @@ enum Creatures
     MOB_DEAD_HORSE      = 16149
 };
 
+enum Events
+{
+    EVENT_NONE,
+    EVENT_SUMMON,
+    EVENT_HARVEST,
+    EVENT_BOLT,
+    EVENT_TELEPORT
+};
+enum Pos
+{
+   POS_LIVE = 6,
+   POS_DEAD = 5
+};
+
 struct Waves { uint32 entry, time, mode; };
-// wave setups are not the same in heroic and normal difficulty,
-// mode is 0 only normal, 1 both and 2 only heroic
-// but this is handled in DoGothikSummon function
 const Waves waves[] =
 {
     {MOB_LIVE_TRAINEE, 20000, 1},
@@ -97,28 +114,6 @@ const Waves waves[] =
     {0, 0, 1},
 };
 
-#define POS_Y_GATE  -3360.78f
-#define POS_Y_WEST  -3285.0f
-#define POS_Y_EAST  -3434.0f
-#define POS_X_NORTH  2750.49f
-#define POS_X_SOUTH  2633.84f
-
-#define IN_LIVE_SIDE(who) (who->GetPositionY() < POS_Y_GATE)
-
-enum Events
-{
-    EVENT_NONE,
-    EVENT_SUMMON,
-    EVENT_HARVEST,
-    EVENT_BOLT,
-    EVENT_TELEPORT
-};
-enum Pos
-{
-   POS_LIVE = 6,
-   POS_DEAD = 5
-};
-
 const Position PosSummonLive[POS_LIVE] =
 {
     {2669.7f, -3428.76f, 268.56f, 1.6f},
@@ -142,7 +137,6 @@ float const PosGroundLiveSide[4] = {2691.2f, -3387.0f, 267.68f, 1.52f};
 float const PosGroundDeadSide[4] = {2693.5f, -3334.6f, 267.68f, 4.67f};
 float const PosPlatform[4] = {2640.5f, -3360.6f, 285.26f, 0.0f};
 
-// Predicate function to check that the r   efzr unit is NOT on the same side as the source.
 struct NotOnSameSide : public std::unary_function<Unit*, bool>
 {
     NotOnSameSide(Unit* source) : _onLiveSide(IN_LIVE_SIDE(source)) {}
@@ -163,17 +157,7 @@ class boss_gothik : public CreatureScript
 
         struct boss_gothikAI : public BossAI
         {
-            boss_gothikAI(Creature* creature) : BossAI(creature, BOSS_GOTHIK) {}
-
-            uint32 waveCount;
-            typedef std::vector<Creature*> TriggerVct;
-            TriggerVct liveTrigger, deadTrigger;
-            bool mergedSides;
-            bool phaseTwo;
-            bool thirtyPercentReached;
-
-            std::vector<uint64> LiveTriggerGUID;
-            std::vector<uint64> DeadTriggerGUID;
+            boss_gothikAI(Creature* creature) : BossAI(creature, DATA_GOTHIK) { }
 
             void Reset()
             {
@@ -208,8 +192,7 @@ class boss_gothik : public CreatureScript
                 _EnterCombat();
                 waveCount = 0;
                 events.ScheduleEvent(EVENT_SUMMON, 30000);
-                DoTeleportTo(PosPlatform);
-                Talk(SAY_SPEECH);
+                TalkToMap(SAY_SPEECH);
                 if (instance)
                     instance->SetData(DATA_GOTHIK_GATE, GO_STATE_READY);
             }
@@ -238,8 +221,7 @@ class boss_gothik : public CreatureScript
 
             void KilledUnit(Unit* /*victim*/)
             {
-                if (!(rand()%5))
-                    Talk(SAY_KILL);
+                TalkToMap(SAY_KILL);
             }
 
             void JustDied(Unit* /*killer*/)
@@ -247,7 +229,7 @@ class boss_gothik : public CreatureScript
                 LiveTriggerGUID.clear();
                 DeadTriggerGUID.clear();
                 _JustDied();
-                Talk(SAY_DEATH);
+                TalkToMap(SAY_DEATH);
                 if (instance)
                     instance->SetData(DATA_GOTHIK_GATE, GO_STATE_ACTIVE);
             }
@@ -355,9 +337,15 @@ class boss_gothik : public CreatureScript
                 uint32 spellId = 0;
                 switch (spell->Id)
                 {
-                    case SPELL_INFORM_LIVE_TRAINEE: spellId = SPELL_INFORM_DEAD_TRAINEE;    break;
-                    case SPELL_INFORM_LIVE_KNIGHT:  spellId = SPELL_INFORM_DEAD_KNIGHT;     break;
-                    case SPELL_INFORM_LIVE_RIDER:   spellId = SPELL_INFORM_DEAD_RIDER;      break;
+                    case SPELL_INFORM_LIVE_TRAINEE:
+                        spellId = SPELL_INFORM_DEAD_TRAINEE;
+                        break;
+                    case SPELL_INFORM_LIVE_KNIGHT:
+                        spellId = SPELL_INFORM_DEAD_KNIGHT;
+                        break;
+                    case SPELL_INFORM_LIVE_RIDER:
+                        spellId = SPELL_INFORM_DEAD_RIDER;
+                        break;
                 }
                 if (spellId && me->isInCombat())
                 {
@@ -424,7 +412,6 @@ class boss_gothik : public CreatureScript
                                 else if (waves[waveCount].mode == 1)
                                     DoGothikSummon(waves[waveCount].entry);
 
-                                // if group is not splitted, open gate and merge both sides at ~ 2 minutes (wave 11)
                                 if (waveCount == 11)
                                 {
                                     if (!CheckGroupSplitted())
@@ -432,7 +419,7 @@ class boss_gothik : public CreatureScript
                                         if (instance)
                                             instance->SetData(DATA_GOTHIK_GATE, GO_STATE_ACTIVE);
                                         DummyEntryCheckPredicate pred;
-                                        summons.DoAction(0, pred);  //! Magic numbers fail
+                                        summons.DoAction(0, pred);
                                         summons.DoZoneInCombat();
                                         mergedSides = true;
                                     }
@@ -452,11 +439,11 @@ class boss_gothik : public CreatureScript
                             else
                             {
                                 phaseTwo = true;
-                                Talk(SAY_TELEPORT);
-                                DoTeleportTo(PosGroundLiveSide);
+                                TalkToMap(SAY_TELEPORT);
+                                DoCast(SPELL_TELEPORT);
                                 me->SetReactState(REACT_AGGRESSIVE);
                                 DummyEntryCheckPredicate pred;
-                                summons.DoAction(0, pred);  //! Magic numbers fail
+                                summons.DoAction(0, pred);
                                 summons.DoZoneInCombat();
                                 events.ScheduleEvent(EVENT_BOLT, 1000);
                                 events.ScheduleEvent(EVENT_HARVEST, urand(3000, 15000));
@@ -464,7 +451,7 @@ class boss_gothik : public CreatureScript
                             }
                             break;
                         case EVENT_BOLT:
-                            DoCast(me->getVictim(), RAID_MODE(SPELL_SHADOW_BOLT, H_SPELL_SHADOW_BOLT));
+                            DoCast(me->getVictim(), SPELL_SHADOW_BOLT);
                             events.ScheduleEvent(EVENT_BOLT, 1000);
                             break;
                         case EVENT_HARVEST:
@@ -486,7 +473,6 @@ class boss_gothik : public CreatureScript
                                     me->getThreatManager().addThreat(target, 100.0f);
                                     AttackStart(target);
                                 }
-
                                 events.ScheduleEvent(EVENT_TELEPORT, 20000);
                             }
                             break;
@@ -496,11 +482,21 @@ class boss_gothik : public CreatureScript
                 if (!phaseTwo)
                     DoMeleeAttackIfReady();
             }
+
+        private:
+            uint32 waveCount;
+            typedef std::vector<Creature*> TriggerVct;
+            TriggerVct liveTrigger, deadTrigger;
+            bool mergedSides;
+            bool phaseTwo;
+            bool thirtyPercentReached;
+            std::vector<uint64> LiveTriggerGUID;
+            std::vector<uint64> DeadTriggerGUID;
         };
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new boss_gothikAI(creature);
+            return GetNaxxramasAI<boss_gothikAI>(creature);
         }
 };
 
@@ -515,9 +511,6 @@ class mob_gothik_minion : public CreatureScript
             {
                 liveSide = IN_LIVE_SIDE(me);
             }
-
-            bool liveSide;
-            bool gateClose;
 
             bool isOnSameSide(Unit const* who) const
             {
@@ -584,11 +577,14 @@ class mob_gothik_minion : public CreatureScript
 
                 CombatAI::UpdateAI(diff);
             }
-        };
 
+        private:
+            bool liveSide;
+            bool gateClose;
+        };
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new mob_gothik_minionAI(creature);
+            return GetNaxxramasAI<mob_gothik_minionAI>(creature);
         }
 };
 

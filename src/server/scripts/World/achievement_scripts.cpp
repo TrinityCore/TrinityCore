@@ -315,6 +315,27 @@ class achievement_not_even_a_scratch : public AchievementCriteriaScript
         }
 };
 
+class achievement_food_fight : public AchievementCriteriaScript
+{
+    public:
+        achievement_food_fight() : AchievementCriteriaScript("achievement_food_fight") { }
+
+        bool OnCheck(Player* /*source*/, Unit* target)
+        {
+            if (!target)
+                return false;
+
+            if (Player* victim = target->ToPlayer())
+            {
+                if (Vehicle* vehicle = victim->GetVehicle())
+                    if (vehicle->GetVehicleInfo()->m_ID == 321)
+                        return true;
+            }
+
+            return false;
+        }
+};
+
 enum FlirtWithDisaster
 {
     AURA_PERFUME_FOREVER           = 70235,
@@ -357,5 +378,6 @@ void AddSC_achievement_scripts()
     new achievement_bg_sa_defense_of_ancients();
     new achievement_tilted();
     new achievement_not_even_a_scratch();
+    new achievement_food_fight();
     new achievement_flirt_with_disaster_perf_check();
 }

@@ -15,13 +15,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/*
- * Comment: there is missing code on triggers,
- *          brann bronzebeard needs correct gossip info.
- *          requires more work involving area triggers.
- *          if reached brann speaks through his radio..
- */
-
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
@@ -220,7 +213,7 @@ class boss_flame_leviathan : public CreatureScript
 
         struct boss_flame_leviathanAI : public BossAI
         {
-            boss_flame_leviathanAI(Creature* creature) : BossAI(creature, BOSS_LEVIATHAN), vehicle(creature->GetVehicleKit())
+            boss_flame_leviathanAI(Creature* creature) : BossAI(creature, DATA_LEVIATHAN), vehicle(creature->GetVehicleKit())
             {
             }
 
@@ -1166,7 +1159,7 @@ class npc_lorekeeper : public CreatureScript
                     if (player)
                         player->CLOSE_GOSSIP_MENU();
 
-                    if (Creature* leviathan = instance->instance->GetCreature(instance->GetData64(BOSS_LEVIATHAN)))
+                    if (Creature* leviathan = instance->instance->GetCreature(instance->GetData64(DATA_LEVIATHAN)))
                     {
                         leviathan->AI()->DoAction(ACTION_START_HARD_MODE);
                         creature->SetVisible(false);
@@ -1189,7 +1182,7 @@ class npc_lorekeeper : public CreatureScript
         bool OnGossipHello(Player* player, Creature* creature)
         {
             InstanceScript* instance = creature->GetInstanceScript();
-            if (instance && instance->GetData(BOSS_LEVIATHAN) !=DONE && player)
+            if (instance && instance->GetData(DATA_LEVIATHAN) !=DONE && player)
             {
                 player->PrepareGossipMenu(creature);
 

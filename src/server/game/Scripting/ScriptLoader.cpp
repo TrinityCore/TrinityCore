@@ -16,6 +16,7 @@
  */
 
 #include "ScriptLoader.h"
+#include "AnticheatMgr.h"
 
 //examples
 void AddSC_example_creature();
@@ -23,6 +24,28 @@ void AddSC_example_escort();
 void AddSC_example_gossip_codebox();
 void AddSC_example_misc();
 void AddSC_example_commandscript();
+//Hunter Pet Vendor
+void AddSC_npc_hunterpetvendor();
+//Transmogrification
+void AddSC_NPC_Transmogrify();
+//Chat Censure
+void AddSC_System_Censure();
+// Npc Top 10 Arena Teams
+void AddSC_npc_arena_setup();
+// [MOD] MultiKill
+void AddSC_Mod_Multikill(); // by Codels
+// Mr.Maniek
+void AddSC_npc_maniek();
+// NPC MMR Master
+void AddSC_npc_mmr_reset();
+// NPC Astranaar SHOP
+void AddSC_npc_shop();
+// Fast Arena Start
+void AddSC_fast_arena_start();
+// Factions on Channel
+void AddSC_channel_factions();
+// Top5 Killers
+void AddSC_top5_killers();
 
 // spells
 void AddSC_deathknight_spell_scripts();
@@ -44,6 +67,7 @@ void AddSC_holiday_spell_scripts();
 void AddSC_SmartSCripts();
 
 //Commands
+void AddSC_anticheat_commandscript();
 void AddSC_account_commandscript();
 void AddSC_achievement_commandscript();
 void AddSC_arena_commandscript();
@@ -80,6 +104,9 @@ void AddSC_tele_commandscript();
 void AddSC_ticket_commandscript();
 void AddSC_titles_commandscript();
 void AddSC_wp_commandscript();
+void AddSC_rates_commandscript();
+void AddSC_character_commandscript();
+void AddSC_mmaps_commandscript();
 
 #ifdef SCRIPTS
 //world
@@ -408,6 +435,7 @@ void AddSC_boss_faerlina();
 void AddSC_boss_heigan();
 void AddSC_boss_gothik();
 void AddSC_boss_thaddius();
+void AddSC_naxxramas();
 void AddSC_instance_naxxramas();
 void AddSC_boss_magus_telestra();        //The Nexus Nexus
 void AddSC_boss_anomalus();
@@ -429,6 +457,7 @@ void AddSC_boss_loken();
 void AddSC_boss_ionar();
 void AddSC_boss_volkhan();
 void AddSC_instance_halls_of_lightning();
+void AddSC_halls_of_lightning();
 void AddSC_boss_maiden_of_grief();       //Ulduar Halls of Stone
 void AddSC_boss_krystallus();
 void AddSC_boss_sjonnir();
@@ -445,6 +474,7 @@ void AddSC_boss_general_vezax();
 void AddSC_ulduar_teleporter();
 void AddSC_boss_mimiron();
 void AddSC_boss_hodir();
+void AddSC_boss_thorim();
 void AddSC_boss_freya();
 void AddSC_boss_yogg_saron();
 void AddSC_boss_algalon_the_observer();
@@ -491,9 +521,11 @@ void AddSC_instance_halls_of_reflection();   // Halls of Reflection
 void AddSC_halls_of_reflection();
 void AddSC_boss_falric();
 void AddSC_boss_marwyn();
+void AddSC_boss_the_lich_king_hor();
 void AddSC_boss_lord_marrowgar();       // Icecrown Citadel
 void AddSC_boss_lady_deathwhisper();
 void AddSC_boss_deathbringer_saurfang();
+void AddSC_boss_gunship_battle();
 void AddSC_boss_festergut();
 void AddSC_boss_rotface();
 void AddSC_boss_professor_putricide();
@@ -636,6 +668,7 @@ void AddScripts()
     AddSpellScripts();
     AddSC_SmartSCripts();
     AddCommandScripts();
+    sAnticheatMgr->StartScripts();
 #ifdef SCRIPTS
     AddWorldScripts();
     AddEasternKingdomsScripts();
@@ -679,6 +712,7 @@ void AddSpellScripts()
 
 void AddCommandScripts()
 {
+    AddSC_anticheat_commandscript();
     AddSC_account_commandscript();
     AddSC_achievement_commandscript();
     AddSC_arena_commandscript();
@@ -715,6 +749,9 @@ void AddCommandScripts()
     AddSC_ticket_commandscript();
     AddSC_titles_commandscript();
     AddSC_wp_commandscript();
+    AddSC_rates_commandscript();
+    AddSC_character_commandscript();
+    AddSC_mmaps_commandscript();
 }
 
 void AddWorldScripts()
@@ -1149,6 +1186,7 @@ void AddNorthrendScripts()
     AddSC_boss_heigan();
     AddSC_boss_gothik();
     AddSC_boss_thaddius();
+    AddSC_naxxramas();
     AddSC_instance_naxxramas();
     AddSC_boss_magus_telestra();        //The Nexus Nexus
     AddSC_boss_anomalus();
@@ -1170,6 +1208,7 @@ void AddNorthrendScripts()
     AddSC_boss_ionar();
     AddSC_boss_volkhan();
     AddSC_instance_halls_of_lightning();
+    AddSC_halls_of_lightning();
     AddSC_boss_maiden_of_grief();       //Ulduar Halls of Stone
     AddSC_boss_krystallus();
     AddSC_boss_sjonnir();
@@ -1186,6 +1225,7 @@ void AddNorthrendScripts()
     AddSC_ulduar_teleporter();
     AddSC_boss_mimiron();
     AddSC_boss_hodir();
+    AddSC_boss_thorim();
     AddSC_boss_freya();
     AddSC_boss_yogg_saron();
     AddSC_boss_algalon_the_observer();
@@ -1232,9 +1272,11 @@ void AddNorthrendScripts()
     AddSC_halls_of_reflection();
     AddSC_boss_falric();
     AddSC_boss_marwyn();
+    AddSC_boss_the_lich_king_hor();
     AddSC_boss_lord_marrowgar();        // Icecrown Citadel
     AddSC_boss_lady_deathwhisper();
     AddSC_boss_deathbringer_saurfang();
+    AddSC_boss_gunship_battle();
     AddSC_boss_festergut();
     AddSC_boss_rotface();
     AddSC_boss_professor_putricide();
@@ -1302,6 +1344,27 @@ void AddCustomScripts()
 {
 #ifdef SCRIPTS
     /* This is where custom scripts should be added. */
-
+    //Hunter Pet Vendor
+    AddSC_npc_hunterpetvendor();
+    //Transmogrification
+    AddSC_NPC_Transmogrify();
+    //Chat Censure
+    AddSC_System_Censure();
+    // Npc Top 10 Arena Teams
+    AddSC_npc_arena_setup();
+    // [MOD] MultiKill
+    AddSC_Mod_Multikill(); // by Codels
+    // Mr.Maniek
+    AddSC_npc_maniek();
+    // NPC MMR Master
+    AddSC_npc_mmr_reset();
+    // NPC Astranaar SHOP
+    AddSC_npc_shop();
+    // Fast Arena Start
+    AddSC_fast_arena_start();
+    // Factions on Channel
+    AddSC_channel_factions();
+    // Top5 Killers
+    AddSC_top5_killers();
 #endif
 }

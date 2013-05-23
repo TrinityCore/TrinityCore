@@ -1156,7 +1156,10 @@ void Creature::SaveToDB(uint32 mapid, uint8 spawnMask, uint32 phaseMask)
 
 void Creature::SelectLevel(const CreatureTemplate* cinfo)
 {
-    uint32 rank = isPet()? 0 : cinfo->rank;
+    uint32 rank = isPet() ? 0 : cinfo->rank;
+
+    if (isGuardian() && (ToTempSummon()->GetSummoner() && ToTempSummon()->GetSummoner()->GetTypeId() != TYPEID_PLAYER))
+        return;
 
     // level
     uint8 minlevel = std::min(cinfo->maxlevel, cinfo->minlevel);
