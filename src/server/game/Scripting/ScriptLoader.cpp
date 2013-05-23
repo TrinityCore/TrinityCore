@@ -44,6 +44,8 @@ void AddSC_npc_shop();
 void AddSC_fast_arena_start();
 // Factions on Channel
 void AddSC_channel_factions();
+// Top5 Killers
+void AddSC_top5_killers();
 
 // spells
 void AddSC_deathknight_spell_scripts();
@@ -1362,5 +1364,7 @@ void AddCustomScripts()
     AddSC_fast_arena_start();
     // Factions on Channel
     AddSC_channel_factions();
+    // Top5 Killers
+    AddSC_top5_killers();
 #endif
 }

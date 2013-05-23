@@ -21,6 +21,7 @@ set(scripts_STAT_SRCS
   Custom/npc_shop.cpp
   Custom/arena_fast_start.cpp
   Custom/channel_factions.cpp
+  Custom/top5_killers.cpp
 )
 
 message("  -> Prepared: Custom")
