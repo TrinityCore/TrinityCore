@@ -140,7 +140,8 @@ UPDATE `creature_template` SET `flags_extra`=1 WHERE `entry` IN (38599,38603);
 UPDATE `creature_template` SET `ScriptName`='npc_frostworn_general' WHERE `entry`=36723;
 UPDATE `creature_template` SET `faction_A`=16,`faction_H`=16 WHERE `entry`=37720; -- for hc
 -- Spiritual Reflection
-UPDATE `creature_template` SET /*`modelid1`=57,*/`ScriptName`='npc_spiritual_reflection' WHERE `entry`=37068;
+-- UPDATE `creature_template` SET `modelid1`=57 WHERE `entry`=37068;
+UPDATE `creature_template` SET `ScriptName`='npc_spiritual_reflection' WHERE `entry`=37068;
 -- The Lich King (at chase event)
 UPDATE `creature_template` SET `ScriptName`='boss_lich_king_hor' WHERE `entry`=36954;
 -- Lady Jaina Proudmoore (at chase event)
