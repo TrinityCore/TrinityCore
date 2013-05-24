@@ -653,6 +653,30 @@ enum TrashEvents
     EVENT_ICE_SHOT,
 };
 
+struct npc_gauntlet_trash : public ScriptedAI
+{
+    npc_gauntlet_trash(Creature* creature) : ScriptedAI(creature) { }
+
+    void SetData(uint32 type, uint32 value)
+    {
+        if (type)
+            return;
+
+        InternalWaveId = value;
+    }
+
+    uint32 GetData(uint32 type) const
+    {
+        if (type)
+            return 0;
+
+        return InternalWaveId;
+    }
+
+protected:
+    uint32 InternalWaveId;
+};
+
 class npc_ghostly_priest : public CreatureScript
 {
 public:
@@ -663,9 +687,9 @@ public:
         return new npc_ghostly_priestAI(creature);
     }
 
-    struct npc_ghostly_priestAI: public ScriptedAI
+    struct npc_ghostly_priestAI : public npc_gauntlet_trash
     {
-        npc_ghostly_priestAI(Creature* creature) : ScriptedAI(creature)
+        npc_ghostly_priestAI(Creature* creature) : npc_gauntlet_trash(creature)
         {
             instance = me->GetInstanceScript();
             me->CastSpell(me, SPELL_WELL_OF_SOULS, true);
@@ -748,9 +772,9 @@ public:
         return new npc_phantom_mageAI(creature);
     }
 
-    struct npc_phantom_mageAI: public ScriptedAI
+    struct npc_phantom_mageAI : public npc_gauntlet_trash
     {
-        npc_phantom_mageAI(Creature* creature) : ScriptedAI(creature)
+        npc_phantom_mageAI(Creature* creature) : npc_gauntlet_trash(creature)
         {
             instance = me->GetInstanceScript();
             me->CastSpell(me, SPELL_WELL_OF_SOULS, true);
@@ -850,9 +874,9 @@ public:
         return new npc_shadowy_mercenaryAI(creature);
     }
 
-    struct npc_shadowy_mercenaryAI: public ScriptedAI
+    struct npc_shadowy_mercenaryAI : public npc_gauntlet_trash
     {
-        npc_shadowy_mercenaryAI(Creature* creature) : ScriptedAI(creature)
+        npc_shadowy_mercenaryAI(Creature* creature) : npc_gauntlet_trash(creature)
         {
             instance = me->GetInstanceScript();
             me->CastSpell(me, SPELL_WELL_OF_SOULS, true);
@@ -924,9 +948,9 @@ public:
         return new npc_spectral_footmanAI(creature);
     }
 
-    struct npc_spectral_footmanAI: public ScriptedAI
+    struct npc_spectral_footmanAI : public npc_gauntlet_trash
     {
-        npc_spectral_footmanAI(Creature* creature) : ScriptedAI(creature)
+        npc_spectral_footmanAI(Creature* creature) : npc_gauntlet_trash(creature)
         {
             instance = me->GetInstanceScript();
             me->CastSpell(me, SPELL_WELL_OF_SOULS, true);
@@ -992,9 +1016,9 @@ public:
         return new npc_tortured_riflemanAI(creature);
     }
 
-    struct npc_tortured_riflemanAI  : public ScriptedAI
+    struct npc_tortured_riflemanAI : public npc_gauntlet_trash
     {
-        npc_tortured_riflemanAI(Creature* creature) : ScriptedAI(creature)
+        npc_tortured_riflemanAI(Creature* creature) : npc_gauntlet_trash(creature)
         {
             instance = me->GetInstanceScript();
             me->CastSpell(me, SPELL_WELL_OF_SOULS, true);
