@@ -98,7 +98,7 @@ public:
 
         void OnCreatureCreate(Creature* creature)
         {
-            Map::PlayerList const &players = instance->GetPlayers();
+            Map::PlayerList const& players = instance->GetPlayers();
             if (!players.isEmpty())
                 if (Player* player = players.begin()->getSource())
                     _teamInInstance = player->GetTeam();
@@ -176,6 +176,12 @@ public:
             }
         }
 
+        void FillInitialWorldStates(WorldPacket& data)
+        {
+            data << uint32(WORLD_STATE_HOR_WAVES_ENABLED) << uint32(0);
+            data << uint32(WORLD_STATE_HOR_WAVE_COUNT) << uint32(0);
+        }
+
         bool SetBossState(uint32 type, EncounterState state)
         {
             if (!InstanceScript::SetBossState(type, state))
@@ -185,7 +191,10 @@ public:
             {
                 case DATA_FALRIC_EVENT:
                     if (state == DONE)
+                    {
+                        ++_waveCount;
                         events.ScheduleEvent(EVENT_NEXT_WAVE, 60000);
+                    }
                     break;
                 case DATA_MARWYN_EVENT:
                     if (state == DONE)
@@ -207,9 +216,6 @@ public:
 
         void SetData(uint32 type, uint32 data)
         {
-            if (_waveCount && data == NOT_STARTED)
-                ProcessEvent(NULL, EVENT_DO_WIPE);
-
             switch (type)
             {
                 case DATA_INTRO_EVENT:
@@ -226,8 +232,8 @@ public:
                     _introEvent = data;
                     break;
                 case DATA_WAVE_COUNT:
-                    if (data == SPECIAL)
-                        events.ScheduleEvent(EVENT_NEXT_WAVE, 10000);
+                    if (_waveCount && data == NOT_STARTED)
+                        ProcessEvent(NULL, EVENT_DO_WIPE);
                     break;
                 case DATA_FROSWORN_EVENT:
                     if (data == DONE)
@@ -241,6 +247,165 @@ public:
             }
 
             SaveToDB();
+        }
+
+
+        // wave scheduling,checked when wave npcs die
+        void OnUnitDeath(Unit* unit)
+        {
+            Creature* creature = unit->ToCreature();
+            if (!creature)
+                return;
+
+            switch (creature->GetEntry())
+            {
+                case NPC_WAVE_MERCENARY:
+                case NPC_WAVE_FOOTMAN:
+                case NPC_WAVE_RIFLEMAN:
+                case NPC_WAVE_PRIEST:
+                case NPC_WAVE_MAGE:
+                {
+                    uint32 deadNpcs = 0;
+                    uint32 internalWaveId = _waveCount - ((_waveCount < 5) ? 1 : 2);
+                    for (std::set<uint64>::const_iterator itr = waveGuidList[internalWaveId].begin(); itr != waveGuidList[internalWaveId].end(); ++itr)
+                    {
+                        Creature* npc = instance->GetCreature(*itr);
+                        if (!npc || !npc->isAlive())
+                            ++deadNpcs;
+                    }
+
+                    // because the current npc returns isAlive when OnUnitDeath happens
+                    // we check if the number of dead npcs is equal to the list-1
+                    if (deadNpcs == waveGuidList[internalWaveId].size() - 1)
+                    {
+                        ++_waveCount;
+                        events.ScheduleEvent(EVENT_NEXT_WAVE, 10000);
+                    }
+                    break;
+                }
+            }
+        }
+
+        void Update(uint32 diff)
+        {
+            if (!instance->HavePlayers())
+                return;
+
+            events.Update(diff);
+
+            switch (events.ExecuteEvent())
+            {
+                case EVENT_NEXT_WAVE:
+                    ProcessEvent(NULL, EVENT_ADD_WAVE);
+                    break;
+            }
+        }
+
+        void ProcessEvent(WorldObject* /*go*/, uint32 eventId)
+        {
+            switch (eventId)
+            {
+                // spawning all wave npcs at once
+                case EVENT_SPAWN_WAVES:
+                    _waveCount = 1;
+                    DoUpdateWorldState(WORLD_STATE_HOR_WAVES_ENABLED, 1);
+                    DoUpdateWorldState(WORLD_STATE_HOR_WAVE_COUNT, _waveCount);
+                    {
+                        std::list<uint32> possibilityList, tempList;
+                        uint32 posIndex = 0;
+
+                        possibilityList.push_back(NPC_WAVE_MERCENARY);
+                        possibilityList.push_back(NPC_WAVE_FOOTMAN);
+                        possibilityList.push_back(NPC_WAVE_RIFLEMAN);
+                        possibilityList.push_back(NPC_WAVE_PRIEST);
+                        possibilityList.push_back(NPC_WAVE_MAGE);
+
+                        // iterate each wave
+                        for (uint8 i = 0; i < 8; i++)
+                        {
+                            tempList = possibilityList;
+
+                            uint64 bossGuid = i <= 3 ? _falricGUID : _marwynGUID;
+
+                            if (!i)
+                                Trinity::Containers::RandomResizeList(tempList, 3);
+                            else if (i < 6 && i != 3)
+                                Trinity::Containers::RandomResizeList(tempList, 4);
+
+                            for (std::list<uint32>::const_iterator itr = tempList.begin(); itr != tempList.end(); ++itr)
+                            {
+                                if (Creature* boss = instance->GetCreature(bossGuid))
+                                {
+                                    if (Creature* temp = boss->SummonCreature(*itr, SpawnPos[posIndex], TEMPSUMMON_DEAD_DESPAWN))
+                                    {
+                                        temp->AI()->SetData(0, i);
+                                        waveGuidList[i].insert(temp->GetGUID());
+                                    }
+                                }
+
+                                ++posIndex;
+                            }
+                        }
+                    }
+                    events.ScheduleEvent(EVENT_NEXT_WAVE, 10000);
+                    break;
+                case EVENT_ADD_WAVE:
+                    DoUpdateWorldState(WORLD_STATE_HOR_WAVES_ENABLED, 1);
+                    DoUpdateWorldState(WORLD_STATE_HOR_WAVE_COUNT, _waveCount);
+                    HandleGameObject(_entranceDoorGUID, false);
+
+                    if (_waveCount % 5)
+                    {
+                        uint32 internalWaveId = _waveCount - ((_waveCount < 5) ? 1 : 2);
+                        for (std::set<uint64>::const_iterator itr = waveGuidList[internalWaveId].begin(); itr != waveGuidList[internalWaveId].end(); ++itr)
+                        {
+                            if (Creature* temp = instance->GetCreature(*itr))
+                            {
+                                temp->CastSpell(temp, SPELL_SPIRIT_ACTIVATE, true);
+                                temp->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC|UNIT_FLAG_IMMUNE_TO_NPC|UNIT_FLAG_NOT_SELECTABLE);
+                                temp->AI()->DoZoneInCombat();
+                            }
+                        }
+                    }
+                    else
+                    {
+                        uint32 bossIndex = (_waveCount / 5) - 1;
+                        if (GetBossState(DATA_FALRIC_EVENT + bossIndex) != DONE)
+                        {
+                            if (Creature* boss = instance->GetCreature(bossIndex ? _marwynGUID : _falricGUID))
+                                if (boss->AI())
+                                    boss->AI()->DoAction(ACTION_ENTER_COMBAT);
+                        }
+                        else if (_waveCount != 10)
+                        {
+                            ++_waveCount;
+                            events.ScheduleEvent(EVENT_NEXT_WAVE, 10000);
+                        }
+                    }
+                    break;
+                case EVENT_DO_WIPE:
+                    _waveCount = 0;
+                    events.Reset();
+                    DoUpdateWorldState(WORLD_STATE_HOR_WAVES_ENABLED, 1);
+                    DoUpdateWorldState(WORLD_STATE_HOR_WAVE_COUNT, _waveCount);
+                    HandleGameObject(_entranceDoorGUID, true);
+
+                    if (Creature* falric = instance->GetCreature(_falricGUID))
+                        falric->SetVisible(false);
+                    if (Creature* marwyn = instance->GetCreature(_marwynGUID))
+                        marwyn->SetVisible(false);
+
+                    //despawn wave npcs
+                    for (uint8 i = 0; i < 8; ++i)
+                    {
+                        for (std::set<uint64>::const_iterator itr = waveGuidList[i].begin(); itr != waveGuidList[i].end(); ++itr)
+                            if (Creature* creature = instance->GetCreature(*itr))
+                                creature->DespawnOrUnsummon(1);
+
+                        waveGuidList[i].clear();
+                    }
+                    break;
+            }
         }
 
         uint32 GetData(uint32 type) const
@@ -294,7 +459,7 @@ public:
             return saveStream.str();
         }
 
-        void Load(const char* in)
+        void Load(char const* in)
         {
             if (!in)
             {
@@ -338,159 +503,6 @@ public:
                 OUT_LOAD_INST_DATA_FAIL;
 
             OUT_LOAD_INST_DATA_COMPLETE;
-        }
-
-        // wave scheduling,checked when wave npcs die
-        void OnUnitDeath(Unit* unit)
-        {
-            Creature* creature = unit->ToCreature();
-            if (!creature)
-                return;
-
-            switch (creature->GetEntry())
-            {
-                case NPC_WAVE_MERCENARY:
-                case NPC_WAVE_FOOTMAN:
-                case NPC_WAVE_RIFLEMAN:
-                case NPC_WAVE_PRIEST:
-                case NPC_WAVE_MAGE:
-                {
-                    uint32 deadNpcs = 0;
-                    uint32 internalWaveId = _waveCount - ((_waveCount < 5) ? 1 : 2);
-                    for (std::set<uint64>::const_iterator itr = waveGuidList[internalWaveId].begin(); itr != waveGuidList[internalWaveId].end(); ++itr)
-                    {
-                        Creature* npc = instance->GetCreature(*itr);
-                        if (!npc || !npc->isAlive())
-                            ++deadNpcs;
-                    }
-
-                    // because the current npc returns isAlive when OnUnitDeath happens
-                    // we check if the number of dead npcs is equal to the list-1
-                    if (deadNpcs == waveGuidList[internalWaveId].size() - 1)
-                        events.ScheduleEvent(EVENT_NEXT_WAVE, 10000);
-                    break;
-                }
-            }
-        }
-
-        void Update(uint32 diff)
-        {
-            if (!instance->HavePlayers())
-                return;
-
-            events.Update(diff);
-
-            switch (events.ExecuteEvent())
-            {
-                case EVENT_NEXT_WAVE:
-                    ++_waveCount;
-                    ProcessEvent(NULL, EVENT_ADD_WAVE);
-                    break;
-            }
-        }
-
-        void ProcessEvent(WorldObject* /*go*/, uint32 eventId)
-        {
-            switch (eventId)
-            {
-                // spawning all wave npcs at once
-                case EVENT_SPAWN_WAVES:
-                    DoUpdateWorldState(WORLD_STATE_HOR, 1);
-                    DoUpdateWorldState(WORLD_STATE_HOR_WAVE_COUNT, _waveCount);
-                    {
-                        std::list<uint32> possibilityList, tempList;
-                        uint32 posIndex = 0;
-
-                        possibilityList.push_back(NPC_WAVE_MERCENARY);
-                        possibilityList.push_back(NPC_WAVE_FOOTMAN);
-                        possibilityList.push_back(NPC_WAVE_RIFLEMAN);
-                        possibilityList.push_back(NPC_WAVE_PRIEST);
-                        possibilityList.push_back(NPC_WAVE_MAGE);
-
-                        // iterate each wave
-                        for (uint8 i = 0; i < 8; i++)
-                        {
-                            tempList = possibilityList;
-
-                            uint64 bossGuid = i <= 3 ? _falricGUID : _marwynGUID;
-
-                            if (!i)
-                                Trinity::Containers::RandomResizeList(tempList, 3);
-                            else if (i < 6 && i != 3)
-                                Trinity::Containers::RandomResizeList(tempList, 4);
-
-                            for (std::list<uint32>::const_iterator itr = tempList.begin(); itr != tempList.end(); ++itr)
-                            {
-                                if (Creature* boss = instance->GetCreature(bossGuid))
-                                {
-                                    if (Creature* temp = boss->SummonCreature(*itr, SpawnPos[posIndex], TEMPSUMMON_DEAD_DESPAWN))
-                                    {
-                                        temp->AI()->SetData(0, i);
-                                        waveGuidList[i].insert(temp->GetGUID());
-                                    }
-                                }
-
-                                ++posIndex;
-                            }
-                        }
-                    }
-                    SetData(DATA_WAVE_COUNT, SPECIAL);
-                    break;
-                case EVENT_ADD_WAVE:
-                    DoUpdateWorldState(WORLD_STATE_HOR, 1);
-                    DoUpdateWorldState(WORLD_STATE_HOR_WAVE_COUNT, _waveCount);
-                    HandleGameObject(_entranceDoorGUID, false);
-
-                    if (_waveCount % 5)
-                    {
-                        uint32 internalWaveId = _waveCount - ((_waveCount < 5) ? 1 : 2);
-                        for (std::set<uint64>::const_iterator itr = waveGuidList[internalWaveId].begin(); itr != waveGuidList[internalWaveId].end(); ++itr)
-                        {
-                            if (Creature* temp = instance->GetCreature(*itr))
-                            {
-                                temp->CastSpell(temp, SPELL_SPIRIT_ACTIVATE, true);
-                                temp->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC|UNIT_FLAG_IMMUNE_TO_NPC|UNIT_FLAG_NOT_SELECTABLE);
-                                temp->AI()->DoZoneInCombat();
-                            }
-                        }
-                    }
-                    else
-                    {
-                        uint32 bossIndex = (_waveCount / 5) - 1;
-                        if (GetBossState(DATA_FALRIC_EVENT + bossIndex) != DONE)
-                        {
-                            if (Creature* boss = instance->GetCreature(bossIndex ? _marwynGUID :_falricGUID))
-                                if (boss->AI())
-                                    boss->AI()->DoAction(ACTION_ENTER_COMBAT);
-                        }
-                        else if (_waveCount != 10)
-                            events.ScheduleEvent(EVENT_NEXT_WAVE, 10000);
-                    }
-                    break;
-                case EVENT_DO_WIPE:
-                    //SetData(DATA_WAVE_COUNT, NOT_STARTED);
-                    _waveCount = 0;
-                    events.Reset();
-                    DoUpdateWorldState(WORLD_STATE_HOR, 1);
-                    DoUpdateWorldState(WORLD_STATE_HOR_WAVE_COUNT, _waveCount);
-                    HandleGameObject(_entranceDoorGUID, true);
-
-                    if (Creature* falric = instance->GetCreature(_falricGUID))
-                        falric->SetVisible(false);
-                    if (Creature* marwyn = instance->GetCreature(_marwynGUID))
-                        marwyn->SetVisible(false);
-
-                    //despawn wave npcs
-                    for (uint8 i = 0; i < 8; i++)
-                    {
-                        for (std::set<uint64>::const_iterator itr = waveGuidList[i].begin(); itr != waveGuidList[i].end(); ++itr)
-                            if (Creature* creature = instance->GetCreature(*itr))
-                                creature->DespawnOrUnsummon();
-
-                        waveGuidList[i].clear();
-                    }
-                    break;
-            }
         }
 
     private:
