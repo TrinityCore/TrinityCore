@@ -17,7 +17,7 @@
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
-#include "GossipDef.h"
+#include "ScriptedGossip.h"
 #include "Player.h"
 #include "halls_of_reflection.h"
 
