@@ -1550,9 +1550,9 @@ public:
         std::string eMail             = handler->GetTrinityString(LANG_ERROR);
         uint32 security               = 0;
         std::string lastIp            = handler->GetTrinityString(LANG_ERROR);
-        uint32 locked                 = 0;
+        uint8 locked                  = 0;
         std::string lastLogin         = handler->GetTrinityString(LANG_ERROR);
-        int16 flogin                  = 0;
+        uint32 failedLogins           = 0;
         uint32 latency                = 0;
         std::string OS                = "None";
 
@@ -1636,6 +1636,12 @@ public:
             mapId             = fields[6].GetUInt16();
             areaId            = fields[7].GetUInt16();
             gender            = fields[8].GetUInt8();
+            uint32 health = fields[9].GetUInt32();
+            uint32 playerFlags = fields[10].GetUInt32();
+            if (!health || playerFlags & PLAYER_FLAGS_GHOST)
+                alive = "No";
+            else
+                alive = "Yes";
         }
 
         // Query the prepared statement for login data
@@ -1658,15 +1664,8 @@ public:
                 lastIp = fields[3].GetString();
                 lastLogin = fields[4].GetString();
 
-                // For crossplattforming. Quoting ByteConverter.h
-                /** ByteConverter reverses the byte order. This is used
-                    for cross platform where they have different endians.
-                */
-
                 uint32 ip = inet_addr(lastIp.c_str());
-                #if TRINITY_ENDIAN == BIGENDIAN
                 EndianConvertReverse(ip);
-                #endif
 
                 // If ip2nation table is populated, it displays the country
                 PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_IP2NATION_COUNTRY);
@@ -1682,8 +1681,8 @@ public:
             muteTime      = fields[5].GetUInt64();
             muteReason    = fields[6].GetString();
             muteBy        = fields[7].GetString();
-            flogin        = fields[8].GetInt16();
-            locked        = fields[9].GetUInt16();
+            failedLogins  = fields[8].GetUInt32();
+            locked        = fields[9].GetUInt8();
             OS            = fields[10].GetString();
         }
 
@@ -1742,7 +1741,7 @@ public:
 
         // Output III. LANG_PINFO_BANNED if ban exists and is applied
         if (banTime >= 0)
-            handler->PSendSysMessage(LANG_PINFO_BANNED,	banType.c_str(), banTime > 0 ? secsToTimeString(banTime - time(NULL), true).c_str() : "permanently", banReason.c_str(), bannedBy.c_str());
+            handler->PSendSysMessage(LANG_PINFO_BANNED, banType.c_str(), banTime > 0 ? secsToTimeString(banTime - time(NULL), true).c_str() : "permanently", banReason.c_str(), bannedBy.c_str());
 
         // Output IV. LANG_PINFO_MUTED if mute is applied
         if (muteTime > 0)
@@ -1752,13 +1751,13 @@ public:
         handler->PSendSysMessage(LANG_PINFO_ACC_ACCOUNT, userName.c_str(), accId, security);
 
         // Output VI. LANG_PINFO_ACC_LASTLOGIN
-        handler->PSendSysMessage(LANG_PINFO_ACC_LASTLOGIN, lastLogin.c_str(), flogin);
+        handler->PSendSysMessage(LANG_PINFO_ACC_LASTLOGIN, lastLogin.c_str(), failedLogins);
 
         // Output VIII. LANG_PINFO_ACC_OS
         handler->PSendSysMessage(LANG_PINFO_ACC_OS, OS.c_str(), latency, eMail.c_str());
 
         // Output IX. LANG_PINFO_ACC_IP
-        handler->PSendSysMessage(LANG_PINFO_ACC_IP, lastIp.c_str(), locked == 0 ? "No" : "Yes");
+        handler->PSendSysMessage(LANG_PINFO_ACC_IP, lastIp.c_str(), locked ? "Yes" : "No");
 
         // Output X. LANG_PINFO_CHR_LEVEL
         handler->PSendSysMessage(LANG_PINFO_CHR_LEVEL, level, xp, xptotal, (xptotal - xp));
@@ -1830,16 +1829,15 @@ public:
         if (result6)
         {
             // Define the variables, so the compiler knows they exist
-            int rmailint = 0;
+            uint32 rmailint = 0;
 
             // Fetch the fields - readmail is a SUM(x) and given out as char! Thus...
             Field* fields         = result6->Fetch();
-            const char* readmail  = fields[0].GetCString();
+            std::string readmail  = fields[0].GetString();
             uint64 totalmail      = fields[1].GetUInt64();
 
             // ... we have to convert it from Char to int. We can use totalmail as it is
-            if (readmail)
-                rmailint = atoi(readmail);
+            rmailint = atol(readmail.c_str());
 
             // Output XXII. LANG_INFO_CHR_MAILS if at least one mails is given
             if (totalmail >= 1)

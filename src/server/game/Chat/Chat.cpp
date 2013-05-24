@@ -143,7 +143,7 @@ bool ChatHandler::isAvailable(ChatCommand const& cmd) const
             return m_session->GetSecurity() >= AccountTypes(cmd.SecurityLevel);
     }
 
-    return m_session->HasPermission(permission);
+    return HasPermission(permission);
 }
 
 bool ChatHandler::HasLowerSecurity(Player* target, uint64 guid, bool strong)

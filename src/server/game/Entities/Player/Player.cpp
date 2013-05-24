@@ -7688,6 +7688,10 @@ void Player::DuelComplete(DuelCompleteType type)
             if (getClass() == CLASS_DEATH_KNIGHT && duel->opponent->GetQuestStatus(12733) == QUEST_STATUS_INCOMPLETE)
                 duel->opponent->CastSpell(duel->opponent, 52994, true);
 
+            // Honor points after duel (the winner) - ImpConfig
+            if (uint32 amount = sWorld->getIntConfig(CONFIG_HONOR_AFTER_DUEL))
+                duel->opponent->RewardHonor(NULL, 1, amount);
+                
             break;
         default:
             break;
@@ -7733,10 +7737,6 @@ void Player::DuelComplete(DuelCompleteType type)
         duel->opponent->ClearComboPoints();
     else if (duel->opponent->GetComboTarget() == GetPetGUID())
         duel->opponent->ClearComboPoints();
-
-    // Honor points after duel (the winner) - ImpConfig
-    if (uint32 amount = sWorld->getIntConfig(CONFIG_HONOR_AFTER_DUEL))
-        duel->opponent->RewardHonor(NULL, 1, amount);
 
     //cleanups
     SetUInt64Value(PLAYER_DUEL_ARBITER, 0);
