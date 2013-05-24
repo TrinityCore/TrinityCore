@@ -72,6 +72,7 @@ public:
         uint64 uiEckTheFerociousDoorBehind;
         uint64 uiGalDarahDoor1;
         uint64 uiGalDarahDoor2;
+        uint64 uiGaldarahDoor;
         uint64 uiBridge;
         uint64 uiCollision;
 
@@ -115,6 +116,7 @@ public:
             uiEckTheFerociousDoorBehind = 0;
             uiGalDarahDoor1 = 0;
             uiGalDarahDoor2 = 0;
+            uiGaldarahDoor = 0;
 
             uiBridge = 0;
             uiCollision = 0;
@@ -252,6 +254,11 @@ public:
                     if (uiCollisionState == GO_STATE_ACTIVE_ALTERNATIVE)
                         spawnSupport = true;
                     break;
+                case 192568:
+                    uiGaldarahDoor = go->GetGUID();
+                    if (m_auiEncounter[3] != IN_PROGRESS)
+                        HandleGameObject(uiGaldarahDoor, true, go);
+                    break;
             }
         }
 
@@ -295,6 +302,7 @@ public:
                     HandleGameObject(uiGalDarahDoor1, true);
                     HandleGameObject(uiGalDarahDoor2, true);
                 }
+                HandleGameObject(uiGaldarahDoor, data == IN_PROGRESS ? false : true);
                 break;
             case DATA_ECK_THE_FEROCIOUS_EVENT:
                 m_auiEncounter[4] = data;
