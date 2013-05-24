@@ -17,6 +17,8 @@
 
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "GossipDef.h"
+#include "Player.h"
 #include "halls_of_reflection.h"
 
 enum Text
