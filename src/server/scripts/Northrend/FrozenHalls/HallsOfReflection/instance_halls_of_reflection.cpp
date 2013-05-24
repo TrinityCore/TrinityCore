@@ -19,13 +19,14 @@
 #include "ScriptedCreature.h"
 #include "InstanceScript.h"
 #include "Player.h"
+#include "WorldPacket.h"
 #include "halls_of_reflection.h"
 
-const Position JainaSpawnPos                = {5236.659f, 1929.894f, 707.7781f, 0.8726646f}; // Jaina Spawn Position
-const Position SylvanasSpawnPos             = {5236.667f, 1929.906f, 707.7781f, 0.8377581f}; // Sylvanas Spawn Position
-const Position GeneralSpawnPos              = {5415.538f, 2117.842f, 707.7781f, 3.944444f}; // Frostsworn General
+Position const JainaSpawnPos                = {5236.659f, 1929.894f, 707.7781f, 0.8726646f}; // Jaina Spawn Position
+Position const SylvanasSpawnPos             = {5236.667f, 1929.906f, 707.7781f, 0.8377581f}; // Sylvanas Spawn Position
+Position const GeneralSpawnPos              = {5415.538f, 2117.842f, 707.7781f, 3.944444f}; // Frostsworn General
 
-static Position SpawnPos[] =
+Position const SpawnPos[] =
 {
     {5309.577f, 2042.668f, 707.7781f, 4.694936f},
     {5295.885f, 2040.342f, 707.7781f, 5.078908f},
