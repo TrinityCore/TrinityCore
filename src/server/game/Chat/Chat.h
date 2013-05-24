@@ -150,7 +150,7 @@ class CliHandler : public ChatHandler
         // overwrite functions
         const char *GetTrinityString(int32 entry) const;
         bool isAvailable(ChatCommand const& cmd) const;
-        bool HasPermission(uint32 permission) const { return true; }
+        bool HasPermission(uint32 /*permission*/) const { return true; }
         void SendSysMessage(const char *str);
         std::string GetNameLink() const;
         bool needReportToTarget(Player* chr) const;
