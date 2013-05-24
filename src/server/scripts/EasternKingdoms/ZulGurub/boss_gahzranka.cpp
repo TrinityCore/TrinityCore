@@ -36,9 +36,9 @@ enum Spells
 
 enum Events
 {
-    EVENT_FROSTBREATH               = 0,
-    EVENT_MASSIVEGEYSER             = 1,
-    EVENT_SLAM                      = 2
+    EVENT_FROSTBREATH               = 1,
+    EVENT_MASSIVEGEYSER             = 2,
+    EVENT_SLAM                      = 3
 };
 
 class boss_gahzranka : public CreatureScript // gahzranka

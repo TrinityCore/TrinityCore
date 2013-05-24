@@ -33,10 +33,10 @@ enum Spells
 
 enum Events
 {
-    EVENT_BERSERK               = 0,
-    EVENT_CLOUD                 = 1,
-    EVENT_INJECT                = 2,
-    EVENT_SPRAY                 = 3
+    EVENT_BERSERK               = 1,
+    EVENT_CLOUD                 = 2,
+    EVENT_INJECT                = 3,
+    EVENT_SPRAY                 = 4
 };
 
 enum CreatureId
@@ -46,7 +46,8 @@ enum CreatureId
 
 class boss_grobbulus : public CreatureScript
 {
-public: boss_grobbulus() : CreatureScript("boss_grobbulus") { }
+public:
+    boss_grobbulus() : CreatureScript("boss_grobbulus") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
