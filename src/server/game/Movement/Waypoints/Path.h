@@ -40,13 +40,13 @@ class Path
         void erase(uint32 idx) { i_nodes.erase(i_nodes.begin()+idx); }
         void crop(unsigned int start, unsigned int end)
         {
-            while(start && !i_nodes.empty())
+            while (start && !i_nodes.empty())
             {
                 i_nodes.pop_front();
                 --start;
             }
 
-            while(end && !i_nodes.empty())
+            while (end && !i_nodes.empty())
             {
                 i_nodes.pop_back();
                 --end;

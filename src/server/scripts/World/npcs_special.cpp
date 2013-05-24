@@ -142,14 +142,14 @@ public:
             }
 
             if (!SpawnAssoc)
-                sLog->outError(LOG_FILTER_SQL, "TCSR: Creature template entry %u has ScriptName npc_air_force_bots, but it's not handled by that script", creature->GetEntry());
+                TC_LOG_ERROR(LOG_FILTER_SQL, "TCSR: Creature template entry %u has ScriptName npc_air_force_bots, but it's not handled by that script", creature->GetEntry());
             else
             {
                 CreatureTemplate const* spawnedTemplate = sObjectMgr->GetCreatureTemplate(SpawnAssoc->spawnedCreatureEntry);
 
                 if (!spawnedTemplate)
                 {
-                    sLog->outError(LOG_FILTER_SQL, "TCSR: Creature template entry %u does not exist in DB, which is required by npc_air_force_bots", SpawnAssoc->spawnedCreatureEntry);
+                    TC_LOG_ERROR(LOG_FILTER_SQL, "TCSR: Creature template entry %u does not exist in DB, which is required by npc_air_force_bots", SpawnAssoc->spawnedCreatureEntry);
                     SpawnAssoc = NULL;
                     return;
                 }
@@ -169,7 +169,7 @@ public:
                 SpawnedGUID = summoned->GetGUID();
             else
             {
-                sLog->outError(LOG_FILTER_SQL, "TCSR: npc_air_force_bots: wasn't able to spawn Creature %u", SpawnAssoc->spawnedCreatureEntry);
+                TC_LOG_ERROR(LOG_FILTER_SQL, "TCSR: npc_air_force_bots: wasn't able to spawn Creature %u", SpawnAssoc->spawnedCreatureEntry);
                 SpawnAssoc = NULL;
             }
 
@@ -852,7 +852,7 @@ void npc_doctor::npc_doctorAI::UpdateAI(uint32 diff)
                     patientEntry = HordeSoldierId[rand() % 3];
                     break;
                 default:
-                    sLog->outError(LOG_FILTER_TSCR, "Invalid entry for Triage doctor. Please check your database");
+                    TC_LOG_ERROR(LOG_FILTER_TSCR, "Invalid entry for Triage doctor. Please check your database");
                     return;
             }
 
@@ -1751,7 +1751,7 @@ public:
         {
             me->HandleEmoteCommand(emote);
             Unit* owner = me->GetOwner();
-            if (emote != TEXT_EMOTE_KISS || owner || owner->GetTypeId() != TYPEID_PLAYER ||
+            if (emote != TEXT_EMOTE_KISS || !owner || owner->GetTypeId() != TYPEID_PLAYER ||
                 owner->ToPlayer()->GetTeam() != player->GetTeam())
             {
                 return;

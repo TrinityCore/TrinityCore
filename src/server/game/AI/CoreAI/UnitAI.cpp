@@ -123,7 +123,7 @@ void UnitAI::DoCastToAllHostilePlayers(uint32 spellid, bool triggered)
 void UnitAI::DoCast(uint32 spellId)
 {
     Unit* target = NULL;
-    //sLog->outError(LOG_FILTER_GENERAL, "aggre %u %u", spellId, (uint32)AISpellInfo[spellId].target);
+    //TC_LOG_ERROR(LOG_FILTER_GENERAL, "aggre %u %u", spellId, (uint32)AISpellInfo[spellId].target);
     switch (AISpellInfo[spellId].target)
     {
         default:

@@ -252,7 +252,7 @@ public:
             return false;
         }
 
-        uint32 vendor_entry = vendor ? vendor->GetEntry() : 0;
+        uint32 vendor_entry = vendor->GetEntry();
 
         if (!sObjectMgr->IsVendorItemValid(vendor_entry, itemId, maxcount, incrtime, extendedcost, handler->GetSession()->GetPlayer()))
         {
@@ -889,7 +889,7 @@ public:
 
         if (dontdel_str)
         {
-            //sLog->outError(LOG_FILTER_GENERAL, "DEBUG: All 3 params are set");
+            //TC_LOG_ERROR(LOG_FILTER_GENERAL, "DEBUG: All 3 params are set");
 
             // All 3 params are set
             // GUID
@@ -897,7 +897,7 @@ public:
             // doNotDEL
             if (stricmp(dontdel_str, "NODEL") == 0)
             {
-                //sLog->outError(LOG_FILTER_GENERAL, "DEBUG: doNotDelete = true;");
+                //TC_LOG_ERROR(LOG_FILTER_GENERAL, "DEBUG: doNotDelete = true;");
                 doNotDelete = true;
             }
         }
@@ -906,10 +906,10 @@ public:
             // Only 2 params - but maybe NODEL is set
             if (type_str)
             {
-                sLog->outError(LOG_FILTER_GENERAL, "DEBUG: Only 2 params ");
+                TC_LOG_ERROR(LOG_FILTER_GENERAL, "DEBUG: Only 2 params ");
                 if (stricmp(type_str, "NODEL") == 0)
                 {
-                    //sLog->outError(LOG_FILTER_GENERAL, "DEBUG: type_str, NODEL ");
+                    //TC_LOG_ERROR(LOG_FILTER_GENERAL, "DEBUG: type_str, NODEL ");
                     doNotDelete = true;
                     type_str = NULL;
                 }

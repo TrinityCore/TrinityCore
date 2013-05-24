@@ -38,7 +38,7 @@ Weather::Weather(uint32 zone, WeatherData const* weatherChances)
     m_type = WEATHER_TYPE_FINE;
     m_grade = 0;
 
-    sLog->outInfo(LOG_FILTER_GENERAL, "WORLD: Starting weather system for zone %u (change every %u minutes).", m_zone, (uint32)(m_timer.GetInterval() / (MINUTE*IN_MILLISECONDS)));
+    TC_LOG_INFO(LOG_FILTER_GENERAL, "WORLD: Starting weather system for zone %u (change every %u minutes).", m_zone, (uint32)(m_timer.GetInterval() / (MINUTE*IN_MILLISECONDS)));
 }
 
 /// Launch a weather update
@@ -98,7 +98,7 @@ bool Weather::ReGenerate()
 
     static char const* seasonName[WEATHER_SEASONS] = { "spring", "summer", "fall", "winter" };
 
-    sLog->outInfo(LOG_FILTER_GENERAL, "Generating a change in %s weather for zone %u.", seasonName[season], m_zone);
+    TC_LOG_INFO(LOG_FILTER_GENERAL, "Generating a change in %s weather for zone %u.", seasonName[season], m_zone);
 
     if ((u < 60) && (m_grade < 0.33333334f))                // Get fair
     {
@@ -262,7 +262,7 @@ bool Weather::UpdateWeather()
             wthstr = "fine";
             break;
     }
-    sLog->outInfo(LOG_FILTER_GENERAL, "Change the weather of zone %u to %s.", m_zone, wthstr);
+    TC_LOG_INFO(LOG_FILTER_GENERAL, "Change the weather of zone %u to %s.", m_zone, wthstr);
 
     sScriptMgr->OnWeatherChange(this, state, m_grade);
     return true;
