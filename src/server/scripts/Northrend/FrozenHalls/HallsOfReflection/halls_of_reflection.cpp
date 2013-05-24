@@ -539,7 +539,6 @@ class npc_jaina_or_sylvanas_hor : public CreatureScript
                     {
                         instance->SetData(DATA_INTRO_EVENT, DONE);
                         instance->ProcessEvent(0, EVENT_SPAWN_WAVES);
-                        //instance->SetData(DATA_WAVE_COUNT, SPECIAL);   // start first wave
                     }
                     // Loralen or Koreln disappearAndDie()
                     if (Creature* lichking = me->GetCreature(*me, lichkingGUID))
@@ -655,7 +654,22 @@ enum TrashEvents
 
 struct npc_gauntlet_trash : public ScriptedAI
 {
-    npc_gauntlet_trash(Creature* creature) : ScriptedAI(creature) { }
+    npc_gauntlet_trash(Creature* creature) : ScriptedAI(creature),
+        instance(creature->GetInstanceScript())
+    {
+    }
+
+    void Reset()
+    {
+        me->CastSpell(me, SPELL_WELL_OF_SOULS, true);
+        events.Reset();
+    }
+
+    void EnterEvadeMode()
+    {
+        if (instance->GetData(DATA_WAVE_COUNT) != NOT_STARTED)
+            instance->SetData(DATA_WAVE_COUNT, NOT_STARTED);
+    }
 
     void SetData(uint32 type, uint32 value)
     {
@@ -674,6 +688,8 @@ struct npc_gauntlet_trash : public ScriptedAI
     }
 
 protected:
+    EventMap events;
+    InstanceScript* instance;
     uint32 InternalWaveId;
 };
 
@@ -682,28 +698,10 @@ class npc_ghostly_priest : public CreatureScript
 public:
     npc_ghostly_priest() : CreatureScript("npc_ghostly_priest") { }
 
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new npc_ghostly_priestAI(creature);
-    }
-
     struct npc_ghostly_priestAI : public npc_gauntlet_trash
     {
         npc_ghostly_priestAI(Creature* creature) : npc_gauntlet_trash(creature)
         {
-            instance = me->GetInstanceScript();
-            me->CastSpell(me, SPELL_WELL_OF_SOULS, true);
-        }
-
-        InstanceScript* instance;
-
-        EventMap events;
-
-        void Reset()
-        {
-            events.Reset();
-            if (instance->GetData(DATA_WAVE_COUNT) != NOT_STARTED)
-                instance->SetData(DATA_WAVE_COUNT, NOT_STARTED);
         }
 
         void EnterCombat(Unit* /*who*/)
@@ -760,6 +758,10 @@ public:
         }
     };
 
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new npc_ghostly_priestAI(creature);
+    }
 };
 
 class npc_phantom_mage : public CreatureScript
@@ -767,28 +769,10 @@ class npc_phantom_mage : public CreatureScript
 public:
     npc_phantom_mage() : CreatureScript("npc_phantom_mage") { }
 
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new npc_phantom_mageAI(creature);
-    }
-
     struct npc_phantom_mageAI : public npc_gauntlet_trash
     {
         npc_phantom_mageAI(Creature* creature) : npc_gauntlet_trash(creature)
         {
-            instance = me->GetInstanceScript();
-            me->CastSpell(me, SPELL_WELL_OF_SOULS, true);
-        }
-
-        InstanceScript* instance;
-
-        EventMap events;
-
-        void Reset()
-        {
-            events.Reset();
-            if (instance->GetData(DATA_WAVE_COUNT) != NOT_STARTED)
-                instance->SetData(DATA_WAVE_COUNT, NOT_STARTED);
         }
 
         void EnterCombat(Unit* /*who*/)
@@ -840,17 +824,16 @@ public:
         }
     };
 
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new npc_phantom_mageAI(creature);
+    }
 };
 
 class npc_phantom_hallucination : public CreatureScript
 {
 public:
     npc_phantom_hallucination() : CreatureScript("npc_phantom_hallucination") { }
-
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new npc_phantom_hallucinationAI(creature);
-    }
 
     struct npc_phantom_hallucinationAI : public npc_phantom_mage::npc_phantom_mageAI
     {
@@ -862,6 +845,10 @@ public:
         }
     };
 
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new npc_phantom_hallucinationAI(creature);
+    }
 };
 
 class npc_shadowy_mercenary : public CreatureScript
@@ -869,28 +856,10 @@ class npc_shadowy_mercenary : public CreatureScript
 public:
     npc_shadowy_mercenary() : CreatureScript("npc_shadowy_mercenary") { }
 
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new npc_shadowy_mercenaryAI(creature);
-    }
-
     struct npc_shadowy_mercenaryAI : public npc_gauntlet_trash
     {
         npc_shadowy_mercenaryAI(Creature* creature) : npc_gauntlet_trash(creature)
         {
-            instance = me->GetInstanceScript();
-            me->CastSpell(me, SPELL_WELL_OF_SOULS, true);
-        }
-
-        InstanceScript* instance;
-
-        EventMap events;
-
-        void Reset()
-        {
-            events.Reset();
-            if (instance->GetData(DATA_WAVE_COUNT) != NOT_STARTED)
-                instance->SetData(DATA_WAVE_COUNT, NOT_STARTED);
         }
 
         void EnterCombat(Unit* /*who*/)
@@ -936,6 +905,10 @@ public:
         }
     };
 
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new npc_shadowy_mercenaryAI(creature);
+    }
 };
 
 class npc_spectral_footman : public CreatureScript
@@ -943,28 +916,10 @@ class npc_spectral_footman : public CreatureScript
 public:
     npc_spectral_footman() : CreatureScript("npc_spectral_footman") { }
 
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new npc_spectral_footmanAI(creature);
-    }
-
     struct npc_spectral_footmanAI : public npc_gauntlet_trash
     {
         npc_spectral_footmanAI(Creature* creature) : npc_gauntlet_trash(creature)
         {
-            instance = me->GetInstanceScript();
-            me->CastSpell(me, SPELL_WELL_OF_SOULS, true);
-        }
-
-        InstanceScript* instance;
-
-        EventMap events;
-
-        void Reset()
-        {
-            events.Reset();
-            if (instance->GetData(DATA_WAVE_COUNT) != NOT_STARTED)
-                instance->SetData(DATA_WAVE_COUNT, NOT_STARTED);
         }
 
         void EnterCombat(Unit* /*who*/)
@@ -1004,6 +959,10 @@ public:
         }
     };
 
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new npc_spectral_footmanAI(creature);
+    }
 };
 
 class npc_tortured_rifleman : public CreatureScript
@@ -1011,28 +970,10 @@ class npc_tortured_rifleman : public CreatureScript
 public:
     npc_tortured_rifleman() : CreatureScript("npc_tortured_rifleman") { }
 
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new npc_tortured_riflemanAI(creature);
-    }
-
     struct npc_tortured_riflemanAI : public npc_gauntlet_trash
     {
         npc_tortured_riflemanAI(Creature* creature) : npc_gauntlet_trash(creature)
         {
-            instance = me->GetInstanceScript();
-            me->CastSpell(me, SPELL_WELL_OF_SOULS, true);
-        }
-
-        InstanceScript* instance;
-
-        EventMap events;
-
-        void Reset()
-        {
-            events.Reset();
-            if (instance->GetData(DATA_WAVE_COUNT) != NOT_STARTED)
-                instance->SetData(DATA_WAVE_COUNT, NOT_STARTED);
         }
 
         void EnterCombat(Unit* /*who*/)
@@ -1080,6 +1021,10 @@ public:
         }
     };
 
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new npc_tortured_riflemanAI(creature);
+    }
 };
 
 
@@ -1191,6 +1136,7 @@ public:
 
         }
     };
+
     CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_frostworn_generalAI(creature);
@@ -1247,6 +1193,7 @@ public:
             DoMeleeAttackIfReady();
         }
     };
+
     CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_spiritual_reflectionAI(creature);
@@ -1255,58 +1202,57 @@ public:
 
 class at_hor_intro_start : public AreaTriggerScript
 {
-    public:
-        at_hor_intro_start() : AreaTriggerScript("at_hor_intro_start") {}
+public:
+    at_hor_intro_start() : AreaTriggerScript("at_hor_intro_start") {}
 
-        bool OnTrigger(Player* player, AreaTriggerEntry const* /*trigger*/)
-        {
-            InstanceScript* instance = player->GetInstanceScript();
+    bool OnTrigger(Player* player, AreaTriggerEntry const* /*trigger*/)
+    {
+        InstanceScript* instance = player->GetInstanceScript();
 
-            if (player->isGameMaster())
-                return true;
-
-            if (instance->GetData(DATA_INTRO_EVENT) == NOT_STARTED)
-            {
-                instance->SetData(DATA_INTRO_EVENT, IN_PROGRESS);
-            }
-
+        if (player->isGameMaster())
             return true;
+
+        if (instance->GetData(DATA_INTRO_EVENT) == NOT_STARTED)
+        {
+            instance->SetData(DATA_INTRO_EVENT, IN_PROGRESS);
         }
+
+        return true;
+    }
 };
 
 class at_hor_waves_restarter : public AreaTriggerScript
 {
-    public:
-        at_hor_waves_restarter() : AreaTriggerScript("at_hor_waves_restarter") {}
+public:
+    at_hor_waves_restarter() : AreaTriggerScript("at_hor_waves_restarter") {}
 
-        bool OnTrigger(Player* player, AreaTriggerEntry const* /*trigger*/)
-        {
-            InstanceScript* instance = player->GetInstanceScript();
+    bool OnTrigger(Player* player, AreaTriggerEntry const* /*trigger*/)
+    {
+        InstanceScript* instance = player->GetInstanceScript();
 
-            if (player->isGameMaster())
-                return true;
-
-            if (instance->GetData(DATA_WAVE_COUNT))
-                return true;
-
-            if (instance->GetData(DATA_INTRO_EVENT) == DONE && instance->GetBossState(DATA_MARWYN_EVENT) != DONE && instance->GetData(DATA_WAVE_COUNT) == NOT_STARTED)
-            {
-                instance->ProcessEvent(0, EVENT_SPAWN_WAVES);
-                //instance->SetData(DATA_WAVE_COUNT, SPECIAL);
-
-                if (Creature* falric = player->GetCreature(*player, instance->GetData64(DATA_FALRIC_EVENT)))
-                {
-                    falric->CastSpell(falric, SPELL_BOSS_SPAWN_AURA, true);
-                    falric->SetVisible(true);
-                }
-                if (Creature* marwyn = player->GetCreature(*player, instance->GetData64(DATA_MARWYN_EVENT)))
-                {
-                    marwyn->CastSpell(marwyn, SPELL_BOSS_SPAWN_AURA, true);
-                    marwyn->SetVisible(true);
-                }
-            }
+        if (player->isGameMaster())
             return true;
+
+        if (instance->GetData(DATA_WAVE_COUNT))
+            return true;
+
+        if (instance->GetData(DATA_INTRO_EVENT) == DONE && instance->GetBossState(DATA_MARWYN_EVENT) != DONE)
+        {
+            instance->ProcessEvent(0, EVENT_SPAWN_WAVES);
+
+            if (Creature* falric = player->GetCreature(*player, instance->GetData64(DATA_FALRIC_EVENT)))
+            {
+                falric->CastSpell(falric, SPELL_BOSS_SPAWN_AURA, true);
+                falric->SetVisible(true);
+            }
+            if (Creature* marwyn = player->GetCreature(*player, instance->GetData64(DATA_MARWYN_EVENT)))
+            {
+                marwyn->CastSpell(marwyn, SPELL_BOSS_SPAWN_AURA, true);
+                marwyn->SetVisible(true);
+            }
         }
+        return true;
+    }
 };
 
 void AddSC_halls_of_reflection()
