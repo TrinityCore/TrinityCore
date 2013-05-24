@@ -19,7 +19,7 @@
 #include "ScriptedCreature.h"
 #include "halls_of_reflection.h"
 
-enum Yells
+enum Texts
 {
     SAY_AGGRO                                     = 0,
     SAY_SLAY                                      = 1,
@@ -63,14 +63,14 @@ public:
             boss_horAI::Reset();
 
             if (instance)
-                instance->SetData(DATA_MARWYN_EVENT, NOT_STARTED);
+                instance->SetBossState(DATA_MARWYN_EVENT, NOT_STARTED);
         }
 
         void EnterCombat(Unit* /*who*/)
         {
             Talk(SAY_AGGRO);
             if (instance)
-                instance->SetData(DATA_MARWYN_EVENT, IN_PROGRESS);
+                instance->SetBossState(DATA_MARWYN_EVENT, IN_PROGRESS);
 
             events.ScheduleEvent(EVENT_OBLITERATE, 30000);          /// @todo Check timer
             events.ScheduleEvent(EVENT_WELL_OF_CORRUPTION, 13000);
@@ -83,7 +83,7 @@ public:
             Talk(SAY_DEATH);
 
             if (instance)
-                instance->SetData(DATA_MARWYN_EVENT, DONE);
+                instance->SetBossState(DATA_MARWYN_EVENT, DONE);
         }
 
         void KilledUnit(Unit* /*victim*/)
