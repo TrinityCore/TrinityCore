@@ -140,7 +140,7 @@ UPDATE `creature_template` SET `flags_extra`=1 WHERE `entry` IN (38599,38603);
 UPDATE `creature_template` SET `ScriptName`='npc_frostworn_general' WHERE `entry`=36723;
 UPDATE `creature_template` SET `faction_A`=16,`faction_H`=16 WHERE `entry`=37720; -- for hc
 -- Spiritual Reflection
-UPDATE `creature_template` SET `modelid1`=57,`ScriptName`='npc_spiritual_reflection' WHERE `entry`=37068;
+UPDATE `creature_template` SET /*`modelid1`=57,*/`ScriptName`='npc_spiritual_reflection' WHERE `entry`=37068;
 -- The Lich King (at chase event)
 UPDATE `creature_template` SET `ScriptName`='boss_lich_king_hor' WHERE `entry`=36954;
 -- Lady Jaina Proudmoore (at chase event)
@@ -157,7 +157,7 @@ UPDATE `creature_template` SET `AIName`='',`Scriptname`='npc_raging_ghoul' WHERE
 UPDATE `creature_template` SET `AIName`='',`Scriptname`='npc_risen_witch_doctor' WHERE `entry`=36941;
 -- Lumbering Abomination
 UPDATE `creature_template` SET `AIName`='',`Scriptname`='npc_lumbering_abomination' WHERE `entry`=37069;
--- Frostmourne Altar Bunny (Quel'Delar)
+-- Frostmourne Altar Bunny (Quel''Delar)
 UPDATE `creature_template` SET `InhabitType`=4,`flags_extra`=128 WHERE `entry`=37704;
 
 DELETE FROM `conditions` WHERE `SourceEntry`=70063 AND `SourceTypeOrReferenceId`=13;
@@ -293,5 +293,5 @@ INSERT INTO `script_waypoint` VALUES
 (36954,65,5287.11,1713.96,781.667,0,'HoR WP LichKing'),
 (36954,66,5280.14,1705.21,784.65,0,'HoR WP LichKing'),
 (36954,67,5277.98,1701.28,785.224,0,'HoR WP LichKing');
-
+*/
 -- Halls of Reflexion WIP
