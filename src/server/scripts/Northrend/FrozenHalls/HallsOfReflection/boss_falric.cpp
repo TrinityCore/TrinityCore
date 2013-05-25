@@ -19,7 +19,7 @@
 #include "ScriptedCreature.h"
 #include "halls_of_reflection.h"
 
-enum Yells
+enum Texts
 {
     SAY_AGGRO                                     = 0,
     SAY_SLAY                                      = 1,
@@ -68,14 +68,14 @@ public:
             uiHopelessnessCount = 0;
 
             if (instance)
-                instance->SetData(DATA_FALRIC_EVENT, NOT_STARTED);
+                instance->SetBossState(DATA_FALRIC_EVENT, NOT_STARTED);
         }
 
         void EnterCombat(Unit* /*who*/)
         {
             Talk(SAY_AGGRO);
             if (instance)
-                instance->SetData(DATA_FALRIC_EVENT, IN_PROGRESS);
+                instance->SetBossState(DATA_FALRIC_EVENT, IN_PROGRESS);
 
             events.ScheduleEvent(EVENT_QUIVERING_STRIKE, 23000);
             events.ScheduleEvent(EVENT_IMPENDING_DESPAIR, 9000);
@@ -87,7 +87,7 @@ public:
             Talk(SAY_DEATH);
 
             if (instance)
-                instance->SetData(DATA_FALRIC_EVENT, DONE);
+                instance->SetBossState(DATA_FALRIC_EVENT, DONE);
         }
 
         void KilledUnit(Unit* /*victim*/)

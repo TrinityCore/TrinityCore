@@ -37,7 +37,7 @@ class ByteBufferException : public std::exception
 public:
     ~ByteBufferException() throw() { }
 
-    char const * what() const throw() { return msg_.c_str(); }
+    char const* what() const throw() { return msg_.c_str(); }
 
 protected:
     std::string & message() throw() { return msg_; }

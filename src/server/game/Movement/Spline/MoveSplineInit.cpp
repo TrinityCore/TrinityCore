@@ -118,7 +118,7 @@ namespace Movement
         }
 
         PacketBuilder::WriteMonsterMove(move_spline, data);
-        unit->SendMessageToSet(&data,true);
+        unit->SendMessageToSet(&data, true);
 
         return move_spline.Duration();
     }
