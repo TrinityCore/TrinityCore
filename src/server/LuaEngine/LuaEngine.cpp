@@ -467,36 +467,32 @@ void Eluna::PushPacket(lua_State* L, WorldPacket* packet)
         lua_pushnil(L);
 }
 
-Player * Eluna::CHECK_PLAYER(lua_State* L, int narg)
+WorldObject* Eluna::CHECK_WORLDOBJECT(lua_State* L, int narg)
 {
     if (!L)
-        return ElunaTemplate<Player>::check(LuaState, narg);
+        return ElunaTemplate<WorldObject>::check(LuaState, narg);
     else
-        return ElunaTemplate<Player>::check(L, narg);
+        return ElunaTemplate<WorldObject>::check(L, narg);
 }
 
 Unit * Eluna::CHECK_UNIT(lua_State* L, int narg)
 {
-    if (!L)
-        return ElunaTemplate<Unit>::check(LuaState, narg);
-    else
-        return ElunaTemplate<Unit>::check(L, narg);
+    return CHECK_WORLDOBJECT(L, narg)->ToUnit();
+}
+
+Player * Eluna::CHECK_PLAYER(lua_State* L, int narg)
+{
+    return CHECK_WORLDOBJECT(L, narg)->ToPlayer();
 }
 
 Creature * Eluna::CHECK_CREATURE(lua_State* L, int narg)
 {
-    if (!L)
-        return ElunaTemplate<Creature>::check(LuaState, narg);
-    else
-        return ElunaTemplate<Creature>::check(L, narg);
+    return CHECK_WORLDOBJECT(L, narg)->ToCreature();
 }
 
 GameObject* Eluna::CHECK_OBJECT(lua_State* L, int narg)
 {
-    if (!L)
-        return ElunaTemplate<GameObject>::check(LuaState, narg);
-    else
-        return ElunaTemplate<GameObject>::check(L, narg);
+    return CHECK_WORLDOBJECT(L, narg)->ToGameObject();
 }
 
 WorldPacket* Eluna::CHECK_PACKET(lua_State* L, int narg)
@@ -505,14 +501,6 @@ WorldPacket* Eluna::CHECK_PACKET(lua_State* L, int narg)
         return ElunaTemplate<WorldPacket>::check(LuaState, narg);
     else
         return ElunaTemplate<WorldPacket>::check(L, narg);
-}
-
-WorldObject* Eluna::CHECK_WORLDOBJECT(lua_State* L, int narg)
-{
-    if (!L)
-        return ElunaTemplate<WorldObject>::check(LuaState, narg);
-    else
-        return ElunaTemplate<WorldObject>::check(L, narg);
 }
 
 Quest* Eluna::CHECK_QUEST(lua_State* L, int narg)
