@@ -17340,7 +17340,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
     if (!map)
     {
         instanceId = 0;
-        AreaTrigger const* at = sObjectMgr->GetGoBackTrigger(mapId);
+        AreaTriggerStruct const* at = sObjectMgr->GetGoBackTrigger(mapId);
         if (at)
         {
             TC_LOG_ERROR(LOG_FILTER_PLAYER, "Player (guidlow %d) is teleported to gobacktrigger (Map: %u X: %f Y: %f Z: %f O: %f).", guid, mapId, GetPositionX(), GetPositionY(), GetPositionZ(), GetOrientation());
@@ -17372,7 +17372,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
     // if the player is in an instance and it has been reset in the meantime teleport him to the entrance
     if (instanceId && !sInstanceSaveMgr->GetInstanceSave(instanceId) && !map->IsBattlegroundOrArena())
     {
-        AreaTrigger const* at = sObjectMgr->GetMapEntranceTrigger(mapId);
+        AreaTriggerStruct const* at = sObjectMgr->GetMapEntranceTrigger(mapId);
         if (at)
             Relocate(at->target_X, at->target_Y, at->target_Z, at->target_Orientation);
         else
