@@ -484,6 +484,9 @@ uint32 Condition::GetSearcherTypeMaskForCondition()
         case CONDITION_UNIT_STATE:
             mask |= GRID_MAP_TYPE_MASK_CREATURE | GRID_MAP_TYPE_MASK_PLAYER;
             break;
+        case CONDITION_CREATURE_TYPE:
+            mask |= GRID_MAP_TYPE_MASK_CREATURE;
+            break;
         default:
             ASSERT(false && "Condition::GetSearcherTypeMaskForCondition - missing condition handling!");
             break;
