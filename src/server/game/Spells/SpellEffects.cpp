@@ -67,6 +67,7 @@
 #include "Guild.h"
 #include "GuildMgr.h"
 #include "ReputationMgr.h"
+#include "AreaTrigger.h"
 
 pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
 {
@@ -249,7 +250,7 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
     &Spell::EffectNULL,                                     //176 SPELL_EFFECT_176
     &Spell::EffectNULL,                                     //177 SPELL_EFFECT_177
     &Spell::EffectUnused,                                   //178 SPELL_EFFECT_178 unused
-    &Spell::EffectNULL,                                     //179 SPELL_EFFECT_CREATE_AREATRIGGER
+    &Spell::EffectCreateAreaTrigger,                        //179 SPELL_EFFECT_CREATE_AREATRIGGER
     &Spell::EffectUnused,                                   //180 SPELL_EFFECT_180 unused
     &Spell::EffectUnused,                                   //181 SPELL_EFFECT_181 unused
     &Spell::EffectNULL,                                     //182 SPELL_EFFECT_182
@@ -5893,4 +5894,23 @@ void Spell::EffectResurrectWithAura(SpellEffIndex effIndex)
     ExecuteLogEffectResurrect(effIndex, target);
     target->SetResurrectRequestData(m_caster, health, mana, resurrectAura);
     SendResurrectRequest(target);
+}
+
+void Spell::EffectCreateAreaTrigger(SpellEffIndex effIndex)
+{
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT)
+        return;
+
+    Position pos;
+    if (!m_targets.HasDst())
+        GetCaster()->GetPosition(&pos);
+    else
+        destTarget->GetPosition(&pos);
+
+    // trigger entry/miscvalue relation is currently unknown, for now use MiscValue as trigger entry
+    uint32 triggerEntry = GetSpellInfo()->Effects[effIndex].MiscValue;
+
+    AreaTrigger * areaTrigger = new AreaTrigger;
+    if (!areaTrigger->CreateAreaTrigger(sObjectMgr->GenerateLowGuid(HIGHGUID_AREATRIGGER), triggerEntry, GetCaster(), GetSpellInfo(), pos))
+        delete areaTrigger;
 }
