@@ -45,45 +45,45 @@ public:
     {
         instance_gundrak_InstanceMapScript(Map* map) : InstanceScript(map)
         {
-            bHeroicMode = map->IsHeroic();
+            isHeroic = map->IsHeroic();
         }
 
-        bool bHeroicMode;
+        bool isHeroic;
         bool spawnSupport;
 
         uint32 timer;
         uint32 phase;
         uint64 toActivate;
 
-        uint64 uiSladRan;
-        uint64 uiMoorabi;
-        uint64 uiDrakkariColossus;
-        uint64 uiGalDarah;
-        uint64 uiEckTheFerocious;
+        uint64 sladRanGUID;
+        uint64 moorabiGUID;
+        uint64 drakkariColossusGUID;
+        uint64 galDarahGUID;
+        uint64 eckTheFerociousGUID;
 
-        uint64 uiSladRanAltar;
-        uint64 uiMoorabiAltar;
-        uint64 uiDrakkariColossusAltar;
-        uint64 uiSladRanStatue;
-        uint64 uiMoorabiStatue;
-        uint64 uiDrakkariColossusStatue;
-        uint64 uiGalDarahStatue;
-        uint64 uiEckTheFerociousDoor;
-        uint64 uiEckTheFerociousDoorBehind;
-        uint64 uiGalDarahDoor1;
-        uint64 uiGalDarahDoor2;
-        uint64 uiGaldarahDoor;
-        uint64 uiBridge;
-        uint64 uiCollision;
+        uint64 sladRanAltarGUID;
+        uint64 moorabiAltarGUID;
+        uint64 drakkariColossusAltarGUID;
+        uint64 sladRanStatueGUID;
+        uint64 moorabiStatueGUID;
+        uint64 drakkariColossusStatueGUID;
+        uint64 galDarahStatueGUID;
+        uint64 eckTheFerociousDoorGUID;
+        uint64 eckTheFerociousDoorBehindGUID;
+        uint64 galDarahDoor1GUID;
+        uint64 galDarahDoor2GUID;
+        uint64 galDarahDoor3GUID;
+        uint64 bridgeGUID;
+        uint64 collisionGUID;
 
         uint32 m_auiEncounter[MAX_ENCOUNTER];
 
-        GOState uiSladRanStatueState;
-        GOState uiMoorabiStatueState;
-        GOState uiDrakkariColossusStatueState;
-        GOState uiGalDarahStatueState;
-        GOState uiBridgeState;
-        GOState uiCollisionState;
+        GOState sladRanStatueState;
+        GOState moorabiStatueState;
+        GOState drakkariColossusStatueState;
+        GOState galDarahStatueState;
+        GOState bridgeState;
+        GOState collisionState;
 
         std::set<uint64> DwellerGUIDs;
 
@@ -97,36 +97,36 @@ public:
             phase = 0;
             toActivate = 0;
 
-            uiSladRan = 0;
-            uiMoorabi = 0;
-            uiDrakkariColossus = 0;
-            uiGalDarah = 0;
-            uiEckTheFerocious = 0;
+            sladRanGUID = 0;
+            moorabiGUID = 0;
+            drakkariColossusGUID = 0;
+            galDarahGUID = 0;
+            eckTheFerociousGUID = 0;
 
-            uiSladRanAltar = 0;
-            uiMoorabiAltar = 0;
-            uiDrakkariColossusAltar = 0;
+            sladRanAltarGUID = 0;
+            moorabiAltarGUID = 0;
+            drakkariColossusAltarGUID = 0;
 
-            uiSladRanStatue = 0;
-            uiMoorabiStatue = 0;
-            uiDrakkariColossusStatue = 0;
-            uiGalDarahStatue = 0;
+            sladRanStatueGUID = 0;
+            moorabiStatueGUID = 0;
+            drakkariColossusStatueGUID = 0;
+            galDarahStatueGUID = 0;
 
-            uiEckTheFerociousDoor = 0;
-            uiEckTheFerociousDoorBehind = 0;
-            uiGalDarahDoor1 = 0;
-            uiGalDarahDoor2 = 0;
-            uiGaldarahDoor = 0;
+            eckTheFerociousDoorGUID = 0;
+            eckTheFerociousDoorBehindGUID = 0;
+            galDarahDoor1GUID = 0;
+            galDarahDoor2GUID = 0;
+            galDarahDoor3GUID = 0;
 
-            uiBridge = 0;
-            uiCollision = 0;
+            bridgeGUID = 0;
+            collisionGUID = 0;
 
-            uiSladRanStatueState = GO_STATE_ACTIVE;
-            uiMoorabiStatueState = GO_STATE_ACTIVE;
-            uiDrakkariColossusStatueState = GO_STATE_ACTIVE;
-            uiGalDarahStatueState = GO_STATE_READY;
-            uiBridgeState = GO_STATE_ACTIVE;
-            uiCollisionState = GO_STATE_READY;
+            sladRanStatueState = GO_STATE_ACTIVE;
+            moorabiStatueState = GO_STATE_ACTIVE;
+            drakkariColossusStatueState = GO_STATE_ACTIVE;
+            galDarahStatueState = GO_STATE_READY;
+            bridgeState = GO_STATE_ACTIVE;
+            collisionState = GO_STATE_READY;
 
             DwellerGUIDs.clear();
 
@@ -146,11 +146,21 @@ public:
         {
             switch (creature->GetEntry())
             {
-                case CREATURE_SLAD_RAN: uiSladRan = creature->GetGUID(); break;
-                case CREATURE_MOORABI: uiMoorabi = creature->GetGUID(); break;
-                case CREATURE_GALDARAH: uiGalDarah = creature->GetGUID(); break;
-                case CREATURE_DRAKKARICOLOSSUS: uiDrakkariColossus = creature->GetGUID(); break;
-                case CREATURE_ECK: uiEckTheFerocious = creature->GetGUID(); break;
+                case CREATURE_SLAD_RAN:
+                    sladRanGUID = creature->GetGUID();
+                    break;
+                case CREATURE_MOORABI:
+                    moorabiGUID = creature->GetGUID();
+                    break;
+                case CREATURE_GALDARAH:
+                    galDarahGUID = creature->GetGUID();
+                    break;
+                case CREATURE_DRAKKARICOLOSSUS:
+                    drakkariColossusGUID = creature->GetGUID();
+                    break;
+                case CREATURE_ECK:
+                    eckTheFerociousGUID = creature->GetGUID();
+                    break;
                 case CREATURE_RUIN_DWELLER:
                     if (creature->isAlive())
                         DwellerGUIDs.insert(creature->GetGUID());
@@ -162,13 +172,13 @@ public:
         {
             switch (go->GetEntry())
             {
-                case 192518:
-                    uiSladRanAltar = go->GetGUID();
+                case GO_SLADRAN_ALTAR:
+                    sladRanAltarGUID = go->GetGUID();
                     // Make sure that they start out as unusuable
                     go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
                     if (m_auiEncounter[0] == DONE)
                     {
-                        if (uiSladRanStatueState == GO_STATE_ACTIVE)
+                        if (sladRanStatueState == GO_STATE_ACTIVE)
                             go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
                         else
                         {
@@ -177,13 +187,13 @@ public:
                         }
                     }
                     break;
-                case 192519:
-                    uiMoorabiAltar = go->GetGUID();
+                case GO_MOORABI_ALTAR:
+                    moorabiAltarGUID = go->GetGUID();
                     // Make sure that they start out as unusuable
                     go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
                     if (m_auiEncounter[0] == DONE)
                     {
-                        if (uiMoorabiStatueState == GO_STATE_ACTIVE)
+                        if (moorabiStatueState == GO_STATE_ACTIVE)
                             go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
                         else
                         {
@@ -192,13 +202,13 @@ public:
                         }
                     }
                     break;
-                case 192520:
-                    uiDrakkariColossusAltar = go->GetGUID();
+                case GO_DRAKKARI_COLOSSUS_ALTAR:
+                    drakkariColossusAltarGUID = go->GetGUID();
                     // Make sure that they start out as unusuable
                     go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
                     if (m_auiEncounter[0] == DONE)
                     {
-                        if (uiDrakkariColossusStatueState == GO_STATE_ACTIVE)
+                        if (drakkariColossusStatueState == GO_STATE_ACTIVE)
                             go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
                         else
                         {
@@ -207,57 +217,57 @@ public:
                         }
                     }
                     break;
-                case 192564:
-                    uiSladRanStatue = go->GetGUID();
-                    go->SetGoState(uiSladRanStatueState);
+                case GO_SLADRAN_STATUE:
+                    sladRanStatueGUID = go->GetGUID();
+                    go->SetGoState(sladRanStatueState);
                     break;
-                case 192565:
-                    uiMoorabiStatue = go->GetGUID();
-                    go->SetGoState(uiMoorabiStatueState);
+                case GO_MOORABI_STATUE:
+                    moorabiStatueGUID = go->GetGUID();
+                    go->SetGoState(moorabiStatueState);
                     break;
-                case 192566:
-                    uiGalDarahStatue = go->GetGUID();
-                    go->SetGoState(uiGalDarahStatueState);
+                case GO_GALDARAH_STATUE:
+                    galDarahStatueGUID = go->GetGUID();
+                    go->SetGoState(galDarahStatueState);
                     break;
-                case 192567:
-                    uiDrakkariColossusStatue = go->GetGUID();
-                    go->SetGoState(uiDrakkariColossusStatueState);
+                case GO_DRAKKARI_COLOSSUS_STATUE:
+                    drakkariColossusStatueGUID = go->GetGUID();
+                    go->SetGoState(drakkariColossusStatueState);
                     break;
-                case 192632:
-                    uiEckTheFerociousDoor = go->GetGUID();
-                    if (bHeroicMode && m_auiEncounter[1] == DONE)
+                case GO_ECK_THE_FEROCIOUS_DOOR:
+                    eckTheFerociousDoorGUID = go->GetGUID();
+                    if (isHeroic && m_auiEncounter[1] == DONE)
                         HandleGameObject(0, true, go);
                     break;
-                case 192569:
-                    uiEckTheFerociousDoorBehind = go->GetGUID();
-                    if (bHeroicMode && m_auiEncounter[4] == DONE)
+                case GO_ECK_THE_FEROCIOUS_DOOR_BEHIND:
+                    eckTheFerociousDoorBehindGUID = go->GetGUID();
+                    if (isHeroic && m_auiEncounter[4] == DONE)
                         HandleGameObject(0, true, go);
-                case 193208:
-                    uiGalDarahDoor1 = go->GetGUID();
+                case GO_GALDARAH_DOOR1:
+                    galDarahDoor1GUID = go->GetGUID();
                     if (m_auiEncounter[3] == DONE)
                         HandleGameObject(0, true, go);
                     break;
-                case 193209:
-                    uiGalDarahDoor2 = go->GetGUID();
+                case GO_GALDARAH_DOOR2:
+                    galDarahDoor2GUID = go->GetGUID();
                     if (m_auiEncounter[3] == DONE)
                         HandleGameObject(0, true, go);
                     break;
-                case 193188:
-                    uiBridge = go->GetGUID();
-                    go->SetGoState(uiBridgeState);
+                case GO_BRIDGE:
+                    bridgeGUID = go->GetGUID();
+                    go->SetGoState(bridgeState);
                     break;
-                case 192633:
-                    uiCollision = go->GetGUID();
-                    go->SetGoState(uiCollisionState);
+                case GO_COLLISION:
+                    collisionGUID = go->GetGUID();
+                    go->SetGoState(collisionState);
 
                     // Can't spawn here with SpawnGameObject because go isn't added to world yet...
-                    if (uiCollisionState == GO_STATE_ACTIVE_ALTERNATIVE)
+                    if (collisionState == GO_STATE_ACTIVE_ALTERNATIVE)
                         spawnSupport = true;
                     break;
-                case 192568:
-                    uiGaldarahDoor = go->GetGUID();
+                case GO_GALDARAH_DOOR3:
+                    galDarahDoor3GUID = go->GetGUID();
                     if (m_auiEncounter[3] != IN_PROGRESS)
-                        HandleGameObject(uiGaldarahDoor, true, go);
+                        HandleGameObject(galDarahDoor3GUID, true, go);
                     break;
             }
         }
@@ -270,7 +280,7 @@ public:
                 m_auiEncounter[0] = data;
                 if (data == DONE)
                 {
-                  GameObject* go = instance->GetGameObject(uiSladRanAltar);
+                  GameObject* go = instance->GetGameObject(sladRanAltarGUID);
                   if (go)
                       go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
                 }
@@ -279,18 +289,18 @@ public:
                 m_auiEncounter[1] = data;
                 if (data == DONE)
                 {
-                  GameObject* go = instance->GetGameObject(uiMoorabiAltar);
+                  GameObject* go = instance->GetGameObject(moorabiAltarGUID);
                   if (go)
                       go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
-                  if (bHeroicMode)
-                      HandleGameObject(uiEckTheFerociousDoor, true);
+                  if (isHeroic)
+                      HandleGameObject(eckTheFerociousDoorGUID, true);
                 }
                 break;
             case DATA_DRAKKARI_COLOSSUS_EVENT:
                 m_auiEncounter[2] = data;
                 if (data == DONE)
                 {
-                  GameObject* go = instance->GetGameObject(uiDrakkariColossusAltar);
+                  GameObject* go = instance->GetGameObject(drakkariColossusAltarGUID);
                   if (go)
                       go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
                 }
@@ -299,15 +309,15 @@ public:
                 m_auiEncounter[3] = data;
                 if (data == DONE)
                 {
-                    HandleGameObject(uiGalDarahDoor1, true);
-                    HandleGameObject(uiGalDarahDoor2, true);
+                    HandleGameObject(galDarahDoor1GUID, true);
+                    HandleGameObject(galDarahDoor2GUID, true);
                 }
-                HandleGameObject(uiGaldarahDoor, data == IN_PROGRESS ? false : true);
+                HandleGameObject(galDarahDoor3GUID, data == IN_PROGRESS ? false : true);
                 break;
             case DATA_ECK_THE_FEROCIOUS_EVENT:
                 m_auiEncounter[4] = data;
-                if (bHeroicMode && data == DONE)
-                    HandleGameObject(uiEckTheFerociousDoorBehind, true);
+                if (isHeroic && data == DONE)
+                    HandleGameObject(eckTheFerociousDoorBehindGUID, true);
                 break;
             }
 
@@ -353,19 +363,19 @@ public:
             switch (type)
             {
                 case DATA_SLAD_RAN_ALTAR:
-                    return uiSladRanAltar;
+                    return sladRanAltarGUID;
                 case DATA_MOORABI_ALTAR:
-                    return uiMoorabiAltar;
+                    return moorabiAltarGUID;
                 case DATA_DRAKKARI_COLOSSUS_ALTAR:
-                    return uiDrakkariColossusAltar;
+                    return drakkariColossusAltarGUID;
                 case DATA_SLAD_RAN_STATUE:
-                    return uiSladRanStatue;
+                    return sladRanStatueGUID;
                 case DATA_MOORABI_STATUE:
-                    return uiMoorabiStatue;
+                    return moorabiStatueGUID;
                 case DATA_DRAKKARI_COLOSSUS_STATUE:
-                    return uiDrakkariColossusStatue;
+                    return drakkariColossusStatueGUID;
                 case DATA_DRAKKARI_COLOSSUS:
-                    return uiDrakkariColossus;
+                    return drakkariColossusGUID;
                 case DATA_STATUE_ACTIVATE:
                     return toActivate;
             }
@@ -380,9 +390,9 @@ public:
             std::ostringstream saveStream;
             saveStream << "G D " << m_auiEncounter[0] << ' ' << m_auiEncounter[1] << ' '
                  << m_auiEncounter[2] << ' ' << m_auiEncounter[3] << ' ' << m_auiEncounter[4] << ' '
-                 << (uiSladRanStatue ? GetObjState(uiSladRanStatue) : GO_STATE_ACTIVE) << ' ' << (uiMoorabiStatue ? GetObjState(uiMoorabiStatue) : GO_STATE_ACTIVE) << ' '
-                 << (uiDrakkariColossusStatue ? GetObjState(uiDrakkariColossusStatue) : GO_STATE_ACTIVE) << ' ' << (uiGalDarahStatue ? GetObjState(uiGalDarahStatue) : GO_STATE_READY) << ' '
-                 << (uiBridge ? GetObjState(uiBridge) : GO_STATE_ACTIVE) << ' ' << (uiCollision ? GetObjState(uiCollision) : GO_STATE_READY);
+                 << (sladRanStatueGUID ? GetObjState(sladRanStatueGUID) : GO_STATE_ACTIVE) << ' ' << (moorabiStatueGUID ? GetObjState(moorabiStatueGUID) : GO_STATE_ACTIVE) << ' '
+                 << (drakkariColossusStatueGUID ? GetObjState(drakkariColossusStatueGUID) : GO_STATE_ACTIVE) << ' ' << (galDarahStatueGUID ? GetObjState(galDarahStatueGUID) : GO_STATE_READY) << ' '
+                 << (bridgeGUID ? GetObjState(bridgeGUID) : GO_STATE_ACTIVE) << ' ' << (collisionGUID ? GetObjState(collisionGUID) : GO_STATE_READY);
 
             str_data = saveStream.str();
 
@@ -414,12 +424,12 @@ public:
                 m_auiEncounter[2] = data2;
                 m_auiEncounter[3] = data3;
                 m_auiEncounter[4] = data4;
-                uiSladRanStatueState            = GOState(data5);
-                uiMoorabiStatueState            = GOState(data6);
-                uiDrakkariColossusStatueState   = GOState(data7);
-                uiGalDarahStatueState           = GOState(data8);
-                uiBridgeState                   = GOState(data9);
-                uiCollisionState                = GOState(data10);
+                sladRanStatueState            = GOState(data5);
+                moorabiStatueState            = GOState(data6);
+                drakkariColossusStatueState   = GOState(data7);
+                galDarahStatueState           = GOState(data8);
+                bridgeState                   = GOState(data9);
+                collisionState                = GOState(data10);
 
                 for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
                     if (m_auiEncounter[i] == IN_PROGRESS)
@@ -434,8 +444,8 @@ public:
              // Spawn the support for the bridge if necessary
              if (spawnSupport)
              {
-                 if (GameObject* pCollision = instance->GetGameObject(uiCollision))
-                     pCollision->SummonGameObject(192743, pCollision->GetPositionX(), pCollision->GetPositionY(), pCollision->GetPositionZ(), pCollision->GetOrientation(), 0, 0, 0, 0, 0);
+                 if (GameObject* collision = instance->GetGameObject(collisionGUID))
+                     collision->SummonGameObject(192743, collision->GetPositionX(), collision->GetPositionY(), collision->GetPositionZ(), collision->GetOrientation(), 0, 0, 0, 0, 0);
                  spawnSupport = false;
              }
 
@@ -446,25 +456,25 @@ public:
              if (timer < diff)
              {
                  timer = 0;
-                 if (toActivate == uiBridge)
+                 if (toActivate == bridgeGUID)
                  {
-                     GameObject* pBridge = instance->GetGameObject(uiBridge);
-                     GameObject* pCollision = instance->GetGameObject(uiCollision);
-                     GameObject* pSladRanStatue = instance->GetGameObject(uiSladRanStatue);
-                     GameObject* pMoorabiStatue = instance->GetGameObject(uiMoorabiStatue);
-                     GameObject* pDrakkariColossusStatue = instance->GetGameObject(uiDrakkariColossusStatue);
-                     GameObject* pGalDarahStatue = instance->GetGameObject(uiGalDarahStatue);
+                     GameObject* bridge = instance->GetGameObject(bridgeGUID);
+                     GameObject* collision = instance->GetGameObject(collisionGUID);
+                     GameObject* sladRanStatue = instance->GetGameObject(sladRanStatueGUID);
+                     GameObject* moorabiStatue = instance->GetGameObject(moorabiStatueGUID);
+                     GameObject* drakkariColossusStatue = instance->GetGameObject(drakkariColossusStatueGUID);
+                     GameObject* galDarahStatue = instance->GetGameObject(galDarahStatueGUID);
 
                      toActivate = 0;
 
-                     if (pBridge && pCollision && pSladRanStatue && pMoorabiStatue && pDrakkariColossusStatue && pGalDarahStatue)
+                     if (bridge && collision && sladRanStatue && moorabiStatue && drakkariColossusStatue && galDarahStatue)
                      {
-                         pBridge->SetGoState(GO_STATE_ACTIVE_ALTERNATIVE);
-                         pCollision->SetGoState(GO_STATE_ACTIVE_ALTERNATIVE);
-                         pSladRanStatue->SetGoState(GO_STATE_ACTIVE_ALTERNATIVE);
-                         pMoorabiStatue->SetGoState(GO_STATE_ACTIVE_ALTERNATIVE);
-                         pDrakkariColossusStatue->SetGoState(GO_STATE_ACTIVE_ALTERNATIVE);
-                         pGalDarahStatue->SetGoState(GO_STATE_ACTIVE_ALTERNATIVE);
+                         bridge->SetGoState(GO_STATE_ACTIVE_ALTERNATIVE);
+                         collision->SetGoState(GO_STATE_ACTIVE_ALTERNATIVE);
+                         sladRanStatue->SetGoState(GO_STATE_ACTIVE_ALTERNATIVE);
+                         moorabiStatue->SetGoState(GO_STATE_ACTIVE_ALTERNATIVE);
+                         drakkariColossusStatue->SetGoState(GO_STATE_ACTIVE_ALTERNATIVE);
+                         galDarahStatue->SetGoState(GO_STATE_ACTIVE_ALTERNATIVE);
 
                          // Add the GO that solidifies the bridge so you can walk on it
                          spawnSupport = true;
@@ -474,27 +484,27 @@ public:
                  else
                  {
                      uint32 spell = 0;
-                     GameObject* pAltar = NULL;
-                     if (toActivate == uiSladRanStatue)
+                     GameObject* altar = NULL;
+                     if (toActivate == sladRanStatueGUID)
                      {
                          spell = 57071;
-                         pAltar = instance->GetGameObject(uiSladRanAltar);
+                         altar = instance->GetGameObject(sladRanAltarGUID);
                      }
-                     else if (toActivate == uiMoorabiStatue)
+                     else if (toActivate == moorabiStatueGUID)
                      {
                          spell = 57068;
-                         pAltar = instance->GetGameObject(uiMoorabiAltar);
+                         altar = instance->GetGameObject(moorabiAltarGUID);
                      }
-                     else if (toActivate == uiDrakkariColossusStatue)
+                     else if (toActivate == drakkariColossusStatueGUID)
                      {
                          spell = 57072;
-                         pAltar = instance->GetGameObject(uiDrakkariColossusAltar);
+                         altar = instance->GetGameObject(drakkariColossusAltarGUID);
                      }
 
                      // This is a workaround to make the beam cast properly. The caster should be ID 30298 but since the spells
                      // all are with scripted target for that same ID, it will hit itself.
-                     if (pAltar)
-                         if (Creature* trigger = pAltar->SummonCreature(18721, pAltar->GetPositionX(), pAltar->GetPositionY(), pAltar->GetPositionZ() + 3, pAltar->GetOrientation(), TEMPSUMMON_CORPSE_DESPAWN, 5000))
+                     if (altar)
+                         if (Creature* trigger = altar->SummonCreature(18721, altar->GetPositionX(), altar->GetPositionY(), altar->GetPositionZ() + 3, altar->GetOrientation(), TEMPSUMMON_CORPSE_DESPAWN, 5000))
                          {
                              // Set the trigger model to invisible
                              trigger->SetDisplayId(11686);
@@ -507,7 +517,7 @@ public:
                      toActivate = 0;
 
                      if (phase == 3)
-                         SetData64(DATA_STATUE_ACTIVATE, uiBridge);
+                         SetData64(DATA_STATUE_ACTIVATE, bridgeGUID);
                      else
                          SaveToDB(); // Don't save in between last statue and bridge turning in case of crash leading to stuck instance
                 }
@@ -534,7 +544,7 @@ public:
     bool OnGossipHello(Player* /*player*/, GameObject* go)
     {
         InstanceScript* instance = go->GetInstanceScript();
-        uint64 uiStatue = 0;
+        uint64 statueGUID = 0;
 
         go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
         go->SetGoState(GO_STATE_ACTIVE);
@@ -543,20 +553,20 @@ public:
         {
             switch (go->GetEntry())
             {
-                case 192518:
-                    uiStatue = instance->GetData64(DATA_SLAD_RAN_STATUE);
+                case GO_SLADRAN_ALTAR:
+                    statueGUID = instance->GetData64(DATA_SLAD_RAN_STATUE);
                     break;
-                case 192519:
-                    uiStatue = instance->GetData64(DATA_MOORABI_STATUE);
+                case GO_MOORABI_ALTAR:
+                    statueGUID = instance->GetData64(DATA_MOORABI_STATUE);
                     break;
-                case 192520:
-                    uiStatue = instance->GetData64(DATA_DRAKKARI_COLOSSUS_STATUE);
+                case GO_DRAKKARI_COLOSSUS_ALTAR:
+                    statueGUID = instance->GetData64(DATA_DRAKKARI_COLOSSUS_STATUE);
                     break;
             }
 
             if (!instance->GetData64(DATA_STATUE_ACTIVATE))
             {
-                instance->SetData64(DATA_STATUE_ACTIVATE, uiStatue);
+                instance->SetData64(DATA_STATUE_ACTIVATE, statueGUID);
                 go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
                 go->SetGoState(GO_STATE_ACTIVE);
             }
