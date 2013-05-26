@@ -428,6 +428,9 @@ uint32 Condition::GetSearcherTypeMaskForCondition()
                 case TYPEID_CORPSE:
                     mask |= GRID_MAP_TYPE_MASK_CORPSE;
                     break;
+                case TYPEID_AREATRIGGER:
+                    mask |= GRID_MAP_TYPE_MASK_AREATRIGGER;
+                    break;
                 default:
                     break;
             }
@@ -441,6 +444,8 @@ uint32 Condition::GetSearcherTypeMaskForCondition()
                 mask |= GRID_MAP_TYPE_MASK_GAMEOBJECT;
             if (ConditionValue1 & TYPEMASK_CORPSE)
                 mask |= GRID_MAP_TYPE_MASK_CORPSE;
+            if (ConditionValue1 & TYPEMASK_AREATRIGGER)
+                mask |= GRID_MAP_TYPE_MASK_AREATRIGGER;
             break;
         case CONDITION_RELATION_TO:
             mask |= GRID_MAP_TYPE_MASK_CREATURE | GRID_MAP_TYPE_MASK_PLAYER;
