@@ -1,6 +1,5 @@
 /*
  * Copyright (C) 2008-2013 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -79,8 +78,8 @@ bool AreaTrigger::CreateAreaTrigger(uint32 guidlow, uint32 triggerEntry, Unit* c
     SetUInt32Value(AREATRIGGER_SPELLVISUALID, spell->SpellVisual[0]);
     SetUInt32Value(AREATRIGGER_SPELLID, spell->Id);
     SetUInt32Value(AREATRIGGER_DURATION, spell->GetDuration());
-    SetFloatValue(AREATRIGGER_FINAL_POS + 0, pos.GetPositionX() + 5.0f);
-    SetFloatValue(AREATRIGGER_FINAL_POS + 1, pos.GetPositionY() + 5.0f);
+    SetFloatValue(AREATRIGGER_FINAL_POS + 0, pos.GetPositionX());
+    SetFloatValue(AREATRIGGER_FINAL_POS + 1, pos.GetPositionY());
     SetFloatValue(AREATRIGGER_FINAL_POS + 2, pos.GetPositionZ());
 
     if (!GetMap()->AddToMap(this))
