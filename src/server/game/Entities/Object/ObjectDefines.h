@@ -33,6 +33,7 @@ enum HighGuid
     HIGHGUID_VEHICLE        = 0xF15,                       // blizz F550
     HIGHGUID_DYNAMICOBJECT  = 0xF10,                       // blizz F100
     HIGHGUID_CORPSE         = 0xF101,                      // blizz F100
+    HIGHGUID_AREATRIGGER    = 0xF102,                      // blizz F100
     HIGHGUID_BATTLEGROUND   = 0x1F1,                       // new 4.x
     HIGHGUID_MO_TRANSPORT   = 0x1FC,                       // blizz 1FC0 (for GAMEOBJECT_TYPE_MO_TRANSPORT)
     HIGHGUID_GROUP          = 0x1F5,
@@ -64,6 +65,7 @@ inline bool IS_CORPSE_GUID(uint64 guid);
 inline bool IS_TRANSPORT_GUID(uint64 guid);
 inline bool IS_MO_TRANSPORT_GUID(uint64 guid);
 inline bool IS_GROUP_GUID(uint64 guid);
+inline bool IS_AREATRIGGER_GUID(uint64 guid);
 
 // l - OBJECT_FIELD_GUID
 // e - OBJECT_FIELD_ENTRY for GO (except GAMEOBJECT_TYPE_MO_TRANSPORT) and creatures or UNIT_FIELD_PETNUMBER for pets
@@ -193,15 +195,20 @@ bool IS_GROUP_GUID(uint64 guid)
     return GUID_HIPART(guid) == HIGHGUID_GROUP;
 }
 
+bool IS_AREATRIGGER_GUID(uint64 guid)
+{
+    return GUID_HIPART(guid) == HIGHGUID_AREATRIGGER;
+}
+
 uint64 MAKE_NEW_GUID(uint32 l, uint32 e, uint32 h)
 {
-    return uint64(uint64(l) | (uint64(e) << 32) | (uint64(h) << ((h == HIGHGUID_CORPSE) ? 48 : 52)));
+    return uint64(uint64(l) | (uint64(e) << 32) | (uint64(h) << ((h == HIGHGUID_CORPSE || h == HIGHGUID_AREATRIGGER) ? 48 : 52)));
 }
 
 uint32 GUID_HIPART(uint64 guid)
 {
     uint32 t = ((uint64(guid) >> 48) & 0x0000FFFF);
-    return (t == HIGHGUID_CORPSE) ? t : ((t >> 4) & 0x00000FFF);
+    return (t == HIGHGUID_CORPSE || t == HIGHGUID_AREATRIGGER) ? t : ((t >> 4) & 0x00000FFF);
 }
 
 uint32 GUID_ENPART(uint64 x)
@@ -234,6 +241,7 @@ bool IsGuidHaveEnPart(uint64 guid)
         case HIGHGUID_PET:
         case HIGHGUID_VEHICLE:
         case HIGHGUID_MO_TRANSPORT:
+        case HIGHGUID_AREATRIGGER:
         default:
             return true;
     }
@@ -255,6 +263,7 @@ char const* GetLogNameForGuid(uint64 guid)
         case HIGHGUID_MO_TRANSPORT: return "mo_transport";
         case HIGHGUID_GROUP:        return "group";
         case HIGHGUID_GUILD:        return "guild";
+        case HIGHGUID_AREATRIGGER:  return "areatrigger";
         default:
             return "<unknown>";
     }

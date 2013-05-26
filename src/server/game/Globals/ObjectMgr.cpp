@@ -239,6 +239,7 @@ ObjectMgr::ObjectMgr():
     _hiGoGuid(1),
     _hiDoGuid(1),
     _hiCorpseGuid(1),
+    _hiAreaTriggerGuid(1),
     _hiMoTransGuid(1)
 {
     for (uint8 i = 0; i < MAX_CLASSES; ++i)
@@ -6209,6 +6210,11 @@ uint32 ObjectMgr::GenerateLowGuid(HighGuid guidhigh)
         {
             ASSERT(_hiCorpseGuid < 0xFFFFFFFE && "Corpse guid overflow!");
             return _hiCorpseGuid++;
+        }
+        case HIGHGUID_AREATRIGGER:
+        {
+            ASSERT(_hiAreaTriggerGuid < 0xFFFFFFFE && "AreaTrigger guid overflow!");
+            return _hiAreaTriggerGuid++;
         }
         case HIGHGUID_DYNAMICOBJECT:
         {
