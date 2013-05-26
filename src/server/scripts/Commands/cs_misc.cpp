@@ -382,6 +382,8 @@ public:
             }
 
             handler->PSendSysMessage(LANG_APPEARING_AT, chrNameLink.c_str());
+            
+            ChatHandler(target->GetSession()).PSendSysMessage(LANG_APPEARING_TO, handler->GetNameLink());
 
             // stop flight if need
             if (_player->isInFlight())
