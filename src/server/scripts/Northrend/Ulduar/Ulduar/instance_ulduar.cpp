@@ -302,6 +302,7 @@ class instance_ulduar : public InstanceMapScript
                     case NPC_AURIAYA:
                         AuriayaGUID = creature->GetGUID();
                         break;
+
                     // Mimiron
                     case NPC_MIMIRON:
                         MimironGUID = creature->GetGUID();
@@ -910,6 +911,12 @@ class instance_ulduar : public InstanceMapScript
                         return KologarnGUID;
                     case DATA_AURIAYA:
                         return AuriayaGUID;
+                    case DATA_HODIR:
+                        return HodirGUID;
+                    case DATA_THORIM:
+                        return ThorimGUID;
+
+                    // Mimiron
                     case DATA_MIMIRON:
                         return MimironGUID;
                     case DATA_VX_001:
@@ -920,10 +927,6 @@ class instance_ulduar : public InstanceMapScript
                         return AerialUnitGUID;
                     case DATA_MAGNETIC_CORE:
                         return MagneticCoreGUID;
-                    case DATA_HODIR:
-                        return HodirGUID;
-                    case DATA_THORIM:
-                        return ThorimGUID;
 
                     // Freya
                     case DATA_FREYA:
@@ -1172,22 +1175,22 @@ class go_call_tram : public GameObjectScript
 public:
     go_call_tram() : GameObjectScript("go_call_tram") { }
 
-    bool OnGossipHello(Player* /*pPlayer*/, GameObject* pGo)
+    bool OnGossipHello(Player* /*player*/, GameObject* go)
     {
-        InstanceScript* pInstance = pGo->GetInstanceScript();
+        InstanceScript* instance = go->GetInstanceScript();
 
-        if (!pInstance)
+        if (!instance)
             return false;
 
-        switch (pGo->GetEntry())
+        switch (go->GetEntry())
         {
             case 194914:
             case 194438:
-                pInstance->SetData(DATA_CALL_TRAM, 0);
+                instance->SetData(DATA_CALL_TRAM, 0);
                 break;
             case 194912:
             case 194437:
-                pInstance->SetData(DATA_CALL_TRAM, 1);
+                instance->SetData(DATA_CALL_TRAM, 1);
                 break;
         }
         return true;

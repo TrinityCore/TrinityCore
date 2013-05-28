@@ -153,6 +153,7 @@ enum Events
     EVENT_HEAT_WAVE,
     EVENT_HAND_PULSE,
     EVENT_FROST_BOMB,
+    EVENT_FLAME_SUPPRESSANT_VX001,
     // Aerial Command Unit
     EVENT_PLASMA_BALL,
     EVENT_REACTIVATE_AERIAL,
@@ -424,12 +425,12 @@ class boss_mimiron : public CreatureScript
                         case EVENT_INTRO_7:
                             if (instance)
                             {
-                                 if (Creature* Leviathan = me->GetCreature(*me, instance->GetData64(DATA_LEVIATHAN_MK_II)))
-                                 {
+                                if (Creature* Leviathan = me->GetCreature(*me, instance->GetData64(DATA_LEVIATHAN_MK_II)))
+                                {
                                     me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_STAND);
                                     Leviathan->AI()->DoAction(DO_START_ENCOUNTER);
                                     events.SetPhase(PHASE_COMBAT);
-                                 }
+                                }
                             }
                             break;
                         case EVENT_VX001_1:
@@ -958,6 +959,7 @@ class boss_vx_001 : public CreatureScript
                 {
                     DoCast(me, SPELL_EMERGENCY_MODE);
                     events.ScheduleEvent(EVENT_FROST_BOMB, 15000);
+                    events.ScheduleEvent(EVENT_FLAME_SUPPRESSANT_VX001, 1000);
                 }
 
                 events.ScheduleEvent(EVENT_RAPID_BURST, 2500, 0, PHASE_VX001_SOLO);
@@ -1123,6 +1125,10 @@ class boss_vx_001 : public CreatureScript
                             case EVENT_FROST_BOMB:
                                 me->SummonCreature(NPC_FROST_BOMB, SummonPos[rand()%9], TEMPSUMMON_TIMED_DESPAWN, 11000);
                                 events.RescheduleEvent(EVENT_FROST_BOMB, 45000);
+                                break;
+                            case EVENT_FLAME_SUPPRESSANT_VX001:
+                                DoCastAOE(SPELL_FLAME_SUPPRESSANT_VX001);
+                                events.RescheduleEvent(EVENT_FLAME_SUPPRESSANT_VX001, 10000);
                                 break;
                         }
                     }

@@ -62,7 +62,7 @@ class go_naxxramas_portal : public GameObjectScript
             player->CastSpell(player, SPELL_PORTAL, true);
 
             return true;
-         }
+        }
  };
 
 class go_orb_of_naxxramas : public GameObjectScript
@@ -72,10 +72,10 @@ class go_orb_of_naxxramas : public GameObjectScript
 
         bool OnGossipHello(Player* player, GameObject* go)
         {
-             SpellInfo const* spell = sSpellMgr->GetSpellInfo(SPELL_ORB_TELEPORT_1);
-             SpellInfo const* spell2 = sSpellMgr->GetSpellInfo(SPELL_ORB_TELEPORT_2);
-             switch (go->GetEntry())
-             {
+            SpellInfo const* spell = sSpellMgr->GetSpellInfo(SPELL_ORB_TELEPORT_1);
+            SpellInfo const* spell2 = sSpellMgr->GetSpellInfo(SPELL_ORB_TELEPORT_2);
+            switch (go->GetEntry())
+            {
                 case 202278:
                     if (player->isInCombat())
                     {
@@ -92,9 +92,9 @@ class go_orb_of_naxxramas : public GameObjectScript
                     }
                     player->CastSpell(player, SPELL_ORB_TELEPORT_2, true);
                     break;
-             }
-             return true;
-         }
+            }
+            return true;
+        }
  };
 
 void AddSC_naxxramas()
