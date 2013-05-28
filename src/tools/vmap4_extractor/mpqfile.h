@@ -54,7 +54,7 @@ class MPQFile
     void operator=(const MPQFile &f);
 
 public:
-    MPQFile(HANDLE mpq, const char* filename);    // filenames are not case sensitive
+    MPQFile(HANDLE mpq, const char* filename, bool warnNoExist = true);    // filenames are not case sensitive
     ~MPQFile() { close(); }
     size_t read(void* dest, size_t bytes);
     size_t getSize() { return size; }

@@ -3,7 +3,7 @@
 #include <cstdio>
 #include "StormLib.h"
 
-MPQFile::MPQFile(HANDLE mpq, const char* filename):
+MPQFile::MPQFile(HANDLE mpq, const char* filename, bool warnNoExist /*= true*/) :
     eof(false),
     buffer(0),
     pointer(0),
@@ -12,7 +12,8 @@ MPQFile::MPQFile(HANDLE mpq, const char* filename):
     HANDLE file;
     if (!SFileOpenFileEx(mpq, filename, SFILE_OPEN_PATCHED_FILE, &file))
     {
-        fprintf(stderr, "Can't open %s, err=%u!\n", filename, GetLastError());
+        if (warnNoExist || GetLastError() != ERROR_FILE_NOT_FOUND)
+            fprintf(stderr, "Can't open %s, err=%u!\n", filename, GetLastError());
         eof = true;
         return;
     }
@@ -22,7 +23,7 @@ MPQFile::MPQFile(HANDLE mpq, const char* filename):
 
     if (hi)
     {
-        fprintf(stderr, "Can't open %s, size[hi] = %u!\n", filename, (uint32)hi);
+        fprintf(stderr, "Can't open %s, size[hi] = %u!\n", filename, uint32(hi));
         SFileCloseFile(file);
         eof = true;
         return;
@@ -30,7 +31,7 @@ MPQFile::MPQFile(HANDLE mpq, const char* filename):
 
     if (size <= 1)
     {
-        fprintf(stderr, "Can't open %s, size = %u!\n", filename, size);
+        fprintf(stderr, "Can't open %s, size = %u!\n", filename, uint32(size));
         SFileCloseFile(file);
         eof = true;
         return;
@@ -40,7 +41,7 @@ MPQFile::MPQFile(HANDLE mpq, const char* filename):
     buffer = new char[size];
     if (!SFileReadFile(file, buffer, size, &read) || size != read)
     {
-        fprintf(stderr, "Can't read %s, size=%u read=%u!\n", filename, size, read);
+        fprintf(stderr, "Can't read %s, size=%u read=%u!\n", filename, uint32(size), uint32(read));
         SFileCloseFile(file);
         eof = true;
         return;
