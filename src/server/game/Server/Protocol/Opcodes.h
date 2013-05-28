@@ -1412,12 +1412,12 @@ struct OpcodeHandler
 {
     OpcodeHandler() {}
     OpcodeHandler(char const* _name, SessionStatus _status, PacketProcessing _processing, pOpcodeHandler _handler)
-        : Name(_name), Status(_status), ProcessingPlace(_processing), Handler(_handler) {}
+        : Handler(_handler), Name(_name), Status(_status), ProcessingPlace(_processing) {}
 
+    pOpcodeHandler Handler;
     char const* Name;
     SessionStatus Status;
     PacketProcessing ProcessingPlace;
-    pOpcodeHandler Handler;
 };
 
 class OpcodeTable
