@@ -75,8 +75,8 @@ bool AreaTrigger::CreateAreaTrigger(uint32 guidlow, uint32 triggerEntry, Unit* c
     SetDuration(spell->GetDuration());
     SetObjectScale(1);
 
-    SetUInt32Value(AREATRIGGER_SPELLVISUALID, spell->SpellVisual[0]);
     SetUInt32Value(AREATRIGGER_SPELLID, spell->Id);
+    SetUInt32Value(AREATRIGGER_SPELLVISUALID, spell->SpellVisual[0]);
     SetUInt32Value(AREATRIGGER_DURATION, spell->GetDuration());
     SetFloatValue(AREATRIGGER_FINAL_POS + 0, pos.GetPositionX());
     SetFloatValue(AREATRIGGER_FINAL_POS + 1, pos.GetPositionY());
@@ -95,7 +95,7 @@ void AreaTrigger::Update(uint32 p_time)
     else
         Remove(); // expired
 
-    Object::Update(p_time);
+    WorldObject::Update(p_time);
 }
 
 void AreaTrigger::Remove()
